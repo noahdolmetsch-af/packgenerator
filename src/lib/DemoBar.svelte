@@ -56,7 +56,7 @@
     padding: 8px var(--gut);
     background: #ffd84d;
     color: #1f1a00;
-    font-size: 15px;
+    font-size: var(--fs-body);
   }
   .t {
     min-width: 0;
@@ -79,12 +79,12 @@
     border-radius: 6px;
     background: transparent;
     color: inherit;
-    font: 700 15px var(--font-body);
+    font: 700 var(--fs-body) var(--font-body);
     cursor: pointer;
   }
   .note {
     flex-basis: 100%;
     margin: 0;
-    font-size: 14px;
+    font-size: var(--fs-small);
   }
 </style>

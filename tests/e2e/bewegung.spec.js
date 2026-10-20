@@ -105,9 +105,10 @@ test('4b: a ticked item slides down to the packed ones, but only a moment after 
   await items.first().click();
   // right after the tap the row stays under the finger
   await expect(items.first()).toHaveAttribute('aria-pressed', 'true');
-  await expect(items.first().locator('.nm')).toHaveText(name);
+  // UI-Grundlagen (Noah 20.10.2026, changed on purpose): a packed row adds the word «drin» after its name
+  await expect(items.first().locator('.nm')).toContainText(name);
   // a moment later it has moved down below the open items
   await expect(items.last()).toHaveAttribute('aria-pressed', 'true', { timeout: 4000 });
-  await expect(items.last().locator('.nm')).toHaveText(name);
+  await expect(items.last().locator('.nm')).toContainText(name);
   await expect(items.first()).toHaveAttribute('aria-pressed', 'false');
 });

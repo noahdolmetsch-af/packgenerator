@@ -215,7 +215,7 @@
     color: var(--paper);
     padding: 8px 14px;
     border-radius: 8px;
-    font-size: 14px;
+    font-size: var(--fs-small);
   }
   .saved a {
     color: var(--hi);
@@ -237,7 +237,7 @@
     border-radius: 999px;
     background: var(--paper);
     color: var(--ink);
-    font: 500 15px var(--font-body);
+    font: 500 var(--fs-body) var(--font-body);
     cursor: pointer;
   }
   .chip[aria-pressed='true'] {
@@ -253,7 +253,7 @@
   textarea {
     width: 100%;
     box-sizing: border-box;
-    font: 16px/1.4 var(--font-body);
+    font: var(--fs-body)/1.4 var(--font-body);
     resize: vertical;
   }
   .row {
@@ -285,7 +285,7 @@
   }
   .err {
     color: var(--bad);
-    font-size: 14px;
+    font-size: var(--fs-small);
     margin: 6px 0 0;
   }
   .foot {
@@ -299,7 +299,7 @@
     background: none;
     padding: 0;
     font: inherit;
-    font-size: 14px;
+    font-size: var(--fs-small);
     color: var(--ink);
     text-decoration: underline;
     cursor: pointer;
@@ -308,7 +308,7 @@
     margin-left: auto;
   }
   .kept {
-    font-size: 13px;
+    font-size: var(--fs-small);
     color: var(--ink-3);
   }
   @media print {

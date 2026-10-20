@@ -66,7 +66,7 @@
     border-right: 1.5px solid var(--line-strong);
     background: var(--paper);
     color: var(--ink);
-    font: 600 15px var(--font-body);
+    font: 600 var(--fs-body) var(--font-body);
     cursor: pointer;
   }
   .seg button:last-child {

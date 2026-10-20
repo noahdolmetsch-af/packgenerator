@@ -24,14 +24,16 @@ const noSideways = async (page) => expect(await page.evaluate(() => document.doc
 // the first section of Today in the order of the page
 const firstSection = (page) => page.locator('div.home [data-section]').first();
 
-test('HG1a: the greeting first on Today, with the name, and the quiet tap line under it', async ({ page, context }, info) => {
+test('HG1a: the greeting first on Today, with the name; the greeting itself opens the two questions', async ({ page, context }, info) => {
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
   await openHome(page, context, info, { data: withName(), hour: 9 });
   const hello = page.locator('#hello-h');
   await expect(hello).toHaveText(greetFor(9, NAME));
   await expect(firstSection(page)).toHaveAttribute('data-section', 'greeting');
-  await expect(page.locator('[data-hello-tap]')).toHaveText(HELLO_TAP);
+  // UI-Ziele #15 (Noah 20.10.2026 «freigabe», changed on purpose): no «antippen» line, the greeting is the button
+  await expect(page.locator('[data-hello-tap]')).toHaveText(greetFor(9, NAME));
+  await expect(page.locator('#hello-h [data-hello-tap]')).toHaveAttribute('aria-description', HELLO_TAP);
   await expect(page.locator('[data-name-ask]')).toHaveCount(0); // a name is there: nothing asked
   await noSideways(page);
   await shot(page, info, 'hg1a-heute');

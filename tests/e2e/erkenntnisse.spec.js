@@ -4,6 +4,7 @@
 // the battery of «Wi gaht's?» (more sleep, fuller battery), the last three days a high resting pulse.
 // SHOTS=<folder> saves full-page screenshots (light).
 import { test, expect } from '@playwright/test';
+import { viaTab } from './placetab.js'; // UI-Ziele #6: the pages that were rows under Ich are tabs now
 import DE from '../../src/lib/i18n/de/index.js';
 import { lastDays } from '../../src/lib/erkenntnisse.js';
 import { ready } from './settle.js';
@@ -65,8 +66,7 @@ test('Auswertung shows the strongest three and leads to the page; Ich has a row'
   await shot(page, info, 'erkenntnisse-auswertung');
   await sec.locator('[data-insights-all]').click();
   await expect(page).toHaveURL(/#\/me\/insights$/);
-  await page.goto('./#/me');
-  await page.locator('[data-me-insights]').click();
+  await viaTab(page, 'active', '#/me/insights'); // UI-Ziele #6: Auswerten › Erkenntnisse
   await expect(page.getByRole('heading', { level: 1, name: T('Insights') })).toBeVisible();
   expect(errors).toEqual([]);
 });

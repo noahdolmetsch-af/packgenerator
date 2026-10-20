@@ -5,7 +5,8 @@
 //    «Fahrten»; Touren › Fahrten (Gesamttest 20.10.2026 B3): five activities with a grey value line (2b), «Show n more»;
 //    the computer keeps the full rows;
 // c) Favourites: every kind is one closed line, open it shows five items, then «Show n more»;
-// d) What is new: the side parts are closed lines; «How to test it» opens its line.
+// d) What is new: the side parts are closed lines; «How to test it» opens its line;
+// e) «Handy kürzer» (Noah 20.10.2026 «4b»): Woche › Noch einplanen, Velopflege › Jetzt fällig, Werkstatt › Besuche show five rows.
 import { test, expect } from '@playwright/test';
 import { start, fixture, day, tr } from './gesamttest/lib.js';
 import { at1Acts } from './at1-acts.js';
@@ -37,6 +38,24 @@ test.describe('Handy kurz', () => {
     for (const h of PAGES) {
       await open(page, h);
       expect.soft(await height(page), `${h} at most ${MAX_SCREENS} screens`).toBeLessThanOrEqual(MAX_SCREENS * vh);
+    }
+    expect(errors).toEqual([]);
+  });
+
+  // «Handy kürzer» (Brainstorming, Noah 20.10.2026 «4b»): Woche and Velos first; each long list shows five, then «Show n more»
+  test('phone: Woche, Velopflege and Werkstatt show five rows, then the rest after one tap', async ({ page, context }, info) => {
+    test.skip(info.project.name !== 'phone', 'the phone view');
+    const errors = await start(page, context, info, { data: data() });
+    for (const [hash, row, more] of [
+      ['#/week', '[data-sugg]', '[data-sugg-more]'],
+      ['#/bikes?tab=care', 'section[aria-labelledby="due-h"] li.dcard', '[data-due-more]'],
+      ['#/bikes?tab=shop', '[data-visit-id]', '[data-visits-more]'],
+    ]) {
+      await open(page, hash);
+      await expect(page.locator(row), hash).toHaveCount(PHONE_ROWS);
+      await page.locator(more).click();
+      expect(await page.locator(row).count(), hash).toBeGreaterThan(PHONE_ROWS);
+      await expect(page.locator(more), hash).toHaveCount(0);
     }
     expect(errors).toEqual([]);
   });

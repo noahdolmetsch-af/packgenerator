@@ -247,7 +247,6 @@
     {@render notice?.()}
     <!-- «Mehr Inhalt» (Noah 15.10.2026, 1a–5a): the tip of the day, a fitting «Passt zu heute» first -->
     <HintCard page="pack" />
-    <TipLine page="pack" name={t('Pack')} />
     {#if trip.skipped}<p class="tp-status">{bikeTrip ? t('Not riding') : t('Not going')}</p>{/if}
     <!-- v0.47.0 (Noah 8 a+b): the focal point of a bike trip: the drawing with the bag weights, or the setup photo -->
     {#if planTop}
@@ -275,6 +274,8 @@
       <PlanNotesCard {trip} {bike} {fixed} />
       <DoorCard {trip} />
     {/if}
+    <!-- Gesamttest 20.10 Design / UI-Grundlagen (idea 1): the tip of the day after the first content part -->
+    <TipLine page="pack" name={t('Pack')} />
     <div class="tp-grid2">
       <div class="left">
         <!-- Noah: the conditions as four fields; a tap changes them. A template is one way to start, not a must. -->
@@ -494,13 +495,13 @@
   @media (min-width: 900px) { .plan-top { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); } }
   .cond { padding: 6px; }
   .cgrid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 4px; }
-  .cell { display: flex; gap: 10px; align-items: center; min-height: 56px; padding: 8px 10px; border: 0; border-radius: 8px; background: none; color: var(--ink); font: 500 15px/1.25 var(--font-body); text-align: left; text-decoration: none; cursor: pointer; min-width: 0; overflow-wrap: break-word; }
+  .cell { display: flex; gap: 10px; align-items: center; min-height: 56px; padding: 8px 10px; border: 0; border-radius: 8px; background: none; color: var(--ink); font: 500 var(--fs-body)/1.25 var(--font-body); text-align: left; text-decoration: none; cursor: pointer; min-width: 0; overflow-wrap: break-word; }
   .cell:nth-child(-n + 2) { border-bottom: 1px solid var(--line); border-radius: 8px 8px 0 0; }
   .cell :global(svg) { color: var(--ink-3); flex: none; }
   /* TZ-2: a fixed trip's conditions and rows are to read: no hover, no hand */
   .cell.ro, .calm-pack :global(.row-main.ro) { cursor: default; }
   @media (hover: hover) { .cell.ro:hover, .calm-pack :global(.row-main.ro:hover) { background: none; } }
-  .cell small { display: block; font-size: 12px; font-weight: 400; color: var(--ink-3); }
+  .cell small { display: block; font-size: var(--fs-tiny); font-weight: 400; color: var(--ink-3); }
   @media (hover: hover) { .cell:hover { background: var(--paper-2); } }
   .cfoot { margin: 4px 10px 6px; }
   /* v0.47.1 (Noah b): a day ride shows two or three cells; a lone last cell takes the whole row. */
@@ -515,7 +516,7 @@
   .wxrows li:first-child { border-top: 0; }
   .wxrows .nm { flex: 1; min-width: 0; overflow-wrap: break-word; }
   .wxrows b { font-weight: 600; }
-  .wxrows small { display: block; color: var(--ink-3); font-size: 14px; }
+  .wxrows small { display: block; color: var(--ink-3); font-size: var(--fs-small); }
   .wxfoot { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin-top: 8px; padding-top: 10px; border-top: 1px solid var(--paper-2); }
   .wxfoot p { margin: 0; flex: 1 1 200px; overflow-wrap: break-word; }
   .wxnote { margin: 8px 0 0; }
@@ -523,28 +524,28 @@
   .list-head h2 { flex: 1 1 auto; }
   .list-toolbar { display: flex; margin-left: auto; justify-content: flex-end; align-items: center; gap: 4px 16px; flex-wrap: wrap; }
   .group-control { position: relative; display: inline-flex; align-items: center; }
-  .group-control select { appearance: none; background: none; border: 0; font: 400 14px var(--font-body); color: var(--ink-3); min-height: 44px; padding: 10px 22px 10px 0; cursor: pointer; }
+  .group-control select { appearance: none; background: none; border: 0; font: 400 var(--fs-small) var(--font-body); color: var(--ink-3); min-height: 44px; padding: 10px 22px 10px 0; cursor: pointer; }
   .group-control :global(svg) { position: absolute; right: 0; pointer-events: none; color: var(--ink-3); }
   .undo-live { display: contents; }
   .blist { display: grid; gap: 10px; }
   .blist.cols { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .bag-group { background: var(--paper); border: 1px solid var(--card-line); border-radius: var(--radius-card); box-shadow: var(--card-shadow); padding: 4px 14px 8px; min-width: 0; }
   .blist.cols .bag-group.open { grid-column: 1 / -1; }
-  .bag-heading { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 48px; padding: 4px 0; border: 0; background: none; color: var(--ink); text-align: left; font: 600 16px var(--font-body); cursor: pointer; }
+  .bag-heading { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 48px; padding: 4px 0; border: 0; background: none; color: var(--ink); text-align: left; font: 600 var(--fs-body) var(--font-body); cursor: pointer; }
   .bag-heading :global(svg) { color: var(--ink-3); flex: none; }
   .bag-heading strong { font-weight: 600; min-width: 0; overflow-wrap: break-word; }
-  .bag-heading small { margin-left: auto; font-size: 14px; font-weight: 400; color: var(--ink-3); white-space: nowrap; }
+  .bag-heading small { margin-left: auto; font-size: var(--fs-small); font-weight: 400; color: var(--ink-3); white-space: nowrap; }
   /* v0.45.1 (G004): "14 items · 1.87 kg" goes under the bag's name when both do not fit; v0.76.0: on
      every width, since two bag columns next to the sidebar can be as narrow as a small phone */
   .bag-heading { flex-wrap: wrap; row-gap: 0; }
   .bag-heading strong { flex: 1 1 auto; }
-  .preview { margin: 0 0 4px 32px; font-size: 14px; line-height: 1.5; color: var(--ink-2); display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; overflow-wrap: break-word; }
+  .preview { margin: 0 0 4px 32px; font-size: var(--fs-small); line-height: 1.5; color: var(--ink-2); display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; overflow-wrap: break-word; }
   .addrow { margin: 4px 0 0 32px; }
   .real-pack { margin: 0 0 4px 32px; }
-  .quiet-link { font-size: 14px; color: var(--ink-2); min-height: 44px; }
+  .quiet-link { font-size: var(--fs-small); color: var(--ink-2); min-height: 44px; }
   .row-ctx { display: flex; align-items: center; gap: 10px; margin: -6px 0 6px 8px; }
   .folds { margin-top: 10px; }
-  .fold-btn { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 56px; padding: 6px 16px; color: var(--ink); font: 500 16px var(--font-body); text-align: left; cursor: pointer; }
+  .fold-btn { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 56px; padding: 6px 16px; color: var(--ink); font: 500 var(--fs-body) var(--font-body); text-align: left; cursor: pointer; }
   .fold-btn :global(svg:first-child) { color: var(--ink-3); flex: none; }
   .fold-btn .r { margin-left: auto; display: flex; align-items: center; gap: 8px; color: var(--ink-3); }
   .left > .fold-btn { margin-top: 10px; }
@@ -555,7 +556,7 @@
   .ask-sheet > header { margin-bottom: 12px; }
   .ask-sheet > p { margin: 0; overflow-wrap: break-word; }
   @media (max-width: 719px) {
-    .cell { font-size: 14px; padding: 8px 6px; gap: 8px; }
+    .cell { font-size: var(--fs-small); padding: 8px 6px; gap: 8px; }
     .list-toolbar .add-mat { display: none; }
   }
 </style>

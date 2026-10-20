@@ -150,9 +150,10 @@ test('WG morning (was «the morning check»): the round of «Wi gaht\'s?» on He
   await card.locator('[data-ab-more]').click();
   await expect(card.getByText(T('{n} due now', { n: 4 }))).toBeVisible();
   for (const qid of ['erholung.schlaf', 'erholung.akku', 'spass.stimmung', 'ziele.ziel']) await expect(card.locator(`[data-q="${qid}"]`)).toContainText('7:00');
-  await card.locator('[data-q="erholung.schlaf"]').getByRole('button', { name: '6', exact: true }).click();
-  await card.locator('[data-q="erholung.akku"]').getByRole('button', { name: '5', exact: true }).click();
-  await card.locator('[data-q="spass.stimmung"]').getByRole('button', { name: '7', exact: true }).click();
+  // UI-Ziele #12 (Noah 20.10.2026 «freigabe», changed on purpose): 5 steps with words, stored as 2 … 10
+  await card.locator('[data-q="erholung.schlaf"]').getByRole('button', { name: T('okay|step'), exact: true }).click();
+  await card.locator('[data-q="erholung.akku"] [data-step="4"]').click();
+  await card.locator('[data-q="spass.stimmung"] [data-step="8"]').click();
   await card.locator('[data-q="ziele.ziel"]').getByRole('textbox').fill('Velo nach der Arbeit');
   await card.locator('[data-ab-save]').click();
   await expect(card).toHaveCount(0);
@@ -162,12 +163,12 @@ test('WG morning (was «the morning check»): the round of «Wi gaht\'s?» on He
   await expect(mc).toContainText(T('done {time}', { time: '07:52' }));
   await expect(mc).toContainText(T('Goal: {goal}', { goal: 'Velo nach der Arbeit' }));
   await expect(mc.locator('[data-val="sleep"] b')).toHaveText('6');
-  await expect(mc.locator('[data-val="energy"] b')).toHaveText('5');
-  await expect(mc.locator('[data-val="mood"] b')).toHaveText('7');
+  await expect(mc.locator('[data-val="energy"] b')).toHaveText('4');
+  await expect(mc.locator('[data-val="mood"] b')).toHaveText('8');
   await expect(mc).toContainText(T('From {time} the evening round comes here.', { time: '20:30' }));
   // the day's check (the mirror) has the three numbers
-  await expect.poll(async () => (await row(page))?.mood).toBe(7);
-  expect(await row(page)).toMatchObject({ sleep: 6, energy: 5, mood: 7 });
+  await expect.poll(async () => (await row(page))?.mood).toBe(8);
+  expect(await row(page)).toMatchObject({ sleep: 6, energy: 4, mood: 8 });
   expect((await answers(page)).map((a) => a.qid).sort()).toEqual(['erholung.akku', 'erholung.schlaf', 'spass.stimmung', 'ziele.ziel']);
   // the Im Flow page: today's values and the 7 days
   await page.goto('./#/flow');
@@ -203,7 +204,7 @@ test('WG evening (was «the evening review»): «Abend-Runde» with the satisfac
   // the evening round on Heute: the satisfaction at 20:30
   const card = page.locator('[data-section="abfragen"]');
   await expect(card.locator('[data-q="erreicht.zufrieden"]')).toContainText('20:30');
-  await card.locator('[data-q="erreicht.zufrieden"]').getByRole('button', { name: '8', exact: true }).click();
+  await card.locator('[data-q="erreicht.zufrieden"] [data-step="8"]').click(); // UI-Ziele #12: «gut»
   await card.locator('[data-ab-save]').click();
   await expect(mc).toHaveAttribute('data-done', 'true');
   await expect(mc.locator('[data-sat]')).toContainText(T('Satisfaction {n} of 10', { n: 8 }));
@@ -301,7 +302,7 @@ test('«Feste Runden» (was «Deine 15 Fragen»): a switch and the two times on 
   await page.goto('./#/');
   await ready(page);
   const card = page.locator('[data-section="abfragen"]');
-  await card.locator('[data-q="erholung.schlaf"]').getByRole('button', { name: '6', exact: true }).click();
+  await card.locator('[data-q="erholung.schlaf"] [data-step="6"]').click(); // UI-Ziele #12: «okay»
   await card.locator('[data-ab-save]').click();
   await expect(page.locator('[data-section="morningcheck"]')).toContainText(T('From {time} the evening round comes here.', { time: '21:15' }));
 
@@ -348,9 +349,9 @@ test('the Sunday question (was question 15): «Näher an deiner Vision?» in the
   await ready(page);
   const v = page.locator('[data-section="abfragen"] [data-q="visionen.vision"]');
   await expect(v).toContainText('20:30');
-  await v.getByRole('button', { name: '7', exact: true }).click();
+  await v.locator('[data-step="8"]').click(); // UI-Ziele #12 (changed on purpose): 5 steps, «gut» = 8
   await page.locator('[data-section="abfragen"] [data-ab-save]').click();
-  await expect.poll(async () => (await answers(page)).find((a) => a.qid === 'visionen.vision')?.value).toBe(7);
+  await expect.poll(async () => (await answers(page)).find((a) => a.qid === 'visionen.vision')?.value).toBe(8);
   // not on a weekday
   await page.clock.setSystemTime(new Date('2026-10-19T20:31:00+02:00'));
   await page.reload();

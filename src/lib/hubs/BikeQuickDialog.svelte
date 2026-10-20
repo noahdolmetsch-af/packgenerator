@@ -258,7 +258,7 @@
   textarea {
     width: 100%;
     box-sizing: border-box;
-    font: 16px/1.4 var(--font-body);
+    font: var(--fs-body)/1.4 var(--font-body);
     resize: vertical;
   }
   .row {
@@ -287,7 +287,7 @@
   }
   .err {
     color: var(--bad);
-    font-size: 14px;
+    font-size: var(--fs-small);
     margin: 6px 0 0;
   }
   .foot {
@@ -301,7 +301,7 @@
     background: none;
     padding: 0;
     font: inherit;
-    font-size: 14px;
+    font-size: var(--fs-small);
     color: var(--ink);
     text-decoration: underline;
     cursor: pointer;

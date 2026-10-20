@@ -49,7 +49,7 @@ export default {
   'Estimated FTP over {n} months': 'Geschätzte FTP über {n} Monate',
   'No full 20-minute hard effort for 6 weeks: the estimate is uncertain.': 'Seit 6 Wochen keine volle 20-Minuten-Anstrengung: die Schätzung ist unsicher.',
   'Each month: 95 % of the best 20 minutes in the 90 days up to its end. Only rides with a power meter.': 'Pro Monat: 95 % der besten 20 Minuten aus den 90 Tagen bis Monatsende. Nur Fahrten mit Leistungsmesser.',
-  'With your weight under Me › My data › Weight also in W/kg.': 'Mit deinem Gewicht unter Ich › Meine Daten › Gewicht auch in W/kg.',
+  'With your weight under Me › My data › Weight also in W/kg.': 'Mit deinem Gewicht unter Auswerten › Gewicht auch in W/kg.',
   'No ride with a power meter and 20 minutes of power in the last 12 months yet.': 'Noch keine Fahrt mit Leistungsmesser und 20 Minuten Leistung in den letzten 12 Monaten.',
   // T2 «Harte Stücke dieser Fahrt» (inhalt/AnaIntervals.svelte)
   '{n} hard piece, {m} min, Ø {w} W|hp': '{n} hartes Stück, {m} Min, Ø {w} W',
