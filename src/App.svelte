@@ -103,7 +103,8 @@
     return () => window.removeEventListener('hashchange', update);
   });
   // v0.23.0 (AP07): the address → page and its main place live in nav.js (tested there).
-  const page = $derived(pageOf(hash, parseBikesHash(hash).tab === 'care'));
+  // «Tagebuch» (20.10.2026): #/tagebuch is its own page; the nav thread adds it to pageOf/placeOf with the new bar
+  const page = $derived(hash.startsWith('#/tagebuch') ? 'tagebuch' : pageOf(hash, parseBikesHash(hash).tab === 'care'));
   const place = $derived(placeOf(page));
   // a page for someone without the app's data (a shared list, Paket S «Reise-Spur»: a tour's read link)
   const guest = $derived(page === 'share' || page === 'spurlink');
@@ -401,6 +402,7 @@
     Privacy: () => import('./pages/Privacy.svelte'),
     Pros: () => import('./pages/Pros.svelte'),
     Frei: () => import('./pages/Frei.svelte'),
+    Tagebuch: () => import('./pages/Tagebuch.svelte'),
     Alltag: () => import('./pages/Alltag.svelte'),
   };
   // once Heute is drawn, the most used pages load quietly in the background
@@ -543,6 +545,9 @@
   {:else if page === 'frei' || page === 'impulse'}
     <!-- Paket T «Freie Zeit»: Ich › Freie Zeit (#/me/frei/…) and Aktiv › Impulse (#/flow/impulse); the page picks its part -->
     <LazyPage load={PAGES.Frei} {hash} />
+  {:else if page === 'tagebuch'}
+    <!-- «Tagebuch» (Noah 20.10.2026, like Day One): #/tagebuch, one entry at #/tagebuch/<id> -->
+    <LazyPage load={PAGES.Tagebuch} {hash} />
   {:else if page === 'alltag'}
     <!-- Paket V «Alltag»: Ich › Alltag (#/me/alltag/…): shopping list, contracts, «Not seen for a while» -->
     <LazyPage load={PAGES.Alltag} {hash} />

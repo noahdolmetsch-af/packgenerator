@@ -1110,4 +1110,8 @@ export default {
   'Move the slider or tap − and +; the app changes when you let go.': 'Schieb den Regler oder tippe − und +; die App ändert sich, wenn du loslässt.',
   'Switch on «Compact» for less space between.': 'Schalte «Kompakt» ein für weniger Abstand.',
   'Example: 115 % on the phone for the way, 100 % on the computer.': 'Beispiel: 115 % am Handy für unterwegs, 100 % am Computer.',
+  // «Tagebuch»: f.journal
+  'Open Me › Diary and tap «New entry», or «Dictate an entry» to speak.': 'Öffne Ich › Tagebuch und tipp «Neuer Eintrag», oder «Eintrag diktieren» zum Sprechen.',
+  'Add photos, tags, place and weather; «From the app» adds the rides, sleep and notes of that day.': 'Füg Fotos, Stichwörter, Ort und Wetter hinzu; «Aus der App» bringt die Fahrten, den Schlaf und die Notizen dieses Tages.',
+  'Example: the question of the day «What made you smile today?» → «Answer by speaking» → three sentences in one minute.': 'Beispiel: die Frage des Tages «Was hat dich heute zum Lächeln gebracht?» → «Sprechend antworten» → drei Sätze in einer Minute.',
 };

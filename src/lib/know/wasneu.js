@@ -106,6 +106,8 @@ export const SINCE = {
   'f.dictate': '0.155.0', 'f.askfurther': '0.155.0', 'f.aiprojects': '0.155.0',
   // «Trainingspläne» (v0.157.0, provisional)
   'f.trainplans': '0.157.0', 'f.feel': '0.157.0',
+  // «Tagebuch» (provisional; the bundler sets the version of its release)
+  'f.journal': '0.166.0',
 };
 export const sinceOf = (id) => SINCE[id] ?? '0.1.0';
 

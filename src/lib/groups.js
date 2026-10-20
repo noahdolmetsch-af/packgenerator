@@ -31,6 +31,7 @@ export const GROUP_PLACES = [
   { name: 'Impulse areas', file: 'src/lib/frei/Impulse.svelte' }, // Paket T «Freie Zeit»
   { name: 'Collections', file: 'src/lib/frei/Sammlungen.svelte' },
   { name: 'Shopping list groups', file: 'src/lib/alltag/Einkauf.svelte' }, // Paket V «Alltag»
+  { name: 'Diary tags', file: 'src/lib/tagebuch/Settings.svelte' }, // «Tagebuch»: tags are its groups
 ];
 
 /** The items of category `from` moved to `to` (only the ones that change). */
