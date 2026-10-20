@@ -76,7 +76,7 @@ export const SINCE = {
   'f.connections': '0.153.0', 'f.owncal': '0.153.0', 'f.notestasks': '0.153.0', 'f.fitbitold': '0.153.0', 'f.stravaticks': '0.153.0', 'f.lake': '0.153.0', 'f.datastars': '0.153.0', 'f.wxwatch': '0.153.0', 'f.tourhints': '0.153.0', 'f.rainsoon': '0.153.0', 'f.air': '0.153.0', 'f.routepois': '0.153.0',
   // Paket H «Packen leichter» (v0.153.0)
   'f.starters': '0.153.0', 'f.supplies': '0.153.0', 'f.table': '0.153.0', 'f.readaloud': '0.153.0', 'f.lend': '0.153.0', 'f.ownrules': '0.153.0', 'f.startfresh': '0.153.0',
-  'f.form': '0.168.0', 'f.overview': '0.168.0', // Form und Erholung + Garmin-Übersicht (Noah 20.10.2026); the bundler sets the release version
+  'f.form': '0.170.0', 'f.overview': '0.170.0', // Form und Erholung + Garmin-Übersicht (Noah 20.10.2026); the bundler sets the release version
   'f.tourpage': '0.161.0', // Tour-Seite (Noah 19.10.2026 «1a 2 beides 3b 4 beides 5a»), Paket 9
   'f.fuel': '0.160.0', // Verpflegung (Noah 19.10.2026 «1a»), Paket 8
   'f.power': '0.155.0', // Strombudget (Noah 19.10.2026 «2a»), Paket 3+4
@@ -106,13 +106,13 @@ export const SINCE = {
   // «Diktat und Fragen» (v0.155.0)
   'f.dictate': '0.155.0', 'f.askfurther': '0.155.0', 'f.aiprojects': '0.155.0',
   // «Erster Start» (provisional version, the bundler renumbers)
-  'f.firststart': '0.166.0',
+  'f.firststart': '0.170.0',
   // «Trainingspläne» (v0.157.0, provisional)
   'f.trainplans': '0.157.0', 'f.feel': '0.157.0',
   // «Heatmap» (provisional version, the bundler renumbers)
-  'f.heatmap': '0.167.0',
+  'f.heatmap': '0.170.0',
   // «Tagebuch» (provisional; the bundler sets the version of its release)
-  'f.journal': '0.166.0',
+  'f.journal': '0.170.0',
 };
 export const sinceOf = (id) => SINCE[id] ?? '0.1.0';
 

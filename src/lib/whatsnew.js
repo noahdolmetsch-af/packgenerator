@@ -16,6 +16,26 @@
 
 export const WHATS_NEW = [
   {
+    // v0.170.0 «Tagebuch, Form, Heatmap»: Tagebuch, Form und Erholung + Garmin overview, Tour-Auswertung, Heatmap, Check-Fragen, Erster Start, Zürisee and sauna (Noah 20.10.2026); built without mockups
+    version: '0.170.0',
+    date: '2026-10-20',
+    title: 'Diary, form, heatmap',
+    lead: 'Write, recover, look back.',
+    points: [
+      { text: 'Diary: write or speak, with photos', href: '#/tagebuch' },
+      { text: 'Form and recovery: readiness 0–100', href: '#/flow' },
+      { text: 'Heatmap: all rides on one map', href: '#/heatmap' },
+    ],
+    small: [
+      { box: 'new', text: 'Tour values like on the Garmin' },
+      { box: 'new', text: 'Edit check questions; Zürisee cold scale' },
+    ],
+    test: [
+      'Open Me › Diary and write a first entry.',
+      'Open Trips › Look back › Heatmap.',
+    ],
+  },
+  {
     // v0.169.0 «Neue Leiste und Heute neu»: N1 bar (Noah 20.10.2026 «1a 2a»), N2 Heute (15:49 «1a 2a 3a und b 4b 5a»), UI-Grundlagen (UI-Ziele #12 #15 #16 #17, 17:05 «freigabe»); built without mockups
     version: '0.169.0',
     date: '2026-10-20',

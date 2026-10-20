@@ -1430,4 +1430,14 @@ export default {
   'Warmer colours, round buttons': 'Wärmere Farben, runde Knöpfe',
   'Tap Plan in the bar: Week, Appointments, Notes and more.': 'Tippe in der Leiste auf Planen: Woche, Termine, Notizen und mehr.',
   'Open Today: your body stands on top.': 'Öffne Heute: Dein Körper steht zuoberst.',
+  // 0.170.0
+  'Diary, form, heatmap': 'Tagebuch, Form, Heatmap',
+  'Write, recover, look back.': 'Schreiben, erholen, zurückschauen.',
+  'Diary: write or speak, with photos': 'Tagebuch: schreiben oder sprechen, mit Fotos',
+  'Form and recovery: readiness 0–100': 'Form und Erholung: Bereitschaft 0–100',
+  'Heatmap: all rides on one map': 'Heatmap: alle Fahrten auf einer Karte',
+  'Tour values like on the Garmin': 'Tour-Werte wie auf dem Garmin',
+  'Edit check questions; Zürisee cold scale': 'Check-Fragen selbst ändern; Zürisee mit Kaltbade-Skala',
+  'Open Me › Diary and write a first entry.': 'Öffne Ich › Tagebuch und schreibe einen ersten Eintrag.',
+  'Open Trips › Look back › Heatmap.': 'Öffne Touren › Rückblick › Heatmap.',
 };

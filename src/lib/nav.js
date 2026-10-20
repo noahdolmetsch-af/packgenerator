@@ -182,6 +182,7 @@ export function pageOf(hash = '', careTab = false) {
   if (h.startsWith('#/notes')) return 'notes'; // v0.48.0: the Notes page
   if (h.startsWith('#/review')) return 'debrief'; // v0.44.0: the last 12 months; v0.49.0: part of the Rückblick
   if (h.startsWith('#/heatmap')) return 'heatmap'; // «Heatmap» (Noah 20.10.2026): all rides on one map, Touren › Rückblick
+  if (h.startsWith('#/tagebuch')) return 'tagebuch'; // «Tagebuch» (Noah 20.10.2026): own page; its place in the bar stays Ich until the nav thread moves it
   if (h.startsWith('#/neuland')) return 'neuland'; // «Neuland» (wish #1007): Touren › Rückblick › Neuland
   if (h.startsWith('#/features')) return 'features'; // v0.30.0 (Noah 3a): what the app can do
   if (h.startsWith('#/flow/impulse')) return 'impulse'; // Paket T «Freie Zeit»: Impulse as a tab of Aktiv (Noah «1a und b»)
