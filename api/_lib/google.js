@@ -62,7 +62,7 @@
 import { route, json, needStore, redisEnv, pick, ApiError, API_BASE } from './core.js';
 import { needDevice, saveState, takeState, backToApp, jsonBody } from './oauth.js';
 import { makeAccount } from './account.js';
-import { MAX_DAYS, spanDays, rollUpBody, listFilter, daysFrom } from './googledays.js';
+import { MAX_DAYS, spanDays, rollUpBody, listFilter, daysFrom, chunks } from './googledays.js';
 import { MAIL_SCOPES, GMAIL_API, MAIL_PAGE, FILE_MAX, mailRow, bodyOf, rawMail } from './googlemail.js';
 import { CALENDAR_SCOPES, TASKS_SCOPE, CALENDAR_API, TASKS_API, MAX_EVENT_DAYS, MAX_CALS, spanOf, dayStart, dayEnd, eventRow, eventBody, taskRow, taskBody, calRow, listRow, OWN_CAL_SCOPE, OWN_CAL_NAME, OWN_LIST_NAME, MAX_OWN_ITEMS, KEY_PROP, ownBody, sameEvent } from './googleplan.js';
 
@@ -408,7 +408,21 @@ export function makeHandler({ env = () => googleEnv(), doFetch = (...a) => fetch
           const sleep = await listAll(token, 'sleep', from, to);
           const rhr = await listAll(token, 'daily-resting-heart-rate', from, to);
           const hrv = await listAll(token, 'daily-heart-rate-variability', from, to);
-          return json(request, 200, { ok: true, from, to, days: daysFrom({ steps, azm, sleep, rhr, hrv }, from, to) });
+          // «Form und Erholung» / Garmin-Übersicht: calories and the highest pulse, 14 days per request.
+          // Optional: a refused type (no permission, an older account) leaves these values out.
+          const extra = async (type) => {
+            const out = [];
+            try {
+              for (const [a, b] of chunks(from, to)) out.push(...(await rollUp(token, type, a, b)));
+            } catch {
+              return [];
+            }
+            return out;
+          };
+          const kcal = await extra('total-calories');
+          const kcalActive = await extra('active-energy-burned');
+          const hr = await extra('heart-rate');
+          return json(request, 200, { ok: true, from, to, days: daysFrom({ steps, azm, sleep, rhr, hrv, kcal, kcalActive, hr }, from, to) });
         }
         throw new ApiError(400, 'bad_request', 'Unknown step.');
       },
