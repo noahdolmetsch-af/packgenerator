@@ -4,6 +4,8 @@ Stand: 18. Oktober 2026. Der kurze Überblick steht im [Projektstand](projektsta
 
 ## Aktuell live
 
+**0.166.1 «Heute am Handy» (20.10.2026, Noah «Problem ist abgeschnitten»):** Mit Glückwünschen über «Jetzt dran» war die Karte so hoch wie die ganze Kachel und rutschte am Handy unter die Tourkarte. Jetzt füllt die Karte nur den Rest; «Gut gemacht» zeigt eine Zeile. Neuer Handy-Test: keine Kachel ragt über ihre Grenze.
+
 **0.166.0 «Neueste Version laden» (20.10.2026):** Die Fehlerseite hat statt «Neu laden» den Knopf «Neueste Version laden» (src/lib/freshreload.js): mit Internet meldet er den Service Worker ab, löscht nur die App-Dateien (workbox-precache) und lädt neu; IndexedDB, localStorage, Offline-Karten und der Ausschneide-Speicher bleiben; ohne Internet ein normales Neuladen. Die Fehlerseite fragt beim Öffnen selbst nach einem Update. Anlass: ein Handy blieb auf 0.157, «Neu laden» lieferte die alte Offline-Kopie. Dazu zwei Test-Wettläufe behoben (lists.spec wartet auf das Zurück des Dialogs, wohl.spec auf den Start der Abfragen).
 
 **0.165.0 «Heute neu A, Ein Blick» (20.10.2026, Noah «1A 2 … 3a 4a 5b»):** Heute zeigt oben einen Satz (Tage bis zur Tour, was dran ist), dann «Jetzt dran» neben der Tour (Morgen-Check, Meditation, Velo-Idee und Fälliges, höchstens 4 Zeilen), «Du heute» (Balance 7 Tage, Schlaf, Ruhepuls, km, Wetter) neben der Woche, die Velos und 8 Abkürzungen; der Rest unter «Alle Bereiche». Der Morgen-Check zeigt 3 Fragen, die anderen über «Fragen einblenden». Strava-Karte, Neuigkeiten-Band und Tipp der Woche sind weg von Heute (Tipp unter Ich › Was ist neu). Gespeicherte Wände wechseln einmal auf die neue Wand (`homeWall` v 9).
