@@ -28,6 +28,8 @@
   import { Play, Square, Crosshair, MapPin, Navigation, Mountain, Clock, Settings, BatteryMedium, CloudLightning, TriangleAlert, RefreshCw, Utensils, Moon, Flag, LifeBuoy, Ellipsis, Minimize2, Maximize2, SlidersHorizontal, Check, X, Layers, Camera, WifiOff } from '@lucide/svelte';
   import KindIcon from '../lib/map/KindIcon.svelte';
   import PoiPanel from '../lib/map/PoiPanel.svelte';
+  import OvNearby from '../lib/sources/OvNearby.svelte';
+  import { wptsOnMap } from '../lib/route/fromgpx.js';
   import PoiDetail from '../lib/map/PoiDetail.svelte';
   import WxTimeline from '../lib/map/WxTimeline.svelte';
   import LiveRouteBox from '../lib/live/LiveRouteBox.svelte';
@@ -231,6 +233,8 @@
   const mapPoints = $derived([
     ...(shown.stops ? pois.map((p) => ({ id: p.id, lat: Number(p.lat), lon: Number(p.lon), kind: p.kind, name: p.name || kindName(p.kind), km: p.km })) : []),
     ...(shown.own ? ownOnMap(own, t) : []),
+    // «Neue Quellen»: the waypoints of the tour's GPX file (Ride with GPS, Komoot …)
+    ...(shown.own ? wptsOnMap(trip?.route).map((w) => ({ ...w, name: w.name || kindName(w.kind) })) : []),
   ]);
   const toggles = $derived([
     { key: 'stops', label: t('Stops') },
@@ -698,6 +702,9 @@
   let poiPoints = $state([]);
   let poiPicked = $state(null);
   const allPoints = $derived([...mapPoints, ...poiPoints.filter((p) => Number.isFinite(Number(p.lat))).map((p) => ({ id: `poi-${p.id}`, lat: Number(p.lat), lon: Number(p.lon), kind: p.kind, name: p.name || kindName(p.kind) }))]);
+  // «Weitere Quellen»: «Add a place by tapping the map» of the place search
+  let poiPanel = $state(null);
+  let poiTapping = $state(false);
   function pickPoint(p) {
     const id = String(p?.id ?? '');
     if (!id.startsWith('poi-')) return;
@@ -843,6 +850,8 @@
             ondrag={() => (follow = false)}
             onmove={(b) => (mapBounds = b)}
             onpick={pickPoint}
+            adding={poiTapping}
+            onmapclick={(e) => poiPanel?.tapMap(e)}
           />
         {/snippet}
         {#snippet smallMap()}
@@ -1036,7 +1045,7 @@
               {#if poiPicked}
                 <div data-live-poi-detail><PoiDetail place={poiPicked} from={me} line={route?.line ?? null} profile={route?.profile ?? null} onclose={() => (poiPicked = null)} /></div>
               {/if}
-              <PoiPanel center={me ? { lat: me.lat, lon: me.lon } : null} bounds={mapBounds} line={route?.line ?? null} profile={route?.profile ?? null} tripId={trip?.id ?? null} onpoints={(l) => (poiPoints = l ?? [])} />
+              <PoiPanel bind:this={poiPanel} canTap ontapmode={(v) => ((poiTapping = v), v && (snap = "peek"))} center={me ? { lat: me.lat, lon: me.lon } : null} bounds={mapBounds} line={route?.line ?? null} profile={route?.profile ?? null} tripId={trip?.id ?? null} onpoints={(l) => (poiPoints = l ?? [])} />
             </div>
 
             {#if showRouteBox}
@@ -1046,6 +1055,8 @@
             <Essen tripId={trip?.id ?? null} until={plan && running ? plan.end : null} />
 
             <div class="lvf-part"><SensorBox {now} /></div>
+
+            <div class="lvf-part" data-live-ov><OvNearby at={me ? { lat: me.lat, lon: me.lon } : null} /></div>
 
             {#if ghostS != null}
               <div class="lvf-part" data-live-ghost>

@@ -142,4 +142,13 @@ export default {
   'An arrow before each turn of the route, from 1 km before.': 'Ein Pfeil vor jeder Abzweigung der Strecke, ab 1 km vorher.',
   'Say the turns': 'Abzweigungen ansagen',
   'The phone says «In 200 m turn left» and «Turn left now».': 'Das Handy sagt «In 200 m links abbiegen» und «Jetzt links».',
+  // «Bild zum Teilen» after the ride (AfterRide.svelte, live/shareimage.js)
+  'Picture to share': 'Bild zum Teilen',
+  'With the shape of the ride': 'Mit der Form der Strecke',
+  'The shape shows where you rode. Leave it out when you start at home.': 'Die Form zeigt, wo du gefahren bist. Lass sie weg, wenn du zu Hause startest.',
+  'Only the name, the date and the numbers.': 'Nur Name, Datum und Zahlen.',
+  'Share picture': 'Bild teilen',
+  'The picture could not be made.': 'Das Bild konnte nicht gemacht werden.',
+  'Saved as a picture in your downloads.': 'Als Bild in deinen Downloads gespeichert.',
+  'Shared.': 'Geteilt.',
 };
