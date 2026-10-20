@@ -5,6 +5,7 @@ Stand: 18. Oktober 2026. Der kurze Überblick steht im [Projektstand](projektsta
 ## Aktuell live
 
 **0.167.0 «Balken Jetzt laden» (20.10.2026, Noah «sicherstellen, dass das nicht wieder passiert»):** Jeder Build schreibt version.json (nicht in der Offline-Kopie); src/lib/behind.js prüft beim Start (+20 s), beim Zurückkommen und stündlich; ist eine neuere Version seit 15 Minuten online und das Gerät noch alt, erscheint oben ein Balken mit «Jetzt laden» (freshReload) und «Später».
+**0.166.1 «Heute am Handy» (20.10.2026, Noah «Problem ist abgeschnitten»):** Mit Glückwünschen über «Jetzt dran» war die Karte so hoch wie die ganze Kachel und rutschte am Handy unter die Tourkarte. Jetzt füllt die Karte nur den Rest; «Gut gemacht» zeigt eine Zeile. Neuer Handy-Test: keine Kachel ragt über ihre Grenze.
 
 **0.166.0 «Neueste Version laden» (20.10.2026):** Die Fehlerseite hat statt «Neu laden» den Knopf «Neueste Version laden» (src/lib/freshreload.js): mit Internet meldet er den Service Worker ab, löscht nur die App-Dateien (workbox-precache) und lädt neu; IndexedDB, localStorage, Offline-Karten und der Ausschneide-Speicher bleiben; ohne Internet ein normales Neuladen. Die Fehlerseite fragt beim Öffnen selbst nach einem Update. Anlass: ein Handy blieb auf 0.157, «Neu laden» lieferte die alte Offline-Kopie. Dazu zwei Test-Wettläufe behoben (lists.spec wartet auf das Zurück des Dialogs, wohl.spec auf den Start der Abfragen).
 

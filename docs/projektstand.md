@@ -23,7 +23,8 @@ Seit 19.10.2026 gibt es keine Testlinks mehr: Ein Paket geht online, sobald die 
 | 13 | Tests automatisieren | 0.164.0 | Nacht-Rundgang über alle Seiten, Live-Prüfung nach jedem Update inkl. offline, Zeitkapsel-Test der Datenversionen, KI-Gesundheitsprüfung, Bibliotheken aktuell | live (PR #212) |
 | 14 | Heute neu A «Ein Blick» | 0.165.0 | Heute auf einen Blick: ein Satz, «Jetzt dran» (Morgen-Check, Meditation, Velo-Idee, Fälliges, höchstens 4), Tour, «Du heute», Woche, Velos, 8 Abkürzungen, «Alle Bereiche»; Morgen-Check mit 3 Fragen und «Fragen einblenden»; Tipp der Woche unter Ich | live (PR #214) |
 | 15 | Neueste Version laden | 0.166.0 | Fehlerseite: «Neueste Version laden» holt die App frisch aus dem Internet (Service Worker und App-Dateien weg, Daten bleiben); Fehlerseite sucht zuerst selbst nach Update; zwei Test-Wettläufe behoben (Listen, Abend-Check) | live (PR #216) |
-| 16 | Balken «Jetzt laden» | 0.167.0 | Jeder Build schreibt version.json; hängt ein Gerät 15 Minuten hinter der Online-Version, zeigt die App oben «Jetzt laden» und «Später» | dieser PR |
+| 16 | Heute am Handy | 0.166.1 | «Jetzt dran» rutschte am Handy unter die Tourkarte, wenn Glückwünsche darüber standen; Glückwünsche nur noch eine Zeile | dieser PR |
+| 17 | Balken «Jetzt laden» | 0.167.0 | Jeder Build schreibt version.json; hängt ein Gerät 15 Minuten hinter der Online-Version, zeigt die App oben «Jetzt laden» und «Später» | dieser PR |
 
 «Frontend aufpeppen» ist pausiert (Noah 19.10.2026). Die Abschnitte unten sind der Stand vom 18.10.2026.
 

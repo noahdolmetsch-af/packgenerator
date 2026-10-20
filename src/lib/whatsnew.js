@@ -30,6 +30,21 @@ export const WHATS_NEW = [
     ],
   },
   {
+    // v0.166.1 «Heute am Handy» (bug fix, Noah 20.10.2026 15:16 UTC «Problem ist abgeschnitten»; same look, no mockup)
+    version: '0.166.1',
+    date: '2026-10-20',
+    title: 'Nothing cut off',
+    lead: 'On a phone the card «Up now» no longer slides under your trip.',
+    points: [
+      { text: 'Congratulations show as one quiet line; the full list stays in the milestones', href: '#/flow/milestones' },
+    ],
+    small: [{ box: 'fixed', text: 'On a phone «Up now» ends where its last line ends; the next card starts below it' }],
+    test: [
+      'Open Today on a phone after reaching a milestone: «Up now» and the trip card do not overlap.',
+      'Only one congratulation line stands above «Up now».',
+    ],
+  },
+  {
     // v0.166.0 «Neueste Version laden» (20.10.2026: a phone stayed on 0.157; «Reload» served the old offline copy again).
     version: '0.166.0',
     date: '2026-10-20',
