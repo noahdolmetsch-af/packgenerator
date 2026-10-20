@@ -23,6 +23,11 @@
   const breaks = $derived(breakdownsOf(trip));
   const mySpots = $derived(sleepSpots($pointsQ ?? []).filter((p) => p.tripId === trip.id));
   const save = (fields) => db.trips.update(trip.id, touched(fields));
+  const addDays = (day, n) => {
+    const d = new Date(`${day}T12:00:00Z`);
+    d.setUTCDate(d.getUTCDate() + n);
+    return d.toISOString().slice(0, 10);
+  };
   const uid = (p) => `${p}${Date.now().toString(36)}${Math.random().toString(36).slice(2, 5)}`;
 
   /* 1120 breakdown */
@@ -70,15 +75,17 @@
     sBusy = true;
     msg = '';
     let at = null;
+    let night = localDay();
     if (sWhere === 'here') at = await whereAmI();
     else {
       const n = Number(sWhere.split('-')[1]) || 0;
       const st = stage(trip, n);
       at = st?.to ?? trip.place ?? null;
+      if (trip.startDate) night = addDays(trip.startDate, n);
     }
     sBusy = false;
     if (!at || !Number.isFinite(at.lat)) return (msg = t('No place found for this spot. Choose «Where I am now» or add a route to the trip.'));
-    const p = { ...newPoint({ lat: at.lat, lon: at.lon, name: sName, note: sNote, kind: 'sleep' }), stars: sStars, tripId: trip.id };
+    const p = newPoint({ lat: at.lat, lon: at.lon, name: sName, note: sNote, kind: 'sleep', stars: sStars, night, tripId: trip.id });
     const before = await saveOwn((list) => [...list, p]);
     offerDone(t('Sleep spot saved. It comes back when you plan a trip nearby.'), () => putOwn(before));
     sName = sNote = '';

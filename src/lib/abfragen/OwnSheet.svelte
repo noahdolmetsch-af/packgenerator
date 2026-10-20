@@ -12,19 +12,29 @@
   import { AREAS, OWN_AREA, ownOf, everyOf } from '../abfragen.js';
   import IntervalPick from './IntervalPick.svelte';
   import AnswerInput from './AnswerInput.svelte';
-  import { areaName } from './words.js';
+  import { areaName, qText, kindLabel } from './words.js';
   import '../bikes/velo-dlg.css';
   import './ab.css';
 
-  let { question = null, onsave, ondelete, onclose } = $props();
+  // Noah 20.10.2026 «editieren und löschen …, neue pro Gruppe»: also a question of the list can be changed here
+  // (its text, group and interval; its answer kind stays, the history reads it). area: the group of a new one;
+  // every: the interval as set now; areas: the groups as the person has them [{ key, name }].
+  let { question = null, area: areaIn = OWN_AREA, every: everyIn = undefined, areas = null, onsave, ondelete, onclose } = $props();
   let dialog;
   // svelte-ignore state_referenced_locally
-  const start = question ?? { text: '', area: OWN_AREA, form: { kind: 'scale' }, every: { kind: 'daily', time: '20:00' }, show: true };
-  let name = $state(start.text);
+  const builtin = !!question && !question.own;
+  // svelte-ignore state_referenced_locally
+  const start = question ?? { text: '', area: areaIn, form: { kind: 'scale' }, every: { kind: 'daily', time: '20:00' }, show: true };
+  // svelte-ignore state_referenced_locally
+  const startText = question ? qText(question) : '';
+  // svelte-ignore state_referenced_locally
+  const groups = areas ?? [...AREAS.map((a) => ({ key: a.key, name: areaName(a.key) })), { key: OWN_AREA, name: areaName(OWN_AREA) }];
+  let name = $state(startText);
   let area = $state(start.area);
   let kind = $state(start.form.kind);
   let unit = $state(start.form.unit ?? '');
-  let every = $state(everyOf(start.every));
+  // svelte-ignore state_referenced_locally
+  let every = $state(everyOf(everyIn ?? start.every));
   let show = $state(start.show !== false);
   let preview = $state(null);
   $effect(() => {
@@ -36,10 +46,12 @@
     { key: 'number', name: 'Number with unit', icon: Hash },
     { key: 'text', name: 'Text', icon: Type },
   ];
-  const draftQ = $derived(ownOf({ id: question?.id ?? 'own-new', text: name || t('Your question'), area, form: { kind, unit }, every, show }));
+  const draftQ = $derived(builtin ? { ...question, text: name.trim() || startText, edited: true } : ownOf({ id: question?.id ?? 'own-new', text: name || t('Your question'), area, form: { kind, unit }, every, show }));
+  // a question of the list may be emptied: then it goes back to the app's text
+  const canSave = $derived(builtin || !!name.trim());
   function save() {
-    if (!name.trim()) return;
-    onsave?.({ id: question?.id ?? null, text: name.trim(), area, form: { kind, unit }, every: everyOf(every), show });
+    if (!canSave) return;
+    onsave?.({ id: question?.id ?? null, text: name.trim(), textChanged: builtin && name.trim() !== startText, area, form: { kind, unit }, every: everyOf(every), show });
     dialog.close();
   }
   function remove() {
@@ -51,22 +63,25 @@
 <dialog use:keepTyped={'abfrage:' + (question?.id ?? 'new')} class="sheet vdlg from-below" bind:this={dialog} use:backClose {onclose} aria-labelledby="own-h">
   <div class="vd-head">
     <div class="vd-t">
-      <h2 id="own-h">{question ? t('Change your own question') : t('Create your own question')}</h2>
+      <h2 id="own-h">{builtin ? t('Change question') : question ? t('Change your own question') : t('Create your own question')}</h2>
       <p class="vd-sub">{t('Goes into «Your questions» and into the history under Data.')}</p>
     </div>
     <button type="button" class="vd-x" aria-label={t('Close')} onclick={() => dialog.close()}><X size={20} aria-hidden="true" /></button>
   </div>
 
-  <label class="fld"><span class="lbl">{t('Name|question')}</span><input class="inp" type="text" maxlength="120" bind:value={name} placeholder={t('e.g. Coffee')} data-own-name /></label>
-  <p class="srcl"><span class="ab-src only"><Hand size={13} aria-hidden="true" />{t('only by hand possible')}</span><small>{t('no known source, the app asks you')}</small></p>
+  <label class="fld"><span class="lbl">{builtin ? t('Question|text') : t('Name|question')}</span><input class="inp" type="text" maxlength="120" bind:value={name} placeholder={builtin ? t(question.text) : t('e.g. Coffee')} data-own-name /></label>
+  {#if builtin}<p class="srcl"><small>{t('Empty brings back the app’s wording. The answers so far stay with the question.')}</small></p>{:else}
+  <p class="srcl"><span class="ab-src only"><Hand size={13} aria-hidden="true" />{t('only by hand possible')}</span><small>{t('no known source, the app asks you')}</small></p>{/if}
 
   <label class="fld"><span class="lbl">{t('Area|question')}</span>
     <select class="sel" bind:value={area}>
-      <option value={OWN_AREA}>{areaName(OWN_AREA)}</option>
-      {#each AREAS as a (a.key)}<option value={a.key}>{areaName(a.key)}</option>{/each}
+      {#each groups as a (a.key)}<option value={a.key}>{a.name}</option>{/each}
     </select>
   </label>
 
+  {#if builtin}
+    <p class="fld"><span class="lbl">{t('Answer')}</span><span><span class="ab-kind">{kindLabel(question.form)}</span> <small class="srcl">{t('the answer kind of this question stays, so the history keeps fitting')}</small></span></p>
+  {:else}
   <span class="lbl" id="own-kind">{t('Answer')}</span>
   <div class="kinds" role="group" aria-labelledby="own-kind">
     {#each KINDS as k (k.key)}
@@ -86,6 +101,7 @@
     </div>
   {/if}
 
+  {/if}
   <span class="lbl">{t('How often to ask?')}</span>
   <IntervalPick bind:every allowOff idp="own" />
 
@@ -97,15 +113,17 @@
     </div>
   {/if}
 
+  {#if !builtin}
   <label class="optrow">
     <span class="m"><b>{t('Show in Rückblick and Balance')}</b><small>{t('only to look at, without judgement')}</small></span>
     <span class="ab-sw"><input type="checkbox" role="switch" bind:checked={show} /></span>
   </label>
+  {/if}
 
   <div class="vd-foot">
-    {#if question}<button type="button" class="btn del" onclick={remove} data-own-delete><Trash2 size={16} aria-hidden="true" />{t('Remove|question')}</button>{/if}
+    {#if question}<button type="button" class="btn del" onclick={remove} data-own-delete><Trash2 size={16} aria-hidden="true" />{t('Delete')}</button>{/if}
     <button type="button" class="btn" onclick={() => dialog.close()}>{t('Cancel')}</button>
-    <button type="button" class="btn hi" onclick={save} disabled={!name.trim()} data-own-save>{t('Save')}</button>
+    <button type="button" class="btn hi" onclick={save} disabled={!canSave} data-own-save>{t('Save')}</button>
   </div>
 </dialog>
 

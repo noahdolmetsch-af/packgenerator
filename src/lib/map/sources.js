@@ -34,6 +34,14 @@ export const GROUNDS = [
   { key: 'cyclo', name: 'Cycling map', sub: 'CyclOSM: cycle paths and road surfaces, close to OsmAnd; only with the internet', kind: 'raster', url: 'https://a.tile-cyclosm.openstreetmap.fr/cyclosm/{z}/{x}/{y}.png', attribution: '© CyclOSM © OpenStreetMap', maxZoom: 18, offline: false },
   { key: 'topo', name: 'OpenTopoMap', sub: 'Contour lines; only with the internet', kind: 'raster', url: 'https://tile.opentopomap.org/{z}/{x}/{y}.png', attribution: '© OpenTopoMap (CC-BY-SA) © OpenStreetMap', maxZoom: 17, offline: false },
 ];
+/**
+ * Layers on top of any ground (Noah 20.10.2026 «SchweizMobil»): the signposted cycling routes of SchweizMobil
+ * (Veloland Schweiz) from swisstopo, a transparent layer, free Open Government Data. View only, only in
+ * Switzerland, only with the internet.
+ */
+export const SWISS_OVERLAYS = [
+  { id: 'veloland', name: 'SchweizMobil cycling routes', url: swiss('ch.astra.veloland', 'png'), maxzoom: 18, opacity: 0.85, attribution: '© swisstopo, SchweizMobil' },
+];
 export const groundOf = (key) => GROUNDS.find((g) => g.key === key) ?? GROUNDS[0];
 
 /** Roughly Switzerland and Liechtenstein. */

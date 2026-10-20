@@ -13,8 +13,9 @@ import { localDay } from '../localday.js';
 import { keepFix, zurichDay } from './spur.js';
 import { distKm } from './polyline.js';
 import { hold } from '../holdreload.js';
+import { keepSample } from '../live/ble.js';
 
-export const rec = $state({ on: false, id: null, tripId: null, startAt: 0, pts: 0, km: 0, acc: null, lastAt: 0, error: '', lock: false, here: null });
+export const rec = $state({ on: false, id: null, tripId: null, startAt: 0, pts: 0, km: 0, acc: null, lastAt: 0, error: '', lock: false, here: null, paused: false, auto: false, breaks: [], laps: [] });
 
 let watch = null;
 let lock = null;
@@ -23,6 +24,70 @@ let row = null;
 let saving = Promise.resolve();
 let onVis = null;
 let release = null; // no automatic reload while recording (holdreload.js)
+let jump = false; // after a pause: the way from the last point to the first new one is not counted
+
+/*
+ * Pausieren (Noah 20.10.2026 «Hinweis … dass man die Tour pausieren kann … dass die Zeit dann auch steht»):
+ * while paused no point is kept and the riding time stands. The pauses are kept with the recording
+ * (row.breaks: [[fromMs, toMs]], the last one open while paused), so they survive a reload and
+ * pauses() in live-lib.js leaves them out of the riding time. auto: paused by the auto-pause (speed).
+ */
+const saveRow = (db) => {
+  if (!row) return saving;
+  const sensors = row.sensors ? Object.fromEntries(Object.entries(row.sensors).map(([k, v]) => [k, v.slice()])) : undefined;
+  const snap = { ...row, pts: row.pts.slice(), breaks: (row.breaks ?? []).map((b) => b.slice()), ...(row.laps ? { laps: row.laps.map((x) => ({ ...x })) } : {}), ...(sensors ? { sensors } : {}) };
+  saving = saving.then(() => db.tracks.put(snap)).catch(() => {});
+  return saving;
+};
+
+/**
+ * A sensor value (live/sensors.svelte.js: hr, power, cadence) for the running recording: kept every 5 s
+ * as row.sensors[kind] = [[sec, value]], stored with the next point. Not while paused.
+ */
+export function addSensor(kind, value, at = Date.now()) {
+  if (!rec.on || !row || rec.paused) return false;
+  row.sensors ??= {};
+  const list = (row.sensors[kind] ??= []);
+  const n = list.length;
+  keepSample(list, (at - row.startAt) / 1000, value);
+  return list.length > n;
+}
+
+/**
+ * A new lap (Noah 20.10.2026 «Runden-Taste»): where it starts, kept as row.laps = [{ at, km, movingS }].
+ * movingS: the riding time now (the live map knows it).
+ */
+export async function lapRecording({ db = appDb, now = Date.now(), movingS = 0 } = {}) {
+  if (!rec.on || !row) return false;
+  row.laps = [...(row.laps ?? []), { at: now, km: rec.km, movingS: Math.round(movingS) }];
+  rec.laps = row.laps.map((x) => ({ ...x }));
+  await saveRow(db);
+  return true;
+}
+
+/** Pause the running recording (auto: by the auto-pause). */
+export async function pauseRecording({ db = appDb, now = Date.now(), auto = false } = {}) {
+  if (!rec.on || !row || rec.paused) return false;
+  row.breaks = [...(row.breaks ?? []), [now, null]];
+  rec.paused = true;
+  rec.auto = auto;
+  rec.breaks = row.breaks.map((x) => x.slice());
+  await saveRow(db);
+  return true;
+}
+
+/** Go on after a pause. */
+export async function resumeRecording({ db = appDb, now = Date.now() } = {}) {
+  if (!rec.on || !row || !rec.paused) return false;
+  const b = row.breaks?.at(-1);
+  if (b && b[1] == null) b[1] = Math.max(b[0], now);
+  rec.paused = false;
+  rec.auto = false;
+  rec.breaks = (row.breaks ?? []).map((x) => x.slice());
+  jump = true;
+  await saveRow(db);
+  return true;
+}
 
 const r6 = (v) => Math.round(v * 1e6) / 1e6;
 
@@ -50,19 +115,19 @@ export async function addFix(pos, db = appDb) {
   rec.error = ''; // a fix came: the old «no GPS» line goes
   // Live-Karte (Paket U3): the latest position, every fix, so the live map reads the same GPS.
   rec.here = { lat: fix.lat, lon: fix.lon, acc: fix.acc ?? null, at: fix.at, speed: pos.coords.speed ?? null, alt: pos.coords.altitude ?? null };
+  if (rec.paused) return false; // paused: the map still shows where you are, nothing is kept
   if (!keepFix(last, fix)) return false;
   const sec = Math.max(0, Math.round((fix.at - row.startAt) / 1000));
   const p = [r6(fix.lat), r6(fix.lon), sec];
-  if (last) rec.km = Math.round((rec.km + distKm([last.lat, last.lon], [fix.lat, fix.lon])) * 100) / 100;
+  if (last && !jump) rec.km = Math.round((rec.km + distKm([last.lat, last.lon], [fix.lat, fix.lon])) * 100) / 100;
+  jump = false;
   row.pts.push(p);
   row.endAt = fix.at;
   row.km = rec.km;
   last = fix;
   rec.pts = row.pts.length;
   rec.lastAt = fix.at;
-  const snap = { ...row, pts: row.pts.slice() };
-  saving = saving.then(() => db.tracks.put(snap)).catch(() => {});
-  await saving;
+  await saveRow(db);
   return true;
 }
 
@@ -75,34 +140,61 @@ export async function startRecording(trip, { db = appDb, cont = null, now = Date
   if (!navigator.geolocation) return 'This device cannot tell where it is.';
   rec.error = '';
   if (cont) {
-    row = { ...cont, pts: cont.pts.slice(), open: true };
+    row = { ...cont, pts: cont.pts.slice(), breaks: (cont.breaks ?? []).map((b) => b.slice()), ...(cont.sensors ? { sensors: Object.fromEntries(Object.entries(cont.sensors).map(([k, v]) => [k, v.slice()])) } : {}), open: true };
     const lp = row.pts.at(-1);
     last = lp ? { lat: lp[0], lon: lp[1], at: row.startAt + lp[2] * 1000 } : null;
   } else {
     row = { id: `rec-${now}`, kind: 'rec', tripId: trip?.id ?? null, day: localDay(new Date(now)), startAt: now, endAt: now, pts: [], km: 0, open: true, createdAt: new Date(now).toISOString() };
     last = null;
   }
+  jump = false;
   await db.tracks.put({ ...row, pts: row.pts.slice() });
-  Object.assign(rec, { on: true, id: row.id, tripId: row.tripId, startAt: row.startAt, pts: row.pts.length, km: row.km ?? 0, acc: null, lastAt: row.endAt });
+  // a pause still open when the app closed: it goes on paused
+  const paused = row.breaks?.at(-1)?.[1] === null;
+  Object.assign(rec, { on: true, id: row.id, tripId: row.tripId, startAt: row.startAt, pts: row.pts.length, km: row.km ?? 0, acc: null, lastAt: row.endAt, paused, auto: false, breaks: (row.breaks ?? []).map((x) => x.slice()), laps: (row.laps ?? []).map((x) => ({ ...x })) });
   release = hold('recording');
   await getLock();
   onVis = () => document.visibilityState === 'visible' && rec.on && getLock();
   document.addEventListener('visibilitychange', onVis);
+  watchDb = db;
+  gpsSaver = saver;
+  gpsLow = false;
+  startWatch();
+  return '';
+}
+
+let watchDb = appDb;
+let gpsSaver = false;
+let gpsLow = false;
+// saver (Live-Karte battery saver) or low (paused / standing, Stromsparen 1a): no high accuracy, older fixes → less GPS
+const gpsOptions = () => (gpsSaver || gpsLow ? { enableHighAccuracy: false, maximumAge: 30_000, timeout: 60_000 } : { enableHighAccuracy: true, maximumAge: 5000, timeout: 60_000 });
+function startWatch() {
+  if (watch != null) navigator.geolocation?.clearWatch(watch);
   watch = navigator.geolocation.watchPosition(
-    (pos) => addFix(pos, db),
+    (pos) => addFix(pos, watchDb),
     (err) => {
       rec.error = err?.code === 1 ? 'Location is not allowed. Allow it for this site in the browser settings.' : 'No GPS signal right now. Recording goes on as soon as there is one.';
     },
-    // saver (Live-Karte battery saver): no high accuracy, older fixes allowed → less GPS.
-    saver ? { enableHighAccuracy: false, maximumAge: 30_000, timeout: 60_000 } : { enableHighAccuracy: true, maximumAge: 5000, timeout: 60_000 },
+    gpsOptions(),
   );
-  return '';
+}
+
+/**
+ * Stromsparen (Noah 20.10.2026 «1a»): while paused or standing the GPS asks less often and less exactly;
+ * riding again → as before. The recording and the sensors go on all the time.
+ */
+export function setGpsLow(low) {
+  if (!rec.on || !!low === gpsLow) return false;
+  gpsLow = !!low;
+  if (!gpsSaver) startWatch();
+  return true;
 }
 
 /** Stop recording; the recording stays (closed). Returns it, or null when it had fewer than 2 points (then it goes). */
 export async function stopRecording(db = appDb) {
   if (watch != null) navigator.geolocation?.clearWatch(watch);
   watch = null;
+  gpsLow = false;
   try {
     await lock?.release?.();
   } catch {
@@ -114,10 +206,13 @@ export async function stopRecording(db = appDb) {
   release?.();
   release = null;
   await saving;
+  const ob = row?.breaks?.at(-1);
+  if (ob && ob[1] == null) ob[1] = Math.max(ob[0], Date.now());
+  jump = false;
   const done = row ? { ...row, pts: row.pts.slice(), open: false, day: row.pts.length ? zurichDay(row.startAt + row.pts[0][2] * 1000) : row.day } : null;
   row = null;
   last = null;
-  Object.assign(rec, { on: false, id: null, tripId: null, startAt: 0, pts: 0, km: 0, acc: null, lastAt: 0, lock: false, here: null });
+  Object.assign(rec, { on: false, id: null, tripId: null, startAt: 0, pts: 0, km: 0, acc: null, lastAt: 0, lock: false, here: null, paused: false, auto: false, breaks: [], laps: [] });
   if (!done) return null;
   if (done.pts.length < 2) {
     await db.tracks.delete(done.id);

@@ -2,7 +2,9 @@
  * Paket U2 «Karte» › Eigene Punkte (Noah 19.10.2026 «eigene Notizen/Punkte für alle Touren»): places you
  * mark yourself (a good fountain, a dangerous descent, a view). They belong to no trip: every map shows
  * them. One settings record (OWN_KEY), so they travel with every backup:
- *   { points: [{ id, lat, lon, name, note, kind, createdAt }] }
+ *   { points: [{ id, lat, lon, name, note, kind, createdAt, src? }] }
+ * src: the file a point was loaded from (Orte auf der Karte › own places, placefiles.js), so a whole
+ * file can be renamed or removed at once; a point set by hand has none.
  * The list order is yours (sort with arrows and dragging). Pure helpers are tested in
  * tests/map-lib.test.js; ownQuery/saveOwn talk to the db.
  */
@@ -21,20 +23,26 @@ export const OWN_KINDS = [
 ];
 export const OWN_KIND_KEYS = OWN_KINDS.map((k) => k.key);
 
-/** Paket Z 1122 «Schlafplätze»: a sleep spot keeps its stars (1–5) and the trip it came from. */
-const starsOf = (p) => ({ ...(Number.isInteger(p.stars) && p.stars >= 1 && p.stars <= 5 ? { stars: p.stars } : {}), ...(p.tripId ? { tripId: String(p.tripId) } : {}) });
+/** A file name as a source label (trimmed, at most 80 characters; '' for none). */
+export const srcOf = (v) => String(v ?? '').trim().slice(0, 80);
+/** Paket Z 1122 «Schlafplätze» (shared with Live-Karte U4): a sleep spot keeps its stars (1–5), the night (YYYY-MM-DD) and the trip it came from. */
+const starsOf = (p) => ({
+  ...(Number.isInteger(p.stars) && p.stars >= 1 && p.stars <= 5 ? { stars: p.stars } : {}),
+  ...(typeof p.night === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(p.night) ? { night: p.night } : {}),
+  ...(p.tripId ? { tripId: String(p.tripId) } : {}),
+});
 const num = (v) => (Number.isFinite(Number(v)) ? Number(v) : null);
 /** The stored value → a clean list (broken rows dropped, a missing kind becomes 'note'). */
 export function listOf(value) {
   const raw = Array.isArray(value?.points) ? value.points : [];
   return raw
     .filter((p) => p && typeof p === 'object' && num(p.lat) != null && num(p.lon) != null && Math.abs(p.lat) <= 90 && Math.abs(p.lon) <= 180)
-    .map((p) => ({ id: String(p.id ?? ''), lat: num(p.lat), lon: num(p.lon), name: String(p.name ?? ''), note: String(p.note ?? ''), kind: OWN_KIND_KEYS.includes(p.kind) ? p.kind : 'note', createdAt: p.createdAt ?? '', ...starsOf(p) }))
+    .map((p) => ({ id: String(p.id ?? ''), lat: num(p.lat), lon: num(p.lon), name: String(p.name ?? ''), note: String(p.note ?? ''), kind: OWN_KIND_KEYS.includes(p.kind) ? p.kind : 'note', createdAt: p.createdAt ?? '', ...(srcOf(p.src) ? { src: srcOf(p.src) } : {}), ...starsOf(p) }))
     .filter((p) => p.id);
 }
 
 /** A new point at a place (rounded to about 1 m). */
-export function newPoint({ lat, lon, name = '', note = '', kind = 'note' }, now = new Date()) {
+export function newPoint({ lat, lon, name = '', note = '', kind = 'note', src = '', stars, night, tripId }, now = new Date()) {
   return {
     id: `op${now.getTime().toString(36)}${Math.random().toString(36).slice(2, 6)}`,
     lat: Math.round(Number(lat) * 1e5) / 1e5,
@@ -43,7 +51,25 @@ export function newPoint({ lat, lon, name = '', note = '', kind = 'note' }, now 
     note: String(note).trim(),
     kind: OWN_KIND_KEYS.includes(kind) ? kind : 'note',
     createdAt: now.toISOString(),
+    ...(srcOf(src) ? { src: srcOf(src) } : {}),
+    ...starsOf({ stars, night, tripId }),
   };
+}
+
+/* ---------- loaded files (sources) ---------- */
+
+/** The files points came from, in the order they first appear: [{ src, n }]. */
+export function sourcesOf(list = []) {
+  const m = new Map();
+  for (const p of list) if (p.src) m.set(p.src, (m.get(p.src) ?? 0) + 1);
+  return [...m].map(([src, n]) => ({ src, n }));
+}
+/** Without the points of one file. */
+export const removeSource = (list, src) => list.filter((p) => p.src !== src);
+/** Another name for a file's points ('' keeps the old one). */
+export function renameSource(list, src, to) {
+  const name = srcOf(to);
+  return name ? list.map((p) => (p.src === src ? { ...p, src: name } : p)) : list;
 }
 export const updatePoint = (list, id, patch) => list.map((p) => (p.id === id ? { ...p, ...patch, id } : p));
 export const removePoint = (list, id) => list.filter((p) => p.id !== id);
