@@ -19,6 +19,7 @@ export default {
   'Example: template «Weekend bikepacking» starts every 2-day trip with tent and stove.': 'Beispiel: Vorlage «Wochenend-Bikepacking» startet jede 2-Tages-Tour mit Zelt und Kocher.',
   'Open the trip in Pack and tap «Add GPX route».': 'Öffne die Tour in Packen und tippe «GPX-Route hinzufügen».',
   'Pick the file; km, climbing and riding time fill in.': 'Datei wählen; km, Höhenmeter und Fahrzeit füllen sich.',
+  'Under the map: the profile coloured by gradient and every climb; tap a climb and the profile zooms to it.': 'Unter der Karte: das Profil nach Steigung gefärbt und jeder Anstieg; tippe auf einen Anstieg, und das Profil zoomt hin.',
   'Example: a 92 km route with 1400 m climbing → about 5 h riding time.': 'Beispiel: eine Route mit 92 km und 1400 Hm → etwa 5 h Fahrzeit.',
   'Set your home place once: Me › Home place, or the link on Today.': 'Heimat einmal setzen: Ich › Heimat oder der Link auf Heute.',
   'Type your postcode or town and choose it.': 'Postleitzahl oder Ort eingeben und wählen.',
