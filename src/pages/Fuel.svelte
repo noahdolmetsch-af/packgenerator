@@ -2,7 +2,7 @@
   /**
    * Verpflegungsstrategie (Noah 19.10.2026 21:11 «1a 2a 3a und b 4a 5a»): Touren › Verpflegung
    * (#/trips/fuel, #/trips/fuel?trip=ID). How much to eat and drink, section by section between the
-   * places to buy food: carbohydrates (your g per hour), water (1–2 l per hour by temperature and
+   * places to buy food: carbohydrates (your g per hour), water (0.5–1.5 l per hour by temperature and
    * climbing), what to carry, and warnings for long gaps, bottles that are too small and shops closed
    * when you get there. Your values and products are yours to change, sort and delete. The rule:
    * src/lib/fuel.js. The places along the route come from the place search of the live map (Paket 7, map/poisearch.js
