@@ -4,7 +4,7 @@ Stand: 18. Oktober 2026. Der kurze Überblick steht im [Projektstand](projektsta
 
 ## Aktuell live
 
-**0.164.0 «Tests automatisieren» (20.10.2026):** nacht.yml (Rundgang über 388 Adressen, Handy und Computer, Issue «rundgang» nur bei Fund), live.yml (nach jedem Deploy und morgens: Version, Heute, Offline-Start, Update von älterem Build), tests/zeitkapsel.test.js (Dexie 1–18 → 19 ohne Verlust), api/_lib/health.js (Gemini und «abend»), Bibliotheken aktuell ohne Playwright, swissnum.js für «1’250», Leaflet-Zoom auf Deutsch.
+**0.164.0 «Tests automatisieren» (20.10.2026):** src/lib/swupdate.js holt Updates auch in die offene App (registration.update() beim Zurückkommen und stündlich, Neuladen bei controllerchange, nicht bei Erstbesuch oder fokussiertem Textfeld; darum stand das Handy auf 0.157); nacht.yml (Rundgang über 388 Adressen, Handy und Computer, Issue «rundgang» nur bei Fund), live.yml (nach jedem Deploy und morgens: Version, Heute, Offline-Start, Update von älterem Build), tests/zeitkapsel.test.js (Dexie 1–18 → 19 ohne Verlust), api/_lib/health.js (Gemini und «abend»), Bibliotheken aktuell ohne Playwright, swissnum.js für «1’250», Leaflet-Zoom auf Deutsch.
 
 **0.163.0 «Gesamttest Runde 2» (20.10.2026):** Strava-Fahrten, deren Velo wie ein eigenes Velo heisst, werden selbst zugeordnet (Rückgängig möglich); Touren hat den Reiter «Fahrten» (#/trips/rides), Übersicht nur noch eine Zeile dorthin; Planen und Packen nennen den nächsten Schritt; Hilfe ab dem zweiten Besuch als eine Zeile; «Gut gemacht» als eigene Zeile auf Heute; «Jetzt fällig» zeigt alles; Verlauf und Gelernt 5 Zeilen pro Tag/Thema.
 

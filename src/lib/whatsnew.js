@@ -22,8 +22,8 @@ export const WHATS_NEW = [
     title: 'The app checks itself',
     lead: 'Every night a robot opens all pages; after every update it checks the real app, offline too.',
     points: [
-      { text: 'Every night all pages are checked on a phone and a computer; a finding becomes a task by itself' },
-      { text: 'After every update the app online is checked: version, Today, an offline start and the update from an older version' },
+      { text: 'Updates now reach the phone by themselves, even when the app stays open' },
+      { text: 'Every night all pages are checked on a phone and a computer; after every update the real app too, offline included' },
       { text: 'Libraries up to date; numbers keep their Swiss apostrophe «1’250» in every Chrome version' },
     ],
     small: [
@@ -32,7 +32,7 @@ export const WHATS_NEW = [
       { box: 'nicer', text: 'The AI helpers are checked once a day' },
     ],
     test: [
-      'Nothing to do: the checks run by themselves.',
+      'Leave the app open on the phone: after the next update it reloads by itself when you come back to it.',
       'Open a map and point at + or −: the button says «Zoom in» in your language.',
     ],
   },
