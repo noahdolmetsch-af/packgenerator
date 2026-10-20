@@ -25,4 +25,15 @@ export default {
   '«new» only on the first new item of a list': '«neu» nur beim ersten neuen Eintrag einer Liste',
   'Open Trips › Rides: your Strava activities on their own tab.': 'Öffne Touren › Fahrten: deine Strava-Aktivitäten im eigenen Reiter.',
   'Open a page a second time: its help is one line «How it works».': 'Öffne eine Seite ein zweites Mal: ihre Hilfe ist eine Zeile «So geht\'s».',
+  // 0.164.0 whatsnew
+  'The app checks itself': 'Die App prüft sich selbst',
+  'Every night a robot opens all pages; after every update it checks the real app, offline too.': 'Jede Nacht öffnet ein Roboter alle Seiten; nach jedem Update prüft er die echte App, auch offline.',
+  'Every night all pages are checked on a phone and a computer; a finding becomes a task by itself': 'Jede Nacht werden alle Seiten auf Handy und Computer geprüft; ein Fund wird von selbst zur Aufgabe',
+  'After every update the app online is checked: version, Today, an offline start and the update from an older version': 'Nach jedem Update wird die App online geprüft: Version, Heute, ein Start ohne Netz und das Update von einer älteren Version',
+  'Libraries up to date; numbers keep their Swiss apostrophe «1’250» in every Chrome version': 'Bibliotheken aktuell; Zahlen behalten in jeder Chrome-Version ihren Schweizer Apostroph «1’250»',
+  'Zoom buttons on the maps in your language': 'Zoom-Knöpfe auf den Karten in deiner Sprache',
+  'Every older data version is tested to arrive complete in the new one': 'Jede ältere Datenversion wird getestet, ob sie vollständig in der neuen ankommt',
+  'The AI helpers are checked once a day': 'Die KI-Helfer werden einmal am Tag geprüft',
+  'Nothing to do: the checks run by themselves.': 'Nichts zu tun: die Prüfungen laufen von selbst.',
+  'Open a map and point at + or −: the button says «Zoom in» in your language.': 'Öffne eine Karte und zeige auf + oder −: der Knopf sagt «Hineinzoomen» in deiner Sprache.',
 };
