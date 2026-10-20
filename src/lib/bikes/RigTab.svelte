@@ -138,7 +138,7 @@
 
 {#if !bikes.length && $bikesQ}
   <h1 class="title">{t('My setup|tab')}</h1>
-  <Empty icon={Bike} title={t('No bikes yet')} text={t('Add your bike, or bring your data along with a backup.')} action={{ label: t('Add bike'), href: '#/bikes', onclick: wantBike }}>{t('Or import your data on the')} <a href="#/">{t('start page')}</a>.</Empty>
+  <Empty icon={Bike} title={t('No bikes yet')} text={t('Add your bike, or bring your data along with a backup.')} action={{ label: t('Add bike'), href: '#/bikes', onclick: wantBike }}>{t('Or bring your data along from a backup:')} <a href="#/me/data">{t('Me › Data and backup')}</a>.</Empty>
 {:else if bike && view === 'bags'}
   <RigPlan {bike} />
 {:else if bike && view === 'log'}

@@ -22,6 +22,7 @@
   import { PLAN_KEY, planOf, mondayOf, shiftDay, isoWeek, hmm, typeKey } from '../../lib/training.js';
   import { SLEEP_Q, MOOD_Q, weekParam, weekHref, weekFive, weekStrip, weekNotes, weekHighs, weekAhead, diffText, hasAnything, summaryText } from '../../lib/weekreview.js';
   import { localDay } from '../../lib/localday.js';
+  import WeekForm from '../../lib/flow/form/WeekForm.svelte';
   import GoalCheck from '../../lib/compass/GoalCheck.svelte'; // Paket N #1047: «Wie läuft's?» for your goals, this week only
   import { t, tn, num, locale } from '../../lib/i18n.svelte.js';
 
@@ -113,7 +114,7 @@
 
 <div class="wrv">
   <header class="ph">
-    <Crumb path={[{ href: '#/flow', label: t('Active|place') }, { href: '#/flow/week', label: t('Week') }]} here={t('Week in review')} />
+    <Crumb path={[{ href: '#/flow', label: t('Analysis|place') }, { href: '#/flow/week', label: t('Week') }]} here={t('Week in review')} />
     <PageHead title={t('Week in review')} text={t('Observation only: what was, nothing is rated.')} />
     <nav class="wnav" aria-label={t('Choose the week')}>
       <a class="wstep" href={prevHref} aria-label={t('Week before')} data-week-prev><ChevronLeft size={18} aria-hidden="true" /></a>
@@ -146,6 +147,9 @@
       </ul>
       <p class="cap">{t('Change against the week before. Hours, km and Hm from Strava.')}</p>
     </section>
+
+    <!-- «Form und Erholung» (Noah 20.10.2026): fitness and form at the end of the week -->
+    <WeekForm end={running ? today : sunday} />
 
     <section class="card wcard" data-wr="strip" aria-labelledby="wr-strip">
       <h2 id="wr-strip">{t('Week strip')}</h2>

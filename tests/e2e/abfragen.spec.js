@@ -7,6 +7,7 @@
 //         «Jetzt nicht»; since Noah 19.10.2026 its own window (Morgen-Check) with «Später» and «Heute nicht»;
 // AB4     Ich › Daten › Verlauf: the answers and an old daily check, filter by area and source, change an answer.
 import { test, expect } from '@playwright/test';
+import { viaTab } from './placetab.js'; // UI-Ziele #6: the pages that were rows under Ich are tabs now
 import { mkdirSync } from 'node:fs';
 import { openHome, homeFixture, D0, day } from './home0460-fixture.js';
 import { QUESTIONS, ON_AT_START } from '../../src/lib/abfragen.js';
@@ -50,8 +51,9 @@ test.describe('AB Deine Abfragen', () => {
     await expect(save).toBeDisabled();
     await shot(page, info, 'AB3-abfrage-heute');
     await noSideways(page);
-    await akku.getByRole('button', { name: '6', exact: true }).click();
-    await expect(akku.getByText('6 von 10 · gespeichert wird die Zahl')).toBeVisible();
+    // UI-Ziele #12 (Noah 20.10.2026 «freigabe», changed on purpose): 5 steps with words in the window, stored as 2 … 10
+    await akku.getByRole('button', { name: T('okay|step'), exact: true }).click();
+    await expect(akku.locator('[data-step="6"]')).toHaveAttribute('aria-pressed', 'true');
     await w.getByRole('textbox').fill('72.0');
     await save.click();
     await expect(card.locator('[data-q="erholung.akku"]')).toHaveCount(0);
@@ -78,8 +80,7 @@ test.describe('AB Deine Abfragen', () => {
 
   test('AB1/AB5 and AB2: the questions by area, a switch, an interval, an own question', async ({ page, context }, info) => {
     const T = await openHome(page, context, info, { data: data({ keep: [...ON_AT_START] }) });
-    await page.goto('./#/me');
-    await page.getByRole('link', { name: new RegExp(T('Your questions')) }).click();
+    await viaTab(page, 'active', '#/me/abfragen'); // UI-Ziele #6: Auswerten › Wi gaht's?
     await expect(page).toHaveURL(/#\/me\/abfragen$/);
     await expect(page.getByRole('heading', { level: 1, name: T('Your questions') })).toBeVisible();
     // Impeccable Runde 2 (on purpose): the head says how often a day the app asks

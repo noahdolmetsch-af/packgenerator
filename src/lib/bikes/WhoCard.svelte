@@ -62,7 +62,7 @@
     align-items: center;
     gap: 8px;
     margin: 0;
-    font-size: 18px;
+    font-size: var(--fs-sub);
     font-weight: 600;
     line-height: 1.25;
   }
@@ -72,7 +72,7 @@
   }
   h2 .r {
     margin-left: auto;
-    font-size: 14px;
+    font-size: var(--fs-small);
     font-weight: 400;
     color: var(--ink-3);
   }
@@ -99,7 +99,7 @@
     flex-wrap: wrap;
     gap: 2px 16px;
     margin: 6px 0 4px;
-    font-size: 14px;
+    font-size: var(--fs-small);
     color: var(--ink-2);
   }
   .legend span {
@@ -140,12 +140,12 @@
     font-weight: 600;
   }
   .nm small {
-    font-size: 13px;
+    font-size: var(--fs-small);
     color: var(--ink-3);
   }
   .quiet {
     color: var(--ink-3);
-    font-size: 14px;
+    font-size: var(--fs-small);
   }
   .badge {
     flex: none;
@@ -157,7 +157,7 @@
     border-radius: 99px;
     background: var(--paper);
     color: var(--ink-2);
-    font-size: 12px;
+    font-size: var(--fs-tiny);
     font-weight: 600;
     white-space: nowrap;
   }

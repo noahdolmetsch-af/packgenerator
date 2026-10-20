@@ -76,6 +76,7 @@ export const SINCE = {
   'f.connections': '0.153.0', 'f.owncal': '0.153.0', 'f.notestasks': '0.153.0', 'f.fitbitold': '0.153.0', 'f.stravaticks': '0.153.0', 'f.lake': '0.153.0', 'f.datastars': '0.153.0', 'f.wxwatch': '0.153.0', 'f.tourhints': '0.153.0', 'f.rainsoon': '0.153.0', 'f.air': '0.153.0', 'f.routepois': '0.153.0',
   // Paket H «Packen leichter» (v0.153.0)
   'f.starters': '0.153.0', 'f.supplies': '0.153.0', 'f.table': '0.153.0', 'f.readaloud': '0.153.0', 'f.lend': '0.153.0', 'f.ownrules': '0.153.0', 'f.startfresh': '0.153.0',
+  'f.form': '0.170.0', 'f.overview': '0.170.0', // Form und Erholung + Garmin-Übersicht (Noah 20.10.2026); the bundler sets the release version
   'f.tourpage': '0.161.0', // Tour-Seite (Noah 19.10.2026 «1a 2 beides 3b 4 beides 5a»), Paket 9
   'f.fuel': '0.160.0', // Verpflegung (Noah 19.10.2026 «1a»), Paket 8
   'f.power': '0.155.0', // Strombudget (Noah 19.10.2026 «2a»), Paket 3+4
@@ -96,6 +97,8 @@ export const SINCE = {
   'f.packphoto': '0.154.0', 'f.sitpos': '0.154.0',
   // Paket U «Rennen» (provisional version, the bundler renumbers)
   'f.race': '0.159.0', 'f.racesample': '0.159.0', 'f.racemap': '0.159.0', 'f.climbs': '0.159.0', 'f.mapoffline': '0.159.0', 'f.live': '0.159.0',
+  // Live-Karte Teil 1–3 (provisional version, the bundler renumbers)
+  'f.livepause': '0.170.0', 'f.sensors': '0.170.0', 'f.datapages': '0.170.0', 'f.turns': '0.170.0', 'f.laps': '0.170.0', 'f.moreplaces': '0.170.0', 'f.rwgps': '0.170.0', 'f.ovnear': '0.170.0', 'f.sharepic': '0.170.0',
   // Paket T «Freie Zeit» (v0.155.0)
   'f.frei': '0.155.0', 'f.impulse': '0.155.0',
   // Paket V «Alltag» (v0.155.0)
@@ -104,8 +107,18 @@ export const SINCE = {
   'f.travel': '0.155.0',
   // «Diktat und Fragen» (v0.155.0)
   'f.dictate': '0.155.0', 'f.askfurther': '0.155.0', 'f.aiprojects': '0.155.0',
+  // «Erster Start» (provisional version, the bundler renumbers)
+  'f.firststart': '0.170.0',
+  // Paket X «Umweg neu planen» (provisional version, the bundler renumbers)
+  'f.reroute': '0.170.0',
+  // Paket W «Von der Haustür bis zurück» (provisional version, the bundler renumbers)
+  'f.arrived': '0.170.0', 'f.planb': '0.170.0', 'f.checkin': '0.170.0', 'f.parked': '0.170.0',
   // «Trainingspläne» (v0.157.0, provisional)
   'f.trainplans': '0.157.0', 'f.feel': '0.157.0',
+  // «Heatmap» (provisional version, the bundler renumbers)
+  'f.heatmap': '0.170.0',
+  // «Tagebuch» (provisional; the bundler sets the version of its release)
+  'f.journal': '0.170.0',
 };
 export const sinceOf = (id) => SINCE[id] ?? '0.1.0';
 

@@ -8,6 +8,10 @@ import { test, expect } from '@playwright/test';
 import { endMenu } from './ending.js';
 import { base, tr, mockWeather } from './home0460-fixture.js';
 import { importAndSettle, settle } from './settle.js';
+import { readFileSync } from 'node:fs';
+
+/** The button corner from the app's own token (UI-Grundlagen 20.10.2026: round buttons). */
+const R_BTN = readFileSync(new URL('../../src/app.css', import.meta.url), 'utf8').match(/--r-btn:\s*([^;]+);/)[1].trim();
 
 const T = tr('de');
 const D0 = '2026-10-14'; // a Wednesday
@@ -344,7 +348,8 @@ test('the kit: soft 44 px buttons, the empty card with its picture, confetti onc
   await expect(empty.locator('.ring svg')).toBeVisible();
   const btn = empty.locator('.btn');
   const look = await btn.evaluate((el) => ({ r: getComputedStyle(el).borderTopLeftRadius, h: el.getBoundingClientRect().height }));
-  expect(look.r).toBe('10px');
+  // UI-Grundlagen (Noah 20.10.2026, changed on purpose): buttons are round, the corner comes from --r-btn
+  expect(look.r).toBe(R_BTN);
   expect(look.h).toBeGreaterThanOrEqual(44);
 
   await page.evaluate((id) => localStorage.setItem('pack.currentTrip', id), ID('Alpen'));

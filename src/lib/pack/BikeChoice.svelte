@@ -87,7 +87,7 @@
   }
   h3 {
     margin: 0 0 6px;
-    font-size: 17px;
+    font-size: var(--fs-sub);
     display: flex;
     gap: 8px;
     align-items: center;
@@ -106,7 +106,7 @@
     display: grid;
     grid-template-columns: auto 1fr;
     gap: 4px 10px;
-    font-size: 14px;
+    font-size: var(--fs-small);
   }
   dt {
     color: var(--ink-3);

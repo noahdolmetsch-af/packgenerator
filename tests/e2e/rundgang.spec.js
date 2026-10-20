@@ -140,7 +140,12 @@ test('The small tour of Bikes, and the Einstieg on the pages below the places', 
     const card = page.locator(`[data-hint="${key}"][data-intro-in="${place}"]`);
     await expect(card.locator(`[data-intro-things="${place}"]`), place).toContainText(T(INTROS[place].things[0].title));
     await expect(card.locator('[data-offer]'), place).toHaveCount(0);
-    await expect(card.locator('[data-fact]'), place).toContainText(T('Source: {source}', { source: '' }).trim());
+    await expect(page.locator('main [data-tip]'), place).toHaveCount(1);
+    // the «Did you know» never repeats the tip of the day (factOfDay skips it): on a day when the tip of the day
+    // is the page's only fact with a source (Kleiderschrank has one), the card has no fact and the tip line shows it
+    const tipId = await page.locator('main [data-tip]').getAttribute('data-tip');
+    if (await card.locator('[data-fact]').count()) await expect(card.locator('[data-fact]'), place).toContainText(T('Source: {source}', { source: '' }).trim());
+    else expect(tipId, `${place}: no fact only when the tip of the day is the fact`).toMatch(/^know-/);
     await expect(page.locator(`[data-intro="${place}"]`), place).toHaveCount(0);
     await expect(page.locator('main [data-tip]'), place).toHaveCount(1);
   }

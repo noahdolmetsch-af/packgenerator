@@ -8,7 +8,22 @@
   import { t } from '../i18n.svelte.js';
   import { optText, unitText } from './words.js';
 
-  let { q, value = $bindable(), note = $bindable(), id, label = '' } = $props();
+  // UI-Ziele #12 (Noah 20.10.2026 «freigabe»): `quick` draws a scale as 5 steps with words (stored as 2, 4 … 10 of the
+  // 1–10 scale), `last` (yesterday's value) is marked quietly, `onanswer` runs after a pick (the check moves on)
+  let { q, value = $bindable(), note = $bindable(), id, label = '', quick = false, last = null, onanswer = null } = $props();
+  const STEPS = [
+    { v: 2, w: 'bad|step' },
+    { v: 4, w: 'rather bad|step' },
+    { v: 6, w: 'okay|step' },
+    { v: 8, w: 'good|step' },
+    { v: 10, w: 'very good|step' },
+  ];
+  // an older answer of the 10 steps marks its nearest word
+  const lastStep = $derived(last == null ? null : Math.min(10, Math.max(2, Math.round(Number(last) / 2) * 2)));
+  function pickStep(v) {
+    pick(v);
+    if (value != null) onanswer?.();
+  }
   const form = $derived(q.form);
   const EMOJI = { laugh: 'laughing', cool: 'cool', crazy: 'crazy', sleepy: 'sleepy', upsideDown: 'upside down', starstruck: 'star-struck' };
 
@@ -21,7 +36,15 @@
   const pressed = (k) => (form.multi ? Array.isArray(value) && value.includes(k) : value === k);
 </script>
 
-{#if form.kind === 'scale' && form.style === 'battery'}
+{#if form.kind === 'scale' && quick}
+  <div class="ab-five" role="group" aria-label={label} data-quick-scale>
+    {#each STEPS as st (st.v)}
+      <button type="button" aria-pressed={value === st.v} class:yd={lastStep === st.v} onclick={() => pickStep(st.v)} data-step={st.v}>
+        <span>{t(st.w)}</span>{#if lastStep === st.v}<small>{t('yesterday|step')}</small>{/if}
+      </button>
+    {/each}
+  </div>
+{:else if form.kind === 'scale' && form.style === 'battery'}
   <div class="ab-bat" role="group" aria-label={label}>
     {#each Array.from({ length: 10 }, (_, i) => i + 1) as v (v)}
       <button type="button" class:on={value != null && v <= value} aria-pressed={value === v} aria-label={String(v)} onclick={() => pick(v)}><span class="num">{v}</span></button>
@@ -66,6 +89,47 @@
 {/if}
 
 <style>
+  .ab-five {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 6px;
+    max-width: 560px;
+  }
+  .ab-five button {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    min-width: 0;
+    min-height: 52px;
+    padding: 4px 2px;
+    border: 1px solid var(--line-strong);
+    border-radius: var(--r-ctl);
+    background: var(--paper);
+    color: var(--ink-2);
+    font: 600 var(--fs-small) / 1.15 var(--font-body);
+    text-align: center;
+    overflow-wrap: break-word;
+    hyphens: auto;
+    cursor: pointer;
+  }
+  .ab-five button.yd {
+    border-style: dashed;
+  }
+  .ab-five small {
+    color: var(--ink-3);
+    font-weight: 400;
+    font-size: var(--fs-label);
+  }
+  .ab-five button[aria-pressed='true'] {
+    border-color: var(--accent);
+    background: var(--accent);
+    color: var(--paper);
+  }
+  .ab-five button[aria-pressed='true'] small {
+    color: inherit;
+  }
   .ab-note {
     display: block;
     margin-top: 8px;

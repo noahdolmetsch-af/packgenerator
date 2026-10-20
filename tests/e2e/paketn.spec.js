@@ -3,6 +3,7 @@
 // shows on both, «Auf einen Blick» counts it, a #tag searches; Ich › Was kommt shows the packages.
 // No sideways scroll, no page errors. Fictional data only.
 import { test, expect } from '@playwright/test';
+import { viaTab } from './placetab.js'; // UI-Ziele #6: the pages that were rows under Ich are tabs now
 import DE from '../../src/lib/i18n/de/index.js';
 import { PACKAGES } from '../../src/lib/wascommt.js';
 import { ready } from './settle.js';
@@ -110,9 +111,9 @@ test('Touren › Träume: a dream with its season in the year band', async ({ pa
 
 test('Ich › Mein Kompass: a goal gets steps with dates, «Wie läuft\'s?», an idea becomes a goal', async ({ page, context }) => {
   const errors = await prep(page, context);
-  await page.goto('./#/me');
+  await page.goto('./#/');
   await ready(page);
-  await page.locator('a[data-row="compass"]').click();
+  await viaTab(page, 'week', '#/me/compass'); // UI-Ziele #6: Planen › Kompass
   await expect(page).toHaveURL(/#\/me\/compass$/);
   const root = page.locator('[data-page="compass"]');
   await root.locator('[data-goals] form.cap input[type="text"]').first().fill('test_data_gtp_ Alpenbrevet');

@@ -129,7 +129,7 @@ const every = (days) => (days >= 365 ? t('yearly') : t('every {n} months', { n: 
  * time: the timeDue rows of the bike (workshop.js); a part with a time interval that is not in
  * them (sealant on a bike with tubes) says so.
  */
-export function partStatus(bike, part, time = [], today = localDay()) {
+export function partStatus(bike, part, time = [], today = localDay(), pace = null) {
   const p = partInfo(part);
   if (needsWork(part)) return { state: 'work', fill: null, tone: 'bad', next: usualBy(part) === 'shop' ? t('have the bike shop do it') : t('replace or fix') };
   const found = [];
@@ -158,7 +158,7 @@ export function partStatus(bike, part, time = [], today = localDay()) {
         state: f >= 1 ? 'due' : f >= 0.8 ? 'soon' : 'ok',
         fill: clamp(f),
         tone: f >= 1 ? 'warn' : f >= 0.8 ? 'warn' : 'ok',
-        next: f >= 1 ? t('{what}: now (every {km} km)', { what: serviceName(p), km: num(p.everyKm) }) : t('in {km} km (every {every} km)', { km: num(p.everyKm - since), every: num(p.everyKm) }),
+        next: f >= 1 ? t('{what}: now (every {km} km)', { what: serviceName(p), km: num(p.everyKm) }) : t('in {km} km (every {every} km)', { km: num(p.everyKm - since), every: num(p.everyKm) }) + daysAt(p.everyKm - since, pace),
       });
     }
   }
@@ -213,4 +213,25 @@ export function yearSummary(bike, visits = [], tasks = [], year = localDay().sli
   }
   const chf = Math.round(totals.reduce((s, x) => s + (x ?? 0), 0) * 100) / 100;
   return { year, self: jobs.size, shop: mine.length + Object.keys(shopDays).length, chf, unknown: totals.filter((x) => x == null).length, per: costPer1000(visitsOf(visits, bike?.id), bike ?? {}) };
+}
+
+/**
+ * UI-Grundlagen (Noah 20.10.2026, idea 19 «Pflege-Vorhersage»): the bike's usual km per day, from the rides of
+ * the last 4 weeks in the ride ledger (kmbook entries of kind 'ride'). null when there is too little to go by
+ * (fewer than 3 rides or under 30 km), so the app keeps saying only «in 59 km».
+ */
+export function kmPerDay(entries = [], bikeId, today = localDay(), days = 28) {
+  const from = new Date(`${today}T12:00:00Z`);
+  from.setUTCDate(from.getUTCDate() - days);
+  const cut = from.toISOString().slice(0, 10);
+  const rides = entries.filter((e) => e.bikeId === bikeId && e.kind === 'ride' && e.state === 'counted' && e.date > cut && e.date <= today);
+  const km = rides.reduce((s, e) => s + (Number(e.km) || 0), 0);
+  return rides.length >= 3 && km >= 30 ? km / days : null;
+}
+
+/** « · in about 12 days» for km still to go at a pace (km per day); '' without a pace or beyond 120 days. */
+export function daysAt(kmLeft, pace) {
+  if (!(pace > 0) || !(kmLeft > 0)) return '';
+  const n = Math.max(1, Math.round(kmLeft / pace));
+  return n > 120 ? '' : ` · ${tn(n, 'in about {n} day', 'in about {n} days')}`;
 }

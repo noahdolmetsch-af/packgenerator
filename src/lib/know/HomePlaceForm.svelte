@@ -94,7 +94,7 @@
   }
   .warn {
     margin: 0;
-    font-size: 14px;
+    font-size: var(--fs-small);
     color: var(--ink);
   }
 </style>

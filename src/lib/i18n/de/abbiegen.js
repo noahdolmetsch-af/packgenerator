@@ -1,0 +1,20 @@
+// Abbiege-Hinweise auf der Live-Karte (src/lib/live/turns.js, TurnHint.svelte).
+export default {
+  'In {m} m turn left': 'In {m} m links abbiegen',
+  'In {m} m turn right': 'In {m} m rechts abbiegen',
+  'In {m} m bear left': 'In {m} m leicht links',
+  'In {m} m bear right': 'In {m} m leicht rechts',
+  'In {m} m turn sharp left': 'In {m} m scharf links',
+  'In {m} m turn sharp right': 'In {m} m scharf rechts',
+  'In {m} m make a U-turn': 'In {m} m wenden',
+  'In {m} m: {n} bends over {km} km': 'In {m} m: {n} Kurven auf {km} km',
+  'Turn left now': 'Jetzt links',
+  'Turn right now': 'Jetzt rechts',
+  'Bear left now': 'Jetzt leicht links',
+  'Bear right now': 'Jetzt leicht rechts',
+  'Turn sharp left now': 'Jetzt scharf links',
+  'Turn sharp right now': 'Jetzt scharf rechts',
+  'Make a U-turn now': 'Jetzt wenden',
+  '{n} bends over {km} km': '{n} Kurven auf {km} km',
+  'Next turn|live': 'Nächste Abzweigung',
+};

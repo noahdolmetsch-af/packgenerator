@@ -89,7 +89,8 @@ test('a) a finished tour opens its page: key figures, map, profile, jump bar or 
   await expect(tour(page).locator('[data-tour-part]')).toHaveCount(1);
   await tour(page).getByRole('tab', { name: T('Values|tour') }).click();
   await expect(tour(page).locator('[data-tour-part="values"]')).toBeVisible();
-  await expect(tour(page).locator('[data-tour-part="values"] [data-field="w20"] dd')).toContainText('236');
+  // Tour-Auswertung (20.10.2026 «3a und b»): the best 20 minutes stand in the table «Bestwerte»
+  await expect(tour(page).locator('[data-tour-part="values"] [data-best="power"] td').last()).toContainText('236');
   await shot(page, info, 'T2-tour-reiter-werte', false);
   await noSideways(page);
   expect(errors).toEqual([]);

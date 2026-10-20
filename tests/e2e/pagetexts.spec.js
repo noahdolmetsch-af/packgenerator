@@ -161,12 +161,10 @@ test('HT1 Velopflege: the card with its situations, jumps, the fold at the end, 
   const main = page.locator('main');
   const card = main.locator('[data-hint="care"]');
   await expect(card).toContainText(T(HINTS.care.lead[1]));
-  // 2b: on a phone «Typisch hier» starts folded, on a computer it is open
+  // UI-Grundlagen (Noah 20.10.2026, idea 1): «Typisch hier» starts folded on every screen (was: only on a phone, 2b)
   const uses = card.getByText(T(HINTS.care.uses[0][1]));
-  if (test.info().project.name === 'phone') {
-    await expect(uses).toBeHidden();
-    await card.locator('[data-uses] summary').click();
-  }
+  await expect(uses).toBeHidden();
+  await card.locator('[data-uses] summary').click();
   await expect(uses).toBeVisible();
   // «Weiter unten»: a chip jumps to its part of the page
   const chip = card.locator('[data-jump="due-h"]');

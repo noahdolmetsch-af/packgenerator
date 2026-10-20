@@ -265,7 +265,7 @@
     margin: 4px 0 6px;
   }
   .hint {
-    font-size: 14px;
+    font-size: var(--fs-small);
     color: var(--ink-3);
     margin: 0 0 8px;
   }
@@ -274,7 +274,7 @@
     gap: 8px;
     align-items: center;
     margin: 0 0 12px;
-    font-size: 14px;
+    font-size: var(--fs-small);
   }
   /* v0.40.0 (Noah 6a): badges neutral grey; only an urgent one has a small coloured dot. */
   .badge {
@@ -329,14 +329,14 @@
   .err {
     color: var(--bad);
     min-height: 1.2em;
-    font-size: 14px;
+    font-size: var(--fs-small);
     margin: 4px 0;
   }
   .warnbox {
     border: 1.5px solid var(--hi);
     background: var(--hi-soft);
     padding: 8px 10px;
-    font-size: 14px;
+    font-size: var(--fs-small);
   }
   .who {
     display: flex;
@@ -362,7 +362,7 @@
     padding: 6px 16px;
     border: 0;
     background: var(--paper);
-    font: 600 15px var(--font-body);
+    font: 600 var(--fs-body) var(--font-body);
     color: var(--ink);
     cursor: pointer;
   }
@@ -384,7 +384,7 @@
     gap: 2px 10px;
     padding: 6px 0;
     border-top: 1px solid var(--line);
-    font-size: 14px;
+    font-size: var(--fs-small);
   }
   .hist .m {
     grid-column: 2;

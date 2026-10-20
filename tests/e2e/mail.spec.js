@@ -3,6 +3,7 @@
 // searches Gmail. The server (packgen-three.vercel.app/api/google) and the Google login are answered by
 // the test; everything else outside the preview server is blocked. Fictional mails only.
 import { test, expect } from '@playwright/test';
+import { viaTab } from './placetab.js'; // UI-Ziele #6: the pages that were rows under Ich are tabs now
 import { ready } from './settle.js';
 import DE from '../../src/lib/i18n/de/index.js';
 
@@ -64,8 +65,7 @@ test('Mail: connect, read, answer, write; «Mails dazu» from an appointment', a
   await page.goto('./');
   await ready(page);
 
-  await page.goto('./#/me');
-  await page.getByRole('link', { name: new RegExp(`^${de('Mail')}`) }).click();
+  await viaTab(page, 'week', '#/me/mail'); // UI-Ziele #6: Planen › Mail
   await expect(page.getByRole('heading', { level: 1, name: de('Mail') })).toBeVisible();
   await expect(page.getByRole('heading', { name: de('Connect Gmail') })).toBeVisible();
   await shot(page, info, 'M1-verbinden');

@@ -1,7 +1,7 @@
 /** «Erkenntnisse» (Noah 19.10.2026 «4b» + «zusätzlich eine eigene Seite»). */
 export default {
   // Paket C 0.150.0: the function f.insights (features, handbook, howto)
-  'Open Me › Insights.': 'Öffne Ich › Erkenntnisse.',
+  'Open Me › Insights.': 'Öffne Auswerten › Erkenntnisse.',
   'Read the sentences: what goes together in your last 90 days.': 'Lies die Sätze: was in deinen letzten 90 Tagen zusammenhängt.',
   'Pairs with fewer than 14 days say «still collecting days».': 'Paare mit weniger als 14 Tagen sagen «Sammelt noch Tage».',
   Insights: 'Erkenntnisse',

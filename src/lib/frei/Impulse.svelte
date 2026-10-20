@@ -259,7 +259,7 @@
 
 <div class="fz" data-page="impulse">
   {#if fromActive}
-    <Crumb path={[{ href: '#/flow', label: t('Active|place') }]} here={t('Impulses')} />
+    <Crumb path={[{ href: '#/flow', label: t('Analysis|place') }]} here={t('Impulses')} />
   {:else}
     <Crumb path={[{ href: '#/me', label: t('Me|place') }, { href: '#/me/frei', label: t('Free time') }]} here={t('Impulses')} />
   {/if}

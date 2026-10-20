@@ -109,7 +109,7 @@ test('night quiet: at 23:00 Today keeps the tip back; switched off it shows', as
   await page.reload();
   await ready(page);
   const intro = page.locator('[data-intro-step]');
-  await expect(page.locator('[data-section="du"]')).toBeVisible();
+  await expect(page.locator('[data-section="body"]')).toBeVisible();
   await page.clock.runFor(1500); // the intro waits a moment for the tiles
   await expect(intro).toHaveCount(0);
 

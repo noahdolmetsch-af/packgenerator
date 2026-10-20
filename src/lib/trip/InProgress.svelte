@@ -121,7 +121,7 @@
     border-radius: 99px;
     background: rgba(255, 255, 255, 0.12);
     color: var(--brand-ink-2);
-    font: 600 13px/1.2 var(--font-body);
+    font: 600 var(--fs-small)/1.2 var(--font-body);
     cursor: pointer;
     white-space: nowrap;
   }
@@ -134,7 +134,7 @@
     background: var(--paper);
     color: var(--ink);
     font-weight: 500;
-    font-size: 14px;
+    font-size: var(--fs-small);
   }
   .pill.light:hover,
   .pill.light[aria-expanded='true'] {
@@ -182,7 +182,7 @@
   }
   h2 {
     margin: 0;
-    font: 700 17px/1.2 var(--font-body);
+    font: 700 var(--fs-sub)/1.2 var(--font-body);
     color: var(--ink);
   }
   .n {
@@ -206,7 +206,7 @@
   .undo {
     margin: 0;
     padding: 4px 16px 10px;
-    font-size: 14px;
+    font-size: var(--fs-small);
     color: var(--ink-2);
     overflow-wrap: break-word;
   }

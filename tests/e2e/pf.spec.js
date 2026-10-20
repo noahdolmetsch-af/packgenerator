@@ -1075,6 +1075,8 @@ async function packingDay(page, rec, title) {
 }
 
 test('Scenario 1: 2 h MTB after work: Day ride on Today, change to the Scale, pack, ride, debrief', async ({ page, context }, info) => {
+  // the idea «Quick start» shows by day only (Heute hides it at night): a fixed midday, so the run does not depend on the hour
+  await page.clock.setFixedTime(new Date(`${day(0)}T10:00:00Z`));
   const errors = await start(page, context, info);
   const rec = record('S1', info, page);
   await page.goto('./#/');

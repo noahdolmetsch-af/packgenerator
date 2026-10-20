@@ -137,7 +137,6 @@
     <!-- IF2 (Noah 14.10.2026, approved 04:32) on the central meditation page: the tip of the day, at the end the fold -->
     <!-- Noah 19.10 «2a»: one card per page; the Einstieg lives in the card «Was hier steht» (its own card only while the page is empty) -->
     <HintCard page="meditation" intro={actId === 'meditation' ? 'meditation' : null} />
-    <TipLine page="meditation" name={actName(act)} />
     <div class="cols">
       <section class="surf pad tcard" aria-labelledby="m-timer">
         <div class="hl"><h2 id="m-timer" class="h2">{t('Timer')}</h2>{#if main?.name}<p>{t('Template «{name}»', { name: main.name })}</p>{/if}</div>
@@ -227,6 +226,8 @@
         </a>
       </div>
     </div>
+    <!-- Gesamttest 20.10 Design / UI-Grundlagen (idea 1): the tip of the day under the content, not under the help box -->
+    <TipLine page="meditation" name={actName(act)} />
     <PageMore page="meditation" name={actName(act)} {base} />
   {/if}
 </div>

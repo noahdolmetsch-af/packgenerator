@@ -32,6 +32,7 @@ export const GROUP_PLACES = [
   { name: 'Collections', file: 'src/lib/frei/Sammlungen.svelte' },
   { name: 'Shopping list groups', file: 'src/lib/alltag/Einkauf.svelte' }, // Paket V «Alltag»
   { name: 'Areas of the questions', file: 'src/pages/Abfragen.svelte' }, // Noah 20.10.2026: morning and evening check questions
+  { name: 'Diary tags', file: 'src/lib/tagebuch/Settings.svelte' }, // «Tagebuch»: tags are its groups
 ];
 
 /** The items of category `from` moved to `to` (only the ones that change). */

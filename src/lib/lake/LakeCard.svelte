@@ -6,18 +6,23 @@
    * the preview of the next days, clearly a model calculation of Eawag (Alplakes). The swim hint is an
    * observation with a threshold the user can change. Offline it shows the last answer it saved.
    *
+   * Thread «Seetemperatur und Sauna» (Noah 20.10.2026 «2a 3a 4a 5a»): the cold-water scale (pleasant,
+   * fresh, cold, icy) instead of one threshold, «Sauna und See heute?» (SaunaSee.svelte) and the name
+   * «Zürisee».
+   *
    * Props: title (heading, default «Lake Zurich»), fetcher (for tests), auto (fetch on show, default
-   * true), headingLevel (2 or 3).
+   * true), headingLevel (2 or 3), saunaSee (show «Sauna and lake today?», default true).
    */
   import { onMount } from 'svelte';
   import { liveQuery } from 'dexie';
   import { db } from '../db.js';
-  import { LAKE_CACHE_KEY, LAKE_SET_KEY, lakeSetOf, saveLakeSet, loadLake, swimTone, isStale, trend, sparkline, WARM_MIN, WARM_MAX } from '../lake.js';
+  import { LAKE_CACHE_KEY, LAKE_SET_KEY, LAKE_NAME, SCALE_WORDS, lakeSetOf, saveLakeSet, loadLake, waterScale, isStale, trend, sparkline, WARM_MIN, WARM_MAX, COLD_MIN } from '../lake.js';
+  import SaunaSee from './SaunaSee.svelte';
   import { localDay } from '../localday.js';
   import { t, locale } from '../i18n.svelte.js';
   import { Waves, RefreshCw } from '@lucide/svelte';
 
-  let { title = '', fetcher = undefined, auto = true, headingLevel = 2 } = $props();
+  let { title = '', fetcher = undefined, auto = true, headingLevel = 2, saunaSee = true } = $props();
 
   const q = liveQuery(async () => {
     const [c, s] = await Promise.all([db.meta.get(LAKE_CACHE_KEY), db.settings.get(LAKE_SET_KEY)]);
@@ -30,9 +35,16 @@
   let now = $state(new Date());
 
   const data = $derived(st?.cache?.data ?? null);
-  const warm = $derived(st?.set.warm ?? 20);
+  const set = $derived(st?.set ?? lakeSetOf());
+  const warm = $derived(set.warm);
   const cur = $derived(data?.now ?? null);
-  const tone = $derived(swimTone(cur?.water, warm));
+  const tone = $derived(waterScale(cur?.water, set));
+  const SCALE_LINE = {
+    warm: 'Pleasant: from {warm} °C, by your scale.',
+    fresh: 'Fresh: {cold} to {warm} °C, by your scale.',
+    cold: 'Cold: {icy} to {cold} °C, by your scale.',
+    icy: 'Icy: under {icy} °C, by your scale.',
+  };
   const stale = $derived(cur ? isStale(cur.at, now) : false);
   const tr = $derived(trend(data?.days));
   const W = 300;
@@ -61,9 +73,9 @@
     }
   }
 
-  function setWarm(e) {
+  function setLimit(key, e) {
     const v = Number(e.currentTarget.value);
-    if (Number.isFinite(v)) saveLakeSet(db, { warm: v });
+    if (Number.isFinite(v)) saveLakeSet(db, { [key]: v });
   }
 
   onMount(() => {
@@ -87,7 +99,7 @@
 <section class="card lake" aria-labelledby={hid} data-card="lake">
   <div class="lk-head">
     <span class="lk-ib" aria-hidden="true"><Waves size={18} /></span>
-    <svelte:element this={headingLevel === 3 ? 'h3' : 'h2'} id={hid} class="lk-title">{title || t('Lake Zurich')}</svelte:element>
+    <svelte:element this={headingLevel === 3 ? 'h3' : 'h2'} id={hid} class="lk-title">{title || t(LAKE_NAME)}</svelte:element>
     <button class="lk-re" type="button" onclick={() => refresh(true)} disabled={busy || !online} aria-label={t('Load again')} title={t('Load again')}>
       <RefreshCw size={16} aria-hidden="true" class={busy ? 'spin' : ''} />
     </button>
@@ -109,12 +121,14 @@
         </span>
       </div>
       <p class="lk-hint {tone}" data-tone={tone}>
-        {tone === 'warm' ? t('From {warm} °C pleasant for swimming, by your setting.', { warm: one(warm) }) : t('Under {warm} °C: fresh for swimming, by your setting.', { warm: one(warm) })}
+        {t(SCALE_LINE[tone], { warm: one(set.warm), cold: one(set.cold), icy: one(set.icy) })}
         {#if tr != null && tr !== 0}<span class="lk-tr"> {tr > 0 ? t('{n} °C warmer than a week ago.', { n: one(tr) }) : t('{n} °C colder than a week ago.', { n: one(-tr) })}</span>{/if}
       </p>
     {:else}
       <p class="lk-quiet">{t('No measurement right now; only the preview is there.')}</p>
     {/if}
+
+    {#if saunaSee && set.saunaSee}<SaunaSee {cur} {set} today={localDay(now)} />{/if}
 
     {#if line}
       <figure class="lk-fig">
@@ -151,13 +165,29 @@
   {/if}
 
   <details class="lk-set">
-    <summary>{t('Swim hint')}</summary>
+    <summary>{t('Cold-water scale')}</summary>
     <label class="lk-row">
       <span>{t('Pleasant from')}</span>
-      <input type="number" inputmode="decimal" min={WARM_MIN} max={WARM_MAX} step="0.5" value={warm} onchange={setWarm} aria-describedby="{hid}-ex" />
+      <input type="number" inputmode="decimal" min={WARM_MIN} max={WARM_MAX} step="0.5" value={set.warm} onchange={(e) => setLimit('warm', e)} aria-describedby="{hid}-ex" data-limit="warm" />
       <span>°C</span>
     </label>
-    <p id="{hid}-ex" class="lk-quiet small">{t('Only an observation for you, not advice. Change the number to what feels pleasant to you.')}</p>
+    <label class="lk-row">
+      <span>{t('Cold under')}</span>
+      <input type="number" inputmode="decimal" min={COLD_MIN} max={WARM_MAX} step="0.5" value={set.cold} onchange={(e) => setLimit('cold', e)} aria-describedby="{hid}-ex" data-limit="cold" />
+      <span>°C</span>
+    </label>
+    <label class="lk-row">
+      <span>{t('Icy under')}</span>
+      <input type="number" inputmode="decimal" min={COLD_MIN} max={WARM_MAX} step="0.5" value={set.icy} onchange={(e) => setLimit('icy', e)} aria-describedby="{hid}-ex" data-limit="icy" />
+      <span>°C</span>
+    </label>
+    <p id="{hid}-ex" class="lk-quiet small">{t('In between it is fresh. Only an observation for you, not advice. Change the numbers to what fits you.')}</p>
+    {#if saunaSee}
+      <label class="lk-row lk-check">
+        <input type="checkbox" checked={set.saunaSee} onchange={(e) => saveLakeSet(db, { saunaSee: e.currentTarget.checked })} data-sauna-see-toggle />
+        <span>{t('Show «Sauna and lake today?»')}</span>
+      </label>
+    {/if}
   </details>
 
   <p class="lk-src">{t('Measurement: City of Zurich, Mythenquai · Preview: Eawag Alplakes')}</p>
@@ -180,7 +210,8 @@
   .lk-old { color: var(--warn); }
   .lk-hint { margin: 0; font-size: var(--fs-small); padding: var(--sp-2) var(--sp-3); border-radius: var(--radius); background: var(--paper-2); color: var(--ink-2); }
   .lk-hint.warm { background: var(--ok-soft); color: var(--ok); }
-  .lk-hint.cool { background: var(--info-soft); color: var(--ink-2); }
+  .lk-hint.fresh, .lk-hint.cold { background: var(--info-soft); color: var(--ink-2); }
+  .lk-hint.icy { background: var(--info-soft); color: var(--ink); font-weight: 600; }
   .lk-fig { margin: 0; }
   .lk-fig svg { display: block; width: 100%; height: 64px; }
   .lk-past, .lk-ahead { fill: none; stroke-width: 2; vector-effect: non-scaling-stroke; stroke-linejoin: round; stroke-linecap: round; }
@@ -201,5 +232,6 @@
   .lk-set summary:focus-visible { outline: var(--focus-ring); }
   .lk-row { display: flex; align-items: center; gap: var(--sp-2); font-size: var(--fs-small); margin-bottom: var(--sp-2); }
   .lk-row input { width: 5.5em; min-height: 44px; padding: 0 var(--sp-2); border: 1px solid var(--line-strong); border-radius: var(--r-ctl); background: var(--input); color: var(--ink); font: inherit; }
+  .lk-check input { width: 22px; height: 22px; min-height: 0; }
   .lk-src { margin: 0; font-size: var(--fs-tiny); color: var(--ink-3); }
 </style>

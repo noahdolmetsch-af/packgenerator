@@ -859,7 +859,7 @@
   <h1 class="title big">{t('Pack')}</h1>
   <!-- v0.127.0 A-U2: the one empty building block -->
   <Empty icon={Package} title={t('No trips yet')} text={t('A trip is the packing list for one ride or journey.')} action={{ label: t('Create a trip'), onclick: () => (dialog = { trip: null }) }}>
-    {t('Or import your data on the')} <a href="#/">{t('start page')}</a>.
+    {t('Or bring your data along from a backup:')} <a href="#/me/data">{t('Me › Data and backup')}</a>.
   </Empty>
 <!-- v0.59.0: the list waits for the gear too. Without it a worn jersey is not known as clothing for a
      moment: the bag «On me» flashed up and went again when the card «On me» took the clothes (CI abnahme044). -->
@@ -922,7 +922,7 @@
           <span class="sub">{t('Bathing|trip')}</span>
           {#each BATHE as b (b)}<OptionButton pressed={(trip.bathe ?? []).includes(b)} icon={b === 'lake' ? Waves : b === 'sauna' ? Bath : Droplets} label={b === 'lake' ? t('Lake or river') : b === 'sauna' ? t('Sauna or bath') : t('Cold water|trip')} onclick={() => change((cur) => { const have = Array.isArray(cur.bathe) ? cur.bathe : []; const next = have.includes(b) ? have.filter((x) => x !== b) : [...have, b]; return { bathe: next.length ? next : null }; })} />{/each}
         </div>
-        <p class="hint byhand"><span class="hchip"><Hand size={13} aria-hidden="true" />{t('still by hand')}</span> {t('Lakes, rivers and the water temperature are not known to the app yet. Later from the route and the data centre.')}</p>
+        <p class="hint byhand"><span class="hchip"><Hand size={13} aria-hidden="true" />{t('still by hand')}</span> {t('Lakes and rivers along the route are not known to the app yet. The water of Lake Zurich is in Aktiv.')}</p>
         <p class="hint">{t('Brings suggestions in Pack: Pass & climbing, Abroad, Train, Quick swim, Sauna and bath, Cold water. Tap again to take it off.')}</p>
         {#if trip.country && trip.country !== HOME_COUNTRY}<AbroadCard country={trip.country} />{/if}
       </div>
@@ -1187,20 +1187,20 @@
   /* v0.26.0 (Noah 3a): building block chips in "Add material". */
   .blockchips { display: grid; gap: 6px; }
   .chips { display: flex; flex-wrap: wrap; gap: 6px; }
-  .chip { min-height: 40px; padding: 6px 12px; border: 1.5px solid var(--line-strong); border-radius: 999px; background: var(--paper); color: var(--ink); font: 500 15px var(--font-body); cursor: pointer; overflow-wrap: break-word; text-align: left; }
+  .chip { min-height: 40px; padding: 6px 12px; border: 1.5px solid var(--line-strong); border-radius: 999px; background: var(--paper); color: var(--ink); font: 500 var(--fs-body) var(--font-body); cursor: pointer; overflow-wrap: break-word; text-align: left; }
   .chip:disabled { opacity: 0.5; cursor: default; }
-  .blocknote { margin: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; font-size: 14px; }
+  .blocknote { margin: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; font-size: var(--fs-small); }
   /* v0.25.1 (Noah 1a): what the day ride was made with, and the way back. */
   .made-card { margin: 0 0 12px; padding: 10px 10px 10px 14px; border: 2px solid var(--ok); border-radius: 10px; background: color-mix(in srgb, var(--ok) 10%, var(--paper)); }
   .made-card p { margin: 0 0 4px; min-width: 0; overflow-wrap: break-word; }
-  .made-s { color: var(--ink-2, var(--ink)); font-size: 14px; }
+  .made-s { color: var(--ink-2, var(--ink)); font-size: var(--fs-small); }
   .dayride-acts { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 6px; }
-  .bag-purpose { display: block; margin-bottom: 16px; font-size: 14px; }
+  .bag-purpose { display: block; margin-bottom: 16px; font-size: var(--fs-small); }
   .bag-purpose input { margin-top: 8px; }
   .sets, .presets, .ready-acts { display: flex; gap: 8px; flex-wrap: wrap; }
   /* v0.27.0 (AP21): the kind of ride, weather presets and overnight sets lost their look with the calm
      Pack (PR #32): browser-grey 22 px buttons and no visible "chosen". Again 40 px pills, the chosen one dark. */
-  .toggle { min-height: 40px; padding: 5px 14px; border: 1.5px solid var(--ink-3); border-radius: 999px; background: var(--paper); color: var(--ink); font: 600 15px var(--font-body); cursor: pointer; }
+  .toggle { min-height: 40px; padding: 5px 14px; border: 1.5px solid var(--ink-3); border-radius: 999px; background: var(--paper); color: var(--ink); font: 600 var(--fs-body) var(--font-body); cursor: pointer; }
   .toggle[aria-pressed='true'] { background: var(--ink); border-color: var(--ink); color: var(--paper); }
   .toggle:disabled { opacity: 0.5; cursor: default; }
   .aidset { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; margin-top: 12px; }
@@ -1216,16 +1216,16 @@
   .hchip { display: inline-flex; align-items: center; gap: 3px; padding: 1px 8px; border: 1px dashed var(--line-strong); border-radius: 999px; color: var(--ink-2); font-size: var(--fs-small); }
   .lcountry { display: flex; align-items: center; gap: 8px; }
   .lcountry .sel { max-width: 220px; }
-  .hint { font-size: 14px; color: var(--ink-3); }
+  .hint { font-size: var(--fs-small); color: var(--ink-3); }
   .slots { list-style: none; padding: 0; }
   .slots li { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr); gap: 16px; align-items: center; padding: 8px 0; }
   .slots .sel { width: 100%; min-width: 0; min-height: 44px; }
   /* v0.37.0: a light header for the worn places, and the quiet ultra suggestion. */
-  .worn-h { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; margin: 12px 0 0; font-size: 15px; font-weight: 600; color: var(--ink-2); }
-  .worn-h small { font-size: 13px; font-weight: 400; color: var(--ink-3); }
-  .tip { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; margin: 4px 0; font-size: 14px; color: var(--ink-2); overflow-wrap: break-word; }
+  .worn-h { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; margin: 12px 0 0; font-size: var(--fs-body); font-weight: 600; color: var(--ink-2); }
+  .worn-h small { font-size: var(--fs-small); font-weight: 400; color: var(--ink-3); }
+  .tip { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; margin: 4px 0; font-size: var(--fs-small); color: var(--ink-2); overflow-wrap: break-word; }
   .addcheck { display: flex; gap: 10px; }
   .ck { display: inline-flex; gap: 10px; }
-  .x { background: none; border: 0; padding: 8px; min-width: 44px; min-height: 44px; font-size: 22px; line-height: 1; cursor: pointer; } /* v0.30.2 (N2.10): a full tap target */
+  .x { background: none; border: 0; padding: 8px; min-width: 44px; min-height: 44px; font-size: var(--fs-section); line-height: 1; cursor: pointer; } /* v0.30.2 (N2.10): a full tap target */
   @media print { .print { display: block; } }
 </style>

@@ -139,7 +139,8 @@ test('TR5: without weight no W/kg (a link to the weight); without a power meter 
   await expect(power.locator('[data-power="avg"]')).toContainText('188 W');
   await expect(power.locator('[data-power="wkg"]')).toHaveCount(0);
   await expect(power.locator('[data-power="wkg20"]')).toHaveCount(0);
-  await expect(power.getByRole('link', { name: 'Ich › Meine Daten › Gewicht' })).toHaveAttribute('href', '#/me/weight');
+  // N1 (Noah 20.10.2026, changed on purpose): the weight now lives under «Auswerten › Gewicht»; the label comes from the app
+  await expect(power.getByRole('link', { name: DE['Me › My data › Weight'] })).toHaveAttribute('href', '#/me/weight');
   await expect(page.locator('[data-ana="more"] [data-more="wkg"]')).toHaveCount(0);
   await expect(page.locator('[data-ana="more"] [data-more="if"]')).toBeVisible();
 

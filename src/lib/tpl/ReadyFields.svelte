@@ -66,7 +66,7 @@
   }
   .note {
     margin: 0 0 4px;
-    font-size: 14px;
+    font-size: var(--fs-small);
     color: var(--ink-3);
   }
 </style>
