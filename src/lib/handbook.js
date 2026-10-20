@@ -1152,6 +1152,11 @@ export const HANDBOOK = {
     steps: ['Tap «New here? Take the tour» in First steps on Today, or open Me › Handbook › Tour.', 'Choose the example trip (playground) or your own data, then tap «Next» through the steps.'],
     example: 'Example: on the top of Active, «Tour of Active (4 steps)» shows ticking off, the week, goals and more.',
   },
+  'f.firststart': {
+    on: 'Only on a new, empty app: it asks once when it opens for the first time.',
+    steps: ['Choose the language and «Start with examples» or «Start empty»; then the short tour if you like.', 'Me › Data and backup › «Remove the examples» takes them away («Undo» brings them back); «Get the examples» brings them later.'],
+    example: 'Example: a friend opens the link and sees the made-up «Jura loop» with its packing list right away.',
+  },
   'f.playground': {
     on: null,
     steps: ['Open Me › Try it out › Playground, or «Try it» on a function.', 'Pack, ride and debrief a made-up trip; at the end all is as before.'],

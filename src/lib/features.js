@@ -310,6 +310,8 @@ const OWN = [
   { id: 'f.bills', group: 'data', title: 'Bills to pay', text: 'Photograph a bill you got: the app reads it, reminds you before it is due and keeps the photo.', href: '#/me/pay/bills', words: 'zu zahlen rechnung fällig erinnerung beleg foto' },
   { id: 'f.tidy', group: 'data', title: 'Tidy up test data', text: 'Everything with «test» in its name: archive it, with Undo.', href: '#/me', words: 'testdaten aufräumen archiv' },
   { id: 'f.tour', group: 'data', title: 'Tour of the app', text: 'Six short steps light up the places of the app; plus a small tour per place.', href: '#/me/handbook', words: 'rundgang walkthrough einführung tour hilfe einstieg' },
+  // «Erster Start» (Noah 20.10.2026 «2a … b auch»): a new app asks once «with examples» or «empty»
+  { id: 'f.firststart', group: 'data', title: 'Start with examples', text: 'A new app asks once: with made-up trips, bike and gear, or empty; then it offers the short tour. Me › Data and backup gets or removes the examples later.', href: '#/me/data', words: 'erster start beispiele beispieldaten leer starten freunde neu willkommen' },
   { id: 'f.playground', group: 'data', title: 'Playground', text: 'A made-up trip: pack, ride and debrief; afterwards all is as before.', run: 'play', seen: 'play', words: 'ausprobieren spielwiese spielplatz' },
   { id: 'f.helper', group: 'data', title: 'Helper', text: 'The code stays on this device, with a monthly limit; you see what goes to Claude.', href: '#/helper', words: 'helfer ki code limit kosten modell haiku sonnet' },
   { id: 'f.shortcuts', group: 'data', title: 'Keyboard shortcuts', text: 'g h, g t … switch places, n = New, / = search, ? = the list.', href: '#/me', words: 'tastenkürzel tastatur' },

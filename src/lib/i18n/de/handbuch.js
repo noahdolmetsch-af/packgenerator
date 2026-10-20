@@ -1122,4 +1122,10 @@ export default {
   'Choose clouds or lines; filter by year, sport, bike or tour and everyday.': 'Wähle Wolken oder Linien; filtere nach Jahr, Sportart, Velo oder Tour und Alltag.',
   'Tap a coloured line: the rides there show below, each with its page.': 'Tippe auf eine farbige Linie: Die Fahrten dort stehen darunter, jede mit ihrer Seite.',
   'Example: 2026, bike only → your way to work glows dark red, the Jura tour is a thin orange line.': 'Beispiel: 2026, nur Velo → dein Arbeitsweg leuchtet dunkelrot, die Jura-Tour ist eine feine orange Linie.',
+  // «Erster Start» (Noah 20.10.2026)
+  'Only on a new, empty app: it asks once when it opens for the first time.': 'Nur bei einer neuen, leeren App: Sie fragt einmal beim ersten Öffnen.',
+  'Choose «Start with examples» or «Start empty».': 'Wähle «Mit Beispielen starten» oder «Leer starten».',
+  'Choose the language and «Start with examples» or «Start empty»; then the short tour if you like.': 'Wähle die Sprache und «Mit Beispielen starten» oder «Leer starten»; danach, wenn du magst, den kurzen Rundgang.',
+  'Me › Data and backup › «Remove the examples» takes them away («Undo» brings them back); «Get the examples» brings them later.': 'Ich › Daten und Backup › «Beispiele entfernen» nimmt sie weg («Rückgängig» holt sie zurück); «Beispiele holen» bringt sie später.',
+  'Example: a friend opens the link and sees the made-up «Jura loop» with its packing list right away.': 'Beispiel: Ein Freund öffnet den Link und sieht sofort die erfundene «Jura-Runde» mit Packliste.',
 };
