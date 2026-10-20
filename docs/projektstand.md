@@ -24,6 +24,7 @@ Seit 19.10.2026 gibt es keine Testlinks mehr: Ein Paket geht online, sobald die 
 | 14 | Heute neu A «Ein Blick» | 0.165.0 | Heute auf einen Blick: ein Satz, «Jetzt dran» (Morgen-Check, Meditation, Velo-Idee, Fälliges, höchstens 4), Tour, «Du heute», Woche, Velos, 8 Abkürzungen, «Alle Bereiche»; Morgen-Check mit 3 Fragen und «Fragen einblenden»; Tipp der Woche unter Ich | live (PR #214) |
 | 15 | Neueste Version laden | 0.166.0 | Fehlerseite: «Neueste Version laden» holt die App frisch aus dem Internet (Service Worker und App-Dateien weg, Daten bleiben); Fehlerseite sucht zuerst selbst nach Update; zwei Test-Wettläufe behoben (Listen, Abend-Check) | dieser PR |
 | 16 | Heute am Handy | 0.166.1 | «Jetzt dran» rutschte am Handy unter die Tourkarte, wenn Glückwünsche darüber standen; Glückwünsche nur noch eine Zeile | dieser PR (Bündler) |
+| 17 | Heute neu N2 | 0.167.0 | Noah «5a»: oben «Dein Körper heute» (Ruhepuls, Schlaf, Schlaf-Score, Aktivzonen-Minuten neben gestern) mit Morgen- bzw. Abend-Check, daneben/darunter «Aktiv heute» zum Antippen; dann Woche, Balance-Ring, Tour, «Jetzt dran» (nur wenn etwas dran ist), Velos, 8 Abkürzungen | dieser PR (Bündler) |
 
 «Frontend aufpeppen» ist pausiert (Noah 19.10.2026). Die Abschnitte unten sind der Stand vom 18.10.2026.
 

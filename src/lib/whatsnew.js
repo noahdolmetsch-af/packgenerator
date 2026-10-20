@@ -16,6 +16,23 @@
 
 export const WHATS_NEW = [
   {
+    // v0.167.0 «Heute neu» N2 (Noah 20.10.2026 15:49 «1a 2a 3a und b 4b 5a»; built without mockups)
+    version: '0.167.0',
+    date: '2026-10-20',
+    title: 'Today, rebuilt',
+    lead: 'On top your body of today and the check, right under it your activities to tick off.',
+    points: [
+      { text: '«Your body today»: resting pulse, sleep, sleep score and active zone minutes next to yesterday', href: '#/me/insights' },
+      { text: 'The morning check sits in the same card; from the evening the evening check takes its place', href: '#/me/abfragen' },
+      { text: '«Active today»: tick off your activities in one tap; meditation opens its start', href: '#/flow' },
+    ],
+    small: [{ box: 'nicer', text: 'Then the week, the balance ring, the trip, «Up now» (only when something is up), the bikes and the 8 shortcuts' }],
+    test: [
+      'Open Today: «Your body today» stands on top with four values and an arrow to yesterday.',
+      'Tap an activity under «Active today»: it is ticked; tap again to take it back.',
+    ],
+  },
+  {
     // v0.166.1 «Heute am Handy» (bug fix, Noah 20.10.2026 15:16 UTC «Problem ist abgeschnitten»; same look, no mockup)
     version: '0.166.1',
     date: '2026-10-20',

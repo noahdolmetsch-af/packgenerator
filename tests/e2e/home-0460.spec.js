@@ -62,12 +62,13 @@ test('sections, greeting with the weather, the trip card, the 16 functions as sm
   await page.locator('[data-name-ask] [data-name-later]').click();
   await expect(page.locator('[data-name-ask]')).toHaveCount(0);
   expect(await inFirstScreen(page, page.locator('#hello-h')), 'greeting in the first screen').toBe(true);
-  // «Heute neu» A (changed on purpose): one sentence, then «Up now» and the trip, then «You today»
+  // «Heute neu» N2 (0.167.0, Noah «5a», changed on purpose): one sentence, then the body and the Aktiv tiles; the
+  // trip of tomorrow right under them, «Up now» after the trip
   await expect(page.locator('[data-say]')).toContainText(T('{n} day until {trip}.', { n: 1, trip: 'test_data_gtp_ Herbstrunde' }));
-  const upTop = await page.locator('[data-section="today"]').evaluate((el) => el.getBoundingClientRect().top);
-  expect(upTop, '«Up now» starts in the first screen').toBeLessThan(page.viewportSize().height);
-  const order = await page.locator('[data-section="trip"], [data-section="today"], [data-section="du"]').evaluateAll((els) => els.map((e) => e.dataset.section));
-  expect(order.filter((x, i, a) => a.indexOf(x) === i)).toEqual(['today', 'trip', 'du']);
+  const bodyTop = await page.locator('[data-section="body"]').evaluate((el) => el.getBoundingClientRect().top);
+  expect(bodyTop, '«Your body today» starts in the first screen').toBeLessThan(page.viewportSize().height);
+  const order = await page.locator('[data-section="body"], [data-section="acts"], [data-section="trip"], [data-section="today"]').evaluateAll((els) => els.map((e) => e.dataset.section));
+  expect(order.filter((x, i, a) => a.indexOf(x) === i)).toEqual(['body', 'acts', 'trip', 'today']);
 
   // Up now, Tried it yet?, bikes, customise
   // «Heute neu» A (changed on purpose): at most 4 rows, «Show all» opens the rest; the 12 months left Heute (catalog)

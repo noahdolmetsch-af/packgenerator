@@ -101,6 +101,8 @@
   import MedCard from '../lib/home/MedCard.svelte';
   import TagesKarte from '../lib/home/TagesKarte.svelte';
   import AktivTile from '../lib/home/AktivTile.svelte';
+  import BodyTile from '../lib/home/BodyTile.svelte';
+  import ActsTile from '../lib/home/ActsTile.svelte';
   import { activeDays, seriesOf, restOf, REST_KEY, SERIES_STEPS } from '../lib/home/series.js';
   import { FUNCTIONS, USAGE_KEY, usageOf, dataUsed, usedFunctions, levelOf, untried } from '../lib/home/functions.js';
   import { countUse } from '../lib/home/usage.js';
@@ -754,8 +756,9 @@
   const nowRows = $derived.by(() => {
     if (!ready) return [];
     const rows = [];
-    if (abDue && !roundOpen) rows.push({ key: 'check', tone: 'now', ic: ClipboardList, text: tn(abDue, abEvening ? 'Evening check · {n} question' : 'Morning check · {n} question', abEvening ? 'Evening check · {n} questions' : 'Morning check · {n} questions'), act: { label: t('Start|round'), run: () => (abAsk = true) } });
-    if (medSt && !medSt.todayDone && !night) rows.push({ key: 'med', tone: 'now', ic: Flower2, text: t('Meditation, like last time'), act: { label: t('Start|meditation'), run: () => (medOpen = true) } });
+    // «Heute neu» N2: with «Your body today» on the wall the check lives there, with the Aktiv tiles meditation too
+    if (abDue && !roundOpen && !on('body')) rows.push({ key: 'check', tone: 'now', ic: ClipboardList, text: tn(abDue, abEvening ? 'Evening check · {n} question' : 'Morning check · {n} question', abEvening ? 'Evening check · {n} questions' : 'Morning check · {n} questions'), act: { label: t('Start|round'), run: () => (abAsk = true) } });
+    if (medSt && !medSt.todayDone && !night && !on('acts')) rows.push({ key: 'med', tone: 'now', ic: Flower2, text: t('Meditation, like last time'), act: { label: t('Start|meditation'), run: () => (medOpen = true) } });
     if (suggestion && !night) rows.push({ key: 'idea', tone: 'now', ic: BikeIcon, text: t('Idea: ride up to {h} h with the {bike}, today', { h: hrs(suggestion.hours), bike: suggestion.bike.name }), act: { label: t('Quick start'), run: startQuick }, ...(bikes.length > 1 ? { act2: { label: t('Other bike'), run: nextBike, quiet: true } } : {}) });
     return rows;
   });
@@ -840,7 +843,10 @@
     const i = list.findIndex((x) => x.id === 'flow');
     return i >= 0 && list[i + 1]?.id === 'balance' ? [...list.slice(0, i), { id: 'flow', size: 'long', join: list[i + 1].size }, ...list.slice(i + 2)] : list;
   };
-  const shownWall = $derived(editing ? hideTiles(wall, hiddenTiles) : joinFlow(tripUp(hideTiles(wall, hiddenTiles), !!near)));
+  // «Heute neu» N2 (Noah «5a»): «Up now» shows only when something is up (the check and meditation live on top now)
+  const upEmpty = $derived(ready && !upRows.length && !cheers.length && !notice && !quick);
+  const quiet = $derived(upEmpty && on('body') ? ['important'] : []);
+  const shownWall = $derived(editing ? hideTiles(wall, hiddenTiles) : joinFlow(tripUp(hideTiles(wall, [...hiddenTiles, ...quiet]), !!near)));
   // Paket Q #74 (Noah 19.10.2026 «4a»): the wall follows the time of day; while editing the stored order shows
   const timeOn = $derived(S[WALL_TIME_KEY] !== false);
   const timeWall = $derived(editing ? shownWall : byTime(shownWall, now.getHours(), timeOn));
@@ -1123,6 +1129,8 @@
     {:else}<FlowCard {today} round={!onWall.has('daycard')} rings={!onWall.has('balance')} />{/if}
   {:else if x.id === 'daycard'}<TagesKarte {today} {now} {fc} {items} {trips} {bikes} {tasks} {visits} rides={$ridesQ ?? []} idea={suggestion ? { text: t('Ride up to {h} h with the {bike}, today', { h: hrs(suggestion.hours), bike: suggestion.bike.name }) } : null} onquick={startQuick} onplan={() => (countUse('trip'), openNew('list'))} onother={suggestion ? nextBike : null} onkm={() => (countUse('km'), openNew('km'))} {debrief} care={careRows} careN={due.points} tomorrowTrip={tomorrowTrip} />
   {:else if x.id === 'du'}<DuTile {today} />
+  {:else if x.id === 'body'}<BodyTile {today} due={abDue} evening={abEvening} open={roundOpen} onstart={() => (abAsk = true)} />
+  {:else if x.id === 'acts'}<ActsTile {today} />
   {:else if x.id === 'aktiv'}<AktivTile {today} rides={$ridesQ ?? []} size={x.size} hm={`${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`} />
   {:else if x.id === 'series'}<SeriesTile {today} size={x.size} party={seriesParty} />
   {:else if x.id === 'news'}<NewsTile size={x.size} days={newsDays} onremove={() => saveWall(removeTile(wall, 'news'))} />
