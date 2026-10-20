@@ -45,6 +45,7 @@ export default {
   'The metres climbed of the same rides, runs and hikes.': 'Die Höhenmeter derselben Fahrten, Läufe und Wanderungen.',
   'Minutes your pulse was in the fat burn, cardio or peak zone. The WHO suggests 150 a week.': 'Minuten, in denen dein Puls in der Fettverbrennungs-, Cardio- oder Spitzenzone war. Die WHO empfiehlt 150 pro Woche.',
   'Sleep|metric': 'Schlaf',
+  'Active zone minutes|metric': 'Aktivzonen-Minuten',
   'Time asleep per night, as your Fitbit measured it. Most adults need 7 to 9 hours.': 'Schlafzeit pro Nacht, wie deine Fitbit sie gemessen hat. Die meisten Erwachsenen brauchen 7 bis 9 Stunden.',
   'Your pulse at rest. Lower than your normal often means well rested; clearly higher can mean stress, illness or too little sleep.':
     'Dein Puls in Ruhe. Tiefer als dein Normal heisst oft gut erholt; deutlich höher kann Stress, Krankheit oder zu wenig Schlaf bedeuten.',

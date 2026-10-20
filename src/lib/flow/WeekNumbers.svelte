@@ -118,7 +118,6 @@
   .lb span {
     min-width: 0;
     overflow-wrap: break-word;
-    hyphens: auto;
   }
   .val b {
     font: 600 var(--fs-sub) / 1.2 var(--font-body);
@@ -213,7 +212,8 @@
     font-size: var(--fs-small);
     font-weight: 600;
   }
-  @media (max-width: 359px) {
+  /* a phone: two values per row, so every name stays whole */
+  @media (max-width: 519px) {
     .grid {
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }

@@ -76,7 +76,7 @@
   });
   const olderAny = $derived(older || [...table.keys()].some((d) => d < from));
   const fitText = (k, v) => `${shown(k, v, num)}${k === 'sleep' || !METRIC[k].unit ? '' : ` ${t(METRIC[k].unit)}`}`;
-  const FIT_NAME = { sleep: 'Sleep|metric', rhr: 'Resting pulse', hrv: 'HRV', steps: 'Steps', azm: 'Active zone minutes' };
+  const FIT_NAME = { sleep: 'Sleep|metric', rhr: 'Resting pulse', hrv: 'HRV', steps: 'Steps', azm: 'Active zone minutes|metric' };
   const actLine = (a) =>
     [a.movingS ? shown('time', a.movingS, num) : '', a.km ? `${num(Math.round(a.km * 10) / 10)} km` : '', a.hm ? `${num(Math.round(a.hm))} m` : '', a.hrAvg ? `♥ ${Math.round(a.hrAvg)} ${t('bpm')}` : '', a.wAvg && a.wDevice ? `${Math.round(a.wAvg)} W` : ''].filter(Boolean).join(' · ');
 

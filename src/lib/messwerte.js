@@ -17,7 +17,7 @@ export const METRICS = [
   { key: 'time', how: 'sum', src: 'strava', name: 'Time in motion', unit: 'h', about: 'All your Strava activities, every sport: the time you were moving.' },
   { key: 'km', how: 'sum', src: 'strava', name: 'Distance', unit: 'km', about: 'Bike rides (app and Strava) and runs or hikes from Strava.' },
   { key: 'hm', how: 'sum', src: 'strava', name: 'Climbing', unit: 'm', about: 'The metres climbed of the same rides, runs and hikes.' },
-  { key: 'azm', how: 'sum', src: 'fitbit', name: 'Active zone minutes', unit: 'min', about: 'Minutes your pulse was in the fat burn, cardio or peak zone. The WHO suggests 150 a week.' },
+  { key: 'azm', how: 'sum', src: 'fitbit', name: 'Active zone minutes|metric', unit: 'min', about: 'Minutes your pulse was in the fat burn, cardio or peak zone. The WHO suggests 150 a week.' },
   { key: 'sleep', how: 'mean', src: 'fitbit', name: 'Sleep|metric', unit: 'h', about: 'Time asleep per night, as your Fitbit measured it. Most adults need 7 to 9 hours.' },
   { key: 'rhr', how: 'mean', src: 'fitbit', name: 'Resting pulse', unit: 'bpm', about: 'Your pulse at rest. Lower than your normal often means well rested; clearly higher can mean stress, illness or too little sleep.' },
   { key: 'hrv', how: 'mean', src: 'fitbit', name: 'HRV', unit: 'ms', about: 'Heart rate variability at night. Higher than your normal often means well recovered.' },
