@@ -1923,7 +1923,7 @@
     align-items: flex-start;
     gap: 8px;
     color: var(--ink-2);
-    font-size: 15px;
+    font-size: var(--fs-body);
     line-height: 1.4;
   }
   .cheers li :global(svg) {
