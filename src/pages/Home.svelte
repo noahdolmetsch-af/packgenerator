@@ -102,6 +102,7 @@
   import TagesKarte from '../lib/home/TagesKarte.svelte';
   import AktivTile from '../lib/home/AktivTile.svelte';
   import BodyTile from '../lib/home/BodyTile.svelte';
+  import GoalChips from '../lib/home/GoalChips.svelte';
   import ActsTile from '../lib/home/ActsTile.svelte';
   import { activeDays, seriesOf, restOf, REST_KEY, SERIES_STEPS } from '../lib/home/series.js';
   import { FUNCTIONS, USAGE_KEY, usageOf, dataUsed, usedFunctions, levelOf, untried } from '../lib/home/functions.js';
@@ -946,10 +947,12 @@
   <section class="greet solo" aria-labelledby="hello-h" data-section="greeting">
     <div class="ghead">
       <div class="hi-text">
-        <h1 id="hello-h" class="hello">{hello}</h1>
-        {#if !night}<HelloSheet name={S.userName ?? ''} />{/if}
+        <!-- UI-Ziele #15 (Noah 20.10.2026 «freigabe»): the short greeting is the button itself, no «antippen» line -->
+        {#if night}<h1 id="hello-h" class="hello">{hello}</h1>{:else}<HelloSheet name={S.userName ?? ''} label={hello} />{/if}
         <p class="dl">{phone.matches ? shortDate : dateLine}{#if wx}<span aria-hidden="true">{'\u00a0· '}</span><span class="wx" data-weather>{wx.text}</span>{/if}{#if strava.changes.length}<span aria-hidden="true">{'\u00a0· '}</span><span data-strava-questions>{tn(strava.changes.length, '{n} question from Strava', '{n} questions from Strava')}</span>{/if}</p>
         {#if loaded}<RaceLine {today} />{/if}
+        <!-- UI-Ziele #17 (Noah 20.10.2026 «freigabe»): «Was häsch vor?» as chips; while customising a list to sort -->
+        {#if !night && ready}<GoalChips {editing} onride={startQuick} ontrip={() => (countUse('trip'), openNew('list'))} />{/if}
         {#if !wx && ready}
           {#if !place}
             <button type="button" class="linkq" aria-expanded={placeOpen} onclick={() => (placeOpen = !placeOpen)}>{t('Set your home place for the weather')}</button>
@@ -1144,6 +1147,7 @@
   {:else if x.id === 'helper'}<SmallTile tile={TILE.helper} size={x.size} href="#/helper" />
   {:else if x.id === 'features'}<SmallTile tile={TILE.features} size={x.size} href="#/features" />
   {:else if x.id === 'tools'}<SmallTile tile={TILE.tools} size={x.size} href="#/me/tools" />
+  {:else if x.id === 'diary'}<SmallTile tile={TILE.diary} size={x.size} href="#/tagebuch?neu" isnew={newTile('diary')} sub={t('write or dictate')} />
   {:else if x.id === 'liveride'}{@const lt = todayTrip(trips, today)}<SmallTile tile={TILE.liveride} size={x.size} href={liveHref(lt)} isnew={newTile('liveride')} sub={lt ? lt.title : t('a free ride, without a trip')} />
   {:else if x.id === 'inbox'}<SmallTile tile={TILE.inbox} size={x.size} href="#/inbox" badge={notes.length} />
   {:else if x.id === 'data'}<SmallTile tile={TILE.data} size={x.size} onclick={openData} badge={backup.due ? 1 : 0} />
@@ -1457,7 +1461,7 @@
     gap: 4px;
     min-width: 0;
   }
-  .hello {
+  .greet :global(.hello) {
     margin: 0;
     font: 700 var(--fs-page) / 1.1 var(--font-body);
     /* HG1a: the longer Swiss greeting (a question) is a little smaller, as in the mockup */
@@ -1476,7 +1480,7 @@
     background: var(--paper);
   }
   @media (max-width: 719px) {
-    .hello {
+    .greet :global(.hello) {
       font-size: 25px;
     }
   }

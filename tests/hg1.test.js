@@ -51,7 +51,7 @@ describe('the greeting by time of day (4b) and the night (3)', () => {
     expect(greetFor(22, '')).toBe(HELLO_NIGHT);
   });
   it('exactly the approved words; the night has no name and no question', () => {
-    expect(HELLO_ASK).toBe('wi gahts Dir hüt und was häsch vor?');
+    expect(HELLO_ASK).toBe('wi gahts?'); // UI-Ziele #15 (Noah 20.10.2026 «freigabe»): short, the plan became the goal chips
     expect(HELLO_NIGHT).toBe('Guät Nacht, Nachtülä');
     expect(HELLO_WORDS).toEqual({ morning: 'Guete Morge', day: 'Hoi', evening: 'Guete Abig' });
     expect(greetFor(23, 'Lena')).not.toContain('Lena');

@@ -15,7 +15,8 @@
   import '../bikes/velo-dlg.css';
   import '../abfragen/ab.css';
 
-  let { name = '' } = $props();
+  // UI-Ziele #15 (Noah 20.10.2026 «freigabe»): with `label` the greeting itself is the button (no «antippen» line)
+  let { name = '', label = '', headId = 'hello-h' } = $props();
   const FACE = { muede: FaceSlightlyFrowning, gahtso: FaceExpressionless, okay: FaceNeutral, guet: FaceSlightlySmiling, super: FaceGrinning };
 
   let open = $state(false);
@@ -43,7 +44,8 @@
   }
 </script>
 
-<button type="button" class="hello-tap" onclick={start} data-hello-tap>{HELLO_TAP}<ChevronRight size={14} aria-hidden="true" /></button>
+{#if label}<h1 id={headId} class="hello"><button type="button" class="hello-tap as-title" onclick={start} data-hello-tap aria-description={HELLO_TAP}>{label}<ChevronRight size={22} strokeWidth={2.4} aria-hidden="true" /></button></h1>
+{:else}<button type="button" class="hello-tap" onclick={start} data-hello-tap>{HELLO_TAP}<ChevronRight size={14} aria-hidden="true" /></button>{/if}
 {#if saved}<p class="done" role="status" data-hello-saved>{t('Saved in the history of «Your questions».')}</p>{/if}
 
 {#if open}
@@ -95,6 +97,20 @@
     font: 400 var(--fs-small) / 1.3 var(--font-body);
     text-align: left;
     cursor: pointer;
+  }
+  .hello-tap.as-title {
+    display: inline;
+    margin: 0;
+    min-height: 0;
+    color: inherit;
+    font: inherit;
+    letter-spacing: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+  .hello-tap.as-title :global(svg) {
+    vertical-align: -0.12em;
+    color: var(--ink-3);
   }
   .hello-tap:hover {
     color: var(--ink-2);

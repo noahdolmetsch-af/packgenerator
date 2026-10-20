@@ -74,4 +74,24 @@ export default {
   'Then week, ring, trip, bikes': 'Danach Woche, Ring, Tour, Velos',
   'Open Today: «Your body today» stands on top with four values and an arrow to yesterday.': 'Öffne Heute: «Dein Körper heute» steht oben mit vier Werten und einem Pfeil zu gestern.',
   'Tap an activity under «Active today»: it is ticked; tap again to take it back.': 'Tippe eine Aktivität unter «Aktiv heute» an: Sie ist abgehakt; nochmals tippen nimmt es zurück.',
+  // UI-Ziele #17 (Noah 20.10.2026 «freigabe»): goal chips under the greeting
+  'Ride today|goal': 'Heute fahren',
+  'Plan a trip|goal': 'Tour planen',
+  'Work on the bike|goal': 'Velo schrauben',
+  'Plan the week|goal': 'Woche planen',
+  'Write in the diary|goal': 'Tagebuch schreiben',
+  'What are you up to?': 'Was hast du vor?',
+  'Chips under the greeting': 'Chips unter dem Gruss',
+  'Switch a chip off or move it with the arrows or by dragging.': 'Schalte einen Chip aus oder verschiebe ihn mit den Pfeilen oder durch Ziehen.',
+  // UI-Ziele #12: the quick check, 5 steps with words
+  'bad|step': 'schlecht',
+  'rather bad|step': 'eher schlecht',
+  'okay|step': 'okay',
+  'good|step': 'gut',
+  'very good|step': 'sehr gut',
+  'yesterday|step': 'gestern',
+  // the diary tile (catalog)
+  'Diary|tile': 'Tagebuch',
+  "Write today's entry in your diary, or dictate it.": 'Schreib den Eintrag von heute ins Tagebuch, oder diktiere ihn.',
+  'write or dictate': 'schreiben oder diktieren',
 };

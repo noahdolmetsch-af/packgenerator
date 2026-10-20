@@ -105,6 +105,15 @@
     busy = !data?.stored || open;
   });
 
+  // UI-Ziele #12 (Noah 20.10.2026 «freigabe»): yesterday's answer marked quietly; after a pick the next question comes into view
+  const yday = $derived(((d) => (d.setUTCDate(d.getUTCDate() - 1), d.toISOString().slice(0, 10)))(new Date(`${today}T12:00:00Z`)));
+  const yesterdayOf = (qid) => lastAnswer((data?.answers ?? []).filter((a) => a.day === yday), qid)?.value ?? null;
+  function next(i) {
+    const el = dialog?.querySelectorAll('[data-q]')[i + 1] ?? dialog?.querySelector('[data-ab-save]');
+    if (!el) return;
+    el.scrollIntoView?.({ block: 'nearest', behavior: 'smooth' });
+    (el.matches('button') ? el : el.querySelector('button'))?.focus({ preventScroll: true });
+  }
   let dialog = $state();
   $effect(() => {
     if (!dialog) return;
@@ -137,7 +146,7 @@
             {#each (d.q.src ?? []).filter((s) => s !== 'hand') as s (s)}<span class="ab-src {s}">{srcText(s)}</span>{/each}
           </span>
         </div>
-        <AnswerInput q={d.q} bind:value={draft[d.q.id]} bind:note={notes[d.q.id]} id="{qid}-in" label={qText(d.q)} />
+        <AnswerInput q={d.q} bind:value={draft[d.q.id]} bind:note={notes[d.q.id]} id="{qid}-in" label={qText(d.q)} quick last={yesterdayOf(d.q.id)} onanswer={() => next(i)} />
         {#if d.q.id === 'koerper.waage' && lastKg}
           <small class="last num">{lastKg.day ? t('last {v} on {day}', { v: `${lastKg.kg} ${unitText('kg')}`, day: dayShort(lastKg.day) }) : t('body weight under Me › My data: {v}', { v: `${lastKg.kg} ${unitText('kg')}` })}</small>
         {/if}

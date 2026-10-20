@@ -52,10 +52,14 @@ test('the evening before a trip: a window with Pack now, Later for one hour, Not
   expect(errors).toEqual([]);
 });
 
-test('the evening before a trip: Pack now opens the packing of that trip', async ({ page, context }, info) => {
-  await openHome(page, context, info, { hour: 18 });
+test('the evening before a trip: Ready for tomorrow, Pack now opens the packing of that trip', async ({ page, context }, info) => {
+  const T = await openHome(page, context, info, { hour: 18 });
   const win = page.locator('dialog[data-window="eve"]');
   await expect(win).toHaveJSProperty('open', true);
+  // UI-Ziele I1 / #16 (Noah 20.10.2026 «freigabe»): «Bereit für morgen?» gathers the steps of tomorrow, each with its way
+  await expect(win.getByRole('heading', { name: T('Ready for tomorrow?') })).toBeVisible();
+  await expect(win.locator('[data-hint="charge"] a')).toHaveAttribute('href', '#/pack?charge');
+  expect(await win.locator('[data-hint]').count()).toBeLessThanOrEqual(3);
   await win.locator('[data-window-go]').click();
   await expect(page).toHaveURL(/#\/pack$/);
   await expect(page.getByText(/Herbstrunde/).first()).toBeVisible();
