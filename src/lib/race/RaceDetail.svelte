@@ -78,8 +78,9 @@
   // the time plan of all parts: the stages of your way (they end at the beds), else an even plan
   const plan = $derived(sim?.done ? simPlan(sim, route.km, route.profile) : race && route?.km ? schedule(race, route.km, route.profile) : null);
   const save = (patch) => saveRace(id, patch);
+  // the parts wait for the stored race too: a part reads it once when it opens (Anstiege: ?climb=<n>, the minimum gain)
   const ctx = $derived(
-    trip && race
+    trip && race && $racesQ !== undefined
       ? { trip, race, stored, save, route, pts, plan, pois, own, osm, osmAt: $osmQ?.at ?? null, items: $itemsQ ?? [], bikes: $bikesQ ?? [], bike: ($bikesQ ?? []).find((b) => b.id === trip.bikeId) ?? null, trips: $tripsQ ?? [], races: $racesQ ?? {}, today, fromRides, as, sims, sim, way, acts: $actsQ ?? [], rides: $ridesQ ?? [] }
       : null,
   );
