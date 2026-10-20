@@ -1438,6 +1438,5 @@ export default {
   'Live map, diary, form': 'Live-Karte, Tagebuch, Form',
   'Ride, write, recover.': 'Fahren, schreiben, erholen.',
   'Live map: pause, sensors, turn hints, detours': 'Live-Karte: Pause, Sensoren, Abbiegehinweise, Umweg',
-  'Heatmap; tour values like on the Garmin': 'Heatmap; Tour-Werte wie auf dem Garmin',
-  'Check questions, Zürisee, arrived home': 'Check-Fragen, Zürisee, gut angekommen',
+  'Heatmap, check questions, Zürisee': 'Heatmap, Check-Fragen, Zürisee',
 };

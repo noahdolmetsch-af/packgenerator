@@ -26,10 +26,7 @@ export const WHATS_NEW = [
       { text: 'Diary: write or speak, with photos', href: '#/tagebuch' },
       { text: 'Form and recovery: readiness 0–100', href: '#/flow' },
     ],
-    small: [
-      { box: 'new', text: 'Heatmap; tour values like on the Garmin' },
-      { box: 'new', text: 'Check questions, Zürisee, arrived home' },
-    ],
+    small: [{ box: 'new', text: 'Heatmap, check questions, Zürisee' }],
     test: [
       'Open Me › Diary and write a first entry.',
       'Open Trips › Look back › Heatmap.',
