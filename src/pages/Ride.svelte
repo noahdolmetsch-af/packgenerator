@@ -30,7 +30,8 @@
   import { paceOf, PACE_KEY } from '../lib/pace.js';
   import { loadWerte } from '../lib/review/actdata.js';
   import { paceFor, usualSurface } from '../lib/review/werte.js';
-  import { blockPlan, eveningPlan, DRINK_L_PER_H, HOT_C, HOT_EXTRA_L } from '../lib/blockplan.js';
+  import { blockPlan, eveningPlan } from '../lib/blockplan.js';
+  import { FUEL_KEY } from '../lib/fuel.js';
   import { chargeList, chargeCount } from '../lib/charge.js';
   import ChargeList from '../lib/trip/ChargeList.svelte';
   import { dayIndex, addTime, planHours, stage, stageCount, isNonstop, blocks, blockHours, dayProfile, placeName, fetchHourly, rideHours, wxSummary, DEFAULT_START, onTripDay } from '../lib/ride.js';
@@ -216,7 +217,8 @@
   };
   // Per block: clothing, food and drink, light (answer 4b).
   const onTrip = $derived(stats ? stats.zones.flatMap((z) => z.entries.filter((e) => itemsById[e.itemId]).map((e) => ({ item: itemsById[e.itemId], qty: e.qty || 1, place: placeName(trip, z) }))) : []);
-  const bp = $derived(plan.length ? blockPlan(plan, onTrip, { wxOf: blockHrs, place: sunPlace, tripWx: trip.wx ?? null }) : null);
+  const fuelQ = liveQuery(() => db.settings.get(FUEL_KEY)); // Paket X: the one water rule, your values
+  const bp = $derived(plan.length ? blockPlan(plan, onTrip, { wxOf: blockHrs, place: sunPlace, tripWx: trip.wx ?? null, fuel: $fuelQ?.value ?? null }) : null);
   const names = (list) => list.map((w) => `${w.name} (${w.place})`).join(', ');
 
   /* ---------- v0.34.0 (L8, Noah a): the evening on a trip of several days ---------- */
@@ -228,7 +230,7 @@
     if (!nextSt?.hours) return null;
     const first = blocks({ ...trip, plan: null }, nextSt).slice(0, 1);
     const p = nextSaved?.places?.[0];
-    return first.length ? blockPlan(first, onTrip, { wxOf: (b) => (p ? blockHours(p.hours, b) : []), place: nextSt.from ?? sunPlace, tripWx: trip.wx ?? null }).rows[0] : null;
+    return first.length ? blockPlan(first, onTrip, { wxOf: (b) => (p ? blockHours(p.hours, b) : []), place: nextSt.from ?? sunPlace, tripWx: trip.wx ?? null, fuel: $fuelQ?.value ?? null }).rows[0] : null;
   });
   const eve = $derived(trip ? eveningPlan({ days: nonstop ? 1 : days, day: cur, date: st?.date ?? null, nextDate: nextSt?.date ?? null, overnight: trip.overnight, first: nextFirst, charge: chargeList(trip, items) }) : null);
   const eveCharged = $derived(eve ? chargeCount(trip, eve.charge, eve.date) : null);
@@ -480,7 +482,7 @@
       const s = stage(trip, n, pace, { today });
       const wx = s?.date ? trip.rideWx?.[s.date]?.places?.[0]?.hours ?? [] : [];
       const temps = wx.map((x) => x.temp).filter(Number.isFinite);
-      return { label: dayLabel(n), hours: s?.hours ?? 0, hot: temps.length ? Math.max(...temps) >= 25 : /hot|heiss/i.test(String(trip.wx ?? '')) };
+      return { label: dayLabel(n), hours: s?.hours ?? 0, temp: temps.length ? Math.max(...temps) : null, hot: temps.length ? Math.max(...temps) >= 25 : /hot|heiss/i.test(String(trip.wx ?? '')) };
     });
   });
   const bottlesL = $derived(onTrip.reduce((sum, x) => sum + (x.item.waterL || 0) * (x.qty || 1), 0));
@@ -605,7 +607,7 @@
           <!-- v0.105.0 P5 (T12): «So wird gerechnet» opens under the card's last row -->
           <button type="button" class="tp-link howb" aria-expanded={how} onclick={() => (how = !how)}>{t('How this is worked out')}<ChevronRight size={16} aria-hidden="true" /></button>
           {#if how}
-            <p class="tp-muted tp-small howp">{nonstop && trip.plan?.schedule?.length ? t('Your time plan from the logbook.') : t('Blocks of 3 hours.')} {#if st.km}{t('km at {kmh} km/h, the same guess as the riding time', { kmh: Math.round((st.km / st.hours) * 10) / 10 })}{pace.mine ? ` ${tn(pace.n, '(your pace from {n} ride)', '(your pace from {n} rides)')}` : ''}.{:else}{st.hoursGuess ? t('No route and no riding hours: {n} h assumed from the start.', { n: st.hours }) : t('No route: {n} h riding from the start (riding hours of the trip).', { n: num(st.hours) })}{/if} {t('Drinking {l} L per hour ({hot} L from {c} °C) is a guess', { l: DRINK_L_PER_H, hot: DRINK_L_PER_H + HOT_EXTRA_L, c: HOT_C })}{bp.capL ? t('; your bottles hold {n} L', { n: Math.round(bp.capL * 10) / 10 }) : t('; no bottle on this trip')}. {t('Sunset and sunrise are computed for the start of the day.')}{saved ? '' : ` ${t('Load the forecast below for the weather per block.')}`}</p>
+            <p class="tp-muted tp-small howp">{nonstop && trip.plan?.schedule?.length ? t('Your time plan from the logbook.') : t('Blocks of 3 hours.')} {#if st.km}{t('km at {kmh} km/h, the same guess as the riding time', { kmh: Math.round((st.km / st.hours) * 10) / 10 })}{pace.mine ? ` ${tn(pace.n, '(your pace from {n} ride)', '(your pace from {n} rides)')}` : ''}.{:else}{st.hoursGuess ? t('No route and no riding hours: {n} h assumed from the start.', { n: st.hours }) : t('No route: {n} h riding from the start (riding hours of the trip).', { n: num(st.hours) })}{/if} {t('Drinking {a} L per hour at {ca} °C up to {b} L at {cb} °C is a guess (your values under Verpflegung)', { a: num(bp.rate.cool), ca: num(bp.rate.coolC), b: num(bp.rate.hot), cb: num(bp.rate.hotC) })}{bp.capL ? t('; your bottles hold {n} L', { n: Math.round(bp.capL * 10) / 10 }) : t('; no bottle on this trip')}. {t('Sunset and sunrise are computed for the start of the day.')}{saved ? '' : ` ${t('Load the forecast below for the weather per block.')}`}</p>
           {/if}
         </section>
       {:else if !st.km}

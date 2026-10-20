@@ -1,0 +1,21 @@
+// Paket X «Energie» (energie.js, Wasser, Rennen, Live-Karte, Tour, Verpflegung, Rückblick)
+export default {
+  'Hot (from {c} °C): {l} L per hour': 'Heiss (ab {c} °C): {l} L pro Stunde',
+  'A guide, not a rule: {a}–{b} L by the temperature and about {kcal} kcal to eat per riding hour. Your body knows best.': 'Ein Richtwert, keine Regel: {a}–{b} L je nach Temperatur und etwa {kcal} kcal essen pro Fahrstunde. Dein Körper weiss es am besten.',
+  'Change your values': 'Deine Werte ändern',
+  'Drinking {a} L per hour at {ca} °C up to {b} L at {cb} °C is a guess (your values under Verpflegung)': 'Trinken {a} L pro Stunde bei {ca} °C bis {b} L bei {cb} °C ist eine Schätzung (deine Werte unter Verpflegung)',
+  'Soft tone': 'Sanfter Ton',
+  'So far about {kcal} kcal used.': 'Bisher etwa {kcal} kcal verbraucht.',
+  'Eat about {g} g carbohydrates and drink about {l} L per hour.': 'Iss etwa {g} g Kohlenhydrate und trink etwa {l} L pro Stunde.',
+  'A guess from your weight, time, km and climbing.': 'Eine Schätzung aus Gewicht, Zeit, km und Höhenmetern.',
+  'Per riding day about {kcal} kcal used: eat about {g} g carbohydrates, drink about {l} L.': 'Pro Fahrtag etwa {kcal} kcal verbraucht: iss etwa {g} g Kohlenhydrate, trink etwa {l} L.',
+  'kcal used, about': 'kcal verbraucht, etwa',
+  'Used: {kcal} kcal (measured); the app guessed {guess} kcal.': 'Verbraucht: {kcal} kcal (gemessen); die App schätzte {guess} kcal.',
+  'Used: about {kcal} kcal (a guess from your weight, time, km and climbing).': 'Verbraucht: etwa {kcal} kcal (Schätzung aus Gewicht, Zeit, km und Höhenmetern).',
+  'Next time for such a ride: about {g} g carbohydrates and {l} L to drink.': 'Fürs nächste Mal bei so einer Fahrt: etwa {g} g Kohlenhydrate und {l} L zu trinken.',
+  'Energy for a ride': 'Energie für eine Fahrt',
+  'One rule for what a ride uses and what to eat and drink: from your weight, the time, the km, the climbing and the temperature of the weather. On the tour, the race, Supplies, the live map and the ride review.': 'Eine Regel dafür, was eine Fahrt verbraucht und was du isst und trinkst: aus Gewicht, Zeit, km, Höhenmetern und der Temperatur vom Wetter. Bei der Tour, beim Rennen, in der Verpflegung, auf der Live-Karte und im Rückblick.',
+  'Enter your weight (Me › Weight).': 'Trag dein Gewicht ein (Ich › Gewicht).',
+  'Set carbohydrates and water per hour under Supplies.': 'Stell Kohlenhydrate und Wasser pro Stunde unter Verpflegung ein.',
+  'Read the energy line on the tour card, the race or the live map.': 'Lies die Energie-Zeile bei der Tour, beim Rennen oder auf der Live-Karte.',
+};

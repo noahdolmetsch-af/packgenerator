@@ -675,6 +675,11 @@ export const HANDBOOK = {
     steps: ['Open a race › «Map» › «Map offline».', 'Choose the map and the width, check the size and tap «Keep for offline».'],
     example: 'Example: a 1 km strip of the free map along 1000 km is about 30 MB.',
   },
+  'f.energy': {
+    on: null,
+    steps: ['Enter your weight under Me › Weight and your values under Trips › Supplies.', 'Plan a tour with a route: the tour card, the race and the live map show what you use, eat and drink.'],
+    example: 'Example: 4 h, 72 km, 1000 m up, 75 kg → about 2600 kcal used, eat 240 g carbohydrates.',
+  },
   'f.weather': {
     on: null,
     steps: ['Open Me › Weather, or tap the weather line on Today or a trip.', 'Choose how long you ride: the app shows the best start; tap «Landi rain radar» for the rain.'],

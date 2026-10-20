@@ -1122,4 +1122,7 @@ export default {
   'Open Me › Weather › «My webcams».': 'Öffne Ich › Wetter › «Meine Webcams».',
   'Paste the address of the picture and tap «Add webcam»; «Make home cam» shows it small on Today.': 'Füge die Adresse des Bildes ein und tippe «Webcam hinzufügen»; «Als Heim-Webcam» zeigt sie klein auf Heute.',
   'Example: the webcam of a pass → one tap shows if the road is white.': 'Beispiel: die Webcam eines Passes → ein Tipp zeigt, ob die Strasse weiss ist.',
+  'Enter your weight under Me › Weight and your values under Trips › Supplies.': 'Trag dein Gewicht unter Ich › Gewicht ein und deine Werte unter Touren › Verpflegung.',
+  'Plan a tour with a route: the tour card, the race and the live map show what you use, eat and drink.': 'Plane eine Tour mit Route: Tour, Rennen und Live-Karte zeigen, was du verbrauchst, isst und trinkst.',
+  'Example: 4 h, 72 km, 1000 m up, 75 kg → about 2600 kcal used, eat 240 g carbohydrates.': 'Beispiel: 4 h, 72 km, 1000 Hm, 75 kg → etwa 2600 kcal verbraucht, 240 g Kohlenhydrate essen.',
 };

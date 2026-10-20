@@ -14,6 +14,8 @@
   import { db } from '../lib/db.js';
   import { t, tn, num, locale } from '../lib/i18n.svelte.js';
   import { localDay } from '../lib/localday.js';
+  import { RIDER_KEY } from '../lib/weight.js';
+  import { energyFor, riderKg } from '../lib/energie.js';
   import { upcomingTrips } from '../lib/gear/assign.js';
   import { nextTrip } from '../lib/debrief.js';
   import { hoursOf } from '../lib/situation.js';
@@ -37,7 +39,7 @@
   import { offerDone } from '../lib/ui/rename.svelte.js';
   import { phone } from '../lib/media.svelte.js';
   import { openTrip } from '../lib/nav.js';
-  import { Cookie, Droplet, TriangleAlert, Plus, Trash2, Clock } from '@lucide/svelte';
+  import { Cookie, Droplet, TriangleAlert, Plus, Trash2, Clock, Flame } from '@lucide/svelte';
 
   const today = localDay();
   const tripsQ = liveQuery(() => db.trips.toArray());
@@ -82,6 +84,9 @@
     return fuelPlan({ totalKm, gainM: route.gainM, profile: route.profile, values: v, hoursTo, eta, tempAt: (ms) => tempFromTrip(trip, ms), kinds: source.kinds, pois: source.pois, openAt: source.full ? openAt : null });
   });
   // without a route: the riding hours of the trip only
+  // Paket X: the one energy rule, what the ride uses next to what you eat
+  const kgQ = liveQuery(() => db.settings.get(RIDER_KEY));
+  const used = $derived(plan && trip ? energyFor({ hours: plan.totals.hours, km: totalKm, gainM: Number(trip.route?.gainM) || 0, kg: riderKg($kgQ?.value), fuel: $fuelQ?.value ?? null }) : null);
   const plain = $derived(trip && !totalKm ? { hours: Math.round(rideH * days * 10) / 10 } : null);
 
   let problem = $state('');
@@ -199,6 +204,7 @@
           <span><Clock size={18} aria-hidden="true" /><b class="num">{h(plan.totals.hours)}</b><small>{t('riding')}</small></span>
           <span><Cookie size={18} aria-hidden="true" /><b class="num">{g(plan.totals.carbs)}</b><small>{t('carbohydrates')}</small></span>
           <span><Droplet size={18} aria-hidden="true" /><b class="num">{l(plan.totals.waterL)}</b><small>{t('water')}</small></span>
+          {#if used}<span data-fuel-kcal><Flame size={18} aria-hidden="true" /><b class="num">{num(used.burn)}</b><small>{t('kcal used, about')}</small></span>{/if}
         </div>
         {#if v.view === 'products'}<p class="note" data-fuel-pack>{t('In all: {list}', { list: packText(plan.totals.carbs) })}</p>{/if}
         <p class="note">{t('{km} km, {n} h riding a day with your pace; water {a}–{b} l per hour by temperature and climbing. Your bottles hold {cap}.', { km: kmOf(totalKm), n: num(rideH), a: num(v.coolLh), b: num(v.hotLh), cap: l(plan.capacityL) })}{#if plan.guessedTemp}{' '}{t('No forecast for some parts yet: 20 °C assumed there.')}{/if}{#if !trip.startDate}{' '}{t('Without a start day the app cannot check the weather and the opening hours.')}{/if}</p>

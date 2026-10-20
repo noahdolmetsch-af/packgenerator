@@ -8,7 +8,7 @@
    * Packen: what to wear and take from the riding hours (packHints). RouteCard mounts it with one line; «Hide» folds it.
    */
   import { liveQuery } from 'dexie';
-  import { CloudRain, Wind, TriangleAlert, Target, Mountain, Moon, ExternalLink, ChevronRight, Shirt } from '@lucide/svelte';
+  import { CloudRain, Wind, TriangleAlert, Target, Mountain, Moon, ExternalLink, ChevronRight, Shirt, Flame } from '@lucide/svelte';
   import { db } from '../db.js';
   import { HOME_PLACE } from '../know.js';
   import { ridingHours } from '../route.js';
@@ -16,11 +16,16 @@
   import { loadCore, hoursBetween, dayLine, warningsOf, bestWindows, snowOnRoute, routeTop, packHints, PACK_TEXT, darkAfter, atLocal, localDate, costWord, COST_WORD, WARN_TEXT, LANDI_RADAR } from './kern.js';
   import { BERGFEX } from './webcams.js';
   import { FEEL_KEY, FEEL_TEXT, PART_TEXT, feelsOf, feelHints } from './gefuehl.js';
+  import { FUEL_KEY } from '../fuel.js';
+  import { RIDER_KEY } from '../weight.js';
+  import { energyFor, riderKg } from '../energie.js';
   import { t, num, locale } from '../i18n.svelte.js';
 
   let { trip } = $props();
   const homeQ = liveQuery(() => db.settings.get(HOME_PLACE));
   const feelQ = liveQuery(() => db.settings.get(FEEL_KEY));
+  const fuelQ = liveQuery(() => db.settings.get(FUEL_KEY));
+  const kgQ = liveQuery(() => db.settings.get(RIDER_KEY));
   const place = $derived.by(() => {
     const p = trip?.place ?? trip?.route?.start ?? null;
     if (p && Number.isFinite(Number(p.lat))) return { lat: Number(p.lat), lon: Number(p.lon), name: p.name ?? '' };
@@ -50,6 +55,9 @@
   const wear = $derived(day ? packHints(hoursBetween(core, day.start, day.end)) : []);
   const ride = $derived(day ? dayLine(hoursBetween(core, day.start, day.end)) : null);
   const learned = $derived(ride ? feelHints(feelsOf($feelQ?.value), ride.feelsMin ?? ride.tmin) : { off: [], ok: null });
+  // Paket X: the one energy rule for the riding day (km and climbing of the route, the warmest riding hour)
+  const days = $derived(Math.max(1, Number(trip?.days) || 1));
+  const energy = $derived(trip?.route?.km > 0 ? energyFor({ hours: durH, km: trip.route.km / days, gainM: (Number(trip.route.gainM) || 0) / days, tempC: ride?.tmax ?? null, kg: riderKg($kgQ?.value), fuel: $fuelQ?.value ?? null }) : null);
   const week = $derived(core && !inForecast ? bestWindows(core, { durH, days: 7 }).best : null);
 
   const hm = (ms) => new Date(ms).toLocaleTimeString(locale(), { hour: '2-digit', minute: '2-digit' });
@@ -73,6 +81,7 @@
       {#if day}<p class="tw-best" data-tour-wetter-start><Target size={16} aria-hidden="true" />{t('Best start for {h} h riding: {from} (back about {to})', { h: num(durH), from: hm(day.start), to: hm(day.end) })} · <span class="tw-word w-{costWord(day.cost)}">{t(COST_WORD[costWord(day.cost)])}</span></p>{/if}
       {#if week}<p class="tw-best" data-tour-wetter-week><Target size={16} aria-hidden="true" />{t('Best day in the next week: {day}, from {from}', { day: wd(week.date), from: hm(week.start) })}</p>{/if}
       {#if wear.length}<p class="tw-note" data-tour-wetter-pack><Shirt size={16} aria-hidden="true" />{t('Pack: {list}', { list: wear.map((w) => t(PACK_TEXT[w.key])).join(', ') })}</p>{/if}
+      {#if energy}<p class="tw-note" data-tour-energy><Flame size={16} aria-hidden="true" />{t('Per riding day about {kcal} kcal used: eat about {g} g carbohydrates, drink about {l} L.', { kcal: num(energy.burn), g: num(energy.carbsG), l: num(energy.waterL) })} <a href="#/trips/fuel">{t('Food and water|fuel')}</a></p>{/if}
       {#each learned.off as x (x.id)}<p class="tw-note" data-tour-wetter-feel>{x.parts.length ? t('Last time at {c} °C: {feel} ({parts}).', { c: num(x.tmin), feel: t(FEEL_TEXT[x.feel]), parts: x.parts.map((p) => t(PART_TEXT[p])).join(', ') }) : t('Last time at {c} °C: {feel}.', { c: num(x.tmin), feel: t(FEEL_TEXT[x.feel]) })}{x.wore ? ` · ${x.wore}` : ''}</p>{/each}
       {#if learned.ok}<p class="tw-note" data-tour-wetter-feel>{t('Just right at {c} °C with: {wore}.', { c: num(learned.ok.tmin), wore: learned.ok.wore })}</p>{/if}
       {#each warns as w (w.kind)}<p class="tw-warn"><TriangleAlert size={16} aria-hidden="true" />{t(WARN_TEXT[w.kind], { at: hm(w.at), v: num(w.value) })}</p>{/each}

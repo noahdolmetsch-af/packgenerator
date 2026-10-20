@@ -53,6 +53,8 @@
   import { saveGpx } from '../lib/gpxout.js';
   import { LANDI_RADAR } from '../lib/wetter/kern.js';
   import LiveWetter from '../lib/live/LiveWetter.svelte';
+  import LiveEnergie from '../lib/live/LiveEnergie.svelte';
+  import LiveEssen from '../lib/live/LiveEssen.svelte';
   import { db } from '../lib/db.js';
   import { rec, startRecording, stopRecording, openRecording, pauseRecording, resumeRecording, addSensor, setGpsLow } from '../lib/spur/recorder.svelte.js';
   import PauseBar from '../lib/live/PauseBar.svelte';
@@ -862,6 +864,7 @@
         {#if cfg.eatHm && eatGain >= 300}<p class="lvf-alert" role="alert"><Utensils size={18} aria-hidden="true" /><span>{t('{m} m up since you last ate: time to eat.', { m: eatGain })}</span> <button type="button" class="btn sm" onclick={ateNow}>{t('Eaten')}</button></p>{/if}
         {#if msg}<p class="lvf-alert lvf-bad" role="alert">{msg}</p>{/if}
         <LiveWetter {me} />
+        <LiveEssen />
         {#if detour}
           <div class="lvf-alert lv-detour" role="status" data-live-detour>
             <Route size={18} aria-hidden="true" />
@@ -1060,6 +1063,7 @@
             {/if}
 
             <Essen tripId={trip?.id ?? null} until={plan && running ? plan.end : null} />
+            <LiveEnergie rideKm={rec.km} movingS={pz.movingS} profile={hasRoute ? profile : []} {km} {me} />
 
             <div class="lvf-part"><SensorBox {now} /></div>
 

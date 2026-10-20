@@ -5,14 +5,21 @@
    * packing list against what the hours need. «Heiss» can be set by hand (a suggestion, changeable).
    * days: [{ label, hours, hot }]; bottles: litres on the bike; food: [{ id, name, perHours, qty }].
    */
+  import { liveQuery } from 'dexie';
+  import { db } from '../db.js';
   import { t, num } from '../i18n.svelte.js';
   import { waterFood } from './wasser.js';
-  import { HOT_C } from '../blockplan.js';
+  import { FUEL_KEY, valuesOf } from '../fuel.js';
+  import { eatKcalH } from '../energie.js';
   import './unterwegs.css';
 
   let { days = [], bottles = 0, food = [] } = $props();
   let hot = $state(null); // null: from the weather; true/false: set by hand
-  const res = $derived(waterFood({ days: days.map((d) => ({ ...d, hot: hot ?? d.hot })), bottles, food }));
+  // the one energy rule (energie.js): your Verpflegung values
+  const fuelQ = liveQuery(() => db.settings.get(FUEL_KEY));
+  const fuel = $derived($fuelQ?.value ?? null);
+  const v = $derived(valuesOf(fuel));
+  const res = $derived(waterFood({ days: days.map((d) => ({ ...d, hot: hot ?? d.hot })), bottles, food, fuel }));
 </script>
 
 <div class="uw-water" data-water>
@@ -39,8 +46,8 @@
   {:else}
     <p class="tp-small tp-muted">{t('Food with «one per N hours» in the packing list is counted here.')}</p>
   {/if}
-  <label class="hot"><input type="checkbox" checked={hot ?? days.some((d) => d.hot)} onchange={(e) => (hot = e.currentTarget.checked)} /> {t('Hot (from {c} °C): {l} L more per hour', { c: HOT_C, l: '0.25' })}</label>
-  <p class="uw-fine">{t('A guide, not a rule: 0.5 L and about 250 kcal per riding hour. Your body knows best.')}</p>
+  <label class="hot"><input type="checkbox" checked={hot ?? days.some((d) => d.hot)} onchange={(e) => (hot = e.currentTarget.checked)} /> {t('Hot (from {c} °C): {l} L per hour', { c: num(v.hotC), l: num(v.hotLh) })}</label>
+  <p class="uw-fine">{t('A guide, not a rule: {a}–{b} L by the temperature and about {kcal} kcal to eat per riding hour. Your body knows best.', { a: num(v.coolLh), b: num(v.hotLh), kcal: num(eatKcalH(v)) })} <a class="tp-link" href="#/trips/fuel">{t('Change your values')}</a></p>
 </div>
 
 <style>
