@@ -224,12 +224,12 @@ export function checkQuery(today) {
 /**
  * What «Deine Balance» and «Deine 15 Fragen» read: the checks and the log of the last 7 days, the
  * activities (their ring), the rides of those days (files and counted Strava rides), the pool and the
- * questions switched off; WG: and the «Wi gaht's?» answers of those days.
+ * questions switched off; WG: and the «Wi gaht's?» answers of those days; the Fitbit days (healthDays).
  */
 export function balanceQuery(today) {
   const from = addDays(today, -6);
   return liveQuery(async () => {
-    const [acts, log, checks, rides, book, pool, off, answers, stravaActs, stravaPrefs, bagsRec, packsRec] = await Promise.all([
+    const [acts, log, checks, rides, book, pool, off, answers, stravaActs, stravaPrefs, bagsRec, packsRec, health] = await Promise.all([
       db.flowActs.toArray(),
       db.flowLog.where('day').aboveOrEqual(from).toArray(),
       db.flowChecks.where('day').aboveOrEqual(from).toArray(),
@@ -242,6 +242,7 @@ export function balanceQuery(today) {
       db.settings.get('strava'), // «2b»: rides on an ignored Strava bike do not count
       db.settings.get(BAGS_KEY), // package G #222: a sport bag packed in full counts as movement
       db.settings.get(PACK_KEY),
+      db.healthDays ? db.healthDays.where('date').aboveOrEqual(from).toArray() : [], // Fitbit überall: the measured days count for Sport
     ]);
     const bikeActs = notIgnored(stravaActs, stravaPrefs?.value?.ignore);
     return {
@@ -253,6 +254,7 @@ export function balanceQuery(today) {
       pool: poolOf(pool?.value),
       off: offOf(off?.value),
       bagDays: packedDays(bagsOf(bagsRec?.value), packsOf(packsRec?.value)).filter((d) => d >= from && d <= today),
+      health: health.filter((h) => h.date <= today),
     };
   });
 }

@@ -151,3 +151,18 @@ export function azmWeek(rows, today) {
   });
   return { monday, days, sum: days.reduce((s, d) => s + (d.min ?? 0), 0), any: days.some((d) => d.min !== null) };
 }
+
+/**
+ * Fitbit überall (Noah 20.10.2026 22:21): the movement of one Fitbit day, the same rule as the
+ * Check-Fragen step sport.bewegung: active zone minutes ≥ 30 or ≥ 12000 steps is a «Bergziege» (1),
+ * ≥ 10 minutes or ≥ 5000 steps a «Spaziergänger» (0.5), else a «Faultier» (0). null without azm and steps.
+ */
+export const MOVE_RULE = { goatAzm: 30, walkerAzm: 10, goatSteps: 12000, walkerSteps: 5000 };
+export function moveStep(row) {
+  const azm = Number.isFinite(row?.azm) ? row.azm : null;
+  const steps = Number.isFinite(row?.steps) ? row.steps : null;
+  if (azm == null && steps == null) return null;
+  if ((azm ?? 0) >= MOVE_RULE.goatAzm || (steps ?? 0) >= MOVE_RULE.goatSteps) return 1;
+  if ((azm ?? 0) >= MOVE_RULE.walkerAzm || (steps ?? 0) >= MOVE_RULE.walkerSteps) return 0.5;
+  return 0;
+}
