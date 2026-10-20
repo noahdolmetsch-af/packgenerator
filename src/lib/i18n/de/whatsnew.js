@@ -1386,6 +1386,15 @@ export default {
   'Open Me › What is new: every version is open, grouped by month.': 'Öffne Ich › Was ist neu: Jede Version ist offen, nach Monat gruppiert.',
   'Tap a line of a version: its place opens.': 'Tippe eine Zeile einer Version an: Ihr Ort öffnet sich.',
   'Open Me › AI helper: the switch is off. Switch it on: the six places say «on».': 'Öffne Ich › KI-Helfer: Der Schalter ist aus. Schalte ihn ein: Die sechs Stellen sagen «an».',
+  // N1 «Neue Leiste»
+  'Five places for your day': 'Fünf Orte für deinen Tag',
+  'The bar now reads Today, Plan, Trips, Analysis and Bikes; every page is still where its address was.': 'Die Leiste heisst jetzt Heute, Planen, Touren, Auswerten und Velos; jede Seite hat ihre alte Adresse.',
+  'Plan: your week, appointments and notes in one place': 'Planen: Woche, Termine und Notizen an einem Ort',
+  'Analysis: activity, training, Strava rides and insights together': 'Auswerten: Aktivität, Training, Strava-Fahrten und Erkenntnisse zusammen',
+  'Bikes: equipment and gear are one tap away on top': 'Velos: Ausrüstung und Material sind oben einen Tipp entfernt',
+  'Old links and bookmarks keep working': 'Alte Links und Lesezeichen gehen weiter',
+  'Tap Plan in the bar: the tabs show Week, Appointments and Notes.': 'Tippe in der Leiste auf Planen: Die Reiter zeigen Woche, Termine und Notizen.',
+  'Tap Analysis, then the tab Rides: your Strava rides are there.': 'Tippe auf Auswerten, dann auf den Reiter Fahrten: Dort sind deine Strava-Fahrten.',
   // v0.166.0 «Neueste Version laden»
   'Tours and Aktiv': 'Touren und Aktiv',
   'Gear, climbs, Aktiv anew.': 'Gepäck, Anstiege, Aktiv neu.',
@@ -1409,4 +1418,9 @@ export default {
   'An error page first looks for a newer version by itself; without internet it simply reloads': 'Eine Fehlerseite sucht zuerst selbst nach einer neueren Version; ohne Internet lädt sie einfach neu',
   'If a page ever shows «Something went wrong here»: tap «Reload the newest version».': 'Zeigt eine Seite einmal «Hier ist etwas schiefgelaufen»: Tippe «Neueste Version laden».',
   'After the reload, open Me › What is new: the newest version is on top, your data is still there.': 'Öffne danach Ich › Was ist neu: Die neueste Version steht oben, deine Daten sind noch da.',
+  // 0.169.0
+  'New bar, Today anew': 'Neue Leiste, Heute neu',
+  'Five places, your body on top.': 'Fünf Orte, dein Körper zuoberst.',
+  'Bar: Today, Plan, Trips, Analysis, Bikes': 'Leiste: Heute, Planen, Touren, Auswerten, Velos',
+  'Warmer colours, one font, round buttons': 'Wärmere Farben, eine Schrift, runde Knöpfe',
 };

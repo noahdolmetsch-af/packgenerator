@@ -12,8 +12,8 @@
  */
 import { partOfDay } from '../dayclock.js';
 
-/** HG1: the question after the name. */
-export const HELLO_ASK = 'wi gahts Dir hüt und was häsch vor?';
+/** HG1: the question after the name. UI-Ziele #15 (Noah 20.10.2026 «freigabe»): short; «Was häsch vor?» became the goal chips under it. */
+export const HELLO_ASK = 'wi gahts?';
 /** HG1 3: the night, exactly so. */
 export const HELLO_NIGHT = 'Guät Nacht, Nachtülä';
 /** HG1 4b: the first words by time of day. */
@@ -30,7 +30,7 @@ export function greetFor(hour, name = '') {
   return `${HELLO_WORDS[part]}${who ? ` ${who}` : ''}, ${HELLO_ASK}`;
 }
 
-/** HG1 2b: the quiet line under the greeting (not at night). */
+/** HG1 2b: the quiet line under the greeting (not at night); UI-Ziele #15: gone on Heute, the greeting itself is the button (kept as its accessible hint). */
 export const HELLO_TAP = "antippen: Wie gaht's? / Was häsch vor?";
 /** HG1d: the sheet's title, «Hoi Lena» (just «Hoi» without a name). */
 export const helloTitle = (name = '') => ['Hoi', String(name ?? '').trim()].filter(Boolean).join(' ');

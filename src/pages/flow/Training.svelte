@@ -81,7 +81,7 @@
 
 <div class="tr">
   <header class="ph">
-    <Crumb path={[{ href: '#/flow', label: t('Active|place') }]} here={t('Training|tab')} />
+    <Crumb path={[{ href: '#/flow', label: t('Analysis|place') }]} here={t('Training|tab')} />
     <PageHead title={t('Training|tab')} text={t('Plan your training week and see how much time you spent in which heart rate zone. Strava brings the activities by itself.')} />
   </header>
   <AreaIntro place="training" />

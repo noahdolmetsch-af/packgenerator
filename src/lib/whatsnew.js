@@ -16,6 +16,26 @@
 
 export const WHATS_NEW = [
   {
+    // v0.169.0 «Neue Leiste und Heute neu»: N1 bar (Noah 20.10.2026 «1a 2a»), N2 Heute (15:49 «1a 2a 3a und b 4b 5a»), UI-Grundlagen (UI-Ziele #12 #15 #16 #17, 17:05 «freigabe»); built without mockups
+    version: '0.169.0',
+    date: '2026-10-20',
+    title: 'New bar, Today anew',
+    lead: 'Five places, your body on top.',
+    points: [
+      { text: 'Bar: Today, Plan, Trips, Analysis, Bikes', href: '#/week' },
+      { text: '«Your body today»: pulse, sleep and active minutes next to yesterday', href: '#/me/insights' },
+      { text: '«Active today»: tick off in one tap', href: '#/flow' },
+    ],
+    small: [
+      { box: 'nicer', text: 'Warmer colours, one font, round buttons' },
+      { box: 'nicer', text: 'Chips under the greeting; the check in 5 steps' },
+    ],
+    test: [
+      'Tap Plan in the bar: the tabs show Week, Appointments and Notes.',
+      'Tap an activity under «Active today»: it is ticked; tap again to take it back.',
+    ],
+  },
+  {
     // v0.168.0 «Touren und Aktiv»: tour page gear + design, Aktiv tiles + Aktiv neu, GPX climbs when planning, map ground on all maps, AI key hint fix.
     version: '0.168.0',
     date: '2026-10-20',

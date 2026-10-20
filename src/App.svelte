@@ -41,7 +41,7 @@
   import { OWN_KEY } from './lib/ownvalues.js';
   import { useOwn } from './lib/ownlive.svelte.js';
   import { checkPart } from './lib/flowcheck.js';
-  import { pageOf, placeOf, redirectOf, tabOf, keepTab, PLACES, PLACE_TABS, isRidesHash } from './lib/nav.js';
+  import { pageOf, placeOf, redirectOf, tabOf, keepTab, PLACES, PLACE_TABS } from './lib/nav.js';
   import PlaceTabs from './lib/nav/PlaceTabs.svelte';
   import PlaceSwitch from './lib/nav/PlaceSwitch.svelte';
   import ErrorPage from './lib/ui/ErrorPage.svelte';
@@ -435,11 +435,11 @@
 <DbWaitLine />
 {#if !mini && !guest}<ComebackWindow care={$dueQ ?? 0} inbox={$inboxQ ?? 0} /><YearCheckWindow {hash} />{/if}
 
-<main class:calm class:wide={page === 'pack' || page === 'ride' || page === 'debrief' || page === 'rides' || page === 'past' || page === 'templates' || page === 'gear' || page === 'supplies' || page === 'power' || page === 'fuel' || page === 'tour' || page === 'lend' || page === 'blocks' || page === 'blockcheck' || page === 'home' || page === 'features' || page === 'wardrobe' || page === 'flow' || page === 'timer' || page === 'check' || page === 'routine' || page === 'week' || page === 'neuland'} class:bar={!wide.matches || !!mini}>
+<main class:calm class:wide={page === 'pack' || page === 'ride' || page === 'debrief' || page === 'rides' || page === 'stravarides' || page === 'past' || page === 'templates' || page === 'gear' || page === 'supplies' || page === 'power' || page === 'fuel' || page === 'tour' || page === 'lend' || page === 'blocks' || page === 'blockcheck' || page === 'home' || page === 'features' || page === 'wardrobe' || page === 'flow' || page === 'timer' || page === 'check' || page === 'routine' || page === 'week' || page === 'neuland'} class:bar={!wide.matches || !!mini}>
   {#if !calm && !guest && !mini}<PlaceTabs {place} {hash} {moved} onclosemoved={() => (moved = null)} />{/if}
   <!-- AU1 «1b»: on a phone Velos and Ausrüstung share a slot. Gesamttest 20.10.2026 B7: the switch stands only
        on Ausrüstung (the way back); Velos already has its tabs and path, Ausrüstung is one row on Velos › Übersicht -->
-  {#if place === 'equipment' && !mini}<PlaceSwitch {place} />{/if}
+  {#if (place === 'equipment' || place === 'gear') && !mini}<PlaceSwitch {place} />{/if}
   <!-- ER1/ER2: «Soll ich dich erinnern?» on top of the next page, in the page (never over its buttons) -->
   {#if !guest && page !== 'home'}<RemindCard />{/if}
   <svelte:boundary onerror={onfail}>
@@ -463,9 +463,10 @@
     <!-- v0.67.0 «Übergänge 1» (Ü3a): #/trip/<id>/packed | ended | debriefed, the interstitials -->
     {@const b = parseBetween(hash)}
     {#key hash}<LazyPage load={PAGES.Between} id={b?.id ?? ''} kind={b?.kind ?? 'packed'} />{/key}
-  {:else if page === 'trips'}
-    <!-- v0.46.1 (Noah): «Touren», the overview of all trips; Gesamttest 20.10.2026 B3: #/trips/rides, the tab «Fahrten» (Strava activities) -->
-    <LazyPage load={PAGES.Trips} sub={isRidesHash(hash) ? 'rides' : ''} />
+  {:else if page === 'trips' || page === 'stravarides'}
+    <!-- v0.46.1 (Noah): «Touren», the overview of all trips; Gesamttest 20.10.2026 B3: #/trips/rides, the tab «Fahrten» (Strava activities);
+         N1 «Neue Leiste» (Noah 20.10.2026): Fahrten stands under Auswerten, same page and address -->
+    <LazyPage load={PAGES.Trips} sub={page === 'stravarides' ? 'rides' : ''} />
   {:else if page === 'quiz'}
     <!-- Paket M «Quiz am Vorabend» (#207): #/quiz, #/quiz/<tripId> -->
     {#key hash}<LazyPage load={PAGES.Quiz} tripId={decodeURIComponent(hash.split('?')[0].split('/')[2] ?? '')} />{/key}

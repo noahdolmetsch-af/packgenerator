@@ -101,7 +101,8 @@ describe('Today: the trip and its one next step', () => {
 describe('main places', () => {
   it('five places in a fixed order (v0.46.1: Trips opens the overview; v0.76.0 «Fünf Orte»: Aktiv opens Im Flow)', () => {
     // «Woche planen» (Noah 15.10.2026 «1a»): «Woche» is its own place next to Heute
-    expect(PLACES.map((p) => [p.key, p.href])).toEqual([['today', '#/'], ['week', '#/week'], ['trips', '#/trips'], ['gear', '#/gear'], ['bikes', '#/bikes'], ['active', '#/flow']]);
+    // N1 «Neue Leiste» (Noah 20.10.2026 «2a»): Heute · Planen · Touren · Auswerten · Velos, Material under Velos
+    expect(PLACES.map((p) => [p.key, p.href])).toEqual([['today', '#/'], ['week', '#/week'], ['trips', '#/trips'], ['active', '#/flow'], ['bikes', '#/bikes'], ['gear', '#/gear']]);
   });
 
   it('every address belongs to the right place', () => {
@@ -126,7 +127,7 @@ describe('main places', () => {
       '#/me': 'me',
       '#/inbox': 'me',
       '#/inbox/new': 'me',
-      '#/notes': 'me',
+      '#/notes': 'week', // N1: Planen › Notizen
       '#/features': 'me',
       '#/helper': 'me', // v0.77.0 KI-Helfer (K1a): Ich › Helfer
     };

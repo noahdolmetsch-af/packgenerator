@@ -132,6 +132,7 @@ Fahrt hochladen (GPX) · Logbuch mit Tempo · Rückblick: Ungebrauchtes antippen
 | Alltags-Einkaufsliste (mit oder getrennt vom Tour-Einkauf, umschaltbar) | M | Ein Zettel für den Alltag; Rezept-Zutaten (Freie Zeit) landen auch dort |
 | Verträge und Abos unter Dokumente mit Kündigungsfrist und Erinnerung | M | Keine Frist verpassen, Überblick über laufende Kosten |
 | «Lange nicht gesehen»: leise Erinnerung an selbst eingetragene Menschen | S | Kontakt halten ohne Druck; keine echten Namen im Repo |
+| App mit Freunden teilen: eigene Google-Anmeldung (Noah klickt, Anleitung notes/freunde-teilen/), Wahl Beispiele/Leer beim ersten Start | M | Freunde nutzen die App mit eigenen Daten; Strava und Google bleiben bei Noah |
 
 ### Ideen, noch nicht entschieden
 

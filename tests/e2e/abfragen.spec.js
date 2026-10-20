@@ -50,8 +50,9 @@ test.describe('AB Deine Abfragen', () => {
     await expect(save).toBeDisabled();
     await shot(page, info, 'AB3-abfrage-heute');
     await noSideways(page);
-    await akku.getByRole('button', { name: '6', exact: true }).click();
-    await expect(akku.getByText('6 von 10 · gespeichert wird die Zahl')).toBeVisible();
+    // UI-Ziele #12 (Noah 20.10.2026 «freigabe», changed on purpose): 5 steps with words in the window, stored as 2 … 10
+    await akku.getByRole('button', { name: T('okay|step'), exact: true }).click();
+    await expect(akku.locator('[data-step="6"]')).toHaveAttribute('aria-pressed', 'true');
     await w.getByRole('textbox').fill('72.0');
     await save.click();
     await expect(card.locator('[data-q="erholung.akku"]')).toHaveCount(0);

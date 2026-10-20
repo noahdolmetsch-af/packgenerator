@@ -101,7 +101,7 @@
 
 <div class="hob">
   <header class="ph">
-    <Crumb path={[{ href: '#/flow', label: t('Active|place') }]} here={t('Sport bag')} />
+    <Crumb path={[{ href: '#/flow', label: t('Analysis|place') }]} here={t('Sport bag')} />
     <MoreAktiv items={pages} on="bags" />
     <PageHead title={t('Sport bag')} text={t('A short packing list for each sport, so nothing is missing in everyday life')} />
   </header>

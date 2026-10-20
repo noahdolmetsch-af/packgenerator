@@ -27,7 +27,7 @@ export const TOURS = {
     { href: '#/pack', place: 'trips', prep: 'playTrip', target: ['.bag-groups', '.calm-pack', 'main h1'], title: 'Packing|tour', text: 'A tap means packed. What you do not need, you leave out: everything is only a suggestion.' },
     { href: '#/gear', place: 'gear', target: ['section.vhead', '.gear header'], title: 'Gear|place', text: 'Enter what you own once. After that the app suggests it for every trip that fits.' },
     { href: '#/bikes?tab=care', place: 'bikes', target: ['section[aria-labelledby="due-h"]', 'main h1'], title: 'Bikes|place', text: 'Km and care for every bike. The app tells you when the chain, brakes or tyres are due.' },
-    { href: '#/flow', place: 'active', target: ['section[aria-labelledby="tick-h"]', '.flow header.ph'], title: 'Active|place', text: 'For everyday life: meditation, training, recovery. One tap ticks off, a long press enters the duration.' },
+    { href: '#/flow', place: 'active', target: ['section[aria-labelledby="tick-h"]', '.flow header.ph'], title: 'Analysis|place', text: 'For everyday life: meditation, training, recovery. One tap ticks off, a long press enters the duration.' },
     { href: '#/', place: 'me', end: true, target: [], title: 'Done. Well done!', text: 'You always find help under Me › Handbook. You can start the tour again there.' },
   ],
   aktiv: [
