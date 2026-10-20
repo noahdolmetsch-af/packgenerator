@@ -17,7 +17,7 @@ describe('addresses', () => {
     expect(collOfHash('#/me/frei/sammlung/own%201?x=1')).toBe('own 1');
     expect(queryOf('#/flow/impulse?i=i05&a=b', 'i')).toBe('i05');
     expect(pageOf('#/me/frei/abend')).toBe('frei');
-    expect(placeOf(pageOf('#/me/frei'))).toBe('me');
+    expect(placeOf(pageOf('#/me/frei'))).toBe('week'); // UI-Ziele #6 (Noah 20.10.2026): Freie Zeit is Planen › Freie Zeit
     expect(pageOf('#/flow/impulse')).toBe('impulse');
     expect(placeOf('impulse')).toBe('active');
   });

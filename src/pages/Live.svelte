@@ -28,6 +28,8 @@
   import { CloudRain, Route, Play, Square, Crosshair, MapPin, Navigation, Mountain, Clock, Settings, BatteryMedium, CloudLightning, TriangleAlert, RefreshCw, Utensils, Moon, Flag, LifeBuoy, Ellipsis, Minimize2, Maximize2, SlidersHorizontal, Check, X, Layers, Camera, WifiOff } from '@lucide/svelte';
   import KindIcon from '../lib/map/KindIcon.svelte';
   import PoiPanel from '../lib/map/PoiPanel.svelte';
+  import OvNearby from '../lib/sources/OvNearby.svelte';
+  import { wptsOnMap } from '../lib/route/fromgpx.js';
   import PoiDetail from '../lib/map/PoiDetail.svelte';
   import WxTimeline from '../lib/map/WxTimeline.svelte';
   import LiveRouteBox from '../lib/live/LiveRouteBox.svelte';
@@ -36,7 +38,7 @@
   import SortArrows from '../lib/ui/SortArrows.svelte';
   import SortGrip from '../lib/ui/SortGrip.svelte';
   import { sortable } from '../lib/ui/sortable.js';
-  import { GROUNDS } from '../lib/map/sources.js';
+  import { GROUNDS, SWISS_OVERLAYS } from '../lib/map/sources.js';
   import { chooseGround } from '../lib/map/groundpref.svelte.js';
   import { stretch } from '../lib/map/maplib.js';
   import { fineOf, heightAt, gradeAt } from '../lib/map/fineprofile.js';
@@ -56,8 +58,11 @@
   import LiveEnergie from '../lib/live/LiveEnergie.svelte';
   import LiveEssen from '../lib/live/LiveEssen.svelte';
   import { db } from '../lib/db.js';
-  import { rec, startRecording, stopRecording, openRecording, pauseRecording, resumeRecording, addSensor, setGpsLow } from '../lib/spur/recorder.svelte.js';
+  import { rec, startRecording, stopRecording, openRecording, pauseRecording, resumeRecording, addSensor, setGpsLow, lapRecording } from '../lib/spur/recorder.svelte.js';
   import PauseBar from '../lib/live/PauseBar.svelte';
+  import TurnHint from '../lib/live/TurnHint.svelte';
+  import { turnsOf, nextTurn, turnSay } from '../lib/live/turns.js';
+  import { lapNow, lapsOf, ghostOf, ghostDelta, lastRideOf, deltaText } from '../lib/live/laps.js';
   import DataPages from '../lib/live/DataPages.svelte';
   import LiveSmallMap from '../lib/live/LiveSmallMap.svelte';
   import DataPagesEditor from '../lib/live/DataPagesEditor.svelte';
@@ -136,7 +141,7 @@
   const climbs = $derived(profile.length > 1 ? climbsOf(profile, 100) : []);
 
   /* ---------- options (settings 'live') ---------- */
-  const OPTS = { voice: false, offRoute: false, battery: false, eatHm: false, storm: false, autoPause: false, autoKmh: 4, hrMax: 0, powerMax: 0, dim: false, autoData: false };
+  const OPTS = { voice: false, offRoute: false, battery: false, eatHm: false, storm: false, autoPause: false, autoKmh: 4, hrMax: 0, powerMax: 0, dim: false, autoData: false, turns: true, turnVoice: true };
   const cfg = $derived({ ...OPTS, ...($cfgQ?.value ?? {}) });
   const setOpt = (k, v) => db.settings.put({ key: 'live', value: { ...cfg, [k]: v } });
 
@@ -213,6 +218,9 @@
   const KINDS = ['shop', 'food', 'water', 'sleep', 'station', 'bike'];
   const stops = $derived(me ? stopsAhead({ pois, pts: hasRoute ? pts : [], here: me, km, kinds: KINDS, n: 5, now, pace, profile }) : []);
   const climb = $derived(km != null ? nextClimb(climbs, km) : null);
+  // Abbiege-Hinweise (turns.js): the turns of the route, once; the next one while you are on the route
+  const turns = $derived(hasRoute ? turnsOf(pts) : []);
+  const turnNext = $derived(cfg.turns && at && at.offM < 100 ? nextTurn(turns, at.kmx ?? at.km) : null);
   const running = $derived(planRunning(plan, now));
   const delta = $derived(running && km != null ? planDelta(plan, km, now) : null);
   const bed = $derived(km != null && (isRace || pois.some((p) => p.kind === 'sleep')) ? bedTonight({ plan: running ? plan : null, pois, km, now, pace, profile, light }) : null);
@@ -233,12 +241,15 @@
   const mapPoints = $derived([
     ...(shown.stops ? pois.map((p) => ({ id: p.id, lat: Number(p.lat), lon: Number(p.lon), kind: p.kind, name: p.name || kindName(p.kind), km: p.km })) : []),
     ...(shown.own ? ownOnMap(own, t) : []),
+    // «Neue Quellen»: the waypoints of the tour's GPX file (Ride with GPS, Komoot …)
+    ...(shown.own ? wptsOnMap(trip?.route).map((w) => ({ ...w, name: w.name || kindName(w.kind) })) : []),
     ...(detour ? [{ id: 'detour-target', lat: detour.target.lat, lon: detour.target.lon, kind: detour.target.kind === 'own' ? 'own' : detour.target.kind || 'other', name: detour.target.name || t('Detour'), minZoom: 0 }] : []),
   ]);
   const toggles = $derived([
     { key: 'stops', label: t('Stops') },
     { key: 'own', label: t('My points') },
     { key: 'radar', label: t('Rain radar') },
+    { key: 'veloland', label: t('SchweizMobil') },
   ]);
   let radar = $state(null);
   cacheGet('map-radar').then((c) => {
@@ -253,7 +264,11 @@
       })
       .catch(() => (msg = t('The rain radar could not load. Try again later.')));
   });
-  const overlays = $derived(shown.radar && radar ? [{ id: 'radar', url: radar.url, maxzoom: RADAR_MAX_ZOOM, opacity: 0.6, attribution: RADAR_ATTRIBUTION }] : []);
+  const overlays = $derived([
+    // SchweizMobil (map/sources.js SWISS_OVERLAYS): the signposted cycling routes, under the rain
+    ...(shown.veloland ? SWISS_OVERLAYS.filter((o) => o.id === 'veloland') : []),
+    ...(shown.radar && radar ? [{ id: 'radar', url: radar.url, maxzoom: RADAR_MAX_ZOOM, opacity: 0.6, attribution: RADAR_ATTRIBUTION }] : []),
+  ]);
   // the battery saver: the simple light free map (never dark), back to your ground afterwards
   let groundBefore = null;
   $effect(() => {
@@ -408,8 +423,14 @@
     if (!rec.on || !me) return;
     // on a data page the map is not moved (Stromsparen 2a: no drawing while you do not see it)
     if (follow && viewSet && dpIndex === 0) mapView?.keep?.(me.lat, me.lon, sheetPx);
+    // the turn ahead (Abbiege-Hinweise): its voice first, before the stops and climbs
+    const ts = cfg.turns && cfg.turnVoice && turnNext ? turnSay(turnNext, turnNext.distM, said) : null;
+    if (ts) {
+      said.add(ts.id);
+      say(t(ts.key, ts.vars), lang());
+    }
     // voice
-    if (cfg.voice) {
+    if (cfg.voice && !ts) {
       const s = nextSay({ stop: stops[0] ?? null, climb, said });
       if (s) {
         said.add(s.id);
@@ -642,6 +663,22 @@
   });
   const series = $derived({ hr: sn.hr ?? [], power: sn.power ?? [], cadence: sn.cadence ?? [], speed: speedSeries });
   const profileAhead = $derived(km != null && profile.length > 1 ? profile.filter((x) => x[0] >= km - 0.5 && x[0] <= km + 50) : []);
+  // Runden (laps.js): the running lap
+  const lap = $derived(rec.on ? lapNow(rec.laps, { km: rec.km, movingS: movingLive, now, startAt: rec.startAt }) : null);
+  async function newLap() {
+    await lapRecording({ movingS: movingLive });
+    buzz([120]);
+  }
+  // «Gegen dich selbst» (laps.js): your last closed ride of this tour along the route
+  const pastQ = liveQuery(() => db.tracks.where('kind').equals('rec').toArray());
+  const pastRide = $derived(hasRoute ? (lastRideOf($pastQ ?? [], { tripId: tid || null, notId: rec.id })[0] ?? null) : null);
+  const ghost = $derived(pastRide ? ghostOf(pastRide, pts) : []);
+  let ghostStart = $state(null); // the route km where this ride began
+  $effect(() => {
+    if (!rec.on) ghostStart = null;
+    else if (ghostStart == null && at && at.offM < 300) ghostStart = at.kmx ?? at.km;
+  });
+  const ghostS = $derived(ghost.length && at && at.offM < 300 && ghostStart != null ? ghostDelta(ghost, { km: at.kmx ?? at.km, movingS: movingLive, startKm: ghostStart }) : null);
   const hrStats = $derived(statsOf(sn.hr));
   const pwStats = $derived(statsOf(sn.power, { noZero: true }));
   const dash = { value: '–' };
@@ -652,7 +689,9 @@
     maxHr: vv(hrStats?.max),
     avgPower: vv(pwStats?.avg),
     maxPower: vv(pwStats?.max),
-    lap: dash,
+    lap: lap ? { value: `${Math.floor(lap.movingS / 3600)}:${String(Math.floor((lap.movingS % 3600) / 60)).padStart(2, '0')}:${String(lap.movingS % 60).padStart(2, '0')}` } : dash,
+    lapKm: lap ? { value: String(Math.round(lap.km * 10) / 10) } : dash,
+    ghost: ghostS != null ? { value: deltaText(ghostS) } : dash,
     battery: bat ? vv(bat.level * 100) : dash,
     nextWp: dash,
     upToTop: climb && km != null ? vv(gainBetween(profile, km, climb.toKm)) : dash,
@@ -702,6 +741,9 @@
   let poiPoints = $state([]);
   let poiPicked = $state(null);
   const allPoints = $derived([...mapPoints, ...poiPoints.filter((p) => Number.isFinite(Number(p.lat))).map((p) => ({ id: `poi-${p.id}`, lat: Number(p.lat), lon: Number(p.lon), kind: p.kind, name: p.name || kindName(p.kind) }))]);
+  // «Weitere Quellen»: «Add a place by tapping the map» of the place search
+  let poiPanel = $state(null);
+  let poiTapping = $state(false);
   function pickPoint(p) {
     const id = String(p?.id ?? '');
     if (!id.startsWith('poi-')) return;
@@ -847,6 +889,8 @@
             ondrag={() => (follow = false)}
             onmove={(b) => (mapBounds = b)}
             onpick={pickPoint}
+            adding={poiTapping}
+            onmapclick={(e) => poiPanel?.tapMap(e)}
             onlongpress={(p) => ((picked = p), (reroute = true))}
           />
         {/snippet}
@@ -857,6 +901,7 @@
 
       <!-- warnings over the map -->
       <div class="lvf-alerts">
+        {#if turnNext && turnNext.distM <= 1000}<div class="lvf-turn" data-live-turn><TurnHint turn={turnNext} distM={turnNext.distM} /></div>{/if}
         {#if !me}<p class="lvf-alert" role="status">{t('Waiting for the GPS …')}</p>{/if}
         {#if resumed}<p class="lvf-alert" role="status" data-live-resumed-full><RefreshCw size={18} aria-hidden="true" /><span>{t('The app had loaded anew: your ride goes on.')}</span> <button type="button" class="btn sm" onclick={() => (resumed = false)}>{t('OK')}</button></p>{/if}
         {#if offWarn}<p class="lvf-alert lvf-bad" role="alert" data-live-offroute><TriangleAlert size={18} aria-hidden="true" /><span>{t('Off the route: {m} m away.', { m: at?.offM })}</span></p>{/if}
@@ -881,6 +926,7 @@
         {#if limitMsg}<p class="lvf-alert lvf-bad" role="alert" data-live-limit><TriangleAlert size={18} aria-hidden="true" /><span>{limitMsg}</span></p>{/if}
       </div>
 
+      {#if !rec.paused}<button type="button" class="lvf-lap" style:bottom="{sheetPx + 12}px" onclick={newLap} aria-label={t('New lap')} data-live-lap><Flag size={20} aria-hidden="true" /><small>{lap?.n ?? 1}</small></button>{/if}
       <PauseBar paused={rec.paused} auto={rec.auto} {standing} movingS={movingLive} pausedS={pausedLive} limit={autoKmh} bottom={sheetPx + 12} onpause={() => pauseNow(false)} onresume={goOn} onstop={stop} />
       <button type="button" class="lvf-ic lvf-photo" class:lvf-hidden={snap === 'full' || dpIndex > 0} onclick={() => (place = true)} style:bottom="{sheetPx + 70}px" aria-label={t('Photo or note with the place')} data-live-photo><Camera size={22} aria-hidden="true" /></button>
 
@@ -1055,7 +1101,7 @@
               {#if poiPicked}
                 <div data-live-poi-detail><PoiDetail place={poiPicked} from={me} line={route?.line ?? null} profile={route?.profile ?? null} onclose={() => (poiPicked = null)} /></div>
               {/if}
-              <PoiPanel center={me ? { lat: me.lat, lon: me.lon } : null} bounds={mapBounds} line={route?.line ?? null} profile={route?.profile ?? null} tripId={trip?.id ?? null} onpoints={(l) => (poiPoints = l ?? [])} />
+              <PoiPanel bind:this={poiPanel} canTap ontapmode={(v) => ((poiTapping = v), v && (snap = "peek"))} center={me ? { lat: me.lat, lon: me.lon } : null} bounds={mapBounds} line={route?.line ?? null} profile={route?.profile ?? null} tripId={trip?.id ?? null} onpoints={(l) => (poiPoints = l ?? [])} />
             </div>
 
             {#if showRouteBox}
@@ -1066,6 +1112,27 @@
             <LiveEnergie rideKm={rec.km} movingS={pz.movingS} profile={hasRoute ? profile : []} {km} {me} />
 
             <div class="lvf-part"><SensorBox {now} /></div>
+
+            <div class="lvf-part" data-live-ov><OvNearby at={me ? { lat: me.lat, lon: me.lon } : null} /></div>
+
+            {#if ghostS != null}
+              <div class="lvf-part" data-live-ghost>
+                <h2 class="lvf-h">{t('Against your last ride')}</h2>
+                <p class="rc-text"><b>{deltaText(ghostS)}</b> · {ghostS > 0 ? t('slower than your last ride on this route, in riding time') : t('faster than your last ride on this route, in riding time')}</p>
+                <p class="rc-note">{t('Compared at the same km of the route, from where you started today. Pauses and stops do not count.')}</p>
+              </div>
+            {/if}
+
+            {#if rec.laps.length}
+              <div class="lvf-part" data-live-laps>
+                <h2 class="lvf-h">{t('Laps')}</h2>
+                <ol class="lvf-laps">
+                  {#each lapsOf(rec.laps, { km: rec.km, movingS: movingLive, now, startAt: rec.startAt }) as l (l.n)}
+                    <li><b>{l.n}</b><span>{num(Math.round(l.km * 10) / 10)} km</span><span>{minText(Math.round(l.movingS / 60)) || '0 min'}</span></li>
+                  {/each}
+                </ol>
+              </div>
+            {/if}
 
             {#if row?.pts?.length > 1}
               <div class="lvf-part" data-live-pauses>
@@ -1129,6 +1196,12 @@
       </li>
       <li class="rc-row">
         <label class="lv-opt"><input type="checkbox" checked={cfg.battery} onchange={(e) => setOpt('battery', e.currentTarget.checked)} data-live-opt="battery" /><span><b>{t('Battery saver')}</b><small>{t('A simple light map, the map moves every 10 s instead of every 2 s, and less exact GPS (from the next start).')}{#if hasBattery}{' '}{t('Shows whether the battery lasts to the finish.')}{/if}</small></span></label>
+      </li>
+      <li class="rc-row">
+        <label class="lv-opt"><input type="checkbox" checked={cfg.turns} onchange={(e) => setOpt('turns', e.currentTarget.checked)} disabled={!hasRoute} data-live-opt="turns" /><span><b>{t('Turn hints')}</b><small>{hasRoute ? t('An arrow before each turn of the route, from 1 km before.') : t('Needs a route.')}</small></span></label>
+        {#if cfg.turns && hasRoute}
+          <label class="lv-opt lv-sub"><input type="checkbox" checked={cfg.turnVoice} onchange={(e) => setOpt('turnVoice', e.currentTarget.checked)} data-live-opt="turnVoice" /><span><b>{t('Say the turns')}</b><small>{t('The phone says «In 200 m turn left» and «Turn left now».')}</small></span></label>
+        {/if}
       </li>
       <li class="rc-row">
         <label class="lv-opt"><input type="checkbox" checked={cfg.autoPause} onchange={(e) => setOpt('autoPause', e.currentTarget.checked)} data-live-opt="autoPause" /><span><b>{t('Auto-pause')}</b><small>{t('Slower than your limit for 10 s: the riding time stands; it goes on by itself when you ride on.')}</small></span></label>
@@ -1297,6 +1370,47 @@
   .lv-num .inp {
     width: 5.5em;
     min-height: 44px;
+  }
+  .lvf-turn {
+    pointer-events: none;
+  }
+  .lvf-lap {
+    position: absolute;
+    left: 74px;
+    z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    height: 48px;
+    min-width: 48px;
+    padding: 0 10px;
+    border-radius: 24px;
+    border: 1px solid var(--line-strong);
+    background: var(--paper);
+    color: var(--ink);
+    box-shadow: 0 1px 4px var(--shadow);
+    cursor: pointer;
+    transition: bottom 0.15s var(--ease-out);
+  }
+  .lvf-laps {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: 4px;
+  }
+  .lvf-laps li {
+    display: grid;
+    grid-template-columns: 2em 1fr 1fr;
+    gap: 8px;
+    font-size: var(--fs-small);
+  }
+  .lv-sub {
+    padding-left: 32px;
+  }
+  .lvf-lap small {
+    font-size: var(--fs-small);
+    font-weight: 700;
   }
   .lvf-photo {
     position: absolute;

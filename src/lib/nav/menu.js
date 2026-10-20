@@ -52,7 +52,7 @@ export const PAGE_GROUPS = [
   },
   {
     key: 'active',
-    name: 'Active|place',
+    name: 'Analysis|place',
     rows: [
       // v0.51.0 «Im Flow»; v0.76.0: the place «Aktiv».
       { id: 'flow', title: 'In the flow', href: '#/flow', icon: 'flow', words: 'in the flow im flow flow aktiv active goals ziele sport training meditation yoga rings ringe daily check tagescheck stopwatch stoppuhr countdown habit gewohnheit' },

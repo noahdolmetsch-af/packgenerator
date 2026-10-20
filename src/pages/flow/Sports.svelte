@@ -59,7 +59,7 @@
 
 <div class="hob sp">
   <header class="ph">
-    <Crumb path={[{ href: '#/flow', label: t('Active|place') }]} here={t('Sports|page')} />
+    <Crumb path={[{ href: '#/flow', label: t('Analysis|place') }]} here={t('Sports|page')} />
     <PageHead title={t('Sports|page')} text={t('Every sport with the same blocks: equipment, packing list, history and progress, goals, care, weather and «For next time». Switch off what you do not need.')} />
     <AreaIntro place="sports" />
   </header>

@@ -54,7 +54,7 @@
   }
   .hint {
     margin: 2px 0 6px;
-    font-size: 14px;
+    font-size: var(--fs-small);
     color: var(--ink-3);
   }
   .cats,
@@ -72,7 +72,7 @@
     border: 0;
     border-bottom: 1px solid var(--line);
     background: none;
-    font: 600 15px var(--font-body);
+    font: 600 var(--fs-body) var(--font-body);
     color: var(--ink);
     text-align: left;
     cursor: pointer;
@@ -107,7 +107,7 @@
   }
   .addrow .w {
     color: var(--ink-2);
-    font-size: 15px;
+    font-size: var(--fs-body);
     text-align: right;
   }
   .plus {

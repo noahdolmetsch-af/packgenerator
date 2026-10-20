@@ -2,6 +2,7 @@
 // weight, see the weight over time with a 7-day mean and watts per kg over the weeks, hide a chart and
 // bring it back. Fictional activities and weights only; nothing leaves the device (all outside blocked).
 import { test, expect } from '@playwright/test';
+import { viaTab } from './placetab.js'; // UI-Ziele #6: the pages that were rows under Ich are tabs now
 import { ready } from './settle.js';
 import { day, seedActivities } from './leistung-data.js';
 
@@ -22,12 +23,8 @@ test('Gewicht: enter, the two charts, hide one and bring it back', async ({ page
   await page.goto('./');
   await ready(page);
 
-  // Ich › Meine Daten: the row says it is voluntary and stays here
-  await page.goto('./#/me');
-  const row = page.locator('[data-row="weight"]');
-  await expect(row).toContainText('Gewicht');
-  await expect(row).toContainText('nur auf diesem Gerät');
-  await row.click();
+  // UI-Ziele #6 (was Ich › Meine Daten): Auswerten › Gewicht
+  await viaTab(page, 'active', '#/me/weight');
   await expect(page.getByRole('heading', { level: 1, name: 'Gewicht' })).toBeVisible();
   await expect(page.getByText('Ab dem zweiten Eintrag', { exact: false }).or(page.getByText('Trag dein Gewicht einmal ein'))).toBeVisible();
 

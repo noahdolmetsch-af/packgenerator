@@ -27,13 +27,13 @@ function weekFixture() {
 test('Woche: the days with their kinds, chips hide a kind, a to-do is ticked, a date added', async ({ page, context }, info) => {
   const T = await openHome(page, context, info, { data: weekFixture() });
   const phone = info.project.name === 'phone';
-  // the phone bar keeps five places, Woche instead of Material (Noah 1a); Material sits under Ich
+  // the phone bar keeps five places (Noah 1a); N1 (Noah 20.10.2026 «2a»): Material sits with Velos (its link on Velos)
   if (phone) {
     const bar = page.locator('nav.bottom a[data-place]');
     await expect(bar).toHaveCount(BAR_PLACES.length);
     for (const [i, p] of BAR_PLACES.entries()) await expect(bar.nth(i)).toContainText(T(p.label));
-    await page.goto('./#/me');
-    await expect(page.locator('[data-me-gear] a[href="#/gear"]')).toBeVisible();
+    await page.goto('./#/bikes');
+    await expect(page.locator('a[data-gear-link][href="#/gear"]')).toBeVisible();
     await page.locator('nav.bottom a[data-place="week"]').click();
   } else {
     await page.locator('.side li[data-place="week"] > a.pa').click();
@@ -151,6 +151,8 @@ test('Content: weather per day, the rainy long ride moves, last week, load hints
   await expect(page.locator('[data-review]')).toContainText(T('Last week: {list}', { list: '' }).trim());
   await expect(page.locator('[data-load-hint="twoHard"]')).toBeVisible();
   // 5a the trip tomorrow: packing list, weather and bike check today
+  // «Handy kürzer» (Noah 20.10.2026 «4b»): a phone shows five suggestions first; open the rest
+  if (await page.locator('[data-sugg-more]').count()) await page.locator('[data-sugg-more]').click();
   for (const what of ['pack', 'wx', 'bike']) await expect(page.locator(`[data-sugg="tour:test_data_gtp_Herbstrunde:${what}"]`)).toBeVisible();
   const pack = page.locator('[data-sugg="tour:test_data_gtp_Herbstrunde:pack"]');
   await pack.getByRole('button', { name: T('Take') }).click();

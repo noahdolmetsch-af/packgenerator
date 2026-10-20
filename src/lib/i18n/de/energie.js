@@ -15,7 +15,7 @@ export default {
   'Next time for such a ride: about {g} g carbohydrates and {l} L to drink.': 'Fürs nächste Mal bei so einer Fahrt: etwa {g} g Kohlenhydrate und {l} L zu trinken.',
   'Energy for a ride': 'Energie für eine Fahrt',
   'One rule for what a ride uses and what to eat and drink: from your weight, the time, the km, the climbing and the temperature of the weather. On the tour, the race, Supplies, the live map and the ride review.': 'Eine Regel dafür, was eine Fahrt verbraucht und was du isst und trinkst: aus Gewicht, Zeit, km, Höhenmetern und der Temperatur vom Wetter. Bei der Tour, beim Rennen, in der Verpflegung, auf der Live-Karte und im Rückblick.',
-  'Enter your weight (Me › Weight).': 'Trag dein Gewicht ein (Ich › Gewicht).',
+  'Enter your weight (Analysis › Weight).': 'Trag dein Gewicht ein (Auswerten › Gewicht).',
   'Set carbohydrates and water per hour under Supplies.': 'Stell Kohlenhydrate und Wasser pro Stunde unter Verpflegung ein.',
   'Read the energy line on the tour card, the race or the live map.': 'Lies die Energie-Zeile bei der Tour, beim Rennen oder auf der Live-Karte.',
   // Stopps als Wegpunkte (gpxstops.js, GpxStops.svelte)

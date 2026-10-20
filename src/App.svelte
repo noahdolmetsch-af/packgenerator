@@ -41,7 +41,7 @@
   import { OWN_KEY } from './lib/ownvalues.js';
   import { useOwn } from './lib/ownlive.svelte.js';
   import { checkPart } from './lib/flowcheck.js';
-  import { pageOf, placeOf, redirectOf, tabOf, keepTab, PLACES, PLACE_TABS, isRidesHash } from './lib/nav.js';
+  import { pageOf, placeOf, redirectOf, tabOf, keepTab, PLACES, PLACE_TABS } from './lib/nav.js';
   import PlaceTabs from './lib/nav/PlaceTabs.svelte';
   import PlaceSwitch from './lib/nav/PlaceSwitch.svelte';
   import ErrorPage from './lib/ui/ErrorPage.svelte';
@@ -49,6 +49,7 @@
   import DbWaitLine from './lib/clear/DbWaitLine.svelte';
   import ComebackWindow from './lib/clear/ComebackWindow.svelte';
   import YearCheckWindow from './lib/clear/YearCheckWindow.svelte';
+  import DiaryReminder from './lib/tagebuch/Reminder.svelte';
   import MiniBar from './lib/nav/MiniBar.svelte';
   import { miniAppOf, miniStart } from './lib/miniapps.js';
   import { toolKeyOf } from './lib/tools/tools.js';
@@ -103,7 +104,8 @@
     return () => window.removeEventListener('hashchange', update);
   });
   // v0.23.0 (AP07): the address → page and its main place live in nav.js (tested there).
-  const page = $derived(pageOf(hash, parseBikesHash(hash).tab === 'care'));
+  // «Tagebuch» (20.10.2026): #/tagebuch is its own page; the nav thread adds it to pageOf/placeOf with the new bar
+  const page = $derived(hash.startsWith('#/tagebuch') ? 'tagebuch' : pageOf(hash, parseBikesHash(hash).tab === 'care'));
   const place = $derived(placeOf(page));
   // a page for someone without the app's data (a shared list, Paket S «Reise-Spur»: a tour's read link)
   const guest = $derived(page === 'share' || page === 'spurlink');
@@ -367,6 +369,7 @@
     Gelernt: () => import('./pages/Gelernt.svelte'), // Paket M «Was die App gelernt hat»
     JahrStory: () => import('./pages/JahrStory.svelte'), // Paket M «Dein Jahr als Bildgeschichte»
     Neuland: () => import('./pages/Neuland.svelte'), // «Neuland»
+    Heatmap: () => import('./pages/Heatmap.svelte'), // «Heatmap» (20.10.2026)
     Spur: () => import('./pages/Spur.svelte'), // Paket S «Reise-Spur»
     Tour: () => import('./pages/Tour.svelte'), // «Tour» (Noah 19.10.2026 «1a»): one finished tour
     SpurLink: () => import('./pages/SpurLink.svelte'), // Paket S: the family's read link
@@ -402,6 +405,7 @@
     Privacy: () => import('./pages/Privacy.svelte'),
     Pros: () => import('./pages/Pros.svelte'),
     Frei: () => import('./pages/Frei.svelte'),
+    Tagebuch: () => import('./pages/Tagebuch.svelte'),
     Alltag: () => import('./pages/Alltag.svelte'),
   };
   // once Heute is drawn, the most used pages load quietly in the background
@@ -434,13 +438,13 @@
 <DemoBar />
 <OfflineLine />
 <DbWaitLine />
-{#if !mini && !guest}<ComebackWindow care={$dueQ ?? 0} inbox={$inboxQ ?? 0} /><YearCheckWindow {hash} />{/if}
+{#if !mini && !guest}<ComebackWindow care={$dueQ ?? 0} inbox={$inboxQ ?? 0} /><YearCheckWindow {hash} /><DiaryReminder {hash} />{/if}
 
-<main class:calm class:wide={page === 'pack' || page === 'ride' || page === 'debrief' || page === 'rides' || page === 'past' || page === 'templates' || page === 'gear' || page === 'supplies' || page === 'power' || page === 'fuel' || page === 'tour' || page === 'lend' || page === 'blocks' || page === 'blockcheck' || page === 'home' || page === 'features' || page === 'wardrobe' || page === 'flow' || page === 'timer' || page === 'check' || page === 'routine' || page === 'week' || page === 'neuland'} class:bar={!wide.matches || !!mini}>
+<main class:calm class:wide={page === 'pack' || page === 'ride' || page === 'debrief' || page === 'rides' || page === 'stravarides' || page === 'past' || page === 'templates' || page === 'gear' || page === 'supplies' || page === 'power' || page === 'fuel' || page === 'tour' || page === 'lend' || page === 'blocks' || page === 'blockcheck' || page === 'home' || page === 'features' || page === 'wardrobe' || page === 'flow' || page === 'timer' || page === 'check' || page === 'routine' || page === 'week' || page === 'neuland' || page === 'heatmap'} class:bar={!wide.matches || !!mini}>
   {#if !calm && !guest && !mini}<PlaceTabs {place} {hash} {moved} onclosemoved={() => (moved = null)} />{/if}
   <!-- AU1 «1b»: on a phone Velos and Ausrüstung share a slot. Gesamttest 20.10.2026 B7: the switch stands only
        on Ausrüstung (the way back); Velos already has its tabs and path, Ausrüstung is one row on Velos › Übersicht -->
-  {#if place === 'equipment' && !mini}<PlaceSwitch {place} />{/if}
+  {#if (place === 'equipment' || place === 'gear') && !mini}<PlaceSwitch {place} />{/if}
   <!-- ER1/ER2: «Soll ich dich erinnern?» on top of the next page, in the page (never over its buttons) -->
   {#if !guest && page !== 'home'}<RemindCard />{/if}
   <svelte:boundary onerror={onfail}>
@@ -464,9 +468,10 @@
     <!-- v0.67.0 «Übergänge 1» (Ü3a): #/trip/<id>/packed | ended | debriefed, the interstitials -->
     {@const b = parseBetween(hash)}
     {#key hash}<LazyPage load={PAGES.Between} id={b?.id ?? ''} kind={b?.kind ?? 'packed'} />{/key}
-  {:else if page === 'trips'}
-    <!-- v0.46.1 (Noah): «Touren», the overview of all trips; Gesamttest 20.10.2026 B3: #/trips/rides, the tab «Fahrten» (Strava activities) -->
-    <LazyPage load={PAGES.Trips} sub={isRidesHash(hash) ? 'rides' : ''} />
+  {:else if page === 'trips' || page === 'stravarides'}
+    <!-- v0.46.1 (Noah): «Touren», the overview of all trips; Gesamttest 20.10.2026 B3: #/trips/rides, the tab «Fahrten» (Strava activities);
+         N1 «Neue Leiste» (Noah 20.10.2026): Fahrten stands under Auswerten, same page and address -->
+    <LazyPage load={PAGES.Trips} sub={page === 'stravarides' ? 'rides' : ''} />
   {:else if page === 'quiz'}
     <!-- Paket M «Quiz am Vorabend» (#207): #/quiz, #/quiz/<tripId> -->
     {#key hash}<LazyPage load={PAGES.Quiz} tripId={decodeURIComponent(hash.split('?')[0].split('/')[2] ?? '')} />{/key}
@@ -544,6 +549,9 @@
   {:else if page === 'frei' || page === 'impulse'}
     <!-- Paket T «Freie Zeit»: Ich › Freie Zeit (#/me/frei/…) and Aktiv › Impulse (#/flow/impulse); the page picks its part -->
     <LazyPage load={PAGES.Frei} {hash} />
+  {:else if page === 'tagebuch'}
+    <!-- «Tagebuch» (Noah 20.10.2026, like Day One): #/tagebuch, one entry at #/tagebuch/<id> -->
+    <LazyPage load={PAGES.Tagebuch} {hash} />
   {:else if page === 'alltag'}
     <!-- Paket V «Alltag»: Ich › Alltag (#/me/alltag/…): shopping list, contracts, «Not seen for a while» -->
     <LazyPage load={PAGES.Alltag} {hash} />
@@ -716,6 +724,9 @@
   {:else if page === 'neuland'}
     <!-- «Neuland» (wish #1007 + #1006): Touren › Rückblick › Neuland; the page and its maps load on their own -->
     <LazyPage load={PAGES.Neuland} />
+  {:else if page === 'heatmap'}
+    <!-- «Heatmap» (Noah 20.10.2026): all rides on one map, stronger where they overlap -->
+    <LazyPage load={PAGES.Heatmap} />
   {:else}
     <Home />
   {/if}

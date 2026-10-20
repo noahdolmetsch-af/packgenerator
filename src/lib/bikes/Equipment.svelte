@@ -81,7 +81,7 @@
   {#if !bikes.length && $bikesQ}
     <h1 class="title">{t('Equipment|tab')}</h1>
     <!-- v0.127.0 A-U2: the one empty building block -->
-    <Empty icon={BikeIcon} title={t('No bikes yet')} text={t('Add your bike, or bring your data along with a backup.')} action={{ label: t('Add bike'), href: '#/bikes', onclick: wantBike }}>{t('Or import your data on the')} <a href="#/">{t('start page')}</a>.</Empty>
+    <Empty icon={BikeIcon} title={t('No bikes yet')} text={t('Add your bike, or bring your data along with a backup.')} action={{ label: t('Add bike'), href: '#/bikes', onclick: wantBike }}>{t('Or bring your data along from a backup:')} <a href="#/me/data">{t('Me › Data and backup')}</a>.</Empty>
   {:else if bike}
     <!-- Design-Refresh P7 (V14, Noah 12.10.2026 «v11-v14 freigegeben»): «‹ Velo › Gravel Blau › Ausstattung»,
          «Ausstattung Gravel Blau», the counts below, «Compare bikes» as a button; the other bikes as chips. -->
@@ -96,7 +96,6 @@
     </VeloHead>
     <!-- Noah 19.10 «2a»: one card per page; the Einstieg «Ausstattung» lives in the card «Was hier steht» -->
     <HintCard page="equipment" intro="ausstattung" />
-    <TipLine page="ausstattung" name={t('Equipment|tab')} />
     {#if bikes.length > 1}<BikeChips {bikes} current={bike.id} onpick={(id) => onbike?.(id)} />{/if}
 
     {#key bike.id}<FitCard {bike} compact />{/key}
@@ -150,6 +149,8 @@
             </ul>
           </section>
         {/each}
+        <!-- Gesamttest: the tip of the day comes after the parts, not under the help box -->
+        <TipLine page="ausstattung" name={t('Equipment|tab')} />
       </div>
 
       <aside class="side">

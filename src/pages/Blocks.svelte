@@ -454,7 +454,7 @@
         <ul class="card slist">
           {#each bathCards as s (s.key)}{@render sitRow(s)}{/each}
         </ul>
-        <p class="shint"><Info size={15} aria-hidden="true" /><span>{t('Lakes, rivers, saunas and the water temperature are not known to the app yet: until there is a source, you tap them in Plan («still by hand»).')}</span></p>
+        <p class="shint"><Info size={15} aria-hidden="true" /><span>{t('Lakes, rivers and saunas along the route are not known to the app yet: you tap them in Plan («still by hand»). The water of Lake Zurich is in Aktiv.')}</span></p>
       </Section>
 
       <Section fold title={t('To add')} sub={groupSub(t('one tap when you make a trip'), addCards)} count={addCards.length} id="g-add" bind:open={addOpen}>
@@ -790,7 +790,7 @@
     font-weight: 600;
   }
   .quiet {
-    font-size: 13px;
+    font-size: var(--fs-small);
     font-weight: 400;
     color: var(--ink-3);
   }
@@ -827,7 +827,7 @@
     display: flex;
     justify-content: space-between;
     margin: 8px 0 0;
-    font-size: 13px;
+    font-size: var(--fs-small);
     font-weight: 600;
     color: var(--ink-3);
   }
@@ -868,7 +868,7 @@
     display: inline-flex;
     align-items: center;
     gap: 2px;
-    font-size: 13px;
+    font-size: var(--fs-small);
     color: var(--ink-3);
   }
   .racts {
@@ -931,7 +931,7 @@
     border: 0;
     background: none;
     color: var(--ink-2);
-    font: 600 13px var(--font-body);
+    font: 600 var(--fs-small) var(--font-body);
     text-decoration: underline;
     cursor: pointer;
   }

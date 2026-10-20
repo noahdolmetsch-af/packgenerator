@@ -4,7 +4,7 @@
    * ride is planned today (a trip on today): low–high, wind and where from (and which way round a loop
    * gives the tailwind home), the first warning, and «Radar» (the Landi rain radar) when rain comes within
    * 3 hours. Under it the home webcam as a small picture, only when one is set (Meine Webcams).
-   * Nothing shows without a ride and without a home cam. Tap → the weather page.
+   * Then the lake chip (Seetemperatur thread) when it has a value. Nothing shows without any of them. Tap → the weather page.
    * Home.svelte mounts it with one line (owner: «Heute neu gestalten»).
    */
   import { liveQuery } from 'dexie';
@@ -15,6 +15,7 @@
   import { compass, intoWind } from '../toursky.js';
   import { loadCore, hoursBetween, dayLine, warningsOf, rainWithin, localDate, atLocal, WARN_TEXT, LANDI_RADAR } from './kern.js';
   import { WEBCAMS_KEY, camsOf, homeCam, isImage, freshSrc, camLabel } from './webcams.js';
+  import LakeChip from '../lake/LakeChip.svelte';
   import { t, num, locale } from '../i18n.svelte.js';
 
   let { today } = $props();
@@ -65,8 +66,7 @@
   const href = $derived(trip ? `#/wetter?trip=${encodeURIComponent(trip.id)}` : '#/wetter');
 </script>
 
-{#if (trip && line) || cam}
-  <section class="hw-wx" aria-label={t('Weather')} data-heute-wetter>
+<section class="hw-wx" aria-label={t('Weather')} data-heute-wetter>
     {#if trip && line}
       <a class="hw-line" {href} data-heute-wetter-line>
         <span><b>{num(line.tmin)}–{num(line.tmax)} °C</b></span>
@@ -83,10 +83,15 @@
         <small>{camLabel(cam)}</small>
       </a>
     {/if}
+    <!-- the lake (thread «Seetemperatur und Sauna»): shows itself only with a value -->
+    <LakeChip />
   </section>
-{/if}
 
 <style>
+  /* nothing to show (no ride, no home cam, no lake value): no empty space either */
+  .hw-wx:not(:has(a, img)) {
+    display: none;
+  }
   .hw-wx {
     display: flex;
     flex-wrap: wrap;

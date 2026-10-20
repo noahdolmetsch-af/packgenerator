@@ -3,10 +3,13 @@
  */
 import { t, num } from '../i18n.svelte.js';
 import { openAt } from '../race/outside.js';
-import { CATEGORY, labelOf } from './poisearch.js';
+import { CATEGORY, SUB_NAMES, labelOf } from './poisearch.js';
 
-/** The kind in words (the sub kind when we know a nicer one). */
-export const kindText = (p) => t(labelOf(p));
+/**
+ * The kind in words: the sub kind when we know a nicer one, else your name for the kind (catName: an own
+ * kind or a renamed chip, never through t()), else the app's name.
+ */
+export const kindText = (p) => (p?.catName && !SUB_NAMES[p?.sub] ? p.catName : t(labelOf(p)));
 /** The category in words. */
 export const catText = (key) => t(CATEGORY[key]?.name ?? 'Place|poi');
 /** The name, else the kind. */

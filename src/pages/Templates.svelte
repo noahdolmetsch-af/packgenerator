@@ -192,7 +192,6 @@
     </PathHead>
     <!-- Noah 19.10 «2a»: one card per page; the Einstieg «Vorlagen» lives in the card «Was hier steht» -->
     <HintCard page="templates" intro="templates" />
-    <TipLine page="templates" name={t('Templates')} />
 
     {#if showSwitch}
       <div class="areas">
@@ -231,6 +230,8 @@
           <!-- v0.127.0 A-U2: the one empty building block -->
           <Empty icon={Backpack} title={t('No templates yet.')} text={t('A template is building blocks plus single items, so the next trip starts packed.')} action={{ label: t('As template|save'), onclick: saveCurrent, explain: t('Save the current trip as a template') }} />
         {/if}
+        <!-- Gesamttest: the tip of the day comes after the content, not under the help box -->
+        <TipLine page="templates" name={t('Templates')} />
       </div>
 
       <aside class="side">

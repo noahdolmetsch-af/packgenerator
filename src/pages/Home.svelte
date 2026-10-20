@@ -101,6 +101,9 @@
   import MedCard from '../lib/home/MedCard.svelte';
   import TagesKarte from '../lib/home/TagesKarte.svelte';
   import AktivTile from '../lib/home/AktivTile.svelte';
+  import BodyTile from '../lib/home/BodyTile.svelte';
+  import GoalChips from '../lib/home/GoalChips.svelte';
+  import ActsTile from '../lib/home/ActsTile.svelte';
   import { activeDays, seriesOf, restOf, REST_KEY, SERIES_STEPS } from '../lib/home/series.js';
   import { FUNCTIONS, USAGE_KEY, usageOf, dataUsed, usedFunctions, levelOf, untried } from '../lib/home/functions.js';
   import { countUse } from '../lib/home/usage.js';
@@ -754,8 +757,9 @@
   const nowRows = $derived.by(() => {
     if (!ready) return [];
     const rows = [];
-    if (abDue && !roundOpen) rows.push({ key: 'check', tone: 'now', ic: ClipboardList, text: tn(abDue, abEvening ? 'Evening check · {n} question' : 'Morning check · {n} question', abEvening ? 'Evening check · {n} questions' : 'Morning check · {n} questions'), act: { label: t('Start|round'), run: () => (abAsk = true) } });
-    if (medSt && !medSt.todayDone && !night) rows.push({ key: 'med', tone: 'now', ic: Flower2, text: t('Meditation, like last time'), act: { label: t('Start|meditation'), run: () => (medOpen = true) } });
+    // «Heute neu» N2: with «Your body today» on the wall the check lives there, with the Aktiv tiles meditation too
+    if (abDue && !roundOpen && !on('body')) rows.push({ key: 'check', tone: 'now', ic: ClipboardList, text: tn(abDue, abEvening ? 'Evening check · {n} question' : 'Morning check · {n} question', abEvening ? 'Evening check · {n} questions' : 'Morning check · {n} questions'), act: { label: t('Start|round'), run: () => (abAsk = true) } });
+    if (medSt && !medSt.todayDone && !night && !on('acts')) rows.push({ key: 'med', tone: 'now', ic: Flower2, text: t('Meditation, like last time'), act: { label: t('Start|meditation'), run: () => (medOpen = true) } });
     if (suggestion && !night) rows.push({ key: 'idea', tone: 'now', ic: BikeIcon, text: t('Idea: ride up to {h} h with the {bike}, today', { h: hrs(suggestion.hours), bike: suggestion.bike.name }), act: { label: t('Quick start'), run: startQuick }, ...(bikes.length > 1 ? { act2: { label: t('Other bike'), run: nextBike, quiet: true } } : {}) });
     return rows;
   });
@@ -840,7 +844,10 @@
     const i = list.findIndex((x) => x.id === 'flow');
     return i >= 0 && list[i + 1]?.id === 'balance' ? [...list.slice(0, i), { id: 'flow', size: 'long', join: list[i + 1].size }, ...list.slice(i + 2)] : list;
   };
-  const shownWall = $derived(editing ? hideTiles(wall, hiddenTiles) : joinFlow(tripUp(hideTiles(wall, hiddenTiles), !!near)));
+  // «Heute neu» N2 (Noah «5a»): «Up now» shows only when something is up (the check and meditation live on top now)
+  const upEmpty = $derived(ready && !upRows.length && !cheers.length && !notice && !quick);
+  const quiet = $derived(upEmpty && on('body') ? ['important'] : []);
+  const shownWall = $derived(editing ? hideTiles(wall, hiddenTiles) : joinFlow(tripUp(hideTiles(wall, [...hiddenTiles, ...quiet]), !!near)));
   // Paket Q #74 (Noah 19.10.2026 «4a»): the wall follows the time of day; while editing the stored order shows
   const timeOn = $derived(S[WALL_TIME_KEY] !== false);
   const timeWall = $derived(editing ? shownWall : byTime(shownWall, now.getHours(), timeOn));
@@ -940,10 +947,12 @@
   <section class="greet solo" aria-labelledby="hello-h" data-section="greeting">
     <div class="ghead">
       <div class="hi-text">
-        <h1 id="hello-h" class="hello">{hello}</h1>
-        {#if !night}<HelloSheet name={S.userName ?? ''} />{/if}
+        <!-- UI-Ziele #15 (Noah 20.10.2026 «freigabe»): the short greeting is the button itself, no «antippen» line -->
+        {#if night}<h1 id="hello-h" class="hello">{hello}</h1>{:else}<HelloSheet name={S.userName ?? ''} label={hello} />{/if}
         <p class="dl">{phone.matches ? shortDate : dateLine}{#if wx}<span aria-hidden="true">{'\u00a0· '}</span><span class="wx" data-weather>{wx.text}</span>{/if}{#if strava.changes.length}<span aria-hidden="true">{'\u00a0· '}</span><span data-strava-questions>{tn(strava.changes.length, '{n} question from Strava', '{n} questions from Strava')}</span>{/if}</p>
         {#if loaded}<RaceLine {today} />{/if}
+        <!-- UI-Ziele #17 (Noah 20.10.2026 «freigabe»): «Was häsch vor?» as chips; while customising a list to sort -->
+        {#if !night && ready}<GoalChips {editing} onride={startQuick} ontrip={() => (countUse('trip'), openNew('list'))} />{/if}
         {#if !wx && ready}
           {#if !place}
             <button type="button" class="linkq" aria-expanded={placeOpen} onclick={() => (placeOpen = !placeOpen)}>{t('Set your home place for the weather')}</button>
@@ -1123,6 +1132,8 @@
     {:else}<FlowCard {today} round={!onWall.has('daycard')} rings={!onWall.has('balance')} />{/if}
   {:else if x.id === 'daycard'}<TagesKarte {today} {now} {fc} {items} {trips} {bikes} {tasks} {visits} rides={$ridesQ ?? []} idea={suggestion ? { text: t('Ride up to {h} h with the {bike}, today', { h: hrs(suggestion.hours), bike: suggestion.bike.name }) } : null} onquick={startQuick} onplan={() => (countUse('trip'), openNew('list'))} onother={suggestion ? nextBike : null} onkm={() => (countUse('km'), openNew('km'))} {debrief} care={careRows} careN={due.points} tomorrowTrip={tomorrowTrip} />
   {:else if x.id === 'du'}<DuTile {today} />
+  {:else if x.id === 'body'}<BodyTile {today} due={abDue} evening={abEvening} open={roundOpen} onstart={() => (abAsk = true)} />
+  {:else if x.id === 'acts'}<ActsTile {today} />
   {:else if x.id === 'aktiv'}<AktivTile {today} rides={$ridesQ ?? []} size={x.size} hm={`${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`} />
   {:else if x.id === 'series'}<SeriesTile {today} size={x.size} party={seriesParty} />
   {:else if x.id === 'news'}<NewsTile size={x.size} days={newsDays} onremove={() => saveWall(removeTile(wall, 'news'))} />
@@ -1136,6 +1147,7 @@
   {:else if x.id === 'helper'}<SmallTile tile={TILE.helper} size={x.size} href="#/helper" />
   {:else if x.id === 'features'}<SmallTile tile={TILE.features} size={x.size} href="#/features" />
   {:else if x.id === 'tools'}<SmallTile tile={TILE.tools} size={x.size} href="#/me/tools" />
+  {:else if x.id === 'diary'}<SmallTile tile={TILE.diary} size={x.size} href="#/tagebuch?neu" isnew={newTile('diary')} sub={t('write or dictate')} />
   {:else if x.id === 'liveride'}{@const lt = todayTrip(trips, today)}<SmallTile tile={TILE.liveride} size={x.size} href={liveHref(lt)} isnew={newTile('liveride')} sub={lt ? lt.title : t('a free ride, without a trip')} />
   {:else if x.id === 'inbox'}<SmallTile tile={TILE.inbox} size={x.size} href="#/inbox" badge={notes.length} />
   {:else if x.id === 'data'}<SmallTile tile={TILE.data} size={x.size} onclick={openData} badge={backup.due ? 1 : 0} />
@@ -1450,7 +1462,7 @@
     gap: 4px;
     min-width: 0;
   }
-  .hello {
+  .greet :global(.hello) {
     margin: 0;
     font: 700 var(--fs-page) / 1.1 var(--font-body);
     /* HG1a: the longer Swiss greeting (a question) is a little smaller, as in the mockup */
@@ -1469,7 +1481,7 @@
     background: var(--paper);
   }
   @media (max-width: 719px) {
-    .hello {
+    .greet :global(.hello) {
       font-size: 25px;
     }
   }

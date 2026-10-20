@@ -19,8 +19,10 @@ const base = JSON.parse(readFileSync(fileURLToPath(new URL('./fixture.json', imp
 /** address → the main place that must be marked (null: none of the four, e.g. the Inbox). */
 const ROUTES = [
   ['#/', 'Today|place'],
-  ['#/week', 'Week|place'], // «Woche planen» WP1
-  ['#/week/plan', 'Week|place'],
+  ['#/week', 'Plan|place'], // «Woche planen» WP1; N1 «Neue Leiste» (Noah 20.10.2026): the place is «Planen»
+  ['#/week/plan', 'Plan|place'],
+  ['#/notes', 'Plan|place'], // N1: Planen › Notizen
+  ['#/trips/rides', 'Analysis|place'], // N1: Auswerten › Fahrten
   ['#/trips', 'Trips|place'],
   ['#/pack', 'Trips|place'],
   ['#/pack?day', 'Trips|place'],
@@ -35,9 +37,10 @@ const ROUTES = [
   ['#/debrief', 'Trips|place'],
   ['#/debrief/test_data_gtp_none', 'Trips|place'],
   // v0.76.0 «Fünf Orte»: Im Flow is the place Aktiv; the Inbox lives in «Ich» (no place lit)
-  ['#/flow', 'Active|place'],
-  ['#/inbox', null],
-  ['#/inbox/new', null],
+  ['#/flow', 'Analysis|place'], // N1: Aktiv is «Auswerten»
+  ['#/inbox', 'Plan|place'], // UI-Ziele #6: Planen › Eingang
+  ['#/inbox/new', 'Plan|place'],
+  ['#/me', null], // Ich: data, settings, help (no place lit)
   ['#/share/test_data_gtp_code', 'Trips|place'],
 ];
 
@@ -64,7 +67,7 @@ for (const lang of ['en', 'de']) {
       const side = await page.locator('.side li.pl').first().isVisible();
       await expect(places, hash).toHaveText((side ? SIDE_PLACES : BAR_PLACES).map((p) => T(p.label)));
       const lit = page.locator('nav.bottom a[aria-current], .side li.pl > a.pa[aria-current]');
-      if (place === 'Gear|place' && width < 900) await expect(lit, hash).toHaveCount(0); // Material is under Ich on a phone
+      if (place === 'Gear|place' && !side) await expect(lit, hash).toHaveText(T('Bikes|place')); // N1: on a phone Material shares the slot of Velos
       else if (place) await expect(lit, hash).toHaveText(T(place));
       else await expect(lit, hash).toHaveCount(0);
       await expect(page.locator('main'), hash).not.toBeEmpty();

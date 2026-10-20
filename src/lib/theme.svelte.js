@@ -31,7 +31,7 @@ export const SCALE_STEP = 5;
  * swatches: ground, main colour, calm accent, ink (the four dots on Ich › Darstellung).
  */
 export const PALETTES = [
-  { key: 'salbei', name: 'Sage|palette', swatches: ['#f4f5f1', '#4a7360', '#3d6b56', '#1f2a24'] },
+  { key: 'salbei', name: 'Sage|palette', swatches: ['#f6f2ea', '#4a7360', '#9a5b3e', '#26231f'] },
   { key: 'fels', name: 'Rock|palette', swatches: ['#f3f4f5', '#3e5c74', '#3d7461', '#1e252b'] },
   { key: 'sand', name: 'Sand|palette', swatches: ['#f6f3ec', '#9a5b3e', '#4f7a5a', '#2b2622'] },
   { key: 'gletscher-sanft', name: 'Soft glacier|palette', swatches: ['#f2f5f6', '#2f6b70', '#2f6b70', '#16242c'] },

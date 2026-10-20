@@ -174,7 +174,8 @@ const withoutMarks = (r, rule) => {
   return { ...r, value: v };
 };
 /** The fields the person set, an empty one as null (a missing note and an empty note are the same). */
-const ownOf = (r, keys) => Object.fromEntries(keys.map((k) => [k, r?.[k] === '' || r?.[k] === false || r?.[k] == null ? null : r[k]]));
+const blank = (v) => v == null || v === '' || v === false || (Array.isArray(v) && !v.length) || (typeof v === 'object' && !Array.isArray(v) && !Object.keys(v).some((k) => !blank(v[k])));
+const ownOf = (r, keys) => Object.fromEntries(keys.map((k) => [k, blank(r?.[k]) ? null : r[k]]));
 /**
  * For a record changed on both devices: 'same' (only the fetch marks differ), 'theirs' or 'mine' (the copy
  * fetched later), or null (not a copy of Google, or a delete: the person is asked as before).

@@ -122,11 +122,10 @@ export default {
   'Weather for a ride': 'Wetter für eine Fahrt',
   'One weather page from free open data: the best day and start time for your ride, warnings for storm, thunderstorm, ice and heat, Föhn and Bise, compare places, the usual weather far ahead, the Landi rain radar and what you learned about clothing.': 'Eine Wetterseite aus freien, offenen Daten: bester Tag und beste Startzeit, Warnungen vor Sturm, Gewitter, Glätte und Hitze, Föhn und Bise, Orte vergleichen, das übliche Wetter weit voraus, das Landi-Regenradar und was du über Kleidung gelernt hast.',
   'Keep your own webcams and pass links in one list, with bergfex for more. One can be your home cam: it shows as a small picture on Today. The list stays on this device only.': 'Deine eigenen Webcams und Pass-Links in einer Liste, dazu bergfex für mehr. Eine kann deine Heim-Webcam sein: Sie zeigt sich klein auf Heute. Die Liste bleibt nur auf diesem Gerät.',
-  'Open the weather page (Me › Weather or the weather line).': 'Öffne die Wetterseite (Ich › Wetter oder die Wetterzeile).',
+  'Open the weather page (the weather line on Today, Active or a trip).': 'Öffne die Wetterseite (die Wetterzeile auf Heute, unter Aktiv oder bei einer Tour).',
   'Choose how long you ride.': 'Wähle, wie lange du fährst.',
   'Read the best start and the warnings; «Landi rain radar» shows the rain.': 'Lies den besten Start und die Warnungen; «Landi-Regenradar» zeigt den Regen.',
   'Open the weather page › «My webcams».': 'Öffne die Wetterseite › «Meine Webcams».',
   'Paste the address and tap «Add webcam».': 'Füge die Adresse ein und tippe «Webcam hinzufügen».',
   'Tap «Make home cam» to show it on Today.': 'Tippe «Als Heim-Webcam», damit sie auf Heute erscheint.',
-  'Best time, radar, webcams': 'Beste Zeit, Radar, Webcams',
 };

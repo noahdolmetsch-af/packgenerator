@@ -25,7 +25,7 @@ export default {
   'How much fun?': 'Wie viel Spass?',
   'Mindful moment?': 'Achtsamer Moment?',
   'Closer to your vision?': 'Deiner Vision näher gekommen?',
-  'Your 15 questions': 'Deine 15 Fragen',
+  'Your 15 questions': 'Wi gaht\'s? · 15 Fragen', // Noah 20.10.2026 «3a»: one name for the daily questions
   'When they come and where they count': 'Wann sie kommen und wo sie zählen',
   'When they come, how you answer and where they count in the ring.': 'Wann sie kommen, wie du antwortest und wo sie im Ring zählen.',
   'Morning · {n} taps': 'Morgen · {n} Tipps',

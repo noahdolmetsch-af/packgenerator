@@ -323,6 +323,19 @@ export const GUIDE_INTROS = {
     ],
     expect: "A free afternoon gets an idea, without becoming a programme.",
   },
+  // «Tagebuch» (Noah 20.10.2026): one diary for what you write yourself
+  tagebuch: {
+    page: true,
+    folded: true,
+    name: "Diary|guide",
+    title: "Write a few lines, the days stay",
+    things: [
+      { icon: "heart", title: "Write or speak|guide", text: "Type, or tap «Speak» and talk. A question of the day helps when you do not know where to start." },
+      { icon: "star", title: "Add to it|guide", text: "Photos, place, weather, tags, and on a tap what the app knows about the day: rides, sleep, notes." },
+      { icon: "calendar", title: "Look back|guide", text: "List, calendar and photos. «On this day» shows what you wrote a year ago." },
+    ],
+    expect: "Two minutes in the evening. In a year you can read how this autumn felt.",
+  },
 };
 
 /** The tips of each guide (pageinfo PAGES shape). */
@@ -533,6 +546,14 @@ export const GUIDE_TIPS = {
       { id: "g-fz-rest", text: "Free time after a long race may also mean: sofa. That counts." },
       { id: "g-fz-rain", text: "Rain? The impulses know indoor ideas too." },
       { id: "g-fz-own", text: "Add your own ideas, then the list gets more yours every week." },
+    ],
+    can: [],
+  },
+  tagebuch: {
+    tips: [
+      { id: "g-tb-short", text: "One sentence is a fine entry. Long ones come by themselves." },
+      { id: "g-tb-lock", text: "Settings › Lock: a code keeps curious eyes out of the diary." },
+      { id: "g-tb-tags", text: "Tags like «Tour» or «Family» make the list easy to filter later." },
     ],
     can: [],
   },

@@ -10,7 +10,9 @@
    *
    * onchange(fn): fn gets a plain copy of the trip and returns the fields to store.
    */
-  import { readGpxFile, ridingHours, SPEED_KMH, CLIMB_MH } from '../route.js';
+  import { ridingHours, SPEED_KMH, CLIMB_MH } from '../route.js';
+  import { readRouteFile, routeFromGpx } from '../route/fromgpx.js'; // «Neue Quellen» 20.10.2026: with the GPX waypoints
+  import RwgpsLink from '../sources/RwgpsLink.svelte';
   import { withRainPct, pctOf } from '../wardrobe.js';
   import { searchPlace, fetchForecast, forecastForTrip, toWx, forecastFrom, ageText, tripDays } from '../weather.js';
   import { RAIN } from '../trips.js';
@@ -60,14 +62,17 @@
     if (!file) return;
     try {
       // v0.27.0 (Noah 1a, AP22): size and empty file checked before reading; on error nothing is stored.
-      const route = await readGpxFile(file);
+      const route = await readRouteFile(file);
       routeMsg = '';
-      // The route start becomes the weather place when there is none yet.
-      onchange((tr) => ({ route, ...(tr.place ? {} : { place: { name: route.name ? t('Start of {name}', { name: route.name }) : t('Route start'), ...route.start } }) }));
+      useRoute(route);
     } catch (err) {
       routeMsg = err?.message || t('This file could not be read.');
     }
   }
+  // The route start becomes the weather place when there is none yet.
+  const useRoute = (route) => onchange((tr) => ({ route, ...(tr.place ? {} : { place: { name: route.name ? t('Start of {name}', { name: route.name }) : t('Route start'), ...route.start } }) }));
+  // «Neue Quellen» 20.10.2026: the GPX of a Ride with GPS link, read like a file (RwgpsLink shows a thrown message)
+  const fromLink = (text, file) => ((routeMsg = ''), useRoute(routeFromGpx(text, file)));
   // «Rückmeldungen» 19.10.2026: the app's own question, then 4 s «Undo»
   async function dropRoute() {
     if ((await askDelete({ title: t('Remove the route from this trip?'), text: t('You can bring it back for 4 seconds afterwards.'), label: t('Remove') })) !== 'delete') return;
@@ -156,9 +161,11 @@
         <label class="link">{t('Other GPX')}<input type="file" accept=".gpx,application/gpx+xml" onchange={pickGpx} hidden /></label>
         <button type="button" class="link" onclick={dropRoute}>{t('Remove')}</button>
       </p>
+      <RwgpsLink onload={fromLink} label={t('Other route from Ride with GPS')} />
       {#if hours != null}<p class="hint">{#if pace.cell}{t('Your pace on {bike}, {surface}, from {n} rides: {kmh} km/h plus 1 h per {m} m climbing.', { bike: tripBike?.name ?? '', surface: t(surfaceName(pace.cell.surface)), n: pace.cell.n, kmh: pace.kmh, m: pace.climbMh })} <a href="#/debrief/pace">{t('Change')}</a>{:else if pace.mine}{t('Your pace from {n} rides: {kmh} km/h plus 1 h per {m} m climbing.', { n: pace.n, kmh: pace.kmh, m: pace.climbMh })} <a href="#/debrief/pace">{t('Change')}</a>{:else}{t('Guess with luggage: {kmh} km/h plus 1 h per {m} m climbing.', { kmh: SPEED_KMH, m: CLIMB_MH })} <a href="#/debrief/pace">{pace.standard && !pace.need ? t('Your pace') : t('Learn your pace')}</a>{/if}</p>{/if}
     {:else}
       <label class="btn sm">{t('Add GPX route')}<input type="file" accept=".gpx,application/gpx+xml" onchange={pickGpx} hidden /></label>
+      <RwgpsLink onload={fromLink} />
       <p class="hint">{t('From Komoot, Garmin or Strava: distance, climbing and a guess of the riding hours.')}</p>
       <!-- GPX-Weg 5a: a route is planned; a ride you rode has its own place -->
       <p class="hint">{t('This is for a planned route. A ride you rode goes to')} <a href="#/debrief/ride">{t('Look back › Upload ride')}</a>.</p>
@@ -274,7 +281,7 @@
     color: var(--ink);
   }
   .ok {
-    font-size: 14px;
+    font-size: var(--fs-small);
     color: var(--ink-2);
   }
   .find {
@@ -309,7 +316,7 @@
     gap: 10px;
     padding: 3px 0;
     border-bottom: 1px solid var(--paper-2);
-    font-size: 14px;
+    font-size: var(--fs-small);
   }
   .days .rain {
     justify-self: end;
@@ -321,7 +328,7 @@
     background: none;
     color: var(--ink);
     font: inherit;
-    font-size: 14px;
+    font-size: var(--fs-small);
     text-decoration: underline;
     cursor: pointer;
   }

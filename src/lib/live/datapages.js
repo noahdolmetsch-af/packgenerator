@@ -36,6 +36,9 @@ export const EXTRA_FIELDS = [
   { key: 'battery', label: 'Battery', unit: '%' },
   { key: 'nextWp', label: 'To the next waypoint', unit: 'km', route: true },
   { key: 'upToTop', label: 'Metres up to the summit', unit: 'm', route: true },
+  // Runden und «Gegen dich selbst» (Noah 20.10.2026 «2-3 ja»)
+  { key: 'lapKm', label: 'Lap distance', unit: 'km' },
+  { key: 'ghost', label: 'Against your last ride', unit: '', route: true },
 ];
 
 /** The charts a page can hold (each takes two places). route: only with a route. */

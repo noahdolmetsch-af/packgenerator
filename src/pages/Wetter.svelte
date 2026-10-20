@@ -23,6 +23,7 @@
   import { SAID_KEY, noteSaid, hits } from '../lib/wetter/treffer.js';
   import WebcamList from '../lib/wetter/WebcamList.svelte';
   import FeelCard from '../lib/wetter/FeelCard.svelte';
+  import LakeChip from '../lib/lake/LakeChip.svelte';
   import HomePlaceSheet from '../lib/ich/HomePlaceSheet.svelte';
   import { t, num, locale } from '../lib/i18n.svelte.js';
 
@@ -185,6 +186,7 @@
       {#if fb}<p class="wx-note" data-wx-fb={fb}><Wind size={16} aria-hidden="true" />{fb === 'foehn' ? t('Föhn: strong, dry wind from the south. Gusty in the valleys.') : t('Bise: cold wind from the north-east. It feels colder than the number.')}</p>{/if}
       {#if train}<p class="wx-note" data-wx-train><Train size={16} aria-hidden="true" />{t('Today rather the train? On the way to and from work: {why}.', { why: train.why.map((k) => t(k === 'rain' ? 'heavy rain' : k === 'thunder' ? 'thunderstorms' : k === 'storm' ? 'storm gusts' : 'ice')).join(', ') })} <a href="https://www.sbb.ch/" target="_blank" rel="noopener noreferrer">SBB</a></p>{/if}
       {#if outside}<p class="wx-note" data-wx-outside><Sun size={16} aria-hidden="true" />{outside.now ? t('Good for outside now ({temp} °C).', { temp: num(outside.temp) }) : t('Good for outside from {at} ({temp} °C).', { at: hm(outside.at), temp: num(outside.temp) })}</p>{/if}
+      <LakeChip />
       <div class="rc-acts">
         <a class="btn" href={LANDI_RADAR} target="_blank" rel="noopener noreferrer" data-landi><CloudRain size={18} aria-hidden="true" />{t('Landi rain radar')}<ExternalLink size={14} aria-hidden="true" /></a>
         <a class="btn sm" href={METEOSWISS} target="_blank" rel="noopener noreferrer">{t('MeteoSwiss')}<ExternalLink size={14} aria-hidden="true" /></a>

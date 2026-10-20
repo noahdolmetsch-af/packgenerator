@@ -9,7 +9,8 @@
    * «Tour planen mit GPX» (20.10.2026): the simple profile became the fine, zoomable one with every climb
    * (route/RouteClimbs.svelte).
    */
-  import { readGpxFile } from '../route.js';
+  import { readRouteFile, routeFromGpx } from '../route/fromgpx.js'; // «Neue Quellen» 20.10.2026: with the GPX waypoints
+  import RwgpsLink from '../sources/RwgpsLink.svelte';
   import { stagePlan, hasStages } from '../stages.js';
   import StaticMap from '../ui/StaticMap.svelte';
   import RoutePois from '../route/RoutePois.svelte';
@@ -39,14 +40,17 @@
     event.currentTarget.value = '';
     if (!file) return;
     try {
-      const r = await readGpxFile(file);
+      const r = await readRouteFile(file);
       msg = '';
-      // as in the trip conditions: the start of the route becomes the weather place when there is none
-      onchange((tr) => ({ route: r, ...(tr.place ? {} : { place: { name: r.name ? t('Start of {name}', { name: r.name }) : t('Route start'), ...r.start } }) }));
+      useRoute(r);
     } catch (err) {
       msg = err?.message || t('This file could not be read.');
     }
   }
+  // as in the trip conditions: the start of the route becomes the weather place when there is none
+  const useRoute = (r) => onchange((tr) => ({ route: r, ...(tr.place ? {} : { place: { name: r.name ? t('Start of {name}', { name: r.name }) : t('Route start'), ...r.start } }) }));
+  // «Neue Quellen» 20.10.2026: the GPX of a Ride with GPS link, read like a file
+  const fromLink = (text, file) => ((msg = ''), useRoute(routeFromGpx(text, file)));
 </script>
 
 <!-- «Tour planen mit GPX» (Noah 20.10.2026 «3a und b»): the fine profile coloured by gradient and every
@@ -79,6 +83,7 @@
     {:else}
       <p class="none"><Upload size={18} aria-hidden="true" /><span>{t('From Komoot, Garmin or Strava: distance, climbing and a guess of the riding hours.')}</span></p>
     {/if}
+    {#if onchange}<RwgpsLink onload={fromLink} label={route ? t('Other route from Ride with GPS') : ''} />{/if}
     {#if msg}<p class="warn" role="alert">{msg}</p>{/if}
     {#await import('../wetter/TourWetter.svelte') then m}<m.default {trip} />{:catch}{/await}
   </div>

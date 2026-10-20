@@ -38,7 +38,7 @@
     border-radius: 50%;
     background: var(--paper);
     color: var(--ink-2);
-    font: 600 14px/1 var(--font-body);
+    font: 600 var(--fs-small)/1 var(--font-body);
     vertical-align: middle;
     cursor: pointer;
     position: relative;
@@ -61,7 +61,7 @@
     background: var(--paper-2);
     border-radius: 0 6px 6px 0;
     color: var(--ink-2);
-    font-size: 14px;
+    font-size: var(--fs-small);
     font-weight: 400; /* FE14: also inside a bold label */
     line-height: 1.45;
     text-align: left;
