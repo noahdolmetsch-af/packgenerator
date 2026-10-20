@@ -333,7 +333,7 @@ const extraOf = (d) => ({ laps: Array.isArray(d.laps) ? d.laps : [], splits: Arr
 /** One activity's heart rate per beat and kcal from the server, kept on the activity. */
 export async function loadDetail(db, id, { call: c = call, now = new Date() } = {}) {
   const d = await c('detail', { params: { id: String(id) } });
-  await db.activities.update(String(id), { kcal: d.kcal ?? null, hist: d.hist ?? null, curve: Array.isArray(d.curve) ? d.curve : [], w20: Number.isFinite(d.w20) ? d.w20 : null, pHist: d.pHist ?? null, pCurve: Array.isArray(d.pCurve) ? d.pCurve : null, pauses: d.pauses ?? null, segs: Array.isArray(d.segs) ? d.segs : [], best: Array.isArray(d.best) ? d.best : [], desc: typeof d.desc === 'string' ? d.desc : '', ...moreOf(d), ...extraOf(d), detail: now.toISOString(), dv: DETAIL_V });
+  await db.activities.update(String(id), { kcal: d.kcal ?? null, hist: d.hist ?? null, curve: Array.isArray(d.curve) ? d.curve : [], w20: Number.isFinite(d.w20) ? d.w20 : null, pHist: d.pHist ?? null, pCurve: Array.isArray(d.pCurve) ? d.pCurve : null, pauses: d.pauses ?? null, segs: Array.isArray(d.segs) ? d.segs : [], best: Array.isArray(d.best) ? d.best : [], desc: typeof d.desc === 'string' ? d.desc : '', hCurve: Array.isArray(d.hCurve) ? d.hCurve : null, ...moreOf(d), ...extraOf(d), detail: now.toISOString(), dv: Number.isFinite(d.dv) ? Math.min(d.dv, DETAIL_V) : 3 });
   return d;
 }
 

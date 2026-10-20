@@ -235,7 +235,24 @@ export function best20(time, watts, span = 1200) {
 }
 
 /** The power curve: the best average for each of these spans in seconds (null when too short). */
-export const POWER_SPANS = [5, 60, 300, 1200, 3600];
+// Tour-Auswertung (Noah 20.10.2026 «3a und b»): 2 and 10 minutes too, as on the Garmin
+export const POWER_SPANS = [5, 60, 120, 300, 600, 1200, 3600];
+/** The spans of the heart rate curve in seconds: the best average heart rate over 1, 2, 5, 10 and 20 minutes. */
+export const HR_SPANS = [60, 120, 300, 600, 1200];
+
+/** The heart rate curve: the highest average heart rate for each of HR_SPANS (null when too short), or null without heart rate. */
+export function trimHrCurve(time, hr) {
+  if (!Array.isArray(time) || !Array.isArray(hr) || hr.length < 2) return null;
+  const sec = [];
+  for (let i = 0; i < hr.length - 1; i++) {
+    const dt = Number(time[i + 1]) - Number(time[i]);
+    const b = Number(hr[i]);
+    if (!(dt > 0 && dt <= 30) || !(b > 0)) continue;
+    for (let k = 0; k < dt; k++) sec.push(b);
+  }
+  if (!sec.length) return null;
+  return HR_SPANS.map((span) => [span, bestOver(sec, span)]);
+}
 export const POWER_BIN = 10;
 
 /** Power, reduced: seconds per 10 W (for the power zones, so a new FTP needs no new call) and the curve. */
@@ -267,6 +284,9 @@ export function pausesOf(time, moving, min = 60) {
   return { n: long.length, secs: long.reduce((a, b) => a + b, 0) };
 }
 
+/** The kind of detail this server sends (the app's DETAIL_V): 4 = with 2/10 min power and the heart rate curve. */
+export const DETAIL_KIND = 4;
+
 const SEG_MAX = 40;
 /** Own segment times and best efforts (runs); personal records (rank 1–3) first. No route, no leaderboards. */
 export function trimEfforts(list) {
@@ -282,7 +302,7 @@ export function trimStreams(streams) {
   const time = streams?.time?.data;
   const hr = streams?.heartrate?.data;
   const w20 = best20(time, streams?.watts?.data);
-  const more = { ...trimPower(time, streams?.watts?.data), pauses: pausesOf(time, streams?.moving?.data) };
+  const more = { ...trimPower(time, streams?.watts?.data), pauses: pausesOf(time, streams?.moving?.data), hCurve: trimHrCurve(time, hr) };
   if (!Array.isArray(time) || !Array.isArray(hr) || hr.length < 2) return { hist: null, curve: [], w20, ...more };
   const hist = {};
   for (let i = 0; i < hr.length - 1; i++) {
@@ -583,7 +603,7 @@ export function makeHandler({ env = () => stravaEnv(), doFetch = (...a) => fetch
           // power only from a power meter (Strava's estimate has no stream worth a best effort)
           const pm = !!one.device_watts;
           const s = { ...trimStreams(streams), ...trimMore(pm ? streams : { ...streams, watts: null }) };
-          return json(request, 200, { ok: true, id, kcal: Number(one.calories) > 0 ? Math.round(Number(one.calories)) : null, desc: typeof one.description === 'string' ? one.description.trim().slice(0, 2000) : '', ...s, w20: pm ? s.w20 : null, pHist: pm ? s.pHist : null, pCurve: pm ? s.pCurve : null, segs: trimEfforts(one.segment_efforts), best: trimEfforts(one.best_efforts), climbs: trimClimbs(one.segment_efforts), ...trimExtra(streams), laps: trimLaps(one.laps, pm), splits: trimSplits(one.splits_metric), rpe: rpeOf(one) });
+          return json(request, 200, { ok: true, id, kcal: Number(one.calories) > 0 ? Math.round(Number(one.calories)) : null, desc: typeof one.description === 'string' ? one.description.trim().slice(0, 2000) : '', ...s, w20: pm ? s.w20 : null, pHist: pm ? s.pHist : null, pCurve: pm ? s.pCurve : null, segs: trimEfforts(one.segment_efforts), best: trimEfforts(one.best_efforts), climbs: trimClimbs(one.segment_efforts), ...trimExtra(streams), laps: trimLaps(one.laps, pm), splits: trimSplits(one.splits_metric), rpe: rpeOf(one), dv: DETAIL_KIND });
         }
         if (step === 'line') {
           // Paket S «Reise-Spur»: one activity's line; Strava's finer line (map.polyline), else the short one
