@@ -125,8 +125,8 @@ describe('main places', () => {
       '#/flow': 'active',
       '#/flow/goals': 'active',
       '#/me': 'me',
-      '#/inbox': 'me',
-      '#/inbox/new': 'me',
+      '#/inbox': 'week', // UI-Ziele #6: Planen › Eingang
+      '#/inbox/new': 'week',
       '#/notes': 'week', // N1: Planen › Notizen
       '#/features': 'me',
       '#/helper': 'me', // v0.77.0 KI-Helfer (K1a): Ich › Helfer

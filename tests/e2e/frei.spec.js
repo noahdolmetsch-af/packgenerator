@@ -2,6 +2,7 @@
 // pages, the tab «Impulse» of Aktiv and the line on Heute when there is no ride idea. German, phone 390 and
 // desktop 1440, a fixed clock in Europe/Zurich, fictional data only (a test recipe). SHOTS=<folder> saves shots.
 import { test, expect } from '@playwright/test';
+import { viaTab } from './placetab.js'; // UI-Ziele #6: the pages that were rows under Ich are tabs now
 import DE from '../../src/lib/i18n/de/index.js';
 import { PAGES } from '../../src/lib/frei.js';
 import { ready } from './settle.js';
@@ -30,7 +31,7 @@ const noScroll = (page) => page.evaluate(() => document.documentElement.scrollWi
 
 test('Ich leads to Freie Zeit; every one of the eight pages opens in German without a wide page', async ({ page, context }, info) => {
   const errors = await open(page, context);
-  await page.locator('[data-me-frei] a').click();
+  await viaTab(page, 'week', '#/me/frei'); // UI-Ziele #6: Planen › Freie Zeit
   await expect(page.getByRole('heading', { level: 1, name: T('Free time') })).toBeVisible();
   await expect(page.locator('[data-frei-page]')).toHaveCount(PAGES.length);
   await shot(page, info, 'frei-hub');

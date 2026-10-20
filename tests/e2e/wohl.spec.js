@@ -2,6 +2,7 @@
 // the results show with «Wie kommt die App darauf?»; start an experiment, add Neuland, tick the season
 // switch, set a wished mix, rename a life phase. Fictional data only; nothing leaves the device.
 import { test, expect } from '@playwright/test';
+import { viaTab } from './placetab.js'; // UI-Ziele #6: the pages that were rows under Ich are tabs now
 import { ready } from './settle.js';
 import { day } from './leistung-data.js';
 
@@ -54,9 +55,8 @@ test('Was mir gut tut: results with their source, experiment, Neuland, season, w
   await page.goto('./');
   await ready(page);
 
-  // the way in: Ich › Was mir gut tut; empty first, it says how many days are still missing
-  await page.goto('./#/me');
-  await page.locator('[data-row="wohl"]').click();
+  // the way in: Auswerten › Was mir gut tut (UI-Ziele #6, was under Ich); empty first, it says how many days are still missing
+  await viaTab(page, 'active', '#/me/wohl');
   await expect(page.getByRole('heading', { level: 1, name: 'Was mir gut tut' })).toBeVisible();
   await expect(page.locator('[data-wohl-wait]')).toContainText('Noch 10 Tage mit Tagesbewertung');
 

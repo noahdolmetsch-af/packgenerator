@@ -38,8 +38,9 @@ const ROUTES = [
   ['#/debrief/test_data_gtp_none', 'Trips|place'],
   // v0.76.0 «Fünf Orte»: Im Flow is the place Aktiv; the Inbox lives in «Ich» (no place lit)
   ['#/flow', 'Analysis|place'], // N1: Aktiv is «Auswerten»
-  ['#/inbox', null],
-  ['#/inbox/new', null],
+  ['#/inbox', 'Plan|place'], // UI-Ziele #6: Planen › Eingang
+  ['#/inbox/new', 'Plan|place'],
+  ['#/me', null], // Ich: data, settings, help (no place lit)
   ['#/share/test_data_gtp_code', 'Trips|place'],
 ];
 

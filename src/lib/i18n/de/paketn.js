@@ -212,7 +212,7 @@ export default {
   'Tap it and «Plan the tour».': 'Tippe darauf und auf «Tour planen».',
   'Under «Races to plan» tap «Plan as a trip».': 'Tippe unter «Rennen zum Planen» auf «Als Tour planen».',
   'Add the registration deadline.': 'Trag den Anmeldeschluss ein.',
-  'Open Me › My compass.': 'Öffne Ich › Mein Kompass.',
+  'Open Me › My compass.': 'Öffne Planen › Kompass.',
   'Add a goal with a day and type its steps.': 'Leg ein Ziel mit Datum an und tippe seine Schritte.',
   'Answer «How is it going?» once a week.': 'Beantworte einmal pro Woche «Wie läuft\'s?».',
 

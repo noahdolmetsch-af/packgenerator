@@ -4,6 +4,7 @@
 // The server (packgen-three.vercel.app/api/google) and the Google login are answered by the test;
 // everything else outside the preview server is blocked. Fictional entries only.
 import { test, expect } from '@playwright/test';
+import { viaTab } from './placetab.js'; // UI-Ziele #6: the pages that were rows under Ich are tabs now
 import { ready } from './settle.js';
 import DE from '../../src/lib/i18n/de/index.js';
 
@@ -71,9 +72,8 @@ test('Termine und Aufgaben: connect, see the next days, tick and add a task, ent
   await page.goto('./');
   await ready(page);
 
-  // Ich › Termine und Aufgaben: not connected, both ticked
-  await page.goto('./#/me');
-  await page.getByRole('link', { name: new RegExp(de('Appointments and tasks')) }).click();
+  // Planen › Termine (UI-Ziele #6, was Ich › Termine und Aufgaben): not connected, both ticked
+  await viaTab(page, 'week', '#/me/agenda');
   await expect(page.getByRole('heading', { level: 1, name: de('Appointments and tasks') })).toBeVisible();
   await expect(page.getByRole('checkbox', { name: new RegExp(de('Google Calendar')) })).toBeChecked();
   await shot(page, info, 'A1-verbinden');

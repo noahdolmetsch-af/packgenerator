@@ -3,6 +3,7 @@
 // Fictional data only (test_data_gtp_ names, tests/e2e/v038-fixture.js). Phone and desktop.
 // V038_SHOTS=<folder> saves screenshots (never into the repo).
 import { test, expect } from '@playwright/test';
+import { viaTab } from './placetab.js'; // UI-Ziele #6: the pages that were rows under Ich are tabs now
 import { lookButton, pickLook, closeLook } from './gear-look.js';
 import { P, SPARK, v038Start, day } from './v038-fixture.js';
 import { SIDE_PLACES, BAR_PLACES } from '../../src/lib/nav.js';
@@ -79,11 +80,11 @@ test('Ich: top right with the Inbox count, settings and the app; the search find
   await expect(page).toHaveURL(/#\/me$/);
   const main = page.locator('main');
   await expect(main.getByRole('heading', { level: 1, name: 'Ich' })).toBeVisible();
-  await expect(main.getByRole('link', { name: /Eingang/ })).toContainText('2');
+  // UI-Ziele #6: the Inbox waits on top of Ich with its count; Eingang and Notizen themselves are tabs of Planen
+  await expect(main.locator('[data-wait="inbox"]')).toContainText('2');
   await noSideways(page);
   await shot(page, info, 'ich');
-  await main.getByRole('link', { name: /^Notizen/ }).click();
-  await expect(page).toHaveURL(/#\/notes/);
+  await viaTab(page, 'week', '#/notes');
 
   // Language in «Ich».
   await page.goto('./#/me');
