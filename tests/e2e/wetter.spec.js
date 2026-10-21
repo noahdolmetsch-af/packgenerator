@@ -101,3 +101,30 @@ test('Weather: the line on Today, the weather page, and a home webcam', async ({
   await expect(feel.locator('[data-feel-list]')).toHaveCount(0);
   await noSideways(page, 'weather page with the feel card');
 });
+
+test('Webcams: a place for the live map, and off the map again', async ({ page, context }, info) => {
+  await openHome(page, context, info);
+  await context.route(/api\.open-meteo\.com\/v1\/forecast\?.*cape/, (route) => route.fulfill({ json: core() }));
+  await context.route(/cams\.example/, (route) => route.fulfill({ status: 200, contentType: 'image/png', body: PNG }));
+  await context.route(/geocoding-api\.open-meteo\.com/, (route) => route.fulfill({ json: { results: [{ name: 'Testpass', admin1: 'Testkanton', country: 'Testland', latitude: 46.5, longitude: 8.4 }] } }));
+  await page.goto('./#/wetter');
+  await page.locator('[data-webcam-name]').fill('test_data_gtp_ Pass');
+  await page.locator('[data-webcam-url]').fill('https://cams.example/pass.jpg');
+  await tap(page.locator('[data-webcam-add] button[type="submit"]'), info);
+  await expect(page.locator('[data-webcam]')).toHaveCount(1);
+  await tap(page.locator('[data-webcam-setplace]'), info);
+  await page.locator('[data-webcam-pq]').fill('Testpass');
+  await tap(page.locator('[data-webcam-placeform] button[type="submit"]'), info);
+  await tap(page.locator('[data-webcam-found]').first(), info);
+  await expect(page.locator('[data-webcam-place]')).toContainText('Testpass');
+  const stored = await page.evaluate(async () => {
+    const req = indexedDB.open('pack-generator');
+    const dbh = await new Promise((ok) => (req.onsuccess = () => ok(req.result)));
+    const tx = dbh.transaction('settings').objectStore('settings').get('webcams');
+    return await new Promise((ok) => (tx.onsuccess = () => ok(tx.result?.value?.[0]?.place ?? null)));
+  });
+  expect(stored).toMatchObject({ name: 'Testpass', lat: 46.5, lon: 8.4 });
+  await noSideways(page, 'webcam with a place');
+  await tap(page.locator('[data-webcam-noplace]'), info);
+  await expect(page.locator('[data-webcam-place]')).toHaveCount(0);
+});

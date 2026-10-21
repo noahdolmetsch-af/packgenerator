@@ -206,6 +206,8 @@ export const HOWTO = {
   'f.energy': ['Enter your weight (Analysis › Weight).', 'Set carbohydrates and water per hour under Supplies.', 'Read the energy line on the tour card, the race or the live map.'],
   'f.gpxstops': ['Open a trip with a route and search the places along it.', 'Choose the kinds of stops.', 'Tap «GPX with … stops» and copy it to the bike computer.'],
   'f.weather': ['Open the weather page (the weather line on Today, Active or a trip).', 'Choose how long you ride.', 'Read the best start and the warnings; «Landi rain radar» shows the rain.'],
+  'f.webcammap': ['Open the weather page › «My webcams».', 'Tap «Place on the map» and choose the place.', 'On the live map tap the webcam point.'],
+  'f.icepush': ['Set your home place on the weather page.', 'Open Me › Reminders on the phone.', 'Switch on «Ice in the morning».'],
   'f.webcams': ['Open the weather page › «My webcams».', 'Paste the address and tap «Add webcam».', 'Tap «Make home cam» to show it on Today.'],
   'f.reroute': ['Start a ride on the live map.', 'Tap «⋯» › «Plan a new way to …» or press long on the map.', 'Choose a place and tap «Plan»; × removes the detour.'],
   'f.live': ['Tap «Start a ride» on Active.', 'Allow the location.', 'Keep the page open while you ride.'],

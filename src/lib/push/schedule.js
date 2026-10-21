@@ -7,6 +7,10 @@
  * - 2b: only the kinds switched on one by one go out; at the start everything is off.
  * - 3a: on the tour day at 06:30 the server checks the weather and warns of a storm, heat or a thunderstorm.
  * - 4b: no quiet hours.
+ * - Glätte (Paket Wetter): with «Ice in the morning» on and a home place, each morning from October to
+ *   April at 06:30 the server looks at the home place and warns only when roads can be icy (around
+ *   0 °C with rain or snow). A tour day with «Weather on the tour day» on has its own check (it warns of
+ *   ice too), so that day gets no second one.
  * - «Eigene Werte» (3a 4b): the evening-before reminder at eveRemindAt (minutes, default 19:00), heat
  *   from hotC (default 30 °C). Read from the raw settings record so this works before that page lands.
  * - Merken (birthdays, plants, own to-dos with a reminder) read from the settings record 'merken' when
@@ -24,6 +28,9 @@ import { wearPush } from '../wear.js';
 export const PUSH_KEY = 'push';
 export const AHEAD_DAYS = 14;
 export const WEATHER_AT = '06:30';
+/** The ice warning at home: the next 7 mornings, only in the cold months. */
+export const ICE_DAYS = 7;
+export const ICE_MONTHS = [10, 11, 12, 1, 2, 3, 4];
 export const DAY_AT = '08:00';
 export const BACKUP_AT = '19:00';
 export const EVE_STD = 19 * 60;
@@ -44,7 +51,8 @@ export const KINDS = [
   { key: 'birthday', label: 'Birthdays', hint: 'The day before at 18:00 and on the day at 08:00, as set in Merken.' },
   { key: 'plant', label: 'Water the plants', hint: 'On the day a plant needs water.' },
   { key: 'eve', label: 'Evening before a trip', hint: 'The evening-before check, at the time of «Eigene Werte».' },
-  { key: 'weather', label: 'Weather on the tour day', hint: 'At 06:30, only for a storm, heat or a thunderstorm.' },
+  { key: 'weather', label: 'Weather on the tour day', hint: 'At 06:30, only for a storm, heat, ice or a thunderstorm.' },
+  { key: 'ice', label: 'Ice in the morning', hint: 'From October to April at 06:30, when roads at home can be icy (around 0 °C with rain or snow). Needs your home place.' },
   { key: 'wxwatch', label: 'Weather alarm', hint: 'Before a planned tour: when a good weather window comes or the weather turns. Twice a day, up to 10 days ahead.' },
   { key: 'dark', label: 'Light alarm', hint: 'The evening before, when the ride goes on after sunset: pack the light and the reflective vest.' },
   { key: 'rainsoon', label: 'Rain on the way', hint: 'While you ride: when rain comes in about 15 to 45 minutes where you should be.' },
@@ -172,6 +180,17 @@ export function buildList(data) {
       if (at > ms) weather.push({ key: `wx:${tr.id}:${tr.startDate}`, at, date: tr.startDate, lat: place.lat, lon: place.lon, title: tourName(tr), url: '#/pack' });
     }
   }
+  if (on('ice')) {
+    const home = data.settings?.homePlace;
+    const tourDay = new Set(on('weather') ? weather.map((w) => w.date) : []);
+    if (home && Number.isFinite(home.lat) && Number.isFinite(home.lon))
+      for (let d = 0; d < ICE_DAYS; d++) {
+        const day = addDays(today, d);
+        const at = atMs(day, WEATHER_AT);
+        if (at <= ms || tourDay.has(day) || !ICE_MONTHS.includes(+day.slice(5, 7))) continue;
+        weather.push({ key: `ice:${day}`, at, date: day, lat: home.lat, lon: home.lon, title: t('Ice warning'), url: '#/wetter', only: ['ice'] });
+      }
+  }
   const watch = [];
   if (on('wxwatch')) {
     const home = data.settings?.homePlace;
@@ -268,6 +287,8 @@ export function buildList(data) {
     thunder: wxOn ? t('Thunderstorms are possible today. Have a look at the weather.') : '',
     storm: wxOn ? t('Strong gusts are expected today. Have a look at the weather.') : '',
     heat: wxOn ? t('Up to {temp} °C today. Take enough to drink.', { temp: '{temp}' }) : '',
+    ice: wxOn || on('ice') ? t('Roads can be icy this morning (down to {temp} °C with rain or snow). Ride carefully or take the train.', { temp: '{temp}' }) : '',
+    ititle: t('Ice warning'),
     rtitle: t('Rain on the way'),
     rain: t('Rain in about {min} minutes on {trip}. Keep the rain jacket at hand.', { min: '{min}', trip: '{trip}' }),
     ozone: t('Much ozone today (up to {n} µg/m³): take it easier at midday.', { n: '{n}' }),

@@ -757,6 +757,16 @@ export const HANDBOOK = {
     steps: ['Tap the weather line on Today, on Active or on a trip.', 'Choose how long you ride: the app shows the best start; tap «Landi rain radar» for the rain.'],
     example: 'Example: 4 h ride, thunderstorms from 15:00 → best start 08:00, back about 12:00.',
   },
+  'f.webcammap': {
+    on: null,
+    steps: ['Open the weather page › «My webcams» and tap «Place on the map» on a webcam.', 'Search the place and choose it. On the live map tap the webcam point.'],
+    example: 'Example: the webcam on the pass ahead → one tap on the map shows if there is snow.',
+  },
+  'f.icepush': {
+    on: null,
+    steps: ['Set your home place on the weather page.', 'Under Me › Reminders on the phone switch on «Ice in the morning».'],
+    example: 'Example: −2 °C and snow in the night → at 06:30 «Roads can be icy this morning».',
+  },
   'f.webcams': {
     on: null,
     steps: ['Open the weather page › «My webcams».', 'Paste the address of the picture and tap «Add webcam»; «Make home cam» shows it small on Today.'],
