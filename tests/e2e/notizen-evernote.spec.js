@@ -3,76 +3,11 @@
 // marks. In German, on a phone and a computer; no sideways scroll, no page errors. Fictional data only.
 import { test, expect } from '@playwright/test';
 import DE from '../../src/lib/i18n/de/index.js';
-import { deflateSync } from 'node:zlib';
-import { ready } from './settle.js';
+import { png, prep, newNote, storedNote, noSideScroll } from './notes-helpers.js';
 
-/** A fictional picture: a grey PNG of w × h pixels. */
-function png(w, h) {
-  const crcT = Array.from({ length: 256 }, (_, n) => {
-    let c = n;
-    for (let k = 0; k < 8; k++) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1;
-    return c >>> 0;
-  });
-  const crc = (b) => {
-    let c = 0xffffffff;
-    for (const x of b) c = crcT[(c ^ x) & 0xff] ^ (c >>> 8);
-    return (c ^ 0xffffffff) >>> 0;
-  };
-  const chunk = (type, data) => {
-    const len = Buffer.alloc(4);
-    len.writeUInt32BE(data.length);
-    const td = Buffer.concat([Buffer.from(type), data]);
-    const c = Buffer.alloc(4);
-    c.writeUInt32BE(crc(td));
-    return Buffer.concat([len, td, c]);
-  };
-  const ihdr = Buffer.alloc(13);
-  ihdr.writeUInt32BE(w, 0);
-  ihdr.writeUInt32BE(h, 4);
-  ihdr[8] = 8;
-  ihdr[9] = 2;
-  const raw = Buffer.alloc((w * 3 + 1) * h, 0xb0);
-  for (let y = 0; y < h; y++) raw[y * (w * 3 + 1)] = 0;
-  return Buffer.concat([Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]), chunk('IHDR', ihdr), chunk('IDAT', deflateSync(raw)), chunk('IEND', Buffer.alloc(0))]);
-}
 const PNG = png(400, 300);
 const T = (en) => DE[en] ?? en.replace(/\|[a-z]+$/, '');
 
-async function prep(page, context) {
-  await context.route(/^https?:\/\/(?!localhost[:/])/, (route) => route.abort());
-  await context.addInitScript(() => localStorage.setItem('lang', 'de'));
-  const errors = [];
-  page.on('pageerror', (e) => errors.push(e.message));
-  await page.goto('./#/notes');
-  await ready(page);
-  return errors;
-}
-const noSideScroll = async (page) => expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)).toBeLessThanOrEqual(1);
-
-/** The stored note whose title is `title`. */
-const storedNote = (page, title) =>
-  page.evaluate(
-    (title) =>
-      new Promise((ok, fail) => {
-        const r = indexedDB.open('pack-generator');
-        r.onerror = fail;
-        r.onsuccess = () => {
-          const g = r.result.transaction('notes').objectStore('notes').getAll();
-          g.onsuccess = () => ok(g.result.find((n) => (n.title ?? '').includes(title)) ?? null);
-          g.onerror = fail;
-        };
-      }),
-    title,
-  );
-
-async function newNote(page, text) {
-  await page.locator('form.cap textarea').fill(text);
-  await page.locator('form.cap button[type="submit"]').click();
-  await page.locator('li.ncard', { hasText: text.split('\n')[0].replace('test_data_gtp_ ', '') }).locator('button').first().click();
-  const sheet = page.locator('dialog.nsheet');
-  await expect(sheet).toBeVisible();
-  return sheet;
-}
 async function stroke(page, cv, from, to) {
   const b = await cv.boundingBox();
   await page.mouse.move(b.x + b.width * from[0], b.y + b.height * from[1]);

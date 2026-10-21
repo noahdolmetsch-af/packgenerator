@@ -923,6 +923,16 @@ export const HANDBOOK = {
     steps: ['Open a note and write in the text field.', 'The buttons above it make bold, a heading, a list, ticks or a table.', '«Write with marks» shows the text with ** and # instead.'],
     example: 'Example: «Packliste» as a heading, then ticks for tent, stove and gas.',
   },
+  'f.noteattach': {
+    on: null,
+    steps: ['Open a note and tap «File» or «Scan».', 'Tap a file in the note: the app shows it, a GPX as a small map, a calendar file with «Into my calendar».', 'Below a link «Keep … to read offline» saves the page as text with its pictures.'],
+    example: 'Example: the bill of the bike service as a PDF and the route as a GPX in the note «Jura».',
+  },
+  'f.noteocr': {
+    on: null,
+    steps: ['Open a note with photos or a scanned PDF.', 'Tap «Make text in pictures searchable».', 'Search in Notes for a word from the picture.'],
+    example: 'Example: a photo of a receipt → the search «Bremsbelag» finds the note.',
+  },
   'f.noteformats': {
     on: null,
     steps: ['Open a note: Photo, Link, Place and Sketch add to it; «Share» sends it to Keep or a chat.', 'New note: «Start from» a template, or the QR button reads a code.', 'Notes › More › Take over from Google Keep: choose the .zip from Google Takeout.'],

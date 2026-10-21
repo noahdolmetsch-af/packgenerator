@@ -196,7 +196,9 @@
     setTimeout(() => (saved = ''), 4000);
   }
 
-  let open = $state(null);
+  // Paket NE: #/notes?open=<id> opens that note (back from «Scan» into a note)
+  let open = $state(typeof location !== 'undefined' ? (decodeURIComponent((location.hash.match(/[?&]open=([^&]+)/) ?? [])[1] ?? '') || null) : null);
+  if (open && typeof history !== 'undefined') history.replaceState(history.state, '', `${location.pathname}#/notes`);
   let made = $state('');
   const openNote = $derived(open ? notes.find((n) => n.id === open) : null);
 

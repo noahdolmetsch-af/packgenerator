@@ -29,6 +29,7 @@
   import CameraButton from '../ui/CameraButton.svelte';
   import DrawOn from '../draw/DrawOn.svelte';
   import RichText from './RichText.svelte';
+  import NoteFiles from './NoteFiles.svelte';
   import { editMode, setEditMode } from './richtext.js';
   import NoteReader from './NoteReader.svelte';
   import { MapPin, Image as ImageIcon, Share2, Bold, Heading, Table, BookOpen, Pencil, Copy, FilePlus2 } from '@lucide/svelte';
@@ -79,10 +80,18 @@
     const ok = await deleteWithUndo({
       run: async () => {
         const rec = await db.notes.get(note.id);
-        await db.notes.delete(note.id);
-        return rec;
+        // Paket NE: the note's files (rows of db.docs) go with it
+        const files = (await db.docs.toArray()).filter((d) => d.noteId === note.id);
+        await db.transaction('rw', db.notes, db.docs, async () => {
+          await db.notes.delete(note.id);
+          if (files.length) await db.docs.bulkDelete(files.map((d) => d.id));
+        });
+        return { rec, files };
       },
-      undo: (rec) => rec && db.notes.put(rec),
+      undo: async ({ rec, files }) => {
+        if (rec) await db.notes.put(rec);
+        if (files.length) await db.docs.bulkPut(files);
+      },
       text: t('"{name}" deleted.', { name }),
       name,
     });
@@ -155,6 +164,12 @@
     if (l.own) return (draft = unlinkNote($state.snapshot(draft), l.id));
     const other = await db.notes.get(l.id);
     if (other) await db.notes.put(unlinkNote(other, draft.id));
+  }
+  // Paket NE 1148: «Scan» goes to the scanner; it keeps the pages on this note and comes back to it
+  async function scan() {
+    await db.notes.put({ ...$state.snapshot(draft), editedAt: new Date().toISOString() });
+    dialog.close();
+    location.hash = `#/me/docs/scan?note=${encodeURIComponent(draft.id)}`;
   }
   async function openOther(id) {
     await saveAndClose();
@@ -291,6 +306,7 @@
     {#each photosOf(draft) as ph, i (i)}
       <div class="phw" data-note-photo><img class="ph" src={ph} alt={t('Photo of the note')} /><span class="pha"><DrawOn src={ph} list={photosOf(draft)} inks={draft.inks} icon cls="drawrm" onsave={drawn} data-note-draw /><button type="button" class="rm" aria-label={t('Remove photo')} onclick={() => (draft = removePhoto($state.snapshot(draft), i))}><Trash2 size={16} aria-hidden="true" /></button></span></div>
     {/each}
+    <NoteFiles note={draft} onchange={(n) => (draft = n)} onphoto={(src) => (draft = addPhoto($state.snapshot(draft), src))} onscan={scan} />
     {#if draft.place}
       {@const pl = placeLinks(draft.place)}
       <p class="lk" data-note-place><MapPin size={16} aria-hidden="true" /><span><b>{placeText(draft.place)}</b>{#if pl}<span class="pls"><a href={pl.maps} target="_blank" rel="noopener noreferrer">Google Maps</a> · <a href={pl.swisstopo} target="_blank" rel="noopener noreferrer">swisstopo</a></span>{/if}</span><button type="button" class="rm" aria-label={t('Remove the place')} onclick={() => (draft.place = null)}><Trash2 size={16} aria-hidden="true" /></button></p>

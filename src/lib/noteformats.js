@@ -14,6 +14,7 @@
  */
 import { tagsOf } from './notebook.js';
 import { pruneInks } from './draw/ink.js';
+import { pruneOcr } from './notes/files.js';
 
 /* ---------- N1 several photos and links ---------- */
 
@@ -34,7 +35,7 @@ export const removePhoto = (n, i) => setPhotos(n, photosOf(n).filter((_, j) => j
  * that are gone go too. inks: the new map, when a drawing was saved.
  */
 export function setPhotos(n, list, inks = n?.inks) {
-  const { photos, inks: _old, ...rest } = n;
+  const { photos, inks: _old, ...rest } = pruneOcr(n, list);
   const keep = pruneInks(inks, list);
   return { ...rest, photo: list[0] ?? null, ...(list.length > 1 ? { photos: list.slice(1) } : {}), ...(keep ? { inks: keep } : {}) };
 }

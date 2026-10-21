@@ -29,7 +29,8 @@ export const prefsOf = (v) => ({
 export const docs = $state({ loaded: false, list: [], prefs: prefsOf(null), busy: '', error: '', uploading: {} });
 
 if (typeof window !== 'undefined' && typeof indexedDB !== 'undefined') {
-  liveQuery(async () => [await appDb.docs.toArray(), (await appDb.settings.get(DOCS_KEY))?.value]).subscribe({
+  // Paket NE: the files of notes are rows of db.docs too (noteId); Ich › Dokumente leaves them out
+  liveQuery(async () => [(await appDb.docs.toArray()).filter((d) => !d.noteId), (await appDb.settings.get(DOCS_KEY))?.value]).subscribe({
     next: ([list, p]) => {
       docs.list = list;
       docs.prefs = prefsOf(p);

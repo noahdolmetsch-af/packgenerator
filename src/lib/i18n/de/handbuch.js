@@ -1235,4 +1235,12 @@ export default {
   'The buttons above it make bold, a heading, a list, ticks or a table.': 'Die Knöpfe darüber machen fett, eine Überschrift, eine Liste, Abhaken oder eine Tabelle.',
   '«Write with marks» shows the text with ** and # instead.': '«Mit Zeichen schreiben» zeigt den Text stattdessen mit ** und #.',
   'Example: «Packliste» as a heading, then ticks for tent, stove and gas.': 'Beispiel: «Packliste» als Überschrift, dann Abhaken für Zelt, Kocher und Gas.',
+  'Open a note and tap «File» or «Scan».': 'Öffne eine Notiz und tippe «Datei» oder «Scannen».',
+  'Tap a file in the note: the app shows it, a GPX as a small map, a calendar file with «Into my calendar».': 'Tippe auf eine Datei in der Notiz: Die App zeigt sie, ein GPX als kleine Karte, eine Kalenderdatei mit «In meinen Kalender».',
+  'Below a link «Keep … to read offline» saves the page as text with its pictures.': 'Unter einem Link speichert «… offline lesbar speichern» die Seite als Text mit ihren Bildern.',
+  'Example: the bill of the bike service as a PDF and the route as a GPX in the note «Jura».': 'Beispiel: die Rechnung vom Velo-Service als PDF und die Strecke als GPX in der Notiz «Jura».',
+  'Open a note with photos or a scanned PDF.': 'Öffne eine Notiz mit Fotos oder einem gescannten PDF.',
+  'Tap «Make text in pictures searchable».': 'Tippe «Text in Bildern durchsuchbar machen».',
+  'Search in Notes for a word from the picture.': 'Suche in Notizen nach einem Wort aus dem Bild.',
+  'Example: a photo of a receipt → the search «Bremsbelag» finds the note.': 'Beispiel: ein Foto einer Quittung → die Suche «Bremsbelag» findet die Notiz.',
 };
