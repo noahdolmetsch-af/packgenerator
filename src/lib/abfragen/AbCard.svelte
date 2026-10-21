@@ -157,6 +157,8 @@
       <span class="ib"><ClipboardList size={18} aria-hidden="true" /></span>
       <div class="vd-t">
         <h2 id="abc-h">{evening ? t('Evening check') : t('Morning check')}</h2>
+        <!-- Noah 21.10.2026 «immer das datum und die uhrzeit der befragung, damit wir testen können» -->
+        <p class="vd-sub num" data-ab-when>{dayShort(today)} · {timeText(now)}</p>
         <p class="vd-sub">{tn(visible.length, '{n} question', '{n} questions')} · {t('one tap each, all can be skipped')}</p>
       </div>
       <button type="button" class="vd-x" aria-label={t('Not today|mask')} onclick={away}><X size={20} aria-hidden="true" /></button>
