@@ -110,3 +110,43 @@ test('Ich › Suche: switch off the microphone and «Ask further at»', async ({
   await expect(page.locator('[data-ask-elsewhere]')).toHaveCount(0);
   expect(errors).toEqual([]);
 });
+
+// «Suche als Alleskönner» (Noah 21.10.2026 «1-8 alle»)
+test('several values in one sentence, a reminder, a plan: each at once from the microphone', async ({ page, context }) => {
+  const errors = await open(page, context, '#/');
+  const say = (s) => page.evaluate((x) => window.__said.push(x), s);
+  const done = page.locator('p.done:visible');
+  // 7 + 1: two values in one sentence, one Undo for both
+  let mic = await searchMic(page);
+  await say('Gewicht 72 und Puls 48');
+  await mic.click();
+  await expect(done).toContainText(T('Entered: {list}', { list: `${T('Weight {v} kg', { v: '72' })} · ${T('Resting heart rate {v}', { v: '48' })}` }));
+  // 8: a reminder goes to Merken
+  mic = await searchMic(page);
+  await say('Erinnere mich Freitag ans Reifen pumpen');
+  await mic.click();
+  await expect(done).toContainText('Reifen pumpen');
+  // 4: a plan opens «Hilf mir planen» filled in
+  mic = await searchMic(page);
+  await say('Plane mir 3 Tage Jura');
+  await mic.click();
+  await expect(page).toHaveURL(/#\/assistent\/plan\?days=3&title=Jura/);
+  await expect(page.locator('[data-plan-from-search]')).toContainText('Jura');
+  await expect(page.locator('.ph-days input')).toHaveValue('3');
+  expect(errors).toEqual([]);
+});
+
+test('typed: «Do it now» offers the value; Enter saves it, Undo takes it back', async ({ page, context }) => {
+  const errors = await open(page, context, '#/');
+  const glass = page.getByRole('button', { name: T('Search everything') });
+  if (await glass.first().isVisible()) await glass.first().click();
+  const field = page.locator('input[type="search"]:visible').first();
+  await field.fill('schlecht geschlafen');
+  await expect(page.locator('[data-cmd="says"]:visible')).toContainText(T('Sleep {v} of 10', { v: '3' }));
+  await field.press('Enter');
+  const done = page.locator('p.done:visible');
+  await expect(done).toContainText(T('Sleep {v} of 10', { v: '3' }));
+  await done.getByRole('button', { name: T('Undo') }).click();
+  await expect(done).toHaveCount(0);
+  expect(errors).toEqual([]);
+});

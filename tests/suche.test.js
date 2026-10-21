@@ -64,3 +64,83 @@ describe('where it lives', () => {
     expect(s).toContain('chrome={suche.chrome} links={suche.links}');
   });
 });
+
+// «Suche als Alleskönner» (Noah 21.10.2026 «1-8 alle»)
+import { valueOf, remindOf, dayOf, planOf, planHref, planFromHash, jumpOf, partsOf } from '../src/lib/suche/say.js';
+import { actionOf, actionsOf } from '../src/lib/suche/act.js';
+
+const TODAY = '2026-10-21'; // a Wednesday
+
+describe('say → value (idea 1)', () => {
+  it('weight, resting heart rate and sleep', () => {
+    expect(valueOf('Gewicht 72,5')).toMatchObject({ qid: 'koerper.waage', value: 72.5 });
+    expect(valueOf('ich wiege 71 kg')).toMatchObject({ qid: 'koerper.waage', value: 71 });
+    expect(valueOf('Puls 48')).toMatchObject({ qid: 'koerper.ruhepuls', value: 48 });
+    expect(valueOf('schlecht geschlafen')).toMatchObject({ qid: 'erholung.schlaf', value: 3 });
+    expect(valueOf('sehr gut geschlafen')).toMatchObject({ qid: 'erholung.schlaf', value: 9 });
+    expect(valueOf('Schlaf 6')).toMatchObject({ qid: 'erholung.schlaf', value: 6 });
+  });
+  it('nonsense stays a search', () => {
+    expect(valueOf('Gewicht der Jacke')).toBeNull();
+    expect(valueOf('Gewicht 7')).toBeNull();
+    expect(valueOf('Puls 900')).toBeNull();
+    expect(valueOf('Schlafsack')).toBeNull();
+  });
+});
+
+describe('remind (idea 8)', () => {
+  it('days in words', () => {
+    expect(dayOf('morgen X', TODAY).due).toBe('2026-10-22');
+    expect(dayOf('übermorgen X', TODAY).due).toBe('2026-10-23');
+    expect(dayOf('Freitag X', TODAY).due).toBe('2026-10-23');
+    expect(dayOf('am Mittwoch X', TODAY).due).toBe('2026-10-28'); // today is Wednesday: next week
+    expect(dayOf('in 3 Tagen X', TODAY)).toEqual({ due: '2026-10-24', rest: 'X' });
+    expect(dayOf('in zwei Wochen X', TODAY).due).toBe('2026-11-04');
+  });
+  it('«Erinnere mich Freitag ans Reifen pumpen» → a reminder on Friday', () => {
+    expect(remindOf('Erinnere mich Freitag ans Reifen pumpen', TODAY)).toEqual({ kind: 'remind', text: 'Reifen pumpen', due: '2026-10-23' });
+    expect(remindOf('remind me tomorrow to call the shop', TODAY)).toEqual({ kind: 'remind', text: 'Call the shop', due: '2026-10-22' });
+    expect(remindOf('Erinnere mich an Kettenöl', TODAY)).toEqual({ kind: 'remind', text: 'Kettenöl', due: '2026-10-22' }); // no day: tomorrow
+    expect(remindOf('Erinnere mich', TODAY)).toBeNull();
+  });
+});
+
+describe('plan in a dialog (idea 4)', () => {
+  it('days, name and start', () => {
+    expect(planOf('Plane mir 3 Tage Jura', TODAY)).toEqual({ kind: 'plan', days: 3, title: 'Jura', start: null });
+    expect(planOf('plane eine Tour ins Tessin ab Samstag', TODAY)).toEqual({ kind: 'plan', days: null, title: 'Tessin', start: '2026-10-24' });
+    expect(planOf('Planen', TODAY)).toEqual({ kind: 'plan', days: null, title: '', start: null });
+    expect(planOf('Planung Jura', TODAY)).toBeNull();
+  });
+  it('the address carries it to «Help me plan» and back', () => {
+    const href = planHref({ days: 3, title: 'Jura', start: '2026-10-24' });
+    expect(href).toBe('#/assistent/plan?days=3&title=Jura&start=2026-10-24');
+    expect(planFromHash(href)).toEqual({ days: 3, title: 'Jura', startDate: '2026-10-24' });
+    expect(planFromHash('#/assistent/plan')).toEqual({});
+  });
+});
+
+describe('jump (idea 3) and several in one sentence (idea 7)', () => {
+  const groups = [
+    { kind: 'page', rows: [{ id: 'p1', title: 'Tagebuch', href: '#/tagebuch' }, { id: 'p2', title: 'Tagesplan', href: '#/x' }] },
+    { kind: 'trip', rows: [{ id: 't1', title: 'Alpen Woche', tripId: 'T1' }] },
+  ];
+  it('a page or trip by its name', () => {
+    expect(jumpOf('öffne Tagebuch', groups)?.id).toBe('p1');
+    expect(jumpOf('Tagebuch', groups)?.id).toBe('p1');
+    expect(jumpOf('Packliste Alpen', groups)?.id).toBe('t1');
+    expect(jumpOf('öffne Tage', groups)).toBeNull(); // two fit
+    expect(jumpOf('Alpen', groups)).toBeNull(); // without «öffne» only the whole name
+  });
+  it('splits on «und», commas and sentences', () => {
+    expect(partsOf('Gewicht 72 und Puls 48, schlecht geschlafen')).toEqual(['Gewicht 72', 'Puls 48', 'schlecht geschlafen']);
+    expect(partsOf('Notiz Bremse quietscht')).toEqual(['Notiz Bremse quietscht']);
+  });
+  it('several run together only when every part writes', () => {
+    const c = { today: TODAY, bikes };
+    expect(actionsOf('', partsOf('Gewicht 72 und Kette geölt Gravel'), c).map((a) => a.kind)).toEqual(['value', 'cmd']);
+    expect(actionsOf('', partsOf('Gewicht 72 und Jacke'), c)).toBeNull();
+    expect(actionOf('Kette geölt', c)).toBeNull(); // two bikes: you choose in the list
+    expect(actionOf('Plane mir 2 Tage Jura', c)).toMatchObject({ kind: 'plan', writes: false });
+  });
+});

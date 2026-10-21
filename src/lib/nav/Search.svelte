@@ -31,8 +31,10 @@
   import { suche } from '../suche/suche.svelte.js';
   import { spokenCommand } from '../suche/logic.js';
   import { looksLikeQuestion } from '../helper/logic.js';
-  import { newNote, guessBike, rideContext } from '../notes.js';
   import { localDay } from '../localday.js';
+  // «Suche als Alleskönner» (Noah 21.10.2026 «1-8 alle»): values, reminders, several things at once, plan, jump
+  import { actionOf, actionsOf, actionLabel, runActions } from '../suche/act.js';
+  import { partsOf, jumpOf, planHref } from '../suche/say.js';
 
   // v0.76.0 «Fünf Orte»: short: the narrow field in the sidebar says only «Suchen» (with «/»).
   let { compact = false, short = false } = $props();
@@ -123,7 +125,42 @@
   let done = $state(null); // { text, undo } after a bike job saved from here
   let doneTimer;
   const USE = { weigh: 'weigh', dayride: 'dayride', chain: 'care', sealant: 'care', wash: 'care', km: 'km', note: 'note', wear: 'wear', trip: 'trip' };
-  /** The microphone heard a sentence: it goes into the field; one command that fits runs at once (2a). */
+  const ctx = () => ({ today: localDay(), bikes: sortBikes($all?.bikes ?? []), trips: $all?.trips ?? [] });
+  /** What the text says to do (a value, a reminder, a note, a plan, several of them), shown under «Do it now». */
+  const says = $derived.by(() => {
+    if (!$all || q.trim().length < 4) return null;
+    const c = ctx();
+    const many = actionsOf(q, partsOf(q), c);
+    if (many) return many;
+    const one = actionOf(q, c);
+    // a single command of the search list shows there already
+    return one && one.kind !== 'cmd' ? [one] : null;
+  });
+  const saysTitle = $derived(says ? (says.length > 1 ? t('Enter all {n}: {list}', { n: says.length, list: says.map((a) => actionLabel(a, localDay())).join(' · ') }) : actionLabel(says[0], localDay())) : '');
+  /** Does it: a plan opens «Help me plan» with what was said; everything else is written with one Undo. */
+  async function doSays(acts = says) {
+    if (!acts?.length) return;
+    remember(q);
+    if (acts[0].kind === 'plan') {
+      q = '';
+      open = false;
+      location.hash = planHref(acts[0]);
+      return;
+    }
+    const r = await runActions(acts, ctx());
+    if (!r.lines.length) return;
+    countUse(acts.some((a) => a.cmd?.kind === 'note') ? 'note' : 'care');
+    q = '';
+    spoken = false;
+    clearTimeout(doneTimer);
+    done = { text: r.lines.length > 1 ? t('Entered: {list}', { list: r.lines.join(' · ') }) : r.lines[0], undoFn: r.undo };
+    doneTimer = setTimeout(() => (done = null), UNDO_MS);
+  }
+  /**
+   * The microphone heard a sentence: it goes into the field. With «Run spoken commands at once» (2a):
+   * several things that write → all of them; one value, reminder, note, care job or plan → that; one
+   * command → it runs; a page or trip by its name («öffne Tagebuch») → it opens.
+   */
   async function said(text) {
     heardNow = '';
     if ((phone.matches || compact) && !open) toggle();
@@ -131,28 +168,17 @@
     spoken = true;
     focused = true;
     await tick();
-    const c = spokenCommand(cmds, { run: suche.run });
-    if (c) run(c, { direct: true });
-  }
-  /** A spoken note goes straight into the Inbox (with Undo) instead of opening the note window. */
-  async function noteNow(text) {
-    const id = `note-${Date.now().toString(36)}`;
-    const riding = rideContext($all?.trips ?? [], localDay());
-    const rec = newNote({ text, page: 'search', tripId: riding?.tripId ?? null, bikeId: guessBike(text, $all?.bikes ?? []), day: riding?.day ?? null }, { id });
-    await db.notes.put(rec);
-    q = '';
-    spoken = false;
-    clearTimeout(doneTimer);
-    done = { text: t('Note saved in the Inbox: «{text}»', { text: rec.text }), undoFn: () => db.notes.delete(id) };
-    doneTimer = setTimeout(() => (done = null), UNDO_MS);
+    if (!suche.run) return;
+    if (says) return doSays(says);
+    const c = spokenCommand(cmds, { run: true });
+    if (c) return run(c, { direct: true });
+    const row = jumpOf(text, groups);
+    if (row && !asking) go(row);
   }
   async function run(c, { direct = false } = {}) {
     const cmd = c.cmd;
     remember(q);
-    if (direct && cmd.kind === 'note' && String(cmd.text ?? '').trim()) {
-      countUse('note');
-      return noteNow(String(cmd.text).trim());
-    }
+    if (direct && cmd.kind === 'note' && String(cmd.text ?? '').trim()) return doSays([{ kind: 'cmd', cmd, writes: true }]);
     spoken = false;
     if (USE[cmd.kind]) countUse(USE[cmd.kind]);
     if (['chain', 'sealant', 'wash'].includes(cmd.kind)) {
@@ -248,7 +274,8 @@
       if (open) (open = false), queueMicrotask(() => btn?.focus());
     }
     if (e.key === 'Enter' && kh?.onEnter(q)) return e.preventDefault();
-    if (e.key === 'Enter' && cmds.length) run(cmds[0]);
+    if (e.key === 'Enter' && says) doSays();
+    else if (e.key === 'Enter' && cmds.length) run(cmds[0]);
     else if (e.key === 'Enter' && count) go(groups[0].rows[0]);
   };
 </script>
@@ -319,9 +346,12 @@
       <!-- «Frag die App» (Noah 15.10.2026 «3 a und b»): the free answer from your own data, on top -->
       {#if suche.app}<AskAnswer {q} autoread={spoken && suche.read === 'auto'} onresult={(has) => (appHas = has)} onlink={() => { q = ''; open = false; }} />{/if}
       <SearchAnswer bind:this={kh} {q} items={$all?.items ?? []} onpropose={() => { q = ''; open = false; }} />
-      {#if cmds.length}
+      {#if cmds.length || says}
         <p class="gh">{t('Do it now')}</p>
         <ul class="cmds">
+          {#if says}
+            <li><button type="button" data-cmd="says" onclick={() => doSays()}><span class="m"><b>{saysTitle}</b><small>{says[0].kind === 'plan' ? t('opens «Help me plan» with it filled in') : t('saves it at once; Undo takes it back')}</small></span><span class="go" aria-hidden="true">↵</span></button></li>
+          {/if}
           {#each cmds as c (c.id)}
             <li><button type="button" data-cmd={c.kind} onclick={() => run(c)}><span class="m"><b>{c.title}</b>{#if c.sub}<small>{c.sub}</small>{/if}</span><span class="go" aria-hidden="true">↵</span></button></li>
           {/each}
