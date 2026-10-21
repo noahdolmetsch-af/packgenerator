@@ -20,6 +20,7 @@
   let { editing = false, onride = () => {}, ontrip = () => {}, next = null, now = new Date() } = $props();
   const ICON = { count: Hourglass, ride: Bike, trip: MapIcon, care: Wrench, week: CalendarDays, diary: NotebookPen };
   // the countdown chip: the trip's own name (never through t()) and «In 5 days», «Tomorrow · 22 h to go», «On the way · day 2 of 3»
+  // a long trip name ends in «…» on a phone; the title keeps the full name for a tooltip and a screen reader
   const cd = $derived(next?.startDate ? countdown(next, now) : null);
   const q = liveQuery(() => db.settings.get(GOALS_KEY));
   const list = $derived(goalsOf($q?.value));
@@ -47,7 +48,7 @@
   <nav class="gc" aria-label={t('What are you up to?')} data-goals>
     {#each shown as g (g.key)}
       {@const I = ICON[g.key]}
-      {#if g.trip}<a class="chip cd" class:near={cd.near} href="#/pack" onclick={() => openTrip(next.id)} data-goal={g.key} data-goal-countdown><I size={16} aria-hidden="true" /><span class="tn">{next.title || t('Trip')}</span><span class="cw num">{cd.text}</span></a>
+      {#if g.trip}<a class="chip cd" class:near={cd.near} href="#/pack" title={`${next.title || t('Trip')} · ${cd.text}`} onclick={() => openTrip(next.id)} data-goal={g.key} data-goal-countdown><I size={16} aria-hidden="true" /><span class="tn">{next.title || t('Trip')}</span><span class="cw num">{cd.text}</span></a>
       {:else if g.href}<a class="chip" href={g.href} data-goal={g.key}><I size={16} aria-hidden="true" />{t(g.label)}</a>
       {:else}<button type="button" class="chip" onclick={() => run(g)} data-goal={g.key}><I size={16} aria-hidden="true" />{t(g.label)}</button>{/if}
     {/each}
