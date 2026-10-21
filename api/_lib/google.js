@@ -85,6 +85,8 @@ export const DRIVE_ROOTS = { pdf: 'Importierte PDF', photos: 'Importierte Fotos'
 export const DRIVE_MAX_BYTES = 4 * 1024 * 1024;
 const FOLDER = 'application/vnd.google-apps.folder';
 const FOLDERS_KEY = 'google:drive:folders';
+/** The access that carries only the Health scopes (see healthToken). */
+export const HEALTH_TOKEN_KEY = 'google:tokens:health';
 const OWN_CAL_KEY = 'google:cal:own';
 const OWN_LIST_KEY = 'google:tasks:own';
 
@@ -144,6 +146,7 @@ export function makeHandler({ env = () => googleEnv(), doFetch = (...a) => fetch
     }
     const body = await res.json().catch(() => null);
     if (!res.ok || !body?.access_token) {
+      if (body?.error === 'invalid_scope') throw new ApiError(403, 'google_scope', 'Google has not allowed these values.');
       if (res.status === 400 || res.status === 401) throw new ApiError(401, 'google_login_needed', 'Google needs a new login.');
       throw new ApiError(502, 'google_error', 'Google answered with an error.');
     }
@@ -158,6 +161,24 @@ export function makeHandler({ env = () => googleEnv(), doFetch = (...a) => fetch
     if (!t.refresh_token) throw new ApiError(401, 'google_login_needed', 'Google needs a new login.');
     const fresh = await tokenCall(cfg, { grant_type: 'refresh_token', refresh_token: t.refresh_token });
     await store.set('google:tokens', JSON.stringify({ ...t, access_token: fresh.access_token, expires_at: now() + (Number(fresh.expires_in) || 3600) * 1000 }));
+    return fresh.access_token;
+  }
+
+  /**
+   * An access only for the Fitbit values. Google Health refuses every call whose access also carries other
+   * rights, such as Mail, Calendar or Drive (403 DISALLOWED_OAUTH_SCOPES, seen 21.10.2026 after Noah's
+   * «Jetzt holen»). So the kept refresh token is asked for an access with only the Health scopes, and that
+   * access is kept apart until it runs out. One login stays for everything.
+   */
+  async function healthToken(cfg, store) {
+    const kept = JSON.parse((await store.get(HEALTH_TOKEN_KEY)) || 'null');
+    if (kept?.access_token && (kept.expires_at ?? 0) - 60_000 > now()) return kept.access_token;
+    const raw = await store.get('google:tokens');
+    if (!raw) throw new ApiError(409, 'not_connected', 'Google is not connected.');
+    const t = JSON.parse(raw);
+    if (!t.refresh_token) throw new ApiError(401, 'google_login_needed', 'Google needs a new login.');
+    const fresh = await tokenCall(cfg, { grant_type: 'refresh_token', refresh_token: t.refresh_token, scope: SCOPES.join(' ') });
+    await store.set(HEALTH_TOKEN_KEY, JSON.stringify({ access_token: fresh.access_token, expires_at: now() + (Number(fresh.expires_in) || 3600) * 1000 }));
     return fresh.access_token;
   }
 
@@ -316,6 +337,7 @@ export function makeHandler({ env = () => googleEnv(), doFetch = (...a) => fetch
     const granted = String(tok.scope ?? '').split(' ');
     if (!KNOWN_SCOPES.some((s) => granted.includes(s))) return backToApp(st.returnTo, { google: 'error', error: 'scope' });
     await store.set('google:tokens', JSON.stringify({ access_token: tok.access_token, refresh_token: tok.refresh_token ?? null, expires_at: now() + (Number(tok.expires_in) || 3600) * 1000, scope: granted.join(' ') }));
+    await store.del(HEALTH_TOKEN_KEY);
     return backToApp(st.returnTo, { google: 'connected' });
   };
 
@@ -418,7 +440,7 @@ export function makeHandler({ env = () => googleEnv(), doFetch = (...a) => fetch
           if (!TYPES.includes(type)) throw new ApiError(400, 'bad_request', `type must be one of ${TYPES.join(', ')}.`);
           const pageToken = url.searchParams.get('pageToken');
           if (pageToken && !/^[\w.~-]{1,2000}$/.test(pageToken)) throw new ApiError(400, 'bad_request', 'Bad pageToken.');
-          const token = await accessToken(cfg, store);
+          const token = await healthToken(cfg, store);
           const body = await healthCall(token, `dataTypes/${type}/dataPoints${pageToken ? `?pageToken=${encodeURIComponent(pageToken)}` : ''}`);
           return json(request, 200, { ok: true, type, points: body.dataPoints ?? [], next: body.nextPageToken ?? null });
         }
@@ -427,7 +449,7 @@ export function makeHandler({ env = () => googleEnv(), doFetch = (...a) => fetch
           const to = url.searchParams.get('to');
           const n = spanDays(from, to);
           if (!n || n > MAX_DAYS) throw new ApiError(400, 'bad_request', `from and to must be days (YYYY-MM-DD), at most ${MAX_DAYS} days apart.`);
-          const token = await accessToken(cfg, store).catch((err) => {
+          const token = await healthToken(cfg, store).catch((err) => {
             console.log(`google days: no login, ${err?.code}`);
             throw err;
           });
@@ -659,6 +681,7 @@ export function makeHandler({ env = () => googleEnv(), doFetch = (...a) => fetch
             }
           }
           await store.del('google:tokens');
+          await store.del(HEALTH_TOKEN_KEY);
           await store.del(FOLDERS_KEY);
           await store.del(OWN_CAL_KEY);
           await store.del(OWN_LIST_KEY);
