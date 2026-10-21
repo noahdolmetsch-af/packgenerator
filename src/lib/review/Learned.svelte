@@ -18,6 +18,7 @@
   import GroupDeleteSheet from '../ui/GroupDeleteSheet.svelte';
   import UndoToast from './UndoToast.svelte';
   import { retopicLearnings, writeGroupChange, undoGroupChange, FIXED_LEARN_TOPICS } from '../groups.js';
+  import { phone } from '../media.svelte.js';
   import './review.css';
 
   const learnQ = liveQuery(() => db.learnings.toArray());
@@ -65,8 +66,13 @@
   }
   const meta = (l) => [l.source === 'import' ? t('From the import') : l.source, learnedOn(l) ? dayLong(learnedOn(l)) : ''].filter(Boolean).join(' · ');
   // Gesamttest 20.10.2026 (C11): 79 learnings made the page 18 phone screens long; 5 per topic, then «n weitere» (a search shows all)
-  const PER_TOPIC = 5;
+  // Gesamttest 21.10.2026 (C4): still 17 phone screens with a big import; on a phone 3 per topic, and after
+  // the 6th topic the rest waits behind «n weitere Themen»
+  const PER_TOPIC = $derived(phone.matches ? 3 : 5);
+  const TOPICS_FIRST = 6;
   let openTopics = $state({});
+  let allTopics = $state(false);
+  const shownTopics = $derived(lq.trim() || allTopics ? topics : topics.slice(0, TOPICS_FIRST));
 </script>
 
 <!-- v0.109.0 Design-Refresh P6 (T18 «Gelernt», approved 12.10.2026): the count line, the search with its icon,
@@ -79,7 +85,7 @@
     <button type="button" class="btn" onclick={() => (editing = { learning: null })}><Plus size={16} aria-hidden="true" />{t('Learning')}</button>
   </div>
   <label class="rv-search"><Search size={18} aria-hidden="true" /><input type="search" placeholder={t('Search learnings')} bind:value={lq} aria-label={t('Search learnings')} /></label>
-  {#each topics as g (g.topic)}
+  {#each shownTopics as g (g.topic)}
     <section class="topic rv-sec" aria-label={topicName(g.topic)}>
       <div class="rv-h">
         <div><h3>{topicName(g.topic)}</h3><p class="rv-sub num">{tn(g.ls.length, '{n} learning', '{n} learnings')}</p></div>
@@ -105,6 +111,7 @@
   {:else}
     <Empty icon={Lightbulb} text={learnings.length ? t('Nothing matches.') : t('No learnings yet. They come from your Excel import and from every debrief.')} action={learnings.length ? null : { label: t('To the look back'), href: '#/debrief' }} />
   {/each}
+  {#if shownTopics.length < topics.length}<button type="button" class="lmore" onclick={() => (allTopics = true)} data-topics-more>{tn(topics.length - shownTopics.length, 'Show {n} more topic', 'Show {n} more topics')}</button>{/if}
 </section>
 
 {#if renaming}

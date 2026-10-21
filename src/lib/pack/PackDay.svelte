@@ -359,7 +359,7 @@
      «Packen abschliessen» (asks when something is missing, then the interstitial «Gepackt»), packed and
      waiting «Fertig gepackt · zurück zu Touren» (Gesamttest 20.10.2026 B5), under way «Weiter zu Unterwegs», after the trip «Weiter zum Rückblick». -->
 {#snippet go()}{#if packFirst && nextBag}<button type="button" class="btn hi go" onclick={packNext} data-pack-next title={t('Pack {bag}|next', { bag: nextBag.title })}><span class="golbl">{t('Pack {bag}|next', { bag: nextBag.title })}</span><span class="gocnt">{' '}{t('({done} of {n})|next', { done: nextBag.done, n: nextBag.entries.length })}</span><ArrowRight size={20} aria-hidden="true" /></button>
-{:else if main.kind === 'finish'}<button type="button" class="btn hi go" onclick={next}><span class="golbl">{t(main.label)}</span><ArrowRight size={20} aria-hidden="true" /></button>
+{:else if main.kind === 'finish'}<button type="button" class="btn hi go" onclick={next} aria-label={t(main.label)}>{#if main.label === 'Finish packing'}<span class="golbl long">{t(main.label)}</span><span class="golbl short" aria-hidden="true">{t('Done packing|short')}</span>{:else}<span class="golbl">{t(main.label)}</span>{/if}<ArrowRight size={20} aria-hidden="true" /></button>
 {:else if main.kind === 'end'}<button type="button" class="btn hi go" onclick={onend}><span class="golbl">{t(main.label)}</span><ArrowRight size={20} aria-hidden="true" /></button>
 {:else if main.kind === 'go'}<a class="btn hi go" href={main.href}>{t(main.label)}<ArrowRight size={20} aria-hidden="true" /></a>{/if}{/snippet}
 <!-- Paket H «4a und b»: «Read aloud» next to the ring, at the thumb on a phone; the window explains the rest -->
@@ -674,5 +674,8 @@
     .gocnt { display: none; }
     .go { min-width: 0; }
     .golbl { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    /* Gesamttest 21.10.2026 (C2): «Packen abschlie…» was cut beside the ring: the short word on a phone */
+    .golbl.long { display: none; }
   }
+  @media (min-width: 601px) { .golbl.short { display: none; } }
 </style>
