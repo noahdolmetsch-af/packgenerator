@@ -34,7 +34,7 @@
   import Ideas from './flow/Ideas.svelte';
   import LiveStart from '../lib/live/LiveStart.svelte';
   import PinnedLists from '../lib/merken/PinnedLists.svelte';
-  import { Plus, Sun, GripVertical, Lightbulb, Timer, Snowflake, ChevronRight } from '@lucide/svelte';
+  import { Plus, Sun, GripVertical, Lightbulb, Timer, Snowflake, ChevronRight, BarChart3 } from '@lucide/svelte';
   import { inSeason } from '../lib/ski.js';
   import HintCard from '../lib/pageinfo/HintCard.svelte';
   import { liveQuery } from 'dexie';
@@ -243,6 +243,9 @@
 {:else if route[0] === 'stats'}
   <!-- Garmin-Übersicht: one sport or the heart rate, 7 days / 4 weeks / 1 year -->
   {#await import('./flow/Stats.svelte') then m}{#key route[1]}<m.default id={decodeURIComponent(route[1] ?? 'bike')} />{/key}{:catch}<p class="hint" role="alert">{t('This page could not load. Please check the connection and try again.')}</p>{/await}
+{:else if route[0] === 'auswertung'}
+  <!-- «Auswertung wie Training» (Noah 20.10.2026): what you tick, evaluated like a ride; loaded only when opened -->
+  {#await import('./flow/TickReview.svelte') then m}<m.default {params} />{:catch}<p class="hint" role="alert">{t('This page could not load. Please check the connection and try again.')}</p>{/await}
 {:else if route[0] === 'sports'}
   <!-- Paket O «Sportarten»: loaded only when opened (main.js stays small) -->
   {#await import('./flow/Sports.svelte') then m}<m.default />{/await}
@@ -297,7 +300,10 @@
       <div class="seg" role="group" aria-label={t('Filter by ring')}>
         {#each RING_FILTER as r (r.key)}<button type="button" class="sg" aria-pressed={ringF === r.key} onclick={() => (ringF = r.key)}>{t(r.name)}</button>{/each}
       </div>
-      <a class="btn" href="#/flow/new"><Plus size={18} aria-hidden="true" />{t('New activity')}</a>
+      <span class="tbtns">
+        <a class="btn" href="#/flow/auswertung" data-tick-review><BarChart3 size={18} aria-hidden="true" />{t('Evaluate|tk')}</a>
+        <a class="btn" href="#/flow/new"><Plus size={18} aria-hidden="true" />{t('New activity')}</a>
+      </span>
     </div>
     <div class="lay">
       <div class="col">
@@ -644,6 +650,11 @@
     font-size: var(--fs-small);
   }
   /* A5 «Ziele» */
+  .tbtns {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sp-2);
+  }
   .tools {
     display: flex;
     flex-wrap: wrap;

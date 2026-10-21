@@ -426,6 +426,8 @@ const OWN = [
   { id: 'f.ridepage', group: 'active', title: 'Every ride with all its values', text: 'Every list with a Strava activity opens its page: laps, splits per km, segment times, «How hard was it?», your Strava comment; an uploaded GPX shows its heart rate, cadence and power too.', href: '#/flow/training?view=list', words: 'fahrt aktivität strava runden splits kilometer segment bestzeit anstrengung kommentar gpx puls trittfrequenz leistung temperatur' },
   // «Heatmap» (Noah 20.10.2026 «1a+b 2b+a 3 alle Fahrten 4a 5a»)
   { id: 'f.heatmap', group: 'after', title: 'Heatmap', text: 'All your rides on one map: the more often you were somewhere, the stronger the colour; filter by year, sport, bike and tour.', href: '#/heatmap', words: 'heatmap wärmekarte karte alle fahrten touren strecken linien wolken häufig oft gefahren strava laufen skitour jahr velo' },
+  // «Auswertung wie Training» (Noah 20.10.2026)
+  { id: 'f.tickreview', group: 'active', title: 'Evaluate your ticks and answers', text: 'What you tick off and your answers to the check questions, evaluated like a ride: tiles, ticks per week, weekdays, time of day, course, best values and per month.', href: '#/flow/auswertung', words: 'auswerten auswertung haken abgehakt aktivitäten ziele serie woche wochentag tageszeit verlauf bestwerte monat antworten check fragen akku diagramm analyse' },
   { id: 'f.eveningtour', group: 'after', title: 'Rate the trip in the evening', text: 'On a trip day the evening review asks how the trip was today, 1 to 10, while it is fresh; it goes into the debrief and the diary.', href: '#/check/evening', words: 'abend bewerten tour heute abend-rückblick note frisch' },
 ];
 
