@@ -100,7 +100,7 @@ export function colorOf(id, list = [], cfg = {}) {
 /** The seven basic blocks (#190), in their first order. */
 export const BASE_BLOCKS = ['gear', 'pack', 'log', 'goals', 'care', 'weather', 'next'];
 /** The extra blocks any sport can add. */
-export const EXTRAS = ['plans', 'lessons', 'matches', 'loops', 'commute', 'route', 'protect'];
+export const EXTRAS = ['plans', 'lessons', 'matches', 'loops', 'commute', 'route', 'protect', 'parkdays'];
 /** Block names (English keys for t()). */
 export const BLOCK_NAMES = {
   gear: 'Equipment',
@@ -117,6 +117,7 @@ export const BLOCK_NAMES = {
   commute: 'Commuting',
   route: 'Water and gravel on the route',
   protect: 'Protection check',
+  parkdays: 'Bike park days',
 };
 /** What each block is for (one line under its name when adding or switching). */
 export const BLOCK_HINTS = {
@@ -134,6 +135,7 @@ export const BLOCK_HINTS = {
   commute: 'Kilometres to work, by month and year.',
   route: 'Fountains and the gravel share of a planned route.',
   protect: 'Protection and spare parts before a bike park day.',
+  parkdays: 'Each bike park day with park, runs and the protection check.',
 };
 /** The extra blocks a sport has on from the start. */
 const START_EXTRAS = {
@@ -142,7 +144,7 @@ const START_EXTRAS = {
   'trip:cycling': ['commute', 'loops'],
   'trip:gravel': ['route', 'loops'],
   'trip:xc': ['loops'],
-  'trip:downhill': ['protect'],
+  'trip:downhill': ['protect', 'parkdays'],
 };
 export const startExtras = (id) => START_EXTRAS[id] ?? [];
 

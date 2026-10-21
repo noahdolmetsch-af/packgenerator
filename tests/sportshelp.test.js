@@ -89,3 +89,30 @@ describe('Paket O: helpers per sport', () => {
     }
   });
 });
+
+// #194 Paket «Reste»: bike park days with park, runs and the protection check
+import { parkStats, protectState } from '../src/lib/sportshelp.js';
+import { blocksOf, EXTRAS } from '../src/lib/sportsbase.js';
+describe('bike park days', () => {
+  const days = [
+    { kind: 'parkday', day: '2026-06-01', park: 'Talpark', runs: 8, checked: true },
+    { kind: 'parkday', day: '2026-07-12', park: 'Talpark', runs: 12 },
+    { kind: 'parkday', day: '2026-08-02', park: ' Bergpark ', runs: '5' },
+    { kind: 'parkday', day: '2025-09-01', park: 'Altpark', runs: 30 },
+  ];
+  it('counts days, runs, the best day and the parks of a year', () => {
+    const s = parkStats(days, '2026');
+    expect(s).toEqual({ days: 3, runs: 25, best: 12, parks: [{ name: 'Talpark', days: 2 }, { name: 'Bergpark', days: 1 }] });
+    expect(parkStats(days).days).toBe(4);
+    expect(parkStats([])).toEqual({ days: 0, runs: 0, best: 0, parks: [] });
+  });
+  it('shows how far the protection check is', () => {
+    const items = [{ kind: 'check', block: 'protect', done: true }, { kind: 'check', block: 'protect', done: false }, { kind: 'check', block: 'own-1', done: true }];
+    expect(protectState(items)).toEqual({ done: 1, total: 2 });
+  });
+  it('Downhill has the block from the start, and every sport can add it', () => {
+    expect(EXTRAS).toContain('parkdays');
+    expect(blocksOf('trip:downhill', {}).map((x) => x.key)).toContain('parkdays');
+    expect(blocksOf('trip:gravel', {}).map((x) => x.key)).not.toContain('parkdays');
+  });
+});

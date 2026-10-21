@@ -24,13 +24,14 @@
   import LoopsBlock from '../../lib/sportpage/LoopsBlock.svelte';
   import CommuteBlock from '../../lib/sportpage/CommuteBlock.svelte';
   import RouteBlock from '../../lib/sportpage/RouteBlock.svelte';
+  import ParkDaysBlock from '../../lib/sportpage/ParkDaysBlock.svelte';
   import { DOMAINS } from '../../lib/domains.js';
   import { activeGoals } from '../../lib/flow.js';
   import { sortBikes } from '../../lib/bikes.js';
   import { sportBikeId } from '../../lib/sports.js';
   import { equipmentRows } from '../../lib/maingear.js';
   import { FEATURE, featureHref } from '../../lib/features.js';
-  import { allSports, orderedSports, colorOf, blocksOf, sportCfg, patchSport } from '../../lib/sportsbase.js';
+  import { allSports, orderedSports, colorOf, blocksOf, sportCfg, patchSport, addExtra } from '../../lib/sportsbase.js';
   import { sportDays, featuresFor, PROTECT_PRESET, tripOfSport } from '../../lib/sportshelp.js';
   import { stravaOf } from '../../lib/sportsprogress.js';
   import { saveCfg } from '../../lib/sportsdb.js';
@@ -108,6 +109,8 @@
         {:else if b.key === 'commute'}<CommuteBlock activities={data.activities} log={data.log} {today} />
         {:else if b.key === 'route'}<RouteBlock {sport} items={mine} trips={sportTrips} {today} {color} />
         {:else if b.key === 'protect'}<TextList sport={sport.id} block="protect" kind="check" items={linesOf('protect')} preset={PROTECT_PRESET} placeholder={t('e.g. neck brace')} empty={t('No list yet. Take the suggestion and change it.')} />
+          {#if !c.extras.includes('parkdays')}<button type="button" class="chip dash" onclick={() => saveCfg(addExtra(cfg, sport.id, 'parkdays'))} data-add-extra="parkdays">{t('Also note each bike park day')}</button>{/if}
+        {:else if b.key === 'parkdays'}<ParkDaysBlock {sport} items={mine} {today} hasProtect={blocks.some((x) => x.key === 'protect')} />
         {:else if b.type === 'notes'}<TextList sport={sport.id} block={b.key} kind="note" items={linesOf(b.key)} placeholder={t('New note')} empty={t('No note yet.')} />
         {:else}<TextList sport={sport.id} block={b.key} kind="check" items={linesOf(b.key)} placeholder={t('New line')} empty={t('No line yet.')} />
         {/if}
