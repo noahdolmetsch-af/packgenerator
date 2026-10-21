@@ -5,6 +5,7 @@
  * Pure functions, tested in tests/garmin-analyse.test.js (not src/lib/garmin.js, the Garmin pages of the bike). Observation only.
  */
 import { zoneSecs, powerLoad, pauseSecs } from '../training.js';
+import { ftpLabel } from '../strava/ftpstate.js';
 import { intensity } from '../training/act/power.js';
 import { peakOf, statOf } from './stravaana.js';
 
@@ -104,7 +105,7 @@ export function statsOf(a, { ser = null, ftp = null, kg = null, bounds = null } 
         row('np', 'Normalized Power (NP)', np, 'W'),
         row('if', 'Intensity Factor (IF)', ifac, '', 3),
         row('tss', 'Training Stress Score (TSS)', load?.load ?? null, '', 1),
-        row('ftp', 'FTP (estimated)', pos(ftp), 'W'),
+        row('ftp', ftpLabel(), pos(ftp), 'W'),
         row('wkg', 'NP per kg', np && kg ? np / kg : null, 'W/kg', 1),
         row('kj', 'Work', pos(a.kj), 'kJ'),
       ],
