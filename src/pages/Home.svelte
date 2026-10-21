@@ -763,10 +763,10 @@
     if (suggestion && !night) rows.push({ key: 'idea', tone: 'now', ic: BikeIcon, text: t('Idea: ride up to {h} h with the {bike}, today', { h: hrs(suggestion.hours), bike: suggestion.bike.name }), act: { label: t('Quick start'), run: startQuick }, ...(bikes.length > 1 ? { act2: { label: t('Other bike'), run: nextBike, quiet: true } } : {}) });
     return rows;
   });
-  // Impeccable 20.10.2026: on the last evening of a trip «Tour abschliessen» is its one next step (it leads into the
-  // Rückblick); the rows of that same trip wait until it is finished
+  // Impeccable 20.10.2026: on the last evening of a trip its evening rows (review, charging; Noah 32a) stay; other
+  // rows of that same trip wait until it is finished, so it does not show three next steps at once
   const lastEveIds = $derived(new Set(trips.filter((x) => lastEvening(x, today, now.getHours())).map((x) => x.id)));
-  const upRows = $derived([...nowRows, ...important.filter((r) => !(r.act?.trip && lastEveIds.has(r.act.trip)))]);
+  const upRows = $derived([...nowRows, ...important.filter((r) => r.tone === 'eve' || !(r.act?.trip && lastEveIds.has(r.act.trip)))]);
   const UP_N = 4;
   const upShown = $derived(allRows ? upRows : upRows.slice(0, UP_N));
   // the personal sentence under the greeting: the next trip and how much is up today
