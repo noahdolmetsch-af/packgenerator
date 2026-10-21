@@ -48,7 +48,7 @@
     {/if}
     <ul class="dl" aria-label={t('Active zone minutes per day')}>
       {#each week.days as d (d.date)}
-        <li class:fut={d.future} class:now={d.today} data-day={d.date}><span class="num">{d.min ?? (d.future ? '' : '–')}</span><small>{wd(d.date).slice(0, 2)}</small></li>
+        <li class:fut={d.future} class:now={d.today} data-day={d.date}><span class="num">{d.min ?? ''}</span><small>{wd(d.date).slice(0, 2)}</small></li>
       {/each}
     </ul>
   </div>
@@ -68,7 +68,7 @@
     <ul class="days" aria-label={t('Active zone minutes per day')}>
       {#each week.days as d (d.date)}
         <li class:fut={d.future} class:now={d.today} data-day={d.date}>
-          <span class="v num">{d.min ?? (d.future ? '' : '–')}</span>
+          <span class="v num">{d.min ?? ''}</span>
           <span class="col" aria-hidden="true"><i style="height:{d.min ? Math.max(6, Math.round((d.min / top) * 100)) : 0}%"></i></span>
           <small>{wd(d.date)}</small>
         </li>

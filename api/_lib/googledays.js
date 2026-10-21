@@ -188,18 +188,27 @@ export function daysFrom(src, from, to) {
     const v = pick(p?.heartRate ?? p?.heart_rate, /max/i);
     if (r && v !== null && v > 0) r.hrMax = Math.round(v);
   }
-  const daily = (list, k, re, ok, digits = 1) => {
+  // the field Google documents (health.googleapis.com discovery, v4), else a tolerant pick
+  const daily = (list, k, field, re, ok) => {
     for (const p of list ?? []) {
       const d = dailyOf(p);
-      const v = d ? pick(d.v, re) : null;
+      const v = d ? (num(d.v[field]) ?? pick(d.v, re)) : null;
       if (v === null || !ok(v)) continue;
       const r = row(d.date);
-      if (r) r[k] = Math.round(v * 10 ** digits) / 10 ** digits;
+      if (r) r[k] = Math.round(v * 10) / 10;
     }
   };
-  daily(src.spo2, 'spo2', /percent|average|avg|saturation|value/i, (v) => v >= 70 && v <= 100);
-  daily(src.breath, 'breath', /breath|rate|average|avg|value/i, (v) => v >= 4 && v <= 40);
-  daily(src.skin, 'skinTemp', /relative|delta|deviation|variation|temperature|celsius|value/i, (v) => Math.abs(v) <= 5, 2);
+  daily(src.spo2, 'spo2', 'averagePercentage', /^average/i, (v) => v >= 70 && v <= 100);
+  daily(src.breath, 'breath', 'breathsPerMinute', /breath/i, (v) => v >= 4 && v <= 40);
+  // skin temperature: the night against your baseline (nightlyTemperatureCelsius − baselineTemperatureCelsius)
+  for (const p of src.skin ?? []) {
+    const d = dailyOf(p);
+    const night = num(d?.v?.nightlyTemperatureCelsius);
+    const base = num(d?.v?.baselineTemperatureCelsius);
+    if (night === null || base === null || Math.abs(night - base) > 5) continue;
+    const r = row(d.date);
+    if (r) r.skinTemp = Math.round((night - base) * 100) / 100;
+  }
   // Per wake-up day the main sleep wins; without one, the longest night (naps never count).
   const best = new Map();
   for (const p of src.sleep ?? []) {
