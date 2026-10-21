@@ -1415,6 +1415,15 @@ export default {
   'A test keeps every page short on the phone': 'Ein Test hält jede Seite am Handy kurz',
   'Tap Plan in the bar: the tabs show Week, Appointments, Notes, Inbox and more.': 'Tippe in der Leiste auf Planen: Die Reiter zeigen Woche, Termine, Notizen, Eingang und mehr.',
   'Tap Analysis, then the tab Rides: your Strava rides are there.': 'Tippe auf Auswerten, dann auf den Reiter Fahrten: Dort sind deine Strava-Fahrten.',
+  // v0.172.0 «Velo und Notizen»
+  'Bike and notes': 'Velo und Notizen',
+  'Look after the bike, keep everything in notes.': 'Velo pflegen, alles in Notizen festhalten.',
+  'Wear: photos, spare parts, sale listing': 'Verschleiss: Fotos, Ersatzteile, Verkaufsinserat',
+  'Notes: draw, format, attach files': 'Notizen: zeichnen, formatieren, Dateien anhängen',
+  'Notes: reminder and a bin for 30 days': 'Notizen: Erinnerung und Papierkorb für 30 Tage',
+  'Phone reminder: dry the chain after rain': 'Handy-Erinnerung: Kette nach Regen trocknen',
+  'Open Notes, start a note and draw on a photo.': 'Öffne Notizen, beginne eine Notiz und zeichne auf ein Foto.',
+  'Bikes › Care › a bike › «Wear»: add spare parts at home.': 'Velos › Pflege › ein Velo › «Verschleiss»: Ersatzteile zu Hause eintragen.',
   // v0.171.0 «Velo, Wetter und Körper»
   'Bike, weather, body': 'Velo, Wetter, Körper',
   'Wear, weather and your values.': 'Verschleiss, Wetter und deine Werte.',

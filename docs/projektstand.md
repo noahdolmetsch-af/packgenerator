@@ -53,6 +53,8 @@ Seit 19.10.2026 gibt es keine Testlinks mehr: Ein Paket geht online, sobald die 
 | 43 | Körperwerte und Fitbit überall | 0.171.0 | 25 Werte in 5 Gruppen, Blutdruck und Wasser selbst, Fitbit im Check, auf Heute und in Erholung | dieser PR |
 | 44 | KI im Gerät | 0.171.0 | Sprachmodell auf dem Handy für offline, online weiter der KI-Helfer | dieser PR |
 | 45 | Aus jeder Tour lernen, Schneller packen, Schlafplätze | 0.171.0 | Pakete Z, SP und U4; Tagebuch unter Planen; See-Prognose robuster | dieser PR |
+| 46 | Velo im Griff | 0.172.0 | Kette nach Regen (Handy), Verschleiss-Fotos, Inserat, Velobox, Ersatzteile, km pro Marke, Frühlings-To-do, Kettenrotation; Heute-Fenster wartet auf Noahs OK | dieser PR |
+| 47 | Notizen wie Evernote | 0.172.0 | zeichnen, formatieren, Dateien, Scannen, Webseite offline, Texterkennung, Erinnerung, Papierkorb, frühere Fassungen | dieser PR |
 
 «Frontend aufpeppen» ist pausiert (Noah 19.10.2026). Die Abschnitte unten sind der Stand vom 18.10.2026.
 
