@@ -33,6 +33,15 @@ export function shortLine(parts, dash = '–') {
     .join(' · ');
 }
 
+/**
+ * Gesamttest 21.10.2026 C7: a phone list cut to `n` rows. The rows `keep` names (due, overdue, an open draft)
+ * always stay; the other rows fill up to `n` in the order of the list. → the rows to show, in order.
+ */
+export function capKeep(rows, n, keep = () => false) {
+  let left = Math.max(0, n - rows.filter(keep).length);
+  return rows.filter((r) => keep(r) || (left > 0 && left-- > 0));
+}
+
 /** The first `n` rows of month groups ([{ ..., rows }]), the groups kept in order and the empty ones left out. */
 export function capGroups(groups, n, key = 'rows') {
   const out = [];

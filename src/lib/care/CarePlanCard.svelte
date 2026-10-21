@@ -15,10 +15,16 @@
   import { carePlan, careChange, careResetAll } from './plan.js';
   import { careValue, careStdText } from './plantext.js';
   import CareSheet from './CareSheet.svelte';
+  import ShowMore from '../ui/ShowMore.svelte';
+  import { phone } from '../media.svelte.js';
+  import { PHONE_ROWS, capKeep } from '../touren/kurz.js';
 
   let { bike, onsave } = $props();
 
   const plan = $derived(carePlan(bike));
+  // Gesamttest 21.10.2026 C7: on a phone the first PHONE_ROWS cares, then «Show n more».
+  let all = $state(false);
+  const shown = $derived(phone.matches && !all ? capKeep(plan.rows, PHONE_ROWS) : plan.rows);
   let open = $state(null); // { key, focus: 'note' | null }
   let busy = $state(false);
 
@@ -41,11 +47,11 @@
   <h3 id="cplan-h-{bike.id}"><Wrench size={18} aria-hidden="true" />{t('Care for {bike}', { bike: bike.name })}</h3>
   <p class="lead">{t('You choose what the app reminds you of, and how often. The app’s numbers are the standard.')}</p>
   <ul class="rows">
-    {#each plan.rows as r (r.key)}
+    {#each shown as r (r.key)}
       <li class:off={!r.on} data-care={r.key}>
         <button type="button" class="main" onclick={() => (open = { key: r.key, focus: null })} aria-label={t('Set up care: {name}', { name: t(r.name) })}>
-          <span class="nm"><b>{t(r.name)}</b><small>{t(r.sub)}</small></span>
-          <span class="val"><span class="num">{r.on ? careValue(r) : t('off: no reminder')}</span><small>{#if !r.on}{t('Standard would be {v}', { v: careStdText(r) })}{:else if r.changed}{t('changed by you')} · {t('Standard {v}', { v: careStdText(r) })}{:else}{t('Standard')}{/if}</small></span>
+          <span class="nm"><b>{t(r.name)}</b>{' '}<small>{t(r.sub)}</small></span>
+          <span class="val"><span class="num">{r.on ? careValue(r) : t('off: no reminder')}</span>{' '}<small>{#if !r.on}{t('Standard would be {v}', { v: careStdText(r) })}{:else if r.changed}{t('changed by you')} · {t('Standard {v}', { v: careStdText(r) })}{:else}{t('Standard')}{/if}</small></span>
           <span class="ch" aria-hidden="true"><ChevronRight size={18} /></span>
         </button>
         {#if r.changed}<button type="button" class="tp-link rs" disabled={busy} onclick={() => reset(r)} aria-label={t('Reset {name} to the standard', { name: t(r.name) })}>{t('reset|care')}</button>{/if}
@@ -58,6 +64,7 @@
       </li>
     {/each}
   </ul>
+  {#if shown.length < plan.rows.length}<ShowMore n={plan.rows.length - shown.length} onclick={() => (all = true)} data-care-plan-more />{/if}
   <p class="foot"><span class="num">{t('{on} of {n} on', { on: plan.on, n: plan.n })}{#if plan.changed}{' · '}{tn(plan.changed, '{n} changed', '{n} changed')}{/if}</span>{#if plan.changed || plan.on < plan.n}<button type="button" class="tp-link" disabled={busy} onclick={resetAll}>{t('Reset all to the standard')}</button>{/if}</p>
 </section>
 

@@ -10,6 +10,7 @@ import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';
 import { openData, settle } from './settle.js';
+import { PHONE_ROWS } from '../../src/lib/touren/kurz.js';
 
 // the lists come from the app source (they need Svelte, so they are read as text)
 const src = (f) => readFileSync(fileURLToPath(new URL(`../../src/lib/${f}`, import.meta.url)), 'utf8');
@@ -173,6 +174,11 @@ test('RE3: Care for the bike: switch off, own interval in km and days, a note, r
   await expect(card.getByRole('heading')).toHaveText(T('Care for {bike}', { bike: 'test_data_gtp_ Gravel Grinder' }));
   // a gravel bike has no suspension: fork and shock are not offered
   const fitting = CARE.filter((c) => !['fork', 'shock'].includes(c.key));
+  // Gesamttest 21.10.2026 C7 (changed on purpose): on a phone five cares first, the rest after «n weitere zeigen»
+  if (info.project.name === 'phone') {
+    await expect(card.locator('li[data-care]')).toHaveCount(PHONE_ROWS);
+    await card.locator('[data-care-plan-more]').click();
+  }
   await expect(card.locator('li[data-care]')).toHaveCount(fitting.length);
   await expect(card.locator('.foot')).toContainText(T('{on} of {n} on', { on: fitting.length, n: fitting.length }));
   const wax = card.locator('li[data-care="wax"]');
