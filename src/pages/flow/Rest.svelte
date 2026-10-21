@@ -25,6 +25,9 @@
   import { actName, tickWith, tapAct, toast } from '../../lib/flow/ui.svelte.js';
   import { localDay } from '../../lib/localday.js';
   import { phone } from '../../lib/media.svelte.js';
+  import { widgetValues } from '../../lib/wohl.js';
+  import { health, FITBIT_HASH } from '../../lib/health/client.svelte.js';
+  import { addDays } from '../../lib/health.js';
   import { t, tn, locale, lang } from '../../lib/i18n.svelte.js';
 
   const today = localDay();
@@ -34,6 +37,11 @@
     seedIfNeeded(data);
   });
   const noQ = liveQuery(() => db.settings.get(HINT_NO_KEY));
+  // Fitbit «überall» (Noah 20.10.2026): sleep, resting pulse and HRV of the latest night, next to your normal
+  const fitQ = liveQuery(() => (db.healthDays ? db.healthDays.where('date').aboveOrEqual(addDays(today, -40)).toArray() : []));
+  const fit = $derived($fitQ ? widgetValues({ health: $fitQ, today }) : null);
+  const hasFit = $derived(fit && (fit.sleepH != null || fit.restingHr != null || fit.hrv != null));
+  const n1 = (x) => (x == null ? '–' : Number(x).toLocaleString(locale(), { maximumFractionDigits: 1 }));
   const acts = $derived(data?.acts ?? []);
   const log = $derived(data?.log ?? []);
   const states = $derived(data ? flowStates(acts, log, today, data.tripDays) : []);
@@ -89,7 +97,18 @@
       <div class="hv">
         <b>{t('This week {n} of {m}', { n: rings.rest.n, m: rings.rest.of })}</b>
         <small>{t('Move {a} of {b} · Mindful {c} of {d}', { a: rings.move.n, b: rings.move.of, c: rings.mind.n, d: rings.mind.of })}</small>
-        <p class="later"><Moon size={16} aria-hidden="true" />{t('Sleep, resting pulse and HRV come here with the Fitbit connection, as observation only.')}</p>
+        {#if hasFit}
+          <ul class="fit" data-rest-fitbit>
+            <li data-fit="sleep"><b class="num">{fit.sleepH == null ? '–' : `${n1(fit.sleepH)} h`}</b><small>{fit.sleepNormal != null ? t('sleep · your normal {n} h', { n: n1(fit.sleepNormal) }) : t('sleep')}</small></li>
+            <li data-fit="pulse"><b class="num">{fit.restingHr ?? '–'}</b><small>{fit.restingNormal != null ? t('resting pulse · your normal {n}', { n: Math.round(fit.restingNormal) }) : t('resting pulse')}</small></li>
+            <li data-fit="hrv"><b class="num">{fit.hrv == null ? '–' : `${fit.hrv} ms`}</b><small>{fit.hrvNormal != null ? t('HRV · your normal {n} ms', { n: Math.round(fit.hrvNormal) }) : t('HRV')}</small></li>
+          </ul>
+          <p class="later"><Moon size={16} aria-hidden="true" />{t('From your Fitbit, the latest night; only to look at.')} <a href="#/flow/stats/sleep">{t('Body values')} ›</a></p>
+        {:else if health.prefs.connected}
+          <p class="later"><Moon size={16} aria-hidden="true" />{t('Fitbit is connected; sleep, resting pulse and HRV appear after the next fetch.')}</p>
+        {:else}
+          <p class="later"><Moon size={16} aria-hidden="true" /><a href={FITBIT_HASH}>{t('Connect Fitbit')}</a>{' '}{t('for sleep, resting pulse and HRV, as observation only.')}</p>
+        {/if}
       </div>
     </section>
 
@@ -234,6 +253,26 @@
     margin: var(--sp-2) 0 0;
     color: var(--ink-2);
     font-size: var(--fs-small);
+  }
+  .fit {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+    margin: var(--sp-2) 0 0;
+    padding: 0;
+    list-style: none;
+  }
+  .fit li {
+    display: grid;
+    min-width: 0;
+  }
+  .fit small {
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+  }
+  .later a {
+    color: var(--ink);
+    font-weight: 600;
   }
   .later :global(svg) {
     flex: none;

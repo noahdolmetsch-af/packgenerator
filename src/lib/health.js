@@ -17,8 +17,12 @@ export const GOOGLE_URL = 'https://packgen-three.vercel.app/api/google';
 export const HEALTH_KEY = 'health';
 /** The values a day can hold, in the order the app shows them. */
 export const VALUES = ['sleep', 'restingHr', 'hrvMs', 'steps', 'azm'];
-/** Kept as well, without their own switch (Garmin-Übersicht 20.10.2026): calories of the day, active calories, highest pulse. */
-export const EXTRA = ['kcal', 'kcalActive', 'hrMax'];
+/**
+ * Kept as well, without their own switch (Garmin-Übersicht 20.10.2026): calories of the day, active
+ * calories, highest pulse; «Körperwerte»: oxygen saturation (%), breathing rate, skin temperature (°C
+ * difference to your normal).
+ */
+export const EXTRA = ['kcal', 'kcalActive', 'hrMax', 'spo2', 'breath', 'skinTemp'];
 export const FIRST_DAYS = 90;
 export const AGAIN_DAYS = 3;
 
