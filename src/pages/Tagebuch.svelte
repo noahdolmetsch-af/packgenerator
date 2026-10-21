@@ -18,12 +18,12 @@
   import Settings from '../lib/tagebuch/Settings.svelte';
   import LockScreen from '../lib/tagebuch/LockScreen.svelte';
   import Rueckblick from '../lib/tagebuch/Rueckblick.svelte';
-  import { moodOf } from '../lib/tagebuch/insights.js';
+  import { moodOf, moodName } from '../lib/tagebuch/insights.js';
   import { askDelete, deleteWithUndo } from '../lib/ui/ask.js';
   import { offerDone } from '../lib/ui/rename.svelte.js';
   import { entriesQuery, cfgQuery, changeCfg, deleteEntry, restoreEntry } from '../lib/tagebuch/journaldb.js';
   import { sortEntries, filterEntries, byMonth, allTags, onThisDay, stats, monthGrid, shiftMonth, photosOf, headOf, weatherKind, WEATHER_WORDS, entryMarkdown, journalMarkdown, fileName, HREF } from '../lib/tagebuch/journal.js';
-  import { QUESTIONS, questionOf } from '../lib/tagebuch/fragen.js';
+  import { questionRef, questionText } from '../lib/tagebuch/fragen.js';
   import { gate, lockNow, watchHidden } from '../lib/tagebuch/lock.svelte.js';
   import { localDay } from '../lib/localday.js';
   import { phone } from '../lib/media.svelte.js';
@@ -98,8 +98,8 @@
     }
   })());
   let skip = $state(0);
-  const qi = $derived(questionOf(today, skip));
-  const answeredToday = $derived(all.some((e) => e.day === today && e.q === questionOf(today, 0)));
+  const qi = $derived(questionRef(today, skip));
+  const answeredToday = $derived(all.some((e) => e.day === today && e.q === questionRef(today, 0)));
   function hideQuestion() {
     qHidden = true;
     try {
@@ -198,7 +198,7 @@
       {#if h.preview}<span class="tb-prev">{h.preview}</span>{/if}
       <small class="tb-meta">
         {#if e.time}<span>{e.time}</span>{/if}
-        {#if e.mood}<span title={t(moodOf(e.mood).name)} data-tb-card-mood={e.mood}>{moodOf(e.mood).emoji}</span>{/if}
+        {#if e.mood}<span title={moodName(e.mood, t)} data-tb-card-mood={e.mood}>{moodOf(e.mood).emoji}</span>{/if}
         {#if e.place?.name}<span><MapPin size={12} aria-hidden="true" />{e.place.name}</span>{/if}
         {#if e.weather}{@const W = WX[weatherKind(e.weather.code)]}<span><W size={12} aria-hidden="true" />{e.weather.temp} °C</span>{/if}
         {#each e.tags ?? [] as x (x)}<span class="tb-tagmini">#{x}</span>{/each}
@@ -222,9 +222,9 @@
     {:else}
       {@const h = headOf(reading)}
       <article class="tb-article" data-tb-reading={reading.id}>
-        <p class="tb-kick">{long(reading.day)}{#if reading.time}{` · ${reading.time}`}{/if}{#if reading.mood}{` · ${moodOf(reading.mood).emoji} ${t(moodOf(reading.mood).name)}`}{/if}</p>
+        <p class="tb-kick">{long(reading.day)}{#if reading.time}{` · ${reading.time}`}{/if}{#if reading.mood}{` · ${moodOf(reading.mood).emoji} ${moodName(reading.mood, t)}`}{/if}</p>
         <h1 class="tb-h1" tabindex="-1" data-page-title>{reading.title?.trim() || h.title || t('Untitled')}{#if reading.star}<Star class="tb-starbig" size={22} fill="currentColor" aria-label={t('Favourite')} />{/if}</h1>
-        {#if Number.isInteger(reading.q) && QUESTIONS[reading.q]}<p class="tb-askq">{t(QUESTIONS[reading.q][0])}</p>{/if}
+        {#if questionText(reading.q, t)}<p class="tb-askq">{questionText(reading.q, t)}</p>{/if}
         {#if reading.place?.name || reading.weather}
           <p class="tb-metabig">
             {#if reading.place?.name}<span><MapPin size={16} aria-hidden="true" />{#if reading.place.lat}<a href={`https://www.google.com/maps/search/?api=1&query=${reading.place.lat},${reading.place.lon}`} target="_blank" rel="noopener">{reading.place.name || t('On the map')}</a>{:else}{reading.place.name}{/if}</span>{/if}
@@ -275,13 +275,13 @@
       <button type="button" class="btn" onclick={() => write({}, true)} data-tb-dictate><Mic size={18} aria-hidden="true" />{t('Dictate an entry')}</button>
     </div>
 
-    {#if cfg.questions !== false && !qHidden && !answeredToday}
+    {#if cfg.questions !== false && !qHidden && !answeredToday && qi != null}
       <section class="tb-q" aria-labelledby="tb-q-h" data-tb-question={qi}>
         <div class="tb-q-top">
           <h2 id="tb-q-h" class="tb-q-kick"><Feather size={16} aria-hidden="true" />{t('Question of the day')}</h2>
           <button type="button" class="tb-ic sm" aria-label={t('Not today')} title={t('Not today')} onclick={hideQuestion} data-tb-question-hide><X size={18} aria-hidden="true" /></button>
         </div>
-        <p class="tb-q-text">{t(QUESTIONS[qi][0])}</p>
+        <p class="tb-q-text">{questionText(qi, t)}</p>
         <div class="tb-acts">
           <button type="button" class="btn hi sm" onclick={() => write({ q: qi })} data-tb-answer>{t('Answer it')}</button>
           <button type="button" class="btn sm" onclick={() => write({ q: qi }, true)} data-tb-answer-speak><Mic size={16} aria-hidden="true" />{t('Answer by speaking')}</button>

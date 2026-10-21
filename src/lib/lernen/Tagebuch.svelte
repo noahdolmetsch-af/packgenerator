@@ -7,6 +7,8 @@
    * The whole diary can be switched off here (settings 'tagebuch' { on }).
    */
   import { liveQuery } from 'dexie';
+  import { offerDone } from '../ui/rename.svelte.js';
+  import { askDelete } from '../ui/ask.js';
   import { db } from '../db.js';
   import { t, tn } from '../i18n.svelte.js';
   import { diaryFacts, diaryDraft, tripDays, DIARY_KEY } from './tagebuch.js';
@@ -61,11 +63,13 @@
     if (box) queueMicrotask(grow);
   });
 
-  function redraft() {
-    if (d.diary?.edited && !confirm(t('Write the draft again? Your changes to the diary are replaced.'))) return;
+  async function redraft() {
+    if (d.diary?.edited && (await askDelete({ title: t('Write the draft again? Your changes to the diary are replaced.'), label: t('Write again') })) !== 'delete') return;
+    const before = d.diary ? structuredClone($state.snapshot(d.diary)) : null;
     d.diary = { text: diaryDraft({ trip, facts, neu: neu ?? [], photos: photos.length }), at: new Date().toISOString(), edited: false };
     persist();
     msg = t('New draft written.');
+    if (before?.edited) offerDone(t('New draft written.'), () => ((d.diary = before), persist()));
   }
   async function copy() {
     try {

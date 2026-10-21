@@ -797,6 +797,16 @@ export const HANDBOOK = {
     steps: ['Tap the weather line on Today, on Active or on a trip.', 'Choose how long you ride: the app shows the best start; tap «Landi rain radar» for the rain.'],
     example: 'Example: 4 h ride, thunderstorms from 15:00 → best start 08:00, back about 12:00.',
   },
+  'f.webcammap': {
+    on: null,
+    steps: ['Open the weather page › «My webcams» and tap «Place on the map» on a webcam.', 'Search the place and choose it. On the live map tap the webcam point.'],
+    example: 'Example: the webcam on the pass ahead → one tap on the map shows if there is snow.',
+  },
+  'f.icepush': {
+    on: null,
+    steps: ['Set your home place on the weather page.', 'Under Me › Reminders on the phone switch on «Ice in the morning».'],
+    example: 'Example: −2 °C and snow in the night → at 06:30 «Roads can be icy this morning».',
+  },
   'f.webcams': {
     on: null,
     steps: ['Open the weather page › «My webcams».', 'Paste the address of the picture and tap «Add webcam»; «Make home cam» shows it small on Today.'],
@@ -1244,6 +1254,11 @@ export const HANDBOOK = {
     steps: ['Ask the app or dictate a question.', 'Tap a service under the answer: it opens with your question.', 'Tick «Send my gear and learnings that fit along» if you want.'],
     example: 'Example: «Which jacket for 5 °C?» → Perplexity opens with the question.',
   },
+  'f.searchvoice': {
+    on: 'The microphone is always in the search; Me › Search hides it and switches each answer on or off.',
+    steps: ['Tap the microphone next to the magnifier and say what you want.', 'One command that fits runs at once; «Undo» takes it back.', 'A question gets the app\'s answer; when the app knows nothing, Gemini answers or you ask further at Claude or ChatGPT.'],
+    example: 'Example: say «note brake squeaks» → the note is in the Inbox.',
+  },
   'f.aiprojects': {
     on: null,
     steps: ['Open Me › My AI projects.', 'Paste the address of a project or chat and give it a name.', 'Rename, delete or reorder it with the arrows or by dragging.'],
@@ -1432,8 +1447,23 @@ export const HANDBOOK = {
   },
   'f.ownvalues': {
     on: null,
-    steps: ['Open Me › Own values.', 'Change a number with − and + or type it.', '«Back to Standard» brings the number of the app back.'],
+    steps: ['Open Me › Own values.', 'Change a number with − and + or type it; the pen renames or deletes it.', '«Back to Standard» brings the number back, «Deleted values» a deleted one.'],
     example: 'Example: packing starts 3 days before the trip, the backup reminder after 7 days.',
+  },
+  'f.ownreminders': {
+    on: null,
+    steps: ['Open Me › Own values › «+ Own reminder».', 'Name, «every N km» or «every N days», all bikes or one.', 'Bikes › Care shows it on the bike\'s page; «Done» starts it again.'],
+    example: 'Example: «Check the tyre pressure» every 14 days for every bike.',
+  },
+  'f.ownbody': {
+    on: null,
+    steps: ['Open Me › Your questions and add an own question.', 'Choose «Number» with a unit, or the scale 1 to 10.', 'Body values › Own shows it with its curve.'],
+    example: 'Example: «Back pain» 0 to 10 every evening.',
+  },
+  'f.listsmore': {
+    on: null,
+    steps: ['Open Me › Lists and types.', 'Pick a list, e.g. Kinds of bike.', 'The pen renames, hides or deletes; «+ Own» adds one; arrows and handle sort.'],
+    example: 'Example: an own kind of bike «City bike», or a diary question of your own.',
   },
   'f.theme': {
     on: null,

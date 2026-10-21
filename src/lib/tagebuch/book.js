@@ -8,7 +8,7 @@ import { pdfText } from '../spur/book.js';
 import { sortEntries, headOf, yearsOf } from './journal.js';
 
 export { yearsOf };
-import { moodOf } from './insights.js';
+import { moodName } from './insights.js';
 
 const A4 = [595.28, 841.89];
 const M = 56;
@@ -92,7 +92,7 @@ export async function makeYearBook(entries, year, { tr = (s, v) => (v ? s.replac
       y -= 52;
     }
     const h = headOf(e);
-    const meta = [long(e.day) + (e.time ? `, ${e.time}` : ''), e.mood ? tr(moodOf(e.mood)?.name ?? '') : '', e.place?.name ?? ''].filter(Boolean).join(' · ');
+    const meta = [long(e.day) + (e.time ? `, ${e.time}` : ''), e.mood ? moodName(e.mood, tr) : '', e.place?.name ?? ''].filter(Boolean).join(' · ');
     const titleRows = wrapText(bold, e.title?.trim() || h.title || '', 14, width);
     room(16 + titleRows.length * 18 + 20);
     page.drawText(pdfText(meta), { x: M, y, size: 10, font: sans, color: soft });

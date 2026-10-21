@@ -223,8 +223,40 @@ export const BODY_GROUPS = [
 ];
 /** Every tab, in the order of the groups. */
 export const BODY_TABS = BODY_GROUPS.flatMap((g) => g.tabs);
-/** The group of a tab. */
-export const groupOf = (key) => BODY_GROUPS.find((g) => g.tabs.includes(key))?.key ?? 'heart';
+/** The group of a tab (an own value «ab:…» is in «Eigene»). */
+export const groupOf = (key) => (isOwnBody(key) ? OWN_BODY_GROUP : (BODY_GROUPS.find((g) => g.tabs.includes(key))?.key ?? 'heart'));
+
+/**
+ * «Eigene Körperwerte» (Noah 21.10.2026 «3a»): every own question of «Deine Abfragen» (Ich › Abfragen)
+ * that is answered with a number or on the scale 1–10 is an own body value of its own: key «ab:<id>»,
+ * its name the typed question (never through t()), its unit the typed one. They form the sixth group
+ * «Eigene», only when there is one. Creating, renaming and deleting stays in Ich › Abfragen.
+ * own: the own questions (abfragen.js configOf(cfg).own) → [{ key, name, unit, line, src, own, qid, fixed? }].
+ */
+export const OWN_BODY_GROUP = 'mine';
+export const isOwnBody = (key) => typeof key === 'string' && key.startsWith('ab:');
+export const ownBodyKeys = (own = []) =>
+  own
+    .filter((q) => q && (q.form?.kind === 'number' || q.form?.kind === 'scale'))
+    .map((q) => ({ key: `ab:${q.id}`, name: q.text, unit: q.form.kind === 'number' ? (q.form.unit ?? '') : '', line: true, src: 'ab', own: true, qid: q.id, ...(q.form.kind === 'scale' ? { fixed: [0, 10] } : {}) }));
+/** The groups with «Eigene» at the end when there are own values. */
+export const bodyGroupsWith = (ownKeys = []) => (ownKeys.length ? [...BODY_GROUPS, { key: OWN_BODY_GROUP, name: 'Own|body group', tabs: ownKeys.map((k) => k.key), own: true }] : BODY_GROUPS);
+/**
+ * The day values of the own questions: Map qid → Map day → the mean of that day's answers (numbers only).
+ * answers: the rows of abAnswers ({ qid, day, value }).
+ */
+export function ownBodyDays(answers = [], ownKeys = []) {
+  const ids = new Set(ownKeys.map((k) => k.qid));
+  const acc = new Map();
+  for (const a of answers) {
+    if (!ids.has(a?.qid) || typeof a.value !== 'number' || !Number.isFinite(a.value) || typeof a.day !== 'string') continue;
+    const m = acc.get(a.qid) ?? new Map();
+    const d = m.get(a.day) ?? [0, 0];
+    m.set(a.day, [d[0] + a.value, d[1] + 1]);
+    acc.set(a.qid, m);
+  }
+  return new Map([...acc].map(([q, m]) => [q, new Map([...m].map(([d, [s, n]]) => [d, Math.round((s / n) * 100) / 100]))]));
+}
 
 /**
  * The sleep phases of a night (minutes) and when it began and ended: { deep, rem, light, awake, start, end }
@@ -256,6 +288,7 @@ export function wkgOf(row, kg) {
  */
 export function bodyOf(table, day, key, weights = new Map(), ctx = {}, part = null) {
   const row = table.get(day);
+  if (isOwnBody(key)) return fin(ctx.ab?.get(key.slice(3))?.get(day));
   if (key === 'weight') return fin(weights.get(day));
   if (key === 'stages') return fin(row?.sleep);
   if (key === 'ready' || key === 'load' || key === 'med' || key === 'water') return fin(ctx[key]?.get(day));

@@ -94,6 +94,18 @@
   let q = $state('');
   let found = $state([]);
   let searching = $state(false);
+  // «Suche mit Sprache» (Noah 21.10.2026): «Wetter Chur» in the top search opens #/wetter?place=Chur
+  let placeAsked = '';
+  $effect(() => {
+    const p = params.get('place');
+    if (!p || p === placeAsked) return;
+    placeAsked = p;
+    searchPlace(p)
+      .then((f) => {
+        if (f?.[0]) picked = f[0];
+      })
+      .catch(() => {});
+  });
   async function search(e) {
     e?.preventDefault();
     searching = true;

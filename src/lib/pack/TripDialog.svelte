@@ -507,6 +507,7 @@
     if (planPrefill.bikeId && bikes.some((b) => b.id === planPrefill.bikeId)) draft.bikeId = planPrefill.bikeId;
     if (DOMAIN[planPrefill.area]) area = planPrefill.area;
     if (draft.days > 1 && planPrefill.night) pickNight(planPrefill.night);
+    if (typeof planPrefill.title === 'string' && planPrefill.title.trim()) (draft.title = planPrefill.title.trim().slice(0, 80)), (autoName = false); // said in the search
   }
   const moreDays = $derived(moreWanted || days >= 3);
   async function pickLength(n) {

@@ -16,6 +16,27 @@
 
 export const WHATS_NEW = [
   {
+    // v0.173.0 «Suche und eigene Werte»: thread «Suche als Alleskönner» (Noah 21.10.2026 «1a 2a 3a+b 4b+a 5b», ideas 1–8), Wetter follow-up (webcams, ice) and «Eigene Werte und alle Daten anpassbar» (Noah 21.10.2026 «1 a und b 2 a 3a 4a»); built without mockups
+    version: '0.173.0',
+    date: '2026-10-21',
+    title: 'Search and own values',
+    lead: 'Say it, and change every list yourself.',
+    points: [
+      { text: 'Speak into the search: «Chain oiled» runs at once, with Undo', href: '#/me/suche' },
+      { text: 'Questions get an answer from your data', href: '#/assistent' },
+      { text: 'Own reminders: every N km or days', href: '#/me/werte' },
+    ],
+    small: [
+      { box: 'new', text: 'Six more lists to change', href: '#/me/lists' },
+      { box: 'new', text: 'Your webcams on the live map', href: '#/wetter' },
+      { box: 'new', text: 'Phone warning: icy roads in the morning' },
+    ],
+    test: [
+      'Tap the microphone in the search and say «Weight 72».',
+      'Open Me › Own values › «+ Own reminder».',
+    ],
+  },
+  {
     // v0.172.0 «Velo und Notizen»: Paket VG «Das Velo im Griff» (1128–1135; the chain window on Heute waits for Noah's OK) and Paket NE «Notizen wie Evernote» (Noah 20.10.2026); built without mockups
     version: '0.172.0',
     date: '2026-10-21',

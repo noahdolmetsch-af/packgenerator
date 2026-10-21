@@ -7,6 +7,7 @@
    * A copy stays on this device (db.gEvents, db.gTasks); «Woche planen» reads it (src/lib/agenda.js).
    */
   import VeloHead from '../lib/bikes/VeloHead.svelte';
+  import { askDelete } from '../lib/ui/ask.js';
   import DateInput from '../lib/ui/DateInput.svelte';
   import { agenda, connect, fetchNow, checkAllowed, saveTask, deleteTask, saveEvent, deleteEvent, chooseCals, hide } from '../lib/agenda/client.svelte.js';
   import { byDay, taskGroups, timeOf, addDays, SHOW_DAYS } from '../lib/agenda.js';
@@ -87,7 +88,7 @@
     if (await saveTask({ list: x.list, id: x.id, title: x.title.trim(), notes: x.notes, due: x.due || null })) editTask = null;
   }
   async function dropTask(x) {
-    if (!confirm(t('Delete «{name}» in Google Tasks too?', { name: x.title }))) return;
+    if ((await askDelete({ title: t('Delete «{name}» in Google Tasks too?', { name: x.title }) })) !== 'delete') return;
     if (await deleteTask(x)) editTask = null;
   }
 
@@ -108,7 +109,7 @@
     }
   }
   async function dropEvent(e) {
-    if (!confirm(t('Delete «{name}» in your Google calendar too?', { name: e.title }))) return;
+    if ((await askDelete({ title: t('Delete «{name}» in your Google calendar too?', { name: e.title }) })) !== 'delete') return;
     if (await deleteEvent(e)) openEv = null;
   }
 

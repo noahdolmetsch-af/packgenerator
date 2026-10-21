@@ -16,7 +16,10 @@
   import { askGemini, geminiError } from './gemini.js';
   import { readAloud, stopReading, speechLang, voiceApi } from '../speak.js';
 
-  let { q = '' } = $props();
+  // «Suche mit Sprache und Antworten» (Noah 21.10.2026 «3a … und b»): the top search passes its own
+  // settings (Ich › Suche): `gemini` and `links` show or hide the two parts (null: the dictation setting),
+  // `auto` asks Gemini by itself (a spoken question the app has no answer for), `autoread` reads it aloud.
+  let { q = '', gemini = null, links = true, auto = false, autoread = null } = $props();
   let withData = $state(false);
   let gAns = $state('');
   let gMsg = $state('');
@@ -25,15 +28,15 @@
   let reading = $state(false);
   const src = liveQuery(async () => ({ items: await db.items.toArray(), learnings: await db.learnings.toArray() }));
   const ctx = $derived(withData && $src ? contextFor(q, { items: $src.items, learnings: $src.learnings, name: nameOf, de: isDe() }) : '');
-  const list = $derived(SERVICES.filter((s) => shownServices(dict.others).includes(s.key)));
-  const gShown = $derived(dict.gemini && !!helper.code);
+  const list = $derived(links ? SERVICES.filter((s) => shownServices(dict.others).includes(s.key)) : []);
+  const gShown = $derived((gemini ?? dict.gemini) && !!helper.code);
   const canRead = !!voiceApi();
 
   $effect(() => {
     if (q !== gFor) (gAns = ''), (gMsg = ''), (gFor = '');
   });
 
-  async function gemini() {
+  async function askG() {
     if (gBusy) return;
     gBusy = true;
     gMsg = '';
@@ -45,9 +48,19 @@
     gFor = asked;
     if (r.ok) {
       gAns = r.text;
-      if (dict.read) read();
+      if (autoread ?? dict.read) read();
     } else gMsg = geminiError(r.error);
   }
+  // a moment later, so the app's own answer has loaded first (the search then says auto = false)
+  let autoFor = '';
+  $effect(() => {
+    if (!auto || !gShown || q.trim().length < 3 || autoFor === q) return;
+    const asked = q;
+    const timer = setTimeout(() => {
+      if (auto && q === asked && autoFor !== asked) (autoFor = asked), askG();
+    }, 700);
+    return () => clearTimeout(timer);
+  });
   function read() {
     if (reading) return stopReading(), (reading = false);
     reading = true;
@@ -60,7 +73,7 @@
   <div class="ae" data-ask-elsewhere>
     {#if gShown}
       <p class="ae-row">
-        <button type="button" class="btn sm" onclick={gemini} disabled={gBusy} data-ask-gemini><Sparkles size={14} aria-hidden="true" />{gBusy ? t('Gemini is thinking …') : t('Ask Gemini here (free)')}</button>
+        <button type="button" class="btn sm" onclick={askG} disabled={gBusy} data-ask-gemini><Sparkles size={14} aria-hidden="true" />{gBusy ? t('Gemini is thinking …') : t('Ask Gemini here (free)')}</button>
       </p>
       {#if gAns}
         <div class="ae-ans" role="status" data-gemini-answer>

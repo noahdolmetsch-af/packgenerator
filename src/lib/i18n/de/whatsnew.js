@@ -1415,6 +1415,19 @@ export default {
   'A test keeps every page short on the phone': 'Ein Test hält jede Seite am Handy kurz',
   'Tap Plan in the bar: the tabs show Week, Appointments, Notes, Inbox and more.': 'Tippe in der Leiste auf Planen: Die Reiter zeigen Woche, Termine, Notizen, Eingang und mehr.',
   'Tap Analysis, then the tab Rides: your Strava rides are there.': 'Tippe auf Auswerten, dann auf den Reiter Fahrten: Dort sind deine Strava-Fahrten.',
+  // v0.173.0 «Suche und eigene Werte»
+  'Search and own values': 'Suche und eigene Werte',
+  'Say it, and change every list yourself.': 'Sag es, und pass jede Liste selbst an.',
+  'Talk to the search': 'Sprich mit der Suche',
+  'Say it, the app does it.': 'Sag es, die App macht es.',
+  'Speak into the search: «Chain oiled» runs at once, with Undo': 'Sprich in die Suche: «Kette geölt» läuft sofort, mit Rückgängig',
+  'Questions get an answer from your data': 'Fragen beantwortet die App aus deinen Daten',
+  'Set it up under Me › Search': 'Einstellen unter Ich › Suche',
+  '«Weather Chur» opens the weather page for that place': '«Wetter Chur» öffnet die Wetterseite für diesen Ort',
+  'Your webcams on the live map': 'Deine Webcams auf der Live-Karte',
+  'Phone warning: icy roads in the morning': 'Handy-Warnung: Glätte am Morgen',
+  'Tap the microphone in the search and say «Weight 72».': 'Tippe in der Suche aufs Mikrofon und sag «Gewicht 72».',
+  'Type «Weather Chur» in the search.': 'Tippe «Wetter Chur» in die Suche.',
   // v0.172.0 «Velo und Notizen»
   'Bike and notes': 'Velo und Notizen',
   'Look after the bike, keep everything in notes.': 'Velo pflegen, alles in Notizen festhalten.',
@@ -1483,4 +1496,13 @@ export default {
   'Ride, write, recover.': 'Fahren, schreiben, erholen.',
   'Live map: pause, sensors, turn hints, detours': 'Live-Karte: Pause, Sensoren, Abbiegehinweise, Umweg',
   'Heatmap, check questions, Zürisee': 'Heatmap, Check-Fragen, Zürisee',
+  // 0.175.0 «Eigene Werte und alle Daten anpassbar»
+  'Your own values': 'Deine eigenen Werte',
+  'Change every list yourself.': 'Jede Liste selbst ändern.',
+  'Own reminders: every N km or days': 'Eigene Erinnerungen: alle N km oder Tage',
+  'Own body values from your questions': 'Eigene Körperwerte aus deinen Fragen',
+  'Six more lists to change': 'Sechs weitere Listen zum Ändern',
+  'The app asks in its own window': 'Die App fragt im eigenen Fenster',
+  'Open Me › Own values › «+ Own reminder».': 'Öffne Ich › Eigene Werte › «+ Eigene Erinnerung».',
+  'Open Me › Lists and types › Kinds of bike.': 'Öffne Ich › Listen und Typen › Velo-Arten.',
 };

@@ -83,3 +83,31 @@ describe('forecast against what came', () => {
     expect(h[0]).toMatchObject({ date: '2026-07-11', dT: -3, rainHit: false });
   });
 });
+
+describe('webcams on the live map', async () => {
+  const { setPlace, camsOnMap, placeOf } = await import('../src/lib/wetter/webcams.js');
+  it('a cam gets a place, shows on the map, and leaves it again', () => {
+    let l = addCam([], { name: 'Passhöhe', url: 'https://example.org/pass.jpg' }, 1);
+    l = addCam(l, { name: 'See', url: 'https://example.org/see' }, 2);
+    expect(camsOnMap(l)).toEqual([]);
+    l = setPlace(l, l[0].id, { name: 'Testpass', lat: 46.5, lon: 8.4 });
+    expect(camsOf(l)[0].place).toEqual({ name: 'Testpass', lat: 46.5, lon: 8.4 });
+    const pts = camsOnMap(l);
+    expect(pts).toEqual([{ id: l[0].id, cam: l[0].id, lat: 46.5, lon: 8.4, kind: 'webcam', name: 'Passhöhe', minZoom: 0 }]);
+    l = setPlace(l, l[0].id, null);
+    expect(camsOf(l)[0].place).toBeUndefined();
+    expect(camsOnMap(l)).toEqual([]);
+  });
+  it('drops a broken place', () => {
+    expect(placeOf({ lat: 'x', lon: 8 })).toBeNull();
+    expect(placeOf({ lat: 120, lon: 8 })).toBeNull();
+    expect(placeOf(null)).toBeNull();
+    expect(camsOf([{ id: 'cam-1', url: 'https://example.org/a.jpg', place: { lat: 999, lon: 0 } }])[0].place).toBeUndefined();
+  });
+  it('has its own map symbol', async () => {
+    const { KIND_ICON, ICON_SVG } = await import('../src/lib/map/symbols.js');
+    expect(ICON_SVG[KIND_ICON.webcam]).toMatch(/<circle/);
+    const { KIND_TOKEN } = await import('../src/lib/map/maplib.js');
+    expect(KIND_TOKEN.webcam).toBeTruthy();
+  });
+});

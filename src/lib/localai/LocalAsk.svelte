@@ -15,7 +15,8 @@
   import { askModel } from './engine.js';
   import { local, refreshLocal } from './localai.svelte.js';
 
-  let { q = '', lines = [], online = [], name = '' } = $props();
+  // deviceOnly: the top search asks Gemini itself (Ich › Suche, 21.10.2026), so here only the device AI
+  let { q = '', lines = [], online = [], name = '', deviceOnly = false } = $props();
   const able = canRunLocal();
   let net = $state(typeof navigator === 'undefined' ? true : navigator.onLine !== false);
   $effect(() => {
@@ -30,7 +31,7 @@
   });
   if (able && !local.checked) refreshLocal();
 
-  const gemini = $derived(net && dict.gemini && !!helper.code);
+  const gemini = $derived(!deviceOnly && net && dict.gemini && !!helper.code);
   const shown = $derived(able && String(q).trim().length >= 3);
 
   let busy = $state(false);

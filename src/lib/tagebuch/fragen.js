@@ -5,6 +5,8 @@
  * both stay in one place. Mixed topics on purpose: the day, people (never names), body (observation
  * only), rides and trips, nature, learning, dreams, gratitude. Never mandatory: «Other question» or ✕.
  */
+import { listOf, nameOf } from '../applists.js';
+
 export const QUESTIONS = [
   ['What made you smile today?', 'Was hat dich heute zum Lächeln gebracht?'],
   ['What are you grateful for right now?', 'Wofür bist du gerade dankbar?'],
@@ -383,4 +385,27 @@ export function dayOfYear(day) {
 export function questionOf(day, skip = 0, n = QUESTIONS.length) {
   const i = Number.isFinite(dayOfYear(day)) ? dayOfYear(day) : 0;
   return (((i + skip * 37) % n) + n) % n;
+}
+
+/*
+ * «Alle Daten anpassbar» (Noah 21.10.2026 «4a»): the questions are a list of «Listen und Typen»
+ * (applists.js 'journalQuestions'): rename, own ones, hide, delete, order. The question of the
+ * day is taken from the questions you have (hidden and deleted ones are skipped), in your order. An
+ * entry keeps its question as before: a Standard question by its number (e.q 12), an own one by its
+ * id (e.q 'own-…'), so old entries and old backups stay as they are.
+ */
+export const JOURNAL_Q_STD = QUESTIONS.map((q, i) => ({ id: `q${i}`, name: q[0] }));
+/** The questions offered as the question of the day. */
+export const dayQuestions = () => listOf('journalQuestions', JOURNAL_Q_STD).filter((e) => !e.hidden);
+/** What an entry stores for a question id: the number of a Standard question, an own id as it is. */
+export const qRef = (id) => (/^q\d+$/.test(id ?? '') ? Number(id.slice(1)) : (id ?? null));
+/** The question of `day` as stored in an entry (see qRef); null when there is no question at all. */
+export function questionRef(day, skip = 0) {
+  const list = dayQuestions();
+  return list.length ? qRef(list[questionOf(day, skip, list.length)].id) : null;
+}
+/** The text of a stored question (a renamed or own one as typed); '' when it is unknown. */
+export function questionText(ref, tr = (s) => s) {
+  if (Number.isInteger(ref)) return QUESTIONS[ref] ? nameOf('journalQuestions', JOURNAL_Q_STD, `q${ref}`, tr) : '';
+  return typeof ref === 'string' && ref ? nameOf('journalQuestions', JOURNAL_Q_STD, ref, tr) : '';
 }

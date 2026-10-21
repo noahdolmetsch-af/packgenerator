@@ -12,7 +12,7 @@
   import { localDay } from '../localday.js';
   import { parseKm } from '../care.js';
   import { hoursOn } from '../bikehours.js';
-  import { KIND_SPEED, kindOf } from '../bikekind.js';
+  import { kindSpeed as speedOfKind, kindOf } from '../bikekind.js';
   import { SERVICE_STD, serviceValues, serviceChange, serviceLast } from '../bikeservice.js';
 
   let { bike, km = null, series = null, onsave, onclose } = $props();
@@ -31,7 +31,7 @@
   // svelte-ignore state_referenced_locally
   let speed = $state(show(bike.avgKmh));
   // svelte-ignore state_referenced_locally
-  const kindSpeed = KIND_SPEED[kindOf(bike)];
+  const kindSpeed = speedOfKind(kindOf(bike));
   let error = $state('');
 
   $effect(() => dialog.showModal());

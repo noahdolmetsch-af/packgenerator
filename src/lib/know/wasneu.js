@@ -115,6 +115,8 @@ export const SINCE = {
   'f.dictate': '0.155.0', 'f.askfurther': '0.155.0', 'f.aiprojects': '0.155.0',
   // «Erster Start» (v0.170.0)
   'f.firststart': '0.170.0',
+  // «Eigene Werte und alle Daten anpassbar» (Noah 21.10.2026, v0.173.0)
+  'f.ownreminders': '0.173.0', 'f.ownbody': '0.173.0', 'f.listsmore': '0.173.0',
   // Paket X «Umweg neu planen» (v0.170.0)
   'f.reroute': '0.170.0',
   // Paket X/Y parts 2–4 (v0.171.0)
@@ -122,6 +124,9 @@ export const SINCE = {
   'f.gpxstops': '0.171.0',
   'f.weather': '0.171.0',
   'f.webcams': '0.171.0',
+  // Paket Wetter «Webcams auf der Live-Karte und Glätte» (v0.173.0)
+  'f.webcammap': '0.173.0',
+  'f.icepush': '0.173.0',
   // Paket W «Von der Haustür bis zurück» (v0.170.0)
   'f.arrived': '0.170.0', 'f.planb': '0.170.0', 'f.checkin': '0.170.0', 'f.parked': '0.170.0',
   // Paket Z and SP (v0.171.0)
@@ -133,6 +138,7 @@ export const SINCE = {
   'f.trainplans': '0.157.0', 'f.feel': '0.157.0',
   // «Heatmap» (v0.170.0)
   'f.heatmap': '0.170.0',
+  'f.searchvoice': '0.173.0', // «Suche mit Sprache und Antworten» (Noah 21.10.2026), v0.173.0
   // Paket U4 «Schlafplätze im Rennen» (v0.171.0)
   'f.sleeptonight': '0.171.0', 'f.callhotels': '0.171.0', 'f.powernap': '0.171.0', 'f.sleeplists': '0.171.0', 'f.nightswx': '0.171.0',
   // Paket NE «Notizen wie Evernote» part 1 (v0.172.0)

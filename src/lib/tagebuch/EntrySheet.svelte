@@ -19,8 +19,8 @@
   import { localDay } from '../localday.js';
   import { cleanTag, cleanTags, isEmpty, WEATHER_WORDS, weatherKind, wordCount } from './journal.js';
   import { saveEntry, deleteEntry, restoreEntry, dayThings, weatherPlace, weatherNow } from './journaldb.js';
-  import { QUESTIONS } from './fragen.js';
-  import { MOODS } from './insights.js';
+  import { questionText } from './fragen.js';
+  import { MOODS, moodName } from './insights.js';
   import { diaryAi, cleanTitle } from './ai.js';
   import { geminiError } from '../assistent/gemini.js';
   import { t, tn, lang } from '../i18n.svelte.js';
@@ -39,7 +39,7 @@
   let photoBusy = $state(false);
   let tagIn = $state('');
   let textEl = $state(null);
-  const question = $derived(Number.isInteger(e.q) ? QUESTIONS[e.q]?.[0] : null);
+  const question = $derived(questionText(e.q, t) || null); // already in the language (a typed one as it is)
   const words = $derived(wordCount(e.text));
 
   $effect(() => {
@@ -175,7 +175,7 @@
     <div class="vd-head">
       <div class="vd-t">
         <h2 id="tbe-h">{isNew ? t('New entry') : t('Change entry')}</h2>
-        {#if question}<p class="vd-sub tbe-q" data-tb-question-in>{t(question)}</p>{/if}
+        {#if question}<p class="vd-sub tbe-q" data-tb-question-in>{question}</p>{/if}
       </div>
       <button type="button" class="tbe-star" aria-pressed={e.star} aria-label={t('Favourite')} title={t('Favourite')} onclick={() => (e.star = !e.star)} data-tb-star><Star size={20} aria-hidden="true" fill={e.star ? 'currentColor' : 'none'} /></button>
       <button type="button" class="vd-x" aria-label={t('Close')} onclick={() => dialog.close()}><X size={20} aria-hidden="true" /></button>
@@ -188,7 +188,7 @@
       <div class="tbe-moods" role="group" aria-label={t('How was your day?')}>
         <span class="tbe-mood-q">{t('How was your day?')}</span>
         {#each MOODS as m (m.v)}
-          <button type="button" class="tbe-mood" aria-pressed={e.mood === m.v} aria-label={t(m.name)} title={t(m.name)} onclick={() => (e.mood = e.mood === m.v ? null : m.v)} data-tb-mood={m.v}><span aria-hidden="true">{m.emoji}</span></button>
+          <button type="button" class="tbe-mood" aria-pressed={e.mood === m.v} aria-label={moodName(m.v, t)} title={moodName(m.v, t)} onclick={() => (e.mood = e.mood === m.v ? null : m.v)} data-tb-mood={m.v}><span aria-hidden="true">{m.emoji}</span></button>
         {/each}
       </div>
       <input class="inp tbe-title" maxlength="140" bind:value={e.title} placeholder={t('Title (optional)')} aria-label={t('Title')} data-tb-title />
