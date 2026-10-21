@@ -803,7 +803,7 @@ export const HANDBOOK = {
   },
   'f.journal': {
     on: null,
-    steps: ['Open Me › Diary and tap «New entry», or «Dictate an entry» to speak.', 'Add photos, tags, place and weather; «From the app» adds the rides, sleep and notes of that day.'],
+    steps: ['Open Plan › Diary and tap «New entry», or «Dictate an entry» to speak.', 'Add photos, tags, place and weather; «From the app» adds the rides, sleep and notes of that day.'],
     example: 'Example: the question of the day «What made you smile today?» → «Answer by speaking» → three sentences in one minute.',
   },
   'f.impulse': {

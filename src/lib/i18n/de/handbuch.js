@@ -1137,7 +1137,7 @@ export default {
   'Tap a sport for its page (7 days, 4 weeks, 1 year), or the heart rate tile for resting and highest pulse per day.': 'Tipp eine Sportart an für ihre Seite (7 Tage, 4 Wochen, 1 Jahr) oder die Puls-Kachel für Ruhepuls und höchsten Puls pro Tag.',
   'Example: «In focus» Bike shows 100.7 km and 5:54:01 in the last 7 days, one bar per day.': 'Beispiel: «Im Fokus» Velo zeigt 100.7 km und 5:54:01 in den letzten 7 Tagen, ein Balken pro Tag.',
   // «Tagebuch»: f.journal
-  'Open Me › Diary and tap «New entry», or «Dictate an entry» to speak.': 'Öffne Ich › Tagebuch und tipp «Neuer Eintrag», oder «Eintrag diktieren» zum Sprechen.',
+  'Open Plan › Diary and tap «New entry», or «Dictate an entry» to speak.': 'Öffne Planen › Tagebuch und tipp «Neuer Eintrag», oder «Eintrag diktieren» zum Sprechen.',
   'Add photos, tags, place and weather; «From the app» adds the rides, sleep and notes of that day.': 'Füg Fotos, Stichwörter, Ort und Wetter hinzu; «Aus der App» bringt die Fahrten, den Schlaf und die Notizen dieses Tages.',
   'Example: the question of the day «What made you smile today?» → «Answer by speaking» → three sentences in one minute.': 'Beispiel: die Frage des Tages «Was hat dich heute zum Lächeln gebracht?» → «Sprechend antworten» → drei Sätze in einer Minute.',
   // Live-Karte Teil 1–3 (Noah 20.10.2026): «Was die App kann», Handbuch und «So geht's»
