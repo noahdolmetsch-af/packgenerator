@@ -18,8 +18,10 @@ export const daysBetween = (a, b) => Math.round((day0(b) - day0(a)) / 864e5);
  * Where the trip stands in time. → { key, vars } for t(), or null without a trip.
  * key: 'No date yet' | 'Today' | 'Tomorrow' | 'In {n} days' | 'Day {n} of {m}' | 'Back since today' |
  *      'Back since yesterday' | 'Back for {n} days'
+ * The one source for every countdown: the tour page's chip and Today's countdown (heute.js countdown).
+ * byDate: only the dates count (Today shows a trip ended early as under way until its last day).
  */
-export function countdownOf(trip, today) {
+export function countdownOf(trip, today, { byDate = false } = {}) {
   if (!trip) return null;
   const start = trip.startDate;
   if (!start) return { key: 'No date yet', vars: {} };
@@ -29,11 +31,12 @@ export function countdownOf(trip, today) {
     const n = daysBetween(today, start);
     return n === 1 ? { key: 'Tomorrow|tour', vars: {} } : { key: 'In {n} days|tour', vars: { n } };
   }
-  if (today <= end && !trip.finished) {
+  const finished = !byDate && trip.finished;
+  if (today <= end && !finished) {
     if (days === 1) return { key: 'Today|tour', vars: {} };
     return { key: 'Day {n} of {m}|tour', vars: { n: daysBetween(start, today) + 1, m: days } };
   }
-  const back = Math.max(0, daysBetween(trip.finished && today <= end ? today : end, today));
+  const back = Math.max(0, daysBetween(finished && today <= end ? today : end, today));
   if (back === 0) return { key: 'Back since today', vars: {} };
   if (back === 1) return { key: 'Back since yesterday', vars: {} };
   return { key: 'Back for {n} days', vars: { n: back } };

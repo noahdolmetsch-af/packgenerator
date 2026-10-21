@@ -22,6 +22,9 @@ describe('the countdown chip (#10)', () => {
     expect(countdownOf(trip(), '2026-10-26')).toEqual({ key: 'Back for {n} days', vars: { n: 2 } });
     expect(countdownOf(trip({ finished: true }), '2026-10-23').key).toBe('Back since today');
   });
+  it('one source with Today: byDate counts only the dates', () => {
+    expect(countdownOf(trip({ finished: true }), '2026-10-23', { byDate: true })).toEqual({ key: 'Day {n} of {m}|tour', vars: { n: 2, m: 3 } });
+  });
   it('one sentence with a number', () => {
     expect(sayOf(trip({ startDate: '2026-10-25' }), '2026-10-20', { items: 30, open: 12 })).toEqual({ key: '{open} of {n} things still to pack.', vars: { open: 12, n: 30 } });
     expect(sayOf(trip(), '2026-10-26', { km: 182.4 })).toEqual({ key: '{km} km behind you.', vars: { km: 182 } });

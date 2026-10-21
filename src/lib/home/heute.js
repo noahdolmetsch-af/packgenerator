@@ -15,6 +15,7 @@
 import { t, tn, num } from '../i18n.svelte.js';
 import { localDay } from '../localday.js';
 import { tripEnd } from '../debrief.js';
+import { countdownOf } from '../touren/tourstep.js';
 import { greetFor } from './hallo.js'; // HG1
 import { RAIN_LIMIT, wetPct } from '../rainlimit.svelte.js';
 import { partOfDay, isEveningOn } from '../dayclock.js';
@@ -102,27 +103,27 @@ export function dayDry(forecast, date, fromHour = 9) {
 /* ---------- the next trip ---------- */
 
 const ms = (iso) => Date.parse(`${iso}T00:00:00Z`);
-const daysBetween = (a, b) => Math.round((ms(b) - ms(a)) / 864e5);
 /** The hour a trip day starts, for "22 h to go". */
 export const START_HOUR = 8;
 
 /**
  * The countdown of a trip (Noah 8a): { text, near } with near = today, tomorrow or under way.
  * "Today", "On the way · day 2", "Tomorrow · 22 h to go", "In 5 days", "No date set".
+ * 0.176 «Eine Tour, eine Seite»: the days come from touren/tourstep.js countdownOf (one source with the
+ * tour page's chip); Today keeps its own words and the hours before tomorrow's start.
  */
 export function countdown(trip, now = new Date()) {
-  if (!trip?.startDate) return { text: t('No date set'), near: false };
-  const today = localDay(now);
-  const end = tripEnd(trip) ?? trip.startDate;
-  const n = daysBetween(today, trip.startDate);
-  if (n <= 0 && today <= end) return n === 0 ? { text: Number(trip.days) > 1 ? t('On the way · day {n} of {m}', { n: 1, m: Number(trip.days) }) : t('Today|countdown'), near: true, under: true } : { text: Number(trip.days) > 1 ? t('On the way · day {n} of {m}', { n: 1 - n, m: Number(trip.days) }) : t('On the way|countdown'), near: true, under: true };
-  if (n < 0) return { text: t('Over|countdown'), near: false };
-  if (n === 1) {
+  const c = countdownOf(trip, localDay(now), { byDate: true });
+  if (!c || c.key === 'No date yet') return { text: t('No date set'), near: false };
+  if (c.key === 'Today|tour') return { text: t('Today|countdown'), near: true, under: true };
+  if (c.key === 'Day {n} of {m}|tour') return { text: t('On the way · day {n} of {m}', c.vars), near: true, under: true };
+  if (c.key === 'Tomorrow|tour') {
     const [y, m, d] = trip.startDate.split('-').map(Number);
     const h = Math.max(1, Math.round((new Date(y, m - 1, d, START_HOUR).getTime() - now.getTime()) / 36e5));
     return { text: t('Tomorrow · {h} h to go', { h }), near: true };
   }
-  return { text: tn(n, 'In {n} day', 'In {n} days'), near: false };
+  if (c.key === 'In {n} days|tour') return { text: tn(c.vars.n, 'In {n} day', 'In {n} days'), near: false };
+  return { text: t('Over|countdown'), near: false };
 }
 
 /**
