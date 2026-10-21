@@ -73,10 +73,17 @@ export default {
   'connected · as of {when}': 'verbunden · Stand {when}',
   'connected|fitbit': 'verbunden',
   // «Fitbit holt nicht mehr» (21.10.2026): the reason of the last failed fetch stays visible
-  'Google gives no access to these values. Connect again and tick all values.': 'Google gibt keinen Zugriff auf diese Werte. Verbinde neu und hake alle Werte an.',
+  'Google refuses the Fitbit values right now. The reason is noted on the server.': 'Google verweigert gerade die Fitbit-Werte. Der Grund ist auf dem Server notiert.',
+  'Fitbit is connected, but Google refuses the values right now.': 'Fitbit ist verbunden, aber Google verweigert gerade die Werte.',
   'The server has done enough for today. It works again tomorrow.': 'Der Server hat heute genug gearbeitet. Morgen geht es wieder.',
   'today {time}|fitbit': 'heute {time}',
   'Last try: {when}|fitbit': 'Zuletzt versucht: {when}.',
   'Google did not give these values this time: {list}': 'Diese Werte hat Google diesmal nicht geliefert: {list}',
   'Connect Google again': 'Google neu verbinden',
+  // Heute without a Fitbit value (21.10.2026): connected, so say why instead of «Verbinde Fitbit»
+  'Fitbit is connected, but Google needs a new login.': 'Fitbit ist verbunden, aber Google braucht eine neue Anmeldung.',
+  'Fitbit is connected, but the last fetch did not work.': 'Fitbit ist verbunden, aber das letzte Holen hat nicht geklappt.',
+  'No Fitbit values for today yet. The last ones are from {date}.': 'Noch keine Fitbit-Werte von heute. Die letzten sind vom {date}.',
+  'No Fitbit values yet.': 'Noch keine Fitbit-Werte.',
+  'To Fitbit': 'Zu Fitbit',
 };
