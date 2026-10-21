@@ -17,6 +17,7 @@
   import Help from './ui/Help.svelte';
   import BeforeUpdates from './maintenance/BeforeUpdates.svelte';
   import StartFresh from './maintenance/StartFresh.svelte';
+  import NamesDe from './clear/NamesDe.svelte';
   import SyncPanel from './sync/SyncPanel.svelte';
   import { SYNC_WISH } from './sync/nudge.js';
   import { take } from './nav.js';
@@ -613,6 +614,8 @@
         {:else if $examplesQ}<li><button type="button" class="ich-row" onclick={getExamples} disabled={getting || !!$demoQ} data-row="get-examples"><span class="ich-ib"><Sparkles size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t('Get the examples')}</b><small>{t('Two made-up trips, a bike and gear to try things out; your own data stays')}</small></span><ChevronRight class="ich-chev" size={18} aria-hidden="true" /></button></li>{/if}
       </ul>
     </section>
+    <!-- «Englische Namen auf Deutsch» (Noah 21.10.2026 «1a»): only while there are English names to suggest -->
+    <NamesDe />
     <!-- Paket H (Noah 19.10.2026 «1a … auf null setzen und so frisch beginnen»): delete all and start from zero.
          Impeccable P6: its own last section «Delete everything», away from the backup buttons -->
     <StartFresh />
