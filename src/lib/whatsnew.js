@@ -20,16 +20,15 @@ export const WHATS_NEW = [
     version: '0.177.0',
     date: '2026-10-21',
     title: 'Like Strava, only calmer',
-    lead: 'Your rides like on Strava, a calmer daily check and less to carry.',
+    lead: 'Rides like on Strava.',
     points: [
-      { text: 'Look back: overview, Peak Power and map like on Strava', href: '#/trips' },
-      { text: 'Daily check: date and time on every check', href: '#/check/morning' },
-      { text: 'Building blocks: tidy up what always comes along', href: '#/blocks/aufraeumen' },
+      { text: 'Look back like on Strava', href: '#/trips' },
+      { text: 'Daily check with date and time', href: '#/check/morning' },
+      { text: 'Tidy up building blocks', href: '#/blocks/aufraeumen' },
     ],
     small: [
-      { box: 'new', text: 'The timeline comes from Strava: pauses, best times, climbs and photos' },
-      { box: 'nicer', text: 'Strava names and English names in German' },
-      { box: 'new', text: 'On the way: the eat reminder your way', href: '#/ride' },
+      { box: 'new', text: 'Timeline from Strava with photos' },
+      { box: 'nicer', text: 'Strava names in German' },
     ],
     test: [
       'Open a past trip and tap «Analysis»: the overview looks like on Strava.',
