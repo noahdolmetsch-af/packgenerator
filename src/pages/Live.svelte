@@ -284,6 +284,10 @@
     });
   });
 
+  // Noah 21.10.2026 (picture): the round Pause and lap buttons sit over the bottom fields of a data page;
+  // the fields end above them (button 56 px + 12 px gap + a little air)
+  const DP_BUTTONS = 76;
+
   /* ---------- the stops from outside ---------- */
   let busy = $state('');
   let msg = $state('');
@@ -867,7 +871,7 @@
       <button type="button" class="lvf-ic" onclick={() => ((choose = true), openSheet('full'))} aria-label={t('Choose numbers')} data-live-choose><SlidersHorizontal size={20} aria-hidden="true" /></button>
     </div>
 
-    <div class="lvf-stage" bind:clientHeight={stageH} bind:clientWidth={stageW} style:--dp-pad="{stageW >= 900 ? 0 : sheetPx}px">
+    <div class="lvf-stage" bind:clientHeight={stageH} bind:clientWidth={stageW} style:--dp-pad="{(stageW >= 900 ? 0 : sheetPx) + DP_BUTTONS}px">
       <DataPages barTop set={dpSet} fields={dpFields} values={dpValues} {series} {profileAhead} route={hasRoute} bind:index={dpIndex} onedit={(pid) => ((dpEdit = pid), (dpOpen = true), openSheet('full'))}>
         {#snippet map()}
           <MapView

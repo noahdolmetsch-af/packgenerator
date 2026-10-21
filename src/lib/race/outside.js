@@ -10,7 +10,7 @@
  * Pure parsers are tested in tests/race.test.js; the fetchers take a fetcher for tests.
  */
 import { snap } from './race.js';
-import { queued } from '../route/oneatatime.js';
+import { queued, postTimed } from '../route/oneatatime.js';
 
 export const OVERPASS = 'https://overpass-api.de/api/interpreter';
 export const POI_CACHE = 'race-poi:';
@@ -117,7 +117,7 @@ function extraOf(tags) {
 
 /** Fetch the places (throws with a plain reason). */
 export async function fetchPois(pts, fetcher = fetch) {
-  const res = await queued(() => fetcher(OVERPASS, { method: 'POST', body: `data=${encodeURIComponent(poiQuery(pts))}`, headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }));
+  const res = await queued(() => postTimed(fetcher, OVERPASS, { method: 'POST', body: `data=${encodeURIComponent(poiQuery(pts))}`, headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }, 70_000));
   if (!res.ok) throw new Error(res.status === 429 ? 'busy' : 'failed');
   return poisFrom(await res.json(), pts);
 }
