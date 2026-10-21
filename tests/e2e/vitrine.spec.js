@@ -4,6 +4,7 @@
 // German. No sideways scroll, no page errors. Fictional data only.
 import { test, expect } from '@playwright/test';
 import DE from '../../src/lib/i18n/de/index.js';
+import { TABS } from './placetab.js';
 
 const T = (en, vars) => {
   const s = DE[en] ?? en.replace(/\|[a-z]+$/, '');
@@ -70,7 +71,7 @@ test('Trophäen-Vitrine: from the shelf to all stars by area and year', async ({
   await expect(link).toHaveText(T('See all trophies'));
   await link.click();
   await expect(page).toHaveURL(/#\/flow\/trophies$/);
-  await expect(page.locator('.ptabs').getByRole('link', { name: T('Activity|tab'), exact: true })).toHaveAttribute('aria-current', 'page');
+  await expect(page.locator(TABS).getByRole('link', { name: T('Activity|tab'), exact: true })).toHaveAttribute('aria-current', 'page');
 
   // TV1: over all first, then Meditation; per milestone one badge, the next one dashed
   await expect(main.getByRole('heading', { level: 1, name: T('Trophy showcase') })).toBeVisible();

@@ -16,20 +16,36 @@
   import AnaPlan from '../inhalt/AnaPlan.svelte';
   import AnaDecouple from '../inhalt/AnaDecouple.svelte';
   import AnaFtp from '../inhalt/AnaFtp.svelte';
+  import Help from '../../ui/Help.svelte';
+  import { phone } from '../../media.svelte.js';
 
   let { acts = [], today = '' } = $props();
   const CARDS = { form: AnaForm, wload: AnaWLoad, pcurve: AnaPCurve, eff: AnaEff, month: AnaMonth, year: AnaYear, plan: AnaPlan, decouple: AnaDecouple, ftp: AnaFtp };
   const keys = $derived(keysOf(ana, 'week'));
+  // Impeccable 20.10.2026 P3 (Noah «alles umsetzen»): on a phone two analyses are open, the others come with one tap
+  const FIRST = 2;
+  let all = $state(false);
+  const shown = $derived(phone.matches && !all ? keys.slice(0, FIRST) : keys);
 </script>
 
 <section class="wka" aria-labelledby="wka-h" data-section="week-analyses">
   <AnaHead id="wka-h" title={t('Analyses over the weeks')} groups={['week']} />
+  <p class="words">{t('What the words mean')}
+    <Help label={t('What the words mean')}>
+      <p>{t('FTP: the power you can hold for about an hour. The app estimates it from your rides.')}</p>
+      <p>{t('Load: how hard a ride was, from its time and its intensity (TSS).')}</p>
+      <p>{t('Z1 to Z5: the five heart rate or power zones, from very easy (Z1) to very hard (Z5).')}</p>
+    </Help>
+  </p>
   <div class="grid">
-    {#each keys as k (k)}
+    {#each shown as k (k)}
       {@const C = CARDS[k]}
       <C {acts} {today} />
     {/each}
   </div>
+  {#if shown.length < keys.length}
+    <button type="button" class="btn more" onclick={() => (all = true)} data-more-analyses>{t('{n} more analyses', { n: keys.length - shown.length })}</button>
+  {/if}
 </section>
 
 <style>
@@ -38,6 +54,17 @@
     flex-direction: column;
     gap: var(--sp-3);
     min-width: 0;
+  }
+  .words {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-1);
+    margin: 0;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+  }
+  .more {
+    align-self: flex-start;
   }
   .grid {
     display: grid;

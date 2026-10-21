@@ -7,6 +7,7 @@ import { test, expect } from '@playwright/test';
 import DE from '../../src/lib/i18n/de/index.js';
 import { FAV_SEED } from '../../src/lib/flowtiles.js';
 import { FUN_IDEAS } from '../../src/lib/flowsugg.js';
+import { TABS, tapTab } from './placetab.js';
 
 const T = (en, vars) => {
   const s = DE[en] ?? en.replace(/\|[a-z]+$/, '');
@@ -70,11 +71,11 @@ test('Aktivität: the link, six tiles, rename, the editor, a suggestion, an idea
   const errors = await open(page, context, '#/flow');
   const main = page.locator('main');
   // the tab «Aktivität» on top of Aktiv (after «Fünf Orte» 2); «Ziele» is not lit there
-  const tabs = page.locator('.ptabs');
-  await tabs.getByRole('link', { name: T('Activity|tab'), exact: true }).click();
+  const tabs = page.locator(TABS);
+  await tapTab(page, T('Activity|tab'));
   await expect(page).toHaveURL(/#\/flow\/activity$/);
   await expect(tabs.getByRole('link', { name: T('Activity|tab'), exact: true })).toHaveAttribute('aria-current', 'page');
-  await expect(tabs.getByRole('link', { name: T('Activities|tab'), exact: true })).not.toHaveAttribute('aria-current', 'page');
+  await expect(tabs.locator('a[aria-current="page"]')).toHaveText(T('Activity|tab')); // only one tab is lit (Impeccable P1: on a phone «Ziele» may sit under «Mehr»)
   await expect(main.getByRole('heading', { level: 1, name: T('Activity|tab') })).toBeVisible();
 
   // the six favourites with their playful names, in the seed order
@@ -105,7 +106,7 @@ test('Aktivität: the link, six tiles, rename, the editor, a suggestion, an idea
   await main.locator('[data-tile="yoga"]').click(); // Design-Refresh P8: the tile itself is the link
   await expect(page).toHaveURL(/#\/flow\/edit\/yoga\?from=activity$/);
   await expect(tabs.getByRole('link', { name: T('Activity|tab'), exact: true })).toHaveAttribute('aria-current', 'page');
-  await main.locator('a[href="#/flow/activity"]:not(.ptabs a)').first().click(); // the editor's own back link (Design-Refresh P8: the crumb; «Abbrechen» leads there too)
+  await main.locator('a[href="#/flow/activity"]:not(.ptabs a)').filter({ visible: true }).first().click(); // the editor's own back link (Design-Refresh P8: the crumb; «Abbrechen» leads there too)
   await expect(page).toHaveURL(/#\/flow\/activity$/);
 
   // a suggestion that is not an activity yet: one tap makes it one and ticks it

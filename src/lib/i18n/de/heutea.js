@@ -94,4 +94,9 @@ export default {
   'Diary|tile': 'Tagebuch',
   "Write today's entry in your diary, or dictate it.": 'Schreib den Eintrag von heute ins Tagebuch, oder diktiere ihn.',
   'write or dictate': 'schreiben oder diktieren',
+  // Körperwerte and the countdown chip (Noah 21.10.2026 «ok»)
+  'All body values': 'Alle Körperwerte',
+  'Connect Fitbit and your body values show here.': 'Verbinde Fitbit, dann stehen hier deine Körperwerte.',
+  'Resting pulse, HRV, sleep, steps, active zone minutes and calories of today; a tap opens its chart.': 'Ruhepuls, HRV, Schlaf, Schritte, Aktivzonen-Minuten und Kalorien von heute; ein Tipp öffnet die Kurve.',
+  'Countdown to the next trip|goal': 'Countdown zur nächsten Tour',
 };

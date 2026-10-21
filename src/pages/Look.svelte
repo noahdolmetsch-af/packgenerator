@@ -25,6 +25,8 @@
   import { glove, setGlove } from '../lib/unterwegs/handschuh.svelte.js';
   import { MODES as GLOVE_MODES } from '../lib/unterwegs/handschuh.js';
   import DictSettings from '../lib/ui/DictSettings.svelte'; // «Diktat und Fragen» (Noah 19.10.2026)
+  import LookSection from '../lib/anpassen/LookSection.svelte'; // «Anpassen» (Noah 20.10.2026): Seiten und Menü
+  import LocalAiSettings from '../lib/localai/LocalAiSettings.svelte'; // «KI im Gerät» (Noah 20.10.2026)
 
   const FIRST = 4;
   let allFonts = $state(false);
@@ -129,6 +131,7 @@
           {/each}
         </ul>
         {#if ops.speak}<DictSettings />{/if}
+        <LocalAiSettings />
       </section>
       <!-- Paket Q #361: every area where the app suggests by itself can be switched off (all on at the start) -->
       <section aria-labelledby="look-sugg" data-suggest-areas>
@@ -145,6 +148,8 @@
           {/each}
         </ul>
       </section>
+      <!-- «Anpassen» (Noah 20.10.2026 «1a 2a 5a»): the menu and every page you changed -->
+      <LookSection />
     </div>
 
     <!-- a picture of the choice, not a working page: hidden from screen readers and from the keyboard -->

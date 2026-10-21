@@ -131,10 +131,13 @@ describe('Lenker-Ansicht (#114)', () => {
 
 describe('Wasser- und Essen-Rechner (#322)', () => {
   it('counts litres, refills, kcal and the food against the packing list', () => {
-    const r = waterFood({ days: [{ hours: 6, hot: true }, { hours: 4 }], bottles: 1.5, food: [{ id: 'bar', name: 'Riegel', perHours: 1, qty: 8 }, { id: 'x', name: 'x', perHours: 0 }] });
-    expect(r.days[0]).toEqual({ hours: 6, waterL: 4.5, refills: 2, kcal: 1500 });
-    expect(r.days[1].waterL).toBe(2);
-    expect(r.total).toEqual({ hours: 10, waterL: 6.5, refills: 3, kcal: 2500 });
+    // the one energy rule (energie.js): water by the temperature from your Verpflegung values, kcal from 60 g carbs/h
+    const fuel = { coolLh: 0.5, hotLh: 1.5, coolC: 15, hotC: 30 };
+    const r = waterFood({ days: [{ hours: 6, hot: true }, { hours: 4 }], bottles: 1.5, fuel, food: [{ id: 'bar', name: 'Riegel', perHours: 1, qty: 8 }, { id: 'x', name: 'x', perHours: 0 }] });
+    expect(r.days[0]).toEqual({ hours: 6, waterL: 9, refills: 5, kcal: 1800 });
+    expect(r.days[1].waterL).toBe(3.3);
+    expect(r.total).toEqual({ hours: 10, waterL: 12.3, refills: 7, kcal: 3000 });
+    expect(waterFood({ days: [{ hours: 2, temp: 15 }], fuel }).days[0].waterL).toBe(1);
     expect(r.food).toEqual([{ id: 'bar', name: 'Riegel', need: 10, have: 8, short: 2 }]);
     expect(waterFood({ days: [{ hours: 2 }] }).total.refills).toBe(null);
     expect(hotDay([{ temp: 20 }, { temp: 26 }])).toBe(true);

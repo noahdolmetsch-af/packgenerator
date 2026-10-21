@@ -33,13 +33,28 @@ test.describe('HA Heute neu A', () => {
     await expect(body.locator('[data-body="sleep"] b')).toHaveText(/7[.,]5 h/);
     await expect(body.locator('[data-body="azm"] b')).toHaveText('12');
     await expect(body.locator('[data-body-check]')).toBeVisible();
+    // Fitbit everywhere (Noah 20.10.2026 22:21): the balance shows the measured pulse and today's active zone minutes
+    const pc = page.locator('[data-section="balance"] [data-pc="body"]');
+    await expect(pc).toContainText('55');
+    await expect(pc.locator('[data-body-azm]')).toContainText('12');
+    await expect(pc).toContainText(T('measured with Fitbit|body'));
+    // Noah 21.10.2026 «Körperwerte und countdown ok»: the body values right under the two tiles, each into its chart
+    const vit = page.locator('[data-section="vitals"]');
+    await expect(vit.getByRole('heading', { name: T('Body values') })).toBeVisible();
+    await expect(vit.locator('[data-vital="rhr"]')).toContainText('55');
+    await expect(vit.locator('[data-vital="rhr"]')).toHaveAttribute('href', '#/flow/stats/hr');
+    await expect(vit.locator('[data-vital="sleep"]')).toContainText(/7[.,]5/);
+    // the countdown chip to the next trip (tomorrow), with the trip's own name
+    const chip = page.locator('[data-goals] [data-goal-countdown]');
+    await expect(chip).toContainText('Herbstrunde');
+    await expect(chip).toContainText(T('Tomorrow · {h} h to go', { h: 23 }).split('·')[0].trim());
     const acts = page.locator('[data-section="acts"]');
     await expect(acts.getByRole('heading', { name: T('Active today') })).toBeVisible();
     await expect(acts.locator('[data-act]').first()).toBeVisible();
     expect(await acts.locator('[data-act]').count()).toBeLessThanOrEqual(info.project.name === 'phone' ? 4 : 8);
     // the order of the wall
     const order = await page.evaluate(() => [...document.querySelectorAll('.wall > [data-tile]')].map((x) => x.dataset.tile));
-    expect(order.slice(0, 2)).toEqual(['body', 'acts']);
+    expect(order.slice(0, 3)).toEqual(['body', 'acts', 'vitals']);
     for (const id of ['week', 'balance', 'bikes']) expect(order, id).toContain(id);
     expect(order.indexOf('week')).toBeLessThan(order.indexOf('bikes'));
     expect(order.indexOf('balance')).toBeLessThan(order.indexOf('bikes'));

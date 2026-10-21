@@ -9,6 +9,7 @@
    * Props: trip (with route.line), fetcher (for tests).
    */
   import { db } from '../db.js';
+  import GpxStops from './GpxStops.svelte';
   import { loadPois, readPois, fitsRoute, countKinds, osmUrl, AROUND_M, MAX_POIS } from './pois.js';
   import ChipChoice from '../ui/ChipChoice.svelte';
   import { t, tn, num, locale } from '../i18n.svelte.js';
@@ -115,6 +116,7 @@
             </li>
           {/each}
         </ul>
+        <GpxStops route={trip.route} points={shown.map((p) => ({ ...p, note: [`km ${kmOf(p.km)}`, p.open].filter(Boolean).join(' · ') }))} name={trip.title} chips={false} />
         {#if shown.length > FIRST}
           <button class="rp-more" type="button" onclick={() => (all = !all)} aria-expanded={all}>
             {all ? t('Show fewer') : t('Show all {n}', { n: num(shown.length) })}

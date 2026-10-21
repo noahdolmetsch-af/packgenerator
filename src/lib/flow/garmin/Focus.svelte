@@ -126,6 +126,12 @@
     padding-bottom: 4px;
     border-bottom: 1px solid var(--line);
   }
+  /* Handy-Längenbudget: a little lower on a phone */
+  @media (max-width: 640px) {
+    .bars {
+      height: 88px;
+    }
+  }
   .b {
     display: grid;
     grid-template-rows: 1fr auto;

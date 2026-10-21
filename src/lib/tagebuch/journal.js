@@ -8,10 +8,12 @@
  * Where the entries live: rows of the table «frei» with kind 'diary' (Dexie 19, no new table, so no schema
  * change). An entry: { id, kind: 'diary', day: 'YYYY-MM-DD', time: 'HH:MM', at, editedAt, title, text,
  * photos: [{ src }], tags: [name], place: { name, lat, lon } | null, weather: { temp, code } | null,
- * star: bool, q: question index | null, refs: [{ key, text }] }.
+ * star: bool, q: question index | null, refs: [{ key, text }], inks? (Paket NE 1146: the drawings on the photos, draw/ink.js) }.
  * The settings: one settings record { key: 'journal', value: { questions, lock: { salt, hash }, resetAt } }.
  * Pure functions here (tested in tests/tagebuch.test.js); the database parts are in journaldb.js.
  */
+import { pruneInks } from '../draw/ink.js';
+
 export const JOURNAL_KEY = 'journal';
 export const KIND = 'diary';
 export const HREF = '#/tagebuch';
@@ -39,6 +41,8 @@ export function cleanTags(list = []) {
 
 /** A new or changed entry, cleaned. `now`: ISO time (also gives day and time when they are missing). */
 export function newEntry(e = {}, { id, now = new Date().toISOString(), today = null, clock = null } = {}) {
+  const photos = (e.photos ?? []).filter((p) => p?.src).map((p) => ({ src: p.src }));
+  const inks = pruneInks(e.inks, photos.map((p) => p.src));
   return {
     id: id ?? e.id ?? uid(),
     kind: KIND,
@@ -48,13 +52,14 @@ export function newEntry(e = {}, { id, now = new Date().toISOString(), today = n
     editedAt: now,
     title: clean(e.title, 140).trim(),
     text: clean(e.text, 50000),
-    photos: (e.photos ?? []).filter((p) => p?.src).map((p) => ({ src: p.src })),
+    photos,
+    ...(inks ? { inks } : {}),
     tags: cleanTags(e.tags),
     place: e.place && (e.place.name || Number.isFinite(e.place.lat)) ? { name: clean(e.place.name, 80).trim(), ...(Number.isFinite(e.place.lat) ? { lat: e.place.lat, lon: e.place.lon } : {}) } : null,
     weather: e.weather && Number.isFinite(e.weather.temp) ? { temp: Math.round(e.weather.temp), code: Number.isFinite(e.weather.code) ? e.weather.code : null } : null,
     star: !!e.star,
     mood: Number.isInteger(e.mood) && e.mood >= 1 && e.mood <= 5 ? e.mood : null,
-    q: Number.isInteger(e.q) ? e.q : null,
+    q: Number.isInteger(e.q) || (typeof e.q === 'string' && e.q.startsWith('own-')) ? e.q : null, // an own question by its id (Listen und Typen)
     refs: (e.refs ?? []).filter((r) => r?.key).map((r) => ({ key: String(r.key), text: clean(r.text, 300) })),
   };
 }

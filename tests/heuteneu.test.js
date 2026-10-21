@@ -5,7 +5,7 @@ import { describe, it, expect } from 'vitest';
 // «Heute neu» A (20.10.2026) replaced HN4's ready wall; these tests keep HN4's wall (READY_0155) and its reading (wallOf8)
 import { READY_0155 as READY, TILE, REMOVED_0155, ADDED_0155, HEAD_0155, wallOf8 as wallOf, wallRecord, toHN4, tripUp, catalog } from '../src/lib/home/tiles.js';
 import { pinNews, unpinNews } from '../src/lib/know/wasneu.js';
-import { tourNear, addDay, dayCardPart, lastActivity, nextFixed, challengeNow, bodyNow, feltSleep } from '../src/lib/home/heuteneu.js';
+import { tourNear, addDay, dayCardPart, lastActivity, nextFixed, challengeNow, bodyNow, feltSleep, fitbitSleep } from '../src/lib/home/heuteneu.js';
 import { DAY_CLOCK } from '../src/lib/dayclock.js';
 import { CATS } from '../src/lib/balance.js';
 import DE from '../src/lib/i18n/de/index.js';
@@ -82,7 +82,7 @@ describe('HN4: a wall stored before (v 4) gets the new order once, nothing lost'
     const w = wallOf(v4);
     expect(ids(w)).not.toContain('balance'); // the old wall had no balance (taken away)
     const v5 = wallRecord(w.filter((x) => x.id !== 'aktiv'));
-    expect(v5.v).toBe(10); // «Heute neu» N2: v 10; A: v 9; v 6 Tages-Check «Deine 15 Fragen», v 7 Routine «Das tut mir gut», v 8 Paket P «Your values today» and Paket Q tip of the week
+    expect(v5.v).toBe(11); // Körperwerte: v 11; «Heute neu» N2: v 10; A: v 9; v 6 Tages-Check «Deine 15 Fragen», v 7 Routine «Das tut mir gut», v 8 Paket P «Your values today» and Paket Q tip of the week
     expect(ids(wallOf(v5))).toEqual(ids(w).filter((id) => id !== 'aktiv'));
     // moved by hand after that: stays moved
     const moved = wallRecord([w[4], ...w.filter((_, i) => i !== 4)]); // Im Flow (place 4 since the routine)
@@ -155,8 +155,14 @@ describe('the day card, Aktiv and the compact balance', () => {
     expect(challengeNow(list, suggests, '2026-10-12')).toBe(null);
     const a = (day, qid, value, at = `${day}T07:00`) => ({ day, qid, value, at });
     const rows = [a('2026-10-01', 'koerper.ruhepuls', 60), a('2026-10-05', 'koerper.ruhepuls', 54), a('2026-10-08', 'koerper.ruhepuls', 51), a(TODAY, 'koerper.ruhepuls', 52), a(TODAY, 'erholung.schlaf', 7)];
-    expect(bodyNow(rows, TODAY)).toEqual({ pulse: 52, lo: 51, hi: 54, days: [54, 51, 52], azm: null });
-    expect(bodyNow([], TODAY)).toEqual({ pulse: null, lo: null, hi: null, days: [], azm: null });
+    expect(bodyNow(rows, TODAY)).toEqual({ pulse: 52, lo: 51, hi: 54, days: [54, 51, 52], azm: null, src: 'answer' });
+    expect(bodyNow([], TODAY)).toEqual({ pulse: null, lo: null, hi: null, days: [], azm: null, src: null });
+    // Fitbit überall: the measured days come first, today's active zone minutes with them
+    const fit = [{ date: '2026-10-07', restingHr: 55, azm: 40 }, { date: TODAY, restingHr: 53.4, azm: 22, sleep: { asleepMin: 435 } }];
+    expect(bodyNow(rows, TODAY, fit)).toEqual({ pulse: 53, lo: 53, hi: 55, days: [55, 53], azm: 22, src: 'fitbit' });
+    expect(bodyNow(rows, TODAY, [{ date: TODAY, azm: 12 }])).toMatchObject({ pulse: 52, azm: 12, src: 'answer' });
+    expect(fitbitSleep(fit, TODAY)).toBe(7.3);
+    expect(fitbitSleep(fit, '2026-10-07')).toBe(null);
     expect(feltSleep(rows, TODAY)).toBe(7);
     expect(feltSleep(rows, '2026-10-08')).toBe(null);
   });

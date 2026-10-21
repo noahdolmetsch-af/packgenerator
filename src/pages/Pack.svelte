@@ -1,5 +1,6 @@
 <script>
   import AskClaude from '../lib/assistent/AskClaude.svelte';
+  import { askDelete } from '../lib/ui/ask.js';
   import PinnedLists from '../lib/merken/PinnedLists.svelte';
   import PageMore from '../lib/pageinfo/PageMore.svelte';
   import { localDay } from '../lib/localday.js';
@@ -59,7 +60,7 @@
   import { sharePayload, shareLink, SHARE_LONG } from '../lib/share.js';
   import { TEMPLATES_KEY } from '../lib/templates.js';
   import { SETS_KEY, allSets, addSetEntries, tripSlot } from '../lib/sets.js';
-  import { bikePhotos, packPhoto } from '../lib/photo.js';
+  import { bikePhotos, packPhoto, bikePhotoDrawn } from '../lib/photo.js';
   import Lightbox from '../lib/ui/Lightbox.svelte';
   import { withVisits, overdueFor } from '../lib/workshop.js';
   import { prepFor, isEvent } from '../lib/care.js';
@@ -164,6 +165,12 @@
   const gallery = $derived(bikePhotos(bike, $photosQ ?? []));
   const shot = $derived(packPhoto(trip, bike, $photosQ ?? []));
   let shownPhoto = $state(null);
+  // Paket NE 1146 (Noah 20.10.2026 «1b»): draw on the setup photo in the big view
+  async function drawnPhoto(cur, args) {
+    if (!bike) return;
+    const d = bikePhotoDrawn(bike.id, gallery.find((x) => x.id === cur.id), args);
+    await db.table(d.table).update(d.id, d.patch);
+  }
   // Before the trip (v0.18.2, answer 3a): the same list as on Home and in Bike care: preparation
   // tasks, what the bike needs (workshop from 14 days before) and open repairs.
   const before = $derived.by(() => {
@@ -330,7 +337,8 @@
     }
     setTimeout(() => (shareNote = ''), 8000);
   }
-  const resetPacked = () => confirm(t('Untick every item, to pack again from the start?')) && change((t) => ({ entries: t.entries.map((e) => ({ ...e, packed: false })) }));
+  // «Alle Daten anpassbar» (21.10.2026): the app's window instead of the browser's; «Undo» on the page brings the ticks back
+  const resetPacked = async () => (await askDelete({ title: t('Untick every item, to pack again from the start?'), label: t('Untick all') })) === 'delete' && change((t) => ({ entries: t.entries.map((e) => ({ ...e, packed: false })) }));
 
   let zoneKey = $state('frame'); // the bag that is open
   let reading = $state(false); // Paket H: «Read aloud» open
@@ -724,7 +732,7 @@
     newCheck = '';
     change((t) => ({ ready: [...t.ready, { id: `own-${Date.now().toString(36)}`, label, done: false }] }));
   }
-  const resetReady = () => confirm(t('Use your standard ready check again for this trip?')) && change(() => ({ ready: freshReady(standard, readyFallback) }));
+  const resetReady = async () => (await askDelete({ title: t('Use your standard ready check again for this trip?'), label: t('Use the standard') })) === 'delete' && change(() => ({ ready: freshReady(standard, readyFallback) }));
   const readyChanged = $derived(ready.map((r) => r.label).join('|') !== freshReady(standard, readyFallback).map((r) => r.label).join('|'));
   // Answer 4: save this trip's list as the standard for every new trip.
   let savedNote = $state('');
@@ -1043,8 +1051,6 @@
   {/if}
   <!-- Paket Q Zusatz 1: a weather or avalanche warning for this trip's days and place (only then) -->
   <TripAlert {trip} />
-  <!-- Paket Q Zusatz 3: from 3 days before the trip, «Für unterwegs offline speichern» -->
-  <OfflineSave {trip} />
   <!-- Paket U3 «Live-Karte» (Noah 19.10.2026 «5a»: start on every tour): on the trip's days one small line -->
   {#if todayTrip([trip], today)}<LiveStart {trip} />{/if}
   {#if packTab}
@@ -1130,6 +1136,9 @@
     {#snippet ballastContent()}<StarterList {trip} {items} {fixed} onadd={(id) => addTo(zone?.key, id)} onremove={removeEntry} /><ShopList {trip} {itemsById} />{#if extra?.rows.length}<details class="tp-fold calm-extra"><summary><Package size={20} aria-hidden="true" /><span>{t('Ballast')}</span><span class="r"><i class="tp-badge">{tn(extra.rows.length, '{n} not used the last times', '{n} not used the last times')}</i><ChevronRight class="chev" size={18} aria-hidden="true" /></span></summary><div class="in extra-inner"><ul>{#each extra.rows as r}<li>{itemsById[r.itemId] ? nameOf(itemsById[r.itemId]) : r.name} · {t('{n}× not used', { n: r.n })} · {r.g == null ? t('not weighed') : formatWeight(r.g)} <button class="text-button" onclick={() => leave([r.itemId])}>{t('Leave at home')}</button> <button class="text-button" onclick={() => keep(r.itemId)}>{t('Keep')}</button></li>{/each}</ul></div></details>{/if}{/snippet}
   </CalmPack>
   {/if}
+  <!-- Paket Q Zusatz 3: from 3 days before the trip, «Für unterwegs offline speichern».
+       Impeccable 20.10.2026 P5: under the packing list, so the page starts with the trip's title -->
+  <OfflineSave {trip} />
   <!-- Eigene Listen (Noah 14.10.2026 «5 ok»): a list pinned to this trip, as an extra block -->
   {#if trip}<PinnedLists place="trips" tripId={trip.id} />{/if}
   <!-- «Mit Claude besprechen» (Noah 19.10.2026 «1a»): the list, only with the tick -->
@@ -1145,7 +1154,7 @@
   {#if chargeOpen}<ChargeSheet {trip} {items} onclose={() => (chargeOpen = false)} />{/if}
   {#if choosing && choiceRows.length}<BikeChoice rows={choiceRows} {trip} onpick={useBike} onclose={() => choosing = false} />{/if}
   {#if newItem}<ItemDialog item={null} {items} preset={{ name: newItem.name, ...(trip?.domain && trip.domain !== 'bikepacking' ? { domains: [trip.domain] } : {}) }} onsaved={packNew} onkept={packNew} onclose={() => (newItem = null)} />{/if}
-  {#if shownPhoto != null && gallery.length}<Lightbox list={gallery.map(p => ({ src: p.src, name: p.name, sub: bike?.name ?? '' }))} start={shownPhoto} onclose={() => shownPhoto = null} />{/if}
+  {#if shownPhoto != null && gallery.length}<Lightbox list={gallery.map(p => ({ id: p.id, src: p.src, inks: p.inks, name: p.name, sub: bike?.name ?? '' }))} start={shownPhoto} onclose={() => shownPhoto = null} ondraw={drawnPhoto} />{/if}
   {#if weighing}<WeighMode items={tripItems} onclose={() => weighing = false} />{/if}
     <section class="print" aria-hidden="true">
       <h1>{trip.title}</h1>

@@ -49,7 +49,7 @@ test('Heute: the tile Start a ride comes from the catalog and leads to the live 
 
 test('Heute: without a trip today the tile starts a free ride', async ({ page, context }, info) => {
   const d = data({ today: false });
-  d.tables.settings.push({ key: 'homeWall', value: { v: 10, tiles: [{ id: 'daycard', size: 'long' }, { id: 'liveride', size: 's' }] } });
+  d.tables.settings.push({ key: 'homeWall', value: { v: 11, tiles: [{ id: 'daycard', size: 'long' }, { id: 'liveride', size: 's' }] } });
   await openHome(page, context, info, { data: d });
   await expect(page.locator('.wall [data-tile="liveride"] a')).toHaveAttribute('href', '#/live');
 });

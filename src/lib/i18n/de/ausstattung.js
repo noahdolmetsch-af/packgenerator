@@ -1,6 +1,6 @@
 /** v0.83.0 «Ausstattung» (Noah 11.10.2026, A1–A5 a): Bikes › Ausstattung and «Compare bikes» (bikes/Equipment.svelte, equipment.js). */
 export default {
-  'Equipment|tab': 'Ausstattung',
+  'Equipment|tab': "Teile",
   '{n} parts recorded': '{n} Teile erfasst',
   'parts|weight': 'Teile',
   'purchase value': 'Kaufwert',

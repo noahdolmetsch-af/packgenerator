@@ -67,7 +67,9 @@
   const dayWord = (day) => (day ? new Date(`${day}T12:00:00Z`).toLocaleDateString(locale(), { day: 'numeric', month: 'short', timeZone: 'UTC' }) : '');
   const dayLong = (day) => (day ? new Date(`${day}T12:00:00Z`).toLocaleDateString(locale(), { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' }) : '–');
   const careName = (c) => t(c.name);
-  const leftText = (c) => (c.state === 'due' ? t('now|care') : t('in {left}', { left: unitText(c.left, c.care.unit) }));
+  // Impeccable 20.10.2026: after «in» German wants the dative («in 8 Einsätzen», «in 364 Tagen»)
+  const unitIn = (v, u) => (u === 'hours' ? t('{n} h', { n: num(v) }) : u === 'km' ? t('{n} km', { n: num(v) }) : u === 'days' ? tn(v, '{n} day|in', '{n} days|in', { n: num(v) }) : tn(v, '{n} use|in', '{n} uses|in', { n: num(v) }));
+  const leftText = (c) => (c.state === 'due' ? t('now|care') : t('in {left}', { left: unitIn(c.left, c.care.unit) }));
   const firstCare = (r) => [...r.care].sort((a, b) => b.share - a.share)[0] ?? null;
 
   async function setMain(id, main) {

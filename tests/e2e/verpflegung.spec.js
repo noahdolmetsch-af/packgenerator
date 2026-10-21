@@ -42,6 +42,8 @@ test('Verpflegung: sections, water stops, own values, products', async ({ page, 
   await expect(main.locator('[data-warn="noshop"]')).toBeVisible();
   const grams = async () => Number((await res.locator('.sum b').nth(1).innerText()).replace(/\D/g, ''));
   expect(await grams()).toBeGreaterThan(300);
+  // Paket X: what the ride uses, from the one energy rule
+  await expect(res.locator('[data-fuel-kcal]')).toContainText(T('kcal used, about'));
 
   // 2. the places along the route (all kinds, the live map's search): a shop splits the route, a fountain refills
   await main.locator('[data-fuel-keep]').click();

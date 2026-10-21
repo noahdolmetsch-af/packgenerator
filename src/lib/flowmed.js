@@ -8,6 +8,7 @@
  * Days are calendar days (YYYY-MM-DD, Europe/Zurich on the device); weeks start on Monday.
  */
 import { addDays } from './flow.js';
+import { offered } from './applists.js';
 import { bowlOf, marksOf } from './flowbowl.js';
 import { soundOk, DEFAULT_SOUND, DEFAULT_END_SOUND } from './flowsounds.js';
 import { weekStart, zurichHour, msContext, actMilestones, evaluate, isOff } from './flowms.js';
@@ -349,6 +350,17 @@ export const MOODS = [
   { id: 'sleepy', name: 'sleepy|mood' },
   { id: 'warm', name: 'warm|mood' },
 ];
+/*
+ * «Alle Daten anpassbar» (Noah 21.10.2026 «4a»): the moods after a session are a list of «Listen und
+ * Typen» ('medMoods'): rename, own ones, hide, delete, order. A note keeps the moods it has.
+ */
+export const MED_MOODS_STD = MOODS.map((m) => ({ id: m.id, name: m.name }));
+/** The moods to choose from: the offered ones, plus the chosen ones that are hidden or deleted now. */
+export function medMoodsOffered(chosen = []) {
+  const list = offered('medMoods', MED_MOODS_STD);
+  const more = chosen.filter((id) => !list.some((e) => e.id === id)).map((id) => ({ id, name: id }));
+  return [...list, ...more];
+}
 /** «Was hat geholfen?»: suggestions, own ones added by name (choiceList). */
 export const HELPED = [
   { id: 'early', name: 'early in the morning' },

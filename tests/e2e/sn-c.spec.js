@@ -69,7 +69,8 @@ test('SN3 Vorlagen: path, one main button, rows with «…», «From your trips�
   const errors = await load(page, context, TPL);
   await page.goto('./#/pack/templates');
   await expect(page.getByRole('heading', { level: 1, name: T('Templates') })).toBeVisible();
-  await expect(page.getByRole('navigation', { name: T('Path') }).getByRole('link', { name: T('Trips') })).toHaveAttribute('href', '#/trips');
+  // Impeccable P1 (20.10.2026, changed on purpose): a tab page has no path on top
+  await expect(page.getByRole('navigation', { name: T('Path') })).toHaveCount(0);
   await expect(page.locator('main .btn.hi:visible')).toHaveCount(1);
   const rows = page.locator('li.row[data-tpl]:not(.arch)');
   await expect(rows).toHaveCount(4);

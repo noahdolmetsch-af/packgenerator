@@ -107,6 +107,21 @@
   {:else if route.tab === 'care' && route.view === 'faq'}
     <!-- «Velo-FAQ» (Noah 19.10.2026): questions and answers with a wink; loaded only when opened -->
     {#await import('../lib/care/FaqPage.svelte') then m}<m.default bikeId={route.bike} />{:catch}<p class="quiet">{t('This page could not load. Please check the connection and try again.')}</p>{/await}
+  {:else if route.tab === 'care' && route.view === 'wear'}
+    <!-- «Verschleiss» (Noah 20.10.2026): km per part, life, forecast, counter; loaded only when opened -->
+    {#await import('../lib/care/WearPage.svelte') then m}<m.default bikeId={route.bike} />{:catch}<p class="quiet">{t('This page could not load. Please check the connection and try again.')}</p>{/await}
+  {:else if route.tab === 'care' && route.view === 'photos'}
+    <!-- Paket VG «Das Velo im Griff» (Noah 20.10.2026); loaded only when opened -->
+    {#await import('../lib/care/WearPhotos.svelte') then m}<m.default bikeId={route.bike} />{:catch}<p class="quiet">{t('This page could not load. Please check the connection and try again.')}</p>{/await}
+  {:else if route.tab === 'care' && route.view === 'sell'}
+    <!-- Paket VG «Das Velo im Griff» (Noah 20.10.2026); loaded only when opened -->
+    {#await import('../lib/care/SellPage.svelte') then m}<m.default bikeId={route.bike} />{:catch}<p class="quiet">{t('This page could not load. Please check the connection and try again.')}</p>{/await}
+  {:else if route.tab === 'care' && route.view === 'bikepack'}
+    <!-- Paket VG «Das Velo im Griff» (Noah 20.10.2026); loaded only when opened -->
+    {#await import('../lib/care/BikePackPage.svelte') then m}<m.default bikeId={route.bike} />{:catch}<p class="quiet">{t('This page could not load. Please check the connection and try again.')}</p>{/await}
+  {:else if route.tab === 'care' && route.view === 'stock'}
+    <!-- Paket VG «Das Velo im Griff» (Noah 20.10.2026); loaded only when opened -->
+    {#await import('../lib/care/StockPage.svelte') then m}<m.default bikeId={route.bike} />{:catch}<p class="quiet">{t('This page could not load. Please check the connection and try again.')}</p>{/await}
   {:else if route.tab === 'care' && route.view === 'templates'}
     <!-- «Velo im Griff» #1009: the part template per bike kind; loaded only when opened -->
     {#await import('../lib/care/TemplatePage.svelte') then m}<m.default bikeId={route.bike} />{/await}

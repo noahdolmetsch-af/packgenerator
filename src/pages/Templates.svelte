@@ -185,7 +185,7 @@
   <TemplateEdit id={editId} />
 {:else}
   <div class="tpls">
-    <PathHead crumbs={[{ label: t('Trips|place'), href: '#/trips' }]} title={t('Templates')} sub={[active.length ? tn(active.length, '{n} template', '{n} templates') : '', t('Building blocks plus single items, so the next trip starts packed')].filter(Boolean).join(' · ')}>
+    <PathHead title={t('Templates')} sub={[active.length ? tn(active.length, '{n} template', '{n} templates') : '', t('Building blocks plus single items, so the next trip starts packed')].filter(Boolean).join(' · ')}>
       <!-- SN3: one main button; with no template yet the empty card below carries it -->
       <!-- FE1: on a phone «New template» sits at the bottom, in reach of the thumb -->
       <span class="daumen"><Btn kind={rows.length || archived.length ? 'hi' : 'normal'} icon={Plus} label={t('New template')} href={newHref} /></span>

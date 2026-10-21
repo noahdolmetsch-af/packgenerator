@@ -23,6 +23,18 @@
   import { findFeatures, FEATURE, FEATURES } from '../features.js';
   import { goFeature } from '../know/featureRun.js';
   import { helpAnswers, isQuestion } from '../clear/help.js';
+  // «Suche mit Sprache und Antworten» (Noah 21.10.2026 «1a 2a 3a+b 4b+a 5b»): microphone, spoken commands
+  // run at once with Undo, Gemini and «Ask further at» right here; switched in Ich › Suche (#/me/suche).
+  import { tick } from 'svelte';
+  import SearchMic from '../suche/SearchMic.svelte';
+  import AskElsewhere from '../assistent/AskElsewhere.svelte';
+  import { suche } from '../suche/suche.svelte.js';
+  import { spokenCommand } from '../suche/logic.js';
+  import { looksLikeQuestion } from '../helper/logic.js';
+  import { localDay } from '../localday.js';
+  // «Suche als Alleskönner» (Noah 21.10.2026 «1-8 alle»): values, reminders, several things at once, plan, jump
+  import { actionOf, actionsOf, actionLabel, runActions } from '../suche/act.js';
+  import { partsOf, jumpOf, planHref, weatherHref } from '../suche/say.js';
 
   // v0.76.0 «Fünf Orte»: short: the narrow field in the sidebar says only «Suchen» (with «/»).
   let { compact = false, short = false } = $props();
@@ -31,6 +43,11 @@
   let input = $state();
   let btn = $state(); // phone: the magnifier that opened the field
   let kh = $state(); // v0.77.0 KI-Helfer (answer 2a): «Frag den Helfer» above the hits
+  let spoken = $state(false); // the text in the field was spoken (not typed)
+  let heardNow = $state(''); // the words while the microphone listens
+  let micMsg = $state('');
+  let appHas = $state(false); // «The app answers» has an answer for q
+  const asking = $derived(q.trim().length >= 3 && (looksLikeQuestion(q) || (spoken && isQuestion(q))));
   const all = liveQuery(async () => {
     const [items, trips, bikes, notes, tpl, events] = await Promise.all([db.items.toArray(), db.trips.toArray(), db.bikes.toArray(), db.notes.toArray(), db.settings.get(TEMPLATES_KEY), db.events.toArray()]);
     return { items, trips, bikes, notes, templates: tpl?.value ?? [], events };
@@ -108,9 +125,61 @@
   let done = $state(null); // { text, undo } after a bike job saved from here
   let doneTimer;
   const USE = { weigh: 'weigh', dayride: 'dayride', chain: 'care', sealant: 'care', wash: 'care', km: 'km', note: 'note', wear: 'wear', trip: 'trip' };
-  async function run(c) {
+  const ctx = () => ({ today: localDay(), bikes: sortBikes($all?.bikes ?? []), trips: $all?.trips ?? [] });
+  /** What the text says to do (a value, a reminder, a note, a plan, several of them), shown under «Do it now». */
+  const says = $derived.by(() => {
+    if (!$all || q.trim().length < 4) return null;
+    const c = ctx();
+    const many = actionsOf(q, partsOf(q), c);
+    if (many) return many;
+    const one = actionOf(q, c);
+    // a single command of the search list shows there already
+    return one && one.kind !== 'cmd' ? [one] : null;
+  });
+  const saysTitle = $derived(says ? (says.length > 1 ? t('Enter all {n}: {list}', { n: says.length, list: says.map((a) => actionLabel(a, localDay())).join(' · ') }) : actionLabel(says[0], localDay())) : '');
+  /** Does it: a plan opens «Help me plan» with what was said; everything else is written with one Undo. */
+  async function doSays(acts = says) {
+    if (!acts?.length) return;
+    remember(q);
+    if (acts[0].kind === 'plan' || acts[0].kind === 'weather') {
+      q = '';
+      open = false;
+      location.hash = acts[0].kind === 'plan' ? planHref(acts[0]) : weatherHref(acts[0]);
+      return;
+    }
+    const r = await runActions(acts, ctx());
+    if (!r.lines.length) return;
+    countUse(acts.some((a) => a.cmd?.kind === 'note') ? 'note' : 'care');
+    q = '';
+    spoken = false;
+    clearTimeout(doneTimer);
+    done = { text: r.lines.length > 1 ? t('Entered: {list}', { list: r.lines.join(' · ') }) : r.lines[0], undoFn: r.undo };
+    doneTimer = setTimeout(() => (done = null), UNDO_MS);
+  }
+  /**
+   * The microphone heard a sentence: it goes into the field. With «Run spoken commands at once» (2a):
+   * several things that write → all of them; one value, reminder, note, care job or plan → that; one
+   * command → it runs; a page or trip by its name («öffne Tagebuch») → it opens.
+   */
+  async function said(text) {
+    heardNow = '';
+    if ((phone.matches || compact) && !open) toggle();
+    q = text;
+    spoken = true;
+    focused = true;
+    await tick();
+    if (!suche.run) return;
+    if (says) return doSays(says);
+    const c = spokenCommand(cmds, { run: true });
+    if (c) return run(c, { direct: true });
+    const row = jumpOf(text, groups);
+    if (row && !asking) go(row);
+  }
+  async function run(c, { direct = false } = {}) {
     const cmd = c.cmd;
     remember(q);
+    if (direct && cmd.kind === 'note' && String(cmd.text ?? '').trim()) return doSays([{ kind: 'cmd', cmd, writes: true }]);
+    spoken = false;
     if (USE[cmd.kind]) countUse(USE[cmd.kind]);
     if (['chain', 'sealant', 'wash'].includes(cmd.kind)) {
       const r = await recordCare(cmd.bikeId, cmd.kind);
@@ -134,9 +203,11 @@
     else if (COMMAND_HREF[cmd.kind]) location.hash = COMMAND_HREF[cmd.kind];
   }
   async function undoDone() {
+    const fn = done?.undoFn;
     const u = $state.snapshot(done?.undo); // a plain copy: IndexedDB cannot store Svelte proxies
     clearTimeout(doneTimer);
     done = null;
+    if (fn) return fn();
     await undoCare(u);
   }
   $effect(() => () => clearTimeout(doneTimer));
@@ -203,7 +274,8 @@
       if (open) (open = false), queueMicrotask(() => btn?.focus());
     }
     if (e.key === 'Enter' && kh?.onEnter(q)) return e.preventDefault();
-    if (e.key === 'Enter' && cmds.length) run(cmds[0]);
+    if (e.key === 'Enter' && says) doSays();
+    else if (e.key === 'Enter' && cmds.length) run(cmds[0]);
     else if (e.key === 'Enter' && count) go(groups[0].rows[0]);
   };
 </script>
@@ -255,8 +327,12 @@
 {#snippet field()}
   <label class="field">
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="M20 20l-4-4" /></svg>
-    <input bind:this={input} type="search" bind:value={q} onkeydown={key} onfocus={() => (focused = true)} placeholder={short ? `${t('Search')}  /` : t('What do you want to do? "weigh", "day ride factor"')} aria-label={t('What do you want to do? Search or say an action')} autocomplete="off" />
+    <input bind:this={input} type="search" bind:value={q} oninput={() => (spoken = false)} onkeydown={key} onfocus={() => (focused = true)} placeholder={short ? `${t('Search')}  /` : t('What do you want to do? "weigh", "day ride factor"')} aria-label={t('What do you want to do? Search or say an action')} autocomplete="off" />
+    <SearchMic onsaid={said} oninterim={(s) => ((heardNow = s), (micMsg = ''))} onerror={(m) => (micMsg = m)} />
   </label>
+  {#if heardNow || micMsg}
+    <p class="heard" role="status" data-search-heard>{heardNow ? `«${heardNow}»` : micMsg}</p>
+  {/if}
 {/snippet}
 
 {#snippet results()}
@@ -268,18 +344,23 @@
   {#if q.trim().length >= 2}
     <div class="res" role="region" aria-label={t('Search results')} aria-live="polite">
       <!-- «Frag die App» (Noah 15.10.2026 «3 a und b»): the free answer from your own data, on top -->
-      <AskAnswer {q} onlink={() => { q = ''; open = false; }} />
+      {#if suche.app}<AskAnswer {q} autoread={spoken && suche.read === 'auto'} onresult={(has) => (appHas = has)} onlink={() => { q = ''; open = false; }} />{/if}
       <SearchAnswer bind:this={kh} {q} items={$all?.items ?? []} onpropose={() => { q = ''; open = false; }} />
-      {#if cmds.length}
+      {#if cmds.length || says}
         <p class="gh">{t('Do it now')}</p>
         <ul class="cmds">
+          {#if says}
+            <li><button type="button" data-cmd="says" onclick={() => doSays()}><span class="m"><b>{saysTitle}</b><small>{says[0].kind === 'plan' ? t('opens «Help me plan» with it filled in') : says[0].kind === 'weather' ? t('opens the weather page') : t('saves it at once; Undo takes it back')}</small></span><span class="go" aria-hidden="true">↵</span></button></li>
+          {/if}
           {#each cmds as c (c.id)}
             <li><button type="button" data-cmd={c.kind} onclick={() => run(c)}><span class="m"><b>{c.title}</b>{#if c.sub}<small>{c.sub}</small>{/if}</span><span class="go" aria-hidden="true">↵</span></button></li>
           {/each}
         </ul>
       {/if}
       <!-- «Kluge Suche»: the hint to similar words / a typo and «Ask Claude» sit under the actions (FE17: actions on top, Enter runs the first) -->
-      <SearchFree {q} data={$all} also={smart.also} fixed={smart.fixed} />
+      <!-- «Suche mit Sprache» (3a + b): Gemini answers here, «Ask further at» opens Claude, ChatGPT … -->
+      {#if asking && (suche.gemini || suche.links)}<AskElsewhere {q} gemini={suche.gemini} links={suche.links} auto={spoken && suche.geminiAuto && !(suche.app && appHas)} autoread={spoken && suche.read === 'auto'} />{/if}
+      <SearchFree {q} data={$all} also={smart.also} fixed={smart.fixed} chrome={suche.chrome} links={suche.links} local={suche.local} />
       {#each groups as g (g.kind)}
         <p class="gh">{t(g.name)}{g.more ? ` · ${t('{n} more', { n: g.more })}` : ''}</p>
         <ul>
@@ -380,6 +461,25 @@
     height: 48px;
     border: 1.5px solid var(--line-strong);
     background: var(--paper);
+  }
+  /* «Suche mit Sprache»: the words while the microphone listens, or why it cannot */
+  .heard {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    right: 0;
+    z-index: 31;
+    margin: 0;
+    padding: 6px 10px;
+    border-radius: 8px;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+  }
+  .ph .heard {
+    position: static;
+    margin: 6px 0 0;
   }
   .tip {
     margin: 4px 2px;

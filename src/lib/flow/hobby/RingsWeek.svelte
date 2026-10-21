@@ -76,7 +76,7 @@
     stroke-linecap: round;
   }
   .mind .bg {
-    stroke: var(--accent-soft);
+    stroke: var(--l4-soft);
   }
   .move .bg {
     stroke: var(--hi-soft);
@@ -85,7 +85,7 @@
     stroke: var(--l3-soft);
   }
   .mind .fg {
-    stroke: var(--accent);
+    stroke: var(--l4);
   }
   .move .fg {
     stroke: var(--hi);
@@ -129,8 +129,8 @@
     border: 1px solid var(--line);
   }
   .dots i.on.mind {
-    background: var(--accent);
-    border-color: var(--accent);
+    background: var(--l4);
+    border-color: var(--l4);
   }
   .dots i.on.move {
     background: var(--hi);

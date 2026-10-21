@@ -133,7 +133,8 @@ export async function settleAsks(db) {
   for (const a of await db.meta.where('key').startsWith(ASK).toArray()) {
     if (!known.has(a.t)) continue;
     const local = (await db.table(a.t).get(a.id)) ?? null;
-    const pick = a.del ? null : autoPick(a.t, a.id, local, a.v);
+    const note = await db.meta.get(noteKey(a.t, a.id));
+    const pick = autoPick(a.t, a.id, local, a.del ? null : a.v, { mineAt: note?.at, theirsAt: a.at });
     if (!pick) continue;
     await resolve(db, a.key, pick === 'theirs' ? 'theirs' : 'mine');
     n++;
@@ -159,13 +160,39 @@ export async function resolveAll(db, choice) {
  */
 export const FETCHED = {
   healthDays: { marks: ['at', 'src'], when: (r) => r?.at ?? '' },
-  'settings:health': { marks: ['lastSync', 'until'], inValue: true, when: (r) => r?.value?.lastSync ?? '' },
+  // fill: the one-time 30-day refetch (health.js FILL_V) is a fetch mark too, never a question
+  'settings:health': { marks: ['lastSync', 'until', 'fill'], inValue: true, when: (r) => r?.value?.lastSync ?? '' },
   'settings:agenda': { marks: ['lastSync'], inValue: true, when: (r) => r?.value?.lastSync ?? '' },
   // Strava activities (Noah 20.10.2026: the question came after every update): both devices fetch the
   // details from Strava by themselves, so only the time of the fetch differs. What the person added
   // (note, feeling, own values, hidden) must be the same on both; then the newer fetch wins without asking.
   activities: { own: ['note', 'feel', 'feelSkip', 'own', 'hidden'], when: (r) => `${String(Number(r?.dv) || 0).padStart(4, '0')}|${[r?.detail ?? '', r?.noDetail ?? ''].sort().at(-1)}` },
 };
+/*
+ * Settings the app writes by itself (Noah 21.10.2026, a question about «strava.last» on the phone): the
+ * summary of the last Strava fetch, fetched copies, one-time results, counters and view states. They mean
+ * nothing to the person, so changed on both devices they never become a question: the newer one wins.
+ * The value is the time inside the record; null: the time of the change on each device counts.
+ */
+const atOf = (r) => r?.value?.at ?? '';
+export const INTERNAL_SETTINGS = {
+  'strava.last': atOf, // the summary of the last Strava fetch (Strava tile, S2)
+  'strava.zones': atOf, // Strava's heart rate zones, as fetched
+  'heat.backfill': atOf, // the one-time fetch of old rides for the heatmap
+  blocksMore: atOf, // the result of the one-time «more blocks» update
+  toursPage: atOf, // how Touren was last shown (filter, sort)
+  toursView: atOf, // the columns of the tours list
+  pastView: atOf, // the columns of the past trips list
+  homeUsage: null, // how often each Heute function was used (order of the tiles)
+  bookingSeen: null, // the offers already shown once
+};
+for (const [key, when] of Object.entries(INTERNAL_SETTINGS)) FETCHED[`settings:${key}`] = { latest: true, when };
+// the Strava and Trello connection: what the person set stays a question; the fetch marks alone never are
+FETCHED['settings:strava'] = { marks: ['lastSync', 'gear', 'athlete'], inValue: true, when: (r) => r?.value?.lastSync ?? '' };
+FETCHED['settings:trello'] = { marks: ['lastSync'], inValue: true, when: (r) => r?.value?.lastSync ?? '' };
+
+/** True for a settings row the app keeps by itself (never shown as a question). */
+export const isInternal = (t, id) => t === 'settings' && Object.hasOwn(INTERNAL_SETTINGS, String(id));
 const fetchedRule = (t, id) => FETCHED[t] ?? FETCHED[`${t}:${id}`] ?? null;
 const withoutMarks = (r, rule) => {
   if (!r || typeof r !== 'object') return r;
@@ -180,8 +207,15 @@ const ownOf = (r, keys) => Object.fromEntries(keys.map((k) => [k, blank(r?.[k]) 
  * For a record changed on both devices: 'same' (only the fetch marks differ), 'theirs' or 'mine' (the copy
  * fetched later), or null (not a copy of Google, or a delete: the person is asked as before).
  */
-export function autoPick(t, id, mine, theirs) {
+export function autoPick(t, id, mine, theirs, { mineAt = '', theirsAt = '' } = {}) {
   const rule = fetchedRule(t, id);
+  if (rule?.latest) {
+    // the app's own rows: a delete on one side counts like any other change, the newer one wins
+    if (same(mine, theirs)) return 'same';
+    const a = String((rule.when && mine != null ? rule.when(mine) : '') || mineAt || '');
+    const b = String((rule.when && theirs != null ? rule.when(theirs) : '') || theirsAt || '');
+    return b > a ? 'theirs' : 'mine';
+  }
   if (!rule || mine == null || theirs == null) return null;
   if (rule.own) {
     if (same(mine, theirs)) return 'same';
@@ -205,7 +239,7 @@ async function applyRemote(db, p, s) {
       await takeTheirs(db, t, id, { s, v: p.v, del: p.del, at: p.at });
       return 'taken';
     }
-    const pick = same(local, theirs) ? 'same' : autoPick(t, id, local, theirs);
+    const pick = same(local, theirs) ? 'same' : autoPick(t, id, local, theirs, { mineAt: note.at, theirsAt: p.at });
     if (pick === 'same') {
       await db.meta.put({ ...note, dirty: 0, base: s, del: !!p.del });
       await db.meta.delete(askKey(t, id));

@@ -49,7 +49,10 @@ export function serviceState(bike, series = null, today = localDay()) {
 
 /** «Service done»: the patch { service } with last = today (km and hours then). */
 export function serviceDone(bike, { day = localDay(), km = bike?.km ?? null, hours = null } = {}) {
-  return { service: { ...(bike?.service ?? {}), last: { day, km: typeof km === 'number' ? km : null, hours: typeof hours === 'number' ? hours : null } } };
+  const s = bike?.service ?? {};
+  // «Verschleiss» (Noah 20.10.2026): the service before stays in service.past, so every period can be shown (wear.js servicePeriods)
+  const keep = s.last?.day && s.last.day !== day ? { past: [...(s.past ?? []), s.last] } : {};
+  return { service: { ...s, ...keep, last: { day, km: typeof km === 'number' ? km : null, hours: typeof hours === 'number' ? hours : null } } };
 }
 
 /**
@@ -79,5 +82,6 @@ export const serviceChanged = (bike) => FIELDS.some((f) => Object.hasOwn(bike?.s
 /** The last service by hand (a date and km from a receipt): → { service }. */
 export function serviceLast(bike, { day, km = null, hours = null }) {
   if (!day) return { service: { ...(bike?.service ?? {}), last: null } };
-  return serviceDone(bike, { day, km, hours });
+  // a correction of the last service (from a receipt): it replaces the last one, nothing moves to past
+  return { service: { ...(bike?.service ?? {}), last: { day, km: typeof km === 'number' ? km : null, hours: typeof hours === 'number' ? hours : null } } };
 }

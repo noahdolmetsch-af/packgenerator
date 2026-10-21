@@ -262,7 +262,7 @@ export default {
   '{n} stations near the route.': '{n} Bahnhöfe nahe der Strecke.',
   '{n} nights outside; the first at km {km}.': '{n} Nächte draussen; die erste bei km {km}.',
   'Every night in a bed.': 'Jede Nacht in einem Bett.',
-  'About {h} riding × 400 kcal ≈ {kcal} kcal (estimate).': 'Etwa {h} Fahrzeit × 400 kcal ≈ {kcal} kcal (Schätzung).',
+  'About {h} riding: you use about {burn} kcal and eat about {eat} kcal (estimate, from your weight, the climbing and your values under Verpflegung).': 'Etwa {h} Fahrzeit: Du brauchst etwa {burn} kcal und isst etwa {eat} kcal (Schätzung aus deinem Gewicht, den Höhenmetern und deinen Werten unter Verpflegung).',
   'Sleeping kit: {list}.': 'Schlafsachen: {list}.',
   'Countries: {list}. Sundays in the plan: {sun}.': 'Länder: {list}. Sonntage im Plan: {sun}.',
   '{n} days end after sunset: {list}.': '{n} Tage enden nach Sonnenuntergang: {list}.',

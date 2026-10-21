@@ -3,7 +3,7 @@
  * own («…» › Ausblenden, with Rückgängig), moved up or down, and switched back on in «Analysen anpassen».
  * One setting for all activities. Pure rules; the live state is analyses.svelte.js.
  *
- * Stored in db.settings under ANA_KEY: { hidden: [key], order: { act: [key], week: [key], weight: [key] } }.
+ * Stored in db.settings under ANA_KEY: { hidden: [key], order: { act: [key], week: [key], weight: [key], ticks: [key] } }.
  * head: the card's own heading where it is longer than the name in «Analysen anpassen».
  * A key the app does not know (any more) is dropped; a new one shows, at the end of its group.
  */
@@ -46,9 +46,27 @@ export const ANALYSES = {
     { key: 'wtime', title: 'Weight over time', sub: 'Dots and 7-day mean' },
     { key: 'wkgtime', title: 'Watts per kg over time', sub: 'Line' },
   ],
+  // «Auswertung wie Training» (Noah 20.10.2026): the same cards for what you tick off (Aktiv › Ziele › Auswerten)
+  ticks: [
+    { key: 'tkweeks', head: 'Ticks per week', title: 'Ticks per week', sub: 'Bars by ring' },
+    { key: 'tkdays', head: 'Weekdays spread', title: 'Weekdays', sub: 'Bars' },
+    { key: 'tkhours', head: 'Time of day spread', title: 'Time of day', sub: 'Bars' },
+    { key: 'tkline', head: 'Course|tk', title: 'Course|tk', sub: 'Ticks per day and 7-day mean' },
+    { key: 'tkgrid', head: 'Activity by weekday', title: 'Activity by weekday', sub: 'Grid' },
+    { key: 'tkhalves', title: 'First against second half', sub: 'Bars and one sentence' },
+    { key: 'tkbest', title: 'Best values', sub: 'Table' },
+    { key: 'tkmonths', head: 'Per month', title: 'Per month', sub: 'Table' },
+  ],
+  // the same for one of your answers (Check-Fragen with a number)
+  answers: [
+    { key: 'anline', head: 'Course|tk', title: 'Course of the answer', sub: 'Dots and 7-day mean' },
+    { key: 'andays', head: 'Weekdays|tk', title: 'Answer per weekday', sub: 'Bars' },
+    { key: 'anhalves', head: 'First against second half', title: 'First against second half|an2', sub: 'Bars and one sentence' },
+    { key: 'anmonths', head: 'Per month', title: 'Answer per month', sub: 'Table' },
+  ],
 };
 export const GROUPS = Object.keys(ANALYSES);
-export const GROUP_NAMES = { act: 'On the activity', week: 'In the week', weight: 'Weight|place' };
+export const GROUP_NAMES = { act: 'On the activity', week: 'In the week', weight: 'Weight|place', ticks: 'Your ticks', answers: 'Your answers' };
 const ALL = new Set(GROUPS.flatMap((g) => ANALYSES[g].map((a) => a.key)));
 export const groupOf = (key) => GROUPS.find((g) => ANALYSES[g].some((a) => a.key === key)) ?? null;
 export const anaOf = (key) => ANALYSES[groupOf(key)]?.find((a) => a.key === key) ?? null;

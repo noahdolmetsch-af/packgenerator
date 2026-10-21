@@ -45,9 +45,11 @@ async function writeEntry(page, { title, text, tag }, info = null) {
   await expect(ed).toBeHidden();
 }
 
-test('Ich leads to the diary; write, read, change, search, calendar and photos', async ({ page, context }, info) => {
-  const errors = await open(page, context, './#/me');
-  await page.locator('[data-me-tagebuch] a').click();
+test('Notizen leads to the diary, a tab of Planen; write, read, change, search, calendar and photos', async ({ page, context }, info) => {
+  const errors = await open(page, context, './#/notes');
+  await page.locator('[data-notes-diary]').click();
+  // «Tagebuch» under Planen (Noah 20.10.2026): its tab is on, on the phone in the tab row, on a computer in the sidebar
+  await expect(page.locator('nav.ptabs a[href="#/tagebuch"], .side .tabs a[href="#/tagebuch"]').filter({ visible: true }).first()).toHaveAttribute('aria-current', 'page');
   await expect(page.getByRole('heading', { level: 1, name: T('Diary') })).toBeVisible();
   await expect(page.locator('[data-tb-empty]')).toBeVisible();
   // the question of the day is the one of today

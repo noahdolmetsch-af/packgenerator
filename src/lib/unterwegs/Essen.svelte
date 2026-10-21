@@ -11,6 +11,7 @@
   import { EAT_KEY, EVERY, eatOf, startEat, nextEat, eaten, snooze, isDue, minutesLeft, SNOOZE_MIN } from './essen.js';
   import { PUSH_KEY, pushOf } from '../push/schedule.js';
   import { Utensils, Check, Clock, BellRing } from '@lucide/svelte';
+  import { softTone } from './ton.js';
   import './unterwegs.css';
 
   let { tripId = null, until = null, onstate = null } = $props();
@@ -33,7 +34,16 @@
   $effect(() => onstate?.({ next: nextEat(e), on: !!e }));
 
   const save = (v) => db.settings.put({ key: EAT_KEY, value: v });
-  const start = () => save(startEat({ every, now: Date.now(), until, tripId }));
+  let sound = $state(true);
+  $effect(() => {
+    if (e) sound = e.sound;
+  });
+  const start = () => save(startEat({ every, now: Date.now(), until, tripId, sound }));
+  const setSound = (on) => {
+    sound = on;
+    if (e) save({ ...e, sound: on });
+    if (on) softTone();
+  };
   const stop = () => save({ ...($eatQ?.value ?? {}), on: false });
   const ate = () => e && save(eaten(e, Date.now()));
   const later = () => e && save(snooze(e, Date.now()));
@@ -57,24 +67,7 @@
     } catch {
       /* no vibration here */
     }
-    try {
-      const A = window.AudioContext ?? window.webkitAudioContext;
-      if (!A) return;
-      const ctx = new A();
-      [0, 0.3].forEach((d) => {
-        const o = ctx.createOscillator();
-        const g = ctx.createGain();
-        o.frequency.value = 880;
-        g.gain.setValueAtTime(0.25, ctx.currentTime + d);
-        g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + d + 0.25);
-        o.connect(g).connect(ctx.destination);
-        o.start(ctx.currentTime + d);
-        o.stop(ctx.currentTime + d + 0.26);
-      });
-      setTimeout(() => ctx.close?.(), 1000);
-    } catch {
-      /* no sound here: the line and the vibration stay */
-    }
+    if (e?.sound !== false) softTone();
   });
   const timeOf = (ms) => new Date(ms).toTimeString().slice(0, 5);
 </script>
@@ -103,6 +96,7 @@
     <span class="tp-small">{t('Every')}</span>
     {#each EVERY as n (n)}<button type="button" class="tp-chip" aria-pressed={every === n} onclick={() => setEvery(n)}>{t('{n} min', { n })}</button>{/each}
   </div>
+  <label class="tp-small"><input type="checkbox" role="switch" checked={sound} onchange={(ev) => setSound(ev.currentTarget.checked)} data-eat-sound /> {t('Soft tone')}</label>
   <div class="uw-row acts">
     {#if !e}<button type="button" class="btn ink" onclick={start} data-eat-start>{t('Start eat reminder')}</button>
     {:else}

@@ -15,7 +15,30 @@ export const EVERY_MS = 5 * 60_000;
  * The question window: open, and how many questions «Later» already put aside.
  * first: the panel asks one question for all after pairing; the window waits meanwhile.
  */
-export const syncUi = $state({ open: false, seen: 0, first: false });
+export const syncUi = $state({ open: false, seen: 0, first: false, quietUntil: readQuiet() });
+
+/*
+ * Noah 21.10.2026 («kommt immer wieder beim Navigieren», «Später» hilft nicht): «Later» keeps the window
+ * shut for an hour (rule 8: «Später» = 1 h), also over a reload and when new questions arrive meanwhile.
+ * The questions stay in Ich › Daten und Backup; «Decide» there opens the window at once.
+ */
+export const QUIET_LS = 'pg.sync.later';
+export const QUIET_MS = 60 * 60_000;
+function readQuiet() {
+  try {
+    return Number(globalThis.localStorage?.getItem(QUIET_LS)) || 0;
+  } catch {
+    return 0;
+  }
+}
+export function quietLater(now = Date.now()) {
+  syncUi.quietUntil = now + QUIET_MS;
+  try {
+    globalThis.localStorage?.setItem(QUIET_LS, String(syncUi.quietUntil));
+  } catch {
+    /* a private window: quiet until the next reload */
+  }
+}
 
 export const sync = $state({ running: false, asks: 0, last: null, error: null, on: false, big: 0, autoOpen: true, asList: false });
 

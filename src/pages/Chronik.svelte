@@ -8,7 +8,7 @@
    */
   import { liveQuery } from 'dexie';
   import { Bike, Route, Activity, Wrench, Flower2, StickyNote, ChevronLeft, ChevronRight, History } from '@lucide/svelte';
-  import PageHead from '../lib/ui/PageHead.svelte';
+  import PathHead from '../lib/ui/PathHead.svelte';
   import Empty from '../lib/ui/Empty.svelte';
   import ChronikKarte from '../lib/lernen/ChronikKarte.svelte';
   import { db } from '../lib/db.js';
@@ -24,7 +24,10 @@
   const today = localDay();
   const dataQ = liveQuery(async () => {
     const [trips, debriefs, rides, activities, visits, maintenance, flowLog, notes, bikes] = await Promise.all([db.trips.toArray(), db.debriefs.toArray(), db.rides.toArray(), db.activities.toArray(), db.visits.toArray(), db.maintenance.toArray(), db.flowLog.toArray(), db.notes.toArray(), db.bikes.toArray()]);
-    return { trips: homeTrips(trips), debriefs, rides, activities, visits, maintenance, flowLog, notes, bikes };
+    // Impeccable bug: a report from the error page («Error on the page …») is no part of your chronicle
+    const report = /^(Error on the page|Fehler auf der Seite) «/;
+    const own = notes.filter((n) => !report.test(String(n.text ?? n.body ?? n.title ?? '').trim()));
+    return { trips: homeTrips(trips), debriefs, rides, activities, visits, maintenance, flowLog, notes: own, bikes };
   });
   const data = $derived($dataQ);
   const entries = $derived(data ? timeline({ ...data, today }) : []);
@@ -82,7 +85,8 @@
 </script>
 
 <div class="rv-page chronik">
-  <PageHead title={t('Chronicle')} text={t('Everything on one time line: trips, rides, bike care, meditation and notes, one page per month.')} />
+  <!-- Impeccable 20.10.2026 P1: a sub-page of Rückblick, so it has the path back -->
+  <PathHead crumbs={[{ label: t('Trips|place'), href: '#/trips' }, { label: t('Look back|page'), href: '#/debrief' }]} title={t('Chronicle')} sub={t('Everything on one time line: trips, rides, bike care, meditation and notes, one page per month.')} />
   <AreaIntro place="chronik" />
 
   {#if data}

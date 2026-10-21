@@ -158,7 +158,7 @@ test('a stored wall of before (v 4) gets the new order once; Try it of a wide Ne
   // «Heute neu» A (homeWall v 9, changed on purpose): every wall stored before becomes the new ready wall once
   await expect.poll(() => order(page)).toEqual(atHour(tripUp(READY.filter((x) => !HELPER_TILES.includes(x.id)), false), 13).map((x) => x.id));
   // put «New» wide on a wall of the user (as it was) and check its button stays inside the tile at 390 px too
-  const v5 = { v: 10, tiles: HN4().map((x) => (x.id === 'news' ? { ...x, size: 'w' } : x)) };
+  const v5 = { v: 11, tiles: HN4().map((x) => (x.id === 'news' ? { ...x, size: 'w' } : x)) };
   await page.evaluate(async (value) => {
     const req = indexedDB.open('pack-generator');
     const db = await new Promise((r) => (req.onsuccess = () => r(req.result)));

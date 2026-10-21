@@ -27,6 +27,16 @@ export const HINTS = {
     ],
     jumps: [['Views', 'views-h'], ['Wishlist', 'wish-h'], ['Analysis', 'gear-analysis']],
   },
+  // Impeccable bug: «Einkauf» had the tip of «Material»; it has its own now
+  einkauf: {
+    lead: ['Here is what you still want to buy.', 'Each wish says its price and why it is on the list; «Bought» moves it to your gear.'],
+    uses: [
+      ['heart', 'An idea for later', 'put it on the list with a price'],
+      ['scale', 'Before buying', 'compare it with what you own already'],
+      ['bag', 'Bought', 'one tap and it is part of your gear'],
+    ],
+    jumps: [],
+  },
   trips: {
     lead: ['Here are all your trips: planned, on the way and done.', 'Each card leads to the next step: plan, pack, ride or look back.'],
     uses: [

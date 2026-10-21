@@ -29,7 +29,8 @@ export const prefsOf = (v) => ({
 export const docs = $state({ loaded: false, list: [], prefs: prefsOf(null), busy: '', error: '', uploading: {} });
 
 if (typeof window !== 'undefined' && typeof indexedDB !== 'undefined') {
-  liveQuery(async () => [await appDb.docs.toArray(), (await appDb.settings.get(DOCS_KEY))?.value]).subscribe({
+  // Paket NE: the files of notes are rows of db.docs too (noteId); Ich › Dokumente leaves them out
+  liveQuery(async () => [(await appDb.docs.toArray()).filter((d) => !d.noteId), (await appDb.settings.get(DOCS_KEY))?.value]).subscribe({
     next: ([list, p]) => {
       docs.list = list;
       docs.prefs = prefsOf(p);
@@ -162,7 +163,7 @@ function uploadSoon(d, { db }) {
 /** Everything not yet in Drive (after connecting, or «Jetzt hochladen»). Returns how many went up. */
 export async function uploadMissing({ db = appDb } = {}) {
   let n = 0;
-  for (const d of await db.docs.toArray()) if (!d.drive?.id && (await uploadDoc(d, { db }))) n++;
+  for (const d of await db.docs.toArray()) if (!d.noteId && !d.drive?.id && (await uploadDoc(d, { db }))) n++;
   return n;
 }
 

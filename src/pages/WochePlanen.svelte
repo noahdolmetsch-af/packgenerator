@@ -376,6 +376,16 @@
   .nav {
     margin-top: 20px;
   }
+  /* Impeccable P5: on a phone «Next» stays above the bottom bar instead of under it */
+  @media (max-width: 899px) {
+    .nav {
+      position: sticky;
+      bottom: calc(80px + env(safe-area-inset-bottom));
+      z-index: 2;
+      padding: 8px 0;
+      background: var(--paper);
+    }
+  }
   .fx {
     display: grid;
     grid-template-columns: 2fr 1.4fr 1fr;

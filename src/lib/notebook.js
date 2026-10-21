@@ -12,6 +12,7 @@
  * Pure functions; the page writes the records.
  */
 import { TOPICS, guessTopic } from './inbox.js';
+import { fileWords } from './notes/files.js';
 
 export { TOPICS, guessTopic };
 
@@ -60,7 +61,8 @@ export function checklistFrom(text = '') {
   const items = [];
   const rest = [];
   for (const l of lines) {
-    const m = l.match(/^\s*(?:[-*•]|\[( |x|X)?\])\s+(.+)$/);
+    // «- [ ] Gas» (Markdown) is a tick too, not a point «[ ] Gas»
+    const m = l.match(/^\s*(?:[-*•]\s+)?\[( |x|X)?\]\s+(.+)$/) ?? l.match(/^\s*[-*•]()\s+(.+)$/);
     if (m) items.push({ text: m[2].trim(), done: /x/i.test(m[1] ?? '') });
     else rest.push(l);
   }
@@ -121,6 +123,7 @@ const buildFilters = () => [
   { key: 'check', name: 'Checklist', has: true, test: (n) => (n.checklist ?? []).length > 0 },
   { key: 'link', name: 'Link', has: true, test: (n) => !!n.link?.url },
   { key: 'photo', name: 'Photo', has: true, test: (n) => !!n.photo },
+  { key: 'file', name: 'File|attach', has: true, test: (n) => (n.atts ?? []).length > 0 || (n.files ?? []).some((f) => f?.data) }, // Paket NE 1148
   { key: 'place', name: 'Place|location', has: true, test: (n) => !!n.place }, // Paket N N2
   { key: 'linked', name: 'Linked', has: true, test: (n) => !!n.bikeId || (n.links ?? []).length > 0 },
 ];
@@ -141,7 +144,8 @@ export function noteList(notes, { filter = 'all', query = '' } = {}) {
     .filter(f.test)
     .filter((n) => {
       if (!words.length) return true;
-      const hay = [n.title, n.text, n.link?.title, n.link?.url, ...(n.links2 ?? []).flatMap((l) => [l.title, l.url]), n.place?.label, ...(n.checklist ?? []).map((c) => c.text)].filter(Boolean).join(' ').toLowerCase();
+      // Paket NE 1149: the names and texts of its files and the text read in its photos count too
+      const hay = [n.title, n.text, n.link?.title, n.link?.url, ...(n.links2 ?? []).flatMap((l) => [l.title, l.url]), n.place?.label, ...(n.checklist ?? []).map((c) => c.text), fileWords(n)].filter(Boolean).join(' ').toLowerCase();
       return words.every((w) => hay.includes(w.replace(/^#/, '')));
     })
     .sort((a, b) => (b.editedAt ?? b.at ?? '').localeCompare(a.editedAt ?? a.at ?? ''));

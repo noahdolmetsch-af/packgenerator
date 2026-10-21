@@ -9,6 +9,7 @@ import { test, expect } from '@playwright/test';
 import DE from '../../src/lib/i18n/de/index.js';
 import { D0, TODAY, addDays, put } from './aktiv-fixture.js';
 import { ready } from './settle.js';
+import { openOverview } from './ov-fold.js';
 
 const T = (en) => DE[en] ?? en.replace(/\|[a-z]+$/, '');
 const P = 'test_data_an_';
@@ -62,6 +63,7 @@ test('Aktiv: small tiles, the week in numbers, the rings and «Wi gaht\'s?» exp
   const tile = tick.locator('[data-act="run"]');
   expect((await tile.boundingBox()).height).toBeLessThan(60);
 
+  await openOverview(page);
   const wn = page.locator('[data-section="week-numbers"]');
   await expect(wn.locator('[data-wn]')).toHaveCount(6);
   // Garmin-Übersicht (20.10.2026, changed on purpose): the week in numbers sits under «Letzte 7 Tage»

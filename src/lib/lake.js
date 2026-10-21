@@ -78,7 +78,7 @@ export async function fetchLake({ fetcher = (...a) => fetch(...a), now = new Dat
   } catch {
     // no server (offline, or not deployed in this preview): try the sources
   }
-  const data = await lakeNow({ doFetch: fetcher, now, pages: 1, timeout: 8000 });
+  const data = await lakeNow({ doFetch: fetcher, now, pages: 1, timeout: 8000, forecastTimeout: 12000 });
   return { data, via: 'direct' };
 }
 
@@ -105,7 +105,7 @@ export async function loadLake(db, { fetcher, now = new Date(), force = false } 
   }
   try {
     const { data, via } = await fetchLake({ fetcher, now });
-    const rec = { fetchedAt: now.toISOString(), via, data: JSON.parse(JSON.stringify(data)) };
+    const rec = { fetchedAt: now.toISOString(), via, data: keepPreview(JSON.parse(JSON.stringify(data)), cache?.data, localDayOf(now)) };
     await db.meta.put({ key: LAKE_CACHE_KEY, value: rec });
     await keepLakeDays(db, rec.data);
     return rec;
@@ -113,6 +113,18 @@ export async function loadLake(db, { fetcher, now = new Date(), force = false } 
     return cache ? { ...cache, error: true } : { error: true, data: null };
   }
 }
+
+/**
+ * Fix 21.10.2026: a new answer without the Eawag preview keeps the stored preview days from today on
+ * (marked kept), so a slow model does not empty the card.
+ */
+export function keepPreview(data, old, today) {
+  if (!data || (Array.isArray(data.forecast) && data.forecast.length)) return data;
+  const days = (old?.forecast ?? []).filter((d) => typeof d?.day === 'string' && d.day >= today);
+  return days.length ? { ...data, forecast: days, forecastKept: true } : data;
+}
+
+const localDayOf = (d) => new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Zurich', year: 'numeric', month: '2-digit', day: '2-digit' }).format(d);
 
 /* ---------- what the card shows ---------- */
 

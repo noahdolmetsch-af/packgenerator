@@ -7,6 +7,10 @@
  * - 2b: only the kinds switched on one by one go out; at the start everything is off.
  * - 3a: on the tour day at 06:30 the server checks the weather and warns of a storm, heat or a thunderstorm.
  * - 4b: no quiet hours.
+ * - Glätte (Paket Wetter): with «Ice in the morning» on and a home place, each morning from October to
+ *   April at 06:30 the server looks at the home place and warns only when roads can be icy (around
+ *   0 °C with rain or snow). A tour day with «Weather on the tour day» on has its own check (it warns of
+ *   ice too), so that day gets no second one.
  * - «Eigene Werte» (3a 4b): the evening-before reminder at eveRemindAt (minutes, default 19:00), heat
  *   from hotC (default 30 °C). Read from the raw settings record so this works before that page lands.
  * - Merken (birthdays, plants, own to-dos with a reminder) read from the settings record 'merken' when
@@ -19,10 +23,16 @@ import { ridesIntoDark, sunTimes, offsetFor } from '../blockplan.js';
 import { stage, stageCount, pointAt } from '../ride.js';
 import { airPrefs, POLLEN_NAMES } from '../air.js';
 import { eatPushItems } from '../unterwegs/essen.js';
+import { wearPush } from '../wear.js';
+import { wetRides, prefsOf } from '../griff.js';
+import { wetOf } from '../inspect/rain.js';
 
 export const PUSH_KEY = 'push';
 export const AHEAD_DAYS = 14;
 export const WEATHER_AT = '06:30';
+/** The ice warning at home: the next 7 mornings, only in the cold months. */
+export const ICE_DAYS = 7;
+export const ICE_MONTHS = [10, 11, 12, 1, 2, 3, 4];
 export const DAY_AT = '08:00';
 export const BACKUP_AT = '19:00';
 export const EVE_STD = 19 * 60;
@@ -43,12 +53,17 @@ export const KINDS = [
   { key: 'birthday', label: 'Birthdays', hint: 'The day before at 18:00 and on the day at 08:00, as set in Merken.' },
   { key: 'plant', label: 'Water the plants', hint: 'On the day a plant needs water.' },
   { key: 'eve', label: 'Evening before a trip', hint: 'The evening-before check, at the time of «Eigene Werte».' },
-  { key: 'weather', label: 'Weather on the tour day', hint: 'At 06:30, only for a storm, heat or a thunderstorm.' },
+  { key: 'weather', label: 'Weather on the tour day', hint: 'At 06:30, only for a storm, heat, ice or a thunderstorm.' },
+  { key: 'ice', label: 'Ice in the morning', hint: 'From October to April at 06:30, when roads at home can be icy (around 0 °C with rain or snow). Needs your home place.' },
   { key: 'wxwatch', label: 'Weather alarm', hint: 'Before a planned tour: when a good weather window comes or the weather turns. Twice a day, up to 10 days ahead.' },
   { key: 'dark', label: 'Light alarm', hint: 'The evening before, when the ride goes on after sunset: pack the light and the reflective vest.' },
   { key: 'rainsoon', label: 'Rain on the way', hint: 'While you ride: when rain comes in about 15 to 45 minutes where you should be.' },
   { key: 'air', label: 'Ozone and pollen', hint: 'On the tour morning, with much ozone or strong pollen (the kinds you choose on Aktiv).' },
   { key: 'workshop', label: 'Workshop due', hint: 'On the day a workshop job is due.' },
+  // «Verschleiss immer im Griff» (Noah 20.10.2026): a part reaches its km (e.g. the chain at 1000 km)
+  // Paket VG 1128 «Nasse Fahrt»: the evening after a ride in the rain
+  { key: 'wetchain', label: 'Chain after rain', hint: 'At 19:00 on a day you rode in the rain: dry and oil the chain.' },
+  { key: 'wear', label: 'Parts worn', hint: 'When a part reaches its km, e.g. the chain. At 08:00.' },
   { key: 'backup', label: 'Backup', hint: 'When the last backup is older than set.' },
   // Paket N idea 2 (Noah 19.10.2026 «1-5 a»): a race trip's registration deadline (Touren › Träume)
   { key: 'race', label: 'Race registration', hint: '3 days and 1 day before the registration deadline, at 08:00.' },
@@ -59,9 +74,18 @@ export const KINDS = [
   { key: 'shop', label: 'Shopping before a trip', hint: '2 days before a trip, when its shopping list or charging still has open rows.' },
   // Paket K #286 «Ess-Erinnerung» (Noah 19.10.2026 «5a b möglich»): also when the app is closed
   { key: 'eat', label: 'Eat on the ride', hint: 'While the eat reminder runs on On the way, every 30 to 60 minutes.' },
+  // Paket NE 1150 (Noah 20.10.2026 «9a»): a note with a reminder date
+  { key: 'note', label: 'Note reminders', hint: 'At the time you set in a note.' },
 ];
 /** Paket H (#90): the shopping and charging reminder comes this many days before the trip. */
 export const SHOP_BEFORE = 2;
+
+/** Paket NE 1150: the reminder of a note → { day, hm } or null (none, done, or not a time). */
+export function noteRemind(n) {
+  const m = /^(\d{4}-\d{2}-\d{2})T(\d{2}:\d{2})/.exec(n?.remind?.at ?? '');
+  if (!m || n.remind.done || !okHm(m[2])) return null;
+  return { day: m[1], hm: m[2] };
+}
 
 /** The stored switches, made safe: everything off unless switched on. */
 export function pushOf(value) {
@@ -169,6 +193,17 @@ export function buildList(data) {
       if (at > ms) weather.push({ key: `wx:${tr.id}:${tr.startDate}`, at, date: tr.startDate, lat: place.lat, lon: place.lon, title: tourName(tr), url: '#/pack' });
     }
   }
+  if (on('ice')) {
+    const home = data.settings?.homePlace;
+    const tourDay = new Set(on('weather') ? weather.map((w) => w.date) : []);
+    if (home && Number.isFinite(home.lat) && Number.isFinite(home.lon))
+      for (let d = 0; d < ICE_DAYS; d++) {
+        const day = addDays(today, d);
+        const at = atMs(day, WEATHER_AT);
+        if (at <= ms || tourDay.has(day) || !ICE_MONTHS.includes(+day.slice(5, 7))) continue;
+        weather.push({ key: `ice:${day}`, at, date: day, lat: home.lat, lon: home.lon, title: t('Ice warning'), url: '#/wetter', only: ['ice'] });
+      }
+  }
   const watch = [];
   if (on('wxwatch')) {
     const home = data.settings?.homePlace;
@@ -186,6 +221,19 @@ export function buildList(data) {
     for (const r of data.repairs ?? [])
       if (r.status !== 'done' && !r.done && DAY.test(r.dueDate ?? ''))
         add({ key: `ws:${r.id}:${r.dueDate}`, at: atMs(r.dueDate < today ? today : r.dueDate, DAY_AT), title: t('Workshop'), body: t('{bike}: {task} is due before the trip.', { bike: bikes[r.bikeId] ?? r.subject ?? t('Bike'), task: r.task }), url: '#/bikes?tab=care' });
+  }
+  // «Verschleiss immer im Griff»: on the day a part reaches its km (at the pace of the last 8 weeks), today when it already has
+  if (on('wear'))
+    for (const w of wearPush(data.bikes ?? [], { visits: data.visits ?? [], entries: data.kmBook ?? [], today })) {
+      let at = atMs(w.day, DAY_AT);
+      if (at <= ms) at = atMs(addDays(today, 1), DAY_AT);
+      add({ key: w.key, at, title: t('Parts worn'), body: w.left > 0 ? t('{bike}: {part} reaches {life} km soon ({km} km left). Time to replace it.', { bike: w.bike, part: w.part, life: w.life, km: w.left }) : t('{bike}: {part} has reached {life} km. Time to replace it.', { bike: w.bike, part: w.part, life: w.life }), url: w.url });
+    }
+  // Paket VG 1128: a ride in the rain today → at 19:00 «Kette trocknen und ölen» (the switch in griff.prefs too)
+  if (on('wetchain') && prefsOf(data.griff).wetChain) {
+    const names = Object.fromEntries((data.bikes ?? []).map((b) => [b.id, b.name]));
+    const first = wetRides(data.kmBook ?? [], today, wetOf(data.rain))[0];
+    if (first && names[first.bikeId]) add({ key: `wetchain:${first.bikeId}:${today}`, at: atMs(today, '19:00'), title: t('Chain after rain'), body: t('{bike} was out in the rain today. Dry and oil the chain.', { bike: names[first.bikeId] }), url: `#/bikes?tab=care&view=wear&bike=${encodeURIComponent(first.bikeId)}` });
   }
   if (on('backup')) {
     const last = data.lastBackup ? localDay(new Date(data.lastBackup)) : today;
@@ -250,6 +298,14 @@ export function buildList(data) {
       add({ key: `own:${td.id}:${td.due}`, at: atMs(addDays(td.due, -(td.remind.before || 0)), td.remind.at), title: t('Reminder'), body: td.text, url: '#/calendar' });
     }
   }
+  // Paket NE 1150: notes with a reminder (note.remind = { at: 'YYYY-MM-DDTHH:MM' }, not yet done)
+  if (on('note'))
+    for (const n of data.notes ?? []) {
+      const r = noteRemind(n);
+      if (!r) continue;
+      const first = String(n.text ?? '').split('\n').find((l) => l.trim()) ?? '';
+      add({ key: `note:${n.id}:${r.day}T${r.hm}`, at: atMs(r.day, r.hm), title: t('Note reminder'), body: String(n.title || first.replace(/^[#\-*\s[\]x]+/, '') || t('Note')).slice(0, 200), url: `#/notes?open=${n.id}` });
+    }
   items.sort((a, b) => a.at - b.at);
   const wxOn = on('weather');
   const texts = {
@@ -258,6 +314,8 @@ export function buildList(data) {
     thunder: wxOn ? t('Thunderstorms are possible today. Have a look at the weather.') : '',
     storm: wxOn ? t('Strong gusts are expected today. Have a look at the weather.') : '',
     heat: wxOn ? t('Up to {temp} °C today. Take enough to drink.', { temp: '{temp}' }) : '',
+    ice: wxOn || on('ice') ? t('Roads can be icy this morning (down to {temp} °C with rain or snow). Ride carefully or take the train.', { temp: '{temp}' }) : '',
+    ititle: t('Ice warning'),
     rtitle: t('Rain on the way'),
     rain: t('Rain in about {min} minutes on {trip}. Keep the rain jacket at hand.', { min: '{min}', trip: '{trip}' }),
     ozone: t('Much ozone today (up to {n} µg/m³): take it easier at midday.', { n: '{n}' }),

@@ -1,3 +1,5 @@
+import { readCfg, menuPlaces, visibleTabs, startTab } from './anpassen.js'; // «Anpassen» (Noah 20.10.2026 «2a 4a»)
+
 /**
  * Start actions from anywhere (v0.19.6): the "New" sheet, the search and the start page open
  * another page with something already started. The wish is kept in localStorage (the page reads
@@ -182,7 +184,7 @@ export function pageOf(hash = '', careTab = false) {
   if (h.startsWith('#/notes')) return 'notes'; // v0.48.0: the Notes page
   if (h.startsWith('#/review')) return 'debrief'; // v0.44.0: the last 12 months; v0.49.0: part of the Rückblick
   if (h.startsWith('#/heatmap')) return 'heatmap'; // «Heatmap» (Noah 20.10.2026): all rides on one map, Touren › Rückblick
-  if (h.startsWith('#/tagebuch')) return 'tagebuch'; // «Tagebuch» (Noah 20.10.2026): own page; its place in the bar stays Ich until the nav thread moves it
+  if (h.startsWith('#/tagebuch')) return 'tagebuch'; // «Tagebuch» (Noah 20.10.2026): own page, a tab of Planen
   if (h.startsWith('#/neuland')) return 'neuland'; // «Neuland» (wish #1007): Touren › Rückblick › Neuland
   if (h.startsWith('#/features')) return 'features'; // v0.30.0 (Noah 3a): what the app can do
   if (h.startsWith('#/flow/impulse')) return 'impulse'; // Paket T «Freie Zeit»: Impulse as a tab of Aktiv (Noah «1a und b»)
@@ -190,6 +192,7 @@ export function pageOf(hash = '', careTab = false) {
   if (h.startsWith('#/inspiration')) return 'inspiration'; // «Inspiration» UC2-1: your own links (sidebar; phone: Ich › Inspiration)
   if (h.startsWith('#/assistent')) return 'assistent'; // «Assistent» (Noah 15.10.2026): Frag die App + Hilf mir planen
   if (h.startsWith('#/helper')) return 'helper'; // v0.77.0 KI-Helfer (K1a): Ich › Helfer
+  if (h.startsWith('#/me/suche')) return 'suchesettings'; // «Suche mit Sprache und Antworten» (Noah 21.10.2026 «5b»)
   if (h.startsWith('#/me/ki-projekte')) return 'aiprojects'; // «Meine KI-Projekte» (Noah 19.10.2026 «2a»)
   if (h.startsWith('#/me/look')) return 'look'; // v0.97.0 Design-Refresh R1: Ich › Darstellung
   if (h.startsWith('#/me/docs/scan')) return 'docscan'; // Dokumente-PDF: «Dokument fotografieren»
@@ -219,6 +222,7 @@ export function pageOf(hash = '', careTab = false) {
   if (h.startsWith('#/me/offers')) return 'offers'; // Termine buchen (mockups BU1, BU4, BU5, Noah 14.10.2026)
   if (h.startsWith('#/me/pay')) return 'pay'; // Ich › Bezahlen (mockups BZ1 + BZ2b, Noah 14.10.2026)
   if (h.startsWith('#/me/hinweise')) return 'hinweise'; // Paket Q #148: Ich › Hinweise und News
+  if (h.startsWith('#/wetter')) return 'wetter'; // Paket Y «Wetter-Kern» (Noah 20.10.2026 «1-5a»)
   if (h.startsWith('#/me/push')) return 'push'; // Erinnerungen aufs Handy (Web-Push, Noah 15.10.2026 «1a 2b 3a 4b 5a»)
   if (h.startsWith('#/me/checks')) return 'checks'; // v0.111.0 (mockup V4): Ich › Checks pro Reiseart
   if (h.startsWith('#/me/wohl')) return 'wohl'; // Paket P «Was mir gut tut» (Noah 19.10.2026)
@@ -330,6 +334,8 @@ export const PLACE_TABS = {
     { key: 'week', label: 'Week|tab', href: '#/week', match: (h) => /^#\/week(\/|\?|$)/.test(h) },
     { key: 'agenda', label: 'Appointments|tab', href: '#/me/agenda', match: (h) => h.startsWith('#/me/agenda') || h.startsWith('#/calendar') },
     { key: 'notes', label: 'Notes|tab', href: '#/notes', match: (h) => h.startsWith('#/notes') },
+    // «Tagebuch» (Noah 20.10.2026): what you write about your day sits next to the notes
+    { key: 'tagebuch', label: 'Diary|tab', href: '#/tagebuch', match: (h) => h.startsWith('#/tagebuch') },
     { key: 'inbox', label: 'Inbox|tab', href: '#/inbox', match: (h) => h.startsWith('#/inbox') },
     { key: 'mail', label: 'Mail|tab', href: '#/me/mail', match: (h) => h.startsWith('#/me/mail') },
     { key: 'compass', label: 'Compass|tab', href: '#/me/compass', match: (h) => h.startsWith('#/me/compass') },
@@ -337,7 +343,7 @@ export const PLACE_TABS = {
     { key: 'frei', label: 'Free time|tab', href: '#/me/frei', match: (h) => h.startsWith('#/me/frei') },
   ],
   trips: [
-    { key: 'overview', label: 'Overview|tab', href: '#/trips', match: (h) => h.startsWith('#/trips') && !h.startsWith('#/trips/dreams') && !isRidesHash(h) },
+    { key: 'overview', label: 'Overview|tab', href: '#/trips', match: (h) => h.startsWith('#/trips') && !h.startsWith('#/trips/dreams') && !h.startsWith('#/trips/fuel') && !isRidesHash(h) }, // Impeccable 20.10.2026: Verpflegung is a page of a tour, not the overview
     { key: 'templates', label: 'Templates', href: '#/pack/templates', match: (h) => h.startsWith('#/pack/templates') },
     { key: 'lookback', label: 'Look back|page', href: '#/debrief', match: (h) => h.startsWith('#/debrief') || h.startsWith('#/pack/past') || h.startsWith('#/neuland') || h.startsWith('#/heatmap') },
     // Paket N (Noah 19.10.2026 «1a»): dream tours with their season, races as event tours
@@ -365,10 +371,10 @@ export const PLACE_TABS = {
     // «Meditation» (ME2) with its Rückblick (ME3) and timer pages; the second tab (Noah 15.10.2026 «1a»)
     { key: 'meditation', label: 'Meditation', href: '#/flow/act/meditation', match: (h) => isMedHash(h) },
     // «Training» TR2 (Noah 13.10.2026 «1-5a» 1a: its own tab in Aktiv): every Strava activity, one activity under it
-    { key: 'training', label: 'Training|tab', href: '#/flow/training', match: (h) => /^#\/flow\/training(\/|\?|$)/.test(h) },
+    { key: 'training', label: 'Training|tab', href: '#/flow/training', match: (h) => /^#\/flow\/(training|plans)(\/|\?|$)/.test(h) }, // Impeccable 20.10.2026: the training plans belong to Training
     // Gesamttest 20.10.2026 B3: the Strava activities, tab «Fahrten»; N1 (Noah 20.10.2026 «2a»): under Auswerten, same address
     { key: 'rides', label: 'Rides|tab', href: RIDES_HREF, match: (h) => isRidesHash(h) },
-    { key: 'goals', label: 'Activities|tab', href: '#/flow/goals', match: (h) => /^#\/flow\/(goals|edit|new)(\/|\?|$)/.test(h) && !/[?&]from=activity\b/.test(h) },
+    { key: 'goals', label: 'Activities|tab', href: '#/flow/goals', match: (h) => /^#\/flow\/(goals|edit|new|auswertung)(\/|\?|$)/.test(h) && !/[?&]from=activity\b/.test(h) },
     // hobby pages 1: Aktivität (tiles, milestones; the editor opened from a tile stays here)
     { key: 'activity', label: 'Activity|tab', href: '#/flow/activity', match: (h) => !isMedHash(h) && (/^#\/flow\/(activity|milestones|trophies|gipfelbuch|sports?(\/|\?|$)|act\/)/.test(h) || (h.startsWith('#/flow/') && /[?&]from=activity\b/.test(h))) },
     // Paket T «Freie Zeit» (Noah 19.10.2026 «1a und b»): Impulse, also under Ich › Freie Zeit
@@ -405,13 +411,13 @@ export function placeOf(page) {
   if (page === 'flow') return 'active';
   if (page === 'impulse') return 'active'; // Paket T: Aktiv › Impulse
   // N1 + UI-Ziele #6 (Noah 20.10.2026): what you plan is Planen, what you look back on is Auswerten; Ich keeps data, settings, help
-  if (['week', 'agenda', 'calendar', 'notes', 'inbox', 'mail', 'compass', 'alltag', 'frei'].includes(page)) return 'week';
+  if (['week', 'agenda', 'calendar', 'notes', 'tagebuch', 'inbox', 'mail', 'compass', 'alltag', 'frei'].includes(page)) return 'week';
   if (['stravarides', 'insights', 'history', 'abfragen', 'analysis', 'wohl', 'weight'].includes(page)) return 'active';
-  if (['trips', 'dreams', 'between', 'pack', 'templates', 'past', 'ride', 'debrief', 'rides', 'share', 'review', 'ski', 'mountain', 'quiz', 'chronik', 'gelernt', 'jahr', 'neuland', 'heatmap', 'spur', 'tour', 'travel', 'race', 'live', 'fuel'].includes(page)) return 'trips';
+  if (['trips', 'dreams', 'between', 'pack', 'templates', 'past', 'ride', 'debrief', 'rides', 'share', 'review', 'ski', 'mountain', 'quiz', 'chronik', 'gelernt', 'jahr', 'neuland', 'heatmap', 'spur', 'tour', 'travel', 'race', 'live', 'fuel', 'wetter'].includes(page)) return 'trips'; // wetter: Paket Y, the weather to plan rides (no own tab: Touren has its 5)
   if (page === 'gear' || page === 'supplies' || page === 'lend' || page === 'power' || page === 'gearimport' || page === 'favorites' || page === 'blocks' || page === 'blockcheck' || page === 'wardrobe') return 'gear';
   if (page === 'bikes' || page === 'care') return 'bikes';
   if (page === 'equipment') return 'equipment';
-  if (page === 'me' || page === 'aiprojects' || page === 'tools' || page === 'weblinks' || page === 'hinweise' || page === 'compass' || page === 'next' || page === 'wohl' || page === 'inbox' || page === 'features' || page === 'helper' || page === 'assistent' || page === 'offers' || page === 'privacy' || page === 'pros' || page === 'push' || page === 'look' || page === 'data' || page === 'docs' || page === 'docscan' || page === 'connections' || page === 'mail' || page === 'fitbit' || page === 'weight' || page === 'phone' || page === 'news' || page === 'checks' || page === 'abfragen' || page === 'history' || page === 'analysis' || page === 'handbook' || page === 'miniapps' || page === 'inspiration' || page === 'lists' || page === 'pay' || page === 'invoices' || page === 'invoice' || page === 'bills' || page === 'shop' || page === 'shoporders' || page === 'werte' || page === 'reminders' || page === 'calendar' || page === 'list') return 'me'; // Kalender: own place once Noah chose the 5 phone places (decision 11.10 1a)
+  if (page === 'me' || page === 'aiprojects' || page === 'suchesettings' || page === 'tools' || page === 'weblinks' || page === 'hinweise' || page === 'compass' || page === 'next' || page === 'wohl' || page === 'inbox' || page === 'features' || page === 'helper' || page === 'assistent' || page === 'offers' || page === 'privacy' || page === 'pros' || page === 'push' || page === 'look' || page === 'data' || page === 'docs' || page === 'docscan' || page === 'connections' || page === 'mail' || page === 'fitbit' || page === 'weight' || page === 'phone' || page === 'news' || page === 'checks' || page === 'abfragen' || page === 'history' || page === 'analysis' || page === 'handbook' || page === 'miniapps' || page === 'inspiration' || page === 'lists' || page === 'pay' || page === 'invoices' || page === 'invoice' || page === 'bills' || page === 'shop' || page === 'shoporders' || page === 'werte' || page === 'reminders' || page === 'calendar' || page === 'list') return 'me'; // Kalender: own place once Noah chose the 5 phone places (decision 11.10 1a)
   return null;
 }
 
@@ -444,13 +450,78 @@ export function keepTab(place, key) {
 export function placeHref(p, current = null, hash = '') {
   void hash;
   const tabs = PLACE_TABS[p.key] ?? [];
-  if (p.key === current || tabs.length < 2) return tabs[0]?.href ?? p.href;
-  return lastTab(p.key)?.href ?? p.href;
+  if (tabs.length < 2) return tabs[0]?.href ?? p.href;
+  // «Anpassen» 4a (Noah 20.10.2026): a start tab you chose wins over «the tab opened last»
+  const own = startTab(readCfg(), p.key);
+  const start = own ? shownTabs(p.key).find((x) => x.key === own) : null;
+  if (start) return start.href;
+  if (p.key === current) return shownTabs(p.key)[0]?.href ?? p.href;
+  const shown = shownTabs(p.key);
+  const last = lastTab(p.key);
+  if (last && shown.includes(last)) return last.href;
+  // the place's own address, unless you hid the tab it opens
+  const home = tabs.find((x) => x.match(p.href));
+  return home && !shown.includes(home) ? (shown[0]?.href ?? p.href) : p.href;
+}
+
+/** «Anpassen» 2a (Noah 20.10.2026): the places of the phone bar in your order, without the hidden ones. */
+export const menuBar = () => menuPlaces(readCfg(), BAR_PLACES);
+/** The places of the sidebar in your order, without the hidden ones; Ausrüstung stays under Velos. */
+export const menuSide = () => menuPlaces(readCfg(), PLACES).flatMap((p) => (p.key === 'bikes' ? [p, EQUIPMENT] : [p]));
+
+/** «Anpassen» 2a: the tabs of a place in your order without the ones you hid; the tab you are on always stays. */
+export function shownTabs(place, hash = '') {
+  return visibleTabs(readCfg(), place, orderedTabs(place), hash ? tabOf(place, hash) : null);
+}
+
+/* ---------- Impeccable 20.10.2026 P1 (Noah «alles umsetzen», 1a): at most four tabs on a phone, the rest under «Mehr» ---------- */
+const ORDER_KEY = 'nav.order';
+/** How many tabs a phone shows side by side; the others wait in the «Mehr» window. */
+export const PHONE_TABS = 4;
+
+/** The tabs of a place in the order you chose (arrows and drag in «Mehr»); new tabs come after, in their own order. */
+export function orderedTabs(place) {
+  const tabs = PLACE_TABS[place] ?? [];
+  let keys = [];
+  try {
+    keys = JSON.parse(localStorage.getItem(`${ORDER_KEY}.${place}`) || '[]');
+  } catch {
+    keys = [];
+  }
+  if (!Array.isArray(keys) || !keys.length) return tabs;
+  const at = (k) => {
+    const i = keys.indexOf(k);
+    return i < 0 ? keys.length + tabs.findIndex((x) => x.key === k) : i;
+  };
+  return [...tabs].sort((a, b) => at(a.key) - at(b.key));
+}
+
+/** Keep the order of the tabs of a place (their keys); null goes back to the app's order. */
+export function setTabOrder(place, keys) {
+  try {
+    if (keys) localStorage.setItem(`${ORDER_KEY}.${place}`, JSON.stringify(keys));
+    else localStorage.removeItem(`${ORDER_KEY}.${place}`);
+  } catch {
+    /* private mode: the order lasts until the page reloads */
+  }
+}
+
+/**
+ * The tabs a phone shows: the first four of your order; when the page you are on is further down,
+ * it takes the fourth place, so the lit tab is always in view. more: the rest, for «Mehr».
+ */
+export function phoneTabs(place, hash = '') {
+  const all = shownTabs(place, hash);
+  if (all.length <= PHONE_TABS) return { shown: all, more: [] };
+  const cur = tabOf(place, hash);
+  let shown = all.slice(0, PHONE_TABS);
+  if (cur && !shown.some((x) => x.key === cur)) shown = [...all.slice(0, PHONE_TABS - 1), all.find((x) => x.key === cur)];
+  return { shown, more: all.filter((x) => !shown.includes(x)) };
 }
 
 /** The tab before (-1) or after (+1) the current one, for a swipe on a phone (Noah O2.3a), or null. */
 export function tabStep(place, hash, dir) {
-  const tabs = PLACE_TABS[place] ?? [];
+  const tabs = shownTabs(place, hash);
   const i = tabs.findIndex((x) => x.key === tabOf(place, hash));
   if (i < 0) return null;
   return tabs[i + dir] ?? null;

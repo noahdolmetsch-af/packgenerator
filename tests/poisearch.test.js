@@ -189,6 +189,9 @@ describe('cache rules', () => {
     expect(fresh(r, { mode: 'here', keys: ['fuel'], bounds: { s: 46.92, w: 7.42, n: 47.1, e: 7.48 } }, now)).toBe(false);
     expect(viewMoved(r.bounds, { s: 46.92, w: 7.42, n: 46.98, e: 7.48 })).toBe(false);
     expect(viewMoved(r.bounds, { s: 47.1, w: 7.42, n: 47.2, e: 7.48 })).toBe(true);
+    // a tiny shift after a resize does not count as moved
+    expect(viewMoved({ s: 46.9, w: 7.4, n: 47.0, e: 7.5 }, { s: 46.9001, w: 7.4, n: 47.0001, e: 7.5 })).toBe(false);
+    expect(viewMoved(null, { s: 46.9, w: 7.4, n: 47.0, e: 7.5 })).toBe(true);
   });
   it('route: kept until reloaded, any age, same line', () => {
     const r = { at: now - 400 * DAY_MS, keys: KEYS, list: [], hash: lineHash(LINE) };

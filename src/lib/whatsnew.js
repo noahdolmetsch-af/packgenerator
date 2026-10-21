@@ -16,6 +16,116 @@
 
 export const WHATS_NEW = [
   {
+    // v0.175.0 «Anpassen» (Noah 20.10.2026 «1a 2a 3a 4a 5a»): every page, its tabs and the menu changed in the app; plus Körperwerte tile + countdown on Heute (Noah 21.10 06:49) and drawing on all photos; built without mockups
+    version: '0.175.0',
+    date: '2026-10-21',
+    title: 'Make it your own',
+    lead: 'Change every page yourself.',
+    points: [
+      { text: 'Every page: «Customise this page» at the end', href: '#/trips' },
+      { text: 'Menu: hide and sort the places', href: '#/me/look' },
+      { text: 'Today: body values and the days until your next trip', href: '#/' },
+    ],
+    small: [
+      { box: 'new', text: 'Draw on every photo' },
+    ],
+    test: [
+      'Scroll to the end of Trips and tap «Customise this page».',
+      'Hide a part and rename one; «As at the start» puts it back.',
+    ],
+  },
+  {
+    // v0.174.0 «Klarer und einheitlich»: Impeccable report (Noah 20.10.2026, all approved) and «Fahrt-Analyse als Vorbild» parts 1+2 (Auswertung wie Training); built without mockups
+    version: '0.174.0',
+    date: '2026-10-21',
+    title: 'Clearer and the same everywhere',
+    lead: 'Fewer tabs, one word per thing.',
+    points: [
+      { text: 'Phone: at most four tabs on top, the rest under «More»', href: '#/bikes?tab=care' },
+      { text: 'Evaluate what you tick, like a ride', href: '#/flow/auswertung' },
+      { text: 'Shorter pages, two columns on the computer', href: '#/trips' },
+    ],
+    small: [
+      { box: 'nicer', text: 'One word per thing: Parts, Look back, Trip type' },
+      { box: 'nicer', text: 'Week: Take, Leave out and Not this week with Undo', href: '#/week/plan' },
+      { box: 'fixed', text: 'Fitbit shows why nothing comes' },
+    ],
+    test: [
+      'On the phone, open Bikes and tap «More» at the top right.',
+      'Open Active › Goals › Evaluate.',
+    ],
+  },
+  {
+    // v0.173.0 «Suche und eigene Werte»: thread «Suche als Alleskönner» (Noah 21.10.2026 «1a 2a 3a+b 4b+a 5b», ideas 1–8), Wetter follow-up (webcams, ice) and «Eigene Werte und alle Daten anpassbar» (Noah 21.10.2026 «1 a und b 2 a 3a 4a»); built without mockups
+    version: '0.173.0',
+    date: '2026-10-21',
+    title: 'Search and own values',
+    lead: 'Say it, and change every list yourself.',
+    points: [
+      { text: 'Speak into the search: «Chain oiled» runs at once, with Undo', href: '#/me/suche' },
+      { text: 'Questions get an answer from your data', href: '#/assistent' },
+      { text: 'Own reminders: every N km or days', href: '#/me/werte' },
+    ],
+    small: [
+      { box: 'new', text: 'Six more lists to change', href: '#/me/lists' },
+      { box: 'new', text: 'Your webcams on the live map', href: '#/wetter' },
+      { box: 'new', text: 'Phone warning: icy roads in the morning' },
+    ],
+    test: [
+      'Tap the microphone in the search and say «Weight 72».',
+      'Open Me › Own values › «+ Own reminder».',
+    ],
+  },
+  {
+    // v0.172.0 «Velo und Notizen»: Paket VG «Das Velo im Griff» (1128–1135; the chain window on Heute waits for Noah's OK) and Paket NE «Notizen wie Evernote» (Noah 20.10.2026); built without mockups
+    version: '0.172.0',
+    date: '2026-10-21',
+    title: 'Bike and notes',
+    lead: 'Look after the bike, keep everything in notes.',
+    points: [
+      { text: 'Wear: photos, spare parts, sale listing', href: '#/bikes?tab=care&view=wear' },
+      { text: 'Notes: draw, format, attach files', href: '#/notes' },
+      { text: 'Notes: reminder and a bin for 30 days', href: '#/notes' },
+    ],
+    small: [{ box: 'new', text: 'Phone reminder: dry the chain after rain' }],
+    test: [
+      'Open Notes, start a note and draw on a photo.',
+      'Bikes › Care › a bike › «Wear»: add spare parts at home.',
+    ],
+  },
+  {
+    // v0.171.0 «Velo, Wetter und Körper»: Verschleiss, Bilder, Wetter-Kern X/Y 2–4, Körperwerte, Fitbit überall (Check, Heute), KI im Gerät, Z «Aus jeder Tour lernen», SP «Schneller packen», U4 Schlafplätze, Tagebuch unter Planen, See-Prognose (Noah 20.10.2026); built without mockups
+    version: '0.171.0',
+    date: '2026-10-21',
+    title: 'Bike, weather, body',
+    lead: 'Wear, weather and your values.',
+    points: [
+      { text: 'Wear: km left per part', href: '#/bikes?tab=care&view=wear' },
+      { text: 'Weather: best start, radar, webcams', href: '#/wetter' },
+      { text: 'Body values: 25 values, Fitbit everywhere', href: '#/flow/stats/hr' },
+    ],
+    small: [{ box: 'new', text: 'Phone AI, sleep spots, faster packing' }],
+    test: [
+      'Bikes › Care › a bike › «Wear»: look at the bars.',
+      'Tap the weather line on Today: the best start.',
+    ],
+  },
+  {
+    // v0.170.1 «Abgleich ruhig» (bug fix, Noah 21.10.2026: the sync window asked again and again about «strava.last» while navigating; «Später» did not help)
+    version: '0.170.1',
+    date: '2026-10-21',
+    title: 'Sync stays quiet',
+    lead: 'No more questions about values the app keeps for itself.',
+    points: [
+      { text: 'The sync no longer asks about values the app saves itself (e.g. the last Strava fetch)', href: '#/me/data' },
+    ],
+    small: [{ box: 'fixed', text: '«Decide later» now gives an hour of quiet' }],
+    test: [
+      'Tap around Today and Plan on the phone: the sync window stays closed.',
+      'If it opens, tap «Decide later»: it stays closed for an hour.',
+    ],
+  },
+  {
     // v0.170.0 «Tagebuch, Form, Heatmap»: Tagebuch, Form und Erholung + Garmin overview, Tour-Auswertung, Heatmap, Check-Fragen, Erster Start, Zürisee and sauna (Noah 20.10.2026); built without mockups
     version: '0.170.0',
     date: '2026-10-20',

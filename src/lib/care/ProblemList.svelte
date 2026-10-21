@@ -5,7 +5,12 @@
    * the way to fix it (route: myself, with a guide, bike shop, part needed). The priority is a button
    * in the row (v0.46.1), Done and the other answers as before (••• menu).
    */
-  import { Check, ChevronDown, Flag, Wrench, X as XIcon, Pencil, Trash2 } from '@lucide/svelte';
+  import { Check, ChevronDown, Flag, Wrench, X as XIcon, Pencil, Trash2, Camera, FileText } from '@lucide/svelte';
+  import ProblemPhotosSheet from '../bilder/ProblemPhotosSheet.svelte'; // «Bilder in der App» 3a/4a
+  import Lightbox from '../ui/Lightbox.svelte';
+  import { problemPhotos } from '../photo.js';
+  import { drawnOn } from '../draw/ink.js';
+  import { DOCS_HASH } from '../docs/client.svelte.js';
   import RenameSheet from '../ui/RenameSheet.svelte';
   import { offerRename } from '../ui/rename.svelte.js';
   import { askDelete, deleteWithUndo } from '../ui/ask.js';
@@ -68,7 +73,21 @@
       name: task.task,
     });
   }
+  // «Bilder in der App» (Noah 20.10.2026 «3a 4a»): a problem's photos small in the row, big on a tap;
+  // «Photos and PDF» adds, cuts or takes away photos and makes one PDF of them.
+  let photosOf = $state(null); // the task whose photos are edited
+  let big = $state(null); // { id, list, start }
+  const bigOf = (task, pics, start) => ({ id: task.id, start, list: pics.map((p, i) => ({ src: p, inks: task.inks, name: task.task, sub: t('Photo {n}', { n: i + 1 }) })) });
+  // Paket NE 1146 (Noah 20.10.2026 «1b»): draw on a problem's photo in the big view
+  async function drawnPhoto(cur, { old, src, ink }) {
+    const task = await db.maintenance.get(big.id);
+    if (!task) return;
+    const out = drawnOn(problemPhotos(task), task.inks, old, src, ink);
+    await db.maintenance.update(task.id, { photos: out.list, photo: out.list[0] ?? null, inks: out.inks, docId: null });
+    big = bigOf({ ...task, inks: out.inks }, out.list, out.list.indexOf(src));
+  }
   const editActions = (task) => [
+    { name: problemPhotos(task).length ? t('Photos and PDF') : t('Add photos'), explain: t('Photos of the problem: add, cut, as PDF'), icon: Camera, run: () => (photosOf = task) },
     { name: t('Rename'), explain: t('Change the text of the problem'), icon: Pencil, run: () => (renaming = task) },
     { name: t('Delete'), explain: t('Remove the problem for good'), icon: Trash2, run: () => remove(task) },
   ];
@@ -101,6 +120,14 @@
               <span class="when">{dateOf(task.logDate)}{FROM[task.source] ? ` · ${t('from: {where}', { where: t(FROM[task.source]) })}` : ''}</span>
               {#if !isOpen(task)}<i class="pill ok">{t('solved')}</i>{/if}
             </span>
+            {#if problemPhotos(task).length || task.docId}
+              {@const pics = problemPhotos(task)}
+              <span class="pics" data-problem-photos>
+                {#each pics.slice(0, 4) as src, n (n)}<button type="button" class="pth" aria-label={t('Open photo {n} of {name}', { n: n + 1, name: task.task })} onclick={() => (big = bigOf(task, pics, n))}><img src={src} alt="" loading="lazy" /></button>{/each}
+                {#if pics.length > 4}<span class="more">+{pics.length - 4}</span>{/if}
+                {#if task.docId}<a class="pdf" href={`${DOCS_HASH}/${encodeURIComponent(task.docId)}`}><FileText size={14} aria-hidden="true" />PDF</a>{/if}
+              </span>
+            {/if}
             {#if stepFor(task) || task.note}<span class="sub">{[stepFor(task) ? t(stepFor(task)) : '', task.note].filter(Boolean).join(' · ')}</span>{/if}
             <span class="sub">
               <button type="button" class="prio" class:hi={task.priority === 'high'} aria-expanded={prioOpen === task.id} aria-controls="prio-{task.id}" onclick={() => ((prioOpen = prioOpen === task.id ? null : task.id), (prioSaved = null))}>{t('Priority: {p}', { p: t(PRIORITY_NAME[task.priority] ?? 'Medium') })}<ChevronDown size={14} aria-hidden="true" /></button>{#if task.dueDate}{' · '}{t('by {date}', { date: dateOf(task.dueDate) })}{:else if task.beforeRide}{' · '}{t('Before the next ride')}{/if}
@@ -128,6 +155,12 @@
       {/each}
     </ul>
   </section>
+{/if}
+{#if photosOf}
+  <ProblemPhotosSheet task={photosOf} bikeName={bikeOf(photosOf)?.name ?? ''} onclose={() => (photosOf = null)} />
+{/if}
+{#if big}
+  <Lightbox list={big.list} start={big.start} onclose={() => (big = null)} ondraw={drawnPhoto} />
 {/if}
 {#if renaming}
   <RenameSheet kicker={t('Problems')} title={t('Rename problem')} value={renaming.task} onsave={(name) => rename(renaming, name)} onclose={() => (renaming = null)} />
@@ -166,6 +199,41 @@
   .none {
     margin: 8px 0;
     color: var(--ink-3);
+    font-size: var(--fs-small);
+  }
+  /* «Bilder in der App»: the problem's photos as small quiet squares */
+  .pics {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    margin: 4px 0 2px;
+  }
+  .pth {
+    padding: 0;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    overflow: hidden;
+    background: var(--paper-2);
+    cursor: zoom-in;
+  }
+  .pth img {
+    display: block;
+    width: 44px;
+    height: 44px;
+    object-fit: cover;
+  }
+  .pics .more {
+    color: var(--ink-3);
+    font-size: var(--fs-small);
+  }
+  .pics .pdf {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    min-height: 44px;
+    padding: 0 6px;
+    color: var(--ink-2);
     font-size: var(--fs-small);
   }
   .prob.solved {

@@ -1,5 +1,6 @@
 <script>
   import { UNDO_MS } from '../lib/ui/undo.js';
+  import { askDelete } from '../lib/ui/ask.js';
   import { plainError } from '../lib/clear/errors.js'; // Paket Q #127: plain words instead of technical text
   /**
    * v0.36.0 (Noah 1a, 2a, 3b): "Import prüfen" (#/gear/import). The reviewed gear list waits here
@@ -126,7 +127,7 @@
     });
   const undo2 = () =>
     run(async () => {
-      if ((await changedSince(db)) && !confirm(t('Changes made after the import are undone too. Undo anyway?'))) return;
+      if ((await changedSince(db)) && (await askDelete({ title: t('Changes made after the import are undone too. Undo anyway?'), label: t('Undo anyway') })) !== 'delete') return;
       await undoStep2(db);
       tab = 'step2';
       message = t('Undone: everything is as before the import. The list waits here again.');
@@ -198,14 +199,14 @@
 
   const undo = () =>
     run(async () => {
-      if ((await changedSince(db)) && !confirm(t('Changes made after the import are undone too. Undo anyway?'))) return;
+      if ((await changedSince(db)) && (await askDelete({ title: t('Changes made after the import are undone too. Undo anyway?'), label: t('Undo anyway') })) !== 'delete') return;
       await undoImport(db);
       message = t('Undone: everything is as before the import. The list waits here again.');
     });
 
   const discard = () =>
     run(async () => {
-      if (!confirm(t('Discard this import? Nothing in your gear changes.'))) return;
+      if ((await askDelete({ title: t('Discard this import? Nothing in your gear changes.'), label: t('Discard') })) !== 'delete') return;
       await dropStaged(db);
       message = '';
     });

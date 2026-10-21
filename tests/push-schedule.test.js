@@ -45,10 +45,16 @@ describe('the evening before and the tour-day weather (3a, Eigene Werte 3a 4b)',
   });
   it('the weather at 06:30 on the start day, at the route start or else the home place; hot from Eigene Werte', () => {
     const l = buildList(base({ trips: [trip('a', '2026-10-23', { route: { start: { lat: 46.5, lon: 9.8 } } }), trip('b', '2026-10-25')], settings: { push: allOn, homePlace: { name: 'Heimort', lat: 47.1, lon: 8.2 }, ownValues: { hotC: 27 } } }));
-    expect(l.weather).toEqual([
+    const tours = l.weather.filter((w) => !w.only);
+    expect(tours).toEqual([
       expect.objectContaining({ key: 'wx:a:2026-10-23', at: atMs('2026-10-23', '06:30'), date: '2026-10-23', lat: 46.5, lon: 9.8, title: 'Testtour a' }),
       expect.objectContaining({ key: 'wx:b:2026-10-25', lat: 47.1, lon: 8.2 }),
     ]);
+    // Glätte (Paket Wetter): with «Ice in the morning» on, the home place each morning, never on a tour day
+    const ice = l.weather.filter((w) => w.only);
+    expect(ice.every((w) => w.only.join() === 'ice' && w.lat === 47.1)).toBe(true);
+    expect(ice.map((w) => w.date)).not.toContain('2026-10-23');
+    expect(ice.map((w) => w.date)).not.toContain('2026-10-25');
     expect(l.hotC).toBe(27);
     expect(buildList(base()).hotC).toBe(30);
     expect(l.texts.heat).toContain('{temp}');
@@ -122,5 +128,25 @@ describe('Wetter-Wecker (Paket G): planned tours from tomorrow up to 10 days ahe
   it('switched off: no watch', () => {
     const l = buildList(base({ trips: [trip('a', '2026-10-24')], settings: { push: { on: true, kinds: { weather: true } }, homePlace: { lat: 47, lon: 8 } } }));
     expect(l.watch).toEqual([]);
+  });
+});
+
+describe('Paket VG 1128: chain after rain', () => {
+  const ride = (bikeId, km, spot = null) => ({ bikeId, km, kind: 'ride', state: 'counted', date: '2026-10-20', spot });
+  const bikes = [{ id: 'b1', name: 'Test-Velo' }, { id: 'b2', name: 'Test-Gravel' }];
+  const rain = { days: { '2026-10-20': 6 }, spots: { '47.1,8.1': { days: {} } } };
+  it('at 19:00 on a day with a wet ride, for the bike with the most wet km', () => {
+    const l = buildList(base({ bikes, kmBook: [ride('b1', 20), ride('b2', 45), ride('b1', 60, '47.1,8.1')], rain }));
+    const w = l.items.filter((i) => i.key.startsWith('wetchain:'));
+    expect(w.map((i) => i.key)).toEqual(['wetchain:b2:2026-10-20']);
+    expect(w[0].at).toBe(atMs('2026-10-20', '19:00'));
+    expect(w[0].body).toContain('Test-Gravel');
+  });
+  it('dry day, the app switch off or the push kind off: nothing', () => {
+    const has = (over) => keys(buildList(base({ bikes, kmBook: [ride('b1', 20)], ...over }))).some((k) => k.startsWith('wetchain:'));
+    expect(has({ rain })).toBe(true);
+    expect(has({ rain: { days: {} } })).toBe(false);
+    expect(has({ rain, griff: { wetChain: false } })).toBe(false);
+    expect(has({ rain, settings: { push: { on: true, kinds: { ...allOn.kinds, wetchain: false } } } })).toBe(false);
   });
 });

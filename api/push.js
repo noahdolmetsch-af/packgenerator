@@ -148,7 +148,7 @@ export function makeHandler({ env = () => pushEnv(), doFetch = (...a) => fetch(.
           }
           let msg = weatherMessage(w, weatherReasons(data.daily, w.date, rec.hotC), rec.texts ?? {});
           // Paket G «Ozon und Pollen»: a strong day goes into the same morning message (or its own)
-          if (rec.air) {
+          if (rec.air && !w.only) {
             const ar = await doFetch(airUrl(w)).catch(() => null);
             const air = ar?.ok ? await ar.json().catch(() => null) : null;
             const words = air ? airText(airVerdict(air.hourly, w.date, rec.air), rec.texts ?? {}) : '';
