@@ -72,21 +72,12 @@ export function flightBefore(trips = [], now) {
 /** Sunday from 18:00: the week is nearly over. */
 export const weekDue = (now) => new Date(`${dayOfStamp(now)}T12:00:00Z`).getUTCDay() === 0 && hmOf(now) >= WEEK_FROM;
 
-/**
- * Paket VG 1128 «Nasse Fahrt» (Noah 20.10.2026 «1a»): from 18:00 on a day with a ride in the rain, «Kette trocknen
- * und ölen». wet: { bikeId, bikeName, km } (griff.js wetRides, already filtered by the switch) or null.
- */
-export const WET_FROM = '18:00';
-export const wetDue = (wet, now) => (wet && hmOf(now) >= WET_FROM ? wet : null);
-
 /** The one window to show now (the trip first), or null. */
-export function windowNow({ rec, now, trips = [], itemsById = {}, name, wet = null }) {
+export function windowNow({ rec, now, trips = [], itemsById = {}, name }) {
   const eve = eveBefore(trips, now, itemsById, name);
   if (eve && mayShow(rec, 'eve', now)) return { id: 'eve', ...eve, flight: flightOf(eve.trip) || null };
   const fly = eve ? null : flightBefore(trips, now);
   if (fly && mayShow(rec, 'flight', now)) return { id: 'flight', ...fly };
-  const chain = wetDue(wet, now);
-  if (chain && mayShow(rec, 'chain', now)) return { id: 'chain', ...chain };
   if (weekDue(now) && mayShow(rec, 'week', now)) return { id: 'week' };
   return null;
 }

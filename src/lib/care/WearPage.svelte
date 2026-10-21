@@ -24,6 +24,7 @@
   import VeloHead from '../bikes/VeloHead.svelte';
   import ChainRotation from './ChainRotation.svelte';
   import GriffMore from './GriffMore.svelte';
+  import WetChainHint from './WetChainHint.svelte';
   import { brandStats, bestFor } from '../griff.js';
   import './griff.css';
 
@@ -119,6 +120,8 @@
         {#each bikes as b (b.id)}<a class="chip" aria-current={b.id === bike.id ? 'page' : undefined} href={bikesHash({ tab: 'care', view: 'wear', bike: b.id })}>{b.name}</a>{/each}
       </nav>
     {/if}
+
+    <WetChainHint {bike} />
 
     <details class="wcard how" data-wear-how>
       <summary>{t('How it works')}</summary>
