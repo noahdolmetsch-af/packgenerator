@@ -47,12 +47,12 @@ Seit 19.10.2026 gibt es keine Testlinks mehr: Ein Paket geht online, sobald die 
 | 37 | Umweg neu planen | 0.170.0 | Live-Karte «Neu planen zu …» und langes Drücken: Umweg und Rückweg über BRouter, GPX für Garmin | live |
 | 38 | Von der Haustür bis zurück | 0.170.0 | Gut angekommen, Plan B, Check-in, Velo geparkt; Unterwegs mit 2 Knöpfen mehr | live |
 | 39 | Abgleich bleibt ruhig | 0.170.1 | interne Werte gleichen sich selbst ab, «Später» = 1 Stunde Ruhe | live |
-| 40 | Verschleiss pro Teil | 0.171.0 | Seite «Verschleiss», Werkstattbesuch pro Teil, Kette auf einen Blick, Handy-Erinnerung «Teile abgenutzt» | dieser PR |
-| 41 | Bilder in der App | 0.171.0 | Setup-Zeitleiste, mehrere Fotos pro Problem mit Zuschneiden und PDF, Tour-Foto | dieser PR |
-| 42 | Wetter-Kern | 0.171.0 | bester Start, Landi-Radar, Webcams, Wind, Energie, «Zeit zu essen», GPX mit Stopps, Zürisee-Chip | dieser PR |
-| 43 | Körperwerte und Fitbit überall | 0.171.0 | 25 Werte in 5 Gruppen, Blutdruck und Wasser selbst, Fitbit im Check, auf Heute und in Erholung | dieser PR |
-| 44 | KI im Gerät | 0.171.0 | Sprachmodell auf dem Handy für offline, online weiter der KI-Helfer | dieser PR |
-| 45 | Aus jeder Tour lernen, Schneller packen, Schlafplätze | 0.171.0 | Pakete Z, SP und U4; Tagebuch unter Planen; See-Prognose robuster | dieser PR |
+| 40 | Verschleiss pro Teil | 0.171.0 | Seite «Verschleiss», Werkstattbesuch pro Teil, Kette auf einen Blick, Handy-Erinnerung «Teile abgenutzt» | online 21.10. |
+| 41 | Bilder in der App | 0.171.0 | Setup-Zeitleiste, mehrere Fotos pro Problem mit Zuschneiden und PDF, Tour-Foto | online 21.10. |
+| 42 | Wetter-Kern | 0.171.0 | bester Start, Landi-Radar, Webcams, Wind, Energie, «Zeit zu essen», GPX mit Stopps, Zürisee-Chip | online 21.10. |
+| 43 | Körperwerte und Fitbit überall | 0.171.0 | 25 Werte in 5 Gruppen, Blutdruck und Wasser selbst, Fitbit im Check, auf Heute und in Erholung | online 21.10. |
+| 44 | KI im Gerät | 0.171.0 | Sprachmodell auf dem Handy für offline, online weiter der KI-Helfer | online 21.10. |
+| 45 | Aus jeder Tour lernen, Schneller packen, Schlafplätze | 0.171.0 | Pakete Z, SP und U4; Tagebuch unter Planen; See-Prognose robuster | online 21.10. |
 | 46 | Velo im Griff | 0.172.0 | Kette nach Regen (Handy), Verschleiss-Fotos, Inserat, Velobox, Ersatzteile, km pro Marke, Frühlings-To-do, Kettenrotation; Heute-Fenster wartet auf Noahs OK | PR #224 |
 | 47 | Notizen wie Evernote | 0.172.0 | zeichnen, formatieren, Dateien, Scannen, Webseite offline, Texterkennung, Erinnerung, Papierkorb, frühere Fassungen | PR #224 |
 | 48 | Suche mit Sprache und Antworten | 0.173.0 | Befehle sprechen («Kette geölt», «Gewicht 72») mit Rückgängig, Fragen aus den eigenen Daten, Geräte-KI hinter eigenem Schalter, «Wetter Chur», Einstellungen unter Ich › Suche | live |
@@ -63,8 +63,8 @@ Seit 19.10.2026 gibt es keine Testlinks mehr: Ein Paket geht online, sobald die 
 | 53 | App selbst gestalten («Anpassen») | 0.175.0 | Jede Seite: «Diese Seite anpassen» am Ende (Teile zeigen, verstecken, sortieren, umbenennen; Start-Reiter); Menü sortieren und verstecken; «Wie am Anfang»; nur auf diesem Gerät | #227, online 21.10. |
 | 54 | Heute: Körperwerte und Countdown | 0.175.0 | Kachel «Körperwerte» (Ruhepuls, HRV, Schlaf, Schritte, Aktivzonen-Minuten, Kalorien) und erster Chip mit den Tagen bis zur nächsten Tour (Noah 21.10. 06:49) | #227, online 21.10. |
 | 55 | Zeichnen auf allen Fotos | 0.175.0 | Knopf «Zeichnen» auch auf Setup-, Problem-, Pack-, Verschleiss- und Tagebuch-Fotos; das oberste von drei Fenstern schliesst nur sich selbst | #227, online 21.10. |
-| 56 | Eine Tour, eine Seite | 0.176.0 | Fünf Reiter auf jeder Tour: Planen · Packen · Unterwegs · Rückblick · Auswertung; «Fehlt noch» in Planen; Countdown-Chip und Satz mit Zahl; nur vorhandene Werte; «Fahrt verbinden»; Lernschleife nach der Tour; Fahrt-Analysen aus dem Training in der Tour-Analyse | dieser PR |
-| 57 | Reste | 0.176.0 | Bikepark-Tage als Baustein; alle Taschen nebeneinander ab 1100 px (aus); Tour- und Rechnungsformular mit Fehler am Feld; Notizen zeigen .odt/.odp/.ods/.rtf | dieser PR |
+| 56 | Eine Tour, eine Seite | 0.176.0 | Fünf Reiter auf jeder Tour: Planen · Packen · Unterwegs · Rückblick · Auswertung; «Fehlt noch» in Planen; Countdown-Chip und Satz mit Zahl; nur vorhandene Werte; «Fahrt verbinden»; Lernschleife nach der Tour; Fahrt-Analysen aus dem Training in der Tour-Analyse | #231, online 21.10. |
+| 57 | Reste | 0.176.0 | Bikepark-Tage als Baustein; alle Taschen nebeneinander ab 1100 px (aus); Tour- und Rechnungsformular mit Fehler am Feld; Notizen zeigen .odt/.odp/.ods/.rtf | #231, online 21.10. |
 
 «Frontend aufpeppen» ist pausiert (Noah 19.10.2026). Die Abschnitte unten sind der Stand vom 18.10.2026.
 

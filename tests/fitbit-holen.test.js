@@ -13,7 +13,13 @@ import { autoPick } from "../src/lib/sync/engine.js";
 import { fitbitEmpty } from "../src/lib/health/emptyline.js";
 import { SCOPES } from "../api/_lib/google.js";
 import { MAIL_SCOPES } from "../api/_lib/googlemail.js";
-import { makeHandler, pageSizeOf, TYPES } from "../api/_lib/google.js";
+import {
+  HEALTH_TOKEN_KEY,
+  makeHandler,
+  pageSizeOf,
+  SCOPES,
+  TYPES,
+} from "../api/_lib/google.js";
 import { hash, KEYS } from "../api/_lib/oauth.js";
 
 const REDIS = "https://redis.example.test";
@@ -33,6 +39,7 @@ function world({
   const store = { "google:tokens": JSON.stringify(tokens) };
   const sets = { [KEYS]: new Set([hash(DEVICE)]) };
   const asked = [];
+  const refreshed = [];
   const doFetch = vi.fn(async (url, init = {}) => {
     if (url === REDIS) {
       const [cmd, k, ...rest] = JSON.parse(init.body);
@@ -43,10 +50,13 @@ function world({
         return Response.json({ result: sets[k]?.has(rest[0]) ? 1 : 0 });
       return Response.json({ result: 1 });
     }
-    if (String(url).startsWith("https://oauth2.googleapis.com/token"))
+    if (String(url).startsWith("https://oauth2.googleapis.com/token")) {
+      refreshed.push(Object.fromEntries(new URLSearchParams(init.body)));
       return refresh
         ? refresh()
         : Response.json({ access_token: "test-fresh", expires_in: 3600 });
+    }
+    asked.auth = init.headers?.Authorization ?? init.headers?.authorization;
     const u = new URL(url);
     const type = u.pathname.split("/dataTypes/")[1]?.split("/")[0];
     asked.push({ type, pageSize: u.searchParams.get("pageSize") });
@@ -68,7 +78,7 @@ function world({
     now: () => NOW,
     account: {},
   });
-  return { store, asked, h };
+  return { store, asked, refreshed, h };
 }
 const days = (w) =>
   w.h.main(
@@ -163,21 +173,48 @@ describe("Fitbit: the daily fetch on the server", () => {
     expect(w.asked).toEqual([]);
   });
 
-  it("an expired access is renewed with the kept refresh token, which stays", async () => {
+  it("the values are fetched with an access that carries only the Health rights", async () => {
+    // Google Health refuses an access that also carries Mail, Calendar or Drive (DISALLOWED_OAUTH_SCOPES)
     const w = world({
       tokens: {
-        access_token: "old",
+        access_token: "test-all-rights",
         refresh_token: "test-refresh",
-        expires_at: NOW - 1,
+        expires_at: NOW + 3_600_000,
+        scope: [
+          ...SCOPES,
+          "https://www.googleapis.com/auth/gmail.readonly",
+        ].join(" "),
       },
     });
     expect((await days(w)).status).toBe(200);
+    expect(w.refreshed).toHaveLength(1);
+    expect(w.refreshed[0]).toMatchObject({
+      grant_type: "refresh_token",
+      refresh_token: "test-refresh",
+      scope: SCOPES.join(" "),
+    });
+    expect(w.asked.auth).toBe("Bearer test-fresh");
+    // the login for everything else stays as it was
     const kept = JSON.parse(w.store["google:tokens"]);
     expect(kept).toMatchObject({
-      access_token: "test-fresh",
+      access_token: "test-all-rights",
       refresh_token: "test-refresh",
     });
-    expect(kept.expires_at).toBeGreaterThan(NOW);
+    expect(JSON.parse(w.store[HEALTH_TOKEN_KEY]).expires_at).toBeGreaterThan(
+      NOW,
+    );
+    // a second fetch within the hour reuses the Health access
+    await days(w);
+    expect(w.refreshed).toHaveLength(1);
+  });
+
+  it("no Health rights in the login: the app hears «google_scope»", async () => {
+    const w = world({
+      refresh: () => Response.json({ error: "invalid_scope" }, { status: 400 }),
+    });
+    const res = await days(w);
+    expect(res.status).toBe(403);
+    expect((await res.json()).code).toBe("google_scope");
   });
 });
 

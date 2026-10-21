@@ -4,6 +4,8 @@ Stand: 18. Oktober 2026. Der kurze Überblick steht im [Projektstand](projektsta
 
 ## Aktuell live
 
+**0.176.1 «Fitbit-Werte kommen an» (21.10.2026, Fehlerbehebung):** Google Health lehnte jeden Fitbit-Wert mit 403 DISALLOWED_OAUTH_SCOPES ab, weil der eine Google-Login auch Mail, Kalender und Drive trägt. Der Server holt für Fitbit jetzt aus dem Refresh-Token einen eigenen Zugang nur mit den Health-Rechten (api/_lib/google.js healthToken, Schlüssel google:tokens:health). Ein Login bleibt für alles. Kein Dexie- oder Backup-Wechsel.
+
 **0.176.0 «Eine Tour, eine Seite» (21.10.2026):** Jede Tour mit fünf Reitern bis zur Auswertung (Tour-Seite), «Fehlt noch» in Planen, Countdown aus einer Quelle (touren/tourstep.js countdownOf, auch Heute), Lernschleife nach der Tour, Fahrt-Analysen in der Tour-Analyse. Dazu «Reste»: Bikepark-Tage, alle Taschen nebeneinander, Formulare mit Fehler am Feld, LibreOffice/RTF in Notizen. Kein Dexie- oder Backup-Wechsel.
 
 **0.175.0 «Mach sie zu deiner» (21.10.2026):** «Diese Seite anpassen» am Ende jeder Seite (Teile zeigen, verstecken, sortieren, umbenennen, Start-Reiter; Menü sortieren; «Wie am Anfang»; nur pro Gerät, Noah 5a). Heute: Kachel «Körperwerte» und Countdown-Chip zur nächsten Tour (Noah 21.10. 06:49). Zeichnen auf allen Fotos. Kein Dexie- oder Backup-Wechsel (optionales Feld `inks`, Heute-Wand v 11).
