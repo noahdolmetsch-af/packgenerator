@@ -35,7 +35,7 @@
   import BikeOrderSheet from './BikeOrderSheet.svelte';
   import NewStandardSheet from './NewStandardSheet.svelte';
   import { nextTrip } from '../debrief.js';
-  import { bikePhotos, shrinkImage } from '../photo.js';
+  import { bikePhotos, shrinkImage, bikePhotoDrawn } from '../photo.js';
   import Lightbox from '../ui/Lightbox.svelte';
   import SetupPhotos from '../bilder/SetupPhotos.svelte'; // «Bilder in der App» 2a: the setup photos as a timeline
   import IdeasFold from './IdeasFold.svelte';
@@ -220,6 +220,11 @@
     });
   }
   // v0.72.0 «Feinschliff» (Umbenennen 1a): the same rename sheet as everywhere (was the browser's prompt()).
+  // Paket NE 1146 (Noah 20.10.2026 «1b»): draw on a setup photo in the big view
+  async function drawnPhoto(cur, args) {
+    const d = bikePhotoDrawn(bike.id, gallery.find((x) => x.id === cur.id), args);
+    await db.table(d.table).update(d.id, d.patch);
+  }
   let photoRename = $state(null);
   const rename = (p) => (photoRename = p);
   async function renamePhoto(name) {
@@ -674,7 +679,7 @@
 
 {#if timeline && bike}<SetupPhotos {bike} onclose={() => (timeline = false)} />{/if}
 {#if shown != null && gallery.length}
-  <Lightbox list={gallery.map((p) => ({ src: p.src, name: p.name, sub: [p.main ? t('Shown in Pack') : '', p.tripId ? t('For {trip}', { trip: tripTitle(p.tripId) ?? t('a trip') }) : ''].filter(Boolean).join(' · ') }))} start={shown} onclose={() => (shown = null)}>
+  <Lightbox ondraw={drawnPhoto} list={gallery.map((p) => ({ id: p.id, src: p.src, inks: p.inks, name: p.name, sub: [p.main ? t('Shown in Pack') : '', p.tripId ? t('For {trip}', { trip: tripTitle(p.tripId) ?? t('a trip') }) : ''].filter(Boolean).join(' · ') }))} start={shown} onclose={() => (shown = null)}>
     {#snippet actions(cur)}
       {@const p = gallery.find((x) => x.src === cur.src)}
       {#if p}

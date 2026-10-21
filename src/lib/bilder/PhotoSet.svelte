@@ -4,17 +4,21 @@
    * Phone: the camera opens at once; also from the gallery, several at once. Each photo can be cut
    * («Zuschneiden») or taken away. «Als PDF» makes one PDF of all photos in Ich › Dokumente; the photos
    * stay photos as well. photos: bindable list of JPEG data URLs; docId: bindable id of the PDF made.
+   * Paket NE 1146 (Noah 20.10.2026 «1b»): «Draw» on each photo; inks: bindable map of the drawings (ink.js).
+   * onchange(photos, docId, inks).
    */
   import { Crop, X, FileText, ImagePlus, ChevronRight } from '@lucide/svelte';
   import CameraButton from '../ui/CameraButton.svelte';
   import CropSheet from './CropSheet.svelte';
   import Lightbox from '../ui/Lightbox.svelte';
+  import DrawOn from '../draw/DrawOn.svelte';
+  import { pruneInks } from '../draw/ink.js';
   import { shrinkImage, PROBLEM_PHOTOS } from '../photo.js';
   import { photosToPdf } from './bilder.js';
   import { DOCS_HASH } from '../docs/client.svelte.js';
   import { t, tn } from '../i18n.svelte.js';
 
-  let { photos = $bindable([]), docId = $bindable(null), max = PROBLEM_PHOTOS, pdfName = '', onchange = null, label = 'Photos (optional)', sub = 'e.g. of the damage' } = $props();
+  let { photos = $bindable([]), docId = $bindable(null), inks = $bindable(undefined), max = PROBLEM_PHOTOS, pdfName = '', onchange = null, label = 'Photos (optional)', sub = 'e.g. of the damage' } = $props();
 
   let reading = $state(false);
   let making = $state(false);
@@ -22,10 +26,11 @@
   let cropAt = $state(null);
   let shown = $state(null);
 
-  const set = (list) => {
+  const set = (list, nextInks = inks) => {
     photos = list;
+    inks = pruneInks(nextInks, list); // a cut or removed photo loses its drawing
     docId = null; // the PDF no longer shows the same photos
-    onchange?.(list);
+    onchange?.(list, null, inks);
   };
 
   async function add(event) {
@@ -62,7 +67,7 @@
     try {
       const doc = await photosToPdf(photos, { name: pdfName || t('Photos') });
       docId = doc.id;
-      onchange?.(photos, doc.id);
+      onchange?.(photos, doc.id, inks);
     } catch {
       msg = t('The PDF could not be made. Please try again.');
     } finally {
@@ -86,6 +91,7 @@
           <button type="button" class="th" onclick={() => (shown = i)} aria-label={t('Open photo {n}', { n: i + 1 })}><img {src} alt="" /></button>
           <span class="ta">
             <button type="button" class="tb" aria-label={t('Cut photo {n}', { n: i + 1 })} title={t('Cut the edges')} onclick={() => (cropAt = i)} data-photo-crop><Crop size={15} aria-hidden="true" /></button>
+            <DrawOn {src} list={photos} {inks} icon cls="tb" onsave={({ list, inks: next }) => set(list, next)} data-photo-draw />
             <button type="button" class="tb" aria-label={t('Take away photo {n}', { n: i + 1 })} title={t('Take away')} onclick={() => drop(i)} data-photo-drop><X size={15} aria-hidden="true" /></button>
           </span>
         </li>

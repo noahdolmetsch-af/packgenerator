@@ -16,7 +16,7 @@
   import { offerRename } from '../ui/rename.svelte.js';
   import { askDelete, deleteWithUndo } from '../ui/ask.js';
   import { backClose } from '../ui/backclose.js';
-  import { setupTimeline, shrinkImage } from '../photo.js';
+  import { setupTimeline, shrinkImage, bikePhotoDrawn } from '../photo.js';
   import { localDay } from '../localday.js';
   import { db } from '../db.js';
   import { t, tn, dateOf, locale } from '../i18n.svelte.js';
@@ -96,6 +96,11 @@
       name: p.name,
     });
   }
+  // Paket NE 1146 (Noah 20.10.2026 «1b»): draw on a setup photo in the big view
+  async function drawn(pic, args) {
+    const d = bikePhotoDrawn(cur.id, flat.find((x) => x.id === pic.id), args);
+    await db.table(d.table).update(d.id, d.patch);
+  }
   const actionsOf = (p) => [
     ...(p.main ? [] : [{ name: t('Show behind the bike'), explain: t('Pale behind the bike in Bike care, Workshop and Pack'), icon: ImageIcon, run: () => setMain(p) }]),
     ...(p.stored ? [{ name: t('Change the day'), explain: t('The day of this setup'), icon: CalendarDays, run: () => (dayOf = p.id) }, { name: t('Rename'), explain: t('Name of the photo'), icon: Pencil, run: () => (renaming = p) }] : []),
@@ -149,7 +154,7 @@
 </dialog>
 
 {#if shown != null && flat[shown]}
-  <Lightbox list={flat.map((p) => ({ src: p.src, name: p.name, sub: p.day ? dateOf(p.day) : '' }))} start={shown} onclose={() => (shown = null)} />
+  <Lightbox list={flat.map((p) => ({ id: p.id, src: p.src, inks: p.inks, name: p.name, sub: p.day ? dateOf(p.day) : '' }))} start={shown} onclose={() => (shown = null)} ondraw={drawn} />
 {/if}
 {#if renaming}
   <RenameSheet kicker={t('Photo')} title={t('Rename photo')} value={renaming.name} onsave={rename} onclose={() => (renaming = null)} />
