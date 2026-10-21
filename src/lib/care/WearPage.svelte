@@ -165,18 +165,18 @@
               <div class="bar" role="img" aria-label={t('{km} of {life} km', { km: num(r.km), life: num(r.life.km) })}><span style:width="{Math.min(100, Math.round(r.frac * 100))}%"></span></div>
               <p class="num line">
                 {t('{km} of {life} km', { km: num(r.km), life: num(r.life.km) })} ·
-                {r.left > 0 ? t('{km} km left', { km: num(r.left) }) : t('{km} km over', { km: num(-r.left) })}{#if r.due && r.left > 0} · {t('about in {month}', { month: month(r.due) })}{/if}
+                {r.left > 0 ? t('{km} km left', { km: num(r.left) }) : t('{km} km over', { km: num(-r.left) })}{#if r.due && r.left > 0}{' · '}{t('about in {month}', { month: month(r.due) })}{/if}
               </p>
             {:else if r.state === 'unknown'}
               <p class="quiet">{t('The app does not know when this part was mounted.')} <a class="lnk" href={bikesHash({ tab: 'care', bike: bike.id, open: true })}>{t('Set a start point in Bike care')}</a></p>
             {/if}
             {#if whyText(r)}<p class="quiet">{whyText(r)}</p>{/if}
             {#if r.since}<p class="quiet num">{t('Since the last service on {date}: {km} km', { date: dateOf(r.since.date), km: num(r.since.km) })}</p>{/if}
-            <p class="quiet src">{r.life.km ? t('Lasts about {km} km', { km: num(r.life.km) }) : ''}{r.life.km ? ` · ${srcText(r.life)}` : ''}{#if r.cost} · {t('CHF {chf} per 1000 km', { chf: num(r.cost.chf) })}{/if}</p>
+            <p class="quiet src">{r.life.km ? t('Lasts about {km} km', { km: num(r.life.km) }) : ''}{r.life.km ? ` · ${srcText(r.life)}` : ''}{#if r.cost}{' · '}{t('CHF {chf} per 1000 km', { chf: num(r.cost.chf) })}{/if}</p>
             {#if r.past.length}
               <details class="fold">
                 <summary>{tn(r.past.length, '{n} part before', '{n} parts before')}</summary>
-                <ul class="past">{#each r.past as p (p.from)}<li class="num">{dateOf(p.from)} → {dateOf(p.to)}: {t('{km} km', { km: num(p.km) })}{#if p.model} · {p.model}{/if}</li>{/each}</ul>
+                <ul class="past">{#each r.past as p (p.from)}<li class="num">{dateOf(p.from)} → {dateOf(p.to)}: {t('{km} km', { km: num(p.km) })}{#if p.model}{' · '}{p.model}{/if}</li>{/each}</ul>
               </details>
             {/if}
             {#if editing === r.key}

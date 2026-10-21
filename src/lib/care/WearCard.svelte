@@ -27,7 +27,7 @@
     <Gauge size={18} aria-hidden="true" />
     <span class="m">
       <b id="wc-h-{bike.id}">{t('Wear|page')}</b>
-      <small>{sum.n ? tn(sum.n, '{n} part soon to replace', '{n} parts soon to replace') : sum.state === 'ok' ? t('All parts fine') : t('Set start points, then the app can tell')}{#if now?.km != null} · {t('{km} km since the service on {date}', { km: num(now.km), date: dateOf(now.from) })}{/if}</small>
+      <small>{sum.n ? tn(sum.n, '{n} part soon to replace', '{n} parts soon to replace') : sum.state === 'ok' ? t('All parts fine') : t('Set start points, then the app can tell')}{#if now?.km != null}{' · '}{t('{km} km since the service on {date}', { km: num(now.km), date: dateOf(now.from) })}{/if}</small>
     </span>
     <ChevronRight size={18} aria-hidden="true" />
   </a>
@@ -37,7 +37,7 @@
         <li class={r.state} data-wear-mini={r.key}>
           <span class="n">{r.name}</span>
           <span class="bar" aria-hidden="true"><span style:width="{Math.min(100, Math.round((r.frac ?? 0) * 100))}%"></span></span>
-          <small class="num">{r.left == null ? t(r.state === 'due' ? 'replace now' : 'soon') : r.left > 0 ? t('{km} km left', { km: num(r.left) }) : t('{km} km over', { km: num(-r.left) })}{#if r.due && r.left > 0} · {month(r.due)}{/if}</small>
+          <small class="num">{r.left == null ? t(r.state === 'due' ? 'replace now' : 'soon') : r.left > 0 ? t('{km} km left', { km: num(r.left) }) : t('{km} km over', { km: num(-r.left) })}{#if r.due && r.left > 0}{' · '}{month(r.due)}{/if}</small>
         </li>
       {/each}
     </ul>
