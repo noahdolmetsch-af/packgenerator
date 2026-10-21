@@ -121,6 +121,8 @@ export const SINCE = {
   // Paket Z and SP (provisional version, the bundler renumbers)
   'f.breakdown': '0.170.0', 'f.sleepspots': '0.170.0', 'f.postcard': '0.170.0',
   'f.packtwo': '0.170.0', 'f.laundry': '0.170.0', 'f.morninglist': '0.170.0', 'f.packtime': '0.170.0',
+  // «KI im Gerät» (Noah 20.10.2026; provisional version, the bundler renumbers)
+  'f.localai': '0.170.0',
   // «Trainingspläne» (v0.157.0, provisional)
   'f.trainplans': '0.157.0', 'f.feel': '0.157.0',
   // «Heatmap» (provisional version, the bundler renumbers)
