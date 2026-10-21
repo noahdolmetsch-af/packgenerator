@@ -25,9 +25,29 @@ export const WHATS_NEW = [
       { text: 'Building blocks: tidy up what always comes along', href: '#/blocks/aufraeumen' },
       { text: 'On the way: the eat reminder your way', href: '#/ride' },
     ],
+    small: [
+      { box: 'nicer', text: 'Shorter pages on the phone' },
+    ],
     test: [
       'Open Building blocks and tap «Tidy up».',
       'Start a ride: on the ride card choose how often the eat reminder comes.',
+    ],
+  },
+  {
+    // v0.176.1 «Fitbit holt wieder» (bug fix, 21.10.2026: Google Health refused every value with 403 DISALLOWED_OAUTH_SCOPES because the one Google login also carries Mail, Calendar and Drive; the server now uses an access with only the Health rights)
+    version: '0.176.1',
+    date: '2026-10-21',
+    title: 'Fitbit values arrive',
+    lead: 'Sleep, resting pulse and steps come from Google again.',
+    points: [
+      { text: 'Fitbit: the values come in with «Fetch now»', href: '#/me/fitbit' },
+    ],
+    small: [
+      { box: 'fixed', text: 'One Google login stays enough for everything' },
+    ],
+    test: [
+      'Open Me › Data and backup › Fitbit and tap «Fetch now».',
+      'Last night, resting pulse and steps show with today’s date.',
     ],
   },
   {
