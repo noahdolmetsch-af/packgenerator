@@ -69,6 +69,10 @@
   const clearFilters = () => ((st = 'all'), (bike = 'all'), (area = 'all'));
   const counts = $derived(factCounts(base, states));
   const shown = $derived(base.filter((e) => matchesState(states, e.id, st)));
+  // Gesamttest 21.10.2026 (C5): 12 phone screens with a big import; first 10 entries, then «n weitere zeigen»
+  const LOG_FIRST = 10;
+  let logAll = $state(false);
+  const listed = $derived(logAll || q.trim() ? shown : shown.slice(0, LOG_FIRST));
   const YEARS = $derived([...years.map((y) => ({ key: y, name: y })), { key: 'all', name: t('All|period') }]);
   // v0.109.0 Design-Refresh P6 (T20): the best values of all trips, the same as on Touren
   const best = $derived(data ? bestValues({ trips: data.trips, rides: data.rides, today, period: 'all' }) : null);
@@ -152,7 +156,7 @@
         <Skeleton rows={4} />
       {:else}
         <ul class="log rv-box">
-          {#each shown as e (e.id)}
+          {#each listed as e (e.id)}
             {@const fs = factsOf(e)}
             {@const wx = rainText(e.rain, e.days)}
             {@const s = states[e.id]}
@@ -196,6 +200,7 @@
             <li class="none"><Empty text={entries.length ? t('Nothing matches.') : t('No entries yet. Every trip and every uploaded ride comes in here.')} action={entries.length ? null : { label: t('Upload ride'), href: '#/debrief/ride' }}>{#if !entries.length}<OwnSpark place="logbook" />{/if}</Empty></li>
           {/each}
         </ul>
+        {#if listed.length < shown.length}<button type="button" class="logmore" onclick={() => (logAll = true)} data-log-more>{t('Show {n} more', { n: shown.length - listed.length })}</button>{/if}
       {/if}
     </div>
   </section>
@@ -226,6 +231,18 @@
 {#if renamingEv}<RenameSheet kicker={t('Logbook')} title={t('Rename entry')} value={renamingEv.name ?? ''} onsave={(v) => renameEv(renamingEv, v)} onclose={() => (renamingEv = null)} />{/if}
 
 <style>
+  .logmore {
+    min-height: 44px;
+    margin-top: var(--sp-1);
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--ink);
+    font: inherit;
+    font-weight: 600;
+    text-decoration: underline;
+    cursor: pointer;
+  }
   /* SN2: the search and the year toggle in one line, then the state chips and the area */
   .lbsub {
     margin: -10px 0 16px;

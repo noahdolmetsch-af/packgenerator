@@ -4,6 +4,7 @@
  * Undo needs. Deleting asks first on the page (askDelete) and offers Undo (deleteWithUndo).
  */
 import { TOUR_GROUPS_KEY, STRAVA_GONE_KEY, cleanOwn, joinActs, patchGroup, dropGroup, leaveGroup } from './tour.js';
+import { stravaName } from '../stravanames.js';
 
 const now = () => new Date().toISOString();
 const groupsOf = async (db) => {
@@ -18,7 +19,8 @@ export async function renameTour(db, d, name) {
   if (d.kind === 'a') {
     const a = await db.activities.get(d.id);
     const own = { ...(a?.own ?? {}) };
-    if (v && v !== a?.name) own.name = v;
+    // the shown German name of Strava's default name (stravanames.js) is no own name either
+    if (v && v !== a?.name && v !== stravaName(a?.name)) own.name = v;
     else delete own.name;
     return db.activities.update(d.id, { own });
   }

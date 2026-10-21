@@ -17,6 +17,7 @@
 import { localDay } from './localday.js';
 import { SKI_TYPES } from './ski.js';
 import { t, num, dateOf } from './i18n.svelte.js';
+import { stravaName } from './stravanames.js';
 
 /** Entry kinds: a ride, the start value, a new reading (difference), a correction with a reason. */
 export const KINDS = ['ride', 'start', 'reading', 'correction'];
@@ -863,7 +864,8 @@ export function entryTitle(e) {
   if (e.kind === 'start') return e.note === 'Earlier counter' ? t('Start value: the earlier counter') : t('Start value');
   if (e.kind === 'reading') return e.source === 'sync' ? t('Counter changed outside the ledger') : e.source === 'strava' ? t('Strava value taken over') : t('New reading');
   if (e.kind === 'correction') return t('Correction');
-  return e.name || t('Ride');
+  // «Strava-Namen schöner» (Noah 21.10.2026 «2a»): Strava's default name in German; a name typed by hand stays
+  return (e.source === 'hand' ? e.name : stravaName(e.name)) || t('Ride');
 }
 
 /** «Edge 1040 · Profile Gravel · Sensor …4F2A». */

@@ -11,6 +11,7 @@
   import { feelToAsk } from '../plans.js';
   import { dayWhen } from '../../strava/when.js';
   import { t } from '../../i18n.svelte.js';
+  import { stravaName } from '../../stravanames.js';
 
   let { acts = [], today } = $props();
   const act = $derived(feelToAsk(acts, today));
@@ -22,7 +23,7 @@
     <span class="fi" aria-hidden="true"><Gauge size={20} /></span>
     <div class="fc">
       <h2 id="feel-h" class="fh">{t('How hard was your ride?')}</h2>
-      <p class="fs">{act.name || t('Ride')} · {dayWhen(act.day, act.time)}</p>
+      <p class="fs">{stravaName(act.name) || t('Ride')} · {dayWhen(act.day, act.time)}</p>
       <FeelPick {act} />
       <p class="fs">{t('Your answer helps the training plans when there is no heart rate. Only on this device.')}</p>
       <button type="button" class="btn btn-link sm" onclick={skip} data-feel-skip>{t('Skip|feel')}</button>

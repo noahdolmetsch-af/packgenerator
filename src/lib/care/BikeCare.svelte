@@ -46,6 +46,9 @@
   import '../helper/helper.css';
   import { signFor } from '../daumen.js'; // FE13: a sign next to the colour
   import '../ui/fe-seiten.css';
+  import ShowMore from '../ui/ShowMore.svelte';
+  import { phone } from '../media.svelte.js';
+  import { PHONE_ROWS } from '../touren/kurz.js';
 
   const bike = $derived(c.bike);
   // «Verschleiss immer im Griff» (Noah 20.10.2026): the chain's km against its life (wear.js), when known
@@ -165,6 +168,11 @@
   let visitsOpen = $state(false);
   const log = $derived(logOpen ? bikeLog(bike, tasks) : []);
   const logCount = $derived(open ? bikeLog(bike, tasks).length : 0);
+  // Gesamttest 21.10.2026 C7: on a phone the log and the visits show PHONE_ROWS rows first, then «Show n more».
+  let logAll = $state(false);
+  let visitsAll = $state(false);
+  const logShown = $derived(phone.matches && !logAll ? log.slice(0, PHONE_ROWS) : log);
+  const visitsShown = $derived(phone.matches && !visitsAll ? c.mine.slice(0, PHONE_ROWS) : c.mine);
   function showCheck() {
     checkOpen = true;
     requestAnimationFrame(() => document.getElementById(`check-${bike.id}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' }));
@@ -225,7 +233,7 @@
   {@const wish = wishable(r)}
   {@const isOpen = expanded === key}
   <li class="pt" class:due={!!x} class:x={isOpen}>
-    <span class="pn"><button type="button" class="part-btn" aria-expanded={isOpen} aria-controls="px-{bike.id}-{key}" onclick={() => toggle(key)}>{partName(r)}{#if r.part.model}<small>{r.part.model}</small>{/if}</button></span>
+    <span class="pn"><button type="button" class="part-btn" aria-expanded={isOpen} aria-controls="px-{bike.id}-{key}" onclick={() => toggle(key)}>{partName(r)}{#if r.part.model}{' '}<small>{r.part.model}</small>{/if}</button></span>
     <span class="st">{@render badge(r.st.state === 'ok' ? null : r.st.state)}</span>
     <span class="last">
       <span class="lt">{#if text.length}{text.join(' · ')}{#if r.last?.by === 'shop'}{@render shop()}{/if}{:else}<span class="m">–</span>{/if}</span>
@@ -449,13 +457,14 @@
           {#if logOpen}
             {#if log.length}
               <ol class="log">
-                {#each log as h, n (n)}
+                {#each logShown as h, n (n)}
                   <li>
                     <span class="num when">{dateOf(h.date)}{h.km != null ? ` · ${num(h.km)} km` : ''}</span>
                     <span><b>{h.what}</b>{#if h.action !== 'wash'}: {h.action === 'repair' ? t('done') : h.action === 'replace' ? (h.unit ? t('replaced') : t('done')) : h.action === 'service' ? t('serviced') : h.result === 'needed' ? t('work needed') : t('checked, OK')}{/if}{h.value != null ? ` · ${h.value} ${h.unit}` : ''}{#each Object.keys(EXTRA).filter((k) => h[k] != null) as k (k)}{` · ${t(EXTRA[k].name.toLowerCase())} ${h[k]} ${EXTRA[k].unit}`}{/each}{h.note ? ` · ${h.note}` : ''}{typeof h.chf === 'number' && h.chf > 0 ? ` · CHF ${num(h.chf)}` : ''} {#if h.by === 'shop'}{@render shop()}{/if}</span>
                   </li>
                 {/each}
               </ol>
+              {#if logShown.length < log.length}<ShowMore n={log.length - logShown.length} onclick={() => (logAll = true)} data-log-more />{/if}
             {:else}
               <p class="hint">{t('Nothing recorded yet. The service photos will be the first entries.')}</p>
             {/if}
@@ -491,22 +500,23 @@
               {#if lastVisit}
                 <p class="lbl last-lbl">{t('Last visit')}</p>
                 <button type="button" class="visit" onclick={() => onvisit(lastVisit.id)}>
-                  <span class="pn">{dateOf(lastVisit.date)} · {lastVisit.shop}<small>{tn((lastVisit.parts ?? []).length, '{n} job', '{n} jobs')}{lastVisit.km != null ? ` · ${num(lastVisit.km)} km` : ''}</small></span>
+                  <span class="pn">{dateOf(lastVisit.date)} · {lastVisit.shop}{' '}<small>{tn((lastVisit.parts ?? []).length, '{n} job', '{n} jobs')}{lastVisit.km != null ? ` · ${num(lastVisit.km)} km` : ''}</small></span>
                   <span class="num">{visitTotal(lastVisit) == null ? t('cost unknown') : chf(visitTotal(lastVisit))}</span>
                 </button>
                 <details class="fold small" bind:open={visitsOpen}>
                   <summary><span class="fl">{t('All visits and costs')}</span><span class="r num">{c.mine.length}<ChevronRight size={18} aria-hidden="true" /></span></summary>
                   {#if visitsOpen}
                     <ul class="plain">
-                      {#each c.mine as v (v.id)}
+                      {#each visitsShown as v (v.id)}
                         <li>
                           <button type="button" class="visit" onclick={() => onvisit(v.id)}>
-                            <span class="pn">{dateOf(v.date)} · {v.shop}<small>{v.invoice ? `${v.invoice} · ` : ''}{tn((v.parts ?? []).length, '{n} job', '{n} jobs')}{v.km != null ? ` · ${num(v.km)} km` : ''}{v.photos?.length ? ` · ${tn(v.photos.length, '{n} receipt photo', '{n} receipt photos')}` : ''}</small></span>
+                            <span class="pn">{dateOf(v.date)} · {v.shop}{' '}<small>{v.invoice ? `${v.invoice} · ` : ''}{tn((v.parts ?? []).length, '{n} job', '{n} jobs')}{v.km != null ? ` · ${num(v.km)} km` : ''}{v.photos?.length ? ` · ${tn(v.photos.length, '{n} receipt photo', '{n} receipt photos')}` : ''}</small></span>
                             <span class="num">{visitTotal(v) == null ? t('cost unknown') : chf(visitTotal(v))}</span>
                           </button>
                         </li>
                       {/each}
                     </ul>
+                    {#if visitsShown.length < c.mine.length}<ShowMore n={c.mine.length - visitsShown.length} onclick={() => (visitsAll = true)} data-care-visits-more />{/if}
                     <ul class="totals">
                       {#each costByYear(c.mine) as y (y.year)}<li><span>{y.year}</span><span class="num">{y.unknown === y.visits ? t('cost unknown') : `${chf(y.chf)}${y.unknown ? ` + ${t('unknown')}` : ''}`}</span></li>{/each}
                     </ul>

@@ -9,6 +9,7 @@
  */
 import { t, tn, num, locale } from '../i18n.svelte.js';
 import { tripEnd } from '../tripstate.js';
+import { stravaName } from '../stravanames.js';
 import { addDays } from '../phase.js';
 
 /** settings record: { on } (the whole diary can be switched off). */
@@ -49,7 +50,7 @@ export function diaryFacts({ trip, activities = [], rides = [], notes = [], even
     return {
       date,
       n: i + 1,
-      acts: acts.map((a) => ({ name: a.name || '', km: a.km || 0, hm: a.hm ?? null, s: a.movingS || 0 })),
+      acts: acts.map((a) => ({ name: stravaName(a.name || ''), km: a.km || 0, hm: a.hm ?? null, s: a.movingS || 0 })),
       rides: own.map((r) => ({ name: r.name || '', km: r.km || 0, hm: r.gainM ?? null, s: Number.isFinite(r.movingH) ? r.movingH * 3600 : 0 })),
       weather: weather ? { min: weather.min, max: weather.max, rainMm: weather.rainMm ?? 0 } : null,
       notes: notes.filter((n) => (n.day ?? 0) === i).map((n) => n.text).filter(Boolean),

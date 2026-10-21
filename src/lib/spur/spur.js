@@ -16,6 +16,7 @@
  * Pure, tested in tests/spur.test.js.
  */
 import { decodePolyline, lineKm, pointAlong } from './polyline.js';
+import { stravaName } from '../stravanames.js';
 
 /** Recording: a point every 30 s or 50 m (whatever comes first), a fix worse than 100 m is skipped. */
 export const REC_EVERY_S = 30;
@@ -151,7 +152,7 @@ export function tourSpur(trip, { acts = [], rides = [], tracks = [], notes = [] 
     const lines = [];
     for (const a of acts.filter((x) => x.day === day)) {
       const pts = decodePolyline(a.line);
-      lines.push({ id: `a-${a.id}`, src: 'strava', name: a.name || '', pts, km: Number(a.km) || lineKm(pts), win: windowOf({ ...a, src: 'strava' }), hidden: false, noLine: !pts.length });
+      lines.push({ id: `a-${a.id}`, src: 'strava', name: stravaName(a.name || ''), pts, km: Number(a.km) || lineKm(pts), win: windowOf({ ...a, src: 'strava' }), hidden: false, noLine: !pts.length });
     }
     for (const r of tripRides.filter((x) => x.date === day)) {
       const pts = Array.isArray(r.line) ? r.line.filter((p) => Array.isArray(p) && p.length >= 2) : [];

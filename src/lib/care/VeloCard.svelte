@@ -20,6 +20,9 @@
   import { offerDone } from '../ui/rename.svelte.js';
   import Seg from '../ui/Seg.svelte';
   import ServiceSheet from './ServiceSheet.svelte';
+  import ShowMore from '../ui/ShowMore.svelte';
+  import { phone } from '../media.svelte.js';
+  import { PHONE_ROWS } from '../touren/kurz.js';
 
   let { bike, km = null, oncare } = $props();
 
@@ -37,6 +40,9 @@
     }),
   );
   let busy = $state(false);
+  // Gesamttest 21.10.2026 C7: on a phone the first PHONE_ROWS parts, then «Show n more».
+  let partsAll = $state(false);
+  const partShown = $derived(phone.matches && !partsAll ? partRows.slice(0, PHONE_ROWS) : partRows);
 
   async function store(patch) {
     if (busy) return;
@@ -103,13 +109,14 @@
   {#if showParts}
     <p class="hint">{t('Hidden parts do not show on this bike. A part with entries always stays.')}</p>
     <ul class="parts" data-bike-parts>
-      {#each partRows as r (r.key)}
+      {#each partShown as r (r.key)}
         <li data-bike-part={r.key} class:off={!r.on && !r.full}>
           <span>{r.name}{#if r.full}<small> · {t('has entries')}</small>{/if}</span>
           <button type="button" class="btn" aria-pressed={r.on || r.full} disabled={busy || r.full} aria-label={r.on || r.full ? t('Hide «{name}»', { name: r.name }) : t('Show «{name}»', { name: r.name })} onclick={() => store(setBikePart(bike, r.key, !r.on))}>{#if r.on || r.full}<Eye size={16} aria-hidden="true" />{t('Shown')}{:else}<EyeOff size={16} aria-hidden="true" />{t('Hidden')}{/if}</button>
         </li>
       {/each}
     </ul>
+    {#if partShown.length < partRows.length}<ShowMore n={partRows.length - partShown.length} onclick={() => (partsAll = true)} data-bike-parts-more />{/if}
   {/if}
 
   <nav class="links" aria-label={t('More for the bike')}>

@@ -19,6 +19,7 @@
   import { parseKm } from '../care.js';
   import { bikesHash } from '../bikes.js';
   import { ledgerRows, ledgerCounts, bikeKm, reasonText, entryTitle, entryDetail, makeEntry, heartOf } from '../kmbook.js';
+  import { stravaName } from '../stravanames.js';
   import HeartLine from '../strava/HeartLine.svelte';
   import { addEntries, updateEntry, restoreEntries, deleteEntries, undoImport, LAST_KM_IMPORT } from '../kmbookdb.js';
   import KmChips from './KmChips.svelte';
@@ -126,8 +127,10 @@
     eBike = r.bikeId ?? '';
     eKm = String(r.km);
     eDate = r.date;
-    eName = r.kind === 'correction' ? r.note : r.name;
+    eName = r.kind === 'correction' ? r.note : shownName(r);
   }
+  // «Strava-Namen schöner» (Noah 21.10.2026 «2a»): the field shows the German name; unchanged it keeps Strava's
+  const shownName = (r) => (r.source === 'hand' ? r.name : stravaName(r.name)) ?? '';
   async function change(r, changes, text) {
     editing = null;
     const prev = await updateEntry(db, r.id, changes);
@@ -139,7 +142,7 @@
     const k = Number(String(eKm).replace(',', '.').replace('−', '-'));
     if (!Number.isFinite(k)) return;
     const moved = eBike !== r.bikeId;
-    const changes = { km: Math.round(k * 10) / 10, date: eDate || r.date, ...(r.kind === 'correction' ? { note: eName } : { name: eName }) };
+    const changes = { km: Math.round(k * 10) / 10, date: eDate || r.date, ...(r.kind === 'correction' ? { note: eName } : { name: eName === shownName(r) ? r.name : eName }) };
     if (moved) Object.assign(changes, { bikeId: eBike || null, by: 'user', sure: 'user', state: eBike ? (r.state === 'removed' ? 'removed' : 'counted') : 'open' });
     editing = null;
     await change(r, changes, moved ? t('Moved to {bike}: {km} km.', { km: num(changes.km), bike: nameOf(eBike) }) : t('Changed.'));

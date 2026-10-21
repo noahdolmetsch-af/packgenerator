@@ -19,6 +19,7 @@
    * free for the tile row of the SK round.
    */
   import { t, tn, num, nameOf, locale } from '../i18n.svelte.js';
+  import { stravaName } from '../stravanames.js';
   import { formatWeight } from '../gear.js';
   import { tripFacts, planVsReal, nextTripAfter, nextHints, withActs } from './rueckblick.js';
   import { rideTime, elapsed, n0, n1, temps, kg, dates, dayLong, rainText, signedNum, signedHours, DASH } from './fmt.js';
@@ -482,7 +483,7 @@
               <div class="rv-h"><div><h2 id="ta-h">{t('Your activities from Strava')}</h2><p class="rv-sub">{t('a tap shows all values of the ride')}</p></div></div>
               <ul class="rv-box tacts">
                 {#each acts as a (a.id)}
-                  <li><a class="rv-row" href={actHref(a.id)} data-act-link={a.id}><span class="rv-m"><span class="rv-t">{a.name || t('1 activity')}</span><span class="rv-s num">{[a.day ? longDay(a.day) : '', a.km ? `${num(a.km)} km` : ''].filter(Boolean).join(' · ')}</span></span><ChevronRight class="rv-chev" size={18} aria-hidden="true" /></a></li>
+                  <li><a class="rv-row" href={actHref(a.id)} data-act-link={a.id}><span class="rv-m"><span class="rv-t">{stravaName(a.name) || t('1 activity')}</span><span class="rv-s num">{[a.day ? longDay(a.day) : '', a.km ? `${num(a.km)} km` : ''].filter(Boolean).join(' · ')}</span></span><ChevronRight class="rv-chev" size={18} aria-hidden="true" /></a></li>
                 {/each}
               </ul>
             </section>
