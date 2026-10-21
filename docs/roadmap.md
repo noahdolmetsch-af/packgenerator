@@ -107,6 +107,8 @@ Ursprünglich freigegebene Ausführungsreihenfolge: AP01–AP09 → AP12–AP16 
 
 **21.10.2026, v0.172.0 «Velo und Notizen»:** Velo im Griff (Kette nach Regen, Fotos, Inserat, Velobox, Ersatzteile, Kettenrotation) und Notizen wie Evernote (zeichnen, formatieren, Dateien, Erinnerung, Papierkorb).
 
+**21.10.2026, v0.180.0 «Heute ergänzt»:** Mockup-Paket P6 Heute ergänzen: Meditation oben, Gewicht einmal pro Woche, letzte Aktivität nach dem Ring, fällige Check-Bereiche, «Neu» nach einem Update oben. Als Nächstes P3 Regeln.
+
 **21.10.2026, v0.179.0 «Gepackt und geladen»:** Mockup-Paket P1 Packen und Strom: neues Teil beim Packen, Strom-Werte mit Quelle, Leuchtstufen, Ladezeit messen, Flickzeug-Fehler. Als Nächstes P6 Heute ergänzen.
 
 **21.10.2026, v0.178.0 «Skitouren, gut geplant»:** Mockup-Paket P2 Skitour: Tour planen mit Gefahrenstufe und «Dein Morgen», Saison-Seite, «Gipfel erreicht», Plan und Wirklichkeit. Später (nicht in P2): Saison-Karte mit allen Gipfeln (braucht Koordinaten), Skitour-Spielwiese, Nachfüll-Extras. Als Nächstes P1 Packen und Strom.

@@ -1477,4 +1477,10 @@ export default {
   'Type battery, run and charge time and choose where each value comes from.': 'Gib Akku, Leucht- und Ladezeit ein und wähle, woher jeder Wert kommt.',
   'Or start the stopwatch when you plug it in and tap «Full · stop».': 'Oder starte beim Einstecken die Stoppuhr und tippe auf «Voll · stoppen».',
   'Example: charges 3 h full → half about 1:12 h, a quarter about 36 min.': 'Beispiel: lädt voll 3 h → halb etwa 1:12 h, viertel etwa 36 min.',
+  // P6 «Heute ergänzen»: the weight once a week
+  'Only when no weight was typed in the last 7 days.': 'Nur wenn in den letzten 7 Tagen kein Gewicht eingetragen ist.',
+  'Open Heute: the card «Weight this week?» stands under the greeting.': 'Öffne Heute: Die Karte «Gewicht diese Woche?» steht unter dem Gruss.',
+  'Type the weight and tap «Save», or «Not today».': 'Tippe das Gewicht ein und dann «Speichern», oder «Heute nicht».',
+  '«Stop asking» takes the card away; «Add a tile» brings it back.': '«Nicht mehr fragen» nimmt die Karte weg; «Kachel hinzufügen» holt sie zurück.',
+  'Example: last weight 8 days ago → the card asks; saved, it is gone until next week.': 'Beispiel: letztes Gewicht vor 8 Tagen → die Karte fragt; gespeichert ist sie bis nächste Woche weg.',
 };

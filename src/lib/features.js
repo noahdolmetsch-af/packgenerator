@@ -335,6 +335,8 @@ const OWN = [
   { id: 'f.startfresh', group: 'data', title: 'Start fresh', text: 'Delete all data and begin from zero; a copy stays, and «Undo» brings everything back.', href: '#/me/data', words: 'neu beginnen zurücksetzen reset null löschen alles frisch anfangen' },
   { id: 'f.lend', group: 'data', title: 'Lending list', text: 'Lend things to a guest: send the list as a link or PDF, get a reminder on the return day, and see who has what.', href: '#/gear/lend', words: 'ausleihen leihen verleihen gast freund zurück rückgabe erinnerung link pdf wer hat was' },
   // Strombudget (Noah 19.10.2026 «2a»): power budget per trip and power bank calculator
+  // P6 «Heute ergänzen» (Noah 21.10.2026 «2b»): the weight once a week on Heute
+  { id: 'f.weighin', group: 'data', title: 'Weight once a week', text: 'When no weight was typed for a week, Heute asks once: type it, «Not today» or «Stop asking». The same weight as under Me › Weight.', href: '#/', words: 'gewicht wiegen woche wöchentlich kg heute fragen waage' },
   // Paket P1 «Packen und Strom» (Noah 21.10.2026)
   { id: 'f.newpack', group: 'before', title: 'New item while packing', text: 'One button under the building blocks: make a new item and it goes straight into the chosen bag.', href: '#/pack', words: 'neues teil erfassen einpacken packen material ergänzen hinzufügen' },
   { id: 'f.powervalues', group: 'before', title: 'Power values of a device', text: 'Battery, how long it lasts and charges, half and a quarter worked out, light levels and the charging time measured once with a stopwatch; each value says where it comes from.', href: '#/gear', words: 'strom akku mah ladezeit laden leuchtdauer stufen stoppuhr messen quelle hersteller gemessen annahme' },

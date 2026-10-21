@@ -15,7 +15,7 @@
   import { fitbitEmpty } from '../health/emptyline.js';
   import { t, tn, locale } from '../i18n.svelte.js';
 
-  let { today, due = 0, evening = false, open = false, onstart = () => {} } = $props();
+  let { today, due = 0, areas = [], evening = false, open = false, onstart = () => {} } = $props();
 
   const hq = $derived(liveQuery(() => (db.healthDays ? db.healthDays.where('date').aboveOrEqual(addDays(today, -1)).toArray() : [])));
   const body = $derived(bodyToday($hq ?? [], today));
@@ -56,7 +56,7 @@
   <div class="ck" class:done={!due} data-body-check={evening ? 'evening' : 'morning'}>
     <span class="ci" aria-hidden="true">{#if due}<ClipboardList size={18} />{:else}<Check size={18} strokeWidth={2.6} />{/if}</span>
     {#if due}
-      <span class="ct">{tn(due, evening ? 'Evening check · {n} question' : 'Morning check · {n} question', evening ? 'Evening check · {n} questions' : 'Morning check · {n} questions')}</span>
+      <span class="ct">{tn(due, evening ? 'Evening check · {n} question' : 'Morning check · {n} question', evening ? 'Evening check · {n} questions' : 'Morning check · {n} questions')}{#if areas.length}<small class="ar" data-body-areas>{areas.join(' · ')}</small>{/if}</span>
       {#if !open}<button type="button" class="btn sm" onclick={onstart}>{t('Start|round')}</button>{/if}
     {:else}
       <span class="ct">{evening ? t('Evening check: nothing open') : t('Morning check: nothing open')}</span>
@@ -151,6 +151,13 @@
     flex: 1;
     min-width: 0;
     font-weight: 600;
+  }
+  .ar {
+    display: block;
+    color: var(--ink-3);
+    font-size: var(--fs-small);
+    font-weight: 500;
+    overflow-wrap: break-word;
   }
   .lk {
     color: var(--hi);

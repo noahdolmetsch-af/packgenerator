@@ -97,6 +97,9 @@
     container-type: inline-size;
   }
   .hd {
+    display: flex;
+    align-items: center;
+    min-height: 44px;
     color: var(--ink);
     text-decoration: none;
   }
