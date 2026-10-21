@@ -491,7 +491,7 @@ export function configOf(value) {
 /**
  * WG «Wi gaht's?» takes over the daily check (Noah 14.10.2026 «a) ja, alle drei übernehmen»): two fixed
  * rounds, 07:00 and 20:30. While they are on, a question whose own time is before 11:00 asks at the
- * morning time, one from 18:00 at the evening time; 11:00–17:59 keeps its own time (v0.144.0 RE: the day clock). A suggestion only:
+ * morning time, from 11:00 at the evening time (Noah 21.10.2026 «2a»; 11:00–17:59 kept its own time before). A suggestion only:
  * the rounds can be switched off and both times changed (Ich › «Wi gaht's?» › «Feste Runden»).
  */
 export const ROUNDS = { on: true, morning: '07:00', evening: '20:30' };
@@ -506,14 +506,16 @@ export const setRounds = (cfg, patch = {}) => {
   return { ...c, rounds: roundsOf({ ...c.rounds, ...patch }) };
 };
 /**
- * WG: the time a question asks at with the rounds: before 11:00 the morning, from 18:00 the evening time.
+ * WG: the time a question asks at with the rounds: before 11:00 the morning, from 11:00 the evening time.
  * v0.144.0 RE «Eine Tagesuhr»: the borders of the one day clock (dayclock.js; the morning ended at 12:00 before).
  */
 export function roundTime(time, rounds) {
   const r = roundsOf(rounds);
   const hm = timeOf(time);
   if (!r.on || !hm) return hm;
-  return hm < DAY_FROM ? r.morning : hm >= EVENING_FROM ? r.evening : hm;
+  // Noah 21.10.2026 «1a 2a»: the window comes only at the two rounds; a midday time (11:00–17:59) is asked
+  // in the evening round (it kept its own time before and opened the window at noon)
+  return hm < DAY_FROM ? r.morning : r.evening;
 }
 /** WG: an interval with the rounds applied (several times a day, daily, weekly and monthly alike). */
 export function roundEvery(every, rounds) {

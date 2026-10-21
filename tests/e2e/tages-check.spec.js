@@ -325,6 +325,18 @@ test('«Feste Runden» (was «Deine 15 Fragen»): a switch and the two times on 
   // wait until the switch shows it and the setting is saved, before leaving the page (else a race on a slow runner)
   await expect(on).toBeChecked();
   await expect.poll(async () => (await setting(page, 'abfragen'))?.rounds?.on).toBe(true);
+  // Noah 21.10.2026 (changed on purpose): leaving the open window counts as «Heute nicht», quiet until tomorrow;
+  // that is undone here (as if it were the next day), so the round shows its questions again
+  await page.evaluate(
+    () =>
+      new Promise((res) => {
+        const r = indexedDB.open('pack-generator');
+        r.onsuccess = () => {
+          const st = r.result.transaction('settings', 'readwrite').objectStore('settings');
+          st.put({ key: 'abfragen.snooze', value: {} }).onsuccess = () => (res(), r.result.close());
+        };
+      }),
+  );
   await page.goto('./#/');
   await ready(page);
   await expect(card.locator('[data-q="ziele.ziel"]')).toContainText('7:00');

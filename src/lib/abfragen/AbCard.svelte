@@ -151,7 +151,7 @@
   }
 </script>
 
-{#if shown.length}
+{#if shown.length && !quiet}
   <dialog class="sheet vdlg from-below abm" bind:this={dialog} use:backClose={away} onclose={away} aria-labelledby="abc-h" data-section="abfragen" data-round={evening ? 'evening' : 'morning'}>
     <div class="vd-head">
       <span class="ib"><ClipboardList size={18} aria-hidden="true" /></span>
