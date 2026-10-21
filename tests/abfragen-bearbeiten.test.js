@@ -5,7 +5,7 @@ import { describe, it, expect } from 'vitest';
 import {
   AREAS, QUESTIONS, OWN_AREA, configOf, allQuestions, questionsIn, areasOf, areaLabel, renameQuestion, moveToArea, deleteQuestion,
   restoreQuestion, goneQuestions, moveQuestion, renameArea, addArea, deleteArea, moveArea, listChanged, resetList, putOwn, newOwn,
-  dueList, settingOf, setOn,
+  dueList, settingOf, setOn, fitbitFill, answerRow,
 } from '../src/lib/abfragen.js';
 import { checkOf } from '../src/lib/flowcheck.js';
 
@@ -95,5 +95,29 @@ describe('«Überspringen» on the check page', () => {
   it('the skipped questions of the day are kept', () => {
     expect(checkOf({ day: '2026-10-05', skip: ['sleep', 'joy'] }, '2026-10-05').skip).toEqual(['sleep', 'joy']);
     expect(checkOf(null, '2026-10-05').skip).toEqual([]);
+  });
+});
+
+describe('Fitbit fills in (0.171, Noah «das haben wir bereits»)', () => {
+  const Q = (id) => QUESTIONS.find((x) => x.id === id);
+  it('resting pulse, hours of sleep and steps come as the value; the feeling only as a hint', () => {
+    const h = { date: '2026-10-05', restingHr: 52.4, sleep: { asleepMin: 432 }, steps: 8400, azm: 12 };
+    expect(fitbitFill(Q('koerper.ruhepuls'), h)).toEqual({ value: '52', hint: { key: 'rhr', v: 52 } });
+    expect(fitbitFill(Q('erholung.stunden'), h).value).toBe('7.2');
+    expect(fitbitFill(Q('koerper.schritte'), h).value).toBe('8400');
+    expect(fitbitFill(Q('erholung.schlaf'), h)).toEqual({ value: null, hint: { key: 'sleep', v: 432 } });
+    expect(fitbitFill(Q('erholung.akku'), h)).toBeNull();
+  });
+  it('movement: sloth, walker or mountain goat from the active zone minutes or the steps', () => {
+    expect(fitbitFill(Q('sport.bewegung'), { azm: 40 }).value).toBe('goat');
+    expect(fitbitFill(Q('sport.bewegung'), { azm: 12 }).value).toBe('walker');
+    expect(fitbitFill(Q('sport.bewegung'), { steps: 2000 }).value).toBe('sloth');
+    expect(fitbitFill(Q('sport.bewegung'), { steps: 13000 }).value).toBe('goat');
+    expect(fitbitFill(Q('sport.bewegung'), {})).toBeNull();
+    expect(fitbitFill(Q('sport.bewegung'), null)).toBeNull();
+  });
+  it('an answer left as Fitbit gave it is saved with the source Fitbit', () => {
+    expect(answerRow(Q('koerper.ruhepuls'), '52', { at: '2026-10-05T07:00', src: 'fitbit' }).src).toBe('fitbit');
+    expect(answerRow(Q('koerper.ruhepuls'), '50', { at: '2026-10-05T07:00' }).src).toBe('hand');
   });
 });

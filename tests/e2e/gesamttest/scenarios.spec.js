@@ -308,7 +308,9 @@ test('S4 new item, weigh, wardrobe, block, trip', async ({ page, context }, info
   // wardrobe: "Noch einordnen" → outer, upper body
   await page.goto('./#/wardrobe');
   await page.reload();
-  await page.getByRole('button', { name: T('All|use') }).click().catch(() => {});
+  // exact: «Alle» must not match the search button «Alles durchsuchen» (it opened the search sheet over the page);
+  // the filter shows only with enough clothes, so a short wait, not the whole test time
+  await page.getByRole('button', { name: T('All|use'), exact: true }).click({ timeout: 3000 }).catch(() => {});
   const row = page.locator('li, .row, div').filter({ hasText: NAME }).last();
   await expect(row).toBeVisible();
   // v0.47.0 (Noah 3b): a compact row with a suggestion chip; "anders …" opens layer and zone

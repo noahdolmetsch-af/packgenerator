@@ -53,7 +53,7 @@
   import { fieldsOf, zoneParts } from '../lib/touren/aktivitaeten.js';
   import { pointAlong } from '../lib/spur/polyline.js';
   import { KIND_NAMES, typeKey, sameRoute, ftpEstimate } from '../lib/training.js';
-  import { tripPhotos, addTripPhotos, removeTripPhoto, FOTO_MAX, FOTOS_PER_TRIP } from '../lib/lernen/fotos.js';
+  import { tripPhotos, addTripPhotos, removeTripPhoto, FOTO_MAX, FOTOS_PER_TRIP, coverPhoto, tripCover, setTripCover } from '../lib/lernen/fotos.js';
   import { shrinkImage } from '../lib/photo.js';
   import { saveTripAsTemplate } from '../lib/templates.js';
   import { newTrip, openNew, RIDES_HREF } from '../lib/nav.js';
@@ -165,10 +165,16 @@
   const photoKey = $derived(d?.kind === 't' ? d.id : key);
   let photos = $state([]);
   let photoMsg = $state('');
+  let cover = $state(null); // «Bilder in der App» 5a: the photo pale on top of the page
   $effect(() => {
     const k = photoKey;
     if (k) tripPhotos(k).then((p) => (photos = p));
+    if (k) tripCover(k).then((c) => (cover = c));
   });
+  const chooseCover = async (id) => {
+    cover = id;
+    await setTripCover(photoKey, id);
+  };
   async function addPhotos(e) {
     const files = [...(e.currentTarget.files ?? [])];
     e.currentTarget.value = '';
@@ -322,7 +328,7 @@
       <MoreActions title={name} label={t('More for {what}', { what: name })} {actions} />
     </PathHead>
     <!-- Noah 20.10.2026 «1a 2a»: a drawn landscape with the route, and one personal sentence when there is one -->
-    <TourLandscape points={prof} chips={[dates(row.day, row.endDay ?? row.day), wxS ? deg(wxS.tmin, wxS.tmax) : ''].filter(Boolean)} />
+    <TourLandscape points={prof} photo={coverPhoto(photos, cover)?.data ?? null} chips={[dates(row.day, row.endDay ?? row.day), wxS ? deg(wxS.tmin, wxS.tmax) : ''].filter(Boolean)} />
     {#if say}<p class="say" data-tour-say>{say}</p>{/if}
     {#if d.kind === 't'}
       <!-- Gesamttest 20.10.2026 (journey): a trip's two pages lead to each other; the Rückblick has «Tour-Seite ansehen ›» -->
@@ -443,7 +449,7 @@
           {/if}
           {#if photos.length}
             <ul class="photos" aria-label={t('Photos of the trip')}>
-              {#each photos as p (p.id)}<li><img src={p.data} alt={t('Photo from {day}', { day: p.day })} loading="lazy" /><button type="button" class="px" aria-label={t('Remove photo')} onclick={() => dropPhoto(p.id)}><X size={14} aria-hidden="true" /></button></li>{/each}
+              {#each photos as p (p.id)}<li><img src={p.data} alt={t('Photo from {day}', { day: p.day })} loading="lazy" /><button type="button" class="px" aria-label={t('Remove photo')} onclick={() => dropPhoto(p.id)}><X size={14} aria-hidden="true" /></button><button type="button" class="pc" class:on={coverPhoto(photos, cover)?.id === p.id} aria-pressed={coverPhoto(photos, cover)?.id === p.id} aria-label={t('Show on top of the tour page')} title={t('Show on top of the tour page')} onclick={() => chooseCover(p.id)} data-tour-cover><Star size={14} aria-hidden="true" /></button></li>{/each}
             </ul>
           {/if}
           <label class="btn addp"><ImagePlus size={16} aria-hidden="true" />{t('Add photos')}<input type="file" accept="image/*" multiple onchange={addPhotos} data-tour-photos /></label>
@@ -860,6 +866,27 @@
     background: var(--paper);
     color: var(--ink);
     cursor: pointer;
+  }
+  /* 5a: the star chooses the photo on top of the page */
+  .pc {
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    border: 0;
+    border-radius: 50%;
+    background: var(--paper);
+    color: var(--ink-3);
+    cursor: pointer;
+  }
+  .pc.on {
+    color: var(--ink);
+  }
+  .pc.on :global(svg) {
+    fill: currentColor;
   }
   .addp {
     position: relative;

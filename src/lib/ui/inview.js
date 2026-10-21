@@ -46,11 +46,10 @@ function fit(node) {
   const ceiling = head?.height ? Math.max(EDGE, head.bottom + EDGE) : EDGE;
   const dy = shiftY(r, button, floor, ceiling);
   if (dx || dy) node.style.translate = `${Math.round(dx)}px ${Math.round(dy)}px`;
-  // 20.10.2026: a long menu that fits neither below nor above its button: scroll the page just enough
-  // that the whole menu shows (its button stays in view above it)
-  if (!dy && r.bottom > floor - EDGE && r.bottom - (button?.top ?? r.top) <= floor - ceiling) {
-    window.scrollBy({ top: r.bottom - floor + EDGE, behavior: 'instant' });
-  }
+  // 21.10.2026: a long menu that fits neither below nor above its button scrolls the page up just enough
+  // to show all of it (the problem menu has 11 answers since «Fotos hinzufügen»)
+  const over = r.bottom - (floor - EDGE);
+  if (!dy && over > 0 && !inDialog && r.top - over >= ceiling) window.scrollBy(0, over);
 }
 
 export function inView(node) {

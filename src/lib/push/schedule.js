@@ -19,6 +19,7 @@ import { ridesIntoDark, sunTimes, offsetFor } from '../blockplan.js';
 import { stage, stageCount, pointAt } from '../ride.js';
 import { airPrefs, POLLEN_NAMES } from '../air.js';
 import { eatPushItems } from '../unterwegs/essen.js';
+import { wearPush } from '../wear.js';
 
 export const PUSH_KEY = 'push';
 export const AHEAD_DAYS = 14;
@@ -49,6 +50,8 @@ export const KINDS = [
   { key: 'rainsoon', label: 'Rain on the way', hint: 'While you ride: when rain comes in about 15 to 45 minutes where you should be.' },
   { key: 'air', label: 'Ozone and pollen', hint: 'On the tour morning, with much ozone or strong pollen (the kinds you choose on Aktiv).' },
   { key: 'workshop', label: 'Workshop due', hint: 'On the day a workshop job is due.' },
+  // «Verschleiss immer im Griff» (Noah 20.10.2026): a part reaches its km (e.g. the chain at 1000 km)
+  { key: 'wear', label: 'Parts worn', hint: 'When a part reaches its km, e.g. the chain. At 08:00.' },
   { key: 'backup', label: 'Backup', hint: 'When the last backup is older than set.' },
   // Paket N idea 2 (Noah 19.10.2026 «1-5 a»): a race trip's registration deadline (Touren › Träume)
   { key: 'race', label: 'Race registration', hint: '3 days and 1 day before the registration deadline, at 08:00.' },
@@ -187,6 +190,13 @@ export function buildList(data) {
       if (r.status !== 'done' && !r.done && DAY.test(r.dueDate ?? ''))
         add({ key: `ws:${r.id}:${r.dueDate}`, at: atMs(r.dueDate < today ? today : r.dueDate, DAY_AT), title: t('Workshop'), body: t('{bike}: {task} is due before the trip.', { bike: bikes[r.bikeId] ?? r.subject ?? t('Bike'), task: r.task }), url: '#/bikes?tab=care' });
   }
+  // «Verschleiss immer im Griff»: on the day a part reaches its km (at the pace of the last 8 weeks), today when it already has
+  if (on('wear'))
+    for (const w of wearPush(data.bikes ?? [], { visits: data.visits ?? [], entries: data.kmBook ?? [], today })) {
+      let at = atMs(w.day, DAY_AT);
+      if (at <= ms) at = atMs(addDays(today, 1), DAY_AT);
+      add({ key: w.key, at, title: t('Parts worn'), body: w.left > 0 ? t('{bike}: {part} reaches {life} km soon ({km} km left). Time to replace it.', { bike: w.bike, part: w.part, life: w.life, km: w.left }) : t('{bike}: {part} has reached {life} km. Time to replace it.', { bike: w.bike, part: w.part, life: w.life }), url: w.url });
+    }
   if (on('backup')) {
     const last = data.lastBackup ? localDay(new Date(data.lastBackup)) : today;
     let day = addDays(last, backupDays);

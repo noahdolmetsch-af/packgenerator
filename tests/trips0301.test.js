@@ -66,7 +66,7 @@ describe('C1: On the way without a route still has blocks and a Now card', () =>
     const st = stage({ ...trip, hours: 4 }, 0, null, { today: '2026-10-08', nowStart: '09:00' });
     const rows = blocks(trip, st);
     expect(rows.map((b) => [b.from, b.to, b.kmFrom, b.kmTo])).toEqual([['09:00', '12:00', null, null], ['12:00', '13:00', null, null]]);
-    const p = blockPlan(rows, [{ item: item('bottle', { waterL: 0.5 }), qty: 1, place: 'Frame' }], { tripWx: { min: 10, max: 18, rain: 'none' } });
+    const p = blockPlan(rows, [{ item: item('bottle', { waterL: 0.5 }), qty: 1, place: 'Frame' }], { tripWx: { min: 10, max: 18, rain: 'none' }, fuel: { coolLh: 0.5, hotLh: 0.75, coolC: 18, hotC: 25 } });
     expect(p.rows[0].drinkL).toBe(1.5);
     // Refill in time, not in km.
     expect(p.rows[0].refillKm).toEqual([]);

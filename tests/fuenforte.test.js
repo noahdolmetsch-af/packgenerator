@@ -6,7 +6,7 @@ import { shortcutOf } from '../src/lib/nav/keys.js';
 
 describe('the pages under each place', () => {
   it('each place has at most 4, and only built pages (O2.1a: Neuland and Heft come later; v0.78.0 O2.5a: Einkauf shows the wishlist; v0.79.0: Aktivität is built; UC3 14.10.2026 «2a»: Velos gets «Setup» as a fifth; Paket 2: Aktiv gets «Meditation» (ME2, Noah 15.10.2026 «1a») and «Training» (TR2, Noah 13.10.2026 «1-5a» 1a) as its own tabs; Paket N: Touren gets «Träume» (Noah 19.10.2026 «1a») next to «Skitouren»)', () => {
-    const max = { bikes: 5, active: 11, trips: 5, week: 8 }; // UI-Ziele #6 (Noah 20.10.2026 «freigabe» 4a): Ich keeps data, settings, help; the rest are tabs of Planen and Auswerten // N1 «Neue Leiste» (Noah 20.10.2026): Fahrten and Erkenntnisse go to Auswerten; Planen gets Termine and Notizen // Gesamttest 20.10.2026 B3 (Noah «3a»): Touren gets «Fahrten», the Strava activities // Paket T (Noah 19.10.2026 «1a und b»): Aktiv gets «Impulse» as a sixth tab
+    const max = { bikes: 5, active: 11, trips: 5, week: 9 }; // «Tagebuch» (Noah 20.10.2026): a tab of Planen next to Notizen // UI-Ziele #6 (Noah 20.10.2026 «freigabe» 4a): Ich keeps data, settings, help; the rest are tabs of Planen and Auswerten // N1 «Neue Leiste» (Noah 20.10.2026): Fahrten and Erkenntnisse go to Auswerten; Planen gets Termine and Notizen // Gesamttest 20.10.2026 B3 (Noah «3a»): Touren gets «Fahrten», the Strava activities // Paket T (Noah 19.10.2026 «1a und b»): Aktiv gets «Impulse» as a sixth tab
     for (const p of PLACES) expect((PLACE_TABS[p.key] ?? []).length, p.key).toBeLessThanOrEqual(max[p.key] ?? 4);
     const keys = Object.values(PLACE_TABS).flat().map((x) => x.key);
     for (const later of ['neuland', 'heft']) expect(keys).not.toContain(later);
@@ -27,6 +27,10 @@ describe('the pages under each place', () => {
     expect(tabOf('active', '#/me/insights')).toBe('insights');
     expect(tabOf('week', '#/me/agenda')).toBe('agenda');
     expect(tabOf('week', '#/notes')).toBe('notes');
+    // «Tagebuch» (Noah 20.10.2026): a tab of Planen, also for one entry
+    expect(tabOf('week', '#/tagebuch')).toBe('tagebuch');
+    expect(tabOf('week', '#/tagebuch/e1')).toBe('tagebuch');
+    expect(placeOf(pageOf('#/tagebuch'))).toBe('week');
     for (const [h, k] of [['#/week/plan', 'week'], ['#/week/away', 'week'], ['#/calendar', 'agenda'], ['#/inbox', 'inbox'], ['#/me/mail', 'mail'], ['#/me/compass', 'compass'], ['#/me/alltag', 'alltag'], ['#/me/frei', 'frei']]) expect(tabOf('week', h), h).toBe(k);
     for (const [h, k] of [['#/me/history', 'history'], ['#/me/abfragen', 'history'], ['#/me/analysis', 'history'], ['#/me/wohl', 'wohl'], ['#/me/weight', 'weight']]) expect(tabOf('active', h), h).toBe(k);
     for (const h of ['#/me', '#/me/data', '#/me/look', '#/me/connections', '#/features']) expect(placeOf(pageOf(h)), h).toBe('me');

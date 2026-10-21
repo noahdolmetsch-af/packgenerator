@@ -21,6 +21,7 @@
   import { t, tn, num, dateOf } from '../i18n.svelte.js';
   import { bikesHash } from '../bikes.js';
   import { bikeCareWords } from '../readiness.js';
+  import { wearRows } from '../wear.js';
 
   let {
     c, tasks = [], visits = [], wished = {}, kmMsg = null, open = false, filter = 'all', today,
@@ -47,6 +48,8 @@
   import '../ui/fe-seiten.css';
 
   const bike = $derived(c.bike);
+  // «Verschleiss immer im Griff» (Noah 20.10.2026): the chain's km against its life (wear.js), when known
+  const chain = $derived(wearRows(bike, { keys: ['chain'] }).find((r) => r.km != null && r.life.km) ?? null);
   const words = $derived(bikeCareWords(c.care));
   const lastVisit = $derived(c.mine[0] ?? null);
   const nothingYet = $derived(!bike.parts.some((p) => p.history?.length) && !c.mine.length);
@@ -268,6 +271,8 @@
       </h2>
       <small class="sub num">
         {#if bike.km != null}{num(bike.km)} km{:else}{t('km not set')}{/if}
+        <!-- «Verschleiss immer im Griff» (Noah 20.10.2026): the chain at a glance on every bike -->
+        {#if chain}{' · '}<span class="chainw {chain.state}" data-chain-wear={chain.state}>{t('Chain {km} of {life} km', { km: num(chain.km), life: num(chain.life.km) })}</span>{/if}
         {#if open}
           {#if bike.kmDate}{' · '}{kmEntries.some((e) => e.bikeId === bike.id) ? t('from the ride ledger, as of {date}', { date: dateOf(bike.kmDate) }) : t('as of {date}', { date: dateOf(bike.kmDate) })}{/if}
           · <button type="button" class="lnk" aria-expanded={kmOpen || bike.km == null} onclick={() => (kmOpen = !kmOpen)}>{bike.km == null ? t('enter km') : t('change km')}</button>
@@ -305,6 +310,8 @@
       {/if}
       <!-- v0.68.0 (Q1.1 a): the ride ledger as its own block at the top of the bike -->
       <KmBook {bike} {bikes} />
+      <!-- «Verschleiss» (Noah 20.10.2026, 2b + «Verschleiss immer im Griff»): at a glance, the chain first, the way to the page «Wear» -->
+      {#await import('./WearCard.svelte') then m}<m.default {bike} entries={kmEntries.filter((e) => e.bikeId === bike.id)} />{:catch}{/await}
       {#if !q1On && onq1}<p class="q1on"><button type="button" class="lnk" onclick={() => onq1(true)}>{t('Check Q1 «Gapless km» for this bike')}</button></p>{/if}
       <!-- v0.69.0 «Velo-Blätter» (V1 a): the bike's folder, one line of links -->
       <SheetFolder bike={c.bike} compact from="care" />
@@ -1502,5 +1509,13 @@
     border-radius: var(--radius-card);
     background: var(--paper);
     box-shadow: var(--card-shadow);
+  }
+  .chainw.soon {
+    color: var(--warn);
+    font-weight: 600;
+  }
+  .chainw.due {
+    color: var(--bad);
+    font-weight: 600;
   }
 </style>

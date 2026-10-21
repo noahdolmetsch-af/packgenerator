@@ -11,6 +11,10 @@
   import FoodLog from './ride/FoodLog.svelte';
   import RideOrSleep from './ride/RideOrSleep.svelte';
   import Contacts from './ride/Contacts.svelte';
+  import SleepList from './ride/SleepList.svelte';
+  import CallHotels from './ride/CallHotels.svelte';
+  import NapTimer from './ride/NapTimer.svelte';
+  import { ownQuery } from '../map/ownpoints.js';
   import { TIRED, BAD_WEATHER, checkpointRows, cutoffNeed, lastActual, miniGoals, hhmm, hm, localOf, dayOfMs } from './race.js';
   import { nextSupply, openAt, wxAt, uvAdvice, WX_CACHE, POI_KIND } from './outside.js';
   import { creamDue } from './more.js';
@@ -91,6 +95,18 @@
   let bad = $state(false);
   const roofs = $derived(ahead(ctx.pois, km, ['shelter', 'station'], 20));
   const plans = $derived(ctx.race.badWeather ? ctx.race.badWeather.map((b) => ({ ...b, own: true })) : BAD_WEATHER);
+
+  /* U4 Schlafplätze: where to sleep tonight (1138, 1142, 1143), hotels late (1139), power naps (1140) */
+  const ownQ = ownQuery();
+  const SLEEP_BOXES = [
+    { key: 'tonight', name: 'Where do I sleep tonight?' },
+    { key: 'hotels', name: 'Hotels for tonight' },
+    { key: 'nap', name: 'Power nap' },
+  ];
+  const sleepOff = $derived(Array.isArray(ctx.stored.sleepOff) ? ctx.stored.sleepOff : []);
+  const sleepOn = (k) => !sleepOff.includes(k);
+  const setSleepOn = (k, on) => ctx.save({ sleepOff: on ? sleepOff.filter((x) => x !== k) : [...new Set([...sleepOff, k])] });
+  const kmhNow = $derived(plan?.kmh > 0 ? plan.kmh : 18);
 </script>
 
 <div class="rm" data-race-mode>
@@ -168,7 +184,25 @@
       <button type="button" class="btn hi rm-tap" onclick={() => ctx.save({ creamAt: new Date().toISOString() })} data-race-cream>{t('Creamed')}</button>
     </Box>
 
+    {#if sleepOn('tonight')}
+      <Box id="ride-spots" title={t('Where do I sleep tonight?')} what="Lists the next places to sleep ahead: hotels, campsites, roofs (bus stops, huts, waiting rooms, bivouac boxes), places open all night and your own spots, with km, arrival and small signs for roof, water, WC and the night's weather." why="At night you see your options at once; in rain roofs come first, in the cold beds." from="OpenStreetMap places and your stop file (loaded under «Along the route»), your own places and lists, the weather you loaded and the pace of your plan.">
+        <SleepList pois={ctx.pois} own={$ownQ ?? []} pts={ctx.pts} {km} {now} {eta} kmh={kmhNow} {wx} bagC={ctx.race.bagC} kinds={Array.isArray(ctx.stored.sleepKinds) ? ctx.stored.sleepKinds : null} onkinds={(k) => ctx.save({ sleepKinds: k })} />
+      </Box>
+    {/if}
+
     <RideOrSleep {ctx} {now} {km} {wx} {bufferH} />
+
+    {#if sleepOn('hotels')}
+      <Box id="ride-hotels" title={t('Hotels for tonight')} what="In the afternoon shows the hotels where you will be in the evening, with phone, mail and the reception hours when you arrive, and a ready sentence in the language of the place." why="Many receptions close at 20 or 21 h; one call in the afternoon gets you a bed and a late check-in." from="OpenStreetMap hotels (phone, mail and opening hours as entered there), your plan and your pace. The app never calls or writes by itself.">
+        <CallHotels {ctx} {now} {km} {eta} kmh={kmhNow} />
+      </Box>
+    {/if}
+
+    {#if sleepOn('nap')}
+      <Box id="ride-nap" title={t('Power nap')} what="A timer for a nap of 10, 20 or 30 minutes with an alarm, the hours you are awake and a suggestion when a nap would help." why="A short nap at the right time keeps you safe and faster than riding on half asleep." from="Your sleep log of this race and your taps. The alarm only rings while the app is open and the screen is on.">
+        <NapTimer {ctx} {now} />
+      </Box>
+    {/if}
 
     <Box id="ride-tired" title={t('Tiredness check')} what="One tap: how tired you feel now, from fresh to microsleep danger." why="Tiredness creeps up; the last entries show the trend and feed «Ride on or sleep?»." from="Your taps, kept in this race. An observation, not a diagnosis.">
       <div class="rc-chips" role="group" aria-label={t('How tired are you?')}>
@@ -212,6 +246,10 @@
       {/if}
     </Box>
   </div>
+  <fieldset class="rm-show" data-race-sleep-show>
+    <legend class="rc-note">{t('Show in race mode')}</legend>
+    {#each SLEEP_BOXES as b (b.key)}<label class="rc-inline rc-note"><input type="checkbox" checked={sleepOn(b.key)} onchange={(e) => setSleepOn(b.key, e.currentTarget.checked)} data-race-sleep-on={b.key} />{t(b.name)}</label>{/each}
+  </fieldset>
   <label class="rc-inline rc-note"><input type="checkbox" checked={ctx.stored.whyOn !== false} onchange={(e) => ctx.save({ whyOn: e.currentTarget.checked })} data-race-why-on />{t('Show my why in the evening and when I am very tired')}</label>
 </div>
 
@@ -264,6 +302,14 @@
     padding-top: 10px;
     border-top: 1px solid var(--line);
     align-items: flex-start;
+  }
+  .rm-show {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 14px;
+    margin: 0;
+    padding: 0;
+    border: 0;
   }
   .rm-why {
     margin: 0;

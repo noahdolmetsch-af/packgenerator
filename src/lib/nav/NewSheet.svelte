@@ -25,6 +25,7 @@
   import { startBike } from '../problems.js';
   import { bikesHash } from '../bikes.js';
   import { offerDone } from '../ui/rename.svelte.js';
+  import { removeVisit } from '../visitdb.js';
   import { Route, Bike, Activity, Backpack, Package, Plus, TriangleAlert, Receipt, StickyNote, X, ListTodo, ListChecks, ScanLine } from '@lucide/svelte';
   import TodoSheet from '../merken/TodoSheet.svelte';
   import ListSheet from '../merken/ListSheet.svelte';
@@ -62,7 +63,7 @@
   const lastBike = lastBikeChoice; // P3b 4a
   function visitSaved({ bikeId, id }) {
     location.hash = bikesHash({ tab: 'shop', bike: bikeId });
-    offerDone(t('Workshop visit saved.'), id ? () => db.visits.delete(id) : null);
+    offerDone(t('Workshop visit saved.'), id ? () => removeVisit(id) : null); // «Verschleiss»: also its point on the counter
   }
 
   const bikesQ = liveQuery(() => db.bikes.toArray());

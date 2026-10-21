@@ -10,6 +10,7 @@
  * Pure functions; tests/uebersicht.test.js. Only to look at.
  */
 import { addDays } from './health.js';
+import { bedMin, cadOf, spdOf, zoneMinOf } from './koerper.js';
 
 const fin = (v) => (typeof v === 'number' && Number.isFinite(v) ? v : null);
 const sum = (xs) => xs.reduce((s, v) => s + (v ?? 0), 0);
@@ -175,4 +176,154 @@ export function latestOf(table, today, k) {
     if (v != null) return { day: d, v };
   }
   return null;
+}
+
+/**
+ * «Körperwerte» (Noah 20.10.2026 «gewicht, schlafminuten, aktivzonenminuten und weitere», «1-5 alle»,
+ * «1a 2a 3a 4a 5a», «1-5a»): the values of the page behind the heart rate tile.
+ * line: drawn as a line (else bars); src: where the value comes from; sum: counted values (a total);
+ * parts: one line each (felt, blood pressure); stack: stacked bars (sleep phases, zones); entry: you
+ * type it in on the page; view: a chart of its own (kilometres of the year, temperature and pulse).
+ */
+export const BODY_KEYS = [
+  { key: 'hr', name: 'Heart rate', unit: 'bpm', line: true, src: 'fitbit' },
+  { key: 'hrv', name: 'HRV', unit: 'ms', line: true, src: 'fitbit' },
+  { key: 'spo2', name: 'Oxygen', unit: '%', line: true, src: 'fitbit' },
+  { key: 'breath', name: 'Breathing rate', unit: '/min', line: true, src: 'fitbit' },
+  { key: 'bp', name: 'Blood pressure', unit: 'mmHg', line: true, src: 'own', entry: true, parts: ['sys', 'dia'] },
+  { key: 'sleep', name: 'Sleep|metric', unit: 'h', src: 'fitbit' },
+  { key: 'stages', name: 'Sleep phases', unit: 'h', src: 'fitbit', stack: ['deep', 'rem', 'light', 'awake'] },
+  { key: 'eff', name: 'Sleep efficiency', unit: '%', line: true, src: 'fitbit' },
+  { key: 'bed', name: 'Bedtime', unit: '', line: true, src: 'fitbit' },
+  { key: 'skin', name: 'Skin temperature', unit: '°C', line: true, src: 'fitbit' },
+  { key: 'azm', name: 'Active zone minutes|metric', unit: 'min', src: 'fitbit', sum: true },
+  { key: 'steps', name: 'Steps', unit: '', src: 'fitbit', sum: true },
+  { key: 'kcal', name: 'Calories', unit: 'kcal', src: 'fitbit', sum: true },
+  { key: 'zones', name: 'Pulse zones', unit: 'min', src: 'zones', sum: true, stack: ['z1', 'z2', 'z3', 'z4', 'z5'] },
+  { key: 'load', name: 'Load|body', unit: '', src: 'strava', sum: true },
+  { key: 'med', name: 'Meditation', unit: 'min', src: 'med', sum: true },
+  { key: 'weight', name: 'Weight', unit: 'kg', line: true, src: 'own', entry: true },
+  { key: 'water', name: 'Water|drink', unit: 'l', src: 'own', entry: true, sum: true },
+  { key: 'felt', name: 'Felt|body', unit: '', line: true, src: 'check', fixed: [0, 10], parts: ['sleep', 'energy', 'mood'] },
+  { key: 'ready', name: 'Readiness', unit: '', line: true, src: 'app', fixed: [0, 100] },
+  { key: 'wkg', name: 'Watts per kg', unit: 'W/kg', line: true, src: 'strava' },
+  { key: 'cad', name: 'Cadence', unit: 'rpm', line: true, src: 'strava' },
+  { key: 'spd', name: 'Speed', unit: 'km/h', line: true, src: 'strava' },
+  { key: 'year', name: 'Km this year', unit: 'km', src: 'strava', view: 'year' },
+  { key: 'temp', name: 'Temperature and pulse', unit: 'bpm', src: 'temp', view: 'temp' },
+];
+export const BODY = Object.fromEntries(BODY_KEYS.map((b) => [b.key, b]));
+/** The five groups of the page and their tabs, in this order. */
+export const BODY_GROUPS = [
+  { key: 'heart', name: 'Heart|group', tabs: ['hr', 'hrv', 'spo2', 'breath', 'bp'] },
+  { key: 'sleep', name: 'Sleep|group', tabs: ['sleep', 'stages', 'eff', 'bed', 'skin'] },
+  { key: 'act', name: 'Activity|group', tabs: ['azm', 'steps', 'kcal', 'zones', 'load', 'med'] },
+  { key: 'body', name: 'Body|group', tabs: ['weight', 'water', 'felt', 'ready'] },
+  { key: 'bike', name: 'Bike|group', tabs: ['wkg', 'cad', 'spd', 'year', 'temp'] },
+];
+/** Every tab, in the order of the groups. */
+export const BODY_TABS = BODY_GROUPS.flatMap((g) => g.tabs);
+/** The group of a tab. */
+export const groupOf = (key) => BODY_GROUPS.find((g) => g.tabs.includes(key))?.key ?? 'heart';
+
+/**
+ * The sleep phases of a night (minutes) and when it began and ended: { deep, rem, light, awake, start, end }
+ * or null without a night.
+ */
+export function stagesOf(row) {
+  const n = row?.night;
+  if (!n || fin(n.asleepMin) == null) return null;
+  return { deep: fin(n.deepMin), rem: fin(n.remMin), light: fin(n.lightMin), awake: fin(n.awakeMin), start: n.start ?? null, end: n.end ?? null, asleep: n.asleepMin };
+}
+
+/**
+ * Watts per kg of a day: the mean power of the rides with a power meter, weighted by time, divided by
+ * the weight that applied that day (kgOn). null without both.
+ */
+export function wkgOf(row, kg) {
+  if (!(kg > 0)) return null;
+  const rides = (row?.acts ?? []).filter((a) => a.wDevice && fin(a.wAvg) > 0 && fin(a.movingS) > 0);
+  if (!rides.length) return null;
+  const w = sum(rides.map((a) => a.wAvg * a.movingS)) / sum(rides.map((a) => a.movingS));
+  return Math.round((w / kg) * 100) / 100;
+}
+
+/**
+ * One body value of one day: the table's value, the calories of caloriesOf, the weight of the entries.
+ * ctx: { ready, load, med, water: Map day → value, checks: Map day → { sleep, energy, mood }, bp: Map
+ * day → { sys, dia }, kgOn: (day) → kg, bounds: the pulse zones } for the values the app counts itself
+ * or you enter; part: one of a value with parts (felt, bp).
+ */
+export function bodyOf(table, day, key, weights = new Map(), ctx = {}, part = null) {
+  const row = table.get(day);
+  if (key === 'weight') return fin(weights.get(day));
+  if (key === 'stages') return fin(row?.sleep);
+  if (key === 'ready' || key === 'load' || key === 'med' || key === 'water') return fin(ctx[key]?.get(day));
+  if (key === 'felt') return fin(ctx.checks?.get(day)?.[part ?? 'energy']);
+  if (key === 'bp') return fin(ctx.bp?.get(day)?.[part ?? 'sys']);
+  if (key === 'wkg') return wkgOf(row, ctx.kgOn?.(day));
+  if (key === 'kcal') return caloriesOf(row).total;
+  if (key === 'eff') return fin(row?.night?.efficiency);
+  if (key === 'bed') return bedMin(row?.night?.start);
+  if (key === 'skin') return fin(row?.skinTemp);
+  if (key === 'cad') return cadOf(row);
+  if (key === 'spd') return spdOf(row);
+  if (key === 'zones') {
+    const z = ctx.bounds ? zoneMinOf(row, ctx.bounds) : null;
+    return z ? sum(z) : null;
+  }
+  return fin(row?.[key]);
+}
+
+/**
+ * One body value over a range: per day (per month the mean of its days for a year), the mean of the
+ * days with a value, the total for counted values (azm, steps, kcal), the lowest and highest, and the
+ * days newest first. weights: Map day → kg (Ich › Gewicht). The heart rate uses hrStats.
+ * → { from, to, points: [{ key, v }], mean, total, lo, hi, n, days: [{ key, v }] }
+ */
+export function bodyStats(table, today, key, range = 'd7', back = 0, weights = new Map(), ctx = {}, part = null) {
+  const w = windowOf(range, today, back);
+  const per = daysOf(w.from, w.to).map((d) => ({ key: d, v: bodyOf(table, d, key, weights, ctx, part) }));
+  const points = w.months
+    ? w.months.map((m) => {
+        const v = mean(per.filter((p) => p.key.startsWith(m.slice(0, 7))).map((p) => p.v));
+        return { key: m, v: v == null ? null : Math.round(v * 10) / 10 };
+      })
+    : per;
+  const vals = per.map((p) => p.v).filter((v) => v != null);
+  const m = mean(vals);
+  return {
+    from: w.from,
+    to: w.to,
+    points,
+    mean: m == null ? null : Math.round(m * 10) / 10,
+    total: BODY[key]?.sum && vals.length ? sum(vals) : null,
+    lo: vals.length ? Math.min(...vals) : null,
+    hi: vals.length ? Math.max(...vals) : null,
+    n: vals.length,
+    days: [...per].reverse(),
+  };
+}
+
+/**
+ * The stacked bars per day (per month the mean of its days for a year), oldest first: the sleep phases
+ * (key 'stages') or the minutes per pulse zone (key 'zones', bounds needed).
+ */
+export function stackBars(table, today, range = 'd7', back = 0, key = 'stages', bounds = null) {
+  const w = windowOf(range, today, back);
+  const one = (d) => {
+    if (key === 'stages') return stagesOf(table.get(d)) ?? {};
+    const z = bounds ? zoneMinOf(table.get(d), bounds) : null;
+    return z ? { z1: z[0], z2: z[1], z3: z[2], z4: z[3], z5: z[4], asleep: sum(z) } : {};
+  };
+  const per = daysOf(w.from, w.to).map((d) => ({ key: d, ...one(d) }));
+  if (!w.months) return per;
+  return w.months.map((m) => {
+    const inM = per.filter((p) => p.key.startsWith(m.slice(0, 7)));
+    const avg = (k) => {
+      const v = mean(inM.map((p) => p[k]));
+      return v == null ? null : Math.round(v);
+    };
+    return { key: m, ...Object.fromEntries([...BODY[key].stack, 'asleep'].map((k) => [k, avg(k)])) };
+  });
 }
