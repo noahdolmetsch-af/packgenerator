@@ -1,39 +1,39 @@
-/* SN2+ «SN2 plus»: the heart rate zones in one calm grey-blue ramp (observation only, no colour for good
-   or bad). Built from the ink and paper of the theme, so it works in light and dark. */
+/* The heart rate zones Z1–Z5 and the power zones Z1–Z7, a colour each like Garmin and Strava
+   (Noah 21.10.2026 «herzfrequenzbereiche in verschiedenen farben»; was a calm grey ramp since SN2+).
+   Observation only: the colours name the zone, not good or bad. Tokens in app.css. */
 .zc-1 {
-  background: color-mix(in srgb, var(--ink-3) 22%, var(--paper));
+  background: var(--z1);
 }
 .zc-2 {
-  background: color-mix(in srgb, var(--ink-3) 40%, var(--paper));
+  background: var(--z2);
 }
 .zc-3 {
-  background: color-mix(in srgb, var(--ink-3) 58%, var(--paper));
+  background: var(--z3);
 }
 .zc-4 {
-  background: color-mix(in srgb, var(--ink-2) 72%, var(--paper));
+  background: var(--z4);
 }
 .zc-5 {
-  background: color-mix(in srgb, var(--ink-2) 92%, var(--paper));
+  background: var(--z5);
 }
-/* SN2x «SN2 extra»: the power zones Z1–Z7 (Coggan) in the same calm ramp, seven steps. */
 .pz-1 {
-  background: color-mix(in srgb, var(--ink-3) 16%, var(--paper));
+  background: var(--pz1);
 }
 .pz-2 {
-  background: color-mix(in srgb, var(--ink-3) 30%, var(--paper));
+  background: var(--pz2);
 }
 .pz-3 {
-  background: color-mix(in srgb, var(--ink-3) 44%, var(--paper));
+  background: var(--pz3);
 }
 .pz-4 {
-  background: color-mix(in srgb, var(--ink-3) 60%, var(--paper));
+  background: var(--pz4);
 }
 .pz-5 {
-  background: color-mix(in srgb, var(--ink-2) 68%, var(--paper));
+  background: var(--pz5);
 }
 .pz-6 {
-  background: color-mix(in srgb, var(--ink-2) 82%, var(--paper));
+  background: var(--pz6);
 }
 .pz-7 {
-  background: color-mix(in srgb, var(--ink-2) 96%, var(--paper));
+  background: var(--pz7);
 }

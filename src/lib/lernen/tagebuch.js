@@ -27,8 +27,9 @@ const KM = (n) => `${num(Math.round(n * 10) / 10)} km`;
 const HM = (n) => `${num(Math.round(n))} m`;
 function hoursText(s) {
   if (!Number.isFinite(s) || s <= 0) return '';
-  const h = Math.floor(s / 3600);
-  const m = Math.round((s % 3600) / 60);
+  const all = Math.round(s / 60);
+  const h = Math.floor(all / 60);
+  const m = all % 60;
   return h ? t('{h} h {m} min', { h, m: String(m).padStart(2, '0') }) : t('{m} min', { m });
 }
 const dayName = (iso) => new Date(`${iso}T12:00:00`).toLocaleDateString(locale(), { weekday: 'long', day: 'numeric', month: 'long' });

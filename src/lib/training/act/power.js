@@ -35,6 +35,20 @@ export function powerRange(i, ftp) {
 }
 
 /** Intensity factor NP ÷ FTP, two decimals; null without one of them. */
+/**
+ * The NP of several rides: the 4th-power mean of each ride's NP, weighted by its moving time (as NP itself is
+ * built). One function for the tour page and the Rückblick (Strava check 21.10.2026: 141 against 139). null without.
+ */
+export function npOfRides(acts = []) {
+  let s4 = 0;
+  let n4 = 0;
+  for (const a of acts) {
+    const np = Number(a?.wNorm);
+    const t = Number(a?.own?.movingS ?? a?.movingS);
+    if (np > 0 && t > 0) (s4 += np ** 4 * t), (n4 += t);
+  }
+  return n4 ? Math.round((s4 / n4) ** 0.25) : null;
+}
 export const intensity = (np, ftp) => (np > 0 && ftp > 0 ? round(np / ftp, 2) : null);
 
 /** Variability index NP ÷ Ø, two decimals; null without one of them. */

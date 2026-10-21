@@ -200,7 +200,11 @@ export function parseDuration(s) {
   return m ? Number(m[1]) : null;
 }
 /** minutes → «3:40» (or '' for none). */
-export const durationText = (min) => (Number.isFinite(min) && min > 0 ? `${Math.floor(min / 60)}:${String(Math.round(min % 60)).padStart(2, '0')}` : '');
+export const durationText = (min) => {
+  if (!(Number.isFinite(min) && min > 0)) return '';
+  const m = Math.round(min);
+  return `${Math.floor(m / 60)}:${String(m % 60).padStart(2, '0')}`;
+};
 
 /** The names of everyone who came along on a ski trip before, most often first. */
 export function companions(trips) {

@@ -13,7 +13,7 @@
   import { t, tn } from '../../i18n.svelte.js';
   import { hasDetail } from '../../training.js';
   import { tourValues, restOfTour, restDots, corrOf, corrWord } from '../tourana.js';
-  import { n0, hours, dates, DASH } from '../../review/fmt.js';
+  import { elapsedS, n0, dates, DASH } from '../../review/fmt.js';
   import Help from '../../ui/Help.svelte';
 
   /** d: the tour (tourdata.js loadTour). */
@@ -28,7 +28,8 @@
   const word = $derived(corrWord(r));
   const mine = $derived(new Set((d?.acts ?? []).map((a) => String(a.id))));
 
-  const secs = (s) => hours(s ? s / 3600 : null);
+  // the pauses as dd:hh:mm:ss (Noah 21.10.2026)
+  const secs = elapsedS;
   const stopLine = $derived.by(() => {
     const ti = vals.time;
     if (ti.stops != null) return ti.stops ? `${tn(ti.stops, '{n} stop', '{n} stops')} · ${secs(ti.stopS)}` : t('none|stops');

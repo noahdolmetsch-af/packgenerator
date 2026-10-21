@@ -35,7 +35,8 @@ describe('the values of a tour', () => {
   it('one ride: stops, NP, best minutes of power and heart rate', () => {
     const a = ride('1', { pauses: { n: 3, secs: 540 }, pCurve: [[60, 420], [120, 380], [300, 300], [600, 260], [1200, 240]], hCurve: [[60, 178], [120, 175], [300, 168], [600, 162], [1200, 158]] });
     const v = tourValues([a]);
-    expect(v.time).toMatchObject({ km: 40, hm: 500, moving: 3600, elapsed: 4200, stops: 3, stopS: 540, kmh: 40 });
+    // the stop time as Strava: elapsed minus moving (4200 − 3600), not only the stops of 60 s and more
+    expect(v.time).toMatchObject({ km: 40, hm: 500, moving: 3600, elapsed: 4200, stops: 3, stopS: 600, kmh: 40 });
     expect(v.power).toMatchObject({ avg: 180, np: 200, max: 650 });
     expect(v.power.best.map((b) => b.v)).toEqual([420, 380, 300, 260, 240]);
     expect(v.hr).toMatchObject({ avg: 140, max: 172 });

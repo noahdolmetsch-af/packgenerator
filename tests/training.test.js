@@ -88,7 +88,7 @@ describe('the server', () => {
     expect(curve.length).toBe(120);
     expect(curve[0]).toEqual([0, 120]);
     expect(curve.at(-1)[1]).toBe(150);
-    expect(trimStreams(null)).toEqual({ hist: null, curve: [], w20: null, pHist: null, p25: null, pCurve: null, pauses: null, hCurve: null });
+    expect(trimStreams(null)).toEqual({ hist: null, curve: [], w20: null, pHist: null, p25: null, pCurve: null, np: null, cadMax: null, pauses: null, hCurve: null });
   });
   it('power: Ø and max from Strava, the best 20 minutes from a power meter', () => {
     expect(trimActivity({ id: 1, average_watts: 187.6, max_watts: 612, device_watts: true })).toMatchObject({ wAvg: 188, wMax: 612, wDevice: true });
@@ -141,7 +141,7 @@ describe('the fetch keeps every activity', () => {
     const c = async (step, { params = {} } = {}) => {
       log.push([step, params.id]);
       if (step === 'zones') return { ok: true, hr: STRAVA_Z.hr, custom: false };
-      if (step === 'detail') return { ok: true, id: params.id, kcal: 512, desc: 'test_data_gtp_ lockere Runde', hist: { 150: 2800 }, curve: [[0, 140], [48, 152]], pauses: { n: 1, secs: 240 }, segs: [{ name: 'test_data_gtp_ Seeweg', s: 300, pr: 2 }], dv: 4 };
+      if (step === 'detail') return { ok: true, id: params.id, kcal: 512, desc: 'test_data_gtp_ lockere Runde', hist: { 150: 2800 }, curve: [[0, 140], [48, 152]], pauses: { n: 1, secs: 240 }, segs: [{ name: 'test_data_gtp_ Seeweg', s: 300, pr: 2 }], dv: DETAIL_V };
       return { ok: true };
     };
     const now = new Date('2026-10-13T08:00:00Z');

@@ -14,7 +14,7 @@
   import { rangeOf, gainOf } from '../../map/fineprofile.js';
   import { courseOf, speedOf, speedIn } from '../tourcourse.js';
   import { t, locale } from '../../i18n.svelte.js';
-  import { hours } from '../../review/fmt.js';
+  import { rideTimeS, elapsedS, hours } from '../../review/fmt.js';
 
   /** acts: the activities of the tour; trip: the trip (for its GPX route); moving, elapsed in seconds; onkm(share 0…1 | null). */
   let { acts = [], trip = null, moving = null, elapsed = null, onkm = null } = $props();
@@ -26,7 +26,7 @@
   let view = $state(null);
 
   const num = (v, d = 0) => (Number.isFinite(v) ? v.toLocaleString(locale(), { maximumFractionDigits: d, minimumFractionDigits: d }) : '–');
-  const secs = (s) => hours(s ? s / 3600 : null);
+  const secs = rideTimeS;
   const hm = (min) => `${Math.floor(min / 60)}:${String(Math.round(min % 60)).padStart(2, '0')}`;
 
   /* ---------- the speed profile ---------- */
@@ -124,7 +124,7 @@
     <dl class="tc-sum">
       <div><dt>{t('Speed|komoot')}</dt><dd class="num">{num(avg, 1)} km/h</dd></div>
       <div><dt>{t('Moving time')}</dt><dd class="num">{secs(moving)}</dd></div>
-      <div><dt>{t('Total time')}</dt><dd class="num">{secs(elapsed)}</dd></div>
+      <div><dt>{t('Total time')}</dt><dd class="num">{elapsedS(elapsed)}</dd></div>
     </dl>
   </div>
 {/if}

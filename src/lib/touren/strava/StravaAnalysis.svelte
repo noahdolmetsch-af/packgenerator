@@ -13,25 +13,23 @@
    */
   import { t, tn, locale } from '../../i18n.svelte.js';
   import { dates } from '../../review/fmt.js';
-  import { intensity } from '../../training/act/power.js';
-  import { powerLoad } from '../../training.js';
-  import { PEAK_SPANS, peakOf, hrZoneRows, powerZoneRows, dist25, curveOf, serOf, effortOf } from '../stravaana.js';
+  import { hrZoneRows, powerZoneRows, dist25, curveOf, serOf, effortOf } from '../stravaana.js';
   import AnaStacked from './AnaStacked.svelte';
+  import StravaOverview from './StravaOverview.svelte';
+  import PeakPower from './PeakPower.svelte';
+  import { linesOf } from '../tour.js';
+  import { phone } from '../../media.svelte.js';
   import GarminStats from './GarminStats.svelte';
   import GarminCharts from './GarminCharts.svelte';
   import { statsOf } from '../garmin.js';
   import { clock } from './fmt.js';
 
-  let { a, acts = [], bounds = null, ftp = null, kg = null, bike = '', onkm = null } = $props();
+  let { a, acts = [], bounds = null, ftp = null, kg = null, bike = '', onkm = null, map = false } = $props();
+  // as on Strava: the map with the line of this ride under the overview (Noah 21.10.2026)
+  const lines = $derived(map ? linesOf([a]) : []);
 
   const num = (v, d = 0) => (Number.isFinite(v) ? Number(v).toLocaleString(locale(), { maximumFractionDigits: d, minimumFractionDigits: d }) : '–');
-  const own = $derived(a.own ?? {});
-  const km = $derived(own.km ?? a.km);
-  const hm = $derived(own.hm ?? a.hm);
-  const moving = $derived(own.movingS ?? a.movingS);
   const np = $derived(a.wNorm ?? null);
-  const ifac = $derived(intensity(np, ftp));
-  const load = $derived(powerLoad(a, ftp));
   const ser = $derived(serOf(a));
 
   const VIEWS = [
@@ -51,18 +49,6 @@
   let view = $state('analysis');
   const shown = $derived(views.some((v) => v.key === view) ? view : (views[0]?.key ?? null));
 
-  const peaks = $derived(PEAK_SPANS.map(([s, n, u]) => ({ s, label: u === 's' ? t('{n} s|peak', { n }) : u === 'min' ? t('{n} min|peak', { n }) : t('{n} h|peak', { n }), w: peakOf(a, s) })).filter((p) => p.w != null));
-
-  const ROWS = $derived(
-    [
-      { name: t('Speed|ana'), avg: a.spdAvg ?? (km && moving ? km / (moving / 3600) : null), max: a.spdMax, d: 1, unit: 'km/h' },
-      { name: t('Heart rate|ana'), avg: a.hrAvg, max: a.hrMax, d: 0, unit: t('bpm') },
-      { name: t('Cadence|ana'), avg: a.cad, max: ser?.cad ? Math.max(...ser.cad.filter(Number.isFinite)) : null, d: 0, unit: '' },
-      { name: t('Power|ana'), avg: a.wAvg, max: a.wMax, d: 0, unit: 'W' },
-      { name: t('Calories'), avg: a.kcal, max: null, d: 0, unit: '' },
-      { name: t('Temperature|ana'), avg: a.tempAvg, max: null, d: 0, unit: '°C' },
-    ].filter((r) => Number.isFinite(r.avg) || Number.isFinite(r.max)),
-  );
 
   /* ---------- Relative Leistung ---------- */
   const eff = $derived(effortOf(a, acts));
@@ -149,40 +135,13 @@
 </script>
 
 <div class="sa" data-strava-analysis>
-  <!-- the head -->
-  <div class="head sa-card">
-    <dl class="big">
-      <div><dd>{num(km, 2)}<small>km</small></dd><dt>{t('Distance')}</dt></div>
-      <div><dd>{clock(moving)}</dd><dt>{t('Moving time')}</dt></div>
-      <div><dd>{num(hm)}<small>m</small></dd><dt>{t('Elevation gain')}</dt></div>
-      {#if a.effort > 0}<div class="eff"><dd>{num(a.effort)}</dd><dt>{t('Relative Effort|ana')}</dt></div>{/if}
-    </dl>
-    {#if np || a.kj || load}
-      <dl class="mid">
-        {#if np}<div><dd>{num(np)}<small>W</small></dd><dt>{t('Weighted power')}</dt></div>{/if}
-        {#if a.kj}<div><dd>{num(a.kj)}<small>kJ</small></dd><dt>{t('Total work')}</dt></div>{/if}
-        {#if load}<div><dd>{num(load.load)}</dd><dt>{t('Training load')}</dt></div><div><dd>{num(load.intensity * 100)}<small>%</small></dd><dt>{t('Intensity')}</dt></div>{/if}
-      </dl>
-    {/if}
-    {#if np || ftp || kg}
-      <dl class="small">
-        {#if np}<div><dd>{num(np)}<small>W</small></dd><dt>NP®</dt></div>{/if}
-        {#if ifac}<div><dd>{num(ifac * 100)}<small>%</small></dd><dt>IF®</dt></div>{/if}
-        {#if load}<div><dd>{num(load.load)}</dd><dt>TSS®</dt></div>{/if}
-        {#if ftp}<div class="ftp"><dd>{num(ftp)}<small>W</small></dd><dt>{t('FTP (estimated)')}</dt></div>{/if}
-        {#if kg}<div class="kg"><dd>{num(kg, 1)}<small>kg</small></dd><dt>{t('Weight')}</dt></div>{/if}
-        {#if kg && np}<div><dd>{num(np / kg, 1)}<small>W/kg</small></dd><dt>{t('NP per kg')}</dt></div>{/if}
-      </dl>
-    {/if}
-    <table class="am" data-ana-avgmax>
-      <thead><tr><th></th><th scope="col">{t('Average|ana')}</th><th scope="col">{t('Max')}</th></tr></thead>
-      <tbody>
-        {#each ROWS as r (r.name)}<tr><th scope="row">{r.name}</th><td>{num(r.avg, r.d)} <small>{r.unit}</small></td><td>{Number.isFinite(r.max) ? num(r.max, r.d) : ''} {#if Number.isFinite(r.max)}<small>{r.unit}</small>{/if}</td></tr>{/each}
-        <tr><th scope="row">{t('Elapsed time')}</th><td>{clock(a.elapsedS)}</td><td></td></tr>
-      </tbody>
-    </table>
-    {#if a.device || bike}<p class="dev">{#if a.device}<span>{a.device}</span>{/if}{#if bike}<span>{t('Bike: {name}', { name: bike })}</span>{/if}</p>{/if}
-  </div>
+  <!-- the head: Strava's «Übersicht» 1:1 (StravaOverview.svelte, also in the Rückblick) -->
+  <div class="head sa-card"><StravaOverview {a} {ftp} {kg} {bike} /></div>
+  {#if lines.length}
+    <div class="samap" data-ana-map>
+      {#await import('../../spur/TourMap.svelte') then m}<m.default {lines} height={phone.matches ? 260 : 360} label={t('Map of «{name}»: drag to move, pinch or wheel to zoom', { name: a.name || t('1 activity') })} />{:catch}{/await}
+    </div>
+  {/if}
 
   {#if views.length}
     <div class="body">
@@ -190,19 +149,12 @@
         <ul class="vlist" role="tablist">
           {#each views as v (v.key)}<li><button type="button" role="tab" aria-selected={shown === v.key} class:on={shown === v.key} onclick={() => (view = v.key)} data-ana-view={v.key}>{t(v.name)}</button></li>{/each}
         </ul>
-        {#if peaks.length}
-          <div class="peak" data-ana-peak>
-            <p class="ph">{t('Peak Power')}</p>
-            <table>
-              <tbody>{#each peaks as p (p.s)}<tr><th scope="row">{p.label}</th><td>{num(p.w)} <small>W</small></td></tr>{/each}</tbody>
-            </table>
-          </div>
-        {/if}
+        <div class="peakw"><PeakPower {a} /></div>
       </nav>
 
       <section class="view sa-card" aria-label={t(VIEWS.find((v) => v.key === shown)?.name ?? '')} data-ana-show={shown}>
         {#if shown === 'analysis'}
-          <AnaStacked {ser} {kg} {onkm} />
+          <AnaStacked {ser} {kg} {onkm} act={a} />
         {:else if shown === 'stats'}
           <GarminStats groups={stats} />
         {:else if shown === 'charts'}
@@ -250,7 +202,7 @@
           <h3>{t('Zone distribution')}</h3>
           <table class="zt" data-ana-pzones>
             <tbody>
-              {#each powerZoneRows(a, ftp) as z (z.z)}<tr><th scope="row">Z{z.z}</th><td>{t(z.name)}</td><td>{z.to == null ? `${z.from}+ W` : `${z.from} – ${z.to} W`}</td><td class="r">{clock(z.s)}</td><td class="r">{num(z.pct)} %</td><td class="bar"><i class="pz" style:width="{z.pct}%"></i></td></tr>{/each}
+              {#each powerZoneRows(a, ftp) as z (z.z)}<tr><th scope="row">Z{z.z}</th><td>{t(z.name)}</td><td>{z.to == null ? `${z.from}+ W` : `${z.from} – ${z.to} W`}</td><td class="r">{clock(z.s)}</td><td class="r">{num(z.pct)} %</td><td class="bar"><i class="pz" style:width="{z.pct}%" style:background="var(--pz{z.z})"></i></td></tr>{/each}
             </tbody>
           </table>
           <p class="tp-muted tp-small">{t('Based on an FTP of {w} W (estimated from your best 20 minutes).', { w: ftp })}</p>
@@ -294,78 +246,9 @@
     border-radius: var(--radius-card);
     background: var(--paper);
   }
-  dl {
-    margin: 0;
-  }
-  .head dl {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px 28px;
-    padding-bottom: 10px;
-    border-bottom: 1px solid var(--line);
-    margin-bottom: 10px;
-  }
-  .head dl div {
-    display: flex;
-    flex-direction: column-reverse;
-  }
-  .head dd {
-    margin: 0;
-    font-variant-numeric: tabular-nums;
-  }
-  .head dd small {
-    margin-left: 2px;
-    font-size: var(--fs-small);
-  }
-  .head dt {
-    color: var(--ink-2);
-    font-size: var(--fs-small);
-  }
-  .big dd {
-    font-size: var(--fs-display);
-    line-height: 1.1;
-  }
-  .mid dd {
-    font-size: var(--fs-section);
-  }
-  .small dd {
-    font-size: var(--fs-section);
-  }
-  .eff dd {
-    color: var(--bad);
-  }
-  .ftp dd,
-  .kg dd {
-    color: var(--accent);
-  }
-  .am {
-    width: 100%;
-    max-width: 560px;
-    border-collapse: collapse;
-    font-size: var(--fs-small);
-  }
-  .am th,
-  .am td {
-    padding: 3px 6px;
-    text-align: left;
-  }
-  .am thead th {
-    font-weight: 600;
-  }
-  .am tbody th {
-    font-weight: 400;
-  }
-  .am small {
-    color: var(--ink-2);
-  }
-  .dev {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px 40px;
-    margin: 10px 0 0;
-    padding-top: 10px;
-    border-top: 1px solid var(--line);
-    font-size: var(--fs-small);
+  .samap {
+    overflow: hidden;
+    border-radius: var(--radius-card);
   }
   .body {
     display: grid;
@@ -404,36 +287,6 @@
     border-left-color: var(--accent);
     background: var(--paper-2);
     font-weight: 600;
-  }
-  .peak {
-    border: 1px solid var(--card-line);
-    border-radius: var(--radius-card);
-    background: var(--paper);
-    overflow: hidden;
-  }
-  .ph {
-    margin: 0;
-    padding: 8px 12px;
-    border-bottom: 2px solid var(--accent);
-    font-weight: 600;
-  }
-  .peak table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: var(--fs-small);
-  }
-  .peak th,
-  .peak td {
-    padding: 6px 12px;
-    border-bottom: 1px solid var(--line);
-  }
-  .peak th {
-    font-weight: 400;
-    text-align: left;
-  }
-  .peak td {
-    color: var(--accent);
-    text-align: right;
   }
   .view {
     min-width: 0;
@@ -489,7 +342,6 @@
   }
   .pz {
     background: var(--l2);
-    opacity: 0.6;
   }
   .cv {
     display: block;
@@ -696,7 +548,7 @@
       background: var(--ink);
       color: var(--paper);
     }
-    .peak {
+    .peakw {
       grid-row: 3;
     }
     .effv {
@@ -705,9 +557,6 @@
     .laps {
       display: block;
       overflow-x: auto;
-    }
-    .big dd {
-      font-size: var(--fs-page);
     }
   }
 </style>

@@ -4,6 +4,7 @@
 import { t, num, locale } from '../i18n.svelte.js';
 import { hm } from '../gpx.js';
 import { formatWeight } from '../gear.js';
+import { dhms } from '../touren/strava/fmt.js';
 
 export const DASH = '–';
 const known = (v) => typeof v === 'number' && Number.isFinite(v);
@@ -14,6 +15,17 @@ export const n0 = (v) => (known(v) ? num(Math.round(v)) : DASH);
 export const n1 = (v) => (known(v) ? Number(v).toLocaleString(locale(), { minimumFractionDigits: 1, maximumFractionDigits: 1 }) : DASH);
 /** 2:58 / –. */
 export const hours = (v) => (known(v) && v > 0 ? hm(v) : DASH);
+/**
+ * The riding time of a ride or trip, one format everywhere (Noah 21.10.2026 «fahrtzeit wird aktuell in m geliefert.
+ * dringend korrigieren auf geeignetes format (auch bei mehrtägigen touren)»): under a day «2:58 h» (with the unit,
+ * so it never reads as minutes), from 24 hours on dd:hh:mm:ss as the elapsed time and the pauses («01:02:15:00»).
+ * h: hours. rideTimeS takes seconds.
+ */
+export const rideTime = (h) => (!known(h) || h <= 0 ? DASH : h >= 24 ? dhms(h * 3600) : `${hm(h)} h`);
+export const rideTimeS = (s) => (known(s) && s > 0 ? rideTime(s / 3600) : DASH);
+/** The elapsed or total time: dd:hh:mm:ss (Noah 21.10.2026). h: hours; elapsedS takes seconds. */
+export const elapsed = (h) => (known(h) && h > 0 ? dhms(h * 3600) : DASH);
+export const elapsedS = (s) => (known(s) && s > 0 ? dhms(s) : DASH);
 /** 4–15° / –. */
 export const temps = (a, b) => (known(a) && known(b) ? `${a}–${b}°` : known(a) ? `${a}°` : known(b) ? `${b}°` : DASH);
 /** 6,8 kg / –. */

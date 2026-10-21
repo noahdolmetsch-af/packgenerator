@@ -17,7 +17,7 @@
    * scrolling, «Alle zuklappen» and «Blöcke». states: review/state.js factStates (for C1).
    */
   import { t, tn, num, nameOf, locale } from '../i18n.svelte.js';
-  import { n0, n1, hours, kg, monthLong, dayLong, signedNum, signedHours, DASH } from './fmt.js';
+  import { rideTime, n0, n1, hours, kg, monthLong, dayLong, signedNum, signedHours, DASH } from './fmt.js';
   import { hm } from '../gpx.js';
   import { BLOCKS as PAST_BLOCKS, GROUPS as PAST_GROUPS, toggled, monthsOf, monthSums, bestValues, lastYear, whenBuckets, PARTS, routeMap, perBike, packStats, zoneMonths, weatherSum, footprint, heartAll } from './inzahlen.js';
   import { bikeTypeName } from '../bikes.js';
@@ -91,7 +91,8 @@
   const PART = { morning: ['Morning', 'before 12'], afternoon: ['Afternoon', '12–17'], evening: ['Evening', 'from 17'] };
   const typeName = (type) => (type ? t(bikeTypeName(type)) : '');
   const LYNAME = { trips: 'Trips|place', km: 'km', gainM: 'Climbing|hm', movingH: 'Hours in motion' };
-  const lyVal = (key, v) => (v == null ? DASH : key === 'movingH' ? hours(v) : n0(v));
+  // a year in hours: «127 h» (the label says hours); one trip under a day «2:58 h»
+  const lyVal = (key, v) => (v == null ? DASH : key === 'movingH' ? (v >= 24 ? `${n0(v)} h` : rideTime(v)) : n0(v));
 
   /** The line of a closed group: its main numbers and how many blocks. */
   const summary = (g) => {
@@ -192,7 +193,7 @@
             {#each bikesRows as x (x.id)}
               <li data-bike={x.id}>
                 <span class="ln"><b>{x.name}</b>{#if x.type}<small>{typeName(x.type)}</small>{/if}</span>
-                <span class="lv num">{tn(x.n, '{n} trip', '{n} trips')} · {n0(x.km)} km · {hours(x.h)} h</span>
+                <span class="lv num">{tn(x.n, '{n} trip', '{n} trips')} · {n0(x.km)} km · {rideTime(x.h)}</span>
                 <span class="share" aria-hidden="true"><i style:width="{Math.round(x.share * 100)}%"></i></span>
               </li>
             {/each}

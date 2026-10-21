@@ -26,6 +26,7 @@ import { actRecord, KEEP, needDetail, ZONES_KEY, DETAIL_V } from '../training.js
 import { STRAVA_GONE_KEY } from '../touren/tour.js';
 import { localDay } from '../localday.js';
 import { saveRate } from '../maintenance/rate.js';
+import { keepStravaFtp } from './ftp.svelte.js';
 
 export const STRAVA_URL = 'https://packgen-three.vercel.app/api/strava';
 /** localStorage (this device only): the device key the server gave after the Strava login. */
@@ -129,7 +130,10 @@ export async function savePrefs(db, patch) {
 export async function runSync(db, { call: c = call, now = new Date() } = {}) {
   const prefs = prefsOf((await db.settings.get(PREFS_KEY))?.value);
   const first = !prefs.lastSync;
-  const gear = (await c('gear')).bikes ?? [];
+  const gearRes = await c('gear');
+  const gear = gearRes.bikes ?? [];
+  // the FTP of the Strava profile (Strava check 21.10.2026: the estimate was far off)
+  if (gearRes.ftp) await keepStravaFtp(db, gearRes.ftp, now);
   const entries = await db.kmBook.toArray();
   // «Werte überall»: rides fetched before the app kept their climbing (no «hm» field) are fetched once more, all of them
   const noHm = entries.some((e) => e.source === 'strava' && e.stravaId && !('hm' in e));
@@ -320,7 +324,8 @@ export async function keepActivities(db, list) {
   if (!recs.length) return;
   const old = await db.activities.bulkGet(recs.map((r) => r.id));
   // Paket S «Reise-Spur»: a line fetched before (also the finer one of step=line) stays when the list sends none
-  await db.activities.bulkPut(recs.map((r, i) => ({ ...r, ...Object.fromEntries(KEEP.filter((k) => old[i] && k in old[i]).map((k) => [k, old[i][k]])), line: (old[i]?.lineFine && old[i]?.line) || r.line || old[i]?.line || null, ...(old[i]?.lineFine ? { lineFine: true } : {}) })));
+  // the NP from the watts stream (npS) stays the NP when the list sends Strava's weighted average again
+  await db.activities.bulkPut(recs.map((r, i) => ({ ...r, ...Object.fromEntries(KEEP.filter((k) => old[i] && k in old[i]).map((k) => [k, old[i][k]])), ...(old[i]?.npS > 0 ? { wNorm: old[i].npS, wStrava: r.wNorm ?? old[i].wStrava ?? null } : {}), line: (old[i]?.lineFine && old[i]?.line) || r.line || old[i]?.line || null, ...(old[i]?.lineFine ? { lineFine: true } : {}) })));
 }
 
 /** TR5b–TR7f: the further parts of a detail (cadence, 5 km rows, course, heart rate by power, halves, climbs). */
@@ -333,7 +338,9 @@ const extraOf = (d) => ({ laps: Array.isArray(d.laps) ? d.laps : [], splits: Arr
 /** One activity's heart rate per beat and kcal from the server, kept on the activity. */
 export async function loadDetail(db, id, { call: c = call, now = new Date() } = {}) {
   const d = await c('detail', { params: { id: String(id) } });
-  await db.activities.update(String(id), { kcal: d.kcal ?? null, hist: d.hist ?? null, curve: Array.isArray(d.curve) ? d.curve : [], w20: Number.isFinite(d.w20) ? d.w20 : null, pHist: d.pHist ?? null, pCurve: Array.isArray(d.pCurve) ? d.pCurve : null, pauses: d.pauses ?? null, segs: Array.isArray(d.segs) ? d.segs : [], best: Array.isArray(d.best) ? d.best : [], desc: typeof d.desc === 'string' ? d.desc : '', hCurve: Array.isArray(d.hCurve) ? d.hCurve : null, dprof: obj(d.dprof) && Array.isArray(d.dprof.d) ? d.dprof : null, sprof: Array.isArray(d.sprof) ? d.sprof : null, ser: obj(d.ser) && Array.isArray(d.ser.t) ? d.ser : null, p25: obj(d.p25), ...moreOf(d), ...extraOf(d), detail: now.toISOString(), dv: Number.isFinite(d.dv) ? Math.min(d.dv, DETAIL_V) : 3 });
+  // Strava's own weighted average stays as wStrava (shown as «Gewichtete Leistung (Strava)»)
+  const before = Number(d.np) > 0 ? await db.activities.get(String(id)) : null;
+  await db.activities.update(String(id), { kcal: d.kcal ?? null, hist: d.hist ?? null, curve: Array.isArray(d.curve) ? d.curve : [], w20: Number.isFinite(d.w20) ? d.w20 : null, pHist: d.pHist ?? null, pCurve: Array.isArray(d.pCurve) ? d.pCurve : null, pauses: d.pauses ?? null, segs: Array.isArray(d.segs) ? d.segs : [], best: Array.isArray(d.best) ? d.best : [], desc: typeof d.desc === 'string' ? d.desc : '', hCurve: Array.isArray(d.hCurve) ? d.hCurve : null, dprof: obj(d.dprof) && Array.isArray(d.dprof.d) ? d.dprof : null, sprof: Array.isArray(d.sprof) ? d.sprof : null, ser: obj(d.ser) && Array.isArray(d.ser.t) ? d.ser : null, p25: obj(d.p25), ...moreOf(d), ...extraOf(d), ...(Number(d.np) > 0 ? { npS: Math.round(d.np), wNorm: Math.round(d.np), wStrava: before?.wStrava ?? (before?.npS ? null : before?.wNorm) ?? null } : {}), cadMax: Number(d.cadMax) > 0 ? Math.round(d.cadMax) : null, detail: now.toISOString(), dv: Number.isFinite(d.dv) ? Math.min(d.dv, DETAIL_V) : 3 });
   return d;
 }
 

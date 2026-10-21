@@ -8,7 +8,8 @@
  *     resting heart rate as a dot (resting HR against NP or Ø HR) to see a connection.
  * Observation only: numbers, no rating.
  */
-import { hasMeter } from '../training/act/power.js';
+import { hasMeter, npOfRides } from '../training/act/power.js';
+import { pauseSecs } from '../training.js';
 import { normalOf } from '../health.js';
 
 /** The best-effort spans shown on the tour page: [seconds, label minutes]. */
@@ -62,7 +63,7 @@ export function tourValues(acts) {
     moving: moving || null,
     elapsed: elapsed || null,
     stops: withPauses.length ? withPauses.reduce((s, a) => s + a.pauses.n, 0) : null,
-    stopS: withPauses.length ? withPauses.reduce((s, a) => s + (pos(a.pauses.secs) ?? 0), 0) : null,
+    stopS: withPauses.length ? withPauses.reduce((s, a) => s + (pos(pauseSecs(a)) ?? 0), 0) : null,
     // without the stops counted, the time standing is elapsed − moving
     still: elapsed && moving && elapsed > moving ? elapsed - moving : null,
     kmh: km && moving ? Math.round((km / (moving / 3600)) * 10) / 10 : null,
@@ -71,13 +72,10 @@ export function tourValues(acts) {
   const meter = list.filter(hasMeter);
   let power = null;
   if (meter.length) {
-    // NP of several rides: the 4th-power mean weighted by time (as NP itself is built)
-    let s4 = 0;
-    let n4 = 0;
-    for (const a of meter) if (pos(a.wNorm) && pos(a.movingS)) (s4 += a.wNorm ** 4 * a.movingS), (n4 += a.movingS);
     power = {
       avg: weighted(meter, (a) => a.wAvg),
-      np: n4 ? Math.round((s4 / n4) ** 0.25) : null,
+      // NP of several rides: one function with the Rückblick (npOfRides)
+      np: npOfRides(meter),
       max: meter.reduce((m, a) => (pos(a.wMax) && a.wMax > (m ?? 0) ? a.wMax : m), null),
       best: ANA_SPANS.map(([s, min]) => ({ s, min, v: bestOf(meter, 'pCurve', s) ?? (s === 1200 ? meter.reduce((m, a) => (pos(a.w20) && a.w20 > (m ?? 0) ? a.w20 : m), null) : null) })),
     };

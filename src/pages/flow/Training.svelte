@@ -19,12 +19,15 @@
   import Seg from '../../lib/ui/Seg.svelte';
   import TrainingWeek from './TrainingWeek.svelte';
   import ZoneBar from '../../lib/strava/ZoneBar.svelte';
+  import FtpCard from '../../lib/strava/FtpCard.svelte';
+  import { localDay } from '../../lib/localday.js';
   import KindIcon from '../../lib/strava/KindIcon.svelte';
   import { db } from '../../lib/db.js';
   import { strava, STRAVA_HASH } from '../../lib/strava/client.svelte.js';
   import { zones, saveZones } from '../../lib/strava/zones.svelte.js';
   import { dayWhen } from '../../lib/strava/when.js';
-  import { byNewest, zoneSecs, hmm, kindCounts, monthsOf, typeKey, KIND_NAMES, ZONE_NAMES, zoneRange, validBounds } from '../../lib/training.js';
+  import { rideTimeS } from '../../lib/review/fmt.js';
+  import { ftpGuess, byNewest, zoneSecs, kindCounts, monthsOf, typeKey, KIND_NAMES, ZONE_NAMES, zoneRange, validBounds } from '../../lib/training.js';
   import { t, num, locale } from '../../lib/i18n.svelte.js';
 
   let { params = new URLSearchParams() } = $props();
@@ -117,11 +120,11 @@
               <span class="ki"><KindIcon kind={a.kind} /></span>
               <span class="dt num">{dayWhen(a.day)}<small>{a.time}</small></span>
               <span class="nm"><b>{a.name || t(typeKey(a.type))}</b><small>{second(a)}</small></span>
-              <span class="r num" data-label={t('Time|duration')}>{hmm(a.movingS)}</span>
+              <span class="r num" data-label={t('Time|duration')}>{rideTimeS(a.movingS)}</span>
               <span class="r num" data-label="km">{a.km ? num(a.km) : '–'}</span>
               <span class="r num" data-label={t('Hm|short')}>{a.hm != null ? num(a.hm) : '–'}</span>
               <span class="r num hr" data-label={t('Ø heart rate')}>{a.hrAvg ?? '–'}</span>
-              <span class="pv num">{[hmm(a.movingS), a.km ? `${num(a.km)} km` : '', a.hm != null ? `${num(a.hm)} ${t('Hm|short')}` : '', a.hrAvg != null ? `Ø ${a.hrAvg}` : ''].filter(Boolean).join(' · ')}</span>
+              <span class="pv num">{[rideTimeS(a.movingS), a.km ? `${num(a.km)} km` : '', a.hm != null ? `${num(a.hm)} ${t('Hm|short')}` : '', a.hrAvg != null ? `Ø ${a.hrAvg}` : ''].filter(Boolean).join(' · ')}</span>
               <span class="zb"><ZoneBar secs={zoneSecs(a.hist, zones.bounds)} /></span>
               <span class="go" aria-hidden="true"><ChevronRight size={18} /></span>
             </a>
@@ -159,6 +162,8 @@
       {/if}
     </div>
   </Sec>
+  <!-- Strava check 21.10.2026: the own FTP or Strava's instead of the estimate -->
+  <FtpCard est={ftpGuess(acts, localDay())} />
 </div>
 
 <style>

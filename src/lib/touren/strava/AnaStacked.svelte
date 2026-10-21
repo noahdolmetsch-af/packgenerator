@@ -7,13 +7,15 @@
    *     zoom to the stretch, the row below gives its numbers (time, speed, power, NP, energy, VAM).
    *   - The cross clears the choice. The arrow keys move the line, Escape clears.
    * ser: stravaana.js serOf; kg: weight for W/kg; onkm(share 0…1 | null) puts the dot on the map.
+   * act: the activity; without a chosen stretch the row and the Max/Avg take its own totals (Strava check
+   * 21.10.2026: the short series of 600 points gave Ø 82 W where the ride had 117 W).
    */
   import { X } from '@lucide/svelte';
   import { t, locale } from '../../i18n.svelte.js';
   import { idxOf, statOf, stretchOf, pointOf } from '../stravaana.js';
   import { clock } from './fmt.js';
 
-  let { ser, kg = null, onkm = null } = $props();
+  let { ser, kg = null, onkm = null, act = null } = $props();
 
   const CURVES = [
     { key: 'spd', name: 'Speed|ana', unit: 'km/h', d: 1, cls: 'c-spd' },
@@ -91,7 +93,34 @@
   }
   const stats = $derived(Object.fromEntries(curves.map((c) => [c.key, statOf(ser, c.key, idxOf(ser, range.a), idxOf(ser, range.b))])));
   const here = $derived(cur == null ? null : pointOf(ser, cur));
-  const part = $derived(stretchOf(ser, range.a, range.b));
+  const cut = $derived(stretchOf(ser, range.a, range.b));
+  const fin = (v) => (Number.isFinite(Number(v)) && v !== null && v !== '' ? Number(v) : null);
+  // the whole ride: the activity's own totals, as Strava shows them
+  const part = $derived.by(() => {
+    if (sel || !act) return cut;
+    const own = act.own ?? {};
+    const moving = fin(own.movingS ?? act.movingS) ?? cut.moving;
+    const km = fin(own.km ?? act.km);
+    const up = fin(own.hm ?? act.hm) ?? cut.up;
+    const meter = act.wDevice === true;
+    return {
+      ...cut,
+      moving,
+      kmh: fin(act.spdAvg) ?? (km && moving ? km / (moving / 3600) : cut.kmh),
+      w: meter ? (fin(act.wAvg) ?? cut.w) : cut.w,
+      np: meter ? (fin(act.wNorm) ?? cut.np) : cut.np,
+      kj: fin(act.kj) ?? cut.kj,
+      up,
+      vam: up != null && moving ? Math.round(up / (moving / 3600)) : cut.vam,
+    };
+  });
+  const TOTALS = { spd: ['spdAvg', 'spdMax'], w: ['wAvg', 'wMax'], hr: ['hrAvg', 'hrMax'], cad: ['cad', 'cadMax'], temp: ['tempAvg', 'tempMax'] };
+  /** Max and Avg of a curve: the ride's totals when nothing is chosen, else the stretch. */
+  const statFor = (key, st) => {
+    if (sel || !act || !TOTALS[key]) return st;
+    const [a, m] = TOTALS[key];
+    return { ...st, avg: fin(act[a]) ?? st?.avg, max: fin(act[m]) ?? st?.max };
+  };
 
   /* ---------- pointer ---------- */
   let drag = null; // { from, a, b } km, with the km range of the chart dragged on
@@ -180,7 +209,7 @@
     <div class="read"></div>
   </div>
   {#each curves as c (c.key)}
-    {@const st = stats[c.key]}
+    {@const st = statFor(c.key, stats[c.key])}
     <div class="row curve {c.cls}" data-ana-curve={c.key}>
       <div class="lab"><b>{t(c.name)}</b><small>{t('Max')} {num(st?.max, c.d)}</small><small>{t('Avg')} {num(st?.avg, c.d)}</small></div>
       <div class="plot">

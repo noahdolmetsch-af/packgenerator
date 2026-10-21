@@ -131,8 +131,12 @@ export function parseDuration(text) {
   if (/^\d{1,4}$/.test(s)) return Number(s) * 60;
   return NaN;
 }
-/** Seconds → «2:30». */
-export const durationText = (s) => (fin(s) == null ? '' : `${Math.floor(s / 3600)}:${String(Math.round((s % 3600) / 60)).padStart(2, '0')}`);
+/** Seconds → «2:30»; minutes rounded first, so 1:59:40 is «2:00», never «1:60». */
+export const durationText = (s) => {
+  if (fin(s) == null) return '';
+  const m = Math.round(s / 60);
+  return `${Math.floor(m / 60)}:${String(m % 60).padStart(2, '0')}`;
+};
 
 /** A number typed with a comma or a point; '' → null; nonsense → NaN. */
 export function parseNumber(text) {

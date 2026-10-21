@@ -64,7 +64,7 @@
   import { askDelete, deleteWithUndo } from '../lib/ui/ask.js';
   import { offerDone, offerRename } from '../lib/ui/rename.svelte.js';
   import { FIELD_HELP } from '../lib/daumen.js';
-  import { n0, n1, hours, dates, DASH } from '../lib/review/fmt.js';
+  import { rideTimeS, elapsedS, n0, n1, dates, DASH } from '../lib/review/fmt.js';
   import { Route, Pencil, SlidersHorizontal, EyeOff, Eye, Unlink, Trash2, ExternalLink, Activity, Star, Share2, Copy, Map as MapIcon, ImagePlus, X, ChevronRight, Repeat, BookmarkPlus, Plus, LayoutGrid, CloudSun, RefreshCw, Heart } from '@lucide/svelte';
 
   let { key = '' } = $props();
@@ -113,10 +113,10 @@
   ]);
 
   /* ---- values ---- */
-  const secs = (s) => hours(s ? s / 3600 : null);
+  const secs = rideTimeS;
   const FIELD = {
     dauer: (r) => [t('Duration|act'), secs(r.dauer), ''],
-    verstr: (r) => [t('Elapsed|col'), secs(r.verstr), ''],
+    verstr: (r) => [t('Elapsed|col'), elapsedS(r.verstr), ''],
     tss: (r) => [t('TSS'), n0(r.tss), ''],
     hf: (r) => [t('Ø HR'), n0(r.hf), t('bpm')],
     hfmax: (r) => [t('Max. HR'), n0(r.hfmax), t('bpm')],
@@ -127,7 +127,7 @@
     wmax: (r) => [t('Max. power'), n0(r.wmax), 'W'],
     w20: (r) => [t('Max. 20 min'), n0(r.w20), 'W'],
   };
-  const KPI_FMT = { km: n1, hm: n0, dauer: (v) => secs(v), verstr: (v) => secs(v), kmh: n1, hf: n0, hfmax: n0, w: n0, tss: n0, n: n0 };
+  const KPI_FMT = { km: n1, hm: n0, dauer: (v) => secs(v), verstr: (v) => elapsedS(v), kmh: n1, hf: n0, hfmax: n0, w: n0, tss: n0, n: n0 };
   const CHANGED_OF = { km: 'km', hm: 'hm', dauer: 'movingS' };
   const isChanged = (k) => (row?.changed ?? []).includes(CHANGED_OF[k]);
   const stravaWas = (k) => {
@@ -540,7 +540,7 @@
             {#each anaActs as a (a.id)}<button type="button" class="tp-chip" aria-pressed={anaAct.id === a.id} onclick={() => (anaId = a.id)}>{a.own?.name || a.name || t(typeKey(a.type))} · {dates(a.day)}</button>{/each}
           </div>
         {/if}
-        <StravaAnalysis a={anaAct} acts={$allActsQ ?? []} bounds={zones.bounds} ftp={anaFtp} kg={anaKg} bike={row.bikeId ? (bikeName[row.bikeId] ?? '') : ''} onkm={anaActs.length === 1 ? (f) => (frac = f) : null} />
+        <StravaAnalysis a={anaAct} acts={$allActsQ ?? []} bounds={zones.bounds} ftp={anaFtp} kg={anaKg} bike={row.bikeId ? (bikeName[row.bikeId] ?? '') : ''} onkm={anaActs.length === 1 ? (f) => (frac = f) : null} map={anaActs.length > 1} />
         <!-- «Fahrt-Analyse als Vorbild» part 3: the ride analyses of Training for the chosen activity (one picker: the chips above) -->
         {#await import('../lib/training/act/ActAnalysesPick.svelte') then m}<m.default ids={[anaAct.id]} />{:catch}{/await}
       </section>

@@ -20,12 +20,12 @@
   import { tripFacts } from './rueckblick.js';
   import { logEntries, logYears, logAreas, logFilter } from './logbook.js';
   import { homeTrips } from '../home/heute.js';
-  import { n0, hours, temps, dates, rainText, DASH } from './fmt.js';
+  import { rideTime, n0, temps, dates, rainText, DASH } from './fmt.js';
   import { domainName } from '../domains.js';
   import { openTrip } from '../nav.js';
   import { localDay } from '../localday.js';
   import { t, tn, num, locale } from '../i18n.svelte.js';
-  import { bestValues, hmm } from '../tripsboard.js';
+  import { bestValues } from '../tripsboard.js';
   import { ChevronRight, CloudRain, Sun, Search, Trophy, Lightbulb, Gauge, Archive, Flag, Star, BookOpen } from '@lucide/svelte';
   import Seg from '../ui/Seg.svelte';
   import TripState from '../ui/TripState.svelte';
@@ -80,7 +80,7 @@
     [
       e.km != null ? `${n0(e.km)} km` : '',
       e.gainM != null ? `${n0(e.gainM)} Hm` : '',
-      e.movingH ? `${hours(e.movingH)} h` : '',
+      e.movingH ? rideTime(e.movingH) : '',
       e.tmin != null || e.tmax != null ? temps(e.tmin, e.tmax) : '',
     ].filter(Boolean);
 
@@ -215,7 +215,7 @@
         <ul class="rv-box">
           {#if best.longest}<li class="rv-row"><span class="rv-ic" aria-hidden="true"><Trophy size={16} /></span><span class="rv-m"><span class="rv-t">{t('Longest trip')}</span><span class="rv-s">{best.longest.title}{best.longest.days > 1 ? ` · ${tn(best.longest.days, '{n} day', '{n} days')}` : ''}</span></span><b class="rv-v num">{num(best.longest.km)} km</b></li>{/if}
           {#if best.climb}<li class="rv-row"><span class="rv-ic" aria-hidden="true"><Trophy size={16} /></span><span class="rv-m"><span class="rv-t">{t('Most climbing')}</span><span class="rv-s">{best.climb.title}</span></span><b class="rv-v num">{num(best.climb.m)} Hm</b></li>{/if}
-          {#if best.time}<li class="rv-row"><span class="rv-ic" aria-hidden="true"><Trophy size={16} /></span><span class="rv-m"><span class="rv-t">{t('Longest riding time')}</span><span class="rv-s">{best.time.title}</span></span><b class="rv-v num">{hmm(best.time.h)} h</b></li>{/if}
+          {#if best.time}<li class="rv-row"><span class="rv-ic" aria-hidden="true"><Trophy size={16} /></span><span class="rv-m"><span class="rv-t">{t('Longest riding time')}</span><span class="rv-s">{best.time.title}</span></span><b class="rv-v num">{rideTime(best.time.h)}</b></li>{/if}
           {#if best.furthest}<li class="rv-row"><span class="rv-ic" aria-hidden="true"><Trophy size={16} /></span><span class="rv-m"><span class="rv-t">{t('Furthest day')}</span><span class="rv-s">{best.furthest.title}</span></span><b class="rv-v num">{num(best.furthest.km)} km</b></li>{/if}
         </ul>
       </section>
