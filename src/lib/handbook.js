@@ -1066,7 +1066,7 @@ export const HANDBOOK = {
   },
   'f.noteattach': {
     on: null,
-    steps: ['Open a note and tap «File» or «Scan».', 'Tap a file in the note: the app shows it, a GPX as a small map, a calendar file with «Into my calendar».', 'Below a link «Keep … to read offline» saves the page as text with its pictures.'],
+    steps: ['Open a note and tap «File» or «Scan».', 'Tap a file: the app shows it, also LibreOffice and RTF; a GPX as a small map, a calendar file with «Into my calendar».', 'Below a link «Keep … to read offline» saves the page as text with its pictures.'],
     example: 'Example: the bill of the bike service as a PDF and the route as a GPX in the note «Jura».',
   },
   'f.noteocr': {
@@ -1113,6 +1113,16 @@ export const HANDBOOK = {
     on: 'Works on a wide screen (computer); on the phone the list gets checkboxes.',
     steps: ['Switch the list to «Table» and edit in the cells.', 'Tick rows, choose a field and «Set for all»; «Undo» brings the old values back.'],
     example: 'Example: 12 items ticked → bag «Seat bag» for all in one step.',
+  },
+  'f.parkdays': {
+    on: 'Downhill has it from the start; any other sport adds it under «Adjust blocks».',
+    steps: ['Open Downhill under Sports.', 'In «Bike park days» tap «New bike park day».', 'Enter the park and the runs (+ and −), mark the protection check, save.'],
+    example: 'Example: «Talpark · 12 runs · protection checked»; on top «3 days this year · 25 runs».',
+  },
+  'f.packside': {
+    on: 'Only on a big screen (from about 1100 px wide).',
+    steps: ['Open a trip in Pack.', 'Above the bags tap «All bags side by side».', 'Tick in any column; «One bag at a time» goes back.'],
+    example: 'Example: frame bag, seat pack and handlebar bag in three columns, the ready check as the fourth.',
   },
   'f.readaloud': {
     on: 'Saying «ok» needs a microphone and the internet (Chrome listens over Google); the big button works always.',

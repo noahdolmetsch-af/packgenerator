@@ -18,6 +18,7 @@
  *   age    { name, since, years }                material with a maximum age
  *   lesson { day, topic, notes, drills: [{ id, text, good }] }
  *   match  { day, type: 'single'|'double', who, result, won: true|false|null, note }
+ *   parkday { day, park, runs, checked: true|false, note }  a bike park day (#194, Paket «Reste»)
  *   loop   { name, km, min, link, order }
  *   plan   { name, mids: [measure ids], order }  a training plan; planrun { planId, day, done: [mids] }
  *   route  { tripId, at, km, water: [{ km, name }], gravelKm, pavedKm, unknownKm }
@@ -176,6 +177,28 @@ export function ageState(item, today) {
 
 /** The protection check before a bike park day (English keys, a suggestion to take over and change). */
 export const PROTECT_PRESET = ['Full-face helmet', 'Goggles', 'Back protector', 'Knee pads', 'Elbow pads', 'Gloves', 'Spare derailleur hanger', 'Spare brake pads', 'Tubeless plugs and a spare tube', 'Shock pump'];
+
+/**
+ * #194 Bike park days in a year (all years without `year`): { days, runs, best (most runs on one day),
+ * parks: [{ name, days }] most visited first }.
+ */
+export function parkStats(days = [], year = null) {
+  const list = days.filter((d) => !year || String(d.day ?? '').startsWith(String(year)));
+  const runs = list.reduce((s, d) => s + (Number(d.runs) > 0 ? Math.round(Number(d.runs)) : 0), 0);
+  const best = Math.max(0, ...list.map((d) => Number(d.runs) || 0));
+  const count = new Map();
+  for (const d of list) {
+    const name = String(d.park ?? '').trim();
+    if (name) count.set(name, (count.get(name) ?? 0) + 1);
+  }
+  const parks = [...count].map(([name, n]) => ({ name, days: n })).sort((a, b) => b.days - a.days || a.name.localeCompare(b.name));
+  return { days: list.length, runs, best, parks };
+}
+/** How far the protection check is: { done, total } of the check lines (block 'protect'). */
+export const protectState = (items = []) => {
+  const lines = items.filter((x) => x.kind === 'check' && x.block === 'protect');
+  return { done: lines.filter((x) => x.done).length, total: lines.length };
+};
 
 /* ---------- #65 Tennis ---------- */
 

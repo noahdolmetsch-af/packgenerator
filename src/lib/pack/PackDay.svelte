@@ -18,7 +18,7 @@
    */
   import HintCard from '../pageinfo/HintCard.svelte';
   import TipLine from '../pageinfo/TipLine.svelte';
-  import { Check, ChevronRight, Undo2, ArrowRight, Briefcase, UserRound, Bike, ListChecks, BatteryCharging, Volume2 } from '@lucide/svelte';
+  import { Check, ChevronRight, Undo2, ArrowRight, Briefcase, UserRound, Bike, ListChecks, BatteryCharging, Volume2, Columns3 } from '@lucide/svelte';
   import WeightCard from './WeightCard.svelte';
   import LessonsCard from './LessonsCard.svelte';
   import DocChecks from './DocChecks.svelte';
@@ -306,6 +306,33 @@
       document.removeEventListener('visibilitychange', again);
     };
   });
+  // Paket «Reste» 1038 (Gestaltungsrichtungen 5b): on a big screen all bags can stand side by side, one
+  // column each, to tick in any bag without opening it. A switch above the bags; this device remembers it.
+  const boardQ = typeof window !== 'undefined' ? window.matchMedia('(min-width: 1100px)') : null;
+  let roomy = $state(boardQ?.matches ?? false);
+  $effect(() => {
+    const f = (e) => (roomy = e.matches);
+    boardQ?.addEventListener('change', f);
+    return () => boardQ?.removeEventListener('change', f);
+  });
+  const SIDE_KEY = 'pack-side-by-side';
+  const readSide = () => {
+    try {
+      return localStorage.getItem(SIDE_KEY) === '1';
+    } catch {
+      return false;
+    }
+  };
+  let sidePick = $state(readSide());
+  function setSide(v) {
+    sidePick = v;
+    try {
+      localStorage.setItem(SIDE_KEY, v ? '1' : '0');
+    } catch {
+      /* private window: the switch holds until the page closes */
+    }
+  }
+  const side = $derived(roomy && sidePick);
   const pct = $derived(total ? packed / total : 0);
   // The card comes into view when packing ends here (not when the page opens already finished).
   let doneEl = $state();
@@ -356,6 +383,37 @@
   {/if}
 {/snippet}
 
+{#snippet itemRow(s, e)}
+  {@const it = itemsById[e.itemId]}
+  {@const hint = hintOf(e.itemId)}
+  <button type="button" class="it" aria-pressed={!!e.packed} disabled={fixed} onclick={(ev) => tick(s, e, ev)}>
+    <span class="box" aria-hidden="true">{#if e.packed}<Check size={16} strokeWidth={2.5} />{/if}</span>
+    <span class="nm">{it ? nameOf(it) : e.itemId}{#if (e.qty || 1) > 1}<b class="q">{' '}× {e.qty}</b>{/if}{#if hint}<small>{hint}</small>{:else if e.packed}<small class="drin">{t('in|packed')}</small>{/if}</span>
+    <span class="w num">{it?.weightG != null ? formatWeight(it.weightG * (e.qty || 1)) : t('not weighed')}</span>
+  </button>
+{/snippet}
+{#snippet sideSwitch()}{#if roomy}<button type="button" class="btn sm pd-side" aria-pressed={side} onclick={() => setSide(!sidePick)} data-pack-side title={t('Shows every bag as its own column, so you can tick in any bag.')}><Columns3 size={16} aria-hidden="true" /> {side ? t('One bag at a time') : t('All bags side by side')}</button>{/if}{/snippet}
+{#snippet sideCards()}
+  {#if stats}<WeightCard {trip} {stats} {itemsById} title={t('Weight by bag')} />{/if}
+  <!-- v0.30.2 (test R6.6): what earlier debriefs taught. v0.40.0: a learning that already stands
+       under its item is not repeated here. -->
+  <LessonsCard lessons={newLessons} {reminders} />
+  <!-- P3b «Daten sicher» (D3/D4): «ID and cash with you?» and the other papers marked for the packing list -->
+  <DocChecks {trip} />
+  {#if oncharge}
+    <section class="psec" aria-labelledby="more-h">
+      <h2 id="more-h" class="sh">{t('More')}</h2>
+      <ul class="card mlist">
+        <li><button type="button" class="mrow" onclick={oncharge}>
+          <span class="bic" aria-hidden="true"><BatteryCharging size={18} /></span>
+          <span class="bt"><b>{t('Charge the evening before')}</b>{#if charge?.names?.length}<small>{charge.names.slice(0, 3).join(', ')}{charge.names.length > 3 ? ' …' : ''}</small>{/if}</span>
+          <span class="r">{#if charge}<span class="num">{charge.done}/{charge.total}</span>{/if}<ChevronRight size={18} aria-hidden="true" /></span>
+        </button></li>
+      </ul>
+    </section>
+  {/if}
+{/snippet}
+
 <div class="pd trip-page" aria-label={t('Packing day: {title}', { title: trip.title })}>
   <TripBand {trip} tab="pack" kicker={fixed ? t('Packing list as ridden') : kicker} action={main.kind ? go : null} {aside} hint={fixed ? '' : missing ? missingText : t('Everything is in.')} note />
   <!-- «Mehr Inhalt» (Noah 15.10.2026, 1a–5a): the tip of the day, a fitting «Passt zu heute» first -->
@@ -387,12 +445,46 @@
     </section>
   {/if}
 
-  {#if total > 0}
+  {#if total > 0 && side}
+    <section class="psec" aria-labelledby="bags-h" data-pack-board>
+      <h2 id="bags-h" class="sh">{t('Bags')}</h2>
+      <p class="ssub"><span class="num packed-count">{t('{n} of {total} packed', { n: packed, total })}</span>{' · '}{t('all bags side by side: tick in any bag')}{#if onread}<button type="button" class="btn sm pd-read-w" onclick={onread}><Volume2 size={16} aria-hidden="true" /> {t('Read aloud')}</button>{/if}{@render sideSwitch()}</p>
+      <div class="board">
+        {#each steps as s (s.key)}
+          {@const Icon = iconOf(s.key)}
+          {@const done = full(s)}
+          <section class="card bcol" class:done aria-labelledby="bc-{s.key}" data-board-bag={s.key}>
+            <div class="bchead"><span class="bic" aria-hidden="true"><Icon size={18} /></span><span class="bt"><b id="bc-{s.key}">{s.title}</b><small>{subOf(s)}</small></span><span class="r"><span class="num">{s.done}/{s.entries.length}</span>{#if done}<span class="tp-okdot" aria-label={t('all in')}><Check size={16} aria-hidden="true" /></span>{/if}</span></div>
+            <ul class="items">
+              {#each s.entries as e (e.itemId)}<li class:in={e.packed}>{@render itemRow(s, e)}</li>{/each}
+            </ul>
+            {#if !done && !fixed}<div class="bagfoot"><button type="button" class="tp-link" onclick={() => wholeBag(s)}>{t('Whole bag packed')}</button></div>{/if}
+          </section>
+        {/each}
+        {#if ready.length}
+          <section class="card bcol" class:done={readyAll} aria-labelledby="bc-ready" data-board-bag="ready">
+            <div class="bchead"><span class="bic" aria-hidden="true"><ListChecks size={18} /></span><span class="bt"><b id="bc-ready">{t('Ready check')}</b></span><span class="r"><span class="num">{readyN}/{ready.length}</span></span></div>
+            <ul class="items">
+              {#each ready as r (r.id)}
+                {@const ok = readyDone(r, trip)}
+                <li class:in={ok}><button type="button" class="it" aria-pressed={ok} disabled={fixed || (!!r.itemId && ok)} onclick={() => readyTick(r)}><span class="box" aria-hidden="true">{#if ok}<Check size={16} strokeWidth={2.5} />{/if}</span><span class="nm">{readyLabel(r)}</span></button></li>
+              {/each}
+            </ul>
+          </section>
+        {/if}
+      </div>
+      <div class="bagfoot board-foot">
+        {#if !fixed && (packed < total || !readyAll)}<button type="button" class="tp-link" onclick={everything}>{t('Everything is packed')}</button>{/if}
+        {#if canUndo && !fixed}<button type="button" class="tp-link" onclick={undo}><Undo2 size={16} aria-hidden="true" />{t('Undo')}</button>{/if}
+      </div>
+    </section>
+    <div class="pside board-side">{@render sideCards()}</div>
+  {:else if total > 0}
   <div class="pcols">
     <div class="pmain">
       <section class="psec" aria-labelledby="bags-h">
         <h2 id="bags-h" class="sh">{t('Bags')}</h2>
-        <p class="ssub"><span class="num packed-count">{t('{n} of {total} packed', { n: packed, total })}</span>{' · '}{t('tap a bag')}{#if !fixed}{' · '}<a class="photo-tick" href={`#/me/tools/packphoto?trip=${encodeURIComponent(trip.id)}`} data-pack-photo>{t('Tick off by photo')}</a>{/if}{#if onread && !phone.matches}<button type="button" class="btn sm pd-read-w" onclick={onread}><Volume2 size={16} aria-hidden="true" /> {t('Read aloud')}</button>{/if}</p>
+        <p class="ssub"><span class="num packed-count">{t('{n} of {total} packed', { n: packed, total })}</span>{' · '}{t('tap a bag')}{#if !fixed}{' · '}<a class="photo-tick" href={`#/me/tools/packphoto?trip=${encodeURIComponent(trip.id)}`} data-pack-photo>{t('Tick off by photo')}</a>{/if}{#if onread && !phone.matches}<button type="button" class="btn sm pd-read-w" onclick={onread}><Volume2 size={16} aria-hidden="true" /> {t('Read aloud')}</button>{/if}{@render sideSwitch()}</p>
         <ul class="card blist">
           {#each steps as s (s.key)}{@render bagRow(s, iconOf(s.key), full(s), s.key === cur)}{/each}
           {#if ready.length}
@@ -421,16 +513,10 @@
             <div class="card ibox">
               <ul class="items">
                 {#each ordered(s) as e, i (e.itemId)}
-                  {@const it = itemsById[e.itemId]}
-                  {@const hint = hintOf(e.itemId)}
                   <li class:in={e.packed} animate:flip={{ duration: still() ? 0 : 250, easing: cubicOut }}>
                     <!-- UI-Grundlagen (Gestaltungsregeln B §5.3): a quiet line over the packed rows once they have slid down -->
                     {#if e.packed && i > 0 && i === openOf(s) && ordered(s).slice(i).every((x) => x.packed)}<p class="donehead">{t('Already packed · {n}', { n: s.entries.length - i })}</p>{/if}
-                    <button type="button" class="it" aria-pressed={!!e.packed} disabled={fixed} onclick={(ev) => tick(s, e, ev)}>
-                      <span class="box" aria-hidden="true">{#if e.packed}<Check size={16} strokeWidth={2.5} />{/if}</span>
-                      <span class="nm">{it ? nameOf(it) : e.itemId}{#if (e.qty || 1) > 1}<b class="q">{' '}× {e.qty}</b>{/if}{#if hint}<small>{hint}</small>{:else if e.packed}<small class="drin">{t('in|packed')}</small>{/if}</span>
-                      <span class="w num">{it?.weightG != null ? formatWeight(it.weightG * (e.qty || 1)) : t('not weighed')}</span>
-                    </button>
+                    {@render itemRow(s, e)}
                   </li>
                 {/each}
               </ul>
@@ -472,26 +558,7 @@
       {#if !fixed && (packed < total || !readyAll)}<p class="all"><button type="button" class="tp-link" onclick={everything}>{t('Everything is packed')}</button>{#if packFirst}<button type="button" class="tp-link" onclick={next} data-finish-quiet>{t(main.label)}</button>{/if}</p>{/if}
     </div>
 
-    <div class="pside">
-      {#if stats}<WeightCard {trip} {stats} {itemsById} title={t('Weight by bag')} />{/if}
-      <!-- v0.30.2 (test R6.6): what earlier debriefs taught. v0.40.0: a learning that already stands
-           under its item is not repeated here. -->
-      <LessonsCard lessons={newLessons} {reminders} />
-      <!-- P3b «Daten sicher» (D3/D4): «ID and cash with you?» and the other papers marked for the packing list -->
-      <DocChecks {trip} />
-      {#if oncharge}
-        <section class="psec" aria-labelledby="more-h">
-          <h2 id="more-h" class="sh">{t('More')}</h2>
-          <ul class="card mlist">
-            <li><button type="button" class="mrow" onclick={oncharge}>
-              <span class="bic" aria-hidden="true"><BatteryCharging size={18} /></span>
-              <span class="bt"><b>{t('Charge the evening before')}</b>{#if charge?.names?.length}<small>{charge.names.slice(0, 3).join(', ')}{charge.names.length > 3 ? ' …' : ''}</small>{/if}</span>
-              <span class="r">{#if charge}<span class="num">{charge.done}/{charge.total}</span>{/if}<ChevronRight size={18} aria-hidden="true" /></span>
-            </button></li>
-          </ul>
-        </section>
-      {/if}
-    </div>
+    <div class="pside">{@render sideCards()}</div>
   </div>
   {/if}
   <!-- Gesamttest 20.10 Design / UI-Grundlagen (idea 1): the tip of the day follows the bags, not the help box -->
@@ -523,6 +590,14 @@
   .pmain, .pside { display: grid; grid-template-columns: minmax(0, 1fr); gap: 24px; align-content: start; min-width: 0; }
   @media (min-width: 900px) { .pcols { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); align-items: start; } }
   .psec, .pbag { min-width: 0; }
+  /* 1038: all bags side by side (only from 1100 px, switched on above the bags) */
+  .pd-side { margin-left: 12px; vertical-align: middle; }
+  .board { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 16px; align-items: start; }
+  .bcol { min-width: 0; padding-top: 4px; padding-bottom: 4px; }
+  .bcol.done { background: var(--ok-soft); }
+  .bchead { display: flex; align-items: center; gap: 10px; min-height: 56px; border-bottom: 1px solid var(--line); }
+  .board-foot { border-top: 0; margin-top: 8px; justify-content: flex-start; gap: 0 16px; }
+  .board-side { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); margin-top: 24px; }
   .sh { margin: 0; font: 600 var(--fs-sub) / 1.3 var(--font-body); color: var(--ink); overflow-wrap: break-word; }
   .sh b { font-weight: 600; }
   .ssub { margin: 2px 0 8px; color: var(--ink-2); font-size: var(--fs-small); overflow-wrap: break-word; }

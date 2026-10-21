@@ -110,6 +110,8 @@ export const HOWTO = {
   'f.starters': ['Tap «New» › «Plan a trip» and choose the sport.', 'At «Start from» tap «From your trips»: what you took most often comes along.', 'In Pack open «Suggestion list» and tick what you take.'],
   'f.supplies': ['Open Gear › Supplies.', 'Set the expiry date and how many you have at home.', 'What runs low is under «Buy again»; tap «Bought» after shopping.'],
   'f.table': ['On the computer open Gear and choose «Table», or «Edit as a table» in other lists.', 'Click a cell and type; it saves when you leave the cell.', 'Tick several rows, choose a field and «Set for all».'],
+  'f.parkdays': ['Open Downhill under Sports.', 'Tap «New bike park day» in «Bike park days».', 'Enter the park and the runs and save.'],
+  'f.packside': ['Open a trip in Pack on a big screen.', 'Tap «All bags side by side» above the bags.', 'Tick in any column.'],
   'f.readaloud': ['Open a trip in Pack.', 'Tap «Read aloud».', 'Say «ok» when an item is in the bag, or tap the big button.'],
   'f.ownrules': ['Open Gear › Building blocks › «To add» and open your block.', 'Tap «Add a rule» and choose when it comes along.', 'In Packen it is suggested when the trip fits.'],
   'f.startfresh': ['Open Me › Data and backup.', 'Tap «Start fresh …» and «Delete everything».', '«Undo» or «Before updates» brings it all back.'],

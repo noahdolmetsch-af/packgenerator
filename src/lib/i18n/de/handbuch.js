@@ -1421,4 +1421,17 @@ export default {
   '«Put back» brings it back with its files.': '«Zurückholen» bringt sie mit ihren Dateien zurück.',
   'In a note «Earlier versions» shows the text from before; «Put this version back» takes it.': 'In einer Notiz zeigt «Frühere Fassungen» den Text von vorher; «Diese Fassung zurückholen» übernimmt ihn.',
   'Example: the packing list was shortened by mistake → «Earlier versions» → yesterday evening → put back.': 'Beispiel: Die Packliste wurde aus Versehen gekürzt → «Frühere Fassungen» → gestern Abend → zurückholen.',
+  // Paket «Reste» (21.10.2026)
+  'Open a trip in Pack.': 'Öffne eine Tour in Packen.',
+  'Downhill has it from the start; any other sport adds it under «Adjust blocks».': 'Downhill hat ihn von Anfang an; jede andere Sportart nimmt ihn unter «Bausteine anpassen» dazu.',
+  'Open Downhill under Sports.': 'Öffne Downhill unter Sportarten.',
+  'In «Bike park days» tap «New bike park day».': 'Tippe in «Bikepark-Tage» auf «Neuer Bikepark-Tag».',
+  'Enter the park and the runs (+ and −), mark the protection check, save.': 'Park und Abfahrten (+ und −) eintragen, Schutz-Check markieren, speichern.',
+  'Example: «Talpark · 12 runs · protection checked»; on top «3 days this year · 25 runs».': 'Beispiel: «Talpark · 12 Abfahrten · Schutz geprüft»; oben «3 Tage dieses Jahr · 25 Abfahrten».',
+  'Only on a big screen (from about 1100 px wide).': 'Nur am grossen Bildschirm (ab etwa 1100 px Breite).',
+  'Above the bags tap «All bags side by side».': 'Tippe über den Taschen auf «Alle Taschen nebeneinander».',
+  'Tick in any column; «One bag at a time» goes back.': 'Hake in jeder Spalte ab; «Eine Tasche nach der anderen» geht zurück.',
+  'Example: frame bag, seat pack and handlebar bag in three columns, the ready check as the fourth.': 'Beispiel: Rahmentasche, Satteltasche und Lenkertasche in drei Spalten, der Bereit-Check als vierte.',
+  'Tap a file: the app shows it, also LibreOffice and RTF; a GPX as a small map, a calendar file with «Into my calendar».':
+    'Tippe auf eine Datei: Die App zeigt sie, auch LibreOffice und RTF; ein GPX als kleine Karte, eine Kalenderdatei mit «In meinen Kalender».',
 };
