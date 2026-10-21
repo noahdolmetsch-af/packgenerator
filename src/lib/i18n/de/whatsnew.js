@@ -1533,4 +1533,9 @@ export default {
   'Bike park days as a block': 'Bikepark-Tage als Baustein',
   'Open Plan of a trip: «Still missing» comes first.': 'Öffne «Planen» einer Tour: «Fehlt noch» steht zuoberst.',
   'Open a trip and tap «Analysis» in the step bar.': 'Öffne eine Tour und tippe in der Schrittleiste auf «Auswertung».',
+  'Fitbit values arrive': 'Fitbit-Werte kommen an',
+  'Sleep, resting pulse and steps come from Google again.': 'Schlaf, Ruhepuls und Schritte kommen wieder von Google.',
+  'Fitbit: the values come in with «Fetch now»': 'Fitbit: Die Werte kommen mit «Jetzt holen»',
+  'Open Me › Data and backup › Fitbit and tap «Fetch now».': 'Öffne Ich › Daten und Backup › Fitbit und tippe auf «Jetzt holen».',
+  'Last night, resting pulse and steps show with today’s date.': 'Letzte Nacht, Ruhepuls und Schritte stehen mit dem heutigen Datum da.',
 };
