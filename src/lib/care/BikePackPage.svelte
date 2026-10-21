@@ -21,6 +21,7 @@
   import SortArrows from '../ui/SortArrows.svelte';
   import { sortable } from '../ui/sortable.js';
   import PhotoPick from '../ui/PhotoPick.svelte';
+  import DrawOn from '../draw/DrawOn.svelte'; // Paket NE 1146 (Noah 20.10.2026 «1b»): draw on a photo before packing
   import GriffHead from './GriffHead.svelte';
   import './griff.css';
 
@@ -139,7 +140,7 @@
       <h2 id="bp-shots"><Camera size={18} aria-hidden="true" />{t('Photos before packing')}</h2>
       <p class="quiet">{t('From all sides, with the date: if the bike arrives damaged, you can show how it was. They stay on this device.')}</p>
       {#if shots.length}
-        <div class="shots">{#each shots as p (p.id)}<figure data-pack-shot={p.id}><img src={p.data} alt={t('Before packing, {date}', { date: dateOf(p.date) })} /><figcaption><span>{dateOf(p.date)}</span><button type="button" class="ib" aria-label={t('Delete the photo of {date}', { date: dateOf(p.date) })} onclick={() => removeShot(p)}><Trash2 size={16} aria-hidden="true" /></button></figcaption></figure>{/each}</div>
+        <div class="shots">{#each shots as p (p.id)}<figure data-pack-shot={p.id}><img src={p.data} alt={t('Before packing, {date}', { date: dateOf(p.date) })} /><figcaption><span class="grow">{dateOf(p.date)}</span><DrawOn src={p.data} list={[p.data]} inks={p.inks} icon cls="ib" onsave={({ list, inks }) => db.photos.update(p.id, { data: list[0], inks })} data-pack-draw /><button type="button" class="ib" aria-label={t('Delete the photo of {date}', { date: dateOf(p.date) })} onclick={() => removeShot(p)}><Trash2 size={16} aria-hidden="true" /></button></figcaption></figure>{/each}</div>
       {/if}
       <div class="row"><PhotoPick onfile={addShot} {busy} has={shots.length > 0} camera="Take photo" again="Another photo" /></div>
     </section>

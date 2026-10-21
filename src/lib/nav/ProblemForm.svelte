@@ -32,6 +32,7 @@
   let text = $state('');
   let photos = $state([]);
   let docId = $state(null);
+  let inks = $state(undefined); // Paket NE 1146: drawings on the photos
   let busy = $state(false);
   let msg = $state('');
   // Noah: a priority is required, a deadline is optional ('none' | 'ride' | 'date').
@@ -64,7 +65,7 @@
       const ctx = rideContext($tripsQ ?? [], today);
       let out;
       await db.transaction('rw', db.notes, db.maintenance, db.items, async () => {
-        out = buildProblems(list, { bike, photos: $state.snapshot(photos), docId, ctx, priority, dueDate: when === 'date' ? dueDate : null, beforeRide: when === 'ride', rows: await db.maintenance.toArray() });
+        out = buildProblems(list, { bike, photos: $state.snapshot(photos), inks: $state.snapshot(inks), docId, ctx, priority, dueDate: when === 'date' ? dueDate : null, beforeRide: when === 'ride', rows: await db.maintenance.toArray() });
         // "Part needed" goes on the wishlist straight away (the shopping list).
         for (const r of out.repairs) if (r.fix === 'part') r.wishId = await wishForProblem(r, bike);
         await db.maintenance.bulkPut(out.repairs);
@@ -74,6 +75,7 @@
       saved = { count: list.length, name: bike.name, bike: $state.snapshot(bike), bikeId: bike.id, noteIds: out.notes.map((n) => n.id), repairIds: out.repairs.map((r) => r.id) };
       text = '';
       photos = [];
+      inks = undefined;
       docId = null;
       priority = null;
       when = 'none';
@@ -171,7 +173,7 @@
     </fieldset>
 
     <div class="phrow">
-      <PhotoSet bind:photos bind:docId pdfName={[bike?.name, lines[0] ?? t('Problem')].filter(Boolean).join(' · ')} />
+      <PhotoSet bind:photos bind:docId bind:inks pdfName={[bike?.name, lines[0] ?? t('Problem')].filter(Boolean).join(' · ')} />
     </div>
 
     {#if msg}<p class="err" role="alert">{msg}</p>{/if}

@@ -4,6 +4,8 @@ Stand: 18. Oktober 2026. Der kurze Überblick steht im [Projektstand](projektsta
 
 ## Aktuell live
 
+**0.175.0 «Mach sie zu deiner» (21.10.2026):** «Diese Seite anpassen» am Ende jeder Seite (Teile zeigen, verstecken, sortieren, umbenennen, Start-Reiter; Menü sortieren; «Wie am Anfang»; nur pro Gerät, Noah 5a). Heute: Kachel «Körperwerte» und Countdown-Chip zur nächsten Tour (Noah 21.10. 06:49). Zeichnen auf allen Fotos. Kein Dexie- oder Backup-Wechsel (optionales Feld `inks`, Heute-Wand v 11).
+
 **0.174.0 «Klarer und einheitlich» (21.10.2026):** Impeccable-Bericht (Noah 20.10.2026, alles freigegeben): am Handy höchstens vier Reiter oben, der Rest unter «Mehr»; am Computer Seitenleiste statt Reiter; ein Wort pro Sache (Teile, Backup speichern, Rückblick, Tourart); kürzere Seiten, zwei Spalten am Computer; Woche mit Rückgängig. Dazu «Auswertung wie Training» (Fahrt-Analyse Teile 1+2): Aktiv › Ziele › Auswerten (#/flow/auswertung). Kein Dexie- oder Backup-Wechsel.
 
 **0.173.0 «Suche mit Sprache» (21.10.2026):** Thread «Suche als Alleskönner» (Noah 21.10.2026 «1a 2a 3a+b 4b+a 5b», Ideen 1–8): Befehle in die Suche sprechen oder tippen laufen sofort mit Rückgängig, Fragen beantwortet die App aus den eigenen Daten, Gemini oder «Weiter fragen bei …»; KI im Gerät hinter eigenem Schalter; «Wetter Chur» öffnet die Wetterseite für den Ort; neue Seite Ich › Suche (#/me/suche). Dazu Webcams mit Ort auf der Live-Karte und der Schalter «Glätte am Morgen» (Okt–Apr, 06:30). Kein Dexie- oder Backup-Wechsel.

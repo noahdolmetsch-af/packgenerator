@@ -17,13 +17,15 @@
   let photos = $state(problemPhotos(task));
   // svelte-ignore state_referenced_locally
   let docId = $state(task.docId ?? null);
+  // svelte-ignore state_referenced_locally
+  let inks = $state(task.inks); // Paket NE 1146: the drawings on the photos
 
   $effect(() => {
     dialog.showModal();
   });
-  async function save(list, doc = null) {
+  async function save(list, doc = null, ink = undefined) {
     const clean = $state.snapshot(list);
-    await db.maintenance.update(task.id, { photos: clean, photo: clean[0] ?? null, docId: doc });
+    await db.maintenance.update(task.id, { photos: clean, photo: clean[0] ?? null, docId: doc, inks: $state.snapshot(ink) });
   }
 </script>
 
@@ -35,7 +37,7 @@
     </div>
     <button type="button" class="ib" aria-label={t('Close')} onclick={() => dialog.close()}><X size={20} aria-hidden="true" /></button>
   </div>
-  <PhotoSet bind:photos bind:docId pdfName={[bikeName, task.task].filter(Boolean).join(' · ')} label="Photos" onchange={save} />
+  <PhotoSet bind:photos bind:docId bind:inks pdfName={[bikeName, task.task].filter(Boolean).join(' · ')} label="Photos" onchange={save} />
   <p class="hint">{t('Changes are saved at once.')}</p>
   <div class="foot daumen-foot">
     <button type="button" class="btn hi" onclick={() => dialog.close()}>{t('Done')}</button>

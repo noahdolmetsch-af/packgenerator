@@ -60,7 +60,7 @@
   import { sharePayload, shareLink, SHARE_LONG } from '../lib/share.js';
   import { TEMPLATES_KEY } from '../lib/templates.js';
   import { SETS_KEY, allSets, addSetEntries, tripSlot } from '../lib/sets.js';
-  import { bikePhotos, packPhoto } from '../lib/photo.js';
+  import { bikePhotos, packPhoto, bikePhotoDrawn } from '../lib/photo.js';
   import Lightbox from '../lib/ui/Lightbox.svelte';
   import { withVisits, overdueFor } from '../lib/workshop.js';
   import { prepFor, isEvent } from '../lib/care.js';
@@ -165,6 +165,12 @@
   const gallery = $derived(bikePhotos(bike, $photosQ ?? []));
   const shot = $derived(packPhoto(trip, bike, $photosQ ?? []));
   let shownPhoto = $state(null);
+  // Paket NE 1146 (Noah 20.10.2026 «1b»): draw on the setup photo in the big view
+  async function drawnPhoto(cur, args) {
+    if (!bike) return;
+    const d = bikePhotoDrawn(bike.id, gallery.find((x) => x.id === cur.id), args);
+    await db.table(d.table).update(d.id, d.patch);
+  }
   // Before the trip (v0.18.2, answer 3a): the same list as on Home and in Bike care: preparation
   // tasks, what the bike needs (workshop from 14 days before) and open repairs.
   const before = $derived.by(() => {
@@ -1148,7 +1154,7 @@
   {#if chargeOpen}<ChargeSheet {trip} {items} onclose={() => (chargeOpen = false)} />{/if}
   {#if choosing && choiceRows.length}<BikeChoice rows={choiceRows} {trip} onpick={useBike} onclose={() => choosing = false} />{/if}
   {#if newItem}<ItemDialog item={null} {items} preset={{ name: newItem.name, ...(trip?.domain && trip.domain !== 'bikepacking' ? { domains: [trip.domain] } : {}) }} onsaved={packNew} onkept={packNew} onclose={() => (newItem = null)} />{/if}
-  {#if shownPhoto != null && gallery.length}<Lightbox list={gallery.map(p => ({ src: p.src, name: p.name, sub: bike?.name ?? '' }))} start={shownPhoto} onclose={() => shownPhoto = null} />{/if}
+  {#if shownPhoto != null && gallery.length}<Lightbox list={gallery.map(p => ({ id: p.id, src: p.src, inks: p.inks, name: p.name, sub: bike?.name ?? '' }))} start={shownPhoto} onclose={() => shownPhoto = null} ondraw={drawnPhoto} />{/if}
   {#if weighing}<WeighMode items={tripItems} onclose={() => weighing = false} />{/if}
     <section class="print" aria-hidden="true">
       <h1>{trip.title}</h1>

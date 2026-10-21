@@ -102,6 +102,7 @@
   import TagesKarte from '../lib/home/TagesKarte.svelte';
   import AktivTile from '../lib/home/AktivTile.svelte';
   import BodyTile from '../lib/home/BodyTile.svelte';
+  import VitalsTile from '../lib/home/VitalsTile.svelte';
   import GoalChips from '../lib/home/GoalChips.svelte';
   import ActsTile from '../lib/home/ActsTile.svelte';
   import { activeDays, seriesOf, restOf, REST_KEY, SERIES_STEPS } from '../lib/home/series.js';
@@ -957,7 +958,7 @@
         <p class="dl">{phone.matches ? shortDate : dateLine}{#if wx}<span aria-hidden="true">{'\u00a0· '}</span><span class="wx" data-weather>{wx.text}</span>{/if}{#if strava.changes.length}<span aria-hidden="true">{'\u00a0· '}</span><span data-strava-questions>{tn(strava.changes.length, '{n} question from Strava', '{n} questions from Strava')}</span>{/if}</p>
         {#if loaded}<RaceLine {today} />{/if}
         <!-- UI-Ziele #17 (Noah 20.10.2026 «freigabe»): «Was häsch vor?» as chips; while customising a list to sort -->
-        {#if !night && ready}<GoalChips {editing} onride={startQuick} ontrip={() => (countUse('trip'), openNew('list'))} />{/if}
+        {#if !night && ready}<GoalChips {editing} {next} {now} onride={startQuick} ontrip={() => (countUse('trip'), openNew('list'))} />{/if}
         {#if !wx && ready}
           {#if !place}
             <button type="button" class="linkq" aria-expanded={placeOpen} onclick={() => (placeOpen = !placeOpen)}>{t('Set your home place for the weather')}</button>
@@ -1159,6 +1160,7 @@
   {:else if x.id === 'suggest'}<TodaySuggest {today} />
   {:else if x.id === 'tipweek'}<TipWeek used={tipUsed} />
   {:else if x.id === 'routine'}<RoutineTile {today} isnew={newTile('routine')} />
+  {:else if x.id === 'vitals'}<VitalsTile {today} isnew={newTile('vitals')} />
   {:else if x.id === 'values'}<DataWidget idp="hdw" />
   {:else if x.id === 'week'}<WeekTile {today} rides={$ridesQ ?? []} isnew={newTile('week')} />
   {:else if x.id === 'month'}<MonthTile {today} rides={$ridesQ ?? []} isnew={newTile('month')} />

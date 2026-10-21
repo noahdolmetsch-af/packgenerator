@@ -8,6 +8,7 @@
  * Pure, tested in tests/problems.test.js.
  */
 import { newNote, sortNote, nextNumber } from './notes.js';
+import { pruneInks } from './draw/ink.js';
 
 /** The quick buttons: the English text is the key for t(), it is also the stored text. */
 export const QUICK_PROBLEMS = ['Too little air in the tyres', 'Saddle too low', 'Charge the shifting battery', 'Brake rubs or squeaks', 'Chain dry or noisy', 'Creaks or rattles'];
@@ -169,7 +170,7 @@ export function startBike(bikes, { last = null, trip = null } = {}) {
  * problem only. ctx = { tripId, day } while a trip runs (notes.rideContext), else null.
  * → { notes, repairs }
  */
-export function buildProblems(lines, { bike, photo = null, photos = null, docId = null, ctx = null, priority = 'medium', dueDate = null, beforeRide = false, rows = [], now = new Date().toISOString(), stamp = Date.now().toString(36) }) {
+export function buildProblems(lines, { bike, photo = null, photos = null, inks = null, docId = null, ctx = null, priority = 'medium', dueDate = null, beforeRide = false, rows = [], now = new Date().toISOString(), stamp = Date.now().toString(36) }) {
   let next = nextNumber(rows);
   const notes = [];
   const repairs = [];
@@ -181,7 +182,9 @@ export function buildProblems(lines, { bike, photo = null, photos = null, docId 
     const out = sortNote(note, 'repair', { bikeId: bike.id, ids: { task: next++ }, now, bikeName: bike.name ?? '' });
     const c = classify(text);
     notes.push(out.note);
-    const extra = i === 0 ? { ...(pics.length > 1 ? { photos: [...pics] } : {}), ...(docId ? { docId } : {}) } : {};
+    // Paket NE 1146: the drawings on the photos travel with the first problem (inks map, draw/ink.js)
+    const drawn = i === 0 && pics.length ? pruneInks(inks, pics) : undefined;
+    const extra = i === 0 ? { ...(pics.length > 1 ? { photos: [...pics] } : {}), ...(docId ? { docId } : {}), ...(drawn ? { inks: drawn } : {}) } : {};
     repairs.push({ ...out.repair, source: 'Problem', topic: c.topic, fix: c.fix, part: c.part, priority, dueDate, beforeRide, ...extra });
   });
   return { notes, repairs };

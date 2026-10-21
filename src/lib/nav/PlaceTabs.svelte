@@ -7,7 +7,8 @@
    * The tab opened last is remembered per place (nav.js keepTab / placeHref). An old address that
    * leads here (#/care, #/review …) says so once, in a small note you can close.
    */
-  import { PLACES, PLACE_TABS, tabOf, tabStep, orderedTabs, phoneTabs, setTabOrder } from '../nav.js';
+  import { PLACES, tabOf, tabStep, shownTabs, phoneTabs, setTabOrder } from '../nav.js';
+  import { anp, placeLabel, tabLabel } from '../anpassen.svelte.js'; // «Anpassen» 2a + 3a: hidden tabs and own names
   import { t } from '../i18n.svelte.js';
   import { phone, wide } from '../media.svelte.js';
   import { ChevronDown, X } from '@lucide/svelte';
@@ -18,14 +19,14 @@
 
   let { place, hash = '#/', moved = null, onclosemoved } = $props();
 
-  const tabs = $derived(PLACE_TABS[place] ?? []);
+  let order = $state(0); // counts the changes of the order, so the tabs redraw
+  const tabs = $derived((void anp.v, void order, shownTabs(place, hash)));
   const cur = $derived(tabOf(place, hash));
   // Impeccable 20.10.2026 P1 (Noah «alles umsetzen», 1a 2a): on a computer the pages of a place stand only in the
   // sidebar on the left (SideBar.svelte), no second row of tabs on top. On a phone at most four tabs show; the rest
   // and your own order are in «Mehr».
-  let order = $state(0); // counts the changes of the order, so the tabs redraw
-  const split = $derived((void order, phoneTabs(place, hash)));
-  const all = $derived((void order, orderedTabs(place)));
+  const split = $derived((void order, void anp.v, phoneTabs(place, hash)));
+  const all = $derived((void order, tabs));
   let moreDlg = $state();
   function openMore() {
     moreDlg?.showModal();
@@ -42,8 +43,10 @@
     setTabOrder(place, null);
     order++;
   }
-  const placeName = $derived(t(PLACES.find((p) => p.key === place)?.label ?? ''));
-  const curName = $derived(t(tabs.find((x) => x.key === cur)?.label ?? ''));
+  const placeObj = $derived(PLACES.find((p) => p.key === place));
+  const placeName = $derived(placeObj ? placeLabel(placeObj) : '');
+  const curTab = $derived(tabs.find((x) => x.key === cur));
+  const curName = $derived(curTab ? tabLabel(place, curTab) : '');
 
   /** Bikes: the chosen bike stays chosen in the other tab (#/bikes?tab=care&bike=<id>). */
   function hrefOf(x, h = hash) {
@@ -125,7 +128,7 @@
 {#if tabs.length > 1 && cur && !wide.matches}
   <nav class="ptabs noswipe" class:many={split.shown.length > 3} aria-label={t('Pages of {place}', { place: placeName })}>
     {#each split.shown as x (x.key)}
-      <a href={hrefOf(x)} aria-current={cur === x.key ? 'page' : undefined}>{t(x.label)}</a>
+      <a href={hrefOf(x)} aria-current={cur === x.key ? 'page' : undefined}>{tabLabel(place, x)}</a>
     {/each}
     {#if split.more.length}
       <button type="button" class="pmore" aria-haspopup="dialog" onclick={openMore}>{t('More')}<ChevronDown size={16} aria-hidden="true" /></button>
@@ -141,10 +144,10 @@
       <ul class="pt-list" use:sortable={{ onmove: (from, to) => move(from, to) }}>
         {#each all as x, i (x.key)}
           <li data-sort-id={x.key} class:shown={split.shown.includes(x)}>
-            <SortGrip name={t(x.label)} onstep={(dir) => move(i, i + dir)} />
-            <a href={hrefOf(x)} aria-current={cur === x.key ? 'page' : undefined} onclick={() => moreDlg.close()}>{t(x.label)}</a>
+            <SortGrip name={tabLabel(place, x)} onstep={(dir) => move(i, i + dir)} />
+            <a href={hrefOf(x)} aria-current={cur === x.key ? 'page' : undefined} onclick={() => moreDlg.close()}>{tabLabel(place, x)}</a>
             {#if i < 4}<span class="pt-tab">{t('tab|nav')}</span>{/if}
-            <SortArrows name={t(x.label)} {i} n={all.length} onstep={(dir) => move(i, i + dir)} />
+            <SortArrows name={tabLabel(place, x)} {i} n={all.length} onstep={(dir) => move(i, i + dir)} />
           </li>
         {/each}
       </ul>

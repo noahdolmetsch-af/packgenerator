@@ -1475,6 +1475,11 @@ export const HANDBOOK = {
     steps: ['Open Me › Appearance › Size and light.', 'Move the slider or tap − and +; the app changes when you let go.', 'Switch on «Compact» for less space between.'],
     example: 'Example: 115 % on the phone for the way, 100 % on the computer.',
   },
+  'f.custompage': {
+    on: null,
+    steps: ['At the end of a page tap «Customise this page».', 'Switch a part off to hide it, tap the pencil to rename it, sort with the arrows or by dragging.', 'Tabs: choose «Opens with»; Menu: hide or sort the places. «As at the start» puts the page back.'],
+    example: 'Example: hide «Suggestions» on Appearance and put «Colour world» first.',
+  },
   'f.explain': {
     on: null,
     steps: ['Point at a button, or hold it on a phone: it says what it does.', '«…» lists the other buttons, each with one line.'],

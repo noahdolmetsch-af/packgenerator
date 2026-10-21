@@ -9,6 +9,7 @@
   import { X, Trash2, Check, Star, MapPin, Tag, Plus, CloudSun, LayoutGrid, Sparkles } from '@lucide/svelte';
   import SpeakButton from '../ui/SpeakButton.svelte';
   import PhotoPick from '../ui/PhotoPick.svelte';
+  import DrawOn from '../draw/DrawOn.svelte'; // Paket NE 1146 (Noah 20.10.2026 «1b»): draw on a photo of the entry
   import DateInput from '../ui/DateInput.svelte';
   import { backClose } from '../ui/backclose.js';
   import { keepTyped } from '../ui/keeptyped.js';
@@ -92,6 +93,11 @@
     }
   }
   const dropPhoto = (n) => (e.photos = e.photos.filter((_, i) => i !== n));
+  // the drawn photo takes the place of the old one; the drawing stays editable (e.inks, cleaned on save)
+  function drawn({ list, inks }) {
+    e.photos = list.map((src) => ({ src }));
+    e.inks = inks;
+  }
 
   /* ---------- tags ---------- */
   function addTag(ev) {
@@ -222,7 +228,7 @@
         {#if e.photos.length}
           <div class="tbe-thumbs">
             {#each e.photos as p, n (p.src.slice(-40) + n)}
-              <span class="tbe-ph"><img src={p.src} alt="" /><button type="button" class="tbe-phx" aria-label={t('Remove photo {i}', { i: n + 1 })} onclick={() => dropPhoto(n)}><X size={14} aria-hidden="true" /></button></span>
+              <span class="tbe-ph"><img src={p.src} alt="" /><DrawOn src={p.src} list={e.photos.map((x) => x.src)} inks={e.inks} icon cls="tbe-phd" onsave={drawn} data-tb-draw /><button type="button" class="tbe-phx" aria-label={t('Remove photo {i}', { i: n + 1 })} onclick={() => dropPhoto(n)}><X size={14} aria-hidden="true" /></button></span>
             {/each}
           </div>
         {/if}
@@ -518,6 +524,21 @@
     height: 88px;
     border-radius: 12px;
     object-fit: cover;
+  }
+  .tbe-ph :global(.tbe-phd) {
+    position: absolute;
+    bottom: 2px;
+    right: 2px;
+    display: grid;
+    place-items: center;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    border: 0;
+    border-radius: 999px;
+    background: var(--paper);
+    color: var(--ink);
+    cursor: pointer;
   }
   .tbe-phx {
     position: absolute;

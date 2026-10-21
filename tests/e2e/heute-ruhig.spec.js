@@ -75,8 +75,9 @@ test('a trip today: no photo although the bike has one, the 8 buttons in the fir
   await expect(page.locator('.wall [data-fn]')).toHaveCount(READY.filter((x) => x.id.startsWith('fn:')).length);
   expect(await firstScreen(page.locator('#hello-h'))).toBe(true);
   // «Heute neu» N2 (0.169.0, Noah «5a», changed on purpose): the body and the Aktiv tiles first; on a trip day the
-  // trip card right under them
-  await expect.poll(() => page.locator('.wall [data-tile]').evaluateAll((els) => els.map((e) => e.dataset.tile).slice(0, 3))).toEqual(['body', 'acts', 'trip']);
+  // trip card right under them; 0.175.0 (Noah 21.10.2026 06:49 «Körperwerte und countdown ok», changed on purpose):
+  // the «Körperwerte» tile sits right under Aktiv, the trip card follows
+  await expect.poll(() => page.locator('.wall [data-tile]').evaluateAll((els) => els.map((e) => e.dataset.tile).slice(0, 4))).toEqual(['body', 'acts', 'vitals', 'trip']);
   await shot(page, info, 'heute-mit-tour');
 
   // the photo is still there, under Velos › Setup › More
