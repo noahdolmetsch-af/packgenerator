@@ -1,6 +1,7 @@
 <script>
   import { offerTrip } from '../remind/ask.svelte.js';
   import DateInput from '../ui/DateInput.svelte';
+  import Field from '../ui/Field.svelte'; // Paket «Reste» 1041: the fields like every other form
   import { backClose } from '../ui/backclose.js';
   import '../trip/trip.css';
   import { tick } from 'svelte';
@@ -262,6 +263,27 @@
     if (example && !examplesFor(area).some((x) => x.id === example)) example = null;
   });
   let error = $state('');
+  // Paket «Reste» 1041 (Einheitliche Formulare 4b): after «Create trip»/«Save» the wrong fields show their
+  // message at the field, the line above the buttons counts them, and the cursor goes to the first one.
+  let errors = $state({});
+  let tried = $state(false);
+  let sumOn = false; // the line above the buttons is the count of wrong fields (not another message)
+  function checkTrip() {
+    const out = {};
+    if (!draft.title.trim()) out.title = t('Give the trip a name.');
+    if (byBike && !bike) out.bike = bikes.length ? t('Choose a bike.') : t('Add a bike first.');
+    if (byBike && !hoursOk) out.hours = t('Riding hours per day: between 0.5 and 24, or leave it empty.');
+    return out;
+  }
+  const missingLine = (n) => tn(n, '{n} entry is missing or wrong. It is marked in red.', '{n} entries are missing or wrong. They are marked in red.');
+  $effect(() => {
+    if (!tried) return;
+    const found = checkTrip();
+    errors = found;
+    const n = Object.keys(found).length;
+    if (n) (error = missingLine(n)), (sumOn = true);
+    else if (sumOn) (error = ''), (sumOn = false);
+  });
   let dialog;
   const bike = $derived(bikes.find((b) => b.id === draft.bikeId));
   $effect(() => {
@@ -618,9 +640,18 @@
   const applyEdit = async (fn) => (onchange ? onchange(fn) : db.trips.update(trip.id, touched(fn(await db.trips.get(trip.id)))));
   const edited = () => !isNew && JSON.stringify([$state.snapshot(draft), $state.snapshot(ctx)]) !== openedAs;
   async function store() {
-    if (!draft.title.trim()) return ((error = t('Give the trip a name.')), false);
-    if (byBike && !bike) return (bikes.length ? (error = t('Choose a bike.')) : ((addingBike = true), (error = t('Add a bike first.')))), false;
-    if (byBike && !hoursOk) return ((error = t('Riding hours per day: between 0.5 and 24, or leave it empty.')), false);
+    tried = true;
+    const found = checkTrip();
+    errors = found;
+    if (Object.keys(found).length) {
+      if (found.bike && !bikes.length) addingBike = true;
+      error = missingLine(Object.keys(found).length);
+      sumOn = true;
+      await tick();
+      const el = dialog?.querySelector('[aria-invalid="true"], [data-bad]');
+      (el?.matches('input, select, textarea, button') ? el : el?.querySelector('button, input, select'))?.focus();
+      return false;
+    }
     if (isNew && !byBike) {
       const readyStandard = (await db.settings.get(readyKey(area)))?.value ?? null;
       const nt = packTrip(readyStandard, autoNow ?? Date.now());
@@ -963,12 +994,15 @@
       </fieldset>
     {/if}
     {#if isNew && byBike}
-      <label class="name"><span class="lbl">{t('Name')}</span><input class="inp" use:selectAll bind:value={draft.title} oninput={() => (autoName = false)} placeholder={t('e.g. Jura weekend')} required aria-invalid={!!clash} aria-describedby={clash ? 'tn-clash' : undefined} /></label>
+      <Field id="tn-name" class="name" label={t('Name')} error={errors.title}>
+        {#snippet children(f)}<input class="inp" {...f.attrs} use:selectAll bind:value={draft.title} oninput={() => (autoName = false)} placeholder={t('e.g. Jura weekend')} required aria-invalid={f.invalid || !!clash ? 'true' : undefined} aria-describedby={[f.attrs['aria-describedby'], clash ? 'tn-clash' : ''].filter(Boolean).join(' ') || undefined} />{/snippet}
+      </Field>
       {@render clashMsg()}
       <!-- v0.30.0 (Noah, finding 2): the whole new bike trip in one window. -->
       {#if bikes.length}
-        <fieldset class="ctx">
+        <fieldset class="ctx" data-bad={errors.bike ? '' : undefined} aria-describedby={errors.bike ? 'tn-bike-err' : undefined}>
           <legend class="lbl">{t('Bike')}</legend>
+          {#if errors.bike}<p class="fieldmsg" id="tn-bike-err">{errors.bike}</p>{/if}
           <div class="tp-chips">
             {#each bikes as b (b.id)}<button type="button" class="tp-chip" aria-pressed={draft.bikeId === b.id} onclick={() => ((draft.bikeId = b.id), (bikeOwn = true))}><BikeIcon size={16} aria-hidden="true" />{b.name}{#if bikes.length > 1 && sport !== CYCLING && isBikeSport(sport) && ownSportBike(sport, bikes, savedSportBikes, b.id)}<span class="sv-pill sa-std" aria-hidden="true"><Star size={12} class="sv-star" />{t('Standard for {sport}', { sport: t(SPORT[sport].name) })}</span>{:else if b.id === stdBike?.id && bikes.length > 1}<span class="sv-pill" aria-hidden="true"><Star size={12} class="sv-star" />{t('Standard')}</span>{/if}</button>{/each}
           </div>
@@ -982,8 +1016,9 @@
         </fieldset>
       {:else}
         <!-- L9: no bike yet: add one right here (only its name), it is chosen at once. -->
-        <fieldset class="ctx nobike">
+        <fieldset class="ctx nobike" data-bad={errors.bike ? '' : undefined} aria-describedby={errors.bike ? 'tn-bike-err' : undefined}>
           <legend class="lbl">{t('Bike')}</legend>
+          {#if errors.bike}<p class="fieldmsg" id="tn-bike-err">{errors.bike}</p>{/if}
           {#if addingBike}
             <div class="bikeadd">
               <input class="inp" bind:this={bikeInput} bind:value={bikeName} onkeydown={(e) => e.key === 'Enter' && (e.preventDefault(), saveBike())} placeholder={t('e.g. Gravel bike')} aria-label={t('Name of the bike')} enterkeyhint="done" />
@@ -1025,18 +1060,23 @@
       {#if packList}{@render packListView()}{/if}
     {:else}
       <div class="grid">
-        <label class="wide"><span class="lbl">{t('Name')}</span><input class="inp" use:selectAll bind:value={draft.title} oninput={() => (autoName = false)} placeholder={t('e.g. Jura weekend')} required aria-invalid={!!clash} aria-describedby={clash ? 'tn-clash' : undefined} /></label>
+        <Field id="te-name" class="wide" label={t('Name')} error={errors.title}>
+          {#snippet children(f)}<input class="inp" {...f.attrs} use:selectAll bind:value={draft.title} oninput={() => (autoName = false)} placeholder={t('e.g. Jura weekend')} required aria-invalid={f.invalid || !!clash ? 'true' : undefined} aria-describedby={[f.attrs['aria-describedby'], clash ? 'tn-clash' : ''].filter(Boolean).join(' ') || undefined} />{/snippet}
+        </Field>
         {#if clash}<div class="wide">{@render clashMsg()}</div>{/if}
-        <label><span class="lbl">{t('Start date')}</span><DateInput bind:value={draft.startDate} /></label>
+        <Field id="te-start" label={t('Start date')}>
+          {#snippet children(f)}<DateInput {...f.attrs} bind:value={draft.startDate} />{/snippet}
+        </Field>
         {#if byBike}
-          <label>
-            <span class="lbl">{t('Bike')}</span>
-            <select class="sel" bind:value={draft.bikeId}>
+          <Field id="te-bike" label={t('Bike')} error={errors.bike}>
+            {#snippet children(f)}<select class="sel" {...f.attrs} bind:value={draft.bikeId}>
               {#each bikes as b (b.id)}<option value={b.id}>{b.name}</option>{/each}
-            </select>
-          </label>
+            </select>{/snippet}
+          </Field>
         {:else}
-          <label><span class="lbl">{t('Days')}</span><input class="inp num" type="number" inputmode="numeric" min="1" max="60" bind:value={draft.days} /></label>
+          <Field id="te-days" label={t('Days')} example={t('1 to 60')}>
+            {#snippet children(f)}<input class="inp num" {...f.attrs} type="number" inputmode="numeric" min="1" max="60" bind:value={draft.days} />{/snippet}
+          </Field>
         {/if}
       </div>
       {#if byBike}
@@ -1266,8 +1306,18 @@
     grid-template-columns: 1fr 1fr;
     gap: 12px;
   }
-  .wide {
+  .wide,
+  .grid :global(.fld-u.wide) {
     grid-column: 1 / -1;
+  }
+  .grid :global(.fld-u) {
+    margin: 0;
+  }
+  .trip-dlg :global(.fld-u.name) {
+    margin: 8px 0 0;
+  }
+  .ctx[data-bad] :global(.tp-chip) {
+    border-color: var(--bad);
   }
   /* v0.25.0: at 320 px the bike name needs the whole width. */
   @media (max-width: 360px) {

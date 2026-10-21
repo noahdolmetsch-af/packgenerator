@@ -17,7 +17,7 @@
   import { t, tn, num, locale, nameOf } from '../lib/i18n.svelte.js';
   import { tripStats, zoneName, RAIN } from '../lib/trips.js';
   import { hasBike, domainOf, domainName } from '../lib/domains.js';
-  import { tabsOf, tabStatus, tripDates } from '../lib/tabs.js';
+  import { tabsOf, stepsOf, tabStatus, tripDates } from '../lib/tabs.js';
   import { tripEnd, quickDebrief } from '../lib/debrief.js';
   import { tripNotes } from '../lib/notes.js';
   import { localDay } from '../lib/localday.js';
@@ -174,7 +174,7 @@
        the middle with the count tile, the celebration and what happens next, «Bis zum Start» under it. -->
   <article class="pk" aria-labelledby="pk-h">
     <p class="trip">{context}</p>
-    <StepBar {trip} {tabs} {status} {current} tone="light" onpick={pick} />
+    <StepBar {trip} tabs={stepsOf(trip)} {status} {current} tone="light" onpick={pick} />
     <section class="card hero" id="pk-h">
       {#if stats?.count}
         <p class="tally"><b class="num">{t('{n} of {total}', { n: stats.count - left, total: stats.count })}</b><small>{all ? t('{trip} · all packed', { trip: trip.title }) : trip.title}</small></p>
@@ -213,7 +213,7 @@
        under it; the main button stays in the bar at the bottom (G7). -->
   <article class="pk" aria-labelledby="end-h">
     <p class="trip">{context}</p>
-    <StepBar {trip} {tabs} {status} {current} tone="light" onpick={pick} />
+    <StepBar {trip} tabs={stepsOf(trip)} {status} {current} tone="light" onpick={pick} />
     <section class="card hero" id="end-h">
       <p class="tally">
         {#if km}<b class="num">{num(Math.round(km))} km</b>{:else}<b class="num">{tn(ridden, '{n} day', '{n} days')}</b>{/if}

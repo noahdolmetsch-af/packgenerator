@@ -6,6 +6,7 @@
    *   <ListGroup id="d-2026-10-13" title="Yesterday, 13 Oct" count="18 updates" sum="266 km" peek="…"
    *     bind:open rows={list} more={(n) => t('Show {n} more', { n })}>{#snippet row(r)}…{/snippet}</ListGroup>
    *
+   * `n` (default SHOW_ROWS) is how many rows show before «Show n more».
    * `head` (a snippet) replaces the plain title, e.g. with an icon. Every group carries data-group={id},
    * so the jump bar and the sticky head (ListNav.svelte) can find it.
    */
@@ -13,9 +14,9 @@
   import { shownRows, SHOW_ROWS } from './listen.js';
   import { t } from '../i18n.svelte.js';
 
-  let { id, title = '', head = null, count = '', sum = '', peek = '', open = $bindable(false), rows = [], row, more = null, children = null } = $props();
+  let { id, title = '', head = null, count = '', sum = '', peek = '', open = $bindable(false), rows = [], row, more = null, children = null, n = SHOW_ROWS } = $props();
   let wide = $state(false);
-  const shown = $derived(shownRows(rows, wide));
+  const shown = $derived(shownRows(rows, wide, n));
   const hidden = $derived(rows.length - shown.length);
 </script>
 

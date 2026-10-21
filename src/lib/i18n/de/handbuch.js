@@ -1434,4 +1434,17 @@ export default {
   'Choose 30 days, 90 days or the year, and all activities or one.': 'Wähle 30 Tage, 90 Tage oder das Jahr, und alle Aktivitäten oder eine.',
   'Switch to «Your answers» for a check question; «…» on a card hides or moves it.': 'Wechsle zu «Deine Antworten» für eine Check-Frage; «…» auf einer Karte blendet sie aus oder verschiebt sie.',
   'Example: Meditation, 90 days → most often on Tuesday, mostly before 9 o’clock, 8 days in a row as the best run.': 'Beispiel: Meditation, 90 Tage → am häufigsten am Dienstag, meist vor 9 Uhr, 8 Tage am Stück als beste Serie.',
+  // Paket «Reste» (21.10.2026)
+  'Open a trip in Pack.': 'Öffne eine Tour in Packen.',
+  'Downhill has it from the start; any other sport adds it under «Adjust blocks».': 'Downhill hat ihn von Anfang an; jede andere Sportart nimmt ihn unter «Bausteine anpassen» dazu.',
+  'Open Downhill under Sports.': 'Öffne Downhill unter Sportarten.',
+  'In «Bike park days» tap «New bike park day».': 'Tippe in «Bikepark-Tage» auf «Neuer Bikepark-Tag».',
+  'Enter the park and the runs (+ and −), mark the protection check, save.': 'Park und Abfahrten (+ und −) eintragen, Schutz-Check markieren, speichern.',
+  'Example: «Talpark · 12 runs · protection checked»; on top «3 days this year · 25 runs».': 'Beispiel: «Talpark · 12 Abfahrten · Schutz geprüft»; oben «3 Tage dieses Jahr · 25 Abfahrten».',
+  'Only on a big screen (from about 1100 px wide).': 'Nur am grossen Bildschirm (ab etwa 1100 px Breite).',
+  'Above the bags tap «All bags side by side».': 'Tippe über den Taschen auf «Alle Taschen nebeneinander».',
+  'Tick in any column; «One bag at a time» goes back.': 'Hake in jeder Spalte ab; «Eine Tasche nach der anderen» geht zurück.',
+  'Example: frame bag, seat pack and handlebar bag in three columns, the ready check as the fourth.': 'Beispiel: Rahmentasche, Satteltasche und Lenkertasche in drei Spalten, der Bereit-Check als vierte.',
+  'Tap a file: the app shows it, also LibreOffice and RTF; a GPX as a small map, a calendar file with «Into my calendar».':
+    'Tippe auf eine Datei: Die App zeigt sie, auch LibreOffice und RTF; ein GPX als kleine Karte, eine Kalenderdatei mit «In meinen Kalender».',
 };
