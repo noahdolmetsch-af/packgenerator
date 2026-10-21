@@ -6,8 +6,8 @@
    * est: the estimate (watts or null), to show what it would be.
    */
   import { t } from '../i18n.svelte.js';
-  import { ftpFixed, fixedFtp, ftpSource } from './ftpstate.svelte.js';
-  import { saveOwnFtp, FTP_MIN, FTP_MAX } from './ftp.svelte.js';
+  import { fixedFtp, ftpSource } from './ftpstate.js';
+  import { ftpFixed, saveOwnFtp, FTP_MIN, FTP_MAX } from './ftp.svelte.js';
   import { offerDone } from '../ui/rename.svelte.js';
   import Sec from '../flow/kit/Sec.svelte';
 

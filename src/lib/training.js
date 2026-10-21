@@ -9,7 +9,7 @@
  *   zone needs no new call.
  * - Health data: observation only, never a rating.
  */
-import { fixedFtp } from './strava/ftpstate.svelte.js';
+import { fixedFtp } from './strava/ftpstate.js';
 export const ZONES_KEY = 'strava.zones'; // Strava's zones, as fetched: { hr: [{ min, max }], at }
 export const OWN_ZONES_KEY = 'training.zones'; // Noah's own bounds: { own: [b1, b2, b3, b4] } or null
 export const ZONE_NAMES = ['Recovery|zone', 'Endurance|zone', 'Tempo|zone', 'Threshold|zone', 'Maximum|zone'];
@@ -346,7 +346,7 @@ export function activitiesForTrip(trip, acts = [], kmBook = []) {
  */
 export const FTP_DAYS = 90;
 /**
- * The FTP in use: the own one or Strava's when there is one (ftpstate.svelte.js, Strava check 21.10.2026), else the
+ * The FTP in use: the own one or Strava's when there is one (ftpstate.js, Strava check 21.10.2026), else the
  * estimate: 95 % of the best 20 minutes (power meter) of the last FTP_DAYS days, or null.
  */
 export function ftpEstimate(acts, today, days = FTP_DAYS) {

@@ -1,13 +1,17 @@
 /**
- * The FTP settings (ftpstate.svelte.js): read live from the settings, saved from Training › FTP, and the FTP of
+ * The FTP settings (ftpstate.js): read live from the settings, saved from Training › FTP, and the FTP of
  * the Strava profile kept when the bikes are fetched.
  *   settings 'training.ftp' = { own: watts } (typed in) · 'strava.ftp' = { w: watts, at } (from Strava)
  *   An FTP typed in the data pages of the live map ('live-pages'.ftp) counts as own too, when Training has none.
  */
 import { liveQuery } from 'dexie';
 import { db as appDb } from '../db.js';
-import { ftpFixed } from './ftpstate.svelte.js';
+import { ftpHolder } from './ftpstate.js';
 import { PAGES_KEY } from '../live/datapages.js';
+
+/** The live FTP values; every page reading fixedFtp() follows them. */
+export const ftpFixed = $state({ own: null, strava: null });
+ftpHolder.ref = ftpFixed;
 
 export const OWN_FTP_KEY = 'training.ftp';
 export const STRAVA_FTP_KEY = 'strava.ftp';

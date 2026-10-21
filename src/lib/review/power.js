@@ -15,7 +15,7 @@
  */
 
 import { npOfRides } from '../training/act/power.js';
-import { fixedFtp } from '../strava/ftpstate.svelte.js';
+import { fixedFtp } from '../strava/ftpstate.js';
 const pos = (v) => (typeof v === 'number' && Number.isFinite(v) && v > 0 ? v : null);
 const r1 = (v) => Math.round(v * 10) / 10;
 const dayOf = (a) => a?.day ?? a?.date ?? null;

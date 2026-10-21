@@ -98,7 +98,7 @@ describe('the FTP in use', () => {
     const { ftpEstimate, ftpGuess } = await import('../src/lib/training.js');
     const review = await import('../src/lib/review/power.js');
     const { applyFtp, cleanFtp } = await import('../src/lib/strava/ftp.svelte.js');
-    const { ftpLabel } = await import('../src/lib/strava/ftpstate.svelte.js');
+    const { ftpLabel } = await import('../src/lib/strava/ftpstate.js');
     const { npOfRides } = await import('../src/lib/training/act/power.js');
     const acts = [{ day: '2026-10-07', w20: 190, wDevice: true }];
     expect(ftpEstimate(acts, '2026-10-09')).toBe(181);

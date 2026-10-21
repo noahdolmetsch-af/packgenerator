@@ -20,7 +20,7 @@
   import { clock, dhms } from './fmt.js';
   import { skyOf, dirOf, needsRideWx, ensureRideWx } from '../ridewx.js';
   import { db } from '../../db.js';
-  import { ftpLabel } from '../../strava/ftpstate.svelte.js';
+  import { ftpLabel } from '../../strava/ftpstate.js';
   import { localDay } from '../../localday.js';
   import { Sun, CloudSun, Cloud, CloudFog, CloudDrizzle, CloudRain, CloudSnow, CloudLightning } from '@lucide/svelte';
 

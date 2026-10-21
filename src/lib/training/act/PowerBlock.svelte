@@ -11,7 +11,7 @@
   import { weight } from '../../weight.svelte.js';
   import { fixed, hasMeter, powerRange, POWER_ZONE_NAMES } from './power.js';
   import { t, num, locale } from '../../i18n.svelte.js';
-  import { ftpLabel } from '../../strava/ftpstate.svelte.js';
+  import { ftpLabel } from '../../strava/ftpstate.js';
 
   let { act = null, all = [], today = '' } = $props();
 
