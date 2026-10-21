@@ -20,6 +20,8 @@ import { stage, stageCount, pointAt } from '../ride.js';
 import { airPrefs, POLLEN_NAMES } from '../air.js';
 import { eatPushItems } from '../unterwegs/essen.js';
 import { wearPush } from '../wear.js';
+import { wetRides, prefsOf } from '../griff.js';
+import { wetOf } from '../inspect/rain.js';
 
 export const PUSH_KEY = 'push';
 export const AHEAD_DAYS = 14;
@@ -51,6 +53,8 @@ export const KINDS = [
   { key: 'air', label: 'Ozone and pollen', hint: 'On the tour morning, with much ozone or strong pollen (the kinds you choose on Aktiv).' },
   { key: 'workshop', label: 'Workshop due', hint: 'On the day a workshop job is due.' },
   // «Verschleiss immer im Griff» (Noah 20.10.2026): a part reaches its km (e.g. the chain at 1000 km)
+  // Paket VG 1128 «Nasse Fahrt»: the evening after a ride in the rain
+  { key: 'wetchain', label: 'Chain after rain', hint: 'At 19:00 on a day you rode in the rain: dry and oil the chain.' },
   { key: 'wear', label: 'Parts worn', hint: 'When a part reaches its km, e.g. the chain. At 08:00.' },
   { key: 'backup', label: 'Backup', hint: 'When the last backup is older than set.' },
   // Paket N idea 2 (Noah 19.10.2026 «1-5 a»): a race trip's registration deadline (Touren › Träume)
@@ -62,9 +66,18 @@ export const KINDS = [
   { key: 'shop', label: 'Shopping before a trip', hint: '2 days before a trip, when its shopping list or charging still has open rows.' },
   // Paket K #286 «Ess-Erinnerung» (Noah 19.10.2026 «5a b möglich»): also when the app is closed
   { key: 'eat', label: 'Eat on the ride', hint: 'While the eat reminder runs on On the way, every 30 to 60 minutes.' },
+  // Paket NE 1150 (Noah 20.10.2026 «9a»): a note with a reminder date
+  { key: 'note', label: 'Note reminders', hint: 'At the time you set in a note.' },
 ];
 /** Paket H (#90): the shopping and charging reminder comes this many days before the trip. */
 export const SHOP_BEFORE = 2;
+
+/** Paket NE 1150: the reminder of a note → { day, hm } or null (none, done, or not a time). */
+export function noteRemind(n) {
+  const m = /^(\d{4}-\d{2}-\d{2})T(\d{2}:\d{2})/.exec(n?.remind?.at ?? '');
+  if (!m || n.remind.done || !okHm(m[2])) return null;
+  return { day: m[1], hm: m[2] };
+}
 
 /** The stored switches, made safe: everything off unless switched on. */
 export function pushOf(value) {
@@ -197,6 +210,12 @@ export function buildList(data) {
       if (at <= ms) at = atMs(addDays(today, 1), DAY_AT);
       add({ key: w.key, at, title: t('Parts worn'), body: w.left > 0 ? t('{bike}: {part} reaches {life} km soon ({km} km left). Time to replace it.', { bike: w.bike, part: w.part, life: w.life, km: w.left }) : t('{bike}: {part} has reached {life} km. Time to replace it.', { bike: w.bike, part: w.part, life: w.life }), url: w.url });
     }
+  // Paket VG 1128: a ride in the rain today → at 19:00 «Kette trocknen und ölen» (the switch in griff.prefs too)
+  if (on('wetchain') && prefsOf(data.griff).wetChain) {
+    const names = Object.fromEntries((data.bikes ?? []).map((b) => [b.id, b.name]));
+    const first = wetRides(data.kmBook ?? [], today, wetOf(data.rain))[0];
+    if (first && names[first.bikeId]) add({ key: `wetchain:${first.bikeId}:${today}`, at: atMs(today, '19:00'), title: t('Chain after rain'), body: t('{bike} was out in the rain today. Dry and oil the chain.', { bike: names[first.bikeId] }), url: `#/bikes?tab=care&bike=${encodeURIComponent(first.bikeId)}&open=1` });
+  }
   if (on('backup')) {
     const last = data.lastBackup ? localDay(new Date(data.lastBackup)) : today;
     let day = addDays(last, backupDays);
@@ -260,6 +279,14 @@ export function buildList(data) {
       add({ key: `own:${td.id}:${td.due}`, at: atMs(addDays(td.due, -(td.remind.before || 0)), td.remind.at), title: t('Reminder'), body: td.text, url: '#/calendar' });
     }
   }
+  // Paket NE 1150: notes with a reminder (note.remind = { at: 'YYYY-MM-DDTHH:MM' }, not yet done)
+  if (on('note'))
+    for (const n of data.notes ?? []) {
+      const r = noteRemind(n);
+      if (!r) continue;
+      const first = String(n.text ?? '').split('\n').find((l) => l.trim()) ?? '';
+      add({ key: `note:${n.id}:${r.day}T${r.hm}`, at: atMs(r.day, r.hm), title: t('Note reminder'), body: String(n.title || first.replace(/^[#\-*\s[\]x]+/, '') || t('Note')).slice(0, 200), url: `#/notes?open=${n.id}` });
+    }
   items.sort((a, b) => a.at - b.at);
   const wxOn = on('weather');
   const texts = {

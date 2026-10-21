@@ -16,6 +16,23 @@
 
 export const WHATS_NEW = [
   {
+    // v0.172.0 «Velo und Notizen»: Paket VG «Das Velo im Griff» (1128–1135; the chain window on Heute waits for Noah's OK) and Paket NE «Notizen wie Evernote» (Noah 20.10.2026); built without mockups
+    version: '0.172.0',
+    date: '2026-10-21',
+    title: 'Bike and notes',
+    lead: 'Look after the bike, keep everything in notes.',
+    points: [
+      { text: 'Wear: photos, spare parts, sale listing', href: '#/bikes?tab=care&view=wear' },
+      { text: 'Notes: draw, format, attach files', href: '#/notes' },
+      { text: 'Notes: reminder and a bin for 30 days', href: '#/notes' },
+    ],
+    small: [{ box: 'new', text: 'Phone reminder: dry the chain after rain' }],
+    test: [
+      'Open Notes, start a note and draw on a photo.',
+      'Bikes › Care › a bike › «Wear»: add spare parts at home.',
+    ],
+  },
+  {
     // v0.171.0 «Velo, Wetter und Körper»: Verschleiss, Bilder, Wetter-Kern X/Y 2–4, Körperwerte, Fitbit überall (Check, Heute), KI im Gerät, Z «Aus jeder Tour lernen», SP «Schneller packen», U4 Schlafplätze, Tagebuch unter Planen, See-Prognose (Noah 20.10.2026); built without mockups
     version: '0.171.0',
     date: '2026-10-21',

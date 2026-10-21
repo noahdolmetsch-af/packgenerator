@@ -4,6 +4,8 @@ Stand: 18. Oktober 2026. Der kurze Überblick steht im [Projektstand](projektsta
 
 ## Aktuell live
 
+**0.172.0 «Velo und Notizen» (21.10.2026, ein Bündel):** Paket VG «Das Velo im Griff» (Handy-Erinnerung «Kette trocknen» nach Regen, Verschleiss-Fotos, Verkaufsinserat, Velobox-Checkliste, Ersatzteil-Lager, km pro Marke, Frühlings-To-do, Kettenrotation; das Fenster auf Heute bleibt aus, bis Noah ja sagt) und Paket NE «Notizen wie Evernote» (auf Fotos zeichnen, Zeichenblock, formatierter Editor, Dateien, Scannen, Webseite offline, Texterkennung, Erinnerung, Papierkorb 30 Tage, frühere Fassungen). Neue Pakete pdfjs-dist und heic2any (lazy). Keine Dexie-Stufe.
+
 **0.171.0 «Velo, Wetter und Körper» (21.10.2026, ein Bündel, ein CI-Lauf):** Verschleiss pro Teil (Seite «Verschleiss», Werkstattbesuch pro Teil, Kette auf einen Blick, Handy-Erinnerung), Bilder in der App (Setup-Zeitleiste, mehrere Fotos pro Problem, Tour-Foto), Wetter-Kern (bester Start, Landi-Radar, Webcams, Wind, Energie, «Zeit zu essen», GPX mit Stopps, Zürisee-Chip auf Heute), Körperwerte (25 Werte, Blutdruck und Wasser selbst, Fitbit SpO2/Atem/Hauttemperatur über api/_lib/google.js), Fitbit füllt Check und Heute, KI im Gerät (Modelle auf dem Handy), Paket Z «Aus jeder Tour lernen», SP «Schneller packen», U4 Schlafplätze im Rennen, Tagebuch unter Planen, See-Prognose robuster (api/_lib/lake.js), Live-Karte: Orte-Filter hängt nicht mehr, schmale Auto-Pause-Zeile. Keine Dexie-Stufe.
 **0.170.1 «Abgleich bleibt ruhig» (21.10.2026, Fehlerbehebung):** Werte, die die App selbst speichert (strava.last, homeUsage, Ansichten), gleichen sich ohne Frage ab, der neuere gewinnt; «Später entscheiden» gibt eine Stunde Ruhe; der Dialog zeigt Namen und Werte statt Schlüssel.
 

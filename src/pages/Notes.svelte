@@ -36,8 +36,23 @@
   import { QrCode, FileInput, LayoutTemplate, Trash2 } from '@lucide/svelte';
   import OwnSpark from '../lib/clear/OwnSpark.svelte';
   import '../lib/ich/ich.css';
+  import { onMount } from 'svelte';
+  import NoteTrash from '../lib/notes/NoteTrash.svelte';
+  import { TRASH, TRASH_DAYS, purgeTrash, trashNotes, untrash } from '../lib/notes/trash.js';
+  import { noteRemind } from '../lib/push/schedule.js';
+  import { Bell } from '@lucide/svelte';
 
   const notesQ = liveQuery(() => db.notes.toArray());
+  // Paket NE 1151: the trash (30 days); what waited longer goes when Notes opens
+  const trashQ = liveQuery(() => db.docs.where('kind').equals(TRASH).count());
+  let trashOpen = $state(false);
+  // Paket NE 1150: reminders that are due show on top until «Done»
+  let nowMs = $state(Date.now());
+  onMount(() => {
+    purgeTrash(db).catch(() => {});
+    const timer = setInterval(() => (nowMs = Date.now()), 60_000);
+    return () => clearInterval(timer);
+  });
   const bikesQ = liveQuery(() => db.bikes.toArray());
   const notes = $derived($notesQ ?? []);
   const bikes = $derived(sortBikes($bikesQ ?? []));
@@ -126,13 +141,10 @@
     { key: 'pinned', label: t('Pinned'), type: 'check', width: '6em', readOnly: true }, // at most 3: pinned in the note itself
     { key: 'created', label: t('Date'), type: 'text', readOnly: true, get: (n) => String(n.createdAt ?? '').slice(0, 10) },
   ]);
+  // Paket NE 1151: deleted notes wait 30 days in the trash
   async function delNotes(rows) {
-    const ids = rows.map((r) => r.id);
-    return db.transaction('rw', db.notes, async () => {
-      const before = (await db.notes.bulkGet(ids)).filter(Boolean);
-      await db.notes.bulkDelete(ids);
-      return before;
-    });
+    const before = (await db.notes.bulkGet(rows.map((r) => r.id))).filter(Boolean);
+    return trashNotes(db, before);
   }
   let filter = $state('all');
   let query = $state('');
@@ -140,6 +152,15 @@
   // Impeccable Runde 2: only chips that find something (and the chosen one, so it can be switched back)
   const shows = (f) => f.key === 'all' || f.key === filter || counts[f.key] > 0;
   const pinned = $derived(filter === 'all' && !query ? list.filter((n) => n.pinned) : []);
+  const due = $derived(
+    notes
+      .filter((n) => {
+        const r = noteRemind(n);
+        return r && new Date(`${r.day}T${r.hm}:00`).getTime() <= nowMs;
+      })
+      .sort((a, b) => String(a.remind.at).localeCompare(String(b.remind.at))),
+  );
+  const remindDone = (n) => db.notes.update(n.id, { remind: { ...n.remind, done: true } });
   const rest = $derived(filter === 'all' && !query ? list.filter((n) => !n.pinned) : list);
 
   // Capture.
@@ -196,7 +217,9 @@
     setTimeout(() => (saved = ''), 4000);
   }
 
-  let open = $state(null);
+  // Paket NE: #/notes?open=<id> opens that note (back from «Scan» into a note)
+  let open = $state(typeof location !== 'undefined' ? (decodeURIComponent((location.hash.match(/[?&]open=([^&]+)/) ?? [])[1] ?? '') || null) : null);
+  if (open && typeof history !== 'undefined') history.replaceState(history.state, '', `${location.pathname}#/notes`);
   let made = $state('');
   const openNote = $derived(open ? notes.find((n) => n.id === open) : null);
 
@@ -275,13 +298,27 @@
           {:else}
             <Empty icon={NotebookPen} text={t('No notes yet. Write one above, or keep an entry from the Inbox with «Just keep».')}><OwnSpark place="notes" /></Empty>
           {/if}
+          {#if $trashQ}<p class="tblrow"><button type="button" class="btn btn-link" onclick={() => (trashOpen = true)} data-notes-trash-empty><Trash2 size={16} aria-hidden="true" />{tn($trashQ, '{n} note in the trash', '{n} notes in the trash')}</button></p>{/if}
         </div>
       {/if}
       <!-- Paket H «3a und b»: the notes as an editable table; tick several to change the topic or delete them -->
       {#if counts.all}<p class="tblrow"><button type="button" class="btn btn-link" aria-pressed={tableOn} onclick={() => setTable(!tableOn)} data-note-table>{tableOn ? t('Done') : phone.matches ? t('Change several') : t('Edit as a table')}</button></p>{/if}
       {#if tableOn && counts.all}
-        <ListTable rows={list} cols={noteCols} nameOf={(n) => noteTitle(n) || t('Note')} onsave={(pairs) => db.notes.bulkPut(pairs.map((p) => ({ ...p.after, updatedAt: new Date().toISOString() })))} ondelete={delNotes} onrestore={(before) => db.notes.bulkPut(before)} onopen={(n) => (open = n.id)} label={t('Notes')} search={false} />
+        <ListTable rows={list} cols={noteCols} nameOf={(n) => noteTitle(n) || t('Note')} onsave={(pairs) => db.notes.bulkPut(pairs.map((p) => ({ ...p.after, updatedAt: new Date().toISOString() })))} ondelete={delNotes} onrestore={(rows) => untrash(db, rows)} onopen={(n) => (open = n.id)} label={t('Notes')} search={false} />
       {:else}
+      {#if due.length}
+        <section class="ich-sec" aria-labelledby="due-h" data-notes-due>
+          <div class="ich-h"><div><h2 id="due-h"><Bell size={16} aria-hidden="true" /> {t('Reminders')} <small class="n num">{due.length}</small></h2><p class="ich-hs">{t('Due now. «Done» takes the reminder away; the note stays.')}</p></div></div>
+          <ul class="card ich-list">
+            {#each due as n (n.id)}
+              <li class="ncard duerow" data-note-id={n.id}>
+                <button type="button" class="ich-row open" onclick={() => (open = n.id)}><span class="ich-ib"><Bell size={18} aria-hidden="true" /></span><span class="ich-m"><b>{noteTitle(n) || t('Note')}</b><small>{new Date(n.remind.at).toLocaleString(locale(), { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</small></span></button>
+                <button type="button" class="btn sm" onclick={() => remindDone(n)} data-remind-done>{t('Done')}</button>
+              </li>
+            {/each}
+          </ul>
+        </section>
+      {/if}
       {#if pinned.length}
         <section class="ich-sec" aria-labelledby="pin-h">
           <div class="ich-h"><div><h2 id="pin-h">{t('Pinned')} <small class="n num">{pinned.length}/{MAX_PINNED}</small></h2></div></div>
@@ -374,6 +411,7 @@
             </label>
             {#if keepMsg}<p class="ich-help" role="status">{keepMsg}</p>{/if}
           </li>
+          <li><button type="button" class="ich-row" onclick={() => (trashOpen = true)} data-notes-trash><span class="ich-ib"><Trash2 size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t('Trash')}</b><small>{$trashQ ? tn($trashQ, '{n} note · {days} days, then it goes', '{n} notes · {days} days, then they go', { days: TRASH_DAYS }) : t('Deleted notes wait here {n} days.', { n: TRASH_DAYS })}</small></span><ChevronRight class="ich-chev" size={18} aria-hidden="true" /></button></li>
           {#if counts.all}<li><button type="button" class="ich-row" onclick={exportMd}><span class="ich-ib"><Download size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t('Export as Markdown')}</b><small>{t('The notes are also in the normal backup.')}</small></span><ChevronRight class="ich-chev" size={18} aria-hidden="true" /></button></li>{/if}
         </ul>
       </section>
@@ -385,6 +423,7 @@
 {#if openNote}
   {#key open}<NoteSheet note={openNote} {bikes} {notes} pinnedCount={counts.pinned} onopen={(id) => (open = id)} onclose={() => (open = null)} onmade={() => ((made = t('Made from the note; the note links to it.')), setTimeout(() => (made = ''), 5000))} />{/key}
 {/if}
+{#if trashOpen}<NoteTrash onclose={() => (trashOpen = false)} />{/if}
 {#if made}<div class="toast" role="status"><Check size={18} aria-hidden="true" /><span>{made}</span></div>{/if}
 
 
