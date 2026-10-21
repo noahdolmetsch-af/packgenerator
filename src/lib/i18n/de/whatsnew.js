@@ -1422,6 +1422,8 @@ export default {
   'Questions get an answer from your data': 'Fragen beantwortet die App aus deinen Daten',
   'Set it up under Me › Search': 'Einstellen unter Ich › Suche',
   '«Weather Chur» opens the weather page for that place': '«Wetter Chur» öffnet die Wetterseite für diesen Ort',
+  'Your webcams on the live map': 'Deine Webcams auf der Live-Karte',
+  'Phone warning: icy roads in the morning': 'Handy-Warnung: Glätte am Morgen',
   'Tap the microphone in the search and say «Weight 72».': 'Tippe in der Suche aufs Mikrofon und sag «Gewicht 72».',
   'Type «Weather Chur» in the search.': 'Tippe «Wetter Chur» in die Suche.',
   // v0.172.0 «Velo und Notizen»

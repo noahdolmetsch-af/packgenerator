@@ -26,7 +26,11 @@ export const WHATS_NEW = [
       { text: 'Questions get an answer from your data', href: '#/assistent' },
       { text: 'Set it up under Me › Search', href: '#/me/suche' },
     ],
-    small: [{ box: 'new', text: '«Weather Chur» opens the weather page for that place' }],
+    small: [
+      { box: 'new', text: '«Weather Chur» opens the weather page for that place' },
+      { box: 'new', text: 'Your webcams on the live map', href: '#/wetter' },
+      { box: 'new', text: 'Phone warning: icy roads in the morning' },
+    ],
     test: [
       'Tap the microphone in the search and say «Weight 72».',
       'Type «Weather Chur» in the search.',

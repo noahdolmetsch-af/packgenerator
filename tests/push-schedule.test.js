@@ -45,10 +45,16 @@ describe('the evening before and the tour-day weather (3a, Eigene Werte 3a 4b)',
   });
   it('the weather at 06:30 on the start day, at the route start or else the home place; hot from Eigene Werte', () => {
     const l = buildList(base({ trips: [trip('a', '2026-10-23', { route: { start: { lat: 46.5, lon: 9.8 } } }), trip('b', '2026-10-25')], settings: { push: allOn, homePlace: { name: 'Heimort', lat: 47.1, lon: 8.2 }, ownValues: { hotC: 27 } } }));
-    expect(l.weather).toEqual([
+    const tours = l.weather.filter((w) => !w.only);
+    expect(tours).toEqual([
       expect.objectContaining({ key: 'wx:a:2026-10-23', at: atMs('2026-10-23', '06:30'), date: '2026-10-23', lat: 46.5, lon: 9.8, title: 'Testtour a' }),
       expect.objectContaining({ key: 'wx:b:2026-10-25', lat: 47.1, lon: 8.2 }),
     ]);
+    // Glätte (Paket Wetter): with «Ice in the morning» on, the home place each morning, never on a tour day
+    const ice = l.weather.filter((w) => w.only);
+    expect(ice.every((w) => w.only.join() === 'ice' && w.lat === 47.1)).toBe(true);
+    expect(ice.map((w) => w.date)).not.toContain('2026-10-23');
+    expect(ice.map((w) => w.date)).not.toContain('2026-10-25');
     expect(l.hotC).toBe(27);
     expect(buildList(base()).hotC).toBe(30);
     expect(l.texts.heat).toContain('{temp}');

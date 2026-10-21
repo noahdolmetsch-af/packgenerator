@@ -4,7 +4,9 @@
  * The app sends the list of its next reminders (only the ones switched on, Noah «2b»), each with its
  * time and its words, already in the app's language. The server keeps them until they are due, sends
  * them and forgets them. The weather warning on the tour day (Noah «3a») is checked on the morning
- * itself: the server asks Open-Meteo and sends a message only for a storm, heat or a thunderstorm.
+ * itself: the server asks Open-Meteo and sends a message only for a storm, heat, ice or a thunderstorm.
+ * «Glätte» (Paket Wetter, 0.172+): ice = the coldest hour at or below ICE_C with rain or snow that day;
+ * a weather check with only: ['ice'] (the morning ice warning at home) tells only of ice.
  * No quiet hours (Noah «4b»).
  *
  * Storage (Upstash Redis): push:dev:<sha256 of the phone's code> = the phone's record, push:devs =
@@ -19,6 +21,11 @@ export const STALE_MS = 6 * 3600 * 1000; // a message more than 6 hours late is 
 export const KEEP_S = 60 * 24 * 3600; // a phone that has not sent its list for 60 days is forgotten
 export const GUST_KMH = 60;
 export const THUNDER = [95, 96, 99];
+export const ICE_C = 1;
+export const ICE_WET_MM = 0.2;
+/** Freezing drizzle and rain, snow and snow showers (WMO codes). */
+export const FREEZE = [56, 57, 66, 67, 71, 73, 75, 77, 85, 86];
+export const REASONS = ['thunder', 'ice', 'storm', 'heat'];
 /* Wetter-Wecker (Paket G, Noah 19.10.2026): a planned tour is watched twice a day until the day before. */
 export const WATCH_MAX_DAYS = 5;
 export const WATCH_EVERY_MS = 12 * 3600 * 1000;
@@ -73,7 +80,8 @@ export function cleanWeather(x) {
   const key = str(x?.key, 100);
   if (at == null || lat == null || lon == null || Math.abs(lat) > 90 || Math.abs(lon) > 180 || !date || !key) return null;
   const url = str(x?.url, 200);
-  return { key, at, date, lat, lon, title: str(x?.title, 80), url: url.startsWith('#/') ? url : '#/' };
+  const only = Array.isArray(x?.only) ? [...new Set(x.only.filter((r) => REASONS.includes(r)))] : [];
+  return { key, at, date, lat, lon, title: str(x?.title, 80), url: url.startsWith('#/') ? url : '#/', ...(only.length ? { only } : {}) };
 }
 
 /** One Wetter-Wecker watch (Paket G): { key, at (ms, first check), date, days, lat, lon, title, url }. */
@@ -104,7 +112,7 @@ export function cleanAir(a) {
 
 /** The words of the weather messages, «{temp}», «{trip}», «{day}» filled in by the server. */
 export function cleanTexts(t) {
-  const out = { storm: str(t?.storm, 200), heat: str(t?.heat, 200), thunder: str(t?.thunder, 200), title: str(t?.title, 80) };
+  const out = { storm: str(t?.storm, 200), heat: str(t?.heat, 200), thunder: str(t?.thunder, 200), ice: str(t?.ice, 200), title: str(t?.title, 80), ititle: str(t?.ititle, 80) };
   for (const k of ['turn', 'good', 'window', 'bad', 'better', 'wtitle', 'rain', 'rtitle', 'ozone', 'pollen']) out[k] = str(t?.[k], 200);
   out.pollenNames = Object.fromEntries(POLLEN.map((p) => [p.key, str(t?.pollenNames?.[p.key], 30)]));
   out.wdays = (Array.isArray(t?.wdays) ? t.wdays : []).slice(0, 7).map((d) => str(d, 6));
@@ -156,30 +164,38 @@ export function split(list, now) {
   return { due, wait };
 }
 
-/** Open-Meteo's daily answer for one day → the reasons to warn: 'storm', 'heat', 'thunder'. */
+/** Open-Meteo's daily answer for one day → the reasons to warn, in the order of REASONS: thunder, ice, storm, heat. */
 export function weatherReasons(daily, date, hotC = 30) {
   const i = (daily?.time ?? []).indexOf(date);
-  if (i < 0) return { reasons: [], tmax: null };
+  if (i < 0) return { reasons: [], tmax: null, tmin: null };
   const tmax = daily.temperature_2m_max?.[i] ?? null;
+  const tmin = daily.temperature_2m_min?.[i] ?? null;
   const gust = daily.wind_gusts_10m_max?.[i] ?? null;
   const code = daily.weather_code?.[i] ?? null;
+  const wet = (daily.precipitation_sum?.[i] ?? 0) >= ICE_WET_MM || FREEZE.includes(code);
   const reasons = [];
   if (THUNDER.includes(code)) reasons.push('thunder');
+  if (tmin != null && tmin <= ICE_C && wet) reasons.push('ice');
   if (gust != null && gust >= GUST_KMH) reasons.push('storm');
   if (tmax != null && tmax >= hotC) reasons.push('heat');
-  return { reasons, tmax };
+  return { reasons, tmax, tmin };
 }
 
 /** The forecast address for one place and day (free, no key). */
 export const forecastUrl = (w) =>
-  `https://api.open-meteo.com/v1/forecast?latitude=${w.lat.toFixed(3)}&longitude=${w.lon.toFixed(3)}&daily=temperature_2m_max,wind_gusts_10m_max,weather_code&timezone=Europe%2FZurich&start_date=${w.date}&end_date=${w.date}`;
+  `https://api.open-meteo.com/v1/forecast?latitude=${w.lat.toFixed(3)}&longitude=${w.lon.toFixed(3)}&daily=temperature_2m_max,temperature_2m_min,precipitation_sum,wind_gusts_10m_max,weather_code&timezone=Europe%2FZurich&start_date=${w.date}&end_date=${w.date}`;
 
-/** The message of a weather warning: the first reason (thunder before storm before heat), or null. */
+/**
+ * The message of a weather warning: the first reason (thunder, ice, storm, heat) that has words, or null.
+ * A check with only (the ice warning at home) looks at those reasons alone. {temp} = the warmest hour,
+ * for ice the coldest.
+ */
 export function weatherMessage(w, verdict, texts) {
-  const r = verdict.reasons[0];
-  if (!r || !texts[r]) return null;
-  const body = texts[r].replace('{temp}', verdict.tmax != null ? String(Math.round(verdict.tmax)) : '');
-  return { title: w.title || texts.title || 'Pack Generator', body, url: w.url, tag: w.key };
+  const r = verdict.reasons.find((x) => (!w.only || w.only.includes(x)) && texts[x]);
+  if (!r) return null;
+  const temp = r === 'ice' ? verdict.tmin : verdict.tmax;
+  const body = texts[r].replace('{temp}', temp != null ? String(Math.round(temp)) : '');
+  return { title: w.title || (w.only ? texts.ititle : '') || texts.title || 'Pack Generator', body, url: w.url, tag: w.key };
 }
 
 /* ---------- Wetter-Wecker (Paket G) ---------- */

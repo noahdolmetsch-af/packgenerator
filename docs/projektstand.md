@@ -56,6 +56,7 @@ Seit 19.10.2026 gibt es keine Testlinks mehr: Ein Paket geht online, sobald die 
 | 46 | Velo im Griff | 0.172.0 | Kette nach Regen (Handy), Verschleiss-Fotos, Inserat, Velobox, Ersatzteile, km pro Marke, Frühlings-To-do, Kettenrotation; Heute-Fenster wartet auf Noahs OK | PR #224 |
 | 47 | Notizen wie Evernote | 0.172.0 | zeichnen, formatieren, Dateien, Scannen, Webseite offline, Texterkennung, Erinnerung, Papierkorb, frühere Fassungen | PR #224 |
 | 48 | Suche mit Sprache und Antworten | 0.173.0 | Befehle sprechen («Kette geölt», «Gewicht 72») mit Rückgängig, Fragen aus den eigenen Daten, Geräte-KI hinter eigenem Schalter, «Wetter Chur», Einstellungen unter Ich › Suche | dieser PR |
+| 49 | Webcams auf der Live-Karte, Glätte-Push | 0.173.0 | Webcam mit Ort als Punkt auf der Live-Karte, «Glätte am Morgen» (Okt–Apr), Eis-Warnung im Wetter am Tourtag | dieser PR |
 
 «Frontend aufpeppen» ist pausiert (Noah 19.10.2026). Die Abschnitte unten sind der Stand vom 18.10.2026.
 

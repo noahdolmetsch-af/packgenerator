@@ -122,6 +122,9 @@ export const SINCE = {
   'f.gpxstops': '0.171.0',
   'f.weather': '0.171.0',
   'f.webcams': '0.171.0',
+  // Paket Wetter «Webcams auf der Live-Karte und Glätte» (v0.173.0)
+  'f.webcammap': '0.173.0',
+  'f.icepush': '0.173.0',
   // Paket W «Von der Haustür bis zurück» (v0.170.0)
   'f.arrived': '0.170.0', 'f.planb': '0.170.0', 'f.checkin': '0.170.0', 'f.parked': '0.170.0',
   // Paket Z and SP (v0.171.0)

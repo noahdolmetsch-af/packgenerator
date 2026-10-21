@@ -4,16 +4,18 @@
    * with arrows and drag, mark one as home cam (small on Heute), delete with the app's question and Undo.
    * A picture address shows the live picture (fetched anew every 5 minutes), any other page opens.
    * The list lives only on this device (webcams.js); bergfex and the pass roads are links.
+   * A cam can get a place (the place search): then it shows as a point on the live map.
    */
   import { liveQuery } from 'dexie';
-  import { Plus, Pencil, Trash2, Home as HomeIcon, ExternalLink } from '@lucide/svelte';
+  import { Plus, Pencil, Trash2, Home as HomeIcon, ExternalLink, MapPin, Search, X } from '@lucide/svelte';
   import { db } from '../db.js';
-  import { WEBCAMS_KEY, BERGFEX, PASSES, camsOf, addCam, renameCam, removeCam, setHome, moveCam, isImage, freshSrc, camLabel, cleanUrl } from './webcams.js';
+  import { WEBCAMS_KEY, BERGFEX, PASSES, camsOf, addCam, renameCam, removeCam, setHome, setPlace, moveCam, isImage, freshSrc, camLabel, cleanUrl } from './webcams.js';
   import SortArrows from '../ui/SortArrows.svelte';
   import SortGrip from '../ui/SortGrip.svelte';
   import { sortable } from '../ui/sortable.js';
   import RenameSheet from '../ui/RenameSheet.svelte';
   import { askDelete, deleteWithUndo } from '../ui/ask.js';
+  import { searchPlace } from '../weather.js';
   import { t } from '../i18n.svelte.js';
 
   const camsQ = liveQuery(() => db.settings.get(WEBCAMS_KEY));
@@ -50,6 +52,30 @@
     await deleteWithUndo({ run: () => save(removeCam(cams, c.id)), undo: () => save(before), text: t('«{name}» deleted.', { name: camLabel(c) }), name: camLabel(c) });
   }
   const move = (from, to) => save(moveCam(cams, from, to));
+
+  /* a place for the live map */
+  let placing = $state(null); // the cam id
+  let pq = $state('');
+  let pfound = $state([]);
+  let pmsg = $state('');
+  async function findPlace(e) {
+    e.preventDefault();
+    pmsg = '';
+    try {
+      pfound = await searchPlace(pq);
+      if (!pfound.length) pmsg = t('No place found.');
+    } catch {
+      pfound = [];
+      pmsg = t('The place search did not answer. Try again later.');
+    }
+  }
+  async function pick(c, p) {
+    await save(setPlace(cams, c.id, { name: p.name, lat: p.lat, lon: p.lon }));
+    placing = null;
+    pq = '';
+    pfound = [];
+  }
+  const openPlace = (c) => ((placing = placing === c.id ? null : c.id), (pq = ''), (pfound = []), (pmsg = ''));
 </script>
 
 <p class="rc-note">{t('Add any webcam with its address. A picture address (ending in .jpg or .png) shows the live picture here; other pages open with a tap. Your list stays on this device only.')}</p>
@@ -62,12 +88,30 @@
           <a class="wc-name" href={c.url} target="_blank" rel="noopener noreferrer"><b>{camLabel(c)}</b>{#if c.home}<small>{t('Home cam · on Today')}</small>{/if}<ExternalLink size={14} aria-hidden="true" /></a>
           <SortArrows name={camLabel(c)} {i} n={cams.length} onstep={(dir) => move(i, i + dir)} />
         </div>
+        {#if c.place}<p class="wc-place" data-webcam-place><MapPin size={14} aria-hidden="true" />{t('On the live map: {place}', { place: c.place.name || t('your place') })}</p>{/if}
         {#if isImage(c.url)}<img class="wc-img" src={freshSrc(c.url, now)} alt={t('Webcam {name}', { name: camLabel(c) })} loading="lazy" referrerpolicy="no-referrer" />{/if}
         <div class="wc-acts">
           <button type="button" class="btn sm" aria-pressed={c.home} onclick={() => save(setHome(cams, c.id))} data-webcam-home><HomeIcon size={16} aria-hidden="true" />{c.home ? t('Home cam') : t('Make home cam')}</button>
           <button type="button" class="btn sm" onclick={() => (renaming = c)} data-webcam-rename><Pencil size={16} aria-hidden="true" />{t('Rename')}</button>
+          <button type="button" class="btn sm" aria-expanded={placing === c.id} onclick={() => openPlace(c)} data-webcam-setplace><MapPin size={16} aria-hidden="true" />{c.place ? t('Change place') : t('Place on the map')}</button>
+          {#if c.place}<button type="button" class="btn sm" onclick={() => save(setPlace(cams, c.id, null))} data-webcam-noplace><X size={16} aria-hidden="true" />{t('Off the map')}</button>{/if}
           <button type="button" class="btn sm" onclick={() => del(c)} data-webcam-delete><Trash2 size={16} aria-hidden="true" />{t('Delete')}</button>
         </div>
+        {#if placing === c.id}
+          <form class="wc-search" onsubmit={findPlace} data-webcam-placeform>
+            <p class="rc-note">{t('Where is the webcam? Then it shows as a point on the live map, under «My points».')}</p>
+            <div class="wc-srow">
+              <input class="inp" type="search" bind:value={pq} placeholder={t('Place, e.g. a village or a pass')} aria-label={t('Place of the webcam')} data-webcam-pq />
+              <button type="submit" class="btn sm" disabled={pq.trim().length < 2}><Search size={16} aria-hidden="true" />{t('Search')}</button>
+            </div>
+            {#if pfound.length}
+              <ul class="wc-found">
+                {#each pfound as p, k (k)}<li><button type="button" class="btn sm" onclick={() => pick(c, p)} data-webcam-found>{p.name}{#if p.detail}<small>{p.detail}</small>{/if}</button></li>{/each}
+              </ul>
+            {/if}
+            {#if pmsg}<p class="rc-warn" role="alert">{pmsg}</p>{/if}
+          </form>
+        {/if}
       </li>
     {/each}
   </ul>
@@ -138,6 +182,43 @@
     display: flex;
     flex-wrap: wrap;
     gap: 6px;
+  }
+  .wc-place {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0;
+    color: var(--ink-2);
+    overflow-wrap: break-word;
+  }
+  .wc-search {
+    display: grid;
+    gap: 6px;
+  }
+  .wc-srow {
+    display: flex;
+    gap: 6px;
+  }
+  .wc-srow .inp {
+    flex: 1;
+    min-width: 0;
+  }
+  .wc-found {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 4px;
+  }
+  .wc-found .btn {
+    width: 100%;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    gap: 2px 8px;
+    text-align: left;
+  }
+  .wc-found small {
+    color: var(--ink-2);
   }
   .wc-add {
     display: grid;
