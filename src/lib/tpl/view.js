@@ -70,6 +70,25 @@ export function extraRows(tpl, items, setsValue = []) {
     });
 }
 
+/**
+ * C9 (Noah 21.10.2026 «1a»): a template with more than FOLD_FROM items shows its single items by
+ * category, each category folded; a shorter one stays one flat list as before.
+ */
+export const FOLD_FROM = 100;
+
+/**
+ * The single items (extraRows) by category in the gear order, then «Other / unknown category».
+ * → [{ key, name, rows, n, g, missing }]  (name is the English source word, shown through t())
+ */
+export function extraGroups(rows) {
+  const known = new Set(CATEGORIES.map((c) => c.key));
+  const groups = CATEGORIES.map((c) => ({ key: c.key, name: c.name, rows: rows.filter((r) => r.item?.category === c.key) }));
+  groups.push({ key: 'other', name: 'Other / unknown category', rows: rows.filter((r) => !known.has(r.item?.category)) });
+  return groups
+    .filter((x) => x.rows.length)
+    .map((x) => ({ ...x, n: x.rows.length, ...sumKnown(x.rows.map((r) => r.g)) }));
+}
+
 /** "Standard + Rain + 2 single items" (an older template: its item count). */
 export function lineOf(tpl, setsValue = []) {
   const parts = templateParts(tpl, setsValue);

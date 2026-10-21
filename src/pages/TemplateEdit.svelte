@@ -41,7 +41,8 @@
   import { changeTemplates } from '../lib/tpl/toast.svelte.js';
   import { newTrip } from '../lib/nav.js';
   import { localDay } from '../lib/localday.js';
-  import { blockRows, extraRows, blockChoices, summary, blockHints } from '../lib/tpl/view.js';
+  import { blockRows, extraRows, blockChoices, summary, blockHints, FOLD_FROM, extraGroups } from '../lib/tpl/view.js';
+  import { catIcon } from '../lib/gear/caticon.js';
   import ItemPicker from '../lib/tpl/ItemPicker.svelte';
   import BagSplit from '../lib/tpl/BagSplit.svelte';
   import DaysFields from '../lib/tpl/DaysFields.svelte';
@@ -177,6 +178,20 @@
   const setExtraQty = (itemId, n) => edit((x) => ({ ...x, extras: (x.extras ?? []).map((e) => (e.itemId === itemId ? { ...e, qty: Math.max(1, Math.min(20, n)) } : e)) }));
   const removeExtra = (itemId) => edit((x) => ({ ...x, extras: (x.extras ?? []).filter((e) => e.itemId !== itemId) }));
 
+  /* ---------- C9 (Noah 21.10.2026 «1a»): a long template folds its categories ---------- */
+  // More than FOLD_FROM items: the single items by category and the items of each block, every
+  // section folded; a tap opens it. Open is per page visit (no storage). Shorter templates stay as before.
+  const long = $derived((sum?.n ?? 0) > FOLD_FROM);
+  const groups = $derived(long ? extraGroups(extras) : []);
+  let opened = $state({});
+  const isOpen = (key) => !!opened[key];
+  const toggleCat = (key) => (opened = { ...opened, [key]: !opened[key] });
+  const extraKeys = $derived(groups.map((g) => `x:${g.key}`));
+  const blockKeys = $derived(blocks.map((b) => `b:${b.key}`));
+  const allOpen = (keys) => keys.length > 0 && keys.every((k) => opened[k]);
+  const setAll = (keys, on) => (opened = { ...opened, ...Object.fromEntries(keys.map((k) => [k, on])) });
+  const groupSub = (g) => [tn(g.n, '{n} item', '{n} items'), g.missing === g.n ? t('not weighed') : knownWeight(g.g, g.missing)].join(' · ');
+
   /* ---------- more ---------- */
   let openMore = $state(null);
   const toggleMore = (key) => (openMore = openMore === key ? null : key);
@@ -220,9 +235,15 @@
               {/each}
             </div>
             <Fold label={t('Single items of the blocks')} summary={leftOut ? tn(leftOut, '{n} left out', '{n} left out') : t('all in it')} bind:open={membersOpen}>
+              {#if long && blocks.length}{@render foldBar(blockKeys, t('Tap a building block to open it.'))}{/if}
               {#each blocks as b (b.key)}
-                <p class="mh">{b.name}</p>
-                <ul class="members">
+                {#if long}
+                  {@render catHead(`b:${b.key}`, b.name, subOf(b), blockIcon(b.key, b.name))}
+                {:else}
+                  <p class="mh">{b.name}</p>
+                {/if}
+                {#if !long || isOpen(`b:${b.key}`)}
+                <ul class="members" id={long ? `fold-b:${b.key}` : undefined}>
                   {#each b.members as m (m.item.id)}
                     <li>
                       <label class="mem"><input type="checkbox" checked={m.on} onchange={(e) => toggleMember(b.key, m.item.id, e.currentTarget.checked)} /><span class="t" class:off={!m.on}>{nameOf(m.item)}</span><span class="w num">{itemWeight(m.item) == null ? '–' : formatWeight(itemWeight(m.item))}</span></label>
@@ -231,6 +252,7 @@
                     <li class="note">{t('No items in this building block yet.')}</li>
                   {/each}
                 </ul>
+                {/if}
               {/each}
               <p class="note">{t('Untick an item to leave it out of this template only.')} <a href="#/blocks">{t('Change the building block')}</a></p>
             </Fold>
@@ -240,25 +262,20 @@
 
         <Section title={t('Single items')} sub={t('what is in no building block')} id="h-extra">
           <div class="card ecard">
-            {#if extras.length}
+            {#if extras.length && long}
+              {@render foldBar(extraKeys, t('Tap a category to open it.'))}
+              {#each groups as g (g.key)}
+                {@const GIcon = catIcon(g.key)}
+                {@render catHead(`x:${g.key}`, t(g.name), groupSub(g), GIcon)}
+                {#if isOpen(`x:${g.key}`)}
+                  <ul class="rows crows" id="fold-x:{g.key}">
+                    {#each g.rows as e (e.itemId)}{@render extraRow(e)}{/each}
+                  </ul>
+                {/if}
+              {/each}
+            {:else if extras.length}
               <ul class="rows">
-                {#each extras as e (e.itemId)}
-                  <li class="extra">
-                    <span class="t">{e.item ? nameOf(e.item) : e.itemId}</span>
-                    <span class="n num">{e.qty}×</span><span class="w num">{e.g == null ? '–' : formatWeight(e.g)}</span>
-                    <button type="button" class="icb" aria-label={t('Change {name}', { name: e.item ? nameOf(e.item) : e.itemId })} aria-expanded={openExtra === e.itemId} onclick={() => (openExtra = openExtra === e.itemId ? null : e.itemId)}><ChevronRight class="chev" size={18} aria-hidden="true" /></button>
-                    {#if openExtra === e.itemId}
-                      <div class="ectl">
-                        <span class="qty" role="group" aria-label={t('Amount')}>
-                          <button type="button" aria-label={t('Fewer')} disabled={e.qty <= 1} onclick={() => setExtraQty(e.itemId, e.qty - 1)}><Minus size={16} aria-hidden="true" /></button>
-                          <span class="num">{e.qty}×</span>
-                          <button type="button" aria-label={t('More')} disabled={e.qty >= 20} onclick={() => setExtraQty(e.itemId, e.qty + 1)}><Plus size={16} aria-hidden="true" /></button>
-                        </span>
-                        <button type="button" class="btn sm del" onclick={() => removeExtra(e.itemId)}><X size={16} aria-hidden="true" /> {t('Remove')}</button>
-                      </div>
-                    {/if}
-                  </li>
-                {/each}
+                {#each extras as e (e.itemId)}{@render extraRow(e)}{/each}
               </ul>
             {/if}
             <div class="erow">
@@ -361,6 +378,42 @@
     </div>
   {/if}
 </div>
+
+{#snippet extraRow(e)}
+  <li class="extra">
+    <span class="t">{e.item ? nameOf(e.item) : e.itemId}</span>
+    <span class="n num">{e.qty}×</span><span class="w num">{e.g == null ? '–' : formatWeight(e.g)}</span>
+    <button type="button" class="icb" aria-label={t('Change {name}', { name: e.item ? nameOf(e.item) : e.itemId })} aria-expanded={openExtra === e.itemId} onclick={() => (openExtra = openExtra === e.itemId ? null : e.itemId)}><ChevronRight class="chev" size={18} aria-hidden="true" /></button>
+    {#if openExtra === e.itemId}
+      <div class="ectl">
+        <span class="qty" role="group" aria-label={t('Amount')}>
+          <button type="button" aria-label={t('Fewer')} disabled={e.qty <= 1} onclick={() => setExtraQty(e.itemId, e.qty - 1)}><Minus size={16} aria-hidden="true" /></button>
+          <span class="num">{e.qty}×</span>
+          <button type="button" aria-label={t('More')} disabled={e.qty >= 20} onclick={() => setExtraQty(e.itemId, e.qty + 1)}><Plus size={16} aria-hidden="true" /></button>
+        </span>
+        <button type="button" class="btn sm del" onclick={() => removeExtra(e.itemId)}><X size={16} aria-hidden="true" /> {t('Remove')}</button>
+      </div>
+    {/if}
+  </li>
+{/snippet}
+
+{#snippet foldBar(keys, hint)}
+  <div class="foldbar">
+    <p class="fhint">{hint}</p>
+    <button type="button" class="btn btn-link fall" data-fold-all onclick={() => setAll(keys, !allOpen(keys))}>{allOpen(keys) ? t('Close all') : t('Open all')}</button>
+  </div>
+{/snippet}
+
+{#snippet catHead(key, name, sub, Icon)}
+  <h3 class="ch">
+    <button type="button" aria-expanded={isOpen(key)} aria-controls="fold-{key}" data-fold={key} onclick={() => toggleCat(key)}>
+      <span class="gic" aria-hidden="true"><Icon size={18} /></span>
+      <span class="ctitle">{name}</span>
+      <span class="m num">{sub}</span>
+      <span class="cchev" aria-hidden="true"><ChevronRight size={18} /></span>
+    </button>
+  </h3>
+{/snippet}
 
 {#snippet renameField()}
   <form class="rn" onsubmit={rename}>
@@ -572,6 +625,85 @@
     flex: 1 1 160px;
     margin: 0;
     color: var(--ink-2);
+  }
+  /* C9 (Noah 21.10.2026 «1a»): a long template, its categories folded like Material's (› turns down) */
+  .foldbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 4px 12px;
+    margin: 0 0 var(--sp-2);
+  }
+  .fhint {
+    flex: 1 1 200px;
+    margin: 0;
+    color: var(--ink-3);
+    font-size: var(--fs-small);
+  }
+  .fall {
+    min-height: 44px;
+  }
+  .ch {
+    margin: 0;
+    border-bottom: 1px solid var(--line);
+    font-size: var(--fs-body);
+  }
+  .ch button {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    grid-template-rows: auto auto;
+    align-items: center;
+    gap: 0 10px;
+    width: 100%;
+    min-height: 52px;
+    padding: 6px 0;
+    border: 0;
+    background: none;
+    color: var(--ink);
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+  .ch button:hover {
+    background: var(--paper-2);
+  }
+  .ch .gic {
+    grid-row: 1 / 3;
+    display: inline-flex;
+    color: var(--ink-2);
+  }
+  .ch .ctitle {
+    min-width: 0;
+    font-size: var(--fs-body);
+    font-weight: 600;
+    overflow-wrap: break-word;
+  }
+  .ch .m {
+    grid-column: 2;
+    grid-row: 2;
+    min-width: 0;
+    color: var(--ink-3);
+    font-size: var(--fs-small);
+    font-weight: 400;
+  }
+  .ch .cchev {
+    grid-column: 3;
+    grid-row: 1 / 3;
+    display: inline-flex;
+    color: var(--ink-3);
+    transition: transform 0.15s;
+  }
+  .ch button[aria-expanded='true'] .cchev {
+    transform: rotate(90deg);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .ch .cchev {
+      transition: none;
+    }
+  }
+  .crows {
+    margin-bottom: var(--sp-2);
   }
   .pickwrap {
     margin-top: 12px;
