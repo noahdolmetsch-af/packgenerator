@@ -12,6 +12,8 @@
    * aloud on a tap or at once. `icon`: only the microphone (Notes tool row); `bar`: an element where the
    * live line and the answer go instead of next to the button (Notes: under the whole write row);
    * `wrap`: all of it in one row of its own (under a field).
+   * «Tagebuch» (Noah 20.10.2026 «diktierfunktion integrieren. wichtig»): `always` shows it even when «Speak
+   * instead of type» is off (where the browser can listen); `autostart` starts listening when it appears.
    */
   import { Mic, Square } from '@lucide/svelte';
   import { t, lang } from '../i18n.svelte.js';
@@ -22,7 +24,7 @@
   import AskAnswer from '../assistent/AskAnswer.svelte';
   import AskElsewhere from '../assistent/AskElsewhere.svelte';
 
-  let { onsaid = () => {}, answer = false, icon = false, bar = null, wrap = false } = $props();
+  let { onsaid = () => {}, answer = false, icon = false, bar = null, wrap = false, always = false, autostart = false } = $props();
   /** Show this part inside `bar` when one is given (it stays where it is otherwise). */
   function moveTo(node, target) {
     const go = (t) => t && t !== node.parentNode && t.appendChild(node);
@@ -32,7 +34,7 @@
   const Speech = speechApi();
   const canRecord = typeof navigator !== 'undefined' && !!navigator.mediaDevices?.getUserMedia && typeof MediaRecorder !== 'undefined';
   const engine = $derived(dict.engine === 'whisper' && canRecord ? 'whisper' : 'browser');
-  const shown = $derived(ops.speak && (engine === 'whisper' || !!Speech));
+  const shown = $derived((always || ops.speak) && (engine === 'whisper' || !!Speech));
 
   let st = $state({ state: 'idle', error: '', startedAt: 0, progress: 0 });
   let interim = $state('');
@@ -93,6 +95,13 @@
     if (on) ctl?.hold();
     else ctl?.release();
   }
+  let autoDone = false;
+  $effect(() => {
+    if (autostart && shown && !autoDone) {
+      autoDone = true;
+      queueMicrotask(toggle);
+    }
+  });
   $effect(() => () => {
     clearInterval(tick);
     ctl?.cancel();

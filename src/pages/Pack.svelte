@@ -1,5 +1,6 @@
 <script>
   import AskClaude from '../lib/assistent/AskClaude.svelte';
+  import { askDelete } from '../lib/ui/ask.js';
   import PinnedLists from '../lib/merken/PinnedLists.svelte';
   import PageMore from '../lib/pageinfo/PageMore.svelte';
   import { localDay } from '../lib/localday.js';
@@ -330,7 +331,8 @@
     }
     setTimeout(() => (shareNote = ''), 8000);
   }
-  const resetPacked = () => confirm(t('Untick every item, to pack again from the start?')) && change((t) => ({ entries: t.entries.map((e) => ({ ...e, packed: false })) }));
+  // «Alle Daten anpassbar» (21.10.2026): the app's window instead of the browser's; «Undo» on the page brings the ticks back
+  const resetPacked = async () => (await askDelete({ title: t('Untick every item, to pack again from the start?'), label: t('Untick all') })) === 'delete' && change((t) => ({ entries: t.entries.map((e) => ({ ...e, packed: false })) }));
 
   let zoneKey = $state('frame'); // the bag that is open
   let reading = $state(false); // Paket H: «Read aloud» open
@@ -724,7 +726,7 @@
     newCheck = '';
     change((t) => ({ ready: [...t.ready, { id: `own-${Date.now().toString(36)}`, label, done: false }] }));
   }
-  const resetReady = () => confirm(t('Use your standard ready check again for this trip?')) && change(() => ({ ready: freshReady(standard, readyFallback) }));
+  const resetReady = async () => (await askDelete({ title: t('Use your standard ready check again for this trip?'), label: t('Use the standard') })) === 'delete' && change(() => ({ ready: freshReady(standard, readyFallback) }));
   const readyChanged = $derived(ready.map((r) => r.label).join('|') !== freshReady(standard, readyFallback).map((r) => r.label).join('|'));
   // Answer 4: save this trip's list as the standard for every new trip.
   let savedNote = $state('');
@@ -922,7 +924,7 @@
           <span class="sub">{t('Bathing|trip')}</span>
           {#each BATHE as b (b)}<OptionButton pressed={(trip.bathe ?? []).includes(b)} icon={b === 'lake' ? Waves : b === 'sauna' ? Bath : Droplets} label={b === 'lake' ? t('Lake or river') : b === 'sauna' ? t('Sauna or bath') : t('Cold water|trip')} onclick={() => change((cur) => { const have = Array.isArray(cur.bathe) ? cur.bathe : []; const next = have.includes(b) ? have.filter((x) => x !== b) : [...have, b]; return { bathe: next.length ? next : null }; })} />{/each}
         </div>
-        <p class="hint byhand"><span class="hchip"><Hand size={13} aria-hidden="true" />{t('still by hand')}</span> {t('Lakes, rivers and the water temperature are not known to the app yet. Later from the route and the data centre.')}</p>
+        <p class="hint byhand"><span class="hchip"><Hand size={13} aria-hidden="true" />{t('still by hand')}</span> {t('Lakes and rivers along the route are not known to the app yet. The water of Lake Zurich is in Aktiv.')}</p>
         <p class="hint">{t('Brings suggestions in Pack: Pass & climbing, Abroad, Train, Quick swim, Sauna and bath, Cold water. Tap again to take it off.')}</p>
         {#if trip.country && trip.country !== HOME_COUNTRY}<AbroadCard country={trip.country} />{/if}
       </div>

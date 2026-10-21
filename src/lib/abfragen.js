@@ -12,7 +12,7 @@
  *            options?: [{ key, label, v? }], multi?, unit?, note? (a sentence besides the scale) }
  *   every: { kind: 'times', times: ['08:00', …] } | { kind: 'daily', time } | { kind: 'weekly', dow (0 = Sunday), time }
  *          | { kind: 'monthly', time } (the 1st of the month) | { kind: 'off' }
- *   src:   where the value comes from, quiet tags: 'hand', 'later' (Fitbit, later), 'open' (not checked
+ *   src:   where the value comes from, quiet tags: 'hand', 'fitbit' (filled in from Fitbit, fitbitFill), 'open' (not checked
  *          yet, by hand until then), 'only' (only by hand possible), 'app'
  */
 import { addDays } from './flow.js';
@@ -64,9 +64,9 @@ const q = (area, key, textEn, form, every, src = ['hand'], was = null) => ({ id:
  * The 50 questions (Paket P adds 4 evening questions: 54) (notes/deine-abfragen/lustige-fragen-2026-10-13.md, Noah «ok» 13.10.2026 23:37–23:40).
  * `was` names the earlier question that lives on in it («bisher: …»).
  */
-export const QUESTIONS = [
+const BASE_QUESTIONS = [
   // 1 Erholung
-  q('erholung', 'schlaf', 'How well did you sleep: marmot or zombie?', scale(), daily('07:00'), ['hand', 'later'], 'How well did you sleep?'),
+  q('erholung', 'schlaf', 'How well did you sleep: marmot or zombie?', scale(), daily('07:00'), ['hand', 'fitbit'], 'How well did you sleep?'),
   q('erholung', 'akku', 'How full is your battery right now?', scale({ style: 'battery' }), at('08:00', '13:00', '20:00'), ['hand'], 'How much energy do you have?'),
   q('erholung', 'koerper', 'Does your body feel more like a freshly oiled bike or a rusty chain today?', scale(), daily('08:00'), ['hand'], 'How rested does your body feel?'),
   q('erholung', 'kaffee', 'How many coffees do you need today to be human?', number('cups'), at('12:00', '18:00'), ['only'], 'own question «Coffee»'),
@@ -84,7 +84,7 @@ export const QUESTIONS = [
   q('sport', 'hoehenmeter', 'How much climbing would your head have liked today?', chips([['none', 'none|climb', 0], ['hill', 'a hill', 1 / 3], ['pass', 'a pass', 2 / 3], ['all', 'all of them', 1]]), daily('08:00')),
   q('sport', 'ueberholt', 'Did a road bike overtake you today?', chips([['yes', 'yes'], ['no', 'no'], ['passed', 'I overtook']]), daily('20:00')),
   q('sport', 'fit', 'How fit do you feel this week?', scale(), weekly(0, '19:00'), ['hand'], 'Fitness feeling'),
-  q('sport', 'bewegung', 'How much movement was there today: sloth, walker or mountain goat?', chips([['sloth', 'Sloth', 0], ['walker', 'Walker', 0.5], ['goat', 'Mountain goat', 1]]), daily('20:00'), ['hand', 'later']),
+  q('sport', 'bewegung', 'How much movement was there today: sloth, walker or mountain goat?', chips([['sloth', 'Sloth', 0], ['walker', 'Walker', 0.5], ['goat', 'Mountain goat', 1]]), daily('20:00'), ['hand', 'fitbit']),
   // 4 Achtsamkeit
   q('achtsamkeit', 'kopf', 'How calm is your head: mountain lake or white water?', scale(), daily('13:00'), ['hand'], 'How calm is your mind?'),
   q('achtsamkeit', 'moment', 'Did you have a moment today when you just looked?', yesno([YES, NO]), daily('20:00'), ['hand'], 'Did you have a mindful moment?'),
@@ -126,11 +126,80 @@ export const QUESTIONS = [
   q('erreicht', 'pokal', 'Which trophy goes to you today?', chips([['kept', 'Kept going'], ['brave', 'Brave'], ['patient', 'Patient'], ['helpful', 'Helpful'], ['lazy', 'Lazy and happy']]), daily('20:00')),
   // 10 Körper und Werte (plain on purpose: they flow into analyses like watts per kg)
   q('koerper', 'waage', 'What do the scales show today, without any judgement?', number('kg'), weekly(5, '08:00'), ['open'], 'Weight'),
-  q('koerper', 'ruhepuls', 'How calmly does your heart beat in the morning?', number('bpm'), daily('07:00'), ['later'], 'Resting heart rate'),
+  q('koerper', 'ruhepuls', 'How calmly does your heart beat in the morning?', number('bpm'), daily('07:00'), ['fitbit', 'hand'], 'Resting heart rate'),
   q('koerper', 'essen', 'How well did you eat: gourmet, petrol station or forgotten?', scale(), daily('20:00'), ['hand'], 'How well did you eat?'),
   q('koerper', 'wochenschlaf', 'How was your sleep this week overall?', scale(), weekly(0, '19:00'), ['hand'], 'Sleep of the week'),
   q('koerper', 'bildschirm', 'How many hours did a screen look at you today?', number('h'), daily('20:00'), ['only'], 'own question «Screen time»'),
 ];
+/**
+ * The 50 sample questions (Noah 20.10.2026 «zudem möchte ich von dir 50 neue fragen, die als muster hinterlegt
+ * sind»; list notes/check-fragen/50-musterfragen.md, «1a 2a» taken as default with «3a»): 5 per area, all off
+ * at the start (`sample`), each can be switched on, changed, moved or deleted like every other question.
+ */
+const s = (area, key, textEn, form, every) => ({ ...q(area, key, textEn, form, every), sample: true });
+export const SAMPLE_QUESTIONS = [
+  // Musterfragen erholung
+  s('erholung', 'lider', 'How heavy are your eyelids right now: feather or lead lid?', scale(), daily('08:00')),
+  s('erholung', 'pause', 'Did you take a real break today, without any screen?', yesno([['yes', 'yes|cf', 1], ['no', 'no|cf', 0], ['several', 'several|cf', 1]]), daily('20:00')),
+  { ...s('erholung', 'stunden', 'How many hours did you sleep?', number('h'), daily('07:00')), src: ['fitbit', 'hand'] },
+  s('erholung', 'bett', 'When do you go to bed tonight?', chips([['before22', 'before 22:00|cf'], ['22to23', '22–23:00|cf'], ['after23', 'after 23:00|cf']]), daily('20:00')),
+  s('erholung', 'augenzu', 'How long did you simply close your eyes today?', number('min'), daily('20:00')),
+  // Musterfragen spass
+  s('spass', 'ohrwurm', 'Which song ran in your head on repeat today?', text(), daily('20:00')),
+  s('spass', 'erstesmal', 'What did you do for the first time today?', text(), daily('20:00')),
+  s('spass', 'verspielt', 'How playful were you today: file folder or puppy?', scale(), daily('20:00')),
+  s('spass', 'lust', 'What would you feel like today, if anything went?', chips([['icecream', 'Ice cream|cf'], ['bike', 'Bike|cf'], ['sofa', 'Sofa|cf'], ['party', 'Party|cf'], ['calm', 'Calm|cf'], ['adventure', 'Adventure|cf']], { multi: true }), daily('08:00')),
+  s('spass', 'basteln', 'How much time did you have today for playing or tinkering?', chips([['none', 'none|cf', 0], ['short', 'short|cf', 0.5], ['much', 'a lot|cf', 1]]), daily('20:00')),
+  // Musterfragen sport
+  s('sport', 'km', 'How many kilometres did you ride today?', number('km'), daily('20:00')),
+  s('sport', 'zwickt', 'Where does it pinch today?', chips([['nowhere', 'nowhere|cf'], ['knee', 'Knee|cf'], ['back', 'Back|cf'], ['neck', 'Neck|cf'], ['seat', 'Seat|cf'], ['hands', 'Hands|cf'], ['feet', 'Feet|cf']], { multi: true }), daily('08:00')),
+  s('sport', 'dehnen', 'Did you stretch or roll today?', yesno([['yes', 'yes|cf', 1], ['no', 'no|cf', 0]]), daily('20:00')),
+  s('sport', 'hart', 'How hard was today’s session: a stroll or a hill time trial?', scale(), daily('20:00')),
+  s('sport', 'trainingslust', 'How keen on training are you today: couch potato or chain eater?', scale(), daily('08:00')),
+  // Musterfragen achtsamkeit
+  s('achtsamkeit', 'kopfwetter', 'What is the weather in your head right now?', chips([['sun', 'Sun|cf'], ['clouds', 'Clouds|cf'], ['fog', 'Fog|cf'], ['storm', 'Thunderstorm|cf'], ['rainbow', 'Rainbow|cf']]), daily('13:00')),
+  s('achtsamkeit', 'atmen', 'How often did you take a deep breath on purpose today?', chips([['never', 'not at all|cf', 0], ['once', 'once|cf', 0.5], ['often', 'several times|cf', 1]]), daily('20:00')),
+  s('achtsamkeit', 'unruhe', 'What threw you off balance today?', text(), daily('20:00')),
+  s('achtsamkeit', 'fuermich', 'How much time did you have just for yourself today?', number('min'), daily('20:00')),
+  s('achtsamkeit', 'sinne', 'What did you smell, hear or taste in a special way today?', text(), daily('20:00')),
+  // Musterfragen freunde
+  s('freunde', 'nachricht', 'Who would you like to send a message to today?', text(), daily('08:00')),
+  s('freunde', 'gutgetan', 'Did someone do you good today?', yesno([['yes', 'yes|cf', 1], ['no', 'no|cf', 0], ['several', 'several|cf', 1]]), daily('20:00')),
+  s('freunde', 'geholfen', 'Did you help someone today, even if only with chain oil?', yesno([['yes', 'yes|cf', 1], ['no', 'no|cf', 0]]), daily('20:00')),
+  s('freunde', 'gesellschaft', 'How much company do you need today: quiet island or festival tent?', scale(), daily('08:00')),
+  s('freunde', 'bald', 'Who would you like to spend time with again soon?', text(), weekly(0, '19:00')),
+  // Musterfragen natur
+  s('natur', 'himmel', 'Did you really look up at the sky today?', yesno([['yes', 'yes|cf', 1], ['no', 'no|cf', 0]]), daily('20:00')),
+  s('natur', 'geraschelt', 'What bloomed, rustled or chirped today?', text(), daily('20:00')),
+  s('natur', 'wo', 'Where were you outside today?', chips([['forest', 'Forest|cf'], ['lake', 'Lake|cf'], ['mountain', 'Mountain|cf'], ['town', 'Town|cf'], ['garden', 'Garden|cf'], ['field', 'Field|cf']], { multi: true }), daily('20:00')),
+  s('natur', 'sonne', 'Did you see the sun rise or set today?', chips([['rise', 'Sunrise|cf'], ['set', 'Sunset|cf'], ['both', 'both|cf'], ['none', 'neither|cf']]), daily('20:00')),
+  s('natur', 'boden', 'Did you have grass, earth or rock under your feet today?', yesno([['yes', 'yes|cf', 1], ['no', 'no|cf', 0]]), daily('20:00')),
+  // Musterfragen visionen
+  s('visionen', 'pass', 'Which pass do you absolutely still want to ride?', text(), monthly('19:00')),
+  s('visionen', 'gelernt', 'What did you learn this week?', text(), weekly(0, '19:00')),
+  s('visionen', 'fernweh', 'How big is your wanderlust right now: sofa cushion or world map?', scale(), weekly(6, '09:00')),
+  s('visionen', 'faehigkeit', 'Which skill do you want to practise next?', text(), monthly('19:00')),
+  s('visionen', 'traum', 'What did you dream of, at night or during the day?', text(), daily('08:00')),
+  // Musterfragen ziele
+  s('ziele', 'schritt', 'What is your smallest doable step today?', text(), daily('08:00')),
+  s('ziele', 'plan', 'How clear is your plan for today: fog or satnav?', scale(), daily('08:00')),
+  s('ziele', 'woche', 'What do you want to get done this week?', text(), weekly(1, '08:00')),
+  s('ziele', 'liste', 'How much of your list did you get done today?', chips([['nothing', 'nothing|cf', 0], ['some', 'some|cf', 0.25], ['half', 'half|cf', 0.5], ['most', 'almost all|cf', 0.75], ['all', 'all|cf', 1]]), daily('20:00')),
+  s('ziele', 'verzicht', 'What do you do without on purpose today?', text(), daily('08:00')),
+  // Musterfragen erreicht
+  s('erreicht', 'besser', 'What went better than expected today?', text(), daily('20:00')),
+  s('erreicht', 'endlich', 'Which little thing did you finally get done today?', text(), daily('20:00')),
+  s('erreicht', 'rueckenwind', 'How much tailwind did you have today: headwind or a push from behind?', scale(), daily('20:00')),
+  s('erreicht', 'highlight', 'What was your best moment this week?', text(), weekly(0, '19:00')),
+  s('erreicht', 'monat', 'What did you get done this month that makes you happy?', text(), monthly('19:00')),
+  // Musterfragen koerper
+  s('koerper', 'trinken', 'How much did you drink today?', number('l'), daily('20:00')),
+  { ...s('koerper', 'schritte', 'How many steps does your counter show today?', number(''), daily('20:00')), src: ['fitbit', 'hand'] },
+  s('koerper', 'sitzen', 'How many hours did you sit today?', number('h'), daily('20:00')),
+  s('koerper', 'bauch', 'How does your belly feel: calm or roller coaster?', scale(), daily('20:00')),
+  s('koerper', 'gemuese', 'How many portions of vegetables and fruit were there today?', number(''), daily('20:00')),
+];
+export const QUESTIONS = [...BASE_QUESTIONS, ...SAMPLE_QUESTIONS];
 // HG1 2b: the answers to the greeting on Today land in the same history, so the lookup knows their questions too
 export const QUESTION = Object.fromEntries([...QUESTIONS, ...HELLO_QUESTIONS].map((x) => [x.id, x]));
 
@@ -227,8 +296,157 @@ export function nextSlot(every, slot) {
 
 /* ---------------------------------------------------------------- the settings */
 
-/** Every question there is: the 50 of the list and the own ones. */
-export const allQuestions = (cfg) => [...QUESTIONS, ...(cfg?.own ?? [])];
+/**
+ * Every question there is, as the person has it (Noah 20.10.2026 «editieren und löschen …, neue pro Gruppe,
+ * Gruppen editieren, hinzufügen, löschen»): the list without the deleted ones, a changed text (`edited`, then
+ * shown as typed), a question moved to another group, the own ones; in the order of the groups, then the
+ * person's order inside a group. A question whose group is gone sits under «Eigene» (OWN_AREA).
+ */
+export function allQuestions(cfg) {
+  const c = configOf(cfg);
+  const keys = new Set(areasOf(c).map((a) => a.key));
+  const fix = (x) => (keys.has(x.area) ? x : { ...x, area: OWN_AREA });
+  const std = QUESTIONS.filter((x) => !c.gone.includes(x.id)).map((x) => fix({ ...x, ...(c.names[x.id] ? { text: c.names[x.id], edited: true } : {}), ...(c.moved[x.id] ? { area: c.moved[x.id] } : {}) }));
+  const list = [...std, ...c.own.map(fix)];
+  const rankArea = Object.fromEntries([...areasOf(c).map((a, i) => [a.key, i]), [OWN_AREA, 9999]]);
+  const base = new Map(list.map((x, i) => [x.id, i]));
+  const rank = (x) => {
+    const i = (c.order[x.area] ?? []).indexOf(x.id);
+    return i < 0 ? 100000 + base.get(x.id) : i;
+  };
+  return list.sort((a, b) => (rankArea[a.area] ?? 9998) - (rankArea[b.area] ?? 9998) || rank(a) - rank(b));
+}
+/** The questions of one group, in order. */
+export const questionsIn = (cfg, area) => allQuestions(cfg).filter((x) => x.area === area);
+/** A question by its id as the person has it (also a deleted one of the list, for the history), else null. */
+export const questionOf = (cfg, id) => allQuestions(cfg).find((x) => x.id === id) ?? QUESTION[id] ?? null;
+
+/* ---------------------------------------------------------------- the groups */
+
+/**
+ * The groups (areas) as the person has them, in order: [{ key, name (the person's or null), std (the
+ * list name for t()), icon, own }]. «Eigene» (OWN_AREA) is not in it: it is the place without a group and
+ * always comes last (it can be renamed, not deleted).
+ */
+export function areasOf(cfg) {
+  const c = cfg && Array.isArray(cfg.areasGone) && cfg.areaNames ? cfg : configOf(cfg);
+  const all = [
+    ...AREAS.filter((a) => !c.areasGone.includes(a.key)).map((a) => ({ key: a.key, name: c.areaNames[a.key] ?? null, std: a.name, icon: a.icon, own: false })),
+    ...c.ownAreas.map((a) => ({ key: a.key, name: a.name, std: null, icon: null, own: true })),
+  ];
+  const rank = (k) => {
+    const i = c.areaOrder.indexOf(k);
+    return i < 0 ? 1000 + all.findIndex((a) => a.key === k) : i;
+  };
+  return all.sort((a, b) => rank(a.key) - rank(b.key));
+}
+/** A group's name as it shows: the person's name, else the list name (through tr), «Eigene» for OWN_AREA. */
+export function areaLabel(cfg, key, tr = (s) => s) {
+  const c = configOf(cfg);
+  if (c.areaNames[key]) return c.areaNames[key];
+  if (key === OWN_AREA) return tr('Own|questions');
+  const own = c.ownAreas.find((a) => a.key === key);
+  if (own) return own.name;
+  return AREA[key] ? tr(AREA[key].name) : '';
+}
+
+let seq = 0;
+const newKey = (prefix, now) => `${prefix}-${now.toString(36)}-${(seq++).toString(36)}`;
+
+/** Change a question's text (an own one: its name; one of the list: empty or the same brings back the original). */
+export function renameQuestion(cfg, id, text) {
+  const c = configOf(cfg);
+  const v = String(text ?? '').trim().slice(0, 120);
+  if (c.own.some((x) => x.id === id)) return v ? { ...c, own: c.own.map((x) => (x.id === id ? { ...x, text: v } : x)) } : c;
+  const names = { ...c.names };
+  if (v && v !== QUESTION[id]?.text) names[id] = v;
+  else delete names[id];
+  return { ...c, names };
+}
+/** Put a question into another group (OWN_AREA = «Eigene»). */
+export function moveToArea(cfg, id, area) {
+  const c = configOf(cfg);
+  if (c.own.some((x) => x.id === id)) return { ...c, own: c.own.map((x) => (x.id === id ? { ...x, area } : x)) };
+  const moved = { ...c.moved };
+  if (QUESTION[id]?.area === area) delete moved[id];
+  else moved[id] = area;
+  return { ...c, moved };
+}
+/** Delete a question: an own one goes, one of the list is hidden («Gelöschte Fragen» brings it back). Answers stay. */
+export function deleteQuestion(cfg, id) {
+  const c = configOf(cfg);
+  if (c.own.some((x) => x.id === id)) return dropOwn(c, id);
+  return QUESTION[id] && !c.gone.includes(id) ? { ...c, gone: [...c.gone, id] } : c;
+}
+/** Bring a deleted question of the list back. */
+export const restoreQuestion = (cfg, id) => {
+  const c = configOf(cfg);
+  return { ...c, gone: c.gone.filter((x) => x !== id) };
+};
+/** The deleted questions of the list (for «Gelöschte Fragen»). */
+export const goneQuestions = (cfg) => configOf(cfg).gone.map((id) => QUESTION[id]).filter(Boolean);
+/** Move a question inside its group (arrows and drag): from/to are indexes in questionsIn(area). */
+export function moveQuestion(cfg, area, from, to) {
+  const c = configOf(cfg);
+  const ids = questionsIn(c, area).map((x) => x.id);
+  if (from < 0 || from >= ids.length || to < 0 || to >= ids.length || from === to) return c;
+  const [x] = ids.splice(from, 1);
+  ids.splice(to, 0, x);
+  return { ...c, order: { ...c.order, [area]: ids } };
+}
+/** Rename a group (empty: a list group goes back to its own name). */
+export function renameArea(cfg, key, name) {
+  const c = configOf(cfg);
+  const v = String(name ?? '').trim().slice(0, 40);
+  if (c.ownAreas.some((a) => a.key === key)) return v ? { ...c, ownAreas: c.ownAreas.map((a) => (a.key === key ? { ...a, name: v } : a)) } : c;
+  const areaNames = { ...c.areaNames };
+  if (v) areaNames[key] = v;
+  else delete areaNames[key];
+  return { ...c, areaNames };
+}
+/** Add an own group. → { cfg, key } (key null without a name). */
+export function addArea(cfg, name, now = Date.now()) {
+  const c = configOf(cfg);
+  const v = String(name ?? '').trim().slice(0, 40);
+  if (!v) return { cfg: c, key: null };
+  const key = newKey('area', now);
+  return { cfg: { ...c, ownAreas: [...c.ownAreas, { key, name: v }] }, key };
+}
+/**
+ * Delete a group; its questions go to `to` (another group) or to «Eigene» (to null). The questions are
+ * never deleted with it. «Eigene» itself cannot be deleted.
+ */
+export function deleteArea(cfg, key, to = null) {
+  let c = configOf(cfg);
+  if (key === OWN_AREA) return c;
+  const dest = to && to !== key ? to : OWN_AREA;
+  for (const x of questionsIn(c, key)) c = moveToArea(c, x.id, dest);
+  if (c.ownAreas.some((a) => a.key === key)) c = { ...c, ownAreas: c.ownAreas.filter((a) => a.key !== key) };
+  else if (AREA[key] && !c.areasGone.includes(key)) c = { ...c, areasGone: [...c.areasGone, key] };
+  const areaNames = { ...c.areaNames };
+  delete areaNames[key];
+  return { ...c, areaNames, areaOrder: c.areaOrder.filter((x) => x !== key) };
+}
+/** Move a group (arrows and drag). */
+export function moveArea(cfg, from, to) {
+  const c = configOf(cfg);
+  const keys = areasOf(c).map((a) => a.key);
+  if (from < 0 || from >= keys.length || to < 0 || to >= keys.length || from === to) return c;
+  const [x] = keys.splice(from, 1);
+  keys.splice(to, 0, x);
+  return { ...c, areaOrder: keys };
+}
+/** Has the person changed the questions or groups (then «Zurück zum Standard» shows)? */
+export function listChanged(cfg) {
+  const c = configOf(cfg);
+  return !!(Object.keys(c.names).length || c.gone.length || Object.keys(c.moved).length || Object.keys(c.order).length || Object.keys(c.areaNames).length || c.ownAreas.length || c.areasGone.length || c.areaOrder.length);
+}
+/** «Zurück zum Standard»: the list's texts, groups and order back; own questions and the switches stay (own ones in a gone group: «Eigene»). */
+export function resetList(cfg) {
+  const c = configOf(cfg);
+  const keys = new Set(AREAS.map((a) => a.key));
+  return { ...c, names: {}, gone: [], moved: {}, order: {}, areaNames: {}, ownAreas: [], areasGone: [], areaOrder: [], own: c.own.map((x) => (keys.has(x.area) ? x : { ...x, area: OWN_AREA })) };
+}
 
 /** An own question made safe (AB2), null without a name. */
 export function ownOf(x) {
@@ -236,7 +454,8 @@ export function ownOf(x) {
   if (!name || typeof x?.id !== 'string') return null;
   const kind = OWN_KINDS.includes(x?.form?.kind) ? x.form.kind : 'scale';
   const form = kind === 'number' ? { kind, unit: String(x.form?.unit ?? '').trim().slice(0, 20) } : kind === 'yesno' ? { kind, options: [{ key: 'yes', label: 'yes', v: 1 }, { key: 'no', label: 'no', v: 0 }] } : { kind };
-  const area = AREA[x?.area] ? x.area : OWN_AREA;
+  // a group of the list or an own group (its key starts with «area-»); anything else: «Eigene»
+  const area = AREA[x?.area] || /^area-/.test(String(x?.area ?? '')) ? x.area : OWN_AREA;
   return { id: x.id, area, text: name, form, every: everyOf(x.every), src: ['only'], own: true, show: x.show !== false };
 }
 /** A new own question with a fresh id (the time it was made). */
@@ -247,7 +466,24 @@ export function configOf(value) {
   const v = value && typeof value === 'object' ? value : {};
   const own = (Array.isArray(v.own) ? v.own : []).map(ownOf).filter(Boolean);
   const qs = v.q && typeof v.q === 'object' ? v.q : {};
-  return { since: typeof v.since === 'string' ? v.since : null, q: qs, own, rounds: roundsOf(v.rounds) };
+  const obj = (x) => (x && typeof x === 'object' && !Array.isArray(x) ? x : {});
+  const strs = (x) => (Array.isArray(x) ? x.filter((y) => typeof y === 'string') : []);
+  const texts = (x) => Object.fromEntries(Object.entries(obj(x)).filter(([, y]) => typeof y === 'string' && y.trim()));
+  return {
+    since: typeof v.since === 'string' ? v.since : null,
+    q: qs,
+    own,
+    rounds: roundsOf(v.rounds),
+    // Noah 20.10.2026: the person's changes to the list and its groups (a difference, so new questions of the app still come)
+    names: texts(v.names),
+    gone: strs(v.gone),
+    moved: texts(v.moved),
+    order: Object.fromEntries(Object.entries(obj(v.order)).map(([k, y]) => [k, strs(y)])),
+    areaNames: texts(v.areaNames),
+    ownAreas: (Array.isArray(v.ownAreas) ? v.ownAreas : []).filter((a) => a && typeof a.key === 'string' && typeof a.name === 'string' && a.name.trim()).map((a) => ({ key: a.key, name: a.name.trim() })),
+    areasGone: strs(v.areasGone),
+    areaOrder: strs(v.areaOrder),
+  };
 }
 
 /* ---------------------------------------------------------------- WG: the two fixed rounds */
@@ -348,7 +584,7 @@ export function counts(cfg) {
   let on = 0;
   const list = allQuestions(configOf(cfg));
   for (const x of list) {
-    const a = x.own ? OWN_AREA : x.area;
+    const a = x.area;
     per[a] ??= { all: 0, on: 0 };
     per[a].all++;
     if (settingOf(cfg, x).on) (per[a].on++, on++);
@@ -377,7 +613,7 @@ export const BUSY_DAY = 15;
 /* ---------------------------------------------------------------- what is due */
 
 // Noah 14.10. 00:52:22 1a 2a 3b 4ab — 3b: a value that later comes from Fitbit does not switch its question
-// off; it stays on until you switch it off yourself (no Fitbit link is built yet).
+// off; it stays on until you switch it off yourself (since 0.171 the window fills in the Fitbit value, fitbitFill).
 
 /**
  * Noah 14.10. 00:52:22 1a 2a 3b 4ab — 2a: a missed question STAYS until it is answered or tapped away.
@@ -415,6 +651,44 @@ export function dueList(cfg, answers = [], now, snooze = {}) {
   }
   return out.sort((a, b) => a.slot.localeCompare(b.slot) || order.get(a.q.id) - order.get(b.q.id));
 }
+/* ---------------------------------------------------------------- Fitbit fills in */
+
+/**
+ * Noah 20.10.2026 «bei Fitbit noch angezeigt, wird später geliefert, aber das haben wir bereits»: where a question
+ * asks what Fitbit measures, the window fills in the measured value of the day (a suggestion, changeable;
+ * saved with src 'fitbit' when left as it is). Feelings stay by hand: the night's sleep shows only as a hint.
+ * health: the healthDays row of the question's day { restingHr, sleep: { asleepMin }, steps, azm }.
+ * → { value, hint: { key, v } } or { value: null, hint } (only a hint) or null (nothing measured).
+ */
+export const FITBIT_MOVE = { goatAzm: 30, walkerAzm: 10, goatSteps: 12000, walkerSteps: 5000 };
+export function fitbitFill(question, health) {
+  if (!question || !health) return null;
+  const fin = (v) => (typeof v === 'number' && Number.isFinite(v) ? v : null);
+  const sleepMin = fin(health.sleep?.asleepMin);
+  const rhr = fin(health.restingHr);
+  const steps = fin(health.steps);
+  const azm = fin(health.azm);
+  switch (question.id) {
+    case 'koerper.ruhepuls':
+      return rhr == null ? null : { value: String(Math.round(rhr)), hint: { key: 'rhr', v: Math.round(rhr) } };
+    case 'erholung.stunden':
+      return sleepMin == null ? null : { value: String(Math.round((sleepMin / 60) * 10) / 10), hint: { key: 'sleep', v: sleepMin } };
+    case 'koerper.schritte':
+      return steps == null ? null : { value: String(Math.round(steps)), hint: { key: 'steps', v: Math.round(steps) } };
+    case 'erholung.schlaf':
+      return sleepMin == null ? null : { value: null, hint: { key: 'sleep', v: sleepMin } };
+    case 'sport.bewegung': {
+      if (azm == null && steps == null) return null;
+      const M = FITBIT_MOVE;
+      const goat = (azm ?? 0) >= M.goatAzm || (steps ?? 0) >= M.goatSteps;
+      const walker = (azm ?? 0) >= M.walkerAzm || (steps ?? 0) >= M.walkerSteps;
+      return { value: goat ? 'goat' : walker ? 'walker' : 'sloth', hint: { key: azm != null ? 'azm' : 'steps', v: azm ?? Math.round(steps) } };
+    }
+    default:
+      return null;
+  }
+}
+
 /** «Später» on the window of the round (Noah 19.10.2026): kept in the snooze record under this key, until when. */
 export const LATER_KEY = '_later';
 /** The stamp one hour after `now` (a stamp 'YYYY-MM-DDTHH:MM', local time). */
@@ -463,7 +737,7 @@ export function numberOf(form, value) {
 }
 
 /** A history row from an answer: { id, qid, area, day, at, slot, kind, value, note, unit, src }. */
-export function answerRow(question, raw, { at = null, day = null, slot = null, note = '' } = {}) {
+export function answerRow(question, raw, { at = null, day = null, slot = null, note = '', src = 'hand' } = {}) {
   const value = valueOf(question.form, raw);
   const n = String(note ?? '').trim().slice(0, 500);
   if (value == null && !n) return null;
@@ -478,7 +752,7 @@ export function answerRow(question, raw, { at = null, day = null, slot = null, n
     value,
     note: n || null,
     unit: question.form.unit || null,
-    src: 'hand',
+    src: src === 'fitbit' ? 'fitbit' : 'hand',
   };
 }
 

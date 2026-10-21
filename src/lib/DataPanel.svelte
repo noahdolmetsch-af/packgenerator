@@ -12,7 +12,7 @@
   import { snapDb, takeSnapshot } from './maintenance/snapshots.js';
   import { SHARE_BACKUP_CACHE, SHARE_BACKUP_KEY } from './sharebackup.js';
   import { phone } from './media.svelte.js';
-  import { Send, ChevronRight, Bike, Star, CirclePlay, QrCode, Check, FolderOpen, ListChecks } from '@lucide/svelte';
+  import { Send, ChevronRight, Bike, Star, CirclePlay, QrCode, Check, FolderOpen, ListChecks, Sparkles } from '@lucide/svelte';
   import './ich/ich.css';
   import Help from './ui/Help.svelte';
   import BeforeUpdates from './maintenance/BeforeUpdates.svelte';
@@ -22,6 +22,10 @@
   import { take } from './nav.js';
   import { sync as autoSync, syncUi, runSync } from './sync/auto.svelte.js';
   import { isDemoFile, startDemo, demoState } from './demo.js';
+  import { examplesLeft, exampleCount, removeExamples, undoExamples, addExamples } from './firststart.js';
+  import { offerDone } from './ui/rename.svelte.js';
+  import { localDay } from './localday.js';
+  import { askDelete, deleteWithUndo } from './ui/ask.js';
   import { isFavoritesFile, planFavorites, favoritesTemplate } from './favorites.js';
   import { isGearImportFile } from './gearimport.js';
   import { isSpecsFile, specEntries, findBike, planSpecs, applySpecs } from './bikespecs.js';
@@ -245,6 +249,34 @@
   }
 
   const demoQ = liveQuery(() => demoState(db));
+  // «Erster Start»: the examples from «Start with examples», taken away again in one go (with Undo)
+  const examplesQ = liveQuery(() => examplesLeft(db));
+  const exampleN = $derived(exampleCount($examplesQ ?? {}));
+  async function dropExamples() {
+    const left = $examplesQ ?? {};
+    const lines = [...(left.trips ?? []).map((r) => r.title), ...(left.bikes ?? []).map((r) => r.name), ...(left.items ?? []).map((r) => r.name)];
+    if (left.flowActs?.length) lines.push(tn(left.flowActs.length, '{n} starter activity of Active', '{n} starter activities of Active'));
+    const answer = await askDelete({ title: t('Remove the examples?'), text: t('Only the made-up things from the first start go; whatever you added yourself stays. Activities you already ticked stay too.'), lines, label: t('Remove') });
+    if (answer !== 'delete') return;
+    await deleteWithUndo({ run: () => removeExamples(db), undo: (saved) => undoExamples(db, saved), text: t('Examples removed.'), name: t('Examples') });
+  }
+  // Noah 20.10.2026 «1-4 alle»: after an empty start (or once removed) the examples can come back
+  let getting = $state(false);
+  async function getExamples() {
+    getting = true;
+    try {
+      await settling(async () => {
+        await addExamples(db, localDay());
+        await tidyData(db);
+      });
+      offerDone(t('The examples are in: two trips, a bike and some gear. Me › Data and backup › «Remove the examples» takes them away again.'), null, 8000);
+    } catch (err) {
+      console.error(err);
+      offerDone(t("That didn't work. Nothing was changed. Try again."));
+    } finally {
+      getting = false;
+    }
+  }
   async function beginDemo() {
     try {
       await settling(async () => {
@@ -364,7 +396,7 @@
             <span class="dot {l.state}" aria-hidden="true"></span>
             <span class="ich-m"><b>{t(l.name)}</b><small>{l.line}</small></span>
             <span class="sr">{l.state === 'ok' ? t('in order') : l.state === 'warn' ? t('to do') : t('off|backup')}</span>
-            {#if l.state === 'warn' && l.key === 'backup'}<button type="button" class="btn sm" onclick={exportFile} disabled={!!$demoQ}>{t('Make a backup')}</button>
+            {#if l.state === 'warn' && l.key === 'backup'}<button type="button" class="btn sm" onclick={exportFile} disabled={!!$demoQ}>{t('Save now|backup')}</button>
             {:else if l.state === 'warn' && l.key === 'fitbit'}<a class="btn sm" href="#/me/fitbit">{t('Now|do')}</a>
             {:else if l.state === 'warn' && l.key === 'folder'}<button type="button" class="btn sm" onclick={async () => { await allowAgain(db); refreshFolder(); }}>{t('Now|do')}</button>
             {:else if l.state === 'warn' && l.key === 'keep'}<button type="button" class="btn sm" onclick={keepNow}>{t('Now|do')}</button>
@@ -577,6 +609,8 @@
         <li><button type="button" class="ich-row" onclick={() => fileEl?.click()}><span class="ich-ib"><Bike size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t('Bike spec sheet')}</b><small>{t('Fit and geometry from a file')}</small></span><ChevronRight class="ich-chev" size={18} aria-hidden="true" /></button></li>
         <li><button type="button" class="ich-row" onclick={() => fileEl?.click()}><span class="ich-ib"><Star size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t('Favourites from a list')}</b><small>{t('Stars and a template from a list')}</small></span><ChevronRight class="ich-chev" size={18} aria-hidden="true" /></button></li>
         <li><button type="button" class="ich-row" onclick={() => fileEl?.click()}><span class="ich-ib"><CirclePlay size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t('Demo from a file')}</b><small>{t('The yellow bar on top brings your data back')}</small></span><ChevronRight class="ich-chev" size={18} aria-hidden="true" /></button></li>
+        {#if exampleN}<li><button type="button" class="ich-row" onclick={dropExamples} data-row="examples"><span class="ich-ib"><Sparkles size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t('Remove the examples')}</b><small>{t('The made-up trips, bike and gear from the first start')}</small></span><ChevronRight class="ich-chev" size={18} aria-hidden="true" /></button></li>
+        {:else if $examplesQ}<li><button type="button" class="ich-row" onclick={getExamples} disabled={getting || !!$demoQ} data-row="get-examples"><span class="ich-ib"><Sparkles size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t('Get the examples')}</b><small>{t('Two made-up trips, a bike and gear to try things out; your own data stays')}</small></span><ChevronRight class="ich-chev" size={18} aria-hidden="true" /></button></li>{/if}
       </ul>
     </section>
     <!-- Paket H (Noah 19.10.2026 «1a … auf null setzen und so frisch beginnen»): delete all and start from zero.

@@ -7,9 +7,11 @@
    * with them the app can say what the bike costs per 1000 km.
    */
   import { db } from '../db.js';
+  import { removeVisit, restoreVisit } from '../visitdb.js';
   import { PART, parseKm } from '../care.js';
   import { visitTotal } from '../workshop.js';
   import Lightbox from '../ui/Lightbox.svelte';
+  import { drawnOn } from '../draw/ink.js';
   import { t } from '../i18n.svelte.js';
   import { X } from '@lucide/svelte';
   import '../bikes/velo-dlg.css';
@@ -17,6 +19,13 @@
   let { visit, bike, onclose } = $props();
   let dialog;
   let page = $state(null);
+  // Paket NE 1146: draw on a receipt page (e.g. circle a price); the record keeps the picture and the drawing
+  // svelte-ignore state_referenced_locally
+  let pics = $state({ list: visit.photos ?? [], inks: visit.inks });
+  async function drawOnPage(cur, { old, src, ink }) {
+    pics = drawnOn(pics.list, pics.inks, old, src, ink);
+    await db.visits.update(visit.id, { photos: pics.list, inks: pics.inks });
+  }
   let kmMsg = $state('');
 
   $effect(() => {
@@ -37,12 +46,9 @@
     if ((await askDelete({ title: t('Remove the visit of {date}?', { date: visit.date }), text: t('Its jobs leave the part history too. You can bring it back for 4 seconds afterwards.'), label: t('Remove') })) !== 'delete') return;
     const name = `${visit.shop}, ${visit.date}`;
     const ok = await deleteWithUndo({
-      run: async () => {
-        const rec = await db.visits.get(visit.id);
-        await db.visits.delete(visit.id);
-        return rec;
-      },
-      undo: (rec) => rec && db.visits.put(rec),
+      // «Verschleiss»: the visit's point on the whole-bike counter goes with it (visitdb.js), Undo brings both back
+      run: () => removeVisit(visit.id),
+      undo: (snap) => restoreVisit(snap),
       text: t('"{name}" removed.', { name }),
       name,
     });
@@ -68,10 +74,10 @@
   </label>
   {#if kmMsg}<p class="err" role="alert">{kmMsg}</p>{:else}<p class="hint">{t("From Strava or Garmin: the bike's total km on that day.")}</p>{/if}
 
-  {#if visit.photos?.length}
+  {#if pics.list.length}
     <h3>{t('Receipt')}</h3>
     <div class="pages">
-      {#each visit.photos as src, n (n)}
+      {#each pics.list as src, n (n)}
         <button type="button" class="pg" onclick={() => (page = n)} aria-label={t('Open receipt page {n}', { n: n + 1 })}><img {src} alt="" loading="lazy" /><span>{t('Page {n}', { n: n + 1 })}</span></button>
       {/each}
     </div>
@@ -94,7 +100,7 @@
 </dialog>
 
 {#if page != null}
-  <Lightbox list={visit.photos.map((src, n) => ({ src, name: `${visit.invoice ?? visit.shop} · ${t('page {n}', { n: n + 1 })}`, sub: visit.date }))} start={page} onclose={() => (page = null)} />
+  <Lightbox ondraw={drawOnPage} list={pics.list.map((src, n) => ({ src, inks: pics.inks, name: `${visit.invoice ?? visit.shop} · ${t('page {n}', { n: n + 1 })}`, sub: visit.date }))} start={page} onclose={() => (page = null)} />
 {/if}
 
 <style>

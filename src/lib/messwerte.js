@@ -8,7 +8,11 @@
  *   time, hr, watt: the Strava activities of the day (hr and watt weighted by the moving time);
  *   km, hm: the bike rides (app files + Strava, as «Velo» counts them, withStravaRides) plus the other
  *   Strava sports (run, hike, …);
- *   azm, sleep, rhr, hrv, steps: the Fitbit day (healthDays).
+ *   azm, sleep, rhr, hrv, steps: the Fitbit day (healthDays);
+ *   kcal, kcalActive: the Fitbit calories of the day (all, active); kcalAct: the calories of the Strava
+ *   activities (their kcal, else their kJ, about the same for cycling);
+ *   hrMax: the highest pulse of the day (Fitbit, else the highest of the activities);
+ *   bikeKm: the km of the bike rides only; spo2, breath, skinTemp: the Fitbit night values.
  */
 import { addDays } from './health.js';
 
@@ -51,6 +55,7 @@ export function dayTable({ health = [], acts = [], bikeRides = [] } = {}) {
     if (!d) continue;
     const row = at(d);
     add(row, 'km', fin(Number(r.km)));
+    add(row, 'bikeKm', fin(Number(r.km)));
     add(row, 'hm', fin(r.gainM));
   }
   // the weighted means need the time per value
@@ -66,6 +71,9 @@ export function dayTable({ health = [], acts = [], bikeRides = [] } = {}) {
       add(row, 'km', fin(a.km) || null);
       add(row, 'hm', fin(a.hm) || null);
     }
+    const kc = fin(a.kcal) ?? fin(a.kj);
+    add(row, 'kcalAct', kc ? Math.round(kc) : null);
+    if (fin(a.hrMax)) row.actHrMax = Math.max(row.actHrMax ?? 0, a.hrMax);
     const w = s || 1;
     if (fin(a.hrAvg)) {
       const x = hrW.get(a.day) ?? [0, 0];
@@ -82,11 +90,19 @@ export function dayTable({ health = [], acts = [], bikeRides = [] } = {}) {
     if (!h?.date) continue;
     const row = at(h.date);
     if (fin(h.azm) != null) row.azm = h.azm;
-    if (fin(h.sleep?.asleepMin) != null) row.sleep = h.sleep.asleepMin;
+    if (fin(h.sleep?.asleepMin) != null) {
+      row.sleep = h.sleep.asleepMin;
+      row.night = h.sleep;
+    }
     if (fin(h.restingHr) != null) row.rhr = h.restingHr;
     if (fin(h.hrvMs) != null) row.hrv = h.hrvMs;
     if (fin(h.steps) != null) row.steps = h.steps;
+    if (fin(h.kcal) != null) row.kcal = h.kcal;
+    if (fin(h.kcalActive) != null) row.kcalActive = h.kcalActive;
+    if (fin(h.hrMax) != null) row.hrMax = h.hrMax;
+    for (const k of ['spo2', 'breath', 'skinTemp']) if (fin(h[k]) != null) row[k] = h[k];
   }
+  for (const row of map.values()) if (row.hrMax == null && row.actHrMax) row.hrMax = row.actHrMax;
   for (const row of map.values()) row.acts.sort((a, b) => String(a.start ?? a.time ?? '').localeCompare(String(b.start ?? b.time ?? '')));
   return map;
 }

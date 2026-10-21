@@ -1,0 +1,99 @@
+/* Paket VG «Das Velo im Griff»: the shared look of its pages (cards like the page «Verschleiss») */
+.gp {
+  min-width: 0;
+}
+.gp .gcard {
+  margin: 0 0 14px;
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--paper);
+  min-width: 0;
+}
+.gp h2 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 8px;
+  font-size: var(--fs-body);
+}
+.gp p {
+  margin: 0 0 6px;
+  overflow-wrap: break-word;
+}
+.gp .quiet {
+  color: var(--ink-2);
+  font-size: var(--fs-small);
+}
+.gp .chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0 0 14px;
+}
+.gp .lnk {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 40px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--accent);
+  font: inherit;
+  font-size: var(--fs-small);
+  cursor: pointer;
+}
+.gp .ib {
+  min-width: 40px;
+  min-height: 40px;
+  border: 0;
+  background: none;
+  color: var(--ink-2);
+  cursor: pointer;
+}
+.gp .row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 8px 0 0;
+}
+.gp .row .inp,
+.gp .row .sel {
+  min-height: 44px;
+  min-width: 0;
+}
+.gp .grow {
+  flex: 1 1 160px;
+}
+.gp ul.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.gp ul.list > li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 10px;
+  min-height: 44px;
+  padding: 4px 0;
+  border-top: 1px solid var(--line);
+  min-width: 0;
+}
+.gp ul.list > li:first-child {
+  border-top: 0;
+}
+.gp .err {
+  color: var(--bad);
+  font-size: var(--fs-small);
+}
+.gp .warn {
+  color: var(--warn);
+  font-weight: 600;
+}
+.gp .bad {
+  color: var(--bad);
+  font-weight: 600;
+}

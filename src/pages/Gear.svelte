@@ -487,6 +487,8 @@
       const q = params.get('q');
       if (q != null) (filter.q = q), (mode = ''), (view = 'all');
       if (params.has('view') || params.has('fav') || ['wishlist', 'dead'].includes(params.get('tab'))) view = viewFrom(params);
+      // the tab «Material» is plain #/gear: back from «Einkauf» it shows the inventory again
+      else if (view === 'wish' && ![...params.keys()].length) view = 'all';
       if (['weigh', 'check'].includes(params.get('tab'))) mode = params.get('tab');
       unusedOnly = params.get('unused') === '1';
       if (unusedOnly) (mode = ''), (view = 'all');

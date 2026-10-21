@@ -35,6 +35,12 @@
   import TourProfile from '../lib/touren/TourProfile.svelte';
   import CorrectSheet from '../lib/touren/tour/CorrectSheet.svelte';
   import KpiSheet from '../lib/touren/tour/KpiSheet.svelte';
+  import TourAnalysis from '../lib/touren/tour/TourAnalysis.svelte';
+  import TourCourse from '../lib/touren/tour/TourCourse.svelte';
+  import StravaAnalysis from '../lib/touren/strava/StravaAnalysis.svelte';
+  import { weight } from '../lib/weight.svelte.js';
+  import { kgOn } from '../lib/weight.js';
+  import { courseOf } from '../lib/touren/tourcourse.js';
   import TourGear from '../lib/touren/tour/TourGear.svelte';
   import TourLandscape from '../lib/touren/tour/TourLandscape.svelte';
   import RouteChart from '../lib/touren/tour/RouteChart.svelte';
@@ -46,8 +52,8 @@
   import { PARTS, KPIS, pageOpts, linesOf, joinedLine, profileOf, kpiOf, tourHref, shareText, TOUR_PAGE_KEY } from '../lib/touren/tour.js';
   import { fieldsOf, zoneParts } from '../lib/touren/aktivitaeten.js';
   import { pointAlong } from '../lib/spur/polyline.js';
-  import { KIND_NAMES, typeKey, sameRoute } from '../lib/training.js';
-  import { tripPhotos, addTripPhotos, removeTripPhoto, FOTO_MAX, FOTOS_PER_TRIP } from '../lib/lernen/fotos.js';
+  import { KIND_NAMES, typeKey, sameRoute, ftpEstimate } from '../lib/training.js';
+  import { tripPhotos, addTripPhotos, removeTripPhoto, FOTO_MAX, FOTOS_PER_TRIP, coverPhoto, tripCover, setTripCover } from '../lib/lernen/fotos.js';
   import { shrinkImage } from '../lib/photo.js';
   import { saveTripAsTemplate } from '../lib/templates.js';
   import { newTrip, openNew, RIDES_HREF } from '../lib/nav.js';
@@ -72,6 +78,7 @@
   const lines = $derived(d && !d.missing ? linesOf(d.acts, d.trip) : []);
   const prof = $derived(d && !d.missing ? profileOf(d.acts, d.trip) : []);
   let frac = $state(null);
+  const hasCourse = $derived(d && !d.missing ? !!courseOf(d.acts, d.trip) : false);
   const marker = $derived(frac == null ? null : pointAlong(joinedLine(lines), frac));
   const own = $derived(d?.kind === 'a' ? (d.acts[0]?.own ?? {}) : d?.kind === 'g' ? (d.group?.own ?? {}) : (d?.trip?.own ?? {}));
   const notes = $derived(d?.kind === 'a' ? { diary: d.acts[0]?.note ?? '', ...(d.acts[0]?.own ?? {}) } : d?.kind === 'g' ? (d.group ?? {}) : { ...(d?.trip?.own ?? {}), diary: d?.debrief?.diary?.text ?? '' });
@@ -158,10 +165,16 @@
   const photoKey = $derived(d?.kind === 't' ? d.id : key);
   let photos = $state([]);
   let photoMsg = $state('');
+  let cover = $state(null); // «Bilder in der App» 5a: the photo pale on top of the page
   $effect(() => {
     const k = photoKey;
     if (k) tripPhotos(k).then((p) => (photos = p));
+    if (k) tripCover(k).then((c) => (cover = c));
   });
+  const chooseCover = async (id) => {
+    cover = id;
+    await setTripCover(photoKey, id);
+  };
   async function addPhotos(e) {
     const files = [...(e.currentTarget.files ?? [])];
     e.currentTarget.value = '';
@@ -194,6 +207,12 @@
   const say = $derived(sayRaw ? t(sayRaw.key, { ...sayRaw.vars, ...(sayRaw.vars.day ? { day: dates(sayRaw.vars.day) } : {}) }).replace(/\.\.$/, '.') : '');
 
   /* ---- the jump bar marks the part on screen (Noah 20.10.2026 «klare aktive Markierung») ---- */
+  /* ---- Analyse wie Strava (Noah 20.10.2026 «baue es 1:1 nach»): one activity at a time, the longest first ---- */
+  let anaId = $state(null);
+  const anaActs = $derived(d && !d.missing ? [...d.acts].sort((x, y) => (y.movingS ?? 0) - (x.movingS ?? 0)) : []);
+  const anaAct = $derived(anaActs.find((a) => a.id === anaId) ?? anaActs[0] ?? null);
+  const anaFtp = $derived(anaAct && $allActsQ ? ftpEstimate($allActsQ, anaAct.day) : null);
+  const anaKg = $derived(anaAct ? kgOn(weight.entries, anaAct.day) : null);
   let seen = $state('overview');
   $effect(() => {
     if (!d || d.missing || opts.mode !== 'all' || typeof IntersectionObserver === 'undefined') return;
@@ -309,7 +328,7 @@
       <MoreActions title={name} label={t('More for {what}', { what: name })} {actions} />
     </PathHead>
     <!-- Noah 20.10.2026 «1a 2a»: a drawn landscape with the route, and one personal sentence when there is one -->
-    <TourLandscape points={prof} chips={[dates(row.day, row.endDay ?? row.day), wxS ? deg(wxS.tmin, wxS.tmax) : ''].filter(Boolean)} />
+    <TourLandscape points={prof} photo={coverPhoto(photos, cover)?.data ?? null} chips={[dates(row.day, row.endDay ?? row.day), wxS ? deg(wxS.tmin, wxS.tmax) : ''].filter(Boolean)} />
     {#if say}<p class="say" data-tour-say>{say}</p>{/if}
     {#if d.kind === 't'}
       <!-- Gesamttest 20.10.2026 (journey): a trip's two pages lead to each other; the Rückblick has «Tour-Seite ansehen ›» -->
@@ -357,7 +376,8 @@
         {:else}
           <p class="card nomap" data-no-line><MapIcon size={20} aria-hidden="true" /><span>{t('No line yet. Strava sends it with the next fetch; an uploaded GPX ride brings its own.')}</span></p>
         {/if}
-        {#if prof.length > 1}<TourProfile points={prof} onpoint={(f) => (frac = f)} />{/if}
+        <!-- Noah 20.10.2026 «1:1 die details aus komoot»: the fine profile by gradient and the speed profile, when Strava sent the course -->
+        {#if hasCourse}<TourCourse acts={d.acts} trip={d.trip} moving={row.dauer} elapsed={row.verstr} onkm={(f) => (frac = f)} />{:else if prof.length > 1}<TourProfile points={prof} onpoint={(f) => (frac = f)} />{/if}
       </section>
     {/if}
 
@@ -369,7 +389,8 @@
             <!-- Noah 20.10.2026: the main values stand large above (Übersicht); here the details, quieter -->
             {#if !onTop('km')}<div class="vc"><dt>{t('Distance')}</dt><dd class="num">{n1(row.km)} <small>km</small>{#if isChanged('km')}<small class="was">{t('Strava: {v}', { v: stravaWas('km') })}</small>{/if}</dd></div>{/if}
             {#if !onTop('hm')}<div class="vc"><dt>{t('Climbing')}</dt><dd class="num">{n0(row.hm)} <small>Hm</small>{#if isChanged('hm')}<small class="was">{t('Strava: {v}', { v: stravaWas('hm') })}</small>{/if}</dd></div>{/if}
-            {#each fieldsOf(row).filter((f) => !onTop(f)) as f (f)}
+            <!-- Tour-Auswertung (20.10.2026): the best 20 minutes stand in the table «Best minutes» below -->
+            {#each fieldsOf(row).filter((f) => !onTop(f) && f !== 'w20') as f (f)}
               {@const [label, value, unit] = FIELD[f](row)}
               <div class="vc" data-field={f}><dt>{label}{#if f === 'dauer' || f === 'verstr'}<Help {label} text={t(FIELD_HELP[f === 'dauer' ? 'moving' : 'elapsed'])} />{/if}</dt><dd class="num">{value}{#if unit && value !== DASH}{' '}<small>{unit}</small>{/if}{#if f === 'dauer' && isChanged('dauer')}<small class="was">{t('Strava: {v}', { v: stravaWas('dauer') })}</small>{/if}</dd></div>
             {/each}
@@ -383,6 +404,7 @@
               <p class="tp-muted tp-small">{row.hf != null ? t('Comes when the activity is opened once.') : t('No heart rate.')}</p>
             {/if}
           </div>
+          <TourAnalysis {d} />
         </div>
         {#if d.acts.length > 1 || d.kind === 't'}
           <h3 class="h3">{d.acts.length ? tn(d.acts.length, '{n} activity of this tour', '{n} activities of this tour') : t('No Strava activity on these days.')}</h3>
@@ -419,14 +441,15 @@
         <div class="diaryw">
           {#if d.kind === 't' && !d.debrief}
             <p class="tp-muted">{t('The diary of a trip is written with its Rückblick: the app drafts it from your rides, weather and notes.')}</p>
-            <a class="btn" href="#/debrief/{encodeURIComponent(d.id)}">{t('Open the Rückblick')}<ChevronRight size={16} aria-hidden="true" /></a>
+            <!-- Impeccable 20.10.2026: the way into the Rückblick stands once on top and in its own part; here only when that part is not shown -->
+            {#if !shows('review')}<a class="btn" href="#/debrief/{encodeURIComponent(d.id)}">{t('Open the Rückblick')}<ChevronRight size={16} aria-hidden="true" /></a>{/if}
           {:else}
             <textarea class="inp diary" rows="6" value={notes.diary ?? ''} oninput={diaryInput} placeholder={t('Write freely …')} aria-label={t('Diary|tour')} data-tour-diary></textarea>
             {#if d.kind === 'a'}<p class="tp-muted tp-small">{t('The same text as the note in Training.')}</p>{/if}
           {/if}
           {#if photos.length}
             <ul class="photos" aria-label={t('Photos of the trip')}>
-              {#each photos as p (p.id)}<li><img src={p.data} alt={t('Photo from {day}', { day: p.day })} loading="lazy" /><button type="button" class="px" aria-label={t('Remove photo')} onclick={() => dropPhoto(p.id)}><X size={14} aria-hidden="true" /></button></li>{/each}
+              {#each photos as p (p.id)}<li><img src={p.data} alt={t('Photo from {day}', { day: p.day })} loading="lazy" /><button type="button" class="px" aria-label={t('Remove photo')} onclick={() => dropPhoto(p.id)}><X size={14} aria-hidden="true" /></button><button type="button" class="pc" class:on={coverPhoto(photos, cover)?.id === p.id} aria-pressed={coverPhoto(photos, cover)?.id === p.id} aria-label={t('Show on top of the tour page')} title={t('Show on top of the tour page')} onclick={() => chooseCover(p.id)} data-tour-cover><Star size={14} aria-hidden="true" /></button></li>{/each}
             </ul>
           {/if}
           <label class="btn addp"><ImagePlus size={16} aria-hidden="true" />{t('Add photos')}<input type="file" accept="image/*" multiple onchange={addPhotos} data-tour-photos /></label>
@@ -458,6 +481,18 @@
 
     </div>
     </div>
+
+    {#if shows('analysis') && anaAct}
+      <section id="tour-analysis" class="part-s" aria-labelledby="th-analysis" data-tour-part="analysis">
+        <div class="sh"><h2 id="th-analysis">{t('Analysis|ana')}</h2></div>
+        {#if anaActs.length > 1}
+          <div class="chips" role="group" aria-label={t('Activity of the analysis')} data-ana-acts>
+            {#each anaActs as a (a.id)}<button type="button" class="tp-chip" aria-pressed={anaAct.id === a.id} onclick={() => (anaId = a.id)}>{a.own?.name || a.name || t(typeKey(a.type))} · {dates(a.day)}</button>{/each}
+          </div>
+        {/if}
+        <StravaAnalysis a={anaAct} acts={$allActsQ ?? []} bounds={zones.bounds} ftp={anaFtp} kg={anaKg} bike={row.bikeId ? (bikeName[row.bikeId] ?? '') : ''} onkm={anaActs.length === 1 ? (f) => (frac = f) : null} />
+      </section>
+    {/if}
 
     <section class="part-s" aria-labelledby="th-make" data-tour-make>
       <div class="sh"><h2 id="th-make">{t('Make something of it')}</h2></div>
@@ -831,6 +866,27 @@
     background: var(--paper);
     color: var(--ink);
     cursor: pointer;
+  }
+  /* 5a: the star chooses the photo on top of the page */
+  .pc {
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    border: 0;
+    border-radius: 50%;
+    background: var(--paper);
+    color: var(--ink-3);
+    cursor: pointer;
+  }
+  .pc.on {
+    color: var(--ink);
+  }
+  .pc.on :global(svg) {
+    fill: currentColor;
   }
   .addp {
     position: relative;

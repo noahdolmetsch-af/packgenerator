@@ -53,6 +53,7 @@
   import { own } from '../ownlive.svelte.js';
   import '../ui/daumen.css'; // FE1: Save stays at the bottom edge of the window on a phone
   import Field from '../ui/Field.svelte'; // Einheitliche Formulare (Noah 19.10.2026 «teil bearbeiten jetzt»)
+  import DrawOn from '../draw/DrawOn.svelte'; // Paket NE 1146: draw on the photo
   import { checkAll } from '../ui/formchecks.js';
   let { item, items: allItems, readOnly = false, preset = {}, onsaved = null, onkept = null, onclose } = $props();
 
@@ -494,7 +495,8 @@
       <span class="pacts">
         <CameraButton onchange={pickPhoto} disabled={reading} />
         <label class="btn sm">{reading ? t('Reading…') : draft.photo ? t('Other photo') : t('Add photo')}<input type="file" accept="image/*" onchange={pickPhoto} hidden /></label>
-        {#if draft.photo}<button type="button" class="btn sm" onclick={() => (draft.photo = null)}>{t('Remove photo')}</button>{/if}
+        {#if draft.photo}<DrawOn src={draft.photo} list={[draft.photo]} inks={draft.inks} onsave={({ list, inks }) => ((draft.photo = list[0]), (draft.inks = inks))} data-item-draw />{/if}
+        {#if draft.photo}<button type="button" class="btn sm" onclick={() => ((draft.photo = null), (draft.inks = undefined))}>{t('Remove photo')}</button>{/if}
       </span>
       {#if photoErr}<p class="err" role="alert">{photoErr}</p>{/if}
     </div>

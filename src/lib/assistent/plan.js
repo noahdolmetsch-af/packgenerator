@@ -28,7 +28,8 @@ export function cleanPlan(a = {}, { today, bikes = [] } = {}) {
   const area = DOMAIN[a.area] && DOMAIN[a.area].trip !== false ? a.area : BIKEPACKING;
   const night = days === 1 ? 'none' : NIGHT_CHOICES.some((c) => c.key === a.night) ? a.night : 'hotel';
   const bike = DOMAIN[area]?.bike ? (bikes.find((b) => b.id === a.bikeId) ?? bikes[0] ?? null) : null;
-  return { startDate: ISO.test(a.startDate ?? '') ? a.startDate : nextSaturday(today), days, area, night, bikeId: bike?.id ?? null };
+  const title = String(a.title ?? '').trim().slice(0, 80); // said in the search («Plane mir 3 Tage Jura»)
+  return { startDate: ISO.test(a.startDate ?? '') ? a.startDate : nextSaturday(today), days, area, night, bikeId: bike?.id ?? null, ...(title ? { title } : {}) };
 }
 
 /** The prefill New trip reads (null when it is missing or broken). */

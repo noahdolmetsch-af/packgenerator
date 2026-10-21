@@ -763,7 +763,10 @@
     if (suggestion && !night) rows.push({ key: 'idea', tone: 'now', ic: BikeIcon, text: t('Idea: ride up to {h} h with the {bike}, today', { h: hrs(suggestion.hours), bike: suggestion.bike.name }), act: { label: t('Quick start'), run: startQuick }, ...(bikes.length > 1 ? { act2: { label: t('Other bike'), run: nextBike, quiet: true } } : {}) });
     return rows;
   });
-  const upRows = $derived([...nowRows, ...important]);
+  // Impeccable 20.10.2026: on the last evening of a trip its evening rows (review, charging; Noah 32a) stay; other
+  // rows of that same trip wait until it is finished, so it does not show three next steps at once
+  const lastEveIds = $derived(new Set(trips.filter((x) => lastEvening(x, today, now.getHours())).map((x) => x.id)));
+  const upRows = $derived([...nowRows, ...important.filter((r) => r.tone === 'eve' || !(r.act?.trip && lastEveIds.has(r.act.trip)))]);
   const UP_N = 4;
   const upShown = $derived(allRows ? upRows : upRows.slice(0, UP_N));
   // the personal sentence under the greeting: the next trip and how much is up today
@@ -1236,6 +1239,7 @@
   {#if !editing}<MaintHint blocked={stravaCard} bind:shown={maintHint} />{/if}
   <!-- Paket Q #148 (Noah 19.10.2026 «1a»): one small line, only when a warning, the avalanche danger or a pass concerns you -->
   {#if !editing}<AlertLine />{/if}
+  {#if !editing}{#await import('../lib/wetter/HeuteWetter.svelte') then m}<m.default {today} />{:catch}{/await}{/if}
   <!-- v0.127.0 A-U2 (mockup «Laden»): calm placeholders until Today has read its data, then the wall -->
   {#if ready}<Wall tiles={timeWall} body={tileBody} {editing} onedit={() => (editing = true)} onchange={saveShown} onadd={() => (catalogOpen = true)} />
   {:else}<Skeleton kind="home" rows={2} />{/if}

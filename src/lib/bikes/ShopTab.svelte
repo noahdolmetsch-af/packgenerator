@@ -80,6 +80,7 @@
 <section class="shop">
   <VeloHead
     title={t('Workshop|tab')}
+    bike={pick ? (bikes.find((b) => b.id === pick) ?? null) : null}
     sub={`${tn(visits.length, '{n} visit', '{n} visits')}${yearCost ? ` · ${pick ? t('{year}: {chf} for {bike}', { year, chf: chfText(yearCost), bike: names[pick] }) : t('{year}: {chf}|cost', { year, chf: chfText(yearCost) })}` : ''}`}
   />
   <!-- «Mehr Inhalt» (Noah 15.10.2026, 1a–5a): the card, at the end the fold; the Einstieg carries the tip of

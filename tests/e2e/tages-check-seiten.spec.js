@@ -117,7 +117,8 @@ test('T1 morning check page: four numbers, joy, goal, last night, the suggestion
   // what the app already knows: today's meditation; the night as a small placeholder
   await expect(page.locator('[data-row="med"]')).toContainText(T('today {min} min', { min: 20 }));
   await expect(page.locator('[data-row="med"]')).toContainText(T('{n} days in a row', { n: 6 }));
-  await expect(page.getByText(T('Comes with Fitbit/Google: sleep, resting pulse and HRV next to your feeling, with your normal. Until then this space stays small.'))).toBeVisible();
+  // 0.171 (on purpose): the night comes from Fitbit; without a Fitbit day the card says how to connect it
+  await expect(page.getByText(T('Connect Fitbit once and your sleep, resting pulse and HRV show here.'))).toBeVisible();
   expect(await noScroll(page)).toBe(true);
   await shot(page, 'T1-morgen-check');
 
@@ -237,7 +238,7 @@ test('T4 questions page from the tile: the table by part, a switch hides the que
   await expect(page.getByRole('heading', { level: 1, name: T('Your 15 questions') })).toBeVisible();
   await expect(page.locator('tr[data-question]')).toHaveCount(15);
   await expect(page.getByText(T('Comes by itself'))).toBeVisible();
-  await expect(page.getByText(T('with Fitbit/Google, later'))).toBeVisible();
+  await expect(page.getByText(T('from Fitbit, shown in the check'))).toBeVisible(); // 0.171: Fitbit is there
   // a phone leaves the columns «Wie oft» and «Antwort» away
   await expect(page.getByRole('columnheader', { name: T('How often') })).toHaveCount(info.project.name === 'phone' ? 0 : 1);
   await expect(page.getByRole('columnheader', { name: T('Answer|table') })).toHaveCount(info.project.name === 'phone' ? 0 : 1);

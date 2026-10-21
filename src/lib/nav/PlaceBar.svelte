@@ -91,6 +91,16 @@
     font: 700 var(--fs-tiny) / 1.5 var(--font-body);
     text-align: center;
   }
+  /* A very narrow phone (320 px): five slots of about 63 px; the small type keeps «Auswerten» whole */
+  @media (max-width: 359px) {
+    .bottom {
+      padding-inline: 2px;
+    }
+    a {
+      font-size: var(--fs-tiny);
+      letter-spacing: -0.01em;
+    }
+  }
   /* A phone turned sideways: one 44 px row, icon next to the label. */
   @media (max-height: 500px) {
     .bottom {

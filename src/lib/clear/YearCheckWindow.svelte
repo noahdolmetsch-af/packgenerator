@@ -17,7 +17,7 @@
   const asked = $derived(hash.startsWith(OPEN_HASH));
 
   async function load() {
-    const [rider, home, name, docs] = await Promise.all([db.settings.get('riderWeightG'), db.settings.get('homePlace'), db.settings.get('userName'), db.docs?.toArray?.() ?? []]);
+    const [rider, home, name, docs] = await Promise.all([db.settings.get('riderWeightG'), db.settings.get('homePlace'), db.settings.get('userName'), db.docs?.toArray?.().then((l) => l.filter((d) => !d.noteId)) ?? []]);
     values = yearValues({ riderG: rider?.value ?? null, home: home?.value ?? null, name: typeof name?.value === 'string' ? name.value : '', docs });
     ok = [];
   }

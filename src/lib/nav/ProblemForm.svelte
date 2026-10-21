@@ -1,5 +1,5 @@
 <script>
-  import CameraButton from '../ui/CameraButton.svelte'; // P3b Teil 3: the camera wherever a photo is added
+  import PhotoSet from '../bilder/PhotoSet.svelte'; // «Bilder in der App» 3a/4a: several photos, cut, as PDF
   import { lastBikeChoice, chooseBike } from '../lastchoice.js';
   /**
    * v0.45.2 (Noah on the bike): "Problem with a bike" in the + menu. Big bike buttons, one problem
@@ -16,11 +16,9 @@
   import { db } from '../db.js';
   import { rideContext, runningTrip } from '../notes.js';
   import { localDay } from '../localday.js';
-  import { shrinkImage } from '../photo.js';
   import { QUICK_PROBLEMS, FIXES, PRIORITIES, PRIORITY_NAME, splitProblems, addLine, startBike, buildProblems, stepFor, repeats } from '../problems.js';
   import { wishForProblem, setFix } from '../problemsdb.js';
   import { t, tn, dateOf } from '../i18n.svelte.js';
-  import { Image as ImageIcon } from '@lucide/svelte';
 
   let { bikes = [], ondone } = $props();
 
@@ -32,8 +30,8 @@
   let picked = $state('');
   const bike = $derived(bikes.find((b) => b.id === picked) ?? bikes.find((b) => b.id === startBike(bikes, { last: readLast(), trip: runningTrip($tripsQ ?? [], today) })) ?? null);
   let text = $state('');
-  let photo = $state(null);
-  let reading = $state(false);
+  let photos = $state([]);
+  let docId = $state(null);
   let busy = $state(false);
   let msg = $state('');
   // Noah: a priority is required, a deadline is optional ('none' | 'ride' | 'date').
@@ -53,25 +51,10 @@
     area?.focus();
   }
 
-  async function addPhoto(event) {
-    const file = event.currentTarget.files[0];
-    event.currentTarget.value = '';
-    if (!file) return;
-    reading = true;
-    msg = '';
-    try {
-      photo = await shrinkImage(file, 1200, 0.8);
-    } catch (err) {
-      msg = err.message || t('This photo could not be read.');
-    } finally {
-      reading = false;
-    }
-  }
-
   async function save(event) {
     event.preventDefault();
     if (!bike) return (msg = t('Choose a bike.'));
-    const list = lines.length ? lines : photo ? [t('Photo')] : [];
+    const list = lines.length ? lines : photos.length ? [t('Photo')] : [];
     if (!list.length) return (msg = t('Write a few words or add a photo.'));
     if (!priority) return (msg = t('Choose a priority.'));
     if (when === 'date' && !/^\d{4}-\d{2}-\d{2}$/.test(dueDate)) return (msg = t('Choose the date of the deadline.'));
@@ -81,7 +64,7 @@
       const ctx = rideContext($tripsQ ?? [], today);
       let out;
       await db.transaction('rw', db.notes, db.maintenance, db.items, async () => {
-        out = buildProblems(list, { bike, photo, ctx, priority, dueDate: when === 'date' ? dueDate : null, beforeRide: when === 'ride', rows: await db.maintenance.toArray() });
+        out = buildProblems(list, { bike, photos: $state.snapshot(photos), docId, ctx, priority, dueDate: when === 'date' ? dueDate : null, beforeRide: when === 'ride', rows: await db.maintenance.toArray() });
         // "Part needed" goes on the wishlist straight away (the shopping list).
         for (const r of out.repairs) if (r.fix === 'part') r.wishId = await wishForProblem(r, bike);
         await db.maintenance.bulkPut(out.repairs);
@@ -90,7 +73,8 @@
       chooseBike(bike.id);
       saved = { count: list.length, name: bike.name, bike: $state.snapshot(bike), bikeId: bike.id, noteIds: out.notes.map((n) => n.id), repairIds: out.repairs.map((r) => r.id) };
       text = '';
-      photo = null;
+      photos = [];
+      docId = null;
       priority = null;
       when = 'none';
       dueDate = '';
@@ -186,19 +170,15 @@
       {#if when === 'date'}<DateInput class="inp due" min={today} bind:value={dueDate} aria-label={t('Deadline')} />{/if}
     </fieldset>
 
-    <div class="row phrow">
-      {#if photo}<img class="th" src={photo} alt={t('Photo of the problem')} />{:else}<span class="pib"><ImageIcon size={18} aria-hidden="true" /></span>{/if}
-      <span class="pm"><b>{t('Photo (optional)')}</b><small>{t('e.g. of the damage')}</small></span>
-      {#if photo}<button type="button" class="btn btn-link" onclick={() => (photo = null)}>{t('Remove photo')}</button>{/if}
-      <CameraButton onchange={addPhoto} disabled={reading} />
-      <label class="btn">{reading ? t('Reading…') : photo ? t('Other photo') : t('Add')}<input type="file" accept="image/*" onchange={addPhoto} hidden disabled={reading} /></label>
+    <div class="phrow">
+      <PhotoSet bind:photos bind:docId pdfName={[bike?.name, lines[0] ?? t('Problem')].filter(Boolean).join(' · ')} />
     </div>
 
     {#if msg}<p class="err" role="alert">{msg}</p>{/if}
     <p class="small" id="pf-need">{priority ? t('Each problem becomes its own open repair in Bike care.') : t('Choose a priority first.')}</p>
     <div class="foot end">
       <button type="button" class="btn" onclick={ondone}>{t('Cancel')}</button>
-      <button type="submit" class="btn hi" disabled={busy || reading || !bike} aria-describedby={priority ? undefined : 'pf-need'}>
+      <button type="submit" class="btn hi" disabled={busy || !bike} aria-describedby={priority ? undefined : 'pf-need'}>
         {lines.length > 1 ? t('Save {n} problems', { n: lines.length }) : t('Save problem')}
       </button>
     </div>
@@ -344,36 +324,10 @@
     gap: 12px;
     flex-wrap: wrap;
   }
-  .th {
-    width: 34px;
-    height: 34px;
-    object-fit: cover;
-    border-radius: var(--radius);
-  }
-  /* the photo as one quiet row (I9): icon, «Photo (optional)», the button right */
+  /* the photos as one quiet block (I9; «Bilder in der App» 3a: several photos) */
   .phrow {
     padding-top: 10px;
     border-top: 1px solid var(--line);
-  }
-  .pib {
-    flex: none;
-    display: inline-grid;
-    place-items: center;
-    width: 34px;
-    height: 34px;
-    border-radius: var(--radius);
-    background: var(--paper-2);
-    color: var(--ink-2);
-  }
-  .pm {
-    flex: 1 1 10em;
-    min-width: 0;
-    display: flex;
-    flex-direction: column;
-  }
-  .pm small {
-    color: var(--ink-3);
-    font-size: var(--fs-small);
   }
   .end {
     justify-content: flex-end;

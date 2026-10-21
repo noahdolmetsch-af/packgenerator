@@ -14,7 +14,7 @@
   import { ClipboardList, X, ChevronRight } from '@lucide/svelte';
   import { backClose } from '../ui/backclose.js';
   import { abQuery, ensureConfig, saveAnswers, saveSnooze } from '../abdb.js';
-  import { dueList, snoozeAll, answerRow, lastAnswer, stampOf, settingOf, fromChecks, dayOf, configOf, isEveningRound, LATER_KEY, laterStamp } from '../abfragen.js';
+  import { fitbitFill, dueList, snoozeAll, answerRow, lastAnswer, stampOf, settingOf, fromChecks, dayOf, configOf, isEveningRound, LATER_KEY, laterStamp } from '../abfragen.js';
   import { kgOf } from '../review/actdata.js';
   import { t, tn } from '../i18n.svelte.js';
   import AnswerInput from './AnswerInput.svelte';
@@ -47,6 +47,22 @@
 
   let draft = $state({});
   let notes = $state({});
+  // 0.171 (Noah 20.10.2026 «Fitbit … das haben wir bereits»): what Fitbit measured on the question's day fills in
+  // (changeable); left as it is, the answer is saved with the source Fitbit
+  const healthOf = (day) => (data?.health ?? []).find((h) => h.date === day) ?? null;
+  const fillOf = (d) => fitbitFill(d.q, healthOf(dayOf(d.slot)));
+  let filledBy = $state({});
+  $effect(() => {
+    for (const d of visible) {
+      const f = fillOf(d);
+      if (f?.value != null && draft[d.q.id] === undefined && filledBy[d.q.id] === undefined) {
+        draft[d.q.id] = f.value;
+        filledBy[d.q.id] = f.value;
+      }
+    }
+  });
+  const fitText = (h) =>
+    h.key === 'sleep' ? t('Fitbit: {h} h {m} min asleep', { h: Math.floor(h.v / 60), m: h.v % 60 }) : h.key === 'rhr' ? t('Fitbit: resting pulse {v}', { v: h.v }) : h.key === 'steps' ? t('Fitbit: {v} steps', { v: h.v }) : t('Fitbit: {v} active zone minutes', { v: h.v });
   const filled = $derived(visible.some((d) => (draft[d.q.id] != null && draft[d.q.id] !== '') || String(notes[d.q.id] ?? '').trim()));
   let saving = $state(false);
 
@@ -63,7 +79,7 @@
     saving = true;
     try {
       const at = stampOf();
-      const rows = visible.map((d) => answerRow(d.q, draft[d.q.id], { at, slot: d.slot, note: notes[d.q.id] })).filter(Boolean);
+      const rows = visible.map((d) => answerRow(d.q, draft[d.q.id], { at, slot: d.slot, note: notes[d.q.id], src: filledBy[d.q.id] !== undefined && draft[d.q.id] === filledBy[d.q.id] ? 'fitbit' : 'hand' })).filter(Boolean);
       const folded = ordered.slice(visible.length);
       await saveAnswers(rows);
       if (folded.length) await saveSnooze(snoozeAll(data?.snooze, folded));
@@ -75,6 +91,13 @@
     } finally {
       saving = false;
     }
+  }
+  // Noah 20.10.2026 «eine frage überspringen button, sehr klein und dezent»: this one question is put away
+  // until its next time (like «Heute nicht», for one); the next waiting question moves up
+  function skip(d) {
+    delete draft[d.q.id];
+    delete notes[d.q.id];
+    saveSnooze({ ...(data?.snooze ?? {}), [d.q.id]: d.last ?? d.slot });
   }
   // «Heute nicht»: every shown question put away until its next time (was «Jetzt nicht»)
   const notToday = () => saveSnooze(snoozeAll(data?.snooze, shown));
@@ -138,15 +161,18 @@
     </div>
     {#each visible as d, i (d.q.id)}
       {@const qid = `abc-q-${i}`}
+      {@const fit = fillOf(d)}
       <div class="dq" data-q={d.q.id}>
         <div class="dqh">
           <b id={qid}>{qText(d.q)}</b>
           <span class="meta">
-            {#if d.q.own}{everyShort(settingOf(data.cfg, d.q).every)}{:else}{areaName(d.q.area)}{/if} · <span class="num">{dayOf(d.slot) === today ? '' : `${dayShort(dayOf(d.slot))} `}{timeText(d.slot)}</span>
-            {#each (d.q.src ?? []).filter((s) => s !== 'hand') as s (s)}<span class="ab-src {s}">{srcText(s)}</span>{/each}
+            {#if d.q.own}{everyShort(settingOf(data.cfg, d.q).every)}{:else}{areaName(d.q.area, data.cfg)}{/if} · <span class="num">{dayOf(d.slot) === today ? '' : `${dayShort(dayOf(d.slot))} `}{timeText(d.slot)}</span>
+            {#each (d.q.src ?? []).filter((s) => s !== 'hand' && s !== 'fitbit') as s (s)}<span class="ab-src {s}">{srcText(s)}</span>{/each}
+            <button type="button" class="skip" onclick={() => skip(d)} aria-label={t('Skip «{q}»', { q: qText(d.q) })} data-ab-skip>{t('Skip|question')}</button>
           </span>
         </div>
         <AnswerInput q={d.q} bind:value={draft[d.q.id]} bind:note={notes[d.q.id]} id="{qid}-in" label={qText(d.q)} quick last={yesterdayOf(d.q.id)} onanswer={() => next(i)} />
+        {#if fit}<small class="last fit num" data-fitbit={fit.hint.key}><span class="ab-src fitbit">Fitbit</span> {fitText(fit.hint)}{fit.value != null ? ` · ${t('filled in, changeable')}` : ''}</small>{/if}
         {#if d.q.id === 'koerper.waage' && lastKg}
           <small class="last num">{lastKg.day ? t('last {v} on {day}', { v: `${lastKg.kg} ${unitText('kg')}`, day: dayShort(lastKg.day) }) : t('body weight under Me › My data: {v}', { v: `${lastKg.kg} ${unitText('kg')}` })}</small>
         {/if}
@@ -210,6 +236,32 @@
     gap: 6px;
     color: var(--ink-3);
     font-size: var(--fs-small);
+  }
+  /* «Überspringen»: small and quiet, still 44 px to tap (the hit area is bigger than the word) */
+  .skip {
+    position: relative;
+    padding: 0 2px;
+    border: 0;
+    background: none;
+    color: var(--ink-3);
+    font: 400 var(--fs-tiny) / 1.2 var(--font-body);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    cursor: pointer;
+  }
+  .skip::after {
+    content: '';
+    position: absolute;
+    inset: -14px -8px;
+  }
+  .skip:hover {
+    color: var(--ink-2);
+  }
+  .last.fit {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
   }
   .last {
     display: block;

@@ -2,6 +2,10 @@
 // Unterwegs (lamps behind one line, the newest three notes, «Entfernen» in «…» with «Rückgängig»),
 // Rückblick, Rückblick einer Tour and Fahrten. Fictional fixture (test_data_gtp_), German, phone + desktop.
 import { test, expect } from '@playwright/test';
+import { readFileSync } from 'node:fs';
+
+/** The rows of «Mehr» in the Rückblick hub, read from the app. */
+const M_ROWS = new Set([...readFileSync(new URL('../../src/lib/review/Hub.svelte', import.meta.url), 'utf8').matchAll(/data-m-row="([\w-]+)"/g)].map((m) => m[1])).size;
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';
 import { importAndSettle } from './settle.js';
@@ -85,7 +89,7 @@ test('Rückblick: «Rückblick schreiben», «Kurz: Alles gut» with Undo, every
   const name = (await hero.locator('.hname').textContent()).trim();
   const write = new RegExp(`^(${esc(T('Write the debrief'))}|${esc(T('Continue the debrief'))}): ${esc(name)}$`);
   await expect(hero.getByRole('link', { name: write })).toBeVisible();
-  await expect(hero.getByRole('link', { name: new RegExp(`^${esc(T('Rate|debrief'))}`) })).toHaveCount(0);
+  await expect(hero.getByRole('link', { name: new RegExp(`^${esc(T('Rate|debrief'))}: `) })).toHaveCount(0);
   // the short way saves at once, «Rückgängig» brings the open debrief back
   await hero.getByRole('button', { name: `${T('Short: all good')}: ${name}` }).click();
   await expect(page.locator('.hub .undo')).toContainText(T('Saved: {title}, all good.', { title: name }));
@@ -99,9 +103,10 @@ test('Rückblick: «Rückblick schreiben», «Kurz: Alles gut» with Undo, every
   await expect(row.locator('[data-sk-tile="tpl"]')).toBeVisible();
   await expect(row.locator('[data-sk-extras]')).toBeVisible();
   // «Mehr» keeps Logbuch, Vergangene Touren and Fahrten; Paket M adds its five rows above them
-  // (Neuland, Chronik, Was die App gelernt hat, Jahr als Bildgeschichte, Quiz)
+  // (Neuland, Chronik, Was die App gelernt hat, Jahr als Bildgeschichte, Quiz); 0.170.0 adds Heatmap.
+  // The count comes from the app's own Hub, so a new row does not need a test change.
   const more = page.getByRole('region', { name: T('More') });
-  await expect(more.locator('a[data-m-row]')).toHaveCount(5);
+  await expect(more.locator('a[data-m-row]')).toHaveCount(M_ROWS);
   await expect(more.locator('a:not([data-m-row])')).toHaveCount(3);
   expect(await wide(page)).toBeLessThanOrEqual(0);
   expect(errors).toEqual([]);

@@ -72,4 +72,11 @@ export default {
   'the past from the Fitbit file: {from} to {to}': 'Vergangenheit aus der Fitbit-Datei: {from} bis {to}',
   'connected · as of {when}': 'verbunden · Stand {when}',
   'connected|fitbit': 'verbunden',
+  // «Fitbit holt nicht mehr» (21.10.2026): the reason of the last failed fetch stays visible
+  'Google gives no access to these values. Connect again and tick all values.': 'Google gibt keinen Zugriff auf diese Werte. Verbinde neu und hake alle Werte an.',
+  'The server has done enough for today. It works again tomorrow.': 'Der Server hat heute genug gearbeitet. Morgen geht es wieder.',
+  'today {time}|fitbit': 'heute {time}',
+  'Last try: {when}|fitbit': 'Zuletzt versucht: {when}.',
+  'Google did not give these values this time: {list}': 'Diese Werte hat Google diesmal nicht geliefert: {list}',
+  'Connect Google again': 'Google neu verbinden',
 };

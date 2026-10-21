@@ -30,7 +30,8 @@
   import { paceOf, PACE_KEY } from '../lib/pace.js';
   import { loadWerte } from '../lib/review/actdata.js';
   import { paceFor, usualSurface } from '../lib/review/werte.js';
-  import { blockPlan, eveningPlan, DRINK_L_PER_H, HOT_C, HOT_EXTRA_L } from '../lib/blockplan.js';
+  import { blockPlan, eveningPlan } from '../lib/blockplan.js';
+  import { FUEL_KEY } from '../lib/fuel.js';
   import { chargeList, chargeCount } from '../lib/charge.js';
   import ChargeList from '../lib/trip/ChargeList.svelte';
   import { dayIndex, addTime, planHours, stage, stageCount, isNonstop, blocks, blockHours, dayProfile, placeName, fetchHourly, rideHours, wxSummary, DEFAULT_START, onTripDay } from '../lib/ride.js';
@@ -61,7 +62,9 @@
   // Paket K «Unterwegs» (Noah 19.10.2026): the helpers load only when this page shows them (main.js stays small)
   import { setGloveAuto, glove, setGlove } from '../lib/unterwegs/handschuh.svelte.js';
   import { autoGlove, MODES as GLOVE_MODES } from '../lib/unterwegs/handschuh.js';
-  import { House, Gauge, FileText, Hand, Droplets, Sparkles, FileCog, Navigation } from '@lucide/svelte';
+  import { House, Gauge, FileText, Hand, Droplets, Sparkles, FileCog, Navigation, HeartHandshake, Bike } from '@lucide/svelte';
+  import MorningList from '../lib/schnellpacken/MorningList.svelte'; // Paket SP «Schneller packen»
+  import RideDoor from '../lib/haustuer/RideDoor.svelte'; // Paket W «Von der Haustür bis zurück»: plan B and check-in
   import { Shirt, Utensils, Droplet, Lightbulb, Pencil, ArrowRight, ArrowLeft, Clock, CloudSun, Search, Route as RouteIcon, ChevronRight, Plus, Minus, X, Mic, Moon, BedDouble, MapPin, Flag } from '@lucide/svelte';
 
   const tripsQ = liveQuery(() => db.trips.toArray());
@@ -216,7 +219,8 @@
   };
   // Per block: clothing, food and drink, light (answer 4b).
   const onTrip = $derived(stats ? stats.zones.flatMap((z) => z.entries.filter((e) => itemsById[e.itemId]).map((e) => ({ item: itemsById[e.itemId], qty: e.qty || 1, place: placeName(trip, z) }))) : []);
-  const bp = $derived(plan.length ? blockPlan(plan, onTrip, { wxOf: blockHrs, place: sunPlace, tripWx: trip.wx ?? null }) : null);
+  const fuelQ = liveQuery(() => db.settings.get(FUEL_KEY)); // Paket X: the one water rule, your values
+  const bp = $derived(plan.length ? blockPlan(plan, onTrip, { wxOf: blockHrs, place: sunPlace, tripWx: trip.wx ?? null, fuel: $fuelQ?.value ?? null }) : null);
   const names = (list) => list.map((w) => `${w.name} (${w.place})`).join(', ');
 
   /* ---------- v0.34.0 (L8, Noah a): the evening on a trip of several days ---------- */
@@ -228,7 +232,7 @@
     if (!nextSt?.hours) return null;
     const first = blocks({ ...trip, plan: null }, nextSt).slice(0, 1);
     const p = nextSaved?.places?.[0];
-    return first.length ? blockPlan(first, onTrip, { wxOf: (b) => (p ? blockHours(p.hours, b) : []), place: nextSt.from ?? sunPlace, tripWx: trip.wx ?? null }).rows[0] : null;
+    return first.length ? blockPlan(first, onTrip, { wxOf: (b) => (p ? blockHours(p.hours, b) : []), place: nextSt.from ?? sunPlace, tripWx: trip.wx ?? null, fuel: $fuelQ?.value ?? null }).rows[0] : null;
   });
   const eve = $derived(trip ? eveningPlan({ days: nonstop ? 1 : days, day: cur, date: st?.date ?? null, nextDate: nextSt?.date ?? null, overnight: trip.overnight, first: nextFirst, charge: chargeList(trip, items) }) : null);
   const eveCharged = $derived(eve ? chargeCount(trip, eve.charge, eve.date) : null);
@@ -462,6 +466,9 @@
   /* ---------- Paket K «Unterwegs» (Noah 19.10.2026 «1a und b 2 a und b 3 5a b 4a 5a und b») ---------- */
   let homeOpen = $state(false);
   let lenkerOpen = $state(false);
+  // Paket W 1116 «Gut angekommen» and 1119 «Velo abgestellt»
+  let arrivedOpen = $state(false);
+  let parkedOpen = $state(false);
   let eatNext = $state(null);
   const tripDay = $derived(!!trip && !trip.finished && onTripDay(trip, today));
   // #285: the glove mode switches itself on below 5 °C or on a ski tour day (changeable by hand)
@@ -480,7 +487,7 @@
       const s = stage(trip, n, pace, { today });
       const wx = s?.date ? trip.rideWx?.[s.date]?.places?.[0]?.hours ?? [] : [];
       const temps = wx.map((x) => x.temp).filter(Number.isFinite);
-      return { label: dayLabel(n), hours: s?.hours ?? 0, hot: temps.length ? Math.max(...temps) >= 25 : /hot|heiss/i.test(String(trip.wx ?? '')) };
+      return { label: dayLabel(n), date: s?.date ?? null, hours: s?.hours ?? 0, temp: temps.length ? Math.max(...temps) : null, hot: temps.length ? Math.max(...temps) >= 25 : /hot|heiss/i.test(String(trip.wx ?? '')) };
     });
   });
   const bottlesL = $derived(onTrip.reduce((sum, x) => sum + (x.item.waterL || 0) * (x.qty || 1), 0));
@@ -521,6 +528,8 @@
   <!-- v0.127.0 A-U2: the one empty building block -->
   {#if $tripsQ?.length}<Empty icon={RouteIcon} title={t('No trip on the way today')} text={t('On the way shows a trip on its days. Plan or start one under Trips.')} action={{ label: t('To the trips'), href: '#/trips' }} />
   {:else if $tripsQ}<Empty icon={RouteIcon} title={t('No trips yet')} text={t('A trip is the packing list for one ride or journey.')} action={{ label: t('Create a trip'), onclick: () => newTrip('standard') }} />{:else}<Skeleton rows={3} />{/if}
+  <!-- Paket W 1119: «Wo steht mein Velo?» also without a trip (in town, at the station) -->
+  {#if $tripsQ}<p class="parked-solo"><button type="button" class="btn" onclick={() => (parkedOpen = true)} data-uw-parked><Bike size={18} aria-hidden="true" />{t('Bike parked')}</button></p>{/if}
 {:else}
 <div class="ride trip-page">
   <TripBand {trip} tab="ride" {kicker} compact action={main.kind ? go : noteMain ? noteBtn : null} aside={main.kind ? pen : noteMain ? dayAside : null} extra={endLink} stateMore={running ? dayOf : ''} stepText={noteMain ? dayOf : ''} hint={main.kind === 'last' ? t('End the trip when you are back home.') : noteMain ? nextLine : ''} />
@@ -553,6 +562,10 @@
       {#if !trip.finished && !Array.isArray(trip.packs)}<BaseCheck {trip} {bike} compact={bcCompact} />{/if}
       <!-- Paket K #280 + #206 «Bereit für heute?» with the listening tip, on the tour day -->
       {#if tripDay}{#await import('../lib/unterwegs/Bereit.svelte') then m}<m.default {trip} />{:catch}{/await}{/if}
+      <!-- Paket W (Noah 20.10.2026 «2a 3a»): plan B when heavy rain or a storm comes, tonight's check-in -->
+      {#if !trip.finished && st}<RideDoor {trip} {st} {nextSt} onhome={() => (homeOpen = true)} />{/if}
+      <!-- Paket SP 1126: on the start morning, what goes in only now -->
+      <MorningList {trip} {itemsById} />
       <!-- Noah 7a: the days, then the block of now, on top. SN1: the days as a quiet switch «Tag 2 · Fr». -->
       <div class="days">
         {#if days > 1}
@@ -604,7 +617,7 @@
           <!-- v0.105.0 P5 (T12): «So wird gerechnet» opens under the card's last row -->
           <button type="button" class="tp-link howb" aria-expanded={how} onclick={() => (how = !how)}>{t('How this is worked out')}<ChevronRight size={16} aria-hidden="true" /></button>
           {#if how}
-            <p class="tp-muted tp-small howp">{nonstop && trip.plan?.schedule?.length ? t('Your time plan from the logbook.') : t('Blocks of 3 hours.')} {#if st.km}{t('km at {kmh} km/h, the same guess as the riding time', { kmh: Math.round((st.km / st.hours) * 10) / 10 })}{pace.mine ? ` ${tn(pace.n, '(your pace from {n} ride)', '(your pace from {n} rides)')}` : ''}.{:else}{st.hoursGuess ? t('No route and no riding hours: {n} h assumed from the start.', { n: st.hours }) : t('No route: {n} h riding from the start (riding hours of the trip).', { n: num(st.hours) })}{/if} {t('Drinking {l} L per hour ({hot} L from {c} °C) is a guess', { l: DRINK_L_PER_H, hot: DRINK_L_PER_H + HOT_EXTRA_L, c: HOT_C })}{bp.capL ? t('; your bottles hold {n} L', { n: Math.round(bp.capL * 10) / 10 }) : t('; no bottle on this trip')}. {t('Sunset and sunrise are computed for the start of the day.')}{saved ? '' : ` ${t('Load the forecast below for the weather per block.')}`}</p>
+            <p class="tp-muted tp-small howp">{nonstop && trip.plan?.schedule?.length ? t('Your time plan from the logbook.') : t('Blocks of 3 hours.')} {#if st.km}{t('km at {kmh} km/h, the same guess as the riding time', { kmh: Math.round((st.km / st.hours) * 10) / 10 })}{pace.mine ? ` ${tn(pace.n, '(your pace from {n} ride)', '(your pace from {n} rides)')}` : ''}.{:else}{st.hoursGuess ? t('No route and no riding hours: {n} h assumed from the start.', { n: st.hours }) : t('No route: {n} h riding from the start (riding hours of the trip).', { n: num(st.hours) })}{/if} {t('Drinking {a} L per hour at {ca} °C up to {b} L at {cb} °C is a guess (your values under Verpflegung)', { a: num(bp.rate.cool), ca: num(bp.rate.coolC), b: num(bp.rate.hot), cb: num(bp.rate.hotC) })}{bp.capL ? t('; your bottles hold {n} L', { n: Math.round(bp.capL * 10) / 10 }) : t('; no bottle on this trip')}. {t('Sunset and sunrise are computed for the start of the day.')}{saved ? '' : ` ${t('Load the forecast below for the weather per block.')}`}</p>
           {/if}
         </section>
       {:else if !st.km}
@@ -661,6 +674,8 @@
           <a class="btn uw-bigbtn" href={`#/live/${encodeURIComponent(trip.id)}`} data-live-start><Navigation size={22} aria-hidden="true" /><span>{t('Live map')}<small>{t('where you are, next shop, arrival')}</small></span></a>
           <button type="button" class="btn uw-bigbtn" onclick={() => (homeOpen = true)} data-uw-home><House size={22} aria-hidden="true" /><span>{t('Home|way')}<small>{t('trains and Maps')}</small></span></button>
           <button type="button" class="btn uw-bigbtn" onclick={() => (lenkerOpen = true)} data-uw-lenker><Gauge size={22} aria-hidden="true" /><span>{t('Handlebar view')}<small>{t('big numbers, sideways')}</small></span></button>
+          <button type="button" class="btn uw-bigbtn" onclick={() => (arrivedOpen = true)} data-uw-arrived><HeartHandshake size={22} aria-hidden="true" /><span>{t('Arrived safely')}<small>{t('a short message, ready to share')}</small></span></button>
+          <button type="button" class="btn uw-bigbtn" onclick={() => (parkedOpen = true)} data-uw-parked><Bike size={22} aria-hidden="true" /><span>{t('Bike parked')}<small>{t('photo, place, lock')}</small></span></button>
           <a class="btn uw-bigbtn" href="#/ride/abfahrt" data-uw-sheet><FileText size={22} aria-hidden="true" /><span>{t('Before you leave|sheet')}<small>{t('offline and as PDF')}</small></span></a>
           <div class="uw-glove"><span class="gl"><Hand size={18} aria-hidden="true" /> {t('Glove mode')}{#if glove.mode === 'auto' && glove.auto.on}<small> · {glove.auto.why === 'ski' ? t('on: ski tour') : t('on: below 5 °C')}</small>{/if}</span><Seg full={false} label={t('Glove mode')} options={GLOVE_MODES.map((g) => ({ key: g.key, name: t(g.name) }))} value={glove.mode} onchange={setGlove} /></div>
         </div>
@@ -817,8 +832,10 @@
 </div>
 {#if homeOpen}{#await import('../lib/unterwegs/Heimweg.svelte') then m}<m.default onclose={() => (homeOpen = false)} />{/await}{/if}
 {#if lenkerOpen}{#await import('../lib/unterwegs/Lenker.svelte') then m}<m.default ctx={lenkerCtx} onclose={() => (lenkerOpen = false)} />{/await}{/if}
+{#if arrivedOpen && trip}{#await import('../lib/haustuer/ArrivedSheet.svelte') then m}<m.default {trip} day={cur} onclose={() => (arrivedOpen = false)} />{:catch}{/await}{/if}
 {#if endAsk}<EndTripSheet {trip} day={cur + 1} {days} arrive={cur + 1 >= days ? planEnd : ''} onclose={() => (endAsk = false)} />{/if}
 {/if}
+{#if parkedOpen}{#await import('../lib/haustuer/ParkedSheet.svelte') then m}<m.default onclose={() => (parkedOpen = false)} />{:catch}{/await}{/if}
 
 <style>
   /* v0.106.0 Design-Refresh P5 (T12): headings above light cards, as on the other trip pages; every
@@ -838,6 +855,8 @@
   .dbox { display: grid; place-items: center; flex: none; width: 56px; height: 60px; border-radius: var(--r-ctl); background: var(--paper-2); color: var(--ink); }
   .dbox small { font-size: var(--fs-tiny); text-transform: uppercase; color: var(--ink-3); }
   .dbox b { font: 700 var(--fs-section)/1 var(--font-body); }
+  .parked-solo { display: flex; justify-content: center; margin: 12px 0; }
+  .parked-solo .btn { display: inline-flex; align-items: center; gap: 6px; }
   .reopen { display: flex; flex-wrap: wrap; align-items: center; gap: 0 10px; }
   /* SN1: «…» of the trip at the end of the pill line */
   .rmore { margin-left: auto; }

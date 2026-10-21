@@ -57,7 +57,8 @@ test('Packen (T6): «Taschen» as one list with the count, the open bag below, �
   await expect(open).toBeVisible();
   const before = Number((await bags.locator('.packed-count').textContent()).match(/\d+/)[0]);
   const item = open.locator('ul.items button[aria-pressed="false"]').first();
-  const label = (await item.textContent()).trim();
+  // UI-Grundlagen (Noah 20.10.2026, changed on purpose): a packed row adds the word «drin», so the row is found by its name
+  const label = (await item.locator('.nm').textContent()).trim();
   await item.click();
   // UI-Grundlagen (0.169): a packed item says «drin» before its weight, so match the name without the weight
   await expect(open.locator('ul.items button').filter({ hasText: label.replace(/\s*[\d'’]+ g$/, '') }).first()).toHaveAttribute('aria-pressed', 'true');

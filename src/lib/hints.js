@@ -107,7 +107,7 @@ export const HINTS = {
       ['target', 'Goals', 'each activity with its own goal and window'],
       ['bike', 'Riding', 'rides from Strava count by themselves'],
     ],
-    jumps: [['Tick off today', 'tick-h'], ['Rings', 'ring-h'], ['Goals × days', 'acts-h'], ['Bike this month', 'km-h']],
+    jumps: [['Tick off today', 'tick-h'], ['Rings', 'ring-h'], ['Goals × days', 'acts-h'], ['Overview|garmin', 'overview-h'], ['Last 7 days', 'km-h']],
   },
   meditation: {
     lead: ['Here you start a session and see how it goes.', 'Like last time with one tap; the log and the look back show when it goes deepest.'],

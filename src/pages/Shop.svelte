@@ -7,6 +7,7 @@
    * this device, no fees. Orders: the tab «Bestellungen» (SHOP3a).
    */
   import VeloHead from '../lib/bikes/VeloHead.svelte';
+  import { askDelete } from '../lib/ui/ask.js';
   import ProductCard from '../lib/pay/ProductCard.svelte';
   import ShopTabs from '../lib/pay/ShopTabs.svelte';
   import Seg from '../lib/ui/Seg.svelte';
@@ -52,7 +53,7 @@
     await load();
   }
   async function remove() {
-    if (!confirm(t('Remove {name} from the shop?', { name: form.name }))) return;
+    if ((await askDelete({ title: t('Remove {name} from the shop?', { name: form.name }), label: t('Remove') })) !== 'delete') return;
     await deleteProduct(form.id);
     form = null;
     await load();

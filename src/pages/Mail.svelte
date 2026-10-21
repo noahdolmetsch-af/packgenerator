@@ -39,7 +39,7 @@
   let options = $state({ trips: [], docs: [] });
   async function loadOptions() {
     const trips = (await db.trips.toArray()).filter((x) => !x.skipped).sort((a, b) => String(b.startDate ?? '').localeCompare(String(a.startDate ?? ''))).slice(0, 12);
-    const docs = (await db.docs.toArray()).sort((a, b) => String(b.createdAt ?? '').localeCompare(String(a.createdAt ?? ''))).slice(0, 30);
+    const docs = (await db.docs.toArray()).filter((d) => !d.noteId).sort((a, b) => String(b.createdAt ?? '').localeCompare(String(a.createdAt ?? ''))).slice(0, 30);
     options = { trips: trips.map((x) => ({ id: x.id, name: x.title || x.startDate })), docs: docs.filter((d) => (d.bytes ?? 0) <= 3 * 1024 * 1024).map((d) => ({ id: d.id, name: d.name })) };
   }
   function attach() {

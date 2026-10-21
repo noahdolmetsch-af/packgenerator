@@ -7,11 +7,48 @@
  *   phone's step counter is not counted twice. AZM already counts cardio and peak minutes double.
  * - sleep: the main sleep of a night counts to the day you woke up (its civil end date).
  * - restingHr and hrvMs: the daily summary values.
+ * - kcal, kcalActive, hrMax («Form und Erholung», Garmin-Übersicht 20.10.2026): the daily roll-ups of
+ *   total-calories, active-energy-burned and heart-rate. Read tolerantly (the first number of the
+ *   value whose name fits), because Google names the fields per type.
+ * - spo2, breath, skinTemp («Körperwerte» 20.10.2026 «1a 2a»): the daily summaries of oxygen saturation
+ *   (%), breathing rate (per minute) and the nightly skin temperature (difference to your normal, °C).
+ *   Read tolerantly as well (dailyOf + pick).
  * A value Google did not send stays out of the row (nothing is invented).
  */
 
 /** At most this many days per request (Google allows 90 per roll-up). */
 export const MAX_DAYS = 90;
+/** Calories and heart rate roll up at most 14 days per request. */
+export const SHORT_DAYS = 14;
+
+/** from..to cut into pieces of at most n days: [[from, to], …]. */
+export function chunks(from, to, n = SHORT_DAYS) {
+  const out = [];
+  for (let a = from; a <= to; ) {
+    let b = a;
+    for (let i = 1; i < n && b < to; i++) b = nextDay(b);
+    out.push([a, b]);
+    a = nextDay(b);
+  }
+  return out;
+}
+
+/**
+ * The first number in a roll-up value whose field name matches «re» (e.g. /kcal|sum/i), searched one
+ * level deep; null when none. Tolerant on purpose: the field names differ per data type.
+ */
+export function pick(obj, re) {
+  if (!obj || typeof obj !== 'object') return null;
+  for (const [k, v] of Object.entries(obj)) {
+    if (re.test(k) && num(v) !== null) return num(v);
+  }
+  for (const v of Object.values(obj)) {
+    if (v && typeof v === 'object') {
+      for (const [k, w] of Object.entries(v)) if (re.test(k) && num(w) !== null) return num(w);
+    }
+  }
+  return null;
+}
 
 const pad = (n) => String(n).padStart(2, '0');
 const DAY = /^\d{4}-\d{2}-\d{2}$/;
@@ -83,8 +120,23 @@ export function sleepOf(s) {
 }
 
 /**
+ * A daily summary point of any type: its date and the object that holds the values ({ date, v }), or
+ * null. Google wraps each type in a field of its own name (dailyOxygenSaturation, …), so the first
+ * object with a date counts.
+ */
+export function dailyOf(p) {
+  for (const v of Object.values(p ?? {})) {
+    if (v && typeof v === 'object' && v.date) {
+      const date = isoOf(v.date);
+      if (date) return { date, v };
+    }
+  }
+  return null;
+}
+
+/**
  * Builds the day rows from Google's answers.
- * @param {{ steps?: any[], azm?: any[], sleep?: any[], rhr?: any[], hrv?: any[] }} src
+ * @param {{ steps?: any[], azm?: any[], sleep?: any[], rhr?: any[], hrv?: any[], kcal?: any[], kcalActive?: any[], hr?: any[], spo2?: any[], breath?: any[], skin?: any[] }} src
  *   steps/azm: rollupDataPoints; sleep/rhr/hrv: dataPoints of the list call
  * @param {string} from first day (inclusive)
  * @param {string} to last day (inclusive)
@@ -116,6 +168,46 @@ export function daysFrom(src, from, to) {
     const r = row(isoOf(p?.dailyHeartRateVariability?.date));
     const v = num(p?.dailyHeartRateVariability?.averageHeartRateVariabilityMilliseconds);
     if (r && v !== null) r.hrvMs = Math.round(v * 10) / 10;
+  }
+  const kcalOf = (p, ...names) => {
+    const v = names.map((n) => p?.[n]).find(Boolean);
+    return pick(v, /kcal|calor|energy|sum/i);
+  };
+  for (const p of src.kcal ?? []) {
+    const r = row(isoOf(p?.civilStartTime?.date));
+    const v = kcalOf(p, 'totalCalories', 'total_calories');
+    if (r && v !== null) r.kcal = Math.round(v);
+  }
+  for (const p of src.kcalActive ?? []) {
+    const r = row(isoOf(p?.civilStartTime?.date));
+    const v = kcalOf(p, 'activeEnergyBurned', 'active_energy_burned', 'activeCalories');
+    if (r && v !== null) r.kcalActive = Math.round(v);
+  }
+  for (const p of src.hr ?? []) {
+    const r = row(isoOf(p?.civilStartTime?.date));
+    const v = pick(p?.heartRate ?? p?.heart_rate, /max/i);
+    if (r && v !== null && v > 0) r.hrMax = Math.round(v);
+  }
+  // the field Google documents (health.googleapis.com discovery, v4), else a tolerant pick
+  const daily = (list, k, field, re, ok) => {
+    for (const p of list ?? []) {
+      const d = dailyOf(p);
+      const v = d ? (num(d.v[field]) ?? pick(d.v, re)) : null;
+      if (v === null || !ok(v)) continue;
+      const r = row(d.date);
+      if (r) r[k] = Math.round(v * 10) / 10;
+    }
+  };
+  daily(src.spo2, 'spo2', 'averagePercentage', /^average/i, (v) => v >= 70 && v <= 100);
+  daily(src.breath, 'breath', 'breathsPerMinute', /breath/i, (v) => v >= 4 && v <= 40);
+  // skin temperature: the night against your baseline (nightlyTemperatureCelsius − baselineTemperatureCelsius)
+  for (const p of src.skin ?? []) {
+    const d = dailyOf(p);
+    const night = num(d?.v?.nightlyTemperatureCelsius);
+    const base = num(d?.v?.baselineTemperatureCelsius);
+    if (night === null || base === null || Math.abs(night - base) > 5) continue;
+    const r = row(d.date);
+    if (r) r.skinTemp = Math.round((night - base) * 100) / 100;
   }
   // Per wake-up day the main sleep wins; without one, the longest night (naps never count).
   const best = new Map();

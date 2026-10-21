@@ -37,6 +37,7 @@
   import { nextTrip } from '../debrief.js';
   import { bikePhotos, shrinkImage } from '../photo.js';
   import Lightbox from '../ui/Lightbox.svelte';
+  import SetupPhotos from '../bilder/SetupPhotos.svelte'; // «Bilder in der App» 2a: the setup photos as a timeline
   import IdeasFold from './IdeasFold.svelte';
   import OrderDialog from '../care/OrderDialog.svelte';
   import { withVisits, tyreSetup, bikeProfile, workshopOrder } from '../workshop.js';
@@ -51,7 +52,8 @@
   import { setOwnLink, removeOwnLink, setLinkOff } from '../sk/store.js';
   import OwnLinkSheet from '../sk/OwnLinkSheet.svelte';
   import SkToast from '../sk/SkToast.svelte';
-  import { Pencil, EyeOff, ShieldCheck } from '@lucide/svelte';
+  import { Pencil, EyeOff, ShieldCheck, Gauge } from '@lucide/svelte';
+  import { wearRows, wearSummary } from '../wear.js';
   import { take } from '../nav.js';
   import { strava } from '../strava/client.svelte.js';
   import { signFor } from '../daumen.js'; // FE13: a sign next to the colour
@@ -91,6 +93,17 @@
   const profile = $derived(view ? bikeProfile(view, visits, tyres, today) : null);
   // The same count as Bike care, Home and Pack (readiness.js).
   const care = $derived(view ? bikeCare(view, { tasks, visits, today }) : null);
+  // «Verschleiss» (Noah 20.10.2026, 5a): the most worn part in one line («Chain: 260 km left»)
+  const wearSum = $derived(view ? wearSummary(wearRows(view, { today })) : null);
+  const wearLine = $derived(
+    !wearSum || !wearSum.top
+      ? t('Set start points, then the app can tell')
+      : wearSum.state === 'ok'
+        ? t('All parts fine · most worn: {part}', { part: wearSum.top.name })
+        : wearSum.top.left != null && wearSum.top.left > 0
+          ? t('{part}: {km} km left', { part: wearSum.top.name, km: num(wearSum.top.left) })
+          : t('{part}: replace soon', { part: wearSum.top.name }),
+  );
   // N15: the order for the shop (for the bike's next trip, else what is due today), without what I do myself.
   const orderTrip = $derived(bike ? upcomingTrips($tripsQ ?? [], today).find((x) => x.bikeId === bike.id) ?? null : null);
   const order = $derived(view ? workshopOrder(view, orderTrip, tasks, visits, tyres, today) : null);
@@ -175,6 +188,7 @@
   const bikeTrips = $derived(bike ? ($tripsQ ?? []).filter((t) => t.bikeId === bike.id).sort((a, b) => (b.startDate ?? '').localeCompare(a.startDate ?? '')) : []);
   const tripTitle = (id) => ($tripsQ ?? []).find((t) => t.id === id)?.title ?? null;
   let shown = $state(null); // index in the gallery
+  let timeline = $state(false);
   let photoMsg = $state('');
   let adding = $state(false);
   async function addPhotos(event) {
@@ -189,7 +203,7 @@
       try {
         const data = await shrinkImage(file);
         const id = `photo-${Date.now().toString(36)}-${n}`;
-        await db.photos.put({ id, bikeId: bike.id, name: file.name.replace(/\.[^.]+$/, '').slice(0, 40) || 'Setup', tripId: null, main: !gallery.length && saved === 0, data, addedAt: new Date().toISOString() });
+        await db.photos.put({ id, bikeId: bike.id, name: file.name.replace(/\.[^.]+$/, '').slice(0, 40) || 'Setup', tripId: null, main: !gallery.length && saved === 0, data, day: localDay(), addedAt: new Date().toISOString() });
         saved++;
       } catch (err) {
         failed.push(`${file.name}: ${err.message || t('This photo could not be read.')}`);
@@ -468,6 +482,8 @@
                 {#if message}<p class="msg" role="status">{message}</p>{/if}
               </SetupFold>
             </li>
+            <!-- «Verschleiss» (Noah 20.10.2026, 5a): how worn the parts are, one calm row to the page «Wear» -->
+            <li><a class="vk-row" href={bikesHash({ tab: 'care', view: 'wear', bike: bike.id })} data-wear-row={wearSum?.state ?? 'unknown'}><span class="ib"><Gauge size={18} aria-hidden="true" /></span><span class="m"><b>{t('Wear|page')}</b><small>{wearLine}</small></span><ChevronRight class="chev" size={18} aria-hidden="true" /></a></li>
             <li><a class="vk-row" href={bikesHash({ tab: 'compare', bike: bike.id })}><span class="ib"><Scale size={18} aria-hidden="true" /></span><span class="m"><b>{t('Equipment|tab')}</b><small>{t('Measures, parts, geometry')}</small></span><ChevronRight class="chev" size={18} aria-hidden="true" /></a></li>
           </ul>
         </section>
@@ -503,7 +519,7 @@
                 <label class="th add">{adding ? t('Reading…') : t('+ Photo')}<input type="file" accept="image/*" multiple onchange={addPhotos} hidden disabled={adding} /></label>
                 <CameraButton onchange={addPhotos} disabled={adding} />
               </div>
-              <p class="note">{t('Open a photo to show it in Pack, rename it or keep it for one trip.')}</p>
+              <p class="note">{t('Open a photo to show it in Pack, rename it or keep it for one trip.')} {#if gallery.length}<button type="button" class="btn btn-link" onclick={() => (timeline = true)} data-setup-timeline>{t('As a timeline by date')}</button>{/if}</p>
               <!-- v0.27.0 (AP22): below the gallery, so a long message wraps instead of scrolling sideways. -->
               {#if photoMsg}<p class="photo-err" role="alert">{photoMsg}</p>{/if}
             </SetupFold>
@@ -656,6 +672,7 @@
   <OrderDialog order={{ ...order, rows: forShop.rows }} bike={view} trip={orderTrip} bikeNames={Object.fromEntries(bikes.map((b) => [b.id, b.name]))} onclose={() => (orderOpen = false)} />
 {/if}
 
+{#if timeline && bike}<SetupPhotos {bike} onclose={() => (timeline = false)} />{/if}
 {#if shown != null && gallery.length}
   <Lightbox list={gallery.map((p) => ({ src: p.src, name: p.name, sub: [p.main ? t('Shown in Pack') : '', p.tripId ? t('For {trip}', { trip: tripTitle(p.tripId) ?? t('a trip') }) : ''].filter(Boolean).join(' · ') }))} start={shown} onclose={() => (shown = null)}>
     {#snippet actions(cur)}

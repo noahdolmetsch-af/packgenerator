@@ -12,12 +12,17 @@
 import { liveQuery } from 'dexie';
 import { db as appDb } from '../db.js';
 import { readKey, STRAVA_HASH } from '../strava/client.svelte.js';
-import { call, syncHealth, HEALTH_KEY, VALUES } from '../health.js';
+import { call, syncHealth, HEALTH_KEY, VALUES, EXTRA } from '../health.js';
 
 export const FITBIT_HASH = '#/me/fitbit';
 export const DATA_HASH = '#/me/data';
 /** db.meta (this device only): when this device last tried to fetch. */
 export const TRY_KEY = 'health.try';
+/**
+ * db.meta (this device only): how the last fetch went, { at, ok, code, missing } (Noah 21.10.2026: the
+ * values stopped coming and the app said nothing). Kept, so the card still says it after a reload.
+ */
+export const LAST_KEY = 'health.last';
 export const AUTO_EVERY_MS = 15 * 60 * 1000;
 export { STRAVA_HASH };
 
@@ -30,12 +35,13 @@ export const prefsOf = (v) => ({
   until: typeof v?.until === 'string' ? v.until : null,
 });
 
-export const health = $state({ loaded: false, busy: false, error: '', justConnected: false, prefs: prefsOf(null), first: null, last: null });
+export const health = $state({ loaded: false, busy: false, error: '', justConnected: false, prefs: prefsOf(null), first: null, last: null, lastTry: null });
 
 if (typeof window !== 'undefined' && typeof indexedDB !== 'undefined') {
-  liveQuery(async () => [await appDb.settings.get(HEALTH_KEY), await appDb.healthDays.orderBy('date').first(), await appDb.healthDays.orderBy('date').last()]).subscribe({
-    next: ([p, first, last]) => {
+  liveQuery(async () => [await appDb.settings.get(HEALTH_KEY), await appDb.healthDays.orderBy('date').first(), await appDb.healthDays.orderBy('date').last(), await appDb.meta.get(LAST_KEY)]).subscribe({
+    next: ([p, first, last, tried]) => {
       health.prefs = prefsOf(p?.value);
+      health.lastTry = tried ?? null;
       health.first = first ?? null;
       health.last = last ?? null;
       health.loaded = true;
@@ -49,8 +55,12 @@ export async function savePrefs(db, patch) {
   await db.settings.put({ key: HEALTH_KEY, value: { ...old, ...patch } });
 }
 
+/** The server's names of the values (its «missing» list) → the app's value. */
+export const VALUE_OF = { sleep: 'sleep', steps: 'steps', 'active-zone-minutes': 'azm', 'daily-resting-heart-rate': 'restingHr', 'daily-heart-rate-variability': 'hrvMs' };
+
 /** Only the values Noah chose are kept. */
-const chosen = (values) => (rows) => rows.map((r) => Object.fromEntries(Object.entries(r).filter(([k]) => k === 'date' || values.includes(k))));
+// the values switched off stay out; calories and the highest pulse (EXTRA) have no switch of their own
+const chosen = (values) => (rows) => rows.map((r) => Object.fromEntries(Object.entries(r).filter(([k]) => k === 'date' || values.includes(k) || EXTRA.includes(k))));
 
 let running = null;
 /** «Jetzt holen»: fetch the missing days. Returns the result or null (error in health.error). */
@@ -67,14 +77,16 @@ export function fetchNow({ db = appDb, c = call, now = new Date() } = {}) {
         now,
         c: async (step, o) => {
           const r = await c(step, o);
-          return { ...r, days: keep(r.days ?? []) };
+          return { ...r, days: keep(r.days ?? []), missing: (r.missing ?? []).filter((m) => prefs.values.includes(VALUE_OF[m])) };
         },
       });
       if (!prefs.connected) await savePrefs(db, { connected: true });
+      await db.meta.put({ key: LAST_KEY, at: now.toISOString(), ok: true, code: '', missing: res.missing ?? [] });
       return res;
     } catch (err) {
       const code = err?.code ?? 'network';
       health.error = code;
+      await db.meta.put({ key: LAST_KEY, at: now.toISOString(), ok: false, code, missing: [] }).catch(() => {});
       if (code === 'not_connected') await savePrefs(db, { connected: false });
       return null;
     } finally {

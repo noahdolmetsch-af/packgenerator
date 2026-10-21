@@ -9,8 +9,6 @@
  * under {#if open}) and every time its <details> opens (a menu inside <details>), and on resize.
  */
 export const EDGE = 8;
-/** Room kept free under the sticky top bar when a menu flips up outside a dialog. */
-export const TOP_BAR = 64;
 
 /** How far a box must move sideways to stay inside [edge, width − edge]; 0 when it fits. Pure. */
 export function shiftX(left, right, width, edge = EDGE) {
@@ -43,8 +41,15 @@ function fit(node) {
   const bar = inDialog ? null : document.querySelector('nav.bottom')?.getBoundingClientRect();
   const floor = bar && bar.height ? Math.min(bar.top, window.innerHeight) : window.innerHeight;
   const dx = shiftX(r.left, r.right, document.documentElement.clientWidth);
-  const dy = shiftY(r, button, floor, inDialog ? EDGE : TOP_BAR);
+  // the sticky top bar only exists on a phone or a narrow window; on a wide screen the menu may flip up to the edge
+  const head = inDialog ? null : document.querySelector('header.top')?.getBoundingClientRect();
+  const ceiling = head?.height ? Math.max(EDGE, head.bottom + EDGE) : EDGE;
+  const dy = shiftY(r, button, floor, ceiling);
   if (dx || dy) node.style.translate = `${Math.round(dx)}px ${Math.round(dy)}px`;
+  // 21.10.2026: a long menu that fits neither below nor above its button scrolls the page up just enough
+  // to show all of it (the problem menu has 11 answers since «Fotos hinzufügen»)
+  const over = r.bottom - (floor - EDGE);
+  if (!dy && over > 0 && !inDialog && r.top - over >= ceiling) window.scrollBy(0, over);
 }
 
 export function inView(node) {

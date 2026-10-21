@@ -152,19 +152,28 @@ test('notes: start from a template, read the format, add a sketch and a link', a
   await page.locator('li.ncard', { hasText: 'Format' }).locator('button').first().click();
   const sheet = page.locator('dialog.nsheet');
   await expect(sheet).toBeVisible();
-  // a note with format opens as reading view; one tap goes back to editing
-  await expect(sheet.locator('[data-md] h4, [data-md] h3')).toHaveText('Kopf');
-  await expect(sheet.locator('[data-md] strong')).toHaveText('fett');
-  await sheet.locator('[data-reading]').click();
-  await expect(sheet.getByRole('textbox', { name: T('Text') })).toBeVisible();
+  // Paket NE 1147: a note is written formatted (no marks); «Write with marks» shows the text with marks,
+  // first as a reading view, one tap goes back to editing
+  const ed = sheet.locator('[data-rt-edit]');
+  await expect(ed.locator('h4, h3')).toHaveText('Kopf');
+  await expect(ed.locator('strong')).toHaveText('fett');
+  await sheet.locator('[data-edit-mode]').click();
+  await expect(sheet.getByRole('textbox', { name: T('Text') })).toHaveValue(/## Kopf/);
+  await sheet.locator('[data-edit-mode]').click();
+  await expect(ed.locator('strong')).toHaveText('fett');
 
+  // Paket NE 1146: «Sketch» opens the drawing pad (it replaced the small sketch field)
   await sheet.locator('[data-add-sketch]').click();
-  const box = await sheet.locator('canvas').boundingBox();
+  const pad = page.locator('dialog[data-draw]');
+  const cv = pad.locator('[data-draw-canvas]');
+  await expect(cv).toBeVisible();
+  const box = await cv.boundingBox();
   await page.mouse.move(box.x + 20, box.y + 20);
   await page.mouse.down();
   await page.mouse.move(box.x + 80, box.y + 60, { steps: 5 });
   await page.mouse.up();
-  await sheet.getByRole('button', { name: T('Use the sketch') }).click();
+  await pad.locator('[data-draw-save]').click();
+  await expect(pad).toHaveCount(0);
   await expect(sheet.locator('[data-note-photo]')).toHaveCount(1);
 
   for (const u of ['https://example.org/a', 'https://example.org/b']) {

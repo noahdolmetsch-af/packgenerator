@@ -9,10 +9,10 @@ import {
 const flat = { kmh: 20, climbMh: 600 }; // 20 km = 1 h on the flat
 
 describe('values', () => {
-  it('starts with 60 g per hour, 1–2 l per hour and the standard products', () => {
+  it('starts with 60 g per hour, 0.5–1.5 l per hour (Noah 20.10.2026 «1a») and the standard products', () => {
     const v = valuesOf(null);
     expect(v.carbsGh).toBe(60);
-    expect([v.coolLh, v.hotLh]).toEqual([1, 2]);
+    expect([v.coolLh, v.hotLh]).toEqual([0.5, 1.5]);
     expect(v.products.map((p) => p.id)).toEqual(STANDARD_PRODUCTS.map((p) => p.id));
     expect(v.view).toBe('grams');
   });
@@ -34,14 +34,14 @@ describe('values', () => {
 
 describe('water per hour', () => {
   const v = valuesOf(null);
-  it('is 1 l when cool and flat, 2 l when hot', () => {
-    expect(waterLh(v, 10, 0)).toBe(1);
-    expect(waterLh(v, 35, 0)).toBe(2);
+  it('is 0.5 l when cool and flat, 1.5 l when hot', () => {
+    expect(waterLh(v, 10, 0)).toBe(0.5);
+    expect(waterLh(v, 35, 0)).toBe(1.5);
   });
   it('grows with the temperature and with climbing, never above the hot value', () => {
-    expect(waterLh(v, 22.5, 0)).toBe(1.5);
-    expect(waterLh(v, 10, 600)).toBe(1.5);
-    expect(waterLh(v, 30, 600)).toBe(2);
+    expect(waterLh(v, 22.5, 0)).toBe(1);
+    expect(waterLh(v, 10, 600)).toBe(1);
+    expect(waterLh(v, 30, 600)).toBe(1.5);
   });
   it('guesses 20 °C when the temperature is unknown', () => {
     expect(waterLh(v, null, 0)).toBe(waterLh(v, 20, 0));
@@ -79,9 +79,9 @@ describe('the plan', () => {
   it('without shops is one section: hours × 60 g and a note that no shop is known', () => {
     const plan = fuelPlan({ totalKm: 100, values: v, pace: flat, kinds: ROUTE_KINDS, tempAt: () => 10 });
     expect(plan.sections).toHaveLength(1);
-    expect(plan.sections[0]).toMatchObject({ hours: 5, carbs: 300, waterL: 5, carryL: 5 });
+    expect(plan.sections[0]).toMatchObject({ hours: 5, carbs: 300, waterL: 2.5, carryL: 2.5 });
     expect(plan.sections[0].warn).toEqual(expect.arrayContaining(['noshop', 'bottles']));
-    expect(plan.totals).toEqual({ hours: 5, carbs: 300, waterL: 5 });
+    expect(plan.totals).toEqual({ hours: 5, carbs: 300, waterL: 2.5 });
   });
   it('takes the farthest shop within the stop rhythm and refills water at fountains', () => {
     const pois = [
@@ -94,7 +94,7 @@ describe('the plan', () => {
     expect(plan.sections.map((s) => [s.fromKm, s.toKm])).toEqual([[0, 55], [55, 110], [110, 120]]);
     const second = plan.sections[1];
     expect(second.waterStops).toBe(1);
-    expect(second.carryL).toBe(1.3); // 25 km = 1.25 h to the fountain at 1 l/h, to 0.1 l
+    expect(second.carryL).toBe(0.6); // 25 km = 1.25 h to the fountain at 0.5 l/h, to 0.1 l
     expect(second.carbs).toBe(165); // 2.75 h × 60 g, to 5 g
     expect(second.warn).toEqual([]);
   });
@@ -112,7 +112,7 @@ describe('the plan', () => {
   });
   it('warns when the water of the longest dry stretch does not fit in the bottles', () => {
     const plan = fuelPlan({ totalKm: 60, pois: [{ kind: 'water', km: 50 }], values: valuesOf({ bottles: 1, bottleL: 0.5 }), pace: flat, tempAt: () => 35 });
-    expect(plan.sections[0].maxDry).toMatchObject({ fromKm: 0, toKm: 50, l: 5 });
+    expect(plan.sections[0].maxDry).toMatchObject({ fromKm: 0, toKm: 50, l: 3.8 });
     expect(plan.sections[0].warn).toContain('bottles');
   });
 });

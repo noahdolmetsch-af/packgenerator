@@ -6,7 +6,7 @@
  * sync.state is what the panel and the question window show.
  */
 import { liveQuery } from 'dexie';
-import { syncNow, readCfg, ASK } from './engine.js';
+import { syncNow, readCfg, ASK, settleAsks } from './engine.js';
 
 export const AFTER_CHANGE_MS = 20_000;
 export const EVERY_MS = 5 * 60_000;
@@ -15,7 +15,30 @@ export const EVERY_MS = 5 * 60_000;
  * The question window: open, and how many questions «Later» already put aside.
  * first: the panel asks one question for all after pairing; the window waits meanwhile.
  */
-export const syncUi = $state({ open: false, seen: 0, first: false });
+export const syncUi = $state({ open: false, seen: 0, first: false, quietUntil: readQuiet() });
+
+/*
+ * Noah 21.10.2026 («kommt immer wieder beim Navigieren», «Später» hilft nicht): «Later» keeps the window
+ * shut for an hour (rule 8: «Später» = 1 h), also over a reload and when new questions arrive meanwhile.
+ * The questions stay in Ich › Daten und Backup; «Decide» there opens the window at once.
+ */
+export const QUIET_LS = 'pg.sync.later';
+export const QUIET_MS = 60 * 60_000;
+function readQuiet() {
+  try {
+    return Number(globalThis.localStorage?.getItem(QUIET_LS)) || 0;
+  } catch {
+    return 0;
+  }
+}
+export function quietLater(now = Date.now()) {
+  syncUi.quietUntil = now + QUIET_MS;
+  try {
+    globalThis.localStorage?.setItem(QUIET_LS, String(syncUi.quietUntil));
+  } catch {
+    /* a private window: quiet until the next reload */
+  }
+}
 
 export const sync = $state({ running: false, asks: 0, last: null, error: null, on: false, big: 0, autoOpen: true, asList: false });
 
@@ -66,6 +89,9 @@ let changeTimer = null;
 export function watchSync(db, win = globalThis) {
   if (dbRef) return;
   dbRef = db;
+  // questions a rule answers (Strava activities fetched on both devices): gone at once, before any round
+  // and even without the internet, so the window does not open for them (Noah 20.10.2026 «Schon wieder»)
+  settleAsks(db).catch(() => {});
   liveQuery(async () => ({ cfg: await readCfg(db), asks: await db.meta.where('key').startsWith(ASK).count(), prefs: (await db.settings.get(ASK_PREFS))?.value ?? {} })).subscribe({
     next: ({ cfg, asks, prefs }) => {
       sync.autoOpen = prefs.auto !== false; // Noah 18.10.2026 20:07 «1a»: by itself unless switched off

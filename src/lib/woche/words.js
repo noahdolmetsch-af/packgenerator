@@ -1,7 +1,7 @@
 /** «Woche planen»: the words of an entry or a suggestion (the same in the week, the planning and on Heute). */
 import { t, locale } from '../i18n.svelte.js';
 import { KIND_NAMES as TRAIN_KINDS } from '../training.js';
-import { AWAY_NAMES } from '../woche.js';
+import { awayName } from '../woche/away.js';
 import { HOLIDAY_NAMES, SEASON_TITLES } from './kalender.js';
 
 const TOUR_TITLES = { pack: 'Packing list: {trip}', wx: 'Check the weather: {trip}', bike: 'Bike check: {trip}' };
@@ -22,7 +22,7 @@ export function subOf(e) {
   if (!s) return e.done ? t('done|week') : '';
   if (s.mins) return `${dur(s.mins)}${e.done ? ` · ${t('done|week')}` : ''}`;
   if (s.src) return s.src === 'google' ? t('Google Calendar') : s.src === 'google-tasks' ? t('Google Tasks') : t('Calendar');
-  if (s.away) return t(AWAY_NAMES[s.away]);
+  if (s.away) return awayName(s.away, t);
   if (s.trip) return s.of > 1 ? t('Trip · day {n} of {m}', { n: s.trip, m: s.of }) : t('Trip|week');
   // Gesamttest 20.10.2026 B6: the bike is in the title already (the same job on two bikes)
   if (s.bike && s.named) return s.before ? t('before the holidays') : '';

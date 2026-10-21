@@ -47,7 +47,7 @@
   import './review.css';
   import ChronikKarte from '../lernen/ChronikKarte.svelte'; // Paket M #1027
   import { storyReady } from '../lernen/jahrstory.js'; // Paket M #208
-  import { Compass, History, GraduationCap, Images, CircleHelp } from '@lucide/svelte';
+  import { Compass, History, GraduationCap, Images, CircleHelp, Flame } from '@lucide/svelte';
   import ListGroup from '../list/ListGroup.svelte';
   import { phone } from '../media.svelte.js';
 
@@ -424,6 +424,7 @@
           <ul class="rv-box">
             <!-- Paket M «Aus Touren lernen»: Neuland, Chronik, Was die App gelernt hat, Jahr als Bildgeschichte, Quiz -->
             <li><a class="rv-row" href="#/neuland" data-m-row="neuland"><span class="rv-ic" aria-hidden="true"><Compass size={18} /></span><span class="rv-m"><span class="rv-t">{t('New ground')}</span><span class="rv-s">{t('Cantons, passes, huts and more you reached for the first time')}</span></span><ChevronRight class="rv-chev" size={18} aria-hidden="true" /></a></li>
+            <li><a class="rv-row" href="#/heatmap" data-m-row="heatmap"><span class="rv-ic" aria-hidden="true"><Flame size={18} /></span><span class="rv-m"><span class="rv-t">{t('Heatmap')}</span><span class="rv-s">{t('All your rides on one map, stronger where you ride often')}</span></span><ChevronRight class="rv-chev" size={18} aria-hidden="true" /></a></li>
             <li><a class="rv-row" href="#/chronik" data-m-row="chronik"><span class="rv-ic" aria-hidden="true"><History size={18} /></span><span class="rv-m"><span class="rv-t">{t('Chronicle')}</span><span class="rv-s">{t('Everything on one time line, month by month')}</span></span><ChevronRight class="rv-chev" size={18} aria-hidden="true" /></a></li>
             <li><a class="rv-row" href="#/gelernt" data-m-row="gelernt"><span class="rv-ic" aria-hidden="true"><GraduationCap size={18} /></span><span class="rv-m"><span class="rv-t">{t('What the app learned')}</span><span class="rv-s">{t('Month card and year letter')}</span></span><ChevronRight class="rv-chev" size={18} aria-hidden="true" /></a></li>
             <li><a class="rv-row" href="#/jahr" data-m-row="jahr"><span class="rv-ic" aria-hidden="true"><Images size={18} /></span><span class="rv-m"><span class="rv-t">{t('Your year as pictures')}</span><span class="rv-s">{t('Your trips of a year as a picture story')}</span></span><ChevronRight class="rv-chev" size={18} aria-hidden="true" /></a></li>
@@ -1137,6 +1138,7 @@
     }
     /* the name column takes the room, a long pill gives way with «…» instead of widening the page */
     .st {
+      table-layout: fixed;
     }
     .st th.n,
     .st td.n {

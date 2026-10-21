@@ -52,6 +52,7 @@
   import DbWaitLine from './lib/clear/DbWaitLine.svelte';
   import ComebackWindow from './lib/clear/ComebackWindow.svelte';
   import YearCheckWindow from './lib/clear/YearCheckWindow.svelte';
+  import DiaryReminder from './lib/tagebuch/Reminder.svelte';
   import MiniBar from './lib/nav/MiniBar.svelte';
   import { miniAppOf, miniStart } from './lib/miniapps.js';
   import { toolKeyOf } from './lib/tools/tools.js';
@@ -350,6 +351,7 @@
     Me: () => import('./pages/Me.svelte'),
     Look: () => import('./pages/Look.svelte'),
     AiProjects: () => import('./pages/AiProjects.svelte'),
+    SucheSettings: () => import('./pages/SucheSettings.svelte'),
     Data: () => import('./pages/Data.svelte'),
     Docs: () => import('./pages/Docs.svelte'),
     Fitbit: () => import('./pages/Fitbit.svelte'),
@@ -363,6 +365,7 @@
     Phone: () => import('./pages/Phone.svelte'),
     Checks: () => import('./pages/Checks.svelte'),
     Push: () => import('./pages/Push.svelte'),
+    Wetter: () => import('./pages/Wetter.svelte'),
     Abfragen: () => import('./pages/Abfragen.svelte'),
     Verlauf: () => import('./pages/Verlauf.svelte'),
     Auswertung: () => import('./pages/Auswertung.svelte'),
@@ -376,6 +379,7 @@
     Gelernt: () => import('./pages/Gelernt.svelte'), // Paket M «Was die App gelernt hat»
     JahrStory: () => import('./pages/JahrStory.svelte'), // Paket M «Dein Jahr als Bildgeschichte»
     Neuland: () => import('./pages/Neuland.svelte'), // «Neuland»
+    Heatmap: () => import('./pages/Heatmap.svelte'), // «Heatmap» (20.10.2026)
     Spur: () => import('./pages/Spur.svelte'), // Paket S «Reise-Spur»
     Tour: () => import('./pages/Tour.svelte'), // «Tour» (Noah 19.10.2026 «1a»): one finished tour
     SpurLink: () => import('./pages/SpurLink.svelte'), // Paket S: the family's read link
@@ -411,6 +415,7 @@
     Privacy: () => import('./pages/Privacy.svelte'),
     Pros: () => import('./pages/Pros.svelte'),
     Frei: () => import('./pages/Frei.svelte'),
+    Tagebuch: () => import('./pages/Tagebuch.svelte'),
     Alltag: () => import('./pages/Alltag.svelte'),
   };
   // once Heute is drawn, the most used pages load quietly in the background
@@ -443,9 +448,9 @@
 <DemoBar />
 <OfflineLine />
 <DbWaitLine />
-{#if !mini && !guest}<ComebackWindow care={$dueQ ?? 0} inbox={$inboxQ ?? 0} /><YearCheckWindow {hash} />{/if}
+{#if !mini && !guest}<ComebackWindow care={$dueQ ?? 0} inbox={$inboxQ ?? 0} /><YearCheckWindow {hash} /><DiaryReminder {hash} />{/if}
 
-<main class:calm class:wide={page === 'pack' || page === 'ride' || page === 'debrief' || page === 'rides' || page === 'stravarides' || page === 'past' || page === 'templates' || page === 'gear' || page === 'supplies' || page === 'power' || page === 'fuel' || page === 'tour' || page === 'lend' || page === 'blocks' || page === 'blockcheck' || page === 'home' || page === 'features' || page === 'wardrobe' || page === 'flow' || page === 'timer' || page === 'check' || page === 'routine' || page === 'week' || page === 'neuland' || page === 'dreams'} class:bar={!wide.matches || !!mini}>
+<main class:calm class:wide={page === 'pack' || page === 'ride' || page === 'debrief' || page === 'rides' || page === 'stravarides' || page === 'past' || page === 'templates' || page === 'gear' || page === 'supplies' || page === 'power' || page === 'fuel' || page === 'tour' || page === 'lend' || page === 'blocks' || page === 'blockcheck' || page === 'home' || page === 'features' || page === 'wardrobe' || page === 'flow' || page === 'timer' || page === 'check' || page === 'routine' || page === 'week' || page === 'neuland' || page === 'heatmap' || page === 'dreams'} class:bar={!wide.matches || !!mini}>
   {#if !calm && !guest && !mini}<PlaceTabs {place} {hash} {moved} onclosemoved={() => (moved = null)} />{/if}
   <!-- AU1 «1b»: on a phone Velos and Ausrüstung share a slot. Gesamttest 20.10.2026 B7: the switch stands only
        on Ausrüstung (the way back); Velos already has its tabs and path, Ausrüstung is one row on Velos › Übersicht -->
@@ -554,6 +559,9 @@
   {:else if page === 'frei' || page === 'impulse'}
     <!-- Paket T «Freie Zeit»: Ich › Freie Zeit (#/me/frei/…) and Aktiv › Impulse (#/flow/impulse); the page picks its part -->
     <LazyPage load={PAGES.Frei} {hash} />
+  {:else if page === 'tagebuch'}
+    <!-- «Tagebuch» (Noah 20.10.2026, like Day One): #/tagebuch, one entry at #/tagebuch/<id> -->
+    <LazyPage load={PAGES.Tagebuch} {hash} />
   {:else if page === 'alltag'}
     <!-- Paket V «Alltag»: Ich › Alltag (#/me/alltag/…): shopping list, contracts, «Not seen for a while» -->
     <LazyPage load={PAGES.Alltag} {hash} />
@@ -569,6 +577,9 @@
   {:else if page === 'aiprojects'}
     <!-- «Meine KI-Projekte» (Noah 19.10.2026 «2a»): Ich › own links to AI projects and chats -->
     <LazyPage load={PAGES.AiProjects} />
+  {:else if page === 'suchesettings'}
+    <!-- «Suche mit Sprache und Antworten» (Noah 21.10.2026 «5b»): Ich › Suche -->
+    <LazyPage load={PAGES.SucheSettings} />
   {:else if page === 'look'}
     <!-- v0.97.0 Design-Refresh R1: Ich › Darstellung -->
     <LazyPage load={PAGES.Look} />
@@ -605,6 +616,9 @@
   {:else if page === 'phone'}
     <!-- Design-Refresh P9 (B35): Ich › Daten › Aufs Handy, the QR code -->
     <LazyPage load={PAGES.Phone} />
+  {:else if page === 'wetter'}
+    <!-- Paket Y «Wetter-Kern» (Noah 20.10.2026): the weather for riding, best window, radar, webcams -->
+    <LazyPage load={PAGES.Wetter} />
   {:else if page === 'push'}
     <!-- Erinnerungen aufs Handy (Web-Push, Noah 15.10.2026 «1a 2b 3a 4b 5a»): Ich › Erinnerungen aufs Handy -->
     <LazyPage load={PAGES.Push} />
@@ -723,6 +737,9 @@
   {:else if page === 'neuland'}
     <!-- «Neuland» (wish #1007 + #1006): Touren › Rückblick › Neuland; the page and its maps load on their own -->
     <LazyPage load={PAGES.Neuland} />
+  {:else if page === 'heatmap'}
+    <!-- «Heatmap» (Noah 20.10.2026): all rides on one map, stronger where they overlap -->
+    <LazyPage load={PAGES.Heatmap} />
   {:else}
     <Home />
   {/if}

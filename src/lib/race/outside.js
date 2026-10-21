@@ -10,7 +10,7 @@
  * Pure parsers are tested in tests/race.test.js; the fetchers take a fetcher for tests.
  */
 import { snap } from './race.js';
-import { queued } from '../route/oneatatime.js';
+import { queued, postTimed } from '../route/oneatatime.js';
 
 export const OVERPASS = 'https://overpass-api.de/api/interpreter';
 export const POI_CACHE = 'race-poi:';
@@ -26,6 +26,7 @@ export const POI_KINDS = [
   { key: 'bike', name: 'Bike shop', icon: 'bike' },
   { key: 'station', name: 'Station', icon: 'train' },
   { key: 'shelter', name: 'Shelter', icon: 'home' },
+  { key: 'toilet', name: 'WC|poi', icon: 'toilet' },
   { key: 'laundry', name: 'Laundry', icon: 'shirt' },
   { key: 'depot', name: 'Depot', icon: 'package' },
   { key: 'startfinish', name: 'Start and finish', icon: 'flag' },
@@ -46,6 +47,12 @@ node["amenity"="fuel"]${a};
 node["amenity"~"^(restaurant|fast_food|cafe)$"]${a};
 node["shop"="bicycle"]${s};
 node["amenity"="shelter"]${a};
+way["amenity"="shelter"]${a};
+node["highway"="bus_stop"]["shelter"="yes"]${a};
+node["tourism"="wilderness_hut"]${s};
+way["tourism"="wilderness_hut"]${s};
+node["amenity"="waiting_room"]${s};
+node["amenity"="toilets"]${a};
 node["shop"="laundry"]${s};
 node["amenity"="laundry"]${s};
 node["amenity"="drinking_water"]${a};
@@ -65,7 +72,9 @@ export function kindOf(tags = {}) {
   if (tags.shop) return 'shop';
   if (tags.amenity === 'fuel') return 'fuel';
   if (['restaurant', 'fast_food', 'cafe'].includes(tags.amenity)) return 'food';
-  if (tags.amenity === 'shelter') return 'shelter';
+  // U4 «Schlafplätze im Rennen» 1137: more roofs (bus stops with a roof, huts, waiting rooms, bivouac boxes)
+  if (tags.amenity === 'shelter' || tags.tourism === 'wilderness_hut' || tags.amenity === 'waiting_room' || (tags.highway === 'bus_stop' && tags.shelter === 'yes')) return 'shelter';
+  if (tags.amenity === 'toilets') return 'toilet';
   if (tags.amenity === 'drinking_water' || tags.amenity === 'fountain' || tags.man_made === 'water_tap') return 'water';
   if (tags.railway === 'station') return 'station';
   if (tags.tourism) return 'sleep';
@@ -81,14 +90,34 @@ export function poisFrom(json, pts) {
     const kind = kindOf(e.tags);
     if (!kind || !Number.isFinite(lat) || !Number.isFinite(lon)) continue;
     const s = snap(pts, { lat, lon });
-    out.push({ id: `${e.type}/${e.id}`, kind, name: e.tags.name || e.tags.brand || '', lat, lon, km: s.km, offKm: s.offKm, hours: e.tags.opening_hours || '', sub: e.tags.shop || e.tags.tourism || e.tags.amenity || '', phone: e.tags.phone || e.tags['contact:phone'] || '' });
+    out.push({ id: `${e.type}/${e.id}`, kind, name: e.tags.name || e.tags.brand || '', lat, lon, km: s.km, offKm: s.offKm, hours: e.tags.opening_hours || '', sub: subOf(e.tags), phone: e.tags.phone || e.tags['contact:phone'] || '', ...extraOf(e.tags) });
   }
   return out.sort((a, b) => a.km - b.km);
 }
 
+/** The sub kind: for a roof which roof (bus_stop, wilderness_hut, waiting_room or the shelter_type), else the OSM value. */
+function subOf(tags) {
+  if (tags.highway === 'bus_stop') return 'bus_stop';
+  if (tags.tourism === 'wilderness_hut') return 'wilderness_hut';
+  if (tags.amenity === 'waiting_room') return 'waiting_room';
+  if (tags.amenity === 'shelter') return tags.shelter_type || 'shelter';
+  return tags.shop || tags.tourism || tags.amenity || '';
+}
+/** 1142: what OSM says about a place to sleep (only fields that are there): walls, water, WC, beds. */
+function extraOf(tags) {
+  const o = {};
+  if (tags.drinking_water === 'yes') o.water = true;
+  if (tags.toilets === 'yes') o.wc = true;
+  if (tags.fireplace === 'yes') o.fire = true;
+  if (tags.website || tags['contact:website']) o.web = String(tags.website || tags['contact:website']).slice(0, 200);
+  if (tags.email || tags['contact:email']) o.mail = String(tags.email || tags['contact:email']).slice(0, 120);
+  if (tags['addr:country']) o.country = String(tags['addr:country']).slice(0, 2).toUpperCase();
+  return o;
+}
+
 /** Fetch the places (throws with a plain reason). */
 export async function fetchPois(pts, fetcher = fetch) {
-  const res = await queued(() => fetcher(OVERPASS, { method: 'POST', body: `data=${encodeURIComponent(poiQuery(pts))}`, headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }));
+  const res = await queued(() => postTimed(fetcher, OVERPASS, { method: 'POST', body: `data=${encodeURIComponent(poiQuery(pts))}`, headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }, 70_000));
   if (!res.ok) throw new Error(res.status === 429 ? 'busy' : 'failed');
   return poisFrom(await res.json(), pts);
 }

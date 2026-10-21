@@ -14,7 +14,7 @@
   import { bikesHash, sortBikes } from '../bikes.js';
   import { PARTS, AREAS, partName } from '../care.js';
   import { vig } from '../veloimgriff.svelte.js';
-  import { PART_TEMPLATES, KINDS, KIND_NAME, kindOf, partOn, ownOf, changed, setPartOn, addOwn, renameOwn, areaOwn, removeOwn, restoreOwn, moveOwn, resetKind } from '../bikekind.js';
+  import { PART_TEMPLATES, kindName, kindsOffered, kindOf, partOn, ownOf, changed, setPartOn, addOwn, renameOwn, areaOwn, removeOwn, restoreOwn, moveOwn, resetKind } from '../bikekind.js';
   import VeloHead from '../bikes/VeloHead.svelte';
   import Seg from '../ui/Seg.svelte';
   import SortGrip from '../ui/SortGrip.svelte';
@@ -79,7 +79,7 @@
   async function reset() {
     const before = $state.snapshot(tpl);
     await save(resetKind(tpl, kind));
-    offerDone(t('{kind}: template back to the standard.', { kind: t(KIND_NAME[kind]) }), () => save(before));
+    offerDone(t('{kind}: template back to the standard.', { kind: kindName(kind, t) }), () => save(before));
   }
 </script>
 
@@ -93,7 +93,7 @@
 
   <div class="kinds">
     <span class="k" id="tpl-kind">{t('Kind of bike')}</span>
-    <Seg options={KINDS.map((k) => ({ key: k, name: t(KIND_NAME[k]) }))} value={kind} labelledby="tpl-kind" full={false} onchange={(k) => (picked = k)} />
+    <Seg options={kindsOffered(kind).map((k) => ({ key: k.id, name: kindName(k.id, t) }))} value={kind} labelledby="tpl-kind" full={false} onchange={(k) => (picked = k)} />
   </div>
   <p class="quiet" data-tpl-bikes>{ofKind.length ? t('Your bikes of this kind: {names}', { names: ofKind.map((b) => b.name).join(', ') }) : t('No bike of this kind yet.')} {t('The kind is set on each bike in Care.')}</p>
 
@@ -143,7 +143,7 @@
   </section>
 
   {#if changed(tpl, kind)}
-    <p class="resetrow"><button type="button" class="btn" onclick={reset} data-tpl-reset><RotateCcw size={16} aria-hidden="true" />{t('Back to the standard for {kind}', { kind: t(KIND_NAME[kind]) })}</button></p>
+    <p class="resetrow"><button type="button" class="btn" onclick={reset} data-tpl-reset><RotateCcw size={16} aria-hidden="true" />{t('Back to the standard for {kind}', { kind: kindName(kind, t) })}</button></p>
   {/if}
 </div>
 

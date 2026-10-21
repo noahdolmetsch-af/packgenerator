@@ -11,11 +11,10 @@ import { addHours, stage, stageCount, isNonstop } from './ride.js';
 import { rainOf, coldLayer, isNightEyewear } from './layers.js';
 import { nameOf } from './i18n.svelte.js';
 import { wetHour } from './rainlimit.svelte.js';
+import { valuesOf, waterLh } from './fuel.js';
 
-/** Assumption, not measured: half a litre per riding hour, a quarter more from 25 °C. */
-export const DRINK_L_PER_H = 0.5;
+/** A day counts as hot from here (the water card on Unterwegs). Water per hour: the one rule of energie.js / fuel.js. */
 export const HOT_C = 25;
-export const HOT_EXTRA_L = 0.25;
 
 const RAD = Math.PI / 180;
 const ms = (at) => new Date(`${at}:00Z`).getTime();
@@ -87,10 +86,12 @@ const kmAt = (b, at) => b.kmFrom == null || b.kmTo == null ? null : Math.round(b
 /**
  * The plan per block. rows: the blocks (ride.js blocks()); items: the trip's items as
  * [{ item, qty, place }]; wxOf(block): the weather hours of the block ([] when none);
- * place: { lat, lon } for the sun; tripWx: trip.wx as fallback when no hourly weather is there.
- * Returns { rows: [block plan], capL, rate, lights: [{ name, place }] }.
+ * place: { lat, lon } for the sun; tripWx: trip.wx as fallback when no hourly weather is there;
+ * fuel: your Verpflegung setting (Paket X: water per hour by the block's warmest hour, energie.js).
+ * Returns { rows: [block plan], capL, rate: { cool, hot } (l per hour), lights: [{ name, place }] }.
  */
-export function blockPlan(rows, items, { wxOf = () => [], place = null, tripWx = null, offsetOf = offsetFor } = {}) {
+export function blockPlan(rows, items, { wxOf = () => [], place = null, tripWx = null, offsetOf = offsetFor, fuel = null } = {}) {
+  const v = valuesOf(fuel);
   const layers = items.filter(({ item }) => typeof item.coldBelow === 'number' || rainOf(item) || isNightEyewear(item));
   const food = items.filter(({ item }) => item.perHours && !item.waterL);
   const capL = items.reduce((t, { item, qty }) => t + (item.waterL || 0) * (qty || 1), 0);
@@ -138,7 +139,7 @@ export function blockPlan(rows, items, { wxOf = () => [], place = null, tripWx =
         left[item.id] -= k;
         plan.food.push({ id: item.id, name: nameOf(item), n: k, place: p, short: runsOut ? need[item.id] - (qtyOf[item.id] ?? 1) : 0 });
       }
-      const rate = DRINK_L_PER_H + (temp && temp.hi >= HOT_C ? HOT_EXTRA_L : 0);
+      const rate = waterLh(v, temp ? temp.hi : null);
       plan.drinkL = Math.round(h * rate * 10) / 10;
       if (capL > 0) {
         // Drink through the block; each time the bottles are empty, refill (at that km).
@@ -169,7 +170,7 @@ export function blockPlan(rows, items, { wxOf = () => [], place = null, tripWx =
     }
     return plan;
   });
-  return { rows: out, capL, rate: DRINK_L_PER_H, lights };
+  return { rows: out, capL, rate: { cool: v.coolLh, hot: v.hotLh, coolC: v.coolC, hotC: v.hotC }, lights };
 }
 
 /**

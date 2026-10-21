@@ -24,5 +24,7 @@ export default {
   'Show {n} more suggestions': 'Noch {n} Vorschläge zeigen',
   'Show {n} more due': 'Noch {n} fällige zeigen',
   'Show {n} more visit': 'Noch {n} Besuch zeigen',
-  'Show {n} more visits': 'Noch {n} Besuche zeigen',
+  'Show {n} more visits': 'Noch {n} Besuche zeigen',  // «Tagebuch» under Planen (Noah 20.10.2026)
+  'Diary|tab': 'Tagebuch',
+  'Looking for appointments, notes, the diary or the Inbox? They are under': 'Suchst du Termine, Notizen, das Tagebuch oder den Eingang? Sie stehen unter',
 };

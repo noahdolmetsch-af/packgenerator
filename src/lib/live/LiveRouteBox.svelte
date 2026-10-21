@@ -11,6 +11,7 @@
    */
   import { Upload, Pencil, Trash2, Route as RouteIcon, MapPinned } from '@lucide/svelte';
   import RenameSheet from '../ui/RenameSheet.svelte';
+  import RwgpsLink from '../sources/RwgpsLink.svelte';
   import { db } from '../db.js';
   import { GPX_MAX_MB } from '../route.js';
   import { liveRouteQuery, liveRouteFromText, saveLiveRoute, clearLiveRoute, renameLiveRoute, canSaveToTrip, asTripRoute, NAME_MAX } from './liveroute.js';
@@ -44,17 +45,7 @@
     if (!file.size) return (msg = t('This file is empty.'));
     busy = true;
     try {
-      const r = liveRouteFromText(await file.text(), file.name);
-      const before = await saveLiveRoute(db.settings, r);
-      changed(r);
-      offerDone(
-        t('Route «{name}» opened: {km} km.', { name: r.name, km: num(Math.round(r.km)) }),
-        async () => {
-          if (before) await saveLiveRoute(db.settings, before);
-          else await clearLiveRoute(db.settings);
-          changed(before);
-        },
-      );
+      await openText(await file.text(), file.name);
     } catch (err) {
       console.error(err);
       msg = err?.message && err.message !== 'invalid' ? err.message : t('This file could not be read.');
@@ -62,6 +53,23 @@
       busy = false;
     }
   }
+
+  // a GPX text (a file, or the GPX of a Ride with GPS link) → the live route, with Undo; throws a plain message
+  async function openText(text, fileName) {
+    const r = liveRouteFromText(text, fileName);
+    const before = await saveLiveRoute(db.settings, r);
+    changed(r);
+    offerDone(
+      t('Route «{name}» opened: {km} km.', { name: r.name, km: num(Math.round(r.km)) }),
+      async () => {
+        if (before) await saveLiveRoute(db.settings, before);
+        else await clearLiveRoute(db.settings);
+        changed(before);
+      },
+    );
+  }
+  // «Neue Quellen» 20.10.2026: a Ride with GPS link (RwgpsLink shows the message when this throws)
+  const fromLink = (text, fileName) => ((msg = ''), openText(text, fileName));
 
   async function rename(name) {
     if (!route) return;
@@ -132,6 +140,7 @@
       </label>
       <button type="button" class="btn sm" onclick={drop} data-live-route-remove><Trash2 size={16} aria-hidden="true" />{t('Remove')}</button>
     </div>
+    <RwgpsLink onload={fromLink} />
     {#if offerTrip}
       <div class="lr-offer">
         <p class="lr-help">{t('«{trip}» has no route yet. Keep this one with the trip too (plan, packing list, review)?', { trip: trip.title || t('the trip') })}</p>
@@ -144,6 +153,7 @@
       <Upload size={17} aria-hidden="true" />{busy ? t('Reading…') : t('Open GPX file')}
       <input type="file" accept=".gpx,application/gpx+xml" onchange={pick} disabled={busy} class="sr" data-live-route-file />
     </label>
+    <RwgpsLink onload={fromLink} />
   {/if}
   {#if msg}<p class="lr-msg" role="alert">{msg}</p>{/if}
 </section>

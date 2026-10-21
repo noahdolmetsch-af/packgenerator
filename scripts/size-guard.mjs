@@ -6,7 +6,7 @@
 export const MAX_JS_BYTES = 3_000_000;
 
 // Big tools load on first use only (dynamic import), never with the start or a page's own file.
-export const HEAVY = ['pdf-lib', 'tesseract.js', '@imgly/background-removal', 'onnxruntime-web', '@ffmpeg/ffmpeg', '@mediapipe/tasks-vision'];
+export const HEAVY = ['pdf-lib', 'tesseract.js', '@imgly/background-removal', 'onnxruntime-web', '@ffmpeg/ffmpeg', '@mediapipe/tasks-vision', 'pdfjs-dist', 'heic2any'];
 
 /** The JS files over the limit: [{ name, bytes }]. files: [{ name, bytes }]. */
 export const oversize = (files, limit = MAX_JS_BYTES) => files.filter((f) => /\.m?js$/.test(f.name) && f.bytes > limit);

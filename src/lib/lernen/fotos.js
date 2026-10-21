@@ -35,14 +35,36 @@ export async function addTripPhotos(tripId, photos, db = appDb, now = new Date()
   const at = now.toISOString();
   const add = photos.map((p, i) => ({ id: `ph-${now.getTime().toString(36)}-${i}`, day: p.day ?? at.slice(0, 10), at, data: p.data }));
   const next = [...list, ...add].slice(0, FOTOS_PER_TRIP);
-  await db.meta.put({ key: keyOf(tripId), tripId, list: next });
+  const cover = (await db.meta.get(keyOf(tripId)))?.cover ?? null;
+  await db.meta.put({ key: keyOf(tripId), tripId, list: next, ...(cover ? { cover } : {}) });
   return next;
+}
+
+/* «Bilder in der App» 5a (Noah 20.10.2026): one photo of the trip shows pale on top of the tour page. */
+
+/** The photo on top of the tour page: the one chosen (cover id), else the first one, else null. */
+export function coverPhoto(list, cover = null) {
+  if (!Array.isArray(list) || !list.length) return null;
+  return list.find((p) => p.id === cover) ?? list[0];
+}
+
+/** The id of the photo chosen for the top of the tour page (or null). */
+export async function tripCover(tripId, db = appDb) {
+  if (!tripId) return null;
+  return (await db.meta.get(keyOf(tripId)))?.cover ?? null;
+}
+
+/** Choose the photo for the top of the tour page (null: the first one again). */
+export async function setTripCover(tripId, photoId, db = appDb) {
+  const rec = await db.meta.get(keyOf(tripId));
+  if (rec) await db.meta.put({ ...rec, cover: photoId ?? null });
 }
 
 /** Remove one photo of a trip. */
 export async function removeTripPhoto(tripId, photoId, db = appDb) {
   const next = (await tripPhotos(tripId, db)).filter((p) => p.id !== photoId);
-  if (next.length) await db.meta.put({ key: keyOf(tripId), tripId, list: next });
+  const cover = (await db.meta.get(keyOf(tripId)))?.cover ?? null;
+  if (next.length) await db.meta.put({ key: keyOf(tripId), tripId, list: next, ...(cover && cover !== photoId ? { cover } : {}) });
   else await db.meta.delete(keyOf(tripId));
   return next;
 }

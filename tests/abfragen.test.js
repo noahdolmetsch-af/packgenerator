@@ -23,9 +23,12 @@ const d = (n) => addDays(D0, n);
 describe('the 50 questions', () => {
   it('10 areas with 5 questions each (Paket P adds 4 evening questions), every one with an answer form and an interval', () => {
     expect(AREAS).toHaveLength(10);
-    expect(QUESTIONS).toHaveLength(54);
-    expect(AREAS.map((a) => QUESTIONS.filter((q) => q.area === a.key).length)).toEqual([6, 5, 5, 5, 7, 5, 5, 6, 5, 5]);
-    expect(new Set(QUESTIONS.map((q) => q.id)).size).toBe(54);
+    // Noah 20.10.2026: plus 50 sample questions, 5 per area, all off at the start
+    expect(QUESTIONS).toHaveLength(104);
+    expect(AREAS.map((a) => QUESTIONS.filter((q) => q.area === a.key).length)).toEqual([11, 10, 10, 10, 12, 10, 10, 11, 10, 10]);
+    expect(AREAS.map((a) => QUESTIONS.filter((q) => q.area === a.key && q.sample).length)).toEqual(Array(10).fill(5));
+    expect(QUESTIONS.filter((q) => q.sample).some((q) => ON_AT_START.has(q.id))).toBe(false);
+    expect(new Set(QUESTIONS.map((q) => q.id)).size).toBe(104);
     for (const q of QUESTIONS) {
       expect(['scale', 'chips', 'yesno', 'number', 'text']).toContain(q.form.kind);
       if (q.form.kind === 'chips' || q.form.kind === 'yesno') expect(q.form.options.length).toBeGreaterThan(1);
@@ -49,7 +52,7 @@ describe('the 50 questions', () => {
     expect(ON_AT_START.size).toBe(35);
     for (const id of ON_AT_START) expect(QUESTION[id]).toBeTruthy();
     const n = counts(null);
-    expect(n).toMatchObject({ all: 54, on: 35 });
+    expect(n).toMatchObject({ all: 104, on: 35 });
     expect(AREAS.map((a) => n.per[a.key].on)).toEqual([5, 4, 3, 3, 4, 3, 2, 4, 4, 3]);
     expect(settingOf(null, QUESTION['erholung.sofa']).on).toBe(false); // AB5: Sofa oder Sattel is off
     expect(settingOf(null, QUESTION['erholung.akku']).every).toEqual({ kind: 'times', times: ['08:00', '13:00', '20:00'] });
@@ -108,7 +111,7 @@ describe('own questions (AB2)', () => {
     expect(own).toMatchObject({ text: 'Kaffee', area: 'eigene', form: { kind: 'number', unit: 'Tassen' }, own: true, src: ['only'] });
     let c = putOwn(null, own, `${D0}T10:00`);
     expect(c.own).toHaveLength(1);
-    expect(counts(c)).toMatchObject({ all: 55, on: 36 });
+    expect(counts(c)).toMatchObject({ all: 105, on: 36 });
     expect(settingOf(c, c.own[0])).toMatchObject({ on: true, since: `${D0}T10:00`, every: { kind: 'times', times: ['12:00', '18:00'] } });
     c = putOwn(c, { ...own, text: 'Espresso', every: { kind: 'off' } }, `${D0}T11:00`);
     expect(c.own[0].text).toBe('Espresso');
@@ -282,8 +285,9 @@ describe('what is due now (AB3)', () => {
     expect(new Set(due.map((x) => x.q.id)).size).toBe(due.length); // each question once
   });
 
-  it('3b: a value that later comes from Fitbit leaves its question on until you switch it off', () => {
-    const later = QUESTIONS.filter((q) => q.src.includes('later'));
+  it('3b: a value that comes from Fitbit leaves its question on until you switch it off (0.171: tag «Fitbit», no «later»)', () => {
+    expect(QUESTIONS.filter((q) => q.src.includes('later'))).toEqual([]);
+    const later = QUESTIONS.filter((q) => q.src.includes('fitbit'));
     expect(later.map((q) => q.id)).toEqual(expect.arrayContaining(['erholung.schlaf', 'koerper.ruhepuls']));
     const c = { since: `${d(-1)}T06:00` };
     expect(dueList(c, [], `${D0}T09:00`).map((x) => x.q.id)).toContain('koerper.ruhepuls');

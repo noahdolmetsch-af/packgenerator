@@ -4,14 +4,18 @@
    * a quiet path back («‹ Velo › Pflege › Gravel Blau»), the page title, one quiet line, and the
    * page's buttons below (children). The last step of the path is the page itself (no link).
    * crumbs: [{ label, href }] — every step before the page; the first one gets the «‹».
+   * bike: «Bilder in der App» 1b (Noah 20.10.2026): the chosen bike; its photo shows pale behind the head
+   * and a quiet button opens its setup photos (HeadPhoto). Left out: the head as before.
    */
+  import HeadPhoto from '../bilder/HeadPhoto.svelte';
   import { ChevronLeft, ChevronRight } from '@lucide/svelte';
   import { t } from '../i18n.svelte.js';
 
-  let { crumbs = [], here = '', title, sub = '', children = null } = $props();
+  let { crumbs = [], here = '', title, sub = '', children = null, bike = null } = $props();
 </script>
 
-<header class="vhead">
+<header class="vhead" class:withpic={!!bike}>
+  {#if bike}<HeadPhoto {bike} />{/if}
   {#if crumbs.length}
     <nav class="crumbs" aria-label={t('Path')}>
       {#each crumbs as c, n (n)}
@@ -29,6 +33,15 @@
   .vhead {
     margin: 0 0 20px;
     min-width: 0;
+  }
+  /* 1b: the texts lie above the pale photo */
+  .withpic {
+    position: relative;
+    isolation: isolate;
+  }
+  .withpic > :global(:not(img):not(dialog)) {
+    position: relative;
+    z-index: 1;
   }
   .crumbs {
     display: flex;

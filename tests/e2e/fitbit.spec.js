@@ -101,3 +101,54 @@ test('Fitbit: connect with Google, first fetch, the card on «Daten und Backup»
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(page.viewportSize().width);
   expect(errors).toEqual([]);
 });
+
+// Noah 21.10.2026 «fitbit tägliche … werde werden nicht korrekt geliefert»: the app said nothing when the
+// fetch failed. The reason stays on the card after a reload, with «Google neu verbinden», and a value
+// Google did not give is named.
+test('Fitbit: a failed fetch stays visible after a reload; a missing value is named', async ({ page, context, baseURL }) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  let mode = 'ok';
+  await context.route(/^https?:\/\/(?!localhost[:/])/, (route) => route.abort());
+  const cors = { 'access-control-allow-origin': '*', 'access-control-allow-headers': 'authorization, content-type', 'access-control-allow-methods': 'GET, POST, OPTIONS' };
+  await context.route(/packgen-three\.vercel\.app\/api\/google/, async (route) => {
+    const req = route.request();
+    if (req.method() === 'OPTIONS') return route.fulfill({ status: 204, headers: cors });
+    const step = new URL(req.url()).searchParams.get('step');
+    const send = (status, b) => route.fulfill({ status, headers: { ...cors, 'content-type': 'application/json' }, body: JSON.stringify(b) });
+    if (step === 'start') return send(200, { ok: true, url: 'https://accounts.google.com/o/oauth2/v2/auth?client_id=x&state=y' });
+    if (step !== 'days') return send(400, {});
+    if (mode === 'login') return send(401, { error: 'google_login_needed', code: 'google_login_needed' });
+    return send(200, { ok: true, days: [{ date: day(0), steps: 5000, restingHr: 50 }], missing: mode === 'nosleep' ? ['sleep'] : [] });
+  });
+  await context.route(/accounts\.google\.com\/o\/oauth2/, (route) => route.fulfill({ status: 302, headers: { location: `${baseURL}#/me/fitbit?google=connected` } }));
+  await context.addInitScript((key) => {
+    if (!localStorage.getItem('lang')) localStorage.setItem('lang', 'de');
+    if (!localStorage.getItem('whatsnew.seen')) localStorage.setItem('whatsnew.seen', '9.9.9');
+    localStorage.setItem('pg.strava.key', key);
+  }, `${P}key`);
+  await page.goto('./#/me/fitbit');
+  await ready(page);
+  await page.getByRole('button', { name: 'Mit Google verbinden' }).click();
+  const card = page.locator('.hcard');
+  await expect(card.getByText('heute', { exact: false }).first()).toBeVisible();
+  await expect(card.locator('[data-health-err]')).toHaveCount(0);
+
+  mode = 'login';
+  await card.getByRole('button', { name: 'Jetzt holen' }).click();
+  await expect(card.locator('[data-health-err]')).toContainText('Google braucht eine neue Anmeldung');
+  await expect(card.locator('[data-health-relogin]')).toBeVisible();
+  // after a reload (the automatic fetch waits 15 minutes) the reason is still there
+  await page.reload();
+  await ready(page);
+  await expect(card.locator('[data-health-err]')).toContainText('Zuletzt versucht: heute');
+  await expect(card.locator('[data-health-relogin]')).toHaveText('Google neu verbinden');
+
+  mode = 'nosleep';
+  await card.getByRole('button', { name: 'Jetzt holen' }).click();
+  await expect(card.locator('[data-health-err]')).toHaveCount(0);
+  await expect(card.locator('[data-health-relogin]')).toHaveCount(0);
+  await expect(card.locator('[data-health-gone]')).toContainText('Schlaf');
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(page.viewportSize().width);
+  expect(errors).toEqual([]);
+});
