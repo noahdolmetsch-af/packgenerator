@@ -16,21 +16,24 @@
 
 export const WHATS_NEW = [
   {
-    // v0.177.0 one package for everything after 0.176 (Noah 21.10.2026 «alles kommende in ein paket»): Packliste aufräumen, Ess-Erinnerung; Gesamttest-Fixes, Tages-Check and Tour-Auswertung follow; built without mockups
+    // v0.177.0 «Wie Strava, nur ruhiger»: one package for everything after 0.176 (Noah 21.10.2026 «alles kommende in ein paket»): Tour-Auswertung deliveries 1+2 (Strava 1:1, Zeitleiste, readable title, Strava check #1–#10), Tages-Check with date and time, Gesamttest fixes C1–C9 + German names, Packliste aufräumen, Ess-Erinnerung; built without mockups
     version: '0.177.0',
     date: '2026-10-21',
-    title: 'Tidied up',
-    lead: 'Less to carry, fewer reminders you did not want.',
+    title: 'Like Strava, only calmer',
+    lead: 'Your rides like on Strava, a calmer daily check and less to carry.',
     points: [
+      { text: 'Look back: overview, Peak Power and map like on Strava', href: '#/trips' },
+      { text: 'Daily check: date and time on every check', href: '#/check/morning' },
       { text: 'Building blocks: tidy up what always comes along', href: '#/blocks/aufraeumen' },
-      { text: 'On the way: the eat reminder your way', href: '#/ride' },
     ],
     small: [
-      { box: 'nicer', text: 'Shorter pages on the phone' },
+      { box: 'new', text: 'The timeline comes from Strava: pauses, best times, climbs and photos' },
+      { box: 'nicer', text: 'Strava names and English names in German' },
+      { box: 'new', text: 'On the way: the eat reminder your way', href: '#/ride' },
     ],
     test: [
+      'Open a past trip and tap «Analysis»: the overview looks like on Strava.',
       'Open Building blocks and tap «Tidy up».',
-      'Start a ride: on the ride card choose how often the eat reminder comes.',
     ],
   },
   {

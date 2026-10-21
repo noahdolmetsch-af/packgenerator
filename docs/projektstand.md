@@ -65,6 +65,10 @@ Seit 19.10.2026 gibt es keine Testlinks mehr: Ein Paket geht online, sobald die 
 | 55 | Zeichnen auf allen Fotos | 0.175.0 | Knopf «Zeichnen» auch auf Setup-, Problem-, Pack-, Verschleiss- und Tagebuch-Fotos; das oberste von drei Fenstern schliesst nur sich selbst | #227, online 21.10. |
 | 56 | Eine Tour, eine Seite | 0.176.0 | Fünf Reiter auf jeder Tour: Planen · Packen · Unterwegs · Rückblick · Auswertung; «Fehlt noch» in Planen; Countdown-Chip und Satz mit Zahl; nur vorhandene Werte; «Fahrt verbinden»; Lernschleife nach der Tour; Fahrt-Analysen aus dem Training in der Tour-Analyse | #231, online 21.10. |
 | 57 | Reste | 0.176.0 | Bikepark-Tage als Baustein; alle Taschen nebeneinander ab 1100 px (aus); Tour- und Rechnungsformular mit Fehler am Feld; Notizen zeigen .odt/.odp/.ods/.rtf | #231, online 21.10. |
+| 58 | Wie Strava (Tour-Auswertung 1+2) | 0.177.0 | Rückblick und Analyse wie auf Strava (Übersicht, Peak Power, Karte, Zonenfarben), Fahrtzeit «2:58 h» bzw. dd:hh:mm:ss, eigene FTP, NP aus den Wattdaten; Zeitleiste aus Strava (Pausen, Bestzeiten, Anstiege, Fotos), lesbarer Tourname statt Dateiname, Vorlage und Erinnern unter «…», Ausrüstung nur Ausnahmen, Wetter beim Start jeder Fahrt | dieser PR |
+| 59 | Tages-Check mit Datum und Uhrzeit | 0.177.0 | Jeder Check zeigt Datum und Uhrzeit; kein Mittagsfenster; ✕ = «Heute nicht» | dieser PR |
+| 60 | Gesamttest 21.10. (C1–C9) | 0.177.0 | Kürzere Seiten am Handy, lange Vorlagen gefaltet, englische Namen und Strava-Namen auf Deutsch, «Fertig gepackt» | dieser PR |
+| 61 | Packliste aufräumen, Ess-Erinnerung | 0.177.0 | Bausteine › Aufräumen (Immer dabei, Tagestour-Knopf, Licht, Kälte-Stufen); Ess-Erinnerung wählbar auf der Fahrt-Karte | dieser PR |
 
 «Frontend aufpeppen» ist pausiert (Noah 19.10.2026). Die Abschnitte unten sind der Stand vom 18.10.2026.
 

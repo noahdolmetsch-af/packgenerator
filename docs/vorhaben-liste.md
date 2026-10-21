@@ -16,6 +16,21 @@ Stand 19.10.2026, 19:30 UTC. Live ist 0.154.0. Diese Liste ist die Übersicht ü
 | 4 Aus jeder Tour lernen | 25 | 1 | 0 | 0 | 11 |
 | 5 Alltag (seit 19.10.2026) | 169 | 1 | 1 | 5 | 26 |
 
+## Nach 0.177: freigegebene Mockup-Pakete
+
+Noah 21.10.2026 «1a 2b 3a 4a 5b 6a 7a» (alle offenen Mockups freigegeben; Abgleich auf der Seite «Offene Mockups abgleichen»). Stand «gewünscht», in dieser Reihenfolge:
+
+| Paket | Vorhaben | Ziel |
+|---|---|---|
+| P2 | Skitour | 1 Schneller packen, 3 Von der Haustür bis zurück |
+| P1 | Packen und Strom | 1 Schneller packen |
+| P6 | Heute ergänzen | 5 Alltag |
+| P3 | Warum? und Regeln | 1 Schneller packen |
+| P4 | Aktiv | 5 Alltag |
+| P5 | Eingang | 5 Alltag |
+| P7 | Projekt-Ablage | 5 Alltag |
+| P8 | Fotoalbum | 4 Aus jeder Tour lernen |
+
 ## 1. Schneller packen
 
 ### Gewünscht, noch nicht gebaut
