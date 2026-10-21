@@ -129,6 +129,9 @@ test('b) Logbuch: Velo and Reiseart with counts, combinable, «Filter löschen»
   const log = page.locator('#logbook');
   const rows = log.locator('ul.log > li');
   await expect(rows.first()).toBeVisible();
+  // Gesamttest 21.10.2026 (C5): first 10 entries, then «n weitere zeigen»
+  if (await log.locator('[data-log-more]').count()) await log.locator('[data-log-more]').click();
+  await expect(log.locator('[data-log-more]')).toHaveCount(0);
   const all = await rows.count();
   const bikes = log.getByRole('group', { name: T('Bike') });
   const kinds = log.getByRole('group', { name: T('Area') });

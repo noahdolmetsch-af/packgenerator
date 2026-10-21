@@ -9,7 +9,8 @@ export default {
   'Continue to On the way': 'Weiter zu Unterwegs',
   'Continue to Debrief': 'Weiter zum Rückblick',
   'Back to Trips': 'Zurück zu Touren',
-  'Finish packing': 'Packen abschliessen',
+  // Gesamttest 21.10.2026 (C2): «Packen abschlie…» was cut on a phone; the short word fits everywhere
+  'Finish packing': 'Fertig gepackt',
   'Finish the trip': 'Tour abschliessen',
   'Finish the last day': 'Letzten Tag abschliessen',
   'End the trip …': 'Tour beenden …',
