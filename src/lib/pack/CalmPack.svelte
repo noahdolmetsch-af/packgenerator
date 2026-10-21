@@ -55,6 +55,7 @@
   import '../trip/trip.css';
   import { Sparkles, ArrowDown } from '@lucide/svelte';
   import { packSteps } from '../trips.js';
+  import { missingOf, missingText } from '../touren/tourstep.js';
   import ListCheck from '../helper/ListCheck.svelte';
   import { isOn } from '../helper/client.svelte.js';
   let { trip, stats, bike, bikeTrip, domainLabel, items, itemsById, trips, candidates, targets, templates, hasPhoto = false, openLayers, canUndo, changeNote = '', ctxChanged = false, ctxRows = {}, reasons = {}, readyCount, readyTotal, over, fixed = false, phaseOpts = {}, carry = new Set(), q = $bindable(''), zoneKey = $bindable('seat'), review = $bindable(false), actions, settings, picker, moreWeights, preparation, ballastContent, suggest = null, notice = null, made = false, onion = null, photo = null, edit = null, swapMemory = {}, onroute = null, onstages = null, prep = null, onprep = null, lessons = [], reminders = [] } = $props();
@@ -197,6 +198,15 @@
     stats?.packG ? t('{kg} with food and water', { kg: `${stats.packMissing ? '~' : ''}${kg(stats.packG)}` }) : '',
     tasksOpen ? tn(tasksOpen, '{n} task open', '{n} tasks open') : '',
   ].filter(Boolean).join(' · '));
+  // «Eine Tour, eine Seite» (UI-Ziele #5, 0.174): Planen starts with what is still missing, calmly
+  // («Fehlt noch: Wetter und Strecke. Beides geht auch später.»); a ridden trip (fixed) asks nothing
+  const missing = $derived.by(() => {
+    const keys = fixed || over ? [] : missingOf(trip, { unweighed: stats?.unweighed ?? 0, bike: bikeTrip });
+    const m = missingText(keys, { unweighed: stats?.unweighed ?? 0 });
+    if (!m) return '';
+    const list = new Intl.ListFormat(locale(), { type: 'conjunction' }).format(m.parts.map((p) => t(p.key, p.vars)));
+    return `${t('Still missing:')} ${list}. ${t(m.close)}`;
+  });
   const jumps = $derived([
     { key: 'list', label: t('Packing list|jump') },
     onprep ? { key: 'tasks', label: t('Tasks|jump') } : null,
@@ -219,6 +229,7 @@
 {#snippet core(alone = false)}
   <div class="core" class:alone data-core-line={alone ? undefined : ''} data-core-alone={alone ? '' : undefined}>
     <p class="core-l num">{coreLine}</p>
+    {#if missing && !alone}<p class="core-m" data-plan-missing>{missing}</p>{/if}
     {#if jumps.length > 1}
       <nav class="core-j" aria-label={t('Jump to')}>
         <ArrowDown class="core-a" size={16} aria-hidden="true" />
@@ -486,6 +497,7 @@
   /* Impeccable Planen 1: the core line and the jump marks under the step bar; they wrap, never scroll sideways */
   .core { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 16px; margin: 0 0 16px; min-width: 0; }
   .core-l { flex: 1 1 280px; min-width: 0; margin: 0; color: var(--ink); font-weight: 500; overflow-wrap: break-word; }
+  .core-m { flex: 1 1 100%; order: 3; margin: 0; color: var(--ink-2); font-size: var(--fs-small); }
   .core-j { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; min-width: 0; }
   .core-j :global(.core-a) { flex: none; color: var(--ink-3); }
   .core-c { padding: 6px 11px; border-color: var(--line); color: var(--ink-2); font-size: var(--fs-small); }

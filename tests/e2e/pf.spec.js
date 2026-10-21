@@ -198,7 +198,8 @@ async function fillTrip(dlg, rec, o) {
     if (await chip.count()) {
       if ((await chip.getAttribute('aria-pressed')) !== 'true') await rec.click(chip);
     } else {
-      const sel = dlg.locator('label').filter({ has: dlg.page().locator('select'), hasText: new RegExp(`^${esc(T('Bike'))}`) }).locator('select');
+      // 0.176.0 Paket «Reste» 1041 (changed on purpose): the fields are ui/Field, the label points at the select
+      const sel = dlg.getByRole('combobox', { name: T('Bike'), exact: true });
       if ((await sel.inputValue()) !== o.bike) await rec.select(sel, o.bike);
     }
   }

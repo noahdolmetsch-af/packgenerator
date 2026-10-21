@@ -28,6 +28,9 @@
   const foodList = $derived(flat(groups.food));
   const missing = $derived((d.debrief?.missing ?? []).filter((m) => !m.food));
   const missingFood = $derived((d.debrief?.missing ?? []).filter((m) => m.food));
+  // 0.174 (UI-Ziele #8): a long list nobody looked at yet waits behind one line «76 Teile warten auf dein Urteil · Durchgehen»
+  let going = $state(false);
+  const folded = $derived(!d.debrief && !going && groups.gear.open.length > 8);
   const counts = (side) => [...MARKS, 'open'].map((m) => [m, side[m].length]).filter(([, n]) => n);
   const partTrip = $derived(d.kind !== 't' && d.partOf?.href?.includes('t%3A') ? d.partOf : null);
 
@@ -150,9 +153,14 @@
       </p>
       <button type="button" class="btn" onclick={() => (picking = true)} data-gear-change><Backpack size={16} aria-hidden="true" />{gearList.length || foodList.length ? t('Change gear') : t('Enter the gear')}</button>
     </div>
+    {#if folded}
+      <p class="wait" data-gear-wait><b class="num">{tn(groups.gear.open.length, '{n} thing waits for your verdict', '{n} things wait for your verdict')}</b><button type="button" class="btn" onclick={() => (going = true)} data-gear-go>{t('Go through')}<ChevronRight size={16} aria-hidden="true" /></button></p>
+      <p class="tp-muted tp-small">{t('Mark only the exceptions: whatever you do not mark counts as used.')}</p>
+    {:else}
     {#if !d.debrief && gearList.length}<p class="tp-muted tp-small">{t('Not looked at yet. Mark only the exceptions: whatever you do not mark counts as used.')}</p>{/if}
     {#if gearList.length || foodList.length}<p class="tp-muted tp-small leg">{t('For each thing tap the hook (used), the circle (not used) or the triangle (broken); the pencil adds a note.')}</p>{/if}
     {#if gearList.length}<ul class="glist2">{#each gearList as it (it.id)}{@render thing(it)}{/each}</ul>{/if}
+    {/if}
     {@render missingBox(missing, false)}
 
     <h3 class="h3 food"><Utensils size={16} aria-hidden="true" />{t('Food and drink')}</h3>
@@ -189,6 +197,22 @@
 {/if}
 
 <style>
+  .wait {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px 14px;
+    margin: 12px 0 4px;
+    padding: 12px 14px;
+    border-radius: var(--radius-card);
+    background: var(--warm-soft);
+  }
+  .wait .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
   .gh {
     display: flex;
     flex-wrap: wrap;

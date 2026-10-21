@@ -8,7 +8,7 @@
  */
 import { t } from '../i18n.svelte.js';
 import { shrinkImage } from '../photo.js';
-import { detectFormat, FILE_MAX_MB, TEXT_MAX, VIDEO_MAX_S, dataBytes, csvRows, rowsText, parseVcf, docxToMd, pptxToMd, slideOrder, xlsxStrings, xlsxSheet, xlsxSheetNames, fitPoints, readableOf } from './files.js';
+import { detectFormat, FILE_MAX_MB, TEXT_MAX, VIDEO_MAX_S, dataBytes, csvRows, rowsText, parseVcf, docxToMd, pptxToMd, odtToMd, odpToMd, odsSheets, rtfToText, slideOrder, xlsxStrings, xlsxSheet, xlsxSheetNames, fitPoints, readableOf } from './files.js';
 
 export const fileId = () => `nf-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`;
 
@@ -79,18 +79,21 @@ export async function pdfImages(url, maxPages = 10) {
 /** The XML files of an Office file (a zip): { name: text }. */
 async function unzipOf(url) {
   const { zipEntries } = await import('../zipread.js');
-  const want = (n) => /^(word\/document|ppt\/slides\/slide\d+|xl\/sharedStrings|xl\/workbook|xl\/worksheets\/sheet\d+)\.xml$/.test(n);
+  const want = (n) => /^(word\/document|ppt\/slides\/slide\d+|xl\/sharedStrings|xl\/workbook|xl\/worksheets\/sheet\d+|content)\.xml$/.test(n);
   const out = {};
   for (const e of await zipEntries(new Blob([await bytesOf(url)]), want)) out[e.name] = await e.text();
   return out;
 }
 const dec = (s) => s ?? '';
 
-/** What a Word, Excel or PowerPoint file shows in the app: { md } or { sheets: [{ name, rows }] }. */
+/** What a Word, Excel or PowerPoint file (or its LibreOffice twin .odt/.ods/.odp) shows in the app: { md } or { sheets: [{ name, rows }] }. */
 export async function readOffice(url, fmt) {
   const z = await unzipOf(url);
   if (fmt === 'docx') return { md: docxToMd(dec(z['word/document.xml'])) };
   if (fmt === 'pptx') return { md: pptxToMd(slideOrder(Object.keys(z)).map((n) => dec(z[n])), t('Slide')) };
+  if (fmt === 'odt') return { md: odtToMd(dec(z['content.xml'])) };
+  if (fmt === 'odp') return { md: odpToMd(dec(z['content.xml']), t('Slide')) };
+  if (fmt === 'ods') return { sheets: odsSheets(dec(z['content.xml'])).map((sh, i) => ({ ...sh, name: /^\d+$/.test(sh.name) ? `${t('Sheet')} ${i + 1}` : sh.name })) };
   const strings = xlsxStrings(dec(z['xl/sharedStrings.xml']));
   const names = xlsxSheetNames(dec(z['xl/workbook.xml']));
   const files = Object.keys(z).filter((n) => /^xl\/worksheets\/sheet\d+\.xml$/.test(n)).sort((a, b) => Number(a.match(/(\d+)\.xml$/)[1]) - Number(b.match(/(\d+)\.xml$/)[1]));
@@ -192,8 +195,9 @@ export async function photoOf(file, max = 1600) {
 export async function textOfFile(row) {
   try {
     if (row.fmt === 'pdf') return await pdfText(row.data);
-    if (row.fmt === 'docx' || row.fmt === 'pptx') return (await readOffice(row.data, row.fmt)).md.replace(/[#*|-]+/g, ' ').slice(0, TEXT_MAX);
-    if (row.fmt === 'xlsx') return (await readOffice(row.data, 'xlsx')).sheets.map((s) => `${s.name}\n${rowsText(s.rows)}`).join('\n').slice(0, TEXT_MAX);
+    if (row.fmt === 'docx' || row.fmt === 'pptx' || row.fmt === 'odt' || row.fmt === 'odp') return (await readOffice(row.data, row.fmt)).md.replace(/[#*|-]+/g, ' ').slice(0, TEXT_MAX);
+    if (row.fmt === 'xlsx' || row.fmt === 'ods') return (await readOffice(row.data, row.fmt)).sheets.map((s) => `${s.name}\n${rowsText(s.rows)}`).join('\n').slice(0, TEXT_MAX);
+    if (row.fmt === 'rtf') return rtfToText(await textOf(row.data)).slice(0, TEXT_MAX);
     if (row.fmt === 'csv') return rowsText(csvRows(await textOf(row.data))).slice(0, TEXT_MAX);
     if (row.fmt === 'text' || row.fmt === 'md' || row.fmt === 'web') return (await textOf(row.data)).slice(0, TEXT_MAX);
     if (row.fmt === 'ics') return [...(await textOf(row.data)).matchAll(/^(?:SUMMARY|LOCATION|DESCRIPTION):(.*)$/gm)].map((m) => m[1]).join(' ').slice(0, TEXT_MAX);

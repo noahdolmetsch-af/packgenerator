@@ -149,6 +149,7 @@ export const SINCE = {
   'f.journal': '0.170.0',
   // «Auswertung wie Training» (provisional version, the bundler renumbers)
   'f.tickreview': '0.174.0',
+  'f.parkdays': '0.176.0', 'f.packside': '0.176.0', // Paket «Reste» (21.10.2026)
 };
 export const sinceOf = (id) => SINCE[id] ?? '0.1.0';
 

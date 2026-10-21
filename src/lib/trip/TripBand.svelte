@@ -33,7 +33,7 @@
   import { openTrip } from '../nav.js';
   import { phone } from '../media.svelte.js';
   import { localDay } from '../localday.js';
-  import { tabsOf, tabStatus, tripDates } from '../tabs.js';
+  import { tabsOf, stepsOf, tabStatus, tripDates } from '../tabs.js';
   import InProgress from './InProgress.svelte';
   import FactSheet from './FactSheet.svelte';
   import StepBar from '../ui/StepBar.svelte';
@@ -169,7 +169,8 @@
     <MainBar place="band" {aside} {hint} step={stepText || stepLine} second={{ label: t('Back to Trips'), href: '#/trips' }}>{@render action?.()}</MainBar>
   {/if}
   <!-- v0.67.0 (kit, Ü1 a): the steps are the kit's StepBar, the same as on the interstitials. -->
-  <div class="steps"><StepBar {trip} {tabs} {status} current={tab} onpick={() => openTrip(trip.id)} /></div>
+  <!-- «Eine Tour, eine Seite» (UI-Ziele #5, 0.174): the four steps and «Auswertung» as the tabs of the one tour -->
+  <div class="steps"><StepBar {trip} tabs={stepsOf(trip)} {status} current={tab} onpick={() => openTrip(trip.id)} /></div>
   {@render below?.()}
   {#if note && stInfo?.state}<div class="stnote"><StateNote {trip} info={stInfo} {debrief} {tab} {ontemplate} bike={byBike} /></div>{/if}
 </section>
