@@ -7,7 +7,7 @@ export default {
   'Not ridden': 'Nicht gefahren',
   'Not ridden: {title}.': 'Nicht gefahren: {title}.',
   'It was not ridden: it leaves every count. You can undo it.': 'Nicht gefahren: Sie zählt nirgends mehr. Du kannst es rückgängig machen.',
-  'Rate|debrief': 'Bewerten',
+  'Rate|debrief': "Rückblick",
   'Continue|debrief': 'Weiter',
   'only Completed and Rated': 'nur Abgeschlossen und Bewertet',
   'All figures': 'Alle Kennzahlen',

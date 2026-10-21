@@ -336,7 +336,7 @@
     color: var(--hi);
   }
   .icb.mind {
-    color: var(--accent);
+    color: var(--l4);
   }
   .icb.rest {
     color: var(--l3);
@@ -349,7 +349,7 @@
     background: var(--hi-soft);
   }
   .icb.mind[aria-pressed='true'] {
-    background: var(--accent-soft);
+    background: var(--l4-soft);
   }
   .icb.rest[aria-pressed='true'] {
     background: var(--l3-soft);

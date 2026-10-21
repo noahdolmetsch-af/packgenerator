@@ -21,14 +21,14 @@ export default {
 
   // Mehrfachauswahl in Material
   'More actions': 'Weitere Aktionen',
-  'Area …': 'Reiseart …',
+  'Area …': "Tourart …",
   '{n} item archived. It stays in the look back.': '{n} Teil archiviert. Es bleibt im Rückblick.',
   '{n} items archived. They stay in the look back.': '{n} Teile archiviert. Sie bleiben im Rückblick.',
   'How|area': 'Wie',
-  'Also this area': 'Auch diese Reiseart',
-  'Only this area': 'Nur diese Reiseart',
-  'The items keep their areas and get this one too.': 'Die Teile behalten ihre Reisearten und bekommen diese dazu.',
-  'The items belong only to this area; their other areas go.': 'Die Teile gehören nur noch zu dieser Reiseart; die anderen fallen weg.',
+  'Also this area': "Auch diese Tourart",
+  'Only this area': "Nur diese Tourart",
+  'The items keep their areas and get this one too.': "Die Teile behalten ihre Tourarten und bekommen diese dazu.",
+  'The items belong only to this area; their other areas go.': "Die Teile gehören nur noch zu dieser Tourart; die anderen fallen weg.",
   'The IDs stay the same, so trips, templates and bags keep them.': 'Die IDs bleiben gleich, Touren, Vorlagen und Taschen behalten sie.',
 
   // Mehrfachauswahl im Kleiderschrank

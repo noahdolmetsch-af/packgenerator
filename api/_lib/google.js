@@ -112,6 +112,10 @@ export function cleanName(v, fallback = 'Dokument') {
 export const TYPES = ['sleep', 'steps', 'daily-resting-heart-rate', 'daily-heart-rate-variability', 'active-zone-minutes'];
 /** Pages per list call in the days step (a night or a day is one point; 90 days fit in one page). */
 const MAX_PAGES = 5;
+/** Sleep (and exercise) come at most 25 per page (health.googleapis.com discovery, v4); the rest 200. */
+export const pageSizeOf = (type) => (type === 'sleep' ? 25 : 200);
+/** Errors that stop the whole fetch: the login, the connection or Google's limit. */
+const STOPS = new Set(['google_login_needed', 'not_connected', 'google_busy', 'google_unreachable']);
 
 export function googleEnv(e = process.env) {
   return { clientId: pick('GOOGLE_CLIENT_ID', e), clientSecret: pick('GOOGLE_CLIENT_SECRET', e), ...redisEnv(e) };
@@ -164,6 +168,8 @@ export function makeHandler({ env = () => googleEnv(), doFetch = (...a) => fetch
     }
     if (res.status === 401) throw new ApiError(401, 'google_login_needed', 'Google needs a new login.');
     if (res.status === 429) throw new ApiError(429, 'google_busy', 'Google allows only a few requests right now. Try again later.');
+    // no access to this value (the Fitbit tick was missing in the last Google login)
+    if (res.status === 403) throw new ApiError(403, 'google_scope', 'Google gives no access to this value. Connect Fitbit again and tick the values.');
     if (!res.ok) throw new ApiError(502, 'google_error', 'Google answered with an error.');
     return res.json().catch(() => ({}));
   }
@@ -173,7 +179,7 @@ export function makeHandler({ env = () => googleEnv(), doFetch = (...a) => fetch
     const out = [];
     let pageToken = '';
     for (let i = 0; i < MAX_PAGES; i++) {
-      const q = new URLSearchParams({ filter: listFilter(type, from, to), pageSize: '200', ...(pageToken ? { pageToken } : {}) });
+      const q = new URLSearchParams({ filter: listFilter(type, from, to), pageSize: String(pageSizeOf(type)), ...(pageToken ? { pageToken } : {}) });
       const body = await healthCall(token, `dataTypes/${type}/dataPoints?${q}`);
       out.push(...(body.dataPoints ?? []));
       pageToken = body.nextPageToken ?? '';
@@ -401,13 +407,38 @@ export function makeHandler({ env = () => googleEnv(), doFetch = (...a) => fetch
           const to = url.searchParams.get('to');
           const n = spanDays(from, to);
           if (!n || n > MAX_DAYS) throw new ApiError(400, 'bad_request', `from and to must be days (YYYY-MM-DD), at most ${MAX_DAYS} days apart.`);
-          const token = await accessToken(cfg, store);
-          // One after the other: Google allows only a few requests at once.
-          const steps = await rollUp(token, 'steps', from, to);
-          const azm = await rollUp(token, 'active-zone-minutes', from, to);
-          const sleep = await listAll(token, 'sleep', from, to);
-          const rhr = await listAll(token, 'daily-resting-heart-rate', from, to);
-          const hrv = await listAll(token, 'daily-heart-rate-variability', from, to);
+          const token = await accessToken(cfg, store).catch((err) => {
+            console.log(`google days: no login, ${err?.code}`);
+            throw err;
+          });
+          // One after the other: Google allows only a few requests at once. A value Google refuses no
+          // longer stops the others (Noah 21.10.2026: «fitbit … werden nicht korrekt geliefert»); its name
+          // goes back in «missing», so the app can say which one did not come. A login that is no longer
+          // valid still stops everything: then nothing can come.
+          const missing = [];
+          let refused = null;
+          const core = async (type, get) => {
+            try {
+              return await get();
+            } catch (err) {
+              if (STOPS.has(err?.code)) {
+                console.log(`google days: stopped, ${err.code}`);
+                throw err;
+              }
+              missing.push(type);
+              refused = err;
+              return [];
+            }
+          };
+          const steps = await core('steps', () => rollUp(token, 'steps', from, to));
+          const azm = await core('active-zone-minutes', () => rollUp(token, 'active-zone-minutes', from, to));
+          const sleep = await core('sleep', () => listAll(token, 'sleep', from, to));
+          const rhr = await core('daily-resting-heart-rate', () => listAll(token, 'daily-resting-heart-rate', from, to));
+          const hrv = await core('daily-heart-rate-variability', () => listAll(token, 'daily-heart-rate-variability', from, to));
+          if (missing.length === TYPES.length) {
+            console.log(`google days: nothing came, ${refused?.code}`);
+            throw refused;
+          }
           // «Form und Erholung» / Garmin-Übersicht: calories and the highest pulse, 14 days per request.
           // Optional: a refused type (no permission, an older account) leaves these values out.
           const extra = async (type) => {
@@ -433,7 +464,10 @@ export function makeHandler({ env = () => googleEnv(), doFetch = (...a) => fetch
           const spo2 = await listed('daily-oxygen-saturation');
           const breath = await listed('daily-respiratory-rate');
           const skin = await listed('daily-sleep-temperature-derivations');
-          return json(request, 200, { ok: true, from, to, days: daysFrom({ steps, azm, sleep, rhr, hrv, kcal, kcalActive, hr, spo2, breath, skin }, from, to) });
+          const days = daysFrom({ steps, azm, sleep, rhr, hrv, kcal, kcalActive, hr, spo2, breath, skin }, from, to);
+          // one line for the Vercel log: how many days and which values did not come (no values, no names)
+          console.log(`google days: ${n} asked, ${days.length} with values${missing.length ? `, missing ${missing.join(' ')}` : ''}`);
+          return json(request, 200, { ok: true, from, to, days, missing });
         }
         throw new ApiError(400, 'bad_request', 'Unknown step.');
       },

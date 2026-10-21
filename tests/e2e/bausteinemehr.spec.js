@@ -39,6 +39,11 @@ const esc = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 const phone = (info) => info.project.name === 'phone';
 const tap = (loc, info) => (phone(info) ? loc.tap() : loc.click());
 const TRIP = 'test_data_gtp_grimsel';
+/** Impeccable P3 (20.10.2026): the empty blocks of «Je nach Lage» sit in one fold; open it when it is there. */
+async function openEmpty(sit, info) {
+  const fold = sit.locator('details[data-empty-blocks]');
+  if ((await fold.count()) && (await fold.getAttribute('open')) === null) await tap(fold.locator('> summary'), info);
+}
 const NAME = (key) => T(SETS[key]);
 const DE_PART = (k) => PARTS[k].de;
 
@@ -111,6 +116,7 @@ test('Bausteine: the five groups of the Gesamtliste, example parts in the new bl
   await expect(heads).toHaveText([T('Overnight|group'), T('On every ride'), T('Depending on the situation'), T('Bathing|group'), T('To add')]);
   // 5a: «Je nach Lage» and «Baden» open, the others folded
   const sit = main.getByRole('region', { name: T('Depending on the situation') });
+  await openEmpty(sit, info); // Impeccable P3: the empty blocks wait in one fold
   for (const key of GROUPS.situation) await expect(sit.getByRole('listitem', { name: NAME(key), exact: true })).toBeVisible();
   const bath = main.getByRole('region', { name: T('Bathing|group') });
   for (const key of GROUPS.bathing) await expect(bath.getByRole('listitem', { name: NAME(key), exact: true })).toBeVisible();
@@ -176,6 +182,7 @@ test('the rule of Kurz ins Wasser: a second condition by hand, Nasses trocken ha
   await tap(dlg.getByRole('button', { name: T('Cancel'), exact: true }), info);
   await expect(dlg).toBeHidden();
   // a stage: «Kälte: Schichten» switched off, the chip says so
+  await openEmpty(page.locator('main').getByRole('region', { name: T('Depending on the situation') }), info);
   const cold = page.locator('main').getByRole('region', { name: T('Depending on the situation') }).getByRole('listitem', { name: NAME('cold'), exact: true });
   await tap(cold.getByRole('button', { name: NAME('coldLayers'), exact: true }), info);
   const sdlg = page.getByRole('dialog', { name: NAME('coldLayers') });

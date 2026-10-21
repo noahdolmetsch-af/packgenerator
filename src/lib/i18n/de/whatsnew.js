@@ -1415,6 +1415,17 @@ export default {
   'A test keeps every page short on the phone': 'Ein Test hält jede Seite am Handy kurz',
   'Tap Plan in the bar: the tabs show Week, Appointments, Notes, Inbox and more.': 'Tippe in der Leiste auf Planen: Die Reiter zeigen Woche, Termine, Notizen, Eingang und mehr.',
   'Tap Analysis, then the tab Rides: your Strava rides are there.': 'Tippe auf Auswerten, dann auf den Reiter Fahrten: Dort sind deine Strava-Fahrten.',
+  // v0.174.0 «Klarer und einheitlich»
+  'Clearer and the same everywhere': 'Klarer und einheitlich',
+  'Fewer tabs, one word per thing.': 'Weniger Reiter, ein Wort pro Sache.',
+  'Phone: at most four tabs on top, the rest under «More»': 'Handy: höchstens vier Reiter oben, der Rest unter «Mehr»',
+  'Evaluate what you tick, like a ride': 'Werte aus, was du abhakst, wie eine Fahrt',
+  'Shorter pages, two columns on the computer': 'Kürzere Seiten, zwei Spalten am Computer',
+  'One word per thing: Parts, Look back, Trip type': 'Ein Wort pro Sache: Teile, Rückblick, Tourart',
+  'Week: Take, Leave out and Not this week with Undo': 'Woche: Übernehmen, Weglassen und Nicht diese Woche mit Rückgängig',
+  'On the phone, open Bikes and tap «More» at the top right.': 'Öffne am Handy Velos und tippe oben rechts auf «Mehr».',
+  'Fitbit shows why nothing comes': 'Fitbit zeigt, warum nichts kommt',
+  'Open Active › Goals › Evaluate.': 'Öffne Aktiv › Ziele › Auswerten.',
   // v0.173.0 «Suche und eigene Werte»
   'Search and own values': 'Suche und eigene Werte',
   'Say it, and change every list yourself.': 'Sag es, und pass jede Liste selbst an.',

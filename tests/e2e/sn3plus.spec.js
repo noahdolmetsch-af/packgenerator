@@ -102,6 +102,9 @@ test('Bausteine: «Je nach Lage» is open with its seven blocks; the other group
   const main = page.locator('main');
   const sit = main.getByRole('region', { name: T('Depending on the situation') });
   await expect(sit).toBeVisible();
+  // Impeccable P3 (20.10.2026): the empty blocks sit in one fold; open it when it is there
+  const fold = sit.locator('details[data-empty-blocks]');
+  if (await fold.count()) await fold.locator('> summary').click();
   for (const key of SITUATION_BLOCKS) await expect(sit.getByRole('listitem', { name: NAME(key), exact: true })).toBeVisible();
   const cold = sit.getByRole('listitem', { name: NAME('cold'), exact: true });
   await expect(cold).toContainText(`${T('comes along:')} ${T('below|rule')} 5 °C`);
@@ -111,7 +114,7 @@ test('Bausteine: «Je nach Lage» is open with its seven blocks; the other group
   await expect(heat).toContainText(T('still empty: suggests nothing when packing'));
   await expect(heat.getByRole('link', { name: T('Add items to {block}', { block: NAME('heat') }) })).toHaveAttribute('href', '#/gear?fill=heat');
   await expect(cold.getByRole('link')).toHaveCount(0);
-  await expect(sit).toContainText(/\d+ (Baustein ist|Bausteine sind) noch leer/);
+  await expect(sit.locator('[data-empty-blocks] > summary')).toContainText(/\d+ leere? Bausteine?/); // Impeccable P3: the empty ones in one fold
   await expect(sit.getByRole('listitem', { name: NAME('climb'), exact: true })).toContainText(`${T('from|rule')} 1’200 ${T('m climbing a day')} ${T('or a pass')}`);
   // the other groups are one row each with their count; one tap opens them
   // v0.154.0 «Bausteine mehr» (Gesamtliste, 3a): «Auf jeder Fahrt» = Standard, Erste Hilfe, Reparatur, Laden

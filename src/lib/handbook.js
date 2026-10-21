@@ -624,7 +624,7 @@ export const HANDBOOK = {
   },
   'f.wetchain': {
     on: null,
-    steps: ['Ride in the rain: from 18:00 the phone reminds you «Dry and oil the chain».', '«Done: chain oiled» writes a care entry for the chain; «Later» or «Not today» also work.', 'Switch it off: Bikes › Care › a bike › «Wear» › «Reminders».'],
+    steps: ['Ride in the rain: «Wear» shows «Dry and oil the chain», the phone reminds you at 19:00.', '«Done: chain oiled» writes a care entry for the chain, and the hint goes.', 'Switch it off: Bikes › Care › a bike › «Wear» › «Reminders».'],
     example: 'Example: 40 km in the rain → in the evening «Dry and oil the chain».',
   },
   'f.wearphotos': {
@@ -1586,6 +1586,12 @@ export const HANDBOOK = {
     steps: ['Open Trips › Look back › Heatmap.', 'Choose clouds or lines; filter by year, sport, bike or tour and everyday.', 'Tap a coloured line: the rides there show below, each with its page.'],
     example: 'Example: 2026, bike only → your way to work glows dark red, the Jura tour is a thin orange line.',
   },  'f.eveningtour': {
+  },  'f.tickreview': {
+    on: 'Works with what you tick off under «Heute abhaken» and with check questions that have a number.',
+    steps: ['Open Active › Goals and tap «Evaluate».', 'Choose 30 days, 90 days or the year, and all activities or one.', 'Switch to «Your answers» for a check question; «…» on a card hides or moves it.'],
+    example: 'Example: Meditation, 90 days → most often on Tuesday, mostly before 9 o’clock, 8 days in a row as the best run.',
+  },
+  'f.eveningtour': {
     on: 'Shows only on the days of a trip.',
     steps: ['On a trip day, open the evening review from Today.', 'Tap a number at «How was the trip today?»; a second tap takes it back.', 'The score goes into the debrief; the diary draft names it for that day.'],
     example: 'Example: day 2 of the Jura round → 8 of 10; the diary says «Rated in the evening: 8 of 10».',

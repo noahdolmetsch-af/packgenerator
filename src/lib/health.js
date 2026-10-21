@@ -105,7 +105,7 @@ export async function call(step, { method = 'GET', body = null, params = {}, key
   return data;
 }
 
-/** Fetch the missing days and keep them. Returns { from, to, changed }. */
+/** Fetch the missing days and keep them. Returns { from, to, changed, missing (values Google did not give) }. */
 export async function syncHealth(db, { c = call, now = new Date() } = {}) {
   const last = await db.healthDays.orderBy('date').last();
   const old = (await db.settings.get(HEALTH_KEY))?.value ?? {};
@@ -113,13 +113,13 @@ export async function syncHealth(db, { c = call, now = new Date() } = {}) {
   // once after new values came to the server (calories, oxygen, …): the last FILL_DAYS days again
   const from = last && old.fill !== FILL_V ? minDay(range.from, addDays(localDay(now), -(FILL_DAYS - 1))) : range.from;
   const to = range.to;
-  const { days } = await c('days', { params: { from, to } });
+  const { days, missing } = await c('days', { params: { from, to } });
   const at = now.toISOString();
   const changed = await saveDays(db, days ?? [], { src: 'google', at });
   const prev = (await db.settings.get(HEALTH_KEY))?.value ?? {};
   const until = (await db.healthDays.orderBy('date').last())?.date ?? null;
   await db.settings.put({ key: HEALTH_KEY, value: { ...prev, lastSync: at, until, fill: FILL_V } });
-  return { from, to, changed };
+  return { from, to, changed, missing: Array.isArray(missing) ? missing : [] };
 }
 
 /** The latest day (up to «today») that has value k, or null. */

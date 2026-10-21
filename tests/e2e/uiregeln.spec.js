@@ -89,7 +89,8 @@ test('Bausteine: the weight per group as one bar under the head', async ({ page,
   const bar = page.locator('[data-share-bar]');
   await expect(bar).toBeVisible();
   await expect(bar.locator('figcaption')).toHaveText(T('Weight by group'));
-  const groups = ['Always with you', 'Depending on the situation', 'On the ride', 'With the night', 'To add'].map(T);
+  // Impeccable P3 (20.10.2026): the bar uses the names of the five groups on the page
+  const groups = ['Standard|block', 'On every ride', 'Overnight|group', 'Depending on the situation', 'Bathing|group', 'To add', 'Always with you', 'On the ride', 'With the night'].map(T);
   const names = await bar.locator('.legend .nm').allTextContents();
   expect(names.length).toBeGreaterThan(0);
   expect(names.every((n) => groups.includes(n))).toBe(true);

@@ -254,6 +254,13 @@
   });
   const highest = (p) => (p?.length ? Math.max(...p.map((x) => x[1] ?? 0)) : null);
   const ARTNAME = Object.fromEntries(ARTS.map((a) => [a.key, a.name]));
+  // Impeccable 20.10.2026: a learning from a quick note said «Quick note 2026-10-08» in English; now a German line with the day
+  function sourceText(src) {
+    if (src === 'import') return t('From the import');
+    const m = /^Quick note (\d{4}-\d{2}-\d{2})$/.exec(src ?? '');
+    if (m) return t('From a quick note of {date}', { date: new Date(`${m[1]}T12:00:00Z`).toLocaleDateString(locale(), { day: 'numeric', month: 'short', timeZone: 'UTC' }) });
+    return src;
+  }
 </script>
 
 {#snippet rainIcon(rain)}
@@ -552,7 +559,7 @@
 
 {#snippet learnBody()}
           <ul class="rv-box">
-            {#each newest as l (l.id)}<li class="rv-row"><span class="rv-ic" aria-hidden="true"><Lightbulb size={18} /></span><span class="rv-m"><span class="rv-t">{l.rule}</span>{#if l.source}<span class="rv-s">{l.source === 'import' ? t('From the import') : l.source}</span>{/if}</span></li>
+            {#each newest as l (l.id)}<li class="rv-row"><span class="rv-ic" aria-hidden="true"><Lightbulb size={18} /></span><span class="rv-m"><span class="rv-t">{l.rule}</span>{#if l.source}<span class="rv-s">{sourceText(l.source)}</span>{/if}</span></li>
             {:else}<li class="rv-row muted">{openList.length ? t('Nothing learned yet. It comes from every debrief, «Write the debrief» above is the next one.') : t('No learnings yet. They come from every debrief.')}</li>{/each}
           </ul>
 {/snippet}
@@ -1066,6 +1073,8 @@
     width: 100%;
     border-collapse: collapse;
     font-size: var(--fs-small);
+    /* Impeccable 20.10.2026 P4: a long name without spaces breaks, so the table stays in its column */
+    overflow-wrap: break-word;
   }
   .st thead th {
     padding: 4px 10px 8px 0;
@@ -1129,7 +1138,6 @@
     }
     /* the name column takes the room, a long pill gives way with «…» instead of widening the page */
     .st {
-      table-layout: fixed;
     }
     .st th.n,
     .st td.n {

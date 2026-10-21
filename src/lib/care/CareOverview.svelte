@@ -161,6 +161,11 @@
           <p class="card quiet">{t('Nothing due now on any bike.')}</p>
         {/if}
       </section>
+      <!-- Impeccable 20.10.2026 P5: the two things you do most come right under «Due now» (they were at the end under «More») -->
+      <div class="ovacts" data-care-acts>
+        <button type="button" class="btn" onclick={() => openNew('problem')}><TriangleAlert size={18} aria-hidden="true" />{t('Report a problem')}</button>
+        <button type="button" class="btn" onclick={onwork}><Wrench size={18} aria-hidden="true" />{t('Record work')}</button>
+      </div>
       <!-- Gesamttest 20.10.2026: the tip of the day right under «Due now» -->
       {@render afterDue?.()}
 
@@ -251,8 +256,6 @@
           </details>
           <!-- v0.116.0 «Strava-Verbindung»: rides with their bike from Strava -->
           <a class="orow" href={bikesHash({ tab: 'care', view: 'strava' })}><span class="ib"><RefreshCw size={18} aria-hidden="true" /></span><span class="m"><b>Strava</b><small>{t('Rides with their bike, fetched by themselves')}</small></span><ChevronRight class="chev" size={18} aria-hidden="true" /></a>
-          <button type="button" class="orow" onclick={() => openNew('problem')}><span class="ib"><TriangleAlert size={18} aria-hidden="true" /></span><span class="m"><b>{t('Report a problem')}</b><small>{t('Noise, play, damage')}</small></span><ChevronRight class="chev" size={18} aria-hidden="true" /></button>
-          <button type="button" class="orow" onclick={onwork}><span class="ib"><Wrench size={18} aria-hidden="true" /></span><span class="m"><b>{t('Record work')}</b><small>{t('Pick the bike and the part')}</small></span><ChevronRight class="chev" size={18} aria-hidden="true" /></button>
           <!-- «Werte messen» 2b: measure the chain, record the pressure -->
           <button type="button" class="orow" onclick={() => (messen = 'chain')}><span class="ib"><Ruler size={18} aria-hidden="true" /></span><span class="m"><b>{t('Measure the chain')}</b><small>{t('With the chain checker, with a forecast')}</small></span><ChevronRight class="chev" size={18} aria-hidden="true" /></button>
           <button type="button" class="orow" onclick={() => (messen = 'pressure')}><span class="ib"><Gauge size={18} aria-hidden="true" /></span><span class="m"><b>{t('Record the pressure')}</b><small>{t('Front and rear, with a hint when a tyre loses air')}</small></span><ChevronRight class="chev" size={18} aria-hidden="true" /></button>
@@ -577,5 +580,11 @@
     font: 600 var(--fs-body) / 1.3 var(--font-body);
     text-align: left;
     cursor: pointer;
+  }
+  .ovacts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sp-2);
+    margin: calc(-1 * var(--sp-2)) 0 var(--sp-4);
   }
 </style>

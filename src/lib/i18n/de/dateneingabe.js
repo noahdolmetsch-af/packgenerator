@@ -18,7 +18,7 @@ export default {
   'Own field': 'Eigenes Feld',
   'For all bikes': 'Für alle Velos',
   '{shown} shown · {hidden} hidden. For all bikes and only here when entering. Bike pass, Pick-up check and Equipment still show everything. The values stay saved.':
-    '{shown} gezeigt · {hidden} ausgeblendet. Gilt für alle Velos und nur hier beim Erfassen. Velo-Pass, Abhol-Check und Ausstattung zeigen weiter alles. Die Werte bleiben gespeichert.',
+    "{shown} gezeigt · {hidden} ausgeblendet. Gilt für alle Velos und nur hier beim Erfassen. Velo-Pass, Abhol-Check und Teile zeigen weiter alles. Die Werte bleiben gespeichert.",
   'Name of the own field': 'Name des eigenen Felds',
   'Delete own field {name}': 'Eigenes Feld {name} löschen',
   hidden: 'ausgeblendet',

@@ -804,9 +804,9 @@
   <Crumb path={[{ href: '#/trips', label: t('Trips|place') }]} here={t('Live map')} />
   <h1 class="rc-h1" tabindex="-1" data-page-title>{t('Live map')}</h1>
   <p class="rc-intro">
-    {#if trip}{trip.title}{#if hasRoute}{' '}· {t('{km} km · {up} m up', { km: Math.round(route.km || pts.at(-1).km), up: num(Math.round(route.gainM ?? 0)) })}{/if}{:else}{t('A ride without a tour: the map shows where you are and the stops around you.')}{/if}
+    {#if trip}{trip.title}{#if hasRoute}{' '}· {t('{km} km · {up} m up', { km: Math.round(route.km || pts.at(-1).km), up: num(Math.round(route.gainM ?? 0)) })}{/if}{:else}{t('A ride without a tour.')}{/if}
   </p>
-  {#if trip && !hasRoute}<p class="rc-note" data-live-noroute>{t('This tour has no route: the map shows the stops around you. With a route (GPX) you also get km, arrival and climbs.')}</p>{/if}
+  {#if trip && !hasRoute}<p class="rc-note" data-live-noroute>{t('This tour has no route. With a route (GPX) you also get km, arrival and climbs.')}</p>{/if}
 
   <!-- start (and the way back to the full view) -->
   <section class="lv-go" aria-label={t('The ride')}>

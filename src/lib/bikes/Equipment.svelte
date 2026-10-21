@@ -86,8 +86,6 @@
     <!-- Design-Refresh P7 (V14, Noah 12.10.2026 «v11-v14 freigegeben»): «‹ Velo › Gravel Blau › Ausstattung»,
          «Ausstattung Gravel Blau», the counts below, «Compare bikes» as a button; the other bikes as chips. -->
     <VeloHead
-      crumbs={[{ label: t('Bike'), href: bikesHash({ tab: 'setup' }) }, { label: bike.name, href: bikesHash({ tab: 'setup', bike: bike.id }) }]}
-      here={t('Equipment|tab')}
       title={t('Equipment|tab')}
       sub={[bike.name, bike.type ? t(bikeTypeName(bike.type)) : '', t('{n} parts recorded', { n: totals.count }), totals.weightG ? `${kg(totals.weightG)} ${t('parts|weight')}` : '', totals.priceChf ? `${chf(totals.priceChf)} ${t('purchase value')}` : ''].filter(Boolean).join(' · ')}
     >

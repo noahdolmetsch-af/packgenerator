@@ -151,6 +151,7 @@ Nach der Mitziehen-Regel: was in 0.47 noch nicht auf dem neuen Stand ist, mit Zi
 - 21.10.2026, 0.175.0 «Eigene Werte»: keine neue Seite; Ich › Eigene Werte mit Stift, Pfeilen und Griff pro Zeile, Teil «Eigene Erinnerungen» und Falte «Gelöschte Werte»; Velopflege mit Kasten «Eigene Erinnerungen»; Körperwerte mit Gruppe «Eigene»; die Rückfragen im App-Fenster wie überall.
 - 20.10.2026, 0.170.0: neue Seiten Tagebuch (#/tagebuch), Heatmap (#/heatmap), Form und Erholung; Live-Karte mit Datenseiten, Pausen- und Runden-Knopf links neben der Karte, Seitenleiste oben; alle lazy geladen, Handy-Längenbudget grün.
 - 21.10.2026, 0.172.0: Verschleiss-Seite mit vier Unterseiten (Fotos, Inserat, Velobox, Lager), Notizen mit formatiertem Editor und Zeichenblock; alles lazy, schwere Bibliotheken (PDF, HEIC) erst beim Gebrauch.
+- 21.10.2026, 0.174.0: Impeccable-Bericht: Handy höchstens vier Reiter + «Mehr», Computer Seitenleiste, einheitliche Wörter, kürzere Seiten; neue Unterseite Aktiv › Auswerten (lazy).
 - 21.10.2026, 0.173.0: Suche mit Mikrofon, Befehlsantwort mit Rückgängig, neue Unterseite Ich › Suche (lazy); keine neue Hauptseite.
 - 21.10.2026, 0.171.0: neue Seiten Verschleiss (#/bikes?tab=care&view=wear) und Wetter (#/wetter, ohne eigenen Tab), Körperwerte statt Puls-Seite; Aktiv am Handy wieder ≤5.5 Bildschirme, Abfragen ≤6.5; alles lazy geladen.
 - 21.10.2026, 0.170.1: Abgleich-Dialog zeigt Namen und Werte statt Schlüssel; «Schliessen»-Blase nur noch bei Tastatur-Fokus.

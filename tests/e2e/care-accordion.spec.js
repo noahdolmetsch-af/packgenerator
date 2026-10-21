@@ -142,7 +142,7 @@ test('accordion: one bike open, the others one row; last work per part with me /
   // Closing it leaves all closed. Design-Refresh P7 (V6/V7): an open bike is its own page, so closing it
   // goes back to the care overview (the bikes are rows there, no accordion).
   await scaleBtn.click();
-  await expect(page.getByRole('heading', { level: 1, name: 'Velopflege' })).toBeVisible();
+  await expect(page.getByRole('heading', { level: 1, name: 'Pflege', exact: true })).toBeVisible(); // Impeccable P1: the short tab name
   await expect(page.locator('section.acc')).toHaveCount(0);
   expect(errors).toEqual([]);
 });
