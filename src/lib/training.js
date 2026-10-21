@@ -9,6 +9,7 @@
  *   zone needs no new call.
  * - Health data: observation only, never a rating.
  */
+import { fixedFtp } from './strava/ftpstate.svelte.js';
 export const ZONES_KEY = 'strava.zones'; // Strava's zones, as fetched: { hr: [{ min, max }], at }
 export const OWN_ZONES_KEY = 'training.zones'; // Noah's own bounds: { own: [b1, b2, b3, b4] } or null
 export const ZONE_NAMES = ['Recovery|zone', 'Endurance|zone', 'Tempo|zone', 'Threshold|zone', 'Maximum|zone'];
@@ -343,8 +344,15 @@ export function activitiesForTrip(trip, acts = [], kmBook = []) {
  * power curve and an estimated FTP; the load both as Strava's Relative Effort and from power ÷ FTP.
  */
 export const FTP_DAYS = 90;
-/** Estimated FTP: 95 % of the best 20 minutes (power meter) of the last FTP_DAYS days, or null. */
+/**
+ * The FTP in use: the own one or Strava's when there is one (ftpstate.svelte.js, Strava check 21.10.2026), else the
+ * estimate: 95 % of the best 20 minutes (power meter) of the last FTP_DAYS days, or null.
+ */
 export function ftpEstimate(acts, today, days = FTP_DAYS) {
+  return fixedFtp() ?? ftpGuess(acts, today, days);
+}
+/** The estimate alone: 95 % of the best 20 minutes (power meter) of the last FTP_DAYS days, or null. */
+export function ftpGuess(acts, today, days = FTP_DAYS) {
   const from = shiftDay(today, -days);
   const best = Math.max(0, ...acts.filter((a) => a.day >= from && a.day <= today && Number.isFinite(a.w20)).map((a) => a.w20));
   return best > 0 ? Math.round(best * 0.95) : null;

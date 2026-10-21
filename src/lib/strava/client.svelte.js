@@ -26,6 +26,7 @@ import { actRecord, KEEP, needDetail, ZONES_KEY, DETAIL_V } from '../training.js
 import { STRAVA_GONE_KEY } from '../touren/tour.js';
 import { localDay } from '../localday.js';
 import { saveRate } from '../maintenance/rate.js';
+import { keepStravaFtp } from './ftp.svelte.js';
 
 export const STRAVA_URL = 'https://packgen-three.vercel.app/api/strava';
 /** localStorage (this device only): the device key the server gave after the Strava login. */
@@ -129,7 +130,10 @@ export async function savePrefs(db, patch) {
 export async function runSync(db, { call: c = call, now = new Date() } = {}) {
   const prefs = prefsOf((await db.settings.get(PREFS_KEY))?.value);
   const first = !prefs.lastSync;
-  const gear = (await c('gear')).bikes ?? [];
+  const gearRes = await c('gear');
+  const gear = gearRes.bikes ?? [];
+  // the FTP of the Strava profile (Strava check 21.10.2026: the estimate was far off)
+  if (gearRes.ftp) await keepStravaFtp(db, gearRes.ftp, now);
   const entries = await db.kmBook.toArray();
   // «Werte überall»: rides fetched before the app kept their climbing (no «hm» field) are fetched once more, all of them
   const noHm = entries.some((e) => e.source === 'strava' && e.stravaId && !('hm' in e));

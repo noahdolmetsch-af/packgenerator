@@ -8,7 +8,7 @@
  *   POST ?step=start        { returnTo }        → { url } (the Strava login page)
  *   GET  ?step=callback     (Strava sends the browser back here) → 302 into the app with #…&strava=connected&key=…
  *   GET  ?step=status       Bearer <device key> → { connected, athlete, scope }
- *   GET  ?step=gear         Bearer              → { bikes: [{ id, name, km, primary, retired }] }
+ *   GET  ?step=gear         Bearer              → { bikes: [{ id, name, km, primary, retired }], ftp } (ftp: the profile's FTP or null)
  *   GET  ?step=activities   Bearer, &after=<unix s>&before=<unix s>&page=1 → { activities, page, more }
  *   GET  ?step=zones        Bearer              → { hr: [{ min, max }], custom } (Training TR, Noah 13.10.2026 «1-5a»)
  *   GET  ?step=detail       Bearer, &id=<activity id> → { kcal, hist, curve, w20, … cHist, secs5, prof, hw, halves, climbs,
@@ -690,7 +690,7 @@ export function makeHandler({ env = () => stravaEnv(), doFetch = (...a) => fetch
         }
         if (step === 'gear') {
           const me = await stravaGet(cfg, store, '/athlete', ctx);
-          return json(request, 200, withRate({ ok: true, bikes: (me.bikes ?? []).map(trimBike) }));
+          return json(request, 200, withRate({ ok: true, bikes: (me.bikes ?? []).map(trimBike), ftp: Number(me.ftp) > 0 ? Math.round(Number(me.ftp)) : null }));
         }
         if (step === 'activities') {
           const p = url.searchParams;

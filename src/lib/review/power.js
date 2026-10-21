@@ -14,6 +14,8 @@
  * effort (Relative Effort), kj } and after loadDetail { pHist (seconds per 10 W), pCurve [[s, W], …] }.
  */
 
+import { npOfRides } from '../training/act/power.js';
+import { fixedFtp } from '../strava/ftpstate.svelte.js';
 const pos = (v) => (typeof v === 'number' && Number.isFinite(v) && v > 0 ? v : null);
 const r1 = (v) => Math.round(v * 10) / 10;
 const dayOf = (a) => a?.day ?? a?.date ?? null;
@@ -69,6 +71,9 @@ export function powerLoad(a, ftp) {
 // SN2x: wire to training.js when the Training PR lands (ftpEstimate)
 /** The estimated FTP on a day: the best 20 min with a power meter in the FTP_DAYS before it × 0.95, or null. */
 export function ftpEstimate(acts = [], today) {
+  // the own FTP or Strava's first (Strava check 21.10.2026)
+  const fixed = fixedFtp();
+  if (fixed) return fixed;
   const from = today ? new Date(Date.parse(`${today}T12:00:00Z`) - FTP_DAYS * 864e5).toISOString().slice(0, 10) : null;
   const w20s = acts.filter((a) => a?.wDevice === true && pos(a.w20) && (!today || (dayOf(a) && dayOf(a) <= today && dayOf(a) >= from))).map((a) => a.w20);
   return w20s.length ? Math.round(Math.max(...w20s) * 0.95) : null;
@@ -126,7 +131,8 @@ export function tripPower({ acts = [], history = [], kg = null, end = null } = {
   const w20 = w20s.length ? Math.max(...w20s) : null;
   return {
     measured: true,
-    np: weighted(ws, (a) => a.wNorm),
+    // the same NP as the tour page: 4th-power mean weighted by time
+    np: npOfRides(ws),
     avg,
     max,
     w20,

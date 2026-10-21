@@ -20,6 +20,7 @@
   import { clock, dhms } from './fmt.js';
   import { skyOf, dirOf, needsRideWx, ensureRideWx } from '../ridewx.js';
   import { db } from '../../db.js';
+  import { ftpLabel } from '../../strava/ftpstate.svelte.js';
   import { localDay } from '../../localday.js';
   import { Sun, CloudSun, Cloud, CloudFog, CloudDrizzle, CloudRain, CloudSnow, CloudLightning } from '@lucide/svelte';
 
@@ -80,7 +81,7 @@
       {#if np}<div><dd>{num(np)}<small>W</small></dd><dt>NP®</dt></div>{/if}
       {#if ifac}<div><dd>{num(ifac * 100)}<small>%</small></dd><dt>IF®</dt></div>{/if}
       {#if load}<div><dd>{num(load.load)}</dd><dt>TSS®</dt></div>{/if}
-      {#if ftp}<div class="ftp sep"><dd>{num(ftp)}<small>W</small></dd><dt>{t('FTP (estimated)')}</dt></div>{/if}
+      {#if ftp}<div class="ftp sep"><dd>{num(ftp)}<small>W</small></dd><dt>{t(ftpLabel())}</dt></div>{/if}
       {#if kg}<div class="kg"><dd>{num(kg, 1)}<small>kg</small></dd><dt>{t('Weight')}</dt></div>{/if}
       {#if kg && np}<div class="sep"><dd>{num(np / kg, 1)}<small>W/kg</small></dd><dt>{t('NP per kg')}</dt></div>{/if}
     </dl>

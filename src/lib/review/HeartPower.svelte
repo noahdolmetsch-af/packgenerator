@@ -151,7 +151,7 @@
               <div class="bars"><MiniBars values={efforts} {mark} label={t('Relative Effort of your last {n} trips', { n: efforts.length })} /><small>{t('your last {n} trips, this one on the right', { n: efforts.length })}</small></div></div>
           {/if}
           {#if load != null}
-            <div class="eff"><div class="rv-tile"><b class="num">{num(load)}</b><small>{t('Load|power')}</small><span class="est">NP ÷ FTP</span><Help label={t('Load|power')} text={t(FIELD_HELP.load)} /></div>
+            <div class="eff"><div class="rv-tile"><b class="num">{num(load)}</b><small>{t('Load|power')}</small><span class="est">TSS</span><Help label={t('Load|power')} text={t(FIELD_HELP.load)} /></div>
               <div class="bars"><MiniBars values={loads} {mark} label={t('Load of your last {n} trips with watts', { n: loads.length })} /><small>{t('trips with watts, this one on the right')}</small></div></div>
           {/if}
         </div>

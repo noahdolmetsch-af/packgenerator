@@ -1,3 +1,4 @@
+import 'fake-indexeddb/auto';
 import { describe, it, expect } from 'vitest';
 import { dhms, clock } from '../src/lib/touren/strava/fmt.js';
 import { rideWxOf, rideWxUrl, dirOf, skyOf, needsRideWx, DIRS, RIDE_WX_V } from '../src/lib/touren/ridewx.js';
@@ -88,5 +89,50 @@ describe('no «1:60», pauses as elapsed minus moving', () => {
     expect(pauseSecs({ elapsedS: 1605, movingS: 1179, own: { movingS: 1200 } })).toBe(405);
     expect(pauseSecs({ movingS: 1179, pauses: { n: 2, secs: 300 } })).toBe(300);
     expect(pauseSecs({})).toBe(null);
+  });
+});
+
+// Strava check 21.10.2026: the own FTP or Strava's instead of the estimate (180 against 255 W)
+describe('the FTP in use', () => {
+  it('own first, then Strava, else the estimate; NP of several rides one way', async () => {
+    const { ftpEstimate, ftpGuess } = await import('../src/lib/training.js');
+    const review = await import('../src/lib/review/power.js');
+    const { applyFtp, cleanFtp } = await import('../src/lib/strava/ftp.svelte.js');
+    const { ftpLabel } = await import('../src/lib/strava/ftpstate.svelte.js');
+    const { npOfRides } = await import('../src/lib/training/act/power.js');
+    const acts = [{ day: '2026-10-07', w20: 190, wDevice: true }];
+    expect(ftpEstimate(acts, '2026-10-09')).toBe(181);
+    expect(ftpLabel()).toBe('FTP estimated');
+    applyFtp(null, { w: 255 });
+    expect(ftpEstimate(acts, '2026-10-09')).toBe(255);
+    expect(review.ftpEstimate(acts, '2026-10-09')).toBe(255);
+    expect(ftpGuess(acts, '2026-10-09')).toBe(181);
+    expect(ftpLabel()).toBe('FTP from Strava');
+    applyFtp({ own: 262 }, { w: 255 });
+    expect(ftpEstimate([], '2026-10-09')).toBe(262);
+    expect(ftpLabel()).toBe('Your FTP');
+    applyFtp(null, null);
+    expect(ftpEstimate([], '2026-10-09')).toBe(null);
+    expect(cleanFtp('30')).toBe(null);
+    expect(cleanFtp('254.6')).toBe(255);
+    // 4th-power mean weighted by time: one function for the tour page and the Rückblick
+    expect(npOfRides([{ wNorm: 200, movingS: 3600 }, { wNorm: 100, movingS: 3600 }])).toBe(171);
+    expect(npOfRides([{ wNorm: 200 }])).toBe(null);
+  });
+});
+
+describe('the FTP is kept and saved', () => {
+  it('keeps Strava’s FTP once, an own one wins and can be taken back', async () => {
+    const { createDb } = await import('../src/lib/db.js');
+    const { keepStravaFtp, saveOwnFtp, STRAVA_FTP_KEY, OWN_FTP_KEY } = await import('../src/lib/strava/ftp.svelte.js');
+    const db = createDb(`ftp-${Math.random()}`);
+    await keepStravaFtp(db, 255, new Date('2026-10-21T10:00:00Z'));
+    await keepStravaFtp(db, null);
+    expect((await db.settings.get(STRAVA_FTP_KEY)).value).toEqual({ w: 255, at: '2026-10-21T10:00:00.000Z' });
+    expect(await saveOwnFtp('20', db)).toBe(false);
+    expect(await saveOwnFtp('262', db)).toBe(true);
+    expect((await db.settings.get(OWN_FTP_KEY)).value).toEqual({ own: 262 });
+    await saveOwnFtp(null, db);
+    expect(await db.settings.get(OWN_FTP_KEY)).toBe(undefined);
   });
 });
