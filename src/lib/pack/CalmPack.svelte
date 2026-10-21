@@ -25,6 +25,8 @@
   import WeightCard from './WeightCard.svelte';
   import StagesCard from './StagesCard.svelte';
   import DoorCard from '../haustuer/DoorCard.svelte';
+  import PlanHints from '../tourlernen/PlanHints.svelte'; // Paket Z: spare parts after a breakdown, sleep spots nearby
+  import PackExtras from '../schnellpacken/PackExtras.svelte'; // Paket SP «Schneller packen»
   import EventStart from './EventStart.svelte';
   import TripWeather from './TripWeather.svelte';
   import LessonsCard from './LessonsCard.svelte';
@@ -265,14 +267,18 @@
           <!-- P3b «Daten sicher» (D3/D4): «ID and cash with you?» and the other papers marked for the packing list -->
           <DocChecks {trip} />
           <!-- Paket W «Von der Haustür bis zurück» (Noah 20.10.2026): plan B, check-in, «Gut angekommen» -->
+          <PlanHints {trip} {trips} {items} />
           <DoorCard {trip} />
+          <PackExtras {trip} {trips} {itemsById} />
           <!-- Planungs-Notizen (IS 246–249): what comes to mind while planning; «Daraus wird …» -->
           <PlanNotesCard {trip} {bike} {fixed} />
         </div>
       </div>
     {:else}
       <PlanNotesCard {trip} {bike} {fixed} />
+      <PlanHints {trip} {trips} {items} />
       <DoorCard {trip} />
+      <PackExtras {trip} {trips} {itemsById} />
     {/if}
     <!-- Gesamttest 20.10 Design / UI-Grundlagen (idea 1): the tip of the day after the first content part -->
     <TipLine page="pack" name={t('Pack')} />
