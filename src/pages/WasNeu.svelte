@@ -46,6 +46,9 @@
   import TopButton from '../lib/list/TopButton.svelte';
   import TipWeek from '../lib/clear/TipWeek.svelte';
   import { byDay } from '../lib/list/listen.js';
+  // 0.176.0 «Handy kurz»: a day with many updates (a release day) shows four on a phone, then «Show n more»;
+  // the newest update stands on top anyway, so the page stays within three screens
+  const VERS_PHONE = 4;
   import '../lib/bikes/velo-dlg.css';
   import '../lib/ich/ich.css';
 
@@ -297,7 +300,7 @@
           <div class="wn-jump-ph"><ListNav groups={jumps} {active} onjump={jump} /></div>
           <div class="wn-days">
             {#each days as g, i (g.key)}
-              <ListGroup id={g.key} title={`${dayLabel(g)} · ${verRange(g)}`} count={nUp(g.entries.length)} peek={g.older ? t('back to the first version 0.1') : g.entries.slice(0, 3).map((e) => t(e.title)).join(' · ')} bind:open={() => isOpen(g, i), (v) => (opened = { ...opened, [g.key]: v })} rows={g.entries} more={(n) => t('Show {n} more|list', { n })}>
+              <ListGroup id={g.key} title={`${dayLabel(g)} · ${verRange(g)}`} count={nUp(g.entries.length)} peek={g.older ? t('back to the first version 0.1') : g.entries.slice(0, 3).map((e) => t(e.title)).join(' · ')} bind:open={() => isOpen(g, i), (v) => (opened = { ...opened, [g.key]: v })} rows={g.entries} n={phone.matches ? VERS_PHONE : undefined} more={(n) => t('Show {n} more|list', { n })}>
                 {#snippet row(e)}
                   <button type="button" class="wn-vr" aria-expanded={openV === e.version} data-row={e.version} onclick={() => (openV = openV === e.version ? null : e.version)}>
                     <span class="wn-vb num">{shortVersion(e.version)}</span>
