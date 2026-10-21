@@ -146,7 +146,7 @@ export const SINCE = {
   // «Tagebuch» (provisional; the bundler sets the version of its release)
   'f.journal': '0.170.0',
   // «Auswertung wie Training» (provisional version, the bundler renumbers)
-  'f.tickreview': '0.169.0',
+  'f.tickreview': '0.174.0',
 };
 export const sinceOf = (id) => SINCE[id] ?? '0.1.0';
 

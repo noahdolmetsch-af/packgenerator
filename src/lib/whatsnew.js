@@ -16,6 +16,27 @@
 
 export const WHATS_NEW = [
   {
+    // v0.174.0 «Klarer und einheitlich»: Impeccable report (Noah 20.10.2026, all approved) and «Fahrt-Analyse als Vorbild» parts 1+2 (Auswertung wie Training); built without mockups
+    version: '0.174.0',
+    date: '2026-10-21',
+    title: 'Clearer and the same everywhere',
+    lead: 'Fewer tabs, one word per thing, and your ticks evaluated like a ride.',
+    points: [
+      { text: 'Phone: at most four tabs on top, the rest under «More»', href: '#/care' },
+      { text: 'Evaluate what you tick, like a ride', href: '#/flow/auswertung' },
+      { text: 'Shorter pages, two columns on the computer', href: '#/trips' },
+    ],
+    small: [
+      { box: 'nicer', text: 'One word per thing: Parts, Look back, Trip type' },
+      { box: 'nicer', text: 'Week: Take, Leave out and Not this week with Undo', href: '#/week/plan' },
+      { box: 'nicer', text: 'Bike care: report a problem and log work right under «Due now»', href: '#/care' },
+    ],
+    test: [
+      'On the phone, open Bikes and tap «More» at the top right.',
+      'Open Active › Goals › Evaluate.',
+    ],
+  },
+  {
     // v0.173.0 «Suche und eigene Werte»: thread «Suche als Alleskönner» (Noah 21.10.2026 «1a 2a 3a+b 4b+a 5b», ideas 1–8), Wetter follow-up (webcams, ice) and «Eigene Werte und alle Daten anpassbar» (Noah 21.10.2026 «1 a und b 2 a 3a 4a»); built without mockups
     version: '0.173.0',
     date: '2026-10-21',

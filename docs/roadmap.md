@@ -107,6 +107,7 @@ Ursprünglich freigegebene Ausführungsreihenfolge: AP01–AP09 → AP12–AP16 
 
 **21.10.2026, v0.172.0 «Velo und Notizen»:** Velo im Griff (Kette nach Regen, Fotos, Inserat, Velobox, Ersatzteile, Kettenrotation) und Notizen wie Evernote (zeichnen, formatieren, Dateien, Erinnerung, Papierkorb).
 
+**21.10.2026, v0.174.0 «Klarer und einheitlich»:** Impeccable-Bericht umgesetzt (weniger Reiter, ein Wort pro Sache, kürzere Seiten) und Auswertung wie Training für Haken und Check-Antworten.
 **21.10.2026, v0.173.0 «Suche mit Sprache»:** Sprechen oder Tippen in die Suche: Befehle laufen sofort mit Rückgängig, Fragen beantwortet die App; Ich › Suche. Webcams auf der Live-Karte, Glätte-Push.
 **21.10.2026, v0.173.0 «Eigene Werte» (im Bündel 0.173):** Eigene Werte und Erinnerungen selbst anlegen, umbenennen, löschen; eigene Körperwerte; sechs neue Listen; App-Fenster statt Browser-Fragen.
 **21.10.2026, v0.171.0 «Velo, Wetter und Körper»:** Verschleiss pro Teil, Bilder, Wetter-Kern mit Radar und Webcams, Körperwerte, Fitbit überall, KI im Gerät, Aus jeder Tour lernen, Schneller packen, Schlafplätze im Rennen, Tagebuch unter Planen.
