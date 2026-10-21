@@ -807,6 +807,31 @@ export const HANDBOOK = {
     steps: ['Stop the ride on the live map; under «Your ride» tap «Share picture».', 'Leave out the shape when you start at home.'],
     example: 'Example: 42.5 km, 1 h 52 min, 640 m → one picture for the chat.',
   },
+  'f.sleeptonight': {
+    on: null,
+    steps: ['Open a race › «Race mode» (load the places under «Along the route» first).', 'Look at «Where do I sleep tonight?» and switch kinds on or off.', 'On the live map it shows in the sheet.'],
+    example: 'Example: rain tonight → the bus stop with a roof in 6 km comes before the campsite in 4 km.',
+  },
+  'f.callhotels': {
+    on: null,
+    steps: ['Open a race › «Race mode» › «Hotels for tonight» (from 12:00, or tap «Show now»).', 'Call or write with the ready sentence; copy it with one tap.'],
+    example: 'Example: arrival 22:15 in Lausanne → the sentence in French, «Bonjour, je voyage à vélo …».',
+  },
+  'f.powernap': {
+    on: null,
+    steps: ['Open a race › «Race mode» › «Power nap» and tap 10, 20 or 30 min.', 'Leave the app open with the screen on; set the phone\'s alarm too.', 'Tap «I am awake»: the nap goes into your sleep log.'],
+    example: 'Example: awake for 19 hours → «a power nap of 20 minutes helps».',
+  },
+  'f.sleeplists': {
+    on: null,
+    steps: ['Open a race › «Along the route» › «Places to sleep from lists».', 'Choose a file or paste a link and tap «Load».'],
+    example: 'Example: an organiser\'s GPX with 40 bivy spots → 12 of them near your route.',
+  },
+  'f.nightswx': {
+    on: null,
+    steps: ['Open a race › «Along the route» and tap «Load the weather».', 'Look at «Nights by the weather»; move a night yourself under «Strategy».'],
+    example: 'Example: night 2 at km 310 with 80 % rain → 30 km further only 20 %.',
+  },
   'f.racesample': {
     on: null,
     steps: ['Open Trips › Races › «See the sample race».', 'Tap «Show me around» for the tour, then do the small tasks in «Plan».'],
