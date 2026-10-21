@@ -121,7 +121,8 @@ test('a) a day trip: five groups that fold, map, timeline, notes, quiet lines an
   // heart rate from the ride ledger, no power without activities: no power part, no W/kg
   await expect(body.locator('[data-hr]')).toBeVisible();
   await expect(body.locator('[data-power]')).toHaveCount(0);
-  await expect(body.locator('[data-quiet="fitbit"]')).toContainText(T('Sleep and resting heart rate the night before · with Fitbit'));
+  // Noah 21.10.2026: no more «· mit Fitbit» placeholders; without Fitbit days a quiet line with the way to Fitbit
+  await expect(body.locator('[data-quiet="fitbit"]')).toContainText(T('No Fitbit values for the night before and the 2 days after.'));
   await expect(body.locator('[data-quiet="mood"]')).toContainText(T('No daily check on the days of this trip.'));
   // the page remembers what was open
   await page.reload();

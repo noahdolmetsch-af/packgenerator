@@ -52,7 +52,7 @@ test('TR5/TR5b: power, load, power curve and the analyses on one activity', asyn
   await expect(values.locator('[data-val="cad"]')).toContainText('84');
   await expect(values.locator('[data-val="kcal"]')).toContainText('890');
   await expect(values.locator('[data-val="temp"]')).toContainText('14 °C');
-  await expect(values.locator('[data-val="pauses"]')).toContainText('2 · 6 Min');
+  await expect(values.locator('[data-val="pauses"]')).toContainText('2 · 00:00:06:00'); // pauses as dd:hh:mm:ss (Noah 21.10.2026)
   await expect(values.locator('[data-power]')).toHaveCount(0);
 
   // «Leistung» from the power meter, with W/kg from the weight on this device
