@@ -14,7 +14,8 @@
   import { gearGroups, sourcesOf, packTour, setTripGear, restoreGear, setMark, setItemText, addMissing, dropMissing, putMissingBack, newMaterialItem, MARKS, MARK_NAMES, FOOD } from '../tourgear.js';
   import { tourHref } from '../tour.js';
   import { gearWeight, tripBefore } from '../tourextra.js';
-  import { openNew } from '../../nav.js';
+  import { openNew, openTrip } from '../../nav.js';
+  import { tabHref } from '../../tabs.js';
   import { offerDone } from '../../ui/rename.svelte.js';
   import GearPickSheet from './GearPickSheet.svelte';
   import { Backpack, Plus, Pencil, X, ChevronRight, Utensils, Check, Ban, TriangleAlert } from '@lucide/svelte';
@@ -29,8 +30,12 @@
   const missing = $derived((d.debrief?.missing ?? []).filter((m) => !m.food));
   const missingFood = $derived((d.debrief?.missing ?? []).filter((m) => m.food));
   // 0.174 (UI-Ziele #8): a long list nobody looked at yet waits behind one line «76 Teile warten auf dein Urteil · Durchgehen»
+  // tour critique 4b (Noah 21.10.2026): after the tour only the exceptions stand here (not used, broken, what was
+  // missing); the whole list opens with «Show all» or lives in the Packen tab
   let going = $state(false);
-  const folded = $derived(!d.debrief && !going && groups.gear.open.length > 8);
+  const folded = $derived(!going && gearList.length > 0);
+  const exceptions = $derived(gearList.filter((it) => it.mark === 'unused' || it.mark === 'broken'));
+  const waiting = $derived(!d.debrief ? groups.gear.open.length : 0);
   const counts = (side) => [...MARKS, 'open'].map((m) => [m, side[m].length]).filter(([, n]) => n);
   const partTrip = $derived(d.kind !== 't' && d.partOf?.href?.includes('t%3A') ? d.partOf : null);
 
@@ -154,12 +159,19 @@
       <button type="button" class="btn" onclick={() => (picking = true)} data-gear-change><Backpack size={16} aria-hidden="true" />{gearList.length || foodList.length ? t('Change gear') : t('Enter the gear')}</button>
     </div>
     {#if folded}
-      <p class="wait" data-gear-wait><b class="num">{tn(groups.gear.open.length, '{n} thing waits for your verdict', '{n} things wait for your verdict')}</b><button type="button" class="btn" onclick={() => (going = true)} data-gear-go>{t('Go through')}<ChevronRight size={16} aria-hidden="true" /></button></p>
-      <p class="tp-muted tp-small">{t('Mark only the exceptions: whatever you do not mark counts as used.')}</p>
+      {#if exceptions.length}<ul class="glist2" data-gear-ex>{#each exceptions as it (it.id)}{@render thing(it)}{/each}</ul>{/if}
+      {#if waiting}
+        <p class="wait" data-gear-wait><b class="num">{tn(waiting, '{n} thing waits for your verdict', '{n} things wait for your verdict')}</b><button type="button" class="btn" onclick={() => (going = true)} data-gear-go>{t('Go through')}<ChevronRight size={16} aria-hidden="true" /></button></p>
+        <p class="tp-muted tp-small">{t('Mark only the exceptions: whatever you do not mark counts as used.')}</p>
+      {:else}
+        <p class="all" data-gear-all><span class="tp-muted tp-small">{exceptions.length ? t('Everything else was used.') : t('Everything was used.')}</span><button type="button" class="btn btn-link" onclick={() => (going = true)} data-gear-go>{tn(gearList.length, 'Show all {n} thing', 'Show all {n} things')}<ChevronRight size={16} aria-hidden="true" /></button></p>
+      {/if}
+      <a class="btn btn-link packl" href={tabHref('pack', trip)} onclick={() => openTrip(trip.id)} data-gear-packtab>{t('The whole list is under Pack')}<ChevronRight size={16} aria-hidden="true" /></a>
     {:else}
     {#if !d.debrief && gearList.length}<p class="tp-muted tp-small">{t('Not looked at yet. Mark only the exceptions: whatever you do not mark counts as used.')}</p>{/if}
     {#if gearList.length || foodList.length}<p class="tp-muted tp-small leg">{t('For each thing tap the hook (used), the circle (not used) or the triangle (broken); the pencil adds a note.')}</p>{/if}
     {#if gearList.length}<ul class="glist2">{#each gearList as it (it.id)}{@render thing(it)}{/each}</ul>{/if}
+    {#if going}<button type="button" class="btn btn-link" onclick={() => (going = false)} data-gear-less>{t('Only the exceptions')}</button>{/if}
     {/if}
     {@render missingBox(missing, false)}
 
@@ -209,6 +221,20 @@
     background: var(--warm-soft);
   }
   .wait .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .all {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 4px 12px;
+    margin: 10px 0 0;
+  }
+  .all .btn,
+  .packl {
     display: inline-flex;
     align-items: center;
     gap: 4px;

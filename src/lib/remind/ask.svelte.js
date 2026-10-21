@@ -23,9 +23,20 @@ function hold(offer, from) {
 /** On a page other than where it was asked, and not on Heute: the card shows. */
 export function showPending() {
   const p = here();
-  if (!ask.pending || p === ask.from || p === 'home') return;
+  // tour critique 3b (Noah 21.10.2026): on a tour page the question waits under «…» › «Remind me» (QUIET)
+  if (QUIET.has(p) && ask.offer) (ask.pending = ask.offer), (ask.offer = null);
+  if (!ask.pending || p === ask.from || p === 'home' || QUIET.has(p)) return;
   ask.offer = ask.pending;
   ask.pending = null;
+}
+/** Pages where the question never shows by itself, only from their «…». */
+export const QUIET = new Set(['tour']);
+/** «…» › «Remind me» on such a page: the waiting question shows now. */
+export function showNow() {
+  if (!ask.pending) return false;
+  ask.offer = ask.pending;
+  ask.pending = null;
+  return true;
 }
 
 const setting = async (key, fallback) => (await db.settings.get(key))?.value ?? fallback;

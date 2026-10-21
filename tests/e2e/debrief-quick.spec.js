@@ -141,6 +141,10 @@ test('No thanks is not asked again, and the one-page debrief offers the template
   await expect(page.locator('[data-saved]')).toBeVisible();
   const name = T('{kind} day ride', { kind: 'MTB' });
   const offer = page.getByRole('form', { name: T('Save as template "{name}"?', { name }) });
+  // tour critique 3b (Noah 21.10.2026): the question no longer stands on top; it waits under «…»
+  await expect(offer).toHaveCount(0);
+  await page.getByRole('button', { name: T('More for {what}', { what: title }) }).click();
+  await page.getByRole('menuitem', { name: new RegExp(T('Save as a template')) }).click();
   await expect(offer).toBeVisible();
   await offer.getByRole('button', { name: T('No thanks') }).click();
   await expect(offer).toBeHidden();
@@ -149,4 +153,5 @@ test('No thanks is not asked again, and the one-page debrief offers the template
   await page.getByRole('button', { name: T('Done|debrief') }).click();
   await expect(page.locator('[data-saved]')).toBeVisible();
   await expect(page.getByRole('form', { name: /template/i })).toHaveCount(0);
+  await expect(page.getByRole('button', { name: T('More for {what}', { what: title }) })).toHaveCount(0);
 });

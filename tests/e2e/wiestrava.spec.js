@@ -7,7 +7,9 @@
 //    Power, the elapsed time as dd:hh:mm:ss, «Mehr anzeigen», the weather at the start and the map; the pauses
 //    as dd:hh:mm:ss; the heart rate zones in colours;
 // b) mood and energy: added afterwards, shown, Undo takes them back; the Fitbit values around the trip;
-// c) Rückblick › «Letzte Fahrt» has its numbers too.
+// c) Rückblick › «Letzte Fahrt» has its numbers too;
+// d) Lieferung 2: the Zeitleiste from the Strava rides (pause with km, best time, climb, photo); the weather from
+//    the rides' starts, the same on the tour page and in the Rückblick (Strava check #8).
 import { test, expect } from '@playwright/test';
 import { writeFileSync, mkdirSync } from 'node:fs';
 import DE from '../../src/lib/i18n/de/index.js';
@@ -37,7 +39,14 @@ function data() {
   T0.debriefs.push({ ...deb, id: `${TRIP}-deb`, tripId: TRIP, status: 'done', km: null, doneAt: `${day(-1)}T18:00:00.000Z` });
   const acts = at1Acts(day, A);
   acts[0] = { ...acts[0], pauses: { n: 4, secs: 900 }, pCurve: [[5, 820], [15, 690], [30, 560], [60, 430], [120, 372], [300, 318], [600, 284], [1200, 236]], effort: 142, kj: 2350, line: lineOf(20), wxRide: { v: 1, t: 17, feel: 16, hum: 66, wind: 6.8, dir: 25, code: 3 } };
-  acts.push({ ...actRecord({ id: `${A}mtb`, startLocal: `${day(-2)}T16:05:00`, name: `${A} Mountainbike am Nachmittag`, type: 'MountainBikeRide', km: 5.55, hm: 41, movingS: 1179, elapsedS: 1605, hrAvg: 114, hrMax: 172, spdAvg: 17, spdMax: 35.6 }), pauses: { n: 2, secs: 426 }, line: lineOf(8), pCurve: [[5, 578], [15, 349], [600, 102], [1200, 90]] });
+  // Lieferung 2: the Zeitleiste from Strava (a pause of 5 min and more, a best time, a climb, a photo)
+  Object.assign(acts[0], {
+    pauses: { ...acts[0].pauses, list: [{ t: 3600, at: null, km: 30.2, min: 6 }] },
+    segs: [{ name: `${A}Seestrasse`, from: 12.4, t: 1500, s: 412, pr: 1 }],
+    climbs: [{ name: `${A}Huegel`, from: 40.1, t: 6000, s: 600, km: 2.1, grade: 5, hm: 110 }],
+    photos: [{ url: 'https://example.invalid/test_ws_photo.jpg', caption: `${A}Aussicht`, t: 4000, km: 33 }],
+  });
+  acts.push({ ...actRecord({ id: `${A}mtb`, startLocal: `${day(-2)}T16:05:00`, name: `${A} Mountainbike am Nachmittag`, type: 'MountainBikeRide', km: 5.55, hm: 41, movingS: 1179, elapsedS: 1605, hrAvg: 114, hrMax: 172, spdAvg: 17, spdMax: 35.6 }), pauses: { n: 2, secs: 426 }, line: lineOf(8), pCurve: [[5, 578], [15, 349], [600, 102], [1200, 90]], wxRide: { v: 1, t: 9, feel: 8, hum: 80, wind: 4.2, dir: 200, code: 2 } });
   T0.activities = acts;
   T0.healthDays = Array.from({ length: 40 }, (_, i) => day(-36 + i)).filter((x) => x <= D0).map((date, i) => ({ date, restingHr: 50 + (i % 3), sleep: { asleepMin: 420 + (i % 2) * 30 }, src: 'test' }));
   return d;
@@ -147,6 +156,8 @@ test('c) Rückblick › «Letzte Fahrt» has the numbers of the Strava rides', a
   const errors = await start(page, context, info);
   await page.goto('./#/debrief');
   // on a phone «Letzte Fahrt» is a fold: open it
+  // wait until the page has drawn «Letzte Fahrt» (a fold on a phone, a heading on a computer) before deciding
+  await expect(page.getByRole('heading', { name: new RegExp(`^${T('Last ride')}`) }).first()).toBeVisible();
   const fold = page.getByRole('button', { name: new RegExp(`^${T('Last ride')}`) });
   if ((await fold.count()) && (await fold.first().getAttribute('aria-expanded')) === 'false') await fold.first().click();
   const last = page.locator('.lastride');
@@ -154,5 +165,29 @@ test('c) Rückblick › «Letzte Fahrt» has the numbers of the Strava rides', a
   if ((await last.locator('[aria-expanded="false"]').count()) > 0) await last.locator('.fold-btn').click();
   await expect(last.locator('.rv-tiles')).toContainText('68 km');
   await expect(last.locator('.rv-tiles')).not.toContainText('–');
+  expect(errors).toEqual([]);
+});
+
+test('d) Zeitleiste from Strava and one weather on both pages', async ({ page, context }, info) => {
+  const errors = await start(page, context, info);
+  await page.goto(`./#/debrief/${TRIP}`);
+  const tl = page.locator('[data-timeline]');
+  await tl.scrollIntoViewIfNeeded();
+  await expect(tl.locator('.tle.pause')).toHaveCount(1);
+  await expect(tl.locator('.tle.pause')).toContainText('km 30');
+  await expect(tl.locator('[data-tl-best]')).toHaveText(T('Best time|timeline'));
+  await expect(tl.locator('.tle.best')).toContainText(`${A}Seestrasse`);
+  await expect(tl.locator('[data-tl-climb]')).toHaveText(T('Climb|timeline'));
+  await expect(tl.locator('.tle.climb')).toContainText('110 Hm');
+  await expect(tl.locator('[data-tl-photo] img')).toHaveAttribute('alt', `${A}Aussicht`);
+  // the weather of the rides' starts: 9–17 °C, wind 4–7 km/h
+  const facts = page.locator('ul.facts').first();
+  await expect(facts).toContainText(T('at the start|weather'));
+  await expect(facts.locator('[data-ride-wind]')).toHaveText(T('wind {kmh} km/h', { kmh: '4–7' }));
+  await shot(tl, info, 'W4-zeitleiste');
+  await page.goto(`./#/tour/${encodeURIComponent(`t:${TRIP}`)}`);
+  await expect(page.locator('[data-tour-weather]').first()).toContainText(T('at the start|weather'));
+  await expect(page.locator('[data-tour-weather]').first()).toContainText(T('wind {kmh} km/h', { kmh: '4–7' }));
+  await noSideways(page);
   expect(errors).toEqual([]);
 });

@@ -31,7 +31,7 @@
 <nav bind:this={bar} class="stepbar {tone}" aria-label={t('Steps of this trip')} style:--n={tabs.length}>
   {#each tabs as key (key)}
     {@const s = status[key] ?? { text: '', done: false }}
-    <a href={tabHref(key, trip)} class:done={s.done} aria-current={key === current ? 'page' : undefined} onclick={() => onpick(key)}>
+    <a href={tabHref(key, trip)} class:done={s.done} class:past={s.past} aria-current={key === current ? 'page' : undefined} onclick={() => onpick(key)}>
       {#if tone === 'steps'}<span class="no" class:tick={s.done && key !== current} aria-hidden="true">{#if s.done && key !== current}<Check size={14} strokeWidth={2.6} />{/if}</span>{/if}<span class="tn">{t(TAB_NAMES[key])}</span>
       {#if s.text || s.done}<small>{#if s.done}<Check size={13} aria-hidden="true" />{/if}{#if s.text}{s.text}{:else}<span class="sr">{t('done|step')}</span>{/if}</small>{/if}
     </a>
@@ -63,6 +63,10 @@
   }
   a[aria-current='page'] {
     font-weight: 600;
+  }
+  /* tour critique 5a: a step that is over without being finished (Packen after the tour): grey, no tick */
+  a.past small {
+    color: var(--ink-3);
   }
 
   /* steps (G7): on a phone the name under a line, the current line in ink */
