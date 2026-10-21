@@ -9,6 +9,7 @@ import DE from '../../src/lib/i18n/de/index.js';
 import { importAndSettle } from './settle.js';
 import { actRecord } from '../../src/lib/training.js';
 import { openShort } from './kurz-open.js';
+import { openOverview } from './ov-fold.js';
 
 const FIX = fileURLToPath(new URL('../fixtures/gesamttest/test_data_gtp_daten.json', import.meta.url));
 const P = 'test_data_gtp_';
@@ -95,7 +96,9 @@ test('Puls pro Fahrt: ledger, Rückblick, Touren, Aktiv, one ride, Today', async
   // P4 Aktiv: «Aktiv neu» (Noah 20.10.2026 «2a», 0.168.0, changed on purpose): «Deine Woche in Zahlen» replaces
   // «Velo diesen Monat» and «Puls diese Woche»; the pulse of each ride stays in P1, P3, P5 and on Today (P6)
   await page.goto('./#/flow');
-  // Garmin-Übersicht (0.170.0, changed on purpose): «Deine Woche in Zahlen» now stands under «Letzte 7 Tage»
+  // Garmin-Übersicht (0.170.0, changed on purpose): «Deine Woche in Zahlen» now stands under «Letzte 7 Tage»;
+  // 0.171.0: on a phone behind the row «Überblick und letzte 7 Tage»
+  await openOverview(page);
   await expect(page.getByRole('heading', { name: T('Last 7 days') })).toBeVisible();
   await expect(page.locator('[data-last7]')).toBeVisible();
   await shot(page, info, 'P4-aktiv');
