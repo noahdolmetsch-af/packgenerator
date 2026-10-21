@@ -195,4 +195,6 @@ export default {
   'From your Fitbit, the latest night; only to look at.': 'Von deiner Fitbit, die letzte Nacht; nur zum Anschauen.',
   'Fitbit is connected; sleep, resting pulse and HRV appear after the next fetch.': 'Fitbit ist verbunden; Schlaf, Ruhepuls und HRV erscheinen nach dem nächsten Abholen.',
   'for sleep, resting pulse and HRV, as observation only.': 'für Schlaf, Ruhepuls und HRV, nur als Beobachtung.',
+  'today|day': 'heute',
+  'nothing in the last 7 days': 'nichts in den letzten 7 Tagen',
 };
