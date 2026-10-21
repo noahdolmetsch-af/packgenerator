@@ -9,11 +9,11 @@
  * Estimated hours are shown with «≈». A bike without a ledger but with km: all of it estimated.
  * Pure functions, tested in tests/bikehours.test.js.
  */
-import { kindOf, KIND_SPEED } from './bikekind.js';
+import { kindOf, kindSpeed } from './bikekind.js';
 import { num } from './i18n.svelte.js';
 
 /** The average speed used for the estimate, in km/h. */
-export const speedOf = (bike) => (typeof bike?.avgKmh === 'number' && bike.avgKmh > 0 ? bike.avgKmh : KIND_SPEED[kindOf(bike)]);
+export const speedOf = (bike) => (typeof bike?.avgKmh === 'number' && bike.avgKmh > 0 ? bike.avgKmh : kindSpeed(kindOf(bike)));
 
 const r2 = (n) => Math.round(n * 100) / 100;
 

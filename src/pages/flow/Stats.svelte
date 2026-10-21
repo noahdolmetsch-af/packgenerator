@@ -17,7 +17,8 @@
   import { tableQuery } from '../../lib/messwerte-data.js';
   import { liveQuery } from 'dexie';
   import { db } from '../../lib/db.js';
-  import { stats, hrStats, bodyStats, stackBars, windowOf, STAT_KEYS, KIND_ORDER, BODY_GROUPS, BODY, groupOf } from '../../lib/uebersicht.js';
+  import { stats, hrStats, bodyStats, stackBars, windowOf, STAT_KEYS, KIND_ORDER, BODY, groupOf, isOwnBody, ownBodyKeys, bodyGroupsWith, ownBodyDays } from '../../lib/uebersicht.js';
+  import { AB_KEY, configOf } from '../../lib/abfragen.js';
   import { bodyExtras } from '../../lib/form-data.js';
   import { kgOn } from '../../lib/weight.js';
   import { shown } from '../../lib/messwerte.js';
@@ -32,10 +33,22 @@
   import { t, num, locale } from '../../lib/i18n.svelte.js';
 
   let { id = 'bike' } = $props();
-  const kind = $derived(id === 'hr' || BODY[id] ? null : KIND_ORDER.includes(id) ? id : 'other');
-  let bkey = $state(BODY[id] ? id : 'hr');
-  const bgroup = $derived(groupOf(bkey));
-  const gtabs = $derived(BODY_GROUPS.find((g) => g.key === bgroup).tabs);
+  const kind = $derived(id === 'hr' || BODY[id] || isOwnBody(id) ? null : KIND_ORDER.includes(id) ? id : 'other');
+  // svelte-ignore state_referenced_locally
+  let bkey = $state(BODY[id] || isOwnBody(id) ? id : 'hr');
+  // «Eigene Körperwerte» (Noah 21.10.2026 «3a»): the own questions with a number or a scale are a group of their own
+  const abQ = liveQuery(() => db.settings.get(AB_KEY));
+  const ansQ = liveQuery(() => (db.abAnswers ? db.abAnswers.toArray() : []));
+  const ownKeys = $derived(ownBodyKeys(configOf($abQ?.value).own));
+  const GROUPS = $derived(bodyGroupsWith(ownKeys));
+  const BX = $derived({ ...BODY, ...Object.fromEntries(ownKeys.map((k) => [k.key, k])) });
+  const bname = (k) => (BX[k]?.own ? BX[k].name : t(BX[k]?.name ?? '')); // a typed name never through t()
+  // an own value that is gone (its question deleted) falls back to the heart rate
+  $effect(() => {
+    if ($abQ !== undefined && isOwnBody(bkey) && !BX[bkey]) bkey = 'hr';
+  });
+  const bgroup = $derived(BX[bkey] ? groupOf(bkey) : 'heart');
+  const gtabs = $derived((GROUPS.find((g) => g.key === bgroup) ?? GROUPS[0]).tabs);
   const today = localDay();
   const q = tableQuery();
   const table = $derived($q ?? new Map());
@@ -45,7 +58,7 @@
   const RANGE_NAMES = { d7: '7 d.|range', w4: '4 wk.|range', y1: '1 y|range' };
   const TAB = { km: 'Distance', time: 'Time|stat', hm: 'Climbing', kcal: 'Calories' };
   const TOTAL = { km: 'Total distance', time: 'Total time', hm: 'Total climbing', kcal: 'Total calories' };
-  const B = $derived(BODY[bkey]);
+  const B = $derived(BX[bkey] ?? BODY.hr);
   const st = $derived(kind ? stats(table, today, kind, key, range, back) : null);
   const hr = $derived(kind || bkey !== 'hr' ? null : hrStats(table, today, range, back));
   const weights = $derived(new Map(weight.entries.map((e) => [e.day, e.kg])));
@@ -66,6 +79,7 @@
     med: medByDay($medQ ?? []),
     water: new Map(waters.map((e) => [e.day, e.l])),
     bp: new Map(bps.map((e) => [e.day, e])),
+    ab: isOwnBody(bkey) ? ownBodyDays($ansQ ?? [], ownKeys) : new Map(),
   });
   const special = $derived(!!B?.view);
   const bs = $derived(kind || bkey === 'hr' || special ? null : bodyStats(table, today, bkey, range, back, weights, ctx, B.parts?.[0] ?? null));
@@ -78,6 +92,7 @@
     zones: 'Minutes in your pulse zones (Training › Zones), from the pulse of your Strava activities.',
     med: 'Your meditation ticks in Aktiv; a tick without minutes counts as 10.',
     temp: 'Your rides with a temperature from the device (Strava or FIT file). Warm rides often have a higher pulse.',
+    ab: 'Your answers to your own question in Me › Your questions; the mean when you answered more than once a day.',
   };
   const PART_NAMES = { sleep: 'Sleep|flow', energy: 'Energy', mood: 'Mood', sys: 'Upper|bp', dia: 'Lower|bp' };
   const parts = $derived(B?.parts && bs ? B.parts.map((p) => ({ p, s: bodyStats(table, today, bkey, range, back, weights, ctx, p) })) : []);
@@ -91,7 +106,7 @@
     if (isSleep) return shown('sleep', v, num);
     if (bkey === 'bed') return bedText(v);
     if (bkey === 'skin') return `${v > 0 ? '+' : ''}${num(Math.round(v * 10) / 10)}`;
-    if (['weight', 'hrv', 'wkg', 'spd', 'breath', 'water'].includes(bkey)) return num(Math.round(v * 10) / 10);
+    if (['weight', 'hrv', 'wkg', 'spd', 'breath', 'water'].includes(bkey) || isOwnBody(bkey)) return num(Math.round(v * 10) / 10);
     return num(Math.round(v));
   };
   const bu = $derived(B?.unit && !isSleep ? B.unit : '');
@@ -182,7 +197,7 @@
     const isBp = bkey === 'bp';
     const k = isBp ? BP_KEY : WATER_KEY;
     const list = isBp ? bps : waters;
-    const name = `${t(B.name)} ${date(d)}`;
+    const name = `${bname(bkey)} ${date(d)}`;
     if ((await askDelete({ title: t('Delete "{name}"?', { name }), text: t('Only this day’s entry goes.') })) !== 'delete') return;
     await deleteWithUndo({
       name,
@@ -230,9 +245,9 @@
   </header>
 
   {#if !kind}
-    <div class="groups" data-bgroups><Seg options={BODY_GROUPS.map((g) => ({ key: g.key, name: t(g.name) }))} value={bgroup} onchange={(g) => ((bkey = BODY_GROUPS.find((x) => x.key === g).tabs[0]), (back = 0))} label={t('Body values')} /></div>
-    <div class="tabs btabs noswipe" role="tablist" aria-label={t(BODY_GROUPS.find((g) => g.key === bgroup).name)}>
-      {#each gtabs as k (k)}<button type="button" role="tab" aria-selected={bkey === k} data-btab={k} onclick={() => ((bkey = k), bkey === 'year' && (back = 0))}>{t(BODY[k].name)}</button>{/each}
+    <div class="groups" data-bgroups><Seg options={GROUPS.map((g) => ({ key: g.key, name: t(g.name) }))} value={bgroup} onchange={(g) => ((bkey = GROUPS.find((x) => x.key === g).tabs[0]), (back = 0))} label={t('Body values')} /></div>
+    <div class="tabs btabs noswipe" role="tablist" aria-label={t((GROUPS.find((g) => g.key === bgroup) ?? GROUPS[0]).name)}>
+      {#each gtabs as k (k)}<button type="button" role="tab" aria-selected={bkey === k} data-btab={k} onclick={() => ((bkey = k), bkey === 'year' && (back = 0))}>{bname(k)}</button>{/each}
     </div>
   {/if}
   {#if kind || bkey !== 'year'}
@@ -309,7 +324,7 @@
     {/if}
   {/if}
   {#if bs}
-    <section class="card ch" aria-label={t(B.name)} data-body={bkey}>
+    <section class="card ch" aria-label={bname(bkey)} data-body={bkey}>
       <h2>{t('Daily values')}</h2>
       {#if bs.n}
         <div class="plot">
@@ -341,13 +356,13 @@
           <ul class="leg" data-legend>{#each B.stack as k (k)}<li><i class="s-{k}"></i>{t(STACK_NAMES[k])}</li>{/each}</ul>
         {/if}
         <div class="tot">
-          <span><b class="num" data-body-mean>{bv(bs.mean)}{#if bu}{' '}<small>{t(bu)}</small>{/if}</b><small>{t('Daily average')}</small></span>
+          <span><b class="num" data-body-mean>{bv(bs.mean)}{#if bu}{' '}<small>{(B.own ? bu : t(bu))}</small>{/if}</b><small>{t('Daily average')}</small></span>
           {#if B.sum}
-            <span><b class="num">{bv(bs.total)}{#if bu}{' '}<small>{t(bu)}</small>{/if}</b><small>{t('Total|body')}</small></span>
+            <span><b class="num">{bv(bs.total)}{#if bu}{' '}<small>{(B.own ? bu : t(bu))}</small>{/if}</b><small>{t('Total|body')}</small></span>
           {:else if bkey === 'bed'}
             <span><b class="num" data-bed-spread>{spread == null ? '–' : `± ${spread}`} <small>min</small></b><small>{t('How regular (spread)')}</small></span>
           {:else}
-            <span><b class="num">{bv(bs.lo)}–{bv(bs.hi)}{#if bu}{' '}<small>{t(bu)}</small>{/if}</b><small>{t('lowest to highest')}</small></span>
+            <span><b class="num">{bv(bs.lo)}–{bv(bs.hi)}{#if bu}{' '}<small>{(B.own ? bu : t(bu))}</small>{/if}</b><small>{t('lowest to highest')}</small></span>
           {/if}
         </div>
       {:else}
@@ -359,12 +374,13 @@
         {@const sg = bkey === 'stages' ? stg.find((x) => x.key === d.key) : null}
         <li class="card" data-body-day={d.key}>
           <span class="m"><b>{day(d.key)}</b><small>{date(d.key)}{#if sg?.start}{` · ${sg.start}–${sg.end}`}{/if}</small></span>
-          <span class="v num">{bkey === 'bp' ? `${ctx.bp.get(d.key).sys}/${ctx.bp.get(d.key).dia}` : bv(d.v)}{bu ? ` ${t(bu)}` : ''}{#if sg && sg.deep != null}<small>{t('deep {d} · REM {r}', { d: hm(sg.deep), r: hm(sg.rem) })}</small>{/if}{#if bkey === 'felt'}<small>{t('sleep {s} · mood {m}', { s: ctx.checks?.get(d.key)?.sleep ?? '–', m: ctx.checks?.get(d.key)?.mood ?? '–' })}</small>{/if}</span>
+          <span class="v num">{bkey === 'bp' ? `${ctx.bp.get(d.key).sys}/${ctx.bp.get(d.key).dia}` : bv(d.v)}{bu ? ` ${(B.own ? bu : t(bu))}` : ''}{#if sg && sg.deep != null}<small>{t('deep {d} · REM {r}', { d: hm(sg.deep), r: hm(sg.rem) })}</small>{/if}{#if bkey === 'felt'}<small>{t('sleep {s} · mood {m}', { s: ctx.checks?.get(d.key)?.sleep ?? '–', m: ctx.checks?.get(d.key)?.mood ?? '–' })}</small>{/if}</span>
           {#if bkey === 'bp' || bkey === 'water'}<button type="button" class="nav del" aria-label={t('Delete')} data-entry-del={d.key} onclick={() => removeDay(d.key)}><Trash2 size={18} aria-hidden="true" /></button>{/if}
         </li>
       {/each}
     </ul>
     <p class="q">{t(SRC_TEXT[B.src])}</p>
+    {#if B.own}<p class="q"><a href="#/me/abfragen" data-own-body-edit>{t('Rename, change or delete the question: Me › Your questions')} ›</a></p>{/if}
   {:else if bkey === 'year' && !kind}
     <section class="card ch" aria-label={t(B.name)} data-body="year">
       <h2>{t('Bike km, added up')}</h2>
@@ -426,6 +442,7 @@
     </ul>
     <p class="q">{t('At rest from Fitbit; highest from Fitbit, else from your activities. Garmin’s view of one day is missing: Fitbit gives the app only day values.')}</p>
   {/if}
+  {#if !kind && !ownKeys.length}<p class="q" data-own-body-hint>{t('A value of your own (back pain, mood, blood sugar …)? Add an own question with a number in Me › Your questions: it shows here under «Own».')} <a href="#/me/abfragen">{t('Me › Your questions')} ›</a></p>{/if}
 </div>
 
 <style>

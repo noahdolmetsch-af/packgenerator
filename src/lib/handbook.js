@@ -1447,8 +1447,23 @@ export const HANDBOOK = {
   },
   'f.ownvalues': {
     on: null,
-    steps: ['Open Me › Own values.', 'Change a number with − and + or type it.', '«Back to Standard» brings the number of the app back.'],
+    steps: ['Open Me › Own values.', 'Change a number with − and + or type it; the pen renames or deletes it.', '«Back to Standard» brings the number back, «Deleted values» a deleted one.'],
     example: 'Example: packing starts 3 days before the trip, the backup reminder after 7 days.',
+  },
+  'f.ownreminders': {
+    on: null,
+    steps: ['Open Me › Own values › «+ Own reminder».', 'Name, «every N km» or «every N days», all bikes or one.', 'Bikes › Care shows it on the bike\'s page; «Done» starts it again.'],
+    example: 'Example: «Check the tyre pressure» every 14 days for every bike.',
+  },
+  'f.ownbody': {
+    on: null,
+    steps: ['Open Me › Your questions and add an own question.', 'Choose «Number» with a unit, or the scale 1 to 10.', 'Body values › Own shows it with its curve.'],
+    example: 'Example: «Back pain» 0 to 10 every evening.',
+  },
+  'f.listsmore': {
+    on: null,
+    steps: ['Open Me › Lists and types.', 'Pick a list, e.g. Kinds of bike.', 'The pen renames, hides or deletes; «+ Own» adds one; arrows and handle sort.'],
+    example: 'Example: an own kind of bike «City bike», or a diary question of your own.',
   },
   'f.theme': {
     on: null,

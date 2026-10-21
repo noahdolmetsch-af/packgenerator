@@ -14,7 +14,7 @@
   import { localDay } from '../localday.js';
   import { bikesHash } from '../bikes.js';
   import { vig } from '../veloimgriff.svelte.js';
-  import { KINDS, KIND_NAME, kindOf, setBikePart } from '../bikekind.js';
+  import { kindName, kindsOffered, kindOf, setBikePart } from '../bikekind.js';
   import { hoursText, hoursOn, speedOf } from '../bikehours.js';
   import { serviceState, serviceDone, serviceSwitch } from '../bikeservice.js';
   import { offerDone } from '../ui/rename.svelte.js';
@@ -71,7 +71,7 @@
     <span class="v num">{series?.total != null ? hoursText(series.total, series.est > 0.005) : t('not known yet')}</span>
   </div>
   {#if series?.total != null && series.est > 0.005}
-    <p class="hint">{t('≈ estimated: km without a time from Strava count with {n} km/h ({kind}).', { n: num(speedOf(bike)), kind: t(KIND_NAME[kind]) })}</p>
+    <p class="hint">{t('≈ estimated: km without a time from Strava count with {n} km/h ({kind}).', { n: num(speedOf(bike)), kind: kindName(kind, t) })}</p>
   {/if}
 
   <div class="svc" class:due={sv.due} class:off={!sv.on} data-velo-service>
@@ -95,9 +95,9 @@
 
   <div class="kind">
     <span class="k" id="vig-kind-{bike.id}">{t('Kind of bike')}</span>
-    <Seg options={KINDS.map((k) => ({ key: k, name: t(KIND_NAME[k]) }))} value={kind} labelledby="vig-kind-{bike.id}" full={false} small onchange={(k) => store({ kind: k })} />
+    <Seg options={kindsOffered(kind).map((k) => ({ key: k.id, name: kindName(k.id, t) }))} value={kind} labelledby="vig-kind-{bike.id}" full={false} small onchange={(k) => store({ kind: k })} />
   </div>
-  <p class="hint">{t('The kind sets which parts the bike gets and the speed for the hour estimate.')}</p>
+  <p class="hint">{t('The kind sets which parts the bike gets and the speed for the hour estimate.')} <a href="#/me/lists?bikeKinds" data-bike-kinds>{t('Change the kinds')} ›</a></p>
 
   <button type="button" class="lnk fold" aria-expanded={showParts} onclick={() => (showParts = !showParts)} data-parts-fold><ChevronDown size={16} aria-hidden="true" />{t('Show or hide parts of this bike')}</button>
   {#if showParts}
@@ -113,7 +113,7 @@
   {/if}
 
   <nav class="links" aria-label={t('More for the bike')}>
-    <a href={bikesHash({ tab: 'care', view: 'templates', bike: bike.id })} data-link-templates><Shapes size={16} aria-hidden="true" /><span>{t('Part template')}<small>{t('Which parts a {kind} gets', { kind: t(KIND_NAME[kind]) })}</small></span><ChevronRight size={16} aria-hidden="true" /></a>
+    <a href={bikesHash({ tab: 'care', view: 'templates', bike: bike.id })} data-link-templates><Shapes size={16} aria-hidden="true" /><span>{t('Part template')}<small>{t('Which parts a {kind} gets', { kind: kindName(kind, t) })}</small></span><ChevronRight size={16} aria-hidden="true" /></a>
     <a href={bikesHash({ tab: 'care', view: 'spick', bike: bike.id })} data-link-spick><BookOpen size={16} aria-hidden="true" /><span>{t('Workshop cheat sheet')}<small>{t('Torque values and breakdown help, also offline')}</small></span><ChevronRight size={16} aria-hidden="true" /></a>
     <!-- «Velo-FAQ» (Noah 19.10.2026) -->
     <a href={bikesHash({ tab: 'care', view: 'faq', bike: bike.id })} data-link-faq><MessageCircleQuestion size={16} aria-hidden="true" /><span>{t('Bike FAQ')}<small>{t('Care, breakdowns and myths, with a wink')}</small></span><ChevronRight size={16} aria-hidden="true" /></a>

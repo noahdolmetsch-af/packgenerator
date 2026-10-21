@@ -16,24 +16,24 @@
 
 export const WHATS_NEW = [
   {
-    // v0.173.0 «Suche mit Sprache»: thread «Suche als Alleskönner» (Noah 21.10.2026 «1a 2a 3a+b 4b+a 5b», ideas 1–8); built without mockups
+    // v0.173.0 «Suche und eigene Werte»: thread «Suche als Alleskönner» (Noah 21.10.2026 «1a 2a 3a+b 4b+a 5b», ideas 1–8), Wetter follow-up (webcams, ice) and «Eigene Werte und alle Daten anpassbar» (Noah 21.10.2026 «1 a und b 2 a 3a 4a»); built without mockups
     version: '0.173.0',
     date: '2026-10-21',
-    title: 'Talk to the search',
-    lead: 'Say it, the app does it.',
+    title: 'Search and own values',
+    lead: 'Say it, and change every list yourself.',
     points: [
-      { text: 'Speak into the search: «Chain oiled» runs at once, with Undo' },
+      { text: 'Speak into the search: «Chain oiled» runs at once, with Undo', href: '#/me/suche' },
       { text: 'Questions get an answer from your data', href: '#/assistent' },
-      { text: 'Set it up under Me › Search', href: '#/me/suche' },
+      { text: 'Own reminders: every N km or days', href: '#/me/werte' },
     ],
     small: [
-      { box: 'new', text: '«Weather Chur» opens the weather page for that place' },
+      { box: 'new', text: 'Six more lists to change', href: '#/me/lists' },
       { box: 'new', text: 'Your webcams on the live map', href: '#/wetter' },
       { box: 'new', text: 'Phone warning: icy roads in the morning' },
     ],
     test: [
       'Tap the microphone in the search and say «Weight 72».',
-      'Type «Weather Chur» in the search.',
+      'Open Me › Own values › «+ Own reminder».',
     ],
   },
   {

@@ -1,5 +1,6 @@
 <script>
   import { localDay } from './localday.js';
+  import { askDelete } from './ui/ask.js';
   /**
    * The bar on top while a demo runs: which demo, the demo day, and "End demo".
    * Ending puts your own data back exactly as it was before the demo.
@@ -23,7 +24,7 @@
   }
   async function end() {
     const ask = demo?.play ? t('End the playground? Your own data comes back exactly as it was. Everything done in the playground is removed.') : t('End the demo? Your own data comes back exactly as it was before the demo. Everything done in the demo is removed.');
-    if (!confirm(ask)) return;
+    if ((await askDelete({ title: ask, label: demo?.play ? t('End the playground') : t('End the demo') })) !== 'delete') return;
     busy = true;
     await endDemo(db);
     location.hash = '#/';
