@@ -4,6 +4,8 @@ Stand: 18. Oktober 2026. Der kurze Überblick steht im [Projektstand](projektsta
 
 ## Aktuell live
 
+**0.176.0 «Eine Tour, eine Seite» (21.10.2026):** Jede Tour mit fünf Reitern bis zur Auswertung (Tour-Seite), «Fehlt noch» in Planen, Countdown aus einer Quelle (touren/tourstep.js countdownOf, auch Heute), Lernschleife nach der Tour, Fahrt-Analysen in der Tour-Analyse. Dazu «Reste»: Bikepark-Tage, alle Taschen nebeneinander, Formulare mit Fehler am Feld, LibreOffice/RTF in Notizen. Kein Dexie- oder Backup-Wechsel.
+
 **0.175.0 «Mach sie zu deiner» (21.10.2026):** «Diese Seite anpassen» am Ende jeder Seite (Teile zeigen, verstecken, sortieren, umbenennen, Start-Reiter; Menü sortieren; «Wie am Anfang»; nur pro Gerät, Noah 5a). Heute: Kachel «Körperwerte» und Countdown-Chip zur nächsten Tour (Noah 21.10. 06:49). Zeichnen auf allen Fotos. Kein Dexie- oder Backup-Wechsel (optionales Feld `inks`, Heute-Wand v 11).
 
 **0.174.0 «Klarer und einheitlich» (21.10.2026):** Impeccable-Bericht (Noah 20.10.2026, alles freigegeben): am Handy höchstens vier Reiter oben, der Rest unter «Mehr»; am Computer Seitenleiste statt Reiter; ein Wort pro Sache (Teile, Backup speichern, Rückblick, Tourart); kürzere Seiten, zwei Spalten am Computer; Woche mit Rückgängig. Dazu «Auswertung wie Training» (Fahrt-Analyse Teile 1+2): Aktiv › Ziele › Auswerten (#/flow/auswertung). Kein Dexie- oder Backup-Wechsel.
@@ -103,8 +105,6 @@ Stand: 18. Oktober 2026. Der kurze Überblick steht im [Projektstand](projektsta
 - Was sich pro Release geändert hat, steht unten in der Historie. Entscheidungen: [Entscheidungslog](decisions.md). Arbeitspakete und Reihenfolge: [Roadmap](roadmap.md#stand-und-nächste-pakete-8102026).
 
 ## In Arbeit
-
-**Eine Tour, eine Seite (0.174, Branch claude/tour-auswertung-7qnmfn):** Schrittleiste mit fünf Reitern (Auswertung = Tour-Seite, gleicher Kopf), «Fehlt noch» in Planen, Countdown-Chip und Satz mit Zahl, leere Werte weg, «Fahrt verbinden», Gepäck «n Teile warten auf dein Urteil · Durchgehen», Lernschleife mit einer Frage pro Mal, Fahrt-Analyse Teil 3. Gebaut, geht über den Bündler online.
 
 **Tour-Auswertung mit Garmin-Werten (20.10.2026, Branch claude/tour-auswertung-7qnmfn, auf dem Gepäck-Branch):** Tour-Seite › Werte › «Wie auf dem Garmin»: Stopps, NP, Bestwerte 1/2/5/10/20 Minuten für Leistung und Puls, Ruhepuls von Fitbit am Tour-Tag mit «deinem Normal», Punktbild Ruhepuls gegen NP oder Ø Puls; Server liefert 2- und 10-Minuten-Leistung und die Pulskurve (Detail-Art 4); feinere Kartenlinie beim Öffnen. Dazu Höhen- und Geschwindigkeitsprofil wie komoot in der Übersicht und der neue Teil «Analyse» wie Strava (Kopfwerte, Peak Power, Analyse-Kurven mit Auswahl, Relative Leistung, HF-Zonen, Leistungskurve, Leistungszonen, 25-W-Verteilung, Runden) und wie Garmin Connect (Statistiken, Diagramme, Höhe & Herzfrequenz-Bereiche). Gebaut, geht über den Bündler online.
 
