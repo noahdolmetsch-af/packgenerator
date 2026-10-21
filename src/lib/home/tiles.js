@@ -204,7 +204,7 @@ export const REMOVED_0155 = ['morningcheck', 'fn:dayride', 'fn:trip', 'fn:wear',
 /** 0.155.0: the new pieces of HN4; a stored wall gets them once, in their place. */
 export const ADDED_0155 = ['meditation', 'daycard', 'aktiv'];
 /** «Heute neu» N2: the tiles on top of the wall; near a trip its card moves up right under them (tripUp). */
-export const HEAD_N2 = ['body', 'acts'];
+export const HEAD_N2 = ['body', 'acts', 'vitals'];
 /** The tiles that stand on top, in this order (the trip card may move up under the day card, tripUp). */
 export const HEAD_0155 = ['meditation', 'daycard', 'important'];
 

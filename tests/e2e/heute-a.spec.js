@@ -45,7 +45,7 @@ test.describe('HA Heute neu A', () => {
     await expect(vit.locator('[data-vital="rhr"]')).toHaveAttribute('href', '#/flow/stats/hr');
     await expect(vit.locator('[data-vital="sleep"]')).toContainText(/7[.,]5/);
     // the countdown chip to the next trip (tomorrow), with the trip's own name
-    const chip = page.locator('[data-goals] [data-countdown]');
+    const chip = page.locator('[data-goals] [data-goal-countdown]');
     await expect(chip).toContainText('Herbstrunde');
     await expect(chip).toContainText(T('Tomorrow · {h} h to go', { h: 23 }).split('·')[0].trim());
     const acts = page.locator('[data-section="acts"]');

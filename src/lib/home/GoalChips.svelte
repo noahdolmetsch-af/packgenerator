@@ -47,7 +47,7 @@
   <nav class="gc" aria-label={t('What are you up to?')} data-goals>
     {#each shown as g (g.key)}
       {@const I = ICON[g.key]}
-      {#if g.trip}<a class="chip cd" class:near={cd.near} href="#/pack" onclick={() => openTrip(next.id)} data-goal={g.key} data-countdown><I size={16} aria-hidden="true" /><span class="tn">{next.title || t('Trip')}</span><span class="cw num">{cd.text}</span></a>
+      {#if g.trip}<a class="chip cd" class:near={cd.near} href="#/pack" onclick={() => openTrip(next.id)} data-goal={g.key} data-goal-countdown><I size={16} aria-hidden="true" /><span class="tn">{next.title || t('Trip')}</span><span class="cw num">{cd.text}</span></a>
       {:else if g.href}<a class="chip" href={g.href} data-goal={g.key}><I size={16} aria-hidden="true" />{t(g.label)}</a>
       {:else}<button type="button" class="chip" onclick={() => run(g)} data-goal={g.key}><I size={16} aria-hidden="true" />{t(g.label)}</button>{/if}
     {/each}

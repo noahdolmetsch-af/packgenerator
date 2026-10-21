@@ -19,8 +19,8 @@ describe('«Heute neu» N2: the ready wall (Noah 20.10.2026 «5a»)', () => {
     // the 8 shortcuts of A stay
     expect(ids(READY.filter((x) => x.size === 's'))).toEqual(ids(READY_A.filter((x) => x.size === 's')));
   });
-  it('near a trip its card moves up right under the body and the Aktiv tiles', () => {
-    expect(ids(tripUp(READY, true)).slice(0, 3)).toEqual(['body', 'acts', 'trip']);
+  it('near a trip its card moves up right under the body, the Aktiv tiles and Körperwerte', () => {
+    expect(ids(tripUp(READY, true)).slice(0, 4)).toEqual(['body', 'acts', 'vitals', 'trip']);
     expect(tripUp(READY, false)).toBe(READY);
   });
   it('3a: the cards that left Heute stay in the catalog («Add a tile»)', () => {
