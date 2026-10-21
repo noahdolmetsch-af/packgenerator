@@ -949,9 +949,9 @@ export default {
   // «Velo-FAQ» (Paket 6)
   // Paket VG «Das Velo im Griff»
   'Chain after rain': 'Kette nach Regen',
-  'After a ride in the rain an evening reminder to dry and oil the chain; done counts as care.': 'Nach einer Fahrt im Regen am Abend eine Erinnerung, die Kette zu trocknen und zu ölen; erledigt zählt als Pflege.',
-  'Ride in the rain: from 18:00 the phone reminds you «Dry and oil the chain».': 'Fahrt im Regen: Ab 18 Uhr erinnert dich das Handy «Kette trocknen und ölen».',
-  '«Done: chain oiled» writes a care entry for the chain; «Later» or «Not today» also work.': '«Erledigt: Kette geölt» schreibt einen Pflege-Eintrag für die Kette; «Später» oder «Heute nicht» gehen auch.',
+  'After a ride in the rain a hint on the page «Wear» and a phone reminder to dry and oil the chain; done counts as care.': 'Nach einer Fahrt im Regen ein Hinweis auf der Seite «Verschleiss» und eine Handy-Erinnerung, die Kette zu trocknen und zu ölen; erledigt zählt als Pflege.',
+  'Ride in the rain: «Wear» shows «Dry and oil the chain», the phone reminds you at 19:00.': 'Regenfahrt: «Verschleiss» zeigt «Kette trocknen und ölen», das Handy erinnert um 19 Uhr.',
+  '«Done: chain oiled» writes a care entry for the chain, and the hint goes.': '«Erledigt: Kette geölt» schreibt einen Pflege-Eintrag für die Kette, und der Hinweis geht.',
   'Switch it off: Bikes › Care › a bike › «Wear» › «Reminders».': 'Ausschalten: Velos › Pflege › ein Velo › «Verschleiss» › «Erinnerungen».',
   'Example: 40 km in the rain → in the evening «Dry and oil the chain».': 'Beispiel: 40 km im Regen → am Abend «Kette trocknen und ölen».',
   'Wear photos': 'Verschleiss-Fotos',

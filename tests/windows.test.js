@@ -1,7 +1,7 @@
 // Windows on Heute (Noah 19.10.2026 «1a 3a»): the evening before a trip and Sunday's Wochenrückblick.
 // Fictional data only.
 import { describe, it, expect } from 'vitest';
-import { hourLater, mayShow, later, notToday, done, eveBefore, weekDue, windowNow, wetDue, EVE_FROM, WEEK_FROM, WET_FROM } from '../src/lib/home/windows.js';
+import { hourLater, mayShow, later, notToday, done, eveBefore, weekDue, windowNow, EVE_FROM, WEEK_FROM } from '../src/lib/home/windows.js';
 
 const trip = (over = {}) => ({ id: 'test_data_gtp_t1', title: 'test_data_gtp_ Runde', startDate: '2026-10-10', endDate: '2026-10-11', entries: [{ itemId: 'a', packed: true }, { itemId: 'b', packed: false }], ...over });
 
@@ -48,19 +48,5 @@ describe('windows on Heute', () => {
     expect(windowNow({ rec: {}, now: '2026-10-11T19:00', trips: [t2] }).id).toBe('eve');
     expect(windowNow({ rec: notToday({}, 'eve', '2026-10-11T19:00'), now: '2026-10-11T19:00', trips: [t2] }).id).toBe('week');
     expect(windowNow({ rec: {}, now: '2026-10-11T12:00', trips: [t2] })).toBe(null);
-  });
-
-  it('Paket VG 1128: after a ride in the rain «Dry and oil the chain» from 18:00, after the trip windows, before the week', () => {
-    const wet = { bikeId: 'b1', bikeName: 'test_data_gtp_ Velo', km: 40 };
-    expect(WET_FROM).toBe('18:00');
-    expect(wetDue(wet, '2026-10-09T17:59')).toBe(null);
-    expect(wetDue(wet, '2026-10-09T18:00')).toBe(wet);
-    expect(wetDue(null, '2026-10-09T20:00')).toBe(null);
-    expect(windowNow({ rec: {}, now: '2026-10-09T18:30', wet })).toMatchObject({ id: 'chain', bikeId: 'b1', km: 40 });
-    expect(windowNow({ rec: {}, now: '2026-10-09T18:30', trips: [trip()], wet })?.id).toBe('eve');
-    expect(windowNow({ rec: notToday({}, 'chain', '2026-10-09T18:30'), now: '2026-10-09T19:00', wet })).toBe(null);
-    // Sunday 11.10.2026 evening: the chain first, then the week
-    expect(windowNow({ rec: {}, now: '2026-10-11T18:30', wet })?.id).toBe('chain');
-    expect(windowNow({ rec: done({}, 'chain', '2026-10-11T18:30'), now: '2026-10-11T18:40', wet })?.id).toBe('week');
   });
 });

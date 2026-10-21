@@ -624,7 +624,7 @@ export const HANDBOOK = {
   },
   'f.wetchain': {
     on: null,
-    steps: ['Ride in the rain: from 18:00 the phone reminds you «Dry and oil the chain».', '«Done: chain oiled» writes a care entry for the chain; «Later» or «Not today» also work.', 'Switch it off: Bikes › Care › a bike › «Wear» › «Reminders».'],
+    steps: ['Ride in the rain: «Wear» shows «Dry and oil the chain», the phone reminds you at 19:00.', '«Done: chain oiled» writes a care entry for the chain, and the hint goes.', 'Switch it off: Bikes › Care › a bike › «Wear» › «Reminders».'],
     example: 'Example: 40 km in the rain → in the evening «Dry and oil the chain».',
   },
   'f.wearphotos': {

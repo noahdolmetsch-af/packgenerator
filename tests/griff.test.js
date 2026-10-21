@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import {
-  prefsOf, PREFS_STD, wetRides, wetChainEntry, shotsOf, shotDue, ownShot, saleText,
+  prefsOf, PREFS_STD, wetRides, wetChainEntry, chainCaredOn, shotsOf, shotDue, ownShot, saleText,
   PACK_STD, packOf, addPackItem, renamePackItem, removePackItem, movePackItem, tickPack, ticksOf, clearPack,
   stockOf, usedSince, stockRow, addStock, changeStock, removeStock,
   brandOf, brandStats, bestFor, springDay, springText, syncSpring, SPRING_SRC,
@@ -25,6 +25,15 @@ describe('1128 chain after rain', () => {
     const list = [e('a', 20, true), e('b', 50, true), e('a', 15, true), e('c', 90, false), e('a', 5, true, { date: '2026-10-19' }), e('b', 10, true, { state: 'open' })];
     expect(wetRides(list, day, (x) => x.wet)).toEqual([{ bikeId: 'b', km: 50 }, { bikeId: 'a', km: 35 }]);
     expect(wetRides(list, day, null)).toEqual([]);
+  });
+  it('the hint goes once the chain was cared for that day (service or a new chain)', () => {
+    const bike = (h) => ({ parts: [{ key: 'chain', history: h }, { key: 'tyres', history: [{ date: day, action: 'service' }] }] });
+    expect(chainCaredOn(bike([]), day)).toBe(false);
+    expect(chainCaredOn(bike([{ date: '2026-10-19', action: 'service' }]), day)).toBe(false);
+    expect(chainCaredOn(bike([{ date: day, action: 'check' }]), day)).toBe(false);
+    expect(chainCaredOn(bike([wetChainEntry(day, 10)]), day)).toBe(true);
+    expect(chainCaredOn(bike([{ date: day, action: 'replace' }]), day)).toBe(true);
+    expect(chainCaredOn(null, day)).toBe(false);
   });
   it('writes a care entry of the chain by yourself', () => {
     expect(wetChainEntry(day, 1234, 'n')).toMatchObject({ date: day, km: 1234, action: 'service', by: 'self', note: 'n' });
