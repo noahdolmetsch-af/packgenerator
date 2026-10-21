@@ -1280,6 +1280,12 @@ export default {
   'On On the way tap «Bike parked»: photo, lock, save.': 'Unterwegs «Velo abgestellt» tippen: Foto, Schloss, speichern.',
   'Later tap it again: the photo, the lock and «Way to the bike».': 'Später nochmals tippen: das Foto, das Schloss und «Weg zum Velo».',
   'Example: at the station in a big town → back after the museum with the map link.': 'Beispiel: am Bahnhof einer grossen Stadt → nach dem Museum mit dem Kartenlink zurück.',
+  // «Suche mit Sprache und Antworten» (21.10.2026)
+  'The microphone is always in the search; Me › Search hides it and switches each answer on or off.': 'Das Mikrofon ist immer in der Suche; unter Ich › Suche blendest du es aus und schaltest jede Antwort ein oder aus.',
+  'Tap the microphone next to the magnifier and say what you want.': 'Tippe auf das Mikrofon neben der Lupe und sag, was du willst.',
+  'One command that fits runs at once; «Undo» takes it back.': 'Ein passender Befehl läuft sofort; «Rückgängig» nimmt ihn zurück.',
+  "A question gets the app's answer; when the app knows nothing, Gemini answers or you ask further at Claude or ChatGPT.": 'Eine Frage bekommt die Antwort der App; weiss die App nichts, antwortet Gemini oder du fragst bei Claude oder ChatGPT weiter.',
+  'Example: say «note brake squeaks» → the note is in the Inbox.': 'Beispiel: Sag «Notiz Bremse quietscht» → die Notiz ist im Eingang.',
   // Paket Y Wetter-Kern
   'Tap the weather line on Today, on Active or on a trip.': 'Tippe die Wetterzeile auf Heute, unter Aktiv oder bei einer Tour.',
   'Choose how long you ride: the app shows the best start; tap «Landi rain radar» for the rain.': 'Wähle, wie lange du fährst: Die App zeigt den besten Start; «Landi-Regenradar» zeigt den Regen.',

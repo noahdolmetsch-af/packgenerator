@@ -14,6 +14,7 @@
   import { EXAMPLES } from '../lib/assistent/answers.js';
   import AskAnswer from '../lib/assistent/AskAnswer.svelte';
   import PlanHelp from '../lib/assistent/PlanHelp.svelte';
+  import { planFromHash } from '../lib/suche/say.js'; // «Plane mir 3 Tage Jura» from the search
   import SearchFree from '../lib/kisuche/SearchFree.svelte';
   import SearchAnswer from '../lib/helper/SearchAnswer.svelte';
   import { isOn } from '../lib/helper/client.svelte.js';
@@ -65,7 +66,7 @@
   </div>
 
   {#if plan}
-    <PlanHelp />
+    <PlanHelp prefill={planFromHash(hash)} />
   {:else}
     <section class="card as-card" aria-labelledby="as-ask-h">
       <h2 id="as-ask-h" class="as-h">{t('Ask the app')}</h2>

@@ -1415,6 +1415,15 @@ export default {
   'A test keeps every page short on the phone': 'Ein Test hält jede Seite am Handy kurz',
   'Tap Plan in the bar: the tabs show Week, Appointments, Notes, Inbox and more.': 'Tippe in der Leiste auf Planen: Die Reiter zeigen Woche, Termine, Notizen, Eingang und mehr.',
   'Tap Analysis, then the tab Rides: your Strava rides are there.': 'Tippe auf Auswerten, dann auf den Reiter Fahrten: Dort sind deine Strava-Fahrten.',
+  // v0.173.0 «Suche mit Sprache»
+  'Talk to the search': 'Sprich mit der Suche',
+  'Say it, the app does it.': 'Sag es, die App macht es.',
+  'Speak into the search: «Chain oiled» runs at once, with Undo': 'Sprich in die Suche: «Kette geölt» läuft sofort, mit Rückgängig',
+  'Questions get an answer from your data': 'Fragen beantwortet die App aus deinen Daten',
+  'Set it up under Me › Search': 'Einstellen unter Ich › Suche',
+  '«Weather Chur» opens the weather page for that place': '«Wetter Chur» öffnet die Wetterseite für diesen Ort',
+  'Tap the microphone in the search and say «Weight 72».': 'Tippe in der Suche aufs Mikrofon und sag «Gewicht 72».',
+  'Type «Weather Chur» in the search.': 'Tippe «Wetter Chur» in die Suche.',
   // v0.172.0 «Velo und Notizen»
   'Bike and notes': 'Velo und Notizen',
   'Look after the bike, keep everything in notes.': 'Velo pflegen, alles in Notizen festhalten.',

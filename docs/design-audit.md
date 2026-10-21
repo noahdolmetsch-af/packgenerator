@@ -150,6 +150,7 @@ Nach der Mitziehen-Regel: was in 0.47 noch nicht auf dem neuen Stand ist, mit Zi
 - 20.10.2026, 0.169.0 «Heute neu N2»: zwei neue Kacheln «Dein Körper heute» (4 Werte im 2×2-Raster, Pfeil ohne Farbe, Check-Zeile) und «Aktiv heute» (TickGrid wie auf Aktiv); Computer: Paare Körper|Aktiv, Woche|Ring, Tour|Jetzt dran; Handy alles untereinander.
 - 20.10.2026, 0.170.0: neue Seiten Tagebuch (#/tagebuch), Heatmap (#/heatmap), Form und Erholung; Live-Karte mit Datenseiten, Pausen- und Runden-Knopf links neben der Karte, Seitenleiste oben; alle lazy geladen, Handy-Längenbudget grün.
 - 21.10.2026, 0.172.0: Verschleiss-Seite mit vier Unterseiten (Fotos, Inserat, Velobox, Lager), Notizen mit formatiertem Editor und Zeichenblock; alles lazy, schwere Bibliotheken (PDF, HEIC) erst beim Gebrauch.
+- 21.10.2026, 0.173.0: Suche mit Mikrofon, Befehlsantwort mit Rückgängig, neue Unterseite Ich › Suche (lazy); keine neue Hauptseite.
 - 21.10.2026, 0.171.0: neue Seiten Verschleiss (#/bikes?tab=care&view=wear) und Wetter (#/wetter, ohne eigenen Tab), Körperwerte statt Puls-Seite; Aktiv am Handy wieder ≤5.5 Bildschirme, Abfragen ≤6.5; alles lazy geladen.
 - 21.10.2026, 0.170.1: Abgleich-Dialog zeigt Namen und Werte statt Schlüssel; «Schliessen»-Blase nur noch bei Tastatur-Fokus.
 - 20.10.2026, 0.164.0 «Tests automatisieren»: keine neue Seite; Leaflet-Zoomknöpfe auf Deutsch (SwissMap, MapMeasure).

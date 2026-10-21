@@ -1244,6 +1244,11 @@ export const HANDBOOK = {
     steps: ['Ask the app or dictate a question.', 'Tap a service under the answer: it opens with your question.', 'Tick «Send my gear and learnings that fit along» if you want.'],
     example: 'Example: «Which jacket for 5 °C?» → Perplexity opens with the question.',
   },
+  'f.searchvoice': {
+    on: 'The microphone is always in the search; Me › Search hides it and switches each answer on or off.',
+    steps: ['Tap the microphone next to the magnifier and say what you want.', 'One command that fits runs at once; «Undo» takes it back.', 'A question gets the app\'s answer; when the app knows nothing, Gemini answers or you ask further at Claude or ChatGPT.'],
+    example: 'Example: say «note brake squeaks» → the note is in the Inbox.',
+  },
   'f.aiprojects': {
     on: null,
     steps: ['Open Me › My AI projects.', 'Paste the address of a project or chat and give it a name.', 'Rename, delete or reorder it with the arrows or by dragging.'],

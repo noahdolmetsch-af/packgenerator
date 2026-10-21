@@ -16,6 +16,23 @@
 
 export const WHATS_NEW = [
   {
+    // v0.173.0 «Suche mit Sprache»: thread «Suche als Alleskönner» (Noah 21.10.2026 «1a 2a 3a+b 4b+a 5b», ideas 1–8); built without mockups
+    version: '0.173.0',
+    date: '2026-10-21',
+    title: 'Talk to the search',
+    lead: 'Say it, the app does it.',
+    points: [
+      { text: 'Speak into the search: «Chain oiled» runs at once, with Undo' },
+      { text: 'Questions get an answer from your data', href: '#/assistent' },
+      { text: 'Set it up under Me › Search', href: '#/me/suche' },
+    ],
+    small: [{ box: 'new', text: '«Weather Chur» opens the weather page for that place' }],
+    test: [
+      'Tap the microphone in the search and say «Weight 72».',
+      'Type «Weather Chur» in the search.',
+    ],
+  },
+  {
     // v0.172.0 «Velo und Notizen»: Paket VG «Das Velo im Griff» (1128–1135; the chain window on Heute waits for Noah's OK) and Paket NE «Notizen wie Evernote» (Noah 20.10.2026); built without mockups
     version: '0.172.0',
     date: '2026-10-21',

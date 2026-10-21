@@ -133,6 +133,7 @@ export const SINCE = {
   'f.trainplans': '0.157.0', 'f.feel': '0.157.0',
   // «Heatmap» (v0.170.0)
   'f.heatmap': '0.170.0',
+  'f.searchvoice': '0.173.0', // «Suche mit Sprache und Antworten» (Noah 21.10.2026), v0.173.0
   // Paket U4 «Schlafplätze im Rennen» (v0.171.0)
   'f.sleeptonight': '0.171.0', 'f.callhotels': '0.171.0', 'f.powernap': '0.171.0', 'f.sleeplists': '0.171.0', 'f.nightswx': '0.171.0',
   // Paket NE «Notizen wie Evernote» part 1 (v0.172.0)
