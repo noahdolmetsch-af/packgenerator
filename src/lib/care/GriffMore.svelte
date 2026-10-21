@@ -59,7 +59,7 @@
 
 <section class="gcard" aria-labelledby="gm-rem" data-griff-prefs>
   <h2 id="gm-rem"><Bell size={18} aria-hidden="true" />{t('Reminders')}</h2>
-  <label class="gsw"><input type="checkbox" checked={prefs.wetChain} onchange={(e) => set({ wetChain: e.currentTarget.checked })} data-pref-wet /> <span>{t('After a ride in the rain: in the evening «Dry and oil the chain»')}</span></label>
+  <label class="gsw"><input type="checkbox" checked={prefs.wetChain} onchange={(e) => set({ wetChain: e.currentTarget.checked })} data-pref-wet /> <span>{t('After a ride in the rain: «Dry and oil the chain» here and at 19:00 on the phone')}</span></label>
   <label class="gsw"><input type="checkbox" checked={prefs.shotEveryKm != null} onchange={(e) => set({ shotEveryKm: e.currentTarget.checked ? 1000 : null })} data-pref-shot /> <span>{t('A new wear photo every')}</span>
     {#if prefs.shotEveryKm != null}<input class="inp ev" type="number" min="100" max="20000" step="100" value={prefs.shotEveryKm} onchange={(e) => set({ shotEveryKm: Math.max(100, Math.round(Number(e.currentTarget.value) || 1000)) })} aria-label={t('km between two wear photos')} /> km{:else}<span class="quiet">{t('off')}</span>{/if}
   </label>

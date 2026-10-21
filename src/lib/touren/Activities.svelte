@@ -546,7 +546,10 @@
     align-items: center;
     gap: 6px;
     padding: 2px 4px 2px 10px;
-    border-radius: 999px;
+    border-radius: 12px;
+    max-width: 100%;
+    min-width: 0;
+    overflow-wrap: break-word; /* Impeccable bug: a long tour name wraps instead of running out */
     background: var(--st-plan-soft);
     color: var(--st-plan);
     font-size: var(--fs-tiny);

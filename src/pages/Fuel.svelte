@@ -194,7 +194,7 @@
       <label class="fld">
         <span>{t('For which trip')}</span>
         <select value={chosenId} onchange={(e) => (tripId = e.currentTarget.value)} data-fuel-trip>
-          {#each choices as c (c.id)}<option value={c.id}>{c.title || t('Trip')}{c.startDate ? ` · ${c.startDate}` : ''}</option>{/each}
+          {#each choices as c (c.id)}<option value={c.id}>{c.title || t('Trip')}{c.startDate ? ` · ${new Date(`${c.startDate}T12:00:00Z`).toLocaleDateString(locale(), { day: 'numeric', month: 'short', timeZone: 'UTC' })}` : ''}</option>{/each}
           {#if trip && !choices.some((c) => c.id === trip.id)}<option value={trip.id}>{trip.title || t('Trip')}</option>{/if}
         </select>
       </label>

@@ -130,10 +130,13 @@ test('Ausrüstung: Material item window marks an item as main equipment', async 
   const sheet = page.locator('[data-main-sheet]');
   await expect(sheet).toBeVisible();
   await expect(sheet.locator('.kick')).toHaveCount(0); // add mode: the item is chosen, the title says what
-  await sheet.locator('[data-mg-sport="act:meditation"]').click();
+  // Impeccable 0.174: only «move» activities are sports (meditation is a habit); take the first activity offered
+  const sportBtn = sheet.locator('[data-mg-sport^="act:"]').first();
+  const sportKey = await sportBtn.getAttribute('data-mg-sport');
+  await sportBtn.click();
   await expect(sheet.locator('[data-mg-care]')).toHaveCount(0);
   await sheet.locator('[data-mg-save]').click();
   await expect(sheet).toBeHidden();
-  await expect(page.locator('main [data-mg-group="act:meditation"]')).toContainText('Sitzkissen Test');
+  await expect(page.locator(`main [data-mg-group="${sportKey}"]`)).toContainText('Sitzkissen Test');
   expect(errors).toEqual([]);
 });

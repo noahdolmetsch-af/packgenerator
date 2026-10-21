@@ -85,7 +85,7 @@ export default {
   'One problem per row with priority and deadline; the app sorts who fixes it.': 'Ein Problem pro Zeile mit Priorität und Frist; die App sortiert, wer es behebt.',
   'Workshop and receipts': 'Werkstatt und Belege',
   'Visits with amount, work and receipt photo; costs per year and per 1000 km.': 'Besuche mit Betrag, Arbeiten und Belegfoto; Kosten pro Jahr und pro 1000 km.',
-  Equipment: 'Ausstattung',
+  Equipment: 'Teile',
   'Every part like a maker’s data sheet: name, details, weight, price.': 'Jedes Teil wie ein Hersteller-Datenblatt: Name, Details, Gewicht, Preis.',
   'Only rows with a value; on a phone two bikes side by side.': 'Nur Zeilen mit Wert; am Handy zwei Velos nebeneinander.',
   'Bike folder': 'Velo-Mappe',

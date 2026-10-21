@@ -3,7 +3,7 @@
 // history or delete it too, «Kachel ausblenden» in the ••• sheet.
 export default {
   'Edit|acts': 'Bearbeiten',
-  'Activities|tab': 'Aktivitäten',
+  'Activities|tab': "Ziele",
   'Activities|flow': 'Aktivitäten',
   'Activities|aktiv': 'Aktivitäten',
   'Activities|tile': 'Aktivitäten',

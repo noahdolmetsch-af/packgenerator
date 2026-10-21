@@ -23,6 +23,7 @@
   import { phone } from '../lib/media.svelte.js';
   import { PHONE_ROWS } from '../lib/touren/kurz.js';
   import { t, tn } from '../lib/i18n.svelte.js';
+  import { offerDone } from '../lib/ui/rename.svelte.js';
 
   const today = localDay();
   const q = weekQuery(today);
@@ -49,17 +50,29 @@
   const remove = (e) => saveItems(items().filter((x) => x.id !== e.id));
   const toggleKind = (k) => putWeek(HIDE_KEY, src.hide.includes(k) ? src.hide.filter((x) => x !== k) : [...src.hide, k]);
 
+  // Impeccable P5: every suggestion button says what it did and offers Undo
   async function take(s) {
+    const before = { items: items(), sessions: src.sessions };
     const ch = takeSuggestion(s, { items: items(), sessions: src.sessions }, s.day, titleOf(s));
     if (ch.items) await saveItems(ch.items);
     if (ch.sessions) await putWeek(TRAIN_KEY, { sessions: prunePlan(ch.sessions, today) });
+    offerDone(t('«{name}» planned for {day}.', { name: titleOf(s), day: dayName(s.day) }), async () => {
+      if (ch.items) await saveItems(before.items);
+      if (ch.sessions) await putWeek(TRAIN_KEY, { sessions: before.sessions });
+    });
   }
   async function drop(s) {
     // a session paused by holidays: «leave it out» takes it out of the training plan
     const id = s.ref.slice('drop:'.length);
+    const before = src.sessions;
     await putWeek(TRAIN_KEY, { sessions: prunePlan(src.sessions.filter((x) => x.id !== id), today) });
+    offerDone(t('«{name}» left out of the training plan.', { name: titleOf(s) }), () => putWeek(TRAIN_KEY, { sessions: before }));
   }
-  const skip = (s) => putWeek(NO_KEY, skipFor(src.no, s.ref, monday));
+  async function skip(s) {
+    const before = src.no;
+    await putWeek(NO_KEY, skipFor(src.no, s.ref, monday));
+    offerDone(t('«{name}» waits until next week.', { name: titleOf(s) }), () => putWeek(NO_KEY, before));
+  }
 
   /* add a date or a to-do */
   let form = $state(null);
@@ -85,11 +98,15 @@
   {#if week}
     <div class="top">
       <Seg label={t('Which week')} full={false} options={[{ key: 'now', name: t('This week') }, { key: 'next', name: t('Next week') }]} value={next ? 'next' : 'now'} onchange={(k) => (next = k === 'next')} />
-      <div class="chips" role="group" aria-label={t('Show in the week')}>
-        {#each KINDS as k (k)}
-          <button type="button" class="chip k-{k}" aria-pressed={!hidden(k)} data-filter={k} onclick={() => toggleKind(k)}><span class="dot" aria-hidden="true"></span>{t(KIND_NAMES[k])}</button>
-        {/each}
-      </div>
+      <!-- Impeccable P5: the filter chips fold away, so the days come right under the title -->
+      <details class="wfold" data-week-filters open={src.hide.length > 0}>
+        <summary>{src.hide.length ? tn(src.hide.length, 'Filter · {n} hidden', 'Filter · {n} hidden|pl') : t('Filter|week')}</summary>
+        <div class="chips" role="group" aria-label={t('Show in the week')}>
+          {#each KINDS as k (k)}
+            <button type="button" class="chip k-{k}" aria-pressed={!hidden(k)} data-filter={k} onclick={() => toggleKind(k)}><span class="dot" aria-hidden="true"></span>{t(KIND_NAMES[k])}</button>
+          {/each}
+        </div>
+      </details>
     </div>
 
     <p class="sum" data-week-sum>
@@ -203,6 +220,17 @@
     align-items: center;
     gap: 10px 16px;
     margin: 0 0 12px;
+  }
+  .wfold > summary {
+    cursor: pointer;
+    color: var(--muted);
+    font-size: var(--fs-small);
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+  }
+  .wfold[open] > summary {
+    margin-bottom: 6px;
   }
   .chips {
     display: flex;

@@ -74,7 +74,7 @@
     stroke: var(--hi-soft);
   }
   .soft.mind {
-    stroke: var(--accent-soft);
+    stroke: var(--l4-soft);
   }
   .soft.rest {
     stroke: var(--l3-soft);
@@ -83,7 +83,7 @@
     stroke: var(--hi);
   }
   .arc.mind {
-    stroke: var(--accent);
+    stroke: var(--l4);
   }
   .arc.rest {
     stroke: var(--l3);
@@ -131,7 +131,7 @@
     background: var(--hi);
   }
   .dot.mind {
-    background: var(--accent);
+    background: var(--l4);
   }
   .dot.rest {
     background: var(--l3);
@@ -162,7 +162,7 @@
     color: var(--hi);
   }
   .v.mind {
-    color: var(--accent);
+    color: var(--l4);
   }
   .v.rest {
     color: var(--l3);

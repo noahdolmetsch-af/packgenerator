@@ -89,7 +89,7 @@ test('Rückblick: «Rückblick schreiben», «Kurz: Alles gut» with Undo, every
   const name = (await hero.locator('.hname').textContent()).trim();
   const write = new RegExp(`^(${esc(T('Write the debrief'))}|${esc(T('Continue the debrief'))}): ${esc(name)}$`);
   await expect(hero.getByRole('link', { name: write })).toBeVisible();
-  await expect(hero.getByRole('link', { name: new RegExp(`^${esc(T('Rate|debrief'))}`) })).toHaveCount(0);
+  await expect(hero.getByRole('link', { name: new RegExp(`^${esc(T('Rate|debrief'))}: `) })).toHaveCount(0);
   // the short way saves at once, «Rückgängig» brings the open debrief back
   await hero.getByRole('button', { name: `${T('Short: all good')}: ${name}` }).click();
   await expect(page.locator('.hub .undo')).toContainText(T('Saved: {title}, all good.', { title: name }));

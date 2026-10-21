@@ -233,7 +233,7 @@ export function buildList(data) {
   if (on('wetchain') && prefsOf(data.griff).wetChain) {
     const names = Object.fromEntries((data.bikes ?? []).map((b) => [b.id, b.name]));
     const first = wetRides(data.kmBook ?? [], today, wetOf(data.rain))[0];
-    if (first && names[first.bikeId]) add({ key: `wetchain:${first.bikeId}:${today}`, at: atMs(today, '19:00'), title: t('Chain after rain'), body: t('{bike} was out in the rain today. Dry and oil the chain.', { bike: names[first.bikeId] }), url: `#/bikes?tab=care&bike=${encodeURIComponent(first.bikeId)}&open=1` });
+    if (first && names[first.bikeId]) add({ key: `wetchain:${first.bikeId}:${today}`, at: atMs(today, '19:00'), title: t('Chain after rain'), body: t('{bike} was out in the rain today. Dry and oil the chain.', { bike: names[first.bikeId] }), url: `#/bikes?tab=care&view=wear&bike=${encodeURIComponent(first.bikeId)}` });
   }
   if (on('backup')) {
     const last = data.lastBackup ? localDay(new Date(data.lastBackup)) : today;

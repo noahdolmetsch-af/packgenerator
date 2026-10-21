@@ -86,7 +86,7 @@
     <span><Briefcase size={15} aria-hidden="true" />{tn(setup.bagCount, '{n} bag', '{n} bags')} · {formatVolume(setup.volumeL)}{bagsG ? ` · ${bagsG}` : ''}{#if setup.unweighed}<i class="nw" title={tn(setup.unweighed, '{n} bag not weighed', '{n} bags not weighed')}><Scale size={13} aria-hidden="true" />{setup.unweighed}<span class="sr">{tn(setup.unweighed, '{n} bag not weighed', '{n} bags not weighed')}</span></i>{/if}</span>
     {#if cost}<span class="vb-cost" data-cost>{cost}</span>{/if}
     {#if link}<a class="vb-link" data-sk-link={link.kind} href={link.url} target="_blank" rel="noopener noreferrer">{link.name} ↗</a>{/if}
-    {#if due}<a class="pill warn due" href={careHref}>{tn(due, '{n} care due', '{n} care due')}</a>{/if}
+    {#if due}<a class="pill warn due" href={careHref}>{tn(due, 'Up now: {n} job · See', 'Up now: {n} jobs · See')}</a>{/if}
   </p>
   {#if use}
     <p class="vb-use" data-bike-use><span class="ut" class:open={useOpen} bind:this={useEl}>{use}</span>{#if useLong || useOpen}<button type="button" class="link" aria-expanded={useOpen} onclick={() => (useOpen = !useOpen)}>{useOpen ? t('less') : t('more')}</button>{/if}</p>

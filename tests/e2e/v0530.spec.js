@@ -145,12 +145,12 @@ test('b) Logbuch: all trips newest first, filter by year and area, a tap opens t
   await expect(log).toContainText('Brevet 300 aus der Liste');
   // the area
   await log.getByRole('group', { name: 'Jahr' }).getByRole('button', { name: 'Alle' }).click();
-  await log.getByRole('group', { name: 'Reiseart' }).getByRole('button', { name: 'Skitour' }).click();
+  await log.getByRole('group', { name: 'Tourart' }).getByRole('button', { name: 'Skitour' }).click();
   await expect(rows).toHaveCount(1);
   await expect(rows.first()).toContainText('Skitour Hochgipfel');
   await expect(rows.first()).toContainText('-8–-2°');
   await shot(page, info, 'logbuch-ski');
-  await log.getByRole('group', { name: 'Reiseart' }).getByRole('button', { name: 'Alle' }).click();
+  await log.getByRole('group', { name: 'Tourart' }).getByRole('button', { name: 'Alle' }).click();
   await expect(rows).toHaveCount(15);
 
   // a tap opens the trip

@@ -480,6 +480,8 @@
 
       <!-- Paket M (#1002, Noah «5a» 14.10.2026): «Offene Rückblicke» first, what is still to talk about -->
       <!-- Handy kurz: on a phone the open debriefs stay in the folded tiles at the end («Packmodus» counts them) -->
+      <!-- Impeccable 20.10.2026 P4 (UI-Ziele #14): on a wide computer the open debriefs stand right of the trips, not above them -->
+      <div class="tcols">
       {#if $dataQ && !phone.matches}<TourTiles top {wx} open={tileData.open} {map} filtered={filtered ? filterWords : ''} go={openRow} {rateHref} extraOf={tileExtra} />{/if}
 
       <!-- SN4g: «Geplant», a short list (answer 3b) -->
@@ -637,6 +639,7 @@
         {/if}
       </section>
       {/if}
+      </div>
       {@render ridesRow()}
 
       {#if phone.matches && !extrasOpen && $dataQ && facts.length}
@@ -1360,5 +1363,22 @@
     margin: 4px 0 0;
     font-size: var(--fs-small);
     color: var(--ink-3);
+  }
+  @media (min-width: 1200px) {
+    .tcols {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(320px, 380px);
+      gap: 0 var(--sp-5);
+      align-items: start;
+    }
+    .tcols > :global(*) {
+      grid-column: 1;
+    }
+    .tcols > :global([data-tour-tiles='top']) {
+      grid-column: 2;
+      grid-row: 1 / span 4;
+      position: sticky;
+      top: var(--sp-4);
+    }
   }
 </style>

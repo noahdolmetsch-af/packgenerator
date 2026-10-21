@@ -83,7 +83,7 @@ export default {
   'Your last backup is {n} days old.': 'Dein letztes Backup ist {n} Tage alt.',
   'Your data lives only in this browser: one file keeps it safe (every {n} days).':
     'Deine Daten sind nur in diesem Browser: eine Datei sichert sie (alle {n} Tage).',
-  'Download backup': 'Backup herunterladen',
+  'Download backup': "Backup speichern",
   '{w} gear': '{w} Material',
   'On the way': 'Unterwegs',
   'to go': 'bis Start',
@@ -414,7 +414,7 @@ export default {
   'Still have it, gone or replaced?': 'Noch da, weg oder ersetzt?',
   'Your data → Import backup → Apply favourites.': 'Deine Daten → Backup importieren → Favoriten anwenden.',
   'Pack, ride day, end trip and debrief: only then can the app learn.': 'Packen, Fahrtag, Tour beenden und Rückblick: erst dann kann die App lernen.',
-  'Data from the backup of {date}. Newer state on the phone? Load its backup here.': 'Daten aus dem Backup vom {date}. Neuerer Stand auf dem Handy? Lade sein Backup hier.',
+  'Data from the backup of {date}. Newer state on the phone? Load its backup here.': "Daten aus dem Backup vom {date}. Ist das Handy neuer? Speichere dort ein Backup und lade es hier unter Ich › Daten.",
   'New debrief since the last backup: save one, then load it on the desktop.': 'Neuer Rückblick seit dem letzten Backup: eins speichern und am Desktop laden.',
   'Load a backup': 'Backup laden',
   // v0.22.0 (AP05): the favourites on the start page, same basis as Gear
