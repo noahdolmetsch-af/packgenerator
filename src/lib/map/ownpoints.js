@@ -18,18 +18,24 @@ export { OWN_KINDS, OWN_KIND_KEYS } from './ownkinds.js';
 
 /** A file name as a source label (trimmed, at most 80 characters; '' for none). */
 export const srcOf = (v) => String(v ?? '').trim().slice(0, 80);
+/** Paket Z 1122 «Schlafplätze» (shared with Live-Karte U4): a sleep spot keeps its stars (1–5), the night (YYYY-MM-DD) and the trip it came from. */
+const starsOf = (p) => ({
+  ...(Number.isInteger(p.stars) && p.stars >= 1 && p.stars <= 5 ? { stars: p.stars } : {}),
+  ...(typeof p.night === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(p.night) ? { night: p.night } : {}),
+  ...(p.tripId ? { tripId: String(p.tripId) } : {}),
+});
 const num = (v) => (Number.isFinite(Number(v)) ? Number(v) : null);
 /** The stored value → a clean list (broken rows dropped, a missing kind becomes 'note'). */
 export function listOf(value) {
   const raw = Array.isArray(value?.points) ? value.points : [];
   return raw
     .filter((p) => p && typeof p === 'object' && num(p.lat) != null && num(p.lon) != null && Math.abs(p.lat) <= 90 && Math.abs(p.lon) <= 180)
-    .map((p) => ({ id: String(p.id ?? ''), lat: num(p.lat), lon: num(p.lon), name: String(p.name ?? ''), note: String(p.note ?? ''), kind: isPointKind(p.kind) ? p.kind : 'note', createdAt: p.createdAt ?? '', ...(srcOf(p.src) ? { src: srcOf(p.src) } : {}) }))
+    .map((p) => ({ id: String(p.id ?? ''), lat: num(p.lat), lon: num(p.lon), name: String(p.name ?? ''), note: String(p.note ?? ''), kind: isPointKind(p.kind) ? p.kind : 'note', createdAt: p.createdAt ?? '', ...(srcOf(p.src) ? { src: srcOf(p.src) } : {}), ...starsOf(p) }))
     .filter((p) => p.id);
 }
 
 /** A new point at a place (rounded to about 1 m). */
-export function newPoint({ lat, lon, name = '', note = '', kind = 'note', src = '' }, now = new Date()) {
+export function newPoint({ lat, lon, name = '', note = '', kind = 'note', src = '', stars, night, tripId }, now = new Date()) {
   return {
     id: `op${now.getTime().toString(36)}${Math.random().toString(36).slice(2, 6)}`,
     lat: Math.round(Number(lat) * 1e5) / 1e5,
@@ -39,6 +45,7 @@ export function newPoint({ lat, lon, name = '', note = '', kind = 'note', src = 
     kind: isPointKind(kind) ? kind : 'note',
     createdAt: now.toISOString(),
     ...(srcOf(src) ? { src: srcOf(src) } : {}),
+    ...starsOf({ stars, night, tripId }),
   };
 }
 

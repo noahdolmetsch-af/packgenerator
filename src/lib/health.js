@@ -24,6 +24,13 @@ export const VALUES = ['sleep', 'restingHr', 'hrvMs', 'steps', 'azm'];
  */
 export const EXTRA = ['kcal', 'kcalActive', 'hrMax', 'spo2', 'breath', 'skinTemp'];
 export const FIRST_DAYS = 90;
+/**
+ * Raised when the server reads new values (2: calories, highest pulse, oxygen, breathing, skin
+ * temperature, 21.10.2026): the next fetch takes the last FILL_DAYS days again, once.
+ */
+export const FILL_V = 2;
+export const FILL_DAYS = 30;
+const minDay = (a, b) => (a < b ? a : b);
 export const AGAIN_DAYS = 3;
 
 export class HealthError extends Error {
@@ -101,13 +108,17 @@ export async function call(step, { method = 'GET', body = null, params = {}, key
 /** Fetch the missing days and keep them. Returns { from, to, changed }. */
 export async function syncHealth(db, { c = call, now = new Date() } = {}) {
   const last = await db.healthDays.orderBy('date').last();
-  const { from, to } = rangeToFetch(last?.date ?? null, localDay(now));
+  const old = (await db.settings.get(HEALTH_KEY))?.value ?? {};
+  const range = rangeToFetch(last?.date ?? null, localDay(now));
+  // once after new values came to the server (calories, oxygen, …): the last FILL_DAYS days again
+  const from = last && old.fill !== FILL_V ? minDay(range.from, addDays(localDay(now), -(FILL_DAYS - 1))) : range.from;
+  const to = range.to;
   const { days } = await c('days', { params: { from, to } });
   const at = now.toISOString();
   const changed = await saveDays(db, days ?? [], { src: 'google', at });
   const prev = (await db.settings.get(HEALTH_KEY))?.value ?? {};
   const until = (await db.healthDays.orderBy('date').last())?.date ?? null;
-  await db.settings.put({ key: HEALTH_KEY, value: { ...prev, lastSync: at, until } });
+  await db.settings.put({ key: HEALTH_KEY, value: { ...prev, lastSync: at, until, fill: FILL_V } });
   return { from, to, changed };
 }
 
@@ -154,4 +165,19 @@ export function azmWeek(rows, today) {
     return { date, min: date <= today && by.has(date) ? by.get(date) : null, future: date > today, today: date === today };
   });
   return { monday, days, sum: days.reduce((s, d) => s + (d.min ?? 0), 0), any: days.some((d) => d.min !== null) };
+}
+
+/**
+ * Fitbit überall (Noah 20.10.2026 22:21): the movement of one Fitbit day, the same rule as the
+ * Check-Fragen step sport.bewegung: active zone minutes ≥ 30 or ≥ 12000 steps is a «Bergziege» (1),
+ * ≥ 10 minutes or ≥ 5000 steps a «Spaziergänger» (0.5), else a «Faultier» (0). null without azm and steps.
+ */
+export const MOVE_RULE = { goatAzm: 30, walkerAzm: 10, goatSteps: 12000, walkerSteps: 5000 };
+export function moveStep(row) {
+  const azm = Number.isFinite(row?.azm) ? row.azm : null;
+  const steps = Number.isFinite(row?.steps) ? row.steps : null;
+  if (azm == null && steps == null) return null;
+  if ((azm ?? 0) >= MOVE_RULE.goatAzm || (steps ?? 0) >= MOVE_RULE.goatSteps) return 1;
+  if ((azm ?? 0) >= MOVE_RULE.walkerAzm || (steps ?? 0) >= MOVE_RULE.walkerSteps) return 0.5;
+  return 0;
 }

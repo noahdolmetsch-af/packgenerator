@@ -13,8 +13,25 @@ const KINDS = {
 };
 export const kindOf = (table) => t(KINDS[table] ?? 'Entry');
 
+/*
+ * Settings by name (Noah 21.10.2026: the question showed «strava.last» and «Wert: geändert»): a setting
+ * the person knows is shown with its name; any other one as «Other app setting», never the raw key.
+ */
+const SETTINGS = {
+  homePlace: 'Home place', riderWeightG: 'Your weight', userName: 'Your name', rearLimitPct: 'Rear load limit',
+  sets: 'Blocks|setting', templates: 'Templates', strava: 'Strava connection', trello: 'Trello connection', health: 'Fitbit connection',
+  agenda: 'Calendar connection', 'google.own': 'Own values', homeLayout: 'Layout of Heute', homeWall: 'Tiles on Heute',
+  homeGoals: 'Goals on Heute', merken: 'Remember list', 'merken.lists': 'Lists', pace: 'Your pace', challenges: 'Challenges',
+  flowQuestions: 'Check questions', 'sk.off': 'Check questions switched off', tagebuch: 'Diary', compass: 'Compass',
+  yearGoals: 'Year goals', listOverrides: 'Lists and types', inspectList: 'Inspection list', lake: 'Lake temperature',
+  abfragen: 'Check-ins', 'race-view': 'Race page view', zusatzfragen: 'Extra questions', 'flow.fixed': 'Fixed activities',
+  'flow.bags': 'Sports bags', 'flow.bagPack': 'Sports bag packing', seriesRest: 'Rest days',
+};
+export const settingName = (key) => t(SETTINGS[key] ?? 'Other app setting');
+
 /** A readable name of a record. */
-export function titleOf(v, id) {
+export function titleOf(v, id, table) {
+  if (table === 'settings') return settingName(v?.key ?? id);
   const s = v?.name ?? v?.title ?? v?.label ?? v?.shop ?? (typeof v?.text === 'string' ? v.text : null) ?? v?.key ?? v?.day ?? id;
   const str = String(s ?? '');
   return str.length > 60 ? `${str.slice(0, 57)}…` : str;
@@ -40,7 +57,16 @@ function short(key, v) {
 }
 
 /** The fields that differ: [{ key, label, mine, theirs }], at most `max`; the rest as one «More details» row. */
-export function differences(mine, theirs, max = 4) {
+export function differences(mine, theirs, max = 4, table = '') {
+  // a setting: its value is what differs; a plain value is shown as it is, an object by its fields
+  if (table === 'settings') {
+    const va = mine?.value;
+    const vb = theirs?.value;
+    const obj = (v) => v && typeof v === 'object' && !Array.isArray(v);
+    const as = /WeightG$/.test(String(mine?.key ?? theirs?.key ?? '')) ? 'weightG' : 'value'; // grams with «g»
+    if (!obj(va) && !obj(vb)) return [{ key: 'value', label: t('Value'), mine: short(as, va), theirs: short(as, vb) }];
+    return differences(obj(va) ? va : {}, obj(vb) ? vb : {}, max);
+  }
   const a = mine ?? {};
   const b = theirs ?? {};
   const empty = (v) => v === undefined || v === null || v === '';

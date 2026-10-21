@@ -15,7 +15,7 @@
   import { t, tn, locale } from '../i18n.svelte.js';
   import { backClose } from '../ui/backclose.js';
   import { openQuestions, resolve } from './engine.js';
-  import { sync, syncUi, runSync, setAskPrefs } from './auto.svelte.js';
+  import { sync, syncUi, runSync, setAskPrefs, quietLater } from './auto.svelte.js';
   import { kindOf, titleOf, differences } from './show.js';
 
   let dialog = $state();
@@ -30,7 +30,7 @@
   // new questions: the window by itself (setting) or the hint (default)
   const fresh = $derived(sync.asks > syncUi.seen);
   $effect(() => {
-    if (fresh && sync.autoOpen && !syncUi.first) syncUi.open = true;
+    if (fresh && sync.autoOpen && !syncUi.first && Date.now() >= syncUi.quietUntil) syncUi.open = true;
   });
   const hint = $derived(fresh && !syncUi.open && !sync.autoOpen && !syncUi.first && list.length > 0);
   $effect(() => {
@@ -39,6 +39,8 @@
     if ((!syncUi.open || (!q && $qs)) && dialog.open) dialog.close();
   });
   function later() {
+    // closed after an answer for all: nothing to put aside
+    if (syncUi.open && sync.asks > 0) quietLater();
     syncUi.seen = sync.asks;
     syncUi.open = false;
   }
@@ -59,7 +61,7 @@
 </script>
 
 {#snippet versions(x)}
-  {@const diff = differences(x.mine, x.theirs)}
+  {@const diff = differences(x.mine, x.theirs, 4, x.t)}
   <div class="two">
     <button type="button" class="ver" disabled={busy} onclick={() => pick('mine', [x])} data-choice="mine">
       <span class="vh">{#if here === 'phone'}<Smartphone size={18} aria-hidden="true" />{:else}<Laptop size={18} aria-hidden="true" />{/if}<b>{t('This device')}</b> <small>({devName(here)})</small></span>
@@ -105,13 +107,13 @@
       <ol class="qlist">
         {#each list as x (x.key)}
           <li data-question={x.id}>
-            <p class="entry"><span class="kind">{kindOf(x.t)}</span> <b>{titleOf(x.mine ?? x.theirs, x.id)}</b></p>
+            <p class="entry"><span class="kind">{kindOf(x.t)}</span> <b>{titleOf(x.mine ?? x.theirs, x.id, x.t)}</b></p>
             {@render versions(x)}
           </li>
         {/each}
       </ol>
     {:else}
-      <p class="entry"><span class="kind">{kindOf(q.t)}</span> <b>{titleOf(q.mine ?? q.theirs, q.id)}</b></p>
+      <p class="entry"><span class="kind">{kindOf(q.t)}</span> <b>{titleOf(q.mine ?? q.theirs, q.id, q.t)}</b></p>
       {@render versions(q)}
     {/if}
 

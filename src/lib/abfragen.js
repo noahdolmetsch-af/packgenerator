@@ -12,7 +12,7 @@
  *            options?: [{ key, label, v? }], multi?, unit?, note? (a sentence besides the scale) }
  *   every: { kind: 'times', times: ['08:00', …] } | { kind: 'daily', time } | { kind: 'weekly', dow (0 = Sunday), time }
  *          | { kind: 'monthly', time } (the 1st of the month) | { kind: 'off' }
- *   src:   where the value comes from, quiet tags: 'hand', 'later' (Fitbit, later), 'open' (not checked
+ *   src:   where the value comes from, quiet tags: 'hand', 'fitbit' (filled in from Fitbit, fitbitFill), 'open' (not checked
  *          yet, by hand until then), 'only' (only by hand possible), 'app'
  */
 import { addDays } from './flow.js';
@@ -66,7 +66,7 @@ const q = (area, key, textEn, form, every, src = ['hand'], was = null) => ({ id:
  */
 const BASE_QUESTIONS = [
   // 1 Erholung
-  q('erholung', 'schlaf', 'How well did you sleep: marmot or zombie?', scale(), daily('07:00'), ['hand', 'later'], 'How well did you sleep?'),
+  q('erholung', 'schlaf', 'How well did you sleep: marmot or zombie?', scale(), daily('07:00'), ['hand', 'fitbit'], 'How well did you sleep?'),
   q('erholung', 'akku', 'How full is your battery right now?', scale({ style: 'battery' }), at('08:00', '13:00', '20:00'), ['hand'], 'How much energy do you have?'),
   q('erholung', 'koerper', 'Does your body feel more like a freshly oiled bike or a rusty chain today?', scale(), daily('08:00'), ['hand'], 'How rested does your body feel?'),
   q('erholung', 'kaffee', 'How many coffees do you need today to be human?', number('cups'), at('12:00', '18:00'), ['only'], 'own question «Coffee»'),
@@ -84,7 +84,7 @@ const BASE_QUESTIONS = [
   q('sport', 'hoehenmeter', 'How much climbing would your head have liked today?', chips([['none', 'none|climb', 0], ['hill', 'a hill', 1 / 3], ['pass', 'a pass', 2 / 3], ['all', 'all of them', 1]]), daily('08:00')),
   q('sport', 'ueberholt', 'Did a road bike overtake you today?', chips([['yes', 'yes'], ['no', 'no'], ['passed', 'I overtook']]), daily('20:00')),
   q('sport', 'fit', 'How fit do you feel this week?', scale(), weekly(0, '19:00'), ['hand'], 'Fitness feeling'),
-  q('sport', 'bewegung', 'How much movement was there today: sloth, walker or mountain goat?', chips([['sloth', 'Sloth', 0], ['walker', 'Walker', 0.5], ['goat', 'Mountain goat', 1]]), daily('20:00'), ['hand', 'later']),
+  q('sport', 'bewegung', 'How much movement was there today: sloth, walker or mountain goat?', chips([['sloth', 'Sloth', 0], ['walker', 'Walker', 0.5], ['goat', 'Mountain goat', 1]]), daily('20:00'), ['hand', 'fitbit']),
   // 4 Achtsamkeit
   q('achtsamkeit', 'kopf', 'How calm is your head: mountain lake or white water?', scale(), daily('13:00'), ['hand'], 'How calm is your mind?'),
   q('achtsamkeit', 'moment', 'Did you have a moment today when you just looked?', yesno([YES, NO]), daily('20:00'), ['hand'], 'Did you have a mindful moment?'),
@@ -126,7 +126,7 @@ const BASE_QUESTIONS = [
   q('erreicht', 'pokal', 'Which trophy goes to you today?', chips([['kept', 'Kept going'], ['brave', 'Brave'], ['patient', 'Patient'], ['helpful', 'Helpful'], ['lazy', 'Lazy and happy']]), daily('20:00')),
   // 10 Körper und Werte (plain on purpose: they flow into analyses like watts per kg)
   q('koerper', 'waage', 'What do the scales show today, without any judgement?', number('kg'), weekly(5, '08:00'), ['open'], 'Weight'),
-  q('koerper', 'ruhepuls', 'How calmly does your heart beat in the morning?', number('bpm'), daily('07:00'), ['later'], 'Resting heart rate'),
+  q('koerper', 'ruhepuls', 'How calmly does your heart beat in the morning?', number('bpm'), daily('07:00'), ['fitbit', 'hand'], 'Resting heart rate'),
   q('koerper', 'essen', 'How well did you eat: gourmet, petrol station or forgotten?', scale(), daily('20:00'), ['hand'], 'How well did you eat?'),
   q('koerper', 'wochenschlaf', 'How was your sleep this week overall?', scale(), weekly(0, '19:00'), ['hand'], 'Sleep of the week'),
   q('koerper', 'bildschirm', 'How many hours did a screen look at you today?', number('h'), daily('20:00'), ['only'], 'own question «Screen time»'),
@@ -141,7 +141,7 @@ export const SAMPLE_QUESTIONS = [
   // Musterfragen erholung
   s('erholung', 'lider', 'How heavy are your eyelids right now: feather or lead lid?', scale(), daily('08:00')),
   s('erholung', 'pause', 'Did you take a real break today, without any screen?', yesno([['yes', 'yes|cf', 1], ['no', 'no|cf', 0], ['several', 'several|cf', 1]]), daily('20:00')),
-  s('erholung', 'stunden', 'How many hours did you sleep?', number('h'), daily('07:00')),
+  { ...s('erholung', 'stunden', 'How many hours did you sleep?', number('h'), daily('07:00')), src: ['fitbit', 'hand'] },
   s('erholung', 'bett', 'When do you go to bed tonight?', chips([['before22', 'before 22:00|cf'], ['22to23', '22–23:00|cf'], ['after23', 'after 23:00|cf']]), daily('20:00')),
   s('erholung', 'augenzu', 'How long did you simply close your eyes today?', number('min'), daily('20:00')),
   // Musterfragen spass
@@ -194,7 +194,7 @@ export const SAMPLE_QUESTIONS = [
   s('erreicht', 'monat', 'What did you get done this month that makes you happy?', text(), monthly('19:00')),
   // Musterfragen koerper
   s('koerper', 'trinken', 'How much did you drink today?', number('l'), daily('20:00')),
-  s('koerper', 'schritte', 'How many steps does your counter show today?', number(''), daily('20:00')),
+  { ...s('koerper', 'schritte', 'How many steps does your counter show today?', number(''), daily('20:00')), src: ['fitbit', 'hand'] },
   s('koerper', 'sitzen', 'How many hours did you sit today?', number('h'), daily('20:00')),
   s('koerper', 'bauch', 'How does your belly feel: calm or roller coaster?', scale(), daily('20:00')),
   s('koerper', 'gemuese', 'How many portions of vegetables and fruit were there today?', number(''), daily('20:00')),
@@ -613,7 +613,7 @@ export const BUSY_DAY = 15;
 /* ---------------------------------------------------------------- what is due */
 
 // Noah 14.10. 00:52:22 1a 2a 3b 4ab — 3b: a value that later comes from Fitbit does not switch its question
-// off; it stays on until you switch it off yourself (no Fitbit link is built yet).
+// off; it stays on until you switch it off yourself (since 0.171 the window fills in the Fitbit value, fitbitFill).
 
 /**
  * Noah 14.10. 00:52:22 1a 2a 3b 4ab — 2a: a missed question STAYS until it is answered or tapped away.
@@ -651,6 +651,44 @@ export function dueList(cfg, answers = [], now, snooze = {}) {
   }
   return out.sort((a, b) => a.slot.localeCompare(b.slot) || order.get(a.q.id) - order.get(b.q.id));
 }
+/* ---------------------------------------------------------------- Fitbit fills in */
+
+/**
+ * Noah 20.10.2026 «bei Fitbit noch angezeigt, wird später geliefert, aber das haben wir bereits»: where a question
+ * asks what Fitbit measures, the window fills in the measured value of the day (a suggestion, changeable;
+ * saved with src 'fitbit' when left as it is). Feelings stay by hand: the night's sleep shows only as a hint.
+ * health: the healthDays row of the question's day { restingHr, sleep: { asleepMin }, steps, azm }.
+ * → { value, hint: { key, v } } or { value: null, hint } (only a hint) or null (nothing measured).
+ */
+export const FITBIT_MOVE = { goatAzm: 30, walkerAzm: 10, goatSteps: 12000, walkerSteps: 5000 };
+export function fitbitFill(question, health) {
+  if (!question || !health) return null;
+  const fin = (v) => (typeof v === 'number' && Number.isFinite(v) ? v : null);
+  const sleepMin = fin(health.sleep?.asleepMin);
+  const rhr = fin(health.restingHr);
+  const steps = fin(health.steps);
+  const azm = fin(health.azm);
+  switch (question.id) {
+    case 'koerper.ruhepuls':
+      return rhr == null ? null : { value: String(Math.round(rhr)), hint: { key: 'rhr', v: Math.round(rhr) } };
+    case 'erholung.stunden':
+      return sleepMin == null ? null : { value: String(Math.round((sleepMin / 60) * 10) / 10), hint: { key: 'sleep', v: sleepMin } };
+    case 'koerper.schritte':
+      return steps == null ? null : { value: String(Math.round(steps)), hint: { key: 'steps', v: Math.round(steps) } };
+    case 'erholung.schlaf':
+      return sleepMin == null ? null : { value: null, hint: { key: 'sleep', v: sleepMin } };
+    case 'sport.bewegung': {
+      if (azm == null && steps == null) return null;
+      const M = FITBIT_MOVE;
+      const goat = (azm ?? 0) >= M.goatAzm || (steps ?? 0) >= M.goatSteps;
+      const walker = (azm ?? 0) >= M.walkerAzm || (steps ?? 0) >= M.walkerSteps;
+      return { value: goat ? 'goat' : walker ? 'walker' : 'sloth', hint: { key: azm != null ? 'azm' : 'steps', v: azm ?? Math.round(steps) } };
+    }
+    default:
+      return null;
+  }
+}
+
 /** «Später» on the window of the round (Noah 19.10.2026): kept in the snooze record under this key, until when. */
 export const LATER_KEY = '_later';
 /** The stamp one hour after `now` (a stamp 'YYYY-MM-DDTHH:MM', local time). */
@@ -699,7 +737,7 @@ export function numberOf(form, value) {
 }
 
 /** A history row from an answer: { id, qid, area, day, at, slot, kind, value, note, unit, src }. */
-export function answerRow(question, raw, { at = null, day = null, slot = null, note = '' } = {}) {
+export function answerRow(question, raw, { at = null, day = null, slot = null, note = '', src = 'hand' } = {}) {
   const value = valueOf(question.form, raw);
   const n = String(note ?? '').trim().slice(0, 500);
   if (value == null && !n) return null;
@@ -714,7 +752,7 @@ export function answerRow(question, raw, { at = null, day = null, slot = null, n
     value,
     note: n || null,
     unit: question.form.unit || null,
-    src: 'hand',
+    src: src === 'fitbit' ? 'fitbit' : 'hand',
   };
 }
 

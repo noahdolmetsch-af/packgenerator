@@ -147,7 +147,8 @@ test('active zone minutes of this week on Aktiv, with the weekly goal changeable
   await expect(box.locator('[data-azm-sum]')).toContainText('125');
   await expect(box.locator('[data-day]')).toHaveCount(7);
   await expect(box.locator('[data-day="2026-10-05"]')).toContainText('40');
-  await expect(box.locator('[data-day="2026-10-06"]')).toContainText('–');
+  // a day without minutes stays empty (Noah 21.10.2026: only values that exist, no «–»)
+  await expect(box.locator('[data-day="2026-10-06"] .num')).toHaveText('');
   await expect(box.locator('[data-azm-goal]')).toContainText('150');
   await shot(page, info, 'AZM-woche', '[data-section="azm"]');
   await box.locator('[data-azm-goal]').click();

@@ -177,13 +177,20 @@ export function installExplain(doc = document) {
     const to = e.relatedTarget instanceof Element ? e.relatedTarget.closest(SEL) : null;
     if (to !== anchor) hide();
   };
+  // Noah 21.10.2026: a window that opens by itself puts the focus on its X; that is not the keyboard, so no
+  // bubble (it showed «Schliessen» at the bottom over the window's text while the window slid in)
+  let keyed = false;
+  const typed = (e) => {
+    if (e.key === 'Tab' || e.key?.startsWith('Arrow')) keyed = true;
+  };
   const focusIn = (e) => {
     const el = target(e);
     if (el && el === anchor) return; // the pressed button takes the focus after a long press: keep it
-    if (el && el.matches(':focus-visible') && !el.hasAttribute('title') && explainFor(el)) show(el, false);
+    if (el && keyed && el.matches(':focus-visible') && !el.hasAttribute('title') && explainFor(el)) show(el, false);
     else if (anchor) hide();
   };
   const down = (e) => {
+    keyed = false;
     if (e.pointerType === 'mouse') return hide();
     hide();
     const el = target(e);
@@ -235,6 +242,7 @@ export function installExplain(doc = document) {
   doc.addEventListener('click', click, opts);
   doc.addEventListener('contextmenu', menu, opts);
   doc.addEventListener('keydown', key, opts);
+  doc.addEventListener('keydown', typed, opts);
   window.addEventListener('scroll', away, { capture: true, passive: true });
   window.addEventListener('resize', away);
   return () => {
@@ -249,6 +257,7 @@ export function installExplain(doc = document) {
     doc.removeEventListener('click', click, opts);
     doc.removeEventListener('contextmenu', menu, opts);
     doc.removeEventListener('keydown', key, opts);
+    doc.removeEventListener('keydown', typed, opts);
     window.removeEventListener('scroll', away, { capture: true });
     window.removeEventListener('resize', away);
     hide();

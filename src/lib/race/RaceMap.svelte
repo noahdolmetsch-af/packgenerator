@@ -15,6 +15,8 @@
   import { Plus, Pencil, MapPin, CloudRain, Wind, Snowflake, Crosshair } from '@lucide/svelte';
   import RaceBox from './RaceBox.svelte';
   import MapView from '../map/MapView.svelte';
+  import GpxStops from '../route/GpxStops.svelte';
+  import { LANDI_RADAR } from '../wetter/kern.js';
   import ProfileStrip from '../map/ProfileStrip.svelte';
   import OwnPointSheet from '../map/OwnPointSheet.svelte';
   import SortArrows from '../ui/SortArrows.svelte';
@@ -292,6 +294,10 @@
     {#if poiPicked}
       <div data-map-poi-detail><PoiDetail place={poiPicked} from={cursor} line={route?.line ?? null} profile={route?.profile ?? null} onclose={() => (poiPicked = null)} /></div>
     {/if}
+    <!-- Paket Y (Noah «1a»): the Landi rain radar next to our own radar layer -->
+    <a class="btn sm" href={LANDI_RADAR} target="_blank" rel="noopener noreferrer" data-landi>{t('Landi rain radar')}</a>
+    <!-- Paket X: the route with the stops shown, the beds and your points as one GPX for Garmin and Wahoo -->
+    <GpxStops {route} points={[...(shown.stops ? pois.filter((p) => !kindsOff.includes(p.kind)) : []), ...(shown.beds ? beds.map((b) => ({ ...b, kind: 'sleep', name: b.name || t('Night {n}', { n: b.n }) })) : []), ...(shown.own ? ownOnMap(own, t).map((p) => ({ ...p, kind: 'own' })) : [])]} name={ctx.trip?.title ?? ''} chips={false} />
     <details class="rm-find" data-map-places>
       <summary>{t('Find places')}</summary>
       <PoiPanel bind:this={poiPanel} canTap ontapmode={(v) => (poiTapping = v)} center={cursor ? { lat: cursor.lat, lon: cursor.lon } : null} bounds={mapBounds} line={route?.line ?? null} profile={route?.profile ?? null} tripId={ctx.trip?.id ?? null} onpoints={(l) => (poiPoints = l ?? [])} />

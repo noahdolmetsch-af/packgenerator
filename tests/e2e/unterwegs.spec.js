@@ -86,8 +86,12 @@ test('Unterwegs: eat reminder, ready card and the folds', async ({ page, context
   await open(page, context, info);
   await page.goto('./#/ride');
   const eat = page.locator('[data-eat]');
+  // Paket X «2a»: the soft tone is on and can be switched off
+  await expect(eat.locator('[data-eat-sound]')).toBeChecked();
   await tap(eat.locator('[data-eat-start]'), info);
   await expect(eat).toContainText(T('Next in {n} min · at {time}', { n: 45, time: '09:45' }));
+  await eat.locator('[data-eat-sound]').uncheck();
+  await expect(eat.locator('[data-eat-sound]')).not.toBeChecked();
   await tap(eat.locator('[data-eat-stop]'), info);
   await expect(eat.locator('[data-eat-start]')).toBeVisible();
 
@@ -97,6 +101,8 @@ test('Unterwegs: eat reminder, ready card and the folds', async ({ page, context
   const fold = (k) => page.locator(`details[data-fold="${k}"]`);
   await tap(fold('water').locator('summary'), info);
   await expect(fold('water').locator('[data-water]')).toContainText('L');
+  await expect(fold('water').locator('[data-water]')).toContainText('kcal');
+  await expect(fold('water').locator('[data-water] a[href="#/trips/fuel"]')).toBeVisible();
   await tap(fold('sky').locator('summary'), info);
   await tap(fold('sky').locator('[data-orte-load]'), info);
   await expect(fold('sky')).toContainText('test_data_gtp_ Burg');

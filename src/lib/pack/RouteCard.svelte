@@ -85,6 +85,7 @@
     {/if}
     {#if onchange}<RwgpsLink onload={fromLink} label={route ? t('Other route from Ride with GPS') : ''} />{/if}
     {#if msg}<p class="warn" role="alert">{msg}</p>{/if}
+    {#await import('../wetter/TourWetter.svelte') then m}<m.default {trip} />{:catch}{/await}
   </div>
 </section>
 

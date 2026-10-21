@@ -45,6 +45,7 @@
   import { t, tn, num, dateOf } from '../i18n.svelte.js';
   import { bikeCare, eventPrep } from '../readiness.js';
   import { serviceDone } from '../bikeservice.js';
+  import { wearRows, wearForTrip } from '../wear.js';
   import { hoursOn } from '../bikehours.js';
   import { vig } from '../veloimgriff.svelte.js';
   import { offerDone } from '../ui/rename.svelte.js';
@@ -120,7 +121,9 @@
       const v = viewById[t.bikeId];
       // v0.22.0 (AP06): the bike's part is Bike care (the same as on Home and in Pack), the tasks Event preparation.
       const care = v && hasBike(t) ? bikeCare(v, { tasks, visits, trip: t, today }) : null;
-      return { trip: t, rows: prepFor(t, tasks, today), rules: prepRules(t, tasks), care, prep: eventPrep(t, tasks, today) };
+      // «Verschleiss» (Noah 20.10.2026, 5a): parts that run out before or on the trip
+      const wear = care ? wearForTrip(wearRows(v, { entries: kmEntries, today }), t, today) : [];
+      return { trip: t, rows: prepFor(t, tasks, today), rules: prepRules(t, tasks), care, prep: eventPrep(t, tasks, today), wear };
     }),
   );
   const checks = $derived(
@@ -406,6 +409,7 @@
     <VeloHead
       crumbs={[{ label: t('Bike'), href: bikesHash({ tab: 'setup', bike: openC.bike.id }) }, { label: t('Care|tab'), href: bikesHash({ tab: 'care' }) }]}
       title={openC.bike.name}
+      bike={openC.bike}
       sub={[t('Bike care'), typeof openC.bike.km === 'number' ? `${num(openC.bike.km)} km` : '', t('as of today')].filter(Boolean).join(' · ')}
     />
   {:else}
@@ -449,7 +453,7 @@
     {/if}
 
     {#snippet trip(x, soon = null)}
-      <TripCare {soon} trip={x.trip} rows={x.rows} rules={x.rules} care={x.care} prep={x.prep} focus={x.trip.id === tripId} bikeName={bikeById[x.trip.bikeId]?.name} {today} order={orderOf[x.trip.bikeId]?.order} onorder={() => (orderOpen = x.trip.bikeId)} onresult={(r, result) => prepResult(x.trip, r, result)} onall={() => prepAll(x.trip, x.rows)} onundo={(r) => undoPrep(x.trip, r)} onevent={(on) => db.trips.update(x.trip.id, { event: on })} />
+      <TripCare {soon} trip={x.trip} rows={x.rows} rules={x.rules} care={x.care} prep={x.prep} wear={x.wear} focus={x.trip.id === tripId} bikeName={bikeById[x.trip.bikeId]?.name} {today} order={orderOf[x.trip.bikeId]?.order} onorder={() => (orderOpen = x.trip.bikeId)} onresult={(r, result) => prepResult(x.trip, r, result)} onall={() => prepAll(x.trip, x.rows)} onundo={(r) => undoPrep(x.trip, r)} onevent={(on) => db.trips.update(x.trip.id, { event: on })} />
     {/snippet}
     {#if next && !nextSoon}{@render trip(next)}{/if}
     {#if later.length}

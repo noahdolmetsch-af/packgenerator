@@ -429,6 +429,42 @@ export const HANDBOOK = {
     steps: ['On On the way tap «Bike parked»: photo, lock, save.', 'Later tap it again: the photo, the lock and «Way to the bike».'],
     example: 'Example: at the station in a big town → back after the museum with the map link.',
   },
+  // Paket Z and SP (Noah 20.10.2026)
+  'f.breakdown': {
+    on: null,
+    steps: ['In the debrief under «For next time» tap «Note a breakdown».', 'Choose what broke; with the tick a bike-care job waits in Velopflege.'],
+    example: 'Example: a flat after the pass → a job «Check tyre and tube» and next time «Spare tube» as a suggestion.',
+  },
+  'f.sleepspots': {
+    on: null,
+    steps: ['In the debrief tap «Rate a place to sleep»: stars, note, the night.', 'Plan a trip nearby: Planen shows «Your places to sleep here».'],
+    example: 'Example: a quiet campsite at the lake with 5 stars → it comes back on the next tour in the area.',
+  },
+  'f.postcard': {
+    on: null,
+    steps: ['In the debrief tap «Tour postcard» and add a photo if you like.', '«Share» opens the share sheet; on a computer «Save» downloads the picture.'],
+    example: 'Example: a photo from the pass, the line of the tour and 212 km, 3100 m up, 2 days on one picture.',
+  },
+  'f.packtwo': {
+    on: null,
+    steps: ['In Planen fold open «Packing for two» and type a name.', 'Tap what the other person carries; the weight per person shows on top.'],
+    example: 'Example: tent and stove with Lea → you 6.2 kg, Lea 4.8 kg.',
+  },
+  'f.laundry': {
+    on: null,
+    steps: ['In Planen fold open «In the wash» and tap the clothes still in the wash.', 'Two days before the trip a reminder waits in Merken.'],
+    example: 'Example: the rain jacket in the wash on Tuesday → on Thursday Merken reminds you for the Saturday tour.',
+  },
+  'f.morninglist': {
+    on: null,
+    steps: ['In Planen fold open «Only on the morning» and tap phone, food or bottles.', 'On the morning of the start On the way shows them as a short list.'],
+    example: 'Example: phone, sandwich from the fridge and two filled bottles on the departure morning.',
+  },
+  'f.packtime': {
+    on: 'Can be hidden in the card «Pack faster».',
+    steps: ['In Planen fold open «Packing time» and tap «Start packing».', 'Tap «Done packing»; the next trip shows the trend.'],
+    example: 'Example: 42 min for the first weekend tour, 28 min for the next one.',
+  },
   'f.departsheet': {
     on: null,
     steps: ['On On the way tap «Before you leave».', 'Check the tour, papers and numbers; «As PDF» makes the sheet to print.'],
@@ -576,6 +612,16 @@ export const HANDBOOK = {
     steps: ['Bikes › Care › a bike › «Workshop cheat sheet».', 'Torque values: the value on the part always wins.', '«Breakdown help»: short steps for flat tyre, chain, hanger, brake, spoke, creak.'],
     example: 'Example: thru axle 12–15 Nm; your stem says 5 Nm → add it as your own row.',
   },
+  'f.partwear': {
+    on: null,
+    steps: ['Bikes › Care › a bike › «Wear» (also on the bike page).', 'Each part: a bar, km left and about when, from your km of the last 8 weeks.', 'A workshop visit with «replaced» starts the part at 0 km; «Service of the whole bike» sets the bike counter to 0.'],
+    example: 'Example: chain 2600 of 3000 km → «400 km left · about in December».',
+  },
+  'f.setupphotos': {
+    on: null,
+    steps: ['Bikes › Care › a bike: «Setup photos» top right opens the timeline; «+ Photo» adds a setup of today.', '«…» at a photo: change the day, rename, show it behind the bike, remove.', 'Report a problem with several photos; cut the edges or keep them all as one PDF in Me › Documents.'],
+    example: 'Example: photo of the new bag setup → it shows pale at the top of Bike care and lines up under this month.',
+  },
   'f.velofaq': {
     on: null,
     steps: ['Bikes › Care › «Bike FAQ» (also on every bike’s card).', 'On top the question of the day; «Another question» shows the next one.', 'Search or open a topic; «Your own questions» keeps what you learned.'],
@@ -696,6 +742,26 @@ export const HANDBOOK = {
     steps: ['Open a race › «Map» › «Map offline».', 'Choose the map and the width, check the size and tap «Keep for offline».'],
     example: 'Example: a 1 km strip of the free map along 1000 km is about 30 MB.',
   },
+  'f.energy': {
+    on: null,
+    steps: ['Enter your weight under Analysis › Weight and your values under Trips › Supplies.', 'Plan a tour with a route: the tour card, the race and the live map show what you use, eat and drink.'],
+    example: 'Example: 4 h, 72 km, 1000 m up, 75 kg → about 2600 kcal used, eat 240 g carbohydrates.',
+  },
+  'f.gpxstops': {
+    on: null,
+    steps: ['Search the places along the route on the route card, under Supplies or on the race map.', 'Tap «GPX with … stops» and copy the file to the Garmin or import it in the Wahoo app.'],
+    example: 'Example: 3 shops and 5 fountains on 120 km → on the Edge as 8 pins along the track.',
+  },
+  'f.weather': {
+    on: null,
+    steps: ['Tap the weather line on Today, on Active or on a trip.', 'Choose how long you ride: the app shows the best start; tap «Landi rain radar» for the rain.'],
+    example: 'Example: 4 h ride, thunderstorms from 15:00 → best start 08:00, back about 12:00.',
+  },
+  'f.webcams': {
+    on: null,
+    steps: ['Open the weather page › «My webcams».', 'Paste the address of the picture and tap «Add webcam»; «Make home cam» shows it small on Today.'],
+    example: 'Example: the webcam of a pass → one tap shows if the road is white.',
+  },
   'f.reroute': {
     on: null,
     steps: ['On the live map tap «⋯» › «Plan a new way to …», or press long on the map.', 'Choose a shop, a bed, a station or your own point, or search a place; tap «Plan». «GPX for Garmin» saves it.'],
@@ -751,6 +817,31 @@ export const HANDBOOK = {
     steps: ['Stop the ride on the live map; under «Your ride» tap «Share picture».', 'Leave out the shape when you start at home.'],
     example: 'Example: 42.5 km, 1 h 52 min, 640 m → one picture for the chat.',
   },
+  'f.sleeptonight': {
+    on: null,
+    steps: ['Open a race › «Race mode» (load the places under «Along the route» first).', 'Look at «Where do I sleep tonight?» and switch kinds on or off.', 'On the live map it shows in the sheet.'],
+    example: 'Example: rain tonight → the bus stop with a roof in 6 km comes before the campsite in 4 km.',
+  },
+  'f.callhotels': {
+    on: null,
+    steps: ['Open a race › «Race mode» › «Hotels for tonight» (from 12:00, or tap «Show now»).', 'Call or write with the ready sentence; copy it with one tap.'],
+    example: 'Example: arrival 22:15 in Lausanne → the sentence in French, «Bonjour, je voyage à vélo …».',
+  },
+  'f.powernap': {
+    on: null,
+    steps: ['Open a race › «Race mode» › «Power nap» and tap 10, 20 or 30 min.', 'Leave the app open with the screen on; set the phone\'s alarm too.', 'Tap «I am awake»: the nap goes into your sleep log.'],
+    example: 'Example: awake for 19 hours → «a power nap of 20 minutes helps».',
+  },
+  'f.sleeplists': {
+    on: null,
+    steps: ['Open a race › «Along the route» › «Places to sleep from lists».', 'Choose a file or paste a link and tap «Load».'],
+    example: 'Example: an organiser\'s GPX with 40 bivy spots → 12 of them near your route.',
+  },
+  'f.nightswx': {
+    on: null,
+    steps: ['Open a race › «Along the route» and tap «Load the weather».', 'Look at «Nights by the weather»; move a night yourself under «Strategy».'],
+    example: 'Example: night 2 at km 310 with 80 % rain → 30 km further only 20 %.',
+  },
   'f.racesample': {
     on: null,
     steps: ['Open Trips › Races › «See the sample race».', 'Tap «Show me around» for the tour, then do the small tasks in «Plan».'],
@@ -803,7 +894,7 @@ export const HANDBOOK = {
   },
   'f.journal': {
     on: null,
-    steps: ['Open Me › Diary and tap «New entry», or «Dictate an entry» to speak.', 'Add photos, tags, place and weather; «From the app» adds the rides, sleep and notes of that day.'],
+    steps: ['Open Plan › Diary and tap «New entry», or «Dictate an entry» to speak.', 'Add photos, tags, place and weather; «From the app» adds the rides, sleep and notes of that day.'],
     example: 'Example: the question of the day «What made you smile today?» → «Answer by speaking» → three sentences in one minute.',
   },
   'f.impulse': {
@@ -1066,6 +1157,11 @@ export const HANDBOOK = {
     on: 'Downloads the recognition once (about 20 MB); the picture stays on the device. Suggestions only, no medical rating.',
     steps: ['On the bike page tap «Sitting position» (or Toolbox › Sitting position).', 'Photo: one pedal at the bottom, taken from the side at hip height. Video: about 5 seconds of calm pedalling from the side.', 'Read knee, hip and back angles, type the saddle height and tap «Save with the bike»; the history stays with the bike.'],
     example: 'Example: knee 158° at the bottom → «a few millimetres lower»; after 3 mm lower 151°.',
+  },
+  'f.localai': {
+    on: 'Load a model once: Me › Appearance › Handling › «AI on this device». With internet the AI helper answers if it is set up.',
+    steps: ['Choose a model (small and fast, or a bit cleverer) and tap «Load to this device».', 'Tap «Check the speed» to see how quick this device is.', 'Ask a question in the search or tap «Ask the AI on this device» on the packing list, bike care or look back.'],
+    example: 'Example: no signal on the pass, «What is missing for rain?» → the AI on the phone answers from your list.',
   },
   'f.dictate': {
     on: 'On by default: Me › Appearance › Handling › «Speak instead of type»; below it «Dictation and questions».',

@@ -69,7 +69,7 @@
     for (const file of files) {
       try {
         const data = await shrinkImage(file);
-        await db.photos.put({ id: `photo-${Date.now().toString(36)}-${n++}`, bikeId: bike.id, name: file.name.replace(/\.[^.]+$/, '').slice(0, 40) || 'Setup', tripId: null, main: false, data, addedAt: new Date().toISOString() });
+        await db.photos.put({ id: `photo-${Date.now().toString(36)}-${n++}`, bikeId: bike.id, name: file.name.replace(/\.[^.]+$/, '').slice(0, 40) || 'Setup', tripId: null, main: false, data, day: localDay(), addedAt: new Date().toISOString() });
       } catch (err) {
         photoMsg = `${file.name}: ${err.message || t('This photo could not be read.')}`;
       }

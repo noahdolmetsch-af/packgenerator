@@ -215,7 +215,7 @@
 {:else if openId}
   <!-- one entry to read -->
   <div class="tb tb-read" data-page="tagebuch-entry">
-    <Crumb path={[{ href: '#/me', label: t('Me|place') }, { href: HREF, label: t('Diary') }]} here={reading ? long(reading.day) : ''} />
+    <Crumb path={[{ href: '#/week', label: t('Plan|place') }, { href: HREF, label: t('Diary') }]} here={reading ? long(reading.day) : ''} />
     {#if !reading}
       <h1 class="tb-h1" tabindex="-1" data-page-title>{t('Diary')}</h1>
       <p class="tb-empty">{t('This entry is not here (any more).')} <a href={HREF}>{t('To the diary')}</a></p>
@@ -259,7 +259,7 @@
   </div>
 {:else}
   <div class="tb" data-page="tagebuch">
-    <Crumb path={[{ href: '#/me', label: t('Me|place') }]} here={t('Diary')} />
+    <Crumb path={[{ href: '#/week', label: t('Plan|place') }]} here={t('Diary')} />
     <div class="tb-head">
       <h1 class="tb-h1" tabindex="-1" data-page-title>{t('Diary')}</h1>
       <button type="button" class="tb-ic" aria-label={t('Diary settings')} title={t('Diary settings')} onclick={() => (settings = true)} data-tb-settings-open><Settings2 size={20} aria-hidden="true" /></button>

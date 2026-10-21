@@ -5,7 +5,7 @@ import { cleanBp, cleanL, bpEntries, waterEntries, withDay, zoneMinOf, medByDay,
 import { BODY, BODY_GROUPS, BODY_TABS, BODY_KEYS, groupOf, bodyOf, bodyStats, stackBars, stagesOf } from '../src/lib/uebersicht.js';
 import { dayTable } from '../src/lib/messwerte.js';
 import { daysFrom, dailyOf } from '../api/_lib/googledays.js';
-import { cleanDay, EXTRA } from '../src/lib/health.js';
+import { cleanDay, EXTRA, syncHealth, HEALTH_KEY, FILL_V } from '../src/lib/health.js';
 
 const TODAY = '2026-10-09';
 const ride = (id, day, o = {}) => ({ id, day, kind: 'bike', movingS: 3600, km: 25, ...o });
@@ -136,9 +136,9 @@ describe('Körperwerte: Fitbit oxygen, breathing and skin temperature', () => {
     expect(dailyOf({ dailyOxygenSaturation: { date, averagePercentage: 96 } })?.date).toBe(TODAY);
     const rows = daysFrom(
       {
-        spo2: [{ dailyOxygenSaturation: { date, averagePercentage: 96.4 } }],
-        breath: [{ dailyRespiratoryRate: { date, breathsPerMinute: 14.25 } }],
-        skin: [{ dailySleepTemperatureDerivations: { date, nightlyTemperatureRelativeCelsius: -0.234 } }, { other: { date: { year: 2026, month: 10, day: 8 }, relativeCelsius: 9 } }],
+        spo2: [{ dailyOxygenSaturation: { date, upperBoundPercentage: 99, averagePercentage: 96.4, lowerBoundPercentage: 92 } }],
+        breath: [{ dailyRespiratoryRate: { date, breathsPerMinute: 14.26 } }],
+        skin: [{ dailySleepTemperatureDerivations: { date, baselineTemperatureCelsius: 33.5, nightlyTemperatureCelsius: 33.266 } }, { dailySleepTemperatureDerivations: { date: { year: 2026, month: 10, day: 8 }, nightlyTemperatureCelsius: 34 } }],
       },
       '2026-10-08',
       TODAY,
@@ -148,5 +148,33 @@ describe('Körperwerte: Fitbit oxygen, breathing and skin temperature', () => {
   it('the app keeps them with a day', () => {
     expect(EXTRA).toEqual(expect.arrayContaining(['spo2', 'breath', 'skinTemp']));
     expect(cleanDay({ date: TODAY, spo2: 96, breath: 14, skinTemp: 0.1 })).toEqual({ date: TODAY, spo2: 96, breath: 14, skinTemp: 0.1 });
+  });
+});
+
+describe('Körperwerte: new values reach the older days once', () => {
+  const fake = (rows = [], prefs = {}) => {
+    const days = new Map(rows.map((r) => [r.date, r]));
+    const settings = new Map([[HEALTH_KEY, { key: HEALTH_KEY, value: prefs }]]);
+    const sorted = () => [...days.values()].sort((a, b) => a.date.localeCompare(b.date));
+    return {
+      healthDays: {
+        orderBy: () => ({ last: async () => sorted().at(-1), first: async () => sorted()[0] }),
+        bulkGet: async (ks) => ks.map((k) => days.get(k)),
+        bulkPut: async (list) => list.forEach((r) => days.set(r.date, r)),
+      },
+      settings: { get: async (k) => settings.get(k), put: async (r) => settings.set(r.key, r) },
+      transaction: async (_m, _t, fn) => fn(),
+    };
+  };
+  const now = new Date('2026-10-09T10:00:00+02:00');
+  it('the first fetch after the update goes back 30 days, the next one only a few', async () => {
+    const db = fake([{ date: '2026-10-08', restingHr: 50 }]);
+    const asked = [];
+    const c = async (_s, o) => (asked.push(o.params), { days: [] });
+    await syncHealth(db, { c, now });
+    expect(asked[0]).toEqual({ from: '2026-09-10', to: TODAY });
+    expect((await db.settings.get(HEALTH_KEY)).value.fill).toBe(FILL_V);
+    await syncHealth(db, { c, now });
+    expect(asked[1]).toEqual({ from: '2026-10-05', to: TODAY });
   });
 });

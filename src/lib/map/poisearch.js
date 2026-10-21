@@ -75,6 +75,12 @@ export const MORE = [
   { key: 'charge', name: 'E-bike charging|poi', icon: 'plug-zap', widthM: 1000, tags: ['["amenity"="charging_station"]["bicycle"="yes"]', '["amenity"="charging_station"]["ebike"="yes"]'] },
   { key: 'bikepark', name: 'Bike parking|poi', icon: 'circle-parking', widthM: 300, tags: ['["amenity"="bicycle_parking"]'] },
   { key: 'rental', name: 'Bike rental|poi', icon: 'bike', widthM: 2000, tags: ['["amenity"="bicycle_rental"]'] },
+  // U4 «Schlafplätze im Rennen» 1137 + 1143: more roofs for the night, and places open all night
+  { key: 'roofbus', name: 'Bus stop with a roof|poi', icon: 'bus', widthM: 500, tags: ['["highway"="bus_stop"]["shelter"="yes"]'] },
+  { key: 'hut', name: 'Picnic and forest hut|poi', icon: 'house', widthM: 500, tags: ['["amenity"="shelter"]["shelter_type"~"^(picnic_shelter|basic_hut|lean_to|weather_shelter)$"]'] },
+  { key: 'bivouac', name: 'Bivouac box|poi', icon: 'mountain', widthM: 3000, tags: ['["tourism"="wilderness_hut"]'] },
+  { key: 'waitroom', name: 'Station waiting room|poi', icon: 'train-front', widthM: 3000, tags: ['["amenity"="waiting_room"]'] },
+  { key: 'night24', name: 'Open at night|poi', icon: 'moon', widthM: 3000, tags: ['["amenity"="fuel"]["opening_hours"="24/7"]', '["shop"~"^(convenience|supermarket|kiosk)$"]["opening_hours"="24/7"]', '["railway"="station"]["opening_hours"="24/7"]'] },
   { key: 'bus', name: 'Bus stop|poi', icon: 'bus', widthM: 500, tags: ['["highway"="bus_stop"]', '["amenity"="bus_station"]'] },
   { key: 'transit', name: 'Public transport|poi', icon: 'tram-front', widthM: 1500, tags: ['["public_transport"="station"]', '["railway"="tram_stop"]', '["amenity"="ferry_terminal"]'] },
   { key: 'info', name: 'Tourist information|poi', icon: 'info', widthM: 1000, tags: ['["tourism"="information"]["information"~"^(office|visitor_centre)$"]'] },

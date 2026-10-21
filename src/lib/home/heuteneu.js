@@ -69,15 +69,25 @@ export function challengeNow(list, suggests = {}, today) {
 }
 
 /**
- * HN4b-1 «Körper»: the resting pulse of the last 7 days from «Wi gaht's?» (koerper.ruhepuls, typed by hand
- * until Fitbit comes) and the active zone minutes (only with Fitbit; none yet). Nothing is estimated.
- * → { pulse, lo, hi, days: [values oldest first], azm: null }
+ * HN4b-1 «Körper»: the resting pulse of the last 7 days and today's active zone minutes. Fitbit überall
+ * (Noah 20.10.2026 22:21): the measured Fitbit days (healthDays rows { date, restingHr, azm }) come first;
+ * without them the pulse typed in «Wi gaht's?» (koerper.ruhepuls). Nothing is estimated.
+ * → { pulse, lo, hi, days: [values oldest first], azm (today, or null), src: 'fitbit' | 'answer' | null }
  */
-export function bodyNow(answers = [], today) {
+export function bodyNow(answers = [], today, health = []) {
   const from = addDay(today, -6);
+  const fit = (health ?? []).filter((h) => h?.date >= from && h.date <= today).sort((a, b) => a.date.localeCompare(b.date));
+  const fitVals = fit.filter((h) => Number(h.restingHr) > 0).map((h) => Math.round(Number(h.restingHr)));
   const rows = answers.filter((a) => a.qid === 'koerper.ruhepuls' && a.day >= from && a.day <= today && Number(a.value) > 0).sort((a, b) => a.day.localeCompare(b.day) || String(a.at ?? '').localeCompare(String(b.at ?? '')));
-  const vals = rows.map((a) => Math.round(Number(a.value)));
-  return { pulse: vals.at(-1) ?? null, lo: vals.length ? Math.min(...vals) : null, hi: vals.length ? Math.max(...vals) : null, days: vals, azm: null };
+  const vals = fitVals.length ? fitVals : rows.map((a) => Math.round(Number(a.value)));
+  const az = fit.find((h) => h.date === today)?.azm;
+  return { pulse: vals.at(-1) ?? null, lo: vals.length ? Math.min(...vals) : null, hi: vals.length ? Math.max(...vals) : null, days: vals, azm: Number.isFinite(az) ? Math.round(az) : null, src: fitVals.length ? 'fitbit' : vals.length ? 'answer' : null };
+}
+
+/** Fitbit überall: the measured sleep of last night (healthDays row of today, sleep.asleepMin) in hours, or null. */
+export function fitbitSleep(health = [], today) {
+  const m = Number((health ?? []).find((h) => h?.date === today)?.sleep?.asleepMin);
+  return m > 0 ? Math.round((m / 60) * 10) / 10 : null;
 }
 
 /** The felt sleep of today from «Wi gaht's?» (erholung.schlaf, 1–10) or null. */

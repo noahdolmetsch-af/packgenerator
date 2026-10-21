@@ -7,7 +7,7 @@
  *
  * Setting 'eatRemind' (db.settings, backup and sync like the other settings):
  * { on, every (minutes), from (ms, the start), until (ms, the planned end), last (ms, eaten or snoozed),
- *   tripId }. Pure functions, tested in tests/unterwegs-essen.test.js.
+ *   tripId, sound (Paket X, Noah «2a»: a soft tone, false = no tone) }. Pure functions, tested in tests/unterwegs-essen.test.js.
  */
 export const EAT_KEY = 'eatRemind';
 export const EVERY = [30, 45, 60];
@@ -26,13 +26,13 @@ export function eatOf(v, now = Date.now()) {
   if (!v || v.on !== true || !Number.isFinite(v.from)) return null;
   const until = Number.isFinite(v.until) && v.until > v.from ? v.until : v.from + MAX_H * 36e5;
   if (now > until) return null;
-  return { on: true, every: everyOf(v.every), from: v.from, until, last: Number.isFinite(v.last) ? v.last : v.from, tripId: v.tripId ?? null };
+  return { on: true, every: everyOf(v.every), from: v.from, until, last: Number.isFinite(v.last) ? v.last : v.from, tripId: v.tripId ?? null, sound: v.sound !== false };
 }
 
 /** Start: from now, until the planned end of the day's riding (ms) or MAX_H. */
-export function startEat({ every = EVERY_STD, now = Date.now(), until = null, tripId = null } = {}) {
+export function startEat({ every = EVERY_STD, now = Date.now(), until = null, tripId = null, sound = true } = {}) {
   const end = Number.isFinite(until) && until > now + MIN ? until : now + MAX_H * 36e5;
-  return { on: true, every: everyOf(every), from: now, until: end, last: now, tripId };
+  return { on: true, every: everyOf(every), from: now, until: end, last: now, tripId, sound: sound !== false };
 }
 
 /** The next time to eat (ms), or null when nothing comes before the end. */
