@@ -24,6 +24,7 @@
   import RouteCard from './RouteCard.svelte';
   import WeightCard from './WeightCard.svelte';
   import StagesCard from './StagesCard.svelte';
+  import DoorCard from '../haustuer/DoorCard.svelte';
   import EventStart from './EventStart.svelte';
   import TripWeather from './TripWeather.svelte';
   import LessonsCard from './LessonsCard.svelte';
@@ -274,12 +275,15 @@
           <LessonsCard {lessons} {reminders} />
           <!-- P3b «Daten sicher» (D3/D4): «ID and cash with you?» and the other papers marked for the packing list -->
           <DocChecks {trip} />
+          <!-- Paket W «Von der Haustür bis zurück» (Noah 20.10.2026): plan B, check-in, «Gut angekommen» -->
+          <DoorCard {trip} />
           <!-- Planungs-Notizen (IS 246–249): what comes to mind while planning; «Daraus wird …» -->
           <PlanNotesCard {trip} {bike} {fixed} />
         </div>
       </div>
     {:else}
       <PlanNotesCard {trip} {bike} {fixed} />
+      <DoorCard {trip} />
     {/if}
     <!-- Gesamttest 20.10 Design / UI-Grundlagen (idea 1): the tip of the day after the first content part -->
     <TipLine page="pack" name={t('Pack')} />

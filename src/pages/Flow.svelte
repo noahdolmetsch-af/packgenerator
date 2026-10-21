@@ -7,6 +7,8 @@
    *   #/flow/edit/<id>   edit one activity; #/flow/new a new one (the same form, empty)
    *   #/flow/training    «Training» TR2: every Strava activity with its heart rate zones (pages/flow/Training.svelte);
    *                      …/a/<id> one activity (TR3, TrainingAct.svelte)
+   *   #/flow/form        «Form und Erholung» (Noah 20.10.2026): readiness, 12 weeks, tour readiness (pages/flow/Form.svelte, lazy)
+   *   #/flow/stats/<id>  Garmin-Übersicht: one sport (bike, run, hike, other) or «hr» the heart rate (pages/flow/Stats.svelte, lazy)
    *   #/flow/plans       «Trainingspläne»: sample plans for ultracycling, …/<id> one plan (pages/flow/TrainingPlans.svelte, lazy)
    *   #/flow/activity    hobby pages 1: Aktiv › Aktivität (pages/flow/Activity.svelte)
  *   #/flow/sports      Paket O «Sportarten»: every sport, its colour and the mosaic (pages/flow/Sports.svelte, lazy);
@@ -48,7 +50,6 @@
   import TickGrid from '../lib/flow/TickGrid.svelte';
   import Sec from '../lib/flow/kit/Sec.svelte';
   import YearGoals from '../lib/flow/YearGoals.svelte';
-  import AzmWeek from '../lib/health/AzmWeek.svelte';
   import Rows from '../lib/flow/kit/Rows.svelte';
   import Crumb from '../lib/flow/kit/Crumb.svelte';
   import GoalPath from '../lib/flow/kit/GoalPath.svelte';
@@ -63,7 +64,8 @@
   import ActIcon from '../lib/flow/ActIcon.svelte';
   import ActEditor from '../lib/flow/ActEditor.svelte';
   import GoneActs from '../lib/flow/GoneActs.svelte';
-  import WeekNumbers from '../lib/flow/WeekNumbers.svelte';
+  import Overview from '../lib/flow/garmin/Overview.svelte';
+  import FormCard from '../lib/flow/form/FormCard.svelte';
   import Activity from './flow/Activity.svelte';
   import Training from './flow/Training.svelte';
   import TrainingAct from './flow/TrainingAct.svelte';
@@ -238,6 +240,12 @@
 {:else if route[0] === 'auswertung'}
   <!-- «Auswertung wie Training» (Noah 20.10.2026): what you tick, evaluated like a ride; loaded only when opened -->
   {#await import('./flow/TickReview.svelte') then m}<m.default {params} />{:catch}<p class="hint" role="alert">{t('This page could not load. Please check the connection and try again.')}</p>{/await}
+{:else if route[0] === 'form'}
+  <!-- «Form und Erholung» (Noah 20.10.2026 «3a»): loaded only when opened -->
+  {#await import('./flow/Form.svelte') then m}<m.default />{:catch}<p class="hint" role="alert">{t('This page could not load. Please check the connection and try again.')}</p>{/await}
+{:else if route[0] === 'stats'}
+  <!-- Garmin-Übersicht: one sport or the heart rate, 7 days / 4 weeks / 1 year -->
+  {#await import('./flow/Stats.svelte') then m}{#key route[1]}<m.default id={decodeURIComponent(route[1] ?? 'bike')} />{/key}{:catch}<p class="hint" role="alert">{t('This page could not load. Please check the connection and try again.')}</p>{/await}
 {:else if route[0] === 'sports'}
   <!-- Paket O «Sportarten»: loaded only when opened (main.js stays small) -->
   {#await import('./flow/Sports.svelte') then m}<m.default />{/await}
@@ -361,6 +369,8 @@
     {:else if data}
       <!-- «Inhalte Flow» IF1 (Noah 14.10.2026, approved 04:32): the tip of the day, at the end the fold and the tiles -->
       <!-- Noah 19.10 «2a»: one card per page; the Einstieg lives in the card «Was hier steht» (its own card only while the page is empty) -->
+      <!-- «Form und Erholung» (Noah 20.10.2026 «2b 3a»): the readiness of today, on top -->
+      <FormCard {today} />
       <HintCard page="aktiv" intro="aktiv" />
       <MoreAktiv items={pages} />
       <div class="lay">
@@ -389,8 +399,7 @@
                   <a class="link" href="#/flow/goals">{t('Change in Goals')}</a>
                 </details>
               {/if}
-              <!-- Impeccable runde 2 made the active zone minutes one place under the rings; G (Noah 19.10.2026 «1b»): this week from Fitbit, one bar per day -->
-              <AzmWeek {today} />
+              <!-- the active zone minutes of the week moved into «Überblick» (Garmin-Übersicht 20.10.2026) -->
               <!-- «Aktiv neu» (Noah 20.10.2026): what the rings and the minutes mean -->
               <details class="restf" data-ring-help>
                 <summary><span>{t('What do the rings mean?')}</span></summary>
@@ -399,11 +408,11 @@
               </details>
             </div>
           </Sec>
-          <!-- «Aktiv neu» (Noah 20.10.2026 «2a»): «Deine Woche in Zahlen» replaces «Velo diesen Monat» -->
-          <Sec id="km-h" title={t('Your week in numbers')} sub={t('last 7 days · compared with your usual week')}>
-            <WeekNumbers {today} />
+          <!-- Garmin-Übersicht (Noah 20.10.2026 «1:1 nachbauen»): today, «Im Fokus», «Überblick» and «Letzte 7 Tage»
+               with «Deine Woche in Zahlen» (Noah «2a», replaced «Velo diesen Monat») -->
+          <Overview {today}>
             {#if kmWaiting}<a class="kmwait" href={CHECK_HASH} data-km-waiting>{tn(kmWaiting, '{n} Strava ride without a bike waits in «To check»: it counts after «Fits»', '{n} Strava rides without a bike wait in «To check»: they count after «Fits»')} ›</a>{/if}
-          </Sec>
+          </Overview>
         </div>
         <aside class="col">
           <!-- WG: the daily check is «Wi gaht's?» now; the section keeps today's values and the 7 days -->

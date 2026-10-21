@@ -50,7 +50,7 @@ Durchgehende Grundsätze: Alles ist ein Vorschlag, nie Pflicht, und immer änder
 
 ## Stand heute (19.10.2026, live 0.152.0)
 
-**Nachtrag 20.10.2026:** 0.159.0 Rennen, 0.160.0 Verpflegung mit Trainingsplan-Kopplung und Kachel «Das tut mir gut», 0.161.0 Tour-Seite (Ziel aus Touren lernen), 0.162.0 zehn kleine Korrekturen aus dem Gesamttest, 0.163.0 Gesamttest Runde 2, 0.164.0 Tests automatisieren, 0.165.0 Heute neu A «Ein Blick», 0.166.0 Neueste Version laden, 0.166.1 Heute am Handy, 0.167.0 Balken «Jetzt laden», 0.168.0 Tour-Seite Gepäck, Aktiv-Kacheln, Tour planen mit GPX, Kartengrund und KI-Schlüssel-Hinweis, 0.169.0 Neue Leiste (Heute · Planen · Touren · Auswerten · Velos), Heute neu N2 und UI-Grundlagen (Ziel «Eine App, die mich im Alltag unterstützt»).
+**Nachtrag 20.10.2026:** 0.159.0 Rennen, 0.160.0 Verpflegung mit Trainingsplan-Kopplung und Kachel «Das tut mir gut», 0.161.0 Tour-Seite (Ziel aus Touren lernen), 0.162.0 zehn kleine Korrekturen aus dem Gesamttest, 0.163.0 Gesamttest Runde 2, 0.164.0 Tests automatisieren, 0.165.0 Heute neu A «Ein Blick», 0.166.0 Neueste Version laden, 0.166.1 Heute am Handy, 0.167.0 Balken «Jetzt laden», 0.168.0 Tour-Seite Gepäck, Aktiv-Kacheln, Tour planen mit GPX, Kartengrund und KI-Schlüssel-Hinweis, 0.169.0 Neue Leiste (Heute · Planen · Touren · Auswerten · Velos), Heute neu N2 und UI-Grundlagen, 0.170.0 Live-Karte Teile 1–3 mit Umweg, Tagebuch, Form und Erholung, Heatmap, Tour-Auswertung, Check-Fragen, Zürisee, Erster Start und Haustür bis zurück (Ziel «Eine App, die mich im Alltag unterstützt»).
 
 **Nachtrag 20.10.2026 spät (UI-Ziele #5, #8, #10, #18):** Paket «Eine Tour, eine Seite» (0.174) gebaut (Ziele «Touren vorbereiten» und «Aus Touren lernen»): jede Tour mit fünf Reitern bis zur Auswertung, die Lernschleife fragt nach der Tour, was gebraucht wurde, damit das nächste Packen leichter wird.
 
@@ -341,6 +341,7 @@ Vorhaben, die nach der ersten Fassung dieser Datei dazukamen. Alle sind einem de
 - **Heute und Aktiv** (Ziele 3 und 4): Heute neu (HN4), Tages-Check, Balance-Ring, Routine «Das tut mir gut», Aktiv mit Ziel-Prognose und Erholung → Paket C.
 - **Woche planen** (Ziel 3): eigener Ort «Woche», Sonntags-Planung, Ferien → Paket F (0.151.0, gebündelt auf C, 19.10.2026).
 - **Pläne und Träume** (Ziele 3 und Alltag, Noah 19.10.2026 «1a 2b 3a und b 4b 5 a und nutzer kann b ausschalten und ausblenden»): Traumtouren mit Saison, Rennen als Event-Tour, Mein Kompass mit Zielen in Schritten, Notizen verknüpfen, neue Notiz-Formate, Was kommt → Paket N.
+- **Tagebuch** (Ziel Alltag, Noah 20.10.2026 «1b … 2b … 3a … 4a 5a»): ein Tagebuch wie Day One mit Fotos, Ort, Wetter, Stichwörtern, Kalender, «An diesem Tag», 365 Fragen, Diktat, Sperre, Herunterladen und Teilen; Inhalte aus der App auf Tipp → eigenes Paket beim Bündler. Runde 2 (Noah «1a 2a 3a 4b 5a»): Gemini mit Häkchen, Stimmung mit Kurve, Abend-Erinnerung, Wortwolke und Serien, Jahrbuch als PDF.
 - **Noch ohne Paket:** Neuland, «Mehr selbst einstellen», Links nach aussen.
 
 ## Reihenfolge

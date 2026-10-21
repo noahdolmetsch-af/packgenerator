@@ -126,7 +126,7 @@ export default {
   'Training Stress Score (TSS)': 'Training Stress Score (TSS)',
   'Work': 'Arbeit',
   'Calories|gc': 'Kalorien',
-  'Total calories': 'Gesamtkalorien',
+  'Total calories': 'Kalorien gesamt',
   'Cadence|gc': 'Trittfrequenz',
   'Ø cadence|gc': 'Ø Trittfrequenz',
   'Height|gc': 'Höhe',

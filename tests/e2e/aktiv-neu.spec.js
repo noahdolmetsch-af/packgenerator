@@ -64,7 +64,8 @@ test('Aktiv: small tiles, the week in numbers, the rings and «Wi gaht\'s?» exp
 
   const wn = page.locator('[data-section="week-numbers"]');
   await expect(wn.locator('[data-wn]')).toHaveCount(6);
-  await expect(page.getByRole('heading', { name: T('Your week in numbers') })).toBeVisible();
+  // Garmin-Übersicht (20.10.2026, changed on purpose): the week in numbers sits under «Letzte 7 Tage»
+  await expect(page.getByRole('heading', { name: T('Last 7 days'), exact: true })).toBeVisible();
   // 21 km gravel today + 8 km run two days ago
   await expect(wn.locator('[data-wn="km"]')).toContainText('29');
   await expect(wn.locator('[data-wn="sleep"]')).toContainText(' h ');

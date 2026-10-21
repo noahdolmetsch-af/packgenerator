@@ -1,0 +1,46 @@
+/**
+ * «Check-Fragen selbst bearbeiten» (Noah 20.10.2026): «Überspringen» per question in the morning and evening
+ * check, and the questions and their areas (groups) changed, deleted, added and sorted under Ich › Deine Abfragen.
+ * In German the groups of the questions are «Bereiche», as the page has always called them. Swiss spelling (ss).
+ */
+export default {
+  'Skip|question': 'Überspringen',
+  'Skip «{q}»': '«{q}» überspringen',
+  'Show {n} skipped question again': '{n} übersprungene Frage wieder zeigen',
+  'Show {n} skipped questions again': '{n} übersprungene Fragen wieder zeigen',
+  'Edit questions and groups': 'Fragen und Bereiche bearbeiten',
+  'Groups|questions': 'Bereiche',
+  'Group|questions': 'Bereich',
+  'Sort with the arrows or drag the handle. Deleting a group asks where its questions go; no question is deleted with it.': 'Mit den Pfeilen sortieren oder am Griff ziehen. Beim Löschen eines Bereichs fragt die App, wohin seine Fragen kommen; keine Frage wird mitgelöscht.',
+  'always last · for questions without a group': 'immer zuletzt · für Fragen ohne Bereich',
+  'Name of the new group|questions': 'Name des neuen Bereichs',
+  'New group, e.g. Work': 'Neuer Bereich, z. B. Arbeit',
+  'Add group': 'Bereich hinzufügen',
+  'own|question': 'eigene',
+  'changed|question': 'geändert',
+  'sample|question': 'Muster',
+  'Delete «{q}»': '«{q}» löschen',
+  'Delete «{q}»?': '«{q}» löschen?',
+  'New question in «{name}»': 'Neue Frage in «{name}»',
+  'Deleted questions ({n})': 'Gelöschte Fragen ({n})',
+  'Texts, groups and order of the app come back; your own questions and the switches stay.': 'Texte, Bereiche und Reihenfolge der App kommen zurück; deine eigenen Fragen und die Schalter bleiben.',
+  'Rename group|questions': 'Bereich umbenennen',
+  'Delete group «{name}»?|questions': 'Bereich «{name}» löschen?',
+  '1 question': '1 Frage',
+  '{n} questions': '{n} Fragen',
+  'The questions stay and show under «{name}».': 'Die Fragen bleiben und stehen unter «{name}».',
+  'Your own question goes. Its answers stay in the history.': 'Deine eigene Frage geht. Ihre Antworten bleiben im Verlauf.',
+  'The question no longer asks. Its answers stay in the history. «Deleted questions» brings it back.': 'Die Frage kommt nicht mehr. Ihre Antworten bleiben im Verlauf. «Gelöschte Fragen» holt sie zurück.',
+  '«{q}» deleted.': '«{q}» gelöscht.',
+  'Group «{name}» deleted.|questions': 'Bereich «{name}» gelöscht.',
+  'Group «{name}» added.': 'Bereich «{name}» hinzugefügt.',
+  'Questions and groups back to standard.': 'Fragen und Bereiche zurück auf Standard.',
+  '«{q}» is back.': '«{q}» ist zurück.',
+  'Question|text': 'Frage',
+  'Empty brings back the app’s wording. The answers so far stay with the question.': 'Leer bringt den Text der App zurück. Die bisherigen Antworten bleiben bei der Frage.',
+  'the answer kind of this question stays, so the history keeps fitting': 'die Antwortart dieser Frage bleibt, damit der Verlauf weiter passt',
+  // features, handbook, howto
+  'Playful questions with their own rhythm, a morning and an evening round, a history and an analysis. Change, delete, add and sort questions and areas yourself; skip a single question.': 'Verspielte Fragen mit eigenem Rhythmus, eine Morgen- und eine Abendrunde, ein Verlauf und eine Auswertung. Fragen und Bereiche selbst ändern, löschen, hinzufügen und sortieren; einzelne Fragen überspringen.',
+  'Switch questions on or off; «Edit questions and groups» changes and sorts them.': 'Schalte Fragen ein oder aus; «Fragen und Bereiche bearbeiten» ändert und sortiert sie.',
+  'From 07:00 and 20:30 the card on Today asks them; «Skip» puts one question away.': 'Ab 07:00 und 20:30 stellt sie die Karte auf Heute; «Überspringen» legt eine Frage weg.',
+};

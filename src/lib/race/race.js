@@ -322,7 +322,7 @@ export function snap(pts, p) {
     const off = distKm(q, p);
     if (off < best.offKm) best = { km: a.km + (b.km - a.km) * f, offKm: off };
   }
-  return { km: Math.round(best.km * 10) / 10, offKm: Math.round(best.offKm * 100) / 100 };
+  return { km: Math.round(best.km * 10) / 10, offKm: Math.round(best.offKm * 100) / 100, kmx: best.km };
 }
 
 /** Points every stepKm along the route (start and end included), for the weather and the countries. */
