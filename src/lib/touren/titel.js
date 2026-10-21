@@ -13,6 +13,8 @@ import { loadActs } from '../review/actdata.js';
 export function looksLikeFile(s) {
   const v = String(s ?? '').trim();
   if (!v) return false;
+  // the app's own quick-start name, the time stamp YYYYMMDDHHmm (quickstart.js stampName), is a name on purpose
+  if (/^\d{12}$/.test(v)) return false;
   if (/\.(gpx|fit|tcx|kml|kmz)$/i.test(v)) return true;
   if (/\s/.test(v)) return false;
   if (/\d{6,}/.test(v)) return true;

@@ -8,7 +8,7 @@ describe('looksLikeFile (tour critique 2b)', () => {
     for (const s of ['COURSE_2026-10-12_143022', 'Tour_Zuerich_Uetliberg.gpx', 'track.GPX', 'test_data_gtp_ride', 'tour-am-see-2', 'MorningRideAmSee', '20261012143022', 'activity_123456']) expect(looksLikeFile(s), s).toBe(true);
   });
   it('leaves names people give', () => {
-    for (const s of ['Morning Ride', 'Herbsttour am See', 'Uetliberg', 'Zürich–Bern', 'Ride 2', 'Sankt-Gallen', '', null]) expect(looksLikeFile(s), String(s)).toBe(false);
+    for (const s of ['Morning Ride', 'Herbsttour am See', 'Uetliberg', 'Zürich–Bern', 'Ride 2', 'Sankt-Gallen', '202610090900', '', null]) expect(looksLikeFile(s), String(s)).toBe(false);
   });
 });
 
