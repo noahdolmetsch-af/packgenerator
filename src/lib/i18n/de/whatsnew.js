@@ -1557,4 +1557,13 @@ export default {
   'Plan and reality after the tour': 'Plan und echt nach der Tour',
   'Open Ski tours, tap «Plan the tour» and tap a danger level.': 'Öffne Skitouren, tippe auf «Tour planen» und dann auf eine Gefahrenstufe.',
   'Open Ski tours › Season and add a wish tour.': 'Öffne Skitouren › Saison und füge eine Wunschtour hinzu.',
+  // v0.179.0 «Packen und Strom»
+  'Packed and charged': 'Gepackt und geladen',
+  'New things straight into the bag.': 'Neues gleich in die Tasche.',
+  'New item straight into the bag': 'Neues Teil gleich in die Tasche',
+  'Measure the charging time once': 'Ladezeit einmal messen',
+  'Light levels with their hours': 'Leuchtstufen mit ihren Stunden',
+  'Repair kit is no device any more': 'Flickzeug ist kein Gerät mehr',
+  'Open Packen, «Add material», and tap «Add a new item and pack it».': 'Öffne Packen, «Material ergänzen», und tippe auf «Neues Teil erfassen und einpacken».',
+  'Open a lamp in Gear, the row «Power», and add a light level.': 'Öffne eine Lampe im Material, die Zeile «Strom», und füge eine Leuchtstufe hinzu.',
 };

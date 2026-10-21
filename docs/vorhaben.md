@@ -54,6 +54,8 @@ Durchgehende Grundsätze: Alles ist ein Vorschlag, nie Pflicht, und immer änder
 
 **Nachtrag 21.10.2026 (Ziel «Alltag», Regel «Alles selbst ändern»):** 0.175.0 «Eigene Werte und alle Daten anpassbar» gebaut: eigene Werte und Erinnerungen, eigene Körperwerte, sechs neue Listen, keine Browser-Fragen mehr. Bestandsaufnahme der übrigen Lücken: notes/eigene-werte-alles-anpassbar/bestandsaufnahme.md im Projektordner.
 
+**Nachtrag 21.10.2026, Nacht:** 0.179.0 Mockup-Paket P1 «Packen und Strom» (Ziel 1 «Schneller packen»: neues Teil gleich einpacken; Strom-Werte und Ladezeit für die Strom-Rechnung). Nächstes Paket P6 «Heute ergänzen».
+
 **Nachtrag 21.10.2026, später Abend:** 0.178.0 Mockup-Paket P2 «Skitour» (Ziel 3 «Von der Haustür bis zurück»: Tour planen, Gipfel erreicht, Plan und Wirklichkeit; Ziel 1 «Schneller packen»: Ski-Plan im Vorabend-Check). Nächstes Paket P1 «Packen und Strom».
 
 **Nachtrag 21.10.2026, abends:** 0.176.1 Fitbit-Fix, 0.177.0 «Wie Strava, nur ruhiger» als ein Paket (Ziel 4 «Aus jeder Tour lernen»: Strava 1:1 und Zeitleiste; Ziel 1 «Schneller packen»: Packliste aufräumen; Ziel 5 «Alltag»: Tages-Check, Gesamttest-Korrekturen). Danach die freigegebenen Mockup-Pakete P1–P8 (Noah «1a 2b 3a 4a 5b 6a 7a»), siehe vorhaben-liste.md.

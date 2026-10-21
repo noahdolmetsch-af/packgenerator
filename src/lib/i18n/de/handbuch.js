@@ -1467,4 +1467,14 @@ export default {
   'Set a goal if you like, add wish tours, practice and courses.': 'Setz ein Ziel, wenn du willst, und füge Wunschtouren, Übungen und Kurse hinzu.',
   'Pick the ski in «After the tour»: its metres climbed add up here.': 'Wähle den Ski in «Nach der Tour»: Seine Höhenmeter zählen hier zusammen.',
   'Example: avalanche course two years ago → «Refresh» shows next to it.': 'Beispiel: Lawinenkurs vor zwei Jahren → daneben steht «Auffrischen».',
+  // Paket P1 «Packen und Strom» (0.179.0)
+  'Open Packen of a trip and «Add material».': 'Öffne Packen einer Tour und «Material ergänzen».',
+  'Tap «Add a new item and pack it» under the building blocks.': 'Tippe unter den Bausteinen auf «Neues Teil erfassen und einpacken».',
+  'Type the name and save: the item is in the chosen bag.': 'Gib den Namen ein und speichere: Das Teil liegt in der gewählten Tasche.',
+  'Example: a new rain cover → saved and packed in one go.': 'Beispiel: eine neue Regenhülle → in einem Schritt erfasst und eingepackt.',
+  'Only for items in Electronics or Lights.': 'Nur bei Teilen in Elektronik oder Licht.',
+  'Open an item and the row «Power».': 'Öffne ein Teil und die Zeile «Strom».',
+  'Type battery, run and charge time and choose where each value comes from.': 'Gib Akku, Leucht- und Ladezeit ein und wähle, woher jeder Wert kommt.',
+  'Or start the stopwatch when you plug it in and tap «Full · stop».': 'Oder starte beim Einstecken die Stoppuhr und tippe auf «Voll · stoppen».',
+  'Example: charges 3 h full → half about 1:12 h, a quarter about 36 min.': 'Beispiel: lädt voll 3 h → halb etwa 1:12 h, viertel etwa 36 min.',
 };
