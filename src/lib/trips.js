@@ -17,6 +17,7 @@ import { AID_KEY, aidLevel, aidFits } from './firstaid.js';
 import { isOver } from './debrief.js';
 import { localDay } from './localday.js';
 import { READY_DEFAULT } from './checks.js';
+import { byStdOrder } from './packrules.svelte.js';
 import { lastUsedId, setupOf, placeBySetup } from './setups.js';
 
 /** A fresh ready check: the saved standard (if any) or the suggested list, nothing ticked. */
@@ -29,8 +30,7 @@ export const freshReady = (standard = null, fallback = READY_DEFAULT) => (standa
  */
 export function alwaysEntries(items, entries, setup) {
   const on = new Set(entries.map((e) => e.itemId));
-  return items
-    .filter((i) => inStandard(i) && isInventory(i) && !on.has(i.id) && inDomain(i, BIKEPACKING))
+  return byStdOrder(items.filter((i) => inStandard(i) && isInventory(i) && !on.has(i.id) && inDomain(i, BIKEPACKING)))
     .map((i) => ({ itemId: i.id, slot: slotFor(i.defaultBag, setup), qty: 1, packed: false }));
 }
 
@@ -54,9 +54,10 @@ export function slotFor(defaultBag, setup) {
  * seven items to take out again.
  */
 export function standardEntries(items, setup, { overnight = true } = {}) {
-  return items
+  // «Packliste aufräumen»: «Immer dabei» in its own order (packrules stdOrder), the rest as before
+  return byStdOrder(items
     // v0.21.0: only items of the bikepacking area (an item only for the weekend stays out)
-    .filter((i) => isInventory(i) && inDomain(i, BIKEPACKING) && (isWorn(i) || inStandard(i) || (overnight && i.sets?.includes('bivy'))))
+    .filter((i) => isInventory(i) && inDomain(i, BIKEPACKING) && (isWorn(i) || inStandard(i) || (overnight && i.sets?.includes('bivy')))))
     .map((i) => ({ itemId: i.id, slot: isWorn(i) ? 'body' : slotFor(i.defaultBag, setup), qty: 1, packed: false }));
 }
 

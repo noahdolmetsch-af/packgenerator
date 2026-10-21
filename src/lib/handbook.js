@@ -151,6 +151,11 @@ export const HANDBOOK = {
     steps: ['Open Gear › Building blocks › «Check building blocks».', 'For each item: keep, out or elsewhere.'],
     example: 'Example: the stove in «Repair» → move it to «Cook».',
   },
+  'f.packcleanup': {
+    on: 'Needs a few items under Gear first.',
+    steps: ['Open Gear › Building blocks › «Tidy up».', 'Check the suggestion: always with you, Repair on a day ride, Light, cold.', 'Tap «Apply»; Undo comes right after.'],
+    example: 'Example: 32 things on every day ride → 9 always with you, Repair as a button.',
+  },
   'f.gearimport': {
     on: 'Needs a gear list as a file (e.g. a spreadsheet export).',
     steps: ['Open the gear import and choose the file.', 'Take the safe rows at once, the others one tap each.'],

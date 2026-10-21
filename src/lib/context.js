@@ -19,6 +19,7 @@ import { layerSuggest, applyLayers, rideHours } from './layers.js';
 import { slotFor } from './trips.js';
 import { inStandard, isWorn, blockKeys } from './blocks2026.js';
 import { AID_KEY, aidLevel, aidFits } from './firstaid.js';
+import { packRules, isDayRide, isBigRide } from './packrules.svelte.js';
 
 export const OVERNIGHT = ['none', 'lodging', 'outdoor'];
 
@@ -108,8 +109,12 @@ export function nightSets(trip) {
  * v0.66.0: the blocks the ride suggests (repair, charge; lights in the dark; race on an event), minus
  * the ones taken off. v0.72.0 (Noah 10a): first aid on every ride (its set: firstaid.js aidLevel).
  */
-export function rideSets(trip) {
-  const on = [AID_KEY, 'repair', 'charge', ...(trip?.dark ? ['lights'] : []), ...(trip?.event === true ? ['race'] : [])];
+export function rideSets(trip, rules = packRules()) {
+  // «Packliste aufräumen» (Noah 21.10.2026 «1b»): a block of rules.dayOff does not come by itself on a day
+  // ride (it stays a button in Packen); «3a»: Light also on every trip with a night and every race.
+  const day = isDayRide(trip);
+  const light = trip?.dark || (rules.lightAlways && isBigRide(trip));
+  const on = [AID_KEY, ...['repair', 'charge'].filter((k) => !(day && rules.dayOff.includes(k))), ...(light ? ['lights'] : []), ...(trip?.event === true ? ['race'] : [])];
   return on.filter((k) => trip?.sets?.[k] !== false);
 }
 
@@ -159,7 +164,10 @@ export function contextEntries(trip, items, { slotOf = null } = {}) {
   const sets = contextSets(trip);
   const level = aidLevel(trip);
   // v0.72.0 (Noah 10a): a first aid item comes only with its set (day trip: the small one).
-  const brings = (i) => i.sets?.some((s) => sets.includes(s) && (s !== AID_KEY || aidFits(i, level)));
+  // «Packliste aufräumen» (3a): an extra of Light (the head torch) comes only with a night or a race.
+  const extra = new Set(packRules().lightExtra);
+  const big = isBigRide(trip);
+  const brings = (i) => i.sets?.some((s) => sets.includes(s) && (s !== AID_KEY || aidFits(i, level)) && (s !== 'lights' || big || !extra.has(i.id)));
   for (const i of items) {
     if (!sets.length || have.has(i.id) || !isInventory(i) || !inDomain(i, BIKEPACKING) || !brings(i)) continue;
     out.push({ itemId: i.id, slot: isWorn(i) ? 'body' : slot(i.id), qty: 1, packed: false, src: 'context' });

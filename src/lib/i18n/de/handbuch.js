@@ -1447,4 +1447,9 @@ export default {
   'Example: frame bag, seat pack and handlebar bag in three columns, the ready check as the fourth.': 'Beispiel: Rahmentasche, Satteltasche und Lenkertasche in drei Spalten, der Bereit-Check als vierte.',
   'Tap a file: the app shows it, also LibreOffice and RTF; a GPX as a small map, a calendar file with «Into my calendar».':
     'Tippe auf eine Datei: Die App zeigt sie, auch LibreOffice und RTF; ein GPX als kleine Karte, eine Kalenderdatei mit «In meinen Kalender».',
+  // «Packliste aufräumen» (Noah 21.10.2026 «5a»)
+  'Open Gear › Building blocks › «Tidy up».': 'Öffne Material › Bausteine › «Aufräumen».',
+  'Check the suggestion: always with you, Repair on a day ride, Light, cold.': 'Prüfe den Vorschlag: Immer dabei, Reparatur auf Tagestouren, Licht, Kälte.',
+  'Tap «Apply»; Undo comes right after.': 'Tippe «Übernehmen»; gleich danach kommt «Rückgängig».',
+  'Example: 32 things on every day ride → 9 always with you, Repair as a button.': 'Beispiel: 32 Teile auf jeder Tagestour → 9 immer dabei, Reparatur als Knopf.',
 };

@@ -15,6 +15,7 @@
   import { parseBikesHash } from './lib/bikes.js';
   import { liveQuery } from 'dexie';
   import { rainLimitOf, setRainLimit } from './lib/rainlimit.svelte.js';
+  import { PACK_RULES_KEY, setPackRules } from './lib/packrules.svelte.js';
   import { db } from './lib/db.js';
   import { watchTourBike } from './lib/tourbike.svelte.js';
   import { watchVeloImGriff } from './lib/veloimgriff.svelte.js';
@@ -284,6 +285,9 @@
   // v0.144.0 RE «Regen überall gleich»: the one rain limit (Bausteine › Regen) for every page, kept current.
   const rainQ = liveQuery(() => db.settings.get('sets'));
   $effect(() => setRainLimit(rainLimitOf($rainQ?.value)));
+  // «Packliste aufräumen»: the rules of what comes along by itself (Repair on a day ride, Light, head torch, order)
+  const packRulesQ = liveQuery(() => db.settings.get(PACK_RULES_KEY));
+  $effect(() => setPackRules($packRulesQ?.value));
   // «Mehr selbst einstellen» (IS 254–255): Ich › Eigene Werte, live for every page (ownlive.svelte.js).
   const ownQ = liveQuery(() => db.settings.get(OWN_KEY));
   $effect(() => useOwn($ownQ?.value));
@@ -333,6 +337,7 @@
     Live: () => import('./pages/Live.svelte'),
     Blocks: () => import('./pages/Blocks.svelte'),
     BlockCheck: () => import('./pages/BlockCheck.svelte'),
+    PackCleanup: () => import('./pages/PackCleanup.svelte'), // «Packliste aufräumen» (Noah 21.10.2026 «5a»)
     Check: () => import('./pages/Check.svelte'),
     CheckQuestions: () => import('./pages/CheckQuestions.svelte'),
     Routine: () => import('./pages/Routine.svelte'),
@@ -450,7 +455,7 @@
 <DbWaitLine />
 {#if !mini && !guest}<ComebackWindow care={$dueQ ?? 0} inbox={$inboxQ ?? 0} /><YearCheckWindow {hash} /><DiaryReminder {hash} />{/if}
 
-<main class:calm class:wide={page === 'pack' || page === 'ride' || page === 'debrief' || page === 'rides' || page === 'stravarides' || page === 'past' || page === 'templates' || page === 'gear' || page === 'supplies' || page === 'power' || page === 'fuel' || page === 'tour' || page === 'lend' || page === 'blocks' || page === 'blockcheck' || page === 'home' || page === 'features' || page === 'wardrobe' || page === 'flow' || page === 'timer' || page === 'check' || page === 'routine' || page === 'week' || page === 'neuland' || page === 'heatmap' || page === 'dreams'} class:bar={!wide.matches || !!mini}>
+<main class:calm class:wide={page === 'pack' || page === 'ride' || page === 'debrief' || page === 'rides' || page === 'stravarides' || page === 'past' || page === 'templates' || page === 'gear' || page === 'supplies' || page === 'power' || page === 'fuel' || page === 'tour' || page === 'lend' || page === 'blocks' || page === 'blockcheck' || page === 'packcleanup' || page === 'home' || page === 'features' || page === 'wardrobe' || page === 'flow' || page === 'timer' || page === 'check' || page === 'routine' || page === 'week' || page === 'neuland' || page === 'heatmap' || page === 'dreams'} class:bar={!wide.matches || !!mini}>
   {#if !calm && !guest && !mini}<PlaceTabs {place} {hash} {moved} onclosemoved={() => (moved = null)} />{/if}
   <!-- AU1 «1b»: on a phone Velos and Ausrüstung share a slot. Gesamttest 20.10.2026 B7: the switch stands only
        on Ausrüstung (the way back); Velos already has its tabs and path, Ausrüstung is one row on Velos › Übersicht -->
@@ -516,6 +521,9 @@
   {:else if page === 'spurlink'}
     <!-- Paket S «Reise-Spur»: what the family sees behind the read link -->
     {#key hash}<LazyPage load={PAGES.SpurLink} {hash} />{/key}
+  {:else if page === 'packcleanup'}
+    <!-- «Packliste aufräumen» (Noah 21.10.2026 «5a»): Bausteine › Packliste aufräumen -->
+    <LazyPage load={PAGES.PackCleanup} />
   {:else if page === 'blockcheck'}
     <!-- v0.66.0 (Noah 4a): «Bausteine prüfen», one block after the other -->
     <LazyPage load={PAGES.BlockCheck} />

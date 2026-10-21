@@ -93,6 +93,7 @@ const OWN = [
   { id: 'f.select', group: 'before', title: 'Select many items', text: 'Category, bag, archive or a building block for many items at once.', href: '#/gear', words: 'auswählen mehrere viele' },
   { id: 'f.merge', group: 'before', title: 'Merge duplicates', text: '«Merge with …» at the bottom of an item joins two items into one.', href: '#/gear', words: 'doppelt zusammenlegen zusammenführen' },
   { id: 'f.blockcheck', group: 'before', title: 'Check building blocks', text: 'One block after the other: keep, out or elsewhere.', href: '#/blocks/check', words: 'bausteine prüfen aufräumen' },
+  { id: 'f.packcleanup', group: 'before', title: 'Tidy up the packing list', text: 'Fewer things that come by themselves: always with you in your order, Repair on a day ride as a button, Light early and late, three steps of cold.', href: '#/blocks/aufraeumen', words: 'packliste aufräumen bereinigen immer dabei standard reparatur licht stirnlampe kalt eisig' },
   { id: 'f.gearimport', group: 'before', title: 'Import a gear list', text: 'Check an imported list: take the safe rows, the others with one tap each.', href: '#/gear/import', words: 'import liste excel' },
   // Packing and on the way
   { id: 'f.tripcheck', group: 'onway', title: 'Checks before and after', text: 'The evening before and after the trip: a list per trip type, tick, sort, add, for one trip or all.', href: '#/me/checks', words: 'vorabend check schluss check lawinenbulletin felle trocknen' },
