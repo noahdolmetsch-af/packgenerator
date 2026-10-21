@@ -1396,6 +1396,13 @@ export default {
   'A test keeps every page short on the phone': 'Ein Test hält jede Seite am Handy kurz',
   'Tap Plan in the bar: the tabs show Week, Appointments, Notes, Inbox and more.': 'Tippe in der Leiste auf Planen: Die Reiter zeigen Woche, Termine, Notizen, Eingang und mehr.',
   'Tap Analysis, then the tab Rides: your Strava rides are there.': 'Tippe auf Auswerten, dann auf den Reiter Fahrten: Dort sind deine Strava-Fahrten.',
+  // v0.170.1 «Abgleich ruhig»
+  'Sync stays quiet': 'Abgleich bleibt ruhig',
+  'No more questions about values the app keeps for itself.': 'Keine Fragen mehr zu Werten, die die App selbst speichert.',
+  'The sync no longer asks about values the app saves itself (e.g. the last Strava fetch)': 'Der Abgleich fragt nicht mehr nach Werten, die die App selbst speichert (z. B. letzter Strava-Abruf)',
+  '«Decide later» now gives an hour of quiet': '«Später entscheiden» gibt jetzt eine Stunde Ruhe',
+  'Tap around Today and Plan on the phone: the sync window stays closed.': 'Tippe am Handy durch Heute und Planen: Das Abgleich-Fenster bleibt zu.',
+  'If it opens, tap «Decide later»: it stays closed for an hour.': 'Falls es aufgeht, tippe «Später entscheiden»: Es bleibt eine Stunde zu.',
   // v0.166.0 «Neueste Version laden»
   'Tours and Aktiv': 'Touren und Aktiv',
   'Gear, climbs, Aktiv anew.': 'Gepäck, Anstiege, Aktiv neu.',
