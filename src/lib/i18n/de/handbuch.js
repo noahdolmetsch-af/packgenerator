@@ -1457,4 +1457,14 @@ export default {
   'Open Me › Data and backup › English names.': 'Öffne Ich › Daten und Backup › Englische Namen.',
   'Tap «Take over» for a suggestion, or «Do not suggest».': 'Tippe bei einem Vorschlag auf «Übernehmen» oder «Nicht vorschlagen».',
   'Example: «Food pouch left» → «Verpflegungstasche links».': 'Beispiel: «Food pouch left» → «Verpflegungstasche links».',
+  // Paket P2 «Skitour» (0.178.0)
+  'Needs a planned ski tour.': 'Braucht eine geplante Skitour.',
+  'Open Ski tours and tap «Plan the tour» on the next tour.': 'Öffne Skitouren und tippe bei der nächsten Tour auf «Tour planen».',
+  'Tap the danger level of the bulletin and fill in what helps: your morning, conditions, metres and time.': 'Tippe die Gefahrenstufe aus dem Bulletin an und fülle aus, was hilft: deinen Morgen, Verhältnisse, Höhenmeter und Zeit.',
+  'After the tour «After the tour» shows plan and reality side by side.': 'Nach der Tour zeigt «Nach der Tour» Plan und echt nebeneinander.',
+  'Example: level 3+, up at 05:40, peak planned 11:30 → reached at 11:50, 20 minutes later.': 'Beispiel: Stufe 3+, auf um 05:40, Gipfel geplant 11:30 → erreicht 11:50, 20 Minuten später.',
+  'Open Ski tours › Season.': 'Öffne Skitouren › Saison.',
+  'Set a goal if you like, add wish tours, practice and courses.': 'Setz ein Ziel, wenn du willst, und füge Wunschtouren, Übungen und Kurse hinzu.',
+  'Pick the ski in «After the tour»: its metres climbed add up here.': 'Wähle den Ski in «Nach der Tour»: Seine Höhenmeter zählen hier zusammen.',
+  'Example: avalanche course two years ago → «Refresh» shows next to it.': 'Beispiel: Lawinenkurs vor zwei Jahren → daneben steht «Auffrischen».',
 };

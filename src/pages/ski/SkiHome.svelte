@@ -7,13 +7,16 @@
    * Noah 15.10.2026 «1a» (Planen und Unterwegs first): SKB1 «Letztes Mal hier» and SKB3 the daylight on the
    * card; SKB5 on the tour day, once started, the card «Unterwegs» on top: the time to the turnaround and
    * the decision points, each ticked with its time (lib/skiday.js).
+   * Paket P2 (Noah 21.10.2026): the card shows the danger level and «Dein Morgen» with «Tour planen»
+   * (#/ski/plan); «Unterwegs» has «Gipfel erreicht»; the row «Saison» leads to #/ski/season.
    */
-  import { MountainSnow, Siren, Phone, ChevronRight, ShieldCheck, Wrench, PenLine, Ellipsis, Lightbulb, Plus, Sunrise, History, Check } from '@lucide/svelte';
+  import { MountainSnow, Siren, Phone, ChevronRight, ShieldCheck, Wrench, PenLine, Ellipsis, Lightbulb, Plus, Sunrise, History, Check, CalendarRange, Flag } from '@lucide/svelte';
   import { skiQuery, setSki, setTripFields } from '../../lib/ski/skidb.js';
   import SnowBox from '../../lib/mountain/SnowBox.svelte';
   import { CALLS, telOf } from '../../lib/mountain/sos.js';
   import { lastHere, daylight, underWay, reachPoint, clockOf, leftText, pointsOf } from '../../lib/skiday.js';
   import { durationText, nextSkiTrip, checkGroups, checkCount, seasonStats, careTasks, careState, careDue, seasonHm, lastWithoutNotes, lastPastSki, hmOf, CARE_PHASES, SKI } from '../../lib/ski.js';
+  import { dangerOf, dangerShort, morningRows, goalOf, daysToSeason } from '../../lib/skiplan.js';
   import { newTrip } from '../../lib/nav.js';
   import { localDay } from '../../lib/localday.js';
   import Empty from '../../lib/ui/Empty.svelte';
@@ -45,6 +48,15 @@
   const onTour = $derived(trips.find((x) => underWay(x, today, now)) ?? null);
   const way = $derived(onTour ? underWay(onTour, today, now) : null);
   const reach = (id) => setSki(onTour.id, (ski) => ({ points: reachPoint(pointsOf({ ski }), id, clockOf(new Date())) }));
+
+  /* Paket P2: the plan of the next tour, the peak tap, the season row */
+  const plan = $derived(nx?.trip?.ski?.plan ?? {});
+  const level = $derived(dangerOf(plan.level));
+  const morning = $derived(nx?.upcoming ? morningRows(nx.trip) : []);
+  const peakNow = () => setSki(onTour.id, { peakAt: clockOf(new Date()) });
+  const goal = $derived(goalOf(data?.goal, stats.id));
+  const wishesOpen = $derived((data?.wishes ?? []).filter((w) => !w.doneDay).length);
+  const toStart = daysToSeason(today);
 
   /* the care row: the phase of now and what is due */
   const tasks = $derived(careTasks(data?.tasks));
@@ -86,6 +98,11 @@
             {:else}
               <p class="sk-quiet">{t('No turnaround time set.')} <a href="#/ski/start/{encodeURIComponent(onTour.id)}">{t('Start check')}</a></p>
             {/if}
+            {#if onTour.ski?.peakAt}
+              <p class="sk-quiet peak num" data-peak-at>{t('At the peak at {time}. Well done, now take care on the way down.', { time: onTour.ski.peakAt })}</p>
+            {:else}
+              <button type="button" class="btn plan" onclick={peakNow} data-peak><Flag size={18} aria-hidden="true" />{t('Reached the peak')}</button>
+            {/if}
             {#if way.points.length}
               <ul class="sk-list wp">
                 {#each way.points as p (p.id)}
@@ -108,6 +125,12 @@
             {#if before}<p class="sk-quiet line" data-last-here><History size={16} aria-hidden="true" /><span>{t('Last time here: {day}', { day: longDay(before.day) })}{#if before.activeMin}{' · '}{t('{time} moving', { time: durationText(before.activeMin) })}{/if}{#if before.note}{' · «'}{before.note}{'»'}{/if}</span></p>{/if}
             <!-- Paket J #160 (Noah «… als sichtbar auf der skitouren seite»): freezing level and fresh snow -->
             {#if nx.upcoming}<SnowBox trip={trip} compact save={(f) => setTripFields(trip.id, f)} />{/if}
+            {#if nx.upcoming && (level || morning.length)}
+              <p class="sk-quiet line num" data-plan-line>
+                {#if level}<span class="pill" class:warn={level.level >= 3} data-level-pill={dangerShort(plan)}>{t('Danger {level}', { level: dangerShort(plan) })} · {t(level.name)}</span>{/if}
+                {#if morning.length}<span>{morning.slice(0, 3).map((r) => `${t(r.name)} ${r.time}`).join(' · ')}</span>{/if}
+              </p>
+            {/if}
             {#if light}<p class="sk-quiet line num" data-daylight><Sunrise size={16} aria-hidden="true" /><span>{light.rough ? t('Light from {rise} to {set} (roughly, in Switzerland)', light) : t('Light from {rise} to {set}', light)}</span></p>{/if}
             <a class="btn hi sk-go" href="#/ski/check/{encodeURIComponent(trip.id)}" data-to="check">{t('Open the backpack check')}<ChevronRight size={20} aria-hidden="true" /></a>
             {#if open.length}
@@ -117,7 +140,9 @@
             {:else}
               <p class="sk-quiet">{t('The list of this tour is empty. Add items in Pack.')}</p>
             {/if}
-            {#if !nx.upcoming}
+            {#if nx.upcoming}
+              <a class="btn plan" href="#/ski/plan/{encodeURIComponent(trip.id)}" data-to="plan"><CalendarRange size={18} aria-hidden="true" />{t('Plan the tour')}</a>
+            {:else}
               <button type="button" class="btn plan" onclick={() => newTrip('standard', SKI)}><Plus size={18} aria-hidden="true" />{t('Plan a ski tour')}</button>
             {/if}
           </section>
@@ -147,6 +172,13 @@
             <a class="sk-row" href={afterHref} data-row="after">
               <span class="sk-ri" aria-hidden="true"><PenLine size={20} /></span>
               <span class="sk-rt"><b>{t('After the tour')}</b><small>{#if toNote}{t('Last tour: {name}, not noted yet', { name: nameOf(toNote) })}{:else if lastPast}{t('Last tour: {name} · noted', { name: nameOf(lastPast) })}{:else}{t('After your first tour: peak, metres climbed, three questions')}{/if}</small></span>
+              <ChevronRight size={18} aria-hidden="true" />
+            </a>
+          </li>
+          <li>
+            <a class="sk-row" href="#/ski/season" data-row="season">
+              <span class="sk-ri" aria-hidden="true"><CalendarRange size={20} /></span>
+              <span class="sk-rt"><b>{t('Season')}</b><small>{toStart != null ? tn(toStart, 'In {n} day the season starts', 'In {n} days the season starts') : goal.tours ? t('{n} of {m} tours', { n: stats.tours, m: goal.tours }) : t('Goal, wish tours, transceiver practice, courses')}{#if wishesOpen}{' · '}{tn(wishesOpen, '{n} wish tour open', '{n} wish tours open')}{/if}</small></span>
               <ChevronRight size={18} aria-hidden="true" />
             </a>
           </li>
@@ -260,6 +292,21 @@
   }
   .way {
     margin-bottom: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .way .sk-kicker,
+  .way .sk-title {
+    margin: 0;
+  }
+  .peak {
+    margin: 0;
+  }
+  a.plan {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
   }
   .late {
     color: var(--warn);

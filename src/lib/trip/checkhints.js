@@ -6,6 +6,7 @@
 import { t, tn, num, locale } from '../i18n.svelte.js';
 import { RAIN } from '../trips.js';
 import { CHECK_LINKS } from '../checks.js';
+import { dangerOf, dangerShort } from '../skiplan.js';
 
 const wxText = (wx) => (wx?.min != null && wx?.max != null ? `${wx.min}–${wx.max} °C, ${t(RAIN[wx.rain ?? 'none'])}` : '');
 const routeText = (r) => (r?.km ? [r.name, `${num(Math.round(r.km))} km`, r.gainM ? `${num(Math.round(r.gainM))} ${t('m up|short')}` : null].filter(Boolean).join(' · ') : '');
@@ -37,6 +38,13 @@ export function checkChips(kind, { trip = null, notes = 0, debriefDone = false }
     if (wx) out.push({ key: 'wx', text: wx });
     const route = routeText(trip?.route);
     if (route) out.push({ key: 'route', text: route });
+    // Paket P2: a ski tour's plan (#/ski/plan) on top of the evening-before check
+    const plan = trip?.domain === 'ski' ? (trip.ski?.plan ?? {}) : {};
+    const level = dangerOf(plan.level);
+    if (level) out.push({ key: 'danger', text: t('Danger {level}', { level: dangerShort(plan) }) + ` · ${t(level.name)}` });
+    if (plan.temp != null && plan.temp !== '') out.push({ key: 'temp', text: `${plan.temp} °C` });
+    if (plan.wind) out.push({ key: 'wind', text: plan.wind });
+    if (trip?.domain === 'ski' && trip.ski?.trainAt) out.push({ key: 'train', text: t('Last train {time}', { time: trip.ski.trainAt }) });
   } else {
     if (notes) out.push({ key: 'notes', text: tn(notes, '{n} note on the way', '{n} notes on the way') });
     if (!debriefDone) out.push({ key: 'debrief', text: t('Debrief waiting') });

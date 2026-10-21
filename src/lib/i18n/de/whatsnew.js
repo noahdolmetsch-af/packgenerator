@@ -1548,4 +1548,13 @@ export default {
   'Fitbit: the values come in with «Fetch now»': 'Fitbit: Die Werte kommen mit «Jetzt holen»',
   'Open Me › Data and backup › Fitbit and tap «Fetch now».': 'Öffne Ich › Daten und Backup › Fitbit und tippe auf «Jetzt holen».',
   'Last night, resting pulse and steps show with today’s date.': 'Letzte Nacht, Ruhepuls und Schritte stehen mit dem heutigen Datum da.',
+  // v0.178.0 «Skitour»
+  'Ski tours, well planned': 'Skitouren, gut geplant',
+  'Plan the morning, enjoy the peak.': 'Den Morgen planen, den Gipfel geniessen.',
+  'Plan a ski tour with the danger level': 'Skitour mit Gefahrenstufe planen',
+  'Your ski touring season at a glance': 'Deine Skitouren-Saison auf einen Blick',
+  '«Reached the peak» on the way': '«Gipfel erreicht» unterwegs',
+  'Plan and reality after the tour': 'Plan und echt nach der Tour',
+  'Open Ski tours, tap «Plan the tour» and tap a danger level.': 'Öffne Skitouren, tippe auf «Tour planen» und dann auf eine Gefahrenstufe.',
+  'Open Ski tours › Season and add a wish tour.': 'Öffne Skitouren › Saison und füge eine Wunschtour hinzu.',
 };

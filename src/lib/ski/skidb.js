@@ -7,21 +7,38 @@ import { liveQuery } from 'dexie';
 import { db } from '../db.js';
 import { touched } from '../trips.js';
 import { CARE_KEY, CARE_TASKS_KEY, togglePacked, withStartChecks, afterLearnings, careEntry, mergeStrava } from '../ski.js';
+import { GOAL_KEY, WISHES_KEY, LVS_KEY, COURSES_KEY } from '../skiplan.js';
 
 export const STRAVA_KEY = 'ski.strava';
 
 /** Everything the ski pages show, live. */
 export const skiQuery = () =>
   liveQuery(async () => {
-    const [trips, items, learnings, care, tasks, strava] = await Promise.all([
+    const [trips, items, learnings, care, tasks, strava, goal, wishes, lvs, courses] = await Promise.all([
       db.trips.where('domain').equals('ski').toArray(),
       db.items.toArray(),
       db.learnings.toArray(),
       db.settings.get(CARE_KEY),
       db.settings.get(CARE_TASKS_KEY),
       db.settings.get(STRAVA_KEY),
+      db.settings.get(GOAL_KEY),
+      db.settings.get(WISHES_KEY),
+      db.settings.get(LVS_KEY),
+      db.settings.get(COURSES_KEY),
     ]);
-    return { trips, items, learnings, care: care?.value ?? [], tasks: tasks?.value ?? null, strava: strava?.value ?? [] };
+    return {
+      trips,
+      items,
+      learnings,
+      care: care?.value ?? [],
+      tasks: tasks?.value ?? null,
+      strava: strava?.value ?? [],
+      // Paket P2: the season goal, wish tours, transceiver practice and courses (lib/skiplan.js)
+      goal: goal?.value ?? {},
+      wishes: wishes?.value ?? [],
+      lvs: lvs?.value ?? [],
+      courses: courses?.value ?? [],
+    };
   });
 
 /** Tap in the backpack check: packed or not (the same field Pack uses). */
@@ -126,3 +143,20 @@ export async function setTripFields(tripId, fields) {
     if (trip) await db.trips.update(tripId, fields);
   });
 }
+
+/**
+ * Paket P2: change one of the ski settings ('ski.goal', 'ski.wishes', 'ski.lvs', 'ski.courses');
+ * fn gets the stored value (or `empty`) and returns the new one. Returns the value before (for Undo).
+ */
+export async function updSkiSetting(key, fn, empty = []) {
+  let before = empty;
+  await db.transaction('rw', db.settings, async () => {
+    const rec = await db.settings.get(key);
+    before = rec?.value ?? empty;
+    await db.settings.put({ key, value: fn(before) });
+  });
+  return before;
+}
+
+/** Paket P2: merge fields into trip.ski.plan (the planning page). */
+export const setPlan = (tripId, fields) => setSki(tripId, (ski) => ({ plan: { ...(ski.plan ?? {}), ...fields } }));

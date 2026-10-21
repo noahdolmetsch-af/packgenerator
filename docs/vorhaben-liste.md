@@ -22,7 +22,7 @@ Noah 21.10.2026 «1a 2b 3a 4a 5b 6a 7a» (alle offenen Mockups freigegeben; Abgl
 
 | Paket | Vorhaben | Ziel |
 |---|---|---|
-| P2 | Skitour | 1 Schneller packen, 3 Von der Haustür bis zurück |
+| P2 | Skitour (gebaut, 0.178.0) | 1 Schneller packen, 3 Von der Haustür bis zurück |
 | P1 | Packen und Strom | 1 Schneller packen |
 | P6 | Heute ergänzen | 5 Alltag |
 | P3 | Warum? und Regeln | 1 Schneller packen |

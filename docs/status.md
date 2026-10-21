@@ -4,6 +4,8 @@ Stand: 18. Oktober 2026. Der kurze Überblick steht im [Projektstand](projektsta
 
 ## Aktuell live
 
+**0.178.0 «Skitouren, gut geplant» (21.10.2026, Mockup-Paket P2):** Skitouren › Tour planen (#/ski/plan: Gefahrenstufe aus dem Bulletin von Hand, «Dein Morgen», Verhältnisse, Plan in Zahlen), «Gipfel erreicht» auf der Karte «Unterwegs», «Plan und Wirklichkeit» und «Dein Material» in Nach der Tour, Skitouren › Saison (#/ski/season: Ziel, Wunschtouren, Skitage, LVS-Übungen, Kurse, Höhenmeter pro Ski, letzte Saison), Ski-Plan als Chips im Vorabend-Check. Neue Einstellungen ski.goal, ski.wishes, ski.lvs, ski.courses und trip.ski.plan / peakAt; kein neues Dexie-Schema, kein Backup-Format geändert. Ohne Mockups gebaut.
+
 **0.177.0 «Wie Strava, nur ruhiger» (21.10.2026, ein Paket für alles nach 0.176):** Tour-Auswertung Lieferung 1+2 (Rückblick und Analyse 1:1 wie Strava, Zeitleiste aus Strava, lesbarer Tourname, Strava-Check #1–#10, Server detail kind 6), Tages-Check mit Datum und Uhrzeit, Gesamttest-Korrekturen C1–C9 mit deutschen Namen, Bausteine › Aufräumen, Ess-Erinnerung. Ohne Mockups gebaut; packgen deployt neu (api/strava.js).
 
 **0.176.1 «Fitbit-Werte kommen an» (21.10.2026, Fehlerbehebung):** Google Health lehnte jeden Fitbit-Wert mit 403 DISALLOWED_OAUTH_SCOPES ab, weil der eine Google-Login auch Mail, Kalender und Drive trägt. Der Server holt für Fitbit jetzt aus dem Refresh-Token einen eigenen Zugang nur mit den Health-Rechten (api/_lib/google.js healthToken, Schlüssel google:tokens:health). Ein Login bleibt für alles. Kein Dexie- oder Backup-Wechsel.
