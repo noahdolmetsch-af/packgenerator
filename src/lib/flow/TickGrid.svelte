@@ -147,7 +147,7 @@
     color: var(--hi);
   }
   .mind .ic {
-    color: var(--accent);
+    color: var(--l4);
   }
   .rest .ic {
     color: var(--l3);

@@ -116,7 +116,7 @@ export default {
   'Checklist and photos for train or plane': 'Checkliste und Fotos für Zug oder Flug',
   'What is in stock, what is missing': 'Was vorrätig ist, was fehlt',
   Reminders: 'Erinnerungen',
-  'After a ride in the rain: in the evening «Dry and oil the chain»': 'Nach einer Fahrt im Regen: am Abend «Kette trocknen und ölen»',
+  'After a ride in the rain: «Dry and oil the chain» here and at 19:00 on the phone': 'Nach einer Fahrt im Regen: «Kette trocknen und ölen» hier und um 19 Uhr aufs Handy',
   'A new wear photo every': 'Ein neues Verschleiss-Foto alle',
   'km between two wear photos': 'km zwischen zwei Verschleiss-Fotos',
   'Spring service: a reminder in': 'Frühlings-Service: eine Erinnerung im',

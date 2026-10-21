@@ -60,16 +60,16 @@ export default {
   'All hikes': 'Alle Wanderungen',
   'All weekends': 'Alle Weekends',
   'All world trips': 'Alle Weltreisen',
-  'All trips of this type': 'Alle Touren dieser Reiseart',
-  'Other trip types keep their own list.': 'Andere Reisearten behalten ihre eigene Liste.',
+  'All trips of this type': "Alle Touren dieser Tourart",
+  'Other trip types keep their own list.': "Andere Tourarten behalten ihre eigene Liste.",
   'Restore the suggestion': 'Vorschlag wiederherstellen',
 
   /* ---------- Ich › Checks pro Reiseart (mockup V4) ---------- */
-  'Checks per trip type': 'Checks pro Reiseart',
+  'Checks per trip type': "Checks pro Tourart",
   'The evening before and after the trip': 'Am Vorabend und nach der Tour',
   'Every trip type has its own evening-before and after-trip check. New trips start with it. Adjust it here or right in the trip.':
-    'Jede Reiseart hat ihren eigenen Vorabend- und Schluss-Check. Neue Touren starten damit. Anpassen geht hier oder direkt in der Tour.',
-  'Trip type': 'Reiseart',
+    "Jede Tourart hat ihren eigenen Vorabend- und Schluss-Check. Neue Touren starten damit. Anpassen geht hier oder direkt in der Tour.",
+  'Trip type': "Tourart",
   'The evening before': 'Am Vorabend',
   '{n} row': '{n} Punkt',
   '{n} rows': '{n} Punkte',
@@ -82,7 +82,7 @@ export default {
   '{area} · suggestions, you decide': '{area} · Vorschläge, du entscheidest',
   'missing {n} time · debrief of {day}': '{n}× gefehlt (Rückblick {day})',
   'missing {n} times · last debrief {day}': '{n}× gefehlt (zuletzt Rückblick {day})',
-  'The other trip types': 'Die anderen Reisearten',
+  'The other trip types': "Die anderen Tourarten",
   'each with its own list': 'jede mit eigener Liste',
   'All are suggestions: every row can be removed, and a trip can have its own list.': 'Alles sind Vorschläge: jeder Punkt lässt sich entfernen, und eine Tour kann ihre eigene Liste haben.',
 
@@ -123,5 +123,5 @@ export default {
   'Wash the clothes': 'Kleider waschen',
   // v0.111.0 the function in Ich › Was ist neu
   'The evening before and after the trip: a list per trip type, tick, sort, add, for one trip or all.':
-    'Am Vorabend und nach der Tour: eine Liste pro Reiseart, abhaken, sortieren, ergänzen, für eine Tour oder alle.',
+    "Am Vorabend und nach der Tour: eine Liste pro Tourart, abhaken, sortieren, ergänzen, für eine Tour oder alle.",
 };

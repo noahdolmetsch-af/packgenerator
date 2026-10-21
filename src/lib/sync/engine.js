@@ -160,7 +160,8 @@ export async function resolveAll(db, choice) {
  */
 export const FETCHED = {
   healthDays: { marks: ['at', 'src'], when: (r) => r?.at ?? '' },
-  'settings:health': { marks: ['lastSync', 'until'], inValue: true, when: (r) => r?.value?.lastSync ?? '' },
+  // fill: the one-time 30-day refetch (health.js FILL_V) is a fetch mark too, never a question
+  'settings:health': { marks: ['lastSync', 'until', 'fill'], inValue: true, when: (r) => r?.value?.lastSync ?? '' },
   'settings:agenda': { marks: ['lastSync'], inValue: true, when: (r) => r?.value?.lastSync ?? '' },
   // Strava activities (Noah 20.10.2026: the question came after every update): both devices fetch the
   // details from Strava by themselves, so only the time of the fetch differs. What the person added

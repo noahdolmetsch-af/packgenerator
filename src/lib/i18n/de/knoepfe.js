@@ -58,7 +58,7 @@ export default {
   'As standard': 'Als Standard',
   'As template|save': 'Als Vorlage',
   'To the list|pack': 'Zur Packliste',
-  'As kit …': 'Als Kit …',
+  'As kit …': "Als Baustein …",
   // N4: what the button does (Velopflege)
   'Mark as done (today, current km)': 'Als erledigt markieren (heute, aktuelle km)',
   'Record a service or a measurement with date and km': 'Service oder Messung mit Datum und km eintragen',

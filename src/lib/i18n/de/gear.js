@@ -212,13 +212,13 @@ export default {
   '{g} g lighter than {name}': '{g} g leichter als {name}',
 
   // v0.21.0 (package 5): areas and all my favourite things
-  'All areas': 'Alle Reisearten',
-  Areas: 'Reisearten',
-  'Areas (new trips of an area suggest its items)': 'Reisearten (neue Touren dieser Art schlagen ihre Teile vor)',
+  'All areas': "Alle Tourarten",
+  Areas: 'Tourarten',
+  'Areas (new trips of an area suggest its items)': "Tourarten (neue Touren dieser Art schlagen ihre Teile vor)",
   'Why it is a favourite': 'Warum es ein Favorit ist',
   'e.g. Warm, packs small, never let me down': 'z. B. warm, klein verpackt, hat mich nie im Stich gelassen',
-  '{n} area': '{n} Reiseart',
-  '{n} areas': '{n} Reisearten',
+  '{n} area': "{n} Tourart",
+  '{n} areas': "{n} Tourarten",
   'No favourites yet. In Gear open an item → Edit → tick ★ Favourite.': 'Noch keine Favoriten. In Material ein Teil öffnen → Bearbeiten → ★ Favorit anhaken.',
   Pages: 'Seiten',
   // v0.22.0 (AP05): the star as a button, favourites counted on one basis
@@ -252,7 +252,7 @@ export default {
   'Choose a category': 'Kategorie wählen',
   'Choose a category.': 'Wähle eine Kategorie.',
   'More details': 'Mehr Angaben',
-  'brand, quantity, bag, role, areas, overnight sets, layers, note': 'Marke, Anzahl, Tasche, Rolle, Reisearten, Übernachtungssets, Schichten, Notiz',
+  'brand, quantity, bag, role, areas, overnight sets, layers, note': "Marke, Anzahl, Tasche, Rolle, Tourarten, Übernachtungssets, Schichten, Notiz",
   // v0.23.0 (AP09): the category of an existing item can change, its ID stays
   'New category: {cat}. The ID {id} stays the same, so trips, templates, kits, bags and favourites keep this item.':
     'Neue Kategorie: {cat}. Die ID {id} bleibt gleich, Touren, Vorlagen, Kits, Taschen und Favoriten behalten das Teil.',

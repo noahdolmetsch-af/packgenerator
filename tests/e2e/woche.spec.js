@@ -4,6 +4,7 @@
 // file, on a phone and a computer, in German. No sideways scroll, no page errors. Fictional data only.
 import { test, expect } from '@playwright/test';
 import DE from '../../src/lib/i18n/de/index.js';
+import { TABS } from './placetab.js';
 
 const T = (en, vars) => {
   const s = DE[en] ?? en.replace(/\|[a-z]+$/, '');
@@ -70,7 +71,7 @@ test('Woche: from Aktiv › Heute to the week, a fixed date, plan and hide a sug
 
   await main.locator('[data-more="week"]').click();
   await expect(page).toHaveURL(/#\/flow\/week$/);
-  await expect(page.locator('.ptabs').getByRole('link', { name: T('Today|active'), exact: true })).toHaveAttribute('aria-current', 'page');
+  await expect(page.locator(TABS).getByRole('link', { name: T('Today|active'), exact: true })).toHaveAttribute('aria-current', 'page');
   await expect(main.getByRole('heading', { level: 1, name: T('Week') })).toBeVisible();
   await expect(main.locator('[data-more="week"]')).toHaveAttribute('aria-current', 'page');
 

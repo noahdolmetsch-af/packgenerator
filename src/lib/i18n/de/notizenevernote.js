@@ -44,7 +44,7 @@ export default {
   Italic: 'Kursiv',
   'Struck through': 'Durchgestrichen',
   'Numbered list': 'Nummerierte Liste',
-  Ticks: 'Abhaken',
+  'Tick list': 'Abhaken',
   'Remove formatting': 'Formatierung entfernen',
   // Was die App kann, Handbuch, So geht's
   'Draw on photos': 'Auf Fotos zeichnen',

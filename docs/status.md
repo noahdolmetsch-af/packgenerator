@@ -4,6 +4,8 @@ Stand: 18. Oktober 2026. Der kurze Überblick steht im [Projektstand](projektsta
 
 ## Aktuell live
 
+**0.174.0 «Klarer und einheitlich» (21.10.2026):** Impeccable-Bericht (Noah 20.10.2026, alles freigegeben): am Handy höchstens vier Reiter oben, der Rest unter «Mehr»; am Computer Seitenleiste statt Reiter; ein Wort pro Sache (Teile, Backup speichern, Rückblick, Tourart); kürzere Seiten, zwei Spalten am Computer; Woche mit Rückgängig. Dazu «Auswertung wie Training» (Fahrt-Analyse Teile 1+2): Aktiv › Ziele › Auswerten (#/flow/auswertung). Kein Dexie- oder Backup-Wechsel.
+
 **0.173.0 «Suche mit Sprache» (21.10.2026):** Thread «Suche als Alleskönner» (Noah 21.10.2026 «1a 2a 3a+b 4b+a 5b», Ideen 1–8): Befehle in die Suche sprechen oder tippen laufen sofort mit Rückgängig, Fragen beantwortet die App aus den eigenen Daten, Gemini oder «Weiter fragen bei …»; KI im Gerät hinter eigenem Schalter; «Wetter Chur» öffnet die Wetterseite für den Ort; neue Seite Ich › Suche (#/me/suche). Dazu Webcams mit Ort auf der Live-Karte und der Schalter «Glätte am Morgen» (Okt–Apr, 06:30). Kein Dexie- oder Backup-Wechsel.
 
 **0.172.0 «Velo und Notizen» (21.10.2026, ein Bündel):** Paket VG «Das Velo im Griff» (Handy-Erinnerung «Kette trocknen» nach Regen, Verschleiss-Fotos, Verkaufsinserat, Velobox-Checkliste, Ersatzteil-Lager, km pro Marke, Frühlings-To-do, Kettenrotation; das Fenster auf Heute bleibt aus, bis Noah ja sagt) und Paket NE «Notizen wie Evernote» (auf Fotos zeichnen, Zeichenblock, formatierter Editor, Dateien, Scannen, Webseite offline, Texterkennung, Erinnerung, Papierkorb 30 Tage, frühere Fassungen). Neue Pakete pdfjs-dist und heic2any (lazy). Keine Dexie-Stufe.

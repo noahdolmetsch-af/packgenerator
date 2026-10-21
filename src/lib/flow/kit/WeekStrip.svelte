@@ -80,7 +80,7 @@
     background: var(--hi);
   }
   i.mind {
-    background: var(--accent);
+    background: var(--l4);
   }
   i.rest {
     background: var(--l3);

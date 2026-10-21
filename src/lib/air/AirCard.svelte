@@ -60,6 +60,10 @@
   });
 </script>
 
+<!-- Impeccable 20.10.2026: when nothing could be loaded, one quiet line with «Nochmals» instead of a whole card -->
+{#if home && failed && !days.length}
+  <p class="air ai-line" data-section="air" data-air-failed><Flower2 size={16} aria-hidden="true" /><span>{t('Ozone and pollen not reachable just now.')}</span><button type="button" class="btn sm" onclick={refresh} disabled={busy}>{t('Try again|load')}</button></p>
+{:else}
 <section class="air card" aria-labelledby={hid} data-section="air">
   <div class="ai-head">
     <span class="ai-ib" aria-hidden="true"><Flower2 size={18} /></span>
@@ -97,6 +101,7 @@
     <p class="ai-src">{t('Open-Meteo (CAMS Europe), a model calculation · strong after the Swiss pollen classes')}</p>
   {/if}
 </section>
+{/if}
 
 <style>
   .air { padding: var(--sp-4); display: grid; gap: var(--sp-3); }
@@ -118,4 +123,15 @@
   .ai-set summary:focus-visible { outline: var(--focus-ring); }
   .ai-row { display: flex; align-items: center; gap: var(--sp-2); min-height: 44px; font-size: var(--fs-small); }
   .ai-src { margin: 0; font-size: var(--fs-tiny); color: var(--ink-3); }
+  .ai-line {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-2);
+    margin: 0;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+  }
+  .ai-line span {
+    flex: 1;
+  }
 </style>

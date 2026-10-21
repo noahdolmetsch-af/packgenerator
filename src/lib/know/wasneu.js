@@ -145,6 +145,8 @@ export const SINCE = {
   'f.drawphoto': '0.172.0', 'f.richtext': '0.172.0', 'f.noteattach': '0.172.0', 'f.noteocr': '0.172.0', 'f.noteremind': '0.172.0', 'f.notetrash': '0.172.0',
   // «Tagebuch» (provisional; the bundler sets the version of its release)
   'f.journal': '0.170.0',
+  // «Auswertung wie Training» (provisional version, the bundler renumbers)
+  'f.tickreview': '0.174.0',
 };
 export const sinceOf = (id) => SINCE[id] ?? '0.1.0';
 
