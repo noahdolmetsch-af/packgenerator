@@ -622,6 +622,46 @@ export const HANDBOOK = {
     steps: ['Bikes › Care › a bike: «Setup photos» top right opens the timeline; «+ Photo» adds a setup of today.', '«…» at a photo: change the day, rename, show it behind the bike, remove.', 'Report a problem with several photos; cut the edges or keep them all as one PDF in Me › Documents.'],
     example: 'Example: photo of the new bag setup → it shows pale at the top of Bike care and lines up under this month.',
   },
+  'f.wetchain': {
+    on: null,
+    steps: ['Ride in the rain: from 18:00 the phone reminds you «Dry and oil the chain».', '«Done: chain oiled» writes a care entry for the chain; «Later» or «Not today» also work.', 'Switch it off: Bikes › Care › a bike › «Wear» › «Reminders».'],
+    example: 'Example: 40 km in the rain → in the evening «Dry and oil the chain».',
+  },
+  'f.wearphotos': {
+    on: null,
+    steps: ['Bikes › Care › a bike › «Wear» › «Wear photos».', 'Take a photo per part; date and km are added.', 'Two photos: drag the slider to compare old and new.'],
+    example: 'Example: tyre at 500 km next to the tyre at 2500 km.',
+  },
+  'f.sellbike': {
+    on: null,
+    steps: ['Bikes › Care › a bike › «Wear» › «Sale listing».', 'Type a price and more if you like; the text updates.', '«Copy» or «Share» it to the marketplace.'],
+    example: 'Example: «Gravel bike, 4200 km, chain new at 3900 km, last service in May».',
+  },
+  'f.bikebox': {
+    on: null,
+    steps: ['Bikes › Care › a bike › «Wear» › «Pack the bike».', 'Tick each point; add, rename, move or delete points.', 'Take photos before packing, as proof if something breaks.'],
+    example: 'Example: «Pedals off» ticked, photo of the frame from both sides.',
+  },
+  'f.sparestock': {
+    on: null,
+    steps: ['Bikes › Care › a bike › «Wear» › «Spare parts at home».', 'Add a row with a number, e.g. 2 chains.', 'You replace a chain yourself: one less; at 0 «Shopping list» adds it.'],
+    example: 'Example: 2 chains, one change → «1 in stock».',
+  },
+  'f.brandkm': {
+    on: null,
+    steps: ['Bikes › Care › a bike › «Wear» › «What lasts longest».', 'Each brand with its average km, from your used-up parts.', 'A part that runs out shows the brand that lasted longest.'],
+    example: 'Example: chains brand A 3400 km, brand B 2600 km.',
+  },
+  'f.springservice': {
+    on: null,
+    steps: ['Bikes › Care › a bike › «Wear» › «Reminders» › «Spring service».', 'Pick the month or «off».', 'The to-do in Kalender › Merken lists what is due on each bike.'],
+    example: 'Example: 1 February: «Spring service: chain on the gravel bike, service of the road bike».',
+  },
+  'f.chainrotation': {
+    on: null,
+    steps: ['Bikes › Care › a bike › «Wear» › «Chain rotation» › «Add a chain».', 'Tap «Put on» on the chain that is on the bike.', 'After the set km the app says it is time to swap.'],
+    example: 'Example: chain A 480 km, chain B 450 km; every 500 km a swap.',
+  },
   'f.velofaq': {
     on: null,
     steps: ['Bikes › Care › «Bike FAQ» (also on every bike’s card).', 'On top the question of the day; «Another question» shows the next one.', 'Search or open a topic; «Your own questions» keeps what you learned.'],
