@@ -163,7 +163,7 @@ function uploadSoon(d, { db }) {
 /** Everything not yet in Drive (after connecting, or «Jetzt hochladen»). Returns how many went up. */
 export async function uploadMissing({ db = appDb } = {}) {
   let n = 0;
-  for (const d of await db.docs.toArray()) if (!d.drive?.id && (await uploadDoc(d, { db }))) n++;
+  for (const d of await db.docs.toArray()) if (!d.noteId && !d.drive?.id && (await uploadDoc(d, { db }))) n++;
   return n;
 }
 

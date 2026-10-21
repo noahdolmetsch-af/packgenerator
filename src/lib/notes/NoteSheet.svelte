@@ -19,7 +19,7 @@
   import { nextNumber } from '../notes.js';
   import { nextId } from '../gear.js';
   import { switchTrip } from '../nav.js';
-  import { t } from '../i18n.svelte.js';
+  import { t, locale } from '../i18n.svelte.js';
   import SpeakButton from '../ui/SpeakButton.svelte';
   import { appendSpoken } from '../speak.js';
   import { Pin, PinOff, X, Route, Heart, Wrench, Link2, Plus, Trash2, ChevronLeft, NotebookPen, Unlink } from '@lucide/svelte';
@@ -30,9 +30,13 @@
   import DrawOn from '../draw/DrawOn.svelte';
   import RichText from './RichText.svelte';
   import NoteFiles from './NoteFiles.svelte';
+  import NoteRemind from './NoteRemind.svelte';
+  import NoteVersions from './NoteVersions.svelte';
+  import { trashNote, restoreNote, keepVersion, TRASH_DAYS } from './trash.js';
+  import { noteRemind } from '../push/schedule.js';
   import { editMode, setEditMode } from './richtext.js';
   import NoteReader from './NoteReader.svelte';
-  import { MapPin, Image as ImageIcon, Share2, Bold, Heading, Table, BookOpen, Pencil, Copy, FilePlus2 } from '@lucide/svelte';
+  import { MapPin, Image as ImageIcon, Share2, Bold, Heading, Table, BookOpen, Pencil, Copy, FilePlus2, Bell, History } from '@lucide/svelte';
   import '../bikes/velo-dlg.css';
 
   let { note, bikes = [], pinnedCount = 0, notes = [], onclose, onmade, onopen } = $props();
@@ -49,6 +53,15 @@
   // svelte-ignore state_referenced_locally
   let bike = $state(note.bikeId ?? bikes[0]?.id ?? null);
   let msg = $state('');
+  // Paket NE 1150/1151: the reminder and the earlier versions, folded
+  // svelte-ignore state_referenced_locally
+  let remindOpen = $state(!!note.remind?.at && !note.remind.done);
+  let versionsOpen = $state(false);
+  function remindText(n) {
+    const r = noteRemind(n);
+    if (!r) return '';
+    return new Date(`${r.day}T${r.hm}:00`).toLocaleString(locale(), { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+  }
 
   $effect(() => {
     dialog.showModal();
@@ -66,9 +79,14 @@
   }
   async function saveAndClose() {
     const now = new Date().toISOString();
-    const before = JSON.stringify(note);
+    const old = $state.snapshot(note); // before the put: the list gives the sheet the new note right after
+    const before = JSON.stringify(old);
     const after = $state.snapshot(draft);
-    if (JSON.stringify({ ...after }) !== before) await db.notes.put({ ...after, editedAt: now });
+    if (JSON.stringify({ ...after }) !== before) {
+      await db.notes.put({ ...after, editedAt: now });
+      // Paket NE 1151: the text from before stays as a version
+      await keepVersion(db, old, after).catch(() => {});
+    }
   }
   async function closeIt() {
     await saveAndClose();
@@ -76,23 +94,12 @@
   }
   async function remove() {
     const name = noteTitle(draft).slice(0, 40);
-    if ((await askDelete({ title: t('Delete the note "{text}"?', { text: name }), text: t('You can bring it back for 4 seconds afterwards.') })) !== 'delete') return;
+    if ((await askDelete({ title: t('Delete the note "{text}"?', { text: name }), text: t('It waits {n} days in the trash of Notes (More › Trash).', { n: TRASH_DAYS }) })) !== 'delete') return;
     const ok = await deleteWithUndo({
-      run: async () => {
-        const rec = await db.notes.get(note.id);
-        // Paket NE: the note's files (rows of db.docs) go with it
-        const files = (await db.docs.toArray()).filter((d) => d.noteId === note.id);
-        await db.transaction('rw', db.notes, db.docs, async () => {
-          await db.notes.delete(note.id);
-          if (files.length) await db.docs.bulkDelete(files.map((d) => d.id));
-        });
-        return { rec, files };
-      },
-      undo: async ({ rec, files }) => {
-        if (rec) await db.notes.put(rec);
-        if (files.length) await db.docs.bulkPut(files);
-      },
-      text: t('"{name}" deleted.', { name }),
+      // Paket NE 1151: into the trash for 30 days; its files stay with it
+      run: async () => trashNote(db, (await db.notes.get(note.id)) ?? $state.snapshot(draft)),
+      undo: async (row) => row && restoreNote(db, row.id),
+      text: t('"{name}" is in the trash.', { name }),
       name,
     });
     if (ok) dialog.close();
@@ -395,7 +402,11 @@
       <button type="button" class="btn btn-link" onclick={() => (readingAll = true)} data-note-read><BookOpen size={16} aria-hidden="true" />{t('Read as an article')}</button>
       <button type="button" class="btn btn-link" onclick={share} data-note-share><Share2 size={16} aria-hidden="true" />{t('Share|note')}</button>
       <button type="button" class="btn btn-link" onclick={asTemplate} data-note-astpl><FilePlus2 size={16} aria-hidden="true" />{t('Save as a template')}</button>
+      <button type="button" class="btn btn-link" aria-expanded={remindOpen} onclick={() => (remindOpen = !remindOpen)} data-note-remind-open><Bell size={16} aria-hidden="true" />{draft.remind?.at && !draft.remind.done ? t('Reminder {when}', { when: remindText(draft) }) : t('Remind me')}</button>
+      <button type="button" class="btn btn-link" aria-expanded={versionsOpen} onclick={() => (versionsOpen = !versionsOpen)} data-note-versions-open><History size={16} aria-hidden="true" />{t('Earlier versions')}</button>
     </div>
+    {#if remindOpen}<NoteRemind bind:value={draft.remind} />{/if}
+    {#if versionsOpen}<NoteVersions note={draft} onput={(next) => (draft = next)} />{/if}
     <div class="vd-foot">
       <button type="button" class="btn" onclick={remove}>{t('Delete')}</button>
       <button type="button" class="btn" aria-pressed={!!draft.pinned} onclick={togglePin}>{#if draft.pinned}<PinOff size={16} aria-hidden="true" />{t('Unpin')}{:else}<Pin size={16} aria-hidden="true" />{t('Pin')}{/if}</button>

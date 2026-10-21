@@ -127,7 +127,7 @@
   <div class="vd-head">
     <div class="vd-t">
       <h2 id="fv-h" class="title">{file.name}</h2>
-      <p class="vd-sub">{t(f.name)} · {sizeText(file.bytes)}{#if pdfPages} · {tn(pdfPages, '{n} page', '{n} pages')}{/if}</p>
+      <p class="vd-sub">{t(f.name)} · {sizeText(file.bytes)}{#if pdfPages}{' · '}{tn(pdfPages, '{n} page', '{n} pages')}{/if}</p>
     </div>
     <button type="button" class="vd-x" aria-label={t('Close')} onclick={() => dialog.close()}><X size={20} aria-hidden="true" /></button>
   </div>

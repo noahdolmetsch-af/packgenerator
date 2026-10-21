@@ -56,10 +56,10 @@ async function post(body, doFetch = fetch) {
 
 /** The data schedule.js needs, read from this device. */
 export async function readData() {
-  const [trips, repairs, bikes, settings, meta, items] = await Promise.all([db.trips.toArray(), db.maintenance.toArray(), db.bikes.toArray(), db.settings.bulkGet([PUSH_KEY, 'ownValues', 'merken', 'homePlace', 'air', 'lends', 'eatRemind']), db.table('meta').get(LAST_BACKUP), db.items.toArray()]);
+  const [trips, repairs, bikes, settings, meta, items, notes] = await Promise.all([db.trips.toArray(), db.maintenance.toArray(), db.bikes.toArray(), db.settings.bulkGet([PUSH_KEY, 'ownValues', 'merken', 'homePlace', 'air', 'lends', 'eatRemind']), db.table('meta').get(LAST_BACKUP), db.items.toArray(), db.notes.filter((n) => !!n.remind?.at && !n.remind.done).toArray()]);
   const [push, ownValues, merken, homePlace, air, lends, eatRemind] = settings.map((r) => r?.value ?? null);
   // Paket H: supplies (items with a best-before date) and lent things (settings 'lends')
-  return { trips, repairs, bikes, items: items.filter((i) => i.expires), lends: Array.isArray(lends) ? lends : [], settings: { push, ownValues, merken, homePlace, air, eatRemind }, lastBackup: meta?.at ?? null, now: new Date() };
+  return { trips, repairs, bikes, notes, items: items.filter((i) => i.expires), lends: Array.isArray(lends) ? lends : [], settings: { push, ownValues, merken, homePlace, air, eatRemind }, lastBackup: meta?.at ?? null, now: new Date() };
 }
 
 /** The subscription of this phone (made when missing). Throws { code } when it cannot. */

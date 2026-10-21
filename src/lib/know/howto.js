@@ -97,6 +97,8 @@ export const HOWTO = {
   'f.richtext': ['Open a note.', 'Write, and use the buttons above the text: bold, heading, list, ticks, table.', 'Tap a tick box to tick it.'],
   'f.noteattach': ['Open a note and tap «File».', 'Choose a PDF, a Word or Excel file, a GPX, a calendar or contact file.', 'Tap the file to read it in the app.'],
   'f.noteocr': ['Open a note with photos.', 'Tap «Make text in pictures searchable».', 'Search for a word from the picture.'],
+  'f.noteremind': ['Open a note and tap «Remind me».', 'Choose the day and the time.', 'Tap «Set the reminder».'],
+  'f.notetrash': ['Open Notes › More › Trash.', 'Tap «Put back» at a note.', 'In a note «Earlier versions» brings back an older text.'],
   'f.noteformats': ['In a note tap Photo, Link, Place or Sketch.', 'Start a new note from a template, or scan a QR code.', 'Share sends it to Keep, a chat or a mail.'],
   'f.next': ['Open Me › What comes next.', 'Read the packages: live, being built, later.', 'Tell Claude if a package is more urgent.'],
   'f.dictate': ['Tap the microphone next to a note.', 'Speak; tap stop when you are done.', 'A question in it gets the app\'s answer.'],

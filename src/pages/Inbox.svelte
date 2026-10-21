@@ -27,6 +27,7 @@
   import HintCard from '../lib/pageinfo/HintCard.svelte';
   import { liveQuery } from 'dexie';
   import { db } from '../lib/db.js';
+  import { trashNote, restoreNote, TRASH_DAYS } from '../lib/notes/trash.js';
   import { PAGE_NAMES } from '../lib/notes.js';
   import { TARGET, LANDS, guessTarget, guessTopic, inboxGroups, filedRows, filedToday, FILED_FILTERS, targetHref } from '../lib/inbox.js';
   import { unfile, fileTo } from '../lib/inboxdb.js';
@@ -196,9 +197,10 @@
   }
   async function remove(n) {
     const name = (n.text ?? '').slice(0, 40);
-    if ((await askDelete({ title: t('Delete the note "{text}"?', { text: name }), text: t('You can bring it back for 4 seconds afterwards.') })) !== 'delete') return;
+    if ((await askDelete({ title: t('Delete the note "{text}"?', { text: name }), text: t('It waits {n} days in the trash of Notes (More › Trash).', { n: TRASH_DAYS }) })) !== 'delete') return;
     const rec = $state.snapshot(n);
-    await deleteWithUndo({ run: () => db.notes.delete(n.id), undo: () => db.notes.put(rec), text: t('"{name}" deleted.', { name }), name });
+    // Paket NE 1151: into the trash of Notes for 30 days
+    await deleteWithUndo({ run: () => trashNote(db, rec), undo: (row) => row && restoreNote(db, row.id), text: t('"{name}" is in the trash.', { name }), name });
   }
 
   const OLD = { repair: 'Bike care', learning: 'Learning', trip: 'Debrief', done: 'Done|filed' };

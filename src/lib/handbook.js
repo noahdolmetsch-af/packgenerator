@@ -933,6 +933,16 @@ export const HANDBOOK = {
     steps: ['Open a note with photos or a scanned PDF.', 'Tap «Make text in pictures searchable».', 'Search in Notes for a word from the picture.'],
     example: 'Example: a photo of a receipt → the search «Bremsbelag» finds the note.',
   },
+  'f.noteremind': {
+    on: null,
+    steps: ['Open a note and tap «Remind me».', 'Choose the day and the time, then «Set the reminder».', 'With the reminders on the phone switched on, a message comes; in Notes it stays on top until «Done».'],
+    example: 'Example: «Ersatzschlauch kaufen» for Friday 17:00.',
+  },
+  'f.notetrash': {
+    on: null,
+    steps: ['A deleted note goes to Notes › More › Trash and waits there 30 days.', '«Put back» brings it back with its files.', 'In a note «Earlier versions» shows the text from before; «Put this version back» takes it.'],
+    example: 'Example: the packing list was shortened by mistake → «Earlier versions» → yesterday evening → put back.',
+  },
   'f.noteformats': {
     on: null,
     steps: ['Open a note: Photo, Link, Place and Sketch add to it; «Share» sends it to Keep or a chat.', 'New note: «Start from» a template, or the QR button reads a code.', 'Notes › More › Take over from Google Keep: choose the .zip from Google Takeout.'],

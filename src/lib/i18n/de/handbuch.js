@@ -1243,4 +1243,12 @@ export default {
   'Tap «Make text in pictures searchable».': 'Tippe «Text in Bildern durchsuchbar machen».',
   'Search in Notes for a word from the picture.': 'Suche in Notizen nach einem Wort aus dem Bild.',
   'Example: a photo of a receipt → the search «Bremsbelag» finds the note.': 'Beispiel: ein Foto einer Quittung → die Suche «Bremsbelag» findet die Notiz.',
+  'Open a note and tap «Remind me».': 'Öffne eine Notiz und tippe «Erinnern».',
+  'Choose the day and the time, then «Set the reminder».': 'Wähle Tag und Zeit, dann «Erinnerung setzen».',
+  'With the reminders on the phone switched on, a message comes; in Notes it stays on top until «Done».': 'Mit eingeschalteten Erinnerungen aufs Handy kommt eine Nachricht; in Notizen steht sie oben bis «Fertig».',
+  'Example: «Ersatzschlauch kaufen» for Friday 17:00.': 'Beispiel: «Ersatzschlauch kaufen» für Freitag 17:00.',
+  'A deleted note goes to Notes › More › Trash and waits there 30 days.': 'Eine gelöschte Notiz kommt in Notizen › Mehr › Papierkorb und wartet dort 30 Tage.',
+  '«Put back» brings it back with its files.': '«Zurückholen» bringt sie mit ihren Dateien zurück.',
+  'In a note «Earlier versions» shows the text from before; «Put this version back» takes it.': 'In einer Notiz zeigt «Frühere Fassungen» den Text von vorher; «Diese Fassung zurückholen» übernimmt ihn.',
+  'Example: the packing list was shortened by mistake → «Earlier versions» → yesterday evening → put back.': 'Beispiel: Die Packliste wurde aus Versehen gekürzt → «Frühere Fassungen» → gestern Abend → zurückholen.',
 };
