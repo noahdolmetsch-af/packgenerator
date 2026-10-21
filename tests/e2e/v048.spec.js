@@ -131,13 +131,13 @@ test('Eingang: day groups, filed today stays faint with its target; a receipt be
   await expect.poll(async () => (await table(page, 'visits')).find((v) => v.bikeId === GOAT)).toMatchObject({ totalChf: 127.5, parts: [{ part: 'chain', action: 'replace' }] });
   const v = (await table(page, 'visits')).find((x) => x.bikeId === GOAT);
   expect(v.photos[0]).toMatch(/^data:image/);
-  // The row stays, faint, its chip opens «Werkstatt & Belege» with the visit.
+  // The row stays, faint, its chip opens «Werkstatt» with the visit.
   const done = page.locator('li.filed').filter({ hasText: `${P} Foto Rechnung` });
   await expect(done.locator('.tchip')).toContainText(`Beleg · ${P} Bergziege 29`);
   await done.locator('a.tchip').click();
   await expect(page.getByRole('dialog')).toContainText(`${P} Velo shop`);
   await page.keyboard.press('Escape');
-  await expect(page.getByRole('heading', { name: 'Werkstatt & Belege' })).toBeVisible();
+  await expect(page.getByRole('heading', { level: 1, name: 'Werkstatt' })).toBeVisible(); // Impeccable 0.174: one word per thing
   // «Abgelegt» finds it by the amount.
   await page.goto('./#/inbox');
   await page.getByRole('group', { name: 'Anzeigen' }).getByRole('button', { name: /Abgelegt/ }).click();

@@ -22,7 +22,7 @@ export const WHATS_NEW = [
     title: 'Clearer and the same everywhere',
     lead: 'Fewer tabs, one word per thing.',
     points: [
-      { text: 'Phone: at most four tabs on top, the rest under «More»', href: '#/care' },
+      { text: 'Phone: at most four tabs on top, the rest under «More»', href: '#/bikes?tab=care' },
       { text: 'Evaluate what you tick, like a ride', href: '#/flow/auswertung' },
       { text: 'Shorter pages, two columns on the computer', href: '#/trips' },
     ],

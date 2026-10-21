@@ -1138,6 +1138,7 @@
     }
     /* the name column takes the room, a long pill gives way with «…» instead of widening the page */
     .st {
+      table-layout: fixed;
     }
     .st th.n,
     .st td.n {
