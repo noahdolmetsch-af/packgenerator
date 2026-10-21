@@ -6,7 +6,13 @@
  * Any other name (the person's own, already German, only partly matching) stays as it is.
  * The German names are generated, not typed by the person, so they live here and not in t().
  */
-import { lang } from './i18n.svelte.js';
+// No import of i18n.svelte.js here: plain modules (aktivitaeten.js, spur.js) that e2e specs import load this
+// file in Node, where the $state rune does not exist. i18n.svelte.js hands in the current language instead.
+let langNow = () => 'en';
+/** Set by i18n.svelte.js: a function that returns the current language ('de' or 'en'). */
+export function setNameLang(fn) {
+  langNow = fn;
+}
 
 /** Strava's day part (first word) → German, Swiss spelling. */
 const PARTS = { morning: 'am Morgen', lunch: 'am Mittag', afternoon: 'am Nachmittag', evening: 'am Abend', night: 'in der Nacht' };
@@ -70,7 +76,7 @@ export function deName(name, language = 'de') {
 }
 
 /** The name as the app shows it now (current language). */
-export const stravaName = (name) => deName(name, lang.v);
+export const stravaName = (name) => deName(name, langNow());
 
 /** Words to search in: the shown name and Strava's own, so both find the activity. */
 export const nameWords = (name) => {
