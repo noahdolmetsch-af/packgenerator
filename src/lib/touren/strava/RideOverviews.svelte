@@ -4,7 +4,7 @@
    * linie der tour … beide übersichten 1:1 übernehmen und bei uns integrieren»): per Strava ride of the
    * trip, as on Strava's activity page: «Peak Power» on the left, the «Übersicht» on the right
    * (StravaOverview.svelte) and the map with the line of the ride below. Several rides: one chip each.
-   * acts: the Strava rides (bike); ftp, kg, bike as StravaOverview.
+   * acts: the Strava rides (bike); ftp, kg, bike as StravaOverview; bikeOf(act): the bike of one ride (first).
    */
   import { t, locale } from '../../i18n.svelte.js';
   import { linesOf } from '../tour.js';
@@ -12,7 +12,7 @@
   import PeakPower from './PeakPower.svelte';
   import { phone } from '../../media.svelte.js';
 
-  let { acts = [], ftp = null, kg = null, bike = '' } = $props();
+  let { acts = [], ftp = null, kg = null, bike = '', bikeOf = null } = $props();
   let pick = $state(null);
   const a = $derived(acts.find((x) => x.id === pick) ?? acts[0] ?? null);
   const lines = $derived(a ? linesOf([a]) : []);
@@ -30,7 +30,7 @@
     {#key a.id}
       <div class="grid">
         <div class="side"><PeakPower {a} /></div>
-        <div class="ovcard"><StravaOverview {a} {ftp} {kg} {bike} /></div>
+        <div class="ovcard"><StravaOverview {a} {ftp} {kg} bike={bikeOf?.(a) || bike} /></div>
       </div>
       {#if lines.length}
         <div class="map" data-ro-map>

@@ -130,6 +130,17 @@
   const dActs = $derived(dayF ? actsOn(acts, dayF.date) : acts);
   // the Strava rides of the trip or of the chosen day, for «Übersicht wie Strava»
   const rideActs = $derived(dActs.filter((a) => a.kind === 'bike' || /ride/i.test(a.type ?? '')));
+  /** The bike name of one Strava ride from the km book, or ''. */
+  const bikeOf = (a) => {
+    const e = ($stravaQ ?? []).find((x) => String(x.stravaId) === String(a.id));
+    return (e?.bikeId ? bikes.find((x) => x.id === e.bikeId)?.name : '') ?? '';
+  };
+  // the bike of each ride with a power meter (Strava check 21.10.2026: the gravel ride was named on the other bike)
+  const meterBike = $derived.by(() => {
+    const names = new Set();
+    for (const a of dActs.filter((x) => x.wDevice === true)) if (bikeOf(a)) names.add(bikeOf(a));
+    return [...names].join(', ');
+  });
   const ftp = $derived(w ? ftpEstimate(w.acts, end ?? today) : null);
   const dEntries = $derived(dayF ? entries.filter((e) => e.date === dayF.date) : entries);
   const values = $derived(w ? tripValues({ acts: dActs, entries: dEntries, bounds: w.zones?.bounds ?? null }) : null);
@@ -139,9 +150,12 @@
   const actsOf = (r) => (w ? tripActs(w.acts, r.trip, r.end) : []);
   const efforts = $derived(row && effort != null ? lastSeries(allRows, row, (r) => effortOf(actsOf(r))) : []);
   const loads = $derived(row && load != null ? lastSeries(allRows.filter((r) => r.id === row.id || actsOf(r).some((a) => a.wDevice === true)), row, (r) => loadOf(actsOf(r), w.acts, r.end)) : []);
+  // the mean weighted by the moving time of each ride (Strava check 21.10.2026: cadence 67 here, 69 on Fahrten)
   const avgOf = (list, f) => {
     const xs = list.filter((a) => typeof f(a) === 'number' && f(a) > 0);
-    return xs.length ? Math.round(xs.reduce((s, a) => s + f(a), 0) / xs.length) : null;
+    const wt = (a) => Number(a.own?.movingS ?? a.movingS) || 1;
+    const n = xs.reduce((s, a) => s + wt(a), 0);
+    return xs.length ? Math.round(xs.reduce((s, a) => s + f(a) * wt(a), 0) / n) : null;
   };
   const tempo = $derived.by(() => {
     const kmh = dayF ? dayF.kmh : row?.kmh ?? null;
@@ -550,14 +564,14 @@
         </div>
       </div>
       <!-- Noah 21.10.2026: Strava's «Übersicht», «Peak Power» and the map with the line, 1:1 per ride -->
-      {#if rideActs.length}<RideOverviews acts={rideActs} {ftp} kg={w?.kg ?? null} bike={trip.bike ?? bike?.name ?? ''} />{/if}
+      {#if rideActs.length}<RideOverviews acts={rideActs} {ftp} kg={w?.kg ?? null} bike={trip.bike ?? bike?.name ?? ''} {bikeOf} />{/if}
     </Group>
 
     <!-- 2 Körper und Leistung -->
     <Group key="body" title={titleOf(GROUPS[1])} line={lineOf.body} icon={ICON.body} open={!!open.body} ontoggle={(v) => toggle('body', v)}>
       <div class="rv-lay">
         <div class="rv-col">
-          {#if w}<HeartPower {values} zones={w.zones?.source ?? null} bike={trip.bike ?? bike?.name ?? ''} {tempo} {power} {effort} {load} {efforts} {loads} mark={trip.id} {best} strava={acts.length > 0} sub={day != null ? t('Day {n} · from Strava · to look at, without rating', { n: day + 1 }) : ''} />{/if}
+          {#if w}<HeartPower {values} zones={w.zones?.source ?? null} bike={meterBike || trip.bike || bike?.name || ''} {tempo} {power} {effort} {load} {efforts} {loads} mark={trip.id} {best} strava={acts.length > 0} sub={day != null ? t('Day {n} · from Strava · to look at, without rating', { n: day + 1 }) : ''} />{/if}
         </div>
         <div class="rv-col">
           <section class="rv-sec" aria-labelledby="mo-h" data-mood>

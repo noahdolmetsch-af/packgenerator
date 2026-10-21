@@ -321,6 +321,14 @@ function powerSeconds(time, watts) {
   return sec;
 }
 
+/** The highest whole number of a stream (cadence: Strava check 21.10.2026, 110 against 95 from the short series), or null. */
+export function maxOf(data) {
+  if (!Array.isArray(data)) return null;
+  let m = 0;
+  for (const v of data) if (Number(v) > m) m = Number(v);
+  return m > 0 ? Math.round(m) : null;
+}
+
 /**
  * Normalized Power from the watts stream (Strava check 21.10.2026: Strava's weighted_average_watts was 147 where
  * the ride's NP is about 168): the watts per second while moving (stops left out), the 30-second rolling average,
@@ -444,7 +452,7 @@ export function trimStreams(streams) {
   const time = streams?.time?.data;
   const hr = streams?.heartrate?.data;
   const w20 = best20(time, streams?.watts?.data);
-  const more = { ...trimPower(time, streams?.watts?.data), np: npOf(time, streams?.watts?.data, streams?.moving?.data), pauses: pausesOf(time, streams?.moving?.data), hCurve: trimHrCurve(time, hr) };
+  const more = { ...trimPower(time, streams?.watts?.data), np: npOf(time, streams?.watts?.data, streams?.moving?.data), cadMax: maxOf(streams?.cadence?.data), pauses: pausesOf(time, streams?.moving?.data), hCurve: trimHrCurve(time, hr) };
   if (!Array.isArray(time) || !Array.isArray(hr) || hr.length < 2) return { hist: null, curve: [], w20, ...more };
   const hist = {};
   for (let i = 0; i < hr.length - 1; i++) {

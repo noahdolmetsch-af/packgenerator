@@ -49,7 +49,7 @@
   <Sec id="load-h" title={t('Load|card')} sub={t('two views, just to look at')}>
     <div class="card ld vals num" data-section="load">
       {#if effort != null}<span data-load="effort"><b>{effort}</b><small>{t('Relative Effort (Strava, from the heart rate)')}</small></span>{/if}
-      {#if load}<span data-load="power"><b>{load.load}</b><small>{t('Load from power (NP ÷ FTP {f} · {h} h)', { f: fixed(load.intensity, 2, locale()), h: hmm(act.movingS) })}</small></span>{/if}
+      {#if load}<span data-load="power"><b>{load.load}</b><small>{t('TSS from power (IF {f} · {h} h)', { f: fixed(load.intensity, 2, locale()), h: hmm(act.movingS) })}</small></span>{/if}
     </div>
   </Sec>
 {/if}

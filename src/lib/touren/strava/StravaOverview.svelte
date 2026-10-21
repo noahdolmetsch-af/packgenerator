@@ -41,7 +41,7 @@
     [
       { key: 'speed', name: t('Speed|ana'), avg: a.spdAvg ?? (km && moving ? km / (moving / 3600) : null), max: a.spdMax, d: 1, unit: 'km/h' },
       { key: 'hr', name: t('Heart rate|ana'), avg: a.hrAvg, max: a.hrMax, d: 0, unit: t('bpm') },
-      { key: 'cad', name: t('Cadence|ana'), avg: a.cad, max: ser?.cad ? Math.max(...ser.cad.filter(Number.isFinite)) : null, d: 0, unit: '' },
+      { key: 'cad', name: t('Cadence|ana'), avg: a.cad, max: a.cadMax ?? (ser?.cad ? Math.max(...ser.cad.filter(Number.isFinite)) : null), d: 0, unit: '' },
       { key: 'w', name: t('Power|ana'), avg: a.wAvg, max: a.wMax, d: 0, unit: 'W' },
       { key: 'kcal', name: t('Calories'), avg: a.kcal, max: null, d: 0, unit: '' },
       { key: 'temp', name: t('Temperature|ana'), avg: a.tempAvg, max: null, d: 0, unit: '°C' },
@@ -72,6 +72,7 @@
   {#if np || a.kj || load}
     <dl class="mid">
       {#if np}<div><dd>{num(np)}<small>W</small></dd><dt>{t('Weighted power')}</dt></div>{/if}
+      {#if a.wStrava > 0 && a.wStrava !== np}<div data-w-strava><dd>{num(a.wStrava)}<small>W</small></dd><dt>{t('Weighted power (Strava)')}</dt></div>{/if}
       {#if a.kj}<div><dd>{num(a.kj)}<small>kJ</small></dd><dt>{t('Total work')}</dt></div>{/if}
       {#if load}<div><dd>{num(load.load)}</dd><dt>{t('Training load')}</dt></div><div><dd>{num(load.intensity * 100)}<small>%</small></dd><dt>{t('Intensity')}</dt></div>{/if}
     </dl>

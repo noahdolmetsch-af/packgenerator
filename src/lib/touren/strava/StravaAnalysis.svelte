@@ -154,7 +154,7 @@
 
       <section class="view sa-card" aria-label={t(VIEWS.find((v) => v.key === shown)?.name ?? '')} data-ana-show={shown}>
         {#if shown === 'analysis'}
-          <AnaStacked {ser} {kg} {onkm} />
+          <AnaStacked {ser} {kg} {onkm} act={a} />
         {:else if shown === 'stats'}
           <GarminStats groups={stats} />
         {:else if shown === 'charts'}

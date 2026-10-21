@@ -2,10 +2,12 @@
  * The FTP settings (ftpstate.svelte.js): read live from the settings, saved from Training › FTP, and the FTP of
  * the Strava profile kept when the bikes are fetched.
  *   settings 'training.ftp' = { own: watts } (typed in) · 'strava.ftp' = { w: watts, at } (from Strava)
+ *   An FTP typed in the data pages of the live map ('live-pages'.ftp) counts as own too, when Training has none.
  */
 import { liveQuery } from 'dexie';
 import { db as appDb } from '../db.js';
 import { ftpFixed } from './ftpstate.svelte.js';
+import { PAGES_KEY } from '../live/datapages.js';
 
 export const OWN_FTP_KEY = 'training.ftp';
 export const STRAVA_FTP_KEY = 'strava.ftp';
@@ -18,15 +20,15 @@ export const cleanFtp = (v) => {
   return Number.isFinite(n) && n >= FTP_MIN && n <= FTP_MAX ? n : null;
 };
 
-/** Takes both values into the live state (also used by the tests). */
-export function applyFtp(own, strava) {
-  ftpFixed.own = cleanFtp(own?.own);
+/** Takes the values into the live state (also used by the tests). pages: the live map's data pages setting. */
+export function applyFtp(own, strava, pages = null) {
+  ftpFixed.own = cleanFtp(own?.own) ?? cleanFtp(pages?.ftp);
   ftpFixed.strava = cleanFtp(strava?.w);
 }
 
 if (typeof window !== 'undefined' && typeof indexedDB !== 'undefined') {
   const get = async (k) => (await appDb.settings.get(k))?.value ?? null;
-  liveQuery(() => Promise.all([get(OWN_FTP_KEY), get(STRAVA_FTP_KEY)])).subscribe({ next: ([own, strava]) => applyFtp(own, strava), error: () => {} });
+  liveQuery(() => Promise.all([get(OWN_FTP_KEY), get(STRAVA_FTP_KEY), get(PAGES_KEY)])).subscribe({ next: ([own, strava, pages]) => applyFtp(own, strava, pages), error: () => {} });
 }
 
 /** Saves an own FTP (watts), or null: back to Strava's or the estimate. false when the number does not fit. */

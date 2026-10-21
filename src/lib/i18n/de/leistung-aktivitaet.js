@@ -39,7 +39,7 @@ export default {
   'Load|card': 'Belastung',
   'two views, just to look at': 'zwei Blickwinkel, nur zum Anschauen',
   'Relative Effort (Strava, from the heart rate)': 'Relative Effort (Strava, aus dem Puls)',
-  'Load from power (NP ÷ FTP {f} · {h} h)': 'Belastung aus Leistung (NP ÷ FTP {f} · {h} h)',
+  'TSS from power (IF {f} · {h} h)': 'TSS aus Leistung (IF {f} · {h} h)',
   'Power curve|act': 'Leistungskurve',
   'best Ø power per duration · grey = best of the last 90 days': 'beste Ø Leistung pro Dauer · grau = beste der letzten 90 Tage',
   'Power curve: {list}': 'Leistungskurve: {list}',

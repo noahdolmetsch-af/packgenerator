@@ -111,6 +111,9 @@ describe('the FTP in use', () => {
     applyFtp({ own: 262 }, { w: 255 });
     expect(ftpEstimate([], '2026-10-09')).toBe(262);
     expect(ftpLabel()).toBe('Your FTP');
+    // an FTP typed in the live map's data pages counts as own
+    applyFtp(null, { w: 255 }, { ftp: 248 });
+    expect(ftpEstimate([], '2026-10-09')).toBe(248);
     applyFtp(null, null);
     expect(ftpEstimate([], '2026-10-09')).toBe(null);
     expect(cleanFtp('30')).toBe(null);
@@ -165,8 +168,10 @@ describe('the NP from the stream stays', () => {
     const act = { id: '71', type: 'GravelRide', startLocal: '2026-10-07T08:05:00Z', km: 40, movingS: 6000, wNorm: 147, wDevice: true };
     await keepActivities(db, [act]);
     await loadDetail(db, '71', { call: async () => ({ ok: true, np: 168, dv: 5 }) });
-    expect(await db.activities.get('71')).toMatchObject({ wNorm: 168, npS: 168 });
+    expect(await db.activities.get('71')).toMatchObject({ wNorm: 168, npS: 168, wStrava: 147 });
     await keepActivities(db, [act]);
-    expect((await db.activities.get('71')).wNorm).toBe(168);
+    expect(await db.activities.get('71')).toMatchObject({ wNorm: 168, wStrava: 147 });
+    await loadDetail(db, '71', { call: async () => ({ ok: true, np: 169, dv: 5 }) });
+    expect(await db.activities.get('71')).toMatchObject({ wNorm: 169, wStrava: 147 });
   });
 });

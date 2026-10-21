@@ -60,4 +60,5 @@ export default {
   'Estimate again': 'Wieder schätzen',
   'estimate from your rides: {n} W': 'Schätzung aus deinen Fahrten: {n} W',
   'Strava: {n} W': 'Strava: {n} W',
+  'Weighted power (Strava)': 'Gewichtete Leistung (Strava)',
 };
