@@ -23,13 +23,21 @@ export const NOT_A_DEVICE = /\b(cable|kabel|adapter|charger|ladeger(ä|ae)t|lade
 export const DEVICE_NAME = /\b(di2|axs|power ?bank|battery|batterie|akku)\b/i;
 
 const words = (item) => [item.name, item.nameDe, item.model].filter(Boolean).join(' ');
+/**
+ * Paket P1 (bug from the mockup check 21.10.2026): a kit whose contents name a battery is not a device
+ * («Flickzeug-Beutel (…, Batterie, …)»). Outside Electronics and Lights the words in brackets (the
+ * contents) do not count, and repair and tool kits never count.
+ */
+export const KIT_NAME = /\b(flickzeug|patch ?kit|repair ?kit|reparatur|werkzeug|tool ?kit|multitool|erste ?hilfe|first ?aid)/i;
+const outside = (text) => text.replace(/\([^)]*\)/g, ' ');
 
 /** Is this item a device to charge? */
 export function isChargeable(item) {
   if (!item) return false;
   const text = words(item);
   if (CHARGE_CATEGORIES.includes(item.category)) return !NOT_A_DEVICE.test(text);
-  return DEVICE_NAME.test(text);
+  const own = outside(text);
+  return !KIT_NAME.test(own) && DEVICE_NAME.test(own);
 }
 
 /**

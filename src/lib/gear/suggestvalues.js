@@ -9,17 +9,17 @@
 /** Typical devices: words (lower case, German and English), category, grams, bag, hours. Rough values. */
 export const DEVICES = [
   { words: ['power bank', 'powerbank', 'akku pack'], category: 'elec', grams: 180, bag: 'top', chargeH: 4 },
-  { words: ['bike computer', 'velocomputer', 'radcomputer', 'edge', 'wahoo'], category: 'elec', grams: 130, bag: 'mounted', runH: 15, chargeH: 2 },
-  { words: ['front light', 'frontlicht', 'frontlampe', 'scheinwerfer'], category: 'light', grams: 160, bag: 'mounted', runH: 3, chargeH: 4 },
-  { words: ['rear light', 'rücklicht', 'ruecklicht'], category: 'light', grams: 40, bag: 'mounted', runH: 8, chargeH: 2 },
-  { words: ['headlamp', 'stirnlampe'], category: 'light', grams: 80, bag: 'frame', runH: 5, chargeH: 3 },
-  { words: ['phone', 'handy', 'smartphone'], category: 'elec', grams: 200, bag: 'body', runH: 12, chargeH: 2 },
-  { words: ['earbuds', 'kopfhörer', 'kopfhoerer'], category: 'elec', grams: 50, bag: 'top', runH: 6, chargeH: 1 },
-  { words: ['watch', 'uhr', 'fitbit'], category: 'elec', grams: 45, bag: 'body', runH: 120, chargeH: 2 },
+  { words: ['bike computer', 'velocomputer', 'radcomputer', 'edge', 'wahoo'], category: 'elec', grams: 130, bag: 'mounted', runH: 15, chargeH: 2, mah: 1900 },
+  { words: ['front light', 'frontlicht', 'frontlampe', 'scheinwerfer'], category: 'light', grams: 160, bag: 'mounted', runH: 3, chargeH: 4, mah: 3200 },
+  { words: ['rear light', 'rücklicht', 'ruecklicht'], category: 'light', grams: 40, bag: 'mounted', runH: 8, chargeH: 2, mah: 800 },
+  { words: ['headlamp', 'stirnlampe'], category: 'light', grams: 80, bag: 'frame', runH: 5, chargeH: 3, mah: 600 },
+  { words: ['phone', 'handy', 'smartphone'], category: 'elec', grams: 200, bag: 'body', runH: 12, chargeH: 2, mah: 5000 },
+  { words: ['earbuds', 'kopfhörer', 'kopfhoerer'], category: 'elec', grams: 50, bag: 'top', runH: 6, chargeH: 1, mah: 500 },
+  { words: ['watch', 'uhr', 'fitbit'], category: 'elec', grams: 45, bag: 'body', runH: 120, chargeH: 2, mah: 300 },
   { words: ['cable', 'kabel'], category: 'elec', grams: 25, bag: 'top' },
   { words: ['charger', 'ladegerät', 'ladegeraet', 'netzteil'], category: 'elec', grams: 90, bag: 'frame' },
-  { words: ['camera', 'kamera', 'gopro'], category: 'elec', grams: 150, bag: 'top', runH: 2, chargeH: 3 },
-  { words: ['inreach', 'satellite', 'satelliten'], category: 'elec', grams: 110, bag: 'top', runH: 100, chargeH: 3 },
+  { words: ['camera', 'kamera', 'gopro'], category: 'elec', grams: 150, bag: 'top', runH: 2, chargeH: 3, mah: 1700 },
+  { words: ['inreach', 'satellite', 'satelliten'], category: 'elec', grams: 110, bag: 'top', runH: 100, chargeH: 3, mah: 1200 },
 ];
 
 const STOP = new Set(['der', 'die', 'das', 'und', 'the', 'and', 'mit', 'for', 'für', 'von', 'test', 'neu', 'new']);
@@ -64,6 +64,7 @@ export function suggestValues(name, items = [], selfId = null) {
     if (own.brand) values.brand = own.brand;
     if (own.runH != null) values.runH = own.runH;
     if (own.chargeH != null) values.chargeH = own.chargeH;
+    if (own.mah != null) values.mah = own.mah;
     return Object.keys(values).length ? { from: 'own', like: own, values } : null;
   }
   const d = deviceOf(name);
@@ -71,16 +72,22 @@ export function suggestValues(name, items = [], selfId = null) {
   const values = { category: d.category, grams: d.grams, defaultBag: d.bag };
   if (d.runH != null) values.runH = d.runH;
   if (d.chargeH != null) values.chargeH = d.chargeH;
+  if (d.mah != null) values.mah = d.mah; // Paket P1 (L2): a base value for the battery
   return { from: 'device', like: null, values };
 }
 
+const POWER = ['runH', 'chargeH', 'mah'];
 const empty = (v) => v == null || String(v).trim() === '';
 
 /** What «Use» changes in the draft: category and bag always, the rest only where the field is empty. */
 export function applySuggestion(draft, values) {
   const out = { ...draft };
   for (const [k, v] of Object.entries(values ?? {})) {
-    if (k === 'category' || k === 'defaultBag' || empty(out[k])) out[k] = v;
+    if (k === 'category' || k === 'defaultBag' || empty(out[k])) {
+      // Paket P1 (L1, L2): a power value taken from a suggestion says so («Assumption»), changeable
+      if (POWER.includes(k) && empty(out[k])) out.powerSrc = { ...(out.powerSrc ?? {}), [k]: 'assumed' };
+      out[k] = v;
+    }
   }
   return out;
 }

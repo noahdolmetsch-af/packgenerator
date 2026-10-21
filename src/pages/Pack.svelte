@@ -561,7 +561,7 @@
   // you already own under that name is packed instead of making a second one.
   let newItem = $state(null); // { name, key }
   function createAndPack(name) {
-    const have = items.find((i) => isInventory(i) && i.name.toLowerCase() === name.toLowerCase());
+    const have = name ? items.find((i) => isInventory(i) && i.name.toLowerCase() === name.toLowerCase()) : null;
     if (have) return addTo(zone?.key, have.id);
     newItem = { name, key: zone?.key };
   }
@@ -1090,6 +1090,8 @@
           {#if blockNote}<p class="blocknote" role="status"><span>{blockNote}</span> {#if canUndo}<button type="button" class="text-button" onclick={undoBlock}>{t('Undo')}</button>{/if}</p>{/if}
         </div>
       {/if}
+      <!-- Paket P1 NP1 (Noah 13.10.2026 «NP1 freigeben»): a visible way to make a new item and pack it at once -->
+      <button type="button" class="btn newpack" onclick={() => createAndPack(q.trim())} data-new-item>+ {t('Add a new item and pack it')}</button>
     </NotPacked>{/snippet}
     {#snippet moreWeights()}
       <div class="extra-inner">
@@ -1195,6 +1197,7 @@
   .prep-note .text-button { min-height: 44px; }
   /* v0.26.0 (Noah 3a): building block chips in "Add material". */
   .blockchips { display: grid; gap: 6px; }
+  .newpack { justify-self: start; min-height: 44px; }
   .chips { display: flex; flex-wrap: wrap; gap: 6px; }
   .chip { min-height: 40px; padding: 6px 12px; border: 1.5px solid var(--line-strong); border-radius: 999px; background: var(--paper); color: var(--ink); font: 500 var(--fs-body) var(--font-body); cursor: pointer; overflow-wrap: break-word; text-align: left; }
   .chip:disabled { opacity: 0.5; cursor: default; }

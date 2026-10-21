@@ -763,6 +763,17 @@ export const HANDBOOK = {
     steps: ['Open Ski tours › Season.', 'Set a goal if you like, add wish tours, practice and courses.', 'Pick the ski in «After the tour»: its metres climbed add up here.'],
     example: 'Example: avalanche course two years ago → «Refresh» shows next to it.',
   },
+  // Paket P1 «Packen und Strom»
+  'f.newpack': {
+    on: null,
+    steps: ['Open Packen of a trip and «Add material».', 'Tap «Add a new item and pack it» under the building blocks.', 'Type the name and save: the item is in the chosen bag.'],
+    example: 'Example: a new rain cover → saved and packed in one go.',
+  },
+  'f.powervalues': {
+    on: 'Only for items in Electronics or Lights.',
+    steps: ['Open an item and the row «Power».', 'Type battery, run and charge time and choose where each value comes from.', 'Or start the stopwatch when you plug it in and tap «Full · stop».'],
+    example: 'Example: charges 3 h full → half about 1:12 h, a quarter about 36 min.',
+  },
   'f.swissmap': {
     on: null,
     steps: ['Open Ski tours › Mountain and emergency › «Map with steep slopes», or the button in a mountain trip.', 'Switch the layers: slopes over 30°, ski touring routes, hiking trails; summer or winter map.'],

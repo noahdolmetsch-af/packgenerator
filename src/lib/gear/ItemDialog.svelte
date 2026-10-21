@@ -30,7 +30,9 @@
   import { comesOf, setStandard, setPlace, clearOptional, blockKind } from './comes.js';
   import { inStandard, isWorn } from '../blocks2026.js';
   import { alsoBagOf, setAlsoBag } from '../backpacks.js';
-  import { Warehouse } from '@lucide/svelte';
+  import { Warehouse, Zap } from '@lucide/svelte';
+  import PowerFields from './PowerFields.svelte'; // Paket P1 «Packen und Strom»: L1, L4
+  import { powerLine } from '../strom.js';
   import { Check, Plus, UserRound, Briefcase, Info, Layers, Route, FileText, ChevronRight, MapPin, Package, CalendarClock, Scale, Sparkles, ArrowLeftRight, X, Undo2, Pencil, Ellipsis } from '@lucide/svelte';
   import RenameSheet from '../ui/RenameSheet.svelte';
   import { offerRename, offerDone } from '../ui/rename.svelte.js';
@@ -143,7 +145,6 @@
       parts.push(st === 'expired' ? t('expired') : st === 'soon' ? tn(d, 'expires in {n} day', 'expires in {n} days') : t('until {date}', { date: ex }));
     }
     if (String(draft.stock ?? '').trim() !== '') parts.push(t('{n} at home', { n: draft.stock }));
-    if (String(draft.runH ?? '').trim() !== '') parts.push(t('lasts {n} h', { n: draft.runH }));
     return parts.join(' · ') || (isSupply(draft) ? t('supply, nothing set') : t('not set'));
   });
   const detailLine = $derived([draft.brand, draft.model].filter((x) => String(x ?? '').trim()).join(' · '));
@@ -685,26 +686,14 @@
     <Field id="it-min" label={t('Buy again below')} optional example={t('e.g. {x}', { x: '2' })} error={errors.minStock}>
       {#snippet children(f)}<input class="inp num" type="text" inputmode="numeric" {...f.attrs} bind:value={draft.minStock} />{/snippet}
     </Field>
-    {#if charges}
-      <Field id="it-run" label={t('Battery lasts (h)')} optional example={t('e.g. {x}', { x: '12' })} error={errors.runH}>
-        {#snippet children(f)}<input class="inp num" type="text" inputmode="decimal" {...f.attrs} bind:value={draft.runH} />{/snippet}
-      </Field>
-      <Field id="it-chg" label={t('Charging takes (h)')} optional example={t('e.g. {x}', { x: '3' })} error={errors.chargeH}>
-        {#snippet children(f)}<input class="inp num" type="text" inputmode="decimal" {...f.attrs} bind:value={draft.chargeH} />{/snippet}
-      </Field>
-      <!-- Strombudget (Noah 19.10.2026 «2a»): the battery size and the sockets, for Material › Strom -->
-      <Field id="it-mah" label={t('Battery (mAh)')} optional example={t('e.g. {x}', { x: '10000' })} error={errors.mah}>
-        {#snippet children(f)}<input class="inp num" type="text" inputmode="numeric" {...f.attrs} bind:value={draft.mah} />{/snippet}
-      </Field>
-      {#if ['bank', 'charger'].includes(powerRole(draft))}
-        <Field id="it-ports" label={t('Sockets')} optional example={t('e.g. {x}', { x: '3' })} error={errors.ports}>
-          {#snippet children(f)}<input class="inp num" type="text" inputmode="numeric" {...f.attrs} bind:value={draft.ports} />{/snippet}
-        </Field>
-      {/if}
-    {/if}
   </div>
   <p class="note"><a href="#/gear/supplies">{t('All supplies and the shopping list ›')}</a></p>
-  {#if charges}<p class="note"><a href="#/gear/power">{t('Does the power last? Power budget ›')}</a></p>{/if}
+{/snippet}
+
+<!-- Paket P1 «Packen und Strom» (L1, L4): battery, run and charge time with their source, light levels, stopwatch -->
+{#snippet powerBody()}
+  <PowerFields bind:draft {errors} itemId={isNew ? autoId : item.id} />
+  <p class="note"><a href="#/gear/power">{t('Does the power last? Power budget ›')}</a></p>
 {/snippet}
 
 <!-- v0.63.0: name, category and status of an existing item sit here with brand, model, note and areas. -->
@@ -801,7 +790,7 @@
   {#if sugShown}
     {@const v = sugShown.values}
     <div class="wide sugv" role="status">
-      <p>{sugShown.from === 'own' ? t('Like «{name}»:', { name: nameOf(sugShown.like) }) : t('Usual values:')} {[v.category && t(CATEGORY[v.category]?.name ?? v.category), v.grams != null && formatWeight(v.grams), v.defaultBag && t(BAG[v.defaultBag] ?? v.defaultBag), v.brand, v.runH != null && t('runs {h} h', { h: v.runH }), v.chargeH != null && t('charges {h} h', { h: v.chargeH })].filter(Boolean).join(' · ')}</p>
+      <p>{sugShown.from === 'own' ? t('Like «{name}»:', { name: nameOf(sugShown.like) }) : t('Usual values:')} {[v.category && t(CATEGORY[v.category]?.name ?? v.category), v.grams != null && formatWeight(v.grams), v.defaultBag && t(BAG[v.defaultBag] ?? v.defaultBag), v.brand, v.runH != null && t('runs {h} h', { h: v.runH }), v.chargeH != null && t('charges {h} h', { h: v.chargeH }), v.mah != null && `${v.mah} mAh`].filter(Boolean).join(' · ')}</p>
       <span><button type="button" class="btn sm" onclick={useSug}>{t('Use|values')}</button><button type="button" class="text-button" onclick={() => (sugOff = draft.name.trim())}>{t('No, thanks')}</button></span>
     </div>
   {/if}
@@ -852,6 +841,7 @@
   {@render fold('rules', Route, t('For weather and riding time'), ruleLine, rulesBody)}
   {#if !isNew && life}{@render fold('life', CalendarClock, t('History|item'), lifeSum, lifeBody)}{/if}
   {@render fold('store', Warehouse, t('At home and supply'), storeLine, storeBody)}
+  {#if charges}{@render fold('power', Zap, t('Power|item'), powerLine(draft, t) || t('not set'), powerBody)}{/if}
   {@render fold('details', FileText, isNew ? t('Brand, model, note') : t('Name, brand, note'), detailLine || t(CATEGORY[draft.category]?.name ?? ''), detailsBody)}
   {#if !isNew}
     <!-- SK X1 + X13 (SKX1): the maker's instructions (your link) and iFixit; X7 for a wish: the shop (your link) -->

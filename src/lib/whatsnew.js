@@ -16,6 +16,27 @@
 
 export const WHATS_NEW = [
   {
+    // v0.179.0 «Packen und Strom» (Paket P1 of «Offene Mockups», Noah 21.10.2026): NP1 new item while
+    // packing, L1 power values with source and light levels, L2 a base battery value, L4 the stopwatch,
+    // fix: a repair kit naming a battery no longer counts as a device.
+    version: '0.179.0',
+    date: '2026-10-21',
+    title: 'Packed and charged',
+    lead: 'New things straight into the bag.',
+    points: [
+      { text: 'New item straight into the bag', href: '#/pack' },
+      { text: 'Measure the charging time once', href: '#/gear' },
+    ],
+    small: [
+      { box: 'new', text: 'Light levels with their hours' },
+      { box: 'fixed', text: 'Repair kit is no device any more' },
+    ],
+    test: [
+      'Open Packen, «Add material», and tap «Add a new item and pack it».',
+      'Open a lamp in Gear, the row «Power», and add a light level.',
+    ],
+  },
+  {
     // v0.178.0 «Skitour» (Paket P2 of «Offene Mockups», Noah 21.10.2026 «1a 2b 3a 4a 5b»): Tour planen with the
     // danger level and «Dein Morgen», Saison with goal, wish tours, LVS practice, courses and metres per ski,
     // «Gipfel erreicht», Plan und echt after the tour, the ski plan on the evening-before check.
