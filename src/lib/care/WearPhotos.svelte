@@ -17,6 +17,7 @@
   import { askDelete, deleteWithUndo } from '../ui/ask.js';
   import { offerDone } from '../ui/rename.svelte.js';
   import PhotoPick from '../ui/PhotoPick.svelte';
+  import DrawOn from '../draw/DrawOn.svelte'; // Paket NE 1146 (Noah 20.10.2026 «1b»): draw on a wear photo
   import GriffHead from './GriffHead.svelte';
   import './griff.css';
 
@@ -98,7 +99,7 @@
           <p class="quiet">{t('With a second photo you can compare old and new.')}</p>
         {/if}
         {#if list.length}
-          <ul class="list">{#each [...list].reverse() as p (p.id)}<li data-shot={p.id}><span class="grow">{label(p)}</span><button type="button" class="ib" aria-label={t('Delete the photo of {date}', { date: dateOf(p.date) })} onclick={() => remove(p)}><Trash2 size={16} aria-hidden="true" /></button></li>{/each}</ul>
+          <ul class="list">{#each [...list].reverse() as p (p.id)}<li data-shot={p.id}><span class="grow">{label(p)}</span><DrawOn src={p.data} list={[p.data]} inks={p.inks} icon cls="ib" onsave={({ list: l, inks }) => db.photos.update(p.id, { data: l[0], inks })} data-shot-draw /><button type="button" class="ib" aria-label={t('Delete the photo of {date}', { date: dateOf(p.date) })} onclick={() => remove(p)}><Trash2 size={16} aria-hidden="true" /></button></li>{/each}</ul>
         {/if}
         <div class="row"><PhotoPick onfile={(f) => add(key, f)} busy={busy === key} has={list.length > 0} camera="Take photo" again="New photo" /></div>
       </section>
