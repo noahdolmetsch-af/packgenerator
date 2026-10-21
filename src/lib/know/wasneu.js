@@ -117,6 +117,8 @@ export const SINCE = {
   'f.trainplans': '0.157.0', 'f.feel': '0.157.0',
   // «Heatmap» (provisional version, the bundler renumbers)
   'f.heatmap': '0.170.0',
+  // Paket U4 «Schlafplätze im Rennen» (provisional version, the bundler renumbers)
+  'f.sleeptonight': '0.170.0', 'f.callhotels': '0.170.0', 'f.powernap': '0.170.0', 'f.sleeplists': '0.170.0', 'f.nightswx': '0.170.0',
   // «Tagebuch» (provisional; the bundler sets the version of its release)
   'f.journal': '0.170.0',
 };

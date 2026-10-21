@@ -74,7 +74,7 @@
   import { zurichTime } from '../lib/spur/spur.js';
   import { racesQuery, cacheQuery, cacheGet, cacheSet } from '../lib/race/store.js';
   import { raceOf, schedule, lineKm, climbsOf, hhmm, dayOfMs } from '../lib/race/race.js';
-  import { POI_CACHE, POI_KIND } from '../lib/race/outside.js';
+  import { POI_CACHE, POI_KIND, WX_CACHE } from '../lib/race/outside.js';
   import { mergePois } from '../lib/race/more.js';
   import { withSampleFine } from '../lib/race/sample.js';
   import { paceFromRides, loadedBy, assumptionsOf, compareWays, simPlan } from '../lib/race/strategy.js';
@@ -91,6 +91,7 @@
   import { DICTATION } from '../lib/live/dictation.js';
   import { refreshFamilyLink, LIVE_EVERY_MS } from '../lib/live/familylive.js';
   import { t, tn, locale, num } from '../lib/i18n.svelte.js';
+  import SleepList from '../lib/race/ride/SleepList.svelte';
   import '../lib/race/race.css';
 
   let { id = '' } = $props();
@@ -220,6 +221,9 @@
   const running = $derived(planRunning(plan, now));
   const delta = $derived(running && km != null ? planDelta(plan, km, now) : null);
   const bed = $derived(km != null && (isRace || pois.some((p) => p.kind === 'sleep')) ? bedTonight({ plan: running ? plan : null, pois, km, now, pace, profile, light }) : null);
+  // U4 «Wo schlafe ich heute?»: the next places to sleep ahead on the route (on by default in a race)
+  const wxQ = cacheQuery(WX_CACHE + (tid || '-'));
+  const showSleep = $derived(hasRoute && km != null && (cfg.sleepSpots ?? isRace));
 
   /* ---------- formatting ---------- */
   const when = (ms) => (Number.isFinite(ms) ? (dayOfMs(ms) === dayOfMs(now) ? hhmm(ms) : `${new Date(ms).toLocaleDateString(locale(), { weekday: 'short', timeZone: 'Europe/Zurich' })} ${hhmm(ms)}`) : '');
@@ -1034,6 +1038,12 @@
                     {#if bed.best}<p class="lv-line"><Moon size={18} aria-hidden="true" /><span>{t('Reachable tonight: {name}, km {km}, in {d} km, about {at}', { name: bed.best.name || kindName('sleep'), km: Math.round(bed.best.km), d: fmtKm(bed.best.distKm), at: when(bed.best.eta) })}</span></p>{/if}
                   </div>
                 {/if}
+                {#if showSleep}
+                  <div class="lv-sleep" data-live-sleep>
+                    <h2 class="lvf-h">{t('Where do I sleep tonight?')}</h2>
+                    <SleepList compact {pois} {own} {pts} {km} {now} kmh={pace.kmh} wx={$wxQ?.data ?? null} bagC={race?.bagC ?? 5} />
+                  </div>
+                {/if}
                 {#if batEst}<p class="lv-line" class:rc-warn={batEst.enough === false} data-live-battery><BatteryMedium size={18} aria-hidden="true" /><span>{t('Battery {p} %: lasts about {h} h', { p: Math.round(bat.level * 100), h: num(batEst.hours) })}{#if batEst.enough != null}{' '}· {batEst.enough ? t('enough to the finish') : t('not enough to the finish: charge or save')}{/if}</span></p>{/if}
               </div>
             {/if}
@@ -1213,6 +1223,9 @@
       </li>
       <li class="rc-row">
         <label class="lv-opt"><input type="checkbox" checked={cfg.dim} onchange={(e) => setOpt('dim', e.currentTarget.checked)} data-live-opt="dim" /><span><b>{t('Save the screen')}</b><small>{t('After 2 minutes without a touch the map gets darker (less battery on most phones). A touch or a warning makes it bright again.')}</small></span></label>
+      </li>
+      <li class="rc-row">
+        <label class="lv-opt"><input type="checkbox" checked={cfg.sleepSpots ?? isRace} onchange={(e) => setOpt('sleepSpots', e.currentTarget.checked)} disabled={!hasRoute} data-live-opt="sleepSpots" /><span><b>{t('Places to sleep ahead')}</b><small>{hasRoute ? t('The next three places to sleep on the route in the panel: hotels, roofs, places open at night and your own spots. On by default in a race.') : t('Needs a route.')}</small></span></label>
       </li>
       <li class="rc-row">
         <label class="lv-opt"><input type="checkbox" checked={cfg.storm} onchange={(e) => setOpt('storm', e.currentTarget.checked)} data-live-opt="storm" /><span><b>{t('Thunderstorm alert')}</b><small>{t('Every 15 min the forecast for the next 2 hours where you ride (Open-Meteo, free): a line and a vibration.')}</small></span></label>
