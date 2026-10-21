@@ -16,6 +16,21 @@
 
 export const WHATS_NEW = [
   {
+    // v0.177.0 one package for everything after 0.176 (Noah 21.10.2026 «alles kommende in ein paket»): Packliste aufräumen, Ess-Erinnerung; Gesamttest-Fixes, Tages-Check and Tour-Auswertung follow; built without mockups
+    version: '0.177.0',
+    date: '2026-10-21',
+    title: 'Tidied up',
+    lead: 'Less to carry, fewer reminders you did not want.',
+    points: [
+      { text: 'Building blocks: tidy up what always comes along', href: '#/blocks/aufraeumen' },
+      { text: 'On the way: the eat reminder your way', href: '#/ride' },
+    ],
+    test: [
+      'Open Building blocks and tap «Tidy up».',
+      'Start a ride: on the ride card choose how often the eat reminder comes.',
+    ],
+  },
+  {
     // v0.176.0 «Eine Tour, eine Seite» (UI-Ziele #5, #8, #10, #18, Noah 20.10.2026) + Fahrt-Analyse part 3 + Paket «Reste» (#194, #1038, #1041, #1152); built without mockups
     version: '0.176.0',
     date: '2026-10-21',

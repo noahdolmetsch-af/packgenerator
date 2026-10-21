@@ -1533,4 +1533,10 @@ export default {
   'Bike park days as a block': 'Bikepark-Tage als Baustein',
   'Open Plan of a trip: «Still missing» comes first.': 'Öffne «Planen» einer Tour: «Fehlt noch» steht zuoberst.',
   'Open a trip and tap «Analysis» in the step bar.': 'Öffne eine Tour und tippe in der Schrittleiste auf «Auswertung».',
+  'Tidied up': 'Aufgeräumt',
+  'Less to carry, fewer reminders you did not want.': 'Weniger mitschleppen, weniger Erinnerungen, die du nicht willst.',
+  'Building blocks: tidy up what always comes along': 'Bausteine: aufräumen, was immer mitkommt',
+  'On the way: the eat reminder your way': 'Unterwegs: die Ess-Erinnerung, wie du sie willst',
+  'Open Building blocks and tap «Tidy up».': 'Öffne Bausteine und tippe auf «Aufräumen».',
+  'Start a ride: on the ride card choose how often the eat reminder comes.': 'Starte eine Fahrt: Wähle auf der Fahrt-Karte, wie oft die Ess-Erinnerung kommt.',
 };
