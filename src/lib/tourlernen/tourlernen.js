@@ -6,8 +6,8 @@
  *        packing the matching spare parts come as a suggestion («letztes Mal Platten → Schlauch, Flickzeug»).
  *        Dismissed per trip (trip.spareSkip = [kind]).
  *   1122 Schlafplätze: a rated place to sleep is an own point (map/ownpoints.js, kind 'sleep') with stars
- *        1–5 and the trip it came from. Planning a trip near one shows «Deine Schlafplätze hier».
- *   1123 Tour-Postkarte: the facts for the picture (postcard.js draws it on the device).
+ *        1–5, the night and the trip it came from. Planning a trip near one shows «Deine Schlafplätze hier».
+ *   1123 Tour-Postkarte: the facts for the picture (PostcardSheet.svelte draws it on the device).
  * Pure functions, tested in tests/tourlernen.test.js. Labels are English keys for t().
  */
 import { distKm } from '../route.js';

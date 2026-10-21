@@ -268,9 +268,7 @@
           <DocChecks {trip} />
           <!-- Paket W «Von der Haustür bis zurück» (Noah 20.10.2026): plan B, check-in, «Gut angekommen» -->
           <PlanHints {trip} {trips} {items} />
-          <PlanHints {trip} {trips} {items} />
-      <DoorCard {trip} />
-      <PackExtras {trip} {trips} {itemsById} />
+          <DoorCard {trip} />
           <PackExtras {trip} {trips} {itemsById} />
           <!-- Planungs-Notizen (IS 246–249): what comes to mind while planning; «Daraus wird …» -->
           <PlanNotesCard {trip} {bike} {fixed} />

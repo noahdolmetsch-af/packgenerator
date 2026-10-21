@@ -429,6 +429,42 @@ export const HANDBOOK = {
     steps: ['On On the way tap «Bike parked»: photo, lock, save.', 'Later tap it again: the photo, the lock and «Way to the bike».'],
     example: 'Example: at the station in a big town → back after the museum with the map link.',
   },
+  // Paket Z and SP (Noah 20.10.2026)
+  'f.breakdown': {
+    on: null,
+    steps: ['In the debrief under «For next time» tap «Note a breakdown».', 'Choose what broke; with the tick a bike-care job waits in Velopflege.'],
+    example: 'Example: a flat after the pass → a job «Check tyre and tube» and next time «Spare tube» as a suggestion.',
+  },
+  'f.sleepspots': {
+    on: null,
+    steps: ['In the debrief tap «Rate a place to sleep»: stars, note, the night.', 'Plan a trip nearby: Planen shows «Your places to sleep here».'],
+    example: 'Example: a quiet campsite at the lake with 5 stars → it comes back on the next tour in the area.',
+  },
+  'f.postcard': {
+    on: null,
+    steps: ['In the debrief tap «Tour postcard» and add a photo if you like.', '«Share» opens the share sheet; on a computer «Save» downloads the picture.'],
+    example: 'Example: a photo from the pass, the line of the tour and 212 km, 3100 m up, 2 days on one picture.',
+  },
+  'f.packtwo': {
+    on: null,
+    steps: ['In Planen fold open «Packing for two» and type a name.', 'Tap what the other person carries; the weight per person shows on top.'],
+    example: 'Example: tent and stove with Lea → you 6.2 kg, Lea 4.8 kg.',
+  },
+  'f.laundry': {
+    on: null,
+    steps: ['In Planen fold open «In the wash» and tap the clothes still in the wash.', 'Two days before the trip a reminder waits in Merken.'],
+    example: 'Example: the rain jacket in the wash on Tuesday → on Thursday Merken reminds you for the Saturday tour.',
+  },
+  'f.morninglist': {
+    on: null,
+    steps: ['In Planen fold open «Only on the morning» and tap phone, food or bottles.', 'On the morning of the start On the way shows them as a short list.'],
+    example: 'Example: phone, sandwich from the fridge and two filled bottles on the departure morning.',
+  },
+  'f.packtime': {
+    on: 'Can be hidden in the card «Pack faster».',
+    steps: ['In Planen fold open «Packing time» and tap «Start packing».', 'Tap «Done packing»; the next trip shows the trend.'],
+    example: 'Example: 42 min for the first weekend tour, 28 min for the next one.',
+  },
   'f.departsheet': {
     on: null,
     steps: ['On On the way tap «Before you leave».', 'Check the tour, papers and numbers; «As PDF» makes the sheet to print.'],

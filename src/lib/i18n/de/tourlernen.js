@@ -1,6 +1,5 @@
 /** Paket Z «Aus jeder Tour lernen» (Noah 20.10.2026 «1a 2b 3a 4a»): Panne, Schlafplätze, Tour-Postkarte. */
 export default {
-  'For next time': 'Für nächstes Mal',
   'A breakdown, a good place to sleep, a postcard: the app brings it back when it fits.': 'Eine Panne, ein guter Schlafplatz, eine Postkarte: die App bringt es zurück, wenn es passt.',
   'Saved. A bike-care job is waiting, and next time the spare part is suggested.': 'Gespeichert. Eine Velopflege-Aufgabe wartet, und nächstes Mal wird das Ersatzteil vorgeschlagen.',
   'Saved. Next time the spare part is suggested.': 'Gespeichert. Nächstes Mal wird das Ersatzteil vorgeschlagen.',
@@ -52,12 +51,12 @@ export default {
   'Rate where you slept with 1–5 stars and a note; planning a trip nearby shows them again.': 'Bewerte mit 1–5 Sternen und einer Notiz, wo du geschlafen hast; planst du in der Nähe, erscheinen sie wieder.',
   'A picture of the tour with your photo, the line and the numbers, made on the device and shared from your phone.': 'Ein Bild der Tour mit deinem Foto, der Linie und den Zahlen, auf dem Gerät gemacht und vom Handy geteilt.',
   'Open the debrief of a trip.': 'Öffne den Rückblick einer Tour.',
-  'Under «For next time» tap «Note a breakdown», choose what broke and save.': 'Unter «Für nächstes Mal» «Panne notieren» tippen, wählen, was kaputt ging, und speichern.',
+  'Under «For next time» tap «Note a breakdown», choose what broke and save.': 'Unter «Fürs nächste Mal» «Panne notieren» tippen, wählen, was kaputt ging, und speichern.',
   'Next time Planen suggests the spare part; one tap puts it on the list.': 'Nächstes Mal schlägt Planen das Ersatzteil vor; ein Tipp setzt es auf die Liste.',
-  'Under «For next time» tap «Rate a place to sleep».': 'Unter «Für nächstes Mal» «Schlafplatz bewerten» tippen.',
+  'Under «For next time» tap «Rate a place to sleep».': 'Unter «Fürs nächste Mal» «Schlafplatz bewerten» tippen.',
   'Give stars, a note and the place (a night of the trip or where you are).': 'Gib Sterne, eine Notiz und den Ort (eine Nacht der Tour oder wo du bist).',
   'Planning a trip nearby shows «Your places to sleep here».': 'Planst du eine Tour in der Nähe, erscheint «Deine Schlafplätze hier».',
-  'Under «For next time» tap «Tour postcard».': 'Unter «Für nächstes Mal» «Tour-Postkarte» tippen.',
+  'Under «For next time» tap «Tour postcard».': 'Unter «Fürs nächste Mal» «Tour-Postkarte» tippen.',
   'Add a photo if you like.': 'Füge ein Foto hinzu, wenn du magst.',
   'Tap «Share» and pick WhatsApp, mail or a chat.': 'Tippe «Teilen» und wähle WhatsApp, Mail oder einen Chat.',
 };

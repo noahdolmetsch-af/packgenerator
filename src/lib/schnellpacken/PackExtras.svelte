@@ -143,7 +143,7 @@
           {#if pt.start}
             <button type="button" class="btn hi" onclick={stop} data-pack-stop><Square size={16} aria-hidden="true" />{t('Done packing')}</button>
           {:else}
-            <button type="button" class="btn" onclick={start} data-pack-start><Play size={16} aria-hidden="true" />{pt.ms ? t('Go on packing') : t('Start packing')}</button>
+            <button type="button" class="btn" onclick={start} data-pack-start><Play size={16} aria-hidden="true" />{pt.ms ? t('Go on packing') : t('Start packing|clock')}</button>
           {/if}
           {#if trendText}<p class="tp-small" data-pack-trend>{trendText}</p>{/if}
           <button type="button" class="tp-link" onclick={() => setTimeOff(true)}>{t('Hide the packing time')}</button>

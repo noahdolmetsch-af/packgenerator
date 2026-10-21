@@ -24,7 +24,7 @@ export default {
   'Packing time': 'Packzeit',
   'running · {n} min': 'läuft · {n} min',
   'not measured': 'nicht gemessen',
-  'Start packing': 'Packen starten',
+  'Start packing|clock': 'Packen starten',
   'Go on packing': 'Weiterpacken',
   'Done packing': 'Fertig gepackt',
   'Last time: {n} min ({title})': 'Letztes Mal: {n} min ({title})',
