@@ -154,7 +154,8 @@ test('Training: the tile «Letzte Aktivität», every activity with its zones, o
   // 3a: the zones from Strava, changeable; the minutes follow without a new call
   const zs = page.locator('[data-section="zones"]');
   await expect(page.getByText('deine Zonen aus Strava')).toBeVisible();
-  await page.getByRole('button', { name: 'ändern' }).click();
+  // the heart rate zones (the FTP below has its own «ändern» since the Strava check 21.10.2026)
+  await page.getByLabel('Pulszonen', { exact: true }).getByRole('button', { name: 'ändern' }).click();
   for (const [i, v] of [125, 145, 160, 175].entries()) await zs.locator(`[data-bound="${i}"]`).fill(String(v));
   await zs.getByRole('button', { name: 'Speichern' }).click();
   await expect(page.getByText('deine eigenen Zonen')).toBeVisible();
