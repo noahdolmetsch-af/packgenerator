@@ -24,7 +24,9 @@ const BIKE = base.tables.bikes[0];
 const today = () => new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Zurich' });
 // calendar days in Europe/Zurich
 const day = (n) => ((d) => (d.setUTCDate(d.getUTCDate() + n), d.toISOString().slice(0, 10)))(new Date(`${today()}T12:00:00Z`));
-const N = (n) => n.toLocaleString('de-CH');
+// the thousands mark as the browser writes it (Node on GitHub writes ' where Chrome writes ’)
+let SEP = '’';
+const N = (n) => n.toLocaleString('en-US').replace(/,/g, SEP);
 const rep = (date, km, extra = {}) => ({ date, km, value: null, action: 'replace', result: 'done', by: 'self', note: '', ...extra });
 // a fictional bike with 2600 km: the chain changed by yourself 60 days ago (Test-Marke, before: Alt-Marke)
 Object.assign(BIKE, {
@@ -60,6 +62,7 @@ test.beforeEach(async ({ page, context }, info) => {
   await data.getByLabel(T('Import backup')).setInputFiles(file);
   await data.getByRole('button', { name: T('Replace all data') }).press('Enter');
   await settle(page);
+  SEP = await page.evaluate(() => (1000).toLocaleString('de-CH').charAt(1));
 });
 
 test('the wear page: brands, chain rotation, the four pages and the reminders', async ({ page }) => {
