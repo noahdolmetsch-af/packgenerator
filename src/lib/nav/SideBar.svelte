@@ -7,7 +7,8 @@
    * under it with a line), and «Ich» as a card at the bottom.
    * AU1 (Noah 15.10.2026 «5b»): «Ausrüstung» is its own row under Velos (nav.js SIDE_PLACES).
    */
-  import { SIDE_PLACES, PLACE_TABS, tabOf, placeHref } from '../nav.js';
+  import { menuSide, shownTabs, tabOf, placeHref } from '../nav.js';
+  import { anp, placeLabel, tabLabel } from '../anpassen.svelte.js'; // «Anpassen» 2a + 3a: your menu, tabs and names
   import { t } from '../i18n.svelte.js';
   import Search from './Search.svelte';
   import MeButton from './MeButton.svelte';
@@ -16,6 +17,7 @@
   import { localDay } from '../localday.js';
 
   let { place = null, hash = '#/', due = 0, inbox = 0, onnew, shownew = true } = $props();
+  const sidePlaces = $derived((void anp.v, menuSide()));
   // «Inspiration» UC2-1 (mockup): an entry under the five places, with «neu» until it was opened once
   const INSP_SEEN = 'insp.seen';
   const insp = $derived((hash || '').startsWith('#/inspiration'));
@@ -61,21 +63,21 @@
     <a class="asst" href="#/assistent" aria-current={hash.startsWith('#/assistent') ? 'page' : undefined}><MessageCircle size={18} aria-hidden="true" /><span>{t('Assistant')}</span></a>
     <nav class="places" aria-label={t('Sections')}>
       <ul>
-        {#each SIDE_PLACES as p (p.key)}
-          {@const tabs = PLACE_TABS[p.key] ?? []}
+        {#each sidePlaces as p (p.key)}
+          {@const tabs = (void anp.v, shownTabs(p.key, place === p.key ? hash : ''))}
           {@const on = place === p.key}
           {@const tab = on ? tabOf(p.key, hash) : null}
           <li class="pl" class:on data-place={p.key}>
             <!-- the place of the page: «page» when none of its pages is lit (a trip), else «true» -->
-            <a class="pa" href={placeHref(p, place, hash)} aria-current={on ? (tab && tabs.length > 1 ? 'true' : 'page') : undefined}>
+            <a class="pa" href={(void anp.v, placeHref(p, place, hash))} aria-current={on ? (tab && tabs.length > 1 ? 'true' : 'page') : undefined}>
               <span class="pi"><PlaceIcon place={p.key} size={20} /></span>
-              <span class="pn">{t(p.label)}</span>
+              <span class="pn">{placeLabel(p)}</span>
               {#if p.key === 'bikes' && due}<span class="cnt due num"><span class="sr">, {t('{n} due', { n: due })}</span><span aria-hidden="true">{due}</span></span>{/if}
             </a>
             {#if on && tabs.length > 1}
               <ul class="tabs">
                 {#each tabs as x (x.key)}
-                  <li><a href={x.href} class:cur={tab === x.key} aria-current={tab === x.key ? 'page' : undefined}>{t(x.label)}</a></li>
+                  <li><a href={x.href} class:cur={tab === x.key} aria-current={tab === x.key ? 'page' : undefined}>{tabLabel(p.key, x)}</a></li>
                 {/each}
               </ul>
             {/if}

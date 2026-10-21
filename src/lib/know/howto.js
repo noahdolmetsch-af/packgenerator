@@ -157,6 +157,7 @@ export const HOWTO = {
   'f.listsmore': ['Open Me › Lists and types.', 'Pick a list, e.g. Kinds of bike.', 'The pen renames, hides or deletes; «+ Own» adds one; arrows and handle sort.'],
   'f.theme': ['Open Me › Appearance.', 'Choose font, colour world and text size.', 'Choose light or dark.'],
   'f.uisize': ['Open Me › Appearance.', 'Move «Size» between 80 and 130 %.', '«Back to 100 %» brings the normal size back.'],
+  'f.custompage': ['Scroll to the end of a page and tap «Customise this page».', 'Hide, rename or sort its parts; choose the tab it opens with.', '«As at the start» puts it back; everything under Me › Appearance.'],
   'f.explain': ['Point at a button, or hold it on a phone.', 'It says what it does.', '«…» lists the rest, each with one line.'],
   // Paket Q «App klarer»
   'f.alerts': ["Open Me › Alerts and news.", "Type your region and tick your passes.", "Add, change or delete your news sources."],

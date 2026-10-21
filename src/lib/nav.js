@@ -1,3 +1,5 @@
+import { readCfg, menuPlaces, visibleTabs, startTab } from './anpassen.js'; // «Anpassen» (Noah 20.10.2026 «2a 4a»)
+
 /**
  * Start actions from anywhere (v0.19.6): the "New" sheet, the search and the start page open
  * another page with something already started. The wish is kept in localStorage (the page reads
@@ -448,8 +450,28 @@ export function keepTab(place, key) {
 export function placeHref(p, current = null, hash = '') {
   void hash;
   const tabs = PLACE_TABS[p.key] ?? [];
-  if (p.key === current || tabs.length < 2) return tabs[0]?.href ?? p.href;
-  return lastTab(p.key)?.href ?? p.href;
+  if (tabs.length < 2) return tabs[0]?.href ?? p.href;
+  // «Anpassen» 4a (Noah 20.10.2026): a start tab you chose wins over «the tab opened last»
+  const own = startTab(readCfg(), p.key);
+  const start = own ? shownTabs(p.key).find((x) => x.key === own) : null;
+  if (start) return start.href;
+  if (p.key === current) return shownTabs(p.key)[0]?.href ?? p.href;
+  const shown = shownTabs(p.key);
+  const last = lastTab(p.key);
+  if (last && shown.includes(last)) return last.href;
+  // the place's own address, unless you hid the tab it opens
+  const home = tabs.find((x) => x.match(p.href));
+  return home && !shown.includes(home) ? (shown[0]?.href ?? p.href) : p.href;
+}
+
+/** «Anpassen» 2a (Noah 20.10.2026): the places of the phone bar in your order, without the hidden ones. */
+export const menuBar = () => menuPlaces(readCfg(), BAR_PLACES);
+/** The places of the sidebar in your order, without the hidden ones; Ausrüstung stays under Velos. */
+export const menuSide = () => menuPlaces(readCfg(), PLACES).flatMap((p) => (p.key === 'bikes' ? [p, EQUIPMENT] : [p]));
+
+/** «Anpassen» 2a: the tabs of a place in your order without the ones you hid; the tab you are on always stays. */
+export function shownTabs(place, hash = '') {
+  return visibleTabs(readCfg(), place, orderedTabs(place), hash ? tabOf(place, hash) : null);
 }
 
 /* ---------- Impeccable 20.10.2026 P1 (Noah «alles umsetzen», 1a): at most four tabs on a phone, the rest under «Mehr» ---------- */
@@ -489,7 +511,7 @@ export function setTabOrder(place, keys) {
  * it takes the fourth place, so the lit tab is always in view. more: the rest, for «Mehr».
  */
 export function phoneTabs(place, hash = '') {
-  const all = orderedTabs(place);
+  const all = shownTabs(place, hash);
   if (all.length <= PHONE_TABS) return { shown: all, more: [] };
   const cur = tabOf(place, hash);
   let shown = all.slice(0, PHONE_TABS);
@@ -499,7 +521,7 @@ export function phoneTabs(place, hash = '') {
 
 /** The tab before (-1) or after (+1) the current one, for a swipe on a phone (Noah O2.3a), or null. */
 export function tabStep(place, hash, dir) {
-  const tabs = orderedTabs(place);
+  const tabs = shownTabs(place, hash);
   const i = tabs.findIndex((x) => x.key === tabOf(place, hash));
   if (i < 0) return null;
   return tabs[i + dir] ?? null;

@@ -31,6 +31,9 @@
   import SideBar from './lib/nav/SideBar.svelte';
   import PlaceBar from './lib/nav/PlaceBar.svelte';
   import MeButton from './lib/nav/MeButton.svelte';
+  import PageFoot from './lib/anpassen/PageFoot.svelte'; // «Anpassen» (Noah 20.10.2026 «1a»)
+  import { pageKeyOf } from './lib/anpassen.js';
+  import { placeLabel, tabLabel } from './lib/anpassen.svelte.js';
   import Keys from './lib/nav/Keys.svelte';
   import { shortcutOf, typing, G_WAIT } from './lib/nav/keys.js';
   import { ops } from './lib/bedienung.svelte.js';
@@ -106,6 +109,13 @@
   // v0.23.0 (AP07): the address → page and its main place live in nav.js (tested there).
   const page = $derived(pageOf(hash, parseBikesHash(hash).tab === 'care'));
   const place = $derived(placeOf(page));
+  // «Anpassen»: the page's name when it has no big title (the place › the tab)
+  const anpTitle = $derived.by(() => {
+    const p = PLACES.find((x) => x.key === place);
+    if (!p) return '';
+    const tab = (PLACE_TABS[place] ?? []).find((x) => x.key === tabOf(place, hash));
+    return tab ? `${placeLabel(p)} › ${tabLabel(place, tab)}` : placeLabel(p);
+  });
   // a page for someone without the app's data (a shared list, Paket S «Reise-Spur»: a tour's read link)
   const guest = $derived(page === 'share' || page === 'spurlink');
   // v0.78.0 «Fünf Orte» 2 (Noah O2.2a): each place remembers the tab opened last (nav.js placeHref).
@@ -736,6 +746,8 @@
   {/key}
   {#snippet failed(error, reset)}<ErrorPage {error} name={failName} onreset={() => ((failReset = null), reset())} />{/snippet}
   </svelte:boundary>
+  <!-- «Anpassen» (Noah 20.10.2026 «1a»): «Diese Seite anpassen» at the end of every page -->
+  {#if !guest && !mini}<PageFoot page={pageKeyOf(page, place ? tabOf(place, hash) : null)} {place} fallback={anpTitle} />{/if}
 </main>
 
 {#if !guest}

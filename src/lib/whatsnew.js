@@ -16,6 +16,21 @@
 
 export const WHATS_NEW = [
   {
+    // v0.175.0 «Anpassen» (Noah 20.10.2026 «1a 2a 3a 4a 5a»): every page, its tabs and the menu changed in the app; built without mockups
+    version: '0.175.0',
+    date: '2026-10-21',
+    title: 'Make it your own',
+    lead: 'Change every page yourself.',
+    points: [
+      { text: 'Every page: «Customise this page» at the end', href: '#/trips' },
+      { text: 'Menu: hide and sort the places', href: '#/me/look' },
+    ],
+    test: [
+      'Scroll to the end of Trips and tap «Customise this page».',
+      'Hide a part and rename one; «As at the start» puts it back.',
+    ],
+  },
+  {
     // v0.174.0 «Klarer und einheitlich»: Impeccable report (Noah 20.10.2026, all approved) and «Fahrt-Analyse als Vorbild» parts 1+2 (Auswertung wie Training); built without mockups
     version: '0.174.0',
     date: '2026-10-21',

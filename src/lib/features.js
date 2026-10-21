@@ -385,6 +385,8 @@ const OWN = [
   { id: 'f.theme', group: 'data', title: 'Light, dark and colours', text: 'Font, colour world, text size and light or dark, under Me › Appearance.', href: '#/me/look', words: 'hell dunkel farben stil schrift grösse darstellung' },
   // «Grösse» (Noah 19.10.2026 «1b 2b»): one slider for the whole app, plus «Kompakt»
   { id: 'f.uisize', group: 'data', title: 'Size of the app', text: 'One slider makes text, tiles and buttons smaller or larger everywhere (80 to 130 %); «Compact» takes away space. Each device keeps its own.', href: '#/me/look', words: 'grösse schriftgrösse schrift kacheln zoom grösser kleiner kompakt dicht abstand lesen' },
+  // «Anpassen» (Noah 20.10.2026 «1a 2a 3a 4a 5a»): every page, its tabs and the menu changed in the app
+  { id: 'f.custompage', group: 'data', title: 'Customise a page', text: 'At the end of every page: show, hide, rename and sort its parts and tabs, choose the tab a place opens with, and change the menu. Each device keeps its own; «As at the start» puts it back.', href: '#/me/look', words: 'anpassen seite abschnitte verstecken ausblenden umbenennen sortieren reihenfolge menü leiste reiter start eigene' },
   // v0.110.0 Design-Refresh P10 (I11): Ich › Was ist neu, the newest version, every function and all versions
   // v0.117.0 «Knöpfe neu» (N1–N4): every button explains itself; «…» lists the rest with a line each
   { id: 'f.explain', group: 'data', title: 'Buttons explain', text: 'Point at a button or hold it: it says what it does; «…» lists the rest, each with one line.', href: '#/bikes?tab=care', words: 'knöpfe erklärung tooltip lange drücken mehr rückgängig' },

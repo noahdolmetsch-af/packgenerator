@@ -1516,4 +1516,11 @@ export default {
   'The app asks in its own window': 'Die App fragt im eigenen Fenster',
   'Open Me › Own values › «+ Own reminder».': 'Öffne Ich › Eigene Werte › «+ Eigene Erinnerung».',
   'Open Me › Lists and types › Kinds of bike.': 'Öffne Ich › Listen und Typen › Velo-Arten.',
+  // 0.175.0 «Anpassen»
+  'Make it your own': 'Mach sie zu deiner',
+  'Change every page yourself.': 'Jede Seite selbst anpassen.',
+  'Every page: «Customise this page» at the end': 'Jede Seite: «Diese Seite anpassen» am Ende',
+  'Menu: hide and sort the places': 'Menü: Bereiche verstecken und sortieren',
+  'Scroll to the end of Trips and tap «Customise this page».': 'Scrolle ans Ende von Touren und tippe auf «Diese Seite anpassen».',
+  'Hide a part and rename one; «As at the start» puts it back.': 'Verstecke einen Teil und benenne einen um; «Wie am Anfang» stellt alles zurück.',
 };
