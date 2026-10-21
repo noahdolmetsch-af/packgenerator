@@ -510,9 +510,9 @@
     <div class="flow trip-page">
       <TripBand {trip} tab="debrief" kicker={[t('Debrief'), back === 1 ? t('back yesterday') : back > 1 ? t('back {n} days ago', { n: back }) : ''].filter(Boolean).join(' · ')} action={go} />
       <!-- «Mehr Inhalt» (Noah 15.10.2026, 1a–5a): the tip of the day, at the end the fold and the example «Nächstes Mal anders» -->
-      <TipLine page="debrief" name={t('Debrief')} />
       <SpurRow {trip} />
       {#if saved}
+        <TipLine page="debrief" name={t('Debrief')} />
         <!-- v0.49.0 R1 (drei «A»): the saved Rückblick tells what the trip was (TripSaved.svelte). -->
         <!-- SN2x «SN2 extra»: the whole Rückblick in five groups; «Für nächstes Mal» is stored on the debrief (onpatch) -->
         <TripSaved {trip} {d} {bike} {trips} {debriefs} rides={$ridesQ ?? []} {learnings} {items} containers={$bagsQ ?? []} bikes={$bikesQ ?? []} {counts} {sugg} {openSugg} ontake={(s) => holdSugg(s, 'take')} onno={(s) => holdSugg(s, 'no')} onreopen={reopen} {offer} notes={$notesQ ?? []} onpatch={patchSaved} />
@@ -693,6 +693,8 @@
           {#if draft}<DebriefDraft {draft} notes={freeNotes} days={trip.days ?? 1} onlearn={learnFromDraft} onsummary={summaryFromDraft} onclose={() => (draft = null)} />{/if}
         </div>
       </div>
+      <!-- The tip of the day changes length every day; below the form, the chips stay on the first phone screen every day -->
+      <TipLine page="debrief" name={t('Debrief')} />
       <!-- Paket Z «Aus jeder Tour lernen»: below the form, so «What did you not need?» stays the first thing on the page -->
       <LearnCard {trip} {bike} />
       <PageMore page="debrief" name={t('Debrief')} />
