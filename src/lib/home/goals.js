@@ -9,6 +9,8 @@ export const GOALS_KEY = 'homeGoals';
 
 /** Every chip, in the ready order; `on`: shown without a stored choice. */
 export const GOALS = [
+  // Noah 21.10.2026 06:49 «Körperwerte und countdown ok»: the countdown to the next trip, only when there is one with a date
+  { key: 'count', label: 'Countdown to the next trip|goal', on: true, trip: true },
   { key: 'ride', label: 'Ride today|goal', on: true },
   { key: 'trip', label: 'Plan a trip|goal', on: true },
   { key: 'care', label: 'Work on the bike|goal', on: true, href: '#/bikes?tab=care' },
@@ -17,10 +19,11 @@ export const GOALS = [
 ];
 const BY = Object.fromEntries(GOALS.map((g) => [g.key, g]));
 
-/** The chips in their order with on/off: the stored order first (unknown keys dropped), new chips after. → [{ …goal, on }] */
+/** The chips in their order with on/off: the stored order (unknown keys dropped), a chip it does not know yet in its ready place. → [{ …goal, on }] */
 export function goalsOf(value) {
   const order = Array.isArray(value?.order) ? value.order.filter((k, i, a) => BY[k] && a.indexOf(k) === i) : [];
-  const keys = [...order, ...GOALS.map((g) => g.key).filter((k) => !order.includes(k))];
+  const keys = [...order];
+  GOALS.forEach((g, i) => !order.includes(g.key) && keys.splice(Math.min(i, keys.length), 0, g.key));
   const off = Array.isArray(value?.off) ? value.off : [];
   // a chip the stored order knows is on unless switched off; a chip that came later starts as it comes
   return keys.map((k) => ({ ...BY[k], on: order.includes(k) ? !off.includes(k) : BY[k].on }));

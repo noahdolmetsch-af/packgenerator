@@ -64,7 +64,11 @@ export function backClose(node, onBack = null) {
     }
     if (!token || !node.open) return;
     // still on (or above) our entry: nothing to do
-    if (history.state?.pgDialog === token) return;
+    const cur = history.state?.pgDialog;
+    if (cur === token) return;
+    // Paket NE 1146 (three dialogs: setup photos › big photo › drawing): the top one closed and its entry
+    // went back to the middle one, which is still open above ours, so ours stays as well
+    if (cur && live.get(cur)?.open && Number(cur.slice(1)) > Number(token.slice(1))) return;
     live.delete(token);
     token = null; // the entry is gone already
     if (back) back();

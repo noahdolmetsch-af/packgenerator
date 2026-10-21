@@ -48,7 +48,7 @@ export default {
   'Remove formatting': 'Formatierung entfernen',
   // Was die App kann, Handbuch, So geht's
   'Draw on photos': 'Auf Fotos zeichnen',
-  'Draw on every photo of the app or on a pad of pages (blank, squared, lined): pen, highlighter, arrows, shapes and text; every line stays changeable.': 'Auf jedem Foto der App zeichnen oder auf einem Block mit Seiten (leer, kariert, liniert): Stift, Textmarker, Pfeile, Formen und Text; jede Linie bleibt änderbar.',
+  'Draw on every photo of the app or on a pad of pages (blank, squared, lined): pen, highlighter, arrows, shapes and text; every line stays changeable. Now also on setup, problem, packing, diary and wear photos.': 'Auf jedem Foto der App zeichnen oder auf einem Block mit Seiten (leer, kariert, liniert): Stift, Textmarker, Pfeile, Formen und Text; jede Linie bleibt änderbar. Jetzt auch auf Setup-, Problem-, Pack-, Tagebuch- und Verschleiss-Fotos.',
   'Write notes formatted': 'Notizen formatiert schreiben',
   'Bold, italic, headings, lists, ticks and tables with buttons, like in Word, without marks.': 'Fett, kursiv, Überschriften, Listen, Abhaken und Tabellen mit Knöpfen, wie in Word, ohne Zeichen.',
   'Open a photo or a note and tap «Draw».': 'Öffne ein Foto oder eine Notiz und tippe «Zeichnen».',

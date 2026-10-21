@@ -9,6 +9,7 @@
   import ProblemPhotosSheet from '../bilder/ProblemPhotosSheet.svelte'; // «Bilder in der App» 3a/4a
   import Lightbox from '../ui/Lightbox.svelte';
   import { problemPhotos } from '../photo.js';
+  import { drawnOn } from '../draw/ink.js';
   import { DOCS_HASH } from '../docs/client.svelte.js';
   import RenameSheet from '../ui/RenameSheet.svelte';
   import { offerRename } from '../ui/rename.svelte.js';
@@ -75,7 +76,16 @@
   // «Bilder in der App» (Noah 20.10.2026 «3a 4a»): a problem's photos small in the row, big on a tap;
   // «Photos and PDF» adds, cuts or takes away photos and makes one PDF of them.
   let photosOf = $state(null); // the task whose photos are edited
-  let big = $state(null); // { list, start }
+  let big = $state(null); // { id, list, start }
+  const bigOf = (task, pics, start) => ({ id: task.id, start, list: pics.map((p, i) => ({ src: p, inks: task.inks, name: task.task, sub: t('Photo {n}', { n: i + 1 }) })) });
+  // Paket NE 1146 (Noah 20.10.2026 «1b»): draw on a problem's photo in the big view
+  async function drawnPhoto(cur, { old, src, ink }) {
+    const task = await db.maintenance.get(big.id);
+    if (!task) return;
+    const out = drawnOn(problemPhotos(task), task.inks, old, src, ink);
+    await db.maintenance.update(task.id, { photos: out.list, photo: out.list[0] ?? null, inks: out.inks, docId: null });
+    big = bigOf({ ...task, inks: out.inks }, out.list, out.list.indexOf(src));
+  }
   const editActions = (task) => [
     { name: problemPhotos(task).length ? t('Photos and PDF') : t('Add photos'), explain: t('Photos of the problem: add, cut, as PDF'), icon: Camera, run: () => (photosOf = task) },
     { name: t('Rename'), explain: t('Change the text of the problem'), icon: Pencil, run: () => (renaming = task) },
@@ -113,7 +123,7 @@
             {#if problemPhotos(task).length || task.docId}
               {@const pics = problemPhotos(task)}
               <span class="pics" data-problem-photos>
-                {#each pics.slice(0, 4) as src, n (n)}<button type="button" class="pth" aria-label={t('Open photo {n} of {name}', { n: n + 1, name: task.task })} onclick={() => (big = { list: pics.map((p, i) => ({ src: p, name: task.task, sub: t('Photo {n}', { n: i + 1 }) })), start: n })}><img src={src} alt="" loading="lazy" /></button>{/each}
+                {#each pics.slice(0, 4) as src, n (n)}<button type="button" class="pth" aria-label={t('Open photo {n} of {name}', { n: n + 1, name: task.task })} onclick={() => (big = bigOf(task, pics, n))}><img src={src} alt="" loading="lazy" /></button>{/each}
                 {#if pics.length > 4}<span class="more">+{pics.length - 4}</span>{/if}
                 {#if task.docId}<a class="pdf" href={`${DOCS_HASH}/${encodeURIComponent(task.docId)}`}><FileText size={14} aria-hidden="true" />PDF</a>{/if}
               </span>
@@ -150,7 +160,7 @@
   <ProblemPhotosSheet task={photosOf} bikeName={bikeOf(photosOf)?.name ?? ''} onclose={() => (photosOf = null)} />
 {/if}
 {#if big}
-  <Lightbox list={big.list} start={big.start} onclose={() => (big = null)} />
+  <Lightbox list={big.list} start={big.start} onclose={() => (big = null)} ondraw={drawnPhoto} />
 {/if}
 {#if renaming}
   <RenameSheet kicker={t('Problems')} title={t('Rename problem')} value={renaming.task} onsave={(name) => rename(renaming, name)} onclose={() => (renaming = null)} />

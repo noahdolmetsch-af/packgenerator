@@ -4,6 +4,7 @@
  * database and backup files stay small (about 100–250 KB per photo).
  */
 import { t } from './i18n.svelte.js';
+import { drawnOn } from './draw/ink.js';
 
 /** Longest side in pixels after shrinking. */
 export const PHOTO_MAX = 1400;
@@ -44,9 +45,20 @@ export async function shrinkImage(file, max = PHOTO_MAX, quality = 0.82) {
 export function bikePhotos(bike, photos = []) {
   if (!bike) return [];
   // Paket VG: wear and packing photos stay on their own pages (griff.js ownShot)
-  const own = photos.filter((p) => p.bikeId === bike.id && !p.wear && !p.pack).map((p) => ({ id: p.id, src: p.data, name: p.name || t('Photo'), main: !!p.main, tripId: p.tripId ?? null, stored: true, day: photoDay(p) }));
-  const list = bike.photo ? [{ id: `bike-${bike.id}`, src: bike.photo, name: t('Bike photo'), main: !own.some((p) => p.main), tripId: null, stored: false, day: null }, ...own] : own;
+  const own = photos.filter((p) => p.bikeId === bike.id && !p.wear && !p.pack).map((p) => ({ id: p.id, src: p.data, name: p.name || t('Photo'), main: !!p.main, tripId: p.tripId ?? null, stored: true, day: photoDay(p), inks: p.inks }));
+  const list = bike.photo ? [{ id: `bike-${bike.id}`, src: bike.photo, name: t('Bike photo'), main: !own.some((p) => p.main), tripId: null, stored: false, day: null, inks: bike.inks }, ...own] : own;
   return list.sort((a, b) => Number(b.main) - Number(a.main));
+}
+
+/**
+ * Paket NE 1146 (Noah 20.10.2026 «1b»: draw on every photo): where a drawn setup photo is saved. A photo of
+ * the photos table changes its row (data, inks); the older bike.photo changes the bike (photo, inks).
+ * p: an entry of bikePhotos; { old, src, ink }: what the Lightbox gives back. → { table, id, patch }.
+ */
+export function bikePhotoDrawn(bikeId, p, { old, src, ink }) {
+  const out = drawnOn([old], p?.inks, old, src, ink);
+  if (p?.stored) return { table: 'photos', id: p.id, patch: { data: out.list[0], inks: out.inks } };
+  return { table: 'bikes', id: bikeId, patch: { photo: out.list[0], inks: out.inks } };
 }
 
 /** The photo behind the bags in Pack: the trip's own setup photo, else the bike's main photo (answer 4a). */
