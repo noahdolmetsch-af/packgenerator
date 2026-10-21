@@ -22,6 +22,7 @@
   import { formatWeight } from '../gear.js';
   import { tripFacts, planVsReal, nextTripAfter, nextHints, withActs } from './rueckblick.js';
   import { rideTime, elapsed, n0, n1, temps, kg, dates, dayLong, rainText, signedNum, signedHours, DASH } from './fmt.js';
+  import { clock as mmss } from '../touren/strava/fmt.js';
   import { openTrip, newTrip } from '../nav.js';
   import Btn from '../ui/Btn.svelte';
   import { localDay } from '../localday.js';
@@ -56,8 +57,8 @@
   import { distKm } from '../route.js';
   import { situationHits } from '../situation.js';
   import { tripPower, effortOf, loadOf } from './power.js';
-  import { GROUPS, openOf, dayTabs, dayFacts, actsOn, timeline, tripNoteList, wearRows, chainLeft, packedList, packedTotals, pointsOf, compareGroup, similarRows, tripNumbers, compareRows, lastSeries } from './ganz.js';
-  import { Undo2, Route as RouteIc, HeartPulse, Map as MapIc, Briefcase as BagIc, ArrowRight, Flag, Coffee, NotebookPen, Image as ImageIc, Copy, MoonStar, Smile, Utensils, CloudSun, Gauge, ArrowLeftRight, Info, Calendar, ChevronDown } from '@lucide/svelte';
+  import { GROUPS, openOf, dayTabs, dayFacts, actsOn, timeline, stravaRides, tripNoteList, wearRows, chainLeft, packedList, packedTotals, pointsOf, compareGroup, similarRows, tripNumbers, compareRows, lastSeries } from './ganz.js';
+  import { Undo2, Route as RouteIc, HeartPulse, Map as MapIc, Briefcase as BagIc, ArrowRight, Flag, Coffee, NotebookPen, Image as ImageIc, Trophy, Mountain, Copy, MoonStar, Smile, Utensils, CloudSun, Gauge, ArrowLeftRight, Info, Calendar, ChevronDown } from '@lucide/svelte';
   import { Check, Lightbulb, Sparkles, Sun, CloudRain, Cloud, Thermometer, Bike, Briefcase, Wrench, X, Minus, Plus, ChevronRight, Package } from '@lucide/svelte';
 
   import Woanders from '../sk/Woanders.svelte'; // SK X2 + X14 (SKX2)
@@ -188,8 +189,10 @@
   const loop = $derived(!!(trip.route?.start && trip.route?.end && distKm(trip.route.start, trip.route.end) < 0.5));
   const cuts = $derived(trip.days > 1 ? stageCuts(trip).slice(0, -1).filter((v) => v != null) : []);
   const wayNotes = $derived([...(d.rideNotes ?? []).map((n) => ({ ...n, day: n.day ?? 0 })), ...notes.filter((n) => n.tripId === trip.id && n.day != null)]);
-  const tlAll = $derived(timeline({ trip, rides: row?.rides ?? [], notes: wayNotes, loop }));
-  const tl = $derived(day == null ? tlAll : timeline({ trip, rides: row?.rides ?? [], notes: wayNotes, day, loop }));
+  // a trip without an uploaded ride: the Strava rides (pauses, best times, climbs, photos at their place)
+  const tlRides = $derived(row?.rides?.length ? row.rides : stravaRides(acts));
+  const tlAll = $derived(timeline({ trip, rides: tlRides, notes: wayNotes, loop }));
+  const tl = $derived(day == null ? tlAll : timeline({ trip, rides: tlRides, notes: wayNotes, day, loop }));
   const tlShown = $derived(tl.filter((e) => !e.short));
   const shortN = $derived(tl.filter((e) => e.short).length);
   const marks = $derived.by(() => {
@@ -527,6 +530,9 @@
                       {#if e.kind === 'start'}<b><Flag size={15} aria-hidden="true" />{t('Start')}</b>
                       {:else if e.kind === 'end'}<b><Flag size={15} aria-hidden="true" />{t('Arrival')}</b>
                       {:else if e.kind === 'pause'}<b><Coffee size={15} aria-hidden="true" />{t('Pause · {n} min', { n: num(e.min ?? 0) })}</b>
+                      {:else if e.kind === 'best'}<b data-tl-best><Trophy size={15} aria-hidden="true" />{t(e.pr === 1 ? 'Best time|timeline' : e.pr === 2 ? '2nd best time|timeline' : '3rd best time|timeline')}</b><span>{e.name} · {mmss(e.s)}</span>
+                      {:else if e.kind === 'climb'}<b data-tl-climb><Mountain size={15} aria-hidden="true" />{t('Climb|timeline')}</b><span>{[e.name, e.len ? `${num(e.len)} km` : '', e.grade ? `${num(e.grade)} %` : '', e.hm ? `${n0(e.hm)} Hm` : '', mmss(e.s)].filter(Boolean).join(' · ')}</span>
+                      {:else if e.kind === 'photo'}<b><ImageIc size={15} aria-hidden="true" />{t('Photo')}</b><a class="tlph" href={e.url} target="_blank" rel="noopener noreferrer" data-tl-photo><img src={e.url} alt={e.caption || t('Photo from Strava')} loading="lazy" referrerpolicy="no-referrer" /></a>{#if e.caption}<span>{e.caption}</span>{/if}
                       {:else}<b><NotebookPen size={15} aria-hidden="true" />{t('Note')}</b><span>«{e.text}»</span>{#if e.photo}<span class="ph" aria-label={t('Photo')}><ImageIc size={18} aria-hidden="true" /></span>{/if}{/if}
                     </span>
                   </li>
@@ -1007,6 +1013,21 @@
   .tbx > span {
     color: var(--ink-2);
     font-size: var(--fs-small);
+  }
+  /* a Strava photo where it was taken */
+  .tlph {
+    display: block;
+    width: min(100%, 220px);
+    margin-top: 4px;
+    overflow: hidden;
+    border-radius: 8px;
+    background: var(--paper-2);
+  }
+  .tlph img {
+    display: block;
+    width: 100%;
+    height: 140px;
+    object-fit: cover;
   }
   .ph {
     display: grid;

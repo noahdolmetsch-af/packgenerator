@@ -123,7 +123,8 @@ describe('the server', () => {
     // a stop of 90 s (moving false), a short one of 20 s (not a break), a gap of 5 min in the data
     const t = Array.from({ length: 600 }, (_, i) => (i < 500 ? i : i + 300));
     const moving = t.map((_, i) => !((i >= 100 && i < 190) || (i >= 300 && i < 320)));
-    expect(pausesOf(t, moving)).toEqual({ n: 2, secs: 90 + 301 });
+    // the stop of 5 min and more is listed with its place (Zeitleiste); without the distance stream no km
+    expect(pausesOf(t, moving)).toEqual({ n: 2, secs: 90 + 301, list: [{ t: 499, at: null, km: null, min: 5 }] });
     expect(pausesOf(null, null)).toBe(null);
     const segs = trimEfforts([{ name: 'test_data_gtp_ Anstieg', moving_time: 412, pr_rank: null }, { name: 'test_data_gtp_ Sprint', elapsed_time: 31, pr_rank: 1, segment: { start_latlng: [47, 8] } }, { name: '', moving_time: 5 }]);
     expect(segs).toEqual([{ name: 'test_data_gtp_ Sprint', s: 31, pr: 1 }, { name: 'test_data_gtp_ Anstieg', s: 412, pr: null }]);

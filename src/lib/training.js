@@ -83,17 +83,19 @@ export function actRecord(a) {
   };
 }
 /** What the app adds to an activity and keeps when it is fetched again. */
-export const KEEP = ['kcal', 'hist', 'curve', 'w20', 'pHist', 'pCurve', 'pauses', 'segs', 'best', 'desc', 'detail', 'note', 'cHist', 'secs5', 'prof', 'hw', 'halves', 'climbs', 'dv', 'laps', 'splits', 'rpe', 'feel', 'feelSkip', 'tempMin', 'tempMax', 'steep', 'noDetail', 'own', 'hidden', 'weather', 'wxRide', 'hCurve', 'dprof', 'sprof', 'ser', 'p25', 'npS', 'wStrava', 'cadMax'];
+export const KEEP = ['kcal', 'hist', 'curve', 'w20', 'pHist', 'pCurve', 'pauses', 'segs', 'best', 'desc', 'detail', 'note', 'cHist', 'secs5', 'prof', 'hw', 'halves', 'climbs', 'dv', 'laps', 'splits', 'rpe', 'feel', 'feelSkip', 'tempMin', 'tempMax', 'steep', 'noDetail', 'own', 'hidden', 'weather', 'wxRide', 'hCurve', 'dprof', 'sprof', 'ser', 'p25', 'npS', 'wStrava', 'cadMax', 'photos'];
 /**
  * The kind of detail kept: 2 = with cadence, 5 km rows, course, heart rate by power, halves and climbs (TR5b–TR7f);
  * 3 = with laps, splits per km, «How hard?», temperature low/high and the steepest bit (19.10.2026 «2a»).
  * 4 = with the best 2 and 10 minutes of power, the heart rate curve, the course by distance and the speed over
  *     time (Tour-Auswertung, 20.10.2026 «3a und b» and «1:1 wie komoot»).
  * 5 = with the NP from the watts stream (npS, Strava check 21.10.2026: Strava's weighted average was far lower).
+ * 6 = the pauses of 5 minutes and more, segments and climbs with their km and clock time, and the photos
+ *     (Zeitleiste from Strava, 21.10.2026 «1 a und b»).
  * Older ones are fetched once more, a few per fetch. The server says which kind it sent (dv), so an older
  * server's answer is fetched again later.
  */
-export const DETAIL_V = 5;
+export const DETAIL_V = 6;
 /** Has this activity the details of the current kind? */
 export const hasDetail = (a) => !!a?.detail && (a.dv ?? 1) >= DETAIL_V;
 
