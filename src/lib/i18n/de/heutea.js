@@ -99,4 +99,16 @@ export default {
   'Connect Fitbit and your body values show here.': 'Verbinde Fitbit, dann stehen hier deine Körperwerte.',
   'Resting pulse, HRV, sleep, steps, active zone minutes and calories of today; a tap opens its chart.': 'Ruhepuls, HRV, Schlaf, Schritte, Aktivzonen-Minuten und Kalorien von heute; ein Tipp öffnet die Kurve.',
   'Countdown to the next trip|goal': 'Countdown zur nächsten Tour',
+  // P6 «Heute ergänzen» (Noah 21.10.2026 «2b»): the weekly weight (SN2l)
+  'Weight this week?': 'Gewicht diese Woche?',
+  'Asks for your weight once a week; the same weight as under Me › Weight.': 'Fragt einmal pro Woche nach deinem Gewicht; dasselbe Gewicht wie unter Ich › Gewicht.',
+  'last {kg} kg on {day}': 'zuletzt {kg} kg am {day}',
+  'History under Me › Weight': 'Verlauf unter Ich › Gewicht',
+  'Stop asking': 'Nicht mehr fragen',
+  'Weight once a week': 'Gewicht einmal pro Woche',
+  'When no weight was typed for a week, Heute asks once: type it, «Not today» or «Stop asking». The same weight as under Me › Weight.': 'Wenn eine Woche kein Gewicht eingetragen ist, fragt Heute einmal: eintippen, «Heute nicht» oder «Nicht mehr fragen». Dasselbe Gewicht wie unter Ich › Gewicht.',
+  'Open Heute.': 'Öffne Heute.',
+  'Type your weight in «Weight this week?» and save.': 'Tippe dein Gewicht in «Gewicht diese Woche?» und speichere.',
+  'The weight is under Me › Weight.': 'Das Gewicht steht unter Ich › Gewicht.',
+  'Saved: {kg} kg. Your weight is under Me › Weight.': 'Gespeichert: {kg} kg. Dein Gewicht steht unter Ich › Gewicht.',
 };

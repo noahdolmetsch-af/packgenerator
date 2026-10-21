@@ -7,7 +7,7 @@
 import { test, expect } from '@playwright/test';
 import { D0, homeFixture, openHome, trip, entries } from './home0460-fixture.js';
 import { openMore } from './bike-more.js';
-import { READY } from '../../src/lib/home/tiles.js';
+import { READY, HEAD_N2 } from '../../src/lib/home/tiles.js';
 
 // calendar days (no 24 h steps): the date at noon UTC plus n days
 const cal = (n) => {
@@ -77,7 +77,8 @@ test('a trip today: no photo although the bike has one, the 8 buttons in the fir
   // «Heute neu» N2 (0.169.0, Noah «5a», changed on purpose): the body and the Aktiv tiles first; on a trip day the
   // trip card right under them; 0.175.0 (Noah 21.10.2026 06:49 «Körperwerte und countdown ok», changed on purpose):
   // the «Körperwerte» tile sits right under Aktiv, the trip card follows
-  await expect.poll(() => page.locator('.wall [data-tile]').evaluateAll((els) => els.map((e) => e.dataset.tile).slice(0, 4))).toEqual(['body', 'acts', 'vitals', 'trip']);
+  // 0.180.0 P6 (Noah «2b», changed on purpose): meditation and the weekly weight before the body; the trip still right after the head
+  await expect.poll(() => page.locator('.wall [data-tile]').evaluateAll((els) => els.map((e) => e.dataset.tile)).then((o) => o.slice(0, HEAD_N2.length + 1))).toEqual([...HEAD_N2, 'trip']);
   await shot(page, info, 'heute-mit-tour');
 
   // the photo is still there, under Velos › Setup › More

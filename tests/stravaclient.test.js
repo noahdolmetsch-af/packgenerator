@@ -5,7 +5,7 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import { createDb } from '../src/lib/db.js';
 import { makeEntry } from '../src/lib/kmbook.js';
 import { LAST_KM_IMPORT } from '../src/lib/kmbookdb.js';
-import { WALL_KEY } from '../src/lib/home/tiles.js';
+import { WALL_KEY, wallRecord } from '../src/lib/home/tiles.js';
 import {
   runSync, autoFetch, fetchNow, takeReturn, call, answerChange, checkRide, addTile, disconnect, prefsOf, strava,
   PREFS_KEY, CHANGES_KEY, LAST_KEY, TRY_KEY, KEY_LS, STRAVA_URL,
@@ -165,6 +165,9 @@ describe('fetching and the device key', () => {
   });
 
   it('the tile goes on top of Today once', async () => {
+    // P6 TR1: the ready wall has «Last activity» already; a wall of the user without it gets it on top
+    expect(await addTile(db)).toBe(false);
+    await db.settings.put({ key: WALL_KEY, value: wallRecord([{ id: 'week', size: 'l' }]) });
     expect(await addTile(db)).toBe(true);
     expect((await db.settings.get(WALL_KEY)).value.tiles[0]).toEqual({ id: 'strava', size: 'w' });
     expect(await addTile(db)).toBe(false);

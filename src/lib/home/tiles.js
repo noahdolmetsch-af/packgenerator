@@ -45,6 +45,8 @@ export const TILES = [
   { id: 'body', area: 'flow', label: 'Your body today', icon: 'flow', sizes: ['l', 'long'], size: 'l', since: '0.169.0', pitch: 'Resting pulse, sleep, sleep score and active zone minutes next to yesterday, with the morning or evening check.' },
   // Noah 21.10.2026 06:49 «Körperwerte und countdown ok»: the Fitbit values of today, each into its tab of Körperwerte
   { id: 'vitals', area: 'flow', label: 'Body values', icon: 'heart', sizes: ['long'], size: 'long', pitch: 'Resting pulse, HRV, sleep, steps, active zone minutes and calories of today; a tap opens its chart.' },
+  // P6 «Heute ergänzen» SN2l (Noah 21.10.2026 «2b»): the weight once a week, only while no weight for 7 days
+  { id: 'weighin', area: 'flow', label: 'Weight this week?', icon: 'scale', sizes: ['long'], size: 'long', pitch: 'Asks for your weight once a week; the same weight as under Me › Weight.' },
   { id: 'acts', area: 'flow', label: 'Active today', icon: 'flame', sizes: ['l', 'long'], size: 'l', since: '0.169.0', pitch: 'Your activities to tick off in one tap; meditation opens its start.' },
   { id: 'du', area: 'flow', label: 'You today', icon: 'flow', sizes: ['l', 'long'], size: 'l', since: '0.165.0', pitch: 'Your balance of 7 days, sleep, resting pulse and km, only to look at.' },
   { id: 'flow', area: 'flow', label: 'In the flow', icon: 'flow', sizes: ['l', 'long'], size: 'l', pitch: 'Tick off today, your rings and the daily check.' },
@@ -120,11 +122,14 @@ export const TILE = Object.fromEntries(TILES.map((x) => [x.id, x]));
  * other tile is still in the catalog («Add a tile»).
  */
 export const READY = [
+  ['meditation', 'long'],
+  ['weighin', 'long'],
   ['body', 'l'],
   ['acts', 'l'],
   ['vitals', 'long'],
   ['week', 'l'],
   ['balance', 'l'],
+  ['strava', 'l'],
   ['trip', 'l'],
   ['important', 'l'],
   ['bikes', 'long'],
@@ -204,7 +209,7 @@ export const REMOVED_0155 = ['morningcheck', 'fn:dayride', 'fn:trip', 'fn:wear',
 /** 0.155.0: the new pieces of HN4; a stored wall gets them once, in their place. */
 export const ADDED_0155 = ['meditation', 'daycard', 'aktiv'];
 /** «Heute neu» N2: the tiles on top of the wall; near a trip its card moves up right under them (tripUp). */
-export const HEAD_N2 = ['body', 'acts', 'vitals'];
+export const HEAD_N2 = ['meditation', 'weighin', 'body', 'acts', 'vitals'];
 /** The tiles that stand on top, in this order (the trip card may move up under the day card, tripUp). */
 export const HEAD_0155 = ['meditation', 'daycard', 'important'];
 
@@ -224,7 +229,9 @@ export function wallOf(value, legacy = null) {
     // «Heute neu» N2 (Noah 20.10.2026 «5a»; A «1A» before it was v 9): a wall of before (v < 10) becomes the new ready wall once
     if ((value.v ?? 1) < 10) return READY.map((x) => ({ ...x }));
     // Noah 21.10.2026 «Körperwerte … ok»: a wall of N2 (v 10) gets «Körperwerte» once; taken away after that, it stays away
-    return (value.v ?? 1) < 11 ? withVitals(wallBefore5(value)) : wallBefore5(value);
+    const w = (value.v ?? 1) < 11 ? withVitals(wallBefore5(value)) : wallBefore5(value);
+    // P6 «Heute ergänzen» (Noah 21.10.2026 «2b»): a wall of before (v < 12) gets meditation, the weekly weight and the last activity once
+    return (value.v ?? 1) < 12 ? withP6(w) : w;
   }
   const off = new Set((Array.isArray(legacy?.off) ? legacy.off : []).flatMap((k) => FROM_SECTION[k] ?? []));
   return READY.filter((x) => !off.has(x.id)).map((x) => ({ ...x }));
@@ -361,8 +368,26 @@ export function withVitals(tiles = []) {
   out.splice(at, 0, { id: 'vitals', size: TILE.vitals.size });
   return out;
 }
-/** The record to store (v 11: «Körperwerte» came once; v 10: «Heute neu» N2; v 9: «Heute neu» A; v 5: the order of 0.155.0 HN4; v 6: «Deine 15 Fragen» is back; v 7: the routine came once; v 8: «Your values today» (P) and the tip of the week (Q) came once). */
-export const wallRecord = (tiles) => ({ v: 11, tiles: tiles.map((x) => ({ id: x.id, size: sizeFor(x.id, x.size) })) });
+/**
+ * P6 «Heute ergänzen» (Noah 21.10.2026 «2b», mockups ME1, SN2l, TR1): a wall stored before (v < 12) gets once
+ * the meditation card on top (ME1; a small meditation tile on the wall becomes the card), the weekly weight under it
+ * (SN2l) and «Last activity» after the balance (TR1; else after the week, else before the bikes, else at the end).
+ * Taken away after that, they stay away. → tiles
+ */
+export function withP6(tiles = []) {
+  let out = tiles.filter((x) => x.id !== 'meditation');
+  out = [{ id: 'meditation', size: 'long' }, ...(out.some((x) => x.id === 'weighin') ? [] : [{ id: 'weighin', size: 'long' }]), ...out.filter((x) => x.id !== 'weighin')];
+  if (!out.some((x) => x.id === 'strava')) {
+    const b = out.findIndex((x) => x.id === 'balance');
+    const w = out.findIndex((x) => x.id === 'week');
+    const k = out.findIndex((x) => x.id === 'bikes');
+    const at = b >= 0 ? b + 1 : w >= 0 ? w + 1 : k >= 0 ? k : out.length;
+    out.splice(at, 0, { id: 'strava', size: 'l' });
+  }
+  return out;
+}
+/** The record to store (v 12: P6 «Heute ergänzen» came once; v 11: «Körperwerte» came once; v 10: «Heute neu» N2; v 9: «Heute neu» A; v 5: the order of 0.155.0 HN4; v 6: «Deine 15 Fragen» is back; v 7: the routine came once; v 8: «Your values today» (P) and the tip of the week (Q) came once). */
+export const wallRecord = (tiles) => ({ v: 12, tiles: tiles.map((x) => ({ id: x.id, size: sizeFor(x.id, x.size) })) });
 
 /** Move tile `id` to place `to` (0 … n − 1). */
 export function moveTile(tiles, id, to) {

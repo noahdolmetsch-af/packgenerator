@@ -7,7 +7,7 @@
 import { test, expect } from '@playwright/test';
 import { openHome, homeFixture, day } from './home0460-fixture.js';
 import { QUESTIONS, ON_AT_START } from '../../src/lib/abfragen.js';
-import { READY } from '../../src/lib/home/tiles.js';
+import { READY, HEAD_N2 } from '../../src/lib/home/tiles.js';
 
 const noSideways = async (page) => expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(page.viewportSize().width);
 
@@ -54,16 +54,18 @@ test.describe('HA Heute neu A', () => {
     expect(await acts.locator('[data-act]').count()).toBeLessThanOrEqual(info.project.name === 'phone' ? 4 : 8);
     // the order of the wall
     const order = await page.evaluate(() => [...document.querySelectorAll('.wall > [data-tile]')].map((x) => x.dataset.tile));
-    expect(order.slice(0, 3)).toEqual(['body', 'acts', 'vitals']);
+    // 0.180.0 P6 (Noah 21.10.2026 «2b», changed on purpose): meditation and the weekly weight on top, then body, Aktiv, Körperwerte
+    expect(order.slice(0, HEAD_N2.length)).toEqual(HEAD_N2);
     for (const id of ['week', 'balance', 'bikes']) expect(order, id).toContain(id);
     expect(order.indexOf('week')).toBeLessThan(order.indexOf('bikes'));
     expect(order.indexOf('balance')).toBeLessThan(order.indexOf('bikes'));
     expect(order.filter((id) => id.startsWith('fn:')).length).toBe(8);
     expect(READY.filter((x) => x.size === 's').length).toBe(8);
-    // the body tile in the first screen
+    // the top of the wall in the first screen; 0.180.0 P6 (Noah 21.10.2026 «2b», changed on purpose): that is the
+    // meditation card now, the body follows under it (with the name question open it can be below the first screen)
     await page.evaluate(() => window.scrollTo(0, 0));
-    const top = await body.evaluate((el) => el.getBoundingClientRect().top);
-    expect(top, 'the body in the first screen').toBeLessThan(page.viewportSize().height);
+    const top = await page.locator('.wall > [data-tile]').first().evaluate((el) => el.getBoundingClientRect().top);
+    expect(top, 'the top of the wall in the first screen').toBeLessThan(page.viewportSize().height);
     // «Jetzt dran» keeps the ride idea; the check and meditation are on top now
     const today = page.locator('[data-section="today"]');
     await expect(today.locator('li[data-row="idea"]').getByRole('button', { name: T('Quick start'), exact: true })).toBeVisible();
