@@ -14,6 +14,7 @@ import { HELPED } from '../../src/lib/flowmed.js';
 import { SEED2_KEY } from '../../src/lib/flowtiles.js';
 import { D0, TODAY, aktivRows, put } from './aktiv-fixture.js';
 import { ready } from './settle.js';
+import { TABS, tapTab } from './placetab.js';
 
 const T = (en, vars) => {
   const s = DE[en] ?? en.replace(/\|[a-z]+$/, '');
@@ -78,7 +79,7 @@ test('A1 and A5: tick tiles, rings, the tab «Ziele» opens the goals with dots 
   await expect(main.locator('[data-today-line]')).toContainText(new RegExp(T('this week {k} of {n} move goals on track', { k: '\\d+', n: '\\d+' })));
   await expect(main.locator('[data-today-line]')).not.toContainText(T('Today, {date}', { date: '' }).trim());
   await expect(main.locator('section[aria-labelledby="tick-h"] .sh p')).toHaveText(new RegExp(`^${T('{n} of {m} activities on track', { n: '\\d+', m: '\\d+' })} · `));
-  await page.locator('.ptabs').getByRole('link', { name: T('Activities|tab'), exact: true }).click();
+  await tapTab(page, T('Activities|tab'));
   await expect(page).toHaveURL(/#\/flow\/goals$/);
   const row = main.locator('li[data-row="meditation"]');
   await expect(row.locator('.d7 i')).toHaveCount(7);

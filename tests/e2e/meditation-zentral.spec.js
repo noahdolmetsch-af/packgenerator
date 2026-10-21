@@ -9,6 +9,7 @@
 import { test, expect } from '@playwright/test';
 import DE from '../../src/lib/i18n/de/index.js';
 import { PLACE_TABS } from '../../src/lib/nav.js';
+import { TABS } from './placetab.js';
 
 const T = (en, vars) => {
   const s = DE[en] ?? en.replace(/\|[a-z]+$/, '');
@@ -77,7 +78,7 @@ test('Aktiv: the tab Meditation, timer and Rückblick on one page, «Uhr» opens
   const errors = await open(page, context, '#/flow');
   const main = page.locator('main');
   // Aktiv opens at Heute; Meditation is the second tab (ME2; Noah 15.10.2026 «1a»)
-  const tabs = page.locator('.ptabs a');
+  const tabs = page.locator(TABS).locator('a');
   await expect(tabs.nth(1)).toHaveText('Meditation');
   expect(PLACE_TABS.active.map((x) => x.key).slice(0, 2)).toEqual(['today', 'meditation']);
   await put(page, history());
@@ -85,7 +86,7 @@ test('Aktiv: the tab Meditation, timer and Rückblick on one page, «Uhr» opens
   await tabs.nth(1).click();
   await expect(page).toHaveURL(/#\/flow\/act\/meditation$/);
   await expect(main.getByRole('heading', { level: 1, name: 'Meditation' })).toBeVisible();
-  await expect(page.locator('.ptabs').getByRole('link', { name: 'Meditation', exact: true })).toHaveAttribute('aria-current', 'page');
+  await expect(page.locator(TABS).getByRole('link', { name: 'Meditation', exact: true })).toHaveAttribute('aria-current', 'page');
   await expect(main.locator('.sub')).toContainText(T('done today'));
 
   // the timer: «Wie letztes Mal · 20 Min»; a duration changes the start
@@ -112,7 +113,7 @@ test('Aktiv: the tab Meditation, timer and Rückblick on one page, «Uhr» opens
   await page.goBack();
   await main.locator('[data-to="review"]').click();
   await expect(page).toHaveURL(/#\/flow\/act\/meditation\/rueckblick$/);
-  await expect(page.locator('.ptabs').getByRole('link', { name: 'Meditation', exact: true })).toHaveAttribute('aria-current', 'page');
+  await expect(page.locator(TABS).getByRole('link', { name: 'Meditation', exact: true })).toHaveAttribute('aria-current', 'page');
   expect(errors).toEqual([]);
 });
 

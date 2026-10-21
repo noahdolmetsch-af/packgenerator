@@ -492,7 +492,7 @@ export default {
   'bike {n} ({late} overdue)': 'Velo {n} ({late} überfällig)',
 
   // v0.21.0 (package 5): areas besides bikepacking
-  Area: 'Reiseart',
+  Area: 'Tourart',
   Bikepacking: 'Bikepacking',
   'Ski touring': 'Skitour',
   Weekend: 'Wochenende',
@@ -516,15 +516,15 @@ export default {
   Total: 'Total',
   'total {kg}': 'total {kg}',
   'Gear in the bags, without what you wear and without food and water': 'Material in den Taschen, ohne was du trägst und ohne Verpflegung und Wasser',
-  'No items for {area} yet. Search above to add any item you own, or in Gear open an item and tick {area} under Areas.': 'Noch keine Teile für {area}. Suche oben, um ein beliebiges eigenes Teil hinzuzufügen, oder öffne in Material ein Teil und hake {area} unter Reisearten an.',
+  'No items for {area} yet. Search above to add any item you own, or in Gear open an item and tick {area} under Areas.': "Noch keine Teile für {area}. Suche oben, um ein beliebiges eigenes Teil hinzuzufügen, oder öffne in Material ein Teil und hake {area} unter Tourarten an.",
   'Every {area} item is on this trip. Search above to find any other item you own.': 'Alle Teile für {area} sind auf dieser Tour. Suche oben, um ein anderes eigenes Teil zu finden.',
   'Bags of this trip, tap one to open it': 'Taschen dieser Tour, tippe eine an, um sie zu öffnen',
   Checks: 'Checks',
   'Everything is in. Have a good trip!': 'Alles drin. Gute Reise!',
   'Last {area} trip: {title}': 'Letzte Tour {area}: {title}',
-  'Items of this area': 'Teile dieser Reiseart',
+  'Items of this area': "Teile dieser Tourart",
   'Starts with the {area} items marked worn, standard or "On every trip". Bags: {bags}.': 'Startet mit den Teilen für {area}, die getragen, Standard oder «Auf jeder Tour» sind. Taschen: {bags}.',
-  'No items for {area} yet, so the list starts empty. Add items in Pack (search finds all your gear), or in Gear: open an item and tick {area} under Areas.': 'Noch keine Teile für {area}, die Liste startet leer. Füge Teile in Packen hinzu (die Suche findet deine ganze Material) oder in Material: Teil öffnen und {area} unter Reisearten anhaken.',
+  'No items for {area} yet, so the list starts empty. Add items in Pack (search finds all your gear), or in Gear: open an item and tick {area} under Areas.': "Noch keine Teile für {area}, die Liste startet leer. Füge Teile in Packen hinzu (die Suche findet dein ganzes Material) oder in Material: Teil öffnen und {area} unter Tourarten anhaken.",
   'The last {area} trip, or the {area} items when there is none': 'Die letzte Tour {area}, oder die Teile für {area}, wenn es keine gibt',
   'Worn, standard and "On every trip", in {bags}': 'Getragen, Standard und «Auf jeder Tour», in {bags}',
   // v0.22.0 (AP04): clear words for the states, honest weights, one "•••" per row.

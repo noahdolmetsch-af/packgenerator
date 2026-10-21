@@ -105,6 +105,13 @@ Ursprünglich freigegebene Ausführungsreihenfolge: AP01–AP09 → AP12–AP16 
 
 ## Abgleich, Abweichungen und nächste Lieferfolge
 
+**21.10.2026, v0.172.0 «Velo und Notizen»:** Velo im Griff (Kette nach Regen, Fotos, Inserat, Velobox, Ersatzteile, Kettenrotation) und Notizen wie Evernote (zeichnen, formatieren, Dateien, Erinnerung, Papierkorb).
+
+**21.10.2026, v0.174.0 «Klarer und einheitlich»:** Impeccable-Bericht umgesetzt (weniger Reiter, ein Wort pro Sache, kürzere Seiten) und Auswertung wie Training für Haken und Check-Antworten.
+**21.10.2026, v0.173.0 «Suche mit Sprache»:** Sprechen oder Tippen in die Suche: Befehle laufen sofort mit Rückgängig, Fragen beantwortet die App; Ich › Suche. Webcams auf der Live-Karte, Glätte-Push.
+**21.10.2026, v0.173.0 «Eigene Werte» (im Bündel 0.173):** Eigene Werte und Erinnerungen selbst anlegen, umbenennen, löschen; eigene Körperwerte; sechs neue Listen; App-Fenster statt Browser-Fragen.
+**21.10.2026, v0.171.0 «Velo, Wetter und Körper»:** Verschleiss pro Teil, Bilder, Wetter-Kern mit Radar und Webcams, Körperwerte, Fitbit überall, KI im Gerät, Aus jeder Tour lernen, Schneller packen, Schlafplätze im Rennen, Tagebuch unter Planen.
+**21.10.2026, v0.170.1 «Abgleich bleibt ruhig»:** keine Abgleich-Fragen mehr zu internen Werten; «Später» gibt eine Stunde Ruhe.
 **20.10.2026, v0.170.0 «Live-Karte, Tagebuch, Form»:** Live-Karte mit Pause, Sensoren, Abbiegehinweisen und Umweg; Tagebuch; Form und Erholung; Heatmap; Tour-Werte wie Garmin; Check-Fragen; Zürisee; Erster Start; Haustür bis zurück.
 **20.10.2026, v0.169.0 «Neue Leiste und Heute neu»:** Leiste Heute · Planen · Touren · Auswerten · Velos (gleiche Adressen; Ich nur Daten, Einstellungen, Hilfe; Handy kürzer), Heute neu mit «Dein Körper heute» und «Aktiv heute», wärmere Farben und runde Knöpfe.
 **20.10.2026, v0.168.0 «Tour-Seite und Aktiv»:** Gepäck zu einer Fahrt nachtragen, Tour-Seite persönlicher, Aktiv-Kacheln selbst ändern, beim Planen jeder Anstieg der GPX-Strecke, Kartengrund auf allen Karten, kein falscher KI-Schlüssel-Hinweis.

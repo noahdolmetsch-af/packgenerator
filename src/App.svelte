@@ -104,8 +104,7 @@
     return () => window.removeEventListener('hashchange', update);
   });
   // v0.23.0 (AP07): the address → page and its main place live in nav.js (tested there).
-  // «Tagebuch» (20.10.2026): #/tagebuch is its own page; the nav thread adds it to pageOf/placeOf with the new bar
-  const page = $derived(hash.startsWith('#/tagebuch') ? 'tagebuch' : pageOf(hash, parseBikesHash(hash).tab === 'care'));
+  const page = $derived(pageOf(hash, parseBikesHash(hash).tab === 'care'));
   const place = $derived(placeOf(page));
   // a page for someone without the app's data (a shared list, Paket S «Reise-Spur»: a tour's read link)
   const guest = $derived(page === 'share' || page === 'spurlink');
@@ -342,6 +341,7 @@
     Me: () => import('./pages/Me.svelte'),
     Look: () => import('./pages/Look.svelte'),
     AiProjects: () => import('./pages/AiProjects.svelte'),
+    SucheSettings: () => import('./pages/SucheSettings.svelte'),
     Data: () => import('./pages/Data.svelte'),
     Docs: () => import('./pages/Docs.svelte'),
     Fitbit: () => import('./pages/Fitbit.svelte'),
@@ -355,6 +355,7 @@
     Phone: () => import('./pages/Phone.svelte'),
     Checks: () => import('./pages/Checks.svelte'),
     Push: () => import('./pages/Push.svelte'),
+    Wetter: () => import('./pages/Wetter.svelte'),
     Abfragen: () => import('./pages/Abfragen.svelte'),
     Verlauf: () => import('./pages/Verlauf.svelte'),
     Auswertung: () => import('./pages/Auswertung.svelte'),
@@ -439,7 +440,7 @@
 <DbWaitLine />
 {#if !mini && !guest}<ComebackWindow care={$dueQ ?? 0} inbox={$inboxQ ?? 0} /><YearCheckWindow {hash} /><DiaryReminder {hash} />{/if}
 
-<main class:calm class:wide={page === 'pack' || page === 'ride' || page === 'debrief' || page === 'rides' || page === 'stravarides' || page === 'past' || page === 'templates' || page === 'gear' || page === 'supplies' || page === 'power' || page === 'fuel' || page === 'tour' || page === 'lend' || page === 'blocks' || page === 'blockcheck' || page === 'home' || page === 'features' || page === 'wardrobe' || page === 'flow' || page === 'timer' || page === 'check' || page === 'routine' || page === 'week' || page === 'neuland' || page === 'heatmap'} class:bar={!wide.matches || !!mini}>
+<main class:calm class:wide={page === 'pack' || page === 'ride' || page === 'debrief' || page === 'rides' || page === 'stravarides' || page === 'past' || page === 'templates' || page === 'gear' || page === 'supplies' || page === 'power' || page === 'fuel' || page === 'tour' || page === 'lend' || page === 'blocks' || page === 'blockcheck' || page === 'home' || page === 'features' || page === 'wardrobe' || page === 'flow' || page === 'timer' || page === 'check' || page === 'routine' || page === 'week' || page === 'neuland' || page === 'heatmap' || page === 'dreams'} class:bar={!wide.matches || !!mini}>
   {#if !calm && !guest && !mini}<PlaceTabs {place} {hash} {moved} onclosemoved={() => (moved = null)} />{/if}
   <!-- AU1 «1b»: on a phone Velos and Ausrüstung share a slot. Gesamttest 20.10.2026 B7: the switch stands only
        on Ausrüstung (the way back); Velos already has its tabs and path, Ausrüstung is one row on Velos › Übersicht -->
@@ -566,6 +567,9 @@
   {:else if page === 'aiprojects'}
     <!-- «Meine KI-Projekte» (Noah 19.10.2026 «2a»): Ich › own links to AI projects and chats -->
     <LazyPage load={PAGES.AiProjects} />
+  {:else if page === 'suchesettings'}
+    <!-- «Suche mit Sprache und Antworten» (Noah 21.10.2026 «5b»): Ich › Suche -->
+    <LazyPage load={PAGES.SucheSettings} />
   {:else if page === 'look'}
     <!-- v0.97.0 Design-Refresh R1: Ich › Darstellung -->
     <LazyPage load={PAGES.Look} />
@@ -602,6 +606,9 @@
   {:else if page === 'phone'}
     <!-- Design-Refresh P9 (B35): Ich › Daten › Aufs Handy, the QR code -->
     <LazyPage load={PAGES.Phone} />
+  {:else if page === 'wetter'}
+    <!-- Paket Y «Wetter-Kern» (Noah 20.10.2026): the weather for riding, best window, radar, webcams -->
+    <LazyPage load={PAGES.Wetter} />
   {:else if page === 'push'}
     <!-- Erinnerungen aufs Handy (Web-Push, Noah 15.10.2026 «1a 2b 3a 4b 5a»): Ich › Erinnerungen aufs Handy -->
     <LazyPage load={PAGES.Push} />

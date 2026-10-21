@@ -7,6 +7,7 @@
 import { test, expect } from '@playwright/test';
 import DE from '../../src/lib/i18n/de/index.js';
 import { ready } from './settle.js';
+import { TABS } from './placetab.js';
 
 const T = (en) => DE[en] ?? en.replace(/\|[a-z]+$/, '');
 
@@ -32,7 +33,7 @@ test('Heute abhaken: Bearbeiten, delete with history kept, restore, hide a tile'
   await tick.locator('[data-sec-edit]').click();
   await expect(page).toHaveURL(/#\/flow\/goals$/);
   await expect(page.locator('main h1')).toHaveText(T('Activities|flow'));
-  await expect(page.locator('.ptabs').getByRole('link', { name: T('Activities|tab'), exact: true })).toHaveAttribute('aria-current', 'page');
+  await expect(page.locator(TABS).getByRole('link', { name: T('Activities|tab'), exact: true })).toHaveAttribute('aria-current', 'page');
 
   // 2. delete, keep the history, restore
   await page.locator('a[href="#/flow/edit/run"]').click();

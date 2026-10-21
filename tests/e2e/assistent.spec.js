@@ -5,6 +5,7 @@ import { test, expect } from '@playwright/test';
 import DE from '../../src/lib/i18n/de/index.js';
 import { v0770File } from './v0770-fixture.js';
 import { openData, settle } from './settle.js';
+import { sentOut } from './public-data.js';
 
 const T = (en) => DE[en] ?? en.replace(/\|[a-z]+$/, '');
 const noSideways = async (page) => expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(page.viewportSize().width);
@@ -27,7 +28,7 @@ async function start(page, context, info) {
   await settle(page);
   return { errors, out };
 }
-const external = (out) => out.filter((u) => !u.startsWith('https://api.open-meteo.com/'));
+const external = sentOut; // weather and lake values carry nothing of yours
 
 test('the button opens the page; an example asks, the app answers; the three ways with examples', async ({ page, context }, info) => {
   const { errors, out } = await start(page, context, info);

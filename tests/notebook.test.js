@@ -11,6 +11,8 @@ describe('capture', () => {
     expect(linkFrom(`${P} Route https://example.org/r?x=1).`)).toEqual({ title: `${P} Route`, url: 'https://example.org/r?x=1', host: 'example.org' });
     expect(linkFrom('no link')).toBeNull();
     expect(checklistFrom('Einkaufen\n- Gas\n[x] Wachs\n[ ] Riegel')).toEqual({ items: [{ text: 'Gas', done: false }, { text: 'Wachs', done: true }, { text: 'Riegel', done: false }], text: 'Einkaufen' });
+    // Paket NE: Markdown ticks «- [ ] …» / «- [x] …» are ticks, not points «[ ] …»
+    expect(checklistFrom('- [ ] Gas\n- [x] Wachs').items).toEqual([{ text: 'Gas', done: false }, { text: 'Wachs', done: true }]);
   });
 
   it('makes a kept note: title from the first line, topic from the text, the link kept, nothing fetched', () => {

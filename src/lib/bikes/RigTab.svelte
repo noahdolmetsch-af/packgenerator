@@ -69,7 +69,7 @@
     for (const file of files) {
       try {
         const data = await shrinkImage(file);
-        await db.photos.put({ id: `photo-${Date.now().toString(36)}-${n++}`, bikeId: bike.id, name: file.name.replace(/\.[^.]+$/, '').slice(0, 40) || 'Setup', tripId: null, main: false, data, addedAt: new Date().toISOString() });
+        await db.photos.put({ id: `photo-${Date.now().toString(36)}-${n++}`, bikeId: bike.id, name: file.name.replace(/\.[^.]+$/, '').slice(0, 40) || 'Setup', tripId: null, main: false, data, day: localDay(), addedAt: new Date().toISOString() });
       } catch (err) {
         photoMsg = `${file.name}: ${err.message || t('This photo could not be read.')}`;
       }
@@ -151,8 +151,6 @@
   <SetupTable {bike} {trips} {items} {containers} />
 {:else if bike}
   <VeloHead
-    crumbs={[{ label: t('Bike'), href: bikesHash({ tab: 'setup' }) }, { label: bike.name, href: bikesHash({ tab: 'setup', bike: bike.id }) }]}
-    here={t('My setup|tab')}
     title={t('My setup|tab')}
     sub={t('{bike} · photos, weight, bags, changes', { bike: bike.name })}
   />

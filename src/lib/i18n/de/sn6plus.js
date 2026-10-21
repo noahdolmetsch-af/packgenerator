@@ -241,7 +241,7 @@ export default {
   'Open Meditation › More.': 'Öffne «Meditation» › «Mehr».',
   'Listen to the sounds.': 'Hör dir die Klänge an.',
   'Add kinds, places, quotes or your own links.': 'Füge Arten, Orte, Zitate oder eigene Links hinzu.',
-  'Tap «Download backup».': 'Tippe auf «Backup herunterladen».',
+  'Tap «Download backup».': "Tippe auf «Backup speichern».",
   'Keep the file in a safe place.': 'Leg die Datei an einen sicheren Ort.',
   'On another device load it under Me › Your data.': 'Lade sie auf einem anderen Gerät unter «Ich» › «Deine Daten».',
   'Open the app in the browser of your phone.': 'Öffne die App im Browser deines Handys.',

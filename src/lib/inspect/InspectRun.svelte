@@ -9,6 +9,7 @@
    */
   import { Check, BookOpen, Camera, X, ChevronDown, Store, Wrench, Eye } from '@lucide/svelte';
   import { db } from '../db.js';
+  import DrawOn from '../draw/DrawOn.svelte'; // Paket NE 1146: draw on a point's photo
   import { t, tn, num, dateOf } from '../i18n.svelte.js';
   import { localDay } from '../localday.js';
   import { bikesHash } from '../bikes.js';
@@ -162,7 +163,7 @@
                 {#if r?.photos?.length}
                   <ul class="photos">
                     {#each r.photos as src, i (i)}
-                      <li><img {src} alt={t('Photo {n} of {name}', { n: i + 1, name: pointName(p) })} /><button type="button" class="ib" aria-label={t('Remove photo {n}', { n: i + 1 })} onclick={() => removePhoto(p, i)}><X size={14} aria-hidden="true" /></button></li>
+                      <li><img {src} alt={t('Photo {n} of {name}', { n: i + 1, name: pointName(p) })} /><button type="button" class="ib" aria-label={t('Remove photo {n}', { n: i + 1 })} onclick={() => removePhoto(p, i)}><X size={14} aria-hidden="true" /></button><DrawOn {src} list={r.photos} inks={r.inks} icon cls="ib drw" onsave={({ list, inks }) => change(p.id, { photos: list, inks })} /></li>
                     {/each}
                   </ul>
                 {/if}
@@ -370,16 +371,23 @@
     object-fit: cover;
     border-radius: 8px;
   }
-  .photos .ib {
+  .photos .ib,
+  .photos :global(.drw) {
     position: absolute;
     top: 2px;
     right: 2px;
+    display: grid;
+    place-items: center;
     width: 32px;
     height: 32px;
     border: 0;
     border-radius: 50%;
     background: var(--paper);
     cursor: pointer;
+  }
+  .photos :global(.drw) {
+    right: auto;
+    left: 2px;
   }
   .foot {
     display: flex;

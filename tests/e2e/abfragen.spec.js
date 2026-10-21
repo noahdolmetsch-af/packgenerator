@@ -89,7 +89,11 @@ test.describe('AB Deine Abfragen', () => {
     const areas = page.locator('[data-area]');
     await expect(areas).toHaveCount(11); // 10 areas and «Eigene»
     const erholung = page.locator('[data-area="erholung"]');
+    // 0.171 (on purpose): the 5 sample questions that are off wait folded behind «5 Musterfragen zeigen»
+    await expect(erholung.locator('[data-q]')).toHaveCount(6);
+    await erholung.locator('[data-samples-show]').click();
     await expect(erholung.locator('[data-q]')).toHaveCount(11);
+    await expect(erholung.locator('[data-samples-show]')).toHaveCount(0);
     // Impeccable Runde 2 (on purpose): «bisher: …» only in the interval sheet of the question
     await expect(erholung.getByText('bisher: Wie viel Energie hast du?')).toHaveCount(0);
     await expect(page.locator('[data-area="spass"]').getByText('10 Fragen · 4 an')).toBeVisible();

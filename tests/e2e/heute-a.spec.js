@@ -33,6 +33,11 @@ test.describe('HA Heute neu A', () => {
     await expect(body.locator('[data-body="sleep"] b')).toHaveText(/7[.,]5 h/);
     await expect(body.locator('[data-body="azm"] b')).toHaveText('12');
     await expect(body.locator('[data-body-check]')).toBeVisible();
+    // Fitbit everywhere (Noah 20.10.2026 22:21): the balance shows the measured pulse and today's active zone minutes
+    const pc = page.locator('[data-section="balance"] [data-pc="body"]');
+    await expect(pc).toContainText('55');
+    await expect(pc.locator('[data-body-azm]')).toContainText('12');
+    await expect(pc).toContainText(T('measured with Fitbit|body'));
     const acts = page.locator('[data-section="acts"]');
     await expect(acts.getByRole('heading', { name: T('Active today') })).toBeVisible();
     await expect(acts.locator('[data-act]').first()).toBeVisible();

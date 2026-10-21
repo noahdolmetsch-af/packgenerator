@@ -18,7 +18,7 @@
   import { answerFor } from './answers.js';
   import { readAloud, stopReading, speechLang, voiceApi } from '../speak.js';
 
-  let { q = '', onlink = () => {}, tools = false, fallback = false, autoread = false, onadopt = null, onreading = () => {}, onclose = null } = $props();
+  let { q = '', onlink = () => {}, tools = false, fallback = false, autoread = false, onadopt = null, onreading = () => {}, onclose = null, onresult = () => {} } = $props();
   const today = localDay();
   const src = liveQuery(async () => {
     const [book, trips, items, bikes, visits, tasks, learnings] = await Promise.all([db.kmBook.toArray(), db.trips.toArray(), db.items.toArray(), db.bikes.toArray(), db.visits.toArray(), db.maintenance.toArray(), db.learnings.toArray()]);
@@ -28,6 +28,8 @@
   const answer = $derived($src && q.trim().length >= 3 ? answerFor(q, $src) : null);
   const spoken = $derived(answer ? [answer.title, ...answer.lines].filter(Boolean).join('. ') : '');
   const canRead = !!voiceApi();
+  // «Suche mit Sprache» (21.10.2026): the search knows whether the app had an answer (then Gemini waits for a tap)
+  $effect(() => onresult(!!answer));
   let reading = $state(false);
   function read() {
     if (reading) {

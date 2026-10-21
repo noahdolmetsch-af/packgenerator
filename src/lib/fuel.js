@@ -3,7 +3,7 @@
  * a race, section by section between the places where you can buy food.
  *
  * - Your own values (settings 'fuel', in backup and sync): carbohydrates per riding hour (60 g), water per
- *   hour when it is cool and when it is hot (1 and 2 l), bottles, a stop about every n hours, start time,
+ *   hour when it is cool and when it is hot (0.5 and 1.5 l, Noah 20.10.2026 «1a»), bottles, a stop about every n hours, start time,
  *   your products (bar 40 g …). Everything can be changed; products added, renamed, sorted and deleted.
  * - Water per hour is worked out (answer 2a): between «cool» and «hot» by the temperature when you are
  *   there, plus up to half the span for steep climbing (600 m up per hour = the whole half).
@@ -19,8 +19,8 @@ export const FUEL_KEY = 'fuel';
 /** The standard values: suggestions, all changeable. */
 export const STANDARD = {
   carbsGh: 60,
-  coolLh: 1,
-  hotLh: 2,
+  coolLh: 0.5,
+  hotLh: 1.5,
   coolC: 15,
   hotC: 30,
   bottles: 2,

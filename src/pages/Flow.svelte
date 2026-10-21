@@ -237,15 +237,15 @@
 {:else if route[0] === 'plans'}
   <!-- «Trainingspläne» (Noah 19.10.2026): loaded only when opened -->
   {#await import('./flow/TrainingPlans.svelte') then m}{#key route[1]}<m.default id={decodeURIComponent(route[1] ?? '')} {params} />{/key}{:catch}<p class="hint" role="alert">{t('This page could not load. Please check the connection and try again.')}</p>{/await}
-{:else if route[0] === 'auswertung'}
-  <!-- «Auswertung wie Training» (Noah 20.10.2026): what you tick, evaluated like a ride; loaded only when opened -->
-  {#await import('./flow/TickReview.svelte') then m}<m.default {params} />{:catch}<p class="hint" role="alert">{t('This page could not load. Please check the connection and try again.')}</p>{/await}
 {:else if route[0] === 'form'}
   <!-- «Form und Erholung» (Noah 20.10.2026 «3a»): loaded only when opened -->
   {#await import('./flow/Form.svelte') then m}<m.default />{:catch}<p class="hint" role="alert">{t('This page could not load. Please check the connection and try again.')}</p>{/await}
 {:else if route[0] === 'stats'}
   <!-- Garmin-Übersicht: one sport or the heart rate, 7 days / 4 weeks / 1 year -->
   {#await import('./flow/Stats.svelte') then m}{#key route[1]}<m.default id={decodeURIComponent(route[1] ?? 'bike')} />{/key}{:catch}<p class="hint" role="alert">{t('This page could not load. Please check the connection and try again.')}</p>{/await}
+{:else if route[0] === 'auswertung'}
+  <!-- «Auswertung wie Training» (Noah 20.10.2026): what you tick, evaluated like a ride; loaded only when opened -->
+  {#await import('./flow/TickReview.svelte') then m}<m.default {params} />{:catch}<p class="hint" role="alert">{t('This page could not load. Please check the connection and try again.')}</p>{/await}
 {:else if route[0] === 'sports'}
   <!-- Paket O «Sportarten»: loaded only when opened (main.js stays small) -->
   {#await import('./flow/Sports.svelte') then m}<m.default />{/await}
@@ -362,6 +362,7 @@
       {#if inSeason(today)}<a class="skl" href="#/ski" data-to="ski"><Snowflake size={16} aria-hidden="true" />{t('Ski tour')}<ChevronRight size={16} aria-hidden="true" /></a>{/if}
       <!-- Paket U3 «Live-Karte» (Noah 19.10.2026 «5a» «Aktiv „Ausfahrt starten"»): one small line to the live map -->
       <LiveStart />
+      {#await import('../lib/wetter/DraussenTipp.svelte') then m}<m.default />{:catch}{/await}
     </header>
 
     {#if data && !states.length}
@@ -371,8 +372,7 @@
       <!-- Noah 19.10 «2a»: one card per page; the Einstieg lives in the card «Was hier steht» (its own card only while the page is empty) -->
       <!-- «Form und Erholung» (Noah 20.10.2026 «2b 3a»): the readiness of today, on top -->
       <FormCard {today} />
-      <HintCard page="aktiv" intro="aktiv" />
-      <MoreAktiv items={pages} />
+      <!-- Impeccable 20.10.2026 P3 (Noah «alles umsetzen»): then «Heute abhaken»; the explanation card and the page tiles follow it -->
       <div class="lay">
         <div class="col">
           <!-- Impeccable (layout): on a phone «Stoppuhr ›» sits in this head instead of the floating button, which covered a tile -->
@@ -381,6 +381,8 @@
             <TickGrid states={live} {today} cols={phone.matches ? 2 : 4} compact onmed={(s) => (medFor = s.act.id)} />
             {#if hasMed}<p class="hint">{t('Tap Meditation: start or tick off.')}</p>{/if}
           </Sec>
+          <HintCard page="aktiv" intro="aktiv" />
+          <MoreAktiv items={pages} />
           <!-- Gesamttest 20.10.2026 Design 2: the tip of the day under the first part of the page, not above it -->
           <TipLine page="aktiv" name={t('Analysis|place')} />
           <!-- package G #156: Strava activities waiting for «Count» (only when ticking is set to «suggest first») -->

@@ -46,7 +46,7 @@
 </script>
 
 <section class="ich-sec" id="start-fresh" aria-labelledby="sf-h" data-section="start-fresh">
-  <div class="ich-h"><div><h2 id="sf-h">{t('Start fresh')}</h2><p class="ich-hs">{t('Delete all data and begin from zero, as on the first day.')}</p></div></div>
+  <div class="ich-h"><div><h2 id="sf-h">{t('Delete everything|section')}</h2><p class="ich-hs">{t('Deletes all data on this device. Save a backup first.')}</p></div></div>
   <div class="card ich-body">
     {#if asking}
       <div class="sf-ask" role="dialog" aria-labelledby="sf-q">
@@ -59,7 +59,7 @@
       </div>
     {:else}
       <div class="ich-acts">
-        <button type="button" class="btn" onclick={() => (asking = true)}><RotateCcw size={16} aria-hidden="true" />{t('Start fresh …')}</button>
+        <button type="button" class="btn sf-go" onclick={() => (asking = true)}><RotateCcw size={16} aria-hidden="true" />{t('Start fresh …')}</button>
       </div>
     {/if}
     {#if message}<p class="ich-help" role="status">{message}</p>{/if}
@@ -79,5 +79,10 @@
   }
   .end {
     justify-content: flex-end;
+  }
+  /* Impeccable P6: a red outline, so it does not look like the backup buttons */
+  .sf-go {
+    border-color: var(--bad);
+    color: var(--bad);
   }
 </style>

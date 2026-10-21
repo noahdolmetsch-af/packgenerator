@@ -112,6 +112,8 @@ test('LI1 + LI2 + LI3: rename, symbol, hide, own category and back to Standard r
   await page.goto('./#/me/lists?categories');
   await settle(page);
   await page.getByRole('button', { name: T('Back to Standard|list') }).click();
+  // since 21.10.2026 the app's own window asks (no browser dialog)
+  await page.getByRole('dialog', { name: T('Back to Standard?|list') }).getByRole('button', { name: T('Back to Standard|list') }).click();
   await expect(row(page, A.key)).toContainText(T(A.name));
   await expect(page.locator('main li[data-id]')).toHaveCount(STD_CATEGORIES.length);
   await expect.poll(async () => (await overrides(page)).categories).toBeUndefined();
@@ -140,6 +142,8 @@ test('LI3: delete a Standard category, its items show under «Ohne Kategorie», 
   await page.goto('./#/me/lists?categories');
   await settle(page);
   await page.getByRole('button', { name: T('Back to Standard|list') }).click();
+  // since 21.10.2026 the app's own window asks (no browser dialog)
+  await page.getByRole('dialog', { name: T('Back to Standard?|list') }).getByRole('button', { name: T('Back to Standard|list') }).click();
   await expect(row(page, A.key)).toHaveCount(1);
 });
 

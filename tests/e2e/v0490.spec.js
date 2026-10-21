@@ -141,7 +141,7 @@ test('c) Past trips: one table, the name fixed, filters and a search that finds 
   await expect(row('Herbsttour Hochland')).toContainText('Überschuhe ab 8 °C mitnehmen');
   await expect(row('Herbsttour Hochland')).toContainText('Bewertet');
   await expect(row('Abendrunde Hügel')).toContainText('Abgeschlossen');
-  await expect(row('Abendrunde Hügel').getByRole('link', { name: 'Bewerten: Abendrunde Hügel' })).toBeVisible();
+  await expect(row('Abendrunde Hügel').getByRole('link', { name: 'Rückblick: Abendrunde Hügel' })).toBeVisible();
   await expect(main.getByText('Alte Seerunde')).toHaveCount(0); // older than 12 months
   // the page never scrolls sideways; on a phone every trip is a card
   await noSideways(page);

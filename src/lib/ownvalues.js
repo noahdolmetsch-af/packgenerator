@@ -63,8 +63,9 @@ export function clampOwn(key, value) {
 /** The stored record made whole: every field a safe number, missing or broken ones the standard. */
 export function normOwn(raw) {
   const o = raw && typeof raw === 'object' ? raw : {};
+  const gone = new Set(Array.isArray(o.gone) ? o.gone : []);
   const out = {};
-  for (const f of OWN_FIELDS) out[f.key] = clampOwn(f.key, o[f.key]) ?? f.std;
+  for (const f of OWN_FIELDS) out[f.key] = gone.has(f.key) ? f.std : (clampOwn(f.key, o[f.key]) ?? f.std);
   return out;
 }
 
@@ -73,7 +74,7 @@ export function setOwn(raw, key, value) {
   const cur = normOwn(raw);
   const v = value == null ? OWN_FIELD[key]?.std : (clampOwn(key, value) ?? cur[key]);
   if (OWN_FIELD[key]) cur[key] = v;
-  return Object.fromEntries(Object.entries(cur).filter(([k, x]) => x !== OWN_FIELD[k].std));
+  return withMeta(Object.fromEntries(Object.entries(cur).filter(([k, x]) => x !== OWN_FIELD[k].std)), metaOf(raw));
 }
 
 /** Minutes after midnight as «19:00». */
@@ -85,3 +86,152 @@ export const hotLimit = (raw) => normOwn(raw).hotC;
 
 /** Is a field changed from its standard? */
 export const isOwnChanged = (raw, key) => normOwn(raw)[key] !== OWN_FIELD[key]?.std;
+
+/* ------------------------------------------------------------------------------------------------
+ * «Eigene Werte anpassbar» (Noah 21.10.2026 «1 a und b 2 a 3a 4a»): every value of the page can be
+ * renamed, deleted (a built-in one is hidden and the app counts with its Standard again; «Deleted
+ * values» brings it back) and moved (arrows and drag, per section). New values are own reminders
+ * «every N km» or «every N days», for all bikes or one; they show in Bike care with «Done».
+ * The same record OWN_KEY carries it, so old records and old backups stay valid:
+ *   names  { packDays: 'Packen ab' }          a typed name (never through t())
+ *   gone   ['hotC']                          deleted built-in values
+ *   order  { pack: ['coldC', 'packDays'], mine: ['o1'] }   the order of a section
+ *   mine   [{ id, name, every, unit: 'km' | 'days', bike: null | id, from: { day, km: { bikeId: km } }, done: { bikeId: { day, km } } }]
+ * A reminder for all bikes keeps its «done» per bike. from: the start (the day it was made, the km of
+ * each bike then); a bike without a start counts from its first «Done».
+ * ------------------------------------------------------------------------------------------------ */
+export const MINE = 'mine';
+export const MINE_UNITS = ['km', 'days'];
+export const MINE_RANGE = { km: [10, 100000], days: [1, 3650] };
+const META = ['names', 'gone', 'order', 'mine'];
+const str = (v, max = 80) => (typeof v === 'string' ? v.trim().slice(0, max) : '');
+const dayOk = (d) => typeof d === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(d);
+const kmOk = (n) => typeof n === 'number' && Number.isFinite(n) && n >= 0;
+
+/** A reminder made safe; null when it has no name or no number. */
+export function cleanMine(x) {
+  if (!x || typeof x !== 'object' || typeof x.id !== 'string') return null;
+  const name = str(x.name);
+  const unit = MINE_UNITS.includes(x.unit) ? x.unit : 'days';
+  const [lo, hi] = MINE_RANGE[unit];
+  const n = Math.round(Number(x.every));
+  if (!name || !Number.isFinite(n)) return null;
+  const km = {};
+  for (const [b, v] of Object.entries(x.from?.km ?? {})) if (kmOk(v)) km[b] = v;
+  const done = {};
+  for (const [b, v] of Object.entries(x.done ?? {})) if (v && (dayOk(v.day) || kmOk(v.km))) done[b] = { day: dayOk(v.day) ? v.day : null, km: kmOk(v.km) ? v.km : null };
+  return { id: x.id, name, every: Math.min(hi, Math.max(lo, n)), unit, bike: typeof x.bike === 'string' && x.bike ? x.bike : null, from: { day: dayOk(x.from?.day) ? x.from.day : null, km }, done };
+}
+
+/** The extra parts of the record, always whole. */
+export function metaOf(raw) {
+  const o = raw && typeof raw === 'object' ? raw : {};
+  const names = {};
+  for (const [k, v] of Object.entries(o.names ?? {})) if (OWN_FIELD[k] && str(v)) names[k] = str(v);
+  const gone = [...new Set((Array.isArray(o.gone) ? o.gone : []).filter((k) => OWN_FIELD[k]))];
+  const order = {};
+  for (const [a, ids] of Object.entries(o.order ?? {})) if (Array.isArray(ids)) order[a] = ids.filter((x) => typeof x === 'string');
+  const mine = (Array.isArray(o.mine) ? o.mine : []).map(cleanMine).filter(Boolean);
+  return { names, gone, order, mine };
+}
+
+/** Numbers plus the extra parts, without empty ones (nothing changed: {}). */
+function withMeta(nums, meta) {
+  const out = { ...nums };
+  if (Object.keys(meta.names).length) out.names = meta.names;
+  if (meta.gone.length) out.gone = meta.gone;
+  if (Object.keys(meta.order).length) out.order = meta.order;
+  if (meta.mine.length) out.mine = meta.mine;
+  return out;
+}
+const numsOf = (raw) => Object.fromEntries(Object.entries(normOwn(raw)).filter(([k, x]) => x !== OWN_FIELD[k].std));
+const change = (raw, fn) => {
+  const meta = metaOf(raw);
+  fn(meta);
+  return withMeta(numsOf({ ...(raw ?? {}), gone: meta.gone }), meta);
+};
+
+/** The name shown for a built-in value: the typed one, or the English source through tr. */
+export const ownName = (raw, f, tr = (x) => x) => metaOf(raw).names[f.key] || tr(f.name);
+/** Rename a built-in value; an empty name brings the Standard name back. */
+export const renameOwn = (raw, key, name) =>
+  change(raw, (m) => {
+    if (!OWN_FIELD[key]) return;
+    if (str(name)) m.names[key] = str(name);
+    else delete m.names[key];
+  });
+/** Delete a built-in value: hidden, and the app counts with its Standard. */
+export const removeOwn = (raw, key) => change(raw, (m) => OWN_FIELD[key] && !m.gone.includes(key) && m.gone.push(key));
+/** Bring a deleted built-in value back (with its Standard number). */
+export const restoreOwn = (raw, key) => change(raw, (m) => (m.gone = m.gone.filter((k) => k !== key)));
+/** The deleted built-in values. */
+export const goneFields = (raw) => metaOf(raw).gone.map((k) => OWN_FIELD[k]);
+
+/** The ids of a section in their order: the stored order first, then the rest as in the code. */
+function orderIds(meta, area) {
+  const all = area === MINE ? meta.mine.map((x) => x.id) : OWN_FIELDS.filter((f) => f.area === area && !meta.gone.includes(f.key)).map((f) => f.key);
+  const want = (meta.order[area] ?? []).filter((id) => all.includes(id));
+  return [...want, ...all.filter((id) => !want.includes(id))];
+}
+/** The built-in values of a section, in their order, without the deleted ones. */
+export const fieldsIn = (raw, area) => orderIds(metaOf(raw), area).map((k) => OWN_FIELD[k]);
+/** The own reminders, in their order. */
+export const mineOf = (raw) => {
+  const m = metaOf(raw);
+  const by = Object.fromEntries(m.mine.map((x) => [x.id, x]));
+  return orderIds(m, MINE).map((id) => by[id]);
+};
+/** Move an entry of a section to place `to` (drag) … */
+export const moveOwnTo = (raw, area, id, to) =>
+  change(raw, (m) => {
+    const ids = orderIds(m, area).filter((x) => x !== id);
+    ids.splice(Math.max(0, Math.min(ids.length, to)), 0, id);
+    m.order[area] = ids;
+  });
+/** … or one place up (-1) or down (+1) (arrows). */
+export const moveOwn = (raw, area, id, dir) => moveOwnTo(raw, area, id, orderIds(metaOf(raw), area).indexOf(id) + dir);
+
+/** A new own reminder. bikes: [{ id, km }] (its start km); → { record, id }. */
+export function addMine(raw, { name, every, unit, bike = null }, bikes = [], today = '') {
+  const meta = metaOf(raw);
+  let n = meta.mine.length + 1;
+  while (meta.mine.some((x) => x.id === `o${n}`)) n++;
+  const id = `o${n}`;
+  const km = Object.fromEntries(bikes.filter((b) => kmOk(b.km)).map((b) => [b.id, b.km]));
+  const x = cleanMine({ id, name, every, unit, bike, from: { day: today, km }, done: {} });
+  if (!x) return { record: withMeta(numsOf(raw), meta), id: null };
+  return { record: change(raw, (m) => m.mine.push(x)), id };
+}
+/** Change name, number, unit or bike of a reminder. */
+export const updateMine = (raw, id, patch) => change(raw, (m) => (m.mine = m.mine.map((x) => (x.id === id ? (cleanMine({ ...x, ...patch, id }) ?? x) : x))));
+/** Delete a reminder (Undo puts the old record back). */
+export const deleteMine = (raw, id) =>
+  change(raw, (m) => {
+    m.mine = m.mine.filter((x) => x.id !== id);
+    if (m.order[MINE]) m.order[MINE] = m.order[MINE].filter((x) => x !== id);
+  });
+/** «Done» for one bike: today and its km now. */
+export const doneMine = (raw, id, bike, today) => change(raw, (m) => (m.mine = m.mine.map((x) => (x.id === id ? { ...x, done: { ...x.done, [bike.id]: { day: today, km: kmOk(bike.km) ? bike.km : null } } } : x))));
+
+const daysBetween = (a, b) => Math.round((Date.UTC(...b.split('-').map((v, i) => Number(v) - (i === 1 ? 1 : 0))) - Date.UTC(...a.split('-').map((v, i) => Number(v) - (i === 1 ? 1 : 0)))) / 864e5);
+
+/**
+ * The own reminders of one bike with their state: { x, since, left, due, never }.
+ * since: km or days since the last «Done» (or the start); null when unknown (never: no start, no «Done»).
+ */
+export function mineFor(raw, bike, today) {
+  return mineOf(raw)
+    .filter((x) => !x.bike || x.bike === bike?.id)
+    .map((x) => {
+      const last = x.done[bike.id];
+      let since = null;
+      if (x.unit === 'km') {
+        const base = last?.km ?? x.from.km[bike.id] ?? null;
+        since = kmOk(bike.km) && base != null ? Math.max(0, bike.km - base) : null;
+      } else {
+        const base = last?.day ?? x.from.day;
+        since = base && dayOk(today) ? Math.max(0, daysBetween(base, today)) : null;
+      }
+      return { x, since, left: since == null ? null : x.every - since, due: since != null && since >= x.every, never: since == null };
+    });
+}

@@ -4,9 +4,10 @@
    * the tour, no photo. Two quiet hills behind; in front the tour's own elevation profile as a hill, with
    * the route on it as a dashed line from the start to the flag. Drawn in code, works offline.
    * points: [[km, m], …] (empty: a gentle made-up hill); chips: short lines on it (date, weather);
-   * warm: 0.174 (UI-Ziele #10) the countdown chip in a warm colour, first («In 5 Tagen», «Zurück seit 2 Tagen»).
+   * warm: «Eine Tour, eine Seite» (UI-Ziele #10) the countdown chip in a warm colour, first («In 5 Tagen»).
+   * photo: «Bilder in der App» 5a (Noah 20.10.2026): a photo of the trip, pale in the sky behind the hills.
    */
-  let { points = [], chips = [], warm = '' } = $props();
+  let { points = [], chips = [], warm = '', photo = null } = $props();
 
   let w = $state(800);
   const W = $derived(Math.max(300, Math.round(w || 800)));
@@ -27,6 +28,7 @@
 </script>
 
 <div class="land" bind:clientWidth={w} data-tour-landscape>
+  {#if photo}<img class="sky" src={photo} alt="" aria-hidden="true" data-tour-sky />{/if}
   <svg viewBox="0 0 {W} {H}" aria-hidden="true" preserveAspectRatio="none">
     <circle cx={W * 0.82} cy="34" r="16" class="sun" />
     <path d={back(18, 70, 5, 0.6)} class="b2" />
@@ -46,7 +48,17 @@
     border-radius: 22px;
     background: color-mix(in srgb, var(--accent-soft) 45%, var(--paper));
   }
+  .sky {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.3;
+    pointer-events: none;
+  }
   svg {
+    position: relative;
     display: block;
     width: 100%;
     height: 150px;

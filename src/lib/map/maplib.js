@@ -37,6 +37,7 @@ const FALLBACK = {
 /** The colour of every kind of point (POI kinds of outside.js, the plan's beds, own points). */
 export const KIND_TOKEN = {
   shop: '--l2',
+  webcam: '--l3', // Paket Wetter: your webcams with a place
   food: '--hi',
   fuel: '--warn',
   water: '--l3',
@@ -67,6 +68,11 @@ export const KIND_TOKEN = {
   charge: '--warn',
   bikepark: '--ok',
   rental: '--ok',
+  roofbus: '--ink-3',
+  hut: '--ink-3',
+  bivouac: '--l4',
+  waitroom: '--ink-3',
+  night24: '--l4',
   bus: '--ink-2',
   transit: '--ink-2',
   info: '--l1',

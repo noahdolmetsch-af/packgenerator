@@ -33,7 +33,8 @@
   import { askDelete, deleteWithUndo } from '../ui/ask.js';
   import { navLinks } from '../live/live-lib.js';
   import { db } from '../db.js';
-  import { OWN_KEY, OWN_KINDS, listOf, ownLabel, saveOwn, putOwn, newPoint, updatePoint, removePoint, movePoint, sourcesOf, removeSource, renameSource, srcOf } from './ownpoints.js';
+  import { pointKindName } from './ownkinds.js';
+  import { OWN_KEY, listOf, ownLabel, saveOwn, putOwn, newPoint, updatePoint, removePoint, movePoint, sourcesOf, removeSource, renameSource, srcOf } from './ownpoints.js';
   import { ALL, CATEGORY, RADII, RADIUS_MIN, RADIUS_MAX, MAX_PLACES, MAX_VIEW_KM, MAX_SELECTORS, OWN_ICONS, loadPlaces, withDistance, viewMoved, debounce, boundsKm, shareText, shareOrCopy, toggleStar, distanceOf, ptsOf, prefsOf, radiusOf, moveChip, renameChip, hideChip, showChip, putOwnCat, removeOwnCat, newOwnCat } from './poisearch.js';
   import { prefsQuery, savePrefs, placeStore } from './poiprefs.js';
   import { placesFromFile, importPoints, kmzText, fileKind, MAX_FILE_MB } from './placefiles.js';
@@ -294,7 +295,7 @@
   const sources = $derived(sourcesOf(own));
   const ownShown = $derived(ownAll ? own : own.slice(0, FIRST));
   const mapMid = $derived(bounds && [bounds.s, bounds.n, bounds.w, bounds.e].every(Number.isFinite) ? { lat: (bounds.s + bounds.n) / 2, lon: (bounds.w + bounds.e) / 2 } : null);
-  const kindName = (p) => t(OWN_KINDS.find((k) => k.key === p.kind)?.name ?? 'Note|point');
+  const kindName = (p) => pointKindName(p.kind, t);
   let sheet = $state(null); // { point, fresh }
   let tapping = $state(false);
   let movingP = $state(null);

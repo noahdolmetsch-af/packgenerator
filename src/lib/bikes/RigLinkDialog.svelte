@@ -34,6 +34,11 @@
       error = t('Add the first day of the race.');
       return;
     }
+    // Impeccable bug: the last day cannot come before the first day
+    if (draft.kind === 'race' && draft.raceEnd && draft.raceEnd < draft.raceDate) {
+      error = t('The last day comes before the first day.');
+      return;
+    }
     const fields = { url: draft.url, title: draft.title, kind: draft.kind, notes: draft.notesText.split('\n'), packKg: String(draft.packKg).replace(',', '.'), raceDate: draft.raceDate, raceEnd: draft.raceEnd, raceId: draft.raceId };
     const made = newLink(fields, { id: link?.id ?? `link-${Date.now().toString(36)}`, now: link?.addedAt });
     onsave?.($state.snapshot(link ? { ...made, star: !!link.star } : made));
@@ -62,7 +67,7 @@
       <label class="wide"><span class="lbl">{t('Title')}</span><input class="inp" bind:value={draft.title} {placeholder} /></label>
       {#if draft.kind === 'race'}
         <label><span class="lbl">{t('First day')}</span><input class="inp" type="date" bind:value={draft.raceDate} /></label>
-        <label><span class="lbl">{t('Last day')}</span><input class="inp" type="date" bind:value={draft.raceEnd} /></label>
+        <label><span class="lbl">{t('Last day')}</span><input class="inp" type="date" bind:value={draft.raceEnd} min={draft.raceDate || undefined} /></label>
       {:else}
         <label><span class="lbl">{t('Luggage of the rigs (kg)')}</span><input class="inp num" type="text" inputmode="decimal" bind:value={draft.packKg} placeholder={t('optional')} /></label>
         {#if races.length}

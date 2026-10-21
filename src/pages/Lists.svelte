@@ -30,7 +30,7 @@
   import { t, tn } from '../lib/i18n.svelte.js';
   import SortGrip from '../lib/ui/SortGrip.svelte';
   import { sortable } from '../lib/ui/sortable.js';
-  import { ChevronRight, ChevronUp, ChevronDown, Eye, EyeOff, Pencil, Plus, Undo2, Lightbulb, Tag, ListChecks, Info, NotebookPen, SlidersHorizontal, Mountain, Briefcase, Wrench } from '@lucide/svelte';
+  import { ChevronRight, ChevronUp, ChevronDown, Eye, EyeOff, Pencil, Plus, Undo2, Lightbulb, Tag, ListChecks, Info, NotebookPen, SlidersHorizontal, Mountain, Briefcase, Wrench, MapPin, Bike, Palmtree, Feather, Smile, Flower2 } from '@lucide/svelte';
   import '../lib/ich/ich.css';
 
   const overQ = liveQuery(() => db.settings.get(OVERRIDES_KEY));
@@ -113,7 +113,37 @@
       what: () => '',
       words: () => ({ edit: t('Rename part'), own: '', empty: t('Give the part a name.'), warn: '' }),
     },
+    // «Alle Daten anpassbar» (Noah 21.10.2026 «4a»): six more lists. simple: nothing moves when an entry
+    // goes (the records keep their kind; a deleted Standard entry comes back with «Back to Standard»).
+    pointKinds: simpleKind(MapPin, 'Trips|place', 'The kinds of your own points on the maps. Points keep their kind when you delete one.', 'Own kind'),
+    bikeKinds: simpleKind(Bike, 'Bikes|place', 'The kinds of bike in Care. An own kind starts like Gravel: its part template and 20 km/h; change the template in Care › Part template.', 'Own kind'),
+    awayTypes: simpleKind(Palmtree, 'Week|place', 'The kinds of holidays and trips in «Plan the week». Entries keep their kind when you delete one.', 'Own kind'),
+    journalQuestions: simpleKind(Feather, 'Diary', 'The questions of the day in the diary, one a day in this order. Hidden and deleted ones are skipped; your answers keep their question.', 'Own question'),
+    journalMoods: {
+      full: false,
+      renameOnly: true,
+      icon: Smile,
+      place: 'Diary',
+      sub: 'The five moods of a diary entry. Only the name changes: the mood curve needs its five steps.',
+      ownWord: '',
+      what: () => '',
+      words: () => ({ edit: t('Rename mood'), own: '', empty: t('Give the mood a name.'), warn: '' }),
+    },
+    medMoods: simpleKind(Flower2, 'Active|place', 'The moods you can tick after meditating. Your notes keep the moods they have.', 'Own mood'),
   };
+  function simpleKind(icon, place, sub, ownWord) {
+    return {
+      full: false,
+      hideable: true,
+      simple: true,
+      icon,
+      place,
+      sub,
+      ownWord,
+      what: () => '',
+      words: () => ({ edit: t('Edit entry'), own: t(ownWord), empty: t('Give the entry a name.'), warn: t('Delete: what has it keeps it.') }),
+    };
+  }
   const q = location.hash.split('?')[1] ?? '';
   const KEY = Object.hasOwn(KINDS, q) ? q : 'categories';
   const open = Object.hasOwn(KINDS, q);
@@ -125,7 +155,7 @@
   const countsOf = (key) => {
     if (key === 'categories') return ($itemsQ ?? []).reduce((m, i) => ((m[i.category] = (m[i.category] ?? 0) + 1), m), {});
     if (key === 'domains') return ($tripsQ ?? []).reduce((m, x) => ((m[x.domain ?? 'bikepacking'] = (m[x.domain ?? 'bikepacking'] ?? 0) + 1), m), {});
-    if (key === 'bikeSlots' || key === 'careParts') return {};
+    if (key === 'bikeSlots' || key === 'careParts' || KINDS[key]?.simple || key === 'journalMoods') return {};
     if (key === 'noteTopics') return ($notesQ ?? []).filter(isKept).reduce((m, n) => ((m[noteTopic(n)] = (m[noteTopic(n)] ?? 0) + 1), m), {});
     return groupCounts($fieldsQ?.value);
   };
@@ -154,15 +184,20 @@
   const sub = (e) => {
     if (K.renameOnly) return e.renamed ? t('Standard name: {name}', { name: t(e.std) }) : t('Standard');
     const n = K.what(count[e.id] ?? 0);
-    if (e.hidden) return `${t('Hidden')} · ${n}`;
-    if (e.own) return `${t(K.ownWord)} · ${n}`;
-    if (e.renamed) return `${t('Standard name: {name}', { name: t(e.std) })} · ${n}`;
-    return `${t('Standard')} · ${n}`;
+    const join = (a) => [a, n].filter(Boolean).join(' · ');
+    if (e.hidden) return join(t('Hidden'));
+    if (e.own) return join(t(K.ownWord));
+    if (e.renamed) return join(t('Standard name: {name}', { name: t(e.std) }));
+    return join(t('Standard'));
   };
   const adapted = (e) => !e.own && (e.renamed || overrideOf(value).icons[e.id] || e.areas);
-  function reset() {
-    if (!confirm(KEY === 'categories' ? t('Back to the Standard categories? Your names, own categories, hidden and deleted ones and the order are undone.') : t('Back to the Standard? Your names, own entries, deleted ones and the order are undone.'))) return;
-    resetToStandard(db, KEY);
+  // «Alle Daten anpassbar» (21.10.2026): the app's own window instead of the browser's, then Undo
+  async function reset() {
+    const text = KEY === 'categories' ? t('Back to the Standard categories? Your names, own categories, hidden and deleted ones and the order are undone.') : t('Back to the Standard? Your names, own entries, deleted ones and the order are undone.');
+    if ((await askDelete({ title: t('Back to Standard?|list'), text, label: t('Back to Standard|list') })) !== 'delete') return;
+    const before = value;
+    const name = t(STANDARD_LIST[KEY].name);
+    await deleteWithUndo({ run: () => resetToStandard(db, KEY), undo: () => save(before ?? {}), text: t('«{name}» is the Standard again.', { name }), name });
   }
 
   // «Gruppen überall»: delete a group and move its things (to: a group id, or null for «Ohne …»)
@@ -195,6 +230,12 @@
     undo = { text: t('«{name}» deleted.', { name: shown(e) }), snap };
     timer = setTimeout(() => (undo = null), 8000);
   }
+  // «Alle Daten anpassbar»: an entry of a simple list goes; what has it keeps it (ask, then Undo)
+  async function deleteSimple(e) {
+    if ((await askDelete({ title: t('Delete «{name}»?', { name: shown(e) }), text: e.own ? t('Things that have it keep it; it is no longer offered.') : t('Things that have it keep it; it is no longer offered. «Back to Standard» brings it back.') })) !== 'delete') return;
+    const before = value;
+    await deleteWithUndo({ run: () => save(remove(value, e)), undo: () => save(before ?? {}), text: t('«{name}» deleted.', { name: shown(e) }), name: shown(e) });
+  }
   // a Standard sport: its trips and items keep it, it is only no longer offered; ask, then Undo
   async function deleteStdDomain(e) {
     if ((await askDelete({ title: t('Delete sport «{name}»?', { name: shown(e) }), text: t('Trips and items keep it; it is no longer offered for a new trip. «Back to Standard» brings it back.') })) !== 'delete') return;
@@ -217,7 +258,7 @@
     <AreaIntro place="lists" />
 
     <div class="grid">
-      {#each [['gear', 'Gear|place', ['categories']], ['bikes', 'Bikes|place', ['valueGroups', 'bikeSlots', 'careParts']], ['notes', 'Notes', ['noteTopics']]] as [area, head, keys] (area)}
+      {#each [['gear', 'Gear|place', ['categories']], ['bikes', 'Bikes|place', ['valueGroups', 'bikeSlots', 'careParts', 'bikeKinds']], ['notes', 'Notes', ['noteTopics']], ['diary', 'Diary', ['journalQuestions', 'journalMoods']], ['active', 'Active|place', ['medMoods']], ['map', 'Maps and week', ['pointKinds', 'awayTypes']]] as [area, head, keys] (area)}
         <section class="ich-sec card box" aria-labelledby="ls-{area}-h">
           <h2 id="ls-{area}-h">{t(head)}</h2>
           <ul class="ich-list">
@@ -258,7 +299,7 @@
         </ul>
       </section>
     </div>
-    <p class="ich-fine"><Info size={15} aria-hidden="true" /><span>{t('More lists follow one by one: questions and the choices in the debrief.')}</span></p>
+    <p class="ich-fine"><Info size={15} aria-hidden="true" /><span>{t('The questions of «Your questions» and of the daily check are changed on their own pages.')}</span></p>
   {:else}
     <VeloHead crumbs={[{ label: t('Lists and types'), href: '#/me/lists' }]} title={t(STANDARD_LIST[KEY].name)} sub={t(K.sub)} />
     <div class="card box">
@@ -304,7 +345,7 @@
       stdIcon={e && K.full ? stdIconName(e.id) : 'Tag'}
       onsave={(v) => save(e ? edit(value, e, K.full ? { ...v, stdIcon: stdIconName(e.id) } : v) : addOwn(value, v).value)}
       onhide={() => save(toggleHidden(value, e.id))}
-      onremove={K.renameOnly ? null : () => (KEY === 'domains' && !e.own ? deleteStdDomain(e) : (deleting = { entry: e }))}
+      onremove={K.renameOnly ? null : () => (K.simple ? deleteSimple(e) : KEY === 'domains' && !e.own ? deleteStdDomain(e) : (deleting = { entry: e }))}
       onclose={() => (sheet = null)}
     />
   {/if}

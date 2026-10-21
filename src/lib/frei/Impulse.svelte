@@ -7,7 +7,7 @@
    * Every impulse can be changed, hidden (built-in) or deleted (own), and own ones added. Some impulses
    * have a small helper right in the card (take-along list, silly ideas, invitation, sunrise).
    */
-  import { Sparkles, Shuffle, Check, Pencil, EyeOff, Eye, Plus, Settings2, Share2, Sunrise, ChevronRight, X } from '@lucide/svelte';
+  import { Sparkles, Shuffle, Check, Pencil, EyeOff, Eye, Plus, Settings2, Share2, Sunrise, ChevronRight, ChevronDown, X } from '@lucide/svelte';
   import { liveQuery } from 'dexie';
   import Crumb from '../flow/kit/Crumb.svelte';
   import FreiSheet from './FreiSheet.svelte';
@@ -191,6 +191,8 @@
   let ticks = $state({});
   const tickKey = (list, x) => `${list}:${x}`;
 
+  // Impeccable 20.10.2026 P3 (Noah «alles umsetzen»): the list is short rows; a tap opens the whole card under its row
+  let openId = $state(null);
   const onToday = $derived(cfg.onToday !== false);
   const setOnToday = (v) => changeCfg((c) => ({ ...c, onToday: v }));
 </script>
@@ -213,7 +215,7 @@
     {@const cur = sillyList.find((s) => s.id === silly) ?? sillyList[0]}
     <p class="fzi-silly" data-silly>{cur?.text}</p>
     <div class="fz-acts">
-      <button type="button" class="btn sm" onclick={nextSilly} data-silly-next><Shuffle size={16} aria-hidden="true" />{t('Another idea')}</button>
+      <button type="button" class="btn sm" onclick={nextSilly} data-silly-next><Shuffle size={16} aria-hidden="true" />{t('Another silly idea')}</button>
       {#if cur?.own}<button type="button" class="btn sm" onclick={() => removeSilly(cur.id)}><X size={16} aria-hidden="true" />{t('Delete')}</button>{/if}
     </div>
     <form class="fz-inline" onsubmit={addSilly}>
@@ -237,8 +239,7 @@
 
 {#snippet card(i, big = false)}
   <article class="fz-box fzi-card" class:fz-soft={big} class:fzi-off={i.hidden} data-impulse={i.id}>
-    <span class="fz-kick">{nameOfArea(i.area) || t('Without an area')}{#if i.hidden}{' '}· {t('hidden')}{/if}</span>
-    <h3 class={big ? 'fz-big' : 'fzi-t'}>{title(i)}</h3>
+    {#if big}<h3 class="fz-big">{title(i)}</h3><p class="fzi-area">{nameOfArea(i.area) || t('Without an area')}</p>{/if}
     {#if text(i)}<p class="fz-text">{text(i)}</p>{/if}
     {#if big || i.go?.inline}{@render helper(i)}{/if}
     <div class="fz-acts">
@@ -278,7 +279,7 @@
       <h2 id="fzi-all-h" class="fz-h2">{t('All impulses')}</h2>
       <button type="button" class="btn sm" aria-expanded={manage} onclick={() => (manage = !manage)} data-areas><Settings2 size={16} aria-hidden="true" />{t('Areas|frei')}</button>
     </div>
-    <div class="fz-chips" role="group" aria-label={t('Areas|frei')}>
+    <div class="fz-chips fzi-chips noswipe" role="group" aria-label={t('Areas|frei')}>
       <button type="button" class="fz-chip" aria-pressed={area === 'all'} onclick={() => (area = 'all')}>{t('All')}</button>
       {#each shownAreas as a (a.id)}<button type="button" class="fz-chip" aria-pressed={area === a.id} onclick={() => (area = a.id)} data-area={a.id}>{areaName(a, t)}</button>{/each}
       {#if orphans.length}<button type="button" class="fz-chip" aria-pressed={area === ''} onclick={() => (area = '')} data-area="">{t('Without an area')}</button>{/if}
@@ -307,9 +308,17 @@
     {/if}
 
     {#if !listed.length}<p class="fz-empty">{t('Nothing here yet. Add your own impulse below.')}</p>{/if}
-    <div class="fz-grid three">
-      {#each listed as i (i.id)}{@render card(i)}{/each}
-    </div>
+    <ul class="fzi-rows">
+      {#each listed as i (i.id)}
+        <li class="fzi-li" class:fzi-off={i.hidden} data-impulse-row={i.id}>
+          <button type="button" class="fzi-rowbtn" aria-expanded={openId === i.id} onclick={() => (openId = openId === i.id ? null : i.id)}>
+            <span class="fzi-rm"><b>{title(i)}</b><small>{nameOfArea(i.area) || t('Without an area')}{#if i.hidden}{' '}· {t('hidden')}{/if}</small></span>
+            <ChevronDown class="fzi-chev" size={18} aria-hidden="true" />
+          </button>
+          {#if openId === i.id}{@render card(i)}{/if}
+        </li>
+      {/each}
+    </ul>
     <div class="fz-acts">
       <button type="button" class="btn" onclick={openNew} data-new-impulse><Plus size={16} aria-hidden="true" />{t('Your own impulse')}</button>
       {#if hiddenCount || showHidden}<button type="button" class="btn" aria-pressed={showHidden} onclick={() => (showHidden = !showHidden)} data-show-hidden><Eye size={16} aria-hidden="true" />{showHidden ? t('Leave hidden ones out') : tn(hiddenCount, 'Show hidden ({n})', 'Show hidden ({n})')}</button>{/if}
@@ -359,9 +368,69 @@
     justify-content: space-between;
     gap: 8px;
   }
-  .fzi-t {
-    margin: 0;
-    font: 700 var(--fs-body)/1.3 var(--font-body);
+  .fzi-area {
+    margin: 2px 0 0;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+  }
+  .fzi-rows {
+    display: grid;
+    gap: var(--sp-1);
+    margin: var(--sp-2) 0;
+    padding: 0;
+    list-style: none;
+  }
+  .fzi-li {
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: var(--paper);
+  }
+  .fzi-li :global(.fzi-card) {
+    margin: 0 var(--sp-2) var(--sp-2);
+  }
+  .fzi-rowbtn {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-2);
+    width: 100%;
+    min-height: 52px;
+    padding: var(--sp-2) var(--sp-3);
+    border: 0;
+    background: none;
+    color: var(--ink);
+    text-align: left;
+    font: inherit;
+    cursor: pointer;
+  }
+  .fzi-rm {
+    flex: 1;
+    display: grid;
+    gap: 2px;
+    min-width: 0;
+  }
+  .fzi-rm b {
+    font-weight: 600;
+    overflow-wrap: break-word;
+  }
+  .fzi-rm small {
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+  }
+  .fzi-rowbtn[aria-expanded='true'] :global(.fzi-chev) {
+    transform: rotate(180deg);
+  }
+  /* one row of area chips that scrolls sideways on a phone, instead of four rows */
+  @media (max-width: 719px) {
+    .fzi-chips {
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      scrollbar-width: none;
+      margin: 0 calc(-1 * var(--gut));
+      padding: 0 var(--gut) var(--sp-1);
+    }
+    .fzi-chips :global(.fz-chip) {
+      flex: none;
+    }
   }
   .fzi-off {
     opacity: 0.6;

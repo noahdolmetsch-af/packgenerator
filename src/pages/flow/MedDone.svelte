@@ -18,7 +18,7 @@
   import { db } from '../../lib/db.js';
   import { medQuery, seedMed } from '../../lib/flow/data.svelte.js';
   import { msContext, actMilestones, evaluate, isOff, newStars } from '../../lib/flowms.js';
-  import { artsOf, sortTemplates, streaks, compareSession, starsOfSession, nextUp, icsEvent, noteOf, toggleIn, MOODS, HELPED, choiceList, HELPED_KEY, NEXT_KEY } from '../../lib/flowmed.js';
+  import { artsOf, sortTemplates, streaks, compareSession, starsOfSession, nextUp, icsEvent, noteOf, toggleIn, medMoodsOffered, HELPED, choiceList, HELPED_KEY, NEXT_KEY } from '../../lib/flowmed.js';
   import { saveNote, saveStars, putSetting } from '../../lib/flowdb.js';
   import { actName, toast } from '../../lib/flow/ui.svelte.js';
   import { tplName, artName, msName, timeShort, moodLabel, helpedLabel } from '../../lib/flow/hobby/words.js';
@@ -196,7 +196,7 @@
 
           <p class="cap">{t('Mood')}</p>
           <div class="chips">
-            {#each MOODS as m (m.id)}
+            {#each medMoodsOffered(moods) as m (m.id)}
               {@const on = moods.includes(m.id)}
               <button type="button" class="chip" class:on aria-pressed={on} onclick={() => (moods = toggleIn(moods, m.id))} data-mood={m.id}>{#if on}<Check size={16} aria-hidden="true" />{:else}<Plus size={16} aria-hidden="true" />{/if}{moodLabel(m.id)}</button>
             {/each}

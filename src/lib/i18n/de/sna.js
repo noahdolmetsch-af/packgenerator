@@ -28,7 +28,7 @@ export default {
   '{n} tips that fit you': '{n} Tipps, die zu dir passen',
   'new in {v}': 'neu in {v}',
   'Show|tip': 'Zeigen',
-  'Rate|tip': 'Bewerten',
+  'Rate|tip': "Rückblick",
   '{name} waits for its debrief': '{name} wartet auf den Rückblick',
   'try it out, without your data': 'ausprobieren, ohne deine Daten',
   'Opens the place in the app': 'Öffnet die Stelle in der App',

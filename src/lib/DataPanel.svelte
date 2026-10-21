@@ -396,7 +396,7 @@
             <span class="dot {l.state}" aria-hidden="true"></span>
             <span class="ich-m"><b>{t(l.name)}</b><small>{l.line}</small></span>
             <span class="sr">{l.state === 'ok' ? t('in order') : l.state === 'warn' ? t('to do') : t('off|backup')}</span>
-            {#if l.state === 'warn' && l.key === 'backup'}<button type="button" class="btn sm" onclick={exportFile} disabled={!!$demoQ}>{t('Make a backup')}</button>
+            {#if l.state === 'warn' && l.key === 'backup'}<button type="button" class="btn sm" onclick={exportFile} disabled={!!$demoQ}>{t('Save now|backup')}</button>
             {:else if l.state === 'warn' && l.key === 'fitbit'}<a class="btn sm" href="#/me/fitbit">{t('Now|do')}</a>
             {:else if l.state === 'warn' && l.key === 'folder'}<button type="button" class="btn sm" onclick={async () => { await allowAgain(db); refreshFolder(); }}>{t('Now|do')}</button>
             {:else if l.state === 'warn' && l.key === 'keep'}<button type="button" class="btn sm" onclick={keepNow}>{t('Now|do')}</button>
@@ -553,8 +553,6 @@
 
     <!-- «App-Wartung» BF4 (Noah 13.10.2026): the copies made before the last updates -->
     <BeforeUpdates />
-    <!-- Paket H (Noah 19.10.2026 «1a … auf null setzen und so frisch beginnen»): delete all and start from zero -->
-    <StartFresh />
 
     {#if folderBackupSupported}
       <section class="ich-sec" aria-labelledby="fold-h">
@@ -615,6 +613,9 @@
         {:else if $examplesQ}<li><button type="button" class="ich-row" onclick={getExamples} disabled={getting || !!$demoQ} data-row="get-examples"><span class="ich-ib"><Sparkles size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t('Get the examples')}</b><small>{t('Two made-up trips, a bike and gear to try things out; your own data stays')}</small></span><ChevronRight class="ich-chev" size={18} aria-hidden="true" /></button></li>{/if}
       </ul>
     </section>
+    <!-- Paket H (Noah 19.10.2026 «1a … auf null setzen und so frisch beginnen»): delete all and start from zero.
+         Impeccable P6: its own last section «Delete everything», away from the backup buttons -->
+    <StartFresh />
     <p class="ich-fine"><Check size={16} aria-hidden="true" /><span>{t('Nothing leaves the device unless you send a backup yourself.')}</span></p>
   </div>
 </div>

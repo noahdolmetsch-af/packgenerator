@@ -7,6 +7,8 @@
    * Everything is stored on the bike (bike.garmin) at the first change.
    */
   import { liveQuery } from 'dexie';
+  import { offerDone } from '../ui/rename.svelte.js';
+  import { askDelete, deleteWithUndo } from '../ui/ask.js';
   import { db } from '../db.js';
   import { sortBikes, bikesHash } from '../bikes.js';
   import { Copy, Plus, Info, Bike as BikeIcon } from '@lucide/svelte';
@@ -45,15 +47,21 @@
     }
   }
   async function dropProfile() {
-    if (!confirm(t('Remove the Garmin profile "{name}"?', { name: prof.name }))) return;
-    await save(removeProfile(g, prof.id));
-    go(g.profiles[0].id);
+    const name = prof.name;
+    if ((await askDelete({ title: t('Remove the Garmin profile "{name}"?', { name }), label: t('Remove') })) !== 'delete') return;
+    const before = g;
+    const back = prof.id;
+    const done = await deleteWithUndo({ run: () => save(removeProfile(g, prof.id)), undo: async () => (await save(before), go(back)), text: t('"{name}" deleted.', { name }), name });
+    if (done) go(g.profiles[0].id);
   }
   const others = $derived(bikes.filter((b) => b.id !== bike?.id));
   async function copy(e) {
     const other = others.find((b) => b.id === e.currentTarget.value);
     e.currentTarget.value = '';
-    if (other && confirm(t('Take over the Garmin pages of {bike}? The pages of this bike are replaced.', { bike: other.name }))) await save(copyFrom(other, bike));
+    if (!other || (await askDelete({ title: t('Take over the Garmin pages of {bike}? The pages of this bike are replaced.', { bike: other.name }), label: t('Take over') })) !== 'delete') return;
+    const before = g;
+    await save(copyFrom(other, bike));
+    offerDone(t('Pages of {bike} taken over.', { bike: other.name }), () => save(before));
   }
 </script>
 

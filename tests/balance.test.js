@@ -254,4 +254,19 @@ describe('the 15 questions and their switches', () => {
     expect(checkPart('#/check/evening')).toBe('evening');
     expect(checkPart('#/check/morning')).toBe('morning');
   });
+  it('Fitbit überall: every measured day is one Sport signal (Bergziege, Spaziergänger, Faultier); an answered day counts once', () => {
+    const h = (date, azm, steps) => ({ date, azm, steps });
+    const only = (health, answers = []) => balance({ health, answers, today: T }).cats.find((c) => c.key === 'sport');
+    expect(only([]).value).toBe(null);
+    expect(only([h(T, 35, null)])).toMatchObject({ n: 1, value: 100 });
+    expect(only([h(T, 2, 12500)]).value).toBe(100);
+    expect(only([h(T, 12, 1000)]).value).toBe(50);
+    expect(only([h(T, 0, 6000)]).value).toBe(50);
+    expect(only([h(T, 5, 2000)]).value).toBe(0);
+    expect(only([h(T, null, null)]).n).toBe(0);
+    // outside the 7 days it is left out
+    expect(only([h(addDays(T, -7), 40, 0)]).n).toBe(0);
+    // a day with an answer to sport.bewegung counts through the answer only
+    expect(only([h(T, 40, 0)], [{ qid: 'sport.bewegung', area: 'sport', day: T, kind: 'chips', value: 'walker' }])).toMatchObject({ n: 1, value: 50 });
+  });
 });

@@ -56,8 +56,9 @@ test('V1: the bike page: bike chips, care and equipment, import, More as rows', 
 test('V6 and V7: care overview, a bike opens as its own page, Pflege goes back', async ({ page, context }, info) => {
   const errors = await start(page, context, info);
   await page.goto('./#/bikes?tab=care');
-  await onePage(page, T('Bike care'));
-  await expect(path(page).getByRole('link', { name: T('Bike') })).toBeVisible();
+  // Impeccable P1 (20.10.2026): a tab page has the short tab name as its title and no path on top
+  await onePage(page, T('Care|tab'));
+  await expect(path(page)).toHaveCount(0);
   const ov = page.getByRole('region', { name: T('Care overview') });
   for (const h of [T('Due now'), T('Bikes'), T('Order for the bike shop'), T('Costs {year}', { year: new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Zurich' }).slice(0, 4) }), T('More')]) {
     await expect(ov.getByRole('heading', { name: h, exact: true })).toBeVisible();
@@ -70,7 +71,7 @@ test('V6 and V7: care overview, a bike opens as its own page, Pflege goes back',
   await expect(page.getByRole('heading', { name: T('Other bikes') })).toBeVisible();
   await expect(page.getByRole('region', { name: T('Care overview') })).toHaveCount(0);
   await path(page).getByRole('link', { name: T('Care|tab') }).click();
-  await onePage(page, T('Bike care'));
+  await onePage(page, T('Care|tab'));
   expect(errors).toEqual([]);
 });
 
@@ -112,7 +113,7 @@ test('V12 to V14b: import, workshop, equipment and compare with path and title',
   await expect(page.locator('ol.ksteps > li').first()).toHaveAttribute('aria-current', 'step');
 
   await page.goto('./#/bikes?tab=shop');
-  await onePage(page, T('Workshop & receipts'));
+  await onePage(page, T('Workshop|tab'));
   // P3c 4a (Noah 15.10.2026 «4a», changed on purpose): the bike chosen last (Spark, the import above) stays
   // chosen on the Workshop tab too; «All bikes» is one tap away
   await expect(page.getByRole('group', { name: T('Bike') }).getByRole('button', { name: NAME })).toHaveAttribute('aria-pressed', 'true');

@@ -38,8 +38,14 @@ export const TOP_HREF = '#/me/news?all&sort=top';
 export const SINCE = {
   // Paket K «Unterwegs»: v0.154.0
   'f.trainhome': '0.154.0', 'f.handlebar': '0.154.0', 'f.glove': '0.154.0', 'f.eatremind': '0.154.0', 'f.departsheet': '0.154.0', 'f.komoottour': '0.154.0', 'f.routeconvert': '0.154.0', 'f.waterfood': '0.154.0', 'f.ready': '0.154.0', 'f.listentip': '0.154.0', 'f.skyplaces': '0.154.0',
+  // Paket VG «Das Velo im Griff» (Noah 20.10.2026): v0.172.0
+  'f.wetchain': '0.172.0', 'f.wearphotos': '0.172.0', 'f.sellbike': '0.172.0', 'f.bikebox': '0.172.0', 'f.sparestock': '0.172.0', 'f.brandkm': '0.172.0', 'f.springservice': '0.172.0', 'f.chainrotation': '0.172.0',
+  // «Verschleiss» (Noah 20.10.2026): v0.171.0
+  'f.partwear': '0.171.0',
   // «Velo-FAQ» Paket 6 (Noah 19.10.2026)
   'f.velofaq': '0.157.0', // bundler: 0.157.0 with Paket 6
+  // «Bilder in der App» (Noah 20.10.2026): v0.171.0
+  'f.setupphotos': '0.171.0',
   // Paket 4 zu K: Haus-Check, Wohnungs-Hüter, «Bereit für morgen?» (v0.155.0)
   'f.housecheck': '0.155.0', 'f.flatsitter': '0.155.0', 'f.readytomorrow': '0.155.0',
   // «Grösse» (Noah 19.10.2026 «1b 2b»): the whole app smaller or larger, plus «Kompakt»
@@ -95,9 +101,9 @@ export const SINCE = {
   'f.here': '0.154.0', 'f.record': '0.154.0', 'f.spurmap': '0.154.0', 'f.spurlink': '0.154.0', 'f.travelbook': '0.154.0',
   // Paket L2 «Bilderkennung» (v0.154.0)
   'f.packphoto': '0.154.0', 'f.sitpos': '0.154.0',
-  // Paket U «Rennen» (provisional version, the bundler renumbers)
+  // Paket U «Rennen» (v0.171.0)
   'f.race': '0.159.0', 'f.racesample': '0.159.0', 'f.racemap': '0.159.0', 'f.climbs': '0.159.0', 'f.mapoffline': '0.159.0', 'f.live': '0.159.0',
-  // Live-Karte Teil 1–3 (provisional version, the bundler renumbers)
+  // Live-Karte Teil 1–3 (v0.171.0)
   'f.livepause': '0.170.0', 'f.sensors': '0.170.0', 'f.datapages': '0.170.0', 'f.turns': '0.170.0', 'f.laps': '0.170.0', 'f.moreplaces': '0.170.0', 'f.rwgps': '0.170.0', 'f.ovnear': '0.170.0', 'f.sharepic': '0.170.0',
   // Paket T «Freie Zeit» (v0.155.0)
   'f.frei': '0.155.0', 'f.impulse': '0.155.0',
@@ -107,20 +113,40 @@ export const SINCE = {
   'f.travel': '0.155.0',
   // «Diktat und Fragen» (v0.155.0)
   'f.dictate': '0.155.0', 'f.askfurther': '0.155.0', 'f.aiprojects': '0.155.0',
-  // «Erster Start» (provisional version, the bundler renumbers)
+  // «Erster Start» (v0.170.0)
   'f.firststart': '0.170.0',
-  // Paket X «Umweg neu planen» (provisional version, the bundler renumbers)
+  // «Eigene Werte und alle Daten anpassbar» (Noah 21.10.2026, v0.173.0)
+  'f.ownreminders': '0.173.0', 'f.ownbody': '0.173.0', 'f.listsmore': '0.173.0',
+  // Paket X «Umweg neu planen» (v0.170.0)
   'f.reroute': '0.170.0',
-  // Paket W «Von der Haustür bis zurück» (provisional version, the bundler renumbers)
+  // Paket X/Y parts 2–4 (v0.171.0)
+  'f.energy': '0.171.0',
+  'f.gpxstops': '0.171.0',
+  'f.weather': '0.171.0',
+  'f.webcams': '0.171.0',
+  // Paket Wetter «Webcams auf der Live-Karte und Glätte» (v0.173.0)
+  'f.webcammap': '0.173.0',
+  'f.icepush': '0.173.0',
+  // Paket W «Von der Haustür bis zurück» (v0.170.0)
   'f.arrived': '0.170.0', 'f.planb': '0.170.0', 'f.checkin': '0.170.0', 'f.parked': '0.170.0',
+  // Paket Z and SP (v0.171.0)
+  'f.breakdown': '0.171.0', 'f.sleepspots': '0.171.0', 'f.postcard': '0.171.0',
+  'f.packtwo': '0.171.0', 'f.laundry': '0.171.0', 'f.morninglist': '0.171.0', 'f.packtime': '0.171.0',
+  // «KI im Gerät» (Noah 20.10.2026; v0.171.0)
+  'f.localai': '0.171.0',
   // «Trainingspläne» (v0.157.0, provisional)
   'f.trainplans': '0.157.0', 'f.feel': '0.157.0',
-  // «Auswertung wie Training» (provisional version, the bundler renumbers)
-  'f.tickreview': '0.169.0',
-  // «Heatmap» (provisional version, the bundler renumbers)
+  // «Heatmap» (v0.170.0)
   'f.heatmap': '0.170.0',
+  'f.searchvoice': '0.173.0', // «Suche mit Sprache und Antworten» (Noah 21.10.2026), v0.173.0
+  // Paket U4 «Schlafplätze im Rennen» (v0.171.0)
+  'f.sleeptonight': '0.171.0', 'f.callhotels': '0.171.0', 'f.powernap': '0.171.0', 'f.sleeplists': '0.171.0', 'f.nightswx': '0.171.0',
+  // Paket NE «Notizen wie Evernote» part 1 (v0.172.0)
+  'f.drawphoto': '0.172.0', 'f.richtext': '0.172.0', 'f.noteattach': '0.172.0', 'f.noteocr': '0.172.0', 'f.noteremind': '0.172.0', 'f.notetrash': '0.172.0',
   // «Tagebuch» (provisional; the bundler sets the version of its release)
   'f.journal': '0.170.0',
+  // «Auswertung wie Training» (provisional version, the bundler renumbers)
+  'f.tickreview': '0.174.0',
 };
 export const sinceOf = (id) => SINCE[id] ?? '0.1.0';
 

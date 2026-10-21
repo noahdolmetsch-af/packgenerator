@@ -7,7 +7,7 @@ import { liveQuery } from 'dexie';
 import { db } from './db.js';
 import { loadTable } from './messwerte-data.js';
 import { addDays } from './health.js';
-import { dayLoads, formSeries, recoveryParts, readiness, recoveryAlarm, tourOf, pastTours, RAMP_MAX } from './form.js';
+import { dayLoads, formSeries, readinessOf, recoveryParts, readiness, recoveryAlarm, tourOf, pastTours, RAMP_MAX } from './form.js';
 import { ftpEstimate, DEFAULT_MAX } from './training.js';
 import { checkOf } from './flowcheck.js';
 
@@ -56,3 +56,17 @@ export async function loadForm(today, d = db) {
 }
 /** A Svelte store: the whole «Form und Erholung» of today, again after every change. */
 export const formQuery = (today) => liveQuery(() => loadForm(today));
+
+/**
+ * «Körperwerte» (Noah 20.10.2026 «1-5 alle»): the readiness and the load of every day from..to, for the
+ * tabs «Bereitschaft» and «Belastung». checks: flowChecks rows. → { ready: Map, load: Map }
+ */
+export function bodyExtras({ table, checks = [], from, to }) {
+  const acts = [...table.values()].flatMap((r) => r.acts ?? []);
+  const opts = { ftp: ftpEstimate(acts, to), rest: restOf(table, to), max: maxOf(acts, to) };
+  const loads = dayLoads(acts, opts);
+  const byDay = new Map(checks.map((c) => [c.day, checkOf(c, c.day)]));
+  const ready = readinessOf(loads, table, byDay, from, to);
+  const load = new Map([...loads].filter(([d]) => d >= from && d <= to));
+  return { ready, load, checks: byDay };
+}
