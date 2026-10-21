@@ -43,7 +43,8 @@ export async function shrinkImage(file, max = PHOTO_MAX, quality = 0.82) {
  */
 export function bikePhotos(bike, photos = []) {
   if (!bike) return [];
-  const own = photos.filter((p) => p.bikeId === bike.id).map((p) => ({ id: p.id, src: p.data, name: p.name || t('Photo'), main: !!p.main, tripId: p.tripId ?? null, stored: true, day: photoDay(p) }));
+  // Paket VG: wear and packing photos stay on their own pages (griff.js ownShot)
+  const own = photos.filter((p) => p.bikeId === bike.id && !p.wear && !p.pack).map((p) => ({ id: p.id, src: p.data, name: p.name || t('Photo'), main: !!p.main, tripId: p.tripId ?? null, stored: true, day: photoDay(p) }));
   const list = bike.photo ? [{ id: `bike-${bike.id}`, src: bike.photo, name: t('Bike photo'), main: !own.some((p) => p.main), tripId: null, stored: false, day: null }, ...own] : own;
   return list.sort((a, b) => Number(b.main) - Number(a.main));
 }

@@ -13,6 +13,8 @@
  */
 
 /** Key in the settings table. */
+import { listOf, nameOf, offered } from './applists.js';
+
 export const PART_TEMPLATES = 'partTemplates';
 
 /** The kinds, in this order. */
@@ -30,6 +32,24 @@ export const STD_OFF = { road: ['fork', 'shock', 'linkage'], gravel: ['shock', '
 /** Average speed of a kind in km/h, for the riding hours where no time is known (bikehours.js). */
 export const KIND_SPEED = { road: 25, gravel: 20, mtb: 14 };
 
+/*
+ * «Alle Daten anpassbar» (Noah 21.10.2026 «4a»): the kinds come from «Listen und Typen» too
+ * (applists.js 'bikeKinds'): renamed, own, hidden, deleted. An own kind («own-…») starts like
+ * Gravel: its template has Gravel's parts and 20 km/h (both can be changed). A deleted kind stays on
+ * the bikes that have it (a deleted own kind: the bike's type decides again).
+ */
+export const BIKE_KINDS_STD = KINDS.map((id) => ({ id, name: KIND_NAME[id] }));
+/** The built-in kind an own kind works like (Gravel). */
+export const baseKind = (kind) => (KINDS.includes(kind) ? kind : 'gravel');
+/** The speed of a kind (an own one: like Gravel). */
+export const kindSpeed = (kind) => KIND_SPEED[baseKind(kind)];
+/** The name of a kind for the page (a typed one as it is). */
+export const kindName = (kind, tr = (s) => s) => nameOf('bikeKinds', BIKE_KINDS_STD, kind, tr, tr(KIND_NAME.gravel));
+/** The kinds offered for a bike (keep: its kind now). */
+export const kindsOffered = (keep = null) => offered('bikeKinds', BIKE_KINDS_STD, keep);
+const ownKinds = () => listOf('bikeKinds', BIKE_KINDS_STD).filter((e) => e.own).map((e) => e.id);
+const isOwnKind = (k) => typeof k === 'string' && k.startsWith('own-') && ownKinds().includes(k);
+
 const TYPE_KIND = [
   [/gravel|cyclocross|\bcx\b|allroad|bikepack/i, 'gravel'],
   [/\bmtb\b|mountain|hard ?tail|full|fully|enduro|down ?hill|freeride|cross ?country|\bxc\b|trail/i, 'mtb'],
@@ -41,7 +61,7 @@ export const kindFromType = (type) => TYPE_KIND.find(([re]) => re.test(String(ty
 
 /** The kind of a bike: its own choice, else from its type (or id), else gravel. */
 export function kindOf(bike) {
-  if (KINDS.includes(bike?.kind)) return bike.kind;
+  if (KINDS.includes(bike?.kind) || isOwnKind(bike?.kind)) return bike.kind;
   return kindFromType(bike?.type) ?? kindFromType(bike?.id) ?? 'gravel';
 }
 
@@ -54,7 +74,8 @@ const clean = (x) => ({
 
 /** The stored record as a whole object (every kind present). */
 export function normTemplates(raw) {
-  return Object.fromEntries(KINDS.map((k) => [k, clean(raw?.[k])]));
+  const own = [...new Set([...ownKinds(), ...Object.keys(raw && typeof raw === 'object' ? raw : {}).filter((k) => k.startsWith('own-'))])];
+  return Object.fromEntries([...KINDS, ...own].map((k) => [k, clean(raw?.[k])]));
 }
 
 /** Is this template part on for this kind (built-in keys; own parts are on while they are in the list)? */
@@ -63,7 +84,7 @@ export function partOn(templates, kind, key) {
   if (t.own.some((p) => p.key === key)) return true;
   if (t.add.includes(key)) return true;
   if (t.drop.includes(key)) return false;
-  return !(STD_OFF[kind] ?? []).includes(key);
+  return !(STD_OFF[baseKind(kind)] ?? []).includes(key);
 }
 
 /** The own parts of a kind's template, in their order. */
@@ -98,7 +119,7 @@ const withKind = (templates, kind, fn) => {
 
 /** Switch a built-in part on or off in a kind's template (kept as a difference to the standard). */
 export function setPartOn(templates, kind, key, on) {
-  const std = !(STD_OFF[kind] ?? []).includes(key);
+  const std = !(STD_OFF[baseKind(kind)] ?? []).includes(key);
   return withKind(templates, kind, (t) => ({
     ...t,
     add: on && !std ? uniq([...t.add, key]) : t.add.filter((k) => k !== key),

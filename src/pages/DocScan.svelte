@@ -48,6 +48,24 @@
     photos: ['Keep as photos', 'Folder «Imported photos», in the app and in Drive'],
   };
   const own = $derived(ownGroups(docs.list, docs.prefs.groups));
+  // Paket NE 1148 «Scannen in die Notiz»: #/me/docs/scan?note=<id> keeps the scan on that note, not in Dokumente
+  const noteId = (location.hash.match(/[?&]note=([^&]+)/) ?? [])[1] ? decodeURIComponent(location.hash.match(/[?&]note=([^&]+)/)[1]) : null;
+  const backHash = noteId ? `#/notes?open=${encodeURIComponent(noteId)}` : DOCS_HASH;
+  /** The scan goes onto the note: PDFs as its files, photos as its photos. Then back to the note. */
+  async function toNote(kind, payload) {
+    const { db } = await import('../lib/db.js');
+    const { fileMeta, withFile } = await import('../lib/notes/files.js');
+    const { addPhoto } = await import('../lib/noteformats.js');
+    const n = await db.notes.get(noteId);
+    if (!n) throw new Error(t('The note is gone.'));
+    let next = n;
+    if (kind === 'photos') for (const src of payload) next = addPhoto(next, src);
+    else {
+      await db.docs.put(payload);
+      next = withFile(next, fileMeta(payload));
+    }
+    await db.notes.put({ ...next, editedAt: new Date().toISOString() });
+  }
   const today = localDay();
 
   async function addFiles(files, source) {
@@ -145,6 +163,11 @@
     const when = new Date();
     const src = pages.map((p) => p.source).includes('camera') ? 'camera' : pages[0].source;
     try {
+      if (make === 'photos' && pages.length && noteId) {
+        busy = t('Saving…');
+        await toNote('photos', pages.map((p) => keepPhoto(canvases.get(p.id), { turn: p.turn }).src));
+        return finish(null);
+      }
       if (make === 'photos' && pages.length) {
         busy = t('Saving…');
         let last = null;
@@ -170,6 +193,10 @@
         const base = name.trim() || suggestName(text) || fallback;
         const title = sets.length > 1 ? `${base} ${i + 1}` : base;
         const data = await makePdf(set, { title, when });
+        if (noteId) {
+          await toNote('pdf', { id: `nf-${Date.now().toString(36)}-${i}`, kind: 'notefile', noteId, name: `${title}.pdf`, mime: 'application/pdf', fmt: 'pdf', bytes: dataBytes(data), data, text, createdAt: new Date().toISOString() });
+          continue;
+        }
         last = await addDoc({ kind: 'pdf', name: title, group, source: src, pages: set.length, bytes: dataBytes(data), mode, text, docDate: date || findDate(text), data, ...(sharedNote ? { note: sharedNote } : {}) });
       }
       finish(last);
@@ -182,7 +209,8 @@
     busy = '';
     canvases.clear();
     // Paket B: the new document opens (like «Add PDF»), so group, «valid until» and the packing list come next
-    location.hash = last ? `${DOCS_HASH}/${encodeURIComponent(last.id)}` : DOCS_HASH;
+    if (noteId) location.hash = backHash;
+    else location.hash = last ? `${DOCS_HASH}/${encodeURIComponent(last.id)}` : DOCS_HASH;
   }
 
   /* photos shared from the gallery («Teilen › Pack Generator», public/share-target.js) */
@@ -228,7 +256,7 @@
 </script>
 
 <div class="scanpage">
-  <VeloHead crumbs={[{ label: t('Me|place'), href: '#/me' }, { label: t('Documents'), href: DOCS_HASH }]} here={t('Photograph document')} title={pages.length ? t('Check and keep as PDF') : t('Photograph document')} sub={pages.length ? tn(pages.length, '{n} page · the edge is found by itself; «Corners» moves it by hand.', '{n} pages · the edge is found by itself; «Corners» moves it by hand.') : t('Page by page: the app cuts the paper out, straightens it and makes a PDF. Or choose photos from the gallery.')} />
+  <VeloHead crumbs={noteId ? [{ label: t('Notes'), href: backHash }] : [{ label: t('Me|place'), href: '#/me' }, { label: t('Documents'), href: DOCS_HASH }]} here={t('Photograph document')} title={pages.length ? t('Check and keep as PDF') : t('Photograph document')} sub={pages.length ? tn(pages.length, '{n} page · the edge is found by itself; «Corners» moves it by hand.', '{n} pages · the edge is found by itself; «Corners» moves it by hand.') : t('Page by page: the app cuts the paper out, straightens it and makes a PDF. Or choose photos from the gallery.')} />
   <AreaIntro place="docscan" />
 
   {#if !pages.length}
@@ -303,19 +331,23 @@
           <div class="card ich-body facts">
             <label>{t('Name|doc')}<input type="text" bind:value={name} maxlength="120" placeholder={make === 'photos' ? t('Photo') : t('suggested from the text')} /></label>
             <label>{t('Date')}<DateInput bind:value={date} max={today} /></label>
-            <label>{t('Keep in')}
-              <select bind:value={group}>
-                <option value="">{t(DEFAULT_GROUP[make === 'photos' ? 'photo' : 'pdf'])}</option>
-                {#each own as g (g)}<option value={g}>{g}</option>{/each}
-              </select>
-            </label>
-            {#if docs.prefs.drive}<p class="ich-help">{t('Goes into your Google Drive by itself afterwards.')}</p>{/if}
+            {#if noteId}
+              <p class="ich-help" data-scan-note>{t('Goes into the note, with the text it reads (searchable).')}</p>
+            {:else}
+              <label>{t('Keep in')}
+                <select bind:value={group}>
+                  <option value="">{t(DEFAULT_GROUP[make === 'photos' ? 'photo' : 'pdf'])}</option>
+                  {#each own as g (g)}<option value={g}>{g}</option>{/each}
+                </select>
+              </label>
+              {#if docs.prefs.drive}<p class="ich-help">{t('Goes into your Google Drive by itself afterwards.')}</p>{/if}
+            {/if}
           </div>
         </section>
         {#if busy}<p class="busy" role="status">{busy}</p>{/if}
         {#if err}<p class="err" role="alert">{err}</p>{/if}
         <div class="go">
-          <a class="btn" href={DOCS_HASH}>{t('Cancel')}</a>
+          <a class="btn" href={backHash}>{t('Cancel')}</a>
           <button type="button" class="btn hi" disabled={!!busy} onclick={save}><Check size={16} aria-hidden="true" />{make === 'photos' ? t('Keep photos') : make === 'each' ? tn(pages.length, 'Save as {n} PDF', 'Save as {n} PDFs') : t('Save as PDF')}</button>
         </div>
       </div>

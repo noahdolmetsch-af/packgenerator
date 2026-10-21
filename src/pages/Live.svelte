@@ -57,6 +57,8 @@
   import LiveWetter from '../lib/live/LiveWetter.svelte';
   import LiveEnergie from '../lib/live/LiveEnergie.svelte';
   import LiveEssen from '../lib/live/LiveEssen.svelte';
+  import LiveWebcam from '../lib/live/LiveWebcam.svelte';
+  import { camsQuery, camsOnMap, camOfPoint } from '../lib/wetter/webcamsmap.js';
   import { db } from '../lib/db.js';
   import { rec, startRecording, stopRecording, openRecording, pauseRecording, resumeRecording, addSensor, setGpsLow, lapRecording } from '../lib/spur/recorder.svelte.js';
   import PauseBar from '../lib/live/PauseBar.svelte';
@@ -242,9 +244,12 @@
   const darkMin = $derived(arr && light && dayOfMs(arr.eta) === dayOfMs(now) ? darkMinutes(arr.eta, light) : 0);
 
   /* ---------- the map ---------- */
+  const camsQ = camsQuery();
+  let camPicked = $state(null);
   const mapPoints = $derived([
     ...(shown.stops ? pois.map((p) => ({ id: p.id, lat: Number(p.lat), lon: Number(p.lon), kind: p.kind, name: p.name || kindName(p.kind), km: p.km })) : []),
     ...(shown.own ? ownOnMap(own, t) : []),
+    ...(shown.own ? camsOnMap($camsQ) : []), // Paket Wetter: your webcams with a place
     // «Neue Quellen»: the waypoints of the tour's GPX file (Ride with GPS, Komoot …)
     ...(shown.own ? wptsOnMap(trip?.route).map((w) => ({ ...w, name: w.name || kindName(w.kind) })) : []),
     ...(detour ? [{ id: 'detour-target', lat: detour.target.lat, lon: detour.target.lon, kind: detour.target.kind === 'own' ? 'own' : detour.target.kind || 'other', name: detour.target.name || t('Detour'), minZoom: 0 }] : []),
@@ -754,6 +759,7 @@
   let poiTapping = $state(false);
   function pickPoint(p) {
     const id = String(p?.id ?? '');
+    if (id.startsWith('cam-')) return (camPicked = camOfPoint($camsQ, id));
     if (!id.startsWith('poi-')) return;
     poiPicked = poiPoints.find((x) => `poi-${x.id}` === id) ?? null;
     if (poiPicked && snap === 'peek') snap = 'half';
@@ -1246,6 +1252,7 @@
   </details>
 {/snippet}
 
+{#if camPicked}<LiveWebcam cam={camPicked} onclose={() => (camPicked = null)} />{/if}
 {#if reroute}<RerouteSheet here={me} pts={hasRoute ? pts : []} {km} {pois} {own} {picked} onplan={setDetour} onclose={() => ((reroute = false), (picked = null))} />{/if}
 {#if sos}<SosSheet here={me} {km} {routeName} {pois} onclose={() => (sos = false)} />{/if}
 {#if place}<PlaceSheet {trip} onclose={() => (place = false)} />{/if}

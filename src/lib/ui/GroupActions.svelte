@@ -19,6 +19,7 @@
    * headClass      the heading row's class (default «ich-h»); children = the heading's own content
    */
   import { tick } from 'svelte';
+  import { askDelete } from './ask.js';
   import { Pencil, Trash2 } from '@lucide/svelte';
   import MoreActions from './MoreActions.svelte';
   import { t, tn } from '../i18n.svelte.js';
@@ -53,9 +54,10 @@
     value = null;
     if (v !== name && (v || allowEmpty)) onrename?.(v);
   }
-  function remove() {
+  async function remove() {
     const ask = deleteAsk ?? (count ? tn(count, 'Delete the group «{name}»? The {n} entry in it stays.', 'Delete the group «{name}»? The {n} entries in it stay.', { name }) : t('Delete the empty group «{name}»?', { name }));
-    if (ask && !confirm(ask)) return;
+    // «Alle Daten anpassbar» (21.10.2026): the app's own window instead of the browser's
+    if (ask && (await askDelete({ title: ask })) !== 'delete') return;
     ondelete?.();
   }
   const actions = $derived([

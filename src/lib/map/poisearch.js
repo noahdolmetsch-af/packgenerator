@@ -706,7 +706,14 @@ export async function shareOrCopy({ title = '', text }, nav = globalThis.navigat
 }
 
 /** Has the map area moved enough that «Search here» makes sense? (no answer, or not inside the last one) */
-export const viewMoved = (lastBounds, bounds) => !!bounds && !inside(lastBounds, bounds);
+// a tiny shift (a resize, a late map settle) does not count: 5 % of the view may stick out
+export const viewMoved = (lastBounds, bounds) => {
+  if (!bounds) return false;
+  if (!okBounds(lastBounds) || !okBounds(bounds)) return true;
+  const dy = (lastBounds.n - lastBounds.s) * 0.05;
+  const dx = (lastBounds.e - lastBounds.w) * 0.05;
+  return !inside({ s: lastBounds.s - dy, w: lastBounds.w - dx, n: lastBounds.n + dy, e: lastBounds.e + dx }, bounds);
+};
 
 /** A small debounce (one query per tap, chips tapped fast give one query). */
 export function debounce(fn, ms = 600) {

@@ -12,7 +12,8 @@
   import Seg from '../lib/ui/Seg.svelte';
   import { weekQuery, putWeek } from '../lib/woche/load.js';
   import { shortDate } from '../lib/woche/words.js';
-  import { AWAY_KEY, ITEMS_KEY, AWAY_TYPES, AWAY_NAMES, cleanAway, applyAway, awayDays } from '../lib/woche.js';
+  import { AWAY_KEY, ITEMS_KEY, cleanAway, applyAway, awayDays } from '../lib/woche.js';
+  import { awayName, awayOffered } from '../lib/woche/away.js';
   import { localDay } from '../lib/localday.js';
   import { t, tn } from '../lib/i18n.svelte.js';
 
@@ -50,7 +51,7 @@
     await putWeek(ITEMS_KEY, (src?.rawItems ?? []).filter((x) => x.ref !== `pack:${form.id}`));
     form = null;
   }
-  const line = (a) => `${shortDate(a.from)}${a.to !== a.from ? `–${shortDate(a.to)}` : ''} · ${tn(awayDays(a), '{n} day', '{n} days')} · ${t(AWAY_NAMES[a.type])}`;
+  const line = (a) => `${shortDate(a.from)}${a.to !== a.from ? `–${shortDate(a.to)}` : ''} · ${tn(awayDays(a), '{n} day', '{n} days')} · ${awayName(a.type, t)}`;
 </script>
 
 <div class="wfe">
@@ -67,7 +68,8 @@
             <label>{t('To|away')}<input type="date" bind:value={form.to} min={form.from} required /></label>
           </div>
           <label>{t('Name')}<input type="text" bind:value={form.title} maxlength="80" placeholder={t('e.g. Jura weekend')} /></label>
-          <Seg label={t('Kind')} full={false} options={AWAY_TYPES.map((k) => ({ key: k, name: t(AWAY_NAMES[k]) }))} value={form.type} onchange={setType} />
+          <Seg label={t('Kind')} full={false} options={awayOffered(form.type).map((k) => ({ key: k.id, name: awayName(k.id, t) }))} value={form.type} onchange={setType} />
+          <small class="fe-kinds" data-away-kinds>{t('Change the kinds: Me › Lists and types')}</small>
           <h3>{t('The app suggests')}</h3>
           <ul class="sws">
             {#each SWITCHES as s (s.key)}
@@ -105,6 +107,11 @@
 </div>
 
 <style>
+  .fe-kinds {
+    display: block;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+  }
   .wfe {
     max-width: 720px;
   }

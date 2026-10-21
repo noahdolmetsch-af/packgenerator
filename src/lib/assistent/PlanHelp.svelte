@@ -21,8 +21,12 @@
     const [items, bikes, visits, tasks, learnings] = await Promise.all([db.items.toArray(), db.bikes.toArray(), db.visits.toArray(), db.maintenance.toArray(), db.learnings.toArray()]);
     return { items, bikes: bikes.filter((b) => !b.archived && !b.gone), visits, tasks, learnings };
   });
+  // «Suche als Alleskönner» (Noah 21.10.2026, idea 4): «Plane mir 3 Tage Jura» in the search opens this
+  // with what was said filled in (prefill: { days, title, startDate }); the questions stay to check.
+  let { prefill = {} } = $props();
   const kinds = planKinds();
-  let a = $state({ startDate: nextSaturday(today), days: 1, area: kinds[0]?.key, night: 'hotel', bikeId: '' });
+  // svelte-ignore state_referenced_locally
+  let a = $state({ startDate: prefill.startDate ?? nextSaturday(today), days: prefill.days ?? 1, area: kinds[0]?.key, night: 'hotel', bikeId: '', title: prefill.title ?? '' });
   let shown = $state(false);
   const plan = $derived(cleanPlan(a, { today, bikes: $src?.bikes ?? [] }));
   const withBike = $derived(!!DOMAIN[plan.area]?.bike);
@@ -48,6 +52,7 @@
 <section class="card ph-card" aria-labelledby="ph-h">
   <h2 id="ph-h" class="ph-h">{t('Help me plan')}</h2>
   <p class="ph-sub">{t('Four short questions, then a plan. Everything is a suggestion you can change.')}</p>
+  {#if prefill.title || prefill.days}<p class="ph-sub" data-plan-from-search>{prefill.title ? t('From the search: «{name}». Check the answers below.', { name: prefill.title }) : t('From the search. Check the answers below.')}</p>{/if}
   <ol class="ph-q">
     <li>
       <span class="ph-n">{t('When and how long?')}</span>

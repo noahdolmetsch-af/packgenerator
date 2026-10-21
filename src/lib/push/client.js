@@ -8,6 +8,8 @@
 import { db } from '../db.js';
 import { LAST_BACKUP } from '../backup.js';
 import { buildList, pushOf, anyOn, PUSH_KEY } from './schedule.js';
+import { INSPECT_RAIN } from '../inspect/inspect.js';
+import { PREFS_KEY as GRIFF_PREFS } from '../griff.js';
 
 export const PUSH_URL = 'https://packgen-three.vercel.app/api/push';
 const TOKEN_KEY = 'push.token';
@@ -56,10 +58,12 @@ async function post(body, doFetch = fetch) {
 
 /** The data schedule.js needs, read from this device. */
 export async function readData() {
-  const [trips, repairs, bikes, settings, meta, items, visits, kmBook] = await Promise.all([db.trips.toArray(), db.maintenance.toArray(), db.bikes.toArray(), db.settings.bulkGet([PUSH_KEY, 'ownValues', 'merken', 'homePlace', 'air', 'lends', 'eatRemind']), db.table('meta').get(LAST_BACKUP), db.items.toArray(), db.visits.toArray(), db.kmBook.toArray()]);
+  const [trips, repairs, bikes, settings, meta, items, visits, kmBook, notes] = await Promise.all([db.trips.toArray(), db.maintenance.toArray(), db.bikes.toArray(), db.settings.bulkGet([PUSH_KEY, 'ownValues', 'merken', 'homePlace', 'air', 'lends', 'eatRemind']), db.table('meta').get(LAST_BACKUP), db.items.toArray(), db.visits.toArray(), db.kmBook.toArray(), db.notes.filter((n) => !!n.remind?.at && !n.remind.done).toArray()]);
+  // Paket VG 1128: the rain of the ride cells (inspect/rain.js) and the switch
+  const [rain, griff] = await Promise.all([db.meta.get(INSPECT_RAIN), db.settings.get(GRIFF_PREFS)]);
   const [push, ownValues, merken, homePlace, air, lends, eatRemind] = settings.map((r) => r?.value ?? null);
   // Paket H: supplies (items with a best-before date) and lent things (settings 'lends')
-  return { trips, repairs, bikes, visits, kmBook, items: items.filter((i) => i.expires), lends: Array.isArray(lends) ? lends : [], settings: { push, ownValues, merken, homePlace, air, eatRemind }, lastBackup: meta?.at ?? null, now: new Date() };
+  return { trips, repairs, bikes, notes, visits, kmBook, rain: rain ?? null, griff: griff?.value ?? null, items: items.filter((i) => i.expires), lends: Array.isArray(lends) ? lends : [], settings: { push, ownValues, merken, homePlace, air, eatRemind }, lastBackup: meta?.at ?? null, now: new Date() };
 }
 
 /** The subscription of this phone (made when missing). Throws { code } when it cannot. */

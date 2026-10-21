@@ -622,6 +622,46 @@ export const HANDBOOK = {
     steps: ['Bikes › Care › a bike: «Setup photos» top right opens the timeline; «+ Photo» adds a setup of today.', '«…» at a photo: change the day, rename, show it behind the bike, remove.', 'Report a problem with several photos; cut the edges or keep them all as one PDF in Me › Documents.'],
     example: 'Example: photo of the new bag setup → it shows pale at the top of Bike care and lines up under this month.',
   },
+  'f.wetchain': {
+    on: null,
+    steps: ['Ride in the rain: from 18:00 the phone reminds you «Dry and oil the chain».', '«Done: chain oiled» writes a care entry for the chain; «Later» or «Not today» also work.', 'Switch it off: Bikes › Care › a bike › «Wear» › «Reminders».'],
+    example: 'Example: 40 km in the rain → in the evening «Dry and oil the chain».',
+  },
+  'f.wearphotos': {
+    on: null,
+    steps: ['Bikes › Care › a bike › «Wear» › «Wear photos».', 'Take a photo per part; date and km are added.', 'Two photos: drag the slider to compare old and new.'],
+    example: 'Example: tyre at 500 km next to the tyre at 2500 km.',
+  },
+  'f.sellbike': {
+    on: null,
+    steps: ['Bikes › Care › a bike › «Wear» › «Sale listing».', 'Type a price and more if you like; the text updates.', '«Copy» or «Share» it to the marketplace.'],
+    example: 'Example: «Gravel bike, 4200 km, chain new at 3900 km, last service in May».',
+  },
+  'f.bikebox': {
+    on: null,
+    steps: ['Bikes › Care › a bike › «Wear» › «Pack the bike».', 'Tick each point; add, rename, move or delete points.', 'Take photos before packing, as proof if something breaks.'],
+    example: 'Example: «Pedals off» ticked, photo of the frame from both sides.',
+  },
+  'f.sparestock': {
+    on: null,
+    steps: ['Bikes › Care › a bike › «Wear» › «Spare parts at home».', 'Add a row with a number, e.g. 2 chains.', 'You replace a chain yourself: one less; at 0 «Shopping list» adds it.'],
+    example: 'Example: 2 chains, one change → «1 in stock».',
+  },
+  'f.brandkm': {
+    on: null,
+    steps: ['Bikes › Care › a bike › «Wear» › «What lasts longest».', 'Each brand with its average km, from your used-up parts.', 'A part that runs out shows the brand that lasted longest.'],
+    example: 'Example: chains brand A 3400 km, brand B 2600 km.',
+  },
+  'f.springservice': {
+    on: null,
+    steps: ['Bikes › Care › a bike › «Wear» › «Reminders» › «Spring service».', 'Pick the month or «off».', 'The to-do in Kalender › Merken lists what is due on each bike.'],
+    example: 'Example: 1 February: «Spring service: chain on the gravel bike, service of the road bike».',
+  },
+  'f.chainrotation': {
+    on: null,
+    steps: ['Bikes › Care › a bike › «Wear» › «Chain rotation» › «Add a chain».', 'Tap «Put on» on the chain that is on the bike.', 'After the set km the app says it is time to swap.'],
+    example: 'Example: chain A 480 km, chain B 450 km; every 500 km a swap.',
+  },
   'f.velofaq': {
     on: null,
     steps: ['Bikes › Care › «Bike FAQ» (also on every bike’s card).', 'On top the question of the day; «Another question» shows the next one.', 'Search or open a topic; «Your own questions» keeps what you learned.'],
@@ -756,6 +796,16 @@ export const HANDBOOK = {
     on: null,
     steps: ['Tap the weather line on Today, on Active or on a trip.', 'Choose how long you ride: the app shows the best start; tap «Landi rain radar» for the rain.'],
     example: 'Example: 4 h ride, thunderstorms from 15:00 → best start 08:00, back about 12:00.',
+  },
+  'f.webcammap': {
+    on: null,
+    steps: ['Open the weather page › «My webcams» and tap «Place on the map» on a webcam.', 'Search the place and choose it. On the live map tap the webcam point.'],
+    example: 'Example: the webcam on the pass ahead → one tap on the map shows if there is snow.',
+  },
+  'f.icepush': {
+    on: null,
+    steps: ['Set your home place on the weather page.', 'Under Me › Reminders on the phone switch on «Ice in the morning».'],
+    example: 'Example: −2 °C and snow in the night → at 06:30 «Roads can be icy this morning».',
   },
   'f.webcams': {
     on: null,
@@ -1003,6 +1053,37 @@ export const HANDBOOK = {
     steps: ['Open Me › My compass and add a goal with a day.', 'Type the steps, one per line: the app spreads the dates.', 'Once a week answer «How is it going?»; boxes keep ideas and resolutions.'],
     example: 'Example: «Ride the Alpenbrevet» by 1 July → 5 steps, one every few weeks.',
   },
+  // Paket NE «Notizen wie Evernote» (Noah 20.10.2026)
+  'f.drawphoto': {
+    on: null,
+    steps: ['Open a photo big, or a note, and tap «Draw».', 'Choose pen, highlighter, arrow, shape or text, a colour and a size.', 'Tap «Done»: the photo shows the drawing, and the lines stay changeable.'],
+    example: 'Example: a photo of the brake → a red circle round the worn pad and the word «new».',
+  },
+  'f.richtext': {
+    on: null,
+    steps: ['Open a note and write in the text field.', 'The buttons above it make bold, a heading, a list, ticks or a table.', '«Write with marks» shows the text with ** and # instead.'],
+    example: 'Example: «Packliste» as a heading, then ticks for tent, stove and gas.',
+  },
+  'f.noteattach': {
+    on: null,
+    steps: ['Open a note and tap «File» or «Scan».', 'Tap a file in the note: the app shows it, a GPX as a small map, a calendar file with «Into my calendar».', 'Below a link «Keep … to read offline» saves the page as text with its pictures.'],
+    example: 'Example: the bill of the bike service as a PDF and the route as a GPX in the note «Jura».',
+  },
+  'f.noteocr': {
+    on: null,
+    steps: ['Open a note with photos or a scanned PDF.', 'Tap «Make text in pictures searchable».', 'Search in Notes for a word from the picture.'],
+    example: 'Example: a photo of a receipt → the search «Bremsbelag» finds the note.',
+  },
+  'f.noteremind': {
+    on: null,
+    steps: ['Open a note and tap «Remind me».', 'Choose the day and the time, then «Set the reminder».', 'With the reminders on the phone switched on, a message comes; in Notes it stays on top until «Done».'],
+    example: 'Example: «Ersatzschlauch kaufen» for Friday 17:00.',
+  },
+  'f.notetrash': {
+    on: null,
+    steps: ['A deleted note goes to Notes › More › Trash and waits there 30 days.', '«Put back» brings it back with its files.', 'In a note «Earlier versions» shows the text from before; «Put this version back» takes it.'],
+    example: 'Example: the packing list was shortened by mistake → «Earlier versions» → yesterday evening → put back.',
+  },
   'f.noteformats': {
     on: null,
     steps: ['Open a note: Photo, Link, Place and Sketch add to it; «Share» sends it to Keep or a chat.', 'New note: «Start from» a template, or the QR button reads a code.', 'Notes › More › Take over from Google Keep: choose the .zip from Google Takeout.'],
@@ -1172,6 +1253,11 @@ export const HANDBOOK = {
     on: 'Always there under an answer; which services show: Me › Appearance › Handling.',
     steps: ['Ask the app or dictate a question.', 'Tap a service under the answer: it opens with your question.', 'Tick «Send my gear and learnings that fit along» if you want.'],
     example: 'Example: «Which jacket for 5 °C?» → Perplexity opens with the question.',
+  },
+  'f.searchvoice': {
+    on: 'The microphone is always in the search; Me › Search hides it and switches each answer on or off.',
+    steps: ['Tap the microphone next to the magnifier and say what you want.', 'One command that fits runs at once; «Undo» takes it back.', 'A question gets the app\'s answer; when the app knows nothing, Gemini answers or you ask further at Claude or ChatGPT.'],
+    example: 'Example: say «note brake squeaks» → the note is in the Inbox.',
   },
   'f.aiprojects': {
     on: null,
@@ -1361,8 +1447,23 @@ export const HANDBOOK = {
   },
   'f.ownvalues': {
     on: null,
-    steps: ['Open Me › Own values.', 'Change a number with − and + or type it.', '«Back to Standard» brings the number of the app back.'],
+    steps: ['Open Me › Own values.', 'Change a number with − and + or type it; the pen renames or deletes it.', '«Back to Standard» brings the number back, «Deleted values» a deleted one.'],
     example: 'Example: packing starts 3 days before the trip, the backup reminder after 7 days.',
+  },
+  'f.ownreminders': {
+    on: null,
+    steps: ['Open Me › Own values › «+ Own reminder».', 'Name, «every N km» or «every N days», all bikes or one.', 'Bikes › Care shows it on the bike\'s page; «Done» starts it again.'],
+    example: 'Example: «Check the tyre pressure» every 14 days for every bike.',
+  },
+  'f.ownbody': {
+    on: null,
+    steps: ['Open Me › Your questions and add an own question.', 'Choose «Number» with a unit, or the scale 1 to 10.', 'Body values › Own shows it with its curve.'],
+    example: 'Example: «Back pain» 0 to 10 every evening.',
+  },
+  'f.listsmore': {
+    on: null,
+    steps: ['Open Me › Lists and types.', 'Pick a list, e.g. Kinds of bike.', 'The pen renames, hides or deletes; «+ Own» adds one; arrows and handle sort.'],
+    example: 'Example: an own kind of bike «City bike», or a diary question of your own.',
   },
   'f.theme': {
     on: null,

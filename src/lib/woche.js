@@ -26,6 +26,7 @@ import { shiftDay, mondayOf, doneBy } from './training.js';
 import { wxOf } from './flowweek.js';
 import { holidayOn, seasonOf } from './woche/kalender.js';
 import { prefsOf as agendaPrefs, weekItems, undatedTasks } from './agenda.js';
+import { isAwayType } from './woche/away.js';
 
 export const ITEMS_KEY = 'week.items';
 export const AWAY_KEY = 'week.away';
@@ -36,8 +37,8 @@ export const PLANNED_KEY = 'week.planned';
 export const CAL_KEY = 'week.calendar';
 
 export { KINDS, KIND_NAMES } from './woche/kinds.js';
-export const AWAY_TYPES = ['bike', 'off', 'ski'];
-export const AWAY_NAMES = { bike: 'Bike trip|away', off: 'Holidays without a bike', ski: 'Ski tour|away' };
+// the kinds of time away live in woche/away.js (light, so «Listen und Typen» can read them at the start)
+export { AWAY_TYPES, AWAY_NAMES } from './woche/away.js';
 /** The quiet line under «Add»: sport is planned where it lives, the week only shows it. */
 export const TRAIN_NOTE = 'Sport comes from Aktiv › Training and Aktiv › Week. You change it there.';
 /** Items done or older than this many days go when the list is saved. */
@@ -81,7 +82,7 @@ export const pruneItems = (items, today) => items.filter((x) => !x.day || x.day 
 export function cleanAway(a = {}) {
   if (!isDay(a?.from)) return null;
   const to = isDay(a.to) && a.to >= a.from ? a.to : a.from;
-  const type = AWAY_TYPES.includes(a.type) ? a.type : 'bike';
+  const type = isAwayType(a.type) ? a.type : 'bike';
   const on = (v, d) => (v === undefined ? d : !!v);
   return {
     id: String(a.id || newId('wa')),

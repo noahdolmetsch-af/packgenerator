@@ -19,17 +19,24 @@
   import { nextNumber } from '../notes.js';
   import { nextId } from '../gear.js';
   import { switchTrip } from '../nav.js';
-  import { t } from '../i18n.svelte.js';
+  import { t, locale } from '../i18n.svelte.js';
   import SpeakButton from '../ui/SpeakButton.svelte';
   import { appendSpoken } from '../speak.js';
   import { Pin, PinOff, X, Route, Heart, Wrench, Link2, Plus, Trash2, ChevronLeft, NotebookPen, Unlink } from '@lucide/svelte';
-  import { photosOf, linksOf, addPhoto, removePhoto, addLinkTo, removeLinkAt, placeFrom, placeLinks, placeText, mdToHtml, hasFormat, wrapSel, shareText, NOTE_TPL_KEY, templatesOf, addTemplate } from '../noteformats.js';
+  import { photosOf, linksOf, addPhoto, removePhoto, setPhotos, addLinkTo, removeLinkAt, placeFrom, placeLinks, placeText, mdToHtml, hasFormat, wrapSel, shareText, NOTE_TPL_KEY, templatesOf, addTemplate } from '../noteformats.js';
   import { linkFrom } from '../notebook.js';
   import { shrinkImage } from '../photo.js';
   import CameraButton from '../ui/CameraButton.svelte';
-  import SketchPad from './SketchPad.svelte';
+  import DrawOn from '../draw/DrawOn.svelte';
+  import RichText from './RichText.svelte';
+  import NoteFiles from './NoteFiles.svelte';
+  import NoteRemind from './NoteRemind.svelte';
+  import NoteVersions from './NoteVersions.svelte';
+  import { trashNote, restoreNote, keepVersion, TRASH_DAYS } from './trash.js';
+  import { noteRemind } from '../push/schedule.js';
+  import { editMode, setEditMode } from './richtext.js';
   import NoteReader from './NoteReader.svelte';
-  import { MapPin, Image as ImageIcon, PenLine, Share2, Bold, Heading, Table, BookOpen, Pencil, Copy, FilePlus2 } from '@lucide/svelte';
+  import { MapPin, Image as ImageIcon, Share2, Bold, Heading, Table, BookOpen, Pencil, Copy, FilePlus2, Bell, History } from '@lucide/svelte';
   import '../bikes/velo-dlg.css';
 
   let { note, bikes = [], pinnedCount = 0, notes = [], onclose, onmade, onopen } = $props();
@@ -46,6 +53,15 @@
   // svelte-ignore state_referenced_locally
   let bike = $state(note.bikeId ?? bikes[0]?.id ?? null);
   let msg = $state('');
+  // Paket NE 1150/1151: the reminder and the earlier versions, folded
+  // svelte-ignore state_referenced_locally
+  let remindOpen = $state(!!note.remind?.at && !note.remind.done);
+  let versionsOpen = $state(false);
+  function remindText(n) {
+    const r = noteRemind(n);
+    if (!r) return '';
+    return new Date(`${r.day}T${r.hm}:00`).toLocaleString(locale(), { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+  }
 
   $effect(() => {
     dialog.showModal();
@@ -63,9 +79,14 @@
   }
   async function saveAndClose() {
     const now = new Date().toISOString();
-    const before = JSON.stringify(note);
+    const old = $state.snapshot(note); // before the put: the list gives the sheet the new note right after
+    const before = JSON.stringify(old);
     const after = $state.snapshot(draft);
-    if (JSON.stringify({ ...after }) !== before) await db.notes.put({ ...after, editedAt: now });
+    if (JSON.stringify({ ...after }) !== before) {
+      await db.notes.put({ ...after, editedAt: now });
+      // Paket NE 1151: the text from before stays as a version
+      await keepVersion(db, old, after).catch(() => {});
+    }
   }
   async function closeIt() {
     await saveAndClose();
@@ -73,15 +94,12 @@
   }
   async function remove() {
     const name = noteTitle(draft).slice(0, 40);
-    if ((await askDelete({ title: t('Delete the note "{text}"?', { text: name }), text: t('You can bring it back for 4 seconds afterwards.') })) !== 'delete') return;
+    if ((await askDelete({ title: t('Delete the note "{text}"?', { text: name }), text: t('It waits {n} days in the trash of Notes (More › Trash).', { n: TRASH_DAYS }) })) !== 'delete') return;
     const ok = await deleteWithUndo({
-      run: async () => {
-        const rec = await db.notes.get(note.id);
-        await db.notes.delete(note.id);
-        return rec;
-      },
-      undo: (rec) => rec && db.notes.put(rec),
-      text: t('"{name}" deleted.', { name }),
+      // Paket NE 1151: into the trash for 30 days; its files stay with it
+      run: async () => trashNote(db, (await db.notes.get(note.id)) ?? $state.snapshot(draft)),
+      undo: async (row) => row && restoreNote(db, row.id),
+      text: t('"{name}" is in the trash.', { name }),
       name,
     });
     if (ok) dialog.close();
@@ -154,6 +172,12 @@
     const other = await db.notes.get(l.id);
     if (other) await db.notes.put(unlinkNote(other, draft.id));
   }
+  // Paket NE 1148: «Scan» goes to the scanner; it keeps the pages on this note and comes back to it
+  async function scan() {
+    await db.notes.put({ ...$state.snapshot(draft), editedAt: new Date().toISOString() });
+    dialog.close();
+    location.hash = `#/me/docs/scan?note=${encodeURIComponent(draft.id)}`;
+  }
   async function openOther(id) {
     await saveAndClose();
     onopen?.(id);
@@ -163,7 +187,15 @@
   // svelte-ignore state_referenced_locally
   let reading = $state(hasFormat(note.text ?? ''));
   let textEl = $state(null);
-  let sketching = $state(false);
+  // Paket NE 1147: formatted writing (the default) or the text with marks, chosen per device
+  let mode = $state(editMode());
+  function switchMode() {
+    mode = mode === 'rich' ? 'marks' : 'rich';
+    reading = false;
+    setEditMode(mode);
+  }
+  // Paket NE 1146: a drawing saved on a photo or on the pad gives the note its new photo list and inks
+  const drawn = ({ list, inks }) => (draft = setPhotos($state.snapshot(draft), list, inks));
   let linkForm = $state(false);
   let readingAll = $state(false); // idea 4 / N15: the note as an article
   let newUrl = $state('');
@@ -252,15 +284,20 @@
       <div class="txh">
         <span class="lbl" id="ntx-l">{t('Text')}</span>
         <span class="fmt" role="group" aria-label={t('Format')}>
-          {#if !reading}
+          <button type="button" class="btn btn-link sm" onclick={switchMode} data-edit-mode={mode}>{mode === 'rich' ? t('Write with marks') : t('Write formatted')}</button>
+          {#if mode === 'rich'}
+            <!-- the formatted editor has its own buttons -->
+          {:else if !reading}
             <button type="button" class="tb" aria-label={t('Bold')} onclick={() => mark('bold')}><Bold size={16} aria-hidden="true" /></button>
             <button type="button" class="tb" aria-label={t('Heading')} onclick={() => mark('heading')}><Heading size={16} aria-hidden="true" /></button>
             <button type="button" class="tb" aria-label={t('Table')} onclick={() => mark('table')}><Table size={16} aria-hidden="true" /></button>
           {/if}
-          <button type="button" class="tb" aria-pressed={reading} aria-label={reading ? t('Edit the text') : t('Reading view')} onclick={() => (reading = !reading)} data-reading>{#if reading}<Pencil size={16} aria-hidden="true" />{:else}<BookOpen size={16} aria-hidden="true" />{/if}</button>
+          {#if mode === 'marks'}<button type="button" class="tb" aria-pressed={reading} aria-label={reading ? t('Edit the text') : t('Reading view')} onclick={() => (reading = !reading)} data-reading>{#if reading}<Pencil size={16} aria-hidden="true" />{:else}<BookOpen size={16} aria-hidden="true" />{/if}</button>{/if}
         </span>
       </div>
-      {#if reading}
+      {#if mode === 'rich'}
+        <RichText bind:value={draft.text} labelledby="ntx-l" placeholder={t('Text')} />
+      {:else if reading}
         <!-- mdToHtml escapes everything first; only headings, bold, italic, lists and tables come back -->
         <div class="md" data-md>{@html mdToHtml(draft.text ?? '')}</div>
       {:else}
@@ -274,14 +311,12 @@
       <p class="lk" data-note-link><Link2 size={16} aria-hidden="true" /><span><b>{l.title}</b><a href={l.url} target="_blank" rel="noopener noreferrer">{l.url}</a></span><button type="button" class="rm" aria-label={t('Remove {name}', { name: l.title })} onclick={() => (draft = removeLinkAt($state.snapshot(draft), i))}><Trash2 size={16} aria-hidden="true" /></button></p>
     {/each}
     {#each photosOf(draft) as ph, i (i)}
-      <div class="phw" data-note-photo><img class="ph" src={ph} alt={t('Photo of the note')} /><button type="button" class="rm" aria-label={t('Remove photo')} onclick={() => (draft = removePhoto($state.snapshot(draft), i))}><Trash2 size={16} aria-hidden="true" /></button></div>
+      <div class="phw" data-note-photo><img class="ph" src={ph} alt={t('Photo of the note')} /><span class="pha"><DrawOn src={ph} list={photosOf(draft)} inks={draft.inks} icon cls="drawrm" onsave={drawn} data-note-draw /><button type="button" class="rm" aria-label={t('Remove photo')} onclick={() => (draft = removePhoto($state.snapshot(draft), i))}><Trash2 size={16} aria-hidden="true" /></button></span></div>
     {/each}
+    <NoteFiles note={draft} onchange={(n) => (draft = n)} onphoto={(src) => (draft = addPhoto($state.snapshot(draft), src))} onscan={scan} />
     {#if draft.place}
       {@const pl = placeLinks(draft.place)}
       <p class="lk" data-note-place><MapPin size={16} aria-hidden="true" /><span><b>{placeText(draft.place)}</b>{#if pl}<span class="pls"><a href={pl.maps} target="_blank" rel="noopener noreferrer">Google Maps</a> · <a href={pl.swisstopo} target="_blank" rel="noopener noreferrer">swisstopo</a></span>{/if}</span><button type="button" class="rm" aria-label={t('Remove the place')} onclick={() => (draft.place = null)}><Trash2 size={16} aria-hidden="true" /></button></p>
-    {/if}
-    {#if sketching}
-      <SketchPad onsave={(png) => ((draft = { ...addPhoto($state.snapshot(draft), png), sketch: true }), (sketching = false))} oncancel={() => (sketching = false)} />
     {/if}
     {#if linkForm}
       <form class="lform" onsubmit={moreLink}>
@@ -295,7 +330,7 @@
       <label class="btn sm"><ImageIcon size={16} aria-hidden="true" />{t('Photo')}<input type="file" accept="image/*" hidden onchange={morePhoto} /></label>
       <button type="button" class="btn sm" aria-pressed={linkForm} onclick={() => (linkForm = !linkForm)}><Link2 size={16} aria-hidden="true" />{t('Link')}</button>
       <button type="button" class="btn sm" disabled={locating} onclick={locate} data-add-place><MapPin size={16} aria-hidden="true" />{locating ? t('Finding the place …') : draft.place ? t('Place again') : t('Place|location')}</button>
-      <button type="button" class="btn sm" aria-pressed={sketching} onclick={() => (sketching = !sketching)} data-add-sketch><PenLine size={16} aria-hidden="true" />{t('Sketch')}</button>
+      <DrawOn list={photosOf(draft)} inks={draft.inks} label={t('Sketch')} onsave={drawn} data-add-sketch />
     </div>
     {#if draft.place}<label class="fld"><span class="lbl">{t('Name of the place')} <small class="q">· {t('optional')}</small></span><input class="inp" type="text" maxlength="60" value={draft.place.label} oninput={(e) => (draft.place = { ...draft.place, label: e.currentTarget.value })} placeholder={t('e.g. Nice rest stop')} /></label>{/if}
 
@@ -367,7 +402,11 @@
       <button type="button" class="btn btn-link" onclick={() => (readingAll = true)} data-note-read><BookOpen size={16} aria-hidden="true" />{t('Read as an article')}</button>
       <button type="button" class="btn btn-link" onclick={share} data-note-share><Share2 size={16} aria-hidden="true" />{t('Share|note')}</button>
       <button type="button" class="btn btn-link" onclick={asTemplate} data-note-astpl><FilePlus2 size={16} aria-hidden="true" />{t('Save as a template')}</button>
+      <button type="button" class="btn btn-link" aria-expanded={remindOpen} onclick={() => (remindOpen = !remindOpen)} data-note-remind-open><Bell size={16} aria-hidden="true" />{draft.remind?.at && !draft.remind.done ? t('Reminder {when}', { when: remindText(draft) }) : t('Remind me')}</button>
+      <button type="button" class="btn btn-link" aria-expanded={versionsOpen} onclick={() => (versionsOpen = !versionsOpen)} data-note-versions-open><History size={16} aria-hidden="true" />{t('Earlier versions')}</button>
     </div>
+    {#if remindOpen}<NoteRemind bind:value={draft.remind} />{/if}
+    {#if versionsOpen}<NoteVersions note={draft} onput={(next) => (draft = next)} />{/if}
     <div class="vd-foot">
       <button type="button" class="btn" onclick={remove}>{t('Delete')}</button>
       <button type="button" class="btn" aria-pressed={!!draft.pinned} onclick={togglePin}>{#if draft.pinned}<PinOff size={16} aria-hidden="true" />{t('Unpin')}{:else}<Pin size={16} aria-hidden="true" />{t('Pin')}{/if}</button>
@@ -462,12 +501,27 @@
     position: relative;
     width: fit-content;
     max-width: 100%;
+    min-width: 104px;
+    min-height: 52px;
   }
-  .phw .rm {
+  .pha {
     position: absolute;
     top: 4px;
     right: 4px;
+    display: flex;
+    gap: 4px;
+  }
+  .pha .rm,
+  .pha :global(.drawrm) {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border: 0;
+    border-radius: var(--r-ctl);
     background: var(--paper);
+    color: var(--ink-2);
+    cursor: pointer;
   }
   .pls {
     display: block;

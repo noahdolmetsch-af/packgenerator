@@ -6,6 +6,8 @@
  * Private: the list lives only on this device (db.js DEVICE_SETTINGS 'webcams'), never synced and never in
  * the repo. A cam behind a login (e.g. a private home cam) is only opened, the app never stores a password.
  * For webcams along a route or at a destination the app links to bergfex (opened, never read).
+ * A cam can have a place (optional, from the place search): then it shows as a point on the live map
+ * (under «My points»), and a tap there shows its picture (Paket Wetter «Webcams auf der Live-Karte»).
  * Pure functions, tested in tests/wetter-webcams.test.js.
  */
 
@@ -36,12 +38,23 @@ export function cleanUrl(s) {
 /** Does the address show a picture (then it shows inline, else it opens)? */
 export const isImage = (url) => IMG.test(String(url ?? ''));
 
-/** The stored value made safe: [{ id, name, url, home }]. */
+/** A place made safe: { name, lat, lon } or null. */
+export function placeOf(p) {
+  const lat = Number(p?.lat);
+  const lon = Number(p?.lon);
+  if (p == null || !Number.isFinite(lat) || !Number.isFinite(lon) || Math.abs(lat) > 90 || Math.abs(lon) > 180 || (lat === 0 && lon === 0)) return null;
+  return { name: String(p.name ?? '').slice(0, NAME_MAX), lat, lon };
+}
+
+/** The stored value made safe: [{ id, name, url, home, place? }]. */
 export function camsOf(value) {
   const list = Array.isArray(value) ? value : [];
   return list
     .filter((c) => c && typeof c === 'object' && cleanUrl(c.url))
-    .map((c) => ({ id: String(c.id ?? ''), name: String(c.name ?? '').slice(0, NAME_MAX), url: cleanUrl(c.url), home: c.home === true }))
+    .map((c) => {
+      const place = placeOf(c.place);
+      return { id: String(c.id ?? ''), name: String(c.name ?? '').slice(0, NAME_MAX), url: cleanUrl(c.url), home: c.home === true, ...(place ? { place } : {}) };
+    })
     .filter((c) => c.id);
 }
 
@@ -65,6 +78,20 @@ export function moveCam(list, from, to) {
   return out;
 }
 export const homeCam = (list = []) => list.find((c) => c.home) ?? null;
+/** Give a cam a place, or take it away (null). */
+export function setPlace(list, id, place) {
+  const p = placeOf(place);
+  return list.map((c) => {
+    if (c.id !== id) return c;
+    const { place: _old, ...rest } = c;
+    return p ? { ...rest, place: p } : rest;
+  });
+}
+/** The cams with a place as live-map points ({ id: 'cam-…', kind: 'webcam' }). */
+export const camsOnMap = (value) =>
+  camsOf(value)
+    .filter((c) => c.place)
+    .map((c) => ({ id: c.id.startsWith('cam-') ? c.id : `cam-${c.id}`, cam: c.id, lat: c.place.lat, lon: c.place.lon, kind: 'webcam', name: camLabel(c), minZoom: 0 }));
 
 /** The picture address with a time mark, so the browser fetches it anew every REFRESH_MIN minutes. */
 export function freshSrc(url, now = Date.now()) {
