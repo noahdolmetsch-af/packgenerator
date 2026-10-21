@@ -4,10 +4,14 @@
    * A photo big, on the whole screen (Noah, 4.10.2026, answer 1a): swipe or the arrows for the
    * next one, Esc or Close to go back. list: [{ src, name, sub }]. actions: an optional snippet
    * under the photo, it gets the shown photo.
+   * Paket NE 1146: ondraw(cur, { old, src, ink }) shows «Draw» on the photo; the drawing window opens
+   * over it, and the caller stores the new picture and the drawing on its record (drawnOn() in ink.js).
+   * A list entry may carry its record's inks, so the drawing can be changed again later.
    */
   import { t } from '../i18n.svelte.js';
+  import DrawOn from '../draw/DrawOn.svelte';
 
-  let { list, start = 0, onclose, actions = null } = $props();
+  let { list, start = 0, onclose, actions = null, ondraw = null } = $props();
 
   // svelte-ignore state_referenced_locally
   let at = $state(Math.min(Math.max(0, start), list.length - 1));
@@ -44,6 +48,7 @@
     <header class="top">
       <span class="nm"><b>{cur.name}</b>{#if cur.sub}<small>{cur.sub}</small>{/if}</span>
       {#if list.length > 1}<span class="num n">{at + 1} / {list.length}</span>{/if}
+      {#if ondraw}<DrawOn src={cur.src} list={[cur.src]} inks={cur.inks} cls="close drawb" onsave={({ flats, ink }) => ondraw(cur, { old: cur.src, src: flats[0], ink })} data-lb-draw />{/if}
       <button type="button" class="close" onclick={() => dialog.close()}>{t('Close')}</button>
     </header>
     <div class="pic" onpointerdown={down} onpointerup={up} onpointercancel={() => (x0 = null)} role="presentation">
@@ -101,7 +106,11 @@
     color: #b8c2bc;
     font-size: var(--fs-small);
   }
-  .close {
+  .close,
+  .top :global(.drawb) {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
     min-height: 44px;
     padding: 0 14px;
     border: 1.5px solid #f4f6f2;

@@ -37,6 +37,7 @@
   import VeloHead from '../lib/bikes/VeloHead.svelte';
   import '../lib/ich/ich.css';
   import Lightbox from '../lib/ui/Lightbox.svelte';
+  import { drawnOn } from '../lib/draw/ink.js';
   import { t, tn, locale } from '../lib/i18n.svelte.js';
   import { flip } from '../lib/ui/flip.js';
   import { Check, Undo2, ChevronRight, ChevronDown, Search, Shuffle, Plus, Lightbulb, Trash2, Inbox } from '@lucide/svelte';
@@ -165,7 +166,13 @@
       msg = t(err.message) || t('This note could not be sorted.');
     }
   }
-  let shown = $state(null); // photo src
+  let shown = $state(null); // the note whose photo is shown big
+  // Paket NE 1146: drawn on the photo of a quick note: the new picture and the drawing go on the note
+  async function drawOnNote(cur, { old, src, ink }) {
+    const out = drawnOn([shown.photo], shown.inks, old, src, ink);
+    await db.notes.update(shown.id, { photo: out.list[0], inks: out.inks });
+    shown = { ...shown, photo: out.list[0], inks: out.inks };
+  }
   let msg = $state('');
 
   // The toast after filing: «✓ Abgelegt: … · Rückgängig» (10 s).
@@ -245,7 +252,7 @@
                 <li data-note-id={n.id} animate:flip={{ duration: MOVE }}>
                   <div class="ich-row ich-wrap nrow">
                     {#if n.photo}
-                      <button type="button" class="th" onclick={() => (shown = n.photo)} aria-label={t('Open photo')}><img src={n.photo} alt="" /></button>
+                      <button type="button" class="th" onclick={() => (shown = n)} aria-label={t('Open photo')}><img src={n.photo} alt="" /></button>
                     {:else}
                       <span class="ich-ib"><Icon size={18} aria-hidden="true" /></span>
                     {/if}
@@ -389,7 +396,7 @@
 {/if}
 
 {#if shown}
-  <Lightbox list={[{ src: shown, name: t('Quick note'), sub: '' }]} start={0} onclose={() => (shown = null)} />
+  <Lightbox list={[{ src: shown.photo, inks: shown.inks, name: t('Quick note'), sub: '' }]} start={0} onclose={() => (shown = null)} ondraw={drawOnNote} />
 {/if}
 
 <style>

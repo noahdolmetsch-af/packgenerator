@@ -13,6 +13,7 @@
  * - N14 share a note: the phone's share menu (Keep, WhatsApp, mail …), else copy.
  */
 import { tagsOf } from './notebook.js';
+import { pruneInks } from './draw/ink.js';
 
 /* ---------- N1 several photos and links ---------- */
 
@@ -27,10 +28,15 @@ export function addPhoto(n, data) {
   return n.photo ? { ...n, photos: [...(n.photos ?? []), data] } : { ...n, photo: data };
 }
 /** The note without photo i (of photosOf); the next one moves up to note.photo. */
-export function removePhoto(n, i) {
-  const all = photosOf(n).filter((_, j) => j !== i);
-  const { photos, ...rest } = n;
-  return { ...rest, photo: all[0] ?? null, ...(all.length > 1 ? { photos: all.slice(1) } : {}) };
+export const removePhoto = (n, i) => setPhotos(n, photosOf(n).filter((_, j) => j !== i));
+/**
+ * Paket NE: the note with this list of photos (the first to note.photo); the drawings (inks) of photos
+ * that are gone go too. inks: the new map, when a drawing was saved.
+ */
+export function setPhotos(n, list, inks = n?.inks) {
+  const { photos, inks: _old, ...rest } = n;
+  const keep = pruneInks(inks, list);
+  return { ...rest, photo: list[0] ?? null, ...(list.length > 1 ? { photos: list.slice(1) } : {}), ...(keep ? { inks: keep } : {}) };
 }
 /** The note with one more link. */
 export function addLinkTo(n, link) {
@@ -118,6 +124,7 @@ const esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, 
 const inline = (s) =>
   esc(s)
     .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+    .replace(/~~([^~]+)~~/g, '<s>$1</s>')
     .replace(/(^|[^*])\*([^*\s][^*]*)\*/g, '$1<em>$2</em>')
     .replace(/`([^`]+)`/g, '<code>$1</code>');
 
@@ -126,7 +133,8 @@ export const hasFormat = (text = '') => /(^|\n)(#{1,3} |\|.*\|)|\*\*[^*]+\*\*/.t
 
 /**
  * Markdown light to HTML. Everything is escaped first; only these come back: # ## ### headings,
- * **bold**, *italic*, `code`, «- » lists, «1. » lists, tables with | cells (a |---| line is skipped).
+ * **bold**, *italic*, ~~struck~~, `code`, «- » lists, «- [ ] » ticks, «1. » lists, tables with | cells
+ * (a |---| line is skipped).
  */
 export function mdToHtml(text = '') {
   const out = [];
@@ -155,7 +163,9 @@ export function mdToHtml(text = '') {
         out.push(`<${want}>`);
         list = want;
       }
-      out.push(`<li>${inline((ul ?? ol)[1])}</li>`);
+      // Paket NE 1147: «- [ ] …» / «- [x] …» are ticks in the text (data-todo 0 / 1)
+      const todo = ul && ul[1].match(/^\[( |x|X)\] ?(.*)$/);
+      out.push(todo ? `<li data-todo="${/x/i.test(todo[1]) ? 1 : 0}">${inline(todo[2])}</li>` : `<li>${inline((ul ?? ol)[1])}</li>`);
     } else {
       close();
       if (h) out.push(`<h${h[1].length + 2}>${inline(h[2])}</h${h[1].length + 2}>`);

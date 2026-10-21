@@ -60,7 +60,8 @@ export function checklistFrom(text = '') {
   const items = [];
   const rest = [];
   for (const l of lines) {
-    const m = l.match(/^\s*(?:[-*•]|\[( |x|X)?\])\s+(.+)$/);
+    // «- [ ] Gas» (Markdown) is a tick too, not a point «[ ] Gas»
+    const m = l.match(/^\s*(?:[-*•]\s+)?\[( |x|X)?\]\s+(.+)$/) ?? l.match(/^\s*[-*•]()\s+(.+)$/);
     if (m) items.push({ text: m[2].trim(), done: /x/i.test(m[1] ?? '') });
     else rest.push(l);
   }

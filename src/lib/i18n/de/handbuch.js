@@ -1226,4 +1226,13 @@ export default {
   'On On the way tap «Bike parked»: photo, lock, save.': 'Unterwegs «Velo abgestellt» tippen: Foto, Schloss, speichern.',
   'Later tap it again: the photo, the lock and «Way to the bike».': 'Später nochmals tippen: das Foto, das Schloss und «Weg zum Velo».',
   'Example: at the station in a big town → back after the museum with the map link.': 'Beispiel: am Bahnhof einer grossen Stadt → nach dem Museum mit dem Kartenlink zurück.',
+  // Paket NE «Notizen wie Evernote»
+  'Open a photo big, or a note, and tap «Draw».': 'Öffne ein Foto gross oder eine Notiz und tippe «Zeichnen».',
+  'Choose pen, highlighter, arrow, shape or text, a colour and a size.': 'Wähle Stift, Textmarker, Pfeil, Form oder Text, eine Farbe und eine Dicke.',
+  'Tap «Done»: the photo shows the drawing, and the lines stay changeable.': 'Tippe «Fertig»: Das Foto zeigt die Zeichnung, und die Linien bleiben änderbar.',
+  'Example: a photo of the brake → a red circle round the worn pad and the word «new».': 'Beispiel: ein Foto der Bremse → ein roter Kreis um den abgenutzten Belag und das Wort «neu».',
+  'Open a note and write in the text field.': 'Öffne eine Notiz und schreibe ins Textfeld.',
+  'The buttons above it make bold, a heading, a list, ticks or a table.': 'Die Knöpfe darüber machen fett, eine Überschrift, eine Liste, Abhaken oder eine Tabelle.',
+  '«Write with marks» shows the text with ** and # instead.': '«Mit Zeichen schreiben» zeigt den Text stattdessen mit ** und #.',
+  'Example: «Packliste» as a heading, then ticks for tent, stove and gas.': 'Beispiel: «Packliste» als Überschrift, dann Abhaken für Zelt, Kocher und Gas.',
 };

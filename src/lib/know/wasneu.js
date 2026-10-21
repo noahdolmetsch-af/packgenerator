@@ -117,6 +117,8 @@ export const SINCE = {
   'f.trainplans': '0.157.0', 'f.feel': '0.157.0',
   // «Heatmap» (provisional version, the bundler renumbers)
   'f.heatmap': '0.170.0',
+  // Paket NE «Notizen wie Evernote» part 1 (provisional version, the bundler renumbers)
+  'f.drawphoto': '0.170.0', 'f.richtext': '0.170.0',
   // «Tagebuch» (provisional; the bundler sets the version of its release)
   'f.journal': '0.170.0',
 };
