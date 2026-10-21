@@ -1821,3 +1821,10 @@ Noah 19.10.2026: «1a 2a 3a 4 a oder b beides wählbar 5a», danach «a und b»,
 - 20.10.2026 (Noah «1a», Paket X Energie): eine Regel für Verbrauch, Essen und Trinken (`src/lib/energie.js`). Trink-Standard 0,5 l pro Fahrstunde bei kühlem Wetter bis 1,5 l bei Hitze (vorher Verpflegung 1–2 l, Unterwegs 0,5 l + 0,25 l ab 25 °C); änderbar unter Verpflegung. Ersetzt auch 250 kcal/h (Unterwegs) und 400 kcal/h (Rennen).
 
 - 20.10.2026 (Noah 22:21 «Fitbit überall einbinden»): Heute nimmt Fitbit zuerst: Schlaf in Stunden in «Aktiv», Ruhepuls und Aktivzonen-Minuten in der Balance. Die Balance zählt pro gemessenem Tag Bewegung nach der Check-Fragen-Regel (≥30 Aktivzonen-Minuten oder ≥12000 Schritte = Bergziege, ≥10 oder ≥5000 = Spaziergänger). Schlafdauer zählt nicht in den Ring (wäre eine Wertung).
+
+## 20.10.2026 · 0.171.0 «Verschleiss» (Noah «1 pro Teil, 2a+b, 3a, 4a+b, 5a», «Verschleiss immer im Griff»)
+
+- Ein Werkstattbesuch setzt pro Teil zurück: ersetzt → das Teil startet bei 0 km (das alte kommt zu «Teile davor»), gewartet → «seit Wartung» 0, geprüft → nur das Datum. Häkchen «Service am ganzen Velo» (vorgewählt) setzt den Velo-Zähler auf 0. Die Gesamt-km bleiben immer. Jeder Service bleibt in `bike.service.past`; ein gelöschter Besuch nimmt seinen Punkt mit (Rückgängig bringt beides zurück).
+- Neue Seite «Verschleiss» (`#/bikes?tab=care&view=wear`) plus kurze Karte in der Velopflege (2a+b). Lebensdauer: Startwert (`LIFE_STD` in `src/lib/wear.js`), der aus den eigenen Wechseln lernt (3a); eigener Wert pro Velo und Teil in `bike.life` (z. B. Kette 1000 km), zurück zum Vorschlag, Teil von der Seite nehmen und zurückholen.
+- Prognose mit «noch X km» und «etwa im Monat» aus den km der letzten 8 Wochen (4a+b). Hinweise auf der Velo-Seite und in der Tour-Vorbereitung, Heute bleibt unverändert (5a).
+- Kette auf den ersten Blick in jeder Velo-Zeile der Velopflege; Handy-Erinnerung «Teile abgenutzt» (Art `wear` in `push/schedule.js`), einzeln einschaltbar. Claude sieht die km nicht, darum kommt die Erinnerung über die App.

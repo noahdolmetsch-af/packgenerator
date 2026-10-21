@@ -1396,6 +1396,15 @@ export default {
   'A test keeps every page short on the phone': 'Ein Test hält jede Seite am Handy kurz',
   'Tap Plan in the bar: the tabs show Week, Appointments, Notes, Inbox and more.': 'Tippe in der Leiste auf Planen: Die Reiter zeigen Woche, Termine, Notizen, Eingang und mehr.',
   'Tap Analysis, then the tab Rides: your Strava rides are there.': 'Tippe auf Auswerten, dann auf den Reiter Fahrten: Dort sind deine Strava-Fahrten.',
+  // v0.171.0 «Verschleiss»
+  'Wear at a glance': 'Verschleiss auf einen Blick',
+  'Total km stay, each part counts anew.': 'Gesamt-km bleiben, jedes Teil zählt neu.',
+  'Wear: km left per part': 'Verschleiss: km übrig pro Teil',
+  'Visit: replaced parts start at 0 km': 'Besuch: ersetzte Teile starten bei 0 km',
+  'Part life learns from your changes': 'Lebensdauer lernt aus deinen Wechseln',
+  'Chain at a glance; phone reminder': 'Kette auf einen Blick; Handy-Erinnerung',
+  'Bikes › Care › a bike › «Wear»: look at the bars.': 'Velos › Pflege › ein Velo › «Verschleiss»: die Balken ansehen.',
+  'Log a workshop visit, add «Chain · replaced»: the chain starts at 0 km.': 'Werkstattbesuch erfassen, «Kette · ersetzt» hinzufügen: Die Kette startet bei 0 km.',
   // v0.166.0 «Neueste Version laden»
   'Tours and Aktiv': 'Touren und Aktiv',
   'Gear, climbs, Aktiv anew.': 'Gepäck, Anstiege, Aktiv neu.',
