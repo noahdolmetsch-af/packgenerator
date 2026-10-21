@@ -3,9 +3,10 @@
    * Tour-Seite, Noah 20.10.2026 «1a» (Gestaltungsregeln B, 6 Kopfbereich): a drawn landscape at the top of
    * the tour, no photo. Two quiet hills behind; in front the tour's own elevation profile as a hill, with
    * the route on it as a dashed line from the start to the flag. Drawn in code, works offline.
-   * points: [[km, m], …] (empty: a gentle made-up hill); chips: short lines on it (date, weather).
+   * points: [[km, m], …] (empty: a gentle made-up hill); chips: short lines on it (date, weather);
+   * warm: 0.174 (UI-Ziele #10) the countdown chip in a warm colour, first («In 5 Tagen», «Zurück seit 2 Tagen»).
    */
-  let { points = [], chips = [] } = $props();
+  let { points = [], chips = [], warm = '' } = $props();
 
   let w = $state(800);
   const W = $derived(Math.max(300, Math.round(w || 800)));
@@ -35,7 +36,7 @@
     <circle cx={front[0][0] + 4} cy={front[0][1] - 6} r="4" class="st" />
     {#if flag}<path d="M{flag[0] - 6},{flag[1] - 6} v-20 l12,5 l-12,5" class="flag" />{/if}
   </svg>
-  {#if chips.length}<p class="chips">{#each chips as c (c)}<span>{c}</span>{/each}</p>{/if}
+  {#if chips.length || warm}<p class="chips">{#if warm}<span class="warm" data-tour-countdown>{warm}</span>{/if}{#each chips as c (c)}<span>{c}</span>{/each}</p>{/if}
 </div>
 
 <style>
@@ -95,5 +96,10 @@
     background: var(--paper);
     color: var(--ink-2);
     font-size: var(--fs-small);
+  }
+  .chips .warm {
+    background: var(--warm-soft);
+    color: var(--ink);
+    font-weight: 600;
   }
 </style>

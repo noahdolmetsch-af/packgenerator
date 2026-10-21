@@ -37,6 +37,7 @@ Seit 19.10.2026 gibt es keine Testlinks mehr: Ein Paket geht online, sobald die 
 | 27 | UI-Grundlagen | 0.169.0 | Wärmere Farben (Salbei statt Farbe pro Ort), eine Schrift, runde Knöpfe, ruhigere Karten; Packtag mit «Schon gepackt», Velopflege Offenes zuerst; Tipp des Tages unter dem Inhalt (9 Seiten), Velopflege am Handy 5 Teile dann «Noch n zeigen», Touren-Kopf ein Knopf und «Rennen ›», Material-Kopf ein Satz mit Kacheln | dieser PR |
 | 28 | Live-Karte ohne Absturz | 0.168.0 | Kein automatisches Neuladen während einer Aufzeichnung; nach einem Neuladen läuft die Fahrt weiter (höchstens 20 Min.); OpenStreetMap-Abfragen nacheinander | PR #218 |
 | 29 | Tour-Auswertung mit Garmin-Werten | Bündler | Tour-Seite › Werte: Stopps, NP, Bestwerte 1/2/5/10/20 Min für Leistung und Puls, Ruhepuls (Fitbit) am Tour-Tag mit «deinem Normal», Punktbild Ruhepuls gegen NP; feinere Kartenlinie; Profile wie komoot; Teil «Analyse» wie Strava und Garmin Connect | gebaut, beim Bündler |
+| 30 | Eine Tour, eine Seite | Bündler (0.174) | Fünf Reiter auf jeder Tour: Planen · Packen · Unterwegs · Rückblick · Auswertung; «Fehlt noch» in Planen; Countdown-Chip und Satz mit Zahl; nur vorhandene Werte, «Fahrt verbinden», «Teile warten auf dein Urteil»; Lernschleife (eine Frage nach der Tour); Fahrt-Analyse Teil 3 | gebaut, beim Bündler |
 
 «Frontend aufpeppen» ist pausiert (Noah 19.10.2026). Die Abschnitte unten sind der Stand vom 18.10.2026.
 

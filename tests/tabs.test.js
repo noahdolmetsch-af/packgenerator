@@ -11,10 +11,11 @@ const trip = (over = {}) => ({ id: 'test_data_gtp_tour', title: 'test_data_gtp_ 
 const entries = (n, packed = 0) => Array.from({ length: n }, (_, i) => ({ itemId: `test_data_gtp_i${i}`, slot: 'saddle', packed: i < packed }));
 
 describe('the four trip tabs', () => {
-  it('one name per step: Plan, Pack, On the way, Debrief (German Planen, Packen, Unterwegs, Rückblick)', () => {
-    expect(Object.values(TAB_NAMES).map((k) => t(k))).toEqual(['Plan', 'Pack', 'On the way', 'Debrief']);
+  // 0.174 «Eine Tour, eine Seite» (UI-Ziele #5): «Auswertung» is the fifth tab (the tour page)
+  it('one name per step: Plan, Pack, On the way, Debrief, Analysis (German Planen, Packen, Unterwegs, Rückblick, Auswertung)', () => {
+    expect(Object.values(TAB_NAMES).map((k) => t(k))).toEqual(['Plan', 'Pack', 'On the way', 'Debrief', 'Analysis']);
     lang.v = 'de';
-    expect(Object.values(TAB_NAMES).map((k) => t(k))).toEqual(['Planen', 'Packen', 'Unterwegs', 'Rückblick']);
+    expect(Object.values(TAB_NAMES).map((k) => t(k))).toEqual(['Planen', 'Packen', 'Unterwegs', 'Rückblick', 'Auswertung']);
   });
 
   it('Today’s buttons use the same names as the tabs', () => {
