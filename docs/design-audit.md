@@ -150,6 +150,7 @@ Nach der Mitziehen-Regel: was in 0.47 noch nicht auf dem neuen Stand ist, mit Zi
 - 20.10.2026, 0.169.0 «Heute neu N2»: zwei neue Kacheln «Dein Körper heute» (4 Werte im 2×2-Raster, Pfeil ohne Farbe, Check-Zeile) und «Aktiv heute» (TickGrid wie auf Aktiv); Computer: Paare Körper|Aktiv, Woche|Ring, Tour|Jetzt dran; Handy alles untereinander.
 - 20.10.2026, 0.170.0: neue Seiten Tagebuch (#/tagebuch), Heatmap (#/heatmap), Form und Erholung; Live-Karte mit Datenseiten, Pausen- und Runden-Knopf links neben der Karte, Seitenleiste oben; alle lazy geladen, Handy-Längenbudget grün.
 - 21.10.2026, 0.171.0: neue Seiten Verschleiss (#/bikes?tab=care&view=wear) und Wetter (#/wetter, ohne eigenen Tab), Körperwerte statt Puls-Seite; Aktiv am Handy wieder ≤5.5 Bildschirme, Abfragen ≤6.5; alles lazy geladen.
+- 21.10.2026, 0.170.1: Abgleich-Dialog zeigt Namen und Werte statt Schlüssel; «Schliessen»-Blase nur noch bei Tastatur-Fokus.
 - 20.10.2026, 0.164.0 «Tests automatisieren»: keine neue Seite; Leaflet-Zoomknöpfe auf Deutsch (SwissMap, MapMeasure).
 - 19.10.2026, 0.161.0 «Paket 9»: neue Seite #/tour/<key> (Reiter oder Sprungleiste, am Computer bleibt die Leiste oben); Touren-Liste mit Ansichten Zeilen/Kacheln/Karte/Kalender, am Handy hinter «Ansichten».
 - 19.10.2026, «Verpflegung» (0.160.0, Paket 8): neue Seite Touren › Verpflegung (#/trips/fuel) im Aufbau von Material › Strom (Kopf, Karten, Felder 44 px, Falten für Werte); Produkte mit Ziehen und Pfeilen, Löschen mit eigenem Fenster und Rückgängig.

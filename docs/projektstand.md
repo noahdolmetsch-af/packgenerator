@@ -46,12 +46,13 @@ Seit 19.10.2026 gibt es keine Testlinks mehr: Ein Paket geht online, sobald die 
 | 36 | Live-Karte Teile 1–3 | 0.170.0 | Pause und Auto-Pause, Bluetooth-Sensoren, Datenseiten, Abbiegehinweise, Runden, «Gegen deine letzte Fahrt», mehr Orte, ÖV, Ride with GPS, SchweizMobil, Teilen-Bild, Abgleich ohne Strava-Fragen | live |
 | 37 | Umweg neu planen | 0.170.0 | Live-Karte «Neu planen zu …» und langes Drücken: Umweg und Rückweg über BRouter, GPX für Garmin | live |
 | 38 | Von der Haustür bis zurück | 0.170.0 | Gut angekommen, Plan B, Check-in, Velo geparkt; Unterwegs mit 2 Knöpfen mehr | live |
-| 39 | Verschleiss pro Teil | 0.171.0 | Seite «Verschleiss», Werkstattbesuch pro Teil, Kette auf einen Blick, Handy-Erinnerung «Teile abgenutzt» | dieser PR |
-| 40 | Bilder in der App | 0.171.0 | Setup-Zeitleiste, mehrere Fotos pro Problem mit Zuschneiden und PDF, Tour-Foto | dieser PR |
-| 41 | Wetter-Kern | 0.171.0 | bester Start, Landi-Radar, Webcams, Wind, Energie, «Zeit zu essen», GPX mit Stopps, Zürisee-Chip | dieser PR |
-| 42 | Körperwerte und Fitbit überall | 0.171.0 | 25 Werte in 5 Gruppen, Blutdruck und Wasser selbst, Fitbit im Check, auf Heute und in Erholung | dieser PR |
-| 43 | KI im Gerät | 0.171.0 | Sprachmodell auf dem Handy für offline, online weiter der KI-Helfer | dieser PR |
-| 44 | Aus jeder Tour lernen, Schneller packen, Schlafplätze | 0.171.0 | Pakete Z, SP und U4; Tagebuch unter Planen; See-Prognose robuster | dieser PR |
+| 39 | Abgleich bleibt ruhig | 0.170.1 | interne Werte gleichen sich selbst ab, «Später» = 1 Stunde Ruhe | live |
+| 40 | Verschleiss pro Teil | 0.171.0 | Seite «Verschleiss», Werkstattbesuch pro Teil, Kette auf einen Blick, Handy-Erinnerung «Teile abgenutzt» | dieser PR |
+| 41 | Bilder in der App | 0.171.0 | Setup-Zeitleiste, mehrere Fotos pro Problem mit Zuschneiden und PDF, Tour-Foto | dieser PR |
+| 42 | Wetter-Kern | 0.171.0 | bester Start, Landi-Radar, Webcams, Wind, Energie, «Zeit zu essen», GPX mit Stopps, Zürisee-Chip | dieser PR |
+| 43 | Körperwerte und Fitbit überall | 0.171.0 | 25 Werte in 5 Gruppen, Blutdruck und Wasser selbst, Fitbit im Check, auf Heute und in Erholung | dieser PR |
+| 44 | KI im Gerät | 0.171.0 | Sprachmodell auf dem Handy für offline, online weiter der KI-Helfer | dieser PR |
+| 45 | Aus jeder Tour lernen, Schneller packen, Schlafplätze | 0.171.0 | Pakete Z, SP und U4; Tagebuch unter Planen; See-Prognose robuster | dieser PR |
 
 «Frontend aufpeppen» ist pausiert (Noah 19.10.2026). Die Abschnitte unten sind der Stand vom 18.10.2026.
 
