@@ -32,8 +32,8 @@ export const TOO_LONG = {
   '#/flow/goals': 4.5,
   '#/flow/activity': 3.5,
   '#/flow/impulse': 14,
-  // 0.170.0: the Check-Fragen editor (approved 20.10.2026) made it 7.22 screens; the Check-Fragen thread folds it in 0.171
-  '#/me/abfragen': 7.5,
+  // 0.171: the sample questions that are off wait folded per area (6.33 measured; 7.22 in 0.170)
+  '#/me/abfragen': 6.5,
   '#/me/wohl': 7.5,
   '#/me': 5,
 };

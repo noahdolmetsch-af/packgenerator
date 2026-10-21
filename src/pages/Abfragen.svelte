@@ -54,7 +54,16 @@
 
   let open = $state({ erholung: true });
   const allOpen = $derived(areas.every((a) => open[a.key]));
-  const toggleAll = () => (open = allOpen ? {} : Object.fromEntries(areas.map((a) => [a.key, true])));
+  // 0.171 «Handy-Längenbudget»: the sample questions that are off wait folded in their area («n Musterfragen zeigen»);
+  // «Alle aufklappen» shows them too
+  let samples = $state({});
+  const folded = (g) => (samples[g.key] ? [] : g.list.filter((q) => q.sample && !settingOf(cfg, q).on));
+  const toggleAll = () => {
+    const all = Object.fromEntries(areas.map((a) => [a.key, true]));
+    const close = allOpen;
+    open = close ? {} : all;
+    samples = close ? {} : all;
+  };
 
   /* Noah 20.10.2026 «editieren und löschen …, neue pro Gruppe erstellen, Gruppen editieren, hinzufügen, löschen»:
      «Bearbeiten» shows on every question and group: drag handle, arrows, pencil and bin. */
@@ -148,7 +157,7 @@
     const v = timeOf(value);
     if (v) save(setRounds(cfg, { [key]: v }));
   };
-  const ICON_SRC = { hand: Hand, later: Watch, open: CircleDashed, only: Hand, app: Smartphone };
+  const ICON_SRC = { hand: Hand, later: Watch, fitbit: Watch, open: CircleDashed, only: Hand, app: Smartphone };
   const exOf = (list) => list.find((q) => settingOf(cfg, q).on) ?? list[0];
 </script>
 
@@ -222,8 +231,9 @@
                   {/each}
                 </ul>
               {:else}
+              {@const hide = folded(g)}
               <ul class="ql">
-                {#each g.list as q (q.id)}
+                {#each g.list.filter((q) => !hide.includes(q)) as q (q.id)}
                   {@const s = settingOf(cfg, q)}
                   <li class="q" class:off={!s.on} data-q={q.id}>
                     <span class="qm">
@@ -244,6 +254,7 @@
                   </li>
                 {/each}
               </ul>
+              {#if hide.length}<button type="button" class="ab-lnk addq" onclick={() => (samples = { ...samples, [g.key]: true })} data-samples-show={g.key}><ChevronDown size={16} aria-hidden="true" />{t('Show {n} sample questions', { n: hide.length })}</button>{/if}
               {/if}
             {/if}
             {#if shown && (!own || editing)}
@@ -303,7 +314,7 @@
         <h3 class="howh" id="ab-src-h">{t('Where the values come from')}</h3>
         <ul class="card side leg" aria-labelledby="ab-src-h">
           <li><span class="ab-src hand"><Hand size={13} aria-hidden="true" />{srcText('hand')}</span><small>{t('you enter it when the question comes')}</small></li>
-          <li><span class="ab-src later"><Watch size={13} aria-hidden="true" />{srcText('later')}</span><small>{t('tested: steps, sleep, resting pulse, HRV · with the connection to Fitbit')}</small></li>
+          <li><span class="ab-src fitbit"><Watch size={13} aria-hidden="true" />{srcText('fitbit')}</span><small>{t('filled in from Fitbit: hours of sleep, resting pulse, steps, movement; you can change it')}</small></li>
           <li><span class="ab-src open"><CircleDashed size={13} aria-hidden="true" />{srcText('open')}</span><small>{t('active zone minutes, oxygen, weight')}</small></li>
           <li><span class="ab-src only"><Hand size={13} aria-hidden="true" />{srcText('only')}</span><small>{t('e.g. screen time, Samsung Health: a web app cannot reach these data')}</small></li>
         </ul>

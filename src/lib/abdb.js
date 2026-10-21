@@ -19,14 +19,18 @@ export function abQuery(today) {
   return liveQuery(async () => {
     const from = new Date(`${today}T00:00:00Z`);
     from.setUTCDate(from.getUTCDate() - 40);
-    const [cfg, snooze, answers, weight, checks] = await Promise.all([
+    const near = new Date(`${today}T00:00:00Z`);
+    near.setUTCDate(near.getUTCDate() - 3);
+    const [cfg, snooze, answers, weight, checks, health] = await Promise.all([
       db.settings.get(AB_KEY),
       db.settings.get(AB_SNOOZE_KEY),
       db.abAnswers.where('day').aboveOrEqual(from.toISOString().slice(0, 10)).toArray(),
       db.settings.get(WEIGHT_KEY),
       db.flowChecks.where('day').aboveOrEqual(from.toISOString().slice(0, 10)).toArray(),
+      // 0.171: the Fitbit days of the last days, so the window fills in what Fitbit measured (fitbitFill)
+      db.healthDays ? db.healthDays.where('date').aboveOrEqual(near.toISOString().slice(0, 10)).toArray().catch(() => []) : [],
     ]);
-    return { cfg: cfg?.value ?? null, stored: !!cfg, snooze: snooze?.value ?? {}, answers, weightG: weight?.value ?? null, checks };
+    return { cfg: cfg?.value ?? null, stored: !!cfg, snooze: snooze?.value ?? {}, answers, weightG: weight?.value ?? null, checks, health };
   });
 }
 
