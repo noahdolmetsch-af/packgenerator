@@ -6,7 +6,7 @@ import { readFileSync } from 'node:fs';
 import 'fake-indexeddb/auto';
 import {
   AREAS, QUESTIONS, QUESTION, ON_AT_START, AB_KEY, configOf, settingOf, setOn, setEvery, putOwn, dropOwn, newOwn, counts,
-  everyOf, lastSlot, nextSlot, pendingSlot, dueList, snoozeAll, LATER_KEY, laterStamp, valueOf, numberOf, answerRow, fromChecks, mergeHistory,
+  everyOf, lastSlot, nextSlot, pendingSlot, dueList, snoozeAll, skipToday, quietToday, isQuiet, dayEnd, QUIET_KEY, LATER_KEY, laterStamp, valueOf, numberOf, answerRow, fromChecks, mergeHistory,
   lastAnswer, filterHistory, byDay, dowOf, timeOf, CHECK_MAP, MIRROR,
   ROUNDS, roundsOf, setRounds, roundTime, roundEvery, partOf, isEveningRound, perDay, BUSY_DAY,
 } from '../src/lib/abfragen.js';
@@ -245,7 +245,7 @@ describe('what is due now (AB3)', () => {
     expect(at('17:00', [{ qid: 'erholung.kaffee', at: `${D0}T12:15` }])).toBe(null);
   });
 
-  it('a new start asks nothing that was before it; «Jetzt nicht» hides until the next time', () => {
+  it('a new start asks nothing that was before it; Save\'s fold hides until the next time', () => {
     expect(dueList({ since: `${D0}T09:00` }, [], `${D0}T09:00`)).toEqual([]);
     const later = dueList({ since: `${D0}T09:00` }, [], `${D0}T13:00`).map((x) => x.q.id);
     expect(later).toEqual(expect.arrayContaining(['erholung.akku', 'spass.stimmung', 'achtsamkeit.kopf']));
@@ -277,6 +277,33 @@ describe('what is due now (AB3)', () => {
     const tapped = snoozeAll({}, [wait([])]);
     expect(wait([], tapped)).toBe(null); // tapped away
     expect(wait([], tapped, `${D0}T20:00`).slot).toBe(`${D0}T20:00`); // back at its next time
+  });
+
+  // Noah 21.10.2026 «wenn ein TagesCheck mit ignorieren oder heute nicht geklickt wurde, dass dann nie mehr eine Erinnerung»
+  it('«Heute nicht», ✕ and «Überspringen» put away until tomorrow; the window stays quiet that day', () => {
+    const c = { since: `${D0}T06:00`, q: {}, ...OWN };
+    const kaffee = (snooze, now) => dueList(c, [], now, snooze).find((x) => x.q.id === 'erholung.kaffee') ?? null;
+    expect(dayEnd(`${D0}T12:10`)).toBe(`${D0}T23:59`);
+    // skipped at noon: not back at 18:00 the same day, back tomorrow at its time
+    const skipped = skipToday({}, 'erholung.kaffee', `${D0}T12:10`);
+    expect(kaffee(skipped, `${D0}T18:10`)).toBe(null);
+    expect(kaffee(skipped, `${d(1)}T12:05`).slot).toBe(`${d(1)}T12:00`);
+    // «Heute nicht»: the shown ones away for the day, and the day marked quiet (also for questions due later)
+    const due = dueList(c, [], `${D0}T13:41`);
+    const quiet = quietToday({ [LATER_KEY]: 'x' }, due, `${D0}T13:41`);
+    expect(quiet[QUIET_KEY]).toBe(D0);
+    expect(quiet[LATER_KEY]).toBe('x');
+    const evening = dueList(c, [], `${D0}T18:10`, quiet).map((x) => x.q.id);
+    for (const x of due) expect(evening).not.toContain(x.q.id);
+    expect(isQuiet(quiet, `${D0}T21:00`)).toBe(true);
+    expect(isQuiet(quiet, `${d(1)}T07:05`)).toBe(false);
+    expect(isQuiet({}, `${D0}T21:00`)).toBe(false);
+    expect(dueList(c, [], `${d(1)}T13:05`, quiet).map((x) => x.q.id)).toEqual(expect.arrayContaining(['erholung.kaffee', 'erholung.akku']));
+  });
+
+  it('the window says how many questions, not «… jetzt fällig» (Noah 21.10.2026 «unverständlich»)', () => {
+    const read = (f) => readFileSync(new URL(`../src/${f}`, import.meta.url), 'utf8');
+    for (const f of ['lib/abfragen/AbCard.svelte', 'lib/home/RoundTile.svelte']) expect(read(f)).not.toMatch(/'\{n\} due now'/);
   });
 
   it('1a: several due questions come in one list together, oldest first', () => {

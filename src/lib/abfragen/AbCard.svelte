@@ -14,7 +14,7 @@
   import { ClipboardList, X, ChevronRight } from '@lucide/svelte';
   import { backClose } from '../ui/backclose.js';
   import { abQuery, ensureConfig, saveAnswers, saveSnooze } from '../abdb.js';
-  import { fitbitFill, dueList, snoozeAll, answerRow, lastAnswer, stampOf, settingOf, fromChecks, dayOf, configOf, isEveningRound, LATER_KEY, laterStamp } from '../abfragen.js';
+  import { fitbitFill, dueList, snoozeAll, skipToday, quietToday, isQuiet, QUIET_KEY, answerRow, lastAnswer, stampOf, settingOf, fromChecks, dayOf, configOf, isEveningRound, LATER_KEY, laterStamp } from '../abfragen.js';
   import { kgOf } from '../review/actdata.js';
   import { t, tn } from '../i18n.svelte.js';
   import AnswerInput from './AnswerInput.svelte';
@@ -93,27 +93,29 @@
     }
   }
   // Noah 20.10.2026 «eine frage überspringen button, sehr klein und dezent»: this one question is put away
-  // until its next time (like «Heute nicht», for one); the next waiting question moves up
+  // for the rest of the day (Noah 21.10.2026: no reminder after a skip); the next waiting question moves up
   function skip(d) {
     delete draft[d.q.id];
     delete notes[d.q.id];
-    saveSnooze({ ...(data?.snooze ?? {}), [d.q.id]: d.last ?? d.slot });
+    saveSnooze(skipToday(data?.snooze, d.q.id, now));
   }
-  // «Heute nicht»: every shown question put away until its next time (was «Jetzt nicht»)
-  const notToday = () => saveSnooze(snoozeAll(data?.snooze, shown));
+  // «Heute nicht» and ✕ (Noah 21.10.2026 «nie mehr eine Erinnerung»): the shown questions away for the day,
+  // and neither the window nor Heute's hint come back before tomorrow
+  const notToday = () => saveSnooze(quietToday(data?.snooze, shown, now));
   // «Später»: the window waits one hour (LATER_KEY in the snooze record; dueList reads only question ids)
   const later = () => saveSnooze({ ...(data?.snooze ?? {}), [LATER_KEY]: laterStamp(now) });
   const waiting = $derived(!!data?.snooze?.[LATER_KEY] && now < data.snooze[LATER_KEY]);
   const evening = $derived(isEveningRound(now, configOf(data?.cfg).rounds));
-  const open = $derived(shown.length > 0 && !waiting);
+  const quiet = $derived(isQuiet(data?.snooze, now));
+  const open = $derived(shown.length > 0 && !waiting && !quiet);
   $effect(() => {
-    due = Math.min(shown.length, FIRST); // Noah 2: the row on Heute names the 3 questions of the window
+    due = quiet ? 0 : Math.min(shown.length, FIRST); // Noah 2: the row on Heute names the 3 questions of the window
     eveOut = evening;
   });
   $effect(() => {
     if (!ask) return;
     ask = false;
-    const { [LATER_KEY]: _, ...rest } = data?.snooze ?? {};
+    const { [LATER_KEY]: _, [QUIET_KEY]: __, ...rest } = data?.snooze ?? {};
     saveSnooze(rest);
   });
   // «Heute neu» A (Noah 20.10.2026 «2 Morgen-Check mit nur 3 Fragen, wobei andere Fragen optional eingeblendet und
@@ -143,9 +145,9 @@
     if (open && !dialog.open) dialog.showModal();
     else if (!open && dialog.open) dialog.close();
   });
-  // ✕, Escape and back: «Später», nothing is lost
+  // ✕, Escape and back (Noah 21.10.2026 «ignorieren»): like «Heute nicht», quiet until tomorrow; typed answers stay
   function away() {
-    if (open) later();
+    if (open) notToday();
   }
 </script>
 
@@ -155,9 +157,9 @@
       <span class="ib"><ClipboardList size={18} aria-hidden="true" /></span>
       <div class="vd-t">
         <h2 id="abc-h">{evening ? t('Evening check') : t('Morning check')}</h2>
-        <p class="vd-sub">{t('{n} due now', { n: visible.length })} · {t('one tap each, all can be skipped')}</p>
+        <p class="vd-sub">{tn(visible.length, '{n} question', '{n} questions')} · {t('one tap each, all can be skipped')}</p>
       </div>
-      <button type="button" class="vd-x" aria-label={t('Later|mask')} onclick={later}><X size={20} aria-hidden="true" /></button>
+      <button type="button" class="vd-x" aria-label={t('Not today|mask')} onclick={away}><X size={20} aria-hidden="true" /></button>
     </div>
     {#each visible as d, i (d.q.id)}
       {@const qid = `abc-q-${i}`}
@@ -190,7 +192,7 @@
       <button type="button" class="btn" onclick={later} data-ab-later>{t('Later|mask')}</button>
       <button type="button" class="btn hi" onclick={save} disabled={!filled || saving} data-ab-save>{t('Save')}</button>
     </div>
-    <small class="hint">{t('«Later» brings this window back in one hour. «Not today» puts these questions away until their next time.')}</small>
+    <small class="hint">{t('«Later» brings this window back in one hour. «Not today» and ✕ close it until tomorrow, without a reminder.')}</small>
   </dialog>
 {/if}
 

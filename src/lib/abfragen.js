@@ -698,8 +698,24 @@ export function laterStamp(now) {
   const [h, mi] = hm.split(':').map(Number);
   return stampOf(new Date(y, m - 1, dd, h + 1, mi));
 }
-/** «Heute nicht» (was «Jetzt nicht»): every shown question put away until its next time. */
+/** Save's fold: every question not shown put away until its next time. */
 export const snoozeAll = (snooze = {}, due = []) => ({ ...(snooze ?? {}), ...Object.fromEntries(due.map((d) => [d.q.id, d.last ?? d.slot])) });
+
+/*
+ * Noah 21.10.2026 «wenn ein TagesCheck mit ignorieren oder heute nicht geklickt wurde, dass dann nie mehr eine
+ * Erinnerung»: «Heute nicht», ✕ and «Überspringen» put away until the end of the day (not only until the next
+ * time, which brought questions asked several times a day back at noon). After «Heute nicht» or ✕ the window
+ * and every hint on Heute stay quiet the whole day (QUIET_KEY = that day), also for questions due later.
+ */
+export const QUIET_KEY = '_quiet';
+/** The last minute of the stamp's day: a question put away until then comes back tomorrow at its time. */
+export const dayEnd = (now) => `${String(now).slice(0, 10)}T23:59`;
+/** One question skipped: away for the rest of the day. */
+export const skipToday = (snooze = {}, qid, now) => ({ ...(snooze ?? {}), [qid]: dayEnd(now) });
+/** «Heute nicht» / ✕: the shown questions away for the day, and the window quiet until tomorrow. */
+export const quietToday = (snooze = {}, due = [], now) => ({ ...(snooze ?? {}), ...Object.fromEntries(due.map((d) => [d.q.id, dayEnd(now)])), [QUIET_KEY]: String(now).slice(0, 10) });
+/** true when «Heute nicht» or ✕ was tapped on this day (a stamp or a day 'YYYY-MM-DD'). */
+export const isQuiet = (snooze, now) => !!snooze?.[QUIET_KEY] && snooze[QUIET_KEY] === String(now).slice(0, 10);
 
 /* ---------------------------------------------------------------- answers */
 

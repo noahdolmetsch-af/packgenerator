@@ -139,16 +139,16 @@ test('WG morning (was «the morning check»): the round of «Wi gaht\'s?» on He
   await expect(mc).toHaveAttribute('data-part', 'morning');
   await expect(mc).toHaveAttribute('data-done', 'false');
   await expect(mc.getByRole('heading', { name: T('Morning round') })).toBeVisible();
-  await expect(mc).toContainText(T('{n} due now', { n: 4 }));
+  await expect(mc).toContainText(T('{n} questions', { n: 4 }));
   await expect(mc).toContainText(T('Start|check'));
 
   // the morning round on Heute: all four at 07:00 (mood moved from its own 08:00)
   const card = page.locator('[data-section="abfragen"]');
   // Noah 20.10.2026 «2» (changed on purpose): the window asks 3 questions, «Show 1 more question» brings the fourth
-  await expect(card.getByText(T('{n} due now', { n: 3 }))).toBeVisible();
+  await expect(card.getByText(T('{n} questions', { n: 3 }))).toBeVisible();
   await expect(card.locator('[data-q]')).toHaveCount(3);
   await card.locator('[data-ab-more]').click();
-  await expect(card.getByText(T('{n} due now', { n: 4 }))).toBeVisible();
+  await expect(card.getByText(T('{n} questions', { n: 4 }))).toBeVisible();
   for (const qid of ['erholung.schlaf', 'erholung.akku', 'spass.stimmung', 'ziele.ziel']) await expect(card.locator(`[data-q="${qid}"]`)).toContainText('7:00');
   // UI-Ziele #12 (Noah 20.10.2026 «freigabe», changed on purpose): 5 steps with words, stored as 2 … 10
   await card.locator('[data-q="erholung.schlaf"]').getByRole('button', { name: T('okay|step'), exact: true }).click();

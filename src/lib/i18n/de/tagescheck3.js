@@ -34,5 +34,4 @@ export default {
   'Not today|mask': 'Heute nicht',
   'Whole morning check': 'Ganzer Morgen-Check',
   'Whole evening review': 'Ganzer Abend-Rückblick',
-  '«Later» brings this window back in one hour. «Not today» puts these questions away until their next time.': '«Später» zeigt dieses Fenster in einer Stunde wieder. «Heute nicht» legt diese Fragen bis zu ihrer nächsten Zeit weg.',
 };
