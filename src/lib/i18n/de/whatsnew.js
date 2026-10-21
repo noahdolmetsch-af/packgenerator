@@ -1523,4 +1523,6 @@ export default {
   'Menu: hide and sort the places': 'Menü: Bereiche verstecken und sortieren',
   'Scroll to the end of Trips and tap «Customise this page».': 'Scrolle ans Ende von Touren und tippe auf «Diese Seite anpassen».',
   'Hide a part and rename one; «As at the start» puts it back.': 'Verstecke einen Teil und benenne einen um; «Wie am Anfang» stellt alles zurück.',
+  'Today: body values and the days until your next trip': 'Heute: Körperwerte und die Tage bis zur nächsten Tour',
+  'Draw on every photo': 'Auf jedem Foto zeichnen',
 };

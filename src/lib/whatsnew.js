@@ -16,7 +16,7 @@
 
 export const WHATS_NEW = [
   {
-    // v0.175.0 «Anpassen» (Noah 20.10.2026 «1a 2a 3a 4a 5a»): every page, its tabs and the menu changed in the app; built without mockups
+    // v0.175.0 «Anpassen» (Noah 20.10.2026 «1a 2a 3a 4a 5a»): every page, its tabs and the menu changed in the app; plus Körperwerte tile + countdown on Heute (Noah 21.10 06:49) and drawing on all photos; built without mockups
     version: '0.175.0',
     date: '2026-10-21',
     title: 'Make it your own',
@@ -24,6 +24,10 @@ export const WHATS_NEW = [
     points: [
       { text: 'Every page: «Customise this page» at the end', href: '#/trips' },
       { text: 'Menu: hide and sort the places', href: '#/me/look' },
+      { text: 'Today: body values and the days until your next trip', href: '#/' },
+    ],
+    small: [
+      { box: 'new', text: 'Draw on every photo' },
     ],
     test: [
       'Scroll to the end of Trips and tap «Customise this page».',
