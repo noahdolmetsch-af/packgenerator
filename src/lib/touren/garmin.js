@@ -4,7 +4,7 @@
  * Only what Strava sends; a row without a value is left out, a group without rows too.
  * Pure functions, tested in tests/garmin-analyse.test.js (not src/lib/garmin.js, the Garmin pages of the bike). Observation only.
  */
-import { zoneSecs, powerLoad } from '../training.js';
+import { zoneSecs, powerLoad, pauseSecs } from '../training.js';
 import { intensity } from '../training/act/power.js';
 import { peakOf, statOf } from './stravaana.js';
 
@@ -86,7 +86,7 @@ export function statsOf(a, { ser = null, ftp = null, kg = null, bounds = null } 
       rows: [
         row('moving', 'Moving time|gc', moving, '', 0, 'clock'),
         row('elapsed', 'Elapsed time', elapsed, '', 0, 'dhms'),
-        row('stops', 'Stops|gc', pos(a.pauses?.secs), '', 0, 'dhms'),
+        row('stops', 'Stops|gc', pos(pauseSecs(a)), '', 0, 'dhms'),
       ],
     },
     {

@@ -19,6 +19,7 @@
   import { helper } from '../../lib/helper/client.svelte.js';
   import { normAct, tripDays } from '../../lib/flow.js';
   import { homeTrips } from '../../lib/home/heute.js';
+  import { rideTimeS } from '../../lib/review/fmt.js';
   import { PLAN_KEY, planOf, mondayOf, shiftDay, isoWeek, hmm, typeKey } from '../../lib/training.js';
   import { SLEEP_Q, MOOD_Q, weekParam, weekHref, weekFive, weekStrip, weekNotes, weekHighs, weekAhead, diffText, hasAnything, summaryText } from '../../lib/weekreview.js';
   import { localDay } from '../../lib/localday.js';
@@ -188,7 +189,7 @@
           <h2 id="wr-highs">{t('Highlights')}</h2>
           <ul class="highs">
             {#if highs.longest}
-              <li data-high="longest"><KindIcon kind={highs.longest.kind} size={18} /><span class="hl">{t('Longest activity')}<a href="#/flow/training/a/{encodeURIComponent(highs.longest.id)}">{actName(highs.longest)}</a></span><b class="num">{hmm(highs.longest.movingS)} h{#if highs.longest.km}{' · '}{num(highs.longest.km)} km{/if}</b></li>
+              <li data-high="longest"><KindIcon kind={highs.longest.kind} size={18} /><span class="hl">{t('Longest activity')}<a href="#/flow/training/a/{encodeURIComponent(highs.longest.id)}">{actName(highs.longest)}</a></span><b class="num">{rideTimeS(highs.longest.movingS)}{#if highs.longest.km}{' · '}{num(highs.longest.km)} km{/if}</b></li>
             {/if}
             {#if highs.w20}
               <li data-high="w20"><Zap size={18} aria-hidden="true" /><span class="hl">{t('Best 20 minutes')}<a href="#/flow/training/a/{encodeURIComponent(highs.w20.id)}">{actName(highs.w20)}</a></span><b class="num">{num(highs.w20.w20)} W</b></li>

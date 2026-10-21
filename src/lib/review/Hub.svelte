@@ -26,7 +26,7 @@
   import { loadActs } from './actdata.js';
   import { activitiesForTrip } from '../training.js';
   import { homeTrips } from '../home/heute.js';
-  import { n0, n1, hours, temps, kg, dates, monthShort, monthLong, dayLong, rainText, DASH } from './fmt.js';
+  import { rideTime, elapsed, n0, n1, hours, temps, kg, dates, monthShort, monthLong, dayLong, rainText, DASH } from './fmt.js';
   import { paceOf, ruleOf } from '../pace.js';
   import { logEntries } from './logbook.js';
   import { logbookLine } from '../sk/pages.js';
@@ -192,7 +192,7 @@
     if (s.key === 'trips') return tn(s.avg, '{n} day on the way', '{n} days on the way');
     if (s.key === 'km') return `Ø ${n0(s.avg)} km`;
     if (s.key === 'gainM') return `Ø ${n0(s.avg)} Hm`;
-    if (s.key === 'movingH') return `Ø ${hours(s.avg)} h`;
+    if (s.key === 'movingH') return `Ø ${rideTime(s.avg)}`;
     if (s.key === 'kmh') return tn(s.avg, 'from {n} trip', 'from {n} trips');
     if (s.key === 'rain') return t('{n} % of trips', { n: s.avg });
     return DASH;
@@ -202,7 +202,7 @@
     if (!b) return DASH;
     if (s.key === 'trips') return `${monthLong(b.month)}: ${tn(b.value, '{n} trip', '{n} trips')}`;
     if (s.key === 'kmh') return `${b.title}: ${n1(b.value)}`;
-    if (s.key === 'movingH') return `${b.title}: ${hours(b.value)}`;
+    if (s.key === 'movingH') return `${b.title}: ${rideTime(b.value)}`;
     if (s.key === 'rain') return `${b.title}: ${tn(b.value, '{n} rain day', '{n} rain days')}`;
     return `${b.title}: ${n0(b.value)}`;
   }
@@ -220,7 +220,7 @@
   const CMP = { km: 'Distance', gainM: 'Climbing|hm', movingH: 'Moving time', kmh: 'Pace|speed', baseG: 'Base · multi-day', rainDays: 'Rain days', learnings: 'Learnings' };
   function cmpValue(key, v) {
     if (key === 'kmh') return n1(v);
-    if (key === 'movingH') return hours(v);
+    if (key === 'movingH') return rideTime(v);
     if (key === 'baseG') return v == null ? DASH : n1(v / 1000);
     return n0(v);
   }
@@ -496,7 +496,7 @@
                             <th scope="row" class="first"><a href={r.href} onclick={() => r.trip && openTrip(r.trip.id)}><span class="tn">{r.title}</span><small>{dates(r.start, r.end)}</small></a></th>
                             <td class="n num">{n0(r.km)}<i class="sc" style:width="{pct(r.km, scale.km)}%"></i></td>
                             <td class="n num">{n0(r.gainM)}<i class="sc" style:width="{pct(r.gainM, scale.gainM)}%"></i></td>
-                            <td class="n num">{hours(r.movingH)}<i class="sc" style:width="{pct(r.movingH, scale.movingH)}%"></i></td>
+                            <td class="n num">{rideTime(r.movingH)}<i class="sc" style:width="{pct(r.movingH, scale.movingH)}%"></i></td>
                             <td class="n num">{n1(r.kmh)}<i class="sc" style:width="{pct(r.kmh, scale.kmh)}%"></i></td>
                             <td class="n num">{r.baseG ? n1(r.baseG / 1000) : DASH}{#if r.baseG}<i class="sc" style:width="{pct(r.baseG, scale.baseG)}%"></i>{/if}</td>
                             <td class="wx">{@render rainIcon(r.rain)}<span class="sr">{rainText(r.rain, r.days)}</span></td>
@@ -521,7 +521,7 @@
                   <dl class="rv-tiles big">
                     <div class="rv-tile"><dd><b>{n0(last.km)} km</b></dd><dt><small>{t('Distance')}</small></dt></div>
                     <div class="rv-tile"><dd><b>{n0(last.gainM)} Hm</b></dd><dt><small>{t('Climbing|hm')}</small></dt></div>
-                    <div class="rv-tile"><dd><b>{hours(last.movingH)} h</b></dd><dt><small>{last.totalH && last.movingH && last.totalH > last.movingH ? t('moving · {h} total', { h: hours(last.totalH) }) : t('moving')}</small></dt></div>
+                    <div class="rv-tile"><dd><b>{rideTime(last.movingH)}</b></dd><dt><small>{last.totalH && last.movingH && last.totalH > last.movingH ? t('moving · {h} total', { h: elapsed(last.totalH) }) : t('moving')}</small></dt></div>
                     <div class="rv-tile"><dd><b>{n1(last.kmh)} km/h</b></dd><dt><small>{t('average while moving')}</small></dt></div>
                   </dl>
                   <ul class="facts">

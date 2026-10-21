@@ -21,7 +21,7 @@
   import { t, tn, num, nameOf, locale } from '../i18n.svelte.js';
   import { formatWeight } from '../gear.js';
   import { tripFacts, planVsReal, nextTripAfter, nextHints, withActs } from './rueckblick.js';
-  import { n0, n1, hours, temps, kg, dates, dayLong, rainText, signedNum, signedHours, DASH } from './fmt.js';
+  import { rideTime, elapsed, n0, n1, temps, kg, dates, dayLong, rainText, signedNum, signedHours, DASH } from './fmt.js';
   import { openTrip, newTrip } from '../nav.js';
   import Btn from '../ui/Btn.svelte';
   import { localDay } from '../localday.js';
@@ -39,7 +39,7 @@
   import { tripTemplate, inTemplate, dropItem, putBack, unusedBefore } from './fromtemplate.js';
   import HeartPower from './HeartPower.svelte';
   import RideOverviews from '../touren/strava/RideOverviews.svelte';
-  import { ftpEstimate } from '../training.js';
+  import { ftpEstimate, pauseSecs } from '../training.js';
   import { fitbitTrip, sleepText } from './fitbittrip.js';
   import { addDays as addDaysIso } from '../health.js';
   import { dailyValues } from '../abauswertung.js';
@@ -88,7 +88,7 @@
 
   /* plan against real: two thin bars per row, drawn to the larger of both */
   const LABEL = { km: 'Distance', gainM: 'Climbing|hm', movingH: 'Moving', kmh: 'Pace|speed' };
-  const fmtV = (key, v) => (key === 'movingH' ? `${hours(v)} h` : key === 'kmh' ? `${n1(v)} km/h` : key === 'gainM' ? `${n0(v)} Hm` : `${n0(v)} km`);
+  const fmtV = (key, v) => (key === 'movingH' ? rideTime(v) : key === 'kmh' ? `${n1(v)} km/h` : key === 'gainM' ? `${n0(v)} Hm` : `${n0(v)} km`);
   const fmtD = (key, v) => (key === 'movingH' ? signedHours(v) : key === 'kmh' ? signedNum(v, n1) : signedNum(v));
   // better: more km/Hm is neutral; less time or more speed is better
   const good = (x) => (x.key === 'movingH' ? x.diff < 0 : x.key === 'kmh' ? x.diff > 0 : null);
@@ -152,7 +152,7 @@
     return {
       kmh: kmh ?? avgOf(dActs, (a) => a.spdAvg),
       maxKmh: sp.length ? Math.max(...sp) : null,
-      pauses: ps.length ? { n: ps.reduce((s, a) => s + a.pauses.n, 0), min: Math.round(ps.reduce((s, a) => s + (a.pauses.secs ?? 0), 0) / 60), secs: ps.reduce((s, a) => s + (a.pauses.secs ?? 0), 0) } : dayF ? dayF.pauses : row?.pauses ?? null,
+      pauses: ps.length ? { n: ps.reduce((s, a) => s + a.pauses.n, 0), min: Math.round(ps.reduce((s, a) => s + (pauseSecs(a) ?? 0), 0) / 60), secs: ps.reduce((s, a) => s + (pauseSecs(a) ?? 0), 0) } : dayF ? dayF.pauses : row?.pauses ?? null,
       cad: avgOf(dActs, (a) => a.cad),
       temp: tAvg != null ? { avg: tAvg, min: null, max: null } : null,
       kcal: kcal > 0 ? Math.round(kcal) : null,
@@ -267,7 +267,7 @@
   const numbersOf = (r) => tripNumbers(r, { acts: actsOf(r), entries: w ? tripEntries(w.entries, r.trip, r.end) : [], history: w?.acts ?? [] });
   const cmp = $derived(row && other ? compareRows(numbersOf(row), numbersOf(other)) : []);
   const CMP_LABEL = { kmh: 'average while moving', movingH: 'Moving|time', pauseMin: 'Pauses', hrAvg: 'Ø heart rate', wAvg: 'Ø power', effort: 'Relative Effort', load: 'Load|power' };
-  const cmpV = (k, v) => (k === 'kmh' ? `${n1(v)} km/h` : k === 'movingH' ? `${hours(v)} h` : k === 'pauseMin' ? `${num(v)} min` : k === 'wAvg' ? `${num(v)} W` : num(v));
+  const cmpV = (k, v) => (k === 'kmh' ? `${n1(v)} km/h` : k === 'movingH' ? rideTime(v) : k === 'pauseMin' ? `${num(v)} min` : k === 'wAvg' ? `${num(v)} W` : num(v));
   const cmpD = (k, v) => (k === 'kmh' ? signedNum(v, n1) : k === 'movingH' ? signedHours(v) : k === 'pauseMin' ? `${signedNum(v)} min` : k === 'wAvg' ? `${signedNum(v)} W` : signedNum(v));
 
   /* ---------- SN2x: the one line of each group ---------- */
@@ -275,7 +275,7 @@
   const lineOf = $derived({
     tour: dayF
       ? firstDot([dayF.date ? longDay(dayF.date) : '', [dayF.from, dayF.to].filter(Boolean).join(' – '), dayF.km != null ? `${n0(dayF.km)} km` : '', dayF.gainM != null ? `${n0(dayF.gainM)} Hm` : ''])
-      : firstDot([row?.km != null ? `${n0(row.km)} km` : '', row?.gainM != null ? `${n0(row.gainM)} Hm` : '', row?.movingH ? `${hours(row.movingH)} h` : '', trip.days > 1 ? tn(trip.days, '{n} day', '{n} days') : '', [line.length ? t('map') : '', tl.length ? t('timeline') : '', noteList.length ? tn(noteList.length, '{n} note', '{n} notes') : ''].filter(Boolean).join(', ')]),
+      : firstDot([row?.km != null ? `${n0(row.km)} km` : '', row?.gainM != null ? `${n0(row.gainM)} Hm` : '', row?.movingH ? rideTime(row.movingH) : '', trip.days > 1 ? tn(trip.days, '{n} day', '{n} days') : '', [line.length ? t('map') : '', tl.length ? t('timeline') : '', noteList.length ? tn(noteList.length, '{n} note', '{n} notes') : ''].filter(Boolean).join(', ')]),
     body: firstDot([values?.hrAvg != null ? t('Ø heart rate {n}', { n: num(values.hrAvg) }) : '', power ? (power.measured && power.np ? `NP ${num(power.np)} W` : t('Ø {w} W estimated', { w: num(power.avg) })) : '', effort != null ? `${t('Relative Effort')} ${num(effort)}` : '', load != null ? `${t('Load|power')} ${num(load)}` : '', dayMoods[0]?.c?.mood != null ? t('Mood {n} of 10', { n: dayMoods[0].c.mood }) : '']) || t('Heart rate and power · with Strava'),
     way: firstDot([d.weather ? t(WEATHER.find((x) => x.key === d.weather)?.name ?? '') : '', rainText(row?.rain, trip.days) !== DASH ? rainText(row?.rain, trip.days) : '', d.amount ? `${t('Food and drink')}: ${t(AMOUNT.find((x) => x.key === d.amount)?.name ?? '')}` : '']),
     pack: day != null ? t('for the whole trip · «Whole trip» on top shows it') : firstDot([ptot.g ? t('{w} in {n} bags', { w: kg(ptot.g), n: ptot.bags }) : '', unused.length ? tn(unused.length, '{n} item not used', '{n} items not used') : '', d.missing?.length ? tn(d.missing.length, '{n} was missing', '{n} were missing') : '', left != null ? (left > 0 ? t('Chain: {km} km to waxing', { km: num(left) }) : t('Chain: waxing due')) : '']),
@@ -373,7 +373,7 @@
               <dl class="rv-tiles big">
                 <div class="rv-tile"><dd><b>{n0(dayF.km)} km</b></dd><dt><small>{t('Distance')}</small></dt></div>
                 <div class="rv-tile"><dd><b>{n0(dayF.gainM)} Hm</b></dd><dt><small>{t('Climbing|hm')}</small></dt></div>
-                <div class="rv-tile"><dd><b>{hours(dayF.movingH)} h</b></dd><dt><small>{dayF.totalH && dayF.movingH && dayF.totalH > dayF.movingH ? t('moving · {h} total', { h: hours(dayF.totalH) }) : t('moving')}</small></dt></div>
+                <div class="rv-tile"><dd><b>{rideTime(dayF.movingH)}</b></dd><dt><small>{dayF.totalH && dayF.movingH && dayF.totalH > dayF.movingH ? t('moving · {h} total', { h: elapsed(dayF.totalH) }) : t('moving')}</small></dt></div>
                 <div class="rv-tile"><dd><b>{n1(dayF.kmh)} km/h</b></dd><dt><small>{t('average while moving')}</small></dt></div>
               </dl>
               {@render woanders()}
@@ -390,7 +390,7 @@
               <dl class="rv-tiles big">
                 <div class="rv-tile"><dd><b>{n0(row?.km)} km</b></dd><dt><small>{t('Distance')}</small></dt></div>
                 <div class="rv-tile"><dd><b>{n0(row?.gainM)} Hm</b></dd><dt><small>{t('Climbing|hm')}</small></dt></div>
-                <div class="rv-tile"><dd><b>{hours(row?.movingH)} h</b></dd><dt><small>{row?.totalH && row?.movingH && row.totalH > row.movingH ? t('moving · {h} total', { h: hours(row.totalH) }) : t('moving')}</small></dt></div>
+                <div class="rv-tile"><dd><b>{rideTime(row?.movingH)}</b></dd><dt><small>{row?.totalH && row?.movingH && row.totalH > row.movingH ? t('moving · {h} total', { h: elapsed(row.totalH) }) : t('moving')}</small></dt></div>
                 <div class="rv-tile"><dd><b>{n1(row?.kmh)} km/h</b></dd><dt><small>{t('average while moving')}</small></dt></div>
               </dl>
               {@render woanders()}
@@ -450,7 +450,7 @@
                       {@const h = tripValues({ acts: actsOn(acts, f.date), entries: entries.filter((e) => e.date === f.date) })}
                       <tr>
                         <th scope="row"><button type="button" class="dlink" onclick={() => (day = i)}>{t('Day {n}', { n: i + 1 })} · {longDay(f.date)}</button>{#if f.from || f.to}<small>{[f.from, f.to].filter(Boolean).join(' – ')}</small>{/if}</th>
-                        <td class="r num">{n0(f.km)}</td><td class="r num">{n0(f.gainM)}</td><td class="r num">{hours(f.movingH)}</td>
+                        <td class="r num">{n0(f.km)}</td><td class="r num">{n0(f.gainM)}</td><td class="r num">{rideTime(f.movingH)}</td>
                         <td>{f.wet ? t('rain') : f.wet === false ? t('dry|weather') : DASH} · {temps(f.tmin, f.tmax)}</td>
                         {#if entries.length || acts.length}<td class="r num">{h?.hrAvg != null ? num(h.hrAvg) : DASH}</td>{/if}
                         {#if acts.some((a) => a.effort)}<td class="r num">{effortOf(actsOn(acts, f.date)) ?? DASH}</td>{/if}

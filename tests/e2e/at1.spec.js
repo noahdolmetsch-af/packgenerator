@@ -130,9 +130,9 @@ test('b) the values: 1a TSS only with a power meter, 2a zones in min and %, 3b o
   const ftp = ftpEstimate(all, D0);
   if (info.project.name === 'phone') {
     // 0.163.0 «Handy kurz» (answer 2b): on a phone the values are one grey line, the rest after a tap
-    await expect(pmRide.locator('[data-act-line]')).toHaveText(`${T('Duration|act')} 2:30 · ${T('Elapsed|col')} 2:45 · ${T('Ø speed')} 25.0 km/h · ${T('Ø HR')} 138 ${T('bpm')} · ${T('Max. HR')} 172 ${T('bpm')} · ${T('TSS')} ${powerLoad(all[0], ftp).load} · ${T('Ø power')} 182 W`);
+    await expect(pmRide.locator('[data-act-line]')).toHaveText(`${T('Duration|act')} 2:30 h · ${T('Elapsed|col')} 00:02:45:00 · ${T('Ø speed')} 25.0 km/h · ${T('Ø HR')} 138 ${T('bpm')} · ${T('Max. HR')} 172 ${T('bpm')} · ${T('TSS')} ${powerLoad(all[0], ftp).load} · ${T('Ø power')} 182 W`);
     await expect(row(page, `a:${A}6`).locator('[data-act-line]')).toContainText(`${T('Ø power')} 150 W`);
-    await expect(row(page, `a:${A}5`).locator('[data-act-line]')).toHaveText(`${T('Duration|act')} 1:00 · ${T('Elapsed|col')} 1:00 · ${T('Ø HR')} 92 ${T('bpm')} · ${T('Max. HR')} 120 ${T('bpm')}`);
+    await expect(row(page, `a:${A}5`).locator('[data-act-line]')).toHaveText(`${T('Duration|act')} 1:00 h · ${T('Elapsed|col')} 00:01:00:00 · ${T('Ø HR')} 92 ${T('bpm')} · ${T('Max. HR')} 120 ${T('bpm')}`);
     await expect(page.locator('[data-act-values], [data-act-zones]')).toHaveCount(0);
     await noSideways(page);
     expect(errors).toEqual([]);

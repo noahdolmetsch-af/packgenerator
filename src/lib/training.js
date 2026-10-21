@@ -186,6 +186,18 @@ export function hmm(s) {
   return `${Math.floor(m / 60)}:${String(m % 60).padStart(2, '0')}`;
 }
 
+/**
+ * The pause time of an activity as Strava counts it (Noah 21.10.2026, Strava check): elapsed minus moving time;
+ * the stops counted by the app (pauses.secs, only stops of 60 s and more) when one of the two is missing.
+ */
+export function pauseSecs(a) {
+  const el = Number(a?.elapsedS);
+  const mv = Number(a?.own?.movingS ?? a?.movingS);
+  if (Number.isFinite(el) && Number.isFinite(mv) && el > 0 && mv > 0) return Math.max(0, Math.round(el - mv));
+  const s = Number(a?.pauses?.secs);
+  return Number.isFinite(s) && s >= 0 ? s : null;
+}
+
 /** km/h over the moving time, one decimal; null without both. */
 export const speed = (a) => (a.km > 0 && a.movingS > 0 ? Math.round((a.km / (a.movingS / 3600)) * 10) / 10 : null);
 

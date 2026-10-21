@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { dhms, clock } from '../src/lib/touren/strava/fmt.js';
 import { rideWxOf, rideWxUrl, dirOf, skyOf, needsRideWx, DIRS, RIDE_WX_V } from '../src/lib/touren/ridewx.js';
 import { withActs } from '../src/lib/review/rueckblick.js';
+import { rideTime, rideTimeS, elapsed, elapsedS } from '../src/lib/review/fmt.js';
 import DE from '../src/lib/i18n/de/index.js';
 
 // «Wie Strava» (Noah 21.10.2026). Fictional rides only.
@@ -44,11 +45,48 @@ describe('the tiles of a tour ridden with Strava only («2 leere Kacheln»)', ()
   ];
   it('takes the numbers of the Strava rides', () => {
     const r = withActs(row, acts);
-    expect(r).toMatchObject({ km: 26.3, gainM: 296, movingH: 1.46, kmh: 17.9, pauses: { n: 11, secs: 30426 }, fromActs: true });
+    // the pause time as Strava counts it: elapsed minus moving time of each ride (Strava check 21.10.2026)
+    expect(r).toMatchObject({ km: 26.3, gainM: 296, movingH: 1.46, kmh: 17.9, pauses: { n: 11, secs: 30624 }, fromActs: true });
   });
   it('keeps a row with uploaded rides and a row without Strava rides', () => {
     const up = { ...row, rides: [{ id: 'r1' }], km: 12 };
     expect(withActs(up, acts)).toBe(up);
     expect(withActs(row, [])).toBe(row);
+  });
+});
+
+// Noah 21.10.2026 «fahrtzeit wird aktuell in m geliefert. dringend korrigieren auf geeignetes format (auch bei
+// mehrtägigen touren)»: one format for the riding time everywhere
+describe('the riding time never reads as minutes', () => {
+  it('one day with the unit h, several days as dd:hh:mm:ss', () => {
+    expect(rideTime(2.97)).toBe('2:58 h');
+    expect(rideTimeS(1179)).toBe('0:20 h');
+    expect(rideTimeS(6 * 3600 + 45 * 60)).toBe('6:45 h');
+    // a tour of four days: 31 h 20 min in the saddle
+    expect(rideTime(31 + 20 / 60)).toBe('01:07:20:00');
+    expect(rideTimeS(3 * 86400 + 4 * 3600 + 5 * 60 + 6)).toBe('03:04:05:06');
+    expect(rideTime(null)).toBe('–');
+    expect(rideTimeS(0)).toBe('–');
+  });
+  it('the elapsed time always as dd:hh:mm:ss', () => {
+    expect(elapsed(9.5)).toBe('00:09:30:00');
+    expect(elapsedS(1605)).toBe('00:00:26:45');
+    expect(elapsedS(null)).toBe('–');
+  });
+});
+
+// Strava check 21.10.2026: «1:60» on the axis, and the pause time as Strava counts it
+describe('no «1:60», pauses as elapsed minus moving', () => {
+  it('rounds the minutes before splitting hours', async () => {
+    const { durationText } = await import('../src/lib/touren/tour.js');
+    expect(durationText(7180)).toBe('2:00');
+    expect(durationText(9000)).toBe('2:30');
+  });
+  it('pause time = elapsed − moving; the counted stops only without both', async () => {
+    const { pauseSecs } = await import('../src/lib/training.js');
+    expect(pauseSecs({ elapsedS: 1605, movingS: 1179, pauses: { n: 2, secs: 300 } })).toBe(426);
+    expect(pauseSecs({ elapsedS: 1605, movingS: 1179, own: { movingS: 1200 } })).toBe(405);
+    expect(pauseSecs({ movingS: 1179, pauses: { n: 2, secs: 300 } })).toBe(300);
+    expect(pauseSecs({})).toBe(null);
   });
 });

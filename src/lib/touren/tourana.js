@@ -9,6 +9,7 @@
  * Observation only: numbers, no rating.
  */
 import { hasMeter } from '../training/act/power.js';
+import { pauseSecs } from '../training.js';
 import { normalOf } from '../health.js';
 
 /** The best-effort spans shown on the tour page: [seconds, label minutes]. */
@@ -62,7 +63,7 @@ export function tourValues(acts) {
     moving: moving || null,
     elapsed: elapsed || null,
     stops: withPauses.length ? withPauses.reduce((s, a) => s + a.pauses.n, 0) : null,
-    stopS: withPauses.length ? withPauses.reduce((s, a) => s + (pos(a.pauses.secs) ?? 0), 0) : null,
+    stopS: withPauses.length ? withPauses.reduce((s, a) => s + (pos(pauseSecs(a)) ?? 0), 0) : null,
     // without the stops counted, the time standing is elapsed − moving
     still: elapsed && moving && elapsed > moving ? elapsed - moving : null,
     kmh: km && moving ? Math.round((km / (moving / 3600)) * 10) / 10 : null,

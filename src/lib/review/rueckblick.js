@@ -19,6 +19,7 @@ import { hasBike, domainOf, BIKEPACKING } from '../domains.js';
 import { isEvent } from '../care.js';
 import { tripStats } from '../trips.js';
 import { localDay } from '../localday.js';
+import { pauseSecs } from '../training.js';
 
 const pos = (v) => (typeof v === 'number' && Number.isFinite(v) && v > 0 ? v : null);
 const sum = (list, f) => {
@@ -211,7 +212,8 @@ export function withActs(row, acts = []) {
   const movingS = pos(sum(list, (a) => v(a, 'movingS')));
   const elapsedS = pos(sum(list, (a) => Math.max(Number(a.elapsedS) || 0, Number(v(a, 'movingS')) || 0)));
   const ps = list.filter((a) => a.pauses?.n > 0);
-  const secs = ps.reduce((n, a) => n + (Number(a.pauses.secs) || 0), 0);
+  // the pause time as Strava: elapsed minus moving time
+  const secs = ps.reduce((n, a) => n + (pauseSecs(a) ?? 0), 0);
   return {
     ...row,
     km: km != null ? r1(km) : row.km,
