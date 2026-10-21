@@ -16,6 +16,23 @@
 
 export const WHATS_NEW = [
   {
+    // v0.171.0 «Velo, Wetter und Körper»: Verschleiss, Bilder, Wetter-Kern X/Y 2–4, Körperwerte, Fitbit überall (Check, Heute), KI im Gerät, Z «Aus jeder Tour lernen», SP «Schneller packen», U4 Schlafplätze, Tagebuch unter Planen, See-Prognose (Noah 20.10.2026); built without mockups
+    version: '0.171.0',
+    date: '2026-10-21',
+    title: 'Bike, weather, body',
+    lead: 'Wear, weather and your values.',
+    points: [
+      { text: 'Wear: km left per part', href: '#/bikes?tab=care&view=wear' },
+      { text: 'Weather: best start, radar, webcams', href: '#/wetter' },
+      { text: 'Body values: 25 values, Fitbit everywhere', href: '#/flow/stats/hr' },
+    ],
+    small: [{ box: 'new', text: 'Phone AI, sleep spots, faster packing' }],
+    test: [
+      'Bikes › Care › a bike › «Wear»: look at the bars.',
+      'Tap the weather line on Today: the best start.',
+    ],
+  },
+  {
     // v0.170.1 «Abgleich ruhig» (bug fix, Noah 21.10.2026: the sync window asked again and again about «strava.last» while navigating; «Später» did not help)
     version: '0.170.1',
     date: '2026-10-21',

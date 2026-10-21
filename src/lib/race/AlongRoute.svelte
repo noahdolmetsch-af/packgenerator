@@ -8,6 +8,8 @@
   import { liveQuery } from 'dexie';
   import { MapPin, CloudSun, TrainFront, Phone } from '@lucide/svelte';
   import RaceBox from './RaceBox.svelte';
+  import SleepLists from './SleepLists.svelte';
+  import NightsByWeather from './NightsByWeather.svelte';
   import { db } from '../db.js';
   import { cacheSet, cacheQuery } from './store.js';
   import { POI_CACHE, WX_CACHE, POI_KIND, fetchPois, fetchRouteWx, nextSupply, dryStretches, sleepNear, exitStations, nextTrain, wxAt, lowBetween, wxAdvice, uvAdvice, compass } from './outside.js';
@@ -278,6 +280,9 @@
       {/if}
     </RaceBox>
 
+    <!-- U4 1141 · places to sleep from lists of the organiser or other riders -->
+    <SleepLists {ctx} />
+
     <!-- 8 · Exit points -->
     <RaceBox id="exit" title={t('Exit points')} what="Lists the stations along the route and finds the next train from there to your home place." why="If you have to stop, you know where and how you get home." from="OpenStreetMap stations; trains from transport.opendata.ch (only on a tap); home place under «Me».">
       {#if !home}<p class="rc-note">{t('Set your home place under «Me» to look up trains home.')} <a href="#/me">{t('To «Me»')}</a></p>{/if}
@@ -357,6 +362,9 @@
         </ul>
       {/if}
     </RaceBox>
+
+    <!-- U4 1144 · nights by the weather -->
+    <NightsByWeather {ctx} {wx} />
 
     <!-- 30 · Sun protection -->
     <RaceBox id="uv" title={t('Sun protection')} what="Shows the highest UV index on the route for each day of your plan, with the sun protection it needs." why="You pack enough sun cream and protect neck, ears and lips on long days in the sun." from="Open-Meteo UV forecast near the stretch of each day.">

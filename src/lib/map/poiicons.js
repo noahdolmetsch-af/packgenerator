@@ -2,7 +2,7 @@
  * «Orte auf der Karte»: the lucide icon of each kind (CATEGORIES[].icon in poisearch.js names it; the
  * test checks both agree). For the chips, the list, the detail and the map symbols.
  */
-import { Droplet, ShoppingCart, Utensils, Fuel, Bike, Wrench, Bed, Tent, House, Toilet, Pill, Hospital, Banknote, TrainFront, WashingMachine, Binoculars, MapPin, ShoppingBasket, Croissant, IceCreamCone, Armchair, TreePine, PlugZap, CircleParking, Bus, TramFront, Info, WavesHorizontal, Church, Mountain, Stethoscope, Shield, Mail } from '@lucide/svelte';
+import { Droplet, ShoppingCart, Utensils, Fuel, Bike, Wrench, Bed, Tent, House, Toilet, Pill, Hospital, Banknote, TrainFront, WashingMachine, Binoculars, MapPin, ShoppingBasket, Croissant, IceCreamCone, Armchair, TreePine, PlugZap, CircleParking, Bus, TramFront, Info, WavesHorizontal, Church, Mountain, Stethoscope, Shield, Mail, Moon } from '@lucide/svelte';
 
 export const POI_ICONS = {
   water: Droplet,
@@ -30,6 +30,11 @@ export const POI_ICONS = {
   charge: PlugZap,
   bikepark: CircleParking,
   rental: Bike,
+  roofbus: Bus,
+  hut: House,
+  bivouac: Mountain,
+  waitroom: TrainFront,
+  night24: Moon,
   bus: Bus,
   transit: TramFront,
   info: Info,

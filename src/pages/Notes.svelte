@@ -28,7 +28,7 @@
   import { t, tn, locale } from '../lib/i18n.svelte.js';
   import SpeakButton from '../lib/ui/SpeakButton.svelte';
   import { appendSpoken } from '../lib/speak.js';
-  import { Camera, Link2, ListChecks, Search, Inbox, ChevronRight, Download, Check, Star, Image as ImageIcon, NotebookPen, Pencil, ChartColumn } from '@lucide/svelte';
+  import { Camera, Link2, ListChecks, Search, Inbox, ChevronRight, Download, Check, Star, Image as ImageIcon, NotebookPen, Pencil, ChartColumn, BookHeart } from '@lucide/svelte';
   import Empty from '../lib/ui/Empty.svelte';
   import { NOTE_TPL_KEY, templatesOf, tplName, tplText, renameTemplate, removeTemplate, qrToNote, isKeepNote, keepImport } from '../lib/noteformats.js';
   import { zipEntries } from '../lib/zipread.js';
@@ -217,7 +217,7 @@
      note holds in one quiet line, one tap opens it with its checklist); right the search, the topics
      and what a note holds as chips with counts, and «More» (Inbox, export as Markdown). -->
 <div class="notes ich-page">
-  <VeloHead crumbs={[{ label: t('Me|place'), href: '#/me' }]} title={t('Notes')} sub={`${t('Kept notes, topics and checklists')} · ${t('also in the normal backup')}`} />
+  <VeloHead crumbs={[{ label: t('Plan|place'), href: '#/week' }]} title={t('Notes')} sub={`${t('Kept notes, topics and checklists')} · ${t('also in the normal backup')}`} />
 
   <!-- Hinweistexte HT 3a (Noah 14.10.2026): the card «Was hier steht» -->
   <HintCard page="notes" />
@@ -297,6 +297,10 @@
         <div class="nonote"><Empty icon={Search} text={t('Nothing found.')} /></div>
       {/if}
       {/if}
+      <!-- «Tagebuch» (Noah 20.10.2026): one tap from the notes to the diary, also with no notes yet -->
+      <ul class="card ich-list diary" data-notes-diary-list>
+        <li><a class="ich-row" href="#/tagebuch" data-notes-diary><span class="ich-ib"><BookHeart size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t('Diary')}</b><small>{t('Write or speak, with photos and a question of the day')}</small></span><ChevronRight class="ich-chev" size={18} aria-hidden="true" /></a></li>
+      </ul>
     </div>
 
     {#if counts.all}
@@ -385,6 +389,10 @@
 
 
 <style>
+  /* «Tagebuch» (20.10.2026): the diary row under the notes */
+  .ich-list.diary {
+    margin-top: var(--sp-4);
+  }
   .notes {
     max-width: 1100px;
   }

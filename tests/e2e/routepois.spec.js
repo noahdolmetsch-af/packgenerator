@@ -3,6 +3,7 @@
 // kind, and keeps the list offline. Overpass is mocked (fictional answer); nothing leaves the test.
 import { test, expect } from '@playwright/test';
 import { fileURLToPath } from 'node:url';
+import { readFileSync } from 'node:fs';
 import DE from '../../src/lib/i18n/de/index.js';
 import { importAndSettle } from './settle.js';
 
@@ -65,6 +66,17 @@ test('route card: search on tap, rows by km with OSM links, chips filter, the li
   await expect(box.locator('.rp-list a')).toHaveAttribute('href', 'https://www.openstreetmap.org/way/9002');
   for (const a of await box.locator('.rp-list a, button').all()) expect((await a.boundingBox()).height).toBeGreaterThanOrEqual(40);
   expect(await wide(page)).toBeLessThanOrEqual(0);
+
+  // Paket X: the route with the shown stops as one GPX for the Garmin (waypoints in km order)
+  const dl = page.waitForEvent('download');
+  await box.locator('[data-gpx-stops-save]').click();
+  const file = await dl;
+  expect(file.suggestedFilename()).toMatch(/\.gpx$/);
+  const gpx = readFileSync(await file.path(), 'utf8');
+  expect((gpx.match(/<wpt /g) ?? []).length).toBe(1);
+  expect(gpx).toContain('test_data_gtp_ Velo Werkstatt');
+  expect(gpx).toContain('<trkpt ');
+  await expect(box.getByRole('status')).toContainText(T('Saved. On the Garmin: copy it with Garmin Express or the Connect app; on the Wahoo: import it in the app.'));
 
   // after a reload the list is there without asking again
   await page.reload();

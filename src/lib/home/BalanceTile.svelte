@@ -13,7 +13,7 @@
    * active zone minutes with Fitbit). Without any value (release analysis D8): no empty ring, one quiet line.
    * 0.155.0 «Im Flow + Balance» (Noah 15.10.2026 21:46 «1-5a»): 1a on a phone the 9 names in full, in two
    * columns; 2a a piece without content stays away (no challenge, no pulse, no tip, no milestone; the zone
-   * minutes come back with Fitbit); 4a `bare`: inside the one card with Im Flow (FlowBalance.svelte), without
+   * minutes show with Fitbit, Fitbit überall 20.10.2026); 4a `bare`: inside the one card with Im Flow (FlowBalance.svelte), without
    * its own frame and head; 5a a tap on the tip takes it as today's goal («Wi gaht's?» ziele.ziel), a second
    * tap takes it back.
    */
@@ -90,7 +90,7 @@
   const untilWord = (d) => new Date(`${d}T12:00:00Z`).toLocaleDateString(locale(), { weekday: 'short', day: 'numeric', month: 'numeric', timeZone: 'UTC' });
   const ms = $derived(nextMilestone({ bikes, tripsDone }));
   const abq = $derived(abQuery(today));
-  const body = $derived(bodyNow($abq?.answers ?? [], today));
+  const body = $derived(bodyNow($abq?.answers ?? [], today, data?.health ?? []));
   const tip = $derived(b?.least ? CAT[b.least] : null);
   // 5a: the tip as today's goal (the goal of «Wi gaht's?»), and back
   const goal = $derived(lastAnswer(($abq?.answers ?? []).filter((a) => a.day === today), 'ziele.ziel'));
@@ -172,7 +172,7 @@
     <p class="calm" data-balance-empty>{t('Your balance fills by itself as soon as you answer «Wi gaht\'s?» or tick something in Aktiv.')}</p>
   {/if}
   <!-- 2a: only the pieces with something to say -->
-  {#if ch || tip || ms || body.pulse != null}
+  {#if ch || tip || ms || body.pulse != null || body.azm != null}
   <ul class="pcs">
     {#if ch}
     <li class="pc" data-pc="challenge">
@@ -201,12 +201,13 @@
       <span class="su">{ms.kind === 'bike' ? ms.bike : t('to your {at}th trip', { at: num(ms.at) })}</span>
     </li>
     {/if}
-    {#if body.pulse != null}
+    {#if body.pulse != null || body.azm != null}
     <li class="pc" data-pc="body">
       <span class="k"><HeartPulse size={14} aria-hidden="true" />{t('Body')}</span>
-      <span class="kr"><span class="kl">{t('Resting pulse')}</span><b class="v num">{body.pulse}<span class="n"> /min</span></b>{#if line}<svg class="sp" width="64" height="20" viewBox="0 0 64 20" aria-hidden="true"><polyline points={line} /></svg>{/if}</span>
+      {#if body.pulse != null}<span class="kr"><span class="kl">{t('Resting pulse')}</span><b class="v num">{body.pulse}<span class="n"> /min</span></b>{#if line}<svg class="sp" width="64" height="20" viewBox="0 0 64 20" aria-hidden="true"><polyline points={line} /></svg>{/if}</span>{/if}
       {#if body.lo != null && body.hi !== body.lo}<span class="su num">{t('7 days: {lo}–{hi}', { lo: body.lo, hi: body.hi })}</span>{/if}
-      <!-- the active zone minutes come back here with Fitbit (2a: no empty «–» until then) -->
+      {#if body.azm != null}<span class="kr" data-body-azm><span class="kl">{t('Active zone minutes')}</span><b class="v num">{body.azm}<span class="n"> min</span></b></span>{/if}
+      {#if body.src === 'fitbit'}<span class="su">{t('measured with Fitbit|body')}</span>{/if}
     </li>
     {/if}
   </ul>

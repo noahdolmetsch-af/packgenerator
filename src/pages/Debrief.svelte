@@ -47,6 +47,7 @@
   import { mainStep, betweenHref, isDayTrip } from '../lib/phase.js';
   import TemplateOffer from '../lib/debrief/TemplateOffer.svelte';
   import DebriefPlanNotes from '../lib/debrief/DebriefPlanNotes.svelte';
+  import LearnCard from '../lib/tourlernen/LearnCard.svelte'; // Paket Z
   import DebriefLernen from '../lib/lernen/DebriefLernen.svelte'; // Paket M «Aus Touren lernen»
   import TodoButton from '../lib/lernen/TodoButton.svelte';
   import TodoPlace from '../lib/lernen/TodoPlace.svelte';
@@ -518,6 +519,8 @@
         {#if heldNote}<UndoToast text={heldNote.text} onundo={undoHeld} />{/if}
         <!-- Paket M: Tour-Tagebuch, Was war neu, Zusatzfragen, Nachricht an dich -->
         <DebriefLernen {trip} {d} {persist} notes={wayNotes} rides={tripRides} />
+        <!-- Paket Z «Aus jeder Tour lernen»: breakdown, where you slept, the tour postcard (below the answers, so the chips stay first) -->
+        <LearnCard {trip} {bike} />
         <PageMore page="debrief" name={t('Debrief')} />
         <PageTiles page="debrief" extrasHint />
       {:else}
@@ -690,6 +693,8 @@
           {#if draft}<DebriefDraft {draft} notes={freeNotes} days={trip.days ?? 1} onlearn={learnFromDraft} onsummary={summaryFromDraft} onclose={() => (draft = null)} />{/if}
         </div>
       </div>
+      <!-- Paket Z «Aus jeder Tour lernen»: below the form, so «What did you not need?» stays the first thing on the page -->
+      <LearnCard {trip} {bike} />
       <PageMore page="debrief" name={t('Debrief')} />
       {/if}
     </div>

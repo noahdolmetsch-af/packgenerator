@@ -24,10 +24,12 @@ test('Velo kurz: three rows, Import rides, More as rows', async ({ page, context
   // «Pflege und Ausstattung» has three rows (bike care, always mounted, equipment); «Fahrten importieren» is
   // the one button; «Mehr» is a list of rows (folder, photos, compare, profile and settings, ideas).
   const rows = page.locator('.vk-rows > li');
-  await expect(rows).toHaveCount(3);
+  // «Verschleiss» (Noah 20.10.2026, 5a) adds the row «Wear» before «Equipment».
+  await expect(rows).toHaveCount(4);
   await expect(rows.nth(0)).toContainText(T('Bike care'));
   await expect(rows.nth(1)).toContainText(T('Always mounted'));
-  await expect(rows.nth(2)).toContainText(T('Equipment|tab'));
+  await expect(rows.nth(2)).toContainText(T('Wear|page'));
+  await expect(rows.nth(3)).toContainText(T('Equipment|tab'));
   await expect(page.getByRole('button', { name: T('Edit mounts') })).toBeVisible();
   await expect(page.getByRole('heading', { name: T('Bags'), exact: true })).toBeVisible();
   const imp = page.getByRole('link', { name: new RegExp(T('Import rides')) });

@@ -13,6 +13,7 @@ import { dryStretches, exitStations } from './outside.js';
 import { laundryPlan, careAfter, PAPERS } from './more.js';
 import { simulate, assumptionsOf } from './strategy.js';
 import { sunTimes } from '../blockplan.js';
+import { energyFor, roundBig } from '../energie.js';
 
 const hhmm = (ms) => localOf(ms).slice(11, 16);
 const dayN = (sim, km) => (sim?.days ?? []).find((d) => km <= d.toKm)?.n ?? null;
@@ -133,7 +134,8 @@ export function casesOf(c, t = (k) => k) {
     7: () => cd && cd.days > 0 && t('{w} weeks to the start. Dress rehearsal by {date}.', { w: cd.weeks, date: cd.probeBy }),
     8: () => has('station') && t('{n} stations near the route.', { n: exitStations(pois).length }),
     9: () => days.length > 1 && (() => { const out = days.slice(0, -1).filter((d) => d.bed !== 'hotel'); return out.length ? t('{n} nights outside; the first at km {km}.', { n: out.length, km: out[0].toKm }) : t('Every night in a bed.'); })(),
-    10: () => rideH > 0 && t('About {h} riding × 400 kcal ≈ {kcal} kcal (estimate).', { h: Math.round(rideH), kcal: (Math.round((rideH * 400) / 1000) * 1000).toLocaleString('de-CH') }),
+    // Paket X: the one energy rule (energie.js) instead of 400 kcal per hour
+    10: () => rideH > 0 && (() => { const e = energyFor({ hours: rideH, km, gainM: c.route?.gainM ?? 0, kg: c.kg ?? null, fuel: c.fuel ?? null }); return t('About {h} riding: you use about {burn} kcal and eat about {eat} kcal (estimate, from your weight, the climbing and your values under Verpflegung).', { h: Math.round(rideH), burn: roundBig(e.burn).toLocaleString('de-CH'), eat: roundBig(e.eat).toLocaleString('de-CH') }); })(),
     11: () => (c.sims ?? []).length && t('Sleeping kit: {list}.', { list: c.sims.map((s) => `${t(WAY_NAME[s.way])} ${r1(s.kg)} kg`).join(', ') }),
     12: () => c.route?.line?.length && (() => {
       const codes = countriesOf(samples(c.pts ?? [], 50, 30).map((p) => ({ lat: p.lat ?? p[0], lon: p.lon ?? p[1] })));

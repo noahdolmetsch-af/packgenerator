@@ -3,7 +3,8 @@
  * The 9 categories of the 15 questions (Spass · Erholung · Sport · Achtsamkeit · Freunde · Natur ·
  * Visionen · Ziele · Erreicht) get a value 0–100 for the last 7 days, from the answers of the questions
  * and from what the app knows by itself (meditation and other Aktiv ticks, rides). A category without
- * any answer or data stays empty (null): nothing is invented. Fitbit/Google comes later.
+ * any answer or data stays empty (null): nothing is invented. Fitbit (healthDays) adds one Sport signal per
+ * measured day: Bergziege 1, Spaziergänger 0.5, Faultier 0 (health.js moveStep, the Check-Fragen rule).
  *
  * How a value is made: every answer or known fact of the 7 days is one signal 0–1 (a scale 1–10 is
  * (v − 1) / 9, a choice its step, a highlight chip 1), the value is the mean × 100. What the app knows
@@ -14,6 +15,7 @@
 import { checkOf, outsideStep, rideMinutes } from './flowcheck.js';
 import { lastDays } from './flow.js';
 import { QUESTION, MIRROR } from './abfragen.js';
+import { moveStep } from './health.js';
 
 /** The 9 categories in the order of the ring (mockup T3). label: English key for t(). */
 export const CATS = [
@@ -81,10 +83,11 @@ export function answerSignals(r) {
  * checks: flowChecks rows; log: flowLog rows ({ actId, day }); acts: activities ({ id, ring });
  * rides: rides of those days ({ date, km, movingH?, totalH? }, Strava ones included);
  * bagDays: days a sport bag was packed in full (flowbag.js packedDays, package G #222);
+ * health: Fitbit days (healthDays rows { date, azm, steps }), one Sport signal per day (moveStep);
  * answers: WG the «Wi gaht's?» answers (abAnswers rows { qid, area, day, kind, value }), see answerSignals.
  * → { cats: [{ key, value (0–100 or null), n (signals) }], mean (0–100 or null), least (key or null), days }
  */
-export function balance({ checks = [], log = [], acts = [], rides = [], answers = [], bagDays = [], today, days = 7 } = {}) {
+export function balance({ checks = [], log = [], acts = [], rides = [], answers = [], bagDays = [], health = [], today, days = 7 } = {}) {
   const span = lastDays(today, days);
   const inSpan = new Set(span);
   const sig = Object.fromEntries(CATS.map((c) => [c.key, []]));
@@ -145,6 +148,10 @@ export function balance({ checks = [], log = [], acts = [], rides = [], answers 
   for (const d of bagDays) if (inSpan.has(d)) tickDays.sport.add(d);
   for (const k of ['sport', 'mind', 'rest']) if (tickDays[k].size) add(k, tickDays[k].size / FULL_DAYS[k]);
   if (rideDays.size) add('nature', rideDays.size / FULL_DAYS.ride);
+  // Fitbit überall: every measured day says how much you moved (a day with an answer to sport.bewegung,
+  // also one the check filled in from Fitbit, counts through that answer only)
+  const moveAnswered = new Set(answers.filter((r) => r?.qid === 'sport.bewegung' && r.value != null).map((r) => r.day));
+  for (const h of health ?? []) if (inSpan.has(h?.date) && !moveAnswered.has(h.date)) add('sport', moveStep(h));
 
   const cats = CATS.map((c) => {
     const list = sig[c.key];

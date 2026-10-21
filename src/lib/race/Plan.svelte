@@ -19,9 +19,15 @@
   import { raceHref } from './parts.js';
   import { SAMPLE_TASKS, tasksDone } from './sample.js';
   import { t, tn, isDe } from '../i18n.svelte.js';
+  import { FUEL_KEY } from '../fuel.js';
+  import { RIDER_KEY } from '../weight.js';
+  import { riderKg } from '../energie.js';
 
   let { ctx } = $props();
   const learnQ = liveQuery(() => db.learnings.toArray());
+  // Paket X: the one energy rule needs your weight and your Verpflegung values
+  const fuelQ = liveQuery(() => db.settings.get(FUEL_KEY));
+  const kgQ = liveQuery(() => db.settings.get(RIDER_KEY));
   const stored = $derived(ctx.stored);
   const sim = $derived(ctx.sim);
   const km = $derived(ctx.route?.km ?? 0);
@@ -33,7 +39,7 @@
 
   const sum = $derived(summaryOf({ sim, pois: ctx.pois, km }));
   const rec = $derived(recommend(ctx.sims, t));
-  const cases = $derived(casesOf({ ...ctx, km }, t));
+  const cases = $derived(casesOf({ ...ctx, km, fuel: $fuelQ?.value ?? null, kg: riderKg($kgQ?.value) }, t));
   const filled = $derived(cases.filter((c) => !c.open).length);
   const offCount = $derived(($viewQ?.off ?? []).length);
   const hiddenCount = $derived(($viewQ?.hidden ?? []).length);

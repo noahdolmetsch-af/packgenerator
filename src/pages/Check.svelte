@@ -5,7 +5,7 @@
    *   Morning: 1–3 sleep, energy, mood (as since v0.51.0, the line under a number is yesterday), 4 the
    *   rotating question of the editable pool, 6 «Worauf freust du dich?», 7 the goal of the day, and
    *   «Gestern Abend» (optional). At the side: a suggestion for today (rules, never mandatory, «Nicht
-   *   heute»), what the app already knows today, and the night as a small placeholder (Fitbit/Google later).
+   *   heute»), what the app already knows today, and the night from Fitbit (0.171; before: a placeholder).
    *   Evening: 8 satisfaction, 9 the best of the day (+ a few words, spoken where the browser can),
    *   10 the morning's goal reached?, 11 time outside (filled in from today's rides, changeable), 12 or 13
    *   (they take turns), 14 a mindful moment (found by itself from today's meditation). At the side: the
@@ -32,6 +32,7 @@
   import { todayAppointments } from '../lib/todayfixed.js';
   import { qText, actName } from '../lib/flow/ui.svelte.js';
   import { localDay } from '../lib/localday.js';
+  import { normalOf as healthNormal } from '../lib/health.js';
   import { phone } from '../lib/media.svelte.js';
   import { t, tn, num, locale } from '../lib/i18n.svelte.js';
 
@@ -102,6 +103,13 @@
   }
   const dayWords = (day) => new Date(`${day}T12:00:00Z`).toLocaleDateString(locale(), { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC' });
   const wxWords = (w) => `${num(w.max)}°, ${w.rain === 'none' ? t('dry|weather') : w.rain === 'showers' ? t('showers possible') : t('rain|weather')}`;
+
+  /* 0.171 (Noah 20.10.2026 «Fitbit … das haben wir bereits»): the Fitbit values of today, with the normal of 30 days */
+  const fit = $derived((data?.health ?? []).find((h) => h.date === today) ?? null);
+  const fitAny = $derived((data?.health ?? []).length > 0);
+  const hm = (min) => `${Math.floor(min / 60)} h ${Math.round(min % 60)} min`;
+  const fitNormal = (k) => healthNormal(data?.health ?? [], k, today);
+  const fin = (v) => typeof v === 'number' && Number.isFinite(v);
 
   /* ---------- evening ---------- */
   const outsidePre = $derived(data ? outsideFromRides(data.rides, today) : null);
@@ -264,7 +272,18 @@
 {#snippet night()}
   <section class="card" aria-labelledby="cq-night">
     <div class="ch2"><h2 id="cq-night">{t('Your night')}</h2><p>Fitbit</p></div>
-    <p class="ghost">{t('Comes with Fitbit/Google: sleep, resting pulse and HRV next to your feeling, with your normal. Until then this space stays small.')}</p>
+    {#if fit && (fin(fit.sleep?.asleepMin) || fin(fit.restingHr) || fin(fit.hrvMs))}
+      <div class="mm" data-night>
+        <div data-num="sleep"><small>{t('Sleep|numbers')}</small><b class="num">{fin(fit.sleep?.asleepMin) ? hm(fit.sleep.asleepMin) : '–'}</b><small>{fitNormal('sleep') != null ? t('normal {v}', { v: hm(fitNormal('sleep')) }) : 'Fitbit'}</small></div>
+        <div data-num="rhr"><small>{t('Resting pulse')}</small><b class="num">{fin(fit.restingHr) ? Math.round(fit.restingHr) : '–'}</b><small>{fitNormal('restingHr') != null ? t('normal {v}', { v: Math.round(fitNormal('restingHr')) }) : 'Fitbit'}</small></div>
+        <div data-num="hrv"><small>HRV</small><b class="num">{fin(fit.hrvMs) ? `${Math.round(fit.hrvMs)} ms` : '–'}</b><small>{fitNormal('hrvMs') != null ? t('normal {v}', { v: `${Math.round(fitNormal('hrvMs'))} ms` }) : 'Fitbit'}</small></div>
+      </div>
+      <p class="fine">{t('Only to look at, next to your feeling: no rating.')}</p>
+    {:else if fitAny}
+      <p class="fine" data-night-none>{t('No Fitbit values for last night yet. They often come a little later.')}</p>
+    {:else}
+      <p class="fine" data-night-none>{t('Connect Fitbit once and your sleep, resting pulse and HRV show here.')} <a href="#/me/fitbit">{t('Connect Fitbit')}</a></p>
+    {/if}
   </section>
 {/snippet}
 
@@ -363,7 +382,14 @@
       <div data-num="med"><small>{t('Meditation')}</small><b class="num">{medToday ? t('{min} min|check', { min: medToday.min }) : '–'}</b><small>{medStreak > 1 ? tn(medStreak, '{n} day in a row', '{n} days in a row') : medToday ? t('today') : t('not yet today')}</small></div>
       <div data-num="goals"><small>{t('Active goals')}</small><b class="num">{states.length ? t('{n} of {m}', { n: goalsMet, m: states.length }) : '–'}</b><small>{t('reached right now')}</small></div>
     </div>
-    <p class="ghost">{t('Steps and active zones come with Fitbit/Google.')}</p>
+    {#if fit && (fin(fit.steps) || fin(fit.azm))}
+      <div class="mm" data-fit-day>
+        <div data-num="steps"><small>{t('Steps')}</small><b class="num">{fin(fit.steps) ? num(Math.round(fit.steps)) : '–'}</b><small>Fitbit</small></div>
+        <div data-num="azm"><small>{t('Active zone minutes|metric')}</small><b class="num">{fin(fit.azm) ? `${Math.round(fit.azm)} min` : '–'}</b><small>Fitbit</small></div>
+      </div>
+    {:else if !fitAny}
+      <p class="fine">{t('Steps and active zone minutes show here once Fitbit is connected.')} <a href="#/me/fitbit">{t('Connect Fitbit')}</a></p>
+    {/if}
   </section>
 {/snippet}
 

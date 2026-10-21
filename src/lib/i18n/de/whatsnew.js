@@ -1396,6 +1396,15 @@ export default {
   'A test keeps every page short on the phone': 'Ein Test hält jede Seite am Handy kurz',
   'Tap Plan in the bar: the tabs show Week, Appointments, Notes, Inbox and more.': 'Tippe in der Leiste auf Planen: Die Reiter zeigen Woche, Termine, Notizen, Eingang und mehr.',
   'Tap Analysis, then the tab Rides: your Strava rides are there.': 'Tippe auf Auswerten, dann auf den Reiter Fahrten: Dort sind deine Strava-Fahrten.',
+  // v0.171.0 «Velo, Wetter und Körper»
+  'Bike, weather, body': 'Velo, Wetter, Körper',
+  'Wear, weather and your values.': 'Verschleiss, Wetter und deine Werte.',
+  'Wear: km left per part': 'Verschleiss: km übrig pro Teil',
+  'Weather: best start, radar, webcams': 'Wetter: bester Start, Radar, Webcams',
+  'Body values: 25 values, Fitbit everywhere': 'Körperwerte: 25 Werte, Fitbit überall',
+  'Phone AI, sleep spots, faster packing': 'KI im Handy, Schlafplätze, schneller packen',
+  'Bikes › Care › a bike › «Wear»: look at the bars.': 'Velos › Pflege › ein Velo › «Verschleiss»: die Balken ansehen.',
+  'Tap the weather line on Today: the best start.': 'Tippe auf Heute die Wetterzeile: der beste Start.',
   // v0.170.1 «Abgleich ruhig»
   'Sync stays quiet': 'Abgleich bleibt ruhig',
   'No more questions about values the app keeps for itself.': 'Keine Fragen mehr zu Werten, die die App selbst speichert.',
@@ -1440,7 +1449,7 @@ export default {
   // 0.170.0
   'Diary: write or speak, with photos': 'Tagebuch: schreiben oder sprechen, mit Fotos',
   'Form and recovery: readiness 0–100': 'Form und Erholung: Bereitschaft 0–100',
-  'Open Me › Diary and write a first entry.': 'Öffne Ich › Tagebuch und schreibe einen ersten Eintrag.',
+  'Open Me › Diary and write a first entry.': 'Öffne Planen › Tagebuch und schreibe einen ersten Eintrag.',
   'Open Trips › Look back › Heatmap.': 'Öffne Touren › Rückblick › Heatmap.',
   'Live map, diary, form': 'Live-Karte, Tagebuch, Form',
   'Ride, write, recover.': 'Fahren, schreiben, erholen.',

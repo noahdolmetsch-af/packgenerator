@@ -7,6 +7,7 @@ import { fileURLToPath } from 'node:url';
 import { readFileSync, writeFileSync } from 'node:fs';
 import DE from '../../src/lib/i18n/de/index.js';
 import { importAndSettle } from './settle.js';
+import { openOverview } from './ov-fold.js';
 
 const FIX = fileURLToPath(new URL('../fixtures/gesamttest/test_data_gtp_daten.json', import.meta.url));
 const P = 'test_data_gtp_';
@@ -71,6 +72,7 @@ test('Strava rides count in This week and Bike this month, a file ride once', as
   // SZ2 Aktiv: «Deine Woche in Zahlen» (Aktiv neu 20.10.2026 «2a», changed on purpose: replaces «Velo diesen
   // Monat») counts the rides of the 7 days from the app and Strava: 280 km
   await page.goto('./#/flow');
+  await openOverview(page);
   await expect(page.locator('[data-section="week-numbers"] [data-wn="km"]')).toContainText('280');
   // 0.136.0: the open ride (5) does not count yet, the card names it with the way to «Zum Prüfen»
   const wait = page.locator('[data-km-waiting]');

@@ -5,6 +5,7 @@ import { test, expect } from '@playwright/test';
 import DE from '../../src/lib/i18n/de/index.js';
 import { v0770File, P } from './v0770-fixture.js';
 import { openData, settle } from './settle.js';
+import { sentOut } from './public-data.js';
 
 const T = (en, vars) => {
   const text = DE[en] ?? en.replace(/\|[a-z]+$/, '');
@@ -94,7 +95,7 @@ test('«Für Claude kopieren»: the question and the entries that fit on the cli
   expect(copied[0]).not.toMatch(/BELEG|data:image|Puls|Gewicht/);
   await expect(res.getByRole('link', { name: T('Copy and open Claude') })).toHaveAttribute('href', 'https://claude.ai/new');
   await noSideways(page);
-  expect(out.filter((u) => !u.startsWith('https://api.open-meteo.com/'))).toEqual([]); // only the app's own weather
+  expect(sentOut(out)).toEqual([]); // only the app's own weather and lake value
   expect(errors).toEqual([]);
 });
 
@@ -110,6 +111,6 @@ test('Chrome AI: where Chrome offers it, it answers right in the search, on the 
   const prompts = await page.evaluate(() => window.__prompts);
   expect(prompts[0]).toContain(`${P} Regenjacke`);
   await noSideways(page);
-  expect(out.filter((u) => !u.startsWith('https://api.open-meteo.com/'))).toEqual([]); // only the app's own weather
+  expect(sentOut(out)).toEqual([]); // only the app's own weather and lake value
   expect(errors).toEqual([]);
 });

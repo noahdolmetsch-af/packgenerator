@@ -34,6 +34,11 @@ export const KIND_ICON = {
   charge: 'plug-zap',
   bikepark: 'circle-parking',
   rental: 'bike',
+  roofbus: 'bus',
+  hut: 'house',
+  bivouac: 'mountain',
+  waitroom: 'train-front',
+  night24: 'moon',
   bus: 'bus',
   transit: 'tram-front',
   info: 'info',
@@ -86,10 +91,11 @@ export const ICON_SVG = {
   'mountain': '<path d="m8 3 4 8 5-5 5 15H2L8 3z"/>',
   'stethoscope': '<path d="M11 2v2"/><path d="M5 2v2"/><path d="M5 3H4a2 2 0 0 0-2 2v4a6 6 0 0 0 12 0V5a2 2 0 0 0-2-2h-1"/><path d="M8 15a6 6 0 0 0 12 0v-3"/><circle cx="20" cy="10" r="2"/>',
   'shield': '<path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/>',
+  'moon': '<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>',
   'mail': '<path d="m22 7-8.991 5.727a2 2 0 0 1-2.009 0L2 7"/><rect x="2" y="4" width="20" height="16" rx="2"/>',
 };
 /** The kinds of the POI search (map/poisearch.js) that must all have a symbol. */
-export const SEARCH_KINDS = ['water', 'shop', 'food', 'fuel', 'bike', 'repair', 'sleep', 'camp', 'shelter', 'toilet', 'pharmacy', 'hospital', 'atm', 'station', 'laundry', 'view', 'supermarket', 'bakery', 'icecream', 'bench', 'picnic', 'charge', 'bikepark', 'rental', 'bus', 'transit', 'info', 'swim', 'church', 'pass', 'doctor', 'police', 'post'];
+export const SEARCH_KINDS = ['water', 'shop', 'food', 'fuel', 'bike', 'repair', 'sleep', 'camp', 'shelter', 'toilet', 'pharmacy', 'hospital', 'atm', 'station', 'laundry', 'view', 'supermarket', 'bakery', 'icecream', 'bench', 'picnic', 'charge', 'bikepark', 'rental', 'roofbus', 'hut', 'bivouac', 'waitroom', 'night24', 'bus', 'transit', 'info', 'swim', 'church', 'pass', 'doctor', 'police', 'post'];
 /** The image id of a kind on the map (an unknown kind gets the «other» symbol). */
 export const symbolId = (kind) => `sym-${KIND_ICON[kind] ? kind : 'other'}`;
 /** Every kind with a symbol. */
