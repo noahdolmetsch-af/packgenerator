@@ -54,6 +54,9 @@ export function wetRides(entries = [], day, isWet) {
 /** The history entry when the chain was dried and oiled (a service of the chain, by yourself). */
 export const wetChainEntry = (day, km, note) => ({ date: day, km: okNum(km) ? km : null, value: null, action: 'service', result: 'done', by: 'self', model: null, note });
 
+/** Was the chain of this bike already dried or serviced on that day? (Then the hint on the wear page goes.) */
+export const chainCaredOn = (bike, day) => (bike?.parts ?? []).some((p) => p.key === 'chain' && (p.history ?? []).some((h) => h.date === day && (h.action === 'service' || h.action === 'replace')));
+
 /* ---------- 1129 Verschleiss-Fotos ---------- */
 
 export const SHOT_PARTS = ['chain', 'chainring', 'tyres'];

@@ -55,6 +55,7 @@
   .crumbs a {
     position: relative;
     display: inline-flex;
+    min-width: 44px; /* a short word («Teile») still gets a full tap target */
     align-items: center;
     gap: 2px;
     color: var(--ink-3);

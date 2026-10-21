@@ -565,4 +565,17 @@
     .cell { font-size: var(--fs-small); padding: 8px 6px; gap: 8px; }
     .list-toolbar .add-mat { display: none; }
   }
+  /* Impeccable 20.10.2026 P4: on a computer the packing list is the wide column on the left, the conditions sit on the right */
+  @media (min-width: 900px) {
+    .tp-grid2 {
+      grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+    }
+    .tp-grid2 > .right {
+      order: -1;
+    }
+    .tp-grid2 > .left {
+      position: sticky;
+      top: var(--sp-4);
+    }
+  }
 </style>

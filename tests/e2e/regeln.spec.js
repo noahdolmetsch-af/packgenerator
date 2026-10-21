@@ -112,7 +112,12 @@ test('RE1: one rain limit, Pack names it and the rain jacket, a new limit counts
 
   // Bausteine › Regen: the box says the limit counts everywhere
   await page.goto('./#/blocks');
-  await tap(main.locator('button.sitrow', { has: page.locator('#blk-rain') }), info);
+  const rainRow = main.locator('button.sitrow', { has: page.locator('#blk-rain') });
+  // Impeccable 0.174: empty blocks wait in a fold «n leere Bausteine»; open it when Regen is in there
+  const fold = main.locator('details', { has: page.locator('#blk-rain') });
+  await expect(page.locator('#blk-rain')).toHaveCount(1);
+  if (await fold.count()) await tap(fold.locator('summary').first(), info);
+  await tap(rainRow, info);
   const sheet = page.locator('dialog.rsheet[open]');
   const box = sheet.locator('[data-rain-everywhere]');
   await expect(box).toContainText(T('Counts everywhere in the app:'));

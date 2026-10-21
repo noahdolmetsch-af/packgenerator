@@ -91,14 +91,6 @@
     <div class="rc-acts">
       <button type="button" class="btn hi" onclick={openNew} data-race-new><Plus size={16} aria-hidden="true" />{t('New race')}</button>
     </div>
-    <section class="rc-box rc-soft" data-race-sample-offer>
-      <h2 class="rc-h2">{t('Sample race')}</h2>
-      <p class="rc-text">{t('A made-up 1000 km race with 11 sectors, a depot and gaps: see what the app can do and what you can change, with small tasks.')}</p>
-      <div class="rc-acts">
-        <button type="button" class="btn" onclick={() => openSample(false)} data-race-sample-open>{t('See the sample race')}</button>
-        <button type="button" class="btn sm" onclick={() => openSample(true)} data-race-sample-tour>{t('Show me around')}</button>
-      </div>
-    </section>
 
     {#if $tripsQ !== undefined}
       {#if !list.coming.length && !list.past.length}
@@ -127,6 +119,15 @@
           </section>
         {/if}
       {/each}
+      <!-- Impeccable: the sample race comes after your own races, not above them -->
+      <section class="rc-box rc-soft" data-race-sample-offer>
+        <h2 class="rc-h2">{t('Sample race')}</h2>
+        <p class="rc-text">{t('A made-up 1000 km race with 11 sectors, a depot and gaps: see what the app can do and what you can change, with small tasks.')}</p>
+        <div class="rc-acts">
+          <button type="button" class="btn" onclick={() => openSample(false)} data-race-sample-open>{t('See the sample race')}</button>
+          <button type="button" class="btn sm" onclick={() => openSample(true)} data-race-sample-tour>{t('Show me around')}</button>
+        </div>
+      </section>
       {#if others.length}
         <section class="rc-box" aria-labelledby="rc-mark-h">
           <h2 id="rc-mark-h" class="rc-h2">{t('Make a trip a race')}</h2>

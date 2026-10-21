@@ -7,14 +7,41 @@
    * The tab opened last is remembered per place (nav.js keepTab / placeHref). An old address that
    * leads here (#/care, #/review …) says so once, in a small note you can close.
    */
-  import { PLACES, PLACE_TABS, tabOf, tabStep } from '../nav.js';
+  import { PLACES, PLACE_TABS, tabOf, tabStep, orderedTabs, phoneTabs, setTabOrder } from '../nav.js';
   import { t } from '../i18n.svelte.js';
   import { phone, wide } from '../media.svelte.js';
+  import { ChevronDown, X } from '@lucide/svelte';
+  import SortGrip from '../ui/SortGrip.svelte';
+  import SortArrows from '../ui/SortArrows.svelte';
+  import { sortable } from '../ui/sortable.js';
+  import { backClose } from '../ui/backclose.js';
 
   let { place, hash = '#/', moved = null, onclosemoved } = $props();
 
   const tabs = $derived(PLACE_TABS[place] ?? []);
   const cur = $derived(tabOf(place, hash));
+  // Impeccable 20.10.2026 P1 (Noah «alles umsetzen», 1a 2a): on a computer the pages of a place stand only in the
+  // sidebar on the left (SideBar.svelte), no second row of tabs on top. On a phone at most four tabs show; the rest
+  // and your own order are in «Mehr».
+  let order = $state(0); // counts the changes of the order, so the tabs redraw
+  const split = $derived((void order, phoneTabs(place, hash)));
+  const all = $derived((void order, orderedTabs(place)));
+  let moreDlg = $state();
+  function openMore() {
+    moreDlg?.showModal();
+  }
+  function move(from, to) {
+    if (to < 0 || to >= all.length || from === to) return;
+    const keys = all.map((x) => x.key);
+    const [k] = keys.splice(from, 1);
+    keys.splice(to, 0, k);
+    setTabOrder(place, keys);
+    order++;
+  }
+  function resetOrder() {
+    setTabOrder(place, null);
+    order++;
+  }
   const placeName = $derived(t(PLACES.find((p) => p.key === place)?.label ?? ''));
   const curName = $derived(t(tabs.find((x) => x.key === cur)?.label ?? ''));
 
@@ -95,13 +122,36 @@
 </script>
 
 <div class="ptwrap" bind:this={wrap} style={fit}>
-{#if tabs.length > 1 && cur}
-  <nav class="ptabs noswipe" class:many={tabs.length > 4} aria-label={t('Pages of {place}', { place: placeName })}>
-    {#each tabs as x (x.key)}
+{#if tabs.length > 1 && cur && !wide.matches}
+  <nav class="ptabs noswipe" class:many={split.shown.length > 3} aria-label={t('Pages of {place}', { place: placeName })}>
+    {#each split.shown as x (x.key)}
       <a href={hrefOf(x)} aria-current={cur === x.key ? 'page' : undefined}>{t(x.label)}</a>
     {/each}
+    {#if split.more.length}
+      <button type="button" class="pmore" aria-haspopup="dialog" onclick={openMore}>{t('More')}<ChevronDown size={16} aria-hidden="true" /></button>
+    {/if}
   </nav>
-  {#if phone.matches}
+  {#if split.more.length}
+    <dialog class="sheet from-below ptsheet" bind:this={moreDlg} use:backClose aria-labelledby="pt-h">
+      <div class="pt-head">
+        <h2 id="pt-h">{t('More pages in {place}', { place: placeName })}</h2>
+        <button type="button" class="pt-x" aria-label={t('Close')} onclick={() => moreDlg.close()}><X size={20} aria-hidden="true" /></button>
+      </div>
+      <p class="pt-hint">{t('Drag the pages you use often to the top. The first four stand as tabs.')}</p>
+      <ul class="pt-list" use:sortable={{ onmove: (from, to) => move(from, to) }}>
+        {#each all as x, i (x.key)}
+          <li data-sort-id={x.key} class:shown={split.shown.includes(x)}>
+            <SortGrip name={t(x.label)} onstep={(dir) => move(i, i + dir)} />
+            <a href={hrefOf(x)} aria-current={cur === x.key ? 'page' : undefined} onclick={() => moreDlg.close()}>{t(x.label)}</a>
+            {#if i < 4}<span class="pt-tab">{t('tab|nav')}</span>{/if}
+            <SortArrows name={t(x.label)} {i} n={all.length} onstep={(dir) => move(i, i + dir)} />
+          </li>
+        {/each}
+      </ul>
+      <p class="pt-foot"><button type="button" class="btn-link btn" onclick={resetOrder}>{t('Back to the app\'s order')}</button></p>
+    </dialog>
+  {/if}
+  {#if tabs.length <= 4}
     <p class="dots">
       <span class="dd" aria-hidden="true">{#each tabs as x (x.key)}<span class="d" class:on={cur === x.key}></span>{/each}</span>
     </p>
@@ -199,5 +249,94 @@
   .d.on {
     width: 18px;
     background: var(--pc);
+  }
+  .pmore {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    flex: 0 0 auto;
+    min-height: 44px;
+    min-width: 44px;
+    margin-bottom: -1px;
+    padding: 0 var(--sp-2);
+    border: 0;
+    border-bottom: 2px solid transparent;
+    background: none;
+    color: var(--ink-2);
+    font: 500 var(--fs-body) / 1.2 var(--font-body);
+    white-space: nowrap;
+    cursor: pointer;
+  }
+  .ptabs.many .pmore {
+    font-size: var(--fs-label);
+    padding: 0 var(--sp-1);
+  }
+  .ptsheet {
+    width: min(440px, calc(100vw - 24px));
+  }
+  .pt-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--sp-3);
+  }
+  .pt-head h2 {
+    margin: 0;
+    font-size: var(--fs-section);
+  }
+  .pt-x {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    margin: -6px -6px 0 0;
+    border: 0;
+    border-radius: 10px;
+    background: none;
+    color: var(--ink-2);
+    cursor: pointer;
+  }
+  .pt-hint {
+    margin: var(--sp-1) 0 var(--sp-3);
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+    line-height: 1.4;
+  }
+  .pt-list {
+    display: grid;
+    gap: var(--sp-1);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .pt-list li {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-2);
+    min-height: 48px;
+    padding: 0 var(--sp-2);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: var(--paper);
+  }
+  .pt-list a {
+    flex: 1;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    color: var(--ink);
+    font-weight: 500;
+    text-decoration: none;
+  }
+  .pt-list a[aria-current='page'] {
+    font-weight: 700;
+  }
+  .pt-tab {
+    color: var(--ink-3);
+    font-size: var(--fs-tiny);
+  }
+  .pt-foot {
+    margin: var(--sp-3) 0 0;
   }
 </style>

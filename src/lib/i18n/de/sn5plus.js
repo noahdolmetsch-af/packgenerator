@@ -5,7 +5,7 @@ export default {
   // Favoriten
   'As building block': 'Als Baustein',
   'Save the favourites of {kind} as a building block': 'Die Favoriten von {kind} als Baustein speichern',
-  '{w}: {p} % of the heaviest kind': '{w}: {p} % der schwersten Reiseart',
+  '{w}: {p} % of the heaviest kind': "{w}: {p} % der schwersten Tourart",
   'last on:': 'zuletzt dabei:',
   'not on any trip yet': 'noch auf keiner Tour',
   'Often with you': 'Oft dabei',
@@ -48,7 +48,7 @@ export default {
   'Bag of {name}': 'Tasche von {name}',
   'Suggested from the category. You can change it later in the item too.': 'Vorschlag aus der Kategorie. Später auch im Teil änderbar.',
   // Import prüfen: what «Schon da» gets
-  '+ Trip kind {name}': '+ Reiseart {name}',
+  '+ Trip kind {name}': "+ Tourart {name}",
   '+ Note «{text}»': '+ Notiz «{text}»',
   '+ Weight {w}': '+ Gewicht {w}',
   '+ Category {name}': '+ Kategorie {name}',

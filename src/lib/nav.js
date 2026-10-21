@@ -341,7 +341,7 @@ export const PLACE_TABS = {
     { key: 'frei', label: 'Free time|tab', href: '#/me/frei', match: (h) => h.startsWith('#/me/frei') },
   ],
   trips: [
-    { key: 'overview', label: 'Overview|tab', href: '#/trips', match: (h) => h.startsWith('#/trips') && !h.startsWith('#/trips/dreams') && !isRidesHash(h) },
+    { key: 'overview', label: 'Overview|tab', href: '#/trips', match: (h) => h.startsWith('#/trips') && !h.startsWith('#/trips/dreams') && !h.startsWith('#/trips/fuel') && !isRidesHash(h) }, // Impeccable 20.10.2026: Verpflegung is a page of a tour, not the overview
     { key: 'templates', label: 'Templates', href: '#/pack/templates', match: (h) => h.startsWith('#/pack/templates') },
     { key: 'lookback', label: 'Look back|page', href: '#/debrief', match: (h) => h.startsWith('#/debrief') || h.startsWith('#/pack/past') || h.startsWith('#/neuland') || h.startsWith('#/heatmap') },
     // Paket N (Noah 19.10.2026 «1a»): dream tours with their season, races as event tours
@@ -369,10 +369,10 @@ export const PLACE_TABS = {
     // «Meditation» (ME2) with its Rückblick (ME3) and timer pages; the second tab (Noah 15.10.2026 «1a»)
     { key: 'meditation', label: 'Meditation', href: '#/flow/act/meditation', match: (h) => isMedHash(h) },
     // «Training» TR2 (Noah 13.10.2026 «1-5a» 1a: its own tab in Aktiv): every Strava activity, one activity under it
-    { key: 'training', label: 'Training|tab', href: '#/flow/training', match: (h) => /^#\/flow\/training(\/|\?|$)/.test(h) },
+    { key: 'training', label: 'Training|tab', href: '#/flow/training', match: (h) => /^#\/flow\/(training|plans)(\/|\?|$)/.test(h) }, // Impeccable 20.10.2026: the training plans belong to Training
     // Gesamttest 20.10.2026 B3: the Strava activities, tab «Fahrten»; N1 (Noah 20.10.2026 «2a»): under Auswerten, same address
     { key: 'rides', label: 'Rides|tab', href: RIDES_HREF, match: (h) => isRidesHash(h) },
-    { key: 'goals', label: 'Activities|tab', href: '#/flow/goals', match: (h) => /^#\/flow\/(goals|edit|new)(\/|\?|$)/.test(h) && !/[?&]from=activity\b/.test(h) },
+    { key: 'goals', label: 'Activities|tab', href: '#/flow/goals', match: (h) => /^#\/flow\/(goals|edit|new|auswertung)(\/|\?|$)/.test(h) && !/[?&]from=activity\b/.test(h) },
     // hobby pages 1: Aktivität (tiles, milestones; the editor opened from a tile stays here)
     { key: 'activity', label: 'Activity|tab', href: '#/flow/activity', match: (h) => !isMedHash(h) && (/^#\/flow\/(activity|milestones|trophies|gipfelbuch|sports?(\/|\?|$)|act\/)/.test(h) || (h.startsWith('#/flow/') && /[?&]from=activity\b/.test(h))) },
     // Paket T «Freie Zeit» (Noah 19.10.2026 «1a und b»): Impulse, also under Ich › Freie Zeit
@@ -452,9 +452,54 @@ export function placeHref(p, current = null, hash = '') {
   return lastTab(p.key)?.href ?? p.href;
 }
 
+/* ---------- Impeccable 20.10.2026 P1 (Noah «alles umsetzen», 1a): at most four tabs on a phone, the rest under «Mehr» ---------- */
+const ORDER_KEY = 'nav.order';
+/** How many tabs a phone shows side by side; the others wait in the «Mehr» window. */
+export const PHONE_TABS = 4;
+
+/** The tabs of a place in the order you chose (arrows and drag in «Mehr»); new tabs come after, in their own order. */
+export function orderedTabs(place) {
+  const tabs = PLACE_TABS[place] ?? [];
+  let keys = [];
+  try {
+    keys = JSON.parse(localStorage.getItem(`${ORDER_KEY}.${place}`) || '[]');
+  } catch {
+    keys = [];
+  }
+  if (!Array.isArray(keys) || !keys.length) return tabs;
+  const at = (k) => {
+    const i = keys.indexOf(k);
+    return i < 0 ? keys.length + tabs.findIndex((x) => x.key === k) : i;
+  };
+  return [...tabs].sort((a, b) => at(a.key) - at(b.key));
+}
+
+/** Keep the order of the tabs of a place (their keys); null goes back to the app's order. */
+export function setTabOrder(place, keys) {
+  try {
+    if (keys) localStorage.setItem(`${ORDER_KEY}.${place}`, JSON.stringify(keys));
+    else localStorage.removeItem(`${ORDER_KEY}.${place}`);
+  } catch {
+    /* private mode: the order lasts until the page reloads */
+  }
+}
+
+/**
+ * The tabs a phone shows: the first four of your order; when the page you are on is further down,
+ * it takes the fourth place, so the lit tab is always in view. more: the rest, for «Mehr».
+ */
+export function phoneTabs(place, hash = '') {
+  const all = orderedTabs(place);
+  if (all.length <= PHONE_TABS) return { shown: all, more: [] };
+  const cur = tabOf(place, hash);
+  let shown = all.slice(0, PHONE_TABS);
+  if (cur && !shown.some((x) => x.key === cur)) shown = [...all.slice(0, PHONE_TABS - 1), all.find((x) => x.key === cur)];
+  return { shown, more: all.filter((x) => !shown.includes(x)) };
+}
+
 /** The tab before (-1) or after (+1) the current one, for a swipe on a phone (Noah O2.3a), or null. */
 export function tabStep(place, hash, dir) {
-  const tabs = PLACE_TABS[place] ?? [];
+  const tabs = orderedTabs(place);
   const i = tabs.findIndex((x) => x.key === tabOf(place, hash));
   if (i < 0) return null;
   return tabs[i + dir] ?? null;

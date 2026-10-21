@@ -57,7 +57,7 @@ export default {
   'Plan anew': 'Neu planen',
   'Bookmarks and agenda': 'Merken und Agenda',
   Calendar: 'Kalender',
-  'Kinds of travel anew': 'Reisearten neu',
+  'Kinds of travel anew': "Tourarten neu",
   'The newest version, every function one by one and all versions by month.': 'Die neueste Version, jede Funktion einzeln und alle Versionen nach Monat.',
 
   /* ---------- I11c / I11d the whole list ---------- */

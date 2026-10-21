@@ -151,3 +151,35 @@ test('sale listing: km and parts in the text, the price only when typed', async 
   await expect(text).toContainText(T('Price: CHF {price}', { price: '950' }));
   expect(await noSideways(page)).toBe(0);
 });
+
+// Noah 21.10.2026 «1b»: the chain reminder after rain stands on the page «Verschleiss» (and on the phone), not on Heute
+test('chain after rain: a hint on the wear page, not on Today; done writes the care entry and the hint goes', async ({ page }) => {
+  const put = (store, row) =>
+    page.evaluate(([s, r]) => new Promise((ok, no) => {
+      const o = indexedDB.open('pack-generator');
+      o.onsuccess = () => {
+        const tx = o.result.transaction(s, 'readwrite');
+        tx.objectStore(s).put(r);
+        tx.oncomplete = () => { o.result.close(); ok(); };
+        tx.onerror = () => no(tx.error);
+      };
+    }), [store, row]);
+  await put('kmBook', { id: 'kb-wet-test', bikeId: BIKE.id, date: today(), km: 42, kind: 'ride', source: 'manual', state: 'counted' });
+  await put('meta', { key: 'inspectRain', at: new Date().toISOString(), lat: 0, lon: 0, days: { [today()]: 9 } });
+
+  // Today in the evening: no chain window
+  await page.clock.setFixedTime(new Date(`${today()}T18:30:00Z`));
+  await page.goto('./#/');
+  await settle(page);
+  await expect(page.locator('dialog[data-window="chain"]')).toHaveCount(0);
+
+  await page.goto(`./#/bikes?tab=care&view=wear&bike=${BIKE.id}`);
+  const hint = page.locator('[data-wet-chain]');
+  await expect(hint).toBeVisible();
+  await expect(hint).toContainText(T('Dry and oil the chain'));
+  await expect(hint).toContainText('42');
+  expect(await noSideways(page)).toBe(0);
+  await hint.locator('[data-wet-chain-done]').click();
+  await expect(hint).toHaveCount(0);
+  await expect.poll(async () => (await bikeNow(page)).parts.find((p) => p.key === 'chain').history.some((h) => h.date === today() && h.action === 'service')).toBe(true);
+});

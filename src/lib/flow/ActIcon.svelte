@@ -32,8 +32,8 @@
     color: var(--hi);
   }
   .mind {
-    background: var(--accent-soft);
-    color: var(--accent);
+    background: var(--l4-soft);
+    color: var(--l4);
   }
   .rest {
     background: var(--l3-soft);

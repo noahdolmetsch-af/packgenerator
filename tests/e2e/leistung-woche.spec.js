@@ -35,6 +35,8 @@ test('Training › Woche: the analyses over the weeks, hide and undo, switch in 
 
   const sec = page.locator('[data-section="week-analyses"]');
   await expect(sec.getByRole('heading', { name: T('Analyses over the weeks') })).toBeVisible();
+  // Impeccable P3 (20.10.2026): a phone shows two analyses, the rest after «Noch n Auswertungen»
+  if (await sec.locator('[data-more-analyses]').count()) await sec.locator('[data-more-analyses]').click();
   const card = (k) => sec.locator(`[data-ana="${k}"]`);
   // every week card, in the order of «Analysen anpassen», with its German title
   const keys = ANALYSES.week.map((a) => a.key);
@@ -146,6 +148,10 @@ test('Training › Woche: plan kept, endurance check and FTP say quietly why not
   await page.reload();
   await ready(page);
   const card = (k) => page.locator(`[data-section="week-analyses"] [data-ana="${k}"]`);
+  // Impeccable P3: on a phone the rest of the analyses come after «Noch n Auswertungen»
+  const more = page.locator('[data-section="week-analyses"] [data-more-analyses]');
+  await expect(page.locator('[data-section="week-analyses"]')).toBeVisible();
+  if (await more.count()) await more.click();
   await expect(card('plan').locator('[data-plan-none]')).toHaveText('Noch kein Plan. Oben unter «Woche planen» planen.');
   await expect(card('plan').getByRole('link', { name: 'Oben unter «Woche planen» planen.' })).toHaveAttribute('href', '#/flow/training');
   await expect(card('decouple').locator('[data-decouple-none]')).toContainText('Noch keine lange ruhige Fahrt in den letzten 6 Monaten');

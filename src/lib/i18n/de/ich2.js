@@ -4,7 +4,7 @@ export default {
   'auto-backup set up': 'automatisches Backup eingerichtet',
   'no backup yet': 'noch kein Backup',
   'everything is only on this device': 'alles liegt nur auf diesem Gerät',
-  'Make a backup': 'Backup machen',
+  'Make a backup': "Backup speichern",
   Data: 'Daten',
   'Notes from on the way': 'Notizen von unterwegs',
   'last backup {n} day ago': 'letztes Backup vor {n} Tag',

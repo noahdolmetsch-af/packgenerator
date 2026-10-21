@@ -93,7 +93,7 @@
     { key: 'heading', name: 'Heading', icon: Heading, run: heading },
     { key: 'ul', name: 'List', icon: List, run: () => cmd('insertUnorderedList') },
     { key: 'ol', name: 'Numbered list', icon: ListOrdered, run: () => cmd('insertOrderedList') },
-    { key: 'todo', name: 'Ticks', icon: ListChecks, run: ticks },
+    { key: 'todo', name: 'Tick list', icon: ListChecks, run: ticks },
     { key: 'table', name: 'Table', icon: Table, run: table },
     { key: 'plain', name: 'Remove formatting', icon: RemoveFormatting, run: () => cmd('removeFormat') },
   ];

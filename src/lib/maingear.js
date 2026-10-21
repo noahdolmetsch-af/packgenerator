@@ -33,8 +33,15 @@ const sportDomains = () => DOMAINS.filter((d) => d.sport && !d.bike);
  */
 export function sportsOf(acts = []) {
   const out = sportDomains().map((d) => ({ key: `dom:${d.key}`, name: d.name, icon: d.icon ?? d.key }));
+  // Impeccable bug: only «move» activities are sports (not meditation, sauna or brushing teeth), and a
+  // name that is there already (an area «Hiking» and an activity «Hiking») shows once
+  const seen = new Set(out.map((d) => String(d.name).toLowerCase()));
   for (const a of [...acts].sort((x, y) => (x.order ?? 0) - (y.order ?? 0))) {
     if (!a?.id || BIKE_ACTS.has(a.id) || a.paused) continue;
+    if (a.ring && a.ring !== 'move') continue;
+    const names = [a.name, a.nameDe].filter(Boolean).map((n) => String(n).toLowerCase());
+    if (names.some((n) => seen.has(n))) continue;
+    names.forEach((n) => seen.add(n));
     out.push({ key: `act:${a.id}`, name: a.name, nameDe: a.nameDe, icon: a.icon ?? 'heart' });
   }
   return out;

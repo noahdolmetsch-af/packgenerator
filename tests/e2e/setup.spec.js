@@ -90,7 +90,8 @@ test('band: name, km, weight, bags, care due; the bikes as tabs; edit and add', 
   await expect(band).toContainText('12.4 kg');
   await expect(band).toContainText(T('measured'));
   await expect(band).toContainText(T('{n} bags', { n: 3 }));
-  const due = band.getByRole('link', { name: T('{n} care due', { n: 2 }) });
+  // Impeccable 0.174: the due pill says what is up and leads there
+  const due = band.getByRole('link', { name: T('Up now: {n} jobs · See', { n: 2 }) });
   await expect(due).toHaveAttribute('href', new RegExp(`tab=care&bike=${SPARK}`));
 
   // The bikes as tabs: a tap switches the bike and the address.
