@@ -32,6 +32,7 @@
   import LessonsCard from './LessonsCard.svelte';
   import PlanNotesCard from './PlanNotesCard.svelte';
   import DocChecks from './DocChecks.svelte';
+  import WhySheet from './WhySheet.svelte'; // P3 «Warum? und Regeln» (RG1): why a row is on the list
   import { hasStages } from '../stages.js';
   import { isEvent } from '../care.js';
   import TripBand from '../trip/TripBand.svelte';
@@ -66,6 +67,7 @@
   let sheetEl = $state();
   let menuEl = $state();
   let note = $state('');
+  let whyId = $state(null); // P3 (RG1): the row whose «Why?» window is open
   // v0.59.0 «Tauschen» (OP2a, Noah a): the worn clothing is the first card «On me» (a tap swaps); the
   // groups below leave it out, so a piece stands in one place. «On me» without other things goes away.
   const worn = $derived(wornClothes(trip, itemsById));
@@ -426,7 +428,7 @@
                       <!-- v0.24.1 (Noah 1a): a calm row, name (× n above 1) and weight; a tap opens amount, move and take out.
                            v0.44.1 (AP21): Escape closes the open row and the focus goes back to its button. -->
                       <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
-                      <li class="planning-row" class:open class:changed={!!ctx} draggable={grouping === 'bags' && !phone.matches && !fixed} ondragstart={(e) => { e.dataTransfer.setData('text/plain', entry.itemId); e.dataTransfer.effectAllowed = 'copyMove'; }} onkeydown={(e) => { if (e.key === 'Escape' && open) { e.preventDefault(); itemMenu = null; e.currentTarget.querySelector('.row-main')?.focus(); } }}>
+                      <li class="planning-row" class:open class:changed={!!ctx} class:has-why={!!why?.line} draggable={grouping === 'bags' && !phone.matches && !fixed} ondragstart={(e) => { e.dataTransfer.setData('text/plain', entry.itemId); e.dataTransfer.effectAllowed = 'copyMove'; }} onkeydown={(e) => { if (e.key === 'Escape' && open) { e.preventDefault(); itemMenu = null; e.currentTarget.querySelector('.row-main')?.focus(); } }}>
                         <GripVertical class="drag-handle" size={18} aria-hidden="true" />
                         <!-- TZ-2: a fixed list: the row only to read (no amount, move or take out) -->
                         <svelte:element this={fixed ? 'div' : 'button'} class="row-main" class:ro={fixed} {...(fixed ? {} : { 'aria-label': t('Amount, move or take out: {name}', { name }), 'aria-describedby': why?.line || why?.note ? `calm-r-${entry.itemId} calm-w-${entry.itemId}` : `calm-w-${entry.itemId}`, 'aria-expanded': open, 'aria-controls': `calm-act-${entry.itemId}`, onclick: () => (itemMenu = open ? null : entry.itemId) })}>
@@ -434,6 +436,8 @@
                           <span class="item-weight" id={`calm-w-${entry.itemId}`}>{#if item?.weightG == null}<i class="tp-badge">{t('not weighed')}</i>{:else}{formatWeight(item.weightG * qty)}{/if}</span>
                           {#if !fixed}<ChevronDown class="row-chevron" size={18} aria-hidden="true" />{/if}
                         </svelte:element>
+                        <!-- P3 «Warum? und Regeln» (RG1, 2a: always visible): the rule behind the reason line -->
+                        {#if why?.line}<button type="button" class="tp-link why-btn" aria-label={t('Why is {name} on the list?', { name })} aria-haspopup="dialog" onclick={() => (whyId = entry.itemId)} data-why={entry.itemId}>{t('Why?')}</button>{/if}
                         {#if ctx && !fixed}<p class="row-ctx"><i class="tp-badge">{changedText(entry.itemId)}</i><button type="button" class="tp-link" aria-label={t('Undo for {name}', { name })} onclick={() => actions.undoRow(entry.itemId)}><Undo2 size={15} aria-hidden="true" />{t('Undo')}</button></p>{/if}
                         {#if open && !fixed}<div class="item-actions" id={`calm-act-${entry.itemId}`}>
                           <div class="amount" role="group" aria-label={t('Amount for {name}', { name })}><button aria-label={t('One less {name}', { name })} disabled={qty <= 1} onclick={() => actions.qty(entry.itemId, qty - 1)}><Minus size={16} /></button><span>{qty}</span><button aria-label={t('One more {name}', { name })} disabled={qty >= 20} onclick={() => actions.qty(entry.itemId, qty + 1)}><Plus size={16} /></button></div>
@@ -467,6 +471,10 @@
 {#if swapping}
   {@const from = swapping.item}
   <SwapSheet {trip} item={from} {items} memory={swapMemory} range={swapRange} rain={swapRain} {wardrobeHref} places={targets.filter((x) => x.key !== 'body').map((x) => ({ key: x.key, name: trip.purpose?.[x.key] || (x.bag ? bagName(x.bag.name) : t(x.zone.name)) }))} onmove={(slot) => actions.move(from.id, slot)} onpick={(to) => actions.swapWear(from.id, to)} ontakeoff={() => actions.takeOff(from.id)} onclose={() => (swapping = null)} />
+{/if}
+
+{#if whyId && itemsById[whyId]}
+  <WhySheet item={itemsById[whyId]} reason={reasons[whyId]} onclose={() => (whyId = null)} />
 {/if}
 
 {#if openAsk}
@@ -561,6 +569,11 @@
   .addrow { margin: 4px 0 0 32px; }
   .real-pack { margin: 0 0 4px 32px; }
   .quiet-link { font-size: var(--fs-small); color: var(--ink-2); min-height: 44px; }
+  /* P3 (RG1): «Why?» sits right of the row; amount, move and the change line take the whole width below */
+  .planning-row.has-why { display: flex; flex-wrap: wrap; align-items: flex-start; }
+  .planning-row.has-why > .row-main { flex: 1 1 0; width: auto; min-width: 0; }
+  .planning-row.has-why > .row-ctx, .planning-row.has-why > .item-actions { flex: 1 1 100%; }
+  .why-btn { flex: none; align-self: center; min-width: 44px; min-height: 44px; padding: 0 4px; font-size: var(--fs-small); color: var(--ink-2); }
   .row-ctx { display: flex; align-items: center; gap: 10px; margin: -6px 0 6px 8px; }
   .folds { margin-top: 10px; }
   .fold-btn { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 56px; padding: 6px 16px; color: var(--ink); font: 500 var(--fs-body) var(--font-body); text-align: left; cursor: pointer; }

@@ -109,6 +109,8 @@ Ursprünglich freigegebene Ausführungsreihenfolge: AP01–AP09 → AP12–AP16 
 
 **21.10.2026, v0.179.0 «Gepackt und geladen»:** Mockup-Paket P1 Packen und Strom: neues Teil beim Packen, Strom-Werte mit Quelle, Leuchtstufen, Ladezeit messen, Flickzeug-Fehler. Als Nächstes P6 Heute ergänzen.
 
+**21.10.2026, v0.181.0 «Warum, und nach welcher Regel»:** Mockup-Paket P3 Warum? und Regeln: «Warum?» in Planen, Seite «So entscheidet die App», «Meist vergessen» in Packen. Als Nächstes P4 Aktiv.
+
 **21.10.2026, v0.178.0 «Skitouren, gut geplant»:** Mockup-Paket P2 Skitour: Tour planen mit Gefahrenstufe und «Dein Morgen», Saison-Seite, «Gipfel erreicht», Plan und Wirklichkeit. Später (nicht in P2): Saison-Karte mit allen Gipfeln (braucht Koordinaten), Skitour-Spielwiese, Nachfüll-Extras. Als Nächstes P1 Packen und Strom.
 
 **21.10.2026, v0.177.0 «Wie Strava, nur ruhiger»:** Ein Paket für alles nach 0.176: Fahrten wie auf Strava mit Zeitleiste, Tages-Check mit Datum und Uhrzeit, Gesamttest-Korrekturen, Packliste aufräumen, Ess-Erinnerung. Danach die Mockup-Pakete P2 → P1 → P6 → P3 → P4 → P5 → P7 → P8.

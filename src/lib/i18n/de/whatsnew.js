@@ -1557,6 +1557,14 @@ export default {
   'Plan and reality after the tour': 'Plan und echt nach der Tour',
   'Open Ski tours, tap «Plan the tour» and tap a danger level.': 'Öffne Skitouren, tippe auf «Tour planen» und dann auf eine Gefahrenstufe.',
   'Open Ski tours › Season and add a wish tour.': 'Öffne Skitouren › Saison und füge eine Wunschtour hinzu.',
+  // v0.181.0 «Warum? und Regeln»
+  'Why, and by which rule': 'Warum, und nach welcher Regel',
+  'Every suggestion says why.': 'Jeder Vorschlag sagt, warum.',
+  '«Why?» next to every suggested row': '«Warum?» neben jeder vorgeschlagenen Zeile',
+  'All rules on one page': 'Alle Regeln auf einer Seite',
+  'Most often forgotten at the top of Pack': 'Meist vergessen zuoberst beim Packen',
+  'Open Planen of a trip and tap «Why?» next to a row.': 'Öffne Planen einer Tour und tippe neben einer Zeile auf «Warum?».',
+  'Open Me › How the app decides and search «rain».': 'Öffne Ich › So entscheidet die App und suche «Regen».',
   // v0.179.0 «Packen und Strom»
   'Packed and charged': 'Gepackt und geladen',
   'New things straight into the bag.': 'Neues gleich in die Tasche.',

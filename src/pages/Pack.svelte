@@ -37,6 +37,7 @@
   let review = $state(false);
   import TripDialog from '../lib/pack/TripDialog.svelte';
   import PackBlocks from '../lib/pack/PackBlocks.svelte';
+  import ForgotCard from '../lib/pack/ForgotCard.svelte'; // P3 «Meist vergessen» (decision 12.10.2026 2a): top 3 at the top of Pack
   import RepairSlim from '../lib/pack/RepairSlim.svelte';
   import { blockRows } from '../lib/packblocks.js';
   import { rulesOf, COUNTRIES, ARRIVALS, HOME_COUNTRY, BATHE } from '../lib/situation.js';
@@ -1041,7 +1042,7 @@
       </div>
     </div>
   {/if}{#if domain === 'ski'}<SkiSeasonStart />{/if}{/snippet}
-  {#snippet blocksCard()}{#if packRows}<PackBlocks rows={packRows} rules={rulesOf($setsQ?.value)} {itemsById} ontoggle={packToggle} onslim={() => (slimOpen = true)} {slimN} note={packUndo?.tripId === trip.id ? packNote : ''} onundo={canUndo ? packUndoNow : null} />{/if}{/snippet}
+  {#snippet blocksCard()}<ForgotCard {trip} trips={$tripsQ ?? []} debriefs={$debriefsQ ?? []} {items} onadd={helperAdd} />{#if packRows}<PackBlocks rows={packRows} rules={rulesOf($setsQ?.value)} {itemsById} ontoggle={packToggle} onslim={() => (slimOpen = true)} {slimN} note={packUndo?.tripId === trip.id ? packNote : ''} onundo={canUndo ? packUndoNow : null} />{/if}{/snippet}
   <!-- «Mehr Inhalt» (Noah 15.10.2026, 1a–5a): the tip line sits under the trip band (CalmPack, PackDay); at the end the fold and the example -->
   <!-- Paket H «4a und b»: read the packing list aloud (the window loads only when it opens) -->
   {#if reading}

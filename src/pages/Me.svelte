@@ -335,6 +335,14 @@
             </a>
           </li>
           <li>
+            <!-- P3 «Warum? und Regeln» (RG3): every rule the app packs by -->
+            <a class="ich-row" href="#/me/regeln" data-me-rules>
+              <span class="ich-ib"><ListChecks size={18} aria-hidden="true" /></span>
+              <span class="ich-m"><b>{t('How the app decides')}</b><small>{t('Every rule, where to change it')}</small></span>
+              <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
+            </a>
+          </li>
+          <li>
             <!-- Paket R: what stays on the device, what the server keeps, costs, terms -->
             <a class="ich-row" href="#/me/privacy">
               <span class="ich-ib"><ShieldCheck size={18} aria-hidden="true" /></span>

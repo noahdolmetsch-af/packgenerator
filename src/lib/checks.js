@@ -243,3 +243,43 @@ export function checkStats(trips, kind, domain, { except = null, before = null }
 /** The newest trip of this type with its own list of this kind (V4 «zuletzt …»), or null; before: only trips started before that day. */
 export const lastWithOwn = (trips, kind, domain, before = null) =>
   [...trips].filter((tr) => domainOf(tr) === domain && Array.isArray(tr[kind]) && tr[kind].length && (!before || String(tr.startDate ?? '') < before)).sort((a, b) => String(b.startDate ?? '').localeCompare(String(a.startDate ?? '')))[0] ?? null;
+
+/**
+ * Paket P3 «Warum? und Regeln», C «Meist vergessen» (decision 12.10.2026 2a: counted from all debriefs of
+ * the trip type; pin, take out of the list; the top 3 at the top of Pack). The choices live in the settings
+ * «forgotten»: { pinned: [key], hidden: [key] } (key: the name in small letters, the same for every type).
+ */
+export const FORGOT_KEY = 'forgotten';
+const keys = (v) => (Array.isArray(v) ? [...new Set(v.filter((x) => typeof x === 'string' && x).map(norm))] : []);
+/** The saved choices, every field checked. */
+export const forgotPrefs = (v) => ({ pinned: keys(v?.pinned), hidden: keys(v?.hidden) });
+/** The key of a forgotten thing. */
+export const forgotKey = (name) => norm(name);
+
+/**
+ * The most forgotten things of a trip type: pinned first, then how often, then the newest.
+ * → [{ name, at, n, key, pinned }] (at most n; hidden ones left out).
+ */
+export function mostForgotten(trips, debriefs, domain, { except = null, prefs = null, n = 3 } = {}) {
+  const p = forgotPrefs(prefs);
+  const hidden = new Set(p.hidden);
+  return missedBefore(trips, debriefs, domain, [], { except })
+    .map((m) => ({ ...m, key: norm(m.name), pinned: p.pinned.includes(norm(m.name)) }))
+    .filter((m) => !hidden.has(m.key))
+    .sort((a, b) => Number(b.pinned) - Number(a.pinned) || b.n - a.n || String(b.at).localeCompare(String(a.at)))
+    .slice(0, n);
+}
+
+/** Pin or unpin one thing (it stays on top). */
+export function togglePin(prefs, key) {
+  const p = forgotPrefs(prefs);
+  const k = norm(key);
+  return { ...p, pinned: p.pinned.includes(k) ? p.pinned.filter((x) => x !== k) : [...p.pinned, k] };
+}
+
+/** Take one thing out of the list (hidden: true) or back (false). */
+export function hideForgot(prefs, key, hidden = true) {
+  const p = forgotPrefs(prefs);
+  const k = norm(key);
+  return { pinned: hidden ? p.pinned.filter((x) => x !== k) : p.pinned, hidden: hidden ? [...new Set([...p.hidden, k])] : p.hidden.filter((x) => x !== k) };
+}
