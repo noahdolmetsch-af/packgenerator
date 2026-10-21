@@ -22,6 +22,10 @@
   import { askDelete, deleteWithUndo } from '../ui/ask.js';
   import { offerDone } from '../ui/rename.svelte.js';
   import VeloHead from '../bikes/VeloHead.svelte';
+  import ChainRotation from './ChainRotation.svelte';
+  import GriffMore from './GriffMore.svelte';
+  import { brandStats, bestFor } from '../griff.js';
+  import './griff.css';
 
   let { bikeId = null } = $props();
 
@@ -36,6 +40,8 @@
   const rows = $derived(view ? wearRows(view, { entries, today }) : []);
   const perWeek = $derived(bike ? weeklyKm(entries, bike.id, today) : null);
   const periods = $derived(bike ? servicePeriods(bike, today) : []);
+  // Paket VG 1133: km per brand from the own used-up parts of all bikes
+  const stats = $derived(brandStats(bikes.map((b) => withVisits(b, $visitsQ ?? []))));
   const now = $derived(periods.find((p) => p.now) ?? null);
   const hidden = $derived(bike ? (bike.parts ?? []).filter((p) => bike.life && Object.hasOwn(bike.life, p.key) && bike.life[p.key] === null) : []);
   const addable = $derived(bike ? addableParts(bike).filter((p) => !hidden.some((h) => h.key === p.key)) : []);
@@ -165,18 +171,19 @@
               <div class="bar" role="img" aria-label={t('{km} of {life} km', { km: num(r.km), life: num(r.life.km) })}><span style:width="{Math.min(100, Math.round(r.frac * 100))}%"></span></div>
               <p class="num line">
                 {t('{km} of {life} km', { km: num(r.km), life: num(r.life.km) })} ·
-                {r.left > 0 ? t('{km} km left', { km: num(r.left) }) : t('{km} km over', { km: num(-r.left) })}{#if r.due && r.left > 0} · {t('about in {month}', { month: month(r.due) })}{/if}
+                {r.left > 0 ? t('{km} km left', { km: num(r.left) }) : t('{km} km over', { km: num(-r.left) })}{#if r.due && r.left > 0}{' · '}{t('about in {month}', { month: month(r.due) })}{/if}
               </p>
             {:else if r.state === 'unknown'}
               <p class="quiet">{t('The app does not know when this part was mounted.')} <a class="lnk" href={bikesHash({ tab: 'care', bike: bike.id, open: true })}>{t('Set a start point in Bike care')}</a></p>
             {/if}
             {#if whyText(r)}<p class="quiet">{whyText(r)}</p>{/if}
+            {#if (r.state === 'soon' || r.state === 'due') && bestFor(stats, r.key)}<p class="quiet" data-wear-best>{t('Lasted longest for you: {brand}, about {km} km', { brand: bestFor(stats, r.key).brand, km: num(bestFor(stats, r.key).km) })}</p>{/if}
             {#if r.since}<p class="quiet num">{t('Since the last service on {date}: {km} km', { date: dateOf(r.since.date), km: num(r.since.km) })}</p>{/if}
-            <p class="quiet src">{r.life.km ? t('Lasts about {km} km', { km: num(r.life.km) }) : ''}{r.life.km ? ` · ${srcText(r.life)}` : ''}{#if r.cost} · {t('CHF {chf} per 1000 km', { chf: num(r.cost.chf) })}{/if}</p>
+            <p class="quiet src">{r.life.km ? t('Lasts about {km} km', { km: num(r.life.km) }) : ''}{r.life.km ? ` · ${srcText(r.life)}` : ''}{#if r.cost}{' · '}{t('CHF {chf} per 1000 km', { chf: num(r.cost.chf) })}{/if}</p>
             {#if r.past.length}
               <details class="fold">
                 <summary>{tn(r.past.length, '{n} part before', '{n} parts before')}</summary>
-                <ul class="past">{#each r.past as p (p.from)}<li class="num">{dateOf(p.from)} → {dateOf(p.to)}: {t('{km} km', { km: num(p.km) })}{#if p.model} · {p.model}{/if}</li>{/each}</ul>
+                <ul class="past">{#each r.past as p (p.from)}<li class="num">{dateOf(p.from)} → {dateOf(p.to)}: {t('{km} km', { km: num(p.km) })}{#if p.model}{' · '}{p.model}{/if}</li>{/each}</ul>
               </details>
             {/if}
             {#if editing === r.key}
@@ -212,6 +219,11 @@
         <p class="quiet hid">{t('Off this page:')} {#each hidden as p, i (p.key)}<button type="button" class="lnk" onclick={() => show(p)} data-wear-show={p.key}>{partName(p)}</button>{i < hidden.length - 1 ? ', ' : ''}{/each}</p>
       {/if}
     </section>
+    <!-- Paket VG «Das Velo im Griff»: chain rotation (1135), what lasts longest (1133), the pages and the reminders -->
+    <div class="gp">
+      <ChainRotation {bike} />
+      <GriffMore {bike} {stats} />
+    </div>
     <p class="quiet"><a class="lnk" href={bikesHash({ tab: 'shop', bike: bike.id })}>{t('Workshop visits and receipts')}<ChevronRight size={14} aria-hidden="true" /></a></p>
   {/if}
 </div>

@@ -15,15 +15,29 @@
   import { flightUrl } from '../alltag.js';
   import { eveningHints } from '../unterwegs/morgen.js';
   import { serviceDue, checkState } from '../care.js';
-  import { CloudSun, Package, Wrench, BatteryCharging } from '@lucide/svelte';
+  import { CloudSun, Package, Wrench, BatteryCharging, Droplets } from '@lucide/svelte';
   import '../bikes/velo-dlg.css';
+  import { PREFS_KEY as GRIFF_PREFS, prefsOf, wetRides } from '../griff.js';
+  import { wetChainDone } from '../griffdb.js';
+  import { wetOf } from '../inspect/rain.js';
+  import { INSPECT_RAIN } from '../inspect/inspect.js';
+  import { offerDone } from '../ui/rename.svelte.js';
 
   // blocked (Paket C): the Tages-Check window is open or loading; this one waits and comes after it
   let { now, trips = [], itemsById = {}, name = undefined, blocked = false } = $props();
   const recQ = liveQuery(async () => (await db.settings.get(WINDOWS_KEY))?.value ?? {});
   const rec = $derived($recQ);
-  const win = $derived(rec && !blocked ? windowNow({ rec, now, trips, itemsById, name }) : null);
-  // UI-Ziele I1 / #16 (Noah 20.10.2026 «freigabe»): «Bereit für morgen?» gathers weather, packing, the bike and the
+  // Paket VG 1128: a ride in the rain today (start cell, inspect/rain.js) → «Kette trocknen und ölen» from 18:00, switchable (griff.prefs)
+  const wetQ = liveQuery(async () => {
+    const day = dayOfStamp(now);
+    const [prefs, rides, rain, bikes] = await Promise.all([db.settings.get(GRIFF_PREFS), db.kmBook.where('date').equals(day).toArray().catch(() => []), db.meta.get(INSPECT_RAIN), db.bikes.toArray()]);
+    if (!prefsOf(prefs?.value).wetChain) return null;
+    const first = wetRides(rides, day, wetOf(rain))[0];
+    const bike = first && bikes.find((b) => b.id === first.bikeId);
+    return bike ? { bikeId: bike.id, bikeName: bike.name, km: first.km } : null;
+  });
+  const win = $derived(rec && !blocked ? windowNow({ rec, now, trips, itemsById, name, wet: $wetQ ?? null }) : null);
+    // UI-Ziele I1 / #16 (Noah 20.10.2026 «freigabe»): «Bereit für morgen?» gathers weather, packing, the bike and the
   // charging of tomorrow's trip in this window, each line with its step (morgen.js, the same rules as in Packen)
   const bikeQ = $derived(liveQuery(() => (win?.id === 'eve' && win.trip?.bikeId ? db.bikes.get(win.trip.bikeId) : undefined)));
   const due = $derived.by(() => {
@@ -46,6 +60,13 @@
   });
   const soon = () => win && put(later(rec, win.id, now));
   const away = () => win && put(notToday(rec, win.id, now));
+  async function chainDone() {
+    if (!win) return;
+    const id = win.bikeId;
+    put(done(rec, win.id, now));
+    const undo = await wetChainDone(id, dayOfStamp(now));
+    if (undo) offerDone(t('Chain dried and oiled: saved in Bike care.'), () => db.bikes.update(undo.bikeId, { parts: undo.parts }));
+  }
   function go() {
     if (!win) return;
     if (win.id === 'eve' || win.id === 'flight') openTrip(win.trip.id);
@@ -60,7 +81,7 @@
 {#if win}
   <dialog class="sheet vdlg from-below hw" bind:this={dialog} use:backClose={closed} onclose={closed} aria-labelledby="hw-h" data-window={win.id}>
     <div class="vd-head">
-      <span class="ib" aria-hidden="true">{#if win.id === 'eve'}<Backpack size={18} />{:else if win.id === 'flight'}<Plane size={18} />{:else}<CalendarCheck size={18} />{/if}</span>
+      <span class="ib" aria-hidden="true">{#if win.id === 'eve'}<Backpack size={18} />{:else if win.id === 'flight'}<Plane size={18} />{:else if win.id === 'chain'}<Droplets size={18} />{:else}<CalendarCheck size={18} />{/if}</span>
       <div class="vd-t">
         {#if win.id === 'eve'}
           <h2 id="hw-h">{t('Ready for tomorrow?')}</h2>
@@ -68,6 +89,9 @@
         {:else if win.id === 'flight'}
           <h2 id="hw-h">{t('Tomorrow you fly: {no}', { no: win.flight })}</h2>
           <p class="vd-sub">{t('{title}. Check in online tonight, have your ID ready and plan the way to the airport.', { title: win.trip.title })}</p>
+        {:else if win.id === 'chain'}
+          <h2 id="hw-h">{t('Dry and oil the chain')}</h2>
+          <p class="vd-sub">{t('{bike} was out in the rain today ({km} km). A dry, oiled chain lasts longer.', { bike: win.bikeName, km: win.km })}</p>
         {:else}
           <h2 id="hw-h">{t('Your week in review')}</h2>
           <p class="vd-sub">{t('The week is nearly over: what went well, what was missing, and one idea for next week.')}</p>
@@ -92,6 +116,8 @@
         </ul>
       {/if}
       {#if win.flight}<p class="ln" data-window-flight><Plane size={14} aria-hidden="true" /> {t('Flight {no}: check in online and have your ID ready.', { no: win.flight })} <a href={flightUrl(win.flight)} target="_blank" rel="noopener">{t('Follow the flight')}</a></p>{/if}
+    {:else if win.id === 'chain'}
+      <p class="ln" data-window-chain>{t('Wipe it with a cloth, a drop of oil on every link, wipe off what is too much.')}</p>
     {:else}
       <SurpriseLines today={dayOfStamp(now)} />
     {/if}
@@ -102,6 +128,8 @@
         <a class="btn hi" href="#/pack" onclick={go} data-window-go>{t('Pack now')}<ChevronRight size={16} aria-hidden="true" /></a>
       {:else if win.id === 'flight'}
         <a class="btn hi" href={flightUrl(win.flight)} target="_blank" rel="noopener" onclick={() => put(done(rec, win.id, now))} data-window-go>{t('Follow the flight')}<ChevronRight size={16} aria-hidden="true" /></a>
+      {:else if win.id === 'chain'}
+        <button type="button" class="btn hi" onclick={chainDone} data-window-go>{t('Done: chain oiled')}</button>
       {:else}
         <a class="btn hi" href="#/flow/review" onclick={go} data-window-go>{t('Open the review')}<ChevronRight size={16} aria-hidden="true" /></a>
       {/if}

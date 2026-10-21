@@ -1386,6 +1386,16 @@ export default {
   'Open Me › What is new: every version is open, grouped by month.': 'Öffne Ich › Was ist neu: Jede Version ist offen, nach Monat gruppiert.',
   'Tap a line of a version: its place opens.': 'Tippe eine Zeile einer Version an: Ihr Ort öffnet sich.',
   'Open Me › AI helper: the switch is off. Switch it on: the six places say «on».': 'Öffne Ich › KI-Helfer: Der Schalter ist aus. Schalte ihn ein: Die sechs Stellen sagen «an».',
+  // v0.175.0 Paket VG «Das Velo im Griff»
+  'The bike under control': 'Das Velo im Griff',
+  'Rain, photos, spare parts, sale.': 'Regen, Fotos, Ersatzteile, Verkauf.',
+  'After rain: oil the chain in the evening': 'Nach Regen: am Abend Kette ölen',
+  'Wear photos: old next to new': 'Verschleiss-Fotos: alt neben neu',
+  'Spare parts at home, sale listing': 'Ersatzteile zu Hause, Verkaufsinserat',
+  'Bike box, chain rotation, km per brand': 'Velobox, Ketten-Rotation, km pro Marke',
+  'Spring service in Merken': 'Frühlings-Service in Merken',
+  'Bikes › Care › a bike › «Wear»: scroll to «More for the bike».': 'Velos › Pflege › ein Velo › «Verschleiss»: zu «Mehr zum Velo» scrollen.',
+  'Open «Spare parts at home», add 2 chains.': 'Öffne «Ersatzteile zu Hause», füge 2 Ketten hinzu.',
   // v0.171.0 «Verschleiss»
   'Wear at a glance': 'Verschleiss auf einen Blick',
   'Total km stay, each part counts anew.': 'Gesamt-km bleiben, jedes Teil zählt neu.',

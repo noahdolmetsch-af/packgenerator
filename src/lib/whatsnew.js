@@ -16,6 +16,26 @@
 
 export const WHATS_NEW = [
   {
+    // Paket VG «Das Velo im Griff» (Noah 20.10.2026 «1a 2a 3a», «4-6 alle», «7-8 beide»): chain after rain, wear photos, sale listing, bike box, spare parts, brands, spring service, chain rotation. Bundler renumbers.
+    version: '0.175.0',
+    date: '2026-10-20',
+    title: 'The bike under control',
+    lead: 'Rain, photos, spare parts, sale.',
+    points: [
+      { text: 'After rain: oil the chain in the evening', href: '#/bikes?tab=care&view=wear' },
+      { text: 'Wear photos: old next to new', href: '#/bikes?tab=care&view=photos' },
+      { text: 'Spare parts at home, sale listing', href: '#/bikes?tab=care&view=stock' },
+    ],
+    small: [
+      { box: 'new', text: 'Bike box, chain rotation, km per brand' },
+      { box: 'new', text: 'Spring service in Merken' },
+    ],
+    test: [
+      'Bikes › Care › a bike › «Wear»: scroll to «More for the bike».',
+      'Open «Spare parts at home», add 2 chains.',
+    ],
+  },
+  {
     // v0.171.0 «Verschleiss» (Noah 20.10.2026 «1 pro Teil, 2a+b, 3a, 4a+b, 5a»): the counter per part and bike, the page «Wear».
     version: '0.171.0',
     date: '2026-10-20',

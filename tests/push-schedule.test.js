@@ -124,3 +124,23 @@ describe('Wetter-Wecker (Paket G): planned tours from tomorrow up to 10 days ahe
     expect(l.watch).toEqual([]);
   });
 });
+
+describe('Paket VG 1128: chain after rain', () => {
+  const ride = (bikeId, km, spot = null) => ({ bikeId, km, kind: 'ride', state: 'counted', date: '2026-10-20', spot });
+  const bikes = [{ id: 'b1', name: 'Test-Velo' }, { id: 'b2', name: 'Test-Gravel' }];
+  const rain = { days: { '2026-10-20': 6 }, spots: { '47.1,8.1': { days: {} } } };
+  it('at 19:00 on a day with a wet ride, for the bike with the most wet km', () => {
+    const l = buildList(base({ bikes, kmBook: [ride('b1', 20), ride('b2', 45), ride('b1', 60, '47.1,8.1')], rain }));
+    const w = l.items.filter((i) => i.key.startsWith('wetchain:'));
+    expect(w.map((i) => i.key)).toEqual(['wetchain:b2:2026-10-20']);
+    expect(w[0].at).toBe(atMs('2026-10-20', '19:00'));
+    expect(w[0].body).toContain('Test-Gravel');
+  });
+  it('dry day, the app switch off or the push kind off: nothing', () => {
+    const has = (over) => keys(buildList(base({ bikes, kmBook: [ride('b1', 20)], ...over }))).some((k) => k.startsWith('wetchain:'));
+    expect(has({ rain })).toBe(true);
+    expect(has({ rain: { days: {} } })).toBe(false);
+    expect(has({ rain, griff: { wetChain: false } })).toBe(false);
+    expect(has({ rain, settings: { push: { on: true, kinds: { ...allOn.kinds, wetchain: false } } } })).toBe(false);
+  });
+});

@@ -38,6 +38,8 @@ export const TOP_HREF = '#/me/news?all&sort=top';
 export const SINCE = {
   // Paket K «Unterwegs»: v0.154.0
   'f.trainhome': '0.154.0', 'f.handlebar': '0.154.0', 'f.glove': '0.154.0', 'f.eatremind': '0.154.0', 'f.departsheet': '0.154.0', 'f.komoottour': '0.154.0', 'f.routeconvert': '0.154.0', 'f.waterfood': '0.154.0', 'f.ready': '0.154.0', 'f.listentip': '0.154.0', 'f.skyplaces': '0.154.0',
+  // Paket VG «Das Velo im Griff» (Noah 20.10.2026): bundler renumbers with the release
+  'f.wetchain': '0.175.0', 'f.wearphotos': '0.175.0', 'f.sellbike': '0.175.0', 'f.bikebox': '0.175.0', 'f.sparestock': '0.175.0', 'f.brandkm': '0.175.0', 'f.springservice': '0.175.0', 'f.chainrotation': '0.175.0',
   // «Verschleiss» (Noah 20.10.2026): bundler renumbers with the release
   'f.partwear': '0.171.0',
   // «Velo-FAQ» Paket 6 (Noah 19.10.2026)
