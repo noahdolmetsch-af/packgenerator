@@ -136,3 +136,37 @@ describe('the FTP is kept and saved', () => {
     expect(await db.settings.get(OWN_FTP_KEY)).toBe(undefined);
   });
 });
+
+// Strava check 21.10.2026: the NP from the watts stream (Strava's weighted average was 147, the ride's NP ~168)
+describe('NP from the watts stream', () => {
+  it('30-second rolling average, 4th-power mean, stops left out', async () => {
+    const { npOf } = await import('../api/strava.js');
+    const time = Array.from({ length: 1201 }, (_, i) => i);
+    expect(npOf(time, time.map(() => 200))).toBe(200);
+    // 10 min hard, 10 min easy: NP above the average of 175
+    const hard = time.map((i) => (i < 600 ? 300 : 50));
+    const np = npOf(time, hard);
+    expect(np).toBeGreaterThan(220);
+    expect(np).toBeLessThan(300);
+    // a stop of 10 min at 0 W pulls the NP down unless the moving flag leaves it out
+    const stop = time.map((i) => (i < 600 ? 200 : 0));
+    const moving = time.map((i) => i < 600);
+    expect(npOf(time, stop, moving)).toBe(200);
+    expect(npOf(time, stop)).toBeLessThan(200);
+    expect(npOf([0, 1], [100, 100])).toBe(null);
+  });
+});
+
+describe('the NP from the stream stays', () => {
+  it('replaces Strava’s weighted average and stays when the list comes again', async () => {
+    const { createDb } = await import('../src/lib/db.js');
+    const { keepActivities, loadDetail } = await import('../src/lib/strava/client.svelte.js');
+    const db = createDb(`np-${Math.random()}`);
+    const act = { id: '71', type: 'GravelRide', startLocal: '2026-10-07T08:05:00Z', km: 40, movingS: 6000, wNorm: 147, wDevice: true };
+    await keepActivities(db, [act]);
+    await loadDetail(db, '71', { call: async () => ({ ok: true, np: 168, dv: 5 }) });
+    expect(await db.activities.get('71')).toMatchObject({ wNorm: 168, npS: 168 });
+    await keepActivities(db, [act]);
+    expect((await db.activities.get('71')).wNorm).toBe(168);
+  });
+});

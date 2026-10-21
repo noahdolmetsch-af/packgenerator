@@ -13,6 +13,7 @@ import { sn4plusData, D0, day } from './sn4plus-fixture.js';
 import { at1Acts } from './at1-acts.js';
 import { importAndSettle } from './settle.js';
 import { trimCourse, trimMore, trimPower } from '../../api/strava.js';
+import { DETAIL_V } from '../../src/lib/training.js';
 // the spans from the app source (tourana.js pulls in Svelte runes, so it is read as text)
 const ANA_SPANS = [...readFileSync(new URL('../../src/lib/touren/tourana.js', import.meta.url), 'utf8').match(/ANA_SPANS = \[([\s\S]*?)\];/)[1].matchAll(/\[(\d+), (\d+)\]/g)];
 
@@ -68,7 +69,7 @@ function data({ health = true } = {}) {
       { n: 3, name: 'Lap 3', km: 30.3, s: 3600, el: 3700, hm: 30, hr: 134, w: 150, kmh: 30.3 },
     ],
     detail: new Date().toISOString(),
-    dv: 4,
+    dv: DETAIL_V,
   };
   // every ride with a power meter gets a different NP, so the dots show a connection
   acts.forEach((a, i) => {
