@@ -13,9 +13,9 @@
   import { Sun, Moon, ChevronRight } from '@lucide/svelte';
   import TileHead from './TileHead.svelte';
   import { abQuery } from '../abdb.js';
-  import { QUESTION, configOf, dueList, fromChecks, isEveningRound, lastAnswer, partOf, stampOf } from '../abfragen.js';
+  import { QUESTION, configOf, dueList, fromChecks, isEveningRound, isQuiet, lastAnswer, partOf, stampOf } from '../abfragen.js';
   import { checkOf, GOALS } from '../flowcheck.js';
-  import { t } from '../i18n.svelte.js';
+  import { t, tn } from '../i18n.svelte.js';
 
   let { today, size = 'l', isnew = false } = $props();
   const q = $derived(abQuery(today));
@@ -49,7 +49,7 @@
   const known = $derived(vals.some((x) => x.v != null));
   // what is due now, as on the card of «Wi gaht's?» (an answer in the old daily check counts too)
   const due = $derived.by(() => {
-    if (!data?.stored) return 0;
+    if (!data?.stored || isQuiet(data.snooze, now)) return 0; // Noah 21.10.2026: after «Heute nicht» no hint
     const answered = [...data.answers, ...fromChecks(data.checks).map((r) => ({ qid: r.qid, at: `${r.day}T00:00` }))];
     return dueList(data.cfg, answered, now, data.snooze).length;
   });
@@ -57,7 +57,7 @@
     done
       ? [at ? t('done {time}', { time: at }) : t('done today'), goal ? t('Goal: {goal}', { goal }) : ''].filter(Boolean).join(' · ')
       : due
-        ? t('{n} due now', { n: due })
+        ? tn(due, '{n} question', '{n} questions')
         : t('not yet today · about 40 seconds'),
   );
 </script>

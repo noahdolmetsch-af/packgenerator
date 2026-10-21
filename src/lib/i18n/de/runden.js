@@ -12,7 +12,7 @@ export default {
   'Fixed rounds': 'Feste Runden',
   'a suggestion, can be switched off': 'ein Vorschlag, abschaltbar',
   'Ask in two rounds': 'In zwei Runden fragen',
-  'Questions before 12:00 come in the morning round, from 18:00 in the evening round; the others keep their own time.': 'Fragen vor 12:00 kommen in der Morgen-Runde, ab 18:00 in der Abend-Runde; die anderen behalten ihre eigene Zeit.',
+  'Questions before 11:00 come in the morning round, all others in the evening round.': 'Fragen vor 11:00 kommen in der Morgen-Runde, alle anderen in der Abend-Runde.',
   'Answer your questions or tick something in Aktiv: the ring fills by itself.': "Beantworte «Wi gaht's?» oder hake in Aktiv etwas ab: der Ring füllt sich von selbst.",
   'sleep, energy and mood · one tap per question': 'Schlaf, Energie und Stimmung · ein Tipp pro Frage',
   'Today|values': 'Heute',

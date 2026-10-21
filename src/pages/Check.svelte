@@ -69,6 +69,12 @@
   const ydot = (key, qid = null) => yesterdayOf(data?.checks ?? [], today, key, qid);
   const dateLong = new Date(`${today}T12:00:00Z`).toLocaleDateString(locale(), { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'UTC' });
   const dateShort = new Date(`${today}T12:00:00Z`).toLocaleDateString(locale(), { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC' });
+  // Noah 21.10.2026 «immer das datum und die uhrzeit der befragung, damit wir testen können»: the clock, each minute
+  let clock = $state(zurichTime(Date.now()));
+  $effect(() => {
+    const id = setInterval(() => (clock = zurichTime(Date.now())), 30_000);
+    return () => clearInterval(id);
+  });
   const label = (list, id) => {
     const x = list.find((y) => y.id === id);
     return x ? t(x.label) : id;
@@ -142,10 +148,11 @@
   <header class="ph">
     <Crumb path={[{ href: '#/', label: t('Today|place') }]} here={evening ? t('Evening review') : t('Morning check')} />
     <h1 class="h1" tabindex="-1" data-page-title>{evening ? t('How was your day?') : t('Good morning')}</h1>
+    <p class="sub num" data-check-when>{dateShort} · {clock}</p>
     {#if evening}
       <p class="sub">{phone.matches ? t('from 20:30 · about 30 seconds') : t('Evening review · from 20:30 · about 30 seconds · what the app already knows, it does not ask.')}</p>
     {:else}
-      <p class="sub">{phone.matches ? `${dateShort} · ${t('about 40 seconds · everything skippable')}` : t('Morning check · {date} · about 40 seconds · every question skippable. The line under a number shows yesterday.', { date: dateLong })}</p>
+      <p class="sub">{phone.matches ? t('about 40 seconds · everything skippable') : t('Morning check · {date} · about 40 seconds · every question skippable. The line under a number shows yesterday.', { date: dateLong })}</p>
     {/if}
   </header>
 

@@ -285,7 +285,7 @@
         <div class="ich-h"><div><h2 id="ab-rounds-h">{t('Fixed rounds')}</h2><p class="ich-hs">{t('a suggestion, can be switched off')}</p></div></div>
         <div class="card side">
           <div class="rsw">
-            <span class="rm"><b>{t('Ask in two rounds')}</b><small>{t('Questions before 12:00 come in the morning round, from 18:00 in the evening round; the others keep their own time.')}</small></span>
+            <span class="rm"><b>{t('Ask in two rounds')}</b><small>{t('Questions before 11:00 come in the morning round, all others in the evening round.')}</small></span>
             <label class="ab-sw"><span class="sr">{t('Ask in two rounds')}</span><input type="checkbox" role="switch" checked={cfg.rounds.on} onchange={(e) => save(setRounds(cfg, { on: e.currentTarget.checked }))} /></label>
           </div>
           {#if cfg.rounds.on}

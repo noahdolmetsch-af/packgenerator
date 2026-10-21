@@ -302,7 +302,7 @@ function abConfig() {
   return { key: 'abfragen', value: { since: `${addDays(DAY, -1)}T21:00`, q, own: [] } };
 }
 
-test('mask: the morning check comes as a window; Later brings it back after one hour, Not today puts it away', async ({ page, context }) => {
+test('mask: the morning check comes as a window; Later brings it back after one hour, the X keeps it away all day', async ({ page, context }) => {
   const errors = await open(page, context, '07:52');
   await put(page, { ...rows(), settings: [abConfig()] });
   await page.reload();
@@ -328,17 +328,17 @@ test('mask: the morning check comes as a window; Later brings it back after one 
   await page.clock.fastForward('01:01:00');
   await expect(mask).toHaveJSProperty('open', true);
 
-  // ✕ counts as «Später»
-  await mask.getByRole('button', { name: T('Later|mask') }).first().click();
-  await expect(mask).toBeHidden();
-  await page.clock.fastForward('01:01:00');
-  await expect(mask).toHaveJSProperty('open', true);
-
-  // «Heute nicht»: away until the next question time (the evening round), also after a reload
-  await mask.locator('[data-ab-today]').click();
+  // Noah 21.10.2026 «nie mehr eine Erinnerung» (changed on purpose): ✕ counts as «Heute nicht»: the window stays
+  // away the whole day, after a reload, an hour later and at the evening round too
+  await mask.getByRole('button', { name: T('Not today|mask') }).first().click();
   await expect(mask).toHaveCount(0);
   await page.reload();
   await ready(page);
+  await expect(mask).toHaveCount(0);
+  await page.clock.fastForward('01:01:00');
+  await expect(mask).toHaveCount(0);
+  await page.clock.fastForward('11:00:00');
+  await expect(page.locator('[data-daycard] [data-section="morningcheck"]')).toHaveAttribute('data-part', 'evening');
   await expect(mask).toHaveCount(0);
   expect(errors).toEqual([]);
 });
