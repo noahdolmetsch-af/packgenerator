@@ -296,6 +296,7 @@ export const HOWTO = {
   'f.weekreview': ['Open Aktiv › Week and tap «Week in review».', 'Read the five numbers, the strip and the highlights.', 'Step to other weeks with ‹ ›.'],
   'f.wohl': ['Open Me › What is good for me.', 'Tap «Try it» for a 7-day experiment or start your own.', 'Under each result «How does the app know?» shows where it comes from.'],
   'f.weight': ['Open Me › Weight.', 'Tap «Enter weight», type it and save.', 'The curve and watts per kg follow by themselves.'],
+  'f.namesde': ['Open Me › Data and backup › English names.', 'Check the German suggestion.', 'Tap «Take over» or «Do not suggest».'],
   // Paket K «Unterwegs» (Noah 19.10.2026)
   'f.trainhome': ['Open On the way and tap «Home».', 'Allow the location once: the next 3 trains appear.', 'Or tap car, bike or public transport for Google Maps.'],
   'f.handlebar': ['Open On the way and tap «Handlebar view».', 'Tap «Choose numbers» to pick up to 6 and order them.', '«Measure with GPS» counts the km while the view is open.'],

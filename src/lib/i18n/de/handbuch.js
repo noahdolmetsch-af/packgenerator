@@ -1452,4 +1452,9 @@ export default {
   'Check the suggestion: always with you, Repair on a day ride, Light, cold.': 'Prüfe den Vorschlag: Immer dabei, Reparatur auf Tagestouren, Licht, Kälte.',
   'Tap «Apply»; Undo comes right after.': 'Tippe «Übernehmen»; gleich danach kommt «Rückgängig».',
   'Example: 32 things on every day ride → 9 always with you, Repair as a button.': 'Beispiel: 32 Teile auf jeder Tagestour → 9 immer dabei, Reparatur als Knopf.',
+  // «Englische Namen auf Deutsch» (0.177.0)
+  'Needs items from an import with English names.': 'Braucht Teile aus einem Import mit englischen Namen.',
+  'Open Me › Data and backup › English names.': 'Öffne Ich › Daten und Backup › Englische Namen.',
+  'Tap «Take over» for a suggestion, or «Do not suggest».': 'Tippe bei einem Vorschlag auf «Übernehmen» oder «Nicht vorschlagen».',
+  'Example: «Food pouch left» → «Verpflegungstasche links».': 'Beispiel: «Food pouch left» → «Verpflegungstasche links».',
 };

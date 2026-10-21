@@ -14,4 +14,8 @@ export default {
   'No suggestion for «{name}» any more.': 'Kein Vorschlag mehr für «{name}».',
   'No English names left.': 'Keine englischen Namen mehr.',
   'Show {n} more': '{n} weitere zeigen',
+  'English names in German': 'Englische Namen auf Deutsch',
+  'Names from your import that are English get a German suggestion; take it over or leave it, the original name stays.': 'Namen aus deinem Import, die englisch sind, bekommen einen deutschen Vorschlag; übernimm ihn oder lass ihn, der Originalname bleibt.',
+  'Check the German suggestion.': 'Prüfe den deutschen Vorschlag.',
+  'Tap «Take over» or «Do not suggest».': 'Tippe auf «Übernehmen» oder «Nicht vorschlagen».',
 };
