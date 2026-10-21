@@ -14,9 +14,10 @@
   import { looksLikeQuestion } from '../helper/logic.js';
   import { related, countRelated, claudeText } from './smart.js';
   import { aiStatus, askLocal } from './chromeAi.js';
+  import LocalAsk from '../localai/LocalAsk.svelte'; // «KI im Gerät» (Noah 20.10.2026 «5a»)
   import { t, tn } from '../i18n.svelte.js';
 
-  let { q = '', data = null, also = [], fixed = null, chrome = true, links = true } = $props(); // chrome, links: Ich › Suche (21.10.2026)
+  let { q = '', data = null, also = [], fixed = null, chrome = true, links = true, local = true } = $props(); // chrome, links, local: Ich › Suche (21.10.2026)
   const learnQ = liveQuery(() => db.learnings.toArray());
   const question = $derived(q.trim());
   const isQ = $derived(looksLikeQuestion(question));
@@ -65,7 +66,7 @@
 {#if fixed || also.length}
   <p class="ks-hint" data-ks="hint">{#if fixed}{t('Nothing for «{q}». Searched: «{fixed}»', { q: question, fixed })}{:else}{t('Also searched: {words}', { words: also.join(', ') })}{/if}</p>
 {/if}
-{#if isQ && (links || chrome)}
+{#if isQ && (links || chrome || local)}
   <div class="ks" data-ks="ask">
     <p class="ks-gh">{t('Ask Claude or Chrome')}</p>
     <p class="ks-sub">{n ? tn(n, 'With {n} entry that fits. Nothing about your health.', 'With {n} entries that fit. Nothing about your health.') : t('No entry fits; only the question goes along.')}</p>
@@ -78,6 +79,7 @@
         <button type="button" class="btn sm" onclick={askChrome} disabled={busy}><Cpu size={16} aria-hidden="true" />{ai === 'available' ? t('Ask Chrome AI') : t('Ask Chrome AI (loads once)')}</button>
       {/if}
     </div>
+    {#if local}<div class="ks-local"><LocalAsk q={question} lines={[text]} name="search" deviceOnly /></div>{/if}
     {#if copied === question && !manual}<p class="ks-ok" role="status">{t('Copied. Now paste it in the Claude app.')}</p>{/if}
     {#if manual}
       <p class="ks-sub">{t('Copying did not work here. Select the text and copy it:')}</p>
@@ -100,6 +102,7 @@
   .ks-sub { margin: 0 12px 8px; font-size: var(--fs-small); color: var(--ink-3); }
   .ks-acts { display: flex; flex-wrap: wrap; gap: 8px; padding: 0 12px; }
   .ks-acts .btn { display: inline-flex; align-items: center; gap: 6px; text-decoration: none; }
+  .ks-local { padding: 0 12px; }
   .ks-ok { margin: 8px 12px 0; font-size: var(--fs-small); color: var(--accent); font-weight: 500; }
   .ks-text { display: block; box-sizing: border-box; width: calc(100% - 24px); margin: 0 12px; font: 400 var(--fs-small) var(--font-body); }
   .ks-ans { margin: 10px 12px 0; padding: 10px 12px; border-radius: 10px; background: var(--paper-2); font-size: var(--fs-small); color: var(--ink-2); }

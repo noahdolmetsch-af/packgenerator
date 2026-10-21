@@ -193,3 +193,19 @@ export function weekForm(series, end) {
   const b = series[i - 7];
   return { fit: Math.round(a.fit), form: Math.round(a.form), delta: b ? Math.round(a.fit - b.fit) : null };
 }
+
+/**
+ * The readiness of every day from..to: Map day → 0–100 (days without any value stay out). checks: Map
+ * day → { sleep, energy } of the morning check.
+ */
+export function readinessOf(loads, table, checks, from, to) {
+  const series = formSeries(loads, addDays(from, -7), to);
+  const out = new Map();
+  series.forEach((s, i) => {
+    if (s.day < from) return;
+    const c = checks.get(s.day);
+    const r = readiness({ series: series.slice(0, i + 1), parts: recoveryParts(table, s.day, c ? { sleep: c.sleep, energy: c.energy } : null) });
+    if (r) out.set(s.day, r.score);
+  });
+  return out;
+}

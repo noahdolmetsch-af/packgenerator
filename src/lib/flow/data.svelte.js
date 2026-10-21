@@ -188,7 +188,7 @@ export async function seedMed(data, actId) {
  */
 export function checkQuery(today) {
   return liveQuery(async () => {
-    const [acts, log, checks, pool, trips, rides, book, place, forecast, fixed, events] = await Promise.all([
+    const [acts, log, checks, pool, trips, rides, book, place, forecast, fixed, events, health] = await Promise.all([
       db.flowActs.toArray(),
       db.flowLog.where('day').aboveOrEqual(addDays(today, -70)).toArray(),
       db.flowChecks.where('day').aboveOrEqual(addDays(today, -30)).toArray(),
@@ -201,6 +201,8 @@ export function checkQuery(today) {
       // package G #226: the fixed dates of Aktiv › Woche and today's Google appointments («Heute im Blick»)
       db.settings.get(FIXED_KEY),
       db.gEvents.where('day').equals(today).toArray(),
+      // 0.171: the Fitbit days of 30 days (the night and the day in numbers of the check pages, with the normal)
+      db.healthDays ? db.healthDays.where('date').aboveOrEqual(addDays(today, -30)).toArray().catch(() => []) : [],
     ]);
     const day = usable(place?.value, forecast) ? forecast.days?.find((d) => d.date === today) : null;
     const wx = day ? toWx([day]) : null;
@@ -215,6 +217,7 @@ export function checkQuery(today) {
       weather: wx ? { max: wx.max, min: wx.min, rain: wx.rain } : null,
       fixed: Array.isArray(fixed?.value) ? fixed.value : [],
       events,
+      health,
       seeded: acts.length > 0,
     };
   });
@@ -224,12 +227,12 @@ export function checkQuery(today) {
 /**
  * What «Deine Balance» and «Deine 15 Fragen» read: the checks and the log of the last 7 days, the
  * activities (their ring), the rides of those days (files and counted Strava rides), the pool and the
- * questions switched off; WG: and the «Wi gaht's?» answers of those days.
+ * questions switched off; WG: and the «Wi gaht's?» answers of those days; the Fitbit days (healthDays).
  */
 export function balanceQuery(today) {
   const from = addDays(today, -6);
   return liveQuery(async () => {
-    const [acts, log, checks, rides, book, pool, off, answers, stravaActs, stravaPrefs, bagsRec, packsRec] = await Promise.all([
+    const [acts, log, checks, rides, book, pool, off, answers, stravaActs, stravaPrefs, bagsRec, packsRec, health] = await Promise.all([
       db.flowActs.toArray(),
       db.flowLog.where('day').aboveOrEqual(from).toArray(),
       db.flowChecks.where('day').aboveOrEqual(from).toArray(),
@@ -242,6 +245,7 @@ export function balanceQuery(today) {
       db.settings.get('strava'), // «2b»: rides on an ignored Strava bike do not count
       db.settings.get(BAGS_KEY), // package G #222: a sport bag packed in full counts as movement
       db.settings.get(PACK_KEY),
+      db.healthDays ? db.healthDays.where('date').aboveOrEqual(from).toArray() : [], // Fitbit überall: the measured days count for Sport
     ]);
     const bikeActs = notIgnored(stravaActs, stravaPrefs?.value?.ignore);
     return {
@@ -253,6 +257,7 @@ export function balanceQuery(today) {
       pool: poolOf(pool?.value),
       off: offOf(off?.value),
       bagDays: packedDays(bagsOf(bagsRec?.value), packsOf(packsRec?.value)).filter((d) => d >= from && d <= today),
+      health: health.filter((h) => h.date <= today),
     };
   });
 }

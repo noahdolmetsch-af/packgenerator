@@ -101,7 +101,7 @@ export default {
   /* ---------- Ich, Funktionen, Handbuch, So geht's, Anleitung ---------- */
   'Write or speak, with photos and a question of the day': 'Schreiben oder sprechen, mit Fotos und einer Frage des Tages',
   'Write or speak an entry with photos, place, weather and tags; a question for every day, calendar, photos, «On this day», lock and download.': 'Einen Eintrag schreiben oder sprechen, mit Fotos, Ort, Wetter und Stichwörtern; eine Frage für jeden Tag, Kalender, Fotos, «An diesem Tag», Sperre und Herunterladen.',
-  'Open Me › Diary.': 'Öffne Ich › Tagebuch.',
+  'Open Plan › Diary.': 'Öffne Planen › Tagebuch.',
   'Tap «New entry» or answer the question of the day.': 'Tipp «Neuer Eintrag» oder beantworte die Frage des Tages.',
   'Settings (top right): lock with a code, tags, download.': 'Einstellungen (oben rechts): Sperre mit Code, Stichwörter, Herunterladen.',
   'Diary|guide': 'Tagebuch',

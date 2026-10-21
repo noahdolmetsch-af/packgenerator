@@ -144,3 +144,19 @@ describe('jump (idea 3) and several in one sentence (idea 7)', () => {
     expect(actionOf('Plane mir 2 Tage Jura', c)).toMatchObject({ kind: 'plan', writes: false });
   });
 });
+
+describe('weather of a place (idea 3, with the weather page of 0.171)', () => {
+  it('«Wetter morgen Chur» → the weather page for Chur', async () => {
+    const { weatherOf, weatherHref } = await import('../src/lib/suche/say.js');
+    expect(weatherOf('Wetter morgen Chur')).toEqual({ kind: 'weather', place: 'Chur' });
+    expect(weatherOf('Wie wird das Wetter in Bern?')).toEqual({ kind: 'weather', place: 'Bern' });
+    expect(weatherOf('Wetter')).toEqual({ kind: 'weather', place: '' });
+    expect(weatherOf('Wetterjacke')).toBeNull();
+    expect(weatherHref({ place: 'St. Gallen' })).toBe('#/wetter?place=St.%20Gallen');
+    expect(weatherHref({ place: '' })).toBe('#/wetter');
+  });
+  it('the search keeps the AI on this device behind its switch, without a second Gemini', () => {
+    expect(src('src/lib/kisuche/SearchFree.svelte')).toContain('{#if local}<div class="ks-local"><LocalAsk q={question} lines={[text]} name="search" deviceOnly />');
+    expect(src('src/lib/nav/Search.svelte')).toContain('local={suche.local}');
+  });
+});

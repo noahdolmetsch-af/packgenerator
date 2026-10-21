@@ -22,6 +22,8 @@ import { fetchRwgps, cleanRef, RwgpsError } from './_lib/rwgps.js';
 import { ovStops, ovDepartures, okStopId } from './_lib/ov.js';
 
 export const CACHE = 'public, max-age=300, s-maxage=1800, stale-while-revalidate=3600';
+/** Fix 21.10.2026: an answer without the preview is kept only briefly, so the next one tries again soon. */
+export const CACHE_SHORT = 'public, max-age=120, s-maxage=300, stale-while-revalidate=600';
 export const RWGPS_CACHE = 'public, max-age=300, s-maxage=600';
 export const STOPS_CACHE = 'public, max-age=600, s-maxage=3600';
 export const BOARD_CACHE = 'public, max-age=20, s-maxage=30';
@@ -49,7 +51,7 @@ export function makeHandler({ doFetch = (...a) => fetch(...a), clock = () => new
         } catch {
           throw new ApiError(502, 'source_unreachable', 'The lake data could not be fetched right now.');
         }
-        return json(request, 200, body, { 'Cache-Control': CACHE });
+        return json(request, 200, body, { 'Cache-Control': body.sources?.forecast ? CACHE : CACHE_SHORT });
       },
     },
     'lake',

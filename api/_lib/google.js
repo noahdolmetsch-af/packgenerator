@@ -422,7 +422,18 @@ export function makeHandler({ env = () => googleEnv(), doFetch = (...a) => fetch
           const kcal = await extra('total-calories');
           const kcalActive = await extra('active-energy-burned');
           const hr = await extra('heart-rate');
-          return json(request, 200, { ok: true, from, to, days: daysFrom({ steps, azm, sleep, rhr, hrv, kcal, kcalActive, hr }, from, to) });
+          // «Körperwerte»: oxygen, breathing rate and skin temperature, also optional
+          const listed = async (type) => {
+            try {
+              return await listAll(token, type, from, to);
+            } catch {
+              return [];
+            }
+          };
+          const spo2 = await listed('daily-oxygen-saturation');
+          const breath = await listed('daily-respiratory-rate');
+          const skin = await listed('daily-sleep-temperature-derivations');
+          return json(request, 200, { ok: true, from, to, days: daysFrom({ steps, azm, sleep, rhr, hrv, kcal, kcalActive, hr, spo2, breath, skin }, from, to) });
         }
         throw new ApiError(400, 'bad_request', 'Unknown step.');
       },

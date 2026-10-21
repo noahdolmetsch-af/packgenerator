@@ -14,7 +14,7 @@ import { WEIGHT_KEY as BODY_KEY } from '../review/actdata.js';
 import { WEIGHT_KEY as ENTRIES_KEY } from '../weight.js';
 import { addTodo } from '../merkendb.js';
 import { dayLabel } from '../merken/when.js';
-import { valueOf, remindOf, planOf } from './say.js';
+import { valueOf, remindOf, planOf, weatherOf } from './say.js';
 import { WRITES } from './logic.js';
 
 /** One part of a sentence → an action, or null. writes: it changes data (and can run together with others). */
@@ -25,6 +25,8 @@ export function actionOf(text, { today, bikes = [] } = {}) {
   if (r) return { ...r, writes: true };
   const p = planOf(text, today);
   if (p) return { ...p, writes: false };
+  const w = weatherOf(text);
+  if (w) return { ...w, writes: false };
   const cmds = commandActions(text, { bikes });
   if (cmds.length === 1 && WRITES.includes(cmds[0].cmd.kind) && (cmds[0].cmd.kind !== 'note' || String(cmds[0].cmd.text ?? '').trim())) return { kind: 'cmd', cmd: cmds[0].cmd, title: cmds[0].title, writes: true };
   return null;
@@ -36,6 +38,7 @@ export function actionLabel(a, today) {
   if (a.kind === 'value' && a.qid === 'koerper.ruhepuls') return t('Resting heart rate {v}', { v: a.value });
   if (a.kind === 'value') return t('Sleep {v} of 10', { v: a.value });
   if (a.kind === 'remind') return t('Reminder {day}: {text}', { day: dayLabel(a.due, today), text: a.text });
+  if (a.kind === 'weather') return a.place ? t('Weather in {place}', { place: a.place }) : t('Weather|page');
   if (a.kind === 'plan') return a.title ? t('Plan «{name}»', { name: a.title }) : t('Help me plan');
   if (a.cmd?.kind === 'note') return t('Note saved in the Inbox: «{text}»', { text: String(a.cmd.text).trim() });
   return a.title ?? '';

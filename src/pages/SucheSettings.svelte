@@ -67,6 +67,7 @@
           <li class:sub={s.sub}>
             <label><span><b>{t(s.name)}</b><small>{t(s.text)}</small>
               {#if s.key === 'gemini' && !helper.code}<small class="warn">{t('Not ready yet: the helper code is missing.')} <a href="#/helper">{t('Me › AI helper')}</a></small>{/if}
+              {#if s.key === 'local'}<small><a href="#/me/look">{t('AI without internet: load it once (Me › Appearance › Handling)')}</a></small>{/if}
               {#if s.key === 'chrome' && chromeAi === 'none'}<small>{t('Not on this device.')}</small>{/if}
             </span><input type="checkbox" role="switch" checked={suche[s.key]} onchange={(e) => setSuche(s.key, e.currentTarget.checked)} data-suche={s.key} /></label>
           </li>

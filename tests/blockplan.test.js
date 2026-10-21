@@ -37,7 +37,9 @@ describe('ride day per block', () => {
     const n = rows.indexOf(rows.find((r) => r.startAt === b.startAt));
     return [{ t: b.startAt, temp: temps[n], rainMm: n === 3 ? 2 : 0 }];
   };
-  const plan = blockPlan(rows, items, { wxOf, place: LUCERNE, offsetOf: () => 120 });
+  // Paket X: water per hour is the one rule of Verpflegung (energie.js); these values: 0.5 l up to 18 °C
+  const FUEL = { coolLh: 0.5, hotLh: 0.75, coolC: 18, hotC: 25 };
+  const plan = blockPlan(rows, items, { wxOf, place: LUCERNE, offsetOf: () => 120, fuel: FUEL });
 
   it('puts layers on and takes them off as the weather changes', () => {
     const p = plan.rows;
@@ -61,6 +63,10 @@ describe('ride day per block', () => {
     expect(plan.rows[0].drinkL).toBe(1.5);
     // The bottles last exactly one block: refill where the next one starts.
     expect(plan.rows.map((r) => r.refillKm)).toEqual([[], [60], [120], [180], [240], [300]]);
+    // a hot block drinks more, by the warmest hour
+    const hot = blockPlan(rows.slice(0, 1), items, { wxOf: (b) => [{ t: b.startAt, temp: 25, rainMm: 0 }], place: LUCERNE, offsetOf: () => 120, fuel: FUEL });
+    expect(hot.rows[0].drinkL).toBe(2.3);
+    expect(hot.rate).toEqual({ cool: 0.5, hot: 0.75, coolC: 18, hotC: 25 });
   });
 
   it('says from where the light goes on', () => {

@@ -10,6 +10,9 @@
  * - kcal, kcalActive, hrMax («Form und Erholung», Garmin-Übersicht 20.10.2026): the daily roll-ups of
  *   total-calories, active-energy-burned and heart-rate. Read tolerantly (the first number of the
  *   value whose name fits), because Google names the fields per type.
+ * - spo2, breath, skinTemp («Körperwerte» 20.10.2026 «1a 2a»): the daily summaries of oxygen saturation
+ *   (%), breathing rate (per minute) and the nightly skin temperature (difference to your normal, °C).
+ *   Read tolerantly as well (dailyOf + pick).
  * A value Google did not send stays out of the row (nothing is invented).
  */
 
@@ -117,8 +120,23 @@ export function sleepOf(s) {
 }
 
 /**
+ * A daily summary point of any type: its date and the object that holds the values ({ date, v }), or
+ * null. Google wraps each type in a field of its own name (dailyOxygenSaturation, …), so the first
+ * object with a date counts.
+ */
+export function dailyOf(p) {
+  for (const v of Object.values(p ?? {})) {
+    if (v && typeof v === 'object' && v.date) {
+      const date = isoOf(v.date);
+      if (date) return { date, v };
+    }
+  }
+  return null;
+}
+
+/**
  * Builds the day rows from Google's answers.
- * @param {{ steps?: any[], azm?: any[], sleep?: any[], rhr?: any[], hrv?: any[] }} src
+ * @param {{ steps?: any[], azm?: any[], sleep?: any[], rhr?: any[], hrv?: any[], kcal?: any[], kcalActive?: any[], hr?: any[], spo2?: any[], breath?: any[], skin?: any[] }} src
  *   steps/azm: rollupDataPoints; sleep/rhr/hrv: dataPoints of the list call
  * @param {string} from first day (inclusive)
  * @param {string} to last day (inclusive)
@@ -169,6 +187,27 @@ export function daysFrom(src, from, to) {
     const r = row(isoOf(p?.civilStartTime?.date));
     const v = pick(p?.heartRate ?? p?.heart_rate, /max/i);
     if (r && v !== null && v > 0) r.hrMax = Math.round(v);
+  }
+  // the field Google documents (health.googleapis.com discovery, v4), else a tolerant pick
+  const daily = (list, k, field, re, ok) => {
+    for (const p of list ?? []) {
+      const d = dailyOf(p);
+      const v = d ? (num(d.v[field]) ?? pick(d.v, re)) : null;
+      if (v === null || !ok(v)) continue;
+      const r = row(d.date);
+      if (r) r[k] = Math.round(v * 10) / 10;
+    }
+  };
+  daily(src.spo2, 'spo2', 'averagePercentage', /^average/i, (v) => v >= 70 && v <= 100);
+  daily(src.breath, 'breath', 'breathsPerMinute', /breath/i, (v) => v >= 4 && v <= 40);
+  // skin temperature: the night against your baseline (nightlyTemperatureCelsius − baselineTemperatureCelsius)
+  for (const p of src.skin ?? []) {
+    const d = dailyOf(p);
+    const night = num(d?.v?.nightlyTemperatureCelsius);
+    const base = num(d?.v?.baselineTemperatureCelsius);
+    if (night === null || base === null || Math.abs(night - base) > 5) continue;
+    const r = row(d.date);
+    if (r) r.skinTemp = Math.round((night - base) * 100) / 100;
   }
   // Per wake-up day the main sleep wins; without one, the longest night (naps never count).
   const best = new Map();

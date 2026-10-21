@@ -3,19 +3,22 @@
 // days by calendar-day arithmetic in Europe/Zurich.
 import 'fake-indexeddb/auto';
 import { describe, it, expect, beforeEach } from 'vitest';
+
+// the server keeps the lake key and the last preview per instance: every test starts fresh
+beforeEach(() => resetForecastMemo());
 import { readFileSync, readdirSync } from 'node:fs';
 import {
   parseTime, zurichDay, addDays, tecdottirUrl, parseTecdottir, latest, dailyStats,
   alplakesStamp, alplakesUrl, parseAlplakes, forecastDays, lakeNow, isLakeAnswer, PAST_DAYS, PAGE,
-  lakeKeyFrom, fetchForecastWithNote,
+  lakeKeyFrom, fetchForecastWithNote, resetForecastMemo, FORECAST_TIMEOUT_MS, TIMEOUT_MS,
 } from '../api/_lib/lake.js';
-import { makeHandler, CACHE } from '../api/lake.js';
+import { makeHandler, CACHE, CACHE_SHORT } from '../api/lake.js';
 import { createDb } from '../src/lib/db.js';
 import {
   LAKE_URL, LAKE_CACHE_KEY, LAKE_SET_KEY, lakeSetOf, readLakeSet, saveLakeSet, fetchLake, loadLake,
   isFresh, swimTone, isStale, trend, sparkline, WARM_DEFAULT, REFRESH_MS,
   COLD_DEFAULT, ICY_DEFAULT, LAKE_DAYS_KEY, MAX_LAKE_DAYS, SCALE_WORDS, waterScale, mergeLakeDays, keepLakeDays,
-  isSwimAct, isSaunaAct, seasonStart, swimStats, briefOf, lakeBrief,
+  isSwimAct, isSaunaAct, seasonStart, swimStats, briefOf, lakeBrief, keepPreview,
 } from '../src/lib/lake.js';
 import de from '../src/lib/i18n/de/seetemperatur.js';
 import allDe from '../src/lib/i18n/de/index.js';
@@ -184,9 +187,28 @@ describe('Alplakes: the key of Lake Zurich (fix 20.10.2026)', () => {
     expect(again.points).toHaveLength(1);
     expect(calls.filter((u) => u.includes('alplakes'))).toHaveLength(3); // the known key at once
   });
-  it('a timeout or a network error gives an empty preview with a note', async () => {
-    const r = await fetchForecastWithNote(async () => { throw new Error('down'); }, { now: NOW });
+  it('a timeout or a network error gives an empty preview with a note, without a second wait', async () => {
+    let n = 0;
+    const r = await fetchForecastWithNote(async () => { n += 1; throw new Error('down'); }, { now: NOW });
     expect(r).toEqual({ points: [], note: 'network' });
+    expect(n).toBe(1);
+    const slow = await fetchForecastWithNote(async () => { n += 1; const e = new Error('slow'); e.name = 'AbortError'; throw e; }, { now: NOW });
+    expect(slow.note).toBe('timeout');
+    expect(n).toBe(2);
+  });
+  it('the preview gets more time than the city (fix 21.10.: «timeout» live)', () => {
+    expect(FORECAST_TIMEOUT_MS).toBeGreaterThanOrEqual(20000);
+    expect(FORECAST_TIMEOUT_MS).toBeGreaterThan(TIMEOUT_MS);
+  });
+  it('keeps the last good preview for 12 hours when the model is slow', async () => {
+    const good = async () => ok({ time: ['2026-10-20T10:00:00Z'], variables: { T: { data: [15.4] } } });
+    const slow = async () => { const e = new Error('slow'); e.name = 'AbortError'; throw e; };
+    expect((await fetchForecastWithNote(good, { now: NOW })).points).toHaveLength(1);
+    const later = await fetchForecastWithNote(slow, { now: new Date(NOW.getTime() + 3 * 3600e3) });
+    expect(later).toMatchObject({ kept: true, note: '' });
+    expect(later.points).toHaveLength(1);
+    const tooLate = await fetchForecastWithNote(slow, { now: new Date(NOW.getTime() + 13 * 3600e3) });
+    expect(tooLate).toEqual({ points: [], note: 'timeout' });
   });
 });
 
@@ -267,6 +289,13 @@ describe('GET /api/lake', () => {
     expect((await h(req('?step=x'))).status).toBe(400);
     expect((await h(new Request('https://packgen-three.vercel.app/api/lake', { method: 'POST' }))).status).toBe(405);
   });
+  it('an answer without the preview is cached only briefly', async () => {
+    const h = makeHandler({ doFetch: fakeNet({ model: 'down' }), clock: () => NOW });
+    const res = await h(req());
+    expect(res.status).toBe(200);
+    expect(res.headers.get('cache-control')).toBe(CACHE_SHORT);
+    expect(CACHE_SHORT).toContain('s-maxage=300');
+  });
   it('502 with a clear code when no source answers', async () => {
     const h = makeHandler({ doFetch: fakeNet({ city: 'down', model: 'down' }), clock: () => NOW });
     const res = await h(req());
@@ -299,6 +328,19 @@ describe('the app: cache, fallback, settings', () => {
     expect(direct.via).toBe('direct');
     expect(direct.data.now.water).toBe(17);
     expect(calls[0]).toBe(LAKE_URL);
+  });
+  it('a new answer without the preview keeps the stored preview days from today on', async () => {
+    const old = { forecast: [{ day: '2026-10-18', water: 18 }, { day: '2026-10-20', water: 17.5 }, { day: '2026-10-21', water: 17.3 }] };
+    expect(keepPreview({ days: [], forecast: [] }, old, '2026-10-20')).toEqual({ days: [], forecast: old.forecast.slice(1), forecastKept: true });
+    const fresh = { days: [], forecast: [{ day: '2026-10-21', water: 17 }] };
+    expect(keepPreview(fresh, old, '2026-10-20')).toBe(fresh);
+    expect(keepPreview({ forecast: [] }, null, '2026-10-20')).toEqual({ forecast: [] });
+    await loadLake(db, { fetcher: fakeNet(), now: NOW });
+    const later = new Date(NOW.getTime() + REFRESH_MS + 60000);
+    resetForecastMemo(); // a new server instance: only the device still has the preview
+    const r = await loadLake(db, { fetcher: fakeNet({ model: 'down' }), now: later });
+    expect(r.data.forecast.map((d) => d.day)).toEqual(['2026-10-20', '2026-10-21']);
+    expect(r.data.forecastKept).toBe(true);
   });
   it('a wrong server answer counts as no answer', async () => {
     const r = await fetchLake({ fetcher: async (u) => (u === LAKE_URL ? ok({ hello: 1 }) : fakeNet()(u)), now: NOW });

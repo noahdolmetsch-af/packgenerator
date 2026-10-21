@@ -2,6 +2,7 @@
 // the weather layers and your own points. Every request to outside is mocked (tiles: a small PNG, RainViewer
 // and Open-Meteo: fictional JSON), nothing leaves the preview. The map draws with WebGL when the browser has
 // it, else a fallback sentence stands there; the rest of the page works in both cases.
+import { readFileSync } from 'node:fs';
 import { test, expect } from '@playwright/test';
 import { openHome } from './home0460-fixture.js';
 
@@ -65,6 +66,13 @@ test('Race map: map or fallback, profile, weather, own point add rename delete u
   await expect(shop).toHaveAttribute('aria-pressed', 'true');
   await shop.click();
   await expect(shop).toHaveAttribute('aria-pressed', 'false');
+  await expect(page.locator('[data-race-map] [data-landi]')).toHaveAttribute('href', 'https://www.landi.ch/wetter/niederschlagsradar');
+  // Paket X: the shown stops as one GPX for the Garmin; a hidden kind stays out
+  const dl = page.waitForEvent('download');
+  await page.locator('[data-race-map] [data-gpx-stops-save]').click();
+  const gpx = readFileSync(await (await dl).path(), 'utf8');
+  expect(gpx).toContain('<trkpt ');
+  expect(gpx).not.toContain('<sym>Shopping Center</sym>');
 
   // the profile: a tap shows km, height and gradient
   const box = page.locator('[data-profile-box]');

@@ -104,4 +104,31 @@ test.describe('Check-Fragen selbst bearbeiten', () => {
     await page.reload();
     await expect(page.locator('[data-area="spass"]')).toHaveCount(0);
   });
+
+  test('CF4: Fitbit fills in the resting pulse and the movement; the check page shows the night (0.171)', async ({ page, context }, info) => {
+    const d = data(['koerper.ruhepuls', 'sport.bewegung']);
+    d.tables.healthDays = [
+      { date: day(-1), restingHr: 54, sleep: { asleepMin: 400 }, steps: 13100, azm: 41, src: 'google' },
+      { date: day(0), restingHr: 52.4, sleep: { asleepMin: 432 }, steps: 2100, hrvMs: 48, azm: 3, src: 'google' },
+    ];
+    const T = await openHome(page, context, info, { data: d });
+    const card = page.locator('[data-section="abfragen"]');
+    await expect(card).toHaveJSProperty('open', true);
+    // no «Fitbit · später» any more
+    await expect(card.getByText(T('Fitbit · later'))).toHaveCount(0);
+    const rhr = card.locator('[data-q="koerper.ruhepuls"]');
+    await expect(rhr.getByRole('textbox')).toHaveValue('52');
+    await expect(rhr.locator('[data-fitbit="rhr"]')).toContainText(T('Fitbit: resting pulse {v}', { v: 52 }));
+    // yesterday evening's movement: 41 active zone minutes → mountain goat, chosen and changeable
+    const move = card.locator('[data-q="sport.bewegung"]');
+    await expect(move.getByRole('button', { name: T('Mountain goat'), exact: true })).toHaveAttribute('aria-pressed', 'true');
+    await card.locator('[data-ab-save]').click();
+    await expect(card.locator('[data-q="koerper.ruhepuls"]')).toHaveCount(0);
+    // the morning check page: the night from Fitbit
+    await page.goto('./#/check/morning');
+    const night = page.locator('[data-night]');
+    await expect(night.locator('[data-num="sleep"]')).toContainText('7 h 12 min');
+    await expect(night.locator('[data-num="rhr"]')).toContainText('52');
+    await expect(night.locator('[data-num="hrv"]')).toContainText('48 ms');
+  });
 });

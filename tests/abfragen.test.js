@@ -285,8 +285,9 @@ describe('what is due now (AB3)', () => {
     expect(new Set(due.map((x) => x.q.id)).size).toBe(due.length); // each question once
   });
 
-  it('3b: a value that later comes from Fitbit leaves its question on until you switch it off', () => {
-    const later = QUESTIONS.filter((q) => q.src.includes('later'));
+  it('3b: a value that comes from Fitbit leaves its question on until you switch it off (0.171: tag «Fitbit», no «later»)', () => {
+    expect(QUESTIONS.filter((q) => q.src.includes('later'))).toEqual([]);
+    const later = QUESTIONS.filter((q) => q.src.includes('fitbit'));
     expect(later.map((q) => q.id)).toEqual(expect.arrayContaining(['erholung.schlaf', 'koerper.ruhepuls']));
     const c = { since: `${d(-1)}T06:00` };
     expect(dueList(c, [], `${D0}T09:00`).map((x) => x.q.id)).toContain('koerper.ruhepuls');

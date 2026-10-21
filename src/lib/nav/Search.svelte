@@ -34,7 +34,7 @@
   import { localDay } from '../localday.js';
   // «Suche als Alleskönner» (Noah 21.10.2026 «1-8 alle»): values, reminders, several things at once, plan, jump
   import { actionOf, actionsOf, actionLabel, runActions } from '../suche/act.js';
-  import { partsOf, jumpOf, planHref } from '../suche/say.js';
+  import { partsOf, jumpOf, planHref, weatherHref } from '../suche/say.js';
 
   // v0.76.0 «Fünf Orte»: short: the narrow field in the sidebar says only «Suchen» (with «/»).
   let { compact = false, short = false } = $props();
@@ -141,10 +141,10 @@
   async function doSays(acts = says) {
     if (!acts?.length) return;
     remember(q);
-    if (acts[0].kind === 'plan') {
+    if (acts[0].kind === 'plan' || acts[0].kind === 'weather') {
       q = '';
       open = false;
-      location.hash = planHref(acts[0]);
+      location.hash = acts[0].kind === 'plan' ? planHref(acts[0]) : weatherHref(acts[0]);
       return;
     }
     const r = await runActions(acts, ctx());
@@ -350,7 +350,7 @@
         <p class="gh">{t('Do it now')}</p>
         <ul class="cmds">
           {#if says}
-            <li><button type="button" data-cmd="says" onclick={() => doSays()}><span class="m"><b>{saysTitle}</b><small>{says[0].kind === 'plan' ? t('opens «Help me plan» with it filled in') : t('saves it at once; Undo takes it back')}</small></span><span class="go" aria-hidden="true">↵</span></button></li>
+            <li><button type="button" data-cmd="says" onclick={() => doSays()}><span class="m"><b>{saysTitle}</b><small>{says[0].kind === 'plan' ? t('opens «Help me plan» with it filled in') : says[0].kind === 'weather' ? t('opens the weather page') : t('saves it at once; Undo takes it back')}</small></span><span class="go" aria-hidden="true">↵</span></button></li>
           {/if}
           {#each cmds as c (c.id)}
             <li><button type="button" data-cmd={c.kind} onclick={() => run(c)}><span class="m"><b>{c.title}</b>{#if c.sub}<small>{c.sub}</small>{/if}</span><span class="go" aria-hidden="true">↵</span></button></li>
@@ -360,7 +360,7 @@
       <!-- «Kluge Suche»: the hint to similar words / a typo and «Ask Claude» sit under the actions (FE17: actions on top, Enter runs the first) -->
       <!-- «Suche mit Sprache» (3a + b): Gemini answers here, «Ask further at» opens Claude, ChatGPT … -->
       {#if asking && (suche.gemini || suche.links)}<AskElsewhere {q} gemini={suche.gemini} links={suche.links} auto={spoken && suche.geminiAuto && !(suche.app && appHas)} autoread={spoken && suche.read === 'auto'} />{/if}
-      <SearchFree {q} data={$all} also={smart.also} fixed={smart.fixed} chrome={suche.chrome} links={suche.links} />
+      <SearchFree {q} data={$all} also={smart.also} fixed={smart.fixed} chrome={suche.chrome} links={suche.links} local={suche.local} />
       {#each groups as g (g.kind)}
         <p class="gh">{t(g.name)}{g.more ? ` · ${t('{n} more', { n: g.more })}` : ''}</p>
         <ul>

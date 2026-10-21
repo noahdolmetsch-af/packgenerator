@@ -7,6 +7,7 @@ import { fileURLToPath } from 'node:url';
 import { readFileSync, writeFileSync } from 'node:fs';
 import DE from '../../src/lib/i18n/de/index.js';
 import { importAndSettle } from './settle.js';
+import { openOverview } from './ov-fold.js';
 
 const FIX = fileURLToPath(new URL('../fixtures/gesamttest/test_data_gtp_daten.json', import.meta.url));
 const P = 'test_data_gtp_';
@@ -80,6 +81,7 @@ test('metres climbed on Today, Aktiv, the year goals and per part; Strava card u
   // WU2: Aktiv «Deine Woche in Zahlen» (Aktiv neu 20.10.2026 «2a», changed on purpose: replaces «Velo diesen
   // Monat») with the metres climbed of the 7 days; without Fitbit the minutes point to the page Fitbit
   await page.goto('./#/flow');
+  await openOverview(page);
   await expect(page.locator('[data-section="week-numbers"] [data-wn="hm"]')).toContainText(/2.?700/);
   await expect(page.locator('[data-section="azm"]')).toContainText(T('Connect Fitbit: then the minutes of every activity count here.'));
   await expect(page.locator('[data-section="azm"]')).toHaveAttribute('href', '#/me/fitbit');
@@ -140,11 +142,13 @@ test('active zone minutes of this week on Aktiv, with the weekly goal changeable
   await page.goto('./');
   await expect(page.locator('[data-week-azm]')).toContainText(T('{n} active zone min', { n: '125' }));
   await page.goto('./#/flow');
+  await openOverview(page);
   const box = page.locator('[data-section="azm"]');
   await expect(box.locator('[data-azm-sum]')).toContainText('125');
   await expect(box.locator('[data-day]')).toHaveCount(7);
   await expect(box.locator('[data-day="2026-10-05"]')).toContainText('40');
-  await expect(box.locator('[data-day="2026-10-06"]')).toContainText('–');
+  // a day without minutes stays empty (Noah 21.10.2026: only values that exist, no «–»)
+  await expect(box.locator('[data-day="2026-10-06"] .num')).toHaveText('');
   await expect(box.locator('[data-azm-goal]')).toContainText('150');
   await shot(page, info, 'AZM-woche', '[data-section="azm"]');
   await box.locator('[data-azm-goal]').click();

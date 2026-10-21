@@ -34,7 +34,7 @@
     { icon: Flower2, name: 'Meditation', line: 'from your log → question 14' },
     { icon: Bike, name: 'Bike rides', line: 'Strava and trips → question 11' },
     { icon: Activity, name: 'Active goals', line: 'ticks of the week → ring Sport' },
-    { icon: Heart, name: 'Sleep, HRV, steps', line: 'with Fitbit/Google, later' },
+    { icon: Heart, name: 'Sleep, HRV, steps', line: 'from Fitbit, shown in the check' },
   ];
 </script>
 

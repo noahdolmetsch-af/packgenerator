@@ -153,4 +153,6 @@ export default {
   'Shared.': 'Geteilt.',
   // SchweizMobil layer on the live map (map/sources.js SWISS_OVERLAYS)
   SchweizMobil: 'SchweizMobil',
+  // Noah 21.10.2026: the auto-pause as a slim line from the top (PauseBar.svelte)
+  'the riding time stands': 'die Fahrzeit steht',
 };

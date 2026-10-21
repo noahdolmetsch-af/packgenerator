@@ -4,6 +4,8 @@
    * «Pause» button over the map; while paused a coloured band across the map says that the time stands,
    * with «Go on» and «Stop the ride». After an auto-pause the band says so; it goes on by itself.
    * standing: you have stood a while without a pause → a short hint that «Pause» stops the time.
+   * Noah 21.10.2026: an auto-pause comes as a slim line that slides in from the top («dezent»), over the
+   * map and the data pages; your own pause keeps the big band.
    */
   import { Pause, Play, Square } from '@lucide/svelte';
   import { t } from '../i18n.svelte.js';
@@ -12,7 +14,13 @@
   const hm = (s) => `${Math.floor(s / 3600)}:${String(Math.floor((s % 3600) / 60)).padStart(2, '0')}`;
 </script>
 
-{#if paused}
+{#if paused && auto}
+  <div class="pb-slim" role="status" data-live-paused="auto">
+    <Pause size={18} aria-hidden="true" />
+    <span class="pb-slim-text"><b>{t('Auto-pause')}</b> · {t('the riding time stands')} · {hm(movingS)}</span>
+    <button type="button" class="btn sm" onclick={onresume} data-live-resume>{t('Go on')}</button>
+  </div>
+{:else if paused}
   <div class="pb-band" role="status" data-live-paused={auto ? 'auto' : 'hand'}>
     <p class="pb-head"><Pause size={22} aria-hidden="true" /><b>{auto ? t('Auto-pause') : t('Paused|ride')}</b></p>
     <p class="pb-text">{auto ? t('You ride slower than {kmh} km/h: the riding time stands and goes on by itself when you ride on.', { kmh: limit }) : t('The riding time stands. Nothing is recorded until you go on.')}</p>
@@ -45,6 +53,40 @@
     border: 2px solid var(--warn);
     color: var(--ink);
     box-shadow: 0 2px 8px var(--shadow);
+  }
+  .pb-slim {
+    position: absolute;
+    left: 8px;
+    right: 60px; /* the «⋯» button stays free */
+    top: var(--pb-top, 52px);
+    z-index: 3; /* over the map and the data pages */
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 8px 6px 12px;
+    border-radius: 10px;
+    background: var(--warn-soft);
+    border: 1px solid var(--warn);
+    color: var(--ink);
+    font-size: var(--fs-small);
+    box-shadow: 0 1px 4px var(--shadow);
+    animation: pb-in 0.25s var(--ease-out);
+  }
+  .pb-slim-text {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow-wrap: break-word;
+  }
+  @keyframes pb-in {
+    from {
+      transform: translateY(-12px);
+      opacity: 0;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .pb-slim {
+      animation: none;
+    }
   }
   .pb-head {
     display: flex;

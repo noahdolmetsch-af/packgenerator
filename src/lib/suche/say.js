@@ -142,6 +142,22 @@ export function planFromHash(hash = '') {
   return out;
 }
 
+/* ---------- the weather of a place ---------- */
+
+/** «Wetter morgen Chur», «wie wird das Wetter in Chur» → { kind: 'weather', place } (place '' = home). */
+export function weatherOf(text) {
+  const m = /^(?:wie (?:ist|wird) das |what is the |how is the )?(?:wetter|weather)\b(.*)$/i.exec(String(text ?? '').trim().replace(/[?.!]+$/, ''));
+  if (!m) return null;
+  const place = m[1]
+    .replace(/\b(?:heute|morgen|übermorgen|uebermorgen|am wochenende|today|tomorrow|this weekend|jetzt|now)\b/gi, ' ')
+    .replace(/^\s*(?:in|für|fuer|auf|am|for|at)\s+/i, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+  return { kind: 'weather', place };
+}
+
+export const weatherHref = (w) => `#/wetter${w.place ? `?place=${encodeURIComponent(w.place)}` : ''}`;
+
 /* ---------- jumping to a place ---------- */
 
 const LEAD = /^(?:oeffne|offne|öffne|zeig mir|zeige mir|zeig|zeige|geh zu|gehe zu|gehe auf|wechsle zu|open|show me|show|go to)\s+/;
