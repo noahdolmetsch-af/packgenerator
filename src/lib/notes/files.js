@@ -33,7 +33,11 @@ export const FORMATS = [
   { fmt: 'docx', name: 'Word', ext: ['docx'], mime: /wordprocessingml/, show: 'doc' },
   { fmt: 'xlsx', name: 'Excel', ext: ['xlsx'], mime: /spreadsheetml/, show: 'table' },
   { fmt: 'pptx', name: 'PowerPoint', ext: ['pptx'], mime: /presentationml/, show: 'doc' },
-  { fmt: 'office', name: 'Office (old)', ext: ['doc', 'xls', 'ppt', 'odt', 'ods', 'odp', 'rtf'], mime: /msword|ms-excel|ms-powerpoint|opendocument|rtf/, show: 'file' },
+  { fmt: 'odt', name: 'Text document (ODF)', ext: ['odt'], mime: /opendocument\.text/, show: 'doc' },
+  { fmt: 'ods', name: 'Spreadsheet (ODF)', ext: ['ods'], mime: /opendocument\.spreadsheet/, show: 'table' },
+  { fmt: 'odp', name: 'Presentation (ODF)', ext: ['odp'], mime: /opendocument\.presentation/, show: 'doc' },
+  { fmt: 'rtf', name: 'RTF', ext: ['rtf'], mime: /rtf/, show: 'text' },
+  { fmt: 'office', name: 'Office (old)', ext: ['doc', 'xls', 'ppt'], mime: /msword|ms-excel|ms-powerpoint/, show: 'file' },
   { fmt: 'csv', name: 'CSV', ext: ['csv', 'tsv'], mime: /^text\/(csv|tab-separated-values)/, show: 'table' },
   { fmt: 'md', name: 'Markdown', ext: ['md', 'markdown'], mime: /^text\/markdown/, show: 'md' },
   { fmt: 'text', name: 'Text|file', ext: ['txt', 'log', 'json', 'xml'], mime: /^text\/plain|^application\/json/, show: 'text' },
@@ -283,6 +287,179 @@ export function xlsxSheet(xml = '', strings = [], { maxRows = 300, maxCols = 30 
 
 /** The names of the sheets (xl/workbook.xml). */
 export const xlsxSheetNames = (xml = '') => [...String(xml).matchAll(/<sheet [^>]*name="([^"]+)"/g)].map((m) => xmlText(m[1]));
+
+/* ---------- OpenDocument (LibreOffice: .odt .ods .odp, content.xml in a zip) ---------- */
+
+/** The text of an ODF piece: spans, spaces (<text:s text:c="3"/>), tabs and line breaks. */
+const odfText = (xml = '') =>
+  xmlText(
+    String(xml)
+      .replace(/<text:s(?:\s+text:c="(\d+)")?\s*\/>/g, (_, n) => ' '.repeat(Math.min(50, Number(n ?? 1))))
+      .replace(/<text:tab\s*\/>|<text:line-break\s*\/>/g, ' ')
+      .replace(/<text:note\b[\s\S]*?<\/text:note>/g, '')
+      .replace(/<[^>]+>/g, ''),
+  );
+
+/** A text document (content.xml of an .odt) → Markdown light: headings, lists, tables. */
+export function odtToMd(xml = '') {
+  const body = String(xml).match(/<office:text(?:\s[^>]*)?>([\s\S]*)<\/office:text>/)?.[1] ?? String(xml);
+  const out = [];
+  const re = /<table:table(?:\s[^>]*)?>([\s\S]*?)<\/table:table>|<text:h(?:\s([^>]*))?>([\s\S]*?)<\/text:h>|<text:list-item(?:\s[^>]*)?>([\s\S]*?)<\/text:list-item>|<text:p(?:\s[^>]*)?>([\s\S]*?)<\/text:p>/g;
+  for (const m of body.matchAll(re)) {
+    if (m[1] != null) {
+      const rows = odsRows(m[1], { maxRows: 100, maxCols: 20 }).map((r) => r.map((c) => c.replace(/\|/g, '/')));
+      if (rows.length) {
+        out.push('');
+        rows.forEach((r, i) => (out.push(`| ${r.join(' | ')} |`), i === 0 && out.push(`|${r.map(() => '---').join('|')}|`)));
+        out.push('');
+      }
+    } else if (m[3] != null) {
+      const text = odfText(m[3]).replace(/\s+/g, ' ').trim();
+      const level = Number(m[2]?.match(/text:outline-level="(\d)"/)?.[1] ?? 1);
+      if (text) out.push(`${'#'.repeat(Math.min(3, level))} ${text}`);
+    } else if (m[4] != null) {
+      const text = odfText(m[4]).replace(/\s+/g, ' ').trim();
+      if (text) out.push(`- ${text}`);
+    } else if (m[5] != null) {
+      const text = odfText(m[5]).replace(/\s+/g, ' ').trim();
+      if (text) out.push(text);
+    }
+  }
+  return out.join('\n').replace(/\n{3,}/g, '\n\n').trim();
+}
+
+/** A presentation (content.xml of an .odp) → Markdown light, one heading per slide. */
+export function odpToMd(xml = '', slideWord = 'Slide') {
+  const pages = [...String(xml).matchAll(/<draw:page(?:\s[^>]*)?>([\s\S]*?)<\/draw:page>/g)].map((p) => p[1].replace(/<presentation:notes\b[\s\S]*?<\/presentation:notes>/g, ''));
+  return pages
+    .map((page, i) => {
+      const paras = [...page.matchAll(/<text:(?:p|h)(?:\s[^>]*)?>([\s\S]*?)<\/text:(?:p|h)>/g)].map((p) => odfText(p[1]).replace(/\s+/g, ' ').trim()).filter(Boolean);
+      return [`### ${slideWord} ${i + 1}${paras[0] ? `: ${paras[0]}` : ''}`, ...paras.slice(1).map((p) => `- ${p}`)].join('\n');
+    })
+    .join('\n\n');
+}
+
+/** The rows of one ODF table (repeated rows and columns count, but only up to the limits). */
+function odsRows(xml = '', { maxRows = 300, maxCols = 30 } = {}) {
+  const rows = [];
+  for (const r of String(xml).matchAll(/<table:table-row(\s[^>]*)?(?:\/>|>([\s\S]*?)<\/table:table-row>)/g)) {
+    if (rows.length >= maxRows) break;
+    const cells = [];
+    for (const c of (r[2] ?? '').matchAll(/<table:(?:covered-)?table-cell(\s[^>]*)?(?:\/>|>([\s\S]*?)<\/table:(?:covered-)?table-cell>)/g)) {
+      if (cells.length >= maxCols) break;
+      const attrs = c[1] ?? '';
+      const paras = [...(c[2] ?? '').matchAll(/<text:p(?:\s[^>]*)?>([\s\S]*?)<\/text:p>/g)].map((p) => odfText(p[1]).trim());
+      const text = paras.length ? paras.join(' ') : xmlText(attrs.match(/office:(?:value|date-value|boolean-value)="([^"]*)"/)?.[1] ?? '');
+      const times = Math.min(Number(attrs.match(/table:number-columns-repeated="(\d+)"/)?.[1] ?? 1), maxCols - cells.length);
+      for (let k = 0; k < times; k++) cells.push(text);
+    }
+    while (cells.length && cells[cells.length - 1] === '') cells.pop();
+    const times = Math.min(Number(r[1]?.match(/table:number-rows-repeated="(\d+)"/)?.[1] ?? 1), maxRows - rows.length);
+    for (let k = 0; k < times; k++) rows.push(cells);
+  }
+  while (rows.length && !rows[rows.length - 1].length) rows.pop();
+  const kept = rows.filter((r) => r.some((x) => x !== ''));
+  const width = Math.max(0, ...kept.map((r) => r.length));
+  return kept.map((r) => Array.from({ length: width }, (_, i) => r[i] ?? ''));
+}
+
+/** A spreadsheet (content.xml of an .ods) → [{ name, rows }], at most 12 sheets. */
+export function odsSheets(xml = '', opts = {}) {
+  return [...String(xml).matchAll(/<table:table(\s[^>]*)?>([\s\S]*?)<\/table:table>/g)].slice(0, 12).map((m, i) => ({
+    name: xmlText(m[1]?.match(/table:name="([^"]*)"/)?.[1] ?? '') || `${i + 1}`,
+    rows: odsRows(m[2], opts),
+  }));
+}
+
+/* ---------- RTF (plain text out of the control words) ---------- */
+
+const RTF_SKIP = new Set(['fonttbl', 'colortbl', 'stylesheet', 'info', 'pict', 'object', 'header', 'footer', 'headerl', 'headerr', 'footerl', 'footerr', 'xmlnstbl', 'listtable', 'listoverridetable', 'rsidtbl', 'generator', 'themedata', 'colorschememapping', 'datastore', 'latentstyles', 'fldinst', 'bkmkstart', 'bkmkend']);
+const CP1252 = { 0x80: 0x20ac, 0x82: 0x201a, 0x83: 0x192, 0x84: 0x201e, 0x85: 0x2026, 0x86: 0x2020, 0x87: 0x2021, 0x88: 0x2c6, 0x89: 0x2030, 0x8a: 0x160, 0x8b: 0x2039, 0x8c: 0x152, 0x8e: 0x17d, 0x91: 0x2018, 0x92: 0x2019, 0x93: 0x201c, 0x94: 0x201d, 0x95: 0x2022, 0x96: 0x2013, 0x97: 0x2014, 0x98: 0x2dc, 0x99: 0x2122, 0x9a: 0x161, 0x9b: 0x203a, 0x9c: 0x153, 0x9e: 0x17e, 0x9f: 0x178 };
+
+/** An RTF file → its plain text (paragraphs as lines). Pictures, fonts and styles are left out. */
+export function rtfToText(src = '') {
+  const s = String(src);
+  if (!/^\s*\{\\rtf/.test(s)) return s;
+  let out = '';
+  const stack = [];
+  let skip = false;
+  let uc = 1;
+  let drop = 0; // characters to leave out after a \uN
+  let i = 0;
+  const put = (ch) => {
+    if (drop > 0) return void drop--;
+    if (!skip) out += ch;
+  };
+  while (i < s.length) {
+    const ch = s[i];
+    if (ch === '{') {
+      stack.push({ skip, uc });
+      i++;
+      if (s.startsWith('\\*', i)) skip = true;
+      continue;
+    }
+    if (ch === '}') {
+      ({ skip, uc } = stack.pop() ?? { skip: false, uc: 1 });
+      i++;
+      continue;
+    }
+    if (ch === '\\') {
+      const nx = s[i + 1];
+      if (nx === '\\' || nx === '{' || nx === '}') {
+        put(nx);
+        i += 2;
+        continue;
+      }
+      if (nx === "'") {
+        const code = parseInt(s.substr(i + 2, 2), 16);
+        if (Number.isFinite(code)) put(String.fromCharCode(CP1252[code] ?? code));
+        i += 4;
+        continue;
+      }
+      if (nx === '~') (put(' '), (i += 2));
+      else if (nx === '-' || nx === '_') (put(nx === '_' ? '-' : ''), (i += 2));
+      else if (nx === '\n' || nx === '\r') (put('\n'), (i += 2));
+      else {
+        const m = /^([a-zA-Z]+)(-?\d+)? ?/.exec(s.slice(i + 1, i + 40));
+        if (!m) {
+          i += 2;
+          continue;
+        }
+        i += 1 + m[0].length;
+        const word = m[1];
+        const n = m[2] != null ? Number(m[2]) : null;
+        if (RTF_SKIP.has(word)) skip = true;
+        else if (word === 'par' || word === 'line' || word === 'row' || word === 'sect' || word === 'page') put('\n');
+        else if (word === 'tab' || word === 'cell') put('\t');
+        else if (word === 'emdash') put('—');
+        else if (word === 'endash') put('–');
+        else if (word === 'bullet') put('•');
+        else if (word === 'lquote') put('‘');
+        else if (word === 'rquote') put('’');
+        else if (word === 'ldblquote') put('“');
+        else if (word === 'rdblquote') put('”');
+        else if (word === 'uc' && n != null) uc = n;
+        else if (word === 'u' && n != null) {
+          put(String.fromCharCode(n < 0 ? n + 65536 : n));
+          drop = uc;
+        }
+      }
+      continue;
+    }
+    if (ch === '\r' || ch === '\n') {
+      i++;
+      continue;
+    }
+    put(ch);
+    i++;
+  }
+  return out
+    .split('\n')
+    .map((l) => l.replace(/[ \t]+$/g, ''))
+    .join('\n')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+}
 
 /** Rows as plain text for the search. */
 export const rowsText = (rows = []) => rows.map((r) => r.join(' ')).join('\n');

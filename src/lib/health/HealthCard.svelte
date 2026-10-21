@@ -55,7 +55,7 @@
   const errorText = (code) =>
     ({
       google_login_needed: t('Google needs a new login. Connect again.'),
-      google_scope: t('Google gives no access to these values. Connect again and tick all values.'),
+      google_scope: t('Google refuses the Fitbit values right now. The reason is noted on the server.'),
       not_connected: t('Fitbit is not connected (any more).'),
       unauthorized: t('This device has no key yet: connect Strava on this device first.'),
       network: t('No connection. The app tries again later.'),
@@ -65,7 +65,7 @@
   // Noah 21.10.2026: the values stopped coming and the card said nothing. The last try is kept on this
   // device (LAST_KEY), so its reason stays visible after a reload, until a fetch works again.
   const failed = $derived(health.error || (health.lastTry && !health.lastTry.ok ? health.lastTry.code : ''));
-  const relogin = $derived(['google_login_needed', 'google_scope', 'not_connected'].includes(failed));
+  const relogin = $derived(['google_login_needed', 'not_connected'].includes(failed));
   const triedAt = $derived(health.lastTry?.at ? (localDay(new Date(health.lastTry.at)) === localDay() ? t('today {time}|fitbit', { time: clock(health.lastTry.at) }) : short(localDay(new Date(health.lastTry.at)))) : '');
   const gone = $derived(health.lastTry?.ok && !health.error ? (health.lastTry.missing ?? []).map((m) => LABEL[VALUE_OF[m]]).filter(Boolean) : []);
 </script>

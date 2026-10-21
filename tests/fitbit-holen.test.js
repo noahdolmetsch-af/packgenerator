@@ -10,6 +10,9 @@ import {
 } from "../src/lib/health/client.svelte.js";
 import { HEALTH_KEY, VALUES } from "../src/lib/health.js";
 import { autoPick } from "../src/lib/sync/engine.js";
+import { fitbitEmpty } from "../src/lib/health/emptyline.js";
+import { SCOPES } from "../api/_lib/google.js";
+import { MAIL_SCOPES } from "../api/_lib/googlemail.js";
 import { makeHandler, pageSizeOf, TYPES } from "../api/_lib/google.js";
 import { hash, KEYS } from "../api/_lib/oauth.js";
 
@@ -48,6 +51,8 @@ function world({
     const type = u.pathname.split("/dataTypes/")[1]?.split("/")[0];
     asked.push({ type, pageSize: u.searchParams.get("pageSize") });
     const answer = google[type];
+    if (answer?.status)
+      return Response.json(answer.json, { status: answer.status });
     if (typeof answer === "number")
       return new Response("no", { status: answer });
     return Response.json(answer ?? {});
@@ -114,11 +119,33 @@ describe("Fitbit: the daily fetch on the server", () => {
     ).toBe("200");
   });
 
-  it("no access to any value: the app hears «google_scope» (connect again)", async () => {
-    const w = world({ google: Object.fromEntries(TYPES.map((t) => [t, 403])) });
+  it("Google refuses every value: the app hears «google_scope», the log keeps Google's reason", async () => {
+    const log = vi.spyOn(console, "log").mockImplementation(() => {});
+    const refused = {
+      status: 403,
+      json: {
+        error: {
+          code: 403,
+          status: "PERMISSION_DENIED",
+          message: "Request had insufficient authentication scopes.",
+          details: [{ reason: "ACCESS_TOKEN_SCOPE_INSUFFICIENT" }],
+        },
+      },
+    };
+    const w = world({
+      google: Object.fromEntries(
+        TYPES.map((t) => [t, t === "steps" ? refused : 403]),
+      ),
+    });
     const res = await days(w);
     expect(res.status).toBe(403);
     expect((await res.json()).code).toBe("google_scope");
+    const lines = log.mock.calls.flat().join("\n");
+    expect(lines).toContain(
+      "google health 403 steps: PERMISSION_DENIED ACCESS_TOKEN_SCOPE_INSUFFICIENT Request had insufficient",
+    );
+    expect(lines).not.toContain("test-access");
+    log.mockRestore();
   });
 
   it("a login Google no longer accepts stops at once with «google_login_needed»", async () => {
@@ -223,5 +250,67 @@ describe("Fitbit: two devices", () => {
     };
     expect(autoPick("settings", HEALTH_KEY, mine, theirs)).toBe("same");
     expect(autoPick("settings", HEALTH_KEY, theirs, mine)).toBe("same");
+  });
+});
+
+describe("Fitbit: a later Google login keeps the Fitbit ticks", () => {
+  it("connecting Mail asks again for the Fitbit values this login already allows", async () => {
+    const w = world({
+      tokens: {
+        access_token: "a",
+        refresh_token: "r",
+        expires_at: NOW + 3_600_000,
+        scope: [...SCOPES, "openid"].join(" "),
+      },
+    });
+    const res = await w.h.main(
+      new Request("https://packgen-three.vercel.app/api/google?step=start", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${DEVICE}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ services: ["mail"] }),
+      }),
+    );
+    const u = new URL((await res.json()).url);
+    const asked = u.searchParams.get("scope").split(" ");
+    expect(asked).toEqual(expect.arrayContaining([...MAIL_SCOPES, ...SCOPES]));
+    expect(asked).not.toContain("openid");
+    expect(u.searchParams.get("include_granted_scopes")).toBe("true");
+  });
+});
+
+describe("Fitbit: Heute without a value says why", () => {
+  it("not connected, a failed fetch, or simply nothing new yet", () => {
+    expect(fitbitEmpty({ prefs: { connected: false } })).toMatchObject({
+      why: "off",
+      href: "#/me/connections",
+    });
+    expect(
+      fitbitEmpty({
+        prefs: { connected: true },
+        error: "",
+        lastTry: { ok: false, code: "google_scope" },
+      }),
+    ).toMatchObject({
+      why: "failed",
+      text: "Fitbit is connected, but Google refuses the values right now.",
+      href: "#/me/fitbit",
+    });
+    expect(
+      fitbitEmpty({
+        prefs: { connected: true },
+        error: "network",
+        lastTry: null,
+      }).text,
+    ).toBe("Fitbit is connected, but the last fetch did not work.");
+    expect(
+      fitbitEmpty({
+        prefs: { connected: true },
+        lastTry: { ok: true },
+        last: { date: "2026-10-19" },
+      }),
+    ).toMatchObject({ why: "none", date: "2026-10-19" });
   });
 });

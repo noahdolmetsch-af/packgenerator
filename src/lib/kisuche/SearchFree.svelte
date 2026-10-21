@@ -44,8 +44,9 @@
   let busy = $state(false);
   let load = $state(null); // 0..1 while Chrome downloads the model
   let fail = $state('');
+  // Waits until the app's entries are loaded: before that the question would go out empty (CI 0.176.0).
   async function askChrome() {
-    if (busy) return;
+    if (busy || !text) return;
     aq = question;
     answer = '';
     fail = '';
@@ -76,7 +77,7 @@
         <a class="btn sm" href="https://claude.ai/new" target="_blank" rel="noopener" onclick={copy}><ExternalLink size={16} aria-hidden="true" />{t('Copy and open Claude')}</a>
       {/if}
       {#if chrome && ai !== 'none'}
-        <button type="button" class="btn sm" onclick={askChrome} disabled={busy}><Cpu size={16} aria-hidden="true" />{ai === 'available' ? t('Ask Chrome AI') : t('Ask Chrome AI (loads once)')}</button>
+        <button type="button" class="btn sm" onclick={askChrome} disabled={busy || !rel}><Cpu size={16} aria-hidden="true" />{ai === 'available' ? t('Ask Chrome AI') : t('Ask Chrome AI (loads once)')}</button>
       {/if}
     </div>
     {#if local}<div class="ks-local"><LocalAsk q={question} lines={[text]} name="search" deviceOnly /></div>{/if}

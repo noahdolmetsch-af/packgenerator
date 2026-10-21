@@ -1525,4 +1525,12 @@ export default {
   'Hide a part and rename one; «As at the start» puts it back.': 'Verstecke einen Teil und benenne einen um; «Wie am Anfang» stellt alles zurück.',
   'Today: body values and the days until your next trip': 'Heute: Körperwerte und die Tage bis zur nächsten Tour',
   'Draw on every photo': 'Auf jedem Foto zeichnen',
+  'One trip, one page': 'Eine Tour, eine Seite',
+  'Plan, pack, ride and look back in one place.': 'Planen, packen, fahren und zurückschauen an einem Ort.',
+  'Trips: «Analysis» is the fifth step': 'Touren: «Auswertung» ist der fünfte Schritt',
+  'Plan starts with what is still missing': 'Planen beginnt mit dem, was noch fehlt',
+  'After a trip: what stays at home?': 'Nach der Tour: Was bleibt daheim?',
+  'Bike park days as a block': 'Bikepark-Tage als Baustein',
+  'Open Plan of a trip: «Still missing» comes first.': 'Öffne «Planen» einer Tour: «Fehlt noch» steht zuoberst.',
+  'Open a trip and tap «Analysis» in the step bar.': 'Öffne eine Tour und tippe in der Schrittleiste auf «Auswertung».',
 };

@@ -90,7 +90,9 @@ test('W2 + SL1: Ich, Was ist neu: the newest on top, one row to all functions, t
   await expect(vers.locator('[data-group].open')).toHaveCount(1);
   const inDay = WHATS_NEW.slice(1).filter((e) => e.date === days[0]).length;
   await expect(groups.first().locator('.ls-gh')).toContainText(inDay === 1 ? T('{n} update', { n: 1 }) : T('{n} updates', { n: inDay }));
-  await expect(groups.first().locator('[data-row]')).toHaveCount(inDay <= 6 ? inDay : 5);
+  // 0.176.0 «Handy kurz» (changed on purpose): on a phone a day shows four rows when it has more than five
+  const few = info.project.name === 'phone' ? 4 : 5;
+  await expect(groups.first().locator('[data-row]')).toHaveCount(inDay <= few + 1 ? inDay : few);
   // a row opens to its points and its small things in their boxes, «Fixed» tinted
   const e = WHATS_NEW.slice(1).find((x) => x.date === days[0]);
   await vers.locator(`[data-row="${e.version}"]`).click();

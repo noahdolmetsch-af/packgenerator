@@ -41,9 +41,11 @@ test('write a QR invoice with TWINT, then mark it paid by amount and open it aga
   await page.getByLabel(T('Payable to (name)')).fill('Beispiel Velo-Werkstatt');
   await page.getByRole('textbox', { name: T('Postcode'), exact: true }).fill('8000');
   await page.getByRole('textbox', { name: T('Town'), exact: true }).fill('Zürich');
-  await page.getByLabel(T('TWINT number (optional)')).fill('0790000000');
+  await page.getByLabel(T('TWINT number')).fill('0790000000');
   await page.getByRole('button', { name: T('Save account') }).click();
-  await expect(page.getByRole('alert')).toHaveText(T('This IBAN is not right. Please check it (CH or LI, 21 characters).'));
+  // Paket «Reste» 1041 (ui/Form): the message stands at the field, a line above the buttons counts it
+  await expect(page.locator('[data-field="acc-iban"] .fieldmsg')).toHaveText(T('This IBAN is not right. Please check it (CH or LI, 21 characters).'));
+  await expect(page.getByLabel('IBAN')).toHaveAttribute('aria-invalid', 'true');
   await page.getByLabel('IBAN').fill('CH44 3199 9123 0008 8901 2');
   await page.getByRole('button', { name: T('Save account') }).click();
   const stored = await page.evaluate(() => JSON.parse(localStorage.getItem('pg.pay.account')));

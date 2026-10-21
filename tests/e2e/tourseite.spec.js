@@ -213,12 +213,14 @@ test('d) hide and show again, delete with Undo; a Packmodus trip opens its page 
   await expect(tour(page).locator('h1')).toHaveText('Herbsttour Hochland');
   await expect(tour(page).locator('[data-tour-gear]')).toBeVisible();
   await expect(tour(page).locator('[data-open-review]')).toHaveAttribute('href', `#/debrief/${encodeURIComponent(`${P}herbst`)}`);
-  // Gesamttest 20.10.2026: one row «Rückblick ›» right under the head, and the Rückblick leads back with «Tour-Seite ansehen ›»
-  await expect(tour(page).locator('a[data-to-review]')).toHaveAttribute('href', `#/debrief/${encodeURIComponent(`${P}herbst`)}`);
-  await expect(tour(page).locator('a[data-to-review]')).toContainText(T('Look back|tour'));
+  // 0.174 «Eine Tour, eine Seite» (UI-Ziele #5): the trip's head with its step tabs; «Rückblick» leads there,
+  // and the Rückblick leads back with «Tour-Seite ansehen ›»
+  const toReview = tour(page).locator('[data-tour-steps] .stepbar a').filter({ hasText: T('Debrief') });
+  await expect(toReview).toHaveAttribute('href', `#/debrief/${encodeURIComponent(`${P}herbst`)}`);
+  await expect(tour(page).locator('[data-tour-steps] .stepbar a[aria-current="page"]')).toContainText(T('Analysis|stage'));
   await shot(page, info, 'T9-packmodus-tour');
   await noSideways(page);
-  await tour(page).locator('a[data-to-review]').click();
+  await toReview.click();
   await expect(page).toHaveURL(new RegExp(`#/debrief/${encodeURIComponent(`${P}herbst`)}$`));
   await expect(page.locator('main a[data-to-tour-page]')).toHaveAttribute('href', key(`t:${P}herbst`));
   await expect(page.locator('main a[data-to-tour-page]')).toContainText(T('See the tour page'));

@@ -47,6 +47,10 @@
   import { routeSeries, personalLine } from '../lib/touren/tourextra.js';
   import { startPlace, fetchTourWeather, wxSummary } from '../lib/touren/tourwx.js';
   import '../lib/trip/trip.css';
+  import TripBand from '../lib/trip/TripBand.svelte';
+  import TourAsk from '../lib/touren/tour/TourAsk.svelte';
+  import { countdownOf, sayOf, kpisShown, hasSteps } from '../lib/touren/tourstep.js';
+  import { tripEnd } from '../lib/tripstate.js';
   import { loadTour } from '../lib/touren/tourdata.js';
   import { renameTour, saveOwn, setHidden, saveNotes, deleteTour, undoDelete, leaveTour, restoreGroups } from '../lib/touren/touredit.js';
   import { PARTS, KPIS, pageOpts, linesOf, joinedLine, profileOf, kpiOf, tourHref, shareText, TOUR_PAGE_KEY } from '../lib/touren/tour.js';
@@ -81,6 +85,19 @@
   const hasCourse = $derived(d && !d.missing ? !!courseOf(d.acts, d.trip) : false);
   const marker = $derived(frac == null ? null : pointAlong(joinedLine(lines), frac));
   const own = $derived(d?.kind === 'a' ? (d.acts[0]?.own ?? {}) : d?.kind === 'g' ? (d.group?.own ?? {}) : (d?.trip?.own ?? {}));
+  /* ---- «Eine Tour, eine Seite» (UI-Ziele #5, 0.174): a trip with a packing list has the same head and step
+     tabs as Planen, Packen, Unterwegs and Rückblick; this page is its tab «Auswertung» ---- */
+  const steps = $derived(d?.kind === 't' && hasSteps(d.trip));
+  const over = $derived(d?.kind !== 't' || !d.trip?.startDate || !!d.trip.finished || (tripEnd(d.trip) ?? '') < today);
+  // #8: without a ride (Strava or uploaded) after the tour: a card «Fahrt verbinden» instead of empty values
+  const noRide = $derived(d?.kind === 't' && !d.acts.length && !(d.rides ?? []).length);
+  // #10: the warm countdown chip on the drawn head and one sentence with a number
+  const cd = $derived(d?.kind === 't' ? countdownOf(d.trip, today) : null);
+  const tripSay = $derived.by(() => {
+    if (d?.kind !== 't') return null;
+    const es = d.trip?.entries ?? [];
+    return sayOf(d.trip, today, { km: row?.km ?? d.trip?.route?.km ?? null, items: es.length, open: es.filter((e) => !e.packed).length });
+  });
   const notes = $derived(d?.kind === 'a' ? { diary: d.acts[0]?.note ?? '', ...(d.acts[0]?.own ?? {}) } : d?.kind === 'g' ? (d.group ?? {}) : { ...(d?.trip?.own ?? {}), diary: d?.debrief?.diary?.text ?? '' });
 
   /* ---- 2 «beides»: tabs or one page with a jump bar ---- */
@@ -204,7 +221,10 @@
   const series = $derived(d?.kind === 'a' && d.acts[0] && $allActsQ ? routeSeries(sameRoute($allActsQ, d.acts[0]).list.slice(0, 12), d.acts[0].id) : []);
   const sayRaw = $derived(personalLine(series, d?.kind === 'a' ? d.acts[0]?.id : null));
   // a date that ends with a dot («9. Sept.») ends the sentence too
-  const say = $derived(sayRaw ? t(sayRaw.key, { ...sayRaw.vars, ...(sayRaw.vars.day ? { day: dates(sayRaw.vars.day) } : {}) }).replace(/\.\.$/, '.') : '');
+  const say = $derived(sayRaw ? t(sayRaw.key, { ...sayRaw.vars, ...(sayRaw.vars.day ? { day: dates(sayRaw.vars.day) } : {}) }).replace(/\.\.$/, '.') : tripSay ? t(tripSay.key, { ...tripSay.vars, km: tripSay.vars.km != null ? num(tripSay.vars.km) : undefined }) : '');
+  // #8: only the key figures and values there are; an empty one is left out instead of «–»
+  const kpis = $derived(row ? kpisShown(opts.kpis, (k) => kpiOf(row, k)) : []);
+  const hasValue = (f) => FIELD[f](row)[1] !== DASH;
 
   /* ---- the jump bar marks the part on screen (Noah 20.10.2026 «klare aktive Markierung») ---- */
   /* ---- Analyse wie Strava (Noah 20.10.2026 «baue es 1:1 nach»): one activity at a time, the longest first ---- */
@@ -315,22 +335,35 @@
   <Empty icon={Route} title={t('Tour not found')} text={t('It may have been deleted or taken apart.')} action={{ label: t('To the trips'), onclick: () => (location.hash = '#/trips') }} />
 {:else}
   <div class="tour" data-tour-page={d.kind}>
+    {#snippet headExtra()}
+      <p class="pills">
+        {#if !steps}<TripState state={d.state} />{/if}
+        {#if row.changed?.length}<span class="chg" data-changed>{t('changed')}</span>{/if}
+        {#if (d.kind === 'a' && d.acts[0]?.hidden) || (d.kind === 'g' && d.group?.hidden)}<span class="chg" data-hidden><EyeOff size={13} aria-hidden="true" />{t('hidden')}</span>{/if}
+        {#if d.partOf}<a class="part" href={d.partOf.href} data-part-of>{t('Part of «{name}»', { name: d.partOf.name })}<ChevronRight size={14} aria-hidden="true" /></a>{/if}
+      </p>
+    {/snippet}
+    {#if steps}
+      <!-- «Eine Tour, eine Seite» (UI-Ziele #5): the same head and step tabs on every step of the trip; here «Auswertung» -->
+      <div class="tband" data-tour-steps>
+        <TripBand trip={d.trip} tab="analysis" note>
+          {#snippet extra()}{@render headExtra()}<span class="tmore"><MoreActions title={name} label={t('More for {what}', { what: name })} {actions} /></span>{/snippet}
+        </TripBand>
+      </div>
+    {:else}
     <!-- Gesamttest 20.10.2026 B3: a Strava tour sits under Touren › Fahrten, a trip with a packing list under Touren -->
     <PathHead crumbs={d.kind === 't' ? [{ label: t('Trips|place'), href: '#/trips' }] : [{ label: t('Trips|place'), href: '#/trips' }, { label: t('Rides|tab'), href: RIDES_HREF }]} here={name} title={name} {sub}>
-      {#snippet extra()}
-        <p class="pills">
-          <TripState state={d.state} />
-          {#if row.changed?.length}<span class="chg" data-changed>{t('changed')}</span>{/if}
-          {#if (d.kind === 'a' && d.acts[0]?.hidden) || (d.kind === 'g' && d.group?.hidden)}<span class="chg" data-hidden><EyeOff size={13} aria-hidden="true" />{t('hidden')}</span>{/if}
-          {#if d.partOf}<a class="part" href={d.partOf.href} data-part-of>{t('Part of «{name}»', { name: d.partOf.name })}<ChevronRight size={14} aria-hidden="true" /></a>{/if}
-        </p>
-      {/snippet}
+      {#snippet extra()}{@render headExtra()}{/snippet}
       <MoreActions title={name} label={t('More for {what}', { what: name })} {actions} />
     </PathHead>
-    <!-- Noah 20.10.2026 «1a 2a»: a drawn landscape with the route, and one personal sentence when there is one -->
-    <TourLandscape points={prof} photo={coverPhoto(photos, cover)?.data ?? null} chips={[dates(row.day, row.endDay ?? row.day), wxS ? deg(wxS.tmin, wxS.tmax) : ''].filter(Boolean)} />
+    {/if}
+    <!-- Noah 20.10.2026 «1a 2a»: a drawn landscape with the route, and one personal sentence when there is one;
+         0.174 (#10): on a trip a warm chip first: «In 5 Tagen», «Tag 2 von 3», «Zurück seit 2 Tagen» -->
+    <TourLandscape points={prof} photo={coverPhoto(photos, cover)?.data ?? null} warm={cd ? t(cd.key, cd.vars) : ''} chips={[dates(row.day, row.endDay ?? row.day), wxS ? deg(wxS.tmin, wxS.tmax) : ''].filter(Boolean)} />
     {#if say}<p class="say" data-tour-say>{say}</p>{/if}
-    {#if d.kind === 't'}
+    <!-- 0.174 (#18 Lernschleife): one question after the tour, at most one card a day -->
+    {#if d.kind === 't' && steps}<TourAsk {d} {key} {over} />{/if}
+    {#if d.kind === 't' && !steps}
       <!-- Gesamttest 20.10.2026 (journey): a trip's two pages lead to each other; the Rückblick has «Tour-Seite ansehen ›» -->
       <ul class="rowlist" aria-label={t('Look back|tour')}>
         <li><a class="lrow" href="#/debrief/{encodeURIComponent(d.id)}" data-to-review><span class="ic" aria-hidden="true"><Star size={18} /></span><span class="m"><span class="t">{t('Look back|tour')}</span><span class="s">{d.state === 'rated' ? t('The Rückblick is written.') : t('The Rückblick is still open.')}</span></span><ChevronRight class="chev" size={18} aria-hidden="true" /></a></li>
@@ -353,8 +386,20 @@
     {#if shows('overview')}
       <section id="tour-overview" class="part-s" aria-labelledby="th-overview" data-tour-part="overview">
         <div class="sh"><h2 id="th-overview">{t('Overview|tour')}</h2><button type="button" class="btn btn-link" onclick={() => (kpiOpen = true)} data-kpi-open><LayoutGrid size={16} aria-hidden="true" />{t('Choose key figures')}</button></div>
+        {#if noRide}
+          <!-- 0.174 (#8): no ride yet: one card instead of empty values -->
+          <div class="connect" data-ride-connect>
+            <Activity size={20} aria-hidden="true" />
+            <div>
+              <p class="ct">{over ? t('Connect a ride') : t('The analysis comes after the tour')}</p>
+              <p class="cs">{over ? t('Strava rides of these days join on their own once Strava is connected; a GPX file works too. Then values, map and analysis appear here.') : t('Once you have ridden, the values, the map and the analysis of your ride appear here.')}</p>
+              {#if over}<div class="ca"><a class="btn" href={RIDES_HREF} data-connect-strava>{t('To the rides')}<ChevronRight size={16} aria-hidden="true" /></a><a class="btn btn-link" href="#/debrief/ride" data-connect-gpx>{t('Upload ride')}</a></div>{/if}
+            </div>
+          </div>
+        {/if}
+        {#if kpis.length}
         <ul class="kpis" data-kpis>
-          {#each opts.kpis as k (k)}
+          {#each kpis as k (k)}
             {@const def = KPIS.find((x) => x.key === k)}
             {@const v = kpiOf(row, k)}
             <li class="kpi" data-kpi={k}>
@@ -364,6 +409,8 @@
             </li>
           {/each}
         </ul>
+        {/if}
+        {#if over}
         <p class="wx" data-tour-weather>
           <CloudSun size={18} aria-hidden="true" />
           {#if wxText}<span><b>{t('Weather')}</b> {wxText}</span>
@@ -371,6 +418,7 @@
           {:else if wxState === 'failed'}<span class="tp-muted">{t('The weather could not be fetched.')}</span><button type="button" class="btn btn-link" onclick={() => loadWeather(true)} data-weather-retry><RefreshCw size={14} aria-hidden="true" />{t('Try again')}</button>
           {:else}<span class="tp-muted">{t('No weather yet: it comes when you are online.')}</span>{/if}
         </p>
+        {/if}
         {#if lines.length}
           <div class="mapw"><TourMap {lines} {marker} height={phone.matches ? 300 : 400} label={t('Map of «{name}»: drag to move, pinch or wheel to zoom', { name })} /></div>
         {:else}
@@ -387,23 +435,25 @@
         <div class="card pad vcard">
           <dl class="vals" data-tour-values>
             <!-- Noah 20.10.2026: the main values stand large above (Übersicht); here the details, quieter -->
-            {#if !onTop('km')}<div class="vc"><dt>{t('Distance')}</dt><dd class="num">{n1(row.km)} <small>km</small>{#if isChanged('km')}<small class="was">{t('Strava: {v}', { v: stravaWas('km') })}</small>{/if}</dd></div>{/if}
-            {#if !onTop('hm')}<div class="vc"><dt>{t('Climbing')}</dt><dd class="num">{n0(row.hm)} <small>Hm</small>{#if isChanged('hm')}<small class="was">{t('Strava: {v}', { v: stravaWas('hm') })}</small>{/if}</dd></div>{/if}
+            {#if !onTop('km') && row.km != null}<div class="vc"><dt>{t('Distance')}</dt><dd class="num">{n1(row.km)} <small>km</small>{#if isChanged('km')}<small class="was">{t('Strava: {v}', { v: stravaWas('km') })}</small>{/if}</dd></div>{/if}
+            {#if !onTop('hm') && row.hm != null}<div class="vc"><dt>{t('Climbing')}</dt><dd class="num">{n0(row.hm)} <small>Hm</small>{#if isChanged('hm')}<small class="was">{t('Strava: {v}', { v: stravaWas('hm') })}</small>{/if}</dd></div>{/if}
             <!-- Tour-Auswertung (20.10.2026): the best 20 minutes stand in the table «Best minutes» below -->
-            {#each fieldsOf(row).filter((f) => !onTop(f) && f !== 'w20') as f (f)}
+            {#each fieldsOf(row).filter((f) => !onTop(f) && f !== 'w20' && hasValue(f)) as f (f)}
               {@const [label, value, unit] = FIELD[f](row)}
               <div class="vc" data-field={f}><dt>{label}{#if f === 'dauer' || f === 'verstr'}<Help {label} text={t(FIELD_HELP[f === 'dauer' ? 'moving' : 'elapsed'])} />{/if}</dt><dd class="num">{value}{#if unit && value !== DASH}{' '}<small>{unit}</small>{/if}{#if f === 'dauer' && isChanged('dauer')}<small class="was">{t('Strava: {v}', { v: stravaWas('dauer') })}</small>{/if}</dd></div>
             {/each}
           </dl>
+          {#if parts || row.hf != null}
           <div class="zones">
             <p class="zl">{t('Time in HR zones')}{#if easyPct != null}<span class="zsum" data-zone-sum>{t('{p} % of your time in zone 1–2', { p: easyPct })}</span>{/if}</p>
             {#if parts}
               <ZoneBar secs={row.zones} h={12} />
               <ul class="zv">{#each parts as p, i (i)}<li><b class="z{i + 1}">Z{i + 1}</b><span class="num">{zmin(p.min)}</span><small class="num">{p.pct} %</small></li>{/each}</ul>
             {:else}
-              <p class="tp-muted tp-small">{row.hf != null ? t('Comes when the activity is opened once.') : t('No heart rate.')}</p>
+              <p class="tp-muted tp-small">{t('Comes when the activity is opened once.')}</p>
             {/if}
           </div>
+          {/if}
           <TourAnalysis {d} />
         </div>
         {#if d.acts.length > 1 || d.kind === 't'}
@@ -491,6 +541,8 @@
           </div>
         {/if}
         <StravaAnalysis a={anaAct} acts={$allActsQ ?? []} bounds={zones.bounds} ftp={anaFtp} kg={anaKg} bike={row.bikeId ? (bikeName[row.bikeId] ?? '') : ''} onkm={anaActs.length === 1 ? (f) => (frac = f) : null} map={anaActs.length > 1} />
+        <!-- «Fahrt-Analyse als Vorbild» part 3: the ride analyses of Training for the chosen activity (one picker: the chips above) -->
+        {#await import('../lib/training/act/ActAnalysesPick.svelte') then m}<m.default ids={[anaAct.id]} />{:catch}{/await}
       </section>
     {/if}
 
@@ -531,6 +583,42 @@
   /* Noah 20.10.2026: fewer white cards that all look the same: a fine line instead of a shadow */
   .tour :global(.card) {
     box-shadow: none;
+  }
+  /* 0.174 (#5): the trip's band as the head; its own margin is the page's gap */
+  .tband :global(.trip-band) {
+    margin: 0;
+  }
+  .tmore {
+    margin-left: auto;
+  }
+  /* 0.174 (#8): no ride yet */
+  .connect {
+    display: flex;
+    gap: 12px;
+    margin: 0 0 14px;
+    padding: 14px 16px;
+    border-radius: var(--radius-card);
+    background: var(--paper-2);
+  }
+  .connect > :global(svg) {
+    flex: none;
+    margin-top: 2px;
+    color: var(--ink-3);
+  }
+  .ct {
+    margin: 0;
+    font-weight: 600;
+  }
+  .cs {
+    margin: 2px 0 0;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+  }
+  .ca {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 14px;
+    margin-top: 10px;
   }
   .say {
     margin: -6px 0 0;

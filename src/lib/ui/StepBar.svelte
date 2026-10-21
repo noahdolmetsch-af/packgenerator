@@ -14,9 +14,21 @@
   import { TAB_NAMES, tabHref } from '../tabs.js';
 
   let { trip, tabs, status, current = null, tone = 'steps', onpick = () => {} } = $props();
+  // 0.174: on a narrow phone the bar may scroll sideways; the current step is always in view
+  let bar = $state();
+  $effect(() => {
+    void current;
+    void status;
+    const el = bar;
+    const id = requestAnimationFrame(() => {
+      const a = el?.querySelector('[aria-current="page"]');
+      if (a && el.scrollWidth > el.clientWidth) el.scrollLeft = Math.max(0, a.offsetLeft + a.offsetWidth - el.clientWidth);
+    });
+    return () => cancelAnimationFrame(id);
+  });
 </script>
 
-<nav class="stepbar {tone}" aria-label={t('Steps of this trip')} style:--n={tabs.length}>
+<nav bind:this={bar} class="stepbar {tone}" aria-label={t('Steps of this trip')} style:--n={tabs.length}>
   {#each tabs as key (key)}
     {@const s = status[key] ?? { text: '', done: false }}
     <a href={tabHref(key, trip)} class:done={s.done} aria-current={key === current ? 'page' : undefined} onclick={() => onpick(key)}>
@@ -28,6 +40,7 @@
 
 <style>
   .stepbar {
+    position: relative;
     display: grid;
     grid-template-columns: repeat(var(--n), minmax(0, 1fr));
   }
@@ -103,6 +116,23 @@
   }
   .light small {
     color: var(--ink-3);
+  }
+  /* 0.174 «Eine Tour, eine Seite»: five steps on a phone; each step at least as wide as its name (no word
+     breaks inside «Unterwegs» or «Auswertung»), the rest shared; on a very narrow phone the bar scrolls sideways */
+  @media (max-width: 719px) {
+    .light,
+    .steps {
+      grid-template-columns: none;
+      grid-auto-flow: column;
+      grid-auto-columns: minmax(max-content, 1fr);
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .light a,
+    .steps a {
+      min-width: 48px;
+      overflow-wrap: normal;
+    }
   }
   /* a 320 px phone: «Unterwegs» must not break inside the word (test HD12.4) */
   @media (max-width: 360px) {
