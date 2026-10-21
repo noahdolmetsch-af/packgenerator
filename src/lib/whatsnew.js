@@ -24,6 +24,9 @@ export const WHATS_NEW = [
     points: [
       { text: 'Fitbit: the values come in with «Fetch now»', href: '#/me/fitbit' },
     ],
+    small: [
+      { box: 'fixed', text: 'One Google login stays enough for everything' },
+    ],
     test: [
       'Open Me › Data and backup › Fitbit and tap «Fetch now».',
       'Last night, resting pulse and steps show with today’s date.',
