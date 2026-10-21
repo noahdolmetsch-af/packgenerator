@@ -18,6 +18,7 @@
   import { liveQuery } from 'dexie';
   import { db } from '../lib/db.js';
   import { t, tn, num, nameOf } from '../lib/i18n.svelte.js';
+  import { stravaName } from '../lib/stravanames.js';
   import { localDay } from '../lib/localday.js';
   import { phone } from '../lib/media.svelte.js';
   import { zones } from '../lib/strava/zones.svelte.js';
@@ -461,7 +462,7 @@
           {#if d.acts.length}
             <ul class="card acts" data-tour-acts>
               {#each d.acts as a (a.id)}
-                <li><a href={tourHref(`a:${a.id}`)}><KindIcon kind={a.own?.kind ?? a.kind} size={16} /><span class="an">{a.own?.name || a.name || t(typeKey(a.type))}</span><span class="tp-muted tp-small num">{dates(a.day)} · {n1(a.own?.km ?? a.km)} km · {n0(a.own?.hm ?? a.hm)} Hm</span><ChevronRight size={16} aria-hidden="true" /></a></li>
+                <li><a href={tourHref(`a:${a.id}`)}><KindIcon kind={a.own?.kind ?? a.kind} size={16} /><span class="an">{a.own?.name || stravaName(a.name) || t(typeKey(a.type))}</span><span class="tp-muted tp-small num">{dates(a.day)} · {n1(a.own?.km ?? a.km)} km · {n0(a.own?.hm ?? a.hm)} Hm</span><ChevronRight size={16} aria-hidden="true" /></a></li>
               {/each}
             </ul>
           {/if}
@@ -537,7 +538,7 @@
         <div class="sh"><h2 id="th-analysis">{t('Analysis|ana')}</h2></div>
         {#if anaActs.length > 1}
           <div class="chips" role="group" aria-label={t('Activity of the analysis')} data-ana-acts>
-            {#each anaActs as a (a.id)}<button type="button" class="tp-chip" aria-pressed={anaAct.id === a.id} onclick={() => (anaId = a.id)}>{a.own?.name || a.name || t(typeKey(a.type))} · {dates(a.day)}</button>{/each}
+            {#each anaActs as a (a.id)}<button type="button" class="tp-chip" aria-pressed={anaAct.id === a.id} onclick={() => (anaId = a.id)}>{a.own?.name || stravaName(a.name) || t(typeKey(a.type))} · {dates(a.day)}</button>{/each}
           </div>
         {/if}
         <StravaAnalysis a={anaAct} acts={$allActsQ ?? []} bounds={zones.bounds} ftp={anaFtp} kg={anaKg} bike={row.bikeId ? (bikeName[row.bikeId] ?? '') : ''} onkm={anaActs.length === 1 ? (f) => (frac = f) : null} />

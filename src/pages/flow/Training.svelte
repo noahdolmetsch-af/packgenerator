@@ -26,6 +26,7 @@
   import { dayWhen } from '../../lib/strava/when.js';
   import { byNewest, zoneSecs, hmm, kindCounts, monthsOf, typeKey, KIND_NAMES, ZONE_NAMES, zoneRange, validBounds } from '../../lib/training.js';
   import { t, num, locale } from '../../lib/i18n.svelte.js';
+  import { stravaName } from '../../lib/stravanames.js';
 
   let { params = new URLSearchParams() } = $props();
 
@@ -116,7 +117,7 @@
             <a class="row" href="#/flow/training/a/{encodeURIComponent(a.id)}" data-activity={a.id}>
               <span class="ki"><KindIcon kind={a.kind} /></span>
               <span class="dt num">{dayWhen(a.day)}<small>{a.time}</small></span>
-              <span class="nm"><b>{a.name || t(typeKey(a.type))}</b><small>{second(a)}</small></span>
+              <span class="nm"><b>{stravaName(a.name) || t(typeKey(a.type))}</b><small>{second(a)}</small></span>
               <span class="r num" data-label={t('Time|duration')}>{hmm(a.movingS)}</span>
               <span class="r num" data-label="km">{a.km ? num(a.km) : '–'}</span>
               <span class="r num" data-label={t('Hm|short')}>{a.hm != null ? num(a.hm) : '–'}</span>

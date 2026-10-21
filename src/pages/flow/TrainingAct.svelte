@@ -23,6 +23,7 @@
   import { dayWhen } from '../../lib/strava/when.js';
   import { zoneSecs, shares, hmm, speed, sameRoute, typeKey, ZONE_NAMES, zoneRange, hasDetail } from '../../lib/training.js';
   import { t, num, locale } from '../../lib/i18n.svelte.js';
+  import { stravaName } from '../../lib/stravanames.js';
   import { localDay } from '../../lib/localday.js';
   import { hasMeter } from '../../lib/training/act/power.js';
   import PowerBlock from '../../lib/training/act/PowerBlock.svelte';
@@ -82,8 +83,8 @@
 
 <div class="ta">
   <header class="ph">
-    <Crumb path={[{ href: '#/flow', label: t('Analysis|place') }, { href: '#/flow/training?view=list', label: t('Training|tab') }]} here={act?.name ?? ''} />
-    {#if act}<PageHead title={act.name || t(typeKey(act.type))} sub={[`${longDay}, ${act.time}`, act.kind === 'bike' && gearName ? gearName : t(typeKey(act.type))].join(' · ')} />{/if}
+    <Crumb path={[{ href: '#/flow', label: t('Analysis|place') }, { href: '#/flow/training?view=list', label: t('Training|tab') }]} here={stravaName(act?.name ?? '')} />
+    {#if act}<PageHead title={stravaName(act.name) || t(typeKey(act.type))} sub={[`${longDay}, ${act.time}`, act.kind === 'bike' && gearName ? gearName : t(typeKey(act.type))].join(' · ')} />{/if}
   </header>
 
   {#if act === undefined}

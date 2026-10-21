@@ -4,12 +4,13 @@
  */
 import { t, tn, locale, lang } from '../i18n.svelte.js';
 import { AREA, OWN_AREA, QUESTION, everyOf, timesOf, dayOf, areaLabel } from '../abfragen.js';
+import { stravaName } from '../stravanames.js';
 
 /** The text of a question (an own one and a changed one as written). */
 export const qText = (q) => (q?.own || q?.edited ? q.text : q ? t(q.text) : '');
 /** A history row's question text: the question, the old pool question of the daily check, or its key. */
 export function rowText(row, own = []) {
-  if (row.kind === 'ride') return row.ride?.name || t('Ride from Strava');
+  if (row.kind === 'ride') return stravaName(row.ride?.name) || t('Ride from Strava');
   // own: the questions as the person has them (allQuestions: changed texts, own ones), else the list
   const q = own.find((x) => x.id === row.qid) ?? QUESTION[row.qid];
   if (q) return qText(q);

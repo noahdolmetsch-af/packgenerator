@@ -6,6 +6,7 @@
  */
 import { tripDone } from '../yearreview.js';
 import { tripEnd } from '../tripstate.js';
+import { stravaName } from '../stravanames.js';
 
 const pos = (v) => (typeof v === 'number' && Number.isFinite(v) && v > 0 ? v : null);
 const addDays = (iso, n) => {
@@ -77,7 +78,7 @@ export function chronik({ trips = [], debriefs = [], rides = [], activities = []
   const taken = new Set(all.flatMap((e) => e.days));
   for (const a of activities) {
     if (!a?.day || !earlier(a.day, today) || taken.has(a.day)) continue;
-    all.push({ kind: 'activity', id: a.id, title: a.name ?? '', year: a.day.slice(0, 4), date: a.day, days: [a.day], km: r1(pos(a.km)), note: '', lines: [], href: null });
+    all.push({ kind: 'activity', id: a.id, title: stravaName(a.name ?? ''), year: a.day.slice(0, 4), date: a.day, days: [a.day], km: r1(pos(a.km)), note: '', lines: [], href: null });
   }
   const rank = { trip: 0, ride: 1, activity: 2 };
   const order = (a, b) => b.year.localeCompare(a.year) || a.date.localeCompare(b.date) || rank[a.kind] - rank[b.kind] || a.title.localeCompare(b.title);

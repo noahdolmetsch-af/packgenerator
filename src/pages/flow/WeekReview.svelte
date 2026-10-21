@@ -25,6 +25,7 @@
   import WeekForm from '../../lib/flow/form/WeekForm.svelte';
   import GoalCheck from '../../lib/compass/GoalCheck.svelte'; // Paket N #1047: «Wie läuft's?» for your goals, this week only
   import { t, tn, num, locale } from '../../lib/i18n.svelte.js';
+  import { stravaName } from '../../lib/stravanames.js';
 
   let { params = new URLSearchParams() } = $props();
   const today = localDay();
@@ -88,7 +89,7 @@
   }
 
   /* W4 */
-  const actName = (a) => a.name || t(typeKey(a.type));
+  const actName = (a) => stravaName(a.name) || t(typeKey(a.type));
   const BEST = { km: 'Longest distance', hm: 'Most climbing', time: 'Longest time', w20: 'Best 20 minutes' };
   const bestValue = (b) => (b.key === 'km' ? `${num(b.value)} km` : b.key === 'hm' ? `${num(b.value)} m` : b.key === 'time' ? `${hmm(b.value)} h` : `${num(b.value)} W`);
   const bestWas = (b) => (b.key === 'km' ? `${num(b.was)} km` : b.key === 'hm' ? `${num(b.was)} m` : b.key === 'time' ? `${hmm(b.was)} h` : `${num(b.was)} W`);

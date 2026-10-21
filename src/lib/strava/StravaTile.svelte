@@ -19,6 +19,7 @@
   import { zones } from './zones.svelte.js';
   import { byNewest, zoneSecs, mainZone, hmm, ZONE_NAMES, typeKey } from '../training.js';
   import { t, tn, num, dateOf, locale } from '../i18n.svelte.js';
+  import { stravaName } from '../stravanames.js';
   import { localDay } from '../localday.js';
   import { dayWhen } from './when.js';
 
@@ -47,7 +48,7 @@
   {#if act}
     <a class="hd" href="#/flow/training"><TileHead icon={RefreshCw} id="st-h" title={t('Last activity')} side={t('from Strava')} {isnew} /></a>
     <a class="act" href="#/flow/training/a/{encodeURIComponent(act.id)}" data-last-activity>
-      <span class="nm"><KindIcon kind={act.kind} size={16} /><b title={act.name || t(typeKey(act.type))}>{act.name || t(typeKey(act.type))}</b></span>
+      <span class="nm"><KindIcon kind={act.kind} size={16} /><b title={stravaName(act.name) || t(typeKey(act.type))}>{stravaName(act.name) || t(typeKey(act.type))}</b></span>
       <span class="sub">{subLine}</span>
       <span class="vals num">
         <span><b>{hmm(act.movingS)}</b><small>{t('Time|duration')}</small></span>
