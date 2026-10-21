@@ -143,6 +143,8 @@ test('Clean up test data, plan again, playground', async ({ page, context }, inf
   await expect(page.getByText(T('Jura loop'), { exact: true }).first()).toBeVisible();
   const ended = page.waitForEvent('load');
   await bar.getByRole('button', { name: T('End|playground') }).click();
+  // the question comes in the app's own window (no browser confirm since «Alles anpassbar»)
+  await page.getByRole('dialog').getByRole('button', { name: T('End the playground'), exact: true }).click();
   await ended;
   await settle(page, { sameTrips: false });
   await expect(page.getByRole('region', { name: 'Demo' })).toHaveCount(0);

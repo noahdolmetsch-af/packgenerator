@@ -26,7 +26,8 @@
   import { darkRiding, hhmm } from './race.js';
   import { sunTimes } from '../blockplan.js';
   import { sectorSegments, stretch, planBeds, nightStretches, placeAt, kmNear, tapKm, minZoomOf } from '../map/maplib.js';
-  import { ownQuery, saveOwn, putOwn, newPoint, updatePoint, removePoint, movePoint, ownOnMap, ownLabel, OWN_KINDS } from '../map/ownpoints.js';
+  import { ownQuery, saveOwn, putOwn, newPoint, updatePoint, removePoint, movePoint, ownOnMap, ownLabel } from '../map/ownpoints.js';
+  import { pointKindName } from '../map/ownkinds.js';
   import { MAP_WX_CACHE, RADAR_MAX_ZOOM, RADAR_ATTRIBUTION, fetchRadar, fetchMapWx, wxPoints, wxRows, snowStretches, windArrows, windiest, isOld } from '../map/wx.js';
   import { compass } from './outside.js';
   import { kmRangeIn } from '../map/fineprofile.js';
@@ -391,7 +392,7 @@
             <SortGrip name={ownLabel(p, t)} onstep={(dir) => move(i, i + dir)} />
             <button type="button" class="rc-row-main" onclick={() => (sheet = { point: p, fresh: false })}>
               <b>{ownLabel(p, t)}</b>
-              <small>{t(OWN_KINDS.find((x) => x.key === p.kind)?.name ?? 'Note|point')}{#if k != null}{' '}· {t('km {km} of this route', { km: Math.round(k) })}{/if}{#if p.note}{' '}· {p.note}{/if}</small>
+              <small>{pointKindName(p.kind, t)}{#if k != null}{' '}· {t('km {km} of this route', { km: Math.round(k) })}{/if}{#if p.note}{' '}· {p.note}{/if}</small>
             </button>
             <button type="button" class="rc-icon" aria-label={t('Show {name} on the map', { name: ownLabel(p, t) })} onclick={() => showOnMap(p)}><MapPin size={18} aria-hidden="true" /></button>
             <SortArrows name={ownLabel(p, t)} {i} n={own.length} onstep={(dir) => move(i, i + dir)} />

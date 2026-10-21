@@ -4,6 +4,7 @@
  * series (days in a row, entries, words) that stay once reached. Pure, tested in tests/journal.test.js.
  */
 import { wordCount } from './journal.js';
+import { nameOf } from '../applists.js';
 
 /** The five moods: value, sign and name (t() key). */
 export const MOODS = [
@@ -14,6 +15,13 @@ export const MOODS = [
   { v: 5, emoji: '😄', name: 'Great|mood' },
 ];
 export const moodOf = (v) => MOODS.find((m) => m.v === v) ?? null;
+/**
+ * «Alle Daten anpassbar» (Noah 21.10.2026 «4a»): the five moods can be renamed in «Listen und Typen»
+ * ('journalMoods'); only renamed, because the mood curve needs its five steps.
+ */
+export const JOURNAL_MOODS_STD = MOODS.map((m) => ({ id: `m${m.v}`, name: m.name }));
+/** The name of a mood (1–5) for the page, a renamed one as typed. */
+export const moodName = (v, tr = (s) => s) => (moodOf(v) ? nameOf('journalMoods', JOURNAL_MOODS_STD, `m${v}`, tr) : '');
 const r1 = (n) => Math.round(n * 10) / 10;
 
 /** The mood of each day (the mean of its entries with a mood): { day: mood }. */

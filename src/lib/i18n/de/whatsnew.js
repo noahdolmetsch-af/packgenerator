@@ -1439,4 +1439,13 @@ export default {
   'Ride, write, recover.': 'Fahren, schreiben, erholen.',
   'Live map: pause, sensors, turn hints, detours': 'Live-Karte: Pause, Sensoren, Abbiegehinweise, Umweg',
   'Heatmap, check questions, Zürisee': 'Heatmap, Check-Fragen, Zürisee',
+  // 0.175.0 «Eigene Werte und alle Daten anpassbar»
+  'Your own values': 'Deine eigenen Werte',
+  'Change every list yourself.': 'Jede Liste selbst ändern.',
+  'Own reminders: every N km or days': 'Eigene Erinnerungen: alle N km oder Tage',
+  'Own body values from your questions': 'Eigene Körperwerte aus deinen Fragen',
+  'Six more lists to change': 'Sechs weitere Listen zum Ändern',
+  'The app asks in its own window': 'Die App fragt im eigenen Fenster',
+  'Open Me › Own values › «+ Own reminder».': 'Öffne Ich › Eigene Werte › «+ Eigene Erinnerung».',
+  'Open Me › Lists and types › Kinds of bike.': 'Öffne Ich › Listen und Typen › Velo-Arten.',
 };

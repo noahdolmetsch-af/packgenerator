@@ -6,7 +6,8 @@ import { t, tn, num, locale, lang } from '../../i18n.svelte.js';
 import { actName } from '../ui.svelte.js';
 import { STAGES } from '../../flowms.js';
 import { dayShort } from '../words.js';
-import { PLACES, MOODS, HELPED } from '../../flowmed.js';
+import { PLACES, MED_MOODS_STD, HELPED } from '../../flowmed.js';
+import { nameOf } from '../../applists.js';
 import { clock } from '../../flowtimer.js';
 
 /** The tile name: the playful name (a suggestion, renamable), else the activity's name. */
@@ -48,7 +49,7 @@ export const artName = (a) => (!a ? '' : a.own ? a.name : t(a.name));
 /* ---------- hobby pages 3 «Nach dem Gong» (B3–B6) ---------- */
 /** A session's place: the suggestions through t(), own ones as written. */
 export const placeLabel = (id) => (!id ? '' : id.startsWith('own:') ? id.slice(4) : t(PLACES.find((p) => p.id === id)?.name ?? id));
-export const moodLabel = (id) => (id.startsWith('own:') ? id.slice(4) : t(MOODS.find((m) => m.id === id)?.name ?? id));
+export const moodLabel = (id) => (id.startsWith('own:') ? id.slice(4) : nameOf('medMoods', MED_MOODS_STD, id, t, id.startsWith('own-') ? t('deleted|entry') : id)); // renamed and own ones from Listen und Typen
 export const helpedLabel = (id) => (id.startsWith('own:') ? id.slice(4) : t(HELPED.find((m) => m.id === id)?.name ?? id));
 /** «Sa 10.10. · 06:52 bis 07:37» */
 export function sessionWhen(s) {

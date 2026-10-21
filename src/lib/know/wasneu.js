@@ -109,6 +109,8 @@ export const SINCE = {
   'f.dictate': '0.155.0', 'f.askfurther': '0.155.0', 'f.aiprojects': '0.155.0',
   // «Erster Start» (provisional version, the bundler renumbers)
   'f.firststart': '0.170.0',
+  // «Eigene Werte und alle Daten anpassbar» (Noah 21.10.2026); the bundler sets the release version
+  'f.ownreminders': '0.175.0', 'f.ownbody': '0.175.0', 'f.listsmore': '0.175.0',
   // Paket X «Umweg neu planen» (provisional version, the bundler renumbers)
   'f.reroute': '0.170.0',
   // Paket W «Von der Haustür bis zurück» (provisional version, the bundler renumbers)

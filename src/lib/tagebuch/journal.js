@@ -54,7 +54,7 @@ export function newEntry(e = {}, { id, now = new Date().toISOString(), today = n
     weather: e.weather && Number.isFinite(e.weather.temp) ? { temp: Math.round(e.weather.temp), code: Number.isFinite(e.weather.code) ? e.weather.code : null } : null,
     star: !!e.star,
     mood: Number.isInteger(e.mood) && e.mood >= 1 && e.mood <= 5 ? e.mood : null,
-    q: Number.isInteger(e.q) ? e.q : null,
+    q: Number.isInteger(e.q) || (typeof e.q === 'string' && e.q.startsWith('own-')) ? e.q : null, // an own question by its id (Listen und Typen)
     refs: (e.refs ?? []).filter((r) => r?.key).map((r) => ({ key: String(r.key), text: clean(r.text, 300) })),
   };
 }

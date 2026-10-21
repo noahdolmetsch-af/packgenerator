@@ -14,6 +14,7 @@ import { setValueGroups } from './valuefields.js';
 import { setDomains } from './domains.js';
 import { setSlotNames } from './bikes.js';
 import { setPartNames } from './care.js';
+import { APP_LISTS, setAppList } from './applists.js';
 
 /** Colours for own categories, in turn (quiet tones next to the Trail Journal ones). */
 export const OWN_COLORS = ['#6B8F3A', '#A0522D', '#4F7C8A', '#9C6B98', '#7A7F3A', '#B0625A', '#3F6E5A', '#8A6F3E'];
@@ -44,6 +45,8 @@ export function applyLists(all) {
   setDomains(listFor('domains', all ?? {}));
   setSlotNames(listFor('bikeSlots', all ?? {}));
   setPartNames(listFor('careParts', all ?? {}));
+  // «Alle Daten anpassbar» (21.10.2026): map point kinds, bike kinds, time away, diary, meditation moods
+  for (const key of APP_LISTS) setAppList(key, listFor(key, all ?? {}));
 }
 
 /**

@@ -8,6 +8,7 @@
    * tracking number.
    */
   import VeloHead from '../lib/bikes/VeloHead.svelte';
+  import { askDelete } from '../lib/ui/ask.js';
   import ShopTabs from '../lib/pay/ShopTabs.svelte';
   import Seg from '../lib/ui/Seg.svelte';
   import { t, tn, dateOf } from '../lib/i18n.svelte.js';
@@ -79,7 +80,7 @@
     await load();
   }
   async function remove(o) {
-    if (!confirm(t('Delete order #{no}?', { no: o.no }))) return;
+    if ((await askDelete({ title: t('Delete order #{no}?', { no: o.no }) })) !== 'delete') return;
     await deleteOrder(o.id);
     await load();
   }

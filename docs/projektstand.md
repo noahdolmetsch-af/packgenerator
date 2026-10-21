@@ -46,6 +46,7 @@ Seit 19.10.2026 gibt es keine Testlinks mehr: Ein Paket geht online, sobald die 
 | 36 | Live-Karte Teile 1–3 | 0.170.0 | Pause und Auto-Pause, Bluetooth-Sensoren, Datenseiten, Abbiegehinweise, Runden, «Gegen deine letzte Fahrt», mehr Orte, ÖV, Ride with GPS, SchweizMobil, Teilen-Bild, Abgleich ohne Strava-Fragen | dieser PR |
 | 37 | Umweg neu planen | 0.170.0 | Live-Karte «Neu planen zu …» und langes Drücken: Umweg und Rückweg über BRouter, GPX für Garmin | dieser PR |
 | 38 | Von der Haustür bis zurück | 0.170.0 | Gut angekommen, Plan B, Check-in, Velo geparkt; Unterwegs mit 2 Knöpfen mehr | dieser PR |
+| 39 | Eigene Werte und alle Daten anpassbar | 0.175.0 | Ich › Eigene Werte: Werte umbenennen, löschen (Standard gilt wieder, «Gelöschte Werte» holt sie zurück), sortieren, eigene Erinnerungen «alle N km oder N Tage» in Velos › Pflege; eigene Körperwerte aus eigenen Fragen mit Zahl unter Körperwerte › Eigene; Listen und Typen neu mit Kartenpunkt-Arten, Velo-Arten, Abwesenheiten, Tagebuch-Fragen und -Stimmungen, Stimmungen nach dem Meditieren; die letzten Browser-Fragen (confirm) im App-Fenster | gebaut, wartet auf 0.171 |
 
 «Frontend aufpeppen» ist pausiert (Noah 19.10.2026). Die Abschnitte unten sind der Stand vom 18.10.2026.
 

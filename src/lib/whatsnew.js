@@ -16,6 +16,23 @@
 
 export const WHATS_NEW = [
   {
+    // «Eigene Werte und alle Daten anpassbar» (Noah 21.10.2026 «1 a und b 2 a 3a 4a»); built without mockups
+    version: '0.175.0',
+    date: '2026-10-21',
+    title: 'Your own values',
+    lead: 'Change every list yourself.',
+    points: [
+      { text: 'Own reminders: every N km or days', href: '#/me/werte' },
+      { text: 'Own body values from your questions', href: '#/flow/stats/hr' },
+      { text: 'Six more lists to change', href: '#/me/lists' },
+    ],
+    small: [{ box: 'nicer', text: 'The app asks in its own window' }],
+    test: [
+      'Open Me › Own values › «+ Own reminder».',
+      'Open Me › Lists and types › Kinds of bike.',
+    ],
+  },
+  {
     // v0.170.0 «Tagebuch, Form, Heatmap»: Tagebuch, Form und Erholung + Garmin overview, Tour-Auswertung, Heatmap, Check-Fragen, Erster Start, Zürisee and sauna (Noah 20.10.2026); built without mockups
     version: '0.170.0',
     date: '2026-10-20',

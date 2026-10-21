@@ -27,6 +27,7 @@
   import BikeCare from './BikeCare.svelte';
   import CareOverview from './CareOverview.svelte';
   import ProblemList from './ProblemList.svelte';
+  import OwnReminders from './OwnReminders.svelte'; // «Eigene Werte anpassbar» (Noah 21.10.2026 «2 a»)
   import StartValues from './StartValues.svelte';
   import StartPointDialog from './StartPointDialog.svelte';
   import { partStart } from '../kmbook.js';
@@ -519,6 +520,7 @@
            so «3 fällig · Ansehen» on Heute lands on the work itself; km book and parts follow. -->
       {@const openHere = bikeProblems.some((x) => taskBike(x) === openC.bike.id)}
       {#if openHere}<ProblemList repairs={allBikeProblems.filter((x) => taskBike(x) === openC.bike.id)} bikes={[openC.bike]} {today} bikeIdOf={taskBike} onrepair={repairResult} />{/if}
+      <OwnReminders bike={openC.bike} />
       <!-- keyed: another bike is a fresh page (no part row left open from the bike before) -->
       <section class="per-bike" aria-label={t('Each bike')}>{#key openC.bike.id}{@render bikeCare(openC)}{/key}</section>
       <!-- The problems of this bike stay on its page (the overview lists those of every bike). -->

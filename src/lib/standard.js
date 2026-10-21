@@ -26,6 +26,12 @@ import { FUN_IDEAS } from './flowsugg.js';
 import { TODAY_OPTIONS } from './challenge.js';
 import { STD_TOPICS } from './inbox.js';
 import { VALUE_GROUPS } from './valuefields.js';
+import { POINT_KINDS_STD } from './map/ownkinds.js';
+import { BIKE_KINDS_STD } from './bikekind.js';
+import { AWAY_STD } from './woche/away.js';
+import { JOURNAL_Q_STD } from './tagebuch/fragen.js';
+import { JOURNAL_MOODS_STD } from './tagebuch/insights.js';
+import { MED_MOODS_STD } from './flowmed.js';
 
 /** The settings record of a person's changes: { [list key]: { names, hidden, order, own, deleted, icons, areas } }. */
 export const OVERRIDES_KEY = 'listOverrides';
@@ -69,6 +75,13 @@ export const STANDARD_LISTS = [
   { key: 'medArts', area: 'active', name: 'Kinds of meditation', entries: () => ARTS.map((a) => ({ id: a.id, name: a.name })) },
   { key: 'funIdeas', area: 'active', name: 'Ideas for rest and fun', entries: () => FUN_IDEAS.map((a) => ({ id: a.id, name: a.name })) },
   { key: 'challenges', area: 'active', name: 'Challenge ideas', entries: () => TODAY_OPTIONS.map((name) => ({ id: name, name })) },
+  // «Alle Daten anpassbar» (Noah 21.10.2026 «4a»), put in place by applists.js
+  { key: 'pointKinds', area: 'trips', name: 'Kinds of own map points', entries: () => POINT_KINDS_STD },
+  { key: 'bikeKinds', area: 'bikes', name: 'Kinds of bike', entries: () => BIKE_KINDS_STD },
+  { key: 'awayTypes', area: 'trips', name: 'Kinds of time away', entries: () => AWAY_STD },
+  { key: 'journalQuestions', area: 'notes', name: 'Questions of the day (diary)', entries: () => JOURNAL_Q_STD },
+  { key: 'journalMoods', area: 'notes', name: 'Moods (diary)', entries: () => JOURNAL_MOODS_STD },
+  { key: 'medMoods', area: 'active', name: 'Moods after meditating', entries: () => MED_MOODS_STD },
 ];
 export const STANDARD_LIST = Object.fromEntries(STANDARD_LISTS.map((l) => [l.key, l]));
 
