@@ -1424,7 +1424,7 @@ export default {
   'One word per thing: Parts, Look back, Trip type': 'Ein Wort pro Sache: Teile, Rückblick, Tourart',
   'Week: Take, Leave out and Not this week with Undo': 'Woche: Übernehmen, Weglassen und Nicht diese Woche mit Rückgängig',
   'On the phone, open Bikes and tap «More» at the top right.': 'Öffne am Handy Velos und tippe oben rechts auf «Mehr».',
-  'Fitbit fetches again and says why if not': 'Fitbit holt wieder und sagt, woran es liegt',
+  'Fitbit shows why nothing comes': 'Fitbit zeigt, warum nichts kommt',
   'Open Active › Goals › Evaluate.': 'Öffne Aktiv › Ziele › Auswerten.',
   // v0.173.0 «Suche und eigene Werte»
   'Search and own values': 'Suche und eigene Werte',

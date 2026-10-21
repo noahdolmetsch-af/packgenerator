@@ -29,7 +29,7 @@ export const WHATS_NEW = [
     small: [
       { box: 'nicer', text: 'One word per thing: Parts, Look back, Trip type' },
       { box: 'nicer', text: 'Week: Take, Leave out and Not this week with Undo', href: '#/week/plan' },
-      { box: 'fixed', text: 'Fitbit fetches again and says why if not' },
+      { box: 'fixed', text: 'Fitbit shows why nothing comes' },
     ],
     test: [
       'On the phone, open Bikes and tap «More» at the top right.',
