@@ -68,7 +68,8 @@ Seit 19.10.2026 gibt es keine Testlinks mehr: Ein Paket geht online, sobald die 
 | 58 | Wie Strava (Tour-Auswertung 1+2) | 0.177.0 | Rückblick und Analyse wie auf Strava (Übersicht, Peak Power, Karte, Zonenfarben), Fahrtzeit «2:58 h» bzw. dd:hh:mm:ss, eigene FTP, NP aus den Wattdaten; Zeitleiste aus Strava (Pausen, Bestzeiten, Anstiege, Fotos), lesbarer Tourname statt Dateiname, Vorlage und Erinnern unter «…», Ausrüstung nur Ausnahmen, Wetter beim Start jeder Fahrt | dieser PR |
 | 59 | Tages-Check mit Datum und Uhrzeit | 0.177.0 | Jeder Check zeigt Datum und Uhrzeit; kein Mittagsfenster; ✕ = «Heute nicht» | dieser PR |
 | 60 | Gesamttest 21.10. (C1–C9) | 0.177.0 | Kürzere Seiten am Handy, lange Vorlagen gefaltet, englische Namen und Strava-Namen auf Deutsch, «Fertig gepackt» | dieser PR |
-| 61 | Packliste aufräumen, Ess-Erinnerung | 0.177.0 | Bausteine › Aufräumen (Immer dabei, Tagestour-Knopf, Licht, Kälte-Stufen); Ess-Erinnerung wählbar auf der Fahrt-Karte | dieser PR |
+| 61 | Packliste aufräumen, Ess-Erinnerung | 0.177.0 | Bausteine › Aufräumen (Immer dabei, Tagestour-Knopf, Licht, Kälte-Stufen); Ess-Erinnerung wählbar auf der Fahrt-Karte | online 21.10. |
+| 62 | Skitour (Mockup-Paket P2) | 0.178.0 | Skitouren › Tour planen: Gefahrenstufe 1–5 mit Unterstufe und Satz, «Dein Morgen», Verhältnisse, Plan in Zahlen; «Gipfel erreicht» unterwegs; Nach der Tour «Plan und Wirklichkeit» und dein Material; Skitouren › Saison: Ziel, Wunschtouren, Skitage 8 Wochen, LVS-Übungen, Kurse mit «Auffrischen», Höhenmeter pro Ski, letzte Saison; Vorabend-Check zeigt Stufe, Temperatur, Wind, letzten Zug | dieser PR |
 
 «Frontend aufpeppen» ist pausiert (Noah 19.10.2026). Die Abschnitte unten sind der Stand vom 18.10.2026.
 

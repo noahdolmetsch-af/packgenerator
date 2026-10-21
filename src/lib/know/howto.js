@@ -296,6 +296,8 @@ export const HOWTO = {
   'f.weekreview': ['Open Aktiv › Week and tap «Week in review».', 'Read the five numbers, the strip and the highlights.', 'Step to other weeks with ‹ ›.'],
   'f.wohl': ['Open Me › What is good for me.', 'Tap «Try it» for a 7-day experiment or start your own.', 'Under each result «How does the app know?» shows where it comes from.'],
   'f.weight': ['Open Me › Weight.', 'Tap «Enter weight», type it and save.', 'The curve and watts per kg follow by themselves.'],
+  'f.skiplan': ['Open Ski tours and tap «Plan the tour».', 'Tap the danger level and fill in your morning.', 'After the tour, compare plan and reality.'],
+  'f.skiseason': ['Open Ski tours › Season.', 'Add wish tours, transceiver practice and courses.', 'Tick a wish tour when you were up there.'],
   'f.namesde': ['Open Me › Data and backup › English names.', 'Check the German suggestion.', 'Tap «Take over» or «Do not suggest».'],
   // Paket K «Unterwegs» (Noah 19.10.2026)
   'f.trainhome': ['Open On the way and tap «Home».', 'Allow the location once: the next 3 trains appear.', 'Or tap car, bike or public transport for Google Maps.'],

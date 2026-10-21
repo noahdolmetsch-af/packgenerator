@@ -16,6 +16,27 @@
 
 export const WHATS_NEW = [
   {
+    // v0.178.0 «Skitour» (Paket P2 of «Offene Mockups», Noah 21.10.2026 «1a 2b 3a 4a 5b»): Tour planen with the
+    // danger level and «Dein Morgen», Saison with goal, wish tours, LVS practice, courses and metres per ski,
+    // «Gipfel erreicht», Plan und echt after the tour, the ski plan on the evening-before check.
+    version: '0.178.0',
+    date: '2026-10-21',
+    title: 'Ski tours, well planned',
+    lead: 'Plan the morning, enjoy the peak.',
+    points: [
+      { text: 'Plan a ski tour with the danger level', href: '#/ski/plan' },
+      { text: 'Your ski touring season at a glance', href: '#/ski/season' },
+    ],
+    small: [
+      { box: 'new', text: '«Reached the peak» on the way' },
+      { box: 'new', text: 'Plan and reality after the tour' },
+    ],
+    test: [
+      'Open Ski tours, tap «Plan the tour» and tap a danger level.',
+      'Open Ski tours › Season and add a wish tour.',
+    ],
+  },
+  {
     // v0.177.0 «Wie Strava, nur ruhiger»: one package for everything after 0.176 (Noah 21.10.2026 «alles kommende in ein paket»): Tour-Auswertung deliveries 1+2 (Strava 1:1, Zeitleiste, readable title, Strava check #1–#10), Tages-Check with date and time, Gesamttest fixes C1–C9 + German names, Packliste aufräumen, Ess-Erinnerung; built without mockups
     version: '0.177.0',
     date: '2026-10-21',

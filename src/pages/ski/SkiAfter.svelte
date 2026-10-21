@@ -9,12 +9,15 @@
    * Strava import, Velos › Pflege › Fahrten importieren) fills metres and times: «aus Strava
    * übernommen · alles änderbar». Without Strava everything is typed in by hand.
    * #/ski/after/<trip id> (none: the last tour without notes).
+   * Paket P2: «Plan und echt» puts the plan of #/ski/plan (metres, time, peak) beside what you type here,
+   * and «Dein Material» lists the ski hardware that came along on this tour.
    */
   import SpeakButton from '../../lib/ui/SpeakButton.svelte'; // «Diktat» (Noah 19.10.2026 «5a»)
   import { appendSpoken } from '../../lib/speak.js';
   import { ChevronLeft, Plus } from '@lucide/svelte';
   import { skiQuery, saveAfter } from '../../lib/ski/skidb.js';
   import { pointsOf } from '../../lib/skiday.js';
+  import { planVsReal } from '../../lib/skiplan.js';
   import { lastWithoutNotes, lastPastSki, companions, CHANGE_TAGS, stravaFor, skiGroupOf, parseDuration, durationText, SKI } from '../../lib/ski.js';
   import { inDomain } from '../../lib/domains.js';
   import { isInventory } from '../../lib/gear.js';
@@ -119,6 +122,16 @@
   const later = () => (location.hash = '#/ski');
   // SKB6: the decision points ticked on the way, with their time
   const pts = $derived(pointsOf(trip));
+  // Paket P2: plan and reality, live with what is typed in
+  const PV_NAMES = { hm: 'Metres climbed', time: 'Time moving', peak: 'At the peak' };
+  const pv = $derived(trip && f ? planVsReal({ ...trip, ski: { ...(trip.ski ?? {}), hm: Number(String(f.hm).replace(/[^\d]/g, '')) || null, activeMin: parseDuration(f.active) } }) : []);
+  const pvText = (r, v) => (v == null ? '–' : r.key === 'hm' ? `${v} m` : r.key === 'time' ? durationText(v) : v);
+  const pvDiff = (r) => (r.diff == null ? '' : r.diff === 0 ? t('as planned') : `${r.diff > 0 ? '+' : '−'}${r.key === 'hm' ? `${Math.abs(r.diff)} m` : durationText(Math.abs(r.diff))}`);
+  const gear = $derived.by(() => {
+    if (!trip || !data) return [];
+    const ids = new Set((trip.entries ?? []).map((e) => e.itemId));
+    return data.items.filter((i) => ids.has(i.id) && skiGroupOf(i) === 'hardware');
+  });
 </script>
 
 <div class="sk">
@@ -165,6 +178,18 @@
             <div class="sk-field" data-after-points>
               <span>{t('On the way')}{#if trip.ski?.turnAt}{' · '}{t('Turnaround {time}', { time: trip.ski.turnAt })}{/if}</span>
               <ul class="sk-list">{#each pts as p (p.id)}<li class="num">{p.name}{' · '}{p.at ? t('reached at {time}', { time: p.at }) : t('not reached')}</li>{/each}</ul>
+            </div>
+          {/if}
+          {#if pv.length}
+            <div class="sk-field" data-plan-real>
+              <span>{t('Plan and reality')}</span>
+              <ul class="sk-list">{#each pv as r (r.key)}<li class="num" data-pv={r.key}>{t(PV_NAMES[r.key])}{': '}{t('plan {plan}, real {real}', { plan: pvText(r, r.plan), real: pvText(r, r.real) })}{#if pvDiff(r)}{' · '}<b>{pvDiff(r)}</b>{/if}</li>{/each}</ul>
+            </div>
+          {/if}
+          {#if gear.length}
+            <div class="sk-field" data-after-gear>
+              <span>{t('Your gear on this tour')}</span>
+              <p class="sk-quiet">{gear.map((i) => nameOf(i)).join(' · ')}</p>
             </div>
           {/if}
           {#if !fromStrava}<p class="sk-quiet">{t('No Strava activity? Type everything in by hand.')}</p>{/if}

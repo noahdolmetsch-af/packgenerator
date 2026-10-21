@@ -20,7 +20,7 @@
   import { daysFrom } from '../phase.js';
   import { localDay } from '../localday.js';
   import { t, tn, locale } from '../i18n.svelte.js';
-  import { X, Check, ArrowUpRight, BookOpen, Plus, TriangleAlert, Ellipsis, Sun, Route, NotebookPen } from '@lucide/svelte';
+  import { X, Check, ArrowUpRight, BookOpen, Plus, TriangleAlert, Ellipsis, Sun, Route, NotebookPen, Thermometer, Wind, TrainFront } from '@lucide/svelte';
   import { flip } from '../ui/flip.js';
   import { laterSort, glide } from '../ui/latersort.svelte.js';
   import './trip.css';
@@ -39,7 +39,7 @@
   const count = $derived(checkCount(list));
   const charged = $derived(kind === 'eve' ? chargeCount(trip, chargeList(trip, items)) : null);
   const chips = $derived(checkChips(kind, { trip, notes, debriefDone }));
-  const CHIP_ICON = { wx: Sun, route: Route, notes: NotebookPen, debrief: BookOpen };
+  const CHIP_ICON = { wx: Sun, route: Route, notes: NotebookPen, debrief: BookOpen, danger: TriangleAlert, temp: Thermometer, wind: Wind, train: TrainFront };
   const learn = $derived(kind === 'eve' ? (missedBefore(trips, debriefs, domain, list, { except: trip.id })[0] ?? null) : null);
   const outLinks = $derived(list.map((r) => checkLink(r, kind)).filter((l) => l?.out));
   const hid = $derived(`cs-${kind}-h`);

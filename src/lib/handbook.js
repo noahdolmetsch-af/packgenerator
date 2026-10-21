@@ -752,6 +752,17 @@ export const HANDBOOK = {
     steps: ['Plan a ski tour or hike with start place and date; from 16 days before, freezing level and fresh snow show under «Forecast».', 'The Ski tours page shows the line for the next tour; «Hide» takes the box away for one trip.'],
     example: 'Example: 0° at 2400 m, 15 cm fresh snow in the 3 days before → read the avalanche bulletin with that in mind.',
   },
+  // Paket P2 «Skitour»
+  'f.skiplan': {
+    on: 'Needs a planned ski tour.',
+    steps: ['Open Ski tours and tap «Plan the tour» on the next tour.', 'Tap the danger level of the bulletin and fill in what helps: your morning, conditions, metres and time.', 'After the tour «After the tour» shows plan and reality side by side.'],
+    example: 'Example: level 3+, up at 05:40, peak planned 11:30 → reached at 11:50, 20 minutes later.',
+  },
+  'f.skiseason': {
+    on: null,
+    steps: ['Open Ski tours › Season.', 'Set a goal if you like, add wish tours, practice and courses.', 'Pick the ski in «After the tour»: its metres climbed add up here.'],
+    example: 'Example: avalanche course two years ago → «Refresh» shows next to it.',
+  },
   'f.swissmap': {
     on: null,
     steps: ['Open Ski tours › Mountain and emergency › «Map with steep slopes», or the button in a mountain trip.', 'Switch the layers: slopes over 30°, ski touring routes, hiking trails; summer or winter map.'],
