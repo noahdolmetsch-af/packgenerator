@@ -1467,6 +1467,16 @@ export default {
   'Set a goal if you like, add wish tours, practice and courses.': 'Setz ein Ziel, wenn du willst, und füge Wunschtouren, Übungen und Kurse hinzu.',
   'Pick the ski in «After the tour»: its metres climbed add up here.': 'Wähle den Ski in «Nach der Tour»: Seine Höhenmeter zählen hier zusammen.',
   'Example: avalanche course two years ago → «Refresh» shows next to it.': 'Beispiel: Lawinenkurs vor zwei Jahren → daneben steht «Auffrischen».',
+  // Paket P3 «Warum? und Regeln» (0.181.0)
+  'Open Me › How the app decides.': 'Öffne Ich › So entscheidet die App.',
+  'Search a rule or switch a block rule on or off.': 'Suche eine Regel oder schalte eine Baustein-Regel an oder aus.',
+  'In Plan, tap «Why?» next to a row to see its rule.': 'Tippe in Planen neben einer Zeile auf «Warum?», um ihre Regel zu sehen.',
+  'Example: «Rain gear: from 30 % rain on the riding hours» → «Change on Blocks».': 'Beispiel: «Regensachen: ab 30 % Regen in den Fahrstunden» → «Bei Bausteine ändern».',
+  'Only when a debrief of this trip type noted something missing.': 'Nur wenn ein Rückblick dieser Reiseart etwas als fehlend notiert hat.',
+  'Open Pack of a trip.': 'Öffne Packen einer Tour.',
+  'At the top: «Most often forgotten».': 'Zuoberst: «Meist vergessen».',
+  'Tap «Onto the list» or «To the evening before»; pin or × to take it out.': 'Tippe auf «Auf die Liste» oder «Zum Vorabend»; anheften oder × zum Herausnehmen.',
+  'Example: sun cream missing twice → on top of the list before the next trip.': 'Beispiel: Sonnencreme zweimal gefehlt → vor der nächsten Tour zuoberst.',
   // Paket P1 «Packen und Strom» (0.179.0)
   'Open Packen of a trip and «Add material».': 'Öffne Packen einer Tour und «Material ergänzen».',
   'Tap «Add a new item and pack it» under the building blocks.': 'Tippe unter den Bausteinen auf «Neues Teil erfassen und einpacken».',

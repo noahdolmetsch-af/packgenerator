@@ -25,7 +25,7 @@ Noah 21.10.2026 «1a 2b 3a 4a 5b 6a 7a» (alle offenen Mockups freigegeben; Abgl
 | P2 | Skitour (gebaut, 0.178.0) | 1 Schneller packen, 3 Von der Haustür bis zurück |
 | P1 | Packen und Strom (gebaut, 0.179.0) | 1 Schneller packen |
 | P6 | Heute ergänzen (gebaut, 0.180.0) | 5 Alltag |
-| P3 | Warum? und Regeln | 1 Schneller packen |
+| P3 | Warum? und Regeln (gebaut, 0.181.0) | 1 Schneller packen |
 | P4 | Aktiv | 5 Alltag |
 | P5 | Eingang | 5 Alltag |
 | P7 | Projekt-Ablage | 5 Alltag |

@@ -337,6 +337,9 @@ const OWN = [
   // Strombudget (Noah 19.10.2026 «2a»): power budget per trip and power bank calculator
   // P6 «Heute ergänzen» (Noah 21.10.2026 «2b»): the weight once a week on Heute
   { id: 'f.weighin', group: 'data', title: 'Weight once a week', text: 'When no weight was typed for a week, Heute asks once: type it, «Not today» or «Stop asking». The same weight as under Me › Weight.', href: '#/', words: 'gewicht wiegen woche wöchentlich kg heute fragen waage' },
+  // Paket P3 «Warum? und Regeln» (Noah 21.10.2026)
+  { id: 'f.decides', group: 'before', title: 'How the app decides', text: 'Me › How the app decides: every rule the app packs by, with its limit, where the value comes from and where you change it; «Why?» next to a row in Plan shows the rule behind it.', href: '#/me/regeln', words: 'regeln warum grenze begründung vorschlag bausteine entscheidet suchen an aus' },
+  { id: 'f.forgotten', group: 'before', title: 'Most often forgotten', text: 'At the top of Pack: the three things you missed most often on trips of this type, from your debriefs; onto the list or into the evening-before check, pin or take out.', href: '#/pack', words: 'vergessen meist fehlte rückblick vorabend check anheften liste' },
   // Paket P1 «Packen und Strom» (Noah 21.10.2026)
   { id: 'f.newpack', group: 'before', title: 'New item while packing', text: 'One button under the building blocks: make a new item and it goes straight into the chosen bag.', href: '#/pack', words: 'neues teil erfassen einpacken packen material ergänzen hinzufügen' },
   { id: 'f.powervalues', group: 'before', title: 'Power values of a device', text: 'Battery, how long it lasts and charges, half and a quarter worked out, light levels and the charging time measured once with a stopwatch; each value says where it comes from.', href: '#/gear', words: 'strom akku mah ladezeit laden leuchtdauer stufen stoppuhr messen quelle hersteller gemessen annahme' },

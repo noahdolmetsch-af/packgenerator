@@ -16,6 +16,20 @@
 
 export const WHATS_NEW = [
   {
+    // v0.181.0 «Warum? und Regeln» (Paket P3 of «Offene Mockups», Noah 21.10.2026): RG1 «Why?» next to a row in
+    // Plan, RG3 Me › How the app decides (every rule, search, block rules on/off), C «Most often forgotten» on Pack.
+    version: '0.181.0',
+    date: '2026-10-21',
+    title: 'Why, and by which rule',
+    lead: 'Every suggestion says why.',
+    points: [
+      { text: '«Why?» next to every suggested row', href: '#/pack' },
+      { text: 'All rules on one page', href: '#/me/regeln' },
+    ],
+    small: [{ box: 'new', text: 'Most often forgotten at the top of Pack' }],
+    test: ['Open Planen of a trip and tap «Why?» next to a row.', 'Open Me › How the app decides and search «rain».'],
+  },
+  {
     // v0.180.0 «Heute ergänzt» (Mockup-Paket P6, Noah 21.10.2026 «2b»): ME1 meditation on top, TR1 the last
     // activity, SN2l the weight once a week, AB3 the areas of the due questions, H1 «New» on top after an update.
     version: '0.180.0',

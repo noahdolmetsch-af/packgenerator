@@ -1565,6 +1565,14 @@ export default {
   '«New» on top for 14 days after an update': '«Neu» 14 Tage lang oben nach einem Update',
   'Open Heute: meditation is on top, «Last activity» after the ring.': 'Öffne Heute: Meditation steht oben, «Letzte Aktivität» nach dem Ring.',
   'Without a weight for a week, type it in «Weight this week?».': 'Ohne Gewicht seit einer Woche: tippe es in «Gewicht diese Woche?».',
+  // v0.181.0 «Warum? und Regeln»
+  'Why, and by which rule': 'Warum, und nach welcher Regel',
+  'Every suggestion says why.': 'Jeder Vorschlag sagt, warum.',
+  '«Why?» next to every suggested row': '«Warum?» neben jeder vorgeschlagenen Zeile',
+  'All rules on one page': 'Alle Regeln auf einer Seite',
+  'Most often forgotten at the top of Pack': 'Meist vergessen zuoberst beim Packen',
+  'Open Planen of a trip and tap «Why?» next to a row.': 'Öffne Planen einer Tour und tippe neben einer Zeile auf «Warum?».',
+  'Open Me › How the app decides and search «rain».': 'Öffne Ich › So entscheidet die App und suche «Regen».',
   // v0.179.0 «Packen und Strom»
   'Packed and charged': 'Gepackt und geladen',
   'New things straight into the bag.': 'Neues gleich in die Tasche.',
