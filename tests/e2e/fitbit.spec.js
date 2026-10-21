@@ -152,3 +152,33 @@ test('Fitbit: a failed fetch stays visible after a reload; a missing value is na
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(page.viewportSize().width);
   expect(errors).toEqual([]);
 });
+
+// Noah 21.10.2026: Heute said «Verbinde Fitbit» while Fitbit was connected and only Google refused the values.
+test('Fitbit: Heute names the reason when connected Fitbit gives no values', async ({ page, context, baseURL }) => {
+  await context.route(/^https?:\/\/(?!localhost[:/])/, (route) => route.abort());
+  const cors = { 'access-control-allow-origin': '*', 'access-control-allow-headers': 'authorization, content-type', 'access-control-allow-methods': 'GET, POST, OPTIONS' };
+  await context.route(/packgen-three\.vercel\.app\/api\/google/, async (route) => {
+    const req = route.request();
+    if (req.method() === 'OPTIONS') return route.fulfill({ status: 204, headers: cors });
+    const step = new URL(req.url()).searchParams.get('step');
+    const send = (status, b) => route.fulfill({ status, headers: { ...cors, 'content-type': 'application/json' }, body: JSON.stringify(b) });
+    if (step === 'start') return send(200, { ok: true, url: 'https://accounts.google.com/o/oauth2/v2/auth?client_id=x&state=y' });
+    if (step === 'days') return send(403, { error: 'google_scope', code: 'google_scope' });
+    return send(400, {});
+  });
+  await context.route(/accounts\.google\.com\/o\/oauth2/, (route) => route.fulfill({ status: 302, headers: { location: `${baseURL}#/me/fitbit?google=connected` } }));
+  await context.addInitScript((key) => {
+    if (!localStorage.getItem('lang')) localStorage.setItem('lang', 'de');
+    if (!localStorage.getItem('whatsnew.seen')) localStorage.setItem('whatsnew.seen', '9.9.9');
+    localStorage.setItem('pg.strava.key', key);
+  }, `${P}key`);
+  await page.goto('./#/me/fitbit');
+  await ready(page);
+  await page.getByRole('button', { name: 'Mit Google verbinden' }).click();
+  await expect(page.locator('.hcard [data-health-err="google_scope"]')).toBeVisible();
+  await page.goto('./#/');
+  const empty = page.locator('[data-section="body"] [data-fitbit-empty]');
+  await expect(empty).toHaveAttribute('data-fitbit-empty', 'failed');
+  await expect(empty).toContainText('Google verweigert gerade die Werte');
+  await expect(empty.getByRole('link', { name: 'Zu Fitbit' })).toHaveAttribute('href', '#/me/fitbit');
+});

@@ -87,16 +87,17 @@ for (const lang of ['de', 'en']) {
     // tomorrow: Today leads with "Pack". v0.34.0 A (L1): the schedule's weather step (5 days before)
     // must be done first, so the weather is set (Warm: nothing for the cold, nothing left to decide).
     const trip = await newTrip(page, T, title, { date: day(1), weather: 'Warm' });
-    const NAMES = ['Plan|stage', 'Pack|stage', 'On the way', 'Debrief'];
-    if (lang === 'de') expect(NAMES.map((k) => T(k))).toEqual(['Planen', 'Packen', 'Unterwegs', 'Rückblick']);
+    // 0.176 «Eine Tour, eine Seite» (UI-Ziele #5): the fifth tab «Auswertung» is the tour page
+    const NAMES = ['Plan|stage', 'Pack|stage', 'On the way', 'Debrief', 'Analysis|stage'];
+    if (lang === 'de') expect(NAMES.map((k) => T(k))).toEqual(['Planen', 'Packen', 'Unterwegs', 'Rückblick', 'Auswertung']);
     // The old addresses stay: #/pack, #/pack?day, #/ride, #/debrief/<id>.
     const pages = [['#/pack', 0], ['#/pack?day', 1], ['#/ride', 2], [`#/debrief/${trip.id}`, 3]];
     for (const [hash, n] of pages) {
       await page.goto(`./${hash}`);
       await expect(page.locator('.trip-band h1'), hash).toHaveText(title);
       const links = steps(page, T).getByRole('link');
-      await expect(links, hash).toHaveCount(4);
-      for (let i = 0; i < 4; i++) await expect(links.nth(i), hash).toContainText(T(NAMES[i]));
+      await expect(links, hash).toHaveCount(5);
+      for (let i = 0; i < 5; i++) await expect(links.nth(i), hash).toContainText(T(NAMES[i]));
       await expect(steps(page, T).locator('a[aria-current="page"]'), hash).toContainText(T(NAMES[n]));
       // exactly one orange button on the page
       await expect(page.locator('main .btn.hi').filter({ visible: true }), hash).toHaveCount(1);

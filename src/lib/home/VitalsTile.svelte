@@ -10,6 +10,8 @@
   import { addDays } from '../health.js';
   import { vitalsToday } from './vitals.js';
   import TileHead from './TileHead.svelte';
+  import { health } from '../health/client.svelte.js';
+  import { fitbitEmpty } from '../health/emptyline.js';
   import { t, num, locale } from '../i18n.svelte.js';
 
   let { today, isnew = false } = $props();
@@ -17,6 +19,7 @@
   const vit = $derived(vitalsToday($hq ?? [], today));
   const fmt = (r) => (r.v == null ? '–' : num(r.v));
   const dayWord = (d) => (d === today ? '' : d === addDays(today, -1) ? t('yesterday') : new Date(`${d}T12:00:00Z`).toLocaleDateString(locale(), { weekday: 'short', timeZone: 'UTC' }));
+  const shortDay = (iso) => new Date(`${iso}T12:00:00Z`).toLocaleDateString(locale(), { day: 'numeric', month: 'short', timeZone: 'UTC' });
 </script>
 
 <section class="vt surf" aria-labelledby="vt-h" data-section="vitals">
@@ -37,7 +40,8 @@
       {/each}
     </ul>
   {:else}
-    <p class="empty">{t('Connect Fitbit and your body values show here.')} <a href="#/me/connections">{t('Connections|body')}</a></p>
+    {@const e = fitbitEmpty(health)}
+    <p class="empty" data-fitbit-empty={e.why}>{e.text ? t(e.text, { date: e.date ? shortDay(e.date) : '' }) : t('Connect Fitbit and your body values show here.')} <a href={e.href}>{t(e.link)}</a></p>
   {/if}
 </section>
 

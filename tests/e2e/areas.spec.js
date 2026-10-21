@@ -70,7 +70,7 @@ for (const lang of ['en', 'de']) {
     // 4. Plan: no bike, no "On the way"; the weekend bags.
     await expect(page.locator('.trip-band .meta')).toContainText(T('Weekend'));
     const steps = page.getByRole('navigation', { name: T('Steps of this trip') }).getByRole('link');
-    await expect(steps).toHaveCount(3);
+    await expect(steps).toHaveCount(4); // Plan, Pack, Debrief and (0.176) «Auswertung», the tour page
     await expect(page.getByRole('navigation', { name: T('Steps of this trip') })).not.toContainText(T('On the way'));
     await fits('Pack, weekend');
 

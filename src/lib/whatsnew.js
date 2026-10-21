@@ -16,6 +16,25 @@
 
 export const WHATS_NEW = [
   {
+    // v0.176.0 «Eine Tour, eine Seite» (UI-Ziele #5, #8, #10, #18, Noah 20.10.2026) + Fahrt-Analyse part 3 + Paket «Reste» (#194, #1038, #1041, #1152); built without mockups
+    version: '0.176.0',
+    date: '2026-10-21',
+    title: 'One trip, one page',
+    lead: 'Plan, pack, ride and look back in one place.',
+    points: [
+      { text: 'Trips: «Analysis» is the fifth step', href: '#/trips' },
+      { text: 'Plan starts with what is still missing', href: '#/trips' },
+      { text: 'After a trip: what stays at home?', href: '#/trips' },
+    ],
+    small: [
+      { box: 'new', text: 'Bike park days as a block' },
+    ],
+    test: [
+      'Open a trip and tap «Analysis» in the step bar.',
+      'Open Plan of a trip: «Still missing» comes first.',
+    ],
+  },
+  {
     // v0.175.0 «Anpassen» (Noah 20.10.2026 «1a 2a 3a 4a 5a»): every page, its tabs and the menu changed in the app; plus Körperwerte tile + countdown on Heute (Noah 21.10 06:49) and drawing on all photos; built without mockups
     version: '0.175.0',
     date: '2026-10-21',

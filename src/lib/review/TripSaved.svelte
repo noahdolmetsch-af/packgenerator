@@ -522,6 +522,8 @@
           </div>
         </div>
       </div>
+      <!-- «Auswertung wie Training» (Noah 20.10.2026): the analyses of the ride page for the trip's Strava rides, full width -->
+      {#if dActs.some((a) => a.id != null)}{#await import('../training/act/ActAnalysesPick.svelte') then m}<m.default ids={dActs.map((a) => a.id)} />{:catch}{/await}{/if}
     </Group>
 
     <!-- 3 Unterwegs -->

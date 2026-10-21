@@ -11,6 +11,8 @@
   import { addDays } from '../health.js';
   import { bodyToday } from './body.js';
   import TileHead from './TileHead.svelte';
+  import { health } from '../health/client.svelte.js';
+  import { fitbitEmpty } from '../health/emptyline.js';
   import { t, tn, locale } from '../i18n.svelte.js';
 
   let { today, due = 0, evening = false, open = false, onstart = () => {} } = $props();
@@ -21,6 +23,7 @@
   const LABEL = { pulse: 'Resting pulse|body', sleep: 'Sleep|body', score: 'Sleep score|body', azm: 'Active zone minutes|body' };
   const fmt = (r, x) => (x == null ? '–' : r.key === 'sleep' ? `${n1(x)} h` : r.key === 'score' && r.kind === 'efficiency' ? `${x} %` : String(Math.round(x)));
   const label = (r) => (r.key === 'score' && r.kind === 'efficiency' ? t('Sleep efficiency|body') : t(LABEL[r.key]));
+  const shortDay = (iso) => new Date(`${iso}T12:00:00Z`).toLocaleDateString(locale(), { day: 'numeric', month: 'short', timeZone: 'UTC' });
 </script>
 
 <section class="bd surf" aria-labelledby="bd-h" data-section="body">
@@ -46,7 +49,8 @@
       {/each}
     </dl>
   {:else}
-    <p class="empty">{t('Connect Fitbit and your resting pulse, sleep and active zone minutes show here.')} <a href="#/me/connections">{t('Connections|body')}</a></p>
+    {@const e = fitbitEmpty(health)}
+    <p class="empty" data-fitbit-empty={e.why}>{e.text ? t(e.text, { date: e.date ? shortDay(e.date) : '' }) : t('Connect Fitbit and your resting pulse, sleep and active zone minutes show here.')} <a href={e.href}>{t(e.link)}</a></p>
   {/if}
   <!-- the check of the moment: Morgen-Check, from the evening round time the Abend-Check -->
   <div class="ck" class:done={!due} data-body-check={evening ? 'evening' : 'morning'}>

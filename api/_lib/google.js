@@ -88,6 +88,9 @@ const FOLDERS_KEY = 'google:drive:folders';
 const OWN_CAL_KEY = 'google:cal:own';
 const OWN_LIST_KEY = 'google:tasks:own';
 
+/** Every scope this app may ask Google for. */
+const KNOWN_SCOPES = [...SCOPES, DRIVE_SCOPE, ...CALENDAR_SCOPES, TASKS_SCOPE, OWN_CAL_SCOPE, ...MAIL_SCOPES];
+
 /** The scopes to ask for: Fitbit values, Drive, or both (unknown names are ignored). */
 export function scopesFor(services) {
   const list = Array.isArray(services) ? services : ['health'];
@@ -158,6 +161,22 @@ export function makeHandler({ env = () => googleEnv(), doFetch = (...a) => fetch
     return fresh.access_token;
   }
 
+  /**
+   * Google's own reason for a refused Health call, as one log line (Noah 21.10.2026: 403 for every value
+   * although the login allows them). Only Google's status, reason and the start of its message: no token,
+   * no values, no person.
+   */
+  async function logRefusal(res, path) {
+    const body = await res
+      .clone()
+      .json()
+      .catch(() => null);
+    const e = body?.error ?? {};
+    const reasons = (Array.isArray(e.details) ? e.details : []).map((d) => d?.reason).filter(Boolean);
+    const type = String(path).split('/')[1]?.split(/[/:?]/)[0] ?? '';
+    console.log(`google health ${res.status} ${type}: ${e.status ?? ''} ${reasons.join(',')} ${String(e.message ?? '').slice(0, 200)}`.trim());
+  }
+
   /** One call to the Health API; Google's errors become the app's error codes. */
   async function healthCall(token, path, init = {}) {
     let res;
@@ -166,9 +185,10 @@ export function makeHandler({ env = () => googleEnv(), doFetch = (...a) => fetch
     } catch {
       throw new ApiError(502, 'google_unreachable', 'Google could not be reached.');
     }
+    if (!res.ok) await logRefusal(res, path);
     if (res.status === 401) throw new ApiError(401, 'google_login_needed', 'Google needs a new login.');
     if (res.status === 429) throw new ApiError(429, 'google_busy', 'Google allows only a few requests right now. Try again later.');
-    // no access to this value (the Fitbit tick was missing in the last Google login)
+    // Google refuses the values (Noah 21.10.2026: still 403 after a new login with all ticks granted)
     if (res.status === 403) throw new ApiError(403, 'google_scope', 'Google gives no access to this value. Connect Fitbit again and tick the values.');
     if (!res.ok) throw new ApiError(502, 'google_error', 'Google answered with an error.');
     return res.json().catch(() => ({}));
@@ -294,7 +314,7 @@ export function makeHandler({ env = () => googleEnv(), doFetch = (...a) => fetch
     if (url.searchParams.get('error') || !url.searchParams.get('code')) return backToApp(st.returnTo, { google: 'error', error: 'denied' });
     const tok = await tokenCall(cfg, { grant_type: 'authorization_code', code: url.searchParams.get('code'), redirect_uri: CALLBACK });
     const granted = String(tok.scope ?? '').split(' ');
-    if (![...SCOPES, DRIVE_SCOPE, ...CALENDAR_SCOPES, TASKS_SCOPE, OWN_CAL_SCOPE, ...MAIL_SCOPES].some((s) => granted.includes(s))) return backToApp(st.returnTo, { google: 'error', error: 'scope' });
+    if (!KNOWN_SCOPES.some((s) => granted.includes(s))) return backToApp(st.returnTo, { google: 'error', error: 'scope' });
     await store.set('google:tokens', JSON.stringify({ access_token: tok.access_token, refresh_token: tok.refresh_token ?? null, expires_at: now() + (Number(tok.expires_in) || 3600) * 1000, scope: granted.join(' ') }));
     return backToApp(st.returnTo, { google: 'connected' });
   };
@@ -481,7 +501,11 @@ export function makeHandler({ env = () => googleEnv(), doFetch = (...a) => fetch
           setUp(cfg);
           const body = await jsonBody(request);
           const state = await saveState(store, 'google', { returnTo: typeof body.returnTo === 'string' ? body.returnTo.slice(0, 500) : null });
-          const q = new URLSearchParams({ client_id: cfg.clientId, redirect_uri: CALLBACK, response_type: 'code', access_type: 'offline', prompt: 'consent', include_granted_scopes: 'true', scope: scopesFor(body.services).join(' '), state });
+          // Noah 21.10.2026: connecting Mail or Kalender later dropped the Fitbit ticks (the values stopped
+          // with google_scope). Every new login asks again for what this Google login already allows.
+          const had = String(JSON.parse((await store.get('google:tokens')) ?? '{}').scope ?? '').split(' ').filter(Boolean);
+          const scope = [...new Set([...scopesFor(body.services), ...had.filter((x) => KNOWN_SCOPES.includes(x))])];
+          const q = new URLSearchParams({ client_id: cfg.clientId, redirect_uri: CALLBACK, response_type: 'code', access_type: 'offline', prompt: 'consent', include_granted_scopes: 'true', scope: scope.join(' '), state });
           return json(request, 200, { ok: true, url: `${AUTHORIZE_URL}?${q}` });
         }
         if (step === 'drive-upload') {

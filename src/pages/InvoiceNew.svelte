@@ -6,10 +6,14 @@
    * Sending: «Per E-Mail senden» opens the mail program; «PDF teilen» makes the PDF on the device.
    * #/me/pay/invoices/new = new; #/me/pay/invoices/<id> = an invoice already made (send again).
    * The account is asked for once and stays only on this device.
+   * Paket «Reste» 1041 (Einheitliche Formulare): the account is a ui/Form with ui/Field fields, the messages
+   * stand at the field; the invoice fields are ui/Field too (its three buttons send, so no single «Save»).
    */
   import VeloHead from '../lib/bikes/VeloHead.svelte';
   import BillPreview from '../lib/pay/BillPreview.svelte';
-  import { t } from '../lib/i18n.svelte.js';
+  import Form from '../lib/ui/Form.svelte';
+  import Field from '../lib/ui/Field.svelte';
+  import { t, tn } from '../lib/i18n.svelte.js';
   import { Landmark, Mail, Share2, Pencil, Link } from '@lucide/svelte';
   import { readKey, boxOf, payLink } from '../lib/pay/report.js';
   import { readAccount, writeAccount, createInvoice, listInvoices, formatTwint, invoiceMail, mailtoHref } from '../lib/pay/invoices.js';
@@ -28,12 +32,12 @@
   let account = $state(first);
   let editAcc = $state(!first || accountProblems(first).length > 0);
   let acc = $state({ iban: '', name: '', street: '', house: '', zip: '', town: '', twint: '', ...(first ?? {}) });
-  let accError = $state('');
+  let accErrors = $state({});
 
   let viewId = $state(idInHash());
   let saved = $state(null); // the invoice once made (or opened)
   let form = $state({ name: '', email: '', amount: '', purpose: '', qr: true, twint: true });
-  let formError = $state('');
+  let formErrors = $state({});
   let busy = $state(false);
   let note = $state('');
 
@@ -44,6 +48,8 @@
         saved = null;
         note = '';
         form = { name: '', email: '', amount: '', purpose: '', qr: true, twint: true };
+        tried = false;
+        formErrors = {};
       }
     };
     window.addEventListener('hashchange', on);
@@ -55,19 +61,24 @@
     listInvoices().then((list) => (saved = list.find((x) => x.id === id) ?? null));
   });
 
-  function saveAccount(e) {
-    e?.preventDefault();
-    const twint = acc.twint.trim() ? formatTwint(acc.twint) : '';
-    const next = { iban: formatIban(cleanIban(acc.iban)), name: acc.name.trim(), street: acc.street.trim(), house: acc.house.trim(), zip: acc.zip.trim(), town: acc.town.trim(), twint };
-    const p = accountProblems(next);
-    if (p.includes('iban')) return (accError = t('This IBAN is not right. Please check it (CH or LI, 21 characters).'));
-    if (p.includes('name')) return (accError = t('Please enter the name the bill is payable to.'));
-    if (p.includes('town')) return (accError = t('Please enter postcode and town.'));
-    if (acc.twint.trim() && !twint) return (accError = t('This TWINT number is not right. Please enter a Swiss mobile number.'));
+  const twintOf = (v) => (String(v ?? '').trim() ? formatTwint(v) : '');
+  const accNext = () => ({ iban: formatIban(cleanIban(acc.iban)), name: acc.name.trim(), street: acc.street.trim(), house: acc.house.trim(), zip: acc.zip.trim(), town: acc.town.trim(), twint: twintOf(acc.twint) });
+  /** The account's wrong fields: { iban, name, town, twint } → message at the field. */
+  function accCheck() {
+    const p = accountProblems(accNext());
+    const out = {};
+    if (p.includes('iban')) out.iban = t('This IBAN is not right. Please check it (CH or LI, 21 characters).');
+    if (p.includes('name')) out.name = t('Please enter the name the bill is payable to.');
+    if (p.includes('town')) out.town = t('Please enter postcode and town.');
+    if (acc.twint.trim() && !twintOf(acc.twint)) out.twint = t('This TWINT number is not right. Please enter a Swiss mobile number.');
+    return out;
+  }
+  function saveAccount() {
+    const next = accNext();
     writeAccount(next);
     account = next;
     acc = { ...next };
-    accError = '';
+    accErrors = {};
     editAcc = false;
   }
 
@@ -87,13 +98,28 @@
     },
   );
 
+  /** The invoice's wrong fields; after the first try every change checks again (like ui/Form). */
+  function formCheck() {
+    const out = {};
+    if (!form.name.trim()) out.name = t('Please enter who the invoice is for.');
+    if (!amount) out.amount = t('Please enter an amount, for example 80.00.');
+    if (!form.purpose.trim()) out.purpose = t('Please enter what it is for.');
+    if (!ways.qr && !ways.twint) out.ways = t('Switch on at least one way to pay.');
+    return out;
+  }
+  let tried = $state(false);
+  $effect(() => {
+    if (tried && !saved) formErrors = formCheck();
+  });
   async function make() {
-    formError = '';
-    if (!form.name.trim()) return (formError = t('Please enter who the invoice is for.'));
-    if (!amount) return (formError = t('Please enter an amount, for example 80.00.'));
-    if (!form.purpose.trim()) return (formError = t('Please enter what it is for.'));
-    if (!ways.qr && !ways.twint) return (formError = t('Switch on at least one way to pay.'));
     if (saved) return saved;
+    tried = true;
+    formErrors = formCheck();
+    if (Object.keys(formErrors).length) {
+      const el = document.querySelector('.inv-new [aria-invalid="true"], .inv-new [data-bad]');
+      (el?.matches('input') ? el : el?.querySelector('input:not([disabled])'))?.focus();
+      return null;
+    }
     busy = true;
     try {
       saved = await createInvoice({ name: form.name, email: form.email, amount, purpose: form.purpose, ways }, account);
@@ -160,26 +186,37 @@
   {#if viewId && !saved}
     <p class="ich-fine">{t('This invoice was not found.')} <a href={LIST}>{t('To the invoices')}</a></p>
   {:else if editAcc}
-    <form class="card inv-card" onsubmit={saveAccount} aria-labelledby="acc-h">
+    <section class="card inv-card" aria-labelledby="acc-h">
       <h2 id="acc-h">{t('Your account, once')}</h2>
       <p class="ich-fine">{t('Stays only on this device: not in the backup file, not online.')}</p>
-      <label class="field"><span class="lbl">IBAN</span><input class="inp" bind:value={acc.iban} autocomplete="off" placeholder="CH.. .... .... .... .... ." /></label>
-      <label class="field"><span class="lbl">{t('Payable to (name)')}</span><input class="inp" bind:value={acc.name} autocomplete="name" /></label>
-      <div class="inv-row2">
-        <label class="field"><span class="lbl">{t('Street')}</span><input class="inp" bind:value={acc.street} autocomplete="address-line1" /></label>
-        <label class="field inv-short"><span class="lbl">{t('No.')}</span><input class="inp" bind:value={acc.house} /></label>
-      </div>
-      <div class="inv-row2">
-        <label class="field inv-short"><span class="lbl">{t('Postcode')}</span><input class="inp" bind:value={acc.zip} autocomplete="postal-code" inputmode="numeric" /></label>
-        <label class="field"><span class="lbl">{t('Town')}</span><input class="inp" bind:value={acc.town} autocomplete="address-level2" /></label>
-      </div>
-      <label class="field"><span class="lbl">{t('TWINT number (optional)')}</span><input class="inp" bind:value={acc.twint} inputmode="tel" autocomplete="tel" placeholder="079 000 00 00" /></label>
-      {#if accError}<p class="inv-err" role="alert">{accError}</p>{/if}
-      <div class="inv-btns">
-        <button class="btn hi" type="submit">{t('Save account')}</button>
-        {#if account}<button class="btn" type="button" onclick={() => (editAcc = false)}>{t('Cancel')}</button>{/if}
-      </div>
-    </form>
+      <Form class="inv-form" check={accCheck} bind:errors={accErrors} onsave={saveAccount} oncancel={account ? () => (editAcc = false) : null} saveLabel={t('Save account')}>
+        <Field id="acc-iban" label="IBAN" example={t('CH or LI, 21 characters')} error={accErrors.iban}>
+          {#snippet children(f)}<input class="inp" {...f.attrs} bind:value={acc.iban} autocomplete="off" placeholder="CH.. .... .... .... .... ." />{/snippet}
+        </Field>
+        <Field id="acc-name" label={t('Payable to (name)')} error={accErrors.name}>
+          {#snippet children(f)}<input class="inp" {...f.attrs} bind:value={acc.name} autocomplete="name" />{/snippet}
+        </Field>
+        <div class="inv-row2">
+          <Field id="acc-street" label={t('Street')} optional>
+            {#snippet children(f)}<input class="inp" {...f.attrs} bind:value={acc.street} autocomplete="address-line1" />{/snippet}
+          </Field>
+          <Field id="acc-house" class="inv-short" label={t('No.')} optional>
+            {#snippet children(f)}<input class="inp" {...f.attrs} bind:value={acc.house} />{/snippet}
+          </Field>
+        </div>
+        <div class="inv-row2">
+          <Field id="acc-zip" class="inv-short" label={t('Postcode')}>
+            {#snippet children(f)}<input class="inp" {...f.attrs} bind:value={acc.zip} autocomplete="postal-code" inputmode="numeric" />{/snippet}
+          </Field>
+          <Field id="acc-town" label={t('Town')} error={accErrors.town}>
+            {#snippet children(f)}<input class="inp" {...f.attrs} bind:value={acc.town} autocomplete="address-level2" />{/snippet}
+          </Field>
+        </div>
+        <Field id="acc-twint" label={t('TWINT number')} optional example={t('A Swiss mobile number, e.g. 079 000 00 00')} error={accErrors.twint}>
+          {#snippet children(f)}<input class="inp" {...f.attrs} bind:value={acc.twint} inputmode="tel" autocomplete="tel" placeholder="079 000 00 00" />{/snippet}
+        </Field>
+      </Form>
+    </section>
   {:else}
     <div class="inv-two">
       <div class="card inv-card">
@@ -196,23 +233,32 @@
             <dt>{t('Message for TWINT')}</dt><dd>{saved.no}</dd>
           </dl>
         {:else}
-          <label class="field"><span class="lbl">{t('For whom?')}</span><input class="inp" bind:value={form.name} /></label>
-          <label class="field"><span class="lbl">{t('E-mail (optional)')}</span><input class="inp" type="email" bind:value={form.email} autocomplete="off" /></label>
+          <Field id="inv-name" label={t('For whom?')} error={formErrors.name}>
+            {#snippet children(f)}<input class="inp" {...f.attrs} bind:value={form.name} />{/snippet}
+          </Field>
+          <Field id="inv-mail" label={t('E-mail')} optional example={t('Only needed for «Send by e-mail».')}>
+            {#snippet children(f)}<input class="inp" type="email" {...f.attrs} bind:value={form.email} autocomplete="off" />{/snippet}
+          </Field>
           <div class="inv-row2">
-            <label class="field"><span class="lbl">{t('Amount|money')}</span><input class="inp num" bind:value={form.amount} inputmode="decimal" placeholder="80.00" /></label>
-            <label class="field"><span class="lbl">{t('What for?')}</span><input class="inp" bind:value={form.purpose} /></label>
+            <Field id="inv-amount" label={t('Amount|money')} example={t('in CHF, e.g. 80.00')} error={formErrors.amount}>
+              {#snippet children(f)}<input class="inp num" {...f.attrs} bind:value={form.amount} inputmode="decimal" placeholder="80.00" />{/snippet}
+            </Field>
+            <Field id="inv-purpose" label={t('What for?')} error={formErrors.purpose}>
+              {#snippet children(f)}<input class="inp" {...f.attrs} bind:value={form.purpose} />{/snippet}
+            </Field>
           </div>
-          <fieldset class="inv-ways">
+          <fieldset class="inv-ways" data-bad={formErrors.ways ? '' : undefined} aria-describedby={formErrors.ways ? 'inv-ways-err' : undefined}>
             <legend class="lbl">{t('Ways to pay for this invoice')}</legend>
             <label class="inv-way"><input type="checkbox" bind:checked={form.qr} /> <span><b>{t('QR bill (bank)')}</b><small>{formatIban(account.iban)}</small></span></label>
             <label class="inv-way" class:off={!account.twint}>
               <input type="checkbox" bind:checked={form.twint} disabled={!account.twint} />
               <span><b>TWINT</b><small>{account.twint ? t('To your number {phone} · only on this device', { phone: account.twint }) : t('Add your TWINT number to the account to use it.')}</small></span>
             </label>
+            {#if formErrors.ways}<p class="fieldmsg" id="inv-ways-err">{formErrors.ways}</p>{/if}
           </fieldset>
           <p class="ich-fine">{t('The reference and the TWINT message are made automatically. That is how you recognise the payment later.')}</p>
         {/if}
-        {#if formError}<p class="inv-err" role="alert">{formError}</p>{/if}
+        {#if !saved && tried && Object.keys(formErrors).length}<p class="inv-err" role="alert">{tn(Object.keys(formErrors).length, '{n} entry is missing or wrong. It is marked in red.', '{n} entries are missing or wrong. They are marked in red.')}</p>{/if}
         <div class="inv-btns">
           <button class="btn hi" type="button" onclick={sendMail} disabled={busy}><Mail size={18} aria-hidden="true" />{t('Send by e-mail')}</button>
           <button class="btn" type="button" onclick={sharePdf} disabled={busy}><Share2 size={18} aria-hidden="true" />{t('Share PDF')}</button>
@@ -268,8 +314,10 @@
   .inv-edit {
     padding: 4px;
   }
-  .field {
-    display: block;
+  .inv-card :global(.inv-form) {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
   }
   .inv-row2 {
     display: grid;

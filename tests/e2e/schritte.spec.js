@@ -47,9 +47,9 @@ test('a trip page: light head with «‹ Touren», numbered steps, the next step
   const back = band.locator('.crumb a');
   await expect(back).toHaveText(T('Trips|place'));
   await expect(back).toHaveAttribute('href', '#/trips');
-  // the four steps, the first one is this page
+  // the four steps and, since 0.174 «Eine Tour, eine Seite» (UI-Ziele #5), «Auswertung»; the first one is this page
   const steps = band.locator('.stepbar a');
-  await expect(steps).toHaveCount(4);
+  await expect(steps).toHaveCount(5);
   await expect(steps.first()).toHaveAttribute('aria-current', 'page');
   // the number comes from a counter (on a computer, in a circle), so the link's text stays the name
   await expect(steps.first()).toHaveText(new RegExp(`^${T('Plan|stage')}`));

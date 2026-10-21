@@ -11,7 +11,7 @@
   import { db } from '../db.js';
   import { t, tn } from '../i18n.svelte.js';
   import { mdToHtml } from '../noteformats.js';
-  import { formatOf, sizeText, csvRows, parseVcf, vcfOf, thinTrack } from './files.js';
+  import { formatOf, sizeText, csvRows, parseVcf, vcfOf, thinTrack, rtfToText } from './files.js';
   import { openPdf, renderPdfPage, readOffice, trackOf, bytesOf } from './attach.js';
   import { parseIcs } from '../icsio.js';
   import StaticMap from '../ui/StaticMap.svelte';
@@ -39,9 +39,9 @@
         const show = formatOf(row.fmt).show;
         if (show === 'pdf') await showPdf();
         else if (show === 'doc') view = { md: (await readOffice(row.data, row.fmt)).md };
-        else if (show === 'table') view = row.fmt === 'csv' ? { sheets: [{ name: row.name, rows: csvRows(await text()) }] } : await readOffice(row.data, 'xlsx');
+        else if (show === 'table') view = row.fmt === 'csv' ? { sheets: [{ name: row.name, rows: csvRows(await text()) }] } : await readOffice(row.data, row.fmt);
         else if (show === 'md') view = { md: await text() };
-        else if (show === 'text') view = { text: (await text()).slice(0, 100_000) };
+        else if (show === 'text') view = { text: (row.fmt === 'rtf' ? rtfToText(await text()) : await text()).slice(0, 100_000) };
         else if (show === 'web') view = { web: webHtml(await text(), row.images ?? []) };
         else if (show === 'map') view = { line: thinTrack(await trackOf(row.data, row.fmt)).map((p) => [p.lat, p.lon]) };
         else if (show === 'ics') view = { events: parseIcs(await text()).slice(0, 50) };
@@ -195,7 +195,11 @@
     <!-- svelte-ignore a11y_media_has_caption -->
     <video class="vid" src={view.video} controls playsinline data-file-video></video>
   {:else if view?.file}
-    <p class="q">{t('The app keeps this file with the note. Open it with your device to read it.')}</p>
+    {#if row?.fmt === 'office'}
+      <p class="q" data-file-oldoffice>{t('This is an old Office file (.doc, .xls or .ppt). The app keeps it with the note but cannot show it. Open it with your device, or save it there as .docx, .xlsx or .pptx; then the app shows it and searches its text.')}</p>
+    {:else}
+      <p class="q">{t('The app keeps this file with the note. Open it with your device to read it.')}</p>
+    {/if}
   {/if}
 
   <div class="vd-foot">
