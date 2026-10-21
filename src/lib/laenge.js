@@ -13,7 +13,9 @@ export { MAX_SCREENS };
 export const TOO_LONG = {
   // Heute: N2 «Heute neu» (Noah 20.10.2026 15:49 «5a», approved layout; changes need his OK) ships with this budget in 0.169.0,
   // measured 5.03 on the phone; the old Heute had 4.5. Lower it when Heute gets shorter.
-  '#/': 5.25,
+  // 0.175.0: + the «Körperwerte» tile (Noah 21.10.2026 06:49 «Körperwerte und countdown ok») and «Customise this page»
+  // at the end (Noah 20.10.2026 «1a», every page): measured 5.39 on the phone.
+  '#/': 5.5,
   // 0.171.0: «Überblick» and «Letzte 7 Tage» wait behind one row on a phone (6.81 screens in 0.170 → under 5.5)
   '#/flow': 5.5,
   '#/bikes': 5.5,
