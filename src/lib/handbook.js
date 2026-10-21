@@ -617,6 +617,11 @@ export const HANDBOOK = {
     steps: ['Bikes › Care › a bike › «Wear» (also on the bike page).', 'Each part: a bar, km left and about when, from your km of the last 8 weeks.', 'A workshop visit with «replaced» starts the part at 0 km; «Service of the whole bike» sets the bike counter to 0.'],
     example: 'Example: chain 2600 of 3000 km → «400 km left · about in December».',
   },
+  'f.setupphotos': {
+    on: null,
+    steps: ['Bikes › Care › a bike: «Setup photos» top right opens the timeline; «+ Photo» adds a setup of today.', '«…» at a photo: change the day, rename, show it behind the bike, remove.', 'Report a problem with several photos; cut the edges or keep them all as one PDF in Me › Documents.'],
+    example: 'Example: photo of the new bag setup → it shows pale at the top of Bike care and lines up under this month.',
+  },
   'f.velofaq': {
     on: null,
     steps: ['Bikes › Care › «Bike FAQ» (also on every bike’s card).', 'On top the question of the day; «Another question» shows the next one.', 'Search or open a topic; «Your own questions» keeps what you learned.'],

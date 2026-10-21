@@ -190,6 +190,7 @@ export const HOWTO = {
   'f.inspect': ['Open Bikes › Care › a bike › «Inspection».', 'Start a level; tap a state for every point, add a value, a note or a photo.', 'Tap «Done»: the history keeps it, problems go to the bike.'],
   'f.partwear': ['Open Bikes › Care › a bike › «Wear».', 'Look at the bars: green fine, yellow soon, red replace.', '«Change how long it lasts» sets your own value; «Back to the suggestion» undoes it.'],
   'f.velofaq': ['Open Bikes › Care › «Bike FAQ».', 'Tap a question; the link below the answer leads to the right place.', 'Add your own question at the end.'],
+  'f.setupphotos': ['Open Bikes › Care › a bike.', 'Tap «Setup photos» top right, then «+ Photo».', 'At a problem: «…» › «Photos and PDF» to add, cut or make one PDF.'],
   'f.spick': ['Open Bikes › Care › a bike › «Workshop cheat sheet».', 'Look up the torque; add your own values.', 'Under «Breakdown help» open the breakdown you have.'],
   'f.measure': ['Open Today.', 'Tap «Record the pressure» or «Measure the chain» under the bike.', 'The pick-up check shows both.'],
   // Paket J «Berg, Schnee und Notfall»

@@ -1312,4 +1312,9 @@ export default {
   'Example: night 2 at km 310 with 80 % rain → 30 km further only 20 %.': 'Beispiel: Nacht 2 bei km 310 mit 80 % Regen → 30 km weiter nur 20 %.',
   'Tap «Load the weather».': 'Tippe auf «Wetter laden».',
   'Read «Nights by the weather».': 'Lies «Nächte nach Wetter».',
+  // «Bilder in der App» (Noah 20.10.2026)
+  'Bikes › Care › a bike: «Setup photos» top right opens the timeline; «+ Photo» adds a setup of today.': 'Velos › Pflege › ein Velo: «Setup-Fotos» oben rechts öffnet den Zeitstrahl; «+ Foto» legt ein Setup von heute an.',
+  '«…» at a photo: change the day, rename, show it behind the bike, remove.': '«…» bei einem Foto: Datum ändern, umbenennen, hinter dem Velo zeigen, entfernen.',
+  'Report a problem with several photos; cut the edges or keep them all as one PDF in Me › Documents.': 'Melde ein Problem mit mehreren Fotos; schneide die Ränder zu oder lege alle als ein PDF unter Ich › Dokumente ab.',
+  'Example: photo of the new bag setup → it shows pale at the top of Bike care and lines up under this month.': 'Beispiel: Foto vom neuen Taschen-Setup → es steht blass oben in der Velopflege und reiht sich unter diesem Monat ein.',
 };

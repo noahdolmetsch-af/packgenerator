@@ -408,6 +408,7 @@
     <VeloHead
       crumbs={[{ label: t('Bike'), href: bikesHash({ tab: 'setup', bike: openC.bike.id }) }, { label: t('Care|tab'), href: bikesHash({ tab: 'care' }) }]}
       title={openC.bike.name}
+      bike={openC.bike}
       sub={[t('Bike care'), typeof openC.bike.km === 'number' ? `${num(openC.bike.km)} km` : '', t('as of today')].filter(Boolean).join(' · ')}
     />
   {:else}
