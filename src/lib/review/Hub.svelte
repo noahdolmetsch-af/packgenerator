@@ -22,7 +22,9 @@
   import { liveQuery } from 'dexie';
   import { db } from '../db.js';
   import { loadReview } from './load.js';
-  import { tripFacts, periodStats, compareSet, planVsReal, ARTS } from './rueckblick.js';
+  import { tripFacts, periodStats, compareSet, planVsReal, ARTS, withActs } from './rueckblick.js';
+  import { loadActs } from './actdata.js';
+  import { activitiesForTrip } from '../training.js';
   import { homeTrips } from '../home/heute.js';
   import { n0, n1, hours, temps, kg, dates, monthShort, monthLong, dayLong, rainText, DASH } from './fmt.js';
   import { paceOf, ruleOf } from '../pace.js';
@@ -50,6 +52,7 @@
   import { Compass, History, GraduationCap, Images, CircleHelp, Flame } from '@lucide/svelte';
   import ListGroup from '../list/ListGroup.svelte';
   import { phone } from '../media.svelte.js';
+  import { dhms } from '../touren/strava/fmt.js';
 
   let { spot = '' } = $props();
 
@@ -81,9 +84,11 @@
 
   const stats = $derived(data ? periodStats(facts, data.learnings, mode, today) : null);
   const cmp = $derived(compareSet(facts, base, today));
-  const last = $derived(facts[0] ?? null);
   // heart rate from the Strava rides of the last tour (observation only, Noah 12.10.2026 «2a und b»)
   const kmQ = liveQuery(() => db.kmBook.toArray());
+  // Noah 21.10.2026 «2 leere Kacheln»: a tour ridden with Strava only takes its numbers from those rides
+  const actsQ = liveQuery(() => loadActs(db));
+  const last = $derived(facts[0] && facts[0].trip ? withActs(facts[0], activitiesForTrip(facts[0].trip, $actsQ ?? [], $kmQ ?? [])) : (facts[0] ?? null));
   const lastHeart = $derived(!last || !$kmQ ? null : last.kind === 'ride' ? heartOfRide($kmQ, last.rides?.[0]) : heartBetween($kmQ, last.start, last.end, last.trip?.bikeId ?? null));
   const lastPlan = $derived(last ? planVsReal(last).find((x) => x.key === 'movingH') ?? null : null);
   const pace = $derived(paceOf(data?.pace ?? null));
@@ -523,7 +528,7 @@
                     <li>{@render rainIcon(last.rain)}{rainText(last.rain, last.days)}</li>
                     <li><Thermometer size={16} aria-hidden="true" />{temps(last.tmin, last.tmax)}</li>
                     <li><Bike size={16} aria-hidden="true" />{last.bike ?? DASH}</li>
-                    {#if last.pauses}<li><Clock size={16} aria-hidden="true" />{tn(last.pauses.n, '{n} stop', '{n} stops')} · {num(last.pauses.min)} min</li>{/if}
+                    {#if last.pauses}<li><Clock size={16} aria-hidden="true" />{tn(last.pauses.n, '{n} stop', '{n} stops')} · {dhms(last.pauses.secs ?? last.pauses.min * 60)}</li>{/if}
                     {#if highest(last.profile)}<li><Mountain size={16} aria-hidden="true" />{t('GPX · {m} m highest point', { m: num(highest(last.profile)) })}</li>{/if}
                   </ul>
                   <!-- v0.151.0 HP1 (F13, Noah «1a»): the profile of the ridden GPX, the planned route dashed over it -->

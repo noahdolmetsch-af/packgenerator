@@ -103,11 +103,18 @@
   --l2-soft: #f7ead2;
   --l3-soft: #dde9f5;
   --l4-soft: #ebe3f4;
-  --z1: #a9bccb; /* «Training»: heart rate zones Z1–Z5 */
-  --z2: #2f6b4f;
-  --z3: #d9a93a;
-  --z4: #d9792a;
-  --z5: #b8392b;
+  --z1: #a3aab2; /* heart rate zones Z1–Z5, a colour each like Garmin and Strava (Noah 21.10.2026 «herzfrequenzbereiche in verschiedenen farben») */
+  --z2: #3f86c6;
+  --z3: #4a9a58;
+  --z4: #e08a2c;
+  --z5: #c8402f;
+  --pz1: #a3aab2; /* power zones Z1–Z7 (Coggan) */
+  --pz2: #3f86c6;
+  --pz3: #4a9a58;
+  --pz4: #dcb02f;
+  --pz5: #e08a2c;
+  --pz6: #c8402f;
+  --pz7: #7d4a9e;
   --temp-scale: linear-gradient(90deg, #3f7fbf 0%, #2f9e8f 35%, #e3a43c 70%, #c7471d 100%);
   --fs-display: clamp(38px, 2.6vw + 26px, 64px);
 }
@@ -215,11 +222,18 @@
   --l2-soft: #fbefd9;
   --l3-soft: #dfeaf5;
   --l4-soft: #ece5f5;
-  --z1: #a9bccb; /* «Training»: heart rate zones Z1–Z5 */
-  --z2: #2f6b4f;
-  --z3: #d9a93a;
-  --z4: #d9792a;
-  --z5: #b8392b;
+  --z1: #a3aab2; /* heart rate zones Z1–Z5, a colour each like Garmin and Strava (Noah 21.10.2026 «herzfrequenzbereiche in verschiedenen farben») */
+  --z2: #3f86c6;
+  --z3: #4a9a58;
+  --z4: #e08a2c;
+  --z5: #c8402f;
+  --pz1: #a3aab2; /* power zones Z1–Z7 (Coggan) */
+  --pz2: #3f86c6;
+  --pz3: #4a9a58;
+  --pz4: #dcb02f;
+  --pz5: #e08a2c;
+  --pz6: #c8402f;
+  --pz7: #7d4a9e;
 }
 :root[data-palette='gletscher'][data-theme='dark'] {
   color-scheme: dark;

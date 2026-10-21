@@ -20,7 +20,7 @@
    */
   import { t, tn, num, nameOf, locale } from '../i18n.svelte.js';
   import { formatWeight } from '../gear.js';
-  import { tripFacts, planVsReal, nextTripAfter, nextHints } from './rueckblick.js';
+  import { tripFacts, planVsReal, nextTripAfter, nextHints, withActs } from './rueckblick.js';
   import { n0, n1, hours, temps, kg, dates, dayLong, rainText, signedNum, signedHours, DASH } from './fmt.js';
   import { openTrip, newTrip } from '../nav.js';
   import Btn from '../ui/Btn.svelte';
@@ -38,6 +38,14 @@
   import { tripValues, tripEntries, tripActs } from './werte.js';
   import { tripTemplate, inTemplate, dropItem, putBack, unusedBefore } from './fromtemplate.js';
   import HeartPower from './HeartPower.svelte';
+  import RideOverviews from '../touren/strava/RideOverviews.svelte';
+  import { ftpEstimate } from '../training.js';
+  import { fitbitTrip, sleepText } from './fitbittrip.js';
+  import { addDays as addDaysIso } from '../health.js';
+  import { dailyValues } from '../abauswertung.js';
+  import { QUESTION, answerRow } from '../abfragen.js';
+  import { saveAnswers, deleteAnswer } from '../abdb.js';
+  import { offerDone } from '../ui/rename.svelte.js';
   import UndoToast from './UndoToast.svelte';
   // SN2x: the whole Rückblick
   import Group from './Group.svelte';
@@ -65,7 +73,8 @@
   // The trip as a row of tripFacts (the same numbers as the Rückblick page and Past trips).
   // SN2x: all trips at once, for «Vergleich» and the bars of the last trips.
   const allRows = $derived(tripFacts({ trips: trips.some((x) => x.id === trip.id) ? trips.map((x) => (x.id === trip.id ? { ...trip, status: 'done' } : x)) : [...trips, { ...trip, status: 'done' }], debriefs: debriefs.some((x) => x.tripId === trip.id) ? debriefs.map((x) => (x.tripId === trip.id ? { ...d, status: 'done' } : x)) : [...debriefs, { ...d, status: 'done' }], rides, learnings, items, containers, bikes, today: tripEnd(trip) > today ? tripEnd(trip) : today }));
-  const row = $derived(allRows.find((r) => r.id === trip.id) ?? null);
+  // Noah 21.10.2026 «2 leere Kacheln»: without an uploaded ride the numbers come from the trip's Strava rides
+  const row = $derived(withActs(allRows.find((r) => r.id === trip.id) ?? null, acts));
   const pvr = $derived(row ? planVsReal(row) : []);
   const next = $derived(nextTripAfter(trip, trips, today));
   const hints = $derived(nextHints({ debrief: d, next, learnings: row?.learnings ?? [], byId }));
@@ -102,7 +111,10 @@
   }
   const tabs = $derived(dayTabs(trip));
   let day = $state(null);
-  const dayF = $derived(day != null && row ? dayFacts(row, day) : null);
+  const dayF = $derived.by(() => {
+    const f = day != null && row ? dayFacts(row, day) : null;
+    return f && row.fromActs ? withActs(f, actsOn(acts, f.date)) : f;
+  });
   const dateOf = (i) => {
     const x = new Date(`${trip.startDate}T00:00:00Z`);
     x.setUTCDate(x.getUTCDate() + i);
@@ -116,6 +128,9 @@
   const acts = $derived(w ? tripActs(w.acts, trip, end) : []);
   const entries = $derived(w ? tripEntries(w.entries, trip, end) : []);
   const dActs = $derived(dayF ? actsOn(acts, dayF.date) : acts);
+  // the Strava rides of the trip or of the chosen day, for «Übersicht wie Strava»
+  const rideActs = $derived(dActs.filter((a) => a.kind === 'bike' || /ride/i.test(a.type ?? '')));
+  const ftp = $derived(w ? ftpEstimate(w.acts, end ?? today) : null);
   const dEntries = $derived(dayF ? entries.filter((e) => e.date === dayF.date) : entries);
   const values = $derived(w ? tripValues({ acts: dActs, entries: dEntries, bounds: w.zones?.bounds ?? null }) : null);
   const power = $derived(w ? tripPower({ acts: dActs, history: w.acts, kg: w.kg, end }) : null);
@@ -137,7 +152,7 @@
     return {
       kmh: kmh ?? avgOf(dActs, (a) => a.spdAvg),
       maxKmh: sp.length ? Math.max(...sp) : null,
-      pauses: ps.length ? { n: ps.reduce((s, a) => s + a.pauses.n, 0), min: Math.round(ps.reduce((s, a) => s + (a.pauses.secs ?? 0), 0) / 60) } : dayF ? dayF.pauses : row?.pauses ?? null,
+      pauses: ps.length ? { n: ps.reduce((s, a) => s + a.pauses.n, 0), min: Math.round(ps.reduce((s, a) => s + (a.pauses.secs ?? 0), 0) / 60), secs: ps.reduce((s, a) => s + (a.pauses.secs ?? 0), 0) } : dayF ? dayF.pauses : row?.pauses ?? null,
       cad: avgOf(dActs, (a) => a.cad),
       temp: tAvg != null ? { avg: tAvg, min: null, max: null } : null,
       kcal: kcal > 0 ? Math.round(kcal) : null,
@@ -187,7 +202,49 @@
   }
 
   /* ---------- SN2x: Stimmung und Energie (the daily check of the trip days) ---------- */
-  const moods = $derived(w ? Array.from({ length: Math.max(1, trip.days || 1) }, (_, i) => ({ i, date: dateOf(i), c: w.checks.find((c) => c.day === dateOf(i)) ?? null })).filter((x) => x.c && (x.c.mood != null || x.c.energy != null)) : []);
+  // Noah 21.10.2026 «fehlen werte für stimmung und energie»: also the answers of «Deine Abfragen» (energy,
+  // mood) of the trip days, and the Fitbit values around the trip instead of the placeholders
+  const moreQ = liveQuery(async () => {
+    const last = tripEnd(trip) ?? trip.startDate;
+    const [ans, health] = await Promise.all([
+      db.abAnswers.where('day').between(trip.startDate, last, true, true).toArray().catch(() => []),
+      db.healthDays ? db.healthDays.where('date').between(addDaysIso(trip.startDate, -31), addDaysIso(last, 2), true, true).toArray().catch(() => []) : [],
+    ]);
+    return { ans, health };
+  });
+  const askedMood = $derived(dailyValues($moreQ?.ans ?? [], 'spass.stimmung'));
+  const askedEnergy = $derived(dailyValues($moreQ?.ans ?? [], 'erholung.akku'));
+  const moods = $derived(
+    w
+      ? Array.from({ length: Math.max(1, trip.days || 1) }, (_, i) => {
+          const date = dateOf(i);
+          const c = w.checks.find((x) => x.day === date) ?? null;
+          const r1 = (v) => (v == null ? null : Math.round(v));
+          return { i, date, c: { mood: c?.mood ?? r1(askedMood[date]), energy: c?.energy ?? r1(askedEnergy[date]) } };
+        }).filter((x) => x.c.mood != null || x.c.energy != null)
+      : [],
+  );
+  const fit = $derived(fitbitTrip($moreQ?.health ?? [], trip.startDate, tripEnd(trip) ?? trip.startDate));
+  // «Nachtragen»: mood and energy of the trip days afterwards, as answers of «Deine Abfragen» (with Undo)
+  let addMood = $state(false);
+  let draft = $state({});
+  async function saveMoods() {
+    const rows = [];
+    for (const [date, v] of Object.entries(draft)) {
+      if (v.mood) rows.push(answerRow(QUESTION['spass.stimmung'], Number(v.mood), { day: date }));
+      if (v.energy) rows.push(answerRow(QUESTION['erholung.akku'], Number(v.energy), { day: date }));
+    }
+    const list = rows.filter(Boolean);
+    if (!list.length) return;
+    const before = await Promise.all([...new Set(list.map((r) => r.day))].map(async (day) => [day, await db.flowChecks.get(day)]));
+    await saveAnswers(list);
+    addMood = false;
+    draft = {};
+    offerDone(t('Mood and energy saved.'), async () => {
+      for (const r of list) await deleteAnswer(r.id);
+      for (const [day, c] of before) await (c ? db.flowChecks.put(JSON.parse(JSON.stringify(c))) : db.flowChecks.delete(day));
+    });
+  }
   const dayMoods = $derived(day == null ? moods : moods.filter((m) => m.i === day));
 
   /* ---------- SN2x: Gepäck und Velo ---------- */
@@ -492,6 +549,8 @@
           {/if}
         </div>
       </div>
+      <!-- Noah 21.10.2026: Strava's «Übersicht», «Peak Power» and the map with the line, 1:1 per ride -->
+      {#if rideActs.length}<RideOverviews acts={rideActs} {ftp} kg={w?.kg ?? null} bike={trip.bike ?? bike?.name ?? ''} />{/if}
     </Group>
 
     <!-- 2 Körper und Leistung -->
@@ -514,12 +573,36 @@
             {:else}
               <p class="quiet" data-quiet="mood"><Smile size={16} aria-hidden="true" />{t('No daily check on the days of this trip.')}</p>
             {/if}
+            <!-- Noah 21.10.2026: mood and energy can be added afterwards (as answers of «Deine Abfragen») -->
+            {#if !addMood}
+              <button type="button" class="btn sm addm" onclick={() => (addMood = true)} data-mood-add>{dayMoods.length ? t('Change mood and energy') : t('Add mood and energy')}</button>
+            {:else}
+              <div class="rv-box pad moodform" data-mood-form>
+                {#each Array.from({ length: Math.max(1, trip.days || 1) }, (_, i) => i).filter((i) => day == null || i === day) as i (i)}
+                  {@const date = dateOf(i)}
+                  <fieldset>
+                    <legend>{trip.days > 1 ? `${t('Day {n}', { n: i + 1 })} · ${shortDay(date)}` : longDay(date)}</legend>
+                    <label>{t('Mood')} <select value={draft[date]?.mood ?? ''} onchange={(e) => (draft = { ...draft, [date]: { ...draft[date], mood: e.currentTarget.value } })} data-mood-sel={date}><option value="">–</option>{#each Array.from({ length: 10 }, (_, n) => n + 1) as n (n)}<option value={String(n)}>{n}</option>{/each}</select></label>
+                    <label>{t('Energy')} <select value={draft[date]?.energy ?? ''} onchange={(e) => (draft = { ...draft, [date]: { ...draft[date], energy: e.currentTarget.value } })} data-energy-sel={date}><option value="">–</option>{#each Array.from({ length: 10 }, (_, n) => n + 1) as n (n)}<option value={String(n)}>{n}</option>{/each}</select></label>
+                  </fieldset>
+                {/each}
+                <p class="rv-note pm">{t('1 = very low, 10 = very high. Saved like an answer in «Deine Abfragen».')}</p>
+                <div class="yn"><button type="button" class="btn sm" onclick={saveMoods} data-mood-save>{t('Save')}</button><button type="button" class="btn sm btn-link" onclick={() => ((addMood = false), (draft = {}))}>{t('Cancel')}</button></div>
+              </div>
+            {/if}
           </section>
-          <!-- SN2x U3: sleep and resting heart rate, and the recovery after the trip, come with Fitbit -->
-          <div class="fitbit" data-quiet="fitbit">
-            <p><MoonStar size={16} aria-hidden="true" /><span>{t('Sleep and resting heart rate the night before · with Fitbit')}</span></p>
-            <p><HeartPulse size={16} aria-hidden="true" /><span>{t('Recovery after: resting heart rate and sleep of the 2 days after · with Fitbit')}</span></p>
-          </div>
+          <!-- Noah 21.10.2026: the Fitbit values around the trip (sleep and resting heart rate the night before, the recovery after) -->
+          {#if fit}
+            <div class="fitbit has" data-fitbit-trip>
+              {#if fit.before}<p data-fitbit-before><MoonStar size={16} aria-hidden="true" /><span>{t('Night before')}: {[fit.before.sleepMin != null ? t('{t} sleep', { t: sleepText(fit.before.sleepMin) }) : '', fit.before.restingHr != null ? t('resting heart rate {n}', { n: fit.before.restingHr }) : ''].filter(Boolean).join(' · ')}{#if fit.normal.restingHr != null}<small class="nrm">({t('your normal {n}', { n: Math.round(fit.normal.restingHr) })})</small>{/if}</span></p>{/if}
+              {#each fit.after as x, i (x.date)}<p data-fitbit-after><HeartPulse size={16} aria-hidden="true" /><span>{t('Day {n} after', { n: i + 1 })}: {[x.restingHr != null ? t('resting heart rate {n}', { n: x.restingHr }) : '', x.sleepMin != null ? t('{t} sleep', { t: sleepText(x.sleepMin) }) : ''].filter(Boolean).join(' · ')}</span></p>{/each}
+              <p class="src">{t('from Fitbit · only to look at')}</p>
+            </div>
+          {:else}
+            <div class="fitbit" data-quiet="fitbit">
+              <p><MoonStar size={16} aria-hidden="true" /><span>{t('No Fitbit values for the night before and the 2 days after.')} <a href="#/me/fitbit">{t('Fitbit')}</a></span></p>
+            </div>
+          {/if}
         </div>
       </div>
     </Group>
@@ -1003,6 +1086,53 @@
   .fitbit :global(svg) {
     flex: none;
     margin-top: 2px;
+  }
+  .fitbit.has {
+    border-style: solid;
+    border-color: var(--card-line);
+    background: var(--paper);
+    color: var(--ink);
+  }
+  .fitbit .src,
+  .fitbit small {
+    color: var(--ink-2);
+  }
+  .nrm {
+    margin-left: 0.3em;
+  }
+  .addm {
+    justify-self: start;
+    min-height: 44px;
+    margin-top: 8px;
+  }
+  .moodform {
+    display: grid;
+    gap: 10px;
+    margin-top: 8px;
+  }
+  .moodform fieldset {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 16px;
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+  .moodform legend {
+    padding: 0 0 4px;
+    font-weight: 600;
+  }
+  .moodform label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .moodform select {
+    min-height: 44px;
+  }
+  .moodform .yn {
+    display: flex;
+    gap: 8px;
   }
   .one {
     margin: 0;

@@ -27,6 +27,7 @@
   import './zones.css';
   import Help from '../ui/Help.svelte'; // FE14
   import { FIELD_HELP } from '../daumen.js';
+  import { dhms } from '../touren/strava/fmt.js';
 
   let { values = null, zones = null, bike = '', tempo = null, power = null, effort = null, load = null, efforts = [], loads = [], mark = null, best = null, strava = false, sub = '' } = $props();
   const p = $derived(power ?? values?.power ?? null);
@@ -66,7 +67,7 @@
           <dl class="rv-tiles hpt">
             {#if tempo.kmh != null}<div class="rv-tile"><dd><b class="num">{n1(tempo.kmh)}</b> <span class="u">km/h</span></dd><dt><small>{t('Ø speed')}</small></dt></div>{/if}
             {#if tempo.maxKmh != null}<div class="rv-tile"><dd><b class="num">{n1(tempo.maxKmh)}</b> <span class="u">km/h</span></dd><dt><small>{t('Max. speed')}</small></dt></div>{/if}
-            {#if tempo.pauses}<div class="rv-tile"><dd><b class="num">{num(tempo.pauses.n)} · {num(tempo.pauses.min)}</b> <span class="u">min</span></dd><dt><small>{t('Pauses')}</small></dt></div>{/if}
+            {#if tempo.pauses}<div class="rv-tile"><dd><b class="num" data-pause-time>{num(tempo.pauses.n)} · {dhms(tempo.pauses.secs ?? tempo.pauses.min * 60)}</b></dd><dt><small>{t('Pauses')}</small></dt></div>{/if}
             {#if tempo.cad != null}<div class="rv-tile"><dd><b class="num">{num(tempo.cad)}</b> <span class="u">{t('rpm')}</span></dd><dt><small>{t('Ø cadence')}</small></dt></div>{/if}
             {#if tempo.temp}<div class="rv-tile"><dd><b class="num">{num(tempo.temp.avg)}</b> <span class="u">°</span></dd><dt><small>{t('Ø temperature')}{#if tempo.temp.min != null && tempo.temp.max != null}<span class="est">{tempo.temp.min}–{tempo.temp.max}°</span>{/if}</small></dt></div>{/if}
             {#if tempo.kcal != null}<div class="rv-tile"><dd><b class="num">{num(tempo.kcal)}</b> <span class="u">kcal</span></dd><dt><small>{t('Calories')}</small></dt></div>{/if}

@@ -4,11 +4,11 @@
    * ones left out (garmin.js statsOf).
    */
   import { t, locale } from '../../i18n.svelte.js';
-  import { clock } from './fmt.js';
+  import { clock, dhms } from './fmt.js';
 
   let { groups = [] } = $props();
   const num = (v, d = 0) => (Number.isFinite(v) ? Number(v).toLocaleString(locale(), { maximumFractionDigits: d, minimumFractionDigits: d }) : '–');
-  const valueOf = (r) => (r.kind === 'clock' ? clock(r.v) : r.kind === 'text' ? r.v : `${num(r.v, r.d)}${r.unit ? ` ${r.unit === 'bpm' ? t('bpm') : r.unit === 'rpm' ? t('rpm') : r.unit}` : ''}`);
+  const valueOf = (r) => (r.kind === 'clock' ? clock(r.v) : r.kind === 'dhms' ? dhms(r.v) : r.kind === 'text' ? r.v : `${num(r.v, r.d)}${r.unit ? ` ${r.unit === 'bpm' ? t('bpm') : r.unit === 'rpm' ? t('rpm') : r.unit}` : ''}`);
 </script>
 
 <div class="gs" data-garmin-stats>
