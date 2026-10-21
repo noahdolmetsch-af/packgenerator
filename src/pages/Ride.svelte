@@ -23,6 +23,7 @@
   import { t, tn, num, locale, nameOf, lang } from '../lib/i18n.svelte.js';
   import { wetHour } from '../lib/rainlimit.svelte.js';
   import { db } from '../lib/db.js';
+  import { tripEat } from '../lib/unterwegs/essen.js';
   import { nextTrip } from '../lib/debrief.js';
   import { tripStats, touched } from '../lib/trips.js';
   import { ageText, FORECAST_DAYS } from '../lib/weather.js';
@@ -681,7 +682,7 @@
         </div>
       </section>
       <!-- Paket K #286 «Ess-Erinnerung» -->
-      {#if !trip.finished}{#await import('../lib/unterwegs/Essen.svelte') then m}<m.default tripId={trip.id} until={untilMs} onstate={(x) => (eatNext = x.next)} />{/await}{/if}
+      {#if !trip.finished}{#await import('../lib/unterwegs/Essen.svelte') then m}<m.default tripId={trip.id} until={untilMs} onstate={(x) => (eatNext = x.next)} plan={tripEat(trip)} onplan={(p) => db.trips.update(trip.id, { eat: { ...tripEat(trip), ...p } })} />{/await}{/if}
       <!-- Noah 8a: quick notes for the debrief: two taps, no typing. -->
       <section class="notesec" aria-labelledby="note-h">
         <h2 id="note-h" class="sh">{t('Note for the debrief')}</h2>

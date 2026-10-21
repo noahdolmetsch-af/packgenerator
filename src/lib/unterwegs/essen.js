@@ -1,13 +1,13 @@
 /**
  * Paket K #286 «Ess-Erinnerung» (Noah 19.10.2026 «5a b möglich»): while riding, the app reminds you to
- * eat every 45 minutes (30, 45 or 60 to choose). With the app open: a sound, a vibration and a line
+ * eat every 45 minutes (30, 45 or 60, or your own 10–180 minutes). With the app open: a sound, a vibration and a line
  * with «Gegessen» and «In 10 Minuten». With the app closed: a message on the phone (Web-Push, the kind
  * «Eat on the ride» in Erinnerungen aufs Handy, schedule.js). Never mandatory: off by default, one tap
  * stops it.
  *
  * Setting 'eatRemind' (db.settings, backup and sync like the other settings):
  * { on, every (minutes), from (ms, the start), until (ms, the planned end), last (ms, eaten or snoozed),
- *   tripId, sound (Paket X, Noah «2a»: a soft tone, false = no tone) }. Pure functions, tested in tests/unterwegs-essen.test.js.
+ *   tripId, sound (Paket X, Noah «2a»: a soft tone, false = no tone), hidden (the card hidden on all tours) }. Pure functions, tested in tests/unterwegs-essen.test.js.
  */
 export const EAT_KEY = 'eatRemind';
 export const EVERY = [30, 45, 60];
@@ -19,7 +19,19 @@ export const MAX_H = 12;
 export const MAX_PUSH = 24;
 
 const MIN = 60000;
-export const everyOf = (v) => (EVERY.includes(v) ? v : EVERY_STD);
+/** Your own interval (Noah 21.10.2026 «eigene dauer»): whole minutes from EVERY_MIN to EVERY_MAX. */
+export const EVERY_MIN = 10;
+export const EVERY_MAX = 180;
+export const everyOf = (v) => {
+  const n = Math.round(Number(v));
+  return Number.isFinite(n) && n >= EVERY_MIN && n <= EVERY_MAX ? n : EVERY_STD;
+};
+
+/**
+ * The plan of a tour (Noah 21.10.2026 «beim erstellen einer tour … ein und ausgeschaltet»): trip.eat
+ * { on, every }. On unless switched off for this tour; the interval the card starts with.
+ */
+export const tripEat = (trip) => ({ on: trip?.eat?.on !== false, every: everyOf(trip?.eat?.every ?? EVERY_STD) });
 
 /** The stored value made safe; null when off or over. */
 export function eatOf(v, now = Date.now()) {

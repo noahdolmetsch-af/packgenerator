@@ -30,6 +30,8 @@
   import SnowBox from '../mountain/SnowBox.svelte'; // Paket J #160: freezing level and fresh snow
   import { isMountain } from '../mountain/snow.js';
   import { Map as MapIcon, Siren } from '@lucide/svelte';
+  import EatEvery from '../unterwegs/EatEvery.svelte';
+  import { tripEat } from '../unterwegs/essen.js';
   import TravelLinks from '../sk/TravelLinks.svelte'; // «Reise-Links» (Noah 19.10.2026 «1b 2b 3a 4a 5b»)
 
   let { trip, onchange } = $props();
@@ -223,6 +225,17 @@
     {/if}
   </div>
 
+  {#if hasBike(trip)}
+    <!-- Noah 21.10.2026 «beim erstellen einer tour kann die einstellung ess-erinnerung ein und ausgeschaltet
+         werden und eigene dauer»: this tour's eat reminder (trip.eat), the card on Unterwegs starts with it -->
+    {@const eat = tripEat(trip)}
+    <div class="part" data-plan-eat>
+      <span class="lbl">{t('Eat reminder')}</span>
+      <label class="tp-small"><input type="checkbox" role="switch" checked={eat.on} onchange={(ev) => { const on = ev.currentTarget.checked; onchange(() => ({ eat: { ...eat, on } })); }} data-plan-eat-on /> {t('Show the eat reminder on the way')}</label>
+      {#if eat.on}<EatEvery value={eat.every} onpick={(n) => onchange(() => ({ eat: { ...eat, every: n } }))} />{/if}
+      <p class="hint">{t('It only starts when you tap «Start eat reminder» on the way.')}</p>
+    </div>
+  {/if}
   {#if isMountain(trip)}
     <!-- Paket J (Noah 19.10.2026 «1a und b», «2a», «3a»): every ski tour and mountain tour -->
     <div class="part" data-mountain>
