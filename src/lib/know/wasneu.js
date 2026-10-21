@@ -117,6 +117,7 @@ export const SINCE = {
   'f.trainplans': '0.157.0', 'f.feel': '0.157.0',
   // «Heatmap» (provisional version, the bundler renumbers)
   'f.heatmap': '0.170.0',
+  'f.searchvoice': '0.170.0', // «Suche mit Sprache und Antworten» (Noah 21.10.2026); the bundler sets the release version
   // «Tagebuch» (provisional; the bundler sets the version of its release)
   'f.journal': '0.170.0',
 };

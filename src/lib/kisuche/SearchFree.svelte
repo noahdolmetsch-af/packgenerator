@@ -16,7 +16,7 @@
   import { aiStatus, askLocal } from './chromeAi.js';
   import { t, tn } from '../i18n.svelte.js';
 
-  let { q = '', data = null, also = [], fixed = null } = $props();
+  let { q = '', data = null, also = [], fixed = null, chrome = true, links = true } = $props(); // chrome, links: Ich › Suche (21.10.2026)
   const learnQ = liveQuery(() => db.learnings.toArray());
   const question = $derived(q.trim());
   const isQ = $derived(looksLikeQuestion(question));
@@ -65,14 +65,16 @@
 {#if fixed || also.length}
   <p class="ks-hint" data-ks="hint">{#if fixed}{t('Nothing for «{q}». Searched: «{fixed}»', { q: question, fixed })}{:else}{t('Also searched: {words}', { words: also.join(', ') })}{/if}</p>
 {/if}
-{#if isQ}
+{#if isQ && (links || chrome)}
   <div class="ks" data-ks="ask">
     <p class="ks-gh">{t('Ask Claude or Chrome')}</p>
     <p class="ks-sub">{n ? tn(n, 'With {n} entry that fits. Nothing about your health.', 'With {n} entries that fit. Nothing about your health.') : t('No entry fits; only the question goes along.')}</p>
     <div class="ks-acts">
-      <button type="button" class="btn sm" onclick={copy}><Copy size={16} aria-hidden="true" />{t('Copy for Claude')}</button>
-      <a class="btn sm" href="https://claude.ai/new" target="_blank" rel="noopener" onclick={copy}><ExternalLink size={16} aria-hidden="true" />{t('Copy and open Claude')}</a>
-      {#if ai !== 'none'}
+      {#if links}
+        <button type="button" class="btn sm" onclick={copy}><Copy size={16} aria-hidden="true" />{t('Copy for Claude')}</button>
+        <a class="btn sm" href="https://claude.ai/new" target="_blank" rel="noopener" onclick={copy}><ExternalLink size={16} aria-hidden="true" />{t('Copy and open Claude')}</a>
+      {/if}
+      {#if chrome && ai !== 'none'}
         <button type="button" class="btn sm" onclick={askChrome} disabled={busy}><Cpu size={16} aria-hidden="true" />{ai === 'available' ? t('Ask Chrome AI') : t('Ask Chrome AI (loads once)')}</button>
       {/if}
     </div>

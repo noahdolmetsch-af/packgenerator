@@ -97,6 +97,7 @@ export const HOWTO = {
   'f.next': ['Open Me › What comes next.', 'Read the packages: live, being built, later.', 'Tell Claude if a package is more urgent.'],
   'f.dictate': ['Tap the microphone next to a note.', 'Speak; tap stop when you are done.', 'A question in it gets the app\'s answer.'],
   'f.askfurther': ['Ask the app a question.', 'Tap Claude, ChatGPT or another service.', 'It opens with your question.'],
+  'f.searchvoice': ['Tap the microphone in the search.', 'Say a command or a question.', 'Me › Search sets who answers.'],
   'f.aiprojects': ['Open Me › My AI projects.', 'Paste the address of a project or chat.', 'One tap opens it with your account.'],
   'f.notes': ['Open Notes.', 'Write, dictate, take a photo or add a link.', 'Add topics and #tags; pin up to 3.'],
   'f.starters': ['Tap «New» › «Plan a trip» and choose the sport.', 'At «Start from» tap «From your trips»: what you took most often comes along.', 'In Pack open «Suggestion list» and tick what you take.'],

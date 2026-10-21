@@ -23,6 +23,16 @@
   import { findFeatures, FEATURE, FEATURES } from '../features.js';
   import { goFeature } from '../know/featureRun.js';
   import { helpAnswers, isQuestion } from '../clear/help.js';
+  // «Suche mit Sprache und Antworten» (Noah 21.10.2026 «1a 2a 3a+b 4b+a 5b»): microphone, spoken commands
+  // run at once with Undo, Gemini and «Ask further at» right here; switched in Ich › Suche (#/me/suche).
+  import { tick } from 'svelte';
+  import SearchMic from '../suche/SearchMic.svelte';
+  import AskElsewhere from '../assistent/AskElsewhere.svelte';
+  import { suche } from '../suche/suche.svelte.js';
+  import { spokenCommand } from '../suche/logic.js';
+  import { looksLikeQuestion } from '../helper/logic.js';
+  import { newNote, guessBike, rideContext } from '../notes.js';
+  import { localDay } from '../localday.js';
 
   // v0.76.0 «Fünf Orte»: short: the narrow field in the sidebar says only «Suchen» (with «/»).
   let { compact = false, short = false } = $props();
@@ -31,6 +41,11 @@
   let input = $state();
   let btn = $state(); // phone: the magnifier that opened the field
   let kh = $state(); // v0.77.0 KI-Helfer (answer 2a): «Frag den Helfer» above the hits
+  let spoken = $state(false); // the text in the field was spoken (not typed)
+  let heardNow = $state(''); // the words while the microphone listens
+  let micMsg = $state('');
+  let appHas = $state(false); // «The app answers» has an answer for q
+  const asking = $derived(q.trim().length >= 3 && (looksLikeQuestion(q) || (spoken && isQuestion(q))));
   const all = liveQuery(async () => {
     const [items, trips, bikes, notes, tpl, events] = await Promise.all([db.items.toArray(), db.trips.toArray(), db.bikes.toArray(), db.notes.toArray(), db.settings.get(TEMPLATES_KEY), db.events.toArray()]);
     return { items, trips, bikes, notes, templates: tpl?.value ?? [], events };
@@ -108,9 +123,37 @@
   let done = $state(null); // { text, undo } after a bike job saved from here
   let doneTimer;
   const USE = { weigh: 'weigh', dayride: 'dayride', chain: 'care', sealant: 'care', wash: 'care', km: 'km', note: 'note', wear: 'wear', trip: 'trip' };
-  async function run(c) {
+  /** The microphone heard a sentence: it goes into the field; one command that fits runs at once (2a). */
+  async function said(text) {
+    heardNow = '';
+    if ((phone.matches || compact) && !open) toggle();
+    q = text;
+    spoken = true;
+    focused = true;
+    await tick();
+    const c = spokenCommand(cmds, { run: suche.run });
+    if (c) run(c, { direct: true });
+  }
+  /** A spoken note goes straight into the Inbox (with Undo) instead of opening the note window. */
+  async function noteNow(text) {
+    const id = `note-${Date.now().toString(36)}`;
+    const riding = rideContext($all?.trips ?? [], localDay());
+    const rec = newNote({ text, page: 'search', tripId: riding?.tripId ?? null, bikeId: guessBike(text, $all?.bikes ?? []), day: riding?.day ?? null }, { id });
+    await db.notes.put(rec);
+    q = '';
+    spoken = false;
+    clearTimeout(doneTimer);
+    done = { text: t('Note saved in the Inbox: «{text}»', { text: rec.text }), undoFn: () => db.notes.delete(id) };
+    doneTimer = setTimeout(() => (done = null), UNDO_MS);
+  }
+  async function run(c, { direct = false } = {}) {
     const cmd = c.cmd;
     remember(q);
+    if (direct && cmd.kind === 'note' && String(cmd.text ?? '').trim()) {
+      countUse('note');
+      return noteNow(String(cmd.text).trim());
+    }
+    spoken = false;
     if (USE[cmd.kind]) countUse(USE[cmd.kind]);
     if (['chain', 'sealant', 'wash'].includes(cmd.kind)) {
       const r = await recordCare(cmd.bikeId, cmd.kind);
@@ -134,9 +177,11 @@
     else if (COMMAND_HREF[cmd.kind]) location.hash = COMMAND_HREF[cmd.kind];
   }
   async function undoDone() {
+    const fn = done?.undoFn;
     const u = $state.snapshot(done?.undo); // a plain copy: IndexedDB cannot store Svelte proxies
     clearTimeout(doneTimer);
     done = null;
+    if (fn) return fn();
     await undoCare(u);
   }
   $effect(() => () => clearTimeout(doneTimer));
@@ -255,8 +300,12 @@
 {#snippet field()}
   <label class="field">
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="M20 20l-4-4" /></svg>
-    <input bind:this={input} type="search" bind:value={q} onkeydown={key} onfocus={() => (focused = true)} placeholder={short ? `${t('Search')}  /` : t('What do you want to do? "weigh", "day ride factor"')} aria-label={t('What do you want to do? Search or say an action')} autocomplete="off" />
+    <input bind:this={input} type="search" bind:value={q} oninput={() => (spoken = false)} onkeydown={key} onfocus={() => (focused = true)} placeholder={short ? `${t('Search')}  /` : t('What do you want to do? "weigh", "day ride factor"')} aria-label={t('What do you want to do? Search or say an action')} autocomplete="off" />
+    <SearchMic onsaid={said} oninterim={(s) => ((heardNow = s), (micMsg = ''))} onerror={(m) => (micMsg = m)} />
   </label>
+  {#if heardNow || micMsg}
+    <p class="heard" role="status" data-search-heard>{heardNow ? `«${heardNow}»` : micMsg}</p>
+  {/if}
 {/snippet}
 
 {#snippet results()}
@@ -268,7 +317,7 @@
   {#if q.trim().length >= 2}
     <div class="res" role="region" aria-label={t('Search results')} aria-live="polite">
       <!-- «Frag die App» (Noah 15.10.2026 «3 a und b»): the free answer from your own data, on top -->
-      <AskAnswer {q} onlink={() => { q = ''; open = false; }} />
+      {#if suche.app}<AskAnswer {q} autoread={spoken && suche.read === 'auto'} onresult={(has) => (appHas = has)} onlink={() => { q = ''; open = false; }} />{/if}
       <SearchAnswer bind:this={kh} {q} items={$all?.items ?? []} onpropose={() => { q = ''; open = false; }} />
       {#if cmds.length}
         <p class="gh">{t('Do it now')}</p>
@@ -279,7 +328,9 @@
         </ul>
       {/if}
       <!-- «Kluge Suche»: the hint to similar words / a typo and «Ask Claude» sit under the actions (FE17: actions on top, Enter runs the first) -->
-      <SearchFree {q} data={$all} also={smart.also} fixed={smart.fixed} />
+      <!-- «Suche mit Sprache» (3a + b): Gemini answers here, «Ask further at» opens Claude, ChatGPT … -->
+      {#if asking && (suche.gemini || suche.links)}<AskElsewhere {q} gemini={suche.gemini} links={suche.links} auto={spoken && suche.geminiAuto && !(suche.app && appHas)} autoread={spoken && suche.read === 'auto'} />{/if}
+      <SearchFree {q} data={$all} also={smart.also} fixed={smart.fixed} chrome={suche.chrome} links={suche.links} />
       {#each groups as g (g.kind)}
         <p class="gh">{t(g.name)}{g.more ? ` · ${t('{n} more', { n: g.more })}` : ''}</p>
         <ul>
@@ -380,6 +431,25 @@
     height: 48px;
     border: 1.5px solid var(--line-strong);
     background: var(--paper);
+  }
+  /* «Suche mit Sprache»: the words while the microphone listens, or why it cannot */
+  .heard {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    right: 0;
+    z-index: 31;
+    margin: 0;
+    padding: 6px 10px;
+    border-radius: 8px;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+  }
+  .ph .heard {
+    position: static;
+    margin: 6px 0 0;
   }
   .tip {
     margin: 4px 2px;

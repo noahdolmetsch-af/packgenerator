@@ -342,6 +342,7 @@
     Me: () => import('./pages/Me.svelte'),
     Look: () => import('./pages/Look.svelte'),
     AiProjects: () => import('./pages/AiProjects.svelte'),
+    SucheSettings: () => import('./pages/SucheSettings.svelte'),
     Data: () => import('./pages/Data.svelte'),
     Docs: () => import('./pages/Docs.svelte'),
     Fitbit: () => import('./pages/Fitbit.svelte'),
@@ -566,6 +567,9 @@
   {:else if page === 'aiprojects'}
     <!-- «Meine KI-Projekte» (Noah 19.10.2026 «2a»): Ich › own links to AI projects and chats -->
     <LazyPage load={PAGES.AiProjects} />
+  {:else if page === 'suchesettings'}
+    <!-- «Suche mit Sprache und Antworten» (Noah 21.10.2026 «5b»): Ich › Suche -->
+    <LazyPage load={PAGES.SucheSettings} />
   {:else if page === 'look'}
     <!-- v0.97.0 Design-Refresh R1: Ich › Darstellung -->
     <LazyPage load={PAGES.Look} />
