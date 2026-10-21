@@ -107,6 +107,8 @@ Ursprünglich freigegebene Ausführungsreihenfolge: AP01–AP09 → AP12–AP16 
 
 **21.10.2026, v0.172.0 «Velo und Notizen»:** Velo im Griff (Kette nach Regen, Fotos, Inserat, Velobox, Ersatzteile, Kettenrotation) und Notizen wie Evernote (zeichnen, formatieren, Dateien, Erinnerung, Papierkorb).
 
+**21.10.2026, v0.177.0 «Wie Strava, nur ruhiger»:** Ein Paket für alles nach 0.176: Fahrten wie auf Strava mit Zeitleiste, Tages-Check mit Datum und Uhrzeit, Gesamttest-Korrekturen, Packliste aufräumen, Ess-Erinnerung. Danach die Mockup-Pakete P2 → P1 → P6 → P3 → P4 → P5 → P7 → P8.
+
 **21.10.2026, v0.176.0 «Eine Tour, eine Seite»:** Fünf Reiter pro Tour bis zur Auswertung, «Fehlt noch», Lernschleife; dazu Bikepark-Tage, Taschen nebeneinander, Formulare, Notiz-Dateien.
 
 **21.10.2026, v0.175.0 «Mach sie zu deiner»:** Jede Seite und das Menü in der App selbst anpassen (pro Gerät), Heute mit Körperwerten und Countdown, Zeichnen auf allen Fotos.

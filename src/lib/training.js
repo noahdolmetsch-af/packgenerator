@@ -9,6 +9,7 @@
  *   zone needs no new call.
  * - Health data: observation only, never a rating.
  */
+import { fixedFtp } from './strava/ftpstate.js';
 export const ZONES_KEY = 'strava.zones'; // Strava's zones, as fetched: { hr: [{ min, max }], at }
 export const OWN_ZONES_KEY = 'training.zones'; // Noah's own bounds: { own: [b1, b2, b3, b4] } or null
 export const ZONE_NAMES = ['Recovery|zone', 'Endurance|zone', 'Tempo|zone', 'Threshold|zone', 'Maximum|zone'];
@@ -82,16 +83,19 @@ export function actRecord(a) {
   };
 }
 /** What the app adds to an activity and keeps when it is fetched again. */
-export const KEEP = ['kcal', 'hist', 'curve', 'w20', 'pHist', 'pCurve', 'pauses', 'segs', 'best', 'desc', 'detail', 'note', 'cHist', 'secs5', 'prof', 'hw', 'halves', 'climbs', 'dv', 'laps', 'splits', 'rpe', 'feel', 'feelSkip', 'tempMin', 'tempMax', 'steep', 'noDetail', 'own', 'hidden', 'weather', 'hCurve', 'dprof', 'sprof', 'ser', 'p25'];
+export const KEEP = ['kcal', 'hist', 'curve', 'w20', 'pHist', 'pCurve', 'pauses', 'segs', 'best', 'desc', 'detail', 'note', 'cHist', 'secs5', 'prof', 'hw', 'halves', 'climbs', 'dv', 'laps', 'splits', 'rpe', 'feel', 'feelSkip', 'tempMin', 'tempMax', 'steep', 'noDetail', 'own', 'hidden', 'weather', 'wxRide', 'hCurve', 'dprof', 'sprof', 'ser', 'p25', 'npS', 'wStrava', 'cadMax', 'photos'];
 /**
  * The kind of detail kept: 2 = with cadence, 5 km rows, course, heart rate by power, halves and climbs (TR5b–TR7f);
  * 3 = with laps, splits per km, «How hard?», temperature low/high and the steepest bit (19.10.2026 «2a»).
  * 4 = with the best 2 and 10 minutes of power, the heart rate curve, the course by distance and the speed over
  *     time (Tour-Auswertung, 20.10.2026 «3a und b» and «1:1 wie komoot»).
+ * 5 = with the NP from the watts stream (npS, Strava check 21.10.2026: Strava's weighted average was far lower).
+ * 6 = the pauses of 5 minutes and more, segments and climbs with their km and clock time, and the photos
+ *     (Zeitleiste from Strava, 21.10.2026 «1 a und b»).
  * Older ones are fetched once more, a few per fetch. The server says which kind it sent (dv), so an older
  * server's answer is fetched again later.
  */
-export const DETAIL_V = 4;
+export const DETAIL_V = 6;
 /** Has this activity the details of the current kind? */
 export const hasDetail = (a) => !!a?.detail && (a.dv ?? 1) >= DETAIL_V;
 
@@ -184,6 +188,18 @@ export const zoneRange = (i, bounds) => ({ from: i === 0 ? null : bounds[i - 1],
 export function hmm(s) {
   const m = Math.round((Number(s) || 0) / 60);
   return `${Math.floor(m / 60)}:${String(m % 60).padStart(2, '0')}`;
+}
+
+/**
+ * The pause time of an activity as Strava counts it (Noah 21.10.2026, Strava check): elapsed minus moving time;
+ * the stops counted by the app (pauses.secs, only stops of 60 s and more) when one of the two is missing.
+ */
+export function pauseSecs(a) {
+  const el = Number(a?.elapsedS);
+  const mv = Number(a?.own?.movingS ?? a?.movingS);
+  if (Number.isFinite(el) && Number.isFinite(mv) && el > 0 && mv > 0) return Math.max(0, Math.round(el - mv));
+  const s = Number(a?.pauses?.secs);
+  return Number.isFinite(s) && s >= 0 ? s : null;
 }
 
 /** km/h over the moving time, one decimal; null without both. */
@@ -331,8 +347,15 @@ export function activitiesForTrip(trip, acts = [], kmBook = []) {
  * power curve and an estimated FTP; the load both as Strava's Relative Effort and from power ÷ FTP.
  */
 export const FTP_DAYS = 90;
-/** Estimated FTP: 95 % of the best 20 minutes (power meter) of the last FTP_DAYS days, or null. */
+/**
+ * The FTP in use: the own one or Strava's when there is one (ftpstate.js, Strava check 21.10.2026), else the
+ * estimate: 95 % of the best 20 minutes (power meter) of the last FTP_DAYS days, or null.
+ */
 export function ftpEstimate(acts, today, days = FTP_DAYS) {
+  return fixedFtp() ?? ftpGuess(acts, today, days);
+}
+/** The estimate alone: 95 % of the best 20 minutes (power meter) of the last FTP_DAYS days, or null. */
+export function ftpGuess(acts, today, days = FTP_DAYS) {
   const from = shiftDay(today, -days);
   const best = Math.max(0, ...acts.filter((a) => a.day >= from && a.day <= today && Number.isFinite(a.w20)).map((a) => a.w20));
   return best > 0 ? Math.round(best * 0.95) : null;

@@ -11,6 +11,7 @@
   import { weight } from '../../weight.svelte.js';
   import { fixed, hasMeter, powerRange, POWER_ZONE_NAMES } from './power.js';
   import { t, num, locale } from '../../i18n.svelte.js';
+  import { ftpLabel } from '../../strava/ftpstate.js';
 
   let { act = null, all = [], today = '' } = $props();
 
@@ -29,7 +30,7 @@
     if (kg && wkg(act.wAvg, kg) != null) v.push({ k: 'wkg', b: fixed(wkg(act.wAvg, kg), 1, locale()), s: t('W/kg Ø') });
     if (kg && wkg(act.w20, kg) != null) v.push({ k: 'wkg20', b: fixed(wkg(act.w20, kg), 1, locale()), s: t('W/kg best 20 min') });
     if (act.kj != null) v.push({ k: 'kj', b: `${num(act.kj)} kJ`, s: t('Work|power') });
-    if (ftp) v.push({ k: 'ftp', b: `${ftp} W`, s: t('FTP estimated') });
+    if (ftp) v.push({ k: 'ftp', b: `${ftp} W`, s: t(ftpLabel()) });
     return v;
   });
   const rangeText = (i) => {

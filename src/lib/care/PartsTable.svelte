@@ -106,7 +106,7 @@
   {@const L = r.last ? iconOf(r.last.main, r.part.key) : null}
   <li>
     <button type="button" class="prow" class:late={isDueState(r.st.state)} onclick={(e) => tap(e, r.part.key, r)}>
-      <span class="pn"><span class="nm">{partName(r.part)}</span>{#if r.part.model}<small>{r.part.model}</small>{/if}</span>
+      <span class="pn"><span class="nm">{partName(r.part)}</span>{#if r.part.model}{' '}<small>{r.part.model}</small>{/if}</span>
       {#if q1}
         <span class="lw sp">
           {#if r.start}

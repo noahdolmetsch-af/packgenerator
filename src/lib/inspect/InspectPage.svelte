@@ -22,6 +22,9 @@
   import InspectCard from './InspectCard.svelte';
   import InspectRun from './InspectRun.svelte';
   import EditList from './EditList.svelte';
+  import ShowMore from '../ui/ShowMore.svelte';
+  import { phone } from '../media.svelte.js';
+  import { PHONE_ROWS, capKeep } from '../touren/kurz.js';
 
   let { bikeId = null, level = null } = $props();
 
@@ -33,6 +36,9 @@
   const pointById = $derived(Object.fromEntries(allPoints(insp.list).map((p) => [p.id, p])));
   const set = $derived(bike ? bikeSettings(bike) : null);
   let openId = $state(null);
+  // Gesamttest 21.10.2026 C7: on a phone the newest PHONE_ROWS inspections, then «Show n more»; one not finished always shows.
+  let histAll = $state(false);
+  const histShown = $derived(phone.matches && !histAll ? capKeep(history, PHONE_ROWS, (x) => !x.done) : history);
 
   const STATE_NAME = { ok: 'OK|inspect', watch: 'Watch|inspect', fix: 'Fix myself', shop: 'Bike shop' };
   const count = (x, s) => (x.results ?? []).filter((r) => r.state === s).length;
@@ -85,7 +91,7 @@
       <h2 id="ih-h">{t('History')}</h2>
       {#if history.length}
         <ul class="hist">
-          {#each history as x (x.id)}
+          {#each histShown as x (x.id)}
             <li data-inspection={x.id}>
               <div class="row">
                 <button type="button" class="head" aria-expanded={openId === x.id} onclick={() => (openId = openId === x.id ? null : x.id)}>
@@ -112,6 +118,7 @@
             </li>
           {/each}
         </ul>
+        {#if histShown.length < history.length}<ShowMore n={history.length - histShown.length} onclick={() => (histAll = true)} data-inspect-history-more />{/if}
       {:else}
         <p class="quiet">{t('No inspection yet. Start one above: it is saved here with values and photos.')}</p>
       {/if}

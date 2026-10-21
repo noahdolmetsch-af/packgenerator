@@ -19,12 +19,14 @@
   import { helper } from '../../lib/helper/client.svelte.js';
   import { normAct, tripDays } from '../../lib/flow.js';
   import { homeTrips } from '../../lib/home/heute.js';
+  import { rideTimeS } from '../../lib/review/fmt.js';
   import { PLAN_KEY, planOf, mondayOf, shiftDay, isoWeek, hmm, typeKey } from '../../lib/training.js';
   import { SLEEP_Q, MOOD_Q, weekParam, weekHref, weekFive, weekStrip, weekNotes, weekHighs, weekAhead, diffText, hasAnything, summaryText } from '../../lib/weekreview.js';
   import { localDay } from '../../lib/localday.js';
   import WeekForm from '../../lib/flow/form/WeekForm.svelte';
   import GoalCheck from '../../lib/compass/GoalCheck.svelte'; // Paket N #1047: «Wie läuft's?» for your goals, this week only
   import { t, tn, num, locale } from '../../lib/i18n.svelte.js';
+  import { stravaName } from '../../lib/stravanames.js';
 
   let { params = new URLSearchParams() } = $props();
   const today = localDay();
@@ -88,7 +90,7 @@
   }
 
   /* W4 */
-  const actName = (a) => a.name || t(typeKey(a.type));
+  const actName = (a) => stravaName(a.name) || t(typeKey(a.type));
   const BEST = { km: 'Longest distance', hm: 'Most climbing', time: 'Longest time', w20: 'Best 20 minutes' };
   const bestValue = (b) => (b.key === 'km' ? `${num(b.value)} km` : b.key === 'hm' ? `${num(b.value)} m` : b.key === 'time' ? `${hmm(b.value)} h` : `${num(b.value)} W`);
   const bestWas = (b) => (b.key === 'km' ? `${num(b.was)} km` : b.key === 'hm' ? `${num(b.was)} m` : b.key === 'time' ? `${hmm(b.was)} h` : `${num(b.was)} W`);
@@ -188,7 +190,7 @@
           <h2 id="wr-highs">{t('Highlights')}</h2>
           <ul class="highs">
             {#if highs.longest}
-              <li data-high="longest"><KindIcon kind={highs.longest.kind} size={18} /><span class="hl">{t('Longest activity')}<a href="#/flow/training/a/{encodeURIComponent(highs.longest.id)}">{actName(highs.longest)}</a></span><b class="num">{hmm(highs.longest.movingS)} h{#if highs.longest.km}{' · '}{num(highs.longest.km)} km{/if}</b></li>
+              <li data-high="longest"><KindIcon kind={highs.longest.kind} size={18} /><span class="hl">{t('Longest activity')}<a href="#/flow/training/a/{encodeURIComponent(highs.longest.id)}">{actName(highs.longest)}</a></span><b class="num">{rideTimeS(highs.longest.movingS)}{#if highs.longest.km}{' · '}{num(highs.longest.km)} km{/if}</b></li>
             {/if}
             {#if highs.w20}
               <li data-high="w20"><Zap size={18} aria-hidden="true" /><span class="hl">{t('Best 20 minutes')}<a href="#/flow/training/a/{encodeURIComponent(highs.w20.id)}">{actName(highs.w20)}</a></span><b class="num">{num(highs.w20.w20)} W</b></li>

@@ -333,8 +333,9 @@ export function short(sec) {
   const s = Math.max(0, Math.round(Number(sec) || 0));
   if (s < 60) return { key: '{n} s', vars: { n: s } };
   if (s < 3600 || s % 3600 !== 0) {
-    const h = Math.floor(s / 3600);
-    const m = Math.round((s % 3600) / 60);
+    const all = Math.round(s / 60);
+    const h = Math.floor(all / 60);
+    const m = all % 60;
     if (!h) return { key: '{n} min', vars: { n: m } };
     return m ? { key: '{h} h {m} min', vars: { h, m } } : { key: '{n} h', vars: { n: h } };
   }

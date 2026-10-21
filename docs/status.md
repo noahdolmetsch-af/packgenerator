@@ -4,6 +4,8 @@ Stand: 18. Oktober 2026. Der kurze Überblick steht im [Projektstand](projektsta
 
 ## Aktuell live
 
+**0.177.0 «Wie Strava, nur ruhiger» (21.10.2026, ein Paket für alles nach 0.176):** Tour-Auswertung Lieferung 1+2 (Rückblick und Analyse 1:1 wie Strava, Zeitleiste aus Strava, lesbarer Tourname, Strava-Check #1–#10, Server detail kind 6), Tages-Check mit Datum und Uhrzeit, Gesamttest-Korrekturen C1–C9 mit deutschen Namen, Bausteine › Aufräumen, Ess-Erinnerung. Ohne Mockups gebaut; packgen deployt neu (api/strava.js).
+
 **0.176.1 «Fitbit-Werte kommen an» (21.10.2026, Fehlerbehebung):** Google Health lehnte jeden Fitbit-Wert mit 403 DISALLOWED_OAUTH_SCOPES ab, weil der eine Google-Login auch Mail, Kalender und Drive trägt. Der Server holt für Fitbit jetzt aus dem Refresh-Token einen eigenen Zugang nur mit den Health-Rechten (api/_lib/google.js healthToken, Schlüssel google:tokens:health). Ein Login bleibt für alles. Kein Dexie- oder Backup-Wechsel.
 
 **0.176.0 «Eine Tour, eine Seite» (21.10.2026):** Jede Tour mit fünf Reitern bis zur Auswertung (Tour-Seite), «Fehlt noch» in Planen, Countdown aus einer Quelle (touren/tourstep.js countdownOf, auch Heute), Lernschleife nach der Tour, Fahrt-Analysen in der Tour-Analyse. Dazu «Reste»: Bikepark-Tage, alle Taschen nebeneinander, Formulare mit Fehler am Feld, LibreOffice/RTF in Notizen. Kein Dexie- oder Backup-Wechsel.

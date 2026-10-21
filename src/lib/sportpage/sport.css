@@ -79,9 +79,8 @@
   color: var(--ink);
   text-decoration: none;
   font-size: var(--fs-small);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  min-width: 0;
+  line-height: 1.25;
 }
 .sp .cells {
   display: grid;
@@ -413,6 +412,26 @@
 @media (max-width: 719px) {
   .sp .mrows li {
     grid-template-columns: minmax(70px, 100px) 1fr auto;
+  }
+}
+/* Gesamttest 21.10.2026 (C3): on a phone the name gets its own line above the squares, so it is never cut */
+@media (max-width: 559px) {
+  .sp .mrows li {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas: 'mn mg' 'cells cells';
+    row-gap: 2px;
+  }
+  .sp .mn {
+    grid-area: mn;
+  }
+  .sp .mg {
+    grid-area: mg;
+    flex-direction: row;
+    gap: 6px;
+    align-items: baseline;
+  }
+  .sp .mrows .cells {
+    grid-area: cells;
   }
 }
 /* phone: a block row wraps, its buttons go on a second line instead of past the edge */

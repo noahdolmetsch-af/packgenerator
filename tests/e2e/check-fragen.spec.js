@@ -3,6 +3,7 @@
 // desktop 1440, fictional data (home0460-fixture.js, Friday 9 October 2026, 09:00):
 // CF1 the Morgen-Check window: «Überspringen» puts one question away, the next one moves up;
 // CF2 the morning check page: «Überspringen» hides a question, «wieder zeigen» brings it back;
+// CF1 + CF2 also: the day and the time of the check stand at the top (Noah 21.10.2026, for testing);
 // CF3 Ich › Deine Abfragen › «Fragen und Bereiche bearbeiten»: change a question's text, delete it (ask + Undo,
 //     «Gelöschte Fragen» brings it back), a new question in a group, a new group, rename and delete a group.
 import { test, expect } from '@playwright/test';
@@ -24,6 +25,8 @@ test.describe('Check-Fragen selbst bearbeiten', () => {
     const card = page.locator('[data-section="abfragen"]');
     await expect(card).toHaveJSProperty('open', true);
     await expect(card.locator('.dq')).toHaveCount(3);
+    // Noah 21.10.2026 «immer das datum und die uhrzeit der befragung»: the window names the day and the time
+    await expect(card.locator('[data-ab-when]')).toHaveText(/^Fr\., 9\. Okt\. · 0?9:0\d$/);
     const firstQ = await card.locator('.dq').first().getAttribute('data-q');
     const skip = card.locator(`[data-q="${firstQ}"] [data-ab-skip]`);
     await expect(skip).toHaveText(T('Skip|question'));
@@ -43,6 +46,7 @@ test.describe('Check-Fragen selbst bearbeiten', () => {
     await page.goto('./#/check/morning');
     const sleep = page.locator('[data-q="sleep"]');
     await expect(sleep).toBeVisible();
+    await expect(page.locator('[data-check-when]')).toHaveText(/^Fr\., 9\. Okt\. · 0?9:0\d$/); // the day and the time
     await sleep.locator('[data-skip="sleep"]').click();
     await expect(sleep).toBeHidden();
     const back = page.locator('[data-skip-back]').first();

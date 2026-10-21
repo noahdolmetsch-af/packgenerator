@@ -139,16 +139,16 @@ test('WG morning (was «the morning check»): the round of «Wi gaht\'s?» on He
   await expect(mc).toHaveAttribute('data-part', 'morning');
   await expect(mc).toHaveAttribute('data-done', 'false');
   await expect(mc.getByRole('heading', { name: T('Morning round') })).toBeVisible();
-  await expect(mc).toContainText(T('{n} due now', { n: 4 }));
+  await expect(mc).toContainText(T('{n} questions', { n: 4 }));
   await expect(mc).toContainText(T('Start|check'));
 
   // the morning round on Heute: all four at 07:00 (mood moved from its own 08:00)
   const card = page.locator('[data-section="abfragen"]');
   // Noah 20.10.2026 «2» (changed on purpose): the window asks 3 questions, «Show 1 more question» brings the fourth
-  await expect(card.getByText(T('{n} due now', { n: 3 }))).toBeVisible();
+  await expect(card.getByText(T('{n} questions', { n: 3 }))).toBeVisible();
   await expect(card.locator('[data-q]')).toHaveCount(3);
   await card.locator('[data-ab-more]').click();
-  await expect(card.getByText(T('{n} due now', { n: 4 }))).toBeVisible();
+  await expect(card.getByText(T('{n} questions', { n: 4 }))).toBeVisible();
   for (const qid of ['erholung.schlaf', 'erholung.akku', 'spass.stimmung', 'ziele.ziel']) await expect(card.locator(`[data-q="${qid}"]`)).toContainText('7:00');
   // UI-Ziele #12 (Noah 20.10.2026 «freigabe», changed on purpose): 5 steps with words, stored as 2 … 10
   await card.locator('[data-q="erholung.schlaf"]').getByRole('button', { name: T('okay|step'), exact: true }).click();
@@ -325,6 +325,18 @@ test('«Feste Runden» (was «Deine 15 Fragen»): a switch and the two times on 
   // wait until the switch shows it and the setting is saved, before leaving the page (else a race on a slow runner)
   await expect(on).toBeChecked();
   await expect.poll(async () => (await setting(page, 'abfragen'))?.rounds?.on).toBe(true);
+  // Noah 21.10.2026 (changed on purpose): leaving the open window counts as «Heute nicht», quiet until tomorrow;
+  // that is undone here (as if it were the next day), so the round shows its questions again
+  await page.evaluate(
+    () =>
+      new Promise((res) => {
+        const r = indexedDB.open('pack-generator');
+        r.onsuccess = () => {
+          const st = r.result.transaction('settings', 'readwrite').objectStore('settings');
+          st.put({ key: 'abfragen.snooze', value: {} }).onsuccess = () => (res(), r.result.close());
+        };
+      }),
+  );
   await page.goto('./#/');
   await ready(page);
   await expect(card.locator('[data-q="ziele.ziel"]')).toContainText('7:00');

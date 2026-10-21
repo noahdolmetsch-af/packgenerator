@@ -21,6 +21,9 @@
   import { INSPECT_LIST, normList, areasOf, pointsIn, renamePoint, deletePoint, addPoint, movePoint, setArea, renameArea, addArea, deleteArea, moveArea, changeOwn, listChanged } from './inspect.js';
   import { insp } from './live.svelte.js';
   import { pointName, areaName, levelName } from './names.js';
+  import ShowMore from '../ui/ShowMore.svelte';
+  import { phone } from '../media.svelte.js';
+  import { PHONE_ROWS, capGroups } from '../touren/kurz.js';
 
   const list = $derived(insp.list);
   const areas = $derived(areasOf(list));
@@ -36,6 +39,16 @@
   let renaming = $state(null); // { kind: 'point'|'area', item }
   let deletingArea = $state(null);
   let ownOpen = $state(null);
+  // Gesamttest 21.10.2026 C7: on a phone the areas show their first PHONE_ROWS rows, and the points their first
+  // PHONE_ROWS rows over all areas, each then «Show n more». The rows shown are the first ones of each list, so the
+  // arrows and the drag keep the places of the whole list.
+  let areasAll = $state(false);
+  let pointsAll = $state(false);
+  const areasShown = $derived(phone.matches && !areasAll ? areas.slice(0, PHONE_ROWS) : areas);
+  const groups = $derived([...areas, ...(loose.length ? [{ id: '', std: 'No group', name: null }] : [])].map((a) => ({ a, pts: pointsIn(list, a.id) })));
+  const pointsN = $derived(groups.reduce((s, g) => s + g.pts.length, 0));
+  const groupsShown = $derived(phone.matches && !pointsAll && pointsN > PHONE_ROWS ? capGroups(groups, PHONE_ROWS, 'pts') : groups);
+  const pointsHidden = $derived(pointsN - groupsShown.reduce((s, g) => s + g.pts.length, 0));
 
   async function add(e) {
     e?.preventDefault();
@@ -45,6 +58,7 @@
     offerDone(t('"{name}" added to the checklist.', { name: newName.trim() }));
     newName = '';
     msg = '';
+    pointsAll = true; // the new point shows, also on a phone
   }
   async function addGroup(e) {
     e?.preventDefault();
@@ -54,6 +68,7 @@
     offerDone(t('Area "{name}" added.', { name: newAreaName.trim() }));
     newArea = r.id;
     newAreaName = '';
+    areasAll = true;
     msg = '';
   }
   async function rename(name) {
@@ -100,7 +115,7 @@
 
   <h3>{t('Areas')}</h3>
   <ul class="rows" use:sortable={{ onmove: moveGroup }}>
-    {#each areas as a, i (a.id)}
+    {#each areasShown as a, i (a.id)}
       <li data-sort-id={a.id} data-area-row={a.id}>
         <SortGrip name={areaName(a)} onstep={(dir) => moveGroup(i, i + dir)} />
         <span class="nm">{areaName(a)} <small>{pointsIn(list, a.id).length}</small></span>
@@ -110,25 +125,26 @@
       </li>
     {/each}
   </ul>
+  {#if areasShown.length < areas.length}<ShowMore n={areas.length - areasShown.length} onclick={() => (areasAll = true)} data-areas-more />{/if}
   <form class="addrow" onsubmit={addGroup}>
     <input class="inp" type="text" maxlength="40" aria-label={t('Name of the new area')} placeholder={t('New area, e.g. Bikepacking')} bind:value={newAreaName} data-area-new />
     <button type="submit" class="btn ibtn" data-area-add><Plus size={16} aria-hidden="true" />{t('Add area')}</button>
   </form>
 
-  {#each [...areas, ...(loose.length ? [{ id: '', std: 'No group', name: null }] : [])] as a (a.id)}
-    {@const pts = pointsIn(list, a.id)}
+  {#each groupsShown as { a, pts } (a.id)}
+    {@const n = pointsIn(list, a.id).length}
     <h3>{areaName(a)}</h3>
     {#if pts.length}
       <ul class="rows" use:sortable={{ onmove: (from, to) => moveIn(a.id, from, to) }}>
         {#each pts as p, i (p.id)}
           <li data-sort-id={p.id} data-point-row={p.id}>
             <SortGrip name={pointName(p)} onstep={(dir) => moveIn(a.id, i, i + dir)} />
-            <span class="nm">{pointName(p)}<small>{levelName(p.level)}{p.own ? ` · ${t('own|point')}` : ''}{p.kinds ? ` · ${p.kinds.map((k) => t(k === 'mtb' ? 'Mountain bike' : k === 'road' ? 'Road bike' : 'Gravel|kind')).join(', ')}` : ''}</small></span>
+            <span class="nm">{pointName(p)}{' '}<small>{levelName(p.level)}{p.own ? ` · ${t('own|point')}` : ''}{p.kinds ? ` · ${p.kinds.map((k) => t(k === 'mtb' ? 'Mountain bike' : k === 'road' ? 'Road bike' : 'Gravel|kind')).join(', ')}` : ''}</small></span>
             <select class="inp asel" aria-label={t('Area of {name}', { name: pointName(p) })} value={a.id} onchange={(e) => putIn(p, e.currentTarget.value)} data-point-area>
               {#each areas as x (x.id)}<option value={x.id}>{areaName(x)}</option>{/each}
               <option value="">{t('No group')}</option>
             </select>
-            <SortArrows name={pointName(p)} {i} n={pts.length} onstep={(dir) => moveIn(a.id, i, i + dir)} />
+            <SortArrows name={pointName(p)} {i} {n} onstep={(dir) => moveIn(a.id, i, i + dir)} />
             {#if p.own}<button type="button" class="ib" aria-label={t('Note and link of {name}', { name: pointName(p) })} aria-expanded={ownOpen === p.id} onclick={() => (ownOpen = ownOpen === p.id ? null : p.id)}><LinkIcon size={16} aria-hidden="true" /></button>{/if}
             <button type="button" class="ib" aria-label={t('Rename {name}', { name: pointName(p) })} onclick={() => (renaming = { kind: 'point', item: p })} data-point-rename><Pencil size={16} aria-hidden="true" /></button>
             <button type="button" class="ib" aria-label={t('Delete {name}', { name: pointName(p) })} onclick={() => removePoint(p)} data-point-delete><Trash2 size={16} aria-hidden="true" /></button>
@@ -146,6 +162,7 @@
       <p class="quiet">{t('No points in this area.')}</p>
     {/if}
   {/each}
+  {#if pointsHidden > 0}<ShowMore n={pointsHidden} onclick={() => (pointsAll = true)} data-points-more />{/if}
 
   <h3>{t('Add your own point')}</h3>
   <form class="addform" onsubmit={add}>

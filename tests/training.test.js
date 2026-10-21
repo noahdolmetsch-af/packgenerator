@@ -88,7 +88,7 @@ describe('the server', () => {
     expect(curve.length).toBe(120);
     expect(curve[0]).toEqual([0, 120]);
     expect(curve.at(-1)[1]).toBe(150);
-    expect(trimStreams(null)).toEqual({ hist: null, curve: [], w20: null, pHist: null, p25: null, pCurve: null, pauses: null, hCurve: null });
+    expect(trimStreams(null)).toEqual({ hist: null, curve: [], w20: null, pHist: null, p25: null, pCurve: null, np: null, cadMax: null, pauses: null, hCurve: null });
   });
   it('power: Ø and max from Strava, the best 20 minutes from a power meter', () => {
     expect(trimActivity({ id: 1, average_watts: 187.6, max_watts: 612, device_watts: true })).toMatchObject({ wAvg: 188, wMax: 612, wDevice: true });
@@ -123,7 +123,8 @@ describe('the server', () => {
     // a stop of 90 s (moving false), a short one of 20 s (not a break), a gap of 5 min in the data
     const t = Array.from({ length: 600 }, (_, i) => (i < 500 ? i : i + 300));
     const moving = t.map((_, i) => !((i >= 100 && i < 190) || (i >= 300 && i < 320)));
-    expect(pausesOf(t, moving)).toEqual({ n: 2, secs: 90 + 301 });
+    // the stop of 5 min and more is listed with its place (Zeitleiste); without the distance stream no km
+    expect(pausesOf(t, moving)).toEqual({ n: 2, secs: 90 + 301, list: [{ t: 499, at: null, km: null, min: 5 }] });
     expect(pausesOf(null, null)).toBe(null);
     const segs = trimEfforts([{ name: 'test_data_gtp_ Anstieg', moving_time: 412, pr_rank: null }, { name: 'test_data_gtp_ Sprint', elapsed_time: 31, pr_rank: 1, segment: { start_latlng: [47, 8] } }, { name: '', moving_time: 5 }]);
     expect(segs).toEqual([{ name: 'test_data_gtp_ Sprint', s: 31, pr: 1 }, { name: 'test_data_gtp_ Anstieg', s: 412, pr: null }]);
@@ -141,7 +142,7 @@ describe('the fetch keeps every activity', () => {
     const c = async (step, { params = {} } = {}) => {
       log.push([step, params.id]);
       if (step === 'zones') return { ok: true, hr: STRAVA_Z.hr, custom: false };
-      if (step === 'detail') return { ok: true, id: params.id, kcal: 512, desc: 'test_data_gtp_ lockere Runde', hist: { 150: 2800 }, curve: [[0, 140], [48, 152]], pauses: { n: 1, secs: 240 }, segs: [{ name: 'test_data_gtp_ Seeweg', s: 300, pr: 2 }], dv: 4 };
+      if (step === 'detail') return { ok: true, id: params.id, kcal: 512, desc: 'test_data_gtp_ lockere Runde', hist: { 150: 2800 }, curve: [[0, 140], [48, 152]], pauses: { n: 1, secs: 240 }, segs: [{ name: 'test_data_gtp_ Seeweg', s: 300, pr: 2 }], dv: DETAIL_V };
       return { ok: true };
     };
     const now = new Date('2026-10-13T08:00:00Z');

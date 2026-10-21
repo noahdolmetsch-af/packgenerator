@@ -122,6 +122,9 @@ test('b) Logbuch: all trips newest first, filter by year and area, a tap opens t
   await expect(main.getByRole('heading', { level: 1, name: 'Logbuch' })).toBeVisible();
   const log = main.locator('#logbook');
   const rows = log.locator('ul.log > li');
+  // Gesamttest 21.10.2026 (C5): first 10 entries, then «n weitere zeigen»
+  await expect(rows).toHaveCount(10);
+  await log.locator('[data-log-more]').click();
   await expect(rows).toHaveCount(15);
   await expect(rows.first()).toContainText('Abendrunde Hügel');
   await expect(rows.first()).toContainText('42 km');

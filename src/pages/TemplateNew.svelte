@@ -362,6 +362,31 @@
     min-width: 60px;
     white-space: nowrap;
   }
+  /* Gesamttest 21.10.2026 (C1): on the phone the name had too little room and broke mid-word
+     («Verpfle-gung»); items and weight go on a second line under the name */
+  @media (max-width: 559px) {
+    .tick {
+      grid-template-columns: 28px minmax(0, 1fr) auto;
+      grid-template-areas: 'box name name' '. n w';
+      row-gap: 0;
+    }
+    .tick .box {
+      grid-area: box;
+    }
+    .tick .t {
+      grid-area: name;
+    }
+    .tick .n {
+      grid-area: n;
+      text-align: left;
+    }
+    .tick .w {
+      grid-area: w;
+      min-width: 0;
+      color: var(--ink-2);
+      font-size: var(--fs-small);
+    }
+  }
   .disc {
     width: 44px;
     height: 44px;

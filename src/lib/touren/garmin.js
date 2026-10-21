@@ -4,7 +4,8 @@
  * Only what Strava sends; a row without a value is left out, a group without rows too.
  * Pure functions, tested in tests/garmin-analyse.test.js (not src/lib/garmin.js, the Garmin pages of the bike). Observation only.
  */
-import { zoneSecs, powerLoad } from '../training.js';
+import { zoneSecs, powerLoad, pauseSecs } from '../training.js';
+import { ftpLabel } from '../strava/ftpstate.js';
 import { intensity } from '../training/act/power.js';
 import { peakOf, statOf } from './stravaana.js';
 
@@ -55,7 +56,7 @@ export function intensityMinutesOf(a, bounds) {
 
 /**
  * The groups of «Statistiken»: [{ key, name, rows: [{ key, label, v, unit, d, kind }] }].
- * kind 'clock' = a duration in seconds, 'text' = v is already a text; otherwise a number with d decimals.
+ * kind 'clock' = a duration in seconds, 'dhms' = the same as dd:hh:mm:ss (elapsed time and pauses, Noah 21.10.2026), 'text' = v is already a text; otherwise a number with d decimals.
  * o: { ser (serOf), ftp, kg, bounds }.
  */
 export function statsOf(a, { ser = null, ftp = null, kg = null, bounds = null } = {}) {
@@ -85,8 +86,8 @@ export function statsOf(a, { ser = null, ftp = null, kg = null, bounds = null } 
       name: 'Timing',
       rows: [
         row('moving', 'Moving time|gc', moving, '', 0, 'clock'),
-        row('elapsed', 'Elapsed time', elapsed, '', 0, 'clock'),
-        row('stops', 'Stops|gc', pos(a.pauses?.secs), '', 0, 'clock'),
+        row('elapsed', 'Elapsed time', elapsed, '', 0, 'dhms'),
+        row('stops', 'Stops|gc', pos(pauseSecs(a)), '', 0, 'dhms'),
       ],
     },
     {
@@ -104,7 +105,7 @@ export function statsOf(a, { ser = null, ftp = null, kg = null, bounds = null } 
         row('np', 'Normalized Power (NP)', np, 'W'),
         row('if', 'Intensity Factor (IF)', ifac, '', 3),
         row('tss', 'Training Stress Score (TSS)', load?.load ?? null, '', 1),
-        row('ftp', 'FTP (estimated)', pos(ftp), 'W'),
+        row('ftp', ftpLabel(), pos(ftp), 'W'),
         row('wkg', 'NP per kg', np && kg ? np / kg : null, 'W/kg', 1),
         row('kj', 'Work', pos(a.kj), 'kJ'),
       ],

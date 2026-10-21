@@ -19,6 +19,7 @@ import { hasBike, domainOf, BIKEPACKING } from '../domains.js';
 import { isEvent } from '../care.js';
 import { tripStats } from '../trips.js';
 import { localDay } from '../localday.js';
+import { pauseSecs } from '../training.js';
 
 const pos = (v) => (typeof v === 'number' && Number.isFinite(v) && v > 0 ? v : null);
 const sum = (list, f) => {
@@ -192,6 +193,37 @@ export function tripFacts({ trips = [], debriefs = [], rides = [], learnings = [
       };
     });
   return [...rows, ...solo].sort((a, b) => (b.start ?? '').localeCompare(a.start ?? '') || (b.rides[0]?.startAt ?? '').localeCompare(a.rides[0]?.startAt ?? '') || a.title.localeCompare(b.title));
+}
+
+/**
+ * Noah 21.10.2026 «2 leere Kacheln (werte fehlen)»: a trip whose rides came from Strava (not uploaded as
+ * GPX) had «– km · – Hm · – h · – km/h» in the Rückblick and «Letzte Fahrt». When the row has no uploaded
+ * ride, its numbers come from the trip's Strava rides (the bike rides among acts; corrected values, `own`,
+ * first). Pauses carry their seconds. → the row, changed only when there are such rides.
+ */
+export function withActs(row, acts = []) {
+  if (!row || (row.rides ?? []).length) return row;
+  const bikes = acts.filter((a) => a && (a.kind === 'bike' || /ride/i.test(a.type ?? '')));
+  const list = bikes.length ? bikes : [];
+  if (!list.length) return row;
+  const v = (a, k, k2 = k) => (a.own && Number.isFinite(a.own[k2]) ? a.own[k2] : a[k]);
+  const km = pos(sum(list, (a) => v(a, 'km')));
+  const gainM = pos(sum(list, (a) => v(a, 'hm')));
+  const movingS = pos(sum(list, (a) => v(a, 'movingS')));
+  const elapsedS = pos(sum(list, (a) => Math.max(Number(a.elapsedS) || 0, Number(v(a, 'movingS')) || 0)));
+  const ps = list.filter((a) => a.pauses?.n > 0);
+  // the pause time as Strava: elapsed minus moving time
+  const secs = ps.reduce((n, a) => n + (pauseSecs(a) ?? 0), 0);
+  return {
+    ...row,
+    km: km != null ? r1(km) : row.km,
+    gainM: gainM != null ? Math.round(gainM) : row.gainM,
+    movingH: movingS != null ? r2(movingS / 3600) : row.movingH,
+    totalH: elapsedS != null ? r2(elapsedS / 3600) : row.totalH,
+    kmh: km && movingS ? r1(km / (movingS / 3600)) : row.kmh,
+    pauses: ps.length ? { n: ps.reduce((n, a) => n + a.pauses.n, 0), min: Math.round(secs / 60), secs } : row.pauses,
+    fromActs: true,
+  };
 }
 
 /** The search of Past trips: every word in the title, bike, place, learnings or the debrief sentence. */

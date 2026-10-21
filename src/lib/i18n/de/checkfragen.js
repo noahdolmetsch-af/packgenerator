@@ -29,6 +29,8 @@ export default {
   'Delete group «{name}»?|questions': 'Bereich «{name}» löschen?',
   '1 question': '1 Frage',
   '{n} questions': '{n} Fragen',
+  '{n} question': '{n} Frage',
+  '«Later» brings this window back in one hour. «Not today» and ✕ close it until tomorrow, without a reminder.': '«Später» zeigt dieses Fenster in einer Stunde wieder. «Heute nicht» und ✕ schliessen es bis morgen, ohne Erinnerung.',
   'The questions stay and show under «{name}».': 'Die Fragen bleiben und stehen unter «{name}».',
   'Your own question goes. Its answers stay in the history.': 'Deine eigene Frage geht. Ihre Antworten bleiben im Verlauf.',
   'The question no longer asks. Its answers stay in the history. «Deleted questions» brings it back.': 'Die Frage kommt nicht mehr. Ihre Antworten bleiben im Verlauf. «Gelöschte Fragen» holt sie zurück.',

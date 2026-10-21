@@ -491,7 +491,7 @@ export function configOf(value) {
 /**
  * WG «Wi gaht's?» takes over the daily check (Noah 14.10.2026 «a) ja, alle drei übernehmen»): two fixed
  * rounds, 07:00 and 20:30. While they are on, a question whose own time is before 11:00 asks at the
- * morning time, one from 18:00 at the evening time; 11:00–17:59 keeps its own time (v0.144.0 RE: the day clock). A suggestion only:
+ * morning time, from 11:00 at the evening time (Noah 21.10.2026 «2a»; 11:00–17:59 kept its own time before). A suggestion only:
  * the rounds can be switched off and both times changed (Ich › «Wi gaht's?» › «Feste Runden»).
  */
 export const ROUNDS = { on: true, morning: '07:00', evening: '20:30' };
@@ -506,14 +506,16 @@ export const setRounds = (cfg, patch = {}) => {
   return { ...c, rounds: roundsOf({ ...c.rounds, ...patch }) };
 };
 /**
- * WG: the time a question asks at with the rounds: before 11:00 the morning, from 18:00 the evening time.
+ * WG: the time a question asks at with the rounds: before 11:00 the morning, from 11:00 the evening time.
  * v0.144.0 RE «Eine Tagesuhr»: the borders of the one day clock (dayclock.js; the morning ended at 12:00 before).
  */
 export function roundTime(time, rounds) {
   const r = roundsOf(rounds);
   const hm = timeOf(time);
   if (!r.on || !hm) return hm;
-  return hm < DAY_FROM ? r.morning : hm >= EVENING_FROM ? r.evening : hm;
+  // Noah 21.10.2026 «1a 2a»: the window comes only at the two rounds; a midday time (11:00–17:59) is asked
+  // in the evening round (it kept its own time before and opened the window at noon)
+  return hm < DAY_FROM ? r.morning : r.evening;
 }
 /** WG: an interval with the rounds applied (several times a day, daily, weekly and monthly alike). */
 export function roundEvery(every, rounds) {
@@ -698,8 +700,24 @@ export function laterStamp(now) {
   const [h, mi] = hm.split(':').map(Number);
   return stampOf(new Date(y, m - 1, dd, h + 1, mi));
 }
-/** «Heute nicht» (was «Jetzt nicht»): every shown question put away until its next time. */
+/** Save's fold: every question not shown put away until its next time. */
 export const snoozeAll = (snooze = {}, due = []) => ({ ...(snooze ?? {}), ...Object.fromEntries(due.map((d) => [d.q.id, d.last ?? d.slot])) });
+
+/*
+ * Noah 21.10.2026 «wenn ein TagesCheck mit ignorieren oder heute nicht geklickt wurde, dass dann nie mehr eine
+ * Erinnerung»: «Heute nicht», ✕ and «Überspringen» put away until the end of the day (not only until the next
+ * time, which brought questions asked several times a day back at noon). After «Heute nicht» or ✕ the window
+ * and every hint on Heute stay quiet the whole day (QUIET_KEY = that day), also for questions due later.
+ */
+export const QUIET_KEY = '_quiet';
+/** The last minute of the stamp's day: a question put away until then comes back tomorrow at its time. */
+export const dayEnd = (now) => `${String(now).slice(0, 10)}T23:59`;
+/** One question skipped: away for the rest of the day. */
+export const skipToday = (snooze = {}, qid, now) => ({ ...(snooze ?? {}), [qid]: dayEnd(now) });
+/** «Heute nicht» / ✕: the shown questions away for the day, and the window quiet until tomorrow. */
+export const quietToday = (snooze = {}, due = [], now) => ({ ...(snooze ?? {}), ...Object.fromEntries(due.map((d) => [d.q.id, dayEnd(now)])), [QUIET_KEY]: String(now).slice(0, 10) });
+/** true when «Heute nicht» or ✕ was tapped on this day (a stamp or a day 'YYYY-MM-DD'). */
+export const isQuiet = (snooze, now) => !!snooze?.[QUIET_KEY] && snooze[QUIET_KEY] === String(now).slice(0, 10);
 
 /* ---------------------------------------------------------------- answers */
 

@@ -151,6 +151,11 @@ export const HANDBOOK = {
     steps: ['Open Gear › Building blocks › «Check building blocks».', 'For each item: keep, out or elsewhere.'],
     example: 'Example: the stove in «Repair» → move it to «Cook».',
   },
+  'f.packcleanup': {
+    on: 'Needs a few items under Gear first.',
+    steps: ['Open Gear › Building blocks › «Tidy up».', 'Check the suggestion: always with you, Repair on a day ride, Light, cold.', 'Tap «Apply»; Undo comes right after.'],
+    example: 'Example: 32 things on every day ride → 9 always with you, Repair as a button.',
+  },
   'f.gearimport': {
     on: 'Needs a gear list as a file (e.g. a spreadsheet export).',
     steps: ['Open the gear import and choose the file.', 'Take the safe rows at once, the others one tap each.'],
@@ -325,6 +330,11 @@ export const HANDBOOK = {
     on: 'Nothing to switch on; results show after about 10 days with a day score.',
     steps: ['Open Me › What is good for me.', 'Read your recipe, what does you good and the good combinations; «How does the app know?» shows the days behind each line.', 'Start a small experiment, set your wished mix, add Neuland, phases or season points.'],
     example: 'Example: «Days with at least 30 min outside: 8 instead of 6».',
+  },
+  'f.namesde': {
+    on: 'Needs items from an import with English names.',
+    steps: ['Open Me › Data and backup › English names.', 'Tap «Take over» for a suggestion, or «Do not suggest».'],
+    example: 'Example: «Food pouch left» → «Verpflegungstasche links».',
   },
   'f.weight': {
     on: 'Nothing to switch on; it is voluntary.',

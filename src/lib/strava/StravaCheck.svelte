@@ -20,6 +20,7 @@
   import { strava, checkRide, autoAssign, undoAutoAssign, autoText, STRAVA_HASH } from './client.svelte.js';
   import StravaChanges from './StravaChanges.svelte';
   import { t, tn, num, dateOf } from '../i18n.svelte.js';
+  import { stravaName } from '../stravanames.js';
 
   let { bikeId = null } = $props();
 
@@ -108,7 +109,7 @@
           {#each list.slice(0, limit) as e (e.id)}
             <li class="card ride" data-ride={e.stravaId}>
               <div class="rh">
-                <span class="m"><b>{#if e.stravaId}<a class="actl" href={actHref(e.stravaId)} data-act-link={e.stravaId}>{e.name || t('Ride')}</a>{:else}{e.name || t('Ride')}{/if}</b><small class="num">{dateOf(e.date)} · {num(e.km)} km</small></span>
+                <span class="m"><b>{#if e.stravaId}<a class="actl" href={actHref(e.stravaId)} data-act-link={e.stravaId}>{stravaName(e.name) || t('Ride')}</a>{:else}{stravaName(e.name) || t('Ride')}{/if}</b><small class="num">{dateOf(e.date)} · {num(e.km)} km</small></span>
                 <span class="chip">{e.gear ? t('Strava bike «{gear}»', { gear: e.gear }) : t('no bike in Strava')}</span>
               </div>
               {#if e.bikeId && bikes.some((b) => b.id === e.bikeId)}
@@ -125,7 +126,7 @@
                 <button type="button" class="lnk" onclick={() => choose(e, null, t('Left out: does not count.'))}>{t('Does not count')}</button>
               </div>
               {#if other === e.id || !e.bikeId}
-                <select class="sel" aria-label={t('Bike for {ride}', { ride: e.name || dateOf(e.date) })} value="" onchange={(ev) => ev.currentTarget.value && choose(e, ev.currentTarget.value, t('{bike}: the ride counts now.', { bike: nameOf(ev.currentTarget.value) }))}>
+                <select class="sel" aria-label={t('Bike for {ride}', { ride: stravaName(e.name) || dateOf(e.date) })} value="" onchange={(ev) => ev.currentTarget.value && choose(e, ev.currentTarget.value, t('{bike}: the ride counts now.', { bike: nameOf(ev.currentTarget.value) }))}>
                   <option value="">{t('Choose a bike')}</option>
                   {#each bikes as b (b.id)}<option value={b.id}>{b.name}</option>{/each}
                 </select>

@@ -31,6 +31,7 @@
   import { SPORT_ICON, sportName, hms, km2, dm, rangeText, monthShort } from '../../lib/flow/garmin/words.js';
   import { localDay } from '../../lib/localday.js';
   import { t, num, locale } from '../../lib/i18n.svelte.js';
+  import { stravaName } from '../../lib/stravanames.js';
 
   let { id = 'bike' } = $props();
   const kind = $derived(id === 'hr' || BODY[id] || isOwnBody(id) ? null : KIND_ORDER.includes(id) ? id : 'other');
@@ -288,7 +289,7 @@
       {#if st.acts.length}
         <ul class="card list">
           {#each st.acts as a (a.id)}
-            <li><a href="#/flow/training/a/{encodeURIComponent(a.id)}" data-stat-act={a.id}><span class="m"><b>{a.name || title}</b><small>{date(a.day)}{a.time ? ` · ${a.time}` : ''}</small></span><span class="v num">{a.km ? `${km2(a.km)} km` : ''}<small>{hms(a.movingS)}</small></span></a></li>
+            <li><a href="#/flow/training/a/{encodeURIComponent(a.id)}" data-stat-act={a.id}><span class="m"><b>{stravaName(a.name) || title}</b><small>{date(a.day)}{a.time ? ` · ${a.time}` : ''}</small></span><span class="v num">{a.km ? `${km2(a.km)} km` : ''}<small>{hms(a.movingS)}</small></span></a></li>
           {/each}
         </ul>
       {:else}

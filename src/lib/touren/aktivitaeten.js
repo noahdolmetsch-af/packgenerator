@@ -15,6 +15,7 @@
  */
 import { activitiesForTrip, kindOf as kindOfType, zoneSecs, powerLoad, byNewest } from '../training.js';
 import { withOwn, rowWithOwn, tourHref } from './tour.js';
+import { stravaName } from '../stravanames.js';
 
 /** 4b: how many rows show at first, and how many more each «Mehr laden» adds. */
 export const PAGE = 20;
@@ -60,7 +61,8 @@ export function actRow(raw, { bounds = null, ftp = null, bikeOf = () => null } =
     day: a.day,
     endDay: a.day,
     time: a.time ?? '',
-    name: a.name || '',
+    // «Strava-Namen schöner» (Noah 21.10.2026 «2a»): Strava's default name in German; the own name wins
+    name: raw?.own?.name ? a.name : stravaName(a.name || ''),
     type: a.type || '',
     kind: a.kind || kindOfType(a.type),
     n: 1,
@@ -210,6 +212,6 @@ export function zoneParts(secs) {
 export function stravaOfTrip(trip, acts = [], kmBook = []) {
   const list = activitiesForTrip(trip, acts, kmBook);
   // 19.10.2026 (answer 1a): each activity opens its own page
-  return { n: list.length, name: list.length === 1 ? list[0].name : '', list: list.map((a) => ({ id: a.id, name: a.name ?? '', day: a.day ?? '' })) };
+  return { n: list.length, name: list.length === 1 ? stravaName(list[0].name) : '', list: list.map((a) => ({ id: a.id, name: stravaName(a.name ?? ''), day: a.day ?? '' })) };
 }
 

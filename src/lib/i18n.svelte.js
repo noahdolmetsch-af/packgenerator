@@ -10,6 +10,7 @@
  * name (item.nameDe) when there is one: use nameOf(item).
  */
 import DE from './i18n/de/index.js';
+import { setNameLang } from './stravanames.js';
 
 const KEY = 'lang';
 /** The browser's own language: German for de, de-CH, de-DE …, else English. */
@@ -27,6 +28,8 @@ const read = () => {
 };
 
 export const lang = $state({ v: typeof window === 'undefined' ? 'en' : read() });
+// stravanames.js reads the language through this (it must stay loadable without runes, see there)
+setNameLang(() => lang.v);
 
 export function setLang(v) {
   lang.v = v === 'de' ? 'de' : 'en';

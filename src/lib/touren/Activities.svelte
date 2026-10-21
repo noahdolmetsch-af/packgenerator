@@ -37,7 +37,7 @@
   import { PAGE, fieldsOf, inPeriodRows, sportCounts, byMonth, zoneParts } from './aktivitaeten.js';
   import { emptyActFilter, normActFilter, filterActs, actChips, withoutActChip, sameActFilter } from './actfilter.js';
   import ActFilterSheet from './ActFilterSheet.svelte';
-  import { n0, n1, hours, dates, monthLong, DASH } from '../review/fmt.js';
+  import { rideTimeS, elapsedS, n0, n1, dates, monthLong, DASH } from '../review/fmt.js';
   import { phone } from '../media.svelte.js';
   import { PHONE_ROWS, ACT_LINE, shortLine, capGroups } from './kurz.js';
   import { ChevronRight, ChevronDown, Tag, ArrowRight, Bike, Backpack, HeartPulse, Info, Activity, SlidersHorizontal, Bookmark, X, Search, Check, ListChecks, Link2, EyeOff, Eye, LayoutGrid } from '@lucide/svelte';
@@ -87,10 +87,10 @@
   const setSaved = (x) => setFilter(sameActFilter(filter, x.f) ? emptyActFilter() : x.f);
 
   /** The label, the value and the unit of each field. */
-  const secs = (s) => hours(s ? s / 3600 : null);
+  const secs = rideTimeS;
   const FIELD = {
     dauer: (r) => [t('Duration|act'), secs(r.dauer), ''],
-    verstr: (r) => [t('Elapsed|col'), secs(r.verstr), ''],
+    verstr: (r) => [t('Elapsed|col'), elapsedS(r.verstr), ''],
     tss: (r) => [t('TSS'), n0(r.tss), ''],
     hf: (r) => [t('Ø HR'), n0(r.hf), t('bpm')],
     hfmax: (r) => [t('Max. HR'), n0(r.hfmax), t('bpm')],

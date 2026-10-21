@@ -15,6 +15,7 @@
   import { hm, localOf, msOf, newId, sameRace, seriesKey, countdown } from './race.js';
   import { raceHref } from './parts.js';
   import { t, tn, isDe, num } from '../i18n.svelte.js';
+  import { stravaName } from '../stravanames.js';
 
   let { ctx } = $props();
   const learnQ = liveQuery(() => db.learnings.toArray());
@@ -237,7 +238,7 @@
       <ul class="rc-list">
         {#each longRides as a (a.id)}
           <li class="rc-row">
-            <span class="rc-row-main"><b>{a.name || a.day}</b><small>{a.day} · {Math.round(a.km)} km · {Math.round(a.hm ?? 0)} m · {hm(a.movingS / 3600)}</small></span>
+            <span class="rc-row-main"><b>{stravaName(a.name) || a.day}</b><small>{a.day} · {Math.round(a.km)} km · {Math.round(a.hm ?? 0)} m · {hm(a.movingS / 3600)}</small></span>
             <button type="button" class="rc-chip" aria-pressed={marked.has(String(a.id))} onclick={() => toggleLoaded(a.id)} data-race-loaded={a.id}>{t('loaded')}</button>
           </li>
         {/each}

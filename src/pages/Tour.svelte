@@ -17,7 +17,8 @@
    */
   import { liveQuery } from 'dexie';
   import { db } from '../lib/db.js';
-  import { t, tn, num, nameOf } from '../lib/i18n.svelte.js';
+  import { t, tn, num, nameOf, locale } from '../lib/i18n.svelte.js';
+  import { stravaName } from '../lib/stravanames.js';
   import { localDay } from '../lib/localday.js';
   import { phone } from '../lib/media.svelte.js';
   import { zones } from '../lib/strava/zones.svelte.js';
@@ -46,6 +47,7 @@
   import RouteChart from '../lib/touren/tour/RouteChart.svelte';
   import { routeSeries, personalLine } from '../lib/touren/tourextra.js';
   import { startPlace, fetchTourWeather, wxSummary } from '../lib/touren/tourwx.js';
+  import { ridesWx, ensureRidesWx } from '../lib/touren/ridewx.js';
   import '../lib/trip/trip.css';
   import TripBand from '../lib/trip/TripBand.svelte';
   import TourAsk from '../lib/touren/tour/TourAsk.svelte';
@@ -64,8 +66,10 @@
   import { askDelete, deleteWithUndo } from '../lib/ui/ask.js';
   import { offerDone, offerRename } from '../lib/ui/rename.svelte.js';
   import { FIELD_HELP } from '../lib/daumen.js';
-  import { n0, n1, hours, dates, DASH } from '../lib/review/fmt.js';
-  import { Route, Pencil, SlidersHorizontal, EyeOff, Eye, Unlink, Trash2, ExternalLink, Activity, Star, Share2, Copy, Map as MapIcon, ImagePlus, X, ChevronRight, Repeat, BookmarkPlus, Plus, LayoutGrid, CloudSun, RefreshCw, Heart } from '@lucide/svelte';
+  import { rideTimeS, elapsedS, n0, n1, dates, DASH } from '../lib/review/fmt.js';
+  import { tidyAllTitles, fileOf, needsTitle } from '../lib/touren/titel.js';
+  import { ask, showNow } from '../lib/remind/ask.svelte.js';
+  import { Route, Pencil, SlidersHorizontal, EyeOff, Eye, Unlink, Trash2, ExternalLink, Activity, Star, Share2, Copy, Map as MapIcon, ImagePlus, X, ChevronRight, Repeat, BookmarkPlus, Plus, LayoutGrid, CloudSun, RefreshCw, Heart, FileText, Bell } from '@lucide/svelte';
 
   let { key = '' } = $props();
   const today = localDay();
@@ -113,10 +117,10 @@
   ]);
 
   /* ---- values ---- */
-  const secs = (s) => hours(s ? s / 3600 : null);
+  const secs = rideTimeS;
   const FIELD = {
     dauer: (r) => [t('Duration|act'), secs(r.dauer), ''],
-    verstr: (r) => [t('Elapsed|col'), secs(r.verstr), ''],
+    verstr: (r) => [t('Elapsed|col'), elapsedS(r.verstr), ''],
     tss: (r) => [t('TSS'), n0(r.tss), ''],
     hf: (r) => [t('Ø HR'), n0(r.hf), t('bpm')],
     hfmax: (r) => [t('Max. HR'), n0(r.hfmax), t('bpm')],
@@ -127,7 +131,7 @@
     wmax: (r) => [t('Max. power'), n0(r.wmax), 'W'],
     w20: (r) => [t('Max. 20 min'), n0(r.w20), 'W'],
   };
-  const KPI_FMT = { km: n1, hm: n0, dauer: (v) => secs(v), verstr: (v) => secs(v), kmh: n1, hf: n0, hfmax: n0, w: n0, tss: n0, n: n0 };
+  const KPI_FMT = { km: n1, hm: n0, dauer: (v) => secs(v), verstr: (v) => elapsedS(v), kmh: n1, hf: n0, hfmax: n0, w: n0, tss: n0, n: n0 };
   const CHANGED_OF = { km: 'km', hm: 'hm', dauer: 'movingS' };
   const isChanged = (k) => (row?.changed ?? []).includes(CHANGED_OF[k]);
   const stravaWas = (k) => {
@@ -147,8 +151,16 @@
   const wx = $derived(d && !d.missing ? (d.kind === 't' ? (d.trip?.wxReal ?? null) : (d.acts.map((a) => a.weather).find((w) => w?.days?.length) ?? null)) : null);
   const wxS = $derived(wxSummary(wx, d?.acts?.length === 1 ? d.acts[0] : null));
   const deg = (a, b) => (a == null ? '' : a === b || b == null ? `${num(a)} °C` : `${num(a)}–${num(b)} °C`);
+  // Strava check #8 (21.10.2026): the measured weather at each ride's start comes first, the same as in the
+  // Rückblick (ridewx.js ridesWx); the day's rain stays from the weather of the days
+  const rwx = $derived(d && !d.missing ? ridesWx(d.acts ?? []) : null);
+  $effect(() => {
+    if (d && !d.missing && d.acts?.length) ensureRidesWx(db, d.acts, today);
+  });
   const wxText = $derived(
-    wxS
+    rwx
+      ? [`${deg(rwx.tmin, rwx.tmax)} ${t('at the start|weather')}`, wxS?.mm != null ? (wxS.mm >= 0.5 ? t('{mm} mm rain', { mm: num(wxS.mm) }) : t('dry')) : rwx.wet ? t('rain') : '', rwx.wmax != null ? t('wind {kmh} km/h', { kmh: rwx.wmin === rwx.wmax ? num(rwx.wmax) : `${num(rwx.wmin)}–${num(rwx.wmax)}` }) : ''].filter(Boolean).join(' · ')
+      : wxS
       ? [wxS.ride ? t('while riding {t}', { t: deg(wxS.ride.tmin, wxS.ride.tmax) }) : deg(wxS.tmin, wxS.tmax), wxS.mm != null ? (wxS.mm >= 0.5 ? t('{mm} mm rain', { mm: num(wxS.mm) }) : t('dry')) : '', wxS.wind != null ? t('wind up to {kmh} km/h', { kmh: num(Math.max(wxS.wind, wxS.gust ?? 0)) }) : ''].filter(Boolean).join(' · ')
       : '',
   );
@@ -258,11 +270,30 @@
       const hid = d.kind === 'a' ? !!d.acts[0]?.hidden : !!d.group?.hidden;
       list.push(hid ? { name: t('Show again'), explain: t('It is in the list again.'), icon: Eye, run: () => setHidden(db, d, false) } : { name: t('Hide'), explain: t('It leaves the list; the filter «Hidden» shows it.'), icon: EyeOff, run: () => hide() });
     }
+    // tour critique 3b (Noah 21.10.2026): the template and reminder questions live here, not on top of the page
+    if (d.kind === 't' && (d.trip?.entries ?? []).length) list.push({ name: t('Save as a template'), explain: t('Your next day ride then starts with New → Plan a trip → From template.'), icon: BookmarkPlus, run: () => asTemplate(false) });
+    if (ask.pending) list.push({ name: t('Remind me|menu'), explain: t('Shall I remind you in future?'), icon: Bell, run: () => showNow() });
+    // tour critique 2b: the file the trip came from, once its name was made readable
+    const file = d.kind === 't' ? fileOf(d.trip) : null;
+    if (file) list.push({ name: t('File|menu'), explain: file, icon: FileText, run: () => copyFile(file) });
     if (d.kind === 'a' && d.partOf && !d.partOf.href.includes('t%3A')) list.push({ name: t('Take out of the tour'), explain: t('It is a tour of its own again.'), icon: Unlink, run: () => takeOut() });
     if (d.kind === 'g') list.push({ name: t('Take apart'), explain: t('The activities stay, each as its own tour.'), icon: Unlink, run: () => remove() });
     if (d.kind === 'a') list.push({ name: t('Open in Strava'), explain: t('The activity on strava.com'), icon: ExternalLink, run: () => window.open(`https://www.strava.com/activities/${encodeURIComponent(d.id)}`, '_blank', 'noopener') });
     if (d.kind !== 'g') list.push({ name: t('Delete'), explain: d.kind === 'a' ? t('Gone from the app; Strava keeps it.') : t('The trip and its packing list go.'), icon: Trash2, run: () => remove() });
     return list;
+  });
+
+  async function copyFile(file) {
+    try {
+      await navigator.clipboard.writeText(file);
+      offerDone(t('File name copied'));
+    } catch {
+      offerDone(file);
+    }
+  }
+  // tour critique 2b: a trip still called like its file gets a readable name once (renamable)
+  $effect(() => {
+    if (d?.kind === 't' && needsTitle(d.trip)) tidyAllTitles(db, { t, loc: locale(), name: stravaName });
   });
 
   async function rename(v) {
@@ -461,7 +492,7 @@
           {#if d.acts.length}
             <ul class="card acts" data-tour-acts>
               {#each d.acts as a (a.id)}
-                <li><a href={tourHref(`a:${a.id}`)}><KindIcon kind={a.own?.kind ?? a.kind} size={16} /><span class="an">{a.own?.name || a.name || t(typeKey(a.type))}</span><span class="tp-muted tp-small num">{dates(a.day)} · {n1(a.own?.km ?? a.km)} km · {n0(a.own?.hm ?? a.hm)} Hm</span><ChevronRight size={16} aria-hidden="true" /></a></li>
+                <li><a href={tourHref(`a:${a.id}`)}><KindIcon kind={a.own?.kind ?? a.kind} size={16} /><span class="an">{a.own?.name || stravaName(a.name) || t(typeKey(a.type))}</span><span class="tp-muted tp-small num">{dates(a.day)} · {n1(a.own?.km ?? a.km)} km · {n0(a.own?.hm ?? a.hm)} Hm</span><ChevronRight size={16} aria-hidden="true" /></a></li>
               {/each}
             </ul>
           {/if}
@@ -537,10 +568,10 @@
         <div class="sh"><h2 id="th-analysis">{t('Analysis|ana')}</h2></div>
         {#if anaActs.length > 1}
           <div class="chips" role="group" aria-label={t('Activity of the analysis')} data-ana-acts>
-            {#each anaActs as a (a.id)}<button type="button" class="tp-chip" aria-pressed={anaAct.id === a.id} onclick={() => (anaId = a.id)}>{a.own?.name || a.name || t(typeKey(a.type))} · {dates(a.day)}</button>{/each}
+            {#each anaActs as a (a.id)}<button type="button" class="tp-chip" aria-pressed={anaAct.id === a.id} onclick={() => (anaId = a.id)}>{a.own?.name || stravaName(a.name) || t(typeKey(a.type))} · {dates(a.day)}</button>{/each}
           </div>
         {/if}
-        <StravaAnalysis a={anaAct} acts={$allActsQ ?? []} bounds={zones.bounds} ftp={anaFtp} kg={anaKg} bike={row.bikeId ? (bikeName[row.bikeId] ?? '') : ''} onkm={anaActs.length === 1 ? (f) => (frac = f) : null} />
+        <StravaAnalysis a={anaAct} acts={$allActsQ ?? []} bounds={zones.bounds} ftp={anaFtp} kg={anaKg} bike={row.bikeId ? (bikeName[row.bikeId] ?? '') : ''} onkm={anaActs.length === 1 ? (f) => (frac = f) : null} map={anaActs.length > 1} />
         <!-- «Fahrt-Analyse als Vorbild» part 3: the ride analyses of Training for the chosen activity (one picker: the chips above) -->
         {#await import('../lib/training/act/ActAnalysesPick.svelte') then m}<m.default ids={[anaAct.id]} />{:catch}{/await}
       </section>

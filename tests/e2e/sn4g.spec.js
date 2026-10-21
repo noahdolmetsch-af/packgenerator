@@ -140,7 +140,8 @@ test('b) every finished trip of the period by month with its values; grey rows k
     await expect(herbst.locator('[data-values]')).toHaveCount(0);
   } else {
     for (const w of ['Moving time|col', 'Elapsed|col', 'Ø pace', 'Ø heart rate', 'Max. heart rate', 'Weather', 'Temp.']) await expect(herbst.locator('[data-values] dt', { hasText: T(w) }).first()).toBeVisible();
-    await expect(herbst.locator('[data-values] dd').first()).toHaveText(/^\d+:\d\d$/);
+    // the riding time with its unit, never like minutes (Noah 21.10.2026); from 24 h on as dd:hh:mm:ss
+    await expect(herbst.locator('[data-values] dd').first()).toHaveText(/^(\d+:\d\d h|\d\d:\d\d:\d\d:\d\d)$/);
     await expect(herbst.locator('[data-no-power]')).toContainText(T('without power values'));
   }
   await expect(herbst.locator('[data-power]')).toHaveCount(0);

@@ -40,6 +40,7 @@ export const PAGE_GROUPS = [
       // v0.32.0 (finding 5, stage 1): the old words (role, worn, every trip, kits) find the new places.
       { id: 'blocks', title: 'Building blocks', href: '#/blocks', icon: 'layers', words: 'building blocks block bausteine baustein sets set standard always with you immer dabei with the night mit nacht to add dazunehmen role rolle every trip jeder tour' },
       // v0.66.0 (Noah 4a): one block after the other, keep / out / elsewhere.
+      { id: 'packcleanup', title: 'Tidy up the packing list', href: '#/blocks/aufraeumen', icon: 'layers', words: 'tidy up packing list packliste aufräumen aufraeumen bereinigen zu viel zu lang weniger immer dabei standard reparatur tagestour licht stirnlampe kalt sehr kalt eisig kälte' },
       { id: 'blockcheck', title: 'Check building blocks', href: '#/blocks/check', icon: 'layers', words: 'check building blocks bausteine prüfen pruefen review blocks aufräumen tidy' },
       // v0.42.0 (Noah 1): the clothing by layer and body zone.
       // Paket H «Packen leichter» (Noah 19.10.2026 «2b», «5 a und b»): supplies with expiry and what is lent out

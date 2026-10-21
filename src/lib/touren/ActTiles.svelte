@@ -8,13 +8,13 @@
   import { t, tn } from '../i18n.svelte.js';
   import KindIcon from '../strava/KindIcon.svelte';
   import TripState from '../ui/TripState.svelte';
-  import { n0, n1, hours, dates, DASH } from '../review/fmt.js';
+  import { rideTimeS, n0, n1, dates, DASH } from '../review/fmt.js';
   import { miniPath } from './tour.js';
   import { typeKey } from '../training.js';
   import { Check } from '@lucide/svelte';
 
   let { rows = [], lineOf = () => [], picking = false, picked = new Set(), onpick } = $props();
-  const secs = (s) => hours(s ? s / 3600 : null);
+  const secs = rideTimeS;
   const when = (r) => (r.n > 1 ? `${dates(r.day, r.endDay)} · ${tn(r.n, '{n} activity', '{n} activities')}` : dates(r.day));
 </script>
 

@@ -26,6 +26,7 @@
   import { localDay } from '../lib/localday.js';
   import { addDays } from '../lib/flow.js';
   import { t, num } from '../lib/i18n.svelte.js';
+  import { stravaName } from '../lib/stravanames.js';
   import '../lib/ich/ich.css';
   import '../lib/abfragen/ab.css';
   import '../lib/bikes/velo-dlg.css';
@@ -153,7 +154,7 @@
                       <a class="act" href={actHref(a.id)} data-act-link={a.id}>
                         <span class="ht num">{a.time || '–'}</span>
                         <span class="ich-ib sm"><Bike size={16} aria-hidden="true" /></span>
-                        <span class="hm"><b>{a.name || t('Activity from Strava')}</b><small class="num">{actLine(a)}</small></span>
+                        <span class="hm"><b>{stravaName(a.name) || t('Activity from Strava')}</b><small class="num">{actLine(a)}</small></span>
                         <span class="ab-src strava"><Bike size={13} aria-hidden="true" />{srcText('strava')}</span>
                         <ChevronRight size={18} aria-hidden="true" />
                       </a>

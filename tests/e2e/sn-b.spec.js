@@ -116,6 +116,9 @@ test('Logbuch: a pill per trip, chips per state, the year as a toggle', async ({
 
   // every trip row has its pill; the chips count them
   const tripRows = page.locator('#logbook a.row');
+  // Gesamttest 21.10.2026 (C5): first 10 entries, then «n weitere zeigen»
+  if (await page.locator('[data-log-more]').count()) await page.locator('[data-log-more]').click();
+  await expect(page.locator('[data-log-more]')).toHaveCount(0);
   const n = await tripRows.count();
   expect(n).toBeGreaterThan(5);
   await expect(page.locator('#logbook a.row [data-state]')).toHaveCount(n);

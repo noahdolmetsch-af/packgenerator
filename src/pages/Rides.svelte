@@ -16,6 +16,7 @@
   import { zones } from '../lib/strava/zones.svelte.js';
   import { zoneSecs, ZONE_NAMES } from '../lib/training.js';
   import { t, tn, num, locale } from '../lib/i18n.svelte.js';
+  import { rideTime } from '../lib/review/fmt.js';
   import { analyseRide, tripsOn, tripFromRide, plannedFor, compareRide, rideLearnings, learningFrom, addToPace, dropFromPace, speedOf, hm, PAUSE_MIN, RIDE_MAX_MB, SHARE_CACHE, SHARE_KEY } from '../lib/gpx.js';
   import { PACE_KEY, PACE_MIN, paceOf, startKey } from '../lib/pace.js';
   import { markSaved, savedNote, seenCard } from '../lib/ridejourney.js';
@@ -450,7 +451,7 @@
   <ul class="stats">
     {#if !skip.includes('km')}<li class="srow"><span>{t('Distance')}</span><b class="num">{num(r.km)} km</b></li>{/if}
     {#if !skip.includes('gain')}<li class="srow"><span>{t('Climbing')}</span><b class="num">{num(r.gainM)} m</b></li>{/if}
-    {#if !skip.includes('moving')}<li class="srow"><span>{t('Moving time')}</span><b class="num">{hm(r.movingH)}</b></li>{/if}
+    {#if !skip.includes('moving')}<li class="srow"><span>{t('Moving time')}</span><b class="num">{rideTime(r.movingH)}</b></li>{/if}
     <li>
       {#if r.pauses.length}
         <details class="pz">
@@ -522,7 +523,7 @@
             <dl class="rv-box rv-tiles nums">
               <div class="rv-tile"><dd><b class="num">{num(ride.km)} km</b></dd><dt><small>{t('Distance')}</small></dt></div>
               <div class="rv-tile"><dd><b class="num">{num(ride.gainM)} m</b></dd><dt><small>{t('Climbing')}</small></dt></div>
-              <div class="rv-tile"><dd><b class="num">{hm(ride.movingH)}</b></dd><dt><small>{t('Moving time')}</small></dt></div>
+              <div class="rv-tile"><dd><b class="num">{rideTime(ride.movingH)}</b></dd><dt><small>{t('Moving time')}</small></dt></div>
               <div class="rv-tile"><dd><b class="num">{speedOf(ride) != null ? `${num(speedOf(ride))} km/h` : '–'}</b></dd><dt><small>{t('Average speed')}</small></dt></div>
               {#if fileHeart ?? heart}<div class="rv-tile" data-file-hr={fileHeart ? '' : undefined}><dd><b class="num">{(fileHeart ?? heart).avg} / {(fileHeart ?? heart).max ?? '–'}</b></dd><dt><small>{t('Heart rate Ø / max · bpm')}</small></dt></div>{/if}
               {#if sens?.cad != null}<div class="rv-tile" data-file-cad><dd><b class="num">{sens.cad}</b></dd><dt><small>{t('Ø cadence')}</small></dt></div>{/if}

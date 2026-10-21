@@ -12,6 +12,7 @@ import { rainOf, coldLayer, isNightEyewear } from './layers.js';
 import { nameOf } from './i18n.svelte.js';
 import { wetHour } from './rainlimit.svelte.js';
 import { valuesOf, waterLh } from './fuel.js';
+import { packRules } from './packrules.svelte.js';
 
 /** A day counts as hot from here (the water card on Unterwegs). Water per hour: the one rule of energie.js / fuel.js. */
 export const HOT_C = 25;
@@ -66,7 +67,10 @@ export function darkTimes(startAt, endAt, place, offsetOf = offsetFor) {
  * against sunset and sunrise at the place (darkTimes). Riding hours that are only assumed do not
  * count. Without a place only a nonstop ride (through the night) counts as dark.
  */
-export function ridesIntoDark(trip, place, offsetOf = offsetFor) {
+export function ridesIntoDark(trip, place, offsetOf = offsetFor, buffer = packRules().darkBuffer) {
+  // «Packliste aufräumen» (Noah 21.10.2026 «3a»): early morning and evening count too: `buffer` minutes
+  // before sunset and after sunrise (0: only between sunset and sunrise, as before).
+  const h = (Number(buffer) || 0) / 60;
   if (!trip?.startDate) return false;
   for (let d = 0; d < stageCount(trip); d++) {
     const st = stage(trip, d);
@@ -75,7 +79,7 @@ export function ridesIntoDark(trip, place, offsetOf = offsetFor) {
       if (isNonstop(trip)) return true;
       continue;
     }
-    if (darkTimes(st.startAt, st.endAt, place, offsetOf).some((n) => n.to > st.startAt && n.from < st.endAt)) return true;
+    if (darkTimes(st.startAt, st.endAt, place, offsetOf).some((n) => (h ? addHours(n.to, h) : n.to) > st.startAt && (h ? addHours(n.from, -h) : n.from) < st.endAt)) return true;
   }
   return false;
 }

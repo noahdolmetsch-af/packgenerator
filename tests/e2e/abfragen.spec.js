@@ -38,7 +38,7 @@ test.describe('AB Deine Abfragen', () => {
     // Noah 19.10.2026 (changed on purpose): Heute no longer starts with the questions; they come as a window
     await expect(card.getByRole('heading', { name: T('Morning check') })).toBeVisible();
     await expect(card).toHaveJSProperty('open', true);
-    await expect(card.getByText(T('{n} due now', { n: 3 }))).toBeVisible();
+    await expect(card.getByText(T('{n} questions', { n: 3 }))).toBeVisible();
     // the battery 1–10 and the weight with the last value
     const akku = card.locator('[data-q="erholung.akku"]');
     await expect(akku.getByText(T('How full is your battery right now?'))).toBeVisible();
@@ -58,8 +58,8 @@ test.describe('AB Deine Abfragen', () => {
     await save.click();
     await expect(card.locator('[data-q="erholung.akku"]')).toHaveCount(0);
     await expect(card.locator('[data-q="koerper.waage"]')).toHaveCount(0);
-    await expect(card.getByText(T('{n} due now', { n: 1 }))).toBeVisible();
-    // «Heute nicht» (was «Jetzt nicht»): the window goes until the next question time
+    await expect(card.getByText(T('{n} question', { n: 1 }))).toBeVisible();
+    // «Heute nicht» (Noah 21.10.2026, changed on purpose): the window stays away for the rest of the day
     await card.locator('[data-ab-today]').click();
     await expect(card).toHaveCount(0);
     await page.reload();

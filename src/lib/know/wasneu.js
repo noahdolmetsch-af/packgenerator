@@ -54,7 +54,7 @@ export const SINCE = {
   'f.custompage': '0.175.0',
   dayride: '0.24.1', blocks: '0.26.0', templates: '0.10.0', gpx: '0.15.0', homeweather: '0.46.0', wxsuggest: '0.15.0', weigh: '0.3.0', fav: '0.19.4', wish: '0.19.2', unused: '0.19.2',
   'f.plan': '0.30.0', 'f.wear': '0.45.0', 'f.onion': '0.42.0', 'f.shop': '0.34.0', 'f.ballast': '0.19.5', 'f.tripbike': '0.19.3', 'f.switch': '0.35.0', 'f.ask': '0.77.0', 'f.wardrobe': '0.42.0', 'f.kit': '0.45.0',
-  'f.lighter': '0.63.0', 'f.select': '0.24.1', 'f.merge': '0.37.1', 'f.blockcheck': '0.66.0', 'f.gearimport': '0.36.0',
+  'f.lighter': '0.63.0', 'f.select': '0.24.1', 'f.merge': '0.37.1', 'f.blockcheck': '0.66.0', 'f.packcleanup': '0.177.0', 'f.namesde': '0.177.0', 'f.gearimport': '0.36.0',
   bags: '0.5.0', share: '0.16.0', ride: '0.29.0', note: '0.19.3', event: '0.22.1', 'f.basecheck': '0.45.2', 'f.dayblocks': '0.19.5', 'f.evening': '0.34.0', 'f.ridenote': '0.26.0', 'f.finish': '0.20.1',
   debrief: '0.13.0', learn: '0.19.0', pace: '0.19.0', trend: '0.44.0', 'f.unneeded': '0.92.0', 'f.missing': '0.18.1', 'f.upload': '0.41.0', 'f.past': '0.25.1', 'f.logbook': '0.16.0', 'f.learnings': '0.13.0', 'f.best': '0.78.0',
   setup: '0.5.0', care: '0.7.0', order: '0.19.3', receipt: '0.57.0', km: '0.38.0', 'f.kmimport': '0.16.0', 'f.problem': '0.45.2', 'f.workshop': '0.17.0', 'f.equipment': '0.83.0', 'f.bikecompare': '0.57.0',

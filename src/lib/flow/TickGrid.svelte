@@ -81,6 +81,8 @@
     background: var(--paper);
     color: var(--ink-2);
     cursor: pointer;
+    /* Gesamttest 21.10.2026 (C6): above the next tile, so its 44 px tap area is not covered */
+    z-index: 1;
   }
   .more::after {
     content: '';

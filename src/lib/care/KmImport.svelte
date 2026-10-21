@@ -21,6 +21,7 @@
   import KmChips from './KmChips.svelte';
   import Empty from '../ui/Empty.svelte';
   import { t, tn, num, dateOf } from '../i18n.svelte.js';
+  import { stravaName } from '../stravanames.js';
   import { signFor } from '../daumen.js'; // FE13: a sign next to the colour
   import '../ui/fe-seiten.css';
 
@@ -190,7 +191,7 @@
 
 {#snippet bikePick(r, unclear)}
   {@const e = eff(r)}
-  <select class="sel bp" class:none={!e.bikeId} aria-label={t('Bike for {ride}', { ride: r.ride.name || dateOf(r.ride.date) })} value={e.bikeId ?? ''} onchange={(ev) => choose(r.key, { bikeId: ev.currentTarget.value || null, confirm: false })}>
+  <select class="sel bp" class:none={!e.bikeId} aria-label={t('Bike for {ride}', { ride: stravaName(r.ride.name) || dateOf(r.ride.date) })} value={e.bikeId ?? ''} onchange={(ev) => choose(r.key, { bikeId: ev.currentTarget.value || null, confirm: false })}>
     {#if !e.bikeId}<option value="">{t('unclear, please choose')}</option>{/if}
     {#each bikes as b (b.id)}<option value={b.id}>{b.name}</option>{/each}
   </select>
@@ -201,7 +202,7 @@
 {#snippet ride(r, unclear = false)}
   <li class="ir" class:dup={!!dup(r)}>
     <span class="d num">{dateOf(r.ride.date)}</span>
-    <span class="w"><b>{r.ride.name || (r.ride.source === 'fit' ? t('Ride from {unit}', { unit: r.ride.device || t('FIT file') }) : t('Ride'))}</b><small>{detail(r)}</small></span>
+    <span class="w"><b>{stravaName(r.ride.name) || (r.ride.source === 'fit' ? t('Ride from {unit}', { unit: r.ride.device || t('FIT file') }) : t('Ride'))}</b><small>{detail(r)}</small></span>
     <span class="k num">{num(r.ride.km)} km</span>
     <span class="c">
       {#if dup(r)}

@@ -14,8 +14,10 @@
   import ZoneBar from '../../lib/strava/ZoneBar.svelte';
   import { db } from '../../lib/db.js';
   import { zones } from '../../lib/strava/zones.svelte.js';
+  import { rideTimeS } from '../../lib/review/fmt.js';
   import { PLAN_KEY, GOAL_KEY, planOf, goalOf, cleanSession, prunePlan, copyWeek, doneBy, weekNumbers, weeksTo, isoWeek, mondayOf, weekOf, shiftDay, zoneSecs, mainZone, hmm, KIND_NAMES, ZONE_NAMES, typeKey } from '../../lib/training.js';
   import { t, tn, num, locale } from '../../lib/i18n.svelte.js';
+  import { stravaName } from '../../lib/stravanames.js';
   import { localDay } from '../../lib/localday.js';
   import WeekAnalyses from '../../lib/training/week/WeekAnalyses.svelte';
   import AnaSheet from '../../lib/training/AnaSheet.svelte';
@@ -156,7 +158,7 @@
               <span class="chips">
                 {#each done as a (a.id)}
                   {@const z = mainZone(zoneSecs(a.hist, zones.bounds))}
-                  <a class="ch done" href="#/flow/training/a/{encodeURIComponent(a.id)}" data-done={a.id}><KindIcon kind={a.kind} size={14} /><span class="cn">{a.name || t(typeKey(a.type))}</span><span class="num">· {hmm(a.movingS)}</span>{#if z != null}<i class="zt z{z + 1}">Z{z + 1}</i>{/if}<Check size={14} aria-hidden="true" /></a>
+                  <a class="ch done" href="#/flow/training/a/{encodeURIComponent(a.id)}" data-done={a.id}><KindIcon kind={a.kind} size={14} /><span class="cn">{stravaName(a.name) || t(typeKey(a.type))}</span><span class="num">· {rideTimeS(a.movingS)}</span>{#if z != null}<i class="zt z{z + 1}">Z{z + 1}</i>{/if}<Check size={14} aria-hidden="true" /></a>
                 {/each}
                 {#each planned as s (s.id)}
                   {@const by = doneBy(s, done)}

@@ -16,6 +16,26 @@
 
 export const WHATS_NEW = [
   {
+    // v0.177.0 «Wie Strava, nur ruhiger»: one package for everything after 0.176 (Noah 21.10.2026 «alles kommende in ein paket»): Tour-Auswertung deliveries 1+2 (Strava 1:1, Zeitleiste, readable title, Strava check #1–#10), Tages-Check with date and time, Gesamttest fixes C1–C9 + German names, Packliste aufräumen, Ess-Erinnerung; built without mockups
+    version: '0.177.0',
+    date: '2026-10-21',
+    title: 'Like Strava, only calmer',
+    lead: 'Rides like on Strava.',
+    points: [
+      { text: 'Look back like on Strava', href: '#/trips' },
+      { text: 'Daily check with date and time', href: '#/check/morning' },
+      { text: 'Tidy up building blocks', href: '#/blocks/aufraeumen' },
+    ],
+    small: [
+      { box: 'new', text: 'Timeline from Strava with photos' },
+      { box: 'nicer', text: 'Strava names in German' },
+    ],
+    test: [
+      'Open a past trip and tap «Analysis»: the overview looks like on Strava.',
+      'Open Building blocks and tap «Tidy up».',
+    ],
+  },
+  {
     // v0.176.1 «Fitbit holt wieder» (bug fix, 21.10.2026: Google Health refused every value with 403 DISALLOWED_OAUTH_SCOPES because the one Google login also carries Mail, Calendar and Drive; the server now uses an access with only the Health rights)
     version: '0.176.1',
     date: '2026-10-21',

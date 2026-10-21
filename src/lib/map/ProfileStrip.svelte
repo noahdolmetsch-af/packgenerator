@@ -15,7 +15,8 @@
    * nights / snow [{ fromKm, toKm }], marks [{ km }], cursorKm (bindable), etaOf(km) → ms, onmove(km),
    * view (bindable { from, to } or null = whole), onview(view, how) after a zoom, move or selection of yours,
    * follow (bindable) with canFollow: the «Follow map» switch, meKm: your place (live page),
-   * withMap: false where no map is next to it (the route of a planned tour, «Tour planen mit GPX»).
+   * withMap: false where no map is next to it (the route of a planned tour, «Tour planen mit GPX»),
+   * upWhole: the ascent of the whole route when it is known better than the profile (Strava's Hm of a ride).
    * Touch: one finger scrolls the page up and down (touch-action pan-y) and moves sideways; two fingers zoom.
    */
   import { Plus, Minus, Maximize2, ScanLine, Link2 } from '@lucide/svelte';
@@ -40,6 +41,7 @@
     canFollow = false,
     meKm = null,
     withMap = true,
+    upWhole = null,
   } = $props();
 
   const W = 1000;
@@ -56,7 +58,9 @@
   /* ---------- what is drawn ---------- */
   const pts = $derived(f ? slice(f, vf, vt, 600) : []);
   const rg = $derived(f ? rangeOf(f, vf, vt) : null);
-  const ud = $derived(f ? gainOf(f, vf, vt) : { up: 0, down: 0 });
+  const ud0 = $derived(f ? gainOf(f, vf, vt) : { up: 0, down: 0 });
+  // upWhole: the known ascent of the whole route (Strava's, check #7), shown while the whole route is in view
+  const ud = $derived(!v && upWhole != null ? { ...ud0, up: upWhole } : ud0);
   const yr = $derived.by(() => {
     if (!rg) return { lo: 0, hi: 100 };
     const pad = Math.max(8, (rg.hi - rg.lo) * 0.08);

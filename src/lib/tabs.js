@@ -52,7 +52,14 @@ export function tabStatus(trip, { open = 0, debrief = null, today, km = null, en
   const out = {};
   // v0.40.0 (design check): after the trip, planning is over: only ✓ (no "6 open" on a finished trip).
   out.plan = over && entries.length ? { text: '', done: true } : !entries.length ? { text: t('empty'), done: false } : open ? { text: tn(open, '{n} open', '{n} open'), done: false } : { text: t('ready'), done: true };
-  out.pack = entries.length ? { text: `${packed}/${entries.length}`, done: over || (packed === entries.length && readyAll) } : { text: '', done: false };
+  // tour critique 5a (Noah 21.10.2026): after the tour a list not ticked to the end is no longer «✓ 0/73» but a
+  // grey «0 of 73 ticked» without the tick (past); a list ticked to the end stays ✓
+  const allPacked = packed === entries.length;
+  out.pack = !entries.length
+    ? { text: '', done: false }
+    : over && !allPacked
+      ? { text: t('{n} of {m} ticked', { n: packed, m: entries.length }), done: false, past: true }
+      : { text: `${packed}/${entries.length}`, done: over || (allPacked && readyAll) };
   const start = trip?.startDate;
   if (over) out.ride = { text: km ? `${num(Math.round(km))} km` : t('done|step'), done: true };
   else if (start && start <= today && tripEnd(trip) >= today) out.ride = { text: t('Day {n}', { n: daysBetween(start, today) + 1 }), done: false };

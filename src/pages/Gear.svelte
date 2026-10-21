@@ -19,6 +19,7 @@
   import { saveItems, deletePlan, deleteItems, undoBulk, archiveItems } from '../lib/gear/bulk.js';
   import { weighQueue } from '../lib/weigh.js';
   import { STAGED } from '../lib/gear/importdb.js';
+  import { openNames, SKIP_KEY as NAMES_SKIP, NAMES_HASH } from '../lib/namesde.js';
   import FavStar from '../lib/gear/FavStar.svelte';
   import GearRow from '../lib/gear/GearRow.svelte';
   import { tripCount } from '../lib/gear/swipe.js';
@@ -75,6 +76,9 @@
   const lendsQ = liveQuery(() => db.settings.get(LENDS_KEY));
   const lentNow = $derived(lentOut(Array.isArray($lendsQ?.value) ? $lendsQ.value : []));
   const items = $derived($itemsQuery ?? []);
+  // «Englische Namen auf Deutsch» (Noah 21.10.2026 «1a»): English names with a German suggestion, in the ••• menu
+  const namesSkipQ = liveQuery(() => db.settings.get(NAMES_SKIP));
+  const namesN = $derived(openNames(items, Array.isArray($namesSkipQ?.value) ? $namesSkipQ.value : []).length);
   const stats = $derived(gearStats(items));
   // v0.19.2 (Noah 6a, 7a): what the debriefs say about each item.
   const tripsQ = liveQuery(() => db.trips.toArray());
@@ -694,6 +698,7 @@
               <!-- v0.66.0 (Noah 4a): «Bausteine prüfen» -->
               <a href="#/blocks/check">{t('Check building blocks')}</a>
               <a href="#/gear/import">{t('Check import')}{#if $stagedQ}<i class="badge num">{$stagedQ.data?.items?.length || t('Step 2')}</i>{/if}</a>
+              {#if namesN}<a href={NAMES_HASH} data-names-link>{t('English names')}<i class="badge num">{namesN}</i></a>{/if}
               <!-- v0.26.0 (Noah 2b) / v0.42.0: the building blocks and the wardrobe, also in the sub-navigation -->
               <a href="#/blocks">{t('Building blocks')} →</a>
               <a href="#/wardrobe">{t('Wardrobe')} →</a>

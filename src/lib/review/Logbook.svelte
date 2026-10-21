@@ -20,12 +20,12 @@
   import { tripFacts } from './rueckblick.js';
   import { logEntries, logYears, logAreas, logFilter } from './logbook.js';
   import { homeTrips } from '../home/heute.js';
-  import { n0, hours, temps, dates, rainText, DASH } from './fmt.js';
+  import { rideTime, n0, temps, dates, rainText, DASH } from './fmt.js';
   import { domainName } from '../domains.js';
   import { openTrip } from '../nav.js';
   import { localDay } from '../localday.js';
   import { t, tn, num, locale } from '../i18n.svelte.js';
-  import { bestValues, hmm } from '../tripsboard.js';
+  import { bestValues } from '../tripsboard.js';
   import { ChevronRight, CloudRain, Sun, Search, Trophy, Lightbulb, Gauge, Archive, Flag, Star, BookOpen } from '@lucide/svelte';
   import Seg from '../ui/Seg.svelte';
   import TripState from '../ui/TripState.svelte';
@@ -69,6 +69,10 @@
   const clearFilters = () => ((st = 'all'), (bike = 'all'), (area = 'all'));
   const counts = $derived(factCounts(base, states));
   const shown = $derived(base.filter((e) => matchesState(states, e.id, st)));
+  // Gesamttest 21.10.2026 (C5): 12 phone screens with a big import; first 10 entries, then «n weitere zeigen»
+  const LOG_FIRST = 10;
+  let logAll = $state(false);
+  const listed = $derived(logAll || q.trim() ? shown : shown.slice(0, LOG_FIRST));
   const YEARS = $derived([...years.map((y) => ({ key: y, name: y })), { key: 'all', name: t('All|period') }]);
   // v0.109.0 Design-Refresh P6 (T20): the best values of all trips, the same as on Touren
   const best = $derived(data ? bestValues({ trips: data.trips, rides: data.rides, today, period: 'all' }) : null);
@@ -80,7 +84,7 @@
     [
       e.km != null ? `${n0(e.km)} km` : '',
       e.gainM != null ? `${n0(e.gainM)} Hm` : '',
-      e.movingH ? `${hours(e.movingH)} h` : '',
+      e.movingH ? rideTime(e.movingH) : '',
       e.tmin != null || e.tmax != null ? temps(e.tmin, e.tmax) : '',
     ].filter(Boolean);
 
@@ -152,7 +156,7 @@
         <Skeleton rows={4} />
       {:else}
         <ul class="log rv-box">
-          {#each shown as e (e.id)}
+          {#each listed as e (e.id)}
             {@const fs = factsOf(e)}
             {@const wx = rainText(e.rain, e.days)}
             {@const s = states[e.id]}
@@ -196,6 +200,7 @@
             <li class="none"><Empty text={entries.length ? t('Nothing matches.') : t('No entries yet. Every trip and every uploaded ride comes in here.')} action={entries.length ? null : { label: t('Upload ride'), href: '#/debrief/ride' }}>{#if !entries.length}<OwnSpark place="logbook" />{/if}</Empty></li>
           {/each}
         </ul>
+        {#if listed.length < shown.length}<button type="button" class="logmore" onclick={() => (logAll = true)} data-log-more>{t('Show {n} more', { n: shown.length - listed.length })}</button>{/if}
       {/if}
     </div>
   </section>
@@ -215,7 +220,7 @@
         <ul class="rv-box">
           {#if best.longest}<li class="rv-row"><span class="rv-ic" aria-hidden="true"><Trophy size={16} /></span><span class="rv-m"><span class="rv-t">{t('Longest trip')}</span><span class="rv-s">{best.longest.title}{best.longest.days > 1 ? ` · ${tn(best.longest.days, '{n} day', '{n} days')}` : ''}</span></span><b class="rv-v num">{num(best.longest.km)} km</b></li>{/if}
           {#if best.climb}<li class="rv-row"><span class="rv-ic" aria-hidden="true"><Trophy size={16} /></span><span class="rv-m"><span class="rv-t">{t('Most climbing')}</span><span class="rv-s">{best.climb.title}</span></span><b class="rv-v num">{num(best.climb.m)} Hm</b></li>{/if}
-          {#if best.time}<li class="rv-row"><span class="rv-ic" aria-hidden="true"><Trophy size={16} /></span><span class="rv-m"><span class="rv-t">{t('Longest riding time')}</span><span class="rv-s">{best.time.title}</span></span><b class="rv-v num">{hmm(best.time.h)} h</b></li>{/if}
+          {#if best.time}<li class="rv-row"><span class="rv-ic" aria-hidden="true"><Trophy size={16} /></span><span class="rv-m"><span class="rv-t">{t('Longest riding time')}</span><span class="rv-s">{best.time.title}</span></span><b class="rv-v num">{rideTime(best.time.h)}</b></li>{/if}
           {#if best.furthest}<li class="rv-row"><span class="rv-ic" aria-hidden="true"><Trophy size={16} /></span><span class="rv-m"><span class="rv-t">{t('Furthest day')}</span><span class="rv-s">{best.furthest.title}</span></span><b class="rv-v num">{num(best.furthest.km)} km</b></li>{/if}
         </ul>
       </section>
@@ -226,6 +231,18 @@
 {#if renamingEv}<RenameSheet kicker={t('Logbook')} title={t('Rename entry')} value={renamingEv.name ?? ''} onsave={(v) => renameEv(renamingEv, v)} onclose={() => (renamingEv = null)} />{/if}
 
 <style>
+  .logmore {
+    min-height: 44px;
+    margin-top: var(--sp-1);
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--ink);
+    font: inherit;
+    font-weight: 600;
+    text-decoration: underline;
+    cursor: pointer;
+  }
   /* SN2: the search and the year toggle in one line, then the state chips and the area */
   .lbsub {
     margin: -10px 0 16px;

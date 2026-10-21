@@ -52,7 +52,7 @@ test('TR5/TR5b: power, load, power curve and the analyses on one activity', asyn
   await expect(values.locator('[data-val="cad"]')).toContainText('84');
   await expect(values.locator('[data-val="kcal"]')).toContainText('890');
   await expect(values.locator('[data-val="temp"]')).toContainText('14 °C');
-  await expect(values.locator('[data-val="pauses"]')).toContainText('2 · 6 Min');
+  await expect(values.locator('[data-val="pauses"]')).toContainText('2 · 00:00:06:00'); // pauses as dd:hh:mm:ss (Noah 21.10.2026)
   await expect(values.locator('[data-power]')).toHaveCount(0);
 
   // «Leistung» from the power meter, with W/kg from the weight on this device
@@ -81,7 +81,7 @@ test('TR5/TR5b: power, load, power curve and the analyses on one activity', asyn
   await expect(load.locator('[data-load="effort"]')).toContainText('Relative Effort (Strava, aus dem Puls)');
   const pl = powerLoad({ wNorm: 211, movingS: 5760 }, FTP);
   await expect(load.locator('[data-load="power"]')).toContainText(String(pl.load));
-  await expect(load.locator('[data-load="power"]')).toContainText(`Belastung aus Leistung (NP ÷ FTP ${pl.intensity.toFixed(2)} · 1:36 h)`);
+  await expect(load.locator('[data-load="power"]')).toContainText(`TSS aus Leistung (IF ${pl.intensity.toFixed(2)} · 1:36 h)`);
   const curve = page.locator('[data-section="power-curve"] svg');
   await expect(curve).toHaveAttribute('aria-label', 'Leistungskurve: 5 s 584 W, 1 Min 402 W, 5 Min 296 W, 20 Min 248 W, 60 Min 214 W');
   await expect(curve.locator('[data-best]')).toHaveCount(1);

@@ -63,7 +63,9 @@
   import { riddenTrips } from '../lib/trips.js';
   import { planAgain } from '../lib/trip/ending.js';
   import { localDay } from '../lib/localday.js';
+  import { tidyAllTitles } from '../lib/touren/titel.js';
   import { t, tn, num, locale } from '../lib/i18n.svelte.js';
+  import { stravaName } from '../lib/stravanames.js';
   import Help from '../lib/ui/Help.svelte';
   import { FIELD_HELP } from '../lib/daumen.js'; // FE14
   import { Plus, ChevronRight, ChevronDown, Route, Upload, Flag, Star, SlidersHorizontal, Bookmark, X, Zap, ZapOff, Info, Calendar, Backpack, Search, Activity } from '@lucide/svelte';
@@ -77,7 +79,7 @@
   import { rowValues, linesOf, routeMap } from '../lib/review/inzahlen.js';
   import { TOUR_VIEW_KEY } from '../lib/review/pastcols.js';
   import { tourViewOf, bikeOfRow } from '../lib/review/tourzahlen.js';
-  import { n0, n1, hours, temps, dates, monthLong, rainText, DASH } from '../lib/review/fmt.js';
+  import { rideTimeS, elapsedS, n0, n1, temps, dates, monthLong, rainText, DASH } from '../lib/review/fmt.js';
   import { TOURS_KEY, KINDS, toursOf, emptyFilter, normFilter, filterRows, activeChips, withoutChip, kindOf, sameFilter, saveFilter, dropFilter } from '../lib/touren/filter.js';
   import InZahlen from '../lib/review/InZahlen.svelte';
   import PackBand from '../lib/touren/PackBand.svelte';
@@ -273,6 +275,10 @@
   // Tempo (Noah 19.10.2026 «3a»): 20 rows first on every screen, «Show n more» adds 20 at a time; a new
   // filter or period starts at 20 again. Before, every trip and ride was drawn at once.
   let tourLimit = $state(TOUR_ROWS);
+  // tour critique 2b: trips still called like their GPX file get a readable name once (renamable)
+  $effect(() => {
+    untrack(() => tidyAllTitles(db, { t, loc: locale(), name: stravaName }));
+  });
   $effect(() => {
     void [JSON.stringify(filter), st, mode];
     untrack(() => (tourLimit = TOUR_ROWS));
@@ -292,7 +298,7 @@
   const rowHref = (r) => (r.kind === 'trip' && r.trip ? tourHref(`t:${r.trip.id}`) : r.href);
   // «Bewerten» opens the trip's Rückblick; an uploaded ride on its own opens its short one («Kurz bewerten»)
   const rateHref = (r) => (r.kind === 'ride' ? r.href : `#/debrief/${encodeURIComponent(r.id)}`);
-  const secs = (s) => hours(s ? s / 3600 : null);
+  const secs = rideTimeS;
   const hasRide = (v) => !!v && [v.movingS, v.elapsedS, v.kmh, v.hrAvg, v.hrMax].some((x) => x != null);
   const tempOf = (r, v) => (r.tmin != null || r.tmax != null ? temps(r.tmin, r.tmax) : v?.tempAvg != null ? `${v.tempAvg}°` : DASH);
   /** 0.163.0 (2b, Noah «mit weiteren sinnvollen Werten»): the grey line of a Packmodus row, the empty values left out. */
@@ -301,7 +307,7 @@
     return shortLine(
       [
         [t('Moving time|col'), v ? secs(v.movingS) : DASH, ''],
-        [t('Elapsed|col'), v ? secs(v.elapsedS) : DASH, ''],
+        [t('Elapsed|col'), v ? elapsedS(v.elapsedS) : DASH, ''],
         [t('Ø pace'), v ? n1(v.kmh) : DASH, 'km/h'],
         [t('Ø heart rate'), v ? n0(v.hrAvg) : DASH, t('bpm')],
         [t('Max. heart rate'), v ? n0(v.hrMax) : DASH, t('bpm')],
@@ -390,7 +396,7 @@
     <dl class="vg">
       {#if ride}
         {@render cell(t('Moving time|col'), secs(v.movingS))}
-        {@render cell(t('Elapsed|col'), secs(v.elapsedS))}
+        {@render cell(t('Elapsed|col'), elapsedS(v.elapsedS))}
         {@render cell(t('Ø pace'), n1(v.kmh), 'km/h')}
         {@render cell(t('Ø heart rate'), n0(v.hrAvg), t('bpm'))}
         {@render cell(t('Max. heart rate'), n0(v.hrMax), t('bpm'))}
