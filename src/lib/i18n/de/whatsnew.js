@@ -1417,13 +1417,12 @@ export default {
   'Tap Analysis, then the tab Rides: your Strava rides are there.': 'Tippe auf Auswerten, dann auf den Reiter Fahrten: Dort sind deine Strava-Fahrten.',
   // v0.174.0 «Klarer und einheitlich»
   'Clearer and the same everywhere': 'Klarer und einheitlich',
-  'Fewer tabs, one word per thing, and your ticks evaluated like a ride.': 'Weniger Reiter, ein Wort pro Sache, und deine Haken ausgewertet wie eine Fahrt.',
+  'Fewer tabs, one word per thing.': 'Weniger Reiter, ein Wort pro Sache.',
   'Phone: at most four tabs on top, the rest under «More»': 'Handy: höchstens vier Reiter oben, der Rest unter «Mehr»',
   'Evaluate what you tick, like a ride': 'Werte aus, was du abhakst, wie eine Fahrt',
   'Shorter pages, two columns on the computer': 'Kürzere Seiten, zwei Spalten am Computer',
   'One word per thing: Parts, Look back, Trip type': 'Ein Wort pro Sache: Teile, Rückblick, Tourart',
   'Week: Take, Leave out and Not this week with Undo': 'Woche: Übernehmen, Weglassen und Nicht diese Woche mit Rückgängig',
-  'Bike care: report a problem and log work right under «Due now»': 'Velopflege: Problem melden und Arbeit erfassen direkt unter «Jetzt fällig»',
   'On the phone, open Bikes and tap «More» at the top right.': 'Öffne am Handy Velos und tippe oben rechts auf «Mehr».',
   'Open Active › Goals › Evaluate.': 'Öffne Aktiv › Ziele › Auswerten.',
   // v0.173.0 «Suche und eigene Werte»

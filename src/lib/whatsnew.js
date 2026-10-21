@@ -20,7 +20,7 @@ export const WHATS_NEW = [
     version: '0.174.0',
     date: '2026-10-21',
     title: 'Clearer and the same everywhere',
-    lead: 'Fewer tabs, one word per thing, and your ticks evaluated like a ride.',
+    lead: 'Fewer tabs, one word per thing.',
     points: [
       { text: 'Phone: at most four tabs on top, the rest under «More»', href: '#/care' },
       { text: 'Evaluate what you tick, like a ride', href: '#/flow/auswertung' },
@@ -29,7 +29,6 @@ export const WHATS_NEW = [
     small: [
       { box: 'nicer', text: 'One word per thing: Parts, Look back, Trip type' },
       { box: 'nicer', text: 'Week: Take, Leave out and Not this week with Undo', href: '#/week/plan' },
-      { box: 'nicer', text: 'Bike care: report a problem and log work right under «Due now»', href: '#/care' },
     ],
     test: [
       'On the phone, open Bikes and tap «More» at the top right.',
