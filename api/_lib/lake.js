@@ -29,6 +29,13 @@ export const AHEAD_DAYS = 4;
 export const PAGE = 1000;
 export const MAX_PAGES = 6; // 30 days × 144 values = 4320 rows
 export const TIMEOUT_MS = 8000;
+/**
+ * Fix 21.10.2026 (live check of 0.170: forecastNote «timeout»): the Eawag model answers slowly from
+ * the US server (it reads a month file). The preview gets its own, longer time; the city stays fast.
+ */
+export const FORECAST_TIMEOUT_MS = 25000;
+/** A preview fetched once stays usable this long when the next try fails (same server instance). */
+export const FORECAST_KEEP_MS = 12 * 60 * 60 * 1000;
 
 const TZ = 'Europe/Zurich';
 const dayFmt = new Intl.DateTimeFormat('en-CA', { timeZone: TZ, year: 'numeric', month: '2-digit', day: '2-digit' });
@@ -271,14 +278,33 @@ async function getRaw(doFetch, url, timeout) {
   }
 }
 
-// the lake key that worked last (stays while the server instance lives)
+// the lake key that worked last and the last preview (both stay while the server instance lives)
 let knownKey = null;
+let lastForecast = null; // { at: ms, points }
+
+/** For tests: forget the kept key and preview. */
+export function resetForecastMemo() {
+  knownKey = null;
+  lastForecast = null;
+}
 
 /**
  * The model points from midnight today (Zurich) for `ahead` days. → { points, note }: note says in a few
  * words why the preview is empty (shown nowhere in the app, only in the server answer for checking).
  */
-export async function fetchForecastWithNote(doFetch, { now = new Date(), ahead = AHEAD_DAYS, timeout = TIMEOUT_MS } = {}) {
+export async function fetchForecastWithNote(doFetch, opts = {}) {
+  const now = opts.now ?? new Date();
+  const r = await askForecast(doFetch, opts);
+  if (r.points.length) {
+    lastForecast = { at: now.getTime(), points: r.points };
+    return r;
+  }
+  // the last good preview, while it is young enough (its days from today on are still a preview)
+  if (lastForecast && now.getTime() - lastForecast.at < FORECAST_KEEP_MS) return { points: lastForecast.points, note: '', kept: true };
+  return r;
+}
+
+async function askForecast(doFetch, { now = new Date(), ahead = AHEAD_DAYS, timeout = FORECAST_TIMEOUT_MS } = {}) {
   const today = zurichDay(now);
   const start = new Date(`${today}T00:00:00Z`);
   let lake = knownKey ?? LAKE_ID;
@@ -306,8 +332,8 @@ export async function fetchForecastWithNote(doFetch, { now = new Date(), ahead =
         }
         break;
       } catch (err) {
-        note = err?.name === 'AbortError' ? 'timeout' : 'network';
-        break;
+        // a timeout or no network: a second, shorter window would only wait again
+        return { points: [], note: err?.name === 'AbortError' ? 'timeout' : 'network' };
       }
     }
   }
@@ -325,16 +351,17 @@ export async function fetchForecast(doFetch, opts = {}) {
  *     at: ISO of this answer, sources: { measurement: bool, forecast: bool } }
  * Throws only when neither source gave anything.
  */
-export async function lakeNow({ doFetch = (...a) => fetch(...a), now = new Date(), pages = MAX_PAGES, timeout = TIMEOUT_MS } = {}) {
+export async function lakeNow({ doFetch = (...a) => fetch(...a), now = new Date(), pages = MAX_PAGES, timeout = TIMEOUT_MS, forecastTimeout = FORECAST_TIMEOUT_MS } = {}) {
   const today = zurichDay(now);
   const from = addDays(today, -(PAST_DAYS - 1));
   const [rows, points] = await Promise.all([
     // the city's endDate is «before which» (exclusive): ask up to tomorrow, or today's values are missing
     fetchMeasurements(doFetch, { from, to: addDays(today, 1), pages, timeout }).catch(() => null),
-    fetchForecastWithNote(doFetch, { now, timeout }),
+    fetchForecastWithNote(doFetch, { now, timeout: forecastTimeout }),
   ]);
   const forecast = forecastDays(points.points, today);
-  if (!rows?.length && !forecast.length) throw new Error('no lake data');
+  // a kept preview alone is no answer (offline it would replace the stored measurement)
+  if (!rows?.length && (!forecast.length || points.kept)) throw new Error('no lake data');
   return {
     at: now.toISOString(),
     now: rows ? latest(rows) : null,
