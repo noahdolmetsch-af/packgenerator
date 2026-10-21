@@ -34,6 +34,7 @@ export const HOWTO = {
   'f.select': ['Open Gear.', 'Tap «Select» and tick several items.', 'Set the category, bag, archive or a block for all at once.'],
   'f.merge': ['Open one of two duplicate items.', 'At the bottom tap «Merge with …».', 'Choose the other item: both become one.'],
   'f.blockcheck': ['Open Building blocks › Check.', 'Go through one block after the other.', 'For each item: keep, out or elsewhere.'],
+  'f.packcleanup': ['Open Building blocks › Tidy up.', 'Change the suggestion where you want.', 'Tap «Apply».'],
   'f.gearimport': ['Open Gear › Import.', 'Load your list.', 'Take the safe rows; check the others with one tap each.'],
   bags: ['Open Packen of your next trip.', 'Go bag by bag.', 'Tick each item as it goes in.'],
   share: ['Open a trip in Packen.', 'Tap «Print / PDF» or share it as a link.', 'Print it, or save it as PDF.'],

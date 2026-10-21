@@ -1434,4 +1434,9 @@ export default {
   'Choose 30 days, 90 days or the year, and all activities or one.': 'Wähle 30 Tage, 90 Tage oder das Jahr, und alle Aktivitäten oder eine.',
   'Switch to «Your answers» for a check question; «…» on a card hides or moves it.': 'Wechsle zu «Deine Antworten» für eine Check-Frage; «…» auf einer Karte blendet sie aus oder verschiebt sie.',
   'Example: Meditation, 90 days → most often on Tuesday, mostly before 9 o’clock, 8 days in a row as the best run.': 'Beispiel: Meditation, 90 Tage → am häufigsten am Dienstag, meist vor 9 Uhr, 8 Tage am Stück als beste Serie.',
+  // «Packliste aufräumen» (Noah 21.10.2026 «5a»)
+  'Open Gear › Building blocks › «Tidy up».': 'Öffne Material › Bausteine › «Aufräumen».',
+  'Check the suggestion: always with you, Repair on a day ride, Light, cold.': 'Prüfe den Vorschlag: Immer dabei, Reparatur auf Tagestouren, Licht, Kälte.',
+  'Tap «Apply»; Undo comes right after.': 'Tippe «Übernehmen»; gleich danach kommt «Rückgängig».',
+  'Example: 32 things on every day ride → 9 always with you, Repair as a button.': 'Beispiel: 32 Teile auf jeder Tagestour → 9 immer dabei, Reparatur als Knopf.',
 };

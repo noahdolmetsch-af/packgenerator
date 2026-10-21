@@ -43,7 +43,7 @@
   import { assignSet, editSets, renameSetIn, setQtyIn, deleteSet, restoreSetIn } from '../lib/gear/assign.js';
   import { undoBulk } from '../lib/gear/bulk.js';
   import { t, tn, nameOf } from '../lib/i18n.svelte.js';
-  import { Plus, X, Minus, Layers, ChevronRight, UserRound, Scale, ListChecks, Info, CloudRain, CloudSun, Route, MapPin, Hand, Zap, ZapOff, Star, CalendarDays, Waves, Sparkles } from '@lucide/svelte';
+  import { Plus, X, Minus, Layers, ChevronRight, UserRound, Scale, ListChecks, Info, CloudRain, CloudSun, Route, MapPin, Hand, Zap, ZapOff, Star, CalendarDays, Waves, Sparkles, Eraser } from '@lucide/svelte';
   import Help from '../lib/ui/Help.svelte';
   import PathHead from '../lib/ui/PathHead.svelte';
   import ShareBar from '../lib/ui/ShareBar.svelte';
@@ -393,6 +393,8 @@
     <!-- Impeccable runde 2 (Bausteine 2): the button says what it checks; how many wait is the chip under the title -->
     <!-- Impeccable 20.10.2026: one way to the check; the button carries how many wait (the chip under the title is gone) -->
     <Btn icon={ListChecks} label={toCheck ? t('Check building blocks · {n}', { n: checkN }) : t('Check building blocks')} explain={t('One building block after the other: keep, out or elsewhere')} href="#/blocks/check" />
+    <!-- «Packliste aufräumen» (Noah 21.10.2026 «5a»): fewer things that come by themselves, on one page -->
+    <Btn icon={Eraser} label={t('Tidy up')} explain={t('Tidy up the packing list: what comes along by itself')} href="#/blocks/aufraeumen" />
     <Btn kind="hi" icon={Plus} label={t('New building block')} aria-expanded={adding} onclick={startNew} />
   </PathHead>
   <AreaIntro place="blocks" />
