@@ -1043,6 +1043,37 @@ export const HANDBOOK = {
     steps: ['Open Me › My compass and add a goal with a day.', 'Type the steps, one per line: the app spreads the dates.', 'Once a week answer «How is it going?»; boxes keep ideas and resolutions.'],
     example: 'Example: «Ride the Alpenbrevet» by 1 July → 5 steps, one every few weeks.',
   },
+  // Paket NE «Notizen wie Evernote» (Noah 20.10.2026)
+  'f.drawphoto': {
+    on: null,
+    steps: ['Open a photo big, or a note, and tap «Draw».', 'Choose pen, highlighter, arrow, shape or text, a colour and a size.', 'Tap «Done»: the photo shows the drawing, and the lines stay changeable.'],
+    example: 'Example: a photo of the brake → a red circle round the worn pad and the word «new».',
+  },
+  'f.richtext': {
+    on: null,
+    steps: ['Open a note and write in the text field.', 'The buttons above it make bold, a heading, a list, ticks or a table.', '«Write with marks» shows the text with ** and # instead.'],
+    example: 'Example: «Packliste» as a heading, then ticks for tent, stove and gas.',
+  },
+  'f.noteattach': {
+    on: null,
+    steps: ['Open a note and tap «File» or «Scan».', 'Tap a file in the note: the app shows it, a GPX as a small map, a calendar file with «Into my calendar».', 'Below a link «Keep … to read offline» saves the page as text with its pictures.'],
+    example: 'Example: the bill of the bike service as a PDF and the route as a GPX in the note «Jura».',
+  },
+  'f.noteocr': {
+    on: null,
+    steps: ['Open a note with photos or a scanned PDF.', 'Tap «Make text in pictures searchable».', 'Search in Notes for a word from the picture.'],
+    example: 'Example: a photo of a receipt → the search «Bremsbelag» finds the note.',
+  },
+  'f.noteremind': {
+    on: null,
+    steps: ['Open a note and tap «Remind me».', 'Choose the day and the time, then «Set the reminder».', 'With the reminders on the phone switched on, a message comes; in Notes it stays on top until «Done».'],
+    example: 'Example: «Ersatzschlauch kaufen» for Friday 17:00.',
+  },
+  'f.notetrash': {
+    on: null,
+    steps: ['A deleted note goes to Notes › More › Trash and waits there 30 days.', '«Put back» brings it back with its files.', 'In a note «Earlier versions» shows the text from before; «Put this version back» takes it.'],
+    example: 'Example: the packing list was shortened by mistake → «Earlier versions» → yesterday evening → put back.',
+  },
   'f.noteformats': {
     on: null,
     steps: ['Open a note: Photo, Link, Place and Sketch add to it; «Share» sends it to Keep or a chat.', 'New note: «Start from» a template, or the QR button reads a code.', 'Notes › More › Take over from Google Keep: choose the .zip from Google Takeout.'],

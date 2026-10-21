@@ -101,7 +101,8 @@ export default defineConfig({
       workbox: {
         // Everything the app needs is stored on the device at install time.
         // v0.44.1 (AP22): the Latin fonts too (about 350 KB), else offline the app falls back to the system font.
-        globPatterns: ['**/*.{js,css,html,svg,png,webmanifest}', '**/*-latin-*.woff2'],
+        // Paket NE: mjs too (the PDF reader's worker), so PDFs in notes open offline.
+        globPatterns: ['**/*.{js,mjs,css,html,svg,png,webmanifest}', '**/*-latin-*.woff2'],
         // v0.68.0: the one app bundle passed Workbox's default 2 MiB; without this it would not be stored
         // on the device and the app would not start offline. 4 MiB leaves room.
         // v0.135.0 «Paket 2» (Meditation, Timer, Training, Rechnungen): the bundle passed 4 MiB (about 4.4 MB);

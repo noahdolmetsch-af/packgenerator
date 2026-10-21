@@ -38,8 +38,8 @@ export const TOP_HREF = '#/me/news?all&sort=top';
 export const SINCE = {
   // Paket K «Unterwegs»: v0.154.0
   'f.trainhome': '0.154.0', 'f.handlebar': '0.154.0', 'f.glove': '0.154.0', 'f.eatremind': '0.154.0', 'f.departsheet': '0.154.0', 'f.komoottour': '0.154.0', 'f.routeconvert': '0.154.0', 'f.waterfood': '0.154.0', 'f.ready': '0.154.0', 'f.listentip': '0.154.0', 'f.skyplaces': '0.154.0',
-  // Paket VG «Das Velo im Griff» (Noah 20.10.2026): bundler renumbers with the release
-  'f.wetchain': '0.175.0', 'f.wearphotos': '0.175.0', 'f.sellbike': '0.175.0', 'f.bikebox': '0.175.0', 'f.sparestock': '0.175.0', 'f.brandkm': '0.175.0', 'f.springservice': '0.175.0', 'f.chainrotation': '0.175.0',
+  // Paket VG «Das Velo im Griff» (Noah 20.10.2026): v0.172.0
+  'f.wetchain': '0.172.0', 'f.wearphotos': '0.172.0', 'f.sellbike': '0.172.0', 'f.bikebox': '0.172.0', 'f.sparestock': '0.172.0', 'f.brandkm': '0.172.0', 'f.springservice': '0.172.0', 'f.chainrotation': '0.172.0',
   // «Verschleiss» (Noah 20.10.2026): v0.171.0
   'f.partwear': '0.171.0',
   // «Velo-FAQ» Paket 6 (Noah 19.10.2026)
@@ -113,16 +113,16 @@ export const SINCE = {
   'f.travel': '0.155.0',
   // «Diktat und Fragen» (v0.155.0)
   'f.dictate': '0.155.0', 'f.askfurther': '0.155.0', 'f.aiprojects': '0.155.0',
-  // «Erster Start» (v0.171.0)
+  // «Erster Start» (v0.170.0)
   'f.firststart': '0.170.0',
-  // Paket X «Umweg neu planen» (v0.171.0)
+  // Paket X «Umweg neu planen» (v0.170.0)
   'f.reroute': '0.170.0',
   // Paket X/Y parts 2–4 (v0.171.0)
   'f.energy': '0.171.0',
   'f.gpxstops': '0.171.0',
   'f.weather': '0.171.0',
   'f.webcams': '0.171.0',
-  // Paket W «Von der Haustür bis zurück» (v0.171.0)
+  // Paket W «Von der Haustür bis zurück» (v0.170.0)
   'f.arrived': '0.170.0', 'f.planb': '0.170.0', 'f.checkin': '0.170.0', 'f.parked': '0.170.0',
   // Paket Z and SP (v0.171.0)
   'f.breakdown': '0.171.0', 'f.sleepspots': '0.171.0', 'f.postcard': '0.171.0',
@@ -131,10 +131,12 @@ export const SINCE = {
   'f.localai': '0.171.0',
   // «Trainingspläne» (v0.157.0, provisional)
   'f.trainplans': '0.157.0', 'f.feel': '0.157.0',
-  // «Heatmap» (v0.171.0)
+  // «Heatmap» (v0.170.0)
   'f.heatmap': '0.170.0',
   // Paket U4 «Schlafplätze im Rennen» (v0.171.0)
   'f.sleeptonight': '0.171.0', 'f.callhotels': '0.171.0', 'f.powernap': '0.171.0', 'f.sleeplists': '0.171.0', 'f.nightswx': '0.171.0',
+  // Paket NE «Notizen wie Evernote» part 1 (v0.172.0)
+  'f.drawphoto': '0.172.0', 'f.richtext': '0.172.0', 'f.noteattach': '0.172.0', 'f.noteocr': '0.172.0', 'f.noteremind': '0.172.0', 'f.notetrash': '0.172.0',
   // «Tagebuch» (provisional; the bundler sets the version of its release)
   'f.journal': '0.170.0',
 };
