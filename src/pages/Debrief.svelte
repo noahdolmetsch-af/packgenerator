@@ -512,8 +512,6 @@
       <!-- «Mehr Inhalt» (Noah 15.10.2026, 1a–5a): the tip of the day, at the end the fold and the example «Nächstes Mal anders» -->
       <TipLine page="debrief" name={t('Debrief')} />
       <SpurRow {trip} />
-      <!-- Paket Z «Aus jeder Tour lernen»: breakdown, where you slept, the tour postcard -->
-      <LearnCard {trip} {bike} />
       {#if saved}
         <!-- v0.49.0 R1 (drei «A»): the saved Rückblick tells what the trip was (TripSaved.svelte). -->
         <!-- SN2x «SN2 extra»: the whole Rückblick in five groups; «Für nächstes Mal» is stored on the debrief (onpatch) -->
@@ -521,6 +519,8 @@
         {#if heldNote}<UndoToast text={heldNote.text} onundo={undoHeld} />{/if}
         <!-- Paket M: Tour-Tagebuch, Was war neu, Zusatzfragen, Nachricht an dich -->
         <DebriefLernen {trip} {d} {persist} notes={wayNotes} rides={tripRides} />
+        <!-- Paket Z «Aus jeder Tour lernen»: breakdown, where you slept, the tour postcard (below the answers, so the chips stay first) -->
+        <LearnCard {trip} {bike} />
         <PageMore page="debrief" name={t('Debrief')} />
         <PageTiles page="debrief" extrasHint />
       {:else}
@@ -693,6 +693,8 @@
           {#if draft}<DebriefDraft {draft} notes={freeNotes} days={trip.days ?? 1} onlearn={learnFromDraft} onsummary={summaryFromDraft} onclose={() => (draft = null)} />{/if}
         </div>
       </div>
+      <!-- Paket Z «Aus jeder Tour lernen»: below the form, so «What did you not need?» stays the first thing on the page -->
+      <LearnCard {trip} {bike} />
       <PageMore page="debrief" name={t('Debrief')} />
       {/if}
     </div>

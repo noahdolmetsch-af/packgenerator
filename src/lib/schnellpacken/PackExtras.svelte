@@ -98,6 +98,7 @@
 
     <details class="fold" data-two open={isOpen('two')} ontoggle={toggle('two')}>
       <summary><Users size={18} aria-hidden="true" /><span class="lab">{t('Packing for two')}</span><span class="r tp-small tp-muted">{two?.name ? t('with {name}', { name: two.name }) : t('not set')}</span><ChevronRight class="chev" size={16} aria-hidden="true" /></summary>
+      {#if isOpen('two')}
       <div class="body">
         {#if !two?.name}
           <p class="tp-small tp-muted">{t('Share the tent, the stove or the tools: type who comes along, then tap what they carry. Only the name is kept, nothing from the other person.')}</p>
@@ -116,24 +117,29 @@
           <button type="button" class="tp-link" onclick={endTwo}>{t('Pack alone again')}</button>
         {/if}
       </div>
+      {/if}
     </details>
 
     <details class="fold" data-wash open={isOpen('wash')} ontoggle={toggle('wash')}>
       <summary><Shirt size={18} aria-hidden="true" /><span class="lab">{t('In the wash')}</span><span class="r tp-small tp-muted">{washing.length ? tn(washing.length, '{n} piece', '{n} pieces') : t('nothing')}</span><ChevronRight class="chev" size={16} aria-hidden="true" /></summary>
+      {#if isOpen('wash')}
       <div class="body">
         <p class="tp-small tp-muted">{t('Tap the clothes still in the wash. Two days before the trip a reminder comes in Merken.')}</p>
         {#if clothes.length}
           <div class="tp-chips">{#each clothes as r (r.e.itemId)}<button type="button" class="tp-chip" aria-pressed={r.wash} onclick={() => wash(r.item)} data-wash-item={r.item.id}>{nameOf(r.item)}</button>{/each}</div>
         {:else}<p class="tp-small">{t('No clothes on this trip yet.')}</p>{/if}
       </div>
+      {/if}
     </details>
 
     <details class="fold" data-morning open={isOpen('morning')} ontoggle={toggle('morning')}>
       <summary><Sunrise size={18} aria-hidden="true" /><span class="lab">{t('Only on the morning')}</span><span class="r tp-small tp-muted">{morning.length ? tn(morning.length, '{n} item', '{n} items') : t('nothing')}</span><ChevronRight class="chev" size={16} aria-hidden="true" /></summary>
+      {#if isOpen('morning')}
       <div class="body">
         <p class="tp-small tp-muted">{t('Phone, food from the fridge, filled bottles: tap what goes in only on the departure morning. On that morning On the way shows them as a short list. The mark stays with the item for every trip.')}</p>
         <div class="tp-chips">{#each rows as r (r.e.itemId)}<button type="button" class="tp-chip" aria-pressed={!!r.item.morning} onclick={() => morningItem(r.item)} data-morning-item={r.item.id}>{nameOf(r.item)}</button>{/each}</div>
       </div>
+      {/if}
     </details>
 
     {#if !timeOff}

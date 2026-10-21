@@ -119,6 +119,8 @@ test('2 + 3: newest problems on top; the priority changes in two taps, also thro
   await expect(hi).toBeVisible();
   await shot(page, info, 'priority-menu-after');
   for (const b of await menu.getByRole('menuitem').all()) {
+    // 0.171 (Bilder «Fotos hinzufügen», on purpose): 11 answers; on the phone the sheet scrolls to the last ones
+    if (info.project.name === 'phone') await b.evaluate((el) => el.scrollIntoView({ block: 'center' }));
     const free = await b.evaluate((el) => {
       const r = el.getBoundingClientRect();
       const hit = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);

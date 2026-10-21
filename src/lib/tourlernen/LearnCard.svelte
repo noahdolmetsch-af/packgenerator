@@ -101,7 +101,7 @@
   let card = $state(false);
 </script>
 
-<section class="card learn" aria-labelledby="ln-h" data-tour-learn>
+<section class="card tourlearn" aria-labelledby="ln-h" data-tour-learn>
   <h2 id="ln-h" class="sh">{t('For next time')}</h2>
   <p class="tp-small tp-muted sub">{t('A breakdown, a good place to sleep, a postcard: the app brings it back when it fits.')}</p>
 
@@ -162,7 +162,7 @@
 {#if card}{#await import('./PostcardSheet.svelte') then m}<m.default {trip} onclose={() => (card = false)} />{:catch}{/await}{/if}
 
 <style>
-  .learn {
+  .tourlearn {
     padding: 14px 16px;
     margin: 12px 0;
   }
