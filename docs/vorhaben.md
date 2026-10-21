@@ -54,6 +54,8 @@ Durchgehende Grundsätze: Alles ist ein Vorschlag, nie Pflicht, und immer änder
 
 **Nachtrag 21.10.2026 (Ziel «Alltag», Regel «Alles selbst ändern»):** 0.175.0 «Eigene Werte und alle Daten anpassbar» gebaut: eigene Werte und Erinnerungen, eigene Körperwerte, sechs neue Listen, keine Browser-Fragen mehr. Bestandsaufnahme der übrigen Lücken: notes/eigene-werte-alles-anpassbar/bestandsaufnahme.md im Projektordner.
 
+**Nachtrag 20.10.2026 spät (UI-Ziele #5, #8, #10, #18):** Paket «Eine Tour, eine Seite» (0.174) gebaut (Ziele «Touren vorbereiten» und «Aus Touren lernen»): jede Tour mit fünf Reitern bis zur Auswertung, die Lernschleife fragt nach der Tour, was gebraucht wurde, damit das nächste Packen leichter wird.
+
 **Nachtrag 20.10.2026 abends (Brainstorming «1a 2a 3a und b 4b 5a»):** Inhaltspaket A «Tour-Auswertung» gebaut (Ziel «Aus Touren lernen»): Garmin-Werte, Bestwerte 1–20 Minuten, Ruhepuls von Fitbit pro Tour, Punktbild für den Zusammenhang; dazu Profile wie komoot und die Analyse wie Strava und Garmin Connect (Noah «1:1»). Paket B «GPX-Höhenprofil» läuft parallel.
 
 **Nachtrag 19.10.2026 21:15:** Verpflegungsstrategie (Ziel Touren und Rennen vorbereiten): Touren › Verpflegung, Paket 8 (0.160.0), nutzt dessen Ortssuche.

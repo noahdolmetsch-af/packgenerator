@@ -165,7 +165,7 @@ test('d) like Strava: head, Peak Power and the views of the analysis', async ({ 
   await page.goto(`./${key(`a:${A}1`)}`);
   const sa = page.locator('[data-tour-part="analysis"] [data-strava-analysis]');
   await sa.scrollIntoViewIfNeeded();
-  await expect(page.locator('[data-tour-part="analysis"]').getByRole('heading', { name: T('Analysis|ana') })).toBeVisible();
+  await expect(page.locator('[data-tour-part="analysis"]').getByRole('heading', { name: T('Analysis|ana'), exact: true })).toBeVisible();
   await expect(sa.locator('[data-ana-avgmax] tbody th').first()).toHaveText(T('Speed|ana'));
   // Peak Power: the rows from the curve, 5 s first
   await expect(sa.locator('[data-ana-peak] th').first()).toHaveText('5 s');

@@ -12,13 +12,21 @@ import { hasBike } from './domains.js';
 import { readyDone } from './trips.js';
 
 /** The tab names: one name per step, everywhere in the app (Today's buttons too). */
-export const TAB_NAMES = { plan: 'Plan|stage', pack: 'Pack|stage', ride: 'On the way', debrief: 'Debrief' };
+export const TAB_NAMES = { plan: 'Plan|stage', pack: 'Pack|stage', ride: 'On the way', debrief: 'Debrief', analysis: 'Analysis|stage' };
 
 /** The tabs of a trip, in order. */
 export const tabsOf = (trip) => (trip && !hasBike(trip) ? ['plan', 'pack', 'debrief'] : ['plan', 'pack', 'ride', 'debrief']);
 
+/**
+ * «Eine Tour, eine Seite» (UI-Ziele #5, 0.174): the steps as tabs of the one tour, the four work steps and
+ * «Auswertung» (the tour page #/tour/t:<id>: values, map, profile, analysis). «Schritt 2 von 4» still
+ * counts the four work steps (tabsOf).
+ */
+export const stepsOf = (trip) => [...tabsOf(trip), 'analysis'];
+
 /** The address of a tab. */
 export function tabHref(key, trip) {
+  if (key === 'analysis') return `#/tour/${encodeURIComponent(`t:${trip?.id ?? ''}`)}`;
   if (key === 'pack') return '#/pack?day';
   if (key === 'ride') return '#/ride';
   if (key === 'debrief') return `#/debrief/${encodeURIComponent(trip?.id ?? '')}`;

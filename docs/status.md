@@ -104,6 +104,8 @@ Stand: 18. Oktober 2026. Der kurze Überblick steht im [Projektstand](projektsta
 
 ## In Arbeit
 
+**Eine Tour, eine Seite (0.174, Branch claude/tour-auswertung-7qnmfn):** Schrittleiste mit fünf Reitern (Auswertung = Tour-Seite, gleicher Kopf), «Fehlt noch» in Planen, Countdown-Chip und Satz mit Zahl, leere Werte weg, «Fahrt verbinden», Gepäck «n Teile warten auf dein Urteil · Durchgehen», Lernschleife mit einer Frage pro Mal, Fahrt-Analyse Teil 3. Gebaut, geht über den Bündler online.
+
 **Tour-Auswertung mit Garmin-Werten (20.10.2026, Branch claude/tour-auswertung-7qnmfn, auf dem Gepäck-Branch):** Tour-Seite › Werte › «Wie auf dem Garmin»: Stopps, NP, Bestwerte 1/2/5/10/20 Minuten für Leistung und Puls, Ruhepuls von Fitbit am Tour-Tag mit «deinem Normal», Punktbild Ruhepuls gegen NP oder Ø Puls; Server liefert 2- und 10-Minuten-Leistung und die Pulskurve (Detail-Art 4); feinere Kartenlinie beim Öffnen. Dazu Höhen- und Geschwindigkeitsprofil wie komoot in der Übersicht und der neue Teil «Analyse» wie Strava (Kopfwerte, Peak Power, Analyse-Kurven mit Auswahl, Relative Leistung, HF-Zonen, Leistungskurve, Leistungszonen, 25-W-Verteilung, Runden) und wie Garmin Connect (Statistiken, Diagramme, Höhe & Herzfrequenz-Bereiche). Gebaut, geht über den Bündler online.
 
 **Gepäck nachtragen und Tour-Seite persönlicher (20.10.2026, Branch claude/touren-abgeschlossen-61zfat):** Gepäck zu einer Strava-Fahrt nachtragen (wird Packmodus-Tour), Marken, Notizen, Essen und Trinken, Wetter des Tages, Landschaftskopf, persönlicher Satz, Streckenvergleich, Gepäck-Gewicht, Kleidung nach Wetter beim Packen; Gestaltung nach Noahs 7 Punkten. Gebaut, geht über den Bündler online.

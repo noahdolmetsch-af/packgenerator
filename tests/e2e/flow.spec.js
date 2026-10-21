@@ -76,11 +76,11 @@ for (const lang of ['en', 'de']) {
     await tripDlg.getByRole('button', { name: T('Create trip') }).click();
     await expect(tripDlg).toBeHidden();
 
-    // 4. Plan (v0.29.0): the band with the four tabs; a day ride's one orange button packs everything
+    // 4. Plan (v0.29.0): the band with the four tabs (0.176: plus «Auswertung», the tour page); a day ride's one orange button packs everything
     // at once (v0.24.1, Noah 2a); this test goes through Pack bag by bag (the "Pack" tab in the band).
     await expect(page).toHaveURL(/#\/pack/);
     const steps = page.getByRole('navigation', { name: T('Steps of this trip') });
-    await expect(steps.getByRole('link')).toHaveText([T('Plan|stage'), T('Pack|stage'), T('On the way'), T('Debrief')].map((n) => new RegExp(`^${esc(n)}`)));
+    await expect(steps.getByRole('link')).toHaveText([T('Plan|stage'), T('Pack|stage'), T('On the way'), T('Debrief'), T('Analysis|stage')].map((n) => new RegExp(`^${esc(n)}`)));
     const go = page.locator('.trip-band .go');
     await expect(go).toContainText(T("All packed, let's go"));
     await fits('Plan');
