@@ -35,6 +35,8 @@
   import { helper, isSetUp, isOn } from '../helper/client.svelte.js';
   import { addHelperItems } from '../helper/logic.js';
   import { take } from '../nav.js';
+  import EatEvery from '../unterwegs/EatEvery.svelte';
+  import { tripEat } from '../unterwegs/essen.js';
   import { PLAN_KEY, readPlan } from '../assistent/plan.js';
   import OptionButton from '../ui/OptionButton.svelte';
   import KomootRow from '../komoot/KomootRow.svelte'; // SN1b (answer 4a): «Tour aus komoot» next to the templates
@@ -124,6 +126,9 @@
     event: trip ? isEvent(trip) : false,
     // v0.66.0 (Noah 8a): Bivouac + tent; a new trip starts with the tent (as the old "Outdoor (tent, bivvy)").
     tent: trip?.tent !== false, // an older outdoor trip (no field) had the tent
+    // Noah 21.10.2026: the eat reminder on the way, on or off for this tour and how often (essen.js tripEat)
+    eatOn: tripEat(trip).on,
+    eatEvery: tripEat(trip).every,
   };
   let ctx = $state({ ...was });
   const days = $derived(Math.max(1, Number(draft.days) || 1));
@@ -141,7 +146,7 @@
   }
   /** The context fields to store (only for bike trips). */
   // v0.66.0 (Noah 7a, 9a): dark: the ride goes into the dark (Light comes); sets: the ride blocks taken off here.
-  const ctxFields = () => ({ hours: hoursOk ? hoursNum : null, overnight: night, cook: night === 'outdoor' && ctx.cook, tent: night === 'outdoor' && ctx.tent, wx: wxOut, event: ctx.event, dark, ...(isNew && off.length ? { sets: Object.fromEntries(off.map((k) => [k, false])) } : {}), ...(isNew && wxPlace ? { place: wxPlace } : {}) });
+  const ctxFields = () => ({ eat: { on: ctx.eatOn, every: ctx.eatEvery }, hours: hoursOk ? hoursNum : null, overnight: night, cook: night === 'outdoor' && ctx.cook, tent: night === 'outdoor' && ctx.tent, wx: wxOut, event: ctx.event, dark, ...(isNew && off.length ? { sets: Object.fromEntries(off.map((k) => [k, false])) } : {}), ...(isNew && wxPlace ? { place: wxPlace } : {}) });
   // v0.66.0 (Noah 8a): the night as one choice: none, Bivouac, Bivouac + tent, Hotel/hut.
   const choice = $derived(night === 'outdoor' ? (ctx.tent ? 'tent' : 'bivy') : night === 'lodging' ? 'hotel' : night);
   function pickNight(key) {
@@ -597,6 +602,7 @@
       // v0.25.1: weather chosen here is no longer "from the forecast".
       if (ctx.min !== was.min || ctx.max !== was.max || ctx.rain !== was.rain) Object.assign(changes, { wx: f.wx, wxFrom: null });
       if (ctx.event !== was.event) changes.event = ctx.event;
+      if (ctx.eatOn !== was.eatOn || ctx.eatEvery !== was.eatEvery) changes.eat = f.eat;
     }
     const switching = byBike && draft.bikeId !== trip.bikeId;
     const toBike = switching ? $state.snapshot(bike) : null;
@@ -881,6 +887,16 @@
   {#if komootSport(area, bike?.type)}<div class="kmbox"><KomootRow framed sport={komootSport(area, bike?.type)} /></div>{/if}
 {/snippet}
 
+{#snippet eatBox()}
+  <!-- Noah 21.10.2026 «beim erstellen einer tour kann die einstellung ess-erinnerung ein und ausgeschaltet werden
+       und eigene dauer kann eingerichtet werden» -->
+  <fieldset class="ctx" data-trip-eat>
+    <legend class="lbl">{t('Eat reminder')}</legend>
+    <label class="ck"><input type="checkbox" bind:checked={ctx.eatOn} data-trip-eat-on /> {t('Show the eat reminder on the way')}</label>
+    {#if ctx.eatOn}<EatEvery value={ctx.eatEvery} onpick={(n) => (ctx.eatEvery = n)} />{/if}
+    <p class="note small">{t('It only starts when you tap «Start eat reminder» on the way.')}</p>
+  </fieldset>
+{/snippet}
 {#snippet eventBox()}
   <!-- v0.114.0 (answer 5b, B3): the event as a box with its hint; ticked, the block «Rennen» with its items. -->
   <section class="evbox" class:on={ctx.event}>
@@ -1002,6 +1018,7 @@
       </fieldset>
       {#if days > 1}{@render overnight()}{/if}
       {@render weather()}
+      {@render eatBox()}
       {@render eventBox()}
       {@render templatesFold()}{@render komootRow()}
       {@render helperItems()}
@@ -1034,6 +1051,7 @@
         </fieldset>
         {@render overnight()}
         {@render weather()}
+        {@render eatBox()}
         <label class="ck ev"><input type="checkbox" bind:checked={ctx.event} /> {t('Event (race or organised ride)')}</label>
       {/if}
       {#if !isNew}

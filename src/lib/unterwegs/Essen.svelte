@@ -8,13 +8,15 @@
   import { liveQuery } from 'dexie';
   import { db } from '../db.js';
   import { t, num } from '../i18n.svelte.js';
-  import { EAT_KEY, EVERY, eatOf, startEat, nextEat, eaten, snooze, isDue, minutesLeft, SNOOZE_MIN } from './essen.js';
+  import EatEvery from './EatEvery.svelte';
+  import { EAT_KEY, eatOf, startEat, nextEat, eaten, snooze, isDue, minutesLeft, SNOOZE_MIN } from './essen.js';
   import { PUSH_KEY, pushOf } from '../push/schedule.js';
   import { Utensils, Check, Clock, BellRing } from '@lucide/svelte';
   import { softTone } from './ton.js';
   import './unterwegs.css';
 
-  let { tripId = null, until = null, onstate = null } = $props();
+  // plan: this tour's choice from Plan (essen.js tripEat: { on, every }); onplan(patch) changes it
+  let { tripId = null, until = null, onstate = null, plan = null, onplan = null } = $props();
   const eatQ = liveQuery(() => db.settings.get(EAT_KEY));
   const pushQ = liveQuery(() => db.settings.get(PUSH_KEY));
 
@@ -30,6 +32,7 @@
   let every = $state(45);
   $effect(() => {
     if (e) every = e.every;
+    else if (plan?.every) every = plan.every;
   });
   $effect(() => onstate?.({ next: nextEat(e), on: !!e }));
 
@@ -45,6 +48,16 @@
     if (on) softTone();
   };
   const stop = () => save({ ...($eatQ?.value ?? {}), on: false });
+  // Noah 21.10.2026 «ess-erinnerung soll ausgeschaltet werden können»: the whole card can be hidden (it also
+  // stops a running reminder); a small line brings it back. Kept in the same setting (EAT_KEY, hidden).
+  // Switched off for this tour in Plan: hidden here too, unless a reminder already runs.
+  const offHere = $derived(plan?.on === false && !e);
+  const hidden = $derived($eatQ?.value?.hidden === true || offHere);
+  const hide = () => save({ ...($eatQ?.value ?? {}), on: false, hidden: true });
+  const show = () => {
+    if ($eatQ?.value?.hidden) save({ ...$eatQ.value, hidden: false });
+    if (plan?.on === false) onplan?.({ on: true });
+  };
   const ate = () => e && save(eaten(e, Date.now()));
   const later = () => e && save(snooze(e, Date.now()));
   const setEvery = (n) => {
@@ -72,6 +85,9 @@
   const timeOf = (ms) => new Date(ms).toTimeString().slice(0, 5);
 </script>
 
+{#if hidden}
+  <p class="tp-small tp-muted uw-eat-off" data-eat-hidden><Utensils size={16} aria-hidden="true" /> {offHere && $eatQ?.value?.hidden !== true ? t('Eat reminder is off for this tour.') : t('Eat reminder is hidden.')} <button type="button" class="tp-link" onclick={show} data-eat-show>{t('Show|eat')}</button></p>
+{:else}
 <section class="card uw-eat" class:due aria-labelledby="eat-h" data-eat>
   <div class="uw-row">
     <span class="ib" aria-hidden="true"><Utensils size={20} /></span>
@@ -84,6 +100,7 @@
         {:else}{t('No more reminders before the planned end.')}{/if}
       </p>
     </div>
+    <button type="button" class="tp-link hide" onclick={hide} data-eat-hide>{t('Hide|eat')}</button>
   </div>
   {#if due}
     <p class="uw-due" role="alert"><BellRing size={20} aria-hidden="true" /> <b>{t('Time to eat')}</b> <span>{t('A bite now keeps the strength up.')}</span></p>
@@ -92,10 +109,7 @@
       <button type="button" class="btn" onclick={later}><Clock size={18} aria-hidden="true" />{t('In {n} minutes', { n: SNOOZE_MIN })}</button>
     </div>
   {/if}
-  <div class="uw-row acts">
-    <span class="tp-small">{t('Every')}</span>
-    {#each EVERY as n (n)}<button type="button" class="tp-chip" aria-pressed={every === n} onclick={() => setEvery(n)}>{t('{n} min', { n })}</button>{/each}
-  </div>
+  <EatEvery value={every} onpick={setEvery} />
   <label class="tp-small"><input type="checkbox" role="switch" checked={sound} onchange={(ev) => setSound(ev.currentTarget.checked)} data-eat-sound /> {t('Soft tone')}</label>
   <div class="uw-row acts">
     {#if !e}<button type="button" class="btn ink" onclick={start} data-eat-start>{t('Start eat reminder')}</button>
@@ -112,8 +126,19 @@
     {/if}
   </p>
 </section>
+{/if}
 
 <style>
+  .uw-eat-off {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0 0 16px;
+  }
+  .hide {
+    align-self: flex-start;
+    white-space: nowrap;
+  }
   .uw-eat {
     display: grid;
     gap: 10px;

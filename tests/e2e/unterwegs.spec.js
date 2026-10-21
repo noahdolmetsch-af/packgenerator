@@ -94,6 +94,15 @@ test('Unterwegs: eat reminder, ready card and the folds', async ({ page, context
   await expect(eat.locator('[data-eat-sound]')).not.toBeChecked();
   await tap(eat.locator('[data-eat-stop]'), info);
   await expect(eat.locator('[data-eat-start]')).toBeVisible();
+  // Noah 21.10.2026 «ess-erinnerung soll ausgeschaltet werden können»: hide the card, bring it back
+  await tap(eat.locator('[data-eat-start]'), info);
+  await tap(eat.locator('[data-eat-hide]'), info);
+  await expect(eat).toHaveCount(0);
+  await expect(page.locator('[data-eat-hidden]')).toContainText(T('Eat reminder is hidden.'));
+  await page.reload();
+  await expect(page.locator('[data-eat-hidden]')).toBeVisible();
+  await tap(page.locator('[data-eat-show]'), info);
+  await expect(eat.locator('[data-eat-start]')).toBeVisible();
 
   await expect(page.locator('[data-bereit]')).toContainText(T('Ready for today?'));
   await expect(page.locator('[data-komoot-tour] a').first()).toHaveAttribute('href', 'https://www.komoot.com/tour/123456');
@@ -129,4 +138,46 @@ test('Before you leave: emergency numbers, own contact, PDF', async ({ page, con
   const wide = await page.evaluate(() => [...document.querySelectorAll('[data-abfahrt] *')].filter((e) => e.getBoundingClientRect().right > document.documentElement.clientWidth + 1).map((e) => `${e.tagName}.${e.className}`).slice(0, 8));
   expect(wide).toEqual([]);
   expect(await noSideways(page)).toBe(0);
+});
+
+// Noah 21.10.2026 «beim erstellen einer tour kann die einstellung ess-erinnerung ein und ausgeschaltet werden
+// und eigene dauer kann eingerichtet werden»: own minutes on the card, on/off and minutes per tour in Plan.
+test('Unterwegs: eat reminder with own minutes; on or off per tour in Plan', async ({ page, context }, info) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await open(page, context, info);
+  await page.goto('./#/ride');
+  const eat = page.locator('[data-eat]');
+  await tap(eat.locator('[data-eat-own]'), info);
+  await eat.locator('[data-eat-own-min]').fill('25');
+  await eat.locator('[data-eat-own-min]').press('Enter');
+  await eat.locator('[data-eat-own-min]').blur();
+  await tap(eat.locator('[data-eat-start]'), info);
+  await expect(eat).toContainText(T('Next in {n} min · at {time}', { n: 25, time: '09:25' }));
+  await tap(eat.locator('[data-eat-stop]'), info);
+
+  // Plan › Edit trip conditions: off for this tour → hidden on the way; the minutes chosen there are the card's start value
+  const conditions = async () => {
+    await page.goto('./#/pack');
+    await page.getByLabel(T('More: other trip, edit trip, templates, print')).click();
+    await page.getByRole('button', { name: T('Edit trip conditions') }).click();
+  };
+  await conditions();
+  const plan = page.locator('[data-plan-eat]');
+  await expect(plan).toContainText(T('Eat reminder'));
+  await tap(plan.locator('[data-plan-eat-on]'), info);
+  await expect(plan.locator('[data-plan-eat-on]')).not.toBeChecked();
+  const eatOf = () => page.evaluate((id) => new Promise((ok) => { const r = indexedDB.open('pack-generator'); r.onsuccess = () => { const q = r.result.transaction('trips').objectStore('trips').get(id); q.onsuccess = () => (r.result.close(), ok(q.result?.eat ?? null)); }; }), JURA);
+  await expect.poll(eatOf).toMatchObject({ on: false });
+  await page.goto('./#/ride');
+  await expect(page.locator('[data-eat-hidden]')).toContainText(T('Eat reminder is off for this tour.'));
+  await tap(page.locator('[data-eat-show]'), info);
+  await expect(eat.locator('[data-eat-start]')).toBeVisible();
+  await conditions();
+  await expect(plan.locator('[data-plan-eat-on]')).toBeChecked();
+  await tap(plan.getByRole('button', { name: T('{n} min', { n: 60 }) }), info);
+  await page.goto('./#/ride');
+  await expect(eat.getByRole('button', { name: T('{n} min', { n: 60 }) })).toHaveAttribute('aria-pressed', 'true');
+  expect(await noSideways(page)).toBe(0);
+  expect(errors).toEqual([]);
 });
