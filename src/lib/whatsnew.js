@@ -16,6 +16,23 @@
 
 export const WHATS_NEW = [
   {
+    // v0.176.1 «Fitbit holt wieder» (bug fix, 21.10.2026: Google Health refused every value with 403 DISALLOWED_OAUTH_SCOPES because the one Google login also carries Mail, Calendar and Drive; the server now uses an access with only the Health rights)
+    version: '0.176.1',
+    date: '2026-10-21',
+    title: 'Fitbit values arrive',
+    lead: 'Sleep, resting pulse and steps come from Google again.',
+    points: [
+      { text: 'Fitbit: the values come in with «Fetch now»', href: '#/me/fitbit' },
+    ],
+    small: [
+      { box: 'fixed', text: 'One Google login stays enough for everything' },
+    ],
+    test: [
+      'Open Me › Data and backup › Fitbit and tap «Fetch now».',
+      'Last night, resting pulse and steps show with today’s date.',
+    ],
+  },
+  {
     // v0.176.0 «Eine Tour, eine Seite» (UI-Ziele #5, #8, #10, #18, Noah 20.10.2026) + Fahrt-Analyse part 3 + Paket «Reste» (#194, #1038, #1041, #1152); built without mockups
     version: '0.176.0',
     date: '2026-10-21',
