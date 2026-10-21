@@ -7,6 +7,7 @@ import { v0770File } from './v0770-fixture.js';
 import { openData, settle } from './settle.js';
 import { TRANSFORMERS_URL } from '../../src/lib/whisper.js';
 import { LOCAL_MODELS } from '../../src/lib/localai/models.js';
+import { sentOut } from './public-data.js';
 
 const T = (en, vars) => {
   const text = DE[en] ?? en.replace(/\|[a-z]+$/, '');
@@ -110,6 +111,6 @@ test('choose a model, load it on a tap, check the speed, ask in the search witho
   await page.getByRole('dialog').getByRole('button', { name: /Löschen|Delete/ }).click();
   await expect(page.getByRole('button', { name: T('Load to this device') })).toBeVisible();
 
-  expect(out.filter((u) => !u.startsWith('https://api.open-meteo.com/'))).toEqual([]);
+  expect(sentOut(out)).toEqual([]); // only the app's own weather and lake value
   expect(errors).toEqual([]);
 });

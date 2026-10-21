@@ -20,7 +20,9 @@ const BIKE = base.tables.bikes[0];
 const today = () => new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Zurich' });
 // calendar days in Europe/Zurich
 const day = (n) => ((d) => (d.setUTCDate(d.getUTCDate() + n), d.toISOString().slice(0, 10)))(new Date(`${today()}T12:00:00Z`));
-const N = (n) => n.toLocaleString('de-CH');
+// the thousands mark as the browser writes it (Node on GitHub writes ' where Chrome writes ’)
+let SEP = '’';
+const N = (n) => n.toLocaleString('en-US').replace(/,/g, SEP);
 const rep = (date, km) => ({ date, km, value: null, action: 'replace', result: 'done', by: 'self', note: '' });
 // a fictional bike with 2600 km: chain mounted at 1800 km (own limit 1000 km → 800 of 1000, soon), cassette and tyres fine
 Object.assign(BIKE, {
@@ -57,6 +59,7 @@ test.beforeEach(async ({ page, context }, info) => {
   await data.getByLabel(T('Import backup')).setInputFiles(file);
   await data.getByRole('button', { name: T('Replace all data') }).press('Enter');
   await settle(page);
+  SEP = await page.evaluate(() => (1000).toLocaleString('de-CH').charAt(1));
 });
 
 test('chain at a glance in Velopflege, the page with bars, own limit, back to the suggestion, off and back', async ({ page }) => {
