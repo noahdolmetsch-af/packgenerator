@@ -69,7 +69,10 @@ describe('the four trip tabs', () => {
     const last = trip({ startDate: '2026-10-07', entries: entries(14, 7) });
     expect(tabStatus(last, { today: TODAY }).pack).toEqual({ text: '7/14', done: false });
     const s = tabStatus(last, { today: TODAY, km: 184, ended: true });
-    expect(s.pack).toEqual({ text: '7/14', done: true });
+    // tour critique 5a (Noah 21.10.2026): not ticked to the end → grey «7 of 14 ticked» without the tick
+    expect(s.pack).toEqual({ text: '7 of 14 ticked', done: false, past: true });
+    const full = trip({ startDate: '2026-10-07', entries: entries(14, 14) });
+    expect(tabStatus(full, { today: TODAY, ended: true }).pack).toEqual({ text: '14/14', done: true });
     expect(s.ride).toEqual({ text: '184 km', done: true });
     expect(s.debrief).toEqual({ text: 'open', done: false });
   });

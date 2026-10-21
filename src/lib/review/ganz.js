@@ -188,7 +188,48 @@ export const SHORT_PAUSE_MIN = 5;
 const msOf = (iso) => (iso ? Date.parse(iso) : NaN);
 
 /**
- * The timeline of a trip or of one day: [{ kind: 'start' | 'note' | 'pause' | 'end', at, day, km, min, text, n, short }].
+ * Strava rides as rides of the timeline (Noah 21.10.2026 «1 a und b»: the Zeitleiste reads Strava rides too):
+ * start, every pause of 5 minutes and more with its clock time and km, the best times (personal records 1–3) and
+ * climbs at their km, the end, and the photos where they were taken. For a trip without an uploaded ride.
+ * acts: the trip's Strava activities (only rides are taken); → [{ id, date, startAt, totalH, km, name, pauses, marks, photos }].
+ */
+export function stravaRides(acts = []) {
+  return acts
+    .filter((a) => a?.day && (a.kind === 'bike' || /ride/i.test(a.type ?? '')))
+    .map((a) => {
+      const own = a.own ?? {};
+      const startMs = a.start ? Date.parse(a.start) : Date.parse(`${a.day}T${a.time || '00:00'}:00`);
+      const iso = (t, at) => {
+        if (Number.isFinite(startMs) && Number.isFinite(t)) return new Date(startMs + t * 1000).toISOString();
+        return /^\d{2}:\d{2}$/.test(at ?? '') ? new Date(`${a.day}T${at}:00`).toISOString() : null;
+      };
+      const km = Number(own.km ?? a.km) || 0;
+      const totalS = Math.max(Number(a.elapsedS) || 0, Number(own.movingS ?? a.movingS) || 0);
+      const seen = new Set();
+      const best = (Array.isArray(a.segs) ? a.segs : [])
+        .filter((x) => x?.pr >= 1 && x.pr <= 3 && x.from != null)
+        .map((x) => ({ kind: 'best', at: iso(x.t, x.at), km: x.from, name: x.name, s: x.s, pr: x.pr }));
+      const climbs = (Array.isArray(a.climbs) ? a.climbs : []).filter((x) => x?.from != null).map((x) => ({ kind: 'climb', at: iso(x.t, x.at), km: x.from, name: x.name, s: x.s, len: x.km, grade: x.grade, hm: x.hm }));
+      // a climb that is also a best time shows once, as the best time
+      const marks = [...best, ...climbs].filter((m) => m.at && !seen.has(m.name) && seen.add(m.name));
+      return {
+        id: `strava-${a.id}`,
+        actId: a.id,
+        date: a.day,
+        startAt: iso(0, a.time),
+        totalH: totalS ? totalS / 3600 : null,
+        km,
+        name: a.name ?? '',
+        pauses: (Array.isArray(a.pauses?.list) ? a.pauses.list : []).map((p) => ({ at: iso(p.t, p.at), km: p.km ?? null, min: p.min ?? null })).filter((p) => p.at),
+        marks,
+        photos: (Array.isArray(a.photos) ? a.photos : []).map((p) => ({ at: iso(p.t, p.at), km: p.km ?? null, url: p.url, caption: p.caption ?? '' })).filter((p) => p.at && p.url),
+      };
+    });
+}
+
+/**
+ * The timeline of a trip or of one day: [{ kind: 'start' | 'note' | 'pause' | 'best' | 'climb' | 'photo' | 'end', at, day, km, min, text, n, short }].
+ * best, climb and photo (from Strava rides, stravaRides) carry no number (plain): they show their km only.
  * km counts from the start of that day (null when unknown); a note gets its km from the ride it falls in.
  * n: the number shown on map, profile and timeline (entries with a km only; the end of a round trip takes
  * the start's number); tkm: the km from the trip's start (for the map of the whole trip).
@@ -213,6 +254,9 @@ export function timeline({ trip, rides = [], notes = [], day = null, loop = fals
     const endMs = Number.isFinite(start) && pos(r.totalH) ? start + r.totalH * 36e5 : NaN;
     if (Number.isFinite(start)) out.push({ kind: 'start', at: r.startAt, day: d, km: r1(off), tkm: r1(before[r.id]), name: r.name ?? '' });
     for (const p of r.pauses ?? []) out.push({ kind: 'pause', at: p.at, day: d, km: r1(off + (p.km ?? 0)), tkm: r1(before[r.id] + (p.km ?? 0)), min: p.min ?? null, short: (p.min ?? 0) < SHORT_PAUSE_MIN });
+    // Strava rides: best times, climbs and photos at their km (stravaRides)
+    for (const m of r.marks ?? []) out.push({ ...m, day: d, km: m.km != null ? r1(off + m.km) : null, tkm: m.km != null ? r1(before[r.id] + m.km) : null, plain: true });
+    for (const p of r.photos ?? []) out.push({ kind: 'photo', at: p.at, day: d, km: p.km != null ? r1(off + p.km) : null, tkm: p.km != null ? r1(before[r.id] + p.km) : null, url: p.url, caption: p.caption, plain: true });
     if (Number.isFinite(endMs)) out.push({ kind: 'end', at: new Date(endMs).toISOString(), day: d, km: r1(off + (Number(r.km) || 0)), tkm: r1(before[r.id] + (Number(r.km) || 0)) });
   }
   for (const n of notes) {
@@ -233,7 +277,7 @@ export function timeline({ trip, rides = [], notes = [], day = null, loop = fals
   out.sort((a, b) => a.day - b.day || (a.at ?? '').localeCompare(b.at ?? '') || (a.kind === 'start' ? -1 : b.kind === 'start' ? 1 : 0));
   let n = 0;
   for (const e of out) {
-    if (e.km == null || e.short) continue;
+    if (e.km == null || e.short || e.plain) continue;
     if (e.kind === 'end' && loop && out.filter((x) => x.kind === 'start').length === 1) e.n = out.find((x) => x.kind === 'start')?.n ?? ++n;
     else e.n = ++n;
   }

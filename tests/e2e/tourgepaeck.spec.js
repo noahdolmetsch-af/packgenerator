@@ -78,7 +78,8 @@ test('e) a ride without gear: weather, landscape, sentence, chart; «Gepäck ein
   await expect(tour(page).locator('[data-kpi]')).toHaveCount(4);
   await expect(tour(page).locator('[data-kpi="hf"] b')).toContainText('138');
   // 4a: the weather of that day, fetched once and kept
-  await expect(tour(page).locator('[data-tour-weather]')).toContainText(T('while riding {t}', { t: '' }).trim());
+  // Strava check #8: the weather at the ride's start (wxRide), the same as in the Rückblick
+  await expect(tour(page).locator('[data-tour-weather]')).toContainText(T('at the start|weather'));
   await expect(tour(page).locator('[data-tour-weather]')).toContainText(T('{mm} mm rain', { mm: '1.4' }));
   // 1a 2a 3a: the landscape, the sentence of the third time, the chart of the three times
   await expect(tour(page).locator('[data-tour-landscape]')).toBeVisible();
@@ -125,6 +126,10 @@ test('e) a ride without gear: weather, landscape, sentence, chart; «Gepäck ein
   // the name, the weather and the rating stayed
   await expect(tour(page).locator('h1')).toHaveText(`${A} Abendrunde mit Wattmesser`);
   await expect(tour(page).locator('[data-tour-weather]')).toContainText(T('{mm} mm rain', { mm: '1.4' }));
+  // tour critique 4b: after the tour only the exceptions stand there; «Show all» opens the whole list to mark
+  await expect(gear.locator('[data-gear-all]')).toContainText(T('Everything was used.'));
+  await expect(gear.locator('[data-gear-packtab]')).toBeVisible();
+  await gear.locator('[data-gear-go]').click();
   // 3a: marks; 3b optional: a note
   const first = gear.locator('.glist2:not([data-food]) [data-gear-row]').first();
   const id = await first.getAttribute('data-gear-row');
@@ -147,6 +152,9 @@ test('e) a ride without gear: weather, landscape, sentence, chart; «Gepäck ein
   await shot(page, info, 'G3-gepaeck-eingetragen');
   // it stays after a reload; the note is a learning of that thing (shown when packing it next time)
   await page.reload();
+  // the exceptions stand without opening the whole list
+  await expect(tour(page).locator('[data-gear-ex] [data-gear-row]')).toHaveCount(2);
+  await expect(tour(page).locator('[data-gear-all]')).toContainText(T('Everything else was used.'));
   await expect(tour(page).locator(`[data-gear-row="${id}"]`)).toHaveAttribute('data-mark', 'unused');
   await expect(tour(page).locator(`[data-gear-row="${id2}"]`)).toHaveAttribute('data-mark', 'broken');
   await expect(tour(page).locator(`[data-note-text="${id2}"]`)).toHaveText('test_ Reissverschluss klemmt');
@@ -164,7 +172,8 @@ test('e) a ride without gear: weather, landscape, sentence, chart; «Gepäck ein
   await expect.poll(learned).toContain('test_ Reissverschluss klemmt');
   // the list shows it as a trip of the Packmodus now
   await page.goto('./#/trips/rides');
-  await expect(page.locator(`[data-act-row="a:${A}1"]`)).toHaveCount(0);
+  // (before, a count of 0 passed only while the list was not drawn yet: the row stays, marked with its trip)
+  await expect(page.locator(`[data-act-row="a:${A}1"] [data-pm]`)).toContainText(T('With packing list: {name}', { name: `${A} Abendrunde mit Wattmesser` }));
   await noSideways(page);
   expect(errors).toEqual([]);
 });

@@ -20,7 +20,10 @@
   let { acts = [], trip = null, moving = null, elapsed = null, onkm = null } = $props();
 
   const course = $derived(courseOf(acts, trip));
-  const whole = $derived(course ? { ...gainOf(course.fine), ...rangeOf(course.fine) } : null);
+  // Strava check #7 (21.10.2026): the ascent of the rides is Strava's own number (its smoothing), the profile
+  // only draws; summed from the profile it came out higher (↑ 364 instead of 337 m)
+  const rideUp = $derived(course?.src === 'ride' ? Math.round(acts.reduce((s, a) => s + (Number(a?.own?.hm ?? a?.hm) > 0 ? Number(a.own?.hm ?? a.hm) : 0), 0)) || null : null);
+  const whole = $derived(course ? { ...gainOf(course.fine), ...rangeOf(course.fine), ...(rideUp ? { up: rideUp } : {}) } : null);
   const total = $derived(course?.fine?.km || 1);
   let cursorKm = $state(null);
   let view = $state(null);
@@ -88,7 +91,7 @@
 {#if course}
   <div class="tc" data-tour-course={course.src}>
     <h3 class="tc-h">{t('Elevation profile')}</h3>
-    <ProfileStrip fine={course.fine} bind:view bind:cursorKm onmove={(km) => onkm?.(km == null ? null : km / total)} />
+    <ProfileStrip fine={course.fine} upWhole={rideUp} bind:view bind:cursorKm onmove={(km) => onkm?.(km == null ? null : km / total)} />
     <dl class="tc-sum" data-tour-course-sum>
       <div><dt>{t('Ascent')}</dt><dd class="num">{num(whole.up)} m</dd></div>
       <div><dt>{t('Descent')}</dt><dd class="num">{num(whole.down)} m</dd></div>

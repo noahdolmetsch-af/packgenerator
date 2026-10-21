@@ -26,7 +26,7 @@ export async function renameTour(db, d, name) {
   }
   if (!v) return false;
   if (d.kind === 'g') return putGroups(db, patchGroup(await groupsOf(db), d.id, { name: v }));
-  return db.trips.update(d.id, { title: v, updatedAt: now() });
+  return db.trips.update(d.id, { title: v, titleOwn: true, updatedAt: now() });
 }
 
 /** 3b: the corrected values { km, hm, movingS } (null = Strava's again), the kind of sport { kind }. */

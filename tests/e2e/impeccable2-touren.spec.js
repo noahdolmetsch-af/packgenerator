@@ -114,9 +114,11 @@ test('Packen 2 + 3: the main button packs the next bag; one count and one name p
 test('Tour beendet (Heute 2 + 3): the bar as on every trip page; the way behind is ticked', async ({ browser }, info) => {
   const { ctx, page, errors } = await open(browser, info, null, `#/trip/${encodeURIComponent(TRIP.runningDay)}/ended`);
   await expect(page.getByRole('heading', { level: 1, name: T('Trip ended') })).toBeVisible();
-  // Heute 3: Packen and Unterwegs with ✓, Rückblick the open step
+  // Heute 3: Unterwegs with ✓, Rückblick the open step; tour critique 5a (Noah 21.10.2026): Packen not ticked
+  // to the end is grey «n of m ticked» without the tick
   const steps = page.locator('.stepbar a');
-  await expect(steps.filter({ hasText: T('Pack|stage') })).toHaveClass(/done/);
+  await expect(steps.filter({ hasText: T('Pack|stage') })).toHaveClass(/past/);
+  await expect(steps.filter({ hasText: T('Pack|stage') })).not.toHaveClass(/done/);
   await expect(steps.filter({ hasText: T('On the way') })).toHaveClass(/done/);
   await expect(steps.filter({ hasText: T('Debrief') })).toHaveAttribute('aria-current', 'page');
   // Heute 2: on a computer the step on the left, the quiet link, then the main button on one line

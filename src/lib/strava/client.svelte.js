@@ -333,6 +333,8 @@ const obj = (v) => (v && typeof v === 'object' && !Array.isArray(v) ? v : null);
 const moreOf = (d) => ({ cHist: obj(d.cHist), secs5: Array.isArray(d.secs5) ? d.secs5 : null, prof: obj(d.prof), hw: obj(d.hw), halves: Array.isArray(d.halves) ? d.halves : null, climbs: Array.isArray(d.climbs) ? d.climbs : [] });
 /** «Strava-Fahrt vollständig» (Noah 19.10.2026 «2a»): laps, splits per km, «How hard?», temperature low/high, the steepest bit. */
 const fin = (v) => (Number.isFinite(v) ? v : null);
+/** The photos of a ride: Strava's https address, caption, and where along the ride (t, at, km). */
+const photosOf = (d) => (Array.isArray(d.photos) ? d.photos.filter((p) => p && typeof p.url === 'string' && /^https:\/\//.test(p.url)).slice(0, 20) : []);
 const extraOf = (d) => ({ laps: Array.isArray(d.laps) ? d.laps : [], splits: Array.isArray(d.splits) ? d.splits : [], rpe: fin(d.rpe), tempMin: fin(d.tempMin), tempMax: fin(d.tempMax), steep: fin(d.steep) });
 
 /** One activity's heart rate per beat and kcal from the server, kept on the activity. */
@@ -340,7 +342,7 @@ export async function loadDetail(db, id, { call: c = call, now = new Date() } = 
   const d = await c('detail', { params: { id: String(id) } });
   // Strava's own weighted average stays as wStrava (shown as «Gewichtete Leistung (Strava)»)
   const before = Number(d.np) > 0 ? await db.activities.get(String(id)) : null;
-  await db.activities.update(String(id), { kcal: d.kcal ?? null, hist: d.hist ?? null, curve: Array.isArray(d.curve) ? d.curve : [], w20: Number.isFinite(d.w20) ? d.w20 : null, pHist: d.pHist ?? null, pCurve: Array.isArray(d.pCurve) ? d.pCurve : null, pauses: d.pauses ?? null, segs: Array.isArray(d.segs) ? d.segs : [], best: Array.isArray(d.best) ? d.best : [], desc: typeof d.desc === 'string' ? d.desc : '', hCurve: Array.isArray(d.hCurve) ? d.hCurve : null, dprof: obj(d.dprof) && Array.isArray(d.dprof.d) ? d.dprof : null, sprof: Array.isArray(d.sprof) ? d.sprof : null, ser: obj(d.ser) && Array.isArray(d.ser.t) ? d.ser : null, p25: obj(d.p25), ...moreOf(d), ...extraOf(d), ...(Number(d.np) > 0 ? { npS: Math.round(d.np), wNorm: Math.round(d.np), wStrava: before?.wStrava ?? (before?.npS ? null : before?.wNorm) ?? null } : {}), cadMax: Number(d.cadMax) > 0 ? Math.round(d.cadMax) : null, detail: now.toISOString(), dv: Number.isFinite(d.dv) ? Math.min(d.dv, DETAIL_V) : 3 });
+  await db.activities.update(String(id), { kcal: d.kcal ?? null, hist: d.hist ?? null, curve: Array.isArray(d.curve) ? d.curve : [], w20: Number.isFinite(d.w20) ? d.w20 : null, pHist: d.pHist ?? null, pCurve: Array.isArray(d.pCurve) ? d.pCurve : null, pauses: d.pauses ?? null, segs: Array.isArray(d.segs) ? d.segs : [], best: Array.isArray(d.best) ? d.best : [], desc: typeof d.desc === 'string' ? d.desc : '', hCurve: Array.isArray(d.hCurve) ? d.hCurve : null, dprof: obj(d.dprof) && Array.isArray(d.dprof.d) ? d.dprof : null, sprof: Array.isArray(d.sprof) ? d.sprof : null, ser: obj(d.ser) && Array.isArray(d.ser.t) ? d.ser : null, p25: obj(d.p25), ...moreOf(d), ...extraOf(d), ...(Number(d.np) > 0 ? { npS: Math.round(d.np), wNorm: Math.round(d.np), wStrava: before?.wStrava ?? (before?.npS ? null : before?.wNorm) ?? null } : {}), cadMax: Number(d.cadMax) > 0 ? Math.round(d.cadMax) : null, photos: photosOf(d), detail: now.toISOString(), dv: Number.isFinite(d.dv) ? Math.min(d.dv, DETAIL_V) : 3 });
   return d;
 }
 

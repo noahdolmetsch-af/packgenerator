@@ -11,7 +11,7 @@
  *   GET  ?step=gear         Bearer              → { bikes: [{ id, name, km, primary, retired }], ftp } (ftp: the profile's FTP or null)
  *   GET  ?step=activities   Bearer, &after=<unix s>&before=<unix s>&page=1 → { activities, page, more }
  *   GET  ?step=zones        Bearer              → { hr: [{ min, max }], custom } (Training TR, Noah 13.10.2026 «1-5a»)
- *   GET  ?step=detail       Bearer, &id=<activity id> → { kcal, hist, curve, w20, … cHist, secs5, prof, hw, halves, climbs,
+ *   GET  ?step=detail       Bearer, &id=<activity id> → { kcal, hist, curve, w20, … cHist, secs5, prof, hw, halves, climbs, photos,
  *                           laps, splits, rpe, tempMin, tempMax, steep } (the heart rate per second as a
  *                           histogram { bpm: seconds }, a short curve [[minute, bpm]] and the best 20 minutes of
  *                           power from a power meter; never the route)
@@ -417,42 +417,126 @@ export function trimPower(time, watts) {
   return { pHist, p25, pCurve: POWER_SPANS.map((span) => [span, bestOver(sec, span)]) };
 }
 
-/** Breaks: stops of at least `min` seconds (Strava's moving flag false, or no data for more than 30 s). */
-export function pausesOf(time, moving, min = 60) {
+/** The minutes from which a stop is listed with its place (the Zeitleiste of the Rückblick: «jede Pause ≥5 min»). */
+export const PAUSE_LIST_S = 300;
+const PAUSE_LIST_MAX = 40;
+/** The km at index i of Strava's distance stream (metres), or null. */
+const kmAt = (dist, i) => (Array.isArray(dist) && Number.isFinite(Number(dist[i])) ? Math.round(Number(dist[i]) / 100) / 10 : null);
+/** The clock time 'HH:MM' of a local start ('2026-10-07T08:05:00Z' as Strava sends start_date_local) plus s seconds. */
+export function clockAfter(startLocal, s) {
+  const m = /T(\d{2}):(\d{2})(?::(\d{2}))?/.exec(String(startLocal ?? ''));
+  if (!m || !Number.isFinite(s)) return null;
+  const v = (Number(m[1]) * 3600 + Number(m[2]) * 60 + Number(m[3] ?? 0) + Math.round(s)) % 86400;
+  return `${String(Math.floor(v / 3600)).padStart(2, '0')}:${String(Math.floor((v % 3600) / 60)).padStart(2, '0')}`;
+}
+
+/**
+ * Breaks: stops of at least `min` seconds (Strava's moving flag false, or no data for more than 30 s).
+ * { n, secs, list }: list = the stops of 5 minutes and more with where they were (Zeitleiste):
+ * { t: seconds after the start, at: 'HH:MM' (with startLocal), km (with Strava's distance stream), min }.
+ */
+export function pausesOf(time, moving, min = 60, dist = null, startLocal = null) {
   if (!Array.isArray(time) || time.length < 2) return null;
   const stops = [];
   let run = 0;
+  let from = 0;
   for (let i = 0; i < time.length - 1; i++) {
     const dt = Number(time[i + 1]) - Number(time[i]);
     if (!(dt > 0)) continue;
     const still = dt > 30 || (Array.isArray(moving) && moving[i] === false);
-    if (still) run += dt;
-    else if (run) (stops.push(run), (run = 0));
+    if (still) {
+      if (!run) from = i;
+      run += dt;
+    } else if (run) (stops.push([run, from]), (run = 0));
   }
-  if (run) stops.push(run);
-  const long = stops.filter((x) => x >= min);
-  return { n: long.length, secs: long.reduce((a, b) => a + b, 0) };
+  if (run) stops.push([run, from]);
+  const long = stops.filter(([x]) => x >= min);
+  const list = long
+    .filter(([x]) => x >= PAUSE_LIST_S)
+    .slice(0, PAUSE_LIST_MAX)
+    .map(([x, i]) => {
+      const t = Math.round(Number(time[i]) - Number(time[0]));
+      return { t, at: clockAfter(startLocal, t), km: kmAt(dist, i), min: Math.round(x / 60) };
+    });
+  return { n: long.length, secs: long.reduce((a, [b]) => a + b, 0), list };
 }
 
-/** The kind of detail this server sends (the app's DETAIL_V): 4 = with 2/10 min power and the heart rate curve; 5 = with the NP from the watts stream. */
-export const DETAIL_KIND = 5;
+/** The kind of detail this server sends (the app's DETAIL_V): 4 = with 2/10 min power and the heart rate curve; 5 = with the NP from the watts stream; 6 = pauses, segments and climbs with their place, and the photos. */
+export const DETAIL_KIND = 6;
 
 const SEG_MAX = 40;
+/**
+ * Where an effort starts (Zeitleiste of the Rückblick): { from: km, t: seconds after the start, at: 'HH:MM' } from its start_index in Strava's
+ * distance and time streams; nothing when the streams are missing.
+ */
+export function placeOf(e, where = {}) {
+  const i = Number(e?.start_index);
+  if (!Number.isInteger(i) || i < 0) return {};
+  const out = {};
+  const km = kmAt(where.dist, i);
+  if (km != null) out.from = km;
+  const time = where.time;
+  if (Array.isArray(time) && Number.isFinite(Number(time[i]))) {
+    out.t = Math.round(Number(time[i]) - Number(time[0]));
+    const at = clockAfter(where.startLocal, out.t);
+    if (at) out.at = at;
+  }
+  return out;
+}
+
 /** Own segment times and best efforts (runs); personal records (rank 1–3) first. No route, no leaderboards. */
-export function trimEfforts(list) {
+export function trimEfforts(list, where = {}) {
   if (!Array.isArray(list)) return [];
   return list
-    .map((e) => ({ name: String(e?.name ?? '').slice(0, 120), s: Math.round(Number(e?.moving_time) || Number(e?.elapsed_time) || 0), pr: [1, 2, 3].includes(e?.pr_rank) ? e.pr_rank : null }))
+    .map((e) => ({ name: String(e?.name ?? '').slice(0, 120), s: Math.round(Number(e?.moving_time) || Number(e?.elapsed_time) || 0), pr: [1, 2, 3].includes(e?.pr_rank) ? e.pr_rank : null, ...placeOf(e, where) }))
     .filter((e) => e.name && e.s > 0)
     .sort((a, b) => (a.pr ?? 9) - (b.pr ?? 9))
     .slice(0, SEG_MAX);
 }
 
-export function trimStreams(streams) {
+const PHOTO_MAX = 20;
+/**
+ * The photos of a ride (Zeitleiste of the Rückblick, Noah 21.10.2026 «die Strava-Fotos an ihrer Stelle»): the
+ * address of Strava's picture, the caption, and where it was taken along the ride, from the time it was taken
+ * (seconds after the start → km in the distance stream). Only https pictures; no position is kept.
+ * where: { time, dist, startLocal, start } (start = Strava's start_date, UTC).
+ */
+export function trimPhotos(list, where = {}) {
+  if (!Array.isArray(list)) return [];
+  const t0 = Date.parse(where.start ?? '');
+  const time = Array.isArray(where.time) ? where.time.map(Number) : null;
+  return list
+    .map((p) => {
+      const urls = p?.urls && typeof p.urls === 'object' ? p.urls : {};
+      const url = Object.entries(urls)
+        .sort((a, b) => Number(b[0]) - Number(a[0]))
+        .map(([, u]) => u)
+        .find((u) => typeof u === 'string' && /^https:\/\/[^\s"'<>]+$/.test(u));
+      if (!url) return null;
+      const taken = Date.parse(p?.created_at ?? '');
+      const t = Number.isFinite(taken) && Number.isFinite(t0) ? Math.round((taken - t0) / 1000) : null;
+      const out = { url: url.slice(0, 1000), caption: typeof p?.caption === 'string' ? p.caption.trim().slice(0, 300) : '' };
+      if (t != null && t >= 0) {
+        out.t = t;
+        out.at = clockAfter(where.startLocal, t);
+        if (time && time.length) {
+          let i = time.findIndex((x) => x - time[0] >= t);
+          if (i < 0) i = time.length - 1;
+          const km = kmAt(where.dist, i);
+          if (km != null) out.km = km;
+        }
+      }
+      return out;
+    })
+    .filter(Boolean)
+    .slice(0, PHOTO_MAX);
+}
+
+export function trimStreams(streams, startLocal = null) {
   const time = streams?.time?.data;
   const hr = streams?.heartrate?.data;
   const w20 = best20(time, streams?.watts?.data);
-  const more = { ...trimPower(time, streams?.watts?.data), np: npOf(time, streams?.watts?.data, streams?.moving?.data), cadMax: maxOf(streams?.cadence?.data), pauses: pausesOf(time, streams?.moving?.data), hCurve: trimHrCurve(time, hr) };
+  const more = { ...trimPower(time, streams?.watts?.data), np: npOf(time, streams?.watts?.data, streams?.moving?.data), cadMax: maxOf(streams?.cadence?.data), pauses: pausesOf(time, streams?.moving?.data, 60, streams?.distance?.data, startLocal), hCurve: trimHrCurve(time, hr) };
   if (!Array.isArray(time) || !Array.isArray(hr) || hr.length < 2) return { hist: null, curve: [], w20, ...more };
   const hist = {};
   for (let i = 0; i < hr.length - 1; i++) {
@@ -608,7 +692,7 @@ export function trimMore(streams) {
 }
 
 /** The climbs of a ride (TR7f): the own segment efforts with more than 3 % and at least 30 m up. VAM = metres per hour. */
-export function trimClimbs(list) {
+export function trimClimbs(list, where = {}) {
   if (!Array.isArray(list)) return [];
   const seen = new Set();
   return list
@@ -625,6 +709,7 @@ export function trimClimbs(list) {
         s,
         w: Number(e?.average_watts) > 0 && e?.device_watts !== false ? Math.round(Number(e.average_watts)) : null,
         hr: Number(e?.average_heartrate) > 0 ? Math.round(Number(e.average_heartrate)) : null,
+        ...placeOf(e, where),
       };
     })
     .filter((c) => c.name && c.s > 0 && c.grade > 3 && c.hm >= 30 && !seen.has(c.name) && seen.add(c.name))
@@ -752,8 +837,18 @@ export function makeHandler({ env = () => stravaEnv(), doFetch = (...a) => fetch
           const streams = await stravaGet(cfg, store, `/activities/${id}/streams?keys=time,heartrate,watts,moving,cadence,distance,altitude,temp&key_by_type=true`);
           // power only from a power meter (Strava's estimate has no stream worth a best effort)
           const pm = !!one.device_watts;
-          const s = { ...trimStreams(streams), ...trimMore(pm ? streams : { ...streams, watts: null }) };
-          return json(request, 200, { ok: true, id, kcal: Number(one.calories) > 0 ? Math.round(Number(one.calories)) : null, desc: typeof one.description === 'string' ? one.description.trim().slice(0, 2000) : '', ...s, w20: pm ? s.w20 : null, pHist: pm ? s.pHist : null, p25: pm ? s.p25 : null, pCurve: pm ? s.pCurve : null, np: pm ? s.np : null, segs: trimEfforts(one.segment_efforts), best: trimEfforts(one.best_efforts), climbs: trimClimbs(one.segment_efforts), ...trimExtra(streams), laps: trimLaps(one.laps, pm), splits: trimSplits(one.splits_metric), rpe: rpeOf(one), ...trimCourse(pm ? streams : { ...streams, watts: null }), dv: DETAIL_KIND });
+          const where = { time: streams?.time?.data, dist: streams?.distance?.data, startLocal: one.start_date_local, start: one.start_date };
+          const s = { ...trimStreams(streams, one.start_date_local), ...trimMore(pm ? streams : { ...streams, watts: null }) };
+          // the photos only when the ride has some (one more call then)
+          let photos = [];
+          if (Number(one.total_photo_count) > 0) {
+            try {
+              photos = trimPhotos(await stravaGet(cfg, store, `/activities/${id}/photos?size=1024&photo_sources=true`), where);
+            } catch {
+              photos = [];
+            }
+          }
+          return json(request, 200, { ok: true, id, kcal: Number(one.calories) > 0 ? Math.round(Number(one.calories)) : null, desc: typeof one.description === 'string' ? one.description.trim().slice(0, 2000) : '', ...s, w20: pm ? s.w20 : null, pHist: pm ? s.pHist : null, p25: pm ? s.p25 : null, pCurve: pm ? s.pCurve : null, np: pm ? s.np : null, segs: trimEfforts(one.segment_efforts, where), best: trimEfforts(one.best_efforts, where), climbs: trimClimbs(one.segment_efforts, where), photos, ...trimExtra(streams), laps: trimLaps(one.laps, pm), splits: trimSplits(one.splits_metric), rpe: rpeOf(one), ...trimCourse(pm ? streams : { ...streams, watts: null }), dv: DETAIL_KIND });
         }
         if (step === 'line') {
           // Paket S «Reise-Spur»: one activity's line; Strava's finer line (map.polyline), else the short one

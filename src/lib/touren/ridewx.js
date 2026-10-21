@@ -85,3 +85,35 @@ export async function ensureRideWx(db, act, today, fetcher = fetch) {
     return null;
   }
 }
+
+/**
+ * Strava check #8 (21.10.2026): one weather for the tour page and the Rückblick, from the rides themselves
+ * (wxRide at each start), not from the planned forecast. → { tmin, tmax, wmin, wmax, wet, n } or null when
+ * no ride has its weather yet. wet: a ride started in drizzle, rain, snow or a storm.
+ */
+export function ridesWx(acts = []) {
+  const list = (acts ?? []).map((a) => a?.wxRide).filter((w) => w && (typeof w.t === 'number' || w.code != null));
+  if (!list.length) return null;
+  const ts = list.map((w) => w.t).filter((v) => typeof v === 'number');
+  const ws = list.map((w) => w.wind).filter((v) => typeof v === 'number');
+  const icons = new Set(['drizzle', 'rain', 'snow', 'storm']);
+  return {
+    tmin: ts.length ? Math.round(Math.min(...ts)) : null,
+    tmax: ts.length ? Math.round(Math.max(...ts)) : null,
+    wmin: ws.length ? Math.round(Math.min(...ws)) : null,
+    wmax: ws.length ? Math.round(Math.max(...ws)) : null,
+    wet: list.some((w) => icons.has(skyOf(w.code)?.icon)),
+    n: list.length,
+  };
+}
+
+const asked = new Set();
+/** The weather of every ride of a tour (at most `max`), each asked once per app start. */
+export async function ensureRidesWx(db, acts = [], today, fetcher = fetch, max = 10) {
+  const todo = (acts ?? []).filter((a) => needsRideWx(a) && !asked.has(String(a.id))).slice(0, max);
+  for (const a of todo) {
+    asked.add(String(a.id));
+    await ensureRideWx(db, a, today, fetcher);
+  }
+  return todo.length;
+}

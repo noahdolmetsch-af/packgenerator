@@ -63,7 +63,9 @@
   import { riddenTrips } from '../lib/trips.js';
   import { planAgain } from '../lib/trip/ending.js';
   import { localDay } from '../lib/localday.js';
+  import { tidyAllTitles } from '../lib/touren/titel.js';
   import { t, tn, num, locale } from '../lib/i18n.svelte.js';
+  import { stravaName } from '../lib/stravanames.js';
   import Help from '../lib/ui/Help.svelte';
   import { FIELD_HELP } from '../lib/daumen.js'; // FE14
   import { Plus, ChevronRight, ChevronDown, Route, Upload, Flag, Star, SlidersHorizontal, Bookmark, X, Zap, ZapOff, Info, Calendar, Backpack, Search, Activity } from '@lucide/svelte';
@@ -273,6 +275,10 @@
   // Tempo (Noah 19.10.2026 «3a»): 20 rows first on every screen, «Show n more» adds 20 at a time; a new
   // filter or period starts at 20 again. Before, every trip and ride was drawn at once.
   let tourLimit = $state(TOUR_ROWS);
+  // tour critique 2b: trips still called like their GPX file get a readable name once (renamable)
+  $effect(() => {
+    untrack(() => tidyAllTitles(db, { t, loc: locale(), name: stravaName }));
+  });
   $effect(() => {
     void [JSON.stringify(filter), st, mode];
     untrack(() => (tourLimit = TOUR_ROWS));

@@ -23,6 +23,7 @@
   import { formatWeight } from '../gear.js';
   import { tripFacts, planVsReal, nextTripAfter, nextHints, withActs } from './rueckblick.js';
   import { rideTime, elapsed, n0, n1, temps, kg, dates, dayLong, rainText, signedNum, signedHours, DASH } from './fmt.js';
+  import { clock as mmss } from '../touren/strava/fmt.js';
   import { openTrip, newTrip } from '../nav.js';
   import Btn from '../ui/Btn.svelte';
   import { localDay } from '../localday.js';
@@ -30,10 +31,12 @@
   import { WEATHER, AMOUNT } from '../debrief.js';
   import { CLOTHING } from '../wardrobe.js';
   import TemplateOffer from '../debrief/TemplateOffer.svelte';
+  import MoreActions from '../ui/MoreActions.svelte';
   // SN2+ SN2e/SN2f: «Puls und Leistung» and «Aus Vorlage» in «Nicht gebraucht»
   import { liveQuery } from 'dexie';
   import { tick } from 'svelte';
   import { db } from '../db.js';
+  import { ridesWx, ensureRidesWx } from '../touren/ridewx.js';
   import { updateTemplate } from '../templates.js';
   import { loadGanz } from './actdata.js';
   import { tripValues, tripEntries, tripActs } from './werte.js';
@@ -57,14 +60,16 @@
   import { distKm } from '../route.js';
   import { situationHits } from '../situation.js';
   import { tripPower, effortOf, loadOf } from './power.js';
-  import { GROUPS, openOf, dayTabs, dayFacts, actsOn, timeline, tripNoteList, wearRows, chainLeft, packedList, packedTotals, pointsOf, compareGroup, similarRows, tripNumbers, compareRows, lastSeries } from './ganz.js';
-  import { Undo2, Route as RouteIc, HeartPulse, Map as MapIc, Briefcase as BagIc, ArrowRight, Flag, Coffee, NotebookPen, Image as ImageIc, Copy, MoonStar, Smile, Utensils, CloudSun, Gauge, ArrowLeftRight, Info, Calendar, ChevronDown } from '@lucide/svelte';
-  import { Check, Lightbulb, Sparkles, Sun, CloudRain, Cloud, Thermometer, Bike, Briefcase, Wrench, X, Minus, Plus, ChevronRight, Package } from '@lucide/svelte';
+  import { GROUPS, openOf, dayTabs, dayFacts, actsOn, timeline, stravaRides, tripNoteList, wearRows, chainLeft, packedList, packedTotals, pointsOf, compareGroup, similarRows, tripNumbers, compareRows, lastSeries } from './ganz.js';
+  import { Undo2, Route as RouteIc, HeartPulse, Map as MapIc, Briefcase as BagIc, ArrowRight, Flag, Coffee, NotebookPen, Image as ImageIc, Trophy, Mountain, Copy, MoonStar, Smile, Utensils, CloudSun, Gauge, ArrowLeftRight, Info, Calendar, ChevronDown } from '@lucide/svelte';
+  import { Check, Lightbulb, Sparkles, Sun, CloudRain, Cloud, Thermometer, Bike, Briefcase, Wrench, X, Minus, Plus, ChevronRight, Package, BookmarkPlus, Wind } from '@lucide/svelte';
 
   import Woanders from '../sk/Woanders.svelte'; // SK X2 + X14 (SKX2)
   import { slotOf, stravaRideUrl, komootUrl } from '../sk/links.js';
   import { actHref } from '../strava/acthref.js';
   let { trip, d, bike = null, trips = [], debriefs = [], rides = [], learnings = [], items = [], containers = [], bikes = [], counts, sugg = [], openSugg = [], ontake = null, onno = null, onreopen = null, offer = null, notes = [], onpatch = null } = $props();
+  // tour critique 3b: the template question opens from «…» only
+  let tplOpen = $state(false);
   // SK X2: a ride of the trip that came from Strava (its id in the ride ledger) opens there
   const stravaQ = liveQuery(() => (trip?.startDate ? db.kmBook.where('date').between(trip.startDate, tripEnd(trip) ?? trip.startDate, true, true).toArray() : []));
   const stravaId = $derived(($stravaQ ?? []).find((e) => e.stravaId && e.state !== 'removed')?.stravaId ?? null);
@@ -127,6 +132,12 @@
 
   // the activities and ledger rides of the trip (or of the chosen day)
   const acts = $derived(w ? tripActs(w.acts, trip, end) : []);
+  // Strava check #8: the measured weather at each ride's start, the same as on the tour page (ridewx.js ridesWx)
+  const rwx = $derived(ridesWx(acts));
+  const wxT = $derived(rwx ? { tmin: rwx.tmin, tmax: rwx.tmax } : { tmin: row?.tmin ?? null, tmax: row?.tmax ?? null });
+  $effect(() => {
+    if (acts.length) ensureRidesWx(db, acts, today);
+  });
   const entries = $derived(w ? tripEntries(w.entries, trip, end) : []);
   const dActs = $derived(dayF ? actsOn(acts, dayF.date) : acts);
   // the Strava rides of the trip or of the chosen day, for «Übersicht wie Strava»
@@ -189,8 +200,10 @@
   const loop = $derived(!!(trip.route?.start && trip.route?.end && distKm(trip.route.start, trip.route.end) < 0.5));
   const cuts = $derived(trip.days > 1 ? stageCuts(trip).slice(0, -1).filter((v) => v != null) : []);
   const wayNotes = $derived([...(d.rideNotes ?? []).map((n) => ({ ...n, day: n.day ?? 0 })), ...notes.filter((n) => n.tripId === trip.id && n.day != null)]);
-  const tlAll = $derived(timeline({ trip, rides: row?.rides ?? [], notes: wayNotes, loop }));
-  const tl = $derived(day == null ? tlAll : timeline({ trip, rides: row?.rides ?? [], notes: wayNotes, day, loop }));
+  // a trip without an uploaded ride: the Strava rides (pauses, best times, climbs, photos at their place)
+  const tlRides = $derived(row?.rides?.length ? row.rides : stravaRides(acts));
+  const tlAll = $derived(timeline({ trip, rides: tlRides, notes: wayNotes, loop }));
+  const tl = $derived(day == null ? tlAll : timeline({ trip, rides: tlRides, notes: wayNotes, day, loop }));
   const tlShown = $derived(tl.filter((e) => !e.short));
   const shortN = $derived(tl.filter((e) => e.short).length);
   const marks = $derived.by(() => {
@@ -362,8 +375,7 @@
 
 <!-- v0.109.0 Design-Refresh P6 (T16 «Gespeicherter Rückblick», approved 12.10.2026); SN2x: five groups -->
 <div class="saved">
-  <!-- SN2x: the template question right after saving stays on top, outside the folding groups -->
-  {#if offer}<TemplateOffer {trip} name={offer} />{/if}
+  <!-- tour critique 3b (Noah 21.10.2026): the template question is no longer on top; it waits under «…» next to «Done. Good trip!» -->
 
   {#if tabs.length}
     <!-- SN2x (answer 5a): one day switch for the whole page -->
@@ -398,7 +410,8 @@
                 {#if dayF.n < trip.days && dayF.to}<li><MoonStar size={16} aria-hidden="true" />{t('Night in {place}', { place: dayF.to })}</li>{/if}
               </ul>
             {:else}
-              <div class="hero"><span class="tp-okdot" aria-hidden="true"><Check size={16} /></span><h2 id="sv-h">{t('Done. Good trip!')}</h2></div>
+              <div class="hero"><span class="tp-okdot" aria-hidden="true"><Check size={16} /></span><h2 id="sv-h">{t('Done. Good trip!')}</h2>{#if offer}<span class="hmore"><MoreActions title={trip.title ?? ''} label={t('More for {what}', { what: trip.title ?? '' })} actions={[{ name: t('Save as a template'), explain: t('Your next day ride then starts with New → Plan a trip → From template.'), icon: BookmarkPlus, run: () => (tplOpen = true) }]} /></span>{/if}</div>
+              {#if offer && tplOpen}<TemplateOffer {trip} name={offer} />{/if}
               <!-- Impeccable Runde 2 (Rückblick einer Tour 2): the card «Gespeichert» is gone; its line lives here -->
               <p class="savedline" role="status" data-saved>{savedLine}</p>
               <p class="kick">{[trip.title, dates(trip.startDate, tripEnd(trip)), trip.days > 1 ? tn(trip.days, '{n} day', '{n} days') : t('Day ride|art')].join(' · ')}</p>
@@ -411,7 +424,8 @@
               {@render woanders()}
               <ul class="facts">
                 <li>{@render rainIcon(row?.rain)}{rainText(row?.rain, trip.days)}</li>
-                <li><Thermometer size={16} aria-hidden="true" />{temps(row?.tmin, row?.tmax)}</li>
+                <li><Thermometer size={16} aria-hidden="true" />{temps(wxT.tmin, wxT.tmax)}{#if rwx}{` · ${t('at the start|weather')}`}{/if}</li>
+                {#if rwx?.wmax != null}<li data-ride-wind><Wind size={16} aria-hidden="true" />{t('wind {kmh} km/h', { kmh: rwx.wmin === rwx.wmax ? num(rwx.wmax) : `${num(rwx.wmin)}–${num(rwx.wmax)}` })}</li>{/if}
                 <li><Bike size={16} aria-hidden="true" />{trip.bike ?? bike?.name ?? DASH}</li>
                 {#if row?.baseG}<li><Briefcase size={16} aria-hidden="true" />{t('Base {w}', { w: kg(row.baseG) })}</li>{/if}
               </ul>
@@ -528,6 +542,9 @@
                       {#if e.kind === 'start'}<b><Flag size={15} aria-hidden="true" />{t('Start')}</b>
                       {:else if e.kind === 'end'}<b><Flag size={15} aria-hidden="true" />{t('Arrival')}</b>
                       {:else if e.kind === 'pause'}<b><Coffee size={15} aria-hidden="true" />{t('Pause · {n} min', { n: num(e.min ?? 0) })}</b>
+                      {:else if e.kind === 'best'}<b data-tl-best><Trophy size={15} aria-hidden="true" />{t(e.pr === 1 ? 'Best time|timeline' : e.pr === 2 ? '2nd best time|timeline' : '3rd best time|timeline')}</b><span>{e.name} · {mmss(e.s)}</span>
+                      {:else if e.kind === 'climb'}<b data-tl-climb><Mountain size={15} aria-hidden="true" />{t('Climb|timeline')}</b><span>{[e.name, e.len ? `${num(e.len)} km` : '', e.grade ? `${num(e.grade)} %` : '', e.hm ? `${n0(e.hm)} Hm` : '', mmss(e.s)].filter(Boolean).join(' · ')}</span>
+                      {:else if e.kind === 'photo'}<b><ImageIc size={15} aria-hidden="true" />{t('Photo')}</b><a class="tlph" href={e.url} target="_blank" rel="noopener noreferrer" data-tl-photo><img src={e.url} alt={e.caption || t('Photo from Strava')} loading="lazy" referrerpolicy="no-referrer" /></a>{#if e.caption}<span>{e.caption}</span>{/if}
                       {:else}<b><NotebookPen size={15} aria-hidden="true" />{t('Note')}</b><span>«{e.text}»</span>{#if e.photo}<span class="ph" aria-label={t('Photo')}><ImageIc size={18} aria-hidden="true" /></span>{/if}{/if}
                     </span>
                   </li>
@@ -630,12 +647,12 @@
         <div class="rv-col">
           <section class="rv-sec" aria-labelledby="wx-h" data-weather>
             <div class="rv-h"><div><h2 id="wx-h">{t('Weather')}</h2><p class="rv-sub">{t('forecast and how it was')}</p></div></div>
-            {#if (dayF ? dayF.tmin != null || dayF.wet != null : row?.tmin != null || row?.rain?.wet != null) || d.weather || d.clothing || tempo.temp}
+            {#if (dayF ? dayF.tmin != null || dayF.wet != null : wxT.tmin != null || row?.rain?.wet != null) || d.weather || d.clothing || tempo.temp}
               <div class="rv-box wxw">
                 <table class="wx">
                   <thead><tr><th scope="col"></th><th scope="col">{t('forecast')}</th><th scope="col">{t('how it was')}</th></tr></thead>
                   <tbody>
-                    <tr><th scope="row"><Thermometer size={16} aria-hidden="true" />{t('Temperature')}</th><td>{dayF ? temps(dayF.tmin, dayF.tmax) : temps(row?.tmin, row?.tmax)}</td><td>{[d.weather ? t(WEATHER.find((x) => x.key === d.weather)?.name ?? '') : '', tempo.temp ? `Ø ${num(tempo.temp.avg)}°` : ''].filter(Boolean).join(' · ') || DASH}</td></tr>
+                    <tr><th scope="row"><Thermometer size={16} aria-hidden="true" />{t('Temperature')}</th><td>{dayF ? temps(dayF.tmin, dayF.tmax) : temps(wxT.tmin, wxT.tmax)}</td><td>{[d.weather ? t(WEATHER.find((x) => x.key === d.weather)?.name ?? '') : '', tempo.temp ? `Ø ${num(tempo.temp.avg)}°` : ''].filter(Boolean).join(' · ') || DASH}</td></tr>
                     <tr><th scope="row"><CloudSun size={16} aria-hidden="true" />{t('Rain|weather')}</th><td>{dayF ? (dayF.wet ? t('rain') : dayF.wet === false ? t('dry|weather') : DASH) : rainText(row?.rain, trip.days)}</td><td>{DASH}</td></tr>
                     {#if d.clothing}<tr><th scope="row"><Gauge size={16} aria-hidden="true" />{t('Clothing')}</th><td>{DASH}</td><td>{t(CLOTHING.find((x) => x.key === d.clothing)?.name ?? '')}</td></tr>{/if}
                   </tbody>
@@ -1009,6 +1026,21 @@
     color: var(--ink-2);
     font-size: var(--fs-small);
   }
+  /* a Strava photo where it was taken */
+  .tlph {
+    display: block;
+    width: min(100%, 220px);
+    margin-top: 4px;
+    overflow: hidden;
+    border-radius: 8px;
+    background: var(--paper-2);
+  }
+  .tlph img {
+    display: block;
+    width: 100%;
+    height: 140px;
+    object-fit: cover;
+  }
   .ph {
     display: grid;
     place-items: center;
@@ -1200,6 +1232,9 @@
     display: flex;
     align-items: center;
     gap: 10px;
+  }
+  .hmore {
+    margin-left: auto;
   }
   .hero h2 {
     margin: 0;
