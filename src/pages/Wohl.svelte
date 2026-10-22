@@ -40,6 +40,8 @@
   import { albumOf, ALBUM_KEY, albumCfgOf, jarNotes, jarPick, lowToday, weatherDays, morningTip, fetchPastWeather, PAST_WX_KEY } from '../lib/wohl.js';
   import { HOME_PLACE } from '../lib/know.js';
   import PhotoPick from '../lib/ui/PhotoPick.svelte';
+  import GoodDaysList from '../lib/wohl/GoodDaysList.svelte';
+  import MixBars from '../lib/wohl/MixBars.svelte';
   import { shrinkImage } from '../lib/photo.js';
   import { routineQuery } from '../lib/routine-data.js';
   import { isFor as routineFor, isDone as routineDone, feltOf as routineFelt } from '../lib/routine.js';
@@ -124,6 +126,13 @@
     await db.settings.delete(WISH_KEY);
     wishDlg.close();
     offerDone(t('Wished mix removed.'), () => save(WISH_KEY, before ?? {}));
+  }
+
+  // Paket P4 (E5): − / + on a bar saves the wish at once, with Undo
+  async function stepSave(next) {
+    const before = ex?.wish ?? null;
+    await save(WISH_KEY, wishOf(next, keys));
+    offerDone(t('Wished mix saved.'), () => save(WISH_KEY, before ?? {}));
   }
 
   // #250 short versions: the categories with the lowest value first
@@ -416,6 +425,8 @@
             <p class="wl-sub">{t('Your good days ({n}) most often had:', { n: recipes[0].of })}</p>
             <ul class="wl-chips">{#each recipes as r (r.key)}<li>{fact(r.key)} <em class="num">{r.n}×</em></li>{/each}</ul>
           {/if}
+          <!-- Paket P4 (mockup E4): the good days kept in the evening review -->
+          <GoodDaysList {today} />
         </div>
       </Section>
 
@@ -576,6 +587,8 @@
           {:else}
             <p class="muted">{t('No wish yet. The line on the ring shows it once you set one.')}</p>
           {/if}
+          <!-- Paket P4 (mockup E5): wished and lived per area, − / + change the wish -->
+          {#if bal}<MixBars cats={bal.cats} {wish} onwish={stepSave} />{/if}
           <button type="button" class="btn" onclick={openWish} data-wish-edit><Target size={18} aria-hidden="true" />{Object.keys(wish).length ? t('Change wish') : t('Set wish')}</button>
         </div>
       </Section>

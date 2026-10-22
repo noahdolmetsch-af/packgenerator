@@ -763,6 +763,22 @@ export const HANDBOOK = {
     steps: ['Open Ski tours › Season.', 'Set a goal if you like, add wish tours, practice and courses.', 'Pick the ski in «After the tour»: its metres climbed add up here.'],
     example: 'Example: avalanche course two years ago → «Refresh» shows next to it.',
   },
+  // Paket P4 «Aktiv»
+  'f.tennistop': {
+    on: 'Only on the page of the activity Tennis.',
+    steps: ['Open Aktiv › Sports › Tennis.', 'Tap «Played» or «Like last time».', 'Booked a court? «Enter a time»: afterwards the app asks «Played?».'],
+    example: 'Example: Thursday 18:00 booked → on Thursday evening «Played?» with «Yes, played».',
+  },
+  'f.yogaclasses': {
+    on: null,
+    steps: ['Open Aktiv › Meditation.', 'In the card Yoga tap «Add a class».', 'After the class tap «Was there» or «Skipped».'],
+    example: 'Example: Thursday 18:30 Hatha every week → «Next regular class Thu 18:30».',
+  },
+  'f.goodday': {
+    on: null,
+    steps: ['At the end of the evening review tap «Keep this day».', 'Write what made it good and save.', 'In What is good for me tap «Repeat on Saturday».'],
+    example: 'Example: «quiet morning, outside in the afternoon» → on Saturday morning the check reminds you.',
+  },
   // Paket P3 «Warum? und Regeln»
   'f.decides': {
     on: null,

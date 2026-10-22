@@ -32,6 +32,7 @@
   import { todayAppointments } from '../lib/todayfixed.js';
   import { qText, actName } from '../lib/flow/ui.svelte.js';
   import { localDay } from '../lib/localday.js';
+  import GoodDayLine from '../lib/wohl/GoodDayLine.svelte';
   import { normalOf as healthNormal } from '../lib/health.js';
   import { phone } from '../lib/media.svelte.js';
   import { t, tn, num, locale } from '../lib/i18n.svelte.js';
@@ -295,6 +296,8 @@
 {/snippet}
 
 {#snippet done()}
+  <!-- Paket P4 (mockup E4): keep a good day as a recipe; in the morning a kept day planned for today -->
+  <GoodDayLine {part} {today} />
   <button type="button" class="btn hi big" onclick={finish} data-check-done>{t('Done')}</button>
 {/snippet}
 

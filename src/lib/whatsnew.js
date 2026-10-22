@@ -16,6 +16,20 @@
 
 export const WHATS_NEW = [
   {
+    // v0.182.0 «Aktiv» (Paket P4 of «Offene Mockups», Noah 21.10.2026): TN1–TN5 the top of the tennis page (only
+    // tennis, 5b), ME4 the yoga card on Meditation, E4 «Diesen Tag merken», E5 «Gewünscht und erlebt».
+    version: '0.182.0',
+    date: '2026-10-21',
+    title: 'Tennis, yoga and good days',
+    lead: 'Tick off faster, keep what does you good.',
+    points: [
+      { text: 'Tennis: played like last time, booked times ask «Played?»', href: '#/flow/sport/act%3Atennis' },
+      { text: 'Yoga: your regular classes on the Meditation page', href: '#/flow/act/meditation' },
+    ],
+    small: [{ box: 'new', text: 'Keep a good day in the evening review' }],
+    test: ['Open Aktiv › Sports › Tennis and tap «Played».', 'Open Aktiv › Meditation and add a yoga class.'],
+  },
+  {
     // v0.181.0 «Warum? und Regeln» (Paket P3 of «Offene Mockups», Noah 21.10.2026): RG1 «Why?» next to a row in
     // Plan, RG3 Me › How the app decides (every rule, search, block rules on/off), C «Most often forgotten» on Pack.
     version: '0.181.0',

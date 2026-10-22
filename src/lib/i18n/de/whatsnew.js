@@ -1557,6 +1557,14 @@ export default {
   'Plan and reality after the tour': 'Plan und echt nach der Tour',
   'Open Ski tours, tap «Plan the tour» and tap a danger level.': 'Öffne Skitouren, tippe auf «Tour planen» und dann auf eine Gefahrenstufe.',
   'Open Ski tours › Season and add a wish tour.': 'Öffne Skitouren › Saison und füge eine Wunschtour hinzu.',
+  // v0.182.0 «Aktiv»
+  'Tennis, yoga and good days': 'Tennis, Yoga und gute Tage',
+  'Tick off faster, keep what does you good.': 'Schneller abhaken, merken was dir gut tut.',
+  'Tennis: played like last time, booked times ask «Played?»': 'Tennis: gespielt wie letztes Mal, gebuchte Zeiten fragen «Gespielt?»',
+  'Yoga: your regular classes on the Meditation page': 'Yoga: deine Stammstunden auf der Meditations-Seite',
+  'Keep a good day in the evening review': 'Einen schönen Tag im Abendrückblick merken',
+  'Open Aktiv › Sports › Tennis and tap «Played».': 'Öffne Aktiv › Sportarten › Tennis und tippe auf «Gespielt».',
+  'Open Aktiv › Meditation and add a yoga class.': 'Öffne Aktiv › Meditation und füge eine Yogastunde hinzu.',
   // v0.181.0 «Warum? und Regeln»
   'Why, and by which rule': 'Warum, und nach welcher Regel',
   'Every suggestion says why.': 'Jeder Vorschlag sagt, warum.',
