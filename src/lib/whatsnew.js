@@ -16,14 +16,15 @@
 
 export const WHATS_NEW = [
   {
-    // v0.181.1 «Fitbit-Schlaf kommt an» (bug fix, 22.10.2026: Google sends nights without the wake-up date; the server
+    // v0.181.1 «Fitbit-Schlaf und Gemini gehen wieder» (bug fix, 22.10.2026: Google sends nights without the wake-up date; the server
     // now reads the wake-up day from the civil time string or the moment with its offset, and the app fetches 30 days once more)
     version: '0.181.1',
     date: '2026-10-22',
-    title: 'Fitbit sleep arrives',
-    lead: 'Your nights come from Google again.',
+    title: 'Fitbit sleep and Gemini work again',
+    lead: 'Your nights come from Google again, and Gemini answers.',
     points: [
       { text: 'Fitbit: last night comes in with «Fetch now»', href: '#/me/fitbit' },
+      { text: 'Gemini: a second try, then another model, and a clear message if it still fails' },
     ],
     small: [
       { box: 'fixed', text: 'The last 30 nights are fetched once more' },
