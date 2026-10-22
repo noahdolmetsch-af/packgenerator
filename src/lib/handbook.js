@@ -768,6 +768,7 @@ export const HANDBOOK = {
     on: 'Only when no weight was typed in the last 7 days.',
     steps: ['Open Heute: the card «Weight this week?» stands under the greeting.', 'Type the weight and tap «Save», or «Not today».', '«Stop asking» takes the card away; «Add a tile» brings it back.'],
     example: 'Example: last weight 8 days ago → the card asks; saved, it is gone until next week.',
+  },
   // Paket P8 «Fotoalbum»
   'f.photoalbum': {
     on: null,
