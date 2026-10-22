@@ -103,6 +103,9 @@
   import AktivTile from '../lib/home/AktivTile.svelte';
   import BodyTile from '../lib/home/BodyTile.svelte';
   import VitalsTile from '../lib/home/VitalsTile.svelte';
+  import WeighTile from '../lib/home/WeighTile.svelte';
+  import { weight as weightStore } from '../lib/weight.svelte.js';
+  import { WEIGH_KEY, weighDue } from '../lib/home/weighin.js';
   import GoalChips from '../lib/home/GoalChips.svelte';
   import ActsTile from '../lib/home/ActsTile.svelte';
   import { activeDays, seriesOf, restOf, REST_KEY, SERIES_STEPS } from '../lib/home/series.js';
@@ -182,7 +185,8 @@
   const learnQ = liveQuery(() => db.learnings.toArray());
   // AU1 «Ausrüstung» 4a (Noah 15.10.2026): the care due of the main equipment is a row of «Important today»
   const mainLogQ = liveQuery(async () => ((await db.items.filter((i) => !!i.main).count()) ? db.flowLog.toArray() : []));
-  const SKEYS = [MERKEN_KEY, LISTS_KEY, TRELLO_KEY, WALL_TIME_KEY, 'riderWeightG', TEMPLATES_KEY, USAGE_KEY, LAYOUT_KEY, WALL_KEY, 'userName', NAME_ASKED_KEY, MILESTONE_KEY, SETS_KEY, HOME_PLACE, TIPS_KEY, PACE_KEY, CHALLENGES_KEY, 'homeHintLongPress', INTRO_KEY, COMPASS_KEY];
+  const NEWS_OFF_KEY = 'homeNewsOff'; // P6 H1: «New» on top taken away for this version
+  const SKEYS = [MERKEN_KEY, LISTS_KEY, TRELLO_KEY, WALL_TIME_KEY, 'riderWeightG', TEMPLATES_KEY, USAGE_KEY, LAYOUT_KEY, WALL_KEY, 'userName', NAME_ASKED_KEY, MILESTONE_KEY, SETS_KEY, HOME_PLACE, TIPS_KEY, PACE_KEY, CHALLENGES_KEY, 'homeHintLongPress', INTRO_KEY, COMPASS_KEY, WEIGH_KEY, NEWS_OFF_KEY];
   const setQ = liveQuery(async () => {
     const rows = await db.settings.bulkGet(SKEYS);
     return Object.fromEntries(SKEYS.map((k, i) => [k, rows[i]?.value ?? null]));
@@ -746,6 +750,7 @@
   /* ---------- «Heute neu» A «Ein Blick» (Noah 20.10.2026 10:14 «1A 2 … 3a 4a 5b») ---------- */
   // «Up now»: the round (when it waits), meditation and the idea for today first, then what is due (important)
   let abDue = $state(0); // questions of the round due now (AbCard)
+  let abAreas = $state([]); // P6 AB3: the areas of those questions, named on the check row of «Dein Körper heute»
   let abEvening = $state(false);
   let abAsk = $state(false); // set → AbCard opens its window again
   const medQ = $derived(flowQuery(today));
@@ -852,7 +857,12 @@
   };
   // «Heute neu» N2 (Noah «5a»): «Up now» shows only when something is up (the check and meditation live on top now)
   const upEmpty = $derived(ready && !upRows.length && !cheers.length && !notice && !quick);
-  const quiet = $derived(upEmpty && on('body') ? ['important'] : []);
+  // P6 SN2l: the weekly weight only while no weight for 7 days (and not put away today); after «Save» it stays for its thanks
+  let weighedNow = $state(false);
+  const weighOn = $derived(weighedNow || (weightStore.loaded && weighDue(weightStore.entries, today, S[WEIGH_KEY] ?? null)));
+  // P6 H1 (Noah 21.10.2026 «2b»): after an update «New» stands on top as a whole row for 14 days, unless the wall has the tile itself
+  const newsRow = $derived(ready && !editing && newsDays > 0 && !onWall.has('news') && S[NEWS_OFF_KEY] !== WHATS_NEW[0].version);
+  const quiet = $derived([...(upEmpty && on('body') ? ['important'] : []), ...(weighOn ? [] : ['weighin'])]);
   const shownWall = $derived(editing ? hideTiles(wall, hiddenTiles) : joinFlow(tripUp(hideTiles(wall, [...hiddenTiles, ...quiet]), !!near)));
   // Paket Q #74 (Noah 19.10.2026 «4a»): the wall follows the time of day; while editing the stored order shows
   const timeOn = $derived(S[WALL_TIME_KEY] !== false);
@@ -1138,7 +1148,7 @@
     {:else}<FlowCard {today} round={!onWall.has('daycard')} rings={!onWall.has('balance')} />{/if}
   {:else if x.id === 'daycard'}<TagesKarte {today} {now} {fc} {items} {trips} {bikes} {tasks} {visits} rides={$ridesQ ?? []} idea={suggestion ? { text: t('Ride up to {h} h with the {bike}, today', { h: hrs(suggestion.hours), bike: suggestion.bike.name }) } : null} onquick={startQuick} onplan={() => (countUse('trip'), openNew('list'))} onother={suggestion ? nextBike : null} onkm={() => (countUse('km'), openNew('km'))} {debrief} care={careRows} careN={due.points} tomorrowTrip={tomorrowTrip} />
   {:else if x.id === 'du'}<DuTile {today} />
-  {:else if x.id === 'body'}<BodyTile {today} due={abDue} evening={abEvening} open={roundOpen} onstart={() => (abAsk = true)} />
+  {:else if x.id === 'body'}<BodyTile {today} due={abDue} areas={abAreas} evening={abEvening} open={roundOpen} onstart={() => (abAsk = true)} />
   {:else if x.id === 'acts'}<ActsTile {today} />
   {:else if x.id === 'aktiv'}<AktivTile {today} rides={$ridesQ ?? []} size={x.size} hm={`${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`} />
   {:else if x.id === 'series'}<SeriesTile {today} size={x.size} party={seriesParty} />
@@ -1160,6 +1170,7 @@
   {:else if x.id === 'suggest'}<TodaySuggest {today} />
   {:else if x.id === 'tipweek'}<TipWeek used={tipUsed} />
   {:else if x.id === 'routine'}<RoutineTile {today} isnew={newTile('routine')} />
+  {:else if x.id === 'weighin'}<WeighTile {today} isnew={newTile('weighin')} onsaved={() => (weighedNow = true)} onstop={() => saveWall(removeTile(wall, 'weighin'))} />
   {:else if x.id === 'vitals'}<VitalsTile {today} isnew={newTile('vitals')} />
   {:else if x.id === 'values'}<DataWidget idp="hdw" />
   {:else if x.id === 'week'}<WeekTile {today} rides={$ridesQ ?? []} isnew={newTile('week')} />
@@ -1234,7 +1245,7 @@
   <!-- v0.116.0 «Strava-Verbindung» (4b, S4): a changed Strava bike asks here, on top, until you choose -->
   {#if !editing}<StravaChanges wide={!phone.matches} />{/if}
   <!-- AB3 «Deine Abfragen» (replaces SN2l): what is due now, a calm card under the greeting -->
-  {#if !editing && ready}<AbCard {today} bind:busy={roundOpen} bind:due={abDue} bind:evening={abEvening} bind:ask={abAsk} />{/if}
+  {#if !editing && ready}<AbCard {today} bind:busy={roundOpen} bind:due={abDue} bind:areas={abAreas} bind:evening={abEvening} bind:ask={abAsk} />{/if}
   <!-- Fenster (Noah 19.10.2026 «1a 3a»): the evening before a trip and Sunday's review, only after the round window -->
   {#if !editing && ready}<HomeWindow now={stampOf(now)} trips={allTrips} {itemsById} name={nameOf} blocked={roundOpen} />{/if}
   <!-- «App-Wartung» (Noah 13.10.2026): one calm line when a key runs out, a link fails or Strava's limit is near -->
@@ -1243,6 +1254,7 @@
   {#if !editing}<AlertLine />{/if}
   {#if !editing}{#await import('../lib/wetter/HeuteWetter.svelte') then m}<m.default {today} />{:catch}{/await}{/if}
   <!-- v0.127.0 A-U2 (mockup «Laden»): calm placeholders until Today has read its data, then the wall -->
+  {#if newsRow}<div class="newsrow" data-news-row><NewsTile size="long" days={newsDays} onremove={() => db.settings.put({ key: NEWS_OFF_KEY, value: WHATS_NEW[0].version })} /></div>{/if}
   {#if ready}<Wall tiles={timeWall} body={tileBody} {editing} onedit={() => (editing = true)} onchange={saveShown} onadd={() => (catalogOpen = true)} />
   {:else}<Skeleton kind="home" rows={2} />{/if}
   <!-- «Heute neu» A: the half-width trip card has no room for the weekly km check; it shows under the wall then -->
@@ -2112,6 +2124,9 @@
 
   .kmrow {
     margin-top: var(--sp-3);
+  }
+  .newsrow {
+    margin-bottom: var(--sp-3);
   }
   .custom {
     display: flex;

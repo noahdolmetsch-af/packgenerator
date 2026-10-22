@@ -763,6 +763,23 @@ export const HANDBOOK = {
     steps: ['Open Ski tours › Season.', 'Set a goal if you like, add wish tours, practice and courses.', 'Pick the ski in «After the tour»: its metres climbed add up here.'],
     example: 'Example: avalanche course two years ago → «Refresh» shows next to it.',
   },
+  // P6 «Heute ergänzen»
+  'f.weighin': {
+    on: 'Only when no weight was typed in the last 7 days.',
+    steps: ['Open Heute: the card «Weight this week?» stands under the greeting.', 'Type the weight and tap «Save», or «Not today».', '«Stop asking» takes the card away; «Add a tile» brings it back.'],
+    example: 'Example: last weight 8 days ago → the card asks; saved, it is gone until next week.',
+  },
+  // Paket P3 «Warum? und Regeln»
+  'f.decides': {
+    on: null,
+    steps: ['Open Me › How the app decides.', 'Search a rule or switch a block rule on or off.', 'In Plan, tap «Why?» next to a row to see its rule.'],
+    example: 'Example: «Rain gear: from 30 % rain on the riding hours» → «Change on Blocks».',
+  },
+  'f.forgotten': {
+    on: 'Only when a debrief of this trip type noted something missing.',
+    steps: ['Open Pack of a trip.', 'At the top: «Most often forgotten».', 'Tap «Onto the list» or «To the evening before»; pin or × to take it out.'],
+    example: 'Example: sun cream missing twice → on top of the list before the next trip.',
+  },
   // Paket P1 «Packen und Strom»
   'f.newpack': {
     on: null,

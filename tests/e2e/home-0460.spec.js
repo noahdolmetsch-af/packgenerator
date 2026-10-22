@@ -65,10 +65,13 @@ test('sections, greeting with the weather, the trip card, the 16 functions as sm
   // «Heute neu» N2 (0.169.0, Noah «5a», changed on purpose): one sentence, then the body and the Aktiv tiles; the
   // trip of tomorrow right under them, «Up now» after the trip
   await expect(page.locator('[data-say]')).toContainText(T('{n} day until {trip}.', { n: 1, trip: 'test_data_gtp_ Herbstrunde' }));
+  // 0.180.0 P6 (Noah 21.10.2026 «2b», changed on purpose): the meditation card is first on the wall, the weekly weight
+  // under it; «Your body today» still starts in the first screen
   const bodyTop = await page.locator('[data-section="body"]').evaluate((el) => el.getBoundingClientRect().top);
   expect(bodyTop, '«Your body today» starts in the first screen').toBeLessThan(page.viewportSize().height);
-  const order = await page.locator('[data-section="body"], [data-section="acts"], [data-section="trip"], [data-section="today"]').evaluateAll((els) => els.map((e) => e.dataset.section));
-  expect(order.filter((x, i, a) => a.indexOf(x) === i)).toEqual(['body', 'acts', 'trip', 'today']);
+  await expect(page.locator('.wall > [data-tile]').first()).toHaveAttribute('data-tile', 'meditation');
+  const order = await page.locator('[data-section="weighin"], [data-section="body"], [data-section="acts"], [data-section="trip"], [data-section="today"]').evaluateAll((els) => els.map((e) => e.dataset.section));
+  expect(order.filter((x, i, a) => a.indexOf(x) === i)).toEqual(['weighin', 'body', 'acts', 'trip', 'today']);
 
   // Up now, Tried it yet?, bikes, customise
   // «Heute neu» A (changed on purpose): at most 4 rows, «Show all» opens the rest; the 12 months left Heute (catalog)

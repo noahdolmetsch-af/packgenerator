@@ -54,7 +54,11 @@ Durchgehende Grundsätze: Alles ist ein Vorschlag, nie Pflicht, und immer änder
 
 **Nachtrag 21.10.2026 (Ziel «Alltag», Regel «Alles selbst ändern»):** 0.175.0 «Eigene Werte und alle Daten anpassbar» gebaut: eigene Werte und Erinnerungen, eigene Körperwerte, sechs neue Listen, keine Browser-Fragen mehr. Bestandsaufnahme der übrigen Lücken: notes/eigene-werte-alles-anpassbar/bestandsaufnahme.md im Projektordner.
 
+**Nachtrag 21.10.2026, später Abend:** 0.180.0 Mockup-Paket P6 «Heute ergänzen» (Ziel 5 «Alltag»: Meditation, Gewicht und letzte Aktivität auf Heute). Nächstes Paket P3 «Regeln».
+
 **Nachtrag 21.10.2026, Nacht:** 0.179.0 Mockup-Paket P1 «Packen und Strom» (Ziel 1 «Schneller packen»: neues Teil gleich einpacken; Strom-Werte und Ladezeit für die Strom-Rechnung). Nächstes Paket P6 «Heute ergänzen».
+
+**Nachtrag 21.10.2026, Nacht:** 0.181.0 Mockup-Paket P3 «Warum? und Regeln» (Ziel 1 «Schneller packen»: jeder Vorschlag sagt warum; vergessene Dinge kommen zuerst). Nächstes Paket P4 «Aktiv».
 
 **Nachtrag 21.10.2026, später Abend:** 0.178.0 Mockup-Paket P2 «Skitour» (Ziel 3 «Von der Haustür bis zurück»: Tour planen, Gipfel erreicht, Plan und Wirklichkeit; Ziel 1 «Schneller packen»: Ski-Plan im Vorabend-Check). Nächstes Paket P1 «Packen und Strom».
 

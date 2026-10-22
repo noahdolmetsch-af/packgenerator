@@ -93,9 +93,10 @@ export function rollUpBody(from, to) {
 }
 
 /** The list filters for the daily summaries and the nights that ended in from..to. */
-export function listFilter(type, from, to) {
+export function listFilter(type, from, to, { clock = false } = {}) {
   const end = nextDay(to);
-  if (type === 'sleep') return `sleep.interval.civil_end_time >= "${from}" AND sleep.interval.civil_end_time < "${end}"`;
+  const at = clock ? 'T00:00:00' : '';
+  if (type === 'sleep') return `sleep.interval.civil_end_time >= "${from}${at}" AND sleep.interval.civil_end_time < "${end}${at}"`;
   const field = type.replaceAll('-', '_');
   return `${field}.date >= "${from}" AND ${field}.date < "${end}"`;
 }

@@ -8,19 +8,21 @@ import DE from '../src/lib/i18n/de/index.js';
 const ids = (w) => w.map((x) => x.id);
 
 describe('«Heute neu» N2: the ready wall (Noah 20.10.2026 «5a»)', () => {
-  it('the body and the Aktiv tiles on top, Körperwerte, then the week, the ring, the trip, «Up now», the bikes and 8 shortcuts', () => {
+  it('meditation and the weekly weight, the body and the Aktiv tiles, Körperwerte, then the week, the ring, the last activity, the trip, «Up now», the bikes and 8 shortcuts', () => {
     // Noah 21.10.2026 «Körperwerte und countdown ok»: «Körperwerte» as a whole row under the two tiles on top
-    expect(ids(READY).slice(0, 8)).toEqual(['body', 'acts', 'vitals', 'week', 'balance', 'trip', 'important', 'bikes']);
-    expect(READY.filter((x) => x.id !== 'vitals').slice(0, 6).every((x) => x.size === 'l')).toBe(true);
+    // P6 «Heute ergänzen» (Noah 21.10.2026 «2b»): ME1 meditation on top, SN2l the weekly weight, TR1 the last activity
+    const order = ['meditation', 'weighin', 'body', 'acts', 'vitals', 'week', 'balance', 'strava', 'trip', 'important', 'bikes'];
+    expect(ids(READY).slice(0, order.length)).toEqual(order);
+    expect(READY.filter((x) => ['body', 'acts', 'week', 'balance', 'strava', 'trip', 'important'].includes(x.id)).every((x) => x.size === 'l')).toBe(true);
     const small = READY.filter((x) => x.size === 's');
     expect(small.length).toBe(8); // 4a: 8 shortcuts
-    expect(ids(READY).slice(8)).toEqual(ids(small));
+    expect(ids(READY).slice(order.length)).toEqual(ids(small));
     for (const x of READY) expect(TILE[x.id].sizes, x.id).toContain(x.size);
     // the 8 shortcuts of A stay
     expect(ids(READY.filter((x) => x.size === 's'))).toEqual(ids(READY_A.filter((x) => x.size === 's')));
   });
-  it('near a trip its card moves up right under the body, the Aktiv tiles and Körperwerte', () => {
-    expect(ids(tripUp(READY, true)).slice(0, 4)).toEqual(['body', 'acts', 'vitals', 'trip']);
+  it('near a trip its card moves up right under the head (meditation, weight, body, Aktiv, Körperwerte)', () => {
+    expect(ids(tripUp(READY, true)).slice(0, 6)).toEqual(['meditation', 'weighin', 'body', 'acts', 'vitals', 'trip']);
     expect(tripUp(READY, false)).toBe(READY);
   });
   it('3a: the cards that left Heute stay in the catalog («Add a tile»)', () => {
@@ -34,16 +36,22 @@ describe('«Heute neu» N2: the ready wall (Noah 20.10.2026 «5a»)', () => {
     expect(wallOf(old)).toEqual(READY);
     expect(wallOf({ v: 9, tiles: READY_A })).toEqual(READY);
     const mine = wallRecord([{ id: 'week', size: 'l' }, { id: 'important', size: 'l' }, { id: 'strava', size: 'w' }]);
-    expect(mine.v).toBe(11);
+    expect(mine.v).toBe(12);
     expect(ids(wallOf(mine))).toEqual(['week', 'important', 'strava']);
     // a wall of N2 (v 10) gets «Körperwerte» once, after «Aktiv heute» (else after the body, else on top); taken away it stays away
-    expect(ids(wallOf({ v: 10, tiles: [{ id: 'body', size: 'l' }, { id: 'acts', size: 'l' }, { id: 'week', size: 'l' }] }))).toEqual(['body', 'acts', 'vitals', 'week']);
-    expect(ids(wallOf({ v: 10, tiles: [{ id: 'body', size: 'l' }, { id: 'week', size: 'l' }] }))).toEqual(['body', 'vitals', 'week']);
-    expect(ids(wallOf({ v: 10, tiles: [{ id: 'week', size: 'l' }] }))).toEqual(['vitals', 'week']);
+    // (and, as v < 12, the P6 tiles once: meditation and the weight on top, the last activity after the balance or the week)
+    const p6 = ['meditation', 'weighin'];
+    expect(ids(wallOf({ v: 10, tiles: [{ id: 'body', size: 'l' }, { id: 'acts', size: 'l' }, { id: 'week', size: 'l' }] }))).toEqual([...p6, 'body', 'acts', 'vitals', 'week', 'strava']);
+    expect(ids(wallOf({ v: 10, tiles: [{ id: 'body', size: 'l' }, { id: 'week', size: 'l' }] }))).toEqual([...p6, 'body', 'vitals', 'week', 'strava']);
+    expect(ids(wallOf({ v: 10, tiles: [{ id: 'week', size: 'l' }] }))).toEqual([...p6, 'vitals', 'week', 'strava']);
     expect(ids(wallOf(wallRecord([{ id: 'week', size: 'l' }])))).toEqual(['week']);
+    // P6 on a wall of 0.170–0.179 (v 11): a small meditation tile becomes the card on top; a last activity there stays where it is
+    const v11 = { v: 11, tiles: [{ id: 'body', size: 'l' }, { id: 'balance', size: 'l' }, { id: 'meditation', size: 's' }, { id: 'bikes', size: 'long' }] };
+    expect(wallOf(v11)).toEqual([{ id: 'meditation', size: 'long' }, { id: 'weighin', size: 'long' }, { id: 'body', size: 'l' }, { id: 'balance', size: 'l' }, { id: 'strava', size: 'l' }, { id: 'bikes', size: 'long' }]);
+    expect(ids(wallOf({ v: 11, tiles: [{ id: 'strava', size: 'w' }, { id: 'body', size: 'l' }] }))).toEqual([...p6, 'strava', 'body']);
   });
-  it('the time of day keeps the body and the Aktiv tiles on top', () => {
-    for (const h of [7, 13, 19, 23]) expect(ids(byTime(READY, h)).slice(0, 2)).toEqual(['body', 'acts']);
+  it('the time of day keeps the head on top (meditation, weight, body, Aktiv, Körperwerte)', () => {
+    for (const h of [7, 13, 19, 23]) expect(ids(byTime(READY, h)).slice(0, 5)).toEqual(['meditation', 'weighin', 'body', 'acts', 'vitals']);
   });
 });
 

@@ -16,6 +16,34 @@
 
 export const WHATS_NEW = [
   {
+    // v0.181.0 «Warum? und Regeln» (Paket P3 of «Offene Mockups», Noah 21.10.2026): RG1 «Why?» next to a row in
+    // Plan, RG3 Me › How the app decides (every rule, search, block rules on/off), C «Most often forgotten» on Pack.
+    version: '0.181.0',
+    date: '2026-10-21',
+    title: 'Why, and by which rule',
+    lead: 'Every suggestion says why.',
+    points: [
+      { text: '«Why?» next to every suggested row', href: '#/pack' },
+      { text: 'All rules on one page', href: '#/me/regeln' },
+    ],
+    small: [{ box: 'new', text: 'Most often forgotten at the top of Pack' }],
+    test: ['Open Planen of a trip and tap «Why?» next to a row.', 'Open Me › How the app decides and search «rain».'],
+  },
+  {
+    // v0.180.0 «Heute ergänzt» (Mockup-Paket P6, Noah 21.10.2026 «2b»): ME1 meditation on top, TR1 the last
+    // activity, SN2l the weight once a week, AB3 the areas of the due questions, H1 «New» on top after an update.
+    version: '0.180.0',
+    date: '2026-10-21',
+    title: 'Today, filled in',
+    lead: 'Meditation, weight and your last ride on Heute.',
+    points: [
+      { text: 'Weight once a week on Heute', href: '#/me/weight' },
+      { text: 'Meditation and last activity on Heute', href: '#/flow/act/meditation' },
+    ],
+    small: [{ box: 'new', text: '«New» on top for 14 days after an update' }],
+    test: ['Open Heute: meditation is on top, «Last activity» after the ring.', 'Without a weight for a week, type it in «Weight this week?».'],
+  },
+  {
     // v0.179.0 «Packen und Strom» (Paket P1 of «Offene Mockups», Noah 21.10.2026): NP1 new item while
     // packing, L1 power values with source and light levels, L2 a base battery value, L4 the stopwatch,
     // fix: a repair kit naming a battery no longer counts as a device.

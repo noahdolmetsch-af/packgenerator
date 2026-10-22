@@ -17,13 +17,15 @@ import { restoreBackup, APP_ID } from './backup.js';
 import { SCHEMA_VERSION } from './db.js';
 import { blocksAfterImport } from './updates.js';
 import { seedActs } from './flow.js';
+import { seedTemplates } from './flowmed.js';
+import { WALK } from './flowtiles.js';
 import { addDays } from './play.js';
 import { readCfg } from './sync/engine.js';
 import { t } from './i18n.svelte.js';
 
 export const FIRST_KEY = 'firstStart';
 /** Tables the app fills by itself on a new start (settings, its own notes, the starter activities). */
-const SEEDED = new Set(['settings', 'meta', 'flowActs']);
+const SEEDED = new Set(['settings', 'meta', 'flowActs', 'flowTemplates']);
 /** The tables that hold the examples, in the order they are put back. */
 export const EXAMPLE_TABLES = ['bikes', 'containers', 'items', 'trips', 'debriefs', 'flowActs'];
 /** The key of a row (debriefs are keyed by their trip). */
@@ -130,8 +132,12 @@ export async function isFresh(db) {
       if (SEEDED.has(table.name)) continue;
       if (await table.count()) return false;
     }
-    const seeds = seedIds();
-    return (await db.flowActs.toArray()).every((a) => seeds.has(a.id));
+    // the starter activities and the walk of seed 2 (flowtiles.js): Heute puts them in by itself since 0.180
+    const seeds = new Set([...seedIds(), WALK.id]);
+    if (!(await db.flowActs.toArray()).every((a) => seeds.has(a.id))) return false;
+    // The meditation templates the app puts in by itself (Heute shows meditation since 0.180), never used
+    const tpls = new Set(seedTemplates().map((x) => x.id));
+    return (await db.flowTemplates.toArray()).every((x) => tpls.has(x.id) && !x.usedAt);
   } catch {
     return false;
   }

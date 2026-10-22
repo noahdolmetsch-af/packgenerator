@@ -369,6 +369,7 @@
     Compass: () => import('./pages/Compass.svelte'), // Paket N: Ich › Mein Kompass
     Phone: () => import('./pages/Phone.svelte'),
     Checks: () => import('./pages/Checks.svelte'),
+    Regeln: () => import('./pages/Regeln.svelte'), // P3 «Warum? und Regeln» (RG3): Ich › So entscheidet die App
     Push: () => import('./pages/Push.svelte'),
     Wetter: () => import('./pages/Wetter.svelte'),
     Abfragen: () => import('./pages/Abfragen.svelte'),
@@ -681,6 +682,9 @@
   {:else if page === 'inspiration'}
     <!-- «Inspiration» UC2-1, UC2-2, UC2-4: your own links; sidebar on a computer, Ich › Inspiration on a phone -->
     <LazyPage load={PAGES.Inspiration} />
+  {:else if page === 'regeln'}
+    <!-- P3 «Warum? und Regeln» (RG3): Ich › So entscheidet die App -->
+    <LazyPage load={PAGES.Regeln} />
   {:else if page === 'werte'}
     <!-- «Mehr selbst einstellen» (IS 254–258): Ich › Einstellungen › Eigene Werte -->
     <LazyPage load={PAGES.OwnValues} />

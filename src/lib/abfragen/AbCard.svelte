@@ -27,7 +27,7 @@
   // (HomeWindow: Vorabend, Wochenrückblick) waits; the round comes first, never two windows at once.
   // «Heute neu» A (Noah 20.10.2026 «2»): due and evening tell Heute's «Up now» how many questions wait; ask = true
   // (the row's «Start») opens the window again after «Later»
-  let { today, busy = $bindable(false), due = $bindable(0), evening: eveOut = $bindable(false), ask = $bindable(false) } = $props();
+  let { today, busy = $bindable(false), due = $bindable(0), areas = $bindable([]), evening: eveOut = $bindable(false), ask = $bindable(false) } = $props();
   let now = $state(stampOf());
   $effect(() => {
     const id = setInterval(() => (now = stampOf()), 60_000);
@@ -110,6 +110,8 @@
   const open = $derived(shown.length > 0 && !waiting && !quiet);
   $effect(() => {
     due = quiet ? 0 : Math.min(shown.length, FIRST); // Noah 2: the row on Heute names the 3 questions of the window
+    // P6 AB3 (Noah 21.10.2026 «2b»): what is due, by area, for the check row on Heute
+    areas = quiet ? [] : [...new Set(ordered.slice(0, FIRST).map((d) => areaName(d.q.area, data?.cfg)).filter(Boolean))];
     eveOut = evening;
   });
   $effect(() => {

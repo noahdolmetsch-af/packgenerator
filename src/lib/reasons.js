@@ -61,8 +61,9 @@ const blockLabel = (sets, key) => {
 };
 
 /**
- * Per item on the trip: { line, amount, note, slot, alts }.
+ * Per item on the trip: { line, parts, amount, note, slot, alts }.
  *   line    the reason text ('' when there is none)
+ *   parts   the same reasons one by one: [{ kind: 'cold'|'rain'|'layer'|'amount'|'aid'|'blocks', text, keys? }]
  *   amount  amountReason(…) or null
  *   note    the item's note when an amount rule is at work (the app does not read free text, so
  *           Noah sees both side by side), else ''
@@ -81,22 +82,37 @@ export function rowReasons(trip, items, setsValue = []) {
     const item = byId.get(e.itemId);
     if (!item) continue;
     const parts = [];
+    // P3 «Warum?»: each part with its kind, so the «Why?» window can name the rule behind it (regeln.js whyLines)
+    const kinds = [];
     const row = rowOf.get(e.itemId);
     // The amount branch of layerSuggest only says "1 per n h": amountReason says it better.
     const amountOnly = item.perHours && !item.ride && typeof item.coldBelow !== 'number' && !rainOf(item);
-    if (row && !amountOnly) parts.push(row.why);
+    if (row && !amountOnly) {
+      parts.push(row.why);
+      kinds.push({ kind: typeof item.coldBelow === 'number' ? 'cold' : rainOf(item) ? 'rain' : 'layer', text: row.why });
+    }
     const amount = amountReason(item, trip, e.qty || 1);
-    if (amount) parts.push(amount.text);
+    if (amount) {
+      parts.push(amount.text);
+      kinds.push({ kind: 'amount', text: amount.text });
+    }
     if (e.src === 'context' || e.src === 'set') {
       const keys = blockKeys(item).filter((k) => (e.src === 'context' ? night.includes(k) : true));
       // v0.72.0 (Noah 10a): first aid on every trip, and the line says which set and why.
       const aid = e.src === 'context' && keys.includes(AID_KEY);
       const rest = aid ? keys.filter((k) => k !== AID_KEY) : keys;
-      if (aid) parts.push(aidReason(trip));
-      if (rest.length) parts.push(t('from {blocks}', { blocks: rest.map((k) => blockLabel(sets, k)).join(', ') }));
+      if (aid) {
+        parts.push(aidReason(trip));
+        kinds.push({ kind: 'aid', text: aidReason(trip) });
+      }
+      if (rest.length) {
+        parts.push(t('from {blocks}', { blocks: rest.map((k) => blockLabel(sets, k)).join(', ') }));
+        kinds.push({ kind: 'blocks', text: parts.at(-1), keys: rest });
+      }
     }
     out[e.itemId] = {
       line: parts.join(' · '),
+      parts: kinds,
       amount,
       note: amount && item.note ? item.note : '',
       slot: row?.slot ?? null,

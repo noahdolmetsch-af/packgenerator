@@ -161,6 +161,10 @@
     .mc {
       padding: 12px;
     }
+    /* the name and its line sit beside the flower, not in a row of their own («Dein Körper heute» stays in the first screen) */
+    .mt {
+      flex: 1 1 0;
+    }
     .dots {
       width: 100%;
       margin-left: 0;
