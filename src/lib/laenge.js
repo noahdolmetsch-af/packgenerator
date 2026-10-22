@@ -15,7 +15,9 @@ export const TOO_LONG = {
   // measured 5.03 on the phone; the old Heute had 4.5. Lower it when Heute gets shorter.
   // 0.175.0: + the «Körperwerte» tile (Noah 21.10.2026 06:49 «Körperwerte und countdown ok») and «Customise this page»
   // at the end (Noah 20.10.2026 «1a», every page): measured 5.39 on the phone.
-  '#/': 5.5,
+  // 0.180.0 P6 (Noah 21.10.2026 «2b», the six Heute pictures): + the meditation card on top and «Weight this week?»:
+  // measured 5.51 on the phone (the card's name sits beside its flower to save a row).
+  '#/': 5.6,
   // 0.171.0: «Überblick» and «Letzte 7 Tage» wait behind one row on a phone (6.81 screens in 0.170 → under 5.5)
   '#/flow': 5.5,
   '#/bikes': 5.5,
