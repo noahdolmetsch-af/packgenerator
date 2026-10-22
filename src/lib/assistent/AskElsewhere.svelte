@@ -26,6 +26,7 @@
   let gBusy = $state(false);
   let gFor = $state('');
   let reading = $state(false);
+  let copiedTo = $state('');
   const src = liveQuery(async () => ({ items: await db.items.toArray(), learnings: await db.learnings.toArray() }));
   const ctx = $derived(withData && $src ? contextFor(q, { items: $src.items, learnings: $src.learnings, name: nameOf, de: isDe() }) : '');
   const list = $derived(links ? SERVICES.filter((s) => shownServices(dict.others).includes(s.key)) : []);
@@ -33,7 +34,7 @@
   const canRead = !!voiceApi();
 
   $effect(() => {
-    if (q !== gFor) (gAns = ''), (gMsg = ''), (gFor = '');
+    if (q !== gFor) (gAns = ''), (gMsg = ''), (gFor = ''), (copiedTo = '');
   });
 
   async function askG() {
@@ -61,6 +62,12 @@
     }, 700);
     return () => clearTimeout(timer);
   });
+  // «Weiter fragen bei» (Noah 22.10.2026): the address already carries the question; it is also copied,
+  // because a service can lose it (e.g. after its sign-in page). The note says where to paste it.
+  function copyAlong(s) {
+    copiedTo = '';
+    navigator.clipboard?.writeText(askText(q, ctx)).then(() => (copiedTo = s.name), () => {});
+  }
   function read() {
     if (reading) return stopReading(), (reading = false);
     reading = true;
@@ -85,12 +92,13 @@
       {#if gMsg}<p class="ae-msg" role="status">{gMsg}</p>{/if}
     {/if}
     {#if list.length}
-      <p class="ae-h">{t('Ask further at')}</p>
+      <p class="ae-h">{t('Ask further at')} <span class="ae-hint">{t('(your question goes along)')}</span></p>
       <ul class="ae-list">
         {#each list as s (s.key)}
-          <li><a class="chip ae-go" href={s.url(askText(q, ctx))} target="_blank" rel="noopener noreferrer" title={t(s.what)} data-service={s.key}>{s.key === 'google' ? t(s.name) : s.name}<ExternalLink size={12} aria-hidden="true" /></a></li>
+          <li><a class="chip ae-go" href={s.url(askText(q, ctx))} target="_blank" rel="noopener noreferrer" title={t(s.what)} data-service={s.key} onclick={() => copyAlong(s)}>{s.key === 'google' ? t(s.name) : s.name}<ExternalLink size={12} aria-hidden="true" /></a></li>
         {/each}
       </ul>
+      {#if copiedTo}<p class="ae-msg" role="status" data-ask-copied>{t('{name} opens with your question. It is also copied: if it is missing there (e.g. after signing in), paste it.', { name: copiedTo === 'Google AI Mode' ? t(copiedTo) : copiedTo })}</p>{/if}
     {/if}
     <label class="ae-tick"><input type="checkbox" bind:checked={withData} data-ask-with-data />{t('Send my gear and learnings that fit along')}</label>
     {#if withData}<p class="ae-msg">{ctx ? t('Goes along: {n} lines from your gear and learnings.', { n: ctx.split('\n').filter((l) => l.startsWith('- ')).length }) : t('Nothing in your gear or learnings fits this question; only the question goes along.')}</p>{/if}
@@ -114,6 +122,9 @@
   .ae-h {
     margin: 2px 0 0;
     font-size: var(--fs-small);
+    color: var(--ink-3);
+  }
+  .ae-hint {
     color: var(--ink-3);
   }
   .ae-list {
