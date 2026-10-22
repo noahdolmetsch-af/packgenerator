@@ -120,8 +120,7 @@ export function examplesFile(today) {
   return { app: APP_ID, schemaVersion: SCHEMA_VERSION, exportedAt: now, tables: { bikes, containers, items, trips, debriefs } };
 }
 
-// The starter activities and the walk of seed 2 (flowtiles.js), which Heute puts in by itself since 0.180
-const seedIds = () => new Set([...seedActs().map((a) => a.id), WALK.id]);
+const seedIds = () => new Set(seedActs().map((a) => a.id));
 
 /** Is this a truly new app that has not been asked yet? Never throws (false then). */
 export async function isFresh(db) {
@@ -133,7 +132,8 @@ export async function isFresh(db) {
       if (SEEDED.has(table.name)) continue;
       if (await table.count()) return false;
     }
-    const seeds = seedIds();
+    // the starter activities and the walk of seed 2 (flowtiles.js): Heute puts them in by itself since 0.180
+    const seeds = new Set([...seedIds(), WALK.id]);
     if (!(await db.flowActs.toArray()).every((a) => seeds.has(a.id))) return false;
     // The meditation templates the app puts in by itself (Heute shows meditation since 0.180), never used
     const tpls = new Set(seedTemplates().map((x) => x.id));
