@@ -364,7 +364,8 @@
     Agenda: () => import('./pages/Agenda.svelte'),
     MailPage: () => import('./pages/Mail.svelte'),
     WasNeu: () => import('./pages/WasNeu.svelte'),
-    WasKommt: () => import('./pages/WasKommt.svelte'), // Paket N #68: Ich › Was kommt
+    WasKommt: () => import('./pages/WasKommt.svelte'), // Paket N #68, P7: Ich › Projekt-Ablage
+    Album: () => import('./pages/Album.svelte'), // Paket P8: Ich › Fotoalbum
     Dreams: () => import('./pages/Dreams.svelte'), // Paket N: Touren › Träume
     Compass: () => import('./pages/Compass.svelte'), // Paket N: Ich › Mein Kompass
     Phone: () => import('./pages/Phone.svelte'),
@@ -619,6 +620,8 @@
     <LazyPage load={PAGES.Dreams} />
   {:else if page === 'next'}
     <LazyPage load={PAGES.WasKommt} />
+  {:else if page === 'album'}
+    <LazyPage load={PAGES.Album} />
   {:else if page === 'news'}
     <!-- v0.110.0 Design-Refresh P10 (I11): Ich › Was ist neu -->
     {#key hash}<LazyPage load={PAGES.WasNeu} />{/key}

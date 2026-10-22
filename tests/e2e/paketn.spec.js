@@ -1,11 +1,10 @@
-// Paket N «Pläne und Träume» (19.10.2026): notes linked with each other (#10) and Ich › Was kommt (#68).
+// Paket N «Pläne und Träume» (19.10.2026): notes linked with each other (#10) and Ich › Projekt-Ablage (#68, P7).
 // In German, on a phone and a computer: two notes are written, one is linked from the other, the link
-// shows on both, «Auf einen Blick» counts it, a #tag searches; Ich › Was kommt shows the packages.
+// shows on both, «Auf einen Blick» counts it, a #tag searches; Ich › Projekt-Ablage shows the ideas and the way.
 // No sideways scroll, no page errors. Fictional data only.
 import { test, expect } from '@playwright/test';
 import { viaTab } from './placetab.js'; // UI-Ziele #6: the pages that were rows under Ich are tabs now
 import DE from '../../src/lib/i18n/de/index.js';
-import { PACKAGES } from '../../src/lib/wascommt.js';
 import { ready } from './settle.js';
 
 // a 2×2 PNG (fictional picture)
@@ -58,16 +57,16 @@ test('notes: link one note with another, the link shows on both', async ({ page,
   expect(errors).toEqual([]);
 });
 
-test('Ich › Was kommt shows the packages', async ({ page, context }) => {
+test('Ich › Projekt-Ablage shows the ideas and the way', async ({ page, context }) => {
   const errors = await prep(page, context);
   await page.goto('./#/me');
   await ready(page);
   await page.locator('a[data-row="next"]').click();
   await expect(page).toHaveURL(/#\/me\/next$/);
-  const root = page.locator('[data-page="was-kommt"]');
-  await expect(root.locator('h1, h2').first()).toBeVisible();
-  await expect(root.locator('[data-package]')).toHaveCount(PACKAGES.length);
-  await expect(root.locator('[data-package="N"]')).toContainText(T('Plans and dreams'));
+  const root = page.locator('[data-page="projekt-ablage"]');
+  await expect(root.locator('h1').first()).toHaveText(T('Project shelf'));
+  await expect(root.locator('[data-pa-live]')).toBeVisible();
+  await expect(root.locator('[data-way]').first()).toBeVisible();
   await noSideScroll(page);
   expect(errors).toEqual([]);
 });

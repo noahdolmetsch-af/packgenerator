@@ -111,6 +111,14 @@ Ursprünglich freigegebene Ausführungsreihenfolge: AP01–AP09 → AP12–AP16 
 
 **21.10.2026, v0.179.0 «Gepackt und geladen»:** Mockup-Paket P1 Packen und Strom: neues Teil beim Packen, Strom-Werte mit Quelle, Leuchtstufen, Ladezeit messen, Flickzeug-Fehler. Als Nächstes P6 Heute ergänzen.
 
+**22.10.2026, v0.185.0 «Alle deine Fotos in einem Album»:** Mockup-Paket P8 Fotoalbum. Geparkt bis zur Freigabe. Damit sind alle 8 freigegebenen Mockup-Pakete gebaut (P6 Heute beim Thema Heute).
+
+**22.10.2026, v0.184.0 «Das ganze Projekt auf einer Seite»:** Mockup-Paket P7 Projekt-Ablage. Geparkt bis zur Freigabe. Als Nächstes P8 Fotoalbum.
+
+**22.10.2026, v0.183.0 «Eingang leer in drei Minuten»:** Mockup-Paket P5 Eingang: Ablegen-Runde (A-J4). Geparkt bis zur Freigabe. Als Nächstes P7 Projekt-Ablage.
+
+**21.10.2026, v0.182.0 «Tennis, Yoga und gute Tage»:** Mockup-Paket P4 Aktiv: Tennis-Seite oben (Titelbild, gespielt, geplant, Gespielt?), Yoga-Karte auf Meditation, «Diesen Tag merken», «Gewünscht und erlebt». Als Nächstes P5 Eingang.
+
 **21.10.2026, v0.181.0 «Warum, und nach welcher Regel»:** Mockup-Paket P3 Warum? und Regeln: «Warum?» in Planen, Seite «So entscheidet die App», «Meist vergessen» in Packen. Als Nächstes P4 Aktiv.
 
 **21.10.2026, v0.178.0 «Skitouren, gut geplant»:** Mockup-Paket P2 Skitour: Tour planen mit Gefahrenstufe und «Dein Morgen», Saison-Seite, «Gipfel erreicht», Plan und Wirklichkeit. Später (nicht in P2): Saison-Karte mit allen Gipfeln (braucht Koordinaten), Skitour-Spielwiese, Nachfüll-Extras. Als Nächstes P1 Packen und Strom.

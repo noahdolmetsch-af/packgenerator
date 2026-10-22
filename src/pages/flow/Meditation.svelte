@@ -17,6 +17,7 @@
   import TipLine from '../../lib/pageinfo/TipLine.svelte';
   import { ChevronRight, Play, Plus, Star, Ellipsis, Bell, Flower2, Clock } from '@lucide/svelte';
   import Face from '../../lib/timer/Face.svelte';
+  import YogaCard from '../../lib/yoga/YogaCard.svelte';
   import { db } from '../../lib/db.js';
   import { medQuery, seedMed } from '../../lib/flow/data.svelte.js';
   import { actState, addDays } from '../../lib/flow.js';
@@ -219,6 +220,8 @@
           </a>
         {/if}
 
+        <!-- Paket P4 (mockup ME4): yoga, the regular classes and the studio, counted apart from meditation -->
+        {#if actId === 'meditation'}<YogaCard {today} />{/if}
         <a class="surf row more" href="{base}/mehr" data-to="more">
           <span class="ri" aria-hidden="true"><Ellipsis size={20} /></span>
           <span class="rt"><b>{t('More')}</b><small>{t('Kinds · sounds · places and things · quotes · links · all stars')}</small></span>

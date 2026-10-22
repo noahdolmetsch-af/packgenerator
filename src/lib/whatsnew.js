@@ -16,6 +16,62 @@
 
 export const WHATS_NEW = [
   {
+    // v0.185.0 «Fotoalbum» (Paket P8 of «Offene Mockups», Noah 21.10.2026 «7a»): Ich › Fotoalbum, all photos of the app
+    // by month or by place, album photos with place and date, single photos off for Heute.
+    version: '0.185.0',
+    date: '2026-10-22',
+    title: 'All your photos in one album',
+    lead: 'By month or by place.',
+    points: [
+      { text: 'Photo album: all photos of the app by month or place', href: '#/me/album' },
+      { text: 'Give your photos a place and a date', href: '#/me/album' },
+    ],
+    small: [{ box: 'new', text: 'Choose which photos greet you on Today' }],
+    test: ['Open Me › Photo album and add two photos.', 'Tap a photo, give it a place, then tap «By place».'],
+  },
+  {
+    // v0.184.0 «Projekt-Ablage» (Paket P7 of «Offene Mockups», Noah 21.10.2026 «6a»): Ich › Projekt-Ablage, everything
+    // about the app on one page (ideas live, for you now, the way, idea board, releases, knowledge, toolbox, jumps).
+    version: '0.184.0',
+    date: '2026-10-22',
+    title: 'The whole project on one page',
+    lead: 'Where the app stands and what comes.',
+    points: [
+      { text: 'Project shelf: ideas live, the way and what waits for you', href: '#/me/next' },
+      { text: 'All ideas as a board by goal', href: '#/me/next' },
+    ],
+    small: [{ box: 'new', text: 'Your own points under «For you now»' }],
+    test: ['Open Me › Project shelf.', 'Open «Ideas» under «Look up» and tap a goal.'],
+  },
+  {
+    // v0.183.0 «Eingang» (Paket P5 of «Offene Mockups», Noah 21.10.2026): A-J4 the «Ablegen-Runde», the open notes
+    // one after the other with the suggestion and why, and the end screen.
+    version: '0.183.0',
+    date: '2026-10-22',
+    title: 'Inbox empty in three minutes',
+    lead: 'One note after the other.',
+    points: [
+      { text: 'Sorting round: each note with a suggestion and why', href: '#/inbox' },
+      { text: 'At the end: how many filed, kept and deleted', href: '#/inbox' },
+    ],
+    small: [{ box: 'nicer', text: 'Each suggestion says why' }],
+    test: ['Open Me › Inbox and tap «Start the sorting round».', 'File one note, keep one, skip one, and look at the end screen.'],
+  },
+  {
+    // v0.182.0 «Aktiv» (Paket P4 of «Offene Mockups», Noah 21.10.2026): TN1–TN5 the top of the tennis page (only
+    // tennis, 5b), ME4 the yoga card on Meditation, E4 «Diesen Tag merken», E5 «Gewünscht und erlebt».
+    version: '0.182.0',
+    date: '2026-10-22',
+    title: 'Tennis, yoga and good days',
+    lead: 'Tick off faster, keep what does you good.',
+    points: [
+      { text: 'Tennis: played like last time, booked times ask «Played?»', href: '#/flow/sport/act%3Atennis' },
+      { text: 'Yoga: your regular classes on the Meditation page', href: '#/flow/act/meditation' },
+    ],
+    small: [{ box: 'new', text: 'Keep a good day in the evening review' }],
+    test: ['Open Aktiv › Sports › Tennis and tap «Played».', 'Open Aktiv › Meditation and add a yoga class.'],
+  },
+  {
     // v0.181.1 «Fitbit-Schlaf und Gemini gehen wieder» (bug fix, 22.10.2026: Google sends nights without the wake-up date; the server
     // now reads the wake-up day from the civil time string or the moment with its offset, and the app fetches 30 days once more)
     version: '0.181.1',
