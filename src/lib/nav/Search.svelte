@@ -359,8 +359,11 @@
       {/if}
       <!-- «Kluge Suche»: the hint to similar words / a typo and «Ask Claude» sit under the actions (FE17: actions on top, Enter runs the first) -->
       <!-- «Suche mit Sprache» (3a + b): Gemini answers here, «Ask further at» opens Claude, ChatGPT … -->
-      {#if asking && (suche.gemini || suche.links)}<AskElsewhere {q} gemini={suche.gemini} links={suche.links} auto={spoken && suche.geminiAuto && !(suche.app && appHas)} autoread={spoken && suche.read === 'auto'} />{/if}
-      <SearchFree {q} data={$all} also={smart.also} fixed={smart.fixed} chrome={suche.chrome} links={suche.links} local={suche.local} />
+      <!-- one block «Weiter fragen» (Noah 22.10.2026 «3a»): the Chrome AI and the AI on this device inside it -->
+      {#if asking && (suche.gemini || suche.links)}<AskElsewhere {q} gemini={suche.gemini} links={suche.links} auto={spoken && suche.geminiAuto && !(suche.app && appHas)} autoread={spoken && suche.read === 'auto'}>
+          {#snippet children()}<SearchFree {q} data={$all} also={smart.also} fixed={smart.fixed} chrome={suche.chrome} links={suche.links} local={suche.local} inside={suche.links} />{/snippet}
+        </AskElsewhere>
+      {:else}<SearchFree {q} data={$all} also={smart.also} fixed={smart.fixed} chrome={suche.chrome} links={suche.links} local={suche.local} />{/if}
       {#each groups as g (g.kind)}
         <p class="gh">{t(g.name)}{g.more ? ` · ${t('{n} more', { n: g.more })}` : ''}</p>
         <ul>

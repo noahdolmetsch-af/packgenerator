@@ -12,14 +12,16 @@
   import { t, lang, nameOf, isDe } from '../i18n.svelte.js';
   import { dict } from '../dictation.svelte.js';
   import { helper } from '../helper/client.svelte.js';
-  import { SERVICES, shownServices, contextFor, askText } from './elsewhere.js';
+  import { orderedServices, shownServices, contextFor, askText } from './elsewhere.js';
   import { askGemini, geminiError } from './gemini.js';
   import { readAloud, stopReading, speechLang, voiceApi } from '../speak.js';
 
   // «Suche mit Sprache und Antworten» (Noah 21.10.2026 «3a … und b»): the top search passes its own
   // settings (Ich › Suche): `gemini` and `links` show or hide the two parts (null: the dictation setting),
   // `auto` asks Gemini by itself (a spoken question the app has no answer for), `autoread` reads it aloud.
-  let { q = '', gemini = null, links = true, auto = false, autoread = null } = $props();
+  // «Weiter fragen» as one block (Noah 22.10.2026 «3a»): `children` (the Chrome AI and the AI on this
+  // device, SearchFree with links off) sits inside it, below the links.
+  let { q = '', gemini = null, links = true, auto = false, autoread = null, children = null } = $props();
   let withData = $state(false);
   let gAns = $state('');
   let gMsg = $state('');
@@ -29,7 +31,18 @@
   let copiedTo = $state('');
   const src = liveQuery(async () => ({ items: await db.items.toArray(), learnings: await db.learnings.toArray() }));
   const ctx = $derived(withData && $src ? contextFor(q, { items: $src.items, learnings: $src.learnings, name: nameOf, de: isDe() }) : '');
-  const list = $derived(links ? SERVICES.filter((s) => shownServices(dict.others).includes(s.key)) : []);
+  // your order, your favourite first and big (Noah 22.10.2026 «4a»; Ich › Darstellung › Bedienung)
+  const list = $derived(links ? orderedServices(dict.order).filter((s) => shownServices(dict.others).includes(s.key)) : []);
+  const sname = (s) => (s.key === 'google' ? t(s.name) : s.name);
+  // the question that goes along, changeable before the jump (Noah 22.10.2026 «2a»); a new question or
+  // the tick starts it fresh
+  const base = $derived(askText(q, ctx));
+  let edited = $state(null);
+  let editedFor = '';
+  $effect(() => {
+    if (base !== editedFor) (editedFor = base), (edited = null);
+  });
+  const sendText = $derived(edited ?? base);
   const gShown = $derived((gemini ?? dict.gemini) && !!helper.code);
   const canRead = !!voiceApi();
 
@@ -66,7 +79,7 @@
   // because a service can lose it (e.g. after its sign-in page). The note says where to paste it.
   function copyAlong(s) {
     copiedTo = '';
-    navigator.clipboard?.writeText(askText(q, ctx)).then(() => (copiedTo = s.name), () => {});
+    navigator.clipboard?.writeText(sendText).then(() => (copiedTo = sname(s)), () => {});
   }
   function read() {
     if (reading) return stopReading(), (reading = false);
@@ -93,16 +106,21 @@
     {/if}
     {#if list.length}
       <p class="ae-h">{t('Ask further at')} <span class="ae-hint">{t('(your question goes along)')}</span></p>
+      <textarea class="inp ae-q" rows="2" value={sendText} oninput={(e) => (edited = e.currentTarget.value)} aria-label={t('The question that goes along')} data-ask-text></textarea>
+      <p class="ae-msg">{t('You can change the question here before you open a service.')}</p>
       <ul class="ae-list">
-        {#each list as s (s.key)}
-          <li><a class="chip ae-go" href={s.url(askText(q, ctx))} target="_blank" rel="noopener noreferrer" title={t(s.what)} data-service={s.key} onclick={() => copyAlong(s)}>{s.key === 'google' ? t(s.name) : s.name}<ExternalLink size={12} aria-hidden="true" /></a></li>
+        {#each list as s, i (s.key)}
+          <li><a class={i === 0 ? 'btn hi sm ae-go ae-fav' : 'chip ae-go'} href={s.url(sendText)} target="_blank" rel="noopener noreferrer" title={t(s.what)} data-service={s.key} onclick={() => copyAlong(s)}>{i === 0 ? t('Ask {name}', { name: sname(s) }) : sname(s)}<ExternalLink size={12} aria-hidden="true" /></a></li>
         {/each}
       </ul>
-      {#if copiedTo}<p class="ae-msg" role="status" data-ask-copied>{t('{name} opens with your question. It is also copied: if it is missing there (e.g. after signing in), paste it.', { name: copiedTo === 'Google AI Mode' ? t(copiedTo) : copiedTo })}</p>{/if}
+      {#if copiedTo}<p class="ae-msg" role="status" data-ask-copied>{t('{name} opens with your question. It is also copied: if it is missing there (e.g. after signing in), paste it.', { name: copiedTo })}</p>{/if}
     {/if}
     <label class="ae-tick"><input type="checkbox" bind:checked={withData} data-ask-with-data />{t('Send my gear and learnings that fit along')}</label>
     {#if withData}<p class="ae-msg">{ctx ? t('Goes along: {n} lines from your gear and learnings.', { n: ctx.split('\n').filter((l) => l.startsWith('- ')).length }) : t('Nothing in your gear or learnings fits this question; only the question goes along.')}</p>{/if}
+    {#if children}<div class="ae-more">{@render children()}</div>{/if}
   </div>
+{:else if children}
+  {@render children()}
 {/if}
 
 <style>
@@ -140,6 +158,18 @@
     align-items: center;
     gap: 4px;
     text-decoration: none;
+  }
+  .ae-q {
+    width: 100%;
+    box-sizing: border-box;
+    resize: vertical;
+    font: inherit;
+  }
+  .ae-fav {
+    font-weight: 600;
+  }
+  .ae-more {
+    margin-top: 4px;
   }
   .ae-tick {
     display: flex;
