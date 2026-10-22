@@ -85,7 +85,7 @@
 </script>
 
 <div class="ich-page compass" data-page="compass">
-  <VeloHead crumbs={[{ label: t('Me|place'), href: '#/me' }]} title={t('My compass')} sub={t('Goals in steps, resolutions, dreams, ideas')} />
+  <VeloHead crumbs={[{ label: t('Plan|place'), href: '#/week' }]} title={t('My compass')} sub={t('Goals in steps, resolutions, dreams, ideas')} />
   <p class="cp-intro">{t('A fixed place for what you want to reach and what is on your mind. A goal with a day becomes small steps; once a week the app asks how it is going.')}</p>
   <AreaIntro place="compass" />
 

@@ -16,14 +16,18 @@
   import { localDay } from '../localday.js';
   import { t, lang } from '../i18n.svelte.js';
   import { answerFor } from './answers.js';
+  import { wearRows } from '../wear.js';
   import { readAloud, stopReading, speechLang, voiceApi } from '../speak.js';
 
-  let { q = '', onlink = () => {}, tools = false, fallback = false, autoread = false, onadopt = null, onreading = () => {}, onclose = null, onresult = () => {} } = $props();
+  let { q = '', onlink = () => {}, tools = false, fallback = false, here = false, autoread = false, onadopt = null, onreading = () => {}, onclose = null, onresult = () => {} } = $props();
   const today = localDay();
   const src = liveQuery(async () => {
     const [book, trips, items, bikes, visits, tasks, learnings] = await Promise.all([db.kmBook.toArray(), db.trips.toArray(), db.items.toArray(), db.bikes.toArray(), db.visits.toArray(), db.maintenance.toArray(), db.learnings.toArray()]);
-    const care = bikes.filter((b) => !b.archived && !b.gone).map((b) => bikeCare(withVisits(b, visits), { tasks, visits, today })).filter(Boolean);
-    return { today, book, trips, items, care, learnings };
+    const live = bikes.filter((b) => !b.archived && !b.gone && b.status !== 'sold');
+    const care = live.map((b) => bikeCare(withVisits(b, visits), { tasks, visits, today })).filter(Boolean);
+    // Klick-Rundgang H25: the wear of each part (chain, cassette, pads, tyres) for «Wann muss ich die Kette wechseln?»
+    const wear = live.map((b) => ({ bikeId: b.id, bikeName: b.name, rows: wearRows(withVisits(b, visits), { entries: book, today }) }));
+    return { today, book, trips, items, care, learnings, wear };
   });
   const answer = $derived($src && q.trim().length >= 3 ? answerFor(q, $src) : null);
   const spoken = $derived(answer ? [answer.title, ...answer.lines].filter(Boolean).join('. ') : '');
@@ -81,7 +85,8 @@
     <p class="aa-from"><MessageCircle size={14} aria-hidden="true" />{t('The app answers, from your data')}</p>
     <p class="aa-t">{t('The app knows nothing about this yet.')}</p>
     <p class="aa-l">«{q}»</p>
-    <a class="aa-go" href={`#/assistent?q=${encodeURIComponent(q)}`} onclick={onlink}>{t('Ask in the Assistant')}<ChevronRight size={16} aria-hidden="true" /></a>
+    {#if here}<p class="aa-l">{t('It answers set questions: km, what is due, wear of chain and tyres, packing, trips, weights, learnings. For anything else, ask Claude or Chrome below.')}</p>
+    {:else}<a class="aa-go" href={`#/assistent?q=${encodeURIComponent(q)}`} onclick={onlink}>{t('Ask in the Assistant')}<ChevronRight size={16} aria-hidden="true" /></a>{/if}
     {#if onclose}<p class="aa-tools"><button type="button" class="btn sm" onclick={onclose} aria-label={t('Close the answer')}><X size={14} aria-hidden="true" /></button></p>{/if}
   </div>
 {/if}

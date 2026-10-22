@@ -222,7 +222,7 @@
 
 
 <div class="inbox ich-page">
-  <VeloHead crumbs={[{ label: t('Me|place'), href: '#/me' }]} title={t('Inbox')} sub={$notesQ ? `${t('Notes from on the way, to file')} · ${t('newest on top')}` : ''} />
+  <VeloHead crumbs={[{ label: t('Plan|place'), href: '#/week' }]} title={t('Inbox')} sub={$notesQ ? `${t('Notes from on the way, to file')} · ${t('newest on top')}` : ''} />
   <!-- Hinweistexte HT 3a (Noah 14.10.2026): the card «Was hier steht» -->
   <HintCard page="inbox" />
   <div class="bar">
