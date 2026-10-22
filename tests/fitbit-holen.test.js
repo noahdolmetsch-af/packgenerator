@@ -60,7 +60,8 @@ function world({
     const u = new URL(url);
     const type = u.pathname.split("/dataTypes/")[1]?.split("/")[0];
     asked.push({ type, pageSize: u.searchParams.get("pageSize") });
-    const answer = google[type];
+    const answer =
+      typeof google[type] === "function" ? google[type](u) : google[type];
     if (answer?.status)
       return Response.json(answer.json, { status: answer.status });
     if (typeof answer === "number")
@@ -215,6 +216,52 @@ describe("Fitbit: the daily fetch on the server", () => {
     const res = await days(w);
     expect(res.status).toBe(403);
     expect((await res.json()).code).toBe("google_scope");
+  });
+});
+
+describe("Fitbit: sleep when the filtered list brings no night", () => {
+  const night = (d) => ({
+    sleep: {
+      interval: {
+        civilStartTime: { date: day(d - 1), time: { hours: 23 } },
+        civilEndTime: { date: day(d), time: { hours: 7 } },
+      },
+      metadata: { mainSleep: true },
+      summary: { minutesAsleep: "420", minutesInSleepPeriod: "460" },
+    },
+  });
+  it("asks again with clock times, as in Google's own example", async () => {
+    const log = vi.spyOn(console, "log").mockImplementation(() => {});
+    const w = world({
+      google: {
+        sleep: (u) =>
+          (u.searchParams.get("filter") ?? "").includes("T00:00:00")
+            ? { dataPoints: [night(21)] }
+            : {},
+      },
+    });
+    const body = await (await days(w)).json();
+    expect(body.days.find((d) => d.date === "2026-10-21").sleep.asleepMin).toBe(
+      420,
+    );
+    expect(log.mock.calls.flat().join(" ")).toContain("clock filter 1 points");
+    log.mockRestore();
+  });
+  it("then asks without a filter and keeps only the nights in the range", async () => {
+    const log = vi.spyOn(console, "log").mockImplementation(() => {});
+    const w = world({
+      google: {
+        sleep: (u) =>
+          u.searchParams.get("filter")
+            ? {}
+            : { dataPoints: [night(5), night(20)] },
+      },
+    });
+    const body = await (await days(w)).json();
+    const slept = body.days.filter((d) => d.sleep).map((d) => d.date);
+    expect(slept).toEqual(["2026-10-20"]);
+    expect(log.mock.calls.flat().join(" ")).toContain("1 in range");
+    log.mockRestore();
   });
 });
 
