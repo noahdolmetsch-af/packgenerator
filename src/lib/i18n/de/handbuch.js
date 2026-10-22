@@ -1467,6 +1467,11 @@ export default {
   'Set a goal if you like, add wish tours, practice and courses.': 'Setz ein Ziel, wenn du willst, und füge Wunschtouren, Übungen und Kurse hinzu.',
   'Pick the ski in «After the tour»: its metres climbed add up here.': 'Wähle den Ski in «Nach der Tour»: Seine Höhenmeter zählen hier zusammen.',
   'Example: avalanche course two years ago → «Refresh» shows next to it.': 'Beispiel: Lawinenkurs vor zwei Jahren → daneben steht «Auffrischen».',
+  // Paket P7 «Projekt-Ablage» (0.184.0)
+  'Open Me › Project shelf.': 'Öffne Ich › Projekt-Ablage.',
+  'Read «For you now» and «The way».': 'Lies «Für dich jetzt» und «Der Weg».',
+  'Open «Ideas» under «Look up» and tap a goal.': 'Öffne «Ideen» unter «Nachschlagen» und tippe auf ein Ziel.',
+  'Example: «Eingang is built and parked» → it goes online after your OK.': 'Beispiel: «Eingang ist gebaut und geparkt» → es geht nach deinem OK online.',
   // Paket P5 «Eingang» (0.183.0)
   'Only when at least two notes wait in the Inbox.': 'Nur wenn mindestens zwei Notizen im Eingang warten.',
   'Tap «Start the sorting round».': 'Tippe auf «Ablegen-Runde starten».',

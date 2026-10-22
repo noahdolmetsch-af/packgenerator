@@ -40,7 +40,7 @@
   import Seg from '../lib/ui/Seg.svelte';
   import VeloHead from '../lib/bikes/VeloHead.svelte';
   import HomePlaceSheet from '../lib/ich/HomePlaceSheet.svelte';
-  import { HeartHandshake, Globe, Palette, House, Inbox, NotebookPen, Database, Info, Lightbulb, Keyboard, ChevronRight, ChevronDown, Sparkles, Archive, FlaskConical, TriangleAlert, Star, ListChecks, ClipboardList, History, CreditCard, Hand, BookOpen, LayoutGrid, Compass, ListTree, CircleHelp, Check, Bell, ListTodo, SlidersHorizontal, FileText, Scale, CalendarCheck, CalendarDays, BellRing, Mail, Backpack, Link2, Wrench, ExternalLink, CalendarClock, Target, ShieldCheck, ShoppingCart, MessageCircle, Search as SearchIcon } from '@lucide/svelte';
+  import { HeartHandshake, Globe, Palette, House, Inbox, NotebookPen, Database, Info, Lightbulb, Keyboard, ChevronRight, ChevronDown, Sparkles, Archive, FlaskConical, TriangleAlert, Star, ListChecks, ClipboardList, History, CreditCard, Hand, BookOpen, LayoutGrid, Compass, ListTree, CircleHelp, Check, Bell, ListTodo, SlidersHorizontal, FileText, Scale, CalendarCheck, CalendarDays, BellRing, Mail, Backpack, Link2, Wrench, ExternalLink, CalendarClock, FolderOpen, Target, ShieldCheck, ShoppingCart, MessageCircle, Search as SearchIcon } from '@lucide/svelte';
   import { wide } from '../lib/media.svelte.js';
   import { WHATS_NEW, shortVersion, newerThan, BEFORE } from '../lib/whatsnew.js';
   import NewsBanner from '../lib/know/NewsBanner.svelte';
@@ -366,10 +366,10 @@
             </a>
           </li>
           <li>
-            <!-- Paket N #68 (19.10.2026): Ich › Was kommt, the plan package by package -->
+            <!-- Paket N #68 (19.10.2026), P7 (0.184.0): Ich › Projekt-Ablage, everything about the app on one page -->
             <a class="ich-row" href="#/me/next" data-row="next">
-              <span class="ich-ib"><CalendarClock size={18} aria-hidden="true" /></span>
-              <span class="ich-m"><b>{t('What comes next')}</b><small>{t('The plan of the app, package by package')}</small></span>
+              <span class="ich-ib"><FolderOpen size={18} aria-hidden="true" /></span>
+              <span class="ich-m"><b>{t('Project shelf')}</b><small>{t('Ideas, the way, what waits for you')}</small></span>
               <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
             </a>
           </li>

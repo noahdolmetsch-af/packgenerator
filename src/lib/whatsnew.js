@@ -16,6 +16,20 @@
 
 export const WHATS_NEW = [
   {
+    // v0.184.0 «Projekt-Ablage» (Paket P7 of «Offene Mockups», Noah 21.10.2026 «6a»): Ich › Projekt-Ablage, everything
+    // about the app on one page (ideas live, for you now, the way, idea board, releases, knowledge, toolbox, jumps).
+    version: '0.184.0',
+    date: '2026-10-22',
+    title: 'The whole project on one page',
+    lead: 'Where the app stands and what comes.',
+    points: [
+      { text: 'Project shelf: ideas live, the way and what waits for you', href: '#/me/next' },
+      { text: 'All ideas as a board by goal', href: '#/me/next' },
+    ],
+    small: [{ box: 'new', text: 'Your own points under «For you now»' }],
+    test: ['Open Me › Project shelf.', 'Open «Ideas» under «Look up» and tap a goal.'],
+  },
+  {
     // v0.183.0 «Eingang» (Paket P5 of «Offene Mockups», Noah 21.10.2026): A-J4 the «Ablegen-Runde», the open notes
     // one after the other with the suggestion and why, and the end screen.
     version: '0.183.0',
@@ -26,6 +40,7 @@ export const WHATS_NEW = [
       { text: 'Sorting round: each note with a suggestion and why', href: '#/inbox' },
       { text: 'At the end: how many filed, kept and deleted', href: '#/inbox' },
     ],
+    small: [{ box: 'nicer', text: 'Each suggestion says why' }],
     test: ['Open Me › Inbox and tap «Start the sorting round».', 'File one note, keep one, skip one, and look at the end screen.'],
   },
   {

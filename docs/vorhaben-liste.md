@@ -26,9 +26,9 @@ Noah 21.10.2026 «1a 2b 3a 4a 5b 6a 7a» (alle offenen Mockups freigegeben; Abgl
 | P1 | Packen und Strom (gebaut, 0.179.0) | 1 Schneller packen |
 | P6 | Heute ergänzen | 5 Alltag |
 | P3 | Warum? und Regeln (gebaut, 0.181.0) | 1 Schneller packen |
-| P4 | Aktiv (gebaut, 0.182.0) | 5 Alltag |
+| P4 | Aktiv (gebaut, 0.182.0, geparkt) | 5 Alltag |
 | P5 | Eingang (gebaut, 0.183.0, geparkt) | 5 Alltag |
-| P7 | Projekt-Ablage | 5 Alltag |
+| P7 | Projekt-Ablage (gebaut, 0.184.0, geparkt) | 5 Alltag |
 | P8 | Fotoalbum | 4 Aus jeder Tour lernen |
 
 ## 1. Schneller packen

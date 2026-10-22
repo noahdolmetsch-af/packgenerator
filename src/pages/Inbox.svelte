@@ -269,7 +269,7 @@
       <section class="card abr-start" aria-labelledby="abr-start-h" data-round-start>
         <div class="ich-m"><h2 id="abr-start-h">{tn(openN, '{n} note is waiting', '{n} notes are waiting')}</h2>
           <p>{t('One after the other, with a suggestion. Takes about {n} min.', { n: roundMinutes(openN) })}</p></div>
-        <button type="button" class="btn hi" onclick={startRound} data-round-go>{t('Start the sorting round')}</button>
+        <button type="button" class="btn" onclick={startRound} data-round-go>{t('Start the sorting round')}</button>
       </section>
     {/if}
     <div class="ich-cols">

@@ -1557,11 +1557,18 @@ export default {
   'Plan and reality after the tour': 'Plan und echt nach der Tour',
   'Open Ski tours, tap «Plan the tour» and tap a danger level.': 'Öffne Skitouren, tippe auf «Tour planen» und dann auf eine Gefahrenstufe.',
   'Open Ski tours › Season and add a wish tour.': 'Öffne Skitouren › Saison und füge eine Wunschtour hinzu.',
+  // v0.184.0 «Projekt-Ablage»
+  'The whole project on one page': 'Das ganze Projekt auf einer Seite',
+  'Where the app stands and what comes.': 'Wo die App steht und was kommt.',
+  'Project shelf: ideas live, the way and what waits for you': 'Projekt-Ablage: Ideen live, der Weg und was auf dich wartet',
+  'All ideas as a board by goal': 'Alle Ideen als Brett nach Ziel',
+  'Your own points under «For you now»': 'Eigene Punkte unter «Für dich jetzt»',
   // v0.183.0 «Eingang»
   'Inbox empty in three minutes': 'Eingang leer in drei Minuten',
   'One note after the other.': 'Eine Notiz nach der anderen.',
   'Sorting round: each note with a suggestion and why': 'Ablegen-Runde: jede Notiz mit Vorschlag und Grund',
   'At the end: how many filed, kept and deleted': 'Am Schluss: wie viele abgelegt, behalten und gelöscht',
+  'Each suggestion says why': 'Jeder Vorschlag sagt, warum',
   'Open Me › Inbox and tap «Start the sorting round».': 'Öffne Ich › Eingang und tippe auf «Ablegen-Runde starten».',
   'File one note, keep one, skip one, and look at the end screen.': 'Leg eine Notiz ab, behalte eine, überspring eine und schau den Schluss an.',
   // v0.182.0 «Aktiv»

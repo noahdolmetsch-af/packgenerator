@@ -109,6 +109,8 @@ Ursprünglich freigegebene Ausführungsreihenfolge: AP01–AP09 → AP12–AP16 
 
 **21.10.2026, v0.179.0 «Gepackt und geladen»:** Mockup-Paket P1 Packen und Strom: neues Teil beim Packen, Strom-Werte mit Quelle, Leuchtstufen, Ladezeit messen, Flickzeug-Fehler. Als Nächstes P6 Heute ergänzen.
 
+**22.10.2026, v0.184.0 «Das ganze Projekt auf einer Seite»:** Mockup-Paket P7 Projekt-Ablage. Geparkt bis zur Freigabe. Als Nächstes P8 Fotoalbum.
+
 **22.10.2026, v0.183.0 «Eingang leer in drei Minuten»:** Mockup-Paket P5 Eingang: Ablegen-Runde (A-J4). Geparkt bis zur Freigabe. Als Nächstes P7 Projekt-Ablage.
 
 **21.10.2026, v0.182.0 «Tennis, Yoga und gute Tage»:** Mockup-Paket P4 Aktiv: Tennis-Seite oben (Titelbild, gespielt, geplant, Gespielt?), Yoga-Karte auf Meditation, «Diesen Tag merken», «Gewünscht und erlebt». Als Nächstes P5 Eingang.

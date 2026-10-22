@@ -1156,8 +1156,8 @@ export const HANDBOOK = {
   },
   'f.next': {
     on: null,
-    steps: ['Open Me › What comes next.', 'See what is live, what is being built and what comes later.'],
-    example: 'Example: «Plans and dreams» under «Being built now» → a test link follows.',
+    steps: ['Open Me › Project shelf.', 'Read «For you now» and «The way».', 'Open «Ideas» under «Look up» and tap a goal.'],
+    example: 'Example: «Eingang is built and parked» → it goes online after your OK.',
   },
   'f.notes': {
     on: null,

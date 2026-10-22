@@ -101,7 +101,7 @@ export const HOWTO = {
   'f.noteremind': ['Open a note and tap «Remind me».', 'Choose the day and the time.', 'Tap «Set the reminder».'],
   'f.notetrash': ['Open Notes › More › Trash.', 'Tap «Put back» at a note.', 'In a note «Earlier versions» brings back an older text.'],
   'f.noteformats': ['In a note tap Photo, Link, Place or Sketch.', 'Start a new note from a template, or scan a QR code.', 'Share sends it to Keep, a chat or a mail.'],
-  'f.next': ['Open Me › What comes next.', 'Read the packages: live, being built, later.', 'Tell Claude if a package is more urgent.'],
+  'f.next': ['Open Me › Project shelf.', 'Read «For you now» and «The way».', 'Open «Ideas» under «Look up» and tap a goal.'],
   'f.localai': ['Open Me › Appearance › Handling › «AI on this device».', 'Choose a model and tap «Load to this device».', 'Ask in the search; it works without internet.'],
   'f.dictate': ['Tap the microphone next to a note.', 'Speak; tap stop when you are done.', 'A question in it gets the app\'s answer.'],
   'f.askfurther': ['Ask the app a question.', 'Tap Claude, ChatGPT or another service.', 'It opens with your question.'],
