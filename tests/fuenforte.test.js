@@ -1,19 +1,19 @@
 // v0.76.0 «Fünf Orte» 1 (Noah 10.10.2026, all a): the pages under each place (sidebar) and the
 // keyboard shortcuts. Pure functions, no data.
 import { describe, it, expect } from 'vitest';
-import { PLACES, PLACE_TABS, tabOf, pageOf, placeOf } from '../src/lib/nav.js';
+import { PLACES, ALL_PLACES, PLACE_TABS, tabOf, pageOf, placeOf } from '../src/lib/nav.js';
 import { shortcutOf } from '../src/lib/nav/keys.js';
 
 describe('the pages under each place', () => {
   it('each place has at most 4, and only built pages (O2.1a: Neuland and Heft come later; v0.78.0 O2.5a: Einkauf shows the wishlist; v0.79.0: Aktivität is built; UC3 14.10.2026 «2a»: Velos gets «Setup» as a fifth; Paket 2: Aktiv gets «Meditation» (ME2, Noah 15.10.2026 «1a») and «Training» (TR2, Noah 13.10.2026 «1-5a» 1a) as its own tabs; Paket N: Touren gets «Träume» (Noah 19.10.2026 «1a») next to «Skitouren»)', () => {
-    const max = { bikes: 5, active: 11, trips: 5, week: 9 }; // «Tagebuch» (Noah 20.10.2026): a tab of Planen next to Notizen // UI-Ziele #6 (Noah 20.10.2026 «freigabe» 4a): Ich keeps data, settings, help; the rest are tabs of Planen and Auswerten // N1 «Neue Leiste» (Noah 20.10.2026): Fahrten and Erkenntnisse go to Auswerten; Planen gets Termine and Notizen // Gesamttest 20.10.2026 B3 (Noah «3a»): Touren gets «Fahrten», the Strava activities // Paket T (Noah 19.10.2026 «1a und b»): Aktiv gets «Impulse» as a sixth tab
-    for (const p of PLACES) expect((PLACE_TABS[p.key] ?? []).length, p.key).toBeLessThanOrEqual(max[p.key] ?? 4);
+    const max = { bikes: 5, active: 4, analysis: 11, trips: 5, week: 9 }; // «Aktiv neu» (Noah 22.10.2026): Aktiv has 4 tabs, «Auswerten» the looking pages // «Tagebuch» (Noah 20.10.2026): a tab of Planen next to Notizen // UI-Ziele #6 (Noah 20.10.2026 «freigabe» 4a): Ich keeps data, settings, help; the rest are tabs of Planen and Auswerten // N1 «Neue Leiste» (Noah 20.10.2026): Fahrten and Erkenntnisse go to Auswerten; Planen gets Termine and Notizen // Gesamttest 20.10.2026 B3 (Noah «3a»): Touren gets «Fahrten», the Strava activities // Paket T (Noah 19.10.2026 «1a und b»): Aktiv gets «Impulse» as a sixth tab
+    for (const p of ALL_PLACES) expect((PLACE_TABS[p.key] ?? []).length, p.key).toBeLessThanOrEqual(max[p.key] ?? 4);
     const keys = Object.values(PLACE_TABS).flat().map((x) => x.key);
     for (const later of ['neuland', 'heft']) expect(keys).not.toContain(later);
   });
 
   it('every entry leads to a page of its own place', () => {
-    for (const [place, tabs] of Object.entries(PLACE_TABS)) for (const x of tabs) expect([x.href, placeOf(pageOf(x.href, x.href.includes('tab=care')))]).toEqual([x.href, place]);
+    for (const [place, tabs] of Object.entries(PLACE_TABS)) for (const x of tabs) expect([x.href, placeOf(pageOf(x.href, x.href.includes('tab=care')), x.href)]).toEqual([x.href, place]);
   });
 
   it('marks the entry an address belongs to', () => {
@@ -23,8 +23,8 @@ describe('the pages under each place', () => {
     expect(tabOf('trips', '#/pack/past')).toBe('lookback');
     expect(tabOf('trips', '#/pack')).toBe(null); // a trip: no entry lit
     expect(tabOf('trips', '#/trips/rides')).toBe(null); // N1: Fahrten is Auswerten › Fahrten now
-    expect(tabOf('active', '#/trips/rides')).toBe('rides');
-    expect(tabOf('active', '#/me/insights')).toBe('insights');
+    expect(tabOf('analysis', '#/trips/rides')).toBe('rides');
+    expect(tabOf('analysis', '#/me/insights')).toBe('insights');
     expect(tabOf('week', '#/me/agenda')).toBe('agenda');
     expect(tabOf('week', '#/notes')).toBe('notes');
     // «Tagebuch» (Noah 20.10.2026): a tab of Planen, also for one entry
@@ -32,9 +32,9 @@ describe('the pages under each place', () => {
     expect(tabOf('week', '#/tagebuch/e1')).toBe('tagebuch');
     expect(placeOf(pageOf('#/tagebuch'))).toBe('week');
     for (const [h, k] of [['#/week/plan', 'week'], ['#/week/away', 'week'], ['#/calendar', 'agenda'], ['#/inbox', 'inbox'], ['#/me/mail', 'mail'], ['#/me/compass', 'compass'], ['#/me/alltag', 'alltag'], ['#/me/frei', 'frei']]) expect(tabOf('week', h), h).toBe(k);
-    for (const [h, k] of [['#/me/history', 'history'], ['#/me/abfragen', 'history'], ['#/me/analysis', 'history'], ['#/me/wohl', 'wohl'], ['#/me/weight', 'weight']]) expect(tabOf('active', h), h).toBe(k);
+    for (const [h, k] of [['#/me/history', 'history'], ['#/me/abfragen', 'history'], ['#/me/analysis', 'history'], ['#/me/wohl', 'wohl'], ['#/me/weight', 'weight']]) expect(tabOf('analysis', h), h).toBe(k);
     for (const h of ['#/me', '#/me/data', '#/me/look', '#/me/connections', '#/features']) expect(placeOf(pageOf(h)), h).toBe('me');
-    expect(placeOf(pageOf('#/trips/rides'))).toBe('active');
+    expect(placeOf(pageOf('#/trips/rides'))).toBe('analysis');
     expect(placeOf(pageOf('#/trips'))).toBe('trips');
     expect(tabOf('trips', '#/trips/dreams')).toBe('dreams');
     expect(tabOf('gear', '#/gear?tab=weigh')).toBe('all');
@@ -49,7 +49,14 @@ describe('the pages under each place', () => {
     expect(tabOf('bikes', '#/bikes?tab=shop')).toBe('shop');
     expect(tabOf('bikes', '#/bikes?tab=compare')).toBe('fit');
     expect(tabOf('active', '#/flow')).toBe('today');
-    expect(tabOf('active', '#/flow/goals')).toBe('goals');
+    expect(tabOf('active', '#/flow/goals')).toBe('sports');
+    // «Aktiv neu» (Noah 22.10.2026): Aktiv is for doing, «Auswerten» for looking
+    for (const [h, k] of [['#/flow/sports', 'sports'], ['#/flow/sport/act:yoga', 'sports'], ['#/flow/act/meditation', 'sports'], ['#/flow/bags', 'sports'], ['#/flow/training', 'training'], ['#/flow/rest', 'rest'], ['#/flow/week', 'today']]) expect(tabOf('active', h), h).toBe(k);
+    for (const [h, k] of [['#/auswerten', 'start'], ['#/flow/form', 'form'], ['#/flow/stats/hr', 'body'], ['#/flow/auswertung', 'ticks'], ['#/flow/milestones?act=yoga', 'milestones'], ['#/flow/trophies', 'milestones'], ['#/flow/ideen', 'impulse']]) {
+      expect(tabOf('analysis', h), h).toBe(k);
+      expect(placeOf(pageOf(h), h), h).toBe('analysis');
+    }
+    expect(placeOf(pageOf('#/flow/sports'), '#/flow/sports')).toBe('active');
     expect(tabOf('today', '#/')).toBe(null);
   });
 });

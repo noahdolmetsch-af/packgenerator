@@ -85,10 +85,10 @@ test('«•••» opens the tick sheet, a tap on the tile still ticks, the hel
   await expect(push).toHaveAttribute('aria-pressed', 'false');
   await press(push, info);
   await expect(push).toHaveAttribute('aria-pressed', 'true');
-  // on Aktiv the «•••» is there too, the help line only on Today
+  // on Aktiv the «•••» is there too; «Aktiv neu» (Noah 22.10.2026, spec «Heute abhaken»): the same help line under the grid
   await page.goto('./#/flow');
   await expect(page.locator('[data-more="pushups"]').first()).toBeVisible();
-  await expect(page.locator('[data-tick-help]')).toHaveCount(0);
+  await expect(page.locator('main [data-tick-help]')).toHaveCount(1);
   expect(errors).toEqual([]);
 });
 

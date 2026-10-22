@@ -1,4 +1,4 @@
-/* Paket O «Sportarten»: the two sport pages (Sports.svelte, Sport.svelte) and their blocks. Tokens of app.css only. */
+/* Paket O «Sportarten»: the sport pages (MySports.svelte, Sport.svelte) and their blocks. Tokens of app.css only. */
 .sp {
   display: flex;
   flex-direction: column;
@@ -164,6 +164,7 @@
 /* one sport */
 .sp .shead {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 10px;
 }

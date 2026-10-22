@@ -221,7 +221,7 @@
 
 <div class="mm">
   <header class="ph">
-    <Crumb path={[{ href: '#/flow', label: t('Analysis|place') }, { href: base, label: act ? actName(act) : t('Meditation') }]} here={t('More|meditation')} />
+    <Crumb path={[{ href: '#/flow', label: t('Active|place') }, { href: base, label: act ? actName(act) : t('Meditation') }]} here={t('More|meditation')} />
     <h1 class="h1" tabindex="-1" data-page-title>{!act || actId === 'meditation' ? t('More about meditation') : `${actName(act)} · ${t('More|meditation')}`}</h1>
     <p class="sub">{t('Everything rare in one place · closed, the page stays calm')}</p>
   </header>

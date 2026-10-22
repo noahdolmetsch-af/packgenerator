@@ -63,6 +63,13 @@ test('Aktiv: small tiles, the week in numbers, the rings and «Wi gaht\'s?» exp
   const tile = tick.locator('[data-act="run"]');
   expect((await tile.boundingBox()).height).toBeLessThan(60);
 
+  // «Aktiv neu» (Noah 22.10.2026): the rings stay in Aktiv; «Überblick», «Letzte 7 Tage» and «Wi gaht's?» are on the start of Auswerten
+  await page.locator('[data-ring-help] summary').click();
+  await expect(page.locator('[data-ring-help]')).toContainText(T('What counts for what?'));
+  await expect(page.locator('[data-ring-help] a[href="#/flow/sports"]')).toBeVisible();
+  await fits(page, '#/flow');
+
+  await go(page, '#/auswerten');
   await openOverview(page);
   const wn = page.locator('[data-section="week-numbers"]');
   await expect(wn.locator('[data-wn]')).toHaveCount(6);
@@ -75,11 +82,9 @@ test('Aktiv: small tiles, the week in numbers, the rings and «Wi gaht\'s?» exp
   await expect(wn.locator('[data-wn-detail="rhr"] .bar')).toHaveCount(12);
   await expect(wn.locator('[data-wn-detail="rhr"]')).toContainText(T('Source: Fitbit.'));
 
-  await page.locator('[data-ring-help] summary').click();
-  await expect(page.locator('[data-ring-help]')).toContainText('WHO');
   await expect(page.locator('[data-check-why]')).toContainText(T('Where you see it'));
   await expect(page.locator('[data-check-why] a[href="#/me/history"]')).toBeVisible();
-  await fits(page, '#/flow');
+  await fits(page, '#/auswerten');
   expect(errors).toEqual([]);
 });
 

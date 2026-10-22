@@ -27,13 +27,13 @@ export const TOURS = {
     { href: '#/pack', place: 'trips', prep: 'playTrip', target: ['.bag-groups', '.calm-pack', 'main h1'], title: 'Packing|tour', text: 'A tap means packed. What you do not need, you leave out: everything is only a suggestion.' },
     { href: '#/gear', place: 'gear', target: ['section.vhead', '.gear header'], title: 'Gear|place', text: 'Enter what you own once. After that the app suggests it for every trip that fits.' },
     { href: '#/bikes?tab=care', place: 'bikes', target: ['section[aria-labelledby="due-h"]', 'main h1'], title: 'Bikes|place', text: 'Km and care for every bike. The app tells you when the chain, brakes or tyres are due.' },
-    { href: '#/flow', place: 'active', target: ['section[aria-labelledby="tick-h"]', '.flow header.ph'], title: 'Analysis|place', text: 'For everyday life: meditation, training, recovery. One tap ticks off, a long press enters the duration.' },
+    { href: '#/flow', place: 'active', target: ['section[aria-labelledby="tick-h"]', '.flow header.ph'], title: 'Active|place', text: 'For everyday life: meditation, training, recovery. One tap ticks off, a long press enters the duration.' },
     { href: '#/', place: 'me', end: true, target: [], title: 'Done. Well done!', text: 'You always find help under Me › Handbook. You can start the tour again there.' },
   ],
   aktiv: [
     { href: '#/flow', place: 'active', target: ['section[aria-labelledby="tick-h"]'], title: 'Tick off today', text: 'One tile per sport. A tap ticks it off, a long press enters the duration, place or stopwatch.' },
     { href: '#/flow', place: 'active', target: ['section[aria-labelledby="rings-h"]', '.lay .side', '.lay'], title: 'Your week', text: 'The rings count the last 7 days: move, mindful and recovery. A rest day does not cost everything at once.' },
-    { href: '#/flow/goals', place: 'active', target: ['.flow .tools', '.flow header.ph'], title: 'Activities|flow', text: 'A goal like «cycling 2× a week». You see what is on track, with its own window and season.' },
+    { href: '#/flow/sports', place: 'active', target: ['.flow .tools', '.flow header.ph'], title: 'Activities|flow', text: 'A goal like «cycling 2× a week». You see what is on track, with its own window and season.' },
     { href: '#/flow', place: 'active', target: ['[data-pagemore]', 'details.pm', '.lay'], title: 'More in Active', text: 'Meditation, timer, stopwatch and milestones are one tap away, under the tabs on top.' },
   ],
   touren: [

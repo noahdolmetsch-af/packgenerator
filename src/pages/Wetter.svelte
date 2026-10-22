@@ -24,6 +24,8 @@
   import WebcamList from '../lib/wetter/WebcamList.svelte';
   import FeelCard from '../lib/wetter/FeelCard.svelte';
   import LakeChip from '../lib/lake/LakeChip.svelte';
+  import LakeCard from '../lib/lake/LakeCard.svelte';
+  import AirCard from '../lib/air/AirCard.svelte';
   import HomePlaceSheet from '../lib/ich/HomePlaceSheet.svelte';
   import { t, num, locale } from '../lib/i18n.svelte.js';
 
@@ -287,6 +289,10 @@
       <FeelCard {core} />
     </section>
   {/if}
+
+  <!-- «Aktiv neu» (Noah 22.10.2026, spec): the lake temperature, ozone and pollen moved here from the Aktiv start -->
+  <LakeCard headingLevel={2} />
+  <AirCard headingLevel={2} />
 
   <!-- extra 7: my webcams -->
   <section class="card wx-sec" aria-labelledby="wx-cams" data-wx-cams>

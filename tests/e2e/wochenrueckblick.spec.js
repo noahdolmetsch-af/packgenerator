@@ -72,7 +72,7 @@ async function open(page, context) {
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
   await page.goto('./#/flow'); // Aktiv seeds its activities (sauna, meditation, …) once
-  await expect(page.locator('main [data-more="week"]')).toBeVisible();
+  await expect(page.locator('main [data-week-glance]')).toBeVisible(); // «Aktiv neu» (22.10.2026): «Diese Woche» on Aktiv
   return errors;
 }
 /** Write rows straight into the app's IndexedDB (then reload, so the app reads them). */

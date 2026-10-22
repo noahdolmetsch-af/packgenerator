@@ -19,7 +19,7 @@ describe('addresses', () => {
     expect(pageOf('#/me/frei/abend')).toBe('frei');
     expect(placeOf(pageOf('#/me/frei'))).toBe('week'); // UI-Ziele #6 (Noah 20.10.2026): Freie Zeit is Planen › Freie Zeit
     expect(pageOf('#/flow/impulse')).toBe('impulse');
-    expect(placeOf('impulse')).toBe('active');
+    expect(placeOf('impulse')).toBe('analysis'); // «Aktiv neu» (Noah 22.10.2026): Impulse moved to Auswerten
   });
 });
 

@@ -99,7 +99,7 @@
 
 <div class="hob gb">
   <header class="ph">
-    <Crumb path={[{ href: '#/flow', label: t('Analysis|place') }, { href: '#/flow/activity', label: t('Activity|tab') }]} here={t('Summit book')} />
+    <Crumb path={[{ href: '#/flow', label: t('Active|place') }, { href: '#/flow/sports', label: t('My sports|tab') }]} here={t('Summit book')} />
     <PageHead title={t('Summit book')} text={t('Passes, summits and trails of every sport. New places become milestones.')} />
     {#if data && rows.length}<CoreLine parts={[{ v: core.places, label: tn(core.places, 'place', 'places') }, { v: core.fresh, label: t('new in {year}', { year }) }, core.top ? { v: m(core.top.ele), label: t('highest point {year}', { year }) } : null, core.hm ? { v: `${num(core.hm)} Hm`, label: t('climbed for them in {year}', { year }) } : null]} />{/if}
   </header>

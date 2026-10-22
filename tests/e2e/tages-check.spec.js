@@ -170,8 +170,8 @@ test('WG morning (was «the morning check»): the round of «Wi gaht\'s?» on He
   await expect.poll(async () => (await row(page))?.mood).toBe(8);
   expect(await row(page)).toMatchObject({ sleep: 6, energy: 4, mood: 8 });
   expect((await answers(page)).map((a) => a.qid).sort()).toEqual(['erholung.akku', 'erholung.schlaf', 'spass.stimmung', 'ziele.ziel']);
-  // the Im Flow page: today's values and the 7 days
-  await page.goto('./#/flow');
+  // the start of Auswerten («Aktiv neu», 22.10.2026; was Aktiv): today's values and the 7 days
+  await page.goto('./#/auswerten');
   await expect(page.locator('[data-check-row="done"]')).toContainText(`${T('Sleep|flow')} 6`);
   await expect(page.locator('[data-check-row="done"]').getByRole('link', { name: T('Change') })).toHaveAttribute('href', '#/me/abfragen');
   await expect(page.locator('.avg')).toContainText(T('⌀ 7 days'));

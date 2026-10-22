@@ -16,6 +16,20 @@
 
 export const WHATS_NEW = [
   {
+    // v0.183.0 «Aktiv neu» (Noah 22.10.2026, Beschreibung «Aktiv-Bereich»): Aktiv is for doing (Heute, Meine Sportarten,
+    // Training, Erholung), Auswerten for looking; every sport has its page with goal, history and milestones.
+    version: '0.183.0',
+    date: '2026-10-22',
+    title: 'Doing here, looking there',
+    lead: 'Active is for ticking off, Analysis for looking back.',
+    points: [
+      { text: 'Every sport with its own page', href: '#/flow/sports' },
+      { text: 'Form, body values and rides under Analysis', href: '#/auswerten' },
+    ],
+    small: [{ box: 'nicer', text: 'Active shows today, this week and the rings' }],
+    test: ['Open Active › My sports and tap a sport.', 'Tap «Tick now» on its page, then change the entry under History.', 'Open Analysis with the switch on top of Active.'],
+  },
+  {
     // v0.181.0 «Warum? und Regeln» (Paket P3 of «Offene Mockups», Noah 21.10.2026): RG1 «Why?» next to a row in
     // Plan, RG3 Me › How the app decides (every rule, search, block rules on/off), C «Most often forgotten» on Pack.
     version: '0.181.0',
