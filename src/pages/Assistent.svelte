@@ -31,6 +31,7 @@
   const plan = $derived(hash.startsWith('#/assistent/plan'));
   let q = $state('');
   let asked = $state('');
+  let appHas = $state(false); // the app's own answer has something for `asked`
   // «Diktat» (Noah 19.10.2026): a question from a dictated note comes as #/assistent?q=…
   let fromHash = '';
   $effect(() => {
@@ -80,10 +81,12 @@
       </div>
       {#if asked}
         <div class="as-res" aria-live="polite">
-          <AskAnswer q={asked} />
+          <AskAnswer q={asked} onresult={(has) => (appHas = has)} />
           {#if isOn()}<SearchAnswer bind:this={kh} q={asked} items={$all?.items ?? []} />{/if}
-          <SearchFree q={asked} data={$all} />
-          <AskElsewhere q={asked} />
+          <!-- one block «Weiter fragen» (Noah 22.10.2026 «3a»); Gemini asks by itself when the app has no answer («1a») -->
+          <AskElsewhere q={asked} auto={!appHas}>
+            {#snippet children()}<SearchFree q={asked} data={$all} inside />{/snippet}
+          </AskElsewhere>
         </div>
       {/if}
     </section>

@@ -7,7 +7,7 @@ import { readFileSync } from 'node:fs';
 import { split, fresh, appendSpoken, withCommands, isQuestion, lastQuestion, sentences, clock, dictOf, ENGINES, ANSWERS, COMMANDS, readAloud } from '../src/lib/speak.js';
 import { createDictation } from '../src/lib/dictate.js';
 import { whisperLang, transcribe } from '../src/lib/whisper.js';
-import { SERVICES, shownServices, contextFor, askText, claudeUrl } from '../src/lib/assistent/elsewhere.js';
+import { SERVICES, shownServices, contextFor, askText, claudeUrl, orderedServices, movedOrder } from '../src/lib/assistent/elsewhere.js';
 import { serviceOf, cleanUrl, addProject, editProject, moveProject } from '../src/lib/aiprojects/aiprojects.js';
 import { makeHandler, geminiRequest, geminiText, geminiKey, GEMINI_URL, helperEnv } from '../api/helper.js';
 import DE from '../src/lib/i18n/de/index.js';
@@ -89,6 +89,15 @@ describe('settings', () => {
     expect(dictOf('gemini', null)).toBe(true);
     expect(dictOf('others', null)).toBe(null);
     expect(dictOf('others', 'claude')).toBe('claude');
+    expect(dictOf('order', null)).toBe(null);
+    expect(dictOf('order', 'chatgpt,claude')).toBe('chatgpt,claude');
+    // «4a» your order, new services at the end; «5a» DuckDuckGo opens Duck.ai
+    expect(orderedServices(null).map((s) => s.key)).toEqual(SERVICES.map((s) => s.key));
+    expect(orderedServices('perplexity,nope,claude').map((s) => s.key).slice(0, 3)).toEqual(['perplexity', 'claude', 'chatgpt']);
+    expect(orderedServices('perplexity')).toHaveLength(SERVICES.length);
+    expect(movedOrder(null, 1, 0).split(',').slice(0, 2)).toEqual(['chatgpt', 'claude']);
+    expect(movedOrder(null, 0, 99).split(',').at(-1)).toBe('claude');
+    expect(SERVICES.find((s) => s.key === 'duckduckgo').url('Jacke?')).toBe('https://duckduckgo.com/?q=Jacke%3F&ia=chat&duckai=1');
   });
   it('every name and text has a German entry', () => {
     for (const x of [...ENGINES, ...ANSWERS]) for (const k of [x.name, x.text]) expect(DE[k], k).toBeTruthy();
