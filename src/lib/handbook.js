@@ -763,6 +763,12 @@ export const HANDBOOK = {
     steps: ['Open Ski tours › Season.', 'Set a goal if you like, add wish tours, practice and courses.', 'Pick the ski in «After the tour»: its metres climbed add up here.'],
     example: 'Example: avalanche course two years ago → «Refresh» shows next to it.',
   },
+  // Paket P8 «Fotoalbum»
+  'f.photoalbum': {
+    on: null,
+    steps: ['Open Me › Photo album.', 'Tap «Add photos» and choose several.', 'Tap a photo: give it a place, or switch «Show on Today» off.'],
+    example: 'Example: three photos of a rest → place «above the lake», under «By place» together.',
+  },
   // Paket P5 «Eingang»
   'f.sortround': {
     on: 'Only when at least two notes wait in the Inbox.',

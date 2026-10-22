@@ -16,6 +16,20 @@
 
 export const WHATS_NEW = [
   {
+    // v0.185.0 «Fotoalbum» (Paket P8 of «Offene Mockups», Noah 21.10.2026 «7a»): Ich › Fotoalbum, all photos of the app
+    // by month or by place, album photos with place and date, single photos off for Heute.
+    version: '0.185.0',
+    date: '2026-10-22',
+    title: 'All your photos in one album',
+    lead: 'By month or by place.',
+    points: [
+      { text: 'Photo album: all photos of the app by month or place', href: '#/me/album' },
+      { text: 'Give your photos a place and a date', href: '#/me/album' },
+    ],
+    small: [{ box: 'new', text: 'Choose which photos greet you on Today' }],
+    test: ['Open Me › Photo album and add two photos.', 'Tap a photo, give it a place, then tap «By place».'],
+  },
+  {
     // v0.184.0 «Projekt-Ablage» (Paket P7 of «Offene Mockups», Noah 21.10.2026 «6a»): Ich › Projekt-Ablage, everything
     // about the app on one page (ideas live, for you now, the way, idea board, releases, knowledge, toolbox, jumps).
     version: '0.184.0',

@@ -642,6 +642,8 @@
           {#if photoErr}<p class="err" role="alert">{photoErr}</p>{/if}
           <label class="wl-switch"><input type="checkbox" checked={albumCfg.greet} onchange={(e) => save(ALBUM_KEY, { greet: e.currentTarget.checked })} /><span>{t('Show a photo on Today')}</span></label>
           <p class="muted small">{t('The photos stay on this device and in your backup.')}</p>
+          <!-- P8: all photos of the app, by month and place -->
+          <a class="btn btn-link" href="#/me/album" data-wohl-album-all>{t('All photos in the photo album')} ›</a>
         </div>
       </Section>
 

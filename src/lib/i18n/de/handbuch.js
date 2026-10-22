@@ -1467,6 +1467,11 @@ export default {
   'Set a goal if you like, add wish tours, practice and courses.': 'Setz ein Ziel, wenn du willst, und füge Wunschtouren, Übungen und Kurse hinzu.',
   'Pick the ski in «After the tour»: its metres climbed add up here.': 'Wähle den Ski in «Nach der Tour»: Seine Höhenmeter zählen hier zusammen.',
   'Example: avalanche course two years ago → «Refresh» shows next to it.': 'Beispiel: Lawinenkurs vor zwei Jahren → daneben steht «Auffrischen».',
+  // Paket P8 «Fotoalbum» (0.185.0)
+  'Open Me › Photo album.': 'Öffne Ich › Fotoalbum.',
+  'Tap «Add photos» and choose several.': 'Tippe auf «Fotos hinzufügen» und wähle mehrere.',
+  'Tap a photo: give it a place, or switch «Show on Today» off.': 'Tippe auf ein Foto: gib ihm einen Ort oder schalte «Auf Heute zeigen» aus.',
+  'Example: three photos of a rest → place «above the lake», under «By place» together.': 'Beispiel: drei Fotos einer Pause → Ort «über dem See», unter «Nach Ort» beisammen.',
   // Paket P7 «Projekt-Ablage» (0.184.0)
   'Open Me › Project shelf.': 'Öffne Ich › Projekt-Ablage.',
   'Read «For you now» and «The way».': 'Lies «Für dich jetzt» und «Der Weg».',

@@ -1557,6 +1557,14 @@ export default {
   'Plan and reality after the tour': 'Plan und echt nach der Tour',
   'Open Ski tours, tap «Plan the tour» and tap a danger level.': 'Öffne Skitouren, tippe auf «Tour planen» und dann auf eine Gefahrenstufe.',
   'Open Ski tours › Season and add a wish tour.': 'Öffne Skitouren › Saison und füge eine Wunschtour hinzu.',
+  // v0.185.0 «Fotoalbum»
+  'All your photos in one album': 'Alle deine Fotos in einem Album',
+  'By month or by place.': 'Nach Monat oder nach Ort.',
+  'Photo album: all photos of the app by month or place': 'Fotoalbum: alle Fotos der App nach Monat oder Ort',
+  'Give your photos a place and a date': 'Gib deinen Fotos einen Ort und ein Datum',
+  'Choose which photos greet you on Today': 'Wähle, welche Fotos dich auf Heute begrüssen',
+  'Open Me › Photo album and add two photos.': 'Öffne Ich › Fotoalbum und füge zwei Fotos hinzu.',
+  'Tap a photo, give it a place, then tap «By place».': 'Tippe auf ein Foto, gib ihm einen Ort und tippe dann auf «Nach Ort».',
   // v0.184.0 «Projekt-Ablage»
   'The whole project on one page': 'Das ganze Projekt auf einer Seite',
   'Where the app stands and what comes.': 'Wo die App steht und was kommt.',

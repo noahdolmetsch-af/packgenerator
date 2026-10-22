@@ -335,6 +335,8 @@ const OWN = [
   { id: 'f.startfresh', group: 'data', title: 'Start fresh', text: 'Delete all data and begin from zero; a copy stays, and «Undo» brings everything back.', href: '#/me/data', words: 'neu beginnen zurücksetzen reset null löschen alles frisch anfangen' },
   { id: 'f.lend', group: 'data', title: 'Lending list', text: 'Lend things to a guest: send the list as a link or PDF, get a reminder on the return day, and see who has what.', href: '#/gear/lend', words: 'ausleihen leihen verleihen gast freund zurück rückgabe erinnerung link pdf wer hat was' },
   // Strombudget (Noah 19.10.2026 «2a»): power budget per trip and power bank calculator
+  // Paket P8 «Fotoalbum» (Noah 21.10.2026)
+  { id: 'f.photoalbum', group: 'data', title: 'Photo album', text: 'All photos of the app by month or by place: your album photos, bike photos and the photos of notes on trips. Add several at once, give them a place, choose which greet you on Today.', href: '#/me/album', words: 'fotoalbum fotos bilder album monat ort velo tour heute begrüssung' },
   // Paket P5 «Eingang» (Noah 21.10.2026)
   { id: 'f.sortround', group: 'data', title: 'Sorting round', text: 'In the Inbox: the open notes one after the other, each with the suggestion and why. File, keep, delete or skip; at the end you see what happened.', href: '#/inbox', words: 'ablegen runde eingang notizen eine nach der anderen vorschlag behalten löschen überspringen' },
   // Paket P4 «Aktiv» (Noah 21.10.2026)

@@ -4,6 +4,8 @@ Stand: 18. Oktober 2026. Der kurze Überblick steht im [Projektstand](projektsta
 
 ## Aktuell live
 
+**0.185.0 «Alle deine Fotos in einem Album» (22.10.2026, Mockup-Paket P8, geparkt):** Ich › Fotoalbum (#/me/album, pages/Album.svelte, lib/album/fotos.js, album/PhotoSheet.svelte): alle Fotos der App aus der Fototabelle (album, Velo: Setup, Verschleiss, vor dem Packen) und aus Notizen mit Tour; nach Monat oder Ort; Albumfotos mit place, day, name, greet; wohl.js greetPhoto lässt greet:false weg. Zeile unter Ich › Werkzeuge, Link unter Was mir gut tut › Fotoalbum.
+
 **0.184.0 «Das ganze Projekt auf einer Seite» (22.10.2026, Mockup-Paket P7, geparkt):** Ich › Projekt-Ablage (#/me/next, WasKommt.svelte, lib/projekt/ablage.js, ForYou.svelte, IdeaBoard.svelte) liest docs/vorhaben-liste.md beim Bauen (?raw): Kopf mit «x von y Ideen live» und Balken pro Stand, «Für dich jetzt» (geparkte Pakete + eigene Punkte in settings projekt.forYou), «Der Weg» aus whatsnew.js und den freigegebenen Paketen, Nachschlagen (Ideen-Brett mit Ziel-Chips, Weg und Releases, Wissen, Werkzeugkasten), Absprünge. wascommt.js entfernt.
 
 **0.183.0 «Eingang leer in drei Minuten» (22.10.2026, Mockup-Paket P5, geparkt):** Im Eingang (#/inbox) startet ab zwei offenen Notizen die Ablegen-Runde (SortRound.svelte, inbox/round.js): eine Notiz nach der anderen mit «n von N», Vorschlag (guessTarget) und Grund (die Wörter, die dazu führten), «Ablegen» öffnet das Formular des Vorschlags (FileSheet direct), Chips für drei andere Ziele, «Behalten», «Löschen» (Papierkorb, Rückgängig), «Überspringen», «Pause»; am Schluss «Eingang leer» oder «Runde fertig» mit abgelegt · behalten · gelöscht · übersprungen und «Zu Heute».

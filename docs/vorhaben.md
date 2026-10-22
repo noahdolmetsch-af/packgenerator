@@ -58,6 +58,7 @@ Durchgehende Grundsätze: Alles ist ein Vorschlag, nie Pflicht, und immer änder
 
 **Nachtrag 21.10.2026, Nacht:** 0.181.0 Mockup-Paket P3 «Warum? und Regeln» (Ziel 1 «Schneller packen»: jeder Vorschlag sagt warum; vergessene Dinge kommen zuerst). Nächstes Paket P4 «Aktiv».
 
+**Nachtrag 22.10.2026 (3):** 0.185.0 Mockup-Paket P8 «Fotoalbum» (Ziel 4 «Aus jeder Tour lernen»: Fotos von Touren und Velos nach Monat und Ort wiederfinden). Geparkt bis Noahs Freigabe. Alle freigegebenen Mockup-Pakete sind damit gebaut.
 **Nachtrag 22.10.2026 (2):** 0.184.0 Mockup-Paket P7 «Projekt-Ablage» (Ziel 5 «Alltag»: auf einer Seite sehen, wo die App steht, was auf mich wartet und was kommt). Geparkt bis Noahs Freigabe. Nächstes Paket P8 «Fotoalbum».
 **Nachtrag 22.10.2026:** 0.183.0 Mockup-Paket P5 «Eingang» (Ziel 5 «Alltag»: den Eingang in wenigen Minuten leer, eine Notiz nach der anderen). Geparkt bis Noahs Freigabe. Nächstes Paket P7 «Projekt-Ablage».
 **Nachtrag 21.10.2026, Nacht (2):** 0.182.0 Mockup-Paket P4 «Aktiv» (Ziel 5 «Alltag»: schneller abhaken, Yoga und Tennis ohne Umweg, merken was gut tut). Nächstes Paket P5 «Eingang».

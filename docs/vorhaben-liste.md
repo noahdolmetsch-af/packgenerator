@@ -29,7 +29,7 @@ Noah 21.10.2026 «1a 2b 3a 4a 5b 6a 7a» (alle offenen Mockups freigegeben; Abgl
 | P4 | Aktiv (gebaut, 0.182.0, geparkt) | 5 Alltag |
 | P5 | Eingang (gebaut, 0.183.0, geparkt) | 5 Alltag |
 | P7 | Projekt-Ablage (gebaut, 0.184.0, geparkt) | 5 Alltag |
-| P8 | Fotoalbum | 4 Aus jeder Tour lernen |
+| P8 | Fotoalbum (gebaut, 0.185.0, geparkt) | 4 Aus jeder Tour lernen |
 
 ## 1. Schneller packen
 
@@ -200,7 +200,7 @@ Routine «Das tut mir gut» auf Heute · Kachel «Heute baden oder Sauna?» · W
 
 ## Bewusst nicht
 
-Foto-KI für Material · Live-Sync über Drive · Keine fremden Einbettungen, nur Links · Privat-Zone beim Teilen um dein Zuhause · Inhalte von anderen Nutzern · KI: aus einem Satz wird ein Eintrag · KI: Wochen-Rückblick am Sonntag · Fotoalbum · Einkauf, Lebenslauf, Werkstatt (D2) · Computer als Werkzeug (D4) · Rückkehr-Melder für Notfall-Person · Aussortieren und weitergeben · Leiste mit 7 Orten · Keine native App, die Web-App bleibt · App zieht nicht auf Vercel um · Ton-Aufnahmen (nur wenn klein)
+Foto-KI für Material · Live-Sync über Drive · Keine fremden Einbettungen, nur Links · Privat-Zone beim Teilen um dein Zuhause · Inhalte von anderen Nutzern · KI: aus einem Satz wird ein Eintrag · KI: Wochen-Rückblick am Sonntag · Einkauf, Lebenslauf, Werkstatt (D2) · Computer als Werkzeug (D4) · Rückkehr-Melder für Notfall-Person · Aussortieren und weitergeben · Leiste mit 7 Orten · Keine native App, die Web-App bleibt · App zieht nicht auf Vercel um · Ton-Aufnahmen (nur wenn klein)
 
 **Aufgehoben:** Keine Konten für andere, Teilen bleibt einseitig (aufgehoben durch Paket R: Noah 19.10.2026 13:44 «1b 2a oder b» (App frei für alle, Google-Anmeldung oder Einladungs-Link, nur für den Abgleich); Inhalte von anderen bleiben nein (#150))
 

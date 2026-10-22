@@ -296,6 +296,7 @@ export const HOWTO = {
   'f.weekreview': ['Open Aktiv › Week and tap «Week in review».', 'Read the five numbers, the strip and the highlights.', 'Step to other weeks with ‹ ›.'],
   'f.wohl': ['Open Me › What is good for me.', 'Tap «Try it» for a 7-day experiment or start your own.', 'Under each result «How does the app know?» shows where it comes from.'],
   'f.weight': ['Open Me › Weight.', 'Tap «Enter weight», type it and save.', 'The curve and watts per kg follow by themselves.'],
+  'f.photoalbum': ['Open Me › Photo album.', 'Tap «Add photos» and choose several.', 'Tap a photo: give it a place, or switch «Show on Today» off.'],
   'f.sortround': ['Open Me › Inbox.', 'Tap «Start the sorting round».', 'For each note tap «File», a chip, «Keep», «Delete» or «Skip».'],
   'f.tennistop': ['Open Aktiv › Sports › Tennis.', 'Tap «Played» or «Like last time».', 'Booked a court? «Enter a time»: afterwards the app asks «Played?».'],
   'f.yogaclasses': ['Open Aktiv › Meditation.', 'In the card Yoga tap «Add a class».', 'After the class tap «Was there» or «Skipped».'],
