@@ -62,7 +62,16 @@
 import { route, json, needStore, redisEnv, pick, ApiError, API_BASE } from './core.js';
 import { needDevice, saveState, takeState, backToApp, jsonBody } from './oauth.js';
 import { makeAccount } from './account.js';
-import { MAX_DAYS, spanDays, rollUpBody, listFilter, daysFrom, chunks } from './googledays.js';
+import { MAX_DAYS, spanDays, rollUpBody, listFilter, daysFrom, chunks, isoOf, sleepOf } from './googledays.js';
+
+/** A log line about the nights Google sent: counts, wake-up days and field names only, no values. */
+export function sleepNote(points) {
+  const days = points.map((p) => isoOf(p?.sleep?.interval?.civilEndTime?.date)).filter(Boolean).sort();
+  const naps = points.filter((p) => p?.sleep?.metadata?.nap).length;
+  const read = points.filter((p) => p?.sleep && sleepOf(p.sleep)).length;
+  const keys = Object.keys(points.at(-1)?.sleep?.summary ?? points.at(-1)?.sleep ?? points.at(-1) ?? {}).slice(0, 8).join(',');
+  return `${points.length} points, ${naps} naps, ${read} readable, days ${days[0] ?? '-'}..${days.at(-1) ?? '-'}, keys ${keys || '-'}`;
+}
 import { MAIL_SCOPES, GMAIL_API, MAIL_PAGE, FILE_MAX, mailRow, bodyOf, rawMail } from './googlemail.js';
 import { CALENDAR_SCOPES, TASKS_SCOPE, CALENDAR_API, TASKS_API, MAX_EVENT_DAYS, MAX_CALS, spanOf, dayStart, dayEnd, eventRow, eventBody, taskRow, taskBody, calRow, listRow, OWN_CAL_SCOPE, OWN_CAL_NAME, OWN_LIST_NAME, MAX_OWN_ITEMS, KEY_PROP, ownBody, sameEvent } from './googleplan.js';
 
@@ -216,11 +225,11 @@ export function makeHandler({ env = () => googleEnv(), doFetch = (...a) => fetch
   }
 
   /** Every data point of one type for the days from..to (a few pages at most). */
-  async function listAll(token, type, from, to) {
+  async function listAll(token, type, from, to, { filtered = true, clock = false } = {}) {
     const out = [];
     let pageToken = '';
     for (let i = 0; i < MAX_PAGES; i++) {
-      const q = new URLSearchParams({ filter: listFilter(type, from, to), pageSize: String(pageSizeOf(type)), ...(pageToken ? { pageToken } : {}) });
+      const q = new URLSearchParams({ ...(filtered ? { filter: listFilter(type, from, to, { clock }) } : {}), pageSize: String(pageSizeOf(type)), ...(pageToken ? { pageToken } : {}) });
       const body = await healthCall(token, `dataTypes/${type}/dataPoints?${q}`);
       out.push(...(body.dataPoints ?? []));
       pageToken = body.nextPageToken ?? '';
@@ -474,7 +483,28 @@ export function makeHandler({ env = () => googleEnv(), doFetch = (...a) => fetch
           };
           const steps = await core('steps', () => rollUp(token, 'steps', from, to));
           const azm = await core('active-zone-minutes', () => rollUp(token, 'active-zone-minutes', from, to));
-          const sleep = await core('sleep', () => listAll(token, 'sleep', from, to));
+          const sleep = await core('sleep', async () => {
+            // Noah 22.10.2026: every value came again, only sleep stayed at 12 Oct. When the filtered list
+            // brings no night, the newest nights are asked without a filter and sorted here by wake-up day.
+            const got = await listAll(token, 'sleep', from, to);
+            if (got.length) {
+              console.log(`google sleep: ${sleepNote(got)}`);
+              return got;
+            }
+            // the form of Google's own example: the times with a clock
+            const timed = await listAll(token, 'sleep', from, to, { clock: true }).catch(() => []);
+            if (timed.length) {
+              console.log(`google sleep: date filter none; clock filter ${sleepNote(timed)}`);
+              return timed;
+            }
+            const all = await listAll(token, 'sleep', from, to, { filtered: false });
+            const inside = all.filter((p) => {
+              const d = isoOf(p?.sleep?.interval?.civilEndTime?.date);
+              return d && d >= from && d <= to;
+            });
+            console.log(`google sleep: filtered none; unfiltered ${sleepNote(all)}; ${inside.length} in range`);
+            return inside;
+          });
           const rhr = await core('daily-resting-heart-rate', () => listAll(token, 'daily-resting-heart-rate', from, to));
           const hrv = await core('daily-heart-rate-variability', () => listAll(token, 'daily-heart-rate-variability', from, to));
           if (missing.length === TYPES.length) {
