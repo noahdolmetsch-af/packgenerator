@@ -45,7 +45,7 @@
         <button type="submit" class="btn sm hi" disabled={val == null} data-weigh-save>{t('Save')}</button>
         <button type="button" class="btn sm" onclick={later} data-weigh-later>{t('Not today')}</button>
       </div>
-      <p class="more">{#if last}<span class="num">{t('last {kg} kg on {day}', { kg: num(last.kg), day: dayText(last.day) })}</span> · {/if}<a href="#/me/weight">{t('History under Me › Weight')}</a> · <button type="button" class="lk" onclick={onstop} data-weigh-stop>{t('Stop asking')}</button></p>
+      <p class="more">{#if last}<span class="num">{t('last {kg} kg on {day}', { kg: num(last.kg), day: dayText(last.day) })}</span>{' · '}{/if}<a href="#/me/weight">{t('History under Me › Weight')}</a> · <button type="button" class="lk" onclick={onstop} data-weigh-stop>{t('Stop asking')}</button></p>
     </form>
   {/if}
 </section>

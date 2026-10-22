@@ -65,7 +65,7 @@
           <li class="ich-row ich-wrap rg-row" class:off={r.on === false} data-rule={r.id}>
             <span class="ich-m">
               <b>{r.name}{#if r.active && r.on !== false}{' '}<i class="tp-badge hi" data-rule-active>{t('fits now')}</i>{/if}</b>
-              <small class="rg-when">{#if r.on === false}<ZapOff size={13} aria-hidden="true" />{t('Suggestion off')} · {:else if r.toggle}<Zap size={13} aria-hidden="true" />{/if}{r.when}</small>
+              <small class="rg-when">{#if r.on === false}<ZapOff size={13} aria-hidden="true" />{t('Suggestion off')}{' · '}{:else if r.toggle}<Zap size={13} aria-hidden="true" />{/if}{r.when}</small>
               <small>{r.source}</small>
             </span>
             <span class="rg-acts">
