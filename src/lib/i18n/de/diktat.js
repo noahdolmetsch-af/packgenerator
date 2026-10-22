@@ -60,6 +60,8 @@ export default {
   'Gemini is not set up on the server yet (the free key is missing).': 'Gemini ist auf dem Server noch nicht eingerichtet (der Gratis-Schlüssel fehlt).',
   'Gemini has answered enough for today (free daily limit). Tomorrow it answers again.': 'Gemini hat für heute genug geantwortet (Gratis-Tageslimit). Morgen antwortet es wieder.',
   'Gemini is busy right now. Try again in a minute.': 'Gemini ist gerade ausgelastet. Versuche es in einer Minute nochmals.',
+  '(your question goes along)': '(deine Frage geht mit)',
+  '{name} opens with your question. It is also copied: if it is missing there (e.g. after signing in), paste it.': '{name} öffnet mit deiner Frage. Sie ist auch kopiert: Fehlt sie dort (z. B. nach dem Anmelden), füge sie ein.',
   "Google refuses the Gemini key on the server (wrong or expired). A new free key is needed.": 'Google lehnt den Gemini-Schlüssel auf dem Server ab (falsch oder abgelaufen). Es braucht einen neuen Gratis-Schlüssel.',
   "Google's free Gemini limit is reached for now. Try again in a few minutes.": 'Die Gratis-Grenze von Google für Gemini ist gerade erreicht. Versuch es in ein paar Minuten nochmals.',
   'Google no longer offers this Gemini model. The server needs another model name.': 'Google bietet dieses Gemini-Modell nicht mehr an. Der Server braucht einen anderen Modellnamen.',
