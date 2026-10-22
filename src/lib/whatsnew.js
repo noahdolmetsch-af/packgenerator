@@ -16,6 +16,24 @@
 
 export const WHATS_NEW = [
   {
+    // v0.181.1 «Fitbit-Schlaf kommt an» (bug fix, 22.10.2026: Google sends nights without the wake-up date; the server
+    // now reads the wake-up day from the civil time string or the moment with its offset, and the app fetches 30 days once more)
+    version: '0.181.1',
+    date: '2026-10-22',
+    title: 'Fitbit sleep arrives',
+    lead: 'Your nights come from Google again.',
+    points: [
+      { text: 'Fitbit: last night comes in with «Fetch now»', href: '#/me/fitbit' },
+    ],
+    small: [
+      { box: 'fixed', text: 'The last 30 nights are fetched once more' },
+    ],
+    test: [
+      'Open Me › Data and backup › Fitbit and tap «Fetch now».',
+      'Last night shows with today’s date.',
+    ],
+  },
+  {
     // v0.181.0 «Warum? und Regeln» (Paket P3 of «Offene Mockups», Noah 21.10.2026): RG1 «Why?» next to a row in
     // Plan, RG3 Me › How the app decides (every rule, search, block rules on/off), C «Most often forgotten» on Pack.
     version: '0.181.0',
