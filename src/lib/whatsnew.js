@@ -16,6 +16,19 @@
 
 export const WHATS_NEW = [
   {
+    // v0.183.0 «Eingang» (Paket P5 of «Offene Mockups», Noah 21.10.2026): A-J4 the «Ablegen-Runde», the open notes
+    // one after the other with the suggestion and why, and the end screen.
+    version: '0.183.0',
+    date: '2026-10-22',
+    title: 'Inbox empty in three minutes',
+    lead: 'One note after the other.',
+    points: [
+      { text: 'Sorting round: each note with a suggestion and why', href: '#/inbox' },
+      { text: 'At the end: how many filed, kept and deleted', href: '#/inbox' },
+    ],
+    test: ['Open Me › Inbox and tap «Start the sorting round».', 'File one note, keep one, skip one, and look at the end screen.'],
+  },
+  {
     // v0.182.0 «Aktiv» (Paket P4 of «Offene Mockups», Noah 21.10.2026): TN1–TN5 the top of the tennis page (only
     // tennis, 5b), ME4 the yoga card on Meditation, E4 «Diesen Tag merken», E5 «Gewünscht und erlebt».
     version: '0.182.0',

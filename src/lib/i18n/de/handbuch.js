@@ -1467,6 +1467,11 @@ export default {
   'Set a goal if you like, add wish tours, practice and courses.': 'Setz ein Ziel, wenn du willst, und füge Wunschtouren, Übungen und Kurse hinzu.',
   'Pick the ski in «After the tour»: its metres climbed add up here.': 'Wähle den Ski in «Nach der Tour»: Seine Höhenmeter zählen hier zusammen.',
   'Example: avalanche course two years ago → «Refresh» shows next to it.': 'Beispiel: Lawinenkurs vor zwei Jahren → daneben steht «Auffrischen».',
+  // Paket P5 «Eingang» (0.183.0)
+  'Only when at least two notes wait in the Inbox.': 'Nur wenn mindestens zwei Notizen im Eingang warten.',
+  'Tap «Start the sorting round».': 'Tippe auf «Ablegen-Runde starten».',
+  'For each note tap «File», a chip, «Keep», «Delete» or «Skip».': 'Tippe bei jeder Notiz auf «Ablegen», einen Chip, «Behalten», «Löschen» oder «Überspringen».',
+  'Example: «Rear brake squeaks» → suggestion «Problem on a bike» because «brake» appears.': 'Beispiel: «Bremse hinten quietscht» → Vorschlag «Problem am Velo», weil «Bremse» vorkommt.',
   // Paket P4 «Aktiv» (0.182.0)
   'Only on the page of the activity Tennis.': 'Nur auf der Seite der Aktivität Tennis.',
   'Open Aktiv › Sports › Tennis.': 'Öffne Aktiv › Sportarten › Tennis.',

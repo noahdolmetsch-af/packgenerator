@@ -1557,6 +1557,13 @@ export default {
   'Plan and reality after the tour': 'Plan und echt nach der Tour',
   'Open Ski tours, tap «Plan the tour» and tap a danger level.': 'Öffne Skitouren, tippe auf «Tour planen» und dann auf eine Gefahrenstufe.',
   'Open Ski tours › Season and add a wish tour.': 'Öffne Skitouren › Saison und füge eine Wunschtour hinzu.',
+  // v0.183.0 «Eingang»
+  'Inbox empty in three minutes': 'Eingang leer in drei Minuten',
+  'One note after the other.': 'Eine Notiz nach der anderen.',
+  'Sorting round: each note with a suggestion and why': 'Ablegen-Runde: jede Notiz mit Vorschlag und Grund',
+  'At the end: how many filed, kept and deleted': 'Am Schluss: wie viele abgelegt, behalten und gelöscht',
+  'Open Me › Inbox and tap «Start the sorting round».': 'Öffne Ich › Eingang und tippe auf «Ablegen-Runde starten».',
+  'File one note, keep one, skip one, and look at the end screen.': 'Leg eine Notiz ab, behalte eine, überspring eine und schau den Schluss an.',
   // v0.182.0 «Aktiv»
   'Tennis, yoga and good days': 'Tennis, Yoga und gute Tage',
   'Tick off faster, keep what does you good.': 'Schneller abhaken, merken was dir gut tut.',

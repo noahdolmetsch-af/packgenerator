@@ -763,6 +763,12 @@ export const HANDBOOK = {
     steps: ['Open Ski tours › Season.', 'Set a goal if you like, add wish tours, practice and courses.', 'Pick the ski in «After the tour»: its metres climbed add up here.'],
     example: 'Example: avalanche course two years ago → «Refresh» shows next to it.',
   },
+  // Paket P5 «Eingang»
+  'f.sortround': {
+    on: 'Only when at least two notes wait in the Inbox.',
+    steps: ['Open Me › Inbox.', 'Tap «Start the sorting round».', 'For each note tap «File», a chip, «Keep», «Delete» or «Skip».'],
+    example: 'Example: «Rear brake squeaks» → suggestion «Problem on a bike» because «brake» appears.',
+  },
   // Paket P4 «Aktiv»
   'f.tennistop': {
     on: 'Only on the page of the activity Tennis.',

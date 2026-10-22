@@ -52,9 +52,9 @@ export const LANDS = {
 };
 export const TARGET = Object.fromEntries(TARGETS.map((x) => [x.key, x]));
 
-const RECEIPT = /\b(rechnung|quittung|beleg|receipt|invoice|kassenzettel|chf\s*\d|\d+[.,]\d{2}\s*(chf|fr))/i;
-const IDEA = /\b(idee|idea|wäre|waere|geil|vielleicht|maybe|könnte|koennte|später)\b/i;
-const PLACE = /(^|[^\p{L}])(café|cafe|beiz|restaurant|aussicht|view|route|pass|camping|brunnen|see)(?![\p{L}])/iu;
+export const RECEIPT = /\b(rechnung|quittung|beleg|receipt|invoice|kassenzettel|chf\s*\d|\d+[.,]\d{2}\s*(chf|fr))/i;
+export const IDEA = /\b(idee|idea|wäre|waere|geil|vielleicht|maybe|könnte|koennte|später)\b/i;
+export const PLACE = /(^|[^\p{L}])(café|cafe|beiz|restaurant|aussicht|view|route|pass|camping|brunnen|see)(?![\p{L}])/iu;
 
 /**
  * The target the app suggests for an entry (the first highlighted row of «Ablegen als …»).

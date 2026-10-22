@@ -335,6 +335,8 @@ const OWN = [
   { id: 'f.startfresh', group: 'data', title: 'Start fresh', text: 'Delete all data and begin from zero; a copy stays, and «Undo» brings everything back.', href: '#/me/data', words: 'neu beginnen zurücksetzen reset null löschen alles frisch anfangen' },
   { id: 'f.lend', group: 'data', title: 'Lending list', text: 'Lend things to a guest: send the list as a link or PDF, get a reminder on the return day, and see who has what.', href: '#/gear/lend', words: 'ausleihen leihen verleihen gast freund zurück rückgabe erinnerung link pdf wer hat was' },
   // Strombudget (Noah 19.10.2026 «2a»): power budget per trip and power bank calculator
+  // Paket P5 «Eingang» (Noah 21.10.2026)
+  { id: 'f.sortround', group: 'data', title: 'Sorting round', text: 'In the Inbox: the open notes one after the other, each with the suggestion and why. File, keep, delete or skip; at the end you see what happened.', href: '#/inbox', words: 'ablegen runde eingang notizen eine nach der anderen vorschlag behalten löschen überspringen' },
   // Paket P4 «Aktiv» (Noah 21.10.2026)
   { id: 'f.tennistop', group: 'active', title: 'Tennis page', text: 'A cover photo, «Played» like last time in one tap, a lesson given, the next booked time with «Book a court» and «Played?» afterwards, and the history.', href: '#/flow/sport/act%3Atennis', words: 'tennis gespielt lektion platz buchen titelbild geplant verlauf sand halle' },
   { id: 'f.yogaclasses', group: 'active', title: 'Yoga classes', text: 'On the Meditation page: your regular yoga classes, the studio timetable in one tap and «Was there» after the class; it counts as yoga, apart from meditation.', href: '#/flow/act/meditation', words: 'yoga stammstunde studio stundenplan buchen war dort ausgelassen' },
