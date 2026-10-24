@@ -57,3 +57,30 @@ test('Ich lists no page of the dropped «App verkaufen»', async ({ page, contex
   for (const href of ['#/me/offers', '#/me/pros', '#/me/pay']) await expect(page.locator(`a.ich-row[href="${href}"]`)).toHaveCount(0);
   expect(errors).toEqual([]);
 });
+
+test('phone: a button scrolled into view is never under the head, the thumb bar or the bottom bar', async ({ page, context }, info) => {
+  test.skip(info.project.name !== 'phone', 'the fixed bars of the phone');
+  const errors = await start(page, context, info);
+  // Material and Daten were the pages of the walk with covered buttons (Q04); swipe actions under a row are
+  // inert until the row is swiped, so they do not count
+  for (const h of ['#/gear?unused=1', '#/gear', '#/me/data']) {
+    await page.goto(`./${h}`);
+    await expect(page.locator('main button:visible').first()).toBeVisible();
+    const btns = page.locator('main :is(button, a.btn):visible');
+    const covered = [];
+    for (let i = 0; i < (await btns.count()); i++) {
+      const b = btns.nth(i);
+      if (await b.evaluate((el) => !!el.closest('[inert], [aria-hidden="true"]'))) continue;
+      await b.scrollIntoViewIfNeeded();
+      const free = await b.evaluate((el) => {
+        const r = el.getBoundingClientRect();
+        if (!r.width || !r.height) return true;
+        const top = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
+        return !top || el.contains(top) || top.contains(el);
+      });
+      if (!free) covered.push((await b.textContent()).trim().slice(0, 40) || (await b.getAttribute('aria-label')));
+    }
+    expect(covered, `${h}: covered buttons`).toEqual([]);
+  }
+  expect(errors).toEqual([]);
+});
