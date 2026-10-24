@@ -15,9 +15,11 @@ import { strokesOf, soundAt, playSound, vibrate, schedulePlan, cancelPlan, playe
 import { sessionRecords } from '../flowmed.js';
 import { saveSession } from '../flowdb.js';
 import { offerActivity, offerActivityById } from '../remind/ask.svelte.js';
+import { starsAfterTick } from './starcheck.js';
 
 // sessionOpen: hobby pages 2, the running session in full (B7)
-export const ui = $state({ tick: null, timerOpen: false, toast: null, sessionOpen: false });
+// star: «Meilensteine als Belohnung» (Noah 22.10.2026 «4a»): the new star of the last tick, shown in its own small window
+export const ui = $state({ tick: null, timerOpen: false, toast: null, sessionOpen: false, star: null });
 
 /* ---------- names in the current language ---------- */
 export const actName = (a) => (a ? (lang.v === 'de' && a.nameDe ? a.nameDe : a.name) || t('Activity') : '');
@@ -78,9 +80,22 @@ export async function untickCommute(a, today = localDay()) {
 }
 /** Tick with choices (the sheet): amount, place, minutes, a commute. */
 export async function tickWith(a, opts) {
-  const e = await tick(db, a, { day: localDay(), ...opts });
+  const today = localDay();
+  const e = await tick(db, a, { day: today, ...opts });
   const what = opts.via === 'commute' ? t('{name} · commute ticked', { name: actName(a) }) : a.perTap > 1 || e.n > 1 ? t('{name} · {n} ticked', { name: actName(a), n: e.n }) : t('{name} ticked', { name: actName(a) });
-  toast(what, () => removeEntry(db, e.id));
+  // a new star from this tick: its own small window (no confetti); «Rückgängig» takes the tick and that star back
+  let won = [];
+  try {
+    won = (await starsAfterTick(db, a, today)).fresh;
+  } catch {
+    won = []; // a star is a bonus: the tick itself is saved
+  }
+  toast(what, async () => {
+    await removeEntry(db, e.id);
+    if (won.length) await db.flowStars.bulkDelete(won.map((s) => s.id));
+    if (ui.star?.entryId === e.id) ui.star = null;
+  });
+  if (won.length) ui.star = { entryId: e.id, actId: a.id, act: actName(a), stars: won.map((s) => ({ id: s.id, msId: s.msId, star: s.star, m: s.r?.m ?? null, value: s.r?.value ?? null, target: s.r?.steps?.[s.star - 1] ?? null })) };
   // ER1 (Noah 14.10.2026 «er1-er3 freigabe»): once per activity «Soll ich dich in Zukunft erinnern?»
   if (opts.via !== 'commute') offerActivity(a, actName(a));
   return e;

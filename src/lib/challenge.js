@@ -51,7 +51,7 @@ export function monthEnd(today) {
 export function challengesOf(value) {
   return (Array.isArray(value) ? value : [])
     .filter((c) => c && c.id && clean(c.what) && isDay(c.from) && isDay(c.until))
-    .map((c) => ({ id: String(c.id), area: c.area ?? 'today', what: clean(c.what), times: Math.max(1, Math.min(365, Math.round(Number(c.times) || 1))), from: c.from, until: c.until, doneOn: isDay(c.doneOn) ? c.doneOn : null, stopped: !!c.stopped }));
+    .map((c) => ({ id: String(c.id), area: c.area ?? 'today', what: clean(c.what), times: Math.max(1, Math.min(1000, Math.round(Number(c.times) || 1))), from: c.from, until: c.until, doneOn: isDay(c.doneOn) ? c.doneOn : null, stopped: !!c.stopped, ...(typeof c.actId === 'string' && c.actId ? { actId: c.actId } : {}) }));
 }
 /** A new challenge: what, how often, until when (from today). */
 export const newChallenge = ({ area = 'today', what, times = 10, until, today, id = `ch-${today}-${Math.random().toString(36).slice(2, 7)}` }) => ({ id, area, what: clean(what), times: Math.max(1, Math.round(Number(times) || 1)), from: today, until: until && until >= today ? until : monthEnd(today), doneOn: null, stopped: false });
@@ -83,3 +83,41 @@ export function stepChallenges(list, suggests, today) {
 }
 /** The challenges to celebrate today on Heute (reached in the last two days). */
 export const freshDone = (list, today, days = 2) => list.filter((c) => c.doneOn && Date.parse(`${today}T00:00:00Z`) - Date.parse(`${c.doneOn}T00:00:00Z`) < days * 864e5);
+
+/* ---------- challenges per activity (Noah 22.10.2026 «3a»: three ready ones per sport, plus own ones) ---------- */
+/**
+ * A challenge of an activity: area `act:<id>`, actId set. It counts every tick of the activity from its
+ * first to its last day (flowms.js challengeMilestones); reached, it is a star that stays.
+ */
+export const actArea = (actId) => `act:${actId}`;
+const addDaysIso = (day, n) => {
+  const d = new Date(`${day}T00:00:00Z`);
+  d.setUTCDate(d.getUTCDate() + n);
+  return d.toISOString().slice(0, 10);
+};
+/** The last day of the year of a day. */
+export const yearEnd = (today) => `${today.slice(0, 4)}-12-31`;
+/**
+ * The three ready challenges of an activity (suggestions, every number changeable): this month, the next
+ * 6 weeks, until the end of the year. The counts follow the goal (days a week), at least a few.
+ * → [{ key, times, until }]
+ */
+export function presetsFor(act, today) {
+  const q = (act?.goals ?? []).find((x) => x.count > 0);
+  const perWeek = q ? Math.max(1, Math.min(7, Math.round((q.count * 7) / q.days))) : 2;
+  const month = monthEnd(today);
+  const weeksLeft = Math.max(1, Math.round((Date.parse(`${month}T00:00:00Z`) - Date.parse(`${today}T00:00:00Z`)) / (7 * 864e5)) + 1);
+  const yearDays = (Date.parse(`${yearEnd(today)}T00:00:00Z`) - Date.parse(`${today}T00:00:00Z`)) / 864e5 + 1;
+  const round = (n, to) => Math.max(to, Math.round(n / to) * to);
+  return [
+    { key: 'month', times: Math.max(3, Math.min(31, perWeek * weeksLeft)), until: month },
+    { key: 'weeks6', times: round(perWeek * 6, 2), until: addDaysIso(today, 41) },
+    { key: 'year', times: round((perWeek * yearDays) / 7, 5), until: yearEnd(today) },
+  ];
+}
+/** A new challenge of an activity. */
+export const newActChallenge = ({ act, times, until, today, id }) => ({ ...newChallenge({ area: actArea(act.id), what: (act.name || act.id).slice(0, 40), times, until, today, id }), actId: act.id });
+/** The running and the finished challenges of an activity (newest first), stopped ones left out unless asked. */
+export const challengesFor = (list, actId, { stopped = false } = {}) => list.filter((c) => c.actId === actId && (stopped || !c.stopped)).reverse();
+/** How many ticks of the activity count for the challenge. */
+export const actCount = (c, log) => log.filter((e) => e.actId === c.actId && e.day >= c.from && e.day <= c.until).length;

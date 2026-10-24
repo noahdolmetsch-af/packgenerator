@@ -3,6 +3,7 @@
  * last 70 days, the checks of the last 30 days, the trip days, the question pool and bowl default).
  * Heute's card, the flow page and the floating windows each read it.
  */
+import { CHALLENGES_KEY, challengesOf } from '../challenge.js';
 import { liveQuery } from 'dexie';
 import { db } from '../db.js';
 import { addDays, normAct, tripDays } from '../flow.js';
@@ -77,7 +78,7 @@ export function hobbyQuery(today) {
       db.flowSessions.toArray(),
       db.flowStars.toArray(),
       db.trips.toArray(),
-      db.settings.where('key').anyOf([TUNE_KEY, REWARD_KEY, HIDDEN_KEY, SEED2_KEY, 'flowSeeded', 'strava']).toArray(),
+      db.settings.where('key').anyOf([TUNE_KEY, REWARD_KEY, HIDDEN_KEY, SEED2_KEY, 'flowSeeded', 'strava', CHALLENGES_KEY]).toArray(),
       db.items.where('ownership').equals('wishlist').toArray(),
       db.rides.toArray(),
       db.settings.get(HOME_PLACE),
@@ -110,6 +111,7 @@ export function hobbyQuery(today) {
       seeded: !!set.flowSeeded || acts.length > 0,
       seeded2: !!set[SEED2_KEY],
       extra, // package G: msContext({ extra }) on Aktiv, Meilensteine and the Vitrine (never on Heute)
+      challenges: challengesOf(set[CHALLENGES_KEY]), // «Meilensteine als Belohnung»: the challenges of each sport (msContext({ challenges }))
     };
   });
 }

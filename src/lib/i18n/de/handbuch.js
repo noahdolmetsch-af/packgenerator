@@ -1493,4 +1493,9 @@ export default {
   'Type the weight and tap «Save», or «Not today».': 'Tippe das Gewicht ein und dann «Speichern», oder «Heute nicht».',
   '«Stop asking» takes the card away; «Add a tile» brings it back.': '«Nicht mehr fragen» nimmt die Karte weg; «Kachel hinzufügen» holt sie zurück.',
   'Example: last weight 8 days ago → the card asks; saved, it is gone until next week.': 'Beispiel: letztes Gewicht vor 8 Tagen → die Karte fragt; gespeichert ist sie bis nächste Woche weg.',
+  // «Meilensteine als Belohnung» (Noah 22.10.2026 «1a–5a»)
+  'Tick a sport on Heute or in Aktiv: every tick counts 1 in its counters (times done, weeks in a row, this year, hours).': 'Hak eine Sportart auf Heute oder in Aktiv ab: jedes Abhaken zählt 1 in ihren Zählern (Mal gemacht, Wochen in Folge, dieses Jahr, Stunden).',
+  'A new star shows right after the tick in a small window.': 'Ein neuer Stern erscheint gleich nach dem Abhaken in einem kleinen Fenster.',
+  'On the sport page: pick a ready challenge or set your own; reached, it is a star in the showcase.': 'Auf der Seite der Sportart: wähl eine fertige Herausforderung oder setz deine eigene; geschafft, ist sie ein Stern in der Vitrine.',
+  'Example: the 5th yoga tick → «New star: Times done, star 1»; «12× in the next 6 weeks» counts by itself.': 'Beispiel: das 5. Yoga-Abhaken → «Neuer Stern: Mal gemacht, Stern 1»; «12× in den nächsten 6 Wochen» zählt von selbst.',
 };

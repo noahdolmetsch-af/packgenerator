@@ -25,6 +25,7 @@
   import CommuteBlock from '../../lib/sportpage/CommuteBlock.svelte';
   import RouteBlock from '../../lib/sportpage/RouteBlock.svelte';
   import ParkDaysBlock from '../../lib/sportpage/ParkDaysBlock.svelte';
+  import MilestoneSlot from '../../lib/sportpage/MilestoneSlot.svelte';
   import { DOMAINS } from '../../lib/domains.js';
   import { activeGoals } from '../../lib/flow.js';
   import { sortBikes } from '../../lib/bikes.js';
@@ -118,6 +119,9 @@
     {:else}
       <p class="card none">{t('All blocks are switched off. «Adjust blocks» switches them on again.')}</p>
     {/each}
+
+    <!-- «Meilensteine als Belohnung» (Noah 22.10.2026 «1a–5a»): the milestone slot of every sport with a tile -->
+    <MilestoneSlot {sport} {today} />
 
     {#if feats.length}
       <section class="card" aria-labelledby="ft-h" data-sport-features>

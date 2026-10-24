@@ -1032,9 +1032,9 @@ export const HANDBOOK = {
     example: 'Example: on a rainy day Packen says first to put the rain jacket on top; «Only useful tips» keeps the «Did you know» sentences away.',
   },
   'f.milestones': {
-    on: 'Needs a goal under Active › Goals.',
-    steps: ['Open Active › Activity › Milestones.', 'See the next star; pick a reward from the wishlist.'],
-    example: 'Example: next star at 20 sessions → reward «new bottle».',
+    on: null,
+    steps: ['Tick a sport on Heute or in Aktiv: every tick counts 1 in its counters (times done, weeks in a row, this year, hours).', 'A new star shows right after the tick in a small window.', 'On the sport page: pick a ready challenge or set your own; reached, it is a star in the showcase.'],
+    example: 'Example: the 5th yoga tick → «New star: Times done, star 1»; «12× in the next 6 weeks» counts by itself.',
   },
   'f.meditation': {
     on: null,

@@ -80,7 +80,7 @@ export const HOWTO = {
   'f.check': ['Open Active.', 'Look at the rings of the last 7 days.', 'Fill in the daily check: sleep, energy and mood.'],
   'f.stopwatch': ['Open Active.', 'Press an activity long.', 'The stopwatch runs on every page; a singing bowl rings.'],
   'f.goals': ['Open Active › Goals.', 'Choose daily, 7, 10 or 30 days.', 'Add a season if you like.'],
-  'f.milestones': ['Open Active › Milestones.', 'Only the next star shows.', 'Pick a reward from the wishlist.'],
+  'f.milestones': ['Tick a sport: every tick counts.', 'A new star shows right after the tick.', 'Pick a challenge on the sport page.'],
   'f.meditation': ['Open Active › Meditation.', 'Start like last time or from a template.', 'Sounds and a calm clock lead you.'],
   'f.medlog': ['Open Meditation › Log.', 'See every session and the streak heat map.', 'Find your best time of day.'],
   'f.medmore': ['Open Meditation › More.', 'Listen to the sounds.', 'Add kinds, places, quotes or your own links.'],
