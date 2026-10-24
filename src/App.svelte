@@ -890,6 +890,15 @@
       gap: 0;
     }
   }
+  /* the same when the app is bigger («Grösse», zoom 130 %): the bar itself is narrow, the screen is not */
+  .top {
+    container-type: inline-size;
+  }
+  @container (max-width: 379px) {
+    .tools {
+      gap: 0;
+    }
+  }
   /* A phone turned sideways: a low top bar. */
   @media (max-height: 500px) {
     .top {
