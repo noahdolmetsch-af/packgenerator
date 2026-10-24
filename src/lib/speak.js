@@ -153,13 +153,14 @@ export const ANSWERS = [
   { key: 'off', name: 'Never', text: 'The app does not answer while you dictate.' },
 ];
 export const DICT_KEY = 'dict.';
-export const DICT_DEFAULTS = { engine: 'browser', answer: 'after', read: false, commands: true, gemini: true, others: null };
+export const DICT_DEFAULTS = { engine: 'browser', answer: 'after', read: false, commands: true, gemini: true, others: null, order: null };
 
 /** A stored setting, or its default when nothing (or something unknown) is stored. */
 export function dictOf(key, stored) {
   if (key === 'engine') return ENGINES.some((e) => e.key === stored) ? stored : DICT_DEFAULTS.engine;
   if (key === 'answer') return ANSWERS.some((a) => a.key === stored) ? stored : DICT_DEFAULTS.answer;
   if (key === 'others') return typeof stored === 'string' ? stored : null; // the shown services, null = all
+  if (key === 'order') return typeof stored === 'string' ? stored : null; // the services' order, null = as built (22.10.2026 «4a»)
   if (stored === '1') return true;
   if (stored === '0') return false;
   return DICT_DEFAULTS[key];

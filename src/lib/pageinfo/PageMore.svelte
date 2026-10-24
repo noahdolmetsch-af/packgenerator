@@ -8,19 +8,20 @@
    * «Mehr Inhalt» 3a (Noah 15.10.2026): a page's examples to take over, each a closed fold; «Save as
    * note» keeps it as an own note with a checklist (Ich › Notizen), nothing else changes.
    */
-  import { Lightbulb, ChevronDown, NotebookPen, Check } from '@lucide/svelte';
+  import { ChevronDown, NotebookPen, Check } from '@lucide/svelte';
   import { db } from '../db.js';
   import { newKeptNote } from '../notebook.js';
   import TipsSheet from './TipsSheet.svelte';
   import { pageInfo } from './store.svelte.js';
-  import { PAGES, canRows, canShown, setCan, tipOfDay, examplesOf, exampleNote } from '../pageinfo.js';
+  import { PAGES, tipOfDay, examplesOf, exampleNote } from '../pageinfo.js';
   import { localDay } from '../localday.js';
-  import { t, tn } from '../i18n.svelte.js';
+  import { t } from '../i18n.svelte.js';
+  import { sayHere } from './here.svelte.js';
 
   let { page, name, base = '', open = false } = $props();
   const pi = pageInfo();
+  $effect(() => sayHere({ can: page, name, base }));
   const today = localDay();
-  const rows = $derived(canRows(page, base));
   const noTip = $derived(pi.loaded && !tipOfDay(pi.info, page, today) && PAGES[page]?.tips?.length);
 
   let tipsOpen = $state(false);
@@ -32,21 +33,7 @@
   }
 </script>
 
-{#if pi.loaded && rows.length && canShown(pi.info, page)}
-  <details class="card can" data-section="can" {open}>
-    <summary>
-      <Lightbulb size={18} aria-hidden="true" />
-      <span><b>{t('What the app can do here')}</b> · {tn(rows.length, '{n} thing|can', '{n} things|can')}</span>
-      <ChevronDown class="chev" size={18} aria-hidden="true" />
-    </summary>
-    <ul>
-      {#each rows as r (r.id)}
-        <li><a href={r.href} data-can={r.id}><b>{t(r.title)}</b><small>{t(r.sub)}</small></a></li>
-      {/each}
-    </ul>
-    <button type="button" class="lk" onclick={() => pi.save((v) => setCan(v, page, false))}>{t('Hide this line')}</button>
-  </details>
-{/if}
+<!-- «Alles finden 2» (Noah 22.10.2026 «3a»): «What the app can do here» is in the «?» window at the top now (nav/HelpButton) -->
 
 {#if pi.loaded && pi.info.tipsOn}
   {#each examples as ex (ex.id)}
@@ -103,18 +90,6 @@
     list-style: none;
     margin: 0;
     padding: 0 16px;
-  }
-  .can li a {
-    display: grid;
-    gap: 2px;
-    padding: 10px 0;
-    border-top: 1px solid var(--line);
-    color: var(--ink);
-    text-decoration: none;
-  }
-  .can li small {
-    font-size: var(--fs-small);
-    color: var(--ink-3);
   }
   .lk {
     min-height: 44px;

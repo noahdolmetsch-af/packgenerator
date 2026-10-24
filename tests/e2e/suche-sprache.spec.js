@@ -81,6 +81,13 @@ test('a spoken question: the app answers and «Ask further at» opens Claude wit
   await expect(page.locator('[data-aa="care"]:visible')).toContainText(T('Nothing is due on your bikes.'));
   const claude = page.locator('[data-ask-elsewhere]:visible [data-service="claude"]');
   await expect(claude).toHaveAttribute('href', /^https:\/\/claude\.ai\/new\?q=was%20ist%20am%20Velo%20f%C3%A4llig/);
+  // a tap also copies the question and says so, in case the service loses it after its sign-in
+  await context.grantPermissions(['clipboard-read', 'clipboard-write']);
+  await context.route('https://claude.ai/**', (r) => r.fulfill({ body: 'ok' }));
+  const [tab] = await Promise.all([context.waitForEvent('page'), claude.click()]);
+  await tab.close();
+  await expect(page.locator('[data-ask-copied]:visible')).toContainText('Claude');
+  expect(await page.evaluate(() => navigator.clipboard.readText())).toBe('was ist am Velo fällig');
   // no helper code: no Gemini button, only the links
   await expect(page.locator('[data-ask-gemini]')).toHaveCount(0);
   expect(errors).toEqual([]);

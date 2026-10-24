@@ -91,9 +91,9 @@ test('Ich: Waiting for you on top, App maintenance, More and Help folded', async
   await expect(page.getByRole('button', { name: new RegExp(T('Try it out')) })).toBeHidden();
   await page.locator('main summary').filter({ has: page.getByRole('heading', { name: T('More'), exact: true }) }).click();
   await expect(page.getByRole('button', { name: new RegExp(T('Try it out')) })).toBeVisible();
-  await expect(page.locator('a.ich-row[href="#/me/handbook"]')).toBeHidden();
-  await page.locator('main summary').filter({ hasText: T('Help|me') }).click();
-  await expect(page.locator('a.ich-row[href="#/me/handbook"]')).toBeVisible();
+  // «Alles finden 2» (Noah 22.10.2026 «3a», changed on purpose): one row «Hilfe und Funktionen» instead of the help fold
+  await expect(page.locator('main summary').filter({ hasText: T('Help|me') })).toHaveCount(0);
+  await expect(page.locator('a.ich-row[href="#/features"]')).toBeVisible();
   // the row «Data and backup» no longer repeats «Backup due»
   await expect(page.locator('a.ich-row[href="#/me/data"] .pill')).toHaveCount(0);
   await noSideways(page);

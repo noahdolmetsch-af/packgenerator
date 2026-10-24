@@ -35,7 +35,8 @@ const CASES = [
   // v0.76.0 «Fünf Orte»: «Ich» (top right) took the place of the «More» sheet
   { id: 'me', hash: '#/me' },
   // Impeccable (18.10.2026): the shortcuts are one tap deeper, under the row «Help»
-  { id: 'keys', hash: '#/me', act: async (page, T) => (await tap(page.locator('main summary').filter({ hasText: T('Help|me') })), tap(page.locator('main').getByRole('button', { name: T('Help and keyboard shortcuts') }))) },
+  // v0.186.0 «Alles finden»: the Ich fold Hilfe moved to «Hilfe und Funktionen» (#/features), on purpose
+  { id: 'keys', hash: '#/features', act: async (page) => tap(page.locator('main [data-help-row="keys"]')) },
   {
     id: 'today-search',
     hash: '#/',

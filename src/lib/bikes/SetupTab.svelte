@@ -451,6 +451,10 @@
               </ul>
             {/if}
             <div class="vfold">{@render yourBags()}</div>
+            {#if !editMounts}
+              <!-- «Alles finden» (Noah 22.10.2026 «1a»): the bag plan right under the bags, not behind «Mehr» -->
+              <a class="bp-link" href="#/bikes?tab=rig&view=bags" data-bag-plan-link><span>{t('Bag plan')}</span><small>{t('Weight front, middle and rear')}</small><ChevronRight size={16} aria-hidden="true" /></a>
+            {/if}
           </div>
         </section>
       </div>
@@ -1387,5 +1391,23 @@
       grid-column: 2;
       justify-content: flex-start;
     }
+  }
+  .bp-link {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.7rem 0.9rem;
+    border-top: 1px solid var(--line);
+    color: var(--ink);
+    text-decoration: none;
+    font-weight: 600;
+  }
+  .bp-link small {
+    min-width: 0;
+    margin-left: auto;
+    text-align: right;
+    color: var(--ink-2);
+    font-weight: 400;
+    font-size: var(--fs-small);
   }
 </style>

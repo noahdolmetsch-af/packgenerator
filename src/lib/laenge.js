@@ -41,6 +41,10 @@ export const TOO_LONG = {
   '#/me/abfragen': 6.5,
   '#/me/wohl': 7.5,
   '#/me': 5,
+  // 0.186.0 «Alles finden»: Vorrat and «Werkzeuge und Links» became tabs (Material, Planen), so they are measured from
+  // now on; they were this long before (5.89 and 3.61 on CI). Shorten them, then lower the number.
+  '#/gear/supplies': 6,
+  '#/me/links': 3.7,
 };
 
 /** The screens a page may have on a phone. */

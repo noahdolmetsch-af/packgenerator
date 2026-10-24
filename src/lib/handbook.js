@@ -769,6 +769,34 @@ export const HANDBOOK = {
     steps: ['Open Heute: the card «Weight this week?» stands under the greeting.', 'Type the weight and tap «Save», or «Not today».', '«Stop asking» takes the card away; «Add a tile» brings it back.'],
     example: 'Example: last weight 8 days ago → the card asks; saved, it is gone until next week.',
   },
+  // Paket P8 «Fotoalbum»
+  'f.photoalbum': {
+    on: null,
+    steps: ['Open Me › Photo album.', 'Tap «Add photos» and choose several.', 'Tap a photo: give it a place, or switch «Show on Today» off.'],
+    example: 'Example: three photos of a rest → place «above the lake», under «By place» together.',
+  },
+  // Paket P5 «Eingang»
+  'f.sortround': {
+    on: 'Only when at least two notes wait in the Inbox.',
+    steps: ['Open Me › Inbox.', 'Tap «Start the sorting round».', 'For each note tap «File», a chip, «Keep», «Delete» or «Skip».'],
+    example: 'Example: «Rear brake squeaks» → suggestion «Problem on a bike» because «brake» appears.',
+  },
+  // Paket P4 «Aktiv»
+  'f.tennistop': {
+    on: 'Only on the page of the activity Tennis.',
+    steps: ['Open Aktiv › Sports › Tennis.', 'Tap «Played» or «Like last time».', 'Booked a court? «Enter a time»: afterwards the app asks «Played?».'],
+    example: 'Example: Thursday 18:00 booked → on Thursday evening «Played?» with «Yes, played».',
+  },
+  'f.yogaclasses': {
+    on: null,
+    steps: ['Open Aktiv › Meditation.', 'In the card Yoga tap «Add a class».', 'After the class tap «Was there» or «Skipped».'],
+    example: 'Example: Thursday 18:30 Hatha every week → «Next regular class Thu 18:30».',
+  },
+  'f.goodday': {
+    on: null,
+    steps: ['At the end of the evening review tap «Keep this day».', 'Write what made it good and save.', 'In What is good for me tap «Repeat on Saturday».'],
+    example: 'Example: «quiet morning, outside in the afternoon» → on Saturday morning the check reminds you.',
+  },
   // Paket P3 «Warum? und Regeln»
   'f.decides': {
     on: null,
@@ -1140,8 +1168,8 @@ export const HANDBOOK = {
   },
   'f.next': {
     on: null,
-    steps: ['Open Me › What comes next.', 'See what is live, what is being built and what comes later.'],
-    example: 'Example: «Plans and dreams» under «Being built now» → a test link follows.',
+    steps: ['Open Me › Project shelf.', 'Read «For you now» and «The way».', 'Open «Ideas» under «Look up» and tap a goal.'],
+    example: 'Example: «Eingang is built and parked» → it goes online after your OK.',
   },
   'f.notes': {
     on: null,
@@ -1335,8 +1363,8 @@ export const HANDBOOK = {
   },
   'f.autosync': {
     on: 'Needs the internet now and then; it is free and the server cannot read your data.',
-    steps: ['On the computer: Me › Data and backup › «Switch on sync»; a QR code and a code appear.', 'On the phone: point the camera at the QR code and tap «Pair» (or «I have a code» and type it).', 'From then on both sync by themselves; when the same entry changed on both, a window asks which version counts.'],
-    example: 'Example: weight changed on the phone and the name on the computer → «Changed on both devices» → «Keep this one» or «Take this one».',
+    steps: ['On the computer: Me › Data and backup › «Switch on sync»; a QR code and a code appear.', 'On the phone: point the camera at the QR code and tap «Pair» (or «I have a code» and type it).', 'From then on both sync by themselves, without questions; when the same entry changed on both, the newer change counts.'],
+    example: 'Example: weight on the phone, later the name on the computer → the newer counts → the other under «Settled by itself».',
   },
   // Paket R
   'f.account': {

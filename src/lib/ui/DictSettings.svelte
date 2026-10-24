@@ -8,14 +8,20 @@
   import { t, lang } from '../i18n.svelte.js';
   import { dict, setDict } from '../dictation.svelte.js';
   import { ENGINES, ANSWERS, COMMANDS, speechApi, voiceApi } from '../speak.js';
-  import { SERVICES, SERVICE_KEYS, shownServices } from '../assistent/elsewhere.js';
+  import { SERVICE_KEYS, shownServices, orderedServices, movedOrder } from '../assistent/elsewhere.js';
   import Seg from './Seg.svelte';
+  import SortGrip from './SortGrip.svelte';
+  import SortArrows from './SortArrows.svelte';
+  import { sortable } from './sortable.js';
 
   const hasBrowser = !!speechApi();
   const canRead = !!voiceApi();
   const shown = $derived(shownServices(dict.others));
   const engineText = $derived(ENGINES.find((e) => e.key === dict.engine)?.text ?? '');
   const answerText = $derived(ANSWERS.find((a) => a.key === dict.answer)?.text ?? '');
+  const ordered = $derived(orderedServices(dict.order));
+  const sname = (s) => (s.key === 'google' ? t(s.name) : s.name);
+  const move = (from, to) => from !== to && to >= 0 && to < ordered.length && setDict('order', movedOrder(dict.order, from, to));
   function toggleService(key, on) {
     const next = SERVICE_KEYS.filter((k) => (k === key ? on : shown.includes(k)));
     setDict('others', next.join(','));
@@ -45,10 +51,14 @@
   </ul>
 
   <p class="ds-l">{t('Ask further at')}</p>
-  <p class="note">{t('One tap opens the service with your question; the answer comes there. Free with your normal account.')}</p>
-  <ul class="sv">
-    {#each SERVICES as s (s.key)}
-      <li><label><input type="checkbox" checked={shown.includes(s.key)} onchange={(e) => toggleService(s.key, e.currentTarget.checked)} data-dict-service={s.key} /><span><b>{s.key === 'google' ? t(s.name) : s.name}</b> <small>{t(s.what)}</small></span></label></li>
+  <p class="note">{t('One tap opens the service with your question; the answer comes there. Free with your normal account.')} {t('The first one shown is your favourite: it gets the big button. Sort with the arrows or drag.')}</p>
+  <ul class="sv" use:sortable={{ onmove: move }} data-dict-order>
+    {#each ordered as s, i (s.key)}
+      <li data-sort-id={s.key}>
+        <SortGrip name={sname(s)} onstep={(dir) => move(i, i + dir)} />
+        <label><input type="checkbox" checked={shown.includes(s.key)} onchange={(e) => toggleService(s.key, e.currentTarget.checked)} data-dict-service={s.key} /><span><b>{sname(s)}</b> <small>{t(s.what)}</small></span></label>
+        <SortArrows name={sname(s)} {i} n={ordered.length} onstep={(dir) => move(i, i + dir)} />
+      </li>
     {/each}
   </ul>
   <p class="note"><a href="#/me/ki-projekte">{t('My AI projects')}</a> · {t('your own links to projects and chats')}</p>
@@ -101,7 +111,15 @@
     color: var(--ink-3);
     font-size: var(--fs-small);
   }
+  .sv li {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--paper);
+  }
   .sv label {
+    flex: 1;
+    min-width: 0;
     display: flex;
     align-items: center;
     gap: 8px;

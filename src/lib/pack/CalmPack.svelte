@@ -60,7 +60,13 @@
   import { missingOf, missingText } from '../touren/tourstep.js';
   import ListCheck from '../helper/ListCheck.svelte';
   import { isOn } from '../helper/client.svelte.js';
-  let { trip, stats, bike, bikeTrip, domainLabel, items, itemsById, trips, candidates, targets, templates, hasPhoto = false, openLayers, canUndo, changeNote = '', ctxChanged = false, ctxRows = {}, reasons = {}, readyCount, readyTotal, over, fixed = false, phaseOpts = {}, carry = new Set(), q = $bindable(''), zoneKey = $bindable('seat'), review = $bindable(false), actions, settings, picker, moreWeights, preparation, ballastContent, suggest = null, notice = null, made = false, onion = null, photo = null, edit = null, swapMemory = {}, onroute = null, onstages = null, prep = null, onprep = null, lessons = [], reminders = [] } = $props();
+  // Klick-Rundgang H33 (parked until Noah's OK): an empty list offers a template's list in one tap
+  import { tripFromTemplate, tplDomain } from '../templates.js';
+  import { domainOf } from '../domains.js';
+  import { SETS_KEY } from '../sets.js';
+  import { db } from '../db.js';
+  import { offerDone } from '../ui/rename.svelte.js';
+  let { trip, stats, bike, bikeTrip, domainLabel, items, itemsById, trips, candidates, targets, templates, hasPhoto = false, openLayers, canUndo, changeNote = '', ctxChanged = false, ctxRows = {}, reasons = {}, readyCount, readyTotal, over, fixed = false, phaseOpts = {}, carry = new Set(), q = $bindable(''), zoneKey = $bindable('seat'), review = $bindable(false), actions, settings, picker, moreWeights, preparation, ballastContent, suggest = null, notice = null, made = false, onion = null, photo = null, edit = null, swapMemory = {}, onroute = null, onstages = null, prep = null, onprep = null, lessons = [], reminders = [], onlist = null } = $props();
   let grouping = $state('bags');
   let opened = $state({});
   let itemMenu = $state(null);
@@ -99,6 +105,18 @@
     return trip.hours ? t('{n} h per day', { n: num(trip.hours) }) : t('Duration not set');
   });
   const tpl = $derived(templates.find((x) => x.id === trip.templateId) ?? null);
+  // H33: the template of this area that an empty list can take over (the trip's own template first).
+  const example = $derived(fixed || trip.entries.length || !onlist ? null : [tpl, ...templates].find((x) => x && !x.archivedAt && tplDomain(x) === domainOf(trip)) ?? null);
+  async function useExample() {
+    const from = $state.snapshot(example);
+    if (!from) return;
+    const sets = (await db.settings.get(SETS_KEY))?.value ?? [];
+    const made = tripFromTemplate({ title: trip.title || from.name, startDate: trip.startDate, days: trip.days, bike: bike ? $state.snapshot(bike) : null }, from, $state.snapshot(items), Date.now(), sets);
+    const keys = bikeTrip ? ['entries', 'setup', 'setupId'] : ['entries'];
+    const before = Object.fromEntries(keys.map((k) => [k, $state.snapshot(trip[k]) ?? null]));
+    await onlist((cur) => ({ ...cur, ...Object.fromEntries(keys.map((k) => [k, made[k] ?? cur[k]])) }));
+    offerDone(t('List of «{name}» taken over.', { name: from.name }), () => onlist((cur) => ({ ...cur, ...before })));
+  }
   const startText = $derived(tpl ? tpl.name : trip.copiedFrom ? t('Last trip') : t('Standard|block'));
   const until = $derived(trip.startDate ? daysUntil(trip.startDate) : null);
   const whenText = $derived(until == null ? '' : until > 1 ? tn(until, 'in {n} day', 'in {n} days') : until === 1 ? t('tomorrow') : until === 0 ? t('today') : '');
@@ -393,7 +411,7 @@
           <!-- v0.127.0 A-U2: the one empty building block -->
           <section class="empty-list" aria-labelledby="empty-list-h">
             {#if fixed}<Empty level={3} headId="empty-list-h" title={t('No packing list for this trip.')} text={t('It was ridden without a list from the app. Reopen it to add one.')} action={{ label: t('Reopen'), onclick: actions.reopen }} />
-            {:else}<Empty level={3} headId="empty-list-h" title={t('Your packing list is still empty.')} text={items.length ? t('Pick what you take along from your gear.') : t('Add your first item here; it goes into your gear for every next trip.')} action={{ label: t('Add gear'), onclick: () => show('add') }} />{/if}
+            {:else}<Empty level={3} headId="empty-list-h" title={t('Your packing list is still empty.')} text={items.length ? t('Pick what you take along from your gear.') : t('Add your first item here; it goes into your gear for every next trip.')} action={{ label: t('Add gear'), onclick: () => show('add') }} action2={example ? { label: t('Use example list'), onclick: useExample } : null} />{/if}
           </section>
         {/if}
         <div class="bag-groups blist" class:cols={!phone.matches}>

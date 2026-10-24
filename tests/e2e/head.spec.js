@@ -3,6 +3,7 @@
 // the search and the round + over the page is gone; on a computer the sidebar shows the pages of the
 // chosen place only and «Ich» is a card at the bottom.
 import { test, expect } from '@playwright/test';
+import { PLACE_TABS } from '../../src/lib/nav.js';
 import DE from '../../src/lib/i18n/de/index.js';
 
 const T = (en) => DE[en] ?? en.replace(/\|[a-z]+$/, '');
@@ -51,7 +52,8 @@ test('the bars are light; «Neu» is at the top on a phone and in the sidebar on
     await expect(side.locator('.newbtn')).toBeVisible();
     // only the chosen place shows its pages
     await expect(side.locator('.tabs')).toHaveCount(1);
-    await expect(side.locator('li[data-place="gear"] .tabs a')).toHaveCount(4);
+    // «Alles finden 2» (Noah 22.10.2026 «5a»): Vorrat and Ausgeliehen are tabs of Material now (read from nav.js)
+    await expect(side.locator('li[data-place="gear"] .tabs a')).toHaveCount(PLACE_TABS.gear.length);
     await expect(side.locator('li[data-place="gear"] .tabs a[aria-current="page"]')).toHaveText(T('All|gear'));
     // «Ich» as a card at the bottom of the sidebar
     const me = side.locator('a.me');
