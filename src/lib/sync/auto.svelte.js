@@ -3,55 +3,17 @@
  * a moment after the app opens, when it comes back to the front, when the network is back,
  * 20 s after a change on this device, and every 5 minutes while it is open. One round at a time.
  *
- * sync.state is what the panel and the question window show.
+ * sync is what the panel shows. Noah 24.10.2026: nothing about the sync ever shows outside Ich › Daten
+ * und Backup: a change on both devices settles by itself (engine.js settle), an error waits for the next
+ * round, which runs by itself.
  */
 import { liveQuery } from 'dexie';
-import { syncNow, readCfg, ASK, settleAsks } from './engine.js';
+import { syncNow, readCfg, settleAsks } from './engine.js';
 
 export const AFTER_CHANGE_MS = 20_000;
 export const EVERY_MS = 5 * 60_000;
 
-/**
- * The question window: open, and how many questions «Later» already put aside.
- * first: the panel asks one question for all after pairing; the window waits meanwhile.
- */
-export const syncUi = $state({ open: false, seen: 0, first: false, quietUntil: readQuiet() });
-
-/*
- * Noah 21.10.2026 («kommt immer wieder beim Navigieren», «Später» hilft nicht): «Later» keeps the window
- * shut for an hour (rule 8: «Später» = 1 h), also over a reload and when new questions arrive meanwhile.
- * The questions stay in Ich › Daten und Backup; «Decide» there opens the window at once.
- */
-export const QUIET_LS = 'pg.sync.later';
-export const QUIET_MS = 60 * 60_000;
-function readQuiet() {
-  try {
-    return Number(globalThis.localStorage?.getItem(QUIET_LS)) || 0;
-  } catch {
-    return 0;
-  }
-}
-export function quietLater(now = Date.now()) {
-  syncUi.quietUntil = now + QUIET_MS;
-  try {
-    globalThis.localStorage?.setItem(QUIET_LS, String(syncUi.quietUntil));
-  } catch {
-    /* a private window: quiet until the next reload */
-  }
-}
-
-export const sync = $state({ running: false, asks: 0, last: null, error: null, on: false, big: 0, autoOpen: true, asList: false });
-
-/**
- * Noah 18.10.2026 «1b und a kann eingestellt werden 2a oder umschalten auf b»: how the questions come.
- * settings 'syncAsk' { auto: open the window by itself (default; false = only a hint), list: all at once (default: one by one) }.
- * Noah 18.10.2026 20:07 «1a 2a 3a» (newest): the window opens by itself; the hint stays as a setting.
- */
-export const ASK_PREFS = 'syncAsk';
-export async function setAskPrefs(db, patch) {
-  const cur = (await db.settings.get(ASK_PREFS))?.value ?? {};
-  await db.settings.put({ key: ASK_PREFS, value: { ...cur, ...patch } });
-}
+export const sync = $state({ running: false, last: null, error: null, on: false, big: 0 });
 
 const device = () => (globalThis.matchMedia?.('(pointer: coarse)').matches ? 'phone' : 'computer');
 
@@ -89,18 +51,14 @@ let changeTimer = null;
 export function watchSync(db, win = globalThis) {
   if (dbRef) return;
   dbRef = db;
-  // questions a rule answers (Strava activities fetched on both devices): gone at once, before any round
-  // and even without the internet, so the window does not open for them (Noah 20.10.2026 «Schon wieder»)
+  // questions left from before 24.10.2026: they settle at once, before any round and even offline
   settleAsks(db).catch(() => {});
-  liveQuery(async () => ({ cfg: await readCfg(db), asks: await db.meta.where('key').startsWith(ASK).count(), prefs: (await db.settings.get(ASK_PREFS))?.value ?? {} })).subscribe({
-    next: ({ cfg, asks, prefs }) => {
-      sync.autoOpen = prefs.auto !== false; // Noah 18.10.2026 20:07 «1a»: by itself unless switched off
-      sync.asList = !!prefs.list;
+  liveQuery(() => readCfg(db)).subscribe({
+    next: (cfg) => {
       sync.on = !!cfg?.on;
       sync.last = cfg?.lastAt ?? null;
       sync.error = cfg?.error ?? null;
       sync.big = cfg?.big ?? 0;
-      sync.asks = asks;
     },
     error: () => {},
   });

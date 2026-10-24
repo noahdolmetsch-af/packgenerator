@@ -16,6 +16,16 @@
 
 export const WHATS_NEW = [
   {
+    // v0.181.5 «Abgleich ohne Fragen» (Noah 24.10.2026, screenshot «805 Einträge auf beiden Geräten geändert»)
+    version: '0.181.5',
+    date: '2026-10-24',
+    title: 'Sync without questions',
+    lead: 'Phone and computer agree by themselves.',
+    points: [{ text: 'Changed on both devices: the newer change counts', href: '#/me', action: 'data' }],
+    small: [{ box: 'fixed', text: 'The sync no longer asks about unchanged entries' }],
+    test: ['Change the same entry on the phone and on the computer: no message comes.', 'Ich › Daten und Backup › «Von selbst abgeglichen»: bring back the other version.'],
+  },
+  {
     // v0.181.4 «Aktiv ohne Sackgassen» (Klick-Rundgang «Aktiv fertig bauen» A01–A05, A07, A08, H29, and dead buttons part 2)
     version: '0.181.4',
     date: '2026-10-24',

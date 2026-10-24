@@ -1335,8 +1335,8 @@ export const HANDBOOK = {
   },
   'f.autosync': {
     on: 'Needs the internet now and then; it is free and the server cannot read your data.',
-    steps: ['On the computer: Me › Data and backup › «Switch on sync»; a QR code and a code appear.', 'On the phone: point the camera at the QR code and tap «Pair» (or «I have a code» and type it).', 'From then on both sync by themselves; when the same entry changed on both, a window asks which version counts.'],
-    example: 'Example: weight changed on the phone and the name on the computer → «Changed on both devices» → «Keep this one» or «Take this one».',
+    steps: ['On the computer: Me › Data and backup › «Switch on sync»; a QR code and a code appear.', 'On the phone: point the camera at the QR code and tap «Pair» (or «I have a code» and type it).', 'From then on both sync by themselves, without questions; when the same entry changed on both, the newer change counts.'],
+    example: 'Example: weight on the phone, later the name on the computer → the newer counts → the other under «Settled by itself».',
   },
   // Paket R
   'f.account': {
