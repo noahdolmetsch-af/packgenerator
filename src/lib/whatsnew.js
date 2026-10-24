@@ -18,6 +18,7 @@ export const WHATS_NEW = [
   {
     // v0.187.0 «Aktiv neu» (Noah 22.10.2026, Beschreibung «Aktiv-Bereich»): Aktiv is for doing (Heute, Meine Sportarten,
     // Training, Erholung), Auswerten for looking; every sport has its page with goal, history and milestones.
+    // + «Meilensteine als Belohnung» (oz2o9i) and «Stopps in der Nähe» + «Ziel wählen» (b97xla).
     version: '0.187.0',
     date: '2026-10-24',
     title: 'Doing here, looking there',
@@ -25,8 +26,9 @@ export const WHATS_NEW = [
     points: [
       { text: 'Every sport with its own page, summit book included', href: '#/flow/sports' },
       { text: 'Form, body values and rides under Analysis', href: '#/auswerten' },
+      { text: 'Stops nearby: water, food, WC around you or along the route', href: '#/stopps' },
     ],
-    small: [{ box: 'nicer', text: 'Active shows today, this week and the rings' }],
+    small: [{ box: 'new', text: 'Every tick counts: a new star shows right away' }, { box: 'nicer', text: 'Active shows today, this week and the rings' }],
     test: ['Open Active › My sports, tap a sport and tap «Tick now».', 'Open Analysis with the switch on top of Active.'],
   },
   {

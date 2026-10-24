@@ -1571,6 +1571,8 @@ export default {
   'Every sport with its own page, summit book included': 'Jede Sportart mit eigener Seite, samt Gipfelbuch',
   'Form, body values and rides under Analysis': 'Form, Körperwerte und Fahrten unter Auswerten',
   'Active shows today, this week and the rings': 'Aktiv zeigt heute, diese Woche und die Ringe',
+  'Stops nearby: water, food, WC around you or along the route': 'Stopps in der Nähe: Wasser, Essen, WC um dich oder entlang der Strecke',
+  'Every tick counts: a new star shows right away': 'Jedes Abhaken zählt: ein neuer Stern erscheint sofort',
   'Open Active › My sports, tap a sport and tap «Tick now».': 'Öffne Aktiv › Meine Sportarten, tippe eine Sportart an und dann «Jetzt abhaken».',
   'Tap «Tick now» on its page, then change the entry under History.': 'Tippe auf ihrer Seite «Jetzt abhaken» und ändere dann den Eintrag unter Verlauf.',
   'Open Analysis with the switch on top of Active.': 'Öffne Auswerten mit dem Umschalter oben in Aktiv.',
