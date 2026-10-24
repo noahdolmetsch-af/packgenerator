@@ -127,6 +127,7 @@ test('The small tour of Bikes, and the Einstieg on the pages below the places', 
   ]) {
     await page.goto(`./${hash}`);
     const box = page.locator(`[data-intro="${place}"]`);
+    if (place === 'goals') await box.click(); // «Aktiv neu»: «Meine Sportarten» starts with the one line «So geht's»
     await expect(box, place).toContainText(T(title));
     await expect(box.locator('.kick'), place).toHaveCount(0); // Impeccable 20.10.2026: no label above the title
     await expect(box.locator('[data-offer]'), place).toHaveCount(0);
