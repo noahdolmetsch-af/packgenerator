@@ -22,8 +22,8 @@ export const KINDS = [
   { key: 'done', name: 'Done, nothing to keep', where: 'All notes' },
 ];
 
-const REPAIR = /\b(brake|brems|quietsch|squeak|creak|knarz|knack|chain|kette|shift|schalt|tyre|tire|reifen|pneu|puncture|platt|plattfuss|bearing|lager|spoke|speiche|wobble|seize|loose|lose|rattle|klapper|defekt|kaputt|broken|leak|leck|fork|gabel|shock|dämpfer|dropper|sattelstütze|cable|zug|bolt|schraube|rotor|scheibe|pads?|beläge|belag)\w*/i;
-const WISH = /\b(buy|kaufen|kauf|bestellen|order|need|brauche|braucht|wishlist|wunsch|fehlt|fehlte|missing|missed|vergessen|forgot|ersetzen|replace|neue?s?n?)\b/i;
+export const REPAIR = /\b(brake|brems|quietsch|squeak|creak|knarz|knack|chain|kette|shift|schalt|tyre|tire|reifen|pneu|puncture|platt|plattfuss|bearing|lager|spoke|speiche|wobble|seize|loose|lose|rattle|klapper|defekt|kaputt|broken|leak|leck|fork|gabel|shock|dämpfer|dropper|sattelstütze|cable|zug|bolt|schraube|rotor|scheibe|pads?|beläge|belag)\w*/i;
+export const WISH = /\b(buy|kaufen|kauf|bestellen|order|need|brauche|braucht|wishlist|wunsch|fehlt|fehlte|missing|missed|vergessen|forgot|ersetzen|replace|neue?s?n?)\b/i;
 const LEARN = /\b(next time|nächstes mal|naechstes mal|immer|always|never|nie|lesson|lektion|lernen|learned|merken|tipp|tip)\b/i;
 
 /** A new note with what the app knows about the moment (answer: date, page, next trip, bike). */

@@ -43,9 +43,12 @@
   import { INTRO_KEY, INTROS, tipsOf, visit, offerTour, setOffered } from '../intro.js';
   import { TOURS, stepCount } from '../tour.js';
   import { startTour } from '../tour/run.js';
+  import { sayHere } from './here.svelte.js';
   import { Map as MapIcon, Backpack, History, Boxes, ShoppingCart, ListChecks, Timer, CalendarDays, Star, Copy, Thermometer } from '@lucide/svelte';
 
   let { page, intro: introKey = null, foldedOnPhone = false, only = '' } = $props();
+  // «Alles finden 2»: the «?» at the top shows this page's help
+  $effect(() => (only === 'sheet' ? undefined : sayHere({ hint: page, intro: introKey })));
   // svelte-ignore state_referenced_locally
   const intro = introKey ? INTROS[introKey] : null;
   const ICON_INTRO = { check: Check, goal: Target, moon: Moon, map: MapIcon, pack: Backpack, back: History, scale: Scale, blocks: Boxes, cart: ShoppingCart, bike: Bike, wrench: Wrench, list: ListChecks, timer: Timer, chart: ChartLine, calendar: CalendarDays, heart: Heart, star: Star, bag: ShoppingBag, sun: Sun, copy: Copy, shirt: Shirt, thermo: Thermometer };
@@ -119,93 +122,57 @@
   }
 </script>
 
-{#if hint && pi.loaded && fresh !== null}
-  {#if open && only !== 'line'}
-    <section class="hint" data-hint={page} data-intro-in={introKey} aria-label={t('What is here')}>
-      <div class="h">
-        <Info size={20} aria-hidden="true" />
-        <p><b>{t(hint.lead[0])}</b> {t(hint.lead[1])}</p>
-        <button type="button" class="ib" aria-label={t('Fold the explanation')} onclick={() => pi.save((v) => setHint(v, page, false))}><X size={18} aria-hidden="true" /></button>
+{#if hint && only === 'sheet'}
+  <!-- «Alles finden 2» (Noah 22.10.2026 «3a»): the whole help of the page, in the «?» window (nav/HelpButton) -->
+  <section class="hint sheetmode" data-hint={page} data-intro-in={introKey} aria-label={t('What is here')}>
+    <div class="h">
+      <Info size={20} aria-hidden="true" />
+      <p><b>{t(hint.lead[0])}</b> {t(hint.lead[1])}</p>
+    </div>
+    {#if offer}
+      <div class="offer" data-offer>
+        <span>{t('New here? A short tour of {place} ({n} steps)', { place: introName, n: stepCount(intro.tour) })}</span>
+        <span class="oacts">
+          <button type="button" class="btn sm" onclick={() => saveIntro((v) => setOffered(v, introKey))}>{t('No thanks')}</button>
+          <button type="button" class="btn sm" onclick={tour}>{t('Start ›|tour')}</button>
+        </span>
       </div>
-      {#if offer}
-        <div class="offer" data-offer>
-          <span>{t('New here? A short tour of {place} ({n} steps)', { place: introName, n: stepCount(intro.tour) })}</span>
-          <span class="oacts">
-            <button type="button" class="btn sm" onclick={() => saveIntro((v) => setOffered(v, introKey))}>{t('No thanks')}</button>
-            <button type="button" class="btn sm" onclick={tour}>{t('Start ›|tour')}</button>
-          </span>
+    {/if}
+    <p class="jl">{t('Typical here')}</p>
+    <ul class="uc" data-uses>
+      {#each hint.uses as [icon, title, text] (title)}
+        {@const Icon = ICONS[icon] ?? Info}
+        <li><Icon size={18} aria-hidden="true" /><span><b>{t(title)}</b>{t(text)}</span></li>
+      {/each}
+    </ul>
+    {#if intro}
+      <p class="jl">{t('How to use {place}', { place: introName })}</p>
+      <ul class="uc" data-intro-things={introKey}>
+        {#each intro.things as x (x.title)}
+          {@const Icon = ICON_INTRO[x.icon] ?? Check}
+          <li><Icon size={18} aria-hidden="true" /><span><b>{#if x.href}<a href={x.href}>{t(x.title)}</a>{:else}{t(x.title)}{/if}</b>{t(x.text)}</span></li>
+        {/each}
+      </ul>
+      <p class="expect" data-expect><b>{t('What to expect:')}</b> {t(intro.expect)}</p>
+      {#if fact}
+        <div class="fact" data-fact={fact.id}>
+          <p><KindTag kind="know" />{t(fact.text)}</p>
+          <p class="src">{t('Source: {source}', { source: t(fact.source) })}</p>
         </div>
       {/if}
-      {#snippet uses()}
-        <ul class="uc">
-          {#each hint.uses as [icon, title, text] (title)}
-            {@const Icon = ICONS[icon] ?? Info}
-            <li><Icon size={18} aria-hidden="true" /><span><b>{t(title)}</b>{t(text)}</span></li>
-          {/each}
-        </ul>
-      {/snippet}
-      <!-- UI-Grundlagen (Noah 20.10.2026, idea 1 «Inhalt zuerst», 2b): «Typisch hier» starts folded on every screen,
-           so the first-visit card stays short and the page's own content follows sooner. -->
-      <details class="fold" data-uses>
-        <summary><ChevronDown class="chev" size={16} aria-hidden="true" />{t('Typical here')} · {tn(hint.uses.length, '{n} situation', '{n} situations')}</summary>
-        {@render uses()}
-      </details>
-      {#if intro}
-        {#snippet einstieg()}
-          <ul class="uc" data-intro-things={introKey}>
-            {#each intro.things as x (x.title)}
-              {@const Icon = ICON_INTRO[x.icon] ?? Check}
-              <li><Icon size={18} aria-hidden="true" /><span><b>{#if x.href}<a href={x.href}>{t(x.title)}</a>{:else}{t(x.title)}{/if}</b>{t(x.text)}</span></li>
-            {/each}
-          </ul>
-          <p class="expect" data-expect><b>{t('What to expect:')}</b> {t(intro.expect)}</p>
-          {#if fact}
-            <div class="fact" data-fact={fact.id}>
-              <p><KindTag kind="know" />{t(fact.text)}</p>
-              <p class="src">{t('Source: {source}', { source: t(fact.source) })}</p>
-            </div>
-          {/if}
-          <div class="links">
-            {#if hasTour}<button type="button" class="lk" onclick={tour}>{t('Tour of {place} ({n} steps)', { place: introName, n: stepCount(intro.tour) })}</button>{/if}
-            <a class="lk" href="#/me/handbook">{t('Handbook')}</a>
-          </div>
-        {/snippet}
-        <!-- on a phone, and where the list comes first (Touren, Material, Einkauf, Pflege: intro.folded), the
-          Einstieg is one closed row of the card; on a computer otherwise open -->
-        {#if phone.matches || intro.folded}
-          <details class="fold" data-intro-more={introKey}>
-            <summary><ChevronDown class="chev" size={16} aria-hidden="true" />{t('How to use {place}', { place: introName })} · {t('3 things')}</summary>
-            <div class="inner">{@render einstieg()}</div>
-          </details>
-        {:else}
-          <p class="jl">{t('How to use {place}', { place: introName })}</p>
-          {@render einstieg()}
-        {/if}
-      {/if}
-      {#if jumps.length}
-        <p class="jl">{t('Further down')}</p>
-        <div class="jump">
-          {#each jumps as [label, id] (id)}<button type="button" data-jump={id} onclick={() => jump(id)}>{t(label)}</button>{/each}
-        </div>
-      {/if}
-      {#if canN}
-        <div class="ft">
-          <span>{t('A tap on a word jumps there')}</span>
-          <button type="button" data-hint-can onclick={toCan}><Lightbulb size={14} aria-hidden="true" />{t('What the app can do here')} · {canN}<ChevronDown size={14} aria-hidden="true" /></button>
-        </div>
-      {/if}
-    </section>
-  {:else if !open && only === 'line'}
-    <button type="button" class="mini chip" data-hint-line={page} aria-expanded="false" onclick={() => pi.save((v) => setHint(v, page, true))}>
-      <Info size={16} aria-hidden="true" /><span>{t('How it works|help')}</span><ChevronRight size={16} aria-hidden="true" />
-    </button>
-  {:else if !open && only !== 'card'}
-    <button type="button" class="mini" data-hint-line={page} aria-expanded="false" onclick={() => pi.save((v) => setHint(v, page, true))}>
-      <Info size={18} aria-hidden="true" /><span>{t('How it works|help')}</span><ChevronRight size={16} aria-hidden="true" />
-    </button>
-  {/if}
+      {#if hasTour}<div class="links"><button type="button" class="lk" onclick={tour}>{t('Tour of {place} ({n} steps)', { place: introName, n: stepCount(intro.tour) })}</button></div>{/if}
+    {/if}
+  </section>
+{:else if hint && only !== 'line' && jumps.length}
+  <!-- «Alles finden 2» (Noah 22.10.2026 «1a», new proposal «Auf dieser Seite»): the chips that jump to the parts of
+       the page stay on the page, always open, as one quiet row; the explanation is behind the «?» at the top -->
+  <nav class="onpage" data-onpage={page} aria-label={t('On this page')}>
+    <span class="jl">{t('On this page')}</span>
+    <div class="jump">
+      {#each jumps as [label, id] (id)}<button type="button" data-jump={id} onclick={() => jump(id)}>{t(label)}</button>{/each}
+    </div>
+  </nav>
 {/if}
-
 <style>
   /* Noah 19.10 «2a»: the Einstieg inside the card */
   .offer {
@@ -226,11 +193,6 @@
   }
   .oacts .btn {
     min-height: 44px;
-  }
-  .fold .inner {
-    display: grid;
-    gap: 10px;
-    margin-top: 8px;
   }
   .uc a {
     color: inherit;
@@ -299,19 +261,6 @@
     min-width: 0;
     margin: 0;
   }
-  .ib {
-    flex: none;
-    display: grid;
-    place-items: center;
-    width: 44px;
-    height: 44px;
-    margin: -10px 0;
-    border: 0;
-    border-radius: 10px;
-    background: none;
-    color: var(--ink-2);
-    cursor: pointer;
-  }
   .jl {
     margin: 0;
     font-size: var(--fs-small);
@@ -347,29 +296,19 @@
     display: block;
     color: var(--ink);
   }
-  .fold summary {
-    display: flex;
-    align-items: center;
+  .onpage {
+    display: grid;
     gap: 6px;
-    min-height: 44px;
-    padding: 0 11px;
-    margin-right: 8px;
-    border-radius: 10px;
-    background: var(--paper);
-    font-size: var(--fs-small);
-    font-weight: 600;
-    color: var(--ink-2);
-    cursor: pointer;
-    list-style: none;
+    margin-bottom: 12px;
   }
-  .fold summary::-webkit-details-marker {
-    display: none;
+  .onpage .jl {
+    margin: 0;
   }
-  .fold[open] summary :global(.chev) {
-    transform: rotate(180deg);
-  }
-  .fold .uc {
-    margin-top: 8px;
+  .sheetmode {
+    margin: 0;
+    border: 0;
+    padding: 0;
+    background: none;
   }
   .jump {
     display: flex;
@@ -388,60 +327,5 @@
     font-size: var(--fs-small);
     font-weight: 500;
     cursor: pointer;
-  }
-  .ft {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: space-between;
-    gap: 4px 12px;
-    margin-right: 8px;
-    padding-top: 6px;
-    border-top: 1px solid var(--line);
-    font-size: var(--fs-small);
-    color: var(--ink-3);
-  }
-  .ft button {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    min-height: 44px;
-    border: 0;
-    padding: 0;
-    background: none;
-    color: var(--ink-2);
-    font: inherit;
-    font-weight: 600;
-    cursor: pointer;
-  }
-  .mini {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    width: 100%;
-    min-height: 44px;
-    margin-bottom: 12px;
-    padding: 8px 14px;
-    border: 1px solid var(--help-line);
-    border-radius: var(--help-r);
-    background: var(--help-bg);
-    color: var(--ink-2);
-    font: inherit;
-    text-align: left;
-    cursor: pointer;
-  }
-  .mini > :global(svg:first-child) {
-    color: var(--help-icon);
-  }
-  .mini span {
-    flex: 1;
-  }
-  /* Paket D «1a»: the folded line as a small chip in a page head (one line, no lead) */
-  .mini.chip {
-    width: auto;
-    margin: 0;
-    gap: 4px;
-    padding: 8px 12px;
-    white-space: nowrap;
   }
 </style>

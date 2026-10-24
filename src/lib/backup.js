@@ -1,3 +1,4 @@
+import Dexie from 'dexie';
 import { DATA_TABLES, SCHEMA_VERSION, DEVICE_SETTINGS } from './db.js';
 import { t } from './i18n.svelte.js';
 import { backupText } from './backupcrypt.js'; // Paket Q #135: locked with a password when switched on
@@ -110,9 +111,16 @@ export async function restoreBackup(db, data, mode = 'replace') {
       const table = db.table(name);
       if (mode === 'replace') {
         // G015a: the device's own memory stays, whatever the file holds
-        const keep = name === 'settings' ? (await table.toArray()).filter((r) => deviceOnly(name, r)) : [];
-        await table.clear();
-        if (keep.length) await table.bulkPut(keep);
+        // Noah 24.10.2026: only what the file does not hold is deleted, and a row the file holds unchanged
+        // stays untouched, so the automatic sync sends only what really changed (not every entry again)
+        const rows = (data.tables[name] ?? []).filter((r) => !deviceOnly(name, r));
+        const pk = table.schema.primKey;
+        const inFile = new Set(rows.map((r) => JSON.stringify(Dexie.getByKeyPath(r, pk.keyPath))));
+        const all = await table.toArray();
+        const gone = all.filter((r) => !deviceOnly(name, r) && !inFile.has(JSON.stringify(Dexie.getByKeyPath(r, pk.keyPath))));
+        if (gone.length) await table.bulkDelete(gone.map((r) => Dexie.getByKeyPath(r, pk.keyPath)));
+        if (rows.length) await table.bulkPut(rows);
+        continue;
       }
       const rows = (data.tables[name] ?? []).filter((r) => !deviceOnly(name, r));
       if (rows.length) await table.bulkPut(rows);

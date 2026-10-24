@@ -11,6 +11,7 @@
   import { anp, placeLabel, tabLabel } from '../anpassen.svelte.js'; // «Anpassen» 2a + 3a: your menu, tabs and names
   import { t } from '../i18n.svelte.js';
   import Search from './Search.svelte';
+  import HelpButton from './HelpButton.svelte';
   import MeButton from './MeButton.svelte';
   import PlaceIcon from './PlaceIcon.svelte';
   import { Plus, Compass, MessageCircle } from '@lucide/svelte';
@@ -61,6 +62,8 @@
     </div>
     <!-- «Assistent» (Noah 15.10.2026 «3 a und b»): its own button, under the search -->
     <a class="asst" href="#/assistent" aria-current={hash.startsWith('#/assistent') ? 'page' : undefined}><MessageCircle size={18} aria-hidden="true" /><span>{t('Assistant')}</span></a>
+    <!-- «Alles finden 2» (Noah 22.10.2026 «3a»): the help of this page, under the assistant -->
+    <HelpButton wide />
     <nav class="places" aria-label={t('Sections')}>
       <ul>
         {#each sidePlaces as p (p.key)}

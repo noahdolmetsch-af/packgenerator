@@ -70,7 +70,7 @@ test('Tried it yet? with one idea and Next; the overview with ticks and progress
   // v0.96.0 «F1 Alles finden» (mockup A): the overview on #/features: every function in 6 groups by
   // situation, never used first, ✓ for used, the count matches; each row has «Take me there».
   await page.goto('./#/features');
-  await expect(page.getByRole('heading', { name: T('What the app can do'), level: 1 })).toBeVisible();
+  await expect(page.getByRole('heading', { name: T('Help and functions'), level: 1 })).toBeVisible();
   await expect(page.locator('section[data-group] h2')).toHaveText(FGROUPS.map((l) => T(l)));
   // Design-Refresh P9 (I7): the head with the path back (VeloHead), its line under the title is .vsub
   const [total, n] = (await page.locator('.vhead .vsub').textContent()).match(/\d+/g).map(Number);

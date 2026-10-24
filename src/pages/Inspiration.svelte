@@ -151,7 +151,7 @@
 </script>
 
 <div class="insp">
-  <VeloHead crumbs={[{ label: t('Me|place'), href: '#/me' }]} title={t('Inspiration')} sub={t('Your own links to rigs, packing lists, videos, routes, listening tips, products and races. The app recognises the kind of link. Your notes stay with you.')} />
+  <VeloHead crumbs={[{ label: t('Plan|place'), href: '#/week' }]} title={t('Inspiration')} sub={t('Your own links to rigs, packing lists, videos, routes, listening tips, products and races. The app recognises the kind of link. Your notes stay with you.')} />
   <HintCard page="inspiration" />
 
   <form class="if-add" id="if-add" onsubmit={(e) => (e.preventDefault(), openAdd())}>

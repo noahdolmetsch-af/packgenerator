@@ -53,7 +53,7 @@ test('Notes: dictation runs until stop, «Punkt» becomes a sign, the question g
   await expect(mic).toHaveAttribute('aria-pressed', 'true');
   await expect(page.locator('[data-speak-live="listening"]')).toBeVisible();
   // both pieces arrive although the browser ended after the first one
-  await expect(form.locator('textarea')).toHaveValue('Kette quietscht. Was ist am Velo fällig');
+  await expect(form.locator('textarea:not([data-ask-text])')).toHaveValue('Kette quietscht. Was ist am Velo fällig');
   expect(await page.evaluate(() => window.__starts)).toBeGreaterThanOrEqual(3);
   await expect(mic).toHaveAttribute('aria-pressed', 'true');
   await mic.click();
@@ -67,7 +67,7 @@ test('Notes: dictation runs until stop, «Punkt» becomes a sign, the question g
   await expect(claude).toHaveAttribute('target', '_blank');
   // «In Notiz übernehmen» appends the answer
   await ans.locator('[data-aa-adopt]').click();
-  await expect(form.locator('textarea')).toHaveValue(new RegExp(`${T('Answer')}: ${T('Nothing is due on your bikes.').replace(/[.?]/g, '\\$&')}`));
+  await expect(form.locator('textarea:not([data-ask-text])')).toHaveValue(new RegExp(`${T('Answer')}: ${T('Nothing is due on your bikes.').replace(/[.?]/g, '\\$&')}`));
   expect(errors).toEqual([]);
 });
 
@@ -92,6 +92,23 @@ test('Bedienung: the dictation settings; a service switched off is gone under th
   await expect(more.locator('[data-ask-with-data]')).not.toBeChecked();
   await more.locator('[data-ask-with-data]').check();
   await expect(more).toContainText(T('Nothing in your gear or learnings fits this question; only the question goes along.'));
+  await more.locator('[data-ask-with-data]').uncheck();
+  // Noah 22.10.2026 «2a 4a 5a»: the question can be changed before the jump; the favourite is big and first;
+  // DuckDuckGo opens its AI chat Duck.ai
+  await expect(more.locator('[data-service]').first()).toHaveAttribute('data-service', 'claude');
+  await expect(more.locator('[data-service="claude"]')).toHaveText(T('Ask {name}').replace('{name}', 'Claude'));
+  await expect(more.locator('[data-service="duckduckgo"]')).toHaveAttribute('href', /^https:\/\/duckduckgo\.com\/\?q=Was%20ist.*&ia=chat/);
+  await more.locator('[data-ask-text]').fill('Was ist an meinem Gravel fällig?');
+  await expect(more.locator('[data-service="chatgpt"]')).toHaveAttribute('href', 'https://chatgpt.com/?q=Was%20ist%20an%20meinem%20Gravel%20f%C3%A4llig%3F');
+  // the order: ChatGPT one place up (arrow) → it is the favourite
+  await page.goto('./#/me/look');
+  await ready(page);
+  const order = page.locator('[data-dict-order]');
+  await order.getByRole('button', { name: T('Move {name} up').replace('{name}', 'ChatGPT') }).click();
+  await expect(order.locator('li').first()).toHaveAttribute('data-sort-id', 'chatgpt');
+  await page.goto('./#/assistent?q=Was%20ist%20am%20Velo%20f%C3%A4llig');
+  await expect(more.locator('[data-service]').first()).toHaveAttribute('data-service', 'chatgpt');
+  await expect(more.locator('[data-service="chatgpt"]')).toHaveClass(/ae-fav/);
   expect(errors).toEqual([]);
 });
 

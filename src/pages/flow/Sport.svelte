@@ -25,6 +25,8 @@
   import CommuteBlock from '../../lib/sportpage/CommuteBlock.svelte';
   import RouteBlock from '../../lib/sportpage/RouteBlock.svelte';
   import ParkDaysBlock from '../../lib/sportpage/ParkDaysBlock.svelte';
+  import TennisTop from '../../lib/tennis/TennisTop.svelte';
+  import { TENNIS_ID } from '../../lib/tennisday.js';
   import { DOMAINS } from '../../lib/domains.js';
   import { activeGoals } from '../../lib/flow.js';
   import { sortBikes } from '../../lib/bikes.js';
@@ -91,6 +93,8 @@
 
   {#if sport && data}
     {#if editing}<BlockEdit {sport} {cfg} {color} items={mine} onclose={() => (editing = false)} />{/if}
+    <!-- Paket P4 (TN1, TN2, TN4, TN5; Noah 5b «nur für Tennis»): cover photo, tick off, planned, history -->
+    {#if sport.id === TENNIS_ID}<TennisTop {sport} items={mine} log={data.log} act={sport.act} {today} />{/if}
 
     {#each blocks as b (b.key)}
       <section class="card blk" aria-labelledby="bl-{b.key}" data-block={b.key}>

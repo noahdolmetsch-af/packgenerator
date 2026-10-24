@@ -1,0 +1,57 @@
+// Paket P7 «Projekt-Ablage» (Noah 21.10.2026 «6a», mockups design/projekt-ablage A–C): alles zum Projekt auf einer Seite.
+export default {
+  // Ich
+  'Project shelf': 'Projekt-Ablage',
+  'Ideas, the way, what waits for you': 'Ideen, der Weg, was auf dich wartet',
+  // Funktionen (features.js)
+  'Everything about the app on one page: how many ideas are live, what waits for you, the way of the releases and the idea board.': 'Alles zur App auf einer Seite: wie viele Ideen live sind, was auf dich wartet, der Weg der Releases und das Ideen-Brett.',
+  // Kopf
+  'Everything about the app on one page': 'Alles zur App auf einer Seite',
+  'list as of {date}': 'Liste vom {date}',
+  'version {version}': 'Version {version}',
+  'An app that supports me in everyday life.': 'Eine App, die mich im Alltag unterstützt.',
+  'of {total} ideas live': 'von {total} Ideen live',
+  'Live {live}, in progress {work}, planned {wish}, idea {idea}': 'Live {live}, im Bau {work}, geplant {wish}, Idee {idea}',
+  'Idea|state': 'Idee',
+  'In progress|state': 'Im Bau',
+  'Live|state': 'Live',
+  // Für dich jetzt
+  'For you now': 'Für dich jetzt',
+  'What waits for you. Keep it to about three points.': 'Was auf dich wartet. Am besten etwa drei Punkte.',
+  '«{name}» is built and parked': '«{name}» ist gebaut und geparkt',
+  'Version {version} goes online after your OK.': 'Version {version} geht nach deinem OK online.',
+  'It goes online after your OK.': 'Es geht nach deinem OK online.',
+  'Nothing waits for you. Add a point you want to remember for the app.': 'Nichts wartet auf dich. Füg einen Punkt hinzu, den du dir für die App merken willst.',
+  'e.g. answer the questions on the new page': 'z.B. die Fragen zur neuen Seite beantworten',
+  'Delete the point «{name}»?': 'Den Punkt «{name}» löschen?',
+  'Point deleted.': 'Punkt gelöscht.',
+  // Der Weg
+  'The way': 'Der Weg',
+  'The last releases, now, and what comes next': 'Die letzten Releases, jetzt, und was als Nächstes kommt',
+  'Now|way': 'Jetzt',
+  'Parked|way': 'Geparkt',
+  'Next|way': 'Als Nächstes',
+  // Nachschlagen
+  'Look up|shelf': 'Nachschlagen',
+  'Folded; open what you need': 'Zugeklappt; öffne, was du brauchst',
+  '{total} ideas · {wish} planned · {live} live': '{total} Ideen · {wish} geplant · {live} live',
+  'All|ideas': 'Alle',
+  'None here.': 'Keine hier.',
+  'Way and releases': 'Weg und Releases',
+  '{n} versions · {version} {title}': '{n} Versionen · {version} {title}',
+  'Parked: goes online after your OK': 'Geparkt: geht nach deinem OK online',
+  'All {n} versions in «What is new»': 'Alle {n} Versionen in «Was ist neu»',
+  Knowledge: 'Wissen',
+  'Rules, what the app learned, handbook': 'Regeln, was die App gelernt hat, Handbuch',
+  'Every rule the app packs by': 'Jede Regel, nach der die App packt',
+  'From your trips and debriefs': 'Aus deinen Touren und Rückblicken',
+  'Every function in short steps': 'Jede Funktion in kurzen Schritten',
+  'Tools, helper, small apps, links': 'Werkzeuge, Helfer, kleine Apps, Links',
+  'PDF, photos, calculator and more': 'PDF, Fotos, Rechner und mehr',
+  'The AI helper of the app': 'Der KI-Helfer der App',
+  'Small helpers in one place': 'Kleine Helfer an einem Ort',
+  'Your important links': 'Deine wichtigen Links',
+  // Absprünge
+  Jumps: 'Absprünge',
+  'Code on GitHub': 'Code auf GitHub',
+};
