@@ -213,6 +213,9 @@ test('d) hide and show again, delete with Undo; a Packmodus trip opens its page 
   await expect(tour(page).locator('h1')).toHaveText('Herbsttour Hochland');
   await expect(tour(page).locator('[data-tour-gear]')).toBeVisible();
   await expect(tour(page).locator('[data-open-review]')).toHaveAttribute('href', `#/debrief/${encodeURIComponent(`${P}herbst`)}`);
+  // Versteckte Funktionen (Noah 22.10.2026 «1a»): a written Rückblick shows «Als Vorlage speichern» as a visible button
+  const written = (await tour(page).locator('[data-tour-part="review"]').textContent()).includes(T('The Rückblick is written.'));
+  await expect(tour(page).locator('[data-review-template]')).toHaveCount(written ? 1 : 0);
   // 0.174 «Eine Tour, eine Seite» (UI-Ziele #5): the trip's head with its step tabs; «Rückblick» leads there,
   // and the Rückblick leads back with «Tour-Seite ansehen ›»
   const toReview = tour(page).locator('[data-tour-steps] .stepbar a').filter({ hasText: T('Debrief') });

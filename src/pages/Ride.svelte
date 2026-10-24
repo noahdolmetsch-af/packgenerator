@@ -26,6 +26,7 @@
   import { tripEat } from '../lib/unterwegs/essen.js';
   import { nextTrip } from '../lib/debrief.js';
   import { tripStats, touched } from '../lib/trips.js';
+  import { tripSlot } from '../lib/sets.js';
   import { ageText, FORECAST_DAYS } from '../lib/weather.js';
   import Profile from '../lib/ui/Profile.svelte';
   import { paceOf, PACE_KEY } from '../lib/pace.js';
@@ -46,7 +47,7 @@
   import TripBand from '../lib/trip/TripBand.svelte';
   import BaseCheck from '../lib/trip/BaseCheck.svelte';
   import { openTrip, newTrip } from '../lib/nav.js';
-  import { mainStep, packedAll, canReopen, daysFrom, endNeedsAsk } from '../lib/phase.js';
+  import { mainStep, packedAll, canReopen, daysFrom, endNeedsAsk, goDayOf, tripPhase } from '../lib/phase.js';
   import { endTrip as endTripNow, reopenTrip } from '../lib/trip/ending.js';
   import EndTripSheet from '../lib/trip/EndTripSheet.svelte';
   import '../lib/trip/trip.css';
@@ -151,6 +152,15 @@
     const arrive = planEnd || null;
     if (endNeedsAsk(trip, today, nowHM, arrive)) return (endAsk = true);
     await endTripNow($state.snapshot(trip));
+  }
+  // Klick-Rundgang 22.10.2026 H06/H09: «Losfahren» starts the day now: the trip is under way and the
+  // day's start time is the real one, so the blocks and the arrival count from it (not from 08:00)
+  async function startRiding() {
+    const now = new Date().toTimeString().slice(0, 5);
+    const n = goDayOf(trip, today);
+    const goDays = { ...($state.snapshot(trip.goDays) ?? {}), [n]: now };
+    const rideStart = { ...($state.snapshot(trip.rideStart) ?? {}), [n]: now };
+    await change({ goDays, rideStart });
   }
   function setStart(value) {
     const rideStart = { ...($state.snapshot(trip.rideStart) ?? {}), [cur]: value || DEFAULT_START };
@@ -405,7 +415,28 @@
   const span = (b) => `${hh(b.from)}–${hh(b.to)}`;
   const tempText = (b) => (b.temp ? (b.temp.lo === b.temp.hi ? `${b.temp.lo} °C` : `${b.temp.lo}–${b.temp.hi} °C`) : '');
   const wearText = (b, n) => (n === 0 ? (b.wear.length ? t('Start with {list}', { list: b.wear.map((w) => w.name).join(', ') }) : t('Every-ride clothes')) : [b.on.length ? t('On: {list}', { list: b.on.map((w) => w.name).join(', ') }) : '', b.off.length ? t('Off: {list}', { list: b.off.map((w) => w.name).join(', ') }) : ''].filter(Boolean).join(' · ') || t('No change'));
-  const foodText = (b) => b.food.map((f) => `${f.n} × ${f.name}`).join(', ') || t('Nothing planned');
+  // Klick-Rundgang 22.10.2026 H07: dark without a light on the trip: one tap packs your own lamp (with Undo)
+  const ownLight = $derived(items.find((i) => i.category === 'light' && isInventory(i) && !(trip?.entries ?? []).some((e) => e.itemId === i.id)) ?? null);
+  let lightAdded = $state(null);
+  async function packLight() {
+    const it = ownLight;
+    if (!it) return;
+    const before = $state.snapshot(trip.entries ?? []);
+    await change({ entries: [...before, { itemId: it.id, slot: tripSlot(it, trip.setup), qty: 1, packed: true }] });
+    lightAdded = { name: nameOf(it), before };
+  }
+  async function undoLight() {
+    if (!lightAdded) return;
+    await change({ entries: lightAdded.before });
+    lightAdded = null;
+  }
+  // Klick-Rundgang 22.10.2026 H08: food without «1 per N h» (gel, bar) still counts: the block names what you
+  // packed to eat and the eating reminder of the trip, instead of «Nichts geplant»
+  const packedFood = $derived(onTrip.filter(({ item }) => item.category === 'food' && !item.perHours && !item.waterL).map(({ item }) => nameOf(item)));
+  const eatPlan = $derived(trip ? tripEat(trip) : { on: false });
+  const foodText = (b) =>
+    b.food.map((f) => `${f.n} × ${f.name}`).join(', ') ||
+    (packedFood.length ? [t('From your bag: {list}', { list: packedFood.slice(0, 3).join(', ') + (packedFood.length > 3 ? ' …' : '') }), eatPlan.on ? t('every {n} min', { n: eatPlan.every }) : ''].filter(Boolean).join(' · ') : t('Nothing planned'));
   const lightText = (b) => (!b.light ? t('Not needed') : b.light.kind === 'on' ? (b.light.km == null ? t('On from about {time}', { time: b.light.at }) : t('On from about {time} (km {km})', { time: b.light.at, km: b.light.km })) : b.light.kind === 'off' ? (b.light.km == null ? t('On until about {time}', { time: b.light.at }) : t('On until about {time} (km {km})', { time: b.light.at, km: b.light.km })) : t('Dark the whole block'));
   // v0.40.0: the one word of a block in the list: rain, light or a change of clothes, else nothing.
   const keyword = (b, n) => (b.rest ? '' : b.wet ? t('rain likely') : b.light ? t('light|block') : n > 0 && (b.on.length || b.off.length) ? t('change clothes') : '');
@@ -422,6 +453,8 @@
   // L7: before the start there is nothing to end yet: the next step leads back to Pack (the debrief opens from the last day on).
   const ahead = $derived(!!trip?.startDate && !tripStarted && !trip.finished);
   const main = $derived(trip ? mainStep(trip, today, 'ride', { debriefDone: debrief?.status === 'done' }) : { kind: null });
+  // Klick-Rundgang 22.10.2026 H28: an ended or debriefed trip shows no «Jetzt · Start …» any more, only that it is over
+  const tripOver = $derived(!!trip && (!!trip.finished || ['after', 'done'].includes(tripPhase(trip, today, { debriefDone: debrief?.status === 'done' }))));
   const kicker = $derived(!trip ? '' : tripStarted ? (running ? '' : days > 1 ? t('On the way · day {n} of {total}', { n: cur + 1, total: days }) : t('On the way|step')) : t('On the way · from {date}', { date: dateOf(0) }));
   // SN1 (mockup «Seiten neu», Noah 13.10.2026): while the trip runs, the day goes into the state pill
   // («Geplant · unterwegs, Tag 2 von 3») instead of a kicker line of its own.
@@ -442,7 +475,7 @@
   }
   const moreActions = $derived([
     ...(main.kind !== null ? [{ name: t('Note|ride'), explain: t('A note for the debrief'), icon: Mic, run: startNote }] : []),
-    ...(main.kind === null ? [{ name: t('End the trip …'), explain: t('Asks first; then the debrief'), icon: Flag, run: () => (endAsk = true) }] : []),
+    ...(main.kind === null || main.kind === 'start' ? [{ name: t('End the trip …'), explain: t('Asks first; then the debrief'), icon: Flag, run: () => (endAsk = true) }] : []),
   ]);
   /* ---------- SN1: the weather of now in one sentence ---------- */
   // v0.144.0 RE: the one rain limit of the app (was 50 %)
@@ -517,7 +550,7 @@
      before the start the waiting state («Zur Startseite», or «Weiter zu Packen» while not packed),
      on the last day «Letzten Tag abschliessen», after the trip «Weiter zum Rückblick». Earlier days have
      no orange button: ending early is the quiet «Tour beenden …» in the band (it asks first). -->
-{#snippet go()}{#if main.kind === 'last'}<button type="button" class="btn hi go" onclick={finish}>{t(main.label)}<ArrowRight size={20} aria-hidden="true" /></button>{:else if main.kind === 'go'}<a class="btn hi go" href={main.href} onclick={() => openTrip(trip.id)}>{t(main.label)}<ArrowRight size={20} aria-hidden="true" /></a>{/if}{/snippet}
+{#snippet go()}{#if main.kind === 'start'}<button type="button" class="btn hi go" onclick={startRiding} data-go-ride>{t(main.label)}<ArrowRight size={20} aria-hidden="true" /></button>{:else if main.kind === 'last'}<button type="button" class="btn hi go" onclick={finish}>{t(main.label)}<ArrowRight size={20} aria-hidden="true" /></button>{:else if main.kind === 'go'}<a class="btn hi go" href={main.href} onclick={() => openTrip(trip.id)}>{t(main.label)}<ArrowRight size={20} aria-hidden="true" /></a>{/if}{/snippet}
 <!-- SN1 (question 1a): «…» holds «Tour beenden …» before the last day (it asks first), and «Notiz» when
      the main button is another one. -->
 {#snippet endLink()}{#if moreActions.length}<span class="rmore"><MoreActions title={trip.title} label={t('More for this trip')} actions={moreActions} /></span>{/if}{/snippet}
@@ -533,7 +566,7 @@
   {#if $tripsQ}<p class="parked-solo"><button type="button" class="btn" onclick={() => (parkedOpen = true)} data-uw-parked><Bike size={18} aria-hidden="true" />{t('Bike parked')}</button></p>{/if}
 {:else}
 <div class="ride trip-page">
-  <TripBand {trip} tab="ride" {kicker} compact action={main.kind ? go : noteMain ? noteBtn : null} aside={main.kind ? pen : noteMain ? dayAside : null} extra={endLink} stateMore={running ? dayOf : ''} stepText={noteMain ? dayOf : ''} hint={main.kind === 'last' ? t('End the trip when you are back home.') : noteMain ? nextLine : ''} />
+  <TripBand {trip} tab="ride" {kicker} compact action={main.kind ? go : noteMain ? noteBtn : null} aside={main.kind ? pen : noteMain ? dayAside : null} extra={endLink} stateMore={running ? dayOf : ''} stepText={noteMain ? dayOf : ''} hint={main.kind === 'start' ? t('Tap when you set off: the blocks and the arrival then count from now.') : main.kind === 'last' ? t('End the trip when you are back home.') : noteMain ? nextLine : ''} />
   {#if ahead}
     <!-- v0.67.0 (U002, Ü4a): before the start On the way is a calm waiting state, not a loop back to Pack. -->
     {@const n = daysFrom(today, trip.startDate)}
@@ -575,7 +608,12 @@
         {#if st.km}<span class="tp-muted tp-small num sum">{num(st.km)} km · {st.gainM ?? '–'} {t('m up|short')} · {t('Arrive about')} {st.arrive}</span>{/if}
       </div>
 
-      {#if nowB}
+      {#if tripOver}
+        <section class="card over" data-ride-over>
+          <p class="tp-small"><Flag size={18} aria-hidden="true" /> {debrief?.status === 'done' ? t('This trip is over and its debrief is saved.') : t('This trip is over.')}</p>
+          <a class="tp-link" href={`#/debrief/${encodeURIComponent(trip.id)}`}>{debrief?.status === 'done' ? t('To the debrief') : t('Continue to Debrief')}</a>
+        </section>
+      {:else if nowB}
         <!-- SN1 (mockup «Seiten neu»): one «Jetzt» card: the time and the stage on top, the weather in one
              sentence, then wear, eat, drink and light as four tiles; all blocks and how it is worked out below. -->
         <section class="now card" aria-labelledby="now-h">
@@ -588,7 +626,7 @@
               <li><Shirt size={20} aria-hidden="true" /><div><span class="lab">{t('Wear')}</span><span class="val">{wearText(nowB, nowIdx)}</span></div></li>
               <li><Utensils size={20} aria-hidden="true" /><div><span class="lab">{t('Eat')}</span><span class="val">{foodText(nowB)}</span>{#if nowB.food.some((f) => f.short)}<small class="warn">{t('Not enough on the bike: from here on, buy {list} on the way', { list: nowB.food.filter((f) => f.short).map((f) => `${f.short} × ${f.name}`).join(', ') })}</small>{/if}</div></li>
               <li><Droplet size={20} aria-hidden="true" /><div><span class="lab">{t('Drink')}</span><span class="val num">{t('about {n} L', { n: num(nowB.drinkL) })}</span>{#if refillText(nowB)}<small>{refillText(nowB)}</small>{/if}</div></li>
-              <li><Lightbulb size={20} aria-hidden="true" /><div><span class="lab">{t('Light')}</span><span class="val" class:warn={nowB.light && !bp.lights.length}>{lightText(nowB)}</span>{#if nowB.light && !bp.lights.length}<small class="warn">{t('no light on this trip')}</small>{:else if nowB.light}<details class="lamps"><summary><small>{tn(bp.lights.length, '{n} lamp with you', '{n} lamps with you')}</small><ChevronRight class="chev" size={14} aria-hidden="true" /></summary><small class="lamplist">{names(bp.lights)}</small></details>{/if}</div></li>
+              <li><Lightbulb size={20} aria-hidden="true" /><div><span class="lab">{t('Light')}</span><span class="val" class:warn={nowB.light && !bp.lights.length}>{lightText(nowB)}</span>{#if nowB.light && !bp.lights.length}<small class="warn">{t('no light on this trip')}</small>{#if ownLight}<button type="button" class="btn sm lightadd" onclick={packLight} data-pack-light><Plus size={16} aria-hidden="true" />{t('Pack a light: {name}', { name: nameOf(ownLight) })}</button>{:else}<a class="tp-link lightadd" href="#/pack">{t('Add a light in Plan')}</a>{/if}{:else if lightAdded}<small class="ok" role="status">{t('{name} packed.', { name: lightAdded.name })} <button type="button" class="tp-link" onclick={undoLight}>{t('Undo')}</button></small>{:else if nowB.light}<details class="lamps"><summary><small>{tn(bp.lights.length, '{n} lamp with you', '{n} lamps with you')}</small><ChevronRight class="chev" size={14} aria-hidden="true" /></summary><small class="lamplist">{names(bp.lights)}</small></details>{/if}</div></li>
             </ul>
           {/if}
           {#if nextB}
@@ -834,11 +872,16 @@
 {#if homeOpen}{#await import('../lib/unterwegs/Heimweg.svelte') then m}<m.default onclose={() => (homeOpen = false)} />{/await}{/if}
 {#if lenkerOpen}{#await import('../lib/unterwegs/Lenker.svelte') then m}<m.default ctx={lenkerCtx} onclose={() => (lenkerOpen = false)} />{/await}{/if}
 {#if arrivedOpen && trip}{#await import('../lib/haustuer/ArrivedSheet.svelte') then m}<m.default {trip} day={cur} onclose={() => (arrivedOpen = false)} />{:catch}{/await}{/if}
-{#if endAsk}<EndTripSheet {trip} day={cur + 1} {days} arrive={cur + 1 >= days ? planEnd : ''} onclose={() => (endAsk = false)} />{/if}
+<!-- Klick-Rundgang H09: the sheet names an arrival only from a real start time («Losfahren» or one set), not from 08:00 -->
+{#if endAsk}<EndTripSheet {trip} day={cur + 1} {days} arrive={cur + 1 >= days && trip.rideStart?.[days - 1] ? planEnd : ''} onclose={() => (endAsk = false)} />{/if}
 {/if}
 {#if parkedOpen}{#await import('../lib/haustuer/ParkedSheet.svelte') then m}<m.default onclose={() => (parkedOpen = false)} />{:catch}{/await}{/if}
 
 <style>
+  /* Klick-Rundgang H28 */
+  .over { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; }
+  .over p { display: flex; gap: 6px; align-items: center; margin: 0; }
+  .lightadd { margin-top: 6px; }
   /* v0.106.0 Design-Refresh P5 (T12): headings above light cards, as on the other trip pages; every
      font size is a type-scale token. */
   .col { min-width: 0; }

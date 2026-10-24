@@ -15,6 +15,7 @@ export async function endToDebrief(page, T) {
   const main = band.locator('.mainbar .go');
   const more = band.getByRole('button', { name: T('More for this trip') });
   await expect(main.or(more).first()).toBeVisible();
+  await setOff(page, T);
   if (await main.isVisible()) await main.click();
   else await endMenu(page, T);
   await endedPage(page, T);
@@ -25,6 +26,18 @@ export async function endToDebrief(page, T) {
     await page.locator('main .mainbar .btn.hi').click();
   }
   await expect(page).toHaveURL(/#\/debrief\//);
+}
+
+/**
+ * Klick-Rundgang 22.10.2026 H06 (changed on purpose): on On the way a riding day starts with «Losfahren»;
+ * tap it when it is the main button, then the button is «Tour abschliessen» or the day's «Notiz».
+ */
+export async function setOff(page, T) {
+  const main = page.locator('.trip-band .mainbar .go');
+  if ((await main.count()) && (await main.isVisible()) && (await main.textContent()).includes(T('Start riding'))) {
+    await main.click();
+    await expect(main.filter({ hasText: T('Start riding') })).toHaveCount(0);
+  }
 }
 
 /** After a tap that ends the trip: answer the question when it comes, then «Tour beendet». */

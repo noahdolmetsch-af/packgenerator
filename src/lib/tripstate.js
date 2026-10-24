@@ -114,7 +114,8 @@ export function stateExtra(info, { trip = null, debrief = null, today = localDay
     if (info.early || !trip.startDate) return null;
     const n = dayGap(today, trip.startDate);
     if (n < 0) return tripEnd(trip) >= today ? { key: 'under' } : null;
-    return n === 0 ? { key: 'today' } : n === 1 ? { key: 'tomorrow' } : { key: 'days', n };
+    // Klick-Rundgang H06: after «Losfahren» on the start day the trip is under way, not «heute»
+    return n === 0 ? (trip.goDays?.[0] ? { key: 'under' } : { key: 'today' }) : n === 1 ? { key: 'tomorrow' } : { key: 'days', n };
   }
   if (info.state === 'done') {
     if (info.ask && !info.draft) return { key: 'ask' };

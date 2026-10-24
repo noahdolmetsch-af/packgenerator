@@ -1114,7 +1114,7 @@
     <p class="err" role="alert">{error}</p>
     <div class="foot daumen-foot" class:fnew={isNew}>
       {#if !isNew}<button type="button" class="btn del" onclick={remove}>{t('Delete trip')}</button>{/if}
-      {#if isNew && autoId}<span class="kept" role="status"><Check size={14} aria-hidden="true" />{t('Saved')}</span><button type="button" class="btn" onclick={discard}>{t('Discard')}</button>
+      {#if isNew && autoId}<span class="kept" role="status"><Check size={14} aria-hidden="true" />{t('Draft saved')}</span><button type="button" class="btn" onclick={discard}>{t('Discard')}</button>
       {:else}<button type="button" class="btn" onclick={discard}>{t('Discard')}</button>{/if}
       <!-- v0.30.0 (Noah, finding 2): the live item count on the one orange button; v0.114.0 (7a): bag items only. -->
       <!-- UI-Grundlagen (Noah 20.10.2026, idea 3): the main button says only what it does; the live count stands

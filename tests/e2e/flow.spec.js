@@ -82,7 +82,8 @@ for (const lang of ['en', 'de']) {
     const steps = page.getByRole('navigation', { name: T('Steps of this trip') });
     await expect(steps.getByRole('link')).toHaveText([T('Plan|stage'), T('Pack|stage'), T('On the way'), T('Debrief'), T('Analysis|stage')].map((n) => new RegExp(`^${esc(n)}`)));
     const go = page.locator('.trip-band .go');
-    await expect(go).toContainText(T("All packed, let's go"));
+    // 0.182 (Klick-Rundgang H03): nothing packed yet, so the button says «Alles einpacken, los»
+    await expect(go).toContainText(T("Pack everything, let's go"));
     await fits('Plan');
     await steps.getByRole('link', { name: new RegExp(`^${esc(T('Pack|stage'))}`) }).click();
 
@@ -126,6 +127,9 @@ for (const lang of ['en', 'de']) {
 
     // 7. On the way → «Tour abschliessen» (v0.67.0): before the planned end of the ride (the real clock
     // runs here) it asks first (U004); then «Tour beendet» and from there the whole debrief.
+    // Klick-Rundgang H06 (changed on purpose): «Losfahren» first records the real start time
+    await expect(go).toContainText(T('Start riding'));
+    await go.click();
     await expect(go).toContainText(T('Finish the trip'));
     await go.click();
     const endSheet = page.locator('dialog.endsheet');
