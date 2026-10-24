@@ -1532,4 +1532,7 @@ export default {
   'A new star shows right after the tick in a small window.': 'Ein neuer Stern erscheint gleich nach dem Abhaken in einem kleinen Fenster.',
   'On the sport page: pick a ready challenge or set your own; reached, it is a star in the showcase.': 'Auf der Seite der Sportart: wähl eine fertige Herausforderung oder setz deine eigene; geschafft, ist sie ein Stern in der Vitrine.',
   'Example: the 5th yoga tick → «New star: Times done, star 1»; «12× in the next 6 weeks» counts by itself.': 'Beispiel: das 5. Yoga-Abhaken → «Neuer Stern: Mal gemacht, Stern 1»; «12× in den nächsten 6 Wochen» zählt von selbst.',
+  // «Alles fertig»: Gute Nacht
+  'Open On the way, tap «Good night», set the time, then «Share».': 'Öffne Unterwegs, tippe «Gute Nacht», stell die Zeit ein, dann «Teilen».',
+  'Example: in the Jura → «Good night» → «Hi Anna, I am sleeping in Saignelégier tonight. Good night!»': 'Beispiel: im Jura → «Gute Nacht» → «Hallo Anna, ich schlafe heute in Saignelégier. Gute Nacht!»',
 };

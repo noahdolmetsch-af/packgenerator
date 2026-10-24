@@ -78,6 +78,10 @@ Fitbit, Garmin, Strava an einem Ort · Einkaufszettel, Lebenslauf pro Teil, Werk
 
 ## 3. Von der Haustür bis zurück
 
+### Gebaut im Paket «Alles fertig» (0.188.0, 24.10.2026)
+
+Gute-Nacht-Nachricht mit Morgen-Erinnerung (1145) · Nächster Laden im Knopf «Live-Karte» · Strom-Zeile oben in Packen · «Dein Rennen» oben in Touren · Verkaufsinserat im Velo-Menü · Heute ohne Wohnort und auf leerem Gerät (H32) · Downhill-Bikepark-Tag war schon live (0.176). Velo-Ausleihe (1136): bewusst nicht (Noah «2b»).
+
 ### Gewünscht, noch nicht gebaut
 
 | Vorhaben | Grösse | Nutzen |
@@ -94,7 +98,6 @@ Fitbit, Garmin, Strava an einem Ort · Einkaufszettel, Lebenslauf pro Teil, Werk
 | Live-Karte: Wind auf der Route (Noah 20.10.2026) | klein | Ein Pfeil zeigt Gegen- oder Rückenwind mit km/h (Open-Meteo). |
 | Live-Karte: Kalorien live aus der Leistung (Noah 20.10.2026) | mittel | Du siehst den Verbrauch und bekommst eine Ess-Erinnerung passend zur Verpflegung. |
 | Gravel: Brunnen und Schotter-Anteil auf der Route [O] | gross | Du weisst vor der Gravel-Tour, wo es Wasser gibt und wie viel Schotter kommt. |
-| Downhill: Schutz-Check, Bikepark-Tag, Runs [O] | mittel | Am Bikepark-Tag ist Schutz und Ersatzteil schnell geprüft. |
 | Notruf-Zeile Rega 1414 und 112 [J] | klein | Im Notfall auf Skitour oder Wanderung ist die Nummer sofort da, auch offline. |
 | Wegweiser-Farben und SAC-Skala als Info [J] | klein | Du verstehst beim Wandern sofort, wie schwierig ein Weg ist. |
 | Nachricht ans zukünftige Ich [M] | klein | Ein Tipp an dich selbst erscheint vor der nächsten Tour. |

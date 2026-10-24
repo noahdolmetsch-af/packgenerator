@@ -8,6 +8,7 @@ import { stage } from '../src/lib/ride.js';
 import {
   PARKED_KEY, PLANB_KINDS, planBOf, badWeather, hoursOfDay, badText, swapPlanB, staysOf, setStay, checkinOf, nightsOf,
   arrivedPeople, toggleArrived, joinNames, arrivedText, smsHref, arrivePlace, lockItems, parkedOf, agoOf, planBTomorrow, mapsAt,
+  nightText, morningText, morningDue,
 } from '../src/lib/haustuer/haustuer.js';
 
 afterEach(() => (lang.v = 'en'));
@@ -157,5 +158,29 @@ describe('German texts', () => {
     for (const k of PLANB_KINDS) keys.push(k.name, k.sub);
     expect(keys.length).toBeGreaterThan(60);
     expect([...new Set(keys)].filter((k) => !(k in DE))).toEqual([]);
+  });
+});
+
+describe('Gute Nacht (1145, Noah «3a»)', () => {
+  it('says where you sleep and when to call, in German too', () => {
+    const en = nightText({ t, names: ['test_data_gtp_Anna'], place: 'test_data_gtp_ Hotel Post', late: '09:30' });
+    expect(en).toBe('Hi test_data_gtp_Anna, I am sleeping in test_data_gtp_ Hotel Post tonight. Good night!\nIf you hear nothing from me by 09:30 tomorrow, please call me.');
+    expect(nightText({ t, late: '10:00' })).toMatch(/^I am stopping for the night\. Good night!\n/);
+    expect(nightText({ t, here: { lat: 47, lon: 7 } })).toContain('Where I am: ');
+    lang.v = 'de';
+    expect(nightText({ t, late: '10:00' })).toBe(`${DE['I am stopping for the night. Good night!']}\n${DE['If you hear nothing from me by {time} tomorrow, please call me.'].replace('{time}', '10:00')}`);
+  });
+  it('the morning text greets the same people', () => {
+    expect(morningText({ t, names: ['test_data_gtp_Anna', 'test_data_gtp_Ben'] })).toMatch(/^Hi test_data_gtp_Anna.*test_data_gtp_Ben, Good morning, I am riding on now\.$/);
+    expect(morningText({ t })).toBe('Good morning, I am riding on now.');
+  });
+  it('the morning reminder only after a good-night message yesterday, until the start or the reply', () => {
+    const tr = { nightSent: '2026-10-23' };
+    expect(morningDue(tr, '2026-10-24', 1, '2026-10-23')).toBe(true);
+    expect(morningDue({ nightSent: '2026-10-22' }, '2026-10-24', 1, '2026-10-23')).toBe(false);
+    expect(morningDue({ ...tr, morningSent: '2026-10-24' }, '2026-10-24', 1, '2026-10-23')).toBe(false);
+    expect(morningDue({ ...tr, rideStart: { 1: '07:10' } }, '2026-10-24', 1, '2026-10-23')).toBe(false);
+    expect(morningDue({ ...tr, finished: true }, '2026-10-24', 1, '2026-10-23')).toBe(false);
+    expect(morningDue(null, '2026-10-24', 1, '2026-10-23')).toBe(false);
   });
 });

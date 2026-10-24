@@ -11,7 +11,10 @@
    * (Vorlagen first, the title with its quiet line, a triangle); at the side «Heute vielleicht» as a
    * suggestion tile (the minutes challenge and the kinds suggested today, any of them as a challenge).
    */
-  import { Play, X, Plus, Lightbulb, Link as LinkIcon, ExternalLink, Check, Zap } from '@lucide/svelte';
+  import { Play, X, Plus, Lightbulb, Link as LinkIcon, ExternalLink, Check, Zap, Pencil } from '@lucide/svelte';
+  import RenameSheet from '../../lib/ui/RenameSheet.svelte';
+  import { offerRename } from '../../lib/ui/rename.svelte.js';
+  import { askDelete, deleteWithUndo } from '../../lib/ui/ask.js';
   import { liveQuery } from 'dexie';
   import Crumb from '../../lib/flow/kit/Crumb.svelte';
   import Sec from '../../lib/flow/kit/Sec.svelte';
@@ -23,7 +26,7 @@
   import { db } from '../../lib/db.js';
   import { medQuery, seedMed } from '../../lib/flow/data.svelte.js';
   import { msContext, actMilestones, evaluate, isOff, newStars } from '../../lib/flowms.js';
-  import { artsOf, addArt, toggleFavArt, bowlWords, challenge, PLACES, THINGS, choiceList, placeCounts, linkOf, linksOf, ARTS_KEY, PLACES_KEY, THINGS_KEY, LINKS_KEY, SOUND_KEY, CHALLENGE_KEY } from '../../lib/flowmed.js';
+  import { artsOf, addArt, toggleFavArt, bowlWords, challenge, PLACES, THINGS, choiceList, placeCounts, renameOwnChoice, linkOf, linksOf, ARTS_KEY, PLACES_KEY, THINGS_KEY, LINKS_KEY, SOUND_KEY, CHALLENGE_KEY } from '../../lib/flowmed.js';
   import { SOUNDS, soundOk, playSound, canVibrate, vibrate, DEFAULT_SOUND, DEFAULT_END_SOUND } from '../../lib/flowsounds.js';
   import { quotesOf, QUOTES_KEY, quoteSet, quoteOfDay } from '../../lib/flowquotes.js';
   import { saveStars, putSetting } from '../../lib/flowdb.js';
@@ -150,6 +153,30 @@
   const things = $derived(choiceList(data?.things, THINGS));
   const thingName = (x) => (x.own ? x.name : t(x.name));
   const dropThing = (x) => putSetting(db, THINGS_KEY, x.own ? { own: things.own.filter((n) => `own:${n}` !== x.id), hidden: things.hidden } : { own: things.own, hidden: [...things.hidden, x.id] });
+  // «Alles fertig» (Alles selbst bearbeiten, Runde 2): own places and things can be renamed; an own place deleted
+  // (asks first, with Undo). A rename carries the past sessions along, so the counts stay.
+  let editPlaces = $state(false);
+  let renaming = $state(null); // { kind: 'place' | 'thing', name }
+  async function renameOwn(kind, from, to) {
+    const key = kind === 'place' ? PLACES_KEY : THINGS_KEY;
+    const cur = kind === 'place' ? data?.places : data?.things;
+    const next = renameOwnChoice(cur, from, to);
+    if (!next) return t('This name is already there.');
+    await putSetting(db, key, next);
+    if (kind === 'place') await db.flowSessions.where('actId').equals(actId).modify((s) => { if (s.place === `own:${from}`) s.place = `own:${to.trim()}`; });
+    offerRename(to.trim(), () => renameOwn(kind, to.trim(), from));
+  }
+  async function dropPlace(p) {
+    const ok = await askDelete({ title: t('Delete «{name}»?', { name: p.name }), text: t('Past sessions keep their count; the place is no longer offered.') });
+    if (!ok) return;
+    const before = { cur: places.cur, own: places.own, hidden: places.hidden };
+    await deleteWithUndo({
+      name: p.name,
+      text: t('«{name}» deleted.', { name: p.name }),
+      run: () => putSetting(db, PLACES_KEY, { cur: places.cur === p.id ? null : places.cur, own: places.own.filter((n) => `own:${n}` !== p.id), hidden: places.hidden }),
+      undo: () => putSetting(db, PLACES_KEY, before),
+    });
+  }
   let newThing = $state('');
   async function addThing(e) {
     e.preventDefault();
@@ -316,6 +343,13 @@
               <button type="button" class="chip" class:on={places.cur === p.id} aria-pressed={places.cur === p.id} onclick={() => pickPlace(p)} data-place={p.id}>{placeName(p)}{#if counts.get(p.id)}<span class="cnt num">· {counts.get(p.id)}×</span>{/if}</button>
             {/each}
           </div>
+          {#if places.own.length || things.own.length}<button type="button" class="tp-link medit" aria-pressed={editPlaces} onclick={() => (editPlaces = !editPlaces)} data-med-edit-places><Pencil size={14} aria-hidden="true" /> {editPlaces ? t('Done|edit') : t('Change own places and things')}</button>{/if}
+          {#if editPlaces}
+            <ul class="medown">
+              {#each places.list.filter((p) => p.own) as p (p.id)}<li><span>{p.name}</span><button type="button" class="btn sm" onclick={() => (renaming = { kind: 'place', name: p.name })}>{t('Rename')}</button><button type="button" class="btn sm" onclick={() => dropPlace(p)}>{t('Delete')}</button></li>{/each}
+              {#each things.list.filter((x) => x.own) as x (x.id)}<li><span>{x.name}</span><button type="button" class="btn sm" onclick={() => (renaming = { kind: 'thing', name: x.name })}>{t('Rename')}</button></li>{/each}
+            </ul>
+          {/if}
           <form class="addrow" onsubmit={addPlace}>
             <label class="grow"><span class="sr">{t('Own place')}</span><input class="inp" bind:value={newPlace} maxlength="40" placeholder={t('Own place')} /></label>
             <button type="submit" class="btn">{t('+ Place')}</button>
@@ -433,7 +467,30 @@
 
 <ChallengeSheet bind:open={sheet} what={sgPick ?? ''} times={running?.times ?? 10} until={running?.until ?? monthEnd(today)} min={today} running={!!running} onsave={saveChallenge} onstop={stopChallenge} />
 
+{#if renaming}<RenameSheet kicker={renaming.kind === 'place' ? t('Own place') : t('Own thing')} title={t('Rename')} value={renaming.name} max={40} onsave={(v) => renameOwn(renaming.kind, renaming.name, v)} onclose={() => (renaming = null)} />{/if}
+
 <style>
+  .medit {
+    margin: 4px 0 8px;
+  }
+  .medown {
+    list-style: none;
+    margin: 0 0 8px;
+    padding: 0;
+    display: grid;
+    gap: 6px;
+  }
+  .medown li {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+  }
+  .medown li span {
+    flex: 1;
+    min-width: 8em;
+    overflow-wrap: break-word;
+  }
   /* v0.105.0 Design-Refresh P8 «Aktiv» (A13): two columns, one white card of folds, the suggestion at the side */
   .mm {
     display: flex;

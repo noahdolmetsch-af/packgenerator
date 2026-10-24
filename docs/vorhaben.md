@@ -364,6 +364,10 @@ Vorhaben, die nach der ersten Fassung dieser Datei dazukamen. Alle sind einem de
 - **Tagebuch** (Ziel Alltag, Noah 20.10.2026 «1b … 2b … 3a … 4a 5a»): ein Tagebuch wie Day One mit Fotos, Ort, Wetter, Stichwörtern, Kalender, «An diesem Tag», 365 Fragen, Diktat, Sperre, Herunterladen und Teilen; Inhalte aus der App auf Tipp → eigenes Paket beim Bündler. Runde 2 (Noah «1a 2a 3a 4b 5a»): Gemini mit Häkchen, Stimmung mit Kurve, Abend-Erinnerung, Wortwolke und Serien, Jahrbuch als PDF.
 - **Noch ohne Paket:** Neuland, «Mehr selbst einstellen», Links nach aussen.
 
+### 14. Alles fertig (24.10.2026)
+
+Noah: «alles ohne meine Freigabe online, möglichst in wenigen Paketen». Alle Reste der alten Threads als ein Paket (0.188.0, Ziele 1, 3 und Alltag): Gute Nacht, nächster Laden, Strom-Zeile, Rennen oben, Verkaufsinserat, Heute leer und ohne Wohnort, Logbuch- und Meditations-Einträge, Tote Knöpfe 8–11. Velo-Ausleihe bewusst nicht (Noah «2b»).
+
 ## Reihenfolge
 
 **Gilt seit 18.10.2026, 19:37 UTC (Noah «1a 2b 3b 4a», ersetzt alle Reihenfolgen weiter unten):** P3 → A Daten sicher und Bedienung → B Server → D Touren und Unterwegs → E Material, Velos, Merken → C Heute und Aktiv → F Woche. A kommt vor B wegen der Datenbank-Stufen, C nach B, weil Aktiv Fitbit und Training braucht. Neue Arbeit darf parallel weiterlaufen. Danach offen: Neuland, «Mehr selbst einstellen», Links nach aussen.

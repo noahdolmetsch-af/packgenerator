@@ -36,6 +36,7 @@
   import { hasStages } from '../stages.js';
   import { isEvent } from '../care.js';
   import TripBand from '../trip/TripBand.svelte';
+  import PowerLine from './PowerLine.svelte';
   import Sum from '../ui/Sum.svelte';
   import { planningGroups } from '../preparation.js';
   import { t, tn, nameOf, num, locale, bagName } from '../i18n.svelte.js';
@@ -65,7 +66,7 @@
   import { SETS_KEY } from '../sets.js';
   import { db } from '../db.js';
   import { offerDone } from '../ui/rename.svelte.js';
-  let { trip, stats, bike, bikeTrip, domainLabel, items, itemsById, trips, candidates, targets, templates, hasPhoto = false, openLayers, canUndo, changeNote = '', ctxChanged = false, ctxRows = {}, reasons = {}, readyCount, readyTotal, over, fixed = false, phaseOpts = {}, carry = new Set(), q = $bindable(''), zoneKey = $bindable('seat'), review = $bindable(false), actions, settings, picker, moreWeights, preparation, ballastContent, suggest = null, notice = null, made = false, onion = null, photo = null, edit = null, swapMemory = {}, onroute = null, onstages = null, prep = null, onprep = null, lessons = [], reminders = [], onlist = null } = $props();
+  let { trip, stats, bike, bikeTrip, domainLabel, items, itemsById, trips, candidates, targets, templates, hasPhoto = false, power = false, openLayers, canUndo, changeNote = '', ctxChanged = false, ctxRows = {}, reasons = {}, readyCount, readyTotal, over, fixed = false, phaseOpts = {}, carry = new Set(), q = $bindable(''), zoneKey = $bindable('seat'), review = $bindable(false), actions, settings, picker, moreWeights, preparation, ballastContent, suggest = null, notice = null, made = false, onion = null, photo = null, edit = null, swapMemory = {}, onroute = null, onstages = null, prep = null, onprep = null, lessons = [], reminders = [], onlist = null } = $props();
   let grouping = $state('bags');
   let opened = $state({});
   let itemMenu = $state(null);
@@ -278,6 +279,8 @@
          jump marks stand right under the band instead of in it, so the band stays compact (D6) -->
     {@render core(true)}
     {@render notice?.()}
+    <!-- Alles fertig (Versteckte Funktionen, Noah 22.10.2026 «1a»): «Strom: reicht / reicht nicht ›» open at the top -->
+    {#if power}<PowerLine {trip} {items} />{/if}
     <!-- «Mehr Inhalt» (Noah 15.10.2026, 1a–5a): the tip of the day, a fitting «Passt zu heute» first -->
     <HintCard page="pack" />
     {#if trip.skipped}<p class="tp-status">{bikeTrip ? t('Not riding') : t('Not going')}</p>{/if}

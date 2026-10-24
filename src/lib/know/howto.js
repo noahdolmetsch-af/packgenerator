@@ -319,6 +319,7 @@ export const HOWTO = {
   'f.flatsitter': ['Open «Before you leave» on On the way.', 'Write the lines for the sitter and a note.', 'Tap «Share link» or show the QR code.'],
   'f.readytomorrow': ['Plan a trip that starts tomorrow.', 'In the evening open it in Pack.', 'Read the hints; ask the AI helper if you like.'],
   'f.arrived': ['Open On the way and tap «Arrived safely».', 'Tick the people of this trip, or add one with a phone number.', 'Tap «Share»: pick SMS, WhatsApp or mail on your phone.'],
+  'f.goodnight': ['Open On the way of a trip of several days and tap «Good night».', 'Set the time to call you, then tap «Share».', 'The next morning tap «Riding on? Tell them».'],
   'f.planb': ['Open a trip in Planen and fold open «Plan B for bad weather».', 'Choose a shorter variant (GPX or note) or the train home.', 'With heavy rain or a storm in the forecast, On the way and the evening window remind you.'],
   'f.checkin': ['Open a trip of several days in Planen.', 'Under «Check-in of the accommodation» set the time per night.', 'A late arrival shows in orange, with the speed you would need.'],
   'f.parked': ['Open On the way and tap «Bike parked».', 'Take a photo, choose the lock and save; the place is read once.', 'Later the same button shows «Where is my bike?» with the way back.'],

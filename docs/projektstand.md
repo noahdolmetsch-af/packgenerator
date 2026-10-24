@@ -2,6 +2,10 @@
 
 Stand: **19. Oktober 2026, abends**. Live ist **Version 0.152.0** («Tempo», seit 19.10.2026). Mit diesem PR kommt **0.154.0** (Paket 2); 0.153.0 (Paket 1, PR #200) ist davor online gegangen.
 
+### Kurzstand 24.10.2026: Paket «Alles fertig»
+
+**0.188.0 «Die Reste, erledigt» (24.10.2026, Paket «Alles fertig», Noah «1a 2b 3a 4a»):** Unterwegs: «Gute Nacht» bei mehrtägigen Touren (wo du schläfst, wann man anrufen soll, Teilen/SMS/Kopieren) und am Morgen danach «Weiter? Kurz Bescheid geben» (1145); der Knopf «Live-Karte» nennt den nächsten Laden aus den schon geladenen Stopps (kein GPS, keine neue Abfrage). Packen: Strom-Zeile oben statt in der Falte «Am Abend davor laden». Touren: «Dein Rennen» oben. Velo «…»: «Verkaufsinserat». Heute: ohne Wohnort Link «Wetter-Seite ›»; auf einem leeren Gerät nur die ersten Schritte und «Jetzt alles zeigen» (H32). Alles selbst bearbeiten Runde 2: Logbuch «Neuer Eintrag», Meditation eigene Orte umbenennen/löschen und eigene Dinge umbenennen. Tote Knöpfe 8–11: Tour-Karte und Heatmap «alles im Bild» mit Meldung, Rückblick «alle gebraucht» mit Rückgängig, Frei «Behalten» bei leerem Feld mit Hinweis. Nicht gebaut: Velo-Ausleihe (1136, Noah «2b»). Downhill-Bikepark-Tag war schon live (ParkDaysBlock). Kein Dexie-Schema, Backup-Format gleich (neue Felder trip.nightSent/morningSent, events source 'own'). Inventar: notes/alle-offenen-plaene-2026-10-24/inventar.md im Projektordner. Es geht nach dem Aktiv-Neubau und den Meilensteinen online.
+
 ### Kurzstand 19.10.2026, abends (Roadmap)
 
 Seit 19.10.2026 gibt es keine Testlinks mehr: Ein Paket geht online, sobald die Tests auf GitHub grün sind (build, e2e desktop, e2e phone). Bei Paketen, die Daten umbauen, wird vorher mit einer Kopie einer Sicherung geprüft, dass nichts verloren geht. «zurück» heisst: sofort rückgängig machen. Reihenfolge nach Noahs «1b» (19.10.2026):

@@ -16,6 +16,23 @@
 
 export const WHATS_NEW = [
   {
+    // v0.188.0 «Alles fertig» (Noah 24.10.2026 «1a 2b 3a 4a»): the leftovers of all older threads in one package.
+    version: '0.188.0',
+    date: '2026-10-24',
+    title: 'The leftovers, done',
+    lead: 'Small things from older plans are in.',
+    points: [
+      { text: 'Good night: where you sleep, when to call', href: '#/ride' },
+      { text: 'Logbook: your own entry', href: '#/debrief/logbook' },
+      { text: 'Your next race on top of Trips', href: '#/trips' },
+    ],
+    small: [
+      { box: 'new', text: 'The next shop in the Live map button' },
+      { box: 'fixed', text: 'Maps, «all used» and «Keep it» answer' },
+    ],
+    test: ['On the way of a trip of several days: tap «Good night» and share.', 'Review › Logbook: tap «New entry».'],
+  },
+  {
     // v0.187.0 «Aktiv neu» (Noah 22.10.2026, Beschreibung «Aktiv-Bereich»): Aktiv is for doing (Heute, Meine Sportarten,
     // Training, Erholung), Auswerten for looking; every sport has its page with goal, history and milestones.
     // + «Meilensteine als Belohnung» (oz2o9i) and «Stopps in der Nähe» + «Ziel wählen» (b97xla).

@@ -19,7 +19,7 @@
   import RenameSheet from '../ui/RenameSheet.svelte';
   import { offerRename } from '../ui/rename.svelte.js';
   import { formatWeight, parseGrams } from '../gear.js';
-  import { Bike as BikeIcon, Briefcase, Plus, ChevronRight, Scale, User, Wrench, MoreHorizontal, Package, Route, BookOpen, Image as ImageIcon, ArrowLeftRight, RefreshCw } from '@lucide/svelte';
+  import { Bike as BikeIcon, Briefcase, Plus, ChevronRight, Scale, User, Wrench, MoreHorizontal, Package, Route, BookOpen, Image as ImageIcon, ArrowLeftRight, RefreshCw, Tag } from '@lucide/svelte';
   import SetupBand from './SetupBand.svelte';
   import SetupDrawing from './SetupDrawing.svelte';
   import SetupFold from './SetupFold.svelte';
@@ -162,6 +162,8 @@
                 { name: t('Don’t show «{name}» any more', { name: t(LINKS.x9.label) }), explain: t('Comes back under Me › Appearance'), icon: EyeOff, run: hideMaker },
               ]
             : []),
+          // Alles fertig (Versteckte Funktionen, Noah 22.10.2026 «1a»): the sale listing also in the bike's «…»
+          { name: t('Sale listing'), explain: t('A text from km, services and parts'), icon: Tag, run: () => (location.hash = bikesHash({ tab: 'care', view: 'sell', bike: bike.id })) },
         ]
       : [],
   );

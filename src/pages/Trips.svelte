@@ -90,6 +90,7 @@
   import RenameSheet from '../lib/ui/RenameSheet.svelte';
   import { offerDone } from '../lib/ui/rename.svelte.js';
   import TourTiles from '../lib/touren/TourTiles.svelte';
+  import NextRaceRow from '../lib/race/NextRaceRow.svelte'; // Alles fertig: «Dein Rennen» oben in Touren
   // AT1: the Strava activities
   import Activities from '../lib/touren/Activities.svelte';
   import { tourRows, stravaOfTrip } from '../lib/touren/aktivitaeten.js';
@@ -454,6 +455,7 @@
       <Btn icon={Upload} label={t('Upload ride')} href="#/debrief/ride" />
     </div>
   </header>
+  {#if !onRides}<NextRaceRow />{/if}
   {#if onRides}
     <!-- Gesamttest 20.10.2026 B3 (Noah «3a»): every Strava activity, with its filters, tiles, map and calendar (AT1, Tour-Seite) -->
     {#if $actsQ}{@render actList()}{:else}<Skeleton rows={4} />{/if}

@@ -17,6 +17,7 @@
    * «Aus früheren Touren» and «Mehr» (Laden). The open bag keeps its classes (.pbag.cur, #pb-<key>).
    */
   import HintCard from '../pageinfo/HintCard.svelte';
+  import PowerLine from './PowerLine.svelte';
   import TipLine from '../pageinfo/TipLine.svelte';
   import { Check, ChevronRight, Undo2, ArrowRight, Briefcase, UserRound, Bike, ListChecks, BatteryCharging, Volume2, Columns3, Camera } from '@lucide/svelte';
   import WeightCard from './WeightCard.svelte';
@@ -420,6 +421,8 @@
   <TripBand {trip} tab="pack" kicker={fixed ? t('Packing list as ridden') : kicker} action={main.kind ? go : null} {aside} hint={fixed ? '' : missing ? missingText : t('Everything is in.')} note />
   <!-- «Mehr Inhalt» (Noah 15.10.2026, 1a–5a): the tip of the day, a fitting «Passt zu heute» first -->
   <HintCard page="pack" />
+  <!-- Alles fertig (Versteckte Funktionen, Noah 22.10.2026 «1a»): the power line open at the top, not only in «Charge» -->
+  {#if oncharge}<PowerLine {trip} items={Object.values(itemsById)} />{/if}
   {@render top?.()}
   <!-- v0.67.0 (U014, kit Empty): an empty list says so and leads to adding gear (never «Alles gepackt»). -->
   {#if total === 0 && fixed}<Empty icon={ListChecks} text={t('It was ridden without a list from the app. Reopen it to add one.')} action={{ label: t('Reopen'), onclick: () => askReopen(trip) }} />

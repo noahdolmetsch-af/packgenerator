@@ -165,6 +165,34 @@ export function arrivedText({ t, names = [], place = '', time = '', here = null 
   return lines.join('\n');
 }
 
+/* ---------- 1145 «Gute Nacht» (Noah 24.10.2026 «3a») ---------- */
+
+/** The good-night text: where you sleep, when you ride on and whom to call if nothing comes by `late` (hh:mm). */
+export function nightText({ t, names = [], place = '', late = '10:00', here = null }) {
+  const who = joinNames(names, t('and|names'));
+  const where = place ? t('I am sleeping in {place} tonight. Good night!', { place }) : t('I am stopping for the night. Good night!');
+  const lines = [who ? `${t('Hi {names},', { names: who })} ${where}` : where];
+  lines.push(t('If you hear nothing from me by {time} tomorrow, please call me.', { time: late }));
+  if (here) lines.push(t('Where I am: {url}', { url: mapsAt(here) }));
+  return lines.join('\n');
+}
+
+/** The morning text after a good-night message: riding on. */
+export function morningText({ t, names = [] }) {
+  const who = joinNames(names, t('and|names'));
+  const ride = t('Good morning, I am riding on now.');
+  return who ? `${t('Hi {names},', { names: who })} ${ride}` : ride;
+}
+
+/**
+ * The morning reminder (Noah «3a»): a good-night message went out yesterday and today has no start yet.
+ * trip.nightSent = 'YYYY-MM-DD' (the evening it was shared); dayIdx: today's day of the trip.
+ */
+export function morningDue(trip, today, dayIdx, yesterday) {
+  if (!trip || trip.finished || !trip.nightSent || trip.nightSent !== yesterday) return false;
+  return !trip.rideStart?.[dayIdx] && trip.morningSent !== today;
+}
+
 /** An SMS link to the phone numbers of the chosen people with the text («sms:+41…,+41…?body=…»). */
 export function smsHref(phones = [], text = '') {
   const nrs = phones.map((p) => String(p ?? '').replace(/[^\d+]/g, '')).filter(Boolean);

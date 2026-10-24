@@ -4,6 +4,16 @@
  * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
+  // 0.188.0 Alles fertig
+  'The leftovers, done': 'Die Reste, erledigt',
+  'Small things from older plans are in.': 'Kleine Dinge aus älteren Plänen sind drin.',
+  'Good night: where you sleep, when to call': 'Gute Nacht: wo du schläfst, wann man anrufen soll',
+  'Logbook: your own entry': 'Logbuch: ein eigener Eintrag',
+  'Your next race on top of Trips': 'Dein nächstes Rennen oben in Touren',
+  'The next shop in the Live map button': 'Der nächste Laden im Knopf «Live-Karte»',
+  'Maps, «all used» and «Keep it» answer': 'Karten, «alle gebraucht» und «Behalten» antworten',
+  'On the way of a trip of several days: tap «Good night» and share.': 'Unterwegs bei einer mehrtägigen Tour: «Gute Nacht» tippen und teilen.',
+  'Review › Logbook: tap «New entry».': 'Rückblick › Logbuch: «Neuer Eintrag» tippen.',
   // 0.160.0 Paket 8 Verpflegung
   'Enough food and water': 'Genug essen und trinken',
   'How much to eat and drink on each part of the route.': 'Wie viel du auf jedem Teil der Strecke isst und trinkst.',

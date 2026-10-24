@@ -130,7 +130,7 @@ export const SINCE = {
   'f.webcammap': '0.173.0',
   'f.icepush': '0.173.0',
   // Paket W «Von der Haustür bis zurück» (v0.170.0)
-  'f.arrived': '0.170.0', 'f.planb': '0.170.0', 'f.checkin': '0.170.0', 'f.parked': '0.170.0',
+  'f.goodnight': '0.188.0', 'f.arrived': '0.170.0', 'f.planb': '0.170.0', 'f.checkin': '0.170.0', 'f.parked': '0.170.0',
   // Paket Z and SP (v0.171.0)
   'f.breakdown': '0.171.0', 'f.sleepspots': '0.171.0', 'f.postcard': '0.171.0',
   'f.packtwo': '0.171.0', 'f.laundry': '0.171.0', 'f.morninglist': '0.171.0', 'f.packtime': '0.171.0',
