@@ -6,7 +6,7 @@
  * Answers live on this device (meta table, cacheGet/cacheSet); a new request only when the kept one does
  * not fit any more. The fetcher is passed in for tests.
  */
-import { OVERPASS, POI_CACHE, fetchPois, poisFrom } from '../race/outside.js';
+import { OVERPASS, POI_CACHE, poiQuery, poisFrom, overpassFailed } from '../race/outside.js';
 import { queued, postTimed } from '../route/oneatatime.js';
 import { cacheGet, cacheSet } from '../race/store.js';
 import { aroundQuery, aroundFresh } from './live-lib.js';
@@ -22,14 +22,64 @@ export async function loadAround(here, { fetcher = fetch, force = false, now = D
   if (!force && aroundFresh(kept?.data ? { ...kept.data, at: kept.at } : null, here, now)) return kept.data.list;
   const res = await queued(() => postTimed(fetcher, OVERPASS, { method: 'POST', body: `data=${encodeURIComponent(aroundQuery(here))}`, headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }));
   if (!res.ok) throw new Error(res.status === 429 ? 'busy' : 'failed');
-  const list = aroundFrom(await res.json());
+  const json = await res.json();
+  if (overpassFailed(json)) throw new Error('failed');
+  const list = aroundFrom(json);
   await cacheSet(AROUND_CACHE, { center: { lat: here.lat, lon: here.lon }, list });
   return list;
 }
 
-/** The stops along a trip's route (kept per trip). */
-export async function loadAlong(tripId, pts, { fetcher = fetch } = {}) {
-  const list = await fetchPois(pts, fetcher);
-  await cacheSet(POI_CACHE + tripId, list);
+/**
+ * Noah 22.10.2026 (picture): «Stopps entlang der Strecke laden» did nothing. The live map asked
+ * OpenStreetMap for the whole route at once; on a long route the free server ran out of time and
+ * answered with an empty list (and a «runtime error» note), so no stops came and no message either.
+ * Now the live map asks only for the stretch ahead of you (ALONG_AHEAD_KM), in small pieces
+ * (ALONG_CHUNK_KM), one after the other. Each piece is kept as soon as it is there; the stops of the
+ * rest of the route that were kept before stay.
+ */
+export const ALONG_AHEAD_KM = 60;
+export const ALONG_CHUNK_KM = 20;
+/** The time one piece may take (ms). */
+export const ALONG_REQUEST_MS = 45_000;
+
+/** The pieces of the route from fromKm to toKm: point lists of at most chunkKm, a point every ≥ stepKm. */
+export function stretches(pts = [], fromKm = 0, toKm = Infinity, chunkKm = ALONG_CHUNK_KM, stepKm = 0.4) {
+  const out = [];
+  if (pts.length < 2) return out;
+  const end = Math.min(toKm, pts.at(-1).km);
+  for (let a = Math.max(0, fromKm); a < end - 0.01; a += chunkKm) {
+    const b = Math.min(end, a + chunkKm);
+    const i0 = Math.max(0, pts.findIndex((p) => p.km >= a) - 1);
+    let i1 = pts.findIndex((p) => p.km >= b);
+    if (i1 < 0) i1 = pts.length - 1;
+    const part = [];
+    for (let i = i0; i <= i1; i++) {
+      const p = pts[i];
+      if (i === i0 || i === i1 || p.km - part.at(-1).km >= stepKm) part.push(p);
+    }
+    if (part.length > 1) out.push(part);
+  }
+  return out;
+}
+
+/** The stops along a trip's route ahead of fromKm (kept per trip); throws 'busy' | 'failed'. */
+export async function loadAlong(tripId, pts, { fetcher = fetch, fromKm = 0, aheadKm = ALONG_AHEAD_KM, chunkKm = ALONG_CHUNK_KM } = {}) {
+  const from = Math.max(0, Number.isFinite(fromKm) ? fromKm : 0);
+  const parts = stretches(pts, from, from + aheadKm, chunkKm);
+  const key = POI_CACHE + tripId;
+  const kept = await cacheGet(key);
+  let list = Array.isArray(kept?.data) ? kept.data : [];
+  for (const part of parts) {
+    const a = part[0].km;
+    const b = part.at(-1).km;
+    const res = await queued(() => postTimed(fetcher, OVERPASS, { method: 'POST', body: `data=${encodeURIComponent(poiQuery(part))}`, headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }, ALONG_REQUEST_MS));
+    if (!res.ok) throw new Error(res.status === 429 ? 'busy' : 'failed');
+    const json = await res.json();
+    if (overpassFailed(json)) throw new Error('failed');
+    const found = poisFrom(json, pts);
+    const ids = new Set(found.map((p) => p.id));
+    list = [...list.filter((p) => !ids.has(p.id) && !(p.km >= a && p.km <= b)), ...found].sort((x, y) => x.km - y.km);
+    await cacheSet(key, list);
+  }
   return list;
 }

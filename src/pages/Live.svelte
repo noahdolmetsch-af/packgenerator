@@ -92,7 +92,7 @@
     onRoute, stopsAhead, nextClimb, arrival, lightLeft, darkMinutes, pauses, eatDue, batteryEnough, drainOf, planDelta, offRouteStep, nextSay, navLinks,
     fixesOf, paceOf, planRunning, bedTonight, stormPoints, stormUrl, stormAhead, gainBetween,
   } from '../lib/live/live-lib.js';
-  import { AROUND_CACHE, loadAround, loadAlong } from '../lib/live/stops.js';
+  import { AROUND_CACHE, ALONG_AHEAD_KM, loadAround, loadAlong } from '../lib/live/stops.js';
   import { beep, buzz, say } from '../lib/live/alert.js';
   import { DICTATION } from '../lib/live/dictation.js';
   import { refreshFamilyLink, LIVE_EVERY_MS } from '../lib/live/familylive.js';
@@ -218,7 +218,8 @@
   const pace = $derived({ kmh, climbMh: isRace ? Number(as?.climbMh?.value) || 600 : 600 });
   const light = $derived(me ? lightLeft(me.lat, me.lon, now) : null);
   const arr = $derived(km != null ? arrival({ pts, profile, km, now, pace }) : null);
-  const KINDS = ['shop', 'food', 'water', 'sleep', 'station', 'bike'];
+  // Noah 22.10.2026: petrol stations count as stops too (they were loaded but never shown)
+  const KINDS = ['shop', 'fuel', 'food', 'water', 'sleep', 'station', 'bike'];
   const stops = $derived(me ? stopsAhead({ pois, pts: hasRoute ? pts : [], here: me, km, kinds: KINDS, n: 5, now, pace, profile }) : []);
   const climb = $derived(km != null ? nextClimb(climbs, km) : null);
   // Abbiege-Hinweise (turns.js): the turns of the route, once; the next one while you are on the route
@@ -313,14 +314,20 @@
       busy = '';
     }
   }
+  // Noah 22.10.2026: the button said nothing; now the answer stands right under it (stopsMsg)
+  let stopsMsg = $state('');
   async function getAlong() {
     if (busy || !hasRoute) return;
     busy = 'along';
     msg = '';
+    stopsMsg = '';
     try {
-      await loadAlong(tid, pts);
+      const from = km ?? 0;
+      const list = await loadAlong(tid, pts, { fromKm: from });
+      if (!list.some((p) => p.km >= from - 0.1 && p.km - from <= ALONG_AHEAD_KM)) stopsMsg = t('No stops found in the next {km} km.', { km: ALONG_AHEAD_KM });
     } catch (e) {
       msg = fail(e);
+      stopsMsg = msg;
     } finally {
       busy = '';
     }
@@ -1099,6 +1106,7 @@
                   <button type="button" class="btn sm" onclick={() => getAround(true)} disabled={!!busy}><RefreshCw size={16} aria-hidden="true" />{busy === 'around' ? t('Loading…') : t('Look for stops around me')}</button>
                 {/if}
               </div>
+              {#if stopsMsg}<p class="rc-note" role="status" data-live-stops-msg>{stopsMsg}</p>{/if}
             </div>
 
             <!-- the profile from your km -->

@@ -115,11 +115,19 @@ function extraOf(tags) {
   return o;
 }
 
+/**
+ * True when Overpass gave up on the query: it then answers 200 with no or only some places and a
+ * «runtime error» note (time or memory ran out). Such an answer must not count as «no places».
+ */
+export const overpassFailed = (json) => /runtime error|timed out|out of memory/i.test(String(json?.remark ?? ''));
+
 /** Fetch the places (throws with a plain reason). */
 export async function fetchPois(pts, fetcher = fetch) {
   const res = await queued(() => postTimed(fetcher, OVERPASS, { method: 'POST', body: `data=${encodeURIComponent(poiQuery(pts))}`, headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }, 70_000));
   if (!res.ok) throw new Error(res.status === 429 ? 'busy' : 'failed');
-  return poisFrom(await res.json(), pts);
+  const json = await res.json();
+  if (overpassFailed(json)) throw new Error('failed');
+  return poisFrom(json, pts);
 }
 
 /* ---------- opening hours (the usual OSM forms; anything else = unknown) ---------- */

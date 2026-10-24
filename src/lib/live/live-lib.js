@@ -358,6 +358,7 @@ export function aroundQuery(here, m = 4000) {
   return `[out:json][timeout:30];(
 node["shop"~"^(supermarket|convenience|bakery|kiosk|general|deli)$"]${a};
 node["amenity"~"^(restaurant|fast_food|cafe)$"]${a};
+node["amenity"="fuel"]${a};
 node["amenity"="drinking_water"]${a};
 node["amenity"="fountain"]["drinking_water"="yes"]${a};
 node["man_made"="water_tap"]["drinking_water"!="no"]${a};
