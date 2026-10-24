@@ -162,7 +162,7 @@ export function freeDay(days, from, away = []) {
  * suggestions: { ref, kind, title, sub, day (proposed), act 'take'|'drop' }
  */
 export function buildWeek(src) {
-  const { monday, today, items = [], away = [], hide = [], no = [], cal = [], trips = [], sessions = [], acts = [], fixed = [], plans = [], actName = (id) => id, care = [], goalHours = null, forecast = null, google = null } = src;
+  const { monday, today, items = [], away = [], hide = [], no = [], cal = [], trips = [], sessions = [], acts = [], fixed = [], plans = [], actName = (id) => id, care = [], goalHours = null, forecast = null, google = null, flowLog = [], book = [] } = src;
   const week = daysOf(monday);
   const end = shiftDay(monday, 7);
   const skipped = new Set(no.filter((k) => k.endsWith(`|${monday}`)).map((k) => k.slice(0, k.lastIndexOf('|'))));
@@ -184,8 +184,24 @@ export function buildWeek(src) {
   for (const d of days) {
     if (d.away?.pause) continue;
     const wd = week.indexOf(d.day) + 1;
-    for (const f of fixed) if (f.wd === wd) d.entries.push({ id: `fx:${f.id ?? f.actId}`, kind: 'sport', title: actName(f.actId), sub: null, time: f.time ?? '', done: false, own: false, href: '#/flow/week' });
-    for (const p of plans) if (p.day === d.day) d.entries.push({ id: `pl:${p.actId}`, kind: 'sport', title: actName(p.actId), sub: null, time: '', done: false, own: false, href: '#/flow/week' });
+    for (const f of fixed) if (f.wd === wd) d.entries.push({ id: `fx:${f.id ?? f.actId}`, kind: 'sport', title: actName(f.actId), sub: null, time: f.time ?? '', done: false, own: false, href: '#/flow/week', actId: f.actId });
+    for (const p of plans) if (p.day === d.day) d.entries.push({ id: `pl:${p.actId}`, kind: 'sport', title: actName(p.actId), sub: null, time: '', done: false, own: false, href: '#/flow/week', actId: p.actId });
+  }
+  // Klick-Rundgang 22.10.2026 H22: what was ticked in Aktiv (flowLog). A planned Aktiv date of the same activity
+  // that day counts as done; else one entry per activity and day («done in Aktiv»), never counted twice.
+  const ticked = new Map();
+  for (const l of flowLog) {
+    if (!l?.actId || !at(l.day)) continue;
+    const k = `${l.day}|${l.actId}`;
+    const cur = ticked.get(k) ?? { day: l.day, actId: l.actId, min: 0 };
+    cur.min += Number(l.min) || 0;
+    ticked.set(k, cur);
+  }
+  for (const x of ticked.values()) {
+    const d = at(x.day);
+    const same = d.entries.find((e) => (e.id.startsWith('fx:') || e.id.startsWith('pl:')) && e.actId === x.actId);
+    if (same) same.done = true;
+    else d.entries.push({ id: `log:${x.day}:${x.actId}`, kind: 'sport', title: actName(x.actId), sub: { aktiv: true, mins: x.min || 0 }, time: '', done: true, own: false, href: '#/flow' });
   }
   // dates: your own and the outside calendar's
   const g = googleWeek(google, monday);
@@ -269,14 +285,14 @@ export function buildWeek(src) {
   const all = days.flatMap((d) => d.entries);
   const sums = {
     sessions: all.filter((e) => e.kind === 'sport').length,
-    mins: all.filter((e) => e.id.startsWith('tr:')).reduce((n, e) => n + (e.sub?.mins ?? 0), 0),
+    mins: all.filter((e) => e.id.startsWith('tr:') || e.id.startsWith('log:')).reduce((n, e) => n + (e.sub?.mins ?? 0), 0),
     goalMins: goalHours ? Math.round(goalHours * 60) : null,
     dates: all.filter((e) => e.kind === 'date').length,
     todos: all.filter((e) => e.kind === 'todo' && !e.done).length,
     away: days.filter((d) => d.entries.some((e) => e.kind === 'away')).map((d) => d.day),
     bike: all.filter((e) => e.kind === 'bike' && !e.done).length + suggestions.filter((s) => s.kind === 'bike').length,
   };
-  const review = reviewOf({ monday, sessions, acts, items });
+  const review = reviewOf({ monday, sessions, acts, items, book });
   return {
     days: days.map((d) => ({ ...d, entries: d.entries.filter((e) => shown(e.kind)) })),
     sums,
@@ -307,11 +323,13 @@ const hard = (e) => e.sid && ((e.zone ?? 0) >= 4 || e.mins >= 150);
  * Last week in one line (3b): { planned, done, rides, km, mins, todos } or null when nothing happened.
  * planned/done: sessions of the training plan; rides, km, mins: the activities from Strava.
  */
-export function reviewOf({ monday, sessions = [], acts = [], items = [] }) {
+export function reviewOf({ monday, sessions = [], acts = [], items = [], book = [] }) {
   const from = shiftDay(monday, -7);
   const inLast = (d) => d >= from && d < monday;
   const plan = sessions.filter((s) => inLast(s.day));
-  const done = acts.filter((a) => inLast(a.day ?? ''));
+  // Strava's activities, and the rides of the km book that did not come from Strava (by hand, FIT, CSV)
+  const own = book.filter((e) => e && e.kind === 'ride' && e.state === 'counted' && e.source !== 'strava' && inLast(e.date ?? '')).map((e) => ({ day: e.date, km: e.km, movingS: e.movingS ?? null }));
+  const done = [...acts.filter((a) => inLast(a.day ?? '')), ...own];
   const todos = items.filter((x) => x.done && x.day && inLast(x.day)).length;
   if (!plan.length && !done.length && !todos) return null;
   return {

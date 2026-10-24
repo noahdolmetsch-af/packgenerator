@@ -653,6 +653,19 @@ export function dueList(cfg, answers = [], now, snooze = {}) {
   }
   return out.sort((a, b) => a.slot.localeCompare(b.slot) || order.get(a.q.id) - order.get(b.q.id));
 }
+/**
+ * Klick-Rundgang 22.10.2026 H15: the window fits its questions to the time of day. A missed evening question
+ * stays (Noah 2a) and says from when it is (AbCard: «Frage von …»), after today's questions. In the evening it
+ * asks about today (its latest time), not about a day missed before. due: dueList rows; → the rows to show now.
+ */
+export function fitNow(due = [], now, rounds) {
+  const eve = isEveningRound(now, rounds);
+  return due.map((d) => {
+    const late = partOf({ slot: d.last ?? d.slot }, rounds) === 'evening';
+    return eve && late && d.last && dayOf(d.slot) < dayOf(now) ? { ...d, slot: d.last } : d;
+  });
+}
+
 /* ---------------------------------------------------------------- Fitbit fills in */
 
 /**

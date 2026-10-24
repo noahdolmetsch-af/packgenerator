@@ -16,6 +16,21 @@
 
 export const WHATS_NEW = [
   {
+    // v0.181.3 «Alltag fertig bauen» (Klick-Rundgang 22.10.2026, Noah «1a 2a 3a … 5a»): repairs of the flows
+    // Mein Tag, Meine Woche and Velo pflegen; a robot plays them through before every release.
+    version: '0.181.3',
+    date: '2026-10-24',
+    title: 'Everyday, without dead ends',
+    lead: 'Day, week and bike run smoothly.',
+    points: [
+      { text: 'The Assistant knows your chain', href: '#/assistent' },
+      { text: 'Aktiv ticks show in the week', href: '#/week' },
+      { text: 'Bike care «Done» with Undo', href: '#/bikes?tab=care' },
+    ],
+    small: [{ box: 'nicer', text: 'Main buttons in sight' }],
+    test: ['Assistant: ask about the chain.', 'Bike care: «Done», then «Undo».'],
+  },
+  {
     // v0.181.2 «Packen und nach der Tour, repariert» (Klick-Rundgang packages 3+5, Noah 22.10.2026: repairs first): one count
     // while packing, «Losfahren» on the first day, light and food on Unterwegs, clear hints after the tour; Live-Karte stops
     // load in 20 km pieces with fuel stations.

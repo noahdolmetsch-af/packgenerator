@@ -190,7 +190,7 @@ test('start points: Q1 status on top, a part without one shows without start poi
   const errors = await start(page, context, info);
   await page.goto(`./#/bikes?tab=care&bike=${NEU}&open=1`);
   const q1 = bike(page).locator('section.q1');
-  await expect(q1).toContainText('Q1 Lückenlose km');
+  await expect(q1).toContainText('Lückenlose km');
   await expect(q1).toContainText('fast erfüllt');
   await expect(q1).toContainText('2 Teile ohne Startpunkt');
   await expect(q1).toContainText('fehlt: Bremsbeläge hinten, Griffe');
@@ -221,7 +221,7 @@ test('start points: Q1 status on top, a part without one shows without start poi
   // «Hide for this bike»: a suggestion, never a must
   await q1.getByRole('button', { name: 'Für dieses Velo ausblenden' }).click();
   await expect(bike(page).locator('section.q1')).toHaveCount(0);
-  await bike(page).getByRole('button', { name: 'Q1 «Lückenlose km» für dieses Velo prüfen' }).click();
+  await bike(page).getByRole('button', { name: '«Lückenlose km» für dieses Velo prüfen' }).click();
   await expect(bike(page).locator('section.q1')).toBeVisible();
   expect(errors).toEqual([]);
 });

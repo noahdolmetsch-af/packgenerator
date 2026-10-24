@@ -1596,4 +1596,13 @@ export default {
   'Repair kit is no device any more': 'Flickzeug ist kein Gerät mehr',
   'Open Packen, «Add material», and tap «Add a new item and pack it».': 'Öffne Packen, «Material ergänzen», und tippe auf «Neues Teil erfassen und einpacken».',
   'Open a lamp in Gear, the row «Power», and add a light level.': 'Öffne eine Lampe im Material, die Zeile «Strom», und füge eine Leuchtstufe hinzu.',
+  // v0.181.1 «Alltag fertig bauen»
+  'Everyday, without dead ends': 'Alltag ohne Sackgassen',
+  'Day, week and bike run smoothly.': 'Tag, Woche und Velo laufen rund.',
+  'The Assistant knows your chain': 'Der Assistent kennt deine Kette',
+  'Aktiv ticks show in the week': 'Aktiv-Häkchen stehen in der Woche',
+  'Bike care «Done» with Undo': 'Velopflege «Erledigt» mit Rückgängig',
+  'Main buttons in sight': 'Wichtige Knöpfe sichtbar',
+  'Assistant: ask about the chain.': 'Assistent: nach der Kette fragen.',
+  'Bike care: «Done», then «Undo».': 'Velopflege: «Erledigt», dann «Rückgängig».',
 };

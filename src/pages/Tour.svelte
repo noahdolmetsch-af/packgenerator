@@ -446,7 +446,7 @@
           <CloudSun size={18} aria-hidden="true" />
           {#if wxText}<span><b>{t('Weather')}</b> {wxText}</span>
           {:else if wxState === 'loading'}<span class="tp-muted">{t('Getting the weather of that day …')}</span>
-          {:else if wxState === 'failed'}<span class="tp-muted">{t('The weather could not be fetched.')}</span><button type="button" class="btn btn-link" onclick={() => loadWeather(true)} data-weather-retry><RefreshCw size={14} aria-hidden="true" />{t('Try again')}</button>
+          {:else if wxState === 'failed'}<span class="tp-muted">{navigator.onLine === false ? t('You are offline right now: the weather loads once you are online.') : t('The weather could not be fetched.')}</span><button type="button" class="btn btn-link" onclick={() => loadWeather(true)} data-weather-retry><RefreshCw size={14} aria-hidden="true" />{t('Try again')}</button>
           {:else}<span class="tp-muted">{t('No weather yet: it comes when you are online.')}</span>{/if}
         </p>
         {/if}
