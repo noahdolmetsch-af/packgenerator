@@ -21,14 +21,13 @@ export const WHATS_NEW = [
     version: '0.190.0',
     date: '2026-10-24',
     title: 'Trips without surprises',
-    lead: 'Try the trip at home first, and arrive well afterwards.',
+    lead: 'Try it at home first, arrive well after.',
     points: [
       { text: 'Dress rehearsal before, arrive well after', href: '#/trips' },
       { text: 'Pack by need: light, comfortable or easy', href: '#/pack' },
-      { text: 'Box labels with a QR code', href: '#/me/tools/labels' },
     ],
-    small: [{ box: 'new', text: 'See what a building block changes before adding it' }],
-    test: ['Open a trip that starts within a week: Pack › «Dress rehearsal», tap «Gap», then «Keep as to-do».', 'Pack › Add material › «Pack by need»: tap two needs, compare the variants, «Take it onto the list».', 'Toolbox › Box labels: add a box, put something in, «Print label».'],
+    small: [{ box: 'new', text: 'Box labels with a QR code', href: '#/me/tools/labels' }],
+    test: ['A trip within a week: Pack › «Dress rehearsal», «Gap», «Keep as to-do».', 'Pack › Add material › «Pack by need»: two needs, «Take it onto the list».'],
   },
   {
     // v0.186.1 «Abgleich ohne Fragen» (Noah 24.10.2026, screenshot «805 Einträge auf beiden Geräten geändert»)

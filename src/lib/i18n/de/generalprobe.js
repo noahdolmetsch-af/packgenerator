@@ -180,5 +180,7 @@ export default {
   'Dress rehearsal before, arrive well after': 'Vorher Generalprobe, nachher gut ankommen',
   'Pack by need: light, comfortable or easy': 'Nach Bedürfnis packen: leicht, bequem oder einfach',
   'See what a building block changes before adding it': 'Vorher sehen, was ein Baustein ändert',
-  'Pack › Add material › «Pack by need»: tap two needs, compare the variants, «Take it onto the list».': 'Packen › Material hinzufügen › «Nach Bedürfnis packen»: zwei Bedürfnisse antippen, Varianten vergleichen, «Auf die Liste nehmen».',
+  'A trip within a week: Pack › «Dress rehearsal», «Gap», «Keep as to-do».': 'Eine Tour innert einer Woche: Packen › «Generalprobe», «Lücke», «Als To-do merken».',
+  'Pack › Add material › «Pack by need»: two needs, «Take it onto the list».': 'Packen › Material hinzufügen › «Nach Bedürfnis packen»: zwei Bedürfnisse, «Auf die Liste nehmen».',
+  'Try it at home first, arrive well after.': 'Erst zu Hause ausprobieren, danach gut ankommen.',
 };
