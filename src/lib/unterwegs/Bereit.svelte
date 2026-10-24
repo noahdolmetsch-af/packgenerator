@@ -9,7 +9,8 @@
   import { db } from '../db.js';
   import { t } from '../i18n.svelte.js';
   import { localDay } from '../localday.js';
-  import { domainOf, domainName } from '../domains.js';
+  import { domainOf } from '../domains.js';
+  import { kindName } from '../sports.js';
   import { askDelete, deleteWithUndo } from '../ui/ask.js';
   import { startsTomorrow } from './morgen.js';
   import Morgen from './Morgen.svelte';
@@ -78,7 +79,7 @@
   {#if tomorrow}<Morgen {trip} />{/if}
 
   <div class="listen">
-    <h3 class="uw-h3"><Headphones size={18} aria-hidden="true" /> {t('Listening tip for {kind}', { kind: t(domainName(domain)) })}</h3>
+    <h3 class="uw-h3"><Headphones size={18} aria-hidden="true" /> {t('Listening tip for {kind}', { kind: t(kindName(trip)) })}</h3>
     {#if tips.length}
       <ul class="tl">
         {#each tips as x (x.id)}

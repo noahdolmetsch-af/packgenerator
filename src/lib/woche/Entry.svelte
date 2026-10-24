@@ -18,9 +18,9 @@
     <button type="button" class="tk" aria-pressed={e.done} aria-label={e.done ? t('Not done yet: {title}', { title: titleOf(e) }) : t('Done: {title}', { title: titleOf(e) })} onclick={() => ondone(e)}>{#if e.done}<Check size={14} strokeWidth={3} aria-hidden="true" />{/if}</button>
   {/if}
   {#if e.href && !e.own}
-    <a class="tx" href={e.href}><b>{#if e.time}<span class="num">{e.time}</span>{' '}{/if}{titleOf(e)}</b><small><span class="sr">{t(KIND_NAMES[e.kind])}{sub ? ', ' : ''}</span>{sub}</small></a>
+    <a class="tx" href={e.href}><b>{#if e.time}<span class="num">{e.time}</span>{' '}{/if}{titleOf(e)}</b><small>{sub}<span class="sr"> ({t(KIND_NAMES[e.kind])})</span></small></a>
   {:else}
-    <span class="tx"><b>{#if e.time}<span class="num">{e.time}</span>{' '}{/if}{titleOf(e)}</b><small><span class="sr">{t(KIND_NAMES[e.kind])}{sub ? ', ' : ''}</span>{sub}</small></span>
+    <span class="tx"><b>{#if e.time}<span class="num">{e.time}</span>{' '}{/if}{titleOf(e)}</b><small>{sub}<span class="sr"> ({t(KIND_NAMES[e.kind])})</span></small></span>
   {/if}
   {#if e.own && onremove}
     <button type="button" class="rm" aria-label={t('Remove: {title}', { title: titleOf(e) })} onclick={() => onremove(e)}><X size={14} aria-hidden="true" /></button>

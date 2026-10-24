@@ -20,6 +20,7 @@ export const titleOf = (e) =>
 export function subOf(e) {
   const s = e.sub;
   if (!s) return e.done ? t('done|week') : '';
+  if (s.aktiv) return s.mins ? `${dur(s.mins)} · ${t('done in Aktiv')}` : t('done in Aktiv');
   if (s.mins) return `${dur(s.mins)}${e.done ? ` · ${t('done|week')}` : ''}`;
   if (s.src) return s.src === 'google' ? t('Google Calendar') : s.src === 'google-tasks' ? t('Google Tasks') : t('Calendar');
   if (s.away) return awayName(s.away, t);
@@ -48,7 +49,7 @@ export function reviewLine(r) {
   if (!r) return '';
   const parts = [];
   if (r.planned) parts.push(t('{done} of {planned} sessions', { done: r.done, planned: r.planned }));
-  if (r.rides) parts.push(`${r.km} km · ${dur(r.mins)}`);
+  if (r.rides) parts.push(r.mins ? `${r.km} km · ${dur(r.mins)}` : `${r.km} km`);
   if (r.todos) parts.push(r.todos === 1 ? t('1 to-do done') : t('{n} to-dos done', { n: r.todos }));
   return parts.length ? t('Last week: {list}', { list: parts.join(' · ') }) : '';
 }

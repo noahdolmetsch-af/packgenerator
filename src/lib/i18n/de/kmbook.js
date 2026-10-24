@@ -162,7 +162,7 @@ export default {
   '{n} duplicates': '{n} doppelt',
 
   // care/Q1Status.svelte
-  'Q1 Gapless km': 'Q1 Lückenlose km',
+  'Q1 Gapless km': 'Lückenlose km',
   met: 'erfüllt',
   'almost met': 'fast erfüllt',
   'not met yet': 'noch nicht erfüllt',
@@ -211,7 +211,7 @@ export default {
   'Start point: mounted on · at bike km': 'Startpunkt: montiert am · bei Velo-km',
   'km on part': 'km am Teil',
   'from the ride ledger, as of {date}': 'aus dem Fahrten-Buch, Stand {date}',
-  'Check Q1 «Gapless km» for this bike': 'Q1 «Lückenlose km» für dieses Velo prüfen',
+  'Check Q1 «Gapless km» for this bike': '«Lückenlose km» für dieses Velo prüfen',
   'Start point saved: {part}, {date} · {km} km.': 'Startpunkt gespeichert: {part}, {date} · {km} km.',
 
   // home/KmCard.svelte

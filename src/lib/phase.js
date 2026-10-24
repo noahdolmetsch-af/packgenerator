@@ -98,12 +98,20 @@ export function parseBetween(hash = '') {
 }
 
 /**
+ * Klick-Rundgang 22.10.2026 H06: «Losfahren». The day of the trip a ride is on now (0-based; a nonstop
+ * trip has one stage) and whether «Losfahren» was tapped for it: trip.goDays = { [day]: 'HH:MM' }.
+ */
+export const goDayOf = (trip, today) => (trip?.nonstop ? 0 : Math.max(0, Math.min(Math.max(1, Number(trip?.days) || 1) - 1, trip?.startDate ? daysFrom(trip.startDate, today) : 0)));
+export const goneToday = (trip, today) => !!trip?.goDays?.[goDayOf(trip, today)];
+
+/**
  * The ONE main button of a trip page, by the phase (U008, U009, U013, U014): { kind, label, href? }.
  * label: the English key for t(). kind:
  *   'go'     a link to href
  *   'add'    Plan with an empty list: add gear (opens «Add material»)
  *   'finish' Pack: finish packing (asks when something is missing, then the interstitial)
  *   'packgo' Plan of a bike day ride: everything packed in one tap, then On the way
+ *   'start'  On the way, the first day not started yet: «Losfahren» (sets the start time; H06)
  *   'last'   On the way, last day: «Letzten Tag abschliessen» (a day ride: «Tour abschliessen»)
  *   'end'    a trip without a bike under way, on Pack: end it (asks before its last day)
  *   null     no main button (On the way before the last day: «Tour beenden …» is a quiet link)
@@ -121,6 +129,7 @@ export function mainStep(trip, today, tab, opts = {}) {
   if (phase === 'during' && (tab === 'ride' || !packingDay(trip, today))) {
     if (bike) {
       if (tab !== 'ride') return { kind: 'go', label: 'Continue to On the way', href: tabHref('ride', trip) };
+      if (!trip.finished && goDayOf(trip, today) === 0 && !goneToday(trip, today)) return { kind: 'start', label: 'Start riding' };
       return today >= tripEnd(trip) ? { kind: 'last', label: isDayTrip(trip) ? 'Finish the trip' : 'Finish the last day' } : { kind: null };
     }
     if (tab === 'pack') return { kind: 'end', label: today >= tripEnd(trip) ? 'Finish the trip' : 'End the trip …' };
@@ -140,7 +149,9 @@ export function mainStep(trip, today, tab, opts = {}) {
     return home;
   }
   if (tab === 'pack') return { kind: 'finish', label: 'Finish packing' };
-  if (tab === 'plan' && bike && isDayTrip(trip)) return { kind: 'packgo', label: "All packed, let's go" };
+  // Klick-Rundgang 22.10.2026 H03: with nothing packed yet the one tap does the packing, so the button
+  // says so («Alles einpacken, los») instead of claiming «Alles gepackt»
+  if (tab === 'plan' && bike && isDayTrip(trip)) return { kind: 'packgo', label: es.some((e) => e.packed) ? "All packed, let's go" : "Pack everything, let's go" };
   return { kind: 'go', label: 'Continue to Pack', href: tabHref('pack', trip) };
 }
 

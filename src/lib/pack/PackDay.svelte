@@ -18,7 +18,7 @@
    */
   import HintCard from '../pageinfo/HintCard.svelte';
   import TipLine from '../pageinfo/TipLine.svelte';
-  import { Check, ChevronRight, Undo2, ArrowRight, Briefcase, UserRound, Bike, ListChecks, BatteryCharging, Volume2, Columns3 } from '@lucide/svelte';
+  import { Check, ChevronRight, Undo2, ArrowRight, Briefcase, UserRound, Bike, ListChecks, BatteryCharging, Volume2, Columns3, Camera } from '@lucide/svelte';
   import WeightCard from './WeightCard.svelte';
   import LessonsCard from './LessonsCard.svelte';
   import DocChecks from './DocChecks.svelte';
@@ -358,7 +358,7 @@
 <!-- v0.67.0 «Übergänge 1» (U001, U003, U013): the main button follows the phase (phase.js mainStep):
      «Packen abschliessen» (asks when something is missing, then the interstitial «Gepackt»), packed and
      waiting «Fertig gepackt · zurück zu Touren» (Gesamttest 20.10.2026 B5), under way «Weiter zu Unterwegs», after the trip «Weiter zum Rückblick». -->
-{#snippet go()}{#if packFirst && nextBag}<button type="button" class="btn hi go" onclick={packNext} data-pack-next title={t('Pack {bag}|next', { bag: nextBag.title })}><span class="golbl">{t('Pack {bag}|next', { bag: nextBag.title })}</span><span class="gocnt">{' '}{t('({done} of {n})|next', { done: nextBag.done, n: nextBag.entries.length })}</span><ArrowRight size={20} aria-hidden="true" /></button>
+{#snippet go()}{#if packFirst && nextBag}<button type="button" class="btn hi go" onclick={packNext} data-pack-next title={t('Pack {bag}|next', { bag: nextBag.title })} aria-label={`${t('Pack {bag}|next', { bag: nextBag.title })} ${t('({done} of {n})|next', { done: nextBag.done, n: nextBag.entries.length })}`}><span class="golbl">{t('Pack {bag}|next', { bag: nextBag.title })}</span><span class="gocnt">{' '}{t('({done} of {n})|next', { done: nextBag.done, n: nextBag.entries.length })}</span><span class="gophone" aria-hidden="true">{t('Continue packing')}<small>{nextBag.title}</small></span><ArrowRight size={20} aria-hidden="true" /></button>
 {:else if main.kind === 'finish'}<button type="button" class="btn hi go" onclick={next}><span class="golbl">{t(main.label)}</span><ArrowRight size={20} aria-hidden="true" /></button>
 {:else if main.kind === 'end'}<button type="button" class="btn hi go" onclick={onend}><span class="golbl">{t(main.label)}</span><ArrowRight size={20} aria-hidden="true" /></button>
 {:else if main.kind === 'go'}<a class="btn hi go" href={main.href}>{t(main.label)}<ArrowRight size={20} aria-hidden="true" /></a>{/if}{/snippet}
@@ -392,6 +392,8 @@
     <span class="w num">{it?.weightG != null ? formatWeight(it.weightG * (e.qty || 1)) : t('not weighed')}</span>
   </button>
 {/snippet}
+<!-- Versteckte Funktionen (Noah 22.10.2026 «1a»): «Per Foto abhaken» is a visible camera button at the top of Packen -->
+{#snippet photoTick()}<a class="btn sm photo-tick" href={`#/me/tools/packphoto?trip=${encodeURIComponent(trip.id)}`} data-pack-photo><Camera size={16} aria-hidden="true" /> {t('Tick off by photo')}</a>{/snippet}
 {#snippet sideSwitch()}{#if roomy}<button type="button" class="btn sm pd-side" aria-pressed={side} onclick={() => setSide(!sidePick)} data-pack-side title={t('Shows every bag as its own column, so you can tick in any bag.')}><Columns3 size={16} aria-hidden="true" /> {side ? t('One bag at a time') : t('All bags side by side')}</button>{/if}{/snippet}
 {#snippet sideCards()}
   {#if stats}<WeightCard {trip} {stats} {itemsById} title={t('Weight by bag')} />{/if}
@@ -448,7 +450,7 @@
   {#if total > 0 && side}
     <section class="psec" aria-labelledby="bags-h" data-pack-board>
       <h2 id="bags-h" class="sh">{t('Bags')}</h2>
-      <p class="ssub"><span class="num packed-count">{t('{n} of {total} packed', { n: packed, total })}</span>{' · '}{t('all bags side by side: tick in any bag')}{#if onread}<button type="button" class="btn sm pd-read-w" onclick={onread}><Volume2 size={16} aria-hidden="true" /> {t('Read aloud')}</button>{/if}{@render sideSwitch()}</p>
+      <p class="ssub"><span class="num packed-count">{t('{n} of {total} packed', { n: packed, total })}</span>{' · '}{t('all bags side by side: tick in any bag')}{#if !fixed}{@render photoTick()}{/if}{#if onread}<button type="button" class="btn sm pd-read-w" onclick={onread}><Volume2 size={16} aria-hidden="true" /> {t('Read aloud')}</button>{/if}{@render sideSwitch()}</p>
       <div class="board">
         {#each steps as s (s.key)}
           {@const Icon = iconOf(s.key)}
@@ -484,7 +486,7 @@
     <div class="pmain">
       <section class="psec" aria-labelledby="bags-h">
         <h2 id="bags-h" class="sh">{t('Bags')}</h2>
-        <p class="ssub"><span class="num packed-count">{t('{n} of {total} packed', { n: packed, total })}</span>{' · '}{t('tap a bag')}{#if !fixed}{' · '}<a class="photo-tick" href={`#/me/tools/packphoto?trip=${encodeURIComponent(trip.id)}`} data-pack-photo>{t('Tick off by photo')}</a>{/if}{#if onread && !phone.matches}<button type="button" class="btn sm pd-read-w" onclick={onread}><Volume2 size={16} aria-hidden="true" /> {t('Read aloud')}</button>{/if}{@render sideSwitch()}</p>
+        <p class="ssub"><span class="num packed-count">{t('{n} of {total} packed', { n: packed, total })}</span>{' · '}{t('tap a bag')}{#if !fixed}{@render photoTick()}{/if}{#if onread && !phone.matches}<button type="button" class="btn sm pd-read-w" onclick={onread}><Volume2 size={16} aria-hidden="true" /> {t('Read aloud')}</button>{/if}{@render sideSwitch()}</p>
         <ul class="card blist">
           {#each steps as s (s.key)}{@render bagRow(s, iconOf(s.key), full(s), s.key === cur)}{/each}
           {#if ready.length}
@@ -603,7 +605,7 @@
   .ssub { margin: 2px 0 8px; color: var(--ink-2); font-size: var(--fs-small); overflow-wrap: break-word; }
   /* Paket H: on a computer «Read aloud» stands in the line above the bags (on a phone it is next to the ring) */
   .pd-read-w { margin-left: 12px; vertical-align: middle; }
-  .photo-tick { display: inline-block; min-height: 44px; line-height: 44px; color: var(--ink); text-decoration: underline; text-underline-offset: 3px; }
+  .photo-tick { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; margin-left: 8px; vertical-align: middle; text-decoration: none; }
   /* the list of bags: one row each, the open one tinted */
   .blist, .mlist { list-style: none; margin: 0; padding: 0; overflow: hidden; }
   .brow + .brow, .mlist li + li { border-top: 1px solid var(--line); }
@@ -667,6 +669,7 @@
   .askacts { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
   /* a phone held sideways keeps the trip band compact: the count is in the steps already */
   @media (max-height: 500px) { .gocnt { display: none; } }
+  .gophone { display: none; }
   /* UI-Grundlagen (Noah 20.10.2026, idea 3): on a phone the ring beside the button shows the count, so the main
      button keeps one line («Werkzeugtasche packen»); a long bag name ends with «…» instead of wrapping (the button's
      title keeps the whole name). */
@@ -674,5 +677,10 @@
     .gocnt { display: none; }
     .go { min-width: 0; }
     .golbl { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    /* Klick-Rundgang 22.10.2026 H05: a long bag name no longer ends in «…» in the main button: on a phone it says
+       «Weiter packen» and the bag goes on a small second line (the full name stays the button's title and name) */
+    .go:has(.gophone) .golbl { display: none; }
+    .gophone { display: flex; flex-direction: column; align-items: flex-start; min-width: 0; line-height: 1.15; text-align: left; }
+    .gophone small { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: var(--fs-small); font-weight: 400; }
   }
 </style>

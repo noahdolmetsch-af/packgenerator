@@ -142,7 +142,8 @@
   }
 </script>
 
-<input bind:this={input} type="file" accept="image/*,application/pdf,.pdf" multiple hidden onchange={run} />
+<!-- Tote Knöpfe (Klick-Rundgang 22.10.2026): the file window closed without a file says so -->
+<input bind:this={input} type="file" accept="image/*,application/pdf,.pdf" multiple hidden onchange={run} oncancel={() => want && (running = { id: want.id, at: 0, n: want.steps.length, error: t('No file chosen. Tap «Start» and pick photos or PDF files.'), done: null })} />
 <section class="tool-card chains">
   <p class="tool-help">{t('A chain does several steps one after the other. Tap «Start», choose the files, done.')}</p>
   <ul class="tool-list" use:sortable={{ onmove: moveChain }}>

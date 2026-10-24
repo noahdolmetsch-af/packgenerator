@@ -88,6 +88,10 @@ export function answerFor(question, data = {}) {
   if (q.length < 3) return null;
   const today = data.today;
 
+  // Klick-Rundgang 22.10.2026 H25: «Wann muss ich die Kette wechseln?» from the own wear data (wear.js)
+  const parts = wearKeys(q);
+  if (parts.length && data.wear) return wearAnswer(parts, data.wear);
+
   // what is due on the bikes
   if (has(q, DUE) && !has(q, PACK)) {
     const due = (data.care ?? []).filter((c) => c?.rows?.length);
@@ -157,5 +161,61 @@ export function answerFor(question, data = {}) {
   return null;
 }
 
+/* ---------- wear: chain, cassette, pads, tyres (Klick-Rundgang H25) ---------- */
+
+/** The words for each wear part (folded); the first word that fits wins, «kettenblatt» before «kette». */
+const PART_WORDS = [
+  ['chainring', ['kettenblatt', 'chainring']],
+  ['chain', ['kette', 'chain']],
+  ['cassette', ['kassette', 'cassette', 'ritzel']],
+  ['pads', ['belag', 'belaege', 'bremsbel', 'pads', 'brake pad']],
+  ['rotor', ['bremsscheibe', 'rotor']],
+  ['tyres', ['reifen', 'pneu', 'tyre', 'tire']],
+  ['bb', ['tretlager', 'bottom bracket']],
+  ['grips', ['griffe', 'grips']],
+];
+const WEAR_WORDS = ['verschleiss', 'abgenutzt', 'wear', 'worn'];
+const CHANGE_WORDS = ['wechseln', 'ersetzen', 'tauschen', 'neue', 'neu', 'change', 'replace', 'swap', 'wann', 'when', 'how long', 'wie lange', 'noch', 'left', 'halten', 'hält', 'haelt', 'last'];
+const KEYS_OF = { pads: ['padsF', 'padsR'], rotor: ['rotorF', 'rotorR'] };
+
+/** The wear part keys a question is about: [] when it is not a wear question; null part = all parts. */
+export function wearKeys(q) {
+  const hit = PART_WORDS.find(([, ws]) => has(q, ws));
+  if (hit && (has(q, CHANGE_WORDS) || has(q, WEAR_WORDS) || has(q, DUE))) return KEYS_OF[hit[0]] ?? [hit[0]];
+  if (has(q, WEAR_WORDS)) return ['*'];
+  return [];
+}
+
+/**
+ * The answer from the wear rows. wear: [{ bikeId, bikeName, rows (wearRows) }].
+ * One line per bike and part; the title names the most urgent one.
+ */
+export function wearAnswer(keys, wear = []) {
+  const all = keys.includes('*');
+  const found = [];
+  for (const b of wear) for (const r of b.rows ?? []) if (all ? r.state === 'due' || r.state === 'soon' : keys.includes(r.key)) found.push({ ...r, bikeId: b.bikeId, bikeName: b.bikeName });
+  const href = (r) => `#/bikes?tab=care&view=wear&bike=${encodeURIComponent(r?.bikeId ?? '')}`;
+  if (!found.length) {
+    if (all) return { kind: 'wear', title: t('No part is worn yet.'), lines: [t('The app counts the km of each part from its start point.')], link: { label: t('Open wear'), href: '#/bikes?tab=care&view=wear' } };
+    return { kind: 'wear', title: t('No km recorded for this part yet.'), lines: [t('Set a start point for the part (when it was mounted); then the app tells you when it is due.')], link: { label: t('Open wear'), href: href(wear[0]) } };
+  }
+  const rank = { due: 0, soon: 1, ok: 2, unknown: 3 };
+  found.sort((a, b) => rank[a.state] - rank[b.state] || (a.left ?? 1e9) - (b.left ?? 1e9));
+  const line = (r) => {
+    const who = `${r.bikeName}: ${r.name}`;
+    if (r.state === 'due' && r.why === 'measured') return t('{part}: replace now (measured value)', { part: who });
+    if (r.state === 'due' && r.why === 'work') return t('{part}: work needed', { part: who });
+    if (r.left == null) return t('{part}: no start point yet', { part: who });
+    if (r.left <= 0) return t('{part}: due now, {km} km over', { part: who, km: num(-r.left) });
+    return r.due ? t('{part}: {km} km left, about {date}', { part: who, km: num(r.left), date: dmy(r.due) }) : t('{part}: {km} km left', { part: who, km: num(r.left) });
+  };
+  const top = found[0];
+  const title =
+    top.state === 'due' ? t('Change now: {part} on {bike}.', { part: top.name, bike: top.bikeName })
+    : top.left != null ? t('Next change: {part} on {bike}, in about {km} km.', { part: top.name, bike: top.bikeName, km: num(top.left) })
+    : t('No km recorded for this part yet.');
+  return { kind: 'wear', title, lines: found.slice(0, 6).map(line), link: { label: t('Open wear'), href: href(top) } };
+}
+
 /** Example questions for the page and the empty search (English keys for t()). */
-export const EXAMPLES = ['How many km this month?', 'What is due on my bikes?', 'What is still to pack?', 'When is my next trip?', 'How heavy is my tent?'];
+export const EXAMPLES = ['How many km this month?', 'What is due on my bikes?', 'When do I change the chain?', 'What is still to pack?', 'When is my next trip?', 'How heavy is my tent?'];

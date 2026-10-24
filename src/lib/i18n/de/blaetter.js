@@ -67,7 +67,7 @@ export default {
   'every {km} km': 'alle {km} km',
   '{n} month': '{n} Monat',
   '{n} months': '{n} Monate',
-  'Orange = soon, red = now. The bars count from the start point of each part (Q1 «Gapless km»).': 'Orange = bald, rot = jetzt. Die Balken zählen ab dem Startpunkt jedes Teils (Q1 «Lückenlose km»).',
+  'Orange = soon, red = now. The bars count from the start point of each part (Q1 «Gapless km»).': 'Orange = bald, rot = jetzt. Die Balken zählen ab dem Startpunkt jedes Teils («Lückenlose km»).',
 
   // Workshop order
   'before {trip}, {date}': 'vor {trip}, {date}',

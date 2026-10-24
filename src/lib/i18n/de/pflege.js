@@ -83,7 +83,7 @@ export default {
   // CareOverview (Pflege C)
   'now|due': 'jetzt',
   'Care overview': 'Pflege-Übersicht',
-  'Report a problem': 'Problem melden',
+  'Report a problem': 'Problem erfassen',
   'Record work': 'Arbeit eintragen',
   '{bike}: no data yet': '{bike}: noch keine Daten',
   '{bike}: {score} of 100': '{bike}: {score} von 100',

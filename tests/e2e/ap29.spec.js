@@ -184,7 +184,7 @@ test('nothing typed is lost: new trip, new item and quick note stay after closin
   // Typed a name, then Escape: the trip is there and Pack opens it.
   await newTrip();
   await dlg.getByRole('textbox', { name: T('Name') }).fill('test_data_gtp_ Kept trip');
-  await expect(dlg.getByText(T('Saved'))).toBeVisible();
+  await expect(dlg.getByText(T('Draft saved'))).toBeVisible();
   await page.keyboard.press('Escape');
   await expect(dlg).toBeHidden();
   await expect.poll(async () => (await table(page, 'trips')).filter((t) => t.title === 'test_data_gtp_ Kept trip').length).toBe(1);

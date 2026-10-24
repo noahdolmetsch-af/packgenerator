@@ -1565,6 +1565,14 @@ export default {
   '«New» on top for 14 days after an update': '«Neu» 14 Tage lang oben nach einem Update',
   'Open Heute: meditation is on top, «Last activity» after the ring.': 'Öffne Heute: Meditation steht oben, «Letzte Aktivität» nach dem Ring.',
   'Without a weight for a week, type it in «Weight this week?».': 'Ohne Gewicht seit einer Woche: tippe es in «Gewicht diese Woche?».',
+  // v0.181.2 «Packen und nach der Tour, repariert»
+  'Packing and after the tour, repaired': 'Packen und nach der Tour, repariert',
+  'Clearer buttons from packing to the debrief.': 'Klarere Knöpfe vom Packen bis zum Rückblick.',
+  'Packing counts the same everywhere, and the button says what comes next': 'Packen zählt überall gleich, und der Knopf sagt, was als Nächstes kommt',
+  'On the way: «Start riding» remembers the start time; missing light is packed right there': 'Unterwegs: «Losfahren» merkt sich die Startzeit; fehlendes Licht packst du direkt ein',
+  'Live map: stops along the route load again': 'Live-Karte: Stopps entlang der Strecke laden wieder',
+  'Open a bike trip that starts today, pack it and tap «Start riding».': 'Öffne eine Velotour, die heute beginnt, pack sie und tippe auf «Losfahren».',
+  'End the trip without a ride: the app says why and offers «Upload a ride».': 'Schliess die Tour ohne Fahrt ab: Die App sagt warum und bietet «Fahrt hochladen» an.',
   // v0.181.1 «Fitbit-Schlaf kommt an»
   'Fitbit sleep and Gemini work again': 'Fitbit-Schlaf und Gemini gehen wieder',
   'Your nights come from Google again, and Gemini answers.': 'Deine Nächte kommen wieder von Google, und Gemini antwortet.',
@@ -1588,4 +1596,13 @@ export default {
   'Repair kit is no device any more': 'Flickzeug ist kein Gerät mehr',
   'Open Packen, «Add material», and tap «Add a new item and pack it».': 'Öffne Packen, «Material ergänzen», und tippe auf «Neues Teil erfassen und einpacken».',
   'Open a lamp in Gear, the row «Power», and add a light level.': 'Öffne eine Lampe im Material, die Zeile «Strom», und füge eine Leuchtstufe hinzu.',
+  // v0.181.1 «Alltag fertig bauen»
+  'Everyday, without dead ends': 'Alltag ohne Sackgassen',
+  'Day, week and bike run smoothly.': 'Tag, Woche und Velo laufen rund.',
+  'The Assistant knows your chain': 'Der Assistent kennt deine Kette',
+  'Aktiv ticks show in the week': 'Aktiv-Häkchen stehen in der Woche',
+  'Bike care «Done» with Undo': 'Velopflege «Erledigt» mit Rückgängig',
+  'Main buttons in sight': 'Wichtige Knöpfe sichtbar',
+  'Assistant: ask about the chain.': 'Assistent: nach der Kette fragen.',
+  'Bike care: «Done», then «Undo».': 'Velopflege: «Erledigt», dann «Rückgängig».',
 };

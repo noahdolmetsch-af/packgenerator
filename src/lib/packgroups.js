@@ -7,6 +7,7 @@
  * from the standard set. Pure functions only.
  */
 import { isWorn } from './blocks2026.js';
+import { WORN_SLOTS } from './swap.js';
 import { CLOTHING_CATEGORIES, CHARGE_CATEGORIES } from './gear.js';
 import { entriesWeight } from './sets.js';
 import { DOMAIN } from './domains.js';
@@ -29,7 +30,9 @@ export function groupOf(item, warmIds = new Set()) {
 
 /**
  * entries → { groups: [{ key, name, color, rows: [{ entry, item, w }], n, w }], worn: [item], bag: n, w }.
- * Entries of unknown items are left out; worn items (role «worn») go to worn, not into a group.
+ * Entries of unknown items are left out; worn items go to worn, not into a group.
+ * Klick-Rundgang 22.10.2026 H01: an entry with a slot is worn when the slot is on me (swap.js
+ * WORN_SLOTS, as the button «x in the bags · y on me» and Pack count); without a slot the item's role.
  */
 export function groupEntries(entries, items, warmIds = new Set()) {
   const byId = new Map(items.map((i) => [i.id, i]));
@@ -39,7 +42,7 @@ export function groupEntries(entries, items, warmIds = new Set()) {
   for (const e of entries ?? []) {
     const item = byId.get(e.itemId);
     if (!item) continue;
-    if (isWorn(item)) {
+    if (e.slot ? WORN_SLOTS.has(e.slot) : isWorn(item)) {
       worn.push(item);
       continue;
     }
