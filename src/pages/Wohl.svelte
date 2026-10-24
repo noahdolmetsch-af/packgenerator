@@ -42,6 +42,7 @@
   import PhotoPick from '../lib/ui/PhotoPick.svelte';
   import GoodDaysList from '../lib/wohl/GoodDaysList.svelte';
   import MixBars from '../lib/wohl/MixBars.svelte';
+  import { phone } from '../lib/media.svelte.js';
   import { shrinkImage } from '../lib/photo.js';
   import { routineQuery } from '../lib/routine-data.js';
   import { isFor as routineFor, isDone as routineDone, feltOf as routineFelt } from '../lib/routine.js';
@@ -219,6 +220,8 @@
   }
   const diffText = (s) => (s.diff == null ? t('Not enough days with a day score to compare yet.') : s.diff > 0 ? t('Day score {a} instead of {b} the days before: {d} more.', { a: f1(s.during.mean), b: f1(s.before.mean), d: f1(s.diff) }) : s.diff < 0 ? t('Day score {a} instead of {b} the days before: {d} less.', { a: f1(s.during.mean), b: f1(s.before.mean), d: f1(-s.diff) }) : t('Day score the same as the days before ({a}).', { a: f1(s.during.mean) }));
 
+  // UI-Ziele #7 (phone length budget, 0.182.0): on a phone the first two phases, the rest after one tap
+  let phasesAll = $state(false);
   // #255 Lebensphasen: your own and the app's suggestions (seasons), both can be renamed and removed
   const ph = $derived(phasesOf(ex?.phases));
   const phases = $derived([
@@ -514,7 +517,7 @@
       <!-- #255 Lebensphasen -->
       <Section title={t('Life phases')} sub={t('Compare times of your life: your own and the seasons')}>
         <ul class="card slist" data-wohl-phases>
-          {#each phases as p (p.id)}
+          {#each phone.matches && !phasesAll ? phases.slice(0, 2) : phases as p (p.id)}
             {@const r = phRows[p.id]}
             <li class="srow wl-row" data-phase={p.id}>
               <span class="sib purple"><Layers size={18} aria-hidden="true" /></span>
@@ -528,6 +531,7 @@
             </li>
           {/each}
         </ul>
+        {#if phone.matches && !phasesAll && phases.length > 2}<button type="button" class="btn btn-link" onclick={() => (phasesAll = true)} data-phases-more>{t('Show all {n}', { n: phases.length })} ›</button>{/if}
         <button type="button" class="btn wl-add" onclick={() => openPhase()} data-phase-add><Plus size={18} aria-hidden="true" />{t('Add phase')}</button>
       </Section>
 
