@@ -1550,4 +1550,12 @@ export default {
   'Example: «Winter box, cellar» with headlamp, gloves and the Christmas lights.': 'Beispiel: «Winterkiste, Keller» mit Stirnlampe, Handschuhen und der Lichterkette.',
   // «Touren sichtbar» (Noah 24.10.2026 «3a»): Tourbild = tour postcard + picture to share
   'In the debrief tap «Tour picture» and add a photo if you like; after a ride on the live map it comes under «Your ride».': 'Tippe im Rückblick auf «Tourbild» und füge auf Wunsch ein Foto hinzu; nach einer Fahrt auf der Live-Karte kommt es unter «Deine Fahrt».',
+  'Under the building blocks tap «Before adding: see the effect».': 'Tippe unter den Bausteinen «Vorher ansehen, was sich ändert».',
+  'Read things, grams, bags and earlier trips; «Add …» takes it, Undo in Pack.': 'Lies Teile, Gramm, Taschen und frühere Touren; «… hinzufügen» übernimmt es, Rückgängig beim Packen.',
+  'Example: Rain → 3 things, +430 g, seat pack; «Already packed, check again»; on 4 earlier trips 1× the rain trousers were missing.': 'Beispiel: Regen → 3 Teile, +430 g, Satteltasche; «Schon gepackt, nochmals prüfen»; auf 4 früheren Touren fehlte 1× die Regenhose.',
+  'Open Pack › Add material › «Pack by need».': 'Öffne Packen › Material hinzufügen › «Nach Bedürfnis packen».',
+  'Tap your needs and set the people; compare light, comfortable, little effort.': 'Tippe deine Bedürfnisse an und setze die Personen; vergleiche leicht, bequem, wenig Aufwand.',
+  '«Take it onto the list»; things already there stay, Undo in Pack.': '«Auf die Liste nehmen»; was schon dort ist, bleibt, Rückgängig beim Packen.',
+  'Example: sleep warm + cook, 3 days, 2 people → one stove, two sleeping bags; light 2.1 kg, comfortable +0.8 kg.': 'Beispiel: warm schlafen + kochen, 3 Tage, 2 Personen → ein Kocher, zwei Schlafsäcke; leicht 2.1 kg, bequem +0.8 kg.',
+  'Open Pack › Add material.': 'Öffne Packen › Material hinzufügen.',
 };

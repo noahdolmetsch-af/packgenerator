@@ -18,6 +18,7 @@
   import { offerDone } from '../ui/rename.svelte.js';
   import { askDelete, deleteWithUndo } from '../ui/ask.js';
   import PageHead from '../ui/PageHead.svelte';
+  import '../trip/trip.css';
   import MainBar from '../ui/MainBar.svelte';
   import { Check, CircleAlert, Minus, ChevronRight, Plus, Pencil, Trash2, ListTodo, Circle } from '@lucide/svelte';
   import { PROBE_STEPS, HOME_STEPS, rowsOf, summary, answer, withTodo, addOwn, renameOwn, removeOwn, todoDue } from './probe.js';

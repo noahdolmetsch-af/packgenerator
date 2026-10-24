@@ -944,11 +944,6 @@ export const HANDBOOK = {
     steps: ['Open the sheet of the live map › «Public transport nearby» and tap «Find stops».', 'Tap a stop for its next departures.'],
     example: 'Example: Bahnhof 140 m → S1 in 7 min from platform 2.',
   },
-  'f.sharepic': {
-    on: null,
-    steps: ['Stop the ride on the live map; under «Your ride» tap «Share picture».', 'Leave out the shape when you start at home.'],
-    example: 'Example: 42.5 km, 1 h 52 min, 640 m → one picture for the chat.',
-  },
   'f.stopsnear': {
     on: null,
     steps: ['On Today tap «Stops nearby» (or on a tour page, or open the live map › «Stops»).', 'Choose «Around me» or «Along the route», and the kinds you want.', 'Tap «Google Maps» or «OsmAnd» to ride there.'],
@@ -1740,6 +1735,16 @@ export const HANDBOOK = {
     on: null,
     steps: ['After «Trip ended» tap «Arrive well».', 'Tick what is done; «Later» for what waits.', '«Keep as to-do» puts it into Merken for tomorrow.'],
     example: 'Example: tent hung up, laundry in → «Done»; borrowed stove → «Later», to-do for tomorrow.',
+  },
+  'f.blockeffect': {
+    on: null,
+    steps: ['Open Pack › Add material.', 'Under the building blocks tap «Before adding: see the effect».', 'Read things, grams, bags and earlier trips; «Add …» takes it, Undo in Pack.'],
+    example: 'Example: Rain → 3 things, +430 g, seat pack; «Already packed, check again»; on 4 earlier trips 1× the rain trousers were missing.',
+  },
+  'f.needs': {
+    on: null,
+    steps: ['Open Pack › Add material › «Pack by need».', 'Tap your needs and set the people; compare light, comfortable, little effort.', '«Take it onto the list»; things already there stay, Undo in Pack.'],
+    example: 'Example: sleep warm + cook, 3 days, 2 people → one stove, two sleeping bags; light 2.1 kg, comfortable +0.8 kg.',
   },
   'f.labels': {
     on: null,

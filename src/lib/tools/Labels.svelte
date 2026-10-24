@@ -15,6 +15,7 @@
   import { Plus, Printer, Pencil, Trash2, X, Package, ChevronLeft } from '@lucide/svelte';
   import { LABELS_KEY, LABELS_HASH, boxesOf, newBox, changeBox, addItem, dropItem, addLine, dropLine, moveBox, boxUrl, boxFromHash, findBoxes, printHtml } from './labels.js';
   import './tools.css';
+  import '../trip/trip.css';
 
   const boxesQ = liveQuery(() => db.settings.get(LABELS_KEY));
   const itemsQ = liveQuery(() => db.items.toArray());

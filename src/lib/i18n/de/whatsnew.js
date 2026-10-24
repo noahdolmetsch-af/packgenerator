@@ -11,6 +11,8 @@ export default {
   'Remember is a tab of Plan': 'Merken ist ein Reiter von Planen',
   'Bike folder, warranty and theft sheet in Setup': 'Velo-Ordner, Garantie und Diebstahlblatt im Setup',
   'Wish list and favourites one tap away in Gear': 'Wunschliste und Favoriten mit einem Tipp im Material',
+  'Pack by need: sleep warm, cook, for two': 'Nach Bedürfnis packen: warm schlafen, kochen, zu zweit',
+  'Tour picture: postcard and share picture in one': 'Tourbild: Postkarte und Bild zum Teilen in einem',
   'Open Heute: below «Dein Körper heute» the line «Heute fällig» shows what is due.': 'Öffne Heute: Unter «Dein Körper heute» zeigt die Zeile «Heute fällig», was fällig ist.',
   'Open Planen › Merken.': 'Öffne Planen › Merken.',
   // 0.188.0 Alles fertig

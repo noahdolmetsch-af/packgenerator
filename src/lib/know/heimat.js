@@ -26,6 +26,8 @@ export const HOME = {
   'f.stopsnear': '#/',
   'f.labels': '#/me/tools/labels',
   'f.probe': '#/pack',
+  'f.blockeffect': '#/pack',
+  'f.needs': '#/pack',
   'f.goodnight': '#/ride',
   'f.homecoming': '#/trips',
   'blocks': '#/blocks',
@@ -369,6 +371,8 @@ export const HOME = {
 /** Not yet visible on the home page (feature id → why code). Only gets shorter. */
 export const GAPS = {
   'f.probe': 'name',
+  'f.blockeffect': 'name',
+  'f.needs': 'name',
   'f.goodnight': 'name',
   'f.homecoming': 'name',
   'blocks': 'deep',
