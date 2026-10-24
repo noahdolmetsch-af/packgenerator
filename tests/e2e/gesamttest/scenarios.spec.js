@@ -22,11 +22,14 @@ const T = tr(LANG);
 // v0.67.0 «Übergänge 1»: the one main button of a trip page sits in the band's main bar (src/lib/ui/MainBar)
 const go = (page) => page.locator('.trip-band .mainbar .go');
 /**
- * v0.67.0 (U004, U22a): the main button of the last day ends the trip. While the day's riding is
+ * v0.67.0 (U004, U22a): the main button of the last day ends the trip (after «Losfahren» when the day is not started yet). While the day's riding is
  * still ahead by the plan (the real clock runs here) it asks first: then «Tour beenden» in the sheet.
  * Either way the interstitial «Tour beendet» (#/trip/<id>/ended) comes next.
  */
 async function endLastDay(page, trip, label) {
+  // 0.181.2 (Klick-Rundgang H06): on a day not started yet the main button is «Losfahren» first; it saves the start time
+  await expect(go(page)).toHaveText(new RegExp(`^(${esc(T('Start riding'))}|${esc(T(label))})$`));
+  if ((await go(page).innerText()).trim() === T('Start riding')) await go(page).click();
   await expect(go(page)).toHaveText(T(label));
   await go(page).click();
   const sheet = page.locator('dialog.endsheet');

@@ -951,7 +951,8 @@
       <h3 id="plist-h">{t('Your packing list')}</h3>
       <span class="num">{tn(packList.bag, '{n} item to pack', '{n} items to pack')} · {knownWeight(packList.w.g, packList.w.missing)}</span>
     </div>
-    <p class="note small">{t('From Standard, weather and duration. Everything can be changed.')}{#if packList.worn.length}{' '}{tn(packList.worn.length, 'Plus {n} item on the body ({names}), counted apart.', 'Plus {n} items on the body ({names}), counted apart.', { names: packList.worn.slice(0, 2).map((i) => nameOf(i)).join(', ') + (packList.worn.length > 2 ? ' …' : '') })}{/if}</p>
+    <!-- 0.181.2: every name on the body: since H01 counts by slot, the cold layers worn from the start (arm and leg warmers) sit here, not in a group -->
+    <p class="note small">{t('From Standard, weather and duration. Everything can be changed.')}{#if packList.worn.length}{' '}{tn(packList.worn.length, 'Plus {n} item on the body ({names}), counted apart.', 'Plus {n} items on the body ({names}), counted apart.', { names: packList.worn.map((i) => nameOf(i)).join(', ') })}{/if}</p>
     {#each packList.groups as g (g.key)}
       <div class="grp" style:--c={g.color}>
         <h4><span class="gic" aria-hidden="true">{#if g.key === 'warm'}<Snowflake size={16} />{:else if g.key === 'elec'}{@const E = catIcon('elec')}<E size={16} />{:else if g.key === 'clothes'}{@const C = catIcon('onbike')}<C size={16} />{:else}{@const G = catIcon('tools')}<G size={16} />{/if}</span><span>{t(g.name)}</span><small class="num">{tn(g.n, '{n} item', '{n} items')} · {knownWeight(g.w.g, g.w.missing)}</small></h4>
