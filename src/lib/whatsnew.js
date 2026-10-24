@@ -17,7 +17,8 @@
 export const WHATS_NEW = [
   {
     // v0.181.2 «Packen und nach der Tour, repariert» (Klick-Rundgang packages 3+5, Noah 22.10.2026: repairs first): one count
-    // while packing, «Losfahren» on the first day, light and food on Unterwegs, clear hints after the tour.
+    // while packing, «Losfahren» on the first day, light and food on Unterwegs, clear hints after the tour; Live-Karte stops
+    // load in 20 km pieces with fuel stations.
     version: '0.181.2',
     date: '2026-10-24',
     title: 'Packing and after the tour, repaired',
@@ -26,7 +27,7 @@ export const WHATS_NEW = [
       { text: 'Packing counts the same everywhere, and the button says what comes next', href: '#/trips' },
       { text: 'On the way: «Start riding» remembers the start time; missing light is packed right there' },
     ],
-    small: [{ box: 'fixed', text: 'After the tour: a clear hint when km are missing' }],
+    small: [{ box: 'fixed', text: 'Live map: stops along the route load again' }],
     test: [
       'Open a bike trip that starts today, pack it and tap «Start riding».',
       'End the trip without a ride: the app says why and offers «Upload a ride».',

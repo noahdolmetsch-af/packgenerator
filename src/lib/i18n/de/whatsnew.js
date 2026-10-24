@@ -1570,7 +1570,7 @@ export default {
   'Clearer buttons from packing to the debrief.': 'Klarere Knöpfe vom Packen bis zum Rückblick.',
   'Packing counts the same everywhere, and the button says what comes next': 'Packen zählt überall gleich, und der Knopf sagt, was als Nächstes kommt',
   'On the way: «Start riding» remembers the start time; missing light is packed right there': 'Unterwegs: «Losfahren» merkt sich die Startzeit; fehlendes Licht packst du direkt ein',
-  'After the tour: a clear hint when km are missing': 'Nach der Tour: ein klarer Hinweis, wenn km fehlen',
+  'Live map: stops along the route load again': 'Live-Karte: Stopps entlang der Strecke laden wieder',
   'Open a bike trip that starts today, pack it and tap «Start riding».': 'Öffne eine Velotour, die heute beginnt, pack sie und tippe auf «Losfahren».',
   'End the trip without a ride: the app says why and offers «Upload a ride».': 'Schliess die Tour ohne Fahrt ab: Die App sagt warum und bietet «Fahrt hochladen» an.',
   // v0.181.1 «Fitbit-Schlaf kommt an»
