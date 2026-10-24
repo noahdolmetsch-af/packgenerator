@@ -105,6 +105,8 @@ Ursprünglich freigegebene Ausführungsreihenfolge: AP01–AP09 → AP12–AP16 
 
 ## Abgleich, Abweichungen und nächste Lieferfolge
 
+**24.10.2026, v0.186.0 «Die Reste, erledigt»:** Paket «Alles fertig» mit allen kleinen Resten der alten Threads (Gute Nacht, nächster Laden, Strom-Zeile, Rennen oben, Verkaufsinserat, Heute leer und ohne Wohnort, Logbuch- und Meditations-Einträge, Tote Knöpfe 8–11). Offen danach: UI-Ziel #14 (zwei Spalten am Computer) nach dem Aktiv-Neubau.
+
 **21.10.2026, v0.172.0 «Velo und Notizen»:** Velo im Griff (Kette nach Regen, Fotos, Inserat, Velobox, Ersatzteile, Kettenrotation) und Notizen wie Evernote (zeichnen, formatieren, Dateien, Erinnerung, Papierkorb).
 
 **21.10.2026, v0.180.0 «Heute ergänzt»:** Mockup-Paket P6 Heute ergänzen: Meditation oben, Gewicht einmal pro Woche, letzte Aktivität nach dem Ring, fällige Check-Bereiche, «Neu» nach einem Update oben. Als Nächstes P3 Regeln.

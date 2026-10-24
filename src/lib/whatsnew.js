@@ -16,6 +16,24 @@
 
 export const WHATS_NEW = [
   {
+    // v0.186.0 «Alles fertig» (Noah 24.10.2026 «1a 2b 3a 4a»): the leftovers of all older threads in one package.
+    // The bundler renumbers it when main has moved on.
+    version: '0.186.0',
+    date: '2026-10-24',
+    title: 'The leftovers, done',
+    lead: 'Small things from older plans are in.',
+    points: [
+      { text: 'Good night: where you sleep, when to call', href: '#/ride' },
+      { text: 'Logbook: your own entry', href: '#/debrief/logbook' },
+      { text: 'Your next race on top of Trips', href: '#/trips' },
+    ],
+    small: [
+      { box: 'new', text: 'The next shop in the Live map button' },
+      { box: 'fixed', text: 'Maps, «all used» and «Keep it» answer' },
+    ],
+    test: ['On the way of a trip of several days: tap «Good night» and share.', 'Review › Logbook: tap «New entry».'],
+  },
+  {
     // v0.181.4 «Aktiv ohne Sackgassen» (Klick-Rundgang «Aktiv fertig bauen» A01–A05, A07, A08, H29, and dead buttons part 2)
     version: '0.181.4',
     date: '2026-10-24',

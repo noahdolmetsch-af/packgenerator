@@ -1493,4 +1493,7 @@ export default {
   'Type the weight and tap «Save», or «Not today».': 'Tippe das Gewicht ein und dann «Speichern», oder «Heute nicht».',
   '«Stop asking» takes the card away; «Add a tile» brings it back.': '«Nicht mehr fragen» nimmt die Karte weg; «Kachel hinzufügen» holt sie zurück.',
   'Example: last weight 8 days ago → the card asks; saved, it is gone until next week.': 'Beispiel: letztes Gewicht vor 8 Tagen → die Karte fragt; gespeichert ist sie bis nächste Woche weg.',
+  // «Alles fertig»: Gute Nacht
+  'Open On the way, tap «Good night», set the time, then «Share».': 'Öffne Unterwegs, tippe «Gute Nacht», stell die Zeit ein, dann «Teilen».',
+  'Example: in the Jura → «Good night» → «Hi Anna, I am sleeping in Saignelégier tonight. Good night!»': 'Beispiel: im Jura → «Gute Nacht» → «Hallo Anna, ich schlafe heute in Saignelégier. Gute Nacht!»',
 };

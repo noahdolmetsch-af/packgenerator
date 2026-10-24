@@ -424,6 +424,11 @@ export const HANDBOOK = {
     steps: ['Open On the way, tap «Arrived safely», then «Share».'],
     example: 'Example: at the campsite in the Jura → «Arrived safely» → «Hi Anna and Ben, I arrived safely in Saignelégier at 18:10.»',
   },
+  'f.goodnight': {
+    on: 'Choose your emergency contacts once in Before you leave.',
+    steps: ['Open On the way, tap «Good night», set the time, then «Share».'],
+    example: 'Example: in the Jura → «Good night» → «Hi Anna, I am sleeping in Saignelégier tonight. Good night!»',
+  },
   'f.planb': {
     on: null,
     steps: ['Set a shorter GPX or «Train home» in Planen.', 'With heavy rain or a storm, tap «Take plan B» on On the way; Undo brings the planned route back.'],

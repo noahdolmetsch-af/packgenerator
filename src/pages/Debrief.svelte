@@ -17,6 +17,7 @@
    */
   import { liveQuery } from 'dexie';
   import { t, tn, num, locale, nameOf } from '../lib/i18n.svelte.js';
+  import { offerDone } from '../lib/ui/rename.svelte.js'; // Tote Knöpfe 9
   import { db } from '../lib/db.js';
   import { makeEntry, tripSpan, tripRidesIn } from '../lib/kmbook.js';
   import { syncBikes } from '../lib/kmbookdb.js';
@@ -183,11 +184,17 @@
   }
   // v0.24.0 (Noah, "select all"): a whole bag used or not used in one tap.
   function markAll(rows, state) {
+    const before = Object.fromEntries(rows.map(({ e }) => [e.itemId, d.items[e.itemId]]));
     for (const { e } of rows) {
       if (state === 'used') delete d.items[e.itemId];
       else d.items[e.itemId] = state;
     }
     persist();
+    // Tote Knöpfe 9 («Alles fertig»): «Alles gebraucht» on rows that were all «used» already changed nothing visible; say it, with Undo
+    if (state === 'used') offerDone(tn(rows.length, '{n} item counts as used.', '{n} items count as used.'), () => {
+      for (const [id, v] of Object.entries(before)) if (v == null) delete d.items[id]; else d.items[id] = v;
+      persist();
+    });
   }
 
   // Step 2: the packed items by bag, in the order of the trip.
