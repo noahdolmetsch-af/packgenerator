@@ -54,4 +54,7 @@ export default {
   '{n} weeks lie in the past and are left out.': '{n} Wochen liegen in der Vergangenheit und fallen weg.',
   'Enter FTP': 'FTP eintragen',
   'Like «{name}», with {n} min': 'Wie «{name}», mit {n} Min',
+  // Klick-Rundgang H33 (parked until Noah's OK)
+  'Use example list': 'Beispiel-Liste übernehmen',
+  'List of «{name}» taken over.': 'Liste von «{name}» übernommen.',
 };

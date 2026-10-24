@@ -16,7 +16,7 @@
   import { liveQuery } from 'dexie';
   import { db } from '../db.js';
   import { sortBikes } from '../bikes.js';
-  import { newTrip, addItem, quickRide } from '../nav.js';
+  import { newTrip, addItem, quickRide, wantBike } from '../nav.js';
   import { t, num } from '../i18n.svelte.js';
   import { parseKm } from '../care.js';
   import { setReading } from '../kmbookdb.js';
@@ -26,7 +26,7 @@
   import { bikesHash } from '../bikes.js';
   import { offerDone } from '../ui/rename.svelte.js';
   import { removeVisit } from '../visitdb.js';
-  import { Route, Bike, Activity, Backpack, Package, Plus, TriangleAlert, Receipt, StickyNote, X, ListTodo, ListChecks, ScanLine, Siren, Sunrise, Moon } from '@lucide/svelte';
+  import {  Route, Bike, Activity, Backpack, Package, Plus, TriangleAlert, Receipt, StickyNote, X, ListTodo, ListChecks, ScanLine, Siren, Sunrise, Moon , CircleCheck, NotebookPen, Lightbulb  } from '@lucide/svelte';
   import TodoSheet from '../merken/TodoSheet.svelte';
   import ListSheet from '../merken/ListSheet.svelte';
   import { suggestKind, listFrom } from '../merken/quick.js';
@@ -167,11 +167,20 @@
       <!-- v0.45.2 (Noah on the bike): several problems with one bike at once, into Bike care -->
       {#if bikes.length}<li><button type="button" class="opt" onclick={() => (mode = 'problem')}><span class="ic" aria-hidden="true"><TriangleAlert size={20} /></span><span class="tx"><b>{t('Problem with a bike')}</b><span>{t('Air, saddle, battery: one per line')}</span></span></button></li>{/if}
       <li><button type="button" class="opt" onclick={() => (mode = 'km')}><span class="ic" aria-hidden="true"><Plus size={20} /></span><span class="tx"><b>{t('km for a bike')}</b><span>{t('What the counter says')}</span></span></button></li>
+      <!-- Klick-Rundgang H19 (Noah «1a»): a new bike from the + menu too -->
+      <li><button type="button" class="opt" onclick={() => run(() => (wantBike(), (location.hash = '#/bikes')))} data-new-bike><span class="ic" aria-hidden="true"><Bike size={20} /></span><span class="tx"><b>{t('Add bike')}</b><span>{t('Name, kind and km')}</span></span></button></li>
+    </ul>
+    <!-- Klick-Rundgang H19 (Noah «1a»): Aktiv and the diary from the + menu -->
+    <h3 class="ngrp">{t('Active|place')}</h3>
+    <ul class="opts">
+      <li><a class="opt" href="#/flow" onclick={close} data-new-tick><span class="ic" aria-hidden="true"><CircleCheck size={20} /></span><span class="tx"><b>{t('Tick an activity')}</b><span>{t('Opens Aktiv with your tiles')}</span></span></a></li>
+      <li><a class="opt" href="#/tagebuch?neu" onclick={close} data-new-diary><span class="ic" aria-hidden="true"><NotebookPen size={20} /></span><span class="tx"><b>{t('Diary entry')}</b><span>{t('Today, with the time; write or dictate')}</span></span></a></li>
     </ul>
     <h3 class="ngrp">{t('Note|group')}</h3>
     <ul class="opts">
       <li><button type="button" class="opt" onclick={() => run(() => onnote(''))}><span class="ic" aria-hidden="true"><StickyNote size={20} /></span><span class="tx"><b>{t('Note + photo')}</b><span>{t('"What was missing", "This is broken"')}</span></span></button></li>
       <!-- Dokumente-PDF (Noah 15.10.2026): photograph a document, it becomes a PDF in Ich › Dokumente -->
+      <li><a class="opt" href="#/me/inspiration" onclick={close} data-new-insp><span class="ic" aria-hidden="true"><Lightbulb size={20} /></span><span class="tx"><b>{t('Inspiration link')}</b><span>{t('A rig, a route, a video: paste the link')}</span></span></a></li>
       <li><a class="opt" href="#/me/docs/scan" onclick={close}><span class="ic" aria-hidden="true"><ScanLine size={20} /></span><span class="tx"><b>{t('Photograph document')}</b><span>{t('Becomes a PDF in «Imported PDFs»')}</span></span></a></li>
     </ul>
   {/if}
