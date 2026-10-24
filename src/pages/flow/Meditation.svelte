@@ -177,7 +177,7 @@
           <div class="hl"><h2 id="m-review" class="h2">{t('Look back|page')}</h2><a href="{base}/rueckblick" data-to="review">{t('See everything')}<ChevronRight size={16} aria-hidden="true" /></a></div>
           {#if !recent.length}
             <!-- Impeccable runde 2 (onboard): before the first session one sentence instead of four zeros and seven empty circles -->
-            <p class="first" data-review-empty>{t('No session yet. After your first meditation you see your streak here, the minutes of the week and how deep it was.')}</p>
+            <p class="first" data-review-empty>{t('No session yet. Then you see your streak, minutes and depth here.')}</p>
           {:else}
           <div class="stats">
             <div><b class="num">{str.now}</b><small>{t('days in a row')}</small></div>

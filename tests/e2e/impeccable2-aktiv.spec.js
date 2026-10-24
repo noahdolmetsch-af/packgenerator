@@ -32,7 +32,7 @@ test('Meditation: one sentence before the first session; «Ø Tiefe (1–5)» ex
   const errors = await open(page, context, null);
   const main = page.locator('main');
   await go(page, '#/flow/act/meditation');
-  await expect(main.locator('[data-review-empty]')).toHaveText(T('No session yet. After your first meditation you see your streak here, the minutes of the week and how deep it was.'));
+  await expect(main.locator('[data-review-empty]')).toHaveText(T('No session yet. Then you see your streak, minutes and depth here.'));
   await expect(main.locator('.stats')).toHaveCount(0);
   await put(page, aktivRows());
   await go(page, '#/flow/act/meditation');
