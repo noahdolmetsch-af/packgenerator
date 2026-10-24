@@ -104,7 +104,8 @@
   }
 </script>
 
-<section class="surf pad yg" aria-labelledby="yg-h" data-yoga-card>
+<!-- nothing to ask and no class yet: the title and the button share one row (the Meditation page stays two screens on a phone) -->
+<section class="surf pad yg" class:one={!open.length && !next && !more && !count.went && !count.skipped} aria-labelledby="yg-h" data-yoga-card>
   <div class="yg-hl"><h2 id="yg-h" class="h2" title={t('Counts in the look back as yoga, apart from meditation.')}><Flower2 size={20} aria-hidden="true" />{t('Yoga')}</h2>{#if count.went || count.skipped}<small class="num">{t('last 30 days: {went}× there, {skipped}× skipped', count)}</small>{/if}</div>
 
   {#each open as o (o.day + o.cls.id)}
@@ -180,6 +181,13 @@
 </section>
 
 <style>
+  .yg.one {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px 12px;
+  }
   .yg-hl {
     display: flex;
     flex-wrap: wrap;
