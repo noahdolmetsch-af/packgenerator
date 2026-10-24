@@ -1565,6 +1565,14 @@ export default {
   '«New» on top for 14 days after an update': '«Neu» 14 Tage lang oben nach einem Update',
   'Open Heute: meditation is on top, «Last activity» after the ring.': 'Öffne Heute: Meditation steht oben, «Letzte Aktivität» nach dem Ring.',
   'Without a weight for a week, type it in «Weight this week?».': 'Ohne Gewicht seit einer Woche: tippe es in «Gewicht diese Woche?».',
+  // v0.181.2 «Packen und nach der Tour, repariert»
+  'Packing and after the tour, repaired': 'Packen und nach der Tour, repariert',
+  'Clearer buttons from packing to the debrief.': 'Klarere Knöpfe vom Packen bis zum Rückblick.',
+  'Packing counts the same everywhere, and the button says what comes next': 'Packen zählt überall gleich, und der Knopf sagt, was als Nächstes kommt',
+  'On the way: «Start riding» remembers the start time; missing light is packed right there': 'Unterwegs: «Losfahren» merkt sich die Startzeit; fehlendes Licht packst du direkt ein',
+  'After the tour: a clear hint when km are missing': 'Nach der Tour: ein klarer Hinweis, wenn km fehlen',
+  'Open a bike trip that starts today, pack it and tap «Start riding».': 'Öffne eine Velotour, die heute beginnt, pack sie und tippe auf «Losfahren».',
+  'End the trip without a ride: the app says why and offers «Upload a ride».': 'Schliess die Tour ohne Fahrt ab: Die App sagt warum und bietet «Fahrt hochladen» an.',
   // v0.181.1 «Fitbit-Schlaf kommt an»
   'Fitbit sleep and Gemini work again': 'Fitbit-Schlaf und Gemini gehen wieder',
   'Your nights come from Google again, and Gemini answers.': 'Deine Nächte kommen wieder von Google, und Gemini antwortet.',
