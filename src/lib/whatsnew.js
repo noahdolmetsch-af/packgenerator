@@ -16,6 +16,21 @@
 
 export const WHATS_NEW = [
   {
+    // v0.186.0 «Alles finden» (Paket B, Noah 22.10.2026 «1a–5a»; released 24.10.2026 «freigabe für alle»): help behind «?»
+    // on every page, «Alle n» as a grid of all pages, Ich slim; H19 the + menu offers more; H33 «Beispiel-Liste übernehmen»;
+    // «Weiter fragen» carries the question to Claude, Duck.ai and Gemini.
+    version: '0.186.0',
+    date: '2026-10-24',
+    title: 'Find everything',
+    lead: 'Help behind «?», every page in one grid.',
+    points: [
+      { text: '«?» on every page: what you do here and what the app can do', href: '#/features' },
+      { text: '«All n»: every page as a grid with one sentence each', href: '#/' },
+    ],
+    small: [{ box: 'new', text: '+ New offers more: bike, activity, diary, inspiration' }, { box: 'nicer', text: 'Ask elsewhere takes your question along' }],
+    test: ['Tap «?» at the top of a page and read its help.', 'Tap + New and add an activity.'],
+  },
+  {
     // v0.185.0 «Fotoalbum» (Paket P8 of «Offene Mockups», Noah 21.10.2026 «7a»): Ich › Fotoalbum, all photos of the app
     // by month or by place, album photos with place and date, single photos off for Heute.
     version: '0.185.0',

@@ -1643,4 +1643,12 @@ export default {
   'Main buttons in sight': 'Wichtige Knöpfe sichtbar',
   'Assistant: ask about the chain.': 'Assistent: nach der Kette fragen.',
   'Bike care: «Done», then «Undo».': 'Velopflege: «Erledigt», dann «Rückgängig».',
+  'Find everything': 'Alles finden',
+  'Help behind «?», every page in one grid.': 'Hilfe hinter «?», jede Seite in einem Raster.',
+  '«?» on every page: what you do here and what the app can do': '«?» auf jeder Seite: was du hier tust und was die App kann',
+  '«All n»: every page as a grid with one sentence each': '«Alle n»: jede Seite als Raster mit einem Satz',
+  '+ New offers more: bike, activity, diary, inspiration': '+ Neu bietet mehr: Velo, Aktivität, Tagebuch, Inspiration',
+  'Ask elsewhere takes your question along': '«Weiter fragen» nimmt deine Frage mit',
+  'Tap «?» at the top of a page and read its help.': 'Tippe oben auf einer Seite auf «?» und lies die Hilfe.',
+  'Tap + New and add an activity.': 'Tippe auf + Neu und hake eine Aktivität ab.',
 };
