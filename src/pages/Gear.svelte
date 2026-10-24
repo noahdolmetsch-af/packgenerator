@@ -709,6 +709,17 @@
         <!-- one quiet line: how it is sorted, list or cards, select.
              Impeccable runde 2 (Material 3): «Compact | With bag» joins this line; on a phone both toggles live in
              «Sort and filter» under «Display» (one tap more), so the first categories come up a screen earlier -->
+        <!-- «Alltag sichtbar» (Noah 24.10.2026 «1a 2b», use cases 6, 7, 8, 29, 75): the views and tools of Gear one tap
+             away, under the names of «What the app can do» (were in ••• or further down) -->
+        {#if tab === 'inventory' && view !== 'wish' && !selecting}
+          <nav class="gquick" aria-label={t('Views and tools of Gear')} data-gear-quick>
+            <a class="gq" href="#/gear?tab=wishlist" data-gear-quick-item="wish">{t('Wishlist')}</a>
+            <a class="gq" href="#/gear?unused=1" data-gear-quick-item="unused">{t('Long not used')}</a>
+            <a class="gq" href="#/favorites" data-gear-quick-item="fav">{t('Favourites ★').replace(' ★', '')}</a>
+            <button type="button" class="gq" onclick={startWeigh} data-gear-quick-item="weigh">{t('Weigh items')}</button>
+            <a class="gq" href="#/gear/import" data-gear-quick-item="import">{t('Import a gear list')}</a>
+          </nav>
+        {/if}
         <div class="metaline">
           <span class="sorted">{t('Sorted: {s}', { s: t(SORT_NAME[sort]) })}</span>
           {@render showAs()}
@@ -2604,5 +2615,28 @@
   .vbtn[aria-pressed='true'] .vic {
     background: var(--accent-soft);
     color: var(--accent);
+  }
+  /* «Alltag sichtbar»: views and tools one tap away */
+  .gquick {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sp-2);
+    margin: var(--sp-2) 0;
+  }
+  .gq {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0 14px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: var(--paper);
+    color: var(--ink);
+    font: 600 var(--fs-small) / 1.2 var(--font-body);
+    text-decoration: none;
+    cursor: pointer;
+  }
+  .gq:hover {
+    border-color: var(--line-strong);
   }
 </style>

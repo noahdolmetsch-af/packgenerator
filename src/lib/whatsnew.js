@@ -16,6 +16,20 @@
 
 export const WHATS_NEW = [
   {
+    // v0.190.0 «Alltag sichtbar» + Sichtbar-Wächter (332 Use Cases P1 + P3, Noah 24.10.2026 «1a 2b 3a 4a 5b»): Heute fällig,
+    // Planen › Merken, bike folder buttons in Setup, Gear views one tap away; every function has its home page (heimat.js).
+    version: '0.190.0',
+    date: '2026-10-24',
+    title: 'Everyday in sight',
+    lead: 'What is due today, one line on Heute.',
+    points: [
+      { text: 'Remember is a tab of Plan', href: '#/calendar' },
+      { text: 'Due today: to-dos, birthdays, plants, bike care', href: '#/' },
+    ],
+    small: [{ box: 'new', text: 'Bike folder, warranty and theft sheet in Setup' }, { box: 'nicer', text: 'Wish list and favourites one tap away in Gear' }],
+    test: ['Open Heute: below «Dein Körper heute» the line «Heute fällig» shows what is due.', 'Open Planen › Merken.'],
+  },
+  {
     // v0.189.0 Paket B «Touren ohne Überraschung» part 1 (Noah 24.10.2026, 996 Ideen «1b 2a»): Generalprobe,
     // Gut ankommen, Kisten-Etiketten.
     version: '0.189.0',

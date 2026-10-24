@@ -108,7 +108,7 @@ describe('the place «Woche» (Noah 1a)', () => {
     expect(pageOf('#/week')).toBe('week');
     expect(pageOf('#/week/plan')).toBe('week');
     expect(placeOf('week')).toBe('week');
-    expect(PLACE_TABS.week).toHaveLength(11); // «Alles finden 2»: + Inspiration, Links; // N1: + Termine, Notizen; Tagebuch 20.10.2026: + Tagebuch; UI-Ziele #6: + Eingang, Mail, Kompass, Alltag, Freie Zeit; Woche covers plan and away
+    expect(PLACE_TABS.week).toHaveLength(12); // Alltag sichtbar: + Merken; «Alles finden 2»: + Inspiration, Links; // N1: + Termine, Notizen; Tagebuch 20.10.2026: + Tagebuch; UI-Ziele #6: + Eingang, Mail, Kompass, Alltag, Freie Zeit; Woche covers plan and away
     expect(tabOf('week', '#/week')).toBe('week');
     expect(tabOf('week', '#/week/plan')).toBe('week'); // UI-Ziele #6: one tap from the week
     expect(tabOf('week', '#/week/away')).toBe('week');

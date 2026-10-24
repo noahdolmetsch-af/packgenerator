@@ -7,6 +7,7 @@
  */
 export const TAB_INFO = {
   'week:week': ['calendar', 'Your week: appointments, rides and weather day by day'],
+  'week:remember': ['flower', 'To-dos, birthdays and plants, with their reminders'],
   'week:agenda': ['clock', 'Appointments and tasks from your calendar'],
   'week:notes': ['note', 'Notes, lists and checklists'],
   'week:tagebuch': ['book', 'What you write about your day'],

@@ -855,3 +855,5 @@ Ganz geplant, gebaut erst nach allem oben.
 | 2.6 | 09.10.2026 | 0.66.0 «Bausteine neu + Bausteine prüfen» erledigt |
 
 Die frühere gespeicherte Datei `2026-10-07-packgenerator-ablaufplan.md` wird als datierte Fassung dieses Gesamtplans weitergeführt. GitHub `docs/roadmap.md` ist die aktuelle Quelle. Historische Analysen und frühere Designs bleiben datierte Belege, keine parallelen Roadmaps.
+
+**24.10.2026, v0.190.0 «Alltag im Blick»:** Sichtbar-Wächter (jede Funktion hat ihre Heimseite) und Alltag sichtbar: Heute fällig, Planen › Merken, Knöpfe in Velo-Setup und Material. Nächstes: P2 «Touren sichtbar» baut die Lücken ab.

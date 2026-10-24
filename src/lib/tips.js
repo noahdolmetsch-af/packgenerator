@@ -52,7 +52,7 @@ export const GROUPS = [
  */
 export const TIPS = [
   // Plan
-  { id: 'dayride', group: 'plan', icon: 'zap', title: 'Quick start in 1 tap', text: 'One tap plans a ride for today: 2.5 h, the bike ridden last, with the weather.', button: 'Quick start', go: { run: 'dayRide' }, needs: 'pastTrip' },
+  { id: 'dayride', group: 'plan', icon: 'zap', title: 'Ride today', text: 'One tap plans a ride for today: 2.5 h, the bike ridden last, with the weather.', button: 'Quick start', go: { run: 'dayRide' }, needs: 'pastTrip' },
   { id: 'blocks', group: 'plan', icon: 'blocks', title: 'New trip with building blocks', text: 'Building blocks such as sleep, cook or rain bring their items into a new trip.', button: 'Show building blocks', go: { href: '#/blocks' }, needs: 'items' },
   { id: 'templates', group: 'plan', icon: 'copy', title: 'Templates', text: 'Save a good trip as a template and start the next one from it.', button: 'Open templates', go: { href: '#/pack/templates' }, needs: 'trip' },
   { id: 'gpx', group: 'plan', icon: 'route', title: 'Load a route (GPX)', text: 'Load a GPX route into a trip: km, climbing and riding time come from it.', button: 'Open the trip', go: { href: '#/pack' }, needs: 'trip' },
@@ -72,7 +72,7 @@ export const TIPS = [
   // Gear
   { id: 'weigh', group: 'gear', icon: 'scale', title: 'Weigh items', text: 'Weigh your items one after the other: then every total is exact.', button: 'Start weighing', go: { href: '#/gear?tab=weigh' }, needs: 'items' },
   { id: 'fav', group: 'gear', icon: 'star', title: 'Favourites ★', text: 'Mark your favourite things with ★ and find them all on one page.', button: 'Show favourites', go: { href: '#/favorites' }, needs: 'items' },
-  { id: 'wish', group: 'gear', icon: 'gift', title: 'Wishlist & best upgrade', text: 'The wishlist shows which buy saves the most grams per franc.', button: 'Open wishlist', go: { href: '#/gear?tab=wishlist' }, needs: 'items' },
+  { id: 'wish', group: 'gear', icon: 'gift', title: 'Wishlist', text: 'The wishlist shows which buy saves the most grams per franc.', button: 'Open wishlist', go: { href: '#/gear?tab=wishlist' }, needs: 'items' },
   { id: 'unused', group: 'gear', icon: 'archive', title: 'Long not used', text: 'See which items were on no trip for 12 months.', button: 'Look through', go: { href: '#/gear?unused=1' }, needs: ['items', 'trip'] },
   // Bikes
   { id: 'setup', group: 'bikes', icon: 'bike', title: 'Bike setup', text: 'The bike setup shows which bag sits where, with its weight.', button: 'Open setup', go: { href: '#/bikes' }, needs: 'bikes' },

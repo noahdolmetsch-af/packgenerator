@@ -169,6 +169,15 @@
   );
   const chf = (n) => `CHF ${Math.round(n).toLocaleString('de-CH')}`;
 
+  // «Alltag sichtbar»: the sheets of the bike's folder, named as in «What the app can do» (features.js)
+  const BIKE_SHEETS = [
+    { sheet: 'all', label: 'Bike folder' },
+    { sheet: 'warranty', label: 'Warranty and receipts' },
+    { sheet: 'theft', label: 'Theft sheet' },
+    { sheet: 'kit', label: 'Repair kit' },
+    { sheet: 'breakin', label: 'Break-in plan' },
+  ];
+
   /* ---------- setup photos (Noah, 4.10.2026, answers 1a-6a) ---------- */
   const gallery = $derived(bikePhotos(bike, $photosQ ?? []));
   // v0.73.0 «Fotoband»: «Album ›» on Today opens this fold once for its bike.
@@ -394,6 +403,13 @@
     <Empty icon={BikeIcon} title={t('No bikes yet')} text={t('Add your bike, or bring your data along with a backup.')} action={{ label: t('Add bike'), onclick: () => (bikeDialog = { bike: null }) }}>{t('Or bring your data along from a backup:')} <a href="#/me/data">{t('Me › Data and backup')}</a>.</Empty>
   {:else if bike}
     <SetupBand {bikes} {bike} {setup} {sub} kind={bikeKind} cost={costLine} due={care?.rows.length ?? 0} careHref={bikesHash({ tab: 'care', bike: bike.id, open: true })} onbike={chooseBike} onadd={() => (bikeDialog = { bike: null })} onedit={() => (bikeDialog = { bike })} onorder={() => (standardOpen = true)} menu={bikeMenu} link={makerOn && maker ? { kind: 'x9', url: maker.url, name: maker.name || t(LINKS.x9.label) } : null} />
+
+    <!-- «Alltag sichtbar» (Noah 24.10.2026 «1a 2b», use cases 177–181, 198): the bike's folder and photos one tap
+         away, under the names of «What the app can do» (were only in the fold «More» at the bottom) -->
+    <nav class="bquick" aria-label={t('Folder and photos of the {bike}', { bike: bike.name })} data-bike-quick>
+      {#each BIKE_SHEETS as x (x.sheet)}<a class="bq" href={bikesHash({ bike: bike.id, sheet: x.sheet })} data-bike-quick-item={x.sheet}>{t(x.label)}</a>{/each}
+      <button type="button" class="bq" onclick={() => ((photosOpen = true), queueMicrotask(() => photosEl?.scrollIntoView({ block: 'start' })))} data-bike-quick-item="photos">{t('Bike photos')}</button>
+    </nav>
 
     <!-- Design-Refresh P7 «Velo» (V1): the drawing and the bags left; care and equipment, «Import rides»
          and «More» right; on a phone one after the other. Everything from «Velo kurz» stays. -->
@@ -1411,5 +1427,28 @@
     color: var(--ink-2);
     font-weight: 400;
     font-size: var(--fs-small);
+  }
+  /* «Alltag sichtbar»: the folder and photos one tap away */
+  .bquick {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sp-2);
+    margin: var(--sp-2) 0 var(--sp-3);
+  }
+  .bq {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0 14px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: var(--paper);
+    color: var(--ink);
+    font: 600 var(--fs-small) / 1.2 var(--font-body);
+    text-decoration: none;
+    cursor: pointer;
+  }
+  .bq:hover {
+    border-color: var(--line-strong);
   }
 </style>
