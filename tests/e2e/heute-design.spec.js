@@ -66,7 +66,8 @@ test('Heute in the new look: header, trip card, light tiles, new tiles, New by a
   if (!(await sheet.isVisible())) await page.getByRole('button', { name: T('New'), exact: true }).filter({ visible: true }).first().click();
   await expect(sheet).toBeVisible();
   // «Alles finden 2» (Noah 22.10.2026 «1a»): the morning and evening check are always in «Neu»
-  await expect(sheet.locator('h3.ngrp')).toHaveText([T('Remember'), T('Check|group'), T('Trips|place'), T('Gear|place'), T('Bikes|place'), T('Note|group')]);
+  // Klick-Rundgang H19 (Noah «1a»): Aktiv (tick an activity, diary) before the note, on purpose
+  await expect(sheet.locator('h3.ngrp')).toHaveText([T('Remember'), T('Check|group'), T('Trips|place'), T('Gear|place'), T('Bikes|place'), T('Active|place'), T('Note|group')]);
   await expect(sheet.locator('h3.ngrp', { hasText: T('Trips|place') }).locator('xpath=following-sibling::ul[1]').locator('.opt').first()).toContainText(T('Plan a trip'));
   await page.screenshot({ path: info.outputPath(`neu-${phone ? 390 : 1440}.png`) });
   expect(errors).toEqual([]);

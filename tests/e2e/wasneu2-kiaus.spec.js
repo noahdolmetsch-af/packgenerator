@@ -124,7 +124,9 @@ test('W2 + SL1: Ich, Was ist neu: the newest on top, one row to all functions, t
   if (withHref) {
     if (withHref.version !== e.version) await vers.locator(`[data-row="${withHref.version}"]`).click();
     await vers.locator(`article[data-version="${withHref.version}"] .vn-pts a`).first().click();
-    await expect.poll(() => new URL(page.url()).hash).toBe(withHref.points.find((p) => p.href).href);
+    // a point with action 'data' opens «Data and backup» (#/me/data) instead of its href (0.186.1)
+    const p0 = withHref.points.find((p) => p.href);
+    await expect.poll(() => new URL(page.url()).hash).toBe(p0.action === 'data' ? '#/me/data' : p0.href);
   }
   expect(errors).toEqual([]);
 });
