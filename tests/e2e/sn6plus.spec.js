@@ -130,7 +130,7 @@ test('SN6+ «So geht\'s» opens with three steps in the «…» of a function', 
   await page.goto('./#/features');
   await page.getByLabel(T('Find a function')).fill('gpx');
   const row = page.locator('[data-feature="gpx"]');
-  await row.getByRole('button', { name: T('More for {title}', { title: T('Load a route (GPX)') }) }).click();
+  await row.getByRole('button', { name: T('More for {title}', { title: T('Add GPX route') }) }).click();
   const how = page.getByRole('region', { name: T('How it works') });
   await expect(how).toBeVisible();
   await expect(how.locator('li')).toHaveCount(3);

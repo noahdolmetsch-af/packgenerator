@@ -55,9 +55,9 @@ export const TIPS = [
   { id: 'dayride', group: 'plan', icon: 'zap', title: 'Ride today', text: 'One tap plans a ride for today: 2.5 h, the bike ridden last, with the weather.', button: 'Quick start', go: { run: 'dayRide' }, needs: 'pastTrip' },
   { id: 'blocks', group: 'plan', icon: 'blocks', title: 'New trip with building blocks', text: 'Building blocks such as sleep, cook or rain bring their items into a new trip.', button: 'Show building blocks', go: { href: '#/blocks' }, needs: 'items' },
   { id: 'templates', group: 'plan', icon: 'copy', title: 'Templates', text: 'Save a good trip as a template and start the next one from it.', button: 'Open templates', go: { href: '#/pack/templates' }, needs: 'trip' },
-  { id: 'gpx', group: 'plan', icon: 'route', title: 'Load a route (GPX)', text: 'Load a GPX route into a trip: km, climbing and riding time come from it.', button: 'Open the trip', go: { href: '#/pack' }, needs: 'trip' },
+  { id: 'gpx', group: 'plan', icon: 'route', title: 'Add GPX route', text: 'Load a GPX route into a trip: km, climbing and riding time come from it.', button: 'Open the trip', go: { href: '#/pack' }, needs: 'trip' },
   { id: 'homeweather', group: 'plan', icon: 'home', title: 'Weather at your home place', text: 'Set your home place and see here what the weekend brings for a ride.', button: 'Set home place', go: { run: 'homePlace' } },
-  { id: 'wxsuggest', group: 'plan', icon: 'cloud', title: 'Weather suggestions', text: 'The weather suggestions of a trip add the layers that fit the forecast.', button: 'Open the trip', go: { href: '#/pack' }, needs: 'trip' },
+  { id: 'wxsuggest', group: 'plan', icon: 'cloud', title: 'Fitted to the weather', text: 'The weather suggestions of a trip add the layers that fit the forecast.', button: 'Open the trip', go: { href: '#/pack' }, needs: 'trip' },
   // Packing & on the way
   { id: 'bags', group: 'pack', icon: 'backpack', title: 'Pack bag by bag', text: 'Pack bag by bag and tick each item as it goes in.', button: 'Start packing|tips', go: { href: '#/pack?day' }, needs: 'trip' },
   { id: 'share', group: 'pack', icon: 'printer', title: 'Share or print a list (PDF)', text: 'Share a packing list as a link, or print it or save it as PDF.', button: 'Print / PDF', go: { href: '#/pack?print' }, needs: 'trip' },

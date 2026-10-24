@@ -1522,4 +1522,6 @@ export default {
   'Type the weight and tap «Save», or «Not today».': 'Tippe das Gewicht ein und dann «Speichern», oder «Heute nicht».',
   '«Stop asking» takes the card away; «Add a tile» brings it back.': '«Nicht mehr fragen» nimmt die Karte weg; «Kachel hinzufügen» holt sie zurück.',
   'Example: last weight 8 days ago → the card asks; saved, it is gone until next week.': 'Beispiel: letztes Gewicht vor 8 Tagen → die Karte fragt; gespeichert ist sie bis nächste Woche weg.',
+  // «Touren sichtbar» (Noah 24.10.2026 «3a»): Tourbild = tour postcard + picture to share
+  'In the debrief tap «Tour picture» and add a photo if you like; after a ride on the live map it comes under «Your ride».': 'Tippe im Rückblick auf «Tourbild» und füge auf Wunsch ein Foto hinzu; nach einer Fahrt auf der Live-Karte kommt es unter «Deine Fahrt».',
 };

@@ -148,7 +148,7 @@
 <dialog class="sheet vdlg from-below" bind:this={dialog} use:backClose {onclose} aria-labelledby="pc-h" data-postcard>
   <div class="vd-head">
     <div class="vd-t">
-      <h2 id="pc-h"><ImageIcon size={20} aria-hidden="true" />&nbsp;{t('Tour postcard')}</h2>
+      <h2 id="pc-h"><ImageIcon size={20} aria-hidden="true" />&nbsp;{t('Tour picture')}</h2>
       <p class="vd-sub">{t('Made on this device. Add a photo if you like; then share it.')}</p>
     </div>
     <button type="button" class="vd-x" aria-label={t('Close')} onclick={() => dialog.close()}><X size={20} aria-hidden="true" /></button>

@@ -664,6 +664,22 @@
         <p class="card tp-muted noroute">{t('No route yet. Load the GPX in')} <a href="#/pack">{t('Plan|stage')}</a> {t('under "Trip conditions" (••• menu).')}</p>
       {/if}
 
+      <!-- Paket K «Unterwegs»: the helpers for the day on the bike, big buttons (also with gloves).
+           «Touren sichtbar» (Noah 24.10.2026): right under «Jetzt», so they stand in the first screens on the phone -->
+      <section class="uwh" aria-labelledby="uwh-h" data-uw-helpers>
+        <h2 id="uwh-h" class="sh">{t('Helpers on the way')}</h2>
+        <p class="ssub">{t('Live map, home, handlebar view, the sheet for the start')}</p>
+        <div class="uw-helpers">
+          <!-- Paket U3 «Live-Karte» (Noah 19.10.2026 «5a»): start the ride with the live map of this trip -->
+          <a class="btn uw-bigbtn" href={`#/live/${encodeURIComponent(trip.id)}`} data-live-start><Navigation size={22} aria-hidden="true" /><span>{t('Live map')}<small>{t('where you are, next shop, arrival')}</small></span></a>
+          <button type="button" class="btn uw-bigbtn" onclick={() => (homeOpen = true)} data-uw-home><House size={22} aria-hidden="true" /><span>{t('Home|way')}<small>{t('trains and Maps')}</small></span></button>
+          <button type="button" class="btn uw-bigbtn" onclick={() => (lenkerOpen = true)} data-uw-lenker><Gauge size={22} aria-hidden="true" /><span>{t('Handlebar view')}<small>{t('big numbers, sideways')}</small></span></button>
+          <button type="button" class="btn uw-bigbtn" onclick={() => (arrivedOpen = true)} data-uw-arrived><HeartHandshake size={22} aria-hidden="true" /><span>{t('Arrived safely')}<small>{t('a short message, ready to share')}</small></span></button>
+          <button type="button" class="btn uw-bigbtn" onclick={() => (parkedOpen = true)} data-uw-parked><Bike size={22} aria-hidden="true" /><span>{t('Bike parked')}<small>{t('photo, place, lock')}</small></span></button>
+          <a class="btn uw-bigbtn" href="#/ride/abfahrt" data-uw-sheet><FileText size={22} aria-hidden="true" /><span>{t('Before you leave|sheet')}<small>{t('offline and as PDF')}</small></span></a>
+          <div class="uw-glove"><span class="gl"><Hand size={18} aria-hidden="true" /> {t('Glove mode')}{#if glove.mode === 'auto' && glove.auto.on}<small> · {glove.auto.why === 'ski' ? t('on: ski tour') : t('on: below 5 °C')}</small>{/if}</span><Seg full={false} label={t('Glove mode')} options={GLOVE_MODES.map((g) => ({ key: g.key, name: t(g.name) }))} value={glove.mode} onchange={setGlove} /></div>
+        </div>
+      </section>
       <!-- Answer 3a: the weather hour by hour, start and finish. Answer 5a: saved for offline. -->
       <section class="wxs" aria-labelledby="wx-h">
         <!-- SN1: «Wetter unterwegs»; without a place a row with «Ort wählen» (to Plan) -->
@@ -705,21 +721,6 @@
     </div>
 
     <div class="col">
-      <!-- Paket K «Unterwegs»: the helpers for the day on the bike, big buttons (also with gloves) -->
-      <section class="uwh" aria-labelledby="uwh-h" data-uw-helpers>
-        <h2 id="uwh-h" class="sh">{t('Helpers on the way')}</h2>
-        <p class="ssub">{t('Live map, home, handlebar view, the sheet for the start')}</p>
-        <div class="uw-helpers">
-          <!-- Paket U3 «Live-Karte» (Noah 19.10.2026 «5a»): start the ride with the live map of this trip -->
-          <a class="btn uw-bigbtn" href={`#/live/${encodeURIComponent(trip.id)}`} data-live-start><Navigation size={22} aria-hidden="true" /><span>{t('Live map')}<small>{t('where you are, next shop, arrival')}</small></span></a>
-          <button type="button" class="btn uw-bigbtn" onclick={() => (homeOpen = true)} data-uw-home><House size={22} aria-hidden="true" /><span>{t('Home|way')}<small>{t('trains and Maps')}</small></span></button>
-          <button type="button" class="btn uw-bigbtn" onclick={() => (lenkerOpen = true)} data-uw-lenker><Gauge size={22} aria-hidden="true" /><span>{t('Handlebar view')}<small>{t('big numbers, sideways')}</small></span></button>
-          <button type="button" class="btn uw-bigbtn" onclick={() => (arrivedOpen = true)} data-uw-arrived><HeartHandshake size={22} aria-hidden="true" /><span>{t('Arrived safely')}<small>{t('a short message, ready to share')}</small></span></button>
-          <button type="button" class="btn uw-bigbtn" onclick={() => (parkedOpen = true)} data-uw-parked><Bike size={22} aria-hidden="true" /><span>{t('Bike parked')}<small>{t('photo, place, lock')}</small></span></button>
-          <a class="btn uw-bigbtn" href="#/ride/abfahrt" data-uw-sheet><FileText size={22} aria-hidden="true" /><span>{t('Before you leave|sheet')}<small>{t('offline and as PDF')}</small></span></a>
-          <div class="uw-glove"><span class="gl"><Hand size={18} aria-hidden="true" /> {t('Glove mode')}{#if glove.mode === 'auto' && glove.auto.on}<small> · {glove.auto.why === 'ski' ? t('on: ski tour') : t('on: below 5 °C')}</small>{/if}</span><Seg full={false} label={t('Glove mode')} options={GLOVE_MODES.map((g) => ({ key: g.key, name: t(g.name) }))} value={glove.mode} onchange={setGlove} /></div>
-        </div>
-      </section>
       <!-- Paket K #286 «Ess-Erinnerung» -->
       {#if !trip.finished}{#await import('../lib/unterwegs/Essen.svelte') then m}<m.default tripId={trip.id} until={untilMs} onstate={(x) => (eatNext = x.next)} plan={tripEat(trip)} onplan={(p) => db.trips.update(trip.id, { eat: { ...tripEat(trip), ...p } })} />{/await}{/if}
       <!-- Noah 8a: quick notes for the debrief: two taps, no typing. -->

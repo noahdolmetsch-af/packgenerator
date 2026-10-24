@@ -106,7 +106,7 @@ export const SINCE = {
   // Paket U «Rennen» (v0.171.0)
   'f.race': '0.159.0', 'f.racesample': '0.159.0', 'f.racemap': '0.159.0', 'f.climbs': '0.159.0', 'f.mapoffline': '0.159.0', 'f.live': '0.159.0',
   // Live-Karte Teil 1–3 (v0.171.0)
-  'f.livepause': '0.170.0', 'f.sensors': '0.170.0', 'f.datapages': '0.170.0', 'f.turns': '0.170.0', 'f.laps': '0.170.0', 'f.moreplaces': '0.170.0', 'f.rwgps': '0.170.0', 'f.ovnear': '0.170.0', 'f.sharepic': '0.170.0',
+  'f.livepause': '0.170.0', 'f.sensors': '0.170.0', 'f.datapages': '0.170.0', 'f.turns': '0.170.0', 'f.laps': '0.170.0', 'f.moreplaces': '0.170.0', 'f.rwgps': '0.170.0', 'f.ovnear': '0.170.0',
   // Paket T «Freie Zeit» (v0.155.0)
   'f.frei': '0.155.0', 'f.impulse': '0.155.0',
   // Paket V «Alltag» (v0.155.0)

@@ -155,7 +155,7 @@
   </div>
 
   <div class="part">
-    <button type="button" class="btn pc" onclick={() => (card = true)} data-postcard-open><ImageIcon size={18} aria-hidden="true" />{t('Tour postcard')}<ChevronRight size={16} aria-hidden="true" /></button>
+    <button type="button" class="btn pc" onclick={() => (card = true)} data-postcard-open><ImageIcon size={18} aria-hidden="true" />{t('Tour picture')}<ChevronRight size={16} aria-hidden="true" /></button>
   </div>
   <p class="tp-small" role="status">{msg}</p>
 </section>

@@ -452,7 +452,7 @@ export const HANDBOOK = {
   },
   'f.postcard': {
     on: null,
-    steps: ['In the debrief tap «Tour postcard» and add a photo if you like.', '«Share» opens the share sheet; on a computer «Save» downloads the picture.'],
+    steps: ['In the debrief tap «Tour picture» and add a photo if you like; after a ride on the live map it comes under «Your ride».', '«Share» opens the share sheet; on a computer «Save» downloads the picture.'],
     example: 'Example: a photo from the pass, the line of the tour and 212 km, 3100 m up, 2 days on one picture.',
   },
   'f.packtwo': {
@@ -938,11 +938,6 @@ export const HANDBOOK = {
     on: null,
     steps: ['Open the sheet of the live map › «Public transport nearby» and tap «Find stops».', 'Tap a stop for its next departures.'],
     example: 'Example: Bahnhof 140 m → S1 in 7 min from platform 2.',
-  },
-  'f.sharepic': {
-    on: null,
-    steps: ['Stop the ride on the live map; under «Your ride» tap «Share picture».', 'Leave out the shape when you start at home.'],
-    example: 'Example: 42.5 km, 1 h 52 min, 640 m → one picture for the chat.',
   },
   'f.sleeptonight': {
     on: null,

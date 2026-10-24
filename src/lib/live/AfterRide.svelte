@@ -146,7 +146,7 @@
   </div>
 
   <div class="bk" data-after-share>
-    <h3><Share2 size={16} aria-hidden="true" /> {t('Picture to share')}</h3>
+    <h3><Share2 size={16} aria-hidden="true" /> {t('Tour picture')}</h3>
     <label class="chk"><input type="checkbox" bind:checked={withLine} data-after-share-line /> {t('With the shape of the ride')}</label>
     <p class="tp-small tp-muted">{withLine ? t('The shape shows where you rode. Leave it out when you start at home.') : t('Only the name, the date and the numbers.')}</p>
     <div class="row">
