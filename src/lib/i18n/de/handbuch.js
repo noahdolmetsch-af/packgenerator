@@ -1527,4 +1527,9 @@ export default {
   'Choose «Around me» or «Along the route», and the kinds you want.': 'Wähle «Um mich» oder «Entlang der Strecke» und die Arten, die du willst.',
   'Tap «Google Maps» or «OsmAnd» to ride there.': 'Tippe auf «Google Maps» oder «OsmAnd», um hinzufahren.',
   'Example: thirsty on a ride → «Around me», only «Water» → the next fountain is 0.8 km away.': 'Beispiel: Durst auf der Fahrt → «Um mich», nur «Wasser» → der nächste Brunnen ist 0,8 km entfernt.',
+  // «Meilensteine als Belohnung» (Noah 22.10.2026 «1a–5a»)
+  'Tick a sport on Heute or in Aktiv: every tick counts 1 in its counters (times done, weeks in a row, this year, hours).': 'Hak eine Sportart auf Heute oder in Aktiv ab: jedes Abhaken zählt 1 in ihren Zählern (Mal gemacht, Wochen in Folge, dieses Jahr, Stunden).',
+  'A new star shows right after the tick in a small window.': 'Ein neuer Stern erscheint gleich nach dem Abhaken in einem kleinen Fenster.',
+  'On the sport page: pick a ready challenge or set your own; reached, it is a star in the showcase.': 'Auf der Seite der Sportart: wähl eine fertige Herausforderung oder setz deine eigene; geschafft, ist sie ein Stern in der Vitrine.',
+  'Example: the 5th yoga tick → «New star: Times done, star 1»; «12× in the next 6 weeks» counts by itself.': 'Beispiel: das 5. Yoga-Abhaken → «Neuer Stern: Mal gemacht, Stern 1»; «12× in den nächsten 6 Wochen» zählt von selbst.',
 };

@@ -5,13 +5,14 @@
    * any time: a running challenge can be changed or stopped here.
    *
    * open (bindable), what (shown word), times, until (YYYY-MM-DD), running (bool), onsave({ times, until }), onstop().
+   * sport: true on a sport page («Meilensteine als Belohnung», Noah «3a»): the words say «Herausforderung», a star when reached.
    */
   import { keepTyped } from './keeptyped.js';
   import { Trophy } from '@lucide/svelte';
   import { backClose } from './backclose.js';
   import { t } from '../i18n.svelte.js';
 
-  let { open = $bindable(false), what = '', times = 10, until = '', min = '', running = false, onsave, onstop } = $props();
+  let { open = $bindable(false), what = '', times = 10, until = '', min = '', running = false, sport = false, onsave, onstop } = $props();
   let dialog = $state();
   let n = $state(10);
   let date = $state('');
@@ -32,18 +33,18 @@
 
 <dialog use:keepTyped={'challenge:' + what} class="sheet chs" bind:this={dialog} use:backClose onclose={() => (open = false)} aria-labelledby="chs-h">
   <form onsubmit={save}>
-    <h2 id="chs-h" class="title">{running ? t('Your challenge') : t('Set as a challenge')}</h2>
+    <h2 id="chs-h" class="title">{sport ? (running ? t('Your challenge|sport') : t('New challenge|sport')) : running ? t('Your challenge') : t('Set as a challenge')}</h2>
     <p class="muted">{t('Voluntary, changeable any time.')}</p>
     <label><span class="lbl">{t('What')}</span><input class="inp" type="text" value={what} readonly /></label>
     <div class="two">
-      <label><span class="lbl">{t('How often')}</span><input class="inp num" type="number" inputmode="numeric" min="1" max="365" bind:value={n} /></label>
+      <label><span class="lbl">{t('How often')}</span><input class="inp num" type="number" inputmode="numeric" min="1" max="1000" bind:value={n} /></label>
       <label><span class="lbl">{t('Until when')}</span><input class="inp" type="date" {min} bind:value={date} /></label>
     </div>
     <p class="cnt">{t('Counts by itself when you tick «{what}» on the tile.', { what })}</p>
-    <p class="ms"><span class="ic" aria-hidden="true"><Trophy size={16} /></span><span>{t('Becomes a milestone when you reach it.')}</span></p>
+    <p class="ms"><span class="ic" aria-hidden="true"><Trophy size={16} /></span><span>{sport ? t('Reached, it is a star that stays.') : t('Becomes a milestone when you reach it.')}</span></p>
     <div class="acts">
-      <button type="submit" class="btn hi">{running ? t('Save') : t('Start challenge')}</button>
-      {#if running}<button type="button" class="btn" onclick={() => (onstop?.(), (open = false))}>{t('Stop challenge')}</button>{/if}
+      <button type="submit" class="btn hi">{running ? t('Save') : sport ? t('Start challenge|sport') : t('Start challenge')}</button>
+      {#if running}<button type="button" class="btn" onclick={() => (onstop?.(), (open = false))}>{sport ? t('Stop challenge|sport') : t('Stop challenge')}</button>{/if}
       <button type="button" class="btn btn-link" onclick={() => (open = false)}>{t('Cancel')}</button>
     </div>
   </form>

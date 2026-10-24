@@ -206,7 +206,7 @@ const OWN = [
   { id: 'f.wohl', group: 'data', title: 'What is good for me', text: 'What your good days have in common, small experiments, your comfort range, life phases, Neuland and the season switch; observation only.', href: '#/me/wohl', words: 'gut tut wohl gute tage experiment kombination wohlfühlbereich energieräuber lebensphase neuland saisonwechsel rezept' },
   // «Woche planen» WP1–WP3 (Noah 15.10.2026 «1a 2a 4a»): the place «Woche»
   { id: 'f.weekplan', group: 'active', title: 'Plan the week', text: 'Sport, dates, to-dos, holidays and bike service in one week; on Sunday the app suggests, you decide.', href: '#/week', words: 'woche planen wochenplan termine to-do todo ferien velo-service trainingsplan sonntag kalender' },
-  { id: 'f.milestones', group: 'active', title: 'Milestones', text: 'Only the next star, and a reward from the wishlist.', href: '#/flow/milestones', seen: 'flowStars', words: 'meilensteine sterne belohnung' },
+  { id: 'f.milestones', group: 'active', title: 'Milestones', text: 'Every tick counts: each sport has its counters, ready challenges and a «New star» right after the tick.', href: '#/flow/milestones', seen: 'flowStars', words: 'meilensteine sterne belohnung herausforderung challenge zähler sportart abhaken' },
   { id: 'f.meditation', group: 'active', title: 'Meditation', text: 'Start like last time or from a template; sounds and a calm clock.', href: '#/flow/act/meditation', seen: 'flowSessions', words: 'meditation kissenzeit gong' },
   { id: 'f.medlog', group: 'active', title: 'Meditation log', text: 'Every session, a streak heat map, the best time of day.', href: '#/flow/act/meditation/log', words: 'protokoll wärmebild serie' },
   // v0.135.0 «Meditation und Timer» (ME3, Z1–Z5)

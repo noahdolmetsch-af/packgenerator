@@ -12,6 +12,7 @@
  * Days are calendar days (YYYY-MM-DD, Europe/Zurich on the device), weeks start on Monday.
  */
 import { addDays, normAct, actState } from './flow.js';
+import { localDay } from './localday.js';
 
 export const STAGES = ['Beginning|stage', 'Habit|stage', 'Devotion|stage', 'Depth|stage', 'Calm|stage', 'Mastery|stage', 'Path|stage'];
 export const TUNE_KEY = 'flow.msTune';
@@ -42,7 +43,7 @@ export function zurichHour(at) {
  * acts, log (the WHOLE flowLog), sessions (flowSessions), today, tripDays.
  * → { days, idx (day → index), byDay (day → entries), acts, actOf, today, ... }
  */
-export function msContext({ acts = [], log = [], sessions = [], today, tripDays = [], extra = null }) {
+export function msContext({ acts = [], log = [], sessions = [], today, tripDays = [], extra = null, challenges = [] }) {
   const list = acts.map(normAct);
   const actOf = new Map(list.map((a) => [a.id, a]));
   const known = log.filter((e) => e?.day && e.day <= today && actOf.has(e.actId));
@@ -54,7 +55,7 @@ export function msContext({ acts = [], log = [], sessions = [], today, tripDays 
   const idx = new Map(days.map((d, i) => [d, i]));
   const byDay = new Map(days.map((d) => [d, []]));
   for (const e of known) byDay.get(e.day).push(e);
-  return { acts: list, actOf, log: known, sessions, days, idx, byDay, today, tripDays, extra: ex };
+  return { acts: list, actOf, log: known, sessions, days, idx, byDay, today, tripDays, extra: ex, challenges: Array.isArray(challenges) ? challenges : [] };
 }
 
 /* ---------- package G «Daten kommen von selbst» (#231–#233): the data milestones ---------- */
@@ -281,16 +282,56 @@ function kinds(ctx, sessions) {
   });
 }
 
-/** The milestones of one activity (A2 «Pro Aktivität»): the meditation set, or one or two that fit. */
-export function actMilestones(act) {
+/** How many days a week the activity's goal asks for (1–7), from its first goal with a count; 2 without one. */
+export function weekTarget(a) {
+  const q = (a?.goals ?? []).find((x) => x.count > 0);
+  return q ? Math.max(1, Math.min(7, Math.round((q.count * 7) / q.days))) : 2;
+}
+/**
+ * The milestones of one activity (A2 «Pro Aktivität»). Meditation keeps its own set. Every other activity
+ * (also an own, new one) gets the same base counters (Noah 22.10.2026 «2a»): times done (every tick counts 1,
+ * «1a»), weeks in a row with its goal, times this year and, once it has a duration, its hours. Extras where
+ * they fit: push-ups all together, rides to work. Each one says what counts (`counts`, «5a»).
+ */
+export function actMilestones(act, today = null) {
   const a = normAct(act);
-  if (a.id === 'meditation' || a.page === 'meditation') return meditationMilestones(a);
+  const year = (typeof today === 'string' && today ? today : localDay()).slice(0, 4);
+  if (a.id === 'meditation' || a.page === 'meditation') return meditationMilestones(a).map((m) => ({ counts: 'every meditation you tick', ...m }));
   const p = own(a.id);
+  const target = weekTarget(a);
   const out = [];
-  if (a.id === 'pushups' || a.perTap > 1) out.push(ms({ id: `${a.id}.total`, actId: a.id, name: 'Total|ms', what: 'all together', steps: [100, 500, 1000, 2500, 5000, 10000, 25000], series: (c) => cumSum(c, p, (e) => Number(e.n) || 1) }));
-  if (a.counts.includes('commute')) out.push(ms({ id: `${a.id}.commute`, actId: a.id, name: 'Commute pro', what: 'rides to work', steps: [10, 25, 50, 100, 250, 500, 1000], series: (c) => cumSum(c, (e) => p(e) && e.via === 'commute') }));
-  out.push(ms({ id: `${a.id}.sessions`, actId: a.id, name: 'Sessions', what: 'times done', steps: [5, 10, 25, 50, 100, 250, 500], series: (c) => cumSum(c, p) }));
-  if (a.id === 'tennis') out.push(ms({ id: `${a.id}.hours`, actId: a.id, name: 'Hours on court', what: 'with a duration', unit: 'h', sugg: true, steps: [5, 10, 25, 50, 100, 250, 500], series: (c) => cumSum(c, p, (e) => (Number(e.min) || 0) / 60) }));
+  out.push(ms({ id: `${a.id}.sessions`, actId: a.id, name: 'Times done', what: 'times done', counts: 'every tick', steps: [5, 10, 25, 50, 100, 250, 500], series: (c) => cumSum(c, p) }));
+  out.push(ms({ id: `${a.id}.weeks`, actId: a.id, name: 'Weeks in a row', what: 'weeks in a row with your goal', counts: 'a week with {n} days ticked', countsVars: { n: target }, steps: [2, 4, 8, 12, 26, 52, 104], series: (c) => weekStreak(c, (l) => new Set(l.filter(p).map((e) => e.day)).size >= target), now: weekStreakNow }));
+  out.push(ms({ id: `${a.id}.year.${year}`, key: `${a.id}.year`, actId: a.id, name: 'Times in {year}', vars: { year }, what: 'times this year', counts: 'every tick since 1 January', steps: [10, 25, 50, 100, 150, 200, 300], series: (c) => cumSum(c, p, () => 1, `${year}-01-01`) }));
+  out.push(ms({ id: `${a.id}.hours`, actId: a.id, name: 'Hours', what: 'with a duration', unit: 'h', counts: 'the minutes you enter when ticking', needsMin: true, steps: [5, 10, 25, 50, 100, 250, 500], series: (c) => cumSum(c, p, (e) => (Number(e.min) || 0) / 60) }));
+  if (a.id === 'pushups' || a.perTap > 1) out.push(ms({ id: `${a.id}.total`, actId: a.id, name: 'Total|ms', what: 'all together', counts: 'the number of each tick', steps: [100, 500, 1000, 2500, 5000, 10000, 25000], series: (c) => cumSum(c, p, (e) => Number(e.n) || 1) }));
+  if (a.counts.includes('commute')) out.push(ms({ id: `${a.id}.commute`, actId: a.id, name: 'Commute pro', what: 'rides to work', counts: 'every ride to work', steps: [10, 25, 50, 100, 250, 500, 1000], series: (c) => cumSum(c, (e) => p(e) && e.via === 'commute') }));
+  return out;
+}
+/** Drop the milestones that have nothing to count yet in this context (hours without any minutes). */
+const usableIn = (ctx) => (m) => !m.needsMin || ctx.log.some((e) => e.actId === m.actId && Number(e.min) > 0);
+
+/* ---------- challenges per activity (Noah 22.10.2026 «3a») ---------- */
+/**
+ * A challenge of an activity (challenge.js, area `act:<id>`) as a milestone with one star: it counts the
+ * ticks of the activity from its first to its last day. Reached = a star that stays (Vitrine), even when
+ * the challenge is stopped later. A stopped one that was not reached drops out.
+ */
+export function challengeMilestones(ctx) {
+  const out = [];
+  for (const c of ctx.challenges ?? []) {
+    if (!c?.actId || !ctx.actOf.has(c.actId)) continue;
+    const series = (cx) => {
+      let n = 0;
+      return cx.days.map((d) => {
+        if (d >= c.from && d <= c.until) for (const e of cx.byDay.get(d)) if (e.actId === c.actId) n++;
+        return n;
+      });
+    };
+    const reached = (series(ctx).at(-1) ?? 0) >= c.times;
+    if (c.stopped && !reached) continue;
+    out.push(ms({ id: `ch.${c.id}`, actId: c.actId, group: 'challenge', challenge: c, name: '{n}× by {until}', vars: { n: c.times, until: c.until }, what: 'ticks in the challenge', counts: 'every tick from {from} to {until}', countsVars: { from: c.from, until: c.until }, steps: [c.times], series }));
+  }
   return out;
 }
 
@@ -331,7 +372,7 @@ export function evaluate(m, ctx, stored = new Map(), tune = {}) {
 
 /** All milestones (cross + per activity), evaluated. Paused activities keep their stars but drop out. */
 export function allMilestones(ctx, stored = new Map(), tune = {}) {
-  const defs = [...crossMilestones(ctx), ...dataMilestones(ctx), ...ctx.acts.filter((a) => !a.paused).flatMap(actMilestones)];
+  const defs = [...crossMilestones(ctx), ...dataMilestones(ctx), ...ctx.acts.filter((a) => !a.paused).flatMap((a) => actMilestones(a, ctx.today)).filter(usableIn(ctx)), ...challengeMilestones(ctx)];
   return defs.map((m) => ({ ...evaluate(m, ctx, stored, tune), off: isOff(m, tune) }));
 }
 

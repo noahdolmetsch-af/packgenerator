@@ -30,7 +30,7 @@
     seedHobby(data);
   });
 
-  const ctx = $derived(data ? msContext({ acts: data.acts, log: data.log, sessions: data.sessions, today, tripDays: data.tripDays, extra: data.extra }) : null);
+  const ctx = $derived(data ? msContext({ acts: data.acts, log: data.log, sessions: data.sessions, today, tripDays: data.tripDays, extra: data.extra, challenges: data.challenges }) : null);
   const stored = $derived(new Map((data?.stars ?? []).map((s) => [s.id, s.day])));
   const list = $derived(ctx ? allMilestones(ctx, stored, data.tune) : []);
   $effect(() => {
