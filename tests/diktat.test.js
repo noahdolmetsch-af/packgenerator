@@ -1,6 +1,7 @@
 // «Diktat» (Noah 19.10.2026 «1a 2a 3a 4 a oder b beides wählbar 5a», KI «a und b», «1a 2a»): the pure parts of the
 // dictation, the controller with a fictional speech recognition, «Weiter fragen bei …», Gemini on the server and
 // «Meine KI-Projekte». Fictional data only.
+import 'fake-indexeddb/auto';
 import { describe, it, expect, vi } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { split, fresh, appendSpoken, withCommands, isQuestion, lastQuestion, sentences, clock, dictOf, ENGINES, ANSWERS, COMMANDS, readAloud } from '../src/lib/speak.js';
@@ -10,6 +11,9 @@ import { SERVICES, shownServices, contextFor, askText, claudeUrl } from '../src/
 import { serviceOf, cleanUrl, addProject, editProject, moveProject } from '../src/lib/aiprojects/aiprojects.js';
 import { makeHandler, geminiRequest, geminiText, geminiKey, GEMINI_URL, helperEnv } from '../api/helper.js';
 import DE from '../src/lib/i18n/de/index.js';
+import { db } from '../src/lib/db.js';
+import { HELPER_KEY } from '../src/lib/helper/client.svelte.js';
+import { askGemini, geminiError } from '../src/lib/assistent/gemini.js';
 
 const src = (p) => readFileSync(new URL(`../${p}`, import.meta.url), 'utf8');
 
@@ -307,12 +311,71 @@ describe('Gemini in the app (server)', () => {
     expect((await makeHandler({ env: env(), doFetch: w.doFetch, now })(bad)).status).toBe(401);
     expect((await h(req({ task: 'gemini', input: { question: 'x' } }))).status).toBe(400);
   });
+  it('«Gemini ausgelastet» (22.10.2026): a second try, then Ersatzmodelle; each failure gets its own code', async () => {
+    const answer = { candidates: [{ content: { parts: [{ text: 'Ersatz antwortet.' }] } }] };
+    const scripted = (byModel) => {
+      const store = {};
+      const calls = [];
+      const doFetch = vi.fn(async (url, init) => {
+        if (url === REDIS) {
+          const [cmd, k, v] = JSON.parse(init.body);
+          if (cmd === 'GET') return Response.json({ result: store[k] ?? null });
+          if (cmd === 'INCRBYFLOAT') return Response.json({ result: String((store[k] = String(Number(store[k] ?? 0) + Number(v)))) });
+          return Response.json({ result: 1 });
+        }
+        calls.push(url);
+        const model = Object.keys(byModel).find((m) => url === GEMINI_URL(m));
+        const [status, body] = byModel[model] ?? [404, { error: { status: 'NOT_FOUND' } }];
+        return Response.json(body, { status });
+      });
+      return { store, calls, h: makeHandler({ env: env({ geminiDaily: 50 }), doFetch, now, wait: async () => {} }) };
+    };
+    const busy = [503, { error: { status: 'UNAVAILABLE', message: 'The model is overloaded.' } }];
+    const ask = (w) => w.h(req({ task: 'gemini', input: { question: 'Welche Jacke?' } }));
+    // the first model is full twice, the first fallback answers
+    const a = scripted({ 'gemini-flash-latest': busy, 'gemini-flash-lite-latest': [200, answer] });
+    const ra = await ask(a);
+    expect(ra.status).toBe(200);
+    expect((await ra.json()).result.text).toBe('Ersatz antwortet.');
+    expect(a.calls).toEqual([GEMINI_URL('gemini-flash-latest'), GEMINI_URL('gemini-flash-latest'), GEMINI_URL('gemini-flash-lite-latest')]);
+    expect(a.store[geminiKey('2026-10-19')]).toBe('3');
+    // all full: «busy», honestly
+    const b = scripted({ 'gemini-flash-latest': busy, 'gemini-flash-lite-latest': busy, 'gemini-2.5-flash': busy });
+    const rb = await ask(b);
+    expect([rb.status, (await rb.json()).code]).toEqual([503, 'busy']);
+    // Google's own free limit is not «enough for today»
+    const lim = [429, { error: { status: 'RESOURCE_EXHAUSTED' } }];
+    const rc = await ask(scripted({ 'gemini-flash-latest': lim, 'gemini-flash-lite-latest': lim, 'gemini-2.5-flash': lim }));
+    expect([rc.status, (await rc.json()).code]).toEqual([429, 'google_limit']);
+    // a wrong or expired key stops at once
+    const k = scripted({ 'gemini-flash-latest': [400, { error: { status: 'INVALID_ARGUMENT', message: 'API key expired. Please renew the API key.' } }] });
+    const rk = await ask(k);
+    expect([rk.status, (await rk.json()).code]).toEqual([503, 'bad_key']);
+    expect(k.calls).toHaveLength(1);
+    // no model left
+    const rn = await ask(scripted({}));
+    expect([rn.status, (await rn.json()).code]).toEqual([502, 'no_model']);
+  });
+  it('the app names each Gemini failure in its own words', async () => {
+    const code = { code: 'x' };
+    const reply = (status, body) => async () => Response.json(body, { status });
+    await db.settings.put({ key: HELPER_KEY, value: { code: 'demo-code' } });
+    expect((await askGemini('Frage?', { fetchFn: reply(503, { code: 'busy' }) })).error).toBe('busy');
+    expect((await askGemini('Frage?', { fetchFn: reply(503, { code: 'bad_key' }) })).error).toBe('key');
+    expect((await askGemini('Frage?', { fetchFn: reply(503, { code: 'not_set_up' }) })).error).toBe('server');
+    expect((await askGemini('Frage?', { fetchFn: reply(429, { code: 'google_limit' }) })).error).toBe('google_limit');
+    expect((await askGemini('Frage?', { fetchFn: reply(429, { code: 'daily_limit' }) })).error).toBe('limit');
+    expect((await askGemini('Frage?', { fetchFn: reply(502, { code: 'no_model' }) })).error).toBe('model');
+    expect((await askGemini('Frage?', { fetchFn: reply(502, code) })).error).toBe('error');
+    for (const e of ['key', 'google_limit', 'model', 'busy']) expect(geminiError(e)).not.toBe(geminiError('error'));
+  });
   it('reads the request, the answer and the environment', () => {
     expect(geminiRequest({ question: 'Q', lang: 'en' }).systemInstruction.parts[0].text).toMatch(/English/);
     expect(geminiText({ candidates: [{ content: { parts: [{ text: 'a\n\n\n\nb' }, { text: ' c' }] } }] })).toBe('a\n\nb c');
     expect(geminiText(null)).toBe('');
     expect(helperEnv({ GEMINI_API_KEY: 'k' })).toMatchObject({ geminiKey: 'k', geminiModel: 'gemini-flash-latest', geminiDaily: 200 });
-    expect(helperEnv({ GEMINI_DAILY: '50', GEMINI_MODEL: 'gemini-x' })).toMatchObject({ geminiDaily: 50, geminiModel: 'gemini-x' });
+    expect(helperEnv({ GEMINI_DAILY: '50', GEMINI_MODEL: 'gemini-x' })).toMatchObject({ geminiDaily: 50, geminiModel: 'gemini-x', geminiFallbacks: ['gemini-flash-lite-latest', 'gemini-2.5-flash'] });
+    expect(helperEnv({ GEMINI_FALLBACKS: ' gemini-a , gemini-b ' }).geminiFallbacks).toEqual(['gemini-a', 'gemini-b']);
   });
   it('adds no new server function (12-Functions limit)', () => {
     expect(src('api/helper.js')).toContain("task === 'gemini'");

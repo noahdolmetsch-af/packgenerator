@@ -1565,6 +1565,12 @@ export default {
   '«New» on top for 14 days after an update': '«Neu» 14 Tage lang oben nach einem Update',
   'Open Heute: meditation is on top, «Last activity» after the ring.': 'Öffne Heute: Meditation steht oben, «Letzte Aktivität» nach dem Ring.',
   'Without a weight for a week, type it in «Weight this week?».': 'Ohne Gewicht seit einer Woche: tippe es in «Gewicht diese Woche?».',
+  // v0.181.1 «Fitbit-Schlaf kommt an»
+  'Fitbit sleep and Gemini work again': 'Fitbit-Schlaf und Gemini gehen wieder',
+  'Your nights come from Google again, and Gemini answers.': 'Deine Nächte kommen wieder von Google, und Gemini antwortet.',
+  'Fitbit: last night comes in with «Fetch now»': 'Fitbit: die letzte Nacht kommt mit «Jetzt holen»',
+  'The last 30 nights are fetched once more': 'Die letzten 30 Nächte werden einmal neu geholt',
+  'Last night shows with today’s date.': 'Die letzte Nacht steht mit dem heutigen Datum da.',
   // v0.181.0 «Warum? und Regeln»
   'Why, and by which rule': 'Warum, und nach welcher Regel',
   'Every suggestion says why.': 'Jeder Vorschlag sagt, warum.',

@@ -7,7 +7,8 @@
  * «Tagebuch» (20.10.2026): `mode` (title, tidy, summary, ask) asks for a diary job with more context (api/helper.js).
  *
  * askGemini(question, { context, lang, mode }) → { ok: true, text } | { ok: false, error }
- * error: 'off' (no Helfer-Code) | 'offline' | 'auth' | 'server' (no key on the server) | 'limit' | 'busy' | 'error'
+ * error: 'off' (no Helfer-Code) | 'offline' | 'auth' | 'server' (no key on the server) | 'key' (Google refuses the key)
+ *        | 'limit' (our day counter) | 'google_limit' (Google's free limit) | 'busy' | 'model' (model gone) | 'error'
  */
 import { db } from '../db.js';
 import { HELPER_URL, HELPER_KEY, settingsOf } from '../helper/client.svelte.js';
@@ -37,8 +38,11 @@ export async function askGemini(question, { context = '', lang = 'de', mode = ''
   const body = await res.json().catch(() => null);
   if (res.ok && body?.ok && typeof body.result?.text === 'string') return { ok: true, text: body.result.text };
   if (res.status === 401) return { ok: false, error: 'auth' };
+  if (res.status === 429 && body?.code === 'google_limit') return { ok: false, error: 'google_limit' };
   if (res.status === 429) return { ok: false, error: 'limit' };
   if (res.status === 503 && body?.code === 'busy') return { ok: false, error: 'busy' };
+  if (res.status === 503 && body?.code === 'bad_key') return { ok: false, error: 'key' };
+  if (body?.code === 'no_model') return { ok: false, error: 'model' };
   if (res.status === 503) return { ok: false, error: 'server' };
   return { ok: false, error: 'error' };
 }
@@ -50,6 +54,9 @@ export function geminiError(error) {
   if (error === 'auth') return t('The helper code is not right. Check it in the settings.');
   if (error === 'server') return t('Gemini is not set up on the server yet (the free key is missing).');
   if (error === 'limit') return t('Gemini has answered enough for today (free daily limit). Tomorrow it answers again.');
+  if (error === 'key') return t('Google refuses the Gemini key on the server (wrong or expired). A new free key is needed.');
+  if (error === 'google_limit') return t('Google\'s free Gemini limit is reached for now. Try again in a few minutes.');
+  if (error === 'model') return t('Google no longer offers this Gemini model. The server needs another model name.');
   if (error === 'busy') return t('Gemini is busy right now. Try again in a minute.');
   return t('Gemini could not answer this time.');
 }
