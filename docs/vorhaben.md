@@ -58,6 +58,8 @@ Durchgehende Grundsätze: Alles ist ein Vorschlag, nie Pflicht, und immer änder
 
 **Nachtrag 21.10.2026, Nacht:** 0.179.0 Mockup-Paket P1 «Packen und Strom» (Ziel 1 «Schneller packen»: neues Teil gleich einpacken; Strom-Werte und Ladezeit für die Strom-Rechnung). Nächstes Paket P6 «Heute ergänzen».
 
+**Nachtrag 22.10.2026:** 0.183.0 «Aktiv neu» (Ziel 5 «Alltag»: Aktiv zum Machen, Auswerten zum Anschauen; jede Sportart mit eigener Seite, Verlauf und Meilensteinen). Geparkt bis Noahs Freigabe.
+
 **Nachtrag 21.10.2026, Nacht:** 0.181.0 Mockup-Paket P3 «Warum? und Regeln» (Ziel 1 «Schneller packen»: jeder Vorschlag sagt warum; vergessene Dinge kommen zuerst). Nächstes Paket P4 «Aktiv».
 
 **Nachtrag 22.10.2026:** 0.181.1 «Alltag fertig bauen» (Ziel 5 «Alltag»: Mein Tag, Meine Woche, Velo pflegen ohne Sackgassen, Durchspiel-Test vor jedem Release). Nächste Reparatur-Pakete: Aktiv, Packen, Tote Knöpfe.

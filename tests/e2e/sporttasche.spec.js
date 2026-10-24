@@ -69,7 +69,7 @@ test('Sporttasche: the reminder on Heute, pack the bag, often forgotten, switch 
   await expect(rem).toContainText(T('Tomorrow {name} {time}: pack the bag', { name: 'Yoga', time: '07:00' }));
   await rem.click();
   await expect(page).toHaveURL(/#\/flow\/bags\?b=bag-yoga$/);
-  await expect(page.locator(TABS).getByRole('link', { name: T('Today|active'), exact: true })).toHaveAttribute('aria-current', 'page');
+  await expect(page.locator(TABS).getByRole('link', { name: T('My sports|tab'), exact: true })).toHaveAttribute('aria-current', 'page'); // «Aktiv neu»: the sport bag belongs to «Meine Sportarten»
   await expect(main.locator('[data-more="bags"]')).toHaveAttribute('aria-current', 'page');
   const bag = main.locator('[data-open-bag="bag-yoga"]');
   await expect(bag.getByRole('heading', { level: 2 })).toContainText('07:00');

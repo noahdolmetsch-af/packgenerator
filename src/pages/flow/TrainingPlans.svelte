@@ -187,7 +187,7 @@
 
 <div class="tp">
   <header class="ph">
-    <Crumb path={[{ href: '#/flow', label: t('Analysis|place') }, { href: '#/flow/training', label: t('Training|tab') }, ...(plan ? [{ href: '#/flow/plans', label: t('Training plans') }] : [])]} here={plan ? nameOf(plan) : t('Training plans')} />
+    <Crumb path={[{ href: '#/flow', label: t('Active|place') }, { href: '#/flow/training', label: t('Training|tab') }, ...(plan ? [{ href: '#/flow/plans', label: t('Training plans') }] : [])]} here={plan ? nameOf(plan) : t('Training plans')} />
     {#if plan}
       <PageHead title={nameOf(plan)} text={t(plan.who)} />
     {:else}

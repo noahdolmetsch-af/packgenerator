@@ -201,7 +201,7 @@
       <!-- UI-Ziele #6 (Noah 20.10.2026 «freigabe», 4a): Ich keeps data, settings and help. Freie Zeit, Alltag,
            Termine, Mail, Notizen, Eingang and Kompass are under Planen; Wi gaht's?, Erkenntnisse, Was mir gut tut
            and Gewicht under Auswerten; Material under Velos. One quiet line says where they went. -->
-      <p class="card moved-to" role="note" data-me-moved><Info size={16} aria-hidden="true" /><span>{t('Looking for appointments, notes, the diary or the Inbox? They are under')} <a href="#/week">{t('Plan|place')}</a>{t('; your questions, insights and weight under')} <a href="#/flow">{t('Analysis|place')}</a>{t(', the gear under')} <a href="#/gear">{t('Bikes|place')}</a>.</span></p>
+      <p class="card moved-to" role="note" data-me-moved><Info size={16} aria-hidden="true" /><span>{t('Looking for appointments, notes, the diary or the Inbox? They are under')} <a href="#/week">{t('Plan|place')}</a>{t('; your questions, insights and weight under')} <a href="#/auswerten">{t('Analysis|place')}</a>{t(', the gear under')} <a href="#/gear">{t('Bikes|place')}</a>.</span></p>
       <section class="ich-sec" aria-labelledby="me-data-h">
         <div class="ich-h"><div><h2 id="me-data-h">{t('Data')}</h2></div></div>
         <ul class="card ich-list">

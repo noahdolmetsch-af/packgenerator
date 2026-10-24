@@ -80,7 +80,7 @@
 
 <div class="hob">
   <header class="ph">
-    <Crumb path={[{ href: '#/flow', label: t('Analysis|place') }]} here={t('Recovery|page')} />
+    <Crumb path={[{ href: '#/flow', label: t('Active|place') }]} here={t('Recovery|page')} />
     <MoreAktiv items={pages} on="rest" />
     <PageHead title={t('Recovery|page')} text={t('So that after the bike, tennis and gym the pause has its place too')} />
   </header>

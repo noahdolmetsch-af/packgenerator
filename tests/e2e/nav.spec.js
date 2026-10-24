@@ -37,7 +37,9 @@ const ROUTES = [
   ['#/debrief', 'Trips|place'],
   ['#/debrief/test_data_gtp_none', 'Trips|place'],
   // v0.76.0 «Fünf Orte»: Im Flow is the place Aktiv; the Inbox lives in «Ich» (no place lit)
-  ['#/flow', 'Analysis|place'], // N1: Aktiv is «Auswerten»
+  ['#/flow', 'Active|place'], // «Aktiv neu» (Noah 22.10.2026): Aktiv again
+  ['#/auswerten', 'Analysis|place'], // «Aktiv neu»: Auswerten shares Aktiv's slot on a phone
+  ['#/flow/form', 'Analysis|place'],
   ['#/inbox', 'Plan|place'], // UI-Ziele #6: Planen › Eingang
   ['#/inbox/new', 'Plan|place'],
   ['#/me', null], // Ich: data, settings, help (no place lit)
@@ -65,9 +67,11 @@ for (const lang of ['en', 'de']) {
       // AU1 «1b» (Noah 15.10.2026): the sidebar has «Ausrüstung» under Velos; «Woche planen» «1a»: on a phone
       // the bottom bar has Woche instead of Material (BAR_PLACES)
       const side = await page.locator('.side li.pl').first().isVisible();
-      await expect(places, hash).toHaveText((side ? SIDE_PLACES : BAR_PLACES).map((p) => T(p.label)));
+      // «Aktiv neu» «1a»: on a phone the slot of Velos reads «Velos und Material» (nav.js bar)
+      await expect(places, hash).toHaveText((side ? SIDE_PLACES : BAR_PLACES).map((p) => T((!side && p.bar) || p.label)));
       const lit = page.locator('nav.bottom a[aria-current], .side li.pl > a.pa[aria-current]');
-      if (place === 'Gear|place' && !side) await expect(lit, hash).toHaveText(T('Bikes|place')); // N1: on a phone Material shares the slot of Velos
+      if (['Gear|place', 'Bikes|place', 'Equipment|place'].includes(place) && !side) await expect(lit, hash).toHaveText(T('Bikes and gear|place')); // N1: on a phone Material shares the slot of Velos
+      else if (place === 'Analysis|place' && !side) await expect(lit, hash).toHaveText(T('Active|place')); // «Aktiv neu»: Auswerten shares the slot of Aktiv
       else if (place) await expect(lit, hash).toHaveText(T(place));
       else await expect(lit, hash).toHaveCount(0);
       await expect(page.locator('main'), hash).not.toBeEmpty();

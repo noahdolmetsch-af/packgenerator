@@ -18,10 +18,11 @@
   import Crumb from '../../lib/flow/kit/Crumb.svelte';
   import PlaceSheet from '../../lib/flow/PlaceSheet.svelte';
   import { db } from '../../lib/db.js';
-  import { GB_KEY, bookOf, suggestions, addPlace, addVisit, editPlace, removePlace, dismiss, yearGroups, coreOf, sportCounts, sportOf, isVelo, gbStars, starsOfPlace, nextPassStar, placeRows, PLACE_WORD } from '../../lib/gipfelbuch.js';
+  import { GB_KEY, bookOf, suggestions, addPlace, addVisit, editPlace, removePlace, dismiss, yearGroups, coreOf, sportCounts, sportOf, isVelo, gbStars, starsOfPlace, nextPassStar, placeRows, PLACE_WORD, GB_SPORTS } from '../../lib/gipfelbuch.js';
   import { localDay } from '../../lib/localday.js';
   import { t, tn, num, locale } from '../../lib/i18n.svelte.js';
 
+  const sportKeyOf = (k) => (GB_SPORTS.some((s) => s.key === k) ? k : null);
   const today = localDay();
   const year = today.slice(0, 4);
   const q = liveQuery(async () => {
@@ -31,7 +32,9 @@
   const data = $derived($q);
   const book = $derived(data?.book ?? bookOf(null));
 
-  let sport = $state(null);
+  // «Aktiv neu»: the page of a sport links here with ?sport=<key>, the chip of that sport then is on
+  let { params = new URLSearchParams() } = $props();
+  let sport = $state(sportKeyOf(params.get('sport')));
   let sel = $state(null);
   let sheet = $state(null); // { mode: 'new' | 'confirm' | 'edit' | 'visit', sugg?, place? }
   let undo = $state(null); // { text, book }
@@ -99,7 +102,7 @@
 
 <div class="hob gb">
   <header class="ph">
-    <Crumb path={[{ href: '#/flow', label: t('Analysis|place') }, { href: '#/flow/activity', label: t('Activity|tab') }]} here={t('Summit book')} />
+    <Crumb path={[{ href: '#/flow', label: t('Active|place') }, { href: '#/flow/sports', label: t('My sports|tab') }]} here={t('Summit book')} />
     <PageHead title={t('Summit book')} text={t('Passes, summits and trails of every sport. New places become milestones.')} />
     {#if data && rows.length}<CoreLine parts={[{ v: core.places, label: tn(core.places, 'place', 'places') }, { v: core.fresh, label: t('new in {year}', { year }) }, core.top ? { v: m(core.top.ele), label: t('highest point {year}', { year }) } : null, core.hm ? { v: `${num(core.hm)} Hm`, label: t('climbed for them in {year}', { year }) } : null]} />{/if}
   </header>

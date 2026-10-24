@@ -42,7 +42,7 @@ test('Packen: high UV suggests the own sunglasses with «dazu»; Aktiv: strong g
   await expect(hint.getByText('test_data_gtp_ Sonnenbrille')).toBeVisible();
   await expect(hint.locator('[data-sky-add="sunglasses"]')).toHaveCount(0);
 
-  await page.goto('./#/flow');
+  await page.goto('./#/wetter'); // «Aktiv neu» (Noah 22.10.2026): ozone and pollen moved from Aktiv to the weather page
   await settle(page);
   const air = page.locator('[data-section="air"]');
   await expect(air.locator(`[data-air-day="${day(1)}"]`)).toContainText(T('Strong pollen: {list}.', { list: T('Grasses') }));

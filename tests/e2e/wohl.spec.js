@@ -56,7 +56,7 @@ test('Was mir gut tut: results with their source, experiment, Neuland, season, w
   await ready(page);
 
   // the way in: Auswerten › Was mir gut tut (UI-Ziele #6, was under Ich); empty first, it says how many days are still missing
-  await viaTab(page, 'active', '#/me/wohl');
+  await viaTab(page, 'analysis', '#/me/wohl');
   await expect(page.getByRole('heading', { level: 1, name: 'Was mir gut tut' })).toBeVisible();
   await expect(page.locator('[data-wohl-wait]')).toContainText('Noch 10 Tage mit Tagesbewertung');
 

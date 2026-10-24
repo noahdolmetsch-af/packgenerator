@@ -24,7 +24,7 @@
   {#each places as p (p.key)}
     <a href={(void anp.v, placeHref(p, slot, hash))} data-place={p.key} aria-current={slot === p.key ? 'page' : undefined}>
       <span class="pi"><PlaceIcon place={p.key} />{#if p.key === 'bikes' && due}<span class="due num" aria-hidden="true">{due}</span>{/if}</span>
-      <span class="pn">{placeLabel(p)}</span>{#if p.key === 'bikes' && due}<span class="sr">, {t('{n} due', { n: due })}</span>{/if}
+      <span class="pn" class:two={!!p.bar}>{placeLabel(p, true)}</span>{#if p.key === 'bikes' && due}<span class="sr">, {t('{n} due', { n: due })}</span>{/if}
     </a>
   {/each}
 </nav>
@@ -60,6 +60,17 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+  }
+  /* «Velos und Material» may take two short lines */
+  .pn.two {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    font-size: var(--fs-tiny);
+    line-height: 1.1;
+    text-align: center;
+    white-space: normal;
   }
   .pi {
     position: relative;

@@ -111,6 +111,8 @@ Ursprünglich freigegebene Ausführungsreihenfolge: AP01–AP09 → AP12–AP16 
 
 **21.10.2026, v0.179.0 «Gepackt und geladen»:** Mockup-Paket P1 Packen und Strom: neues Teil beim Packen, Strom-Werte mit Quelle, Leuchtstufen, Ladezeit messen, Flickzeug-Fehler. Als Nächstes P6 Heute ergänzen.
 
+**22.10.2026, v0.183.0 «Hier machen, dort anschauen» (geparkt):** Aktiv neu: Aktiv zum Machen (Heute, Meine Sportarten, Training, Erholung), Auswerten zum Anschauen; jede Sportart mit Seite (Ziel, Verlauf, Meilensteine, Sporttasche). Als Nächstes: Meilensteine-Karte pro Sportart (Thread «Meilensteine als Belohnung») in den Platz der Sportseite.
+
 **21.10.2026, v0.181.0 «Warum, und nach welcher Regel»:** Mockup-Paket P3 Warum? und Regeln: «Warum?» in Planen, Seite «So entscheidet die App», «Meist vergessen» in Packen. Als Nächstes P4 Aktiv.
 
 **22.10.2026, v0.181.1 «Alltag ohne Sackgassen»:** Reparaturen aus dem Klick-Rundgang für Mein Tag, Meine Woche, Velo pflegen, mit Durchspiel-Test. Als Nächstes «Aktiv fertig bauen», dann «Packen fertig bauen», dann «Tote Knöpfe».

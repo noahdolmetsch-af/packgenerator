@@ -63,8 +63,8 @@ test('Training: the subtitle fits the week, the empty look back says why and lea
 test('Ziele: calm states instead of «! heute offen» everywhere, the year goals say «zeigen»', async ({ page, context }) => {
   const errors = await open(page, context);
   const main = page.locator('main');
-  await go(page, '#/flow/goals');
-  await expect(main.locator('#acts-h')).toHaveText(T('Your goals, last 7 days'));
+  await go(page, '#/flow/goals'); // «Aktiv neu» (22.10.2026): «Ziele» shows «Meine Sportarten»
+  await expect(main.locator('#ms-h')).toHaveText(T('Your sports, last 7 days'));
   const rows = main.locator('ul.acts > li[data-id]');
   await expect(rows.first()).toBeVisible();
   // «heute offen» only for a daily goal; a rolling goal not on track is grey, without «!»

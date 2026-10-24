@@ -53,13 +53,12 @@ describe('old addresses (O2.6a)', () => {
   });
 });
 
-describe('hobby pages 1: the tab «Aktivität» in Aktiv', () => {
-  it('lights «Aktivität» on the tiles, milestones and an editor opened from a tile; «Ziele» elsewhere', async () => {
+describe('hobby pages 1: the tab «Meine Sportarten» in Aktiv', () => {
+  it('«Aktiv neu» (Noah 22.10.2026 «4a»): the sports, their pages, the editor and the hobby pages light «Meine Sportarten»', async () => {
     const { tabOf } = await import('../src/lib/nav.js');
-    for (const h of ['#/flow/activity', '#/flow/milestones?act=meditation', '#/flow/act/yoga', '#/flow/edit/yoga?from=activity']) expect(tabOf('active', h), h).toBe('activity');
-    // «Meditation» (mockup ME2, Noah 13.10.2026 «2a»): the meditation page and its pages are the tab «Meditation» (second since Noah 15.10.2026 «1a»)
-    for (const h of ['#/flow/act/meditation', '#/flow/act/meditation/rueckblick', '#/flow/act/meditation/log?view=list']) expect(tabOf('active', h), h).toBe('meditation');
-    for (const h of ['#/flow/goals', '#/flow/edit/yoga', '#/flow/new']) expect(tabOf('active', h), h).toBe('goals');
+    for (const h of ['#/flow/activity', '#/flow/act/yoga', '#/flow/edit/yoga?from=activity', '#/flow/act/meditation', '#/flow/act/meditation/rueckblick', '#/flow/act/meditation/log?view=list', '#/flow/goals', '#/flow/edit/yoga', '#/flow/new', '#/flow/sports', '#/flow/sport/act:yoga']) expect(tabOf('active', h), h).toBe('sports');
+    // the milestones are looking: Auswerten › Meilensteine
+    expect(tabOf('analysis', '#/flow/milestones?act=meditation')).toBe('milestones');
     expect(tabOf('active', '#/flow')).toBe('today');
   });
 });

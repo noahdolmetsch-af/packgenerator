@@ -215,7 +215,7 @@
 
 <div class="hob">
   <header class="ph">
-    <Crumb path={[{ href: '#/flow', label: t('Analysis|place') }]} here={t('Activity|tab')} />
+    <Crumb path={[{ href: '#/flow', label: t('Active|place') }]} here={t('Activity|tab')} />
     <!-- Impeccable runde 2 (clarify): what the page is for, next to «Heute» (tick off) and «Ziele» (the stand) -->
     <PageHead title={t('Activity|tab')} text={t('Your favourite activities at a glance: streaks, bests and the next star.')} />
   </header>

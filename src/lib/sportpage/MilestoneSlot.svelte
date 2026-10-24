@@ -7,7 +7,8 @@
    *     each with its next star, a bar and what counts («zählt: …», 5a);
    *   - challenges: three ready ones to tap, an own one, the running and the reached ones (3a). A reached
    *     challenge is a star that stays (Vitrine). Change or stop any time; stop and delete offer Undo.
-   * A sport without a tile (a trip sport that is no bike sport) shows nothing: only ticks count.
+   * act, today: the sport's activity (Meditation too) and today. Sport.svelte («Aktiv neu») draws the section
+   * «Meilensteine» around it.
    */
   import { liveQuery } from 'dexie';
   import { Star, Trophy, Plus, Trash2 } from '@lucide/svelte';
@@ -22,12 +23,11 @@
   import { askDelete, deleteWithUndo } from '../ui/ask.js';
   import { msName, starLine, val, countsLine } from '../flow/hobby/words.js';
   import { dayShort } from '../flow/words.js';
-  import { sportName } from './words.js';
   import { actName } from '../flow/ui.svelte.js';
   import { t, tn, num } from '../i18n.svelte.js';
 
-  let { sport, today } = $props();
-  const actId = $derived(sport?.kind === 'act' ? sport.key : sport?.bike ? 'bike' : null);
+  let { act: given, today } = $props();
+  const actId = $derived(given?.id ?? null);
 
   const q = $derived(
     actId
@@ -59,7 +59,7 @@
   const running = $derived(mine.filter((c) => c.until >= today && actCount(c, data.log) < c.times));
   const done = $derived(mine.filter((c) => actCount(c, data.log) >= c.times));
   const presets = $derived(act ? presetsFor(act, today) : []);
-  const sportWord = $derived(act ? (sport.kind === 'act' ? sportName(sport) : actName(act)) : '');
+  const sportWord = $derived(act ? actName(act) : '');
 
   /* the challenge window: a preset, an own one or a running one to change */
   let sheet = $state(false);
@@ -103,11 +103,8 @@
 </script>
 
 {#if act}
-  <section class="card blk ms-slot" aria-labelledby="ms-slot-h" data-block="milestones">
-    <div class="hl">
-      <h2 id="ms-slot-h">{t('Milestones')}</h2>
-      <small class="num">{tn(starCount, '{n} star', '{n} stars')}</small>
-    </div>
+  <div class="msl" data-milestone-slot={act.id}>
+    <p class="small num" data-ms-stars>{tn(starCount, '{n} star', '{n} stars')}</p>
 
     <MsHow sport={sportWord} start={false} />
 
@@ -154,8 +151,8 @@
       </ul>
     {/if}
 
-    <p class="links"><a class="lnk" href="#/flow/milestones?act={encodeURIComponent(act.id)}">{t('All milestones')}</a> · <a class="lnk" href="#/flow/trophies">{t('Trophy showcase')}</a></p>
-  </section>
+    <p class="links"><a class="lnk" href="#/flow/milestones?act={encodeURIComponent(act.id)}" data-all-milestones>{t('All milestones')}</a> · <a class="lnk" href="#/flow/trophies">{t('Trophy showcase')}</a></p>
+  </div>
   <ChallengeSheet bind:open={sheet} what={sportWord} times={draft.times} until={draft.until} min={today} running={!!draft.id} sport onsave={save} onstop={stop} />
 {/if}
 

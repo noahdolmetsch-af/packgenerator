@@ -68,10 +68,14 @@ test('Einstieg in the card on top of Active; a page with only the Einstieg: × a
   await expect(card.locator('[data-offer]')).toBeVisible(); // first visit: the small tour is offered
   await card.getByRole('button', { name: T('No thanks') }).click();
   await expect(card.locator('[data-offer]')).toHaveCount(0);
-  await expect(page.locator('main [data-tip]')).toHaveCount(1); // one tip of the day: the tip line
   await expect(page.locator('[data-intro="aktiv"]')).toHaveCount(0); // no second card
+  // «Aktiv neu» (Noah 22.10.2026): the tip of the day moved to Auswerten, one tip line there
+  await expect(page.locator('main [data-tip]')).toHaveCount(0);
+  await page.goto('./#/auswerten');
+  await expect(page.locator('main [data-tip]')).toHaveCount(1);
   // Goals has no card «Was hier steht»: its own Einstieg, × and back from the Handbook
   await page.goto('./#/flow/goals');
+  await page.locator('[data-intro="goals"][data-open="false"]').click(); // «Aktiv neu»: it starts as one line
   await page.locator('[data-intro="goals"]').getByRole('button', { name: T('Hide the introduction') }).click();
   await expect(page.locator('[data-intro="goals"]')).toHaveCount(0);
   await page.goto('./#/me/handbook');
@@ -123,6 +127,7 @@ test('The small tour of Bikes, and the Einstieg on the pages below the places', 
   ]) {
     await page.goto(`./${hash}`);
     const box = page.locator(`[data-intro="${place}"]`);
+    if (place === 'goals') await box.click(); // «Aktiv neu»: «Meine Sportarten» starts with the one line «So geht's»
     await expect(box, place).toContainText(T(title));
     await expect(box.locator('.kick'), place).toHaveCount(0); // Impeccable 20.10.2026: no label above the title
     await expect(box.locator('[data-offer]'), place).toHaveCount(0);

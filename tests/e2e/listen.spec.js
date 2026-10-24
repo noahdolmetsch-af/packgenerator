@@ -65,8 +65,8 @@ test('a list from the quick field: points, tick, pinned to Material, in Merken',
   expect(errors).toEqual([]);
 });
 
-test('Meine Ideen: 4th card in Aktiv, an idea with a date gets a reminder in Merken', async ({ page, context }) => {
-  const errors = await open(page, context, '#/flow');
+test('Meine Ideen: a card on the start of Auswerten, an idea with a date gets a reminder in Merken', async ({ page, context }) => {
+  const errors = await open(page, context, '#/auswerten'); // «Aktiv neu» (Noah 22.10.2026): Ideen moved to Auswerten
   const main = page.locator('main');
   await main.locator('[data-more="ideas"]').first().click();
   await expect(page).toHaveURL(/#\/flow\/ideen$/);

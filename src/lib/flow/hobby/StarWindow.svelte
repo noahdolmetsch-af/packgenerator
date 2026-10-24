@@ -17,7 +17,7 @@
     if (s && dialog && !dialog.open) dialog.showModal();
     if (!s && dialog?.open) dialog.close();
   });
-  const href = $derived(!s ? '#/flow/milestones' : s.actId === 'bike' ? '#/flow/milestones?act=bike' : `#/flow/sport/${encodeURIComponent(`act:${s.actId}`)}`);
+  const href = $derived(!s ? '#/flow/milestones' : `#/flow/sport/${encodeURIComponent(`act:${s.actId}`)}`);
   const close = () => (ui.star = null);
 </script>
 
@@ -31,7 +31,7 @@
         {#each s.stars as x (x.id)}
           <li>
             <b>{x.m ? msName(x.m) : ''}</b>
-            <span>{t('Star {k}', { k: x.star })}{#if x.target != null} · {val(x.target, x.m?.unit)}{/if}</span>
+            <span>{t('Star {k}', { k: x.star })}{#if x.target != null}{' · '}{val(x.target, x.m?.unit)}{/if}</span>
             {#if x.m}<small>{countsLine(x.m)}</small>{/if}
           </li>
         {/each}
