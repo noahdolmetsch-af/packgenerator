@@ -223,6 +223,7 @@ export function pageOf(hash = '', careTab = false) {
   if (h.startsWith('#/me/offers')) return 'offers'; // Termine buchen (mockups BU1, BU4, BU5, Noah 14.10.2026)
   if (h.startsWith('#/me/pay')) return 'pay'; // Ich › Bezahlen (mockups BZ1 + BZ2b, Noah 14.10.2026)
   if (h.startsWith('#/me/hinweise')) return 'hinweise'; // Paket Q #148: Ich › Hinweise und News
+  if (h.startsWith('#/stopps')) return 'stopps'; // «Stopps in der Nähe» (Noah 24.10.2026 «1a»)
   if (h.startsWith('#/wetter')) return 'wetter'; // Paket Y «Wetter-Kern» (Noah 20.10.2026 «1-5a»)
   if (h.startsWith('#/me/push')) return 'push'; // Erinnerungen aufs Handy (Web-Push, Noah 15.10.2026 «1a 2b 3a 4b 5a»)
   if (h.startsWith('#/me/checks')) return 'checks'; // v0.111.0 (mockup V4): Ich › Checks pro Reiseart
@@ -415,7 +416,7 @@ export function placeOf(page) {
   // N1 + UI-Ziele #6 (Noah 20.10.2026): what you plan is Planen, what you look back on is Auswerten; Ich keeps data, settings, help
   if (['week', 'agenda', 'calendar', 'notes', 'tagebuch', 'inbox', 'mail', 'compass', 'alltag', 'frei'].includes(page)) return 'week';
   if (['stravarides', 'insights', 'history', 'abfragen', 'analysis', 'wohl', 'weight'].includes(page)) return 'active';
-  if (['trips', 'dreams', 'between', 'pack', 'templates', 'past', 'ride', 'debrief', 'rides', 'share', 'review', 'ski', 'mountain', 'quiz', 'chronik', 'gelernt', 'jahr', 'neuland', 'heatmap', 'spur', 'tour', 'travel', 'race', 'live', 'fuel', 'wetter'].includes(page)) return 'trips'; // wetter: Paket Y, the weather to plan rides (no own tab: Touren has its 5)
+  if (['trips', 'dreams', 'between', 'pack', 'templates', 'past', 'ride', 'debrief', 'rides', 'share', 'review', 'ski', 'mountain', 'quiz', 'chronik', 'gelernt', 'jahr', 'neuland', 'heatmap', 'spur', 'tour', 'travel', 'race', 'live', 'fuel', 'wetter', 'stopps'].includes(page)) return 'trips'; // wetter: Paket Y, the weather to plan rides (no own tab: Touren has its 5)
   if (page === 'gear' || page === 'supplies' || page === 'lend' || page === 'power' || page === 'gearimport' || page === 'favorites' || page === 'blocks' || page === 'blockcheck' || page === 'packcleanup' || page === 'wardrobe') return 'gear';
   if (page === 'bikes' || page === 'care') return 'bikes';
   if (page === 'equipment') return 'equipment';

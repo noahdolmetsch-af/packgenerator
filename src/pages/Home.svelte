@@ -1253,6 +1253,7 @@
   <!-- Paket Q #148 (Noah 19.10.2026 «1a»): one small line, only when a warning, the avalanche danger or a pass concerns you -->
   {#if !editing}<AlertLine />{/if}
   {#if !editing}{#await import('../lib/wetter/HeuteWetter.svelte') then m}<m.default {today} />{:catch}{/await}{/if}
+  {#if !editing}{#await import('../lib/stops/HeuteStopps.svelte') then m}<m.default {today} />{:catch}{/await}{/if}
   <!-- v0.127.0 A-U2 (mockup «Laden»): calm placeholders until Today has read its data, then the wall -->
   {#if newsRow}<div class="newsrow" data-news-row><NewsTile size="long" days={newsDays} onremove={() => db.settings.put({ key: NEWS_OFF_KEY, value: WHATS_NEW[0].version })} /></div>{/if}
   {#if ready}<Wall tiles={timeWall} body={tileBody} {editing} onedit={() => (editing = true)} onchange={saveShown} onadd={() => (catalogOpen = true)} />

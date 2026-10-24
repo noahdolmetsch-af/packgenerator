@@ -27,6 +27,10 @@ export const POI_KINDS = [
   { key: 'station', name: 'Station', icon: 'train' },
   { key: 'shelter', name: 'Shelter', icon: 'home' },
   { key: 'toilet', name: 'WC|poi', icon: 'toilet' },
+  // «Stopps in der Nähe» (Noah 24.10.2026 «4b»): also cash, a pharmacy and a pump or repair stand
+  { key: 'atm', name: 'ATM|poi', icon: 'atm' },
+  { key: 'pharmacy', name: 'Pharmacy|poi', icon: 'pharmacy' },
+  { key: 'repair', name: 'Repair stand|poi', icon: 'repair' },
   { key: 'laundry', name: 'Laundry', icon: 'shirt' },
   { key: 'depot', name: 'Depot', icon: 'package' },
   { key: 'startfinish', name: 'Start and finish', icon: 'flag' },
@@ -53,6 +57,11 @@ node["tourism"="wilderness_hut"]${s};
 way["tourism"="wilderness_hut"]${s};
 node["amenity"="waiting_room"]${s};
 node["amenity"="toilets"]${a};
+node["amenity"="atm"]${a};
+node["amenity"="bank"]["atm"="yes"]${a};
+node["amenity"="pharmacy"]${s};
+node["amenity"="bicycle_repair_station"]${a};
+node["amenity"="compressed_air"]${a};
 node["shop"="laundry"]${s};
 node["amenity"="laundry"]${s};
 node["amenity"="drinking_water"]${a};
@@ -69,8 +78,11 @@ const thinFor = (pts, n) => (pts.length <= n ? pts : Array.from({ length: n }, (
 export function kindOf(tags = {}) {
   if (tags.shop === 'bicycle') return 'bike';
   if (tags.shop === 'laundry' || tags.amenity === 'laundry') return 'laundry';
+  if (tags.amenity === 'pharmacy' || tags.healthcare === 'pharmacy') return 'pharmacy';
   if (tags.shop) return 'shop';
   if (tags.amenity === 'fuel') return 'fuel';
+  if (tags.amenity === 'atm' || (tags.amenity === 'bank' && tags.atm === 'yes')) return 'atm';
+  if (tags.amenity === 'bicycle_repair_station' || tags.amenity === 'compressed_air' || tags['service:bicycle:pump'] === 'yes') return 'repair';
   if (['restaurant', 'fast_food', 'cafe'].includes(tags.amenity)) return 'food';
   // U4 «Schlafplätze im Rennen» 1137: more roofs (bus stops with a roof, huts, waiting rooms, bivouac boxes)
   if (tags.amenity === 'shelter' || tags.tourism === 'wilderness_hut' || tags.amenity === 'waiting_room' || (tags.highway === 'bus_stop' && tags.shelter === 'yes')) return 'shelter';

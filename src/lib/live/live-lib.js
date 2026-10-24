@@ -365,6 +365,12 @@ node["man_made"="water_tap"]["drinking_water"!="no"]${a};
 node["shop"="bicycle"]${w};
 node["railway"="station"]${w};
 node["tourism"~"^(hotel|guest_house|hostel|camp_site|alpine_hut|motel)$"]${w};
+node["amenity"="toilets"]${a};
+node["amenity"="atm"]${a};
+node["amenity"="bank"]["atm"="yes"]${a};
+node["amenity"="pharmacy"]${w};
+node["amenity"="bicycle_repair_station"]${a};
+node["amenity"="compressed_air"]${a};
 );out center tags;`;
 }
 
