@@ -11,7 +11,6 @@ export default {
   'Logbook: your own entry': 'Logbuch: ein eigener Eintrag',
   'Your next race on top of Trips': 'Dein nächstes Rennen oben in Touren',
   'The next shop in the Live map button': 'Der nächste Laden im Knopf «Live-Karte»',
-  'Maps, «all used» and «Keep it» answer': 'Karten, «alle gebraucht» und «Behalten» antworten',
   'On the way of a trip of several days: tap «Good night» and share.': 'Unterwegs bei einer mehrtägigen Tour: «Gute Nacht» tippen und teilen.',
   'Review › Logbook: tap «New entry».': 'Rückblick › Logbuch: «Neuer Eintrag» tippen.',
   // 0.160.0 Paket 8 Verpflegung

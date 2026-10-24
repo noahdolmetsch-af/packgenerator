@@ -24,11 +24,10 @@ export const WHATS_NEW = [
     points: [
       { text: 'Good night: where you sleep, when to call', href: '#/ride' },
       { text: 'Logbook: your own entry', href: '#/debrief/logbook' },
-      { text: 'Your next race on top of Trips', href: '#/trips' },
     ],
     small: [
       { box: 'new', text: 'The next shop in the Live map button' },
-      { box: 'fixed', text: 'Maps, «all used» and «Keep it» answer' },
+      { box: 'nicer', text: 'Your next race on top of Trips' },
     ],
     test: ['On the way of a trip of several days: tap «Good night» and share.', 'Review › Logbook: tap «New entry».'],
   },

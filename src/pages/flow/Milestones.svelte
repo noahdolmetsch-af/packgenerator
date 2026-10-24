@@ -33,6 +33,9 @@
   import { tileName, msName, starLine, val, dayWord, areaWord } from '../../lib/flow/hobby/words.js';
   import { localDay } from '../../lib/localday.js';
   import { t, num } from '../../lib/i18n.svelte.js';
+  import { phone } from '../../lib/media.svelte.js';
+  const CARDS_PHONE = 6;
+  let allCards = $state(false);
 
   let { params = new URLSearchParams() } = $props();
   const today = localDay();
@@ -137,7 +140,9 @@
 
         <Sec id="all-h" title={actOf ? tileName(actOf) : t('All milestones')} sub={actOf ? '' : t('over all activities')}>
           {#if cards.length || scoped.length}
-            <div class="grid">{#each cards as r (r.id)}<MsCard {r} sub={r.m.area ? '' : label(r)} />{/each}</div>
+            <!-- phone: the first six, the rest after «Alle n zeigen» (the page stays within its length budget, laenge.js) -->
+            <div class="grid">{#each phone.matches && !allCards ? cards.slice(0, CARDS_PHONE) : cards as r (r.id)}<MsCard {r} sub={r.m.area ? '' : label(r)} />{/each}</div>
+            {#if phone.matches && !allCards && cards.length > CARDS_PHONE}<button type="button" class="btn btn-link" onclick={() => (allCards = true)} data-ms-all>{t('Show all {n}', { n: cards.length })} ›</button>{/if}
           {:else}
             <Empty text={t('This activity has no milestones yet.')} />
           {/if}

@@ -502,8 +502,9 @@
   const showFirst = $derived(loaded && !!$bikesQ && firstOn && !stepsAll);
   // Klick-Rundgang H32 (Noah 24.10.2026 «1a»): on an empty device Today starts with First steps only; the wall
   // (body, Aktiv, week, balance) comes as soon as there is a first bike, item or trip. «Show everything» keeps it on.
+  // A wall you arranged yourself (stored in WALL_KEY) counts as «show everything»: your own tiles never hide.
   let wallAnyway = $state(false);
-  const emptyDevice = $derived(showFirst && !steps.bike && !steps.gear && !steps.trip && !wallAnyway && !editing);
+  const emptyDevice = $derived(showFirst && !steps.bike && !steps.gear && !steps.trip && !wallAnyway && !editing && !S[WALL_KEY]);
 
   /* ---------- 3. the 16 functions (Noah 12a, 13a, 15a) ---------- */
   const usage = $derived(usageOf(S[USAGE_KEY]));
