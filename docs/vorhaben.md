@@ -46,6 +46,8 @@ Die geplanten Vorhaben verfolgen fünf Ziele (das fünfte seit 19.10.2026, Noah 
 4. **Aus jeder Tour lernen.** Rückblick, Learnings, die beim nächsten Packen wieder auftauchen, und ein Aktivitätsmosaik über alle Sportarten und Meditation.
 5. **Alltag.** Die App hilft auch an Tagen ohne Tour: Woche und Termine, Bewegung und Erholung, Dokumente und Geld, Menschen und Zuhause. Beispiel: am Sonntag die Woche planen, am Morgen der Tages-Check, eine Erinnerung, bevor der Pass abläuft.
 
+**Neu 24.10.2026, 996 Ideen:** vier Pakete nach der 332-Arbeit, in dieser Reihenfolge: B «Touren ohne Überraschung» (Ziel 3: Generalprobe, Folgen vorher sehen, QR an der Kiste, Gut ankommen, Packen nach Bedürfnis), A «Ehrlicher Stand im Alltag» (Ziel 5), C «Ruhig und persönlich» (Ziele 4 und 5), D «Mit Freunden» (wieder offen). Übersicht: `notes/ideen-996/` im Projektordner.
+
 Durchgehende Grundsätze: Alles ist ein Vorschlag, nie Pflicht, und immer änderbar. Private Daten bleiben privat. Keine fremden Dienste, wenn es eine eigene, schlanke Lösung gibt.
 
 ## Stand heute (19.10.2026, live 0.152.0)

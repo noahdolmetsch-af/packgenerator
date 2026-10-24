@@ -25,6 +25,7 @@
   import WeightCard from './WeightCard.svelte';
   import StagesCard from './StagesCard.svelte';
   import DoorCard from '../haustuer/DoorCard.svelte';
+  import ProbeRow from '../probe/ProbeRow.svelte'; // Paket B: «Generalprobe» from 7 days before the start
   import PlanHints from '../tourlernen/PlanHints.svelte'; // Paket Z: spare parts after a breakdown, sleep spots nearby
   import PackExtras from '../schnellpacken/PackExtras.svelte'; // Paket SP «Schneller packen»
   import EventStart from './EventStart.svelte';
@@ -282,6 +283,7 @@
           <!-- Paket W «Von der Haustür bis zurück» (Noah 20.10.2026): plan B, check-in, «Gut angekommen» -->
           <PlanHints {trip} {trips} {items} />
           <DoorCard {trip} />
+          <ProbeRow {trip} {items} card />
           <PackExtras {trip} {trips} {itemsById} />
           <!-- Planungs-Notizen (IS 246–249): what comes to mind while planning; «Daraus wird …» -->
           <PlanNotesCard {trip} {bike} {fixed} />
@@ -291,6 +293,7 @@
       <PlanNotesCard {trip} {bike} {fixed} />
       <PlanHints {trip} {trips} {items} />
       <DoorCard {trip} />
+      <ProbeRow {trip} {items} card />
       <PackExtras {trip} {trips} {itemsById} />
     {/if}
     <!-- Gesamttest 20.10 Design / UI-Grundlagen (idea 1): the tip of the day after the first content part -->

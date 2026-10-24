@@ -1693,6 +1693,21 @@ export const HANDBOOK = {
     steps: ['«Travel track» › «Travel book as PDF».', 'Save or print the PDF.'],
     example: 'Example: a cover with the whole line, then one page per day with its photos.',
   },
+  'f.probe': {
+    on: null,
+    steps: ['From a week before the start: open the trip in Pack or «Packed» › «Dress rehearsal».', 'Try each step at home and tap «Works», «Gap» or «Not needed».', 'At a gap tap «Keep as to-do»: it waits in Merken for the evening before.'],
+    example: 'Example: route opened in flight mode → «Works»; tube change took 25 minutes → «Gap», to-do «Practise tube change».',
+  },
+  'f.homecoming': {
+    on: null,
+    steps: ['After «Trip ended» tap «Arrive well».', 'Tick what is done; «Later» for what waits.', '«Keep as to-do» puts it into Merken for tomorrow.'],
+    example: 'Example: tent hung up, laundry in → «Done»; borrowed stove → «Later», to-do for tomorrow.',
+  },
+  'f.labels': {
+    on: null,
+    steps: ['Open Toolbox › Box labels and add a box with its place.', 'Type what goes in: your gear or anything else.', '«Print label», stick it on; scanning the code opens the box in the app.'],
+    example: 'Example: «Winter box, cellar» with headlamp, gloves and the Christmas lights.',
+  },
 };
 
 /** The small apps: each opens right on its area, with its own icon, and shares the data of the whole app. */

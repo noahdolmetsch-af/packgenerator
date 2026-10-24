@@ -835,6 +835,7 @@ Ganz geplant, gebaut erst nach allem oben.
 | 2.7 | 09.10.2026 | 0.65.0 «Velo-Masse» erledigt |
 | 2.8 | 14.10.2026 | 0.132.0 «Velo-Setup» (UC3-1–UC3-3) gebaut, Nachtrag oben |
 | 3.0 | 14.10.2026 | 0.139.0 «Rechnungen ohne Gebühren» (QR1–QR9) gebaut, Nachtrag oben |
+| 3.1 | 24.10.2026 | 996 Ideen eingeplant: Pakete B (Touren ohne Überraschung) → A (Ehrlicher Stand im Alltag) → C (Ruhig und persönlich) → D (Mit Freunden), nach der 332-Arbeit; B Teil 1 gebaut (0.190.0 vorläufig) |
 | 2.9 | 14.10.2026 | 0.132.0 «Tagespaket 14.10.»: Setup, Kluge Suche, App-Wartung, Bedienung, Bezahlen vorbereiten, Kleine Apps + Handbuch in PR #151 |
 | 3.0 | 14.10.2026 | 0.137.0 «Eine Zahl pro Sache» (Durchklick DK1–DK3) |
 | 2.6 | 09.10.2026 | 0.66.0 «Bausteine neu + Bausteine prüfen» erledigt |

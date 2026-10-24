@@ -1493,4 +1493,17 @@ export default {
   'Type the weight and tap «Save», or «Not today».': 'Tippe das Gewicht ein und dann «Speichern», oder «Heute nicht».',
   '«Stop asking» takes the card away; «Add a tile» brings it back.': '«Nicht mehr fragen» nimmt die Karte weg; «Kachel hinzufügen» holt sie zurück.',
   'Example: last weight 8 days ago → the card asks; saved, it is gone until next week.': 'Beispiel: letztes Gewicht vor 8 Tagen → die Karte fragt; gespeichert ist sie bis nächste Woche weg.',
+  // Paket B «Touren ohne Überraschung» (0.190.0): Generalprobe, Gut ankommen, Kisten-Etiketten
+  'From a week before the start: open the trip in Pack or «Packed» › «Dress rehearsal».': 'Ab einer Woche vor dem Start: Öffne die Tour in Packen oder «Gepackt» › «Generalprobe».',
+  'Try each step at home and tap «Works», «Gap» or «Not needed».': 'Probier jeden Schritt zu Hause aus und tippe «Klappt», «Lücke» oder «Nicht nötig».',
+  'At a gap tap «Keep as to-do»: it waits in Merken for the evening before.': 'Bei einer Lücke tippe «Als To-do merken»: Es wartet im Merken auf den Vorabend.',
+  'Example: route opened in flight mode → «Works»; tube change took 25 minutes → «Gap», to-do «Practise tube change».': 'Beispiel: Route im Flugmodus geöffnet → «Klappt»; Schlauchwechsel dauerte 25 Minuten → «Lücke», To-do «Schlauchwechsel üben».',
+  'After «Trip ended» tap «Arrive well».': 'Tippe nach «Tour beendet» auf «Gut ankommen».',
+  'Tick what is done; «Later» for what waits.': 'Hake ab, was erledigt ist; «Später» für das, was wartet.',
+  '«Keep as to-do» puts it into Merken for tomorrow.': '«Als To-do merken» legt es für morgen ins Merken.',
+  'Example: tent hung up, laundry in → «Done»; borrowed stove → «Later», to-do for tomorrow.': 'Beispiel: Zelt aufgehängt, Wäsche drin → «Erledigt»; geliehener Kocher → «Später», To-do für morgen.',
+  'Open Toolbox › Box labels and add a box with its place.': 'Öffne Werkzeugkasten › Kisten-Etiketten und lege eine Kiste mit ihrem Ort an.',
+  'Type what goes in: your gear or anything else.': 'Tipp ein, was hineinkommt: dein Material oder sonst etwas.',
+  '«Print label», stick it on; scanning the code opens the box in the app.': '«Etikett drucken», aufkleben; der Code öffnet die Kiste in der App.',
+  'Example: «Winter box, cellar» with headlamp, gloves and the Christmas lights.': 'Beispiel: «Winterkiste, Keller» mit Stirnlampe, Handschuhen und der Lichterkette.',
 };

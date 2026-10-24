@@ -16,6 +16,21 @@
 
 export const WHATS_NEW = [
   {
+    // v0.190.0 Paket B «Touren ohne Überraschung» part 1 (Noah 24.10.2026, 996 Ideen «1b 2a»): Generalprobe,
+    // Gut ankommen, Kisten-Etiketten. Provisional number: the bundle renumbers.
+    version: '0.190.0',
+    date: '2026-10-24',
+    title: 'Trips without surprises',
+    lead: 'Try the trip at home first, and arrive well afterwards.',
+    points: [
+      { text: 'Dress rehearsal a week before the start', href: '#/trips' },
+      { text: 'Arrive well: the small things after a trip', href: '#/trips' },
+      { text: 'Box labels with a QR code', href: '#/me/tools/labels' },
+    ],
+    small: [{ box: 'new', text: 'A gap becomes a to-do with one tap' }],
+    test: ['Open a trip that starts within a week: Pack › «Dress rehearsal», tap «Gap», then «Keep as to-do».', 'Toolbox › Box labels: add a box, put something in, «Print label».'],
+  },
+  {
     // v0.181.4 «Aktiv ohne Sackgassen» (Klick-Rundgang «Aktiv fertig bauen» A01–A05, A07, A08, H29, and dead buttons part 2)
     version: '0.181.4',
     date: '2026-10-24',
