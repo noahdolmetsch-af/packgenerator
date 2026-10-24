@@ -1568,7 +1568,6 @@ export default {
   // v0.181.1 «Fitbit-Schlaf kommt an»
   'Fitbit sleep and Gemini work again': 'Fitbit-Schlaf und Gemini gehen wieder',
   'Your nights come from Google again, and Gemini answers.': 'Deine Nächte kommen wieder von Google, und Gemini antwortet.',
-  'Gemini: a second try, then another model, and a clear message if it still fails': 'Gemini: ein zweiter Versuch, dann ein anderes Modell und eine klare Meldung, falls es trotzdem nicht klappt',
   'Fitbit: last night comes in with «Fetch now»': 'Fitbit: die letzte Nacht kommt mit «Jetzt holen»',
   'The last 30 nights are fetched once more': 'Die letzten 30 Nächte werden einmal neu geholt',
   'Last night shows with today’s date.': 'Die letzte Nacht steht mit dem heutigen Datum da.',

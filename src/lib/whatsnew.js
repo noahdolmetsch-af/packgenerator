@@ -24,7 +24,6 @@ export const WHATS_NEW = [
     lead: 'Your nights come from Google again, and Gemini answers.',
     points: [
       { text: 'Fitbit: last night comes in with «Fetch now»', href: '#/me/fitbit' },
-      { text: 'Gemini: a second try, then another model, and a clear message if it still fails' },
     ],
     small: [
       { box: 'fixed', text: 'The last 30 nights are fetched once more' },
