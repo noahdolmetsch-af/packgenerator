@@ -66,7 +66,7 @@
   import { House, Gauge, FileText, Hand, Droplets, Sparkles, FileCog, Navigation, HeartHandshake, Bike } from '@lucide/svelte';
   import MorningList from '../lib/schnellpacken/MorningList.svelte'; // Paket SP «Schneller packen»
   import RideDoor from '../lib/haustuer/RideDoor.svelte'; // Paket W «Von der Haustür bis zurück»: plan B and check-in
-  import { Shirt, Utensils, Droplet, Lightbulb, Pencil, ArrowRight, ArrowLeft, Clock, CloudSun, Search, Route as RouteIcon, ChevronRight, Plus, Minus, X, Mic, Moon, BedDouble, MapPin, Flag } from '@lucide/svelte';
+  import { Shirt, Utensils, Droplet, Lightbulb, Pencil, ArrowRight, ArrowLeft, Clock, CloudSun, Search, Route as RouteIcon, ChevronRight, Plus, Minus, X, Mic, Moon, BedDouble, MapPin, Flag, Siren } from '@lucide/svelte';
 
   const tripsQ = liveQuery(() => db.trips.toArray());
   const itemsQ = liveQuery(() => db.items.toArray());
@@ -442,7 +442,6 @@
   }
   const moreActions = $derived([
     ...(main.kind !== null ? [{ name: t('Note|ride'), explain: t('A note for the debrief'), icon: Mic, run: startNote }] : []),
-    ...(main.kind === null ? [{ name: t('End the trip …'), explain: t('Asks first; then the debrief'), icon: Flag, run: () => (endAsk = true) }] : []),
   ]);
   /* ---------- SN1: the weather of now in one sentence ---------- */
   // v0.144.0 RE: the one rain limit of the app (was 50 %)
@@ -520,7 +519,9 @@
 {#snippet go()}{#if main.kind === 'last'}<button type="button" class="btn hi go" onclick={finish}>{t(main.label)}<ArrowRight size={20} aria-hidden="true" /></button>{:else if main.kind === 'go'}<a class="btn hi go" href={main.href} onclick={() => openTrip(trip.id)}>{t(main.label)}<ArrowRight size={20} aria-hidden="true" /></a>{/if}{/snippet}
 <!-- SN1 (question 1a): «…» holds «Tour beenden …» before the last day (it asks first), and «Notiz» when
      the main button is another one. -->
-{#snippet endLink()}{#if moreActions.length}<span class="rmore"><MoreActions title={trip.title} label={t('More for this trip')} actions={moreActions} /></span>{/if}{/snippet}
+<!-- Versteckte Funktionen (Noah 22.10.2026 «1a … 5a»): the main step of a trip is never only in «…»:
+     «Tour beenden …» and the emergency window stay visible while the trip runs. -->
+{#snippet endLink()}{#if main.kind === null}<button type="button" class="btn sm rend" onclick={() => (endAsk = true)} data-ride-end><Flag size={16} aria-hidden="true" />{t('End the trip …')}</button>{/if}{#if running}<a class="btn sm rsos" href="#/mountain/sos" data-ride-sos><Siren size={16} aria-hidden="true" />{t('Emergency')}</a>{/if}{#if moreActions.length}<span class="rmore"><MoreActions title={trip.title} label={t('More for this trip')} actions={moreActions} /></span>{/if}{/snippet}
 {#snippet pen()}<button type="button" class="tp-icon-btn" aria-label={t('Note for the debrief')} onclick={goNote}><Pencil size={22} aria-hidden="true" /></button>{/snippet}
 {#snippet noteBtn()}<button type="button" class="btn hi notego" onclick={startNote}><Mic size={20} aria-hidden="true" />{t('Note|ride')}</button>{/snippet}
 {#snippet dayAside()}{#if dayOf}<span class="dayside"><b>{dayOf}</b>{#if nextLine}<small>{nextLine}</small>{/if}</span>{/if}{/snippet}
@@ -861,6 +862,8 @@
   .reopen { display: flex; flex-wrap: wrap; align-items: center; gap: 0 10px; }
   /* SN1: «…» of the trip at the end of the pill line */
   .rmore { margin-left: auto; }
+  .rend, .rsos { display: inline-flex; align-items: center; gap: 6px; }
+  .rsos { border-color: var(--bad); color: var(--bad); font-weight: 700; }
   .days { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; margin: 0 0 20px; }
   .days .sum { flex-basis: 100%; }
   @media (min-width: 900px) { .days .sum { flex-basis: auto; } }

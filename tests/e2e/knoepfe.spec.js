@@ -118,7 +118,9 @@ test('computer: the bubble on hover and keyboard focus; actions right-aligned; t
   const n = await rows.evaluateAll((els, done) => els.findIndex((el) => [...el.querySelectorAll('button')].some((b) => b.textContent.trim() === done)), DONE);
   // SK (13.10.2026, changed on purpose): a due row has its «Woanders» links under it, so the control
   // right before «Erledigt» is the last one of the row above (or its links), not always its «…»
-  if (n > 0) await done.evaluate((b) => { const all = [...document.querySelectorAll('a[href], button:not([disabled])')].filter((x) => x.getClientRects().length); all[all.indexOf(b) - 1].focus(); });
+  // Versteckte Funktionen (22.10.2026, changed on purpose): «Erledigt» may stand right after «Ersetzen» in its row
+  const after = await done.evaluate((b) => !!b.previousElementSibling);
+  if (n > 0 || after) await done.evaluate((b) => { const all = [...document.querySelectorAll('a[href], button:not([disabled])')].filter((x) => x.getClientRects().length); all[all.indexOf(b) - 1].focus(); });
   else await page.locator('#due-h').evaluate((h) => (h.tabIndex = -1, h.focus()));
   await page.keyboard.press('Tab');
   await expect(done).toBeFocused();
@@ -204,13 +206,15 @@ test('phone: actions under the text, full width; long press explains and does no
       expect(acts.y).toBeGreaterThanOrEqual(text.y + text.height - 1);
       expect(Math.abs(acts.x - card.x)).toBeLessThanOrEqual(1);
       expect(Math.abs(acts.x + acts.width - (card.x + card.width))).toBeLessThanOrEqual(1);
-      const main = await row.locator('.rowacts > .btn.k').boundingBox();
+      // Versteckte Funktionen (Noah 22.10.2026, changed on purpose): «Erledigt» may stand next to the main
+      // button («Hauptaktion nie im •••»); together they fill the row
+      const mains = await row.locator('.rowacts > .btn.k').evaluateAll((els) => els.map((e) => e.getBoundingClientRect()).map((r) => ({ w: r.width, h: r.height })));
       const more = await row.locator('.btn.dots').boundingBox();
       expect(Math.round(more.width)).toBe(44);
-      expect(main.width).toBeGreaterThan(acts.width - 44 - 8 - 2);
-      expect(main.height).toBeGreaterThanOrEqual(43.5);
+      expect(mains.reduce((s, m) => s + m.w, 0)).toBeGreaterThan(acts.width - 44 - 8 * mains.length - 2);
+      for (const m of mains) expect(m.h).toBeGreaterThanOrEqual(43.5);
     }
-    expect(await doneRow.locator('.rowacts > .btn.k').evaluate((el) => getComputedStyle(el).whiteSpace)).toBe('nowrap');
+    expect(await doneRow.getByRole('button', { name: DONE, exact: true }).evaluate((el) => getComputedStyle(el).whiteSpace)).toBe('nowrap');
   }
   await page.setViewportSize({ width: 390, height: 844 });
   const { doneRow, done } = await overview(page);

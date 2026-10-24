@@ -1584,11 +1584,11 @@ export default {
   'Open a lamp in Gear, the row «Power», and add a light level.': 'Öffne eine Lampe im Material, die Zeile «Strom», und füge eine Leuchtstufe hinzu.',
   // v0.181.1 «Alltag fertig bauen»
   'Everyday, without dead ends': 'Alltag ohne Sackgassen',
-  'Day, week and bike care run to the end.': 'Tag, Woche und Velopflege laufen bis zum Ende.',
+  'Day, week and bike run smoothly.': 'Tag, Woche und Velo laufen rund.',
   'The Assistant knows your chain': 'Der Assistent kennt deine Kette',
   'Aktiv ticks show in the week': 'Aktiv-Häkchen stehen in der Woche',
   'Bike care «Done» with Undo': 'Velopflege «Erledigt» mit Rückgängig',
-  'Morning check: an older question says when it is from': 'Morgen-Check: ältere Fragen sagen, von wann sie sind',
-  'Open the Assistant and ask «When do I change the chain?».': 'Öffne den Assistenten und frag «Wann muss ich die Kette wechseln?».',
-  'In Bike care tap «Done» on a problem, then «Undo».': 'Tippe in der Velopflege bei einem Problem auf «Erledigt», dann auf «Rückgängig».',
+  'Main buttons in sight': 'Wichtige Knöpfe sichtbar',
+  'Assistant: ask about the chain.': 'Assistent: nach der Kette fragen.',
+  'Bike care: «Done», then «Undo».': 'Velopflege: «Erledigt», dann «Rückgängig».',
 };

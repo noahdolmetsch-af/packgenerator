@@ -13,7 +13,7 @@ export async function endToDebrief(page, T) {
   const band = page.locator('.trip-band');
   await expect(band.locator('h1')).toBeVisible();
   const main = band.locator('.mainbar .go');
-  const more = band.getByRole('button', { name: T('More for this trip') });
+  const more = band.getByRole('button', { name: T('End the trip …') });
   await expect(main.or(more).first()).toBeVisible();
   if (await main.isVisible()) await main.click();
   else await endMenu(page, T);
@@ -37,8 +37,8 @@ export async function endedPage(page, T) {
   await expect(page).toHaveURL(/#\/trip\/[^/]+\/ended$/);
 }
 
-/** SN1: «Tour beenden …» from the «…» of the trip band (before the last day on On the way). */
+/** SN1: «Tour beenden …» before the last day on On the way. Versteckte Funktionen (Noah 22.10.2026, changed
+ *  on purpose): it is a visible button in the trip band, no longer an entry of its «…». */
 export async function endMenu(page, T) {
-  await page.locator('.trip-band').getByRole('button', { name: T('More for this trip') }).click();
-  await page.getByRole('menuitem', { name: new RegExp(T('End the trip …').replace(/[.*+?^${}()|[\]\\]/g, '\\$&')) }).click();
+  await page.locator('.trip-band').getByRole('button', { name: T('End the trip …') }).click();
 }

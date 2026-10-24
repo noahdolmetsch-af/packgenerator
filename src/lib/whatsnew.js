@@ -21,14 +21,14 @@ export const WHATS_NEW = [
     version: '0.181.1',
     date: '2026-10-22',
     title: 'Everyday, without dead ends',
-    lead: 'Day, week and bike care run to the end.',
+    lead: 'Day, week and bike run smoothly.',
     points: [
       { text: 'The Assistant knows your chain', href: '#/assistent' },
       { text: 'Aktiv ticks show in the week', href: '#/week' },
       { text: 'Bike care «Done» with Undo', href: '#/bikes?tab=care' },
     ],
-    small: [{ box: 'fixed', text: 'Morning check: an older question says when it is from'}],
-    test: ['Open the Assistant and ask «When do I change the chain?».', 'In Bike care tap «Done» on a problem, then «Undo».'],
+    small: [{ box: 'nicer', text: 'Main buttons in sight' }],
+    test: ['Assistant: ask about the chain.', 'Bike care: «Done», then «Undo».'],
   },
   {
     // v0.181.0 «Warum? und Regeln» (Paket P3 of «Offene Mockups», Noah 21.10.2026): RG1 «Why?» next to a row in

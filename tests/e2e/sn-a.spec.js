@@ -96,9 +96,10 @@ test('SN1 Unterwegs: pill with the day, «Jetzt» card, «Notiz» main button, �
   await box.fill('test_data_gtp_ Kette quietscht');
   await page.locator('.notesec').getByRole('button', { name: T('Save note') }).click();
   await expect(page.locator('.notesec .notes')).toContainText('test_data_gtp_ Kette quietscht');
-  // «Tour beenden …» is in «…» and asks first
-  await band.getByRole('button', { name: T('More for this trip') }).click();
-  await page.getByRole('menuitem', { name: new RegExp(esc(T('End the trip …'))) }).click();
+  // «Tour beenden …» asks first. Versteckte Funktionen (Noah 22.10.2026, changed on purpose): a visible
+  // button in the band, no longer in «…»; the emergency window is one tap away next to it
+  await expect(band.locator('[data-ride-sos]')).toHaveAttribute('href', '#/mountain/sos');
+  await band.getByRole('button', { name: T('End the trip …') }).click();
   const sheet = page.locator('dialog.endsheet');
   await expect(sheet.getByRole('heading', { name: T('End the trip now?') })).toBeVisible();
   await sheet.getByRole('button', { name: T('Ride on') }).click();
@@ -113,8 +114,8 @@ test('SN1 Unterwegs on the last day: «Letzten Tag abschliessen» is the main bu
   const band = page.locator('.trip-band');
   await expect(band.locator('.btn.hi.go')).toBeVisible();
   await expect(band.locator('.notego')).toHaveCount(0);
+  await expect(band.getByRole('button', { name: T('End the trip …') })).toHaveCount(0);
   await band.getByRole('button', { name: T('More for this trip') }).click();
-  await expect(page.getByRole('menuitem', { name: new RegExp(esc(T('End the trip …'))) })).toHaveCount(0);
   await page.getByRole('menuitem', { name: new RegExp(`^${esc(T('Note|ride'))}`) }).click();
   await expect(page.locator('.notesec textarea')).toBeFocused();
   await fits(page, info);
