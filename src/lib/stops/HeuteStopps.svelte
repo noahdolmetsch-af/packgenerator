@@ -36,7 +36,8 @@
     display: flex;
     align-items: center;
     gap: 4px;
-    margin: 0 0 12px;
+    /* close under the sentence above, so «Dein Körper heute» still starts in the first screen of a phone */
+    margin: -8px 0 6px;
   }
   .hs-go {
     min-width: 0;

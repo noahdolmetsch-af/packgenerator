@@ -45,5 +45,7 @@
   }
   .race-top span {
     flex: 1;
+    min-width: 0;
+    overflow-wrap: break-word;
   }
 </style>

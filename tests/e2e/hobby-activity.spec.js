@@ -166,6 +166,8 @@ test('Meilensteine: a fictional history counts, stars stay, filter, own numbers,
   // logged, so no three-ring day (a read before the activities are there no longer counts as one: no rings,
   // no three-ring day). «Neues ausprobiert» star 1 is among all milestones
   await expect(main.locator('.ts li:not(.open)').first()).toContainText(T('Devoted'));
+  // 0.187.0 (changed on purpose): on a phone the grid shows six cards, the rest after «Alle n zeigen»
+  if (await main.locator('[data-ms-all]').count()) await main.locator('[data-ms-all]').click();
   await expect(main.locator('.grid').getByText(T('Tried something new'))).toBeVisible();
   await expect.poll(() => count(page, 'flowStars')).toBeGreaterThan(2);
 

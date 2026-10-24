@@ -133,7 +133,7 @@
     <div class="tools">
       {#if entries.length > 5}<label class="rv-search"><Search size={18} aria-hidden="true" /><input type="search" placeholder={t('Search the logbook')} bind:value={q} aria-label={t('Search the logbook')} /></label>{/if}
       {#if years.length}<Seg full={false} label={t('Year')} value={year} options={YEARS} onchange={(v) => (year = v)} />{/if}
-      <button type="button" class="btn sm" onclick={() => (adding = true)} data-log-add><PlusIc size={16} aria-hidden="true" />{t('New entry|logbook')}</button>
+      <button type="button" class="btn" onclick={() => (adding = true)} data-log-add><PlusIc size={16} aria-hidden="true" />{t('New entry|logbook')}</button>
     </div>
     <div class="filters">
       {#if counts.done || counts.rated}<StateChips value={st} {counts} onchange={(v) => (st = v)} />{/if}
