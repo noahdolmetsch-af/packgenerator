@@ -27,7 +27,7 @@ test('Was die App kann: groups by situation, chips, find, Hinbringen, Ausprobier
   page.on('pageerror', (e) => errors.push(e.message));
   const T = await openHome(page, context, info);
   await page.goto('./#/features');
-  await expect(page.getByRole('heading', { name: T('What the app can do'), level: 1 })).toBeVisible();
+  await expect(page.getByRole('heading', { name: T('Help and functions'), level: 1 })).toBeVisible();
   const groups = page.locator('section[data-group]');
   await expect(groups).toHaveCount(6);
   await expect(groups.first().locator('h2')).toHaveText(T('Before the trip'));
@@ -112,6 +112,6 @@ test('Suche: commands to try, the last searches, functions, all functions', asyn
   await expect(tries.getByRole('button', { name: 'garantie', exact: true })).toBeVisible();
   await tries.getByRole('link', { name: new RegExp(T('See all {n} functions', { n: '\\d+' })) }).click();
   await expect(page).toHaveURL(/#\/features$/);
-  await expect(page.getByRole('heading', { name: T('What the app can do'), level: 1 })).toBeVisible();
+  await expect(page.getByRole('heading', { name: T('Help and functions'), level: 1 })).toBeVisible();
   expect(errors).toEqual([]);
 });

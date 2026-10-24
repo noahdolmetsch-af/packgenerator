@@ -12,7 +12,7 @@
   import KindTag from './KindTag.svelte';
   import TipLink from './TipLink.svelte';
   import { pageInfo, dayContext } from './store.svelte.js';
-  import { tipOfDay, allTips, setTip, setTipsOn, setKnowOn, addTip, removeTip, setCan, canShown, PAGES } from '../pageinfo.js';
+  import { tipOfDay, allTips, setTip, setTipsOn, setKnowOn, addTip, removeTip } from '../pageinfo.js';
   import { backClose } from '../ui/backclose.js';
   import { localDay } from '../localday.js';
   import { t } from '../i18n.svelte.js';
@@ -62,12 +62,7 @@
       <span class="tx"><b>{t('Show tips on all pages')}</b><small>{t('Off: no tip line any more, the list stays here')}</small></span>
       <label class="sw"><input type="checkbox" role="switch" data-tips-all checked={pi.info.tipsOn} onchange={(e) => ((on) => pi.save((v) => setTipsOn(v, on)))(e.currentTarget.checked)} /><span class="vh">{t('Show tips on all pages')}</span></label>
     </li>
-    {#if PAGES[page]?.can?.length}
-      <li class="all">
-        <span class="tx"><b>{t('Show «What the app can do here»')}</b></span>
-        <label class="sw"><input type="checkbox" role="switch" data-can-show checked={canShown(pi.info, page)} onchange={(e) => ((on) => pi.save((v) => setCan(v, page, on)))(e.currentTarget.checked)} /><span class="vh">{t('Show «What the app can do here»')}</span></label>
-      </li>
-    {/if}
+    <!-- «Alles finden 2»: «What the app can do here» lives behind «?» now, always there; its switch went -->
   </ul>
   <form class="own" onsubmit={add}>
     <input class="inp" bind:value={draft} maxlength="240" placeholder={t('Own tip')} aria-label={t('Own tip')} enterkeyhint="done" />

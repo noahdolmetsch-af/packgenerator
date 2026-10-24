@@ -21,7 +21,7 @@
   import SyncPanel from './sync/SyncPanel.svelte';
   import { SYNC_WISH } from './sync/nudge.js';
   import { take } from './nav.js';
-  import { sync as autoSync, syncUi, runSync } from './sync/auto.svelte.js';
+  import { sync as autoSync, runSync } from './sync/auto.svelte.js';
   import { isDemoFile, startDemo, demoState } from './demo.js';
   import { examplesLeft, exampleCount, removeExamples, undoExamples, addExamples } from './firststart.js';
   import { offerDone } from './ui/rename.svelte.js';
@@ -122,7 +122,7 @@
       out.push({ key: 'storage', name: 'Storage', state: pct < 80 ? 'ok' : 'warn', line: t('{pct} % used · {mb} MB', { pct, mb: mb(storage.used) }) });
     }
     // P8 «Automatischer Abgleich»: only while it is switched on (it is a suggestion, never a must)
-    if (autoSync.on) out.push({ key: 'sync', name: 'Automatic sync', state: autoSync.error || autoSync.asks ? 'warn' : 'ok', line: autoSync.asks ? tn(autoSync.asks, '{n} entry changed on both devices.', '{n} entries changed on both devices.') : autoSync.error ? t('could not sync last time; the app tries again.') : autoSync.last ? t('last synced {when}', { when: when(autoSync.last) }) : t('not synced yet') });
+    if (autoSync.on) out.push({ key: 'sync', name: 'Automatic sync', state: autoSync.error ? 'warn' : 'ok', line: autoSync.error ? t('could not sync last time; the app tries again.') : autoSync.last ? t('last synced {when}', { when: when(autoSync.last) }) : t('not synced yet') });
     if (keep !== 'unknown') out.push({ key: 'keep', name: 'Kept by the browser', state: keep === 'kept' ? 'ok' : 'warn', line: keep === 'kept' ? t('Your data stays, even when the device runs low on space.') : t('When space runs low, the browser may delete it without asking.') });
     // Fitbit (mockup G2): grey while not connected (a suggestion, never a must), yellow when the last fetch failed.
     if (health.prefs.connected) {
@@ -401,7 +401,7 @@
             {:else if l.state === 'warn' && l.key === 'fitbit'}<a class="btn sm" href="#/me/fitbit">{t('Now|do')}</a>
             {:else if l.state === 'warn' && l.key === 'folder'}<button type="button" class="btn sm" onclick={async () => { await allowAgain(db); refreshFolder(); }}>{t('Now|do')}</button>
             {:else if l.state === 'warn' && l.key === 'keep'}<button type="button" class="btn sm" onclick={keepNow}>{t('Now|do')}</button>
-            {:else if l.state === 'warn' && l.key === 'sync'}<button type="button" class="btn sm" onclick={() => { if (autoSync.asks) { syncUi.seen = 0; syncUi.open = true; } else runSync(); }}>{t('Now|do')}</button>{/if}
+            {:else if l.state === 'warn' && l.key === 'sync'}<button type="button" class="btn sm" onclick={() => runSync()}>{t('Now|do')}</button>{/if}
           </li>
         {/each}
       </ul>

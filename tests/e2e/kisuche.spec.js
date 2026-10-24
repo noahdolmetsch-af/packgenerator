@@ -77,23 +77,27 @@ test('similar words, a typo and a filter find the right things', async ({ page, 
   expect(errors).toEqual([]);
 });
 
-test('«Für Claude kopieren»: the question and the entries that fit on the clipboard, nothing sent; no Chrome AI without Chrome', async ({ page, context }, info) => {
+test('«Mit den Einträgen kopieren» inside «Weiter fragen»: the question and the entries that fit on the clipboard, nothing sent; no Chrome AI without Chrome', async ({ page, context }, info) => {
   const { errors, out } = await start(page, context, info);
   const f = await field(page, info);
   const res = page.getByRole('region', { name: T('Search results') });
   await f.fill('Regen');
-  await expect(res.getByRole('button', { name: T('Copy for Claude') })).toHaveCount(0); // only for a question
+  await expect(res.getByRole('button', { name: T('Copy with the entries') })).toHaveCount(0); // only for a question
   await f.fill('Was nehme ich bei Regen mit?');
-  await expect(res.getByText(T('Ask Claude or Chrome'))).toBeVisible();
+  // one block (Noah 22.10.2026 «3a»): the copy button sits inside «Weiter fragen», no own heading
+  const block = res.locator('[data-ask-elsewhere]');
+  await expect(block.getByText(T('Ask further at'))).toBeVisible();
+  await expect(res.getByText(T('Ask Claude or Chrome'))).toHaveCount(0);
   await expect(res.getByRole('button', { name: T('Ask Chrome AI') })).toHaveCount(0);
-  await res.getByRole('button', { name: T('Copy for Claude') }).click();
-  await expect(res.getByText(T('Copied. Now paste it in the Claude app.'))).toBeVisible();
+  await block.getByRole('button', { name: T('Copy with the entries') }).click();
+  await expect(res.getByText(T('Copied. Now paste it where you ask.'))).toBeVisible();
   const copied = await page.evaluate(() => window.__copied);
   expect(copied).toHaveLength(1);
   expect(copied[0]).toContain(T('My question: {q}', { q: 'Was nehme ich bei Regen mit?' }));
   expect(copied[0]).toContain(`${P} Regenjacke`);
   expect(copied[0]).not.toMatch(/BELEG|data:image|Puls|Gewicht/);
-  await expect(res.getByRole('link', { name: T('Copy and open Claude') })).toHaveAttribute('href', 'https://claude.ai/new');
+  await expect(res.getByRole('link', { name: T('Copy and open Claude') })).toHaveCount(0); // the Claude link opens with the question
+  await expect(block.locator('[data-service="claude"]')).toHaveAttribute('href', /^https:\/\/claude\.ai\/new\?q=Was%20nehme/);
   await noSideways(page);
   expect(sentOut(out)).toEqual([]); // only the app's own weather and lake value
   expect(errors).toEqual([]);

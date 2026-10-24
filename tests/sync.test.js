@@ -9,13 +9,16 @@ import net from 'node:net';
 import { createDb, syncLocal, DATA_TABLES } from '../src/lib/db.js';
 import { noteKey } from '../src/lib/sync/track.js';
 import { newCode, readCode, keysOf, seal, unseal, recName } from '../src/lib/sync/code.js';
-import { startSync, stopSync, syncNow, resolve, openQuestions, readCfg, stable, CFG, autoPick, resolveAll } from '../src/lib/sync/engine.js';
+import { startSync, stopSync, syncNow, readCfg, stable, CFG, autoPick, settle, lostVersions, bringBack, ASK, askKey } from '../src/lib/sync/engine.js';
 import { makeHandler } from '../api/sync.js';
 import { spaceOf, readPush } from '../api/_lib/sync.js';
 import { fakeRedis } from './fakeredis.js';
 
 let n = 0;
 const fresh = () => createDb(`sync-test-${n++}`);
+/** When this device changed a record (the note's time), set by hand so the order is certain. */
+const stamp = (db, t, id, at) => db.meta.update(noteKey(t, id), { at });
+const openAsks = (db) => db.meta.where('key').startsWith(ASK).count();
 const REDIS = 'https://redis.example.test';
 
 /** The server (the real handler) and a client api for the engine. */
@@ -58,6 +61,29 @@ describe('the change notes (track.js)', () => {
     expect(notes[noteKey('items', 'EL01')].at).toMatch(/^\d{4}-\d\d-\d\dT/);
     // the records stay as they were: no new field
     expect(await db.items.get('EL01')).toEqual({ id: 'EL01', name: 'test_data_gtp_ Lampe' });
+  });
+  it('a save of exactly what is stored is no change: no note (Noah 24.10.2026, «805 Einträge»)', async () => {
+    const db = fresh();
+    await db.items.bulkPut([{ id: 'A', name: 'x', tags: ['b', 'a'] }, { id: 'B', name: 'y' }]);
+    await db.meta.where('key').startsWith('sync|').modify({ dirty: 0, base: 3 });
+    // the same content again (other key order too), and one real change
+    await db.items.bulkPut([{ tags: ['b', 'a'], name: 'x', id: 'A' }, { id: 'B', name: 'z' }]);
+    await db.items.put({ id: 'A', name: 'x', tags: ['b', 'a'] });
+    expect((await db.meta.get(noteKey('items', 'A'))).dirty).toBe(0);
+    expect((await db.meta.get(noteKey('items', 'B'))).dirty).toBe(1);
+  });
+  it('restoring the same backup again marks nothing as changed; only what differs', async () => {
+    const { buildBackup, restoreBackup } = await import('../src/lib/backup.js');
+    const db = fresh();
+    await db.items.bulkPut([{ id: 'A', name: 'x' }, { id: 'B', name: 'y' }, { id: 'C', name: 'weg' }]);
+    await db.settings.put({ key: 'riderWeightG', value: 70000 });
+    const file = await buildBackup(db);
+    file.tables.items = file.tables.items.filter((r) => r.id !== 'C').map((r) => (r.id === 'B' ? { ...r, name: 'neu' } : r));
+    await db.meta.where('key').startsWith('sync|').modify({ dirty: 0, base: 3 });
+    await restoreBackup(db, file, 'replace');
+    const dirty = (await db.meta.where('key').startsWith('sync|').toArray()).filter((x) => x.dirty).map((x) => [x.id, x.del]);
+    expect(dirty.sort()).toEqual([['B', false], ['C', true]]);
+    expect(await db.items.get('C')).toBeUndefined();
   });
   it('keep the version number the device had of a record', async () => {
     const db = fresh();
@@ -156,31 +182,43 @@ async function twoDevices(api) {
   expect(await computer.items.get('EL02')).toBeUndefined();
   expect((await computer.trips.get('T1')).name).toBe('test_data_gtp_ Tour');
 
-  // both change the same record: the app asks (3b); nothing is overwritten meanwhile
+  // both change the same record (Noah 24.10.2026): no question, the newer change wins on both devices
   await phone.items.update('EL01', { weightG: 110 });
+  await stamp(phone, 'items', 'EL01', '2026-10-24T08:00:00.000Z');
   await computer.items.update('EL01', { weightG: 125 });
+  await stamp(computer, 'items', 'EL01', '2026-10-24T09:00:00.000Z');
   await run(phone, 'phone');
-  expect(await run(computer, 'computer')).toMatchObject({ asks: 1 });
+  expect(await run(computer, 'computer')).toMatchObject({ asks: 0, sent: 1 });
   expect((await computer.items.get('EL01')).weightG).toBe(125);
-  const [q] = await openQuestions(computer);
-  expect(q).toMatchObject({ t: 'items', id: 'EL01', dev: 'phone' });
-  expect(q.mine.weightG).toBe(125);
-  expect(q.theirs.weightG).toBe(110);
-  // «this device wins»: it goes to the server, the phone takes it
-  await resolve(computer, q.key, 'mine');
-  expect(await run(computer, 'computer')).toMatchObject({ sent: 1, asks: 0 });
   await run(phone, 'phone');
   expect((await phone.items.get('EL01')).weightG).toBe(125);
+  // the version that lost waits quietly on the computer
+  const [l] = await lostVersions(computer);
+  expect(l).toMatchObject({ t: 'items', id: 'EL01', dev: 'phone', at: '2026-10-24T08:00:00.000Z' });
+  expect(l.v.weightG).toBe(110);
 
-  // again, and this time «the other device wins»
-  await phone.items.update('EL01', { name: 'test_data_gtp_ Lampe neu' });
+  // again, and this time the phone changed later: its version wins on the computer too
   await computer.items.update('EL01', { weightG: 1 });
+  await stamp(computer, 'items', 'EL01', '2026-10-24T10:00:00.000Z');
+  await phone.items.update('EL01', { name: 'test_data_gtp_ Lampe neu' });
+  await stamp(phone, 'items', 'EL01', '2026-10-24T11:00:00.000Z');
   await run(phone, 'phone');
-  await run(computer, 'computer');
-  const [q2] = await openQuestions(computer);
-  await resolve(computer, q2.key, 'theirs');
+  expect(await run(computer, 'computer')).toMatchObject({ asks: 0, taken: 1 });
   expect(await computer.items.get('EL01')).toEqual({ id: 'EL01', name: 'test_data_gtp_ Lampe neu', weightG: 125 });
   expect(await run(computer, 'computer')).toMatchObject({ sent: 0, asks: 0 });
+  // «Bring back» on the computer: the replaced version returns and reaches the phone
+  const back = (await lostVersions(computer)).find((x) => x.v?.weightG === 1);
+  await bringBack(computer, back.key);
+  expect((await computer.items.get('EL01')).weightG).toBe(1);
+  expect(await run(computer, 'computer')).toMatchObject({ sent: 1 });
+  await run(phone, 'phone');
+  expect((await phone.items.get('EL01')).weightG).toBe(1);
+  // and bringing back can be undone: the version it replaced is kept in its place
+  expect((await lostVersions(computer)).find((x) => x.id === 'EL01').v.name).toBe('test_data_gtp_ Lampe neu');
+  await bringBack(computer, (await lostVersions(computer)).find((x) => x.id === 'EL01').key);
+  await run(computer, 'computer');
+  await run(phone, 'phone');
+  expect(await phone.items.get('EL01')).toEqual({ id: 'EL01', name: 'test_data_gtp_ Lampe neu', weightG: 125 });
 
   // the same change on both is no question
   await phone.items.update('EL01', { qty: 2 });
@@ -191,52 +229,72 @@ async function twoDevices(api) {
 }
 
 describe('two devices (engine.js)', () => {
-  it('sync, delete, ask when both changed, and answer either way', async () => {
+  it('sync, delete, and settle a change on both devices by itself: the newer wins, the other can come back', async () => {
     const { api } = fakeServer();
     await twoDevices(api);
   });
-  it('a second device with its own data asks only where the two really differ', async () => {
+  it('a second device with its own data: only where the two really differ, and the newer change counts', async () => {
     const { api } = fakeServer();
     const a = fresh();
     const b = fresh();
     const code = newCode();
     await a.items.bulkPut([{ id: 'X', name: 'gleich' }, { id: 'Y', name: 'A' }]);
+    await stamp(a, 'items', 'Y', '2026-10-24T08:00:00.000Z');
     await b.items.bulkPut([{ id: 'X', name: 'gleich' }, { id: 'Y', name: 'B' }, { id: 'Z', name: 'nur B' }]);
+    await stamp(b, 'items', 'Y', '2026-10-24T09:00:00.000Z');
     await startSync(a, code);
     await syncNow(a, { api });
     await startSync(b, code);
-    expect(await syncNow(b, { api })).toMatchObject({ asks: 1, sent: 1 });
-    expect((await openQuestions(b)).map((q) => q.id)).toEqual(['Y']);
+    expect(await syncNow(b, { api })).toMatchObject({ asks: 0, sent: 2 });
+    expect((await lostVersions(b)).map((l) => [l.id, l.v.name])).toEqual([['Y', 'A']]);
     await syncNow(a, { api });
     expect((await a.items.get('Z')).name).toBe('nur B');
+    expect((await a.items.get('Y')).name).toBe('B');
   });
-  it('the first round after pairing: one answer for all questions (Noah 19.10.2026 06:29)', async () => {
+  it('pairing: an entry this device never changed counts as the older one, so it never overwrites the other device', async () => {
     const { api } = fakeServer();
     const a = fresh();
     const b = fresh();
     const code = newCode();
-    await a.items.bulkPut([{ id: 'X', name: 'A1' }, { id: 'Y', name: 'A2' }, { id: 'Q', name: 'gleich' }]);
-    await b.items.bulkPut([{ id: 'X', name: 'B1' }, { id: 'Y', name: 'B2' }, { id: 'Q', name: 'gleich' }]);
+    await a.items.bulkPut([{ id: 'X', name: 'A1' }, { id: 'Y', name: 'A2' }]);
     await startSync(a, code);
     await syncNow(a, { api });
+    // b holds old records without a change note (written before the notes existed)
+    await b.items.bulkPut([{ id: 'X', name: 'alt' }, { id: 'Y', name: 'alt' }]);
+    await b.meta.where('key').startsWith('sync|').delete();
     await startSync(b, code);
-    expect(await syncNow(b, { api })).toMatchObject({ asks: 2 });
-    // «the other device»: all take its version, nothing is asked any more
-    expect(await resolveAll(b, 'theirs')).toBe(2);
-    expect((await openQuestions(b)).length).toBe(0);
+    expect(await syncNow(b, { api })).toMatchObject({ asks: 0, taken: 2 });
     expect((await b.items.bulkGet(['X', 'Y'])).map((x) => x.name)).toEqual(['A1', 'A2']);
+    expect(await lostVersions(b)).toHaveLength(2);
     expect(await syncNow(b, { api })).toMatchObject({ asks: 0, sent: 0 });
-
-    // «this device» on a third device: its versions go to the server and reach the others
-    const c = fresh();
-    await c.items.bulkPut([{ id: 'X', name: 'C1' }, { id: 'Y', name: 'C2' }]);
-    await startSync(c, code);
-    expect(await syncNow(c, { api })).toMatchObject({ asks: 2 });
-    expect(await resolveAll(c, 'mine')).toBe(2);
-    expect(await syncNow(c, { api })).toMatchObject({ asks: 0, sent: 2 });
-    await syncNow(a, { api });
-    expect((await a.items.bulkGet(['X', 'Y'])).map((x) => x.name)).toEqual(['C1', 'C2']);
-    expect(await resolveAll(a, 'mine')).toBe(0);
+  });
+  it('questions left from before 24.10.2026 settle at the next round, also hundreds at once (Noah: «805 Einträge»)', async () => {
+    const { api } = fakeServer();
+    const db = fresh();
+    await startSync(db, newCode());
+    await syncNow(db, { api });
+    const rows = Array.from({ length: 300 }, (_, i) => ({ id: `test_data_gtp_${i}`, name: `mine ${i}` }));
+    await db.items.bulkPut(rows);
+    for (const r of rows) await stamp(db, 'items', r.id, '2026-10-24T09:00:00.000Z');
+    // half the other device changed later, half earlier
+    await db.meta.bulkPut(rows.map((r, i) => ({ key: askKey('items', r.id), t: 'items', id: r.id, s: 0, v: { ...r, name: `theirs ${i}` }, del: false, at: i % 2 ? '2026-10-24T10:00:00.000Z' : '2026-10-24T08:00:00.000Z', dev: 'computer' })));
+    expect(await openAsks(db)).toBe(300);
+    expect(await syncNow(db, { api })).toMatchObject({ asks: 0, settled: 300 });
+    expect(await openAsks(db)).toBe(0);
+    expect((await db.items.get('test_data_gtp_1')).name).toBe('theirs 1');
+    expect((await db.items.get('test_data_gtp_2')).name).toBe('mine 2');
+    expect(await lostVersions(db)).toHaveLength(300);
+  });
+  it('settle: same → nothing; otherwise the newer change wins, a delete counts too; the same time ends the same on both devices', () => {
+    expect(settle('items', 'A', { id: 'A', n: 1 }, { n: 1, id: 'A' })).toEqual({ win: 'same', keep: null });
+    expect(settle('items', 'A', { id: 'A', n: 1 }, { id: 'A', n: 2 }, { mineAt: '2026-10-24T08:00:00Z', theirsAt: '2026-10-24T09:00:00Z' })).toEqual({ win: 'theirs', keep: 'mine' });
+    expect(settle('items', 'A', { id: 'A', n: 1 }, null, { mineAt: '2026-10-24T10:00:00Z', theirsAt: '2026-10-24T09:00:00Z' })).toEqual({ win: 'mine', keep: 'theirs' });
+    expect(settle('items', 'A', { id: 'A', n: 1 }, null, { mineAt: '2026-10-24T08:00:00Z', theirsAt: '2026-10-24T09:00:00Z' })).toEqual({ win: 'theirs', keep: 'mine' });
+    const x = { id: 'A', n: 1 };
+    const y = { id: 'A', n: 2 };
+    const one = settle('items', 'A', x, y, { mineAt: 't', theirsAt: 't' });
+    const other = settle('items', 'A', y, x, { mineAt: 't', theirsAt: 't' });
+    expect(one.win === 'theirs' ? y : x).toEqual(other.win === 'theirs' ? x : y);
   });
   it('does nothing while off or while a demo runs; switching off can empty the server', async () => {
     const { api } = fakeServer();
@@ -407,7 +465,8 @@ describe('Fitbit and Google copies sync without a question (Paket B, Noah 19.10 
     await phone.settings.put({ key: 'health', value: { connected: true, lastSync: '2026-10-19T05:10:00Z' } });
     await run(computer, 'computer');
     expect(await run(phone, 'phone')).toMatchObject({ asks: 0 });
-    expect(await openQuestions(phone)).toEqual([]);
+    expect(await openAsks(phone)).toBe(0);
+    expect(await lostVersions(phone)).toEqual([]);
     // later the phone fetches again and Google has more steps; the computer still has the old copy changed
     await phone.healthDays.put({ date: '2026-10-18', steps: 9100, src: 'google', at: '2026-10-19T09:00:00Z' });
     await computer.healthDays.put({ date: '2026-10-18', steps: 8000, src: 'google', at: '2026-10-19T08:00:00Z' });
@@ -422,14 +481,17 @@ describe('Fitbit and Google copies sync without a question (Paket B, Noah 19.10 
     expect((await computer.healthDays.get('2026-10-18')).steps).toBe(9300);
     expect(await run(phone, 'phone')).toMatchObject({ asks: 0 });
     expect((await phone.healthDays.get('2026-10-18')).steps).toBe(9300);
-    // a real change of your own on both devices is still a question
+    // a change of your own on both devices: no question either (Noah 24.10.2026), the newer one wins
     await phone.items.put({ id: 'EL01', name: 'test_data_gtp_ a' });
     await run(phone, 'phone');
     await run(computer, 'computer');
     await phone.items.update('EL01', { weightG: 1 });
+    await stamp(phone, 'items', 'EL01', '2026-10-24T09:00:00.000Z');
     await computer.items.update('EL01', { weightG: 2 });
+    await stamp(computer, 'items', 'EL01', '2026-10-24T08:00:00.000Z');
     await run(phone, 'phone');
-    expect(await run(computer, 'computer')).toMatchObject({ asks: 1 });
+    expect(await run(computer, 'computer')).toMatchObject({ asks: 0 });
+    expect((await computer.items.get('EL01')).weightG).toBe(1);
   });
 });
 
@@ -472,13 +534,18 @@ describe('Strava activities fetched on both devices make no question (Noah 20.10
     // a question left from before this rule: the next round answers it
     const { base } = await phone.meta.get(`sync|activities|${JSON.stringify('test_data_gtp_a1')}`);
     await phone.meta.put({ key: `synccf|activities|${JSON.stringify('test_data_gtp_a1')}`, t: 'activities', id: 'test_data_gtp_a1', s: base, v: act('2026-10-20T17:00:00Z', { kcal: 610 }), del: false, at: null, dev: 'computer' });
-    expect(await openQuestions(phone)).toHaveLength(1);
+    expect(await openAsks(phone)).toBe(1);
     expect(await run(phone, 'phone')).toMatchObject({ asks: 0, settled: 1 });
-    expect(await openQuestions(phone)).toEqual([]);
-    // a note written on both devices is still a question
+    expect(await openAsks(phone)).toBe(0);
+    // a note written on both devices: the newer note wins, the other one is kept (Noah 24.10.2026)
     await phone.activities.update('test_data_gtp_a1', { note: 'test_data_gtp_ phone' });
+    await stamp(phone, 'activities', 'test_data_gtp_a1', '2026-10-24T08:00:00.000Z');
     await computer.activities.update('test_data_gtp_a1', { note: 'test_data_gtp_ computer' });
+    await stamp(computer, 'activities', 'test_data_gtp_a1', '2026-10-24T09:00:00.000Z');
     await run(phone, 'phone');
-    expect(await run(computer, 'computer')).toMatchObject({ asks: 1 });
+    expect(await run(computer, 'computer')).toMatchObject({ asks: 0 });
+    await run(phone, 'phone');
+    expect((await phone.activities.get('test_data_gtp_a1')).note).toBe('test_data_gtp_ computer');
+    expect((await lostVersions(computer))[0].v.note).toBe('test_data_gtp_ phone');
   });
 });

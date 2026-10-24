@@ -51,8 +51,9 @@ test('So entscheidet die App: groups, search, a block rule off and on again', as
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
   const T = await openHome(page, context, info, { data: fixture() });
-  await page.goto('./#/me');
-  await page.locator('[data-me-rules]').click();
+  // «Alles finden 2» (Noah 22.10.2026, changed on purpose): the rules row moved from Ich to «Hilfe und Funktionen»
+  await page.goto('./#/features');
+  await page.locator('[data-help-row="rules"]').click();
   await expect(page).toHaveURL(/#\/me\/regeln$/);
   for (const g of ['blocks', 'pack', 'power', 'ski']) await expect(page.locator(`[data-rule-group="${g}"]`)).toBeVisible();
   // the next trip (6–7 °C) is cool: the stage «hands and feet» of Kälte (below 8 °C) fits now

@@ -61,7 +61,6 @@ import { snapshotOnStart } from './lib/maintenance/snapshots.js';
 import { markFirstStart, autoCheck } from './lib/maintenance/run.js';
 import { SEEN_KEY } from './lib/whatsnew.js';
 import { watchSync } from './lib/sync/auto.svelte.js';
-import SyncAsk from './lib/sync/SyncAsk.svelte';
 import { watchUpdates } from './lib/swupdate.js';
 import FirstStart from './lib/firststart/FirstStart.svelte';
 import { mayAsk } from './lib/firststart.js';
@@ -131,9 +130,8 @@ noteAppOpen();
 mount(App, { target: document.getElementById('app') });
 
 // P8 «Automatischer Abgleich» (Noah 18.10.2026 «1b … 2b 3b»): while it is switched on, rounds run by
-// themselves (sync/auto.svelte.js); when both devices changed the same entry, a window asks (3b).
+// themselves (sync/auto.svelte.js); when both devices changed the same entry, the newer change wins quietly (Noah 24.10.2026).
 watchSync(db);
-mount(SyncAsk, { target: document.body.appendChild(document.createElement('div')) });
 
 // v0.134.0 «Listen und Typen»: the person's own lists (categories) without holding up the start
 // (App.svelte draws the page again once they are in place); later changes as they come.
