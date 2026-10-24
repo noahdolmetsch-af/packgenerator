@@ -34,7 +34,7 @@ const WHERE = {
   chronik: '#/chronik',
   neuland: '#/neuland',
   quiz: '#/quiz',
-  sports: '#/flow/sports',
+  sports: '#/flow/sport/trip%3Agravel', // «Aktiv neu» (22.10.2026): the guide «Sportarten» is on a sport's page
   frei: '#/me/frei',
   tagebuch: '#/tagebuch',
 };

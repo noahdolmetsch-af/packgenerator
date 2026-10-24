@@ -111,6 +111,8 @@ Ursprünglich freigegebene Ausführungsreihenfolge: AP01–AP09 → AP12–AP16 
 
 **21.10.2026, v0.179.0 «Gepackt und geladen»:** Mockup-Paket P1 Packen und Strom: neues Teil beim Packen, Strom-Werte mit Quelle, Leuchtstufen, Ladezeit messen, Flickzeug-Fehler. Als Nächstes P6 Heute ergänzen.
 
+**22.10.2026, v0.187.0 «Hier machen, dort anschauen»:** Aktiv neu: Aktiv zum Machen (Heute, Meine Sportarten, Training, Erholung), Auswerten zum Anschauen; jede Sportart mit Seite (Ziel, Verlauf, Meilensteine, Sporttasche). Als Nächstes: Meilensteine-Karte pro Sportart (Thread «Meilensteine als Belohnung») in den Platz der Sportseite.
+
 **22.10.2026, v0.185.0 «Alle deine Fotos in einem Album»:** Mockup-Paket P8 Fotoalbum. Geparkt bis zur Freigabe. Damit sind alle 8 freigegebenen Mockup-Pakete gebaut (P6 Heute beim Thema Heute).
 
 **22.10.2026, v0.184.0 «Das ganze Projekt auf einer Seite»:** Mockup-Paket P7 Projekt-Ablage. Geparkt bis zur Freigabe. Als Nächstes P8 Fotoalbum.

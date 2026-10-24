@@ -78,7 +78,7 @@ async function open(page, context, at) {
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
   await page.goto('./#/flow'); // the database is made, Aktiv seeds its activities once
-  await expect(page.locator('main [data-more="week"]')).toBeVisible();
+  await expect(page.locator('main [data-week-glance]')).toBeVisible(); // «Aktiv neu» (22.10.2026): «Diese Woche» on Aktiv
   return errors;
 }
 const put = (page, data) =>

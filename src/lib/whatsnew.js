@@ -16,6 +16,20 @@
 
 export const WHATS_NEW = [
   {
+    // v0.187.0 «Aktiv neu» (Noah 22.10.2026, Beschreibung «Aktiv-Bereich»): Aktiv is for doing (Heute, Meine Sportarten,
+    // Training, Erholung), Auswerten for looking; every sport has its page with goal, history and milestones.
+    version: '0.187.0',
+    date: '2026-10-24',
+    title: 'Doing here, looking there',
+    lead: 'Active is for ticking off, Analysis for looking back.',
+    points: [
+      { text: 'Every sport with its own page, summit book included', href: '#/flow/sports' },
+      { text: 'Form, body values and rides under Analysis', href: '#/auswerten' },
+    ],
+    small: [{ box: 'nicer', text: 'Active shows today, this week and the rings' }],
+    test: ['Open Active › My sports, tap a sport and tap «Tick now».', 'Open Analysis with the switch on top of Active.'],
+  },
+  {
     // v0.186.0 «Alles finden» (Paket B, Noah 22.10.2026 «1a–5a»; released 24.10.2026 «freigabe für alle»): help behind «?»
     // on every page, «Alle n» as a grid of all pages, Ich slim; H19 the + menu offers more; H33 «Beispiel-Liste übernehmen»;
     // «Weiter fragen» carries the question to Claude, Duck.ai and Gemini.

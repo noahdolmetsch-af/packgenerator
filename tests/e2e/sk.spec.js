@@ -21,7 +21,7 @@ const pageTiles = (key) => {
   const line = PAGES_SRC.match(new RegExp(`^\\s+${key}: \\[(.*)\\],$`, 'm'))[1];
   return { own: [...line.matchAll(/(?<!ex\()T\.(\w+)/g)].map((m) => m[1]), extra: [...line.matchAll(/ex\(T\.(\w+)\)/g)].map((m) => m[1]) };
 };
-const HREF = { past: './#/pack/past', debrief: './#/debrief', bikes: './#/bikes', gear: './#/gear', flow: './#/flow' };
+const HREF = { past: './#/pack/past', debrief: './#/debrief', bikes: './#/bikes', gear: './#/gear', flow: './#/auswerten' }; // «Aktiv neu» (22.10.2026): the tiles of Aktiv are on the start of Auswerten
 
 const RAW = readFileSync(fileURLToPath(new URL('./pf-fixture.json', import.meta.url)), 'utf8');
 const day = (n = 0) => ((d) => (d.setUTCDate(d.getUTCDate() + n), d.toISOString().slice(0, 10)))(new Date(`${new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Zurich' })}T12:00:00Z`));

@@ -1565,6 +1565,15 @@ export default {
   '«New» on top for 14 days after an update': '«Neu» 14 Tage lang oben nach einem Update',
   'Open Heute: meditation is on top, «Last activity» after the ring.': 'Öffne Heute: Meditation steht oben, «Letzte Aktivität» nach dem Ring.',
   'Without a weight for a week, type it in «Weight this week?».': 'Ohne Gewicht seit einer Woche: tippe es in «Gewicht diese Woche?».',
+  // v0.187.0 «Aktiv neu»
+  'Doing here, looking there': 'Hier machen, dort anschauen',
+  'Active is for ticking off, Analysis for looking back.': 'Aktiv ist zum Abhaken, Auswerten zum Zurückschauen.',
+  'Every sport with its own page, summit book included': 'Jede Sportart mit eigener Seite, samt Gipfelbuch',
+  'Form, body values and rides under Analysis': 'Form, Körperwerte und Fahrten unter Auswerten',
+  'Active shows today, this week and the rings': 'Aktiv zeigt heute, diese Woche und die Ringe',
+  'Open Active › My sports, tap a sport and tap «Tick now».': 'Öffne Aktiv › Meine Sportarten, tippe eine Sportart an und dann «Jetzt abhaken».',
+  'Tap «Tick now» on its page, then change the entry under History.': 'Tippe auf ihrer Seite «Jetzt abhaken» und ändere dann den Eintrag unter Verlauf.',
+  'Open Analysis with the switch on top of Active.': 'Öffne Auswerten mit dem Umschalter oben in Aktiv.',
   // v0.181.4 «Aktiv ohne Sackgassen»
   'Aktiv, without dead ends': 'Aktiv ohne Sackgassen',
   'Plans, sessions and tiles do what they say.': 'Pläne, Einheiten und Kacheln tun, was sie sagen.',

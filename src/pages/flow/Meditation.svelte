@@ -125,7 +125,7 @@
   {#if data && !act}
     <section class="surf pad">
       <h1 class="h1" tabindex="-1" data-page-title>{t('Activity|tab')}</h1>
-      <p class="hint">{t('This activity has no page of its own yet.')} <a href="#/flow/edit/{encodeURIComponent(actId)}?from=activity">{t('Open the activity')}</a></p>
+      <p class="hint">{t('This activity has no page of its own yet.')} <a href="#/flow/edit/{encodeURIComponent(actId)}?from=sport">{t('Open the activity')}</a></p>
     </section>
   {:else if data && act}
     <header class="head" class:intro={actId === 'meditation'}>

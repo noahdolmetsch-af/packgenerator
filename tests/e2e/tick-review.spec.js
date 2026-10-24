@@ -7,13 +7,14 @@ import DE from '../../src/lib/i18n/de/index.js';
 import { ANALYSES } from '../../src/lib/training/analyses.js';
 import { D0, TODAY, addDays, aktivRows, put } from './aktiv-fixture.js';
 import { ready } from './settle.js';
+import { tapTab } from './placetab.js';
 
 const T = (en, vars) => {
   const s = DE[en] ?? en.replace(/\|[a-z]+$/, '');
   return vars ? s.replace(/\{(\w+)\}/g, (m, k) => vars[k] ?? m) : s;
 };
 
-test('Ziele › Auswerten: tiles, the tick analyses, hide and undo, period and activity', async ({ page, context }, info) => {
+test('Auswerten › Haken ausgewertet: tiles, the tick analyses, hide and undo, period and activity', async ({ page, context }, info) => {
   await context.route(/^https?:\/\/(?!localhost[:/])/, (route) => route.abort());
   await context.addInitScript(() => localStorage.setItem('lang', 'de'));
   await page.clock.install({ time: new Date(D0) });
@@ -23,11 +24,11 @@ test('Ziele › Auswerten: tiles, the tick analyses, hide and undo, period and a
   await ready(page);
   await put(page, aktivRows());
 
-  // the way in: Ziele › «Auswerten»
-  await page.goto('./#/flow/goals');
+  // the way in («Aktiv neu», Noah 22.10.2026): Auswerten › «Haken ausgewertet»
+  await page.goto('./#/auswerten');
   await page.reload();
   await ready(page);
-  await page.locator('[data-tick-review]').click();
+  await tapTab(page, T('Ticks evaluated|tab'));
   await expect(page).toHaveURL(/#\/flow\/auswertung$/);
   await expect(page.getByRole('heading', { level: 1, name: T('Your ticks evaluated') })).toBeVisible();
 

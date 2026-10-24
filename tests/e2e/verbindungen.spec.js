@@ -50,8 +50,10 @@ test('Verbindungen: all connections, Strava suggests first, the lake, tours as .
     if (!localStorage.getItem('whatsnew.seen')) localStorage.setItem('whatsnew.seen', '9.9.9');
   });
 
-  // Aktiv first: the start activities are there, and the lake card shows the measurement
+  // Aktiv first: the start activities are there; the lake card (on the weather page since «Aktiv neu», 22.10.2026) shows the measurement
   await page.goto('./#/flow');
+  await ready(page);
+  await page.goto('./#/wetter');
   await ready(page);
   await expect(page.getByText('17.4', { exact: false }).or(page.getByText('17,4', { exact: false })).first()).toBeVisible();
 

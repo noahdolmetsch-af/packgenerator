@@ -81,7 +81,7 @@ test.describe('AB Deine Abfragen', () => {
 
   test('AB1/AB5 and AB2: the questions by area, a switch, an interval, an own question', async ({ page, context }, info) => {
     const T = await openHome(page, context, info, { data: data({ keep: [...ON_AT_START] }) });
-    await viaTab(page, 'active', '#/me/abfragen'); // UI-Ziele #6: Auswerten › Wi gaht's?
+    await viaTab(page, 'analysis', '#/me/abfragen'); // UI-Ziele #6: Auswerten › Wi gaht's?
     await expect(page).toHaveURL(/#\/me\/abfragen$/);
     await expect(page.getByRole('heading', { level: 1, name: T('Your questions') })).toBeVisible();
     // Impeccable Runde 2 (on purpose): the head says how often a day the app asks

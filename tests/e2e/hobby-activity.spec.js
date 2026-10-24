@@ -70,12 +70,13 @@ async function fits(page, where) {
 test('Aktivität: the link, six tiles, rename, the editor, a suggestion, an idea', async ({ page, context }) => {
   const errors = await open(page, context, '#/flow');
   const main = page.locator('main');
-  // the tab «Aktivität» on top of Aktiv (after «Fünf Orte» 2); «Ziele» is not lit there
+  // «Aktiv neu» (Noah 22.10.2026 «4a»): «Aktivität» is a page of «Meine Sportarten» (its button «Vorschläge und Ideen»)
   const tabs = page.locator(TABS);
-  await tapTab(page, T('Activity|tab'));
+  await tapTab(page, T('My sports|tab'));
+  await main.locator('[data-to-activity]').click();
   await expect(page).toHaveURL(/#\/flow\/activity$/);
-  await expect(tabs.getByRole('link', { name: T('Activity|tab'), exact: true })).toHaveAttribute('aria-current', 'page');
-  await expect(tabs.locator('a[aria-current="page"]')).toHaveText(T('Activity|tab')); // only one tab is lit (Impeccable P1: on a phone «Ziele» may sit under «Mehr»)
+  await expect(tabs.getByRole('link', { name: T('My sports|tab'), exact: true })).toHaveAttribute('aria-current', 'page');
+  await expect(tabs.locator('a[aria-current="page"]')).toHaveText(T('My sports|tab')); // only one tab is lit
   await expect(main.getByRole('heading', { level: 1, name: T('Activity|tab') })).toBeVisible();
 
   // the six favourites with their playful names, in the seed order
@@ -105,7 +106,7 @@ test('Aktivität: the link, six tiles, rename, the editor, a suggestion, an idea
   // a tile without its own page opens the editor (H29a), and its back link leads here again
   await main.locator('[data-tile="yoga"]').click(); // Design-Refresh P8: the tile itself is the link
   await expect(page).toHaveURL(/#\/flow\/edit\/yoga\?from=activity$/);
-  await expect(tabs.getByRole('link', { name: T('Activity|tab'), exact: true })).toHaveAttribute('aria-current', 'page');
+  await expect(tabs.getByRole('link', { name: T('My sports|tab'), exact: true })).toHaveAttribute('aria-current', 'page');
   await main.locator('a[href="#/flow/activity"]:not(.ptabs a)').filter({ visible: true }).first().click(); // the editor's own back link (Design-Refresh P8: the crumb; «Abbrechen» leads there too)
   await expect(page).toHaveURL(/#\/flow\/activity$/);
 

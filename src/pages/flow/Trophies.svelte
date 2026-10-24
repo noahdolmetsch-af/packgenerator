@@ -62,7 +62,7 @@
 
 <div class="hob">
   <header class="ph">
-    <Crumb path={[{ href: '#/flow', label: t('Analysis|place') }, { href: '#/flow/activity', label: t('Activity|tab') }, { href: '#/flow/milestones', label: t('Milestones') }]} here={t('Trophy showcase')} />
+    <Crumb path={[{ href: '#/auswerten', label: t('Analysis|place') }, { href: '#/flow/milestones', label: t('Milestones') }]} here={t('Trophy showcase')} />
     <PageHead title={t('Trophy showcase')} text={t('All your stars in one place · by area and year · reached ones stay · no ranking')} />
   </header>
 

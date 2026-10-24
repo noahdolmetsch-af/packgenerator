@@ -46,7 +46,7 @@
   import { OWN_KEY } from './lib/ownvalues.js';
   import { useOwn } from './lib/ownlive.svelte.js';
   import { checkPart } from './lib/flowcheck.js';
-  import { pageOf, placeOf, redirectOf, tabOf, keepTab, PLACES, PLACE_TABS } from './lib/nav.js';
+  import { pageOf, placeOf, redirectOf, tabOf, keepTab, ALL_PLACES, PLACE_TABS } from './lib/nav.js';
   import PlaceTabs from './lib/nav/PlaceTabs.svelte';
   import PlaceSwitch from './lib/nav/PlaceSwitch.svelte';
   import ErrorPage from './lib/ui/ErrorPage.svelte';
@@ -89,7 +89,7 @@
   const failName = $derived.by(() => {
     if (place === 'me') return t('Me|place');
     const tabEntry = (PLACE_TABS[place] ?? []).find((x) => x.key === tab);
-    const p = PLACES.find((x) => x.key === place);
+    const p = ALL_PLACES.find((x) => x.key === place);
     return tabEntry && p ? `${t(p.label)} › ${t(tabEntry.label)}` : p ? t(p.label) : '';
   });
   $effect(() => {
@@ -110,10 +110,10 @@
   });
   // v0.23.0 (AP07): the address → page and its main place live in nav.js (tested there).
   const page = $derived(pageOf(hash, parseBikesHash(hash).tab === 'care'));
-  const place = $derived(placeOf(page));
+  const place = $derived(placeOf(page, hash));
   // «Anpassen»: the page's name when it has no big title (the place › the tab)
   const anpTitle = $derived.by(() => {
-    const p = PLACES.find((x) => x.key === place);
+    const p = ALL_PLACES.find((x) => x.key === place);
     if (!p) return '';
     const tab = (PLACE_TABS[place] ?? []).find((x) => x.key === tabOf(place, hash));
     return tab ? `${placeLabel(p)} › ${tabLabel(place, tab)}` : placeLabel(p);
@@ -353,6 +353,7 @@
     Rides: () => import('./pages/Rides.svelte'),
     Wardrobe: () => import('./pages/Wardrobe.svelte'),
     Flow: () => import('./pages/Flow.svelte'),
+    Auswerten: () => import('./pages/AuswertenStart.svelte'),
     Between: () => import('./pages/Between.svelte'),
     Me: () => import('./pages/Me.svelte'),
     Look: () => import('./pages/Look.svelte'),
@@ -459,11 +460,11 @@
 <DbWaitLine />
 {#if !mini && !guest}<ComebackWindow care={$dueQ ?? 0} inbox={$inboxQ ?? 0} /><YearCheckWindow {hash} /><DiaryReminder {hash} />{/if}
 
-<main class:calm class:wide={page === 'pack' || page === 'ride' || page === 'debrief' || page === 'rides' || page === 'stravarides' || page === 'past' || page === 'templates' || page === 'gear' || page === 'supplies' || page === 'power' || page === 'fuel' || page === 'tour' || page === 'lend' || page === 'blocks' || page === 'blockcheck' || page === 'packcleanup' || page === 'home' || page === 'features' || page === 'wardrobe' || page === 'flow' || page === 'timer' || page === 'check' || page === 'routine' || page === 'week' || page === 'neuland' || page === 'heatmap' || page === 'dreams'} class:bar={!wide.matches || !!mini}>
+<main class:calm class:wide={page === 'pack' || page === 'ride' || page === 'debrief' || page === 'rides' || page === 'stravarides' || page === 'past' || page === 'templates' || page === 'gear' || page === 'supplies' || page === 'power' || page === 'fuel' || page === 'tour' || page === 'lend' || page === 'blocks' || page === 'blockcheck' || page === 'packcleanup' || page === 'home' || page === 'features' || page === 'wardrobe' || page === 'flow' || page === 'auswerten' || page === 'timer' || page === 'check' || page === 'routine' || page === 'week' || page === 'neuland' || page === 'heatmap' || page === 'dreams'} class:bar={!wide.matches || !!mini}>
   {#if !calm && !guest && !mini}<PlaceTabs {place} {hash} {moved} onclosemoved={() => (moved = null)} />{/if}
   <!-- AU1 «1b»: on a phone Velos and Ausrüstung share a slot. Gesamttest 20.10.2026 B7: the switch stands only
        on Ausrüstung (the way back); Velos already has its tabs and path, Ausrüstung is one row on Velos › Übersicht -->
-  {#if (place === 'equipment' || place === 'gear') && !mini}<PlaceSwitch {place} />{/if}
+  {#if (place === 'equipment' || place === 'gear' || place === 'active' || place === 'analysis') && !mini}<PlaceSwitch {place} {hash} />{/if}
   <!-- ER1/ER2: «Soll ich dich erinnern?» on top of the next page, in the page (never over its buttons) -->
   {#if !guest && page !== 'home'}<RemindCard />{/if}
   <svelte:boundary onerror={onfail}>
@@ -558,6 +559,9 @@
   {:else if page === 'flow'}
     <!-- v0.51.0 «Im Flow»: rings, ticks, goals × days; #/flow/goals, #/flow/edit/<id>, #/flow/new -->
     <LazyPage load={PAGES.Flow} sub={hash.split('/').slice(2).join('/')} />
+  {:else if page === 'auswerten'}
+    <!-- «Aktiv neu» (Noah 22.10.2026 «2a»): the start of Auswerten, what you look at -->
+    <LazyPage load={PAGES.Auswerten} />
   {:else if page === 'week'}
     <!-- «Woche planen» (WP1–WP3): the week, the Sunday planning, the holidays -->
     {#if hash.startsWith('#/week/plan')}<LazyPage load={PAGES.WochePlanen} />{:else if hash.startsWith('#/week/away')}<LazyPage load={PAGES.WocheFerien} />{:else}<LazyPage load={PAGES.Woche} />{/if}

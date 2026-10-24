@@ -12,7 +12,7 @@ export function morePages({ openGoals = 0, ideas = 0 } = {}) {
     { key: 'rest', href: '#/flow/rest', icon: Moon, title: t('Recovery|page'), sub: t('a pause has its place') },
     { key: 'bags', href: '#/flow/bags', icon: ShoppingBag, title: t('Sport bag'), sub: t('a short list per sport') },
     // Paket O «Sportarten»: every sport with its blocks and the mosaic
-    { key: 'sports', href: '#/flow/sports', icon: LayoutGrid, title: t('Sports|page'), sub: t('the same blocks for every sport') },
+    { key: 'sports', href: '#/flow/sports', icon: LayoutGrid, title: t('My sports|tab'), sub: t('the same blocks for every sport') },
     { key: 'ideas', href: '#/flow/ideen', icon: Lightbulb, title: t('Ideas'), sub: ideas ? t('{n} open · for your balance', { n: ideas }) : t('for your balance') },
   ];
 }

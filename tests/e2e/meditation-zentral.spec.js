@@ -74,19 +74,20 @@ function history() {
   return { flowLog, flowSessions };
 }
 
-test('Aktiv: the tab Meditation, timer and Rückblick on one page, «Uhr» opens the faces', async ({ page, context }) => {
+test('Aktiv: Meditation in «Meine Sportarten», timer and Rückblick on one page, «Uhr» opens the faces', async ({ page, context }) => {
   const errors = await open(page, context, '#/flow');
   const main = page.locator('main');
-  // Aktiv opens at Heute; Meditation is the second tab (ME2; Noah 15.10.2026 «1a»)
+  // «Aktiv neu» (Noah 22.10.2026 «1b»): Meditation is a sport with its timer; the tab «Meditation» is gone, «Meine Sportarten» is second
   const tabs = page.locator(TABS).locator('a');
-  await expect(tabs.nth(1)).toHaveText('Meditation');
-  expect(PLACE_TABS.active.map((x) => x.key).slice(0, 2)).toEqual(['today', 'meditation']);
+  await expect(tabs.nth(1)).toHaveText(T('My sports|tab'));
+  expect(PLACE_TABS.active.map((x) => x.key).slice(0, 2)).toEqual(['today', 'sports']);
   await put(page, history());
   await page.reload(); // the app reads the rows written straight into IndexedDB
   await tabs.nth(1).click();
+  await main.locator('[data-sport-row="meditation"]').click();
   await expect(page).toHaveURL(/#\/flow\/act\/meditation$/);
   await expect(main.getByRole('heading', { level: 1, name: 'Meditation' })).toBeVisible();
-  await expect(page.locator(TABS).getByRole('link', { name: 'Meditation', exact: true })).toHaveAttribute('aria-current', 'page');
+  await expect(page.locator(TABS).getByRole('link', { name: T('My sports|tab'), exact: true })).toHaveAttribute('aria-current', 'page');
   await expect(main.locator('.sub')).toContainText(T('done today'));
 
   // the timer: «Wie letztes Mal · 20 Min»; a duration changes the start
@@ -113,7 +114,7 @@ test('Aktiv: the tab Meditation, timer and Rückblick on one page, «Uhr» opens
   await page.goBack();
   await main.locator('[data-to="review"]').click();
   await expect(page).toHaveURL(/#\/flow\/act\/meditation\/rueckblick$/);
-  await expect(page.locator(TABS).getByRole('link', { name: 'Meditation', exact: true })).toHaveAttribute('aria-current', 'page');
+  await expect(page.locator(TABS).getByRole('link', { name: T('My sports|tab'), exact: true })).toHaveAttribute('aria-current', 'page');
   expect(errors).toEqual([]);
 });
 

@@ -46,7 +46,7 @@ export function buzzNow(nav = typeof navigator !== 'undefined' ? navigator : nul
 export const START_PLACES = [
   { key: 'today', name: 'Today|place', href: '#/' },
   { key: 'pack', name: 'Packing|start', href: '#/pack' },
-  { key: 'active', name: 'Analysis|place', href: '#/flow' },
+  { key: 'active', name: 'Active|place', href: '#/flow' },
   { key: 'last', name: 'Last place', href: null },
 ];
 export const DEFAULT_START = 'today';

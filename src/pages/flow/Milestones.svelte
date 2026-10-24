@@ -106,7 +106,7 @@
 
 <div class="hob">
   <header class="ph">
-    <Crumb path={[{ href: '#/flow', label: t('Analysis|place') }, { href: '#/flow/activity', label: t('Activity|tab') }]} here={t('Milestones')} />
+    <Crumb path={[{ href: '#/auswerten', label: t('Analysis|place') }]} here={t('Milestones')} />
     <PageHead title={t('Milestones')} text={t('Only the next star per milestone · stars reached stay · no ranking')} />
   </header>
 

@@ -80,7 +80,7 @@ test('metres climbed on Today, Aktiv, the year goals and per part; Strava card u
 
   // WU2: Aktiv «Deine Woche in Zahlen» (Aktiv neu 20.10.2026 «2a», changed on purpose: replaces «Velo diesen
   // Monat») with the metres climbed of the 7 days; without Fitbit the minutes point to the page Fitbit
-  await page.goto('./#/flow');
+  await page.goto('./#/auswerten'); // «Aktiv neu» (22.10.2026): the overview is on Auswerten
   await openOverview(page);
   await expect(page.locator('[data-section="week-numbers"] [data-wn="hm"]')).toContainText(/2.?700/);
   await expect(page.locator('[data-section="azm"]')).toContainText(T('Connect Fitbit: then the minutes of every activity count here.'));
@@ -141,7 +141,7 @@ test('active zone minutes of this week on Aktiv, with the weekly goal changeable
   // Noah 19.10.2026 «1a»: Today's «This week» shows the minutes too
   await page.goto('./');
   await expect(page.locator('[data-week-azm]')).toContainText(T('{n} active zone min', { n: '125' }));
-  await page.goto('./#/flow');
+  await page.goto('./#/auswerten'); // «Aktiv neu» (22.10.2026): the overview is on Auswerten
   await openOverview(page);
   const box = page.locator('[data-section="azm"]');
   await expect(box.locator('[data-azm-sum]')).toContainText('125');
