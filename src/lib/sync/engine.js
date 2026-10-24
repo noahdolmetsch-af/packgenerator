@@ -3,24 +3,35 @@
  * device and the server.
  *
  * 1. Pull: everything the other device wrote since the last round. A record this device did not change
- *    is taken over; the same content on both is fine; a record changed on BOTH devices is not touched
- *    and becomes a question (3b): «Which version wins?» (conflicts, answered with resolve()).
+ *    is taken over; the same content on both is fine. A record changed on BOTH devices settles by itself
+ *    (Noah 24.10.2026: «im Frontend nie eine solche Meldung», replaces 3b «the app asks»): the newer
+ *    change wins, and the version it replaced stays in a quiet history for 30 days (Ich › Daten und
+ *    Backup › «Automatisch abgeglichen»), so nothing is lost and it can be brought back.
  * 2. Push: every record this device changed (the notes of track.js), sealed with the pairing code.
  *    The server takes a record only when nobody wrote it in between; otherwise the next pull brings it.
  *
  * What stays on this device (meta table, never exported):
  *   'syncCfg'              { code, since, on, lastAt, error, big }
  *   'sync|<table>|<id>'    the change notes (track.js)
- *   'synccf|<table>|<id>'  an open question: the other device's version { t, id, s, v, del, at, dev }
+ *   'synccf|<table>|<id>'  an open question from before 24.10.2026 (the next round settles it by itself)
+ *   'synclost|<table>|<id>' the version a newer change replaced { t, id, v, del, at, dev, gone } (30 days)
  */
 import { DATA_TABLES, syncLocal } from '../db.js';
 import { keysOf, recName, seal, unseal } from './code.js';
-import { NOTE, noteKey } from './track.js';
+import { NOTE, noteKey, stable, same } from './track.js';
+
+export { stable, same };
 
 export const SYNC_URL = 'https://packgen-three.vercel.app/api/sync';
 export const CFG = 'syncCfg';
 export const ASK = 'synccf|';
 export const askKey = (table, id) => `${ASK}${table}|${JSON.stringify(id)}`;
+/** The quiet history: the version a newer change on the other device replaced (or the other way round). */
+export const LOST = 'synclost|';
+export const lostKey = (table, id) => `${LOST}${table}|${JSON.stringify(id)}`;
+/** How long a replaced version is kept, and at most how many. */
+export const LOST_DAYS = 30;
+export const LOST_MAX = 300;
 /** One push carries at most this many characters of sealed records (Vercel takes 4.5 MB). */
 export const BATCH_CHARS = 2_500_000;
 /** A single record bigger than this stays on this device (a very big document); the panel says so. */
@@ -47,14 +58,6 @@ export function httpApi(url = SYNC_URL, doFetch = (...a) => fetch(...a)) {
   };
 }
 
-/** Keys in a stable order, so the same record gives the same text on both devices. */
-export function stable(v) {
-  if (Array.isArray(v)) return `[${v.map(stable).join(',')}]`;
-  if (v && typeof v === 'object') return `{${Object.keys(v).filter((k) => v[k] !== undefined).sort().map((k) => `${JSON.stringify(k)}:${stable(v[k])}`).join(',')}}`;
-  return JSON.stringify(v ?? null);
-}
-export const same = (a, b) => stable(a ?? null) === stable(b ?? null);
-
 export const readCfg = (db) => db.meta.get(CFG);
 const writeCfg = async (db, patch) => {
   const cur = (await readCfg(db)) ?? { key: CFG };
@@ -64,15 +67,18 @@ const writeCfg = async (db, patch) => {
 /**
  * Switch the sync on with a code (a new one, or the one of the other device). Every record of this
  * device gets a note (dirty, base 0), so the first round compares everything with the server.
+ * A record this device never changed since the notes exist gets no time (''): where it differs from
+ * the other device, it counts as the older version, so pairing never overwrites newer work elsewhere.
  */
 export async function startSync(db, code, now = new Date().toISOString()) {
+  // the notes made here get no time (see above); now is when the sync was switched on
   await db.transaction('rw', db.meta, ...DATA_TABLES.map((t) => db.table(t)), async () => {
     const notes = await db.meta.where('key').startsWith(NOTE).toArray();
     const have = new Set(notes.map((n) => n.key));
     await db.meta.bulkPut(notes.map((n) => ({ ...n, dirty: 1, base: 0 })));
     for (const t of DATA_TABLES) {
       const ids = await db.table(t).toCollection().primaryKeys();
-      const fresh = ids.filter((id) => !deviceOnly(t, id) && !have.has(noteKey(t, id))).map((id) => ({ key: noteKey(t, id), t, id, at: now, del: false, dirty: 1, base: 0 }));
+      const fresh = ids.filter((id) => !deviceOnly(t, id) && !have.has(noteKey(t, id))).map((id) => ({ key: noteKey(t, id), t, id, at: '', del: false, dirty: 1, base: 0 }));
       if (fresh.length) await db.meta.bulkPut(fresh);
     }
     await db.meta.where('key').startsWith(ASK).delete();
@@ -89,18 +95,6 @@ export async function stopSync(db, { forget = false, api = httpApi() } = {}) {
   }
   await db.meta.where('key').startsWith(ASK).delete();
   await db.meta.delete(CFG);
-}
-
-/** The open questions, oldest first, each with this device's version beside the other one. */
-export async function openQuestions(db) {
-  const asks = await db.meta.where('key').startsWith(ASK).toArray();
-  const out = [];
-  for (const a of asks) {
-    const mine = (await db.table(a.t).get(a.id)) ?? null;
-    const note = await db.meta.get(noteKey(a.t, a.id));
-    out.push({ key: a.key, t: a.t, id: a.id, mine, mineAt: note?.at ?? null, theirs: a.del ? null : a.v, theirsAt: a.at ?? null, dev: a.dev ?? null });
-  }
-  return out.sort((x, y) => String(x.theirsAt).localeCompare(String(y.theirsAt)));
 }
 
 /** Put the other device's version in place (inside a transaction over the table and meta). */
@@ -127,30 +121,63 @@ export async function resolve(db, key, choice) {
   });
 }
 
-/** Open questions a rule of autoPick can answer by itself: answered, the person is not asked. Returns how many. */
+/**
+ * Questions left from before 24.10.2026 (the window «Changed on both devices» is gone): every one settles
+ * now by the same rule as a new conflict. Returns how many.
+ */
 export async function settleAsks(db) {
   let n = 0;
   for (const a of await db.meta.where('key').startsWith(ASK).toArray()) {
-    if (!known.has(a.t)) continue;
+    n++;
+    if (!known.has(a.t)) {
+      await db.meta.delete(a.key);
+      continue;
+    }
     const local = (await db.table(a.t).get(a.id)) ?? null;
     const note = await db.meta.get(noteKey(a.t, a.id));
-    const pick = autoPick(a.t, a.id, local, a.del ? null : a.v, { mineAt: note?.at, theirsAt: a.at });
-    if (!pick) continue;
-    await resolve(db, a.key, pick === 'theirs' ? 'theirs' : 'mine');
-    n++;
+    const theirs = a.del ? null : a.v;
+    const pick = settle(a.t, a.id, local, theirs, { mineAt: note?.at, theirsAt: a.at });
+    if (pick.keep) await keepLost(db, a.t, a.id, pick.keep === 'theirs' ? { v: theirs, at: a.at, dev: a.dev } : { v: local, at: note?.at, dev: 'here' });
+    await resolve(db, a.key, pick.win === 'theirs' ? 'theirs' : 'mine');
   }
   return n;
 }
 
-/**
- * The first round after pairing (Noah 19.10.2026 06:29): one answer for every open question at once,
- * 'mine' (this device has the right state) or 'theirs' (the other one). Returns how many it answered.
- */
-export async function resolveAll(db, choice) {
-  const keys = await db.meta.where('key').startsWith(ASK).primaryKeys();
-  for (const k of keys) await resolve(db, k, choice);
-  return keys.length;
+/** Keep the version that lost (inside a transaction over meta). */
+async function keepLost(db, t, id, { v, at, dev }, now = new Date().toISOString()) {
+  await db.meta.put({ key: lostKey(t, id), t, id, v: v ?? null, del: v == null, at: at ?? null, dev: dev ?? null, gone: now });
 }
+
+/** The quiet history, newest first (read only, for the panel). */
+export async function lostVersions(db) {
+  return (await db.meta.where('key').startsWith(LOST).toArray()).sort((x, y) => String(y.gone).localeCompare(String(x.gone)));
+}
+
+/** Remove replaced versions older than LOST_DAYS and beyond the newest LOST_MAX. Returns how many. */
+export async function pruneLost(db, now = Date.now()) {
+  const all = await lostVersions(db);
+  const old = all.filter((x, i) => i >= LOST_MAX || now - Date.parse(x.gone) > LOST_DAYS * 864e5);
+  if (old.length) await db.meta.bulkDelete(old.map((x) => x.key));
+  return old.length;
+}
+
+/** Bring a replaced version back: it becomes a normal change of this device and syncs to the other one. */
+export async function bringBack(db, key) {
+  await db.transaction('rw', db.meta, ...DATA_TABLES.map((x) => db.table(x)), async () => {
+    const l = await db.meta.get(key);
+    if (!l || !known.has(l.t)) return;
+    const table = db.table(l.t);
+    const now = (await table.get(l.id)) ?? null;
+    if (l.del) await table.delete(l.id);
+    else await table.put(l.v);
+    // the version it replaces now goes into the history in its place, so bringing back can be undone
+    if (!same(now, l.v)) await keepLost(db, l.t, l.id, { v: now, at: null, dev: 'here' });
+    else await db.meta.delete(key);
+  });
+}
+
+/** Forget one replaced version. */
+export const dropLost = (db, key) => db.meta.delete(key);
 
 /*
  * Paket B (Noah 19.10.2026 «1b»): copies of Google that both devices fetch by themselves. A Fitbit day
@@ -226,7 +253,24 @@ export function autoPick(t, id, mine, theirs, { mineAt = '', theirsAt = '' } = {
   return String(rule.when(theirs)) > String(rule.when(mine)) ? 'theirs' : 'mine';
 }
 
-/** One remote record: take it, note it as the same, or ask. */
+/**
+ * Noah 24.10.2026: a record changed on both devices never becomes a question. The fetched copies keep
+ * their rules (autoPick); everything else: the newer change wins (a delete is a change too), and the other
+ * version is kept (keep: which side lost, for the quiet history). Two changes with the same time: the one
+ * with the larger content wins, the same on both devices, so both end with the same version.
+ * Returns { win: 'same' | 'mine' | 'theirs', keep: null | 'mine' | 'theirs' }.
+ */
+export function settle(t, id, mine, theirs, { mineAt = '', theirsAt = '' } = {}) {
+  if (same(mine, theirs)) return { win: 'same', keep: null };
+  const auto = autoPick(t, id, mine, theirs, { mineAt, theirsAt });
+  if (auto) return { win: auto, keep: null };
+  const a = String(mineAt ?? '');
+  const b = String(theirsAt ?? '');
+  const theirsWins = b !== a ? b > a : stable(theirs) > stable(mine);
+  return theirsWins ? { win: 'theirs', keep: 'mine' } : { win: 'mine', keep: 'theirs' };
+}
+
+/** One remote record: take it, note it as the same, or settle a change on both devices. */
 async function applyRemote(db, p, s) {
   const { t, id } = p;
   if (!known.has(t) || id == null || deviceOnly(t, id)) return 'skip';
@@ -239,24 +283,21 @@ async function applyRemote(db, p, s) {
       await takeTheirs(db, t, id, { s, v: p.v, del: p.del, at: p.at });
       return 'taken';
     }
-    const pick = same(local, theirs) ? 'same' : autoPick(t, id, local, theirs, { mineAt: note.at, theirsAt: p.at });
-    if (pick === 'same') {
+    const { win, keep } = settle(t, id, local, theirs, { mineAt: note.at, theirsAt: p.at });
+    if (keep === 'mine') await keepLost(db, t, id, { v: local, at: note.at, dev: 'here' });
+    if (keep === 'theirs') await keepLost(db, t, id, { v: theirs, at: p.at, dev: p.dev });
+    await db.meta.delete(askKey(t, id));
+    if (win === 'same') {
       await db.meta.put({ ...note, dirty: 0, base: s, del: !!p.del });
-      await db.meta.delete(askKey(t, id));
       return 'same';
     }
-    if (pick === 'theirs') {
+    if (win === 'theirs') {
       await takeTheirs(db, t, id, { s, v: p.v, del: p.del, at: p.at });
       return 'taken';
     }
-    if (pick === 'mine') {
-      // this device fetched later: it stays and goes to the server on the push of this round
-      await db.meta.put({ ...note, dirty: 1, base: s });
-      await db.meta.delete(askKey(t, id));
-      return 'same';
-    }
-    await db.meta.put({ key: askKey(t, id), t, id, s, v: theirs, del: !!p.del, at: p.at ?? null, dev: p.dev ?? null });
-    return 'ask';
+    // this device changed it later: it stays and goes to the server on the push of this round
+    await db.meta.put({ ...note, dirty: 1, base: s });
+    return 'same';
   });
 }
 
@@ -329,6 +370,7 @@ export async function syncNow(db, { api = httpApi(), dev = 'computer', demo = as
     // the other device wrote in between: its version comes now (and may become a question)
     if (raced) await pull();
     out.asks = await db.meta.where('key').startsWith(ASK).count();
+    await pruneLost(db);
     await writeCfg(db, { lastAt: now(), error: null, big: out.big });
     return out;
   } catch (err) {

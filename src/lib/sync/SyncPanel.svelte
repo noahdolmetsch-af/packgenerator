@@ -7,18 +7,20 @@
    * Every record is sealed with the code on the device; the server cannot read it (sync/code.js).
    * Everything here is a suggestion: the backup file way below stays.
    * Noah 19.10.2026 06:29 (pairing felt like nothing happened, then many single questions): while it
-   * pairs, «Syncing …» shows in every view; an error shows in every view too; and when the first round
-   * after pairing finds entries changed on both devices, ONE question asks which device has the right
-   * state (this one / the other one / decide one by one). Later rounds ask one question at a time.
+   * pairs, «Syncing …» shows in every view; an error shows in every view too.
+   * Noah 24.10.2026 («im Frontend nie eine solche Meldung»): an entry changed on both devices is never a
+   * question any more, also not after pairing: the newer change wins, and the replaced version waits 30
+   * days in the fold «Automatisch abgeglichen», where it can be brought back.
    */
-  import { onMount, onDestroy } from 'svelte';
+  import { onMount } from 'svelte';
   import { RefreshCw, Link2, Copy, Share2 } from '@lucide/svelte';
   import { db } from '../db.js';
   import { t, tn, locale } from '../i18n.svelte.js';
   import QrCode from '../ich/QrCode.svelte';
   import { newCode, readCode } from './code.js';
-  import { startSync, stopSync, readCfg, resolveAll, ASK } from './engine.js';
-  import { sync, syncUi, runSync, setAskPrefs } from './auto.svelte.js';
+  import { startSync, stopSync, readCfg, lostVersions, bringBack, dropLost } from './engine.js';
+  import { sync, runSync } from './auto.svelte.js';
+  import { kindOf, titleOf } from './show.js';
   import { snapDb, takeSnapshot, hasDataIn } from '../maintenance/snapshots.js';
   import { ACCOUNT, startSignIn, readReturn, finishSignIn, signOut } from './account.js';
   import { askDelete } from '../ui/ask.js';
@@ -28,13 +30,15 @@
   const demoQ = liveQuery(() => db.meta.get('demo'));
   // Paket R (Noah 19.10.2026 «2a oder b»): signed in with Google on this device, or null
   const acctQ = liveQuery(() => db.meta.get(ACCOUNT));
-  let view = $state(''); // '' | 'enter' | 'pair' | 'off' | 'link' | 'first'
+  // the versions a newer change on the other device replaced (engine.js keepLost)
+  const lostQ = liveQuery(() => lostVersions(db));
+  const lost = $derived($lostQ ?? []);
+  let view = $state(''); // '' | 'enter' | 'pair' | 'off' | 'link'
   let typed = $state('');
   let linkCode = $state('');
   let message = $state('');
   let busy = $state(false);
   let pairing = $state(false); // begin() runs: snapshot, switch on, the first round
-  let firstN = $state(0); // open questions after the first round of a pairing
 
   const when = (iso) => new Date(iso).toLocaleString(locale(), { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
   const linkOf = (code) => `${location.origin}${location.pathname}#/me/data?koppeln=${code}`;
@@ -131,7 +135,6 @@
     try {
       if (await hasDataIn(db)) await takeSnapshot(db, snapDb(), { version: typeof __APP_VERSION__ === 'string' ? __APP_VERSION__ : null, kind: 'sync' });
       await startSync(db, code);
-      syncUi.seen = 0;
       await runSync(db);
     } finally {
       busy = false;
@@ -157,44 +160,27 @@
       message = t('This code is not complete. It has 32 letters and digits.');
       return;
     }
-    syncUi.first = true; // the question window waits for the one question below
     try {
       await begin(c);
       const err = await lastError();
-      firstN = await db.meta.where('key').startsWith(ASK).count();
-      if (firstN > 0) {
-        view = 'first';
-        return;
-      }
-      syncUi.first = false;
       view = '';
       message = err ? errText(err) : t('Paired. From now on both devices keep the same data.');
     } catch (e) {
-      syncUi.first = false;
       view = '';
       message = errText(e?.code);
     }
   }
-  /** The one question after pairing: 'mine', 'theirs' or 'one' (the window, one question at a time). */
-  async function firstPick(choice) {
+  /** Bring a replaced version back (it then syncs to the other device as a normal change). */
+  async function back(key) {
     busy = true;
     try {
-      if (choice !== 'one') {
-        await resolveAll(db, choice);
-        runSync(db);
-      }
+      await bringBack(db, key);
+      message = t('Brought back. The other device gets it with the next sync.');
+      runSync(db);
     } finally {
       busy = false;
-      syncUi.first = false;
-      view = '';
-      if (choice === 'one') {
-        syncUi.seen = 0;
-        syncUi.open = true;
-      } else message = t('Paired. From now on both devices keep the same data.');
     }
   }
-  // leaving the page without an answer: the questions come one at a time as usual
-  onDestroy(() => (syncUi.first = false));
   async function switchOff(forget) {
     busy = true;
     try {
@@ -235,7 +221,7 @@
   <h3 class="sh">{t('Sync automatically')}</h3>
   {#if view === 'link'}
     <div class="confirm" role="group" aria-label={t('Pair with this code?')}>
-      <p><b>{t('Pair with this code?')}</b> {t('Both devices then keep the same data. Where the same entry differs, the app asks which version counts.')}</p>
+      <p><b>{t('Pair with this code?')}</b> {t('Both devices then keep the same data. Where the same entry differs, the newer change counts; the other version stays under «Settled by itself» for 30 days.')}</p>
       <p class="code" data-sync-code>{linkCode}</p>
       <div class="ich-acts">
         <button type="button" class="btn" onclick={() => (view = '')}>{t('Not now')}</button>
@@ -274,30 +260,29 @@
       {:else if $cfgQ.lastAt}{t('On · last synced {when}.', { when: when($cfgQ.lastAt) })}
       {:else}{t('On · not synced yet.')}{/if}</span>
     </p>
-    {#if sync.asks && view !== 'first'}
-      <p class="asks" data-sync-asks>
-        <b>{tn(sync.asks, '{n} entry changed on both devices.', '{n} entries changed on both devices.')}</b>
-        <button type="button" class="btn sm hi" onclick={() => { syncUi.seen = 0; syncUi.open = true; }}>{t('Decide')}</button>
-      </p>
+    {#if lost.length}
+      <!-- Noah 24.10.2026: changes on both devices settle by themselves; the replaced versions wait here quietly -->
+      <details class="lost" data-sync-history>
+        <summary>{t('Settled by itself')} ({lost.length})</summary>
+        <p class="small">{t('When both devices changed the same entry, the newer change counts. The other version stays here for 30 days, in case you want it back.')}</p>
+        <ul class="lostlist">
+          {#each lost.slice(0, 50) as l (l.key)}
+            <li data-lost={l.t}>
+              <span class="lt"><span class="kind">{kindOf(l.t)}</span> <b>{titleOf(l.v, l.id, l.t)}</b>
+                <small>{l.del ? t('the deleted version') : l.at ? t('the version of {when}', { when: when(l.at) }) : t('the earlier version')}</small></span>
+              <span class="la">
+                <button type="button" class="btn sm" disabled={busy} onclick={() => back(l.key)}>{t('Bring back')}</button>
+                <button type="button" class="btn sm" disabled={busy} onclick={() => dropLost(db, l.key)} aria-label={t('Forget this version')}>{t('Forget')}</button>
+              </span>
+            </li>
+          {/each}
+        </ul>
+        {#if lost.length > 50}<p class="small">{t('{n} more, the newest are shown.', { n: lost.length - 50 })}</p>{/if}
+      </details>
     {/if}
-    <!-- Noah 18.10.2026 «1b und a kann eingestellt werden 2a oder umschalten auf b»: how the questions come -->
-    <fieldset class="prefs" data-sync-prefs>
-      <legend>{t('When both devices changed an entry')}</legend>
-      <label><input type="checkbox" checked={sync.autoOpen} onchange={(e) => setAskPrefs(db, { auto: e.currentTarget.checked })} /> {t('Open the question window by itself (else a hint at the bottom)')}</label>
-      <label><input type="checkbox" checked={sync.asList} onchange={(e) => setAskPrefs(db, { list: e.currentTarget.checked })} /> {t('Show all questions as one list (else one after the other)')}</label>
-    </fieldset>
     {#if $cfgQ.big}<p class="small">{tn($cfgQ.big, '{n} very large entry stays only on this device.', '{n} very large entries stay only on this device.')}</p>{/if}
 
-    {#if view === 'first'}
-      <div class="confirm" role="group" aria-label={t('Which device has the right state?')} data-sync-first>
-        <p><b>{t('Which device has the right state?')}</b> {tn(firstN, '{n} entry is different on the two devices. The answer counts for it.', '{n} entries are different on the two devices. The answer counts for all of them.')}</p>
-        <div class="ich-acts">
-          <button type="button" class="btn hi" disabled={busy} onclick={() => firstPick('mine')}>{t('This device')}</button>
-          <button type="button" class="btn hi" disabled={busy} onclick={() => firstPick('theirs')}>{t('The other device')}</button>
-          <button type="button" class="btn" disabled={busy} onclick={() => firstPick('one')}>{t('Decide one by one')}</button>
-        </div>
-      </div>
-    {:else if view === 'pair'}
+    {#if view === 'pair'}
       <div class="pair" data-sync-pair>
         <div class="qr"><QrCode text={linkOf($cfgQ.code)} label={t('QR code to pair')} /></div>
         <div class="pm">
@@ -388,13 +373,6 @@
     flex: 1;
     min-width: 0;
   }
-  .asks {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 8px;
-    margin: 0 0 10px;
-  }
   .dot {
     width: 10px;
     height: 10px;
@@ -408,28 +386,47 @@
   .dot.warn {
     background: var(--warn);
   }
-  .prefs {
+  .lost {
     margin: 0 0 12px;
-    padding: 0;
-    border: 0;
   }
-  .prefs legend {
-    margin-bottom: 4px;
-    padding: 0;
+  .lost summary {
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
     font-size: var(--fs-small);
     font-weight: 600;
   }
-  .prefs label {
+  .lostlist {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .lostlist li {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
-    gap: 8px;
-    min-height: 44px;
+    justify-content: space-between;
+    gap: 6px 10px;
+    padding: 8px 0;
+    border-top: 1px solid var(--line);
+  }
+  .lt {
+    flex: 1 1 200px;
+    min-width: 0;
+    overflow-wrap: break-word;
+  }
+  .lt small {
+    display: block;
+    color: var(--ink-2);
+  }
+  .kind {
+    color: var(--ink-2);
     font-size: var(--fs-small);
   }
-  .prefs input {
-    flex: none;
-    width: 20px;
-    height: 20px;
+  .la {
+    display: flex;
+    gap: 6px;
   }
   .lab {
     display: block;

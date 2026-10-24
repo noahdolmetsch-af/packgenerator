@@ -1565,6 +1565,13 @@ export default {
   '«New» on top for 14 days after an update': '«Neu» 14 Tage lang oben nach einem Update',
   'Open Heute: meditation is on top, «Last activity» after the ring.': 'Öffne Heute: Meditation steht oben, «Letzte Aktivität» nach dem Ring.',
   'Without a weight for a week, type it in «Weight this week?».': 'Ohne Gewicht seit einer Woche: tippe es in «Gewicht diese Woche?».',
+  // v0.186.1 «Abgleich ohne Fragen»
+  'Sync without questions': 'Abgleich ohne Fragen',
+  'Phone and computer agree by themselves.': 'Handy und Computer einigen sich selbst.',
+  'Changed on both devices: the newer change counts': 'Auf beiden Geräten geändert: die neuere Änderung gilt',
+  'The sync no longer asks about unchanged entries': 'Der Abgleich fragt nicht mehr nach unveränderten Einträgen',
+  'Change the same entry on the phone and on the computer: no message comes.': 'Ändere denselben Eintrag auf dem Handy und am Computer: Es kommt keine Meldung.',
+  'Ich › Daten und Backup › «Von selbst abgeglichen»: bring back the other version.': 'Ich › Daten und Backup › «Von selbst abgeglichen»: Hol die andere Version zurück.',
   // v0.181.4 «Aktiv ohne Sackgassen»
   'Aktiv, without dead ends': 'Aktiv ohne Sackgassen',
   'Plans, sessions and tiles do what they say.': 'Pläne, Einheiten und Kacheln tun, was sie sagen.',
