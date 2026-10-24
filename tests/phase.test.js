@@ -1,7 +1,7 @@
 // v0.67.0 «Übergänge 1»: the phase of a trip and the one main button of each trip page (phase.js).
 // Dates in calendar days (Europe/Zurich is the app's clock; here plain YYYY-MM-DD strings).
 import { describe, it, expect } from 'vitest';
-import { tripPhase, currentStep, stepOf, mainStep, afterPacking, endNeedsAsk, canReopen, eveningBefore, lastEvening, parseBetween, betweenHref, addDays, daysFrom, packedAll } from '../src/lib/phase.js';
+import { tripPhase, currentStep, stepOf, mainStep, afterPacking, endNeedsAsk, canReopen, eveningBefore, lastEvening, parseBetween, betweenHref, addDays, daysFrom, packedAll, goDayOf, goneToday } from '../src/lib/phase.js';
 import { pageOf, placeOf } from '../src/lib/nav.js';
 
 const D0 = '2026-10-14';
@@ -76,7 +76,8 @@ describe('mainStep: the one main button follows the phase (U001–U004, U008, U0
     expect(currentStep(t0, D0)).toBe('pack');
     expect(mainStep(t0, D0, 'plan')).toMatchObject({ kind: 'packgo' });
     expect(mainStep(t0, D0, 'pack').kind).toBe('finish');
-    expect(mainStep(t0, D0, 'ride').kind).toBe('last'); // on the ride page the day can always be finished
+    expect(mainStep(t0, D0, 'ride').kind).toBe('start'); // Klick-Rundgang H06: first «Losfahren»
+    expect(mainStep({ ...t0, goDays: { 0: '07:30' } }, D0, 'ride').kind).toBe('last'); // then the day can always be finished
     expect(mainStep(trip({ startDate: D0, entries: es(4, 4) }), D0, 'plan')).toMatchObject({ href: '#/ride' });
   });
   it('the start day, packed: On the way (U009)', () => {
@@ -85,9 +86,24 @@ describe('mainStep: the one main button follows the phase (U001–U004, U008, U0
   it('under way: Plan and Pack lead to On the way (U008); On the way has no «Weiter: Rückblick» before the last day (U004)', () => {
     expect(mainStep(trip(), day(5), 'plan')).toMatchObject({ href: '#/ride' });
     expect(mainStep(trip(), day(5), 'pack')).toMatchObject({ href: '#/ride' });
-    expect(mainStep(trip(), day(4), 'ride').kind).toBe(null);
-    expect(mainStep(trip(), day(6), 'ride')).toMatchObject({ kind: 'last', label: 'Finish the last day' });
-    expect(mainStep(trip({ days: 1, startDate: D0 }), D0, 'ride')).toMatchObject({ kind: 'last', label: 'Finish the trip' });
+    const gone = { 0: '07:00', 1: '07:00', 2: '07:00' };
+    expect(mainStep(trip({ goDays: gone }), day(4), 'ride').kind).toBe(null);
+    expect(mainStep(trip({ goDays: gone }), day(6), 'ride')).toMatchObject({ kind: 'last', label: 'Finish the last day' });
+    expect(mainStep(trip({ days: 1, startDate: D0, goDays: gone }), D0, 'ride')).toMatchObject({ kind: 'last', label: 'Finish the trip' });
+  });
+  it('Klick-Rundgang H06: the first riding day starts with «Losfahren» (goDays); later days and an ended trip never ask', () => {
+    expect(mainStep(trip(), day(4), 'ride')).toMatchObject({ kind: 'start', label: 'Start riding' });
+    expect(mainStep(trip({ goDays: { 0: '07:00' } }), day(4), 'ride').kind).toBe(null);
+    expect(mainStep(trip(), day(5), 'ride').kind).toBe(null); // day 2: «Notiz» stays the main button
+    expect(mainStep(trip(), day(6), 'ride')).toMatchObject({ kind: 'last' }); // the last day can always be finished
+    expect(goDayOf(trip(), day(5))).toBe(1);
+    expect(goDayOf(trip({ nonstop: true }), day(5))).toBe(0);
+    expect(goneToday(trip({ goDays: { 1: '06:10' } }), day(5))).toBe(true);
+    expect(mainStep(trip({ finished: day(4) }), day(4), 'ride').kind).not.toBe('start');
+  });
+  it('Klick-Rundgang H03: a day ride with nothing packed says «Pack everything», not «All packed»', () => {
+    expect(mainStep(trip({ days: 1 }), D0, 'plan').label).toBe("Pack everything, let's go");
+    expect(mainStep(trip({ days: 1, entries: es(10, 2) }), D0, 'plan').label).toBe("All packed, let's go");
   });
   it('a trip without a bike under way: Pack ends it (asking before its last day)', () => {
     expect(mainStep(hike(), day(5), 'pack')).toMatchObject({ kind: 'end', label: 'End the trip …' });

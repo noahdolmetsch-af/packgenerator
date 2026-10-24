@@ -72,7 +72,7 @@
   import { stageCount } from '../lib/ride.js';
   import { forecastForTrip, toWx } from '../lib/weather.js';
   import { take } from '../lib/nav.js';
-  import { mainStep, afterPacking, endNeedsAsk } from '../lib/phase.js';
+  import { mainStep, afterPacking, endNeedsAsk, packedAll, goDayOf } from '../lib/phase.js';
   import { endTrip as endTripNow } from '../lib/trip/ending.js';
   import { tripStateInfo } from '../lib/tripstate.js';
   import { isFixed } from '../lib/trip/fixed.js';
@@ -1053,7 +1053,9 @@
   <!-- Paket Q Zusatz 1: a weather or avalanche warning for this trip's days and place (only then) -->
   <TripAlert {trip} />
   <!-- Paket U3 «Live-Karte» (Noah 19.10.2026 «5a»: start on every tour): on the trip's days one small line -->
-  {#if todayTrip([trip], today)}<LiveStart {trip} />{/if}
+  <!-- Klick-Rundgang 22.10.2026 H04/H34: only once everything is packed; before that the main button leads on -->
+  <!-- H04: before setting off only once everything is packed; under way (set off or day 2+) always -->
+  {#if todayTrip([trip], today) && trip.entries?.length && (packedAll(trip) || trip.goDays?.[0] || goDayOf(trip, today) > 0)}<LiveStart {trip} />{/if}
   {#if packTab}
     <PackDay top={fixed ? null : blocksCard} onread={!fixed && trip.entries.some((e) => !e.packed) ? () => (reading = true) : null} {trip} {fixed} bike={bikeTrip} pressure={pressureText(targetPressure(bike), num)} wxGap={bikeTrip && !fixed ? wxGap : null} onwx={() => { useForecast(); review = true; }} steps={daySteps} {itemsById} {badges} {ready} ontoggle={toggleIn} onready={toggleReady} onpack={packIn} onreadyall={tickAllReady} onnext={finishPacking} onend={endTrip} main={mainStep(trip, today, 'pack', phaseOpts)} onundo={undoLast} {canUndo} lessons={learningsFor(trip, $learnQ ?? [], 2)} {reminders} oncharge={charge.length ? () => (chargeOpen = true) : null} {stats} charge={charge.length ? { ...charged, names: charge.map((r) => r.name) } : null} />
   {:else}

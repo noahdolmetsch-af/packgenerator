@@ -1,4 +1,5 @@
 <script>
+  import { tripStats } from '../trips.js';
   import { UNDO_MS } from '../ui/undo.js';
   /**
    * v0.49.0 R1 (drei «A» Tour-Rückblick): a trip's saved Rückblick tells what the trip was, instead of
@@ -278,6 +279,9 @@
   /* ---------- SN2x: Gepäck und Velo ---------- */
   const packed = $derived(packedList(trip, items, containers, d.packed ?? null));
   const ptot = $derived(packedTotals(packed));
+  // Klick-Rundgang 22.10.2026 H12: the trip head shows the one trip weight (packed and worn); this line names
+  // it too and says how much of it is in the bags, so the two numbers no longer seem to disagree
+  const allG = $derived(tripStats(trip, items, containers, bike, 0)?.packG ?? null);
   const wear = $derived(wearRows(bike, { km: row?.km ?? null, gainM: row?.gainM ?? null }));
   const left = $derived(chainLeft(bike));
 
@@ -306,7 +310,7 @@
       : firstDot([row?.km != null ? `${n0(row.km)} km` : '', row?.gainM != null ? `${n0(row.gainM)} Hm` : '', row?.movingH ? rideTime(row.movingH) : '', trip.days > 1 ? tn(trip.days, '{n} day', '{n} days') : '', [line.length ? t('map') : '', tl.length ? t('timeline') : '', noteList.length ? tn(noteList.length, '{n} note', '{n} notes') : ''].filter(Boolean).join(', ')]),
     body: firstDot([values?.hrAvg != null ? t('Ø heart rate {n}', { n: num(values.hrAvg) }) : '', power ? (power.measured && power.np ? `NP ${num(power.np)} W` : t('Ø {w} W estimated', { w: num(power.avg) })) : '', effort != null ? `${t('Relative Effort')} ${num(effort)}` : '', load != null ? `${t('Load|power')} ${num(load)}` : '', dayMoods[0]?.c?.mood != null ? t('Mood {n} of 10', { n: dayMoods[0].c.mood }) : '']) || t('Heart rate and power · with Strava'),
     way: firstDot([d.weather ? t(WEATHER.find((x) => x.key === d.weather)?.name ?? '') : '', rainText(row?.rain, trip.days) !== DASH ? rainText(row?.rain, trip.days) : '', d.amount ? `${t('Food and drink')}: ${t(AMOUNT.find((x) => x.key === d.amount)?.name ?? '')}` : '']),
-    pack: day != null ? t('for the whole trip · «Whole trip» on top shows it') : firstDot([ptot.g ? t('{w} in {n} bags', { w: kg(ptot.g), n: ptot.bags }) : '', unused.length ? tn(unused.length, '{n} item not used', '{n} items not used') : '', d.missing?.length ? tn(d.missing.length, '{n} was missing', '{n} were missing') : '', left != null ? (left > 0 ? t('Chain: {km} km to waxing', { km: num(left) }) : t('Chain: waxing due')) : '']),
+    pack: day != null ? t('for the whole trip · «Whole trip» on top shows it') : firstDot([ptot.g ? (allG && Math.round(allG / 100) !== Math.round(ptot.g / 100) ? t('{w} in all, {b} of it in {n} bags', { w: kg(allG), b: kg(ptot.g), n: ptot.bags }) : t('{w} in {n} bags', { w: kg(ptot.g), n: ptot.bags })) : '', unused.length ? tn(unused.length, '{n} item not used', '{n} items not used') : '', d.missing?.length ? tn(d.missing.length, '{n} was missing', '{n} were missing') : '', left != null ? (left > 0 ? t('Chain: {km} km to waxing', { km: num(left) }) : t('Chain: waxing due')) : '']),
     next: day != null ? t('for the whole trip') : firstDot([points.length ? tn(points.length, 'For next time {n} point', 'For next time {n} points') : '', row?.learnings.length ? tn(row.learnings.length, '{n} learning', '{n} learnings') : '', group ? (other ? t('Comparison in {group}: {trip}', { group: groupName(group), trip: other.title }) : t('Comparison in {group}', { group: groupName(group) })) : '']),
   });
   function groupName(g) {

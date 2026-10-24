@@ -9,8 +9,9 @@
   import { backClose } from '../ui/backclose.js';
   import { db } from '../db.js';
   import { touched } from '../trips.js';
-  import { domainOf, domainName, inDomain } from '../domains.js';
+  import { domainOf, inDomain } from '../domains.js';
   import { starterRows, startersFor } from '../startlists.js';
+  import { kindName } from '../sports.js';
   import { t, nameOf } from '../i18n.svelte.js';
   import { ListChecks, ChevronRight } from '@lucide/svelte';
   import ItemDialog from '../gear/ItemDialog.svelte';
@@ -44,14 +45,14 @@
 
 {#if startersFor(domain).length}
   <button type="button" class="tp-fold st-row" onclick={() => (open = true)}>
-    <ListChecks size={20} aria-hidden="true" /><span>{t('Suggestion list {sport}', { sport: t(domainName(domain)) })}</span>
+    <ListChecks size={20} aria-hidden="true" /><span>{t('Suggestion list {sport}', { sport: t(kindName(trip)) })}</span>
     <span class="r"><i class="tp-badge num">{done}/{rows.length}</i><ChevronRight class="chev" size={18} aria-hidden="true" /></span>
   </button>
 {/if}
 
 {#if open}
   <dialog use:backClose class="calm-sheet st-sheet" bind:this={el} onclose={() => (open = false)} aria-labelledby="st-h">
-    <header><h2 id="st-h">{t('Suggestion list {sport}', { sport: t(domainName(domain)) })}</h2><button type="button" class="text-button" onclick={() => el.close()}>{t('Close')}</button></header>
+    <header><h2 id="st-h">{t('Suggestion list {sport}', { sport: t(kindName(trip)) })}</h2><button type="button" class="text-button" onclick={() => el.close()}>{t('Close')}</button></header>
     <p class="sub">{t('What usually belongs on this kind of trip. Tick what you take: it goes on your packing list. Only a suggestion.')}</p>
     <ul class="st">
       {#each rows as r (r.line.name)}

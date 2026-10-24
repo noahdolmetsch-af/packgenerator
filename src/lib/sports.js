@@ -13,7 +13,7 @@
  *   5b: the sports used most come first (orderSports).
  * Pure functions, easy to test.
  */
-import { BIKEPACKING, DOMAIN, domainOf, hasBike } from './domains.js';
+import { BIKEPACKING, DOMAIN, domainOf, domainName, hasBike } from './domains.js';
 import { SPORTS } from './sportlist.js';
 
 export { SPORTS };
@@ -35,6 +35,16 @@ export function sportOf(trip) {
   const d = domainOf(trip);
   return d !== BIKEPACKING && SPORT[d] ? d : null;
 }
+
+/**
+ * The name a trip shows for its kind (an English key for t()): its sport («Fahrrad», «Gravel»), else
+ * its area. Klick-Rundgang 22.10.2026 H02: a Fahrrad trip packs from the bike area, but its tips,
+ * suggestion list and checks say «Fahrrad», not «Bikepacking».
+ */
+export const kindName = (trip) => {
+  const s = sportOf(trip);
+  return s ? SPORT[s].name : domainName(domainOf(trip));
+};
 
 /** 5b: the sports, the ones with the most trips first; a tie keeps the fixed order. */
 export function orderSports(trips = []) {
