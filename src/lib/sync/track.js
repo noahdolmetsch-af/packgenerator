@@ -11,9 +11,21 @@
  *
  * The records themselves stay exactly as they are (no new field, no schema change, backups unchanged).
  * The meta table is never exported. The sync engine (engine.js) reads and clears these notes.
+ *
+ * Noah 24.10.2026 («805 Einträge auf beiden Geräten geändert»): a save that writes exactly what is
+ * already there is no change and leaves no note. A backup restored again, a one-time update or a list
+ * saved as a whole then only marks what really changed, so the other device has nothing to settle.
  */
 
 export const NOTE = 'sync|';
+
+/** Keys in a stable order, so the same record gives the same text on both devices. */
+export function stable(v) {
+  if (Array.isArray(v)) return `[${v.map(stable).join(',')}]`;
+  if (v && typeof v === 'object') return `{${Object.keys(v).filter((k) => v[k] !== undefined).sort().map((k) => `${JSON.stringify(k)}:${stable(v[k])}`).join(',')}}`;
+  return JSON.stringify(v ?? null);
+}
+export const same = (a, b) => stable(a ?? null) === stable(b ?? null);
 export const noteKey = (table, id) => `${NOTE}${table}|${JSON.stringify(id)}`;
 
 /** Register the middleware. Call before the database opens (db.js createDb does). */
@@ -53,10 +65,19 @@ export function trackSync(db, { tables, skip = () => false, now = () => new Date
                 const r = await table.query({ trans: req.trans, values: false, query: { index: pk, range: req.range } });
                 gone = r.result;
               }
+              // a put of exactly the stored content changes nothing: no note for it
+              let unchanged = null;
+              if (req.type === 'put') {
+                const keys = req.values.map((v, i) => req.keys?.[i] ?? pk.extractKey?.(v));
+                if (keys.every((k) => k != null)) {
+                  const old = await table.getMany({ trans: req.trans, keys });
+                  unchanged = req.values.map((v, i) => old[i] !== undefined && stable(old[i]) === stable(v));
+                }
+              }
               const res = await table.mutate(req);
               const failed = (i) => res.failures && res.failures[i] !== undefined;
               if (req.type === 'add' || req.type === 'put') {
-                const ids = req.values.map((v, i) => (failed(i) ? null : (req.keys?.[i] ?? res.results?.[i] ?? pk.extractKey?.(v))));
+                const ids = req.values.map((v, i) => (failed(i) || unchanged?.[i] ? null : (req.keys?.[i] ?? res.results?.[i] ?? pk.extractKey?.(v))));
                 await note(req.trans, ids, false);
               } else if (req.type === 'delete') {
                 await note(req.trans, req.keys, true);

@@ -90,10 +90,29 @@ test('Switch on on one device, pair the other with the link: both have the same 
   await b.context.close();
 });
 
-test('Changed on both devices: the window asks, one question after the other or all as a list; a hint as a setting; the chosen one stays', async ({ browser }, info) => {
+/** One item as stored in the app's database. */
+const storedItem = (page, id) =>
+  page.evaluate(
+    (id) =>
+      new Promise((ok, fail) => {
+        const r = indexedDB.open('pack-generator');
+        r.onerror = fail;
+        r.onsuccess = () => {
+          const g = r.result.transaction('items').objectStore('items').get(id);
+          g.onsuccess = () => ok(g.result);
+          g.onerror = fail;
+        };
+      }),
+    id,
+  );
+
+// Noah 24.10.2026 (phone screenshot «805 Einträge auf beiden Geräten geändert»): no sync message ever
+// shows in the app. An entry changed on both devices settles by itself (the newer change counts), and the
+// replaced version waits quietly in Ich › Daten und Backup › «Von selbst abgeglichen».
+test('Changed on both devices: nothing asks, anywhere; the newer change counts; the other version can come back', async ({ browser }, info) => {
   const server = syncServer();
   const size = info.project.name === 'phone' ? 390 : 1440;
-  // the phone already synced its own version of the first two items (fictional)
+  // the phone synced its own (older) version of the first two items (fictional)
   const code = '7K2M-9QXA-4F8R-T3WD-H6NB-P2CE-5VJY-8GKS';
   const keys = await keysOf(code);
   const theirs = { ...item, name: `${item.name} (Handy)`, weightG: (item.weightG ?? 0) + 25 };
@@ -107,85 +126,45 @@ test('Changed on both devices: the window asks, one question after the other or 
   await importAndSettle(a.page, fixture);
   await a.page.goto(`./#/me/data?koppeln=${code}`);
   await syncBox(a.page).getByRole('group', { name: T('Pair with this code?') }).getByRole('button', { name: T('Pair') }).click();
-  // the first round after pairing asks once (Noah 19.10.2026 06:29); «one by one» opens the window
-  const hint = a.page.locator('[data-sync-hint]');
-  const dlg = a.page.getByRole('dialog', { name: T('Changed on both devices') });
-  const first = syncBox(a.page).getByRole('group', { name: T('Which device has the right state?') });
-  await expect(first).toContainText(T('{n} entries are different on the two devices. The answer counts for all of them.').replace('{n}', '2'));
-  await expect(dlg).toBeHidden();
-  await expect(syncBox(a.page).locator('[data-sync-asks]')).toHaveCount(0);
-  await first.scrollIntoViewIfNeeded();
-  await shot(a.page, `A5-erste-frage-${size}`);
-  await first.getByRole('button', { name: T('Decide one by one') }).click();
-  // 1a (Noah 18.10.2026 20:07): later the window opens by itself
-  await expect(dlg).toBeVisible();
-  await expect(hint).toHaveCount(0);
-  // 2a: one after the other
-  await expect(dlg).toBeVisible();
-  await expect(dlg).toHaveAttribute('data-view', 'one');
-  await expect(dlg).toContainText(item.name);
-  await expect(dlg.locator('[data-choice="theirs"]')).toContainText(`${theirs.weightG} g`);
-  await expect(dlg.locator('[data-choice="mine"]')).toContainText(`${item.weightG} g`);
-  await expect(dlg.locator('[data-choice="theirs"]')).toContainText(T('Phone'));
-  await shot(a.page, `A6-frage-${size}`);
-  // … or all as one list (kept as a setting)
-  await dlg.getByRole('button', { name: T('Show all as a list') }).click();
-  await expect(dlg).toHaveAttribute('data-view', 'list');
-  await expect(dlg.locator('[data-question]')).toHaveCount(2);
-  await shot(a.page, `A7-liste-${size}`);
-  await dlg.getByRole('button', { name: T('Show one at a time') }).click();
-  await expect(dlg).toHaveAttribute('data-view', 'one');
-  // «Later» keeps both; the panel says what is open and holds the two settings
-  await dlg.getByRole('button', { name: T('Decide later') }).click();
-  await expect(dlg).toBeHidden();
-  await expect(hint).toBeHidden();
-  await expect(syncBox(a.page).locator('[data-sync-asks]')).toContainText(T('{n} entries changed on both devices.').replace('{n}', '2'));
-  const prefs = syncBox(a.page).locator('[data-sync-prefs]');
-  await expect(prefs.getByRole('checkbox')).toHaveCount(2);
-  await expect(prefs.getByRole('checkbox', { name: T('Open the question window by itself (else a hint at the bottom)') })).toBeChecked();
-  await prefs.scrollIntoViewIfNeeded();
-  await shot(a.page, `A8-offen-${size}`);
-  // the setting «only a hint»: after a restart the hint comes instead of the window
-  const auto = prefs.getByRole('checkbox', { name: T('Open the question window by itself (else a hint at the bottom)') });
-  await auto.uncheck();
+  await expect(syncBox(a.page).locator('.msg')).toHaveText(T('Paired. From now on both devices keep the same data.'));
+  // no question: not in the panel, not as a window, not as a hint
+  await expect(a.page.getByRole('dialog')).toHaveCount(0);
+  await expect(a.page.getByText(/beiden Geräten geändert|changed on both devices/i)).toHaveCount(0);
+  // this device changed them later (the import just now): its versions stay
+  expect(await storedItem(a.page, item.id)).toMatchObject({ name: item.name });
+  // the phone's versions wait in the quiet fold
+  const fold = syncBox(a.page).locator('[data-sync-history]');
+  await expect(fold.locator('summary')).toContainText(`${T('Settled by itself')} (2)`);
+  await fold.locator('summary').click();
+  await expect(fold.locator('li')).toHaveCount(2);
+  await expect(fold).toContainText(theirs.name);
+  await fold.scrollIntoViewIfNeeded();
+  await shot(a.page, `A6-von-selbst-${size}`);
+  // moving through the app and a reload bring no message either
+  await a.page.goto('./#/');
   await a.page.reload();
-  await expect(hint).toContainText(T('{n} entries changed on both devices.').replace('{n}', '2'));
-  await expect(dlg).toBeHidden();
-  await shot(a.page, `A9-hinweis-${size}`);
-  await hint.getByRole('button', { name: T('Decide') }).click();
-  await expect(dlg).toBeVisible();
-  await dlg.locator('[data-choice="theirs"]').click();
-  await expect(dlg).toContainText(item2.name);
-  await dlg.locator('[data-choice="mine"]').click();
-  await expect(dlg).toBeHidden();
-  await expect(syncBox(a.page).locator('[data-sync-asks]')).toHaveCount(0);
-  // the other version is in place now
-  const stored = await a.page.evaluate(
-    (id) =>
-      new Promise((ok, fail) => {
-        const r = indexedDB.open('pack-generator');
-        r.onerror = fail;
-        r.onsuccess = () => {
-          const g = r.result.transaction('items').objectStore('items').get(id);
-          g.onsuccess = () => ok(g.result);
-          g.onerror = fail;
-        };
-      }),
-    item.id,
-  );
-  expect(stored).toMatchObject({ name: theirs.name, weightG: theirs.weightG });
+  await a.page.waitForTimeout(1500);
+  await expect(a.page.getByRole('dialog')).toHaveCount(0);
+  await expect(a.page.getByText(/beiden Geräten geändert|changed on both devices/i)).toHaveCount(0);
+  // «Bring back»: the phone's version is in place again, and the one it replaced waits in the fold
+  await a.page.goto('./#/me/data');
+  await syncBox(a.page).locator('[data-sync-history] summary').click();
+  await syncBox(a.page).locator('[data-sync-history] li').filter({ hasText: theirs.name }).getByRole('button', { name: T('Bring back') }).click();
+  await expect(syncBox(a.page).locator('.msg')).toHaveText(T('Brought back. The other device gets it with the next sync.'));
+  await expect.poll(async () => (await storedItem(a.page, item.id))?.name).toBe(theirs.name);
+  expect((await storedItem(a.page, item.id)).weightG).toBe(theirs.weightG);
+  await expect(syncBox(a.page).locator('[data-sync-history] li').filter({ hasText: item.name })).toHaveCount(1);
   expect(a.errors).toEqual([]);
   await a.context.close();
 });
 
-test('Pairing: «Syncing …» while it runs, one answer for all on the first round, and an error shows in every view', async ({ browser }, info) => {
+test('Pairing: «Syncing …» while it runs, no question after the first round, and an error shows in the panel', async ({ browser }, info) => {
   const server = syncServer();
   const code = '3H7P-K2QM-9WXA-F4TR-6DNB-C8EJ-Y5VS-2GKZ';
   const keys = await keysOf(code);
   const theirs = { ...item, weightG: (item.weightG ?? 0) + 40 };
-  const theirs2 = { ...item2, weightG: (item2.weightG ?? 0) + 15 };
   const sealed = async (v, at) => ({ k: await recName(keys, 'items', v.id), base: 0, e: await seal(keys, { t: 'items', id: v.id, v, del: false, at, dev: 'phone' }) });
-  await server.call('push', { token: keys.token, items: [await sealed(theirs, '2026-10-19T04:20:00.000Z'), await sealed(theirs2, '2026-10-19T04:21:00.000Z')] });
+  await server.call('push', { token: keys.token, items: [await sealed(theirs, '2026-10-19T04:20:00.000Z')] });
 
   const a = await device(browser, info, server);
   // a slow server: the line shows while it pairs
@@ -198,36 +177,8 @@ test('Pairing: «Syncing …» while it runs, one answer for all on the first ro
   await a.page.goto(`./#/me/data?koppeln=${code}`);
   await syncBox(a.page).getByRole('group', { name: T('Pair with this code?') }).getByRole('button', { name: T('Pair') }).click();
   await expect(syncBox(a.page).getByText(T('Syncing …'))).toBeVisible();
-  const first = syncBox(a.page).getByRole('group', { name: T('Which device has the right state?') });
-  await expect(first).toBeVisible();
-  await expect(a.page.getByRole('dialog', { name: T('Changed on both devices') })).toBeHidden();
-  // «the other device»: both questions answered at once, no window
-  await first.getByRole('button', { name: T('The other device') }).click();
-  await expect(first).toBeHidden();
-  await expect(syncBox(a.page).locator('[data-sync-asks]')).toHaveCount(0);
   await expect(syncBox(a.page).locator('.msg')).toHaveText(T('Paired. From now on both devices keep the same data.'));
-  await expect(a.page.getByRole('dialog', { name: T('Changed on both devices') })).toBeHidden();
-  const stored = await a.page.evaluate(
-    (ids) =>
-      new Promise((ok, fail) => {
-        const r = indexedDB.open('pack-generator');
-        r.onerror = fail;
-        r.onsuccess = () => {
-          const st = r.result.transaction('items').objectStore('items');
-          const out = [];
-          ids.forEach((id, i) => {
-            const g = st.get(id);
-            g.onsuccess = () => {
-              out[i] = g.result.weightG;
-              if (out.filter((x) => x !== undefined).length === ids.length) ok(out);
-            };
-            g.onerror = fail;
-          });
-        };
-      }),
-    [item.id, item2.id],
-  );
-  expect(stored).toEqual([theirs.weightG, theirs2.weightG]);
+  await expect(a.page.getByRole('dialog')).toHaveCount(0);
 
   // switched off, and pairing again while the server cannot be reached: the panel says so
   await syncBox(a.page).getByRole('button', { name: T('Switch off|sync') }).click();
@@ -238,6 +189,10 @@ test('Pairing: «Syncing …» while it runs, one answer for all on the first ro
   await syncBox(a.page).getByLabel(T('Code from the other device')).fill(code);
   await syncBox(a.page).getByRole('button', { name: T('Pair') }).click();
   await expect(syncBox(a.page).locator('.msg')).toHaveText(T('No network right now. The sync catches up later.'));
+  // outside the panel, nothing about it
+  await a.page.goto('./#/');
+  await a.page.waitForTimeout(800);
+  await expect(a.page.getByRole('dialog')).toHaveCount(0);
   expect(a.errors).toEqual([]);
   await a.context.close();
 });

@@ -30,6 +30,16 @@ export const WHATS_NEW = [
     test: ['Open Active › My sports, tap a sport and tap «Tick now».', 'Open Analysis with the switch on top of Active.'],
   },
   {
+    // v0.186.1 «Abgleich ohne Fragen» (Noah 24.10.2026, screenshot «805 Einträge auf beiden Geräten geändert»)
+    version: '0.186.1',
+    date: '2026-10-24',
+    title: 'Sync without questions',
+    lead: 'Phone and computer agree by themselves.',
+    points: [{ text: 'Changed on both devices: the newer change counts', href: '#/me', action: 'data' }],
+    small: [{ box: 'fixed', text: 'The sync no longer asks about unchanged entries' }],
+    test: ['Change the same entry on the phone and on the computer: no message comes.', 'Ich › Daten und Backup › «Von selbst abgeglichen»: bring back the other version.'],
+  },
+  {
     // v0.186.0 «Alles finden» (Paket B, Noah 22.10.2026 «1a–5a»; released 24.10.2026 «freigabe für alle»): help behind «?»
     // on every page, «Alle n» as a grid of all pages, Ich slim; H19 the + menu offers more; H33 «Beispiel-Liste übernehmen»;
     // «Weiter fragen» carries the question to Claude, Duck.ai and Gemini.

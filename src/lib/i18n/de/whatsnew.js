@@ -1574,6 +1574,13 @@ export default {
   'Open Active › My sports, tap a sport and tap «Tick now».': 'Öffne Aktiv › Meine Sportarten, tippe eine Sportart an und dann «Jetzt abhaken».',
   'Tap «Tick now» on its page, then change the entry under History.': 'Tippe auf ihrer Seite «Jetzt abhaken» und ändere dann den Eintrag unter Verlauf.',
   'Open Analysis with the switch on top of Active.': 'Öffne Auswerten mit dem Umschalter oben in Aktiv.',
+  // v0.186.1 «Abgleich ohne Fragen»
+  'Sync without questions': 'Abgleich ohne Fragen',
+  'Phone and computer agree by themselves.': 'Handy und Computer einigen sich selbst.',
+  'Changed on both devices: the newer change counts': 'Auf beiden Geräten geändert: die neuere Änderung gilt',
+  'The sync no longer asks about unchanged entries': 'Der Abgleich fragt nicht mehr nach unveränderten Einträgen',
+  'Change the same entry on the phone and on the computer: no message comes.': 'Ändere denselben Eintrag auf dem Handy und am Computer: Es kommt keine Meldung.',
+  'Ich › Daten und Backup › «Von selbst abgeglichen»: bring back the other version.': 'Ich › Daten und Backup › «Von selbst abgeglichen»: Hol die andere Version zurück.',
   // v0.181.4 «Aktiv ohne Sackgassen»
   'Aktiv, without dead ends': 'Aktiv ohne Sackgassen',
   'Plans, sessions and tiles do what they say.': 'Pläne, Einheiten und Kacheln tun, was sie sagen.',
