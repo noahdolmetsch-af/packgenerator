@@ -23,12 +23,12 @@ export const WHATS_NEW = [
     title: 'Trips without surprises',
     lead: 'Try the trip at home first, and arrive well afterwards.',
     points: [
-      { text: 'Dress rehearsal a week before the start', href: '#/trips' },
-      { text: 'Arrive well: the small things after a trip', href: '#/trips' },
+      { text: 'Dress rehearsal before, arrive well after', href: '#/trips' },
+      { text: 'Pack by need: light, comfortable or easy', href: '#/pack' },
       { text: 'Box labels with a QR code', href: '#/me/tools/labels' },
     ],
-    small: [{ box: 'new', text: 'A gap becomes a to-do with one tap' }],
-    test: ['Open a trip that starts within a week: Pack › «Dress rehearsal», tap «Gap», then «Keep as to-do».', 'Toolbox › Box labels: add a box, put something in, «Print label».'],
+    small: [{ box: 'new', text: 'See what a building block changes before adding it' }],
+    test: ['Open a trip that starts within a week: Pack › «Dress rehearsal», tap «Gap», then «Keep as to-do».', 'Pack › Add material › «Pack by need»: tap two needs, compare the variants, «Take it onto the list».', 'Toolbox › Box labels: add a box, put something in, «Print label».'],
   },
   {
     // v0.181.4 «Aktiv ohne Sackgassen» (Klick-Rundgang «Aktiv fertig bauen» A01–A05, A07, A08, H29, and dead buttons part 2)

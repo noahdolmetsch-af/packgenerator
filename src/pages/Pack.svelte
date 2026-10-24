@@ -46,6 +46,7 @@
   import OptionButton from '../lib/ui/OptionButton.svelte';
   import { needsSlim, repairItems, applySlim, undoSlim, REPAIR } from '../lib/repairslim.js';
   import NotPacked from '../lib/pack/NotPacked.svelte';
+  import BlockPreview from '../lib/folgen/BlockPreview.svelte'; // Paket B «Folgen vorher sehen»
   import TemplateDialog from '../lib/pack/TemplateDialog.svelte';
   import PackDay from '../lib/pack/PackDay.svelte';
   import ShopList from '../lib/pack/ShopList.svelte';
@@ -1090,6 +1091,7 @@
           <div class="chips">
             {#each chips as c (c.key)}<button type="button" class="chip" disabled={!c.n} aria-label={c.n ? tn(c.n, 'Add {block}: {n} item', 'Add {block}: {n} items', { block: c.label }) : t('{block}: everything is on the trip', { block: c.label })} onclick={() => addBlock(c)}>+ {c.label} ({c.n})</button>{/each}
           </div>
+          <BlockPreview {trip} {items} blocks={chips} skip={blockSkip} slotOf={blockSlot} zones={stats.zones} onadd={addBlock} {change} />
           {#if blockNote}<p class="blocknote" role="status"><span>{blockNote}</span> {#if canUndo}<button type="button" class="text-button" onclick={undoBlock}>{t('Undo')}</button>{/if}</p>{/if}
         </div>
       {/if}

@@ -357,6 +357,8 @@ export const HOWTO = {
   'f.travelbook': ['Open «Travel track» of a tour.', 'Tap «Travel book as PDF».', 'Save, print or send the PDF.'],
   'f.probe': ['A week before the start open the trip › «Dress rehearsal».', 'Tap «Works», «Gap» or «Not needed» at each step.', 'At a gap: «Keep as to-do».'],
   'f.homecoming': ['After «Trip ended» tap «Arrive well».', 'Tap «Done» or «Later».', '«Keep as to-do» for what waits.'],
+  'f.blockeffect': ['Open Pack › Add material.', 'Tap «Before adding: see the effect».', 'Check it, then «Add …».'],
+  'f.needs': ['Open Pack › Add material › «Pack by need».', 'Tap needs, set people, choose a variant.', 'Tap «Take it onto the list».'],
   'f.labels': ['Open Toolbox › Box labels.', 'Add a box and what is inside.', '«Print label» and stick it on.'],
 };
 

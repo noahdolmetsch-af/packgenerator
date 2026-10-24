@@ -1703,6 +1703,16 @@ export const HANDBOOK = {
     steps: ['After «Trip ended» tap «Arrive well».', 'Tick what is done; «Later» for what waits.', '«Keep as to-do» puts it into Merken for tomorrow.'],
     example: 'Example: tent hung up, laundry in → «Done»; borrowed stove → «Later», to-do for tomorrow.',
   },
+  'f.blockeffect': {
+    on: null,
+    steps: ['Open Pack › Add material.', 'Under the building blocks tap «Before adding: see the effect».', 'Read things, grams, bags and earlier trips; «Add …» takes it, Undo in Pack.'],
+    example: 'Example: Rain → 3 things, +430 g, seat pack; «Already packed, check again»; on 4 earlier trips 1× the rain trousers were missing.',
+  },
+  'f.needs': {
+    on: null,
+    steps: ['Open Pack › Add material › «Pack by need».', 'Tap your needs and set the people; compare light, comfortable, little effort.', '«Take it onto the list»; things already there stay, Undo in Pack.'],
+    example: 'Example: sleep warm + cook, 3 days, 2 people → one stove, two sleeping bags; light 2.1 kg, comfortable +0.8 kg.',
+  },
   'f.labels': {
     on: null,
     steps: ['Open Toolbox › Box labels and add a box with its place.', 'Type what goes in: your gear or anything else.', '«Print label», stick it on; scanning the code opens the box in the app.'],
