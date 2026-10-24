@@ -56,10 +56,12 @@
 
   // entries
   let typed = $state({});
+  let emptyIn = $state(null); // Tote Knöpfe (Klick-Rundgang 22.10.2026): «+» with an empty field says why
   async function add(box, e) {
     e.preventDefault();
     const tx = (typed[box] ?? '').trim();
-    if (!tx) return;
+    if (!tx) return (emptyIn = box);
+    emptyIn = null;
     await save(addEntry(c, box, tx));
     typed[box] = '';
   }
@@ -69,10 +71,12 @@
 
   // boxes (groups)
   let newBox = $state('');
+  let boxEmpty = $state(false);
   let deleting = $state.raw(null);
   async function makeBox(e) {
     e.preventDefault();
-    if (!newBox.trim()) return;
+    if (!newBox.trim()) return (boxEmpty = true);
+    boxEmpty = false;
     await save(addBox(c, newBox));
     newBox = '';
   }
@@ -136,6 +140,7 @@
         <input class="inp" type="text" bind:value={typed[b.key]} maxlength="200" placeholder={t('Write something into «{name}»', { name: boxName(c.boxes, b.key, t) })} aria-label={t('New entry in {name}', { name: boxName(c.boxes, b.key, t) })} />
         <button type="submit" class="btn" aria-label={t('Add')}><Plus size={16} aria-hidden="true" /></button>
       </form>
+      {#if emptyIn === b.key}<p class="rc-note" role="status" data-compass-empty>{t('Write something first, then tap «+».')}</p>{/if}
     </section>
   {/each}
 
@@ -153,6 +158,7 @@
         <input class="inp" type="text" bind:value={newBox} maxlength="40" placeholder={t('Own box')} aria-label={t('Own box')} />
         <button type="submit" class="btn"><Plus size={16} aria-hidden="true" />{t('Add box')}</button>
       </form>
+      {#if boxEmpty}<p class="rc-note" role="status">{t('Give the box a name first.')}</p>{/if}
       <label class="ck"><input type="checkbox" checked={!c.ai.off} onchange={(e) => setAi({ off: !e.currentTarget.checked })} data-ai-on /><span>{t('AI suggests steps for a goal')}</span></label>
       <label class="ck"><input type="checkbox" checked={c.ai.hidden} onchange={(e) => setAi({ hidden: e.currentTarget.checked })} data-ai-hide /><span>{t('Hide the button «Suggest steps»')}</span></label>
       <label class="ck"><input type="checkbox" checked={c.onToday} onchange={(e) => save({ ...c, onToday: e.currentTarget.checked })} data-on-today /><span>{t('Show the next step on Today')}</span></label>

@@ -159,8 +159,9 @@ test('computer: the bubble on hover and keyboard focus; actions right-aligned; t
     await expect(it.locator('b')).not.toBeEmpty();
     await expect(it.locator('small')).not.toBeEmpty();
   }
-  await expect(items.first()).toContainText(DONE);
-  await expect(items.first()).toContainText(DONE_WHY);
+  // Versteckte Funktionen (22.10.2026, changed on purpose): the row's main button comes first («Ersetzen» on a
+  // worn part); «Erledigt» is in the menu too, with its explanation
+  await expect(items.filter({ hasText: DONE_WHY }).first()).toContainText(DONE);
   await shot(page, info, 'n2-menu');
   await page.keyboard.press('Escape');
   await expect(menu).toHaveCount(0);

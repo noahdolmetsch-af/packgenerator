@@ -34,9 +34,9 @@ test('an offer, a booking without the app, the note on Heute and cancelling', as
   // BU5: Ich › Angebote
   await page.goto('./#/me');
   await ready(page);
-  const row = page.locator('a.ich-row[href="#/me/offers"]');
-  await expect(row).toContainText(T('Offers'));
-  await row.click();
+  // Klick-Rundgang Q05 (Noah 22.10.2026 «3a», changed on purpose): «App verkaufen» is dropped, Ich no longer lists this page; it opens by its address
+  await expect(page.locator('a.ich-row[href="#/me/offers"]')).toHaveCount(0);
+  await page.goto('./#/me/offers');
   await expect(page.getByRole('heading', { level: 1 })).toHaveText(T('Your offers'));
   const kinds = page.locator('.of-chips .btn');
   await expect(kinds).toHaveCount(KINDS.length);

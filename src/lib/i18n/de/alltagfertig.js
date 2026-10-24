@@ -34,4 +34,15 @@ export default {
   'No sessions planned yet. Last week you trained without a plan (see above); plan the new week in Aktiv › Training.': 'Noch keine Einheiten geplant. Letzte Woche hast du ohne Plan trainiert (siehe oben); plane die neue Woche in Aktiv › Training.',
   // Morgen-Check: a question from an earlier day says so (H15)
   'question from {when}': 'Frage von {when}',
+  // Tote Knöpfe (Klick-Rundgang 22.10.2026): every button shows an effect or a hint
+  'Type a place first, e.g. Bern or Andermatt.': 'Gib zuerst einen Ort ein, z. B. Bern oder Andermatt.',
+  'You are offline right now. Search again once you are online.': 'Du bist gerade offline. Such nochmals, sobald du online bist.',
+  'No place found. Check the spelling.': 'Kein Ort gefunden. Prüf die Schreibweise.',
+  'This is not a calculation yet. Check the signs.': 'Das ist noch keine Rechnung. Prüf die Zeichen.',
+  'Type a calculation first, e.g. 12.50 × 3.': 'Gib zuerst eine Rechnung ein, z. B. 12.50 × 3.',
+  'Write something first, then tap «+».': 'Schreib zuerst etwas, dann tippe auf «+».',
+  'Give the box a name first.': 'Gib der Ablage zuerst einen Namen.',
+  'No file chosen. Tap «Start» and pick photos or PDF files.': 'Keine Datei gewählt. Tippe auf «Starten» und wähle Fotos oder PDF-Dateien.',
+  'You are offline right now. What was loaded before stays; tap «Refresh» again once you are online.': 'Du bist gerade offline. Was schon geladen war, bleibt; tippe nochmals auf «Aktualisieren», sobald du online bist.',
+  'You are offline right now: the weather loads once you are online.': 'Du bist gerade offline: das Wetter lädt, sobald du online bist.',
 };

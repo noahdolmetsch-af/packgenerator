@@ -248,7 +248,7 @@
       <ol class="daylist">
         {#each spur.days as d (d.day)}
           <li class="card">
-            <h3><button type="button" class="tp-link dayb" onclick={() => (dayPick = d.day)}>{t('Day {n}', { n: d.n })} · {dayName(d.day)}</button></h3>
+            <h3><button type="button" class="tp-link dayb" onclick={() => ((dayPick = d.day), document.getElementById('map-h')?.scrollIntoView({ behavior: 'smooth', block: 'start' }))}>{t('Day {n}', { n: d.n })} · {dayName(d.day)}</button></h3>
             <p class="tp-small tp-muted num">{d.km ? `${num(d.km)} km` : t('No ride')}{d.sources.length ? ` · ${d.sources.map((s) => t(SRC[s])).join(', ')}` : ''}</p>
             <!-- Paket U3 «Live-Karte» (Noah «2a»): the evening line of the day from your own recordings -->
             {#each [daySum($tracksQ ?? [], d.day)].filter(Boolean) as ds (d.day)}<p class="tp-small eve num" data-day-sum>{t('Evening: {km} km, {ride} riding', { km: num(ds.km), ride: durText(ds.movingS) })} · {ds.n ? tn(ds.n, '{n} pause ({time})', '{n} pauses ({time})', { time: durText(ds.stoppedS) }) : t('no pause')}</p>{/each}
