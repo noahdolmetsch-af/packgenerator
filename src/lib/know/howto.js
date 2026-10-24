@@ -362,6 +362,9 @@ export const HOWTO = {
   'f.heatmap': ['Open Trips › Look back › Heatmap.', 'Choose clouds or lines, and a year, sport or bike if you like.', 'Tap a coloured line: the rides there show below the map.'],
   'f.tickreview': ['Open Active › Goals and tap «Evaluate».', 'Choose a period and an activity, or «Your answers».', 'Tap «…» on a card to hide or move it.'],
   'f.travelbook': ['Open «Travel track» of a tour.', 'Tap «Travel book as PDF».', 'Save, print or send the PDF.'],
+  'f.probe': ['A week before the start open the trip › «Dress rehearsal».', 'Tap «Works», «Gap» or «Not needed» at each step.', 'At a gap: «Keep as to-do».'],
+  'f.homecoming': ['After «Trip ended» tap «Arrive well».', 'Tap «Done» or «Later».', '«Keep as to-do» for what waits.'],
+  'f.labels': ['Open Toolbox › Box labels.', 'Add a box and what is inside.', '«Print label» and stick it on.'],
 };
 
 /** The steps of a function, or [] when it has none. */

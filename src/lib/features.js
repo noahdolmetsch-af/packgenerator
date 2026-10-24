@@ -459,6 +459,10 @@ const OWN = [
   // «Auswertung wie Training» (Noah 20.10.2026)
   { id: 'f.tickreview', group: 'active', title: 'Evaluate your ticks and answers', text: 'What you tick off and your answers to the check questions, evaluated like a ride: tiles, ticks per week, weekdays, time of day, course, best values and per month.', href: '#/flow/auswertung', words: 'auswerten auswertung haken abgehakt aktivitäten ziele serie woche wochentag tageszeit verlauf bestwerte monat antworten check fragen akku diagramm analyse' },
   { id: 'f.eveningtour', group: 'after', title: 'Rate the trip in the evening', text: 'On a trip day the evening review asks how the trip was today, 1 to 10, while it is fresh; it goes into the debrief and the diary.', href: '#/check/evening', words: 'abend bewerten tour heute abend-rückblick note frisch' },
+  // Paket B «Touren ohne Überraschung» (Noah 24.10.2026, 996 Ideen «1b 2a»)
+  { id: 'f.probe', group: 'before', title: 'Dress rehearsal', text: 'From a week before the start: try the trip at home once — route offline in flight mode, plan B, check-in times, power, a tube change, the emergency card, a fresh backup. A gap becomes a to-do for the evening before.', href: '#/trips', words: 'generalprobe probe test vorher ausprobieren flugmodus offline plan b schlauch notfallkarte backup lücke to-do' },
+  { id: 'f.homecoming', group: 'after', title: 'Arrive well', text: 'Back home after a trip: wet things, laundry, give back, receipts, the bike back to everyday, «I am home», debrief. What waits becomes a to-do for tomorrow.', href: '#/trips', words: 'gut ankommen zuhause heimkommen auspacken nass trocknen wäsche zurückgeben belege velo alltag' },
+  { id: 'f.labels', group: 'data', title: 'Box labels', text: 'A QR label for each box, shelf or bag at home with what is inside; scan it and the app shows the contents. Print several on one page.', href: '#/me/tools/labels', words: 'qr etikett kiste box regal keller estrich lager wo ist inhalt drucken scannen' },
 ];
 
 /** Every function: the tips (with their group) first, then the own entries, by group order. */

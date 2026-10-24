@@ -89,11 +89,12 @@ export function stepOf(trip, today, opts = {}) {
 
 /** The address of a trip's interstitial (Ü3a: own address, so reload and back land right). */
 export const betweenHref = (trip, kind) => `#/trip/${encodeURIComponent(trip?.id ?? trip)}/${kind}`;
-export const BETWEEN = ['packed', 'ended', 'debriefed'];
+// Paket B «Touren ohne Überraschung»: probe = «Generalprobe», heim = «Gut ankommen» (lib/probe)
+export const BETWEEN = ['packed', 'ended', 'debriefed', 'probe', 'heim'];
 
 /** #/trip/<id>/<kind> → { id, kind } or null. */
 export function parseBetween(hash = '') {
-  const m = /^#\/trip\/([^/?]+)\/(packed|ended|debriefed)(?:[?/].*)?$/.exec(hash || '');
+  const m = /^#\/trip\/([^/?]+)\/(packed|ended|debriefed|probe|heim)(?:[?/].*)?$/.exec(hash || '');
   return m ? { id: decodeURIComponent(m[1]), kind: m[2] } : null;
 }
 
