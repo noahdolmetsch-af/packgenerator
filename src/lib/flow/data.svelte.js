@@ -22,6 +22,9 @@ import { msExtra } from './msdata.js';
 import { BAGS_KEY, PACK_KEY, bagsOf, packsOf, packedDays } from '../flowbag.js';
 import { FIXED_KEY } from '../flowweek.js';
 
+/** Klick-Rundgang H29: a ride booked on this day (kmBook: by hand, from a file, from Strava or Garmin). */
+const rodeOn = async (day) => (await db.kmBook.where('date').equals(day).count()) > 0;
+
 /** today: YYYY-MM-DD. */
 export function flowQuery(today) {
   return liveQuery(async () => {
@@ -38,7 +41,7 @@ export function flowQuery(today) {
       acts: acts.map(normAct).sort((a, b) => a.order - b.order),
       log,
       checks,
-      tripDays: tripDays(homeTrips(trips), today),
+      tripDays: tripDays(homeTrips(trips), today, { rodeToday: await rodeOn(today) }),
       pool: poolOf(pool?.value),
       bowl: bowlOf(bowl?.value),
       seeded: !!seeded || acts.length > 0,
@@ -97,7 +100,7 @@ export function hobbyQuery(today) {
       log,
       sessions,
       stars,
-      tripDays: tripDays(homeTrips(trips), today),
+      tripDays: tripDays(homeTrips(trips), today, { rodeToday: await rodeOn(today) }),
       tune: set[TUNE_KEY] ?? {},
       reward: set[REWARD_KEY] ?? null,
       hidden: Array.isArray(set[HIDDEN_KEY]) ? set[HIDDEN_KEY] : [],
@@ -147,7 +150,7 @@ export function medQuery(actId, today) {
       log,
       sessions,
       stars,
-      tripDays: tripDays(homeTrips(trips), today),
+      tripDays: tripDays(homeTrips(trips), today, { rodeToday: await rodeOn(today) }),
       tpls: tpls.map((x) => tplOf(x, actId)),
       tune: set[TUNE_KEY] ?? {},
       arts: set[ARTS_KEY] ?? null,
@@ -212,7 +215,7 @@ export function checkQuery(today) {
       checks,
       pool: poolOf(pool?.value),
       trips: homeTrips(trips),
-      tripDays: tripDays(homeTrips(trips), today),
+      tripDays: tripDays(homeTrips(trips), today, { rodeToday: await rodeOn(today) }),
       rides: withStravaRides(rides, book).map((r) => ({ date: r.date, km: r.km, movingH: r.movingH ?? null, totalH: r.totalH ?? null, source: r.source ?? 'file' })),
       weather: wx ? { max: wx.max, min: wx.min, rain: wx.rain } : null,
       fixed: Array.isArray(fixed?.value) ? fixed.value : [],
