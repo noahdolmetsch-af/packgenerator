@@ -55,7 +55,10 @@ test('a sample plan goes into the week plan and out again', async ({ page, conte
   const race = day(70);
   await page.getByRole('button', { name: DE['Back from the race day'], exact: true }).click();
   await page.locator('[data-plan-date]').fill(race);
-  await expect(page.locator('[data-section="plan-weeks"] li')).toHaveCount(12);
+  // Klick-Rundgang A03 (changed on purpose): weeks already past are only counted; the list starts this week
+  const pastLine = page.locator('[data-weeks-past]');
+  const past = (await pastLine.count()) ? Number((await pastLine.textContent()).match(/\d+/)[0]) : 0;
+  await expect(page.locator('[data-section="plan-weeks"] li')).toHaveCount(12 - past);
   await expect(page.locator('[data-section="plan-typical"]')).toContainText(DE['Long ride, calm']);
   await page.locator('[data-plan-try]').click();
   await expect(page).toHaveURL(/#\/flow\/training$/);

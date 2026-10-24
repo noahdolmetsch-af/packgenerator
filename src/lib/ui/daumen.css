@@ -16,6 +16,11 @@
   display: contents;
 }
 @media (max-width: 599px) {
+  /* Tote Knöpfe (Klick-Rundgang 22.10.2026): with the thumb bar on screen, a control reached by Tab or a jump
+     stops above it too (app.css keeps the room for the bottom bar alone) */
+  html:has(.daumen:not(.off)) {
+    scroll-padding-bottom: 200px;
+  }
   .daumen:not(.off) {
     position: fixed;
     left: 0;

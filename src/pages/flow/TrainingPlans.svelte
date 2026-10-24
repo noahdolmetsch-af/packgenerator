@@ -23,7 +23,7 @@
   import { TPL_KEY, OWN_KEY, HIDE_KEY, allPlans, planById, ownOf, cleanOwn, midHours, firstMonday, buildPlan, longestOf, applyPlan, removePlan, weeksGone, zoneWays, moveSuggestions, raceChoices, raceMoved, RACES_KEY, WEEKS_MIN, WEEKS_MAX } from '../../lib/training/plans.js';
   import { askDelete, deleteWithUndo, once } from '../../lib/ui/ask.js';
   import { offerDone } from '../../lib/ui/rename.svelte.js';
-  import { t, num, locale } from '../../lib/i18n.svelte.js';
+  import { t, tn, num, locale } from '../../lib/i18n.svelte.js';
   import { localDay } from '../../lib/localday.js';
 
   let { id = '', params = new URLSearchParams() } = $props();
@@ -111,6 +111,7 @@
   });
   const first = $derived(plan ? firstMonday(plan, mode, date) : null);
   const weeks = $derived(plan && first ? buildPlan(plan, { first, hours: hrs, race: mode === 'race' ? date : null }) : []);
+  const pastN = $derived(weeks.filter((w) => w.monday < mondayOf(today)).length);
   const gone = $derived(first ? Math.min(plan?.weeks ?? 0, weeksGone(first, today)) : 0);
   const sample = $derived(weeks.find((w) => w.kind === 'build' && w.sessions.some((s) => s.long && s.name === 'Second long day')) ?? weeks.find((w) => w.kind === 'build') ?? weeks[0] ?? null);
   const dateErr = $derived(!date ? '' : mode === 'race' && date <= today ? t('The race day lies in the past.') : '');
@@ -118,9 +119,12 @@
 
   const tryIt = once(async () => {
     if (!ready) return;
+    // Klick-Rundgang A02: «Ausprobieren» can be taken back (the week plan and the plan in use as they were)
+    const [oldPlan, oldTpl] = await Promise.all([db.settings.get(PLAN_KEY), db.settings.get(TPL_KEY)]);
     await savePlan(applyPlan(sessions, weeks, plan.id, today, t));
     await db.settings.put({ key: TPL_KEY, value: { id: plan.id, mode, date, hours: hrs, first, ...(mode === 'race' && tripId ? { tripId } : {}) } });
-    offerDone(t('Plan «{name}» is in your week plan. Strava ticks the sessions.', { name: nameOf(plan) }));
+    const back = (key, row) => (row ? db.settings.put(row) : db.settings.delete(key));
+    offerDone(t('Plan «{name}» is in your week plan. Strava ticks the sessions.', { name: nameOf(plan) }), () => Promise.all([back(PLAN_KEY, oldPlan), back(TPL_KEY, oldTpl)]));
     location.hash = '#/flow/training';
   });
 
@@ -238,8 +242,10 @@
 
     {#if weeks.length}
       <Sec id="weeks-h" title={t('The weeks')} sub={t('Hours per week and the longest ride.')}>
+        <!-- Klick-Rundgang A03: the list starts with this week; weeks already past are only counted -->
+        {#if pastN}<p class="hint" data-weeks-past>{tn(pastN, '{n} week lies in the past and is left out.', '{n} weeks lie in the past and are left out.')}</p>{/if}
         <ol class="card wl" data-section="plan-weeks">
-          {#each weeks as w (w.i)}
+          {#each weeks.filter((w) => w.monday >= mondayOf(today)) as w (w.i)}
             <li class:gone={w.monday < mondayOf(today)} class:easy={w.kind !== 'build'} data-week={w.i + 1}>
               <span class="wn num">{t('Wk {n}', { n: w.i + 1 })}</span>
               <span class="wd">{fmt(w.monday)}<small>{t(KIND_WORD[w.kind])}</small></span>

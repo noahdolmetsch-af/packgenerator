@@ -1565,6 +1565,14 @@ export default {
   '«New» on top for 14 days after an update': '«Neu» 14 Tage lang oben nach einem Update',
   'Open Heute: meditation is on top, «Last activity» after the ring.': 'Öffne Heute: Meditation steht oben, «Letzte Aktivität» nach dem Ring.',
   'Without a weight for a week, type it in «Weight this week?».': 'Ohne Gewicht seit einer Woche: tippe es in «Gewicht diese Woche?».',
+  // v0.181.4 «Aktiv ohne Sackgassen»
+  'Aktiv, without dead ends': 'Aktiv ohne Sackgassen',
+  'Plans, sessions and tiles do what they say.': 'Pläne, Einheiten und Kacheln tun, was sie sagen.',
+  'Training plan: a test run, with Undo': 'Trainingsplan: ein Probelauf, mit Rückgängig',
+  'A planned session: «Done» by hand, with Undo': 'Geplante Einheit: «Gemacht» von Hand, mit Rückgängig',
+  'Buttons no longer hide under the bars': 'Knöpfe verstecken sich nicht mehr unter den Leisten',
+  'Aktiv: open a training plan and tap «Try it out», then «Undo».': 'Aktiv: Öffne einen Trainingsplan, tippe auf «Ausprobieren», dann auf «Rückgängig».',
+  'Tick a planned session «Done» by hand.': 'Hake eine geplante Einheit von Hand als «Gemacht» ab.',
   // v0.181.2 «Packen und nach der Tour, repariert»
   'Packing and after the tour, repaired': 'Packen und nach der Tour, repariert',
   'Clearer buttons from packing to the debrief.': 'Klarere Knöpfe vom Packen bis zum Rückblick.',

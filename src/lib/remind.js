@@ -78,7 +78,9 @@ const median = (list) => {
 export function suggestRhythm(entries = [], today, fallbackAt = '18:00') {
   const recent = entries.filter((e) => e.day && e.day <= today && e.day > addDays(today, -21));
   const days = new Set(recent.map((e) => e.day));
-  const at = median(recent.map((e) => (e.at ? clockOf(e.at) : null)).filter(Boolean)) ?? fallbackAt;
+  const seenAt = median(recent.map((e) => (e.at ? clockOf(e.at) : null)).filter(Boolean));
+  // Klick-Rundgang A08: a tick at night (22:00–06:00, e.g. entered late) never becomes a reminder at night
+  const at = seenAt && seenAt >= '06:00' && seenAt < '22:00' ? seenAt : fallbackAt;
   const week = [...days].filter((d) => d > addDays(today, -7)).length;
   if (week >= 5) return { every: 'day', weekday: null, at, seen: week };
   const count = Array(7).fill(0);

@@ -16,6 +16,19 @@
 
 export const WHATS_NEW = [
   {
+    // v0.181.4 «Aktiv ohne Sackgassen» (Klick-Rundgang «Aktiv fertig bauen» A01–A05, A07, A08, H29, and dead buttons part 2)
+    version: '0.181.4',
+    date: '2026-10-24',
+    title: 'Aktiv, without dead ends',
+    lead: 'Plans, sessions and tiles do what they say.',
+    points: [
+      { text: 'Training plan: a test run, with Undo', href: '#/flow' },
+      { text: 'A planned session: «Done» by hand, with Undo', href: '#/flow' },
+    ],
+    small: [{ box: 'fixed', text: 'Buttons no longer hide under the bars' }],
+    test: ['Aktiv: open a training plan and tap «Try it out», then «Undo».', 'Tick a planned session «Done» by hand.'],
+  },
+  {
     // v0.181.3 «Alltag fertig bauen» (Klick-Rundgang 22.10.2026, Noah «1a 2a 3a … 5a»): repairs of the flows
     // Mein Tag, Meine Woche and Velo pflegen; a robot plays them through before every release.
     version: '0.181.3',
