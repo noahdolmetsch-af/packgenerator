@@ -601,7 +601,11 @@ export function widgetValues({ km = [], health = [], forecast = null, today } = 
 /** The album photos live in the photos table (in every backup) with album: true and no bike. */
 export const albumOf = (photos = []) => photos.filter((p) => p?.album && p.data).sort((a, b) => String(a.addedAt ?? '').localeCompare(String(b.addedAt ?? '')));
 /** The photo of this visit: a different one each time the app opens (r: a number 0–1, fixed per visit). */
-export const greetPhoto = (album = [], r = 0) => (album.length ? album[Math.min(album.length - 1, Math.floor(r * album.length))] : null);
+export function greetPhoto(album = [], r = 0) {
+  // Paket P8 «Fotoalbum»: a photo switched off («Auf Heute zeigen» off) never greets
+  const list = album.filter((p) => p?.greet !== false);
+  return list.length ? list[Math.min(list.length - 1, Math.floor(r * list.length))] : null;
+}
 /** settings: { greet: true } — the photo on Heute can be switched off. */
 export const ALBUM_KEY = 'album';
 export const albumCfgOf = (v) => ({ greet: !(v && typeof v === 'object' && v.greet === false) });

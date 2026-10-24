@@ -3,6 +3,7 @@
 // with Undo), trip costs (a person, an expense, who owes whom), PDF (two made-up photos become one PDF),
 // photos (smaller), and the links also under Ich › Dokumente.
 import { test, expect } from '@playwright/test';
+import { viaTab } from './placetab.js';
 import { ready } from './settle.js';
 import DE from '../../src/lib/i18n/de/index.js';
 import { TOOLS } from '../../src/lib/tools/tools.js';
@@ -55,7 +56,9 @@ test('Werkzeugkasten: list, calculator, units, currencies and time zones', async
   page.on('pageerror', (e) => errors.push(e.message));
   await page.goto('#/me');
   await ready(page);
-  await page.locator('[data-row="tools"]').click();
+  // «Alles finden 2» (Noah 22.10.2026 «4a», changed on purpose): the toolbox is a tab of Touren, no row in Ich
+  await expect(page.locator('[data-row="tools"]')).toHaveCount(0);
+  await viaTab(page, 'trips', '#/me/tools');
   await expect(page.getByRole('heading', { level: 1, name: de('Toolbox') })).toBeVisible();
   await expect(page.locator('a[data-tool]')).toHaveCount(TOOLS.length);
   await shot(page, info, 'L1-werkzeugkasten');
@@ -120,7 +123,7 @@ test('Werkzeugkasten: trip costs, PDF, photos, links also in Dokumente', async (
   await page.goto('#/me/tools/costs');
   await page.reload();
   await ready(page);
-  await expect(page.getByLabel(de('Trip'))).toBeVisible();
+  await expect(page.locator('main').getByRole('combobox', { name: new RegExp(`^${de('Trip')}`) })).toBeVisible();
   await page.getByLabel(de('Add a person')).fill('Anna');
   await page.getByRole('button', { name: de('Add'), exact: true }).click();
   await page.getByRole('button', { name: de('Add expense') }).click();
@@ -329,7 +332,8 @@ test('Werkzeuge und Links: suggestions with the trip, switch off and back, own l
   await putRow(page, 'trips', { id: 'test_data_trip_jura', title: 'Testtour Jura', startDate: start, days: 2, place: { name: 'Delemont', lat: 47.36, lon: 7.34 }, status: 'planned', entries: [] });
   await page.reload();
   await ready(page);
-  await page.locator('[data-row="weblinks"]').click();
+  // «Alles finden 2» (Noah 22.10.2026 «4a», changed on purpose): your links are a tab of Planen, no row in Ich
+  await viaTab(page, 'week', '#/me/links');
   await expect(page.getByRole('heading', { level: 1, name: de('Tools and links') })).toBeVisible();
   await expect(page.getByRole('heading', { level: 2, name: de('On the way|links') })).toBeVisible();
   await expect(page.locator('[data-trip-line]')).toContainText('Testtour Jura');

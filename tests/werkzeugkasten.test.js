@@ -198,7 +198,7 @@ describe('phrases', () => {
 describe('toolbox page', () => {
   it('has its page under Me, each tool its address, a German name and line', () => {
     expect(pageOf(TOOLS_HASH)).toBe('tools');
-    expect(placeOf('tools')).toBe('me');
+    expect(placeOf('tools')).toBe('trips'); // «Alles finden 2» (Noah 22.10.2026 «4a»): a tab of Touren
     for (const x of TOOLS) {
       expect(toolKeyOf(`${TOOLS_HASH}/${x.key}`)).toBe(x.key);
       expect(de[x.title], x.title).toBeTruthy();
@@ -492,7 +492,7 @@ describe('page «Werkzeuge und Links»', () => {
     }
     expect(de['Tools and links']).toBe('Werkzeuge und Links');
     expect(pageOf('#/me/links')).toBe('weblinks');
-    expect(placeOf('weblinks')).toBe('me');
+    expect(placeOf('weblinks')).toBe('week'); // «Alles finden 2» (Noah 22.10.2026 «4a»): a tab of Planen
   });
   it('links carry the next trip (place and day), only links with the pin', () => {
     expect(linkTrip([trip, { startDate: '2026-12-01' }], '2026-10-19')).toBe(trip);

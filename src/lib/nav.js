@@ -204,7 +204,8 @@ export function pageOf(hash = '', careTab = false) {
   if (h.startsWith('#/me/fitbit')) return 'fitbit'; // Fitbit über Google (mockup G1): Ich › Daten und Backup › Fitbit
   if (h.startsWith('#/me/data')) return 'data'; // Design-Refresh P9 (I2): Ich › Daten und Backup, its own page
   if (h.startsWith('#/me/compass')) return 'compass'; // Paket N: Ich › Mein Kompass
-  if (h.startsWith('#/me/next')) return 'next'; // Paket N #68: Ich › Was kommt
+  if (h.startsWith('#/me/next')) return 'next'; // Paket N #68, P7: Ich › Projekt-Ablage
+  if (h.startsWith('#/me/album')) return 'album'; // Paket P8: Ich › Fotoalbum
   if (h.startsWith('#/me/news')) return 'news'; // v0.110.0 Design-Refresh P10 (I11): Ich › Was ist neu
   if (h.startsWith('#/me/phone')) return 'phone'; // Design-Refresh P9 (B35): Ich › Daten › Aufs Handy
   if (h.startsWith('#/zahlen/')) return 'paylink'; // the payer page of an invoice link (mockup QR5, Noah 14.10.2026 04:00)
@@ -343,6 +344,9 @@ export const PLACE_TABS = {
     { key: 'compass', label: 'Compass|tab', href: '#/me/compass', match: (h) => h.startsWith('#/me/compass') },
     { key: 'alltag', label: 'Everyday|tab', href: '#/me/alltag', match: (h) => h.startsWith('#/me/alltag') },
     { key: 'frei', label: 'Free time|tab', href: '#/me/frei', match: (h) => h.startsWith('#/me/frei') },
+    // «Alles finden 2» (Noah 22.10.2026 «4a»): your links and ideas left Ich; they are things you plan with
+    { key: 'inspiration', label: 'Inspiration', href: '#/inspiration', match: (h) => h.startsWith('#/inspiration') },
+    { key: 'links', label: 'Tools and links', href: '#/me/links', match: (h) => h.startsWith('#/me/links') },
   ],
   trips: [
     { key: 'overview', label: 'Overview|tab', href: '#/trips', match: (h) => h.startsWith('#/trips') && !h.startsWith('#/trips/dreams') && !h.startsWith('#/trips/fuel') && !isRidesHash(h) }, // Impeccable 20.10.2026: Verpflegung is a page of a tour, not the overview
@@ -352,13 +356,19 @@ export const PLACE_TABS = {
     { key: 'dreams', label: 'Dreams|tab', href: '#/trips/dreams', match: (h) => h.startsWith('#/trips/dreams') },
     // v0.97.0 «Skitouren» (Noah 11.10.2026, 1: Touren › Skitouren): next tour, backpack check, start check, care
     { key: 'ski', label: 'Ski tours', href: '#/ski', match: (h) => h === '#/ski' || h.startsWith('#/ski/') || h.startsWith('#/ski?') || h === '#/mountain' || h.startsWith('#/mountain/') },
+    // «Alles finden 2» (Noah 22.10.2026 «4a 5a»): the travel links had no button, the toolbox left Ich
+    { key: 'travel', label: 'Travel links', href: '#/travel', match: (h) => h.startsWith('#/travel') },
+    { key: 'tools', label: 'Toolbox', href: '#/me/tools', match: (h) => h.startsWith('#/me/tools') },
   ],
   gear: [
-    { key: 'all', label: 'All|gear', href: '#/gear', match: (h) => (h.startsWith('#/gear') && !/[?&]view=wish\b/.test(h)) || h.startsWith('#/favorites') },
+    { key: 'all', label: 'All|gear', href: '#/gear', match: (h) => (h.startsWith('#/gear') && !/[?&]view=wish\b/.test(h) && !/^#\/gear\/(supplies|lend)/.test(h)) || h.startsWith('#/favorites') },
     { key: 'clothes', label: 'Clothes|tab', href: '#/wardrobe', match: (h) => h.startsWith('#/wardrobe') },
     { key: 'blocks', label: 'Building blocks', href: '#/blocks', match: (h) => h.startsWith('#/blocks') },
     // v0.78.0 «Fünf Orte» 2 (Noah O2.5a): «Einkauf» shows today's list (the wishlist); typing in comes with D2.
     { key: 'shop', label: 'Shopping|tab', href: '#/gear?view=wish', match: (h) => h.startsWith('#/gear') && /[?&]view=wish\b/.test(h) },
+    // «Alles finden 2» (Noah 22.10.2026 «5a»): Vorrat and Ausgeliehen were only in the search
+    { key: 'supplies', label: 'Supplies', href: '#/gear/supplies', match: (h) => h.startsWith('#/gear/supplies') },
+    { key: 'lend', label: 'Lent out', href: '#/gear/lend', match: (h) => h.startsWith('#/gear/lend') },
   ],
   bikes: [
     { key: 'overview', label: 'Overview|tab', href: '#/bikes', match: (h) => h.startsWith('#/bikes') && !/[?&]tab=(care|shop|compare|rig)/.test(h) },
@@ -413,13 +423,14 @@ export function placeOf(page) {
   if (page === 'flow') return 'active';
   if (page === 'impulse') return 'active'; // Paket T: Aktiv › Impulse
   // N1 + UI-Ziele #6 (Noah 20.10.2026): what you plan is Planen, what you look back on is Auswerten; Ich keeps data, settings, help
-  if (['week', 'agenda', 'calendar', 'notes', 'tagebuch', 'inbox', 'mail', 'compass', 'alltag', 'frei'].includes(page)) return 'week';
+  if (['week', 'agenda', 'calendar', 'notes', 'tagebuch', 'inbox', 'mail', 'compass', 'alltag', 'frei', 'inspiration', 'weblinks'].includes(page)) return 'week';
+  if (page === 'tools') return 'trips'; // «Alles finden 2» (Noah 22.10.2026 «4a»): the toolbox is a tab of Touren
   if (['stravarides', 'insights', 'history', 'abfragen', 'analysis', 'wohl', 'weight'].includes(page)) return 'active';
   if (['trips', 'dreams', 'between', 'pack', 'templates', 'past', 'ride', 'debrief', 'rides', 'share', 'review', 'ski', 'mountain', 'quiz', 'chronik', 'gelernt', 'jahr', 'neuland', 'heatmap', 'spur', 'tour', 'travel', 'race', 'live', 'fuel', 'wetter'].includes(page)) return 'trips'; // wetter: Paket Y, the weather to plan rides (no own tab: Touren has its 5)
   if (page === 'gear' || page === 'supplies' || page === 'lend' || page === 'power' || page === 'gearimport' || page === 'favorites' || page === 'blocks' || page === 'blockcheck' || page === 'packcleanup' || page === 'wardrobe') return 'gear';
   if (page === 'bikes' || page === 'care') return 'bikes';
   if (page === 'equipment') return 'equipment';
-  if (page === 'me' || page === 'aiprojects' || page === 'suchesettings' || page === 'tools' || page === 'weblinks' || page === 'hinweise' || page === 'compass' || page === 'next' || page === 'wohl' || page === 'inbox' || page === 'features' || page === 'helper' || page === 'assistent' || page === 'offers' || page === 'privacy' || page === 'pros' || page === 'push' || page === 'look' || page === 'data' || page === 'docs' || page === 'docscan' || page === 'connections' || page === 'mail' || page === 'fitbit' || page === 'weight' || page === 'phone' || page === 'news' || page === 'checks' || page === 'abfragen' || page === 'history' || page === 'analysis' || page === 'handbook' || page === 'miniapps' || page === 'inspiration' || page === 'lists' || page === 'pay' || page === 'invoices' || page === 'invoice' || page === 'bills' || page === 'shop' || page === 'shoporders' || page === 'werte' || page === 'regeln' || page === 'reminders' || page === 'calendar' || page === 'list') return 'me'; // Kalender: own place once Noah chose the 5 phone places (decision 11.10 1a)
+  if (page === 'me' || page === 'aiprojects' || page === 'suchesettings' || page === 'tools' || page === 'weblinks' || page === 'hinweise' || page === 'compass' || page === 'next' || page === 'album' || page === 'wohl' || page === 'inbox' || page === 'features' || page === 'helper' || page === 'assistent' || page === 'offers' || page === 'privacy' || page === 'pros' || page === 'push' || page === 'look' || page === 'data' || page === 'docs' || page === 'docscan' || page === 'connections' || page === 'mail' || page === 'fitbit' || page === 'weight' || page === 'phone' || page === 'news' || page === 'checks' || page === 'abfragen' || page === 'history' || page === 'analysis' || page === 'handbook' || page === 'miniapps' || page === 'inspiration' || page === 'lists' || page === 'pay' || page === 'invoices' || page === 'invoice' || page === 'bills' || page === 'shop' || page === 'shoporders' || page === 'werte' || page === 'regeln' || page === 'reminders' || page === 'calendar' || page === 'list') return 'me'; // Kalender: own place once Noah chose the 5 phone places (decision 11.10 1a)
   return null;
 }
 
@@ -490,12 +501,25 @@ export function orderedTabs(place) {
   } catch {
     keys = [];
   }
-  if (!Array.isArray(keys) || !keys.length) return tabs;
+  if (!Array.isArray(keys) || !keys.length) return seasonTabs(place, tabs);
   const at = (k) => {
     const i = keys.indexOf(k);
     return i < 0 ? keys.length + tabs.findIndex((x) => x.key === k) : i;
   };
   return [...tabs].sort((a, b) => at(a.key) - at(b.key));
+}
+
+/**
+ * «Alles finden» (Noah 22.10.2026 «1a»): in the ski season (December to April) «Ski tours» moves up
+ * among the first four tabs of Touren, as long as you did not choose your own order.
+ */
+export function seasonTabs(place, tabs, month = new Date().getMonth()) {
+  if (place !== 'trips' || !(month === 11 || month <= 3)) return tabs;
+  const i = tabs.findIndex((x) => x.key === 'ski');
+  if (i < PHONE_TABS) return tabs;
+  const out = tabs.filter((x) => x.key !== 'ski');
+  out.splice(PHONE_TABS - 1, 0, tabs[i]);
+  return out;
 }
 
 /** Keep the order of the tabs of a place (their keys); null goes back to the app's order. */

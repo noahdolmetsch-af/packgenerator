@@ -66,10 +66,10 @@
 <div class="ich-page tools-page">
   {#if cur}
     {@const View = VIEWS[cur.key]}
-    <VeloHead crumbs={[{ label: t('Me|place'), href: '#/me' }, { label: t('Toolbox'), href: TOOLS_HASH }]} title={t(cur.title)} sub={t(cur.sub)} />
+    <VeloHead crumbs={[{ label: t('Trips|place'), href: '#/trips' }, { label: t('Toolbox'), href: TOOLS_HASH }]} title={t(cur.title)} sub={t(cur.sub)} />
     <div class="tools-view" data-tool={cur.key}><View /></div>
   {:else}
-    <VeloHead crumbs={[{ label: t('Me|place'), href: '#/me' }]} title={t('Toolbox')} sub={t('Small helpers for every day and on the way, all on this device')} />
+    <VeloHead crumbs={[{ label: t('Trips|place'), href: '#/trips' }]} title={t('Toolbox')} sub={t('Small helpers for every day and on the way, all on this device')} />
     <AreaIntro place="toolbox" />
     {#if fits.length && !q.trim() && !sorting}
       <section class="tools-fit" aria-labelledby="tools-fit-h">

@@ -110,7 +110,7 @@
 </script>
 
 <div class="ich-page wl-page">
-  <VeloHead crumbs={[{ label: t('Me|place'), href: '#/me' }]} title={t('Tools and links')} sub={t('Other apps and pages in one place. Everything is a suggestion; switch off what you do not need.')} />
+  <VeloHead crumbs={[{ label: t('Plan|place'), href: '#/week' }]} title={t('Tools and links')} sub={t('Other apps and pages in one place. Everything is a suggestion; switch off what you do not need.')} />
   <p class="tool-help wl-intro"><Wrench size={14} aria-hidden="true" /> {t('The helpers inside the app are in the')} <a href="#/me/tools">{t('Toolbox')}</a>.</p>
   {#if trip}
     <p class="tool-help wl-trip" data-trip-line><MapPin size={14} aria-hidden="true" /> {t('Links marked with the pin carry your trip «{trip}» ({day}).', { trip: trip.title || t('Trip'), day: dayText(trip.startDate) })}</p>

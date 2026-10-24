@@ -11,6 +11,7 @@
   import AreaIntro from '../lib/intro/AreaIntro.svelte'; // «Einstieg» for the place «Woche» (key weekplan)
   import Seg from '../lib/ui/Seg.svelte';
   import Entry from '../lib/woche/Entry.svelte';
+  import WeekPeople from '../lib/alltag/WeekPeople.svelte'; // «Alles finden»: people to see again this week
   import WeekDreams from '../lib/dreams/WeekDreams.svelte'; // Paket N idea 5: dreams and race deadlines of the week
   import { weekQuery, putWeek } from '../lib/woche/load.js';
   import { titleOf, subOf, dayName, shortDate, hours, holidayName, wxWords, reviewLine, hintText } from '../lib/woche/words.js';
@@ -176,6 +177,7 @@
         </section>
 
         <WeekDreams {monday} {today} />
+        <WeekPeople {monday} {today} />
 
         <section class="card wc add" aria-labelledby="wk-add">
           <h2 id="wk-add">{t('Add')}</h2>

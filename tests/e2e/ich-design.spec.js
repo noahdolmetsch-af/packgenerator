@@ -45,8 +45,9 @@ test('I1: Ich in four groups; Data and backup opens its own page', async ({ page
   await page.goto('./#/me');
   await onePage(page, T('Me|place'));
   const main = page.locator('main');
-  for (const h of ['Data', 'Settings', 'The app', 'More']) await expect(main.getByRole('heading', { level: 2, name: T(h), exact: true })).toBeVisible();
-  for (const name of ['Connections', 'Documents', 'What the app can do']) await expect(main.getByRole('link', { name: new RegExp(T(name)) }).first()).toBeVisible();
+  // «Alles finden 2» (Noah 22.10.2026 «4a», changed on purpose): Ich keeps data, settings and help
+  for (const h of ['Data', 'Settings', 'Help|me', 'More']) await expect(main.getByRole('heading', { level: 2, name: T(h), exact: true })).toBeVisible();
+  for (const name of ['Connections', 'Documents', 'Help and functions']) await expect(main.getByRole('link', { name: new RegExp(T(name)) }).first()).toBeVisible();
   // UI-Ziele #6 (Noah 20.10.2026 «freigabe», 4a): Inbox and notes went to Planen; one quiet line says where
   await expect(main.locator('[data-me-moved] a[href="#/week"]')).toBeVisible();
   await expect(main.getByRole('link', { name: new RegExp(`^${T('Notes')}`) })).toHaveCount(0);
@@ -147,9 +148,10 @@ test('I10 and I12: the home place window and the shortcuts window', async ({ pag
   await expect(home.getByRole('button', { name: T('Save') })).toBeDisabled();
   await home.getByRole('button', { name: T('Close') }).click();
   await expect(home).toBeHidden();
-  // Impeccable (18.10.2026, changed on purpose): handbook, shortcuts and intro are under the row «Help»
-  await page.locator('main summary').filter({ hasText: T('Help|me') }).click();
-  await page.locator('main').getByRole('button', { name: T('Help and keyboard shortcuts') }).click();
+  // «Alles finden 2» (Noah 22.10.2026 «3a», changed on purpose): handbook, shortcuts and intro are on «Hilfe und Funktionen»
+  await page.locator('main').getByRole('link', { name: new RegExp(T('Help and functions')) }).first().click();
+  await expect(page).toHaveURL(/#\/features/);
+  await page.locator('main [data-help-row="keys"]').click();
   const keys = page.getByRole('dialog', { name: T('Keyboard shortcuts') });
   await expect(keys.getByRole('heading', { name: T('Places') })).toBeVisible();
   await expect(keys.locator('kbd', { hasText: 'Esc' })).toBeVisible();

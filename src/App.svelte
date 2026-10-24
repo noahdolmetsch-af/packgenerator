@@ -32,6 +32,7 @@
   import SideBar from './lib/nav/SideBar.svelte';
   import PlaceBar from './lib/nav/PlaceBar.svelte';
   import MeButton from './lib/nav/MeButton.svelte';
+  import HelpButton from './lib/nav/HelpButton.svelte';
   import PageFoot from './lib/anpassen/PageFoot.svelte'; // «Anpassen» (Noah 20.10.2026 «1a»)
   import { pageKeyOf } from './lib/anpassen.js';
   import { placeLabel, tabLabel } from './lib/anpassen.svelte.js';
@@ -364,7 +365,8 @@
     Agenda: () => import('./pages/Agenda.svelte'),
     MailPage: () => import('./pages/Mail.svelte'),
     WasNeu: () => import('./pages/WasNeu.svelte'),
-    WasKommt: () => import('./pages/WasKommt.svelte'), // Paket N #68: Ich › Was kommt
+    WasKommt: () => import('./pages/WasKommt.svelte'), // Paket N #68, P7: Ich › Projekt-Ablage
+    Album: () => import('./pages/Album.svelte'), // Paket P8: Ich › Fotoalbum
     Dreams: () => import('./pages/Dreams.svelte'), // Paket N: Touren › Träume
     Compass: () => import('./pages/Compass.svelte'), // Paket N: Ich › Mein Kompass
     Phone: () => import('./pages/Phone.svelte'),
@@ -444,6 +446,7 @@
     <div class="tools">
       <!-- «Assistent» (Noah 15.10.2026 «3 a und b»): its own button next to the search -->
       <a class="asst-ic" href="#/assistent" aria-label={t('Assistant')}><MessageCircle size={22} aria-hidden="true" /></a>
+      {#if !mini}<HelpButton />{/if}<!-- «Alles finden 2» (Noah 22.10.2026 «3a»): the help of this page -->
       <Search compact />
       {#if !guest}<button type="button" class="plus" aria-label={t('New')} aria-haspopup="dialog" aria-keyshortcuts="n" onclick={() => (newMode = 'all')}><Plus size={22} strokeWidth={2.4} aria-hidden="true" /></button>{/if}
       <MeButton inbox={$inboxQ ?? 0} current={place === 'me'} />
@@ -619,6 +622,8 @@
     <LazyPage load={PAGES.Dreams} />
   {:else if page === 'next'}
     <LazyPage load={PAGES.WasKommt} />
+  {:else if page === 'album'}
+    <LazyPage load={PAGES.Album} />
   {:else if page === 'news'}
     <!-- v0.110.0 Design-Refresh P10 (I11): Ich › Was ist neu -->
     {#key hash}<LazyPage load={PAGES.WasNeu} />{/key}
@@ -874,6 +879,15 @@
   @media (max-width: 719px) {
     .top .long:not(.show) {
       display: none;
+    }
+  }
+  /* «Alles finden 2»: with «?» in the bar, five round buttons fit 320 px only without the gaps */
+  @media (max-width: 379px) {
+    .top {
+      gap: 6px;
+    }
+    .tools {
+      gap: 0;
     }
   }
   /* A phone turned sideways: a low top bar. */
