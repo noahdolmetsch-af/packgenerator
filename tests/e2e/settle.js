@@ -129,3 +129,14 @@ export async function foldPageInfo(page) {
     await expect(hide).toHaveCount(0);
   }
 }
+
+/**
+ * «Alles finden 2» (Noah 22.10.2026 «3a»): the help of a page sits behind the «?» at the top (phone bar or
+ * sidebar). Opens it and returns the window; the page's card, «Typical here» and «What the app can do here» are in it.
+ */
+export async function openHelp(page) {
+  await page.locator('[data-help-open]').filter({ visible: true }).first().click();
+  const sheet = page.locator('dialog[data-help]');
+  await expect(sheet).toBeVisible();
+  return sheet;
+}

@@ -1384,7 +1384,9 @@
     font-weight: 600;
   }
   .bp-link small {
+    min-width: 0;
     margin-left: auto;
+    text-align: right;
     color: var(--ink-2);
     font-weight: 400;
     font-size: var(--fs-small);

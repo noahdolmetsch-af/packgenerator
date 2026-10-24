@@ -878,6 +878,15 @@
       display: none;
     }
   }
+  /* «Alles finden 2»: with «?» in the bar, five round buttons fit 320 px only without the gaps */
+  @media (max-width: 379px) {
+    .top {
+      gap: 6px;
+    }
+    .tools {
+      gap: 0;
+    }
+  }
   /* A phone turned sideways: a low top bar. */
   @media (max-height: 500px) {
     .top {

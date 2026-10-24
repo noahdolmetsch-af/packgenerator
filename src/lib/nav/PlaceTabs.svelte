@@ -157,7 +157,7 @@
             {@const info = tabInfo(place, x.key)}
             {@const Icon = ICON[info?.[0]] ?? Circle}
             <li>
-              <a href={hrefOf(x)} aria-current={cur === x.key ? 'page' : undefined} aria-label={tabLabel(place, x)} aria-describedby={info ? `pt-s-${place}-${x.key}` : undefined} onclick={() => moreDlg.close()} data-tile={x.key}>
+              <a href={hrefOf(x)} aria-current={cur === x.key ? 'page' : undefined} aria-label={tabLabel(place, x)} aria-describedby={info ? `pt-s-${place}-${x.key}` : undefined} onclick={() => moreDlg.close()} data-page-tile={x.key}>
                 <span class="pt-ic"><Icon size={20} aria-hidden="true" /></span>
                 <b>{tabLabel(place, x)}{#if x.key === 'inbox' && waiting}<span class="pdot num" aria-hidden="true">{waiting}</span>{/if}</b>
                 {#if info}<small id={`pt-s-${place}-${x.key}`}>{t(info[1])}</small>{/if}

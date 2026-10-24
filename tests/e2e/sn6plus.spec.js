@@ -67,9 +67,10 @@ test('SN6+ Funktionen: order, progress, Passt gerade, Top 5, Neu seit deinem let
   await expect(page.getByRole('heading', { name: T('Help and functions'), level: 1 })).toBeVisible();
 
   // answer 3b: the order from the top
-  await expect(page.locator('[data-block]')).toHaveCount(BLOCKS.length - 1);
+  // «Alles finden 2» (Noah 22.10.2026 «3a», changed on purpose): the help rows come first
+  await expect(page.locator('[data-block]')).toHaveCount(BLOCKS.length);
   const order = await page.locator('[data-block], section[data-group]').evaluateAll((els) => els.map((e) => e.dataset.block ?? 'groups'));
-  expect([...new Set(order)]).toEqual(BLOCKS);
+  expect([...new Set(order)]).toEqual(['help', ...BLOCKS]);
 
   // K1: «x von y genutzt» with the real numbers, a bar in every card
   const prog = page.locator('[data-block="progress"]');

@@ -6,6 +6,7 @@ import { test, expect } from '@playwright/test';
 import DE from '../../src/lib/i18n/de/index.js';
 import { TOURS, stepCount } from '../../src/lib/tour.js';
 import { INTROS } from '../../src/lib/intro.js';
+import { openHelp } from './settle.js';
 
 const T = (en, vars) => {
   const text = DE[en] ?? en.replace(/\|[a-z]+$/, '');
@@ -61,13 +62,16 @@ test('Tour with the example trip runs in the playground; Esc ends it', async ({ 
 // the small tour, its three things, what to expect and the «Did you know» with its source; the tip line stays.
 test('Einstieg in the card on top of Active; a page with only the Einstieg: × and the Handbook bring it back', async ({ page }) => {
   await page.goto('./#/flow');
-  const card = page.locator('[data-hint="aktiv"][data-intro-in="aktiv"]');
+  // «Alles finden 2» (Noah 22.10.2026 «3a», changed on purpose): the card «Was hier steht» is behind «?» at the top
+  const help = await openHelp(page);
+  const card = help.locator('[data-hint="aktiv"][data-intro-in="aktiv"]');
   await expect(card.locator('[data-intro-things="aktiv"]')).toContainText(T(INTROS.aktiv.things[0].title));
   await expect(card).toContainText(T('What to expect:'));
   await expect(card.locator('[data-fact]')).toContainText(T('Source: {source}', { source: '' }).trim());
   await expect(card.locator('[data-offer]')).toBeVisible(); // first visit: the small tour is offered
   await card.getByRole('button', { name: T('No thanks') }).click();
   await expect(card.locator('[data-offer]')).toHaveCount(0);
+  await page.keyboard.press('Escape');
   await expect(page.locator('main [data-tip]')).toHaveCount(1); // one tip of the day: the tip line
   await expect(page.locator('[data-intro="aktiv"]')).toHaveCount(0); // no second card
   // Goals has no card «Was hier steht»: its own Einstieg, × and back from the Handbook
@@ -137,7 +141,8 @@ test('The small tour of Bikes, and the Einstieg on the pages below the places', 
     ['#/pack/templates', 'templates', 'templates'],
   ]) {
     await page.goto(`./${hash}`);
-    const card = page.locator(`[data-hint="${key}"][data-intro-in="${place}"]`);
+    const help = await openHelp(page);
+    const card = help.locator(`[data-hint="${key}"][data-intro-in="${place}"]`);
     await expect(card.locator(`[data-intro-things="${place}"]`), place).toContainText(T(INTROS[place].things[0].title));
     await expect(card.locator('[data-offer]'), place).toHaveCount(0);
     await expect(page.locator('main [data-tip]'), place).toHaveCount(1);
@@ -146,6 +151,7 @@ test('The small tour of Bikes, and the Einstieg on the pages below the places', 
     const tipId = await page.locator('main [data-tip]').getAttribute('data-tip');
     if (await card.locator('[data-fact]').count()) await expect(card.locator('[data-fact]'), place).toContainText(T('Source: {source}', { source: '' }).trim());
     else expect(tipId, `${place}: no fact only when the tip of the day is the fact`).toMatch(/^know-/);
+    await page.keyboard.press('Escape');
     await expect(page.locator(`[data-intro="${place}"]`), place).toHaveCount(0);
     await expect(page.locator('main [data-tip]'), place).toHaveCount(1);
   }
@@ -160,7 +166,7 @@ test('The small tour of Bikes, and the Einstieg on the pages below the places', 
   }
   // Meditation: the Einstieg lives in the card «Was hier steht» (no round «i» in the head any more)
   await page.goto('./#/flow/act/meditation');
-  await expect(page.locator('[data-hint="meditation"] [data-intro-things="meditation"]')).toContainText(T(INTROS.meditation.things[0].title));
+  await expect((await openHelp(page)).locator('[data-hint="meditation"] [data-intro-things="meditation"]')).toContainText(T(INTROS.meditation.things[0].title));
   await expect(page.locator('[data-intro="meditation"]')).toHaveCount(0);
   expect(errors).toEqual([]);
 });
