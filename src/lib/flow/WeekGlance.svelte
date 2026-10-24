@@ -19,7 +19,7 @@
     return { fixed: fixedList(f?.value), plans: Array.isArray(p?.value) ? p.value : [] };
   });
   const sets = $derived($setQ ?? { fixed: [], plans: [] });
-  const week = $derived(weekPlan({ acts, states, log, today, fixed: sets.fixed, plans: sets.plans, no: [], forecast: null }));
+  const week = $derived(weekPlan({ acts, states, log, today, fixed: sets.fixed, plans: sets.plans, no: [], forecast: null }).days);
   const open = $derived(weekGoals(states).filter((g) => !g.met).length);
   const byId = $derived(new Map(acts.map((a) => [a.id, a])));
   const wd = (d) => new Date(`${d}T12:00:00Z`).toLocaleDateString(locale(), { weekday: 'short', timeZone: 'UTC' }).replace('.', '');

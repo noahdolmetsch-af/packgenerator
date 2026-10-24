@@ -23,7 +23,7 @@ export const WHATS_NEW = [
     title: 'Doing here, looking there',
     lead: 'Active is for ticking off, Analysis for looking back.',
     points: [
-      { text: 'Every sport with its own page', href: '#/flow/sports' },
+      { text: 'Every sport with its own page, summit book included', href: '#/flow/sports' },
       { text: 'Form, body values and rides under Analysis', href: '#/auswerten' },
     ],
     small: [{ box: 'nicer', text: 'Active shows today, this week and the rings' }],

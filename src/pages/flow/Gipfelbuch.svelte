@@ -18,10 +18,11 @@
   import Crumb from '../../lib/flow/kit/Crumb.svelte';
   import PlaceSheet from '../../lib/flow/PlaceSheet.svelte';
   import { db } from '../../lib/db.js';
-  import { GB_KEY, bookOf, suggestions, addPlace, addVisit, editPlace, removePlace, dismiss, yearGroups, coreOf, sportCounts, sportOf, isVelo, gbStars, starsOfPlace, nextPassStar, placeRows, PLACE_WORD } from '../../lib/gipfelbuch.js';
+  import { GB_KEY, bookOf, suggestions, addPlace, addVisit, editPlace, removePlace, dismiss, yearGroups, coreOf, sportCounts, sportOf, isVelo, gbStars, starsOfPlace, nextPassStar, placeRows, PLACE_WORD, GB_SPORTS } from '../../lib/gipfelbuch.js';
   import { localDay } from '../../lib/localday.js';
   import { t, tn, num, locale } from '../../lib/i18n.svelte.js';
 
+  const sportKeyOf = (k) => (GB_SPORTS.some((s) => s.key === k) ? k : null);
   const today = localDay();
   const year = today.slice(0, 4);
   const q = liveQuery(async () => {
@@ -31,7 +32,9 @@
   const data = $derived($q);
   const book = $derived(data?.book ?? bookOf(null));
 
-  let sport = $state(null);
+  // «Aktiv neu»: the page of a sport links here with ?sport=<key>, the chip of that sport then is on
+  let { params = new URLSearchParams() } = $props();
+  let sport = $state(sportKeyOf(params.get('sport')));
   let sel = $state(null);
   let sheet = $state(null); // { mode: 'new' | 'confirm' | 'edit' | 'visit', sugg?, place? }
   let undo = $state(null); // { text, book }

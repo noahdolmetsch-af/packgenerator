@@ -36,6 +36,20 @@ export const isVelo = (key) => !!SPORT[key]?.velo;
 /** What a place is called in each sport (the word of the row «Pass», «Gipfel», «Trail», «Ort»). */
 export const PLACE_WORD = { bike: 'Pass', gravel: 'Pass', xc: 'Trail', dh: 'Trail', ski: 'Summit', hike: 'Summit', other: 'Place|gb' };
 
+/** «Aktiv neu» (Noah 22.10.2026 «1a», proposal «Gipfelbuch auf der Seite der Sportart»): the sport of the book
+ * that belongs to a sport page (sportsbase.js ids), or null. Own activities keep their places as «other» with
+ * their name as label. */
+const GB_OF_SPORT = { 'trip:cycling': 'bike', 'trip:bikepacking': 'bike', 'trip:gravel': 'gravel', 'trip:xc': 'xc', 'trip:downhill': 'dh', 'trip:ski': 'ski', 'trip:hiking': 'hike' };
+export const gbSportOf = (sportId) => GB_OF_SPORT[sportId] ?? null;
+/** The places of one sport page, newest visit first: by its book sport, or for an own activity by its name. */
+export function placesOfSport(book, sport) {
+  const key = gbSportOf(sport?.id);
+  if (key) return placeRows(book, key);
+  const name = String(sport?.name ?? '').trim().toLowerCase();
+  if (!name) return [];
+  return placeRows(book, 'other').filter((r) => r.place.label.toLowerCase() === name);
+}
+
 /** A Strava activity type → the sport of the book, or null (indoor and other kinds are not suggested). */
 export function sportOfType(type) {
   if (/^(Ride|EBikeRide)$/.test(type)) return 'bike';

@@ -105,6 +105,8 @@ export const INTROS = {
   },
   goals: {
     page: true,
+    // «Aktiv neu» (22.10.2026): «Meine Sportarten» is a long list; its Einstieg starts as one line (phone budget, lib/laenge.js)
+    folded: true,
     name: 'Activities|flow',
     title: 'Goals that fit your week',
     things: [

@@ -46,4 +46,10 @@ export default {
   Trophies: 'Trophäen',
   'what you reached': 'was du erreicht hast',
   'Here you look at how you are: form, body values, rides and what you ticked. To tick off, go to Active.': 'Hier schaust du, wie es dir geht: Form, Körperwerte, Fahrten und was du abgehakt hast. Zum Abhaken geht es zu Aktiv.',
+  'Bikes and gear|place': 'Velos und Material',
+  'Whole summit book': 'Ganzes Gipfelbuch',
+  'highest: {name}': 'am höchsten: {name}',
+  'and {n} more place': 'und {n} weiterer Ort',
+  'and {n} more places': 'und {n} weitere Orte',
+  'No place in the summit book yet. The app suggests passes and summits from your rides; you can also add one by hand there.': 'Noch kein Ort im Gipfelbuch. Die App schlägt Pässe und Gipfel aus deinen Fahrten vor; dort kannst du auch einen von Hand eintragen.',
 };

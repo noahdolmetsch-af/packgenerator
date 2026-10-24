@@ -140,7 +140,7 @@
 {:else if route[0] === 'trophies'}
   <Trophies {params} />
 {:else if route[0] === 'gipfelbuch'}
-  <Gipfelbuch />
+  <Gipfelbuch {params} />
 {:else if route[0] === 'week'}
   <Week />
 {:else if route[0] === 'review'}

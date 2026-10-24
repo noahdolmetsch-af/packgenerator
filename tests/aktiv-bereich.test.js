@@ -1,6 +1,7 @@
 // «Aktiv neu» (Noah 22.10.2026, Beschreibung «Aktiv-Bereich»): Aktiv is for doing (Heute, Meine Sportarten,
 // Training, Erholung), «Auswerten» for looking; it shares Aktiv's place in the bar. Pure functions, no data.
 import { describe, it, expect } from 'vitest';
+import { readFileSync } from 'node:fs';
 import { PLACES, SIDE_PLACES, PLACE_TABS, ANALYSIS, barPlace, placeOf, pageOf } from '../src/lib/nav.js';
 import { sportHref, actSport } from '../src/lib/flow/mysports.js';
 import { BIKE_ACT } from '../src/lib/sportsbase.js';
@@ -38,5 +39,27 @@ describe('Meine Sportarten', () => {
     expect(actSport({ id: 'yoga', name: 'Yoga', icon: 'leaf', ring: 'rest' })).toMatchObject({ id: 'act:yoga', kind: 'act', key: 'yoga', icon: 'leaf', ring: 'rest', bike: false });
     expect(actSport({ id: BIKE_ACT, name: 'Velo' }).bike).toBe(true);
     expect(actSport(undefined)).toBe(null);
+  });
+});
+
+describe('Gipfelbuch on the page of a sport (Noah 22.10.2026 «1a»)', () => {
+  it('maps the sport pages to the sports of the book and finds own activities by name', async () => {
+    const { gbSportOf, placesOfSport, addPlace, emptyBook } = await import('../src/lib/gipfelbuch.js');
+    expect(gbSportOf('trip:cycling')).toBe('bike');
+    expect(gbSportOf('trip:hiking')).toBe('hike');
+    expect(gbSportOf('act:run')).toBe(null);
+    let book = emptyBook();
+    book = addPlace(book, { name: 'Testpass', sport: 'bike', ele: 1900 }, { day: '2026-07-01' });
+    book = addPlace(book, { name: 'Testgipfel', sport: 'hike', ele: 2100 }, { day: '2026-08-01' });
+    book = addPlace(book, { name: 'Testsee', sport: 'other', label: 'Schwimmen' }, { day: '2026-08-02' });
+    expect(placesOfSport(book, { id: 'trip:cycling' }).map((r) => r.place.name)).toEqual(['Testpass']);
+    expect(placesOfSport(book, { id: 'trip:hiking' }).map((r) => r.place.name)).toEqual(['Testgipfel']);
+    expect(placesOfSport(book, { id: 'act:x', name: 'schwimmen' }).map((r) => r.place.name)).toEqual(['Testsee']);
+    expect(placesOfSport(book, { id: 'act:y', name: 'Yoga' })).toEqual([]);
+  });
+  it('the sport page shows the part, the book reads ?sport=', () => {
+    const page = readFileSync('src/pages/flow/Sport.svelte', 'utf8');
+    expect(page).toContain('<GipfelSlot');
+    expect(readFileSync('src/pages/flow/Gipfelbuch.svelte', 'utf8')).toContain("params.get('sport')");
   });
 });

@@ -1568,7 +1568,7 @@ export default {
   // v0.183.0 «Aktiv neu»
   'Doing here, looking there': 'Hier machen, dort anschauen',
   'Active is for ticking off, Analysis for looking back.': 'Aktiv ist zum Abhaken, Auswerten zum Zurückschauen.',
-  'Every sport with its own page': 'Jede Sportart mit eigener Seite',
+  'Every sport with its own page, summit book included': 'Jede Sportart mit eigener Seite, samt Gipfelbuch',
   'Form, body values and rides under Analysis': 'Form, Körperwerte und Fahrten unter Auswerten',
   'Active shows today, this week and the rings': 'Aktiv zeigt heute, diese Woche und die Ringe',
   'Open Active › My sports and tap a sport.': 'Öffne Aktiv › Meine Sportarten und tippe eine Sportart an.',

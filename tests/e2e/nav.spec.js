@@ -67,9 +67,10 @@ for (const lang of ['en', 'de']) {
       // AU1 «1b» (Noah 15.10.2026): the sidebar has «Ausrüstung» under Velos; «Woche planen» «1a»: on a phone
       // the bottom bar has Woche instead of Material (BAR_PLACES)
       const side = await page.locator('.side li.pl').first().isVisible();
-      await expect(places, hash).toHaveText((side ? SIDE_PLACES : BAR_PLACES).map((p) => T(p.label)));
+      // «Aktiv neu» «1a»: on a phone the slot of Velos reads «Velos und Material» (nav.js bar)
+      await expect(places, hash).toHaveText((side ? SIDE_PLACES : BAR_PLACES).map((p) => T((!side && p.bar) || p.label)));
       const lit = page.locator('nav.bottom a[aria-current], .side li.pl > a.pa[aria-current]');
-      if (place === 'Gear|place' && !side) await expect(lit, hash).toHaveText(T('Bikes|place')); // N1: on a phone Material shares the slot of Velos
+      if (['Gear|place', 'Bikes|place', 'Equipment|place'].includes(place) && !side) await expect(lit, hash).toHaveText(T('Bikes and gear|place')); // N1: on a phone Material shares the slot of Velos
       else if (place === 'Analysis|place' && !side) await expect(lit, hash).toHaveText(T('Active|place')); // «Aktiv neu»: Auswerten shares the slot of Aktiv
       else if (place) await expect(lit, hash).toHaveText(T(place));
       else await expect(lit, hash).toHaveCount(0);

@@ -295,7 +295,8 @@ export const PLACES = [
   // «Aktiv neu» (Noah 22.10.2026 «2a», Runde 2 «2a»): «Aktiv» again, the place to do (tick, the week, sport);
   // what you look at moved to its own place «Auswerten» (ANALYSIS below), which shares this slot on a phone.
   { key: 'active', href: '#/flow', label: 'Active|place', letter: 'a' },
-  { key: 'bikes', href: '#/bikes', label: 'Bikes|place', letter: 'v' },
+  // «Aktiv neu» (Noah 22.10.2026 «1a»): on a phone the slot is «Velos und Material» (bar), the switch on top picks Velos, Ausrüstung or Material
+  { key: 'bikes', href: '#/bikes', label: 'Bikes|place', bar: 'Bikes and gear|place', letter: 'v' },
   // N1: Material belongs to Velos (sidebar: under Velos; phone: the slot of Velos, like Ausrüstung).
   { key: 'gear', href: '#/gear', label: 'Gear|place', letter: 'm' },
 ];

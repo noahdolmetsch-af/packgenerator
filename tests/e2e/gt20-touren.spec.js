@@ -34,7 +34,8 @@ test('a) Rides is its own tab, under Auswerten since N1; Touren keeps the trips'
   await expect(page).toHaveURL(/#\/trips\/rides$/);
   await expect(page.getByRole('heading', { level: 1, name: T('Rides from Strava') })).toBeVisible();
   await expect(page.locator(`a[href="#/trips/rides"][aria-current="page"]`).filter({ visible: true }).first()).toBeVisible();
-  await expect(page.locator('nav.bottom a[data-place="active"][aria-current="page"], .side li[data-place="active"].on').filter({ visible: true }).first()).toBeVisible();
+  // on a phone the slot of Aktiv is lit, on a computer the own row of Auswerten
+  await expect(page.locator('nav.bottom a[data-place="active"][aria-current="page"], .side li[data-place="analysis"].on').filter({ visible: true }).first()).toBeVisible();
   await expect(page.locator('section[data-activities]')).toBeVisible();
   await expect(page.locator('section[data-planned], section[data-packmode]')).toHaveCount(0);
   expect(await sideways(page)).toBeLessThanOrEqual(0);

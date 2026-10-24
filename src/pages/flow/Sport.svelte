@@ -30,6 +30,7 @@
   import ParkDaysBlock from '../../lib/sportpage/ParkDaysBlock.svelte';
   import ActHistory from '../../lib/sportpage/ActHistory.svelte';
   import MilestoneSlot from '../../lib/sportpage/MilestoneSlot.svelte';
+  import GipfelSlot from '../../lib/sportpage/GipfelSlot.svelte';
   import { actSport } from '../../lib/flow/mysports.js';
   import { tickWith } from '../../lib/flow/ui.svelte.js';
   import { DOMAINS } from '../../lib/domains.js';
@@ -140,6 +141,8 @@
         </section>
       {/if}
     {/if}
+    <!-- «Aktiv neu» (Noah 22.10.2026 «1a»): the summit book of this sport as its own part -->
+    <GipfelSlot {sport} {today} />
 
     {#each rest as b (b.key)}
       <section class="card blk" aria-labelledby="bl-{b.key}" data-block={b.key}>
