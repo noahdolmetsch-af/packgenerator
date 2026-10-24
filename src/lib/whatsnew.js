@@ -19,7 +19,7 @@ export const WHATS_NEW = [
     // v0.183.0 «Aktiv neu» (Noah 22.10.2026, Beschreibung «Aktiv-Bereich»): Aktiv is for doing (Heute, Meine Sportarten,
     // Training, Erholung), Auswerten for looking; every sport has its page with goal, history and milestones.
     version: '0.183.0',
-    date: '2026-10-22',
+    date: '2026-10-24',
     title: 'Doing here, looking there',
     lead: 'Active is for ticking off, Analysis for looking back.',
     points: [
@@ -28,6 +28,70 @@ export const WHATS_NEW = [
     ],
     small: [{ box: 'nicer', text: 'Active shows today, this week and the rings' }],
     test: ['Open Active › My sports and tap a sport.', 'Tap «Tick now» on its page, then change the entry under History.', 'Open Analysis with the switch on top of Active.'],
+  },
+  {
+    // v0.181.4 «Aktiv ohne Sackgassen» (Klick-Rundgang «Aktiv fertig bauen» A01–A05, A07, A08, H29, and dead buttons part 2)
+    version: '0.181.4',
+    date: '2026-10-24',
+    title: 'Aktiv, without dead ends',
+    lead: 'Plans, sessions and tiles do what they say.',
+    points: [
+      { text: 'Training plan: a test run, with Undo', href: '#/flow' },
+      { text: 'A planned session: «Done» by hand, with Undo', href: '#/flow' },
+    ],
+    small: [{ box: 'fixed', text: 'Buttons no longer hide under the bars' }],
+    test: ['Aktiv: open a training plan and tap «Try it out», then «Undo».', 'Tick a planned session «Done» by hand.'],
+  },
+  {
+    // v0.181.3 «Alltag fertig bauen» (Klick-Rundgang 22.10.2026, Noah «1a 2a 3a … 5a»): repairs of the flows
+    // Mein Tag, Meine Woche and Velo pflegen; a robot plays them through before every release.
+    version: '0.181.3',
+    date: '2026-10-24',
+    title: 'Everyday, without dead ends',
+    lead: 'Day, week and bike run smoothly.',
+    points: [
+      { text: 'The Assistant knows your chain', href: '#/assistent' },
+      { text: 'Aktiv ticks show in the week', href: '#/week' },
+      { text: 'Bike care «Done» with Undo', href: '#/bikes?tab=care' },
+    ],
+    small: [{ box: 'nicer', text: 'Main buttons in sight' }],
+    test: ['Assistant: ask about the chain.', 'Bike care: «Done», then «Undo».'],
+  },
+  {
+    // v0.181.2 «Packen und nach der Tour, repariert» (Klick-Rundgang packages 3+5, Noah 22.10.2026: repairs first): one count
+    // while packing, «Losfahren» on the first day, light and food on Unterwegs, clear hints after the tour; Live-Karte stops
+    // load in 20 km pieces with fuel stations.
+    version: '0.181.2',
+    date: '2026-10-24',
+    title: 'Packing and after the tour, repaired',
+    lead: 'Clearer buttons from packing to the debrief.',
+    points: [
+      { text: 'Packing counts the same everywhere, and the button says what comes next', href: '#/trips' },
+      { text: 'On the way: «Start riding» remembers the start time; missing light is packed right there' },
+    ],
+    small: [{ box: 'fixed', text: 'Live map: stops along the route load again' }],
+    test: [
+      'Open a bike trip that starts today, pack it and tap «Start riding».',
+      'End the trip without a ride: the app says why and offers «Upload a ride».',
+    ],
+  },
+  {
+    // v0.181.1 «Fitbit-Schlaf und Gemini gehen wieder» (bug fix, 22.10.2026: Google sends nights without the wake-up date; the server
+    // now reads the wake-up day from the civil time string or the moment with its offset, and the app fetches 30 days once more)
+    version: '0.181.1',
+    date: '2026-10-22',
+    title: 'Fitbit sleep and Gemini work again',
+    lead: 'Your nights come from Google again, and Gemini answers.',
+    points: [
+      { text: 'Fitbit: last night comes in with «Fetch now»', href: '#/me/fitbit' },
+    ],
+    small: [
+      { box: 'fixed', text: 'The last 30 nights are fetched once more' },
+    ],
+    test: [
+      'Open Me › Data and backup › Fitbit and tap «Fetch now».',
+      'Last night shows with today’s date.',
+    ],
   },
   {
     // v0.181.0 «Warum? und Regeln» (Paket P3 of «Offene Mockups», Noah 21.10.2026): RG1 «Why?» next to a row in

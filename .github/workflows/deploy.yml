@@ -42,7 +42,8 @@ jobs:
     # 30 like the Gesamttest: the phone run has 583 tests and stopped at 582 after 20 min (18.10.2026)
     # Noah 19.10.2026 «können wir diese tests in zukunft kürzen?»: each project runs in three parts at
     # the same time (about 10 instead of 30 minutes). Every test still runs; GitHub is free for public repos.
-    timeout-minutes: 30
+    # 45 since 22.10.2026: on slow runners three parts passed every test but hit 30 min (#238).
+    timeout-minutes: 45
     strategy:
       fail-fast: false
       matrix:

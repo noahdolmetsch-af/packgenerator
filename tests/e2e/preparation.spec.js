@@ -68,7 +68,7 @@ test('review, apply, edit and pack a tour', async ({ page, context }) => {
   await expect(list.getByText('Carb-Pulver', { exact: true })).toHaveCount(0); // categories start folded
   await expect(page.evaluate(() => document.documentElement.scrollWidth)).resolves.toBeLessThanOrEqual(page.viewportSize().width);
   // v0.24.1 (Noah 2a): a day ride: "Alles gepackt, los"; v0.29.0: bag by bag is the "Packen" tab in the band.
-  await expect(page.locator('.trip-band .go')).toHaveText('Alles gepackt, los');
+  await expect(page.locator('.trip-band .go')).toHaveText('Alles einpacken, los'); // 0.182 (H03): nothing packed yet
   await page.getByRole('navigation', { name: 'Schritte dieser Tour' }).getByRole('link', { name: /^Packen/ }).click();
   await expect(page.locator('.pd')).toHaveAttribute('aria-label', 'Packtag: Alpine Tagestour');
   expect(errors).toEqual([]);

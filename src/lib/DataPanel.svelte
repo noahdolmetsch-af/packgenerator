@@ -115,7 +115,7 @@
   // state: 'ok' (green), 'warn' (yellow, its button beside it) or 'off' (grey: the folder backup is a
   // suggestion, never a must, so «off» is not yellow).
   const lights = $derived.by(() => {
-    const out = [{ key: 'backup', name: 'Backup', state: due.due ? 'warn' : 'ok', line: due.days == null ? t('no backup yet') : tn(due.days, 'last backup {n} day ago', 'last backup {n} days ago') }];
+    const out = [{ key: 'backup', name: 'Backup', state: due.due ? 'warn' : 'ok', line: due.days == null ? t('no backup yet') : due.days === 0 ? t('last backup today') : due.days === 1 ? t('last backup yesterday') : tn(due.days, 'last backup {n} day ago', 'last backup {n} days ago') }]; // Klick-Rundgang H27: «heute», not «vor 0 Tagen»
     if (folderBackupSupported) out.push({ key: 'folder', name: 'Auto-backup to a folder', state: folder.state === 'on' ? 'ok' : folder.state === 'needs-ok' ? 'warn' : 'off', line: folder.state === 'on' ? `${t('On: writing to')} ${folder.name}` : folder.state === 'needs-ok' ? t('chosen, but the browser needs your OK again after a restart.') : t('off|backup') });
     if (storage) {
       const pct = Math.min(100, Math.round((storage.used / storage.quota) * 100));

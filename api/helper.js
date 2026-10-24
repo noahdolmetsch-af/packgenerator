@@ -11,6 +11,7 @@
  *   ANTHROPIC_API_KEY, HELPER_TOKEN, HELPER_MODEL (default claude-sonnet-5-5),
  *   HELPER_MONTHLY_CHF (default 2), KV_REST_API_URL / KV_REST_API_TOKEN (Upstash Redis),
  *   GEMINI_API_KEY (free key from Google AI Studio), GEMINI_MODEL (default gemini-flash-latest),
+ *   GEMINI_FALLBACKS (Ersatzmodelle, comma list, default gemini-flash-lite-latest,gemini-2.5-flash),
  *   GEMINI_DAILY (answers per day, default 200).
  *
  * «Gemini in der App» (Noah 19.10.2026 «a und b»): task 'gemini' with input { question, context, lang }
@@ -47,8 +48,52 @@ const SPEND_TTL = 70 * 24 * 60 * 60; // a month's counter stays a little over tw
 export const GEMINI_URL = (model) => `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`;
 export const GEMINI_DEFAULT_MODEL = 'gemini-flash-latest';
 export const GEMINI_DEFAULT_DAILY = 200;
+/** Ersatzmodelle (22.10.2026 «Gemini ausgelastet»): when the first model is full (503), over its free limit (429)
+ * or gone (404), the next one is asked. GEMINI_FALLBACKS (comma list) replaces this list. */
+export const GEMINI_DEFAULT_FALLBACKS = ['gemini-flash-lite-latest', 'gemini-2.5-flash'];
+const GEMINI_RETRY_MS = 1200;
+const geminiKeyError = (status, msg) => status === 401 || status === 403 || (status === 400 && /api key/i.test(String(msg?.error?.message ?? '')));
+
+/**
+ * One Gemini question with a second try and Ersatzmodelle: the first model gets a second try after a short
+ * pause when Google is busy (500/503); then each fallback once. A wrong key stops at once. Every refusal is
+ * logged with Google's own status word (never the key), so the Vercel log names the real cause.
+ * → { res, msg, model, calls } for an answer, or { failure, calls } with failure
+ *   'bad_key' | 'limit' (Google 429) | 'busy' (500/503) | 'no_model' (404) | 'unreachable' | 'error'.
+ */
+export async function askGeminiModels({ doFetch, key, models, body, wait = (ms) => new Promise((r) => setTimeout(r, ms)), log = (line) => console.log(line) }) {
+  const seen = {};
+  let calls = 0;
+  for (const [i, model] of [...new Set(models.filter(Boolean))].entries()) {
+    for (let attempt = 0; attempt < (i === 0 ? 2 : 1); attempt++) {
+      if (attempt) await wait(GEMINI_RETRY_MS);
+      let res;
+      calls++;
+      try {
+        res = await doFetch(GEMINI_URL(model), { method: 'POST', headers: { 'content-type': 'application/json', 'x-goog-api-key': key }, body });
+      } catch {
+        log(`gemini ${model}: unreachable`);
+        seen.unreachable = true;
+        break;
+      }
+      const msg = await res.json().catch(() => null);
+      if (res.ok && msg) return { res, msg, model, calls };
+      log(`gemini ${model}: ${res.status} ${String(msg?.error?.status ?? '')} ${String(msg?.error?.message ?? '').slice(0, 160)}`.trim());
+      if (geminiKeyError(res.status, msg)) return { failure: 'bad_key', calls };
+      if (res.status === 429) { seen.limit = true; break; }
+      if (res.status === 404) { seen.gone = true; break; }
+      if (res.status === 500 || res.status === 503) { seen.busy = true; continue; }
+      seen.error = true;
+      break;
+    }
+  }
+  const failure = seen.limit ? 'limit' : seen.busy ? 'busy' : seen.error ? 'error' : seen.gone ? 'no_model' : 'unreachable';
+  return { failure, calls };
+}
 export const geminiKey = (day) => `helper:gemini:${day}`;
 const dayKey = (d) => d.toLocaleDateString('sv-SE', { timeZone: 'Europe/Zurich' });
+
+export const geminiFallbacksOf = (list) => (list ? String(list).split(',').map((m) => m.trim()).filter(Boolean) : GEMINI_DEFAULT_FALLBACKS);
 
 /** The helper's settings from the environment (read per request, never answered). */
 export function helperEnv(e = process.env) {
@@ -60,6 +105,7 @@ export function helperEnv(e = process.env) {
     cap: Number.isFinite(cap) && cap > 0 ? cap : DEFAULT_CAP_CHF,
     geminiKey: pick('GEMINI_API_KEY', e),
     geminiModel: pick('GEMINI_MODEL', e) || GEMINI_DEFAULT_MODEL,
+    geminiFallbacks: geminiFallbacksOf(pick('GEMINI_FALLBACKS', e)),
     geminiDaily: Number(pick('GEMINI_DAILY', e)) > 0 ? Number(pick('GEMINI_DAILY', e)) : GEMINI_DEFAULT_DAILY,
     ...redisEnv(e),
   };
@@ -130,7 +176,7 @@ export function geminiText(msg, max = 3000) {
 }
 
 /** The handler, with fetch and the environment injectable for the tests. */
-export function makeHandler({ env = () => helperEnv(), doFetch = (...a) => fetch(...a), now = () => new Date() } = {}) {
+export function makeHandler({ env = () => helperEnv(), doFetch = (...a) => fetch(...a), now = () => new Date(), wait } = {}) {
   async function gemini(request, cfg, input) {
     const question = typeof input?.question === 'string' ? input.question.trim().slice(0, 600) : '';
     const diary = DIARY_MODES.includes(input?.mode);
@@ -140,22 +186,19 @@ export function makeHandler({ env = () => helperEnv(), doFetch = (...a) => fetch
     const key = geminiKey(dayKey(now()));
     const used = Number(await store.get(key)) || 0;
     if (used >= cfg.geminiDaily) throw new ApiError(429, 'daily_limit', 'Gemini has answered enough for today.');
-    let res;
-    try {
-      res = await doFetch(GEMINI_URL(cfg.geminiModel), {
-        method: 'POST',
-        headers: { 'content-type': 'application/json', 'x-goog-api-key': cfg.geminiKey },
-        body: JSON.stringify(geminiRequest({ question, context: typeof input.context === 'string' ? input.context.slice(0, diary ? DIARY_CONTEXT : 2000) : '', lang: input.lang === 'en' ? 'en' : 'de', mode: diary ? input.mode : '' })),
-      });
-    } catch {
-      throw new ApiError(502, 'upstream_unreachable', 'Gemini could not be reached.');
+    const body = JSON.stringify(geminiRequest({ question, context: typeof input.context === 'string' ? input.context.slice(0, diary ? DIARY_CONTEXT : 2000) : '', lang: input.lang === 'en' ? 'en' : 'de', mode: diary ? input.mode : '' }));
+    const got = await askGeminiModels({ doFetch, key: cfg.geminiKey, models: [cfg.geminiModel, ...(cfg.geminiFallbacks ?? GEMINI_DEFAULT_FALLBACKS)], body, wait });
+    if (got.calls) {
+      await store.incrbyfloat(key, got.calls);
+      await store.expire(key, 3 * 24 * 60 * 60);
     }
-    const msg = await res.json().catch(() => null);
-    await store.incrbyfloat(key, 1);
-    await store.expire(key, 3 * 24 * 60 * 60);
-    if (res.status === 429) throw new ApiError(429, 'daily_limit', 'The free Gemini limit is reached for now.');
-    if (res.status === 503) throw new ApiError(503, 'busy', 'Gemini is busy right now. Try again in a minute.');
-    if (!res.ok || !msg) throw new ApiError(502, 'upstream_error', 'Gemini answered with an error.');
+    if (got.failure === 'bad_key') throw new ApiError(503, 'bad_key', 'Google refuses the Gemini key (wrong or expired).');
+    if (got.failure === 'limit') throw new ApiError(429, 'google_limit', 'Google\'s free Gemini limit is reached for now.');
+    if (got.failure === 'busy') throw new ApiError(503, 'busy', 'Gemini is busy right now. Try again in a minute.');
+    if (got.failure === 'no_model') throw new ApiError(502, 'no_model', 'Google no longer offers the Gemini model.');
+    if (got.failure === 'unreachable') throw new ApiError(502, 'upstream_unreachable', 'Gemini could not be reached.');
+    if (got.failure) throw new ApiError(502, 'upstream_error', 'Gemini answered with an error.');
+    const { msg } = got;
     const text = geminiText(msg, diary ? DIARY_CONTEXT : 3000);
     if (!text) throw new ApiError(502, 'no_answer', 'Gemini gave no usable answer.');
     return json(request, 200, { ok: true, task: 'gemini', result: { text } });

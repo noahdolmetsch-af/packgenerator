@@ -34,6 +34,8 @@
   const rows = $derived(data ? equipmentRows(data.items, { trips: data.trips, log: data.log, today }) : []);
   const due = $derived(dueCare(rows));
   const grouped = $derived(groupsOf(rows, sports));
+  // Klick-Rundgang 22.10.2026 H18: the line names the sports (Touren areas), not every Aktiv habit («früh aufstehen»)
+  const emptySports = $derived(grouped.empty.filter((s) => String(s.key).startsWith('dom:')));
 
   let sport = $state(null);
   let sel = $state(null);
@@ -169,10 +171,10 @@
               </ul>
             </section>
           {/each}
-          {#if !sport && grouped.empty.length}
+          {#if !sport && emptySports.length}
             <p class="empty" data-mg-without>
-              <span>{t('Without equipment so far')}: {grouped.empty.map(sportName).join(', ')}</span>
-              <button type="button" class="link" onclick={() => (sheet = { mode: 'add', sport: grouped.empty[0].key })}>{t('Add equipment')}</button>
+              <span>{t('Without equipment so far')}: {emptySports.map(sportName).join(', ')}</span>
+              <button type="button" class="link" onclick={() => (sheet = { mode: 'add', sport: emptySports[0].key })}>{t('Add equipment')}</button>
             </p>
           {/if}
         </div>

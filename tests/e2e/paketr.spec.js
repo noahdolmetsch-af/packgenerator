@@ -78,8 +78,8 @@ test('Privacy page and the contact list with a request and Undo', async ({ page,
   await expect(page.locator('[data-privacy]')).toBeVisible();
   for (const h of ['On your device', 'Only when you switch it on', 'Costs', 'Daily limit of the server', 'Terms of use']) await expect(page.getByRole('heading', { name: T(h) })).toBeVisible();
 
-  await page.goto('./#/me');
-  await page.getByRole('link', { name: new RegExp(T('Bike mechanic and guide')) }).first().click();
+  // Klick-Rundgang Q05 (Noah 22.10.2026 «3a», changed on purpose): «App verkaufen» is dropped, Ich no longer lists this page; it opens by its address
+  await page.goto('./#/me/pros');
   await expect(page.locator('[data-pros]')).toBeVisible();
   await page.getByRole('button', { name: T('Add contact') }).click();
   const form = page.locator('[data-pro-form]');

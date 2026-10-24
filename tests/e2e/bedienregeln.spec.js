@@ -57,7 +57,7 @@ test('a new trip is kept as soon as something is chosen', async ({ page, context
     expect(Math.round(box.y + box.height)).toBeGreaterThanOrEqual(page.viewportSize().height - 2);
   }
   await dlg.getByRole('button', { name: T('2 days'), exact: true }).click();
-  await expect(dlg.getByRole('status').filter({ hasText: T('Saved') })).toBeVisible();
+  await expect(dlg.getByRole('status').filter({ hasText: T('Draft saved') })).toBeVisible();
   await expect(dlg.getByRole('button', { name: T('Discard') })).toBeVisible();
   await page.keyboard.press('Escape');
   await expect(dlg).toBeHidden();

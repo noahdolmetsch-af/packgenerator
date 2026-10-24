@@ -140,6 +140,8 @@ test('Live map on the sample race: km, stops ahead, climb, arrival, SOS, stop', 
   for (const k of ['voice', 'offRoute', 'eatHm', 'battery', 'storm']) await expect(page.locator(`[data-live-opt="${k}"]`)).not.toBeChecked();
 
   // SOS in the «⋯» menu: the position big
+  // Versteckte Funktionen (Noah 22.10.2026): «Notfall» one tap away on the map, not only in «⋯»
+  await expect(page.locator('[data-live-sos-quick]')).toBeVisible();
   await tap(page.locator('[data-live-menu]'), info);
   await expect(page.locator('[data-live-menu-panel] [data-map-ground]')).toBeVisible();
   await noSideways(page, 'menu');

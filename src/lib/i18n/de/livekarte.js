@@ -155,4 +155,7 @@ export default {
   SchweizMobil: 'SchweizMobil',
   // Noah 21.10.2026: the auto-pause as a slim line from the top (PauseBar.svelte)
   'the riding time stands': 'die Fahrzeit steht',
+
+  // Noah 22.10.2026: the answer under «Load stops along the route» (Live.svelte stopsMsg)
+  'No stops found in the next {km} km.': 'Keine Stopps in den nächsten {km} km gefunden.',
 };

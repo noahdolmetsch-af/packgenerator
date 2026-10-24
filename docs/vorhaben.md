@@ -62,6 +62,8 @@ Durchgehende Grundsätze: Alles ist ein Vorschlag, nie Pflicht, und immer änder
 
 **Nachtrag 21.10.2026, Nacht:** 0.181.0 Mockup-Paket P3 «Warum? und Regeln» (Ziel 1 «Schneller packen»: jeder Vorschlag sagt warum; vergessene Dinge kommen zuerst). Nächstes Paket P4 «Aktiv».
 
+**Nachtrag 22.10.2026:** 0.181.1 «Alltag fertig bauen» (Ziel 5 «Alltag»: Mein Tag, Meine Woche, Velo pflegen ohne Sackgassen, Durchspiel-Test vor jedem Release). Nächste Reparatur-Pakete: Aktiv, Packen, Tote Knöpfe.
+
 **Nachtrag 21.10.2026, später Abend:** 0.178.0 Mockup-Paket P2 «Skitour» (Ziel 3 «Von der Haustür bis zurück»: Tour planen, Gipfel erreicht, Plan und Wirklichkeit; Ziel 1 «Schneller packen»: Ski-Plan im Vorabend-Check). Nächstes Paket P1 «Packen und Strom».
 
 **Nachtrag 21.10.2026, abends:** 0.176.1 Fitbit-Fix, 0.177.0 «Wie Strava, nur ruhiger» als ein Paket (Ziel 4 «Aus jeder Tour lernen»: Strava 1:1 und Zeitleiste; Ziel 1 «Schneller packen»: Packliste aufräumen; Ziel 5 «Alltag»: Tages-Check, Gesamttest-Korrekturen). Danach die freigegebenen Mockup-Pakete P1–P8 (Noah «1a 2b 3a 4a 5b 6a 7a»), siehe vorhaben-liste.md.

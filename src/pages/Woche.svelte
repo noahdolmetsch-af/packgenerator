@@ -114,7 +114,7 @@
       <span>{tn(week.sums.dates, '{n} date', '{n} dates')}</span>
       <span>{tn(week.sums.todos, '{n} to-do', '{n} to-dos')}</span>
       {#if week.sums.away.length}<span><Palmtree size={14} aria-hidden="true" /> {week.sums.away.length === 1 ? dayName(week.sums.away[0]) : `${dayName(week.sums.away[0])}–${dayName(week.sums.away.at(-1))}`}</span>{/if}
-      {#if week.sums.bike}<span>{tn(week.sums.bike, '{n} bike job', '{n} bike jobs')}</span>{/if}
+      {#if week.sums.bike}<span>{tn(week.sums.bike, '{n} bike job open', '{n} bike jobs open')}</span>{/if}
     </p>
     {#if reviewLine(week.review) || week.hints.length}
       <div class="notes">

@@ -16,11 +16,9 @@ test.beforeEach(async ({ page, context }) => {
 });
 
 test('Ich › Die App › Bezahlen opens the explaining page', async ({ page }) => {
-  const row = page.locator('a.ich-row[href="#/me/pay"]');
-  await expect(row).toContainText(T('Payments'));
-  await expect(row).toContainText(T('not active yet'));
-  await expect(page.locator('section[aria-labelledby="me-app-h"]')).toContainText(T('Payments'));
-  await row.click();
+  // Klick-Rundgang Q05 (Noah 22.10.2026 «3a», changed on purpose): «App verkaufen» is dropped, Ich no longer lists this page; it opens by its address
+  await expect(page.locator('a.ich-row[href="#/me/pay"]')).toHaveCount(0);
+  await page.goto('./#/me/pay');
   await expect(page).toHaveURL(/#\/me\/pay$/);
   await expect(page.getByRole('heading', { level: 1 })).toHaveText(T('Payments'));
   // Impeccable Runde 2 (on purpose): «Invoices» on top, everything prepared folded under «Sell and book»

@@ -41,7 +41,16 @@ export function setLang(v) {
   document.documentElement.lang = lang.v;
 }
 
-const fill = (text, vars) => (vars ? text.replace(/\{(\w+)\}/g, (m, k) => (vars[k] ?? m)) : text);
+// Klick-Rundgang 22.10.2026 H14: a value that ends with a dot («19. Okt.», «Sa 24.») before a sentence's own dot
+// gives one dot, not «19. Okt..»
+const fill = (text, vars) =>
+  vars
+    ? text.replace(/\{(\w+)\}(\.(?!\.))?/g, (m, k, dot) => {
+        const v = vars[k];
+        if (v == null) return m;
+        return dot && /[^.]\.$/.test(String(v)) ? String(v) : `${v}${dot ?? ''}`;
+      })
+    : text;
 
 /**
  * The text in the current language. vars fill {placeholders}. 'Done|task' is "Done" in English

@@ -91,7 +91,7 @@ test('Packen → «Gepackt»: own address, reload, «Zur Startseite», reminder 
   await open(page, context, info, [trip('Alpen', day(4))], { current: ID('Alpen') });
   await go(page, '#/pack?day');
   // Impeccable Packen 2: with less than half packed the main button packs the next bag
-  await expect(main(page)).toHaveText(/packen \(0 von \d+\)$/);
+  await expect(main(page)).toHaveAccessibleName(/packen \(0 von \d+\)$/); // H05: on the phone the text is short, the name stays whole
   await page.getByRole('button', { name: T('Everything is packed') }).click();
   await expect(page.getByRole('button', { name: T('Everything is packed') })).toHaveCount(0); // ticks saved before the next tap
   await expect(main(page)).toHaveText(T('Finish packing'));
@@ -206,6 +206,9 @@ test('a day ride: no «Gepackt», at 08:00 ending asks, then «Tour beendet» wi
   await expect(page.getByRole('button', { name: T('Everything is packed') })).toHaveCount(0); // ticks saved before the next tap
   await main(page).click();
   await expect(page).toHaveURL(/#\/ride$/); // Ü5a: straight on, no «Gepackt»
+  // Klick-Rundgang H06 (changed on purpose): «Losfahren» first, it records the start time
+  await expect(main(page)).toHaveText(T('Start riding'));
+  await main(page).click();
   await expect(main(page)).toHaveText(T('Finish the trip'));
   await main(page).click();
   const sheet = page.locator('dialog.endsheet');

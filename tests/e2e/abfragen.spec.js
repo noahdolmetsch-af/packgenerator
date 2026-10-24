@@ -43,7 +43,8 @@ test.describe('AB Deine Abfragen', () => {
     const akku = card.locator('[data-q="erholung.akku"]');
     await expect(akku.getByText(T('How full is your battery right now?'))).toBeVisible();
     // Noah 2a: missed yesterday evening, it stays and says when (WG: its 20:00 is asked in the evening round at 20:30)
-    await expect(akku.getByText(/Erholung · Do\., 8\. Okt\. 20:30/)).toBeVisible();
+    // Klick-Rundgang H15 (changed on purpose): a question of an earlier day says «Frage von …»
+    await expect(akku.getByText(/Erholung · Frage von Do\., 8\. Okt\. 20:30/)).toBeVisible();
     const w = card.locator('[data-q="koerper.waage"]');
     await expect(w.getByText(/zuletzt 72.4 kg am/)).toBeVisible();
     await expect(w.getByText(T('not checked yet · by hand until then'))).toBeVisible();

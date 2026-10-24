@@ -20,7 +20,8 @@
   import { qText } from '../../lib/abfragen/words.js';
   import { normAct, entriesFor, tripDays } from '../../lib/flow.js';
   import { homeTrips } from '../../lib/home/heute.js';
-  import { tileName } from '../../lib/flow/hobby/words.js';
+  // Klick-Rundgang A05: the same names as the tiles in Aktiv (actName), not the nicknames of flowtiles.js
+  import { actName as tileName } from '../../lib/flow/ui.svelte.js';
   import { PERIODS, fromOf, tilesOf, valueQuestions, valuesOf, valueTiles } from '../../lib/flow/auswertung.js';
   import { t, tn, num } from '../../lib/i18n.svelte.js';
   import { localDay } from '../../lib/localday.js';

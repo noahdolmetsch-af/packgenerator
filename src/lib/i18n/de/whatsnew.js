@@ -1574,6 +1574,28 @@ export default {
   'Open Active › My sports and tap a sport.': 'Öffne Aktiv › Meine Sportarten und tippe eine Sportart an.',
   'Tap «Tick now» on its page, then change the entry under History.': 'Tippe auf ihrer Seite «Jetzt abhaken» und ändere dann den Eintrag unter Verlauf.',
   'Open Analysis with the switch on top of Active.': 'Öffne Auswerten mit dem Umschalter oben in Aktiv.',
+  // v0.181.4 «Aktiv ohne Sackgassen»
+  'Aktiv, without dead ends': 'Aktiv ohne Sackgassen',
+  'Plans, sessions and tiles do what they say.': 'Pläne, Einheiten und Kacheln tun, was sie sagen.',
+  'Training plan: a test run, with Undo': 'Trainingsplan: ein Probelauf, mit Rückgängig',
+  'A planned session: «Done» by hand, with Undo': 'Geplante Einheit: «Gemacht» von Hand, mit Rückgängig',
+  'Buttons no longer hide under the bars': 'Knöpfe verstecken sich nicht mehr unter den Leisten',
+  'Aktiv: open a training plan and tap «Try it out», then «Undo».': 'Aktiv: Öffne einen Trainingsplan, tippe auf «Ausprobieren», dann auf «Rückgängig».',
+  'Tick a planned session «Done» by hand.': 'Hake eine geplante Einheit von Hand als «Gemacht» ab.',
+  // v0.181.2 «Packen und nach der Tour, repariert»
+  'Packing and after the tour, repaired': 'Packen und nach der Tour, repariert',
+  'Clearer buttons from packing to the debrief.': 'Klarere Knöpfe vom Packen bis zum Rückblick.',
+  'Packing counts the same everywhere, and the button says what comes next': 'Packen zählt überall gleich, und der Knopf sagt, was als Nächstes kommt',
+  'On the way: «Start riding» remembers the start time; missing light is packed right there': 'Unterwegs: «Losfahren» merkt sich die Startzeit; fehlendes Licht packst du direkt ein',
+  'Live map: stops along the route load again': 'Live-Karte: Stopps entlang der Strecke laden wieder',
+  'Open a bike trip that starts today, pack it and tap «Start riding».': 'Öffne eine Velotour, die heute beginnt, pack sie und tippe auf «Losfahren».',
+  'End the trip without a ride: the app says why and offers «Upload a ride».': 'Schliess die Tour ohne Fahrt ab: Die App sagt warum und bietet «Fahrt hochladen» an.',
+  // v0.181.1 «Fitbit-Schlaf kommt an»
+  'Fitbit sleep and Gemini work again': 'Fitbit-Schlaf und Gemini gehen wieder',
+  'Your nights come from Google again, and Gemini answers.': 'Deine Nächte kommen wieder von Google, und Gemini antwortet.',
+  'Fitbit: last night comes in with «Fetch now»': 'Fitbit: die letzte Nacht kommt mit «Jetzt holen»',
+  'The last 30 nights are fetched once more': 'Die letzten 30 Nächte werden einmal neu geholt',
+  'Last night shows with today’s date.': 'Die letzte Nacht steht mit dem heutigen Datum da.',
   // v0.181.0 «Warum? und Regeln»
   'Why, and by which rule': 'Warum, und nach welcher Regel',
   'Every suggestion says why.': 'Jeder Vorschlag sagt, warum.',
@@ -1591,4 +1613,13 @@ export default {
   'Repair kit is no device any more': 'Flickzeug ist kein Gerät mehr',
   'Open Packen, «Add material», and tap «Add a new item and pack it».': 'Öffne Packen, «Material ergänzen», und tippe auf «Neues Teil erfassen und einpacken».',
   'Open a lamp in Gear, the row «Power», and add a light level.': 'Öffne eine Lampe im Material, die Zeile «Strom», und füge eine Leuchtstufe hinzu.',
+  // v0.181.1 «Alltag fertig bauen»
+  'Everyday, without dead ends': 'Alltag ohne Sackgassen',
+  'Day, week and bike run smoothly.': 'Tag, Woche und Velo laufen rund.',
+  'The Assistant knows your chain': 'Der Assistent kennt deine Kette',
+  'Aktiv ticks show in the week': 'Aktiv-Häkchen stehen in der Woche',
+  'Bike care «Done» with Undo': 'Velopflege «Erledigt» mit Rückgängig',
+  'Main buttons in sight': 'Wichtige Knöpfe sichtbar',
+  'Assistant: ask about the chain.': 'Assistent: nach der Kette fragen.',
+  'Bike care: «Done», then «Undo».': 'Velopflege: «Erledigt», dann «Rückgängig».',
 };

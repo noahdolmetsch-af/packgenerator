@@ -14,12 +14,14 @@ import { withVisits } from '../workshop.js';
 import { bikeCare } from '../readiness.js';
 import { AGENDA_KEY } from '../agenda.js';
 
+const shiftBack = (day, n) => new Date(Date.parse(`${day}T00:00:00Z`) - n * 864e5).toISOString().slice(0, 10);
+
 const KEYS = [AGENDA_KEY, ITEMS_KEY, AWAY_KEY, HIDE_KEY, NO_KEY, PLANNED_KEY, CAL_KEY, TRAIN_KEY, GOAL_KEY, FIXED_KEY, FLOW_PLAN_KEY];
 
 /** The raw sources of the week (a liveQuery); today: YYYY-MM-DD for the bike care. */
 export function weekQuery(today) {
   return liveQuery(async () => {
-    const [sets, trips, acts, flowActs, bikes, tasks, visits, gEvents, gTasks] = await Promise.all([
+    const [sets, trips, acts, flowActs, bikes, tasks, visits, gEvents, gTasks, flowLog, book] = await Promise.all([
       db.settings.where('key').anyOf(KEYS).toArray(),
       db.trips.toArray(),
       db.activities.toArray(),
@@ -30,6 +32,10 @@ export function weekQuery(today) {
       // Google's copy on this device (Paket B); a week back to two months ahead, so the whole table is small
       db.gEvents ? db.gEvents.toArray() : [],
       db.gTasks ? db.gTasks.toArray() : [],
+      // Klick-Rundgang 22.10.2026 H22: what was ticked in Aktiv shows in the week (two weeks back to the end of next week)
+      db.flowLog.where('day').between(shiftBack(today, 14), shiftBack(today, -14), true, true).toArray(),
+      // rides by hand or from a file count in «last week» too (Klick-Rundgang: «keine» although 46 km were ridden)
+      db.kmBook.where('date').between(shiftBack(today, 21), today, true, true).toArray(),
     ]);
     const s = Object.fromEntries(sets.map((x) => [x.key, x.value]));
     const care = sortBikes(bikes)
@@ -50,6 +56,8 @@ export function weekQuery(today) {
       trips: trips.filter((tr) => tr.startDate && !tr.skipped).map((tr) => ({ id: tr.id, title: tr.title ?? tr.name ?? '', startDate: tr.startDate, days: tr.days })),
       acts,
       flowActs,
+      flowLog,
+      book,
       care,
       google: { events: gEvents, tasks: gTasks, prefs: s[AGENDA_KEY] },
     };

@@ -63,3 +63,14 @@ describe('Gipfelbuch on the page of a sport (Noah 22.10.2026 «1a»)', () => {
     expect(readFileSync('src/pages/flow/Gipfelbuch.svelte', 'utf8')).toContain("params.get('sport')");
   });
 });
+
+describe('A06 (Klick-Rundgang 22.10.2026): the tabs of Aktiv on a phone never change', () => {
+  it('Heute, Meine Sportarten, Training, Erholung on every page of Aktiv, nothing under «Mehr»', async () => {
+    const { phoneTabs } = await import('../src/lib/nav.js');
+    for (const h of ['#/flow', '#/flow/sports', '#/flow/sport/act%3Ax', '#/flow/training', '#/flow/rest', '#/flow/gipfelbuch', '#/flow/week']) {
+      const { shown, more } = phoneTabs('active', h);
+      expect(shown.map((x) => x.key), h).toEqual(['today', 'sports', 'training', 'rest']);
+      expect(more, h).toEqual([]);
+    }
+  });
+});

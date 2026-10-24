@@ -17,7 +17,9 @@ export const TOO_LONG = {
   // at the end (Noah 20.10.2026 «1a», every page): measured 5.39 on the phone.
   // 0.180.0 P6 (Noah 21.10.2026 «2b», the six Heute pictures): + the meditation card on top and «Weight this week?»:
   // measured 5.51 on the phone (the card's name sits beside its flower to save a row).
-  '#/': 5.6,
+  // 0.181.1: the test data has a trip that ends today, so by day Heute also shows the start card ST1/ST2 (Noah 14.10.2026
+  // «1a 2a 3b», «Heute unterwegs» or «Letzter Abend · Zurück zu Hause?»): measured 6.03–6.12 on CI by day, 5.5 at night.
+  '#/': 6.2,
   // 0.171.0: «Überblick» and «Letzte 7 Tage» wait behind one row on a phone (6.81 screens in 0.170 → under 5.5)
   '#/flow': 5.5,
   '#/bikes': 5.5,
