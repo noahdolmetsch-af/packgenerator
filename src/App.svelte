@@ -32,6 +32,7 @@
   import SideBar from './lib/nav/SideBar.svelte';
   import PlaceBar from './lib/nav/PlaceBar.svelte';
   import MeButton from './lib/nav/MeButton.svelte';
+  import HelpButton from './lib/nav/HelpButton.svelte';
   import PageFoot from './lib/anpassen/PageFoot.svelte'; // «Anpassen» (Noah 20.10.2026 «1a»)
   import { pageKeyOf } from './lib/anpassen.js';
   import { placeLabel, tabLabel } from './lib/anpassen.svelte.js';
@@ -444,6 +445,7 @@
     <div class="tools">
       <!-- «Assistent» (Noah 15.10.2026 «3 a und b»): its own button next to the search -->
       <a class="asst-ic" href="#/assistent" aria-label={t('Assistant')}><MessageCircle size={22} aria-hidden="true" /></a>
+      {#if !mini}<HelpButton />{/if}<!-- «Alles finden 2» (Noah 22.10.2026 «3a»): the help of this page -->
       <Search compact />
       {#if !guest}<button type="button" class="plus" aria-label={t('New')} aria-haspopup="dialog" aria-keyshortcuts="n" onclick={() => (newMode = 'all')}><Plus size={22} strokeWidth={2.4} aria-hidden="true" /></button>{/if}
       <MeButton inbox={$inboxQ ?? 0} current={place === 'me'} />

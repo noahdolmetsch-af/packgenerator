@@ -64,7 +64,7 @@ test('SN6+ Funktionen: order, progress, Passt gerade, Top 5, Neu seit deinem let
   page.on('pageerror', (e) => errors.push(e.message));
   await start(page, context, { opens: { last: { at: '2026-10-02T07:00:00.000Z', v: '0.124.0' } }, uses: USES });
   await page.goto('./#/features');
-  await expect(page.getByRole('heading', { name: T('What the app can do'), level: 1 })).toBeVisible();
+  await expect(page.getByRole('heading', { name: T('Help and functions'), level: 1 })).toBeVisible();
 
   // answer 3b: the order from the top
   await expect(page.locator('[data-block]')).toHaveCount(BLOCKS.length - 1);

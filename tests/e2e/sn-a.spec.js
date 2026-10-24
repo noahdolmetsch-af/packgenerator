@@ -125,7 +125,7 @@ test('SN6 Funktionen: «Neu für dich», 3 quiet rows per card, the row takes yo
   page.on('pageerror', (e) => errors.push(e.message));
   await start(page, context, '2026-10-09T10:00:00+02:00');
   await page.goto('./#/features');
-  await expect(page.getByRole('heading', { name: T('What the app can do'), level: 1 })).toBeVisible();
+  await expect(page.getByRole('heading', { name: T('Help and functions'), level: 1 })).toBeVisible();
   await expect(page.locator('.vhead [aria-current="page"]')).toHaveText(T('What the app can do|crumb')); // Impeccable Runde 2: the path like the title
   await expect(page.locator('.vhead .vsub')).toContainText(T('tap to go there'));
   // SN6+ (answer 1b, intended change): «Neu für dich» is replaced by «Neu seit deinem letzten Besuch»;

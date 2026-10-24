@@ -11,7 +11,10 @@
   import { anp, placeLabel, tabLabel } from '../anpassen.svelte.js'; // «Anpassen» 2a + 3a: hidden tabs and own names
   import { t } from '../i18n.svelte.js';
   import { phone, wide } from '../media.svelte.js';
-  import { ChevronDown, X } from '@lucide/svelte';
+  import { X, LayoutGrid, ArrowUpDown, Calendar, Clock, NotebookPen, BookOpen, Inbox, Mail, Compass, ShoppingBasket, Sun, Lightbulb, Link2, Map as MapIcon, Copy, History, Star, Mountain, Wrench, Backpack, Shirt, Boxes, ShoppingCart, Package, Hand, Bike, Store, Ruler, Layers, Flower2, Dumbbell, Route, Target, Trophy, Sparkles, ChartLine, Smile, Heart, Scale, Circle } from '@lucide/svelte';
+  import { tabInfo } from './tabinfo.js';
+  import { liveQuery } from 'dexie';
+  import { db } from '../db.js';
   import SortGrip from '../ui/SortGrip.svelte';
   import SortArrows from '../ui/SortArrows.svelte';
   import { sortable } from '../ui/sortable.js';
@@ -28,9 +31,17 @@
   const split = $derived((void order, void anp.v, phoneTabs(place, hash)));
   const all = $derived((void order, tabs));
   let moreDlg = $state();
+  // «Alles finden 2» (Noah 22.10.2026 «1a»): «Mehr» is «Alle n» now: every page of the place as a tile with an
+  // icon and one sentence. Sorting is one tap further, behind «Reihenfolge ändern».
+  let sorting = $state(false);
   function openMore() {
+    sorting = false;
     moreDlg?.showModal();
   }
+  const ICON = { calendar: Calendar, clock: Clock, note: NotebookPen, book: BookOpen, inbox: Inbox, mail: Mail, compass: Compass, basket: ShoppingBasket, sun: Sun, lightbulb: Lightbulb, link: Link2, map: MapIcon, copy: Copy, history: History, star: Star, mountain: Mountain, wrench: Wrench, backpack: Backpack, shirt: Shirt, blocks: Boxes, cart: ShoppingCart, box: Package, hand: Hand, bike: Bike, shop: Store, ruler: Ruler, layers: Layers, flower: Flower2, dumbbell: Dumbbell, route: Route, target: Target, trophy: Trophy, sparkles: Sparkles, chart: ChartLine, smile: Smile, heart: Heart, scale: Scale };
+  // new proposal «Eingang mit Zahl»: Planen's «Alle n» shows how many notes wait in the Inbox while it is not a tab in view
+  const inboxQ = liveQuery(() => db.notes.where('status').equals('open').count());
+  const waiting = $derived(place === 'week' && split.more.some((x) => x.key === 'inbox') ? ($inboxQ ?? 0) : 0);
   function move(from, to) {
     if (to < 0 || to >= all.length || from === to) return;
     const keys = all.map((x) => x.key);
@@ -131,27 +142,44 @@
       <a href={hrefOf(x)} aria-current={cur === x.key ? 'page' : undefined}>{tabLabel(place, x)}</a>
     {/each}
     {#if split.more.length}
-      <button type="button" class="pmore" aria-haspopup="dialog" onclick={openMore}>{t('More')}<ChevronDown size={16} aria-hidden="true" /></button>
+      <button type="button" class="pmore" aria-haspopup="dialog" onclick={openMore} aria-label={waiting ? t('All {n} pages, Inbox: {k} to sort', { n: all.length, k: waiting }) : t('All {n} pages', { n: all.length })}><LayoutGrid size={16} aria-hidden="true" />{t('All {n}|tabs', { n: all.length })}{#if waiting}<span class="pdot num" aria-hidden="true">{waiting}</span>{/if}</button>
     {/if}
   </nav>
   {#if split.more.length}
     <dialog class="sheet from-below ptsheet" bind:this={moreDlg} use:backClose aria-labelledby="pt-h">
       <div class="pt-head">
-        <h2 id="pt-h">{t('More pages in {place}', { place: placeName })}</h2>
+        <h2 id="pt-h">{sorting ? t('Order of the pages in {place}', { place: placeName }) : t('All pages in {place}', { place: placeName })}</h2>
         <button type="button" class="pt-x" aria-label={t('Close')} onclick={() => moreDlg.close()}><X size={20} aria-hidden="true" /></button>
       </div>
-      <p class="pt-hint">{t('Drag the pages you use often to the top. The first four stand as tabs.')}</p>
-      <ul class="pt-list" use:sortable={{ onmove: (from, to) => move(from, to) }}>
-        {#each all as x, i (x.key)}
-          <li data-sort-id={x.key} class:shown={split.shown.includes(x)}>
-            <SortGrip name={tabLabel(place, x)} onstep={(dir) => move(i, i + dir)} />
-            <a href={hrefOf(x)} aria-current={cur === x.key ? 'page' : undefined} onclick={() => moreDlg.close()}>{tabLabel(place, x)}</a>
-            {#if i < 4}<span class="pt-tab">{t('tab|nav')}</span>{/if}
-            <SortArrows name={tabLabel(place, x)} {i} n={all.length} onstep={(dir) => move(i, i + dir)} />
-          </li>
-        {/each}
-      </ul>
-      <p class="pt-foot"><button type="button" class="btn-link btn" onclick={resetOrder}>{t('Back to the app\'s order')}</button></p>
+      {#if !sorting}
+        <ul class="pt-grid" data-all-pages={place}>
+          {#each all as x (x.key)}
+            {@const info = tabInfo(place, x.key)}
+            {@const Icon = ICON[info?.[0]] ?? Circle}
+            <li>
+              <a href={hrefOf(x)} aria-current={cur === x.key ? 'page' : undefined} aria-label={tabLabel(place, x)} aria-describedby={info ? `pt-s-${place}-${x.key}` : undefined} onclick={() => moreDlg.close()} data-tile={x.key}>
+                <span class="pt-ic"><Icon size={20} aria-hidden="true" /></span>
+                <b>{tabLabel(place, x)}{#if x.key === 'inbox' && waiting}<span class="pdot num" aria-hidden="true">{waiting}</span>{/if}</b>
+                {#if info}<small id={`pt-s-${place}-${x.key}`}>{t(info[1])}</small>{/if}
+              </a>
+            </li>
+          {/each}
+        </ul>
+        <p class="pt-foot"><button type="button" class="btn-link btn" onclick={() => (sorting = true)} data-sort-pages><ArrowUpDown size={16} aria-hidden="true" />{t('Change the order')}</button></p>
+      {:else}
+        <p class="pt-hint">{t('Drag the pages you use often to the top. The first four stand as tabs.')}</p>
+        <ul class="pt-list" use:sortable={{ onmove: (from, to) => move(from, to) }}>
+          {#each all as x, i (x.key)}
+            <li data-sort-id={x.key} class:shown={split.shown.includes(x)}>
+              <SortGrip name={tabLabel(place, x)} onstep={(dir) => move(i, i + dir)} />
+              <span class="pt-name">{tabLabel(place, x)}</span>
+              {#if i < 4}<span class="pt-tab">{t('tab|nav')}</span>{/if}
+              <SortArrows name={tabLabel(place, x)} {i} n={all.length} onstep={(dir) => move(i, i + dir)} />
+            </li>
+          {/each}
+        </ul>
+        <p class="pt-foot"><button type="button" class="btn-link btn" onclick={resetOrder}>{t('Back to the app\'s order')}</button> <button type="button" class="btn sm" onclick={() => (sorting = false)}>{t('Done|tabs')}</button></p>
+      {/if}
     </dialog>
   {/if}
   {#if tabs.length <= 4}
@@ -256,7 +284,7 @@
   .pmore {
     display: inline-flex;
     align-items: center;
-    gap: 2px;
+    gap: 4px;
     flex: 0 0 auto;
     min-height: 44px;
     min-width: 44px;
@@ -275,7 +303,66 @@
     padding: 0 var(--sp-1);
   }
   .ptsheet {
-    width: min(440px, calc(100vw - 24px));
+    width: min(520px, calc(100vw - 24px));
+  }
+  .pt-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--sp-2);
+    margin: var(--sp-3) 0 0;
+    padding: 0;
+    list-style: none;
+  }
+  .pt-grid a {
+    display: grid;
+    gap: 4px;
+    align-content: start;
+    height: 100%;
+    min-height: 96px;
+    padding: 12px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: var(--paper);
+    color: var(--ink);
+    text-decoration: none;
+  }
+  .pt-grid a[aria-current='page'] {
+    border-color: var(--pc);
+    box-shadow: inset 0 0 0 1px var(--pc);
+  }
+  .pt-grid b {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: var(--fs-body);
+  }
+  .pt-grid small {
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+    line-height: 1.35;
+  }
+  .pt-ic {
+    color: var(--pc-ink, var(--ink-2));
+  }
+  .pdot {
+    display: inline-grid;
+    place-items: center;
+    min-width: 18px;
+    height: 18px;
+    margin-left: 4px;
+    padding: 0 5px;
+    border-radius: 9px;
+    background: var(--hi);
+    color: var(--hi-ink);
+    font-size: var(--fs-tiny);
+    font-weight: 700;
+  }
+  .pt-name {
+    flex: 1;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    font-weight: 600;
   }
   .pt-head {
     display: flex;
@@ -323,23 +410,21 @@
     border-radius: 12px;
     background: var(--paper);
   }
-  .pt-list a {
-    flex: 1;
-    min-height: 44px;
-    display: flex;
-    align-items: center;
-    color: var(--ink);
-    font-weight: 500;
-    text-decoration: none;
-  }
-  .pt-list a[aria-current='page'] {
-    font-weight: 700;
-  }
   .pt-tab {
     color: var(--ink-3);
     font-size: var(--fs-tiny);
   }
   .pt-foot {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--sp-2);
     margin: var(--sp-3) 0 0;
+  }
+  .pt-foot .btn-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
   }
 </style>

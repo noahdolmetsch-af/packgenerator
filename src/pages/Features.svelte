@@ -38,6 +38,16 @@
   import { switchTrip } from '../lib/nav.js';
   import { slfUrl } from '../lib/sk/links.js';
   import VeloHead from '../lib/bikes/VeloHead.svelte';
+  import { db } from '../lib/db.js';
+  import { INTRO_KEY } from '../lib/home/introkt.js';
+  import { Keyboard, Hand, Scale as RuleIcon } from '@lucide/svelte';
+  // «Alles finden 2» (Noah 22.10.2026 «3a»): one help place. The handbook, the keyboard shortcuts, how the app
+  // decides and the start page intro moved here from Ich (they were in its fold «Hilfe»).
+  const keysHelp = () => window.dispatchEvent(new Event('pg:keys'));
+  async function introAgain() {
+    await db.settings.put({ key: INTRO_KEY, value: false });
+    location.hash = '#/';
+  }
   import TipButton from '../lib/know/TipButton.svelte';
   import WhatsNew from '../lib/know/WhatsNew.svelte';
   import PlaySheet from '../lib/testdata/PlaySheet.svelte';
@@ -144,7 +154,13 @@
 
 <div class="feat" data-blocks="sn6plus">
   <!-- Design-Refresh P9 (I7): the path back to Ich. SN6: «Ich › Funktionen», one line with «tap to go there». -->
-  <VeloHead crumbs={[{ label: t('Me|place'), href: '#/me' }]} here={t('What the app can do|crumb')} title={t('What the app can do')} sub={all ? `${t('{total} functions · you use {n}', { total: all.total, n: all.used })} · ${t('tap to go there')}` : ''} />
+  <VeloHead crumbs={[{ label: t('Me|place'), href: '#/me' }]} here={t('Help and functions')} title={t('Help and functions')} sub={all ? `${t('{total} functions · you use {n}', { total: all.total, n: all.used })} · ${t('tap to go there')}` : ''} />
+  <ul class="fhelp" data-block="help" aria-label={t('Help|me')}>
+    <li><a href="#/me/handbook" data-help-row="handbook"><BookOpen size={18} aria-hidden="true" /><span><b>{t('Handbook')}</b><small>{t('How to switch on every function, with an example')}</small></span><ChevronRight size={16} aria-hidden="true" /></a></li>
+    <li><a href="#/me/regeln" data-help-row="rules"><RuleIcon size={18} aria-hidden="true" /><span><b>{t('How the app decides')}</b><small>{t('Every rule, where to change it')}</small></span><ChevronRight size={16} aria-hidden="true" /></a></li>
+    <li><button type="button" onclick={keysHelp} aria-haspopup="dialog" data-help-row="keys"><Keyboard size={18} aria-hidden="true" /><span><b>{t('Help and keyboard shortcuts')}</b><small>{t('Every page has a «?» at the top: its own help')}</small></span><ChevronRight size={16} aria-hidden="true" /></button></li>
+    <li><button type="button" onclick={introAgain} data-intro-again><Hand size={18} aria-hidden="true" /><span><b>{t('Show the start page intro again')}</b></span><ChevronRight size={16} aria-hidden="true" /></button></li>
+  </ul>
   <!-- SN6+ K1: how many functions you use, with a small bar -->
   {#if all}
     <div class="fprog" data-block="progress">
@@ -298,6 +314,41 @@
     max-width: 100%;
   }
   /* SN6+ K1: the progress bar under the head, and a small one in every card */
+  .fhelp {
+    list-style: none;
+    margin: 0 0 var(--sp-3);
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 8px;
+  }
+  .fhelp a,
+  .fhelp button {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    min-height: 56px;
+    padding: 10px 14px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: var(--paper);
+    color: var(--ink);
+    font: inherit;
+    text-align: left;
+    text-decoration: none;
+    cursor: pointer;
+  }
+  .fhelp span {
+    flex: 1;
+    min-width: 0;
+    display: grid;
+    gap: 2px;
+  }
+  .fhelp small {
+    font-size: var(--fs-small);
+    color: var(--ink-3);
+  }
   .fprog {
     display: flex;
     flex-wrap: wrap;

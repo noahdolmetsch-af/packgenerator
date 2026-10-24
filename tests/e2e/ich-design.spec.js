@@ -46,7 +46,7 @@ test('I1: Ich in four groups; Data and backup opens its own page', async ({ page
   await onePage(page, T('Me|place'));
   const main = page.locator('main');
   for (const h of ['Data', 'Settings', 'The app', 'More']) await expect(main.getByRole('heading', { level: 2, name: T(h), exact: true })).toBeVisible();
-  for (const name of ['Connections', 'Documents', 'What the app can do']) await expect(main.getByRole('link', { name: new RegExp(T(name)) }).first()).toBeVisible();
+  for (const name of ['Connections', 'Documents', 'Help and functions']) await expect(main.getByRole('link', { name: new RegExp(T(name)) }).first()).toBeVisible();
   // UI-Ziele #6 (Noah 20.10.2026 «freigabe», 4a): Inbox and notes went to Planen; one quiet line says where
   await expect(main.locator('[data-me-moved] a[href="#/week"]')).toBeVisible();
   await expect(main.getByRole('link', { name: new RegExp(`^${T('Notes')}`) })).toHaveCount(0);

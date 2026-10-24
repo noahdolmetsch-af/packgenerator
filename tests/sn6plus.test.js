@@ -119,7 +119,7 @@ describe('the order of the blocks (answer 3b)', () => {
     const src = readFileSync(new URL('../src/pages/Features.svelte', import.meta.url), 'utf8');
     const markup = src.slice(src.indexOf('<div class="feat"'));
     const found = [...markup.matchAll(/data-block="(\w+)"/g)].map((m) => m[1]);
-    expect(found).toEqual(BLOCKS.filter((b) => b !== 'groups'));
+    expect(found).toEqual(['help', ...BLOCKS.filter((b) => b !== 'groups')]); // «Alles finden 2» (Noah 22.10.2026 «3a»): the help rows (handbook, rules, keys, intro) on top
     // «New for you» is gone (K6 replaces it)
     expect(src.includes("t('New for you')")).toBe(false);
   });
