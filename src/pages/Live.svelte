@@ -28,6 +28,7 @@
   import { CloudRain, Route, Play, Square, Crosshair, MapPin, Navigation, Mountain, Clock, Settings, BatteryMedium, CloudLightning, TriangleAlert, RefreshCw, Utensils, Moon, Flag, LifeBuoy, Ellipsis, Minimize2, Maximize2, SlidersHorizontal, Check, X, Layers, Camera, WifiOff } from '@lucide/svelte';
   import KindIcon from '../lib/map/KindIcon.svelte';
   import PoiPanel from '../lib/map/PoiPanel.svelte';
+  import Seg from '../lib/ui/Seg.svelte';
   import OvNearby from '../lib/sources/OvNearby.svelte';
   import { wptsOnMap } from '../lib/route/fromgpx.js';
   import PoiDetail from '../lib/map/PoiDetail.svelte';
@@ -219,8 +220,12 @@
   const light = $derived(me ? lightLeft(me.lat, me.lon, now) : null);
   const arr = $derived(km != null ? arrival({ pts, profile, km, now, pace }) : null);
   // Noah 22.10.2026: petrol stations count as stops too (they were loaded but never shown)
-  const KINDS = ['shop', 'fuel', 'food', 'water', 'sleep', 'station', 'bike'];
-  const stops = $derived(me ? stopsAhead({ pois, pts: hasRoute ? pts : [], here: me, km, kinds: KINDS, n: 5, now, pace, profile }) : []);
+  // «Stopps in der Nähe» (Noah 24.10.2026 «4b»): also WC, cash, pharmacy and a pump
+  const KINDS = ['shop', 'fuel', 'food', 'water', 'sleep', 'station', 'bike', 'toilet', 'atm', 'pharmacy', 'repair'];
+  // Noah 24.10.2026 «5a»: with a route, the stops along it or around you (a switch)
+  let stopsMode = $state('route');
+  const alongMode = $derived(hasRoute && stopsMode === 'route');
+  const stops = $derived(me ? stopsAhead({ pois: alongMode ? pois : around, pts: alongMode ? pts : [], here: me, km, kinds: KINDS, n: 5, now, pace, profile }) : []);
   const climb = $derived(km != null ? nextClimb(climbs, km) : null);
   // Abbiege-Hinweise (turns.js): the turns of the route, once; the next one while you are on the route
   const turns = $derived(hasRoute ? turnsOf(pts) : []);
@@ -764,6 +769,17 @@
   // «Weitere Quellen»: «Add a place by tapping the map» of the place search
   let poiPanel = $state(null);
   let poiTapping = $state(false);
+  // «Ziel wählen» (Versteckte Funktionen, Noah 22.10.2026 «1a»): a button in place of the long press only; the next tap on the map is the goal
+  let goalTapping = $state(false);
+  function mapTap(e) {
+    if (goalTapping && Number.isFinite(e?.lat)) {
+      goalTapping = false;
+      picked = { lat: e.lat, lon: e.lon };
+      reroute = true;
+      return;
+    }
+    poiPanel?.tapMap(e);
+  }
   function pickPoint(p) {
     const id = String(p?.id ?? '');
     if (id.startsWith('cam-')) return (camPicked = camOfPoint($camsQ, id));
@@ -910,8 +926,8 @@
             ondrag={() => (follow = false)}
             onmove={(b) => (mapBounds = b)}
             onpick={pickPoint}
-            adding={poiTapping}
-            onmapclick={(e) => poiPanel?.tapMap(e)}
+            adding={poiTapping || goalTapping}
+            onmapclick={mapTap}
             onlongpress={(p) => ((picked = p), (reroute = true))}
           />
         {/snippet}
@@ -924,6 +940,7 @@
       <div class="lvf-alerts">
         {#if turnNext && turnNext.distM <= 1000}<div class="lvf-turn" data-live-turn><TurnHint turn={turnNext} distM={turnNext.distM} /></div>{/if}
         {#if !me}<p class="lvf-alert" role="status">{t('Waiting for the GPS …')}</p>{/if}
+        {#if goalTapping}<p class="lvf-alert" role="status" data-live-goal-hint><Flag size={18} aria-hidden="true" /><span>{t('Tap the map where you want to go.')}</span> <button type="button" class="btn sm" onclick={() => (goalTapping = false)}>{t('Cancel')}</button></p>{/if}
         {#if resumed}<p class="lvf-alert" role="status" data-live-resumed-full><RefreshCw size={18} aria-hidden="true" /><span>{t('The app had loaded anew: your ride goes on.')}</span> <button type="button" class="btn sm" onclick={() => (resumed = false)}>{t('OK')}</button></p>{/if}
         {#if offWarn}<p class="lvf-alert lvf-bad" role="alert" data-live-offroute><TriangleAlert size={18} aria-hidden="true" /><span>{t('Off the route: {m} m away.', { m: at?.offM })}</span></p>{/if}
         {#if storm}<p class="lvf-alert lvf-bad" role="alert" data-live-storm><CloudLightning size={18} aria-hidden="true" /><span>{storm.km != null ? t('Thunderstorm possible around km {km} from {at}.', { km: storm.km, at: hhmm(storm.at) }) : t('Thunderstorm possible here from {at}.', { at: hhmm(storm.at) })}</span></p>{/if}
@@ -953,6 +970,8 @@
 
       <!-- Versteckte Funktionen (Noah 22.10.2026): the emergency window one tap away, not only in «⋯» -->
       <button type="button" class="lvf-ic lvf-sosq" class:lvf-hidden={snap === 'full' || dpIndex > 0} onclick={() => (sos = true)} style:bottom="{sheetPx + 126}px" aria-label={t('Emergency')} data-live-sos-quick><LifeBuoy size={22} aria-hidden="true" /></button>
+      <!-- «Ziel wählen»: tap the button, then the spot on the map (the long press still works) -->
+      <button type="button" class="lvf-ic lvf-goal" class:lvf-hidden={snap === 'full' || dpIndex > 0} aria-pressed={goalTapping} onclick={() => ((goalTapping = !goalTapping), goalTapping && (snap = 'peek'))} style:bottom="{sheetPx + 182}px" aria-label={t('Choose a goal')} title={t('Choose a goal')} data-live-goal><Flag size={22} aria-hidden="true" /></button>
       <!-- the «⋯» menu -->
       <button type="button" class="lvf-ic lvf-menu-btn" aria-expanded={menu} aria-haspopup="true" onclick={() => (menu = !menu)} aria-label={t('More')} data-live-menu><Ellipsis size={22} aria-hidden="true" /></button>
       {#if menu}
@@ -1076,7 +1095,11 @@
 
             <!-- the stops -->
             <div class="lvf-part" data-live-stops>
-              <h2 class="lvf-h">{hasRoute ? t('Next stops on the route') : t('Stops around you')}</h2>
+              <!-- Noah 24.10.2026 «3a»: the next stops and the place search are one part «Stops» -->
+              <h2 class="lvf-h">{t('Stops')}</h2>
+              {#if hasRoute}
+                <div data-live-stops-mode><Seg options={[{ key: 'route', name: t('Along the route|poi') }, { key: 'around', name: t('Around me|poi') }]} value={stopsMode} onchange={(k) => ((stopsMode = k), k === 'around' && !around.length && getAround())} label={t('Where to look for stops')} full={false} small /></div>
+              {/if}
               {#if stops.length}
                 <ul class="rc-list">
                   {#each stops as s (s.id)}
@@ -1097,18 +1120,26 @@
                     </li>
                   {/each}
                 </ul>
-                <p class="rc-src">{hasRoute ? t('Distance along the route; the time at your pace; opening hours from OpenStreetMap when known.') : t('Straight-line distance from where you are; the time at your pace; opening hours from OpenStreetMap when known.')}</p>
+                <p class="rc-src">{alongMode ? t('Distance along the route; the time at your pace; opening hours from OpenStreetMap when known.') : t('Straight-line distance from where you are; the time at your pace; opening hours from OpenStreetMap when known.')}</p>
               {:else}
-                <p class="rc-empty" data-live-nostops>{busy ? t('Loading…') : hasRoute ? t('No stops ahead on the route yet.') : t('No stops around you found yet.')}</p>
+                <p class="rc-empty" data-live-nostops>{busy ? t('Loading…') : alongMode ? t('No stops ahead on the route yet.') : t('No stops around you found yet.')}</p>
               {/if}
               <div class="rc-acts">
-                {#if hasRoute}
+                {#if alongMode}
                   <button type="button" class="btn sm" onclick={getAlong} disabled={!!busy}><RefreshCw size={16} aria-hidden="true" />{busy === 'along' ? t('Loading…') : t('Load stops along the route')}</button>
                 {:else}
                   <button type="button" class="btn sm" onclick={() => getAround(true)} disabled={!!busy}><RefreshCw size={16} aria-hidden="true" />{busy === 'around' ? t('Loading…') : t('Look for stops around me')}</button>
                 {/if}
               </div>
               {#if stopsMsg}<p class="rc-note" role="status" data-live-stops-msg>{stopsMsg}</p>{/if}
+              <!-- places: the place search and a tapped place (inside «Stops», Noah 24.10.2026 «3a») -->
+              <div class="lv-places" data-live-places>
+                <h3 class="lv-h3">{t('More places on the map')}</h3>
+                {#if poiPicked}
+                  <div data-live-poi-detail><PoiDetail place={poiPicked} from={me} line={route?.line ?? null} profile={route?.profile ?? null} onclose={() => (poiPicked = null)} /></div>
+                {/if}
+                <PoiPanel bind:this={poiPanel} canTap ontapmode={(v) => ((poiTapping = v), v && (snap = "peek"))} center={me ? { lat: me.lat, lon: me.lon } : null} bounds={mapBounds} line={route?.line ?? null} profile={route?.profile ?? null} tripId={trip?.id ?? null} onpoints={(l) => (poiPoints = l ?? [])} />
+              </div>
             </div>
 
             <!-- the profile from your km -->
@@ -1125,14 +1156,6 @@
               </div>
             {/if}
 
-            <!-- places: the place search and a tapped place -->
-            <div class="lvf-part" data-live-places>
-              <h2 class="lvf-h">{t('Places')}</h2>
-              {#if poiPicked}
-                <div data-live-poi-detail><PoiDetail place={poiPicked} from={me} line={route?.line ?? null} profile={route?.profile ?? null} onclose={() => (poiPicked = null)} /></div>
-              {/if}
-              <PoiPanel bind:this={poiPanel} canTap ontapmode={(v) => ((poiTapping = v), v && (snap = "peek"))} center={me ? { lat: me.lat, lon: me.lon } : null} bounds={mapBounds} line={route?.line ?? null} profile={route?.profile ?? null} tripId={trip?.id ?? null} onpoints={(l) => (poiPoints = l ?? [])} />
-            </div>
 
             {#if showRouteBox}
               <div class="lvf-part"><LiveRouteBox {trip} /></div>
@@ -1453,6 +1476,17 @@
     color: var(--bad);
     box-shadow: 0 1px 4px var(--shadow);
     transition: bottom 0.15s var(--ease-out);
+  }
+  .lvf-goal {
+    position: absolute;
+    right: 10px;
+    z-index: 2;
+    box-shadow: 0 1px 4px var(--shadow);
+    transition: bottom 0.15s var(--ease-out);
+  }
+  .lvf-goal[aria-pressed='true'] {
+    background: var(--ink);
+    color: var(--paper);
   }
   .lvf-photo {
     position: absolute;
@@ -1830,6 +1864,18 @@
   .lvf-h {
     margin: 0;
     font-size: var(--fs-sub);
+  }
+  .lv-places {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid var(--line);
+  }
+  .lv-h3 {
+    margin: 0;
+    font-size: var(--fs-body);
   }
   .lvf-order {
     display: flex;

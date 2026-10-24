@@ -12,6 +12,8 @@ import { cacheGet, cacheSet } from '../race/store.js';
 import { aroundQuery, aroundFresh } from './live-lib.js';
 
 export const AROUND_CACHE = 'live-poi-around';
+/** The kinds asked for around you; a kept answer of fewer kinds (before «Stopps in der Nähe», 24.10.2026) is asked anew. */
+export const AROUND_V = 2;
 
 /** Overpass JSON → stops without km: [{ id, kind, name, lat, lon, hours, sub, phone }]. */
 export const aroundFrom = (json) => poisFrom(json, []).map(({ km, offKm, ...p }) => p);
@@ -19,13 +21,13 @@ export const aroundFrom = (json) => poisFrom(json, []).map(({ km, offKm, ...p })
 /** The stops around here: the kept ones when they still fit, else a new request (throws 'busy' | 'failed'). */
 export async function loadAround(here, { fetcher = fetch, force = false, now = Date.now() } = {}) {
   const kept = await cacheGet(AROUND_CACHE);
-  if (!force && aroundFresh(kept?.data ? { ...kept.data, at: kept.at } : null, here, now)) return kept.data.list;
+  if (!force && kept?.data?.v === AROUND_V && aroundFresh({ ...kept.data, at: kept.at }, here, now)) return kept.data.list;
   const res = await queued(() => postTimed(fetcher, OVERPASS, { method: 'POST', body: `data=${encodeURIComponent(aroundQuery(here))}`, headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }));
   if (!res.ok) throw new Error(res.status === 429 ? 'busy' : 'failed');
   const json = await res.json();
   if (overpassFailed(json)) throw new Error('failed');
   const list = aroundFrom(json);
-  await cacheSet(AROUND_CACHE, { center: { lat: here.lat, lon: here.lon }, list });
+  await cacheSet(AROUND_CACHE, { v: AROUND_V, center: { lat: here.lat, lon: here.lon }, list });
   return list;
 }
 

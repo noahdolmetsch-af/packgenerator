@@ -375,6 +375,7 @@
     Regeln: () => import('./pages/Regeln.svelte'), // P3 «Warum? und Regeln» (RG3): Ich › So entscheidet die App
     Push: () => import('./pages/Push.svelte'),
     Wetter: () => import('./pages/Wetter.svelte'),
+    Stops: () => import('./pages/Stops.svelte'), // «Stopps in der Nähe» (Noah 24.10.2026 «1a»)
     Abfragen: () => import('./pages/Abfragen.svelte'),
     Verlauf: () => import('./pages/Verlauf.svelte'),
     Auswertung: () => import('./pages/Auswertung.svelte'),
@@ -634,6 +635,9 @@
   {:else if page === 'phone'}
     <!-- Design-Refresh P9 (B35): Ich › Daten › Aufs Handy, the QR code -->
     <LazyPage load={PAGES.Phone} />
+  {:else if page === 'stopps'}
+    <!-- «Stopps in der Nähe» (Noah 24.10.2026 «1a»): water, petrol, food and more around you or along a route -->
+    {#key hash}<LazyPage load={PAGES.Stops} />{/key}
   {:else if page === 'wetter'}
     <!-- Paket Y «Wetter-Kern» (Noah 20.10.2026): the weather for riding, best window, radar, webcams -->
     <LazyPage load={PAGES.Wetter} />

@@ -1522,4 +1522,9 @@ export default {
   'Type the weight and tap «Save», or «Not today».': 'Tippe das Gewicht ein und dann «Speichern», oder «Heute nicht».',
   '«Stop asking» takes the card away; «Add a tile» brings it back.': '«Nicht mehr fragen» nimmt die Karte weg; «Kachel hinzufügen» holt sie zurück.',
   'Example: last weight 8 days ago → the card asks; saved, it is gone until next week.': 'Beispiel: letztes Gewicht vor 8 Tagen → die Karte fragt; gespeichert ist sie bis nächste Woche weg.',
+  // «Stopps in der Nähe» (f.stopsnear)
+  'On Today tap «Stops nearby» (or on a tour page, or open the live map › «Stops»).': 'Tippe auf Heute auf «Stopps in der Nähe» (oder auf einer Tour-Seite, oder in der Live-Karte › «Stopps»).',
+  'Choose «Around me» or «Along the route», and the kinds you want.': 'Wähle «Um mich» oder «Entlang der Strecke» und die Arten, die du willst.',
+  'Tap «Google Maps» or «OsmAnd» to ride there.': 'Tippe auf «Google Maps» oder «OsmAnd», um hinzufahren.',
+  'Example: thirsty on a ride → «Around me», only «Water» → the next fountain is 0.8 km away.': 'Beispiel: Durst auf der Fahrt → «Um mich», nur «Wasser» → der nächste Brunnen ist 0,8 km entfernt.',
 };

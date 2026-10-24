@@ -944,6 +944,11 @@ export const HANDBOOK = {
     steps: ['Stop the ride on the live map; under «Your ride» tap «Share picture».', 'Leave out the shape when you start at home.'],
     example: 'Example: 42.5 km, 1 h 52 min, 640 m → one picture for the chat.',
   },
+  'f.stopsnear': {
+    on: null,
+    steps: ['On Today tap «Stops nearby» (or on a tour page, or open the live map › «Stops»).', 'Choose «Around me» or «Along the route», and the kinds you want.', 'Tap «Google Maps» or «OsmAnd» to ride there.'],
+    example: 'Example: thirsty on a ride → «Around me», only «Water» → the next fountain is 0.8 km away.',
+  },
   'f.sleeptonight': {
     on: null,
     steps: ['Open a race › «Race mode» (load the places under «Along the route» first).', 'Look at «Where do I sleep tonight?» and switch kinds on or off.', 'On the live map it shows in the sheet.'],
