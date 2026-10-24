@@ -96,6 +96,8 @@
   import { helloPart, NAME_ASKED_KEY } from '../lib/home/hallo.js'; // HG1
   import { homeTrips, testTrips, archiveChanges, greeting, weatherLine, dayDry, dayPart, countdown, timeLeft, packedOf, soonTrips, milestoneLevels, milestoneStep, milestonesNow, milestoneText, stepOf as stepOfMs, MILESTONE_KEY, LAYOUT_KEY } from '../lib/home/heute.js';
   import { isEveningOn } from '../lib/dayclock.js';
+  import { cfgQuery } from '../lib/freidb.js';
+  import { todayImpulse } from '../lib/frei.js';
   import { WALL_KEY, TILE, wallOf, wallRecord, addTile, removeTile, isNew, HELPER_TILES, hideTiles, keepHidden, tripUp, HEAD_0155 } from '../lib/home/tiles.js';
   import { tourNear } from '../lib/home/heuteneu.js';
   import MedCard from '../lib/home/MedCard.svelte';
@@ -505,6 +507,8 @@
   // A wall you arranged yourself (stored in WALL_KEY) counts as «show everything»: your own tiles never hide.
   let wallAnyway = $state(false);
   const emptyDevice = $derived(showFirst && !steps.bike && !steps.gear && !steps.trip && !wallAnyway && !editing && !S[WALL_KEY]);
+  // Rule 11: «Dein Körper heute» stays on top and what is due today never hides, also on an empty device
+  const EMPTY_KEEP = new Set(['body', 'important']);
 
   /* ---------- 3. the 16 functions (Noah 12a, 13a, 15a) ---------- */
   const usage = $derived(usageOf(S[USAGE_KEY]));
@@ -861,7 +865,10 @@
     return i >= 0 && list[i + 1]?.id === 'balance' ? [...list.slice(0, i), { id: 'flow', size: 'long', join: list[i + 1].size }, ...list.slice(i + 2)] : list;
   };
   // «Heute neu» N2 (Noah «5a»): «Up now» shows only when something is up (the check and meditation live on top now)
-  const upEmpty = $derived(ready && !upRows.length && !cheers.length && !notice && !quick);
+  // the impulse of the day (ImpulseHint) also counts: without it a day with nothing due showed no idea at all
+  const impQ = cfgQuery();
+  const impulseUp = $derived(!suggestion && !night && !!$impQ && !!todayImpulse($impQ, today));
+  const upEmpty = $derived(ready && !upRows.length && !cheers.length && !notice && !quick && !impulseUp);
   // P6 SN2l: the weekly weight only while no weight for 7 days (and not put away today); after «Save» it stays for its thanks
   let weighedNow = $state(false);
   const weighOn = $derived(weighedNow || (weightStore.loaded && weighDue(weightStore.entries, today, S[WEIGH_KEY] ?? null)));
@@ -1264,6 +1271,7 @@
   <!-- v0.127.0 A-U2 (mockup «Laden»): calm placeholders until Today has read its data, then the wall -->
   {#if newsRow}<div class="newsrow" data-news-row><NewsTile size="long" days={newsDays} onremove={() => db.settings.put({ key: NEWS_OFF_KEY, value: WHATS_NEW[0].version })} /></div>{/if}
   {#if ready && emptyDevice}
+    <Wall tiles={timeWall.filter((x) => EMPTY_KEEP.has(x.id))} body={tileBody} {editing} onedit={() => (editing = true)} onchange={(kept) => saveShown(timeWall.map((x) => kept.find((y) => y.id === x.id) ?? x))} onadd={() => (catalogOpen = true)} />
     <p class="muted emptywall" data-empty-wall>{t('The rest of Today comes as soon as you have a bike, an item or a trip.')} <button type="button" class="linkq" onclick={() => (wallAnyway = true)}>{t('Show everything now')}</button></p>
   {:else if ready}<Wall tiles={timeWall} body={tileBody} {editing} onedit={() => (editing = true)} onchange={saveShown} onadd={() => (catalogOpen = true)} />
   {:else}<Skeleton kind="home" rows={2} />{/if}

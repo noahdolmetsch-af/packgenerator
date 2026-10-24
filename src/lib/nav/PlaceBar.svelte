@@ -72,6 +72,13 @@
     text-align: center;
     white-space: normal;
   }
+  /* the two lines fit the 52 px of one: the bar keeps its height, so bars above it (MainBar) stay clear */
+  a:has(.pn.two) {
+    gap: 0;
+  }
+  a:has(.pn.two) .pi {
+    height: 25px;
+  }
   .pi {
     position: relative;
     display: grid;

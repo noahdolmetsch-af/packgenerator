@@ -89,13 +89,11 @@ async function know(page, T) {
 test('a fresh app: what is still open is a row of Important today, no Tried it yet? on Today', async ({ page, context }, info) => {
   const T = tr('de');
   await start(page, context, info, 'de', null);
-  // the start-up may still be adding its items: wait for the to-do row
-  let k;
-  await expect(async () => {
-    k = await know(page, T);
-    await expect(k.locator('[data-row="todo"]')).toBeVisible({ timeout: 2000 });
-  }).toPass();
-  await expect(k.locator('[data-row="todo"]').getByRole('link', { name: T('Do it now') })).toHaveCount(1);
+  // 0.188.0 H32 (Noah 24.10.2026 «1a», changed on purpose): a fresh app shows the first steps; what is still open
+  // (bike, GPX rides, first trip) stands there, so «Jetzt dran» holds no to-do row of its own
+  await expect(page.getByRole('region', { name: T('First steps') })).toBeVisible();
+  await expect(page.locator('[data-empty-wall]')).toBeVisible();
+  await expect(page.locator('[data-row="todo"]')).toHaveCount(0);
   for (const gone of ['No learnings yet', 'Nothing to sort', 'No forecast loaded yet', 'Standard guess: 16 km/h', 'No backup yet'])
     await expect(page.getByText(T(gone))).toHaveCount(0);
   // v0.155.0 «Heute neu geordnet» (HN4 3a, changed on purpose): «Tried it yet?» left Today (it stays in the catalog)
