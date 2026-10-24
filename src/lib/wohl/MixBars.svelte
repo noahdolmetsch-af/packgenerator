@@ -9,6 +9,7 @@
   import { CAT } from '../balance.js';
   import { mixRows, stepWish, mixSummary } from '../gutertag.js';
   import { t } from '../i18n.svelte.js';
+  import { phone } from '../media.svelte.js';
 
   let { cats = [], wish = {}, onwish } = $props();
 
@@ -16,10 +17,14 @@
   const sum = $derived(mixSummary(rows));
   const name = (k) => t(CAT[k]?.label ?? k);
   const list = (keys) => keys.map(name).join(', ');
+  // UI-Ziele #7 (phone length budget): on a phone the bars wait behind one line with their number; the summary stays
+  let open = $state(false);
+  const shown = $derived(!phone.matches || open);
 </script>
 
 <div class="mx" data-mix>
   <p class="mx-sub">{t('Wished and lived')}<small>{t('Bar: the last 7 days · mark: your wish')}</small></p>
+  {#if shown}
   <ul class="mx-list">
     {#each rows as r (r.key)}
       <li class="mx-row" data-mix-row={r.key}>
@@ -35,6 +40,7 @@
       </li>
     {/each}
   </ul>
+  {/if}
   <p class="mx-sum" data-mix-sum>
     {#if !sum.known}{t('Set a wish with + and −: the mark shows it on each bar.')}
     {:else if sum.under.length && sum.over.length}{t('Less than you wish: {a}. More than you wish: {b}.', { a: list(sum.under), b: list(sum.over) })}
@@ -42,6 +48,7 @@
     {:else if sum.over.length}{t('More than you wish: {b}.', { b: list(sum.over) })}
     {:else}{t('Your week is close to your wish.')}{/if}
   </p>
+  {#if !shown}<button type="button" class="btn btn-link mx-more" onclick={() => (open = true)} data-mix-more>{t('Show all {n}', { n: rows.length })} ›</button>{/if}
 </div>
 
 <style>

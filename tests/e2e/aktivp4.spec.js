@@ -153,6 +153,8 @@ test('Keep a good day in the evening, plan it again; wished and lived with minus
   await expect(row.locator('[data-good-day-again]')).toBeVisible();
   // wished and lived: + on «Spass» sets a wish of 60
   const mix = page.locator('[data-mix]');
+  // on a phone the bars wait behind «Alle n zeigen» (phone length budget)
+  if (await mix.locator('[data-mix-more]').count()) await mix.locator('[data-mix-more]').click();
   await expect(mix.locator('[data-mix-row]')).toHaveCount(9);
   await mix.locator('[data-mix-row="fun"] [data-mix-plus]').click();
   await expect(mix.locator('[data-mix-row="fun"] [data-mix-wish]')).toHaveAttribute('data-mix-wish', '60');
