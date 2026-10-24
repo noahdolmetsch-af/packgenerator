@@ -326,7 +326,13 @@
   let reviewing = $state(false);
   let skipped = $state([]);
   const reviewQueue = $derived([...review.filter((t) => !skipped.includes(t.id)), ...review.filter((t) => skipped.includes(t.id))]);
-  const repairResult = (t, status) => db.maintenance.update(t.id, { status, statusDate: today, by, reviewedAt: now() });
+  // Klick-Rundgang 22.10.2026 H16: every answer says what it did and offers Undo (a wrong tap is never final)
+  const RESULT_TEXT = { done: '«{task}» done. Solved problems stay under «All».', open: '«{task}» stays open.', needed: '«{task}»: work needed soon.', gone: '«{task}»: not needed any more.' };
+  async function repairResult(task, status) {
+    const before = { status: task.status, statusDate: task.statusDate, by: task.by, reviewedAt: task.reviewedAt };
+    await db.maintenance.update(task.id, { status, statusDate: today, by, reviewedAt: now() });
+    offerDone(t(RESULT_TEXT[status] ?? '«{task}» saved.', { task: task.task }), () => db.maintenance.update(task.id, before));
+  }
   const repairsFor = (bikeId) => repairs.filter((t) => taskBike(t) === bikeId && t.status !== 'check');
   const otherRepairs = $derived(repairs.filter((t) => !taskBike(t) && t.status !== 'check'));
   // v0.47.1 (Noah): the problems of all bikes in one flat list, newest on top (was: in each bike's «Due now»).

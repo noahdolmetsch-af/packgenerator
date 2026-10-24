@@ -13,8 +13,9 @@ export async function endToDebrief(page, T) {
   const band = page.locator('.trip-band');
   await expect(band.locator('h1')).toBeVisible();
   const main = band.locator('.mainbar .go');
-  const more = band.getByRole('button', { name: T('More for this trip') });
+  const more = band.getByRole('button', { name: T('End the trip …') });
   await expect(main.or(more).first()).toBeVisible();
+  await setOff(page, T);
   if (await main.isVisible()) await main.click();
   else await endMenu(page, T);
   await endedPage(page, T);
@@ -27,6 +28,18 @@ export async function endToDebrief(page, T) {
   await expect(page).toHaveURL(/#\/debrief\//);
 }
 
+/**
+ * Klick-Rundgang 22.10.2026 H06 (changed on purpose): on On the way a riding day starts with «Losfahren»;
+ * tap it when it is the main button, then the button is «Tour abschliessen» or the day's «Notiz».
+ */
+export async function setOff(page, T) {
+  const main = page.locator('.trip-band .mainbar .go');
+  if ((await main.count()) && (await main.isVisible()) && (await main.textContent()).includes(T('Start riding'))) {
+    await main.click();
+    await expect(main.filter({ hasText: T('Start riding') })).toHaveCount(0);
+  }
+}
+
 /** After a tap that ends the trip: answer the question when it comes, then «Tour beendet». */
 export async function endedPage(page, T) {
   const sheet = page.locator('dialog.endsheet');
@@ -37,8 +50,8 @@ export async function endedPage(page, T) {
   await expect(page).toHaveURL(/#\/trip\/[^/]+\/ended$/);
 }
 
-/** SN1: «Tour beenden …» from the «…» of the trip band (before the last day on On the way). */
+/** SN1: «Tour beenden …» before the last day on On the way. Versteckte Funktionen (Noah 22.10.2026, changed
+ *  on purpose): it is a visible button in the trip band, no longer an entry of its «…». */
 export async function endMenu(page, T) {
-  await page.locator('.trip-band').getByRole('button', { name: T('More for this trip') }).click();
-  await page.getByRole('menuitem', { name: new RegExp(T('End the trip …').replace(/[.*+?^${}()|[\]\\]/g, '\\$&')) }).click();
+  await page.locator('.trip-band').getByRole('button', { name: T('End the trip …') }).click();
 }

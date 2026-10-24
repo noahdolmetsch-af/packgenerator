@@ -139,7 +139,7 @@
 </script>
 
 <div class="mailpage">
-  <VeloHead crumbs={[{ label: t('Me|place'), href: '#/me' }]} here={t('Mail')} title={t('Mail')} sub={t('Your Gmail inbox in the app: read, search, answer, write. Nothing is kept on the device; a mail goes out only when you tap «Send».')} />
+  <VeloHead crumbs={[{ label: t('Plan|place'), href: '#/week' }]} here={t('Mail')} title={t('Mail')} sub={t('Your Gmail inbox in the app: read, search, answer, write. Nothing is kept on the device; a mail goes out only when you tap «Send».')} />
 
   {#if mail.error}<p class="err" role="status">{errorText(mail.error)}</p>{/if}
   {#if msg}<p class="msg" role="status">{msg}</p>{/if}

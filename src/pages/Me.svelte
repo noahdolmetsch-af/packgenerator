@@ -446,29 +446,8 @@
               <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
             </a>
           </li>
-          <li>
-            <!-- Termine buchen (mockup BU5, Noah 14.10.2026 «BU1–BU5 freigegeben»): Ich › Angebote -->
-            <a class="ich-row" href="#/me/offers">
-              <span class="ich-ib"><CalendarDays size={18} aria-hidden="true" /></span>
-              <span class="ich-m"><b>{t('Offers')} <span class="pill warn">{t('Test|offers')}</span></b><small>{t('People book your free times: tennis, tours, bike service')}</small></span>
-              <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
-            </a>
-          </li>
-          <li>
-            <!-- Paket R (Noah 19.10.2026 «4a»): your bike mechanics and guides, a request by mail or link -->
-            <a class="ich-row" href="#/me/pros">
-              <span class="ich-ib"><Wrench size={18} aria-hidden="true" /></span>
-              <span class="ich-m"><b>{t('Bike mechanic and guide')}</b><small>{t('Ask for a date by mail or their link')}</small></span>
-              <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
-            </a>
-          </li>
-          <li>
-            <a class="ich-row" href="#/me/pay">
-              <span class="ich-ib"><CreditCard size={18} aria-hidden="true" /></span>
-              <span class="ich-m"><b>{t('Payments')} <span class="pill">{t('not active yet')}</span></b><small>{t('What is already there and what you could use it for')}</small></span>
-              <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
-            </a>
-          </li>
+          <!-- Klick-Rundgang Q05 (Noah 22.10.2026 «3a»): «App verkaufen» is dropped, so Angebote, Velomech und Guide
+               and Bezahlen are no longer listed here; the pages stay reachable by address and search. -->
         </ul>
       </section>
 

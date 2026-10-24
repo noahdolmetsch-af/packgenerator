@@ -94,6 +94,8 @@
   let q = $state('');
   let found = $state([]);
   let searching = $state(false);
+  let searchHint = $state(''); // Tote Knöpfe (Klick-Rundgang 22.10.2026): «Suchen» with an empty field says why
+
   // «Suche mit Sprache» (Noah 21.10.2026): «Wetter Chur» in the top search opens #/wetter?place=Chur
   let placeAsked = '';
   $effect(() => {
@@ -108,9 +110,12 @@
   });
   async function search(e) {
     e?.preventDefault();
+    if (!q.trim()) return (searchHint = t('Type a place first, e.g. Bern or Andermatt.'));
+    searchHint = '';
     searching = true;
     try {
       found = await searchPlace(q);
+      if (!found.length) searchHint = navigator.onLine === false ? t('You are offline right now. Search again once you are online.') : t('No place found. Check the spelling.');
     } catch {
       found = [];
     } finally {
@@ -167,10 +172,11 @@
   <div class="card wx-place">
     <p class="wx-where"><b>{place?.name || t('No place yet')}</b>{#if asOf}<small>{t('As of {at}', { at: asOf })}{core?.old ? ` · ${t('older than 3 hours')}` : ''}</small>{/if}</p>
     <form class="wx-search" onsubmit={search}>
-      <input class="inp" type="search" bind:value={q} placeholder={t('Another place')} aria-label={t('Another place')} data-wx-q />
+      <input class="inp" type="search" bind:value={q} oninput={() => (searchHint = '')} placeholder={t('Another place')} aria-label={t('Another place')} data-wx-q />
       <button type="submit" class="btn sm" disabled={searching}><Search size={16} aria-hidden="true" />{t('Search')}</button>
       {#if picked}<button type="button" class="btn sm" onclick={() => ((picked = null), (found = []))}>{t('Back to home')}</button>{/if}
     </form>
+    {#if searchHint}<p class="rc-note" role="status" data-wx-hint>{searchHint}</p>{/if}
     {#if found.length}
       <ul class="wx-found">
         {#each found as p, i (i)}<li><button type="button" class="btn sm" onclick={() => ((picked = p), (found = []), (q = ''))}>{p.name}<small>{p.detail}</small></button></li>{/each}

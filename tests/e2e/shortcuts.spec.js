@@ -68,20 +68,29 @@ for (const lang of ['de', 'en']) {
     // v0.24.1 (Noah 2a): a day ride packs everything and ticks the ready check in one tap, then
     // goes to On the way; packing bag by bag stays as the "Pack" tab (v0.29.0).
     const go = page.locator('.trip-band .go');
-    await expect(go).toContainText(T("All packed, let's go"));
+    // 0.182 (Klick-Rundgang H03): nothing packed yet, so the button says «Alles einpacken, los»
+    await expect(go).toContainText(T("Pack everything, let's go"));
     await expect(page.getByRole('navigation', { name: T('Steps of this trip') }).getByRole('link', { name: new RegExp(`^${T('Pack|stage')}`) })).toBeVisible();
     await click(go);
     await expect(page).toHaveURL(/#\/ride/);
 
     // On the way → «Tour abschliessen» → «Tour beendet» → «Alles gut»: the short debrief of a day ride
     // (v0.67.0 «Übergänge 1», Ü5a; before: Next: Debrief → one page → Save).
+    // 0.182 (Klick-Rundgang H06): «Losfahren» first records the real start time, then «Tour abschliessen»
+    await expect(go).toHaveText(T('Start riding'));
+    await click(go);
     await expect(go).toHaveText(T('Finish the trip'));
     await click(go);
+    // U004: right after «Losfahren» the planned ride is still ahead, so ending asks once
+    const sheet = page.locator('dialog.endsheet');
+    await expect(sheet.or(page.getByRole('heading', { level: 1, name: T('Trip ended') })).first()).toBeVisible();
+    if (await sheet.isVisible()) await click(sheet.getByRole('button', { name: T('End the trip'), exact: true }));
     await expect(page).toHaveURL(/#\/trip\/[^/]+\/ended$/);
     await click(page.locator('main .mainbar .btn.hi'));
     await expect(page.locator('.celebrate.small')).toContainText(T('Debrief saved'));
-    // v0.24.1: 8 clicks; v0.29.0: 7; v0.30.0: 6 (New, Plan a trip, Create, All packed, Finish the trip, All good).
-    expect(clicks, 'a whole day ride in at most 6 clicks').toBeLessThanOrEqual(6);
+    // v0.24.1: 8 clicks; v0.29.0: 7; v0.30.0: 6; 0.182: 8 (New, Plan a trip, Create, Pack everything, Start riding,
+    // Finish the trip, End the trip (asked: the ride just started), All good).
+    expect(clicks, 'a whole day ride in at most 8 clicks').toBeLessThanOrEqual(8);
     info.annotations.push({ type: 'clicks', description: String(clicks) });
     expect(errors).toEqual([]);
   });

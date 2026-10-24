@@ -8,7 +8,7 @@ export default {
   'What runs, what it costs, when to cancel': 'Was läuft, was es kostet, wann kündigen',
   'A quiet reminder for people you choose': 'Eine leise Erinnerung an Menschen, die du wählst',
   // Einkaufsliste
-  'What you need for every day. Recipes from Free time add their ingredients here with one tap; the same list is in Calendar › Remember.': 'Was du für jeden Tag brauchst. Rezepte aus Freie Zeit setzen ihre Zutaten mit einem Tipp hierher; dieselbe Liste steht auch in Kalender › Merken.',
+  'What you need for every day. Recipes from Free time add their ingredients here with one tap; the same list is in Calendar › Remember.': 'Was du für jeden Tag brauchst. Rezepte aus Freie Zeit setzen ihre Zutaten mit einem Tipp hierher; dieselbe Liste steht auch in Planen › Merken.',
   'e.g. Milk': 'z. B. Milch',
   'The list is empty. Type what you need, or add the ingredients of a recipe in Free time › My collections.': 'Die Liste ist leer. Schreib, was du brauchst, oder setz die Zutaten eines Rezepts in Freie Zeit › Meine Sammlungen dazu.',
   'Without a group': 'Ohne Gruppe',
@@ -40,7 +40,7 @@ export default {
   // Verträge und Abos
   'Contracts and subscriptions': 'Verträge und Abos',
   Contracts: 'Verträge',
-  'What runs, what it costs and the last day to cancel. The app reminds you in Calendar › Remember before that day; nothing shows on Today.': 'Was läuft, was es kostet und der letzte Tag zum Kündigen. Die App erinnert dich vorher in Kalender › Merken; auf Heute steht nichts.',
+  'What runs, what it costs and the last day to cancel. The app reminds you in Calendar › Remember before that day; nothing shows on Today.': 'Was läuft, was es kostet und der letzte Tag zum Kündigen. Die App erinnert dich vorher in Planen › Merken; auf Heute steht nichts.',
   '{sum} per month': '{sum} pro Monat',
   '{sum} per year, for everything that runs': '{sum} pro Jahr, für alles, was läuft',
   'New contract': 'Neuer Vertrag',
@@ -83,7 +83,7 @@ export default {
   'Contracts|reminders': 'Verträge',
   // Lange nicht gesehen
   'Not seen for a while': 'Lange nicht gesehen',
-  'People you want to see now and then. When it is time again, a quiet to-do shows in Calendar › Remember: no alarm, nothing on Today.': 'Menschen, die du ab und zu sehen willst. Wenn es wieder Zeit ist, steht leise eine Aufgabe in Kalender › Merken: kein Alarm, nichts auf Heute.',
+  'People you want to see now and then. When it is time again, a quiet to-do shows in Calendar › Remember: no alarm, nothing on Today.': 'Menschen, die du ab und zu sehen willst. Wenn es wieder Zeit ist, steht leise eine Aufgabe in Planen › Merken: kein Alarm, nichts auf Heute.',
   'Remind me quietly': 'Leise erinnern',
   '{n} person is due now.': '{n} Person ist jetzt dran.',
   '{n} people are due now.': '{n} Personen sind jetzt dran.',
@@ -140,7 +140,7 @@ export default {
   'Groups: «Groups» at the end of the page.': 'Gruppen: «Gruppen» am Ende der Seite.',
   'Open Me › Documents › Contracts and subscriptions.': 'Öffne Ich › Dokumente › Verträge und Abos.',
   'Tap «New contract» and enter the end of the term and the notice period.': 'Tipp «Neuer Vertrag» und trag das Ende der Laufzeit und die Kündigungsfrist ein.',
-  'The reminder comes in Calendar › Remember, before the last day to cancel.': 'Die Erinnerung kommt in Kalender › Merken, vor dem letzten Tag zum Kündigen.',
+  'The reminder comes in Calendar › Remember, before the last day to cancel.': 'Die Erinnerung kommt in Planen › Merken, vor dem letzten Tag zum Kündigen.',
   'Open Me › Everyday life › Not seen for a while.': 'Öffne Planen › Alltag › Lange nicht gesehen.',
   'Tap «Add a person» and choose how often.': 'Tipp «Person dazu» und wähl, wie oft.',
   'After you met: «Seen today».': 'Nach dem Treffen: «Heute gesehen».',

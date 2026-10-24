@@ -261,6 +261,8 @@ export function cleanSession(s) {
   const out = { id: String(s.id || `s${Math.random().toString(36).slice(2, 9)}`), day: s.day, kind: KIND_KEYS.includes(s.kind) ? s.kind : 'bike', name: String(s.name ?? '').trim().slice(0, 60), mins, zone: zone >= 1 && zone <= 5 ? zone : null };
   // «Trainingspläne»: a session written by a sample plan keeps the plan's id, so the plan can be taken out again
   if (typeof s.src === 'string' && s.src) out.src = s.src.slice(0, 40);
+  // Klick-Rundgang A04: ticked by hand («Gemacht»), for a session without a Strava activity
+  if (s.done === true) out.done = true;
   return out;
 }
 export const planOf = (v) => (Array.isArray(v?.sessions) ? v.sessions.map(cleanSession).filter(Boolean) : []);
@@ -293,7 +295,7 @@ export const feelZone = (f) => (Number.isFinite(f) && f >= 1 && f <= 10 ? Math.c
 export const zoneFeel = (z) => (z >= 1 && z <= 5 ? [z * 2 - 1, z * 2] : null);
 
 /** A planned session is done when an activity of its kind is on its day. */
-export const doneBy = (s, acts) => acts.find((a) => a.day === s.day && (a.kind === s.kind || s.kind === 'other')) ?? null;
+export const doneBy = (s, acts) => acts.find((a) => a.day === s.day && (a.kind === s.kind || s.kind === 'other')) ?? (s.done ? { day: s.day, kind: s.kind, byHand: true } : null);
 
 /** The plan for a new week from last week's, each session 7 days later (new ids). */
 export const copyWeek = (sessions, monday) =>

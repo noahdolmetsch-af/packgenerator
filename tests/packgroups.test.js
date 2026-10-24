@@ -20,11 +20,16 @@ describe('groupOf', () => {
 });
 
 describe('groupEntries', () => {
-  const entries = ['a', 'b', 'c', 'd', 'e', 'f', 'h', 'n', 'gone'].map((itemId) => ({ itemId, slot: 'seat', qty: itemId === 'c' ? 2 : 1 }));
+  const entries = ['a', 'b', 'c', 'd', 'e', 'f', 'h', 'n', 'gone'].map((itemId) => ({ itemId, slot: itemId === 'h' ? 'body' : 'seat', qty: itemId === 'c' ? 2 : 1 }));
   const r = groupEntries(entries, items, new Set(['f']));
   it('counts only the bag items; worn ones apart; unknown items left out', () => {
     expect(r.bag).toBe(7);
     expect(r.worn.map((i) => i.id)).toEqual(['h']);
+  });
+  it('H01: the slot decides, as the button «x in the bags · y on me» counts; without a slot the role', () => {
+    const r2 = groupEntries([{ itemId: 'h', slot: 'seat' }, { itemId: 'a', slot: 'hip' }, { itemId: 'h' }], items);
+    expect(r2.bag).toBe(1);
+    expect(r2.worn.map((i) => i.id)).toEqual(['a', 'h']);
   });
   it('groups in display order with their weights', () => {
     expect(r.groups.map((g) => g.key)).toEqual(['clothes', 'gear', 'elec', 'warm']);

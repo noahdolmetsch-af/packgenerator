@@ -446,7 +446,7 @@
           <CloudSun size={18} aria-hidden="true" />
           {#if wxText}<span><b>{t('Weather')}</b> {wxText}</span>
           {:else if wxState === 'loading'}<span class="tp-muted">{t('Getting the weather of that day …')}</span>
-          {:else if wxState === 'failed'}<span class="tp-muted">{t('The weather could not be fetched.')}</span><button type="button" class="btn btn-link" onclick={() => loadWeather(true)} data-weather-retry><RefreshCw size={14} aria-hidden="true" />{t('Try again')}</button>
+          {:else if wxState === 'failed'}<span class="tp-muted">{navigator.onLine === false ? t('You are offline right now: the weather loads once you are online.') : t('The weather could not be fetched.')}</span><button type="button" class="btn btn-link" onclick={() => loadWeather(true)} data-weather-retry><RefreshCw size={14} aria-hidden="true" />{t('Try again')}</button>
           {:else}<span class="tp-muted">{t('No weather yet: it comes when you are online.')}</span>{/if}
         </p>
         {/if}
@@ -546,7 +546,11 @@
           {#if d.kind === 't' && !d.trip?.fromActs?.length}
             <p><TripState state={d.state} /> {d.state === 'rated' ? t('The Rückblick is written.') : t('The Rückblick is still open.')}</p>
             {#if d.debrief?.note}<p class="quote">{d.debrief.note}</p>{/if}
-            <a class="btn hi" href="#/debrief/{encodeURIComponent(d.id)}" data-open-review>{d.state === 'rated' ? t('Open the Rückblick') : t('Write the Rückblick')}<ChevronRight size={16} aria-hidden="true" /></a>
+            <div class="revacts">
+              <a class="btn hi" href="#/debrief/{encodeURIComponent(d.id)}" data-open-review>{d.state === 'rated' ? t('Open the Rückblick') : t('Write the Rückblick')}<ChevronRight size={16} aria-hidden="true" /></a>
+              <!-- Versteckte Funktionen (Noah 22.10.2026 «1a»): after the Rückblick «Als Vorlage speichern» is a visible button, not only in «•••» -->
+              {#if d.state === 'rated' && (d.trip?.entries ?? []).length}<button type="button" class="btn" onclick={() => asTemplate(false)} data-review-template><BookmarkPlus size={16} aria-hidden="true" />{t('Save as a template')}</button>{/if}
+            </div>
           {:else}
             <p class="tp-muted tp-small">{t('Your own rating, only for you. It makes the tour «Rated».')}</p>
             <div class="stars" role="group" aria-label={t('Rating')} data-tour-rating>
@@ -604,6 +608,7 @@
 {/if}
 
 <style>
+  .revacts { display: flex; flex-wrap: wrap; gap: 8px; }
   .tour {
     display: grid;
     grid-template-columns: minmax(0, 1fr);

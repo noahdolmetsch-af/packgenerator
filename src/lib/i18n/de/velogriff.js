@@ -120,7 +120,7 @@ export default {
   'A new wear photo every': 'Ein neues Verschleiss-Foto alle',
   'km between two wear photos': 'km zwischen zwei Verschleiss-Fotos',
   'Spring service: a reminder in': 'Frühlings-Service: eine Erinnerung im',
-  'The spring reminder is a to-do in Kalender › Merken, with what is due on each bike. On the phone: Me › Reminders on the phone.': 'Die Frühlings-Erinnerung ist ein To-do in Kalender › Merken, mit dem, was an jedem Velo fällig ist. Aufs Handy: Ich › Erinnerungen aufs Handy.',
+  'The spring reminder is a to-do in Kalender › Merken, with what is due on each bike. On the phone: Me › Reminders on the phone.': 'Die Frühlings-Erinnerung ist ein To-do in Planen › Merken, mit dem, was an jedem Velo fällig ist. Aufs Handy: Ich › Erinnerungen aufs Handy.',
   'Book the spring service early. Due: {list}': 'Frühlings-Service früh buchen. Fällig: {list}',
   'Book the spring service early.': 'Frühlings-Service früh buchen.',
   off: 'aus',

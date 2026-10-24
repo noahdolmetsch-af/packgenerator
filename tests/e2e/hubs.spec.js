@@ -63,7 +63,7 @@ test('Today: the waiting debrief in Important today, the bike jobs under the bik
   await expect(jobs.locator('.lk').first()).toHaveText(T('Log a problem'));
   await expect(jobs.getByRole('button', { name: T('Idea') })).toBeVisible();
   await expect(jobs.getByRole('button', { name: T('Log a workshop visit') })).toBeVisible();
-  await expect(jobs.getByRole('link', { name: T('Workshop order') })).toHaveAttribute('href', '#/bikes?tab=care');
+  await expect(jobs.getByRole('link', { name: T('Workshop order') })).toHaveAttribute('href', /^#\/bikes\?.*sheet=order/); // Klick-Rundgang: straight to the order
   await noSideways(page);
   await jobs.getByRole('button', { name: T('Log a workshop visit') }).click();
   await expect(page.getByRole('dialog', { name: T('Log a workshop visit') })).toBeVisible();

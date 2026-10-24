@@ -47,12 +47,16 @@
     const [items, trips, bikes, notes, tpl, events] = await Promise.all([db.items.toArray(), db.trips.toArray(), db.bikes.toArray(), db.notes.toArray(), db.settings.get(TEMPLATES_KEY), db.events.toArray()]);
     return { items, trips, bikes, notes, templates: tpl?.value ?? [], events };
   });
+  // Klick-Rundgang 22.10.2026 H26: «Ask» with an empty field says what to do instead of doing nothing
+  let empty = $state(false);
   function submit(e) {
     e.preventDefault();
     asked = q.trim();
-    kh?.onEnter(asked);
+    empty = !asked;
+    if (asked) kh?.onEnter(asked);
   }
   function example(s) {
+    empty = false;
     q = s;
     asked = s;
   }
@@ -71,16 +75,17 @@
     <section class="card as-card" aria-labelledby="as-ask-h">
       <h2 id="as-ask-h" class="as-h">{t('Ask the app')}</h2>
       <form class="as-row" onsubmit={submit}>
-        <input class="inp" type="search" bind:value={q} oninput={() => (asked = '')} placeholder={t('e.g. How many km this month?')} aria-label={t('Your question')} autocomplete="off" />
+        <input class="inp" type="search" bind:value={q} oninput={() => ((asked = ''), (empty = false))} placeholder={t('e.g. How many km this month?')} aria-label={t('Your question')} autocomplete="off" />
         <button type="submit" class="btn hi">{t('Ask')}</button>
       </form>
+      {#if empty}<p class="as-empty" role="status" data-as-empty>{t('Type a question first, or tap one of the examples below.')}</p>{/if}
       <p class="as-spk"><SpeakButton onsaid={spoken} /></p>
       <div class="as-ex" aria-label={t('Examples')}>
         {#each EXAMPLES as e (e)}<button type="button" class="chip" onclick={() => example(t(e))}>{t(e)}</button>{/each}
       </div>
       {#if asked}
         <div class="as-res" aria-live="polite">
-          <AskAnswer q={asked} />
+          <AskAnswer q={asked} fallback here />
           {#if isOn()}<SearchAnswer bind:this={kh} q={asked} items={$all?.items ?? []} />{/if}
           <SearchFree q={asked} data={$all} />
           <AskElsewhere q={asked} />
@@ -147,6 +152,11 @@
   .as-row {
     display: flex;
     gap: 8px;
+  }
+  .as-empty {
+    margin: 6px 0 0;
+    font-size: var(--fs-small);
+    color: var(--ink-2);
   }
   .as-spk {
     display: flex;

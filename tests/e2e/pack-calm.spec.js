@@ -115,13 +115,14 @@ for (const lang of ['en', 'de']) {
   });
 }
 
-test("a day ride: All packed, let's go lands on On the way with everything packed", async ({ page, context }, info) => {
+test("a day ride: Pack everything, let's go lands on On the way with everything packed", async ({ page, context }, info) => {
   const T = tr('de');
   await start(page, context, info, 'de');
   const title = 'test_data_gtp_ Los';
   await newTrip(page, T, title);
   const go = page.locator('.trip-band .go');
-  await expect(go).toHaveText(T("All packed, let's go"));
+  // 0.182 (Klick-Rundgang H03): nothing packed yet, so the button says «Alles einpacken, los»
+  await expect(go).toHaveText(T("Pack everything, let's go"));
   // v0.29.0: packing bag by bag is the "Pack" tab in the band.
   await expect(page.getByRole('navigation', { name: T('Steps of this trip') }).getByRole('link', { name: new RegExp(`^${T('Pack|stage')}`) })).toHaveAttribute('href', '#/pack?day');
   const before = await stored(page, title);

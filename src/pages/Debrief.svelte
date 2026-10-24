@@ -538,8 +538,8 @@
                   <div class="cbag">
                     {#if chipGroups.length > 1 || g.name}<p class="cbh"><b>{t(g.name)}</b>
                       <span class="alls">
-                        <button type="button" class="tp-link" onclick={() => markAll(g.rows, 'used')} aria-label={t('All used: {bag}', { bag: t(g.name) })}>{t('All ✓')}</button>
-                        <button type="button" class="tp-link" onclick={() => markAll(g.rows, 'unused')} aria-label={t('None used: {bag}', { bag: t(g.name) })}>{t('All –')}</button>
+                        <button type="button" class="tp-link" onclick={() => markAll(g.rows, 'used')} aria-label={t('All used: {bag}', { bag: t(g.name) })}>{t('All used|short')}</button>
+                        <button type="button" class="tp-link" onclick={() => markAll(g.rows, 'unused')} aria-label={t('None used: {bag}', { bag: t(g.name) })}>{t('None used|short')}</button>
                       </span></p>{/if}
                     <div class="chips">
                       {#each g.rows as { e, item } (e.itemId)}
@@ -667,8 +667,8 @@
                     <section class="bag" aria-label={t(g.name)}>
                       <h3>{t(g.name)} <span class="tp-muted">{tn(g.rows.length, '{n} item', '{n} items')}</span>
                         <span class="alls">
-                          <button type="button" class="tp-link" onclick={() => markAll(g.rows, 'used')} aria-label={t('All used: {bag}', { bag: t(g.name) })}>{t('All ✓')}</button>
-                          <button type="button" class="tp-link" onclick={() => markAll(g.rows, 'unused')} aria-label={t('None used: {bag}', { bag: t(g.name) })}>{t('All –')}</button>
+                          <button type="button" class="tp-link" onclick={() => markAll(g.rows, 'used')} aria-label={t('All used: {bag}', { bag: t(g.name) })}>{t('All used|short')}</button>
+                          <button type="button" class="tp-link" onclick={() => markAll(g.rows, 'unused')} aria-label={t('None used: {bag}', { bag: t(g.name) })}>{t('None used|short')}</button>
                         </span></h3>
                       <ul class="exc">
                         {#each g.rows as { e, item } (e.itemId)}

@@ -28,7 +28,7 @@
   {#key part}<LazyPage load={LOAD[part]} {hash} />{/key}
 {:else}
   <div class="fz" data-page="alltag">
-    <Crumb path={[{ href: '#/me', label: t('Me|place') }]} here={t('Everyday life')} />
+    <Crumb path={[{ href: '#/week', label: t('Plan|place') }]} here={t('Everyday life')} />
     <h1 class="fz-h1" tabindex="-1" data-page-title>{t('Everyday life')}</h1>
     <p class="fz-intro">{t('Small helpers for the days at home: what to buy, what runs and when to cancel it, and who you have not seen for a while.')}</p>
     <ul class="fz-box fz-list" aria-label={t('Everyday life')}>

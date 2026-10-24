@@ -9,5 +9,5 @@ export default {
   'from your last visit on {date} · you can change it': 'vom letzten Besuch am {date} · ändern möglich',
   'Known bike shops': 'Bekannte Werkstätten',
   '(last)': '(zuletzt)',
-  'Looking for «Report a problem»? It is now under + New and at the bike:': 'Suchst du «Problem melden»? Es ist jetzt unter + Neu und am Velo:',
+  'Looking for «Report a problem»? It is now under + New and at the bike:': 'Suchst du «Problem erfassen»? Es ist jetzt unter + Neu und am Velo:',
 };

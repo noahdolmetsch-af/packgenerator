@@ -14,7 +14,7 @@
   import { ClipboardList, X, ChevronRight } from '@lucide/svelte';
   import { backClose } from '../ui/backclose.js';
   import { abQuery, ensureConfig, saveAnswers, saveSnooze } from '../abdb.js';
-  import { fitbitFill, dueList, snoozeAll, skipToday, quietToday, isQuiet, QUIET_KEY, answerRow, lastAnswer, stampOf, settingOf, fromChecks, dayOf, configOf, isEveningRound, LATER_KEY, laterStamp } from '../abfragen.js';
+  import { fitbitFill, dueList, snoozeAll, skipToday, quietToday, isQuiet, QUIET_KEY, answerRow, lastAnswer, stampOf, settingOf, fromChecks, dayOf, configOf, isEveningRound, LATER_KEY, laterStamp, fitNow } from '../abfragen.js';
   import { kgOf } from '../review/actdata.js';
   import { t, tn } from '../i18n.svelte.js';
   import AnswerInput from './AnswerInput.svelte';
@@ -43,7 +43,8 @@
   // 2a: a missed one stays until it is answered or tapped away («Jetzt nicht»). An answer in the old daily
   // check counts too (from the start of its day).
   const answered = $derived(data ? [...data.answers, ...fromChecks(data.checks).map((r) => ({ qid: r.qid, at: `${r.day}T00:00` }))] : []);
-  const shown = $derived(data?.stored ? dueList(data.cfg, answered, now, data.snooze) : []);
+  // Klick-Rundgang H15: in the evening a missed evening question asks about today (fitNow)
+  const shown = $derived(data?.stored ? fitNow(dueList(data.cfg, answered, now, data.snooze), now, configOf(data.cfg).rounds) : []);
 
   let draft = $state({});
   let notes = $state({});
@@ -172,7 +173,7 @@
         <div class="dqh">
           <b id={qid}>{qText(d.q)}</b>
           <span class="meta">
-            {#if d.q.own}{everyShort(settingOf(data.cfg, d.q).every)}{:else}{areaName(d.q.area, data.cfg)}{/if} · <span class="num">{dayOf(d.slot) === today ? '' : `${dayShort(dayOf(d.slot))} `}{timeText(d.slot)}</span>
+            {#if d.q.own}{everyShort(settingOf(data.cfg, d.q).every)}{:else}{areaName(d.q.area, data.cfg)}{/if} · <span class="num">{dayOf(d.slot) === today ? timeText(d.slot) : t('question from {when}', { when: `${dayShort(dayOf(d.slot))} ${timeText(d.slot)}` })}</span>
             {#each (d.q.src ?? []).filter((s) => s !== 'hand' && s !== 'fitbit') as s (s)}<span class="ab-src {s}">{srcText(s)}</span>{/each}
             <button type="button" class="skip" onclick={() => skip(d)} aria-label={t('Skip «{q}»', { q: qText(d.q) })} data-ab-skip>{t('Skip|question')}</button>
           </span>

@@ -272,6 +272,15 @@
     return () => window.removeEventListener('pg:addbike', add);
   });
   let message = $state('');
+  // Klick-Rundgang 22.10.2026 H31: the first bike of «Erste Schritte» on Today: say it is done and lead on to step 2
+  let firstNext = $state(false);
+  const inFirstSteps = () => {
+    try {
+      return localStorage.getItem('home.firstSteps') === '1';
+    } catch {
+      return false;
+    }
+  };
 
   const bagWeight = (bag) => containerWeight(bag, itemsById);
   const bagSub = (bag) => [bag.volumeL ? formatVolume(bag.volumeL) : '', bagWeight(bag) != null ? formatWeight(bagWeight(bag)) : ''].filter(Boolean).join(' · ');
@@ -655,6 +664,12 @@
   />
 {/if}
 
+{#if firstNext && !bikeDialog}
+  <div class="firstnext card" role="status" data-first-next>
+    <span><b>{t('Step 1 done: your bike is here.')}</b><small>{t('Next: your gear, then the first trip.')}</small></span>
+    <a class="btn hi sm" href="#/" onclick={() => (firstNext = false)}>{t('Continue to step 2')}</a>
+  </div>
+{/if}
 {#if standardOpen}
   <BikeOrderSheet {bikes} onclose={() => (standardOpen = false)} />
 {/if}
@@ -662,7 +677,7 @@
   <NewStandardSheet bike={newBike} standard={newStd.standard} {bikes} onclose={() => (newStd = null)} />
 {/if}
 {#if bikeDialog}
-  <BikeDialog bike={bikeDialog.bike} {bikes} oncreated={(id) => { const others = bikes.filter((b) => b.id !== id); newStd = others.length ? { id, standard: others[0] } : null; onbike?.(id); }} onsaved={(id) => onbike?.(id)} onclose={() => (bikeDialog = null)} />
+  <BikeDialog bike={bikeDialog.bike} {bikes} oncreated={(id) => { const others = bikes.filter((b) => b.id !== id); newStd = others.length ? { id, standard: others[0] } : null; firstNext = !others.length && inFirstSteps(); onbike?.(id); }} onsaved={(id) => onbike?.(id)} onclose={() => (bikeDialog = null)} />
 {/if}
 
 {#if photoRename}
@@ -698,6 +713,10 @@
 {/if}
 
 <style>
+  /* Klick-Rundgang H31 */
+  .firstnext { position: sticky; bottom: calc(var(--tabbar-h, 64px) + 12px); z-index: 5; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 12px; margin: 12px 0; }
+  .firstnext span { display: flex; flex-direction: column; }
+  .firstnext small { color: var(--ink-2); }
   .setup {
     min-width: 0;
   }

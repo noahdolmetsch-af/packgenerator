@@ -185,7 +185,7 @@ export default {
   "Change|guide": "Ändern",
   "Tap a reminder to change when it comes.": "Tipp auf eine Erinnerung, um zu ändern, wann sie kommt.",
   "Where it shows|guide": "Wo sie erscheint",
-  "Always in Calendar › Remember, and on the phone if you switch it on.": "Immer in Kalender › Merken, und aufs Handy, wenn du es einschaltest.",
+  "Always in Calendar › Remember, and on the phone if you switch it on.": "Immer in Planen › Merken, und aufs Handy, wenn du es einschaltest.",
   "Reminders|guide": "Erinnerungen",
   "Everything the app reminds you of, in one place": "Alles, woran die App dich erinnert, an einem Ort",
   "The app asks «Shall I remind you?» at the right moment. «Never ask» is fine too.": "Die App fragt im passenden Moment «Soll ich dich erinnern?». «Nie fragen» ist auch in Ordnung.",
