@@ -60,6 +60,42 @@ export function isoOf(d) {
 }
 /** «07:05» from a Google TimeOfDay. */
 const hhmm = (t) => (t ? `${pad(t.hours ?? 0)}:${pad(t.minutes ?? 0)}` : null);
+
+const ZONE = 'Europe/Zurich';
+/** Seconds from Google's offset «7200s» (or a number), else null. */
+const offsetSec = (o) => {
+  const n = typeof o === 'string' ? Number(o.replace(/s$/, '')) : Number(o);
+  return o === undefined || o === null || o === '' || !Number.isFinite(n) ? null : n;
+};
+
+/**
+ * Start or end of a sleep as local day and time: { date: «2026-10-21», time: { hours, minutes } } or null.
+ * Google sends either civil times ({ date, time } or «2026-10-21T07:05:00») or only the moment with its
+ * offset (Noah 22.10.2026: since 12 Oct the nights came without a civil day, so none was kept).
+ */
+export function civilOf(interval, side) {
+  const i = interval ?? {};
+  const c = i[side === 'start' ? 'civilStartTime' : 'civilEndTime'];
+  if (c && typeof c === 'object' && isoOf(c.date)) return { date: isoOf(c.date), time: c.time ?? null };
+  if (typeof c === 'string' && /^\d{4}-\d{2}-\d{2}/.test(c)) {
+    const [h, m] = (c.slice(11, 16) || '00:00').split(':').map(Number);
+    return { date: c.slice(0, 10), time: { hours: h || 0, minutes: m || 0 } };
+  }
+  const at = i[side === 'start' ? 'startTime' : 'endTime'];
+  const ms = Date.parse(at ?? '');
+  if (!Number.isFinite(ms)) return null;
+  const off = offsetSec(i[side === 'start' ? 'startUtcOffset' : 'endUtcOffset']);
+  if (off !== null) {
+    const d = new Date(ms + off * 1000);
+    return { date: d.toISOString().slice(0, 10), time: { hours: d.getUTCHours(), minutes: d.getUTCMinutes() } };
+  }
+  const parts = Object.fromEntries(
+    new Intl.DateTimeFormat('en-CA', { timeZone: ZONE, year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' })
+      .formatToParts(new Date(ms))
+      .map((x) => [x.type, x.value]),
+  );
+  return { date: `${parts.year}-${parts.month}-${parts.day}`, time: { hours: Number(parts.hour), minutes: Number(parts.minute) } };
+}
 const num = (v) => (v === undefined || v === null || v === '' || !Number.isFinite(Number(v)) ? null : Number(v));
 const dateParts = (iso) => {
   const [year, month, day] = iso.split('-').map(Number);
@@ -111,8 +147,8 @@ export function sleepOf(s) {
   return {
     asleepMin: asleep,
     awakeMin: num(sum.minutesAwake),
-    start: hhmm(s.interval?.civilStartTime?.time),
-    end: hhmm(s.interval?.civilEndTime?.time),
+    start: hhmm(civilOf(s.interval, 'start')?.time),
+    end: hhmm(civilOf(s.interval, 'end')?.time),
     deepMin: stage('DEEP'),
     remMin: stage('REM'),
     lightMin: stage('LIGHT'),
@@ -215,7 +251,7 @@ export function daysFrom(src, from, to) {
   for (const p of src.sleep ?? []) {
     const s = p?.sleep;
     if (!s || s.metadata?.nap) continue;
-    const date = isoOf(s.interval?.civilEndTime?.date);
+    const date = civilOf(s.interval, 'end')?.date ?? null;
     const night = sleepOf(s);
     if (!date || !night) continue;
     const old = best.get(date);
