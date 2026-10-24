@@ -22,7 +22,7 @@ export const WHATS_NEW = [
     title: 'Aktiv, without dead ends',
     lead: 'Plans, sessions and tiles do what they say.',
     points: [
-      { text: 'Training plan: try it out, with Undo', href: '#/flow' },
+      { text: 'Training plan: a test run, with Undo', href: '#/flow' },
       { text: 'A planned session: «Done» by hand, with Undo', href: '#/flow' },
     ],
     small: [{ box: 'fixed', text: 'Buttons no longer hide under the bars' }],

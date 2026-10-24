@@ -1568,7 +1568,7 @@ export default {
   // v0.181.4 «Aktiv ohne Sackgassen»
   'Aktiv, without dead ends': 'Aktiv ohne Sackgassen',
   'Plans, sessions and tiles do what they say.': 'Pläne, Einheiten und Kacheln tun, was sie sagen.',
-  'Training plan: try it out, with Undo': 'Trainingsplan: ausprobieren, mit Rückgängig',
+  'Training plan: a test run, with Undo': 'Trainingsplan: ein Probelauf, mit Rückgängig',
   'A planned session: «Done» by hand, with Undo': 'Geplante Einheit: «Gemacht» von Hand, mit Rückgängig',
   'Buttons no longer hide under the bars': 'Knöpfe verstecken sich nicht mehr unter den Leisten',
   'Aktiv: open a training plan and tap «Try it out», then «Undo».': 'Aktiv: Öffne einen Trainingsplan, tippe auf «Ausprobieren», dann auf «Rückgängig».',
