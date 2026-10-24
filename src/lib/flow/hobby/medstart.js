@@ -55,6 +55,8 @@ export function startLine(x) {
   const w = bowlWords(x.bowl);
   const parts = [];
   if (x.name) parts.push(t('Template «{name}»', { name: x.name }));
+  // Klick-Rundgang A01: other minutes than the template's own: the line says so
+  else if (x.like) parts.push(t('Like «{name}», with {n} min', { name: x.like, n: x.minutes }));
   parts.push(t('Gong {when}', { when: t(w.key, w.vars) }));
   parts.push(t(SOUNDS.find((s) => s.id === (x.sound ?? DEFAULT_SOUND))?.name ?? 'Singing bowl deep'));
   return parts.join(' · ');

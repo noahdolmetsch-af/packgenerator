@@ -18,6 +18,7 @@
   import { dm } from '../../lib/flow/garmin/words.js';
   import { localDay } from '../../lib/localday.js';
   import { t, num, locale } from '../../lib/i18n.svelte.js';
+  import { strava, STRAVA_HASH } from '../../lib/strava/client.svelte.js';
 
   const today = localDay();
   const q = formQuery(today);
@@ -114,6 +115,8 @@
           <div class="ax"><span>{dm(s[0].day)}</span><span>{t('today')}</span></div>
         {:else}
           <p class="wait">{t('The curve comes with your first activities from Strava.')}</p>
+          <!-- Klick-Rundgang A07: the empty text shows the way -->
+          {#if !strava.key}<a class="btn sm" href={STRAVA_HASH} data-form-strava>{t('Connect Strava')}</a>{/if}
         {/if}
         {#if rpath}
           <p class="rl"><b>{t('Resting pulse')}</b> <span class="num">{num(rlo + 2)}–{num(rhi - 2)} bpm</span></p>

@@ -71,3 +71,39 @@ describe('texts: one dot, not two (H14)', () => {
     expect(t('{n} km.', { n: 5 })).toBe('5 km.');
   });
 });
+
+// «Aktiv fertig bauen» (Klick-Rundgang A01, A04, A08, H29)
+import { suggestRhythm } from '../src/lib/remind.js';
+import { tripDays } from '../src/lib/flow.js';
+import { doneBy, cleanSession } from '../src/lib/training.js';
+import { startLine } from '../src/lib/flow/hobby/medstart.js';
+
+describe('Aktiv fertig bauen', () => {
+  const at = (day, hm) => ({ day, at: new Date(`${day}T${hm}:00`).toISOString() });
+  it('A08: a tick at night never suggests a reminder at night', () => {
+    expect(suggestRhythm([at('2026-10-15', '04:15')], '2026-10-22').at).toBe('18:00');
+    expect(suggestRhythm([at('2026-10-15', '23:30')], '2026-10-22').at).toBe('18:00');
+    expect(suggestRhythm([at('2026-10-15', '07:00')], '2026-10-22').at).toBe('07:00');
+  });
+  it('H29: a trip ended today without a ride ticks nothing; with a ride or from a ride it does', () => {
+    const T0 = '2026-10-22';
+    const trip = { startDate: T0, days: 1, finished: T0 };
+    expect(tripDays([trip], T0, { rodeToday: false })).toEqual([]);
+    expect(tripDays([trip], T0, { rodeToday: true })).toEqual([T0]);
+    expect(tripDays([{ ...trip, fromRide: 'r1' }], T0, { rodeToday: false })).toEqual([T0]);
+    // days before today stay as they were
+    expect(tripDays([{ startDate: '2026-10-20', days: 2, finished: '2026-10-21' }], T0, { rodeToday: false })).toEqual(['2026-10-20', '2026-10-21']);
+  });
+  it('A04: a planned session ticked by hand is done and keeps the mark', () => {
+    const s = cleanSession({ id: 's1', day: '2026-10-22', kind: 'run', mins: 40, done: true });
+    expect(s.done).toBe(true);
+    expect(doneBy(s, [])).toMatchObject({ byHand: true });
+    expect(doneBy(cleanSession({ ...s, done: false }), [])).toBeNull();
+  });
+  it('A01: other minutes than the template say «Like …»', () => {
+    const line = startLine({ minutes: 10, bowl: { mode: 'none' }, name: null, like: 'Morgen 20' });
+    expect(line).toContain('Morgen 20');
+    expect(line).toContain('10');
+    expect(line).not.toMatch(/^Template/);
+  });
+});
