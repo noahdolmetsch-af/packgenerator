@@ -335,7 +335,9 @@ export const PLACE_TABS = {
     // UI-Ziele #6 (Noah 20.10.2026 «freigabe», 4a): «Ich» keeps data, settings and help; what you plan moved here.
     // Woche planen and Ferien are one tap from the week (its buttons), so «Woche» covers all of #/week.
     { key: 'week', label: 'Week|tab', href: '#/week', match: (h) => /^#\/week(\/|\?|$)/.test(h) },
-    { key: 'agenda', label: 'Appointments|tab', href: '#/me/agenda', match: (h) => h.startsWith('#/me/agenda') || h.startsWith('#/calendar') },
+    // «Alltag sichtbar» (Noah 24.10.2026 «1a 2b 3a 4 nein 5b»): Merken with birthdays and plants is its own tab, one tap away
+    { key: 'remember', label: 'Remember|tab', href: '#/calendar', match: (h) => h.startsWith('#/calendar') },
+    { key: 'agenda', label: 'Appointments|tab', href: '#/me/agenda', match: (h) => h.startsWith('#/me/agenda') },
     { key: 'notes', label: 'Notes|tab', href: '#/notes', match: (h) => h.startsWith('#/notes') },
     // «Tagebuch» (Noah 20.10.2026): what you write about your day sits next to the notes
     { key: 'tagebuch', label: 'Diary|tab', href: '#/tagebuch', match: (h) => h.startsWith('#/tagebuch') },
