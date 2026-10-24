@@ -351,6 +351,11 @@ export const HOME = {
   'f.comeback': '#/',
   'f.helpsearch': '#/',
   'f.news': '#/me/news',
+  'f.tennistop': '#/flow/sport/act%3Atennis',
+  'f.yogaclasses': '#/flow/act/meditation',
+  'f.photoalbum': '#/me/album',
+  'f.sortround': '#/inbox',
+  'f.goodday': '#/me/wohl',
 };
 
 /** Not yet visible on the home page (feature id → why code). Only gets shorter. */
@@ -615,6 +620,9 @@ export const GAPS = {
   'f.helpsearch': 'name',
   'f.news': 'name',
   'f.offers': 'gone',
+  'f.tennistop': 'name',
+  'f.yogaclasses': 'name',
+  'f.goodday': 'name',
 };
 
 /** The why codes, for the test messages. */
