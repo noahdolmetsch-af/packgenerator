@@ -26,6 +26,8 @@
   import { isOver } from '../lib/debrief.js';
   import { parseKm } from '../lib/care.js';
   import TripBand from '../lib/trip/TripBand.svelte';
+  import QuickLinks from '../lib/ui/QuickLinks.svelte';
+  import { DEBRIEF_JUMPS } from '../lib/tourlernen/jumps.js';
   import SpurRow from '../lib/spur/SpurRow.svelte'; // Paket S «Reise-Spur»: the tour's map and days
   import { openTrip } from '../lib/nav.js';
   import { planAgain } from '../lib/trip/ending.js';
@@ -518,6 +520,9 @@
       <TripBand {trip} tab="debrief" kicker={[t('Debrief'), back === 1 ? t('back yesterday') : back > 1 ? t('back {n} days ago', { n: back }) : ''].filter(Boolean).join(' · ')} action={go} />
       <!-- «Mehr Inhalt» (Noah 15.10.2026, 1a–5a): the tip of the day, at the end the fold and the example «Nächstes Mal anders» -->
       <SpurRow {trip} />
+      <!-- «Touren sichtbar» (Noah 24.10.2026 «2b 3a»): a long page, so its parts as one row of chips right under the band;
+           a chip scrolls to its part, and shows only while that part is on the page -->
+      <QuickLinks label={t('On this page')} links={DEBRIEF_JUMPS.map((x) => ({ ...x, label: t(x.label) }))} />
       {#if saved}
         <TipLine page="debrief" name={t('Debrief')} />
         <!-- v0.49.0 R1 (drei «A»): the saved Rückblick tells what the trip was (TripSaved.svelte). -->

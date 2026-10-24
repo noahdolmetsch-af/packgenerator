@@ -457,7 +457,7 @@ export const HANDBOOK = {
   },
   'f.postcard': {
     on: null,
-    steps: ['In the debrief tap «Tour postcard» and add a photo if you like.', '«Share» opens the share sheet; on a computer «Save» downloads the picture.'],
+    steps: ['In the debrief tap «Tour picture» and add a photo if you like; after a ride on the live map it comes under «Your ride».', '«Share» opens the share sheet; on a computer «Save» downloads the picture.'],
     example: 'Example: a photo from the pass, the line of the tour and 212 km, 3100 m up, 2 days on one picture.',
   },
   'f.packtwo': {

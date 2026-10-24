@@ -1548,4 +1548,6 @@ export default {
   'Type what goes in: your gear or anything else.': 'Tipp ein, was hineinkommt: dein Material oder sonst etwas.',
   '«Print label», stick it on; scanning the code opens the box in the app.': '«Etikett drucken», aufkleben; der Code öffnet die Kiste in der App.',
   'Example: «Winter box, cellar» with headlamp, gloves and the Christmas lights.': 'Beispiel: «Winterkiste, Keller» mit Stirnlampe, Handschuhen und der Lichterkette.',
+  // «Touren sichtbar» (Noah 24.10.2026 «3a»): Tourbild = tour postcard + picture to share
+  'In the debrief tap «Tour picture» and add a photo if you like; after a ride on the live map it comes under «Your ride».': 'Tippe im Rückblick auf «Tourbild» und füge auf Wunsch ein Foto hinzu; nach einer Fahrt auf der Live-Karte kommt es unter «Deine Fahrt».',
 };

@@ -325,7 +325,7 @@ export const HOWTO = {
   'f.parked': ['Open On the way and tap «Bike parked».', 'Take a photo, choose the lock and save; the place is read once.', 'Later the same button shows «Where is my bike?» with the way back.'],
   'f.breakdown': ['Open the debrief of a trip.', 'Under «For next time» tap «Note a breakdown», choose what broke and save.', 'Next time Planen suggests the spare part; one tap puts it on the list.'],
   'f.sleepspots': ['Under «For next time» tap «Rate a place to sleep».', 'Give stars, a note and the place (a night of the trip or where you are).', 'Planning a trip nearby shows «Your places to sleep here».'],
-  'f.postcard': ['Under «For next time» tap «Tour postcard».', 'Add a photo if you like.', 'Tap «Share» and pick WhatsApp, mail or a chat.'],
+  'f.postcard': ['Under «For next time» tap «Tour picture».', 'Add a photo if you like.', 'Tap «Share» and pick WhatsApp, mail or a chat.'],
   'f.packtwo': ['Open a trip in Planen and fold open «Packing for two».', 'Type the name of who comes along.', 'Tap what they carry; the weight per person shows on top.'],
   'f.laundry': ['Open a trip in Planen and fold open «In the wash».', 'Tap the clothes still in the wash.', 'Two days before the trip Merken reminds you.'],
   'f.morninglist': ['Open a trip in Planen and fold open «Only on the morning».', 'Tap phone, fridge food or bottles.', 'On the morning of the start On the way shows the short list.'],

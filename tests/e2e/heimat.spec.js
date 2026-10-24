@@ -25,8 +25,17 @@ test('every function is visible on its home page', async ({ page, context }, inf
   const byPage = {};
   for (const id of Object.keys(HOME)) if (!GAPS[id]) (byPage[HOME[id]] ??= []).push({ id, name: nameOf(id) });
   const missing = Object.keys(HOME).filter((id) => !GAPS[id] && !TITLE[id]).map((id) => `${id}: title not found in features.js or tips.js`);
+  // «:trip»: the trip whose debrief is still open («Rückblick weiterschreiben» under Touren › Rückblick)
+  let trip = null;
+  if (Object.keys(byPage).some((h) => h.includes(':trip'))) {
+    await page.goto('./#/debrief');
+    await page.locator('main').waitFor();
+    await settle(page);
+    const href = await page.getByRole('link', { name: T('Continue the debrief') }).first().getAttribute('href');
+    trip = decodeURIComponent(href.replace('#/debrief/', ''));
+  }
   for (const [href, list] of Object.entries(byPage)) {
-    await page.goto(`./${href}`);
+    await page.goto(`./${href.replace(':trip', encodeURIComponent(trip))}`);
     await page.locator('main').waitFor();
     await settle(page);
     const found = await page.evaluate(
