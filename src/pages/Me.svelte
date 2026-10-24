@@ -201,7 +201,7 @@
       <!-- UI-Ziele #6 (Noah 20.10.2026 «freigabe», 4a): Ich keeps data, settings and help. Freie Zeit, Alltag,
            Termine, Mail, Notizen, Eingang and Kompass are under Planen; Wi gaht's?, Erkenntnisse, Was mir gut tut
            and Gewicht under Auswerten; Material under Velos. One quiet line says where they went. -->
-      <p class="card moved-to" role="note" data-me-moved><Info size={16} aria-hidden="true" /><span>{t('Looking for appointments, notes, the diary or the Inbox? They are under')} <a href="#/week">{t('Plan|place')}</a>{t('; your questions, insights and weight under')} <a href="#/flow">{t('Analysis|place')}</a>{t(', the gear under')} <a href="#/gear">{t('Bikes|place')}</a>.</span></p>
+      <p class="card moved-to" role="note" data-me-moved><Info size={16} aria-hidden="true" /><span>{t('Looking for appointments, notes, the diary or the Inbox? They are under')} <a href="#/week">{t('Plan|place')}</a>{t('; your questions, insights and weight under')} <a href="#/flow">{t('Analysis|place')}</a>{t(', the gear under')} <a href="#/gear">{t('Bikes|place')}</a>. {t('The toolbox is a tab of')} <a href="#/me/tools">{t('Trips|place')}</a>{t(', Inspiration and your links are tabs of')} <a href="#/inspiration">{t('Plan|place')}</a>.</span></p>
       <section class="ich-sec" aria-labelledby="me-data-h">
         <div class="ich-h"><div><h2 id="me-data-h">{t('Data')}</h2></div></div>
         <ul class="card ich-list">
@@ -225,30 +225,6 @@
             <a class="ich-row" href="#/me/connections" data-row="connections">
               <span class="ich-ib"><Link2 size={18} aria-hidden="true" /></span>
               <span class="ich-m"><b>{t('Connections')}</b><small>{t('Strava, Fitbit, Google, lake: state and switches')}</small></span>
-              <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
-            </a>
-          </li>
-          <li>
-            <!-- «Inspiration» UC2-1: on a phone Ich › Inspiration (on a computer also in the sidebar) -->
-            <a class="ich-row" href="#/inspiration">
-              <span class="ich-ib"><Compass size={18} aria-hidden="true" /></span>
-              <span class="ich-m"><b>{t('Inspiration')}</b><small>{t('Your own links, key words and notes')}</small></span>
-              <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
-            </a>
-          </li>
-          <li>
-            <!-- Paket L «Werkzeugkasten»: calculator, units, time zones, compass, phrases, PDF, photos -->
-            <a class="ich-row" href="#/me/tools" data-row="tools">
-              <span class="ich-ib"><Wrench size={18} aria-hidden="true" /></span>
-              <span class="ich-m"><b>{t('Toolbox')}</b><small>{t('Calculator, units, PDF, photos and more')}</small></span>
-              <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
-            </a>
-          </li>
-          <li>
-            <!-- Paket L «Werkzeuge und Links» (Noah 19.10.2026 «1b»): other apps and pages -->
-            <a class="ich-row" href="#/me/links" data-row="weblinks">
-              <span class="ich-ib"><ExternalLink size={18} aria-hidden="true" /></span>
-              <span class="ich-m"><b>{t('Tools and links')}</b><small>{t('SBB, Maps, komoot, Trello and your own links')}</small></span>
               <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
             </a>
           </li>
@@ -327,34 +303,17 @@
             <span class="ich-m"><b id="me-lang">{t('Language')}</b></span>
             <Seg labelledby="me-lang" full={false} value={lang.v} options={[{ key: 'de', name: 'Deutsch' }, { key: 'en', name: 'English' }]} onchange={setLang} />
           </li>
-        </ul>
-      </section>
-    </div>
-
-    <div class="ich-side">
-      <section class="ich-sec" aria-labelledby="me-app-h">
-        <div class="ich-h"><div><h2 id="me-app-h">{t('The app')}</h2></div></div>
-        <ul class="card ich-list">
           <li>
-            <a class="ich-row" href="#/features">
-              <span class="ich-ib"><Info size={18} aria-hidden="true" /></span>
-              <span class="ich-m"><b>{t('What the app can do')}</b></span>
+            <a class="ich-row" href="#/helper">
+              <span class="ich-ib"><Sparkles size={18} aria-hidden="true" /></span>
+              <span class="ich-m"><b>{t('AI helper')}</b><small>{helperState || t('Suggestions from Claude, only on request')}</small></span>
               <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
             </a>
           </li>
           <li>
-            <!-- P3 «Warum? und Regeln» (RG3): every rule the app packs by -->
-            <a class="ich-row" href="#/me/regeln" data-me-rules>
-              <span class="ich-ib"><ListChecks size={18} aria-hidden="true" /></span>
-              <span class="ich-m"><b>{t('How the app decides')}</b><small>{t('Every rule, where to change it')}</small></span>
-              <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
-            </a>
-          </li>
-          <li>
-            <!-- Paket R: what stays on the device, what the server keeps, costs, terms -->
-            <a class="ich-row" href="#/me/privacy">
-              <span class="ich-ib"><ShieldCheck size={18} aria-hidden="true" /></span>
-              <span class="ich-m"><b>{t('Privacy and terms')}</b><small>{t('Free, your data stays with you')}</small></span>
+            <a class="ich-row" href="#/me/suche" data-me-row="suche">
+              <span class="ich-ib"><SearchIcon size={18} aria-hidden="true" /></span>
+              <span class="ich-m"><b>{t('Search|page')}</b><small>{t('Speaking, and who answers in the search')}</small></span>
               <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
             </a>
           </li>
@@ -365,6 +324,31 @@
               <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
             </a>
           </li>
+        </ul>
+      </section>
+    </div>
+
+    <div class="ich-side">
+      <section class="ich-sec" aria-labelledby="me-app-h">
+        <div class="ich-h"><div><h2 id="me-app-h">{t('Help|me')}</h2></div></div>
+        <ul class="card ich-list">
+          <li>
+            <a class="ich-row" href="#/features">
+              <span class="ich-ib"><Info size={18} aria-hidden="true" /></span>
+              <span class="ich-m"><b>{t('Help and functions')}</b><small>{t('What the app can do, handbook, keyboard shortcuts, how it decides')}</small></span>
+              <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
+            </a>
+          </li>
+          
+          <li>
+            <!-- Paket R: what stays on the device, what the server keeps, costs, terms -->
+            <a class="ich-row" href="#/me/privacy">
+              <span class="ich-ib"><ShieldCheck size={18} aria-hidden="true" /></span>
+              <span class="ich-m"><b>{t('Privacy and terms')}</b><small>{t('Free, your data stays with you')}</small></span>
+              <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
+            </a>
+          </li>
+          
           <li>
             <!-- v0.110.0 Design-Refresh P10 (I11): Ich › Was ist neu -->
             <a class="ich-row" href="#/me/news">
@@ -381,57 +365,26 @@
               <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
             </a>
           </li>
-          <li>
-            <!-- Impeccable: one row «Help»; the handbook, the shortcuts and the intro one tap deeper -->
-            <details class="hfold">
-              <summary class="ich-row">
-                <span class="ich-ib"><CircleHelp size={18} aria-hidden="true" /></span>
-                <span class="ich-m"><b>{t('Help|me')}</b><small>{t('Handbook, keyboard shortcuts, show the intro again')}</small></span>
-                <ChevronDown class="ich-chev fchev" size={18} aria-hidden="true" />
-              </summary>
-              <ul class="ich-list sub">
-                <li>
-                  <!-- Handbuch + Kleine Apps (mockup HB2, Noah 14.10.2026 «1b 2b», «hb freigeben») -->
-                  <a class="ich-row" href="#/me/handbook">
-                    <span class="ich-ib"><BookOpen size={18} aria-hidden="true" /></span>
-                    <span class="ich-m"><b>{t('Handbook')}</b><small>{t('How to switch on every function, with an example')}</small></span>
-                    <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
-                  </a>
-                </li>
-                <li>
-                  <button type="button" class="ich-row" onclick={keys} aria-haspopup="dialog">
-                    <span class="ich-ib"><Keyboard size={18} aria-hidden="true" /></span>
-                    <span class="ich-m"><b>{t('Help and keyboard shortcuts')}</b></span>
-                    <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
-                  </button>
-                </li>
-                <li>
-                  <!-- KT (3a): the short intro of the start page once more -->
-                  <button type="button" class="ich-row" onclick={introAgain} data-intro-again>
-                    <span class="ich-ib"><Hand size={18} aria-hidden="true" /></span>
-                    <span class="ich-m"><b>{t('Show the start page intro again')}</b></span>
-                    <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
-                  </button>
-                </li>
-              </ul>
-            </details>
-          </li>
-          <li>
-            <a class="ich-row" href="#/helper">
-              <span class="ich-ib"><Sparkles size={18} aria-hidden="true" /></span>
-              <span class="ich-m"><b>{t('AI helper')}</b><small>{helperState || t('Suggestions from Claude, only on request')}</small></span>
-              <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
-            </a>
-          </li>
+          
+          
           <!-- «Suche mit Sprache und Antworten» (Noah 21.10.2026 «5b»): microphone and who answers in the search -->
-          <li>
-            <a class="ich-row" href="#/me/suche" data-me-row="suche">
-              <span class="ich-ib"><SearchIcon size={18} aria-hidden="true" /></span>
-              <span class="ich-m"><b>{t('Search|page')}</b><small>{t('Speaking, and who answers in the search')}</small></span>
-              <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
-            </a>
-          </li>
+          
           <!-- «Meine KI-Projekte» (Noah 19.10.2026 «2a»): own links to AI projects and chats -->
+          
+          
+          
+          
+          
+        </ul>
+      </section>
+
+      <!-- «App-Wartung» (Noah 13.10.2026, BF7 BF8): Strava's free limits and the monthly check -->
+      <MaintenanceCard fold bind:open={maintOpen} />
+
+      <!-- Impeccable: «More» folded; its head says what is inside -->
+      <details class="ich-sec fold" bind:open={moreOpen}>
+        <summary class="ich-h fsum"><div><h2 id="me-more-h">{t('More')}</h2><p class="ich-hs">{t('AI projects, try it out, test data')}</p></div><ChevronDown class="fchev" size={20} aria-hidden="true" /></summary>
+        <ul class="card ich-list">
           <li>
             <a class="ich-row" href="#/me/ki-projekte" data-me-row="aiprojects">
               <span class="ich-ib"><MessageCircle size={18} aria-hidden="true" /></span>
@@ -448,16 +401,6 @@
           </li>
           <!-- Klick-Rundgang Q05 (Noah 22.10.2026 «3a»): «App verkaufen» is dropped, so Angebote, Velomech und Guide
                and Bezahlen are no longer listed here; the pages stay reachable by address and search. -->
-        </ul>
-      </section>
-
-      <!-- «App-Wartung» (Noah 13.10.2026, BF7 BF8): Strava's free limits and the monthly check -->
-      <MaintenanceCard fold bind:open={maintOpen} />
-
-      <!-- Impeccable: «More» folded; its head says what is inside -->
-      <details class="ich-sec fold" bind:open={moreOpen}>
-        <summary class="ich-h fsum"><div><h2 id="me-more-h">{t('More')}</h2><p class="ich-hs">{t('Try it out, clean up test data')}</p></div><ChevronDown class="fchev" size={20} aria-hidden="true" /></summary>
-        <ul class="card ich-list">
           <li>
             <button type="button" class="ich-row" onclick={() => (playOpen = true)} aria-haspopup="dialog">
               <span class="ich-ib"><FlaskConical size={18} aria-hidden="true" /></span>
@@ -595,33 +538,19 @@
   .fold > .fsum::-webkit-details-marker {
     display: none;
   }
-  .fold > .fsum :global(.fchev),
-  .hfold :global(.fchev) {
+  .fold > .fsum :global(.fchev) {
     flex: none;
     color: var(--ink-3);
     transition: transform 0.18s ease-out;
   }
-  .fold[open] > .fsum :global(.fchev),
-  .hfold[open] :global(.fchev) {
+  .fold[open] > .fsum :global(.fchev) {
     transform: rotate(180deg);
   }
   .fold:not([open]) {
     margin-bottom: 16px;
   }
-  .hfold .sub {
-    padding: 0 0 0 46px;
-  }
-  .hfold .sub > li {
-    border-top: 1px solid var(--line);
-  }
-  @media (max-width: 419px) {
-    .hfold .sub {
-      padding-left: 12px;
-    }
-  }
   @media (prefers-reduced-motion: reduce) {
-    .fold > .fsum :global(.fchev),
-    .hfold :global(.fchev) {
+    .fold > .fsum :global(.fchev) {
       transition: none;
     }
   }

@@ -26,7 +26,7 @@
   import { bikesHash } from '../bikes.js';
   import { offerDone } from '../ui/rename.svelte.js';
   import { removeVisit } from '../visitdb.js';
-  import { Route, Bike, Activity, Backpack, Package, Plus, TriangleAlert, Receipt, StickyNote, X, ListTodo, ListChecks, ScanLine } from '@lucide/svelte';
+  import { Route, Bike, Activity, Backpack, Package, Plus, TriangleAlert, Receipt, StickyNote, X, ListTodo, ListChecks, ScanLine, Siren, Sunrise, Moon } from '@lucide/svelte';
   import TodoSheet from '../merken/TodoSheet.svelte';
   import ListSheet from '../merken/ListSheet.svelte';
   import { suggestKind, listFrom } from '../merken/quick.js';
@@ -133,11 +133,20 @@
         </div>
       {/if}
     </form>
+    <!-- «Alles finden 2» (Noah 22.10.2026 «1a», new proposal): the emergency was 5 taps deep (Touren › Skitouren ›
+         Berg und Notfall); here it is one tap from every page -->
+    <a class="sos" href="#/mountain/sos" onclick={close} data-new-sos><Siren size={20} aria-hidden="true" /><span><b>{t('Emergency: show my location')}</b><small>{t('Rega 1414 and 112, also offline')}</small></span></a>
     <!-- PL1 (Noah «5a»): «Merken» first -->
     <h3 class="ngrp">{t('Remember')}</h3>
     <ul class="opts">
       <li><button type="button" class="opt" onclick={() => run(() => ((todoText = ''), (todoOpen = true)))}><span class="ic" aria-hidden="true"><ListTodo size={20} /></span><span class="tx"><b>{t('To-do')}</b><span>{t('With a date and a reminder if you like')}</span></span></button></li>
       <li><button type="button" class="opt" onclick={() => run(() => ((listStart = { name: '', points: [] }), (listOpen = true)))}><span class="ic" aria-hidden="true"><ListChecks size={20} /></span><span class="tx"><b>{t('List')}</b><span>{t('Any list, to tick or as notes')}</span></span></button></li>
+    </ul>
+    <!-- «Alles finden 2» (new proposal): the daily checks at any hour, not only from their tile on Heute -->
+    <h3 class="ngrp">{t('Check|group')}</h3>
+    <ul class="opts">
+      <li><a class="opt" href="#/check/morning" onclick={close} data-new-check="morning"><span class="ic" aria-hidden="true"><Sunrise size={20} /></span><span class="tx"><b>{t('Morning check')}</b><span>{t('Sleep, energy, mood')}</span></span></a></li>
+      <li><a class="opt" href="#/check/evening" onclick={close} data-new-check="evening"><span class="ic" aria-hidden="true"><Moon size={20} /></span><span class="tx"><b>{t('Evening check')}</b><span>{t('How the day was')}</span></span></a></li>
     </ul>
     <!-- v0.101.0 Design-Refresh P2 (H7): the same 9 ways, in groups by area, «Plan a trip» on top -->
     <h3 class="ngrp">{t('Trips|place')}</h3>
@@ -174,6 +183,26 @@
 {/if}
 
 <style>
+  .sos {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-height: 56px;
+    margin: 4px 0 8px;
+    padding: 10px 14px;
+    border: 1.5px solid var(--bad);
+    border-radius: 12px;
+    color: var(--bad);
+    text-decoration: none;
+  }
+  .sos span {
+    display: grid;
+    gap: 2px;
+  }
+  .sos small {
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+  }
   .quick {
     display: grid;
     gap: 8px;
