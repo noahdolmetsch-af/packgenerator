@@ -4,6 +4,15 @@
  * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
+  // 0.195.0 Kleine Helfer für Tour und Velo
+  'Small helpers for trip and bike': 'Kleine Helfer für Tour und Velo',
+  'What you took off, whom to call back, what to compare.': 'Was du abgenommen hast, wen du zurückrufst, was du vergleichst.',
+  'Bike parked: key and what you took off': 'Velo abgestellt: Schlüssel und was du abgenommen hast',
+  'Compare options on the travel links': 'Optionen vergleichen bei den Reise-Links',
+  'A small taste of a dream tour first': 'Zuerst ein kleiner Vorgeschmack einer Traumtour',
+  'A draft for a warranty claim': 'Ein Entwurf für einen Garantiefall',
+  'Open Touren › Reise-Links › «Optionen vergleichen» and add two options.': 'Öffne Touren › Reise-Links › «Optionen vergleichen» und füge zwei Optionen hinzu.',
+  'Open Touren › Träume, a dream: «Vorgeschmack planen».': 'Öffne Touren › Träume, einen Traum: «Vorgeschmack planen».',
   // 0.194.0 Mit Freunden
   'Together with friends': 'Zusammen mit Freunden',
   'Friends add their part, without an account.': 'Freunde ergänzen ihren Teil, ohne Konto.',

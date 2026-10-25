@@ -98,3 +98,24 @@ export function similarProblems(task, all = [], bikeIdOf = (r) => r.bikeId) {
   }
   return out.sort((a, b) => b.shared - a.shared || String(b.task.statusDate ?? b.task.logDate ?? '').localeCompare(String(a.task.statusDate ?? a.task.logDate ?? '')));
 }
+
+/**
+ * Paket B, UC-180-I2 «Reklamation vorbereiten»: a tidy draft for a warranty claim, for you to check and send
+ * yourself. Nothing is sent and nothing claims a legal right. claim: { part (a row key), since (a day), what }.
+ * rows: the warranty rows of the sheet ({ key, label, end }). tr: t() of the page; dayText: a day as text.
+ */
+export function claimText({ bikeName = '', bought = '', shop = '', claim = {}, rows = [] }, tr = (s, v) => s.replace(/\{(\w+)\}/g, (_, k) => v?.[k] ?? ''), dayText = (d) => d) {
+  const row = rows.find((r) => r.key === claim.part) ?? null;
+  const lines = [
+    tr('Warranty claim, draft'),
+    '',
+    tr('Bike: {name}', { name: bikeName }),
+    bought ? tr('Bought on {date}{shop}', { date: dayText(bought), shop: shop ? ` (${shop})` : '' }) : '',
+    row ? tr('Part: {part}, warranty until {date}', { part: row.label, date: dayText(row.end) }) : '',
+    claim.since ? tr('Since: {date}', { date: dayText(claim.since) }) : '',
+    String(claim.what ?? '').trim() ? tr('What happens: {what}', { what: String(claim.what).trim() }) : '',
+    '',
+    tr('Receipt and photos attached. Please let me know how we go on.'),
+  ];
+  return lines.filter((x, i) => x !== '' || (i > 0 && lines[i - 1] !== '')).join('\n').trim();
+}

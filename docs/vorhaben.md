@@ -489,3 +489,4 @@ Kurzfassung, verbindlich ist [arbeitsweise.md](arbeitsweise.md).
 
 0.193.0 «Ruhig und persönlich» (25.10.2026, Ziel Alltag): 996 Ideen Paket C, 8 Fähigkeiten + 6 Einzelideen (28 neue Funktionen) auf der Seite Ich › Ruhig und persönlich.
 0.194.0 «Zusammen mit Freunden» (25.10.2026, Ziel Touren und Alltag): Paket D Teil 1 aus den 996 Ideen.
+0.195.0 «Kleine Helfer für Tour und Velo» (25.10.2026, Ziel Touren und Velo): weitere Einzelideen aus Paket B (996 Ideen).

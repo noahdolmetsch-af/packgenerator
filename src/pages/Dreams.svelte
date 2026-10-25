@@ -94,10 +94,10 @@
     if (plan.kind === 'race') {
       trip = { ...toggleSet(trip, items, 'race', true), event: raceEvent(plan.race, { signupBy }) };
     } else {
-      trip = { ...trip, fromDream: plan.dream.id, ...(plan.dream.url ? { note: `${plan.dream.title} ${plan.dream.url}` } : {}) };
+      trip = { ...trip, fromDream: plan.dream.id, ...(plan.taste ? { note: plan.dream.taste ?? '' } : plan.dream.url ? { note: `${plan.dream.title} ${plan.dream.url}` } : {}) };
     }
     await db.trips.put(trip);
-    if (plan.kind === 'dream') await putDream({ ...plan.dream, tripId: trip.id });
+    if (plan.kind === 'dream') await putDream(plan.taste ? { ...plan.dream, tasteTripId: trip.id } : { ...plan.dream, tripId: trip.id }); // Paket B, UC-055-I1: a taste does not plan the dream itself
     switchTrip(trip.id, '#/pack');
   }
   async function signedUp(tripId) {
@@ -234,7 +234,7 @@
 </div>
 
 {#if openDream}
-  {#key open}<DreamSheet dream={openDream} {kinds} onchange={putDream} onremove={async (id) => (await save({ dreams: store.dreams.filter((x) => x.id !== id) }), id)} onplan={(d) => (plan = { kind: 'dream', dream: d, name: d.title, start: suggestStart(d, today, kinds), days: d.days || 2 })} onclose={() => (open = null)} />{/key}
+  {#key open}<DreamSheet dream={openDream} {kinds} onchange={putDream} onremove={async (id) => (await save({ dreams: store.dreams.filter((x) => x.id !== id) }), id)} onplan={(d, taste = false) => (plan = { kind: 'dream', dream: d, taste, name: taste ? t('Taste of {name}', { name: d.title }) : d.title, start: suggestStart(d, today, kinds), days: taste ? 1 : d.days || 2 })} onclose={() => (open = null)} />{/key}
 {/if}
 {#if plan}
   <PlanSheet title={plan.kind === 'race' ? t('Plan the race as a trip') : t('Plan the tour')} sub={plan.kind === 'race' ? t('With the race building block and the registration deadline') : t('A trip draft from your dream')} name={plan.name} start={plan.start} days={plan.days} race={plan.kind === 'race'} {bikes} onsave={makeTrip} onclose={() => (plan = null)} />

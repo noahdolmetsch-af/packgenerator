@@ -11,7 +11,7 @@
   import { t, num, locale } from '../i18n.svelte.js';
   import { offerDone } from '../ui/rename.svelte.js';
   import { telHref } from '../unterwegs/abfahrt.js';
-  import { planBOf, badWeather, badText, hoursOfDay, swapPlanB, staysOf, checkinOf } from './haustuer.js';
+  import { planBOf, badWeather, badText, hoursOfDay, swapPlanB, staysOf, checkinOf, callState } from './haustuer.js';
   import { CloudRain, BedDouble, Train, Route as RouteIcon, Phone, TriangleAlert, Undo2 } from '@lucide/svelte';
 
   let { trip, st, nextSt = null, onhome = null } = $props();
@@ -31,6 +31,8 @@
 
   const stay = $derived(st ? staysOf(trip).find((s) => s.n === st.day) ?? null : null);
   const check = $derived(stay ? checkinOf(stay, st) : null);
+  const hmNow = () => new Date().toTimeString().slice(0, 5);
+  const call = $derived(stay ? callState(stay, hmNow()) : '');
 </script>
 
 {#if (pb && (bad || on)) || stay}
@@ -62,6 +64,7 @@
             {#if check.late}<span class="tp-small"><TriangleAlert size={14} aria-hidden="true" /> {t('Planned arrival {arrive}, {min} min too late.', { arrive: check.arrive, min: check.lateMin })} {t('Call ahead, or start earlier tomorrow.')}</span>
             {:else}<span class="tp-small">{t('Planned arrival {arrive}: in time.', { arrive: check.arrive })}</span>{/if}
           {/if}
+          {#if stay.callBy}<span class="tp-small" class:callwarn={call === 'soon'} data-ride-callby={call || 'later'}>{call === 'past' ? t('You wanted to get in touch by {time}. Did you?', { time: stay.callBy }) : t('Get in touch by {time}, before you lose signal.', { time: stay.callBy })}</span>{/if}
           {#if stay.phone}<span class="acts"><a class="btn sm" href={telHref(stay.phone)}><Phone size={16} aria-hidden="true" />{t('Call the accommodation')}</a></span>{/if}
         </div>
       </div>
@@ -70,6 +73,10 @@
 {/if}
 
 <style>
+  .callwarn {
+    color: var(--warn, var(--accent));
+    font-weight: 600;
+  }
   .rdoor {
     display: grid;
     gap: 10px;
