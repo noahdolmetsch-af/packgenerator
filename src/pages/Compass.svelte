@@ -107,7 +107,7 @@
       {#each openGoals as g (g.id)}<GoalCard goal={g} ai={c.ai} onchange={putGoal} onremove={removeGoal} />{/each}
     </div>
     {#if doneGoals.length}
-      <details class="reached"><summary>{tn(doneGoals.length, '{n} goal reached', '{n} goals reached')}</summary><div class="goals">{#each doneGoals as g (g.id)}<GoalCard goal={g} ai={c.ai} onchange={putGoal} onremove={removeGoal} />{/each}</div></details>
+      <details class="reached"><summary>{tn(doneGoals.length, '{n} goal finished', '{n} goals finished')}</summary><div class="goals">{#each doneGoals as g (g.id)}<GoalCard goal={g} ai={c.ai} onchange={putGoal} onremove={removeGoal} />{/each}</div></details>
     {/if}
   </section>
 

@@ -29,12 +29,13 @@ export function addMonth(day, n = 1) {
 }
 
 /** A new to-do; empty text gives null. */
-export function newTodo({ text, due = null, remind = null, repeat = null, list = null, area = null, src = null } = {}, { id, now = new Date().toISOString() } = {}) {
+export function newTodo({ text, due = null, remind = null, repeat = null, list = null, area = null, src = null, wait = null } = {}, { id, now = new Date().toISOString() } = {}) {
   const tx = String(text ?? '').trim();
   if (!tx) return null;
   const td = { id, text: tx, due: DAY.test(due ?? '') ? due : null, remind: due ? remind : null, repeat, list, created: now, doneAt: null };
   if (area) td.area = area;
   if (src) td.src = src;
+  if (wait) td.wait = wait; // Paket A part 1 (stand/stand.js): what the to-do waits on
   return td;
 }
 

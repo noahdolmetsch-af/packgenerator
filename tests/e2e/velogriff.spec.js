@@ -183,3 +183,26 @@ test('chain after rain: a hint on the wear page, not on Today; done writes the c
   await expect(hint).toHaveCount(0);
   await expect.poll(async () => (await bikeNow(page)).parts.find((p) => p.key === 'chain').history.some((h) => h.date === today() && h.action === 'service')).toBe(true);
 });
+
+// Paket A part 2 (UC-189-I1): not only «done»: «Not today» rests the hint for today and leaves a to-do for tomorrow
+test('chain after rain: «Not today» rests the hint and leaves a to-do in Merken', async ({ page }) => {
+  const put = (store, row) =>
+    page.evaluate(([s, r]) => new Promise((ok, no) => {
+      const o = indexedDB.open('pack-generator');
+      o.onsuccess = () => {
+        const tx = o.result.transaction(s, 'readwrite');
+        tx.objectStore(s).put(r);
+        tx.oncomplete = () => { o.result.close(); ok(); };
+        tx.onerror = () => no(tx.error);
+      };
+    }), [store, row]);
+  await put('kmBook', { id: 'kb-wet-later', bikeId: BIKE.id, date: today(), km: 30, kind: 'ride', source: 'manual', state: 'counted' });
+  await put('meta', { key: 'inspectRain', at: new Date().toISOString(), lat: 0, lon: 0, days: { [today()]: 9 } });
+  await page.goto(`./#/bikes?tab=care&view=wear&bike=${BIKE.id}`);
+  const hint = page.locator('[data-wet-chain]');
+  await expect(hint).toBeVisible();
+  await hint.locator('[data-wet-later-how="later"]').click();
+  await expect(hint).toHaveCount(0);
+  const todos = () => page.evaluate(() => new Promise((ok) => { const r = indexedDB.open('pack-generator'); r.onsuccess = () => { const q = r.result.transaction('settings').objectStore('settings').get('merken'); q.onsuccess = () => ok(q.result?.value ?? []); }; }));
+  await expect.poll(async () => (await todos()).some((x) => x.src === `wetlater:${BIKE.id}`)).toBe(true);
+});

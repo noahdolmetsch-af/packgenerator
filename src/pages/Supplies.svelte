@@ -12,6 +12,7 @@
   import { t, tn, nameOf } from '../lib/i18n.svelte.js';
   import { CATEGORY, choosable } from '../lib/gear.js';
   import { isSupply, rebuyList, expiringSoon, bought, usedOne, hasStock } from '../lib/supplies.js';
+  import { OPENED, setOpened } from '../lib/stand/stand.js'; // Paket A part 2: an opened pack
   import { localDay } from '../lib/localday.js';
   import PathHead from '../lib/ui/PathHead.svelte';
   import ListTable from '../lib/ui/ListTable.svelte';
@@ -133,7 +134,9 @@
       <ul class="rows quick" aria-label={t('Count at home')}>
         {#each supplies.filter(hasStock) as i (i.id)}
           <li>
-            <span class="nm">{nameOf(i)}<small>{t(CATEGORY[i.category]?.name ?? '')}</small></span>
+            <span class="nm">{nameOf(i)}<small>{t(CATEGORY[i.category]?.name ?? '')}</small>
+              <select class="sel mini opn" value={i.opened ?? ''} aria-label={t('Pack of {name}', { name: nameOf(i) })} onchange={(e) => put(setOpened(i, e.currentTarget.value), i, t('"{name}": {state}.', { name: nameOf(i), state: t(OPENED.find((o) => o.key === e.currentTarget.value)?.name ?? 'Closed') }))} data-opened={i.id}>{#each OPENED as o (o.key)}<option value={o.key}>{t(o.name)}</option>{/each}</select>
+            </span>
             <span class="cnt">
               <button type="button" class="btn sm" aria-label={t('One less: {name}', { name: nameOf(i) })} onclick={() => minus(i)}><Minus size={16} aria-hidden="true" /></button>
               <b class="num">{i.stock}</b>
@@ -221,6 +224,13 @@
   }
   .nm {
     display: grid;
+    min-width: 0;
+  }
+  .opn {
+    justify-self: start;
+    width: auto;
+    max-width: 100%;
+    margin-top: 4px;
   }
   .nm small,
   .none {

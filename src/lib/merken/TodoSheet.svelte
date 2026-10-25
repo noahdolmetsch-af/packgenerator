@@ -20,6 +20,7 @@
   import { remindIcs } from '../remind.js';
   import { icsCalendar } from '../flowmed.js';
   import { CalendarPlus } from '@lucide/svelte';
+  import WaitPick from '../stand/WaitPick.svelte'; // Paket A part 1: «Waiting for something?»
 
   let { text: start = '', reminder = false, todo = null, onclose, ondone } = $props();
 
@@ -38,6 +39,8 @@
   let km = $state(from?.repeat?.km ?? 300);
   let bikeId = $state(from?.repeat?.bikeId ?? '');
   let google = $state(false);
+  // svelte-ignore state_referenced_locally
+  let wait = $state(from?.wait ?? null);
   let error = $state('');
   let dialog;
   let input;
@@ -83,6 +86,7 @@
     }
     const fields = {
       text,
+      wait: wait ? $state.snapshot(wait) : null,
       due: due || null,
       remind: due && remind !== 'no' ? { at: remind === 'day' ? '08:00' : time, before: remind === 'before' ? 1 : 0 } : null,
       repeat: repeat === 'km' ? (bike ? { every: 'km', km: Math.max(1, Math.round(+km || 300)), bikeId: bike.id, fromKm: bike.km ?? 0 } : null) : repeat === 'no' ? null : { every: repeat },
@@ -150,6 +154,8 @@
         </div>
       {/if}
     </fieldset>
+
+    <WaitPick bind:wait {today} />
 
     <div class="acts">
       <button type="submit" class="btn hi">{t('Save')}</button>
