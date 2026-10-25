@@ -4,7 +4,8 @@
  * the page shows (2b: search and «What the app can do» take the name of the button).
  *
  * HOME: the page a function lives on (a hash route, as in featureHref). «:trip» stands for the trip whose
- * debrief is still open in the test data (the robot finds it under Touren › Rückblick).
+ * debrief is still open in the test data (the robot finds it under Touren › Rückblick), «:race» for the
+ * first race under Touren › Rennen.
  * GAPS: functions that are not yet visible on their home page, with why. The robot test
  * tests/e2e/heimat.spec.js opens every home page on the phone and checks that the German title of
  * each function NOT in GAPS can be seen (not in a closed fold, within the first 2.5 screens).
@@ -78,11 +79,11 @@ export const HOME = {
   'f.race': '#/race',
   'f.racesample': '#/race',
   'f.racemap': '#/race',
-  'f.climbs': '#/race',
-  'f.mapoffline': '#/race',
+  'f.climbs': '#/race/:race',
+  'f.mapoffline': '#/race/:race/map',
   'f.rwgps': '#/pack',
-  'f.sleeplists': '#/race',
-  'f.nightswx': '#/race',
+  'f.sleeplists': '#/race/:race/route',
+  'f.nightswx': '#/race/:race/route',
   'f.abroad': '#/trips',
   'f.dreams': '#/trips/dreams',
   'f.races': '#/trips/dreams',
@@ -148,9 +149,9 @@ export const HOME = {
   'f.laps': '#/live',
   'f.moreplaces': '#/live',
   'f.ovnear': '#/live',
-  'f.sleeptonight': '#/race',
-  'f.callhotels': '#/race',
-  'f.powernap': '#/race',
+  'f.sleeptonight': '#/race/:race/ride',
+  'f.callhotels': '#/race/:race/ride',
+  'f.powernap': '#/race/:race/ride',
   'f.here': '#/ride',
   'f.record': '#/ride',
   'f.supplies': '#/gear/supplies',
@@ -370,7 +371,6 @@ export const HOME = {
 
 /** Not yet visible on the home page (feature id → why code). Only gets shorter. */
 export const GAPS = {
-  'f.probe': 'name',
   'f.progress': 'deep',
   'f.blockeffect': 'name',
   'f.needs': 'name',
@@ -410,10 +410,6 @@ export const GAPS = {
   'f.sosqr': 'deep',
   'f.scales': 'deep',
   'f.racemap': 'name',
-  'f.climbs': 'name',
-  'f.mapoffline': 'name',
-  'f.sleeplists': 'name',
-  'f.nightswx': 'name',
   'f.abroad': 'name',
   'f.starters': 'name',
   'f.packside': 'name',
@@ -449,18 +445,6 @@ export const GAPS = {
   'f.webcammap': 'deep',
   'f.icepush': 'name',
   'f.webcams': 'deep',
-  'f.reroute': 'deep',
-  'f.live': 'deep',
-  'f.livepause': 'deep',
-  'f.sensors': 'deep',
-  'f.datapages': 'deep',
-  'f.turns': 'deep',
-  'f.laps': 'deep',
-  'f.moreplaces': 'deep',
-  'f.ovnear': 'deep',
-  'f.sleeptonight': 'name',
-  'f.callhotels': 'name',
-  'f.powernap': 'name',
   'f.here': 'low',
   'f.record': 'name',
   'f.supplies': 'deep',

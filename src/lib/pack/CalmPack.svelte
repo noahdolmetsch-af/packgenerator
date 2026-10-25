@@ -229,16 +229,44 @@
     const list = new Intl.ListFormat(locale(), { type: 'conjunction' }).format(m.parts.map((p) => t(p.key, p.vars)));
     return `${t('Still missing:')} ${list}. ${t(m.close)}`;
   });
+  // «Packen sichtbar» (Noah 25.10.2026 «bitte fortfahren»): the cards further down get a jump mark too:
+  // «Von der Haustür bis zurück», «Generalprobe» and «Schneller packen», each only while its card is on the page
+  const EXTRA_JUMPS = [
+    { key: 'door', label: 'From the door and back', sel: '[data-door]' },
+    { key: 'probe', label: 'Dress rehearsal', sel: '[data-probe-row="probe"]' },
+    { key: 'faster', label: 'Pack faster', sel: '[data-pack-extras]' },
+  ];
+  let extraHere = $state([]);
+  $effect(() => {
+    if (!rootEl) return;
+    const look = () => {
+      const keys = EXTRA_JUMPS.filter((x) => rootEl.querySelector(x.sel)).map((x) => x.key);
+      if (keys.join() !== extraHere.join()) extraHere = keys;
+    };
+    look();
+    let raf = 0;
+    const obs = new MutationObserver(() => {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(look);
+    });
+    obs.observe(rootEl, { childList: true, subtree: true });
+    return () => {
+      obs.disconnect();
+      cancelAnimationFrame(raf);
+    };
+  });
   const jumps = $derived([
     { key: 'list', label: t('Packing list|jump') },
     onprep ? { key: 'tasks', label: t('Tasks|jump') } : null,
     showRoute ? { key: 'route', label: t('Route|jump') } : null,
     { key: 'weather', label: t('Weather|jump') },
+    ...EXTRA_JUMPS.filter((x) => extraHere.includes(x.key)).map((x) => ({ key: x.key, label: t(x.label) })),
   ].filter(Boolean));
   function jump(key) {
     if (key === 'tasks') return onprep?.();
     const q = (sel) => rootEl?.querySelector(sel);
-    const el = key === 'list' ? q('.list-head') : key === 'route' ? q('.plan-top section.rc') : (ev ? q('.plan-top section.tw') : null) ?? q('.wxcard') ?? q('.cond');
+    const extra = EXTRA_JUMPS.find((x) => x.key === key);
+    const el = extra ? q(extra.sel) : key === 'list' ? q('.list-head') : key === 'route' ? q('.plan-top section.rc') : (ev ? q('.plan-top section.tw') : null) ?? q('.wxcard') ?? q('.cond');
     if (!el) return;
     el.scrollIntoView({ block: 'start', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
     // the keyboard goes along: the heading of the section takes the focus without a second jump
