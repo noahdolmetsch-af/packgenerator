@@ -20,9 +20,17 @@
 
   // blocked (Paket C): the Tages-Check window is open or loading; this one waits and comes after it
   let { now, trips = [], itemsById = {}, name = undefined, blocked = false } = $props();
+  // 'pg.windows' = 'quiet' in localStorage: no window opens by itself (the browser tests set it, playwright.config.js)
+  const quiet = (() => {
+    try {
+      return localStorage.getItem('pg.windows') === 'quiet';
+    } catch {
+      return false;
+    }
+  })();
   const recQ = liveQuery(async () => (await db.settings.get(WINDOWS_KEY))?.value ?? {});
   const rec = $derived($recQ);
-  const win = $derived(rec && !blocked ? windowNow({ rec, now, trips, itemsById, name }) : null);
+  const win = $derived(rec && !blocked && !quiet ? windowNow({ rec, now, trips, itemsById, name }) : null);
   // UI-Ziele I1 / #16 (Noah 20.10.2026 «freigabe»): «Bereit für morgen?» gathers weather, packing, the bike and the
   // charging of tomorrow's trip in this window, each line with its step (morgen.js, the same rules as in Packen)
   const bikeQ = $derived(liveQuery(() => (win?.id === 'eve' && win.trip?.bikeId ? db.bikes.get(win.trip.bikeId) : undefined)));
