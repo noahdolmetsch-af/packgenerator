@@ -26607,6 +26607,17 @@
     "value": 72000
    },
    {
+    "key": "homeWindows",
+    "value": {
+     "eve": {
+      "done": "2026-10-09"
+     },
+     "week": {
+      "done": "2026-10-09"
+     }
+    }
+   },
+   {
     "key": "update.layers2026",
     "value": "2026-07-01T08:00:00.000Z"
    },
@@ -26640,6 +26651,10 @@
    },
    {
     "key": "update.blocks2026",
+    "value": "2026-07-01T08:00:00.000Z"
+   },
+   {
+    "key": "update.blocksMore2026",
     "value": "2026-07-01T08:00:00.000Z"
    }
   ],

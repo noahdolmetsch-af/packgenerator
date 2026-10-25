@@ -30,6 +30,10 @@ export default defineConfig({
     baseURL: `http://localhost:${PORT}/packgenerator/`,
     serviceWorkers: 'block', // the PWA worker would cache old builds between runs
     timezoneId: 'Europe/Zurich',
+    // Heute's windows open by the clock (Wochenrückblick Sunday from 18:00, the evening before a trip from 17:00,
+    // src/lib/home/HomeWindow.svelte): a test that does not test them must not depend on the hour it runs at.
+    // The window specs switch them on again with test.use({ storageState: WINDOWS_ON }) from ./tests/e2e/settle.js.
+    storageState: { cookies: [], origins: [{ origin: `http://localhost:${PORT}`, localStorage: [{ name: 'pg.windows', value: 'quiet' }] }] },
     trace: 'retain-on-failure',
     screenshot: 'only-on-failure',
     // Locally a preinstalled Chromium can be used (PW_CHROMIUM=/path/to/chrome); CI installs its own.

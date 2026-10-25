@@ -16,6 +16,8 @@ import { writeRun } from '../tour.js';
 
 export const TOUR_EVENT = 'pg:tour';
 export const ASK_EVENT = 'pg:tour-ask';
+/** Sent when a tour ends, so Heute lets its windows (Wochenrückblick, the evening before) show again. */
+export const END_EVENT = 'pg:tour-end';
 
 /** Start the playground with the weekend trip and reload the app on `hash` (PlaySheet uses the same steps). */
 export async function startPlayground(kind = 'weekend', day = 'today', hash = '#/') {
