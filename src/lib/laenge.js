@@ -30,7 +30,9 @@ export const TOO_LONG = {
   '#/debrief': 4.5,
   '#/wardrobe': 4,
   '#/blocks': 7.5,
-  '#/gear?view=wish': 8.5,
+  // 0.192.0 «Ehrlicher Stand» (996 Ideen, Noah «1b»): each wish gets «Wait 30 days» (buying pause), one small row per
+  // wish on a phone: measured 8.64. Lower it when the wish list gets shorter.
+  '#/gear?view=wish': 8.7,
   '#/bikes?tab=care': 6.5,
   '#/bikes?tab=shop': 3.5,
   '#/bikes?tab=compare': 3.5,
