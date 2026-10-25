@@ -321,6 +321,8 @@ test('«Feste Runden» (was «Deine 15 Fragen»): a switch and the two times on 
   // on again: the morning round asks them at 07:00
   await page.goto('./#/me/abfragen');
   const on = page.locator('[data-rounds]').getByRole('switch', { name: T('Ask in two rounds') });
+  // the stored setting is loaded (switched off) before the tap; until then the page shows the standard (on)
+  await expect(on).not.toBeChecked();
   await on.click();
   // wait until the switch shows it and the setting is saved, before leaving the page (else a race on a slow runner)
   await expect(on).toBeChecked();
