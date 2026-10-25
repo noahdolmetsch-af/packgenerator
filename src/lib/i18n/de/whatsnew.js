@@ -4,6 +4,17 @@
  * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
+  // 0.196.0 Flicken, ausprobieren, abmachen
+  'Fix it, try it, meet up': 'Flicken, ausprobieren, abmachen',
+  'Clothes get repair jobs, wishes can be borrowed first, and reminders turn into invitations.': 'Kleider bekommen Reparaturaufträge, Wünsche kannst du zuerst ausleihen, und aus Erinnerungen werden Einladungen.',
+  'Clothing: repair instead of sorting out': 'Kleider: reparieren statt aussortieren',
+  'Wish: borrow first, then decide': 'Wunsch: zuerst ausleihen, dann entscheiden',
+  'Not seen for a while: ideas to do together': 'Lange nicht gesehen: Ideen für etwas zusammen',
+  'Birthdays show small steps to tick, webcams say what they are for': 'Geburtstage zeigen kleine Schritte zum Abhaken, Webcams sagen, wofür sie da sind',
+  'Renaming a webcam closes the window again': 'Webcam umbenennen schliesst das Fenster wieder',
+  'Open a piece of clothing, fold «Repair instead of sorting out» and add «Replace the zip».': 'Öffne ein Kleidungsstück, klappe «Reparieren statt aussortieren» auf und füge «Reissverschluss ersetzen» hinzu.',
+  'Open a wish, fold «Borrow before buying», note a friend and a day.': 'Öffne einen Wunsch, klappe «Ausleihen vor Kaufen» auf, notiere einen Freund und einen Tag.',
+  'Under Me › Everyday life › Not seen for a while, give a person an idea to do together.': 'Gib unter Ich › Alltag › Lange nicht gesehen einer Person eine Idee für etwas zusammen.',
   // 0.195.1 Einkaufsliste am Stück
   'Shopping list in one piece': 'Einkaufsliste am Stück',
   'Names in the shopping list read normally again.': 'Die Namen in der Einkaufsliste lesen sich wieder normal.',

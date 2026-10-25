@@ -30,7 +30,7 @@
   import { comesOf, setStandard, setPlace, clearOptional, blockKind } from './comes.js';
   import { inStandard, isWorn } from '../blocks2026.js';
   import { alsoBagOf, setAlsoBag } from '../backpacks.js';
-  import { Warehouse, Zap } from '@lucide/svelte';
+  import { Warehouse, Zap, Wrench } from '@lucide/svelte';
   import PowerFields from './PowerFields.svelte'; // Paket P1 «Packen und Strom»: L1, L4
   import { powerLine } from '../strom.js';
   import { Check, Plus, UserRound, Briefcase, Info, Layers, Route, FileText, ChevronRight, MapPin, Package, CalendarClock, Scale, Sparkles, ArrowLeftRight, X, Undo2, Pencil, Ellipsis } from '@lucide/svelte';
@@ -56,6 +56,9 @@
   import '../ui/daumen.css'; // FE1: Save stays at the bottom edge of the window on a phone
   import Field from '../ui/Field.svelte'; // Einheitliche Formulare (Noah 19.10.2026 «teil bearbeiten jetzt»)
   import DrawOn from '../draw/DrawOn.svelte'; // Paket NE 1146: draw on the photo
+  import RepairList from './RepairList.svelte'; // Paket A, UC-020-I1: repair instead of sorting out
+  import WishTrial from './WishTrial.svelte'; // Paket A, UC-007-I3: borrow before buying
+  import { openRepairs, trialState } from '../stand/stand.js';
   import { checkAll } from '../ui/formchecks.js';
   let { item, items: allItems, readOnly = false, preset = {}, onsaved = null, onkept = null, onclose } = $props();
 
@@ -436,6 +439,16 @@
   // Shrunk on the device (photo.js: JPEG, longest side 1400 px) and kept on the item (item.photo,
   // like bike.photo); saved with "Save", removable. Shown small in the wardrobe.
   const clothing = $derived(isClothing(draft));
+  const trialSum = $derived.by(() => {
+    const st = trialState($liveQ ?? item, today);
+    if (!st) return t('not tried');
+    if (st.verdict) return st.verdict === 'buy' ? t('worth buying') : t('not needed|trial');
+    return st.over ? t('test over: decide') : t('borrowed');
+  });
+  const repairSum = $derived.by(() => {
+    const n = openRepairs($liveQ ?? item).length;
+    return n ? tn(n, '{n} open job', '{n} open jobs') : t('nothing to do');
+  });
   let reading = $state(false);
   let photoErr = $state('');
   async function pickPhoto(event) {
@@ -820,6 +833,14 @@
   </div>
 {/snippet}
 
+{#snippet trialBody()}
+  <WishTrial item={$liveQ ?? item} onchange={(tr) => (draft.trial = tr ?? undefined)} />
+{/snippet}
+
+{#snippet repairBody()}
+  <RepairList item={$liveQ ?? item} onchange={(r) => (draft.repairs = r)} />
+{/snippet}
+
 {#snippet lifeBody()}
   <ItemLife item={$liveQ ?? item} items={allItems} stats={life.stats} log={life.log} {today} weight={false} />
 {/snippet}
@@ -840,6 +861,8 @@
   {@render fold('blocks', Package, t('Building blocks'), blockNames(draft, blocks).join(' · ') || t('no block'), blocksBody)}
   {@render fold('rules', Route, t('For weather and riding time'), ruleLine, rulesBody)}
   {#if !isNew && life}{@render fold('life', CalendarClock, t('History|item'), lifeSum, lifeBody)}{/if}
+  {#if !isNew && (draft.ownership === 'wishlist' || draft.ownership === 'to-buy')}{@render fold('trial', ArrowLeftRight, t('Borrow before buying'), trialSum, trialBody)}{/if}
+  {#if !isNew && clothing && draft.ownership !== 'wishlist' && draft.ownership !== 'to-buy'}{@render fold('repair', Wrench, t('Repair instead of sorting out'), repairSum, repairBody)}{/if}
   {@render fold('store', Warehouse, t('At home and supply'), storeLine, storeBody)}
   {#if charges}{@render fold('power', Zap, t('Power|item'), powerLine(draft, t) || t('not set'), powerBody)}{/if}
   {@render fold('details', FileText, isNew ? t('Brand, model, note') : t('Name, brand, note'), detailLine || t(CATEGORY[draft.category]?.name ?? ''), detailsBody)}

@@ -17,6 +17,7 @@
   import { addKind, updateTodo, removeTodo } from '../merkendb.js';
   import { BDAY_REMINDS, PLANT_AT, PLANT_EVERY, GIFT_IDEAS, PLANT_SUGGESTIONS, WINTER_FACTOR, daysInMonth, validMd, toggleRemind, remindAt } from './kinds.js';
   import { t, locale } from '../i18n.svelte.js';
+  import { BDAY_CONTACT } from '../stand/stand.js';
 
   let { kind = 'birthday', todo = null, onclose, ondone } = $props();
 
@@ -35,6 +36,9 @@
   let year = $state(from?.bday?.year ?? '');
   let reminds = $state((from?.reminds ?? BDAY_REMINDS).map((r) => ({ ...r })));
   let gift = $state(from?.gift ?? '');
+  // Paket A, UC-257-I2: something together and how you get in touch (stand/stand.js)
+  let together = $state(from?.together ?? '');
+  let contact = $state(from?.contact ?? '');
   // plant
   let every = $state(from?.plant?.every ?? PLANT_EVERY);
   let place = $state(from?.plant?.place ?? '');
@@ -79,8 +83,10 @@
       const md = month && day ? `${pad(+month)}-${pad(Math.min(+day, daysInMonth(+month)))}` : '';
       if (!validMd(md)) return (error = t('Choose the day and the month.'));
       const y = Number.isInteger(+year) && +year > 1900 && +year <= +today.slice(0, 4) ? +year : null;
-      const fields = { text: name.trim(), bday: { md, year: y }, reminds: $state.snapshot(reminds), gift: gift.trim() || undefined };
+      const plan = { together: together.trim() || undefined, contact: BDAY_CONTACT.some((c) => c.key === contact) ? contact : undefined };
+      const fields = { text: name.trim(), bday: { md, year: y }, reminds: $state.snapshot(reminds), gift: gift.trim() || undefined, ...plan };
       r = from ? { undo: await updateTodo(db, from.id, fields) } : await addKind(db, 'birthday', { name, md, year: y, reminds: fields.reminds, gift });
+      if (!from && r?.todo && (plan.together || plan.contact)) await updateTodo(db, r.todo.id, plan);
     } else {
       const n = Math.max(1, Math.round(+every || PLANT_EVERY));
       const fields = { text: name.trim(), plant: { every: n, place: place.trim() || null, last: last || today, ...(winter ? {} : { winter: false }) }, remind: remindOn ? { at: plantAt || PLANT_AT, before: 0 } : null };
@@ -145,6 +151,16 @@
         <div class="rrow sugg" role="group" aria-label={t('Gift ideas')}>
           {#each GIFT_IDEAS as g (g)}<button type="button" class="chip" aria-pressed={gift === t(g)} onclick={() => (gift = t(g))}>{t(g)}</button>{/each}
         </div>
+      </div>
+      <label class="fld"><span class="lbl">{t('Something together (optional)')}</span>
+        <input class="inp" bind:value={together} maxlength="120" placeholder={t('e.g. a walk by the lake')} data-bday-together />
+      </label>
+      <div class="fld" role="group" aria-label={t('How you get in touch')}>
+        <span class="lbl">{t('How you get in touch')}</span>
+        <div class="rrow">
+          {#each BDAY_CONTACT as c (c.key)}<button type="button" class="chip" aria-pressed={contact === c.key} onclick={() => (contact = contact === c.key ? '' : c.key)} data-bday-contact={c.key}>{t(c.name)}</button>{/each}
+        </div>
+        <p class="hint">{t('In the 30 days before, Remember shows these steps to tick.')}</p>
       </div>
     {:else}
       {#if error}<p class="err" role="alert">{error}</p>{/if}
