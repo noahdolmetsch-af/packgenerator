@@ -60,6 +60,11 @@
     await closeIt();
     onplan?.($state.snapshot(d));
   }
+  // Paket B, UC-055-I1 «Kleiner Vorgeschmack»: a short trip close by that tries the same way of sleeping or packing
+  async function planTaste() {
+    await closeIt();
+    onplan?.($state.snapshot(d), true);
+  }
 </script>
 
 <dialog use:backClose class="sheet vdlg dsheet" bind:this={dialog} {onclose} oncancel={(e) => (e.preventDefault(), closeIt())} aria-labelledby="dream-h">
@@ -108,9 +113,12 @@
   <p class="q hint">{t('The map: export the route as a GPX file in komoot (or elsewhere) and load it here.')}</p>
 
   <label class="fld"><span class="lbl">{t('Note')} <small class="q">· {t('optional')}</small></span><textarea class="inp" rows="2" bind:value={d.note}></textarea></label>
+  <label class="fld"><span class="lbl">{t('A small taste first')} <small class="q">· {t('optional')}</small></span><input class="inp" type="text" maxlength="160" bind:value={d.taste} placeholder={t('e.g. one night in the Jura with the same bags')} data-dream-taste /></label>
+  {#if d.tasteTripId}<p class="q hint" data-dream-taste-planned>{t('The taste is planned as a trip.')}</p>{/if}
 
   <div class="vd-foot">
     <button type="button" class="btn" onclick={remove}>{t('Delete')}</button>
+    {#if !d.tasteTripId && d.taste?.trim()}<button type="button" class="btn" onclick={planTaste} data-dream-taste-plan>{t('Plan the taste')}</button>{/if}
     {#if !d.tripId}<button type="button" class="btn" onclick={plan}><Route size={16} aria-hidden="true" />{t('Plan the tour')}</button>{/if}
     <button type="button" class="btn hi" onclick={closeIt}>{t('Done')}</button>
   </div>

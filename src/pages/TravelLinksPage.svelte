@@ -10,6 +10,7 @@
   import { bookingUrl, airbnbUrl, hostelworldUrl, HUT_URL, WARMSHOWERS_URL, flightradarUrl, googleFlightsUrl, flightNo, carUrl, rome2rioUrl, sbbUrl, edaUrl, wikivoyageUrl, meteoUrl, windyUrl, swisstopoUrl, schweizMobilUrl } from '../lib/sk/links.js';
   import { t, lang } from '../lib/i18n.svelte.js';
   import '../lib/ich/ich.css';
+  import TravelChoices from '../lib/reise/TravelChoices.svelte'; // Paket B, UC-032-I1 + I2: options to compare
 
   let no = $state('');
   const fno = $derived(flightNo(no));
@@ -51,6 +52,7 @@
     <span>{t('Follow a flight: flight number')}</span>
     <input class="inp" type="text" autocomplete="off" autocapitalize="characters" spellcheck="false" bind:value={no} placeholder={t('e.g. LX 1234')} />
   </label>
+  <TravelChoices />
   {#each groups as g (g.key)}
     <section class="card trv-g" data-travel-group={g.key}>
       <h2>{g.title}</h2>

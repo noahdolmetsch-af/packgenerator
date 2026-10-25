@@ -54,3 +54,22 @@ describe('Werkstatt: handover', () => {
     expect(new Set(HANDOVER_STEPS.map((s) => s.key)).size).toBe(HANDOVER_STEPS.length);
   });
 });
+
+describe('A warranty claim draft (UC-180-I2)', () => {
+  it('collects bike, purchase, part, since and what, without empty lines', async () => {
+    const { claimText } = await import('../src/lib/werkstatt/werkstatt.js');
+    const text = claimText({ bikeName: 'test_data_gtp_ Gravel', bought: '2025-04-01', shop: 'test_data_gtp_ Laden', rows: [{ key: 'frame', label: 'Rahmen', end: '2030-04-01' }], claim: { part: 'frame', since: '2026-10-01', what: 'test_data_gtp_ knackt' } });
+    expect(text.split('\n')).toEqual([
+      'Warranty claim, draft',
+      '',
+      'Bike: test_data_gtp_ Gravel',
+      'Bought on 2025-04-01 (test_data_gtp_ Laden)',
+      'Part: Rahmen, warranty until 2030-04-01',
+      'Since: 2026-10-01',
+      'What happens: test_data_gtp_ knackt',
+      '',
+      'Receipt and photos attached. Please let me know how we go on.',
+    ]);
+    expect(claimText({ bikeName: 'x', claim: {} })).not.toContain('Part:');
+  });
+});

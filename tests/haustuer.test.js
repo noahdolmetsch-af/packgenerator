@@ -6,7 +6,7 @@ import DE from '../src/lib/i18n/de/index.js';
 import { DEVICE_SETTINGS } from '../src/lib/db.js';
 import { stage } from '../src/lib/ride.js';
 import {
-  PARKED_KEY, PLANB_KINDS, planBOf, badWeather, hoursOfDay, badText, swapPlanB, staysOf, setStay, checkinOf, nightsOf,
+  PARKED_KEY, PLANB_KINDS, planBOf, badWeather, hoursOfDay, badText, swapPlanB, staysOf, setStay, checkinOf, nightsOf, callState, PARKED_OFF,
   arrivedPeople, toggleArrived, joinNames, arrivedText, smsHref, arrivePlace, lockItems, parkedOf, agoOf, planBTomorrow, mapsAt,
   nightText, morningText, morningDue,
 } from '../src/lib/haustuer/haustuer.js';
@@ -182,5 +182,24 @@ describe('Gute Nacht (1145, Noah «3a»)', () => {
     expect(morningDue({ ...tr, rideStart: { 1: '07:10' } }, '2026-10-24', 1, '2026-10-23')).toBe(false);
     expect(morningDue({ ...tr, finished: true }, '2026-10-24', 1, '2026-10-23')).toBe(false);
     expect(morningDue(null, '2026-10-24', 1, '2026-10-23')).toBe(false);
+  });
+});
+
+describe('Paket B: key and parts of the parked bike, getting in touch before no signal', () => {
+  it('keeps the key and what came off, without doubles', () => {
+    const p = parkedOf({ at: '2026-10-24T10:00:00Z', key: ' test_data_gtp_ roter Ring ', off: ['Lights', 'Lights', '', 'test_data_gtp_ Sattel'] });
+    expect(p.key).toBe('test_data_gtp_ roter Ring');
+    expect(p.off).toEqual(['Lights', 'test_data_gtp_ Sattel']);
+    expect(parkedOf({ at: 'x' }).off).toEqual([]);
+    expect(PARKED_OFF).toContain('Bike computer');
+  });
+  it('a stay keeps «get in touch by» and says when it is soon or past', () => {
+    const list = setStay([], 0, { name: 'test_data_gtp_ Hütte', callBy: '17:00' });
+    expect(staysOf({ stays: list })[0].callBy).toBe('17:00');
+    expect(setStay([], 0, { callBy: '17:00' })).toEqual([{ n: 0, name: '', until: '', phone: '', callBy: '17:00' }]);
+    expect(callState(list[0], '15:00')).toBe('');
+    expect(callState(list[0], '16:40')).toBe('soon');
+    expect(callState(list[0], '17:05')).toBe('past');
+    expect(callState({ n: 0 }, '17:05')).toBe('');
   });
 });

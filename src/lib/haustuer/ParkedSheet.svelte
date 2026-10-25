@@ -13,8 +13,8 @@
   import { shrinkImage } from '../photo.js';
   import PhotoPick from '../ui/PhotoPick.svelte';
   import { whereAmI } from '../unterwegs/here.js';
-  import { PARKED_KEY, parkedOf, lockItems, mapsAt, agoOf } from './haustuer.js';
-  import { X, Bike, MapPin, Lock, Check, Navigation, Trash2 } from '@lucide/svelte';
+  import { PARKED_KEY, parkedOf, lockItems, mapsAt, agoOf, PARKED_OFF } from './haustuer.js';
+  import { X, Bike, MapPin, Lock, Check, Navigation, Trash2, KeyRound, Package } from '@lucide/svelte';
   import '../bikes/velo-dlg.css';
   import '../unterwegs/unterwegs.css';
 
@@ -36,6 +36,17 @@
   let lock = $state('');
   let lockText = $state('');
   let note = $state('');
+  // Paket B, UC-101-I2: which key belongs to the lock, and what came off the bike
+  let key = $state('');
+  let off = $state([]);
+  let ownOff = $state('');
+  const toggleOff = (x) => (off = off.includes(x) ? off.filter((y) => y !== x) : [...off, x]);
+  function addOwnOff() {
+    const v = ownOff.trim();
+    if (v && !off.includes(v)) off = [...off, v];
+    ownOff = '';
+  }
+  const offName = (x) => (PARKED_OFF.includes(x) ? t(x) : x);
   let withPlace = $state(true);
   let msg = $state('');
 
@@ -54,11 +65,12 @@
     msg = '';
     const here = withPlace ? await whereAmI() : null;
     const item = locks.find((i) => i.id === lock);
-    const value = { at: new Date().toISOString(), lat: here?.lat ?? null, lon: here?.lon ?? null, acc: here?.acc ?? null, lock: item ? item.id : '', lockName: item ? nameOf(item) : lockText.trim(), note: note.trim(), photo };
+    const value = { at: new Date().toISOString(), lat: here?.lat ?? null, lon: here?.lon ?? null, acc: here?.acc ?? null, lock: item ? item.id : '', lockName: item ? nameOf(item) : lockText.trim(), note: note.trim(), photo, key: key.trim(), off: $state.snapshot(off) };
     await db.settings.put({ key: PARKED_KEY, value });
     busy = false;
     anew = false;
-    photo = note = lockText = lock = '';
+    photo = note = lockText = lock = key = '';
+    off = [];
     if (withPlace && !here) msg = t('Saved without the place: your location is not available.');
   }
   async function pickedUp() {
@@ -87,6 +99,8 @@
     <ul class="vd-panel pk-facts" data-parked-facts>
       <li><MapPin size={16} aria-hidden="true" />{#if parked.here}<a href={mapsAt(parked.here)} target="_blank" rel="noopener" data-parked-map>{t('Show on the map')}</a>{#if parked.here.acc}<small> · {t('to about {n} m', { n: Math.round(parked.here.acc) })}</small>{/if}{:else}<span>{t('No place saved')}</span>{/if}</li>
       <li><Lock size={16} aria-hidden="true" /><span>{parked.lockName || t('No lock noted')}</span></li>
+      {#if parked.key}<li data-parked-key><KeyRound size={16} aria-hidden="true" /><span>{parked.key}</span></li>{/if}
+      {#if parked.off.length}<li data-parked-off><Package size={16} aria-hidden="true" /><span>{t('Taken off, with you: {list}', { list: parked.off.map(offName).join(', ') })}</span></li>{/if}
       {#if parked.note}<li><span class="pk-note">{parked.note}</span></li>{/if}
     </ul>
     <div class="vd-foot">
@@ -108,6 +122,17 @@
       </div>
       <input class="inp" bind:value={lockText} oninput={() => (lock = '')} placeholder={locks.length ? t('Or another lock, e.g. the code lock') : t('Which lock? e.g. folding lock')} aria-label={t('Lock')} />
       {#if !locks.length}<small class="tp-muted">{t('Locks in Material (a name with «lock») show up here as a choice.')}</small>{/if}
+    </div>
+    <div class="vd-field">
+      <label class="vd-lbl tp-small" for="pk-key">{t('Key|parked')}</label>
+      <input id="pk-key" class="inp" bind:value={key} maxlength="60" placeholder={t('e.g. small key on the red ring')} data-parked-keyin />
+    </div>
+    <div class="vd-field">
+      <span class="vd-lbl tp-small" id="pk-off">{t('Taken off and with you')}</span>
+      <div class="tp-chips" role="group" aria-labelledby="pk-off">
+        {#each [...PARKED_OFF, ...off.filter((x) => !PARKED_OFF.includes(x))] as x (x)}<button type="button" class="tp-chip" aria-pressed={off.includes(x)} onclick={() => toggleOff(x)} data-parked-offpick={x}>{offName(x)}</button>{/each}
+      </div>
+      <input class="inp" bind:value={ownOff} maxlength="40" placeholder={t('Something else, e.g. saddle')} aria-label={t('Something else that came off')} onkeydown={(e) => e.key === 'Enter' && (e.preventDefault(), addOwnOff())} onblur={addOwnOff} />
     </div>
     <div class="vd-field">
       <label class="vd-lbl tp-small" for="pk-note">{t('Note|parked')}</label>
