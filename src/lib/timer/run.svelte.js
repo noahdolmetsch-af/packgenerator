@@ -100,6 +100,15 @@ export function plusMinute() {
   timer.run = addMinute(timer.run);
   keep();
 }
+/** Paket A part 4, UC-239-I2: what the running timer is for, so it still says so after a break ('' clears it). */
+export function setWhy(text) {
+  if (!timer.run) return;
+  const why = String(text ?? '').trim().slice(0, 80);
+  const next = { ...timer.run, why };
+  if (!why) delete next.why;
+  timer.run = next;
+  keep();
+}
 /** Back to the start, not running (Z2 «Zurücksetzen»): nothing is logged. */
 export function reset() {
   timer.run = null;
@@ -123,7 +132,7 @@ export async function finish(early = false) {
     else playSound(s, 0, 0.45);
   }
   if ((p?.elapsed ?? 0) < 1) return null;
-  const e = logEntry(run, now, localDay(new Date(run.startedAt)));
+  const e = { ...logEntry(run, now, localDay(new Date(run.startedAt))), ...(run.why ? { note: run.why } : {}) }; // what it was for goes into the log
   try {
     await db.timerLog.put(e);
   } catch {

@@ -46,10 +46,10 @@
   import OptionButton from '../lib/ui/OptionButton.svelte';
   import { needsSlim, repairItems, applySlim, undoSlim, REPAIR } from '../lib/repairslim.js';
   import NotPacked from '../lib/pack/NotPacked.svelte';
+  import BlockPreview from '../lib/folgen/BlockPreview.svelte'; // Paket B «Folgen vorher sehen»
   import TemplateDialog from '../lib/pack/TemplateDialog.svelte';
   import PackDay from '../lib/pack/PackDay.svelte';
   import ShopList from '../lib/pack/ShopList.svelte';
-  import PowerLine from '../lib/pack/PowerLine.svelte'; // Strombudget (Noah 19.10.2026 «2a»)
   import StarterList from '../lib/pack/StarterList.svelte'; // Paket H «1a»: the suggestion list per sport
   import AbroadCard from '../lib/alltag/AbroadCard.svelte'; // Paket V: emergency numbers, travel insurance, currency abroad
   import ItemDialog from '../lib/gear/ItemDialog.svelte';
@@ -72,7 +72,7 @@
   import { stageCount } from '../lib/ride.js';
   import { forecastForTrip, toWx } from '../lib/weather.js';
   import { take } from '../lib/nav.js';
-  import { mainStep, afterPacking, endNeedsAsk } from '../lib/phase.js';
+  import { mainStep, afterPacking, endNeedsAsk, packedAll, goDayOf } from '../lib/phase.js';
   import { endTrip as endTripNow } from '../lib/trip/ending.js';
   import { tripStateInfo } from '../lib/tripstate.js';
   import { isFixed } from '../lib/trip/fixed.js';
@@ -1053,11 +1053,13 @@
   <!-- Paket Q Zusatz 1: a weather or avalanche warning for this trip's days and place (only then) -->
   <TripAlert {trip} />
   <!-- Paket U3 «Live-Karte» (Noah 19.10.2026 «5a»: start on every tour): on the trip's days one small line -->
-  {#if todayTrip([trip], today)}<LiveStart {trip} />{/if}
+  <!-- Klick-Rundgang 22.10.2026 H04/H34: only once everything is packed; before that the main button leads on -->
+  <!-- H04: before setting off only once everything is packed; under way (set off or day 2+) always -->
+  {#if todayTrip([trip], today) && trip.entries?.length && (packedAll(trip) || trip.goDays?.[0] || goDayOf(trip, today) > 0)}<LiveStart {trip} />{/if}
   {#if packTab}
     <PackDay top={fixed ? null : blocksCard} onread={!fixed && trip.entries.some((e) => !e.packed) ? () => (reading = true) : null} {trip} {fixed} bike={bikeTrip} pressure={pressureText(targetPressure(bike), num)} wxGap={bikeTrip && !fixed ? wxGap : null} onwx={() => { useForecast(); review = true; }} steps={daySteps} {itemsById} {badges} {ready} ontoggle={toggleIn} onready={toggleReady} onpack={packIn} onreadyall={tickAllReady} onnext={finishPacking} onend={endTrip} main={mainStep(trip, today, 'pack', phaseOpts)} onundo={undoLast} {canUndo} lessons={learningsFor(trip, $learnQ ?? [], 2)} {reminders} oncharge={charge.length ? () => (chargeOpen = true) : null} {stats} charge={charge.length ? { ...charged, names: charge.map((r) => r.name) } : null} />
   {:else}
-  <CalmPack {trip} {stats} {carry} {bike} {bikeTrip} domainLabel={t(domainName(domain))} {items} {itemsById} {trips} {candidates} {targets} {templates} hasPhoto={!!shot} photo={shot?.src ?? null} {openLayers} {canUndo} {changeNote} ctxChanged={!!ctxDiff} {ctxRows} {reasons} {notice} edit={locked ? null : factEdit} {fixed} {readyCount} {readyTotal} {over} {phaseOpts} made={!!(dayMade && dayMade.id === trip.id)} swapMemory={$swapQ?.value ?? {}} onroute={changeContext} onstages={(fn) => change(fn)} prep={before} onprep={before ? openBefore : null} lessons={learningsFor(trip, $learnQ ?? [], 3)} {reminders} bind:q bind:zoneKey bind:review
+  <CalmPack {trip} {stats} {carry} {bike} {bikeTrip} domainLabel={t(domainName(domain))} {items} {itemsById} {trips} {candidates} {targets} {templates} hasPhoto={!!shot} photo={shot?.src ?? null} {openLayers} {canUndo} {changeNote} ctxChanged={!!ctxDiff} {ctxRows} {reasons} {notice} edit={locked ? null : factEdit} {fixed} {readyCount} {readyTotal} {over} {phaseOpts} made={!!(dayMade && dayMade.id === trip.id)} swapMemory={$swapQ?.value ?? {}} onroute={changeContext} onstages={(fn) => change(fn)} onlist={(fn) => change(fn)} prep={before} onprep={before ? openBefore : null} lessons={learningsFor(trip, $learnQ ?? [], 3)} {reminders} power={charge.length > 0 && !over} bind:q bind:zoneKey bind:review
     actions={{
       // v0.25.0 (M3): an amount set by hand stays when the trip's context changes (qtyManual).
       // v0.26.1 (Noah 18b): a packed item stays packed when its amount changes (setQty).
@@ -1088,6 +1090,7 @@
           <div class="chips">
             {#each chips as c (c.key)}<button type="button" class="chip" disabled={!c.n} aria-label={c.n ? tn(c.n, 'Add {block}: {n} item', 'Add {block}: {n} items', { block: c.label }) : t('{block}: everything is on the trip', { block: c.label })} onclick={() => addBlock(c)}>+ {c.label} ({c.n})</button>{/each}
           </div>
+          <BlockPreview {trip} {items} blocks={chips} skip={blockSkip} slotOf={blockSlot} zones={stats.zones} onadd={addBlock} {change} />
           {#if blockNote}<p class="blocknote" role="status"><span>{blockNote}</span> {#if canUndo}<button type="button" class="text-button" onclick={undoBlock}>{t('Undo')}</button>{/if}</p>{/if}
         </div>
       {/if}
@@ -1131,7 +1134,7 @@
       {#if charge.length && !over}
         <details class="tp-fold calm-extra charge-fold">
           <summary><BatteryCharging size={20} aria-hidden="true" /><span>{t('Charge the evening before')}</span><span class="r"><i class="tp-badge num" class:ok={charged.done === charged.total}>{charged.done}/{charged.total}</i><ChevronRight class="chev" size={18} aria-hidden="true" /></span></summary>
-          <div class="in extra-inner"><PowerLine {trip} {items} /><ChargeList {trip} {items} /></div>
+          <div class="in extra-inner"><ChargeList {trip} {items} /></div>
         </details>
       {/if}
     {/snippet}

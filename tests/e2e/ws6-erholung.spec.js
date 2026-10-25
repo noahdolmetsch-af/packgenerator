@@ -42,7 +42,7 @@ test('WS6: under the rings, what counts for recovery opens with the last time', 
     mkdirSync(process.env.SHOTS, { recursive: true });
     await page.screenshot({ path: `${process.env.SHOTS}/WS6-erholung-${info.project.name === 'phone' ? 390 : 1440}.png` });
   }
-  await fold.getByRole('link', { name: T('Change in Goals') }).click();
-  await expect(page).toHaveURL(/#\/flow\/goals/);
+  await fold.getByRole('link', { name: T('Change in My sports') }).click(); // «Aktiv neu» (22.10.2026): «Ziele» is «Meine Sportarten»
+  await expect(page).toHaveURL(/#\/flow\/sports/);
   expect(errors).toEqual([]);
 });

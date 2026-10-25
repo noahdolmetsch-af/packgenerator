@@ -133,7 +133,9 @@ export function halfSince(act, day) {
  * ticked «Velo draussen» before it was ridden, and a tap could not take that tick back. Trips without
  * a bike (hiking, ski, weekend, travel: their backpacks are trip.packs, domains.js hasBike) count nothing.
  */
-export function tripDays(trips = [], today) {
+export function tripDays(trips = [], today, { rodeToday = true } = {}) {
+  // Klick-Rundgang H29: a trip ended today ticks «Velo draussen» only when a ride of today is booked (km or a
+  // ride from Strava/Garmin); ending a trip without riding ticks nothing
   const out = [];
   for (const tr of trips) {
     if (!tr?.startDate || tr.skipped || Array.isArray(tr.packs)) continue;
@@ -141,7 +143,7 @@ export function tripDays(trips = [], today) {
     const n = Math.max(1, Number(tr.days) || 1);
     for (let i = 0; i < n; i++) {
       const d = addDays(tr.startDate.slice(0, 10), i);
-      if (d < today || (d === today && ended)) out.push(d);
+      if (d < today || (d === today && ended && (rodeToday || !!tr.fromRide))) out.push(d);
     }
   }
   return out;

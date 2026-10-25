@@ -71,7 +71,8 @@ test('Trophäen-Vitrine: from the shelf to all stars by area and year', async ({
   await expect(link).toHaveText(T('See all trophies'));
   await link.click();
   await expect(page).toHaveURL(/#\/flow\/trophies$/);
-  await expect(page.locator(TABS).getByRole('link', { name: T('Activity|tab'), exact: true })).toHaveAttribute('aria-current', 'page');
+  // «Aktiv neu» (Noah 22.10.2026): milestones and trophies are Auswerten › Meilensteine
+  await expect(page.locator(TABS).getByRole('link', { name: T('Milestones'), exact: true })).toHaveAttribute('aria-current', 'page');
 
   // TV1: over all first, then Meditation; per milestone one badge, the next one dashed
   await expect(main.getByRole('heading', { level: 1, name: T('Trophy showcase') })).toBeVisible();

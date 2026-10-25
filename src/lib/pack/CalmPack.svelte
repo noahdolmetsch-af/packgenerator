@@ -25,6 +25,7 @@
   import WeightCard from './WeightCard.svelte';
   import StagesCard from './StagesCard.svelte';
   import DoorCard from '../haustuer/DoorCard.svelte';
+  import ProbeRow from '../probe/ProbeRow.svelte'; // Paket B: «Generalprobe» from 7 days before the start
   import PlanHints from '../tourlernen/PlanHints.svelte'; // Paket Z: spare parts after a breakdown, sleep spots nearby
   import PackExtras from '../schnellpacken/PackExtras.svelte'; // Paket SP «Schneller packen»
   import EventStart from './EventStart.svelte';
@@ -36,6 +37,7 @@
   import { hasStages } from '../stages.js';
   import { isEvent } from '../care.js';
   import TripBand from '../trip/TripBand.svelte';
+  import PowerLine from './PowerLine.svelte';
   import Sum from '../ui/Sum.svelte';
   import { planningGroups } from '../preparation.js';
   import { t, tn, nameOf, num, locale, bagName } from '../i18n.svelte.js';
@@ -59,7 +61,13 @@
   import { missingOf, missingText } from '../touren/tourstep.js';
   import ListCheck from '../helper/ListCheck.svelte';
   import { isOn } from '../helper/client.svelte.js';
-  let { trip, stats, bike, bikeTrip, domainLabel, items, itemsById, trips, candidates, targets, templates, hasPhoto = false, openLayers, canUndo, changeNote = '', ctxChanged = false, ctxRows = {}, reasons = {}, readyCount, readyTotal, over, fixed = false, phaseOpts = {}, carry = new Set(), q = $bindable(''), zoneKey = $bindable('seat'), review = $bindable(false), actions, settings, picker, moreWeights, preparation, ballastContent, suggest = null, notice = null, made = false, onion = null, photo = null, edit = null, swapMemory = {}, onroute = null, onstages = null, prep = null, onprep = null, lessons = [], reminders = [] } = $props();
+  // Klick-Rundgang H33 (parked until Noah's OK): an empty list offers a template's list in one tap
+  import { tripFromTemplate, tplDomain } from '../templates.js';
+  import { domainOf } from '../domains.js';
+  import { SETS_KEY } from '../sets.js';
+  import { db } from '../db.js';
+  import { offerDone } from '../ui/rename.svelte.js';
+  let { trip, stats, bike, bikeTrip, domainLabel, items, itemsById, trips, candidates, targets, templates, hasPhoto = false, power = false, openLayers, canUndo, changeNote = '', ctxChanged = false, ctxRows = {}, reasons = {}, readyCount, readyTotal, over, fixed = false, phaseOpts = {}, carry = new Set(), q = $bindable(''), zoneKey = $bindable('seat'), review = $bindable(false), actions, settings, picker, moreWeights, preparation, ballastContent, suggest = null, notice = null, made = false, onion = null, photo = null, edit = null, swapMemory = {}, onroute = null, onstages = null, prep = null, onprep = null, lessons = [], reminders = [], onlist = null } = $props();
   let grouping = $state('bags');
   let opened = $state({});
   let itemMenu = $state(null);
@@ -98,6 +106,18 @@
     return trip.hours ? t('{n} h per day', { n: num(trip.hours) }) : t('Duration not set');
   });
   const tpl = $derived(templates.find((x) => x.id === trip.templateId) ?? null);
+  // H33: the template of this area that an empty list can take over (the trip's own template first).
+  const example = $derived(fixed || trip.entries.length || !onlist ? null : [tpl, ...templates].find((x) => x && !x.archivedAt && tplDomain(x) === domainOf(trip)) ?? null);
+  async function useExample() {
+    const from = $state.snapshot(example);
+    if (!from) return;
+    const sets = (await db.settings.get(SETS_KEY))?.value ?? [];
+    const made = tripFromTemplate({ title: trip.title || from.name, startDate: trip.startDate, days: trip.days, bike: bike ? $state.snapshot(bike) : null }, from, $state.snapshot(items), Date.now(), sets);
+    const keys = bikeTrip ? ['entries', 'setup', 'setupId'] : ['entries'];
+    const before = Object.fromEntries(keys.map((k) => [k, $state.snapshot(trip[k]) ?? null]));
+    await onlist((cur) => ({ ...cur, ...Object.fromEntries(keys.map((k) => [k, made[k] ?? cur[k]])) }));
+    offerDone(t('List of «{name}» taken over.', { name: from.name }), () => onlist((cur) => ({ ...cur, ...before })));
+  }
   const startText = $derived(tpl ? tpl.name : trip.copiedFrom ? t('Last trip') : t('Standard|block'));
   const until = $derived(trip.startDate ? daysUntil(trip.startDate) : null);
   const whenText = $derived(until == null ? '' : until > 1 ? tn(until, 'in {n} day', 'in {n} days') : until === 1 ? t('tomorrow') : until === 0 ? t('today') : '');
@@ -209,16 +229,44 @@
     const list = new Intl.ListFormat(locale(), { type: 'conjunction' }).format(m.parts.map((p) => t(p.key, p.vars)));
     return `${t('Still missing:')} ${list}. ${t(m.close)}`;
   });
+  // «Packen sichtbar» (Noah 25.10.2026 «bitte fortfahren»): the cards further down get a jump mark too:
+  // «Von der Haustür bis zurück», «Generalprobe» and «Schneller packen», each only while its card is on the page
+  const EXTRA_JUMPS = [
+    { key: 'door', label: 'From the door and back', sel: '[data-door]' },
+    { key: 'probe', label: 'Dress rehearsal', sel: '[data-probe-row="probe"]' },
+    { key: 'faster', label: 'Pack faster', sel: '[data-pack-extras]' },
+  ];
+  let extraHere = $state([]);
+  $effect(() => {
+    if (!rootEl) return;
+    const look = () => {
+      const keys = EXTRA_JUMPS.filter((x) => rootEl.querySelector(x.sel)).map((x) => x.key);
+      if (keys.join() !== extraHere.join()) extraHere = keys;
+    };
+    look();
+    let raf = 0;
+    const obs = new MutationObserver(() => {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(look);
+    });
+    obs.observe(rootEl, { childList: true, subtree: true });
+    return () => {
+      obs.disconnect();
+      cancelAnimationFrame(raf);
+    };
+  });
   const jumps = $derived([
     { key: 'list', label: t('Packing list|jump') },
     onprep ? { key: 'tasks', label: t('Tasks|jump') } : null,
     showRoute ? { key: 'route', label: t('Route|jump') } : null,
     { key: 'weather', label: t('Weather|jump') },
+    ...EXTRA_JUMPS.filter((x) => extraHere.includes(x.key)).map((x) => ({ key: x.key, label: t(x.label) })),
   ].filter(Boolean));
   function jump(key) {
     if (key === 'tasks') return onprep?.();
     const q = (sel) => rootEl?.querySelector(sel);
-    const el = key === 'list' ? q('.list-head') : key === 'route' ? q('.plan-top section.rc') : (ev ? q('.plan-top section.tw') : null) ?? q('.wxcard') ?? q('.cond');
+    const extra = EXTRA_JUMPS.find((x) => x.key === key);
+    const el = extra ? q(extra.sel) : key === 'list' ? q('.list-head') : key === 'route' ? q('.plan-top section.rc') : (ev ? q('.plan-top section.tw') : null) ?? q('.wxcard') ?? q('.cond');
     if (!el) return;
     el.scrollIntoView({ block: 'start', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
     // the keyboard goes along: the heading of the section takes the focus without a second jump
@@ -260,6 +308,8 @@
          jump marks stand right under the band instead of in it, so the band stays compact (D6) -->
     {@render core(true)}
     {@render notice?.()}
+    <!-- Alles fertig (Versteckte Funktionen, Noah 22.10.2026 «1a»): «Strom: reicht / reicht nicht ›» open at the top -->
+    {#if power}<PowerLine {trip} {items} />{/if}
     <!-- «Mehr Inhalt» (Noah 15.10.2026, 1a–5a): the tip of the day, a fitting «Passt zu heute» first -->
     <HintCard page="pack" />
     {#if trip.skipped}<p class="tp-status">{bikeTrip ? t('Not riding') : t('Not going')}</p>{/if}
@@ -282,6 +332,7 @@
           <!-- Paket W «Von der Haustür bis zurück» (Noah 20.10.2026): plan B, check-in, «Gut angekommen» -->
           <PlanHints {trip} {trips} {items} />
           <DoorCard {trip} />
+          <ProbeRow {trip} {items} card />
           <PackExtras {trip} {trips} {itemsById} />
           <!-- Planungs-Notizen (IS 246–249): what comes to mind while planning; «Daraus wird …» -->
           <PlanNotesCard {trip} {bike} {fixed} />
@@ -291,6 +342,7 @@
       <PlanNotesCard {trip} {bike} {fixed} />
       <PlanHints {trip} {trips} {items} />
       <DoorCard {trip} />
+      <ProbeRow {trip} {items} card />
       <PackExtras {trip} {trips} {itemsById} />
     {/if}
     <!-- Gesamttest 20.10 Design / UI-Grundlagen (idea 1): the tip of the day after the first content part -->
@@ -390,7 +442,7 @@
           <!-- v0.127.0 A-U2: the one empty building block -->
           <section class="empty-list" aria-labelledby="empty-list-h">
             {#if fixed}<Empty level={3} headId="empty-list-h" title={t('No packing list for this trip.')} text={t('It was ridden without a list from the app. Reopen it to add one.')} action={{ label: t('Reopen'), onclick: actions.reopen }} />
-            {:else}<Empty level={3} headId="empty-list-h" title={t('Your packing list is still empty.')} text={items.length ? t('Pick what you take along from your gear.') : t('Add your first item here; it goes into your gear for every next trip.')} action={{ label: t('Add gear'), onclick: () => show('add') }} />{/if}
+            {:else}<Empty level={3} headId="empty-list-h" title={t('Your packing list is still empty.')} text={items.length ? t('Pick what you take along from your gear.') : t('Add your first item here; it goes into your gear for every next trip.')} action={{ label: t('Add gear'), onclick: () => show('add') }} action2={example ? { label: t('Use example list'), onclick: useExample } : null} />{/if}
           </section>
         {/if}
         <div class="bag-groups blist" class:cols={!phone.matches}>

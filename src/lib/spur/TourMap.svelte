@@ -30,6 +30,15 @@
   const fit = () => {
     view = fitView(bounds, w, h, { maxZoom: 15 });
   };
+  // Tote Knöpfe 8 («Alles fertig»): the whole tour was already in view, so the tap showed nothing; say it
+  let fitNote = $state('');
+  let fitTimer;
+  const fitAll = () => {
+    fit();
+    fitNote = t('The whole tour is in view');
+    clearTimeout(fitTimer);
+    fitTimer = setTimeout(() => (fitNote = ''), 2500);
+  };
   onMount(() => {
     const ro = new ResizeObserver(() => {
       w = box.clientWidth || 360;
@@ -164,7 +173,7 @@
   <div class="ctl">
     <button type="button" class="btn sm" aria-label={t('Zoom in')} onclick={() => zoom(2)}><Plus size={18} aria-hidden="true" /></button>
     <button type="button" class="btn sm" aria-label={t('Zoom out')} onclick={() => zoom(0.5)}><Minus size={18} aria-hidden="true" /></button>
-    <button type="button" class="btn sm" aria-label={t('Whole tour')} onclick={fit}><Maximize2 size={18} aria-hidden="true" /></button>
+    <button type="button" class="btn sm" aria-label={t('Whole tour')} onclick={fitAll} data-tour-fit><Maximize2 size={18} aria-hidden="true" /></button>
     {#if ground == null}<button type="button" class="btn sm" aria-label={t('Map ground')} aria-expanded={pickOpen} onclick={() => (pickOpen = !pickOpen)} data-map-layers><Layers size={18} aria-hidden="true" /></button>{/if}
   </div>
   {#if pickOpen}
@@ -180,9 +189,26 @@
     </div>
   {/if}
   <p class="attr">{g.attribution}</p>
+  <p class="fitnote" role="status">{fitNote}</p>
 </div>
 
 <style>
+  .fitnote {
+    position: absolute;
+    left: 50%;
+    top: 10px;
+    transform: translateX(-50%);
+    margin: 0;
+    padding: 0 10px;
+    border-radius: 999px;
+    background: var(--paper);
+    color: var(--ink);
+    font-size: var(--fs-small);
+    pointer-events: none;
+  }
+  .fitnote:empty {
+    display: none;
+  }
   .tmap {
     position: relative;
     overflow: hidden;

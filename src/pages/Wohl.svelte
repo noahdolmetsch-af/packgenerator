@@ -40,6 +40,9 @@
   import { albumOf, ALBUM_KEY, albumCfgOf, jarNotes, jarPick, lowToday, weatherDays, morningTip, fetchPastWeather, PAST_WX_KEY } from '../lib/wohl.js';
   import { HOME_PLACE } from '../lib/know.js';
   import PhotoPick from '../lib/ui/PhotoPick.svelte';
+  import GoodDaysList from '../lib/wohl/GoodDaysList.svelte';
+  import MixBars from '../lib/wohl/MixBars.svelte';
+  import { phone } from '../lib/media.svelte.js';
   import { shrinkImage } from '../lib/photo.js';
   import { routineQuery } from '../lib/routine-data.js';
   import { isFor as routineFor, isDone as routineDone, feltOf as routineFelt } from '../lib/routine.js';
@@ -126,6 +129,13 @@
     offerDone(t('Wished mix removed.'), () => save(WISH_KEY, before ?? {}));
   }
 
+  // Paket P4 (E5): − / + on a bar saves the wish at once, with Undo
+  async function stepSave(next) {
+    const before = ex?.wish ?? null;
+    await save(WISH_KEY, wishOf(next, keys));
+    offerDone(t('Wished mix saved.'), () => save(WISH_KEY, before ?? {}));
+  }
+
   // #250 short versions: the categories with the lowest value first
   let mins = $state(20);
   const shortCats = $derived(bal ? [...bal.cats].sort((a, b) => (a.value ?? 101) - (b.value ?? 101)).slice(0, 3).map((c) => c.key) : keys.slice(0, 3));
@@ -210,6 +220,8 @@
   }
   const diffText = (s) => (s.diff == null ? t('Not enough days with a day score to compare yet.') : s.diff > 0 ? t('Day score {a} instead of {b} the days before: {d} more.', { a: f1(s.during.mean), b: f1(s.before.mean), d: f1(s.diff) }) : s.diff < 0 ? t('Day score {a} instead of {b} the days before: {d} less.', { a: f1(s.during.mean), b: f1(s.before.mean), d: f1(-s.diff) }) : t('Day score the same as the days before ({a}).', { a: f1(s.during.mean) }));
 
+  // UI-Ziele #7 (phone length budget, 0.182.0): on a phone the first two phases, the rest after one tap
+  let phasesAll = $state(false);
   // #255 Lebensphasen: your own and the app's suggestions (seasons), both can be renamed and removed
   const ph = $derived(phasesOf(ex?.phases));
   const phases = $derived([
@@ -416,6 +428,8 @@
             <p class="wl-sub">{t('Your good days ({n}) most often had:', { n: recipes[0].of })}</p>
             <ul class="wl-chips">{#each recipes as r (r.key)}<li>{fact(r.key)} <em class="num">{r.n}×</em></li>{/each}</ul>
           {/if}
+          <!-- Paket P4 (mockup E4): the good days kept in the evening review -->
+          <GoodDaysList {today} />
         </div>
       </Section>
 
@@ -503,7 +517,7 @@
       <!-- #255 Lebensphasen -->
       <Section title={t('Life phases')} sub={t('Compare times of your life: your own and the seasons')}>
         <ul class="card slist" data-wohl-phases>
-          {#each phases as p (p.id)}
+          {#each phone.matches && !phasesAll ? phases.slice(0, 2) : phases as p (p.id)}
             {@const r = phRows[p.id]}
             <li class="srow wl-row" data-phase={p.id}>
               <span class="sib purple"><Layers size={18} aria-hidden="true" /></span>
@@ -517,6 +531,7 @@
             </li>
           {/each}
         </ul>
+        {#if phone.matches && !phasesAll && phases.length > 2}<button type="button" class="btn btn-link" onclick={() => (phasesAll = true)} data-phases-more>{t('Show all {n}', { n: phases.length })} ›</button>{/if}
         <button type="button" class="btn wl-add" onclick={() => openPhase()} data-phase-add><Plus size={18} aria-hidden="true" />{t('Add phase')}</button>
       </Section>
 
@@ -576,6 +591,8 @@
           {:else}
             <p class="muted">{t('No wish yet. The line on the ring shows it once you set one.')}</p>
           {/if}
+          <!-- Paket P4 (mockup E5): wished and lived per area, − / + change the wish -->
+          {#if bal}<MixBars cats={bal.cats} {wish} onwish={stepSave} />{/if}
           <button type="button" class="btn" onclick={openWish} data-wish-edit><Target size={18} aria-hidden="true" />{Object.keys(wish).length ? t('Change wish') : t('Set wish')}</button>
         </div>
       </Section>
@@ -629,6 +646,8 @@
           {#if photoErr}<p class="err" role="alert">{photoErr}</p>{/if}
           <label class="wl-switch"><input type="checkbox" checked={albumCfg.greet} onchange={(e) => save(ALBUM_KEY, { greet: e.currentTarget.checked })} /><span>{t('Show a photo on Today')}</span></label>
           <p class="muted small">{t('The photos stay on this device and in your backup.')}</p>
+          <!-- P8: all photos of the app, by month and place -->
+          <a class="btn btn-link" href="#/me/album" data-wohl-album-all>{t('All photos in the photo album')} ›</a>
         </div>
       </Section>
 

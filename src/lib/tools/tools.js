@@ -29,6 +29,8 @@ export const TOOLS = [
   // Paket L2 «Bilderkennung» (Noah 19.10.2026): a photo ticks the packing list or adds gear; the sitting position from a photo or video
   { key: 'packphoto', icon: 'scaneye', title: 'Packing list by photo', sub: 'Tick off or add gear from one photo' },
   { key: 'sitpos', icon: 'person', title: 'Sitting position', sub: 'Knee and back angles from a photo or video' },
+  // Paket B «QR an der Kiste» (Noah 24.10.2026 «2a»): labels for boxes and shelves at home
+  { key: 'labels', icon: 'package', title: 'Box labels', sub: 'A QR code on each box: what is inside' },
 ];
 
 /** The tools in the order the person set (unknown keys dropped, new tools at the end). */

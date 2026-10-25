@@ -17,28 +17,41 @@ export const TOO_LONG = {
   // at the end (Noah 20.10.2026 «1a», every page): measured 5.39 on the phone.
   // 0.180.0 P6 (Noah 21.10.2026 «2b», the six Heute pictures): + the meditation card on top and «Weight this week?»:
   // measured 5.51 on the phone (the card's name sits beside its flower to save a row).
-  '#/': 5.6,
+  // 0.181.1: the test data has a trip that ends today, so by day Heute also shows the start card ST1/ST2 (Noah 14.10.2026
+  // «1a 2a 3b», «Heute unterwegs» or «Letzter Abend · Zurück zu Hause?»): measured 6.03–6.12 on CI by day, 5.5 at night.
+  '#/': 6.2,
   // 0.171.0: «Überblick» and «Letzte 7 Tage» wait behind one row on a phone (6.81 screens in 0.170 → under 5.5)
   '#/flow': 5.5,
-  '#/bikes': 5.5,
+  // 0.190.0 «Alltag sichtbar» (Noah 24.10.2026 «1a 2b»): the bike folder and photos one tap away, one sideways row on a
+  // phone (64 px): measured 5.58. Lower it when the bike page gets shorter.
+  '#/bikes': 5.62,
   '#/gear': 4.5,
   '#/pack/templates': 3.5,
   '#/debrief': 4.5,
   '#/wardrobe': 4,
   '#/blocks': 7.5,
-  '#/gear?view=wish': 8.5,
+  // 0.192.0 «Ehrlicher Stand» (996 Ideen, Noah «1b»): each wish gets «Wait 30 days» (buying pause), one small row per
+  // wish on a phone: measured 8.64. Lower it when the wish list gets shorter.
+  '#/gear?view=wish': 8.7,
   '#/bikes?tab=care': 6.5,
   '#/bikes?tab=shop': 3.5,
   '#/bikes?tab=compare': 3.5,
   '#/bikes?tab=rig': 4,
   '#/flow/training': 7,
-  '#/flow/goals': 4.5,
-  '#/flow/activity': 3.5,
+  // «Aktiv neu» (Noah 22.10.2026): «Ziele» is «Meine Sportarten»; «Aktivität» is a page of it, no tab any more
+  '#/flow/sports': 4.5,
+  // «Aktiv neu»: Meilensteine is a tab of Auswerten now, so the guard measures it for the first time (6.25 on the phone);
+  // the thread «Meilensteine als Belohnung» rebuilds the page and lowers this number
+  '#/flow/milestones': 6.5,
   '#/flow/impulse': 14,
   // 0.171: the sample questions that are off wait folded per area (6.33 measured; 7.22 in 0.170)
   '#/me/abfragen': 6.5,
   '#/me/wohl': 7.5,
   '#/me': 5,
+  // 0.186.0 «Alles finden»: Vorrat and «Werkzeuge und Links» became tabs (Material, Planen), so they are measured from
+  // now on; they were this long before (5.89 and 3.61 on CI). Shorten them, then lower the number.
+  '#/gear/supplies': 6,
+  '#/me/links': 3.7,
 };
 
 /** The screens a page may have on a phone. */

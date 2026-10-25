@@ -17,7 +17,9 @@
   import LocalAsk from '../localai/LocalAsk.svelte'; // «KI im Gerät» (Noah 20.10.2026 «5a»)
   import { t, tn } from '../i18n.svelte.js';
 
-  let { q = '', data = null, also = [], fixed = null, chrome = true, links = true, local = true } = $props(); // chrome, links, local: Ich › Suche (21.10.2026)
+  let { q = '', data = null, also = [], fixed = null, chrome = true, links = true, local = true, inside = false } = $props(); // chrome, links, local: Ich › Suche (21.10.2026)
+  // inside: part of the one block «Weiter fragen» (Noah 22.10.2026 «3a», AskElsewhere): no own heading, and
+  // «Copy and open Claude» is gone because the Claude link there opens with the question filled in.
   const learnQ = liveQuery(() => db.learnings.toArray());
   const question = $derived(q.trim());
   const isQ = $derived(looksLikeQuestion(question));
@@ -68,20 +70,20 @@
   <p class="ks-hint" data-ks="hint">{#if fixed}{t('Nothing for «{q}». Searched: «{fixed}»', { q: question, fixed })}{:else}{t('Also searched: {words}', { words: also.join(', ') })}{/if}</p>
 {/if}
 {#if isQ && (links || chrome || local)}
-  <div class="ks" data-ks="ask">
-    <p class="ks-gh">{t('Ask Claude or Chrome')}</p>
+  <div class="ks" class:in={inside} data-ks="ask">
+    {#if !inside}<p class="ks-gh">{t('Ask Claude or Chrome')}</p>{/if}
     <p class="ks-sub">{n ? tn(n, 'With {n} entry that fits. Nothing about your health.', 'With {n} entries that fit. Nothing about your health.') : t('No entry fits; only the question goes along.')}</p>
     <div class="ks-acts">
       {#if links}
-        <button type="button" class="btn sm" onclick={copy}><Copy size={16} aria-hidden="true" />{t('Copy for Claude')}</button>
-        <a class="btn sm" href="https://claude.ai/new" target="_blank" rel="noopener" onclick={copy}><ExternalLink size={16} aria-hidden="true" />{t('Copy and open Claude')}</a>
+        <button type="button" class="btn sm" onclick={copy}><Copy size={16} aria-hidden="true" />{inside ? t('Copy with the entries') : t('Copy for Claude')}</button>
+        {#if !inside}<a class="btn sm" href="https://claude.ai/new" target="_blank" rel="noopener" onclick={copy}><ExternalLink size={16} aria-hidden="true" />{t('Copy and open Claude')}</a>{/if}
       {/if}
       {#if chrome && ai !== 'none'}
         <button type="button" class="btn sm" onclick={askChrome} disabled={busy || !rel}><Cpu size={16} aria-hidden="true" />{ai === 'available' ? t('Ask Chrome AI') : t('Ask Chrome AI (loads once)')}</button>
       {/if}
     </div>
     {#if local}<div class="ks-local"><LocalAsk q={question} lines={[text]} name="search" deviceOnly /></div>{/if}
-    {#if copied === question && !manual}<p class="ks-ok" role="status">{t('Copied. Now paste it in the Claude app.')}</p>{/if}
+    {#if copied === question && !manual}<p class="ks-ok" role="status">{inside ? t('Copied. Now paste it where you ask.') : t('Copied. Now paste it in the Claude app.')}</p>{/if}
     {#if manual}
       <p class="ks-sub">{t('Copying did not work here. Select the text and copy it:')}</p>
       <textarea class="ks-text" readonly rows="6" aria-label={t('Text for Claude')} onfocus={(e) => e.currentTarget.select()}>{text}</textarea>
@@ -99,6 +101,8 @@
 <style>
   .ks-gh { margin: 8px 6px 2px; font-family: var(--font-body); font-weight: 600; font-size: var(--fs-label); color: var(--ink-3); }
   .ks-hint { margin: 6px 12px 2px; font-size: var(--fs-small); color: var(--ink-3); }
+  .ks.in { padding: 0; border-bottom: 0; }
+  .ks.in .ks-sub, .ks.in .ks-acts, .ks.in .ks-local, .ks.in .ks-ok, .ks.in .ks-ans { margin-left: 0; margin-right: 0; padding-left: 0; padding-right: 0; }
   .ks { padding: 4px 0 8px; border-bottom: 1px solid var(--line); margin-bottom: 4px; }
   .ks-sub { margin: 0 12px 8px; font-size: var(--fs-small); color: var(--ink-3); }
   .ks-acts { display: flex; flex-wrap: wrap; gap: 8px; padding: 0 12px; }

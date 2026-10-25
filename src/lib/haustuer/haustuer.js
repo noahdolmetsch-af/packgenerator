@@ -98,14 +98,15 @@ export function staysOf(trip) {
   const list = Array.isArray(trip?.stays) ? trip.stays : [];
   return list
     .filter((s) => s && Number.isInteger(s.n) && s.n >= 0)
-    .map((s) => ({ n: s.n, name: String(s.name ?? ''), until: isHM(s.until) ? s.until : '', phone: String(s.phone ?? '') }));
+    .map((s) => ({ n: s.n, name: String(s.name ?? ''), until: isHM(s.until) ? s.until : '', phone: String(s.phone ?? ''), ...(isHM(s.callBy) ? { callBy: s.callBy } : {}) })); // callBy: Paket B, UC-035-I2
 }
 
 /** The list after setting the stay of night n (an empty stay is removed). */
 export function setStay(list, n, fields) {
   const rest = (list ?? []).filter((s) => s.n !== n);
-  const s = { n, name: String(fields?.name ?? '').trim(), until: isHM(fields?.until) ? fields.until : '', phone: String(fields?.phone ?? '').trim() };
-  return s.name || s.until || s.phone ? [...rest, s].sort((a, b) => a.n - b.n) : rest;
+  const s = { n, name: String(fields?.name ?? '').trim(), until: isHM(fields?.until) ? fields.until : '', phone: String(fields?.phone ?? '').trim(), callBy: isHM(fields?.callBy) ? fields.callBy : '' };
+  if (!s.callBy) delete s.callBy;
+  return s.name || s.until || s.phone || s.callBy ? [...rest, s].sort((a, b) => a.n - b.n) : rest;
 }
 
 /**
@@ -165,6 +166,34 @@ export function arrivedText({ t, names = [], place = '', time = '', here = null 
   return lines.join('\n');
 }
 
+/* ---------- 1145 «Gute Nacht» (Noah 24.10.2026 «3a») ---------- */
+
+/** The good-night text: where you sleep, when you ride on and whom to call if nothing comes by `late` (hh:mm). */
+export function nightText({ t, names = [], place = '', late = '10:00', here = null }) {
+  const who = joinNames(names, t('and|names'));
+  const where = place ? t('I am sleeping in {place} tonight. Good night!', { place }) : t('I am stopping for the night. Good night!');
+  const lines = [who ? `${t('Hi {names},', { names: who })} ${where}` : where];
+  lines.push(t('If you hear nothing from me by {time} tomorrow, please call me.', { time: late }));
+  if (here) lines.push(t('Where I am: {url}', { url: mapsAt(here) }));
+  return lines.join('\n');
+}
+
+/** The morning text after a good-night message: riding on. */
+export function morningText({ t, names = [] }) {
+  const who = joinNames(names, t('and|names'));
+  const ride = t('Good morning, I am riding on now.');
+  return who ? `${t('Hi {names},', { names: who })} ${ride}` : ride;
+}
+
+/**
+ * The morning reminder (Noah «3a»): a good-night message went out yesterday and today has no start yet.
+ * trip.nightSent = 'YYYY-MM-DD' (the evening it was shared); dayIdx: today's day of the trip.
+ */
+export function morningDue(trip, today, dayIdx, yesterday) {
+  if (!trip || trip.finished || !trip.nightSent || trip.nightSent !== yesterday) return false;
+  return !trip.rideStart?.[dayIdx] && trip.morningSent !== today;
+}
+
 /** An SMS link to the phone numbers of the chosen people with the text («sms:+41…,+41…?body=…»). */
 export function smsHref(phones = [], text = '') {
   const nrs = phones.map((p) => String(p ?? '').replace(/[^\d+]/g, '')).filter(Boolean);
@@ -190,8 +219,11 @@ export function parkedOf(value) {
   const v = value && typeof value === 'object' ? value : null;
   if (!v || !v.at) return null;
   const here = Number.isFinite(v.lat) && Number.isFinite(v.lon) ? { lat: v.lat, lon: v.lon, acc: Number.isFinite(v.acc) ? v.acc : null } : null;
-  return { at: String(v.at), here, lock: String(v.lock ?? ''), lockName: String(v.lockName ?? ''), note: String(v.note ?? ''), photo: typeof v.photo === 'string' && v.photo.startsWith('data:image/') ? v.photo : '' };
+  const off = Array.isArray(v.off) ? [...new Set(v.off.map((x) => String(x ?? '').trim().slice(0, 40)).filter(Boolean))].slice(0, 12) : [];
+  return { at: String(v.at), here, lock: String(v.lock ?? ''), lockName: String(v.lockName ?? ''), note: String(v.note ?? ''), photo: typeof v.photo === 'string' && v.photo.startsWith('data:image/') ? v.photo : '', key: String(v.key ?? '').trim().slice(0, 60), off };
 }
+/** Paket B, UC-101-I2: what usually comes off the parked bike and goes along (English keys for t(); own ones as typed). */
+export const PARKED_OFF = ['Lights', 'Bike computer', 'Bottles', 'Handlebar bag', 'Pump'];
 
 /** How long ago: minutes → { n, unit } ('min' | 'h' | 'd'). */
 export function agoOf(at, now = Date.now()) {
@@ -226,4 +258,12 @@ export function planBTomorrow(trips = [], now, from = '17:00') {
     return { trip, day, date: tomorrow };
   }
   return null;
+}
+
+/** Paket B, UC-035-I2 «Kontakt vor dem Funkloch»: '' (no time or long before), 'soon' (30 min or less before) or 'past' at the time «call by» of a stay. */
+export function callState(stay, hm) {
+  if (!stay?.callBy || !isHM(hm)) return '';
+  const m = (x) => Number(x.slice(0, 2)) * 60 + Number(x.slice(3, 5));
+  const left = m(stay.callBy) - m(hm);
+  return left < 0 ? 'past' : left <= 30 ? 'soon' : '';
 }

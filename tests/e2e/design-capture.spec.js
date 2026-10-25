@@ -17,7 +17,7 @@ test('capture preparation designs', async ({ page, context }, info) => {
   await expect(page.getByRole('heading', {name:'Packliste', exact: true})).toBeVisible();
   await page.evaluate(() => document.fonts.ready);
   if (info.project.name === 'desktop') {
-    const button = await page.getByRole('button',{name:'Alles gepackt, los'}).boundingBox();
+    const button = await page.getByRole('button',{name:/^Alles (gepackt|einpacken), los$/}).boundingBox();
     expect(button.y + button.height).toBeLessThanOrEqual(1058);
   }
   await page.screenshot({path:`qa/pack-${info.project.name}.png`,fullPage:true});

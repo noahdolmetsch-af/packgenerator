@@ -12,7 +12,7 @@
   import { t } from '../i18n.svelte.js';
   import { backClose } from '../ui/backclose.js';
   import { offerDone } from '../ui/rename.svelte.js';
-  import { PLACES, PLACE_TABS, setTabOrder, orderedTabs } from '../nav.js';
+  import { ALL_PLACES, PLACE_TABS, setTabOrder, orderedTabs } from '../nav.js';
   import { byOrder, moved, pageCfg, isEmptyPage, setPartHidden, setPartName, setPartOrder, resetPage, resetTabs, withTitle } from '../anpassen.js';
   import { anp, change, restore, placeLabel } from '../anpassen.svelte.js';
   import EditRows from './EditRows.svelte';
@@ -29,7 +29,7 @@
   const sorted = $derived(byOrder(parts, cfg.order, (p) => p.key));
   const rows = $derived(sorted.map((p) => ({ key: p.key, label: cfg.names[p.key] ?? p.label, orig: p.label, hidden: cfg.hide.includes(p.key) })));
   const hasTabs = $derived(!!place && (PLACE_TABS[place]?.length ?? 0) > 1);
-  const placeObj = $derived(PLACES.find((p) => p.key === place));
+  const placeObj = $derived(ALL_PLACES.find((p) => p.key === place));
   const changed = $derived((void anp.v, !isEmptyPage(cfg) || (hasTabs && !!anp.cfg.tabs[place])));
 
   $effect(() => {

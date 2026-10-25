@@ -96,9 +96,10 @@ test('SN1 Unterwegs: pill with the day, «Jetzt» card, «Notiz» main button, �
   await box.fill('test_data_gtp_ Kette quietscht');
   await page.locator('.notesec').getByRole('button', { name: T('Save note') }).click();
   await expect(page.locator('.notesec .notes')).toContainText('test_data_gtp_ Kette quietscht');
-  // «Tour beenden …» is in «…» and asks first
-  await band.getByRole('button', { name: T('More for this trip') }).click();
-  await page.getByRole('menuitem', { name: new RegExp(esc(T('End the trip …'))) }).click();
+  // «Tour beenden …» asks first. Versteckte Funktionen (Noah 22.10.2026, changed on purpose): a visible
+  // button in the band, no longer in «…»; the emergency window is one tap away next to it
+  await expect(band.locator('[data-ride-sos]')).toHaveAttribute('href', '#/mountain/sos');
+  await band.getByRole('button', { name: T('End the trip …') }).click();
   const sheet = page.locator('dialog.endsheet');
   await expect(sheet.getByRole('heading', { name: T('End the trip now?') })).toBeVisible();
   await sheet.getByRole('button', { name: T('Ride on') }).click();
@@ -113,8 +114,8 @@ test('SN1 Unterwegs on the last day: «Letzten Tag abschliessen» is the main bu
   const band = page.locator('.trip-band');
   await expect(band.locator('.btn.hi.go')).toBeVisible();
   await expect(band.locator('.notego')).toHaveCount(0);
+  await expect(band.getByRole('button', { name: T('End the trip …') })).toHaveCount(0);
   await band.getByRole('button', { name: T('More for this trip') }).click();
-  await expect(page.getByRole('menuitem', { name: new RegExp(esc(T('End the trip …'))) })).toHaveCount(0);
   await page.getByRole('menuitem', { name: new RegExp(`^${esc(T('Note|ride'))}`) }).click();
   await expect(page.locator('.notesec textarea')).toBeFocused();
   await fits(page, info);
@@ -125,8 +126,8 @@ test('SN6 Funktionen: «Neu für dich», 3 quiet rows per card, the row takes yo
   page.on('pageerror', (e) => errors.push(e.message));
   await start(page, context, '2026-10-09T10:00:00+02:00');
   await page.goto('./#/features');
-  await expect(page.getByRole('heading', { name: T('What the app can do'), level: 1 })).toBeVisible();
-  await expect(page.locator('.vhead [aria-current="page"]')).toHaveText(T('What the app can do|crumb')); // Impeccable Runde 2: the path like the title
+  await expect(page.getByRole('heading', { name: T('Help and functions'), level: 1 })).toBeVisible();
+  await expect(page.locator('.vhead [aria-current="page"]')).toHaveText(T('Help and functions')); // Impeccable Runde 2: the path like the title («Alles finden 2»: renamed)
   await expect(page.locator('.vhead .vsub')).toContainText(T('tap to go there'));
   // SN6+ (answer 1b, intended change): «Neu für dich» is replaced by «Neu seit deinem letzten Besuch»;
   // its debrief and playground tips stand in «Passt gerade» (at most three tips)
@@ -160,7 +161,7 @@ test('SN6 Funktionen: «Neu für dich», 3 quiet rows per card, the row takes yo
   await page.getByLabel(T('Find a function')).fill('basischeck');
   await expect(tips).toHaveCount(0);
   const base = page.locator('[data-feature="f.basecheck"]');
-  await base.getByRole('button', { name: T('More for {title}', { title: T('Basic check before every ride') }) }).click();
+  await base.getByRole('button', { name: T('More for {title}', { title: T('Base check') }) }).click(); // «Alltag sichtbar» (2b): the catalogue takes the page's name
   await expect(page.getByRole('menuitem', { name: new RegExp(esc(T('Take me there'))) })).toBeVisible();
   await page.getByRole('menuitem', { name: new RegExp(esc(T('Try it'))) }).click();
   const sheet = page.locator('dialog.playsheet');

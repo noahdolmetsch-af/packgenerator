@@ -35,6 +35,9 @@
   import { sortBikes } from '../lib/bikes.js';
   import { localDay } from '../lib/localday.js';
   import FileSheet from '../lib/inbox/FileSheet.svelte';
+  // Paket P5 «Eingang» (mockup A-J4): the «Ablegen-Runde», one note after the other
+  import SortRound from '../lib/inbox/SortRound.svelte';
+  import { roundQueue, roundState, roundTally, roundMinutes } from '../lib/inbox/round.js';
   import VeloHead from '../lib/bikes/VeloHead.svelte';
   import '../lib/ich/ich.css';
   import Lightbox from '../lib/ui/Lightbox.svelte';
@@ -56,7 +59,7 @@
   import { Mail, Paperclip, RefreshCw, ListTodo, CalendarDays, Bookmark, FileText, Copy } from '@lucide/svelte';
   import { fetchOutside, intake } from '../lib/mail/intake.svelte.js';
   import { fileAction, tipOf, SENDERS_KEY } from '../lib/mailin.js';
-  import { onMount } from 'svelte';
+  import { onMount, tick } from 'svelte';
 
   let { onnew } = $props();
 
@@ -157,12 +160,30 @@
     return '';
   }
   const fileSheet = (n, straight) => ((direct = straight), (filing = n));
+  // P5 Ablegen-Runde: the queue is fixed when it starts; done says what happened to each note (the end screen counts it)
+  let round = $state(null);
+  const roundAt = $derived(round ? roundState(round.queue, round.done, notes) : null);
+  const tally = $derived(round ? { ...roundTally(round.done), left: openN } : null);
+  const mark = (id, what) => round && (round.done = { ...round.done, [id]: what });
+  const unmark = (id) => {
+    if (!round?.done[id]) return;
+    const { [id]: _gone, ...rest } = round.done;
+    round.done = rest;
+  };
+  async function startRound() {
+    msg = '';
+    round = { queue: roundQueue(notes), done: {} };
+    await tick();
+    document.querySelector('[data-sort-round]')?.scrollIntoView({ block: 'start', behavior: reduced ? 'auto' : 'smooth' });
+  }
+  const roundFile = (n, kind, straight) => ((start = kind), fileSheet(n, straight));
   const closeSheet = () => ((filing = null), (start = null));
   /** «Einfach behalten» needs no form: it becomes a note with the guessed topic, Undo in the toast. */
   async function keep(n) {
     msg = '';
     try {
-      filedNow(await fileTo($state.snapshot(n), 'keep', { topic: guessTopic(n.text ?? '') }));
+      const stored = await fileTo($state.snapshot(n), 'keep', { topic: guessTopic(n.text ?? '') });
+      filedNow(stored);
     } catch (err) {
       msg = t(err.message) || t('This note could not be sorted.');
     }
@@ -182,6 +203,7 @@
   $effect(() => () => clearTimeout(timer));
   function filedNow(stored) {
     clearTimeout(timer);
+    mark(stored.id, stored.to?.kind === 'keep' ? 'kept' : 'filed');
     last = { note: stored, text: t('Filed: {where}', { where: chipText(stored) }) };
     timer = setTimeout(() => (last = null), UNDO_MS);
   }
@@ -191,6 +213,7 @@
     last = null;
     try {
       await unfile($state.snapshot(n));
+      unmark(n.id);
     } catch (err) {
       msg = err.message || t('This could not be saved.');
     }
@@ -199,8 +222,11 @@
     const name = (n.text ?? '').slice(0, 40);
     if ((await askDelete({ title: t('Delete the note "{text}"?', { text: name }), text: t('It waits {n} days in the trash of Notes (More › Trash).', { n: TRASH_DAYS }) })) !== 'delete') return;
     const rec = $state.snapshot(n);
+    clearTimeout(timer);
+    last = null; // one toast at a time: the trash one
     // Paket NE 1151: into the trash of Notes for 30 days
-    await deleteWithUndo({ run: () => trashNote(db, rec), undo: (row) => row && restoreNote(db, row.id), text: t('"{name}" is in the trash.', { name }), name });
+    const gone = await deleteWithUndo({ run: () => trashNote(db, rec), undo: async (row) => row && (await restoreNote(db, row.id), unmark(rec.id)), text: t('"{name}" is in the trash.', { name }), name });
+    if (gone) mark(rec.id, 'deleted');
   }
 
   const OLD = { repair: 'Bike care', learning: 'Learning', trip: 'Debrief', done: 'Done|filed' };
@@ -222,7 +248,7 @@
 
 
 <div class="inbox ich-page">
-  <VeloHead crumbs={[{ label: t('Me|place'), href: '#/me' }]} title={t('Inbox')} sub={$notesQ ? `${t('Notes from on the way, to file')} · ${t('newest on top')}` : ''} />
+  <VeloHead crumbs={[{ label: t('Plan|place'), href: '#/week' }]} title={t('Inbox')} sub={$notesQ ? `${t('Notes from on the way, to file')} · ${t('newest on top')}` : ''} />
   <!-- Hinweistexte HT 3a (Noah 14.10.2026): the card «Was hier steht» -->
   <HintCard page="inbox" />
   <div class="bar">
@@ -234,7 +260,18 @@
   </div>
   {#if msg}<p class="err" role="alert">{msg}</p>{/if}
 
-  {#if view === 'open'}
+  {#if view === 'open' && round}
+    <SortRound note={roundAt.current} pos={roundAt.pos} total={roundAt.total} tally={roundAt.over ? tally : null} {trips} {rules} {bikes}
+      onfile={roundFile} onkeep={keep} ondelete={remove} onskip={(n) => mark(n.id, 'skipped')} onpause={() => (round = null)} onend={() => (round = null)} />
+  {:else if view === 'open'}
+    {#if openN >= 2}
+      <!-- P5 (mockup A-J4): the start of the «Ablegen-Runde» above the list -->
+      <section class="card abr-start" aria-labelledby="abr-start-h" data-round-start>
+        <div class="ich-m"><h2 id="abr-start-h">{tn(openN, '{n} note is waiting', '{n} notes are waiting')}</h2>
+          <p>{t('One after the other, with a suggestion. Takes about {n} min.', { n: roundMinutes(openN) })}</p></div>
+        <button type="button" class="btn" onclick={startRound} data-round-go>{t('Start the sorting round')}</button>
+      </section>
+    {/if}
     <div class="ich-cols">
       <div class="ich-main">
         <section class="ich-sec" aria-labelledby="tofile-h">
@@ -402,6 +439,30 @@
 {/if}
 
 <style>
+  /* P5: the start card of the «Ablegen-Runde» */
+  .abr-start {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px 16px;
+    padding: 14px 16px;
+    margin: 0 0 18px;
+  }
+  .abr-start h2 {
+    margin: 0;
+    font-size: var(--fs-section);
+    overflow-wrap: break-word;
+  }
+  .abr-start p {
+    margin: 2px 0 0;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+    overflow-wrap: break-word;
+  }
+  .abr-start .btn {
+    min-height: 44px;
+  }
   /* «Jetzt holen»: a full-size tap target (Wächter) */
   .ib {
     display: inline-grid;

@@ -32,6 +32,9 @@
   import { trello } from '../lib/trello/client.svelte.js';
   import { LISTS_KEY, PIN_PLACES, openCount } from '../lib/ownlists.js';
   import { offerDone } from '../lib/ui/rename.svelte.js';
+  import WaitingGroup from '../lib/stand/WaitingGroup.svelte'; // Paket A part 1: to-dos that wait
+  import ListEnds from '../lib/stand/ListEnds.svelte';
+  import { notWaiting, isEnded, waitingRows } from '../lib/stand/stand.js';
 
   const today = localDay();
   const q = liveQuery(async () => {
@@ -49,7 +52,7 @@
   const kmOf = (id) => d.bikes.find((b) => b.id === id)?.km ?? null;
   // «after rain»: a trip on that bike with rain in its weather, ended after the last tick
   const rainSince = (bikeId, since) => d.trips.some((tr) => tr.bikeId === bikeId && tr.wx?.rain && tr.startDate && tr.startDate <= today && tr.startDate >= String(since).slice(0, 10));
-  const groups = $derived(groupTodos(d.todos, today, kmOf, rainSince));
+  const groups = $derived(groupTodos(notWaiting(d.todos), today, kmOf, rainSince));
   const done = $derived(doneTodos(d.todos));
   const bdays = $derived(birthdayRows(d.todos, today));
   const bdaySecs = $derived(birthdaySections(bdays));
@@ -59,7 +62,7 @@
     return new Date(`${key}-15T12:00:00Z`).toLocaleDateString(locale(), opts);
   }
   const plants = $derived(plantRows(d.todos, today));
-  const open = $derived(GROUPS.reduce((n, g) => n + groups[g].length, 0) + bdays.length + plants.length);
+  const open = $derived(GROUPS.reduce((n, g) => n + groups[g].length, 0) + bdays.length + plants.length + waitingRows(d.todos, today).length);
   const inDays = (n) => (n === 0 ? t('Today') : n === 1 ? t('Tomorrow') : tn(n, 'in {n} day', 'in {n} days'));
   const plantDue = (n) => (n < 0 ? tn(-n, 'due for {n} day', 'due for {n} days') : n === 0 ? t('due today') : inDays(n));
   const dateOf = (day) => new Date(`${day}T12:00:00Z`).toLocaleDateString(locale(), { day: 'numeric', month: 'long', timeZone: 'UTC' });
@@ -151,6 +154,7 @@
       {/if}
     {/each}
 
+    <WaitingGroup todos={d.todos} {today} ontick={tickIt} onopen={(x) => (sheet = { todo: x })} {say} />
     {#if bdays.length}
       <h2 class="gh">{t('Birthdays')}</h2>
       {#each bdaySecs as sec (sec.key)}
@@ -217,9 +221,9 @@
       <h2 id="mk-lists-h">{t('Lists')}</h2>
       <button type="button" class="btn sm" onclick={() => (newList = true)}><Plus size={16} aria-hidden="true" />{t('New list')}</button>
     </div>
-    {#if d.lists.length}
+    {#if d.lists.some((l) => !isEnded(l))}
       <ul class="card list lrows">
-        {#each d.lists as l (l.id)}
+        {#each d.lists.filter((l) => !isEnded(l)) as l (l.id)}
           <li>
             <a class="mlrow" href={`#/calendar/list/${l.id}`}>
               <ListChecks size={18} aria-hidden="true" />
@@ -233,6 +237,7 @@
     {:else}
       <p class="empty">{t('No list yet. A list can hold anything: shopping before a trip, ideas, a workshop list.')}</p>
     {/if}
+    <ListEnds lists={d.lists} />
   </section>
 
   <TrelloBox />

@@ -424,6 +424,11 @@ export const HANDBOOK = {
     steps: ['Open On the way, tap «Arrived safely», then «Share».'],
     example: 'Example: at the campsite in the Jura → «Arrived safely» → «Hi Anna and Ben, I arrived safely in Saignelégier at 18:10.»',
   },
+  'f.goodnight': {
+    on: 'Choose your emergency contacts once in Before you leave.',
+    steps: ['Open On the way, tap «Good night», set the time, then «Share».'],
+    example: 'Example: in the Jura → «Good night» → «Hi Anna, I am sleeping in Saignelégier tonight. Good night!»',
+  },
   'f.planb': {
     on: null,
     steps: ['Set a shorter GPX or «Train home» in Planen.', 'With heavy rain or a storm, tap «Take plan B» on On the way; Undo brings the planned route back.'],
@@ -452,7 +457,7 @@ export const HANDBOOK = {
   },
   'f.postcard': {
     on: null,
-    steps: ['In the debrief tap «Tour postcard» and add a photo if you like.', '«Share» opens the share sheet; on a computer «Save» downloads the picture.'],
+    steps: ['In the debrief tap «Tour picture» and add a photo if you like; after a ride on the live map it comes under «Your ride».', '«Share» opens the share sheet; on a computer «Save» downloads the picture.'],
     example: 'Example: a photo from the pass, the line of the tour and 212 km, 3100 m up, 2 days on one picture.',
   },
   'f.packtwo': {
@@ -769,6 +774,34 @@ export const HANDBOOK = {
     steps: ['Open Heute: the card «Weight this week?» stands under the greeting.', 'Type the weight and tap «Save», or «Not today».', '«Stop asking» takes the card away; «Add a tile» brings it back.'],
     example: 'Example: last weight 8 days ago → the card asks; saved, it is gone until next week.',
   },
+  // Paket P8 «Fotoalbum»
+  'f.photoalbum': {
+    on: null,
+    steps: ['Open Me › Photo album.', 'Tap «Add photos» and choose several.', 'Tap a photo: give it a place, or switch «Show on Today» off.'],
+    example: 'Example: three photos of a rest → place «above the lake», under «By place» together.',
+  },
+  // Paket P5 «Eingang»
+  'f.sortround': {
+    on: 'Only when at least two notes wait in the Inbox.',
+    steps: ['Open Me › Inbox.', 'Tap «Start the sorting round».', 'For each note tap «File», a chip, «Keep», «Delete» or «Skip».'],
+    example: 'Example: «Rear brake squeaks» → suggestion «Problem on a bike» because «brake» appears.',
+  },
+  // Paket P4 «Aktiv»
+  'f.tennistop': {
+    on: 'Only on the page of the activity Tennis.',
+    steps: ['Open Aktiv › Sports › Tennis.', 'Tap «Played» or «Like last time».', 'Booked a court? «Enter a time»: afterwards the app asks «Played?».'],
+    example: 'Example: Thursday 18:00 booked → on Thursday evening «Played?» with «Yes, played».',
+  },
+  'f.yogaclasses': {
+    on: null,
+    steps: ['Open Aktiv › Meditation.', 'In the card Yoga tap «Add a class».', 'After the class tap «Was there» or «Skipped».'],
+    example: 'Example: Thursday 18:30 Hatha every week → «Next regular class Thu 18:30».',
+  },
+  'f.goodday': {
+    on: null,
+    steps: ['At the end of the evening review tap «Keep this day».', 'Write what made it good and save.', 'In What is good for me tap «Repeat on Saturday».'],
+    example: 'Example: «quiet morning, outside in the afternoon» → on Saturday morning the check reminds you.',
+  },
   // Paket P3 «Warum? und Regeln»
   'f.decides': {
     on: null,
@@ -911,10 +944,10 @@ export const HANDBOOK = {
     steps: ['Open the sheet of the live map › «Public transport nearby» and tap «Find stops».', 'Tap a stop for its next departures.'],
     example: 'Example: Bahnhof 140 m → S1 in 7 min from platform 2.',
   },
-  'f.sharepic': {
+  'f.stopsnear': {
     on: null,
-    steps: ['Stop the ride on the live map; under «Your ride» tap «Share picture».', 'Leave out the shape when you start at home.'],
-    example: 'Example: 42.5 km, 1 h 52 min, 640 m → one picture for the chat.',
+    steps: ['On Today tap «Stops nearby» (or on a tour page, or open the live map › «Stops»).', 'Choose «Around me» or «Along the route», and the kinds you want.', 'Tap «Google Maps» or «OsmAnd» to ride there.'],
+    example: 'Example: thirsty on a ride → «Around me», only «Water» → the next fountain is 0.8 km away.',
   },
   'f.sleeptonight': {
     on: null,
@@ -1032,9 +1065,9 @@ export const HANDBOOK = {
     example: 'Example: on a rainy day Packen says first to put the rain jacket on top; «Only useful tips» keeps the «Did you know» sentences away.',
   },
   'f.milestones': {
-    on: 'Needs a goal under Active › Goals.',
-    steps: ['Open Active › Activity › Milestones.', 'See the next star; pick a reward from the wishlist.'],
-    example: 'Example: next star at 20 sessions → reward «new bottle».',
+    on: null,
+    steps: ['Tick a sport on Heute or in Aktiv: every tick counts 1 in its counters (times done, weeks in a row, this year, hours).', 'A new star shows right after the tick in a small window.', 'On the sport page: pick a ready challenge or set your own; reached, it is a star in the showcase.'],
+    example: 'Example: the 5th yoga tick → «New star: Times done, star 1»; «12× in the next 6 weeks» counts by itself.',
   },
   'f.meditation': {
     on: null,
@@ -1140,8 +1173,8 @@ export const HANDBOOK = {
   },
   'f.next': {
     on: null,
-    steps: ['Open Me › What comes next.', 'See what is live, what is being built and what comes later.'],
-    example: 'Example: «Plans and dreams» under «Being built now» → a test link follows.',
+    steps: ['Open Me › Project shelf.', 'Read «For you now» and «The way».', 'Open «Ideas» under «Look up» and tap a goal.'],
+    example: 'Example: «Eingang is built and parked» → it goes online after your OK.',
   },
   'f.notes': {
     on: null,
@@ -1335,8 +1368,8 @@ export const HANDBOOK = {
   },
   'f.autosync': {
     on: 'Needs the internet now and then; it is free and the server cannot read your data.',
-    steps: ['On the computer: Me › Data and backup › «Switch on sync»; a QR code and a code appear.', 'On the phone: point the camera at the QR code and tap «Pair» (or «I have a code» and type it).', 'From then on both sync by themselves; when the same entry changed on both, a window asks which version counts.'],
-    example: 'Example: weight changed on the phone and the name on the computer → «Changed on both devices» → «Keep this one» or «Take this one».',
+    steps: ['On the computer: Me › Data and backup › «Switch on sync»; a QR code and a code appear.', 'On the phone: point the camera at the QR code and tap «Pair» (or «I have a code» and type it).', 'From then on both sync by themselves, without questions; when the same entry changed on both, the newer change counts.'],
+    example: 'Example: weight on the phone, later the name on the computer → the newer counts → the other under «Settled by itself».',
   },
   // Paket R
   'f.account': {
@@ -1693,6 +1726,186 @@ export const HANDBOOK = {
     steps: ['«Travel track» › «Travel book as PDF».', 'Save or print the PDF.'],
     example: 'Example: a cover with the whole line, then one page per day with its photos.',
   },
+  'f.probe': {
+    on: null,
+    steps: ['From a week before the start: open the trip in Pack or «Packed» › «Dress rehearsal».', 'Try each step at home and tap «Works», «Gap» or «Not needed».', 'At a gap tap «Keep as to-do»: it waits in Merken for the evening before.'],
+    example: 'Example: route opened in flight mode → «Works»; tube change took 25 minutes → «Gap», to-do «Practise tube change».',
+  },
+  'f.homecoming': {
+    on: null,
+    steps: ['After «Trip ended» tap «Arrive well».', 'Tick what is done; «Later» for what waits.', '«Keep as to-do» puts it into Merken for tomorrow.'],
+    example: 'Example: tent hung up, laundry in → «Done»; borrowed stove → «Later», to-do for tomorrow.',
+  },
+  'f.blockeffect': {
+    on: null,
+    steps: ['Open Pack › Add material.', 'Under the building blocks tap «Before adding: see the effect».', 'Read things, grams, bags and earlier trips; «Add …» takes it, Undo in Pack.'],
+    example: 'Example: Rain → 3 things, +430 g, seat pack; «Already packed, check again»; on 4 earlier trips 1× the rain trousers were missing.',
+  },
+  'f.needs': {
+    on: null,
+    steps: ['Open Pack › Add material › «Pack by need».', 'Tap your needs and set the people; compare light, comfortable, little effort.', '«Take it onto the list»; things already there stay, Undo in Pack.'],
+    example: 'Example: sleep warm + cook, 3 days, 2 people → one stove, two sleeping bags; light 2.1 kg, comfortable +0.8 kg.',
+  },
+  'f.labels': {
+    on: null,
+    steps: ['Open Toolbox › Box labels and add a box with its place.', 'Type what goes in: your gear or anything else.', '«Print label», stick it on; scanning the code opens the box in the app.'],
+    example: 'Example: «Winter box, cellar» with headlamp, gloves and the Christmas lights.',
+  },  'f.workspace': {
+    on: null,
+    steps: ['Open Me › Calm and personal › Less app for the moment.', 'Choose up to 8 functions for your plan.', '«Start the workspace»; the strip stays until you end it.'],
+    example: 'Example: «Workshop Saturday» with bike inspection, spare parts and workshop due.',
+  },
+  'f.friendask': {
+    on: null,
+    steps: ['Open Me › With friends and choose what you ask, e.g. «Tell the trip together».', 'Choose the trip, check the lines, «Make the link» and send it to who you choose.', 'Your friend answers in the app and sends a link back; open it and tap «Keep it».'],
+    example: 'Example: after the Lake tour a friend adds their view and a voice note; your own entry stays as it is.',
+  },
+  'f.friendshelf': {
+    on: null,
+    steps: ['Open Me › With friends › Lending shelf for friends and put things on the shelf.', '«Send the shelf»: friends choose what they would like and send a request.', 'Open the request: «Keep the request», «Say yes», «Handed over»; Lent out remembers it.'],
+    example: 'Example: the second tent goes on the shelf «to borrow»; a friend asks for next weekend.',
+  },
+  'f.friendtemplate': {
+    on: null,
+    steps: ['Open Me › With friends › Share a template.', 'Choose a building block or your layout and send it.', 'Your friend sees what it changes, maps the lines to their own things and takes it over.'],
+    example: 'Example: your block «Rain» goes to a friend, who maps it to their own jacket and gloves.',
+  },
+  'f.calmview': {
+    on: null,
+    steps: ['Open Me › Calm and personal › Less app for the moment › Calm view.', 'Write what you do now, e.g. clean the bike.', 'Tap «Done» when you are finished.'],
+    example: 'Example: «Pack calmly» → the strip shows only that until «Done».',
+  },
+  'f.pushbudget': {
+    on: null,
+    steps: ['Open Me › Calm and personal › Less app for the moment › Reminder budget.', 'Switch «Use a budget» on and choose how many a day.', 'Sort the groups with the arrows or by dragging.'],
+    example: 'Example: 2 a day, «Trips» first → birthdays wait on a tour day.',
+  },
+  'f.notforme': {
+    on: null,
+    steps: ['Open Me › Calm and personal › Less app for the moment › Not for me.', 'Find the function and tap «Not for me».', '«Suggest again» brings it back on top.'],
+    example: 'Example: «Race» → not for me; it moves to the end of its group.',
+  },
+  'f.experiment': {
+    on: null,
+    steps: ['Open Me › Calm and personal › Small experiments.', 'Write your question and what you change, choose the days.', 'Tick yes or no each day; at the end write what you learned.'],
+    example: 'Example: «Do I sleep better without a screen after 21:00?», 14 days.',
+  },
+  'f.specialdays': {
+    on: null,
+    steps: ['Open Me › Calm and personal › Where a value comes from.', 'Choose the day and tap its kind, e.g. a lot of work.', 'The last 14 days show what explains a day.'],
+    example: 'Example: Tuesday «Travelling» → no sport that day, and that is explained.',
+  },
+  'f.counterdays': {
+    on: null,
+    steps: ['Open Me › Calm and personal › Where a value comes from › Counter-examples.', 'Choose an insight.', 'See the days that went together and the days against it.'],
+    example: 'Example: more sleep, more battery: 21 days fit, 6 days not.',
+  },
+  'f.sleeporigin': {
+    on: null,
+    steps: ['Open Me › Calm and personal › Where a value comes from › Places to sleep.', 'Each place shows where it comes from.', 'Change it with the field next to the place.'],
+    example: 'Example: a bivouac from a file → «Only imported», until you slept there.',
+  },
+  'f.weightsure': {
+    on: null,
+    steps: ['Open Me › Calm and personal › Where a value comes from › How sure the weight is.', 'Choose the trip.', 'Weigh the heaviest estimated things first.'],
+    example: 'Example: 8.4 kg, 62 % weighed; the tent counts most.',
+  },
+  'f.letters': {
+    on: null,
+    steps: ['Open Me › Calm and personal › Your later self.', 'Choose the moment and write your letter.', 'When the moment comes, a line on top says a letter is waiting.'],
+    example: 'Example: «For the first night: it is always loud. Sleep comes.»',
+  },
+  'f.letterreply': {
+    on: null,
+    steps: ['Open an opened letter under «Answer your old letters».', 'Write your answer and keep it.', '«Write the next letter» goes on with the story.'],
+    example: 'Example: «It was loud, and I slept anyway» → the next letter for the next trip.',
+  },
+  'f.laterview': {
+    on: null,
+    steps: ['Open Me › Calm and personal › Your later self › Seen differently later.', 'Choose a day you rated.', 'Write how you see it today, with a new value if you like.'],
+    example: 'Example: back then 4 of 10, later: «a hard day, and the start of something good».',
+  },
+  'f.voiceletters': {
+    on: null,
+    steps: ['Open Me › Calm and personal › Your later self › Voice letters.', 'Tap «Record» and speak up to 1 minute.', 'Listen, rename or delete it later.'],
+    example: 'Example: after the evening meditation, 40 seconds about the day.',
+  },
+  'f.meaning': {
+    on: null,
+    steps: ['Open Me › Calm and personal › Meaning next to numbers.', 'Tap the marks of a trip.', 'Tap a mark on top to see its trips.'],
+    example: 'Example: «With friends» → the four trips with friends, newest first.',
+  },
+  'f.gooddecisions': {
+    on: null,
+    steps: ['Open Me › Calm and personal › Meaning next to numbers › Good decisions.', 'Tap a start or write your own.', '«Keep it»; evening answers «replanned, good» show too.'],
+    example: 'Example: «Turned back below the pass, the storm came an hour later».',
+  },
+  'f.ownbingo': {
+    on: null,
+    steps: ['Open Me › Calm and personal › Meaning next to numbers › Your own discovery bingo.', 'Tap a field and write where you found it.', 'Change the fields under «Change the fields».'],
+    example: 'Example: «A good fountain» → fountain in Twann, 3 fields to the first Bingo.',
+  },
+  'f.freerewards': {
+    on: null,
+    steps: ['Open Me › Calm and personal › Meaning next to numbers › Rewards without buying.', 'Write for what, then tap a reward.', 'Change the list under «Change the rewards».'],
+    example: 'Example: first 100 km ride → «A long breakfast».',
+  },
+  'f.skillmap': {
+    on: null,
+    steps: ['Open Me › Calm and personal › What you can do.', 'Add a skill and its sport.', 'Set the level and add an example with the day.'],
+    example: 'Example: «Change a tube» → sure; example: first time on the road, 12.9.',
+  },
+  'f.knowhow': {
+    on: null,
+    steps: ['Open Me › Calm and personal › What you can do › Was it know-how, not gear?', 'Choose the trip and what was missing.', 'Write what to learn; it lands on your skill map.'],
+    example: 'Example: stove would not light in the wind → «to learn», not a new stove.',
+  },
+  'f.sharepreview': {
+    on: null,
+    steps: ['Open Me › Calm and personal › Share with a preview.', 'Choose the trip and what goes in.', 'Check the preview, confirm, then share the link.'],
+    example: 'Example: without the date and the weights → the preview shows only the list.',
+  },
+  'f.arrival': {
+    on: null,
+    steps: ['Open Me › Calm and personal › Share with a preview › Arrival.', 'Choose how much place, e.g. a rough region.', '«Send» opens the phone\'s share window.'],
+    example: 'Example: to the club «Near Seeland», to Mum the exact position.',
+  },
+  'f.tworoles': {
+    on: null,
+    steps: ['Open Me › Calm and personal › Numbers that stay clear.', 'Tap the roles of a ride.', 'The sums show each role and every ride once.'],
+    example: 'Example: the ride to work → commuting and training; total counted once.',
+  },
+  'f.scalemeaning': {
+    on: null,
+    steps: ['Open Me › Calm and personal › Numbers that stay clear › What a scale meant.', 'Write what 1 and what 10 mean for you.', 'A new meaning counts from today; old answers keep theirs.'],
+    example: 'Example: battery 1 = could not get up, 10 = the best day of the year.',
+  },
+  'f.bodytalk': {
+    on: null,
+    steps: ['Open Me › Calm and personal › Numbers that stay clear › Prepare a talk.', 'Add what you noticed and your open questions.', '«Copy» or «Print» and take it along.'],
+    example: 'Example: 30 days of resting pulse and sleep, two questions.',
+  },
+  'f.sources': {
+    on: null,
+    steps: ['Open Me › Calm and personal › Assistant with sources.', 'Ask your question.', 'Tap a source to open it; «Ask Gemini» cites them as [1].'],
+    example: 'Example: «What did I learn about the Jura?» → 3 entries as sources.',
+  },
+  'f.devil': {
+    on: null,
+    steps: ['Open Me › Calm and personal › Assistant with sources › Question my plan.', 'Read what is still open.', '«Collect the strongest counter-arguments» asks Gemini.'],
+    example: 'Example: no plan B yet, tent not weighed.',
+  },
+  'f.aicheck': {
+    on: null,
+    steps: ['Ask Gemini on the page «Assistant with sources».', 'The answer waits under «Check AI suggestions first».', '«Take» makes a to-do, «Drop» puts it away.'],
+    example: 'Example: Gemini suggests a lighter stove → «Take» → a to-do to check it.',
+  },
+  'f.nogos': {
+    on: null,
+    steps: ['Open Me › Calm and personal › Assistant with sources › My own no-gos.', 'Add a no-go and its kind.', 'A packing or wish list that holds one shows it here.'],
+    example: 'Example: «single-use batteries» → do not buy.',
+  },
+
 };
 
 /** The small apps: each opens right on its area, with its own icon, and shares the data of the whole app. */

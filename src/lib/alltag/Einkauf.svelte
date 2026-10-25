@@ -27,6 +27,7 @@
   import { localDay } from '../localday.js';
   import { phone } from '../media.svelte.js';
   import { t, tn } from '../i18n.svelte.js';
+  import { forOf, purposes, dropPurpose } from '../stand/stand.js'; // Paket A part 4, UC-258-I1: what a point is for
 
   const today = localDay();
   const q = alltagQuery();
@@ -67,10 +68,19 @@
     text = '';
   }
   const tick = (x) => write((l) => togglePoint(l, x.id));
-  let edit = $state(null); // { id, text, group }
+  let edit = $state(null); // { id, text, group, for }
+  const openEdit = (x) => (edit = { id: x.id, text: x.text, group: x.group ?? '', for: forOf(x) });
   async function saveEdit() {
     if (!edit.text.trim()) return t('Please give it a name.');
-    await write((l) => editPoint(l, edit.id, { text: edit.text.trim(), group: edit.group || null }));
+    await write((l) => editPoint(l, edit.id, { text: edit.text.trim(), group: edit.group || null, for: forOf(edit) || null }));
+  }
+
+  /* ---------- what the points are for (UC-258-I1): a plan that falls through takes its points along ---------- */
+  const uses = $derived(purposes(list.items ?? []));
+  async function planGone(p) {
+    const answer = await askDelete({ title: t('The plan «{name}» is off?', { name: p.name }), text: tn(p.open, 'Its {n} open point goes from the list. Ticked ones stay. You can undo this for a few seconds.', 'Its {n} open points go from the list. Ticked ones stay. You can undo this for a few seconds.'), label: t('Remove') });
+    if (answer !== 'delete') return;
+    await deleteWithUndo({ run: () => changeShop((l) => dropPurpose(l, p.name), listName()), undo: (before) => restoreShop(before), text: t('"{name}" deleted.', { name: p.name }), name: p.name });
   }
   async function removeEdit() {
     const x = edit;
@@ -172,9 +182,9 @@
               <li class="fz-row" data-sort-id={x.id} data-shop-item={x.text}>
                 <SortGrip name={x.text} onstep={(dir) => stepItem(sec, x.id, dir)} />
                 <button type="button" class="al-tick" aria-pressed="false" aria-label={t('Tick {name}', { name: x.text })} onclick={() => tick(x)} data-shop-tick></button>
-                <span class="fz-row-main"><b>{x.text}</b></span>
+                <span class="fz-row-main"><b>{x.text}</b>{#if forOf(x)}<small data-shop-for>{t('for {name}', { name: forOf(x) })}</small>{/if}</span>
                 {#if !phone.matches}<SortArrows name={x.text} i={n} n={open.length} onstep={(dir) => stepItem(sec, x.id, dir)} />{/if}
-                <button type="button" class="fz-icon" aria-label={t('Change {name}', { name: x.text })} onclick={() => (edit = { id: x.id, text: x.text, group: x.group ?? '' })} data-shop-edit><Pencil size={18} aria-hidden="true" /></button>
+                <button type="button" class="fz-icon" aria-label={t('Change {name}', { name: x.text })} onclick={() => openEdit(x)} data-shop-edit><Pencil size={18} aria-hidden="true" /></button>
               </li>
             {/each}
           </ul>
@@ -185,7 +195,7 @@
               <li class="fz-row" data-shop-item={x.text} data-done>
                 <button type="button" class="al-tick" aria-pressed="true" aria-label={t('Untick {name}', { name: x.text })} onclick={() => tick(x)} data-shop-tick><Check size={16} aria-hidden="true" /></button>
                 <span class="fz-row-main"><s>{x.text}</s></span>
-                <button type="button" class="fz-icon" aria-label={t('Change {name}', { name: x.text })} onclick={() => (edit = { id: x.id, text: x.text, group: x.group ?? '' })}><Pencil size={18} aria-hidden="true" /></button>
+                <button type="button" class="fz-icon" aria-label={t('Change {name}', { name: x.text })} onclick={() => openEdit(x)}><Pencil size={18} aria-hidden="true" /></button>
               </li>
             {/each}
           </ul>
@@ -193,6 +203,21 @@
       </section>
     {/if}
   {/each}
+
+  {#if uses.some((p) => p.open)}
+    <section class="fz-box" data-shop-uses>
+      <h2 class="fz-h2">{t('What it is for')}</h2>
+      <p class="fz-note">{t('When a plan is off, its points go with one tap. Give a point its purpose with the pencil.')}</p>
+      <ul class="fz-list">
+        {#each uses.filter((p) => p.open) as p (p.name)}
+          <li class="fz-row" data-shop-use={p.name}>
+            <span class="fz-row-main"><b>{p.name}</b><small>{tn(p.open, '{n} point', '{n} points')}</small></span>
+            <button type="button" class="btn sm" onclick={() => planGone(p)} data-shop-use-off>{t('Plan is off')}</button>
+          </li>
+        {/each}
+      </ul>
+    </section>
+  {/if}
 
   <div class="fz-acts">
     {#if (list.items ?? []).some((x) => !x.done) || tripShop?.rows?.length}<button type="button" class="btn" onclick={share} data-shop-share><Share2 size={16} aria-hidden="true" />{t('Share the list')}</button>{/if}
@@ -257,6 +282,8 @@
     <label class="fz-lab">{t('Group')}
       <select class="inp" bind:value={edit.group}><option value="">{t('Without a group')}</option>{#each groups as g (g.id)}<option value={g.id}>{g.name}</option>{/each}</select>
     </label>
+    <label class="fz-lab">{t('For what (optional)')}<input class="inp" maxlength="60" bind:value={edit.for} list="shop-for-list" placeholder={t('e.g. Risotto on Saturday')} data-field="for" /></label>
+    <datalist id="shop-for-list">{#each uses as p (p.name)}<option value={p.name}></option>{/each}</datalist>
   </FreiSheet>
 {/if}
 {#if renaming}

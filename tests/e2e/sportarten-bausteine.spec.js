@@ -35,19 +35,21 @@ test.beforeEach(async ({ page, context }) => {
   await settle(page);
 });
 
-test('the hub lists every sport with the mosaic, and the order changes with the arrows', async ({ page }) => {
+test('«Meine Sportarten» lists every sport, the mosaic folded, and the order of the trip sports changes with the arrows', async ({ page }) => {
+  // «Aktiv neu» (Noah 22.10.2026 «4a»): the hub «Sportarten» is «Meine Sportarten»; the sports of trips keep their order
   await page.goto('./#/flow/sports');
-  await expect(page.getByRole('heading', { level: 1, name: T('Sports|page') })).toBeVisible();
+  await expect(page.getByRole('heading', { level: 1, name: T('My sports|tab') })).toBeVisible();
   await expect(page.locator('[data-mosaic]')).toBeVisible();
-  const list = page.locator('[data-sport-list] > li');
+  const list = page.locator('[data-trip-sports] > li');
   await expect(list.first()).toBeVisible();
   const first = await list.nth(0).getAttribute('data-sport');
   const second = await list.nth(1).getAttribute('data-sport');
-  const name = (await list.nth(0).locator('.srow b').innerText()).trim();
-  await page.getByRole('button', { name: T('Move {name} down', { name }) }).click();
+  const name = (await list.nth(0).locator('a > span:not(.aic)').innerText()).trim();
+  await list.nth(0).getByRole('button', { name: T('Move {name} down', { name }) }).click();
   await expect(list.nth(0)).toHaveAttribute('data-sport', second);
   await expect(list.nth(1)).toHaveAttribute('data-sport', first);
-  expect((await cfg(page))._order.slice(0, 2)).toEqual([second, first]);
+  const order = (await cfg(page))._order;
+  expect(order.indexOf(second)).toBeLessThan(order.indexOf(first));
 });
 
 test('Gym: the basic blocks, training plans, and own progress with the best value', async ({ page }) => {

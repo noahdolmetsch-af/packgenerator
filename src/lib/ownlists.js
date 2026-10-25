@@ -56,7 +56,7 @@ export const pointsOf = (list) => (list.check ? [...list.items.filter((x) => !x.
 export const openCount = (list) => list.items.filter((x) => !list.check || !x.done).length;
 
 /** The lists pinned to a place (and, for a trip, to that trip). */
-export const pinnedTo = (lists, place, tripId = null) => lists.filter((l) => l.pin?.place === place && (place !== 'trips' || l.pin.tripId === tripId));
+export const pinnedTo = (lists, place, tripId = null) => lists.filter((l) => !l.ended && l.pin?.place === place && (place !== 'trips' || l.pin.tripId === tripId));
 
 /* ---------- «Meine Ideen» (HN4c, Noah «4 ok»): one of the lists, pinned to Balance ---------- */
 

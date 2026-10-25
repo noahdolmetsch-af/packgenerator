@@ -17,10 +17,12 @@
   import { PARTS, raceHref } from './parts.js';
   import { localDay } from '../localday.js';
   import SampleBar from './SampleBar.svelte';
+  import RaceJumps from './RaceJumps.svelte';
   import { withSampleFine } from './sample.js';
   import { setBox } from './view.js';
   import { t, tn, num } from '../i18n.svelte.js';
   import './race.css';
+  import { FileText } from '@lucide/svelte';
 
   let { id, part = 'plan', box = '' } = $props();
   // «Try it» from Plan › All 40 functions: show the box (on again if it was off) and scroll to it
@@ -112,8 +114,19 @@
         <a class="rc-tab" href={raceHref(id, p.key)} aria-current={p.key === part ? 'page' : undefined} data-race-tab={p.key}>{t(p.title)}</a>
       {/each}
     </nav>
+    <RaceJumps {part} />
+    {#if part === 'prepare'}
+      <!-- Paket «Alles finden» (Noah 22.10.2026 «1a»): the briefing sheet on top, not 9 screens down -->
+      <p class="rc-brieftop"><a class="btn" href="#/race/brief/{encodeURIComponent(trip.id)}" data-race-brief-top><FileText size={16} aria-hidden="true" />{t('Briefing sheet')}</a></p>
+    {/if}
     {#if ctx}
       {#key part}<LazyPage load={LOAD[part]} {ctx} />{/key}
     {/if}
   </div>
 {/if}
+
+<style>
+  .rc-brieftop {
+    margin: 0.5rem 0 0;
+  }
+</style>

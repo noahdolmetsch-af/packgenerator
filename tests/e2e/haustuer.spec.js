@@ -175,3 +175,21 @@ test('the evening before a rainy trip day: the window Plan B, not on Heute itsel
   await expect(page.locator('dialog[data-window="planb"]')).toHaveCount(0);
   expect(errors).toEqual([]);
 });
+
+test('Unterwegs: Gute Nacht says where you sleep and when to call (1145, Noah 3a)', async ({ page, context }, info) => {
+  await open(page, context, info, RUN);
+  await page.goto('./#/ride');
+  await page.evaluate(() => {
+    window.__shared = [];
+    navigator.share = async (x) => void window.__shared.push(x);
+  });
+  await tap(page.locator('[data-uw-night]'), info);
+  const dlg = page.locator('dialog[data-arrived][data-sheet-kind="night"]');
+  await expect(dlg).toHaveJSProperty('open', true);
+  await dlg.locator('[data-night-late]').fill('09:30');
+  await expect(dlg.locator('[data-arrived-text]')).toHaveValue(/Gute Nacht!/);
+  await expect(dlg.locator('[data-arrived-text]')).toHaveValue(/09:30/);
+  await tap(dlg.locator('[data-arrived-share]'), info);
+  await expect.poll(() => page.evaluate(() => window.__shared.length)).toBe(1);
+  expect(await noSideways(page)).toBeLessThanOrEqual(0);
+});

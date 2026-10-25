@@ -182,6 +182,8 @@ export function installExplain(doc = document) {
   let keyed = false;
   const typed = (e) => {
     if (e.key === 'Tab' || e.key?.startsWith('Arrow')) keyed = true;
+    // Klick-Rundgang 22.10.2026 H36: typing hides a bubble («Suche schliessen» stood over the field's ×)
+    else if (anchor && e.key?.length === 1) hide();
   };
   const focusIn = (e) => {
     const el = target(e);

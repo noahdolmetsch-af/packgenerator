@@ -45,6 +45,7 @@
   import StateNote from './StateNote.svelte';
   import ReopenSheet from './ReopenSheet.svelte';
   import { tz2 } from './reopen.svelte.js';
+  import { missingOf } from '../touren/tourstep.js';
   import KomootSign from '../komoot/KomootSign.svelte';
 
   // weighHint: false hides the "6 not weighed" badge (v0.30.1, Noah E4: not next to the green "Day ride created" card).
@@ -66,7 +67,9 @@
   // v0.125.0 TZ-1: the state of the trip (tripstate.js) once the debriefs are read
   const stInfo = $derived($debriefQ ? tripStateInfo(trip, { debrief, rides: $ridesQ ?? [], today: localDay() }) : null);
   const stExtra = $derived(stInfo ? stateExtraText(stateExtra(stInfo, { trip, debrief, today: localDay(), head: true })) : '');
-  const open = $derived(byBike && $itemsQ ? openRows(layerSuggest(trip, items), trip).length : 0);
+  // Klick-Rundgang 22.10.2026 H35: what Planen still misses (weather, route) counts as open too, so the step
+  // shows «2 offen» and not «✓ bereit» above «Fehlt noch: Wetter und Strecke» (tourstep.js missingOf)
+  const open = $derived((byBike && $itemsQ ? openRows(layerSuggest(trip, items), trip).length : 0) + ((trip?.entries ?? []).length ? missingOf(trip, { bike: byBike }).filter((k) => k !== 'weights').length : 0));
   const km = $derived(debrief?.km ?? trip.route?.km ?? null);
   const status = $derived(tabStatus(trip, { open, debrief, today: localDay(), km }));
   const tabs = $derived(tabsOf(trip));

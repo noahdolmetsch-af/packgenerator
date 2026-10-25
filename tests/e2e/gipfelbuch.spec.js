@@ -96,3 +96,32 @@ test('Gipfelbuch: found in a ride, confirmed, a hall by hand, stars in the showc
 
   expect(errors).toEqual([]);
 });
+
+// «Aktiv neu» (Noah 22.10.2026 «1a»): the summit book of a sport is its own part of the sport's page; its link
+// opens the whole book with the chip of that sport on. Fictional places only.
+test('Gipfelbuch on the page of a sport: the last places and the link to the whole book', async ({ page, context }) => {
+  const errors = await open(page, context, '#/flow/sports');
+  await expect(page.locator('main')).toBeVisible();
+  const book = {
+    places: [
+      { id: 'gbp_t1', name: 'Testpass Ost', sport: 'bike', ele: 2050, lat: null, lon: null, label: '', note: '', createdAt: `${TODAY}T08:00:00.000Z` },
+      { id: 'gbp_t2', name: 'Testgipfel', sport: 'hike', ele: 2300, lat: null, lon: null, label: '', note: '', createdAt: `${TODAY}T08:00:00.000Z` },
+    ],
+    visits: [
+      { id: 'gbv_t1', placeId: 'gbp_t1', day: addDays(TODAY, -5) },
+      { id: 'gbv_t2', placeId: 'gbp_t2', day: addDays(TODAY, -4) },
+    ],
+    dismissed: [],
+  };
+  await put(page, { settings: [{ key: 'gipfelbuch', value: book }] });
+  await page.goto('./#/flow/sport/trip%3Acycling');
+  const slot = page.locator('[data-gipfel-slot="trip:cycling"]');
+  await expect(slot.getByRole('heading', { name: T('Summit book') })).toBeVisible();
+  await expect(slot.locator('[data-gb-place="gbp_t1"]')).toContainText('Testpass Ost');
+  await expect(slot.locator('[data-gb-place="gbp_t2"]')).toHaveCount(0); // the hike stays on its own page
+  await fits(page, 'sport page');
+  await slot.locator('[data-gb-all]').click();
+  await expect(page).toHaveURL(/#\/flow\/gipfelbuch\?sport=bike$/);
+  await expect(page.locator('[data-gb-chip="bike"]')).toHaveAttribute('aria-pressed', 'true');
+  expect(errors).toEqual([]);
+});

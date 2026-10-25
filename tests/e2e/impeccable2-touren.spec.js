@@ -91,7 +91,9 @@ test('Packen 2 + 3: the main button packs the next bag; one count and one name p
   const { ctx, page, errors } = await open(browser, info, TRIP.tent, '#/pack?day');
   const go = page.locator('main .mainbar .btn.hi');
   await expect(go).toHaveAttribute('data-pack-next', '');
-  await expect(go).toHaveText(/ packen \(\d+ von \d+\)$/);
+  await expect(go).toHaveAccessibleName(/ packen \(\d+ von \d+\)$/);
+  // Klick-Rundgang H05: on a phone «Weiter packen» with the bag on a second line, nothing cut with «…»
+  if (phone(info)) await expect(go.locator('.gophone')).toContainText(T('Continue packing'));
   // «Packen abschliessen» stays reachable, quietly at the end of the bags
   await expect(page.locator('[data-finish-quiet]')).toHaveText(T('Finish packing'));
   // the bar names both counts (a computer shows the line beside the step)

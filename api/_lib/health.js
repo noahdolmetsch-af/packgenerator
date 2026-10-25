@@ -33,7 +33,7 @@
 import { pick, redis, redisEnv, REDIS_ENV } from './core.js';
 import * as helperLib from './helper.js';
 import { dayUsage, dayOf } from './daycap.js';
-import { GEMINI_URL, GEMINI_DEFAULT_MODEL, geminiRequest, geminiText, geminiKey } from '../helper.js';
+import { GEMINI_DEFAULT_MODEL, geminiRequest, geminiText, geminiKey, askGeminiModels, geminiFallbacksOf } from '../helper.js';
 
 export const CACHE_KEY = 'health:last';
 /** Set by api/helper.js (branch claude/project-thread-sfodh3) to 'empty' while Anthropic reports no credit. */
@@ -76,6 +76,7 @@ export function healthEnv(e = process.env) {
     model: pick('HELPER_MODEL', e) || helperLib.DEFAULT_MODEL,
     geminiKey: pick('GEMINI_API_KEY', e),
     geminiModel: pick('GEMINI_MODEL', e) || GEMINI_DEFAULT_MODEL,
+    geminiFallbacks: geminiFallbacksOf(pick('GEMINI_FALLBACKS', e)),
     strava: { clientId: pick('STRAVA_CLIENT_ID', e), clientSecret: pick('STRAVA_CLIENT_SECRET', e) },
     google: { clientId: pick('GOOGLE_CLIENT_ID', e), clientSecret: pick('GOOGLE_CLIENT_SECRET', e) },
     ...redisEnv(e),
@@ -186,21 +187,24 @@ export function makeChecks({ cfg, store, doFetch, now }) {
     },
     gemini: async () => {
       if (!cfg.geminiKey) return skip('gemini', 'not_set_up');
-      const res = await doFetch(GEMINI_URL(cfg.geminiModel), {
-        method: 'POST',
-        headers: { 'content-type': 'application/json', 'x-goog-api-key': cfg.geminiKey },
+      const got = await askGeminiModels({
+        doFetch,
+        key: cfg.geminiKey,
+        models: [cfg.geminiModel, ...(cfg.geminiFallbacks ?? [])],
         body: JSON.stringify(geminiRequest({ question: 'Testfrage des Wächters: Antworte nur mit «OK».', lang: 'de' })),
       });
-      if (store) {
+      if (store && got.calls) {
         const key = geminiKey(new Date(now()).toLocaleDateString('sv-SE', { timeZone: 'Europe/Zurich' }));
-        await store.cmd('INCRBYFLOAT', key, 1).catch(() => null);
+        await store.cmd('INCRBYFLOAT', key, got.calls).catch(() => null);
         await store.cmd('EXPIRE', key, 3 * 24 * 60 * 60).catch(() => null);
       }
-      if (res.status === 401 || res.status === 403) return fail('gemini', 'invalid_key', 'Der Gemini-Schlüssel ist ungültig.');
-      if (res.status === 429 || res.status === 503) return ok('gemini', 'Gemini ist gerade ausgelastet.', 'busy');
-      const msg = await res.json().catch(() => null);
-      if (!res.ok) return fail('gemini', 'error', `Gemini antwortete mit ${res.status}.`);
-      return geminiText(msg) ? ok('gemini', 'Testfrage beantwortet') : fail('gemini', 'no_answer', 'Gemini gab keine Antwort.');
+      if (got.failure === 'bad_key') return fail('gemini', 'invalid_key', 'Der Gemini-Schlüssel ist ungültig.');
+      if (got.failure === 'limit') return ok('gemini', 'Gratis-Grenze von Google gerade erreicht.', 'busy');
+      if (got.failure === 'busy') return ok('gemini', 'Gemini ist gerade ausgelastet.', 'busy');
+      if (got.failure === 'no_model') return fail('gemini', 'no_model', 'Google bietet das Gemini-Modell nicht mehr an.');
+      if (got.failure) return fail('gemini', 'error', 'Gemini antwortete mit einem Fehler.');
+      const fallback = got.model !== cfg.geminiModel ? ` (Ersatzmodell ${got.model})` : '';
+      return geminiText(got.msg) ? ok('gemini', `Testfrage beantwortet${fallback}`) : fail('gemini', 'no_answer', 'Gemini gab keine Antwort.');
     },
     abend: async () => {
       if (!cfg.apiKey) return skip('abend', 'not_set_up');

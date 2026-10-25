@@ -119,16 +119,24 @@ export async function closeDialog(page) {
  * For specs that check what comes first on a page after that; only for pages that have the card.
  */
 export async function foldPageInfo(page) {
-  // the card comes once the page's settings are read: wait for it (open, or folded to its line)
-  await expect(page.locator('main section.hint, main [data-hint-line]').first()).toBeVisible();
-  const fold = page.locator('main').getByRole('button', { name: either('Fold the explanation') });
-  if (await fold.count()) {
-    await fold.first().click();
-    await expect(page.locator('main [data-hint-line]')).toBeVisible();
-  }
+  // «Alles finden 2» (Noah 22.10.2026 «3a»): the card «Was hier steht» is behind the «?» at the top now; on the page
+  // only the tip line can still stand before the content. It comes once the page's settings are read.
+  await ready(page);
   const hide = page.locator('main').getByRole('button', { name: either('Hide the tip for today') });
+  await hide.first().waitFor({ timeout: 1500 }).catch(() => {});
   if (await hide.count()) {
     await hide.first().click();
     await expect(hide).toHaveCount(0);
   }
+}
+
+/**
+ * «Alles finden 2» (Noah 22.10.2026 «3a»): the help of a page sits behind the «?» at the top (phone bar or
+ * sidebar). Opens it and returns the window; the page's card, «Typical here» and «What the app can do here» are in it.
+ */
+export async function openHelp(page) {
+  await page.locator('[data-help-open]').filter({ visible: true }).first().click();
+  const sheet = page.locator('dialog[data-help]');
+  await expect(sheet).toBeVisible();
+  return sheet;
 }

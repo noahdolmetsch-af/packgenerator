@@ -17,6 +17,7 @@
   import { rideTimeS } from '../../lib/review/fmt.js';
   import { PLAN_KEY, GOAL_KEY, planOf, goalOf, cleanSession, prunePlan, copyWeek, doneBy, weekNumbers, weeksTo, isoWeek, mondayOf, weekOf, shiftDay, zoneSecs, mainZone, hmm, KIND_NAMES, ZONE_NAMES, typeKey } from '../../lib/training.js';
   import { t, tn, num, locale } from '../../lib/i18n.svelte.js';
+  import { offerDone } from '../../lib/ui/rename.svelte.js';
   import { stravaName } from '../../lib/stravanames.js';
   import { localDay } from '../../lib/localday.js';
   import WeekAnalyses from '../../lib/training/week/WeekAnalyses.svelte';
@@ -68,6 +69,14 @@
   async function drop() {
     await savePlan(plan.filter((x) => x.id !== form.id));
     form = null;
+  }
+  // Klick-Rundgang A04: «Gemacht» by hand, for a session Strava does not tick (indoor, no watch); with Undo
+  async function markDone(on) {
+    const before = plan.find((x) => x.id === form.id);
+    if (!before) return;
+    await savePlan(plan.map((x) => (x.id === before.id ? { ...x, done: on } : x)));
+    form = null;
+    offerDone(on ? t('«{name}» marked as done.', { name: before.name || t(KIND_NAMES[before.kind]) }) : t('«{name}» open again.', { name: before.name || t(KIND_NAMES[before.kind]) }), () => savePlan(plan.map((x) => (x.id === before.id ? before : x))));
   }
   const likeLast = () => savePlan([...plan, ...copyWeek(plan, monday)]);
 
@@ -181,6 +190,7 @@
                   </div>
                   <div class="row">
                     <button type="submit" class="btn hi sm">{t('Save')}</button>
+                    {#if form.id}<button type="button" class="btn sm" onclick={() => markDone(!form.done)} data-session-done><Check size={16} aria-hidden="true" />{form.done ? t('Not done yet') : t('Done|session')}</button>{/if}
                     {#if form.id}<button type="button" class="btn sm" onclick={drop}>{t('Remove')}</button>{/if}
                     <button type="button" class="btn btn-link sm" onclick={() => (form = null)}>{t('Cancel')}</button>
                   </div>

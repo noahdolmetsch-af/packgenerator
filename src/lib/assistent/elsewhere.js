@@ -18,7 +18,8 @@ export const SERVICES = [
   { key: 'google', name: 'Google AI Mode', what: 'Free, Google search with an AI answer', url: (q) => `https://www.google.com/search?udm=50&q=${enc(q)}` },
   { key: 'copilot', name: 'Copilot', what: 'Free, from Microsoft', url: (q) => `https://copilot.microsoft.com/?q=${enc(q)}` },
   { key: 'lechat', name: 'Le Chat', what: 'Free, from Mistral (Europe)', url: (q) => `https://chat.mistral.ai/chat?q=${enc(q)}` },
-  { key: 'duckduckgo', name: 'DuckDuckGo', what: 'Free and private, search with a short AI answer', url: (q) => `https://duckduckgo.com/?q=${enc(q)}` },
+  // Duck.ai, DuckDuckGo's own AI chat (Noah 22.10.2026 «5a»); the tap also copies the question (AskElsewhere)
+  { key: 'duckduckgo', name: 'Duck.ai', what: 'Free and private: the AI chat of DuckDuckGo', url: (q) => `https://duckduckgo.com/?q=${enc(q)}&ia=chat&duckai=1` },
 ];
 export const SERVICE_KEYS = SERVICES.map((s) => s.key);
 
@@ -28,6 +29,20 @@ export function shownServices(stored) {
   return String(stored)
     .split(',')
     .filter((k) => SERVICE_KEYS.includes(k));
+}
+
+/** The services in your order (Noah 22.10.2026 «4a»: your favourite first, arrows and drag); new ones at the end. */
+export function orderedServices(stored) {
+  const keys = String(stored ?? '').split(',').filter((k) => SERVICE_KEYS.includes(k));
+  return [...keys, ...SERVICE_KEYS.filter((k) => !keys.includes(k))].map((k) => SERVICES.find((s) => s.key === k));
+}
+
+/** The order after moving the service at place `from` to place `to`, as the stored text. */
+export function movedOrder(stored, from, to) {
+  const keys = orderedServices(stored).map((s) => s.key);
+  const [k] = keys.splice(from, 1);
+  keys.splice(Math.max(0, Math.min(keys.length, to)), 0, k);
+  return keys.join(',');
 }
 
 const MAX = 1500; // characters of context: an address stays short enough for every browser

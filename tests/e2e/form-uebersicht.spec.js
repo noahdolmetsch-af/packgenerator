@@ -58,17 +58,18 @@ async function fits(page, where) {
   expect(sw, `${where}: no sideways scroll`).toBeLessThanOrEqual(w);
 }
 
-test('Aktiv: readiness on top, then the Garmin overview', async ({ page, context }) => {
+test('Auswerten: readiness on top, then the Garmin overview', async ({ page, context }) => {
   const errors = await open(page, context);
-  await go(page, '#/flow');
+  // «Aktiv neu» (Noah 22.10.2026): the form card and the overview are on the start of Auswerten
+  await go(page, '#/auswerten');
   const card = page.locator('[data-section="form"]');
   await expect(card).toBeVisible();
   await expect(card.locator('[data-form-score]')).toHaveText(/^\d{1,3}$/);
   await expect(card.locator('[data-form-line]')).not.toBeEmpty();
   await expect(card.locator('[data-form-tour]')).toContainText(`${P}Testtour`);
-  // on top: the card comes before «Heute abhaken»
+  // on top: the card comes before the overview
   const cardY = (await card.boundingBox()).y;
-  expect(cardY).toBeLessThan((await page.locator('#tick-h').boundingBox()).y);
+  expect(cardY).toBeLessThan((await page.locator('[data-today-act]').boundingBox()).y);
 
   await expect(page.locator('[data-today-act]')).toHaveCount(1);
   await expect(page.locator('[data-today-act]')).toContainText('20.7 km');

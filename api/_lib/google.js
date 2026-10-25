@@ -62,15 +62,16 @@
 import { route, json, needStore, redisEnv, pick, ApiError, API_BASE } from './core.js';
 import { needDevice, saveState, takeState, backToApp, jsonBody } from './oauth.js';
 import { makeAccount } from './account.js';
-import { MAX_DAYS, spanDays, rollUpBody, listFilter, daysFrom, chunks, isoOf, sleepOf } from './googledays.js';
+import { MAX_DAYS, spanDays, rollUpBody, listFilter, daysFrom, chunks, civilOf, sleepOf } from './googledays.js';
 
 /** A log line about the nights Google sent: counts, wake-up days and field names only, no values. */
 export function sleepNote(points) {
-  const days = points.map((p) => isoOf(p?.sleep?.interval?.civilEndTime?.date)).filter(Boolean).sort();
+  const days = points.map((p) => civilOf(p?.sleep?.interval, 'end')?.date).filter(Boolean).sort();
   const naps = points.filter((p) => p?.sleep?.metadata?.nap).length;
   const read = points.filter((p) => p?.sleep && sleepOf(p.sleep)).length;
   const keys = Object.keys(points.at(-1)?.sleep?.summary ?? points.at(-1)?.sleep ?? points.at(-1) ?? {}).slice(0, 8).join(',');
-  return `${points.length} points, ${naps} naps, ${read} readable, days ${days[0] ?? '-'}..${days.at(-1) ?? '-'}, keys ${keys || '-'}`;
+  const shape = (o) => Object.entries(o ?? {}).map(([k, v]) => `${k}:${v && typeof v === 'object' ? Object.keys(v).join('+') : typeof v}`).join(',');
+  return `${points.length} points, ${naps} naps, ${read} readable, days ${days[0] ?? '-'}..${days.at(-1) ?? '-'}, keys ${keys || '-'}, interval ${shape(points.at(-1)?.sleep?.interval) || '-'}`;
 }
 import { MAIL_SCOPES, GMAIL_API, MAIL_PAGE, FILE_MAX, mailRow, bodyOf, rawMail } from './googlemail.js';
 import { CALENDAR_SCOPES, TASKS_SCOPE, CALENDAR_API, TASKS_API, MAX_EVENT_DAYS, MAX_CALS, spanOf, dayStart, dayEnd, eventRow, eventBody, taskRow, taskBody, calRow, listRow, OWN_CAL_SCOPE, OWN_CAL_NAME, OWN_LIST_NAME, MAX_OWN_ITEMS, KEY_PROP, ownBody, sameEvent } from './googleplan.js';
@@ -499,7 +500,7 @@ export function makeHandler({ env = () => googleEnv(), doFetch = (...a) => fetch
             }
             const all = await listAll(token, 'sleep', from, to, { filtered: false });
             const inside = all.filter((p) => {
-              const d = isoOf(p?.sleep?.interval?.civilEndTime?.date);
+              const d = civilOf(p?.sleep?.interval, 'end')?.date;
               return d && d >= from && d <= to;
             });
             console.log(`google sleep: filtered none; unfiltered ${sleepNote(all)}; ${inside.length} in range`);

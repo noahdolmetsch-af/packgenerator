@@ -35,8 +35,9 @@
   let inks = $state(undefined); // Paket NE 1146: drawings on the photos
   let busy = $state(false);
   let msg = $state('');
-  // Noah: a priority is required, a deadline is optional ('none' | 'ride' | 'date').
-  let priority = $state(null);
+  // Klick-Rundgang 22.10.2026 H20 (rule: everything is a suggestion): the priority comes preset to «Medium»
+  // and can be changed; a deadline is optional ('none' | 'ride' | 'date').
+  let priority = $state('medium');
   let when = $state('none');
   let dueDate = $state('');
   let saved = $state(null); // { count, name, bikeId, noteIds, repairIds }
@@ -57,7 +58,6 @@
     if (!bike) return (msg = t('Choose a bike.'));
     const list = lines.length ? lines : photos.length ? [t('Photo')] : [];
     if (!list.length) return (msg = t('Write a few words or add a photo.'));
-    if (!priority) return (msg = t('Choose a priority.'));
     if (when === 'date' && !/^\d{4}-\d{2}-\d{2}$/.test(dueDate)) return (msg = t('Choose the date of the deadline.'));
     busy = true;
     msg = '';
@@ -77,7 +77,7 @@
       photos = [];
       inks = undefined;
       docId = null;
-      priority = null;
+      priority = 'medium';
       when = 'none';
       dueDate = '';
     } catch (err) {
@@ -157,7 +157,7 @@
     </div>
 
     <fieldset class="bikes">
-      <legend class="lbl">{t('Priority')} <span class="req">({t('required')})</span></legend>
+      <legend class="lbl">{t('Priority')}</legend>
       <div class="seg">
         {#each PRIORITIES as p (p)}<button type="button" aria-pressed={priority === p} onclick={() => ((priority = p), (msg = ''))}>{t(PRIORITY_NAME[p])}</button>{/each}
       </div>
@@ -177,10 +177,10 @@
     </div>
 
     {#if msg}<p class="err" role="alert">{msg}</p>{/if}
-    <p class="small" id="pf-need">{priority ? t('Each problem becomes its own open repair in Bike care.') : t('Choose a priority first.')}</p>
+    <p class="small" id="pf-need">{t('Each problem becomes its own open repair in Bike care.')}</p>
     <div class="foot end">
       <button type="button" class="btn" onclick={ondone}>{t('Cancel')}</button>
-      <button type="submit" class="btn hi" disabled={busy || !bike} aria-describedby={priority ? undefined : 'pf-need'}>
+      <button type="submit" class="btn hi" disabled={busy || !bike}>
         {lines.length > 1 ? t('Save {n} problems', { n: lines.length }) : t('Save problem')}
       </button>
     </div>
@@ -229,9 +229,6 @@
     background: var(--ink);
     color: var(--paper);
     font-weight: 600;
-  }
-  .req {
-    font-weight: 400;
   }
   /* v0.67.1: the date field is ui/DateInput.svelte (its own box around the input) */
   fieldset :global(.date-in:has(.due)) {

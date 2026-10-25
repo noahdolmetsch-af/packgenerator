@@ -12,18 +12,21 @@
   let line = $state('');
   let history = $state([]);
   let copied = $state(false);
+  let hint = $state(''); // Tote Knöpfe (Klick-Rundgang 22.10.2026): «=» with nothing to count says why
   loadTool('calc', []).then((h) => (history = h));
   const value = $derived(evaluate(line));
   const shown = $derived(value == null ? '' : showNumber(value, locale()));
 
   const KEYS = ['7', '8', '9', '÷', '4', '5', '6', '×', '1', '2', '3', '−', '0', '.', '%', '+', '(', ')', 'C', '='];
   function press(k) {
+    hint = '';
     if (k === 'C') line = '';
     else if (k === '=') done();
     else line += k;
   }
   function done() {
-    if (value == null) return;
+    if (value == null) return (hint = line.trim() ? t('This is not a calculation yet. Check the signs.') : t('Type a calculation first, e.g. 12.50 × 3.'));
+    hint = '';
     history = pushHistory(history, line, value);
     saveTool('calc', history).catch(() => {});
     line = String(value);
@@ -42,13 +45,14 @@
 <section class="tool-card calc">
   <label class="tool-field">
     <span>{t('Calculation')}</span>
-    <input class="tool-input calc-line" inputmode="decimal" autocomplete="off" placeholder="12.50 × 3 + 10 %" bind:value={line} onkeydown={(e) => e.key === 'Enter' && (e.preventDefault(), done())} />
+    <input class="tool-input calc-line" inputmode="decimal" autocomplete="off" placeholder="12.50 × 3 + 10 %" bind:value={line} oninput={() => (hint = '')} onkeydown={(e) => e.key === 'Enter' && (e.preventDefault(), done())} />
   </label>
   <div class="tool-row calc-res">
     <p class="tool-big" aria-live="polite" data-result>{shown ? `= ${shown}` : '='}</p>
     {#if shown}<button type="button" class="btn sm" onclick={copy}><Copy size={15} aria-hidden="true" />{copied ? t('Copied') : t('Copy')}</button>{/if}
     {#if line}<button type="button" class="btn sm" aria-label={t('Delete last sign')} onclick={() => (line = line.slice(0, -1))}><Delete size={15} aria-hidden="true" /></button>{/if}
   </div>
+  {#if hint}<p class="tool-help" role="status" data-calc-hint>{hint}</p>{/if}
   <div class="calc-keys">
     {#each KEYS as k (k)}
       <button type="button" class="btn calc-k" class:hi={k === '='} data-key={k} onclick={() => press(k)}>{k}</button>

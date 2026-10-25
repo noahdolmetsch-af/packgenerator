@@ -184,7 +184,7 @@ test('nothing typed is lost: new trip, new item and quick note stay after closin
   // Typed a name, then Escape: the trip is there and Pack opens it.
   await newTrip();
   await dlg.getByRole('textbox', { name: T('Name') }).fill('test_data_gtp_ Kept trip');
-  await expect(dlg.getByText(T('Saved'))).toBeVisible();
+  await expect(dlg.getByText(T('Draft saved'))).toBeVisible();
   await page.keyboard.press('Escape');
   await expect(dlg).toBeHidden();
   await expect.poll(async () => (await table(page, 'trips')).filter((t) => t.title === 'test_data_gtp_ Kept trip').length).toBe(1);
@@ -255,7 +255,9 @@ test('Neu in den letzten Updates on #/features; Today says it once after an upda
   const firstPlace = WHATS_NEW.flatMap((e) => e.points).find((p) => p.href);
   await news.locator('.vers').first().locator('a.try').first().click();
   // v0.36.0: the first point of the newest version (was #/pack in 0.35.0).
-  await expect(page).toHaveURL(new RegExp(`${firstPlace.href.replace(/[.*+?^${}()|[\]\\/]/g, '\\$&')}$`));
+  // v0.186.1: a point with action 'data' opens «Data and backup» (#/me/data) instead of its href
+  const placeHref = firstPlace.action === 'data' ? '#/me/data' : firstPlace.href;
+  await expect(page).toHaveURL(new RegExp(`${placeHref.replace(/[.*+?^${}()|[\]\\/]/g, '\\$&')}$`));
 
   // Today: an update from 0.34 says it once.
   await page.evaluate(() => localStorage.setItem('whatsnew.seen', '0.34.0'));

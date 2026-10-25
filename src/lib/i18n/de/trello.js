@@ -32,7 +32,7 @@ export default {
   'A list on your Trello board «Packgenerator»; changes go both ways.': 'Eine Liste auf deinem Trello-Board «Packgenerator»; Änderungen gehen in beide Richtungen.',
   'Saved like this, the list leaves Trello (archived there); here everything stays.': 'So gespeichert, verlässt die Liste Trello (dort archiviert); hier bleibt alles.',
   'Only on your devices.': 'Nur auf deinen Geräten.',
-  'For Trello, connect it first: Calendar › Remember › Trello.': 'Für Trello verbinde es zuerst: Kalender › Merken › Trello.',
+  'For Trello, connect it first: Calendar › Remember › Trello.': 'Für Trello verbinde es zuerst: Planen › Merken › Trello.',
   'Also in Trello: list «To-dos»': 'Auch in Trello: Liste «To-dos»',
   'Trello: {text} ({list})': 'Trello: {text} ({list})',
   '{n} Trello card due': '{n} Trello-Karte fällig',

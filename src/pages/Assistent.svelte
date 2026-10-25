@@ -31,6 +31,7 @@
   const plan = $derived(hash.startsWith('#/assistent/plan'));
   let q = $state('');
   let asked = $state('');
+  let appHas = $state(false); // the app's own answer has something for `asked`
   // «Diktat» (Noah 19.10.2026): a question from a dictated note comes as #/assistent?q=…
   let fromHash = '';
   $effect(() => {
@@ -47,12 +48,16 @@
     const [items, trips, bikes, notes, tpl, events] = await Promise.all([db.items.toArray(), db.trips.toArray(), db.bikes.toArray(), db.notes.toArray(), db.settings.get(TEMPLATES_KEY), db.events.toArray()]);
     return { items, trips, bikes, notes, templates: tpl?.value ?? [], events };
   });
+  // Klick-Rundgang 22.10.2026 H26: «Ask» with an empty field says what to do instead of doing nothing
+  let empty = $state(false);
   function submit(e) {
     e.preventDefault();
     asked = q.trim();
-    kh?.onEnter(asked);
+    empty = !asked;
+    if (asked) kh?.onEnter(asked);
   }
   function example(s) {
+    empty = false;
     q = s;
     asked = s;
   }
@@ -71,21 +76,26 @@
     <section class="card as-card" aria-labelledby="as-ask-h">
       <h2 id="as-ask-h" class="as-h">{t('Ask the app')}</h2>
       <form class="as-row" onsubmit={submit}>
-        <input class="inp" type="search" bind:value={q} oninput={() => (asked = '')} placeholder={t('e.g. How many km this month?')} aria-label={t('Your question')} autocomplete="off" />
+        <input class="inp" type="search" bind:value={q} oninput={() => ((asked = ''), (empty = false))} placeholder={t('e.g. How many km this month?')} aria-label={t('Your question')} autocomplete="off" />
         <button type="submit" class="btn hi">{t('Ask')}</button>
       </form>
+      {#if empty}<p class="as-empty" role="status" data-as-empty>{t('Type a question first, or tap one of the examples below.')}</p>{/if}
       <p class="as-spk"><SpeakButton onsaid={spoken} /></p>
       <div class="as-ex" aria-label={t('Examples')}>
         {#each EXAMPLES as e (e)}<button type="button" class="chip" onclick={() => example(t(e))}>{t(e)}</button>{/each}
       </div>
       {#if asked}
         <div class="as-res" aria-live="polite">
-          <AskAnswer q={asked} />
+          <AskAnswer q={asked} fallback here onresult={(has) => (appHas = has)} />
           {#if isOn()}<SearchAnswer bind:this={kh} q={asked} items={$all?.items ?? []} />{/if}
-          <SearchFree q={asked} data={$all} />
-          <AskElsewhere q={asked} />
+          <!-- one block «Weiter fragen» (Noah 22.10.2026 «3a»); Gemini asks by itself when the app has no answer («1a») -->
+          <AskElsewhere q={asked} auto={!appHas}>
+            {#snippet children()}<SearchFree q={asked} data={$all} inside />{/snippet}
+          </AskElsewhere>
         </div>
       {/if}
+      <!-- Paket C «Assistent mit Belegen» (996 Ideen): sources, own no-gos, question a plan -->
+      <a class="as-belege" href="#/me/ruhig/belege" data-as="belege">{t('With sources, your no-gos and «Question my plan» ›')}</a>
     </section>
     <!-- Noah 15.10.2026 «ich möchte diese info im front end ersichtlich machen»: the three ways it answers -->
     <details class="card as-card as-how" data-as="how">
@@ -147,6 +157,11 @@
   .as-row {
     display: flex;
     gap: 8px;
+  }
+  .as-empty {
+    margin: 6px 0 0;
+    font-size: var(--fs-small);
+    color: var(--ink-2);
   }
   .as-spk {
     display: flex;
@@ -227,5 +242,12 @@
     margin: var(--sp-3) 4px 0;
     font-size: var(--fs-small);
     color: var(--ink-3);
+  }
+  .as-belege {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    margin-top: 8px;
+    font-size: var(--fs-small);
   }
 </style>

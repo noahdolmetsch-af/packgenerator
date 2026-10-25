@@ -46,6 +46,8 @@ Die geplanten Vorhaben verfolgen fünf Ziele (das fünfte seit 19.10.2026, Noah 
 4. **Aus jeder Tour lernen.** Rückblick, Learnings, die beim nächsten Packen wieder auftauchen, und ein Aktivitätsmosaik über alle Sportarten und Meditation.
 5. **Alltag.** Die App hilft auch an Tagen ohne Tour: Woche und Termine, Bewegung und Erholung, Dokumente und Geld, Menschen und Zuhause. Beispiel: am Sonntag die Woche planen, am Morgen der Tages-Check, eine Erinnerung, bevor der Pass abläuft.
 
+**Neu 24.10.2026, 996 Ideen:** vier Pakete nach der 332-Arbeit, in dieser Reihenfolge: B «Touren ohne Überraschung» (Ziel 3: Generalprobe, Folgen vorher sehen, QR an der Kiste, Gut ankommen, Packen nach Bedürfnis), A «Ehrlicher Stand im Alltag» (Ziel 5), C «Ruhig und persönlich» (Ziele 4 und 5), D «Mit Freunden» (wieder offen). Übersicht: `notes/ideen-996/` im Projektordner.
+
 Durchgehende Grundsätze: Alles ist ein Vorschlag, nie Pflicht, und immer änderbar. Private Daten bleiben privat. Keine fremden Dienste, wenn es eine eigene, schlanke Lösung gibt.
 
 ## Stand heute (19.10.2026, live 0.152.0)
@@ -58,7 +60,17 @@ Durchgehende Grundsätze: Alles ist ein Vorschlag, nie Pflicht, und immer änder
 
 **Nachtrag 21.10.2026, Nacht:** 0.179.0 Mockup-Paket P1 «Packen und Strom» (Ziel 1 «Schneller packen»: neues Teil gleich einpacken; Strom-Werte und Ladezeit für die Strom-Rechnung). Nächstes Paket P6 «Heute ergänzen».
 
+**Nachtrag 22.10.2026:** 0.187.0 «Aktiv neu» (Ziel 5 «Alltag»: Aktiv zum Machen, Auswerten zum Anschauen; jede Sportart mit eigener Seite, Verlauf und Meilensteinen). Geparkt bis Noahs Freigabe.
+
 **Nachtrag 21.10.2026, Nacht:** 0.181.0 Mockup-Paket P3 «Warum? und Regeln» (Ziel 1 «Schneller packen»: jeder Vorschlag sagt warum; vergessene Dinge kommen zuerst). Nächstes Paket P4 «Aktiv».
+
+**Nachtrag 24.10.2026:** 0.186.1 «Abgleich ohne Fragen» (Ziel 5 «Alltag»: Handy und Computer bleiben ohne Meldungen gleich, Noah «im Frontend nie eine solche Meldung»).
+
+**Nachtrag 22.10.2026 (3):** 0.185.0 Mockup-Paket P8 «Fotoalbum» (Ziel 4 «Aus jeder Tour lernen»: Fotos von Touren und Velos nach Monat und Ort wiederfinden). Geparkt bis Noahs Freigabe. Alle freigegebenen Mockup-Pakete sind damit gebaut.
+**Nachtrag 22.10.2026 (2):** 0.184.0 Mockup-Paket P7 «Projekt-Ablage» (Ziel 5 «Alltag»: auf einer Seite sehen, wo die App steht, was auf mich wartet und was kommt). Geparkt bis Noahs Freigabe. Nächstes Paket P8 «Fotoalbum».
+**Nachtrag 22.10.2026:** 0.183.0 Mockup-Paket P5 «Eingang» (Ziel 5 «Alltag»: den Eingang in wenigen Minuten leer, eine Notiz nach der anderen). Geparkt bis Noahs Freigabe. Nächstes Paket P7 «Projekt-Ablage».
+**Nachtrag 21.10.2026, Nacht (2):** 0.182.0 Mockup-Paket P4 «Aktiv» (Ziel 5 «Alltag»: schneller abhaken, Yoga und Tennis ohne Umweg, merken was gut tut). Nächstes Paket P5 «Eingang».
+**Nachtrag 22.10.2026:** 0.181.1 «Alltag fertig bauen» (Ziel 5 «Alltag»: Mein Tag, Meine Woche, Velo pflegen ohne Sackgassen, Durchspiel-Test vor jedem Release). Nächste Reparatur-Pakete: Aktiv, Packen, Tote Knöpfe.
 
 **Nachtrag 21.10.2026, später Abend:** 0.178.0 Mockup-Paket P2 «Skitour» (Ziel 3 «Von der Haustür bis zurück»: Tour planen, Gipfel erreicht, Plan und Wirklichkeit; Ziel 1 «Schneller packen»: Ski-Plan im Vorabend-Check). Nächstes Paket P1 «Packen und Strom».
 
@@ -354,6 +366,10 @@ Vorhaben, die nach der ersten Fassung dieser Datei dazukamen. Alle sind einem de
 - **Tagebuch** (Ziel Alltag, Noah 20.10.2026 «1b … 2b … 3a … 4a 5a»): ein Tagebuch wie Day One mit Fotos, Ort, Wetter, Stichwörtern, Kalender, «An diesem Tag», 365 Fragen, Diktat, Sperre, Herunterladen und Teilen; Inhalte aus der App auf Tipp → eigenes Paket beim Bündler. Runde 2 (Noah «1a 2a 3a 4b 5a»): Gemini mit Häkchen, Stimmung mit Kurve, Abend-Erinnerung, Wortwolke und Serien, Jahrbuch als PDF.
 - **Noch ohne Paket:** Neuland, «Mehr selbst einstellen», Links nach aussen.
 
+### 14. Alles fertig (24.10.2026)
+
+Noah: «alles ohne meine Freigabe online, möglichst in wenigen Paketen». Alle Reste der alten Threads als ein Paket (0.188.0, Ziele 1, 3 und Alltag): Gute Nacht, nächster Laden, Strom-Zeile, Rennen oben, Verkaufsinserat, Heute leer und ohne Wohnort, Logbuch- und Meditations-Einträge, Tote Knöpfe 8–11. Velo-Ausleihe bewusst nicht (Noah «2b»).
+
 ## Reihenfolge
 
 **Gilt seit 18.10.2026, 19:37 UTC (Noah «1a 2b 3b 4a», ersetzt alle Reihenfolgen weiter unten):** P3 → A Daten sicher und Bedienung → B Server → D Touren und Unterwegs → E Material, Velos, Merken → C Heute und Aktiv → F Woche. A kommt vor B wegen der Datenbank-Stufen, C nach B, weil Aktiv Fitbit und Training braucht. Neue Arbeit darf parallel weiterlaufen. Danach offen: Neuland, «Mehr selbst einstellen», Links nach aussen.
@@ -464,3 +480,14 @@ Kurzfassung, verbindlich ist [arbeitsweise.md](arbeitsweise.md).
 - Zwei kleine Fehler (kommen ins Fix-Release): Datum in Neue Tour als 10/10/2026 statt 10.10.2026, Velotypen in Velos › Pflege nicht übersetzt.
 - Kleine Darstellungsfehler aus den Startseiten-Mockups (kommen ins Fix-Release): Taschennamen brechen am Handy mitten im Wort um (Tour › Planen), in Velos › Pflege stösst «km seit Check» am Computer an den Pfeil, «Im Flow» hat im Menü kein Symbol, die Datumszeile auf Heute zeigt jeden Ortsnamen ungeprüft.
 - Strava-Regeln schränken die Nutzung von Strava-Daten durch KI ein; vor E3 klären, was der Helfer davon sehen darf.
+
+0.190.0 «Alltag im Blick» (24.10.2026, Ziel Alltag): Sichtbar-Wächter + Alltag sichtbar aus «332 Use Cases» (P1 + P3), dazu P2 «Touren sichtbar» und «Touren ohne Überraschung» Teil 2 (Ziel Touren).
+
+0.191.0 «Die Werkstatt, klar» (25.10.2026, Ziel Touren und Velo): Einzelideen aus Paket B «Touren ohne Überraschung» (Kostendach, Rückerstattung, Übergabe, ähnliches Problem, Blick an der Tür, Wohnung nach Abwesenheit, früher beendet). Dazu «332 Use Cases» P4 «Live-Karte, Rennen und Packen sichtbar» (jtmsou 283c91e4): Sprunglinks auf Rennseite, Live-Karte vor dem Start und Packen; Wächter-Lücken 234 → 217.
+
+0.192.0 «Ehrlicher Stand» (25.10.2026, Ziel Alltag): Paket A aus den 996 Ideen (Warten, Enden, Kündigen in Schritten, angebrochene Packungen, Zeit um Termine, Einzelideen in Alltag und Material).
+
+0.193.0 «Ruhig und persönlich» (25.10.2026, Ziel Alltag): 996 Ideen Paket C, 8 Fähigkeiten + 6 Einzelideen (28 neue Funktionen) auf der Seite Ich › Ruhig und persönlich.
+0.194.0 «Zusammen mit Freunden» (25.10.2026, Ziel Touren und Alltag): Paket D Teil 1 aus den 996 Ideen.
+0.195.0 «Kleine Helfer für Tour und Velo» (25.10.2026, Ziel Touren und Velo): weitere Einzelideen aus Paket B (996 Ideen).
+0.195.1 «Einkaufsliste am Stück» (25.10.2026, Ziel Alltag): Korrektur der Einkaufsliste am Computer.

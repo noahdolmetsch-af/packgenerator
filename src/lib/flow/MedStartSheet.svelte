@@ -78,7 +78,7 @@
       {/each}
     </div>
     <label class="own"><span>{t('or free:')}</span><input class="inp num" type="number" inputmode="numeric" min="1" max="600" value={n} oninput={(e) => typed(e.currentTarget.value)} data-min-own /><span>{t('minutes')}</span></label>
-    <p class="line">{startLine(start)}</p>
+    <p class="line">{startLine(tpl && min != null && min !== tpl.minutes ? { ...start, name: null, like: start.name } : start)}</p>
 
     <ul class="rows">
       <li>

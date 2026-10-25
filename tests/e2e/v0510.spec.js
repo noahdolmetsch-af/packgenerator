@@ -127,10 +127,8 @@ test('editing an activity: name, goal and window', async ({ page, context }) => 
   await expect(page.locator('.cnum')).toHaveText('4');
   await page.getByRole('button', { name: T('{n} days', { n: 10 }) }).click();
   await page.getByRole('button', { name: T('Save') }).click();
-  await expect(page).toHaveURL(/#\/flow$/);
-  await expect(page.locator('[data-act="stretch"]')).toContainText('Mobility');
-  // Design-Refresh P8: the goal rows live on «Ziele»
-  await page.goto('./#/flow/goals');
+  // «Aktiv neu» (22.10.2026): saving leads to «Meine Sportarten», where the goal rows live
+  await expect(page).toHaveURL(/#\/flow\/sports$/);
   const row = page.locator('li[data-row="stretch"]');
   await expect(row).toContainText('Mobility');
   await expect(row.locator('.st')).toHaveText('0 / 4');

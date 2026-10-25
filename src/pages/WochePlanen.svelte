@@ -141,7 +141,7 @@
             <a class="btn" href="#/week/away"><Palmtree size={16} aria-hidden="true" />{t('Enter holidays')}</a>
           </div>
         {/if}
-        <p class="why sm">{t('Dates from Google Calendar come here by themselves once it is connected (Google part 2).')}</p>
+        <p class="why sm">{t('Dates from Google Calendar come here by themselves once it is connected.')}</p>
       {:else if step === 2}
         <h2 id="wpl-h">{t('Spread the training')}</h2>
         <p class="why">
@@ -177,7 +177,8 @@
         {/if}
         {#each week.hints as h (h.key + (h.day ?? ''))}<p class="why hint" data-load-hint={h.key}><Info size={15} aria-hidden="true" /><span>{hintText(h)}</span></p>{/each}
         {#if reviewLine(week.review)}<p class="why sm" data-review>{reviewLine(week.review)}</p>{/if}
-        {#if !sessions.length && !proposals.length}<p class="none">{t('No sessions planned and none last week. Plan them in Aktiv › Training.')}</p>{/if}
+        <!-- Klick-Rundgang 22.10.2026: «none last week» meant the plan; rides and ticks of last week are not «none» -->
+        {#if !sessions.length && !proposals.length}<p class="none" data-train-none>{week.review?.rides ? t('No sessions planned yet. Last week you trained without a plan (see above); plan the new week in Aktiv › Training.') : t('No sessions planned and none last week. Plan them in Aktiv › Training.')}</p>{/if}
         <div class="fb">
           {#if proposals.length}<button type="button" class="btn" onclick={takeAll} data-take-all>{t('Take all')}</button>{/if}
           <a class="btn" href="#/flow/training">{t('Open the training plan')}</a>

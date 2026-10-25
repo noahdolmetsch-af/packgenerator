@@ -41,7 +41,7 @@ export default {
   'Zoom in': 'Hineinzoomen',
   'Zoom out': 'Herauszoomen',
   'Whole tour': 'Ganze Tour',
-  'map, days, link for your family, travel book': 'Karte, Tage, Link für die Familie, Reisebuch',
+  'map, days, link for your family, travel book': 'Karte, Tage, Link für deine Familie, Reisebuch',
   'Strava sent no line (an indoor ride, or the route is hidden).': 'Strava hat keine Linie geschickt (eine Indoor-Fahrt, oder die Strecke ist verborgen).',
   'Strava could not be reached. Try again later.': 'Strava war nicht erreichbar. Versuche es später nochmals.',
   'The recorded line goes. A Strava or Garmin ride stays.': 'Die aufgezeichnete Linie verschwindet. Eine Strava- oder Garmin-Fahrt bleibt.',

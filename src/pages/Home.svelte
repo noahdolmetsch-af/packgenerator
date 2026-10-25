@@ -2,6 +2,7 @@
   import { UNDO_MS } from '../lib/ui/undo.js';
   import AlertLine from '../lib/clear/AlertLine.svelte';
   import TipWeek from '../lib/clear/TipWeek.svelte';
+  import DueToday from '../lib/home/DueToday.svelte';
   import { WALL_TIME_KEY, byTime } from '../lib/clear/tipweek.js';
   /**
    * Today (Heute). v0.46.0 «Startseite neu» (Noah, 9.10.2026, answers 1a 2b 3a 4b 5a+menu 6-33a 34b):
@@ -96,6 +97,8 @@
   import { helloPart, NAME_ASKED_KEY } from '../lib/home/hallo.js'; // HG1
   import { homeTrips, testTrips, archiveChanges, greeting, weatherLine, dayDry, dayPart, countdown, timeLeft, packedOf, soonTrips, milestoneLevels, milestoneStep, milestonesNow, milestoneText, stepOf as stepOfMs, MILESTONE_KEY, LAYOUT_KEY } from '../lib/home/heute.js';
   import { isEveningOn } from '../lib/dayclock.js';
+  import { cfgQuery } from '../lib/freidb.js';
+  import { todayImpulse } from '../lib/frei.js';
   import { WALL_KEY, TILE, wallOf, wallRecord, addTile, removeTile, isNew, HELPER_TILES, hideTiles, keepHidden, tripUp, HEAD_0155 } from '../lib/home/tiles.js';
   import { tourNear } from '../lib/home/heuteneu.js';
   import MedCard from '../lib/home/MedCard.svelte';
@@ -500,6 +503,13 @@
     }
   });
   const showFirst = $derived(loaded && !!$bikesQ && firstOn && !stepsAll);
+  // Klick-Rundgang H32 (Noah 24.10.2026 «1a»): on an empty device Today starts with First steps only; the wall
+  // (body, Aktiv, week, balance) comes as soon as there is a first bike, item or trip. «Show everything» keeps it on.
+  // A wall you arranged yourself (stored in WALL_KEY) counts as «show everything»: your own tiles never hide.
+  let wallAnyway = $state(false);
+  const emptyDevice = $derived(showFirst && !steps.bike && !steps.gear && !steps.trip && !wallAnyway && !editing && !S[WALL_KEY]);
+  // Rule 11: «Dein Körper heute» stays on top and what is due today never hides, also on an empty device
+  const EMPTY_KEEP = new Set(['body', 'important']);
 
   /* ---------- 3. the 16 functions (Noah 12a, 13a, 15a) ---------- */
   const usage = $derived(usageOf(S[USAGE_KEY]));
@@ -646,7 +656,7 @@
   const knowRows = $derived.by(() => {
     if (!ready || !$learnQ) return [];
     const pace = paceOf(S[PACE_KEY]);
-    const todos = openTodos({ bikes, items, pace, debriefs, trips }).filter((x) => !(x.key === 'trip' && showFirst));
+    const todos = openTodos({ bikes, items, pace, debriefs, trips }).filter((x) => !(x.key === 'trip' && showFirst) && !(x.key === 'pace' && !bikes.length)); // H32 (Noah 24.10.2026 «1a»): GPX only after the first bike
     const tips = learningsFor(next, $learnQ, 1);
     const cards = knowCards({ today, todos, demo: $demoQ ?? null, next, tips, pace, bikes, trips, debriefs, visits, items, containers: $bagsQ ?? [], templates, placeLoading: true });
     const out = [];
@@ -856,7 +866,10 @@
     return i >= 0 && list[i + 1]?.id === 'balance' ? [...list.slice(0, i), { id: 'flow', size: 'long', join: list[i + 1].size }, ...list.slice(i + 2)] : list;
   };
   // «Heute neu» N2 (Noah «5a»): «Up now» shows only when something is up (the check and meditation live on top now)
-  const upEmpty = $derived(ready && !upRows.length && !cheers.length && !notice && !quick);
+  // the impulse of the day (ImpulseHint) also counts: without it a day with nothing due showed no idea at all
+  const impQ = cfgQuery();
+  const impulseUp = $derived(!suggestion && !night && !!$impQ && !!todayImpulse($impQ, today));
+  const upEmpty = $derived(ready && !upRows.length && !cheers.length && !notice && !quick && !impulseUp);
   // P6 SN2l: the weekly weight only while no weight for 7 days (and not put away today); after «Save» it stays for its thanks
   let weighedNow = $state(false);
   const weighOn = $derived(weighedNow || (weightStore.loaded && weighDue(weightStore.entries, today, S[WEIGH_KEY] ?? null)));
@@ -968,10 +981,13 @@
         <p class="dl">{phone.matches ? shortDate : dateLine}{#if wx}<span aria-hidden="true">{'\u00a0· '}</span><span class="wx" data-weather>{wx.text}</span>{/if}{#if strava.changes.length}<span aria-hidden="true">{'\u00a0· '}</span><span data-strava-questions>{tn(strava.changes.length, '{n} question from Strava', '{n} questions from Strava')}</span>{/if}</p>
         {#if loaded}<RaceLine {today} />{/if}
         <!-- UI-Ziele #17 (Noah 20.10.2026 «freigabe»): «Was häsch vor?» as chips; while customising a list to sort -->
-        {#if !night && ready}<GoalChips {editing} {next} {now} onride={startQuick} ontrip={() => (countUse('trip'), openNew('list'))} />{/if}
+        <!-- «Alltag sichtbar» (Noah 24.10.2026 «1a»): the quick start «Heute fahren» stays visible at night too -->
+        {#if ready}<GoalChips {editing} {next} {now} onride={startQuick} ontrip={() => (countUse('trip'), openNew('list'))} />{/if}
         {#if !wx && ready}
           {#if !place}
             <button type="button" class="linkq" aria-expanded={placeOpen} onclick={() => (placeOpen = !placeOpen)}>{t('Set your home place for the weather')}</button>
+            <!-- Alles fertig (Versteckte Funktionen, Noah 24.10.2026 «1a»): the weather page is one tap away without a home place too -->
+            <a class="linkq wxpage" href="#/wetter" data-weather-page>{t('Weather page ›')}</a>
           {/if}
         {/if}
         {#if placeOpen}<div class="pf"><HomePlaceForm onchosen={() => (placeOpen = false)} /></div>{/if}
@@ -1148,7 +1164,7 @@
     {:else}<FlowCard {today} round={!onWall.has('daycard')} rings={!onWall.has('balance')} />{/if}
   {:else if x.id === 'daycard'}<TagesKarte {today} {now} {fc} {items} {trips} {bikes} {tasks} {visits} rides={$ridesQ ?? []} idea={suggestion ? { text: t('Ride up to {h} h with the {bike}, today', { h: hrs(suggestion.hours), bike: suggestion.bike.name }) } : null} onquick={startQuick} onplan={() => (countUse('trip'), openNew('list'))} onother={suggestion ? nextBike : null} onkm={() => (countUse('km'), openNew('km'))} {debrief} care={careRows} careN={due.points} tomorrowTrip={tomorrowTrip} />
   {:else if x.id === 'du'}<DuTile {today} />
-  {:else if x.id === 'body'}<BodyTile {today} due={abDue} areas={abAreas} evening={abEvening} open={roundOpen} onstart={() => (abAsk = true)} />
+  {:else if x.id === 'body'}<div class="bodyw"><BodyTile {today} due={abDue} areas={abAreas} evening={abEvening} open={roundOpen} onstart={() => (abAsk = true)} />{#if ready && !editing}<DueToday todos={S[MERKEN_KEY] ?? []} {today} care={due.points} />{/if}</div>
   {:else if x.id === 'acts'}<ActsTile {today} />
   {:else if x.id === 'aktiv'}<AktivTile {today} rides={$ridesQ ?? []} size={x.size} hm={`${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`} />
   {:else if x.id === 'series'}<SeriesTile {today} size={x.size} party={seriesParty} />
@@ -1198,6 +1214,9 @@
        (HG1 2a: right under the greeting). -->
   {#if loaded && $debriefsQ}<Continue {trips} {debriefs} {today} hour={now.getHours()} cardId={on('trip') ? cardTrips[0]?.id ?? null : null} noLast={startKarte?.kind === 'evening' && on('trip')} />{/if}
   <!-- «Sporttasche» (mockup AK3, 4a): the evening before a fixed date, «Morgen Yoga 07:00: Tasche packen» -->
+  <!-- «Alltag sichtbar» (Noah 24.10.2026 «1a»): «Heute fällig», only what is really due today: to-dos, birthdays, plants, bike care.
+       It stands right under «Dein Körper heute» (rule 11: the body check stays on top); here only when that tile is off. -->
+  {#if ready && !editing && !on('body')}<DueToday todos={S[MERKEN_KEY] ?? []} {today} care={due.points} />{/if}
   {#if loaded}<BagReminder {today} now={now.getTime()} />{/if}
   <!-- v0.30.2 (L9): a new user: three steps, each ticked once it has data. -->
   {#if showFirst}
@@ -1253,9 +1272,14 @@
   <!-- Paket Q #148 (Noah 19.10.2026 «1a»): one small line, only when a warning, the avalanche danger or a pass concerns you -->
   {#if !editing}<AlertLine />{/if}
   {#if !editing}{#await import('../lib/wetter/HeuteWetter.svelte') then m}<m.default {today} />{:catch}{/await}{/if}
+  <!-- «Stopps in der Nähe»: on a ride day up here, on other days at the bottom (so «Dein Körper heute» stays in the first screen) -->
+  {#if !editing}{#await import('../lib/stops/HeuteStopps.svelte') then m}<m.default {today} top />{:catch}{/await}{/if}
   <!-- v0.127.0 A-U2 (mockup «Laden»): calm placeholders until Today has read its data, then the wall -->
   {#if newsRow}<div class="newsrow" data-news-row><NewsTile size="long" days={newsDays} onremove={() => db.settings.put({ key: NEWS_OFF_KEY, value: WHATS_NEW[0].version })} /></div>{/if}
-  {#if ready}<Wall tiles={timeWall} body={tileBody} {editing} onedit={() => (editing = true)} onchange={saveShown} onadd={() => (catalogOpen = true)} />
+  {#if ready && emptyDevice}
+    <Wall tiles={timeWall.filter((x) => EMPTY_KEEP.has(x.id))} body={tileBody} {editing} onedit={() => (editing = true)} onchange={(kept) => saveShown(timeWall.map((x) => kept.find((y) => y.id === x.id) ?? x))} onadd={() => (catalogOpen = true)} />
+    <p class="muted emptywall" data-empty-wall>{t('The rest of Today comes as soon as you have a bike, an item or a trip.')} <button type="button" class="linkq" onclick={() => (wallAnyway = true)}>{t('Show everything now')}</button></p>
+  {:else if ready}<Wall tiles={timeWall} body={tileBody} {editing} onedit={() => (editing = true)} onchange={saveShown} onadd={() => (catalogOpen = true)} />
   {:else}<Skeleton kind="home" rows={2} />{/if}
   <!-- «Heute neu» A: the half-width trip card has no room for the weekly km check; it shows under the wall then -->
   {#if ready && !editing && timeWall.some((x) => x.id === 'trip' && x.size === 'l')}<div class="kmrow"><KmCard {today} /></div>{/if}
@@ -1271,6 +1295,7 @@
       <label class="bytime" data-wall-bytime><input type="checkbox" role="switch" checked={timeOn} onchange={(e) => db.settings.put({ key: WALL_TIME_KEY, value: e.currentTarget.checked })} />{t('Order the tiles by time of day (morning tiles in the morning, evening tiles in the evening)')}</label>
     {:else}
       <!-- «Heute neu» A (Noah «3a»): everything that left Heute is one tap away -->
+      {#await import('../lib/stops/HeuteStopps.svelte') then m}<m.default {today} top={false} />{:catch}{/await}
       <a class="lkb" href="#/features" data-all-areas><LayoutGrid size={16} aria-hidden="true" />{t('All areas|home')}</a>
       {#if phone.matches}<button type="button" class="lkb" data-intro="custom" onclick={() => (editing = true)}><Pencil size={16} aria-hidden="true" />{t('Customise the start page')}</button>{/if}
     {/if}
@@ -1434,6 +1459,14 @@
     text-underline-offset: 2px;
     text-decoration-thickness: 1.5px;
     cursor: pointer;
+  }
+  .emptywall {
+    margin: var(--sp-3) 0;
+  }
+  .wxpage {
+    display: inline-flex;
+    align-items: center;
+    margin-left: var(--sp-3);
   }
   .linkq {
     min-height: 44px;
@@ -2335,5 +2368,13 @@
   .trip.half {
     height: 100%;
     box-sizing: border-box;
+  }
+  /* «Alltag sichtbar»: «Heute fällig» right under «Dein Körper heute», inside its tile; the body card keeps filling the tile */
+  .bodyw {
+    display: flex;
+    flex-direction: column;
+  }
+  .bodyw > :global(section.bd) {
+    flex: 1 1 auto;
   }
 </style>

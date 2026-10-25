@@ -43,7 +43,8 @@ test.describe('AB Deine Abfragen', () => {
     const akku = card.locator('[data-q="erholung.akku"]');
     await expect(akku.getByText(T('How full is your battery right now?'))).toBeVisible();
     // Noah 2a: missed yesterday evening, it stays and says when (WG: its 20:00 is asked in the evening round at 20:30)
-    await expect(akku.getByText(/Erholung · Do\., 8\. Okt\. 20:30/)).toBeVisible();
+    // Klick-Rundgang H15 (changed on purpose): a question of an earlier day says «Frage von …»
+    await expect(akku.getByText(/Erholung · Frage von Do\., 8\. Okt\. 20:30/)).toBeVisible();
     const w = card.locator('[data-q="koerper.waage"]');
     await expect(w.getByText(/zuletzt 72.4 kg am/)).toBeVisible();
     await expect(w.getByText(T('not checked yet · by hand until then'))).toBeVisible();
@@ -80,7 +81,7 @@ test.describe('AB Deine Abfragen', () => {
 
   test('AB1/AB5 and AB2: the questions by area, a switch, an interval, an own question', async ({ page, context }, info) => {
     const T = await openHome(page, context, info, { data: data({ keep: [...ON_AT_START] }) });
-    await viaTab(page, 'active', '#/me/abfragen'); // UI-Ziele #6: Auswerten › Wi gaht's?
+    await viaTab(page, 'analysis', '#/me/abfragen'); // UI-Ziele #6: Auswerten › Wi gaht's?
     await expect(page).toHaveURL(/#\/me\/abfragen$/);
     await expect(page.getByRole('heading', { level: 1, name: T('Your questions') })).toBeVisible();
     // Impeccable Runde 2 (on purpose): the head says how often a day the app asks

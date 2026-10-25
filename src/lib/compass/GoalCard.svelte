@@ -45,6 +45,7 @@
   }
   const setStep = (id, patch) => put({ ...goal, steps: goal.steps.map((s) => (s.id === id ? { ...s, ...patch } : s)) });
   const dropStep = (id) => put({ ...goal, steps: goal.steps.filter((s) => s.id !== id) });
+  import GoalEnd from '../stand/GoalEnd.svelte';
 </script>
 
 <article class="card goal" data-goal={goal.id} class:gdone={goal.done}>
@@ -88,7 +89,7 @@
   {#if msg}<p class="err" role="alert">{msg}</p>{/if}
   <div class="foot">
     <button type="button" class="btn" onclick={() => onremove?.(goal.id)}>{t('Delete')}</button>
-    <button type="button" class="btn" aria-pressed={!!goal.done} onclick={() => put({ ...goal, done: !goal.done })}><Check size={16} aria-hidden="true" />{goal.done ? t('Reached · open again') : t('Reached')}</button>
+    <GoalEnd {goal} {put} /><!-- Paket A part 1: reached, changed or let go -->
   </div>
 </article>
 

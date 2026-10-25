@@ -17,6 +17,7 @@
    */
   import { liveQuery } from 'dexie';
   import { t, tn, num, locale, nameOf } from '../lib/i18n.svelte.js';
+  import { offerDone } from '../lib/ui/rename.svelte.js'; // Tote Knöpfe 9
   import { db } from '../lib/db.js';
   import { makeEntry, tripSpan, tripRidesIn } from '../lib/kmbook.js';
   import { syncBikes } from '../lib/kmbookdb.js';
@@ -25,6 +26,8 @@
   import { isOver } from '../lib/debrief.js';
   import { parseKm } from '../lib/care.js';
   import TripBand from '../lib/trip/TripBand.svelte';
+  import QuickLinks from '../lib/ui/QuickLinks.svelte';
+  import { DEBRIEF_JUMPS } from '../lib/tourlernen/jumps.js';
   import SpurRow from '../lib/spur/SpurRow.svelte'; // Paket S «Reise-Spur»: the tour's map and days
   import { openTrip } from '../lib/nav.js';
   import { planAgain } from '../lib/trip/ending.js';
@@ -183,11 +186,17 @@
   }
   // v0.24.0 (Noah, "select all"): a whole bag used or not used in one tap.
   function markAll(rows, state) {
+    const before = Object.fromEntries(rows.map(({ e }) => [e.itemId, d.items[e.itemId]]));
     for (const { e } of rows) {
       if (state === 'used') delete d.items[e.itemId];
       else d.items[e.itemId] = state;
     }
     persist();
+    // Tote Knöpfe 9 («Alles fertig»): «Alles gebraucht» on rows that were all «used» already changed nothing visible; say it, with Undo
+    if (state === 'used') offerDone(tn(rows.length, '{n} item counts as used.', '{n} items count as used.'), () => {
+      for (const [id, v] of Object.entries(before)) if (v == null) delete d.items[id]; else d.items[id] = v;
+      persist();
+    });
   }
 
   // Step 2: the packed items by bag, in the order of the trip.
@@ -511,6 +520,9 @@
       <TripBand {trip} tab="debrief" kicker={[t('Debrief'), back === 1 ? t('back yesterday') : back > 1 ? t('back {n} days ago', { n: back }) : ''].filter(Boolean).join(' · ')} action={go} />
       <!-- «Mehr Inhalt» (Noah 15.10.2026, 1a–5a): the tip of the day, at the end the fold and the example «Nächstes Mal anders» -->
       <SpurRow {trip} />
+      <!-- «Touren sichtbar» (Noah 24.10.2026 «2b 3a»): a long page, so its parts as one row of chips right under the band;
+           a chip scrolls to its part, and shows only while that part is on the page -->
+      <QuickLinks label={t('On this page')} links={DEBRIEF_JUMPS.map((x) => ({ ...x, label: t(x.label) }))} />
       {#if saved}
         <TipLine page="debrief" name={t('Debrief')} />
         <!-- v0.49.0 R1 (drei «A»): the saved Rückblick tells what the trip was (TripSaved.svelte). -->
@@ -538,8 +550,8 @@
                   <div class="cbag">
                     {#if chipGroups.length > 1 || g.name}<p class="cbh"><b>{t(g.name)}</b>
                       <span class="alls">
-                        <button type="button" class="tp-link" onclick={() => markAll(g.rows, 'used')} aria-label={t('All used: {bag}', { bag: t(g.name) })}>{t('All ✓')}</button>
-                        <button type="button" class="tp-link" onclick={() => markAll(g.rows, 'unused')} aria-label={t('None used: {bag}', { bag: t(g.name) })}>{t('All –')}</button>
+                        <button type="button" class="tp-link" onclick={() => markAll(g.rows, 'used')} aria-label={t('All used: {bag}', { bag: t(g.name) })}>{t('All used|short')}</button>
+                        <button type="button" class="tp-link" onclick={() => markAll(g.rows, 'unused')} aria-label={t('None used: {bag}', { bag: t(g.name) })}>{t('None used|short')}</button>
                       </span></p>{/if}
                     <div class="chips">
                       {#each g.rows as { e, item } (e.itemId)}
@@ -667,8 +679,8 @@
                     <section class="bag" aria-label={t(g.name)}>
                       <h3>{t(g.name)} <span class="tp-muted">{tn(g.rows.length, '{n} item', '{n} items')}</span>
                         <span class="alls">
-                          <button type="button" class="tp-link" onclick={() => markAll(g.rows, 'used')} aria-label={t('All used: {bag}', { bag: t(g.name) })}>{t('All ✓')}</button>
-                          <button type="button" class="tp-link" onclick={() => markAll(g.rows, 'unused')} aria-label={t('None used: {bag}', { bag: t(g.name) })}>{t('All –')}</button>
+                          <button type="button" class="tp-link" onclick={() => markAll(g.rows, 'used')} aria-label={t('All used: {bag}', { bag: t(g.name) })}>{t('All used|short')}</button>
+                          <button type="button" class="tp-link" onclick={() => markAll(g.rows, 'unused')} aria-label={t('None used: {bag}', { bag: t(g.name) })}>{t('None used|short')}</button>
                         </span></h3>
                       <ul class="exc">
                         {#each g.rows as { e, item } (e.itemId)}

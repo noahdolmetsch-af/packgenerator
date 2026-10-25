@@ -26,10 +26,10 @@ Noah 21.10.2026 «1a 2b 3a 4a 5b 6a 7a» (alle offenen Mockups freigegeben; Abgl
 | P1 | Packen und Strom (gebaut, 0.179.0) | 1 Schneller packen |
 | P6 | Heute ergänzen (gebaut, 0.180.0) | 5 Alltag |
 | P3 | Warum? und Regeln (gebaut, 0.181.0) | 1 Schneller packen |
-| P4 | Aktiv | 5 Alltag |
-| P5 | Eingang | 5 Alltag |
-| P7 | Projekt-Ablage | 5 Alltag |
-| P8 | Fotoalbum | 4 Aus jeder Tour lernen |
+| P4 | Aktiv (gebaut, 0.182.0, geparkt) | 5 Alltag |
+| P5 | Eingang (gebaut, 0.183.0, geparkt) | 5 Alltag |
+| P7 | Projekt-Ablage (gebaut, 0.184.0, geparkt) | 5 Alltag |
+| P8 | Fotoalbum (gebaut, 0.185.0, geparkt) | 4 Aus jeder Tour lernen |
 
 ## 1. Schneller packen
 
@@ -78,6 +78,10 @@ Fitbit, Garmin, Strava an einem Ort · Einkaufszettel, Lebenslauf pro Teil, Werk
 
 ## 3. Von der Haustür bis zurück
 
+### Gebaut im Paket «Alles fertig» (0.188.0, 24.10.2026)
+
+Gute-Nacht-Nachricht mit Morgen-Erinnerung (1145) · Nächster Laden im Knopf «Live-Karte» · Strom-Zeile oben in Packen · «Dein Rennen» oben in Touren · Verkaufsinserat im Velo-Menü · Heute ohne Wohnort und auf leerem Gerät (H32) · Downhill-Bikepark-Tag war schon live (0.176). Velo-Ausleihe (1136): bewusst nicht (Noah «2b»).
+
 ### Gewünscht, noch nicht gebaut
 
 | Vorhaben | Grösse | Nutzen |
@@ -94,7 +98,6 @@ Fitbit, Garmin, Strava an einem Ort · Einkaufszettel, Lebenslauf pro Teil, Werk
 | Live-Karte: Wind auf der Route (Noah 20.10.2026) | klein | Ein Pfeil zeigt Gegen- oder Rückenwind mit km/h (Open-Meteo). |
 | Live-Karte: Kalorien live aus der Leistung (Noah 20.10.2026) | mittel | Du siehst den Verbrauch und bekommst eine Ess-Erinnerung passend zur Verpflegung. |
 | Gravel: Brunnen und Schotter-Anteil auf der Route [O] | gross | Du weisst vor der Gravel-Tour, wo es Wasser gibt und wie viel Schotter kommt. |
-| Downhill: Schutz-Check, Bikepark-Tag, Runs [O] | mittel | Am Bikepark-Tag ist Schutz und Ersatzteil schnell geprüft. |
 | Notruf-Zeile Rega 1414 und 112 [J] | klein | Im Notfall auf Skitour oder Wanderung ist die Nummer sofort da, auch offline. |
 | Wegweiser-Farben und SAC-Skala als Info [J] | klein | Du verstehst beim Wandern sofort, wie schwierig ein Weg ist. |
 | Nachricht ans zukünftige Ich [M] | klein | Ein Tipp an dich selbst erscheint vor der nächsten Tour. |
@@ -200,7 +203,7 @@ Routine «Das tut mir gut» auf Heute · Kachel «Heute baden oder Sauna?» · W
 
 ## Bewusst nicht
 
-Foto-KI für Material · Live-Sync über Drive · Keine fremden Einbettungen, nur Links · Privat-Zone beim Teilen um dein Zuhause · Inhalte von anderen Nutzern · KI: aus einem Satz wird ein Eintrag · KI: Wochen-Rückblick am Sonntag · Fotoalbum · Einkauf, Lebenslauf, Werkstatt (D2) · Computer als Werkzeug (D4) · Rückkehr-Melder für Notfall-Person · Aussortieren und weitergeben · Leiste mit 7 Orten · Keine native App, die Web-App bleibt · App zieht nicht auf Vercel um · Ton-Aufnahmen (nur wenn klein)
+Foto-KI für Material · Live-Sync über Drive · Keine fremden Einbettungen, nur Links · Privat-Zone beim Teilen um dein Zuhause · Inhalte von anderen Nutzern · KI: aus einem Satz wird ein Eintrag · KI: Wochen-Rückblick am Sonntag · Einkauf, Lebenslauf, Werkstatt (D2) · Computer als Werkzeug (D4) · Rückkehr-Melder für Notfall-Person · Aussortieren und weitergeben · Leiste mit 7 Orten · Keine native App, die Web-App bleibt · App zieht nicht auf Vercel um · Ton-Aufnahmen (nur wenn klein)
 
 **Aufgehoben:** Keine Konten für andere, Teilen bleibt einseitig (aufgehoben durch Paket R: Noah 19.10.2026 13:44 «1b 2a oder b» (App frei für alle, Google-Anmeldung oder Einladungs-Link, nur für den Abgleich); Inhalte von anderen bleiben nein (#150))
 

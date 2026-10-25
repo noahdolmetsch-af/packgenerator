@@ -6,7 +6,7 @@
    * (rule 13). The list can be searched and put in the own order (arrows and drag, rule 12).
    */
   import AreaIntro from '../lib/intro/AreaIntro.svelte'; // «Anleitungen überall»: the guide of this page (lib/guides.js)
-  import { Calculator, Ruler, Clock, Compass, Languages, FileText, Image, Paperclip, Coins, Wallet, ChevronRight, Workflow, Images, Film, QrCode, Route, Cog, Crosshair, ScanBarcode, Flashlight, Sparkles, ArrowUpDown, ScanEye, PersonStanding } from '@lucide/svelte';
+  import { Calculator, Ruler, Clock, Compass, Languages, FileText, Image, Paperclip, Coins, Wallet, ChevronRight, Workflow, Images, Film, QrCode, Route, Cog, Crosshair, ScanBarcode, Flashlight, Sparkles, ArrowUpDown, ScanEye, PersonStanding, Package } from '@lucide/svelte';
   import VeloHead from '../lib/bikes/VeloHead.svelte';
   import SortArrows from '../lib/ui/SortArrows.svelte';
   import SortGrip from '../lib/ui/SortGrip.svelte';
@@ -36,13 +36,14 @@
   import Chains from '../lib/tools/Chains.svelte';
   import PackPhoto from '../lib/vision/PackPhoto.svelte';
   import SitPosition from '../lib/vision/SitPosition.svelte';
+  import Labels from '../lib/tools/Labels.svelte';
   import { t } from '../lib/i18n.svelte.js';
   import '../lib/ich/ich.css';
   import '../lib/tools/tools.css';
 
   let { tool = '' } = $props();
-  const ICONS = { calculator: Calculator, ruler: Ruler, clock: Clock, compass: Compass, languages: Languages, file: FileText, image: Image, paperclip: Paperclip, coins: Coins, wallet: Wallet, workflow: Workflow, images: Images, film: Film, qr: QrCode, route: Route, cog: Cog, level: Crosshair, scan: ScanBarcode, flashlight: Flashlight, scaneye: ScanEye, person: PersonStanding };
-  const VIEWS = { calc: Calc, units: Units, zones: Zones, compass: CompassTool, phrases: Phrases, pdf: PdfTool, photo: PhotoTool, ablage: Ablage, money: Money, costs: Costs, level: Level, gears: Gears, barcode: Barcode, qr: QrMake, light: Light, convert: Convert, video: Video, map: MapMeasure, chains: Chains, packphoto: PackPhoto, sitpos: SitPosition };
+  const ICONS = { calculator: Calculator, ruler: Ruler, clock: Clock, compass: Compass, languages: Languages, file: FileText, image: Image, paperclip: Paperclip, coins: Coins, wallet: Wallet, workflow: Workflow, images: Images, film: Film, qr: QrCode, route: Route, cog: Cog, level: Crosshair, scan: ScanBarcode, flashlight: Flashlight, scaneye: ScanEye, person: PersonStanding, package: Package };
+  const VIEWS = { calc: Calc, units: Units, zones: Zones, compass: CompassTool, phrases: Phrases, pdf: PdfTool, photo: PhotoTool, ablage: Ablage, money: Money, costs: Costs, level: Level, gears: Gears, barcode: Barcode, qr: QrMake, light: Light, convert: Convert, video: Video, map: MapMeasure, chains: Chains, packphoto: PackPhoto, sitpos: SitPosition, labels: Labels };
   const cur = $derived(toolOf(tool));
   const ORDER_KEY = 'tools.order';
 
@@ -66,10 +67,10 @@
 <div class="ich-page tools-page">
   {#if cur}
     {@const View = VIEWS[cur.key]}
-    <VeloHead crumbs={[{ label: t('Me|place'), href: '#/me' }, { label: t('Toolbox'), href: TOOLS_HASH }]} title={t(cur.title)} sub={t(cur.sub)} />
+    <VeloHead crumbs={[{ label: t('Trips|place'), href: '#/trips' }, { label: t('Toolbox'), href: TOOLS_HASH }]} title={t(cur.title)} sub={t(cur.sub)} />
     <div class="tools-view" data-tool={cur.key}><View /></div>
   {:else}
-    <VeloHead crumbs={[{ label: t('Me|place'), href: '#/me' }]} title={t('Toolbox')} sub={t('Small helpers for every day and on the way, all on this device')} />
+    <VeloHead crumbs={[{ label: t('Trips|place'), href: '#/trips' }]} title={t('Toolbox')} sub={t('Small helpers for every day and on the way, all on this device')} />
     <AreaIntro place="toolbox" />
     {#if fits.length && !q.trim() && !sorting}
       <section class="tools-fit" aria-labelledby="tools-fit-h">

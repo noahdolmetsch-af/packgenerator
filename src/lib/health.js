@@ -28,7 +28,8 @@ export const FIRST_DAYS = 90;
  * Raised when the server reads new values (2: calories, highest pulse, oxygen, breathing, skin
  * temperature, 21.10.2026): the next fetch takes the last FILL_DAYS days again, once.
  */
-export const FILL_V = 2;
+// 3 (22.10.2026): the nights since 12 Oct had no civil day; once again the last 30 days, so sleep fills in.
+export const FILL_V = 3;
 export const FILL_DAYS = 30;
 const minDay = (a, b) => (a < b ? a : b);
 export const AGAIN_DAYS = 3;

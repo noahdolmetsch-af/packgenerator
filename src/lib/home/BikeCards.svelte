@@ -72,7 +72,8 @@
       <!-- «Werte messen» 2b: measure the chain, record the pressure -->
       <button type="button" class="lk" onclick={() => (messen = 'chain')}>{t('Measure the chain')}</button>
       <button type="button" class="lk" onclick={() => (messen = 'pressure')}>{t('Record the pressure')}</button>
-      <a class="lk" href="#/bikes?tab=care">{t('Workshop order')}</a>
+      <!-- Klick-Rundgang 22.10.2026: straight to the bike's workshop order, not the care overview -->
+      <a class="lk" href={bikesHash({ tab: 'setup', bike: hubBike(next, bikes), sheet: 'order', from: 'care' })} data-order-link>{t('Workshop order')}</a>
       {#each ideas as x (x.bike.id)}<a class="lk quiet" href={bikesHash({ bike: x.bike.id })} onclick={wantIdeas}>{x.bike.name}: {tn(x.n, '{n} idea', '{n} ideas')}</a>{/each}
     </p>
     {#if saved}

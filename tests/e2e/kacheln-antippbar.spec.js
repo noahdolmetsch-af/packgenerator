@@ -85,10 +85,10 @@ test('«•••» opens the tick sheet, a tap on the tile still ticks, the hel
   await expect(push).toHaveAttribute('aria-pressed', 'false');
   await press(push, info);
   await expect(push).toHaveAttribute('aria-pressed', 'true');
-  // on Aktiv the «•••» is there too, the help line only on Today
+  // on Aktiv the «•••» is there too; «Aktiv neu» (Noah 22.10.2026, spec «Heute abhaken»): the same help line under the grid
   await page.goto('./#/flow');
   await expect(page.locator('[data-more="pushups"]').first()).toBeVisible();
-  await expect(page.locator('[data-tick-help]')).toHaveCount(0);
+  await expect(page.locator('main [data-tick-help]')).toHaveCount(1);
   expect(errors).toEqual([]);
 });
 
@@ -120,10 +120,9 @@ test('after an update the intro shows once: three steps, «Überspringen» ends 
   await page.waitForTimeout(1200);
   await expect(page.getByRole('dialog', { name: T('Start page intro') })).toHaveCount(0);
 
-  // Me › «Show the start page intro again»: back on Today it comes once more; «Fertig» on the last step, Esc ends it too
-  await page.goto('./#/me');
-  // Impeccable (18.10.2026, changed on purpose): handbook, shortcuts and intro are under the row «Help»
-  await page.locator('main summary').filter({ hasText: T('Help|me') }).click();
+  // «Show the start page intro again»: back on Today it comes once more; «Fertig» on the last step, Esc ends it too
+  // «Alles finden 2» (Noah 22.10.2026 «3a», changed on purpose): it is on «Hilfe und Funktionen» now (Ich › Hilfe)
+  await page.goto('./#/features');
   await press(page.getByRole('button', { name: T('Show the start page intro again') }), info);
   await expect(page).toHaveURL(/#\/$/);
   await expect(bub).toBeVisible();

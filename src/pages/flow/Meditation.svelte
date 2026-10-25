@@ -17,6 +17,7 @@
   import TipLine from '../../lib/pageinfo/TipLine.svelte';
   import { ChevronRight, Play, Plus, Star, Ellipsis, Bell, Flower2, Clock } from '@lucide/svelte';
   import Face from '../../lib/timer/Face.svelte';
+  import YogaCard from '../../lib/yoga/YogaCard.svelte';
   import { db } from '../../lib/db.js';
   import { medQuery, seedMed } from '../../lib/flow/data.svelte.js';
   import { actState, addDays } from '../../lib/flow.js';
@@ -124,7 +125,7 @@
   {#if data && !act}
     <section class="surf pad">
       <h1 class="h1" tabindex="-1" data-page-title>{t('Activity|tab')}</h1>
-      <p class="hint">{t('This activity has no page of its own yet.')} <a href="#/flow/edit/{encodeURIComponent(actId)}?from=activity">{t('Open the activity')}</a></p>
+      <p class="hint">{t('This activity has no page of its own yet.')} <a href="#/flow/edit/{encodeURIComponent(actId)}?from=sport">{t('Open the activity')}</a></p>
     </section>
   {:else if data && act}
     <header class="head" class:intro={actId === 'meditation'}>
@@ -176,7 +177,7 @@
           <div class="hl"><h2 id="m-review" class="h2">{t('Look back|page')}</h2><a href="{base}/rueckblick" data-to="review">{t('See everything')}<ChevronRight size={16} aria-hidden="true" /></a></div>
           {#if !recent.length}
             <!-- Impeccable runde 2 (onboard): before the first session one sentence instead of four zeros and seven empty circles -->
-            <p class="first" data-review-empty>{t('No session yet. After your first meditation you see your streak here, the minutes of the week and how deep it was.')}</p>
+            <p class="first" data-review-empty>{t('No session yet. Then you see your streak, minutes and depth here.')}</p>
           {:else}
           <div class="stats">
             <div><b class="num">{str.now}</b><small>{t('days in a row')}</small></div>
@@ -219,6 +220,8 @@
           </a>
         {/if}
 
+        <!-- Paket P4 (mockup ME4): yoga, the regular classes and the studio, counted apart from meditation -->
+        {#if actId === 'meditation'}<YogaCard {today} />{/if}
         <a class="surf row more" href="{base}/mehr" data-to="more">
           <span class="ri" aria-hidden="true"><Ellipsis size={20} /></span>
           <span class="rt"><b>{t('More')}</b><small>{t('Kinds · sounds · places and things · quotes · links · all stars')}</small></span>

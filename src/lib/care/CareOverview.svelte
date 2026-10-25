@@ -73,7 +73,7 @@
     const open = { name: t('Open the bike'), explain: t('All parts of {bike}', { bike: short(bike.name) }), icon: Bike, run: () => onopen(bike.id) };
     if (row.kind === 'time' || row.kind === 'km' || row.kind === 'service')
       return [
-        { kind: 'hi', name: t('Done|task'), explain: explain('Done|task'), sub: ctx, icon: Check, run: () => ondone(bike.id, row) },
+        { kind: 'hi', name: t('Done|task'), explain: explain('Done|task'), sub: ctx, icon: Check, run: () => ondone(bike.id, row), done: true },
         ...(row.part
           ? [
               { name: t('Record …|care'), explain: explain('Record …|care'), icon: PenLine, run: () => onflow(bike.id, row.part, 'service') },
@@ -87,10 +87,12 @@
       return [{ kind: 'hi', name: t('Start the inspection'), explain: t('Point by point, with guides'), sub: row.name, icon: Check, run: () => (location.hash = bikesHash({ tab: 'care', view: 'inspect', bike: bike.id, level: row.level ?? 'full' })) }, open];
     // v0.137.0 (DK1): a problem due before the next ride: Done closes it, as in the problem list.
     if (row.kind === 'repair' && row.task)
-      return [{ kind: 'hi', name: t('Done|task'), explain: explain('Done|task'), sub: row.name, icon: Check, run: () => onrepair(row.task, 'done') }, open];
+      return [{ kind: 'hi', name: t('Done|task'), explain: explain('Done|task'), sub: row.name, icon: Check, run: () => onrepair(row.task, 'done'), done: true }, open];
     if (row.kind === 'part' && row.part)
       return [
         { name: t('Replace|part'), explain: explain('Replace|part'), sub: row.name, icon: ArrowLeftRight, run: () => onflow(bike.id, row.part, 'replace') },
+        // Versteckte Funktionen (Noah 22.10.2026): «Erledigt» in every row, here «serviced or checked, still good»
+        { name: t('Done|task'), explain: explain('Done|task'), sub: ctx, icon: Check, run: () => ondone(bike.id, row), done: true },
         { name: t('Check|verb'), explain: explain('Check|verb'), icon: Eye, run: () => onflow(bike.id, row.part, 'service') },
         open,
       ];
@@ -147,6 +149,8 @@
                 <!-- v0.117.0 «Knöpfe neu» (N1/N2): one main button, the rest behind «…», each with its explanation. -->
                 <span class="rowacts">
                   <Btn kind={acts[0].kind} icon={acts[0].icon} label={acts[0].name} explain={acts[0].explain} sub={acts[0].sub} onclick={acts[0].run} />
+                  <!-- Versteckte Funktionen (Noah 22.10.2026 «Hauptaktion nie im •••»): «Erledigt» stays visible -->
+                  {#if !acts[0].done}{@const fin = acts.find((a) => a.done)}{#if fin}<Btn icon={fin.icon} label={fin.name} explain={fin.explain} sub={fin.sub} onclick={fin.run} data-row-done />{/if}{/if}
                   <MoreActions title={[d.row.name, short(d.bike.name)].join(' · ')} label={t('More for {title}', { title: d.row.name })} actions={acts.map((a, n) => ({ ...a, current: n === 0 }))} />
                 </span>
               </li>

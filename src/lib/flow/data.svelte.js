@@ -3,6 +3,7 @@
  * last 70 days, the checks of the last 30 days, the trip days, the question pool and bowl default).
  * Heute's card, the flow page and the floating windows each read it.
  */
+import { CHALLENGES_KEY, challengesOf } from '../challenge.js';
 import { liveQuery } from 'dexie';
 import { db } from '../db.js';
 import { addDays, normAct, tripDays } from '../flow.js';
@@ -22,6 +23,9 @@ import { msExtra } from './msdata.js';
 import { BAGS_KEY, PACK_KEY, bagsOf, packsOf, packedDays } from '../flowbag.js';
 import { FIXED_KEY } from '../flowweek.js';
 
+/** Klick-Rundgang H29: a ride booked on this day (kmBook: by hand, from a file, from Strava or Garmin). */
+const rodeOn = async (day) => (await db.kmBook.where('date').equals(day).count()) > 0;
+
 /** today: YYYY-MM-DD. */
 export function flowQuery(today) {
   return liveQuery(async () => {
@@ -38,7 +42,7 @@ export function flowQuery(today) {
       acts: acts.map(normAct).sort((a, b) => a.order - b.order),
       log,
       checks,
-      tripDays: tripDays(homeTrips(trips), today),
+      tripDays: tripDays(homeTrips(trips), today, { rodeToday: await rodeOn(today) }),
       pool: poolOf(pool?.value),
       bowl: bowlOf(bowl?.value),
       seeded: !!seeded || acts.length > 0,
@@ -74,7 +78,7 @@ export function hobbyQuery(today) {
       db.flowSessions.toArray(),
       db.flowStars.toArray(),
       db.trips.toArray(),
-      db.settings.where('key').anyOf([TUNE_KEY, REWARD_KEY, HIDDEN_KEY, SEED2_KEY, 'flowSeeded', 'strava']).toArray(),
+      db.settings.where('key').anyOf([TUNE_KEY, REWARD_KEY, HIDDEN_KEY, SEED2_KEY, 'flowSeeded', 'strava', CHALLENGES_KEY]).toArray(),
       db.items.where('ownership').equals('wishlist').toArray(),
       db.rides.toArray(),
       db.settings.get(HOME_PLACE),
@@ -97,7 +101,7 @@ export function hobbyQuery(today) {
       log,
       sessions,
       stars,
-      tripDays: tripDays(homeTrips(trips), today),
+      tripDays: tripDays(homeTrips(trips), today, { rodeToday: await rodeOn(today) }),
       tune: set[TUNE_KEY] ?? {},
       reward: set[REWARD_KEY] ?? null,
       hidden: Array.isArray(set[HIDDEN_KEY]) ? set[HIDDEN_KEY] : [],
@@ -107,6 +111,7 @@ export function hobbyQuery(today) {
       seeded: !!set.flowSeeded || acts.length > 0,
       seeded2: !!set[SEED2_KEY],
       extra, // package G: msContext({ extra }) on Aktiv, Meilensteine and the Vitrine (never on Heute)
+      challenges: challengesOf(set[CHALLENGES_KEY]), // «Meilensteine als Belohnung»: the challenges of each sport (msContext({ challenges }))
     };
   });
 }
@@ -147,7 +152,7 @@ export function medQuery(actId, today) {
       log,
       sessions,
       stars,
-      tripDays: tripDays(homeTrips(trips), today),
+      tripDays: tripDays(homeTrips(trips), today, { rodeToday: await rodeOn(today) }),
       tpls: tpls.map((x) => tplOf(x, actId)),
       tune: set[TUNE_KEY] ?? {},
       arts: set[ARTS_KEY] ?? null,
@@ -212,7 +217,7 @@ export function checkQuery(today) {
       checks,
       pool: poolOf(pool?.value),
       trips: homeTrips(trips),
-      tripDays: tripDays(homeTrips(trips), today),
+      tripDays: tripDays(homeTrips(trips), today, { rodeToday: await rodeOn(today) }),
       rides: withStravaRides(rides, book).map((r) => ({ date: r.date, km: r.km, movingH: r.movingH ?? null, totalH: r.totalH ?? null, source: r.source ?? 'file' })),
       weather: wx ? { max: wx.max, min: wx.min, rain: wx.rain } : null,
       fixed: Array.isArray(fixed?.value) ? fixed.value : [],

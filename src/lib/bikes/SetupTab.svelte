@@ -19,7 +19,7 @@
   import RenameSheet from '../ui/RenameSheet.svelte';
   import { offerRename } from '../ui/rename.svelte.js';
   import { formatWeight, parseGrams } from '../gear.js';
-  import { Bike as BikeIcon, Briefcase, Plus, ChevronRight, Scale, User, Wrench, MoreHorizontal, Package, Route, BookOpen, Image as ImageIcon, ArrowLeftRight, RefreshCw } from '@lucide/svelte';
+  import { Bike as BikeIcon, Briefcase, Plus, ChevronRight, Scale, User, Wrench, MoreHorizontal, Package, Route, BookOpen, Image as ImageIcon, ArrowLeftRight, RefreshCw, Tag } from '@lucide/svelte';
   import SetupBand from './SetupBand.svelte';
   import SetupDrawing from './SetupDrawing.svelte';
   import SetupFold from './SetupFold.svelte';
@@ -162,10 +162,21 @@
                 { name: t('Don’t show «{name}» any more', { name: t(LINKS.x9.label) }), explain: t('Comes back under Me › Appearance'), icon: EyeOff, run: hideMaker },
               ]
             : []),
+          // Alles fertig (Versteckte Funktionen, Noah 22.10.2026 «1a»): the sale listing also in the bike's «…»
+          { name: t('Sale listing'), explain: t('A text from km, services and parts'), icon: Tag, run: () => (location.hash = bikesHash({ tab: 'care', view: 'sell', bike: bike.id })) },
         ]
       : [],
   );
   const chf = (n) => `CHF ${Math.round(n).toLocaleString('de-CH')}`;
+
+  // «Alltag sichtbar»: the sheets of the bike's folder, named as in «What the app can do» (features.js)
+  const BIKE_SHEETS = [
+    { sheet: 'all', label: 'Bike folder' },
+    { sheet: 'warranty', label: 'Warranty and receipts' },
+    { sheet: 'theft', label: 'Theft sheet' },
+    { sheet: 'kit', label: 'Repair kit' },
+    { sheet: 'breakin', label: 'Break-in plan' },
+  ];
 
   /* ---------- setup photos (Noah, 4.10.2026, answers 1a-6a) ---------- */
   const gallery = $derived(bikePhotos(bike, $photosQ ?? []));
@@ -272,6 +283,15 @@
     return () => window.removeEventListener('pg:addbike', add);
   });
   let message = $state('');
+  // Klick-Rundgang 22.10.2026 H31: the first bike of «Erste Schritte» on Today: say it is done and lead on to step 2
+  let firstNext = $state(false);
+  const inFirstSteps = () => {
+    try {
+      return localStorage.getItem('home.firstSteps') === '1';
+    } catch {
+      return false;
+    }
+  };
 
   const bagWeight = (bag) => containerWeight(bag, itemsById);
   const bagSub = (bag) => [bag.volumeL ? formatVolume(bag.volumeL) : '', bagWeight(bag) != null ? formatWeight(bagWeight(bag)) : ''].filter(Boolean).join(' · ');
@@ -384,6 +404,13 @@
   {:else if bike}
     <SetupBand {bikes} {bike} {setup} {sub} kind={bikeKind} cost={costLine} due={care?.rows.length ?? 0} careHref={bikesHash({ tab: 'care', bike: bike.id, open: true })} onbike={chooseBike} onadd={() => (bikeDialog = { bike: null })} onedit={() => (bikeDialog = { bike })} onorder={() => (standardOpen = true)} menu={bikeMenu} link={makerOn && maker ? { kind: 'x9', url: maker.url, name: maker.name || t(LINKS.x9.label) } : null} />
 
+    <!-- «Alltag sichtbar» (Noah 24.10.2026 «1a 2b», use cases 177–181, 198): the bike's folder and photos one tap
+         away, under the names of «What the app can do» (were only in the fold «More» at the bottom) -->
+    <nav class="bquick" aria-label={t('Folder and photos of the {bike}', { bike: bike.name })} data-bike-quick>
+      {#each BIKE_SHEETS as x (x.sheet)}<a class="bq" href={bikesHash({ bike: bike.id, sheet: x.sheet })} data-bike-quick-item={x.sheet}>{t(x.label)}</a>{/each}
+      <button type="button" class="bq" onclick={() => ((photosOpen = true), queueMicrotask(() => photosEl?.scrollIntoView({ block: 'start' })))} data-bike-quick-item="photos">{t('Bike photos')}</button>
+    </nav>
+
     <!-- Design-Refresh P7 «Velo» (V1): the drawing and the bags left; care and equipment, «Import rides»
          and «More» right; on a phone one after the other. Everything from «Velo kurz» stays. -->
     <div class="cols">
@@ -442,6 +469,10 @@
               </ul>
             {/if}
             <div class="vfold">{@render yourBags()}</div>
+            {#if !editMounts}
+              <!-- «Alles finden» (Noah 22.10.2026 «1a»): the bag plan right under the bags, not behind «Mehr» -->
+              <a class="bp-link" href="#/bikes?tab=rig&view=bags" data-bag-plan-link><span>{t('Bag plan')}</span><small>{t('Weight front, middle and rear')}</small><ChevronRight size={16} aria-hidden="true" /></a>
+            {/if}
           </div>
         </section>
       </div>
@@ -655,6 +686,12 @@
   />
 {/if}
 
+{#if firstNext && !bikeDialog}
+  <div class="firstnext card" role="status" data-first-next>
+    <span><b>{t('Step 1 done: your bike is here.')}</b><small>{t('Next: your gear, then the first trip.')}</small></span>
+    <a class="btn hi sm" href="#/" onclick={() => (firstNext = false)}>{t('Continue to step 2')}</a>
+  </div>
+{/if}
 {#if standardOpen}
   <BikeOrderSheet {bikes} onclose={() => (standardOpen = false)} />
 {/if}
@@ -662,7 +699,7 @@
   <NewStandardSheet bike={newBike} standard={newStd.standard} {bikes} onclose={() => (newStd = null)} />
 {/if}
 {#if bikeDialog}
-  <BikeDialog bike={bikeDialog.bike} {bikes} oncreated={(id) => { const others = bikes.filter((b) => b.id !== id); newStd = others.length ? { id, standard: others[0] } : null; onbike?.(id); }} onsaved={(id) => onbike?.(id)} onclose={() => (bikeDialog = null)} />
+  <BikeDialog bike={bikeDialog.bike} {bikes} oncreated={(id) => { const others = bikes.filter((b) => b.id !== id); newStd = others.length ? { id, standard: others[0] } : null; firstNext = !others.length && inFirstSteps(); onbike?.(id); }} onsaved={(id) => onbike?.(id)} onclose={() => (bikeDialog = null)} />
 {/if}
 
 {#if photoRename}
@@ -698,6 +735,10 @@
 {/if}
 
 <style>
+  /* Klick-Rundgang H31 */
+  .firstnext { position: sticky; bottom: calc(var(--tabbar-h, 64px) + 12px); z-index: 5; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 12px; margin: 12px 0; }
+  .firstnext span { display: flex; flex-direction: column; }
+  .firstnext small { color: var(--ink-2); }
   .setup {
     min-width: 0;
   }
@@ -1368,5 +1409,60 @@
       grid-column: 2;
       justify-content: flex-start;
     }
+  }
+  .bp-link {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.7rem 0.9rem;
+    border-top: 1px solid var(--line);
+    color: var(--ink);
+    text-decoration: none;
+    font-weight: 600;
+  }
+  .bp-link small {
+    min-width: 0;
+    margin-left: auto;
+    text-align: right;
+    color: var(--ink-2);
+    font-weight: 400;
+    font-size: var(--fs-small);
+  }
+  /* «Alltag sichtbar»: the folder and photos one tap away */
+  .bquick {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sp-2);
+    margin: var(--sp-2) 0 var(--sp-3);
+  }
+  .bq {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0 14px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: var(--paper);
+    color: var(--ink);
+    font: 600 var(--fs-small) / 1.2 var(--font-body);
+    text-decoration: none;
+    cursor: pointer;
+  }
+  /* phone: one row that scrolls sideways, so the bike page stays in its length budget (5.5 screens) */
+  @media (max-width: 719px) {
+    .bquick {
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      margin-inline: calc(-1 * var(--gut));
+      padding-inline: var(--gut);
+      scrollbar-width: none;
+    }
+    .bq {
+      flex: none;
+      white-space: nowrap;
+    }
+  }
+  .bq:hover {
+    border-color: var(--line-strong);
   }
 </style>

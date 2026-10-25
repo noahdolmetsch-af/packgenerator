@@ -29,9 +29,11 @@
   import TimerFloat from './lib/timer/TimerFloat.svelte';
   import CreditNotice from './lib/helper/CreditNotice.svelte';
   import RemindCard from './lib/remind/RemindCard.svelte';
+  import RuhigLine from './lib/ruhig/RuhigLine.svelte'; // Paket C: workspace, calm view or a due letter
   import SideBar from './lib/nav/SideBar.svelte';
   import PlaceBar from './lib/nav/PlaceBar.svelte';
   import MeButton from './lib/nav/MeButton.svelte';
+  import HelpButton from './lib/nav/HelpButton.svelte';
   import PageFoot from './lib/anpassen/PageFoot.svelte'; // «Anpassen» (Noah 20.10.2026 «1a»)
   import { pageKeyOf } from './lib/anpassen.js';
   import { placeLabel, tabLabel } from './lib/anpassen.svelte.js';
@@ -45,7 +47,7 @@
   import { OWN_KEY } from './lib/ownvalues.js';
   import { useOwn } from './lib/ownlive.svelte.js';
   import { checkPart } from './lib/flowcheck.js';
-  import { pageOf, placeOf, redirectOf, tabOf, keepTab, PLACES, PLACE_TABS } from './lib/nav.js';
+  import { pageOf, placeOf, redirectOf, tabOf, keepTab, ALL_PLACES, PLACE_TABS } from './lib/nav.js';
   import PlaceTabs from './lib/nav/PlaceTabs.svelte';
   import PlaceSwitch from './lib/nav/PlaceSwitch.svelte';
   import ErrorPage from './lib/ui/ErrorPage.svelte';
@@ -88,7 +90,7 @@
   const failName = $derived.by(() => {
     if (place === 'me') return t('Me|place');
     const tabEntry = (PLACE_TABS[place] ?? []).find((x) => x.key === tab);
-    const p = PLACES.find((x) => x.key === place);
+    const p = ALL_PLACES.find((x) => x.key === place);
     return tabEntry && p ? `${t(p.label)} › ${t(tabEntry.label)}` : p ? t(p.label) : '';
   });
   $effect(() => {
@@ -109,10 +111,10 @@
   });
   // v0.23.0 (AP07): the address → page and its main place live in nav.js (tested there).
   const page = $derived(pageOf(hash, parseBikesHash(hash).tab === 'care'));
-  const place = $derived(placeOf(page));
+  const place = $derived(placeOf(page, hash));
   // «Anpassen»: the page's name when it has no big title (the place › the tab)
   const anpTitle = $derived.by(() => {
-    const p = PLACES.find((x) => x.key === place);
+    const p = ALL_PLACES.find((x) => x.key === place);
     if (!p) return '';
     const tab = (PLACE_TABS[place] ?? []).find((x) => x.key === tabOf(place, hash));
     return tab ? `${placeLabel(p)} › ${tabLabel(place, tab)}` : placeLabel(p);
@@ -352,6 +354,7 @@
     Rides: () => import('./pages/Rides.svelte'),
     Wardrobe: () => import('./pages/Wardrobe.svelte'),
     Flow: () => import('./pages/Flow.svelte'),
+    Auswerten: () => import('./pages/AuswertenStart.svelte'),
     Between: () => import('./pages/Between.svelte'),
     Me: () => import('./pages/Me.svelte'),
     Look: () => import('./pages/Look.svelte'),
@@ -364,7 +367,9 @@
     Agenda: () => import('./pages/Agenda.svelte'),
     MailPage: () => import('./pages/Mail.svelte'),
     WasNeu: () => import('./pages/WasNeu.svelte'),
-    WasKommt: () => import('./pages/WasKommt.svelte'), // Paket N #68: Ich › Was kommt
+    WasKommt: () => import('./pages/WasKommt.svelte'), // Paket N #68, P7: Ich › Projekt-Ablage
+    Album: () => import('./pages/Album.svelte'), // Paket P8: Ich › Fotoalbum
+    Freunde: () => import('./pages/Freunde.svelte'), // Paket D «Mit Freunden»: Ich › Mit Freunden
     Dreams: () => import('./pages/Dreams.svelte'), // Paket N: Touren › Träume
     Compass: () => import('./pages/Compass.svelte'), // Paket N: Ich › Mein Kompass
     Phone: () => import('./pages/Phone.svelte'),
@@ -372,6 +377,7 @@
     Regeln: () => import('./pages/Regeln.svelte'), // P3 «Warum? und Regeln» (RG3): Ich › So entscheidet die App
     Push: () => import('./pages/Push.svelte'),
     Wetter: () => import('./pages/Wetter.svelte'),
+    Stops: () => import('./pages/Stops.svelte'), // «Stopps in der Nähe» (Noah 24.10.2026 «1a»)
     Abfragen: () => import('./pages/Abfragen.svelte'),
     Verlauf: () => import('./pages/Verlauf.svelte'),
     Auswertung: () => import('./pages/Auswertung.svelte'),
@@ -423,6 +429,7 @@
     Frei: () => import('./pages/Frei.svelte'),
     Tagebuch: () => import('./pages/Tagebuch.svelte'),
     Alltag: () => import('./pages/Alltag.svelte'),
+    Ruhig: () => import('./pages/Ruhig.svelte'), // Paket C «Ruhig und persönlich» (996 Ideen)
   };
   // once Heute is drawn, the most used pages load quietly in the background
   $effect(() => warmUp([PAGES.Gear, PAGES.Pack, PAGES.Trips, PAGES.Bikes, PAGES.Me, PAGES.Flow, PAGES.Debrief]));
@@ -444,6 +451,7 @@
     <div class="tools">
       <!-- «Assistent» (Noah 15.10.2026 «3 a und b»): its own button next to the search -->
       <a class="asst-ic" href="#/assistent" aria-label={t('Assistant')}><MessageCircle size={22} aria-hidden="true" /></a>
+      {#if !mini}<HelpButton />{/if}<!-- «Alles finden 2» (Noah 22.10.2026 «3a»): the help of this page -->
       <Search compact />
       {#if !guest}<button type="button" class="plus" aria-label={t('New')} aria-haspopup="dialog" aria-keyshortcuts="n" onclick={() => (newMode = 'all')}><Plus size={22} strokeWidth={2.4} aria-hidden="true" /></button>{/if}
       <MeButton inbox={$inboxQ ?? 0} current={place === 'me'} />
@@ -456,13 +464,13 @@
 <DbWaitLine />
 {#if !mini && !guest}<ComebackWindow care={$dueQ ?? 0} inbox={$inboxQ ?? 0} /><YearCheckWindow {hash} /><DiaryReminder {hash} />{/if}
 
-<main class:calm class:wide={page === 'pack' || page === 'ride' || page === 'debrief' || page === 'rides' || page === 'stravarides' || page === 'past' || page === 'templates' || page === 'gear' || page === 'supplies' || page === 'power' || page === 'fuel' || page === 'tour' || page === 'lend' || page === 'blocks' || page === 'blockcheck' || page === 'packcleanup' || page === 'home' || page === 'features' || page === 'wardrobe' || page === 'flow' || page === 'timer' || page === 'check' || page === 'routine' || page === 'week' || page === 'neuland' || page === 'heatmap' || page === 'dreams'} class:bar={!wide.matches || !!mini}>
+<main class:calm class:wide={page === 'pack' || page === 'ride' || page === 'debrief' || page === 'rides' || page === 'stravarides' || page === 'past' || page === 'templates' || page === 'gear' || page === 'supplies' || page === 'power' || page === 'fuel' || page === 'tour' || page === 'lend' || page === 'blocks' || page === 'blockcheck' || page === 'packcleanup' || page === 'home' || page === 'features' || page === 'wardrobe' || page === 'flow' || page === 'auswerten' || page === 'timer' || page === 'check' || page === 'routine' || page === 'week' || page === 'neuland' || page === 'heatmap' || page === 'dreams'} class:bar={!wide.matches || !!mini}>
   {#if !calm && !guest && !mini}<PlaceTabs {place} {hash} {moved} onclosemoved={() => (moved = null)} />{/if}
   <!-- AU1 «1b»: on a phone Velos and Ausrüstung share a slot. Gesamttest 20.10.2026 B7: the switch stands only
        on Ausrüstung (the way back); Velos already has its tabs and path, Ausrüstung is one row on Velos › Übersicht -->
-  {#if (place === 'equipment' || place === 'gear') && !mini}<PlaceSwitch {place} />{/if}
+  {#if (place === 'equipment' || place === 'gear' || place === 'active' || place === 'analysis') && !mini}<PlaceSwitch {place} {hash} />{/if}
   <!-- ER1/ER2: «Soll ich dich erinnern?» on top of the next page, in the page (never over its buttons) -->
-  {#if !guest && page !== 'home'}<RemindCard />{/if}
+  {#if !guest && page !== 'home'}<RemindCard /><RuhigLine {hash} />{/if}
   <svelte:boundary onerror={onfail}>
   {#key `${switchN}-${listsReady.v}`}
   {#if page === 'gear'}
@@ -555,6 +563,9 @@
   {:else if page === 'flow'}
     <!-- v0.51.0 «Im Flow»: rings, ticks, goals × days; #/flow/goals, #/flow/edit/<id>, #/flow/new -->
     <LazyPage load={PAGES.Flow} sub={hash.split('/').slice(2).join('/')} />
+  {:else if page === 'auswerten'}
+    <!-- «Aktiv neu» (Noah 22.10.2026 «2a»): the start of Auswerten, what you look at -->
+    <LazyPage load={PAGES.Auswerten} />
   {:else if page === 'week'}
     <!-- «Woche planen» (WP1–WP3): the week, the Sunday planning, the holidays -->
     {#if hash.startsWith('#/week/plan')}<LazyPage load={PAGES.WochePlanen} />{:else if hash.startsWith('#/week/away')}<LazyPage load={PAGES.WocheFerien} />{:else}<LazyPage load={PAGES.Woche} />{/if}
@@ -574,6 +585,9 @@
   {:else if page === 'alltag'}
     <!-- Paket V «Alltag»: Ich › Alltag (#/me/alltag/…): shopping list, contracts, «Not seen for a while» -->
     <LazyPage load={PAGES.Alltag} {hash} />
+  {:else if page === 'ruhig'}
+    <!-- Paket C «Ruhig und persönlich» (996 Ideen): Ich › Ruhig und persönlich (#/me/ruhig/…) -->
+    {#key hash.split('?')[0]}<LazyPage load={PAGES.Ruhig} {hash} />{/key}
   {:else if page === 'routine'}
     <!-- Routine «Das tut mir gut» (mockup D2): compose the list, a page of Heute -->
     <LazyPage load={PAGES.Routine} />
@@ -619,12 +633,20 @@
     <LazyPage load={PAGES.Dreams} />
   {:else if page === 'next'}
     <LazyPage load={PAGES.WasKommt} />
+  {:else if page === 'album'}
+    <LazyPage load={PAGES.Album} />
+  {:else if page === 'freunde'}
+    <!-- Paket D «Mit Freunden»: #/me/freunde, a message from a friend at #/me/freunde/in/<code> -->
+    {#key hash.startsWith('#/me/freunde/in/') ? hash : ''}<LazyPage load={PAGES.Freunde} {hash} />{/key}
   {:else if page === 'news'}
     <!-- v0.110.0 Design-Refresh P10 (I11): Ich › Was ist neu -->
     {#key hash}<LazyPage load={PAGES.WasNeu} />{/key}
   {:else if page === 'phone'}
     <!-- Design-Refresh P9 (B35): Ich › Daten › Aufs Handy, the QR code -->
     <LazyPage load={PAGES.Phone} />
+  {:else if page === 'stopps'}
+    <!-- «Stopps in der Nähe» (Noah 24.10.2026 «1a»): water, petrol, food and more around you or along a route -->
+    {#key hash}<LazyPage load={PAGES.Stops} />{/key}
   {:else if page === 'wetter'}
     <!-- Paket Y «Wetter-Kern» (Noah 20.10.2026): the weather for riding, best window, radar, webcams -->
     <LazyPage load={PAGES.Wetter} />
@@ -874,6 +896,24 @@
   @media (max-width: 719px) {
     .top .long:not(.show) {
       display: none;
+    }
+  }
+  /* «Alles finden 2»: with «?» in the bar, five round buttons fit 320 px only without the gaps */
+  @media (max-width: 379px) {
+    .top {
+      gap: 6px;
+    }
+    .tools {
+      gap: 0;
+    }
+  }
+  /* the same when the app is bigger («Grösse», zoom 130 %): the bar itself is narrow, the screen is not */
+  .top {
+    container-type: inline-size;
+  }
+  @container (max-width: 379px) {
+    .tools {
+      gap: 0;
     }
   }
   /* A phone turned sideways: a low top bar. */

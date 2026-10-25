@@ -49,8 +49,8 @@ describe('WS2 Schnellstart everywhere', () => {
 describe('WS2 tip (Noah «2a»)', () => {
   it('the day ride tip says Schnellstart, in German too', async () => {
     const { TIP } = await import('../src/lib/tips.js');
-    expect(TIP.dayride).toMatchObject({ title: 'Quick start in 1 tap', button: 'Quick start', go: { run: 'dayRide' } });
-    expect(DE[TIP.dayride.title]).toBe('Schnellstart in 1 Tipp');
+    expect(TIP.dayride).toMatchObject({ title: 'Ride today', button: 'Quick start', go: { run: 'dayRide' } });
+    expect(DE[TIP.dayride.title]).toBe('Heute fahren'); // Alltag sichtbar (Noah 24.10.2026 «2b 3a»): named like the chip on Today, one name with f.quickstart
     expect(DE[TIP.dayride.text]).toBeTruthy();
   });
 });

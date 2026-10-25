@@ -11,6 +11,7 @@
   import AreaIntro from '../lib/intro/AreaIntro.svelte'; // «Einstieg» for the place «Woche» (key weekplan)
   import Seg from '../lib/ui/Seg.svelte';
   import Entry from '../lib/woche/Entry.svelte';
+  import WeekPeople from '../lib/alltag/WeekPeople.svelte'; // «Alles finden»: people to see again this week
   import WeekDreams from '../lib/dreams/WeekDreams.svelte'; // Paket N idea 5: dreams and race deadlines of the week
   import { weekQuery, putWeek } from '../lib/woche/load.js';
   import { titleOf, subOf, dayName, shortDate, hours, holidayName, wxWords, reviewLine, hintText } from '../lib/woche/words.js';
@@ -81,14 +82,19 @@
     ev.preventDefault();
     const it = cleanItem(form);
     if (!it || (it.kind === 'date' && !it.day)) return;
-    await saveItems([...items(), it]);
+    const extra = bufferItems(it, buf, (side, title, min) => t(side === 'before' ? 'Before: {title} ({n} min)' : 'After: {title} ({n} min)', { title, n: min })).map(cleanItem).filter(Boolean);
+    await saveItems([...items(), it, ...extra]);
     form = null;
+    buf = { before: 0, after: 0 };
   }
   // «Handy kürzer» (Noah 20.10.2026 «4b»): on a phone «Still to plan» shows PHONE_ROWS suggestions, then «Show n more»
   let sgAll = $state(false);
   const sgShown = $derived(week ? (phone.matches && !sgAll ? week.suggestions.slice(0, PHONE_ROWS) : week.suggestions) : []);
   const sgMore = $derived(week ? week.suggestions.length - sgShown.length : 0);
   const hidden = (k) => src?.hide.includes(k);
+  import BufferPick from '../lib/stand/BufferPick.svelte'; // Paket A part 3: buffer before and after a date
+  import { bufferItems } from '../lib/stand/stand.js';
+  let buf = $state({ before: 0, after: 0 });
 </script>
 
 <div class="wkp">
@@ -114,7 +120,7 @@
       <span>{tn(week.sums.dates, '{n} date', '{n} dates')}</span>
       <span>{tn(week.sums.todos, '{n} to-do', '{n} to-dos')}</span>
       {#if week.sums.away.length}<span><Palmtree size={14} aria-hidden="true" /> {week.sums.away.length === 1 ? dayName(week.sums.away[0]) : `${dayName(week.sums.away[0])}–${dayName(week.sums.away.at(-1))}`}</span>{/if}
-      {#if week.sums.bike}<span>{tn(week.sums.bike, '{n} bike job', '{n} bike jobs')}</span>{/if}
+      {#if week.sums.bike}<span>{tn(week.sums.bike, '{n} bike job open', '{n} bike jobs open')}</span>{/if}
     </p>
     {#if reviewLine(week.review) || week.hints.length}
       <div class="notes">
@@ -176,6 +182,7 @@
         </section>
 
         <WeekDreams {monday} {today} />
+        <WeekPeople {monday} {today} />
 
         <section class="card wc add" aria-labelledby="wk-add">
           <h2 id="wk-add">{t('Add')}</h2>
@@ -186,6 +193,7 @@
                 <label>{t('Day')}<input type="date" bind:value={form.day} required={form.kind === 'date'} /></label>
                 {#if form.kind === 'date'}<label>{t('Time')}<input type="time" bind:value={form.time} /></label>{/if}
               </div>
+              {#if form.kind === 'date'}<BufferPick bind:before={buf.before} bind:after={buf.after} />{/if}
               {#if form.kind === 'todo'}<p class="why">{t('Without a day it waits under «Still to plan».')}</p>{/if}
               <div class="fb"><button type="submit" class="btn">{t('Save')}</button><button type="button" class="btn" onclick={() => (form = null)}>{t('Cancel')}</button></div>
             </form>

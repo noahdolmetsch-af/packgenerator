@@ -17,6 +17,7 @@
    */
   import { liveQuery } from 'dexie';
   import { db } from '../lib/db.js';
+  import { stopsHref } from '../lib/stops/nearby.js';
   import { t, tn, num, nameOf, locale } from '../lib/i18n.svelte.js';
   import { stravaName } from '../lib/stravanames.js';
   import { localDay } from '../lib/localday.js';
@@ -69,7 +70,7 @@
   import { rideTimeS, elapsedS, n0, n1, dates, DASH } from '../lib/review/fmt.js';
   import { tidyAllTitles, fileOf, needsTitle } from '../lib/touren/titel.js';
   import { ask, showNow } from '../lib/remind/ask.svelte.js';
-  import { Route, Pencil, SlidersHorizontal, EyeOff, Eye, Unlink, Trash2, ExternalLink, Activity, Star, Share2, Copy, Map as MapIcon, ImagePlus, X, ChevronRight, Repeat, BookmarkPlus, Plus, LayoutGrid, CloudSun, RefreshCw, Heart, FileText, Bell } from '@lucide/svelte';
+  import { Route, Pencil, SlidersHorizontal, EyeOff, Eye, Unlink, Trash2, ExternalLink, Activity, Star, Share2, Copy, Map as MapIcon, ImagePlus, X, ChevronRight, Repeat, BookmarkPlus, Plus, LayoutGrid, CloudSun, RefreshCw, Heart, FileText, Bell, MapPin } from '@lucide/svelte';
 
   let { key = '' } = $props();
   const today = localDay();
@@ -86,6 +87,9 @@
   const lines = $derived(d && !d.missing ? linesOf(d.acts, d.trip) : []);
   const prof = $derived(d && !d.missing ? profileOf(d.acts, d.trip) : []);
   let frac = $state(null);
+  // «Stopps in der Nähe» (Noah 24.10.2026 «2a»): a trip opens the page with itself; with a route (its own or its
+  // race's) the stops page starts along it, else around you
+  const stopTrip = $derived(d?.kind === 't' ? d.trip : null);
   const hasCourse = $derived(d && !d.missing ? !!courseOf(d.acts, d.trip) : false);
   const marker = $derived(frac == null ? null : pointAlong(joinedLine(lines), frac));
   const own = $derived(d?.kind === 'a' ? (d.acts[0]?.own ?? {}) : d?.kind === 'g' ? (d.group?.own ?? {}) : (d?.trip?.own ?? {}));
@@ -446,7 +450,7 @@
           <CloudSun size={18} aria-hidden="true" />
           {#if wxText}<span><b>{t('Weather')}</b> {wxText}</span>
           {:else if wxState === 'loading'}<span class="tp-muted">{t('Getting the weather of that day …')}</span>
-          {:else if wxState === 'failed'}<span class="tp-muted">{t('The weather could not be fetched.')}</span><button type="button" class="btn btn-link" onclick={() => loadWeather(true)} data-weather-retry><RefreshCw size={14} aria-hidden="true" />{t('Try again')}</button>
+          {:else if wxState === 'failed'}<span class="tp-muted">{navigator.onLine === false ? t('You are offline right now: the weather loads once you are online.') : t('The weather could not be fetched.')}</span><button type="button" class="btn btn-link" onclick={() => loadWeather(true)} data-weather-retry><RefreshCw size={14} aria-hidden="true" />{t('Try again')}</button>
           {:else}<span class="tp-muted">{t('No weather yet: it comes when you are online.')}</span>{/if}
         </p>
         {/if}
@@ -546,7 +550,11 @@
           {#if d.kind === 't' && !d.trip?.fromActs?.length}
             <p><TripState state={d.state} /> {d.state === 'rated' ? t('The Rückblick is written.') : t('The Rückblick is still open.')}</p>
             {#if d.debrief?.note}<p class="quote">{d.debrief.note}</p>{/if}
-            <a class="btn hi" href="#/debrief/{encodeURIComponent(d.id)}" data-open-review>{d.state === 'rated' ? t('Open the Rückblick') : t('Write the Rückblick')}<ChevronRight size={16} aria-hidden="true" /></a>
+            <div class="revacts">
+              <a class="btn hi" href="#/debrief/{encodeURIComponent(d.id)}" data-open-review>{d.state === 'rated' ? t('Open the Rückblick') : t('Write the Rückblick')}<ChevronRight size={16} aria-hidden="true" /></a>
+              <!-- Versteckte Funktionen (Noah 22.10.2026 «1a»): after the Rückblick «Als Vorlage speichern» is a visible button, not only in «•••» -->
+              {#if d.state === 'rated' && (d.trip?.entries ?? []).length}<button type="button" class="btn" onclick={() => asTemplate(false)} data-review-template><BookmarkPlus size={16} aria-hidden="true" />{t('Save as a template')}</button>{/if}
+            </div>
           {:else}
             <p class="tp-muted tp-small">{t('Your own rating, only for you. It makes the tour «Rated».')}</p>
             <div class="stars" role="group" aria-label={t('Rating')} data-tour-rating>
@@ -587,6 +595,8 @@
           <button type="button" class="btn" onclick={() => openNew('list')}><Plus size={16} aria-hidden="true" />{t('Plan a new trip')}</button>
         {/if}
         {#if d.kind === 't'}<a class="btn" href="#/spur/{encodeURIComponent(d.id)}"><MapIcon size={16} aria-hidden="true" />{t('Travel track')}</a>{/if}
+        <!-- «Stopps in der Nähe» (Noah 24.10.2026 «2a»): from every tour page; a trip with a route opens its stops along it -->
+        <a class="btn" href={stopsHref(stopTrip)} data-tour-stops><MapPin size={16} aria-hidden="true" />{(stopTrip?.route?.line?.length ?? 0) > 1 ? t('Stops along the route') : t('Stops nearby')}</a>
         <button type="button" class="btn" onclick={share} data-share>{#if canShare}<Share2 size={16} aria-hidden="true" />{t('Share')}{:else}<Copy size={16} aria-hidden="true" />{t('Copy as text')}{/if}</button>
       </div>
     </section>
@@ -604,6 +614,7 @@
 {/if}
 
 <style>
+  .revacts { display: flex; flex-wrap: wrap; gap: 8px; }
   .tour {
     display: grid;
     grid-template-columns: minmax(0, 1fr);

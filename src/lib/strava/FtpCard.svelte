@@ -56,6 +56,8 @@
         </div>
       </form>
     {:else}
+      <!-- Klick-Rundgang A07: «noch keine FTP» comes with the way to type one -->
+      {#if !used}<button type="button" class="btn sm ftp-add" onclick={start} data-ftp-add>{t('Enter FTP')}</button>{/if}
       <p class="fv"><b class="num" data-ftp-used>{used ? `${used} W` : '–'}</b>{#if src !== 'estimate' && est}<small>{t('estimate from your rides: {n} W', { n: est })}</small>{/if}{#if src === 'own' && ftpFixed.strava}<small>{t('Strava: {n} W', { n: ftpFixed.strava })}</small>{/if}</p>
     {/if}
   </div>

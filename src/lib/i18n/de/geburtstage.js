@@ -29,7 +29,7 @@ export default {
   'e.g. Balcony': 'z. B. Balkon',
   'Last watered': 'Zuletzt gegossen',
   'On the due day': 'Am fälligen Tag',
-  'Shows in Calendar › Remember and on Me › Reminders, not on Today.': 'Steht in Kalender › Merken und unter Ich › Erinnerungen, nicht auf Heute.',
+  'Shows in Calendar › Remember and on Me › Reminders, not on Today.': 'Steht in Planen › Merken und unter Ich › Erinnerungen, nicht auf Heute.',
   Watered: 'Gegossen',
   'Watered: {name}': 'Gegossen: {name}',
   '{name} · watered': '{name} · gegossen',

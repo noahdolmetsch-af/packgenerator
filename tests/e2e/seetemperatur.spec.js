@@ -45,7 +45,7 @@ test('Zürisee: scale, Sauna und See heute, swims with their temperature', async
     if (!localStorage.getItem('whatsnew.seen')) localStorage.setItem('whatsnew.seen', '9.9.9');
   });
 
-  await page.goto('./#/flow');
+  await page.goto('./#/wetter'); // «Aktiv neu» (Noah 22.10.2026): the lake card moved from Aktiv to the weather page
   await ready(page);
   const card = page.locator('[data-card="lake"]').first();
   await expect(card.getByRole('heading', { name: 'Zürisee' })).toBeVisible();

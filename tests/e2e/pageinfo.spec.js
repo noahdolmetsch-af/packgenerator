@@ -4,6 +4,7 @@
 // phone and a computer, in German. No sideways scroll, no page errors. Fictional data only.
 import { test, expect } from '@playwright/test';
 import DE from '../../src/lib/i18n/de/index.js';
+import { openHelp } from './settle.js';
 import { PAGES, tipOfDay, tipPlace, farOf, contextOf } from '../../src/lib/pageinfo.js';
 
 const T = (en, vars) => {
@@ -29,8 +30,8 @@ async function fits(page, where) {
   expect(sw, `${where}: no sideways scroll`).toBeLessThanOrEqual(w);
 }
 
-test('Aktiv › Heute: tip of the day, all tips, the fold, then the tiles', async ({ page, context }) => {
-  const errors = await open(page, context, '#/flow');
+test('Auswerten: tip of the day, all tips, the fold, then the tiles', async ({ page, context }) => {
+  const errors = await open(page, context, '#/auswerten'); // «Aktiv neu» (Noah 22.10.2026): tip, fold and tiles moved to Auswerten
   const main = page.locator('main');
   const ctx = contextOf({}, TODAY); // October: the month tip of the ski season fits (Einstieg 2a)
   const tip = tipOfDay(undefined, 'aktiv', TODAY, ctx);
@@ -42,20 +43,19 @@ test('Aktiv › Heute: tip of the day, all tips, the fold, then the tiles', asyn
   await expect(line).toContainText(T(tip.text));
   await expect(line).toContainText(tip.kind === 'today' ? T(tip.note) : T('Tip {n} of {of} for {page}', { ...tipPlace(undefined, 'aktiv', TODAY, ctx), page: T('Analysis|place') }));
 
-  // the fold is closed; open, one row per thing the app can do, each a place in the app
-  const can = main.locator('[data-section="can"]');
-  await expect(can).toContainText(T('{n} things|can', { n: PAGES.aktiv.can.length }));
-  await expect(can.locator('[data-can]').first()).toBeHidden();
-  await can.locator('summary').click();
+  // «Alles finden 2» (Noah 22.10.2026 «3a», changed on purpose): «What the app can do here» is behind «?» at the top,
+  // one row per thing the app can do, each a place in the app; the page itself has no fold any more
+  await expect(main.locator('[data-section="can"]')).toHaveCount(0);
+  const help = await openHelp(page);
+  const can = help.locator('[data-section="can"]');
   await expect(can.locator('[data-can]')).toHaveCount(PAGES.aktiv.can.length);
   await expect(can.locator('[data-can="strava"]')).toHaveAttribute('href', '#/debrief/ride');
+  await page.keyboard.press('Escape');
+  await expect(help).toBeHidden();
 
-  // the tiles «Weiter» are the one SK tile row right after the fold (not a second row)
+  // the tiles «Weiter» are the one SK tile row (not a second row)
   await expect(main.locator('[data-section="next"]')).toHaveCount(0);
-  const sk = main.locator('[data-sk="flow"]');
-  await expect(sk).toHaveCount(1);
-  const after = await can.evaluate((c, s) => !!(c.compareDocumentPosition(s) & Node.DOCUMENT_POSITION_FOLLOWING), await sk.elementHandle());
-  expect(after, 'the tile row comes after the fold').toBe(true);
+  await expect(main.locator('[data-sk="flow"]')).toHaveCount(1);
 
   await fits(page, 'Aktiv mit Tipps');
   await page.screenshot({ path: `qa/pageinfo-${test.info().project.name}.png`, fullPage: true });
@@ -70,8 +70,6 @@ test('Aktiv › Heute: tip of the day, all tips, the fold, then the tiles', asyn
   await sheet.getByLabel(T('Own tip')).fill('Erfundener Tipp zum Testen');
   await sheet.getByRole('button', { name: T('Add|tip') }).click();
   await expect(sheet.locator('[data-tip-row]')).toHaveCount(PAGES.aktiv.tips.length + 1);
-  await sheet.locator('[data-can-show]').uncheck();
-  await expect(can).toHaveCount(0);
   await fits(page, 'Alle Tipps');
   await page.screenshot({ path: `qa/pageinfo-tips-${test.info().project.name}.png` });
 
@@ -81,7 +79,6 @@ test('Aktiv › Heute: tip of the day, all tips, the fold, then the tiles', asyn
   await expect(line).toHaveCount(0);
   await main.getByRole('button', { name: T('Tips for this page ›') }).click();
   await sheet.locator('[data-tips-all]').check();
-  await sheet.locator('[data-can-show]').check();
   await sheet.getByRole('button', { name: T('Close') }).click();
   await expect(line).toBeVisible();
 
@@ -89,7 +86,7 @@ test('Aktiv › Heute: tip of the day, all tips, the fold, then the tiles', asyn
   await line.getByRole('button', { name: T('Hide the tip for today') }).click();
   await expect(line).toHaveCount(0);
   await page.reload();
-  await expect(main.locator('[data-section="can"]')).toBeVisible();
+  await expect(main.locator('[data-sk="flow"]')).toBeVisible();
   await expect(line).toHaveCount(0);
 
   expect(errors).toEqual([]);
@@ -114,7 +111,7 @@ const put = (page, rows) =>
 
 // «Wusstest du» WD1–WD3 (mockups approved 18:34 «wd1-wd3 freigegeben», answers «1a 2a»)
 test('Wusstest du: «Passt zu heute» on a hot day, the switch for knowledge, Earth and Everest', async ({ page, context }) => {
-  const errors = await open(page, context, '#/flow');
+  const errors = await open(page, context, '#/auswerten'); // «Aktiv neu» (22.10.2026): the tip of Aktiv is on Auswerten
   const main = page.locator('main');
   await expect(main.locator('[data-tip]')).toBeVisible();
 
@@ -158,7 +155,7 @@ test('Wusstest du: «Passt zu heute» on a hot day, the switch for knowledge, Ea
   await page.reload();
   await expect(main.getByRole('heading', { level: 1, name: T('Past trips') })).toBeVisible();
   await expect(main.locator('[data-section="far"]')).toHaveCount(0);
-  await page.goto('./#/flow');
+  await page.goto('./#/auswerten');
   await main.locator('[data-tip]').getByRole('button', { name: T('All tips ›') }).click();
   await page.locator('[data-sheet="tips"] [data-know]').getByRole('button', { name: T('Also knowledge and fun') }).click();
   await page.locator('[data-sheet="tips"]').getByRole('button', { name: T('Close') }).click();

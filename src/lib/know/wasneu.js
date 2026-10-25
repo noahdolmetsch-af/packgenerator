@@ -54,7 +54,11 @@ export const SINCE = {
   'f.custompage': '0.175.0',
   dayride: '0.24.1', blocks: '0.26.0', templates: '0.10.0', gpx: '0.15.0', homeweather: '0.46.0', wxsuggest: '0.15.0', weigh: '0.3.0', fav: '0.19.4', wish: '0.19.2', unused: '0.19.2',
   'f.plan': '0.30.0', 'f.wear': '0.45.0', 'f.onion': '0.42.0', 'f.shop': '0.34.0', 'f.ballast': '0.19.5', 'f.tripbike': '0.19.3', 'f.switch': '0.35.0', 'f.ask': '0.77.0', 'f.wardrobe': '0.42.0', 'f.kit': '0.45.0',
-  'f.lighter': '0.63.0', 'f.select': '0.24.1', 'f.merge': '0.37.1', 'f.blockcheck': '0.66.0', 'f.packcleanup': '0.177.0', 'f.namesde': '0.177.0', 'f.skiplan': '0.178.0', 'f.skiseason': '0.178.0', 'f.newpack': '0.179.0', 'f.weighin': '0.180.0', 'f.powervalues': '0.179.0', 'f.decides': '0.181.0', 'f.forgotten': '0.181.0', 'f.gearimport': '0.36.0',
+  // Paket D «Mit Freunden» (provisional version; the bundler sets the final one)
+  'f.friendask': '0.194.0', 'f.friendshelf': '0.194.0', 'f.friendtemplate': '0.194.0',
+  // Paket C «Ruhig und persönlich» (996 Ideen); bundler: renumber with the package version
+  'f.workspace': '0.193.0', 'f.calmview': '0.193.0', 'f.pushbudget': '0.193.0', 'f.notforme': '0.193.0', 'f.experiment': '0.193.0', 'f.specialdays': '0.193.0', 'f.counterdays': '0.193.0', 'f.sleeporigin': '0.193.0', 'f.weightsure': '0.193.0', 'f.letters': '0.193.0', 'f.letterreply': '0.193.0', 'f.laterview': '0.193.0', 'f.voiceletters': '0.193.0', 'f.meaning': '0.193.0', 'f.gooddecisions': '0.193.0', 'f.ownbingo': '0.193.0', 'f.freerewards': '0.193.0', 'f.skillmap': '0.193.0', 'f.knowhow': '0.193.0', 'f.sharepreview': '0.193.0', 'f.arrival': '0.193.0', 'f.tworoles': '0.193.0', 'f.scalemeaning': '0.193.0', 'f.bodytalk': '0.193.0', 'f.sources': '0.193.0', 'f.devil': '0.193.0', 'f.aicheck': '0.193.0', 'f.nogos': '0.193.0',
+  'f.blockeffect': '0.190.0', 'f.needs': '0.190.0', 'f.probe': '0.189.0', 'f.homecoming': '0.189.0', 'f.labels': '0.189.0', 'f.stopsnear': '0.187.0', 'f.lighter': '0.63.0', 'f.select': '0.24.1', 'f.merge': '0.37.1', 'f.blockcheck': '0.66.0', 'f.packcleanup': '0.177.0', 'f.namesde': '0.177.0', 'f.skiplan': '0.178.0', 'f.skiseason': '0.178.0', 'f.newpack': '0.179.0', 'f.powervalues': '0.179.0', 'f.decides': '0.181.0', 'f.tennistop': '0.182.0', 'f.yogaclasses': '0.182.0', 'f.photoalbum': '0.185.0', 'f.weighin': '0.180.0', 'f.next': '0.184.0', 'f.sortround': '0.183.0', 'f.goodday': '0.182.0', 'f.forgotten': '0.181.0', 'f.gearimport': '0.36.0',
   bags: '0.5.0', share: '0.16.0', ride: '0.29.0', note: '0.19.3', event: '0.22.1', 'f.basecheck': '0.45.2', 'f.dayblocks': '0.19.5', 'f.evening': '0.34.0', 'f.ridenote': '0.26.0', 'f.finish': '0.20.1',
   debrief: '0.13.0', learn: '0.19.0', pace: '0.19.0', trend: '0.44.0', 'f.unneeded': '0.92.0', 'f.missing': '0.18.1', 'f.upload': '0.41.0', 'f.past': '0.25.1', 'f.logbook': '0.16.0', 'f.learnings': '0.13.0', 'f.best': '0.78.0',
   setup: '0.5.0', care: '0.7.0', order: '0.19.3', receipt: '0.57.0', km: '0.38.0', 'f.kmimport': '0.16.0', 'f.problem': '0.45.2', 'f.workshop': '0.17.0', 'f.equipment': '0.83.0', 'f.bikecompare': '0.57.0',
@@ -70,7 +74,7 @@ export const SINCE = {
   'f.docs': '0.146.0', 'f.sync': '0.146.0', 'f.camera': '0.146.0',
   // v0.147.0 Paket B «Server»: Fitbit, Training, PDF, Google, Assistent, Termine buchen, Shop, automatischer Abgleich, Web-Push
   // Paket N «Pläne und Träume» (v0.153.0)
-  'f.notelinks': '0.153.0', 'f.next': '0.153.0', 'f.dreams': '0.153.0', 'f.races': '0.153.0', 'f.compass': '0.153.0', 'f.noteformats': '0.153.0',
+  'f.notelinks': '0.153.0', 'f.dreams': '0.153.0', 'f.races': '0.153.0', 'f.compass': '0.153.0', 'f.noteformats': '0.153.0',
   // Paket P «Was mir gut tut» (v0.153.0)
   'f.wohl': '0.153.0',
   // Paket Q «App klarer» (v0.153.0)
@@ -106,7 +110,7 @@ export const SINCE = {
   // Paket U «Rennen» (v0.171.0)
   'f.race': '0.159.0', 'f.racesample': '0.159.0', 'f.racemap': '0.159.0', 'f.climbs': '0.159.0', 'f.mapoffline': '0.159.0', 'f.live': '0.159.0',
   // Live-Karte Teil 1–3 (v0.171.0)
-  'f.livepause': '0.170.0', 'f.sensors': '0.170.0', 'f.datapages': '0.170.0', 'f.turns': '0.170.0', 'f.laps': '0.170.0', 'f.moreplaces': '0.170.0', 'f.rwgps': '0.170.0', 'f.ovnear': '0.170.0', 'f.sharepic': '0.170.0',
+  'f.livepause': '0.170.0', 'f.sensors': '0.170.0', 'f.datapages': '0.170.0', 'f.turns': '0.170.0', 'f.laps': '0.170.0', 'f.moreplaces': '0.170.0', 'f.rwgps': '0.170.0', 'f.ovnear': '0.170.0',
   // Paket T «Freie Zeit» (v0.155.0)
   'f.frei': '0.155.0', 'f.impulse': '0.155.0',
   // Paket V «Alltag» (v0.155.0)
@@ -130,7 +134,7 @@ export const SINCE = {
   'f.webcammap': '0.173.0',
   'f.icepush': '0.173.0',
   // Paket W «Von der Haustür bis zurück» (v0.170.0)
-  'f.arrived': '0.170.0', 'f.planb': '0.170.0', 'f.checkin': '0.170.0', 'f.parked': '0.170.0',
+  'f.goodnight': '0.188.0', 'f.arrived': '0.170.0', 'f.planb': '0.170.0', 'f.checkin': '0.170.0', 'f.parked': '0.170.0',
   // Paket Z and SP (v0.171.0)
   'f.breakdown': '0.171.0', 'f.sleepspots': '0.171.0', 'f.postcard': '0.171.0',
   'f.packtwo': '0.171.0', 'f.laundry': '0.171.0', 'f.morninglist': '0.171.0', 'f.packtime': '0.171.0',

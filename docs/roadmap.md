@@ -105,13 +105,29 @@ Ursprünglich freigegebene Ausführungsreihenfolge: AP01–AP09 → AP12–AP16 
 
 ## Abgleich, Abweichungen und nächste Lieferfolge
 
+**24.10.2026, v0.188.0 «Die Reste, erledigt»:** Paket «Alles fertig» mit allen kleinen Resten der alten Threads (Gute Nacht, nächster Laden, Strom-Zeile, Rennen oben, Verkaufsinserat, Heute leer und ohne Wohnort, Logbuch- und Meditations-Einträge, Tote Knöpfe 8–11). Offen danach: UI-Ziel #14 (zwei Spalten am Computer) nach dem Aktiv-Neubau.
+
 **21.10.2026, v0.172.0 «Velo und Notizen»:** Velo im Griff (Kette nach Regen, Fotos, Inserat, Velobox, Ersatzteile, Kettenrotation) und Notizen wie Evernote (zeichnen, formatieren, Dateien, Erinnerung, Papierkorb).
 
 **21.10.2026, v0.180.0 «Heute ergänzt»:** Mockup-Paket P6 Heute ergänzen: Meditation oben, Gewicht einmal pro Woche, letzte Aktivität nach dem Ring, fällige Check-Bereiche, «Neu» nach einem Update oben. Als Nächstes P3 Regeln.
 
 **21.10.2026, v0.179.0 «Gepackt und geladen»:** Mockup-Paket P1 Packen und Strom: neues Teil beim Packen, Strom-Werte mit Quelle, Leuchtstufen, Ladezeit messen, Flickzeug-Fehler. Als Nächstes P6 Heute ergänzen.
 
+**22.10.2026, v0.187.0 «Hier machen, dort anschauen»:** Aktiv neu: Aktiv zum Machen (Heute, Meine Sportarten, Training, Erholung), Auswerten zum Anschauen; jede Sportart mit Seite (Ziel, Verlauf, Meilensteine, Sporttasche). Als Nächstes: Meilensteine-Karte pro Sportart (Thread «Meilensteine als Belohnung») in den Platz der Sportseite.
+
+**22.10.2026, v0.185.0 «Alle deine Fotos in einem Album»:** Mockup-Paket P8 Fotoalbum. Geparkt bis zur Freigabe. Damit sind alle 8 freigegebenen Mockup-Pakete gebaut (P6 Heute beim Thema Heute).
+
+**22.10.2026, v0.184.0 «Das ganze Projekt auf einer Seite»:** Mockup-Paket P7 Projekt-Ablage. Geparkt bis zur Freigabe. Als Nächstes P8 Fotoalbum.
+
+**22.10.2026, v0.183.0 «Eingang leer in drei Minuten»:** Mockup-Paket P5 Eingang: Ablegen-Runde (A-J4). Geparkt bis zur Freigabe. Als Nächstes P7 Projekt-Ablage.
+
+**21.10.2026, v0.182.0 «Tennis, Yoga und gute Tage»:** Mockup-Paket P4 Aktiv: Tennis-Seite oben (Titelbild, gespielt, geplant, Gespielt?), Yoga-Karte auf Meditation, «Diesen Tag merken», «Gewünscht und erlebt». Als Nächstes P5 Eingang.
+
 **21.10.2026, v0.181.0 «Warum, und nach welcher Regel»:** Mockup-Paket P3 Warum? und Regeln: «Warum?» in Planen, Seite «So entscheidet die App», «Meist vergessen» in Packen. Als Nächstes P4 Aktiv.
+
+**24.10.2026, v0.186.1 «Abgleich ohne Fragen»:** Der Abgleich Handy–Computer löst Konflikte selbst (neuere Änderung gilt, die andere Version bleibt 30 Tage zum Zurückholen); keine Meldung mehr im Frontend.
+
+**22.10.2026, v0.181.1 «Alltag ohne Sackgassen»:** Reparaturen aus dem Klick-Rundgang für Mein Tag, Meine Woche, Velo pflegen, mit Durchspiel-Test. Als Nächstes «Aktiv fertig bauen», dann «Packen fertig bauen», dann «Tote Knöpfe».
 
 **21.10.2026, v0.178.0 «Skitouren, gut geplant»:** Mockup-Paket P2 Skitour: Tour planen mit Gefahrenstufe und «Dein Morgen», Saison-Seite, «Gipfel erreicht», Plan und Wirklichkeit. Später (nicht in P2): Saison-Karte mit allen Gipfeln (braucht Koordinaten), Skitour-Spielwiese, Nachfüll-Extras. Als Nächstes P1 Packen und Strom.
 
@@ -833,8 +849,23 @@ Ganz geplant, gebaut erst nach allem oben.
 | 2.7 | 09.10.2026 | 0.65.0 «Velo-Masse» erledigt |
 | 2.8 | 14.10.2026 | 0.132.0 «Velo-Setup» (UC3-1–UC3-3) gebaut, Nachtrag oben |
 | 3.0 | 14.10.2026 | 0.139.0 «Rechnungen ohne Gebühren» (QR1–QR9) gebaut, Nachtrag oben |
+| 3.1 | 24.10.2026 | 996 Ideen eingeplant: Pakete B (Touren ohne Überraschung) → A (Ehrlicher Stand im Alltag) → C (Ruhig und persönlich) → D (Mit Freunden), nach der 332-Arbeit; B Teil 1 gebaut (0.189.0) |
 | 2.9 | 14.10.2026 | 0.132.0 «Tagespaket 14.10.»: Setup, Kluge Suche, App-Wartung, Bedienung, Bezahlen vorbereiten, Kleine Apps + Handbuch in PR #151 |
 | 3.0 | 14.10.2026 | 0.137.0 «Eine Zahl pro Sache» (Durchklick DK1–DK3) |
 | 2.6 | 09.10.2026 | 0.66.0 «Bausteine neu + Bausteine prüfen» erledigt |
 
 Die frühere gespeicherte Datei `2026-10-07-packgenerator-ablaufplan.md` wird als datierte Fassung dieses Gesamtplans weitergeführt. GitHub `docs/roadmap.md` ist die aktuelle Quelle. Historische Analysen und frühere Designs bleiben datierte Belege, keine parallelen Roadmaps.
+
+**24.10.2026, v0.190.0 «Alltag im Blick»:** Sichtbar-Wächter (jede Funktion hat ihre Heimseite) und Alltag sichtbar: Heute fällig, Planen › Merken, Knöpfe in Velo-Setup und Material. Nächstes: P2 «Touren sichtbar» baut die Lücken ab. Dazu P2 «Touren sichtbar» (jtmsou 7c6b14bb: Sprung-Chips im Rückblick, Helfer direkt unter «Jetzt», Tourbild = Postkarte + Bild zum Teilen, Katalognamen wie die Knöpfe) und «Touren ohne Überraschung» Teil 2 (6ruzpm eb6e8b60: «Vorher ansehen, was sich ändert», «Nach Bedürfnis packen»; neue optionale Tour-Felder people/needs/needVariant, kein Schema-Wechsel).
+
+**25.10.2026, v0.191.0 «Die Werkstatt, klar»:** Paket B Teil 3: Kostendach und «vorher anrufen» im Werkstattauftrag, Rückerstattung am Besuch, Übergabe nach dem Verkauf, ähnliches früheres Problem, letzter Blick an der Tür, Wohnung nach Länge der Abwesenheit, früher beendet. Nächstes: weitere Einzelideen aus Paket B, dann Paket A «Ehrlicher Stand im Alltag». Dazu «332 Use Cases» P4 «Live-Karte, Rennen und Packen sichtbar» (jtmsou 283c91e4): Sprunglinks auf Rennseite, Live-Karte vor dem Start und Packen; Wächter-Lücken 234 → 217.
+
+**25.10.2026, v0.192.0 «Ehrlicher Stand»:** Paket A: Warten im Merken, Listen und Ziele beenden, Kündigung in Schritten, angebrochene Packungen, Kette später ölen, Zeit um einen Termin, dazu Einzelideen im Alltag und im Material. Nächstes: Paket C «Ruhig und persönlich» und Paket D «Mit Freunden» (eigene Fäden), weitere Einzelideen aus B.
+
+**25.10.2026, v0.193.0 «Ruhig und persönlich» (996 Ideen Paket C):** neue Seite Ich › Ruhig und persönlich: weniger App wenn du willst (Arbeitsraum, Ruhige Ansicht, Erinnerungs-Budget, Nicht für mich), Experimente mit Ende, Herkunft der Werte, Briefe ans spätere Ich und Klangbriefe, Bedeutung neben Zahlen, Fähigkeiten-Karte, Teilen mit Vorschau, klare Zahlen, Assistent mit Belegen. Nächstes: Paket D «Mit Freunden».
+
+**25.10.2026, v0.194.0 «Zusammen mit Freunden»:** Paket D Teil 1: Ich › Mit Freunden mit Freunde fragen, Leihregal und Vorlage teilen. Teil 2 (Briefkasten mit Anmeldung) wartet auf Noah.
+
+**25.10.2026, v0.195.0 «Kleine Helfer für Tour und Velo»:** weitere Einzelideen aus Paket B: Velo abgestellt mit Schlüssel und abgenommenen Teilen, «Melden bis» pro Nacht, Hotelanfragen im Rennmodus, «Optionen vergleichen» bei den Reise-Links, Vorgeschmack einer Traumtour, Garantiefall-Entwurf.
+
+**25.10.2026, v0.195.1 «Einkaufsliste am Stück»:** Korrektur: am Computer behält die Zeile einer Einkaufsliste 420 px, die Knöpfe rutschen sonst unter den Namen (der Gesamttest auf main war rot, darum ging 0.191–0.195 erst damit online).

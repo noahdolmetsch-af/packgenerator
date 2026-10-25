@@ -36,6 +36,8 @@
   import { chipCounts, logBikeOf } from './werte.js';
   import { Bike, Tag, X } from '@lucide/svelte';
   import RenameSheet from '../ui/RenameSheet.svelte';
+  import LogEntrySheet from './LogEntrySheet.svelte'; // «Alles fertig»: a new own entry
+  import { Plus as PlusIc } from '@lucide/svelte';
   import MoreActions from '../ui/MoreActions.svelte';
   import { offerRename } from '../ui/rename.svelte.js';
   import { askDelete, deleteWithUndo } from '../ui/ask.js';
@@ -90,6 +92,10 @@
 
   // «Alles selbst bearbeiten» (Noah 19.10.2026): an old logbook entry (from the import) can be renamed and deleted
   let renamingEv = $state(null); // the db.events record
+  let adding = $state(false);
+  async function addEv({ name, date, note }) {
+    await db.events.put({ id: `own-${Date.now().toString(36)}`, name, date, sortDate: date, note, source: 'own' });
+  }
   async function renameEv(ev, name) {
     const was = ev.name ?? '';
     if (!name || name === was) return;
@@ -127,6 +133,7 @@
     <div class="tools">
       {#if entries.length > 5}<label class="rv-search"><Search size={18} aria-hidden="true" /><input type="search" placeholder={t('Search the logbook')} bind:value={q} aria-label={t('Search the logbook')} /></label>{/if}
       {#if years.length}<Seg full={false} label={t('Year')} value={year} options={YEARS} onchange={(v) => (year = v)} />{/if}
+      <button type="button" class="btn" onclick={() => (adding = true)} data-log-add><PlusIc size={16} aria-hidden="true" />{t('New entry|logbook')}</button>
     </div>
     <div class="filters">
       {#if counts.done || counts.rated}<StateChips value={st} {counts} onchange={(v) => (st = v)} />{/if}
@@ -228,6 +235,7 @@
   </div>
 </div>
 
+{#if adding}<LogEntrySheet onsave={addEv} onclose={() => (adding = false)} />{/if}
 {#if renamingEv}<RenameSheet kicker={t('Logbook')} title={t('Rename entry')} value={renamingEv.name ?? ''} onsave={(v) => renameEv(renamingEv, v)} onclose={() => (renamingEv = null)} />{/if}
 
 <style>

@@ -16,6 +16,296 @@
 
 export const WHATS_NEW = [
   {
+    // v0.195.1 fix: on a computer the shopping list broke item names letter by letter since «Wait 30 days» (0.192.0)
+    version: '0.195.1',
+    date: '2026-10-25',
+    title: 'Shopping list in one piece',
+    lead: 'Names in the shopping list read normally again.',
+    points: [{ text: 'With little room the buttons move under the name', href: '#/gear?view=wish' }],
+    small: [{ box: 'fixed', text: 'Item names no longer break letter by letter' }],
+    test: ['Open Material › Einkauf on the computer and tap a wish: the pane opens on the right.', 'The names in the list read normally, the buttons stand under them.'],
+  },
+  {
+    // v0.195.0 Paket B single ideas (996 Ideen, Noah «1b»): parked bike with key and parts taken off, «get in touch by»
+    // per night, hotel asks in race mode, options to compare on the travel links, a taste of a dream tour, a warranty claim draft.
+    version: '0.195.0',
+    date: '2026-10-25',
+    title: 'Small helpers for trip and bike',
+    lead: 'What you took off, whom to call back, what to compare.',
+    points: [
+      { text: 'Bike parked: key and what you took off', href: '#/ride' },
+      { text: 'Compare options on the travel links', href: '#/travel' },
+    ],
+    small: [{ box: 'new', text: 'A small taste of a dream tour first' }, { box: 'new', text: 'A draft for a warranty claim' }],
+    test: ['Open Touren › Reise-Links › «Optionen vergleichen» and add two options.', 'Open Touren › Träume, a dream: «Vorgeschmack planen».'],
+  },
+  {
+    // v0.194.0 Paket D «Mit Freunden» (996 Ideen, Noah 24.10.2026 «3b», «4b»):
+    // Ich › Mit Freunden: ask friends, lending shelf, share a template; everything as a link or a small file, no account.
+    version: '0.194.0',
+    date: '2026-10-25',
+    title: 'Together with friends',
+    lead: 'Friends add their part, without an account.',
+    points: [
+      { text: 'Ask friends: trip, place, photo, costs, packing', href: '#/me/freunde' },
+      { text: 'Lending shelf for friends', href: '#/me/freunde?tab=shelf' },
+    ],
+    small: [{ box: 'new', text: 'Share a building block or your layout' }],
+    test: ['Open Ich › Mit Freunden › Freunde fragen › Tour gemeinsam erzählen, choose a trip, «Link machen».', 'Open the link in a private window: answer and «Antwort machen».'],
+  },
+  {
+    // v0.193.0 Paket C «Ruhig und persönlich» (Noah 24.10.2026, 996 Ideen «5a»): Ich › Ruhig und persönlich with nine
+    // sub-pages: less app, experiments, where a value comes from, later self, meaning, skills, share with a preview,
+    // clear numbers, assistant with sources.
+    version: '0.193.0',
+    date: '2026-10-25',
+    title: 'Calm and personal',
+    lead: 'Less app when you want it, more of your own.',
+    points: [
+      { text: 'Letters to your later self, opened in the right moment', href: '#/me/ruhig/spaeter' },
+      { text: 'A workspace and a calm view: only what you do now', href: '#/me/ruhig/weniger' },
+    ],
+    small: [{ box: 'new', text: 'Skill map, own bingo, good decisions' }, { box: 'new', text: 'Assistant answers with your sources' }],
+    test: ['Open Ich › Ruhig und persönlich.', 'Open «Your later self» and write a letter for a date.'],
+  },
+  {
+    // v0.192.0 Paket A «Ehrlicher Stand im Alltag» (Noah 24.10.2026, 996 Ideen; 25.10 «mit A anfangen»): a to-do waits on
+    // something, lists and goals end honestly, a cancellation in steps, opened packs, chain care later, time around a date,
+    // and small ideas (contract use, smallest start, shopping by plan, timer purpose, buying pause, why not used).
+    version: '0.192.0',
+    date: '2026-10-25',
+    title: 'Honest about where things stand',
+    lead: 'Waiting, ended, sent but not confirmed: the app says it as it is.',
+    points: [
+      { text: 'A to-do can wait on an answer, a part or a person', href: '#/calendar' },
+      { text: 'Cancel a contract in steps: written, sent, confirmed', href: '#/me/alltag/abos' },
+      { text: 'A date with time before and after as its own entries', href: '#/week' },
+    ],
+    small: [{ box: 'new', text: 'Lists and goals end without ticking every point' }, { box: 'new', text: 'A wish can wait 30 days before you buy' }],
+    test: ['Open Planen › Merken, tap a to-do: «Wartest du auf etwas?» › «Eine Antwort».', 'Open Ich › Alltag › Verträge, a contract: tap «Von mir gesendet».'],
+  },
+  {
+    // v0.191.0 Paket B «Touren ohne Überraschung» part 3 (Noah 24.10.2026, 996 Ideen «1b»): the small ideas for the bike
+    // shop (cost limit, refund, handover after a sale, a problem seen before) and the trip (last look at the door, the
+    // home by the length of the absence, ended early: what is still booked).
+    version: '0.191.0',
+    date: '2026-10-25',
+    title: 'The workshop, clearly',
+    lead: 'How much at most, what came back, what goes with the bike.',
+    points: [
+      { text: 'Workshop order: at most CHF … and «call me first»', href: '#/bikes?tab=shop' },
+      { text: 'Sold a bike: a handover list', href: '#/bikes?tab=care&view=sell' },
+    ],
+    small: [{ box: 'new', text: 'A refund on a workshop visit, apart from what you paid' }, { box: 'new', text: 'Start morning: a last look at the door' }],
+    test: ['Open Velos › Werkstatt › «Auftrag teilen»: type 250 under «Höchstens CHF».', 'Open a visit: «Rückerstattung hinzufügen».'],
+  },
+  {
+    // v0.190.0 «Alltag sichtbar» + Sichtbar-Wächter (332 Use Cases P1 + P3, Noah 24.10.2026 «1a 2b 3a 4a 5b»): Heute fällig,
+    // Planen › Merken, bike folder buttons in Setup, Gear views one tap away; every function has its home page (heimat.js).
+    // + «Touren sichtbar» (P2, jtmsou 7c6b14bb) and «Touren ohne Überraschung» part 2 (6ruzpm eb6e8b60): pack by need, see the effect.
+    version: '0.190.0',
+    date: '2026-10-24',
+    title: 'Everyday in sight',
+    lead: 'What is due today, one line on Heute.',
+    points: [
+      { text: 'Remember is a tab of Plan', href: '#/calendar' },
+      { text: 'Due today: to-dos, birthdays, plants, bike care', href: '#/' },
+    ],
+    small: [{ box: 'new', text: 'Pack by need: sleep warm, cook, for two' }, { box: 'nicer', text: 'Tour picture: postcard and share picture in one' }],
+    test: ['Open Heute: below «Dein Körper heute» the line «Heute fällig» shows what is due.', 'Open Planen › Merken.'],
+  },
+  {
+    // v0.189.0 Paket B «Touren ohne Überraschung» part 1 (Noah 24.10.2026, 996 Ideen «1b 2a»): Generalprobe,
+    // Gut ankommen, Kisten-Etiketten.
+    version: '0.189.0',
+    date: '2026-10-24',
+    title: 'Trips without surprises',
+    lead: 'Try it at home first, arrive well after.',
+    points: [
+      { text: 'Dress rehearsal a week before the start', href: '#/trips' },
+      { text: 'Arrive well: the small things after a trip', href: '#/trips' },
+    ],
+    small: [{ box: 'new', text: 'Box labels with a QR code' }, { box: 'nicer', text: 'A gap becomes a to-do with one tap' }],
+    test: ['Open a trip that starts within a week: Pack › «Dress rehearsal», tap «Gap», then «Keep as to-do».', 'Toolbox › Box labels: add a box, put something in, «Print label».'],
+  },
+  {
+    // v0.188.0 «Alles fertig» (Noah 24.10.2026 «1a 2b 3a 4a»): the leftovers of all older threads in one package.
+    version: '0.188.0',
+    date: '2026-10-24',
+    title: 'The leftovers, done',
+    lead: 'Small things from older plans are in.',
+    points: [
+      { text: 'Good night: where you sleep, when to call', href: '#/ride' },
+      { text: 'Logbook: your own entry', href: '#/debrief/logbook' },
+    ],
+    small: [
+      { box: 'new', text: 'The next shop in the Live map button' },
+      { box: 'nicer', text: 'Your next race on top of Trips' },
+    ],
+    test: ['On the way of a trip of several days: tap «Good night» and share.', 'Review › Logbook: tap «New entry».'],
+  },
+  {
+    // v0.187.0 «Aktiv neu» (Noah 22.10.2026, Beschreibung «Aktiv-Bereich»): Aktiv is for doing (Heute, Meine Sportarten,
+    // Training, Erholung), Auswerten for looking; every sport has its page with goal, history and milestones.
+    // + «Meilensteine als Belohnung» (oz2o9i) and «Stopps in der Nähe» + «Ziel wählen» (b97xla).
+    version: '0.187.0',
+    date: '2026-10-24',
+    title: 'Doing here, looking there',
+    lead: 'Active is for ticking off, Analysis for looking back.',
+    points: [
+      { text: 'Every sport with its own page, summit book included', href: '#/flow/sports' },
+      { text: 'Form, body values and rides under Analysis', href: '#/auswerten' },
+      { text: 'Stops nearby: water, food, WC around you or along the route', href: '#/stopps' },
+    ],
+    small: [{ box: 'new', text: 'Every tick counts: a new star shows right away' }, { box: 'nicer', text: 'Active shows today, this week and the rings' }],
+    test: ['Open Active › My sports, tap a sport and tap «Tick now».', 'Open Analysis with the switch on top of Active.'],
+  },
+  {
+    // v0.186.1 «Abgleich ohne Fragen» (Noah 24.10.2026, screenshot «805 Einträge auf beiden Geräten geändert»)
+    version: '0.186.1',
+    date: '2026-10-24',
+    title: 'Sync without questions',
+    lead: 'Phone and computer agree by themselves.',
+    points: [{ text: 'Changed on both devices: the newer change counts', href: '#/me', action: 'data' }],
+    small: [{ box: 'fixed', text: 'The sync no longer asks about unchanged entries' }],
+    test: ['Change the same entry on the phone and on the computer: no message comes.', 'Ich › Daten und Backup › «Von selbst abgeglichen»: bring back the other version.'],
+  },
+  {
+    // v0.186.0 «Alles finden» (Paket B, Noah 22.10.2026 «1a–5a»; released 24.10.2026 «freigabe für alle»): help behind «?»
+    // on every page, «Alle n» as a grid of all pages, Ich slim; H19 the + menu offers more; H33 «Beispiel-Liste übernehmen»;
+    // «Weiter fragen» carries the question to Claude, Duck.ai and Gemini.
+    version: '0.186.0',
+    date: '2026-10-24',
+    title: 'Find everything',
+    lead: 'Help behind «?», every page in one grid.',
+    points: [
+      { text: '«?» on every page: what you do here and what the app can do', href: '#/features' },
+      { text: '«All n»: every page as a grid with one sentence each', href: '#/' },
+    ],
+    small: [{ box: 'new', text: '+ New offers more: bike, activity, diary, inspiration' }, { box: 'nicer', text: 'Ask elsewhere takes your question along' }],
+    test: ['Tap «?» at the top of a page and read its help.', 'Tap + New and add an activity.'],
+  },
+  {
+    // v0.185.0 «Fotoalbum» (Paket P8 of «Offene Mockups», Noah 21.10.2026 «7a»): Ich › Fotoalbum, all photos of the app
+    // by month or by place, album photos with place and date, single photos off for Heute.
+    version: '0.185.0',
+    date: '2026-10-24',
+    title: 'All your photos in one album',
+    lead: 'By month or by place.',
+    points: [
+      { text: 'Photo album: all photos of the app by month or place', href: '#/me/album' },
+      { text: 'Give your photos a place and a date', href: '#/me/album' },
+    ],
+    small: [{ box: 'new', text: 'Choose which photos greet you on Today' }],
+    test: ['Open Me › Photo album and add two photos.', 'Tap a photo, give it a place, then tap «By place».'],
+  },
+  {
+    // v0.184.0 «Projekt-Ablage» (Paket P7 of «Offene Mockups», Noah 21.10.2026 «6a»): Ich › Projekt-Ablage, everything
+    // about the app on one page (ideas live, for you now, the way, idea board, releases, knowledge, toolbox, jumps).
+    version: '0.184.0',
+    date: '2026-10-24',
+    title: 'The whole project on one page',
+    lead: 'Where the app stands and what comes.',
+    points: [
+      { text: 'Project shelf: ideas live, the way and what waits for you', href: '#/me/next' },
+      { text: 'All ideas as a board by goal', href: '#/me/next' },
+    ],
+    small: [{ box: 'new', text: 'Your own points under «For you now»' }],
+    test: ['Open Me › Project shelf.', 'Open «Ideas» under «Look up» and tap a goal.'],
+  },
+  {
+    // v0.183.0 «Eingang» (Paket P5 of «Offene Mockups», Noah 21.10.2026): A-J4 the «Ablegen-Runde», the open notes
+    // one after the other with the suggestion and why, and the end screen.
+    version: '0.183.0',
+    date: '2026-10-24',
+    title: 'Inbox empty in three minutes',
+    lead: 'One note after the other.',
+    points: [
+      { text: 'Sorting round: each note with a suggestion and why', href: '#/inbox' },
+      { text: 'At the end: how many filed, kept and deleted', href: '#/inbox' },
+    ],
+    small: [{ box: 'nicer', text: 'Each suggestion says why' }],
+    test: ['Open Me › Inbox and tap «Start the sorting round».', 'File one note, keep one, skip one, and look at the end screen.'],
+  },
+  {
+    // v0.182.0 «Aktiv» (Paket P4 of «Offene Mockups», Noah 21.10.2026): TN1–TN5 the top of the tennis page (only
+    // tennis, 5b), ME4 the yoga card on Meditation, E4 «Diesen Tag merken», E5 «Gewünscht und erlebt».
+    version: '0.182.0',
+    date: '2026-10-24',
+    title: 'Tennis, yoga and good days',
+    lead: 'Tick off faster, keep what does you good.',
+    points: [
+      { text: 'Tennis: played like last time, booked times ask «Played?»', href: '#/flow/sport/act%3Atennis' },
+      { text: 'Yoga: your regular classes on the Meditation page', href: '#/flow/act/meditation' },
+    ],
+    small: [{ box: 'new', text: 'Keep a good day in the evening review' }],
+    test: ['Open Aktiv › Sports › Tennis and tap «Played».', 'Open Aktiv › Meditation and add a yoga class.'],
+  },
+  {
+    // v0.181.4 «Aktiv ohne Sackgassen» (Klick-Rundgang «Aktiv fertig bauen» A01–A05, A07, A08, H29, and dead buttons part 2)
+    version: '0.181.4',
+    date: '2026-10-24',
+    title: 'Aktiv, without dead ends',
+    lead: 'Plans, sessions and tiles do what they say.',
+    points: [
+      { text: 'Training plan: a test run, with Undo', href: '#/flow' },
+      { text: 'A planned session: «Done» by hand, with Undo', href: '#/flow' },
+    ],
+    small: [{ box: 'fixed', text: 'Buttons no longer hide under the bars' }],
+    test: ['Aktiv: open a training plan and tap «Try it out», then «Undo».', 'Tick a planned session «Done» by hand.'],
+  },
+  {
+    // v0.181.3 «Alltag fertig bauen» (Klick-Rundgang 22.10.2026, Noah «1a 2a 3a … 5a»): repairs of the flows
+    // Mein Tag, Meine Woche and Velo pflegen; a robot plays them through before every release.
+    version: '0.181.3',
+    date: '2026-10-24',
+    title: 'Everyday, without dead ends',
+    lead: 'Day, week and bike run smoothly.',
+    points: [
+      { text: 'The Assistant knows your chain', href: '#/assistent' },
+      { text: 'Aktiv ticks show in the week', href: '#/week' },
+      { text: 'Bike care «Done» with Undo', href: '#/bikes?tab=care' },
+    ],
+    small: [{ box: 'nicer', text: 'Main buttons in sight' }],
+    test: ['Assistant: ask about the chain.', 'Bike care: «Done», then «Undo».'],
+  },
+  {
+    // v0.181.2 «Packen und nach der Tour, repariert» (Klick-Rundgang packages 3+5, Noah 22.10.2026: repairs first): one count
+    // while packing, «Losfahren» on the first day, light and food on Unterwegs, clear hints after the tour; Live-Karte stops
+    // load in 20 km pieces with fuel stations.
+    version: '0.181.2',
+    date: '2026-10-24',
+    title: 'Packing and after the tour, repaired',
+    lead: 'Clearer buttons from packing to the debrief.',
+    points: [
+      { text: 'Packing counts the same everywhere, and the button says what comes next', href: '#/trips' },
+      { text: 'On the way: «Start riding» remembers the start time; missing light is packed right there' },
+    ],
+    small: [{ box: 'fixed', text: 'Live map: stops along the route load again' }],
+    test: [
+      'Open a bike trip that starts today, pack it and tap «Start riding».',
+      'End the trip without a ride: the app says why and offers «Upload a ride».',
+    ],
+  },
+  {
+    // v0.181.1 «Fitbit-Schlaf und Gemini gehen wieder» (bug fix, 22.10.2026: Google sends nights without the wake-up date; the server
+    // now reads the wake-up day from the civil time string or the moment with its offset, and the app fetches 30 days once more)
+    version: '0.181.1',
+    date: '2026-10-22',
+    title: 'Fitbit sleep and Gemini work again',
+    lead: 'Your nights come from Google again, and Gemini answers.',
+    points: [
+      { text: 'Fitbit: last night comes in with «Fetch now»', href: '#/me/fitbit' },
+    ],
+    small: [
+      { box: 'fixed', text: 'The last 30 nights are fetched once more' },
+    ],
+    test: [
+      'Open Me › Data and backup › Fitbit and tap «Fetch now».',
+      'Last night shows with today’s date.',
+    ],
+  },
+  {
     // v0.181.0 «Warum? und Regeln» (Paket P3 of «Offene Mockups», Noah 21.10.2026): RG1 «Why?» next to a row in
     // Plan, RG3 Me › How the app decides (every rule, search, block rules on/off), C «Most often forgotten» on Pack.
     version: '0.181.0',

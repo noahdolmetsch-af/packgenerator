@@ -12,8 +12,12 @@ import { clock } from '../../flowtimer.js';
 
 /** The tile name: the playful name (a suggestion, renamable), else the activity's name. */
 export const tileName = (a) => (a ? (lang.v === 'de' && a.nickDe ? a.nickDe : a.nick) || actName(a) : '');
+/** Dates among a milestone's words (a challenge's first and last day) as «31 Oct». */
+const fmtVars = (v) => (v ? Object.fromEntries(Object.entries(v).map(([k, x]) => [k, typeof x === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(x) ? dayShort(x) : typeof x === 'number' ? num(x) : x])) : v);
 /** A milestone's name. */
-export const msName = (m) => t(m.name, m.vars);
+export const msName = (m) => t(m.name, fmtVars(m.vars));
+/** «Meilensteine als Belohnung» (Noah «5a»): what counts for a milestone, «zählt: jedes Abhaken». */
+export const countsLine = (m) => (m?.counts ? t('counts: {what}', { what: t(m.counts, fmtVars(m.countsVars)) }) : '');
 /** Package G: the name of a data milestone's area (bike, Fitbit, everyday), '' for another key. */
 const AREA_WORDS = { bike: 'Bike|msarea', fitbit: 'Fitbit|msarea', daily: 'Everyday|msarea' };
 export const areaWord = (key) => (AREA_WORDS[key] ? t(AREA_WORDS[key]) : '');

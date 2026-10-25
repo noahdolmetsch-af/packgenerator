@@ -22,6 +22,7 @@
   import { askDelete, deleteWithUndo } from '../ui/ask.js';
   import { offerDone } from '../ui/rename.svelte.js';
   import VeloHead from '../bikes/VeloHead.svelte';
+  import QuickLinks from '../ui/QuickLinks.svelte';
   import ChainRotation from './ChainRotation.svelte';
   import GriffMore from './GriffMore.svelte';
   import WetChainHint from './WetChainHint.svelte';
@@ -121,6 +122,8 @@
       </nav>
     {/if}
 
+    <!-- «Alles finden 2» (new proposal): the pages of «Mehr zum Velo» (4 screens down) as one row on top -->
+    <QuickLinks label={t('More for the bike')} links={[['photos', 'Wear photos'], ['sell', 'Sale listing'], ['bikepack', 'Pack the bike'], ['stock', 'Spare parts at home']].map(([view, title]) => ({ key: view, href: bikesHash({ tab: 'care', view, bike: bike.id }), label: t(title) }))} />
     <WetChainHint {bike} />
 
     <details class="wcard how" data-wear-how>

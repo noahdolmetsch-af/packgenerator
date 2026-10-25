@@ -13,6 +13,7 @@
  * No database and no clock here (tests/alltag.test.js).
  */
 import { addDays, addMonth } from './merken.js';
+import { cancelOf, usesOf } from './stand/stand.js'; // Paket A part 2
 
 export const PREFS_KEY = 'alltag.prefs';
 export const CONTRACTS_KEY = 'alltag.contracts';
@@ -143,6 +144,8 @@ export function newContract(f = {}, id) {
     travel: !!f.travel,
     stopped: !!f.stopped,
     note: clean(f.note, 600),
+    ...(cancelOf(f.cancel) ? { cancel: cancelOf(f.cancel) } : {}), // Paket A part 2: the cancellation as steps (stand/stand.js)
+    ...(usesOf(f.uses).length ? { uses: usesOf(f.uses) } : {}), // Paket A part 4: what it was used for
   };
 }
 

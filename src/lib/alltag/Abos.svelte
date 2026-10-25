@@ -20,6 +20,9 @@
   import { localDay } from '../localday.js';
   import { phone } from '../media.svelte.js';
   import { t, tn, locale } from '../i18n.svelte.js';
+  import CancelSteps from '../stand/CancelSteps.svelte'; // Paket A part 2: the cancellation as steps
+  import { cancelState, useYear } from '../stand/stand.js';
+  import UseLog from '../stand/UseLog.svelte'; // Paket A part 4: what it was used for
 
   const today = localDay();
   const q = alltagQuery();
@@ -104,6 +107,8 @@
             <b class:al-stopped={c.stopped}>{c.name}{#if c.travel}{' '}<Plane size={14} aria-label={t('Travel insurance')} />{/if}</b>
             <small>{c.cost ? `${money(c.cost)} ${c.period === 'year' ? t('per year') : t('per month')}` : t('No cost entered')}{c.period === 'year' && c.cost ? ` · ${t('{sum} per month', { sum: money(perMonth(c)) })}` : ''}</small>
             <small class:al-soon={soon(c)}>{#if soon(c)}<Bell size={13} aria-hidden="true" /> {/if}{dueLine(c)}</small>
+            {#if useYear(c, today).perUse}<small data-use-per={c.id}>{t('{sum} per use in the last year', { sum: money(useYear(c, today).perUse) })}</small>{/if}
+            {#if cancelState(c) === 'sent' || cancelState(c) === 'drafted'}<small class="al-soon" data-cancel-state={cancelState(c)}>{cancelState(c) === 'sent' ? t('Cancellation sent, confirmation missing') : t('Cancellation written, not sent yet')}</small>{/if}
           </button>
           {#if c.phone}<a class="fz-icon" href={telOf(c.phone)} aria-label={t('Call {name}', { name: c.name })}><Phone size={18} aria-hidden="true" /></a>{/if}
           {#if !phone.matches}<SortArrows name={c.name} i={n} n={list.length} onstep={(dir) => step(c.id, dir)} />{/if}
@@ -139,6 +144,8 @@
       <label class="fz-lab">{t('Customer or policy number')}<input class="inp" maxlength="60" bind:value={edit.number} data-field="number" /></label>
     </div>
     <label class="al-check"><input type="checkbox" bind:checked={edit.travel} data-field="travel" /><span>{t('Travel insurance: show it at trips abroad')}</span></label>
+    <UseLog bind:edit {today} />
+    <CancelSteps bind:edit {today} />
     <label class="al-check"><input type="checkbox" bind:checked={edit.stopped} data-field="stopped" /><span>{t('Cancelled or stopped (no reminder, not in the sum)')}</span></label>
     <label class="fz-lab">{t('Note')}<textarea class="inp" rows="2" maxlength="600" bind:value={edit.note}></textarea></label>
   </FreiSheet>

@@ -1,0 +1,365 @@
+/* Paket D «Mit Freunden»: the page Ich › Mit Freunden and its parts (lib/freunde). */
+.fr-page {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 14px;
+  max-width: 820px;
+}
+.fr-page p,
+.fr-page h2,
+.fr-page h3,
+.fr-page h4 {
+  margin: 0;
+}
+.fr-intro,
+.fr-fine {
+  color: var(--ink-2);
+  font-size: var(--fs-small);
+  overflow-wrap: break-word;
+}
+.fr-tabs {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+}
+.fr-tab {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 48px;
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--paper);
+  color: var(--ink);
+  font: inherit;
+  font-size: var(--fs-small);
+  text-align: left;
+  cursor: pointer;
+}
+.fr-tab.on {
+  border-color: var(--hi);
+  background: var(--hi-soft);
+  font-weight: 600;
+}
+.fr-me {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 8px;
+}
+.fr-me .fr-f {
+  flex: 1 1 220px;
+}
+.fr-sec {
+  display: grid;
+  gap: 8px;
+}
+.fr-gh {
+  font-size: var(--fs-label);
+  color: var(--ink-2);
+  font-weight: 600;
+}
+.fr-topics,
+.fr-list,
+.fr-chips {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 6px;
+}
+.fr-chips {
+  display: flex;
+  flex-wrap: wrap;
+}
+.fr-topic {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-height: 52px;
+  padding: 10px 12px;
+  border: 1px solid var(--card-line, var(--line));
+  border-radius: 12px;
+  background: var(--paper);
+  color: var(--ink);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.fr-topic span {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+.fr-topic small {
+  color: var(--ink-2);
+}
+.fr-card {
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+  border: 1px solid var(--card-line, var(--line));
+  border-radius: 14px;
+  background: var(--paper);
+  min-width: 0;
+}
+.fr-warn {
+  border-color: var(--accent, var(--hi));
+  background: var(--accent-soft, var(--paper-2));
+}
+.fr-form {
+  display: grid;
+  gap: 10px;
+}
+.fr-f {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+.fr-f > span {
+  font-size: var(--fs-small);
+  color: var(--ink-2);
+}
+.fr-f input,
+.fr-f select,
+.fr-f textarea,
+.fr-in,
+.fr-url,
+.fr-line select {
+  min-height: 44px;
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--input, var(--paper));
+  color: var(--ink);
+  font: inherit;
+  min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
+}
+.fr-line select {
+  width: auto;
+}
+.fr-in.sm {
+  flex: 0 1 150px;
+}
+.fr-url {
+  font-size: var(--fs-small);
+}
+.fr-two {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 8px;
+}
+.fr-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+.fr-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+}
+.fr-tx {
+  flex: 1 1 160px;
+  min-width: 0;
+  overflow-wrap: break-word;
+}
+.fr-lines {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  min-width: 0;
+}
+.fr-lines legend {
+  font-size: var(--fs-small);
+  color: var(--ink-2);
+  padding: 0 4px;
+}
+.fr-seg {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.fr-seg button {
+  min-height: 40px;
+  padding: 6px 10px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--paper);
+  color: var(--ink);
+  font: inherit;
+  font-size: var(--fs-small);
+  cursor: pointer;
+}
+.fr-seg button.on {
+  border-color: var(--hi);
+  background: var(--hi-soft);
+  font-weight: 600;
+}
+.fr-check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+}
+.fr-check input {
+  width: 22px;
+  height: 22px;
+  flex: none;
+}
+.fr-num {
+  display: inline-grid;
+  place-items: center;
+  min-width: 24px;
+  height: 24px;
+  border-radius: 999px;
+  background: var(--hi);
+  color: var(--hi-ink);
+  font-size: var(--fs-small);
+}
+.fr-num.them {
+  background: var(--ink-2);
+}
+.fr-from,
+.fr-by {
+  font-size: var(--fs-small);
+  color: var(--ink-2);
+}
+.fr-quote,
+.fr-said-text {
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: var(--paper-2);
+  white-space: pre-line;
+  overflow-wrap: break-word;
+}
+.fr-pill {
+  justify-self: start;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: var(--hi-soft);
+  font-size: var(--fs-small);
+}
+.fr-ok {
+  color: var(--ok, var(--ink));
+}
+.fr-err {
+  color: var(--bad);
+}
+.fr-note {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+  flex: 1;
+}
+.fr-noterow {
+  display: flex;
+  align-items: start;
+  gap: 6px;
+  padding-top: 8px;
+  border-top: 1px solid var(--line);
+}
+.fr-h {
+  font-size: var(--fs-body);
+}
+.fr-pair li {
+  display: grid;
+  gap: 2px;
+  padding: 6px 8px;
+  border-radius: 8px;
+  background: var(--paper-2);
+}
+.fr-pair li.v-talk {
+  background: var(--accent-soft, var(--paper-2));
+}
+.fr-send {
+  display: grid;
+  gap: 8px;
+}
+.fr-qr {
+  max-width: 220px;
+}
+.fr-search {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 10px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+}
+.fr-search input {
+  flex: 1;
+  min-height: 44px;
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  min-width: 0;
+}
+.fr-free.no {
+  color: var(--bad);
+}
+.fr-free.yes {
+  color: var(--ok, var(--ink-2));
+}
+.fr-voice {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+.fr-voice audio,
+.fr-note audio {
+  max-width: 100%;
+}
+.fr-photo {
+  position: relative;
+  justify-self: start;
+  max-width: 100%;
+}
+.fr-photo img {
+  display: block;
+  max-width: 100%;
+  border-radius: 10px;
+}
+.fr-photo-tap {
+  display: block;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: crosshair;
+}
+.fr-pin {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border: 2px solid var(--paper);
+  border-radius: 999px;
+  background: var(--hi);
+  color: var(--hi-ink);
+  font-size: var(--fs-small);
+  font-weight: 700;
+  pointer-events: none;
+}
+.fr-pin.them {
+  background: var(--ink);
+}
+@media (max-width: 520px) {
+  .fr-tabs {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

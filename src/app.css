@@ -886,7 +886,9 @@ html {
   /* AU1: Ausrüstung shares the colour of Velos (one slot in the bottom bar) */
   --pc: var(--pc-bikes);
 }
-:root[data-place='active'] {
+:root[data-place='active'],
+:root[data-place='analysis'] {
+  /* «Aktiv neu»: Auswerten shares the colour of Aktiv (one slot in the bottom bar) */
   --pc: var(--pc-active);
 }
 :root[data-place='week'] {
@@ -920,6 +922,15 @@ html {
 
 html {
   -webkit-text-size-adjust: 100%;
+  /* Tote Knöpfe (Klick-Rundgang 22.10.2026; WCAG 2.4.11 focus not hidden): a control reached by Tab, a jump or
+     scrollIntoView stops clear of the sticky head and of the phone's bottom bar, never under them. */
+  scroll-padding-top: 76px;
+  scroll-padding-bottom: 104px;
+}
+@media (min-width: 900px) {
+  html {
+    scroll-padding-bottom: 24px;
+  }
 }
 
 body {

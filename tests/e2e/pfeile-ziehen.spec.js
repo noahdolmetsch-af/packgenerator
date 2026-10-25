@@ -78,7 +78,7 @@ test('Aktiv › Ziele: arrows next to the handle', async ({ page, context }) => 
     await order.click();
     await expect(page.locator('main').getByRole('button', { name: T('Done|order') })).toHaveAttribute('aria-expanded', 'true');
   } else await expect(order).toHaveCount(0);
-  await expect(page.locator('main')).toContainText(T('Tap to edit; drag the grip or use the arrows to move.'));
+  await expect(page.locator('main')).toContainText(T('Drag the grip or use the arrows to move.')); // «Aktiv neu»: a tap opens the sport's page
   const first = rows.first();
   await expect(first.getByRole('button', { name: new RegExp(`${T('Move {name} up', { name: '' }).trim()}$`) })).toBeDisabled();
   await first.getByRole('button', { name: new RegExp(`${T('Move {name} down', { name: '' }).trim()}$`) }).click();

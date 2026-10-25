@@ -7,7 +7,7 @@ import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { createDb } from '../src/lib/db.js';
 import { newCode } from '../src/lib/sync/code.js';
-import { startSync, syncNow, openQuestions, autoPick, INTERNAL_SETTINGS, isInternal, askKey } from '../src/lib/sync/engine.js';
+import { startSync, syncNow, autoPick, INTERNAL_SETTINGS, isInternal, askKey, ASK, lostVersions } from '../src/lib/sync/engine.js';
 import { titleOf, differences } from '../src/lib/sync/show.js';
 import { noteKey } from '../src/lib/sync/track.js';
 import { makeHandler } from '../api/sync.js';
@@ -27,6 +27,7 @@ function fakeApi() {
     },
   };
 }
+const openAsks = (db) => db.meta.where('key').startsWith(ASK).count();
 const last = (at, n) => ({ key: 'strava.last', value: { at, first: false, counts: { assigned: n }, n } });
 
 describe('the app\'s own settings never become a question', () => {
@@ -77,17 +78,23 @@ describe('the app\'s own settings never become a question', () => {
     // the question Noah saw on 21.10.2026 (asked before this rule): the next round answers it
     const { base } = await phone.meta.get(noteKey('settings', 'strava.last'));
     await phone.meta.put({ key: askKey('settings', 'strava.last'), t: 'settings', id: 'strava.last', s: base, v: last('2026-10-21T01:00:00Z', 7), del: false, at: '2026-10-21T01:00:00Z', dev: 'computer' });
-    expect(await openQuestions(phone)).toHaveLength(1);
+    expect(await openAsks(phone)).toBe(1);
     expect(await run(phone, 'phone')).toMatchObject({ asks: 0, settled: 1 });
     expect((await phone.settings.get('strava.last')).value.n).toBe(7);
-    // a setting of the person is still a question
+    // a setting of the person (Noah 24.10.2026): no question either, the newer change wins, the other is kept
     await phone.settings.put({ key: 'riderWeightG', value: 70000 });
     await run(phone, 'phone');
     await run(computer, 'computer');
     await phone.settings.put({ key: 'riderWeightG', value: 71000 });
+    await phone.meta.update(noteKey('settings', 'riderWeightG'), { at: '2026-10-24T08:00:00.000Z' });
     await computer.settings.put({ key: 'riderWeightG', value: 72000 });
+    await computer.meta.update(noteKey('settings', 'riderWeightG'), { at: '2026-10-24T09:00:00.000Z' });
     await run(phone, 'phone');
-    expect(await run(computer, 'computer')).toMatchObject({ asks: 1 });
+    expect(await run(computer, 'computer')).toMatchObject({ asks: 0 });
+    await run(phone, 'phone');
+    expect((await phone.settings.get('riderWeightG')).value).toBe(72000);
+    expect((await computer.settings.get('riderWeightG')).value).toBe(72000);
+    expect((await lostVersions(computer)).map((l) => l.v?.value)).toEqual([71000]);
   });
 });
 

@@ -10,6 +10,7 @@
   import TickSheet from './TickSheet.svelte';
   import TimerSheet from './TimerSheet.svelte';
   import SessionView from './hobby/SessionView.svelte';
+  import StarWindow from './hobby/StarWindow.svelte';
   import { flowQuery } from './data.svelte.js';
   import { ui, clockState, togglePause, openTimer, runUndo, closeToast, actName } from './ui.svelte.js';
   import { flowStates } from '../flow.js';
@@ -41,6 +42,7 @@
   <TimerSheet {states} bowl={data.bowl} />
 {/if}
 <SessionView acts={data?.acts ?? []} />
+<StarWindow />
 
 {#if tm && !ui.timerOpen && !ui.sessionOpen}
   <div class="fmini" class:done class:lift={!!ui.toast} role="group" aria-label={t('Stopwatch')}>

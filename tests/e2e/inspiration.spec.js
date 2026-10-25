@@ -68,18 +68,20 @@ test('Inspiration: add links, kind recognised, filter, a note becomes a packing 
   await page.goto('./#/');
   if (phone) {
     await expect(page.locator('nav').getByRole('link', { name: 'Inspiration' })).toHaveCount(0);
-    await page.goto('./#/me');
-    await page.locator('main').getByRole('link', { name: /Inspiration/ }).click();
+    // «Alles finden» (0.186.0, on purpose): Inspiration is a tab of Planen, no longer an Ich row
+    // (on a phone it waits under «Mehr» of the Planen tabs; the tab strip has its own tests)
+    await page.goto('./#/inspiration');
   } else {
-    const entry = page.locator('aside.side').getByRole('link', { name: /Inspiration/ });
+    // «Alles finden» (0.186.0): Inspiration is also a tab of Planen; the entry under the places is the one with «neu»
+    const entry = page.locator('aside.side ul.extra').getByRole('link', { name: /Inspiration/ });
     await expect(entry).toContainText('neu');
     await entry.click();
     await expect(entry).toHaveAttribute('aria-current', 'page');
     await expect(entry).not.toContainText('neu');
   }
   await expect(page.getByRole('heading', { level: 1, name: 'Inspiration' })).toBeVisible();
-  // Impeccable Runde 2: the path «Ich › Inspiration» like the other pages under Ich, phone and computer
-  await expect(page.locator('main .vhead .crumbs').getByRole('link', { name: 'Ich' })).toBeVisible();
+  // Impeccable Runde 2: the path above the title; since «Alles finden» (0.186.0) «Planen › Inspiration», phone and computer
+  await expect(page.locator('main .vhead .crumbs').getByRole('link', { name: 'Planen' })).toBeVisible();
 
   // The rig of Velos › Setup is already here (one list, never twice).
   await expect(page.locator('article.ic-card', { hasText: `${P} Rigs of Doom 2025` })).toContainText('Rig');

@@ -27,6 +27,10 @@ export const POI_KINDS = [
   { key: 'station', name: 'Station', icon: 'train' },
   { key: 'shelter', name: 'Shelter', icon: 'home' },
   { key: 'toilet', name: 'WC|poi', icon: 'toilet' },
+  // «Stopps in der Nähe» (Noah 24.10.2026 «4b»): also cash, a pharmacy and a pump or repair stand
+  { key: 'atm', name: 'ATM|poi', icon: 'atm' },
+  { key: 'pharmacy', name: 'Pharmacy|poi', icon: 'pharmacy' },
+  { key: 'repair', name: 'Repair stand|poi', icon: 'repair' },
   { key: 'laundry', name: 'Laundry', icon: 'shirt' },
   { key: 'depot', name: 'Depot', icon: 'package' },
   { key: 'startfinish', name: 'Start and finish', icon: 'flag' },
@@ -53,6 +57,11 @@ node["tourism"="wilderness_hut"]${s};
 way["tourism"="wilderness_hut"]${s};
 node["amenity"="waiting_room"]${s};
 node["amenity"="toilets"]${a};
+node["amenity"="atm"]${a};
+node["amenity"="bank"]["atm"="yes"]${a};
+node["amenity"="pharmacy"]${s};
+node["amenity"="bicycle_repair_station"]${a};
+node["amenity"="compressed_air"]${a};
 node["shop"="laundry"]${s};
 node["amenity"="laundry"]${s};
 node["amenity"="drinking_water"]${a};
@@ -69,8 +78,11 @@ const thinFor = (pts, n) => (pts.length <= n ? pts : Array.from({ length: n }, (
 export function kindOf(tags = {}) {
   if (tags.shop === 'bicycle') return 'bike';
   if (tags.shop === 'laundry' || tags.amenity === 'laundry') return 'laundry';
+  if (tags.amenity === 'pharmacy' || tags.healthcare === 'pharmacy') return 'pharmacy';
   if (tags.shop) return 'shop';
   if (tags.amenity === 'fuel') return 'fuel';
+  if (tags.amenity === 'atm' || (tags.amenity === 'bank' && tags.atm === 'yes')) return 'atm';
+  if (tags.amenity === 'bicycle_repair_station' || tags.amenity === 'compressed_air' || tags['service:bicycle:pump'] === 'yes') return 'repair';
   if (['restaurant', 'fast_food', 'cafe'].includes(tags.amenity)) return 'food';
   // U4 «Schlafplätze im Rennen» 1137: more roofs (bus stops with a roof, huts, waiting rooms, bivouac boxes)
   if (tags.amenity === 'shelter' || tags.tourism === 'wilderness_hut' || tags.amenity === 'waiting_room' || (tags.highway === 'bus_stop' && tags.shelter === 'yes')) return 'shelter';
@@ -115,11 +127,19 @@ function extraOf(tags) {
   return o;
 }
 
+/**
+ * True when Overpass gave up on the query: it then answers 200 with no or only some places and a
+ * «runtime error» note (time or memory ran out). Such an answer must not count as «no places».
+ */
+export const overpassFailed = (json) => /runtime error|timed out|out of memory/i.test(String(json?.remark ?? ''));
+
 /** Fetch the places (throws with a plain reason). */
 export async function fetchPois(pts, fetcher = fetch) {
   const res = await queued(() => postTimed(fetcher, OVERPASS, { method: 'POST', body: `data=${encodeURIComponent(poiQuery(pts))}`, headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }, 70_000));
   if (!res.ok) throw new Error(res.status === 429 ? 'busy' : 'failed');
-  return poisFrom(await res.json(), pts);
+  const json = await res.json();
+  if (overpassFailed(json)) throw new Error('failed');
+  return poisFrom(json, pts);
 }
 
 /* ---------- opening hours (the usual OSM forms; anything else = unknown) ---------- */

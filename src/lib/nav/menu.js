@@ -53,12 +53,14 @@ export const PAGE_GROUPS = [
   },
   {
     key: 'active',
-    name: 'Analysis|place',
+    name: 'Active|place',
     rows: [
       // v0.51.0 «Im Flow»; v0.76.0: the place «Aktiv».
       { id: 'flow', title: 'In the flow', href: '#/flow', icon: 'flow', words: 'in the flow im flow flow aktiv active goals ziele sport training meditation yoga rings ringe daily check tagescheck stopwatch stoppuhr countdown habit gewohnheit' },
       // hobby pages 1: Aktiv › Aktivität and Meilensteine
-      { id: 'activity', title: 'Activity|tab', href: '#/flow/activity', icon: 'flow', words: 'activity aktivität hobby hobbys tiles kacheln kissenzeit pedal-glück filzball boden-küsse rings ringe sauna spaziergang walk ideas ideen erholen recovery fun spass' },
+      { id: 'activity', title: 'My sports|tab', href: '#/flow/sports', icon: 'flow', words: 'meine sportarten my sports sportart sportarten sport ziel ziele goals activity aktivität hobby hobbys tiles kacheln kissenzeit pedal-glück filzball boden-küsse rings ringe sauna spaziergang walk ideas ideen erholen recovery fun spass' },
+      // «Aktiv neu» (Noah 22.10.2026): what you look at is its own place «Auswerten»
+      { id: 'auswerten', title: 'Analysis|place', href: '#/auswerten', icon: 'flow', words: 'auswerten analysis analyse form bereitschaft readiness körperwerte body values fahrten rides strava wi gahts verlauf history erkenntnisse insights gewicht weight impulse haken ausgewertet' },
       { id: 'milestones', title: 'Milestones', href: '#/flow/milestones', icon: 'star', words: 'milestones meilenstein meilensteine stars sterne stufen stages reward belohnung records rekorde rekord-wand bestwert' },
       // hobby pages 2: Kissenzeit, the meditation page (B1)
       { id: 'meditation', title: 'Meditation', href: '#/flow/act/meditation', icon: 'flow', words: 'meditation meditieren kissenzeit cushion sitzen sitting timer intervalle intervals gong klangschale singing bowl vorlage template om ah hung achtsam mindful zitate quotes' },

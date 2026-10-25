@@ -15,6 +15,8 @@
   import { wetOf } from '../inspect/rain.js';
   import { INSPECT_RAIN } from '../inspect/inspect.js';
   import { offerDone } from '../ui/rename.svelte.js';
+  import WetLater from '../stand/WetLater.svelte'; // Paket A part 2: only wiped, or not today
+  import { WET_LATER_KEY, wetRests } from '../stand/stand.js';
 
   let { bike } = $props();
   const today = localDay();
@@ -23,7 +25,8 @@
     if (!prefsOf(prefs?.value).wetChain) return [];
     return wetRides(rides, today, wetOf(rain));
   });
-  const wet = $derived(bike && !chainCaredOn(bike, today) ? (($wetQ ?? []).find((w) => w.bikeId === bike.id) ?? null) : null);
+  const laterQ = liveQuery(() => db.settings.get(WET_LATER_KEY));
+  const wet = $derived(bike && !chainCaredOn(bike, today) && !wetRests($laterQ?.value, bike.id, today) ? (($wetQ ?? []).find((w) => w.bikeId === bike.id) ?? null) : null);
 
   async function done() {
     const undo = await wetChainDone(bike.id, today);
@@ -40,6 +43,7 @@
       <p class="quiet">{t('Wipe it with a cloth, a drop of oil on every link, wipe off what is too much.')}</p>
     </div>
     <button type="button" class="btn hi sm" onclick={done} data-wet-chain-done>{t('Done: chain oiled')}</button>
+    <WetLater {bike} {today} />
   </section>
 {/if}
 

@@ -64,12 +64,13 @@ test('SN6+ Funktionen: order, progress, Passt gerade, Top 5, Neu seit deinem let
   page.on('pageerror', (e) => errors.push(e.message));
   await start(page, context, { opens: { last: { at: '2026-10-02T07:00:00.000Z', v: '0.124.0' } }, uses: USES });
   await page.goto('./#/features');
-  await expect(page.getByRole('heading', { name: T('What the app can do'), level: 1 })).toBeVisible();
+  await expect(page.getByRole('heading', { name: T('Help and functions'), level: 1 })).toBeVisible();
 
   // answer 3b: the order from the top
-  await expect(page.locator('[data-block]')).toHaveCount(BLOCKS.length - 1);
+  // «Alles finden 2» (Noah 22.10.2026 «3a», changed on purpose): the help rows come first
+  await expect(page.locator('[data-block]')).toHaveCount(BLOCKS.length);
   const order = await page.locator('[data-block], section[data-group]').evaluateAll((els) => els.map((e) => e.dataset.block ?? 'groups'));
-  expect([...new Set(order)]).toEqual(BLOCKS);
+  expect([...new Set(order)]).toEqual(['help', ...BLOCKS]);
 
   // K1: «x von y genutzt» with the real numbers, a bar in every card
   const prog = page.locator('[data-block="progress"]');
@@ -129,7 +130,7 @@ test('SN6+ «So geht\'s» opens with three steps in the «…» of a function', 
   await page.goto('./#/features');
   await page.getByLabel(T('Find a function')).fill('gpx');
   const row = page.locator('[data-feature="gpx"]');
-  await row.getByRole('button', { name: T('More for {title}', { title: T('Load a route (GPX)') }) }).click();
+  await row.getByRole('button', { name: T('More for {title}', { title: T('Add GPX route') }) }).click();
   const how = page.getByRole('region', { name: T('How it works') });
   await expect(how).toBeVisible();
   await expect(how.locator('li')).toHaveCount(3);

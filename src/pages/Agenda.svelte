@@ -136,7 +136,7 @@
 </script>
 
 <div class="agendapage">
-  <VeloHead crumbs={[{ label: t('Me|place'), href: '#/me' }]} here={t('Appointments and tasks')} title={t('Appointments and tasks')} sub={t('Your Google calendar and Google Tasks in the app: see, tick, add. Also for «Plan the week». Voluntary, you can switch it off at any time.')} />
+  <VeloHead crumbs={[{ label: t('Plan|place'), href: '#/week' }]} here={t('Appointments and tasks')} title={t('Appointments and tasks')} sub={t('Your Google calendar and Google Tasks in the app: see, tick, add. Also for «Plan the week». Voluntary, you can switch it off at any time.')} />
 
   {#if agenda.error}<p class="err" role="status">{errorText(agenda.error)}</p>{/if}
   {#if msg}<p class="msg" role="status">{msg}</p>{/if}

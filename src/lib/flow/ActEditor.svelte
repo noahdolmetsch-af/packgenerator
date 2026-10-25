@@ -21,7 +21,7 @@
   import { actGoalText, goalsText, oneGoal } from './words.js';
   import { t, locale, lang } from '../i18n.svelte.js';
 
-  // back: where «Save» and the back link lead (hobby pages: #/flow/activity when opened from a tile)
+  // back: where «Save» and the back link lead («Aktiv neu»: the sport's page when opened there, else «Meine Sportarten»)
   let { id, acts = [], log = [], today, tripDays = [], back = '' } = $props();
   const isNew = $derived(id === 'new');
   const orig = $derived(isNew ? null : (acts.find((a) => a.id === id) ?? null));
@@ -104,7 +104,7 @@
     }
     if (minKey === 'own') out.minMin = Math.max(0, Math.round(Number(minOwn) || 0));
     await saveAct(db, out);
-    location.hash = back || '#/flow';
+    location.hash = back || '#/flow/sports';
   }
   /*
    * v0.72.0 «Feinschliff» (Umbenennen 1a, 4a): an activity is renamed with the pencil at its title in
@@ -134,7 +134,7 @@
   }
   async function pause() {
     await saveAct(db, { ...$state.snapshot(a), name: orig.name, paused: !orig.paused });
-    location.hash = '#/flow/goals';
+    location.hash = '#/flow/sports';
   }
   async function remove() {
     const nm = actName(orig);
@@ -146,15 +146,15 @@
     });
     if (!answer) return;
     const id = a.id;
-    location.hash = '#/flow/goals';
+    location.hash = '#/flow/sports';
     await deleteWithUndo({ run: () => removeAct(db, id, { keep: answer === 'archive' }), undo: (saved) => undoAct(db, saved), text: t('«{name}» deleted.', { name: nm }), name: nm });
   }
 </script>
 
 {#if a}
   <div class="ed">
-    <Crumb path={[{ href: '#/flow', label: t('Analysis|place') }, back === '#/flow/activity' ? { href: '#/flow/activity', label: t('Activity|tab') } : { href: '#/flow/goals', label: t('Activities|flow') }]} here={isNew ? t('New activity') : name || actName(orig)} />
-    <h1 class="title">{#if isNew}{t('New activity')}{:else}<span>{name || actName(orig)}</span><button type="button" class="pen" aria-label={t('Rename {name}', { name: name || actName(orig) })} title={t('Rename')} onclick={() => (renaming = true)}><Pencil size={20} aria-hidden="true" /></button>{/if}</h1>
+    <Crumb path={[{ href: '#/flow', label: t('Active|place') }, { href: '#/flow/sports', label: t('My sports|tab') }, ...(back && back !== '#/flow/sports' ? [{ href: back, label: actName(orig) }] : [])]} here={isNew ? t('New sport') : t('Edit|acts')} />
+    <h1 class="title">{#if isNew}{t('New sport')}{:else}<span>{name || actName(orig)}</span><button type="button" class="pen" aria-label={t('Rename {name}', { name: name || actName(orig) })} title={t('Rename')} onclick={() => (renaming = true)}><Pencil size={20} aria-hidden="true" /></button>{/if}</h1>
     {#if st}<p class="page-sub">{RING_OPTS.find((r) => r.key === a.ring).name} · {actGoalText(normAct(a), today, { min: false })}{#if !st.resting}{" · "}{t('stand {n}/{m}', { n: st.stand.n, m: st.stand.of })}{/if}</p>{/if}
 
     <section class="card cp" aria-label={t('Name and symbol')}>
@@ -242,12 +242,12 @@
       </details>
     {/if}
     <div class="foot">
-      <a class="btn" href={back || (isNew ? '#/flow/goals' : '#/flow')}>{t('Cancel')}</a>
+      <a class="btn" href={back || '#/flow/sports'}>{t('Cancel')}</a>
       <button type="button" class="btn hi" onclick={save}>{t('Save')}</button>
     </div>
   </div>
 {:else if !isNew}
-  <p>{t('This activity no longer exists.')} <a href="#/flow">{t('In the flow')}</a></p>
+  <p>{t('This activity no longer exists.')} <a href="#/flow/sports">{t('My sports|tab')}</a></p>
 {/if}
 
 {#if renaming && a}

@@ -4,6 +4,8 @@
    * this trip (your emergency contacts, the same list as «Vor der Abfahrt»), check the ready text and tap
    * «Share»: the phone's share sheet opens (SMS, WhatsApp, mail). The app itself sends nothing; no server.
    * The place goes along only when ticked, and the location is read only then (never stored).
+   * «Alles fertig» 1145 (Noah 24.10.2026 «3a»): kind 'night' is «Gute Nacht» (where you sleep, whom to call if
+   * nothing comes by the morning), kind 'morning' the short «I am riding on» the next morning. Same people.
    */
   import { liveQuery } from 'dexie';
   import { db } from '../db.js';
@@ -12,12 +14,14 @@
   import { backClose } from '../ui/backclose.js';
   import { CONTACTS_KEY, contactsOf, addContact } from '../unterwegs/abfahrt.js';
   import { whereAmI } from '../unterwegs/here.js';
-  import { arrivedPeople, toggleArrived, arrivedText, smsHref, arrivePlace } from './haustuer.js';
-  import { X, Send, Copy, MessageSquare, Plus, Check, MapPin, HeartHandshake } from '@lucide/svelte';
+  import { arrivedPeople, toggleArrived, arrivedText, nightText, morningText, smsHref, arrivePlace } from './haustuer.js';
+  import { localDay } from '../localday.js';
+  import { X, Send, Copy, MessageSquare, Plus, Check, MapPin, HeartHandshake, Moon, Sunrise } from '@lucide/svelte';
   import '../bikes/velo-dlg.css';
   import '../unterwegs/unterwegs.css';
 
-  let { trip, day = 0, onclose } = $props();
+  let { trip, day = 0, kind = 'arrived', onclose } = $props();
+  let late = $state('10:00');
   const contactsQ = liveQuery(() => db.settings.get(CONTACTS_KEY));
   const contacts = $derived(contactsOf($contactsQ?.value));
   const people = $derived(arrivedPeople(trip, contacts));
@@ -32,7 +36,15 @@
   let here = $state(null);
   let own = $state(null); // the text once the user changed it
   let msg = $state('');
-  const auto = $derived(arrivedText({ t, names: people.map((p) => p.name), place: arrivePlace(trip, day), time: nowHM(), here: withPlace ? here : null }));
+  const names = $derived(people.map((p) => p.name));
+  const auto = $derived(
+    kind === 'night' ? nightText({ t, names, place: arrivePlace(trip, day), late, here: withPlace ? here : null })
+    : kind === 'morning' ? morningText({ t, names })
+    : arrivedText({ t, names, place: arrivePlace(trip, day), time: nowHM(), here: withPlace ? here : null }),
+  );
+  const head = $derived(kind === 'night' ? t('Good night') : kind === 'morning' ? t('Riding on') : t('Arrived safely'));
+  // the morning reminder needs to know a good-night message went out, and stops once the morning one did
+  const mark = () => (kind === 'night' ? db.trips.update(trip.id, touched({ nightSent: localDay() })) : kind === 'morning' ? db.trips.update(trip.id, touched({ morningSent: localDay() })) : null);
   const text = $derived(own ?? auto);
 
   async function pick(id) {
@@ -70,6 +82,7 @@
     try {
       if (navigator.share) {
         await navigator.share({ text });
+        await mark();
         return (msg = t('Shared. Thanks for letting them know.'));
       }
     } catch (e) {
@@ -80,6 +93,7 @@
   async function copy() {
     try {
       await navigator.clipboard.writeText(text);
+      await mark();
       msg = t('Text copied. Paste it into a message.');
     } catch {
       msg = t('Copying did not work here. Select the text above and copy it.');
@@ -87,10 +101,10 @@
   }
 </script>
 
-<dialog class="sheet vdlg from-below uw-dlg" bind:this={dialog} use:backClose {onclose} aria-labelledby="ar-h" data-arrived>
+<dialog class="sheet vdlg from-below uw-dlg" bind:this={dialog} use:backClose {onclose} aria-labelledby="ar-h" data-arrived data-sheet-kind={kind}>
   <div class="vd-head">
     <div class="vd-t">
-      <h2 id="ar-h"><HeartHandshake size={20} aria-hidden="true" />&nbsp;{t('Arrived safely')}</h2>
+      <h2 id="ar-h">{#if kind === 'night'}<Moon size={20} aria-hidden="true" />{:else if kind === 'morning'}<Sunrise size={20} aria-hidden="true" />{:else}<HeartHandshake size={20} aria-hidden="true" />{/if}&nbsp;{head}</h2>
       <p class="vd-sub">{t('A short message with a ready text. Your phone sends it; the app sends nothing itself.')}</p>
     </div>
     <button type="button" class="vd-x" aria-label={t('Close')} onclick={() => dialog.close()}><X size={20} aria-hidden="true" /></button>
@@ -118,19 +132,30 @@
   {/if}
 
   <h3 class="uw-h3">{t('The text')}</h3>
+  {#if kind === 'night'}<label class="ar-late"><span>{t('Call me if nothing comes by')}</span><input class="inp" type="time" bind:value={late} data-night-late /></label>{/if}
   <textarea class="inp ar-text" rows="4" value={text} oninput={(e) => (own = e.currentTarget.value)} aria-label={t('The text')} data-arrived-text></textarea>
-  <label class="ar-place"><input type="checkbox" checked={withPlace} onchange={placeOn} /><MapPin size={16} aria-hidden="true" /> {t('Add where I am (a map link)')}</label>
+  {#if kind !== 'morning'}<label class="ar-place"><input type="checkbox" checked={withPlace} onchange={placeOn} /><MapPin size={16} aria-hidden="true" /> {t('Add where I am (a map link)')}</label>{/if}
   {#if own != null}<button type="button" class="tp-link" onclick={() => (own = null)}>{t('Back to the ready text')}</button>{/if}
   <p class="uw-fine" role="status">{msg}</p>
 
   <div class="vd-foot">
     <button type="button" class="btn" onclick={copy} data-arrived-copy><Copy size={16} aria-hidden="true" />{t('Copy')}</button>
-    {#if people.length}<a class="btn" href={smsHref(people.map((p) => p.phone), text)} data-arrived-sms><MessageSquare size={16} aria-hidden="true" />{t('SMS')}</a>{/if}
+    {#if people.length}<a class="btn" href={smsHref(people.map((p) => p.phone), text)} onclick={mark} data-arrived-sms><MessageSquare size={16} aria-hidden="true" />{t('SMS')}</a>{/if}
     <button type="button" class="btn hi" onclick={share} data-arrived-share><Send size={16} aria-hidden="true" />{t('Share')}</button>
   </div>
 </dialog>
 
 <style>
+  .ar-late {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 8px;
+  }
+  .ar-late .inp {
+    width: auto;
+  }
   .ar-add {
     display: grid;
     gap: 8px;

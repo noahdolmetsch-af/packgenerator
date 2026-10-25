@@ -77,9 +77,8 @@ test('three problems for one bike in one go, sorted, changed with one tap, undon
   const box = dlg.getByLabel(T('What is wrong? One problem per line or separated by commas'));
   await box.press('End');
   await box.pressSequentially('\nSchaltung vorne aufladen');
-  // Priority is required: without it nothing is saved.
-  await dlg.getByRole('button', { name: T('Save {n} problems', { n: 3 }) }).click();
-  await expect(dlg.getByRole('alert')).toHaveText(T('Choose a priority.'));
+  // Klick-Rundgang H20: the priority is a suggestion, preset to «Medium» and changeable
+  await expect(dlg.getByRole('button', { name: T('Medium'), exact: true })).toHaveAttribute('aria-pressed', 'true');
   await dlg.getByRole('button', { name: T('High'), exact: true }).click();
   await dlg.getByRole('button', { name: T('Before the next ride') }).click();
   if (shots) await page.screenshot({ path: `${shots}/problem-${info.project.name}-1.png`, fullPage: true });
