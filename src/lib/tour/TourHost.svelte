@@ -13,7 +13,7 @@
   import { phone } from '../media.svelte.js';
   import { t } from '../i18n.svelte.js';
   import { readRun, writeRun, stepAt, stepCount, nextRun, backRun, navSelector, cardSpot } from '../tour.js';
-  import { TOUR_EVENT } from './run.js';
+  import { TOUR_EVENT, END_EVENT } from './run.js';
 
   let run = $state(readRun());
   let rect = $state(null);
@@ -36,6 +36,7 @@
   function set(next) {
     writeRun(next);
     run = next;
+    if (!next) window.dispatchEvent(new Event(END_EVENT));
   }
   const end = () => set(null);
 
