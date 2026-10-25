@@ -1522,4 +1522,30 @@ export default {
   'Type the weight and tap «Save», or «Not today».': 'Tippe das Gewicht ein und dann «Speichern», oder «Heute nicht».',
   '«Stop asking» takes the card away; «Add a tile» brings it back.': '«Nicht mehr fragen» nimmt die Karte weg; «Kachel hinzufügen» holt sie zurück.',
   'Example: last weight 8 days ago → the card asks; saved, it is gone until next week.': 'Beispiel: letztes Gewicht vor 8 Tagen → die Karte fragt; gespeichert ist sie bis nächste Woche weg.',
+  // «Stopps in der Nähe» (f.stopsnear)
+  'On Today tap «Stops nearby» (or on a tour page, or open the live map › «Stops»).': 'Tippe auf Heute auf «Stopps in der Nähe» (oder auf einer Tour-Seite, oder in der Live-Karte › «Stopps»).',
+  'Choose «Around me» or «Along the route», and the kinds you want.': 'Wähle «Um mich» oder «Entlang der Strecke» und die Arten, die du willst.',
+  'Tap «Google Maps» or «OsmAnd» to ride there.': 'Tippe auf «Google Maps» oder «OsmAnd», um hinzufahren.',
+  'Example: thirsty on a ride → «Around me», only «Water» → the next fountain is 0.8 km away.': 'Beispiel: Durst auf der Fahrt → «Um mich», nur «Wasser» → der nächste Brunnen ist 0,8 km entfernt.',
+  // «Meilensteine als Belohnung» (Noah 22.10.2026 «1a–5a»)
+  'Tick a sport on Heute or in Aktiv: every tick counts 1 in its counters (times done, weeks in a row, this year, hours).': 'Hak eine Sportart auf Heute oder in Aktiv ab: jedes Abhaken zählt 1 in ihren Zählern (Mal gemacht, Wochen in Folge, dieses Jahr, Stunden).',
+  'A new star shows right after the tick in a small window.': 'Ein neuer Stern erscheint gleich nach dem Abhaken in einem kleinen Fenster.',
+  'On the sport page: pick a ready challenge or set your own; reached, it is a star in the showcase.': 'Auf der Seite der Sportart: wähl eine fertige Herausforderung oder setz deine eigene; geschafft, ist sie ein Stern in der Vitrine.',
+  'Example: the 5th yoga tick → «New star: Times done, star 1»; «12× in the next 6 weeks» counts by itself.': 'Beispiel: das 5. Yoga-Abhaken → «Neuer Stern: Mal gemacht, Stern 1»; «12× in den nächsten 6 Wochen» zählt von selbst.',
+  // «Alles fertig»: Gute Nacht
+  'Open On the way, tap «Good night», set the time, then «Share».': 'Öffne Unterwegs, tippe «Gute Nacht», stell die Zeit ein, dann «Teilen».',
+  'Example: in the Jura → «Good night» → «Hi Anna, I am sleeping in Saignelégier tonight. Good night!»': 'Beispiel: im Jura → «Gute Nacht» → «Hallo Anna, ich schlafe heute in Saignelégier. Gute Nacht!»',
+  // Paket B «Touren ohne Überraschung» (0.189.0): Generalprobe, Gut ankommen, Kisten-Etiketten
+  'From a week before the start: open the trip in Pack or «Packed» › «Dress rehearsal».': 'Ab einer Woche vor dem Start: Öffne die Tour in Packen oder «Gepackt» › «Generalprobe».',
+  'Try each step at home and tap «Works», «Gap» or «Not needed».': 'Probier jeden Schritt zu Hause aus und tippe «Klappt», «Lücke» oder «Nicht nötig».',
+  'At a gap tap «Keep as to-do»: it waits in Merken for the evening before.': 'Bei einer Lücke tippe «Als To-do merken»: Es wartet im Merken auf den Vorabend.',
+  'Example: route opened in flight mode → «Works»; tube change took 25 minutes → «Gap», to-do «Practise tube change».': 'Beispiel: Route im Flugmodus geöffnet → «Klappt»; Schlauchwechsel dauerte 25 Minuten → «Lücke», To-do «Schlauchwechsel üben».',
+  'After «Trip ended» tap «Arrive well».': 'Tippe nach «Tour beendet» auf «Gut ankommen».',
+  'Tick what is done; «Later» for what waits.': 'Hake ab, was erledigt ist; «Später» für das, was wartet.',
+  '«Keep as to-do» puts it into Merken for tomorrow.': '«Als To-do merken» legt es für morgen ins Merken.',
+  'Example: tent hung up, laundry in → «Done»; borrowed stove → «Later», to-do for tomorrow.': 'Beispiel: Zelt aufgehängt, Wäsche drin → «Erledigt»; geliehener Kocher → «Später», To-do für morgen.',
+  'Open Toolbox › Box labels and add a box with its place.': 'Öffne Werkzeugkasten › Kisten-Etiketten und lege eine Kiste mit ihrem Ort an.',
+  'Type what goes in: your gear or anything else.': 'Tipp ein, was hineinkommt: dein Material oder sonst etwas.',
+  '«Print label», stick it on; scanning the code opens the box in the app.': '«Etikett drucken», aufkleben; der Code öffnet die Kiste in der App.',
+  'Example: «Winter box, cellar» with headlamp, gloves and the Christmas lights.': 'Beispiel: «Winterkiste, Keller» mit Stirnlampe, Handschuhen und der Lichterkette.',
 };

@@ -8,7 +8,7 @@
    */
   import { onMount } from 'svelte';
   import { Plus, Minus, Maximize2, Layers, Check } from '@lucide/svelte';
-  import { t } from '../i18n.svelte.js';
+  import { t, tn } from '../i18n.svelte.js';
   import { uiZoom, unzoomRect } from '../uizoom.js';
   import { unmerc, fitView, zoomAt, panBy, tilesFor, pathOf, fromScreen, TILE } from '../spur/mapmath.js';
   import { RASTER_GROUNDS, rasterGround, tileUrl } from '../map/sources.js';
@@ -31,6 +31,15 @@
   }));
   const fit = () => {
     view = fitView(mainBounds(lines), w, h, { maxZoom: 14, pad: 56 }); // room for the buttons on the right
+  };
+  // Tote Knöpfe 10 («Alles fertig»): when everything is already in view the tap changed nothing visible; say it
+  let fitNote = $state('');
+  let fitTimer;
+  const fitAll = () => {
+    fit();
+    fitNote = tn(lines.length, 'All {n} ride in view', 'All {n} rides in view');
+    clearTimeout(fitTimer);
+    fitTimer = setTimeout(() => (fitNote = ''), 2500);
   };
   onMount(() => {
     const ro = new ResizeObserver(() => {
@@ -238,7 +247,7 @@
   <div class="ctl">
     <button type="button" class="btn sm" aria-label={t('Zoom in')} onclick={() => zoom(2)}><Plus size={18} aria-hidden="true" /></button>
     <button type="button" class="btn sm" aria-label={t('Zoom out')} onclick={() => zoom(0.5)}><Minus size={18} aria-hidden="true" /></button>
-    <button type="button" class="btn sm" aria-label={t('Show all rides')} onclick={fit} data-heat-fit><Maximize2 size={18} aria-hidden="true" /></button>
+    <button type="button" class="btn sm" aria-label={t('Show all rides')} onclick={fitAll} data-heat-fit><Maximize2 size={18} aria-hidden="true" /></button>
     <button type="button" class="btn sm" aria-label={t('Map ground')} aria-expanded={pickOpen} onclick={() => (pickOpen = !pickOpen)} data-map-layers><Layers size={18} aria-hidden="true" /></button>
   </div>
   {#if pickOpen}
@@ -254,9 +263,26 @@
     </div>
   {/if}
   <p class="attr">{g.attribution}</p>
+  <p class="fitnote" role="status" data-heat-fit-note>{fitNote}</p>
 </div>
 
 <style>
+  .fitnote {
+    position: absolute;
+    left: 50%;
+    top: 10px;
+    transform: translateX(-50%);
+    margin: 0;
+    padding: 0 10px;
+    border-radius: 999px;
+    background: var(--paper);
+    color: var(--ink);
+    font-size: var(--fs-small);
+    pointer-events: none;
+  }
+  .fitnote:empty {
+    display: none;
+  }
   .hmap {
     position: relative;
     overflow: hidden;

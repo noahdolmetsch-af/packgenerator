@@ -24,6 +24,7 @@
   import MsCard from '../../lib/flow/hobby/MsCard.svelte';
   import Sugg from '../../lib/flow/hobby/Sugg.svelte';
   import MsHome from '../../lib/home/MsHome.svelte';
+  import MsHow from '../../lib/flow/hobby/MsHow.svelte';
   import { db } from '../../lib/db.js';
   import { hobbyQuery, seedHobby } from '../../lib/flow/data.svelte.js';
   import { msContext, allMilestones, newStars, nextPerAct, soonList, recentStars, records as recordsOf, STAGES, TUNE_KEY, REWARD_KEY } from '../../lib/flowms.js';
@@ -32,6 +33,9 @@
   import { tileName, msName, starLine, val, dayWord, areaWord } from '../../lib/flow/hobby/words.js';
   import { localDay } from '../../lib/localday.js';
   import { t, num } from '../../lib/i18n.svelte.js';
+  import { phone } from '../../lib/media.svelte.js';
+  const CARDS_PHONE = 6;
+  let allCards = $state(false);
 
   let { params = new URLSearchParams() } = $props();
   const today = localDay();
@@ -41,7 +45,7 @@
     seedHobby(data);
   });
 
-  const ctx = $derived(data ? msContext({ acts: data.acts, log: data.log, sessions: data.sessions, today, tripDays: data.tripDays, extra: data.extra }) : null);
+  const ctx = $derived(data ? msContext({ acts: data.acts, log: data.log, sessions: data.sessions, today, tripDays: data.tripDays, extra: data.extra, challenges: data.challenges }) : null);
   const stored = $derived(new Map((data?.stars ?? []).map((s) => [s.id, s.day])));
   const list = $derived(ctx ? allMilestones(ctx, stored, data.tune) : []);
   $effect(() => {
@@ -83,7 +87,7 @@
 
   /* change the numbers (flow.msTune): own thresholds, hide, back to the suggestion */
   const tuneOpen = $derived(params.get('tune') === '1');
-  const tuneList = $derived(list.filter(inFilter));
+  const tuneList = $derived(list.filter(inFilter).filter((r) => r.m.group !== 'challenge'));
   const stepsText = (r) => r.steps.join(', ');
   async function setTune(r, patch) {
     const all = { ...(data.tune ?? {}) };
@@ -106,7 +110,7 @@
 
 <div class="hob">
   <header class="ph">
-    <Crumb path={[{ href: '#/flow', label: t('Analysis|place') }, { href: '#/flow/activity', label: t('Activity|tab') }]} here={t('Milestones')} />
+    <Crumb path={[{ href: '#/auswerten', label: t('Analysis|place') }]} here={t('Milestones')} />
     <PageHead title={t('Milestones')} text={t('Only the next star per milestone · stars reached stay · no ranking')} />
   </header>
 
@@ -119,6 +123,8 @@
       </nav>
       <a class="btn" href="#/flow/milestones?{filter === 'all' ? '' : `act=${encodeURIComponent(filter)}&`}tune=1">{t('Change stages')}</a>
     </div>
+
+    <MsHow />
 
     <div class="lay">
       <div class="col">
@@ -134,7 +140,9 @@
 
         <Sec id="all-h" title={actOf ? tileName(actOf) : t('All milestones')} sub={actOf ? '' : t('over all activities')}>
           {#if cards.length || scoped.length}
-            <div class="grid">{#each cards as r (r.id)}<MsCard {r} sub={r.m.area ? '' : label(r)} />{/each}</div>
+            <!-- phone: the first six, the rest after «Alle n zeigen» (the page stays within its length budget, laenge.js) -->
+            <div class="grid">{#each phone.matches && !allCards ? cards.slice(0, CARDS_PHONE) : cards as r (r.id)}<MsCard {r} sub={r.m.area ? '' : label(r)} />{/each}</div>
+            {#if phone.matches && !allCards && cards.length > CARDS_PHONE}<button type="button" class="btn btn-link" onclick={() => (allCards = true)} data-ms-all>{t('Show all {n}', { n: cards.length })} ›</button>{/if}
           {:else}
             <Empty text={t('This activity has no milestones yet.')} />
           {/if}

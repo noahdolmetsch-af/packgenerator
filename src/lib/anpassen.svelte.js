@@ -28,9 +28,9 @@ export function restore(c) {
 }
 
 /** 3a: the name of a place in the menu: your own one or the app's. */
-export function placeLabel(p) {
+export function placeLabel(p, bar = false) {
   void anp.v;
-  return anp.cfg.menu.names[p.key] ?? t(p.label);
+  return anp.cfg.menu.names[p.key] ?? t((bar && p.bar) || p.label);
 }
 
 /** 3a: the name of a tab of a place: your own one or the app's. */

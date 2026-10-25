@@ -44,7 +44,7 @@ test('Ausrüstung: from Material to the page, care due with Erledigt, the row on
 
   // the place: own row in the sidebar (computer), one slot with Velos and a switch on top (phone)
   if (phone) {
-    await expect(page.locator('nav.bottom a[aria-current="page"]')).toHaveText(T('Bikes|place'));
+    await expect(page.locator('nav.bottom a[aria-current="page"]')).toHaveText(T('Bikes and gear|place'));
     await expect(page.locator('[data-place-switch] a[aria-current="page"]')).toHaveText(T('Equipment|place'));
   } else {
     await expect(page.locator('.side li.pl > a.pa[aria-current]')).toHaveText(T('Equipment|place'));

@@ -886,7 +886,9 @@ html {
   /* AU1: Ausrüstung shares the colour of Velos (one slot in the bottom bar) */
   --pc: var(--pc-bikes);
 }
-:root[data-place='active'] {
+:root[data-place='active'],
+:root[data-place='analysis'] {
+  /* «Aktiv neu»: Auswerten shares the colour of Aktiv (one slot in the bottom bar) */
   --pc: var(--pc-active);
 }
 :root[data-place='week'] {

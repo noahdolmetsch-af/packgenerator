@@ -66,7 +66,7 @@ test('Auswertung shows the strongest three and leads to the page; Ich has a row'
   await shot(page, info, 'erkenntnisse-auswertung');
   await sec.locator('[data-insights-all]').click();
   await expect(page).toHaveURL(/#\/me\/insights$/);
-  await viaTab(page, 'active', '#/me/insights'); // UI-Ziele #6: Auswerten › Erkenntnisse
+  await viaTab(page, 'analysis', '#/me/insights'); // UI-Ziele #6: Auswerten › Erkenntnisse
   await expect(page.getByRole('heading', { level: 1, name: T('Insights') })).toBeVisible();
   expect(errors).toEqual([]);
 });

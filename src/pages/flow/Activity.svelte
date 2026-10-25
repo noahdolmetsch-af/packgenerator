@@ -50,7 +50,7 @@
   });
 
   const states = $derived(data ? flowStates(data.acts, data.log, today, data.tripDays) : []);
-  const ctx = $derived(data ? msContext({ acts: data.acts, log: data.log, sessions: data.sessions, today, tripDays: data.tripDays, extra: data.extra }) : null);
+  const ctx = $derived(data ? msContext({ acts: data.acts, log: data.log, sessions: data.sessions, today, tripDays: data.tripDays, extra: data.extra, challenges: data.challenges }) : null);
   const stored = $derived(new Map((data?.stars ?? []).map((s) => [s.id, s.day])));
   const list = $derived(ctx ? allMilestones(ctx, stored, data.tune) : []);
   // the stars reached are kept for ever (flowStars)
@@ -215,7 +215,7 @@
 
 <div class="hob">
   <header class="ph">
-    <Crumb path={[{ href: '#/flow', label: t('Analysis|place') }]} here={t('Activity|tab')} />
+    <Crumb path={[{ href: '#/flow', label: t('Active|place') }]} here={t('Activity|tab')} />
     <!-- Impeccable runde 2 (clarify): what the page is for, next to «Heute» (tick off) and «Ziele» (the stand) -->
     <PageHead title={t('Activity|tab')} text={t('Your favourite activities at a glance: streaks, bests and the next star.')} />
   </header>

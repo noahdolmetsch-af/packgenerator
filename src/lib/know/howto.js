@@ -80,7 +80,7 @@ export const HOWTO = {
   'f.check': ['Open Active.', 'Look at the rings of the last 7 days.', 'Fill in the daily check: sleep, energy and mood.'],
   'f.stopwatch': ['Open Active.', 'Press an activity long.', 'The stopwatch runs on every page; a singing bowl rings.'],
   'f.goals': ['Open Active › Goals.', 'Choose daily, 7, 10 or 30 days.', 'Add a season if you like.'],
-  'f.milestones': ['Open Active › Milestones.', 'Only the next star shows.', 'Pick a reward from the wishlist.'],
+  'f.milestones': ['Tick a sport: every tick counts.', 'A new star shows right after the tick.', 'Pick a challenge on the sport page.'],
   'f.meditation': ['Open Active › Meditation.', 'Start like last time or from a template.', 'Sounds and a calm clock lead you.'],
   'f.medlog': ['Open Meditation › Log.', 'See every session and the streak heat map.', 'Find your best time of day.'],
   'f.medmore': ['Open Meditation › More.', 'Listen to the sounds.', 'Add kinds, places, quotes or your own links.'],
@@ -242,6 +242,7 @@ export const HOWTO = {
   'f.rwgps': ['Open a trip at «Route».', 'Tap «Link from Ride with GPS» and paste the link.', 'Tap «Load».'],
   'f.ovnear': ['Start a ride on the live map.', 'Open the sheet › «Public transport nearby».', 'Tap «Find stops», then a stop.'],
   'f.sharepic': ['Stop a ride on the live map.', 'Choose with or without the shape.', 'Tap «Share picture».'],
+  'f.stopsnear': ['Tap «Stops nearby» on Today, on a tour page or in the live map.', 'Choose «Around me» or «Along the route».', 'Switch the kinds you want on or off, then navigate there.'],
   'f.sleeptonight': ['Open a race › «Along the route» and tap «Load places from OpenStreetMap».', 'Open «Race mode» › «Where do I sleep tonight?».', 'Switch the kinds you want on or off.'],
   'f.callhotels': ['Open a race › «Race mode».', 'Look at «Hotels for tonight» from 12:00.', 'Tap the phone, or copy the sentence.'],
   'f.powernap': ['Open a race › «Race mode».', 'Tap «20 min» under «Power nap».', 'Tap «I am awake» when it rings.'],
@@ -318,6 +319,7 @@ export const HOWTO = {
   'f.flatsitter': ['Open «Before you leave» on On the way.', 'Write the lines for the sitter and a note.', 'Tap «Share link» or show the QR code.'],
   'f.readytomorrow': ['Plan a trip that starts tomorrow.', 'In the evening open it in Pack.', 'Read the hints; ask the AI helper if you like.'],
   'f.arrived': ['Open On the way and tap «Arrived safely».', 'Tick the people of this trip, or add one with a phone number.', 'Tap «Share»: pick SMS, WhatsApp or mail on your phone.'],
+  'f.goodnight': ['Open On the way of a trip of several days and tap «Good night».', 'Set the time to call you, then tap «Share».', 'The next morning tap «Riding on? Tell them».'],
   'f.planb': ['Open a trip in Planen and fold open «Plan B for bad weather».', 'Choose a shorter variant (GPX or note) or the train home.', 'With heavy rain or a storm in the forecast, On the way and the evening window remind you.'],
   'f.checkin': ['Open a trip of several days in Planen.', 'Under «Check-in of the accommodation» set the time per night.', 'A late arrival shows in orange, with the speed you would need.'],
   'f.parked': ['Open On the way and tap «Bike parked».', 'Take a photo, choose the lock and save; the place is read once.', 'Later the same button shows «Where is my bike?» with the way back.'],
@@ -360,6 +362,9 @@ export const HOWTO = {
   'f.heatmap': ['Open Trips › Look back › Heatmap.', 'Choose clouds or lines, and a year, sport or bike if you like.', 'Tap a coloured line: the rides there show below the map.'],
   'f.tickreview': ['Open Active › Goals and tap «Evaluate».', 'Choose a period and an activity, or «Your answers».', 'Tap «…» on a card to hide or move it.'],
   'f.travelbook': ['Open «Travel track» of a tour.', 'Tap «Travel book as PDF».', 'Save, print or send the PDF.'],
+  'f.probe': ['A week before the start open the trip › «Dress rehearsal».', 'Tap «Works», «Gap» or «Not needed» at each step.', 'At a gap: «Keep as to-do».'],
+  'f.homecoming': ['After «Trip ended» tap «Arrive well».', 'Tap «Done» or «Later».', '«Keep as to-do» for what waits.'],
+  'f.labels': ['Open Toolbox › Box labels.', 'Add a box and what is inside.', '«Print label» and stick it on.'],
 };
 
 /** The steps of a function, or [] when it has none. */

@@ -53,7 +53,8 @@ async function fits(page, where) {
 test('Woche: from Aktiv › Heute to the week, a fixed date, plan and hide a suggestion', async ({ page, context }) => {
   const errors = await open(page, context, '#/flow');
   const main = page.locator('main');
-  await expect(main.locator('[data-more="week"]')).toBeVisible();
+  // «Aktiv neu» (Noah 22.10.2026): «Diese Woche» on Aktiv › Heute opens the week
+  await expect(main.locator('[data-week-glance]')).toBeVisible();
   // a bike ride yesterday (Monday), fictional
   await put(page, {
     flowLog: [
@@ -69,7 +70,9 @@ test('Woche: from Aktiv › Heute to the week, a fixed date, plan and hide a sug
   });
   await page.reload();
 
-  await main.locator('[data-more="week"]').click();
+  // the 7 days: yesterday has its tick
+  await expect(main.locator(`[data-week-day="${addDays(TODAY, -1)}"] .ticks`)).toBeVisible();
+  await main.locator('[data-week-glance]').click();
   await expect(page).toHaveURL(/#\/flow\/week$/);
   await expect(page.locator(TABS).getByRole('link', { name: T('Today|active'), exact: true })).toHaveAttribute('aria-current', 'page');
   await expect(main.getByRole('heading', { level: 1, name: T('Week') })).toBeVisible();

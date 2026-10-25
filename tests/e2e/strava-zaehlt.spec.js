@@ -71,7 +71,7 @@ test('Strava rides count in This week and Bike this month, a file ride once', as
 
   // SZ2 Aktiv: «Deine Woche in Zahlen» (Aktiv neu 20.10.2026 «2a», changed on purpose: replaces «Velo diesen
   // Monat») counts the rides of the 7 days from the app and Strava: 280 km
-  await page.goto('./#/flow');
+  await page.goto('./#/auswerten'); // «Aktiv neu» (Noah 22.10.2026): the overview is on the start of Auswerten
   await openOverview(page);
   await expect(page.locator('[data-section="week-numbers"] [data-wn="km"]')).toContainText('280');
   // 0.136.0: the open ride (5) does not count yet, the card names it with the way to «Zum Prüfen»

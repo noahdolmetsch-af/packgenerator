@@ -424,6 +424,11 @@ export const HANDBOOK = {
     steps: ['Open On the way, tap «Arrived safely», then «Share».'],
     example: 'Example: at the campsite in the Jura → «Arrived safely» → «Hi Anna and Ben, I arrived safely in Saignelégier at 18:10.»',
   },
+  'f.goodnight': {
+    on: 'Choose your emergency contacts once in Before you leave.',
+    steps: ['Open On the way, tap «Good night», set the time, then «Share».'],
+    example: 'Example: in the Jura → «Good night» → «Hi Anna, I am sleeping in Saignelégier tonight. Good night!»',
+  },
   'f.planb': {
     on: null,
     steps: ['Set a shorter GPX or «Train home» in Planen.', 'With heavy rain or a storm, tap «Take plan B» on On the way; Undo brings the planned route back.'],
@@ -944,6 +949,11 @@ export const HANDBOOK = {
     steps: ['Stop the ride on the live map; under «Your ride» tap «Share picture».', 'Leave out the shape when you start at home.'],
     example: 'Example: 42.5 km, 1 h 52 min, 640 m → one picture for the chat.',
   },
+  'f.stopsnear': {
+    on: null,
+    steps: ['On Today tap «Stops nearby» (or on a tour page, or open the live map › «Stops»).', 'Choose «Around me» or «Along the route», and the kinds you want.', 'Tap «Google Maps» or «OsmAnd» to ride there.'],
+    example: 'Example: thirsty on a ride → «Around me», only «Water» → the next fountain is 0.8 km away.',
+  },
   'f.sleeptonight': {
     on: null,
     steps: ['Open a race › «Race mode» (load the places under «Along the route» first).', 'Look at «Where do I sleep tonight?» and switch kinds on or off.', 'On the live map it shows in the sheet.'],
@@ -1060,9 +1070,9 @@ export const HANDBOOK = {
     example: 'Example: on a rainy day Packen says first to put the rain jacket on top; «Only useful tips» keeps the «Did you know» sentences away.',
   },
   'f.milestones': {
-    on: 'Needs a goal under Active › Goals.',
-    steps: ['Open Active › Activity › Milestones.', 'See the next star; pick a reward from the wishlist.'],
-    example: 'Example: next star at 20 sessions → reward «new bottle».',
+    on: null,
+    steps: ['Tick a sport on Heute or in Aktiv: every tick counts 1 in its counters (times done, weeks in a row, this year, hours).', 'A new star shows right after the tick in a small window.', 'On the sport page: pick a ready challenge or set your own; reached, it is a star in the showcase.'],
+    example: 'Example: the 5th yoga tick → «New star: Times done, star 1»; «12× in the next 6 weeks» counts by itself.',
   },
   'f.meditation': {
     on: null,
@@ -1720,6 +1730,21 @@ export const HANDBOOK = {
     on: null,
     steps: ['«Travel track» › «Travel book as PDF».', 'Save or print the PDF.'],
     example: 'Example: a cover with the whole line, then one page per day with its photos.',
+  },
+  'f.probe': {
+    on: null,
+    steps: ['From a week before the start: open the trip in Pack or «Packed» › «Dress rehearsal».', 'Try each step at home and tap «Works», «Gap» or «Not needed».', 'At a gap tap «Keep as to-do»: it waits in Merken for the evening before.'],
+    example: 'Example: route opened in flight mode → «Works»; tube change took 25 minutes → «Gap», to-do «Practise tube change».',
+  },
+  'f.homecoming': {
+    on: null,
+    steps: ['After «Trip ended» tap «Arrive well».', 'Tick what is done; «Later» for what waits.', '«Keep as to-do» puts it into Merken for tomorrow.'],
+    example: 'Example: tent hung up, laundry in → «Done»; borrowed stove → «Later», to-do for tomorrow.',
+  },
+  'f.labels': {
+    on: null,
+    steps: ['Open Toolbox › Box labels and add a box with its place.', 'Type what goes in: your gear or anything else.', '«Print label», stick it on; scanning the code opens the box in the app.'],
+    example: 'Example: «Winter box, cellar» with headlamp, gloves and the Christmas lights.',
   },
 };
 

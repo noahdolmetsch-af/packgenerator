@@ -38,6 +38,8 @@
   import MainBar from '../lib/ui/MainBar.svelte';
   import { chargeList, chargeCount } from '../lib/charge.js';
   import QuizEveRow from '../lib/lernen/QuizEveRow.svelte';
+  import ProbePage from '../lib/probe/ProbePage.svelte';
+  import ProbeRow from '../lib/probe/ProbeRow.svelte';
   import '../lib/review/review.css';
 
   let { id, kind } = $props();
@@ -171,6 +173,9 @@
 {:else if !trip}
   <h1 class="lost">{t('Trip not found')}</h1>
   <Empty icon={Route} text={t('This trip does not exist any more.')} action={{ label: t('Back to Trips'), href: '#/trips' }} />
+{:else if kind === 'probe' || kind === 'heim'}
+  <!-- Paket B: «Generalprobe» and «Gut ankommen» (lib/probe) -->
+  <ProbePage {trip} {kind} {items} {debrief} />
 {:else if kind === 'packed'}
   <!-- v0.106.0 Design-Refresh P5 (T11 «Alles gepackt», approved 12.10.2026): the steps on top, one card in
        the middle with the count tile, the celebration and what happens next, «Bis zum Start» under it. -->
@@ -197,6 +202,7 @@
         {/if}
         <!-- Paket M «Quiz am Vorabend»: only the evening before, when the quiz is on (lernen/QuizEveRow.svelte) -->
         <QuizEveRow {trip} {today} />
+        <ProbeRow {trip} kind="probe" {items} {debrief} />
         {#if charge.length}
           <li><a class="row" href="#/pack?charge" onclick={pick}><span class="ic" aria-hidden="true"><Zap size={18} /></span><span class="bt"><b>{t('Charge the evening before')}</b><small class="num">{t('{done} of {n} charged', { done: charged.done, n: charged.total })}</small></span><ChevronRight size={18} aria-hidden="true" /></a></li>
         {/if}
@@ -236,6 +242,7 @@
       <p class="ssub">{t('At home, before everything goes into the cupboard')}</p>
       <ul class="card rows">
         <li><button type="button" class="row" aria-haspopup="dialog" data-row="check" onclick={() => (sheet = 'check')}><span class="ic" aria-hidden="true"><TypeIcon size={18} /></span><span class="bt"><b>{t('After-trip check {area}', { area })}</b><small class="num">{checkLine}</small></span><span class="mini" aria-hidden="true"><i style:width="{checkN.total ? (checkN.done / checkN.total) * 100 : 0}%"></i></span><ChevronRight size={18} aria-hidden="true" /></button></li>
+        <ProbeRow {trip} kind="heim" {items} {debrief} />
         <!-- Paket Q #77: the way goes on to the bike after the trip -->
         {#if hasBike(trip)}<li><a class="row" href={careHref} data-row="care"><span class="ic" aria-hidden="true"><Wrench size={18} /></span><span class="bt"><b>{t('Bike care')}</b><small>{bike?.name ?? t('Clean, oil, what is due')}</small></span><ChevronRight size={18} aria-hidden="true" /></a></li>{/if}
         {#if notes.length}
@@ -277,9 +284,9 @@
   </Interstitial>
 {/if}
 
-{#if trip && kind !== 'debriefed' && sheet === 'check'}
+{#if trip && (kind === 'packed' || kind === 'ended') && sheet === 'check'}
   <CheckSheet {trip} kind={checkKind} {items} trips={$tripsQ ?? []} debriefs={$debriefsQ ?? []} {standard} notes={notes.length} debriefDone={debrief?.status === 'done'} debriefHref={kind === 'ended' && !day ? debriefHref : ''} onedit={() => (sheet = 'edit')} onclose={() => (sheet = null)} />
-{:else if trip && kind !== 'debriefed' && sheet === 'edit'}
+{:else if trip && (kind === 'packed' || kind === 'ended') && sheet === 'edit'}
   <CheckEdit kind={checkKind} {domain} {trip} list={checkList} {items} trips={$tripsQ ?? []} debriefs={$debriefsQ ?? []} onclose={() => (sheet = 'check')} />
 {/if}
 

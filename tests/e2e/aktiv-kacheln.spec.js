@@ -26,28 +26,28 @@ test('Heute abhaken: Bearbeiten, delete with history kept, restore, hide a tile'
   const tick = page.locator('section[aria-labelledby="tick-h"]');
   await expect(tick.locator('[data-act="run"]')).toBeVisible();
 
-  // «Wi gaht's?»: «Starten» opens the questions, not their settings
-  await expect(page.locator('[data-check-start]')).toHaveAttribute('href', '#/check/morning');
-
   // 1. the edit link
   await tick.locator('[data-sec-edit]').click();
-  await expect(page).toHaveURL(/#\/flow\/goals$/);
-  await expect(page.locator('main h1')).toHaveText(T('Activities|flow'));
-  await expect(page.locator(TABS).getByRole('link', { name: T('Activities|tab'), exact: true })).toHaveAttribute('aria-current', 'page');
+  // «Aktiv neu» (Noah 22.10.2026 «4a»): «Ziele» is «Meine Sportarten»; a row opens the sport, «Bearbeiten» the editor
+  await expect(page).toHaveURL(/#\/flow\/sports$/);
+  await expect(page.locator('main h1')).toHaveText(T('My sports|tab'));
+  await expect(page.locator(TABS).getByRole('link', { name: T('My sports|tab'), exact: true })).toHaveAttribute('aria-current', 'page');
 
   // 2. delete, keep the history, restore
-  await page.locator('a[href="#/flow/edit/run"]').click();
+  await page.locator('[data-sport-row="run"]').click();
+  await page.locator('[data-edit-sport]').click();
+  await expect(page).toHaveURL(/#\/flow\/edit\/run\?from=sport$/);
   await page.getByText(T('Pause or delete')).click();
   await page.locator('[data-act-delete]').click();
   const ask = page.getByTestId('ask-delete');
   await expect(ask).toBeVisible();
   await ask.getByRole('button', { name: T('Keep the history') }).click();
-  await expect(page).toHaveURL(/#\/flow\/goals$/);
-  await expect(page.locator('a[href="#/flow/edit/run"]')).toHaveCount(0);
+  await expect(page).toHaveURL(/#\/flow\/sports$/);
+  await expect(page.locator('[data-sport-row="run"]')).toHaveCount(0);
   const gone = page.locator('[data-gone-acts]');
   await gone.locator('summary').click();
   await gone.locator('[data-gone="run"] [data-gone-restore]').click();
-  await expect(page.locator('a[href="#/flow/edit/run"]')).toBeVisible();
+  await expect(page.locator('[data-sport-row="run"]')).toBeVisible();
   await expect(gone).toHaveCount(0);
 
   // 3. hide a tile from the ••• window
@@ -56,8 +56,13 @@ test('Heute abhaken: Bearbeiten, delete with history kept, restore, hide a tile'
   await tick.locator('[data-more="run"]').click();
   await page.locator('[data-tick-hide]').click();
   await expect(tick.locator('[data-act="run"]')).toHaveCount(0);
-  await page.goto('./#/flow/goals');
+  await page.goto('./#/flow/sports');
   await ready(page);
-  await expect(page.locator('a[href="#/flow/edit/run"]')).toContainText(T('paused'));
+  await expect(page.locator('[data-sport-row="run"]')).toContainText(T('paused'));
+
+  // «Wi gaht's?» moved to the start of Auswerten: «Starten» opens the questions, not their settings
+  await page.goto('./#/auswerten');
+  await ready(page);
+  await expect(page.locator('[data-check-start]')).toHaveAttribute('href', '#/check/morning');
   expect(errors).toEqual([]);
 });

@@ -4,6 +4,15 @@
  * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
+  // 0.188.0 Alles fertig
+  'The leftovers, done': 'Die Reste, erledigt',
+  'Small things from older plans are in.': 'Kleine Dinge aus älteren Plänen sind drin.',
+  'Good night: where you sleep, when to call': 'Gute Nacht: wo du schläfst, wann man anrufen soll',
+  'Logbook: your own entry': 'Logbuch: ein eigener Eintrag',
+  'Your next race on top of Trips': 'Dein nächstes Rennen oben in Touren',
+  'The next shop in the Live map button': 'Der nächste Laden im Knopf «Live-Karte»',
+  'On the way of a trip of several days: tap «Good night» and share.': 'Unterwegs bei einer mehrtägigen Tour: «Gute Nacht» tippen und teilen.',
+  'Review › Logbook: tap «New entry».': 'Rückblick › Logbuch: «Neuer Eintrag» tippen.',
   // 0.160.0 Paket 8 Verpflegung
   'Enough food and water': 'Genug essen und trinken',
   'How much to eat and drink on each part of the route.': 'Wie viel du auf jedem Teil der Strecke isst und trinkst.',
@@ -1565,6 +1574,17 @@ export default {
   '«New» on top for 14 days after an update': '«Neu» 14 Tage lang oben nach einem Update',
   'Open Heute: meditation is on top, «Last activity» after the ring.': 'Öffne Heute: Meditation steht oben, «Letzte Aktivität» nach dem Ring.',
   'Without a weight for a week, type it in «Weight this week?».': 'Ohne Gewicht seit einer Woche: tippe es in «Gewicht diese Woche?».',
+  // v0.187.0 «Aktiv neu»
+  'Doing here, looking there': 'Hier machen, dort anschauen',
+  'Active is for ticking off, Analysis for looking back.': 'Aktiv ist zum Abhaken, Auswerten zum Zurückschauen.',
+  'Every sport with its own page, summit book included': 'Jede Sportart mit eigener Seite, samt Gipfelbuch',
+  'Form, body values and rides under Analysis': 'Form, Körperwerte und Fahrten unter Auswerten',
+  'Active shows today, this week and the rings': 'Aktiv zeigt heute, diese Woche und die Ringe',
+  'Stops nearby: water, food, WC around you or along the route': 'Stopps in der Nähe: Wasser, Essen, WC um dich oder entlang der Strecke',
+  'Every tick counts: a new star shows right away': 'Jedes Abhaken zählt: ein neuer Stern erscheint sofort',
+  'Open Active › My sports, tap a sport and tap «Tick now».': 'Öffne Aktiv › Meine Sportarten, tippe eine Sportart an und dann «Jetzt abhaken».',
+  'Tap «Tick now» on its page, then change the entry under History.': 'Tippe auf ihrer Seite «Jetzt abhaken» und ändere dann den Eintrag unter Verlauf.',
+  'Open Analysis with the switch on top of Active.': 'Öffne Auswerten mit dem Umschalter oben in Aktiv.',
   // v0.186.1 «Abgleich ohne Fragen»
   'Sync without questions': 'Abgleich ohne Fragen',
   'Phone and computer agree by themselves.': 'Handy und Computer einigen sich selbst.',

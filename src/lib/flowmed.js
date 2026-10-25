@@ -708,3 +708,16 @@ export function artMinutes(rows = []) {
 export function durationBins(rows = []) {
   return DUR.map((d) => ({ ...d, n: rows.filter((r) => r.min > 0 && durOf(r.min) === d.id).length }));
 }
+
+/**
+ * «Alles fertig» (Alles selbst bearbeiten, Runde 2): rename an own place or thing. Returns the new setting
+ * value, or null when the new name is empty or already there. The chosen one stays chosen.
+ */
+export function renameOwnChoice(v, from, to) {
+  const c = choiceList(v, []);
+  const name = String(to ?? '').trim();
+  if (!name || name === from) return null;
+  if (c.own.includes(name)) return null;
+  const cur = c.cur === `own:${from}` ? `own:${name}` : (v?.cur ?? null);
+  return { cur, own: c.own.map((n) => (n === from ? name : n)), hidden: c.hidden };
+}

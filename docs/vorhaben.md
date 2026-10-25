@@ -46,6 +46,8 @@ Die geplanten Vorhaben verfolgen fünf Ziele (das fünfte seit 19.10.2026, Noah 
 4. **Aus jeder Tour lernen.** Rückblick, Learnings, die beim nächsten Packen wieder auftauchen, und ein Aktivitätsmosaik über alle Sportarten und Meditation.
 5. **Alltag.** Die App hilft auch an Tagen ohne Tour: Woche und Termine, Bewegung und Erholung, Dokumente und Geld, Menschen und Zuhause. Beispiel: am Sonntag die Woche planen, am Morgen der Tages-Check, eine Erinnerung, bevor der Pass abläuft.
 
+**Neu 24.10.2026, 996 Ideen:** vier Pakete nach der 332-Arbeit, in dieser Reihenfolge: B «Touren ohne Überraschung» (Ziel 3: Generalprobe, Folgen vorher sehen, QR an der Kiste, Gut ankommen, Packen nach Bedürfnis), A «Ehrlicher Stand im Alltag» (Ziel 5), C «Ruhig und persönlich» (Ziele 4 und 5), D «Mit Freunden» (wieder offen). Übersicht: `notes/ideen-996/` im Projektordner.
+
 Durchgehende Grundsätze: Alles ist ein Vorschlag, nie Pflicht, und immer änderbar. Private Daten bleiben privat. Keine fremden Dienste, wenn es eine eigene, schlanke Lösung gibt.
 
 ## Stand heute (19.10.2026, live 0.152.0)
@@ -57,6 +59,8 @@ Durchgehende Grundsätze: Alles ist ein Vorschlag, nie Pflicht, und immer änder
 **Nachtrag 21.10.2026, später Abend:** 0.180.0 Mockup-Paket P6 «Heute ergänzen» (Ziel 5 «Alltag»: Meditation, Gewicht und letzte Aktivität auf Heute). Nächstes Paket P3 «Regeln».
 
 **Nachtrag 21.10.2026, Nacht:** 0.179.0 Mockup-Paket P1 «Packen und Strom» (Ziel 1 «Schneller packen»: neues Teil gleich einpacken; Strom-Werte und Ladezeit für die Strom-Rechnung). Nächstes Paket P6 «Heute ergänzen».
+
+**Nachtrag 22.10.2026:** 0.187.0 «Aktiv neu» (Ziel 5 «Alltag»: Aktiv zum Machen, Auswerten zum Anschauen; jede Sportart mit eigener Seite, Verlauf und Meilensteinen). Geparkt bis Noahs Freigabe.
 
 **Nachtrag 21.10.2026, Nacht:** 0.181.0 Mockup-Paket P3 «Warum? und Regeln» (Ziel 1 «Schneller packen»: jeder Vorschlag sagt warum; vergessene Dinge kommen zuerst). Nächstes Paket P4 «Aktiv».
 
@@ -361,6 +365,10 @@ Vorhaben, die nach der ersten Fassung dieser Datei dazukamen. Alle sind einem de
 - **Pläne und Träume** (Ziele 3 und Alltag, Noah 19.10.2026 «1a 2b 3a und b 4b 5 a und nutzer kann b ausschalten und ausblenden»): Traumtouren mit Saison, Rennen als Event-Tour, Mein Kompass mit Zielen in Schritten, Notizen verknüpfen, neue Notiz-Formate, Was kommt → Paket N.
 - **Tagebuch** (Ziel Alltag, Noah 20.10.2026 «1b … 2b … 3a … 4a 5a»): ein Tagebuch wie Day One mit Fotos, Ort, Wetter, Stichwörtern, Kalender, «An diesem Tag», 365 Fragen, Diktat, Sperre, Herunterladen und Teilen; Inhalte aus der App auf Tipp → eigenes Paket beim Bündler. Runde 2 (Noah «1a 2a 3a 4b 5a»): Gemini mit Häkchen, Stimmung mit Kurve, Abend-Erinnerung, Wortwolke und Serien, Jahrbuch als PDF.
 - **Noch ohne Paket:** Neuland, «Mehr selbst einstellen», Links nach aussen.
+
+### 14. Alles fertig (24.10.2026)
+
+Noah: «alles ohne meine Freigabe online, möglichst in wenigen Paketen». Alle Reste der alten Threads als ein Paket (0.188.0, Ziele 1, 3 und Alltag): Gute Nacht, nächster Laden, Strom-Zeile, Rennen oben, Verkaufsinserat, Heute leer und ohne Wohnort, Logbuch- und Meditations-Einträge, Tote Knöpfe 8–11. Velo-Ausleihe bewusst nicht (Noah «2b»).
 
 ## Reihenfolge
 

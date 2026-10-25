@@ -24,7 +24,7 @@ test('Gewicht: enter, the two charts, hide one and bring it back', async ({ page
   await ready(page);
 
   // UI-Ziele #6 (was Ich › Meine Daten): Auswerten › Gewicht
-  await viaTab(page, 'active', '#/me/weight');
+  await viaTab(page, 'analysis', '#/me/weight');
   await expect(page.getByRole('heading', { level: 1, name: 'Gewicht' })).toBeVisible();
   await expect(page.getByText('Ab dem zweiten Eintrag', { exact: false }).or(page.getByText('Trag dein Gewicht einmal ein'))).toBeVisible();
 

@@ -1,8 +1,8 @@
 // Impeccable runde 2 (18.10.2026), Gruppe 4: Meditation, Training, Ziele, Aktivität, Timer and the small observations
 export default {
   // Meditation: the empty Rückblick and «Ø Tiefe (1–5)»
-  'No session yet. After your first meditation you see your streak here, the minutes of the week and how deep it was.':
-    'Noch keine Sitzung. Nach deiner ersten Meditation siehst du hier deine Serie, die Minuten der Woche und wie tief es war.',
+  // 0.187.0: one line shorter (the phone page stays two screens with the Aktiv | Auswerten switch)
+  'No session yet. Then you see your streak, minutes and depth here.': 'Noch keine Sitzung. Danach siehst du hier Serie, Minuten und Tiefe.',
   'avg. depth (1–5)': 'Ø Tiefe (1–5)',
   'Your own rating after each session, from 1 (restless) to 5 (very deep).': 'Deine eigene Einschätzung nach jeder Sitzung, von 1 (unruhig) bis 5 (sehr tief).',
   // Training: the subtitle, the hour goal, «Woche planen» explained above the days, the empty look back

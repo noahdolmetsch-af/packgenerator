@@ -28,11 +28,11 @@ export const OPEN_VISITS = 1;
  */
 export const INTROS = {
   aktiv: {
-    name: 'Analysis|place',
+    name: 'Active|place',
     title: 'Movement, rest and recovery in everyday life',
     things: [
       { icon: 'check', title: 'Tick off', text: 'One tile per sport. A long press enters the duration, place or stopwatch.' },
-      { icon: 'goal', title: 'Set goals', text: 'For example «cycling 2× a week». You see what is on track.', href: '#/flow/goals' },
+      { icon: 'goal', title: 'Set goals', text: 'For example «cycling 2× a week». You see what is on track.', href: '#/flow/sports' },
       { icon: 'moon', title: 'Rest and recovery', text: 'Meditation, timer and «Wi gaht’s?» for sleep and energy.', href: '#/flow/rest' },
     ],
     expect: 'After a few days you see your week as dots, series and milestones. After two weeks the app shows patterns, for example your most active day.',
@@ -105,6 +105,8 @@ export const INTROS = {
   },
   goals: {
     page: true,
+    // «Aktiv neu» (22.10.2026): «Meine Sportarten» is a long list; its Einstieg starts as one line (phone budget, lib/laenge.js)
+    folded: true,
     name: 'Activities|flow',
     title: 'Goals that fit your week',
     things: [

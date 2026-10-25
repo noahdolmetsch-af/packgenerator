@@ -105,11 +105,15 @@ Ursprünglich freigegebene Ausführungsreihenfolge: AP01–AP09 → AP12–AP16 
 
 ## Abgleich, Abweichungen und nächste Lieferfolge
 
+**24.10.2026, v0.188.0 «Die Reste, erledigt»:** Paket «Alles fertig» mit allen kleinen Resten der alten Threads (Gute Nacht, nächster Laden, Strom-Zeile, Rennen oben, Verkaufsinserat, Heute leer und ohne Wohnort, Logbuch- und Meditations-Einträge, Tote Knöpfe 8–11). Offen danach: UI-Ziel #14 (zwei Spalten am Computer) nach dem Aktiv-Neubau.
+
 **21.10.2026, v0.172.0 «Velo und Notizen»:** Velo im Griff (Kette nach Regen, Fotos, Inserat, Velobox, Ersatzteile, Kettenrotation) und Notizen wie Evernote (zeichnen, formatieren, Dateien, Erinnerung, Papierkorb).
 
 **21.10.2026, v0.180.0 «Heute ergänzt»:** Mockup-Paket P6 Heute ergänzen: Meditation oben, Gewicht einmal pro Woche, letzte Aktivität nach dem Ring, fällige Check-Bereiche, «Neu» nach einem Update oben. Als Nächstes P3 Regeln.
 
 **21.10.2026, v0.179.0 «Gepackt und geladen»:** Mockup-Paket P1 Packen und Strom: neues Teil beim Packen, Strom-Werte mit Quelle, Leuchtstufen, Ladezeit messen, Flickzeug-Fehler. Als Nächstes P6 Heute ergänzen.
+
+**22.10.2026, v0.187.0 «Hier machen, dort anschauen»:** Aktiv neu: Aktiv zum Machen (Heute, Meine Sportarten, Training, Erholung), Auswerten zum Anschauen; jede Sportart mit Seite (Ziel, Verlauf, Meilensteine, Sporttasche). Als Nächstes: Meilensteine-Karte pro Sportart (Thread «Meilensteine als Belohnung») in den Platz der Sportseite.
 
 **22.10.2026, v0.185.0 «Alle deine Fotos in einem Album»:** Mockup-Paket P8 Fotoalbum. Geparkt bis zur Freigabe. Damit sind alle 8 freigegebenen Mockup-Pakete gebaut (P6 Heute beim Thema Heute).
 
@@ -845,6 +849,7 @@ Ganz geplant, gebaut erst nach allem oben.
 | 2.7 | 09.10.2026 | 0.65.0 «Velo-Masse» erledigt |
 | 2.8 | 14.10.2026 | 0.132.0 «Velo-Setup» (UC3-1–UC3-3) gebaut, Nachtrag oben |
 | 3.0 | 14.10.2026 | 0.139.0 «Rechnungen ohne Gebühren» (QR1–QR9) gebaut, Nachtrag oben |
+| 3.1 | 24.10.2026 | 996 Ideen eingeplant: Pakete B (Touren ohne Überraschung) → A (Ehrlicher Stand im Alltag) → C (Ruhig und persönlich) → D (Mit Freunden), nach der 332-Arbeit; B Teil 1 gebaut (0.189.0) |
 | 2.9 | 14.10.2026 | 0.132.0 «Tagespaket 14.10.»: Setup, Kluge Suche, App-Wartung, Bedienung, Bezahlen vorbereiten, Kleine Apps + Handbuch in PR #151 |
 | 3.0 | 14.10.2026 | 0.137.0 «Eine Zahl pro Sache» (Durchklick DK1–DK3) |
 | 2.6 | 09.10.2026 | 0.66.0 «Bausteine neu + Bausteine prüfen» erledigt |

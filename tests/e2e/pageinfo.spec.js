@@ -30,8 +30,8 @@ async function fits(page, where) {
   expect(sw, `${where}: no sideways scroll`).toBeLessThanOrEqual(w);
 }
 
-test('Aktiv › Heute: tip of the day, all tips, the fold, then the tiles', async ({ page, context }) => {
-  const errors = await open(page, context, '#/flow');
+test('Auswerten: tip of the day, all tips, the fold, then the tiles', async ({ page, context }) => {
+  const errors = await open(page, context, '#/auswerten'); // «Aktiv neu» (Noah 22.10.2026): tip, fold and tiles moved to Auswerten
   const main = page.locator('main');
   const ctx = contextOf({}, TODAY); // October: the month tip of the ski season fits (Einstieg 2a)
   const tip = tipOfDay(undefined, 'aktiv', TODAY, ctx);
@@ -111,7 +111,7 @@ const put = (page, rows) =>
 
 // «Wusstest du» WD1–WD3 (mockups approved 18:34 «wd1-wd3 freigegeben», answers «1a 2a»)
 test('Wusstest du: «Passt zu heute» on a hot day, the switch for knowledge, Earth and Everest', async ({ page, context }) => {
-  const errors = await open(page, context, '#/flow');
+  const errors = await open(page, context, '#/auswerten'); // «Aktiv neu» (22.10.2026): the tip of Aktiv is on Auswerten
   const main = page.locator('main');
   await expect(main.locator('[data-tip]')).toBeVisible();
 
@@ -155,7 +155,7 @@ test('Wusstest du: «Passt zu heute» on a hot day, the switch for knowledge, Ea
   await page.reload();
   await expect(main.getByRole('heading', { level: 1, name: T('Past trips') })).toBeVisible();
   await expect(main.locator('[data-section="far"]')).toHaveCount(0);
-  await page.goto('./#/flow');
+  await page.goto('./#/auswerten');
   await main.locator('[data-tip]').getByRole('button', { name: T('All tips ›') }).click();
   await page.locator('[data-sheet="tips"] [data-know]').getByRole('button', { name: T('Also knowledge and fun') }).click();
   await page.locator('[data-sheet="tips"]').getByRole('button', { name: T('Close') }).click();

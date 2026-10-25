@@ -32,7 +32,7 @@
   async function addEss(e) {
     e.preventDefault();
     const tx = draft.trim();
-    if (!tx) return;
+    if (!tx) return offerDone(t('Please write a sentence.'));
     await putRow({ kind: 'essential', day: today, text: tx });
     draft = '';
     offerDone(t('Kept. It stays private on this device and in your backup.'));

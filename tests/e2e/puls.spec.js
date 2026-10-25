@@ -95,7 +95,7 @@ test('Puls pro Fahrt: ledger, Rückblick, Touren, Aktiv, one ride, Today', async
 
   // P4 Aktiv: «Aktiv neu» (Noah 20.10.2026 «2a», 0.168.0, changed on purpose): «Deine Woche in Zahlen» replaces
   // «Velo diesen Monat» and «Puls diese Woche»; the pulse of each ride stays in P1, P3, P5 and on Today (P6)
-  await page.goto('./#/flow');
+  await page.goto('./#/auswerten'); // «Aktiv neu» (22.10.2026): the overview is on Auswerten
   // Garmin-Übersicht (0.170.0, changed on purpose): «Deine Woche in Zahlen» now stands under «Letzte 7 Tage»;
   // 0.171.0: on a phone behind the row «Überblick und letzte 7 Tage»
   await openOverview(page);

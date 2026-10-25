@@ -30,7 +30,7 @@
     seedHobby(data);
   });
 
-  const ctx = $derived(data ? msContext({ acts: data.acts, log: data.log, sessions: data.sessions, today, tripDays: data.tripDays, extra: data.extra }) : null);
+  const ctx = $derived(data ? msContext({ acts: data.acts, log: data.log, sessions: data.sessions, today, tripDays: data.tripDays, extra: data.extra, challenges: data.challenges }) : null);
   const stored = $derived(new Map((data?.stars ?? []).map((s) => [s.id, s.day])));
   const list = $derived(ctx ? allMilestones(ctx, stored, data.tune) : []);
   $effect(() => {
@@ -62,7 +62,7 @@
 
 <div class="hob">
   <header class="ph">
-    <Crumb path={[{ href: '#/flow', label: t('Analysis|place') }, { href: '#/flow/activity', label: t('Activity|tab') }, { href: '#/flow/milestones', label: t('Milestones') }]} here={t('Trophy showcase')} />
+    <Crumb path={[{ href: '#/auswerten', label: t('Analysis|place') }, { href: '#/flow/milestones', label: t('Milestones') }]} here={t('Trophy showcase')} />
     <PageHead title={t('Trophy showcase')} text={t('All your stars in one place · by area and year · reached ones stay · no ranking')} />
   </header>
 

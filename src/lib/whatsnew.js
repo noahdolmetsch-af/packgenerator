@@ -16,6 +16,52 @@
 
 export const WHATS_NEW = [
   {
+    // v0.189.0 Paket B «Touren ohne Überraschung» part 1 (Noah 24.10.2026, 996 Ideen «1b 2a»): Generalprobe,
+    // Gut ankommen, Kisten-Etiketten.
+    version: '0.189.0',
+    date: '2026-10-24',
+    title: 'Trips without surprises',
+    lead: 'Try the trip at home first, and arrive well afterwards.',
+    points: [
+      { text: 'Dress rehearsal a week before the start', href: '#/trips' },
+      { text: 'Arrive well: the small things after a trip', href: '#/trips' },
+    ],
+    small: [{ box: 'new', text: 'Box labels with a QR code' }, { box: 'nicer', text: 'A gap becomes a to-do with one tap' }],
+    test: ['Open a trip that starts within a week: Pack › «Dress rehearsal», tap «Gap», then «Keep as to-do».', 'Toolbox › Box labels: add a box, put something in, «Print label».'],
+  },
+  {
+    // v0.188.0 «Alles fertig» (Noah 24.10.2026 «1a 2b 3a 4a»): the leftovers of all older threads in one package.
+    version: '0.188.0',
+    date: '2026-10-24',
+    title: 'The leftovers, done',
+    lead: 'Small things from older plans are in.',
+    points: [
+      { text: 'Good night: where you sleep, when to call', href: '#/ride' },
+      { text: 'Logbook: your own entry', href: '#/debrief/logbook' },
+    ],
+    small: [
+      { box: 'new', text: 'The next shop in the Live map button' },
+      { box: 'nicer', text: 'Your next race on top of Trips' },
+    ],
+    test: ['On the way of a trip of several days: tap «Good night» and share.', 'Review › Logbook: tap «New entry».'],
+  },
+  {
+    // v0.187.0 «Aktiv neu» (Noah 22.10.2026, Beschreibung «Aktiv-Bereich»): Aktiv is for doing (Heute, Meine Sportarten,
+    // Training, Erholung), Auswerten for looking; every sport has its page with goal, history and milestones.
+    // + «Meilensteine als Belohnung» (oz2o9i) and «Stopps in der Nähe» + «Ziel wählen» (b97xla).
+    version: '0.187.0',
+    date: '2026-10-24',
+    title: 'Doing here, looking there',
+    lead: 'Active is for ticking off, Analysis for looking back.',
+    points: [
+      { text: 'Every sport with its own page, summit book included', href: '#/flow/sports' },
+      { text: 'Form, body values and rides under Analysis', href: '#/auswerten' },
+      { text: 'Stops nearby: water, food, WC around you or along the route', href: '#/stopps' },
+    ],
+    small: [{ box: 'new', text: 'Every tick counts: a new star shows right away' }, { box: 'nicer', text: 'Active shows today, this week and the rings' }],
+    test: ['Open Active › My sports, tap a sport and tap «Tick now».', 'Open Analysis with the switch on top of Active.'],
+  },
+  {
     // v0.186.1 «Abgleich ohne Fragen» (Noah 24.10.2026, screenshot «805 Einträge auf beiden Geräten geändert»)
     version: '0.186.1',
     date: '2026-10-24',

@@ -6,8 +6,11 @@
    * lessons and matches, Velo: commuting and loops, Gravel: water and gravel on the route, Downhill: the
    * protection check) and own blocks. «Bausteine anpassen» switches, renames, moves and adds them.
    * At the end what else the app can do for this sport (#218). Loaded only when opened.
+   * «Aktiv neu» (Noah 22.10.2026, spec «Sportseite»): a sport of Aktiv (act:<id>) shows from the top its head
+   * with «Jetzt abhaken» and «Bearbeiten», then Ziel, Verlauf (every entry, changeable), the milestones, the
+   * Sporttasche and then its other blocks. Also the bike activity and a paused one open here.
    */
-  import { SlidersHorizontal, ChevronRight } from '@lucide/svelte';
+  import { SlidersHorizontal, ChevronRight, Check, Pencil } from '@lucide/svelte';
   import PageHead from '../../lib/ui/PageHead.svelte';
   import Crumb from '../../lib/flow/kit/Crumb.svelte';
   import ActIcon from '../../lib/flow/ActIcon.svelte';
@@ -27,6 +30,11 @@
   import ParkDaysBlock from '../../lib/sportpage/ParkDaysBlock.svelte';
   import TennisTop from '../../lib/tennis/TennisTop.svelte';
   import { TENNIS_ID } from '../../lib/tennisday.js';
+  import ActHistory from '../../lib/sportpage/ActHistory.svelte';
+  import MilestoneSlot from '../../lib/sportpage/MilestoneSlot.svelte';
+  import GipfelSlot from '../../lib/sportpage/GipfelSlot.svelte';
+  import { actSport } from '../../lib/flow/mysports.js';
+  import { tickWith } from '../../lib/flow/ui.svelte.js';
   import { DOMAINS } from '../../lib/domains.js';
   import { activeGoals } from '../../lib/flow.js';
   import { sortBikes } from '../../lib/bikes.js';
@@ -41,6 +49,7 @@
   import { sportName, blockName } from '../../lib/sportpage/words.js';
   import { localDay } from '../../lib/localday.js';
   import { t } from '../../lib/i18n.svelte.js';
+  import AreaIntro from '../../lib/intro/AreaIntro.svelte'; // «Anleitungen überall»: the guide «Sportarten» (lib/guides.js)
   import '../../lib/sportpage/sport.css';
 
   let { id = '' } = $props();
@@ -49,7 +58,21 @@
   const data = $derived($q);
   const cfg = $derived(data?.cfg ?? {});
   const list = $derived(data ? orderedSports(allSports({ domains: DOMAINS, acts: data.acts }), cfg) : []);
-  const sport = $derived(list.find((s) => s.id === id) ?? null);
+  // the bike activity and a paused one are not in the list of sports, but their page opens too
+  const sport = $derived(list.find((s) => s.id === id) ?? (id.startsWith('act:') ? actSport(data?.acts.find((a) => `act:${a.id}` === id)) : null));
+  const isAct = $derived(sport?.kind === 'act' && !!sport.act);
+  // a sport of Aktiv: Ziel, Verlauf and Sporttasche stand in this fixed order on top (when switched on)
+  const FIXED_TOP = ['goals', 'log', 'pack'];
+  const onKey = $derived(new Set(blocks.map((b) => b.key)));
+  // the fixed blocks keep their own (renamable) names
+  const nameOf = (k) => blockName(blocks.find((b) => b.key === k));
+  const rest = $derived(isAct ? blocks.filter((b) => !FIXED_TOP.includes(b.key)) : blocks);
+  let ticked = $state(false);
+  async function tickNow() {
+    await tickWith(sport.act, {});
+    ticked = true;
+    setTimeout(() => (ticked = false), 2000);
+  }
   const c = $derived(sport ? sportCfg(cfg, sport.id) : null);
   const color = $derived(sport ? colorOf(sport.id, list, cfg) : 'var(--line)');
   const blocks = $derived(sport ? blocksOf(sport.id, cfg).filter((b) => b.on) : []);
@@ -80,11 +103,12 @@
 
 <div class="hob sp" style="--sc:{color}">
   <header class="ph">
-    <Crumb path={[{ href: '#/flow', label: t('Analysis|place') }, { href: '#/flow/sports', label: t('Sports|page') }]} here={sport ? sportName(sport) : ''} />
+    <Crumb path={[{ href: '#/flow', label: t('Active|place') }, { href: '#/flow/sports', label: t('My sports|tab') }]} here={sport ? sportName(sport) : ''} />
     {#if sport}
       <PageHead title={sportName(sport)} text={t('Your blocks for this sport. Everything is a suggestion: switch off, rename or add blocks.')}>
-        <p class="shead"><span class="swatch" style="background:{color}"></span><ActIcon icon={sport.icon} ring={sport.ring} /><button type="button" class="btn" aria-pressed={editing} onclick={() => (editing = !editing)} data-adjust><SlidersHorizontal size={16} aria-hidden="true" />{t('Adjust blocks')}</button></p>
+        <p class="shead"><span class="swatch" style="background:{color}"></span><ActIcon icon={sport.icon} ring={sport.ring} />{#if isAct}<button type="button" class="btn hi" onclick={tickNow} data-tick-now><Check size={16} aria-hidden="true" />{ticked ? t('Ticked') : t('Tick now')}</button><a class="btn" href="#/flow/edit/{encodeURIComponent(sport.act.id)}?from=sport" data-edit-sport><Pencil size={16} aria-hidden="true" />{t('Edit|acts')}</a>{/if}<button type="button" class="btn" aria-pressed={editing} onclick={() => (editing = !editing)} data-adjust><SlidersHorizontal size={16} aria-hidden="true" />{t('Adjust blocks')}</button></p>
       </PageHead>
+      <AreaIntro place="sports" />
     {:else if data}
       <PageHead title={t('Sports|page')} text={t('This sport is no longer there. It may be hidden or deleted.')} />
       <a class="lnk" href="#/flow/sports">{t('All sports')}</a>
@@ -96,7 +120,35 @@
     <!-- Paket P4 (TN1, TN2, TN4, TN5; Noah 5b «nur für Tennis»): cover photo, tick off, planned, history -->
     {#if sport.id === TENNIS_ID}<TennisTop {sport} items={mine} log={data.log} act={sport.act} {today} />{/if}
 
-    {#each blocks as b (b.key)}
+    {#if isAct}
+      {#if onKey.has('goals')}
+        <section class="card blk" aria-labelledby="bl-goals" data-block="goals">
+          <div class="hl"><h2 id="bl-goals">{nameOf('goals')}</h2><a class="lnk" href="#/flow/edit/{encodeURIComponent(sport.act.id)}?from=sport">{t('Change')}</a></div>
+          <GoalsBlock {sport} goals={activeGoals(sport.act, today)} own={c.goal} {dayMap} {today} onsave={saveGoal} />
+        </section>
+      {/if}
+      {#if onKey.has('log')}
+        <section class="card blk" aria-labelledby="bl-log" data-block="log">
+          <div class="hl"><h2 id="bl-log">{nameOf('log')}</h2></div>
+          <ActHistory act={sport.act} log={data.log} {today} />
+          <LogBlock {sport} {dayMap} items={mine} activities={strava} {today} {color} />
+        </section>
+      {/if}
+      <section class="card blk" aria-labelledby="bl-ms" data-block="milestones">
+        <div class="hl"><h2 id="bl-ms">{t('Milestones')}</h2></div>
+        <MilestoneSlot act={sport.act} {today} />
+      </section>
+      {#if onKey.has('pack')}
+        <section class="card blk" aria-labelledby="bl-pack" data-block="pack">
+          <div class="hl"><h2 id="bl-pack">{nameOf('pack')}</h2></div>
+          <PackBlock {sport} {bag} {lastTrip} />
+        </section>
+      {/if}
+    {/if}
+    <!-- «Aktiv neu» (Noah 22.10.2026 «1a»): the summit book of this sport as its own part -->
+    <GipfelSlot {sport} {today} />
+
+    {#each rest as b (b.key)}
       <section class="card blk" aria-labelledby="bl-{b.key}" data-block={b.key}>
         <div class="hl"><h2 id="bl-{b.key}">{blockName(b)}</h2></div>
         {#if b.key === 'gear'}<GearBlock {sport} {gearRows} {bike} />
@@ -120,7 +172,7 @@
         {/if}
       </section>
     {:else}
-      <p class="card none">{t('All blocks are switched off. «Adjust blocks» switches them on again.')}</p>
+      {#if !isAct}<p class="card none">{t('All blocks are switched off. «Adjust blocks» switches them on again.')}</p>{/if}
     {/each}
 
     {#if feats.length}

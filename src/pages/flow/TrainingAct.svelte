@@ -85,7 +85,7 @@
 
 <div class="ta">
   <header class="ph">
-    <Crumb path={[{ href: '#/flow', label: t('Analysis|place') }, { href: '#/flow/training?view=list', label: t('Training|tab') }]} here={stravaName(act?.name ?? '')} />
+    <Crumb path={[{ href: '#/flow', label: t('Active|place') }, { href: '#/flow/training?view=list', label: t('Training|tab') }]} here={stravaName(act?.name ?? '')} />
     {#if act}<PageHead title={stravaName(act.name) || t(typeKey(act.type))} sub={[`${longDay}, ${act.time}`, act.kind === 'bike' && gearName ? gearName : t(typeKey(act.type))].join(' · ')} />{/if}
   </header>
 

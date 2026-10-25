@@ -64,7 +64,9 @@
   // Paket K «Unterwegs» (Noah 19.10.2026): the helpers load only when this page shows them (main.js stays small)
   import { setGloveAuto, glove, setGlove } from '../lib/unterwegs/handschuh.svelte.js';
   import { autoGlove, MODES as GLOVE_MODES } from '../lib/unterwegs/handschuh.js';
-  import { House, Gauge, FileText, Hand, Droplets, Sparkles, FileCog, Navigation, HeartHandshake, Bike } from '@lucide/svelte';
+  import { House, Gauge, FileText, Hand, Droplets, Sparkles, FileCog, Navigation, HeartHandshake, Bike, Sunrise } from '@lucide/svelte';
+  import { morningDue } from '../lib/haustuer/haustuer.js';
+  import NextShop from '../lib/unterwegs/NextShop.svelte'; // «Alles fertig»: the next shop in the Live map button
   import MorningList from '../lib/schnellpacken/MorningList.svelte'; // Paket SP «Schneller packen»
   import RideDoor from '../lib/haustuer/RideDoor.svelte'; // Paket W «Von der Haustür bis zurück»: plan B and check-in
   import { Shirt, Utensils, Droplet, Lightbulb, Pencil, ArrowRight, ArrowLeft, Clock, CloudSun, Search, Route as RouteIcon, ChevronRight, Plus, Minus, X, Mic, Moon, BedDouble, MapPin, Flag, Siren } from '@lucide/svelte';
@@ -411,6 +413,8 @@
   const isNow = $derived(nowIdx >= 0 && rows[nowIdx].startAt <= clock && clock < rows[nowIdx].endAt);
   const nowB = $derived(nowIdx >= 0 ? rows[nowIdx] : null);
   const nextB = $derived(nowIdx >= 0 ? rows[nowIdx + 1] ?? null : null);
+  // where the plan says you are now, counted from the start of the whole route (stages share it out evenly)
+  const hereKm = $derived(nowB?.kmFrom == null || !trip?.route?.km ? null : (nonstop || days <= 1 ? 0 : (trip.route.km / days) * cur) + nowB.kmFrom);
   const hh = (hm) => hm?.slice(0, 2).replace(/^0/, '') ?? '';
   const span = (b) => `${hh(b.from)}–${hh(b.to)}`;
   const tempText = (b) => (b.temp ? (b.temp.lo === b.temp.hi ? `${b.temp.lo} °C` : `${b.temp.lo}–${b.temp.hi} °C`) : '');
@@ -501,6 +505,10 @@
   let lenkerOpen = $state(false);
   // Paket W 1116 «Gut angekommen» and 1119 «Velo abgestellt»
   let arrivedOpen = $state(false);
+  // «Alles fertig» 1145 (Noah 24.10.2026 «3a»): «Gute Nacht» on a trip with nights, and the next morning a reminder
+  let sheetKind = $state('arrived');
+  const yesterday = ((x) => (x.setUTCDate(x.getUTCDate() - 1), x.toISOString().slice(0, 10)))(new Date(`${today}T12:00:00Z`));
+  const morning = $derived(trip ? morningDue(trip, today, todayIdx, yesterday) : false);
   let parkedOpen = $state(false);
   let eatNext = $state(null);
   const tripDay = $derived(!!trip && !trip.finished && onTripDay(trip, today));
@@ -711,10 +719,12 @@
         <p class="ssub">{t('Live map, home, handlebar view, the sheet for the start')}</p>
         <div class="uw-helpers">
           <!-- Paket U3 «Live-Karte» (Noah 19.10.2026 «5a»): start the ride with the live map of this trip -->
-          <a class="btn uw-bigbtn" href={`#/live/${encodeURIComponent(trip.id)}`} data-live-start><Navigation size={22} aria-hidden="true" /><span>{t('Live map')}<small>{t('where you are, next shop, arrival')}</small></span></a>
+          <a class="btn uw-bigbtn" href={`#/live/${encodeURIComponent(trip.id)}`} data-live-start><Navigation size={22} aria-hidden="true" /><span>{t('Live map')}{#key trip.id}<NextShop tripId={trip.id} km={hereKm} />{/key}</span></a>
           <button type="button" class="btn uw-bigbtn" onclick={() => (homeOpen = true)} data-uw-home><House size={22} aria-hidden="true" /><span>{t('Home|way')}<small>{t('trains and Maps')}</small></span></button>
           <button type="button" class="btn uw-bigbtn" onclick={() => (lenkerOpen = true)} data-uw-lenker><Gauge size={22} aria-hidden="true" /><span>{t('Handlebar view')}<small>{t('big numbers, sideways')}</small></span></button>
-          <button type="button" class="btn uw-bigbtn" onclick={() => (arrivedOpen = true)} data-uw-arrived><HeartHandshake size={22} aria-hidden="true" /><span>{t('Arrived safely')}<small>{t('a short message, ready to share')}</small></span></button>
+          {#if morning}<button type="button" class="btn uw-bigbtn uw-morning" onclick={() => ((sheetKind = 'morning'), (arrivedOpen = true))} data-uw-morning><Sunrise size={22} aria-hidden="true" /><span>{t('Riding on? Tell them')}<small>{t('you sent «Good night» yesterday')}</small></span></button>{/if}
+          <button type="button" class="btn uw-bigbtn" onclick={() => ((sheetKind = 'arrived'), (arrivedOpen = true))} data-uw-arrived><HeartHandshake size={22} aria-hidden="true" /><span>{t('Arrived safely')}<small>{t('a short message, ready to share')}</small></span></button>
+          {#if days > 1}<button type="button" class="btn uw-bigbtn" onclick={() => ((sheetKind = 'night'), (arrivedOpen = true))} data-uw-night><Moon size={22} aria-hidden="true" /><span>{t('Good night')}<small>{t('where you sleep, whom to call in the morning')}</small></span></button>{/if}
           <button type="button" class="btn uw-bigbtn" onclick={() => (parkedOpen = true)} data-uw-parked><Bike size={22} aria-hidden="true" /><span>{t('Bike parked')}<small>{t('photo, place, lock')}</small></span></button>
           <a class="btn uw-bigbtn" href="#/ride/abfahrt" data-uw-sheet><FileText size={22} aria-hidden="true" /><span>{t('Before you leave|sheet')}<small>{t('offline and as PDF')}</small></span></a>
           <div class="uw-glove"><span class="gl"><Hand size={18} aria-hidden="true" /> {t('Glove mode')}{#if glove.mode === 'auto' && glove.auto.on}<small> · {glove.auto.why === 'ski' ? t('on: ski tour') : t('on: below 5 °C')}</small>{/if}</span><Seg full={false} label={t('Glove mode')} options={GLOVE_MODES.map((g) => ({ key: g.key, name: t(g.name) }))} value={glove.mode} onchange={setGlove} /></div>
@@ -872,7 +882,7 @@
 </div>
 {#if homeOpen}{#await import('../lib/unterwegs/Heimweg.svelte') then m}<m.default onclose={() => (homeOpen = false)} />{/await}{/if}
 {#if lenkerOpen}{#await import('../lib/unterwegs/Lenker.svelte') then m}<m.default ctx={lenkerCtx} onclose={() => (lenkerOpen = false)} />{/await}{/if}
-{#if arrivedOpen && trip}{#await import('../lib/haustuer/ArrivedSheet.svelte') then m}<m.default {trip} day={cur} onclose={() => (arrivedOpen = false)} />{:catch}{/await}{/if}
+{#if arrivedOpen && trip}{#await import('../lib/haustuer/ArrivedSheet.svelte') then m}<m.default {trip} day={cur} kind={sheetKind} onclose={() => (arrivedOpen = false)} />{:catch}{/await}{/if}
 <!-- Klick-Rundgang H09: the sheet names an arrival only from a real start time («Losfahren» or one set), not from 08:00 -->
 {#if endAsk}<EndTripSheet {trip} day={cur + 1} {days} arrive={cur + 1 >= days && trip.rideStart?.[days - 1] ? planEnd : ''} onclose={() => (endAsk = false)} />{/if}
 {/if}
