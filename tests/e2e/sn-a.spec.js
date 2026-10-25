@@ -161,7 +161,7 @@ test('SN6 Funktionen: «Neu für dich», 3 quiet rows per card, the row takes yo
   await page.getByLabel(T('Find a function')).fill('basischeck');
   await expect(tips).toHaveCount(0);
   const base = page.locator('[data-feature="f.basecheck"]');
-  await base.getByRole('button', { name: T('More for {title}', { title: T('Basic check before every ride') }) }).click();
+  await base.getByRole('button', { name: T('More for {title}', { title: T('Base check') }) }).click(); // «Alltag sichtbar» (2b): the catalogue takes the page's name
   await expect(page.getByRole('menuitem', { name: new RegExp(esc(T('Take me there'))) })).toBeVisible();
   await page.getByRole('menuitem', { name: new RegExp(esc(T('Try it'))) }).click();
   const sheet = page.locator('dialog.playsheet');

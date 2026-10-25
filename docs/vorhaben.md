@@ -480,3 +480,5 @@ Kurzfassung, verbindlich ist [arbeitsweise.md](arbeitsweise.md).
 - Zwei kleine Fehler (kommen ins Fix-Release): Datum in Neue Tour als 10/10/2026 statt 10.10.2026, Velotypen in Velos › Pflege nicht übersetzt.
 - Kleine Darstellungsfehler aus den Startseiten-Mockups (kommen ins Fix-Release): Taschennamen brechen am Handy mitten im Wort um (Tour › Planen), in Velos › Pflege stösst «km seit Check» am Computer an den Pfeil, «Im Flow» hat im Menü kein Symbol, die Datumszeile auf Heute zeigt jeden Ortsnamen ungeprüft.
 - Strava-Regeln schränken die Nutzung von Strava-Daten durch KI ein; vor E3 klären, was der Helfer davon sehen darf.
+
+0.190.0 «Alltag im Blick» (24.10.2026, Ziel Alltag): Sichtbar-Wächter + Alltag sichtbar aus «332 Use Cases» (P1 + P3), dazu P2 «Touren sichtbar» und «Touren ohne Überraschung» Teil 2 (Ziel Touren).

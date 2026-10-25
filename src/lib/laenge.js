@@ -22,7 +22,9 @@ export const TOO_LONG = {
   '#/': 6.2,
   // 0.171.0: «Überblick» and «Letzte 7 Tage» wait behind one row on a phone (6.81 screens in 0.170 → under 5.5)
   '#/flow': 5.5,
-  '#/bikes': 5.5,
+  // 0.190.0 «Alltag sichtbar» (Noah 24.10.2026 «1a 2b»): the bike folder and photos one tap away, one sideways row on a
+  // phone (64 px): measured 5.58. Lower it when the bike page gets shorter.
+  '#/bikes': 5.62,
   '#/gear': 4.5,
   '#/pack/templates': 3.5,
   '#/debrief': 4.5,

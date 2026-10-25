@@ -241,7 +241,6 @@ export const HOWTO = {
   'f.moreplaces': ['Open the place search on the live map.', 'Type your radius or change the kinds.', 'Add own places by hand, by a tap or from a file.'],
   'f.rwgps': ['Open a trip at «Route».', 'Tap «Link from Ride with GPS» and paste the link.', 'Tap «Load».'],
   'f.ovnear': ['Start a ride on the live map.', 'Open the sheet › «Public transport nearby».', 'Tap «Find stops», then a stop.'],
-  'f.sharepic': ['Stop a ride on the live map.', 'Choose with or without the shape.', 'Tap «Share picture».'],
   'f.stopsnear': ['Tap «Stops nearby» on Today, on a tour page or in the live map.', 'Choose «Around me» or «Along the route».', 'Switch the kinds you want on or off, then navigate there.'],
   'f.sleeptonight': ['Open a race › «Along the route» and tap «Load places from OpenStreetMap».', 'Open «Race mode» › «Where do I sleep tonight?».', 'Switch the kinds you want on or off.'],
   'f.callhotels': ['Open a race › «Race mode».', 'Look at «Hotels for tonight» from 12:00.', 'Tap the phone, or copy the sentence.'],
@@ -325,7 +324,7 @@ export const HOWTO = {
   'f.parked': ['Open On the way and tap «Bike parked».', 'Take a photo, choose the lock and save; the place is read once.', 'Later the same button shows «Where is my bike?» with the way back.'],
   'f.breakdown': ['Open the debrief of a trip.', 'Under «For next time» tap «Note a breakdown», choose what broke and save.', 'Next time Planen suggests the spare part; one tap puts it on the list.'],
   'f.sleepspots': ['Under «For next time» tap «Rate a place to sleep».', 'Give stars, a note and the place (a night of the trip or where you are).', 'Planning a trip nearby shows «Your places to sleep here».'],
-  'f.postcard': ['Under «For next time» tap «Tour postcard».', 'Add a photo if you like.', 'Tap «Share» and pick WhatsApp, mail or a chat.'],
+  'f.postcard': ['Under «For next time» tap «Tour picture».', 'Add a photo if you like.', 'Tap «Share» and pick WhatsApp, mail or a chat.'],
   'f.packtwo': ['Open a trip in Planen and fold open «Packing for two».', 'Type the name of who comes along.', 'Tap what they carry; the weight per person shows on top.'],
   'f.laundry': ['Open a trip in Planen and fold open «In the wash».', 'Tap the clothes still in the wash.', 'Two days before the trip Merken reminds you.'],
   'f.morninglist': ['Open a trip in Planen and fold open «Only on the morning».', 'Tap phone, fridge food or bottles.', 'On the morning of the start On the way shows the short list.'],
@@ -364,6 +363,8 @@ export const HOWTO = {
   'f.travelbook': ['Open «Travel track» of a tour.', 'Tap «Travel book as PDF».', 'Save, print or send the PDF.'],
   'f.probe': ['A week before the start open the trip › «Dress rehearsal».', 'Tap «Works», «Gap» or «Not needed» at each step.', 'At a gap: «Keep as to-do».'],
   'f.homecoming': ['After «Trip ended» tap «Arrive well».', 'Tap «Done» or «Later».', '«Keep as to-do» for what waits.'],
+  'f.blockeffect': ['Open Pack › Add material.', 'Tap «Before adding: see the effect».', 'Check it, then «Add …».'],
+  'f.needs': ['Open Pack › Add material › «Pack by need».', 'Tap needs, set people, choose a variant.', 'Tap «Take it onto the list».'],
   'f.labels': ['Open Toolbox › Box labels.', 'Add a box and what is inside.', '«Print label» and stick it on.'],
 };
 

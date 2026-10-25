@@ -16,12 +16,27 @@
 
 export const WHATS_NEW = [
   {
+    // v0.190.0 «Alltag sichtbar» + Sichtbar-Wächter (332 Use Cases P1 + P3, Noah 24.10.2026 «1a 2b 3a 4a 5b»): Heute fällig,
+    // Planen › Merken, bike folder buttons in Setup, Gear views one tap away; every function has its home page (heimat.js).
+    // + «Touren sichtbar» (P2, jtmsou 7c6b14bb) and «Touren ohne Überraschung» part 2 (6ruzpm eb6e8b60): pack by need, see the effect.
+    version: '0.190.0',
+    date: '2026-10-24',
+    title: 'Everyday in sight',
+    lead: 'What is due today, one line on Heute.',
+    points: [
+      { text: 'Remember is a tab of Plan', href: '#/calendar' },
+      { text: 'Due today: to-dos, birthdays, plants, bike care', href: '#/' },
+    ],
+    small: [{ box: 'new', text: 'Pack by need: sleep warm, cook, for two' }, { box: 'nicer', text: 'Tour picture: postcard and share picture in one' }],
+    test: ['Open Heute: below «Dein Körper heute» the line «Heute fällig» shows what is due.', 'Open Planen › Merken.'],
+  },
+  {
     // v0.189.0 Paket B «Touren ohne Überraschung» part 1 (Noah 24.10.2026, 996 Ideen «1b 2a»): Generalprobe,
     // Gut ankommen, Kisten-Etiketten.
     version: '0.189.0',
     date: '2026-10-24',
     title: 'Trips without surprises',
-    lead: 'Try the trip at home first, and arrive well afterwards.',
+    lead: 'Try it at home first, arrive well after.',
     points: [
       { text: 'Dress rehearsal a week before the start', href: '#/trips' },
       { text: 'Arrive well: the small things after a trip', href: '#/trips' },

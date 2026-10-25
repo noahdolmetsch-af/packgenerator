@@ -4,6 +4,17 @@
  * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
+  // 0.190.0 Alltag sichtbar
+  'Everyday in sight': 'Alltag im Blick',
+  'What is due today, one line on Heute.': 'Was heute fällig ist, eine Zeile auf Heute.',
+  'Due today: to-dos, birthdays, plants, bike care': 'Heute fällig: To-dos, Geburtstage, Pflanzen, Velopflege',
+  'Remember is a tab of Plan': 'Merken ist ein Reiter von Planen',
+  'Bike folder, warranty and theft sheet in Setup': 'Velo-Ordner, Garantie und Diebstahlblatt im Setup',
+  'Wish list and favourites one tap away in Gear': 'Wunschliste und Favoriten mit einem Tipp im Material',
+  'Pack by need: sleep warm, cook, for two': 'Nach Bedürfnis packen: warm schlafen, kochen, zu zweit',
+  'Tour picture: postcard and share picture in one': 'Tourbild: Postkarte und Bild zum Teilen in einem',
+  'Open Heute: below «Dein Körper heute» the line «Heute fällig» shows what is due.': 'Öffne Heute: Unter «Dein Körper heute» zeigt die Zeile «Heute fällig», was fällig ist.',
+  'Open Planen › Merken.': 'Öffne Planen › Merken.',
   // 0.188.0 Alles fertig
   'The leftovers, done': 'Die Reste, erledigt',
   'Small things from older plans are in.': 'Kleine Dinge aus älteren Plänen sind drin.',
