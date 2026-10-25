@@ -87,10 +87,10 @@ const OWN = [
   { id: 'f.wardrobe', group: 'before', title: 'Wardrobe', text: 'Clothing by layer and zone; gaps go to the wishlist. A piece that is worn out gets repair jobs instead of being sorted out.', href: '#/wardrobe', words: 'kleiderschrank kleider schicht zone reparieren flicken reissverschluss naht' },
   { id: 'f.kit', group: 'before', title: 'Save as a kit', text: 'Save an outfit as a kit; planning then suggests it.', href: '#/wardrobe', words: 'kit outfit speichern' },
   { id: 'f.lighter', group: 'before', title: 'Lighter alternatives', text: 'Open an item, then its weight: lighter things from your own gear.', href: '#/gear', words: 'leichter alternative gewicht' },
-  { id: 'f.lists', group: 'before', title: 'Your own categories', text: 'Me › Lists and types: rename categories, add your own, hide, delete, change the order.', href: '#/me/lists?categories', words: 'kategorie kategorien liste listen eigene umbenennen standard' },
+  { id: 'f.lists', group: 'before', title: 'Categories', text: 'Me › Lists and types: rename categories, add your own, hide, delete, change the order.', href: '#/me/lists?categories', words: 'deine eigenen kategorien kategorie kategorien liste listen eigene umbenennen standard' },
   // «Alles selbst bearbeiten» (Noah 19.10.2026): every kind of data can be added, renamed and deleted
-  { id: 'f.editall', group: 'before', title: 'Change everything yourself', text: 'Bikes, problems, learnings, rides, ideas, logbook entries and the lists (sports, places on the bike, care parts): add, rename and delete them yourself. Deleting asks first and can be undone.', href: '#/me/lists', words: 'bearbeiten umbenennen löschen hinzufügen velo löschen sportart eigene alles ändern' },
-  { id: 'f.select', group: 'before', title: 'Select many items', text: 'Category, bag, archive or a building block for many items at once.', href: '#/gear', words: 'auswählen mehrere viele' },
+  { id: 'f.editall', group: 'before', title: 'Lists and types', text: 'Bikes, problems, learnings, rides, ideas, logbook entries and the lists (sports, places on the bike, care parts): add, rename and delete them yourself. Deleting asks first and can be undone.', href: '#/me/lists', words: 'alles selbst ändern bearbeiten umbenennen löschen hinzufügen velo löschen sportart eigene alles ändern' },
+  { id: 'f.select', group: 'before', title: 'Select', text: 'Category, bag, archive or a building block for many items at once.', href: '#/gear', words: 'viele teile auswählen auswählen mehrere viele' },
   { id: 'f.merge', group: 'before', title: 'Merge duplicates', text: '«Merge with …» at the bottom of an item joins two items into one.', href: '#/gear', words: 'doppelt zusammenlegen zusammenführen' },
   { id: 'f.blockcheck', group: 'before', title: 'Check building blocks', text: 'One block after the other: keep, out or elsewhere.', href: '#/blocks/check', words: 'bausteine prüfen aufräumen' },
   { id: 'f.packcleanup', group: 'before', title: 'Tidy up the packing list', text: 'Fewer things that come by themselves: always with you in your order, Repair on a day ride as a button, Light early and late, three steps of cold.', href: '#/blocks/aufraeumen', words: 'packliste aufräumen bereinigen immer dabei standard reparatur licht stirnlampe kalt eisig' },
@@ -147,7 +147,7 @@ const OWN = [
   { id: 'f.past', group: 'after', title: 'Past trips', text: 'A table with km, climbing, time, rain and the learning of each trip.', href: '#/pack/past', words: 'vergangene touren tabelle' },
   { id: 'f.logbook', group: 'after', title: 'Logbook', text: 'A diary of all trips, old ones too; filter by year and kind.', href: '#/debrief/logbook', seen: 'events', words: 'logbuch tagebuch excel' },
   { id: 'f.learnings', group: 'after', title: 'Learnings', text: 'All learnings by topic, with a search.', href: '#/debrief/learnings', seen: 'learnings', words: 'gelernt learnings' },
-  { id: 'f.best', group: 'after', title: 'Best values', text: 'Longest trip, longest day, most climbing, from your GPX.', href: '#/trips', words: 'bestwerte rekord schnitt' },
+  { id: 'f.best', group: 'after', title: 'In numbers', text: 'Longest trip, longest day, most climbing, from your GPX.', href: '#/trips', words: 'bestwerte bestwerte rekord schnitt' },
   // Bike
   { id: 'f.kmimport', group: 'bike', title: 'Import rides', text: 'A Strava export or Garmin files: km per bike, by sensor or your rules.', href: '#/bikes?tab=care&view=import', seen: 'imports', words: 'strava garmin fit import fahrten km' },
   // v0.116.0 «Strava-Verbindung» (E3)
