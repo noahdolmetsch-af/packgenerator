@@ -8,6 +8,7 @@
  *   stock     number        how many you have at home now
  *   minStock  number        buy again below this (empty: 1 when the stock is counted)
  *   rebuy     true          put on the shopping list by hand
+ *   opened    'much' | 'little' | 'unknown'   one pack is open (Paket A part 2, OPENED in stand/stand.js)
  * Food & drink always counts as a supply; any other item becomes one as soon as one field is set
  * (gels, medicines, gas cartridges, batteries …).
  */
@@ -43,6 +44,8 @@ export function buyReason(i, today = localDay()) {
   if (i.rebuy === true) return 'hand';
   if (hasStock(i) && i.stock <= 0) return 'empty';
   if (hasStock(i) && i.stock < minOf(i)) return 'low';
+  // Paket A part 2 (UC-124-I1): an opened pack with little left counts as nearly gone
+  if (hasStock(i) && i.opened === 'little' && i.stock - 1 < minOf(i)) return 'low';
   if (expiryState(i, today) === 'expired') return 'expired';
   return null;
 }

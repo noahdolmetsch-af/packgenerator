@@ -16,9 +16,9 @@
 
 export const WHATS_NEW = [
   {
-    // v0.193.0 Paket D «Mit Freunden» (996 Ideen, Noah 24.10.2026 «3b», «4b»):
+    // v0.194.0 Paket D «Mit Freunden» (996 Ideen, Noah 24.10.2026 «3b», «4b»):
     // Ich › Mit Freunden: ask friends, lending shelf, share a template; everything as a link or a small file, no account.
-    version: '0.193.0',
+    version: '0.194.0',
     date: '2026-10-25',
     title: 'Together with friends',
     lead: 'Friends add their part, without an account.',
@@ -30,10 +30,10 @@ export const WHATS_NEW = [
     test: ['Open Ich › Mit Freunden › Freunde fragen › Tour gemeinsam erzählen, choose a trip, «Link machen».', 'Open the link in a private window: answer and «Antwort machen».'],
   },
   {
-    // v0.192.0 Paket C «Ruhig und persönlich» (Noah 24.10.2026, 996 Ideen «5a»): Ich › Ruhig und persönlich with nine
+    // v0.193.0 Paket C «Ruhig und persönlich» (Noah 24.10.2026, 996 Ideen «5a»): Ich › Ruhig und persönlich with nine
     // sub-pages: less app, experiments, where a value comes from, later self, meaning, skills, share with a preview,
     // clear numbers, assistant with sources.
-    version: '0.192.0',
+    version: '0.193.0',
     date: '2026-10-25',
     title: 'Calm and personal',
     lead: 'Less app when you want it, more of your own.',
@@ -43,6 +43,22 @@ export const WHATS_NEW = [
     ],
     small: [{ box: 'new', text: 'Skill map, own bingo, good decisions' }, { box: 'new', text: 'Assistant answers with your sources' }],
     test: ['Open Ich › Ruhig und persönlich.', 'Open «Your later self» and write a letter for a date.'],
+  },
+  {
+    // v0.192.0 Paket A «Ehrlicher Stand im Alltag» (Noah 24.10.2026, 996 Ideen; 25.10 «mit A anfangen»): a to-do waits on
+    // something, lists and goals end honestly, a cancellation in steps, opened packs, chain care later, time around a date,
+    // and small ideas (contract use, smallest start, shopping by plan, timer purpose, buying pause, why not used).
+    version: '0.192.0',
+    date: '2026-10-25',
+    title: 'Honest about where things stand',
+    lead: 'Waiting, ended, sent but not confirmed: the app says it as it is.',
+    points: [
+      { text: 'A to-do can wait on an answer, a part or a person', href: '#/calendar' },
+      { text: 'Cancel a contract in steps: written, sent, confirmed', href: '#/me/alltag/abos' },
+      { text: 'A date with time before and after as its own entries', href: '#/week' },
+    ],
+    small: [{ box: 'new', text: 'Lists and goals end without ticking every point' }, { box: 'new', text: 'A wish can wait 30 days before you buy' }],
+    test: ['Open Planen › Merken, tap a to-do: «Wartest du auf etwas?» › «Eine Antwort».', 'Open Ich › Alltag › Verträge, a contract: tap «Von mir gesendet».'],
   },
   {
     // v0.191.0 Paket B «Touren ohne Überraschung» part 3 (Noah 24.10.2026, 996 Ideen «1b»): the small ideas for the bike
