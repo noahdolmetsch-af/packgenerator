@@ -9,14 +9,19 @@
   import { MapPin, X, ChevronRight } from '@lucide/svelte';
   import { db } from '../db.js';
   import { onTripDay } from '../ride.js';
+  import { homeTrips } from '../home/heute.js';
   import { HEUTE_OFF_KEY, stopsHref } from './nearby.js';
   import { offerDone } from '../ui/rename.svelte.js';
   import { t } from '../i18n.svelte.js';
 
-  let { today } = $props();
+  // top: the place under the sentence (ride days); top={false}: the place at the bottom of Heute (other days)
+  let { today, top = true } = $props();
   const offQ = liveQuery(async () => (await db.settings.get(HEUTE_OFF_KEY)) ?? null); // null: never set (shown)
   const tripsQ = liveQuery(() => db.trips.toArray());
-  const trip = $derived(($tripsQ ?? []).find((tr) => !tr.skipped && onTripDay(tr, today) && Array.isArray(tr.route?.line) && tr.route.line.length > 1) ?? null);
+  // test trips and archived trips do not count (like the trip card of Heute)
+  const real = $derived(homeTrips($tripsQ ?? []));
+  const rideDay = $derived(real.some((tr) => !tr.skipped && onTripDay(tr, today)));
+  const trip = $derived(real.find((tr) => !tr.skipped && onTripDay(tr, today) && Array.isArray(tr.route?.line) && tr.route.line.length > 1) ?? null);
 
   async function hide() {
     await db.settings.put({ key: HEUTE_OFF_KEY, value: true });
@@ -24,8 +29,8 @@
   }
 </script>
 
-{#if $offQ !== undefined && $offQ?.value !== true}
-  <div class="hs" data-heute-stops>
+{#if $offQ !== undefined && $tripsQ !== undefined && $offQ?.value !== true && top === !!rideDay}
+  <div class="hs" class:low={!top} data-heute-stops>
     <a class="btn sm hs-go" href={stopsHref(trip)} data-heute-stops-go><MapPin size={16} aria-hidden="true" />{trip ? t("Stops along today's route") : t('Stops nearby')}<ChevronRight size={16} aria-hidden="true" /></a>
     <button type="button" class="hs-x" onclick={hide} aria-label={t('Hide «Stops nearby» on Today')} data-heute-stops-hide><X size={16} aria-hidden="true" /></button>
   </div>
@@ -36,8 +41,10 @@
     display: flex;
     align-items: center;
     gap: 4px;
-    /* close under the sentence above, so «Dein Körper heute» still starts in the first screen of a phone */
-    margin: -8px 0 6px;
+    margin: 0 0 12px;
+  }
+  .hs.low {
+    margin: 0;
   }
   .hs-go {
     min-width: 0;
