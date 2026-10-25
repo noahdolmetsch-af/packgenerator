@@ -4,6 +4,15 @@
  * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
+  // 0.198.0 Kette vorausschauend
+  'The chain, one step ahead': 'Die Kette, einen Schritt voraus',
+  'The app says what the chain needs next, before it is too late.': 'Die App sagt, was die Kette als Nächstes braucht, bevor es zu spät ist.',
+  'Chain: what comes next, with one button each': 'Kette: was als Nächstes kommt, mit je einem Knopf',
+  'History and forecast from your measurements': 'Verlauf und Prognose aus deinen Messungen',
+  'A new chain before the trip when it would run out on the way': 'Neue Kette vor der Tour, wenn sie unterwegs am Ende wäre',
+  'Phone reminder: time to measure the chain': 'Handy-Erinnerung: Zeit, die Kette zu messen',
+  'Open Velos › Pflege › Verschleiss: «Kette: was als Nächstes kommt» stands on top.': 'Öffne Velos › Pflege › Verschleiss: «Kette: was als Nächstes kommt» steht oben.',
+  'Tap «Jetzt messen», save a value: «Verlauf und Prognose» shows when the chain reaches 0.5 %.': 'Tippe «Jetzt messen» und speichere einen Wert: «Verlauf und Prognose» zeigt, wann die Kette 0,5 % erreicht.',
   // 0.195.1 Einkaufsliste am Stück
   'Shopping list in one piece': 'Einkaufsliste am Stück',
   'Names in the shopping list read normally again.': 'Die Namen in der Einkaufsliste lesen sich wieder normal.',
