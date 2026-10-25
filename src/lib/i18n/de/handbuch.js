@@ -1558,4 +1558,17 @@ export default {
   '«Take it onto the list»; things already there stay, Undo in Pack.': '«Auf die Liste nehmen»; was schon dort ist, bleibt, Rückgängig beim Packen.',
   'Example: sleep warm + cook, 3 days, 2 people → one stove, two sleeping bags; light 2.1 kg, comfortable +0.8 kg.': 'Beispiel: warm schlafen + kochen, 3 Tage, 2 Personen → ein Kocher, zwei Schlafsäcke; leicht 2.1 kg, bequem +0.8 kg.',
   'Open Pack › Add material.': 'Öffne Packen › Material hinzufügen.',
+  // Paket D «Mit Freunden»
+  'Open Me › With friends and choose what you ask, e.g. «Tell the trip together».': 'Öffne Ich › Mit Freunden und wähle, was du fragst, z. B. «Tour gemeinsam erzählen».',
+  'Choose the trip, check the lines, «Make the link» and send it to who you choose.': 'Wähle die Tour, prüfe die Zeilen, «Link machen» und schick ihn, wem du willst.',
+  'Your friend answers in the app and sends a link back; open it and tap «Keep it».': 'Dein Freund antwortet in der App und schickt einen Link zurück; öffne ihn und tippe «Behalten».',
+  'Example: after the Lake tour a friend adds their view and a voice note; your own entry stays as it is.': 'Beispiel: Nach der Seerunde ergänzt ein Freund seine Sicht und eine Sprachnotiz; dein eigener Eintrag bleibt, wie er ist.',
+  'Open Me › With friends › Lending shelf for friends and put things on the shelf.': 'Öffne Ich › Mit Freunden › Leihregal für Freunde und stell Sachen ins Regal.',
+  '«Send the shelf»: friends choose what they would like and send a request.': '«Regal schicken»: Freunde wählen, was sie möchten, und schicken eine Anfrage.',
+  'Open the request: «Keep the request», «Say yes», «Handed over»; Lent out remembers it.': 'Öffne die Anfrage: «Anfrage behalten», «Zusagen», «Übergeben»; «Ausgeliehen» merkt es sich.',
+  'Example: the second tent goes on the shelf «to borrow»; a friend asks for next weekend.': 'Beispiel: Das zweite Zelt kommt «zum Ausleihen» ins Regal; ein Freund fragt fürs nächste Wochenende an.',
+  'Open Me › With friends › Share a template.': 'Öffne Ich › Mit Freunden › Vorlage teilen.',
+  'Choose a building block or your layout and send it.': 'Wähle einen Baustein oder deine Anordnung und schick sie.',
+  'Your friend sees what it changes, maps the lines to their own things and takes it over.': 'Dein Freund sieht, was sich ändert, ordnet die Zeilen den eigenen Sachen zu und übernimmt sie.',
+  'Example: your block «Rain» goes to a friend, who maps it to their own jacket and gloves.': 'Beispiel: Dein Baustein «Regen» geht an einen Freund, der ihn seiner eigenen Jacke und den Handschuhen zuordnet.',
 };

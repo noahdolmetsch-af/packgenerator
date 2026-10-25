@@ -16,6 +16,20 @@
 
 export const WHATS_NEW = [
   {
+    // v0.195.0 (provisional; the bundler sets the final number) Paket D «Mit Freunden» (996 Ideen, Noah 24.10.2026 «3b», «4b»):
+    // Ich › Mit Freunden: ask friends, lending shelf, share a template; everything as a link or a small file, no account.
+    version: '0.195.0',
+    date: '2026-10-25',
+    title: 'Together with friends',
+    lead: 'Friends add their part, without an account.',
+    points: [
+      { text: 'Ask friends: trip, place, photo, costs, packing', href: '#/me/freunde' },
+      { text: 'Lending shelf for friends', href: '#/me/freunde?tab=shelf' },
+    ],
+    small: [{ box: 'new', text: 'Share a building block or your layout' }],
+    test: ['Open Ich › Mit Freunden › Freunde fragen › Tour gemeinsam erzählen, choose a trip, «Link machen».', 'Open the link in a private window: answer and «Antwort machen».'],
+  },
+  {
     // v0.190.0 «Alltag sichtbar» + Sichtbar-Wächter (332 Use Cases P1 + P3, Noah 24.10.2026 «1a 2b 3a 4a 5b»): Heute fällig,
     // Planen › Merken, bike folder buttons in Setup, Gear views one tap away; every function has its home page (heimat.js).
     // + «Touren sichtbar» (P2, jtmsou 7c6b14bb) and «Touren ohne Überraschung» part 2 (6ruzpm eb6e8b60): pack by need, see the effect.

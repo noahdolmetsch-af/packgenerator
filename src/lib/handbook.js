@@ -1751,6 +1751,21 @@ export const HANDBOOK = {
     steps: ['Open Toolbox › Box labels and add a box with its place.', 'Type what goes in: your gear or anything else.', '«Print label», stick it on; scanning the code opens the box in the app.'],
     example: 'Example: «Winter box, cellar» with headlamp, gloves and the Christmas lights.',
   },
+  'f.friendask': {
+    on: null,
+    steps: ['Open Me › With friends and choose what you ask, e.g. «Tell the trip together».', 'Choose the trip, check the lines, «Make the link» and send it to who you choose.', 'Your friend answers in the app and sends a link back; open it and tap «Keep it».'],
+    example: 'Example: after the Lake tour a friend adds their view and a voice note; your own entry stays as it is.',
+  },
+  'f.friendshelf': {
+    on: null,
+    steps: ['Open Me › With friends › Lending shelf for friends and put things on the shelf.', '«Send the shelf»: friends choose what they would like and send a request.', 'Open the request: «Keep the request», «Say yes», «Handed over»; Lent out remembers it.'],
+    example: 'Example: the second tent goes on the shelf «to borrow»; a friend asks for next weekend.',
+  },
+  'f.friendtemplate': {
+    on: null,
+    steps: ['Open Me › With friends › Share a template.', 'Choose a building block or your layout and send it.', 'Your friend sees what it changes, maps the lines to their own things and takes it over.'],
+    example: 'Example: your block «Rain» goes to a friend, who maps it to their own jacket and gloves.',
+  },
 };
 
 /** The small apps: each opens right on its area, with its own icon, and shares the data of the whole app. */

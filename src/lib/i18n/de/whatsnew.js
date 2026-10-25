@@ -4,6 +4,13 @@
  * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
+  // 0.195.0 Mit Freunden
+  'Together with friends': 'Zusammen mit Freunden',
+  'Friends add their part, without an account.': 'Freunde ergänzen ihren Teil, ohne Konto.',
+  'Ask friends: trip, place, photo, costs, packing': 'Freunde fragen: Tour, Ort, Foto, Kosten, Packen',
+  'Share a building block or your layout': 'Einen Baustein oder deine Anordnung teilen',
+  'Open Ich › Mit Freunden › Freunde fragen › Tour gemeinsam erzählen, choose a trip, «Link machen».': 'Öffne Ich › Mit Freunden › Freunde fragen › Tour gemeinsam erzählen, wähle eine Tour, «Link machen».',
+  'Open the link in a private window: answer and «Antwort machen».': 'Öffne den Link in einem privaten Fenster: antworten und «Antwort machen».',
   // 0.190.0 Alltag sichtbar
   'Everyday in sight': 'Alltag im Blick',
   'What is due today, one line on Heute.': 'Was heute fällig ist, eine Zeile auf Heute.',
