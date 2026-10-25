@@ -236,6 +236,14 @@
               <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
             </a>
           </li>
+          <li>
+            <!-- Paket D «Mit Freunden» (Noah 24.10.2026 «3b»): ask friends, the lending shelf, share a template -->
+            <a class="ich-row" href="#/me/freunde" data-row="freunde">
+              <span class="ich-ib"><HeartHandshake size={18} aria-hidden="true" /></span>
+              <span class="ich-m"><b>{t('With friends')}</b><small>{t('Ask friends, lending shelf, share a template')}</small></span>
+              <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
+            </a>
+          </li>
         </ul>
       </section>
 

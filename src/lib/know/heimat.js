@@ -26,6 +26,10 @@ export const HOME = {
   // on a trip of several days, after the end of a trip)
   'f.stopsnear': '#/',
   'f.labels': '#/me/tools/labels',
+  // Paket D «Mit Freunden»: the three tabs of Ich › Mit Freunden
+  'f.friendask': '#/me/freunde',
+  'f.friendshelf': '#/me/freunde',
+  'f.friendtemplate': '#/me/freunde',
   'f.probe': '#/pack',
   'f.blockeffect': '#/pack',
   'f.needs': '#/pack',

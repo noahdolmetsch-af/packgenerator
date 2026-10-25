@@ -16,6 +16,20 @@
 
 export const WHATS_NEW = [
   {
+    // v0.192.0 Paket D «Mit Freunden» (996 Ideen, Noah 24.10.2026 «3b», «4b»):
+    // Ich › Mit Freunden: ask friends, lending shelf, share a template; everything as a link or a small file, no account.
+    version: '0.192.0',
+    date: '2026-10-25',
+    title: 'Together with friends',
+    lead: 'Friends add their part, without an account.',
+    points: [
+      { text: 'Ask friends: trip, place, photo, costs, packing', href: '#/me/freunde' },
+      { text: 'Lending shelf for friends', href: '#/me/freunde?tab=shelf' },
+    ],
+    small: [{ box: 'new', text: 'Share a building block or your layout' }],
+    test: ['Open Ich › Mit Freunden › Freunde fragen › Tour gemeinsam erzählen, choose a trip, «Link machen».', 'Open the link in a private window: answer and «Antwort machen».'],
+  },
+  {
     // v0.191.0 Paket B «Touren ohne Überraschung» part 3 (Noah 24.10.2026, 996 Ideen «1b»): the small ideas for the bike
     // shop (cost limit, refund, handover after a sale, a problem seen before) and the trip (last look at the door, the
     // home by the length of the absence, ended early: what is still booked).
