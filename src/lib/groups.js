@@ -33,6 +33,12 @@ export const GROUP_PLACES = [
   { name: 'Shopping list groups', file: 'src/lib/alltag/Einkauf.svelte' }, // Paket V «Alltag»
   { name: 'Areas of the questions', file: 'src/pages/Abfragen.svelte' }, // Noah 20.10.2026: morning and evening check questions
   { name: 'Diary tags', file: 'src/lib/tagebuch/Settings.svelte' }, // «Tagebuch»: tags are its groups
+  // Paket C «Ruhig und persönlich»: own marks, bingo fields, rewards, kinds of days and ride roles (KindsEdit)
+  { name: 'Marks of a trip by meaning', file: 'src/lib/ruhig/KindsEdit.svelte' },
+  { name: 'Fields of the own discovery bingo', file: 'src/lib/ruhig/KindsEdit.svelte' },
+  { name: 'Rewards without buying', file: 'src/lib/ruhig/KindsEdit.svelte' },
+  { name: 'Kinds of special days', file: 'src/lib/ruhig/KindsEdit.svelte' },
+  { name: 'Roles of a ride', file: 'src/lib/ruhig/KindsEdit.svelte' },
 ];
 
 /** The items of category `from` moved to `to` (only the ones that change). */

@@ -4,6 +4,14 @@
  * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
+  // v0.192.0 Paket C «Ruhig und persönlich»
+  'Less app when you want it, more of your own.': 'Weniger App, wenn du willst, mehr von dir.',
+  'Letters to your later self, opened in the right moment': 'Briefe an dein späteres Ich, geöffnet im richtigen Moment',
+  'A workspace and a calm view: only what you do now': 'Ein Arbeitsraum und eine ruhige Ansicht: nur, was du jetzt tust',
+  'Skill map, own bingo, good decisions': 'Fähigkeiten-Karte, eigenes Bingo, gute Entscheidungen',
+  'Assistant answers with your sources': 'Der Assistent antwortet mit deinen Belegen',
+  'Open Ich › Ruhig und persönlich.': 'Öffne Ich › Ruhig und persönlich.',
+  'Open «Your later self» and write a letter for a date.': 'Öffne «Dein späteres Ich» und schreib einen Brief für ein Datum.',
   // 0.190.0 Alltag sichtbar
   'Everyday in sight': 'Alltag im Blick',
   'What is due today, one line on Heute.': 'Was heute fällig ist, eine Zeile auf Heute.',

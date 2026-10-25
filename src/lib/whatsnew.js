@@ -16,6 +16,21 @@
 
 export const WHATS_NEW = [
   {
+    // v0.192.0 Paket C «Ruhig und persönlich» (Noah 24.10.2026, 996 Ideen «5a»): Ich › Ruhig und persönlich with nine
+    // sub-pages: less app, experiments, where a value comes from, later self, meaning, skills, share with a preview,
+    // clear numbers, assistant with sources. Bundler: renumber with the package version.
+    version: '0.192.0',
+    date: '2026-10-25',
+    title: 'Calm and personal',
+    lead: 'Less app when you want it, more of your own.',
+    points: [
+      { text: 'Letters to your later self, opened in the right moment', href: '#/me/ruhig/spaeter' },
+      { text: 'A workspace and a calm view: only what you do now', href: '#/me/ruhig/weniger' },
+    ],
+    small: [{ box: 'new', text: 'Skill map, own bingo, good decisions' }, { box: 'new', text: 'Assistant answers with your sources' }],
+    test: ['Open Ich › Ruhig und persönlich.', 'Open «Your later self» and write a letter for a date.'],
+  },
+  {
     // v0.190.0 «Alltag sichtbar» + Sichtbar-Wächter (332 Use Cases P1 + P3, Noah 24.10.2026 «1a 2b 3a 4a 5b»): Heute fällig,
     // Planen › Merken, bike folder buttons in Setup, Gear views one tap away; every function has its home page (heimat.js).
     // + «Touren sichtbar» (P2, jtmsou 7c6b14bb) and «Touren ohne Überraschung» part 2 (6ruzpm eb6e8b60): pack by need, see the effect.
