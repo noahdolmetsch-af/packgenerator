@@ -56,6 +56,54 @@ export async function settle(page, { sameTrips = true } = {}) {
       { timeout: 30_000 },
     )
     .toBe(true);
+  await quietWindows(page);
+}
+
+/** Today in Zurich, by the real clock of the test run (YYYY-MM-DD). */
+const zurichDay = () => new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Zurich' });
+
+/**
+ * The windows of Heute (src/lib/home/windows.js: the evening before a trip or a flight from 17:00, Sunday's
+ * Wochenrückblick from 18:00) open as a modal over the page. A spec run in the evening would find its buttons covered,
+ * so from 17:00 on the real day they count as done (and an open one closes). Specs that test the windows set the page
+ * clock to their own day (fenster, wochenrueckblick, lernen), so they are left alone.
+ */
+async function quietWindows(page) {
+  await page.evaluate(
+    (real) =>
+      new Promise((ok) => {
+        const now = new Date();
+        const day = now.toLocaleDateString('sv-SE', { timeZone: 'Europe/Zurich' });
+        const hour = Number(now.toLocaleString('en-GB', { timeZone: 'Europe/Zurich', hour: '2-digit', hour12: false }));
+        if (day !== real || hour < 17) return ok(false);
+        let r;
+        try {
+          r = indexedDB.open('pack-generator');
+        } catch {
+          return ok(false);
+        }
+        r.onerror = () => ok(false);
+        r.onsuccess = () => {
+          const db = r.result;
+          if (!db.objectStoreNames.contains('settings')) return (db.close(), ok(false));
+          const tx = db.transaction('settings', 'readwrite');
+          const store = tx.objectStore('settings');
+          const get = store.get('homeWindows');
+          get.onsuccess = () => {
+            const value = { ...(get.result?.value ?? {}) };
+            for (const id of ['eve', 'week', 'flight']) value[id] = { ...(value[id] ?? {}), done: day };
+            store.put({ key: 'homeWindows', value });
+          };
+          tx.oncomplete = () => {
+            db.close();
+            document.querySelector('dialog[data-window][open]')?.close();
+            ok(true);
+          };
+          tx.onerror = () => (db.close(), ok(false));
+        };
+      }),
+    zurichDay(),
+  );
 }
 
 /**
