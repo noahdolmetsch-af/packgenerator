@@ -16,6 +16,23 @@
 
 export const WHATS_NEW = [
   {
+    // v0.196.0 Paket A last single ideas (996 Ideen): webcams with a purpose, birthday steps, ideas together, repairs, borrow first
+    version: '0.196.0',
+    date: '2026-10-25',
+    title: 'Fix it, try it, meet up',
+    lead: 'Clothes get repair jobs, wishes can be borrowed first, and reminders turn into invitations.',
+    points: [
+      { text: 'Clothing: repair instead of sorting out', href: '#/wardrobe' },
+      { text: 'Wish: borrow first, then decide', href: '#/gear?view=wish' },
+      { text: 'Not seen for a while: ideas to do together', href: '#/me/alltag/menschen' },
+    ],
+    small: [
+      { box: 'new', text: 'Birthdays show small steps to tick, webcams say what they are for' },
+      { box: 'fixed', text: 'Renaming a webcam closes the window again' },
+    ],
+    test: ['Open a piece of clothing, fold «Repair instead of sorting out» and add «Replace the zip».', 'Open a wish, fold «Borrow before buying», note a friend and a day.', 'Under Me › Everyday life › Not seen for a while, give a person an idea to do together.'],
+  },
+  {
     // v0.195.1 fix: on a computer the shopping list broke item names letter by letter since «Wait 30 days» (0.192.0)
     version: '0.195.1',
     date: '2026-10-25',

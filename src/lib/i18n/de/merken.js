@@ -155,7 +155,7 @@ export default {
   'Calendar › Remember: your own to-dos, lists like «My ideas» and what the app reminds you of, in one place.': 'Planen › Merken: deine To-dos, Listen wie «Meine Ideen» und woran dich die App erinnert, an einem Ort.',
   'Me › Reminders: after a ride, before a trip or after bike care the app asks once; every reminder can be switched off.': 'Ich › Erinnerungen: nach einer Fahrt, vor einer Tour oder nach der Velopflege fragt die App einmal; jede Erinnerung lässt sich ausschalten.',
   'Birthdays and plants': 'Geburtstage und Pflanzen',
-  'Birthdays and plants to water in Me › Reminders, shown in Calendar › Remember when it is time.': 'Geburtstage und Pflanzen zum Giessen in Ich › Erinnerungen, in Planen › Merken, wenn es Zeit ist.',
+  'Birthdays and plants to water in Me › Reminders, shown in Calendar › Remember when it is time. A birthday can carry small steps for the year (gift, something together, getting in touch) to tick.': 'Geburtstage und Pflanzen zum Giessen in Ich › Erinnerungen, in Planen › Merken, wenn es Zeit ist. Ein Geburtstag kann kleine Schritte fürs Jahr tragen (Geschenk, etwas zusammen, dich melden), zum Abhaken.',
   'Measure pressure and chain': 'Druck und Kette messen',
   'Today records the tyre pressure and measures the chain; Enter values suggests a target pressure, the pick-up check checks both.': 'Heute hält den Reifendruck fest und misst die Kette; «Werte erfassen» schlägt einen Solldruck vor, der Abhol-Check prüft beides.',
   // howto of the same

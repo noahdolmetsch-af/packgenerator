@@ -4,6 +4,8 @@ Stand: 18. Oktober 2026. Der kurze Überblick steht im [Projektstand](projektsta
 
 ## Aktuell live
 
+**0.196.0 «Flicken, ausprobieren, abmachen» (25.10.2026, 996 Ideen Paket A, letzte Einzelideen, vorläufige Nummer):** Webcams mit Zweck und Aufräumrunde (wetter/webcams.js why/seen, staleCams 120 Tage; Umbenennen-Fenster schliesst wieder), Geburtstag mit kleinen Schritten (stand/BdayPlan.svelte, td.together/contact/bdone), Lange nicht gesehen mit Ideen für etwas zusammen und «Einladen» (alltag.js ideasOf/ideaFor/seenNext), Kleider «Reparieren statt aussortieren» (gear/RepairList.svelte, item.repairs), Wunsch «Ausleihen vor Kaufen» (gear/WishTrial.svelte, item.trial). Kein Schema-Wechsel. Tests: tests/stand.test.js, tests/alltag.test.js, tests/wetter-webcams.test.js, tests/e2e/a-einzeln.spec.js.
+
 **0.195.1 «Einkaufsliste am Stück» (25.10.2026, Korrektur):** src/pages/Gear.svelte `.wish .fr > button:not(.btn) { flex: 1 1 420px }` (ab 720 px): am Computer rutschen «30 Tage warten», «Gekauft» und «…» bei wenig Platz unter den Namen (Gesamttest gear-wishlist en 1366 px).
 
 **0.195.0 «Kleine Helfer für Tour und Velo» (25.10.2026, 996 Ideen Paket B, Einzelideen, Noah «1b»):** Velo abgestellt mit Schlüssel und abgenommenen Teilen (haustuer.js parkedOf key/off), «Melden bis» pro Nacht (stay.callBy, callState), Hotelanfragen im Rennmodus (race/ride/asks.js, hotelAsks), Reise-Links «Optionen vergleichen» (reise/choices.js, settings 'travel.choices'), Traumtour-Vorgeschmack (dream.taste, tasteTripId), Garantiefall-Entwurf (werkstatt/ClaimDraft.svelte, sheets.warranty.claim). Tests: tests/choices.test.js, tests/hotelasks.test.js, tests/haustuer.test.js, tests/werkstatt.test.js, tests/e2e/b-einzeln.spec.js.

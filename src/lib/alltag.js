@@ -185,8 +185,23 @@ export function newPerson(f = {}, id) {
   const name = clean(f.name, 60);
   if (!name) return null;
   const n = Math.max(1, Math.min(52, Math.round(Number(f.n) || 2)));
-  return { id: f.id ?? id, name, n, unit: EVERY_UNITS.includes(f.unit) ? f.unit : 'month', seen: DAY.test(f.seen ?? '') ? f.seen : null, off: !!f.off, note: clean(f.note, 300) };
+  const rec = { id: f.id ?? id, name, n, unit: EVERY_UNITS.includes(f.unit) ? f.unit : 'month', seen: DAY.test(f.seen ?? '') ? f.seen : null, off: !!f.off, note: clean(f.note, 300) };
+  const ideas = ideasOf(f.ideas);
+  if (ideas.length) rec.ideas = ideas;
+  if (ideas.length && Number.isInteger(f.met) && f.met > 0) rec.met = f.met % ideas.length;
+  return rec;
 }
+/**
+ * UC-260-I1 «Kontakt mit gemeinsamer Absicht»: up to 8 short things to do together (one per line or a list), so
+ * a reminder can turn into an invitation. ideaFor picks the one for this round: it moves on each time you met.
+ */
+export function ideasOf(v) {
+  const list = Array.isArray(v) ? v : String(v ?? '').split('\n');
+  return list.map((x) => clean(x, 80)).filter(Boolean).slice(0, 8);
+}
+export const ideaFor = (p) => (p?.ideas?.length ? p.ideas[(p.met ?? 0) % p.ideas.length] : '');
+/** «Seen today» also moves on to the next idea. */
+export const seenNext = (p, today) => ({ ...p, seen: today, ...(p.ideas?.length ? { met: ((p.met ?? 0) + 1) % p.ideas.length } : {}) });
 /** The day it is time again: seen + interval; without a «seen» day it is due now (today). */
 export const dueOf = (p, today) => (!p.seen ? today : p.unit === 'week' ? addDays(p.seen, 7 * p.n) : addMonth(p.seen, p.n));
 /** Whether it is time again (due today or earlier). */
