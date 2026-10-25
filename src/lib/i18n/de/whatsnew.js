@@ -9,6 +9,8 @@ export default {
   'Friends see each other on the map, without the app.': 'Freunde sehen einander auf der Karte, ohne die App.',
   'Group ride: send a link, everyone on one map': 'Gruppenfahrt: einen Link schicken, alle auf einer Karte',
   'Ends after the ride, at the latest after 24 hours': 'Endet nach der Fahrt, spätestens nach 24 Stunden',
+  'Bike functions are called like their buttons; the wear page jumps to chain rotation': 'Velo-Funktionen heissen wie ihre Knöpfe; die Verschleiss-Seite springt zur Ketten-Rotation',
+  'Today waits with its windows while First steps or a tour are open': 'Heute wartet mit seinen Fenstern, solange «Erste Schritte» oder ein Rundgang offen sind',
   'Open Unterwegs › Live-Karte › «Gruppenfahrt» and send yourself the link.': 'Öffne Unterwegs › Live-Karte › «Gruppenfahrt» und schick dir den Link.',
   'Open the link in a private window: your name and km show on the map.': 'Öffne den Link in einem privaten Fenster: dein Name und die km stehen auf der Karte.',
   // 0.196.0 Flicken, ausprobieren, abmachen

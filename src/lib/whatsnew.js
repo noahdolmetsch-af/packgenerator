@@ -26,7 +26,10 @@ export const WHATS_NEW = [
       { text: 'Group ride: send a link, everyone on one map', href: '#/live' },
       { text: 'Ends after the ride, at the latest after 24 hours', href: '#/live' },
     ],
-    small: [],
+    small: [
+      { box: 'nicer', text: 'Bike functions are called like their buttons; the wear page jumps to chain rotation' },
+      { box: 'nicer', text: 'Today waits with its windows while First steps or a tour are open' },
+    ],
     test: ['Open Unterwegs › Live-Karte › «Gruppenfahrt» and send yourself the link.', 'Open the link in a private window: your name and km show on the map.'],
   },
   {
