@@ -29,6 +29,7 @@
   import TimerFloat from './lib/timer/TimerFloat.svelte';
   import CreditNotice from './lib/helper/CreditNotice.svelte';
   import RemindCard from './lib/remind/RemindCard.svelte';
+  import RuhigLine from './lib/ruhig/RuhigLine.svelte'; // Paket C: workspace, calm view or a due letter
   import SideBar from './lib/nav/SideBar.svelte';
   import PlaceBar from './lib/nav/PlaceBar.svelte';
   import MeButton from './lib/nav/MeButton.svelte';
@@ -428,6 +429,7 @@
     Frei: () => import('./pages/Frei.svelte'),
     Tagebuch: () => import('./pages/Tagebuch.svelte'),
     Alltag: () => import('./pages/Alltag.svelte'),
+    Ruhig: () => import('./pages/Ruhig.svelte'), // Paket C «Ruhig und persönlich» (996 Ideen)
   };
   // once Heute is drawn, the most used pages load quietly in the background
   $effect(() => warmUp([PAGES.Gear, PAGES.Pack, PAGES.Trips, PAGES.Bikes, PAGES.Me, PAGES.Flow, PAGES.Debrief]));
@@ -468,7 +470,7 @@
        on Ausrüstung (the way back); Velos already has its tabs and path, Ausrüstung is one row on Velos › Übersicht -->
   {#if (place === 'equipment' || place === 'gear' || place === 'active' || place === 'analysis') && !mini}<PlaceSwitch {place} {hash} />{/if}
   <!-- ER1/ER2: «Soll ich dich erinnern?» on top of the next page, in the page (never over its buttons) -->
-  {#if !guest && page !== 'home'}<RemindCard />{/if}
+  {#if !guest && page !== 'home'}<RemindCard /><RuhigLine {hash} />{/if}
   <svelte:boundary onerror={onfail}>
   {#key `${switchN}-${listsReady.v}`}
   {#if page === 'gear'}
@@ -583,6 +585,9 @@
   {:else if page === 'alltag'}
     <!-- Paket V «Alltag»: Ich › Alltag (#/me/alltag/…): shopping list, contracts, «Not seen for a while» -->
     <LazyPage load={PAGES.Alltag} {hash} />
+  {:else if page === 'ruhig'}
+    <!-- Paket C «Ruhig und persönlich» (996 Ideen): Ich › Ruhig und persönlich (#/me/ruhig/…) -->
+    {#key hash.split('?')[0]}<LazyPage load={PAGES.Ruhig} {hash} />{/key}
   {:else if page === 'routine'}
     <!-- Routine «Das tut mir gut» (mockup D2): compose the list, a page of Heute -->
     <LazyPage load={PAGES.Routine} />

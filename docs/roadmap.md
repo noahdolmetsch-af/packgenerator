@@ -856,8 +856,10 @@ Ganz geplant, gebaut erst nach allem oben.
 
 Die frühere gespeicherte Datei `2026-10-07-packgenerator-ablaufplan.md` wird als datierte Fassung dieses Gesamtplans weitergeführt. GitHub `docs/roadmap.md` ist die aktuelle Quelle. Historische Analysen und frühere Designs bleiben datierte Belege, keine parallelen Roadmaps.
 
+**25.10.2026, v0.192.0 «Ruhig und persönlich» (996 Ideen Paket C):** neue Seite Ich › Ruhig und persönlich: weniger App wenn du willst (Arbeitsraum, Ruhige Ansicht, Erinnerungs-Budget, Nicht für mich), Experimente mit Ende, Herkunft der Werte, Briefe ans spätere Ich und Klangbriefe, Bedeutung neben Zahlen, Fähigkeiten-Karte, Teilen mit Vorschau, klare Zahlen, Assistent mit Belegen. Nächstes: Paket D «Mit Freunden».
+
 **24.10.2026, v0.190.0 «Alltag im Blick»:** Sichtbar-Wächter (jede Funktion hat ihre Heimseite) und Alltag sichtbar: Heute fällig, Planen › Merken, Knöpfe in Velo-Setup und Material. Nächstes: P2 «Touren sichtbar» baut die Lücken ab. Dazu P2 «Touren sichtbar» (jtmsou 7c6b14bb: Sprung-Chips im Rückblick, Helfer direkt unter «Jetzt», Tourbild = Postkarte + Bild zum Teilen, Katalognamen wie die Knöpfe) und «Touren ohne Überraschung» Teil 2 (6ruzpm eb6e8b60: «Vorher ansehen, was sich ändert», «Nach Bedürfnis packen»; neue optionale Tour-Felder people/needs/needVariant, kein Schema-Wechsel).
 
 **25.10.2026, v0.191.0 «Die Werkstatt, klar»:** Paket B Teil 3: Kostendach und «vorher anrufen» im Werkstattauftrag, Rückerstattung am Besuch, Übergabe nach dem Verkauf, ähnliches früheres Problem, letzter Blick an der Tür, Wohnung nach Länge der Abwesenheit, früher beendet. Nächstes: weitere Einzelideen aus Paket B, dann Paket A «Ehrlicher Stand im Alltag». Dazu «332 Use Cases» P4 «Live-Karte, Rennen und Packen sichtbar» (jtmsou 283c91e4): Sprunglinks auf Rennseite, Live-Karte vor dem Start und Packen; Wächter-Lücken 234 → 217.
 
-**25.10.2026, v0.192.0 «Zusammen mit Freunden»:** Paket D Teil 1: Ich › Mit Freunden mit Freunde fragen, Leihregal und Vorlage teilen. Teil 2 (Briefkasten mit Anmeldung) wartet auf Noah.
+**25.10.2026, v0.193.0 «Zusammen mit Freunden»:** Paket D Teil 1: Ich › Mit Freunden mit Freunde fragen, Leihregal und Vorlage teilen. Teil 2 (Briefkasten mit Anmeldung) wartet auf Noah.

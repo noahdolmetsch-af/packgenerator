@@ -485,4 +485,5 @@ Kurzfassung, verbindlich ist [arbeitsweise.md](arbeitsweise.md).
 
 0.191.0 «Die Werkstatt, klar» (25.10.2026, Ziel Touren und Velo): Einzelideen aus Paket B «Touren ohne Überraschung» (Kostendach, Rückerstattung, Übergabe, ähnliches Problem, Blick an der Tür, Wohnung nach Abwesenheit, früher beendet). Dazu «332 Use Cases» P4 «Live-Karte, Rennen und Packen sichtbar» (jtmsou 283c91e4): Sprunglinks auf Rennseite, Live-Karte vor dem Start und Packen; Wächter-Lücken 234 → 217.
 
-0.192.0 «Zusammen mit Freunden» (25.10.2026, Ziel Touren und Alltag): Paket D Teil 1 aus den 996 Ideen.
+0.192.0 «Ruhig und persönlich» (25.10.2026, Ziel Alltag): 996 Ideen Paket C, 8 Fähigkeiten + 6 Einzelideen (28 neue Funktionen) auf der Seite Ich › Ruhig und persönlich.
+0.193.0 «Zusammen mit Freunden» (25.10.2026, Ziel Touren und Alltag): Paket D Teil 1 aus den 996 Ideen.

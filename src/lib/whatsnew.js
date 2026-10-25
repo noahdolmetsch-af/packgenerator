@@ -16,9 +16,9 @@
 
 export const WHATS_NEW = [
   {
-    // v0.192.0 Paket D «Mit Freunden» (996 Ideen, Noah 24.10.2026 «3b», «4b»):
+    // v0.193.0 Paket D «Mit Freunden» (996 Ideen, Noah 24.10.2026 «3b», «4b»):
     // Ich › Mit Freunden: ask friends, lending shelf, share a template; everything as a link or a small file, no account.
-    version: '0.192.0',
+    version: '0.193.0',
     date: '2026-10-25',
     title: 'Together with friends',
     lead: 'Friends add their part, without an account.',
@@ -28,6 +28,21 @@ export const WHATS_NEW = [
     ],
     small: [{ box: 'new', text: 'Share a building block or your layout' }],
     test: ['Open Ich › Mit Freunden › Freunde fragen › Tour gemeinsam erzählen, choose a trip, «Link machen».', 'Open the link in a private window: answer and «Antwort machen».'],
+  },
+  {
+    // v0.192.0 Paket C «Ruhig und persönlich» (Noah 24.10.2026, 996 Ideen «5a»): Ich › Ruhig und persönlich with nine
+    // sub-pages: less app, experiments, where a value comes from, later self, meaning, skills, share with a preview,
+    // clear numbers, assistant with sources.
+    version: '0.192.0',
+    date: '2026-10-25',
+    title: 'Calm and personal',
+    lead: 'Less app when you want it, more of your own.',
+    points: [
+      { text: 'Letters to your later self, opened in the right moment', href: '#/me/ruhig/spaeter' },
+      { text: 'A workspace and a calm view: only what you do now', href: '#/me/ruhig/weniger' },
+    ],
+    small: [{ box: 'new', text: 'Skill map, own bingo, good decisions' }, { box: 'new', text: 'Assistant answers with your sources' }],
+    test: ['Open Ich › Ruhig und persönlich.', 'Open «Your later self» and write a letter for a date.'],
   },
   {
     // v0.191.0 Paket B «Touren ohne Überraschung» part 3 (Noah 24.10.2026, 996 Ideen «1b»): the small ideas for the bike

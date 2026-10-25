@@ -94,6 +94,8 @@
           </AskElsewhere>
         </div>
       {/if}
+      <!-- Paket C «Assistent mit Belegen» (996 Ideen): sources, own no-gos, question a plan -->
+      <a class="as-belege" href="#/me/ruhig/belege" data-as="belege">{t('With sources, your no-gos and «Question my plan» ›')}</a>
     </section>
     <!-- Noah 15.10.2026 «ich möchte diese info im front end ersichtlich machen»: the three ways it answers -->
     <details class="card as-card as-how" data-as="how">
@@ -240,5 +242,12 @@
     margin: var(--sp-3) 4px 0;
     font-size: var(--fs-small);
     color: var(--ink-3);
+  }
+  .as-belege {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    margin-top: 8px;
+    font-size: var(--fs-small);
   }
 </style>

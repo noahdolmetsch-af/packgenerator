@@ -4,7 +4,7 @@
  * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
-  // 0.192.0 Mit Freunden
+  // 0.193.0 Mit Freunden
   'Together with friends': 'Zusammen mit Freunden',
   'Friends add their part, without an account.': 'Freunde ergänzen ihren Teil, ohne Konto.',
   'Ask friends: trip, place, photo, costs, packing': 'Freunde fragen: Tour, Ort, Foto, Kosten, Packen',
@@ -20,6 +20,14 @@ export default {
   'Start morning: a last look at the door': 'Abfahrtsmorgen: ein letzter Blick an der Tür',
   'Open Velos › Werkstatt › «Auftrag teilen»: type 250 under «Höchstens CHF».': 'Öffne Velos › Werkstatt › «Auftrag teilen»: tippe 250 bei «Höchstens CHF».',
   'Open a visit: «Rückerstattung hinzufügen».': 'Öffne einen Besuch: «Rückerstattung hinzufügen».',
+  // v0.192.0 Paket C «Ruhig und persönlich»
+  'Less app when you want it, more of your own.': 'Weniger App, wenn du willst, mehr von dir.',
+  'Letters to your later self, opened in the right moment': 'Briefe an dein späteres Ich, geöffnet im richtigen Moment',
+  'A workspace and a calm view: only what you do now': 'Ein Arbeitsraum und eine ruhige Ansicht: nur, was du jetzt tust',
+  'Skill map, own bingo, good decisions': 'Fähigkeiten-Karte, eigenes Bingo, gute Entscheidungen',
+  'Assistant answers with your sources': 'Der Assistent antwortet mit deinen Belegen',
+  'Open Ich › Ruhig und persönlich.': 'Öffne Ich › Ruhig und persönlich.',
+  'Open «Your later self» and write a letter for a date.': 'Öffne «Dein späteres Ich» und schreib einen Brief für ein Datum.',
   // 0.190.0 Alltag sichtbar
   'Everyday in sight': 'Alltag im Blick',
   'What is due today, one line on Heute.': 'Was heute fällig ist, eine Zeile auf Heute.',

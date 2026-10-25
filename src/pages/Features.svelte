@@ -63,7 +63,9 @@
   const d = $derived($dataQ);
   const used = $derived(usedOf(d));
   let by = $state('situation');
-  const all = $derived(d ? catalogue(d.tips, used, by) : null);
+  // Paket C «Nicht für mich»: marked functions stay, at the end of their group
+  const notQ = liveQuery(async () => (await db.settings.get('ruhig.notForMe'))?.value ?? {});
+  const all = $derived(d ? catalogue(d.tips, used, by, $notQ) : null);
   const next = $derived(d ? nextTrip(d.trips, localDay()) : null);
   const bikeId = $derived(d ? (sortBikes(d.bikes)[0]?.id ?? null) : null);
 
@@ -137,7 +139,7 @@
     <span class="ft">{t(x.title)}</span>
     <span class="fs">{t(x.text)}</span>
     <!-- Impeccable Runde 2: the state in words, not a sign to guess -->
-    {#if x.used}<span class="pill ok fstate">{t('used|features')}</span>{:else}<span class="pill act fstate">{t('new for you')}</span>{/if}
+    {#if x.notForMe}<span class="pill fstate">{t('Not for me|feature')}</span>{:else if x.used}<span class="pill ok fstate">{t('used|features')}</span>{:else}<span class="pill act fstate">{t('new for you')}</span>{/if}
   </span>
 {/snippet}
 

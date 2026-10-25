@@ -1,0 +1,34 @@
+/* Paket C «Ruhig und persönlich»: the shared look of its pages (tokens of app.css only). */
+.rh-lead { margin: 0 0 var(--sp-4); color: var(--ink-2); max-width: 60ch; }
+.rh-cards { display: grid; gap: var(--sp-3); margin: 0; padding: 0; list-style: none; }
+.rh-card { background: var(--paper); border: 1px solid var(--card-line); border-radius: var(--radius-card); box-shadow: var(--card-shadow); }
+.rh-card > .rh-h { margin: 0; font: inherit; }
+.rh-card .rh-head { display: flex; align-items: center; gap: 12px; width: 100%; padding: var(--sp-3) var(--sp-4); background: none; border: 0; color: inherit; font: inherit; text-align: left; cursor: pointer; min-height: 56px; }
+.rh-card .rh-head .rh-name { display: block; margin: 0; font: 600 var(--fs-sub) / 1.3 var(--font-body); }
+.rh-card .rh-head small { display: block; color: var(--ink-2); font-size: var(--fs-small); margin-top: 2px; }
+.rh-card .rh-head .rh-ic { flex: none; display: grid; place-items: center; width: 36px; height: 36px; border-radius: 50%; background: var(--accent-soft); color: var(--accent); }
+.rh-card .rh-head .rh-t { flex: 1; min-width: 0; }
+.rh-card .rh-head .rh-chev { flex: none; color: var(--ink-3); transition: transform 150ms var(--ease-out); }
+.rh-card.open .rh-head .rh-chev { transform: rotate(180deg); }
+.rh-body { padding: 0 var(--sp-4) var(--sp-4); display: grid; gap: var(--sp-3); }
+.rh-help { margin: 0; color: var(--ink-2); font-size: var(--fs-small); }
+.rh-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.rh-row > .inp { flex: 1 1 180px; min-width: 0; }
+.rh-field { display: grid; gap: 4px; }
+.rh-field > span { font-size: var(--fs-small); color: var(--ink-2); }
+.rh-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.rh-list > li { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border: 1px solid var(--line); border-radius: var(--r-ctl); background: var(--paper); }
+.rh-list > li > .rh-grow { flex: 1; min-width: 0; overflow-wrap: break-word; }
+.rh-list > li small { display: block; color: var(--ink-2); font-size: var(--fs-small); }
+.rh-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.rh-chip { min-height: 36px; padding: 4px 12px; border-radius: 999px; border: 1px solid var(--line-strong); background: var(--paper); color: var(--ink); font: inherit; font-size: var(--fs-small); cursor: pointer; }
+.rh-chip[aria-pressed='true'] { background: var(--accent-soft); border-color: var(--accent); color: var(--ink); font-weight: 600; }
+.rh-x { flex: none; display: grid; place-items: center; width: 40px; height: 40px; border: 0; background: none; color: var(--ink-2); cursor: pointer; border-radius: 50%; }
+.rh-x:hover { background: var(--paper-2); }
+.rh-note { margin: 0; padding: 10px 12px; border-radius: var(--r-ctl); background: var(--paper-2); font-size: var(--fs-small); color: var(--ink-2); }
+.rh-tag { display: inline-block; padding: 1px 8px; border-radius: 999px; background: var(--paper-2); color: var(--ink-2); font-size: var(--fs-tiny); font-weight: 600; vertical-align: middle; }
+.rh-tag.warn { background: var(--warn-soft); color: var(--ink); }
+.rh-tag.ok { background: var(--ok-soft); color: var(--ink); }
+.rh-sub { margin: var(--sp-2) 0 0; font: 600 var(--fs-body) / 1.3 var(--font-body); }
+.rh-empty { margin: 0; color: var(--ink-2); font-size: var(--fs-small); }
+textarea.inp { width: 100%; min-height: 72px; resize: vertical; }
