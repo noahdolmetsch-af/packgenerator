@@ -1448,6 +1448,20 @@
     text-decoration: none;
     cursor: pointer;
   }
+  /* phone: one row that scrolls sideways, so the bike page stays in its length budget (5.5 screens) */
+  @media (max-width: 719px) {
+    .bquick {
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      margin-inline: calc(-1 * var(--gut));
+      padding-inline: var(--gut);
+      scrollbar-width: none;
+    }
+    .bq {
+      flex: none;
+      white-space: nowrap;
+    }
+  }
   .bq:hover {
     border-color: var(--line-strong);
   }

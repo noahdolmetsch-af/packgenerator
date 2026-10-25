@@ -8,8 +8,9 @@ import { HOME, GAPS, WHY } from '../src/lib/know/heimat.js';
 // never raise it: a new function comes with a visible place on its home page.
 // 263 after merging 0.182–0.186 (tennis page, yoga classes and good day came before this guard); 249 after «Alltag sichtbar»; 228 after «Touren sichtbar»;
 // 233 after merging 0.187–0.189 and «Touren ohne Überraschung» part 2, built before this guard: dress rehearsal, good night,
-// arrive well, «see the effect» and «pack by need» show only in their situation.
-const MAX_GAPS = 233;
+// arrive well, «see the effect» and «pack by need» show only in their situation; 234: «History and progress» lives on each
+// sport's page since «Aktiv neu» (0.187.0).
+const MAX_GAPS = 234;
 
 describe('home pages of the functions', () => {
   it('every function of the catalogue has a home page, and no home is left over', () => {

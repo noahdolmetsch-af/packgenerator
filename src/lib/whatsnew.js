@@ -26,9 +26,8 @@ export const WHATS_NEW = [
     points: [
       { text: 'Remember is a tab of Plan', href: '#/calendar' },
       { text: 'Due today: to-dos, birthdays, plants, bike care', href: '#/' },
-      { text: 'Pack by need: sleep warm, cook, for two', href: '#/pack' },
     ],
-    small: [{ box: 'new', text: 'Bike folder, warranty and theft sheet in Setup' }, { box: 'nicer', text: 'Tour picture: postcard and share picture in one' }],
+    small: [{ box: 'new', text: 'Pack by need: sleep warm, cook, for two' }, { box: 'nicer', text: 'Tour picture: postcard and share picture in one' }],
     test: ['Open Heute: below «Dein Körper heute» the line «Heute fällig» shows what is due.', 'Open Planen › Merken.'],
   },
   {

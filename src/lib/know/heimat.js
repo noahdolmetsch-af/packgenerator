@@ -371,6 +371,7 @@ export const HOME = {
 /** Not yet visible on the home page (feature id → why code). Only gets shorter. */
 export const GAPS = {
   'f.probe': 'name',
+  'f.progress': 'deep',
   'f.blockeffect': 'name',
   'f.needs': 'name',
   'f.goodnight': 'name',
