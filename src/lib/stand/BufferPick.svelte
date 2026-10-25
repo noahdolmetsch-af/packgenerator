@@ -7,7 +7,7 @@
   import { BUFFER_MIN } from './stand.js';
 
   let { before = $bindable(0), after = $bindable(0) } = $props();
-  const label = (m) => (m ? t('{n} min', { n: m }) : t('None'));
+  const label = (m) => (m ? t('{n} min', { n: m }) : t('None|buffer'));
 </script>
 
 <div class="bp" data-buffer-pick>

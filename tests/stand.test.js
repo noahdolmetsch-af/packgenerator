@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { WAIT_ON, waitOf, newWait, stillWaiting, waitingRows, notWaiting, endList, reopenList, isEnded, endGoal, reopenGoal, goalEnd, bufferItems } from '../src/lib/stand/stand.js';
+import { WAIT_ON, waitOf, newWait, stillWaiting, waitingRows, notWaiting, endList, reopenList, isEnded, endGoal, reopenGoal, goalEnd, bufferItems, addUse, removeUse, usesOf, useYear, forOf, purposes, dropPurpose, pauseWish, endPause, wishPauseState, NEVER_WHY, setNeverWhy, neverNext } from '../src/lib/stand/stand.js';
 import { newTodo, groupTodos } from '../src/lib/merken.js';
 import { pinnedTo } from '../src/lib/ownlists.js';
 
@@ -94,5 +94,63 @@ describe('Buffers around a date (UC-228-I1)', () => {
   it('leave the time out when the date has none or it would fall before midnight', () => {
     expect(bufferItems({ ...date, time: '' }, { before: 60 })[0].time).toBe('');
     expect(bufferItems({ ...date, time: '00:30' }, { before: 60 })[0].time).toBe('');
+  });
+});
+
+describe('What a contract was used for (UC-259-I1)', () => {
+  const c = { id: 'ct', name: 'test_data_gtp_ Streaming', cost: 12, period: 'month' };
+  it('adds a line today, newest first, empty text changes nothing', () => {
+    let x = addUse(c, '  ', today);
+    expect(x).toBe(c);
+    x = addUse(addUse(c, 'test_data_gtp_ Film', '2026-10-01'), 'test_data_gtp_ Serie', today);
+    expect(usesOf(x.uses).map((u) => u.what)).toEqual(['test_data_gtp_ Serie', 'test_data_gtp_ Film']);
+    expect(removeUse(x, 0).uses).toEqual([{ day: '2026-10-01', what: 'test_data_gtp_ Film' }]);
+    expect(removeUse(removeUse(x, 0), 0).uses).toBeUndefined();
+  });
+  it('counts the last year and divides the year cost', () => {
+    const x = { ...c, uses: [{ day: today, what: 'a' }, { day: '2026-01-10', what: 'b' }, { day: '2025-01-10', what: 'old' }] };
+    expect(useYear(x, today)).toEqual({ n: 2, perUse: 72 });
+    expect(useYear({ ...x, cost: 0 }, today)).toEqual({ n: 2, perUse: null });
+    expect(useYear(c, today)).toEqual({ n: 0, perUse: null });
+  });
+});
+
+describe('Shopping points name what they are for (UC-258-I1)', () => {
+  const list = { items: [
+    { id: 'a', text: 'test_data_gtp_ Reis', for: 'test_data_gtp_ Risotto', done: null },
+    { id: 'b', text: 'test_data_gtp_ Parmesan', for: 'test_data_gtp_ risotto ', done: '2026-10-24T10:00:00Z' },
+    { id: 'c', text: 'test_data_gtp_ Milch', done: null },
+  ] };
+  it('groups by purpose, case-blind, counting open points', () => {
+    expect(purposes(list.items)).toEqual([{ name: 'test_data_gtp_ Risotto', open: 1 }]);
+    expect(forOf({ for: '  x ' })).toBe('x');
+  });
+  it('a plan that is off takes its open points; ticked and other points stay', () => {
+    expect(dropPurpose(list, 'TEST_DATA_GTP_ RISOTTO').items.map((x) => x.id)).toEqual(['b', 'c']);
+  });
+});
+
+describe('A buying pause and why something was not used (UC-007-I2, UC-008-I1)', () => {
+  it('waits 30 days, then asks again', () => {
+    const w = pauseWish({ id: 'w' }, today);
+    expect(w.wishPause).toBe('2026-11-24');
+    expect(wishPauseState(w, today)).toEqual({ until: '2026-11-24', over: false });
+    expect(wishPauseState(w, '2026-11-24').over).toBe(true);
+    expect(endPause(w)).toEqual({ id: 'w' });
+    expect(wishPauseState({ id: 'x' }, today)).toBeNull();
+  });
+  it('a reason brings its own next step; empty clears it', () => {
+    const i = setNeverWhy({ id: 'i' }, 'season');
+    expect(i.neverWhy).toBe('season');
+    expect(neverNext(i)).toBe('Waits for its season; it comes back then.');
+    expect(setNeverWhy(i, '')).toEqual({ id: 'i' });
+    expect(setNeverWhy({ id: 'i' }, 'nonsense')).toEqual({ id: 'i' });
+  });
+  it('every reason has German', async () => {
+    const de = (await import('../src/lib/i18n/de/index.js')).default;
+    for (const w of NEVER_WHY) {
+      expect(de[w.name], w.name).toBeTruthy();
+      if (w.next) expect(de[w.next], w.next).toBeTruthy();
+    }
   });
 });

@@ -173,3 +173,88 @@ export function bufferItems(item, { before = 0, after = 0 } = {}, names = (side,
   if (after > 0) out.push({ kind: 'date', title: names('after', item.title, after).slice(0, 80), day: item.day, time: '' });
   return out;
 }
+
+/** UC-259-I1 «Abo mit tatsächlichem Nutzen»: now and then a line on what a contract was used for (contract.uses, newest first). */
+export const USES_MAX = 30;
+/** The use lines made safe: [{ day, what }], newest first, at most USES_MAX. */
+export function usesOf(list) {
+  if (!Array.isArray(list)) return [];
+  return list
+    .filter((u) => u && DAYRE.test(u.day ?? '') && String(u.what ?? '').trim())
+    .map((u) => ({ day: u.day, what: String(u.what).trim().slice(0, 80) }))
+    .sort((a, b) => (a.day < b.day ? 1 : a.day > b.day ? -1 : 0))
+    .slice(0, USES_MAX);
+}
+/** The contract with one more use today; an empty text changes nothing. */
+export function addUse(contract, what, today) {
+  const w = String(what ?? '').trim();
+  if (!w) return contract;
+  return { ...contract, uses: usesOf([{ day: today, what: w }, ...(contract.uses ?? [])]) };
+}
+/** The contract without the use at index i (of usesOf). */
+export function removeUse(contract, i) {
+  const uses = usesOf(contract.uses).filter((_, n) => n !== i);
+  const next = { ...contract, uses };
+  if (!uses.length) delete next.uses;
+  return next;
+}
+/** Uses in the last 365 days and the cost per use over that year (null without a cost or without uses). */
+export function useYear(contract, today) {
+  const from = addDays(today, -365);
+  const n = usesOf(contract?.uses).filter((u) => u.day > from && u.day <= today).length;
+  const cost = Number(contract?.cost) || 0;
+  const year = contract?.period === 'year' ? cost : cost * 12;
+  return { n, perUse: n && year ? Math.round((year / n) * 100) / 100 : null };
+}
+
+/** UC-258-I1 «Einkauf nach geplanter Verwendung»: a shopping point may name what it is for (item.for: recipe, guests, trip). */
+export const forOf = (x) => String(x?.for ?? '').trim().slice(0, 60);
+/** The purposes on the list with their open points, by name: [{ name, open }]. */
+export function purposes(items = []) {
+  const m = new Map();
+  for (const x of items) {
+    const f = forOf(x);
+    if (!f) continue;
+    const key = f.toLowerCase();
+    const cur = m.get(key) ?? { name: f, open: 0 };
+    if (!x.done) cur.open++;
+    m.set(key, cur);
+  }
+  return [...m.values()].sort((a, b) => a.name.localeCompare(b.name));
+}
+/** A plan fell through: the list without the open points for it (ticked ones stay, they were bought). */
+export function dropPurpose(list, name) {
+  const key = String(name ?? '').trim().toLowerCase();
+  return { ...list, items: (list.items ?? []).filter((x) => x.done || forOf(x).toLowerCase() !== key) };
+}
+
+/** UC-007-I2 «Kaufpause mit Wiedersehen»: a wish may wait 30 days (item.wishPause = the day it asks again). */
+export const PAUSE_DAYS = 30;
+export const pauseWish = (item, today) => ({ ...item, wishPause: addDays(today, PAUSE_DAYS) });
+export function endPause(item) {
+  const next = { ...item };
+  delete next.wishPause;
+  return next;
+}
+/** null without a pause, else { until, over } (over: the day has come, time to ask again). */
+export function wishPauseState(item, today) {
+  const until = item?.wishPause;
+  if (!DAYRE.test(until ?? '')) return null;
+  return { until, over: until <= today };
+}
+
+/** UC-008-I1 «Grund für Nichtnutzung»: why an item was along but never used (item.neverWhy), each with its own next step. */
+export const NEVER_WHY = [
+  { key: '', name: 'Why not used?', next: '' },
+  { key: 'forgot', name: 'Forgot I had it', next: 'Next time: pack it where you see it.' },
+  { key: 'unfit', name: 'Did not fit the trip', next: 'Next time: leave it at home on such trips, or pass it on.' },
+  { key: 'reserve', name: 'Reserve, good to have', next: 'Stays along as a reserve; not using it is fine.' },
+  { key: 'season', name: 'Wrong season', next: 'Waits for its season; it comes back then.' },
+];
+export function setNeverWhy(item, key) {
+  const next = { ...item };
+  if (NEVER_WHY.some((w) => w.key && w.key === key)) next.neverWhy = key;
+  else delete next.neverWhy;
+  return next;
+}
+export const neverNext = (item) => NEVER_WHY.find((w) => w.key && w.key === item?.neverWhy)?.next ?? '';

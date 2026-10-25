@@ -14,7 +14,7 @@
 </script>
 
 <fieldset class="fld wp" data-wait-pick>
-  <legend class="lbl"><Hourglass size={16} aria-hidden="true" />{t('Waiting for something?')}</legend>
+  <legend class="wp-lbl"><Hourglass size={16} aria-hidden="true" />{t('Waiting for something?')}</legend>
   <div class="chips">
     <button type="button" class="chip" aria-pressed={!wait} onclick={() => pick(null)}>{t('No')}</button>
     {#each WAIT_ON as w (w.key)}<button type="button" class="chip" aria-pressed={wait?.on === w.key} onclick={() => pick(w.key)} data-wait-on={w.key}>{t(w.name)}</button>{/each}
@@ -36,7 +36,7 @@
     border: 0;
     min-width: 0;
   }
-  .lbl {
+  .wp-lbl {
     display: flex;
     align-items: center;
     gap: 6px;
