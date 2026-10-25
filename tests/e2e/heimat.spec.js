@@ -34,8 +34,16 @@ test('every function is visible on its home page', async ({ page, context }, inf
     const href = await page.getByRole('link', { name: T('Continue the debrief') }).first().getAttribute('href');
     trip = decodeURIComponent(href.replace('#/debrief/', ''));
   }
+  // «:race»: the first race under Touren › Rennen
+  let race = null;
+  if (Object.keys(byPage).some((h) => h.includes(':race'))) {
+    await page.goto('./#/race');
+    await page.locator('main').waitFor();
+    await settle(page);
+    race = decodeURIComponent((await page.locator('main a[href^="#/race/"]').first().getAttribute('href')).split('/')[2]);
+  }
   for (const [href, list] of Object.entries(byPage)) {
-    await page.goto(`./${href.replace(':trip', encodeURIComponent(trip))}`);
+    await page.goto(`./${href.replace(':trip', encodeURIComponent(trip)).replace(':race', encodeURIComponent(race))}`);
     await page.locator('main').waitFor();
     await settle(page);
     const found = await page.evaluate(

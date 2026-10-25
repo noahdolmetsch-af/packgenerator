@@ -1750,7 +1750,162 @@ export const HANDBOOK = {
     on: null,
     steps: ['Open Toolbox › Box labels and add a box with its place.', 'Type what goes in: your gear or anything else.', '«Print label», stick it on; scanning the code opens the box in the app.'],
     example: 'Example: «Winter box, cellar» with headlamp, gloves and the Christmas lights.',
+  },  'f.workspace': {
+    on: null,
+    steps: ['Open Me › Calm and personal › Less app for the moment.', 'Choose up to 8 functions for your plan.', '«Start the workspace»; the strip stays until you end it.'],
+    example: 'Example: «Workshop Saturday» with bike inspection, spare parts and workshop due.',
   },
+  'f.friendask': {
+    on: null,
+    steps: ['Open Me › With friends and choose what you ask, e.g. «Tell the trip together».', 'Choose the trip, check the lines, «Make the link» and send it to who you choose.', 'Your friend answers in the app and sends a link back; open it and tap «Keep it».'],
+    example: 'Example: after the Lake tour a friend adds their view and a voice note; your own entry stays as it is.',
+  },
+  'f.friendshelf': {
+    on: null,
+    steps: ['Open Me › With friends › Lending shelf for friends and put things on the shelf.', '«Send the shelf»: friends choose what they would like and send a request.', 'Open the request: «Keep the request», «Say yes», «Handed over»; Lent out remembers it.'],
+    example: 'Example: the second tent goes on the shelf «to borrow»; a friend asks for next weekend.',
+  },
+  'f.friendtemplate': {
+    on: null,
+    steps: ['Open Me › With friends › Share a template.', 'Choose a building block or your layout and send it.', 'Your friend sees what it changes, maps the lines to their own things and takes it over.'],
+    example: 'Example: your block «Rain» goes to a friend, who maps it to their own jacket and gloves.',
+  },
+  'f.calmview': {
+    on: null,
+    steps: ['Open Me › Calm and personal › Less app for the moment › Calm view.', 'Write what you do now, e.g. clean the bike.', 'Tap «Done» when you are finished.'],
+    example: 'Example: «Pack calmly» → the strip shows only that until «Done».',
+  },
+  'f.pushbudget': {
+    on: null,
+    steps: ['Open Me › Calm and personal › Less app for the moment › Reminder budget.', 'Switch «Use a budget» on and choose how many a day.', 'Sort the groups with the arrows or by dragging.'],
+    example: 'Example: 2 a day, «Trips» first → birthdays wait on a tour day.',
+  },
+  'f.notforme': {
+    on: null,
+    steps: ['Open Me › Calm and personal › Less app for the moment › Not for me.', 'Find the function and tap «Not for me».', '«Suggest again» brings it back on top.'],
+    example: 'Example: «Race» → not for me; it moves to the end of its group.',
+  },
+  'f.experiment': {
+    on: null,
+    steps: ['Open Me › Calm and personal › Small experiments.', 'Write your question and what you change, choose the days.', 'Tick yes or no each day; at the end write what you learned.'],
+    example: 'Example: «Do I sleep better without a screen after 21:00?», 14 days.',
+  },
+  'f.specialdays': {
+    on: null,
+    steps: ['Open Me › Calm and personal › Where a value comes from.', 'Choose the day and tap its kind, e.g. a lot of work.', 'The last 14 days show what explains a day.'],
+    example: 'Example: Tuesday «Travelling» → no sport that day, and that is explained.',
+  },
+  'f.counterdays': {
+    on: null,
+    steps: ['Open Me › Calm and personal › Where a value comes from › Counter-examples.', 'Choose an insight.', 'See the days that went together and the days against it.'],
+    example: 'Example: more sleep, more battery: 21 days fit, 6 days not.',
+  },
+  'f.sleeporigin': {
+    on: null,
+    steps: ['Open Me › Calm and personal › Where a value comes from › Places to sleep.', 'Each place shows where it comes from.', 'Change it with the field next to the place.'],
+    example: 'Example: a bivouac from a file → «Only imported», until you slept there.',
+  },
+  'f.weightsure': {
+    on: null,
+    steps: ['Open Me › Calm and personal › Where a value comes from › How sure the weight is.', 'Choose the trip.', 'Weigh the heaviest estimated things first.'],
+    example: 'Example: 8.4 kg, 62 % weighed; the tent counts most.',
+  },
+  'f.letters': {
+    on: null,
+    steps: ['Open Me › Calm and personal › Your later self.', 'Choose the moment and write your letter.', 'When the moment comes, a line on top says a letter is waiting.'],
+    example: 'Example: «For the first night: it is always loud. Sleep comes.»',
+  },
+  'f.letterreply': {
+    on: null,
+    steps: ['Open an opened letter under «Answer your old letters».', 'Write your answer and keep it.', '«Write the next letter» goes on with the story.'],
+    example: 'Example: «It was loud, and I slept anyway» → the next letter for the next trip.',
+  },
+  'f.laterview': {
+    on: null,
+    steps: ['Open Me › Calm and personal › Your later self › Seen differently later.', 'Choose a day you rated.', 'Write how you see it today, with a new value if you like.'],
+    example: 'Example: back then 4 of 10, later: «a hard day, and the start of something good».',
+  },
+  'f.voiceletters': {
+    on: null,
+    steps: ['Open Me › Calm and personal › Your later self › Voice letters.', 'Tap «Record» and speak up to 1 minute.', 'Listen, rename or delete it later.'],
+    example: 'Example: after the evening meditation, 40 seconds about the day.',
+  },
+  'f.meaning': {
+    on: null,
+    steps: ['Open Me › Calm and personal › Meaning next to numbers.', 'Tap the marks of a trip.', 'Tap a mark on top to see its trips.'],
+    example: 'Example: «With friends» → the four trips with friends, newest first.',
+  },
+  'f.gooddecisions': {
+    on: null,
+    steps: ['Open Me › Calm and personal › Meaning next to numbers › Good decisions.', 'Tap a start or write your own.', '«Keep it»; evening answers «replanned, good» show too.'],
+    example: 'Example: «Turned back below the pass, the storm came an hour later».',
+  },
+  'f.ownbingo': {
+    on: null,
+    steps: ['Open Me › Calm and personal › Meaning next to numbers › Your own discovery bingo.', 'Tap a field and write where you found it.', 'Change the fields under «Change the fields».'],
+    example: 'Example: «A good fountain» → fountain in Twann, 3 fields to the first Bingo.',
+  },
+  'f.freerewards': {
+    on: null,
+    steps: ['Open Me › Calm and personal › Meaning next to numbers › Rewards without buying.', 'Write for what, then tap a reward.', 'Change the list under «Change the rewards».'],
+    example: 'Example: first 100 km ride → «A long breakfast».',
+  },
+  'f.skillmap': {
+    on: null,
+    steps: ['Open Me › Calm and personal › What you can do.', 'Add a skill and its sport.', 'Set the level and add an example with the day.'],
+    example: 'Example: «Change a tube» → sure; example: first time on the road, 12.9.',
+  },
+  'f.knowhow': {
+    on: null,
+    steps: ['Open Me › Calm and personal › What you can do › Was it know-how, not gear?', 'Choose the trip and what was missing.', 'Write what to learn; it lands on your skill map.'],
+    example: 'Example: stove would not light in the wind → «to learn», not a new stove.',
+  },
+  'f.sharepreview': {
+    on: null,
+    steps: ['Open Me › Calm and personal › Share with a preview.', 'Choose the trip and what goes in.', 'Check the preview, confirm, then share the link.'],
+    example: 'Example: without the date and the weights → the preview shows only the list.',
+  },
+  'f.arrival': {
+    on: null,
+    steps: ['Open Me › Calm and personal › Share with a preview › Arrival.', 'Choose how much place, e.g. a rough region.', '«Send» opens the phone\'s share window.'],
+    example: 'Example: to the club «Near Seeland», to Mum the exact position.',
+  },
+  'f.tworoles': {
+    on: null,
+    steps: ['Open Me › Calm and personal › Numbers that stay clear.', 'Tap the roles of a ride.', 'The sums show each role and every ride once.'],
+    example: 'Example: the ride to work → commuting and training; total counted once.',
+  },
+  'f.scalemeaning': {
+    on: null,
+    steps: ['Open Me › Calm and personal › Numbers that stay clear › What a scale meant.', 'Write what 1 and what 10 mean for you.', 'A new meaning counts from today; old answers keep theirs.'],
+    example: 'Example: battery 1 = could not get up, 10 = the best day of the year.',
+  },
+  'f.bodytalk': {
+    on: null,
+    steps: ['Open Me › Calm and personal › Numbers that stay clear › Prepare a talk.', 'Add what you noticed and your open questions.', '«Copy» or «Print» and take it along.'],
+    example: 'Example: 30 days of resting pulse and sleep, two questions.',
+  },
+  'f.sources': {
+    on: null,
+    steps: ['Open Me › Calm and personal › Assistant with sources.', 'Ask your question.', 'Tap a source to open it; «Ask Gemini» cites them as [1].'],
+    example: 'Example: «What did I learn about the Jura?» → 3 entries as sources.',
+  },
+  'f.devil': {
+    on: null,
+    steps: ['Open Me › Calm and personal › Assistant with sources › Question my plan.', 'Read what is still open.', '«Collect the strongest counter-arguments» asks Gemini.'],
+    example: 'Example: no plan B yet, tent not weighed.',
+  },
+  'f.aicheck': {
+    on: null,
+    steps: ['Ask Gemini on the page «Assistant with sources».', 'The answer waits under «Check AI suggestions first».', '«Take» makes a to-do, «Drop» puts it away.'],
+    example: 'Example: Gemini suggests a lighter stove → «Take» → a to-do to check it.',
+  },
+  'f.nogos': {
+    on: null,
+    steps: ['Open Me › Calm and personal › Assistant with sources › My own no-gos.', 'Add a no-go and its kind.', 'A packing or wish list that holds one shows it here.'],
+    example: 'Example: «single-use batteries» → do not buy.',
+  },
+
 };
 
 /** The small apps: each opens right on its area, with its own icon, and shares the data of the whole app. */

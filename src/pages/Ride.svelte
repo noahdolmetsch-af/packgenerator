@@ -68,6 +68,7 @@
   import { morningDue } from '../lib/haustuer/haustuer.js';
   import NextShop from '../lib/unterwegs/NextShop.svelte'; // «Alles fertig»: the next shop in the Live map button
   import MorningList from '../lib/schnellpacken/MorningList.svelte'; // Paket SP «Schneller packen»
+  import DoorCheck from '../lib/probe/DoorCheck.svelte'; // Paket B part 3: last look at the door
   import RideDoor from '../lib/haustuer/RideDoor.svelte'; // Paket W «Von der Haustür bis zurück»: plan B and check-in
   import { Shirt, Utensils, Droplet, Lightbulb, Pencil, ArrowRight, ArrowLeft, Clock, CloudSun, Search, Route as RouteIcon, ChevronRight, Plus, Minus, X, Mic, Moon, BedDouble, MapPin, Flag, Siren } from '@lucide/svelte';
 
@@ -609,6 +610,7 @@
       {#if !trip.finished && st}<RideDoor {trip} {st} {nextSt} onhome={() => (homeOpen = true)} />{/if}
       <!-- Paket SP 1126: on the start morning, what goes in only now -->
       <MorningList {trip} {itemsById} />
+      <DoorCheck {trip} />
       <!-- Noah 7a: the days, then the block of now, on top. SN1: the days as a quiet switch «Tag 2 · Fr». -->
       <div class="days">
         {#if days > 1}

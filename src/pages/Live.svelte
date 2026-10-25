@@ -27,6 +27,9 @@
   import { liveQuery } from 'dexie';
   import { CloudRain, Route, Play, Square, Crosshair, MapPin, Navigation, Mountain, Clock, Settings, BatteryMedium, CloudLightning, TriangleAlert, RefreshCw, Utensils, Moon, Flag, LifeBuoy, Ellipsis, Minimize2, Maximize2, SlidersHorizontal, Check, X, Layers, Camera, WifiOff } from '@lucide/svelte';
   import KindIcon from '../lib/map/KindIcon.svelte';
+  import { DURING_RIDE } from '../lib/live/during.js';
+  import { FEATURES } from '../lib/features.js';
+  const FEATURE_TITLE = Object.fromEntries(FEATURES.map((f) => [f.id, f.title]));
   import PoiPanel from '../lib/map/PoiPanel.svelte';
   import Seg from '../lib/ui/Seg.svelte';
   import OvNearby from '../lib/sources/OvNearby.svelte';
@@ -879,6 +882,13 @@
 
   {#if !rec.on && !after}
     <p class="rc-empty" data-live-empty>{t('Start the ride: then the map fills the screen and shows where you are, the numbers you choose and the stops ahead or around you.')}</p>
+    <!-- «Live-Karte sichtbar» (Noah 25.10.2026 «bitte fortfahren»): what the map can do during the ride, named as in the catalogue -->
+    <section class="rc-box lv-during" aria-labelledby="lv-during-h" data-live-during>
+      <h2 id="lv-during-h" class="rc-h2">{t('During the ride')}</h2>
+      <ul>
+        {#each DURING_RIDE as x (x.id)}<li data-during={x.id}><b>{t(FEATURE_TITLE[x.id])}</b><span>{t(x.sub)}</span></li>{/each}
+      </ul>
+    </section>
   {/if}
 
   <!-- options stay reachable before the start too -->
@@ -1946,5 +1956,23 @@
       left: 0;
       width: auto;
     }
+  }
+  /* «Während der Fahrt»: one quiet list, the name bold, a short line after it */
+  .lv-during ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 6px;
+  }
+  .lv-during li {
+    display: grid;
+    gap: 1px;
+    font-size: var(--fs-small);
+    color: var(--ink-2);
+  }
+  .lv-during b {
+    color: var(--ink);
+    font-weight: 600;
   }
 </style>

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { PROBE_STEPS, HOME_STEPS, stepsFor, autoResult, rowsOf, summary, answer, withTodo, addOwn, renameOwn, removeOwn, probeDue, todoDue, dayDiff, shiftDay } from '../src/lib/probe/probe.js';
+import { PROBE_STEPS, HOME_STEPS, DOOR_STEPS, endedEarly, stepsFor, autoResult, rowsOf, summary, answer, withTodo, addOwn, renameOwn, removeOwn, probeDue, todoDue, dayDiff, shiftDay } from '../src/lib/probe/probe.js';
 import { parseBetween } from '../src/lib/phase.js';
 
 const day = { id: 'd1', title: 'Testrunde', days: 1, startDate: '2026-11-03' };
@@ -10,7 +10,7 @@ describe('Generalprobe steps', () => {
     const d = stepsFor(PROBE_STEPS, day).map((s) => s.key);
     expect(d).toEqual(['offline', 'power', 'sos', 'backup']);
     const m = stepsFor(PROBE_STEPS, multi).map((s) => s.key);
-    expect(m).toEqual(PROBE_STEPS.map((s) => s.key));
+    expect(m).toEqual(PROBE_STEPS.map((s) => s.key).filter((k) => !k.startsWith('house')));
     expect(stepsFor(HOME_STEPS, day).map((s) => s.key)).not.toContain('dry');
     expect(stepsFor(HOME_STEPS, multi).map((s) => s.key)).toContain('bike');
   });
@@ -66,5 +66,28 @@ describe('Generalprobe steps', () => {
   it('has its own address next to the other between pages', () => {
     expect(parseBetween('#/trip/m1/probe')).toEqual({ id: 'm1', kind: 'probe' });
     expect(parseBetween('#/trip/m1/heim')).toEqual({ id: 'm1', kind: 'heim' });
+  });
+});
+
+describe('Part 3: the house by the length of the absence, ended early, the door', () => {
+  const keys = (list, tr) => stepsFor(list, tr).map((s) => s.key);
+  it('shows only the house variant that fits the length', () => {
+    expect(keys(PROBE_STEPS, multi).filter((k) => k.startsWith('house'))).toEqual([]);
+    expect(keys(PROBE_STEPS, { ...multi, days: 7 }).filter((k) => k.startsWith('house'))).toEqual(['houseweek']);
+    expect(keys(PROBE_STEPS, { ...multi, days: 21 }).filter((k) => k.startsWith('house'))).toEqual(['houselong']);
+  });
+  it('asks about what is still booked only when the trip ended before its last day', () => {
+    expect(endedEarly(multi)).toBe(false);
+    expect(endedEarly({ ...multi, finished: '2026-11-05' })).toBe(false);
+    expect(endedEarly({ ...multi, finished: '2026-11-04' })).toBe(true);
+    expect(endedEarly({ ...multi, finished: true })).toBe(false);
+    expect(keys(HOME_STEPS, { ...multi, finished: '2026-11-04' })[0]).toBe('booked');
+    expect(keys(HOME_STEPS, multi)).not.toContain('booked');
+  });
+  it('the door: bottles only with a bike, own things at the end', () => {
+    expect(keys(DOOR_STEPS, day)).not.toContain('bottles');
+    expect(keys(DOOR_STEPS, multi)).toContain('bottles');
+    const rec = addOwn(null, 'Hörgerät', 'own-1');
+    expect(stepsFor(DOOR_STEPS, day, rec).at(-1)).toMatchObject({ key: 'own-1', name: 'Hörgerät', own: true });
   });
 });

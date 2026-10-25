@@ -21,6 +21,7 @@
   import { setFix } from '../problemsdb.js';
   import { db } from '../db.js';
   import { t, tn, dateOf } from '../i18n.svelte.js';
+  import { similarProblems } from '../werkstatt/werkstatt.js'; // Paket B part 3: «seen before» on an open problem
 
   // v0.48.0 (Pflege C): filterable adds «Open | All» and «All bikes»; with «All» the solved problems
   // of the last 60 days show faint. Each row says where it came from (Inbox, a debrief, noticed myself).
@@ -129,6 +130,7 @@
               </span>
             {/if}
             {#if stepFor(task) || task.note}<span class="sub">{[stepFor(task) ? t(stepFor(task)) : '', task.note].filter(Boolean).join(' · ')}</span>{/if}
+            {#if isOpen(task)}{@const seen = similarProblems(task, repairs, bikeIdOf)[0]}{#if seen}<span class="sub seen" data-similar>{t('Like «{name}», solved {date}', { name: seen.task.task, date: dateOf(seen.task.statusDate ?? seen.task.logDate) })}{seen.task.note ? ` · ${seen.task.note}` : ''}{seen.task.fix ? ` · ${t(FIXES[seen.task.fix] ?? '')}` : ''}</span>{/if}{/if}
             <span class="sub">
               <button type="button" class="prio" class:hi={task.priority === 'high'} aria-expanded={prioOpen === task.id} aria-controls="prio-{task.id}" onclick={() => ((prioOpen = prioOpen === task.id ? null : task.id), (prioSaved = null))}>{t('Priority: {p}', { p: t(PRIORITY_NAME[task.priority] ?? 'Medium') })}<ChevronDown size={14} aria-hidden="true" /></button>{#if task.dueDate}{' · '}{t('by {date}', { date: dateOf(task.dueDate) })}{:else if task.beforeRide}{' · '}{t('Before the next ride')}{/if}
             </span>

@@ -42,6 +42,8 @@
   import { materialStats, tripLog, usageOf, inView, viewCounts, sortItems, lighterAlt, viewSummary, onTheWay, VIEWS, NEVER_AFTER, PROVEN_AFTER } from '../lib/gear/material.js';
   import { comesLine } from '../lib/gear/detail.js';
   import MatCard from '../lib/gear/MatCard.svelte';
+  import WishPause from '../lib/gear/WishPause.svelte'; // Paket A part 4, UC-007-I2: a buying pause on a wish
+  import NeverWhy from '../lib/gear/NeverWhy.svelte'; // Paket A part 4, UC-008-I1: why it was not used
   import DotsLegend from '../lib/gear/DotsLegend.svelte';
   import ItemLife from '../lib/gear/ItemLife.svelte';
   import FilterSheet from '../lib/gear/FilterSheet.svelte';
@@ -825,6 +827,7 @@
                     {#each rows as item (item.id)}
                       {#if !selecting}
                         <GearRow {item} lent={lentNow[item.id] ?? null} {showBag} {touch} {swiped} u={usageOf(mstats, item.id)} selected={showPanel && selItem?.id === item.id} used={(usedN[item.id] ?? 0) > 0} onswipe={(id) => (swiped = id)} onopen={openRow} onmenu={(it) => (rowMenu = it)} onassign={assignOne} onarchive={archiveOne} ondelete={deleteOne} />
+                        {#if view === 'never'}<li class="nwrow"><NeverWhy {item} /></li>{/if}
                       {:else}
                         <li class="fr">{@render pickRow(item, BAG[item.defaultBag] ? t(BAG[item.defaultBag]) : '–')}</li>
                       {/if}
@@ -861,6 +864,7 @@
                          Impeccable runde 2 (Einkauf 2): «Im Shop ansehen ↗» only when a link is entered; «…» enters or changes it -->
                     <span class="buyw">
                       {#if shopLink(item)}<a class="shopl" href={shopLink(item).url} target="_blank" rel="noopener noreferrer" data-shop-link={item.id}>{shopLink(item).name || t('View in the shop')}<ExternalLink size={14} aria-hidden="true" /><span class="sr">{t('(opens elsewhere)')}</span></a>{/if}
+                      <WishPause {item} />
                       <button type="button" class="btn sm buy" aria-label={t('Bought: {name}', { name: nameOf(item) })} disabled={busy} onclick={() => bought(item)}><Check size={16} aria-hidden="true" />{t('Bought|shop')}</button>
                       <MoreActions small title={nameOf(item)} label={t('More for {name}', { name: nameOf(item) })} actions={wishActions(item)} />
                     </span>
@@ -1786,7 +1790,14 @@
   .wish .buyw {
     flex: none;
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
+    gap: 6px;
+  }
+  .nwrow {
+    display: flex;
+    padding: 0 12px 10px 52px;
+    list-style: none;
   }
   .wish .buy {
     gap: 4px;

@@ -9,6 +9,8 @@
   import { t, locale } from '../i18n.svelte.js';
   import { X } from '@lucide/svelte';
   import '../bikes/velo-dlg.css';
+  import CostLimit from '../werkstatt/CostLimit.svelte'; // Paket B part 3: cost limit and «call first»
+  import { withLimit, limitLines } from '../werkstatt/werkstatt.js';
 
   let { order, bike, trip = null, bikeNames = {}, onclose } = $props();
   let dialog;
@@ -22,7 +24,8 @@
 
   const picked = $derived(order.rows.filter((r) => !off.has(r.key)));
   const sum = $derived(orderSum(picked));
-  const text = $derived(orderText(picked, { bike, trip }));
+  let wish = $state({});
+  const text = $derived(withLimit(orderText(picked, { bike, trip }), wish));
   const toggle = (key) => {
     const s = new Set(off);
     s.has(key) ? s.delete(key) : s.add(key);
@@ -54,7 +57,7 @@
     </style></head><body>
       <h1>${esc(t('Service {bike}', { bike: bike.name }))}</h1>
       <p>${trip?.startDate ? esc(t('Before {trip}, {date}', { trip: trip.title, date: day(trip.startDate) })) : esc(t('Due now'))}${order.shop ? ` · ${esc(order.shop)}` : ''}</p>
-      <table>${rows}<tr class="t"><td></td><td>${esc(t('Estimate from my receipts'))}${sum.unknown ? ` (${esc(t('{n} without a price', { n: sum.unknown }))})` : ''}</td><td class="c">CHF ${sum.total}</td></tr></table>
+      ${limitLines(wish).map((l) => `<p>${esc(l)}</p>`).join('')}<table>${rows}<tr class="t"><td></td><td>${esc(t('Estimate from my receipts'))}${sum.unknown ? ` (${esc(t('{n} without a price', { n: sum.unknown }))})` : ''}</td><td class="c">CHF ${sum.total}</td></tr></table>
     </body></html>`;
     const frame = document.createElement('iframe');
     frame.setAttribute('aria-hidden', 'true');
@@ -102,6 +105,7 @@
     {/each}
   </ul>
   <p class="hint">{t('Untick what you do yourself. The prices are what you paid last time, not a quote.')}</p>
+  <CostLimit bikeId={bike.id} bind:wish />
 
   <h3>{t('Message to the shop')}</h3>
   <textarea class="inp msg" readonly rows="8" value={text}></textarea>

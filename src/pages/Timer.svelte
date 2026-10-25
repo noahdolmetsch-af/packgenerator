@@ -15,7 +15,7 @@
   import AreaIntro from '../lib/intro/AreaIntro.svelte'; // «Anleitungen überall»: the guide of this page (lib/guides.js)
   import Crumb from '../lib/flow/kit/Crumb.svelte';
   import Face from '../lib/timer/Face.svelte';
-  import { timer, loadPrefs, savePrefs, start, togglePause, plusMinute, reset, finish, setNote, closeDone } from '../lib/timer/run.svelte.js';
+  import { timer, loadPrefs, savePrefs, start, togglePause, plusMinute, reset, finish, setNote, closeDone, setWhy } from '../lib/timer/run.svelte.js';
   import { timerLogQuery, MED_ACT } from '../lib/timer/data.js';
   import { radioStep } from '../lib/timer/radios.js';
   import { MODES, MODE_IDS, DEFAULTS, CHIPS, BLOCKS, FACES, parseTime, setupOk, setupSec, position, setupWords, short, faceFor, dayStats, recentSetups, rowName, modeOf, hmOf, dur } from '../lib/timer.js';
@@ -51,6 +51,15 @@
   let typed = $state('');
   let typedBad = $state(false);
   let note = $state('');
+  // Paket A part 4, UC-239-I2: what the timer ran for comes to «Done» as the note, once per entry
+  let notedFor = null;
+  $effect(() => {
+    const d = timer.done;
+    if (d && d.id !== notedFor) {
+      notedFor = d.id;
+      if (d.note && !note) note = d.note;
+    }
+  });
   let ownName = $state('');
   let ownOpen = $state(false);
 
@@ -246,6 +255,7 @@
         </div>
         <Face {face} {sec} {frac} fmt={timer.prefs.fmt} size="l" label={t('{time} on the timer', { time: dur(sec) })} />
         {#if line}<p class="line">{line}</p>{/if}
+        {#if run}<label class="why">{t('What it is running for (optional)')}<input class="inp" maxlength="80" value={run.why ?? ''} onchange={(e) => setWhy(e.currentTarget.value)} placeholder={t('e.g. Bread in the oven')} data-timer-why /></label>{/if}
         <div class="acts">
           <button type="button" class="btn hi go" onclick={go} data-act="go">
             {#if run && !run.pausedAt}<Pause size={20} aria-hidden="true" />{t('Pause')}{:else}<Play size={20} aria-hidden="true" />{run ? t('Go on') : t('Start')}{/if}
@@ -350,6 +360,7 @@
   <div class="bigv" role="dialog" aria-modal="true" aria-label={t('Timer')}>
     <div class="bt2"><span class="pill">{pill}</span><button type="button" class="btn k" onclick={() => (timer.big = false)} aria-label={t('Make small')} title={t('Make small')}><Minimize2 size={18} aria-hidden="true" /></button></div>
     <Face {face} {sec} {frac} fmt={timer.prefs.fmt} size="xl" sub={line} label={t('{time} on the timer', { time: dur(sec) })} />
+    {#if run?.why}<p class="sm" data-timer-why-big>{t('For: {why}', { why: run.why })}</p>{/if}
     {#if face !== 'ring' && line}<p class="line">{line}</p>{/if}
     <div class="acts">
       <button type="button" class="btn hi go" onclick={togglePause}>{#if run.pausedAt}<Play size={20} aria-hidden="true" />{t('Go on')}{:else}<Pause size={20} aria-hidden="true" />{t('Pause')}{/if}</button>
@@ -506,6 +517,15 @@
     flex-wrap: wrap;
     justify-content: center;
     gap: 10px;
+  }
+  .why {
+    display: grid;
+    gap: 4px;
+    width: 100%;
+    max-width: 360px;
+    margin: 0 auto;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
   }
   .nums label {
     display: flex;

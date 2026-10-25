@@ -12,6 +12,7 @@
   import PageHead from '../lib/ui/PageHead.svelte';
   import ListView from '../lib/merken/ListView.svelte';
   import ListSheet from '../lib/merken/ListSheet.svelte';
+  import ListEnd from '../lib/stand/ListEnd.svelte'; // Paket A part 1: a list can end
 
   let { id } = $props();
   const q = liveQuery(async () => {
@@ -47,6 +48,7 @@
       </p>
     </PageHead>
     <div class="card body"><ListView {list} /></div>
+    <ListEnd {list} />
   {/if}
 </div>
 {#if edit && list}<ListSheet {list} onclose={() => (edit = false)} ondone={done} />{/if}

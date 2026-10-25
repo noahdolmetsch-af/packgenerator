@@ -16,7 +16,7 @@
   });
   const run = $derived(timer.run);
   const pos = $derived(run ? position(run, timer.now) : null);
-  const name = $derived(run ? run.label || t(modeOf(run.setup.mode).label) : '');
+  const name = $derived(run ? run.why || run.label || t(modeOf(run.setup.mode).label) : ''); // Paket A part 4: what it runs for first
 </script>
 
 {#if run && pos}

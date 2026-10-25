@@ -15,6 +15,7 @@
   import { t } from '../i18n.svelte.js';
   import { X } from '@lucide/svelte';
   import '../bikes/velo-dlg.css';
+  import RefundBox from '../werkstatt/RefundBox.svelte'; // Paket B part 3: a refund on the visit
 
   let { visit, bike, onclose } = $props();
   let dialog;
@@ -92,6 +93,7 @@
       </li>
     {/each}
   </ul>
+  <RefundBox {visit} total={visitTotal(visit)} />
 
   <div class="foot vd-foot">
     <button type="button" class="link rm" onclick={remove}>{t('Remove visit')}</button>

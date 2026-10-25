@@ -21,6 +21,7 @@
   import { offerDone } from '../ui/rename.svelte.js';
   import GriffHead from './GriffHead.svelte';
   import './griff.css';
+  import Handover from '../werkstatt/Handover.svelte'; // Paket B part 3: handover after the sale
 
   let { bikeId = null } = $props();
   const today = localDay();
@@ -94,6 +95,7 @@
       </div>
       {#if msg}<p class="err" role="alert">{msg}</p>{/if}
     </section>
+    <Handover bikeId={bike.id} rec={own.handover ?? null} />
   {/if}
 </div>
 

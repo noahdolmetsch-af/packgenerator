@@ -12,6 +12,8 @@
   import { neverText } from './material.js';
   import { catIcon, catColor } from './caticon.js';
   import { t, nameOf } from '../i18n.svelte.js';
+  import NeverWhy from './NeverWhy.svelte'; // Paket A part 4, UC-008-I1: why it was not used
+  import WishPause from './WishPause.svelte'; // Paket A part 4, UC-007-I2: a buying pause
 
   let { item, u, alt = null, proven = false, view = 'all', selected = false, reasons = [], onopen, onhome = null, onbought = null } = $props();
   const Icon = $derived(catIcon(item.category));
@@ -50,13 +52,15 @@
   <span class="fstar"><FavStar {item} describedby="mc-{item.id}" /></span>
   {#if view === 'never' && onhome}
     <div class="acts">
+      <NeverWhy {item} />
       {#if leaveHome(item)}<span class="home">{t('Stays at home')}</span>{:else}<button type="button" class="btn sm" onclick={() => onhome(item)} data-explain={t('Leave at home')}>{t('Leave home|short')}</button>{/if}
     </div>
   {/if}
   {#if wish && onbought}
     <!-- Impeccable (18.10.2026): «Bought» on a wish, as in the list of «Shopping» -->
     <div class="acts">
-      <button type="button" class="btn sm" aria-label={t('Bought: {name}', { name: nameOf(item) })} onclick={() => onbought(item)}>{t('Bought|shop')}</button>
+<WishPause {item} />
+            <button type="button" class="btn sm" aria-label={t('Bought: {name}', { name: nameOf(item) })} onclick={() => onbought(item)}>{t('Bought|shop')}</button>
     </div>
   {/if}
 </article>
@@ -165,6 +169,10 @@
     min-height: 44px;
   }
   .acts {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
     grid-column: 1 / -1;
     padding: 0 12px 10px 64px;
   }

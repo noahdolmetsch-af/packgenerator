@@ -31,13 +31,15 @@ describe('impulses', () => {
       expect(AREAS.some((a) => a.id === i.area), i.id).toBe(true);
       expect(DE[i.title], i.title).toBeTruthy();
       expect(DE[i.text], i.text).toBeTruthy();
+      expect(DE[i.first], i.first).toBeTruthy(); // Paket A part 4, UC-238-I1: the smallest start
     }
   });
   it('edits, hidden, own; the impulse of the day skips hidden ones and stays the same all day', () => {
     const cfg = { edits: { i01: { title: `${P}mine`, text: 'x' } }, hidden: ['i02'], own: [{ id: 'own1', title: `${P}own`, area: 'joy' }] };
     const list = impulsesOf(cfg);
     expect(list).toHaveLength(31);
-    expect(list.find((i) => i.id === 'i01')).toMatchObject({ title: `${P}mine`, edited: true });
+    expect(list.find((i) => i.id === 'i01')).toMatchObject({ title: `${P}mine`, edited: true, firstOwn: false });
+    expect(impulsesOf({ edits: { i01: { title: `${P}mine`, first: `${P}first` } } })[0]).toMatchObject({ first: `${P}first`, firstOwn: true });
     expect(list.find((i) => i.id === 'own1')).toMatchObject({ own: true });
     const a = impulseOfDay(list, '2026-10-19');
     expect(a.hidden).toBe(false);

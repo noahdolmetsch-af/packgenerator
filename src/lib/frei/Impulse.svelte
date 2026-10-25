@@ -53,6 +53,8 @@
   const nameOfArea = (id) => areaName(areas.find((a) => a.id === id), t);
   const title = (i) => (i.own || i.edited ? i.title : t(i.title));
   const text = (i) => (i.own || i.edited ? i.text : t(i.text));
+  // Paket A part 4, UC-238-I1: every impulse names its smallest start (own and changed ones as typed)
+  const first = (i) => (i.own || i.firstOwn ? i.first ?? '' : i.first ? t(i.first) : '');
   const goLabel = (i) => (i.go?.page ? t('Open the page') : i.go?.coll ? t('Keep it in a collection') : t('Try it'));
 
   /* ---------- done, hide, delete ---------- */
@@ -79,13 +81,13 @@
   }
 
   /* ---------- add or change an impulse ---------- */
-  let edit = $state(null); // { id?, std, title, text, area }
-  const openNew = () => (edit = { id: null, std: false, title: '', text: '', area: area !== 'all' && area !== '' ? area : shownAreas[0]?.id ?? '' });
-  const openEdit = (i) => (edit = { id: i.id, std: !i.own, title: title(i), text: text(i), area: i.area });
+  let edit = $state(null); // { id?, std, title, text, first, area }
+  const openNew = () => (edit = { id: null, std: false, title: '', text: '', first: '', area: area !== 'all' && area !== '' ? area : shownAreas[0]?.id ?? '' });
+  const openEdit = (i) => (edit = { id: i.id, std: !i.own, title: title(i), text: text(i), first: first(i), area: i.area });
   async function saveEdit() {
     const name = edit.title.trim();
     if (!name) return t('Please give it a name.');
-    const e = { title: name, text: edit.text.trim(), area: edit.area };
+    const e = { title: name, text: edit.text.trim(), first: (edit.first ?? '').trim().slice(0, 160), area: edit.area };
     if (!edit.id) await changeCfg((c) => ({ ...c, own: [...(c.own ?? []), { id: uid('imp'), ...e }] }));
     else if (edit.std)
       await changeCfg((c) => {
@@ -241,6 +243,7 @@
   <article class="fz-box fzi-card" class:fz-soft={big} class:fzi-off={i.hidden} data-impulse={i.id}>
     {#if big}<h3 class="fz-big">{title(i)}</h3><p class="fzi-area">{nameOfArea(i.area) || t('Without an area')}</p>{/if}
     {#if text(i)}<p class="fz-text">{text(i)}</p>{/if}
+    {#if first(i)}<p class="fzi-first" data-first><b>{t('Smallest start:')}</b> {first(i)}</p>{/if}
     {#if big || i.go?.inline}{@render helper(i)}{/if}
     <div class="fz-acts">
       {#if i.go && !i.go.inline}<a class="btn sm hi" href={impulseHref(i, colls)} data-go>{goLabel(i)}<ChevronRight size={16} aria-hidden="true" /></a>{/if}
@@ -330,6 +333,7 @@
   <FreiSheet title={edit.id ? t('Change impulse') : t('Your own impulse')} onsave={saveEdit} onclose={() => (edit = null)}>
     <label class="fz-lab">{t('Name')}<input class="inp" maxlength="120" bind:value={edit.title} data-imp-title /></label>
     <label class="fz-lab">{t('Text (optional)')}<textarea class="inp" rows="4" maxlength="800" bind:value={edit.text} data-imp-text></textarea></label>
+    <label class="fz-lab">{t('Smallest start (optional)')}<input class="inp" maxlength="160" bind:value={edit.first} placeholder={t('One small move, no shopping, no big plan.')} data-imp-first /></label>
     <label class="fz-lab">{t('Area|frei')}
       <select class="inp" bind:value={edit.area}>
         <option value="">{t('Without an area')}</option>
@@ -356,6 +360,11 @@
 {/if}
 
 <style>
+  .fzi-first {
+    margin: 0;
+    color: var(--ink);
+    font-size: var(--fs-small);
+  }
   .fzi-toph {
     display: flex;
     align-items: center;
