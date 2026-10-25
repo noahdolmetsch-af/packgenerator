@@ -98,14 +98,15 @@ export function staysOf(trip) {
   const list = Array.isArray(trip?.stays) ? trip.stays : [];
   return list
     .filter((s) => s && Number.isInteger(s.n) && s.n >= 0)
-    .map((s) => ({ n: s.n, name: String(s.name ?? ''), until: isHM(s.until) ? s.until : '', phone: String(s.phone ?? '') }));
+    .map((s) => ({ n: s.n, name: String(s.name ?? ''), until: isHM(s.until) ? s.until : '', phone: String(s.phone ?? ''), ...(isHM(s.callBy) ? { callBy: s.callBy } : {}) })); // callBy: Paket B, UC-035-I2
 }
 
 /** The list after setting the stay of night n (an empty stay is removed). */
 export function setStay(list, n, fields) {
   const rest = (list ?? []).filter((s) => s.n !== n);
-  const s = { n, name: String(fields?.name ?? '').trim(), until: isHM(fields?.until) ? fields.until : '', phone: String(fields?.phone ?? '').trim() };
-  return s.name || s.until || s.phone ? [...rest, s].sort((a, b) => a.n - b.n) : rest;
+  const s = { n, name: String(fields?.name ?? '').trim(), until: isHM(fields?.until) ? fields.until : '', phone: String(fields?.phone ?? '').trim(), callBy: isHM(fields?.callBy) ? fields.callBy : '' };
+  if (!s.callBy) delete s.callBy;
+  return s.name || s.until || s.phone || s.callBy ? [...rest, s].sort((a, b) => a.n - b.n) : rest;
 }
 
 /**
@@ -218,8 +219,11 @@ export function parkedOf(value) {
   const v = value && typeof value === 'object' ? value : null;
   if (!v || !v.at) return null;
   const here = Number.isFinite(v.lat) && Number.isFinite(v.lon) ? { lat: v.lat, lon: v.lon, acc: Number.isFinite(v.acc) ? v.acc : null } : null;
-  return { at: String(v.at), here, lock: String(v.lock ?? ''), lockName: String(v.lockName ?? ''), note: String(v.note ?? ''), photo: typeof v.photo === 'string' && v.photo.startsWith('data:image/') ? v.photo : '' };
+  const off = Array.isArray(v.off) ? [...new Set(v.off.map((x) => String(x ?? '').trim().slice(0, 40)).filter(Boolean))].slice(0, 12) : [];
+  return { at: String(v.at), here, lock: String(v.lock ?? ''), lockName: String(v.lockName ?? ''), note: String(v.note ?? ''), photo: typeof v.photo === 'string' && v.photo.startsWith('data:image/') ? v.photo : '', key: String(v.key ?? '').trim().slice(0, 60), off };
 }
+/** Paket B, UC-101-I2: what usually comes off the parked bike and goes along (English keys for t(); own ones as typed). */
+export const PARKED_OFF = ['Lights', 'Bike computer', 'Bottles', 'Handlebar bag', 'Pump'];
 
 /** How long ago: minutes → { n, unit } ('min' | 'h' | 'd'). */
 export function agoOf(at, now = Date.now()) {
@@ -254,4 +258,12 @@ export function planBTomorrow(trips = [], now, from = '17:00') {
     return { trip, day, date: tomorrow };
   }
   return null;
+}
+
+/** Paket B, UC-035-I2 «Kontakt vor dem Funkloch»: '' (no time or long before), 'soon' (30 min or less before) or 'past' at the time «call by» of a stay. */
+export function callState(stay, hm) {
+  if (!stay?.callBy || !isHM(hm)) return '';
+  const m = (x) => Number(x.slice(0, 2)) * 60 + Number(x.slice(3, 5));
+  const left = m(stay.callBy) - m(hm);
+  return left < 0 ? 'past' : left <= 30 ? 'soon' : '';
 }

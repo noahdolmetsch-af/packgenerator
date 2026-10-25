@@ -69,7 +69,7 @@
   /* check-in per night */
   const nights = $derived(nightsOf(stageCount(trip)));
   const stays = $derived(staysOf(trip));
-  const stayOf = (n) => stays.find((s) => s.n === n) ?? { n, name: '', until: '', phone: '' };
+  const stayOf = (n) => stays.find((s) => s.n === n) ?? { n, name: '', until: '', phone: '', callBy: '' };
   const placeOf = (n) => trip.stages?.days?.[n]?.name ?? '';
   function setField(n, field, value) {
     save({ stays: setStay(stays, n, { ...stayOf(n), [field]: value }) });
@@ -122,6 +122,7 @@
                 <input class="inp" type="time" value={r.stay.until} onchange={(e) => setField(r.n, 'until', e.currentTarget.value)} aria-label={t('Check-in until (night {n})', { n: r.n + 1 })} data-checkin-until />
                 <input class="inp" type="tel" inputmode="tel" value={r.stay.phone} onchange={(e) => setField(r.n, 'phone', e.currentTarget.value)} placeholder="+41 …" aria-label={t('Phone of the accommodation (night {n})', { n: r.n + 1 })} />
               </div>
+              <label class="tp-small callby">{t('Get in touch by (before you lose signal)')}<input class="inp" type="time" value={r.stay.callBy ?? ''} onchange={(e) => setField(r.n, 'callBy', e.currentTarget.value)} data-checkin-callby /></label>
               {#if r.check}
                 {#if r.check.late}
                   <p class="warn" role="note" data-checkin-late><TriangleAlert size={16} aria-hidden="true" />{t('Planned arrival {arrive}, {min} min after check-in ends at {until}.', { arrive: r.check.arrive, min: r.check.lateMin, until: r.check.until })}{#if r.check.needKmh != null}{' '}{t('You would need {need} km/h instead of {plan} km/h; start earlier or call ahead.', { need: kmh(r.check.needKmh), plan: num(r.check.planKmh ?? 0) })}{/if}</p>
@@ -154,6 +155,11 @@
 {/if}
 
 <style>
+  .callby {
+    display: grid;
+    gap: 4px;
+    margin-top: 6px;
+  }
   .door {
     padding: 12px 16px;
     margin: 12px 0;

@@ -865,3 +865,5 @@ Die frühere gespeicherte Datei `2026-10-07-packgenerator-ablaufplan.md` wird al
 **25.10.2026, v0.193.0 «Ruhig und persönlich» (996 Ideen Paket C):** neue Seite Ich › Ruhig und persönlich: weniger App wenn du willst (Arbeitsraum, Ruhige Ansicht, Erinnerungs-Budget, Nicht für mich), Experimente mit Ende, Herkunft der Werte, Briefe ans spätere Ich und Klangbriefe, Bedeutung neben Zahlen, Fähigkeiten-Karte, Teilen mit Vorschau, klare Zahlen, Assistent mit Belegen. Nächstes: Paket D «Mit Freunden».
 
 **25.10.2026, v0.194.0 «Zusammen mit Freunden»:** Paket D Teil 1: Ich › Mit Freunden mit Freunde fragen, Leihregal und Vorlage teilen. Teil 2 (Briefkasten mit Anmeldung) wartet auf Noah.
+
+**25.10.2026, v0.195.0 «Kleine Helfer für Tour und Velo»:** weitere Einzelideen aus Paket B: Velo abgestellt mit Schlüssel und abgenommenen Teilen, «Melden bis» pro Nacht, Hotelanfragen im Rennmodus, «Optionen vergleichen» bei den Reise-Links, Vorgeschmack einer Traumtour, Garantiefall-Entwurf.

@@ -16,6 +16,20 @@
 
 export const WHATS_NEW = [
   {
+    // v0.195.0 Paket B single ideas (996 Ideen, Noah «1b»): parked bike with key and parts taken off, «get in touch by»
+    // per night, hotel asks in race mode, options to compare on the travel links, a taste of a dream tour, a warranty claim draft.
+    version: '0.195.0',
+    date: '2026-10-25',
+    title: 'Small helpers for trip and bike',
+    lead: 'What you took off, whom to call back, what to compare.',
+    points: [
+      { text: 'Bike parked: key and what you took off', href: '#/ride' },
+      { text: 'Compare options on the travel links', href: '#/travel' },
+    ],
+    small: [{ box: 'new', text: 'A small taste of a dream tour first' }, { box: 'new', text: 'A draft for a warranty claim' }],
+    test: ['Open Touren › Reise-Links › «Optionen vergleichen» and add two options.', 'Open Touren › Träume, a dream: «Vorgeschmack planen».'],
+  },
+  {
     // v0.194.0 Paket D «Mit Freunden» (996 Ideen, Noah 24.10.2026 «3b», «4b»):
     // Ich › Mit Freunden: ask friends, lending shelf, share a template; everything as a link or a small file, no account.
     version: '0.194.0',

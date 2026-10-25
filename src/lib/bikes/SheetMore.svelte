@@ -18,6 +18,7 @@
   import { shrinkImage } from '../photo.js';
   import { PART } from '../care.js';
   import { sheetsOf, bikeLine, isShown, NEW_KM } from '../sheets.js';
+  import ClaimDraft from '../werkstatt/ClaimDraft.svelte'; // Paket B, UC-180-I2: a claim draft
   import { BREAKIN_MARKS, RIDE_TYPES, WARRANTY_PARTS, THEFT_FIELDS, THEFT_STEPS, tickBreakin, breakinEntries, tickKit, kitItem, kitToTrip, warrantyIcs, chf, dayMonth } from '../sheets2.js';
   import Seg from '../ui/Seg.svelte';
   import DateInput from '../ui/DateInput.svelte';
@@ -324,6 +325,7 @@
   {#if breakinShown && !more.breakin.done}
     <p class="cond"><b>{t('Condition:')}</b> {t('Many makers want a first inspection between 300 and 500 km, else the frame warranty can lapse. It is step 4 of the Break-in plan.')}</p>
   {/if}
+  {#if w.rows.length || w.replaced.length}<ClaimDraft bikeName={data.view.name} bought={w.bought ?? ''} shop={w.shop ?? ''} rows={[...w.rows, ...w.replaced]} claim={s.warranty?.claim ?? null} onsave={(claim) => store({ warranty: { ...$state.snapshot(s.warranty ?? {}), claim } })} />{/if}
   <section class="psec noprint" aria-labelledby="w-rem">
     <h3 id="w-rem">{t('Remind')}</h3>
     <ul class="checks">

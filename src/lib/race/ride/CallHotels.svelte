@@ -9,6 +9,7 @@
   import { eveningTarget, isAfternoon, hotelsToCall, langAt, lateText, telOf, LANG_NAME } from '../sleep.js';
   import { pointAt, hhmm } from '../race.js';
   import { t, num } from '../../i18n.svelte.js';
+  import { ANSWERS, asksOf, addAsk, lastAsk, answerAsk, booked } from './asks.js'; // Paket B, UC-120-I1: who was asked
 
   let { ctx, now, km, eta = null, kmh = 18 } = $props();
   let early = $state(false);
@@ -24,6 +25,10 @@
   const text = $derived(lateText(use, hhmm(list[0]?.at ?? target.at)));
   const nameOf = (p) => p.name || t('Hotel and hostel');
   const stateText = (p) => (p.open === true ? (p.closes ? t('open when you arrive, closes {time}', { time: p.closes }) : t('open when you arrive')) : p.open === false ? t('probably closed when you arrive: call before') : t('reception hours unknown: call before'));
+  const asks = $derived(asksOf(ctx.stored?.hotelAsks));
+  const bed = $derived(booked(asks));
+  const ask = (p, how) => ctx.save({ hotelAsks: addAsk(asks, p, how, Date.now()) });
+  const answer = (p, a) => ctx.save({ hotelAsks: answerAsk(asks, p, a) });
   async function copy() {
     try {
       await navigator.clipboard.writeText(text);
@@ -40,6 +45,7 @@
     <button type="button" class="btn sm" onclick={() => (early = true)} data-sleep-call-now>{t('Show now')}</button>
   {:else}
     <p class="rc-text" data-sleep-target>{target.planned ? t('Your planned night: km {km}, about {time}', { km: num(target.km), time: hhmm(target.at) }) : t('At your pace you are at about km {km} at {time}', { km: num(target.km), time: hhmm(target.at) })}</p>
+    {#if bed}<p class="rc-ok" data-sleep-booked>{t('Bed booked: {name}. No need to ask the others.', { name: bed.name || t('Hotel and hostel') })}</p>{/if}
     {#if list.length}
       <ul class="rc-list">
         {#each list as p (p.id ?? p.km)}
@@ -48,9 +54,16 @@
               <b>{nameOf(p)}</b>
               <small>{t('km {km}', { km: num(Math.round(p.km)) })} · {t('there about {at}', { at: hhmm(p.at) })}</small>
               <small class:rc-warn={p.open !== true} class:rc-ok={p.open === true}>{stateText(p)}</small>
+              {#if lastAsk(asks, p)}
+                {@const a = lastAsk(asks, p)}
+                <small data-sleep-asked>{t(a.how === 'mail' ? 'Written at {time}' : 'Called at {time}', { time: hhmm(Date.parse(a.at)) })}{a.answer ? ` · ${t(ANSWERS.find((x) => x.key === a.answer).name)}` : ''}</small>
+                <span class="ch-ans" role="group" aria-label={t('Answer of {name}', { name: nameOf(p) })}>
+                  {#each ANSWERS as x (x.key)}<button type="button" class="rc-chip" aria-pressed={a.answer === x.key} onclick={() => answer(p, x.key)} data-sleep-answer={x.key}>{t(x.name)}</button>{/each}
+                </span>
+              {/if}
             </span>
-            {#if p.phone}<a class="rc-icon" href="tel:{telOf(p.phone)}" aria-label={t('Call {name}', { name: nameOf(p) })} data-sleep-tel><Phone size={18} aria-hidden="true" /></a>{/if}
-            {#if p.mail}<a class="rc-icon" href="mailto:{p.mail}?subject={encodeURIComponent('Room tonight / Zimmer heute')}&body={encodeURIComponent(text)}" aria-label={t('Write to {name}', { name: nameOf(p) })}><Mail size={18} aria-hidden="true" /></a>{/if}
+            {#if p.phone}<a class="rc-icon" href="tel:{telOf(p.phone)}" onclick={() => ask(p, 'call')} aria-label={t('Call {name}', { name: nameOf(p) })} data-sleep-tel><Phone size={18} aria-hidden="true" /></a>{/if}
+            {#if p.mail}<a class="rc-icon" href="mailto:{p.mail}?subject={encodeURIComponent('Room tonight / Zimmer heute')}&body={encodeURIComponent(text)}" onclick={() => ask(p, 'mail')} aria-label={t('Write to {name}', { name: nameOf(p) })}><Mail size={18} aria-hidden="true" /></a>{/if}
           </li>
         {/each}
       </ul>
@@ -76,6 +89,12 @@
     flex-direction: column;
     gap: 8px;
     min-width: 0;
+  }
+  .ch-ans {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 4px;
   }
   .ch-say {
     display: flex;
