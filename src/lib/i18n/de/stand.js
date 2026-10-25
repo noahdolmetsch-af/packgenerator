@@ -54,4 +54,10 @@ export default {
   '"{name}": {state}.': '«{name}»: {state}.',
   'Cancellation sent, confirmation missing': 'Kündigung gesendet, Bestätigung fehlt',
   'Cancellation written, not sent yet': 'Kündigung geschrieben, noch nicht gesendet',
+  'Before: {title} ({n} min)': 'Vor: {title} ({n} Min)',
+  'After: {title} ({n} min)': 'Nach: {title} ({n} Min)',
+  'Plan ahead (getting ready, the way there)': 'Davor einplanen (bereit machen, Hinweg)',
+  'Plan afterwards (the way back)': 'Danach einplanen (Rückweg)',
+  'Becomes its own entry, so the time stays free.': 'Wird ein eigener Eintrag, so bleibt die Zeit frei.',
+  'None': 'Keine',
 };

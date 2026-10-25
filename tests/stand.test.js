@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { WAIT_ON, waitOf, newWait, stillWaiting, waitingRows, notWaiting, endList, reopenList, isEnded, endGoal, reopenGoal, goalEnd } from '../src/lib/stand/stand.js';
+import { WAIT_ON, waitOf, newWait, stillWaiting, waitingRows, notWaiting, endList, reopenList, isEnded, endGoal, reopenGoal, goalEnd, bufferItems } from '../src/lib/stand/stand.js';
 import { newTodo, groupTodos } from '../src/lib/merken.js';
 import { pinnedTo } from '../src/lib/ownlists.js';
 
@@ -76,5 +76,23 @@ describe('Part 2: honest state', () => {
   it('the wet chain hint rests for today only', () => {
     expect(wetRests({ b: { day: today, how: 'later' } }, 'b', today)).toBe(true);
     expect(wetRests({ b: { day: '2026-10-24', how: 'later' } }, 'b', today)).toBe(false);
+  });
+});
+
+describe('Buffers around a date (UC-228-I1)', () => {
+  const date = { kind: 'date', title: 'test_data_gtp_ Zahnarzt', day: '2026-10-27', time: '09:00' };
+  it('make nothing when no time is chosen', () => {
+    expect(bufferItems(date, { before: 0, after: 0 })).toEqual([]);
+    expect(bufferItems({ ...date, kind: 'todo' }, { before: 30 })).toEqual([]);
+  });
+  it('put the time before at start minus the minutes, the time after without a time', () => {
+    expect(bufferItems(date, { before: 30, after: 15 })).toEqual([
+      { kind: 'date', title: 'Before: test_data_gtp_ Zahnarzt (30 min)', day: '2026-10-27', time: '08:30' },
+      { kind: 'date', title: 'After: test_data_gtp_ Zahnarzt (15 min)', day: '2026-10-27', time: '' },
+    ]);
+  });
+  it('leave the time out when the date has none or it would fall before midnight', () => {
+    expect(bufferItems({ ...date, time: '' }, { before: 60 })[0].time).toBe('');
+    expect(bufferItems({ ...date, time: '00:30' }, { before: 60 })[0].time).toBe('');
   });
 });

@@ -150,3 +150,26 @@ export const WET_LATER = [
   { key: 'later', name: 'Not today' },
 ];
 export const wetRests = (value, bikeId, today) => value?.[bikeId]?.day === today;
+
+/* ---------- part 3: time ---------- */
+
+/**
+ * UC-228-I1 «Puffer als echter Planeintrag»: a date in «Woche planen» can get time before it (getting ready,
+ * the way there) and after it (the way back, tidying up) as its own entries, so the gap is visible and kept.
+ * The buffers are plain dates of the week (kind 'date'); their title says what they belong to.
+ */
+export const BUFFER_MIN = [0, 15, 30, 60, 90];
+const hm = (m) => `${String(Math.floor(m / 60)).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`;
+const minOf = (time) => (/^\d{2}:\d{2}$/.test(time ?? '') ? +time.slice(0, 2) * 60 + +time.slice(3, 5) : null);
+/**
+ * The buffer entries for a date: [{ kind:'date', title, day, time }]. before/after in minutes; names(side, title, min)
+ * gives the title in the person's language. Before a date without a time, or before midnight, the buffer has no time.
+ */
+export function bufferItems(item, { before = 0, after = 0 } = {}, names = (side, title, min) => `${side === 'before' ? 'Before' : 'After'}: ${title} (${min} min)`) {
+  if (!item?.day || item.kind !== 'date') return [];
+  const at = minOf(item.time);
+  const out = [];
+  if (before > 0) out.push({ kind: 'date', title: names('before', item.title, before).slice(0, 80), day: item.day, time: at != null && at - before >= 0 ? hm(at - before) : '' });
+  if (after > 0) out.push({ kind: 'date', title: names('after', item.title, after).slice(0, 80), day: item.day, time: '' });
+  return out;
+}

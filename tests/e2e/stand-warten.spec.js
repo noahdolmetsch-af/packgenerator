@@ -118,3 +118,24 @@ test('Supplies: an opened pack with little left goes on Buy again', async ({ pag
   await expect(buy).toHaveCount(before + 1);
   expect(await noSideways(page)).toBe(0);
 });
+
+test('Woche: time before and after a date becomes its own entries', async ({ page, context }, info) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await openHome(page, context, info, { data: data() });
+  await page.goto('./#/week');
+  await tap(page.locator('[data-add="date"]'), info);
+  const form = page.locator('[data-week-form]');
+  await form.getByLabel(T('Date|week')).fill('test_data_gtp_ Zahnarzt');
+  await form.getByLabel(T('Day')).fill(day(1));
+  await form.getByLabel(T('Time')).fill('09:00');
+  await form.locator('[data-buffer-before]').selectOption({ label: T('{n} min', { n: 30 }) });
+  await form.locator('[data-buffer-after]').selectOption({ label: T('{n} min', { n: 15 }) });
+  expect(await noSideways(page)).toBe(0);
+  await tap(form.getByRole('button', { name: T('Save') }), info);
+  const tomorrow = page.locator(`[data-day="${day(1)}"] [data-kind="date"]`);
+  await expect(tomorrow.filter({ hasText: T('Before: {title} ({n} min)', { title: 'test_data_gtp_ Zahnarzt', n: 30 }) })).toContainText('08:30');
+  await expect(tomorrow.filter({ hasText: T('After: {title} ({n} min)', { title: 'test_data_gtp_ Zahnarzt', n: 15 }) })).toHaveCount(1);
+  await expect.poll(async () => ((await setting(page, 'week.items')) || []).length).toBe(3);
+  expect(errors).toEqual([]);
+});
