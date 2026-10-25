@@ -177,6 +177,7 @@ export function pageOf(hash = '', careTab = false) {
   if (h.startsWith('#/debrief/ride')) return 'rides'; // v0.41.0 (Noah 1): upload a ride, planned vs real
   if (h.startsWith('#/debrief')) return 'debrief';
   if (h.startsWith('#/share/')) return 'share';
+  if (h.startsWith('#/gruppe/')) return 'gruppe'; // Gruppen-Live-Karte (Noah 25.10.2026 «b»): a friend's view of the group ride
   if (h.startsWith('#/spur-link/')) return 'spurlink'; // Paket S «Reise-Spur»: a tour's read link for the family
   if (h.startsWith('#/tour/')) return 'tour'; // «Tour» (19.10.2026): one finished tour
   if (h.startsWith('#/spur/')) return 'spur'; // Paket S «Reise-Spur»: one tour's map, days, link and book

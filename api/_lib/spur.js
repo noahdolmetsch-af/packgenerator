@@ -102,3 +102,158 @@ export function makeSpurHandler({ env = () => redisEnv(), doFetch = (...a) => fe
     'spur',
   );
 }
+
+/* ---------- Gruppen-Live-Karte (Noah 25.10.2026 «b») ---------- */
+
+/**
+ * A ride with friends: who taps «Share my location» is a point on everyone's map, for at most 24 h.
+ * Sealed like the read link: the group key is made on the device and travels only after the # of the
+ * invite link; the server keeps sealed names and places it cannot read. The whole group is one Redis
+ * hash that expires GROUP_TTL_S after it was made (a write never makes it live longer), and whoever
+ * made it can end it at once; a member can leave and is gone from the hash.
+ *
+ *   grp:<gid>             HASH  '_' → JSON { e?, d: sha256(owner code), end }   (e: the sealed route)
+ *                               <mid> → JSON { e, d: sha256(member code), at } (e: sealed name and place)
+ *   grp:rate:<ip>:<day>   STRING writes from one address today (at most GROUP_WRITES_PER_DAY)
+ *
+ *   GET  ?action=group&gid=<gid>[&route=0]             → { ok, end, e, members: [{ m, e, at }] }
+ *   POST ?action=group&step=new   { e?, hours? }       → { ok, gid, del, end }
+ *   POST ?action=group&step=route { gid, del, e }      → { ok }           (the owner: a new route)
+ *   POST ?action=group&step=put   { gid, e }           → { ok, mid, del, at, members } (a new member)
+ *   POST ?action=group&step=put   { gid, mid, del, e } → { ok, mid, at, members }      (a newer place)
+ * (put answers with the members too: one call per update, because of the daily cap in daycap.js)
+ *   POST ?action=group&step=leave { gid, mid, del }    → { ok }           (gone from the group)
+ *   POST ?action=group&step=end   { gid, del }         → { ok }           (the owner: everything deleted)
+ */
+export const GROUP_TTL_S = 24 * 3600;
+export const GROUP_MEMBERS_MAX = 40;
+/** A member's sealed name and place; the route may be larger. */
+export const MEMBER_MAX = 4000;
+export const ROUTE_MAX = 200_000;
+/** A place every 30 s for 24 h from a few phones behind one address. */
+export const GROUP_WRITES_PER_DAY = 6000;
+export const groupKey = (gid) => `grp:${gid}`;
+const isSealed = (e, max) => typeof e === 'string' && e.length > 20 && e.length <= max && /^[A-Za-z0-9_-]+$/.test(e);
+
+/** HGETALL's flat list → Map (the REST API answers [field, value, field, value, …]). */
+function pairs(list) {
+  const m = new Map();
+  if (Array.isArray(list)) for (let i = 0; i + 1 < list.length; i += 2) m.set(String(list[i]), list[i + 1]);
+  else if (list && typeof list === 'object') for (const [k, v] of Object.entries(list)) m.set(k, v);
+  return m;
+}
+/** The hash → the members' sealed places [{ m, e, at }]. */
+function membersOf(all) {
+  return [...all]
+    .filter(([k]) => k !== '_')
+    .map(([k, v]) => [k, readJson(v)])
+    .filter(([, r]) => r && typeof r.e === 'string')
+    .map(([k, r]) => ({ m: k, e: r.e, at: r.at ?? null }));
+}
+function readJson(v) {
+  if (typeof v !== 'string') return null;
+  try {
+    const r = JSON.parse(v);
+    return r && typeof r === 'object' && typeof r.d === 'string' ? r : null;
+  } catch {
+    return null;
+  }
+}
+
+export function makeGroupHandler({ env = () => redisEnv(), doFetch = (...a) => fetch(...a), now = () => new Date() } = {}) {
+  const GONE = () => new ApiError(404, 'not_found', 'This group has ended.');
+  async function meta(store, gid) {
+    if (!isId(gid)) throw new ApiError(400, 'bad_request', 'The link is not complete.');
+    const m = readJson(await store.cmd('HGET', groupKey(gid), '_'));
+    if (!m || Date.parse(m.end) <= now().getTime()) throw GONE();
+    return m;
+  }
+  async function limit(store, request) {
+    const rk = `grp:rate:${ipOf(request)}:${now().toISOString().slice(0, 10)}`;
+    const n = Number(await store.cmd('INCR', rk));
+    if (n === 1) await store.expire(rk, 86_400);
+    if (n > GROUP_WRITES_PER_DAY) throw new ApiError(429, 'too_many', 'Too many updates today. Try again tomorrow.');
+  }
+  return route(
+    {
+      GET: async (request) => {
+        const gid = new URL(request.url).searchParams.get('gid');
+        const store = needStore(env(), doFetch);
+        if (!isId(gid)) throw new ApiError(400, 'bad_request', 'The link is not complete.');
+        const all = pairs(await store.cmd('HGETALL', groupKey(gid)));
+        const m = readJson(all.get('_'));
+        if (!m || Date.parse(m.end) <= now().getTime()) throw GONE();
+        // ?route=0: only the members (the route is fetched once)
+        const withRoute = new URL(request.url).searchParams.get('route') !== '0';
+        return json(request, 200, { ok: true, end: m.end, e: withRoute ? (m.e ?? null) : null, members: membersOf(all) });
+      },
+      POST: async (request) => {
+        const step = new URL(request.url).searchParams.get('step');
+        const body = await jsonBody(request, ROUTE_MAX + 2000);
+        const store = needStore(env(), doFetch);
+        if (step === 'new') {
+          if (body.e != null && !isSealed(body.e, ROUTE_MAX)) throw new ApiError(400, 'bad_request', 'The route is too large.');
+          await limit(store, request);
+          const hours = Math.min(24, Math.max(1, Math.round(Number(body.hours) || 24)));
+          const gid = newId();
+          const del = newDel();
+          const end = new Date(now().getTime() + hours * 3600_000).toISOString();
+          await store.cmd('HSET', groupKey(gid), '_', JSON.stringify({ ...(body.e ? { e: body.e } : {}), d: sha(del), end }));
+          await store.expire(groupKey(gid), hours * 3600);
+          return json(request, 200, { ok: true, gid, del, end });
+        }
+        if (step === 'route' || step === 'end') {
+          if (!isDel(body.del)) throw new ApiError(400, 'bad_request', 'The link or its code is wrong.');
+          let m;
+          try {
+            m = await meta(store, body.gid);
+          } catch (e) {
+            if (step === 'end' && e.status === 404) return json(request, 200, { ok: true });
+            throw e;
+          }
+          if (m.d !== sha(body.del)) throw new ApiError(403, 'forbidden', 'Only the device that made the group can change it.');
+          if (step === 'end') {
+            await store.del(groupKey(body.gid));
+            return json(request, 200, { ok: true });
+          }
+          if (!isSealed(body.e, ROUTE_MAX)) throw new ApiError(400, 'bad_request', 'The route is too large.');
+          await limit(store, request);
+          await store.cmd('HSET', groupKey(body.gid), '_', JSON.stringify({ ...m, e: body.e }));
+          return json(request, 200, { ok: true });
+        }
+        if (step === 'put') {
+          if (!isSealed(body.e, MEMBER_MAX)) throw new ApiError(400, 'bad_request', 'The place is missing or too large.');
+          await meta(store, body.gid);
+          await limit(store, request);
+          const at = now().toISOString();
+          const k = groupKey(body.gid);
+          if (body.mid != null) {
+            if (!isId(body.mid) || !isDel(body.del)) throw new ApiError(400, 'bad_request', 'The link or its code is wrong.');
+            const old = readJson(await store.cmd('HGET', k, body.mid));
+            if (old && old.d !== sha(body.del)) throw new ApiError(403, 'forbidden', 'Only the device that shares this place can change it.');
+            if (old) {
+              await store.cmd('HSET', k, body.mid, JSON.stringify({ e: body.e, d: old.d, at }));
+              return json(request, 200, { ok: true, mid: body.mid, at, members: membersOf(pairs(await store.cmd('HGETALL', k))) });
+            }
+            // left or removed meanwhile: in again as a new member
+          }
+          if (Number(await store.cmd('HLEN', k)) > GROUP_MEMBERS_MAX) throw new ApiError(409, 'full', 'This group is full.');
+          const mid = newId();
+          const del = newDel();
+          await store.cmd('HSET', k, mid, JSON.stringify({ e: body.e, d: sha(del), at }));
+          return json(request, 200, { ok: true, mid, del, at, members: membersOf(pairs(await store.cmd('HGETALL', k))) });
+        }
+        if (step === 'leave') {
+          if (!isId(body.gid) || !isId(body.mid) || !isDel(body.del)) throw new ApiError(400, 'bad_request', 'The link or its code is wrong.');
+          const k = groupKey(body.gid);
+          const old = readJson(await store.cmd('HGET', k, body.mid));
+          if (old && old.d !== sha(body.del)) throw new ApiError(403, 'forbidden', 'Only the device that shares this place can stop it.');
+          if (old) await store.cmd('HDEL', k, body.mid);
+          return json(request, 200, { ok: true });
+        }
+        throw new ApiError(400, 'bad_request', 'Unknown step.');
+      },
+    },
+    'group',
+  );
+}
