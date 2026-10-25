@@ -122,7 +122,7 @@
       {#each gear as g (g.id)}
         {@const free = availableOn(g, today)}
         <li class="fr-line" data-fr-gear-row>
-          <span class="fr-tx"><b>{gName(g)}</b> · {howText(g.how)} {g.who}{#if g.from || g.until} <small>· {[dayText(g.from), dayText(g.until)].filter(Boolean).join(' – ')}</small>{/if} <small class="fr-free {free}">· {t(FREE[free])}</small>{#if g.note}<br /><small>{g.note}</small>{/if}</span>
+          <span class="fr-tx"><b>{gName(g)}</b> · {howText(g.how)} {g.who}{#if g.from || g.until}{' '}<small>· {[dayText(g.from), dayText(g.until)].filter(Boolean).join(' – ')}</small>{/if} <small class="fr-free {free}">· {t(FREE[free])}</small>{#if g.note}<br /><small>{g.note}</small>{/if}</span>
           <button type="button" class="btn btn-link" aria-label={t('Change «{name}»', { name: gName(g) })} onclick={() => startGear(g)}><Pencil size={16} aria-hidden="true" /></button>
           <button type="button" class="btn btn-link" aria-label={t('Delete «{name}»?', { name: gName(g) })} onclick={() => delGear(g)}><Trash2 size={16} aria-hidden="true" /></button>
         </li>

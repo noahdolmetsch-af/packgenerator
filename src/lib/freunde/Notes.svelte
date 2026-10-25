@@ -117,10 +117,10 @@
         <h4 class="fr-h">{g.title}</h4>
         {#if a && g.topic === 'duties'}
           {@const ticks = ticksOf(notes, a.id)}
-          <ul class="fr-list">{#each a.lines as l (l.id)}<li>{ticks[l.id] ? '✓' : '○'} {l.text}{#if ticks[l.id]} <small>· {ticks[l.id].map((x) => `${x.by}, ${dayText(x.at)}`).join('; ')}</small>{/if}</li>{/each}</ul>
+          <ul class="fr-list">{#each a.lines as l (l.id)}<li>{ticks[l.id] ? '✓' : '○'} {l.text}{#if ticks[l.id]}{' '}<small>· {ticks[l.id].map((x) => `${x.by}, ${dayText(x.at)}`).join('; ')}</small>{/if}</li>{/each}</ul>
         {:else if a && g.topic === 'workshop'}
           {@const tasks = tasksOf(notes, a.id)}
-          <ul class="fr-list">{#each a.lines.filter((l) => !l.q) as l (l.id)}<li>{tasks[l.id]?.done?.length ? '✓' : '○'} {l.text}{#if tasks[l.id]?.take?.length} <small>· {t('takes it')}: {tasks[l.id].take.join(', ')}</small>{/if}{#if tasks[l.id]?.done?.length} <small>· {t('done')}: {tasks[l.id].done.map((x) => x.by).join(', ')}</small>{/if}</li>{/each}</ul>
+          <ul class="fr-list">{#each a.lines.filter((l) => !l.q) as l (l.id)}<li>{tasks[l.id]?.done?.length ? '✓' : '○'} {l.text}{#if tasks[l.id]?.take?.length}{' '}<small>· {t('takes it')}: {tasks[l.id].take.join(', ')}</small>{/if}{#if tasks[l.id]?.done?.length}{' '}<small>· {t('done')}: {tasks[l.id].done.map((x) => x.by).join(', ')}</small>{/if}</li>{/each}</ul>
         {/if}
         {#each g.notes as n (n.id)}
           <div class="fr-noterow">

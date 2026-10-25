@@ -24,7 +24,7 @@
   {#if a.text}<p class="fr-said-text">{a.text}</p>{/if}
   {#if a.voice}<audio controls src={a.voice}></audio>{/if}
   {#if a.qs}
-    <ul class="fr-list">{#each Object.entries(a.qs) as [id, q] (id)}<li><b>{textOf(id)}:</b> {q}{#if note.solved?.[id]} <small>· {t('answered')}</small>{/if}</li>{/each}</ul>
+    <ul class="fr-list">{#each Object.entries(a.qs) as [id, q] (id)}<li><b>{textOf(id)}:</b> {q}{#if note.solved?.[id]}{' '}<small>· {t('answered')}</small>{/if}</li>{/each}</ul>
   {/if}
   {#if note.topic === 'photo' && ask?.photo}<PhotoMarks photo={ask.photo} marks={ask.marks ?? []} extra={a.extra ?? []} />{/if}
   {#if a.notes}
