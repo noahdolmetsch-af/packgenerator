@@ -100,6 +100,9 @@
   import { beep, buzz, say } from '../lib/live/alert.js';
   import { DICTATION } from '../lib/live/dictation.js';
   import { refreshFamilyLink, LIVE_EVERY_MS } from '../lib/live/familylive.js';
+  // Gruppen-Live-Karte (Noah 25.10.2026 «b»): friends on the map through a link
+  import GroupPanel from '../lib/live/GroupPanel.svelte';
+  import { endKeptGroup } from '../lib/live/group.js';
   import { t, tn, locale, num } from '../lib/i18n.svelte.js';
   import SleepList from '../lib/race/ride/SleepList.svelte';
   import '../lib/race/race.css';
@@ -184,9 +187,14 @@
     const r = resumeOf(o, tid);
     if (r) untrack(() => start(r).then(() => (resumed = rec.on)));
   });
+  let groupRows = $state([]);
+  let groupEnded = $state(false);
   async function stop() {
     const ride = await stopRecording();
     after = { ride };
+    // the group ride ends with the ride: every place of it is deleted
+    groupEnded = await endKeptGroup(db);
+    groupRows = [];
     me = null;
     row = null;
   }
@@ -261,6 +269,8 @@
     ...(shown.own ? camsOnMap($camsQ) : []), // Paket Wetter: your webcams with a place
     // «Neue Quellen»: the waypoints of the tour's GPX file (Ride with GPS, Komoot …)
     ...(shown.own ? wptsOnMap(trip?.route).map((w) => ({ ...w, name: w.name || kindName(w.kind) })) : []),
+    // Gruppen-Live-Karte: the others of the group (you are the blue dot)
+    ...groupRows.filter((r) => !r.me).map((r) => ({ id: `grp-${r.m}`, lat: r.pos[0], lon: r.pos[1], kind: 'friend', name: r.name || t('Without a name'), minZoom: 0 })),
     ...(detour ? [{ id: 'detour-target', lat: detour.target.lat, lon: detour.target.lon, kind: detour.target.kind === 'own' ? 'own' : detour.target.kind || 'other', name: detour.target.name || t('Detour'), minZoom: 0 }] : []),
   ]);
   const toggles = $derived([
@@ -873,6 +883,7 @@
       {:else}
         <p class="rc-text">{t('Too few points to keep this ride.')}</p>
       {/if}
+      {#if groupEnded}<p class="rc-note" data-live-group-ended>{t('The group ride has ended. The places are deleted.')}</p>{/if}
     </section>
   {/if}
 
@@ -889,6 +900,11 @@
         {#each DURING_RIDE as x (x.id)}<li data-during={x.id}><b>{t(FEATURE_TITLE[x.id])}</b><span>{t(x.sub)}</span></li>{/each}
       </ul>
     </section>
+  {/if}
+
+  <!-- Gruppen-Live-Karte: invite friends before the start too -->
+  {#if !rec.on}
+    <div class="rc-box"><GroupPanel title={routeName} {route} me={null} onrows={(r) => (groupRows = r)} /></div>
   {/if}
 
   <!-- options stay reachable before the start too -->
@@ -1151,6 +1167,9 @@
                 <PoiPanel bind:this={poiPanel} canTap ontapmode={(v) => ((poiTapping = v), v && (snap = "peek"))} center={me ? { lat: me.lat, lon: me.lon } : null} bounds={mapBounds} line={route?.line ?? null} profile={route?.profile ?? null} tripId={trip?.id ?? null} onpoints={(l) => (poiPoints = l ?? [])} />
               </div>
             </div>
+
+            <!-- Gruppen-Live-Karte (Noah 25.10.2026 «b») -->
+            <div class="lvf-part"><GroupPanel title={routeName} {route} {me} onrows={(r) => (groupRows = r)} /></div>
 
             <!-- the profile from your km -->
             {#if hasRoute && profile.length > 1}

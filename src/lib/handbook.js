@@ -944,6 +944,11 @@ export const HANDBOOK = {
     steps: ['Open the sheet of the live map › «Public transport nearby» and tap «Find stops».', 'Tap a stop for its next departures.'],
     example: 'Example: Bahnhof 140 m → S1 in 7 min from platform 2.',
   },
+  'f.groupmap': {
+    on: null,
+    steps: ['Open the live map and tap «Invite the group» (write your name first).', 'Send the link by WhatsApp or SMS; friends open it and tap «Share my location».', 'Everyone sees all who share; «End the group» or stopping the ride deletes every place.'],
+    example: 'Example: four friends on the Jura ride → Lea is at km 42 of the route, seen 2 min ago.',
+  },
   'f.stopsnear': {
     on: null,
     steps: ['On Today tap «Stops nearby» (or on a tour page, or open the live map › «Stops»).', 'Choose «Around me» or «Along the route», and the kinds you want.', 'Tap «Google Maps» or «OsmAnd» to ride there.'],

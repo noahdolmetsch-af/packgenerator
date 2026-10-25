@@ -50,6 +50,7 @@ export const KIND_TOKEN = {
   depot: '--bad',
   startfinish: '--ink',
   own: '--accent',
+  friend: '--l3', // Gruppen-Live-Karte: the members of a group ride
   other: '--ink-3',
   // the kinds of the POI search (map/poisearch.js)
   repair: '--ok',
@@ -109,8 +110,8 @@ export function kindColourExpr(colours) {
 
 /* ---------- which points at which zoom ---------- */
 
-/** Always shown: the depot, start and finish, the beds of your plan and your own points. */
-export const ALWAYS = ['depot', 'startfinish', 'bed', 'own'];
+/** Always shown: the depot, start and finish, the beds of your plan, your own points and the group's members. */
+export const ALWAYS = ['depot', 'startfinish', 'bed', 'own', 'friend'];
 /** Shown from zoom 10: what you eat and drink. */
 export const SUPPLY = ['shop', 'food', 'water', 'fuel'];
 /** The zoom from which a kind is drawn (the rest from 12, so a whole race stays readable). */

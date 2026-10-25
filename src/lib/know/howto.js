@@ -241,6 +241,7 @@ export const HOWTO = {
   'f.moreplaces': ['Open the place search on the live map.', 'Type your radius or change the kinds.', 'Add own places by hand, by a tap or from a file.'],
   'f.rwgps': ['Open a trip at «Route».', 'Tap «Link from Ride with GPS» and paste the link.', 'Tap «Load».'],
   'f.ovnear': ['Start a ride on the live map.', 'Open the sheet › «Public transport nearby».', 'Tap «Find stops», then a stop.'],
+  'f.groupmap': ['Open the live map › «Group ride» and tap «Invite the group».', 'Send the link by WhatsApp or SMS.', 'Friends tap «Share my location»; everyone sees the others on the map.'],
   'f.stopsnear': ['Tap «Stops nearby» on Today, on a tour page or in the live map.', 'Choose «Around me» or «Along the route».', 'Switch the kinds you want on or off, then navigate there.'],
   'f.sleeptonight': ['Open a race › «Along the route» and tap «Load places from OpenStreetMap».', 'Open «Race mode» › «Where do I sleep tonight?».', 'Switch the kinds you want on or off.'],
   'f.callhotels': ['Open a race › «Race mode».', 'Look at «Hotels for tonight» from 12:00.', 'Tap the phone, or copy the sentence.'],

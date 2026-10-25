@@ -15,7 +15,7 @@
   import { mapGround, chooseGround } from '../map/groundpref.svelte.js';
   import { cellBounds } from './neuland.js';
 
-  /** lines: [{ id, pts, n, src }]; points: [{ id, pos, kind, photo, text, n }]; cells: squares to tint (Neuland); pick(point). */
+  /** lines: [{ id, pts, n, src }]; points: [{ id, pos, kind, photo, text, n, cls? }] (kind 'friend': text is the whole label); cells: squares to tint (Neuland); pick(point). */
   let { lines = [], points = [], cells = null, cellZ = 14, height = 420, ground = null, focus = null, onpick = null, label = '', marker = null } = $props();
   // Tour-Seite (19.10.2026): marker [lat, lon] = the place the finger is on in the elevation profile
   const mark = $derived(marker ? toScreen(merc(marker), view, w, h) : null);
@@ -166,7 +166,7 @@
     {#if mark}<circle cx={mark.x} cy={mark.y} r="8" class="here" data-map-marker />{/if}
   </svg>
   {#each dots as p (p.id)}
-    <button type="button" class="dot {p.kind}" style:left="{p.s.x}px" style:top="{p.s.y}px" aria-label={p.kind === 'tour' ? t('Open the tour {text}', { text: p.text || '' }) : p.kind === 'place' ? t('Place: {text}', { text: p.text || t('I am here') }) : p.kind === 'photo' ? t('Photo: {text}', { text: p.text || '' }) : t('Note: {text}', { text: p.text || '' })} onclick={() => pick(p)}>
+    <button type="button" class="dot {p.kind} {p.cls ?? ''}" style:left="{p.s.x}px" style:top="{p.s.y}px" aria-label={p.kind === 'friend' ? p.text : p.kind === 'tour' ? t('Open the tour {text}', { text: p.text || '' }) : p.kind === 'place' ? t('Place: {text}', { text: p.text || t('I am here') }) : p.kind === 'photo' ? t('Photo: {text}', { text: p.text || '' }) : t('Note: {text}', { text: p.text || '' })} onclick={() => pick(p)}>
       {#if p.photo}<img src={p.photo} alt="" />{:else}<span>{p.n ?? ''}</span>{/if}
     </button>
   {/each}
@@ -293,6 +293,16 @@
   }
   .dot.note {
     background: var(--l2);
+  }
+  /* Gruppen-Live-Karte: the members of a group ride (initials; you in the brand colour; old places pale) */
+  .dot.friend {
+    background: var(--l3);
+  }
+  .dot.friend.me {
+    background: var(--brand);
+  }
+  .dot.friend.stale {
+    opacity: 0.55;
   }
   .dot img {
     width: 100%;

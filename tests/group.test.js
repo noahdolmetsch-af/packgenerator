@@ -1,0 +1,71 @@
+// Gruppen-Live-Karte (Noah 25.10.2026 «b»): the pure helpers of src/lib/live/group.js. Fictional data only.
+import { describe, it, expect } from 'vitest';
+import { parseGroupLink, groupLinkOf, inviteLinks, routePayload, readRoute, placePayload, readPlace, memberRows, nearHome, initials, cleanName, groupRunning, minutesAgo, STALE_MIN, GONE_MIN, GROUP_V } from '../src/lib/live/group.js';
+
+const T0 = Date.parse('2026-07-03T08:00:00Z');
+const route = { line: Array.from({ length: 21 }, (_, i) => [47 + i * 0.005, 8]), km: 11.1 };
+
+describe('group.js', () => {
+  it('the link: made and read back; anything else is no group link', () => {
+    const gid = 'a'.repeat(22);
+    const key = 'B'.repeat(43);
+    const url = groupLinkOf(gid, key, 'https://example.test/app/');
+    expect(url).toBe(`https://example.test/app/#/gruppe/${gid}/${key}`);
+    expect(parseGroupLink(url.slice(url.indexOf('#')))).toEqual({ gid, key });
+    expect(parseGroupLink('#/gruppe/short/key')).toBeNull();
+    expect(parseGroupLink(`#/spur-link/${gid}/${key}`)).toBeNull();
+  });
+  it('the invitation goes to WhatsApp and SMS with the whole text', () => {
+    const l = inviteLinks('Fahr mit: https://example.test/#/gruppe/x');
+    expect(l.whatsapp).toBe('https://wa.me/?text=Fahr%20mit%3A%20https%3A%2F%2Fexample.test%2F%23%2Fgruppe%2Fx');
+    expect(l.sms).toMatch(/^sms:\?&body=Fahr%20mit/);
+  });
+  it('the route leaves out the first and last 500 m (home) and comes back as a line', () => {
+    const p = routePayload('test_data_gtp_ Runde', route);
+    expect(p.v).toBe(GROUP_V);
+    const back = readRoute(p);
+    expect(back.title).toBe('test_data_gtp_ Runde');
+    expect(back.route.km).toBe(11.1);
+    expect(back.route.line[0][0]).toBeGreaterThan(47.004);
+    expect(back.route.line.at(-1)[0]).toBeLessThan(47.096);
+    expect(readRoute(routePayload('', null)).route).toBeNull();
+    expect(readRoute(null)).toEqual({ title: '', route: null });
+  });
+  it('a place: rounded, with a clean name; broken places are dropped', () => {
+    const p = placePayload('  Test   Fahrerin  ', { lat: 47.123456789, lon: 8.987654321, at: T0 });
+    expect(p).toEqual({ v: GROUP_V, n: 'Test Fahrerin', lat: 47.12346, lon: 8.98765, at: new Date(T0).toISOString() });
+    expect(readPlace(p)).toEqual({ name: 'Test Fahrerin', pos: [47.12346, 8.98765], at: new Date(T0).toISOString() });
+    expect(readPlace({ v: GROUP_V, n: 'x', lat: 'a', lon: 8, at: 'now' })).toBeNull();
+    expect(cleanName('x'.repeat(80))).toHaveLength(40);
+  });
+  it('the list: km along the route, off the route, last seen, stale and gone; the newest first', () => {
+    const at = (min) => new Date(T0 - min * 60_000).toISOString();
+    const rows = memberRows(
+      [
+        { m: 'a', name: 'Test A', pos: [47.05, 8], at: at(20) },
+        { m: 'b', name: 'Test B', pos: [47.08, 8.0001], at: at(1) },
+        { m: 'c', name: 'Test C', pos: [46.5, 8], at: at(3) },
+        { m: 'd', name: 'Test D', pos: [47.01, 8], at: at(GONE_MIN + 1) },
+      ],
+      route,
+      { now: T0, me: 'b' },
+    );
+    expect(rows.map((r) => r.m)).toEqual(['b', 'c', 'a']);
+    expect(rows[0]).toMatchObject({ me: true, ago: 1, stale: false });
+    expect(rows[0].km).toBeCloseTo(8.9, 0);
+    expect(rows[1].km).toBeNull(); // 60 km off the route
+    expect(rows[2]).toMatchObject({ ago: 20, stale: 20 > STALE_MIN });
+    expect(memberRows([{ m: 'a', name: 'A', pos: [47, 8], at: at(2) }], null, { now: T0 })[0].km).toBeNull();
+  });
+  it('small helpers', () => {
+    expect(initials('Test Fahrer')).toBe('TF');
+    expect(initials('')).toBe('?');
+    expect(minutesAgo(new Date(T0 + 60_000).toISOString(), T0)).toBe(0);
+    expect(nearHome(route, { lat: 47.001, lon: 8 })).toBe(true);
+    expect(nearHome(route, { lat: 47.05, lon: 8 })).toBe(false);
+    expect(nearHome(null, { lat: 47, lon: 8 })).toBe(false);
+    expect(groupRunning({ gid: 'g', key: 'k', end: new Date(T0 + 1000).toISOString() }, T0)).toBe(true);
+    expect(groupRunning({ gid: 'g', key: 'k', end: new Date(T0 - 1000).toISOString() }, T0)).toBe(false);
+    expect(groupRunning(null, T0)).toBe(false);
+  });
+});
