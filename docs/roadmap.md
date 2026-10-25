@@ -867,3 +867,5 @@ Die frühere gespeicherte Datei `2026-10-07-packgenerator-ablaufplan.md` wird al
 **25.10.2026, v0.194.0 «Zusammen mit Freunden»:** Paket D Teil 1: Ich › Mit Freunden mit Freunde fragen, Leihregal und Vorlage teilen. Teil 2 (Briefkasten mit Anmeldung) wartet auf Noah.
 
 **25.10.2026, v0.195.0 «Kleine Helfer für Tour und Velo»:** weitere Einzelideen aus Paket B: Velo abgestellt mit Schlüssel und abgenommenen Teilen, «Melden bis» pro Nacht, Hotelanfragen im Rennmodus, «Optionen vergleichen» bei den Reise-Links, Vorgeschmack einer Traumtour, Garantiefall-Entwurf.
+
+**25.10.2026, v0.195.1 «Einkaufsliste am Stück»:** Korrektur: am Computer behält die Zeile einer Einkaufsliste 420 px, die Knöpfe rutschen sonst unter den Namen (der Gesamttest auf main war rot, darum ging 0.191–0.195 erst damit online).

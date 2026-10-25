@@ -1811,6 +1811,13 @@
   .wish .fr {
     flex-wrap: wrap;
   }
+  /* 0.192.0 «Ehrlicher Stand»: with «Wait 30 days» the buttons on the right got wider; the name keeps its room:
+     the row keeps 420 px (name, category 140 px, weight 80 px) and the buttons move under it instead of breaking words */
+  @media (min-width: 720px) {
+    .wish .fr > button:not(.btn) {
+      flex: 1 1 420px;
+    }
+  }
   /* Impeccable runde 2 (Einkauf 2): the own shop link, small, beside «Bought» */
   .shopl {
     display: inline-flex;

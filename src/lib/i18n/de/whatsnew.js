@@ -4,6 +4,13 @@
  * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
+  // 0.195.1 Einkaufsliste am Stück
+  'Shopping list in one piece': 'Einkaufsliste am Stück',
+  'Names in the shopping list read normally again.': 'Die Namen in der Einkaufsliste lesen sich wieder normal.',
+  'With little room the buttons move under the name': 'Bei wenig Platz rutschen die Knöpfe unter den Namen',
+  'Item names no longer break letter by letter': 'Namen brechen nicht mehr Buchstabe für Buchstabe um',
+  'Open Material › Einkauf on the computer and tap a wish: the pane opens on the right.': 'Öffne am Computer Material › Einkauf und tippe einen Wunsch an: rechts öffnet sich die Spalte.',
+  'The names in the list read normally, the buttons stand under them.': 'Die Namen in der Liste lesen sich normal, die Knöpfe stehen darunter.',
   // 0.195.0 Kleine Helfer für Tour und Velo
   'Small helpers for trip and bike': 'Kleine Helfer für Tour und Velo',
   'What you took off, whom to call back, what to compare.': 'Was du abgenommen hast, wen du zurückrufst, was du vergleichst.',

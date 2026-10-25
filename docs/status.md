@@ -4,6 +4,8 @@ Stand: 18. Oktober 2026. Der kurze Überblick steht im [Projektstand](projektsta
 
 ## Aktuell live
 
+**0.195.1 «Einkaufsliste am Stück» (25.10.2026, Korrektur):** src/pages/Gear.svelte `.wish .fr > button:not(.btn) { flex: 1 1 420px }` (ab 720 px): am Computer rutschen «30 Tage warten», «Gekauft» und «…» bei wenig Platz unter den Namen (Gesamttest gear-wishlist en 1366 px).
+
 **0.195.0 «Kleine Helfer für Tour und Velo» (25.10.2026, 996 Ideen Paket B, Einzelideen, Noah «1b»):** Velo abgestellt mit Schlüssel und abgenommenen Teilen (haustuer.js parkedOf key/off), «Melden bis» pro Nacht (stay.callBy, callState), Hotelanfragen im Rennmodus (race/ride/asks.js, hotelAsks), Reise-Links «Optionen vergleichen» (reise/choices.js, settings 'travel.choices'), Traumtour-Vorgeschmack (dream.taste, tasteTripId), Garantiefall-Entwurf (werkstatt/ClaimDraft.svelte, sheets.warranty.claim). Tests: tests/choices.test.js, tests/hotelasks.test.js, tests/haustuer.test.js, tests/werkstatt.test.js, tests/e2e/b-einzeln.spec.js.
 
 **0.194.0 «Zusammen mit Freunden» (25.10.2026, 996 Ideen Paket D Teil 1, Noah «3b», «4b»):** Ich › Mit Freunden (`#/me/freunde`): Freunde fragen (10 Arten, Sprachnotiz bis 1 Minute), Leihregal, Vorlage teilen; ohne Konto und Server, als Link oder kleine Datei (q6tqpy dc573644). Nur settings-Zeilen, kein Schema-Wechsel.

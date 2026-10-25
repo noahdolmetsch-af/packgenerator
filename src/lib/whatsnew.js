@@ -16,6 +16,16 @@
 
 export const WHATS_NEW = [
   {
+    // v0.195.1 fix: on a computer the shopping list broke item names letter by letter since «Wait 30 days» (0.192.0)
+    version: '0.195.1',
+    date: '2026-10-25',
+    title: 'Shopping list in one piece',
+    lead: 'Names in the shopping list read normally again.',
+    points: [{ text: 'With little room the buttons move under the name', href: '#/gear?view=wish' }],
+    small: [{ box: 'fixed', text: 'Item names no longer break letter by letter' }],
+    test: ['Open Material › Einkauf on the computer and tap a wish: the pane opens on the right.', 'The names in the list read normally, the buttons stand under them.'],
+  },
+  {
     // v0.195.0 Paket B single ideas (996 Ideen, Noah «1b»): parked bike with key and parts taken off, «get in touch by»
     // per night, hotel asks in race mode, options to compare on the travel links, a taste of a dream tour, a warranty claim draft.
     version: '0.195.0',
