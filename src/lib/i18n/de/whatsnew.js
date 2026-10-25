@@ -4,6 +4,16 @@
  * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
+  // 0.192.0 Ehrlicher Stand
+  'Honest about where things stand': 'Ehrlicher Stand',
+  'Waiting, ended, sent but not confirmed: the app says it as it is.': 'Wartet, beendet, gesendet aber nicht bestätigt: die App sagt es, wie es ist.',
+  'A to-do can wait on an answer, a part or a person': 'Ein To-do kann auf eine Antwort, ein Teil oder eine Person warten',
+  'Cancel a contract in steps: written, sent, confirmed': 'Einen Vertrag in Schritten kündigen: geschrieben, gesendet, bestätigt',
+  'A date with time before and after as its own entries': 'Ein Termin mit Zeit davor und danach als eigene Einträge',
+  'Lists and goals end without ticking every point': 'Listen und Ziele enden, ohne jeden Punkt abzuhaken',
+  'A wish can wait 30 days before you buy': 'Ein Wunsch kann 30 Tage warten, bevor du kaufst',
+  'Open Planen › Merken, tap a to-do: «Wartest du auf etwas?» › «Eine Antwort».': 'Öffne Planen › Merken, tippe ein To-do an: «Wartest du auf etwas?» › «Eine Antwort».',
+  'Open Ich › Alltag › Verträge, a contract: tap «Von mir gesendet».': 'Öffne Ich › Alltag › Verträge, einen Vertrag: tippe «Von mir gesendet».',
   // 0.191.0 Die Werkstatt, klar
   'The workshop, clearly': 'Die Werkstatt, klar',
   'How much at most, what came back, what goes with the bike.': 'Wie viel höchstens, was zurückkam, was mit dem Velo geht.',

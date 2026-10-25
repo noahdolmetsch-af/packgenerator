@@ -16,6 +16,22 @@
 
 export const WHATS_NEW = [
   {
+    // v0.192.0 Paket A «Ehrlicher Stand im Alltag» (Noah 24.10.2026, 996 Ideen; 25.10 «mit A anfangen»): a to-do waits on
+    // something, lists and goals end honestly, a cancellation in steps, opened packs, chain care later, time around a date,
+    // and small ideas (contract use, smallest start, shopping by plan, timer purpose, buying pause, why not used).
+    version: '0.192.0',
+    date: '2026-10-25',
+    title: 'Honest about where things stand',
+    lead: 'Waiting, ended, sent but not confirmed: the app says it as it is.',
+    points: [
+      { text: 'A to-do can wait on an answer, a part or a person', href: '#/calendar' },
+      { text: 'Cancel a contract in steps: written, sent, confirmed', href: '#/me/alltag/abos' },
+      { text: 'A date with time before and after as its own entries', href: '#/week' },
+    ],
+    small: [{ box: 'new', text: 'Lists and goals end without ticking every point' }, { box: 'new', text: 'A wish can wait 30 days before you buy' }],
+    test: ['Open Planen › Merken, tap a to-do: «Wartest du auf etwas?» › «Eine Antwort».', 'Open Ich › Alltag › Verträge, a contract: tap «Von mir gesendet».'],
+  },
+  {
     // v0.191.0 Paket B «Touren ohne Überraschung» part 3 (Noah 24.10.2026, 996 Ideen «1b»): the small ideas for the bike
     // shop (cost limit, refund, handover after a sale, a problem seen before) and the trip (last look at the door, the
     // home by the length of the absence, ended early: what is still booked).
