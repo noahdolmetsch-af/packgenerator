@@ -25,6 +25,9 @@ export const PROBE_FROM_DAYS = 7;
 
 const multi = (trip) => (Number(trip?.days) || 1) > 1;
 const bike = (trip) => !!trip?.bikeId;
+const daysOf = (trip) => Math.max(1, Number(trip?.days) || 1);
+/** Part 3, UC-086-I2: the trip was ended before its last planned day (trip.finished is that day). */
+export const endedEarly = (trip) => typeof trip?.finished === 'string' && !!trip?.startDate && trip.finished < shiftDay(trip.startDate, daysOf(trip) - 1);
 const abroad = (trip) => !!trip?.country && String(trip.country).toUpperCase() !== HOME_COUNTRY;
 
 /** The steps of the dress rehearsal. when(trip): does the step fit this trip at all. */
@@ -37,11 +40,17 @@ export const PROBE_STEPS = [
   { key: 'repair', name: 'Change a tube once at home', sub: 'With the tools you take along, not the workshop ones', when: bike },
   { key: 'sos', name: 'Emergency card without unlocking', sub: 'Name, emergency number and allergies on the lock screen', href: '#/mountain/qr', when: () => true },
   { key: 'backup', name: 'Fresh backup', sub: 'Not older than a week, so nothing is lost on the way', href: '#/me/data', when: () => true },
+  // Part 3, UC-098-I1: the house by the length of the absence, what needs a few days ahead (the
+  // house check at the door is on «Vor der Abfahrt»); only the variant that fits the trip shows
+  { key: 'houseweek', name: 'Home for a week away', sub: 'Plants and mail with a neighbour, buy less fresh food', when: (tr) => daysOf(tr) >= 5 && daysOf(tr) <= 13 },
+  { key: 'houselong', name: 'Home for weeks away', sub: 'Pause the mail, a neighbour has a key, bills paid ahead', when: (tr) => daysOf(tr) >= 14 },
   { key: 'abroad', name: 'Read the country info', sub: 'Emergency numbers, insurance, currency', href: '#/pack', trip: true, when: abroad },
 ];
 
 /** The steps of «Gut ankommen». */
 export const HOME_STEPS = [
+  // Part 3, UC-086-I2: ended earlier than planned (or somewhere else): what is still booked
+  { key: 'booked', name: 'Cancel what is still booked', sub: 'Ended earlier or somewhere else? Nights, tickets and rentals you no longer need', when: endedEarly },
   { key: 'dry', name: 'Hang up the wet things', sub: 'Tent, sleeping bag, rain jacket: open and dry before they go into the cupboard', when: multi },
   { key: 'laundry', name: 'Laundry into the machine', sub: 'Cycling clothes and what was worn', when: () => true },
   { key: 'arrived', name: 'Tell people you are home', sub: 'A short message to the ones who wait for it', when: () => true },
@@ -168,3 +177,16 @@ export function todoDue(kind, trip, today) {
   }
   return shiftDay(today, 1);
 }
+
+/**
+ * Part 3, UC-038-I1 «Türschwellen-Check»: on the start morning, one last voluntary look at the door with
+ * only the things still in use: phone, keys, glasses, wallet, cold food. Stored as trip.door (probe shape).
+ */
+export const DOOR_STEPS = [
+  { key: 'phone', name: 'Phone', sub: 'and the charging cable from the socket', when: () => true },
+  { key: 'keys', name: 'Keys', sub: 'house, bike lock', when: () => true },
+  { key: 'glasses', name: 'Glasses', sub: 'and sunglasses', when: () => true },
+  { key: 'wallet', name: 'Wallet and ID', sub: 'card, cash, ID', when: () => true },
+  { key: 'cold', name: 'Cold food from the fridge', sub: 'what was kept cool overnight', when: () => true },
+  { key: 'bottles', name: 'Bottles filled', sub: 'in their cages', when: bike },
+];

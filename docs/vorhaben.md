@@ -482,3 +482,5 @@ Kurzfassung, verbindlich ist [arbeitsweise.md](arbeitsweise.md).
 - Strava-Regeln schränken die Nutzung von Strava-Daten durch KI ein; vor E3 klären, was der Helfer davon sehen darf.
 
 0.190.0 «Alltag im Blick» (24.10.2026, Ziel Alltag): Sichtbar-Wächter + Alltag sichtbar aus «332 Use Cases» (P1 + P3), dazu P2 «Touren sichtbar» und «Touren ohne Überraschung» Teil 2 (Ziel Touren).
+
+0.191.0 «Die Werkstatt, klar» (25.10.2026, Ziel Touren und Velo): Einzelideen aus Paket B «Touren ohne Überraschung» (Kostendach, Rückerstattung, Übergabe, ähnliches Problem, Blick an der Tür, Wohnung nach Abwesenheit, früher beendet).

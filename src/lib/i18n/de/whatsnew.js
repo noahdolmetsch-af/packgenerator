@@ -4,6 +4,15 @@
  * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
+  // 0.191.0 Die Werkstatt, klar
+  'The workshop, clearly': 'Die Werkstatt, klar',
+  'How much at most, what came back, what goes with the bike.': 'Wie viel höchstens, was zurückkam, was mit dem Velo geht.',
+  'Workshop order: at most CHF … and «call me first»': 'Werkstattauftrag: höchstens CHF … und «vorher anrufen»',
+  'Sold a bike: a handover list': 'Velo verkauft: eine Übergabeliste',
+  'A refund on a workshop visit, apart from what you paid': 'Eine Rückerstattung beim Werkstattbesuch, getrennt von dem, was du bezahlt hast',
+  'Start morning: a last look at the door': 'Abfahrtsmorgen: ein letzter Blick an der Tür',
+  'Open Velos › Werkstatt › «Auftrag teilen»: type 250 under «Höchstens CHF».': 'Öffne Velos › Werkstatt › «Auftrag teilen»: tippe 250 bei «Höchstens CHF».',
+  'Open a visit: «Rückerstattung hinzufügen».': 'Öffne einen Besuch: «Rückerstattung hinzufügen».',
   // 0.190.0 Alltag sichtbar
   'Everyday in sight': 'Alltag im Blick',
   'What is due today, one line on Heute.': 'Was heute fällig ist, eine Zeile auf Heute.',

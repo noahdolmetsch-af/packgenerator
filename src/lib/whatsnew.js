@@ -16,6 +16,21 @@
 
 export const WHATS_NEW = [
   {
+    // v0.191.0 Paket B «Touren ohne Überraschung» part 3 (Noah 24.10.2026, 996 Ideen «1b»): the small ideas for the bike
+    // shop (cost limit, refund, handover after a sale, a problem seen before) and the trip (last look at the door, the
+    // home by the length of the absence, ended early: what is still booked).
+    version: '0.191.0',
+    date: '2026-10-25',
+    title: 'The workshop, clearly',
+    lead: 'How much at most, what came back, what goes with the bike.',
+    points: [
+      { text: 'Workshop order: at most CHF … and «call me first»', href: '#/bikes?tab=shop' },
+      { text: 'Sold a bike: a handover list', href: '#/bikes?tab=care&view=sell' },
+    ],
+    small: [{ box: 'new', text: 'A refund on a workshop visit, apart from what you paid' }, { box: 'new', text: 'Start morning: a last look at the door' }],
+    test: ['Open Velos › Werkstatt › «Auftrag teilen»: type 250 under «Höchstens CHF».', 'Open a visit: «Rückerstattung hinzufügen».'],
+  },
+  {
     // v0.190.0 «Alltag sichtbar» + Sichtbar-Wächter (332 Use Cases P1 + P3, Noah 24.10.2026 «1a 2b 3a 4a 5b»): Heute fällig,
     // Planen › Merken, bike folder buttons in Setup, Gear views one tap away; every function has its home page (heimat.js).
     // + «Touren sichtbar» (P2, jtmsou 7c6b14bb) and «Touren ohne Überraschung» part 2 (6ruzpm eb6e8b60): pack by need, see the effect.
