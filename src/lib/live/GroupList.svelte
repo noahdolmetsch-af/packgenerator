@@ -19,7 +19,7 @@
         <span class="grp-txt">
           <b>{r.name || t('Without a name')}{r.me ? ` (${t('you')})` : ''}</b>
           <small>
-            {#if hasRoute}{r.km != null ? t('km {km} of the route', { km: num(r.km) }) : t('off the route')} · {/if}<span data-group-seen>{seen(r)}</span>
+            {#if hasRoute}{r.km != null ? t('km {km} of the route', { km: num(r.km) }) : t('off the route')}{' '}·{' '}{/if}<span data-group-seen>{seen(r)}</span>
           </small>
         </span>
       </li>

@@ -16,6 +16,20 @@
 
 export const WHATS_NEW = [
   {
+    // v0.197.0 Gruppen-Live-Karte (Paket U Bikepacking): ride with friends on one map; friends open a link in the browser
+    // without the app; ends after the ride, at the latest after 24 hours, and the places are deleted (api/sync.js ?action=group).
+    version: '0.197.0',
+    date: '2026-10-25',
+    title: 'Riding together on one map',
+    lead: 'Friends see each other on the map, without the app.',
+    points: [
+      { text: 'Group ride: send a link, everyone on one map', href: '#/live' },
+      { text: 'Ends after the ride, at the latest after 24 hours', href: '#/live' },
+    ],
+    small: [],
+    test: ['Open Unterwegs › Live-Karte › «Gruppenfahrt» and send yourself the link.', 'Open the link in a private window: your name and km show on the map.'],
+  },
+  {
     // v0.196.0 Paket A last single ideas (996 Ideen): webcams with a purpose, birthday steps, ideas together, repairs, borrow first
     version: '0.196.0',
     date: '2026-10-25',

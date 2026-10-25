@@ -296,3 +296,4 @@ Nach der Mitziehen-Regel: was in 0.47 noch nicht auf dem neuen Stand ist, mit Zi
 - 25.10.2026, 0.195.0 «Kleine Helfer für Tour und Velo»: nur ruhige Zusätze in bestehenden Fenstern (Abgestellt, Unterkunft, Hotels, Traum, Garantie); eine neue Karte «Optionen vergleichen» auf Reise-Links.
 - 25.10.2026, 0.195.1 «Einkaufsliste am Stück»: Einkaufsliste am Computer: Knöpfe rutschen bei wenig Platz unter den Namen, statt den Namen zu zerbrechen.
 - 25.10.2026, 0.196.0 «Flicken, ausprobieren, abmachen»: zwei neue Klappen im Fenster eines Teils (Reparieren, Ausleihen), ruhige Zeilen bei Webcams, Geburtstagen und Menschen; keine neue Seite.
+- 25.10.2026, 0.197.0 «Zusammen auf einer Karte»: ein ruhiger Bereich «Gruppenfahrt» auf der Live-Karte (vor dem Start und im Blatt), eine schlanke neue Seite für Freunde im Browser; Freunde als eigene Punkte auf der Karte.

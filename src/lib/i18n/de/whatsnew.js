@@ -4,6 +4,13 @@
  * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
+  // 0.197.0 Zusammen auf einer Karte
+  'Riding together on one map': 'Zusammen auf einer Karte',
+  'Friends see each other on the map, without the app.': 'Freunde sehen einander auf der Karte, ohne die App.',
+  'Group ride: send a link, everyone on one map': 'Gruppenfahrt: einen Link schicken, alle auf einer Karte',
+  'Ends after the ride, at the latest after 24 hours': 'Endet nach der Fahrt, spätestens nach 24 Stunden',
+  'Open Unterwegs › Live-Karte › «Gruppenfahrt» and send yourself the link.': 'Öffne Unterwegs › Live-Karte › «Gruppenfahrt» und schick dir den Link.',
+  'Open the link in a private window: your name and km show on the map.': 'Öffne den Link in einem privaten Fenster: dein Name und die km stehen auf der Karte.',
   // 0.196.0 Flicken, ausprobieren, abmachen
   'Fix it, try it, meet up': 'Flicken, ausprobieren, abmachen',
   'Clothes get repair jobs, wishes can be borrowed first, and reminders turn into invitations.': 'Kleider bekommen Reparaturaufträge, Wünsche kannst du zuerst ausleihen, und aus Erinnerungen werden Einladungen.',

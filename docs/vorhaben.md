@@ -492,3 +492,4 @@ Kurzfassung, verbindlich ist [arbeitsweise.md](arbeitsweise.md).
 0.195.0 «Kleine Helfer für Tour und Velo» (25.10.2026, Ziel Touren und Velo): weitere Einzelideen aus Paket B (996 Ideen).
 0.195.1 «Einkaufsliste am Stück» (25.10.2026, Ziel Alltag): Korrektur der Einkaufsliste am Computer.
 0.196.0 «Flicken, ausprobieren, abmachen» (25.10.2026, Ziel Alltag): letzte Einzelideen aus Paket A (996 Ideen).
+0.197.0 «Zusammen auf einer Karte» (25.10.2026, Ziel Touren): Gruppen-Live-Karte, Freunde per Link auf einer Karte.
