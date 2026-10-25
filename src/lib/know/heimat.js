@@ -5,7 +5,8 @@
  *
  * HOME: the page a function lives on (a hash route, as in featureHref). «:trip» stands for the trip whose
  * debrief is still open in the test data (the robot finds it under Touren › Rückblick), «:race» for the
- * first race under Touren › Rennen.
+ * first race under Touren › Rennen, «:note» for the one fictional note the robot writes (the test data has
+ * none; a note's own functions show only in an open note).
  * GAPS: functions that are not yet visible on their home page, with why. The robot test
  * tests/e2e/heimat.spec.js opens every home page on the phone and checks that the German title of
  * each function NOT in GAPS can be seen (not in a closed fold, within the first 2.5 screens).
@@ -325,13 +326,13 @@ export const HOME = {
   'f.people': '#/me/alltag',
   'f.search': '#/',
   'f.inbox': '#/inbox',
-  'f.notelinks': '#/notes',
+  'f.notelinks': '#/notes?open=:note',
   'f.compass': '#/me/compass',
-  'f.drawphoto': '#/notes',
+  'f.drawphoto': '#/notes?open=:note',
   'f.richtext': '#/notes',
-  'f.noteattach': '#/notes',
+  'f.noteattach': '#/notes?open=:note',
   'f.noteocr': '#/notes',
-  'f.noteremind': '#/notes',
+  'f.noteremind': '#/notes?open=:note',
   'f.notetrash': '#/notes',
   'f.noteformats': '#/notes',
   'f.next': '#/me/next',
@@ -538,14 +539,9 @@ export const GAPS = {
   'f.wohl': 'deep',
   'f.birthdays': 'name',
   'f.search': 'name',
-  'f.notelinks': 'name',
   'f.compass': 'deep',
-  'f.drawphoto': 'name',
   'f.richtext': 'name',
-  'f.noteattach': 'name',
   'f.noteocr': 'name',
-  'f.noteremind': 'name',
-  'f.notetrash': 'name',
   'f.noteformats': 'name',
   'f.askfurther': 'name',
   'f.table': 'name',
