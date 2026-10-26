@@ -134,8 +134,10 @@ const round2 = (n) => Math.round(n * 100) / 100;
  * diary job with its own instruction and more room (the diary text goes in `context`):
  * title (a title for one entry), tidy (punctuation of a dictated text, words kept), summary (a month in
  * a few warm sentences), ask (a question answered only from the given entries, with their dates).
+ * «Eingaben überall» (Noah 26.10.2026): prompts (three writing prompts that fit a text of any page) and
+ * highlights (the best of a text in 2–4 short lines); the page's name comes first in the context.
  */
-export const DIARY_MODES = ['title', 'tidy', 'summary', 'ask'];
+export const DIARY_MODES = ['title', 'tidy', 'summary', 'ask', 'prompts', 'highlights'];
 export const DIARY_CONTEXT = 12000;
 const DIARY_SYSTEM = {
   de: {
@@ -143,12 +145,16 @@ const DIARY_SYSTEM = {
     tidy: 'Du räumst einen diktierten Tagebuchtext auf: Satzzeichen, Gross- und Kleinschreibung, Absätze, offensichtliche Hörfehler. Behalte die Wörter, den Ton und die Ich-Form. Erfinde nichts dazu, kürze nichts. Schweizer Hochdeutsch («ss», nie «ß»). Antworte nur mit dem aufgeräumten Text, ohne Einleitung.',
     summary: 'Du fasst Tagebucheinträge eines Zeitraums für die schreibende Person zusammen, in der Du-Form, warm und ruhig, 4 bis 8 Sätze, ohne Markdown-Überschriften. Nenne, was oft vorkam, schöne Momente und was sich verändert hat. Nur Beobachtung, keine Ratschläge, keine Diagnosen. Schweizer Hochdeutsch («ss», nie «ß»).',
     ask: 'Du beantwortest eine Frage zum eigenen Tagebuch der Person, nur aus den mitgegebenen Einträgen. Nenne das Datum der passenden Einträge. Wenn die Einträge die Antwort nicht enthalten, sag das ehrlich. Kurz, höchstens 6 Sätze, Du-Form, Schweizer Hochdeutsch («ss», nie «ß»), ohne Markdown-Überschriften.',
+    prompts: 'Du gibst drei kurze Schreibanreize, die zum mitgegebenen Text passen und helfen, weiterzuschreiben. In eckigen Klammern steht die Seite der App. Je ein Anreiz pro Zeile, als offene Frage in der Du-Form, höchstens 12 Wörter, ohne Nummern, ohne Einleitung. Keine Ratschläge, keine Diagnosen. Schweizer Hochdeutsch («ss», nie «ß»).',
+    highlights: 'Du nennst die schönsten oder wichtigsten Punkte des mitgegebenen Textes in 2 bis 4 kurzen Zeilen, je eine pro Zeile, ohne Nummern, ohne Einleitung. Nur was im Text steht, nichts erfinden. In eckigen Klammern steht die Seite der App. Schweizer Hochdeutsch («ss», nie «ß»).',
   },
   en: {
     title: 'Suggest a title for a diary entry. Answer only with the title: at most 6 words, no quotes, no full stop.',
     tidy: 'Tidy up a dictated diary text: punctuation, capitals, paragraphs, obvious mishearings. Keep the words, the tone and the first person. Add nothing, cut nothing. Answer only with the tidied text, no introduction.',
     summary: 'Summarise the diary entries of a period for the writer, addressing them as you, warm and calm, 4 to 8 sentences, no Markdown headings. Name what came up often, good moments and what changed. Observation only, no advice, no diagnosis.',
     ask: "Answer a question about the person's own diary, only from the given entries. Name the dates of the entries that fit. If the entries do not hold the answer, say so honestly. Short, at most 6 sentences, no Markdown headings.",
+    prompts: 'Give three short writing prompts that fit the given text and help to write on. The page of the app is in square brackets. One prompt per line, as an open question addressing the person as you, at most 12 words, no numbers, no introduction. No advice, no diagnosis.',
+    highlights: 'Name the most beautiful or important points of the given text in 2 to 4 short lines, one per line, no numbers, no introduction. Only what is in the text, invent nothing. The page of the app is in square brackets.',
   },
 };
 

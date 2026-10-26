@@ -7,6 +7,8 @@ import { t, tn, num, nameOf, locale } from './i18n.svelte.js';
 import { PAGE_ROWS, ACTIONS } from './nav/menu.js';
 
 const norm = (s) => String(s ?? '').toLowerCase();
+/** The added words of a diary entry (eingabe/inputs.js inputWords, kept short here so search.js stays light). */
+const diaryExtra = (e) => [...(e.inputs?.tags ?? []), ...(e.inputs?.files ?? []).map((f) => f?.name), ...(e.inputs?.voices ?? []).map((a) => a?.text)].filter(Boolean).join(' ');
 /** v0.40.0 (design check): a trip's day as everywhere: "So., 19. Okt." (the year only when it is another one). */
 export const tripDay = (iso, now = new Date()) => {
   if (!iso || !/^\d{4}-\d{2}-\d{2}/.test(iso)) return iso ?? '';
@@ -21,6 +23,7 @@ export const KIND = {
   template: { name: 'Templates', max: 3 },
   bike: { name: 'Bikes', max: 4 },
   note: { name: 'Notes', max: 3 },
+  diary: { name: 'Diary', max: 3 }, // «Eingaben überall» (Noah 26.10.2026 «5a aber b möglich»): only when the diary is open
   log: { name: 'Logbook', max: 3 }, // v0.42.0 (Noah 9): the old trips of the Excel and the logbook
   page: { name: 'Pages', max: 4 },
   action: { name: 'Actions', max: 3 },
@@ -36,7 +39,7 @@ const PAGES = PAGE_ROWS;
  * Results grouped by kind, best first: [{ kind, name, rows: [{ id, title, sub, href, tripId? }] }].
  * Empty groups are left out; fewer than 2 letters find nothing.
  */
-export function searchAll(q, { items = [], trips = [], templates = [], bikes = [], notes = [], events = [] } = {}) {
+export function searchAll(q, { items = [], trips = [], templates = [], bikes = [], notes = [], events = [], diary = [] } = {}) {
   const words = norm(q).trim().split(/\s+/).filter(Boolean);
   if (!words.length || norm(q).trim().length < 2) return [];
   const hit = (...fields) => {
@@ -62,6 +65,14 @@ export function searchAll(q, { items = [], trips = [], templates = [], bikes = [
       .filter((n) => hit(n.text))
       .sort((a, b) => (b.at ?? '').localeCompare(a.at ?? ''))
       .map((n) => ({ id: n.id, title: n.text.length > 60 ? `${n.text.slice(0, 57)}…` : n.text, sub: n.status === 'open' ? t('to sort') : t('sorted'), href: '#/inbox' })),
+    // diary entries: title, text, tags, place and what was added (voice notes as text, file names)
+    diary: diary
+      .filter((e) => hit(e.title, e.text, (e.tags ?? []).join(' '), e.place?.name, diaryExtra(e)))
+      .sort((a, b) => `${b.day} ${b.time ?? ''}`.localeCompare(`${a.day} ${a.time ?? ''}`))
+      .map((e) => {
+        const head = String(e.title ?? '').trim() || String(e.text ?? '').trim().split('\n')[0] || t('Untitled');
+        return { id: e.id, title: head.length > 60 ? `${head.slice(0, 57)}…` : head, sub: tripDay(e.day), href: `#/tagebuch/${encodeURIComponent(e.id)}` };
+      }),
     log: events
       .filter((e) => hit(e.name, e.note, e.date, e.dateText, e.result, e.learnings))
       .sort((a, b) => (b.sortDate ?? '').localeCompare(a.sortDate ?? ''))

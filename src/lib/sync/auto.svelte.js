@@ -31,7 +31,10 @@ export function runSync(db = dbRef) {
   running = (async () => {
     sync.running = true;
     try {
-      return await syncNow(db, { dev: device() });
+      const r = await syncNow(db, { dev: device() });
+      // Einzelidee 34: a reminder ticked off on the other device no longer comes to this phone
+      import('../push/client.js').then((p) => p.afterSync()).catch(() => {});
+      return r;
     } catch {
       return null; // the error is in syncCfg, the panel shows it
     } finally {

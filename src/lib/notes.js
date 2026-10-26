@@ -53,7 +53,7 @@ export function tripNotes(debrief, notes, tripId) {
   const seen = new Set(old.map((n) => `${n.at}|${n.text}`));
   const fresh = notes
     .filter((n) => n.tripId === tripId && n.day != null && !seen.has(`${n.at}|${n.text}`))
-    .map((n) => ({ key: `ride:${n.id}`, at: n.at, day: n.day, text: n.text, noteId: n.id, ...(n.debrief?.kind ? { kind: n.debrief.kind, itemId: n.debrief.itemId ?? null } : {}) }));
+    .map((n) => ({ key: `ride:${n.id}`, at: n.at, day: n.day, text: n.text, noteId: n.id, ...(n.debrief?.kind ? { kind: n.debrief.kind, itemId: n.debrief.itemId ?? null } : {}), ...(n.inputs ? { inputs: n.inputs } : {}) }));
   return [...old, ...fresh].sort((a, b) => (a.at ?? '').localeCompare(b.at ?? ''));
 }
 

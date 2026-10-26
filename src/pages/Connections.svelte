@@ -27,6 +27,7 @@
   import { actName } from '../lib/flow/ui.svelte.js';
   import { localDay } from '../lib/localday.js';
   import { t, tn, locale } from '../lib/i18n.svelte.js';
+  import { DEPENDS, gapOf } from '../lib/ichideen/depends.js'; // Einzelidee 35: what depends on a connection, and its gaps
   import '../lib/ich/ich.css';
 
   const today = localDay();
@@ -43,6 +44,8 @@
     return { ticks: ticksOf(ticks?.value), own: ownOf(own?.value), sp: stravaPrefsOf(stravaRec?.value), acts: acts.filter((a) => !a.paused).sort((a, b) => (a.order ?? 0) - (b.order ?? 0)), activities, bikes: bikes.filter((b) => !b.retired && !b.archived), lake: lake?.value ?? null };
   });
   const d = $derived($q);
+  // Einzelidee 35: the Fitbit days of the last two weeks, to find days without values
+  const fitDaysQ = liveQuery(() => db.healthDays.where('date').aboveOrEqual(new Date(Date.parse(`${today}T12:00:00Z`) - 15 * 864e5).toISOString().slice(0, 10)).primaryKeys());
   const sports = $derived(d ? seenSports(d.activities, d.acts, d.ticks.map) : []);
   const hasKey = readKey();
 
@@ -55,6 +58,17 @@
     { key: 'mail', Icon: Mail, name: t('Mail'), on: null, line: t('Your Gmail: read, search, answer, write'), href: '#/me/mail' },
     { key: 'lake', Icon: Waves, name: t('Lake temperature'), on: !!lakeAt, line: lakeAt ? t('last value {when} · City of Zurich and Eawag, no login', { when: when(lakeAt) }) : t('City of Zurich and Eawag, no login'), href: '#/flow' },
   ]);
+
+  const deps = $derived(
+    rows
+      .filter((r) => DEPENDS[r.key])
+      .map((r) => ({
+        ...r,
+        uses: DEPENDS[r.key],
+        gap: gapOf(r.key, { on: r.on === true, last: r.key === 'strava' ? strava.prefs.lastSync : r.key === 'agenda' ? agenda.prefs.lastSync : null, days: ($fitDaysQ ?? []).map(String), today }),
+      })),
+  );
+  const gapText = (g) => (g.kind === 'days' ? tn(g.n, '{n} day without values in the last {of} days.', '{n} days without values in the last {of} days.', { of: g.of }) : tn(g.days, 'No new data for {n} day: what depends on it may be incomplete.', 'No new data for {n} days: what depends on it may be incomplete.'));
 
   const MODES = $derived([
     { key: 'auto', name: t('Tick by itself') },
@@ -242,6 +256,20 @@
           </div>
         </section>
       {/if}
+
+      <!-- Einzelidee 35 «Abhängigkeiten einer Verbindung»: what uses each connection, and where data is missing (below the switches, so they stay on top) -->
+      <section class="ich-sec" aria-labelledby="cn-dep-h" data-section="depends">
+        <div class="ich-h"><div><h2 id="cn-dep-h">{t('What depends on it')}</h2><p class="ich-hs">{t('which pages use each connection, and where data is missing')}</p></div></div>
+        <ul class="card ich-list">
+          {#each deps as r (r.key)}
+            <li class="dep" data-dep={r.key}>
+              <b>{r.name}</b>
+              {#if r.gap}<small class="gap" data-dep-gap={r.gap.kind}>{gapText(r.gap)}</small>{:else if r.on === false}<small>{t('Off: these pages work without it, with less data.')}</small>{/if}
+              <span class="uses">{#each r.uses as u (u.href + u.label)}<a class="chip" href={u.href}>{t(u.label)}</a>{/each}</span>
+            </li>
+          {/each}
+        </ul>
+      </section>
       {#if msg}<p class="msg" role="status">{msg}</p>{/if}
     </div>
 
@@ -257,6 +285,33 @@
 </div>
 
 <style>
+  .dep {
+    display: grid;
+    gap: 4px;
+    padding: 10px var(--sp-4, 16px);
+  }
+  .dep small {
+    color: var(--ink-2);
+  }
+  .dep .gap {
+    color: var(--warn);
+  }
+  .uses {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .uses .chip {
+    display: inline-flex;
+    align-items: center;
+    min-height: 32px;
+    padding: 2px 10px;
+    border: 1px solid var(--line-strong);
+    border-radius: 999px;
+    color: inherit;
+    text-decoration: none;
+    font-size: var(--fs-small);
+  }
   .conn {
     display: grid;
     gap: var(--s3, 12px);

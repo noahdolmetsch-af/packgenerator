@@ -1,6 +1,6 @@
 // Gruppen-Live-Karte (Noah 25.10.2026 «b»): the pure helpers of src/lib/live/group.js. Fictional data only.
 import { describe, it, expect } from 'vitest';
-import { parseGroupLink, groupLinkOf, inviteLinks, routePayload, readRoute, placePayload, readPlace, memberRows, nearHome, initials, cleanName, groupRunning, minutesAgo, STALE_MIN, GONE_MIN, GROUP_V } from '../src/lib/live/group.js';
+import { stillWaiting, groupGpx, gpxName, STOP_GLYPH, parseGroupLink, groupLinkOf, inviteLinks, routePayload, readRoute, placePayload, readPlace, memberRows, nearHome, initials, cleanName, groupRunning, minutesAgo, STALE_MIN, GONE_MIN, GROUP_V } from '../src/lib/live/group.js';
 
 const T0 = Date.parse('2026-07-03T08:00:00Z');
 const route = { line: Array.from({ length: 21 }, (_, i) => [47 + i * 0.005, 8]), km: 11.1 };
@@ -34,7 +34,8 @@ describe('group.js', () => {
   it('a place: rounded, with a clean name; broken places are dropped', () => {
     const p = placePayload('  Test   Fahrerin  ', { lat: 47.123456789, lon: 8.987654321, at: T0 });
     expect(p).toEqual({ v: GROUP_V, n: 'Test Fahrerin', lat: 47.12346, lon: 8.98765, at: new Date(T0).toISOString() });
-    expect(readPlace(p)).toEqual({ name: 'Test Fahrerin', pos: [47.12346, 8.98765], at: new Date(T0).toISOString() });
+    expect(readPlace(p)).toEqual({ name: 'Test Fahrerin', pos: [47.12346, 8.98765], at: new Date(T0).toISOString(), wait: false });
+    expect(readPlace(placePayload('A', { lat: 47, lon: 8, at: T0 }, T0, { wait: true })).wait).toBe(true);
     expect(readPlace({ v: GROUP_V, n: 'x', lat: 'a', lon: 8, at: 'now' })).toBeNull();
     expect(cleanName('x'.repeat(80))).toHaveLength(40);
   });
@@ -56,6 +57,18 @@ describe('group.js', () => {
     expect(rows[1].km).toBeNull(); // 60 km off the route
     expect(rows[2]).toMatchObject({ ago: 20, stale: 20 > STALE_MIN });
     expect(memberRows([{ m: 'a', name: 'A', pos: [47, 8], at: at(2) }], null, { now: T0 })[0].km).toBeNull();
+  });
+  it('waiting ends 300 m further; the route as GPX with a clean file name', () => {
+    expect(stillWaiting({ lat: 47, lon: 8 }, { lat: 47.001, lon: 8 })).toBe(true);
+    expect(stillWaiting({ lat: 47, lon: 8 }, { lat: 47.004, lon: 8 })).toBe(false);
+    expect(stillWaiting(null, { lat: 47, lon: 8 })).toBe(false);
+    const g = groupGpx('test_data_gtp_ Runde <1>', route);
+    expect(g).toMatch(/<name>test_data_gtp_ Runde &lt;1&gt;<\/name>/);
+    expect(g.match(/<trkpt/g)).toHaveLength(route.line.length);
+    expect(groupGpx('x', null)).toBe('');
+    expect(gpxName('Jura-Rundfahrt «Tag 1»')).toBe('Jura-Rundfahrt-Tag-1.gpx');
+    expect(gpxName('')).toBe('gruppenfahrt.gpx');
+    expect(STOP_GLYPH.water).toBeTruthy();
   });
   it('small helpers', () => {
     expect(initials('Test Fahrer')).toBe('TF');

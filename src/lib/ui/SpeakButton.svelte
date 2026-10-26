@@ -129,7 +129,7 @@
       {/if}
     </span>
   {/if}
-  {#if st.error}<span class="sp-err" role="status" data-speak-error={st.error}>{t(ERR[st.error] ?? ERR.failed)}</span>{/if}
+  {#if st.error}<span class="sp-err" role="status" data-speak-error={st.error}>{t(ERR[st.error] ?? ERR.failed)}{#if said.length}{' '}{t('What you said so far is in the field; type on.')}{/if}</span>{/if}
   {#if answer && asked}
     <div class="sp-ans" data-speak-answer>
       <AskAnswer q={asked} tools fallback autoread={dict.read} onreading={reading} onadopt={(s) => onsaid(`\n${t('Answer')}: ${s}`)} onclose={() => (asked = '')} />

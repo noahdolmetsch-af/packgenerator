@@ -137,6 +137,7 @@
   import SkiTile from '../lib/home/SkiTile.svelte';
   import { bookingNotes, bookingRow } from '../lib/booking/notice.js'; // Termine buchen (BU4, 9a)
   import TryCard from '../lib/home/TryCard.svelte';
+  import { suggest, watchSuggest } from '../lib/clear/suggest.svelte.js'; // Einzelidee 36: «Ideas to buy» can be off on every page
   import BikeCards from '../lib/home/BikeCards.svelte';
   import YearRow from '../lib/home/YearRow.svelte';
   import WeekTile from '../lib/home/WeekTile.svelte';
@@ -223,6 +224,7 @@
     return () => clearInterval(id);
   });
   const today = $derived(localDay(now));
+  watchSuggest();
   // FE8 «Nachtruhe» (Noah 13.10.2026): 22–06 Today keeps its tips back (switch in Ich › Darstellung)
   const hush = $derived(quietHome(now));
   const evening = $derived(dayPart(now.getHours()) === 'evening' && isEveningOn(now.getHours()));
@@ -670,7 +672,7 @@
         out.push({ key: 'todo', tone: c.prio === 1 ? 'warn' : 'quiet', text: todoText(f), act: f.href ? { label: t('Do it now'), href: f.href } : { label: t('Do it now'), run } });
       } else if (c.key === 'wear') out.push({ key: 'wear', tone: 'quiet', text: wearLine(d.rows[0]), act: { label: t('Plan in Bike care'), href: bikesHash({ tab: 'care', bike: d.rows[0].bikeId, open: true }) } });
       else if (c.key === 'templates') out.push({ key: 'templates', tone: 'info', text: tn(d.n, '{n} suggestion for your templates', '{n} suggestions for your templates'), act: { label: t('Look at them'), href: '#/pack/templates' } });
-      else if (c.key === 'upgrade') out.push({ key: 'upgrade', tone: 'quiet', text: t('{name}: {g} g lighter for CHF {chf} ({x} g per 100 CHF)', { name: nameOf(d.item), g: num(d.savedG), chf: num(d.chf), x: num(d.gPer100) }), act: { label: t('Open wishlist'), href: '#/gear?tab=wishlist' } });
+      else if (c.key === 'upgrade' && suggest.on.buy) out.push({ key: 'upgrade', tone: 'quiet', text: t('{name}: {g} g lighter for CHF {chf} ({x} g per 100 CHF)', { name: nameOf(d.item), g: num(d.savedG), chf: num(d.chf), x: num(d.gPer100) }), act: { label: t('Open wishlist'), href: '#/gear?tab=wishlist' } });
       else if (c.key === 'unused') out.push({ key: 'unused', tone: 'quiet', text: `${d.full ? tn(d.items.length, '{n} item not on any trip for 12 months', '{n} items not on any trip for 12 months') : tn(d.items.length, '{n} item not on any trip since {date}', '{n} items not on any trip since {date}', { date: new Date(`${d.since}T00:00:00`).toLocaleDateString(locale(), { day: 'numeric', month: 'short', year: 'numeric' }) })} · ${t('{w} in total', { w: weightText(d.g, d.missing) })}`, act: { label: t('Look through'), href: '#/gear?unused=1' } });
       else if (c.key === 'learnings') out.push({ key: 'learnings', tone: 'quiet', text: d.tip.rule, act: { label: t('All learnings'), href: '#/debrief/learnings' } });
     }

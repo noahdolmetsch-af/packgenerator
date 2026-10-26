@@ -27,6 +27,7 @@
   import LiveStart from '../lib/live/LiveStart.svelte';
   import { todayTrip } from '../lib/live/start.js';
   import Onion from '../lib/pack/Onion.svelte';
+  import { twiceOf, keepTwice } from '../lib/einzeln/material.js'; // Einzelidee 21
   import ClothesAt from '../lib/pack/ClothesAt.svelte';
   import { clothesAt, tempOf } from '../lib/touren/tourextra.js';
   import { onionCheck, coldest, chooseKit, tempKits, kitPlan, pctOf, CLOTHING_OFFSET } from '../lib/wardrobe.js';
@@ -611,6 +612,16 @@
     return cold ? chooseKit(tempKits($setsQ?.value ?? []), cold.c, offset) : null;
   });
   const kitP = $derived(kit && trip ? kitPlan(kit, trip, items) : null);
+  // Einzelidee 21 «Zu viel an derselben Stelle»: pieces with the same task; the onion asks what for
+  const twice = $derived(onionCk ? twiceOf(trip, items) : []);
+  async function twiceOk(key) {
+    await change((cur) => keepTwice(cur, key));
+    onionDone([], t('Both stay on the list.'), 'twice');
+  }
+  async function twiceHome(id, name) {
+    await change((cur) => ({ entries: cur.entries.filter((e) => e.itemId !== id) }));
+    onionDone([], t('{name} stays home.', { name }), 'twice');
+  }
   // Kleidung nach Wetter (Noah 20.10.2026 «5a»): what you wore on earlier tours at a similar temperature
   const clothes = $derived(trip && !over ? clothesAt(tempOf(trip), { trips: $tripsQ ?? [], debriefs: $debriefsQ ?? [], items, exceptTrip: trip.id }) : null);
   // What the onion added last (the "new" marks and the toast with Undo).
@@ -1074,7 +1085,7 @@
       testTrip: () => change(() => ({ testTrip: trip.testTrip !== true })),
       reopen: () => askReopen(trip),
     }}>
-    {#snippet onion()}{#if onionCk}<Onion check={onionCk} {kit} plan={kitP} {offset} {itemsById} added={onionAdd?.tripId === trip.id ? onionAdd.ids : []} kitAdded={onionAdd?.tripId === trip.id ? onionAdd : null} onadd={onionItems} onkit={onionKit} />{/if}{#if clothes}<ClothesAt info={clothes} {itemsById} have={new Set(trip.entries.map((e) => e.itemId))} onadd={onionItems} />{/if}{/snippet}
+    {#snippet onion()}{#if onionCk}<Onion check={onionCk} {kit} plan={kitP} {offset} {itemsById} added={onionAdd?.tripId === trip.id ? onionAdd.ids : []} kitAdded={onionAdd?.tripId === trip.id ? onionAdd : null} onadd={onionItems} onkit={onionKit} {twice} ontwiceok={locked ? null : twiceOk} onremove={locked ? null : twiceHome} />{/if}{#if clothes}<ClothesAt info={clothes} {itemsById} have={new Set(trip.entries.map((e) => e.itemId))} onadd={onionItems} />{/if}{/snippet}
     {#snippet suggest()}{#if placeRows.length}<PlaceSuggest rows={placeRows} {itemsById} {bags} onapply={applyRows} ondismiss={dismissRow} />{/if}{#if trip.status !== 'done'}<TourSky {trip} {items} place={trip.route?.start ?? trip.place ?? homeOf($homeQ?.value) ?? null} onadd={helperAdd} onhide={(k) => change((c) => ({ skyOff: [...new Set([...(c.skyOff ?? []), k])] }))} />{/if}{/snippet}
     {#snippet settings(mode)}
       {#if mode === 'conditions'}

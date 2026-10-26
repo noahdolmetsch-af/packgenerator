@@ -36,6 +36,8 @@ export const TOP_HREF = '#/me/news?all&sort=top';
  * missing here counts as 0.1.0 (from the start).
  */
 export const SINCE = {
+  // Einzelideen Material und Überall (996 Ideen, Noah 25.10.2026): provisional, the bundler sets the number
+  'f.ownviews': '0.205.0',
   // Paket K «Unterwegs»: v0.154.0
   'f.trainhome': '0.154.0', 'f.handlebar': '0.154.0', 'f.glove': '0.154.0', 'f.eatremind': '0.154.0', 'f.departsheet': '0.154.0', 'f.komoottour': '0.154.0', 'f.routeconvert': '0.154.0', 'f.waterfood': '0.154.0', 'f.ready': '0.154.0', 'f.listentip': '0.154.0', 'f.skyplaces': '0.154.0',
   // Paket VG «Das Velo im Griff» (Noah 20.10.2026): v0.172.0
@@ -54,9 +56,12 @@ export const SINCE = {
   'f.custompage': '0.175.0',
   dayride: '0.24.1', blocks: '0.26.0', templates: '0.10.0', gpx: '0.15.0', homeweather: '0.46.0', wxsuggest: '0.15.0', weigh: '0.3.0', fav: '0.19.4', wish: '0.19.2', unused: '0.19.2',
   'f.plan': '0.30.0', 'f.wear': '0.45.0', 'f.onion': '0.42.0', 'f.shop': '0.34.0', 'f.ballast': '0.19.5', 'f.tripbike': '0.19.3', 'f.switch': '0.35.0', 'f.ask': '0.77.0', 'f.wardrobe': '0.42.0', 'f.kit': '0.45.0',
+  // Einzelideen Planen (provisional version; the bundler sets the final one)
+  'f.plantpass': '0.202.0', 'f.doubleinbox': '0.202.0', 'f.mailcase': '0.202.0', 'f.memorycard': '0.202.0',
   // Paket D «Mit Freunden» (provisional version; the bundler sets the final one)
   'f.friendask': '0.194.0', 'f.friendshelf': '0.194.0', 'f.friendtemplate': '0.194.0',
   // Paket C «Ruhig und persönlich» (996 Ideen); bundler: renumber with the package version
+  'f.hiddenall': '0.203.0', // Einzelidee 33
   'f.workspace': '0.193.0', 'f.calmview': '0.193.0', 'f.pushbudget': '0.193.0', 'f.notforme': '0.193.0', 'f.experiment': '0.193.0', 'f.specialdays': '0.193.0', 'f.counterdays': '0.193.0', 'f.sleeporigin': '0.193.0', 'f.weightsure': '0.193.0', 'f.letters': '0.193.0', 'f.letterreply': '0.193.0', 'f.laterview': '0.193.0', 'f.voiceletters': '0.193.0', 'f.meaning': '0.193.0', 'f.gooddecisions': '0.193.0', 'f.ownbingo': '0.193.0', 'f.freerewards': '0.193.0', 'f.skillmap': '0.193.0', 'f.knowhow': '0.193.0', 'f.sharepreview': '0.193.0', 'f.arrival': '0.193.0', 'f.tworoles': '0.193.0', 'f.scalemeaning': '0.193.0', 'f.bodytalk': '0.193.0', 'f.sources': '0.193.0', 'f.devil': '0.193.0', 'f.aicheck': '0.193.0', 'f.nogos': '0.193.0',
   'f.blockeffect': '0.190.0', 'f.needs': '0.190.0', 'f.probe': '0.189.0', 'f.homecoming': '0.189.0', 'f.labels': '0.189.0', 'f.groupmap': '0.200.0', 'f.stopsnear': '0.187.0', 'f.lighter': '0.63.0', 'f.select': '0.24.1', 'f.merge': '0.37.1', 'f.blockcheck': '0.66.0', 'f.packcleanup': '0.177.0', 'f.namesde': '0.177.0', 'f.skiplan': '0.178.0', 'f.skiseason': '0.178.0', 'f.newpack': '0.179.0', 'f.powervalues': '0.179.0', 'f.decides': '0.181.0', 'f.tennistop': '0.182.0', 'f.yogaclasses': '0.182.0', 'f.photoalbum': '0.185.0', 'f.weighin': '0.180.0', 'f.next': '0.184.0', 'f.sortround': '0.183.0', 'f.goodday': '0.182.0', 'f.forgotten': '0.181.0', 'f.gearimport': '0.36.0',
   bags: '0.5.0', share: '0.16.0', ride: '0.29.0', note: '0.19.3', event: '0.22.1', 'f.basecheck': '0.45.2', 'f.dayblocks': '0.19.5', 'f.evening': '0.34.0', 'f.ridenote': '0.26.0', 'f.finish': '0.20.1',
@@ -154,6 +159,8 @@ export const SINCE = {
   // «Auswertung wie Training» (provisional version, the bundler renumbers)
   'f.tickreview': '0.174.0',
   'f.parkdays': '0.176.0', 'f.packside': '0.176.0', // Paket «Reste» (21.10.2026)
+  // «Eingaben überall» (Noah 26.10.2026; provisional, the bundler sets the version of its release)
+  'f.inputbar': '0.201.0', 'f.inputtemplates': '0.201.0', 'f.picturecard': '0.201.0',
 };
 export const sinceOf = (id) => SINCE[id] ?? '0.1.0';
 

@@ -25,7 +25,9 @@ export const DAY_CAPS = {
   helper: 200,
   pay: 300,
   booking: 600,
-  push: 1500,
+  // cron-job.org wakes the server every minute (1440 a day); 25.10.2026 had 25 hours (end of summer time),
+  // so its 1500 ticks plus the phones' own calls passed the old cap of 1500 and stopped the last reminders
+  push: 2000,
   linkcheck: 300,
   account: 300,
   rwgps: 200, // «Neue Quellen» 20.10.2026: Ride with GPS links (api/lake.js ?action=rwgps)

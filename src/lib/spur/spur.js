@@ -211,8 +211,8 @@ export const shownLines = (spur) => (spur?.days ?? []).flatMap((d) => d.lines.fi
 export function mapPoints(spur) {
   const pts = [];
   for (const d of spur?.days ?? []) {
-    for (const p of d.places) if (p.pos) pts.push({ id: p.id, kind: 'place', pos: p.pos, day: d.day, n: d.n, text: p.text ?? '', photo: p.photo ?? null, at: p.at });
-    for (const x of d.notes) if (x.pos) pts.push({ id: x.id, kind: x.photo ? 'photo' : 'note', pos: x.pos, day: d.day, n: d.n, text: x.text ?? '', photo: x.photo ?? null, at: x.at, guessed: x.guessed });
+    for (const p of d.places) if (p.pos) pts.push({ id: p.id, kind: 'place', pos: p.pos, day: d.day, n: d.n, text: p.text ?? '', photo: p.photo ?? null, at: p.at, ...(p.inputs ? { inputs: p.inputs } : {}) });
+    for (const x of d.notes) if (x.pos) pts.push({ id: x.id, kind: x.photo ? 'photo' : 'note', pos: x.pos, day: d.day, n: d.n, text: x.text ?? '', photo: x.photo ?? null, at: x.at, guessed: x.guessed, ...(x.inputs ? { inputs: x.inputs } : {}) });
   }
   return pts;
 }

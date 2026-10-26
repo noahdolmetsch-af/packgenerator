@@ -23,6 +23,7 @@
   import { SAID_KEY, noteSaid, hits } from '../lib/wetter/treffer.js';
   import WebcamList from '../lib/wetter/WebcamList.svelte';
   import FeelCard from '../lib/wetter/FeelCard.svelte';
+  import HomeFeelCard from '../lib/wetter/HomeFeelCard.svelte'; // Einzelidee Heute 1: how the forecast felt at home
   import LakeChip from '../lib/lake/LakeChip.svelte';
   import LakeCard from '../lib/lake/LakeCard.svelte';
   import AirCard from '../lib/air/AirCard.svelte';
@@ -293,6 +294,7 @@
     <section class="card wx-sec" aria-labelledby="wx-feel" data-wx-feel>
       <h2 id="wx-feel" class="wx-h">{t('How was it outside?')}</h2>
       <FeelCard {core} />
+      {#if !picked && !trip}<HomeFeelCard {core} />{/if}
     </section>
   {/if}
 

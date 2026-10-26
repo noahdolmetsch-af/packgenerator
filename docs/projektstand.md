@@ -1,6 +1,6 @@
 # Projektstand und Plan
 
-Stand: **26. Oktober 2026, 00:30 UTC** (nachgetragen nach Noahs Auftrag vom 25.10.2026 «bitte bringe den aktuellen projektstand auf github auf den aktuellen stand»). Auf `main` ist **Version 0.198.0** «Kette vorausschauend» (PR #254, zusammengeführt 25.10.2026, 23:58 UTC; die Veröffentlichung auf GitHub Pages lief beim Schreiben). Davor war **0.195.1** live (seit 25.10.2026, 22:39 UTC). Offen ist PR #253 mit 0.199.0 und 0.200.0.
+Stand: **26. Oktober 2026, 03:40 UTC**. Live ist **Version 0.200.0** (PR #253, von Noah zusammengeführt am 26.10.2026, 02:54 UTC; GitHub Pages grün, Server «packgen» bereit). Offen ist der Sammel-PR mit 0.201.0 bis 0.205.0.
 
 Ältere Abschnitte weiter unten («Kurzstand 19.10.», Abschnitte 1 bis 5) sind der damalige Stand und bleiben als Verlauf stehen. Was unten anders steht, gilt nicht mehr, wo dieser Abschnitt etwas Neueres sagt.
 
@@ -17,7 +17,8 @@ Stand: **26. Oktober 2026, 00:30 UTC** (nachgetragen nach Noahs Auftrag vom 25.1
 | 0.191.0 bis 0.194.0 | #246 | Die Werkstatt, klar · Ehrlicher Stand · Ruhig und persönlich · Zusammen mit Freunden | 25.10., 22:39 UTC |
 | 0.195.0, 0.195.1 | #247, #248 | Kleine Helfer für Tour und Velo · Einkaufsliste am Stück | 25.10., 22:39 UTC |
 | (Testkorrektur) | #252 | Tests hängen nicht mehr von der Uhrzeit ab; vorher war die Veröffentlichung von 0.191 bis 0.195.1 rot | 25.10., 22:39 UTC |
-| 0.198.0 | #254 | Kette vorausschauend (nächste Kettenschritte, Prognose, Erinnerung) | auf `main` 25.10., 23:58 UTC |
+| 0.198.0 | #254 | Kette vorausschauend (nächste Kettenschritte, Prognose, Erinnerung) | 26.10. |
+| 0.199.0, 0.200.0 | #253 | Flicken, ausprobieren, abmachen · Zusammen auf einer Karte · Velos und 332 sichtbar (217 → 142 versteckte Funktionen) | 26.10., 03:20 UTC |
 
 **Warum 0.191 bis 0.195.1 erst am Abend des 25.10. online kamen:** Die Pull Requests waren am frühen Morgen zusammengeführt, aber die Veröffentlichung auf GitHub Pages blieb rot. Ursache: Am Sonntag öffnete Heute in den Tests von selbst das Fenster «Wochenrückblick» und verdeckte Knöpfe; die Länge von Heute am Handy hing zudem von der Uhrzeit ab. PR #252 schaltet die Heute-Fenster in den Tests aus (eigene Tests für die Fenster schalten sie gezielt ein), zeigt kein Fenster über «Erste Schritte» oder einer laufenden Tour und misst die Länge von Heute zur Mittagszeit. Danach war alles grün.
 
@@ -25,8 +26,11 @@ Stand: **26. Oktober 2026, 00:30 UTC** (nachgetragen nach Noahs Auftrag vom 25.1
 
 | PR | Version (vorläufig) | Inhalt | Stand |
 |---|---|---|---|
-| #253 | 0.199.0 | «Flicken, ausprobieren, abmachen»: letzte Einzelideen aus Paket A (996 Ideen) | offen; Noah mergt selbst |
-| #253 | 0.200.0 | «Zusammen auf einer Karte»: Gruppen-Live-Karte (Noah 25.10. «b»: Einladungslink, Teilen nur auf Wunsch, endet nach 24 Stunden, 0 Kosten) und «Velos sichtbar» | wie oben; ändert `api/`, danach den Server «packgen» prüfen |
+| Sammel-PR | 0.201.0 | «Sprechen, anhängen, mit Vorlage starten» (Eingaben überall): Sprachnotiz, Foto, Datei, Ort, Schlagwort und Vorlagen unter dem Text von zehn Seiten, Bildkarte, Tagebuch in der Suche | offen; ändert `api/`, danach Server «packgen» prüfen; Noah mergt selbst |
+| Sammel-PR | 0.202.0 | «Planen im Zusammenhang»: Pflanzenpass, Vorgänge im Eingang, Erinnerungskarten, Notiz-Verbindungen mit Bedeutung | wie oben |
+| Sammel-PR | 0.203.0 | «Kleine Helfer unter Ich»: letzte Ergebnisse im Werkzeugkasten, Hinweis vor der Google-Anmeldung, eigene Verpflegungs-Zahlen, «Ausgeblendet und aus», «Was davon abhängt», klare Backup-Ordner-Meldungen | wie oben |
+| Sammel-PR | 0.204.0 | «Eine kleine Überraschung»: Überraschungsrunde, Wetter am eigenen Platz, Standzeit-Check, «Hat sich etwas geändert?» | wie oben |
+| Sammel-PR | 0.205.0 | «Material, das weiss warum»: eigene Ansichten, Grund für Favoriten, Wunsch löst Ärger, Zwiebel-Check; Gruppenfahrt «Ich warte hier» und Stopps; «Namen überall» (142 → 111 versteckte Funktionen) | wie oben |
 | #251 | – | Bibliotheken aktualisieren (Playwright 1.64, pdfjs 6, maplibre 6.15) mit Anpassung | offen, Prüfungen seit Tagen rot |
 
 ### Wie ein Release heute online geht (seit 26.10.2026)
@@ -62,6 +66,10 @@ Einzelheiten zu jeder Entscheidung stehen im [Entscheidungslog](decisions.md).
 4. **Bibliotheken aktualisieren** (Wächter, PR #251): Prüfungen seit mehreren Tagen rot.
 5. **Kleiderschrank-Test** (`wardrobe`) schlägt manchmal ohne Grund fehl; die Ursache ist noch nicht behoben.
 6. **Wächter:** optional den Vercel-Zugang neu verbinden (braucht Noahs Klick).
+
+### Kurzstand 26.10.2026: Eingaben überall
+
+**0.201.0 «Sprechen, anhängen, mit Vorlage starten» (26.10.2026, Noah «1a 2b 3 nur Ton. kein Video 4b 5a aber b möglich»):** unter den Texten von zehn Seiten (Tagebuch, Notizen, Tages-Check, Tour-Tagebuch, Unterwegs, Reisespur, Velopflege, Ausrüstung, Träume, Schnellnotiz) eine Leiste «Hinzufügen»: Sprachnotiz bis 1 Minute (mit «Als Text» auf dem Gerät), Foto, Datei, Ort, Schlagwort, Vorlagen pro Seite (Tagebuch: Dankbarkeit, kleine Erfreuer, 2 gute Dinge, Lieblingsmoment; hinzufügen, ändern, ordnen, löschen), Schreibanreize, KI-Helfer (Anreize, Highlights, Titel, gratis über Gemini, nur mit Häkchen). Jede Seite zeigt nur, was dort passt. Tagebuch: «Bildkarte» aus eigenem Foto zum Teilen oder Herunterladen (kein KI-Bild, kein Video); die App-Suche findet Tagebuch-Einträge, abschaltbar in den Tagebuch-Einstellungen (mit Sperrcode nur, solange offen). Kein Dexie-Schema; neues Feld `inputs` an bestehenden Einträgen, Backup-Format gleich.
 
 ### Kurzstand 25.10.2026: Gruppen-Live-Karte
 
@@ -164,9 +172,14 @@ Damals (19.10.2026) galt: keine Testlinks; Ein Paket geht online, sobald die Tes
 | 78 | Zusammen mit Freunden (996 Ideen, Paket D Teil 1) | 0.194.0 | Ich › Mit Freunden: Freunde fragen, Leihregal, Vorlage teilen; ohne Konto, als Link oder Datei | live |
 | 79 | Kleine Helfer für Tour und Velo (996 Ideen, Paket B, Einzelideen) | 0.195.0 | Velo abgestellt mit Schlüssel und abgenommenen Teilen, «Melden bis» pro Nacht, Hotelanfragen im Rennmodus, Reise-Links «Optionen vergleichen», Vorgeschmack einer Traumtour, Garantiefall-Entwurf | live |
 | 80 | Einkaufsliste am Stück (Korrektur) | 0.195.1 | Am Computer brachen Namen in der Einkaufsliste Buchstabe für Buchstabe um, seit «30 Tage warten» (0.192.0); jetzt rutschen die Knöpfe bei wenig Platz unter den Namen | live |
-| 81 | Flicken, ausprobieren, abmachen (996 Ideen, Paket A, letzte Einzelideen) | 0.199.0 | Kleider reparieren, Wunsch zuerst ausleihen, Ideen für ein Treffen, Geburtstag in kleinen Schritten, Webcams aufräumen | PR #253, Noah mergt selbst |
-| 82 | Zusammen auf einer Karte (Gruppen-Live-Karte) + Velos sichtbar + 332 sichtbar | 0.200.0 | Gruppenfahrt: Freunde per Link auf einer Live-Karte, freiwillig teilen, endet nach der Fahrt, spätestens nach 24 Stunden; Velo-Funktionen heissen wie ihre Knöpfe | PR #253, Noah mergt selbst |
-| 83 | Kette vorausschauend | 0.198.0 | Velos › Pflege › Verschleiss: nächste Kettenschritte, Verlauf und Prognose, Handy-Erinnerung | auf `main` 25.10. |
+| 81 | Flicken, ausprobieren, abmachen (996 Ideen, Paket A, letzte Einzelideen) | 0.199.0 | Kleider reparieren, Wunsch zuerst ausleihen, Ideen für ein Treffen, Geburtstag in kleinen Schritten, Webcams aufräumen | live 26.10. (#253) |
+| 82 | Zusammen auf einer Karte (Gruppen-Live-Karte) + Velos sichtbar + 332 sichtbar | 0.200.0 | Gruppenfahrt: Freunde per Link auf einer Live-Karte, freiwillig teilen, endet nach der Fahrt, spätestens nach 24 Stunden; Velo-Funktionen heissen wie ihre Knöpfe | live 26.10. (#253) |
+| 83 | Kette vorausschauend | 0.198.0 | Velos › Pflege › Verschleiss: nächste Kettenschritte, Verlauf und Prognose, Handy-Erinnerung | live 26.10. |
+| 84 | Sprechen, anhängen, mit Vorlage starten (Eingaben überall) | 0.201.0 | Leiste «Hinzufügen» auf zehn Seiten: Sprachnotiz bis 1 Minute, Foto, Datei, Ort, Schlagwort, Vorlagen pro Seite, Schreibanreize; Bildkarte im Tagebuch; Tagebuch in der App-Suche | Sammel-PR, Noah mergt selbst |
+| 85 | Planen im Zusammenhang (996 Einzelideen Planen 10–16) | 0.202.0 | Pflanzenpass, Vorgänge im Eingang (doppelter Eingang, Mail als Vorgang), Erinnerungskarten, Notizen im Zusammenhang | Sammel-PR |
+| 86 | Kleine Helfer unter Ich (996 Einzelideen Ich 27–36) | 0.203.0 | Letzte Ergebnisse, Hinweis vor der Google-Anmeldung, eigene Verpflegungs-Zahlen pro Reise, «Ausgeblendet und aus», «Was davon abhängt», Backup-Ordner-Meldungen, Rundgang weiter, Kürzel-Tipps, Vorschläge nach Art | Sammel-PR |
+| 87 | Eine kleine Überraschung (996 Einzelideen Heute) | 0.204.0 | Überraschungsrunde, Wetter am eigenen Platz, Bewertung aufteilen, Regen gebündelt, Standzeit-Check, Beispiele nach Interesse, «Hat sich etwas geändert?» | Sammel-PR |
+| 88 | Material, das weiss warum (996 Einzelideen Material und Überall) + Gruppenfahrt Teil 2 + Namen überall | 0.205.0 | Eigene Ansichten, Grund für Favoriten, Wunsch löst Ärger, Zwiebel-Check, Inhalt getrennt vom Leergewicht, Mikrofon-Fehler behalten Worte, Umwandeln überschreibt nie, Suche fragt nach; «Ich warte hier» und Stopps für Freunde; versteckte Funktionen 142 → 111 | Sammel-PR |
 | 62 | Skitour (Mockup-Paket P2) | 0.178.0 | Skitouren › Tour planen: Gefahrenstufe 1–5 mit Unterstufe und Satz, «Dein Morgen», Verhältnisse, Plan in Zahlen; «Gipfel erreicht» unterwegs; Nach der Tour «Plan und Wirklichkeit» und dein Material; Skitouren › Saison: Ziel, Wunschtouren, Skitage 8 Wochen, LVS-Übungen, Kurse mit «Auffrischen», Höhenmeter pro Ski, letzte Saison; Vorabend-Check zeigt Stufe, Temperatur, Wind, letzten Zug | live |
 
 «Frontend aufpeppen» ist pausiert (Noah 19.10.2026). Die Abschnitte unten sind der Stand vom 18.10.2026.

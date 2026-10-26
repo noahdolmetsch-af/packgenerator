@@ -27,6 +27,7 @@
   import GriffMore from './GriffMore.svelte';
   import WetChainHint from './WetChainHint.svelte';
   import ChainPlan from './ChainPlan.svelte'; // «Kette vorausschauend» (25.10.2026)
+  import StandCheck from './StandCheck.svelte'; // Einzelidee Heute 6: after the standstill
   import { brandStats, bestFor } from '../griff.js';
   import './griff.css';
 
@@ -128,6 +129,7 @@
          4 screens down; two chips jump there (they show only while that part is on the page) -->
     <QuickLinks label={t('More for the bike')} links={[...[['photos', 'Wear photos'], ['sell', 'Sale listing'], ['bikepack', 'Pack the bike'], ['stock', 'Spare parts at home']].map(([view, title]) => ({ key: view, href: bikesHash({ tab: 'care', view, bike: bike.id }), label: t(title) })), { key: 'rotation', jump: '[id^="rot-h-"]', label: t('Chain rotation') }, { key: 'brand', jump: '#gm-brand', label: t('What lasts longest') }]} />
     <WetChainHint {bike} />
+    <StandCheck {bike} />
     <ChainPlan {bike} />
 
     <details class="wcard how" data-wear-how>

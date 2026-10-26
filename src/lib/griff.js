@@ -57,6 +57,35 @@ export const wetChainEntry = (day, km, note) => ({ date: day, km: okNum(km) ? km
 /** Was the chain of this bike already dried or serviced on that day? (Then the hint on the wear page goes.) */
 export const chainCaredOn = (bike, day) => (bike?.parts ?? []).some((p) => p.key === 'chain' && (p.history ?? []).some((h) => h.date === day && (h.action === 'service' || h.action === 'replace')));
 
+/**
+ * Einzelidee Heute 5 (UC-189-I2 «Regenhinweis im Alltag bündeln», Noah 25.10.2026): several wet rides in a
+ * row make one task «Kette pflegen», not the same message for every ride. The series: the wet days of this
+ * bike since its chain was last cared for (service or new chain), within WET_LOOK_DAYS.
+ * → { days: [{ day, km }] (oldest first), n, km, start, today (a wet ride today) }.
+ */
+export const WET_LOOK_DAYS = 14;
+export function lastChainCare(bike) {
+  let last = '';
+  for (const p of bike?.parts ?? []) if (p.key === 'chain') for (const h of p.history ?? []) if ((h.action === 'service' || h.action === 'replace') && typeof h.date === 'string' && h.date > last) last = h.date;
+  return last || null;
+}
+export function wetSince(entries = [], bike, today, isWet, look = WET_LOOK_DAYS) {
+  const from = addDays(today, -(look - 1));
+  const care = lastChainCare(bike);
+  const by = {};
+  for (const e of entries) {
+    if (e?.kind !== 'ride' || e.state !== 'counted' || e.bikeId !== bike?.id || typeof e.date !== 'string') continue;
+    if (e.date < from || e.date > today || (care && e.date <= care) || !isWet?.(e)) continue;
+    by[e.date] = (by[e.date] ?? 0) + (Number(e.km) || 0);
+  }
+  const days = Object.entries(by).map(([day, km]) => ({ day, km: Math.round(km) })).sort((a, b) => a.day.localeCompare(b.day));
+  return { days, n: days.length, km: days.reduce((s, d) => s + d.km, 0), start: days[0]?.day ?? null, today: !!by[today] };
+}
+/** Show the one task on the page «Wear»: a wet ride today, or a series of two or more wet days not cared for. */
+export const wetTaskShows = (run) => !!run && (run.today || run.n >= 2);
+/** The one phone reminder per series: only on the day the series starts (later wet days add to the task). */
+export const wetPushToday = (run, today) => !!run && run.today && run.start === today;
+
 /* ---------- 1129 Verschleiss-Fotos ---------- */
 
 export const SHOT_PARTS = ['chain', 'chainring', 'tyres'];
@@ -264,6 +293,61 @@ export function syncSpring(todos = [], { day, text, now = new Date().toISOString
   const next = mine ? { ...mine, text, due: day, doneAt: mine.due === day ? mine.doneAt : null } : { id: `gr-${SPRING_SRC}`, text, due: day, remind: { at: '09:00', before: 0 }, repeat: null, list: null, created: now, doneAt: null, area: 'bike', src: SPRING_SRC };
   return { todos: [...rest, next], changed: true };
 }
+
+/**
+ * Einzelidee Heute 6 (UC-195-I1 «Saisonservice mit Lagerende», Noah 25.10.2026): after the bike stood still
+ * (STAND_DAYS without a ride) a check asks what may have changed or stayed unchecked while it stood (sealant
+ * dries, chains rust, batteries run flat), instead of only repeating km intervals. It shows while the bike
+ * stands and for BACK_DAYS after the first ride again; once checked it rests until the next standstill.
+ * Stored: settings STAND_KEY = { [bikeId]: { from (last ride before the standstill), marks: { [key]: 'ok' | 'todo' }, done } }.
+ */
+export const STAND_KEY = 'griff.stand';
+export const STAND_DAYS = 42;
+export const BACK_DAYS = 14;
+const dayDiff = (a, b) => Math.round((Date.parse(`${b}T00:00:00Z`) - Date.parse(`${a}T00:00:00Z`)) / DAY);
+/** The checks (English keys for t()); need: a part key the bike must have, else always. */
+export const STAND_CHECKS = [
+  { key: 'tyres', name: 'Tyres: pressure, cracks in the sidewall' },
+  { key: 'sealant', name: 'Sealant dries while the bike stands: top it up (tubeless only)', need: 'tyres' },
+  { key: 'chain', name: 'Chain: rust or stiff links? Clean and oil it' },
+  { key: 'brakes', name: 'Brakes: levers firm, pads not glazed' },
+  { key: 'battery', name: 'Batteries: shifting, lights and bike computer charged' },
+  { key: 'suspension', name: 'Suspension: air pressure and seals', need: ['fork', 'shock'] },
+  { key: 'bolts', name: 'Bolts and thru axles tight' },
+  { key: 'ride', name: 'A short test ride around the block' },
+];
+/** The checks for this bike (a check that needs a part only when the bike has it). */
+export function standChecks(bike) {
+  const has = new Set((bike?.parts ?? []).map((p) => p.key));
+  return STAND_CHECKS.filter((c) => !c.need || [].concat(c.need).some((k) => has.has(k)));
+}
+/**
+ * The standstill of a bike: { from (last ride before it), days, back (the first ride after it, or null) }
+ * when the bike stands now (STAND_DAYS or more) or came back within BACK_DAYS; else null. entries: kmBook rows.
+ */
+export function standstill(entries = [], bikeId, today) {
+  const days = [...new Set(entries.filter((e) => e?.kind === 'ride' && e.state === 'counted' && e.bikeId === bikeId && typeof e.date === 'string' && e.date <= today).map((e) => e.date))].sort();
+  if (!days.length) return null;
+  const last = days.at(-1);
+  if (dayDiff(last, today) >= STAND_DAYS) return { from: last, days: dayDiff(last, today), back: null };
+  for (let i = days.length - 1; i > 0; i--) {
+    if (dayDiff(days[i], today) > BACK_DAYS) break;
+    const gap = dayDiff(days[i - 1], days[i]);
+    if (gap >= STAND_DAYS) return { from: days[i - 1], days: gap, back: days[i] };
+  }
+  return null;
+}
+/** The record of this standstill (empty when the stored one belongs to an older one). */
+export const standRec = (value, bikeId, from) => (value?.[bikeId]?.from === from ? value[bikeId] : { from, marks: {}, done: null });
+/** The stored value with one mark changed (a second tap on the same mark takes it back). */
+export function markStand(value, bikeId, from, key, mark) {
+  const rec = standRec(value, bikeId, from);
+  const marks = { ...rec.marks };
+  if (marks[key] === mark || !['ok', 'todo'].includes(mark)) delete marks[key];
+  else marks[key] = mark;
+  return { ...(value ?? {}), [bikeId]: { ...rec, marks } };
+}
+export const finishStand = (value, bikeId, from, day) => ({ ...(value ?? {}), [bikeId]: { ...standRec(value, bikeId, from), done: day } });
 
 /* ---------- 1135 Ketten-Rotation ---------- */
 

@@ -7,6 +7,8 @@
  * debrief is still open in the test data (the robot finds it under Touren › Rückblick), «:race» for the
  * first race under Touren › Rennen, «:note» for the one fictional note the robot writes (the test data has
  * none; a note's own functions show only in an open note).
+ * «:entry» stands for the one fictional diary entry the robot writes (an entry's own buttons, e.g. «Picture card»,
+ * show only when it is open).
  * GAPS: functions that are not yet visible on their home page, with why. The robot test
  * tests/e2e/heimat.spec.js opens every home page on the phone and checks that the German title of
  * each function NOT in GAPS can be seen (not in a closed fold, within the first 2.5 screens).
@@ -22,6 +24,11 @@
 
 /** The home page of every function (feature id → hash route). */
 export const HOME = {
+  // Einzelideen Planen (996 Ideen 10, 11, 15, 16): page titles and card titles of the new pages
+  'f.plantpass': '#/calendar/pflanzen',
+  'f.doubleinbox': '#/inbox/vorgaenge',
+  'f.mailcase': '#/inbox/vorgaenge',
+  'f.memorycard': '#/notes/zusammenhang',
   // 0.187–0.189 (built in parallel, merged with this guard): stops nearby on Heute, box labels in the toolbox;
   // dress rehearsal, good night and arrive well show only in their situation (a week before the start, a night
   // on a trip of several days, after the end of a trip)
@@ -31,6 +38,9 @@ export const HOME = {
   'f.labels': '#/me/tools/labels',
   // Paket D «Mit Freunden»: the three tabs of Ich › Mit Freunden
   'f.friendask': '#/me/freunde',
+  'f.inputbar': '#/tagebuch',
+  'f.inputtemplates': '#/tagebuch',
+  'f.picturecard': '#/tagebuch/:entry',
   'f.friendshelf': '#/me/freunde',
   'f.friendtemplate': '#/me/freunde',
   // Paket C «Ruhig und persönlich»: each function is a card title on its sub-page of Ich › Ruhig und persönlich
@@ -62,6 +72,7 @@ export const HOME = {
   'f.devil': '#/me/ruhig/belege',
   'f.aicheck': '#/me/ruhig/belege',
   'f.nogos': '#/me/ruhig/belege',
+  'f.hiddenall': '#/me/ruhig/aus',
   'f.probe': '#/pack',
   'f.blockeffect': '#/pack',
   'f.needs': '#/pack',
@@ -93,6 +104,7 @@ export const HOME = {
   'f.editall': '#/me/lists',
   'f.select': '#/gear',
   'f.merge': '#/gear',
+  'f.ownviews': '#/gear', // Einzelidee 22: the row «Own views» under the view title
   'f.blockcheck': '#/blocks/check',
   'f.packcleanup': '#/blocks/aufraeumen',
   'f.gearimport': '#/gear',
