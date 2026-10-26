@@ -875,4 +875,6 @@ Die frühere gespeicherte Datei `2026-10-07-packgenerator-ablaufplan.md` wird al
 **25.10.2026, v0.200.0 «Zusammen auf einer Karte»:** Gruppen-Live-Karte: Freunde per Link auf einer Karte, freiwillig teilen, Ende mit der Fahrt, spätestens nach 24 Stunden.
 **25.10.2026, v0.198.0 «Kette vorausschauend»:** Idee «Kette messen mit Verlauf und Prognose» (Das Velo im Griff) gebaut: nächste Schritte der Kette auf Verschleiss, Prognose aus den eigenen Messungen, Tour-Check, Handy-Erinnerung «Kette messen».
 
+**26.10.2026, v0.202.0 «Notizen, die ihren Zusammenhang kennen» (vorläufig):** Einzelideen Planen 12 «Notiz-Verbindungen mit Bedeutung», 13 «Erinnerung nach einem Ereignis», 14 «Wiederherstellen mit Anhängen» gebaut. Offen als Mockup: 10 Pflanzenpass, 11 Doppelten Eingang erkennen, 15 Erinnerungskarte, 16 Mail als Vorgang.
+
 **26.10.2026, v0.201.0 «Sprechen, anhängen, mit Vorlage starten»:** Eingaben überall: eine gemeinsame Leiste «Hinzufügen» (Sprachnotiz, Foto, Datei, Ort, Schlagwort, Vorlagen, Schreibanreize, KI-Helfer) auf zehn Seiten, Bildkarte im Tagebuch, Tagebuch in der App-Suche (abschaltbar).

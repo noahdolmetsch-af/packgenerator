@@ -10,6 +10,8 @@
   import { askDelete, deleteWithUndo } from '../ui/ask.js';
   import { backClose } from '../ui/backclose.js';
   import { TRASH, TRASH_DAYS, daysLeft, restoreNote, dropForGood } from './trash.js';
+  // Wiederherstellen mit Anhängen (996 Ideen UC-270-I1): what comes back with a note, and what is missing
+  import { restoreInfo } from './context.js';
   import { X, Undo2, Trash2 } from '@lucide/svelte';
   import '../bikes/velo-dlg.css';
 
@@ -18,6 +20,21 @@
   const rowsQ = liveQuery(() => db.docs.where('kind').equals(TRASH).toArray());
   const rows = $derived([...($rowsQ ?? [])].sort((a, b) => String(b.trashedAt).localeCompare(String(a.trashedAt))));
   let info = $state('');
+  const filesQ = liveQuery(() => db.docs.where('kind').equals('notefile').toArray());
+  const notesQ = liveQuery(() => db.notes.toArray());
+  const infoOf = (r) => restoreInfo(r, { files: $filesQ ?? [], notes: $notesQ ?? [], trash: rows });
+  function withLine(x) {
+    const parts = [];
+    if (x.photos) parts.push(tn(x.photos, '{n} photo', '{n} photos'));
+    if (x.files) parts.push(tn(x.files, '{n} file', '{n} files'));
+    if (x.links) parts.push(tn(x.links, '{n} link|note', '{n} links|note'));
+    if (x.back) parts.push(tn(x.back, '{n} note links to it', '{n} notes link to it'));
+    return parts.length ? t('Comes back with: {list}', { list: parts.join(' · ') }) : t('Comes back as it was.');
+  }
+  async function putAll(r, more) {
+    for (const x of [r, ...more]) await restoreNote(db, x.id);
+    info = tn(more.length + 1, '"{name}" is back in Notes.', '{n} notes are back in Notes.', { name: nameOf(r) });
+  }
 
   $effect(() => {
     dialog.showModal();
@@ -47,6 +64,7 @@
     <div class="vd-t">
       <h2 id="trash-h" class="title">{t('Trash')}</h2>
       <p class="vd-sub">{t('Deleted notes wait here {n} days, then they go by themselves.', { n: TRASH_DAYS })}</p>
+      <p class="vd-sub" data-trash-with><b>{t('Restore with attachments')}</b> · {t('photos, files and links come back with the note; the app says when a linked note is missing.')}</p>
     </div>
     <button type="button" class="vd-x" aria-label={t('Close')} onclick={() => dialog.close()}><X size={20} aria-hidden="true" /></button>
   </div>
@@ -55,10 +73,15 @@
   {:else}
     <ul class="tl">
       {#each rows as r (r.id)}
+        {@const x = infoOf(r)}
         <li data-trash-row>
-          <span class="m"><b>{nameOf(r)}</b><small>{t('Deleted {day}', { day: when(r.trashedAt) })} · {tn(daysLeft(r.trashedAt), '{n} day left', '{n} days left')}</small></span>
+          <span class="m"><b>{nameOf(r)}</b><small>{t('Deleted {day}', { day: when(r.trashedAt) })} · {tn(daysLeft(r.trashedAt), '{n} day left', '{n} days left')}</small><small data-trash-info>{withLine(x)}</small></span>
           <button type="button" class="btn sm" onclick={() => put(r)} data-trash-put><Undo2 size={16} aria-hidden="true" />{t('Put back')}</button>
           <button type="button" class="rm" aria-label={t('Delete {name} for good', { name: nameOf(r) })} onclick={() => drop([r])} data-trash-drop><Trash2 size={16} aria-hidden="true" /></button>
+          {#if x.inTrash.length}
+            <p class="miss" data-trash-linked>{t('Linked and also in the trash: {names}', { names: x.inTrash.map(nameOf).join(', ') })} <button type="button" class="btn sm" onclick={() => putAll(r, x.inTrash)} data-trash-putall>{t('Put back together')}</button></p>
+          {/if}
+          {#if x.gone}<p class="miss">{tn(x.gone, '{n} linked note is gone for good; that link stays empty.', '{n} linked notes are gone for good; those links stay empty.')}</p>{/if}
         </li>
       {/each}
     </ul>
@@ -101,6 +124,12 @@
   .m small,
   .q {
     color: var(--ink-3);
+    font-size: var(--fs-small);
+  }
+  .miss {
+    flex: 1 1 100%;
+    margin: 0;
+    color: var(--ink-2);
     font-size: var(--fs-small);
   }
   .rm {

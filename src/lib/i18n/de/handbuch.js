@@ -1,5 +1,9 @@
 /** Benutzerhandbuch (Noah 14.10.2026): wie man jede Funktion aufschaltet und nutzt, mit Beispielen (handbook.js). */
 export default {
+  // Einzelideen Planen (996 Ideen 12, 13, 14)
+  'Or below «Or after an event»: after the next trip or the next workshop visit.': 'Oder darunter «Oder nach einem Ereignis»: nach der nächsten Tour oder dem nächsten Werkstattbesuch.',
+  '«Put back» brings it back with its photos, files and links; each row says what comes with it.': '«Zurückholen» holt sie mit Fotos, Dateien und Verbindungen zurück; jede Zeile sagt, was mitkommt.',
+  'Beside the link choose its meaning: source, counter-argument or follow-up question.': 'Neben der Verbindung die Bedeutung wählen: Quelle, Gegenargument oder Folgefrage.',
   // v0.136.0 «Inhalte Flow» + «Wusstest du»
   'Open Packen, Unterwegs or another place: under the title is the tip of the day; «All tips ›» shows them all, each with a switch.': 'Öffne Packen, Unterwegs oder einen anderen Ort: Unter dem Titel steht der Tipp des Tages; «Alle Tipps ›» zeigt alle, jeden mit Schalter.',
   'At the page end: «What the app can do here»; each row opens its place.': 'Am Seitenende: «Das kann die App hier»; jede Zeile öffnet ihren Ort.',

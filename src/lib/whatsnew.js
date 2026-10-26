@@ -16,6 +16,20 @@
 
 export const WHATS_NEW = [
   {
+    // v0.202.0 «Notizen im Zusammenhang» (996 Ideen 12, 13, 14; Noah 25.10.2026): a link between notes can have a
+    // meaning, a note can come back after the next trip or workshop visit, the trash says what comes back with a note.
+    version: '0.202.0',
+    date: '2026-10-26',
+    title: 'Notes that know their context',
+    lead: 'Links say what they mean, and a note comes back when the moment is right.',
+    points: [
+      { text: 'Links between notes with a meaning: source, counter-argument, follow-up question', href: '#/notes' },
+      { text: 'A note comes back after the next trip or workshop visit', href: '#/notes' },
+    ],
+    small: [{ box: 'nicer', text: 'The trash shows what comes back with a note', href: '#/notes' }],
+    test: ['Open two notes, link them in one and choose «Quelle» beside the link: the other note says «ist Quelle für».', 'In a note tap «Erinnern» › «Nach dem nächsten Werkstattbesuch»; save a workshop visit: the note stands on top of Notizen.', 'Delete a note with a photo, open Notizen › Mehr › Papierkorb: the row says «Kommt zurück mit: 1 Foto».'],
+  },
+  {
     // v0.201.0 «Eingaben überall» (Noah 26.10.2026 «1a 2b 3 nur Ton. kein Video 4b 5a aber b möglich»): one input bar
     // on ten pages (voice note up to 1 min, photo, file, place, tags, templates per page, prompts, AI), picture card,
     // the diary in the app search.

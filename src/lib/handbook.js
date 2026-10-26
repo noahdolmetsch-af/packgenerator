@@ -1122,7 +1122,7 @@ export const HANDBOOK = {
   // Paket N (19.10.2026)
   'f.notelinks': {
     on: 'Needs at least two notes.',
-    steps: ['Open a note and tap «Link a note», or take one from «Maybe related».', 'On the Notes page, «At a glance» shows tags and open points; a #tag searches.'],
+    steps: ['Open a note and tap «Link a note», or take one from «Maybe related».', 'Beside the link choose its meaning: source, counter-argument or follow-up question.', 'On the Notes page, «At a glance» shows tags and open points; a #tag searches.'],
     example: 'Example: note «Jura weekend» linked with «Packing list autumn» → one tap opens the other.',
   },
   'f.dreams': {
@@ -1163,12 +1163,12 @@ export const HANDBOOK = {
   },
   'f.noteremind': {
     on: null,
-    steps: ['Open a note and tap «Remind me».', 'Choose the day and the time, then «Set the reminder».', 'With the reminders on the phone switched on, a message comes; in Notes it stays on top until «Done».'],
+    steps: ['Open a note and tap «Remind me».', 'Choose the day and the time, then «Set the reminder».', 'Or below «Or after an event»: after the next trip or the next workshop visit.'],
     example: 'Example: «Ersatzschlauch kaufen» for Friday 17:00.',
   },
   'f.notetrash': {
     on: null,
-    steps: ['A deleted note goes to Notes › More › Trash and waits there 30 days.', '«Put back» brings it back with its files.', 'In a note «Earlier versions» shows the text from before; «Put this version back» takes it.'],
+    steps: ['A deleted note goes to Notes › More › Trash and waits there 30 days.', '«Put back» brings it back with its photos, files and links; each row says what comes with it.', 'In a note «Earlier versions» shows the text from before; «Put this version back» takes it.'],
     example: 'Example: the packing list was shortened by mistake → «Earlier versions» → yesterday evening → put back.',
   },
   'f.noteformats': {
