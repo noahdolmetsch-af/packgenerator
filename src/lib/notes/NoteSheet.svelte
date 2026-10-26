@@ -32,9 +32,11 @@
   import NoteFiles from './NoteFiles.svelte';
   import NoteRemind from './NoteRemind.svelte';
   import NoteVersions from './NoteVersions.svelte';
-  // Einzelideen Planen (996 Ideen 12, 13): links with a meaning, a reminder after an event
+  // Einzelideen Planen (996 Ideen 12, 13, 15): links with a meaning, a reminder after an event, a memory card
   import NoteAfter from './NoteAfter.svelte';
+  import MemoryCard from './MemoryCard.svelte';
   import { relLinks, setRel, RELS, REL, AFTER } from './context.js';
+  import { Sparkles } from '@lucide/svelte';
   import { trashNote, restoreNote, keepVersion, TRASH_DAYS } from './trash.js';
   import { noteRemind } from '../push/schedule.js';
   import { editMode, setEditMode } from './richtext.js';
@@ -160,6 +162,7 @@
   // to 3 notes that may belong here (shared #tag or the same bike).
   const others = $derived(notes.map((n) => (n.id === draft.id ? { ...n, ...draft } : n)));
   const linked = $derived(relLinks(draft, others));
+  let cardOpen = $state(false);
   const afterLabel = (a) => (a && !a.done ? t(AFTER.find((x) => x.key === a.kind)?.label ?? 'Remind me') : '');
   const related = $derived(maybeRelated(draft, others));
   let picking = $state(false);
@@ -413,9 +416,11 @@
       <button type="button" class="btn btn-link" onclick={share} data-note-share><Share2 size={16} aria-hidden="true" />{t('Share|note')}</button>
       <button type="button" class="btn btn-link" onclick={asTemplate} data-note-astpl><FilePlus2 size={16} aria-hidden="true" />{t('Save as a template')}</button>
       <button type="button" class="btn btn-link" aria-expanded={remindOpen} onclick={() => (remindOpen = !remindOpen)} data-note-remind-open><Bell size={16} aria-hidden="true" />{draft.remind?.at && !draft.remind.done ? t('Reminder {when}', { when: remindText(draft) }) : afterLabel(draft.after) || t('Remind me')}</button>
+      <button type="button" class="btn btn-link" onclick={() => (cardOpen = true)} data-note-card-open><Sparkles size={16} aria-hidden="true" />{draft.card ? t('Memory card') : t('Make a memory card')}</button>
       <button type="button" class="btn btn-link" aria-expanded={versionsOpen} onclick={() => (versionsOpen = !versionsOpen)} data-note-versions-open><History size={16} aria-hidden="true" />{t('Earlier versions')}</button>
     </div>
     {#if remindOpen}<NoteRemind bind:value={draft.remind} /><NoteAfter bind:value={draft.after} />{/if}
+    {#if cardOpen}<MemoryCard note={draft} edit onsave={(card) => (draft.card = card)} onclose={() => (cardOpen = false)} />{/if}
     {#if versionsOpen}<NoteVersions note={draft} onput={(next) => (draft = next)} />{/if}
     <div class="vd-foot">
       <button type="button" class="btn" onclick={remove}>{t('Delete')}</button>

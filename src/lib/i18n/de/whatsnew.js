@@ -4,15 +4,17 @@
  * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
-  // 0.201.0 Notizen im Zusammenhang
-  'Notes that know their context': 'Notizen, die ihren Zusammenhang kennen',
-  'Links say what they mean, and a note comes back when the moment is right.': 'Verbindungen sagen, was sie bedeuten, und eine Notiz kommt im richtigen Moment wieder.',
-  'Links between notes with a meaning: source, counter-argument, follow-up question': 'Verbindungen zwischen Notizen mit Bedeutung: Quelle, Gegenargument, Folgefrage',
-  'A note comes back after the next trip or workshop visit': 'Eine Notiz kommt nach der nächsten Tour oder dem nächsten Werkstattbesuch wieder',
+  // 0.201.0 Planen im Zusammenhang
+  'Plan in context': 'Planen im Zusammenhang',
+  'Plants, mails and notes know what belongs together.': 'Pflanzen, Mails und Notizen wissen, was zusammengehört.',
+  'Plant passport: sun, wind, soil and every move of each plant': 'Pflanzenpass: Sonne, Wind, Erde und jeder Umzug jeder Pflanze',
+  'Matters in the inbox: booking, question and bill together': 'Vorgänge im Eingang: Buchung, Rückfrage und Rechnung zusammen',
+  'Memory cards: text, picture, place and a sound as one scene': 'Erinnerungskarten: Text, Bild, Ort und ein Ton als eine Szene',
+  'Links between notes with a meaning; a note back after the next trip or workshop visit': 'Verbindungen zwischen Notizen mit Bedeutung; eine Notiz kommt nach der nächsten Tour oder dem Werkstattbesuch wieder',
   'The trash shows what comes back with a note': 'Der Papierkorb zeigt, was mit einer Notiz zurückkommt',
-  'Open two notes, link them in one and choose «Quelle» beside the link: the other note says «ist Quelle für».': 'Öffne zwei Notizen, verknüpfe sie in einer und wähle neben der Verbindung «Quelle»: Die andere Notiz sagt «ist Quelle für».',
-  'In a note tap «Erinnern» › «Nach dem nächsten Werkstattbesuch»; save a workshop visit: the note stands on top of Notizen.': 'Tippe in einer Notiz «Erinnern» › «Nach dem nächsten Werkstattbesuch»; speichere einen Werkstattbesuch: Die Notiz steht oben in Notizen.',
-  'Delete a note with a photo, open Notizen › Mehr › Papierkorb: the row says «Kommt zurück mit: 1 Foto».': 'Lösche eine Notiz mit Foto, öffne Notizen › Mehr › Papierkorb: Die Zeile sagt «Kommt zurück mit: 1 Foto».',
+  'Planen › Merken › Pflanzenpass: «Beobachtung» for a plant, then «Umgezogen»: the old spot stays in the history.': 'Planen › Merken › Pflanzenpass: «Beobachtung» bei einer Pflanze, dann «Umgezogen»: Der alte Platz bleibt im Verlauf.',
+  'Eingang › Vorgänge: a mail and a photo with the same number show as a pair; «Zusammenführen» puts both into one matter.': 'Eingang › Vorgänge: Eine Mail und ein Foto mit derselben Nummer erscheinen als Paar; «Zusammenführen» legt beide in einen Vorgang.',
+  'Open a note › «Erinnerungskarte machen» › «Karte behalten»; Notizen › Notizen im Zusammenhang shows it.': 'Notiz öffnen › «Erinnerungskarte machen» › «Karte behalten»; Notizen › Notizen im Zusammenhang zeigt sie.',
   // 0.198.0 Kette vorausschauend
   'The chain, one step ahead': 'Die Kette, einen Schritt voraus',
   'The app says what the chain needs next, before it is too late.': 'Die App sagt, was die Kette als Nächstes braucht, bevor es zu spät ist.',

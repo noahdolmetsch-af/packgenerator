@@ -176,6 +176,8 @@
     {/if}
     {#if plants.length}
       <h2 class="gh">{t('Plants')}</h2>
+      <!-- Pflanzenpass (996 Ideen 10): the spot of each plant, photos and observations, on its own page -->
+      <p class="passl"><a href="#/calendar/pflanzen" data-plant-pass-open>{t('Plant passport')}</a> · {t('sun, wind, soil and every move')}</p>
       <ul class="plants">
         {#each plants as r (r.td.id)}
           <li class="td">
@@ -264,6 +266,16 @@
 {/if}
 
 <style>
+  .passl {
+    margin: -4px 0 8px;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+  }
+  .passl a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px; /* a finger-sized target */
+  }
   .intr {
     margin: 2px 0 6px;
     color: var(--ink-3);

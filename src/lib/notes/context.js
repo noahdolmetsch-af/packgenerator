@@ -1,5 +1,5 @@
 /**
- * Notizen im Zusammenhang (996 Ideen, Noah 25.10.2026 «bauen … 12, 13, 14»), pure functions:
+ * Notizen im Zusammenhang (996 Ideen, Noah 25.10.2026 «bauen … 12, 13, 14, 15»), pure functions:
  * - «Notiz-Verbindungen mit Bedeutung» (UC-263-I1): a link between two notes can say what it is:
  *   source, counter-argument or follow-up question. The link stays on the note where it was made
  *   ({ kind: 'note', ref, label, rel? }); the other note reads it the other way round.
@@ -8,6 +8,8 @@
  *   (its own field: the time reminder note.remind and its phone messages stay as they are).
  * - «Wiederherstellen mit Anhängen» (UC-270-I1): before a note comes back from the trash, the app shows
  *   what comes with it (photos, files, links) and what is missing (a linked note also in the trash).
+ * - «Erinnerungskarte» (UC-271-I3): text, sound, picture and place of a note as one small scene.
+ *   note.card = { photo: index, voice?: data URL, voiceS?, at }.
  * Tested in tests/einzelplanen.test.js.
  */
 import { noteTitle, isKept } from '../notebook.js';
@@ -46,6 +48,20 @@ export function setRel(note, otherId, rel, now = new Date().toISOString()) {
     return relOk(rel) ? { ...rest, rel } : rest;
   });
   return { ...note, links, editedAt: now };
+}
+
+/** All links between kept notes by meaning: { source: [{ from, to }], counter, followup, none }. */
+export function relOverview(notes = []) {
+  const kept = notes.filter(isKept);
+  const byId = new Map(kept.map((n) => [n.id, n]));
+  const out = { source: [], counter: [], followup: [], none: [] };
+  for (const n of kept) {
+    for (const l of n.links ?? []) {
+      if (l.kind !== 'note' || !byId.has(l.ref) || l.ref === n.id) continue;
+      out[relOk(l.rel) ?? 'none'].push({ from: { id: n.id, title: noteTitle(n) }, to: { id: l.ref, title: noteTitle(byId.get(l.ref)) } });
+    }
+  }
+  return out;
 }
 
 /* ---------- a reminder after an event ---------- */
@@ -141,3 +157,35 @@ export function restoreInfo(row, { files = [], notes = [], trash = [] } = {}) {
     gone,
   };
 }
+
+/* ---------- a memory card ---------- */
+
+/** The scene of a note: { photo, title, text, place, voice, voiceS } or null when it has no card. */
+export function cardOf(note) {
+  const c = note?.card;
+  if (!c) return null;
+  const photos = photosOf(note);
+  const idx = Number.isInteger(c.photo) && c.photo >= 0 && c.photo < photos.length ? c.photo : 0;
+  const body = String(note.text ?? '').replace(/<[^>]+>/g, ' ').replace(/[#*_>`[\]]/g, '').replace(/\s+/g, ' ').trim();
+  return {
+    photo: photos[idx] ?? null,
+    title: noteTitle(note),
+    text: body.length > 280 ? `${body.slice(0, 279)}…` : body,
+    place: note.place ? note.place.label || `${Number(note.place.lat).toFixed(3)}, ${Number(note.place.lon).toFixed(3)}` : '',
+    voice: typeof c.voice === 'string' && c.voice.startsWith('data:audio') ? c.voice : '',
+    voiceS: Number(c.voiceS) || 0,
+  };
+}
+/** A clean card for a note (photo index, sound). */
+export function newCard({ photo = 0, voice = '', voiceS = 0 } = {}, now = new Date().toISOString()) {
+  const c = { photo: Number.isInteger(photo) && photo >= 0 ? photo : 0, at: now };
+  if (typeof voice === 'string' && voice.startsWith('data:audio')) Object.assign(c, { voice, voiceS: Math.min(60, Math.max(0, Math.round(Number(voiceS) || 0))) });
+  return c;
+}
+/** How many of the four parts (text, sound, picture, place) a card has. */
+export function cardParts(card) {
+  if (!card) return 0;
+  return [card.text || card.title, card.voice, card.photo, card.place].filter(Boolean).length;
+}
+/** Kept notes with a card, newest card first. */
+export const cardNotes = (notes = []) => notes.filter((n) => isKept(n) && n.card).sort((a, b) => String(b.card.at ?? '').localeCompare(String(a.card.at ?? '')));

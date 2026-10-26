@@ -332,6 +332,9 @@
     Hueter: () => import('./pages/Hueter.svelte'),
     Inbox: () => import('./pages/Inbox.svelte'),
     Notes: () => import('./pages/Notes.svelte'),
+    Vorgaenge: () => import('./pages/Vorgaenge.svelte'),
+    NoteContext: () => import('./pages/NoteContext.svelte'),
+    PlantPass: () => import('./pages/PlantPass.svelte'),
     Favorites: () => import('./pages/Favorites.svelte'),
     PastTrips: () => import('./pages/PastTrips.svelte'),
     Trips: () => import('./pages/Trips.svelte'),
@@ -751,6 +754,12 @@
     <LazyPage load={PAGES.Helper} />
   {:else if page === 'inbox'}
     <LazyPage load={PAGES.Inbox} onnew={() => (noteOpen = true)} />
+  {:else if page === 'vorgaenge'}
+    <LazyPage load={PAGES.Vorgaenge} />
+  {:else if page === 'notecontext'}
+    <LazyPage load={PAGES.NoteContext} />
+  {:else if page === 'plantpass'}
+    <LazyPage load={PAGES.PlantPass} />
   {:else if page === 'notes'}
     <!-- v0.48.0: Notes (kept notes) and the inbox side by side -->
     <LazyPage load={PAGES.Notes} />

@@ -8,6 +8,7 @@
    * Content (Noah «1a» 18.10.2026): a gift idea with 5 examples to tap; 12 common plants that fill
    * «every N days»; «Longer in winter» (Nov–Feb ×1.5, on by default); the finger test as a tip.
    */
+  import { moveTo } from './plantpass.js'; // Pflanzenpass (996 Ideen 10)
   import { tick } from 'svelte';
   import { X, Cake, Sprout, Bell, Gift, Snowflake } from '@lucide/svelte';
   import { backClose } from '../ui/backclose.js';
@@ -83,7 +84,10 @@
       r = from ? { undo: await updateTodo(db, from.id, fields) } : await addKind(db, 'birthday', { name, md, year: y, reminds: fields.reminds, gift });
     } else {
       const n = Math.max(1, Math.round(+every || PLANT_EVERY));
-      const fields = { text: name.trim(), plant: { every: n, place: place.trim() || null, last: last || today, ...(winter ? {} : { winter: false }) }, remind: remindOn ? { at: plantAt || PLANT_AT, before: 0 } : null };
+      const fields = { text: name.trim(), plant: { every: n, place: place.trim() || null, last: last || today, ...(winter ? {} : { winter: false }), ...(from?.plant?.pass ? { pass: from.plant.pass } : {}) }, remind: remindOn ? { at: plantAt || PLANT_AT, before: 0 } : null };
+      // Pflanzenpass (996 Ideen 10): a new place stays in the plant's history as a move
+      const moved = from && place.trim() && place.trim() !== (from.plant?.place ?? '');
+      if (moved) fields.plant = moveTo({ ...from, plant: { ...fields.plant, place: from.plant?.place ?? null } }, { place: place.trim(), day: today }).plant;
       r = from ? { undo: await updateTodo(db, from.id, fields) } : await addKind(db, 'plant', { name, every: n, place, last: fields.plant.last, remind: fields.remind, winter }, { today });
     }
     dialog.close();
@@ -164,6 +168,7 @@
         <button type="button" class="switch" role="switch" aria-checked={winter} aria-label={t('Longer in winter')} onclick={() => (winter = !winter)}><span class="knob"></span></button>
       </div>
       <p class="hint">{t('Finger test: if the soil is dry 2 cm deep, it needs water.')}</p>
+      {#if from}<p class="hint"><a href={`#/calendar/pflanzen?plant=${encodeURIComponent(from.id)}`} onclick={() => dialog.close()} data-plant-pass-link>{t('Plant passport')}</a> · {t('photos and your observations of the spot, with every move')}</p>{/if}
       <fieldset class="fld"><legend class="lbl"><Bell size={16} aria-hidden="true" />{t('Remind')}</legend>
         <div class="rrow">
           <button type="button" class="chip" aria-pressed={!remindOn} onclick={() => (remindOn = false)}>{t('No')}</button>

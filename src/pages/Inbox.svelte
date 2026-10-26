@@ -59,6 +59,8 @@
   import { Mail, Paperclip, RefreshCw, ListTodo, CalendarDays, Bookmark, FileText, Copy } from '@lucide/svelte';
   import { fetchOutside, intake } from '../lib/mail/intake.svelte.js';
   import { fileAction, tipOf, SENDERS_KEY } from '../lib/mailin.js';
+  import { CASES_KEY, CASE_NO_KEY, casesOf, doublePairs, caseSuggestions } from '../lib/inbox/vorgang.js';
+  import { FolderKanban } from '@lucide/svelte';
   import { onMount, tick } from 'svelte';
 
   let { onnew } = $props();
@@ -70,6 +72,12 @@
   const itemsQ = liveQuery(() => db.items.toArray());
   const visitsQ = liveQuery(() => db.visits.toArray());
   const rulesQ = liveQuery(async () => (await db.settings.get(SENDERS_KEY))?.value ?? {});
+  // Einzelideen Planen 11 + 16: Vorgänge (double entries, mail as a matter) on their own page #/inbox/vorgaenge
+  const casesQ = liveQuery(async () => (await db.settings.get(CASES_KEY))?.value ?? []);
+  const caseNoQ = liveQuery(async () => (await db.settings.get(CASE_NO_KEY))?.value ?? []);
+  const vgCases = $derived(casesOf($casesQ));
+  const vgSugg = $derived($notesQ ? doublePairs($notesQ, { no: $caseNoQ ?? [] }).length + caseSuggestions($notesQ, vgCases, { no: $caseNoQ ?? [] }).length : 0);
+  const caseLabel = (id) => vgCases.find((c) => c.id === id)?.name ?? '';
   const rules = $derived($rulesQ ?? {});
   onMount(() => {
     fetchOutside().catch(() => {});
@@ -251,6 +259,7 @@
   <VeloHead crumbs={[{ label: t('Plan|place'), href: '#/week' }]} title={t('Inbox')} sub={$notesQ ? `${t('Notes from on the way, to file')} · ${t('newest on top')}` : ''} />
   <!-- Hinweistexte HT 3a (Noah 14.10.2026): the card «Was hier steht» -->
   <HintCard page="inbox" />
+  <p class="vgline"><a href="#/inbox/vorgaenge" data-vorgaenge-open><FolderKanban size={16} aria-hidden="true" />{t('Matters')}</a>{#if vgSugg}{' · '}{tn(vgSugg, '{n} suggestion', '{n} suggestions')}{:else if vgCases.length}{' · '}{tn(vgCases.length, '{n} matter', '{n} matters')}{:else}{' · '}{t('mail, photo and note about the same thing')}{/if}</p>
   <div class="bar">
     <div class="vchips" role="group" aria-label={t('Show')}>
       <button type="button" class="vchip" aria-pressed={view === 'open'} onclick={() => (view = 'open')}><span>{t('To file')}{#if openN}{' · '}<span class="num">{openN}</span>{/if}</span></button>
@@ -304,6 +313,7 @@
                         <small>{when(n.at)}{where(n)}</small>
                       {/if}
                       {#if tip}<small class="tipl">{tip}</small>{/if}
+                      {#if n.caseId && caseLabel(n.caseId)}<small class="tipl"><a href="#/inbox/vorgaenge">{t('Matter: {name}', { name: caseLabel(n.caseId) })}</a></small>{/if}
                       {#if n.files?.length}
                         <span class="files" role="group" aria-label={t('Attachments')}>
                           {#each n.files as f (f.id)}
@@ -439,6 +449,22 @@
 {/if}
 
 <style>
+  .vgline {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px;
+    margin: 0 0 10px;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+  }
+  .vgline a {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    min-height: 44px; /* a finger-sized target */
+    font-weight: 600;
+  }
   /* P5: the start card of the «Ablegen-Runde» */
   .abr-start {
     display: flex;

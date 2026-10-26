@@ -1161,6 +1161,26 @@ export const HANDBOOK = {
     steps: ['Open a note and tap «Remind me».', 'Choose the day and the time, then «Set the reminder».', 'Or below «Or after an event»: after the next trip or the next workshop visit.'],
     example: 'Example: «Ersatzschlauch kaufen» for Friday 17:00.',
   },
+  'f.plantpass': {
+    on: null,
+    steps: ['Planen › Merken › Pflanzenpass, or in a plant\'s window «Plant passport».', '«Observation»: sun, wind, soil and a photo of the spot; the hint says what it means.', '«Moved»: the new spot; the old one stays in the history.'],
+    example: 'Example: the olive tree dries out on the terrace → «water a bit more often?».',
+  },
+  'f.doubleinbox': {
+    on: null,
+    steps: ['Inbox › Matters: «Double entries in the inbox» shows pairs about the same thing.', '«Merge» puts both into one matter; both entries stay, Undo is offered.', '«Not the same»: the pair never comes again.'],
+    example: 'Example: the hotel mail and the photo of its receipt with the same booking number.',
+  },
+  'f.mailcase': {
+    on: null,
+    steps: ['Inbox › Matters › «Mail as a matter»: the app suggests the matter a mail fits.', '«Into …» takes it; «New matter» starts one from a mail.', 'Rename, sort or delete a matter below; its entries stay in the inbox.'],
+    example: 'Example: booking, question and bill of the bike service in one matter.',
+  },
+  'f.memorycard': {
+    on: null,
+    steps: ['Open a note › «Make a memory card».', 'Choose the picture and record a sound of up to one minute; text and place come from the note.', 'All cards: Notes › Notes in context › Memory cards.'],
+    example: 'Example: evening at the lake with the sound of the waves.',
+  },
   'f.notetrash': {
     on: null,
     steps: ['A deleted note goes to Notes › More › Trash and waits there 30 days.', '«Put back» brings it back with its photos, files and links; each row says what comes with it.', 'In a note «Earlier versions» shows the text from before; «Put this version back» takes it.'],
