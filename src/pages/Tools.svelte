@@ -38,10 +38,13 @@
   import SitPosition from '../lib/vision/SitPosition.svelte';
   import Labels from '../lib/tools/Labels.svelte';
   import { t } from '../lib/i18n.svelte.js';
+  import ToolResults from '../lib/ichideen/ToolResults.svelte'; // Einzelidee 27: the last results of the tools
+  import { suggest, watchSuggest } from '../lib/clear/suggest.svelte.js'; // Einzelidee 36: «Fitting tools» can be off
   import '../lib/ich/ich.css';
   import '../lib/tools/tools.css';
 
   let { tool = '' } = $props();
+  watchSuggest();
   const ICONS = { calculator: Calculator, ruler: Ruler, clock: Clock, compass: Compass, languages: Languages, file: FileText, image: Image, paperclip: Paperclip, coins: Coins, wallet: Wallet, workflow: Workflow, images: Images, film: Film, qr: QrCode, route: Route, cog: Cog, level: Crosshair, scan: ScanBarcode, flashlight: Flashlight, scaneye: ScanEye, person: PersonStanding, package: Package };
   const VIEWS = { calc: Calc, units: Units, zones: Zones, compass: CompassTool, phrases: Phrases, pdf: PdfTool, photo: PhotoTool, ablage: Ablage, money: Money, costs: Costs, level: Level, gears: Gears, barcode: Barcode, qr: QrMake, light: Light, convert: Convert, video: Video, map: MapMeasure, chains: Chains, packphoto: PackPhoto, sitpos: SitPosition, labels: Labels };
   const cur = $derived(toolOf(tool));
@@ -72,7 +75,7 @@
   {:else}
     <VeloHead crumbs={[{ label: t('Trips|place'), href: '#/trips' }]} title={t('Toolbox')} sub={t('Small helpers for every day and on the way, all on this device')} />
     <AreaIntro place="toolbox" />
-    {#if fits.length && !q.trim() && !sorting}
+    {#if fits.length && suggest.on.tools && !q.trim() && !sorting}
       <section class="tools-fit" aria-labelledby="tools-fit-h">
         <h2 id="tools-fit-h"><Sparkles size={16} aria-hidden="true" /> {t('Fits right now')}</h2>
         <ul class="card ich-list tools-list">
@@ -90,6 +93,7 @@
         </ul>
       </section>
     {/if}
+    {#if !sorting}<ToolResults />{/if}
     <div class="tool-row tools-bar">
       <input class="tool-input tools-q" type="search" placeholder={t('Search tools')} aria-label={t('Search tools')} bind:value={q} disabled={sorting} />
       <button type="button" class="btn" aria-pressed={sorting} onclick={() => ((sorting = !sorting), (q = ''))}><ArrowUpDown size={16} aria-hidden="true" />{sorting ? t('Done') : t('Order|sort')}</button>

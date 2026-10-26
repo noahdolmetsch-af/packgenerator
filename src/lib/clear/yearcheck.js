@@ -42,3 +42,36 @@ export function yearValues({ riderG = null, home = null, name = '', docs = [] },
   }
   return out;
 }
+
+/**
+ * Einzelidee Heute 8 (UC-327-I1 «Lebensänderung statt Jahresroutine», Noah 25.10.2026): a move or a new
+ * sport starts a check of just the values it touches, any time, without asking everything again. The same
+ * window («Stimmt das noch?») has «Etwas hat sich geändert» with these changes; each lists its places with
+ * «Stimmt» or «Ändern». English keys for t(); the hrefs are the app's own pages.
+ */
+export const CHANGES = [
+  {
+    key: 'move',
+    name: 'I moved',
+    checks: [
+      { key: 'home', label: 'Your home place', hint: 'weather, rain at home and the ice warning come from it', href: '#/wetter' },
+      { key: 'spot', label: 'Your spot notes on the weather page', hint: 'they belong to the old home; delete them there', href: '#/wetter' },
+      { key: 'plants', label: 'Plants and their place', hint: 'other light, other watering', href: '#/me/reminders' },
+      { key: 'shop', label: 'Your workshop', hint: 'one near the new home', href: '#/bikes?tab=shop' },
+      { key: 'buy', label: 'Shopping list groups', hint: 'other shops, other order', href: '#/me/alltag/einkauf' },
+      { key: 'sos', label: 'Emergency details', hint: 'address and contacts', href: '#/mountain/sos' },
+    ],
+  },
+  {
+    key: 'sport',
+    name: 'A new sport',
+    checks: [
+      { key: 'sports', label: 'Your sports and their pages', hint: 'add the new one, hide one you stopped', href: '#/flow/sports' },
+      { key: 'questions', label: 'Your check questions', hint: 'questions that fit the new sport', href: '#/me/abfragen' },
+      { key: 'cats', label: 'Gear categories', hint: 'a category for the new gear', href: '#/me/lists?categories' },
+      { key: 'start', label: 'Start list by sport', hint: 'what always comes along', href: '#/pack' },
+      { key: 'push', label: 'Reminders on the phone', hint: 'switch on what helps, off what is old', href: '#/me/push' },
+    ],
+  },
+];
+export const changeOf = (key) => CHANGES.find((c) => c.key === key) ?? null;

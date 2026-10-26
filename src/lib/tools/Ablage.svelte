@@ -68,7 +68,7 @@
   }
   async function shareFile(f) {
     const data = await fileData(f.id);
-    if (data) deliver(blobOfData(data), f.name);
+    if (data) deliver(blobOfData(data), f.name, { keep: false });
   }
   async function delLink(l) {
     if ((await askDelete({ title: t('Delete «{name}»?', { name: l.title }), text: t('You can bring it back for 4 seconds afterwards.') })) !== 'delete') return;

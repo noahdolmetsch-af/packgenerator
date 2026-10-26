@@ -8,9 +8,10 @@
   import { liveQuery } from 'dexie';
   import { Droplets } from '@lucide/svelte';
   import { db } from '../db.js';
-  import { t, num } from '../i18n.svelte.js';
+  import { t, num, locale } from '../i18n.svelte.js';
   import { localDay } from '../localday.js';
-  import { PREFS_KEY, prefsOf, wetRides, chainCaredOn } from '../griff.js';
+  import { addDays } from '../play.js';
+  import { PREFS_KEY, prefsOf, wetSince, wetTaskShows, chainCaredOn, WET_LOOK_DAYS } from '../griff.js';
   import { wetChainDone } from '../griffdb.js';
   import { wetOf } from '../inspect/rain.js';
   import { INSPECT_RAIN } from '../inspect/inspect.js';
@@ -21,12 +22,15 @@
   let { bike } = $props();
   const today = localDay();
   const wetQ = liveQuery(async () => {
-    const [prefs, rides, rain] = await Promise.all([db.settings.get(PREFS_KEY), db.kmBook.where('date').equals(today).toArray().catch(() => []), db.meta.get(INSPECT_RAIN)]);
-    if (!prefsOf(prefs?.value).wetChain) return [];
-    return wetRides(rides, today, wetOf(rain));
+    const [prefs, rides, rain] = await Promise.all([db.settings.get(PREFS_KEY), db.kmBook.where('date').aboveOrEqual(addDays(today, -(WET_LOOK_DAYS - 1))).toArray().catch(() => []), db.meta.get(INSPECT_RAIN)]);
+    if (!prefsOf(prefs?.value).wetChain) return null;
+    return { rides, isWet: wetOf(rain) };
   });
   const laterQ = liveQuery(() => db.settings.get(WET_LATER_KEY));
-  const wet = $derived(bike && !chainCaredOn(bike, today) && !wetRests($laterQ?.value, bike.id, today) ? (($wetQ ?? []).find((w) => w.bikeId === bike.id) ?? null) : null);
+  // Einzelidee Heute 5: the wet days since the last chain care make one task (wetSince)
+  const run = $derived(bike && $wetQ ? wetSince($wetQ.rides, bike, today, $wetQ.isWet) : null);
+  const wet = $derived(bike && !chainCaredOn(bike, today) && !wetRests($laterQ?.value, bike.id, today) && wetTaskShows(run) ? run : null);
+  const dayName = (d) => new Date(`${d}T12:00:00Z`).toLocaleDateString(locale(), { timeZone: 'UTC', weekday: 'short', day: 'numeric', month: 'numeric' });
 
   async function done() {
     const undo = await wetChainDone(bike.id, today);
@@ -38,8 +42,12 @@
   <section class="wetc" role="status" data-wet-chain>
     <Droplets size={20} aria-hidden="true" />
     <div class="grow">
-      <b>{t('Dry and oil the chain')}</b>
-      <p>{t('{bike} was out in the rain today ({km} km). A dry, oiled chain lasts longer.', { bike: bike.name, km: num(wet.km) })}</p>
+      <b>{wet.n >= 2 ? t('Care for the chain') : t('Dry and oil the chain')}</b>
+      {#if wet.n >= 2}
+        <p data-wet-chain-series>{t('{bike} was out in the wet {n} times since the chain was last cared for ({km} km: {days}). One care is enough for all of them.', { bike: bike.name, n: wet.n, km: num(wet.km), days: wet.days.map((d) => dayName(d.day)).join(', ') })}</p>
+      {:else}
+        <p>{t('{bike} was out in the rain today ({km} km). A dry, oiled chain lasts longer.', { bike: bike.name, km: num(wet.km) })}</p>
+      {/if}
       <p class="quiet">{t('Wipe it with a cloth, a drop of oil on every link, wipe off what is too much.')}</p>
     </div>
     <button type="button" class="btn hi sm" onclick={done} data-wet-chain-done>{t('Done: chain oiled')}</button>

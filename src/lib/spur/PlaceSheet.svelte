@@ -11,6 +11,8 @@
   import PhotoPick from '../ui/PhotoPick.svelte';
   import { shrinkImage } from '../photo.js';
   import { getHere, savePlace } from './recorder.svelte.js';
+  import InputBar from '../eingabe/InputBar.svelte'; // «Eingaben überall» (Noah 26.10.2026): voice note, tags, templates
+  import { cleanInputs } from '../eingabe/inputs.js';
 
   let { trip = null, onclose, onsaved = null } = $props();
   let dialog;
@@ -19,6 +21,7 @@
   let err = $state('');
   let text = $state('');
   let photo = $state(null);
+  let inputs = $state(null);
   let busy = $state(false);
   let saved = $state(false);
 
@@ -50,7 +53,7 @@
   async function save(e) {
     e?.preventDefault();
     if (!pos) return;
-    const p = await savePlace(trip, pos, { text, photo });
+    const p = await savePlace(trip, pos, { text, photo, inputs: cleanInputs($state.snapshot(inputs)) });
     saved = true;
     onsaved?.(p);
     setTimeout(() => dialog?.close(), 900);
@@ -72,6 +75,7 @@
         <PhotoPick onfile={pick} {busy} has={!!photo} />
       </div>
       <p class="tp-muted tp-small">{t('The photo stays on this device.')}</p>
+      <InputBar place="spur" {text} ontext={(s) => (text = s)} {inputs} oninputs={(x) => (inputs = x)} />
       <div class="acts">
         <button type="submit" class="btn hi" disabled={!pos}>{t('Save place')}</button>
         <button type="button" class="btn" onclick={() => dialog.close()}>{t('Cancel')}</button>

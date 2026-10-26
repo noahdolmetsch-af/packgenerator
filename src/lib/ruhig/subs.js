@@ -14,6 +14,8 @@ export const SUBS = [
   { key: 'teilen', icon: 'share', title: 'Share with a preview', sub: 'See what the other person sees' },
   { key: 'zahlen', icon: 'ruler', title: 'Numbers that stay clear', sub: 'One ride, two roles; what a scale meant; a talk about body values' },
   { key: 'belege', icon: 'message', title: 'Assistant with sources', sub: 'Answers with your entries, own no-gos, question a plan' },
+  // Einzelideen 33 und 36 (996 Ideen, Noah 25.10.2026)
+  { key: 'aus', icon: 'eyeoff', title: 'Hidden and switched off', sub: 'Everything you hid in one look; suggestions off by kind' },
 ];
 export const subOf = (key) => SUBS.find((s) => s.key === key) ?? null;
 /** The sub-page of a hash: «#/me/ruhig/versuche?x» → 'versuche'; the overview → ''. */

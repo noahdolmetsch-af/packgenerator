@@ -3,7 +3,7 @@
 // the friend stops sharing and is gone; the maker ends the group and the friend's page says it has ended.
 // The group server (/api/sync?action=group) is the real handler over a small fake Redis; fictional data only.
 import { test, expect } from '@playwright/test';
-import { openHome } from './home0460-fixture.js';
+import { openHome, homeFixture } from './home0460-fixture.js';
 import { makeGroupHandler } from '../../api/_lib/spur.js';
 import { fakeRedis } from '../fakeredis.js';
 
@@ -126,4 +126,54 @@ test('Group ride: while riding the maker shares and sees the group in the sheet;
   await expect(page.locator('[data-live-group-ended]')).toBeVisible();
   expect([...redis.kv.keys()].filter((k) => k.startsWith('grp:') && !k.startsWith('grp:rate:'))).toEqual([]);
   await expect(page.locator('[data-group-panel] [data-group-invite]')).toBeVisible();
+});
+
+// Für Events (Noah 26.10.2026 «1-5 alle»): with a route the friend can wait, load the stops along it and save it as GPX
+test('Group ride for events: I am waiting here, stops along the route, route as GPX', async ({ page, context }, info) => {
+  const data = homeFixture();
+  const line = Array.from({ length: 41 }, (_, i) => [46.93 + i * 0.002, 7.43 + i * 0.002]);
+  data.tables.settings.push({ key: 'live-route', value: { name: 'test_data_gtp_ Runde', line, km: 21 } });
+  const T = await openHome(page, context, info, { data });
+  await groupServer(context);
+  await context.route(/overpass/, (route) =>
+    route.fulfill({ json: { elements: [{ type: 'node', id: 7, lat: 46.962, lon: 7.4615, tags: { amenity: 'drinking_water', name: 'test_data_gtp_ Brunnen' } }, { type: 'node', id: 8, lat: 46.966, lon: 7.466, tags: { amenity: 'fuel', name: 'test_data_gtp_ Tankstelle' } }] } }),
+  );
+  await context.grantPermissions(['geolocation']);
+  await context.setGeolocation({ latitude: 46.95, longitude: 7.45, accuracy: 10 });
+  await page.goto('./#/live');
+  const panel = page.locator('[data-group-panel]');
+  await panel.locator('[data-group-myname]').fill('test_data_gtp_ Fahrer');
+  await tap(panel.locator('[data-group-invite]'), info);
+  const url = await panel.locator('[data-group-link]').inputValue();
+  expect(url).toMatch(/#\/gruppe\//);
+
+  const friend = await context.newPage();
+  await friend.clock.setFixedTime(new Date('2026-10-09T09:00:00+02:00'));
+  await friend.goto(url);
+  await expect(friend.getByRole('heading', { level: 1, name: 'test_data_gtp_ Runde' })).toBeVisible();
+  await friend.locator('[data-group-name]').fill('test_data_gtp_ Freundin');
+  await tap(friend.locator('[data-group-share]'), info);
+  await expect(friend.locator('[data-group-row="me"]')).toBeVisible();
+  // km along the route
+  await expect(friend.locator('[data-group-row="me"]')).toContainText(/km \d/);
+  // I am waiting here: the tag for me, and the maker sees it too
+  await tap(friend.locator('[data-group-waithere]'), info);
+  await expect(friend.locator('[data-group-waiting]')).toBeVisible();
+  await expect(friend.locator('[data-group-row="me"] [data-group-wait]')).toHaveText(T('waiting'));
+  await tap(panel.locator('[data-group-refresh]'), info);
+  await expect(panel.locator('[data-group-row="friend"] [data-group-wait]')).toBeVisible();
+  // the stops ahead along the route
+  await tap(friend.locator('[data-group-stops-load]'), info);
+  await expect(friend.locator('[data-group-stop-row]').first()).toBeVisible();
+  await expect(friend.getByText('test_data_gtp_ Brunnen')).toBeVisible();
+  // the route as a GPX file
+  const [file] = await Promise.all([friend.waitForEvent('download'), tap(friend.locator('[data-group-gpx]'), info)]);
+  expect(file.suggestedFilename()).toMatch(/\.gpx$/);
+  const { readFileSync } = await import('node:fs');
+  expect(readFileSync(await file.path(), 'utf8')).toMatch(/<trkpt lat="46\.9/);
+  await noSideways(friend, 'friend page with stops');
+  await friend.screenshot({ path: info.outputPath('gruppe-event-freund.png'), fullPage: true });
+  // riding on more than 300 m ends the waiting by itself
+  await context.setGeolocation({ latitude: 46.96, longitude: 7.46, accuracy: 10 });
+  await expect(friend.locator('[data-group-waiting]')).toHaveCount(0, { timeout: 10_000 });
 });

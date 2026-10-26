@@ -304,6 +304,17 @@
   .dot.friend.stale {
     opacity: 0.55;
   }
+  .dot.friend.wait {
+    background: var(--warn);
+  }
+  /* the stops along the group's route: a light dot with a small sign */
+  .dot.friend.stop {
+    width: 28px;
+    height: 28px;
+    border-width: 2px;
+    background: var(--paper);
+    color: var(--ink);
+  }
   .dot img {
     width: 100%;
     height: 100%;

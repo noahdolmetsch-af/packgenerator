@@ -15,6 +15,7 @@
 import { seal, unseal, newKey, LinkError, cutEnds, SPUR_URL } from '../spur/link.js';
 import { encodePolyline, decodePolyline, simplify, distKm } from '../spur/polyline.js';
 import { lineKm, snap } from '../race/race.js';
+import { gpxOf } from '../tools/geo.js';
 
 export const GROUP_URL = SPUR_URL.replace('action=spur', 'action=group');
 /** Settings key of the live map's own group { gid, key, del, end, mid?, mdel?, name }. */
@@ -69,16 +70,26 @@ export function readRoute(obj) {
   return { title: String(obj.t ?? ''), route: line.length >= 2 ? { line, km: Number(obj.km) || 0 } : null };
 }
 
-/** One member's place: { v, n, lat, lon, at }. */
-export function placePayload(name, here, now = Date.now()) {
-  return { v: GROUP_V, n: cleanName(name), lat: r5(here.lat), lon: r5(here.lon), at: new Date(Number.isFinite(here.at) ? here.at : now).toISOString() };
+/** One member's place: { v, n, lat, lon, at, w? } (w: 1 while «I am waiting here»). */
+export function placePayload(name, here, now = Date.now(), { wait = false } = {}) {
+  return { v: GROUP_V, n: cleanName(name), lat: r5(here.lat), lon: r5(here.lon), at: new Date(Number.isFinite(here.at) ? here.at : now).toISOString(), ...(wait ? { w: 1 } : {}) };
 }
 
 /** An opened place → { name, pos, at } or null. */
 export function readPlace(obj) {
   if (!obj || obj.v !== GROUP_V || !Number.isFinite(obj.lat) || !Number.isFinite(obj.lon) || !Number.isFinite(Date.parse(obj.at))) return null;
-  return { name: cleanName(obj.n), pos: [obj.lat, obj.lon], at: obj.at };
+  return { name: cleanName(obj.n), pos: [obj.lat, obj.lon], at: obj.at, wait: obj.w === 1 };
 }
+
+/** «I am waiting here» ends by itself once you rode on this far from the place where you waited (km). */
+export const WAIT_LEAVE_KM = 0.3;
+/** Still waiting? wait: { lat, lon } where «I am waiting here» was tapped, or null. */
+export const stillWaiting = (wait, here) => !!wait && (!here || distKm([wait.lat, wait.lon], [here.lat, here.lon]) < WAIT_LEAVE_KM);
+
+/** The route as a GPX file for friends (the line the group got, ends already left out). */
+export const groupGpx = (title, route) => (route?.line?.length > 1 ? gpxOf(route.line, title || 'Gruppenfahrt') : '');
+/** A file name for it: letters, digits and dashes only. */
+export const gpxName = (title) => `${String(title || 'gruppenfahrt').normalize('NFKD').replace(/[^\w-]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 60) || 'gruppenfahrt'}.gpx`;
 
 /** Is a place near the route's start or end (home)? Then the maker's own place is not sent. */
 export function nearHome(route, here, km = 0.5) {
@@ -157,7 +168,7 @@ export async function readGroup(gid, key, { withRoute = true, ...opts } = {}) {
  * members after the update, one call for both).
  */
 export async function sharePlace(group, me, name, here, opts = {}) {
-  const e = await seal(placePayload(name, here, opts.now), group.key);
+  const e = await seal(placePayload(name, here, opts.now, { wait: !!opts.wait }), group.key);
   const body = me?.mid && me?.mdel ? { gid: group.gid, mid: me.mid, del: me.mdel, e } : { gid: group.gid, e };
   const d = await call('POST', { ...opts, step: 'put', body });
   return { mid: d.mid, mdel: d.del ?? me?.mdel, places: await openPlaces(d.members, group.key) };
@@ -211,3 +222,6 @@ export async function endKeptGroup(db, opts = {}) {
   await db.settings.delete(GROUP_KEY);
   return groupRunning(g);
 }
+
+/** A small sign per kind of stop, for the dots and the list on the friends' page. */
+export const STOP_GLYPH = { water: '💧', food: '🍽', shop: '🛒', fuel: '⛽', toilet: 'WC', atm: '¤', pharmacy: '✚', repair: '🔧', bike: '🚲', station: '🚉', sleep: '🛏', shelter: '⛺' };

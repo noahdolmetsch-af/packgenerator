@@ -36,6 +36,8 @@ export function createDictation(o = {}) {
   let begun = 0;
   let timer = null;
   let media = null;
+  // Einzelidee 37 «Sprachfrage als Text weiterführen»: the words still being heard when the microphone fails
+  let heard = '';
 
   const set = (s, e = error) => {
     state = s;
@@ -47,6 +49,9 @@ export function createDictation(o = {}) {
     want = false;
     held = false;
     clearTimeout(timer);
+    // the microphone stopped with an error: the begun sentence is not lost, it becomes text in the field
+    if (e && heard.trim()) o.onwords?.(heard.trim());
+    heard = '';
     o.oninterim?.('');
     set('idle', e);
   }
@@ -66,6 +71,7 @@ export function createDictation(o = {}) {
         const add = fresh(lastFinal, final);
         if (final) lastFinal = final;
         if (add) o.onwords?.(add);
+        heard = interim;
         o.oninterim?.(interim);
       };
       rec.onerror = (e) => {
@@ -76,6 +82,7 @@ export function createDictation(o = {}) {
         // 'no-speech' and 'aborted': the end that follows starts it again
       };
       rec.onend = () => {
+        if (!want || held) heard = '';
         o.oninterim?.('');
         rec = null;
         if (!want || held) return;

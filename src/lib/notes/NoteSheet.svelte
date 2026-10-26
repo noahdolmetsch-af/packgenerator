@@ -13,7 +13,7 @@
   import ChipChoice from '../ui/ChipChoice.svelte';
   import { checkAll } from '../ui/formchecks.js';
   import { db } from '../db.js';
-  import { TOPICS, MAX_PINNED, addLink, noteTitle, noteTopic, topicText, linkedNotes, linkNote, unlinkNote, maybeRelated, pickNotes } from '../notebook.js';
+  import { TOPICS, MAX_PINNED, addLink, noteTitle, noteTopic, topicText, linkNote, unlinkNote, maybeRelated, pickNotes } from '../notebook.js';
   import { fileNote } from '../inbox.js';
   import { newTrip } from '../trips.js';
   import { nextNumber } from '../notes.js';
@@ -21,6 +21,8 @@
   import { switchTrip } from '../nav.js';
   import { t, locale } from '../i18n.svelte.js';
   import SpeakButton from '../ui/SpeakButton.svelte';
+  import InputBar from '../eingabe/InputBar.svelte';
+  import { cleanInputs } from '../eingabe/inputs.js'; // «Eingaben überall» (Noah 26.10.2026): voice note, prompts, AI helper
   import { appendSpoken } from '../speak.js';
   import { Pin, PinOff, X, Route, Heart, Wrench, Link2, Plus, Trash2, ChevronLeft, NotebookPen, Unlink } from '@lucide/svelte';
   import { photosOf, linksOf, addPhoto, removePhoto, setPhotos, addLinkTo, removeLinkAt, placeFrom, placeLinks, placeText, mdToHtml, hasFormat, wrapSel, shareText, NOTE_TPL_KEY, templatesOf, addTemplate } from '../noteformats.js';
@@ -32,6 +34,11 @@
   import NoteFiles from './NoteFiles.svelte';
   import NoteRemind from './NoteRemind.svelte';
   import NoteVersions from './NoteVersions.svelte';
+  // Einzelideen Planen (996 Ideen 12, 13, 15): links with a meaning, a reminder after an event, a memory card
+  import NoteAfter from './NoteAfter.svelte';
+  import MemoryCard from './MemoryCard.svelte';
+  import { relLinks, setRel, RELS, REL, AFTER } from './context.js';
+  import { Sparkles } from '@lucide/svelte';
   import { trashNote, restoreNote, keepVersion, TRASH_DAYS } from './trash.js';
   import { noteRemind } from '../push/schedule.js';
   import { editMode, setEditMode } from './richtext.js';
@@ -156,7 +163,9 @@
   // Paket N #10: links between notes (kept once, shown on both notes), a picker with a search, and up
   // to 3 notes that may belong here (shared #tag or the same bike).
   const others = $derived(notes.map((n) => (n.id === draft.id ? { ...n, ...draft } : n)));
-  const linked = $derived(linkedNotes(draft, others));
+  const linked = $derived(relLinks(draft, others));
+  let cardOpen = $state(false);
+  const afterLabel = (a) => (a && !a.done ? t(AFTER.find((x) => x.key === a.kind)?.label ?? 'Remind me') : '');
   const related = $derived(maybeRelated(draft, others));
   let picking = $state(false);
   let pickQ = $state('');
@@ -332,6 +341,7 @@
       <button type="button" class="btn sm" disabled={locating} onclick={locate} data-add-place><MapPin size={16} aria-hidden="true" />{locating ? t('Finding the place …') : draft.place ? t('Place again') : t('Place|location')}</button>
       <DrawOn list={photosOf(draft)} inks={draft.inks} label={t('Sketch')} onsave={drawn} data-add-sketch />
     </div>
+    <InputBar place="notes" text={draft.text ?? ''} ontext={(s) => (draft.text = s)} inputs={draft.inputs} oninputs={(x) => (draft.inputs = cleanInputs(x))} />
     {#if draft.place}<label class="fld"><span class="lbl">{t('Name of the place')} <small class="q">· {t('optional')}</small></span><input class="inp" type="text" maxlength="60" value={draft.place.label} oninput={(e) => (draft.place = { ...draft.place, label: e.currentTarget.value })} placeholder={t('e.g. Nice rest stop')} /></label>{/if}
 
     <p class="lbl">{t('Checklist')}{#if cl.length}<span class="q"> · {cl.filter((c) => c.done).length}/{cl.length}</span>{/if}</p>
@@ -363,7 +373,13 @@
         <ul class="nl">
           {#each linked as l (l.id)}
             <li>
-              <button type="button" class="lchip" onclick={() => openOther(l.id)}><NotebookPen size={14} aria-hidden="true" />{l.title || t('Note')}{#if !l.own}<small> · {t('links here')}</small>{/if}</button>
+              <button type="button" class="lchip" onclick={() => openOther(l.id)}><NotebookPen size={14} aria-hidden="true" />{#if l.own && l.rel}<small>{t(REL[l.rel].own)}: </small>{/if}{l.title || t('Note')}{#if !l.own}<small> · {l.rel ? t(REL[l.rel].back) : t('links here')}</small>{/if}</button>
+              {#if l.own}
+                <select class="inp rel" value={l.rel ?? ''} aria-label={t('Meaning of the link to {name}', { name: l.title || t('Note') })} onchange={(e) => (draft = setRel($state.snapshot(draft), l.id, e.currentTarget.value || null))} data-link-rel>
+                  <option value="">{t('No meaning')}</option>
+                  {#each RELS as r (r.key)}<option value={r.key}>{t(r.own)}</option>{/each}
+                </select>
+              {/if}
               <button type="button" class="rm" aria-label={t('Remove the link to {name}', { name: l.title })} onclick={() => unlink(l)}><Unlink size={16} aria-hidden="true" /></button>
             </li>
           {/each}
@@ -402,10 +418,12 @@
       <button type="button" class="btn btn-link" onclick={() => (readingAll = true)} data-note-read><BookOpen size={16} aria-hidden="true" />{t('Read as an article')}</button>
       <button type="button" class="btn btn-link" onclick={share} data-note-share><Share2 size={16} aria-hidden="true" />{t('Share|note')}</button>
       <button type="button" class="btn btn-link" onclick={asTemplate} data-note-astpl><FilePlus2 size={16} aria-hidden="true" />{t('Save as a template')}</button>
-      <button type="button" class="btn btn-link" aria-expanded={remindOpen} onclick={() => (remindOpen = !remindOpen)} data-note-remind-open><Bell size={16} aria-hidden="true" />{draft.remind?.at && !draft.remind.done ? t('Reminder {when}', { when: remindText(draft) }) : t('Remind me')}</button>
+      <button type="button" class="btn btn-link" aria-expanded={remindOpen} onclick={() => (remindOpen = !remindOpen)} data-note-remind-open><Bell size={16} aria-hidden="true" />{draft.remind?.at && !draft.remind.done ? t('Reminder {when}', { when: remindText(draft) }) : afterLabel(draft.after) || t('Remind me')}</button>
+      <button type="button" class="btn btn-link" onclick={() => (cardOpen = true)} data-note-card-open><Sparkles size={16} aria-hidden="true" />{draft.card ? t('Memory card') : t('Make a memory card')}</button>
       <button type="button" class="btn btn-link" aria-expanded={versionsOpen} onclick={() => (versionsOpen = !versionsOpen)} data-note-versions-open><History size={16} aria-hidden="true" />{t('Earlier versions')}</button>
     </div>
-    {#if remindOpen}<NoteRemind bind:value={draft.remind} />{/if}
+    {#if remindOpen}<NoteRemind bind:value={draft.remind} /><NoteAfter bind:value={draft.after} />{/if}
+    {#if cardOpen}<MemoryCard note={draft} edit onsave={(card) => (draft.card = card)} onclose={() => (cardOpen = false)} />{/if}
     {#if versionsOpen}<NoteVersions note={draft} onput={(next) => (draft = next)} />{/if}
     <div class="vd-foot">
       <button type="button" class="btn" onclick={remove}>{t('Delete')}</button>
@@ -561,6 +579,16 @@
   .nlinks .inp {
     width: 100%;
     box-sizing: border-box;
+  }
+  .nlinks .inp.rel {
+    width: auto;
+    max-width: 12em;
+    min-height: 36px;
+    padding: 4px 8px;
+    font-size: var(--fs-small);
+  }
+  .nl li {
+    flex-wrap: wrap;
   }
   .spk {
     display: flex;

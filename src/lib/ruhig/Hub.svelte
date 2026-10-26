@@ -2,11 +2,11 @@
   /**
    * Paket C «Ruhig und persönlich» (Noah 24.10.2026, 996 Ideen «5a»): the overview, one row per sub-page.
    */
-  import { Leaf, FlaskConical, Search, Mail, Heart, Award, Share2, Ruler, MessageCircle, ChevronRight } from '@lucide/svelte';
+  import { Leaf, FlaskConical, Search, Mail, Heart, Award, Share2, Ruler, MessageCircle, ChevronRight, EyeOff } from '@lucide/svelte';
   import { t } from '../i18n.svelte.js';
   import { SUBS, subHash } from './subs.js';
 
-  const ICON = { leaf: Leaf, flask: FlaskConical, search: Search, mail: Mail, heart: Heart, award: Award, share: Share2, ruler: Ruler, message: MessageCircle };
+  const ICON = { leaf: Leaf, flask: FlaskConical, search: Search, mail: Mail, heart: Heart, award: Award, share: Share2, ruler: Ruler, message: MessageCircle, eyeoff: EyeOff };
 </script>
 
 <ul class="card rh-hub" data-ruhig-hub>

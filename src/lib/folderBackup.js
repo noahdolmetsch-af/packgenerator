@@ -44,9 +44,43 @@ export async function forgetFolder(db) {
 export async function folderStatus(db) {
   const rec = await db.table('meta').get(HANDLE_KEY);
   if (!rec) return { state: 'off' };
-  const perm = await rec.handle.queryPermission({ mode: 'readwrite' });
+  let perm;
+  try {
+    perm = await rec.handle.queryPermission({ mode: 'readwrite' });
+  } catch (err) {
+    return { state: 'error', code: folderErrorOf(err), name: rec.handle?.name ?? '', lastWrite: rec.lastWrite };
+  }
+  // Einzelidee 29: the last write failed (folder gone, no rights, disk full): its own message with the way out
+  if (perm === 'granted' && rec.error?.code) return { state: 'error', code: rec.error.code, at: rec.error.at, name: rec.handle.name, lastWrite: rec.lastWrite };
   return { state: perm === 'granted' ? 'on' : 'needs-ok', name: rec.handle.name, lastWrite: rec.lastWrite };
 }
+
+/**
+ * Einzelidee 29 «Backup-Ordner verschwunden» (996 Ideen, Noah 25.10.2026): why writing failed, from the
+ * browser's error: 'gone' (folder moved or deleted, the disk or stick pulled out), 'rights' (the browser
+ * or the system no longer lets the app write there), 'full' (no space left), 'other'. Pure.
+ */
+export function folderErrorOf(err) {
+  const n = String(err?.name ?? '');
+  if (n === 'NotFoundError' || n === 'NotReadableError' || n === 'InvalidStateError') return 'gone';
+  if (n === 'NotAllowedError' || n === 'SecurityError' || n === 'NoModificationAllowedError') return 'rights';
+  if (n === 'QuotaExceededError' || /quota|space|full/i.test(String(err?.message ?? ''))) return 'full';
+  return 'other';
+}
+/** The way out for each reason: what to do (English keys for t()). */
+export const FOLDER_FIX = {
+  gone: 'The folder is no longer there: it was moved or deleted, or the disk or stick is not plugged in. Plug it in again and tap «Try again», or choose a new folder.',
+  rights: 'The app may no longer write into this folder. Tap «Try again» and allow it, or choose another folder.',
+  full: 'The disk of this folder is full. Make some space there, or choose a folder on another disk, then tap «Try again».',
+  other: 'Writing into the folder did not work. Tap «Try again»; if it keeps failing, choose a new folder.',
+};
+/** The headline of each reason. */
+export const FOLDER_ERROR = {
+  gone: 'Backup folder not found',
+  rights: 'No permission for the backup folder',
+  full: 'Backup folder is full',
+  other: 'Backup folder did not work',
+};
 
 /** Must be called from a click: asks the browser for write permission again. */
 export async function allowAgain(db) {
@@ -55,6 +89,22 @@ export async function allowAgain(db) {
   const ok = (await rec.handle.requestPermission({ mode: 'readwrite' })) === 'granted';
   if (ok) await writeNow(db);
   return ok;
+}
+
+/** Einzelidee 29: «Try again» after a failed write (from a click): asks for the permission when needed. */
+export async function tryAgain(db) {
+  const rec = await db.table('meta').get(HANDLE_KEY);
+  if (!rec) return false;
+  try {
+    if ((await rec.handle.queryPermission({ mode: 'readwrite' })) !== 'granted' && (await rec.handle.requestPermission({ mode: 'readwrite' })) !== 'granted') {
+      await db.table('meta').put({ ...rec, error: { code: 'rights', at: new Date().toISOString() } });
+      return false;
+    }
+  } catch (err) {
+    await db.table('meta').put({ ...rec, error: { code: folderErrorOf(err), at: new Date().toISOString() } });
+    return false;
+  }
+  return writeNow(db);
 }
 
 async function writeFile(dir, name, text) {
@@ -71,9 +121,17 @@ export async function writeNow(db) {
   if (await db.table('meta').get('demo')) return false;
   if (!rec || (await rec.handle.queryPermission({ mode: 'readwrite' })) !== 'granted') return false;
   const text = await backupText(db, await buildBackup(db)); // Paket Q #135: locked when switched on
-  await writeFile(rec.handle, LATEST, text);
-  await writeFile(rec.handle, backupFileName(), text);
-  await db.table('meta').put({ ...rec, lastWrite: new Date().toISOString() });
+  try {
+    await writeFile(rec.handle, LATEST, text);
+    await writeFile(rec.handle, backupFileName(), text);
+  } catch (err) {
+    // Einzelidee 29: keep the reason, so Daten und Backup says what happened and how to fix it
+    await db.table('meta').put({ ...rec, error: { code: folderErrorOf(err), at: new Date().toISOString() } });
+    for (const fn of listeners) fn();
+    return false;
+  }
+  const { error, ...ok } = rec;
+  await db.table('meta').put({ ...ok, lastWrite: new Date().toISOString() });
   return true;
 }
 

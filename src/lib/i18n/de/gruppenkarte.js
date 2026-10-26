@@ -41,6 +41,14 @@ export default {
   'off the route': 'abseits der Strecke',
   'seen just now': 'gerade eben gesehen',
   'seen {n} min ago': 'vor {n} Min. gesehen',
+  // für Events (Noah 26.10.2026): Ich warte hier, Stopps, GPX
+  'I am waiting here': 'Ich warte hier',
+  'I ride on': 'Ich fahre weiter',
+  waiting: 'wartet',
+  'The others see that you are waiting here. It ends by itself when you ride on.': 'Die anderen sehen, dass du hier wartest. Es endet von selbst, wenn du weiterfährst.',
+  'Route as GPX': 'Strecke als GPX',
+  'The stops could not load. Try again later.': 'Die Stopps konnten nicht laden. Versuch es später nochmals.',
+  'Water, food, shops, petrol stations and WC along the route of the group, ahead of you. Free data from OpenStreetMap.': 'Brunnen, Essen, Läden, Tankstellen und WC entlang der Strecke der Gruppe, vor dir. Gratis-Daten von OpenStreetMap.',
   // help and features (f.groupmap)
   'Ride with friends on one map: send a link by WhatsApp or SMS; they open it in the browser without the app. Who shares is on the map with name, km and when last seen. It ends after the ride, at the latest after 24 hours, and all places are deleted.':
     'Mit Freunden auf einer Karte fahren: Schick einen Link per WhatsApp oder SMS; sie öffnen ihn im Browser ohne App. Wer teilt, ist auf der Karte mit Name, km und wann zuletzt gesehen. Es endet nach der Fahrt, spätestens nach 24 Stunden, und alle Standorte werden gelöscht.',

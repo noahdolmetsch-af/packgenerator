@@ -1,6 +1,9 @@
 <script>
   import { powerRole } from '../power.js'; // Strombudget (Noah 19.10.2026 «2a»)
   import SpeakButton from '../ui/SpeakButton.svelte'; // «Diktat» (Noah 19.10.2026 «5a»)
+  import InputBar from '../eingabe/InputBar.svelte'; // «Eingaben überall» (Noah 26.10.2026): voice note, file, tags, templates
+  import InputsView from '../eingabe/InputsView.svelte';
+  import { cleanInputs, tagsUsed } from '../eingabe/inputs.js';
   import { appendSpoken } from '../speak.js';
   import CameraButton from '../ui/CameraButton.svelte'; // P3b Teil 3: the camera wherever a photo is added
   import { closeKeep } from '../ui/keeptyped.js';
@@ -39,6 +42,10 @@
   import { isClothing } from '../wardrobe.js';
   import { shrinkImage } from '../photo.js';
   import ItemLife from './ItemLife.svelte';
+  import FavWhy from '../einzeln/FavWhy.svelte'; // Einzelidee 19: a short reason for a favourite
+  import WishSolves from '../einzeln/WishSolves.svelte'; // Einzelidee 20: the trouble a wish solves
+  import ItemViews from '../einzeln/ItemViews.svelte'; // Einzelidee 22: own views of Material
+  import { fullOf } from '../einzeln/material.js'; // Einzelidee 24: empty weight and content apart
   import { materialStats, tripLog, usageOf, lighterAlts, ALT_DISMISSED_KEY, dismissValue, linkPatch, suggestWhy } from './material.js';
   import { inSmallAid, AID_KEY } from '../firstaid.js';
   import { summaryLine, blockNames, ruleNames, placeName, weightState, lifeLine, lastFold, keepFold, nextFold, blockLabel } from './detail.js';
@@ -276,6 +283,7 @@
         chargeH: [draft.chargeH, { field: t('Charging takes (h)'), example: '3', kind: 'number', min: 0.1, max: 200 }],
         mah: [draft.mah, { field: t('Battery (mAh)'), example: '10000', kind: 'int', min: 10, max: 100000 }],
         ports: [draft.ports, { field: t('Sockets'), example: '3', kind: 'int', min: 1, max: 12 }],
+        fillG: [draft.fillG, { field: t('Content when full'), example: '750', kind: 'int', min: 1, max: 30000 }],
         ...(alsoTouched && alsoOn ? { litres: [alsoL, { field: t('Litres'), example: '12', kind: 'number', min: 0.1, max: 100 }] } : {}),
       },
       t,
@@ -535,6 +543,10 @@
   <Field id="it-grams" label={t('Weight of one piece (g)')} optional example={t('whole grams, e.g. 320')} error={errors.grams}>
     {#snippet children(f)}<span class="wfield"><input class="inp num" type="text" inputmode="numeric" {...f.attrs} bind:value={draft.grams} placeholder={t('not weighed')} /><span class="wst">{wState}{#if item.ownership !== 'owned'}{' · '}<b>{t(OWNERSHIP[item.ownership] ?? '')}</b>{/if}</span></span>{/snippet}
   </Field>
+  <!-- Einzelidee 24 «Leergewicht und Füllung»: the weight above is empty; what goes in (water, gas, food) apart -->
+  <Field id="it-fill" label={t('Content when full (g)')} optional help={t('For a bottle, gas cartridge or food box: weigh it empty above, the content here. A trip shows the content on its own line.')} example={t('e.g. {x}', { x: '750' })} error={errors.fillG}>
+    {#snippet children(f)}<span class="wfield"><input class="inp num" type="text" inputmode="numeric" {...f.attrs} bind:value={draft.fillG} placeholder={t('nothing goes in')} />{#if Number(draft.fillG) > 0 && Number(draft.grams) > 0}<span class="wst" data-full-weight>{t('full {g} g', { g: fullOf({ weightG: Number(draft.grams), fillG: Number(draft.fillG) }) })}</span>{/if}</span>{/snippet}
+  </Field>
   {#if wBars.length}
     <ul class="bars" aria-label={t('Weight compared')}>
       {#each wBars as b (b.item.id)}
@@ -735,10 +747,12 @@
       {#if item.tempMin != null || item.tempMax != null || item.tempClass}<div><dt>{t('Temperature')}</dt><dd>{[item.tempMin != null || item.tempMax != null ? `${item.tempMin ?? '…'} – ${item.tempMax ?? '…'} °C` : '', item.tempClass].filter(Boolean).join(' · ')}</dd></div>{/if}
       {#if item.rule}<div><dt>{t('Rule')}</dt><dd>{item.rule}</dd></div>{/if}
       {#if item.sourceId}<div><dt>{t('Source ID')}</dt><dd>{item.sourceId}</dd></div>{/if}
+      {#if Number(item.fillG) > 0}<div><dt>{t('Content when full')}</dt><dd>{item.fillG} g · {t('full {g} g', { g: fullOf(item) ?? '–' })}</dd></div>{/if}
       {#if item.qty > 1}<div><dt>{t('Quantity')}</dt><dd>{item.qty} × {formatWeight(item.weightG)} = {formatWeight(itemWeight(item))}</dd></div>{/if}
     </dl>
     {#if item.learning}<p class="note"><b>{t('Learning:')}</b> {item.learning}</p>{/if}
     {#if item.note}<p class="note">{item.note}</p>{/if}
+    {#if item.inputs}<InputsView inputs={item.inputs} small />{/if}
   {:else}
     <div class="grid">
       {#if !isNew}
@@ -762,6 +776,7 @@
         <Field id="it-favnote" class="wide" label={t('Why it is a favourite')} optional example={t('e.g. Warm, packs small, never let me down')}>
           {#snippet children(f)}<input class="inp" {...f.attrs} bind:value={draft.favNote} />{/snippet}
         </Field>
+        <FavWhy bind:value={draft.favNote} />
       {/if}
       <!-- v0.21.0 (package 5): one inventory, an item can belong to several areas. -->
       <fieldset class="wide sets">
@@ -775,6 +790,8 @@
         {/each}
         {/if}
       </fieldset>
+      <ItemViews bind:value={draft.ownViews} />
+      {#if draft.ownership === 'wishlist' || draft.ownership === 'to-buy'}<WishSolves bind:value={draft.solves} />{/if}
       <!-- v0.97.0 «Skitouren»: the group in the ski backpack check (only for items of the area ski) -->
       {#if draft.domains?.includes('ski')}
         <label class="wide"><span class="lbl">{t('Ski tour group')}</span>
@@ -787,6 +804,7 @@
       <Field id="it-note" class="wide" label={t('Note')} optional>
         {#snippet children(f)}<textarea class="inp" rows="2" {...f.attrs} bind:value={draft.note}></textarea><SpeakButton wrap onsaid={(w) => (draft.note = appendSpoken(draft.note ?? '', w))} />{/snippet}
       </Field>
+      <div class="wide"><InputBar place="gear" text={draft.note ?? ''} ontext={(s) => (draft.note = s)} inputs={draft.inputs} oninputs={(x) => (draft.inputs = cleanInputs(x))} tags={tagsUsed(allItems ?? [])} /></div>
       <!-- v0.36.0: from the reviewed gear list (gear import); kept as they are when saving. -->
       {#if draft.sourceId || draft.rule || draft.zone || draft.layer || draft.tempClass}
         <p class="note wide">{[draft.sourceId && `${t('Source ID')}: ${draft.sourceId}`, (draft.zone || draft.layer) && `${t('Body zone')}: ${[draft.zone, draft.layer].filter(Boolean).join(' · ')}`, draft.tempClass && `${t('Temperature')}: ${draft.tempClass}`, draft.rule && `${t('Rule')}: ${draft.rule}`].filter(Boolean).join(' · ')}</p>

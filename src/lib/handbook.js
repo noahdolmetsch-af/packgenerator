@@ -43,17 +43,17 @@ export const HANDBOOK = {
   },
   weigh: {
     on: 'Needs a few items under Gear first.',
-    steps: ['Open Gear and the weighing view («Start weighing»).', 'Put each item on the scale and type the grams.'],
+    steps: ['Open Gear and the weighing view («Start weighing»).', 'Put each item on the scale and type the grams.', 'A bottle, gas cartridge or food box: weigh it empty, then type «Content when full» in its row «Weight».'],
     example: 'Example: the sleeping bag weighs 812 g instead of the guessed 900 g.',
   },
   fav: {
     on: 'Needs a few items under Gear first.',
-    steps: ['Open an item and tap the ★.', 'All favourites are on one page under Gear.'],
+    steps: ['Open an item and tap the ★.', 'Under «Why it is a favourite» tap a short reason or type one.', 'All favourites are on one page under Gear; the reason shows again when you swap it while packing or a wish replaces it.'],
     example: 'Example: ★ on your best headlamp and lightest jacket.',
   },
   wish: {
     on: 'Needs a few items under Gear first.',
-    steps: ['Open Gear › Shopping and add what you want to buy, with price and weight.', 'The list shows which buy saves the most grams per franc.'],
+    steps: ['Open Gear › Shopping and add what you want to buy, with price and weight.', 'In the wish under «Name, brand, note» tick what trouble it solves, e.g. «Stays dry».', 'The list shows which buy helps most: grams per franc or trouble solved.'],
     example: 'Example: a 300 g lighter tent for 250 francs beats a 40 g lighter cup for 30.',
   },
   unused: {
@@ -63,7 +63,7 @@ export const HANDBOOK = {
   },
   'f.quickstart': {
     on: null,
-    steps: ['On Today, tap «Quick start».', 'The ride for today is planned; «Open» or «Undo».'],
+    steps: ['On Today, tap «Quick start».', 'The ride for today is planned; «Open» or «Undo».', 'Or «New» › «Surprise round»: pick adventure and time; the app suggests a round from home.'],
     example: 'Example: one click → today 2.5 h on your last bike, standard items, 14 °C and dry.',
   },
   'f.plan': {
@@ -88,7 +88,7 @@ export const HANDBOOK = {
   },
   'f.onion': {
     on: 'Needs a trip first: «New» › «Plan a trip».',
-    steps: ['Open the trip in Pack.', 'The layer check shows each layer for the coldest hour; take the kit it suggests.'],
+    steps: ['Open the trip in Pack.', 'The layer check shows each layer for the coldest hour; take the kit it suggests.', 'Two pieces with the same task: choose «Both on purpose» or which one stays home.'],
     example: 'Example: 4 °C on the pass → base layer, jersey, wind vest and jacket.',
   },
   'f.shop': {
@@ -145,6 +145,12 @@ export const HANDBOOK = {
     on: 'Needs two items that are really the same.',
     steps: ['Open one of the two items under Gear.', 'At the bottom, tap «Merge with …» and choose the other.'],
     example: 'Example: «Headlamp» and «Head lamp» become one item.',
+  },
+  // Einzelidee 22 «Kategorien als Ansichten»
+  'f.ownviews': {
+    on: null,
+    steps: ['Open Gear: your own views stand under the view title; «Edit» adds, renames, sorts or deletes.', 'Open an item › «Name, brand, note» and tick the views it belongs to.', 'A tap on a view shows only its items; an item can be in several, without a copy.'],
+    example: 'Example: the pump is in «Repair» and «Always along»; deleting «Winter» keeps all its items.',
   },
   'f.blockcheck': {
     on: 'Needs a few items under Gear first.',
@@ -640,7 +646,7 @@ export const HANDBOOK = {
   'f.wetchain': {
     on: null,
     steps: ['Ride in the rain: «Wear» shows «Dry and oil the chain», the phone reminds you at 19:00.', '«Done: chain oiled» writes a care entry for the chain, and the hint goes.', 'Switch it off: Bikes › Care › a bike › «Wear» › «Reminders».'],
-    example: 'Example: 40 km in the rain → in the evening «Dry and oil the chain».',
+    example: 'Example: three short rides in the rain → one task «Care for the chain».',
   },
   'f.wearphotos': {
     on: null,
@@ -670,7 +676,7 @@ export const HANDBOOK = {
   'f.springservice': {
     on: null,
     steps: ['Bikes › Care › a bike › «Wear» › «Reminders» › «Spring service».', 'Pick the month or «off».', 'The to-do in Kalender › Merken lists what is due on each bike.'],
-    example: 'Example: 1 February: «Spring service: chain on the gravel bike, service of the road bike».',
+    example: 'Example: the gravel bike stood 8 weeks → «After the standstill»: tyres, sealant, chain, brakes, a test ride.',
   },
   'f.chainrotation': {
     on: null,
@@ -876,7 +882,7 @@ export const HANDBOOK = {
   },
   'f.weather': {
     on: null,
-    steps: ['Tap the weather line on Today, on Active or on a trip.', 'Choose how long you ride: the app shows the best start; tap «Landi rain radar» for the rain.'],
+    steps: ['Tap the weather line on Today, on Active or on a trip.', 'Choose how long you ride: the app shows the best start; tap «Landi rain radar» for the rain.', 'At home: «At home: how was it really?» notes wind and sun on your spot; after a few notes your own hints show.'],
     example: 'Example: 4 h ride, thunderstorms from 15:00 → best start 08:00, back about 12:00.',
   },
   'f.webcammap': {
@@ -1122,7 +1128,7 @@ export const HANDBOOK = {
   // Paket N (19.10.2026)
   'f.notelinks': {
     on: 'Needs at least two notes.',
-    steps: ['Open a note and tap «Link a note», or take one from «Maybe related».', 'On the Notes page, «At a glance» shows tags and open points; a #tag searches.'],
+    steps: ['Open a note and tap «Link a note», or take one from «Maybe related».', 'Beside the link choose its meaning: source, counter-argument or follow-up question.', 'On the Notes page, «At a glance» shows tags and open points; a #tag searches.'],
     example: 'Example: note «Jura weekend» linked with «Packing list autumn» → one tap opens the other.',
   },
   'f.dreams': {
@@ -1163,12 +1169,32 @@ export const HANDBOOK = {
   },
   'f.noteremind': {
     on: null,
-    steps: ['Open a note and tap «Remind me».', 'Choose the day and the time, then «Set the reminder».', 'With the reminders on the phone switched on, a message comes; in Notes it stays on top until «Done».'],
+    steps: ['Open a note and tap «Remind me».', 'Choose the day and the time, then «Set the reminder».', 'Or below «Or after an event»: after the next trip or the next workshop visit.'],
     example: 'Example: «Ersatzschlauch kaufen» for Friday 17:00.',
+  },
+  'f.plantpass': {
+    on: null,
+    steps: ['Planen › Merken › Pflanzenpass, or in a plant\'s window «Plant passport».', '«Observation»: sun, wind, soil and a photo of the spot; the hint says what it means.', '«Moved»: the new spot; the old one stays in the history.'],
+    example: 'Example: the olive tree dries out on the terrace → «water a bit more often?».',
+  },
+  'f.doubleinbox': {
+    on: null,
+    steps: ['Inbox › Matters: «Double entries in the inbox» shows pairs about the same thing.', '«Merge» puts both into one matter; both entries stay, Undo is offered.', '«Not the same»: the pair never comes again.'],
+    example: 'Example: the hotel mail and the photo of its receipt with the same booking number.',
+  },
+  'f.mailcase': {
+    on: null,
+    steps: ['Inbox › Matters › «Mail as a matter»: the app suggests the matter a mail fits.', '«Into …» takes it; «New matter» starts one from a mail.', 'Rename, sort or delete a matter below; its entries stay in the inbox.'],
+    example: 'Example: booking, question and bill of the bike service in one matter.',
+  },
+  'f.memorycard': {
+    on: null,
+    steps: ['Open a note › «Make a memory card».', 'Choose the picture and record a sound of up to one minute; text and place come from the note.', 'All cards: Notes › Notes in context › Memory cards.'],
+    example: 'Example: evening at the lake with the sound of the waves.',
   },
   'f.notetrash': {
     on: null,
-    steps: ['A deleted note goes to Notes › More › Trash and waits there 30 days.', '«Put back» brings it back with its files.', 'In a note «Earlier versions» shows the text from before; «Put this version back» takes it.'],
+    steps: ['A deleted note goes to Notes › More › Trash and waits there 30 days.', '«Put back» brings it back with its photos, files and links; each row says what comes with it.', 'In a note «Earlier versions» shows the text from before; «Put this version back» takes it.'],
     example: 'Example: the packing list was shortened by mistake → «Earlier versions» → yesterday evening → put back.',
   },
   'f.noteformats': {
@@ -1248,7 +1274,7 @@ export const HANDBOOK = {
   },
   'f.tools': {
     on: null,
-    steps: ['Open Me › Toolbox, or the Toolbox tile on Today.', 'Choose a tool; «Fits right now» shows the ones for your next trip.', 'Everything works without the internet.'],
+    steps: ['Open Me › Toolbox, or the Toolbox tile on Today.', 'Choose a tool; «Fits right now» shows the ones for your next trip.', 'Everything works without the internet; «Last results» brings back what a tool made.'],
     example: 'Example: 3.2 bar → 46.4 psi for the tyre pump abroad.',
   },
   'f.pdftools': {
@@ -1289,7 +1315,7 @@ export const HANDBOOK = {
   'f.convert': {
     on: 'HEIC needs the internet once; after that it works offline.',
     steps: ['Open Me › Toolbox › Picture format.', 'Choose JPG or PNG, then the pictures.', 'Tap «Save» on each, or «Save all».'],
-    example: 'Example: IMG_0042.HEIC → IMG_0042.jpg for the online form.',
+    example: 'Example: IMG_0042.HEIC → IMG_0042.jpg for the online form; velo.jpg as JPG → velo-umgewandelt.jpg, the old one stays.',
   },
   'f.video': {
     on: null,
@@ -1354,7 +1380,7 @@ export const HANDBOOK = {
   'f.searchvoice': {
     on: 'The microphone is always in the search; Me › Search hides it and switches each answer on or off.',
     steps: ['Tap the microphone next to the magnifier and say what you want.', 'One command that fits runs at once; «Undo» takes it back.', 'A question gets the app\'s answer; when the app knows nothing, Gemini answers or you ask further at Claude or ChatGPT.'],
-    example: 'Example: say «note brake squeaks» → the note is in the Inbox.',
+    example: 'Example: say «note brake squeaks» → the note is in the Inbox. If the microphone stops, the words so far stay in the field.',
   },
   'f.aiprojects': {
     on: null,
@@ -1494,7 +1520,7 @@ export const HANDBOOK = {
   },
   'f.autobackup': {
     on: 'Computer only: choose a folder under Me › Data and backup.',
-    steps: ['Under «Auto-backup to a folder», tap «Choose folder».', 'After every change the newest backup lands there, plus one per day.'],
+    steps: ['Under «Auto-backup to a folder», tap «Choose folder».', 'After every change the newest backup lands there, plus one per day.', 'Folder gone, full or not allowed: the message says what to do; «Try again» or «Choose a new folder».'],
     example: 'Example: a folder that syncs to the cloud → always a fresh backup.',
   },
   'f.invoices': {
@@ -1514,12 +1540,12 @@ export const HANDBOOK = {
   },
   'f.tour': {
     on: null,
-    steps: ['Tap «New here? Take the tour» in First steps on Today, or open Me › Handbook › Tour.', 'Choose the example trip (playground) or your own data, then tap «Next» through the steps.'],
+    steps: ['Tap «New here? Take the tour» in First steps on Today, or open Me › Handbook › Tour.', 'Choose the example trip (playground) or your own data, then tap «Next» through the steps.', 'Ended early? Next time «Go on at step n» starts where you stopped.'],
     example: 'Example: on the top of Active, «Tour of Active (4 steps)» shows ticking off, the week, goals and more.',
   },
   'f.firststart': {
     on: 'Only on a new, empty app: it asks once when it opens for the first time.',
-    steps: ['Choose the language and «Start with examples» or «Start empty»; then the short tour if you like.', 'Me › Data and backup › «Remove the examples» takes them away («Undo» brings them back); «Get the examples» brings them later.'],
+    steps: ['Choose the language, «Start with examples» and what interests you, or «Start empty»; then the short tour if you like.', 'Me › Data and backup › «Remove the examples» takes them away («Undo» brings them back); «Get the examples» brings them later.'],
     example: 'Example: a friend opens the link and sees the made-up «Jura loop» with its packing list right away.',
   },
   'f.playground': {
@@ -1529,7 +1555,7 @@ export const HANDBOOK = {
   },
   'f.push': {
     on: 'Needs Chrome on the phone. Once: «Copy the address for cron-job.org» on this page and paste it in cron-job.org.',
-    steps: ['Open Me › Reminders on the phone.', 'Switch on «On the phone» and allow notifications.', 'Switch on the reminders you want, one by one.'],
+    steps: ['Open Me › Reminders on the phone.', 'Switch on «On the phone» and allow notifications.', 'Switch on the reminders you want; what you tick off on another device no longer comes.'],
     example: 'Example: the evening before a trip at 19:00 «Tomorrow: Alpenrunde. The evening-before check is waiting.»',
   },
   'f.helper': {
@@ -1539,7 +1565,7 @@ export const HANDBOOK = {
   },
   'f.shortcuts': {
     on: 'Computer with a keyboard.',
-    steps: ['Press ? to see the list.', 'g and a letter switch places; n is New, / is search.'],
+    steps: ['Press ? to see the list.', 'g and a letter switch places; n is New, / is search.', 'Clicked a place often with the mouse? A small tip shows its shortcut once; «No more shortcut tips» stops them.'],
     example: 'Example: g t → Trips, then n → plan a new trip.',
   },
   'f.ownvalues': {
@@ -1595,12 +1621,12 @@ export const HANDBOOK = {
   },
   'f.yearcheck': {
     on: null,
-    steps: ["Once a year the window «Still right?» comes by itself.", "Tap «Still right» or «Change» for each value.", "Any time: Me › Data and backup › «Still right?»."],
+    steps: ["Once a year the window «Still right?» comes by itself.", "Tap «Still right» or «Change» for each value.", "Moved or a new sport? «Something changed?» lists only what it touches. Any time: Me › Data and backup."],
     example: "Example: weight 72 kg from last year → «Change» → Bikes › Setup.",
   },
   'f.suggestoff': {
     on: null,
-    steps: ["Open Me › Appearance › Suggestions.", "Switch off an area you do not want."],
+    steps: ["Open Me › Appearance › Suggestions.", "Switch off an area you do not want.", "A kind (ideas to buy, performance tips, ideas for free time, fitting tools) goes off on every page at once."],
     example: "Example: «Ideas in Active» off → Active shows no suggested actions.",
   },
   'f.tipweek': {
@@ -1621,7 +1647,7 @@ export const HANDBOOK = {
   'f.helpsearch': {
     on: null,
     steps: ["Open the search (the magnifier or «/»).", "Type a whole question, e.g. «Where do I set the backup password?».", "«Fits your question» shows up to three functions with their first step; a tap opens it."],
-    example: "Example: «Wo sehe ich die Lawinengefahr?» → Alerts and news.",
+    example: "Example: «Wo sehe ich die Lawinengefahr?» → Alerts and news. «Kette» finds Material and a bike → «Do you mean Gear or Bikes?».",
   },
   'f.offlinesave': {
     on: null,
@@ -1687,15 +1713,15 @@ export const HANDBOOK = {
     on: 'Works with Strava rides, uploaded GPX rides and routes recorded in the app.',
     steps: ['Open Trips › Look back › Heatmap.', 'Choose clouds or lines; filter by year, sport, bike or tour and everyday.', 'Tap a coloured line: the rides there show below, each with its page.'],
     example: 'Example: 2026, bike only → your way to work glows dark red, the Jura tour is a thin orange line.',
-  },  'f.eveningtour': {
-  },  'f.tickreview': {
+  },
+  'f.tickreview': {
     on: 'Works with what you tick off under «Heute abhaken» and with check questions that have a number.',
     steps: ['Open Active › Goals and tap «Evaluate».', 'Choose 30 days, 90 days or the year, and all activities or one.', 'Switch to «Your answers» for a check question; «…» on a card hides or moves it.'],
     example: 'Example: Meditation, 90 days → most often on Tuesday, mostly before 9 o’clock, 8 days in a row as the best run.',
   },
   'f.eveningtour': {
     on: 'Shows only on the days of a trip.',
-    steps: ['On a trip day, open the evening review from Today.', 'Tap a number at «How was the trip today?»; a second tap takes it back.', 'The score goes into the debrief; the diary draft names it for that day.'],
+    steps: ['On a trip day, open the evening review from Today.', 'Tap a number at «How was the trip today?»; at 5 or less also rate experience, plan and body.', 'The score goes into the debrief; the diary draft names it for that day.'],
     example: 'Example: day 2 of the Jura round → 8 of 10; the diary says «Rated in the evening: 8 of 10».',
   },
   'f.ridepage': {
@@ -1755,7 +1781,13 @@ export const HANDBOOK = {
     on: null,
     steps: ['Open Toolbox › Box labels and add a box with its place.', 'Type what goes in: your gear or anything else.', '«Print label», stick it on; scanning the code opens the box in the app.'],
     example: 'Example: «Winter box, cellar» with headlamp, gloves and the Christmas lights.',
-  },  'f.workspace': {
+  },
+  'f.hiddenall': {
+    on: null,
+    steps: ['Open Me › Calm and personal › Hidden and switched off.', 'Each area lists what you hid, with what stays behind it.', '«Show again» brings it back, with Undo.'],
+    example: 'Example: a hidden tab «Races» → «Show again» → it is back in the bar.',
+  },
+  'f.workspace': {
     on: null,
     steps: ['Open Me › Calm and personal › Less app for the moment.', 'Choose up to 8 functions for your plan.', '«Start the workspace»; the strip stays until you end it.'],
     example: 'Example: «Workshop Saturday» with bike inspection, spare parts and workshop due.',
@@ -1909,6 +1941,21 @@ export const HANDBOOK = {
     on: null,
     steps: ['Open Me › Calm and personal › Assistant with sources › My own no-gos.', 'Add a no-go and its kind.', 'A packing or wish list that holds one shows it here.'],
     example: 'Example: «single-use batteries» → do not buy.',
+  },
+  'f.inputbar': {
+    on: null,
+    steps: ['Open a text, e.g. a new diary entry, a note or the tour diary.', 'Under the text tap «Voice note», «Photo», «File», «Place», «Tag», «Template» or another tool; each page shows what fits.', 'Save as usual. A voice note can become words with «As text», on this device.'],
+    example: 'Example: on the ride «Voice note» → 40 seconds about the creaking bottom bracket, then «As text».',
+  },
+  'f.inputtemplates': {
+    on: null,
+    steps: ['Open a text and tap «Template» under it.', 'Tap a template: its text goes under yours.', '«Change templates»: add, change, sort or delete; each page has its own.'],
+    example: 'Example: in the diary «2 good things» → «Two good things that happened today: 1. 2.».',
+  },
+  'f.picturecard': {
+    on: null,
+    steps: ['Open a diary entry and tap «Picture card».', 'Choose the photo and change the sentence.', '«Share» opens the share menu of the phone, «Download it» keeps the picture.'],
+    example: 'Example: the photo of the pass and «The best coffee of the year at 2000 m» as a card for the family.',
   },
 
 };

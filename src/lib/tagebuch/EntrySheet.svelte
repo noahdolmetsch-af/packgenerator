@@ -24,15 +24,18 @@
   import { MOODS, moodName } from './insights.js';
   import { diaryAi, cleanTitle } from './ai.js';
   import { geminiError } from '../assistent/gemini.js';
+  import InputBar from '../eingabe/InputBar.svelte'; // «Eingaben überall» (Noah 26.10.2026): voice note, file, templates, prompts
+  import { inputAi } from '../eingabe/inputsdb.js';
+  import { aiLines, highlightsBlock, withBlock } from '../eingabe/inputs.js';
   import { t, tn, lang } from '../i18n.svelte.js';
   import '../bikes/velo-dlg.css';
 
   /** entry: the entry to change, or a new one ({ day, time, q, … }); tags: all tags (suggestions); dictate: start listening at once. */
-  let { entry, tags = [], dictate = false, onclose, onsaved = () => {} } = $props();
+  let { entry, tags = [], dictate = false, start = '', onclose, onsaved = () => {} } = $props();
   let dialog;
   // a copy to edit (the saved row only changes on «Save»)
   // svelte-ignore state_referenced_locally
-  let e = $state(JSON.parse(JSON.stringify({ title: '', text: '', photos: [], tags: [], place: null, weather: null, star: false, mood: null, refs: [], ...entry })));
+  let e = $state(JSON.parse(JSON.stringify({ title: '', text: '', photos: [], tags: [], place: null, weather: null, star: false, mood: null, refs: [], inputs: null, ...entry })));
   // svelte-ignore state_referenced_locally
   const isNew = !entry.id;
   let error = $state('');
@@ -57,7 +60,7 @@
   async function save(ev) {
     ev?.preventDefault();
     if (busy) return;
-    if (isEmpty(e)) return (error = t('Write something or add a photo first.'));
+    if (isEmpty(e)) return (error = t('Write something, speak or add a photo first.'));
     busy = true;
     try {
       const rec = await saveEntry({ ...e, tags: cleanTags([...e.tags, tagIn]) });
@@ -158,15 +161,31 @@
     if (!String(e.text ?? '').trim()) return (aiMsg = t('Write or dictate some text first.'));
     aiBusy = mode;
     aiMsg = '';
-    const r = await diaryAi(mode, { context: String(e.text).slice(0, 11000), lang: lang.v === 'en' ? 'en' : 'de' });
+    aiOut = null;
+    const r = mode === 'prompts' || mode === 'highlights' ? await inputAi(mode, { text: e.text, place: 'diary', lang: lang.v === 'en' ? 'en' : 'de' }) : await diaryAi(mode, { context: String(e.text).slice(0, 11000), lang: lang.v === 'en' ? 'en' : 'de' });
     aiBusy = '';
     aiOk = false;
     if (!r.ok) return (aiMsg = geminiError(r.error));
-    if (mode === 'title') {
+    if (mode === 'prompts' || mode === 'highlights') {
+      const lines = aiLines(r.text, mode === 'prompts' ? 3 : 4);
+      if (lines.length) aiOut = { mode, lines };
+      else aiMsg = geminiError('error');
+    } else if (mode === 'title') {
       const s = cleanTitle(r.text);
       if (s) e.title = s;
       else aiMsg = geminiError('error');
     } else tidy = r.text.trim();
+  }
+  // «Eingaben überall»: writing prompts and highlights from Gemini (the same tick)
+  let aiOut = $state(null); // { mode: 'prompts' | 'highlights', lines }
+  function usePrompt(s) {
+    e.text = withBlock(e.text, s);
+    aiOut = null;
+    textEl?.focus();
+  }
+  function useHighlights() {
+    e.text = withBlock(e.text, highlightsBlock(aiOut.lines, t('Highlights')));
+    aiOut = null;
   }
   function useTidy() {
     e.text = tidy;
@@ -203,13 +222,30 @@
         <SpeakButton onsaid={said} wrap always autostart={dictate} />
         <span class="tbe-count" aria-live="polite">{tn(words, '{n} word', '{n} words')}</span>
       </div>
+      <InputBar place="diary" {start} text={e.text} ontext={(s) => (e.text = s)} inputs={e.inputs} oninputs={(x) => (e.inputs = x)} />
 
       <div class="tbe-ai" data-tb-ai>
         <label class="tbe-aiok"><input type="checkbox" bind:checked={aiOk} data-tb-ai-ok /><span><Sparkles size={16} aria-hidden="true" /> {t('Send the text of this entry to Gemini (Google) for one step. Free; photos and place stay here.')}</span></label>
         <div class="tbe-inline">
           <button type="button" class="btn sm" disabled={!aiOk || !!aiBusy} onclick={() => ai('title')} data-tb-ai-title>{aiBusy === 'title' ? t('Gemini is thinking …') : t('Suggest a title')}</button>
           <button type="button" class="btn sm" disabled={!aiOk || !!aiBusy} onclick={() => ai('tidy')} data-tb-ai-tidy>{aiBusy === 'tidy' ? t('Gemini is thinking …') : t('Tidy up the text')}</button>
+          <button type="button" class="btn sm" disabled={!aiOk || !!aiBusy} onclick={() => ai('prompts')} data-tb-ai-prompts>{aiBusy === 'prompts' ? t('Gemini is thinking …') : t('Prompts that fit')}</button>
+          <button type="button" class="btn sm" disabled={!aiOk || !!aiBusy} onclick={() => ai('highlights')} data-tb-ai-highlights>{aiBusy === 'highlights' ? t('Gemini is thinking …') : t('Highlights')}</button>
         </div>
+        {#if aiOut}
+          <div class="tbe-tidy" data-tb-ai-out>
+            <span class="tbe-note">{aiOut.mode === 'prompts' ? t('Prompts from Gemini. A tap puts one under your text.') : t('Highlights from Gemini. Check them before you keep them.')}</span>
+            {#if aiOut.mode === 'prompts'}
+              <div class="tbe-chips">{#each aiOut.lines as s (s)}<button type="button" class="tbe-chip" onclick={() => usePrompt(s)}>{s}</button>{/each}</div>
+            {:else}
+              <ul class="tbe-hl">{#each aiOut.lines as s (s)}<li>{s}</li>{/each}</ul>
+              <div class="tbe-inline">
+                <button type="button" class="btn sm hi" onclick={useHighlights} data-tb-ai-hl-use>{t('Put under the text')}</button>
+                <button type="button" class="btn sm" onclick={() => (aiOut = null)}>{t('Discard')}</button>
+              </div>
+            {/if}
+          </div>
+        {/if}
         {#if aiMsg}<p class="tbe-note" role="status" data-tb-ai-msg>{aiMsg}</p>{/if}
         {#if tidy !== null}
           <div class="tbe-tidy" data-tb-ai-tidied>
@@ -252,9 +288,9 @@
       </div>
 
       <div class="tbe-sec">
-        <span class="tbe-h3"><MapPin size={16} aria-hidden="true" />{t('Place')}</span>
+        <span class="tbe-h3"><MapPin size={16} aria-hidden="true" />{t('Place|input')}</span>
         <div class="tbe-inline">
-          <input class="inp" maxlength="80" value={e.place?.name ?? ''} oninput={(ev) => (e.place = { ...(e.place ?? {}), name: ev.currentTarget.value })} placeholder={t('Where were you?')} aria-label={t('Place')} data-tb-place />
+          <input class="inp" maxlength="80" value={e.place?.name ?? ''} oninput={(ev) => (e.place = { ...(e.place ?? {}), name: ev.currentTarget.value })} placeholder={t('Where were you?')} aria-label={t('Place|input')} data-tb-place />
           <button type="button" class="btn sm" onclick={here} data-tb-here><MapPin size={16} aria-hidden="true" />{t('Where I am')}</button>
         </div>
         {#if e.place?.lat}<p class="tbe-note">{t('Position saved')} ({e.place.lat}, {e.place.lon}) <button type="button" class="tbe-link" onclick={() => (e.place = e.place?.name ? { name: e.place.name } : null)}>{t('Remove the position')}</button></p>{/if}
@@ -435,6 +471,10 @@
     color: var(--ink-3);
     font-size: var(--fs-small);
     font-variant-numeric: tabular-nums;
+  }
+  .tbe-hl {
+    margin: 0;
+    padding-left: 20px;
   }
   .tbe-sec {
     display: flex;
