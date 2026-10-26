@@ -70,6 +70,7 @@ export const HOME = {
   'f.devil': '#/me/ruhig/belege',
   'f.aicheck': '#/me/ruhig/belege',
   'f.nogos': '#/me/ruhig/belege',
+  'f.hiddenall': '#/me/ruhig/aus',
   'f.probe': '#/pack',
   'f.blockeffect': '#/pack',
   'f.needs': '#/pack',

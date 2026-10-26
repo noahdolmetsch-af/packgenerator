@@ -36,7 +36,7 @@
   import { loadWerte } from '../lib/review/actdata.js';
   import { paceFor, usualSurface } from '../lib/review/werte.js';
   import { blockPlan, eveningPlan } from '../lib/blockplan.js';
-  import { FUEL_KEY } from '../lib/fuel.js';
+  import { FUEL_KEY, fuelForTrip } from '../lib/fuel.js';
   import { chargeList, chargeCount } from '../lib/charge.js';
   import ChargeList from '../lib/trip/ChargeList.svelte';
   import { dayIndex, addTime, planHours, stage, stageCount, isNonstop, blocks, blockHours, dayProfile, placeName, fetchHourly, rideHours, wxSummary, DEFAULT_START, onTripDay } from '../lib/ride.js';
@@ -238,7 +238,7 @@
   // Per block: clothing, food and drink, light (answer 4b).
   const onTrip = $derived(stats ? stats.zones.flatMap((z) => z.entries.filter((e) => itemsById[e.itemId]).map((e) => ({ item: itemsById[e.itemId], qty: e.qty || 1, place: placeName(trip, z) }))) : []);
   const fuelQ = liveQuery(() => db.settings.get(FUEL_KEY)); // Paket X: the one water rule, your values
-  const bp = $derived(plan.length ? blockPlan(plan, onTrip, { wxOf: blockHrs, place: sunPlace, tripWx: trip.wx ?? null, fuel: $fuelQ?.value ?? null }) : null);
+  const bp = $derived(plan.length ? blockPlan(plan, onTrip, { wxOf: blockHrs, place: sunPlace, tripWx: trip.wx ?? null, fuel: fuelForTrip($fuelQ?.value ?? null, trip) }) : null);
   const names = (list) => list.map((w) => `${w.name} (${w.place})`).join(', ');
 
   /* ---------- v0.34.0 (L8, Noah a): the evening on a trip of several days ---------- */
@@ -250,7 +250,7 @@
     if (!nextSt?.hours) return null;
     const first = blocks({ ...trip, plan: null }, nextSt).slice(0, 1);
     const p = nextSaved?.places?.[0];
-    return first.length ? blockPlan(first, onTrip, { wxOf: (b) => (p ? blockHours(p.hours, b) : []), place: nextSt.from ?? sunPlace, tripWx: trip.wx ?? null, fuel: $fuelQ?.value ?? null }).rows[0] : null;
+    return first.length ? blockPlan(first, onTrip, { wxOf: (b) => (p ? blockHours(p.hours, b) : []), place: nextSt.from ?? sunPlace, tripWx: trip.wx ?? null, fuel: fuelForTrip($fuelQ?.value ?? null, trip) }).rows[0] : null;
   });
   const eve = $derived(trip ? eveningPlan({ days: nonstop ? 1 : days, day: cur, date: st?.date ?? null, nextDate: nextSt?.date ?? null, overnight: trip.overnight, first: nextFirst, charge: chargeList(trip, items) }) : null);
   const eveCharged = $derived(eve ? chargeCount(trip, eve.charge, eve.date) : null);

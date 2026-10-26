@@ -374,6 +374,7 @@ export const HOWTO = {
   'f.friendask': ['Open Me › With friends and choose what to ask.', 'Tap «Make the link» and send it.', 'Open the answer link: «Keep it».'],
   'f.friendshelf': ['Open Me › With friends › Lending shelf for friends.', 'Put things on the shelf, then «Send the shelf».', 'A request comes: «Say yes», then «Handed over».'],
   'f.friendtemplate': ['Open Me › With friends › Share a template.', 'Choose a building block or your layout.', 'Send it; your friend takes it over with Undo.'],
+  'f.hiddenall': ['Open Me › Calm and personal › Hidden and switched off.', 'Find what you hid, sorted by area.', 'Tap «Show again»; Undo is there for a moment.'],
   'f.workspace': ['Open Me › Calm and personal › Less app for the moment.', 'Choose up to 8 functions for your plan.', '«Start the workspace»; the strip stays until you end it.'],
   'f.calmview': ['Open Me › Calm and personal › Less app for the moment › Calm view.', 'Write what you do now, e.g. clean the bike.', 'Tap «Done» when you are finished.'],
   'f.pushbudget': ['Open Me › Calm and personal › Less app for the moment › Reminder budget.', 'Switch «Use a budget» on and choose how many a day.', 'Sort the groups with the arrows or by dragging.'],

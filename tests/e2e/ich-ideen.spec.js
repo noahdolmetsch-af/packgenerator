@@ -63,6 +63,40 @@ test('36: the kinds of suggestions stand under Ich › Darstellung and switch of
   const sw = box.locator('[data-suggest="impulse"]');
   await expect(sw).toBeChecked();
   await sw.uncheck();
-  await page.reload();
-  await expect(page.locator('[data-suggest-areas] [data-suggest="impulse"]')).not.toBeChecked();
+  await expect(sw).not.toBeChecked();
+  // the switch is saved in the database; after a reload it stays off
+  await expect(async () => {
+    await page.reload();
+    await expect(page.locator('[data-suggest-areas] [data-suggest="impulse"]')).not.toBeChecked({ timeout: 2000 });
+  }).toPass({ timeout: 15000 });
+});
+
+// Einzelideen 28, 33, 35 (Noah 26.10.2026 «1a 2a 3a 4a 5a»)
+test('33: a kind switched off shows under «Everything hidden» and comes back with «Show again»', async ({ page }) => {
+  await page.goto('./#/me/ruhig/aus');
+  await expect(page.getByRole('heading', { name: T('Hidden and switched off') }).first()).toBeVisible();
+  const all = page.locator('[data-aus="all"]');
+  await expect(page.getByText(T('Nothing hidden right now'))).toBeVisible();
+  await page.locator('[data-aus="kinds"] [data-suggest-kind="buy"]').uncheck();
+  const row = all.locator('[data-aus-row="suggest:buy"]');
+  await expect(row).toContainText(T('Ideas to buy'));
+  await row.getByRole('button', { name: T('Show again') }).click();
+  await expect(row).toHaveCount(0);
+  await expect(page.locator('[data-aus="kinds"] [data-suggest-kind="buy"]')).toBeChecked();
+});
+
+test('35: Connections names what depends on each connection', async ({ page }) => {
+  await page.goto('./#/me/connections');
+  await expect(page.getByRole('heading', { name: T('What depends on it') })).toBeVisible();
+});
+
+test('28: before Google opens, the app says what happens; «Cancel» goes back', async ({ page }) => {
+  await page.goto('./#/me/data');
+  await page.locator('[data-sync-google]').first().click();
+  const box = page.locator('[data-sync-before]');
+  await expect(box).toBeVisible();
+  await expect(box).toContainText(T('Before you sign in'));
+  await expect(box.getByRole('button', { name: T('Go on to Google') })).toBeVisible();
+  await box.getByRole('button', { name: T('Cancel') }).click();
+  await expect(box).toHaveCount(0);
 });

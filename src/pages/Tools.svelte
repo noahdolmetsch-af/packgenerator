@@ -38,6 +38,7 @@
   import SitPosition from '../lib/vision/SitPosition.svelte';
   import Labels from '../lib/tools/Labels.svelte';
   import { t } from '../lib/i18n.svelte.js';
+  import ToolResults from '../lib/ichideen/ToolResults.svelte'; // Einzelidee 27: the last results of the tools
   import { suggest, watchSuggest } from '../lib/clear/suggest.svelte.js'; // Einzelidee 36: «Fitting tools» can be off
   import '../lib/ich/ich.css';
   import '../lib/tools/tools.css';
@@ -92,6 +93,7 @@
         </ul>
       </section>
     {/if}
+    {#if !sorting}<ToolResults />{/if}
     <div class="tool-row tools-bar">
       <input class="tool-input tools-q" type="search" placeholder={t('Search tools')} aria-label={t('Search tools')} bind:value={q} disabled={sorting} />
       <button type="button" class="btn" aria-pressed={sorting} onclick={() => ((sorting = !sorting), (q = ''))}><ArrowUpDown size={16} aria-hidden="true" />{sorting ? t('Done') : t('Order|sort')}</button>

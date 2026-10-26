@@ -1737,4 +1737,12 @@ export default {
   'Choose the picture and record a sound of up to one minute; text and place come from the note.': 'Bild wählen und einen Ton bis eine Minute aufnehmen; Text und Ort kommen aus der Notiz.',
   'All cards: Notes › Notes in context › Memory cards.': 'Alle Karten: Notizen › Notizen im Zusammenhang › Erinnerungskarten.',
   'Example: evening at the lake with the sound of the waves.': 'Beispiel: Abend am See mit dem Rauschen der Wellen.',
+  // Einzelideen Ich 27 und 33 (Noah 26.10.2026)
+  'Everything works without the internet; «Last results» brings back what a tool made.': 'Alles geht ohne Internet; «Letzte Ergebnisse» holt zurück, was ein Werkzeug gemacht hat.',
+  'Open Me › Calm and personal › Hidden and switched off.': 'Öffne Ich › Ruhig und persönlich › Ausgeblendet und aus.',
+  'Each area lists what you hid, with what stays behind it.': 'Jeder Bereich zeigt, was du ausgeblendet hast, und was dahinter bleibt.',
+  '«Show again» brings it back, with Undo.': '«Wieder zeigen» holt es zurück, mit Rückgängig.',
+  'Example: a hidden tab «Races» → «Show again» → it is back in the bar.': 'Beispiel: ein ausgeblendeter Reiter «Rennen» → «Wieder zeigen» → er ist wieder in der Leiste.',
+  'Find what you hid, sorted by area.': 'Finde, was du ausgeblendet hast, nach Bereich.',
+  'Tap «Show again»; Undo is there for a moment.': 'Tippe «Wieder zeigen»; Rückgängig gibt es einen Moment lang.',
 };

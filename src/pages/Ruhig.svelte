@@ -24,6 +24,7 @@
     teilen: () => import('../lib/ruhig/Teilen.svelte'),
     zahlen: () => import('../lib/ruhig/Zahlen.svelte'),
     belege: () => import('../lib/ruhig/Belege.svelte'),
+    aus: () => import('../lib/ruhig/Aus.svelte'), // Einzelideen 33 und 36
   };
 </script>
 
