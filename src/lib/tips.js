@@ -84,7 +84,7 @@ export const TIPS = [
   { id: 'backup', group: 'data', icon: 'save', title: 'Backup', text: 'A backup file keeps your data safe and moves it to another device.', button: 'Download backup', go: { run: 'backup' }, needs: 'any' },
   { id: 'install', group: 'data', icon: 'phone', title: 'Use it offline (home screen)', text: 'Add the app to your home screen: it opens like an app and works offline.', button: 'Add to home screen', go: { run: 'install' } },
   { id: 'lang', group: 'data', icon: 'languages', title: 'Deutsch / English', text: 'The app speaks German and English; switch whenever you like.', button: 'Switch language', go: { run: 'lang' } },
-  { id: 'demo', group: 'data', icon: 'play', title: 'Try a demo', text: 'Try a demo file: your own data waits aside until you end it.', button: 'Open your data', go: { run: 'data' } },
+  { id: 'demo', group: 'data', icon: 'play', title: 'Demo from a file', text: 'Try a demo file: your own data waits aside until you end it.', button: 'Open your data', go: { run: 'data' } },
 ];
 export const TIP = Object.fromEntries(TIPS.map((x) => [x.id, x]));
 
