@@ -60,6 +60,8 @@ Durchgehende Grundsätze: Alles ist ein Vorschlag, nie Pflicht, und immer änder
 
 **Nachtrag 26.10.2026:** 0.206.0 «Fitbit-Werte mit Tag» (Ziel «Alltag»): Heute bleibt am Morgen nicht leer.
 
+**Nachtrag 26.10.2026:** 0.207.0 «Touren mit Plan B» (Ziele «Vor der Tour Zeit sparen» und «Unterwegs sicherer»): Strecke prüfen, Plan B mit Auslöser, Offline-Reserve, Stillstehen, Weggelassenes im Rückblick.
+
 **Nachtrag 26.10.2026:** 0.203.0 «Kleine Helfer unter Ich» (Ziel «Alltag»): letzte Ergebnisse, Anmeldung erklärt, eigene Verpflegungs-Zahlen, alles Ausgeblendete auf einen Blick, was von einer Verbindung abhängt.
 
 **Nachtrag 26.10.2026:** 0.204.0 «Eine kleine Überraschung» (Ziel «Alltag» und Ziel 2 «Das Velo im Griff»): Überraschungsrunde ab zu Hause, Wetter am eigenen Platz, Bewertung aufteilen, eine Ketten-Aufgabe für mehrere nasse Fahrten, Check nach der Standzeit, Beispiele nach Interesse, «Hat sich etwas geändert?».

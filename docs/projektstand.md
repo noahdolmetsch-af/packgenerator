@@ -1,6 +1,6 @@
 # Projektstand und Plan
 
-Stand: **26. Oktober 2026, 10:30 UTC**. Live ist **Version 0.205.0** (Sammel-PR #259 mit 0.201.0 bis 0.205.0, von Noah zusammengeführt am 26.10.2026, 10:14 UTC). Offen ist das kleine Paket 0.206.0 «Fitbit-Werte mit Tag».
+Stand: **26. Oktober 2026, 10:30 UTC**. Live ist **Version 0.205.0** (Sammel-PR #259 mit 0.201.0 bis 0.205.0, von Noah zusammengeführt am 26.10.2026, 10:14 UTC). Offen ist PR #263 mit 0.206.0 «Fitbit-Werte mit Tag» und 0.207.0 «Touren mit Plan B».
 
 Ältere Abschnitte weiter unten («Kurzstand 19.10.», Abschnitte 1 bis 5) sind der damalige Stand und bleiben als Verlauf stehen. Was unten anders steht, gilt nicht mehr, wo dieser Abschnitt etwas Neueres sagt.
 
@@ -27,7 +27,8 @@ Stand: **26. Oktober 2026, 10:30 UTC**. Live ist **Version 0.205.0** (Sammel-PR 
 
 | PR | Version (vorläufig) | Inhalt | Stand |
 |---|---|---|---|
-| (nach #259) | 0.206.0 | «Fitbit-Werte mit Tag»: Heute zeigt den letzten Fitbit-Wert der letzten 7 Tage mit seinem Tag («gestern», «Nacht auf So.»), bis der von heute da ist | offen; Noah mergt selbst |
+| #263 | 0.206.0 | «Fitbit-Werte mit Tag»: Heute zeigt den letzten Fitbit-Wert der letzten 7 Tage mit seinem Tag («gestern», «Nacht auf So.»), bis der von heute da ist | offen; Noah mergt selbst |
+| #263 | 0.207.0 | «Touren mit Plan B»: Strecke prüfen, Stillstehen im Zwiebel-Check, «Was hat gefehlt?» aus dem Weggelassenen, Plan B mit Auslöser, Offline-Karte mit Reserve | offen; Noah mergt selbst |
 | #251 | – | Bibliotheken aktualisieren (Playwright 1.64, pdfjs 6, maplibre 6.15) mit Anpassung | offen, Prüfungen seit Tagen rot |
 
 ### Wie ein Release heute online geht (seit 26.10.2026)
@@ -178,6 +179,7 @@ Damals (19.10.2026) galt: keine Testlinks; Ein Paket geht online, sobald die Tes
 | 87 | Eine kleine Überraschung (996 Einzelideen Heute) | 0.204.0 | Überraschungsrunde, Wetter am eigenen Platz, Bewertung aufteilen, Regen gebündelt, Standzeit-Check, Beispiele nach Interesse, «Hat sich etwas geändert?» | live (#259) |
 | 88 | Material, das weiss warum (996 Einzelideen Material und Überall) + Gruppenfahrt Teil 2 + Namen überall | 0.205.0 | Eigene Ansichten, Grund für Favoriten, Wunsch löst Ärger, Zwiebel-Check, Inhalt getrennt vom Leergewicht, Mikrofon-Fehler behalten Worte, Umwandeln überschreibt nie, Suche fragt nach; «Ich warte hier» und Stopps für Freunde; versteckte Funktionen 142 → 111 | live (#259) |
 | 89 | Fitbit-Werte mit Tag | 0.206.0 | Heute zeigt den letzten Fitbit-Wert innerhalb von 7 Tagen mit Tag, bis der von heute da ist | offen |
+| 90 | Touren mit Plan B (996 Einzelideen Touren 41, 42, 43, 46, 48) | 0.207.0 | Strecke prüfen, Stillstehen, Was hat gefehlt, Plan B mit Auslöser, Offline-Reserve | offen |
 | 62 | Skitour (Mockup-Paket P2) | 0.178.0 | Skitouren › Tour planen: Gefahrenstufe 1–5 mit Unterstufe und Satz, «Dein Morgen», Verhältnisse, Plan in Zahlen; «Gipfel erreicht» unterwegs; Nach der Tour «Plan und Wirklichkeit» und dein Material; Skitouren › Saison: Ziel, Wunschtouren, Skitage 8 Wochen, LVS-Übungen, Kurse mit «Auffrischen», Höhenmeter pro Ski, letzte Saison; Vorabend-Check zeigt Stufe, Temperatur, Wind, letzten Zug | live |
 
 «Frontend aufpeppen» ist pausiert (Noah 19.10.2026). Die Abschnitte unten sind der Stand vom 18.10.2026.

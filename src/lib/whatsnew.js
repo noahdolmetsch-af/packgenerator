@@ -16,6 +16,24 @@
 
 export const WHATS_NEW = [
   {
+    // v0.207.0 «Touren a» (996 Einzelideen Touren 41, 42, 43, 46, 48; Noah 25.10.2026): route check, Plan B with a trigger,
+    // what was left out, waiting time in the layer check, offline map with reserve
+    version: '0.207.0',
+    date: '2026-10-26',
+    title: 'Tours with a plan B',
+    lead: 'Check the route first, agree on Plan B, learn what was missing.',
+    points: [
+      { text: 'Route check: jumps and missing heights before you take a GPX', href: '#/pack' },
+      { text: 'Plan B with your own trigger, like from 10 mm of rain', href: '#/pack' },
+      { text: 'The review asks whether what you left out was missing', href: '#/debrief' },
+    ],
+    small: [
+      { box: 'new', text: 'Layer check: standing still counts colder' },
+      { box: 'new', text: 'Offline map with reserve places along Plan B', href: '#/live' },
+    ],
+    test: ['Open Planen › Strecke and load a GPX with a gap: a hint shows before «Trotzdem übernehmen».', 'Under «Von der Haustür bis zurück» › Plan B choose «Regen am Tag» «ab 10 mm».'],
+  },
+  {
     // v0.206.0 «Fitbit-Werte auf Heute» (Noah 26.10.2026 «1a»): the last Fitbit value within 7 days, with its day
     version: '0.206.0',
     date: '2026-10-26',

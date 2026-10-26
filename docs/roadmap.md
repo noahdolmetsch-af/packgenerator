@@ -879,6 +879,8 @@ Die frühere gespeicherte Datei `2026-10-07-packgenerator-ablaufplan.md` wird al
 
 **26.10.2026, v0.206.0 «Fitbit-Werte mit Tag» (offen):** Heute zeigt den letzten Fitbit-Wert mit Tag, bis der von heute da ist.
 
+**26.10.2026, v0.207.0 «Touren mit Plan B» (offen):** Strecke prüfen, Stillstehen im Zwiebel-Check, «Was hat gefehlt?» aus dem Weggelassenen, Plan B mit Auslöser, Offline-Karte mit Reserve.
+
 **26.10.2026, v0.203.0 «Kleine Helfer unter Ich» (offen):** Einzelideen Ich 27–36: letzte Ergebnisse, Hinweis vor der Google-Anmeldung, eigene Verpflegungs-Zahlen pro Reise, «Ausgeblendet und aus», «Was davon abhängt», Backup-Ordner-Meldungen, Rundgang weiter, Kürzel-Tipps, Vorschläge nach Art, «Erledigt» auf allen Geräten.
 
 **26.10.2026, v0.204.0 «Eine kleine Überraschung» (offen):** sieben Einzelideen aus «996 Ideen» (Bereich Heute): Überraschungsrunde, Wetter am eigenen Platz, Bewertung aufteilen, Regen bündeln, Check nach der Standzeit, Beispiele nach Interesse, «Hat sich etwas geändert?».

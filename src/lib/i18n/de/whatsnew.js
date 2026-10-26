@@ -4,6 +4,16 @@
  * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
+  // 0.207.0 Touren a
+  'Tours with a plan B': 'Touren mit Plan B',
+  'Check the route first, agree on Plan B, learn what was missing.': 'Zuerst die Strecke prüfen, Plan B abmachen, lernen, was gefehlt hat.',
+  'Route check: jumps and missing heights before you take a GPX': 'Strecke prüfen: Sprünge und fehlende Höhen, bevor du ein GPX übernimmst',
+  'Plan B with your own trigger, like from 10 mm of rain': 'Plan B mit eigenem Auslöser, etwa ab 10 mm Regen',
+  'The review asks whether what you left out was missing': 'Der Rückblick fragt, ob Weggelassenes gefehlt hat',
+  'Layer check: standing still counts colder': 'Zwiebel-Check: Stillstehen zählt kälter',
+  'Offline map with reserve places along Plan B': 'Offline-Karte mit Ausweichorten entlang Plan B',
+  'Open Planen › Strecke and load a GPX with a gap: a hint shows before «Trotzdem übernehmen».': 'Öffne Planen › Strecke und lade ein GPX mit einer Lücke: Vor «Trotzdem übernehmen» steht ein Hinweis.',
+  'Under «Von der Haustür bis zurück» › Plan B choose «Regen am Tag» «ab 10 mm».': 'Wähle unter «Von der Haustür bis zurück» › Plan B «Regen am Tag» «ab 10 mm».',
   // 0.206.0 Fitbit-Werte auf Heute
   'Fitbit values with their day': 'Fitbit-Werte mit Tag',
   "Heute keeps the last Fitbit value until today's arrives.": 'Heute zeigt den letzten Fitbit-Wert, bis der von heute da ist.',
