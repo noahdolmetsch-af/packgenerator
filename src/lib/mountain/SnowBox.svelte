@@ -66,6 +66,9 @@
     <p class="sk-quiet sn-line num" data-snow-line><Snowflake size={16} aria-hidden="true" /><span>{t('Freezing level {m}', { m: metres(d.freezeM) })}{#if shown.fresh != null}{' · '}{t('Fresh snow {n} days: {cm}', { n: FRESH_DAYS, cm: cm(shown.fresh) })}{/if}{#if d.snowCm}{' · '}{t('{cm} on the day', { cm: cm(d.snowCm) })}{/if}</span></p>
   {:else if reach && loading}
     <p class="sk-quiet sn-line" data-snow-line><Snowflake size={16} aria-hidden="true" /><span>{t('Loading snow and freezing level…')}</span></p>
+  {:else}
+    <!-- «332 Use Cases» (Noah 26.10.2026 «nullgradgrenze und neuschnee» sichtbar): say where the values will come -->
+    <p class="sk-quiet sn-line" data-snow-later><Snowflake size={16} aria-hidden="true" /><span>{t('Freezing level and fresh snow')}: {t('shows here in the days before the tour, when online')}</span></p>
   {/if}
 {:else}
   <section class="sn" aria-labelledby="sn-h-{trip.id}" data-snow>

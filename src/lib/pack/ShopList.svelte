@@ -121,8 +121,9 @@
 <style>
   .shop-row { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 56px; padding: 6px 16px; color: var(--ink); font: 500 var(--fs-body) var(--font-body); text-align: left; cursor: pointer; }
   .shop-row > :global(svg:first-child) { color: var(--ink-3); flex: none; }
-  .shop-row > span:not(.r) { min-width: 0; overflow-wrap: break-word; }
-  .shop-row .r { margin-left: auto; display: flex; align-items: center; gap: 8px; color: var(--ink-3); }
+  /* Gesamttest 26.10.2026: «Einkaufsliste» stays one word at 320 px; the badge wraps instead */
+  .shop-row > span:not(.r) { min-width: min-content; overflow-wrap: break-word; }
+  .shop-row .r { margin-left: auto; display: flex; flex-wrap: wrap; justify-content: flex-end; min-width: 0; align-items: center; gap: 4px 8px; color: var(--ink-3); }
   .shop-sheet { max-width: 520px; }
   .shop-sheet > footer { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 20px; margin-top: 16px; }
   .sub { margin: -12px 0 8px; color: var(--ink-3); font-size: var(--fs-small); }

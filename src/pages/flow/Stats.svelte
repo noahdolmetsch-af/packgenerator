@@ -247,6 +247,8 @@
 
   {#if !kind}
     <div class="groups" data-bgroups><Seg options={GROUPS.map((g) => ({ key: g.key, name: t(g.name) }))} value={bgroup} onchange={(g) => ((bkey = GROUPS.find((x) => x.key === g).tabs[0]), (back = 0))} label={t('Body values')} /></div>
+    <!-- «332 Use Cases» (Noah 26.10.2026 «eigene körperwerte» sichtbar): without own values, the way to make one stands on top -->
+    {#if !ownKeys.length}<p class="ownl" data-own-body-link><a href="#/me/abfragen">{t('Own body values')} ›</a></p>{/if}
     <div class="tabs btabs noswipe" role="tablist" aria-label={t((GROUPS.find((g) => g.key === bgroup) ?? GROUPS[0]).name)}>
       {#each gtabs as k (k)}<button type="button" role="tab" aria-selected={bkey === k} data-btab={k} onclick={() => ((bkey = k), bkey === 'year' && (back = 0))}>{bname(k)}</button>{/each}
     </div>
@@ -870,5 +872,9 @@
   .v {
     justify-items: end;
     font-weight: 600;
+  }
+  .ownl {
+    margin: 4px 0 0;
+    font-size: var(--fs-small);
   }
 </style>
