@@ -57,6 +57,8 @@ export default {
   'In parts: {list}': 'Aufgeteilt: {list}',
   // 5 Regen bündeln
   '{bike} was out in the wet {n} times since the chain was last cared for ({km} km: {days}). One care is enough for all of them.': '{bike} war seit der letzten Kettenpflege {n}-mal im Nassen ({km} km: {days}). Eine Pflege reicht für alle.',
+  'After a ride in the rain a hint on the page «Wear» and a phone reminder to dry and oil the chain; done counts as care. Several wet rides in a row make one task «Care for the chain» and one reminder, not one per ride.': 'Nach einer Fahrt im Regen ein Hinweis auf der Seite «Verschleiss» und eine Handy-Erinnerung, die Kette zu trocknen und zu ölen; erledigt zählt als Pflege. Mehrere nasse Fahrten nacheinander ergeben eine Aufgabe «Kette pflegen» und eine Erinnerung, nicht eine pro Fahrt.',
+  'Several wet rides before you oil it: one task «Care for the chain» with the days and km, and only one phone reminder.': 'Mehrere nasse Fahrten, bevor du ölst: eine Aufgabe «Kette pflegen» mit Tagen und km, und nur eine Handy-Erinnerung.',
   // 6 Nach der Standzeit
   'After the standstill': 'Nach der Standzeit',
   'The bike stood for {n} day before {day}. Worth a look at what changes while it stands:': 'Das Velo stand {n} Tag vor dem {day}. Ein Blick lohnt sich auf das, was sich im Stehen verändert:',
