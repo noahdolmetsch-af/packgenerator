@@ -7,9 +7,11 @@
   import { liveQuery } from 'dexie';
   import { Utensils } from '@lucide/svelte';
   import { db } from '../db.js';
-  import { EAT_KEY, eatOf, isDue, eaten, snooze, SNOOZE_MIN } from '../unterwegs/essen.js';
+  import { EAT_KEY, eatOf, isDue, eaten, snooze, SNOOZE_MIN, nextStop, nearStop } from '../unterwegs/essen.js';
   import { t } from '../i18n.svelte.js';
 
+  // Idee 57 (Touren b): me = the position on the map; 500 m before a planned stop the reminder comes at once
+  let { me = null } = $props();
   const eatQ = liveQuery(() => db.settings.get(EAT_KEY));
   let now = $state(Date.now());
   $effect(() => {
@@ -17,15 +19,18 @@
     return () => clearInterval(id);
   });
   const e = $derived(eatOf($eatQ?.value, now));
-  const due = $derived(isDue(e, now));
+  const ns = $derived(nextStop(e));
+  const near = $derived(nearStop(e, me));
+  const due = $derived(isDue(e, now) || !!near);
   const save = (v) => db.settings.put({ key: EAT_KEY, value: v });
 </script>
 
 {#if due}
   <p class="lvf-alert" role="status" data-live-eat>
-    <Utensils size={18} aria-hidden="true" /><span>{t('Time to eat')}</span>
-    <button type="button" class="btn sm" onclick={() => save(eaten(e, Date.now()))} data-live-eat-done>{t('Eaten')}</button>
-    <button type="button" class="btn sm" onclick={() => save(snooze(e, Date.now()))}>{t('In {n} minutes', { n: SNOOZE_MIN })}</button>
+    <Utensils size={18} aria-hidden="true" /><span>{(near ?? ns)?.name ? t('Planned stop: {name}', { name: (near ?? ns).name }) : t('Time to eat')}</span>
+    <button type="button" class="btn sm" onclick={() => save(eaten(e, Date.now(), near))} data-live-eat-done>{t('Eaten')}</button>
+    {#if near}<button type="button" class="btn sm" onclick={() => save(eaten(e, Date.now(), near))}>{t('Skip the stop')}</button>
+    {:else}<button type="button" class="btn sm" onclick={() => save(snooze(e, Date.now()))}>{t('In {n} minutes', { n: SNOOZE_MIN })}</button>{/if}
   </p>
 {/if}
 

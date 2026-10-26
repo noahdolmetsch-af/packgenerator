@@ -33,6 +33,8 @@
   import RichText from './RichText.svelte';
   import NoteFiles from './NoteFiles.svelte';
   import NoteRemind from './NoteRemind.svelte';
+  import Seg from '../ui/Seg.svelte';
+  import NotePlace from '../tourenb/NotePlace.svelte'; // Idee 55 (Touren b): a note at a later point of a route
   import NoteVersions from './NoteVersions.svelte';
   // Einzelideen Planen (996 Ideen 12, 13, 15): links with a meaning, a reminder after an event, a memory card
   import NoteAfter from './NoteAfter.svelte';
@@ -63,6 +65,9 @@
   // Paket NE 1150/1151: the reminder and the earlier versions, folded
   // svelte-ignore state_referenced_locally
   let remindOpen = $state(!!note.remind?.at && !note.remind.done);
+  // Idee 55: «Zu einer Zeit» or «An einem Ort der Strecke»
+  // svelte-ignore state_referenced_locally
+  let remindKind = $state(note.at2?.tripId && !note.remind?.at ? 'place' : 'time');
   let versionsOpen = $state(false);
   function remindText(n) {
     const r = noteRemind(n);
@@ -418,11 +423,11 @@
       <button type="button" class="btn btn-link" onclick={() => (readingAll = true)} data-note-read><BookOpen size={16} aria-hidden="true" />{t('Read as an article')}</button>
       <button type="button" class="btn btn-link" onclick={share} data-note-share><Share2 size={16} aria-hidden="true" />{t('Share|note')}</button>
       <button type="button" class="btn btn-link" onclick={asTemplate} data-note-astpl><FilePlus2 size={16} aria-hidden="true" />{t('Save as a template')}</button>
-      <button type="button" class="btn btn-link" aria-expanded={remindOpen} onclick={() => (remindOpen = !remindOpen)} data-note-remind-open><Bell size={16} aria-hidden="true" />{draft.remind?.at && !draft.remind.done ? t('Reminder {when}', { when: remindText(draft) }) : afterLabel(draft.after) || t('Remind me')}</button>
+      <button type="button" class="btn btn-link" aria-expanded={remindOpen} onclick={() => (remindOpen = !remindOpen)} data-note-remind-open><Bell size={16} aria-hidden="true" />{draft.remind?.at && !draft.remind.done ? t('Reminder {when}', { when: remindText(draft) }) : afterLabel(draft.after) || (draft.at2?.tripId && !draft.at2.done ? t('At km {km} of a tour', { km: Math.round(draft.at2.km ?? 0) }) : t('Remind me'))}</button>
       <button type="button" class="btn btn-link" onclick={() => (cardOpen = true)} data-note-card-open><Sparkles size={16} aria-hidden="true" />{draft.card ? t('Memory card') : t('Make a memory card')}</button>
       <button type="button" class="btn btn-link" aria-expanded={versionsOpen} onclick={() => (versionsOpen = !versionsOpen)} data-note-versions-open><History size={16} aria-hidden="true" />{t('Earlier versions')}</button>
     </div>
-    {#if remindOpen}<NoteRemind bind:value={draft.remind} /><NoteAfter bind:value={draft.after} />{/if}
+    {#if remindOpen}<Seg full={false} small label={t('Remind me')} value={remindKind} options={[{ key: 'time', name: t('At a time') }, { key: 'place', name: t('At a point of the route') }]} onchange={(k) => (remindKind = k)} />{#if remindKind === 'place'}<NotePlace bind:value={draft.at2} />{:else}<NoteRemind bind:value={draft.remind} /><NoteAfter bind:value={draft.after} />{/if}{/if}
     {#if cardOpen}<MemoryCard note={draft} edit onsave={(card) => (draft.card = card)} onclose={() => (cardOpen = false)} />{/if}
     {#if versionsOpen}<NoteVersions note={draft} onput={(next) => (draft = next)} />{/if}
     <div class="vd-foot">

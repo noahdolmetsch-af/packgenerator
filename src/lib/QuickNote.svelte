@@ -40,8 +40,9 @@
   let bikeId = $state(null); // null: the app's guess
   // v0.38.0 (Noah 8a): two starts, "What was missing" and "This is broken". Broken with a bike: the
   // note also becomes an open repair in Bike care (the same as "Repair" in the Inbox, notes.js).
-  let kind = $state(null); // null | 'missing' | 'broken'
-  const START = { missing: 'What was missing|note', broken: 'This is broken' };
+  // Idee 54 (Touren b): a third start «Später prüfen»; the note keeps the tour day like every note on the way.
+  let kind = $state(null); // null | 'missing' | 'broken' | 'later'
+  const START = { missing: 'What was missing|note', broken: 'This is broken', later: 'Check later' };
   function start(k) {
     const prev = kind ? `${t(START[kind])}: ` : '';
     kind = kind === k ? null : k;

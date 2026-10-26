@@ -24,6 +24,7 @@
   import { localDay } from '../lib/localday.js';
   import { offerDone } from '../lib/ui/rename.svelte.js';
   import PageHead from '../lib/ui/PageHead.svelte';
+  import QuickLinks from '../lib/ui/QuickLinks.svelte';
   import TodoSheet from '../lib/merken/TodoSheet.svelte';
   import KindSheet from '../lib/merken/KindSheet.svelte';
   import { syncReminders } from '../lib/alltagdb.js';
@@ -99,6 +100,8 @@
 <div class="ich-page rem">
   <p class="back"><a href="#/me"><ChevronLeft size={16} aria-hidden="true" />{t('Me|place')}</a></p>
   <PageHead title={t('Reminders')} text={t('Everything the app reminds you of. Everything can be changed, everything can be switched off.')} />
+  <!-- «332 Use Cases» (Noah 26.10.2026 «geburtstage und pflanzen, eigene erinnerungen» sichtbar) -->
+  <QuickLinks label={t('More reminders')} links={[{ key: 'bday', href: '#/calendar', label: t('Birthdays and plants') }, { key: 'own', href: '#/me/werte', label: t('Own reminders') }]} />
   <AreaIntro place="reminders" />
 
   <div class="ich-cols">

@@ -993,11 +993,13 @@
       <div class="hi-text">
         <!-- UI-Ziele #15 (Noah 20.10.2026 «freigabe»): the short greeting is the button itself, no «antippen» line -->
         {#if night}<h1 id="hello-h" class="hello">{hello}</h1>{:else}<HelloSheet name={S.userName ?? ''} label={hello} />{/if}
-        <p class="dl">{phone.matches ? shortDate : dateLine}{#if wx}<span aria-hidden="true">{'\u00a0· '}</span><span class="wx" data-weather>{wx.text}</span>{/if}{#if strava.changes.length}<span aria-hidden="true">{'\u00a0· '}</span><span data-strava-questions>{tn(strava.changes.length, '{n} question from Strava', '{n} questions from Strava')}</span>{/if}</p>
+        <p class="dl">{phone.matches ? shortDate : dateLine}{#if wx}<span aria-hidden="true">{'\u00a0· '}</span><span class="wx" data-weather>{wx.text}</span>{#if wx.hi != null}{' '}<span class="wxr" data-weather-range>{t('↑{hi}° ↓{lo}°', { hi: wx.hi, lo: wx.lo })}</span>{/if}{/if}{#if strava.changes.length}<span aria-hidden="true">{'\u00a0· '}</span><span data-strava-questions>{tn(strava.changes.length, '{n} question from Strava', '{n} questions from Strava')}</span>{/if}</p>
         {#if loaded}<RaceLine {today} />{/if}
         <!-- UI-Ziele #17 (Noah 20.10.2026 «freigabe»): «Was häsch vor?» as chips; while customising a list to sort -->
         <!-- «Alltag sichtbar» (Noah 24.10.2026 «1a»): the quick start «Heute fahren» stays visible at night too -->
         {#if ready}<GoalChips {editing} {next} {now} onride={startQuick} ontrip={() => (countUse('trip'), openNew('list'))} />{/if}
+        <!-- «332 Use Cases» (Noah 26.10.2026: «was ziehe ich an, wetter für meinen standort (höchst- und tiefsttemperatur)» on Heute) -->
+        {#if ready}<p class="wxlinks"><a class="linkq" href="#/wetter" data-weather-home>{t('Weather at your home place')} ›</a><button type="button" class="linkq" onclick={() => (wearOpen = true)} data-wear-open>{t('What do I wear?')}</button></p>{/if}
         {#if !wx && ready}
           {#if !place}
             <button type="button" class="linkq" aria-expanded={placeOpen} onclick={() => (placeOpen = !placeOpen)}>{t('Set your home place for the weather')}</button>
@@ -2391,5 +2393,17 @@
   }
   .bodyw > :global(section.bd) {
     flex: 1 1 auto;
+  }
+  .wxr {
+    white-space: nowrap;
+  }
+  .wxlinks {
+    display: flex;
+    flex-wrap: nowrap; /* one row: two rows on a narrow phone pushed «Dein Körper heute» out of the first screen (CI 26.10.2026) */
+    gap: 0 var(--sp-3);
+    margin: 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+    white-space: nowrap;
   }
 </style>

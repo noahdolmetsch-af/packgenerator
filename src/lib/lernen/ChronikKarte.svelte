@@ -56,7 +56,7 @@
           <svelte:element this={e.href ? 'a' : 'div'} class="row" href={e.href ?? undefined} data-chronik-entry={e.id}>
             <i class="dot {colorOf[e.id] ?? 'cn'}" aria-hidden="true"></i>
             <span class="m">
-              <span class="tt">{e.title || (e.kind === 'ride' ? t('Ride|chronik') : t('Activity|chronik'))}</span>
+              <span class="tt" title={e.title || undefined}>{e.title || (e.kind === 'ride' ? t('Ride|chronik') : t('Activity|chronik'))}</span>
               <span class="sub num">{ymd(e)}{#if e.km}{' '}· {num(Math.round(e.km))} km{/if}</span>
               {#if e.note && (frame === 'section' || size === 'l' || i === 0)}<span class="nt">«{e.note}»</span>{/if}
             </span>
@@ -79,6 +79,15 @@
     gap: 8px;
     min-width: 0;
     color: var(--ink);
+  }
+  /* Gesamttest 26.10.2026: a long Strava name («Zwift - Basemiles Indoor Mix (…) on Whole Lotta Lava in Watopia») takes
+     at most two lines in the tile on Today, so the row of tiles beside it does not grow very tall */
+  .ck.tile .tt {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
   }
   .ck.tile {
     height: 100%;
