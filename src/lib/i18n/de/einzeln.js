@@ -1,4 +1,4 @@
-// Einzelideen Material und Überall (996 Ideen, Noah 25.10.2026: 19, 20, 24, 37, 38, 40)
+// Einzelideen Material und Überall (996 Ideen, Noah 25.10.2026: 19, 20, 21, 22, 24, 37, 38, 40)
 export default {
   // 19 Warum Favorit?
   'Quick reasons': 'Schnelle Gründe',
@@ -29,6 +29,39 @@ export default {
     'Die Wunschliste zeigt, welcher Kauf am meisten Gramm pro Franken spart. Ein Wunsch zählt auch für den Ärger, den er löst, etwa trocken bleiben. Ein Wunsch kann 30 Tage warten; dann fragt die App, ob du ihn noch brauchst.',
   'Add a thing with weight and price, and what trouble it solves.': 'Füge ein Teil mit Gewicht und Preis hinzu, und welchen Ärger es löst.',
   'On top: what helps most, in grams or in trouble solved.': 'Oben: was am meisten hilft, in Gramm oder gelöstem Ärger.',
+
+  // 21 Zu viel an derselben Stelle
+  '{n} twice': '{n}× doppelt',
+  'Same task twice': 'Zweimal dieselbe Aufgabe',
+  'What for? A spare on purpose, or one stays at home.': 'Wofür? Absichtlich als Ersatz, oder eines bleibt zu Hause.',
+  'Both on purpose': 'Beide mit Absicht',
+  '{name} stays home': '{name} bleibt zu Hause',
+  '{name} stays home.': '{name} bleibt zu Hause.',
+  'Both stay on the list.': 'Beide bleiben auf der Liste.',
+  'Checks every layer for the coldest riding hour and suggests the kit; for two pieces with the same task it asks what for.':
+    'Prüft jede Schicht für die kälteste Fahrstunde und schlägt das Kit vor; bei zwei Teilen mit derselben Aufgabe fragt er, wofür.',
+  'Missing layers come as a suggestion; for two pieces with the same task it asks what for.': 'Fehlende Schichten kommen als Vorschlag; bei zwei Teilen mit derselben Aufgabe fragt er, wofür.',
+
+  // 22 Kategorien als Ansichten
+  'Own views': 'Eigene Ansichten',
+  'Edit own views': 'Eigene Ansichten bearbeiten',
+  'Edit|views': 'Bearbeiten',
+  'Repair|view': 'Reparatur',
+  'Winter|view': 'Winter',
+  'Always along|view': 'Immer dabei',
+  'An item can be in several views, without a copy. Tick the views in the item window under «Name, brand, note».':
+    'Ein Teil kann in mehreren Ansichten sein, ohne Kopie. Kreuze die Ansichten im Fenster des Teils unter «Name, Marke, Notiz» an.',
+  'Without this view': 'Ohne diese Ansicht',
+  'The items stay in Material, only the view goes.': 'Die Teile bleiben im Material, nur die Ansicht geht.',
+  'New view, e.g. Bike trip with the kids': 'Neue Ansicht, z. B. Velotour mit Kindern',
+  'Your own view: an item can be in several views, without a copy.': 'Deine eigene Ansicht: Ein Teil kann in mehreren Ansichten sein, ohne Kopie.',
+  'Also shows in these views': 'Erscheint auch in diesen Ansichten',
+  'Add, rename or delete views in Material › Own views.': 'Ansichten hinzufügen, umbenennen oder löschen: Material › Eigene Ansichten.',
+  'Own views of Material such as Repair, Winter or Always along; an item shows in several of them without a copy. Add, rename, sort or delete the views.':
+    'Eigene Ansichten im Material wie Reparatur, Winter oder Immer dabei; ein Teil erscheint in mehreren davon, ohne Kopie. Ansichten hinzufügen, umbenennen, sortieren oder löschen.',
+  'Open Gear and tap «Edit» next to «Own views».': 'Öffne Material und tippe neben «Eigene Ansichten» auf «Bearbeiten».',
+  'Add a view, e.g. «Repair».': 'Füge eine Ansicht hinzu, z. B. «Reparatur».',
+  'Open an item › «Name, brand, note» and tick its views.': 'Öffne ein Teil › «Name, Marke, Notiz» und kreuze seine Ansichten an.',
 
   // 24 Leergewicht und Füllung
   'Content when full (g)': 'Inhalt, wenn voll (g)',

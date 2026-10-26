@@ -1,4 +1,4 @@
-// Einzelideen Material und Überall (996 Ideen, Noah 25.10.2026: 19, 20, 24, 37, 38, 40). A favourite gets a short
+// Einzelideen Material und Überall (996 Ideen, Noah 25.10.2026: 19–22, 24, 37, 38, 40). A favourite gets a short
 // reason, a wish the trouble it solves, a bottle its content apart from the empty weight, the picture tool keeps the old
 // names, and the search asks when a word means two things. Fictional data only (test_data_gtp_).
 import { test, expect } from '@playwright/test';
@@ -94,5 +94,75 @@ test('38 + 40: the picture tool keeps the old names; the search asks which meani
   await expect(field).toHaveValue('material zzkette');
   await expect(ask).toHaveCount(0);
   expect(await noSideways(page)).toBe(0);
+  expect(errors).toEqual([]);
+});
+
+// Einzelidee 21 «Zu viel an derselben Stelle» and 22 «Kategorien als Ansichten» (mockups OK by Noah 26.10.2026)
+const cloth = (id, name, f) => item(id, `test_data_gtp_ ${name}`, { category: 'onbike', weightG: 180, defaultBag: 'seat', ...f });
+function data2() {
+  const d = data();
+  const t = d.tables;
+  t.items.push(
+    cloth('test_data_gtp_B1', 'Merino Langarm', { layer: 'base', zone: 'torso', tempMin: 4, tempMax: 15, ownViews: ['repair'] }),
+    cloth('test_data_gtp_B2', 'Merino Langarm Ersatz', { layer: 'base', zone: 'torso', tempMin: 5, tempMax: 15, ownViews: ['repair', 'always'] }),
+  );
+  t.trips[0].entries = ['test_data_gtp_B1', 'test_data_gtp_B2'].map((itemId) => ({ itemId, slot: 'body', qty: 1, packed: false })).concat(t.trips[0].entries);
+  return d;
+}
+
+test('22: own views show an item in several places, without a copy; add a view, tick it in the item window', async ({ page, context }, info) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await openHome(page, context, info, { data: data2() });
+  await page.goto('./#/gear');
+  const row = page.locator('[data-own-views]');
+  await expect(row).toBeVisible();
+  await expect(row.locator('[data-own-view="repair"] .num')).toHaveText('2');
+  await expect(row.locator('[data-own-view="always"] .num')).toHaveText('1');
+  await tap(row.locator('[data-own-view="repair"]'), info);
+  await expect(page.locator('#vh-h')).toHaveText(T('Repair|view'));
+  await expect(page).toHaveURL(/mine=repair/);
+  await expect(page.getByText('test_data_gtp_ Merino Langarm Ersatz').first()).toBeVisible();
+  await expect(page.getByText('test_data_gtp_ Stirnlampe')).toHaveCount(0);
+  expect(await noSideways(page)).toBe(0);
+  // a second tap closes the view
+  await tap(row.locator('[data-own-view="repair"]'), info);
+  await expect(page.locator('#vh-h')).not.toHaveText(T('Repair|view'));
+  // edit: add a view
+  await tap(row.locator('[data-own-views-edit]'), info);
+  const sheet = page.locator('dialog.ov-sheet');
+  await expect(sheet).toBeVisible();
+  await sheet.locator('[data-kind-new]').fill('test_data_gtp_ Kinder');
+  await tap(sheet.getByRole('button', { name: T('Add'), exact: true }), info);
+  await expect(sheet.locator('[data-kinds] li')).toHaveCount(4);
+  await tap(sheet.getByRole('button', { name: T('Close') }), info);
+  await expect(row.getByText('test_data_gtp_ Kinder')).toBeVisible();
+  // tick it in the item window
+  const dlg = await openFold(page, info, 'test_data_gtp_fav', 'details');
+  const box = dlg.locator('[data-item-views]');
+  await tap(box.getByLabel('test_data_gtp_ Kinder'), info);
+  await tap(dlg.getByRole('button', { name: T('Save'), exact: true }), info);
+  await expect.poll(async () => ((await rows(page, 'items')).find((i) => i.id === 'test_data_gtp_fav')?.ownViews ?? []).length).toBe(1);
+  expect(errors).toEqual([]);
+});
+
+test('21: the layer check asks about two pieces with the same task', async ({ page, context }, info) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await openHome(page, context, info, { data: data2() });
+  const tripId = data2().tables.trips[0].id;
+  await page.evaluate((id) => localStorage.setItem('pack.currentTrip', id), tripId);
+  await page.goto('./#/');
+  await page.goto('./#/pack');
+  const line = page.locator('.onion .oline');
+  await expect(line).toBeVisible();
+  if (!(await page.locator('[data-onion-twice]').isVisible())) await tap(line, info);
+  const twice = page.locator('[data-onion-twice]');
+  await expect(twice).toBeVisible();
+  await expect(twice).toContainText(T('Same task twice'));
+  expect(await noSideways(page)).toBe(0);
+  await tap(twice.locator('[data-twice-ok]'), info);
+  await expect(twice).toHaveCount(0);
+  await expect.poll(async () => ((await rows(page, 'trips')).find((x) => x.id === tripId)?.twiceOk ?? []).length).toBe(1);
   expect(errors).toEqual([]);
 });

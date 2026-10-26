@@ -4,6 +4,13 @@
  * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
+  // 0.199.0 Einzelideen Material und Überall
+  'Material that knows why': 'Material, das weiss warum',
+  'Own views, the reason for a favourite and the trouble a wish solves.': 'Eigene Ansichten, der Grund für einen Favoriten und der Ärger, den ein Wunsch löst.',
+  'Own views like Repair or Winter, without copies': 'Eigene Ansichten wie Reparatur oder Winter, ohne Kopien',
+  'Why a favourite, and which trouble a wish solves': 'Warum Favorit, und welchen Ärger ein Wunsch löst',
+  'Open Material › «Eigene Ansichten» › «Bearbeiten» and add «Kinder».': 'Öffne Material › «Eigene Ansichten» › «Bearbeiten» und füge «Kinder» hinzu.',
+  'Open an item, tick «Kinder» and save: the view shows it.': 'Öffne ein Teil, kreuze «Kinder» an und speichere: Die Ansicht zeigt es.',
   // 0.198.0 Kette vorausschauend
   'The chain, one step ahead': 'Die Kette, einen Schritt voraus',
   'The app says what the chain needs next, before it is too late.': 'Die App sagt, was die Kette als Nächstes braucht, bevor es zu spät ist.',

@@ -16,6 +16,18 @@
 
 export const WHATS_NEW = [
   {
+    // v0.199.0 Einzelideen Material und Überall (996 Ideen, Noah 25.10.2026: 19–22, 24, 37, 38, 40); provisional, the bundler sets the number
+    version: '0.199.0',
+    date: '2026-10-26',
+    title: 'Material that knows why',
+    lead: 'Own views, the reason for a favourite and the trouble a wish solves.',
+    points: [
+      { text: 'Own views like Repair or Winter, without copies', href: '#/gear' },
+      { text: 'Why a favourite, and which trouble a wish solves', href: '#/gear?view=wish' },
+    ],
+    test: ['Open Material › «Eigene Ansichten» › «Bearbeiten» and add «Kinder».', 'Open an item, tick «Kinder» and save: the view shows it.'],
+  },
+  {
     // v0.198.0 «Kette vorausschauend» (Noah 25.10.2026): the chain's next steps on «Wear» (replace, before the trip,
     // soon, measure, oil), history and forecast from the own measurements, phone reminder «measure the chain».
     version: '0.198.0',

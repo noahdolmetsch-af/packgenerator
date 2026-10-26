@@ -1,11 +1,12 @@
-// Einzelideen Material und Überall (996 Ideen, Noah 25.10.2026: 19, 20, 24, 37, 38, 40). Fictional data only.
+// Einzelideen Material und Überall (996 Ideen, Noah 25.10.2026: 19, 20, 21, 22, 24, 37, 38, 40). Fictional data only.
 import { describe, it, expect } from 'vitest';
-import { addWhy, favWhy, FAV_WHY, SOLVES, solvesOf, toggleSolve, solveScore, fillOf, fullOf, tripFill } from '../src/lib/einzeln/material.js';
+import { addWhy, favWhy, FAV_WHY, SOLVES, solvesOf, toggleSolve, solveScore, twiceOf, keepTwice, ownViewsOf, STD_VIEWS, inOwnView, ownViewCounts, toggleOwnView, dropOwnView, fillOf, fullOf, tripFill } from '../src/lib/einzeln/material.js';
 import { wishReason } from '../src/lib/insights.js';
 import { itemDraft, itemRecord } from '../src/lib/gear.js';
 import { freeNames } from '../src/lib/tools/convert.js';
 import { meaningsOf } from '../src/lib/suche/meanings.js';
 import { createDictation } from '../src/lib/dictate.js';
+import { GROUP_PLACES } from '../src/lib/groups.js';
 import de from '../src/lib/i18n/de/index.js';
 
 const P = 'test_data_gtp_';
@@ -47,6 +48,52 @@ describe('20 a wish counts for the trouble it solves', () => {
   });
   it('every trouble has German', () => {
     for (const s of SOLVES) expect(de[s.name], s.name).toBeTruthy();
+  });
+});
+
+describe('21 the same task twice', () => {
+  const items = [
+    { id: 'b1', name: `${P}Base 1`, zone: 'torso', layer: 'base', tempMin: 10, ownership: 'owned' },
+    { id: 'b2', name: `${P}Base 2`, zone: 'torso', layer: 'base', tempMin: 11, ownership: 'owned' },
+    { id: 'm1', name: `${P}Fleece`, zone: 'torso', layer: 'mid', tempMin: 10, ownership: 'owned' },
+    { id: 'm2', name: `${P}Puffy`, zone: 'torso', layer: 'mid', tempMin: -5, ownership: 'owned' },
+    { id: 'r1', name: `${P}Rain jacket`, zone: 'torso', layer: 'outer', ownership: 'owned' },
+    { id: 'w1', name: `${P}Wind vest`, zone: 'torso', layer: 'outer', ownership: 'owned' },
+  ];
+  const trip = { entries: items.map((i) => ({ itemId: i.id, qty: 1 })) };
+  it('finds two base layers of the same warmth, not a fleece and a puffy, not rain and wind', () => {
+    const g = twiceOf(trip, items);
+    expect(g.map((x) => x.items.map((i) => i.id))).toEqual([['b1', 'b2']]);
+    expect(g[0].zone).toBe('upper');
+    expect(g[0].layer).toBe('base');
+  });
+  it('a group kept on purpose is not asked again', () => {
+    const key = twiceOf(trip, items)[0].key;
+    expect(twiceOf({ ...trip, ...keepTwice(trip, key) }, items)).toEqual([]);
+  });
+});
+
+describe('22 own views', () => {
+  it('start with Repair, Winter and Always along; a stored list wins', () => {
+    expect(ownViewsOf(undefined).map((v) => v.id)).toEqual(STD_VIEWS.map((v) => v.id));
+    expect(ownViewsOf([{ id: 'x', name: 'Kids' }])).toEqual([{ id: 'x', name: 'Kids' }]);
+    expect(ownViewsOf([])).toEqual([]);
+    for (const v of STD_VIEWS) expect(de[v.std], v.std).toBeTruthy();
+  });
+  it('an item is in several views without a copy', () => {
+    const views = ownViewsOf(undefined);
+    const pump = { id: 'p', ownViews: toggleOwnView(toggleOwnView([], 'always', views), 'repair', views) };
+    expect(pump.ownViews).toEqual(['repair', 'always']);
+    expect(inOwnView(pump, 'repair') && inOwnView(pump, 'always')).toBe(true);
+    expect(ownViewCounts([pump, { id: 'q', ownViews: ['repair'] }], views)).toEqual({ repair: 2, winter: 0, always: 1 });
+  });
+  it('deleting a view keeps its items, or moves them to another view', () => {
+    const items = [{ id: 'a', ownViews: ['winter', 'repair'] }, { id: 'b', ownViews: ['repair'] }];
+    expect(dropOwnView(items, 'winter', null, 'now')).toEqual([{ id: 'a', ownViews: ['repair'], updatedAt: 'now' }]);
+    expect(dropOwnView(items, 'repair', 'always', 'now').map((i) => i.ownViews)).toEqual([['winter', 'always'], ['always']]);
+  });
+  it('is a group place (rename and delete with the one window)', () => {
+    expect(GROUP_PLACES.some((g) => g.name === 'Own views of Material')).toBe(true);
   });
 });
 

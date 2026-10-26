@@ -88,7 +88,7 @@ export const HANDBOOK = {
   },
   'f.onion': {
     on: 'Needs a trip first: «New» › «Plan a trip».',
-    steps: ['Open the trip in Pack.', 'The layer check shows each layer for the coldest hour; take the kit it suggests.'],
+    steps: ['Open the trip in Pack.', 'The layer check shows each layer for the coldest hour; take the kit it suggests.', 'Two pieces with the same task: choose «Both on purpose» or which one stays home.'],
     example: 'Example: 4 °C on the pass → base layer, jersey, wind vest and jacket.',
   },
   'f.shop': {
@@ -145,6 +145,12 @@ export const HANDBOOK = {
     on: 'Needs two items that are really the same.',
     steps: ['Open one of the two items under Gear.', 'At the bottom, tap «Merge with …» and choose the other.'],
     example: 'Example: «Headlamp» and «Head lamp» become one item.',
+  },
+  // Einzelidee 22 «Kategorien als Ansichten»
+  'f.ownviews': {
+    on: null,
+    steps: ['Open Gear: your own views stand under the view title; «Edit» adds, renames, sorts or deletes.', 'Open an item › «Name, brand, note» and tick the views it belongs to.', 'A tap on a view shows only its items; an item can be in several, without a copy.'],
+    example: 'Example: the pump is in «Repair» and «Always along»; deleting «Winter» keeps all its items.',
   },
   'f.blockcheck': {
     on: 'Needs a few items under Gear first.',

@@ -41,6 +41,7 @@
   import ItemLife from './ItemLife.svelte';
   import FavWhy from '../einzeln/FavWhy.svelte'; // Einzelidee 19: a short reason for a favourite
   import WishSolves from '../einzeln/WishSolves.svelte'; // Einzelidee 20: the trouble a wish solves
+  import ItemViews from '../einzeln/ItemViews.svelte'; // Einzelidee 22: own views of Material
   import { fullOf } from '../einzeln/material.js'; // Einzelidee 24: empty weight and content apart
   import { materialStats, tripLog, usageOf, lighterAlts, ALT_DISMISSED_KEY, dismissValue, linkPatch, suggestWhy } from './material.js';
   import { inSmallAid, AID_KEY } from '../firstaid.js';
@@ -772,6 +773,7 @@
         {/each}
         {/if}
       </fieldset>
+      <ItemViews bind:value={draft.ownViews} />
       {#if draft.ownership === 'wishlist' || draft.ownership === 'to-buy'}<WishSolves bind:value={draft.solves} />{/if}
       <!-- v0.97.0 «Skitouren»: the group in the ski backpack check (only for items of the area ski) -->
       {#if draft.domains?.includes('ski')}
