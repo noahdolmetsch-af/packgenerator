@@ -63,6 +63,8 @@ test('every function is visible on its home page', async ({ page, context }, inf
     // «?open=»: a page reads it when it starts, so start it again
     if (href.includes('open=')) await page.reload();
     await page.locator('main').waitFor();
+    // pages load later (lazy): wait for the page's own title before reading it (it sometimes came after settle)
+    await page.locator('main h1').first().waitFor({ timeout: 5000 }).catch(() => {});
     await settle(page);
     const found = await page.evaluate(
       ({ names, screens }) => {

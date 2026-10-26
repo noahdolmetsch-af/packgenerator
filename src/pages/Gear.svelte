@@ -738,6 +738,8 @@
             <a class="gq" href="#/gear?tab=wishlist" data-gear-quick-item="wish">{t('Wishlist')}</a>
             <a class="gq" href="#/gear?unused=1" data-gear-quick-item="unused">{t('Long not used')}</a>
             <a class="gq" href="#/favorites" data-gear-quick-item="fav">{t('Favourites ★').replace(' ★', '')}</a>
+            <a class="gq" href="#/gear/supplies" data-gear-quick-item="supplies">{t('Supplies')}</a>
+            <a class="gq" href="#/gear/lend" data-gear-quick-item="lend">{t('Lending list')}</a>
             <button type="button" class="gq" onclick={startWeigh} data-gear-quick-item="weigh">{t('Weigh items')}</button>
             <a class="gq" href="#/gear/import" data-gear-quick-item="import">{t('Import a gear list')}</a>
           </nav>
