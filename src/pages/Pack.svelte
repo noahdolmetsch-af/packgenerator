@@ -494,6 +494,14 @@
       choosing = true;
     }
   });
+  // Touren b (Idee 52): #/pack?new opens «New trip» with «What do you have in mind?» on top (a link from the catalogue)
+  $effect(() => {
+    if (!$tplQ || !$bikesQ || !$itemsQ || !$tripsQ) return;
+    if (/[?&]new\b/.test(hash)) {
+      history.replaceState(null, '', '#/pack');
+      dialog = { trip: null, startFrom: 'standard' };
+    }
+  });
   // v0.22.1 (Noah 4b): the Excel preparation only for events.
   const setEvent = (on) => change((t) => ({ ...t, event: on }));
   // Answer 9a: every change is saved at once; "Undo" puts the trip back one step.
@@ -1062,7 +1070,7 @@
       </div>
     </div>
   {/if}{#if domain === 'ski'}<SkiSeasonStart />{/if}{/snippet}
-  {#snippet blocksCard()}<ForgotCard {trip} trips={$tripsQ ?? []} debriefs={$debriefsQ ?? []} {items} onadd={helperAdd} /><RulesOver /><ItemStories {trip} {itemsById} /><UsedHint {trip} trips={$tripsQ ?? []} {itemsById} />{#if packRows}<PackBlocks rows={packRows} rules={rulesOf($setsQ?.value)} {itemsById} ontoggle={packToggle} onslim={() => (slimOpen = true)} {slimN} note={packUndo?.tripId === trip.id ? packNote : ''} onundo={canUndo ? packUndoNow : null} />{/if}{/snippet}
+  {#snippet blocksCard()}<ForgotCard {trip} trips={$tripsQ ?? []} debriefs={$debriefsQ ?? []} {items} onadd={helperAdd} /><RulesOver /><ItemStories {trip} {itemsById} hint /><UsedHint {trip} trips={$tripsQ ?? []} {itemsById} />{#if packRows}<PackBlocks rows={packRows} rules={rulesOf($setsQ?.value)} {itemsById} ontoggle={packToggle} onslim={() => (slimOpen = true)} {slimN} note={packUndo?.tripId === trip.id ? packNote : ''} onundo={canUndo ? packUndoNow : null} />{/if}{/snippet}
   <!-- «Mehr Inhalt» (Noah 15.10.2026, 1a–5a): the tip line sits under the trip band (CalmPack, PackDay); at the end the fold and the example -->
   <!-- Paket H «4a und b»: read the packing list aloud (the window loads only when it opens) -->
   {#if reading}
