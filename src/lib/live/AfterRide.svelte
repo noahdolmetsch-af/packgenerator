@@ -20,6 +20,8 @@
   import { plannedFor } from '../gpx.js';
   import { kmIntoDebrief } from '../ridelist.js';
   import SensorCurve from './SensorCurve.svelte';
+  import { WHYS, whyTotals } from '../tourenc/pausewhy.js'; // Touren c 60
+  import FeelScale from '../tourenc/FeelScale.svelte'; // Touren c 70
   import { rideSummary, rideRowOf, bikeKmPlan, bikeEntryOf, durText } from './after.js';
 
   let { ride, trip = null } = $props();
@@ -32,6 +34,9 @@
 
   const cur = $derived($rowQ ?? ride);
   const sum = $derived(rideSummary(cur, trip));
+  // Touren c 60: the pauses by reason (rest, repair, waiting), only the reasons you gave
+  const whyT = $derived(whyTotals(cur?.breaks ?? [], cur?.whys ?? {}));
+  const whyLine = $derived(WHYS.filter((w) => whyT[w.key] >= 60).map((w) => `${t(w.name)} ${durText(whyT[w.key])}`).join(' · '));
   const bikes = $derived(sortBikes($bikesQ ?? []));
   let picked = $state('');
   const bikeId = $derived(trip?.bikeId ?? (picked || bikes[0]?.id || ''));
@@ -40,6 +45,11 @@
   const name = $derived(trip?.title || t('Live ride'));
   let busy = $state(false);
   let err = $state('');
+  // Touren c 70 «Gefühl vor den Zahlen»: first how hard it felt, then the numbers (or «Show the numbers» without)
+  let seen = $state(false);
+  const showNums = $derived(seen || cur?.feel != null || cur?.feelSkip === true);
+  const pickFeel = (n) => db.tracks.update(cur.id, { feel: n, feelSkip: false });
+  const skipFeel = () => ((seen = true), db.tracks.update(cur.id, { feelSkip: true }));
 
   async function toDebrief() {
     if (busy) return;
@@ -48,7 +58,7 @@
     try {
       const pace = paceOf((await db.settings.get(PACE_KEY))?.value);
       const draft = rideRowOf($state.snapshot(cur), { trip, name, basis: { kmh: pace.kmh, climbMh: pace.climbMh } });
-      const row = { ...draft, plan: trip ? plannedFor(trip, draft.date, pace) : null };
+      const row = { ...draft, plan: trip ? plannedFor(trip, draft.date, pace) : null, ...(cur.feel ? { feel: cur.feel } : {}) };
       const old = await db.rides.get(row.id);
       await db.rides.put(old ? { ...row, answers: old.answers ?? {}, createdAt: old.createdAt ?? row.createdAt } : row);
       // the km of the ride into the trip's look back (as an uploaded ride does), unless it is finished
@@ -56,6 +66,8 @@
         const stored = await db.debriefs.get(trip.id);
         if (stored?.status !== 'done') {
           const d = kmIntoDebrief(stored, trip, [row]);
+          // Touren c 70: the feeling goes with it, unless the look back has its own already
+          if (d && cur.feel && d.feel == null) d.feel = cur.feel;
           if (d) await db.debriefs.put(d);
         }
       }
@@ -124,12 +136,19 @@
 
 <section class="card after" aria-labelledby="after-h" data-after-ride>
   <h2 id="after-h">{t('Your ride')}</h2>
+  <div class="feel" data-after-feel>
+    <p class="feelq"><b>{t('How hard was it?')}</b> <span class="tp-small tp-muted">{t('First your feeling, then the numbers.')}</span></p>
+    <FeelScale value={cur.feel ?? null} onpick={pickFeel} />
+    {#if !showNums}<button type="button" class="btn btn-link sm" onclick={skipFeel} data-after-feel-skip>{t('Show the numbers without it')}</button>{/if}
+  </div>
+  {#if showNums}
   <dl class="nums">
     <div><dt>{t('Distance')}</dt><dd class="num" data-after-km>{num(sum.km)} km</dd></div>
     {#if sum.hm != null}<div><dt>{t('Climbing')}</dt><dd class="num" data-after-hm>{num(sum.hm)} m</dd></div>{/if}
     <div><dt>{t('Riding|live')}</dt><dd class="num" data-after-moving>{durText(sum.movingS)}</dd></div>
     <div><dt>{t('Stopped|live')}</dt><dd class="num" data-after-stopped>{durText(sum.stoppedS)}</dd></div>
     {#if sum.pausedS >= 60}<div><dt>{t('Paused|ride')}</dt><dd class="num" data-after-paused>{durText(sum.pausedS)}</dd></div>{/if}
+    {#if whyLine}<div><dt>{t('Pauses by reason')}</dt><dd class="num" data-after-whys>{whyLine}</dd></div>{/if}
     {#if sum.totalS}<div><dt>{t('Total time')}</dt><dd class="num" data-after-total>{durText(sum.totalS)}</dd></div>{/if}
     {#if sum.sensors.hr}<div><dt>{t('Ø heart rate')}</dt><dd class="num" data-after-hr>{num(sum.sensors.hr.avg)} bpm</dd></div>{/if}
     {#if sum.sensors.power}<div><dt>{t('Ø power')}</dt><dd class="num" data-after-power>{num(sum.sensors.power.avg)} W</dd></div>{/if}
@@ -139,6 +158,7 @@
   {#if cur.sensors?.power?.length > 1}<SensorCurve samples={cur.sensors.power} label={t('Power')} unit="W" avg={sum.sensors.power?.avg} max={sum.sensors.power?.max} />{/if}
   {#if sum.sensors.hr || sum.sensors.power}<p class="tp-small tp-muted">{t('Measured by your sensors during the ride, kept on this device.')}</p>{/if}
   <p class="tp-small tp-muted">{sum.stops.length ? tn(sum.stops.length, '{n} pause of 2 minutes or more.', '{n} pauses of 2 minutes or more.') : t('No pause of 2 minutes or more.')} {sum.hm == null ? t('Height metres come with a route that has a profile, or later from Strava.') : ''}</p>
+  {/if}
 
   <div class="row">
     <button type="button" class="btn hi" disabled={busy} onclick={toDebrief} data-after-debrief><ClipboardCheck size={18} aria-hidden="true" />{t('Debrief')}</button>
@@ -255,5 +275,11 @@
   }
   .warn {
     color: var(--bad);
+  }
+  .feel {
+    margin: 0 0 12px;
+  }
+  .feelq {
+    margin: 0 0 8px;
   }
 </style>

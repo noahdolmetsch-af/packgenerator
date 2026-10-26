@@ -65,8 +65,10 @@
   import LiveWebcam from '../lib/live/LiveWebcam.svelte';
   import { camsQuery, camsOnMap, camOfPoint } from '../lib/wetter/webcamsmap.js';
   import { db } from '../lib/db.js';
-  import { rec, startRecording, stopRecording, openRecording, pauseRecording, resumeRecording, addSensor, setGpsLow, lapRecording } from '../lib/spur/recorder.svelte.js';
+  import { rec, startRecording, stopRecording, openRecording, pauseRecording, resumeRecording, addSensor, setGpsLow, lapRecording, setPauseWhy, addPastPause } from '../lib/spur/recorder.svelte.js';
   import PauseBar from '../lib/live/PauseBar.svelte';
+  import ForgotPause from '../lib/tourenc/ForgotPause.svelte'; // Touren c 61
+  import { forgotStep, whyOf } from '../lib/tourenc/pausewhy.js'; // Touren c 60/61
   import TurnHint from '../lib/live/TurnHint.svelte';
   import { turnsOf, nextTurn, turnSay } from '../lib/live/turns.js';
   import { lapNow, lapsOf, ghostOf, ghostDelta, lastRideOf, deltaText } from '../lib/live/laps.js';
@@ -385,6 +387,14 @@
   let autoSt = {};
   let standSince = null;
   let standing = $state(false);
+  // Touren c 61: a long standing time without «Pause» → ask afterwards what it was
+  let forgotSt = {};
+  let forgotAsk = $state(null);
+  async function answerForgot(why) {
+    const a = forgotAsk;
+    forgotAsk = null;
+    if (a && why) await addPastPause(a.from, a.to, why);
+  }
   let gainSt = $state({ base: null, gain: 0 });
   let maxKmh = $state(0);
   let hrSt = {};
@@ -421,6 +431,12 @@
       if (r.act === 'pause') pauseNow(true);
       if (r.act === 'resume') goOn();
     }
+    // Touren c 61: only without the auto-pause (that one pauses by itself)
+    if (rec.on && !cfg.autoPause) {
+      const f = forgotStep(forgotSt, { kmh: kmhNow, now, paused: rec.paused });
+      forgotSt = f.st;
+      if (f.ask) forgotAsk = f.ask;
+    }
     // the hint: standing a minute without a pause
     if (!rec.paused && !cfg.autoPause && Number.isFinite(kmhNow) && kmhNow < 2) {
       standSince ??= now;
@@ -451,6 +467,8 @@
       maxKmh = 0;
       autoSt = {};
       standing = false;
+      forgotSt = {};
+      forgotAsk = null;
     });
   });
 
@@ -992,7 +1010,8 @@
       </div>
 
       {#if !rec.paused}<button type="button" class="lvf-lap" style:bottom="{sheetPx + 12}px" onclick={newLap} aria-label={t('New lap')} data-live-lap><Flag size={20} aria-hidden="true" /><small>{lap?.n ?? 1}</small></button>{/if}
-      <PauseBar paused={rec.paused} auto={rec.auto} {standing} movingS={movingLive} pausedS={pausedLive} limit={autoKmh} bottom={sheetPx + 12} onpause={() => pauseNow(false)} onresume={goOn} onstop={stop} />
+      <PauseBar paused={rec.paused} auto={rec.auto} {standing} movingS={movingLive} pausedS={pausedLive} limit={autoKmh} bottom={sheetPx + 12} why={whyOf(rec.whys, rec.breaks.at(-1)?.[0])} eta={arr ? when(arr.eta) : ''} onwhy={(w) => setPauseWhy(w)} onpause={() => pauseNow(false)} onresume={goOn} onstop={stop} />
+      {#if forgotAsk && !rec.paused}<ForgotPause ask={forgotAsk} bottom={sheetPx + 12} onanswer={answerForgot} />{/if}
       <button type="button" class="lvf-ic lvf-photo" class:lvf-hidden={snap === 'full' || dpIndex > 0} onclick={() => (place = true)} style:bottom="{sheetPx + 70}px" aria-label={t('Photo or note with the place')} data-live-photo><Camera size={22} aria-hidden="true" /></button>
 
       <!-- Versteckte Funktionen (Noah 22.10.2026): the emergency window one tap away, not only in «⋯» -->
