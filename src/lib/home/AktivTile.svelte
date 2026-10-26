@@ -14,7 +14,7 @@
   import { actName } from '../flow/ui.svelte.js';
   import { FIXED_KEY, fixedList } from '../flowweek.js';
   import { withStravaRides } from '../kmbook.js';
-  import { lastActivity, nextFixed, feltSleep, fitbitSleep, addDay } from './heuteneu.js';
+  import { lastActivity, nextFixed, feltSleep, lastFitbitSleep, addDay } from './heuteneu.js';
   import { t, num, locale } from '../i18n.svelte.js';
 
   let { today, rides = [], size = 'long', compact = false, hm = '00:00' } = $props();
@@ -25,8 +25,12 @@
   const last = $derived(lastActivity(withStravaRides(rides, $kmQ ?? [])));
   const sleep = $derived(feltSleep($abq?.answers ?? [], today));
   // Fitbit überall (Noah 20.10.2026 22:21): the measured sleep first, the felt one as well when given
-  const hq = $derived(liveQuery(() => (db.healthDays ? db.healthDays.where('date').equals(today).toArray() : [])));
-  const sleepH = $derived(fitbitSleep($hq ?? [], today));
+  // Noah 26.10.2026 «1a»: without last night yet, the last measured night within 7 days with its day
+  const hq = $derived(liveQuery(() => (db.healthDays ? db.healthDays.where('date').aboveOrEqual(addDay(today, -6)).toArray() : [])));
+  const fit = $derived(lastFitbitSleep($hq ?? [], today));
+  const sleepH = $derived(fit?.date === today ? fit.h : null);
+  const oldSleep = $derived(fit && fit.date !== today && sleep == null ? fit : null);
+  const wd = (d) => new Date(`${d}T12:00:00Z`).toLocaleDateString(locale(), { weekday: 'short', timeZone: 'UTC' });
   const next = $derived(nextFixed($fixQ ?? [], today, hm));
   const nextAct = $derived(next ? (($fq?.acts ?? []).find((a) => a.id === next.actId) ?? null) : null);
   const dayWord = (d) => (d === today ? t('today') : d === addDay(today, -1) ? t('yesterday') : d === addDay(today, 1) ? t('tomorrow') : new Date(`${d}T12:00:00Z`).toLocaleDateString(locale(), { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC' }));
@@ -50,8 +54,9 @@
   </div>
   <ul class="vals">
     <li data-val="sleep">
-      <span class="k"><Moon size={14} aria-hidden="true" />{t('Sleep last night')}</span>
+      <span class="k"><Moon size={14} aria-hidden="true" />{oldSleep ? t('Last measured sleep') : t('Sleep last night')}</span>
       {#if sleepH != null}<span class="big num">{num(sleepH)} <small>h</small></span><span class="su">{t('measured with Fitbit|body')}{#if sleep != null}{' '}· {t('felt {n} of 10', { n: sleep })}{/if}</span>
+      {:else if oldSleep}<span class="big num">{num(oldSleep.h)} <small>h</small></span><span class="su">{t('measured with Fitbit|body')} · {t('night to {day}', { day: wd(oldSleep.date) })}</span>
       {:else if sleep != null}<span class="big num">{t('felt {n} of 10', { n: sleep })}</span><span class="su">{t('from «Wi gaht\'s?»')}</span>
       {:else}<span class="big none">–</span><span class="su">{t('comes with Fitbit or «Wi gaht\'s?»')}</span>{/if}
     </li>

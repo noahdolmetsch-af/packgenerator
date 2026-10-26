@@ -575,24 +575,41 @@ export function widgetValues({ km = [], health = [], forecast = null, today } = 
   const sum = (list) => Math.round(list.reduce((s, e) => s + Number(e.km), 0) * 10) / 10;
   const byDay = Object.fromEntries(health.filter((h) => h?.date).map((h) => [h.date, h]));
   const last = Object.keys(byDay).filter((d) => d <= today).sort().at(-1) ?? null;
-  const h = last ? byDay[last] : null;
-  const before = last ? lastDays(last, 31).slice(0, -1) : [];
-  const norm = (pick) => {
-    const xs = before.map((d) => (byDay[d] ? pick(byDay[d]) : null)).filter((v) => Number.isFinite(v));
+  const sleepOf = (x) => (Number(x?.sleep?.asleepMin) > 0 ? x.sleep.asleepMin / 60 : null);
+  const hrvOf = (x) => (Number.isFinite(x?.hrvMs) ? x.hrvMs : null);
+  const restOf = (x) => (Number.isFinite(x?.restingHr) ? x.restingHr : null);
+  // Noah 26.10.2026 «1a»: a value today does not have yet (Fitbit often sends the night later) shows its
+  // last day within 7 days, with that day, like the Körperwerte tile (home/vitals.js)
+  const latest = (pick) => {
+    for (const d of lastDays(today, 7).reverse()) if (byDay[d] && pick(byDay[d]) != null) return d;
+    return null;
+  };
+  // your normal: the 30 days before the day the value is from
+  const norm = (pick, day) => {
+    if (!day) return null;
+    const xs = lastDays(day, 31)
+      .slice(0, -1)
+      .map((d) => (byDay[d] ? pick(byDay[d]) : null))
+      .filter((v) => Number.isFinite(v));
     return xs.length >= 7 ? r1(mean(xs)) : null;
   };
-  const sleepOf = (x) => (Number(x?.sleep?.asleepMin) > 0 ? x.sleep.asleepMin / 60 : null);
+  const sleepDay = latest(sleepOf);
+  const hrvDay = latest(hrvOf);
+  const restingDay = latest(restOf);
   const w = forecast?.days?.find((d) => d.date === today) ?? null;
   return {
     kmToday: sum(rides.filter((e) => e.date === today)),
     kmWeek: sum(rides.filter((e) => week.includes(e.date))),
     weather: w ? { min: Math.round(w.min), max: Math.round(w.max), rain: w.rain ?? null } : null,
-    sleepH: r1(sleepOf(h)),
-    sleepNormal: norm(sleepOf),
-    hrv: Number.isFinite(h?.hrvMs) ? Math.round(h.hrvMs) : null,
-    hrvNormal: norm((x) => x.hrvMs),
-    restingHr: Number.isFinite(h?.restingHr) ? Math.round(h.restingHr) : null,
-    restingNormal: norm((x) => x.restingHr),
+    sleepH: sleepDay ? r1(sleepOf(byDay[sleepDay])) : null,
+    sleepNormal: norm(sleepOf, sleepDay),
+    sleepDay,
+    hrv: hrvDay ? Math.round(byDay[hrvDay].hrvMs) : null,
+    hrvNormal: norm(hrvOf, hrvDay),
+    hrvDay,
+    restingHr: restingDay ? Math.round(byDay[restingDay].restingHr) : null,
+    restingNormal: norm(restOf, restingDay),
+    restingDay,
     day: last,
   };
 }
