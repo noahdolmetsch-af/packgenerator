@@ -161,7 +161,10 @@
       <button type="button" class="btn" onclick={() => (picking = true)} data-gear-change><Backpack size={16} aria-hidden="true" />{gearList.length || foodList.length ? t('Change gear') : t('Enter the gear')}</button>
     </div>
     {#if before}
-      <p class="tp-muted tp-small" data-gear-before>{t('After the ride you can mark here what you used.')}</p>
+      <div class="before" data-gear-before>
+        <Check size={20} aria-hidden="true" />
+        <div><p class="bt">{t('After the ride: tick off')}</p><p class="bs">{t('After the ride you can mark here what you used.')}</p></div>
+      </div>
       <a class="btn btn-link packl" href={tabHref('pack', trip)} onclick={() => openTrip(trip.id)} data-gear-packtab>{t('The whole list is under Pack')}<ChevronRight size={16} aria-hidden="true" /></a>
     {:else if folded}
       {#if exceptions.length}<ul class="glist2" data-gear-ex>{#each exceptions as it (it.id)}{@render thing(it)}{/each}</ul>{/if}
@@ -412,5 +415,28 @@
     width: 36px;
     justify-content: center;
     padding: 0;
+  }
+  /* UI-Test T1 (Noah «schöner machen»): before the ride a calm tinted box, like «Die Auswertung kommt nach der Tour» */
+  .before {
+    display: flex;
+    gap: 12px;
+    margin: 4px 0 6px;
+    padding: 14px 16px;
+    border-radius: var(--radius-card);
+    background: var(--paper-2);
+  }
+  .before > :global(svg) {
+    flex: none;
+    margin-top: 2px;
+    color: var(--ink-3);
+  }
+  .bt {
+    margin: 0;
+    font-weight: 600;
+  }
+  .bs {
+    margin: 2px 0 0;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
   }
 </style>

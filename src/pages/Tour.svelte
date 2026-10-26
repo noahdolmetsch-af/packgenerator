@@ -559,7 +559,14 @@
         <div class="sh"><h2 id="th-review">{t('Look back|tour')}</h2></div>
         <div class="card pad">
           {#if d.kind === 't' && !d.trip?.fromActs?.length}
-            <p><TripState state={d.state} /> {d.state === 'rated' ? t('The Rückblick is written.') : d.state === 'plan' ? t('The Rückblick opens after the ride.') : t('The Rückblick is still open.')}</p>
+            {#if d.state === 'plan'}
+              <div class="connect" data-review-before>
+                <Star size={20} aria-hidden="true" />
+                <div><p class="ct">{t('The Rückblick opens after the ride.')}</p><p class="cs">{t('Then the app asks what you did not use, what was missing and how it went.')}</p></div>
+              </div>
+            {:else}
+            <p><TripState state={d.state} /> {d.state === 'rated' ? t('The Rückblick is written.') : t('The Rückblick is still open.')}</p>
+            {/if}
             {#if d.debrief?.note}<p class="quote">{d.debrief.note}</p>{/if}
             <div class="revacts">
               {#if d.state !== 'plan'}<a class="btn hi" href="#/debrief/{encodeURIComponent(d.id)}" data-open-review>{d.state === 'rated' ? t('Open the Rückblick') : t('Write the Rückblick')}<ChevronRight size={16} aria-hidden="true" /></a>{/if}
