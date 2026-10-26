@@ -153,3 +153,24 @@ describe('57 eat reminder at the planned stops', () => {
     expect(tripEat({})).toEqual({ on: true, every: 45 });
   });
 });
+
+import { placeOf, pointAtKm, notesHere, placeNotes } from '../src/lib/tourenb/placenote.js';
+describe('55 a note at a later point of the route', () => {
+  const route = { km: 20, line: Array.from({ length: 21 }, (_, i) => [47 + i * 0.009, 8]) };
+  it('finds the point of the route at a km', () => {
+    const p = pointAtKm(route, 10);
+    expect(p.km).toBe(10);
+    expect(p.lat).toBeCloseTo(47.09, 3);
+    expect(pointAtKm({}, 3)).toBe(null);
+    expect(pointAtKm(route, 99).km).toBe(20);
+  });
+  it('shows the note within 500 m on that tour, not when done or later', () => {
+    const at2 = { tripId: 't', ...pointAtKm(route, 10) };
+    const notes = [{ id: 'a', text: 'Water', at2 }, { id: 'b', text: 'Done', at2: { ...at2, done: true } }, { id: 'c', text: 'Later', at2: { ...at2, later: 2000 } }, { id: 'd', text: 'Other', at2: { ...at2, tripId: 'x' } }, { id: 'e', text: 'Plain' }];
+    expect(notesHere(notes, 't', { lat: at2.lat - 0.003, lon: 8 }, 1000).map((x) => x.note.id)).toEqual(['a']);
+    expect(notesHere(notes, 't', { lat: at2.lat - 0.003, lon: 8 }, 3000).map((x) => x.note.id)).toEqual(['a', 'c']);
+    expect(notesHere(notes, 't', { lat: at2.lat - 0.01, lon: 8 }, 1000)).toEqual([]);
+    expect(placeNotes(notes, 't').map((x) => x.note.id)).toEqual(['a', 'c']);
+    expect(placeOf({ at2: { tripId: 't' } })).toBe(null);
+  });
+});

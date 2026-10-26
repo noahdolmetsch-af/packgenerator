@@ -64,6 +64,7 @@
   import LiveWetter from '../lib/live/LiveWetter.svelte';
   import LiveEnergie from '../lib/live/LiveEnergie.svelte';
   import LiveEssen from '../lib/live/LiveEssen.svelte';
+  import LivePlaceNote from '../lib/tourenb/LivePlaceNote.svelte'; // Idee 55 (Touren b): a note at a point of the route
   import LiveWebcam from '../lib/live/LiveWebcam.svelte';
   import { camsQuery, camsOnMap, camOfPoint } from '../lib/wetter/webcamsmap.js';
   import { db } from '../lib/db.js';
@@ -977,6 +978,7 @@
         {#if msg}<p class="lvf-alert lvf-bad" role="alert">{msg}</p>{/if}
         <LiveWetter {me} />
         <LiveEssen {me} />
+        <LivePlaceNote {me} tripId={trip?.id ?? null} />
         {#if detour}
           <div class="lvf-alert lv-detour" role="status" data-live-detour>
             <Route size={18} aria-hidden="true" />
