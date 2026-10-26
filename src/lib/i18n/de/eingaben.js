@@ -7,6 +7,7 @@ export default {
   'File|input': 'Datei',
   'Place|input': 'Ort',
   'Tag|input': 'Schlagwort',
+  'Record|voice': 'Aufnehmen',
   'Writing prompts': 'Schreibanreize',
   'AI helper': 'KI-Helfer',
   '{n} voice note': '{n} Sprachnotiz',

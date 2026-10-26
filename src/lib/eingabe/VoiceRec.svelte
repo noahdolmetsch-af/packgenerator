@@ -62,7 +62,7 @@
   {:else if rec}
     <button type="button" class="btn sm vr-stop" onclick={stop} data-in-voice-stop><span class="vr-dot" aria-hidden="true"></span><Square size={16} aria-hidden="true" />{t('Stop')} · <span class="num">{secs} / {VOICE_MAX_S} s</span></button>
   {:else}
-    <button type="button" class="btn sm hi" onclick={start} data-in-voice-start><Mic size={16} aria-hidden="true" />{t('Record')}</button>
+    <button type="button" class="btn sm hi" onclick={start} data-in-voice-start><Mic size={16} aria-hidden="true" />{t('Record|voice')}</button>
     <button type="button" class="btn sm" onclick={oncancel}>{t('Cancel')}</button>
   {/if}
   {#if problem}<p class="in-note" role="alert">{problem}</p>{/if}

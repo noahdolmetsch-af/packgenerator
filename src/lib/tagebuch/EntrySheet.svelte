@@ -288,9 +288,9 @@
       </div>
 
       <div class="tbe-sec">
-        <span class="tbe-h3"><MapPin size={16} aria-hidden="true" />{t('Place')}</span>
+        <span class="tbe-h3"><MapPin size={16} aria-hidden="true" />{t('Place|input')}</span>
         <div class="tbe-inline">
-          <input class="inp" maxlength="80" value={e.place?.name ?? ''} oninput={(ev) => (e.place = { ...(e.place ?? {}), name: ev.currentTarget.value })} placeholder={t('Where were you?')} aria-label={t('Place')} data-tb-place />
+          <input class="inp" maxlength="80" value={e.place?.name ?? ''} oninput={(ev) => (e.place = { ...(e.place ?? {}), name: ev.currentTarget.value })} placeholder={t('Where were you?')} aria-label={t('Place|input')} data-tb-place />
           <button type="button" class="btn sm" onclick={here} data-tb-here><MapPin size={16} aria-hidden="true" />{t('Where I am')}</button>
         </div>
         {#if e.place?.lat}<p class="tbe-note">{t('Position saved')} ({e.place.lat}, {e.place.lon}) <button type="button" class="tbe-link" onclick={() => (e.place = e.place?.name ? { name: e.place.name } : null)}>{t('Remove the position')}</button></p>{/if}
