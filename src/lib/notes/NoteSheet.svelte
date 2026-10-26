@@ -13,7 +13,7 @@
   import ChipChoice from '../ui/ChipChoice.svelte';
   import { checkAll } from '../ui/formchecks.js';
   import { db } from '../db.js';
-  import { TOPICS, MAX_PINNED, addLink, noteTitle, noteTopic, topicText, linkedNotes, linkNote, unlinkNote, maybeRelated, pickNotes } from '../notebook.js';
+  import { TOPICS, MAX_PINNED, addLink, noteTitle, noteTopic, topicText, linkNote, unlinkNote, maybeRelated, pickNotes } from '../notebook.js';
   import { fileNote } from '../inbox.js';
   import { newTrip } from '../trips.js';
   import { nextNumber } from '../notes.js';
@@ -32,6 +32,9 @@
   import NoteFiles from './NoteFiles.svelte';
   import NoteRemind from './NoteRemind.svelte';
   import NoteVersions from './NoteVersions.svelte';
+  // Einzelideen Planen (996 Ideen 12, 13): links with a meaning, a reminder after an event
+  import NoteAfter from './NoteAfter.svelte';
+  import { relLinks, setRel, RELS, REL, AFTER } from './context.js';
   import { trashNote, restoreNote, keepVersion, TRASH_DAYS } from './trash.js';
   import { noteRemind } from '../push/schedule.js';
   import { editMode, setEditMode } from './richtext.js';
@@ -156,7 +159,8 @@
   // Paket N #10: links between notes (kept once, shown on both notes), a picker with a search, and up
   // to 3 notes that may belong here (shared #tag or the same bike).
   const others = $derived(notes.map((n) => (n.id === draft.id ? { ...n, ...draft } : n)));
-  const linked = $derived(linkedNotes(draft, others));
+  const linked = $derived(relLinks(draft, others));
+  const afterLabel = (a) => (a && !a.done ? t(AFTER.find((x) => x.key === a.kind)?.label ?? 'Remind me') : '');
   const related = $derived(maybeRelated(draft, others));
   let picking = $state(false);
   let pickQ = $state('');
@@ -363,7 +367,13 @@
         <ul class="nl">
           {#each linked as l (l.id)}
             <li>
-              <button type="button" class="lchip" onclick={() => openOther(l.id)}><NotebookPen size={14} aria-hidden="true" />{l.title || t('Note')}{#if !l.own}<small> · {t('links here')}</small>{/if}</button>
+              <button type="button" class="lchip" onclick={() => openOther(l.id)}><NotebookPen size={14} aria-hidden="true" />{#if l.own && l.rel}<small>{t(REL[l.rel].own)}: </small>{/if}{l.title || t('Note')}{#if !l.own}<small> · {l.rel ? t(REL[l.rel].back) : t('links here')}</small>{/if}</button>
+              {#if l.own}
+                <select class="inp rel" value={l.rel ?? ''} aria-label={t('Meaning of the link to {name}', { name: l.title || t('Note') })} onchange={(e) => (draft = setRel($state.snapshot(draft), l.id, e.currentTarget.value || null))} data-link-rel>
+                  <option value="">{t('No meaning')}</option>
+                  {#each RELS as r (r.key)}<option value={r.key}>{t(r.own)}</option>{/each}
+                </select>
+              {/if}
               <button type="button" class="rm" aria-label={t('Remove the link to {name}', { name: l.title })} onclick={() => unlink(l)}><Unlink size={16} aria-hidden="true" /></button>
             </li>
           {/each}
@@ -402,10 +412,10 @@
       <button type="button" class="btn btn-link" onclick={() => (readingAll = true)} data-note-read><BookOpen size={16} aria-hidden="true" />{t('Read as an article')}</button>
       <button type="button" class="btn btn-link" onclick={share} data-note-share><Share2 size={16} aria-hidden="true" />{t('Share|note')}</button>
       <button type="button" class="btn btn-link" onclick={asTemplate} data-note-astpl><FilePlus2 size={16} aria-hidden="true" />{t('Save as a template')}</button>
-      <button type="button" class="btn btn-link" aria-expanded={remindOpen} onclick={() => (remindOpen = !remindOpen)} data-note-remind-open><Bell size={16} aria-hidden="true" />{draft.remind?.at && !draft.remind.done ? t('Reminder {when}', { when: remindText(draft) }) : t('Remind me')}</button>
+      <button type="button" class="btn btn-link" aria-expanded={remindOpen} onclick={() => (remindOpen = !remindOpen)} data-note-remind-open><Bell size={16} aria-hidden="true" />{draft.remind?.at && !draft.remind.done ? t('Reminder {when}', { when: remindText(draft) }) : afterLabel(draft.after) || t('Remind me')}</button>
       <button type="button" class="btn btn-link" aria-expanded={versionsOpen} onclick={() => (versionsOpen = !versionsOpen)} data-note-versions-open><History size={16} aria-hidden="true" />{t('Earlier versions')}</button>
     </div>
-    {#if remindOpen}<NoteRemind bind:value={draft.remind} />{/if}
+    {#if remindOpen}<NoteRemind bind:value={draft.remind} /><NoteAfter bind:value={draft.after} />{/if}
     {#if versionsOpen}<NoteVersions note={draft} onput={(next) => (draft = next)} />{/if}
     <div class="vd-foot">
       <button type="button" class="btn" onclick={remove}>{t('Delete')}</button>
@@ -561,6 +571,16 @@
   .nlinks .inp {
     width: 100%;
     box-sizing: border-box;
+  }
+  .nlinks .inp.rel {
+    width: auto;
+    max-width: 12em;
+    min-height: 36px;
+    padding: 4px 8px;
+    font-size: var(--fs-small);
+  }
+  .nl li {
+    flex-wrap: wrap;
   }
   .spk {
     display: flex;

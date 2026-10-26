@@ -871,3 +871,5 @@ Die frühere gespeicherte Datei `2026-10-07-packgenerator-ablaufplan.md` wird al
 **25.10.2026, v0.195.1 «Einkaufsliste am Stück»:** Korrektur: am Computer behält die Zeile einer Einkaufsliste 420 px, die Knöpfe rutschen sonst unter den Namen (der Gesamttest auf main war rot, darum ging 0.191–0.195 erst damit online).
 
 **25.10.2026, v0.198.0 «Kette vorausschauend»:** Idee «Kette messen mit Verlauf und Prognose» (Das Velo im Griff) gebaut: nächste Schritte der Kette auf Verschleiss, Prognose aus den eigenen Messungen, Tour-Check, Handy-Erinnerung «Kette messen».
+
+**26.10.2026, v0.201.0 «Notizen, die ihren Zusammenhang kennen» (vorläufig):** Einzelideen Planen 12 «Notiz-Verbindungen mit Bedeutung», 13 «Erinnerung nach einem Ereignis», 14 «Wiederherstellen mit Anhängen» gebaut. Offen als Mockup: 10 Pflanzenpass, 11 Doppelten Eingang erkennen, 15 Erinnerungskarte, 16 Mail als Vorgang.

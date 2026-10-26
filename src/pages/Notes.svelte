@@ -41,17 +41,24 @@
   import { TRASH, TRASH_DAYS, purgeTrash, trashNotes, untrash } from '../lib/notes/trash.js';
   import { noteRemind } from '../lib/push/schedule.js';
   import { Bell } from '@lucide/svelte';
+  // Einzelideen Planen 13: notes that come back after a trip or a workshop visit show with the due reminders
+  import { afterDue, AFTER } from '../lib/notes/context.js';
+  const tripsQ = liveQuery(() => db.trips.toArray());
+  const visitsQ = liveQuery(() => db.visits.toArray());
 
   const notesQ = liveQuery(() => db.notes.toArray());
   // Paket NE 1151: the trash (30 days); what waited longer goes when Notes opens
   const trashQ = liveQuery(() => db.docs.where('kind').equals(TRASH).count());
-  let trashOpen = $state(false);
+  // Einzelideen Planen 14: #/notes?trash=1 opens the trash (a link from the handbook)
+  let trashOpen = $state(typeof location !== 'undefined' && /[?&]trash=1/.test(location.hash));
   // Paket NE 1150: reminders that are due show on top until «Done»
   let nowMs = $state(Date.now());
   onMount(() => {
     purgeTrash(db).catch(() => {});
     const timer = setInterval(() => (nowMs = Date.now()), 60_000);
-    return () => clearInterval(timer);
+    const onHash = () => /[?&]trash=1/.test(location.hash) && (trashOpen = true);
+    addEventListener('hashchange', onHash);
+    return () => (clearInterval(timer), removeEventListener('hashchange', onHash));
   });
   const bikesQ = liveQuery(() => db.bikes.toArray());
   const notes = $derived($notesQ ?? []);
@@ -161,6 +168,9 @@
       .sort((a, b) => String(a.remind.at).localeCompare(String(b.remind.at))),
   );
   const remindDone = (n) => db.notes.update(n.id, { remind: { ...n.remind, done: true } });
+  const dueAfter = $derived(afterDue(notes, { trips: $tripsQ ?? [], visits: $visitsQ ?? [], today: localDay() }));
+  const afterDone = (n) => db.notes.update(n.id, { after: { ...n.after, done: true } });
+  const afterShort = (k) => t(AFTER.find((a) => a.key === k)?.short ?? '');
   const rest = $derived(filter === 'all' && !query ? list.filter((n) => !n.pinned) : list);
 
   // Capture.
@@ -306,14 +316,20 @@
       {#if tableOn && counts.all}
         <ListTable rows={list} cols={noteCols} nameOf={(n) => noteTitle(n) || t('Note')} onsave={(pairs) => db.notes.bulkPut(pairs.map((p) => ({ ...p.after, updatedAt: new Date().toISOString() })))} ondelete={delNotes} onrestore={(rows) => untrash(db, rows)} onopen={(n) => (open = n.id)} label={t('Notes')} search={false} />
       {:else}
-      {#if due.length}
+      {#if due.length || dueAfter.length}
         <section class="ich-sec" aria-labelledby="due-h" data-notes-due>
-          <div class="ich-h"><div><h2 id="due-h"><Bell size={16} aria-hidden="true" /> {t('Reminders')} <small class="n num">{due.length}</small></h2><p class="ich-hs">{t('Due now. «Done» takes the reminder away; the note stays.')}</p></div></div>
+          <div class="ich-h"><div><h2 id="due-h"><Bell size={16} aria-hidden="true" /> {t('Reminders')} <small class="n num">{due.length + dueAfter.length}</small></h2><p class="ich-hs">{t('Due now. «Done» takes the reminder away; the note stays.')}</p></div></div>
           <ul class="card ich-list">
             {#each due as n (n.id)}
               <li class="ncard duerow" data-note-id={n.id}>
                 <button type="button" class="ich-row open" onclick={() => (open = n.id)}><span class="ich-ib"><Bell size={18} aria-hidden="true" /></span><span class="ich-m"><b>{noteTitle(n) || t('Note')}</b><small>{new Date(n.remind.at).toLocaleString(locale(), { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</small></span></button>
                 <button type="button" class="btn sm" onclick={() => remindDone(n)} data-remind-done>{t('Done')}</button>
+              </li>
+            {/each}
+            {#each dueAfter as x (x.note.id)}
+              <li class="ncard duerow" data-note-id={x.note.id} data-after-due>
+                <button type="button" class="ich-row open" onclick={() => (open = x.note.id)}><span class="ich-ib"><Bell size={18} aria-hidden="true" /></span><span class="ich-m"><b>{noteTitle(x.note) || t('Note')}</b><small>{afterShort(x.hit.kind)}{x.hit.title ? ` · ${x.hit.title}` : ''}</small></span></button>
+                <button type="button" class="btn sm" onclick={() => afterDone(x.note)} data-after-done>{t('Done')}</button>
               </li>
             {/each}
           </ul>

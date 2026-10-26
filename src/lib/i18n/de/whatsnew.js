@@ -4,6 +4,15 @@
  * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
+  // 0.201.0 Notizen im Zusammenhang
+  'Notes that know their context': 'Notizen, die ihren Zusammenhang kennen',
+  'Links say what they mean, and a note comes back when the moment is right.': 'Verbindungen sagen, was sie bedeuten, und eine Notiz kommt im richtigen Moment wieder.',
+  'Links between notes with a meaning: source, counter-argument, follow-up question': 'Verbindungen zwischen Notizen mit Bedeutung: Quelle, Gegenargument, Folgefrage',
+  'A note comes back after the next trip or workshop visit': 'Eine Notiz kommt nach der nächsten Tour oder dem nächsten Werkstattbesuch wieder',
+  'The trash shows what comes back with a note': 'Der Papierkorb zeigt, was mit einer Notiz zurückkommt',
+  'Open two notes, link them in one and choose «Quelle» beside the link: the other note says «ist Quelle für».': 'Öffne zwei Notizen, verknüpfe sie in einer und wähle neben der Verbindung «Quelle»: Die andere Notiz sagt «ist Quelle für».',
+  'In a note tap «Erinnern» › «Nach dem nächsten Werkstattbesuch»; save a workshop visit: the note stands on top of Notizen.': 'Tippe in einer Notiz «Erinnern» › «Nach dem nächsten Werkstattbesuch»; speichere einen Werkstattbesuch: Die Notiz steht oben in Notizen.',
+  'Delete a note with a photo, open Notizen › Mehr › Papierkorb: the row says «Kommt zurück mit: 1 Foto».': 'Lösche eine Notiz mit Foto, öffne Notizen › Mehr › Papierkorb: Die Zeile sagt «Kommt zurück mit: 1 Foto».',
   // 0.198.0 Kette vorausschauend
   'The chain, one step ahead': 'Die Kette, einen Schritt voraus',
   'The app says what the chain needs next, before it is too late.': 'Die App sagt, was die Kette als Nächstes braucht, bevor es zu spät ist.',
