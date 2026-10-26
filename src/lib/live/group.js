@@ -16,12 +16,14 @@ import { seal, unseal, newKey, LinkError, cutEnds, SPUR_URL } from '../spur/link
 import { encodePolyline, decodePolyline, simplify, distKm } from '../spur/polyline.js';
 import { lineKm, snap } from '../race/race.js';
 import { gpxOf } from '../tools/geo.js';
+import { partPayload, readPart, planPayload, readPlan } from './event.js';
 
 export const GROUP_URL = SPUR_URL.replace('action=spur', 'action=group');
 /** Settings key of the live map's own group { gid, key, del, end, mid?, mdel?, name }. */
 export const GROUP_KEY = 'live-group';
-/** How long a group lives (hours; the server's most). */
+/** How long a group lives (hours); an event group up to 7 days (GROUP_HOURS_MAX, the server's most). */
 export const GROUP_HOURS = 24;
+export const GROUP_HOURS_MAX = 7 * 24;
 /** How often a place is sent and the members are read (the server's daily cap: one call each time). */
 export const GROUP_EVERY_MS = 2 * 60_000;
 /** A member older than this is drawn pale («last seen …»); older than GONE_MIN not at all. */
@@ -70,15 +72,20 @@ export function readRoute(obj) {
   return { title: String(obj.t ?? ''), route: line.length >= 2 ? { line, km: Number(obj.km) || 0 } : null };
 }
 
-/** One member's place: { v, n, lat, lon, at, w? } (w: 1 while «I am waiting here»). */
-export function placePayload(name, here, now = Date.now(), { wait = false } = {}) {
-  return { v: GROUP_V, n: cleanName(name), lat: r5(here.lat), lon: r5(here.lon), at: new Date(Number.isFinite(here.at) ? here.at : now).toISOString(), ...(wait ? { w: 1 } : {}) };
+/**
+ * One member's place: { v, n, lat?, lon?, at, w?, …event part } (w: 1 while «I am waiting here»).
+ * here null: no place (night pause, or only the event part: ready, help, things, costs; event.js).
+ */
+export function placePayload(name, here, now = Date.now(), { wait = false, part = null } = {}) {
+  const pos = here && Number.isFinite(here.lat) && Number.isFinite(here.lon) ? { lat: r5(here.lat), lon: r5(here.lon) } : {};
+  return { v: GROUP_V, n: cleanName(name), ...pos, at: new Date(Number.isFinite(here?.at) ? here.at : now).toISOString(), ...(wait && pos.lat != null ? { w: 1 } : {}), ...(part ? partPayload(part) : {}) };
 }
 
-/** An opened place → { name, pos, at } or null. */
+/** An opened place → { name, pos ([lat, lon] or null), at, wait, part } or null. */
 export function readPlace(obj) {
-  if (!obj || obj.v !== GROUP_V || !Number.isFinite(obj.lat) || !Number.isFinite(obj.lon) || !Number.isFinite(Date.parse(obj.at))) return null;
-  return { name: cleanName(obj.n), pos: [obj.lat, obj.lon], at: obj.at, wait: obj.w === 1 };
+  if (!obj || obj.v !== GROUP_V || !Number.isFinite(Date.parse(obj.at))) return null;
+  const pos = Number.isFinite(obj.lat) && Number.isFinite(obj.lon) ? [obj.lat, obj.lon] : null;
+  return { name: cleanName(obj.n), pos, at: obj.at, wait: !!pos && obj.w === 1, part: readPart(obj) };
 }
 
 /** «I am waiting here» ends by itself once you rode on this far from the place where you waited (km). */
@@ -112,7 +119,7 @@ export function memberRows(places = [], route = null, { now = Date.now(), me = n
   return places
     .filter((p) => p && minutesAgo(p.at, now) <= GONE_MIN)
     .map((p) => {
-      const s = pts.length > 1 ? snap(pts, { lat: p.pos[0], lon: p.pos[1] }) : null;
+      const s = pts.length > 1 && p.pos ? snap(pts, { lat: p.pos[0], lon: p.pos[1] }) : null;
       const ago = minutesAgo(p.at, now);
       return { ...p, ago, stale: ago > STALE_MIN, km: s && Number.isFinite(s.offKm) && s.offKm <= OFF_ROUTE_KM ? Math.round(s.km * 10) / 10 : null, me: !!me && p.m === me };
     })
@@ -146,32 +153,41 @@ async function openPlaces(members, key) {
   return out;
 }
 
-/** Make a group (with the route, when there is one). → { gid, key, del, end }. */
-export async function createGroup({ title = '', route = null, hours = GROUP_HOURS } = {}, opts = {}) {
+/** Make a group (with the route, when there is one, and the event plan). → { gid, key, del, end }. */
+export async function createGroup({ title = '', route = null, hours = GROUP_HOURS, plan = null } = {}, opts = {}) {
   const key = await newKey();
-  const body = { hours };
+  const body = { hours: Math.min(GROUP_HOURS_MAX, Math.max(1, Math.round(hours))) };
+  if (plan) body.p = await seal(planPayload(plan), key);
   if (route?.line?.length > 1) body.e = await seal(routePayload(title, route), key);
   else if (title) body.e = await seal(routePayload(title, null), key);
   const d = await call('POST', { ...opts, step: 'new', body });
   return { gid: d.gid, key, del: d.del, end: d.end };
 }
 
-/** Read a group → { end, title, route, places }. withRoute false: only the places. */
+const openPlan = async (p, key) => readPlan(p ? await unseal(p, key).catch(() => null) : null);
+
+/** Read a group → { end, title, route, plan, places }. withRoute false: only the plan and the places. */
 export async function readGroup(gid, key, { withRoute = true, ...opts } = {}) {
   const d = await call('GET', { ...opts, gid, query: withRoute ? {} : { route: '0' } });
   const r = withRoute && d.e ? readRoute(await unseal(d.e, key)) : { title: '', route: null };
-  return { end: d.end, title: r.title, route: r.route, places: await openPlaces(d.members, key) };
+  return { end: d.end, title: r.title, route: r.route, plan: await openPlan(d.p, key), places: await openPlaces(d.members, key) };
+}
+
+/** The maker changes the event plan (night pause, race checkpoints, start time). */
+export async function setPlan(group, plan, opts = {}) {
+  if (!group?.gid || !group?.del) return;
+  await call('POST', { ...opts, step: 'plan', body: { gid: group.gid, del: group.del, p: await seal(planPayload(plan), group.key) } });
 }
 
 /**
- * Send my place. me: { mid, mdel } from an earlier call or null. → { mid, mdel, places } (the
- * members after the update, one call for both).
+ * Send my place (here null: only my name and event part). me: { mid, mdel } from an earlier call or null.
+ * opts.part: my event part (event.js). → { mid, mdel, plan, places } (the members after the update, one call).
  */
 export async function sharePlace(group, me, name, here, opts = {}) {
-  const e = await seal(placePayload(name, here, opts.now, { wait: !!opts.wait }), group.key);
+  const e = await seal(placePayload(name, here, opts.now, { wait: !!opts.wait, part: opts.part ?? null }), group.key);
   const body = me?.mid && me?.mdel ? { gid: group.gid, mid: me.mid, del: me.mdel, e } : { gid: group.gid, e };
   const d = await call('POST', { ...opts, step: 'put', body });
-  return { mid: d.mid, mdel: d.del ?? me?.mdel, places: await openPlaces(d.members, group.key) };
+  return { mid: d.mid, mdel: d.del ?? me?.mdel, plan: await openPlan(d.p, group.key), places: await openPlaces(d.members, group.key) };
 }
 
 /** Stop sharing: my place is deleted from the group. */
@@ -210,10 +226,14 @@ export const initials = (name) =>
     .map((w) => w[0].toUpperCase())
     .join('') || '?';
 
-/** After the ride: end the kept group of the live map (all places deleted). → true when one ran. */
+/**
+ * After the ride: end the kept group of the live map (all places deleted). → true when one ran.
+ * An event group of several days (days > 1) goes on: it ends by itself or with «End the group».
+ */
 export async function endKeptGroup(db, opts = {}) {
   const g = (await db.settings.get(GROUP_KEY))?.value ?? null;
   if (!g) return false;
+  if (Number(g.days) > 1 && groupRunning(g)) return false;
   try {
     await endGroup(g, opts);
   } catch {

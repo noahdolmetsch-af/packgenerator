@@ -28,6 +28,7 @@ export const PAGE_GROUPS = [
       { id: 'ski', title: 'Ski tours', href: '#/ski', icon: 'route', words: 'ski tours skitouren skitour ski touring skitouren rucksack-check backpack check start-check lvs lawine avalanche bulletin umkehrzeit turnaround saison-pflege season care felle skins wachsen wax gipfel peak höhenmeter' },
       // Verpflegung (Noah 19.10.2026 «1a»): food and water per section between shops
       { id: 'fuel', title: 'Food and water|fuel', href: '#/trips/fuel', icon: 'route', words: 'food and water verpflegung verpflegungsplan verpflegungsstrategie essen trinken wasser kohlenhydrate carbs carbohydrates gel riegel bar flaschen bottles supermarkt laden shop nachschub resupply fueling fuelling ultra rennen' },
+      { id: 'compare', title: 'Trips side by side', href: '#/trips/compare', icon: 'route', words: 'touren nebeneinander vergleichen compare two trips zwei touren überschneiden overlap gleichzeitig material geteilt doppelt offene aufgaben' },
       // «Reise-Links» (Noah 19.10.2026 «1b 2b 3a 4a 5b»): stay, flights, getting there, abroad
       { id: 'travel', title: 'Travel links', href: '#/travel', icon: 'link', words: 'travel links reise-links reiselinks booking booking.com airbnb hostelworld hotel unterkunft übernachten flight flug flightradar flightradar24 google flights flugnummer auto car google maps rome2rio anreise ausland abroad eda reisehinweise wikivoyage warmshowers hütte hut sac tracking' },
     ],

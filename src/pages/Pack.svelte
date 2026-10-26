@@ -39,6 +39,9 @@
   let review = $state(false);
   import TripDialog from '../lib/pack/TripDialog.svelte';
   import PackBlocks from '../lib/pack/PackBlocks.svelte';
+  import RulesOver from '../lib/tourenb/RulesOver.svelte'; // Idee 50 (Touren b): a rule for one tour or season is over
+  import ItemStories from '../lib/tourenb/ItemStories.svelte';
+  import UsedHint from '../lib/tourenb/UsedHint.svelte'; // Idee 58: what was used last time // Idee 51 (Touren b): voice notes of the items while packing
   import ForgotCard from '../lib/pack/ForgotCard.svelte'; // P3 «Meist vergessen» (decision 12.10.2026 2a): top 3 at the top of Pack
   import RepairSlim from '../lib/pack/RepairSlim.svelte';
   import { blockRows } from '../lib/packblocks.js';
@@ -1059,7 +1062,7 @@
       </div>
     </div>
   {/if}{#if domain === 'ski'}<SkiSeasonStart />{/if}{/snippet}
-  {#snippet blocksCard()}<ForgotCard {trip} trips={$tripsQ ?? []} debriefs={$debriefsQ ?? []} {items} onadd={helperAdd} />{#if packRows}<PackBlocks rows={packRows} rules={rulesOf($setsQ?.value)} {itemsById} ontoggle={packToggle} onslim={() => (slimOpen = true)} {slimN} note={packUndo?.tripId === trip.id ? packNote : ''} onundo={canUndo ? packUndoNow : null} />{/if}{/snippet}
+  {#snippet blocksCard()}<ForgotCard {trip} trips={$tripsQ ?? []} debriefs={$debriefsQ ?? []} {items} onadd={helperAdd} /><RulesOver /><ItemStories {trip} {itemsById} /><UsedHint {trip} trips={$tripsQ ?? []} {itemsById} />{#if packRows}<PackBlocks rows={packRows} rules={rulesOf($setsQ?.value)} {itemsById} ontoggle={packToggle} onslim={() => (slimOpen = true)} {slimN} note={packUndo?.tripId === trip.id ? packNote : ''} onundo={canUndo ? packUndoNow : null} />{/if}{/snippet}
   <!-- «Mehr Inhalt» (Noah 15.10.2026, 1a–5a): the tip line sits under the trip band (CalmPack, PackDay); at the end the fold and the example -->
   <!-- Paket H «4a und b»: read the packing list aloud (the window loads only when it opens) -->
   {#if reading}
@@ -1074,7 +1077,7 @@
   <!-- H04: before setting off only once everything is packed; under way (set off or day 2+) always -->
   {#if todayTrip([trip], today) && trip.entries?.length && (packedAll(trip) || trip.goDays?.[0] || goDayOf(trip, today) > 0)}<LiveStart {trip} />{/if}
   {#if packTab}
-    <PackDay top={fixed ? null : blocksCard} onread={!fixed && trip.entries.some((e) => !e.packed) ? () => (reading = true) : null} {trip} {fixed} bike={bikeTrip} pressure={pressureText(targetPressure(bike), num)} wxGap={bikeTrip && !fixed ? wxGap : null} onwx={() => { useForecast(); review = true; }} steps={daySteps} {itemsById} {badges} {ready} ontoggle={toggleIn} onready={toggleReady} onpack={packIn} onreadyall={tickAllReady} onnext={finishPacking} onend={endTrip} main={mainStep(trip, today, 'pack', phaseOpts)} onundo={undoLast} {canUndo} lessons={learningsFor(trip, $learnQ ?? [], 2)} {reminders} oncharge={charge.length ? () => (chargeOpen = true) : null} {stats} charge={charge.length ? { ...charged, names: charge.map((r) => r.name) } : null} />
+    <PackDay top={fixed ? null : blocksCard} onread={!fixed && trip.entries.some((e) => !e.packed) ? () => (reading = true) : null} {trip} {fixed} bike={bikeTrip} pressure={pressureText(targetPressure(bike), num)} wxGap={bikeTrip && !fixed ? wxGap : null} onwx={() => { useForecast(); review = true; }} steps={daySteps} {itemsById} {badges} {ready} onmove={moveTo} ontoggle={toggleIn} onready={toggleReady} onpack={packIn} onreadyall={tickAllReady} onnext={finishPacking} onend={endTrip} main={mainStep(trip, today, 'pack', phaseOpts)} onundo={undoLast} {canUndo} lessons={learningsFor(trip, $learnQ ?? [], 2)} {reminders} oncharge={charge.length ? () => (chargeOpen = true) : null} {stats} charge={charge.length ? { ...charged, names: charge.map((r) => r.name) } : null} />
   {:else}
   <CalmPack {trip} {stats} {carry} {bike} {bikeTrip} domainLabel={t(domainName(domain))} {items} {itemsById} {trips} {candidates} {targets} {templates} hasPhoto={!!shot} photo={shot?.src ?? null} {openLayers} {canUndo} {changeNote} ctxChanged={!!ctxDiff} {ctxRows} {reasons} {notice} edit={locked ? null : factEdit} {fixed} {readyCount} {readyTotal} {over} {phaseOpts} made={!!(dayMade && dayMade.id === trip.id)} swapMemory={$swapQ?.value ?? {}} onroute={changeContext} onstages={(fn) => change(fn)} onlist={(fn) => change(fn)} prep={before} onprep={before ? openBefore : null} lessons={learningsFor(trip, $learnQ ?? [], 3)} {reminders} power={charge.length > 0 && !over} bind:q bind:zoneKey bind:review
     actions={{
