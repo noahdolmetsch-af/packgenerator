@@ -5,18 +5,25 @@
    * Only who shares is on the map; you share too only while «Share my location as» is ticked. The list
    * and the map show everyone with name, km along the route and «last seen». The group ends by itself
    * (24 h), when the ride is stopped, or with «End the group»; then every place is deleted.
-   * The group is kept in settings GROUP_KEY { gid, key, del, end, name, share, mid?, mdel? }.
+   * The group is kept in settings GROUP_KEY { gid, key, del, end, name, share, mid?, mdel?, wait?, days,
+   * plan, part?, last? }.
+   * Für Events (Noah 26.10.2026): the group lives 1, 3 or 7 days with a night pause (own times); a group of
+   * several days goes on after the ride. «Open the group ride» leads to its own page (#/gruppenfahrt: help,
+   * ready, meeting points, who has what, costs); help calls of the others ring here too.
    * onrows(rows): the members for the live map (memberRows of group.js).
    */
   import { onDestroy, untrack } from 'svelte';
   import { liveQuery } from 'dexie';
-  import { Users, Share2, Copy, MessageCircle, Smartphone, X, RefreshCw, Hand } from '@lucide/svelte';
+  import { Users, Share2, Copy, MessageCircle, Smartphone, X, RefreshCw, Hand, Moon, ChevronRight } from '@lucide/svelte';
   import { db } from '../db.js';
   import { t, locale } from '../i18n.svelte.js';
   import { askDelete } from '../ui/ask.js';
-  import { createGroup, readGroup, sharePlace, leaveGroup, endGroup, groupLinkOf, inviteLinks, memberRows, groupRunning, nearHome, cleanName, stillWaiting, GROUP_KEY, GROUP_EVERY_MS, GROUP_ERRORS } from './group.js';
+  import { createGroup, readGroup, sharePlace, leaveGroup, endGroup, groupLinkOf, inviteLinks, memberRows, groupRunning, nearHome, cleanName, stillWaiting, GROUP_KEY, GROUP_ERRORS } from './group.js';
+  import { EVENT_DAYS, NIGHT_DEFAULT, everyMs, inNight, helpCalls } from './event.js';
   import { LinkError } from '../spur/link.js';
   import GroupList from './GroupList.svelte';
+  import EventHelp from './EventHelp.svelte';
+  import './event.css';
 
   let { title = '', route = null, me = null, onrows = null } = $props();
 
@@ -26,6 +33,11 @@
 
   let name = $state('');
   let shareMe = $state(true);
+  let days = $state(1);
+  let nightOn = $state(true);
+  let nightFrom = $state(NIGHT_DEFAULT.from);
+  let nightTo = $state(NIGHT_DEFAULT.to);
+  let plan = $state(null); // the maker's plan as the server has it (night pause, race checkpoints)
   let busy = $state(false);
   let msg = $state('');
   let places = $state([]);
@@ -44,6 +56,9 @@
   const rows = $derived(memberRows(places, hasLine ? route : null, { now, me: group?.mid ?? null }));
   $effect(() => onrows?.(rows));
   const endTime = $derived(group ? new Date(group.end).toLocaleString(locale(), { weekday: 'short', hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Zurich' }) : '');
+  const calls = $derived(helpCalls(rows, { now, me: group?.mid ?? null }));
+  const night = $derived(inNight((plan ?? group?.plan)?.night, now));
+  const nightTo2 = $derived((plan ?? group?.plan)?.night?.to ?? '');
 
   function fail(e) {
     if (e instanceof LinkError && e.code === 'not_found') {
@@ -61,8 +76,10 @@
     if (shareMe && !n) return (msg = t('Write your name first, so the others know who you are.'));
     busy = true;
     try {
-      const g = await createGroup({ title, route: hasLine ? route : null });
-      await save({ ...g, name: n, share: shareMe });
+      const p = { night: nightOn ? { from: nightFrom || NIGHT_DEFAULT.from, to: nightTo || NIGHT_DEFAULT.to } : null, race: false, cps: [], start: null };
+      const g = await createGroup({ title, route: hasLine ? route : null, hours: days * 24, plan: p });
+      await save({ ...g, name: n, share: shareMe, days, plan: p });
+      plan = p;
       sentAt = 0;
       places = [];
     } catch (e) {
@@ -71,25 +88,31 @@
     busy = false;
   }
 
-  // every 2 minutes (and at once when the group or the first place is there): send my place or read the others
+  // every few minutes (more members, less often; at night every 15 min), and at once when the group or the
+  // first place is there: send my place (with my entries of the event) or read the others
   let running = false;
   async function tick(fresh = null) {
     now = Date.now();
     const g = fresh ?? untrack(() => group);
     if (!g || running || navigator.onLine === false || document.visibilityState === 'hidden') return;
-    if (now - sentAt < GROUP_EVERY_MS) return;
+    if (now - sentAt < everyMs(places.length, { night: inNight(plan?.night ?? g.plan?.night, now) })) return;
     running = true;
     sentAt = now;
     try {
       const here = untrack(() => me);
+      const dark = inNight(plan?.night ?? g.plan?.night, now);
       if (g.share && here && Number.isFinite(here.lat) && !nearHome(hasLine ? route : null, here)) {
-        // «Ich warte hier» ends by itself once you ride on
+        // «Ich warte hier» ends by itself once you ride on; in the night pause no place goes out
         const wait = stillWaiting(g.wait, here) ? g.wait : null;
-        const r = await sharePlace(g, g.mid ? { mid: g.mid, mdel: g.mdel } : null, g.name, { lat: here.lat, lon: here.lon, at: Date.now() }, { wait: !!wait });
-        if (r.mid !== g.mid || (g.wait && !wait)) await save({ ...g, mid: r.mid, mdel: r.mdel, wait });
+        const at = { lat: here.lat, lon: here.lon, at: Date.now() };
+        const r = await sharePlace(g, g.mid ? { mid: g.mid, mdel: g.mdel } : null, g.name, dark ? null : at, { wait: !!wait, part: g.part ?? null });
+        await save({ ...g, mid: r.mid, mdel: r.mdel, wait, last: dark ? g.last : at });
         places = r.places;
+        plan = r.plan;
       } else {
-        places = (await readGroup(g.gid, g.key, { withRoute: false })).places;
+        const r = await readGroup(g.gid, g.key, { withRoute: false });
+        places = r.places;
+        plan = r.plan;
       }
       msg = '';
     } catch (e) {
@@ -175,6 +198,19 @@
     <p class="rc-note">{t('Loading…')}</p>
   {:else if !group}
     <p class="rc-note">{t('Ride with friends: they open a link in the browser, without the app, and everyone who shares is on this map with name, km and when last seen. It ends by itself after the ride, at the latest after 24 hours, and all places are deleted.')}</p>
+    <div class="ev-chips" role="group" aria-label={t('How long?')}>
+      {#each EVENT_DAYS as d (d)}
+        <button type="button" class="ev-chip" aria-pressed={days === d} onclick={() => (days = d)} data-group-days={d}>{d === 1 ? t('Today (24 h)') : t('{n} days', { n: d })}</button>
+      {/each}
+    </div>
+    {#if days > 1}<p class="rc-note">{t('An event group goes on after each ride and ends by itself after {n} days, or with «End the group».', { n: days })}</p>{/if}
+    <label class="chk"><input type="checkbox" bind:checked={nightOn} data-group-night /> <Moon size={16} aria-hidden="true" /> {t('Do not share at night')}</label>
+    {#if nightOn}
+      <div class="ev-row2">
+        <label class="fld"><span>{t('From')}</span><input type="time" bind:value={nightFrom} data-group-night-from /></label>
+        <label class="fld"><span>{t('Until')}</span><input type="time" bind:value={nightTo} data-group-night-to /></label>
+      </div>
+    {/if}
     <label class="fld">
       <span>{t('Your name for the others')}</span>
       <input type="text" bind:value={name} maxlength="40" autocomplete="given-name" data-group-myname />
@@ -182,7 +218,11 @@
     <label class="chk"><input type="checkbox" bind:checked={shareMe} data-group-shareme /> {t('Share my location too')}</label>
     <button type="button" class="btn hi" onclick={make} disabled={busy} data-group-invite><Users size={18} aria-hidden="true" />{busy ? t('Loading…') : t('Invite the group')}</button>
   {:else}
-    <p class="rc-note">{t('Send the link to your friends. Ends by itself {when}, or when you stop the ride.', { when: endTime })}</p>
+    <EventHelp {calls} show="alerts" {now} />
+    <p class="rc-note">{Number(group.days) > 1 ? t('Send the link to your friends. Ends by itself {when}, or with «End the group».', { when: endTime }) : t('Send the link to your friends. Ends by itself {when}, or when you stop the ride.', { when: endTime })}</p>
+    {#if night}<p class="rc-note" role="status" data-group-night-on>{t('Night pause: your location is not sent until {to}.', { to: nightTo2 })}</p>{/if}
+    <a class="btn hi" href="#/gruppenfahrt" data-group-open-event>{t('Open the group ride')}<ChevronRight size={18} aria-hidden="true" /></a>
+    <p class="rc-note">{t('Help, ready, meeting points, who has what and split costs are on the page of the group ride.')}</p>
     <label class="fld">
       <span>{t('The invite link')}</span>
       <input type="text" readonly value={link} onfocus={(e) => e.currentTarget.select()} data-group-link />

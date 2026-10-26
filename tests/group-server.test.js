@@ -5,7 +5,7 @@ import { makeDispatch } from '../api/sync.js';
 import { makeGroupHandler, makeSpurHandler, GROUP_MEMBERS_MAX } from '../api/_lib/spur.js';
 import { DAY_CAPS } from '../api/_lib/daycap.js';
 import { fakeRedis } from './fakeredis.js';
-import { createGroup, readGroup, sharePlace, leaveGroup, endGroup } from '../src/lib/live/group.js';
+import { createGroup, readGroup, sharePlace, leaveGroup, endGroup, setPlan } from '../src/lib/live/group.js';
 
 const T0 = Date.parse('2026-07-03T08:00:00Z');
 
@@ -87,5 +87,25 @@ describe('/api/sync?action=group', () => {
     for (let i = 0; i < GROUP_MEMBERS_MAX; i++) await sharePlace(g, null, `Test ${i}`, { lat: 47, lon: 8, at: at() }, opts);
     await expect(sharePlace(g, null, 'Test zu viel', { lat: 47, lon: 8, at: at() }, opts)).rejects.toMatchObject({ code: 'full' });
     expect(DAY_CAPS.group).toBeLessThanOrEqual(DAY_CAPS.total / 2);
+  });
+  // Gruppenfahrt für Events (Noah 26.10.2026): up to 7 days, the maker's sealed plan, members' sealed parts
+  it('an event group: 7 days, the plan for everyone, a part without a place, only the maker changes the plan', async () => {
+    const { r, opts, doFetch, at } = setup();
+    const plan = { night: { from: '21:30', to: '06:30' }, race: true, cps: [{ name: 'test_data_gtp_ Col', km: 3 }] };
+    const g = await createGroup({ title: 'test_data_gtp_ Event', route, hours: 7 * 24, plan }, opts);
+    expect(Date.parse(g.end) - at()).toBe(7 * 24 * 3600_000);
+    const tooLong = await createGroup({ hours: 999 }, opts);
+    expect(Date.parse(tooLong.end) - at()).toBe(7 * 24 * 3600_000);
+    const part = { status: { kind: 'ready', at: new Date(at()).toISOString() }, has: ['test_data_gtp_ Pumpe'], costs: [{ id: 'a1', what: 'test_data_gtp_ Camp', cents: 4800, for: null }] };
+    const a = await sharePlace(g, null, 'test_data_gtp_ A', null, { ...opts, part });
+    expect(a.plan).toMatchObject({ night: { from: '21:30', to: '06:30' }, race: true });
+    expect(a.places[0]).toMatchObject({ pos: null, part: { status: { kind: 'ready' }, has: ['test_data_gtp_ Pumpe'] } });
+    const read = await readGroup(g.gid, g.key, opts);
+    expect(read.plan.cps).toEqual([{ name: 'test_data_gtp_ Col', km: 3 }]);
+    expect(JSON.stringify([...r.kv.get(`grp:${g.gid}`)])).not.toMatch(/Pumpe|Col|21:30/);
+    await setPlan(g, { ...plan, night: null }, opts);
+    expect((await readGroup(g.gid, g.key, { ...opts, withRoute: false })).plan.night).toBeNull();
+    const post = (body) => doFetch('https://packgen.example.test/api/sync?action=group&step=plan', { method: 'POST', body: JSON.stringify(body) });
+    expect((await post({ gid: g.gid, del: 'y'.repeat(32), p: 'A'.repeat(40) })).status).toBe(403);
   });
 });

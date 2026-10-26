@@ -946,7 +946,7 @@ export const HANDBOOK = {
   },
   'f.groupmap': {
     on: null,
-    steps: ['Open the live map and tap «Invite the group» (write your name first).', 'Send the link by WhatsApp or SMS; friends open it and tap «Share my location».', 'Everyone sees all who share; «End the group» or stopping the ride deletes every place.'],
+    steps: ['Open the live map and tap «Invite the group» (write your name first).', 'Send the link by WhatsApp or SMS; friends open it and tap «Share my location».', 'Everyone sees all who share. At an event choose 3 or 7 days, then «Open the group ride»: help, ready, meeting points, things, costs.'],
     example: 'Example: four friends on the Jura ride → Lea is at km 42 of the route, seen 2 min ago.',
   },
   'f.stopsnear': {
