@@ -21,15 +21,11 @@ export const WHATS_NEW = [
     version: '0.208.0',
     date: '2026-10-26',
     title: 'More room on the computer',
-    lead: 'On a big screen the pages use their width: the main thing left, the extras right.',
+    lead: 'The main thing left, the extras right.',
     points: [
       { text: 'Trips: period, filter and open debriefs go along on the right', href: '#/trips' },
-      { text: 'Analysis: the last 7 days stand right of the overview', href: '#/auswerten' },
-      { text: 'Bikes: the bike comes first, the explanation is one line', href: '#/bikes' },
     ],
-    small: [
-      { box: 'nicer', text: 'Content stays at most 1120 px wide, in the middle' },
-    ],
+    small: [{ box: 'nicer', text: 'Analysis: the last 7 days stand right of the overview', href: '#/auswerten' }],
     test: ['On the computer open Trips and scroll down the list: period, filter and open debriefs stay visible on the right.', 'Open Analysis: «Last 7 days» stands under «Wi gaht\'s?».', 'Open Bikes: «How it works» is one line, a tap opens it.'],
   },
   {
@@ -38,16 +34,12 @@ export const WHATS_NEW = [
     version: '0.207.0',
     date: '2026-10-26',
     title: 'Tours with a plan B',
-    lead: 'Check the route first, agree on Plan B, learn what was missing.',
+    lead: 'Check the route first, agree on Plan B.',
     points: [
       { text: 'Route check: jumps and missing heights before you take a GPX', href: '#/pack' },
       { text: 'Plan B with your own trigger, like from 10 mm of rain', href: '#/pack' },
-      { text: 'The review asks whether what you left out was missing', href: '#/debrief' },
     ],
-    small: [
-      { box: 'new', text: 'Layer check: standing still counts colder' },
-      { box: 'new', text: 'Offline map with reserve places along Plan B', href: '#/live' },
-    ],
+    small: [{ box: 'new', text: 'The review asks whether what you left out was missing', href: '#/debrief' }],
     test: ['Open Planen › Strecke and load a GPX with a gap: a hint shows before «Trotzdem übernehmen».', 'Under «Von der Haustür bis zurück» › Plan B choose «Regen am Tag» «ab 10 mm».'],
   },
   {

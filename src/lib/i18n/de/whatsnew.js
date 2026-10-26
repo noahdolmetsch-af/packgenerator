@@ -6,22 +6,18 @@
 export default {
   // 0.208.0 Mehr Platz am Computer
   'More room on the computer': 'Mehr Platz am Computer',
-  'On a big screen the pages use their width: the main thing left, the extras right.': 'Auf dem grossen Bildschirm nutzen die Seiten ihre Breite: links die Hauptsache, rechts das Zusätzliche.',
+  'The main thing left, the extras right.': 'Links das Wichtigste, rechts das Zusätzliche.',
   'Trips: period, filter and open debriefs go along on the right': 'Touren: Zeitraum, Filter und offene Rückblicke laufen rechts mit',
   'Analysis: the last 7 days stand right of the overview': 'Auswerten: die letzten 7 Tage stehen rechts neben dem Überblick',
-  'Bikes: the bike comes first, the explanation is one line': 'Velos: zuerst das Velo, die Erklärung ist eine Zeile',
-  'Content stays at most 1120 px wide, in the middle': 'Der Inhalt bleibt höchstens 1120 px breit, in der Mitte',
   'On the computer open Trips and scroll down the list: period, filter and open debriefs stay visible on the right.': 'Öffne am Computer Touren und scrolle die Liste hinunter: Zeitraum, Filter und offene Rückblicke bleiben rechts sichtbar.',
   "Open Analysis: «Last 7 days» stands under «Wi gaht's?».": "Öffne Auswerten: «Letzte 7 Tage» steht unter «Wi gaht's?».",
   'Open Bikes: «How it works» is one line, a tap opens it.': "Öffne Velos: «So geht's» ist eine Zeile, ein Tipp öffnet sie.",
   // 0.207.0 Touren a
   'Tours with a plan B': 'Touren mit Plan B',
-  'Check the route first, agree on Plan B, learn what was missing.': 'Zuerst die Strecke prüfen, Plan B abmachen, lernen, was gefehlt hat.',
+  'Check the route first, agree on Plan B.': 'Zuerst die Strecke prüfen, Plan B abmachen.',
   'Route check: jumps and missing heights before you take a GPX': 'Strecke prüfen: Sprünge und fehlende Höhen, bevor du ein GPX übernimmst',
   'Plan B with your own trigger, like from 10 mm of rain': 'Plan B mit eigenem Auslöser, etwa ab 10 mm Regen',
   'The review asks whether what you left out was missing': 'Der Rückblick fragt, ob Weggelassenes gefehlt hat',
-  'Layer check: standing still counts colder': 'Zwiebel-Check: Stillstehen zählt kälter',
-  'Offline map with reserve places along Plan B': 'Offline-Karte mit Ausweichorten entlang Plan B',
   'Open Planen › Strecke and load a GPX with a gap: a hint shows before «Trotzdem übernehmen».': 'Öffne Planen › Strecke und lade ein GPX mit einer Lücke: Vor «Trotzdem übernehmen» steht ein Hinweis.',
   'Under «Von der Haustür bis zurück» › Plan B choose «Regen am Tag» «ab 10 mm».': 'Wähle unter «Von der Haustür bis zurück» › Plan B «Regen am Tag» «ab 10 mm».',
   // 0.206.0 Fitbit-Werte auf Heute
