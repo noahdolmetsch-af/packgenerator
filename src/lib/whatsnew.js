@@ -22,11 +22,8 @@ export const WHATS_NEW = [
     date: '2026-10-26',
     title: 'Whole words on a small phone',
     lead: 'On a small phone names and titles keep their words whole again.',
-    points: [
-      { text: 'Shopping list: «To buy» stands under the name', href: '#/gear?view=wish' },
-      { text: 'Wear: part names wrap instead of «…»', href: '#/bikes?tab=care&view=wear' },
-    ],
-    small: [{ box: 'fixed', text: 'Shopping list and Weight in Plan no longer break in the middle' }, { box: 'nicer', text: 'Earlier at this time: long names take at most two lines' }],
+    points: [{ text: 'Shopping list: «To buy» stands under the name', href: '#/gear?view=wish' }],
+    small: [{ box: 'fixed', text: 'Shopping list and Weight in Plan no longer break in the middle' }],
     test: ['On a small phone open Material › Einkauf: the names read normally, «Zu kaufen» stands under them.', 'Open Planen with a trip: «Einkaufsliste» and «Gewicht» stand as whole words.'],
   },
   {
