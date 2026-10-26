@@ -175,4 +175,15 @@ describe('/api/health', () => {
     expect(by.push.state).toBe('skip');
     expect(JSON.stringify(body)).not.toContain('sk-test');
   });
+
+  it('a check that hangs is a fail with code timeout, the answer still comes and names it', async () => {
+    const w = world({ routes: { [MESSAGES_URL]: claudeOk, [COUNT_URL]: () => new Promise(() => {}) } });
+    const res = await makeHandler({ env: () => healthEnv(FULL), doFetch: w.doFetch, now: () => NOW, checkTimeoutMs: 50 })(new Request('https://packgen-three.vercel.app/api/health'));
+    const body = await res.json();
+    const by = Object.fromEntries(body.checks.map((c) => [c.id, c]));
+    expect(res.status).toBe(503);
+    expect(by.abend).toMatchObject({ state: 'fail', code: 'timeout' });
+    expect(by.anthropic.state).toBe('ok');
+    expect(body.checks.map((c) => c.id)).toEqual(['env', 'upstash', 'anthropic', 'ki-guthaben', 'strava', 'google', 'sync', 'push', 'gemini', 'abend', 'tagesgrenze']);
+  });
 });
