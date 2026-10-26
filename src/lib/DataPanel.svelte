@@ -32,7 +32,7 @@
   import { isSpecsFile, specEntries, findBike, planSpecs, applySpecs } from './bikespecs.js';
   import { stageImport } from './gear/importdb.js';
   import { TEMPLATES_KEY, upsert } from './templates.js';
-  import { folderBackupSupported, folderStatus, chooseFolder, allowAgain, forgetFolder, onFolderWritten } from './folderBackup.js';
+  import { folderBackupSupported, folderStatus, chooseFolder, allowAgain, forgetFolder, onFolderWritten, tryAgain, FOLDER_FIX, FOLDER_ERROR } from './folderBackup.js';
   import { t, tn, locale } from './i18n.svelte.js';
   import HealthCard from './health/HealthCard.svelte';
   import { health } from './health/client.svelte.js';
@@ -116,7 +116,7 @@
   // suggestion, never a must, so «off» is not yellow).
   const lights = $derived.by(() => {
     const out = [{ key: 'backup', name: 'Backup', state: due.due ? 'warn' : 'ok', line: due.days == null ? t('no backup yet') : due.days === 0 ? t('last backup today') : due.days === 1 ? t('last backup yesterday') : tn(due.days, 'last backup {n} day ago', 'last backup {n} days ago') }]; // Klick-Rundgang H27: «heute», not «vor 0 Tagen»
-    if (folderBackupSupported) out.push({ key: 'folder', name: 'Auto-backup to a folder', state: folder.state === 'on' ? 'ok' : folder.state === 'needs-ok' ? 'warn' : 'off', line: folder.state === 'on' ? `${t('On: writing to')} ${folder.name}` : folder.state === 'needs-ok' ? t('chosen, but the browser needs your OK again after a restart.') : t('off|backup') });
+    if (folderBackupSupported) out.push({ key: 'folder', name: 'Auto-backup to a folder', state: folder.state === 'on' ? 'ok' : folder.state === 'needs-ok' || folder.state === 'error' ? 'warn' : 'off', line: folder.state === 'on' ? `${t('On: writing to')} ${folder.name}` : folder.state === 'error' ? t(FOLDER_ERROR[folder.code] ?? FOLDER_ERROR.other) : folder.state === 'needs-ok' ? t('chosen, but the browser needs your OK again after a restart.') : t('off|backup') });
     if (storage) {
       const pct = Math.min(100, Math.round((storage.used / storage.quota) * 100));
       out.push({ key: 'storage', name: 'Storage', state: pct < 80 ? 'ok' : 'warn', line: t('{pct} % used · {mb} MB', { pct, mb: mb(storage.used) }) });
@@ -132,7 +132,7 @@
     return out;
   });
   // Impeccable (Noah 18.10.2026 «alle a-d umsetzen»): the head says in words what is missing, no count
-  const WARN = { backup: () => (due.days == null ? t('Backup missing.') : t('Backup due.')), folder: () => t('The folder backup needs your OK.'), storage: () => t('The storage is almost full.'), keep: () => t('The browser does not keep your data for sure yet.') }; // keep: P3b «Daten sicher» (Paket A)
+  const WARN = { backup: () => (due.days == null ? t('Backup missing.') : t('Backup due.')), folder: () => (folder.state === 'error' ? t(FOLDER_ERROR[folder.code] ?? FOLDER_ERROR.other) : t('The folder backup needs your OK.')), storage: () => t('The storage is almost full.'), keep: () => t('The browser does not keep your data for sure yet.') }; // keep: P3b «Daten sicher» (Paket A)
   const headLine = $derived.by(() => {
     const warns = lights.filter((l) => l.state === 'warn');
     if (!warns.length) return t('Everything is in order.');
@@ -399,7 +399,7 @@
             <span class="sr">{l.state === 'ok' ? t('in order') : l.state === 'warn' ? t('to do') : t('off|backup')}</span>
             {#if l.state === 'warn' && l.key === 'backup'}<button type="button" class="btn sm" onclick={exportFile} disabled={!!$demoQ}>{t('Save now|backup')}</button>
             {:else if l.state === 'warn' && l.key === 'fitbit'}<a class="btn sm" href="#/me/fitbit">{t('Now|do')}</a>
-            {:else if l.state === 'warn' && l.key === 'folder'}<button type="button" class="btn sm" onclick={async () => { await allowAgain(db); refreshFolder(); }}>{t('Now|do')}</button>
+            {:else if l.state === 'warn' && l.key === 'folder'}<button type="button" class="btn sm" onclick={async () => { await (folder.state === 'error' ? tryAgain(db) : allowAgain(db)); refreshFolder(); }}>{folder.state === 'error' ? t('Try again') : t('Now|do')}</button>
             {:else if l.state === 'warn' && l.key === 'keep'}<button type="button" class="btn sm" onclick={keepNow}>{t('Now|do')}</button>
             {:else if l.state === 'warn' && l.key === 'sync'}<button type="button" class="btn sm" onclick={() => runSync()}>{t('Now|do')}</button>{/if}
           </li>
@@ -567,6 +567,18 @@
             <div class="ich-acts">
               <button type="button" class="btn" onclick={async () => { await forgetFolder(db); refreshFolder(); }}>{t('Stop auto-backup')}</button>
               <button type="button" class="btn" onclick={async () => { await allowAgain(db); refreshFolder(); }}>{t('Allow backup')}</button>
+            </div>
+          {:else if folder.state === 'error'}
+            <!-- Einzelidee 29: one clear message per reason, with the way out -->
+            <div class="ftext" role="alert" data-folder-error={folder.code}>
+              <b>{t(FOLDER_ERROR[folder.code] ?? FOLDER_ERROR.other)}</b>
+              <span>{t('Folder')} <strong>{folder.name}</strong>: {t(FOLDER_FIX[folder.code] ?? FOLDER_FIX.other)}</span>
+              {#if folder.lastWrite}<small>{t('Last backup {when}.', { when: new Date(folder.lastWrite).toLocaleString(locale()) })}</small>{/if}
+            </div>
+            <div class="ich-acts">
+              <button type="button" class="btn" onclick={async () => { await forgetFolder(db); refreshFolder(); }}>{t('Stop auto-backup')}</button>
+              <button type="button" class="btn" onclick={pickFolder}>{t('Choose a new folder')}</button>
+              <button type="button" class="btn hi" onclick={async () => { await tryAgain(db); refreshFolder(); }}>{t('Try again')}</button>
             </div>
           {:else}
             <p class="ftext">

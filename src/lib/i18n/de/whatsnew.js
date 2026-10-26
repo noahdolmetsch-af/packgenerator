@@ -4,6 +4,16 @@
  * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
+  // 0.199.0 Kleine Helfer unter Ich
+  'Small helpers under Me': 'Kleine Helfer unter Ich',
+  'The app explains more and nags less.': 'Die App erklärt mehr und drängt weniger.',
+  'Switch off suggestions by kind, on every page': 'Vorschläge nach Art ausschalten, auf jeder Seite',
+  'A tour you ended early goes on at its step': 'Ein abgebrochener Rundgang geht beim richtigen Schritt weiter',
+  'Backup folder gone: a clear message with the way out': 'Backup-Ordner weg: eine klare Meldung mit Lösung',
+  'Done on one device: the reminder no longer comes to the phone': 'Auf einem Gerät erledigt: die Erinnerung kommt nicht mehr aufs Handy',
+  'On a computer: a shortcut tip after a few clicks': 'Am Computer: ein Kürzel-Tipp nach ein paar Klicks',
+  'Open Ich › Darstellung › Vorschläge: switch off «Ideen für freie Zeit»; Heute no longer shows «Idee für heute».': 'Öffne Ich › Darstellung › Vorschläge und schalte «Ideen für freie Zeit» aus: Heute zeigt «Idee für heute» nicht mehr.',
+  'Start a tour under Ich › Handbuch, end it at step 3, start it again: «Weiter bei Schritt 3» is on top.': 'Starte einen Rundgang unter Ich › Handbuch, beende ihn bei Schritt 3 und starte ihn neu: «Weiter bei Schritt 3» steht oben.',
   // 0.198.0 Kette vorausschauend
   'The chain, one step ahead': 'Die Kette, einen Schritt voraus',
   'The app says what the chain needs next, before it is too late.': 'Die App sagt, was die Kette als Nächstes braucht, bevor es zu spät ist.',

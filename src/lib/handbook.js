@@ -1489,7 +1489,7 @@ export const HANDBOOK = {
   },
   'f.autobackup': {
     on: 'Computer only: choose a folder under Me › Data and backup.',
-    steps: ['Under «Auto-backup to a folder», tap «Choose folder».', 'After every change the newest backup lands there, plus one per day.'],
+    steps: ['Under «Auto-backup to a folder», tap «Choose folder».', 'After every change the newest backup lands there, plus one per day.', 'Folder gone, full or not allowed: the message says what to do; «Try again» or «Choose a new folder».'],
     example: 'Example: a folder that syncs to the cloud → always a fresh backup.',
   },
   'f.invoices': {
@@ -1509,7 +1509,7 @@ export const HANDBOOK = {
   },
   'f.tour': {
     on: null,
-    steps: ['Tap «New here? Take the tour» in First steps on Today, or open Me › Handbook › Tour.', 'Choose the example trip (playground) or your own data, then tap «Next» through the steps.'],
+    steps: ['Tap «New here? Take the tour» in First steps on Today, or open Me › Handbook › Tour.', 'Choose the example trip (playground) or your own data, then tap «Next» through the steps.', 'Ended early? Next time «Go on at step n» starts where you stopped.'],
     example: 'Example: on the top of Active, «Tour of Active (4 steps)» shows ticking off, the week, goals and more.',
   },
   'f.firststart': {
@@ -1524,7 +1524,7 @@ export const HANDBOOK = {
   },
   'f.push': {
     on: 'Needs Chrome on the phone. Once: «Copy the address for cron-job.org» on this page and paste it in cron-job.org.',
-    steps: ['Open Me › Reminders on the phone.', 'Switch on «On the phone» and allow notifications.', 'Switch on the reminders you want, one by one.'],
+    steps: ['Open Me › Reminders on the phone.', 'Switch on «On the phone» and allow notifications.', 'Switch on the reminders you want; what you tick off on another device no longer comes.'],
     example: 'Example: the evening before a trip at 19:00 «Tomorrow: Alpenrunde. The evening-before check is waiting.»',
   },
   'f.helper': {
@@ -1534,7 +1534,7 @@ export const HANDBOOK = {
   },
   'f.shortcuts': {
     on: 'Computer with a keyboard.',
-    steps: ['Press ? to see the list.', 'g and a letter switch places; n is New, / is search.'],
+    steps: ['Press ? to see the list.', 'g and a letter switch places; n is New, / is search.', 'Clicked a place often with the mouse? A small tip shows its shortcut once; «No more shortcut tips» stops them.'],
     example: 'Example: g t → Trips, then n → plan a new trip.',
   },
   'f.ownvalues': {
@@ -1595,7 +1595,7 @@ export const HANDBOOK = {
   },
   'f.suggestoff': {
     on: null,
-    steps: ["Open Me › Appearance › Suggestions.", "Switch off an area you do not want."],
+    steps: ["Open Me › Appearance › Suggestions.", "Switch off an area you do not want.", "A kind (ideas to buy, performance tips, ideas for free time, fitting tools) goes off on every page at once."],
     example: "Example: «Ideas in Active» off → Active shows no suggested actions.",
   },
   'f.tipweek': {

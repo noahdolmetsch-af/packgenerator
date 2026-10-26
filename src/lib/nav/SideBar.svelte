@@ -16,6 +16,7 @@
   import PlaceIcon from './PlaceIcon.svelte';
   import { Plus, Compass, MessageCircle } from '@lucide/svelte';
   import { localDay } from '../localday.js';
+  import { countClick, readHint, writeHint, keysOf } from './keyhint.js'; // Einzelidee 31: one shortcut at a time
 
   let { place = null, hash = '#/', due = 0, inbox = 0, onnew, shownew = true } = $props();
   const sidePlaces = $derived((void anp.v, menuSide()));
@@ -38,6 +39,18 @@
     /* private mode: the «neu» stays */
   }
   let seen = $state(first);
+  // Einzelidee 31 «Tastenkürzel nach und nach»: after a few mouse clicks on the same place, its shortcut once
+  let hint = $state(null); // { key, name }
+  function clicked(e, key, name) {
+    if (!e.detail) return; // a keyboard «Enter» has detail 0: only mouse clicks count
+    const r = countClick(readHint(), key);
+    writeHint(r.state);
+    if (r.hint) hint = { key: r.hint, name };
+  }
+  function noTips() {
+    writeHint({ ...readHint(), off: true });
+    hint = null;
+  }
   $effect(() => {
     if (!insp || seen) return;
     seen = true;
@@ -53,7 +66,7 @@
   <div class="in">
     <a class="logo" href="#/" aria-label={t('Pack Generator, start page')}><span class="mark" aria-hidden="true">PG</span><span>Pack Generator</span></a>
     {#if shownew}
-      <button type="button" class="newbtn" onclick={onnew} aria-haspopup="dialog" aria-keyshortcuts="n">
+      <button type="button" class="newbtn" onclick={(e) => (clicked(e, 'new', t('New')), onnew?.(e))} aria-haspopup="dialog" aria-keyshortcuts="n">
         <Plus size={20} strokeWidth={2.4} aria-hidden="true" /><span>{t('New')}</span><kbd aria-hidden="true">N</kbd>
       </button>
     {/if}
@@ -72,7 +85,7 @@
           {@const tab = on ? tabOf(p.key, hash) : null}
           <li class="pl" class:on data-place={p.key}>
             <!-- the place of the page: «page» when none of its pages is lit (a trip), else «true» -->
-            <a class="pa" href={(void anp.v, placeHref(p, place, hash))} aria-current={on ? (tab && tabs.length > 1 ? 'true' : 'page') : undefined}>
+            <a class="pa" href={(void anp.v, placeHref(p, place, hash))} onclick={(e) => p.letter && clicked(e, p.letter, placeLabel(p))} aria-current={on ? (tab && tabs.length > 1 ? 'true' : 'page') : undefined}>
               <span class="pi"><PlaceIcon place={p.key} size={20} /></span>
               <span class="pn">{placeLabel(p)}</span>
               {#if p.key === 'bikes' && due}<span class="cnt due num"><span class="sr">, {t('{n} due', { n: due })}</span><span aria-hidden="true">{due}</span></span>{/if}
@@ -97,6 +110,15 @@
         </li>
       </ul>
     </nav>
+    {#if hint}
+      <div class="khint" role="status" data-key-hint={hint.key}>
+        <p>{t('Faster with the keyboard:')} {#each keysOf(hint.key) as k, i (i)}{#if i}{' '}{t('then|keys')}{' '}{/if}<kbd>{k}</kbd>{/each} {t('opens {name}.', { name: hint.name })} {t('«?» shows all shortcuts.')}</p>
+        <div class="kh-b">
+          <button type="button" class="btn sm" onclick={() => (hint = null)}>{t('OK')}</button>
+          <button type="button" class="btn sm btn-link" onclick={noTips}>{t('No more shortcut tips')}</button>
+        </div>
+      </div>
+    {/if}
     <MeButton {inbox} current={place === 'me' && !insp} card />
   </div>
 </aside>
@@ -170,6 +192,22 @@
     border-radius: 4px;
     font: 500 var(--fs-tiny) / 1.4 var(--font-body);
     opacity: 0.7;
+  }
+  .khint {
+    margin-top: auto;
+    padding: 10px 12px;
+    border: 1px solid var(--line-strong);
+    border-radius: 12px;
+    background: var(--accent-soft, var(--paper));
+    font-size: var(--fs-small);
+  }
+  .khint p {
+    margin: 0 0 6px;
+  }
+  .kh-b {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
   }
   .asst {
     display: flex;

@@ -16,6 +16,22 @@
 
 export const WHATS_NEW = [
   {
+    // v0.199.0 «Kleine Helfer unter Ich» (Einzelideen 29, 30, 31, 34, 36 of the 996 ideas, Noah 25.10.2026):
+    // clear backup-folder messages, go on with a tour, one shortcut at a time, done on every device, suggestions by kind.
+    // Provisional number: the bundler sets the final one.
+    version: '0.199.0',
+    date: '2026-10-26',
+    title: 'Small helpers under Me',
+    lead: 'The app explains more and nags less.',
+    points: [
+      { text: 'Switch off suggestions by kind, on every page', href: '#/me/look' },
+      { text: 'A tour you ended early goes on at its step', href: '#/me/handbook' },
+      { text: 'Backup folder gone: a clear message with the way out', href: '#/me', action: 'data' },
+    ],
+    small: [{ box: 'new', text: 'Done on one device: the reminder no longer comes to the phone' }, { box: 'new', text: 'On a computer: a shortcut tip after a few clicks' }],
+    test: ['Open Ich › Darstellung › Vorschläge: switch off «Ideen für freie Zeit»; Heute no longer shows «Idee für heute».', 'Start a tour under Ich › Handbuch, end it at step 3, start it again: «Weiter bei Schritt 3» is on top.'],
+  },
+  {
     // v0.198.0 «Kette vorausschauend» (Noah 25.10.2026): the chain's next steps on «Wear» (replace, before the trip,
     // soon, measure, oil), history and forecast from the own measurements, phone reminder «measure the chain».
     version: '0.198.0',
