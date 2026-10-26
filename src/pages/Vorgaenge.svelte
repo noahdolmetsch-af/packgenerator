@@ -265,12 +265,13 @@
   }
   .vg-ch {
     flex-wrap: nowrap;
+    min-width: 0; /* a grid item: without this a long name sets the row width and the phone page gets wider */
   }
   .vg-name {
     flex: 1;
     min-width: 0;
     margin: 0;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
   }
   .vg-name small {
     color: var(--ink-2);
