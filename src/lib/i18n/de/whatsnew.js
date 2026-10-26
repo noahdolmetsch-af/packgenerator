@@ -5,9 +5,9 @@
  */
 export default {
   // 0.205.0 Einzelideen Material und Überall
-  'Group ride: «I am waiting here» and stops along the route': 'Gruppenfahrt: «Ich warte hier» und Stopps entlang der Strecke',
+  'Group ride: «I am waiting here» and stops': 'Gruppenfahrt: «Ich warte hier» und Stopps',
   'Material that knows why': 'Material, das weiss warum',
-  'Own views, the reason for a favourite and the trouble a wish solves.': 'Eigene Ansichten, der Grund für einen Favoriten und der Ärger, den ein Wunsch löst.',
+  'Own views, and why an item is a favourite.': 'Eigene Ansichten, und warum ein Teil Favorit ist.',
   'Own views like Repair or Winter, without copies': 'Eigene Ansichten wie Reparatur oder Winter, ohne Kopien',
   'Why a favourite, and which trouble a wish solves': 'Warum Favorit, und welchen Ärger ein Wunsch löst',
   'Open Material › «Eigene Ansichten» › «Bearbeiten» and add «Kinder».': 'Öffne Material › «Eigene Ansichten» › «Bearbeiten» und füge «Kinder» hinzu.',

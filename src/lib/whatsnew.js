@@ -20,12 +20,12 @@ export const WHATS_NEW = [
     version: '0.205.0',
     date: '2026-10-26',
     title: 'Material that knows why',
-    lead: 'Own views, the reason for a favourite and the trouble a wish solves.',
+    lead: 'Own views, and why an item is a favourite.',
     points: [
       { text: 'Own views like Repair or Winter, without copies', href: '#/gear' },
       { text: 'Why a favourite, and which trouble a wish solves', href: '#/gear?view=wish' },
     ],
-    small: [{ box: 'new', text: 'Group ride: «I am waiting here» and stops along the route', href: '#/live' }],
+    small: [{ box: 'new', text: 'Group ride: «I am waiting here» and stops', href: '#/live' }],
     test: ['Open Material › «Eigene Ansichten» › «Bearbeiten» and add «Kinder».', 'Open an item, tick «Kinder» and save: the view shows it.'],
   },
   {
