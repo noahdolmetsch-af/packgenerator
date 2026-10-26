@@ -16,6 +16,16 @@
 
 export const WHATS_NEW = [
   {
+    // v0.206.0 «Fitbit-Werte auf Heute» (Noah 26.10.2026 «1a»): the last Fitbit value within 7 days, with its day
+    version: '0.206.0',
+    date: '2026-10-26',
+    title: 'Fitbit values with their day',
+    lead: 'Heute keeps the last Fitbit value until today\'s arrives.',
+    points: [{ text: 'Sleep, HRV and resting pulse show their day, like «yesterday»', href: '#/flow' }],
+    small: [{ box: 'fixed', text: 'In the morning the Fitbit tiles are no longer empty', href: '#/flow' }],
+    test: ['Open Heute in the morning before the Fitbit sync: the tiles show last night\'s values with «yesterday» or the day.', 'A value older than 7 days no longer shows.'],
+  },
+  {
     // v0.205.0 Einzelideen Material und Überall (996 Ideen, Noah 25.10.2026: 19–22, 24, 37, 38, 40); provisional, the bundler sets the number
     version: '0.205.0',
     date: '2026-10-26',

@@ -58,6 +58,8 @@ Durchgehende Grundsätze: Alles ist ein Vorschlag, nie Pflicht, und immer änder
 
 **Nachtrag 26.10.2026:** 0.205.0 «Material, das weiss warum» (Ziel 3 «Material im Griff» und Ziel «Alltag»): eigene Ansichten, Grund für Favoriten, Wunsch löst Ärger, Zwiebel-Check; dazu Gruppenfahrt Teil 2 (Ziel «Unterwegs sicherer») und «Namen überall» (alle Ziele: Funktionen finden).
 
+**Nachtrag 26.10.2026:** 0.206.0 «Fitbit-Werte mit Tag» (Ziel «Alltag»): Heute bleibt am Morgen nicht leer.
+
 **Nachtrag 26.10.2026:** 0.203.0 «Kleine Helfer unter Ich» (Ziel «Alltag»): letzte Ergebnisse, Anmeldung erklärt, eigene Verpflegungs-Zahlen, alles Ausgeblendete auf einen Blick, was von einer Verbindung abhängt.
 
 **Nachtrag 26.10.2026:** 0.204.0 «Eine kleine Überraschung» (Ziel «Alltag» und Ziel 2 «Das Velo im Griff»): Überraschungsrunde ab zu Hause, Wetter am eigenen Platz, Bewertung aufteilen, eine Ketten-Aufgabe für mehrere nasse Fahrten, Check nach der Standzeit, Beispiele nach Interesse, «Hat sich etwas geändert?».

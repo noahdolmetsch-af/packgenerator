@@ -4,6 +4,13 @@
  * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
+  // 0.206.0 Fitbit-Werte auf Heute
+  'Fitbit values with their day': 'Fitbit-Werte mit Tag',
+  "Heute keeps the last Fitbit value until today's arrives.": 'Heute zeigt den letzten Fitbit-Wert, bis der von heute da ist.',
+  'Sleep, HRV and resting pulse show their day, like «yesterday»': 'Schlaf, HRV und Ruhepuls zeigen ihren Tag, etwa «gestern»',
+  'In the morning the Fitbit tiles are no longer empty': 'Am Morgen sind die Fitbit-Kacheln nicht mehr leer',
+  "Open Heute in the morning before the Fitbit sync: the tiles show last night's values with «yesterday» or the day.": 'Öffne Heute am Morgen vor dem Fitbit-Abgleich: Die Kacheln zeigen die Werte der letzten Nacht mit «gestern» oder dem Tag.',
+  'A value older than 7 days no longer shows.': 'Ein Wert, der älter als 7 Tage ist, wird nicht mehr gezeigt.',
   // 0.205.0 Einzelideen Material und Überall
   'Group ride: «I am waiting here» and stops': 'Gruppenfahrt: «Ich warte hier» und Stopps',
   'Material that knows why': 'Material, das weiss warum',
