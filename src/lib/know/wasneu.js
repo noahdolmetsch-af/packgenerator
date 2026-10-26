@@ -161,6 +161,7 @@ export const SINCE = {
   'f.parkdays': '0.176.0', 'f.packside': '0.176.0', // Paket «Reste» (21.10.2026)
   // «Eingaben überall» (Noah 26.10.2026; provisional, the bundler sets the version of its release)
   'f.inputbar': '0.201.0', 'f.inputtemplates': '0.201.0', 'f.picturecard': '0.201.0',
+  'f.tripcompare': '0.209.0', 'f.daysports': '0.209.0', 'f.unclear': '0.209.0', 'f.border': '0.209.0', // Touren a, part 2 (bundler renumbers)
 };
 export const sinceOf = (id) => SINCE[id] ?? '0.1.0';
 

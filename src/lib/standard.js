@@ -32,6 +32,7 @@ import { AWAY_STD } from './woche/away.js';
 import { JOURNAL_Q_STD } from './tagebuch/fragen.js';
 import { JOURNAL_MOODS_STD } from './tagebuch/insights.js';
 import { MED_MOODS_STD } from './flowmed.js';
+import { DAY_SPORTS_STD } from './tourplan/prep.js';
 
 /** The settings record of a person's changes: { [list key]: { names, hidden, order, own, deleted, icons, areas } }. */
 export const OVERRIDES_KEY = 'listOverrides';
@@ -82,6 +83,8 @@ export const STANDARD_LISTS = [
   { key: 'journalQuestions', area: 'notes', name: 'Questions of the day (diary)', entries: () => JOURNAL_Q_STD },
   { key: 'journalMoods', area: 'notes', name: 'Moods (diary)', entries: () => JOURNAL_MOODS_STD },
   { key: 'medMoods', area: 'active', name: 'Moods after meditating', entries: () => MED_MOODS_STD },
+  // Touren-Ideen 45 (Noah 26.10.2026 «2b»): the kind of each day of a trip
+  { key: 'daySports', area: 'trips', name: 'Kinds of trip days', entries: () => DAY_SPORTS_STD },
 ];
 export const STANDARD_LIST = Object.fromEntries(STANDARD_LISTS.map((l) => [l.key, l]));
 

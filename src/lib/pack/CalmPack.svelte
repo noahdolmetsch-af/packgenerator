@@ -25,6 +25,7 @@
   import WeightCard from './WeightCard.svelte';
   import StagesCard from './StagesCard.svelte';
   import DoorCard from '../haustuer/DoorCard.svelte';
+  import TourPrep from '../tourplan/TourPrep.svelte';
   import ProbeRow from '../probe/ProbeRow.svelte'; // Paket B: «Generalprobe» from 7 days before the start
   import PlanHints from '../tourlernen/PlanHints.svelte'; // Paket Z: spare parts after a breakdown, sleep spots nearby
   import PackExtras from '../schnellpacken/PackExtras.svelte'; // Paket SP «Schneller packen»
@@ -339,6 +340,8 @@
           <!-- Paket W «Von der Haustür bis zurück» (Noah 20.10.2026): plan B, check-in, «Gut angekommen» -->
           <PlanHints {trip} {trips} {items} />
           <DoorCard {trip} />
+          <!-- Touren-Ideen 45, 47, 49 (Noah 26.10.2026 «2b 3a 4b 5b»): sport per day, unclear spots, border -->
+          <TourPrep {trip} />
           <ProbeRow {trip} {items} card />
           <PackExtras {trip} {trips} {itemsById} />
           <!-- Planungs-Notizen (IS 246–249): what comes to mind while planning; «Daraus wird …» -->
@@ -349,6 +352,7 @@
       <PlanNotesCard {trip} {bike} {fixed} />
       <PlanHints {trip} {trips} {items} />
       <DoorCard {trip} />
+      <TourPrep {trip} />
       <ProbeRow {trip} {items} card />
       <PackExtras {trip} {trips} {itemsById} />
     {/if}
