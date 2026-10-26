@@ -19,7 +19,7 @@ These are the only rules. They replace every older rule here, in `docs/arbeitswe
 9. **Quiet:** speak only with a result, a blocker or a question, in short German. No status posts at fixed times. When Noah asks what is open, name at most 3 items.
 10. **Free and private:** zero costs; private data only outside the repo, no real names.
 11. **Always:** everything is a suggestion and changeable; every kind of data and group can be added, renamed and deleted, with Undo; reorder with arrows and drag; explanatory text wherever users could get lost.
-12. **After every step:** document the progress (docs, memory state).
+12. **Documentation on GitHub for every release** (Noah 26.10.2026 21:19 UTC «bitte immer dokumentation zu jedem release auf github ablegen»): every PR updates, in the same PR, `docs/projektstand.md` (the «Stand:» head line with date and live version, plus its row in the table), `docs/status.md`, `docs/decisions.md` (with «Selbst entschieden»), `docs/roadmap.md` and `docs/vorhaben.md`, and `src/lib/whatsnew.js`. A PR without an app change (CI, tests, rules) still adds its line to `docs/projektstand.md` and `docs/decisions.md`. After the merge, memory keeps only the state.
 
 ## How we work
 

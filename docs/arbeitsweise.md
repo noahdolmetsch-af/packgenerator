@@ -16,6 +16,7 @@ Diese Regeln ersetzen alle Abschnitte weiter unten (sie sind nur noch Geschichte
 8. **Reihenfolge** bestimmt Noah. «zurück» heisst sofort rückgängig.
 9. **Ruhig:** melden nur mit Ergebnis, Blocker oder Frage, keine Status-Meldungen zu festen Zeiten.
 10. **Gratis und privat;** alles ist ein Vorschlag, alles änderbar und löschbar mit Rückgängig, Verschieben mit Pfeilen und Ziehen, Erklärtexte.
+11. **Dokumentation auf GitHub zu jedem Release** (Noah 26.10.2026, 21:19 UTC): jeder PR führt im selben PR `docs/projektstand.md` (Kopfzeile «Stand» und Zeile in der Tabelle), `status.md`, `decisions.md`, `roadmap.md`, `vorhaben.md` und «Was ist neu» nach. Auch ein PR ohne App-Änderung (Tests, Regeln) bekommt eine Zeile in `projektstand.md` und `decisions.md`.
 
 Die Regeln stehen nur noch an einem Ort (CLAUDE.md). Die Projektanweisung in Claude verweist nur darauf, das Projekt-Gedächtnis hält den Stand fest, nicht die Regeln.
 
