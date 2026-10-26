@@ -23,6 +23,7 @@ export const WHATS_NEW = [
     title: 'Room in every bag',
     lead: 'An empty bag now takes an item too.',
     points: [{ text: 'All bags side by side: empty bags stay as a column to drag into', href: '#/pack?day' }],
+    small: [{ box: 'new', text: 'The arrows next to an item offer the empty bags too', href: '#/pack?day' }],
     test: ['On the computer open Packen › Alle Taschen nebeneinander and drag an item into an empty bag, or use the arrows next to the item.', 'The bag now shows the item; «Undo» puts it back.'],
   },
   {

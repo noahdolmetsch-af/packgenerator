@@ -6,6 +6,7 @@
 export default {
   // 0.216.0 Leere Taschen nehmen Teile auf
   'The bag now shows the item; «Undo» puts it back.': 'Die Tasche zeigt jetzt das Teil; «Rückgängig» legt es zurück.',
+  'The arrows next to an item offer the empty bags too': 'Auch die Pfeile neben einem Teil bieten die leeren Taschen an',
   'Room in every bag': 'Platz in jeder Tasche',
   'An empty bag now takes an item too.': 'Auch eine leere Tasche nimmt jetzt ein Teil auf.',
   'All bags side by side: empty bags stay as a column to drag into': 'Alle Taschen nebeneinander: leere Taschen bleiben als Spalte zum Hineinziehen',
