@@ -79,8 +79,18 @@ export function toolKeyOf(hash) {
   return m && toolOf(m[1]) ? m[1] : '';
 }
 
-/** Saves or shares a file: the share sheet where the device has one for files, else a download. */
-export async function deliver(blob, name, { share = true } = {}) {
+/**
+ * Saves or shares a file: the share sheet where the device has one for files, else a download.
+ * Einzelidee 27: the file is also kept under «Last results» of the Werkzeugkasten (on this device only;
+ * only from a tool page; keep: false for a file already kept somewhere, like «Links and files»).
+ */
+export async function deliver(blob, name, { share = true, keep = true } = {}) {
+  const tool = keep && typeof location !== 'undefined' ? (/^#\/me\/tools\/([a-z]+)/.exec(location.hash)?.[1] ?? '') : '';
+  if (tool) {
+    Promise.all([import('../ichideen/results.js'), import('../db.js')])
+      .then(([r, d]) => r.keepResult(d.db, blob, name, tool))
+      .catch(() => {});
+  }
   const file = new File([blob], name, { type: blob.type });
   if (share && navigator.canShare?.({ files: [file] })) {
     try {

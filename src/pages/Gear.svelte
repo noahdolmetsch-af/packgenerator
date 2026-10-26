@@ -44,6 +44,9 @@
   import MatCard from '../lib/gear/MatCard.svelte';
   import WishPause from '../lib/gear/WishPause.svelte'; // Paket A part 4, UC-007-I2: a buying pause on a wish
   import NeverWhy from '../lib/gear/NeverWhy.svelte'; // Paket A part 4, UC-008-I1: why it was not used
+  import OwnViews from '../lib/einzeln/OwnViews.svelte'; // Einzelidee 22 «Kategorien als Ansichten»
+  import { inOwnView, ownViewsOf, VIEWS_KEY } from '../lib/einzeln/material.js';
+  import { kindName } from '../lib/ruhig/kinds.js';
   import DotsLegend from '../lib/gear/DotsLegend.svelte';
   import ItemLife from '../lib/gear/ItemLife.svelte';
   import FilterSheet from '../lib/gear/FilterSheet.svelte';
@@ -170,6 +173,21 @@
     return 'all';
   }
   let view = $state(viewFrom(hashQ));
+  // Einzelidee 22: an own view (?mine=id) narrows «All» to its items; a fixed view closes it
+  let mine = $state(hashQ.get('mine') ?? '');
+  const ownQ = liveQuery(() => db.settings.get(VIEWS_KEY));
+  const mineView = $derived(mine ? (ownViewsOf($ownQ?.value).find((v) => v.id === mine) ?? null) : null);
+  function pickMine(id) {
+    mine = id;
+    view = 'all';
+    mode = '';
+    limit = PAGE;
+    writeHash((q) => {
+      ['tab', 'fav', 'view'].forEach((k) => q.delete(k));
+      if (id) q.set('mine', id);
+      else q.delete('mine');
+    });
+  }
   let mode = $state(['weigh', 'check'].includes(hashQ.get('tab')) ? hashQ.get('tab') : '');
   function writeHash(edit) {
     const [path, query = ''] = location.hash.split('?');
@@ -180,10 +198,11 @@
   }
   function setView(v) {
     view = v;
+    mine = '';
     mode = '';
     limit = PAGE;
     writeHash((q) => {
-      ['tab', 'fav'].forEach((k) => q.delete(k));
+      ['tab', 'fav', 'mine'].forEach((k) => q.delete(k));
       if (v === 'all') q.delete('view');
       else q.set('view', v);
     });
@@ -331,7 +350,7 @@
   const fill = $derived(fillKey ? blocks.find((b) => b.key === fillKey) ?? null : null);
   // v0.47.2: a bag ('bag:<key>') or a building block ('set:<key>') from the side column or the sheet.
   const bagOk = (i) => !filter.bag || (filter.bag.startsWith('bag:') ? i.defaultBag === filter.bag.slice(4) : !!i.sets?.includes(filter.bag.slice(4)));
-  const inventory = $derived(stats.inventory.filter((i) => matches(i, filter) && bagOk(i) && inView(view, i, usageOf(mstats, i.id), mstats.n) && (!unusedOnly || unusedIds.has(i.id)) && (!fillKey || !i.sets?.includes(fillKey))));
+  const inventory = $derived(stats.inventory.filter((i) => matches(i, filter) && bagOk(i) && inView(view, i, usageOf(mstats, i.id), mstats.n) && (!mineView || inOwnView(i, mine)) && (!unusedOnly || unusedIds.has(i.id)) && (!fillKey || !i.sets?.includes(fillKey))));
   // Wishlist sorted by how much it helps (Noah 7a): missing on trips, needed on the bike, lighter.
   const wishlist = $derived(
     stats.wishlist
@@ -342,7 +361,7 @@
   const groups = $derived(groupByCategory(inventory));
   const catStats = $derived(Object.fromEntries([...stats.cats, stats.other].map((c) => [c.key, c])));
   // While searching or filtering, every matching category is shown open.
-  const searching = $derived(!!(filter.q.trim() || filter.category || filter.role || filter.domain || filter.bag || view !== 'all' || unusedOnly));
+  const searching = $derived(!!(filter.q.trim() || filter.category || filter.role || filter.domain || filter.bag || view !== 'all' || !!mineView || unusedOnly));
   // v0.47.2: the cards of the view in the chosen order, a page at a time.
   const viewList = $derived(view === 'wish' ? wishlist.map((w) => w.item) : inventory);
   const sorted = $derived(sortItems(viewList, sort, mstats));
@@ -492,7 +511,8 @@
       const params = new URLSearchParams(location.hash.split('?')[1] ?? '');
       const q = params.get('q');
       if (q != null) (filter.q = q), (mode = ''), (view = 'all');
-      if (params.has('view') || params.has('fav') || ['wishlist', 'dead'].includes(params.get('tab'))) view = viewFrom(params);
+      if (params.has('view') || params.has('fav') || ['wishlist', 'dead'].includes(params.get('tab'))) (view = viewFrom(params)), (mine = '');
+      if (params.has('mine')) (mine = params.get('mine') ?? ''), (view = 'all');
       // the tab «Material» is plain #/gear: back from «Einkauf» it shows the inventory again
       else if (view === 'wish' && ![...params.keys()].length) view = 'all';
       if (['weigh', 'check'].includes(params.get('tab'))) mode = params.get('tab');
@@ -718,6 +738,8 @@
             <a class="gq" href="#/gear?tab=wishlist" data-gear-quick-item="wish">{t('Wishlist')}</a>
             <a class="gq" href="#/gear?unused=1" data-gear-quick-item="unused">{t('Long not used')}</a>
             <a class="gq" href="#/favorites" data-gear-quick-item="fav">{t('Favourites ★').replace(' ★', '')}</a>
+            <a class="gq" href="#/gear/supplies" data-gear-quick-item="supplies">{t('Supplies')}</a>
+            <a class="gq" href="#/gear/lend" data-gear-quick-item="lend">{t('Lending list')}</a>
             <button type="button" class="gq" onclick={startWeigh} data-gear-quick-item="weigh">{t('Weigh items')}</button>
             <a class="gq" href="#/gear/import" data-gear-quick-item="import">{t('Import a gear list')}</a>
           </nav>
@@ -754,8 +776,9 @@
         {:else}
         <section class="vhead" aria-labelledby="vh-h">
           <div class="vt">
-            <h2 id="vh-h" class="title">{t(VIEW_NAME[view])}</h2>
-            <p class="vs">{VIEW_TEXT[view]}</p>
+            <h2 id="vh-h" class="title">{mineView ? kindName(mineView, t) : t(VIEW_NAME[view])}</h2>
+            <p class="vs">{mineView ? t('Your own view: an item can be in several views, without a copy.') : VIEW_TEXT[view]}</p>
+            {#if !selecting && !mode}<OwnViews items={stats.inventory} mine={mineView ? mine : ''} onpick={pickMine} />{/if}
           </div>
           <!-- Gesamttest 20.10.2026 Design 1: the head is one line of words, so the tiles show under «All» too -->
           <dl class="vstats">
@@ -975,7 +998,7 @@
     <!-- Impeccable (18.10.2026): no row «Wishlist» here, it is the tab «Shopping» above (?view=wish stays) -->
     {#each VIEWS.filter((v) => v !== 'wish') as v (v)}
       {@const I = VIEW_ICON[v]}
-      <button type="button" class="vbtn" data-view={v} aria-pressed={view === v} aria-describedby="vsub-{v}" onclick={() => setView(v)}><span class="vic" aria-hidden="true"><I size={18} /></span><span class="vm"><span class="vn">{t(VIEW_NAME[v])}</span><span class="vsub" id="vsub-{v}" aria-hidden="true">{t(VIEW_SUB[v])}</span></span> <small class="num">{counts[v]}</small></button>
+      <button type="button" class="vbtn" data-view={v} aria-pressed={view === v && !mineView} aria-describedby="vsub-{v}" onclick={() => setView(v)}><span class="vic" aria-hidden="true"><I size={18} /></span><span class="vm"><span class="vn">{t(VIEW_NAME[v])}</span><span class="vsub" id="vsub-{v}" aria-hidden="true">{t(VIEW_SUB[v])}</span></span> <small class="num">{counts[v]}</small></button>
     {/each}
     {#if view === 'all'}
       <!-- v0.23.0 (AP08): the analyses below the list, one tap from here -->

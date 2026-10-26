@@ -79,6 +79,32 @@ export function valuesOf(setting) {
   return out;
 }
 
+/*
+ * Einzelidee 32 «Ausnahme für eine Reise» (996 Ideen, Noah 25.10.2026): a trip can keep its own numbers
+ * (trip.fuelOwn = { carbsGh: 80, … }, only the changed ones). They count only for that trip; your standard
+ * (settings 'fuel') stays as it is. trip.fuelOwn = {} means «own numbers on, none changed yet».
+ */
+/** The own numbers of a trip, cleaned (only known keys inside their limits), or null when it has none. */
+export function tripOwnOf(trip) {
+  const o = trip?.fuelOwn;
+  if (!o || typeof o !== 'object') return null;
+  const out = {};
+  for (const k of Object.keys(LIMITS)) if (fin(o[k])) out[k] = clamp(o[k], LIMITS[k]);
+  return out;
+}
+/** The setting to work with for a trip: your standard with the trip's own numbers over it. */
+export function fuelForTrip(setting, trip) {
+  const own = tripOwnOf(trip);
+  return own ? { ...(setting ?? {}), ...own } : (setting ?? null);
+}
+/** The keys where the trip's numbers differ from your standard: [{ key, own, std }]. */
+export function tripDiff(setting, trip) {
+  const own = tripOwnOf(trip);
+  if (!own) return [];
+  const std = valuesOf(setting);
+  return Object.keys(own).filter((k) => own[k] !== std[k]).map((k) => ({ key: k, own: own[k], std: std[k] }));
+}
+
 /** The setting to store after changing one value (only what differs from the standard is kept apart from products). */
 export function withValue(setting, key, value) {
   const s = { ...(setting ?? {}) };

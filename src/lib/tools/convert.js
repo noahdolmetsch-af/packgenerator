@@ -17,6 +17,25 @@ export const isHeic = (f) => /hei[cf]/i.test(f?.type ?? '') || /\.hei[cf]$/i.tes
 /** «IMG_0042.HEIC» → «IMG_0042.jpg». */
 export const convertedName = (name, ext) => `${String(name || 'bild').replace(/\.[a-z0-9]+$/i, '') || 'bild'}.${ext}`;
 
+const extOf = (name) => (String(name ?? '').match(/\.([a-z0-9]+)$/i)?.[1] ?? '').toLowerCase().replace('jpeg', 'jpg');
+/**
+ * Einzelidee 38 «Bild umwandeln ohne Überschreiben»: the new names of a batch. Each keeps the old name (its
+ * origin); a picture that already has the new format gets «-suffix» («velo.jpg» → «velo-umgewandelt.jpg»), and
+ * two pictures with the same name get «-2», «-3», so no new file has the name of an old one or of another.
+ */
+export function freeNames(names = [], ext, suffix = 'converted') {
+  const taken = new Set(names.map((n) => String(n ?? '').toLowerCase()));
+  const used = new Set();
+  return names.map((n) => {
+    let out = convertedName(n, ext);
+    if (extOf(n) === ext.replace('jpeg', 'jpg') || taken.has(out.toLowerCase())) out = convertedName(`${String(n || 'bild').replace(/\.[a-z0-9]+$/i, '') || 'bild'}-${suffix}.x`, ext);
+    const base = out.replace(/\.[a-z0-9]+$/i, '');
+    for (let k = 2; used.has(out.toLowerCase()) || (taken.has(out.toLowerCase()) && k < 99); k++) out = `${base}-${k}.${ext}`;
+    used.add(out.toLowerCase());
+    return out;
+  });
+}
+
 let heic = null;
 function loadHeic() {
   heic ??= new Promise((ok, no) => {

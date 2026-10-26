@@ -124,10 +124,48 @@ export async function testNow(title, body) {
   return post({ a: 'test', token, title, body });
 }
 
+/*
+ * Einzelidee 34 «Erledigt auf allen Geräten» (996 Ideen, Noah 25.10.2026): a reminder ticked off on one
+ * device goes away on the other one too. The sync brings the tick; then this phone sends its new list to
+ * the server (so the message no longer comes) and closes a message of it that is still shown.
+ */
+/** The shown messages to close: own reminders (own:<id>:…) and note reminders (note:<id>:…) that are done or gone. */
+export function doneTags(tags, { merken = [], notes = [] } = {}) {
+  const openOwn = new Set((Array.isArray(merken) ? merken : []).filter((x) => x && !x.doneAt && !x.off).map((x) => String(x.id)));
+  const openNote = new Set((notes ?? []).filter((n) => n?.remind?.at && !n.remind.done).map((n) => String(n.id)));
+  return (tags ?? []).filter((tag) => {
+    const m = /^(own|note):([^:]+):/.exec(String(tag ?? ''));
+    if (!m) return false;
+    return m[1] === 'own' ? !openOwn.has(m[2]) : !openNote.has(m[2]);
+  });
+}
+/** Close the shown messages of reminders done elsewhere. */
+export async function closeDone(data = null) {
+  const reg = await navigator.serviceWorker?.getRegistration?.();
+  const shown = (await reg?.getNotifications?.()) ?? [];
+  if (!shown.length) return 0;
+  const d = data ?? (await readData());
+  const gone = new Set(doneTags(shown.map((n) => n.tag), { merken: d.settings.merken ?? [], notes: d.notes }));
+  for (const n of shown) if (gone.has(n.tag)) n.close();
+  return gone.size;
+}
+/** After a sync round brought changes: send the new list and close what is done (only where push is on). */
+export async function afterSync() {
+  if (!supported() || !signedUp()) return;
+  try {
+    const r = await db.settings.get(PUSH_KEY);
+    if (!anyOn(pushOf(r?.value))) return;
+    await syncNow();
+    await closeDone();
+  } catch {
+    /* the next opening of the app tries again */
+  }
+}
+
 /** In the background: when the app opens and when it goes to the background, if push is on here. */
 export function startPushSync() {
   if (!supported() || !signedUp()) return () => {};
-  const run = () => db.settings.get(PUSH_KEY).then((r) => anyOn(pushOf(r?.value)) && syncNow()).catch(() => {});
+  const run = () => db.settings.get(PUSH_KEY).then((r) => anyOn(pushOf(r?.value)) && syncNow().then(() => closeDone())).catch(() => {});
   const hidden = () => document.visibilityState === 'hidden' && run();
   run();
   document.addEventListener('visibilitychange', hidden);

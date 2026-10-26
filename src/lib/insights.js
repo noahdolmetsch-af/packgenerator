@@ -9,6 +9,7 @@
 import { isInventory, isConsumable } from './gear.js';
 import { t, nameOf } from './i18n.svelte.js';
 import { NEVER_USED_MIN } from './neverused.js';
+import { SOLVES, solvesOf, solveScore, favWhy } from './einzeln/material.js';
 
 const g = (item, qty = 1) => (item?.weightG == null ? 0 : item.weightG * (qty || item.qty || 1));
 const norm = (s) => String(s ?? '').trim().toLowerCase();
@@ -137,6 +138,14 @@ export function wishReason(item, items, trips, debriefs) {
     reasons.push(t('{g} g lighter than {name}', { g: old.weightG - item.weightG, name: nameOf(old) }));
     score += Math.min(5, (old.weightG - item.weightG) / 100);
   }
+  // Einzelidee 20: a wish also counts for the trouble it solves (stays dry, fewer chargers), not only for grams
+  const solved = solvesOf(item);
+  if (solved.length) {
+    reasons.push(t('Solves: {list}', { list: solved.map((k) => t(SOLVES.find((s) => s.key === k).name)).join(', ') }));
+    score += solveScore(item);
+  }
+  // Einzelidee 19: it replaces a favourite: why that one is a favourite, so the new one can do it too
+  if (old && favWhy(old)) reasons.push(t('Replaces your favourite {name}: «{why}»', { name: nameOf(old), why: favWhy(old) }));
   if (typeof item.priceChf === 'number') reasons.push(`CHF ${item.priceChf.toFixed(2)}`);
   if (item.ownership === 'to-buy') score += 3;
   return { reasons, score };

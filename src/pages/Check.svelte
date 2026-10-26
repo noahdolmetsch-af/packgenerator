@@ -15,6 +15,8 @@
    * not asked; on Sundays the evening asks question 15 «Bist du deiner Vision näher gekommen?».
    */
   import SpeakButton from '../lib/ui/SpeakButton.svelte';
+  import InputBar from '../lib/eingabe/InputBar.svelte'; // «Eingaben überall» (Noah 26.10.2026): voice note, photo, templates, prompts
+  import { cleanInputs } from '../lib/eingabe/inputs.js';
   import { appendSpoken } from '../lib/speak.js';
   import { Sun, Clock, CalendarClock, Route, Lightbulb, PenLine, Flower2, Pencil, ListChecks, ChevronRight } from '@lucide/svelte';
   import Crumb from '../lib/flow/kit/Crumb.svelte';
@@ -321,6 +323,7 @@
         <!-- «Diktat» (Noah 19.10.2026): the app's one microphone, until you stop -->
         <SpeakButton onsaid={(w) => set({ story: appendSpoken(cur.story ?? '', w) })} />
       </div>
+      <InputBar place="check" text={cur.story ?? ''} ontext={(s) => set({ story: s })} inputs={cur.inputs} oninputs={(x) => set({ inputs: cleanInputs(x) })} />
     </div>
     {/if}
     {#if cur.goal && on(10)}

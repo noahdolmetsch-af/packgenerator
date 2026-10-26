@@ -18,6 +18,8 @@
   import { t } from './i18n.svelte.js';
   import SpeakButton from './ui/SpeakButton.svelte';
   import { appendSpoken } from './speak.js';
+  import InputBar from './eingabe/InputBar.svelte'; // «Eingaben überall» (Noah 26.10.2026): voice note, file, place, templates
+  import { cleanInputs, hasInputs } from './eingabe/inputs.js';
 
   // v0.25.1 (Noah 3a): prefillBike = "Note on a bike" from Today, the bike already chosen.
   let { page = 'home', open = $bindable(false), prefill = '', prefillBike = null } = $props();
@@ -34,6 +36,7 @@
   let dialog = $state();
   let text = $state('');
   let photo = $state(null);
+  let inputs = $state(null);
   let bikeId = $state(null); // null: the app's guess
   // v0.38.0 (Noah 8a): two starts, "What was missing" and "This is broken". Broken with a bike: the
   // note also becomes an open repair in Bike care (the same as "Repair" in the Inbox, notes.js).
@@ -84,9 +87,11 @@
   function record() {
     autoId ??= `note-${Date.now().toString(36)}`;
     autoAt ??= new Date().toISOString();
-    return newNote({ text: text.trim() || t('Photo'), photo: $state.snapshot(photo), page, tripId: trip?.id ?? null, bikeId: bike, day: riding?.day ?? null }, { id: autoId, now: autoAt });
+    const extra = cleanInputs($state.snapshot(inputs));
+    const n = newNote({ text: text.trim() || (photo ? t('Photo') : extra?.voices ? t('Voice note') : extra?.files ? extra.files[0].name : t('Photo')), photo: $state.snapshot(photo), page, tripId: trip?.id ?? null, bikeId: bike, day: riding?.day ?? null }, { id: autoId, now: autoAt });
+    return extra ? { ...n, inputs: extra } : n;
   }
-  const typed = () => autoKeep({ name: text.trim() || (photo ? 'photo' : '') });
+  const typed = () => autoKeep({ name: text.trim() || (photo ? 'photo' : hasInputs(inputs) ? 'inputs' : '') });
   /** Saves r (default: the note now) after the saves before it. */
   function autoSave(r = null) {
     if (!r && (ended || !typed())) return autoBusy;
@@ -96,7 +101,7 @@
   }
   $effect(() => {
     if (!open) return;
-    void [text, photo, bikeId];
+    void [text, photo, bikeId, inputs];
     if (!typed()) return;
     clearTimeout(autoTimer);
     autoTimer = setTimeout(() => autoSave(), 400);
@@ -110,7 +115,7 @@
 
   async function save(event) {
     event.preventDefault();
-    if (!text.trim() && !photo) return (msg = t('Write a few words or add a photo.'));
+    if (!text.trim() && !photo && !hasInputs(inputs)) return (msg = t('Write a few words or add a photo.'));
     clearTimeout(autoTimer);
     const r = record();
     ended = true;
@@ -160,6 +165,7 @@
     open = false;
     text = '';
     photo = null;
+    inputs = null;
     bikeId = null;
     kind = null;
     msg = '';
@@ -183,6 +189,7 @@
       <!-- FE10 (Noah 13.10.2026): speak instead of type, where the browser can -->
       <SpeakButton answer onsaid={(w) => (text = appendSpoken(text, w))} />
     </div>
+    <InputBar place="inbox" {text} ontext={(s) => (text = s)} {inputs} oninputs={(x) => (inputs = x)} />
     <p class="ctx">
       <span>{PAGE_NAMES[page] ? t(PAGE_NAMES[page]) : page}</span>
       {#if riding && trip}<span>{t('On the way: {title}, day {n}', { title: trip.title, n: riding.day + 1 })}</span>

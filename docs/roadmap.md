@@ -872,6 +872,16 @@ Die frühere gespeicherte Datei `2026-10-07-packgenerator-ablaufplan.md` wird al
 
 **25.10.2026, v0.199.0 «Flicken, ausprobieren, abmachen»:** letzte Einzelideen aus Paket A: Kleider reparieren statt aussortieren, Wunsch zuerst ausleihen, Ideen für ein Treffen, Geburtstag mit kleinen Schritten, Webcams mit Zweck und Aufräumrunde.
 
-**26.10.2026, v0.201.0 «Mehr Platz am Computer»:** UI-Ziel #14 erledigt: Touren mit mitlaufender rechter Spalte, Auswerten mit «Letzte 7 Tage» rechts, Velos mit dem Velo zuerst, Inhalt höchstens 1120 px.
+**26.10.2026, v0.206.0 «Mehr Platz am Computer»:** UI-Ziel #14 erledigt: Touren mit mitlaufender rechter Spalte, Auswerten mit «Letzte 7 Tage» rechts, Velos mit dem Velo zuerst, Inhalt höchstens 1120 px.
 **25.10.2026, v0.200.0 «Zusammen auf einer Karte»:** Gruppen-Live-Karte: Freunde per Link auf einer Karte, freiwillig teilen, Ende mit der Fahrt, spätestens nach 24 Stunden.
 **25.10.2026, v0.198.0 «Kette vorausschauend»:** Idee «Kette messen mit Verlauf und Prognose» (Das Velo im Griff) gebaut: nächste Schritte der Kette auf Verschleiss, Prognose aus den eigenen Messungen, Tour-Check, Handy-Erinnerung «Kette messen».
+
+**26.10.2026, v0.205.0 «Material, das weiss warum» (offen):** eigene Ansichten im Material, Grund für Favoriten, Wunsch löst Ärger, Zwiebel-Check, Inhalt getrennt vom Leergewicht, Suche fragt nach; Gruppenfahrt «Ich warte hier» und Stopps; «Namen überall» (versteckte Funktionen 142 → 111).
+
+**26.10.2026, v0.203.0 «Kleine Helfer unter Ich» (offen):** Einzelideen Ich 27–36: letzte Ergebnisse, Hinweis vor der Google-Anmeldung, eigene Verpflegungs-Zahlen pro Reise, «Ausgeblendet und aus», «Was davon abhängt», Backup-Ordner-Meldungen, Rundgang weiter, Kürzel-Tipps, Vorschläge nach Art, «Erledigt» auf allen Geräten.
+
+**26.10.2026, v0.204.0 «Eine kleine Überraschung» (offen):** sieben Einzelideen aus «996 Ideen» (Bereich Heute): Überraschungsrunde, Wetter am eigenen Platz, Bewertung aufteilen, Regen bündeln, Check nach der Standzeit, Beispiele nach Interesse, «Hat sich etwas geändert?».
+
+**26.10.2026, v0.202.0 «Planen im Zusammenhang» (vorläufig):** Einzelideen Planen 12 «Notiz-Verbindungen mit Bedeutung», 13 «Erinnerung nach einem Ereignis», 14 «Wiederherstellen mit Anhängen» gebaut. Offen als Mockup: 10 Pflanzenpass, 11 Doppelten Eingang erkennen, 15 Erinnerungskarte, 16 Mail als Vorgang. Dazu 10 «Pflanzenpass», 11 «Doppelten Eingang erkennen», 15 «Erinnerungskarte», 16 «Mail als Vorgang» (Noah 26.10. «1a 2a 3a 4a 5a»). Titel jetzt «Planen im Zusammenhang».
+
+**26.10.2026, v0.201.0 «Sprechen, anhängen, mit Vorlage starten»:** Eingaben überall: eine gemeinsame Leiste «Hinzufügen» (Sprachnotiz, Foto, Datei, Ort, Schlagwort, Vorlagen, Schreibanreize, KI-Helfer) auf zehn Seiten, Bildkarte im Tagebuch, Tagebuch in der App-Suche (abschaltbar).

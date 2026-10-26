@@ -19,6 +19,8 @@
   import { localDay } from '../../lib/localday.js';
   import { t, num, locale } from '../../lib/i18n.svelte.js';
   import { strava, STRAVA_HASH } from '../../lib/strava/client.svelte.js';
+  import { suggest, watchSuggest } from '../../lib/clear/suggest.svelte.js'; // Einzelidee 36: «Performance tips» can be off
+  watchSuggest();
 
   const today = localDay();
   const q = formQuery(today);
@@ -89,8 +91,8 @@
             </li>
           {/each}
         </ul>
-        {#if f.alarm}<p class="note" data-form-alarm>{t('Resting pulse up and HRV down two days in a row: an easy day may help.')}</p>{/if}
-        {#if f.rampHigh}<p class="note" data-form-ramp>{t('Your fitness rose by {n} in 7 days. More than {m} a week often leads to overload.', { n: num(r.ramp), m: RAMP_MAX })}</p>{/if}
+        {#if f.alarm && suggest.on.performance}<p class="note" data-form-alarm>{t('Resting pulse up and HRV down two days in a row: an easy day may help.')}</p>{/if}
+        {#if f.rampHigh && suggest.on.performance}<p class="note" data-form-ramp>{t('Your fitness rose by {n} in 7 days. More than {m} a week often leads to overload.', { n: num(r.ramp), m: RAMP_MAX })}</p>{/if}
       </Sec>
     {/if}
 

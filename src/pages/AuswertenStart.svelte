@@ -8,7 +8,7 @@
    * (Form und Erholung, Körperwerte, Fahrten, Haken ausgewertet, …; lib/nav.js PLACE_TABS.analysis).
    */
   import { liveQuery } from 'dexie';
-  import { Lightbulb, Trophy, Star } from '@lucide/svelte';
+  import { Lightbulb, Trophy, Star, Sparkles, Mountain, ListChecks } from '@lucide/svelte';
   import { db } from '../lib/db.js';
   import { averages, checkOf, FIXED } from '../lib/flowcheck.js';
   import { waitingThisMonth } from '../lib/kmbook.js';
@@ -42,6 +42,10 @@
     { key: 'ideas', href: '#/flow/ideen', icon: Lightbulb, title: t('Ideas'), sub: t('for your balance') },
     { key: 'milestones', href: '#/flow/milestones', icon: Star, title: t('Milestones'), sub: t('every sport, step by step') },
     { key: 'trophies', href: '#/flow/trophies', icon: Trophy, title: t('Trophies'), sub: t('what you reached') },
+    // «332 Use Cases» (Noah 24.10.2026 «2b»): the pages that were only tabs behind «Alle 11»
+    { key: 'impulse', href: '#/flow/impulse', icon: Sparkles, title: t('Impulses'), sub: t('small ideas to start') },
+    { key: 'gipfel', href: '#/flow/gipfelbuch', icon: Mountain, title: t('Summit book'), sub: t('passes and summits reached') },
+    { key: 'ticks', href: '#/flow/auswertung', icon: ListChecks, title: t('Ticks evaluated|tab'), sub: t('your ticks and answers') },
   ];
 </script>
 

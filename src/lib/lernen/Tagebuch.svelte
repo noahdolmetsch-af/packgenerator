@@ -16,6 +16,8 @@
   import { shrinkImage } from '../photo.js';
   import Btn from '../ui/Btn.svelte';
   import { BookHeart, RefreshCw, Copy, Share2, ImagePlus, X } from '@lucide/svelte';
+  import InputBar from '../eingabe/InputBar.svelte'; // «Eingaben überall» (Noah 26.10.2026): voice note, file, place, tags, templates, AI
+  import { cleanInputs, tagsUsed } from '../eingabe/inputs.js';
 
   /** trip, d: the debrief being edited (its state object), persist: saves d, notes: tripNotes(...), rides: db.rides of the trip, neu: «Was war neu?» lines */
   let { trip, d, persist, notes = [], rides = [], neu = [] } = $props(); // neu: null while it loads
@@ -24,7 +26,7 @@
   const on = $derived($prefQ === undefined ? null : $prefQ?.value?.on !== false);
   const days = $derived(tripDays(trip));
   const actsQ = $derived(days.length ? liveQuery(() => db.activities.where('day').between(days[0], days.at(-1), true, true).toArray()) : null);
-  const facts = $derived(diaryFacts({ trip, activities: $actsQ ?? [], rides, notes, evening: d?.evening ?? {} }));
+  const facts = $derived(diaryFacts({ trip, activities: $actsQ ?? [], rides, notes, evening: d?.evening ?? {}, parts: d?.eveningParts ?? {} }));
 
   let photos = $state([]);
   let msg = $state('');
@@ -53,6 +55,13 @@
     grow();
     persist();
   }
+  // the bar's templates, prompts and highlights go under the diary text; what was added stays on the debrief (d.inputs)
+  function setText(s) {
+    d.diary = { ...(d.diary ?? {}), text: s, edited: true, at: d.diary?.at ?? new Date().toISOString() };
+    persist();
+  }
+  const setInputs = (x) => ((d.inputs = cleanInputs(x)), persist());
+  const tagSuggest = liveQuery(async () => tagsUsed(await db.debriefs.toArray()));
   function grow() {
     if (!box) return;
     box.style.height = 'auto';
@@ -139,6 +148,7 @@
         {#if canShare}<Btn icon={Share2} label={t('Share')} onclick={share} />{/if}
       </div>
       <p class="tp-muted tp-small">{t('Photos stay on this device: not in the backup and not synced.')}</p>
+      <InputBar place="debrief" text={d.diary?.text ?? ''} ontext={setText} inputs={d.inputs} oninputs={setInputs} tags={$tagSuggest ?? []} />
       {#if msg}<p class="tp-small" role="status">{msg}</p>{/if}
       <p class="tp-small"><button type="button" class="tp-link" onclick={() => setOn(false)}>{t('Switch off tour diary')}</button></p>
     </div>

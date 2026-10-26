@@ -38,6 +38,7 @@
    * its card there carries «wird gepackt · Packen öffnen ›».
    */
   import HintCard from '../lib/pageinfo/HintCard.svelte';
+  import QuickLinks from '../lib/ui/QuickLinks.svelte';
   import PageMore from '../lib/pageinfo/PageMore.svelte';
   import TipLine from '../lib/pageinfo/TipLine.svelte';
   import { liveQuery } from 'dexie';
@@ -478,6 +479,8 @@
       <Btn icon={Upload} label={t('Upload ride')} href="#/debrief/ride" />
     </div>
   </header>
+  <!-- «332 Use Cases» (Noah 24.10.2026 «2b»): pages for every tour that were only reachable through search -->
+  {#if !onRides}<QuickLinks label={t('More for your tours')} links={[{ key: 'fuel', href: '#/trips/fuel', label: t('Food and water plan') }, { key: 'weather', href: '#/wetter', label: t('Weather for a ride') }, { key: 'travel', href: '#/travel', label: t('Travel links') }]} />{/if}
   {#if !onRides}<NextRaceRow />{/if}
   {#if onRides}
     <!-- Gesamttest 20.10.2026 B3 (Noah «3a»): every Strava activity, with its filters, tiles, map and calendar (AT1, Tour-Seite) -->

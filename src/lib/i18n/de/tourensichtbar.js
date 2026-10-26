@@ -4,4 +4,8 @@ export default {
   'Tour page': 'Tour-Seite',
   'One picture of a tour or a ride with your photo, the line and the numbers, made on the device and shared from your phone: in the debrief of a trip, and after a ride on the live map.': 'Ein Bild einer Tour oder einer Fahrt mit deinem Foto, der Linie und den Zahlen, auf dem Gerät gemacht und vom Handy geteilt: im Rückblick einer Tour und nach einer Fahrt auf der Live-Karte.',
   'Under «For next time» tap «Tour picture».': 'Tippe unter «Fürs nächste Mal» auf «Tourbild».',
+  'More for your tours': 'Mehr für deine Touren',
+  'small ideas to start': 'kleine Ideen zum Anfangen',
+  'passes and summits reached': 'erreichte Pässe und Gipfel',
+  'your ticks and answers': 'deine Haken und Antworten',
 };

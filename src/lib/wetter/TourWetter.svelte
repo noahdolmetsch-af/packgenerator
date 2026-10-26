@@ -16,7 +16,7 @@
   import { loadCore, hoursBetween, dayLine, warningsOf, bestWindows, snowOnRoute, routeTop, packHints, PACK_TEXT, darkAfter, atLocal, localDate, costWord, COST_WORD, WARN_TEXT, LANDI_RADAR } from './kern.js';
   import { BERGFEX } from './webcams.js';
   import { FEEL_KEY, FEEL_TEXT, PART_TEXT, feelsOf, feelHints } from './gefuehl.js';
-  import { FUEL_KEY } from '../fuel.js';
+  import { FUEL_KEY, fuelForTrip } from '../fuel.js';
   import { RIDER_KEY } from '../weight.js';
   import { energyFor, riderKg } from '../energie.js';
   import { t, num, locale } from '../i18n.svelte.js';
@@ -57,7 +57,7 @@
   const learned = $derived(ride ? feelHints(feelsOf($feelQ?.value), ride.feelsMin ?? ride.tmin) : { off: [], ok: null });
   // Paket X: the one energy rule for the riding day (km and climbing of the route, the warmest riding hour)
   const days = $derived(Math.max(1, Number(trip?.days) || 1));
-  const energy = $derived(trip?.route?.km > 0 ? energyFor({ hours: durH, km: trip.route.km / days, gainM: (Number(trip.route.gainM) || 0) / days, tempC: ride?.tmax ?? null, kg: riderKg($kgQ?.value), fuel: $fuelQ?.value ?? null }) : null);
+  const energy = $derived(trip?.route?.km > 0 ? energyFor({ hours: durH, km: trip.route.km / days, gainM: (Number(trip.route.gainM) || 0) / days, tempC: ride?.tmax ?? null, kg: riderKg($kgQ?.value), fuel: fuelForTrip($fuelQ?.value ?? null, trip) }) : null);
   const week = $derived(core && !inForecast ? bestWindows(core, { durH, days: 7 }).best : null);
 
   const hm = (ms) => new Date(ms).toLocaleTimeString(locale(), { hour: '2-digit', minute: '2-digit' });

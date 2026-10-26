@@ -57,6 +57,8 @@ test('Sign in with Google switches on the sync and shows the account', async ({ 
   await expect(box.getByText(T('Without an account'))).toBeVisible();
   await expect(box.getByText(T('Or with your Google account'))).toBeVisible();
   await box.locator('[data-sync-google]').click();
+  // Einzelidee 28 (Noah 26.10.2026 «2a»): first the app says what happens, then «Go on to Google»
+  await box.locator('[data-sync-before]').getByRole('button', { name: T('Go on to Google') }).click();
   await expect(box.locator('[data-sync-account]')).toContainText('velo@example.test');
   await expect(page.locator('[data-sync-panel]')).toHaveAttribute('data-sync-on', 'on');
   expect(steps.map((s) => s[0])).toEqual(['start', 'redeem']);

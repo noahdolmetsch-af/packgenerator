@@ -20,6 +20,7 @@
   import SearchFree from '../kisuche/SearchFree.svelte';
   import AskAnswer from '../assistent/AskAnswer.svelte';
   import { smartSearch } from '../kisuche/smart.js';
+  import { meaningsOf } from '../suche/meanings.js'; // Einzelidee 40: two meanings, the search asks
   import { findFeatures, FEATURE, FEATURES } from '../features.js';
   import { goFeature } from '../know/featureRun.js';
   import { helpAnswers, isQuestion } from '../clear/help.js';
@@ -35,6 +36,10 @@
   // «Suche als Alleskönner» (Noah 21.10.2026 «1-8 alle»): values, reminders, several things at once, plan, jump
   import { actionOf, actionsOf, actionLabel, runActions } from '../suche/act.js';
   import { partsOf, jumpOf, planHref, weatherHref } from '../suche/say.js';
+  // «Eingaben überall» (Noah 26.10.2026 «5a aber b möglich»): the diary in the search, switchable in its settings
+  import { onDestroy } from 'svelte';
+  import { gate } from '../tagebuch/lock.svelte.js';
+  import { diarySearchable, lightEntry, JOURNAL_KEY, KIND as DIARY_KIND } from '../tagebuch/journal.js';
 
   // v0.76.0 «Fünf Orte»: short: the narrow field in the sidebar says only «Suchen» (with «/»).
   let { compact = false, short = false } = $props();
@@ -49,12 +54,22 @@
   let appHas = $state(false); // «The app answers» has an answer for q
   const asking = $derived(q.trim().length >= 3 && (looksLikeQuestion(q) || (spoken && isQuestion(q))));
   const all = liveQuery(async () => {
-    const [items, trips, bikes, notes, tpl, events] = await Promise.all([db.items.toArray(), db.trips.toArray(), db.bikes.toArray(), db.notes.toArray(), db.settings.get(TEMPLATES_KEY), db.events.toArray()]);
-    return { items, trips, bikes, notes, templates: tpl?.value ?? [], events };
+    const [items, trips, bikes, notes, tpl, events, journal] = await Promise.all([db.items.toArray(), db.trips.toArray(), db.bikes.toArray(), db.notes.toArray(), db.settings.get(TEMPLATES_KEY), db.events.toArray(), db.settings.get(JOURNAL_KEY)]);
+    return { items, trips, bikes, notes, templates: tpl?.value ?? [], events, journal: journal?.value ?? {} };
   });
+  // the diary entries load only once something is searched, without photos and sound
+  let diaryRows = $state([]);
+  let diarySub = null;
+  $effect(() => {
+    if (diarySub || q.trim().length < 2) return;
+    diarySub = liveQuery(() => db.frei.where('kind').equals(DIARY_KIND).toArray()).subscribe({ next: (rows) => (diaryRows = rows.map(lightEntry)), error: () => {} });
+  });
+  onDestroy(() => diarySub?.unsubscribe());
+  const data = $derived($all ? { ...$all, diary: diarySearchable($all.journal, gate.open) ? diaryRows : [] } : null);
   // «Kluge Suche» (14.10.2026): similar words, small typos and short filters on top of searchAll.
-  const smart = $derived(q.trim().length >= 2 && $all ? smartSearch(q, $all) : { groups: [], also: [], fixed: null });
+  const smart = $derived(q.trim().length >= 2 && data ? smartSearch(q, data) : { groups: [], also: [], fixed: null });
   const groups = $derived(smart.groups);
+  const meanings = $derived(meaningsOf(q, groups));
   const count = $derived(groups.reduce((n, g) => n + g.rows.length, 0));
   // v0.46.0 (Noah 14a): "What do you want to do?": actions by keyword above the results.
   const cmds = $derived($all ? commandActions(q, { bikes: sortBikes($all.bikes), more: ops.search }) : []);
@@ -366,6 +381,11 @@
           {#snippet children()}<SearchFree {q} data={$all} also={smart.also} fixed={smart.fixed} chrome={suche.chrome} links={suche.links} local={suche.local} inside={suche.links} />{/snippet}
         </AskElsewhere>
       {:else}<SearchFree {q} data={$all} also={smart.also} fixed={smart.fixed} chrome={suche.chrome} links={suche.links} local={suche.local} />{/if}
+      {#if meanings.length === 2}
+        <p class="mean" data-search-meanings><span>{t('Do you mean')}</span>
+          {#each meanings as m, i (m.kind)}{#if i}<span>{t('or|choice')}</span>{/if}<button type="button" class="btn sm" onclick={() => ((q = m.q), input?.focus())} data-meaning={m.kind}>{t(m.name)} · {m.n}</button>{/each}<span>?</span>
+        </p>
+      {/if}
       {#each groups as g (g.kind)}
         <p class="gh">{t(g.name)}{g.more ? ` · ${t('{n} more', { n: g.more })}` : ''}</p>
         <ul>
@@ -523,6 +543,15 @@
     box-shadow: none;
   }
   /* v0.101.0 Design-Refresh P2 (H8): small group heads, rows with a soft corner, «Do it now» tinted */
+  .mean {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    margin: 8px 8px 2px;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+  }
   .gh {
     margin: 10px 8px 4px;
     font: 600 var(--fs-tiny) var(--font-body);

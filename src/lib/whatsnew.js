@@ -16,9 +16,9 @@
 
 export const WHATS_NEW = [
   {
-    // v0.201.0 «Computer-Breite besser nutzen» (UI-Ziel #14, Noah 26.10.2026 «1a 2a 3a 4a 5a»): Touren with a right
+    // v0.206.0 «Computer-Breite besser nutzen» (UI-Ziel #14, Noah 26.10.2026 «1a 2a 3a 4a 5a»): Touren with a right
     // column that goes along, Auswerten's «Letzte 7 Tage» on the right, Velos with the bike first, content at most 1120 px.
-    version: '0.201.0',
+    version: '0.206.0',
     date: '2026-10-26',
     title: 'More room on the computer',
     lead: 'On a big screen the pages use their width: the main thing left, the extras right.',
@@ -31,6 +31,88 @@ export const WHATS_NEW = [
       { box: 'nicer', text: 'Content stays at most 1120 px wide, in the middle' },
     ],
     test: ['On the computer open Trips and scroll down the list: period, filter and open debriefs stay visible on the right.', 'Open Analysis: «Last 7 days» stands under «Wi gaht\'s?».', 'Open Bikes: «How it works» is one line, a tap opens it.'],
+  },
+  {
+    // v0.205.0 Einzelideen Material und Überall (996 Ideen, Noah 25.10.2026: 19–22, 24, 37, 38, 40); provisional, the bundler sets the number
+    version: '0.205.0',
+    date: '2026-10-26',
+    title: 'Material that knows why',
+    lead: 'Own views, and why an item is a favourite.',
+    points: [
+      { text: 'Own views like Repair or Winter, without copies', href: '#/gear' },
+      { text: 'Why a favourite, and which trouble a wish solves', href: '#/gear?view=wish' },
+    ],
+    small: [{ box: 'new', text: 'Group ride: «I am waiting here» and stops', href: '#/live' }],
+    test: ['Open Material › «Eigene Ansichten» › «Bearbeiten» and add «Kinder».', 'Open an item, tick «Kinder» and save: the view shows it.'],
+  },
+  {
+    // v0.204.0 «Einzelideen Heute» (Noah 25./26.10.2026 «1-8 alle so bauen», ideas 1 2 4 5 6 7 8): surprise round,
+    // weather on your own spot, split rating, rain bundled, check after the standstill, examples by interest, life change.
+    version: '0.204.0',
+    date: '2026-10-26',
+    title: 'A little surprise',
+    lead: 'A round you do not know yet, and the app learns your own spot.',
+    points: [
+      { text: 'At home: note how wind and sun really felt', href: '#/wetter' },
+      { text: 'Surprise round: adventure and time, the app suggests the rest', href: '#/' },
+      { text: 'After a long standstill: what to check on the bike', href: '#/bikes?tab=care&view=wear' },
+    ],
+    small: [
+      { box: 'new', text: 'Rate experience, plan and body apart; «Something changed?» in «Still right?»' },
+      { box: 'nicer', text: 'Several rides in the rain: one chain task, one reminder' },
+    ],
+    test: ['Tap «Neu» › «Überraschungsrunde», choose «Neugierig» and 2 h, then «Runde vorschlagen».', 'Open the weather page at home: «Zu Hause: wie war es wirklich?» stands below.', 'Me › Daten und Backup › «Stimmt das noch?»: «Hat sich etwas geändert?» › «Ich bin umgezogen».'],
+  },
+  {
+    // v0.203.0 «Kleine Helfer unter Ich» (Einzelideen 27–36 of the 996 ideas, Noah 25.10.2026; big ones from the
+    // mockups, 26.10.2026 «1a 2a 3a 4a 5a»): last tool results, sign-in explained, own fuel numbers for one trip,
+    // everything hidden in one look, what depends on a connection; plus backup-folder messages, go on with a tour,
+    // shortcut tips, done on every device and suggestions by kind. Provisional number: the bundler sets the final one.
+    version: '0.203.0',
+    date: '2026-10-26',
+    title: 'Small helpers under Me',
+    lead: 'The app explains more and nags less.',
+    points: [
+      { text: 'Everything you hid, in one look, with «Show again»', href: '#/me/ruhig/aus' },
+      { text: 'Toolbox: your last results come back', href: '#/me/tools' },
+      { text: 'Food and water: own numbers for one trip only', href: '#/trips/fuel' },
+    ],
+    small: [{ box: 'new', text: 'Switch off suggestions by kind, on every page' }, { box: 'nicer', text: 'Before the Google sign-in the app says what happens' }],
+    test: ['Open Ich › Ruhig und persönlich › Ausgeblendet und aus: switch off «Kaufideen»; it shows under «Alles Ausgeblendete», «Wieder zeigen» brings it back.', 'Open Ich › Verbindungen: «Was davon abhängt» names the pages of each connection.', 'Start a tour under Ich › Handbuch, end it at step 3, start it again: «Weiter bei Schritt 3» is on top.'],
+  },
+  {
+    // v0.202.0 «Planen im Zusammenhang» (996 Ideen 10–16; Noah 25.10.2026, big parts 26.10.2026 «1a 2a 3a 4a 5a»):
+    // Pflanzenpass, Vorgänge in the inbox (double entries, mail as a matter), memory cards and «Notes in context»;
+    // links between notes with a meaning, a note back after the next trip or workshop visit, the trash says what comes back.
+    version: '0.202.0',
+    date: '2026-10-26',
+    title: 'Plan in context',
+    lead: 'Plants, mails and notes know what belongs together.',
+    points: [
+      { text: 'Plant passport: sun, wind, soil and every move of each plant', href: '#/calendar/pflanzen' },
+      { text: 'Matters in the inbox: booking, question and bill together', href: '#/inbox/vorgaenge' },
+      { text: 'Memory cards: text, picture, place and a sound as one scene', href: '#/notes/zusammenhang' },
+    ],
+    small: [
+      { box: 'nicer', text: 'Links between notes with a meaning; a note back after the next trip or workshop visit', href: '#/notes/zusammenhang' },
+      { box: 'nicer', text: 'The trash shows what comes back with a note', href: '#/notes' },
+    ],
+    test: ['Planen › Merken › Pflanzenpass: «Beobachtung» for a plant, then «Umgezogen»: the old spot stays in the history.', 'Eingang › Vorgänge: a mail and a photo with the same number show as a pair; «Zusammenführen» puts both into one matter.', 'Open a note › «Erinnerungskarte machen» › «Karte behalten»; Notizen › Notizen im Zusammenhang shows it.'],
+  },
+  {
+    // v0.201.0 «Eingaben überall» (Noah 26.10.2026 «1a 2b 3 nur Ton. kein Video 4b 5a aber b möglich»): one input bar
+    // on ten pages (voice note up to 1 min, photo, file, place, tags, templates per page, prompts, AI), picture card,
+    // the diary in the app search.
+    version: '0.201.0',
+    date: '2026-10-26',
+    title: 'Speak, attach, start from a template',
+    lead: 'Under every text you can now add a voice note, a file or a template.',
+    points: [
+      { text: 'Voice note, file, place and templates under the text of ten pages', href: '#/tagebuch?neu' },
+      { text: 'Diary: gratitude, small joys and a picture card to share', href: '#/tagebuch' },
+    ],
+    small: [{ box: 'new', text: 'The search at the top also finds your diary' }, { box: 'new', text: 'Writing prompts when you are stuck' }],
+    test: ['Open Planen › Tagebuch › «Neuer Eintrag». Under the text tap «Sprachnotiz», speak a few seconds, then «Als Text».', 'Tap «Vorlage» › «Dankbarkeit»: the question stands under your text. Save; in the entry tap «Bildkarte».'],
   },
   {
     // v0.200.0 Gruppen-Live-Karte (Paket U Bikepacking): ride with friends on one map; friends open a link in the browser

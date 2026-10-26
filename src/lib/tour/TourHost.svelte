@@ -12,7 +12,7 @@
   import { openTrip } from '../nav.js';
   import { phone } from '../media.svelte.js';
   import { t } from '../i18n.svelte.js';
-  import { readRun, writeRun, stepAt, stepCount, nextRun, backRun, navSelector, cardSpot } from '../tour.js';
+  import { readRun, writeRun, stepAt, stepCount, nextRun, backRun, navSelector, cardSpot, pausedOf, writePaused } from '../tour.js';
   import { TOUR_EVENT, END_EVENT } from './run.js';
 
   let run = $state(readRun());
@@ -34,11 +34,20 @@
   });
 
   function set(next) {
+    // Einzelidee 30: reaching the end forgets a pause of this tour
+    if (run && !next) writePaused(run.id, null);
     writeRun(next);
     run = next;
     if (!next) window.dispatchEvent(new Event(END_EVENT));
   }
   const end = () => set(null);
+  /** «End tour» before the last step: keep the step, so the next start can go on there. */
+  function stop() {
+    const cur = run;
+    set(null);
+    const p = pausedOf(cur);
+    if (p) writePaused(cur.id, p);
+  }
 
   /* find the lit part: open the page, then look for the first selector for a moment (the page loads) */
   let el = null;
@@ -112,7 +121,7 @@
   function key(e) {
     if (e.key === 'Escape') {
       e.preventDefault();
-      end();
+      stop();
     } else if (e.key === 'ArrowRight') set(nextRun(run));
     else if (e.key === 'ArrowLeft') set(backRun(run));
   }
@@ -154,7 +163,7 @@
             <button type="button" class="btn sm hi" bind:this={primary} onclick={end}>{t('Close|tour')}</button>
           {/if}
         {:else}
-          <button type="button" class="lk" onclick={end}>{t('End tour')}</button>
+          <button type="button" class="lk" onclick={stop}>{t('End tour')}</button>
           {#if run.step > 0}<button type="button" class="btn sm" onclick={() => set(backRun(run))}>{t('Back|tour')}</button>{/if}
           <button type="button" class="btn sm hi" bind:this={primary} onclick={() => set(nextRun(run))}>{last ? t('Done ›|tour') : t('Next ›|tour')}</button>
         {/if}

@@ -58,7 +58,8 @@
       onstate: (s) => {
         const was = st;
         st = s.state;
-        if (s.error) onerror(t(ERR[s.error] ?? ERR.failed));
+        // Einzelidee 37: what was said before the microphone failed stays in the field as text
+        if (s.error) onerror(`${t(ERR[s.error] ?? ERR.failed)}${words.length ? ` ${t('What you said so far is in the field; type on.')}` : ''}`);
         if (s.state === 'idle' && was !== 'idle') {
           clearTimeout(quiet);
           const said = searchText(words.join(' '));

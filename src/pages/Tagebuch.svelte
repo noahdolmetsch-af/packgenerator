@@ -9,7 +9,7 @@
    * Data: journal.js and journaldb.js (rows of the table «frei», kind 'diary'; in every backup and sync).
    */
   import { onDestroy } from 'svelte';
-  import { Plus, Mic, Search, Star, Settings2, BookOpen, Shuffle, X, ChevronLeft, ChevronRight, Pencil, Share2, Download, Trash2, MapPin, Sun, CloudSun, Cloud, CloudFog, CloudRain, CloudSnow, CloudLightning, Feather } from '@lucide/svelte';
+  import { Plus, Mic, Search, Star, Settings2, BookOpen, Shuffle, X, ChevronLeft, ChevronRight, Pencil, Share2, Download, Trash2, MapPin, ImagePlay, AudioLines, Sun, CloudSun, Cloud, CloudFog, CloudRain, CloudSnow, CloudLightning, Feather } from '@lucide/svelte';
   import Crumb from '../lib/flow/kit/Crumb.svelte';
   import Seg from '../lib/ui/Seg.svelte';
   import Lightbox from '../lib/ui/Lightbox.svelte';
@@ -18,6 +18,10 @@
   import Settings from '../lib/tagebuch/Settings.svelte';
   import LockScreen from '../lib/tagebuch/LockScreen.svelte';
   import Rueckblick from '../lib/tagebuch/Rueckblick.svelte';
+  import InputsView from '../lib/eingabe/InputsView.svelte'; // «Eingaben überall» (26.10.2026): voice notes and files of an entry
+  import BildKarte from '../lib/eingabe/BildKarte.svelte'; // Noah «1a»: own photo + sentence as a picture card, no AI
+  import { templatesQuery } from '../lib/eingabe/inputsdb.js';
+  import { templatesFor, tplName, tplText } from '../lib/eingabe/inputs.js';
   import { moodOf, moodName } from '../lib/tagebuch/insights.js';
   import { askDelete, deleteWithUndo } from '../lib/ui/ask.js';
   import { offerDone } from '../lib/ui/rename.svelte.js';
@@ -77,7 +81,10 @@
 
   /* ---------- writing ---------- */
   let edit = $state(null); // { entry, dictate }
-  const write = (extra = {}, dictate = false) => (edit = { entry: { day: today, time: now(), ...extra }, dictate });
+  const write = (extra = {}, dictate = false, start = '') => (edit = { entry: { day: today, time: now(), ...extra }, dictate, start });
+  // «Eingaben überall»: start a new entry from one of the diary's templates (changeable under «Vorlage» in the entry)
+  const tplStore = templatesQuery();
+  const tpls = $derived(templatesFor('diary', $tplStore));
   // #/tagebuch?neu and ?diktat open a new entry once (then the address is cleaned)
   $effect(() => {
     if (locked || !cfg) return;
@@ -185,6 +192,7 @@
 
   let settings = $state(false);
   let lightbox = $state(null); // { list, start }
+  let cardOf = $state(null); // the entry shown as a picture card (BildKarte)
   const href = (e) => `${HREF}/${encodeURIComponent(e.id)}`;
   const thumb = (e) => e.photos?.[0]?.src ?? null;
 </script>
@@ -241,6 +249,7 @@
         {#if (reading.title?.trim() ? reading.text : reading.text.split('\n').slice(1).join('\n')).trim()}
           <div class="tb-body">{reading.title?.trim() ? reading.text.trim() : reading.text.split('\n').slice(1).join('\n').trim()}</div>
         {/if}
+        <InputsView inputs={reading.inputs} />
         {#if reading.tags?.length}
           <div class="tb-chips">{#each reading.tags as x (x)}<a class="tb-chip" href={HREF} onclick={() => ((tag = x), setView('list'))}>#{x}</a>{/each}</div>
         {/if}
@@ -248,6 +257,7 @@
           <button type="button" class="btn hi" onclick={() => (edit = { entry: reading, dictate: false })} data-tb-edit><Pencil size={16} aria-hidden="true" />{t('Change')}</button>
           <button type="button" class="btn" onclick={() => share(reading)} data-tb-share><Share2 size={16} aria-hidden="true" />{t('Share')}</button>
           <button type="button" class="btn" onclick={() => downloadOne(reading)} data-tb-download><Download size={16} aria-hidden="true" />{t('Download it')}</button>
+          <button type="button" class="btn" onclick={() => (cardOf = reading)} data-tb-card><ImagePlay size={16} aria-hidden="true" />{t('Picture card')}</button>
           <button type="button" class="btn del" onclick={() => remove(reading)} data-tb-remove><Trash2 size={16} aria-hidden="true" />{t('Delete')}</button>
         </div>
         <nav class="tb-pager" aria-label={t('More entries')}>
@@ -273,7 +283,14 @@
     <div class="tb-acts">
       <button type="button" class="btn hi" onclick={() => write()} data-tb-new><Plus size={18} aria-hidden="true" />{t('New entry')}</button>
       <button type="button" class="btn" onclick={() => write({}, true)} data-tb-dictate><Mic size={18} aria-hidden="true" />{t('Dictate an entry')}</button>
+      <button type="button" class="btn" onclick={() => write({}, false, 'voice')} data-tb-voice><AudioLines size={18} aria-hidden="true" />{t('Voice note')}</button>
     </div>
+    {#if tpls.length}
+      <div class="tb-tpl" data-tb-templates>
+        <span class="tb-tpl-h">{t('Start with a template')}</span>
+        {#each tpls as x (x.key)}<button type="button" class="tb-tpl-b" onclick={() => write({ text: tplText(x, t) })} data-tb-template={x.key}>{tplName(x, t)}</button>{/each}
+      </div>
+    {/if}
 
     {#if cfg.questions !== false && !qHidden && !answeredToday && qi != null}
       <section class="tb-q" aria-labelledby="tb-q-h" data-tb-question={qi}>
@@ -388,13 +405,16 @@
 {/if}
 
 {#if edit}
-  <EntrySheet entry={edit.entry} dictate={edit.dictate} {tags} onclose={() => (edit = null)} />
+  <EntrySheet entry={edit.entry} dictate={edit.dictate} start={edit.start} {tags} onclose={() => (edit = null)} />
 {/if}
 {#if settings}
   <Settings {cfg} entries={all} ondownload={downloadAll} onclose={() => (settings = false)} />
 {/if}
 {#if lightbox}
   <Lightbox list={lightbox.list} start={lightbox.start} onclose={() => (lightbox = null)} />
+{/if}
+{#if cardOf}
+  <BildKarte entry={cardOf} dayText={long(cardOf.day)} onclose={() => (cardOf = null)} />
 {/if}
 
 <style>
@@ -458,6 +478,31 @@
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
+  }
+  .tb-tpl {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+  }
+  .tb-tpl-h {
+    margin-right: 4px;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+  }
+  .tb-tpl-b {
+    min-height: 44px;
+    padding: 4px 14px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: var(--paper);
+    color: var(--ink);
+    font: inherit;
+    font-size: var(--fs-small);
+    cursor: pointer;
+  }
+  .tb-tpl-b:hover {
+    background: var(--tint);
   }
   .tb-notice {
     margin: 0;

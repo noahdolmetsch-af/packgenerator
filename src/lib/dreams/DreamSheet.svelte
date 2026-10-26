@@ -10,6 +10,10 @@
   import { shrinkImage } from '../photo.js';
   import CameraButton from '../ui/CameraButton.svelte';
   import StaticMap from '../ui/StaticMap.svelte';
+  import SpeakButton from '../ui/SpeakButton.svelte';
+  import { appendSpoken } from '../speak.js';
+  import InputBar from '../eingabe/InputBar.svelte'; // «Eingaben überall» (Noah 26.10.2026): dictation, voice note, place, tags, templates, prompts
+  import { cleanInputs } from '../eingabe/inputs.js';
   import { t } from '../i18n.svelte.js';
   import { X, Route, RotateCcw, Image as ImageIcon, Map as MapIcon, Trash2, ExternalLink } from '@lucide/svelte';
   import '../bikes/velo-dlg.css';
@@ -113,6 +117,8 @@
   <p class="q hint">{t('The map: export the route as a GPX file in komoot (or elsewhere) and load it here.')}</p>
 
   <label class="fld"><span class="lbl">{t('Note')} <small class="q">· {t('optional')}</small></span><textarea class="inp" rows="2" bind:value={d.note}></textarea></label>
+  <SpeakButton wrap onsaid={(w) => (d.note = appendSpoken(d.note ?? '', w))} />
+  <InputBar place="dreams" text={d.note ?? ''} ontext={(s) => (d.note = s)} inputs={d.inputs} oninputs={(x) => (d.inputs = cleanInputs(x))} />
   <label class="fld"><span class="lbl">{t('A small taste first')} <small class="q">· {t('optional')}</small></span><input class="inp" type="text" maxlength="160" bind:value={d.taste} placeholder={t('e.g. one night in the Jura with the same bags')} data-dream-taste /></label>
   {#if d.tasteTripId}<p class="q hint" data-dream-taste-planned>{t('The taste is planned as a trip.')}</p>{/if}
 

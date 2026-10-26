@@ -17,7 +17,7 @@
   import { tidyData } from '../tidy.js';
   import { backClose } from '../ui/backclose.js';
   import { offerDone } from '../ui/rename.svelte.js';
-  import { isFresh, chooseStart } from '../firststart.js';
+  import { isFresh, chooseStart, INTERESTS, ALL_INTERESTS } from '../firststart.js';
   import '../bikes/velo-dlg.css';
 
   let show = $state(false);
@@ -26,6 +26,9 @@
   /** 'choose' first, then 'tour' (the offer of the short tour) with the answer given. */
   let step = $state('choose');
   let chosen = $state(null);
+  // Einzelidee Heute 7: a short interest check before the examples (all on as a suggestion, one stays on)
+  let interests = $state([...ALL_INTERESTS]);
+  const flip = (k) => (interests = interests.includes(k) ? (interests.length > 1 ? interests.filter((x) => x !== k) : interests) : [...interests, k]);
 
   onMount(async () => {
     show = await isFresh(db);
@@ -38,7 +41,7 @@
     busy = true;
     try {
       await settling(async () => {
-        await chooseStart(db, choice, localDay());
+        await chooseStart(db, choice, localDay(), $state.snapshot(interests));
         if (choice === 'examples') await tidyData(db);
       });
       chosen = choice;
@@ -52,7 +55,7 @@
   }
   function closeWith(note = true) {
     dialog?.close();
-    if (note) offerDone(chosen === 'examples' ? t('The examples are in: two trips, a bike and some gear. Me › Data and backup › «Remove the examples» takes them away again.') : t('Empty start: everything you add is your own.'), null, 8000);
+    if (note) offerDone(chosen === 'examples' ? (interests.length < ALL_INTERESTS.length ? t('The examples you chose are in. Me › Data and backup › «Remove the examples» takes them away again.') : t('The examples are in: two trips, a bike and some gear. Me › Data and backup › «Remove the examples» takes them away again.')) : t('Empty start: everything you add is your own.'), null, 8000);
   }
   async function tour() {
     closeWith(false);
@@ -67,7 +70,7 @@
     <div class="vd-head">
       <div class="vd-t">
         <h2 id="fs-h">{t('Welcome to the Pack Generator')}</h2>
-        <p class="vd-sub">{step === 'choose' ? t('How do you want to start?') : t('One more thing')}</p>
+        <p class="vd-sub">{step === 'choose' ? t('How do you want to start?') : step === 'interest' ? t('Your interests') : t('One more thing')}</p>
       </div>
     </div>
     {#if step === 'choose'}
@@ -77,7 +80,7 @@
     </div>
     <p class="lead">{t('The app plans, packs and debriefs your bike trips and keeps your gear and bikes in order. Your data stays on this device.')}</p>
     <div class="opts">
-      <button type="button" class="opt" disabled={busy} onclick={() => choose('examples')} data-choice="examples">
+      <button type="button" class="opt" disabled={busy} onclick={() => (step = 'interest')} data-choice="examples">
         <span class="ic" aria-hidden="true"><Sparkles size={20} /></span>
         <span class="tx">
           <b>{t('Start with examples')}</b>
@@ -96,8 +99,22 @@
     <div class="vd-foot">
       <button type="button" class="btn" disabled={busy} onclick={() => dialog?.close()} data-choice="later">{t('Decide later')}</button>
     </div>
+    {:else if step === 'interest'}
+    <p class="lead">{t('Which examples fit you? A few that fit are better than a full app. You can get the rest later.')}</p>
+    <div class="opts" role="group" aria-label={t('Your interests')}>
+      {#each INTERESTS as x (x.key)}
+        <button type="button" class="opt" aria-pressed={interests.includes(x.key)} onclick={() => flip(x.key)} data-interest={x.key}>
+          <span class="ic" aria-hidden="true">{interests.includes(x.key) ? '✓' : '○'}</span>
+          <span class="tx"><b>{t(x.name)}</b><small>{t(x.sub)}</small></span>
+        </button>
+      {/each}
+    </div>
+    <div class="vd-foot two">
+      <button type="button" class="btn" disabled={busy} onclick={() => (step = 'choose')} data-choice="back">{t('Back')}</button>
+      <button type="button" class="btn hi" disabled={busy} onclick={() => choose('examples')} data-choice="examples-go">{t('Put the examples in')}</button>
+    </div>
     {:else}
-    <p class="lead" role="status">{chosen === 'examples' ? t('The examples are in: two trips, a bike and some gear.') : t('Your app is ready and empty.')}</p>
+    <p class="lead" role="status">{chosen === 'examples' ? (interests.length < ALL_INTERESTS.length ? t('The examples you chose are in.') : t('The examples are in: two trips, a bike and some gear.')) : t('Your app is ready and empty.')}</p>
     <p class="lead">{t('A short tour shows where you plan, pack and look back: 6 steps, about 2 minutes. You only watch and tap «Next».')}</p>
     <div class="vd-foot two">
       <button type="button" class="btn" onclick={() => closeWith()} data-choice="notour">{t('No thanks, I will look myself')}</button>
@@ -128,6 +145,9 @@
     color: var(--ink);
     font: inherit;
     cursor: pointer;
+  }
+  .opt[aria-pressed='true'] {
+    border-color: var(--hi);
   }
   .opt:hover,
   .opt:focus-visible {

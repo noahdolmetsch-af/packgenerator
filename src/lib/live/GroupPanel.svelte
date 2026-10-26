@@ -10,11 +10,11 @@
    */
   import { onDestroy, untrack } from 'svelte';
   import { liveQuery } from 'dexie';
-  import { Users, Share2, Copy, MessageCircle, Smartphone, X, RefreshCw } from '@lucide/svelte';
+  import { Users, Share2, Copy, MessageCircle, Smartphone, X, RefreshCw, Hand } from '@lucide/svelte';
   import { db } from '../db.js';
   import { t, locale } from '../i18n.svelte.js';
   import { askDelete } from '../ui/ask.js';
-  import { createGroup, readGroup, sharePlace, leaveGroup, endGroup, groupLinkOf, inviteLinks, memberRows, groupRunning, nearHome, cleanName, GROUP_KEY, GROUP_EVERY_MS, GROUP_ERRORS } from './group.js';
+  import { createGroup, readGroup, sharePlace, leaveGroup, endGroup, groupLinkOf, inviteLinks, memberRows, groupRunning, nearHome, cleanName, stillWaiting, GROUP_KEY, GROUP_EVERY_MS, GROUP_ERRORS } from './group.js';
   import { LinkError } from '../spur/link.js';
   import GroupList from './GroupList.svelte';
 
@@ -73,9 +73,9 @@
 
   // every 2 minutes (and at once when the group or the first place is there): send my place or read the others
   let running = false;
-  async function tick() {
+  async function tick(fresh = null) {
     now = Date.now();
-    const g = untrack(() => group);
+    const g = fresh ?? untrack(() => group);
     if (!g || running || navigator.onLine === false || document.visibilityState === 'hidden') return;
     if (now - sentAt < GROUP_EVERY_MS) return;
     running = true;
@@ -83,8 +83,10 @@
     try {
       const here = untrack(() => me);
       if (g.share && here && Number.isFinite(here.lat) && !nearHome(hasLine ? route : null, here)) {
-        const r = await sharePlace(g, g.mid ? { mid: g.mid, mdel: g.mdel } : null, g.name, { lat: here.lat, lon: here.lon, at: Date.now() });
-        if (r.mid !== g.mid) await save({ ...g, mid: r.mid, mdel: r.mdel });
+        // «Ich warte hier» ends by itself once you ride on
+        const wait = stillWaiting(g.wait, here) ? g.wait : null;
+        const r = await sharePlace(g, g.mid ? { mid: g.mid, mdel: g.mdel } : null, g.name, { lat: here.lat, lon: here.lon, at: Date.now() }, { wait: !!wait });
+        if (r.mid !== g.mid || (g.wait && !wait)) await save({ ...g, mid: r.mid, mdel: r.mdel, wait });
         places = r.places;
       } else {
         places = (await readGroup(g.gid, g.key, { withRoute: false })).places;
@@ -121,6 +123,14 @@
       }
       await save({ ...group, share: false, mid: null, mdel: null });
     } else sentAt = 0;
+  }
+  // «Ich warte hier» (Noah 26.10.2026): the others see that you wait; sent at once
+  async function flipWait() {
+    if (!group || !me) return;
+    const g = { ...group, wait: group.wait ? null : { lat: me.lat, lon: me.lon } };
+    await save(g);
+    sentAt = 0;
+    tick(g);
   }
   async function rename(v) {
     if (group) await save({ ...group, name: cleanName(v) });
@@ -187,6 +197,7 @@
     <h3 class="lv-h3">{t('In the group')}</h3>
     <GroupList {rows} hasRoute={!!(hasLine ? route : null)} />
     <div class="rc-acts">
+      {#if group.share && me}<button type="button" class="btn sm" aria-pressed={!!group.wait} onclick={flipWait} data-group-waithere><Hand size={16} aria-hidden="true" />{group.wait ? t('I ride on') : t('I am waiting here')}</button>{/if}
       <button type="button" class="btn sm" onclick={() => ((sentAt = 0), tick())} data-group-refresh><RefreshCw size={16} aria-hidden="true" />{t('Refresh')}</button>
       <button type="button" class="btn sm" onclick={end} data-group-end><X size={16} aria-hidden="true" />{t('End the group')}</button>
     </div>

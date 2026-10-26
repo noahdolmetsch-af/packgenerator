@@ -76,6 +76,7 @@
       const cfg = await readCfg(db);
       const mine = cfg?.on ? cfg.code : newCode();
       const got = await finishSignIn(db, r.ticket, mine);
+      if (got.email) await db.meta.put({ key: 'syncAccountLast', email: got.email });
       busy = false;
       if (cfg?.on && got.code === cfg.code) return (message = t('Signed in with Google. On your other device, simply sign in with Google too.'));
       if (cfg?.on) await stopSync(db, { forget: false });
@@ -91,7 +92,14 @@
       busy = false;
     }
   }
-  async function google() {
+  // Einzelidee 28 «Anmeldung klar zeigen»: before Google, what opens and with which data
+  const lastQ = liveQuery(() => db.meta.get('syncAccountLast'));
+  const countQ = liveQuery(async () => ({ trips: await db.trips.count(), items: await db.items.count() }));
+  function google() {
+    message = '';
+    view = 'google';
+  }
+  async function goGoogle() {
     busy = true;
     message = '';
     try {
@@ -238,6 +246,23 @@
         <button type="button" class="btn hi" disabled={busy || !typed.trim()} onclick={() => pairWith(typed)}>{t('Pair')}</button>
       </div>
     {:else}
+      {#if view === 'google'}
+        <div class="confirm" role="group" aria-label={t('Before you sign in')} data-sync-before>
+          <p><b>{t('Before you sign in')}</b></p>
+          <ul class="before">
+            <li>{t('Google shows its own page. The app only gets your e-mail address, to find your code; your data stays sealed.')}</li>
+            <li>{t('This device holds {trips} trips and {items} items.', { trips: $countQ?.trips ?? 0, items: $countQ?.items ?? 0 })}</li>
+            <li>{t('Your Google account already has data from another device: this device joins it and gets that data. A copy of this device is kept first.')}</li>
+            <li>{t('Your Google account has no data yet: the data of this device becomes the start.')}</li>
+            {#if $lastQ?.email}<li><b>{t('Last time you used {email}.', { email: $lastQ.email })}</b> {t('Choose the same account at Google, otherwise a second, empty account starts.')}</li>
+            {:else}<li>{t('Use the same Google account on every device, otherwise a second, empty account starts.')}</li>{/if}
+          </ul>
+          <div class="ich-acts">
+            <button type="button" class="btn" onclick={() => (view = '')}>{t('Cancel')}</button>
+            <button type="button" class="btn hi" disabled={busy} onclick={goGoogle}>{t('Go on to Google')}</button>
+          </div>
+        </div>
+      {/if}
       <!-- Paket R (Noah 19.10.2026 «2a oder b»): two ways, you choose; without either, all stays on this device -->
       <p class="way" data-sync-way="code"><b>{t('Without an account')}</b> {t('with a code or an invite link for your other device.')}</p>
       <div class="ich-acts">

@@ -15,11 +15,13 @@
   import { carePlan, careChange, careResetAll } from './plan.js';
   import { careValue, careStdText } from './plantext.js';
   import CareSheet from './CareSheet.svelte';
+  import { inputsLine } from '../eingabe/inputs.js'; // «Eingaben überall»: what was added to a care, in one line
   import ShowMore from '../ui/ShowMore.svelte';
   import { phone } from '../media.svelte.js';
   import { PHONE_ROWS, capKeep } from '../touren/kurz.js';
 
   let { bike, onsave } = $props();
+  const addedOf = (r) => inputsLine(bike?.careInputs?.[r.key], { t, tn });
 
   const plan = $derived(carePlan(bike));
   // Gesamttest 21.10.2026 C7: on a phone the first PHONE_ROWS cares, then «Show n more».
@@ -56,8 +58,8 @@
         </button>
         {#if r.changed}<button type="button" class="tp-link rs" disabled={busy} onclick={() => reset(r)} aria-label={t('Reset {name} to the standard', { name: t(r.name) })}>{t('reset|care')}</button>{/if}
         <button type="button" class="switch" role="switch" aria-checked={r.on} disabled={busy} aria-label={t('Care: {name}', { name: t(r.name) })} onclick={() => toggle(r)}><span class="knob"></span></button>
-        {#if r.note}
-          <button type="button" class="note" onclick={() => (open = { key: r.key, focus: 'note' })}><StickyNote size={15} aria-hidden="true" /><span>{r.note}</span></button>
+        {#if r.note || addedOf(r)}
+          <button type="button" class="note" onclick={() => (open = { key: r.key, focus: 'note' })}><StickyNote size={15} aria-hidden="true" /><span>{[r.note, addedOf(r)].filter(Boolean).join(' · ')}</span></button>
         {:else}
           <button type="button" class="tp-link addnote" onclick={() => (open = { key: r.key, focus: 'note' })}><Plus size={14} aria-hidden="true" />{t('Note|care')}</button>
         {/if}

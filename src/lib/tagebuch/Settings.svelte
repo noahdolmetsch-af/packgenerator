@@ -4,7 +4,7 @@
    * the tags (groups: rename, delete with «where do the entries go», Undo; rule «Gruppen überall»), and
    * the download of the whole diary as one Markdown file («2b … mit möglichkeit zum download»).
    */
-  import { X, Pencil, Trash2, Download, LockKeyhole, BellRing, BookOpen } from '@lucide/svelte';
+  import { X, Pencil, Trash2, Download, LockKeyhole, BellRing, BookOpen, Search } from '@lucide/svelte';
   import RenameSheet from '../ui/RenameSheet.svelte';
   import GroupDeleteSheet from '../ui/GroupDeleteSheet.svelte';
   import { backClose } from '../ui/backclose.js';
@@ -121,6 +121,15 @@
       {#if remind.on}
         <label class="tbs-row tbs-time">{t('From|reminder')}<input class="inp" type="time" value={remind.time} onchange={(e) => e.currentTarget.value && setRemind({ time: e.currentTarget.value })} data-tb-remind-time /></label>
       {/if}
+    </section>
+
+    <!-- «Eingaben überall» (Noah 26.10.2026 «5a aber b möglich»): on by default, can be switched off -->
+    <section class="tbs-sec">
+      <h3><Search size={18} aria-hidden="true" />{t('In the app search')}</h3>
+      <label class="tbs-row">
+        <input type="checkbox" checked={cfg.inSearch !== false} onchange={(e) => { const on = e.currentTarget.checked; changeCfg((c) => ({ ...c, inSearch: on })); }} data-tb-insearch />
+        <span>{t('The search at the top also finds diary entries. With a lock code only while the diary is open.')}</span>
+      </label>
     </section>
 
     <section class="tbs-sec">
