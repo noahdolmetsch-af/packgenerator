@@ -19,6 +19,7 @@
 import { thinLine, fetchOverpass, OVERPASS_URLS, lineHash, overpassUrls, whyFailed } from '../route/pois.js';
 import { lineKm, snap } from '../race/race.js';
 import { distKm } from '../live/live-lib.js';
+import { heightAt, featsOf, normFilter, presetsOf, visitedOf } from './poifilter.js';
 
 export { OVERPASS_URLS };
 export const SETTINGS_KEY = 'poi-search';
@@ -256,7 +257,7 @@ export function prefsOf(v) {
     if (CATEGORY[k] && s) names[k] = s;
   }
   const starred = (Array.isArray(v?.starred) ? v.starred : []).filter((p) => p?.id && Number.isFinite(Number(p.lat)) && Number.isFinite(Number(p.lon))).map(starOf);
-  return { on, mode: MODES.includes(v?.mode) ? v.mode : DEFAULTS.mode, radiusKm: radiusOf(v?.radiusKm) ?? DEFAULTS.radiusKm, starred, row, names, own };
+  return { on, mode: MODES.includes(v?.mode) ? v.mode : DEFAULTS.mode, radiusKm: radiusOf(v?.radiusKm) ?? DEFAULTS.radiusKm, starred, row, names, own, filter: normFilter(v?.filter), presets: presetsOf(v?.presets), visited: visitedOf(v?.visited) };
 }
 
 /* ---------- changing the chip row (each → new prefs) ---------- */
@@ -457,6 +458,7 @@ export function parsePlaces(json, keys = KEYS, { near = null, max = MAX_PLACES, 
       fee: str(tags.fee),
       access: str(tags.access),
       ele: Number.isFinite(parseFloat(tags.ele)) ? Math.round(parseFloat(tags.ele)) : null,
+      ...featsOf(tags),
       n: Object.keys(tags).length,
       ...(kinds.length > 1 ? { also: kinds.slice(1) } : {}),
     });
@@ -653,16 +655,7 @@ export async function keptAlong(store, tripId, line) {
 /* ---------- 3a · detour ---------- */
 
 /** The route's height at km of a profile [[km, m]] (linear), or null. */
-export function heightAt(profile, km) {
-  if (!Array.isArray(profile) || !profile.length || !Number.isFinite(km)) return null;
-  if (km <= profile[0][0]) return profile[0][1];
-  for (let i = 1; i < profile.length; i++) {
-    const [k1, m1] = profile[i];
-    const [k0, m0] = profile[i - 1];
-    if (k1 >= km) return k1 > k0 ? m0 + ((m1 - m0) * (km - k0)) / (k1 - k0) : m1;
-  }
-  return profile.at(-1)[1];
-}
+export { heightAt };
 
 /**
  * The detour to a place beside the route, there and back from the nearest route point (straight, so

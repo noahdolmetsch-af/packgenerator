@@ -5,6 +5,7 @@ import { readFileSync } from 'node:fs';
 import * as S from '../src/lib/map/poisearch.js';
 import { lineHash, OVERPASS_CH, overpassUrls, whyFailed } from '../src/lib/route/pois.js';
 import { distKm } from '../src/lib/live/live-lib.js';
+import { NO_FILTER } from '../src/lib/map/poifilter.js';
 
 const {
   CATEGORIES,
@@ -258,8 +259,8 @@ describe('loadPlaces', () => {
 describe('prefs and stars', () => {
   it('cleans the record', () => {
     // «Weitere Quellen» 20.10.2026: the record also has the chip row, your names and your own kinds; any radius of 1–50 km
-    expect(prefsOf(null)).toEqual({ on: [], mode: 'around', radiusKm: 10, starred: [], row: KEYS, names: {}, own: [] });
-    expect(prefsOf({ on: ['water', 'nope', 'water'], mode: 'x', radiusKm: 70 })).toEqual({ on: ['water'], mode: 'around', radiusKm: 10, starred: [], row: KEYS, names: {}, own: [] });
+    expect(prefsOf(null)).toEqual({ on: [], mode: 'around', radiusKm: 10, starred: [], row: KEYS, names: {}, own: [], filter: { ...NO_FILTER }, presets: [], visited: [] });
+    expect(prefsOf({ on: ['water', 'nope', 'water'], mode: 'x', radiusKm: 70 })).toEqual({ on: ['water'], mode: 'around', radiusKm: 10, starred: [], row: KEYS, names: {}, own: [], filter: { ...NO_FILTER }, presets: [], visited: [] });
     expect(prefsOf({ radiusKm: 7 }).radiusKm).toBe(7);
   });
   it('stars and unstars a place', () => {
