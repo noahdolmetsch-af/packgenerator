@@ -5,6 +5,7 @@
  */
 export default {
   // 0.205.0 Einzelideen Material und Überall
+  'Group ride: «I am waiting here» and stops along the route': 'Gruppenfahrt: «Ich warte hier» und Stopps entlang der Strecke',
   'Material that knows why': 'Material, das weiss warum',
   'Own views, the reason for a favourite and the trouble a wish solves.': 'Eigene Ansichten, der Grund für einen Favoriten und der Ärger, den ein Wunsch löst.',
   'Own views like Repair or Winter, without copies': 'Eigene Ansichten wie Reparatur oder Winter, ohne Kopien',

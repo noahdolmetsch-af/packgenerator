@@ -25,6 +25,7 @@ export const WHATS_NEW = [
       { text: 'Own views like Repair or Winter, without copies', href: '#/gear' },
       { text: 'Why a favourite, and which trouble a wish solves', href: '#/gear?view=wish' },
     ],
+    small: [{ box: 'new', text: 'Group ride: «I am waiting here» and stops along the route', href: '#/live' }],
     test: ['Open Material › «Eigene Ansichten» › «Bearbeiten» and add «Kinder».', 'Open an item, tick «Kinder» and save: the view shows it.'],
   },
   {
