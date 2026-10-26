@@ -1529,7 +1529,7 @@ export default {
   // Gruppen-Live-Karte (f.groupmap)
   'Open the live map and tap «Invite the group» (write your name first).': 'Öffne die Live-Karte und tippe «Gruppe einladen» (schreib zuerst deinen Namen).',
   'Send the link by WhatsApp or SMS; friends open it and tap «Share my location».': 'Schick den Link per WhatsApp oder SMS; Freunde öffnen ihn und tippen «Meinen Standort teilen».',
-  'Everyone sees all who share; «End the group» or stopping the ride deletes every place.': 'Alle sehen alle, die teilen; «Gruppe beenden» oder das Ende der Fahrt löscht jeden Standort.',
+  'Everyone sees all who share. At an event choose 3 or 7 days, then «Open the group ride»: help, ready, meeting points, things, costs.': 'Alle sehen alle, die teilen. An einem Event wähle 3 oder 7 Tage, dann «Gruppenfahrt öffnen»: Hilfe, Startklar, Treffpunkte, Sachen, Kosten.',
   'Example: four friends on the Jura ride → Lea is at km 42 of the route, seen 2 min ago.': 'Beispiel: vier Freunde auf der Jura-Runde → Lea ist bei km 42 der Strecke, vor 2 Min. gesehen.',
   // «Stopps in der Nähe» (f.stopsnear)
   'On Today tap «Stops nearby» (or on a tour page, or open the live map › «Stops»).': 'Tippe auf Heute auf «Stopps in der Nähe» (oder auf einer Tour-Seite, oder in der Live-Karte › «Stopps»).',

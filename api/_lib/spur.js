@@ -106,19 +106,21 @@ export function makeSpurHandler({ env = () => redisEnv(), doFetch = (...a) => fe
 /* ---------- Gruppen-Live-Karte (Noah 25.10.2026 «b») ---------- */
 
 /**
- * A ride with friends: who taps «Share my location» is a point on everyone's map, for at most 24 h.
+ * A ride with friends: who taps «Share my location» is a point on everyone's map, for at most 24 h
+ * (an event group, Noah 26.10.2026: up to 7 days, GROUP_HOURS_MAX).
  * Sealed like the read link: the group key is made on the device and travels only after the # of the
  * invite link; the server keeps sealed names and places it cannot read. The whole group is one Redis
  * hash that expires GROUP_TTL_S after it was made (a write never makes it live longer), and whoever
  * made it can end it at once; a member can leave and is gone from the hash.
  *
- *   grp:<gid>             HASH  '_' → JSON { e?, d: sha256(owner code), end }   (e: the sealed route)
+ *   grp:<gid>             HASH  '_' → JSON { e?, p?, d: sha256(owner code), end } (e: the sealed route, p: the sealed plan)
  *                               <mid> → JSON { e, d: sha256(member code), at } (e: sealed name and place)
  *   grp:rate:<ip>:<day>   STRING writes from one address today (at most GROUP_WRITES_PER_DAY)
  *
- *   GET  ?action=group&gid=<gid>[&route=0]             → { ok, end, e, members: [{ m, e, at }] }
- *   POST ?action=group&step=new   { e?, hours? }       → { ok, gid, del, end }
+ *   GET  ?action=group&gid=<gid>[&route=0]             → { ok, end, e, p, members: [{ m, e, at }] }
+ *   POST ?action=group&step=new   { e?, p?, hours? }   → { ok, gid, del, end }
  *   POST ?action=group&step=route { gid, del, e }      → { ok }           (the owner: a new route)
+ *   POST ?action=group&step=plan  { gid, del, p }      → { ok }           (the owner: the event plan, sealed)
  *   POST ?action=group&step=put   { gid, e }           → { ok, mid, del, at, members } (a new member)
  *   POST ?action=group&step=put   { gid, mid, del, e } → { ok, mid, at, members }      (a newer place)
  * (put answers with the members too: one call per update, because of the daily cap in daycap.js)
@@ -126,9 +128,13 @@ export function makeSpurHandler({ env = () => redisEnv(), doFetch = (...a) => fe
  *   POST ?action=group&step=end   { gid, del }         → { ok }           (the owner: everything deleted)
  */
 export const GROUP_TTL_S = 24 * 3600;
+/** An event group (Noah 26.10.2026): up to 7 days. */
+export const GROUP_HOURS_MAX = 7 * 24;
+/** The maker's sealed event plan (night pause, checkpoints). */
+export const PLAN_MAX = 4000;
 export const GROUP_MEMBERS_MAX = 40;
 /** A member's sealed name and place; the route may be larger. */
-export const MEMBER_MAX = 4000;
+export const MEMBER_MAX = 8000; // with the event part: status, help, things, costs, meeting points
 export const ROUTE_MAX = 200_000;
 /** A place every 30 s for 24 h from a few phones behind one address. */
 export const GROUP_WRITES_PER_DAY = 6000;
@@ -185,7 +191,7 @@ export function makeGroupHandler({ env = () => redisEnv(), doFetch = (...a) => f
         if (!m || Date.parse(m.end) <= now().getTime()) throw GONE();
         // ?route=0: only the members (the route is fetched once)
         const withRoute = new URL(request.url).searchParams.get('route') !== '0';
-        return json(request, 200, { ok: true, end: m.end, e: withRoute ? (m.e ?? null) : null, members: membersOf(all) });
+        return json(request, 200, { ok: true, end: m.end, e: withRoute ? (m.e ?? null) : null, p: m.p ?? null, members: membersOf(all) });
       },
       POST: async (request) => {
         const step = new URL(request.url).searchParams.get('step');
@@ -194,15 +200,16 @@ export function makeGroupHandler({ env = () => redisEnv(), doFetch = (...a) => f
         if (step === 'new') {
           if (body.e != null && !isSealed(body.e, ROUTE_MAX)) throw new ApiError(400, 'bad_request', 'The route is too large.');
           await limit(store, request);
-          const hours = Math.min(24, Math.max(1, Math.round(Number(body.hours) || 24)));
+          const hours = Math.min(GROUP_HOURS_MAX, Math.max(1, Math.round(Number(body.hours) || 24)));
           const gid = newId();
           const del = newDel();
           const end = new Date(now().getTime() + hours * 3600_000).toISOString();
-          await store.cmd('HSET', groupKey(gid), '_', JSON.stringify({ ...(body.e ? { e: body.e } : {}), d: sha(del), end }));
+          if (body.p != null && !isSealed(body.p, PLAN_MAX)) throw new ApiError(400, 'bad_request', 'The plan is too large.');
+          await store.cmd('HSET', groupKey(gid), '_', JSON.stringify({ ...(body.e ? { e: body.e } : {}), ...(body.p ? { p: body.p } : {}), d: sha(del), end }));
           await store.expire(groupKey(gid), hours * 3600);
           return json(request, 200, { ok: true, gid, del, end });
         }
-        if (step === 'route' || step === 'end') {
+        if (step === 'route' || step === 'plan' || step === 'end') {
           if (!isDel(body.del)) throw new ApiError(400, 'bad_request', 'The link or its code is wrong.');
           let m;
           try {
@@ -216,6 +223,12 @@ export function makeGroupHandler({ env = () => redisEnv(), doFetch = (...a) => f
             await store.del(groupKey(body.gid));
             return json(request, 200, { ok: true });
           }
+          if (step === 'plan') {
+            if (!isSealed(body.p, PLAN_MAX)) throw new ApiError(400, 'bad_request', 'The plan is too large.');
+            await limit(store, request);
+            await store.cmd('HSET', groupKey(body.gid), '_', JSON.stringify({ ...m, p: body.p }));
+            return json(request, 200, { ok: true });
+          }
           if (!isSealed(body.e, ROUTE_MAX)) throw new ApiError(400, 'bad_request', 'The route is too large.');
           await limit(store, request);
           await store.cmd('HSET', groupKey(body.gid), '_', JSON.stringify({ ...m, e: body.e }));
@@ -223,7 +236,7 @@ export function makeGroupHandler({ env = () => redisEnv(), doFetch = (...a) => f
         }
         if (step === 'put') {
           if (!isSealed(body.e, MEMBER_MAX)) throw new ApiError(400, 'bad_request', 'The place is missing or too large.');
-          await meta(store, body.gid);
+          const m = await meta(store, body.gid);
           await limit(store, request);
           const at = now().toISOString();
           const k = groupKey(body.gid);
@@ -233,7 +246,7 @@ export function makeGroupHandler({ env = () => redisEnv(), doFetch = (...a) => f
             if (old && old.d !== sha(body.del)) throw new ApiError(403, 'forbidden', 'Only the device that shares this place can change it.');
             if (old) {
               await store.cmd('HSET', k, body.mid, JSON.stringify({ e: body.e, d: old.d, at }));
-              return json(request, 200, { ok: true, mid: body.mid, at, members: membersOf(pairs(await store.cmd('HGETALL', k))) });
+              return json(request, 200, { ok: true, mid: body.mid, at, p: m.p ?? null, members: membersOf(pairs(await store.cmd('HGETALL', k))) });
             }
             // left or removed meanwhile: in again as a new member
           }
@@ -241,7 +254,7 @@ export function makeGroupHandler({ env = () => redisEnv(), doFetch = (...a) => f
           const mid = newId();
           const del = newDel();
           await store.cmd('HSET', k, mid, JSON.stringify({ e: body.e, d: sha(del), at }));
-          return json(request, 200, { ok: true, mid, del, at, members: membersOf(pairs(await store.cmd('HGETALL', k))) });
+          return json(request, 200, { ok: true, mid, del, at, p: m.p ?? null, members: membersOf(pairs(await store.cmd('HGETALL', k))) });
         }
         if (step === 'leave') {
           if (!isId(body.gid) || !isId(body.mid) || !isDel(body.del)) throw new ApiError(400, 'bad_request', 'The link or its code is wrong.');

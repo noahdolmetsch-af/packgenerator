@@ -104,6 +104,7 @@
   // Gruppen-Live-Karte (Noah 25.10.2026 «b»): friends on the map through a link
   import GroupPanel from '../lib/live/GroupPanel.svelte';
   import { endKeptGroup } from '../lib/live/group.js';
+  import { pointDots } from '../lib/live/event.js';
   import { t, tn, locale, num } from '../lib/i18n.svelte.js';
   import SleepList from '../lib/race/ride/SleepList.svelte';
   import '../lib/race/race.css';
@@ -193,7 +194,7 @@
   async function stop() {
     const ride = await stopRecording();
     after = { ride };
-    // the group ride ends with the ride: every place of it is deleted
+    // the group ride ends with the ride: every place of it is deleted (an event group of several days goes on)
     groupEnded = await endKeptGroup(db);
     groupRows = [];
     me = null;
@@ -271,7 +272,9 @@
     // «Neue Quellen»: the waypoints of the tour's GPX file (Ride with GPS, Komoot …)
     ...(shown.own ? wptsOnMap(trip?.route).map((w) => ({ ...w, name: w.name || kindName(w.kind) })) : []),
     // Gruppen-Live-Karte: the others of the group (you are the blue dot)
-    ...groupRows.filter((r) => !r.me).map((r) => ({ id: `grp-${r.m}`, lat: r.pos[0], lon: r.pos[1], kind: 'friend', name: `${r.name || t('Without a name')}${r.wait ? ` (${t('waiting')})` : ''}`, minZoom: 0 })),
+    ...groupRows.filter((r) => !r.me && r.pos).map((r) => ({ id: `grp-${r.m}`, lat: r.pos[0], lon: r.pos[1], kind: 'friend', name: `${r.name || t('Without a name')}${r.part?.help ? ` (${t('needs help')})` : r.wait ? ` (${t('waiting')})` : ''}`, minZoom: 0 })),
+    // Gruppenfahrt für Events: the meeting points and the camp of the group
+    ...pointDots(groupRows).map((p) => ({ id: p.id, lat: p.pos[0], lon: p.pos[1], kind: 'friend', name: `${p.n} ${p.text}`, minZoom: 0 })),
     ...(detour ? [{ id: 'detour-target', lat: detour.target.lat, lon: detour.target.lon, kind: detour.target.kind === 'own' ? 'own' : detour.target.kind || 'other', name: detour.target.name || t('Detour'), minZoom: 0 }] : []),
   ]);
   const toggles = $derived([
