@@ -8,6 +8,7 @@ export default {
   'Place|input': 'Ort',
   'Tag|input': 'Schlagwort',
   'Record|voice': 'Aufnehmen',
+  'Start with a template': 'Mit Vorlage starten',
   'Writing prompts': 'Schreibanreize',
   'AI helper': 'KI-Helfer',
   '{n} voice note': '{n} Sprachnotiz',
@@ -136,9 +137,7 @@ export default {
   'The picture card is in your downloads.': 'Die Bildkarte ist bei deinen Downloads.',
 
   // «What the app can do», handbook and how-to
-  'Add to any text': 'Zu jedem Text etwas hinzufügen',
   'Under the text of the diary, notes, daily check, tour diary, ride note, journey trail, bike care, gear, dreams and quick note: a voice note up to one minute, photo, file, place, tags, templates, writing prompts and the AI helper.': 'Unter dem Text von Tagebuch, Notizen, Tages-Check, Tour-Tagebuch, Fahrt-Notiz, Reise-Spur, Velopflege, Material, Träumen und Schnellnotiz: eine Sprachnotiz bis eine Minute, Foto, Datei, Ort, Schlagworte, Vorlagen, Schreibanreize und der KI-Helfer.',
-  'Templates for each page': 'Vorlagen für jede Seite',
   'Gratitude, small joys, 2 good things, favourite moment and more: each page has its own templates; add, change, sort and delete them.': 'Dankbarkeit, kleine Erfreuer, 2 gute Dinge, Lieblingsmoment und mehr: jede Seite hat eigene Vorlagen; hinzufügen, ändern, ordnen und löschen.',
   'A diary entry as a picture to share: your own photo and a sentence, made on this device without AI.': 'Ein Tagebuch-Eintrag als Bild zum Teilen: dein eigenes Foto und ein Satz, auf diesem Gerät gemacht, ohne KI.',
   'Open a text, e.g. a new diary entry.': 'Öffne einen Text, z. B. einen neuen Tagebuch-Eintrag.',

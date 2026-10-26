@@ -58,8 +58,24 @@ test('every function is visible on its home page', async ({ page, context }, inf
     await page.reload();
     await page.locator('main').waitFor();
   }
+  // «:entry»: the test data has no diary entry, so the robot writes one fictional entry (its buttons show only in it)
+  const entry = 'test_data_gtp_entry';
+  if (Object.keys(byPage).some((h) => h.includes(':entry'))) {
+    await page.evaluate((id) => new Promise((ok, no) => {
+      const r = indexedDB.open('pack-generator');
+      r.onsuccess = () => {
+        const now = new Date().toISOString();
+        const tx = r.result.transaction('frei', 'readwrite');
+        tx.objectStore('frei').put({ id, kind: 'diary', day: now.slice(0, 10), time: '20:00', at: now, editedAt: now, title: 'test_data_gtp_ Eintrag', text: 'test_data_gtp_ Text', photos: [], tags: [], place: null, weather: null, star: false, mood: null, refs: [] });
+        tx.oncomplete = () => (r.result.close(), ok());
+        tx.onerror = no;
+      };
+    }), entry);
+    await page.reload();
+    await page.locator('main').waitFor();
+  }
   for (const [href, list] of Object.entries(byPage)) {
-    await page.goto(`./${href.replace(':trip', encodeURIComponent(trip)).replace(':race', encodeURIComponent(race)).replace(':note', note)}`);
+    await page.goto(`./${href.replace(':trip', encodeURIComponent(trip)).replace(':race', encodeURIComponent(race)).replace(':note', note).replace(':entry', entry)}`);
     // «?open=»: a page reads it when it starts, so start it again
     if (href.includes('open=')) await page.reload();
     await page.locator('main').waitFor();
