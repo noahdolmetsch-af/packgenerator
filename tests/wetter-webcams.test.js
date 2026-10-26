@@ -111,3 +111,18 @@ describe('webcams on the live map', async () => {
     expect(KIND_TOKEN.webcam).toBeTruthy();
   });
 });
+
+describe('Paket A: what a cam is for, and cams not opened for long (UC-109-I1, I2)', () => {
+  it('keeps the purpose and the last day it was opened; old ones show for a tidy-up', async () => {
+    const w = await import('../src/lib/wetter/webcams.js');
+    let list = w.addCam([], { name: 'test_data_gtp_ Pass', url: 'https://example.org/cam.jpg' });
+    const id = list[0].id;
+    list = w.setWhy(list, id, '  test_data_gtp_ Passstrasse offen? ');
+    expect(w.camsOf(list)[0].why).toBe('test_data_gtp_ Passstrasse offen?');
+    expect(w.setWhy(list, id, '')[0].why).toBeUndefined();
+    expect(w.staleCams(w.camsOf(list), '2026-10-25')).toEqual([]);
+    list = w.markSeen(list, id, '2026-05-01');
+    expect(w.staleCams(w.camsOf(list), '2026-10-25').map((c) => c.id)).toEqual([id]);
+    expect(w.staleCams(w.camsOf(w.markSeen(list, id, '2026-10-01')), '2026-10-25')).toEqual([]);
+  });
+});

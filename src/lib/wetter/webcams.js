@@ -53,7 +53,9 @@ export function camsOf(value) {
     .filter((c) => c && typeof c === 'object' && cleanUrl(c.url))
     .map((c) => {
       const place = placeOf(c.place);
-      return { id: String(c.id ?? ''), name: String(c.name ?? '').slice(0, NAME_MAX), url: cleanUrl(c.url), home: c.home === true, ...(place ? { place } : {}) };
+      const why = String(c.why ?? '').trim().slice(0, 80);
+      const seen = /^\d{4}-\d{2}-\d{2}$/.test(c.seen ?? '') ? c.seen : '';
+      return { id: String(c.id ?? ''), name: String(c.name ?? '').slice(0, NAME_MAX), url: cleanUrl(c.url), home: c.home === true, ...(place ? { place } : {}), ...(why ? { why } : {}), ...(seen ? { seen } : {}) };
     })
     .filter((c) => c.id);
 }
@@ -106,3 +108,21 @@ export const camLabel = (c) => c.name || (() => {
     return 'Webcam';
   }
 })();
+
+/** Paket A, UC-109-I1 «Kamera mit Nutzungsgrund»: what you look at a cam for ('' clears it). */
+export function setWhy(list, id, why) {
+  const w = String(why ?? '').trim().slice(0, 80);
+  return list.map((c) => {
+    if (c.id !== id) return c;
+    const { why: _old, ...rest } = c;
+    return w ? { ...rest, why: w } : rest;
+  });
+}
+/** The day a cam was last opened (on a tap of its name). */
+export const markSeen = (list, id, today) => list.map((c) => (c.id === id ? { ...c, seen: today } : c));
+/** Paket A, UC-109-I2 «Vergessene Links pflegen»: cams not opened for STALE_DAYS days, for a rare tidy-up. */
+export const STALE_DAYS = 120;
+export function staleCams(list, today) {
+  const limit = new Date(Date.parse(`${today}T12:00:00Z`) - STALE_DAYS * 864e5).toISOString().slice(0, 10);
+  return list.filter((c) => c.seen && c.seen <= limit);
+}

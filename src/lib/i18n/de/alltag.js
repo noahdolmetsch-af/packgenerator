@@ -133,7 +133,7 @@ export default {
   'Everyday shopping list': 'Einkaufsliste für den Alltag',
   'One list for every day, with groups; recipes add their ingredients; the food of the next trip can show on it too.': 'Eine Liste für jeden Tag, mit Gruppen; Rezepte setzen ihre Zutaten dazu; das Essen der nächsten Tour kann auch draufstehen.',
   'What runs, what it costs per month and year, the last day to cancel and a reminder before it.': 'Was läuft, was es pro Monat und Jahr kostet, der letzte Tag zum Kündigen und eine Erinnerung davor.',
-  'People you want to see now and then, with a quiet reminder in Remember when it is time again.': 'Menschen, die du ab und zu sehen willst, mit einer leisen Erinnerung in Merken, wenn es wieder Zeit ist.',
+  'People you want to see now and then, with a quiet reminder in Remember when it is time again, and ideas to do together that turn it into an invitation.': 'Menschen, die du ab und zu sehen willst, mit einer leisen Erinnerung in Merken, wenn es wieder Zeit ist, und Ideen für etwas zusammen, die daraus eine Einladung machen.',
   'At a trip abroad: the emergency numbers of the country, your travel insurance and the currency converter set to the country.': 'Bei einer Tour im Ausland: die Notfallnummern des Landes, deine Reiseversicherung und der Währungsrechner, auf das Land eingestellt.',
   'Open Me › Everyday life › Shopping list.': 'Öffne Planen › Alltag › Einkaufsliste.',
   'Type a point and tap «Add»; tick it in the shop.': 'Schreib einen Punkt und tipp «Hinzufügen»; im Laden abhaken.',

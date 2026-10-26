@@ -12,6 +12,7 @@
   import { offerDone } from '../ui/rename.svelte.js';
   import { deleteItems, undoBulk } from './bulk.js';
   import { pauseWish, endPause, wishPauseState, PAUSE_DAYS } from '../stand/stand.js';
+  import WishTrial from './WishTrial.svelte'; // UC-007-I3: after a borrow test, the question shows here
 
   let { item } = $props();
   const today = localDay();
@@ -41,6 +42,7 @@
 </script>
 
 <div class="wp" data-wish-pause={item.id}>
+  <WishTrial {item} compact />
   {#if !st}
     <button type="button" class="btn sm" onclick={pause} aria-label={t('Wait {n} days before buying {name}', { n: PAUSE_DAYS, name: nameOf(item) })} data-wish-wait><Hourglass size={14} aria-hidden="true" />{t('Wait {n} days', { n: PAUSE_DAYS })}</button>
   {:else if !st.over}

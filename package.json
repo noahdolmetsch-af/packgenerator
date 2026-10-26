@@ -1,7 +1,7 @@
 {
   "name": "packgenerator",
   "private": true,
-  "version": "0.198.0",
+  "version": "0.200.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -11,7 +11,7 @@
     "e2e": "playwright test"
   },
   "devDependencies": {
-    "@playwright/test": "1.56.1",
+    "@playwright/test": "1.64.1",
     "@sveltejs/vite-plugin-svelte": "^7.3.1",
     "fake-indexeddb": "^6.2.6",
     "read-excel-file": "^9.3.12",
@@ -33,9 +33,9 @@
     "dexie": "^4.4.6",
     "heic2any": "0.0.4",
     "leaflet": "1.9.4",
-    "maplibre-gl": "6.14.0",
+    "maplibre-gl": "6.15.0",
     "pdf-lib": "1.17.1",
-    "pdfjs-dist": "5.7.284",
+    "pdfjs-dist": "6.4.299",
     "qrcode-generator": "^2.0.4",
     "tesseract.js": "7.0.0"
   }

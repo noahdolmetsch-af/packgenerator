@@ -1,6 +1,6 @@
 # Projektstand und Plan
 
-Stand: **26. Oktober 2026, 00:30 UTC** (nachgetragen nach Noahs Auftrag vom 25.10.2026 «bitte bringe den aktuellen projektstand auf github auf den aktuellen stand»). Auf `main` ist **Version 0.198.0** «Kette vorausschauend» (PR #254, zusammengeführt 25.10.2026, 23:58 UTC; die Veröffentlichung auf GitHub Pages lief beim Schreiben). Davor war **0.195.1** live (seit 25.10.2026, 22:39 UTC). Offen ist PR #253 mit 0.196.0 und 0.197.0; er bekommt neue Nummern über 0.198.0.
+Stand: **26. Oktober 2026, 00:30 UTC** (nachgetragen nach Noahs Auftrag vom 25.10.2026 «bitte bringe den aktuellen projektstand auf github auf den aktuellen stand»). Auf `main` ist **Version 0.198.0** «Kette vorausschauend» (PR #254, zusammengeführt 25.10.2026, 23:58 UTC; die Veröffentlichung auf GitHub Pages lief beim Schreiben). Davor war **0.195.1** live (seit 25.10.2026, 22:39 UTC). Offen ist PR #253 mit 0.199.0 und 0.200.0.
 
 Ältere Abschnitte weiter unten («Kurzstand 19.10.», Abschnitte 1 bis 5) sind der damalige Stand und bleiben als Verlauf stehen. Was unten anders steht, gilt nicht mehr, wo dieser Abschnitt etwas Neueres sagt.
 
@@ -25,8 +25,8 @@ Stand: **26. Oktober 2026, 00:30 UTC** (nachgetragen nach Noahs Auftrag vom 25.1
 
 | PR | Version (vorläufig) | Inhalt | Stand |
 |---|---|---|---|
-| #253 | 0.196.0 | «Flicken, ausprobieren, abmachen»: letzte Einzelideen aus Paket A (996 Ideen) | offen; Nummer muss über 0.198.0; Noah mergt selbst |
-| #253 | 0.197.0 | «Zusammen auf einer Karte»: Gruppen-Live-Karte (Noah 25.10. «b»: Einladungslink, Teilen nur auf Wunsch, endet nach 24 Stunden, 0 Kosten) und «Velos sichtbar» | wie oben; ändert `api/`, danach den Server «packgen» prüfen |
+| #253 | 0.199.0 | «Flicken, ausprobieren, abmachen»: letzte Einzelideen aus Paket A (996 Ideen) | offen; Noah mergt selbst |
+| #253 | 0.200.0 | «Zusammen auf einer Karte»: Gruppen-Live-Karte (Noah 25.10. «b»: Einladungslink, Teilen nur auf Wunsch, endet nach 24 Stunden, 0 Kosten) und «Velos sichtbar» | wie oben; ändert `api/`, danach den Server «packgen» prüfen |
 | #251 | – | Bibliotheken aktualisieren (Playwright 1.64, pdfjs 6, maplibre 6.15) mit Anpassung | offen, Prüfungen seit Tagen rot |
 
 ### Wie ein Release heute online geht (seit 26.10.2026)
@@ -62,6 +62,14 @@ Einzelheiten zu jeder Entscheidung stehen im [Entscheidungslog](decisions.md).
 4. **Bibliotheken aktualisieren** (Wächter, PR #251): Prüfungen seit mehreren Tagen rot.
 5. **Kleiderschrank-Test** (`wardrobe`) schlägt manchmal ohne Grund fehl; die Ursache ist noch nicht behoben.
 6. **Wächter:** optional den Vercel-Zugang neu verbinden (braucht Noahs Klick).
+
+### Kurzstand 25.10.2026: Gruppen-Live-Karte
+
+**0.200.0 «Zusammen auf einer Karte»:** Auf der Live-Karte lädst du Freunde per Link in eine Gruppenfahrt ein. Sie sehen dich und einander im Browser, ohne App und ohne Konto, und teilen ihren Standort nur, wenn sie wollen. Die Gruppe endet mit der Fahrt, spätestens nach 24 Stunden. 0 Kosten.
+
+### Kurzstand 25.10.2026: Paket A, letzte Einzelideen
+
+**0.199.0 «Flicken, ausprobieren, abmachen» (vorläufige Nummer):** Kleider reparieren statt aussortieren, Wunsch zuerst ausleihen, Ideen für ein Treffen bei «Lange nicht gesehen», Geburtstag mit kleinen Schritten, Webcams mit Zweck und Aufräumrunde. Damit sind die Einzelideen aus Paket A gebaut, die nicht in anderen Fäden liegen. Kein Schema-Wechsel.
 
 ### Kurzstand 25.10.2026: Kette vorausschauend
 
@@ -156,8 +164,8 @@ Damals (19.10.2026) galt: keine Testlinks; Ein Paket geht online, sobald die Tes
 | 78 | Zusammen mit Freunden (996 Ideen, Paket D Teil 1) | 0.194.0 | Ich › Mit Freunden: Freunde fragen, Leihregal, Vorlage teilen; ohne Konto, als Link oder Datei | live |
 | 79 | Kleine Helfer für Tour und Velo (996 Ideen, Paket B, Einzelideen) | 0.195.0 | Velo abgestellt mit Schlüssel und abgenommenen Teilen, «Melden bis» pro Nacht, Hotelanfragen im Rennmodus, Reise-Links «Optionen vergleichen», Vorgeschmack einer Traumtour, Garantiefall-Entwurf | live |
 | 80 | Einkaufsliste am Stück (Korrektur) | 0.195.1 | Am Computer brachen Namen in der Einkaufsliste Buchstabe für Buchstabe um, seit «30 Tage warten» (0.192.0); jetzt rutschen die Knöpfe bei wenig Platz unter den Namen | live |
-| 81 | Flicken, ausprobieren, abmachen (996 Ideen, Paket A, letzte Einzelideen) | 0.196.0 (vorläufig) | siehe PR #253 | PR #253, Noah mergt selbst |
-| 82 | Zusammen auf einer Karte (Gruppen-Live-Karte) + Velos sichtbar | 0.197.0 (vorläufig) | Einladungslink, Teilen nur auf Wunsch, endet nach 24 Stunden | PR #253, Noah mergt selbst |
+| 81 | Flicken, ausprobieren, abmachen (996 Ideen, Paket A, letzte Einzelideen) | 0.199.0 | Kleider reparieren, Wunsch zuerst ausleihen, Ideen für ein Treffen, Geburtstag in kleinen Schritten, Webcams aufräumen | PR #253, Noah mergt selbst |
+| 82 | Zusammen auf einer Karte (Gruppen-Live-Karte) + Velos sichtbar + 332 sichtbar | 0.200.0 | Gruppenfahrt: Freunde per Link auf einer Live-Karte, freiwillig teilen, endet nach der Fahrt, spätestens nach 24 Stunden; Velo-Funktionen heissen wie ihre Knöpfe | PR #253, Noah mergt selbst |
 | 83 | Kette vorausschauend | 0.198.0 | Velos › Pflege › Verschleiss: nächste Kettenschritte, Verlauf und Prognose, Handy-Erinnerung | auf `main` 25.10. |
 | 62 | Skitour (Mockup-Paket P2) | 0.178.0 | Skitouren › Tour planen: Gefahrenstufe 1–5 mit Unterstufe und Satz, «Dein Morgen», Verhältnisse, Plan in Zahlen; «Gipfel erreicht» unterwegs; Nach der Tour «Plan und Wirklichkeit» und dein Material; Skitouren › Saison: Ziel, Wunschtouren, Skitage 8 Wochen, LVS-Übungen, Kurse mit «Auffrischen», Höhenmeter pro Ski, letzte Saison; Vorabend-Check zeigt Stufe, Temperatur, Wind, letzten Zug | live |
 

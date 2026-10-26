@@ -7,9 +7,11 @@
    * A cam can get a place (the place search): then it shows as a point on the live map.
    */
   import { liveQuery } from 'dexie';
-  import { Plus, Pencil, Trash2, Home as HomeIcon, ExternalLink, MapPin, Search, X } from '@lucide/svelte';
+  import { Plus, Pencil, Trash2, Home as HomeIcon, ExternalLink, MapPin, Search, X, Target } from '@lucide/svelte';
   import { db } from '../db.js';
-  import { WEBCAMS_KEY, BERGFEX, PASSES, camsOf, addCam, renameCam, removeCam, setHome, setPlace, moveCam, isImage, freshSrc, camLabel, cleanUrl } from './webcams.js';
+  import { WEBCAMS_KEY, BERGFEX, PASSES, camsOf, addCam, renameCam, removeCam, setHome, setPlace, moveCam, isImage, freshSrc, camLabel, cleanUrl, setWhy, markSeen, staleCams, STALE_DAYS } from './webcams.js';
+  import { localDay } from '../localday.js';
+  import { offerDone } from '../ui/rename.svelte.js';
   import SortArrows from '../ui/SortArrows.svelte';
   import SortGrip from '../ui/SortGrip.svelte';
   import { sortable } from '../ui/sortable.js';
@@ -27,6 +29,15 @@
   let home = $state(false);
   let msg = $state('');
   let renaming = $state(null);
+  // Paket A, UC-109-I1 + I2: what a cam is for, and a rare tidy-up of cams not opened for months
+  let whyFor = $state(null);
+  const today = localDay();
+  const stale = $derived(staleCams(cams, today));
+  const seen = (c) => save(markSeen(cams, c.id, today));
+  async function keep(c) {
+    await save(markSeen(cams, c.id, today));
+    offerDone(t('«{name}» stays.', { name: camLabel(c) }));
+  }
   let now = $state(Date.now());
   $effect(() => {
     const id = setInterval(() => (now = Date.now()), 60_000);
@@ -79,19 +90,32 @@
 </script>
 
 <p class="rc-note">{t('Add any webcam with its address. A picture address (ending in .jpg or .png) shows the live picture here; other pages open with a tap. Your list stays on this device only.')}</p>
+{#if stale.length}
+  <details class="wc-stale" data-webcam-stale>
+    <summary>{t('Not opened for a long time ({n})', { n: stale.length })}</summary>
+    <p class="rc-note">{t('These webcams were not opened for {n} days. Keep them, or delete what you no longer need.', { n: STALE_DAYS })}</p>
+    <ul class="wc-list">
+      {#each stale as c (c.id)}
+        <li class="wc-acts" data-webcam-stale-row={c.id}><b>{camLabel(c)}</b><button type="button" class="btn sm" onclick={() => keep(c)} data-webcam-keep>{t('Keep')}</button><button type="button" class="btn sm" onclick={() => del(c)}>{t('Delete')}</button></li>
+      {/each}
+    </ul>
+  </details>
+{/if}
 {#if cams.length}
   <ul class="wc-list" use:sortable={{ onmove: (from, to) => move(from, to) }} data-webcam-list>
     {#each cams as c, i (c.id)}
       <li class="wc-row" data-sort-id={c.id} data-webcam={c.id}>
         <div class="wc-top">
           <SortGrip name={camLabel(c)} onstep={(dir) => move(i, i + dir)} />
-          <a class="wc-name" href={c.url} target="_blank" rel="noopener noreferrer"><b>{camLabel(c)}</b>{#if c.home}<small>{t('Home cam · on Today')}</small>{/if}<ExternalLink size={14} aria-hidden="true" /></a>
+          <a class="wc-name" href={c.url} target="_blank" rel="noopener noreferrer" onclick={() => seen(c)}><b>{camLabel(c)}</b>{#if c.home}<small>{t('Home cam · on Today')}</small>{/if}<ExternalLink size={14} aria-hidden="true" /></a>
           <SortArrows name={camLabel(c)} {i} n={cams.length} onstep={(dir) => move(i, i + dir)} />
         </div>
+        {#if c.why}<p class="wc-place" data-webcam-why><Target size={14} aria-hidden="true" />{t('For: {why}', { why: c.why })}</p>{/if}
         {#if c.place}<p class="wc-place" data-webcam-place><MapPin size={14} aria-hidden="true" />{t('On the live map: {place}', { place: c.place.name || t('your place') })}</p>{/if}
         {#if isImage(c.url)}<img class="wc-img" src={freshSrc(c.url, now)} alt={t('Webcam {name}', { name: camLabel(c) })} loading="lazy" referrerpolicy="no-referrer" />{/if}
         <div class="wc-acts">
           <button type="button" class="btn sm" aria-pressed={c.home} onclick={() => save(setHome(cams, c.id))} data-webcam-home><HomeIcon size={16} aria-hidden="true" />{c.home ? t('Home cam') : t('Make home cam')}</button>
+          <button type="button" class="btn sm" onclick={() => (whyFor = c)} data-webcam-why-edit><Target size={16} aria-hidden="true" />{c.why ? t('Change what for') : t('What for?')}</button>
           <button type="button" class="btn sm" onclick={() => (renaming = c)} data-webcam-rename><Pencil size={16} aria-hidden="true" />{t('Rename')}</button>
           <button type="button" class="btn sm" aria-expanded={placing === c.id} onclick={() => openPlace(c)} data-webcam-setplace><MapPin size={16} aria-hidden="true" />{c.place ? t('Change place') : t('Place on the map')}</button>
           {#if c.place}<button type="button" class="btn sm" onclick={() => save(setPlace(cams, c.id, null))} data-webcam-noplace><X size={16} aria-hidden="true" />{t('Off the map')}</button>{/if}
@@ -132,12 +156,22 @@
   <a class="btn sm" href={PASSES} target="_blank" rel="noopener noreferrer">{t('Passes open or closed')}<ExternalLink size={14} aria-hidden="true" /></a>
 </div>
 
+{#if whyFor}
+  {@const c = whyFor}
+  <RenameSheet kicker={camLabel(c)} title={t('What do you look at it for?')} value={c.why ?? ''} hint={t('e.g. see the pass road, or the snow line. Only for you.')} empty={t('Without a purpose nothing shows.')} onsave={async (w) => void (await save(setWhy(cams, c.id, w)))} onclose={() => (whyFor = null)} />
+{/if}
 {#if renaming}
   {@const c = renaming}
-  <RenameSheet kicker={t('Webcam')} title={t('Rename webcam')} value={c.name} empty={t('Without a name the address shows.')} onsave={(n) => save(renameCam(cams, c.id, n))} onclose={() => (renaming = null)} />
+  <RenameSheet kicker={t('Webcam')} title={t('Rename webcam')} value={c.name} empty={t('Without a name the address shows.')} onsave={async (n) => void (await save(renameCam(cams, c.id, n)))} onclose={() => (renaming = null)} />
 {/if}
 
 <style>
+  .wc-stale summary {
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+    cursor: pointer;
+  }
   .wc-list {
     list-style: none;
     margin: 0;

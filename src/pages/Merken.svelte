@@ -27,6 +27,7 @@
   import PageHead from '../lib/ui/PageHead.svelte';
   import TodoSheet from '../lib/merken/TodoSheet.svelte';
   import KindSheet from '../lib/merken/KindSheet.svelte';
+  import BdayPlan from '../lib/stand/BdayPlan.svelte'; // Paket A, UC-257-I2: steps for a birthday
   import ListSheet from '../lib/merken/ListSheet.svelte';
   import TrelloBox from '../lib/trello/TrelloBox.svelte';
   import { trello } from '../lib/trello/client.svelte.js';
@@ -170,6 +171,7 @@
               </button>
               <span class="due" class:soon={r.in <= 1}>{inDays(r.in)}</span>
             </li>
+            {#if r.in <= 30}<li class="bpl"><BdayPlan td={r.td} year={Number(r.day.slice(0, 4))} /></li>{/if}
           {/each}
         </ul>
       {/each}
@@ -264,6 +266,9 @@
 {/if}
 
 <style>
+  .bpl {
+    list-style: none;
+  }
   .intr {
     margin: 2px 0 6px;
     color: var(--ink-3);

@@ -258,3 +258,69 @@ export function setNeverWhy(item, key) {
   return next;
 }
 export const neverNext = (item) => NEVER_WHY.find((w) => w.key && w.key === item?.neverWhy)?.next ?? '';
+
+/**
+ * UC-257-I2 «Geburtstag als Beziehungsvorhaben»: a birthday may carry three small steps for this year: the gift
+ * idea (td.gift), something together (td.together) and how you get in touch (td.contact). Ticks per year in td.bdone.
+ */
+export const BDAY_CONTACT = [
+  { key: 'call', name: 'Call' },
+  { key: 'write', name: 'Write a message' },
+  { key: 'visit', name: 'Visit|bday' },
+];
+export function bdaySteps(td, year) {
+  const done = td?.bdone && typeof td.bdone === 'object' ? td.bdone : {};
+  const c = BDAY_CONTACT.find((x) => x.key === td?.contact);
+  return [
+    td?.gift ? { key: 'gift', text: td.gift, own: true } : null,
+    td?.together ? { key: 'together', text: td.together, own: true } : null,
+    c ? { key: 'contact', text: c.name, own: false } : null,
+  ]
+    .filter(Boolean)
+    .map((s) => ({ ...s, done: done[s.key] === year }));
+}
+/** The step ticked for this year, or taken back. */
+export function tickBdayStep(td, key, year) {
+  const done = { ...(td?.bdone ?? {}) };
+  if (done[key] === year) delete done[key];
+  else done[key] = year;
+  return { bdone: done };
+}
+
+/**
+ * UC-020-I1 «Reparieren statt aussortieren»: a piece of clothing carries small repair jobs (check the seam,
+ * replace the zip) in item.repairs = [{ id, text, done }]; done is the day it was fixed. Nothing is sorted out.
+ */
+export const REPAIR_SUGGEST = ['Check the seam', 'Replace the zip', 'Sew on a button', 'Patch a hole'];
+const repairsOf = (item) => (Array.isArray(item?.repairs) ? item.repairs : []);
+export function addRepair(item, text, id = `rp${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`) {
+  const x = String(text ?? '').trim().slice(0, 80);
+  return x ? [...repairsOf(item), { id, text: x, done: null }] : repairsOf(item);
+}
+export const renameRepair = (item, id, text) => {
+  const x = String(text ?? '').trim().slice(0, 80);
+  return repairsOf(item).map((r) => (r.id === id && x ? { ...r, text: x } : r));
+};
+export const dropRepair = (item, id) => repairsOf(item).filter((r) => r.id !== id);
+export const tickRepair = (item, id, today) => repairsOf(item).map((r) => (r.id === id ? { ...r, done: r.done ? null : today } : r));
+export const openRepairs = (item) => repairsOf(item).filter((r) => !r.done);
+
+/**
+ * UC-007-I3 «Ausleihen vor Kaufen»: a wish can be tried first with borrowed or rented gear. item.trial =
+ * { from, until, verdict: 'buy' | 'no' | null, why }. After «until» the app asks once for a reasoned decision.
+ */
+export function startTrial(item, { from = '', until = '' } = {}) {
+  const day = /^\d{4}-\d{2}-\d{2}$/.test(until) ? until : null;
+  return { ...item, trial: { from: String(from).trim().slice(0, 80), until: day, verdict: null, why: '' } };
+}
+export function trialState(item, today) {
+  const tr = item?.trial;
+  if (!tr || typeof tr !== 'object') return null;
+  return { ...tr, over: !tr.verdict && !!tr.until && tr.until < today, running: !tr.verdict && (!tr.until || tr.until >= today) };
+}
+export const endTrial = (item, verdict, why = '') => ({ ...item, trial: { ...(item?.trial ?? {}), verdict: verdict === 'buy' ? 'buy' : 'no', why: String(why ?? '').trim().slice(0, 200) } });
+export function clearTrial(item) {
+  const next = { ...item };
+  delete next.trial;
+  return next;
+}

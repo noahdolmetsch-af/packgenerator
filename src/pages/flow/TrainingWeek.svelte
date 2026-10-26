@@ -9,6 +9,7 @@
   import { liveQuery } from 'dexie';
   import { Target, ChevronLeft, ChevronRight, Plus, Check, Copy, Timer, Heart } from '@lucide/svelte';
   import Sec from '../../lib/flow/kit/Sec.svelte';
+  import QuickLinks from '../../lib/ui/QuickLinks.svelte';
   import Seg from '../../lib/ui/Seg.svelte';
   import KindIcon from '../../lib/strava/KindIcon.svelte';
   import ZoneBar from '../../lib/strava/ZoneBar.svelte';
@@ -110,6 +111,9 @@
 </script>
 
 <div class="wk">
+  <!-- «Aktiv sichtbar» (332 Use Cases, Noah 25.10.2026 «fange mit dem bereich aktiv an»): the week plan, the week in
+       review and the training plans stand 2 screens down; one chip row on top -->
+  <QuickLinks label={t('On this page')} links={[{ key: 'plan', jump: '#plan-h', label: t('Plan the week') }, { key: 'review', href: '#/flow/review', label: t('Week in review') }, { key: 'plans', href: '#/flow/plans', label: t('Training plans') }]} />
   <FeelAsk {acts} {today} />
   <section class="card goal" aria-labelledby="goal-h" data-section="goal">
     <span class="gi" aria-hidden="true"><Target size={22} /></span>
