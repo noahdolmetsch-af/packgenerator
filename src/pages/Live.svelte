@@ -54,6 +54,8 @@
   import ProfileStrip from '../lib/map/ProfileStrip.svelte';
   import PlaceSheet from '../lib/spur/PlaceSheet.svelte';
   import Essen from '../lib/unterwegs/Essen.svelte';
+  import { dayIndex } from '../lib/ride.js'; // Idee 57: the ride day for the planned stops
+  import { localDay as todayLocal } from '../lib/localday.js';
   import SosSheet from '../lib/live/SosSheet.svelte';
   import RerouteSheet from '../lib/live/RerouteSheet.svelte';
   import { onDetour, detourDone, detourGpx, saveDetour, loadDetour, DETOUR_COLOUR } from '../lib/reroute.js';
@@ -62,6 +64,7 @@
   import LiveWetter from '../lib/live/LiveWetter.svelte';
   import LiveEnergie from '../lib/live/LiveEnergie.svelte';
   import LiveEssen from '../lib/live/LiveEssen.svelte';
+  import LivePlaceNote from '../lib/tourenb/LivePlaceNote.svelte'; // Idee 55 (Touren b): a note at a point of the route
   import LiveWebcam from '../lib/live/LiveWebcam.svelte';
   import { camsQuery, camsOnMap, camOfPoint } from '../lib/wetter/webcamsmap.js';
   import { db } from '../lib/db.js';
@@ -977,7 +980,8 @@
         {#if cfg.eatHm && eatGain >= 300}<p class="lvf-alert" role="alert"><Utensils size={18} aria-hidden="true" /><span>{t('{m} m up since you last ate: time to eat.', { m: eatGain })}</span> <button type="button" class="btn sm" onclick={ateNow}>{t('Eaten')}</button></p>{/if}
         {#if msg}<p class="lvf-alert lvf-bad" role="alert">{msg}</p>{/if}
         <LiveWetter {me} />
-        <LiveEssen />
+        <LiveEssen {me} />
+        <LivePlaceNote {me} tripId={trip?.id ?? null} />
         {#if detour}
           <div class="lvf-alert lv-detour" role="status" data-live-detour>
             <Route size={18} aria-hidden="true" />
@@ -1194,7 +1198,7 @@
               <div class="lvf-part"><LiveRouteBox {trip} /></div>
             {/if}
 
-            <Essen tripId={trip?.id ?? null} until={plan && running ? plan.end : null} />
+            <Essen tripId={trip?.id ?? null} until={plan && running ? plan.end : null} fuelStops={trip?.fuelStops ?? []} day={trip ? dayIndex(trip, todayLocal()) : 0} />
             <LiveEnergie rideKm={rec.km} movingS={pz.movingS} profile={hasRoute ? profile : []} {km} {me} />
 
             <div class="lvf-part"><SensorBox {now} /></div>

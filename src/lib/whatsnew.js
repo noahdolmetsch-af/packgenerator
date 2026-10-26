@@ -16,6 +16,18 @@
 
 export const WHATS_NEW = [
   {
+    // v0.212.0 «Touren b» (996 Einzelideen 50–58, Noah 25./26.10.2026 «freigabe 52 55 56 57 58»): trip from an intent,
+    // rule with an end, little stories, check from a breakdown, «check later», note at a place, your day to listen to,
+    // eat reminder at planned stops, book what was used
+    version: '0.212.0',
+    date: '2026-10-26',
+    title: 'Tours that remember',
+    lead: 'Start from what you want, get reminded at the right place.',
+    points: [{ text: 'New trip: start from what you have in mind', href: '#/trips' }],
+    small: [{ box: 'new', text: 'A note at a place of the route comes up when you get there', href: '#/ride' }],
+    test: ['Open Touren › Neue Tour: on top choose what you have in mind, the form stays below.', 'On the way tap «Später prüfen» and say what to check: it waits in the Inbox.'],
+  },
+  {
     // v0.211.0 «Touren a» part 2 (996 Einzelideen 44, 45, 47, 49; Noah 26.10.2026 «1a 2b 3a 4b 5b»): trips side by side,
     // sport per day with «When it changes», unclear spots with km, own border points per country
     version: '0.211.0',

@@ -1,6 +1,6 @@
 # Projektstand und Plan
 
-Stand: **26. Oktober 2026, 17:50 UTC**. Live ist **Version 0.208.0** (Sammel-PR #263 mit 0.206.0 bis 0.208.0, von Noah zusammengeführt am 26.10.2026, 17:36 UTC). Offen ist der Sammel-PR mit 0.208.1 «Ganze Wörter am kleinen Handy» (war #257), 0.209.0 «Tagelang zusammen fahren» (Gruppenfahrt für Events) 0.210.0 «Deine Liste in Sicht» (Noahs Liste, 111 → 77 versteckte Funktionen) und 0.211.0 «Zwei Touren, ein Blick» (Touren a Teil 2). Mit ihm gehen auch 0.206.0 bis 0.208.0 online (main war am Abend rot).
+Stand: **26. Oktober 2026, 17:50 UTC**. Live ist **Version 0.208.0** (Sammel-PR #263 mit 0.206.0 bis 0.208.0, von Noah zusammengeführt am 26.10.2026, 17:36 UTC). Offen ist der Sammel-PR mit 0.208.1 «Ganze Wörter am kleinen Handy» (war #257), 0.209.0 «Tagelang zusammen fahren» (Gruppenfahrt für Events) 0.210.0 «Deine Liste in Sicht» (Noahs Liste, 111 → 77 versteckte Funktionen) 0.211.0 «Zwei Touren, ein Blick» (Touren a Teil 2) und 0.212.0 «Touren, die mitdenken» (Touren b). Mit ihm gehen auch 0.206.0 bis 0.208.0 online (main war am Abend rot).
 
 Ältere Abschnitte weiter unten («Kurzstand 19.10.», Abschnitte 1 bis 5) sind der damalige Stand und bleiben als Verlauf stehen. Was unten anders steht, gilt nicht mehr, wo dieser Abschnitt etwas Neueres sagt.
 
@@ -187,6 +187,7 @@ Damals (19.10.2026) galt: keine Testlinks; Ein Paket geht online, sobald die Tes
 | 93 | Tagelang zusammen fahren (Gruppenfahrt für Events) | 0.209.0 | Eigene Seite der Gruppenfahrt mit Hilfe, Bereit, Treffpunkten, Kosten; Kontaktkarte mit QR-Code | offen |
 | 94 | Deine Liste in Sicht (Noahs Liste sichtbar) | 0.210.0 | Sprungknöpfe für versteckte Werkzeuge, alle Taschen nebeneinander, 111 → 77 versteckt | offen |
 | 95 | Zwei Touren, ein Blick (996 Einzelideen Touren 44, 45, 47, 49) | 0.211.0 | Touren nebeneinander, Tour vorbereiten (Sportart pro Tag, unklare Stellen, Grenze) | offen |
+| 96 | Touren, die mitdenken (996 Einzelideen Touren 50–58) | 0.212.0 | Absicht, Regel mit Ende, Geschichten, Panne-Check, Später prüfen, Ort-Notiz, Tag zum Hören, Ess-Stopps, Verbrauch | offen |
 | 62 | Skitour (Mockup-Paket P2) | 0.178.0 | Skitouren › Tour planen: Gefahrenstufe 1–5 mit Unterstufe und Satz, «Dein Morgen», Verhältnisse, Plan in Zahlen; «Gipfel erreicht» unterwegs; Nach der Tour «Plan und Wirklichkeit» und dein Material; Skitouren › Saison: Ziel, Wunschtouren, Skitage 8 Wochen, LVS-Übungen, Kurse mit «Auffrischen», Höhenmeter pro Ski, letzte Saison; Vorabend-Check zeigt Stufe, Temperatur, Wind, letzten Zug | live |
 
 «Frontend aufpeppen» ist pausiert (Noah 19.10.2026). Die Abschnitte unten sind der Stand vom 18.10.2026.

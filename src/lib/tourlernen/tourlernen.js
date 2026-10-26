@@ -28,7 +28,7 @@ export const breakKind = (key) => BREAK_KINDS.find((k) => k.key === key) ?? BREA
 /** The breakdowns of a trip made safe. */
 export function breakdownsOf(trip) {
   const list = Array.isArray(trip?.breakdowns) ? trip.breakdowns : [];
-  return list.filter((b) => b && b.id).map((b) => ({ id: String(b.id), kind: breakKind(b.kind).key, part: String(b.part ?? ''), place: String(b.place ?? ''), note: String(b.note ?? ''), taskId: b.taskId ? String(b.taskId) : null, at: String(b.at ?? '') }));
+  return list.filter((b) => b && b.id).map((b) => ({ id: String(b.id), kind: breakKind(b.kind).key, part: String(b.part ?? ''), place: String(b.place ?? ''), note: String(b.note ?? ''), taskId: b.taskId ? String(b.taskId) : null, ...(b.checkId ? { checkId: String(b.checkId) } : {}), at: String(b.at ?? '') }));
 }
 
 /** A new breakdown (null without a kind). */

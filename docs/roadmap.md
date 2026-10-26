@@ -895,3 +895,5 @@ Die frühere gespeicherte Datei `2026-10-07-packgenerator-ablaufplan.md` wird al
 **26.10.2026, v0.209.0 «Tagelang zusammen fahren» und v0.210.0 «Deine Liste in Sicht»:** Gruppenfahrt für Events mit eigener Seite und Kontaktkarte; Noahs Wunschliste sichtbar (111 → 77 versteckte Funktionen). Im Sammel-PR mit 0.208.1.
 
 **26.10.2026, v0.211.0 «Zwei Touren, ein Blick»:** Touren-Ideen 44, 45, 47, 49 gebaut (Touren nebeneinander, Sportart pro Tag, unklare Stellen, Grenze). Von Touren a fehlt nichts mehr.
+
+**26.10.2026, v0.212.0 «Touren, die mitdenken»:** Touren-Ideen 50–58 gebaut (Absicht, Regel mit Ende, Geschichten, Panne-Check, Später prüfen, Ort-Notiz, Tag zum Hören, Ess-Stopps, Verbrauch).

@@ -4,6 +4,13 @@
  * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
+  // 0.212.0 Touren b
+  'Tours that remember': 'Touren, die mitdenken',
+  'Start from what you want, get reminded at the right place.': 'Beginne mit deiner Absicht, die Erinnerung kommt am richtigen Ort.',
+  'New trip: start from what you have in mind': 'Neue Tour: beginne mit dem, was du vorhast',
+  'A note at a place of the route comes up when you get there': 'Eine Notiz an einem Ort der Strecke meldet sich, wenn du dort bist',
+  'Open Touren › Neue Tour: on top choose what you have in mind, the form stays below.': 'Öffne Touren › Neue Tour: Wähle oben, was du vorhast, das Formular bleibt darunter.',
+  'On the way tap «Später prüfen» and say what to check: it waits in the Inbox.': 'Tippe unterwegs auf «Später prüfen» und sag, was du prüfen willst: Es wartet im Eingang.',
   // 0.211.0 Touren a, Teil 2
   'Two tours, one look': 'Zwei Touren, ein Blick',
   'Compare two trips and prepare one well.': 'Zwei Touren vergleichen, eine gut vorbereiten.',

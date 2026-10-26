@@ -172,13 +172,13 @@
           {#each BORDER_AREAS as a (a.key)}
             {@const pts = shown.points.filter((p) => p.area === a.key)}
             <div class="area" data-border-area={a.key}>
-              <p class="ah tp-small"><b>{t(a.name)}</b>{#if pts.length} · {t('{n} of {m} done', { n: pts.filter((p) => p.done).length, m: pts.length })}{/if}</p>
+              <p class="ah tp-small"><b>{t(a.name)}</b>{#if pts.length}{' · '}{t('{n} of {m} done', { n: pts.filter((p) => p.done).length, m: pts.length })}{/if}</p>
               {#if pts.length}
                 <ul class="rows">
                   {#each pts as p, i (p.id)}
                     <li class:done={p.done} data-border-point={p.id}>
                       <button type="button" class="tick" class:y={p.done} aria-pressed={p.done} aria-label={p.done ? t('Open again: {name}', { name: p.text }) : t('Done: {name}', { name: p.text })} onclick={() => save({ border: borderTogglePoint(trip, shown.id, p.id) })}>{#if p.done}<Check size={14} aria-hidden="true" />{/if}</button>
-                      <span class="t"><b>{p.text}</b><small>{p.source ? t('Source: {src}', { src: p.source }) : t('no source')}{#if p.checkedAt} · {t('checked {date}', { date: when(p.checkedAt) })}{/if}{#if isStale(p)} · <span class="warn">{t('check again')}</span>{/if}</small></span>
+                      <span class="t"><b>{p.text}</b><small>{p.source ? t('Source: {src}', { src: p.source }) : t('no source')}{#if p.checkedAt}{' · '}{t('checked {date}', { date: when(p.checkedAt) })}{/if}{#if isStale(p)}{' · '}<span class="warn">{t('check again')}</span>{/if}</small></span>
                       <span class="arrows">
                         <button type="button" class="ib" disabled={i === 0} aria-label={t('Move up: {name}', { name: p.text })} onclick={() => save({ border: borderMovePoint(trip, shown.id, p.id, -1) })}><ArrowUp size={16} aria-hidden="true" /></button>
                         <button type="button" class="ib" disabled={i === pts.length - 1} aria-label={t('Move down: {name}', { name: p.text })} onclick={() => save({ border: borderMovePoint(trip, shown.id, p.id, 1) })}><ArrowDown size={16} aria-hidden="true" /></button>
