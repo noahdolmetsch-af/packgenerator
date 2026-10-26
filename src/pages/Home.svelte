@@ -1310,21 +1310,21 @@
       </form>
       <label class="bytime" data-wall-bytime><input type="checkbox" role="switch" checked={timeOn} onchange={(e) => db.settings.put({ key: WALL_TIME_KEY, value: e.currentTarget.checked })} />{t('Order the tiles by time of day (morning tiles in the morning, evening tiles in the evening)')}</label>
     {:else}
-      <!-- «Heute neu» A (Noah «3a»): everything that left Heute is one tap away -->
-      {#await import('../lib/stops/HeuteStopps.svelte') then m}<m.default {today} top={false} />{:catch}{/await}
-      <!-- «Neuer Schwung» (Noah 26.10.2026 «3a»): «Customise the start page» sits in one quiet line at the very bottom,
-           on a computer too (it was a button at the top right); a long press on a tile still opens it -->
-      <div class="lkrow">
-        <a class="lkb" href="#/features" data-all-areas><LayoutGrid size={16} aria-hidden="true" />{t('All areas|home')}</a>
-        <button type="button" class="lkb" data-intro="custom" onclick={() => (editing = true)}><SlidersHorizontal size={16} aria-hidden="true" />{t('Customise the start page')}</button>
+      <!-- «Neuer Schwung» (Noah 26.10.2026 «3a», then «diesen bereich zusammen nehmen»): the end of Heute is one quiet
+           block: stops nearby, all areas, «Customise the start page» (on a computer too; it was a button at the top
+           right) and the online line. A long press on a tile still opens customising. «Diese Seite anpassen» is not on
+           Heute (App.svelte): customising the start page does that here. -->
+      <div class="endbar" data-home-end>
+        {#await import('../lib/stops/HeuteStopps.svelte') then m}<m.default {today} top={false} />{:catch}{/await}
+        <div class="lkrow">
+          <a class="lkb" href="#/features" data-all-areas><LayoutGrid size={16} aria-hidden="true" />{t('All areas|home')}</a>
+          <button type="button" class="lkb" data-intro="custom" onclick={() => (editing = true)}><SlidersHorizontal size={16} aria-hidden="true" />{t('Customise the start page')}</button>
+        </div>
+        <p class="ver"><span class="odot" class:off={!online}></span>{online ? t('Online') : t('Offline')} · v{__APP_VERSION__}</p>
       </div>
     {/if}
   </div>
 
-  <footer>
-    <span class="odot" class:off={!online}></span>
-    {online ? t('Online') : t('Offline')} · v{__APP_VERSION__}
-  </footer>
 </div>
 
 <!-- KT (3a): the short intro, once -->
@@ -2182,11 +2182,29 @@
     flex-direction: column;
     align-items: center;
   }
+  .endbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 4px 20px;
+    align-self: stretch;
+    padding: 12px 16px;
+    border-top: 1px solid var(--line);
+  }
   .lkrow {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    gap: 4px 24px;
+    gap: 4px 20px;
+  }
+  .ver {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    color: var(--ink-3);
+    font-size: var(--fs-small);
   }
   .custom .lkb {
     gap: 6px;
@@ -2308,13 +2326,6 @@
     font-size: 14px;
   }
 
-  footer {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    color: var(--ink-3);
-    font-size: var(--fs-small);
-  }
   .odot {
     width: 8px;
     height: 8px;
