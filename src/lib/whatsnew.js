@@ -16,6 +16,17 @@
 
 export const WHATS_NEW = [
   {
+    // v0.214.0 «App verstehen» (Noah 26.10.2026 21:11 «mini kurs … in der app einsehbar mit links und übungen»):
+    // Me › Understand the app, seven lessons to keep the app going without a helper; docs/notfall-handbuch.md and konten.md.
+    version: '0.214.0',
+    date: '2026-10-26',
+    title: 'Understand your app',
+    lead: 'Seven short lessons, so the app stays yours.',
+    points: [{ text: 'Me › Understand the app: lessons with links and one exercise each', href: '#/me/verstehen' }],
+    small: [{ box: 'new', text: 'On GitHub: emergency handbook and account list in plain German' }],
+    test: ['Open Me › Understand the app.', 'Open lesson 2 and tick «Mark as done»: the count above says 1 of 7 done.', 'Tap «Emergency handbook»: GitHub opens the handbook.'],
+  },
+  {
     // v0.208.0 «Computer-Breite besser nutzen» (UI-Ziel #14, Noah 26.10.2026 «1a 2a 3a 4a 5a»): Touren with a right
     // column that goes along, Auswerten's «Letzte 7 Tage» on the right, Velos with the bike first, content at most 1120 px.
     version: '0.208.0',

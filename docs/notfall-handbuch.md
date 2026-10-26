@@ -67,7 +67,7 @@ Gehe die Schritte der Reihe nach durch. Hör auf, sobald es wieder geht.
 
 ## 3. Backup: deine Daten sichern
 
-**Einmal im Monat (die App erinnert dich):**
+**Einmal im Monat** (die App erinnert dich von selbst, Standard alle 14 Tage; ändern unter **Ich** › **Eigene Werte** › «Backup-Erinnerung alle»):
 1. **Ich** › **Daten und Backup** › **Backup exportieren**.
 2. Die Datei an **zwei** Orten ablegen, zum Beispiel Google Drive und ein USB-Stick.
 

@@ -85,6 +85,7 @@ export const SINCE = {
   // Paket Q «App klarer» (v0.153.0)
   'f.alerts': '0.153.0', 'f.backuplock': '0.153.0', 'f.yearcheck': '0.153.0', 'f.suggestoff': '0.153.0', 'f.tipweek': '0.153.0', 'f.comeback': '0.153.0', 'f.tripalert': '0.153.0', 'f.helpsearch': '0.153.0', 'f.offlinesave': '0.153.0',
   // Paket R «Andere Menschen und Geld» (v0.154.0)
+  'f.verstehen': '0.214.0',
   'f.account': '0.154.0', 'f.privacy': '0.154.0', 'f.pros': '0.154.0',
   'f.fitbit': '0.147.0', 'f.analyses': '0.147.0', 'f.weight': '0.147.0', 'f.weekreview': '0.147.0', 'f.docscan': '0.147.0', 'f.agenda': '0.147.0', 'f.assistent': '0.147.0', 'f.offers': '0.147.0', 'f.autosync': '0.147.0', 'f.push': '0.147.0', 'f.webshop': '0.147.0', 'f.mail': '0.147.0',
   // v0.150.0 Paket C «Heute und Aktiv»: Routine «Das tut mir gut»

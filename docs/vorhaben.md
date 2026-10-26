@@ -508,5 +508,7 @@ Kurzfassung, verbindlich ist [arbeitsweise.md](arbeitsweise.md).
 0.195.0 «Kleine Helfer für Tour und Velo» (25.10.2026, Ziel Touren und Velo): weitere Einzelideen aus Paket B (996 Ideen).
 0.195.1 «Einkaufsliste am Stück» (25.10.2026, Ziel Alltag): Korrektur der Einkaufsliste am Computer.
 0.199.0 «Flicken, ausprobieren, abmachen» (25.10.2026, Ziel Alltag): letzte Einzelideen aus Paket A (996 Ideen).
+0.214.0 «App verstehen» (26.10.2026, Ziel Alltag): Noah hält die App selbst am Leben, auch ohne Claude: Kurs in der App, Notfall-Handbuch, Konten-Liste.
+
 0.208.0 «Mehr Platz am Computer» (26.10.2026, Ziel Alltag/Bedienung): UI-Ziel #14, die Hauptorte nutzen am Computer ihre Breite.
 0.200.0 «Zusammen auf einer Karte» (25.10.2026, Ziel Touren): Gruppen-Live-Karte, Freunde per Link auf einer Karte.
