@@ -154,3 +154,51 @@ describe('A buying pause and why something was not used (UC-007-I2, UC-008-I1)',
     }
   });
 });
+
+describe('birthday steps (UC-257-I2)', () => {
+  it('lists only the steps that are set, ticks per year', async () => {
+    const { bdaySteps, tickBdayStep } = await import('../src/lib/stand/stand.js');
+    const td = { gift: 'Book', contact: 'call' };
+    let s = bdaySteps(td, 2026);
+    expect(s.map((x) => x.key)).toEqual(['gift', 'contact']);
+    expect(s.every((x) => !x.done)).toBe(true);
+    const patch = tickBdayStep(td, 'gift', 2026);
+    s = bdaySteps({ ...td, ...patch }, 2026);
+    expect(s[0].done).toBe(true);
+    expect(bdaySteps({ ...td, ...patch }, 2027)[0].done).toBe(false);
+    expect(tickBdayStep({ ...td, ...patch }, 'gift', 2026).bdone).toEqual({});
+    expect(bdaySteps({}, 2026)).toEqual([]);
+  });
+});
+
+describe('clothes repairs (UC-020-I1)', () => {
+  it('adds, renames, ticks and drops a repair job', async () => {
+    const { addRepair, renameRepair, dropRepair, tickRepair, openRepairs } = await import('../src/lib/stand/stand.js');
+    let item = { id: 'c1' };
+    item = { ...item, repairs: addRepair(item, '  Replace the zip ', 'r1') };
+    expect(item.repairs).toEqual([{ id: 'r1', text: 'Replace the zip', done: null }]);
+    expect(addRepair(item, '   ')).toHaveLength(1);
+    item = { ...item, repairs: renameRepair(item, 'r1', 'New zip') };
+    expect(item.repairs[0].text).toBe('New zip');
+    item = { ...item, repairs: tickRepair(item, 'r1', '2026-10-25') };
+    expect(item.repairs[0].done).toBe('2026-10-25');
+    expect(openRepairs(item)).toEqual([]);
+    item = { ...item, repairs: tickRepair(item, 'r1', '2026-10-26') };
+    expect(openRepairs(item)).toHaveLength(1);
+    expect(dropRepair(item, 'r1')).toEqual([]);
+  });
+});
+
+describe('borrow before buying (UC-007-I3)', () => {
+  it('runs a test, asks after it and keeps the reasoned decision', async () => {
+    const { startTrial, trialState, endTrial, clearTrial } = await import('../src/lib/stand/stand.js');
+    const w = startTrial({ id: 'w1', ownership: 'wishlist' }, { from: ' Rental shop ', until: '2026-10-30' });
+    expect(w.trial).toEqual({ from: 'Rental shop', until: '2026-10-30', verdict: null, why: '' });
+    expect(trialState(w, '2026-10-25')).toMatchObject({ running: true, over: false });
+    expect(trialState(w, '2026-10-31')).toMatchObject({ running: false, over: true });
+    const d = endTrial(w, 'no', 'Too heavy for me');
+    expect(trialState(d, '2026-10-31')).toMatchObject({ verdict: 'no', why: 'Too heavy for me', over: false, running: false });
+    expect(trialState(clearTrial(d), '2026-10-31')).toBe(null);
+    expect(startTrial({}, { until: 'soon' }).trial.until).toBe(null);
+  });
+});

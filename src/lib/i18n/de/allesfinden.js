@@ -48,7 +48,7 @@ export default {
   'Switch to another trip': 'Andere Tour wechseln',
   'The small «more» button in the dark trip band lists every trip.': 'Der kleine Knopf «mehr» im dunklen Tourband zeigt alle Touren.',
   'A few words become a packing list suggestion (with the helper code only).': 'Ein paar Wörter werden ein Vorschlag für die Packliste (nur mit Helfer-Code).',
-  'Clothing by layer and zone; gaps go to the wishlist.': 'Kleidung nach Schicht und Zone; Lücken kommen auf die Wunschliste.',
+  'Clothing by layer and zone; gaps go to the wishlist. A piece that is worn out gets repair jobs instead of being sorted out.': 'Kleidung nach Schicht und Zone; Lücken kommen auf die Wunschliste. Ein abgenutztes Stück bekommt Reparaturaufträge, statt aussortiert zu werden.',
   'Save as a kit': 'Als Kit speichern',
   'Save an outfit as a kit; planning then suggests it.': 'Ein Outfit als Kit speichern; beim Planen kommt es dann als Vorschlag.',
   'Lighter alternatives': 'Leichtere Alternativen',

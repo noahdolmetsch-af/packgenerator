@@ -227,10 +227,10 @@ export async function undoExamples(db, left) {
 
 /**
  * Should the window ask? Browser tests (webdriver) start empty on purpose and never see it, unless a test
- * asks for it with localStorage «firstStart.ask» = '1'. A shared page (#/share/…, #/spur-link/…) never asks.
+ * asks for it with localStorage «firstStart.ask» = '1'. A shared page (#/share/…, #/spur-link/…, #/gruppe/…) never asks.
  */
 export function mayAsk(nav = globalThis.navigator, hash = globalThis.location?.hash ?? '') {
-  if (/^#\/(share|spur-link)\//.test(hash)) return false;
+  if (/^#\/(share|spur-link|gruppe)\//.test(hash)) return false;
   if (!nav?.webdriver) return true;
   try {
     return localStorage.getItem('firstStart.ask') === '1';

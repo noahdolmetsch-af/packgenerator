@@ -1522,6 +1522,11 @@ export default {
   'Type the weight and tap «Save», or «Not today».': 'Tippe das Gewicht ein und dann «Speichern», oder «Heute nicht».',
   '«Stop asking» takes the card away; «Add a tile» brings it back.': '«Nicht mehr fragen» nimmt die Karte weg; «Kachel hinzufügen» holt sie zurück.',
   'Example: last weight 8 days ago → the card asks; saved, it is gone until next week.': 'Beispiel: letztes Gewicht vor 8 Tagen → die Karte fragt; gespeichert ist sie bis nächste Woche weg.',
+  // Gruppen-Live-Karte (f.groupmap)
+  'Open the live map and tap «Invite the group» (write your name first).': 'Öffne die Live-Karte und tippe «Gruppe einladen» (schreib zuerst deinen Namen).',
+  'Send the link by WhatsApp or SMS; friends open it and tap «Share my location».': 'Schick den Link per WhatsApp oder SMS; Freunde öffnen ihn und tippen «Meinen Standort teilen».',
+  'Everyone sees all who share; «End the group» or stopping the ride deletes every place.': 'Alle sehen alle, die teilen; «Gruppe beenden» oder das Ende der Fahrt löscht jeden Standort.',
+  'Example: four friends on the Jura ride → Lea is at km 42 of the route, seen 2 min ago.': 'Beispiel: vier Freunde auf der Jura-Runde → Lea ist bei km 42 der Strecke, vor 2 Min. gesehen.',
   // «Stopps in der Nähe» (f.stopsnear)
   'On Today tap «Stops nearby» (or on a tour page, or open the live map › «Stops»).': 'Tippe auf Heute auf «Stopps in der Nähe» (oder auf einer Tour-Seite, oder in der Live-Karte › «Stopps»).',
   'Choose «Around me» or «Along the route», and the kinds you want.': 'Wähle «Um mich» oder «Entlang der Strecke» und die Arten, die du willst.',

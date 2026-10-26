@@ -178,3 +178,20 @@ describe('addresses', () => {
     expect(alltagPart('#/me/alltag/nope')).toBe('');
   });
 });
+
+describe('people: things to do together (UC-260-I1)', () => {
+  it('keeps up to 8 ideas and moves on after each meeting', async () => {
+    const { ideasOf, ideaFor, seenNext } = await import('../src/lib/alltag.js');
+    expect(ideasOf('Coffee\n\n  Walk  \n')).toEqual(['Coffee', 'Walk']);
+    expect(ideasOf(Array.from({ length: 12 }, (_, i) => `I${i}`))).toHaveLength(8);
+    const p = newPerson({ name: 'Alex Test', ideas: 'Coffee\nWalk' }, 'p1');
+    expect(p.ideas).toEqual(['Coffee', 'Walk']);
+    expect(ideaFor(p)).toBe('Coffee');
+    const q = seenNext(p, '2026-10-25');
+    expect(q.seen).toBe('2026-10-25');
+    expect(ideaFor(q)).toBe('Walk');
+    expect(ideaFor(seenNext(q, '2026-11-25'))).toBe('Coffee');
+    expect(newPerson({ name: 'No ideas' }, 'p2').ideas).toBeUndefined();
+    expect(newPerson({ ...q }, 'p1').met).toBe(1);
+  });
+});

@@ -6,7 +6,7 @@
    * off, one per person. «Seen today» starts the interval again. Add, change, sort (arrows and drag),
    * delete (asks, then Undo). Only on this device and in the backup.
    */
-  import { Plus, Pencil, Check } from '@lucide/svelte';
+  import { Plus, Pencil, Check, Send } from '@lucide/svelte';
   import Crumb from '../flow/kit/Crumb.svelte';
   import FreiSheet from '../frei/FreiSheet.svelte';
   import SortGrip from '../ui/SortGrip.svelte';
@@ -15,7 +15,7 @@
   import { askDelete, deleteWithUndo, saveFailed } from '../ui/ask.js';
   import { offerDone } from '../ui/rename.svelte.js';
   import { alltagQuery, change, restore, KEYS } from '../alltagdb.js';
-  import { newPerson, dueOf, isDue, seenToday, daysUntil, EVERY_UNITS, uid, ALLTAG_HASH } from '../alltag.js';
+  import { newPerson, dueOf, isDue, seenNext, ideaFor, daysUntil, EVERY_UNITS, uid, ALLTAG_HASH } from '../alltag.js';
   import { localDay } from '../localday.js';
   import { phone } from '../media.svelte.js';
   import { t, tn, locale } from '../i18n.svelte.js';
@@ -40,13 +40,23 @@
 
   const setOn = (v) => change(KEYS.prefs, {}, (pr) => ({ ...pr, peopleOn: v }));
   async function seen(p) {
-    const before = await save((all) => all.map((x) => (x.id === p.id ? seenToday(x, today) : x)));
-    offerDone(t('Nice. {name}: next reminder {day}.', { name: p.name, day: fmtDay(dueOf(seenToday(p, today), today)) }), () => restore(KEYS.people, before));
+    const before = await save((all) => all.map((x) => (x.id === p.id ? seenNext(x, today) : x)));
+    offerDone(t('Nice. {name}: next reminder {day}.', { name: p.name, day: fmtDay(dueOf(seenNext(p, today), today)) }), () => restore(KEYS.people, before));
+  }
+  /* UC-260-I1: the reminder turns into an invitation with the idea of this round, copied for any messenger. */
+  async function invite(p) {
+    const text = t('Hi {name}, shall we meet soon? Idea: {idea}', { name: p.name, idea: ideaFor(p) });
+    try {
+      await navigator.clipboard.writeText(text);
+      offerDone(t('Invitation copied. Paste it into your messenger.'));
+    } catch {
+      offerDone(text);
+    }
   }
 
   let edit = $state(null);
-  const openNew = () => (edit = { id: null, name: '', n: 2, unit: 'month', seen: '', off: false, note: '' });
-  const openEdit = (p) => (edit = { ...p, seen: p.seen ?? '' });
+  const openNew = () => (edit = { id: null, name: '', n: 2, unit: 'month', seen: '', off: false, note: '', ideas: '' });
+  const openEdit = (p) => (edit = { ...p, seen: p.seen ?? '', ideas: (p.ideas ?? []).join('\n') });
   async function saveEdit() {
     const rec = newPerson(edit, edit.id ?? uid('pe'));
     if (!rec) return t('Please give it a name.');
@@ -97,7 +107,8 @@
       {#each list as p, n (p.id)}
         <li class="fz-row" data-sort-id={p.id} data-person={p.name} data-due={!p.off && isDue(p, today) ? '1' : null}>
           <SortGrip name={p.name} onstep={(dir) => step(p.id, dir)} />
-          <span class="fz-row-main"><b>{p.name}</b><small class:al-due={!p.off && isDue(p, today)}>{line(p)}</small>{#if p.note}<small>{p.note}</small>{/if}</span>
+          <span class="fz-row-main"><b>{p.name}</b><small class:al-due={!p.off && isDue(p, today)}>{line(p)}</small>{#if p.note}<small>{p.note}</small>{/if}{#if ideaFor(p)}<small data-person-idea>{t('Idea together: {idea}', { idea: ideaFor(p) })}</small>{/if}</span>
+          {#if ideaFor(p) && !p.off && isDue(p, today)}<button type="button" class="btn sm" onclick={() => invite(p)} data-person-invite><Send size={16} aria-hidden="true" />{t('Invite')}</button>{/if}
           <button type="button" class="btn sm" onclick={() => seen(p)} data-person-seen><Check size={16} aria-hidden="true" />{t('Seen today')}</button>
           {#if !phone.matches}<SortArrows name={p.name} i={n} n={list.length} onstep={(dir) => step(p.id, dir)} />{/if}
           <button type="button" class="fz-icon" aria-label={t('Change {name}', { name: p.name })} onclick={() => openEdit(p)} data-person-edit><Pencil size={18} aria-hidden="true" /></button>
@@ -119,6 +130,7 @@
     <label class="fz-lab">{t('Last seen')}<input class="inp" type="date" max={today} bind:value={edit.seen} data-field="seen" /></label>
     <label class="al-check"><input type="checkbox" bind:checked={edit.off} data-field="off" /><span>{t('No reminder for this person')}</span></label>
     <label class="fz-lab">{t('Note')}<input class="inp" maxlength="300" bind:value={edit.note} placeholder={t('e.g. likes coffee at the lake')} /></label>
+    <label class="fz-lab">{t('Things to do together')}<textarea class="inp" rows="3" bind:value={edit.ideas} placeholder={t('One per line, e.g. a coffee at the lake')} data-field="ideas"></textarea><small class="fz-note">{t('When it is time again, the next idea turns the reminder into an invitation. Each «Seen today» moves on to the next one.')}</small></label>
   </FreiSheet>
 {/if}
 

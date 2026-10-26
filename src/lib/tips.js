@@ -75,16 +75,16 @@ export const TIPS = [
   { id: 'wish', group: 'gear', icon: 'gift', title: 'Wishlist', text: 'The wishlist shows which buy saves the most grams per franc. A wish can wait 30 days; then the app asks if you still need it.', button: 'Open wishlist', go: { href: '#/gear?tab=wishlist' }, needs: 'items' },
   { id: 'unused', group: 'gear', icon: 'archive', title: 'Long not used', text: 'See which items were on no trip for 12 months.', button: 'Look through', go: { href: '#/gear?unused=1' }, needs: ['items', 'trip'] },
   // Bikes
-  { id: 'setup', group: 'bikes', icon: 'bike', title: 'Bike setup', text: 'The bike setup shows which bag sits where, with its weight.', button: 'Open setup', go: { href: '#/bikes' }, needs: 'bikes' },
-  { id: 'care', group: 'bikes', icon: 'wrench', title: 'Bike care', text: 'Bike care tells you when the chain, pads and tyres are due.', button: 'Open Bike care', go: { href: '#/bikes?tab=care' }, needs: 'bikes' },
-  { id: 'order', group: 'bikes', icon: 'clipboard', title: 'Workshop order', text: 'A workshop order lists what the shop should do, ready to print.', button: 'Open Bike care', go: { href: '#/bikes?tab=care' }, needs: 'bikes' },
+  { id: 'setup', group: 'bikes', icon: 'bike', title: 'Bag plan', text: 'The bike setup shows which bag sits where, with its weight.', button: 'Open setup', go: { href: '#/bikes' }, needs: 'bikes' },
+  { id: 'care', group: 'bikes', icon: 'wrench', title: 'Care|tab', text: 'Bike care tells you when the chain, pads and tyres are due.', button: 'Open Bike care', go: { href: '#/bikes?tab=care' }, needs: 'bikes' },
+  { id: 'order', group: 'bikes', icon: 'clipboard', title: 'Order for the bike shop', text: 'A workshop order lists what the shop should do, ready to print.', button: 'Open Bike care', go: { href: '#/bikes?tab=care' }, needs: 'bikes' },
   { id: 'receipt', group: 'bikes', icon: 'camera', title: 'Photograph a receipt', text: 'Take a photo of the workshop receipt; it waits in the Inbox.', button: 'Photo of a receipt', go: { run: 'receipt' }, needs: 'bikes' },
   { id: 'km', group: 'bikes', icon: 'counter', title: 'Log km', text: 'Type the km on the counter, and Bike care knows what is due.', button: 'Log km', go: { run: 'km' }, needs: 'bikes' },
   // Your data
   { id: 'backup', group: 'data', icon: 'save', title: 'Backup', text: 'A backup file keeps your data safe and moves it to another device.', button: 'Download backup', go: { run: 'backup' }, needs: 'any' },
   { id: 'install', group: 'data', icon: 'phone', title: 'Use it offline (home screen)', text: 'Add the app to your home screen: it opens like an app and works offline.', button: 'Add to home screen', go: { run: 'install' } },
   { id: 'lang', group: 'data', icon: 'languages', title: 'Deutsch / English', text: 'The app speaks German and English; switch whenever you like.', button: 'Switch language', go: { run: 'lang' } },
-  { id: 'demo', group: 'data', icon: 'play', title: 'Try a demo', text: 'Try a demo file: your own data waits aside until you end it.', button: 'Open your data', go: { run: 'data' } },
+  { id: 'demo', group: 'data', icon: 'play', title: 'Demo from a file', text: 'Try a demo file: your own data waits aside until you end it.', button: 'Open your data', go: { run: 'data' } },
 ];
 export const TIP = Object.fromEntries(TIPS.map((x) => [x.id, x]));
 

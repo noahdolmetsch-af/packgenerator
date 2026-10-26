@@ -52,7 +52,7 @@ Durchgehende Grundsätze: Alles ist ein Vorschlag, nie Pflicht, und immer änder
 
 ## Stand heute (19.10.2026, live 0.152.0)
 
-**Nachtrag 26.10.2026:** 0.198.1 Gesamttest-Korrekturen (Ziel «Alltag»: die App liest sich auch am kleinen Handy).
+**Nachtrag 26.10.2026:** 0.200.1 Gesamttest-Korrekturen (Ziel «Alltag»: die App liest sich auch am kleinen Handy).
 
 **Nachtrag 25.10.2026:** 0.198.0 «Kette vorausschauend» (Ziel 2 «Das Velo im Griff»): die Kette sagt selbst, was als Nächstes dran ist (messen, ölen, ersetzen, vor der Tour), mit Prognose aus den eigenen Messungen und Handy-Erinnerung.
 
@@ -495,3 +495,5 @@ Kurzfassung, verbindlich ist [arbeitsweise.md](arbeitsweise.md).
 0.194.0 «Zusammen mit Freunden» (25.10.2026, Ziel Touren und Alltag): Paket D Teil 1 aus den 996 Ideen.
 0.195.0 «Kleine Helfer für Tour und Velo» (25.10.2026, Ziel Touren und Velo): weitere Einzelideen aus Paket B (996 Ideen).
 0.195.1 «Einkaufsliste am Stück» (25.10.2026, Ziel Alltag): Korrektur der Einkaufsliste am Computer.
+0.199.0 «Flicken, ausprobieren, abmachen» (25.10.2026, Ziel Alltag): letzte Einzelideen aus Paket A (996 Ideen).
+0.200.0 «Zusammen auf einer Karte» (25.10.2026, Ziel Touren): Gruppen-Live-Karte, Freunde per Link auf einer Karte.
