@@ -9,6 +9,11 @@
   import { bikesHash } from '../bikes.js';
   import { localDay } from '../localday.js';
   import { wearRows, wearSummary, servicePeriods } from '../wear.js';
+  import { liveQuery } from 'dexie';
+  import { db } from '../db.js';
+  import { nextTrip } from '../debrief.js';
+  import { chainPlan } from '../chainplan.js';
+  import { stepTitle } from './chaintext.js';
 
   let { bike, entries = [] } = $props();
 
@@ -19,6 +24,9 @@
   const known = $derived(rows.filter((r) => r.state !== 'unknown'));
   const top = $derived([...known.filter((r) => r.key === 'chain'), ...known.filter((r) => r.key !== 'chain')].slice(0, 3));
   const now = $derived(servicePeriods(bike, today).find((p) => p.now) ?? null);
+  // «Kette vorausschauend» (25.10.2026): the chain's most urgent next step, one line
+  const tripsQ = liveQuery(() => db.trips.toArray());
+  const chainStep = $derived(chainPlan(bike, { entries, today, trip: nextTrip(($tripsQ ?? []).filter((x) => x.bikeId === bike.id), today) })?.steps[0] ?? null);
   const month = (day) => new Date(`${day}T00:00:00Z`).toLocaleDateString(locale(), { month: 'short', year: 'numeric', timeZone: 'UTC' });
 </script>
 
@@ -31,6 +39,9 @@
     </span>
     <ChevronRight size={18} aria-hidden="true" />
   </a>
+  {#if chainStep}
+    <a class="next {chainStep.tone}" href={bikesHash({ tab: 'care', view: 'wear', bike: bike.id })} data-chain-next={chainStep.kind}>{t('Next|chain')}: {stepTitle(chainStep)}</a>
+  {/if}
   {#if top.length}
     <ul>
       {#each top as r (r.key)}
@@ -70,6 +81,17 @@
   .m small {
     color: var(--ink-2);
     overflow-wrap: break-word;
+  }
+  .next {
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+    font-size: var(--fs-small);
+    font-weight: 600;
+    color: inherit;
+  }
+  .next.due {
+    color: var(--bad);
   }
   ul {
     list-style: none;

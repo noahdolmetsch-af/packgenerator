@@ -4,11 +4,15 @@ Stand: **19. Oktober 2026, abends**. Live ist **Version 0.152.0** («Tempo», se
 
 ### Kurzstand 25.10.2026: Gruppen-Live-Karte
 
-**0.197.0 «Zusammen auf einer Karte»:** Auf der Live-Karte lädst du Freunde per Link in eine Gruppenfahrt ein. Sie sehen dich und einander im Browser, ohne App und ohne Konto, und teilen ihren Standort nur, wenn sie wollen. Die Gruppe endet mit der Fahrt, spätestens nach 24 Stunden. 0 Kosten.
+**0.200.0 «Zusammen auf einer Karte»:** Auf der Live-Karte lädst du Freunde per Link in eine Gruppenfahrt ein. Sie sehen dich und einander im Browser, ohne App und ohne Konto, und teilen ihren Standort nur, wenn sie wollen. Die Gruppe endet mit der Fahrt, spätestens nach 24 Stunden. 0 Kosten.
 
 ### Kurzstand 25.10.2026: Paket A, letzte Einzelideen
 
-**0.196.0 «Flicken, ausprobieren, abmachen» (vorläufige Nummer):** Kleider reparieren statt aussortieren, Wunsch zuerst ausleihen, Ideen für ein Treffen bei «Lange nicht gesehen», Geburtstag mit kleinen Schritten, Webcams mit Zweck und Aufräumrunde. Damit sind die Einzelideen aus Paket A gebaut, die nicht in anderen Fäden liegen. Kein Schema-Wechsel.
+**0.199.0 «Flicken, ausprobieren, abmachen» (vorläufige Nummer):** Kleider reparieren statt aussortieren, Wunsch zuerst ausleihen, Ideen für ein Treffen bei «Lange nicht gesehen», Geburtstag mit kleinen Schritten, Webcams mit Zweck und Aufräumrunde. Damit sind die Einzelideen aus Paket A gebaut, die nicht in anderen Fäden liegen. Kein Schema-Wechsel.
+
+### Kurzstand 25.10.2026: Kette vorausschauend
+
+**0.198.0 «Kette vorausschauend» (25.10.2026, Noah «2 und 3»):** Velos › Pflege › Verschleiss zeigt oben «Kette: was als Nächstes kommt» (höchstens drei Schritte: ersetzen, neue Kette vor der Tour, bald neu, messen, ölen, je mit Knopf), gefaltet «Verlauf und Prognose» aus den eigenen Messungen (die neue Kette zählt als 0 %, also reicht eine Messung für eine erste Schätzung), Hinweis auf Fahrten in «Zum Prüfen»; die Verschleiss-Karte der Velopflege nennt die nächste Kettenaufgabe; Handy-Erinnerung «Kette messen» und «neue Kette vor der Tour» unter «Teile abgenutzt». Mit Noahs echtem Backup privat geprüft. Kein Dexie-Schema, Backup-Format gleich.
 
 ### Kurzstand 24.10.2026: Paket «Alles fertig»
 
@@ -99,8 +103,8 @@ Seit 19.10.2026 gibt es keine Testlinks mehr: Ein Paket geht online, sobald die 
 | 78 | Zusammen mit Freunden (996 Ideen, Paket D Teil 1) | 0.194.0 | Ich › Mit Freunden: Freunde fragen, Leihregal, Vorlage teilen; ohne Konto, als Link oder Datei | gebaut, online nach grünem CI |
 | 79 | Kleine Helfer für Tour und Velo (996 Ideen, Paket B, Einzelideen) | 0.195.0 | Velo abgestellt mit Schlüssel und abgenommenen Teilen, «Melden bis» pro Nacht, Hotelanfragen im Rennmodus, Reise-Links «Optionen vergleichen», Vorgeschmack einer Traumtour, Garantiefall-Entwurf | gebaut, online nach grünem CI |
 | 80 | Einkaufsliste am Stück (Korrektur) | 0.195.1 | Am Computer brachen Namen in der Einkaufsliste Buchstabe für Buchstabe um, seit «30 Tage warten» (0.192.0); jetzt rutschen die Knöpfe bei wenig Platz unter den Namen | gebaut, online nach grünem CI |
-| 81 | Flicken, ausprobieren, abmachen | 0.196.0 | Kleider reparieren, Wunsch zuerst ausleihen, Ideen für ein Treffen, Geburtstag in kleinen Schritten, Webcams aufräumen (Paket A, letzte Einzelideen) | gebaut, online nach grünem CI |
-| 82 | Zusammen auf einer Karte | 0.197.0 | Gruppenfahrt: Freunde per Link auf einer Live-Karte, freiwillig teilen, endet nach der Fahrt, spätestens nach 24 Stunden | gebaut, online nach grünem CI |
+| 81 | Flicken, ausprobieren, abmachen | 0.199.0 | Kleider reparieren, Wunsch zuerst ausleihen, Ideen für ein Treffen, Geburtstag in kleinen Schritten, Webcams aufräumen (Paket A, letzte Einzelideen) | gebaut, online nach grünem CI |
+| 82 | Zusammen auf einer Karte | 0.200.0 | Gruppenfahrt: Freunde per Link auf einer Live-Karte, freiwillig teilen, endet nach der Fahrt, spätestens nach 24 Stunden | gebaut, online nach grünem CI |
 | 62 | Skitour (Mockup-Paket P2) | 0.178.0 | Skitouren › Tour planen: Gefahrenstufe 1–5 mit Unterstufe und Satz, «Dein Morgen», Verhältnisse, Plan in Zahlen; «Gipfel erreicht» unterwegs; Nach der Tour «Plan und Wirklichkeit» und dein Material; Skitouren › Saison: Ziel, Wunschtouren, Skitage 8 Wochen, LVS-Übungen, Kurse mit «Auffrischen», Höhenmeter pro Ski, letzte Saison; Vorabend-Check zeigt Stufe, Temperatur, Wind, letzten Zug | dieser PR |
 
 «Frontend aufpeppen» ist pausiert (Noah 19.10.2026). Die Abschnitte unten sind der Stand vom 18.10.2026.
