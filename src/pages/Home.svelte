@@ -62,7 +62,7 @@
   import { askTour, TOUR_EVENT, END_EVENT } from '../lib/tour/run.js';
   import { readRun } from '../lib/tour.js';
   import Continue from '../lib/home/Continue.svelte';
-  import { stepOf, lastEvening } from '../lib/phase.js';
+  import { stepOf, lastEvening, notBegun } from '../lib/phase.js';
   import StartKarte from '../lib/home/StartKarte.svelte';
   import { startCard, RIDE_SEEN_KEY } from '../lib/home/startkarten.js';
   import { quickDebrief, templateOffer, templateName, nextTrip, learningsFor } from '../lib/debrief.js';
@@ -686,7 +686,7 @@
     for (const c of freshDone(challengesOf(S[CHALLENGES_KEY]), today)) rows.push({ key: `ch:${c.id}`, tone: 'party', text: t('Challenge reached: {n}× {what}', { n: num(c.times), what: t(c.what) }) });
     if (evening) {
       // Noah 32a: in the evening the day's review and charging come first
-      const endedToday = trips.filter((x) => !x.skipped && x.entries?.length && endedOn(x) === today && !debriefs.some((d) => d.tripId === x.id && d.status === 'done'));
+      const endedToday = trips.filter((x) => !x.skipped && x.entries?.length && endedOn(x) === today && !notBegun(x, today) && !debriefs.some((d) => d.tripId === x.id && d.status === 'done'));
       for (const x of endedToday) rows.push({ key: `eve:${x.id}`, tone: 'eve', text: t('Review today: {trip}', { trip: x.title }), act: { label: t('Debrief'), href: `#/debrief/${encodeURIComponent(x.id)}`, trip: x.id } });
       const soon = soonTrips(trips, today).find((x) => x.startDate > today && x.startDate <= rideDateTomorrow(today)) ?? null;
       if (soon) {

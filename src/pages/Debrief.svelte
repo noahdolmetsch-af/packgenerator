@@ -48,7 +48,7 @@
   import UndoToast from '../lib/review/UndoToast.svelte';
   import { packedList } from '../lib/review/ganz.js';
   import PageTiles from '../lib/sk/PageTiles.svelte'; // SK: the tile row at the page end
-  import { mainStep, betweenHref, isDayTrip } from '../lib/phase.js';
+  import { mainStep, betweenHref, isDayTrip, notBegun } from '../lib/phase.js';
   import TemplateOffer from '../lib/debrief/TemplateOffer.svelte';
   import DebriefPlanNotes from '../lib/debrief/DebriefPlanNotes.svelte';
   import LearnCard from '../lib/tourlernen/LearnCard.svelte'; // Paket Z
@@ -109,7 +109,8 @@
   const bike = $derived(trip ? ($bikesQ ?? []).find((b) => b.id === trip.bikeId) ?? null : null);
   // L7: the debrief opens on the trip's last day (local date); before it, a placeholder with "Trip is off"
   // (the same skipped switch as Plan's "Not riding"). Ended early (finished) or over: the whole debrief.
-  const early = $derived(!!trip && !isOver(trip) && !!tripEnd(trip) && localDay() < tripEnd(trip));
+  // UI-Test 26.10.2026 T1: a day ride not begun yet (start day, not packed, not started) has nothing to look back on either
+  const early = $derived(!!trip && !isOver(trip) && !!tripEnd(trip) && (localDay() < tripEnd(trip) || notBegun(trip, localDay())));
   const byBike = $derived(trip ? hasBike(trip) : true);
   // v0.88.0 (Noah 0.88 4a/5a, mockup H): a trip ended before its start date asks first, before a
   // debrief teaches the app something that has not happened: «Wieder planen», «Trotzdem Rückblick»,

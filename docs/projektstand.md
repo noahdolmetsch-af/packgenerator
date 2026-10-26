@@ -30,6 +30,7 @@ Stand: **26. Oktober 2026, 10:30 UTC**. Live ist **Version 0.205.0** (Sammel-PR 
 | #263 | 0.206.0 | «Fitbit-Werte mit Tag»: Heute zeigt den letzten Fitbit-Wert der letzten 7 Tage mit seinem Tag («gestern», «Nacht auf So.»), bis der von heute da ist | offen; Noah mergt selbst |
 | #263 | 0.207.0 | «Touren mit Plan B»: Strecke prüfen, Stillstehen im Zwiebel-Check, «Was hat gefehlt?» aus dem Weggelassenen, Plan B mit Auslöser, Offline-Karte mit Reserve | offen; Noah mergt selbst |
 | #263 | 0.208.0 | «Mehr Platz am Computer»: Touren mit mitlaufender rechter Spalte, Auswerten mit «Letzte 7 Tage» rechts, Velos mit dem Velo zuerst, Inhalt höchstens 1120 px breit | offen; Noah mergt selbst |
+| neu | 0.212.1 | 0.212.1 «Die heutige Tour sagt eins» (UI-Test T1): vor der Fahrt kein «Letzter Abend», kein «Abgeschlossen» | offen; Claude merged nach Noahs Freigabe der Bilder |
 | #251 | – | Bibliotheken aktualisieren (Playwright 1.64, pdfjs 6, maplibre 6.15) mit Anpassung | offen, Prüfungen seit Tagen rot |
 
 ### Wie ein Release heute online geht (seit 26.10.2026)
