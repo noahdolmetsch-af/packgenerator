@@ -16,7 +16,7 @@
  * Pure: the store ({ get(key), put(rec) }, e.g. db.meta) and the fetcher are passed in. Names come from
  * OpenStreetMap as they are and never go through t(). Tested in tests/poisearch.test.js.
  */
-import { thinLine, fetchOverpass, OVERPASS_URLS, lineHash } from '../route/pois.js';
+import { thinLine, fetchOverpass, OVERPASS_URLS, lineHash, overpassUrls, whyFailed } from '../route/pois.js';
 import { lineKm, snap } from '../race/race.js';
 import { distKm } from '../live/live-lib.js';
 
@@ -524,10 +524,19 @@ export function queryOf(q) {
   return { error: 'nothing' };
 }
 
-const errorOf = (err, online) => {
+// Live Navigation PR 2: the true reason (pois.js whyFailed): 'busy' (a server full or too slow), 'net' (no
+// server reachable) or 'failed' (another error). Before, every error said «OpenStreetMap is busy».
+export const errorOf = (err, online) => {
   if (!online) return 'offline';
-  return /\b(429|504|503)\b|abort/i.test(String(err?.message ?? err?.name ?? '')) ? 'busy' : 'failed';
+  if (err?.why) return err.why;
+  return whyFailed([err]);
 };
+/** The points a search covers, for the choice of servers (pois.js overpassUrls). */
+export function areaPts(q) {
+  if (q?.mode === 'route') return ptsOf(q.line).map(({ lat, lon }) => ({ lat, lon }));
+  if (q?.mode === 'here' && okBounds(q.bounds)) return [{ lat: q.bounds.s, lon: q.bounds.w }, { lat: q.bounds.n, lon: q.bounds.e }];
+  return q?.center ? [q.center] : [];
+}
 
 /**
  * The panel's one call. q: { mode, keys, center, radiusKm, bounds, line, tripId, own (your kinds) }.
@@ -549,7 +558,7 @@ export async function loadPlaces(q, { store, fetcher, force = false, now = Date.
   const old = fresh(rec, q, now, { stale: true }) ? rec : null;
   if (!online) return old ? { list: fitting(old, q), at: old.at, cut: !!old.cut, cached: true, error: 'offline', stale: true } : { list: [], at: null, cut: false, cached: false, error: 'offline', stale: false };
   try {
-    const json = await fetchOverpass(query, { ...(fetcher ? { fetcher } : {}), ...(urls ? { urls } : {}), timeout: TIMEOUT_S * 1000 });
+    const json = await fetchOverpass(query, { ...(fetcher ? { fetcher } : {}), urls: urls ?? overpassUrls(areaPts(q)), timeout: TIMEOUT_S * 1000 });
     const pts = q.mode === 'route' ? ptsOf(q.line) : [];
     const mid = q.mode === 'here' && okBounds(q.bounds) ? { lat: (q.bounds.s + q.bounds.n) / 2, lon: (q.bounds.w + q.bounds.e) / 2 } : q.center;
     const near = q.mode === 'route' ? (p) => snap(pts, p).offKm : mid ? (p) => distKm(mid, p) : null;

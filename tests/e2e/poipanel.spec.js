@@ -153,12 +153,14 @@ test('a place: detail with hours and Navigate, save, share, unsave', async ({ pa
   await noSideways(page, 'detail');
 });
 
-test('Overpass busy, then try again; offline shows the kept places', async ({ page, context }, info) => {
+test('Overpass busy (every server), then try again; offline shows the kept places', async ({ page, context }, info) => {
   const { T, st, panel } = await openLive(page, context, info);
   st.status = 429;
   await tap(panel.locator('[data-poi-chip="water"]'), info);
-  await expect(panel.locator('[data-poi-status="bad"]')).toContainText(T('OpenStreetMap is busy right now. Try again in a minute.|poi'));
-  expect(st.calls).toHaveLength(2); // both mirrors
+  // Live Navigation PR 2: the true reason, every server asked, and a smaller radius offered
+  await expect(panel.locator('[data-poi-status="bad"]')).toContainText(T('All OpenStreetMap servers are full or too slow right now.|poi'));
+  expect(st.calls.length).toBeGreaterThanOrEqual(3);
+  await expect(panel.locator('[data-poi-smaller]')).toBeVisible();
   st.status = 200;
   await tap(panel.locator('[data-poi-retry]'), info);
   await expect(panel.locator('[data-poi-status="ok"]')).toBeVisible();

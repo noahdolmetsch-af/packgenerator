@@ -163,6 +163,13 @@
     radiusBad = false;
     remember();
   }
+  // the servers were too busy for this radius: half of it, as your own radius (one tap)
+  function smallerRadius(km) {
+    radiusKm = km;
+    radiusText = RADII.includes(km) ? '' : num(km);
+    radiusBad = false;
+    remember();
+  }
   function setOwnRadius() {
     if (!String(radiusText).trim()) {
       radiusBad = false;
@@ -206,7 +213,12 @@
     const count = res.list.length ? tn(res.list.length, '{n} place found', '{n} places found', {}) : t('Nothing found here.|poi');
     const asOf = res.at ? t('as of {when}|poi', { when: when(res.at) }) : '';
     if (e === 'offline') return { kind: res.stale ? 'warn' : 'bad', text: res.stale ? `${t('Offline: the kept places, as of {when}.|poi', { when: when(res.at) })} ${count}` : t('Offline and nothing kept for here. Search once with internet.|poi') };
-    if (e === 'busy' || e === 'failed') return { kind: 'bad', retry: true, text: res.stale ? t('OpenStreetMap is busy; showing the kept places, as of {when}.|poi', { when: when(res.at) }) : t('OpenStreetMap is busy right now. Try again in a minute.|poi') };
+    // Live Navigation PR 2: the true reason; with kept places, they stay with their date
+    const kept = res.stale ? ` ${t('Showing the kept places, as of {when}.|poi', { when: when(res.at) })}` : '';
+    const smaller = modeNow === 'around' && radiusKm > 2 ? Math.max(2, Math.round(radiusKm / 2)) : null;
+    if (e === 'busy') return { kind: 'bad', retry: true, smaller, text: `${t('All OpenStreetMap servers are full or too slow right now.|poi')}${kept || ` ${smaller ? t('A smaller radius often works.|poi') : t('Try again in a minute.|poi')}`}` };
+    if (e === 'net') return { kind: 'bad', retry: true, text: `${t('No OpenStreetMap server could be reached. Check the internet connection.|poi')}${kept}` };
+    if (e === 'failed') return { kind: 'bad', retry: true, text: `${t('The search did not work (an error at OpenStreetMap).|poi')}${kept}` };
     return { kind: 'ok', text: [count, res.cut ? t('the nearest {n}|poi', { n: num(MAX_PLACES) }) : '', asOf].filter(Boolean).join(' · ') };
   });
 
@@ -526,6 +538,9 @@
         <button type="button" class="pp-re" onclick={() => search({ force: true })} disabled={busy} data-poi-retry>
           <RefreshCw size={14} aria-hidden="true" />{status.retry ? t('Try again') : t('Load again')}
         </button>
+      {/if}
+      {#if status.smaller}
+        <button type="button" class="pp-re" onclick={() => smallerRadius(status.smaller)} disabled={busy} data-poi-smaller>{t('Search {km} km around me|poi', { km: num(status.smaller) })}</button>
       {/if}
     </p>
   {/if}

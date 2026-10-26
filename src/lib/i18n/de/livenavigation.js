@@ -12,4 +12,12 @@ export default {
   'The phone had no GPS position, or the ride was shorter than a few seconds. Nothing was saved.': 'Das Handy hatte keine GPS-Position, oder die Fahrt war kürzer als ein paar Sekunden. Es wurde nichts gespeichert.',
   'Opens the saved ride with its km and pauses.': 'Öffnet die gespeicherte Fahrt mit km und Pausen.',
   'Wrong bike? Take the km back': 'Falsches Velo? km zurücknehmen',
+  // PR 2: servers and the true reason
+  'All OpenStreetMap servers are full or too slow right now.|poi': 'Alle OpenStreetMap-Server sind gerade voll oder zu langsam.',
+  'Showing the kept places, as of {when}.|poi': 'Gezeigt werden die gespeicherten Orte vom {when}.',
+  'A smaller radius often works.|poi': 'Mit kleinerem Umkreis klappt es oft.',
+  'Try again in a minute.|poi': 'Versuche es in einer Minute nochmals.',
+  'No OpenStreetMap server could be reached. Check the internet connection.|poi': 'Kein OpenStreetMap-Server erreichbar. Prüfe die Internetverbindung.',
+  'The search did not work (an error at OpenStreetMap).|poi': 'Die Suche hat nicht geklappt (Fehler bei OpenStreetMap).',
+  'Search {km} km around me|poi': '{km} km um mich suchen',
 };

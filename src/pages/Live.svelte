@@ -355,7 +355,8 @@
   /* ---------- the stops from outside ---------- */
   let busy = $state('');
   let msg = $state('');
-  const fail = (e) => (navigator.onLine === false ? t('You are offline. Try again with internet.') : e?.message === 'busy' ? t('The free service is busy. Try again in a minute.') : t('Could not load. Try again later.'));
+  // Live Navigation PR 2: the true reason (stops.js askServers tries every server first)
+  const fail = (e) => (navigator.onLine === false ? t('You are offline. Try again with internet.') : e?.message === 'busy' ? t('All OpenStreetMap servers are full or too slow right now.|poi') + ' ' + t('Try again in a minute.|poi') : e?.message === 'net' ? t('No OpenStreetMap server could be reached. Check the internet connection.|poi') : t('Could not load. Try again later.'));
   async function getAround(force = false) {
     if (busy || !me) return;
     busy = 'around';
