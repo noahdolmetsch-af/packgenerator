@@ -880,6 +880,7 @@ Die frühere gespeicherte Datei `2026-10-07-packgenerator-ablaufplan.md` wird al
 
 **26.10.2026, v0.208.0 «Mehr Platz am Computer»:** UI-Ziel #14 erledigt: Touren mit mitlaufender rechter Spalte, Auswerten mit «Letzte 7 Tage» rechts, Velos mit dem Velo zuerst, Inhalt höchstens 1120 px.
 **26.10.2026, v0.219.0 «Heute ruhiger» Teil 1:** keine leeren Kästen mehr auf Heute, kleine Knöpfe als Liste «Schnell öffnen», Velo-Arbeiten als runde Knöpfe. Teil 2 und 3 folgen.
+**26.10.2026, v0.220.0 «Heute ruhiger» Teil 2:** doppelte Kacheln einmal von Heute weg, sie bleiben im Katalog.
 **25.10.2026, v0.200.0 «Zusammen auf einer Karte»:** Gruppen-Live-Karte: Freunde per Link auf einer Karte, freiwillig teilen, Ende mit der Fahrt, spätestens nach 24 Stunden.
 **25.10.2026, v0.198.0 «Kette vorausschauend»:** Idee «Kette messen mit Verlauf und Prognose» (Das Velo im Griff) gebaut: nächste Schritte der Kette auf Verschleiss, Prognose aus den eigenen Messungen, Tour-Check, Handy-Erinnerung «Kette messen».
 

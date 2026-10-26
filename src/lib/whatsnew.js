@@ -16,6 +16,21 @@
 
 export const WHATS_NEW = [
   {
+    // v0.220.0 «Heute ruhiger» part 2 (Noah 26.10.2026 «2a», mockup H2): tiles that show again what another tile shows
+    // leave Heute once (tiles.js DOUBLES, wall v 13); they stay under «Add a tile»
+    version: '0.220.0',
+    date: '2026-10-27',
+    title: 'Everything once on Today',
+    lead: 'Double tiles left Today.',
+    points: [
+      // on Today itself, so no «Try it» address (0.121.0: '#/' would do nothing)
+      { text: 'Tiles that showed the same thing twice left Today once' },
+      { text: 'You find them under «Add a tile»' },
+    ],
+    small: [],
+    test: ['Open Today: your body values stand once, in «Your body today».', 'Customise the start page › Add a tile: «Body values» and the others are still there.'],
+  },
+  {
     // v0.219.0 «Heute ruhiger» part 1 (Noah 26.10.2026 «1a 5a», mockup H1): cards as tall as their content, the small
     // tiles as one list «Schnell öffnen», the bike jobs as small round buttons
     version: '0.219.0',
