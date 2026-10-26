@@ -510,3 +510,7 @@ Kurzfassung, verbindlich ist [arbeitsweise.md](arbeitsweise.md).
 0.199.0 «Flicken, ausprobieren, abmachen» (25.10.2026, Ziel Alltag): letzte Einzelideen aus Paket A (996 Ideen).
 0.208.0 «Mehr Platz am Computer» (26.10.2026, Ziel Alltag/Bedienung): UI-Ziel #14, die Hauptorte nutzen am Computer ihre Breite.
 0.200.0 «Zusammen auf einer Karte» (25.10.2026, Ziel Touren): Gruppen-Live-Karte, Freunde per Link auf einer Karte.
+
+## Stand 26.10.2026: Live Navigation
+
+Ziel «Unterwegs» (Tour-Begleiter). Mockups M1–M12 freigegeben; PR 1 «Fahrt speichern» (0.213.0) gebaut, weitere 9 kleine PRs folgen in der Reihenfolge der Roadmap-Notiz.

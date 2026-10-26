@@ -889,3 +889,5 @@ Die frühere gespeicherte Datei `2026-10-07-packgenerator-ablaufplan.md` wird al
 **26.10.2026, v0.202.0 «Planen im Zusammenhang» (vorläufig):** Einzelideen Planen 12 «Notiz-Verbindungen mit Bedeutung», 13 «Erinnerung nach einem Ereignis», 14 «Wiederherstellen mit Anhängen» gebaut. Offen als Mockup: 10 Pflanzenpass, 11 Doppelten Eingang erkennen, 15 Erinnerungskarte, 16 Mail als Vorgang. Dazu 10 «Pflanzenpass», 11 «Doppelten Eingang erkennen», 15 «Erinnerungskarte», 16 «Mail als Vorgang» (Noah 26.10. «1a 2a 3a 4a 5a»). Titel jetzt «Planen im Zusammenhang».
 
 **26.10.2026, v0.201.0 «Sprechen, anhängen, mit Vorlage starten»:** Eingaben überall: eine gemeinsame Leiste «Hinzufügen» (Sprachnotiz, Foto, Datei, Ort, Schlagwort, Vorlagen, Schreibanreize, KI-Helfer) auf zehn Seiten, Bildkarte im Tagebuch, Tagebuch in der App-Suche (abschaltbar).
+
+> **26.10.2026 Live Navigation:** PR 1 «Fahrt speichern» (0.213.0). Danach Orte-Server und Filter, Einstellungen, «Alles», Karte mit schlauer Leiste, Ebenen, Gruppe mit Spur, Garmin Edge 850, Strava hochladen, ÖV-Ersatz, je ein kleiner PR.

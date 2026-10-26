@@ -6,6 +6,8 @@ Stand: **26. Oktober 2026, 10:30 UTC**. Live ist **Version 0.205.0** (Sammel-PR 
 
 ## Stand 26.10.2026 auf einen Blick
 
+**Live Navigation (26.10.2026 abends):** Mockups M1–M12 freigegeben. PR 1 «Fahrt speichern» (0.213.0) offen: jede Fahrt sofort in Touren mit Label «Live Navigation», Velo-km mit Rückgängig. Danach 9 weitere kleine PRs.
+
 ### Was seit dem 22.10.2026 online gegangen ist
 
 | Version | PR | Inhalt | Online |

@@ -16,6 +16,20 @@
 
 export const WHATS_NEW = [
   {
+    // v0.213.0 Live Navigation PR 1 «Fahrt speichern» (Noah 26.10.2026, mockups M9/M10): «Fahrt beenden» asks once,
+    // every ride is saved at once as its own entry in Touren labelled «Live Navigation», bike km booked with Undo.
+    version: '0.213.0',
+    date: '2026-10-26',
+    title: 'Every ride is saved',
+    lead: '«End the ride» keeps it in Trips at once.',
+    points: [
+      { text: 'Each live ride is its own entry in Trips, labelled «Live Navigation»', href: '#/trips' },
+      { text: 'The km go to your bike by themselves, with Undo', href: '#/live' },
+    ],
+    small: [{ box: 'fixed', text: '«End the ride» asks once, so a tap by mistake ends nothing', href: '#/live' }],
+    test: ['Open the live map, start a ride and ride a few minutes (or walk).', 'Tap «End the ride», then «End and save»: a line says «Saved in Trips».', 'Open Trips: the ride is there with the label «Live Navigation».'],
+  },
+  {
     // v0.208.0 «Computer-Breite besser nutzen» (UI-Ziel #14, Noah 26.10.2026 «1a 2a 3a 4a 5a»): Touren with a right
     // column that goes along, Auswerten's «Letzte 7 Tage» on the right, Velos with the bike first, content at most 1120 px.
     version: '0.208.0',

@@ -1,0 +1,78 @@
+/**
+ * Live Navigation, «Fahrt beenden» (Noah 26.10.2026, mockups M9/M10 approved «LN freigeben»):
+ * every finished ride is kept at once as its own entry in Touren, labelled «Live Navigation», instead of
+ * only after a tap on «Debrief». The bike km are booked by themselves, with Undo.
+ *
+ * - saveLiveRide(): the recording → one row of the table rides (rideRowOf, id ride-live-<rec id>, so a
+ *   second save of the same ride changes that row and keeps its answers). With a trip, the km also go into
+ *   its look back, unless that is finished.
+ * - bikeFor(): which bike gets the km: the trip's bike, else the one used for the last live ride
+ *   (setting LIVE_BIKE_KEY), else the first of your bikes.
+ * - bookBikeKm(): books the km on that bike when bikeKmPlan says so (not twice, not when a Strava/Garmin
+ *   ride of the same bike overlaps) → { entry, ids } or null; the caller offers Undo.
+ * Plain module (no runes), tested in tests/live-saveride.test.js.
+ */
+import { rideRowOf, bikeKmPlan, bikeEntryOf } from './after.js';
+import { PACE_KEY, paceOf } from '../pace.js';
+import { plannedFor } from '../gpx.js';
+import { kmIntoDebrief } from '../ridelist.js';
+import { sortBikes } from '../bikes.js';
+import { makeEntry } from '../kmbook.js';
+import { addEntries, ensureKmBook } from '../kmbookdb.js';
+
+/** Settings key: the bike of the last live ride without a trip bike. */
+export const LIVE_BIKE_KEY = 'live-bike';
+/** The label of a live ride in Touren (a name, the same in every language). */
+export const LIVE_LABEL = 'Live Navigation';
+
+/** Is this ride row from the live map? */
+export const isLiveRide = (r) => r?.source === 'live';
+
+/**
+ * Save the recording as its ride row. → the stored row.
+ * ride: stopRecording()'s row; trip: the trip or null; name: the shown name.
+ */
+export async function saveLiveRide(db, ride, { trip = null, name = '', now = new Date() } = {}) {
+  const pace = paceOf((await db.settings.get(PACE_KEY))?.value);
+  const draft = rideRowOf(ride, { trip, name, basis: { kmh: pace.kmh, climbMh: pace.climbMh }, now });
+  const row = { ...draft, plan: trip ? plannedFor(trip, draft.date, pace) : null };
+  const old = await db.rides.get(row.id);
+  const kept = old ? { ...row, name: old.name || row.name, answers: old.answers ?? {}, createdAt: old.createdAt ?? row.createdAt } : row;
+  await db.rides.put(kept);
+  // the km of the ride into the trip's look back (as an uploaded ride does), unless it is finished
+  if (trip?.bikeId) {
+    const stored = await db.debriefs.get(trip.id);
+    if (stored?.status !== 'done') {
+      const d = kmIntoDebrief(stored, trip, [kept]);
+      if (d) await db.debriefs.put(d);
+    }
+  }
+  return kept;
+}
+
+/** The bike for the ride's km, or null without bikes. bikes: all bikes; lastId: LIVE_BIKE_KEY's value. */
+export function bikeFor(trip, bikes = [], lastId = null) {
+  const list = sortBikes(bikes.filter((b) => b && b.id && !b.archivedAt));
+  if (trip?.bikeId) return bikes.find((b) => b.id === trip.bikeId) ?? null;
+  return list.find((b) => b.id === lastId) ?? list[0] ?? null;
+}
+
+/**
+ * Book the ride's km on the bike, when they count. → { entry, ids, bike } or null.
+ * The recording keeps the entry's id as kmId (so «Add km» is not offered twice).
+ */
+export async function bookBikeKm(db, ride, { trip = null, name = '', note = '' } = {}) {
+  const [bikes, acts, entries, last] = await Promise.all([db.bikes.toArray(), db.activities.toArray(), db.kmBook.toArray(), db.settings.get(LIVE_BIKE_KEY)]);
+  const bike = bikeFor(trip, bikes, last?.value ?? null);
+  if (!bike) return null;
+  const plan = bikeKmPlan(ride, bike.id, { acts, entries });
+  if (!plan.count) return null;
+  await ensureKmBook(db);
+  const entry = makeEntry(bikeEntryOf(ride, bike.id, { name, note }));
+  const ids = await addEntries(db, [entry]);
+  await db.tracks.update(ride.id, { kmId: entry.id });
+  return { entry, ids, bike };
+}
+
+/** Remember the bike picked for a free ride (the next ride without a trip bike takes it). */
+export const rememberBike = (db, bikeId) => db.settings.put({ key: LIVE_BIKE_KEY, value: bikeId });

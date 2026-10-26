@@ -161,6 +161,7 @@ test('Live map on the sample race: km, stops ahead, climb, arrival, SOS, stop', 
   await page.locator('[data-live-stop]').scrollIntoViewIfNeeded();
   await page.screenshot({ path: info.outputPath('live-sheet.png') });
   await tap(page.locator('[data-live-stop]'), info);
+  await tap(page.locator('[data-live-end-yes]'), info); // «Fahrt beenden?» asks once (M9)
   await expect(page.locator('[data-live-after]')).toBeVisible();
   await expect(page.locator('[data-live-start]')).toBeVisible();
   await expect(full).toHaveCount(0);
@@ -201,6 +202,7 @@ test('Live map without a tour: the stops around you', async ({ page, context }, 
   await noSideways(page, 'free ride');
   await page.locator('[data-live-stop]').scrollIntoViewIfNeeded();
   await tap(page.locator('[data-live-stop]'), info);
+  await tap(page.locator('[data-live-end-yes]'), info); // «Fahrt beenden?» asks once (M9)
   await expect(page.locator('[data-live-after]')).toBeVisible();
 });
 

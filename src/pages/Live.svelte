@@ -104,6 +104,12 @@
   // Gruppen-Live-Karte (Noah 25.10.2026 «b»): friends on the map through a link
   import GroupPanel from '../lib/live/GroupPanel.svelte';
   import { endKeptGroup } from '../lib/live/group.js';
+  import { saveLiveRide, bookBikeKm } from '../lib/live/saveride.js';
+  import LiveLabel from '../lib/live/LiveLabel.svelte';
+  import { deleteEntries } from '../lib/kmbookdb.js';
+  import { offerDone } from '../lib/ui/rename.svelte.js';
+  import { saveFailed } from '../lib/ui/ask.js';
+  import EndRideSheet from '../lib/live/EndRideSheet.svelte';
   import { t, tn, locale, num } from '../lib/i18n.svelte.js';
   import SleepList from '../lib/race/ride/SleepList.svelte';
   import '../lib/race/race.css';
@@ -190,9 +196,32 @@
   });
   let groupRows = $state([]);
   let groupEnded = $state(false);
+  // Live Navigation M9/M10 (Noah 26.10.2026): «Fahrt beenden» asks once, then the ride is saved at once as
+  // its own entry in Touren («Live Navigation») and its km go to the bike, with Undo (saveride.js)
+  let askEnd = $state(false);
+  async function endAnswer(a) {
+    askEnd = false;
+    if (a === 'end') await stop();
+  }
   async function stop() {
     const ride = await stopRecording();
-    after = { ride };
+    let saved = null;
+    if (ride) {
+      const name = trip?.title || t('Ride {date}', { date: new Date(ride.startAt || Date.now()).toLocaleDateString(locale(), { weekday: 'short', day: 'numeric', month: 'numeric' }) });
+      try {
+        saved = await saveLiveRide(db, ride, { trip, name });
+        const b = await bookBikeKm(db, ride, { trip, name, note: t('Live map') });
+        if (b) {
+          offerDone(t('Saved in Trips. {km} km added to {bike}.', { km: num(b.entry.km), bike: b.bike.name }), async () => {
+            await deleteEntries(db, b.ids);
+            await db.tracks.update(ride.id, { kmId: null });
+          }, 10_000);
+        } else offerDone(t('Saved in Trips as «Live Navigation».'));
+      } catch (x) {
+        err = saveFailed(x);
+      }
+    }
+    after = { ride, saved };
     // the group ride ends with the ride: every place of it is deleted
     groupEnded = await endKeptGroup(db);
     groupRows = [];
@@ -874,6 +903,7 @@
       <h2 class="rc-h2">{t('Ride done')}</h2>
       {#if after.ride}
         <p class="rc-text">{t('{km} km recorded. The line is in the travel track of the day.', { km: num(after.ride.km ?? 0) })}</p>
+        {#if after.saved}<p class="rc-text" data-live-saved><LiveLabel /> {t('Saved as its own entry in Trips.')} <a href="#/trips" data-live-saved-link>{t('Open Trips')}</a></p>{/if}
         {#if loadAfter}
           {#await loadAfter() then m}
             <m.default ride={after.ride} {trip} />
@@ -882,7 +912,7 @@
           {/await}
         {/if}
       {:else}
-        <p class="rc-text">{t('Too few points to keep this ride.')}</p>
+        <p class="rc-text" data-live-too-short>{t('Too few points to keep this ride.')} {t('The phone had no GPS position, or the ride was shorter than a few seconds. Nothing was saved.')}</p>
       {/if}
       {#if groupEnded}<p class="rc-note" data-live-group-ended>{t('The group ride has ended. The places are deleted.')}</p>{/if}
     </section>
@@ -1254,7 +1284,8 @@
             {@render options()}
 
             <div class="lvf-part lvf-end">
-              <button type="button" class="btn lv-stop" onclick={stop} data-live-stop><Square size={18} aria-hidden="true" />{t('Stop the ride')}</button>
+              <button type="button" class="btn lv-stop" onclick={() => (askEnd = true)} data-live-stop><Square size={18} aria-hidden="true" />{t('Stop the ride')}</button>
+              {#if askEnd}<EndRideSheet km={rec.km} movingS={movingLive} ondone={endAnswer} />{/if}
               <p class="rc-note">{t('Pull the handle down for the map. SOS, «I am here» and the map ground are in the «⋯» menu top right.')}</p>
             </div>
         </div>
