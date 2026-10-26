@@ -31,8 +31,9 @@
   function jump(sel) {
     const el = document.querySelector(sel);
     if (!el) return;
+    if (el.tagName === 'DETAILS') el.open = true; // a fold opens, so what the chip names is visible
     el.scrollIntoView({ block: 'start', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
-    const focusable = el.matches('button, a, input, textarea, select, [tabindex]') ? el : el.querySelector('h2, h3, button, a');
+    const focusable = el.matches('button, a, input, textarea, select, [tabindex]') ? el : (el.tagName === 'DETAILS' ? el.querySelector(':scope > summary') : el.querySelector('h2, h3, button, a'));
     if (focusable && !focusable.matches('button, a, input, textarea, select')) focusable.setAttribute('tabindex', '-1');
     focusable?.focus({ preventScroll: true });
   }
