@@ -1,6 +1,6 @@
 # Pack Generator: Projektdokumentation
 
-Stand: 26. Oktober 2026 (live v0.205.0; 0.206.0 bis 0.208.0 offen). **Einstieg: [Projektstand und Plan](projektstand.md)** (was live ist, was gebaut wartet, Reihenfolge der sechs Pakete) und [Geschichte](geschichte.md) (wie das Projekt seit dem 4.10.2026 gewachsen ist). Verbindliche Quelle: dieses Repository, aktueller Hauptzweig `main`. Das Ziel ist ein persönlicher Tourvorbereitungs-Assistent; Material, Fahrradsetup, Bausteine und Vorlagen unterstützen den Tourablauf.
+Stand: 26. Oktober 2026 (live v0.208.0; 0.208.1 bis 0.210.0 offen). **Einstieg: [Projektstand und Plan](projektstand.md)** (was live ist, was gebaut wartet, Reihenfolge der sechs Pakete) und [Geschichte](geschichte.md) (wie das Projekt seit dem 4.10.2026 gewachsen ist). Verbindliche Quelle: dieses Repository, aktueller Hauptzweig `main`. Das Ziel ist ein persönlicher Tourvorbereitungs-Assistent; Material, Fahrradsetup, Bausteine und Vorlagen unterstützen den Tourablauf.
 
 | Frage | Dokument | Verantwortung |
 |---|---|---|

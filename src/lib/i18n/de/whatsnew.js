@@ -4,6 +4,27 @@
  * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
+  // 0.210.0 Noahs Liste sichtbar
+  'Your list in sight': 'Deine Liste in Sicht',
+  'What you asked for now has its own button.': 'Was du dir gewünscht hast, hat jetzt einen eigenen Knopf.',
+  'Planning: buttons for layer check, shopping list and bag by bag': 'Planen: Knöpfe für Zwiebel-Check, Einkaufsliste und Tasche für Tasche',
+  'On a big screen drag an item into another bag': 'Am grossen Bildschirm ein Teil in eine andere Tasche ziehen',
+  'Open Planen with a trip: «Zwiebel-Check» and «Tasche für Tasche packen» stand as buttons on top.': 'Öffne Planen mit einer Tour: «Zwiebel-Check» und «Tasche für Tasche packen» stehen oben als Knöpfe.',
+  'Open Heute: the weather line shows the high and the low.': 'Öffne Heute: Die Wetterzeile zeigt Höchst- und Tiefstwert.',
+  // 0.209.0 Gruppenfahrt für Events
+  'Riding together for days': 'Tagelang zusammen fahren',
+  'A group ride with help, meeting points and shared costs.': 'Eine Gruppenfahrt mit Hilfe, Treffpunkten und geteilten Kosten.',
+  'Group ride: own page with help, ready and meeting points': 'Gruppenfahrt: eigene Seite mit Hilfe, Bereit und Treffpunkten',
+  'Your contact card with a QR code': 'Deine Kontaktkarte mit QR-Code',
+  'Open Touren › Live-Karte › Gruppenfahrt: help, ready and meeting points stand on one page.': 'Öffne Touren › Live-Karte › Gruppenfahrt: Hilfe, Bereit und Treffpunkte stehen auf einer Seite.',
+  'Open Ich › Mit Freunden: your contact card shows a QR code.': 'Öffne Ich › Mit Freunden: Deine Kontaktkarte zeigt einen QR-Code.',
+  // 0.208.1 Ganze Wörter am kleinen Handy (war #257)
+  'Whole words on a small phone': 'Ganze Wörter am kleinen Handy',
+  'On a small phone names and titles keep their words whole again.': 'Am kleinen Handy bleiben Namen und Titel wieder ganze Wörter.',
+  'Shopping list: «To buy» stands under the name': 'Einkauf: «Zu kaufen» steht unter dem Namen',
+  'Shopping list and Weight in Plan no longer break in the middle': '«Einkaufsliste» und «Gewicht» im Planen brechen nicht mehr mitten im Wort',
+  'On a small phone open Material › Einkauf: the names read normally, «Zu kaufen» stands under them.': 'Öffne am kleinen Handy Material › Einkauf: Die Namen lesen sich normal, «Zu kaufen» steht darunter.',
+  'Open Planen with a trip: «Einkaufsliste» and «Gewicht» stand as whole words.': 'Öffne Planen mit einer Tour: «Einkaufsliste» und «Gewicht» stehen als ganze Wörter.',
   // 0.208.0 Mehr Platz am Computer
   'More room on the computer': 'Mehr Platz am Computer',
   'The main thing left, the extras right.': 'Links das Wichtigste, rechts das Zusätzliche.',
