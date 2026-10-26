@@ -45,6 +45,8 @@
   import { bikeCare, bikeCareWords } from '../readiness.js';
   import { nextForShop } from './who.js';
   import { t, tn, num, nameOf, bagName, dateOf } from '../i18n.svelte.js';
+  import { phone } from '../media.svelte.js';
+  import TipLine from '../pageinfo/TipLine.svelte';
   // Impeccable Runde 2 (18.10.2026, Velos 2): «Hersteller und Garantie» (SK X9) is entered from the bike's «…»;
   // under its name only once a link is there, as «Hersteller und Garantie ↗».
   import { slotOf, LINKS, linkOn } from '../sk/links.js';
@@ -523,6 +525,8 @@
             <li><a class="vk-row" href={bikesHash({ tab: 'compare', bike: bike.id })}><span class="ib"><Scale size={18} aria-hidden="true" /></span><span class="m"><b>{t('Equipment|tab')}</b><small>{t('Measures, parts, geometry')}</small></span><ChevronRight class="chev" size={18} aria-hidden="true" /></a></li>
           </ul>
         </section>
+        <!-- «Computer-Breite» (Noah 26.10.2026 «3a»): the Einstieg starts folded, so the tip of the day stands here on a computer -->
+        {#if !phone.matches}<TipLine page="velos" name={t('Bikes|place')} />{/if}
 
         <!-- «Garmin-Seiten» GA-A1 (Noah 14.10.2026 «GA-A1–A3 freigegeben»): the bike's Garmin pages -->
         <GarminCard {bike} />

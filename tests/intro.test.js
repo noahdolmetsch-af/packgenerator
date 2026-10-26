@@ -61,6 +61,10 @@ describe('open or one line (Gesamttest 20.10.2026 «2a», changed on purpose fro
     expect(isOpen(visits(1, 'material'), 'material', false, true)).toBe(false);
     expect(isOpen(setFold(visits(1, 'material'), 'material', false), 'material', true, true)).toBe(true);
   });
+  it('Bikes: the bike first, one line from the start (Computer-Breite, Noah 26.10.2026 «3a»)', () => {
+    expect(INTROS.velos.folded).toBe(true);
+    expect(isOpen(visits(1, 'velos'), 'velos', false, true)).toBe(false);
+  });
   it('× takes it away, the Handbook brings all back', () => {
     const v = hide(hide(undefined, 'aktiv'), 'material');
     expect(isHidden(v, 'aktiv')).toBe(true);

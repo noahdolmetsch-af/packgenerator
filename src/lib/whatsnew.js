@@ -16,6 +16,23 @@
 
 export const WHATS_NEW = [
   {
+    // v0.208.0 «Computer-Breite besser nutzen» (UI-Ziel #14, Noah 26.10.2026 «1a 2a 3a 4a 5a»): Touren with a right
+    // column that goes along, Auswerten's «Letzte 7 Tage» on the right, Velos with the bike first, content at most 1120 px.
+    version: '0.208.0',
+    date: '2026-10-26',
+    title: 'More room on the computer',
+    lead: 'On a big screen the pages use their width: the main thing left, the extras right.',
+    points: [
+      { text: 'Trips: period, filter and open debriefs go along on the right', href: '#/trips' },
+      { text: 'Analysis: the last 7 days stand right of the overview', href: '#/auswerten' },
+      { text: 'Bikes: the bike comes first, the explanation is one line', href: '#/bikes' },
+    ],
+    small: [
+      { box: 'nicer', text: 'Content stays at most 1120 px wide, in the middle' },
+    ],
+    test: ['On the computer open Trips and scroll down the list: period, filter and open debriefs stay visible on the right.', 'Open Analysis: «Last 7 days» stands under «Wi gaht\'s?».', 'Open Bikes: «How it works» is one line, a tap opens it.'],
+  },
+  {
     // v0.207.0 «Touren a» (996 Einzelideen Touren 41, 42, 43, 46, 48; Noah 25.10.2026): route check, Plan B with a trigger,
     // what was left out, waiting time in the layer check, offline map with reserve
     version: '0.207.0',

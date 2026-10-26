@@ -1,6 +1,6 @@
 # Projektstand und Plan
 
-Stand: **26. Oktober 2026, 10:30 UTC**. Live ist **Version 0.205.0** (Sammel-PR #259 mit 0.201.0 bis 0.205.0, von Noah zusammengeführt am 26.10.2026, 10:14 UTC). Offen ist PR #263 mit 0.206.0 «Fitbit-Werte mit Tag» und 0.207.0 «Touren mit Plan B».
+Stand: **26. Oktober 2026, 10:30 UTC**. Live ist **Version 0.205.0** (Sammel-PR #259 mit 0.201.0 bis 0.205.0, von Noah zusammengeführt am 26.10.2026, 10:14 UTC). Offen ist PR #263 mit 0.206.0 «Fitbit-Werte mit Tag», 0.207.0 «Touren mit Plan B» und 0.208.0 «Mehr Platz am Computer».
 
 Ältere Abschnitte weiter unten («Kurzstand 19.10.», Abschnitte 1 bis 5) sind der damalige Stand und bleiben als Verlauf stehen. Was unten anders steht, gilt nicht mehr, wo dieser Abschnitt etwas Neueres sagt.
 
@@ -29,6 +29,7 @@ Stand: **26. Oktober 2026, 10:30 UTC**. Live ist **Version 0.205.0** (Sammel-PR 
 |---|---|---|---|
 | #263 | 0.206.0 | «Fitbit-Werte mit Tag»: Heute zeigt den letzten Fitbit-Wert der letzten 7 Tage mit seinem Tag («gestern», «Nacht auf So.»), bis der von heute da ist | offen; Noah mergt selbst |
 | #263 | 0.207.0 | «Touren mit Plan B»: Strecke prüfen, Stillstehen im Zwiebel-Check, «Was hat gefehlt?» aus dem Weggelassenen, Plan B mit Auslöser, Offline-Karte mit Reserve | offen; Noah mergt selbst |
+| #263 | 0.208.0 | «Mehr Platz am Computer»: Touren mit mitlaufender rechter Spalte, Auswerten mit «Letzte 7 Tage» rechts, Velos mit dem Velo zuerst, Inhalt höchstens 1120 px breit | offen; Noah mergt selbst |
 | #251 | – | Bibliotheken aktualisieren (Playwright 1.64, pdfjs 6, maplibre 6.15) mit Anpassung | offen, Prüfungen seit Tagen rot |
 
 ### Wie ein Release heute online geht (seit 26.10.2026)
@@ -60,7 +61,7 @@ Einzelheiten zu jeder Entscheidung stehen im [Entscheidungslog](decisions.md).
 
 1. **63 gewählte Einzelideen** aus den 996 Ideen: ein Teil ist in 0.191 bis 0.196 gebaut, der Rest folgt in der Reihenfolge oben.
 2. **Versteckte Funktionen:** laut Zählung im Projekt sind noch rund 161 Funktionen schwer zu finden. Der Sichtbar-Wächter (`tests/heimat.test.js`) erlaubt auf `main` höchstens 217 Lücken, mit PR #253 noch 206; die Liste darf nur schrumpfen. Rund 28 davon gehören zu den Velos und kommen, wenn die Velo-Seiten frei sind.
-3. **Aktiv am Computer in zwei Spalten** (UI-Ziel #14), nach dem Aktiv-Neubau.
+3. **Computer-Breite besser nutzen** (UI-Ziel #14; hiess hier fälschlich «Aktiv am Computer in zwei Spalten», Aktiv ist schon zweispaltig): gebaut als 0.208.0 (Noah 26.10.2026 «1a 2a 3a 4a 5a»), wartet auf Noahs Merge.
 4. **Bibliotheken aktualisieren** (Wächter, PR #251): Prüfungen seit mehreren Tagen rot.
 5. **Kleiderschrank-Test** (`wardrobe`) schlägt manchmal ohne Grund fehl; die Ursache ist noch nicht behoben.
 6. **Wächter:** optional den Vercel-Zugang neu verbinden (braucht Noahs Klick).
@@ -180,6 +181,7 @@ Damals (19.10.2026) galt: keine Testlinks; Ein Paket geht online, sobald die Tes
 | 88 | Material, das weiss warum (996 Einzelideen Material und Überall) + Gruppenfahrt Teil 2 + Namen überall | 0.205.0 | Eigene Ansichten, Grund für Favoriten, Wunsch löst Ärger, Zwiebel-Check, Inhalt getrennt vom Leergewicht, Mikrofon-Fehler behalten Worte, Umwandeln überschreibt nie, Suche fragt nach; «Ich warte hier» und Stopps für Freunde; versteckte Funktionen 142 → 111 | live (#259) |
 | 89 | Fitbit-Werte mit Tag | 0.206.0 | Heute zeigt den letzten Fitbit-Wert innerhalb von 7 Tagen mit Tag, bis der von heute da ist | offen |
 | 90 | Touren mit Plan B (996 Einzelideen Touren 41, 42, 43, 46, 48) | 0.207.0 | Strecke prüfen, Stillstehen, Was hat gefehlt, Plan B mit Auslöser, Offline-Reserve | offen |
+| 91 | Mehr Platz am Computer (UI-Ziel #14) | 0.208.0 | Touren und Auswerten in zwei Spalten, Velos mit dem Velo zuerst, höchstens 1120 px | offen |
 | 62 | Skitour (Mockup-Paket P2) | 0.178.0 | Skitouren › Tour planen: Gefahrenstufe 1–5 mit Unterstufe und Satz, «Dein Morgen», Verhältnisse, Plan in Zahlen; «Gipfel erreicht» unterwegs; Nach der Tour «Plan und Wirklichkeit» und dein Material; Skitouren › Saison: Ziel, Wunschtouren, Skitage 8 Wochen, LVS-Übungen, Kurse mit «Auffrischen», Höhenmeter pro Ski, letzte Saison; Vorabend-Check zeigt Stufe, Temperatur, Wind, letzten Zug | live |
 
 «Frontend aufpeppen» ist pausiert (Noah 19.10.2026). Die Abschnitte unten sind der Stand vom 18.10.2026.
