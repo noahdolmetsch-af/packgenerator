@@ -158,6 +158,7 @@ Damals (19.10.2026) galt: keine Testlinks; Ein Paket geht online, sobald die Tes
 | 80 | Einkaufsliste am Stück (Korrektur) | 0.195.1 | Am Computer brachen Namen in der Einkaufsliste Buchstabe für Buchstabe um, seit «30 Tage warten» (0.192.0); jetzt rutschen die Knöpfe bei wenig Platz unter den Namen | live |
 | 81 | Flicken, ausprobieren, abmachen (996 Ideen, Paket A, letzte Einzelideen) | 0.196.0 (vorläufig) | siehe PR #253 | PR #253, Noah mergt selbst |
 | 82 | Zusammen auf einer Karte (Gruppen-Live-Karte) + Velos sichtbar | 0.197.0 (vorläufig) | Einladungslink, Teilen nur auf Wunsch, endet nach 24 Stunden | PR #253, Noah mergt selbst |
+| 84 | Ganze Wörter am kleinen Handy (Gesamttest 26.10.) | 0.198.1 | Acht Anzeige-Korrekturen am schmalen Handy aus dem Gesamttest mit echtem Backup; Gesamttest lädt schneller | PR offen, Noah mergt selbst |
 | 83 | Kette vorausschauend | 0.198.0 | Velos › Pflege › Verschleiss: nächste Kettenschritte, Verlauf und Prognose, Handy-Erinnerung | auf `main` 25.10. |
 | 62 | Skitour (Mockup-Paket P2) | 0.178.0 | Skitouren › Tour planen: Gefahrenstufe 1–5 mit Unterstufe und Satz, «Dein Morgen», Verhältnisse, Plan in Zahlen; «Gipfel erreicht» unterwegs; Nach der Tour «Plan und Wirklichkeit» und dein Material; Skitouren › Saison: Ziel, Wunschtouren, Skitage 8 Wochen, LVS-Übungen, Kurse mit «Auffrischen», Höhenmeter pro Ski, letzte Saison; Vorabend-Check zeigt Stufe, Temperatur, Wind, letzten Zug | live |
 

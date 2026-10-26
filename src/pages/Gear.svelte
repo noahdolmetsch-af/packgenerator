@@ -1859,6 +1859,27 @@
   }
   /* v0.45.1 (G007): on the phone a wishlist row in the wishlist needs no "Wishlist" tag; the name gets the room. */
   @media (max-width: 719px) {
+    /* Gesamttest 26.10.2026: a «To buy» row keeps its tag, but under the name, so a long name
+       («Sonnenbrille photochromisch / Wechselgläser») is not squeezed into a narrow column at 320 px */
+    .wish .rows button:not(.btn):not(.wl) {
+      grid-template-columns: minmax(0, 1fr) auto;
+    }
+    .wish .rows button:not(.btn):not(.wl) .nm {
+      grid-column: 1;
+      grid-row: 1;
+    }
+    .wish .rows button:not(.btn):not(.wl) .bg {
+      grid-column: 1;
+      grid-row: 2;
+    }
+    .wish .rows button:not(.btn):not(.wl) .st {
+      grid-column: 1;
+      grid-row: 3;
+    }
+    .wish .rows button:not(.btn):not(.wl) .w {
+      grid-column: 2;
+      grid-row: 1 / span 2;
+    }
     .wish .rows button.wl {
       grid-template-columns: minmax(0, 1fr) auto;
     }

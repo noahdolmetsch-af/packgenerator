@@ -658,6 +658,8 @@
   .nm small { display: block; font: 400 var(--fs-small) / 1.35 var(--font-body); color: var(--ink-3); }
   .q { font: inherit; color: var(--ink-3); white-space: nowrap; }
   .w { flex: none; font-size: var(--fs-small); color: var(--ink-2); white-space: nowrap; }
+  /* Gesamttest 26.10.2026: on a very small phone «nicht gewogen» takes two lines, so a long name keeps its words whole */
+  @media (max-width: 359px) { .w { white-space: normal; max-width: 5.5em; text-align: right; } }
   .in .box { background: var(--hi); border-color: var(--hi); color: var(--hi-ink); }
   /* UI-Grundlagen (Gestaltungsregeln B §5.3): packed rows are quieter, never struck through; the word «drin» says it */
   .in .nm { color: var(--ink-3); font-weight: 400; }

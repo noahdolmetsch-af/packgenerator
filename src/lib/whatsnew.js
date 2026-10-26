@@ -16,6 +16,20 @@
 
 export const WHATS_NEW = [
   {
+    // v0.198.1 Gesamttest 26.10.2026 (with a real backup): on a small phone words broke in the middle (shopping list,
+    // weight, small tiles, Ich lists, wear card); a long Strava name made a row of tiles on Today very tall.
+    version: '0.198.1',
+    date: '2026-10-26',
+    title: 'Whole words on a small phone',
+    lead: 'On a small phone names and titles keep their words whole again.',
+    points: [
+      { text: 'Shopping list: «To buy» stands under the name', href: '#/gear?view=wish' },
+      { text: 'Wear: part names wrap instead of «…»', href: '#/bikes?tab=care&view=wear' },
+    ],
+    small: [{ box: 'fixed', text: 'Shopping list and Weight in Plan no longer break in the middle' }, { box: 'nicer', text: 'Earlier at this time: long names take at most two lines' }],
+    test: ['On a small phone open Material › Einkauf: the names read normally, «Zu kaufen» stands under them.', 'Open Planen with a trip: «Einkaufsliste» and «Gewicht» stand as whole words.'],
+  },
+  {
     // v0.198.0 «Kette vorausschauend» (Noah 25.10.2026): the chain's next steps on «Wear» (replace, before the trip,
     // soon, measure, oil), history and forecast from the own measurements, phone reminder «measure the chain».
     version: '0.198.0',

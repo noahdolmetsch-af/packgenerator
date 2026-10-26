@@ -4,6 +4,15 @@
  * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
+  // 0.198.1 Ganze Wörter am kleinen Handy
+  'Whole words on a small phone': 'Ganze Wörter am kleinen Handy',
+  'On a small phone names and titles keep their words whole again.': 'Am kleinen Handy bleiben Namen und Titel wieder ganze Wörter.',
+  'Shopping list: «To buy» stands under the name': 'Einkauf: «Zu kaufen» steht unter dem Namen',
+  'Wear: part names wrap instead of «…»': 'Verschleiss: Teilnamen brechen um statt «…»',
+  'Shopping list and Weight in Plan no longer break in the middle': '«Einkaufsliste» und «Gewicht» im Planen brechen nicht mehr mitten im Wort',
+  'Earlier at this time: long names take at most two lines': 'Früher um diese Zeit: lange Namen höchstens zwei Zeilen',
+  'On a small phone open Material › Einkauf: the names read normally, «Zu kaufen» stands under them.': 'Öffne am kleinen Handy Material › Einkauf: Die Namen lesen sich normal, «Zu kaufen» steht darunter.',
+  'Open Planen with a trip: «Einkaufsliste» and «Gewicht» stand as whole words.': 'Öffne Planen mit einer Tour: «Einkaufsliste» und «Gewicht» stehen als ganze Wörter.',
   // 0.198.0 Kette vorausschauend
   'The chain, one step ahead': 'Die Kette, einen Schritt voraus',
   'The app says what the chain needs next, before it is too late.': 'Die App sagt, was die Kette als Nächstes braucht, bevor es zu spät ist.',
