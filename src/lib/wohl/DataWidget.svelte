@@ -9,7 +9,7 @@
   import { Bike, CloudSun, Moon, Activity, HeartPulse } from '@lucide/svelte';
   import { db } from '../db.js';
   import { homeForecast } from '../home-weather.js';
-  import { lastDays } from '../flow.js';
+  import { lastDays, addDays } from '../flow.js';
   import { localDay } from '../localday.js';
   import { widgetValues } from '../wohl.js';
   import { health } from '../health/client.svelte.js';
@@ -32,6 +32,12 @@
   const n1 = (x) => (x == null ? '–' : Number(x).toLocaleString(locale(), { maximumFractionDigits: 1 }));
   // Fitbit is live (Noah 20.10.2026 «prüfe, dass wir Fitbit überall einbinden»): a missing value says why
   const missing = (what) => (health.prefs.connected ? t('{what}: no value yet', { what }) : t('{what}: connect Fitbit', { what }));
+  // Noah 26.10.2026 «1a»: a value from an earlier day says which day (Fitbit often sends the night later)
+  const dayWord = (d) => (d === addDays(today, -1) ? t('yesterday') : wd(d));
+  const wd = (d) => new Date(`${d}T12:00:00Z`).toLocaleDateString(locale(), { weekday: 'short', timeZone: 'UTC' });
+  // a night counts to the day you woke up: «Schlaf · Nacht auf So.»
+  const sleepLabel = (day, normal) => (day && day !== today ? t('sleep · night to {day}', { day: wd(day) }) : normal ?? t('sleep'));
+  const label = (what, day, normal) => (day && day !== today ? t('{what} · {day}', { what, day: dayWord(day) }) : normal ?? what);
   const RAIN = { none: 'dry', showers: 'showers', rain: 'rain' };
 </script>
 
@@ -41,9 +47,9 @@
     <ul>
       <li data-dw="km"><Bike size={18} aria-hidden="true" /><span><b class="num">{n1(v.kmToday)} km</b><small>{t('today · {km} km in 7 days', { km: n1(v.kmWeek) })}</small></span></li>
       <li data-dw="weather"><CloudSun size={18} aria-hidden="true" /><span>{#if v.weather}<b class="num">{v.weather.min}–{v.weather.max} °C</b><small>{t(RAIN[v.weather.rain] ?? 'weather at home')}</small>{:else}<b>–</b><small>{t('weather: set a home place under Me')}</small>{/if}</span></li>
-      <li data-dw="sleep"><Moon size={18} aria-hidden="true" /><span><b class="num">{v.sleepH == null ? '–' : `${n1(v.sleepH)} h`}</b><small>{v.sleepH == null ? missing(t('sleep')) : v.sleepNormal != null ? t('sleep · your normal {n} h', { n: n1(v.sleepNormal) }) : t('sleep')}</small></span></li>
-      <li data-dw="hrv"><Activity size={18} aria-hidden="true" /><span><b class="num">{v.hrv == null ? '–' : `${v.hrv} ms`}</b><small>{v.hrv == null ? missing(t('HRV')) : v.hrvNormal != null ? t('HRV · your normal {n} ms', { n: Math.round(v.hrvNormal) }) : t('HRV')}</small></span></li>
-      <li data-dw="pulse"><HeartPulse size={18} aria-hidden="true" /><span><b class="num">{v.restingHr == null ? '–' : `${v.restingHr}`}</b><small>{v.restingHr == null ? missing(t('resting pulse')) : v.restingNormal != null ? t('resting pulse · your normal {n}', { n: Math.round(v.restingNormal) }) : t('resting pulse')}</small></span></li>
+      <li data-dw="sleep"><Moon size={18} aria-hidden="true" /><span><b class="num">{v.sleepH == null ? '–' : `${n1(v.sleepH)} h`}</b><small>{v.sleepH == null ? missing(t('sleep')) : sleepLabel(v.sleepDay, v.sleepNormal != null ? t('sleep · your normal {n} h', { n: n1(v.sleepNormal) }) : null)}</small></span></li>
+      <li data-dw="hrv"><Activity size={18} aria-hidden="true" /><span><b class="num">{v.hrv == null ? '–' : `${v.hrv} ms`}</b><small>{v.hrv == null ? missing(t('HRV')) : label(t('HRV'), v.hrvDay, v.hrvNormal != null ? t('HRV · your normal {n} ms', { n: Math.round(v.hrvNormal) }) : null)}</small></span></li>
+      <li data-dw="pulse"><HeartPulse size={18} aria-hidden="true" /><span><b class="num">{v.restingHr == null ? '–' : `${v.restingHr}`}</b><small>{v.restingHr == null ? missing(t('resting pulse')) : label(t('resting pulse'), v.restingDay, v.restingNormal != null ? t('resting pulse · your normal {n}', { n: Math.round(v.restingNormal) }) : null)}</small></span></li>
     </ul>
     <p class="note">{t('Only to look at, no score.')}</p>
   {/if}

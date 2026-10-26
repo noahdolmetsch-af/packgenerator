@@ -90,6 +90,16 @@ export function fitbitSleep(health = [], today) {
   return m > 0 ? Math.round((m / 60) * 10) / 10 : null;
 }
 
+/**
+ * Noah 26.10.2026 «1a»: the last measured night within 7 days (Fitbit often sends last night later):
+ * { h, date } (date = the day you woke up) or null.
+ */
+export function lastFitbitSleep(health = [], today) {
+  const from = addDay(today, -6);
+  const rows = (health ?? []).filter((h) => h?.date >= from && h.date <= today && Number(h.sleep?.asleepMin) > 0).sort((a, b) => b.date.localeCompare(a.date));
+  return rows.length ? { h: Math.round((Number(rows[0].sleep.asleepMin) / 60) * 10) / 10, date: rows[0].date } : null;
+}
+
 /** The felt sleep of today from «Wi gaht's?» (erholung.schlaf, 1–10) or null. */
 export function feltSleep(answers = [], today) {
   const r = answers.filter((a) => a.qid === 'erholung.schlaf' && a.day === today && a.value != null).sort((a, b) => String(b.at ?? '').localeCompare(String(a.at ?? '')))[0];

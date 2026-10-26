@@ -247,6 +247,17 @@ describe('the data widget', () => {
   it('without data: zeros and nulls, nothing invented', () => {
     expect(widgetValues({ today: T })).toMatchObject({ kmToday: 0, kmWeek: 0, weather: null, sleepH: null, hrv: null, day: null });
   });
+  it('today has only steps (Fitbit sends the night later): each value shows its last day within 7 days', () => {
+    // Noah 26.10.2026 «1a»: a row of today without sleep, HRV and resting pulse used to blank all three
+    const health = [
+      { date: addDays(T, -2), sleep: { asleepMin: 300 }, hrvMs: 40, restingHr: 49 },
+      { date: addDays(T, -1), sleep: { asleepMin: 282 }, restingHr: 48 },
+      { date: T, steps: 4000 },
+    ];
+    expect(widgetValues({ health, today: T })).toMatchObject({ sleepH: 4.7, sleepDay: addDays(T, -1), hrv: 40, hrvDay: addDays(T, -2), restingHr: 48, restingDay: addDays(T, -1), day: T });
+    // older than 7 days counts as no value
+    expect(widgetValues({ health: [{ date: addDays(T, -7), restingHr: 50 }], today: T })).toMatchObject({ restingHr: null, restingDay: null });
+  });
 });
 
 describe('the photo album', () => {

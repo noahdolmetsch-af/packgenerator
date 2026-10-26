@@ -5,7 +5,7 @@ import { describe, it, expect } from 'vitest';
 // «Heute neu» A (20.10.2026) replaced HN4's ready wall; these tests keep HN4's wall (READY_0155) and its reading (wallOf8)
 import { READY_0155 as READY, TILE, REMOVED_0155, ADDED_0155, HEAD_0155, wallOf8 as wallOf, wallRecord, toHN4, tripUp, catalog } from '../src/lib/home/tiles.js';
 import { pinNews, unpinNews } from '../src/lib/know/wasneu.js';
-import { tourNear, addDay, dayCardPart, lastActivity, nextFixed, challengeNow, bodyNow, feltSleep, fitbitSleep } from '../src/lib/home/heuteneu.js';
+import { tourNear, addDay, dayCardPart, lastActivity, nextFixed, challengeNow, bodyNow, feltSleep, fitbitSleep, lastFitbitSleep } from '../src/lib/home/heuteneu.js';
 import { DAY_CLOCK } from '../src/lib/dayclock.js';
 import { CATS } from '../src/lib/balance.js';
 import DE from '../src/lib/i18n/de/index.js';
@@ -163,6 +163,10 @@ describe('the day card, Aktiv and the compact balance', () => {
     expect(bodyNow(rows, TODAY, [{ date: TODAY, azm: 12 }])).toMatchObject({ pulse: 52, azm: 12, src: 'answer' });
     expect(fitbitSleep(fit, TODAY)).toBe(7.3);
     expect(fitbitSleep(fit, '2026-10-07')).toBe(null);
+    // Noah 26.10.2026 «1a»: the last measured night within 7 days, with the day you woke up
+    expect(lastFitbitSleep(fit, TODAY)).toEqual({ h: 7.3, date: TODAY });
+    expect(lastFitbitSleep([...fit, { date: addDay(TODAY, 1), steps: 10 }], addDay(TODAY, 1))).toEqual({ h: 7.3, date: TODAY });
+    expect(lastFitbitSleep(fit, addDay(TODAY, 7))).toBe(null);
     expect(feltSleep(rows, TODAY)).toBe(7);
     expect(feltSleep(rows, '2026-10-08')).toBe(null);
   });
