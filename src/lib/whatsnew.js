@@ -16,6 +16,20 @@
 
 export const WHATS_NEW = [
   {
+    // v0.198.0 «Kette vorausschauend» (Noah 25.10.2026): the chain's next steps on «Wear» (replace, before the trip,
+    // soon, measure, oil), history and forecast from the own measurements, phone reminder «measure the chain».
+    version: '0.198.0',
+    date: '2026-10-25',
+    title: 'The chain, one step ahead',
+    lead: 'The app says what the chain needs next, before it is too late.',
+    points: [
+      { text: 'Chain: what comes next, with one button each', href: '#/bikes?tab=care&view=wear' },
+      { text: 'History and forecast from your measurements', href: '#/bikes?tab=care&view=wear' },
+    ],
+    small: [{ box: 'new', text: 'A new chain before the trip when it would run out on the way' }, { box: 'new', text: 'Phone reminder: time to measure the chain' }],
+    test: ['Open Velos › Pflege › Verschleiss: «Kette: was als Nächstes kommt» stands on top.', 'Tap «Jetzt messen», save a value: «Verlauf und Prognose» shows when the chain reaches 0.5 %.'],
+  },
+  {
     // v0.195.1 fix: on a computer the shopping list broke item names letter by letter since «Wait 30 days» (0.192.0)
     version: '0.195.1',
     date: '2026-10-25',

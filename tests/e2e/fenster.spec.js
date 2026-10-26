@@ -5,6 +5,10 @@
 // SHOTS=<folder> saves screenshots (light).
 import { test, expect } from '@playwright/test';
 import { openHome, D0 } from './home0460-fixture.js';
+import { WINDOWS_ON } from './settle.js';
+
+// Heute's windows by the clock, as in the app (the other specs keep them quiet)
+test.use({ storageState: WINDOWS_ON });
 
 async function shot(page, info, name) {
   if (!process.env.SHOTS) return;

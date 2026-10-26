@@ -670,6 +670,10 @@ export function build(today = DEFAULT_TODAY) {
     { key: 'templates', value: templates },
     { key: 'homePlace', value: { name: `${P} Home`, lat: 47.39, lon: 8.04 } },
     { key: 'riderG', value: 72000 },
+    // the windows of Heute (src/lib/home/windows.js): the evening before a trip from 17:00 and Sunday's Wochenrückblick from
+    // 18:00 open as a modal and would cover the page for every test run at that hour; done for the fixture's day here,
+    // the windows themselves are tested in fenster.spec.js and wochenrueckblick.spec.js (as in a11y.spec.js)
+    { key: 'homeWindows', value: { eve: { done: today }, week: { done: today } } },
     ...['layers2026', 'readyClean2026', 'dailyCommuteTemplate', 'stravaKm2026', 'lodgingSet2026', 'kitTemplates2026', 'toolsAlways2026', 'firstAid2026', 'blocks2026', 'blocksMore2026'].map((k) => ({ key: `update.${k}`, value: at(D(-100)) })),
   ];
 
