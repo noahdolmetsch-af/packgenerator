@@ -140,3 +140,6 @@ export async function openHelp(page) {
   await expect(sheet).toBeVisible();
   return sheet;
 }
+
+/** For the specs of Heute's windows: a context without 'pg.windows' = 'quiet' (playwright.config.js), so the windows open by the clock. */
+export const WINDOWS_ON = { cookies: [], origins: [] };

@@ -6,6 +6,10 @@ import { test, expect } from '@playwright/test';
 import { READY } from '../../src/lib/home/tiles.js';
 import { D0, homeFixture, openHome, trip, entries } from './home0460-fixture.js';
 import { greetFor } from '../../src/lib/home/hallo.js';
+import { WINDOWS_ON } from './settle.js';
+
+// Heute's windows by the clock, as in the app (the other specs keep them quiet)
+test.use({ storageState: WINDOWS_ON });
 
 const stored = (page, table, id) =>
   page.evaluate(([table, id]) => new Promise((ok) => {

@@ -24,6 +24,8 @@ import { stage, stageCount, pointAt } from '../ride.js';
 import { airPrefs, POLLEN_NAMES } from '../air.js';
 import { eatPushItems } from '../unterwegs/essen.js';
 import { wearPush } from '../wear.js';
+import { chainPush } from '../chainplan.js';
+import { withVisits } from '../workshop.js';
 import { wetRides, prefsOf } from '../griff.js';
 import { wetOf } from '../inspect/rain.js';
 
@@ -229,6 +231,16 @@ export function buildList(data) {
       if (at <= ms) at = atMs(addDays(today, 1), DAY_AT);
       add({ key: w.key, at, title: t('Parts worn'), body: w.left > 0 ? t('{bike}: {part} reaches {life} km soon ({km} km left). Time to replace it.', { bike: w.bike, part: w.part, life: w.life, km: w.left }) : t('{bike}: {part} has reached {life} km. Time to replace it.', { bike: w.bike, part: w.part, life: w.life }), url: w.url });
     }
+  // «Kette vorausschauend» (25.10.2026): measure the chain when due, a new chain before the next trip (same switch)
+  if (on('wear')) {
+    const nextOf = (b) => (data.trips ?? []).filter((tr) => tr.bikeId === b.id && !tr.skipped && !tr.finished && tr.status !== 'done' && DAY.test(tr.startDate ?? '') && tr.startDate >= today).sort((a, z) => a.startDate.localeCompare(z.startDate))[0] ?? null;
+    const views = (data.bikes ?? []).map((b) => withVisits(b, data.visits ?? []));
+    for (const c of chainPush(views, { entries: data.kmBook ?? [], today, tripOf: nextOf })) {
+      let at = atMs(c.day, DAY_AT);
+      if (at <= ms) at = atMs(addDays(today, 1), DAY_AT);
+      add({ key: c.key, at, title: t('Chain'), body: c.kind === 'measure' ? t('{bike}: {km} km since the last chain measurement. Measure it now, it takes a minute.', { bike: c.bike, km: c.since }) : t('{bike}: the chain reaches its limit before or during «{trip}». Plan a new chain.', { bike: c.bike, trip: c.trip || t('your next trip') }), url: c.url });
+    }
+  }
   // Paket VG 1128: a ride in the rain today → at 19:00 «Kette trocknen und ölen» (the switch in griff.prefs too)
   if (on('wetchain') && prefsOf(data.griff).wetChain) {
     const names = Object.fromEntries((data.bikes ?? []).map((b) => [b.id, b.name]));

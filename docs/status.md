@@ -1,8 +1,10 @@
 # Projektstand
 
-Stand: 18. Oktober 2026. Der kurze Überblick steht im [Projektstand](projektstand.md), der Verlauf in der [Geschichte](geschichte.md). Diese Datei ist das ausführliche Protokoll.
+Stand: 26. Oktober 2026 (Kopf nachgetragen; die Einträge unten werden mit jedem Release ergänzt). Der kurze Überblick steht im [Projektstand](projektstand.md), der Verlauf in der [Geschichte](geschichte.md). Diese Datei ist das ausführliche Protokoll.
 
 ## Aktuell live
+
+**0.198.0 «Kette vorausschauend» (25.10.2026, Noah «Kette und Bike Service angehen», proaktive Wartungsvorschläge für die Kette):** src/lib/chainplan.js (Prognose aus den Messwerten seit der neuen Kette per kleinster Quadrate, mit der neuen Kette als 0 % schon ab einer Messung «geschätzt»; Messen alle 500 km, nahe der Grenze alle 250 km; Tour-Check mit Strecken-km oder Tempo der letzten 8 Wochen; Ölen aus quickHints; höchstens drei Schritte), src/lib/care/ChainPlan.svelte oben auf Velos › Pflege › Verschleiss (je Schritt ein Knopf: Jetzt messen öffnet MessenDialog, Geölt mit Rückgängig, Werkstatt planen; Hinweis auf Fahrten in «Zum Prüfen»; gefaltet «Verlauf und Prognose»), eine Zeile «Kette: …» in der Verschleiss-Karte der Velopflege, Handy-Erinnerung unter dem Schalter «Teile abgenutzt» (push/schedule.js, chainPush). Mit Noahs echtem Backup (privat, nicht im Repo) durchgespielt. Kein Dexie-Schema, Backup-Format gleich. Tests: tests/chainplan.test.js, tests/e2e/kette-voraus.spec.js.
 
 **0.195.1 «Einkaufsliste am Stück» (25.10.2026, Korrektur):** src/pages/Gear.svelte `.wish .fr > button:not(.btn) { flex: 1 1 420px }` (ab 720 px): am Computer rutschen «30 Tage warten», «Gekauft» und «…» bei wenig Platz unter den Namen (Gesamttest gear-wishlist en 1366 px).
 

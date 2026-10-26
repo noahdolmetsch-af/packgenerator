@@ -59,7 +59,8 @@
   import { tripStats } from '../lib/trips.js';
   import { onTripDay } from '../lib/ride.js';
   import { demoState } from '../lib/demo.js';
-  import { askTour } from '../lib/tour/run.js';
+  import { askTour, TOUR_EVENT, END_EVENT } from '../lib/tour/run.js';
+  import { readRun } from '../lib/tour.js';
   import Continue from '../lib/home/Continue.svelte';
   import { stepOf, lastEvening } from '../lib/phase.js';
   import StartKarte from '../lib/home/StartKarte.svelte';
@@ -923,6 +924,18 @@
   let stravaCard = $state(false);
   // Paket C: the Tages-Check window (AbCard) is open or loading; the other window of Heute (HomeWindow) waits
   let roundOpen = $state(true);
+  // A window of Heute (Wochenrückblick, the evening before) never covers First steps or a running tour of the app
+  let touring = $state(!!readRun());
+  $effect(() => {
+    const on = () => (touring = !!readRun());
+    const off = () => (touring = false);
+    window.addEventListener(TOUR_EVENT, on);
+    window.addEventListener(END_EVENT, off);
+    return () => {
+      window.removeEventListener(TOUR_EVENT, on);
+      window.removeEventListener(END_EVENT, off);
+    };
+  });
   // «App-Wartung» (BF7, BF8): the maintenance line comes after «Connect Strava», the long-press tip after it
   let maintHint = $state(false);
   const tripsDone = $derived(homeTrips(allTrips).filter((x) => tripDone(x, debriefs, today)).length);
@@ -1266,7 +1279,7 @@
   <!-- AB3 «Deine Abfragen» (replaces SN2l): what is due now, a calm card under the greeting -->
   {#if !editing && ready}<AbCard {today} bind:busy={roundOpen} bind:due={abDue} bind:areas={abAreas} bind:evening={abEvening} bind:ask={abAsk} />{/if}
   <!-- Fenster (Noah 19.10.2026 «1a 3a»): the evening before a trip and Sunday's review, only after the round window -->
-  {#if !editing && ready}<HomeWindow now={stampOf(now)} trips={allTrips} {itemsById} name={nameOf} blocked={roundOpen} />{/if}
+  {#if !editing && ready}<HomeWindow now={stampOf(now)} trips={allTrips} {itemsById} name={nameOf} blocked={roundOpen || showFirst || touring} />{/if}
   <!-- «App-Wartung» (Noah 13.10.2026): one calm line when a key runs out, a link fails or Strava's limit is near -->
   {#if !editing}<MaintHint blocked={stravaCard} bind:shown={maintHint} />{/if}
   <!-- Paket Q #148 (Noah 19.10.2026 «1a»): one small line, only when a warning, the avalanche danger or a pass concerns you -->

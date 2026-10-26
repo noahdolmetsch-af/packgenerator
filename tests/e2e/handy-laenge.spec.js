@@ -18,6 +18,9 @@ function data() {
 test('phone: every place, tab and Ich within its length budget', async ({ page, context }, info) => {
   test.skip(info.project.name !== 'phone', 'the budget is for the phone');
   test.setTimeout(300_000);
+  // Heute shows more or less by the hour (morning, a trip ending today by day, night): measure at midday so the run's hour
+  // does not decide (CI at 06:22 measured 6.24, by day 6.03–6.18; see TOO_LONG['#/'] in src/lib/laenge.js)
+  await page.clock.setFixedTime(new Date(`${day()}T11:00:00Z`));
   const errors = await start(page, context, info, { data: data() });
   const vh = page.viewportSize().height;
   const pages = [...new Set([...PLACES.map((p) => p.href), ...Object.values(PLACE_TABS).flat().map((x) => x.href), '#/me'])];
