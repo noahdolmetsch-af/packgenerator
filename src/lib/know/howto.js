@@ -203,7 +203,7 @@ export const HOWTO = {
   'f.parttemplate': ['Open Bikes › Care › a bike › «Part template».', 'Choose the kind and switch parts on or off.', 'Add your own parts; a new bike of that kind gets them.'],
   'f.inspect': ['Open Bikes › Care › a bike › «Inspection».', 'Start a level; tap a state for every point, add a value, a note or a photo.', 'Tap «Done»: the history keeps it, problems go to the bike.'],
   'f.partwear': ['Open Bikes › Care › a bike › «Wear».', 'Look at the bars: green fine, yellow soon, red replace.', '«Change how long it lasts» sets your own value; «Back to the suggestion» undoes it.'],
-  'f.wetchain': ['Ride in the rain: «Wear» shows «Dry and oil the chain», the phone reminds you at 19:00.', '«Done: chain oiled» writes a care entry for the chain, and the hint goes.', 'Switch it off: Bikes › Care › a bike › «Wear» › «Reminders».'],
+  'f.wetchain': ['Ride in the rain: «Wear» shows «Dry and oil the chain», the phone reminds you at 19:00.', '«Done: chain oiled» writes a care entry for the chain, and the hint goes.', 'Several wet rides before you oil it: one task «Care for the chain» with the days and km, and only one phone reminder.', 'Switch it off: Bikes › Care › a bike › «Wear» › «Reminders».'],
   'f.wearphotos': ['Bikes › Care › a bike › «Wear» › «Wear photos».', 'Take a photo per part; date and km are added.', 'Two photos: drag the slider to compare old and new.'],
   'f.sellbike': ['Bikes › Care › a bike › «Wear» › «Sale listing».', 'Type a price and more if you like; the text updates.', '«Copy» or «Share» it to the marketplace.'],
   'f.bikebox': ['Bikes › Care › a bike › «Wear» › «Pack the bike».', 'Tick each point; add, rename, move or delete points.', 'Take photos before packing, as proof if something breaks.'],

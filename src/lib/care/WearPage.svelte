@@ -27,6 +27,7 @@
   import GriffMore from './GriffMore.svelte';
   import WetChainHint from './WetChainHint.svelte';
   import ChainPlan from './ChainPlan.svelte'; // «Kette vorausschauend» (25.10.2026)
+  import StandCheck from './StandCheck.svelte'; // Einzelidee Heute 6: after the standstill
   import { brandStats, bestFor } from '../griff.js';
   import './griff.css';
 
@@ -126,6 +127,7 @@
     <!-- «Alles finden 2» (new proposal): the pages of «Mehr zum Velo» (4 screens down) as one row on top -->
     <QuickLinks label={t('More for the bike')} links={[['photos', 'Wear photos'], ['sell', 'Sale listing'], ['bikepack', 'Pack the bike'], ['stock', 'Spare parts at home']].map(([view, title]) => ({ key: view, href: bikesHash({ tab: 'care', view, bike: bike.id }), label: t(title) }))} />
     <WetChainHint {bike} />
+    <StandCheck {bike} />
     <ChainPlan {bike} />
 
     <details class="wcard how" data-wear-how>

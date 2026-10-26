@@ -26,13 +26,14 @@
   import { bikesHash } from '../bikes.js';
   import { offerDone } from '../ui/rename.svelte.js';
   import { removeVisit } from '../visitdb.js';
-  import {  Route, Bike, Activity, Backpack, Package, Plus, TriangleAlert, Receipt, StickyNote, X, ListTodo, ListChecks, ScanLine, Siren, Sunrise, Moon , CircleCheck, NotebookPen, Lightbulb  } from '@lucide/svelte';
+  import {  Route, Bike, Activity, Backpack, Package, Plus, TriangleAlert, Receipt, StickyNote, X, ListTodo, ListChecks, ScanLine, Siren, Sunrise, Moon , CircleCheck, NotebookPen, Lightbulb, Dices  } from '@lucide/svelte';
   import TodoSheet from '../merken/TodoSheet.svelte';
   import ListSheet from '../merken/ListSheet.svelte';
   import { suggestKind, listFrom } from '../merken/quick.js';
 
   let { mode = $bindable(null), onnote } = $props();
   let visitOpen = $state(false);
+  let surpriseOpen = $state(false); // Einzelidee Heute 2: the surprise round (its window loads on first use)
   let todoOpen = $state(false);
   let listOpen = $state(false);
   let quick = $state('');
@@ -153,6 +154,7 @@
     <ul class="opts">
       <li class="wide"><button type="button" class="opt hi" onclick={() => run(() => newTrip('standard'))}><span class="ic" aria-hidden="true"><Route size={20} /></span><span class="tx"><b>{t('Plan a trip')}</b><span>{t('Name, date, bike and packing list')}</span></span></button></li>
       <li><button type="button" class="opt" onclick={() => run(quickRide)}><span class="ic" aria-hidden="true"><Bike size={20} /></span><span class="tx"><b>{t('Quick start')}</b><span>{t('today, 2.5 h, the bike ridden last')}</span></span></button></li>
+      <li><button type="button" class="opt" onclick={() => run(() => (surpriseOpen = true))} data-new-surprise><span class="ic" aria-hidden="true"><Dices size={20} /></span><span class="tx"><b>{t('Surprise round')}</b><span>{t('Adventure and time: a round you do not know yet')}</span></span></button></li>
       <li><a class="opt" href="#/debrief/ride" onclick={close}><span class="ic" aria-hidden="true"><Activity size={20} /></span><span class="tx"><b>{t('Upload ride')}</b><span>{t('GPX: pauses, planned vs real, learnings')}</span></span></a></li>
       <li><a class="opt" href="#/pack/templates" onclick={close}><span class="ic" aria-hidden="true"><Backpack size={20} /></span><span class="tx"><b>{t('Template')}</b><span>{t('From the open trip, in Templates')}</span></span></a></li>
     </ul>
@@ -185,6 +187,7 @@
     </ul>
   {/if}
 </dialog>
+{#if surpriseOpen}{#await import('../ueberraschung/SurpriseSheet.svelte') then m}<m.default onclose={() => (surpriseOpen = false)} />{:catch}{/await}{/if}
 {#if todoOpen}<TodoSheet text={todoText} onclose={() => (todoOpen = false)} ondone={todoSaved} />{/if}
 {#if listOpen}<ListSheet start={listStart.name} points={listStart.points} onclose={() => (listOpen = false)} ondone={listMade} />{/if}
 {#if visitOpen}

@@ -40,7 +40,7 @@ const dayName = (iso) => new Date(`${iso}T12:00:00`).toLocaleDateString(locale()
  * activities: db.activities (Strava; { day, name, km, hm, movingS, kind }), rides: db.rides of this trip
  * ({ date, km, gainM, movingH? }), notes: tripNotes(...) ({ day (0-based), text, at }).
  */
-export function diaryFacts({ trip, activities = [], rides = [], notes = [], evening = {} }) {
+export function diaryFacts({ trip, activities = [], rides = [], notes = [], evening = {}, parts = {} }) {
   const days = tripDays(trip);
   const fc = trip?.forecast?.days ?? [];
   return days.map((date, i) => {
@@ -55,6 +55,7 @@ export function diaryFacts({ trip, activities = [], rides = [], notes = [], even
       weather: weather ? { min: weather.min, max: weather.max, rainMm: weather.rainMm ?? 0 } : null,
       notes: notes.filter((n) => (n.day ?? 0) === i).map((n) => n.text).filter(Boolean),
       score: Number.isFinite(evening?.[date]) ? evening[date] : null, // #223: rated in the evening review
+      parts: parts?.[date] && typeof parts[date] === 'object' ? parts[date] : null, // Einzelidee Heute 4
     };
   });
 }
@@ -65,6 +66,15 @@ function rideLine(r, src) {
   const time = hoursText(r.s);
   const what = [parts, time ? t('in {time}', { time }) : ''].filter(Boolean).join(' ');
   return r.name ? t('{what} ({src} «{name}»)', { what, src, name: r.name }) : what;
+}
+
+/** Einzelidee Heute 4: «Erlebnis gut, Planung schwer» from the evening parts, or ''. */
+const PART_NAME = { exp: 'Experience', plan: 'Planning', body: 'Body' };
+const MARK_NAME = { good: 'good|rating', mid: 'so-so', hard: 'hard|rating' };
+function partsLine(p) {
+  if (!p) return '';
+  const bits = Object.keys(PART_NAME).filter((k) => MARK_NAME[p[k]]).map((k) => `${t(PART_NAME[k])} ${t(MARK_NAME[p[k]])}`);
+  return bits.length ? t('In parts: {list}', { list: bits.join(', ') }) : '';
 }
 
 function weatherLine(w) {
@@ -93,6 +103,8 @@ export function diaryDraft({ trip, facts = [], neu = [], photos = 0 }) {
     if (w) body.push(t('Weather: {w}', { w }));
     for (const n of f.notes) body.push(t('Note: «{text}»', { text: n }));
     if (f.score != null) body.push(t('Rated in the evening: {n} of 10', { n: f.score }));
+    const pl = partsLine(f.parts);
+    if (pl) body.push(pl);
     if (!body.length) continue;
     const label = facts.length > 1 ? t('Day {n} · {date}', { n: f.n, date: dayName(f.date) }) : dayName(f.date);
     lines.push('', label, ...body.map((b) => `– ${b}`));
