@@ -6,10 +6,11 @@
    */
   import { t } from '../../i18n.svelte.js';
 
-  let { items = [], on = '' } = $props();
+  // stack: one card under the other (Auswerten's right column on a computer, «Computer-Breite» 26.10.2026)
+  let { items = [], on = '', stack = false } = $props();
 </script>
 
-<nav class="ma" class:four={items.length === 4} aria-label={t('More in Active')}>
+<nav class="ma" class:four={items.length === 4} class:stack aria-label={t('More in Active')}>
   {#each items as x (x.key)}
     {@const Icon = x.icon}
     <a class="card" href={x.href} data-more={x.key} aria-current={x.key === on ? 'page' : undefined}>
@@ -27,6 +28,10 @@
   }
   .ma.four {
     grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+  .ma.stack {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--sp-2);
   }
   a {
     display: flex;

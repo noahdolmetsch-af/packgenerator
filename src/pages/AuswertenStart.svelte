@@ -23,6 +23,7 @@
   import PageTiles from '../lib/sk/PageTiles.svelte';
   import { localDay } from '../lib/localday.js';
   import { t, tn, lang } from '../lib/i18n.svelte.js';
+  import { cols } from '../lib/media.svelte.js';
 
   const today = localDay();
   const q = liveQuery(async () => {
@@ -44,6 +45,10 @@
   ];
 </script>
 
+{#snippet waiting()}
+  {#if kmWaiting}<a class="kmwait" href={CHECK_HASH} data-km-waiting>{tn(kmWaiting, '{n} Strava ride without a bike waits in «To check»: it counts after «Fits»', '{n} Strava rides without a bike wait in «To check»: they count after «Fits»')} ›</a>{/if}
+{/snippet}
+
 <div class="aus" data-page="auswerten">
   <header class="ph">
     <h1 class="title">{t('Analysis|place')}</h1>
@@ -54,9 +59,8 @@
   <div class="lay">
     <div class="col">
       <!-- Garmin-Übersicht (Noah 20.10.2026 «1:1 nachbauen»): today, «Im Fokus», «Überblick» and «Letzte 7 Tage» -->
-      <Overview {today}>
-        {#if kmWaiting}<a class="kmwait" href={CHECK_HASH} data-km-waiting>{tn(kmWaiting, '{n} Strava ride without a bike waits in «To check»: it counts after «Fits»', '{n} Strava rides without a bike wait in «To check»: they count after «Fits»')} ›</a>{/if}
-      </Overview>
+      <!-- «Computer-Breite» (Noah 26.10.2026 «2a»): in two columns «Letzte 7 Tage» stands right, under «Wi gaht's?» -->
+      <Overview {today} part={cols.matches ? 'main' : 'all'}>{#if !cols.matches}{@render waiting()}{/if}</Overview>
     </div>
     <aside class="col">
       <Sec id="chk-h" title={t('Your questions')} sub={t('sleep, energy and mood · one tap per question')} more={{ href: '#/me/history', label: t('History') }}>
@@ -81,10 +85,14 @@
           </ul>
         </div>
       </Sec>
+      {#if cols.matches}
+        <Overview {today} part="last7">{@render waiting()}</Overview>
+        <MoreAktiv items={pages} stack />
+      {/if}
     </aside>
   </div>
   <TipLine page="aktiv" name={t('Analysis|place')} />
-  <MoreAktiv items={pages} />
+  {#if !cols.matches}<MoreAktiv items={pages} />{/if}
   <PageMore page="aktiv" name={t('Analysis|place')} />
   <PinnedLists place="active" />
   <PageTiles page="flow" />

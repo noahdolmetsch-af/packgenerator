@@ -58,7 +58,7 @@ Einzelheiten zu jeder Entscheidung stehen im [Entscheidungslog](decisions.md).
 
 1. **63 gewählte Einzelideen** aus den 996 Ideen: ein Teil ist in 0.191 bis 0.196 gebaut, der Rest folgt in der Reihenfolge oben.
 2. **Versteckte Funktionen:** laut Zählung im Projekt sind noch rund 161 Funktionen schwer zu finden. Der Sichtbar-Wächter (`tests/heimat.test.js`) erlaubt auf `main` höchstens 217 Lücken, mit PR #253 noch 206; die Liste darf nur schrumpfen. Rund 28 davon gehören zu den Velos und kommen, wenn die Velo-Seiten frei sind.
-3. **Aktiv am Computer in zwei Spalten** (UI-Ziel #14), nach dem Aktiv-Neubau.
+3. **Computer-Breite besser nutzen** (UI-Ziel #14; hiess hier fälschlich «Aktiv am Computer in zwei Spalten», Aktiv ist schon zweispaltig): gebaut als 0.201.0 (Noah 26.10.2026 «1a 2a 3a 4a 5a»), wartet auf Noahs Merge.
 4. **Bibliotheken aktualisieren** (Wächter, PR #251): Prüfungen seit mehreren Tagen rot.
 5. **Kleiderschrank-Test** (`wardrobe`) schlägt manchmal ohne Grund fehl; die Ursache ist noch nicht behoben.
 6. **Wächter:** optional den Vercel-Zugang neu verbinden (braucht Noahs Klick).

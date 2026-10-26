@@ -320,6 +320,8 @@
   });
   // Tempo «Seiten später laden» (Noah 19.10.2026, #1045): every page but Heute loads on its first visit
   // (nav/lazy.js); the service worker stores all parts, so they open offline too. A new page goes here.
+  // «Computer-Breite» (Noah 26.10.2026 «4a»): the places whose content stays at most 1120 px wide (main.hub)
+  const HUB_PAGES = ['trips', 'flow', 'auswerten', 'bikes', 'gear'];
   const PAGES = {
     Gear: () => import('./pages/Gear.svelte'),
     Bikes: () => import('./pages/Bikes.svelte'),
@@ -465,7 +467,7 @@
 <DbWaitLine />
 {#if !mini && !guest}<ComebackWindow care={$dueQ ?? 0} inbox={$inboxQ ?? 0} /><YearCheckWindow {hash} /><DiaryReminder {hash} />{/if}
 
-<main class:calm class:wide={page === 'pack' || page === 'ride' || page === 'debrief' || page === 'rides' || page === 'stravarides' || page === 'past' || page === 'templates' || page === 'gear' || page === 'supplies' || page === 'power' || page === 'fuel' || page === 'tour' || page === 'lend' || page === 'blocks' || page === 'blockcheck' || page === 'packcleanup' || page === 'home' || page === 'features' || page === 'wardrobe' || page === 'flow' || page === 'auswerten' || page === 'timer' || page === 'check' || page === 'routine' || page === 'week' || page === 'neuland' || page === 'heatmap' || page === 'dreams'} class:bar={!wide.matches || !!mini}>
+<main class:calm class:wide={page === 'pack' || page === 'ride' || page === 'debrief' || page === 'rides' || page === 'stravarides' || page === 'past' || page === 'templates' || page === 'gear' || page === 'supplies' || page === 'power' || page === 'fuel' || page === 'tour' || page === 'lend' || page === 'blocks' || page === 'blockcheck' || page === 'packcleanup' || page === 'home' || page === 'features' || page === 'wardrobe' || page === 'flow' || page === 'auswerten' || page === 'timer' || page === 'check' || page === 'routine' || page === 'week' || page === 'neuland' || page === 'heatmap' || page === 'dreams'} class:hub={HUB_PAGES.includes(page)} class:bar={!wide.matches || !!mini}>
   {#if !calm && !guest && !mini}<PlaceTabs {place} {hash} {moved} onclosemoved={() => (moved = null)} />{/if}
   <!-- AU1 «1b»: on a phone Velos and Ausrüstung share a slot. Gesamttest 20.10.2026 B7: the switch stands only
        on Ausrüstung (the way back); Velos already has its tabs and path, Ausrüstung is one row on Velos › Übersicht -->
@@ -935,6 +937,12 @@
   /* Pack, Gear and Home use the full width on a big screen (design audit G4, H4). */
   main.wide {
     max-width: 1600px;
+  }
+  /* «Computer-Breite» (UI-Ziel #14, Noah 26.10.2026 «4a»): the five places Touren, Aktiv, Auswerten, Velos and
+     Material keep their content at most 1120 px wide, in the middle; Heute (rule 11), Packen and a tour page
+     keep their width (all bags side by side). */
+  main.hub {
+    max-width: calc(1120px + 2 * var(--gut));
   }
   /* Room for the bottom bar (v0.98.0 R2: the round + above it is gone). */
   main.bar:not(.calm) {

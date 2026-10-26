@@ -5,6 +5,16 @@
  */
 export default {
   // 0.200.0 Zusammen auf einer Karte
+  // 0.201.0 Mehr Platz am Computer
+  'More room on the computer': 'Mehr Platz am Computer',
+  'On a big screen the pages use their width: the main thing left, the extras right.': 'Auf dem grossen Bildschirm nutzen die Seiten ihre Breite: links die Hauptsache, rechts das Zusätzliche.',
+  'Trips: period, filter and open debriefs go along on the right': 'Touren: Zeitraum, Filter und offene Rückblicke laufen rechts mit',
+  'Analysis: the last 7 days stand right of the overview': 'Auswerten: die letzten 7 Tage stehen rechts neben dem Überblick',
+  'Bikes: the bike comes first, the explanation is one line': 'Velos: zuerst das Velo, die Erklärung ist eine Zeile',
+  'Content stays at most 1120 px wide, in the middle': 'Der Inhalt bleibt höchstens 1120 px breit, in der Mitte',
+  'On the computer open Trips and scroll down the list: period, filter and open debriefs stay visible on the right.': 'Öffne am Computer Touren und scrolle die Liste hinunter: Zeitraum, Filter und offene Rückblicke bleiben rechts sichtbar.',
+  "Open Analysis: «Last 7 days» stands under «Wi gaht's?».": "Öffne Auswerten: «Letzte 7 Tage» steht unter «Wi gaht's?».",
+  'Open Bikes: «How it works» is one line, a tap opens it.': "Öffne Velos: «So geht's» ist eine Zeile, ein Tipp öffnet sie.",
   'Riding together on one map': 'Zusammen auf einer Karte',
   'Friends see each other on the map, without the app.': 'Freunde sehen einander auf der Karte, ohne die App.',
   'Group ride: send a link, everyone on one map': 'Gruppenfahrt: einen Link schicken, alle auf einer Karte',

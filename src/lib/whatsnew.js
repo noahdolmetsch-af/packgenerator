@@ -16,6 +16,23 @@
 
 export const WHATS_NEW = [
   {
+    // v0.201.0 «Computer-Breite besser nutzen» (UI-Ziel #14, Noah 26.10.2026 «1a 2a 3a 4a 5a»): Touren with a right
+    // column that goes along, Auswerten's «Letzte 7 Tage» on the right, Velos with the bike first, content at most 1120 px.
+    version: '0.201.0',
+    date: '2026-10-26',
+    title: 'More room on the computer',
+    lead: 'On a big screen the pages use their width: the main thing left, the extras right.',
+    points: [
+      { text: 'Trips: period, filter and open debriefs go along on the right', href: '#/trips' },
+      { text: 'Analysis: the last 7 days stand right of the overview', href: '#/auswerten' },
+      { text: 'Bikes: the bike comes first, the explanation is one line', href: '#/bikes' },
+    ],
+    small: [
+      { box: 'nicer', text: 'Content stays at most 1120 px wide, in the middle' },
+    ],
+    test: ['On the computer open Trips and scroll down the list: period, filter and open debriefs stay visible on the right.', 'Open Analysis: «Last 7 days» stands under «Wi gaht\'s?».', 'Open Bikes: «How it works» is one line, a tap opens it.'],
+  },
+  {
     // v0.200.0 Gruppen-Live-Karte (Paket U Bikepacking): ride with friends on one map; friends open a link in the browser
     // without the app; ends after the ride, at the latest after 24 hours, and the places are deleted (api/sync.js ?action=group).
     version: '0.200.0',
