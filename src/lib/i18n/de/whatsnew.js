@@ -4,6 +4,15 @@
  * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
+  // 0.213.0 Heute ruhiger
+  'A calmer Today': 'Heute ruhiger',
+  'No more empty boxes on Today.': 'Keine leeren Kästen mehr auf Heute.',
+  'Today: every card is only as tall as its content': 'Heute: jede Karte ist nur so hoch wie ihr Inhalt',
+  'The small buttons are one list «Open quickly»': 'Die kleinen Knöpfe sind eine Liste «Schnell öffnen»',
+  'Bikes on Today: the jobs are small round buttons': 'Velos auf Heute: die Arbeiten sind kleine runde Knöpfe',
+  'Open Today: no card has a big empty space below.': 'Öffne Heute: keine Karte hat unten einen grossen leeren Platz.',
+  'Scroll to «Open quickly»: the small buttons stand in one list, a tap opens the place.': 'Scrolle zu «Schnell öffnen»: die kleinen Knöpfe stehen in einer Liste, ein Tipp öffnet den Ort.',
+  'Look at the bike card: the jobs are small round buttons.': 'Schau die Velokarte an: die Arbeiten sind kleine runde Knöpfe.',
   // 0.208.0 Mehr Platz am Computer
   'More room on the computer': 'Mehr Platz am Computer',
   'The main thing left, the extras right.': 'Links das Wichtigste, rechts das Zusätzliche.',

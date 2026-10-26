@@ -16,6 +16,21 @@
 
 export const WHATS_NEW = [
   {
+    // v0.213.0 «Heute ruhiger» part 1 (Noah 26.10.2026 «1a 5a», mockup H1): cards as tall as their content, the small
+    // tiles as one list «Schnell öffnen», the bike jobs as small round buttons
+    version: '0.213.0',
+    date: '2026-10-26',
+    title: 'A calmer Today',
+    lead: 'No more empty boxes on Today.',
+    points: [
+      // all on Today itself, so no «Try it» address (0.121.0: '#/' would do nothing)
+      { text: 'Today: every card is only as tall as its content' },
+      { text: 'The small buttons are one list «Open quickly»' },
+    ],
+    small: [{ box: 'nicer', text: 'Bikes on Today: the jobs are small round buttons' }],
+    test: ['Open Today: no card has a big empty space below.', 'Scroll to «Open quickly»: the small buttons stand in one list, a tap opens the place.', 'Look at the bike card: the jobs are small round buttons.'],
+  },
+  {
     // v0.208.0 «Computer-Breite besser nutzen» (UI-Ziel #14, Noah 26.10.2026 «1a 2a 3a 4a 5a»): Touren with a right
     // column that goes along, Auswerten's «Letzte 7 Tage» on the right, Velos with the bike first, content at most 1120 px.
     version: '0.208.0',

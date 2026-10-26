@@ -11,9 +11,14 @@
    *
    * tiles: [{ id, size }]; body: snippet (tile) → the tile's content; editing; onedit(); onchange; onadd.
    * A tile may hold another one (Im Flow + Balance, 0.155.0): its inner `data-tile` is the one a long press picks.
+   *
+   * «Heute ruhiger» part 1 (Noah 26.10.2026 «1a 5a», mockup H1): outside edit mode every small tile stands in one
+   * calm list «Schnell öffnen» (where the first small tile stands, quick.js), and a card is only as tall as its
+   * content (no tile stretched by its neighbour any more).
    */
   import { GripVertical, X, ChevronLeft, ChevronRight, Plus } from '@lucide/svelte';
   import { TILE, SIZE_NAME, stepTile, moveTile, removeTile, resizeTile } from './tiles.js';
+  import { runsOf } from './quick.js';
   import { t } from '../i18n.svelte.js';
 
   let { tiles = [], body, editing = false, onedit, onchange, onadd } = $props();
@@ -86,22 +91,46 @@
   $effect(() => () => clearTimeout(holdTimer));
 </script>
 
-<div class="wall" class:editing bind:this={wallEl} role="list" aria-label={t('Your start page')} onpointermove={dragMove} onpointerup={dragEnd} onpointercancel={dragEnd}>
-  {#each shown as x, i (x.id)}
-    <div class="ti {x.size}" class:moving={drag?.id === x.id} class:picked={picked === x.id} data-tile={x.id} data-size={x.size} role="listitem" onpointerdowncapture={(e) => holdDown(e, e.target.closest?.('[data-tile]')?.dataset.tile ?? x.id)} onpointermovecapture={holdMove} onpointerupcapture={holdStop} onpointercancelcapture={holdStop} onclickcapture={holdClick}>
-      <!-- «Heute lädt nicht» (19.10.2026): an error in one tile stays in that tile; the rest of Heute works -->
-      <div class="body" inert={editing}><svelte:boundary onerror={(e) => console.error(`Tile ${x.id}:`, e)}>{@render body(x)}{#snippet failed(_, reset)}<p class="tile-err" data-tile-error={x.id}>{t('This tile could not load.')} <button type="button" class="link" onclick={reset}>{t('Try again')}</button></p>{/snippet}</svelte:boundary></div>
-      {#if editing}
-        <button type="button" class="pick" aria-pressed={picked === x.id} aria-label={t('{name}: move or change the size', { name: name(x.id) })} onclick={() => (picked = picked === x.id ? null : x.id)}></button>
-        <button type="button" class="grip" aria-label={t('Drag {name}', { name: name(x.id) })} onpointerdown={(e) => dragStart(e, x.id)}><GripVertical size={16} aria-hidden="true" /></button>
-        <button type="button" class="rm" aria-label={t('Take {name} off the start page', { name: name(x.id) })} onclick={() => onchange?.(removeTile(tiles, x.id))}><X size={16} aria-hidden="true" /></button>
-      {/if}
-    </div>
-  {/each}
-  <div class="ti s plusw" role="listitem">
-    <button type="button" class="plus" onclick={onadd} aria-haspopup="dialog"><Plus size={20} aria-hidden="true" /><span>{t('Add a tile')}</span></button>
+{#snippet tileEl(x, cls = '')}
+  <div class="ti {x.size} {cls}" class:moving={drag?.id === x.id} class:picked={picked === x.id} data-tile={x.id} data-size={x.size} role="listitem" onpointerdowncapture={(e) => holdDown(e, e.target.closest?.('[data-tile]')?.dataset.tile ?? x.id)} onpointermovecapture={holdMove} onpointerupcapture={holdStop} onpointercancelcapture={holdStop} onclickcapture={holdClick}>
+    <!-- «Heute lädt nicht» (19.10.2026): an error in one tile stays in that tile; the rest of Heute works -->
+    <div class="body" inert={editing}><svelte:boundary onerror={(e) => console.error(`Tile ${x.id}:`, e)}>{@render body(x)}{#snippet failed(_, reset)}<p class="tile-err" data-tile-error={x.id}>{t('This tile could not load.')} <button type="button" class="link" onclick={reset}>{t('Try again')}</button></p>{/snippet}</svelte:boundary></div>
+    {#if editing}
+      <button type="button" class="pick" aria-pressed={picked === x.id} aria-label={t('{name}: move or change the size', { name: name(x.id) })} onclick={() => (picked = picked === x.id ? null : x.id)}></button>
+      <button type="button" class="grip" aria-label={t('Drag {name}', { name: name(x.id) })} onpointerdown={(e) => dragStart(e, x.id)}><GripVertical size={16} aria-hidden="true" /></button>
+      <button type="button" class="rm" aria-label={t('Take {name} off the start page', { name: name(x.id) })} onclick={() => onchange?.(removeTile(tiles, x.id))}><X size={16} aria-hidden="true" /></button>
+    {/if}
   </div>
-</div>
+{/snippet}
+{#snippet quickS(list, head = true)}
+  <!-- «Heute ruhiger» 1a: every small tile in one calm list; a long press on a row customises it, as on a tile -->
+  <div class="ti long quick" data-quick role="listitem">
+    <div class="qcard">
+      {#if head}<h2 class="qh">{t('Open quickly')}</h2>{/if}
+      <div class="qgrid" role="list" aria-label={t('Open quickly')}>
+        {#each list as x (x.id)}{@render tileEl(x, 'qi')}{/each}
+      </div>
+    </div>
+  </div>
+{/snippet}
+
+{#if editing}
+  <div class="wall editing" bind:this={wallEl} role="list" aria-label={t('Your start page')} onpointermove={dragMove} onpointerup={dragEnd} onpointercancel={dragEnd}>
+    {#each shown as x (x.id)}{@render tileEl(x)}{/each}
+    <div class="ti s plusw" role="listitem">
+      <button type="button" class="plus" onclick={onadd} aria-haspopup="dialog"><Plus size={20} aria-hidden="true" /><span>{t('Add a tile')}</span></button>
+    </div>
+  </div>
+{:else}
+  <div class="wall" bind:this={wallEl} role="list" aria-label={t('Your start page')}>
+    {#each runsOf(shown) as r, i (r.key === 'quick' ? 'quick' : `${i}`)}
+      {#if r.key === 'quick'}{@render quickS(r.tiles)}{:else}{#each r.tiles as x (x.id)}{@render tileEl(x)}{/each}{/if}
+    {/each}
+    <div class="ti long plusw quiet" role="listitem">
+      <button type="button" class="plus" onclick={onadd} aria-haspopup="dialog"><Plus size={18} aria-hidden="true" /><span>{t('Add a tile')}</span></button>
+    </div>
+  </div>
+{/if}
 {#if editing && pickedTile}
   {@const i = tiles.findIndex((x) => x.id === pickedTile.id)}
   <div class="tools" role="group" aria-label={name(pickedTile.id)} data-tools={pickedTile.id}>
@@ -156,8 +185,99 @@
   @media (min-width: 720px) {
     .ti.l {
       grid-column: span 4;
-      grid-row: span 2;
     }
+  }
+  /* «Heute ruhiger» H1: a card as tall as its content; before, a small tile beside a long card grew to its height */
+  .wall:not(.editing) {
+    align-items: start;
+    grid-auto-rows: auto;
+  }
+  .wall:not(.editing) .body > :global(*) {
+    height: auto;
+  }
+  /* 1a: the small tiles as one calm list, two columns on a phone, four on a computer */
+  .qcard {
+    padding: 8px 14px;
+    border: 1px solid var(--card-line);
+    border-radius: var(--radius-card);
+    background: var(--paper);
+    box-shadow: var(--card-shadow);
+  }
+  .qh {
+    margin: 6px 2px 4px;
+    font: 600 var(--fs-body) / 1.25 var(--font-body);
+    color: var(--ink);
+  }
+  .qgrid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0 12px;
+  }
+  @media (min-width: 720px) {
+    .qgrid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 0 20px;
+    }
+  }
+  .qi {
+    position: relative;
+    min-width: 0;
+  }
+  .qgrid > .ti {
+    grid-column: auto;
+  }
+  .qi :global(.st) {
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 10px;
+    min-height: 48px;
+    height: auto;
+    padding: 4px 2px;
+    border: 0;
+    border-radius: 10px;
+    background: none;
+    box-shadow: none;
+    font-size: var(--fs-small);
+  }
+  .qi :global(.st:hover) {
+    background: var(--paper-2);
+    transform: none;
+  }
+  .qi :global(.st .ic) {
+    flex: none;
+  }
+  .qi :global(.st .lb) {
+    display: block;
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-align: left;
+    font-weight: 600;
+  }
+  .qi :global(.st .lb > span) {
+    display: inline;
+  }
+  .qi :global(.st .su),
+  .qi :global(.st .op) {
+    display: none;
+  }
+  .qi :global(.st .bd),
+  .qi :global(.st .nw) {
+    position: static;
+    flex: none;
+  }
+  /* «Add a tile» outside edit mode: one quiet line at the end, no big dashed square */
+  .plusw.quiet .plus {
+    flex-direction: row;
+    min-height: 44px;
+    height: auto;
+    border: 0;
+    color: var(--ink-2);
+    text-decoration: underline;
+    text-underline-offset: 3px;
   }
   .body {
     height: 100%;
