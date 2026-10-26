@@ -103,7 +103,11 @@ test('Vorgänge: a double entry is merged into one matter, renamed and deleted w
   await expect(card).toContainText(`${P} Hotel Herbst`);
 
   await card.getByRole('button', { name: T('Delete «{name}»', { name: `${P} Hotel Herbst` }) }).click();
-  await page.locator('dialog[open]').last().getByRole('button', { name: T('Delete'), exact: true }).click();
+  // The phone sheet slides up; wait until it stands still before tapping «Löschen» (CI 26.10: the hint above was hit mid-slide).
+  const del = page.locator('dialog.gds[open]');
+  await expect(del).toBeVisible();
+  await del.evaluate((d) => Promise.all(d.getAnimations({ subtree: true }).map((a) => a.finished)));
+  await del.getByRole('button', { name: T('Delete'), exact: true }).click();
   await expect(card).toHaveCount(0);
   const notes = await readAll(page, 'notes');
   expect(notes.filter((n) => n.id.startsWith(P)).map((n) => n.caseId ?? null)).toEqual([null, null]);
