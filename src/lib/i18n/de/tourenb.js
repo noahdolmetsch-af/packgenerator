@@ -1,0 +1,40 @@
+// Paket «Touren b» (996 Ideen 50–58, Noah 25.10.2026)
+export default {
+  // 54 Problemnotiz ohne Tippen: «Später prüfen»
+  'Check later': 'Später prüfen',
+  'Check {name} later': '{name} später prüfen',
+  'What do you want to check later?': 'Was willst du später prüfen?',
+  'It waits in the Inbox, with this tour day.': 'Es wartet im Eingang, mit diesem Tourtag.',
+  // 51 Teil mit kleiner Geschichte
+  'Little stories': 'Kleine Geschichten',
+  'Your voice notes on the things of this list: what for and the trick.': 'Deine Sprachnotizen zu Teilen dieser Liste: wofür und der Kniff.',
+  'Voice note on {name}': 'Sprachnotiz zu {name}',
+  'Not on this trip: {name}': 'Bei dieser Tour ausblenden: {name}',
+  // 53 Check aus einer echten Panne
+  'Check and oil the chain': 'Kette prüfen und ölen',
+  'Check the brake pads': 'Bremsbeläge prüfen',
+  'Check the spokes and spin the wheels': 'Speichen prüfen, Räder drehen lassen',
+  'Check the gears and the derailleur hanger': 'Schaltung und Schaltauge prüfen',
+  'Check what broke last time': 'Prüfen, was letztes Mal kaputtging',
+  'A check for next time': 'Ein Check fürs nächste Mal',
+  'Check for next time': 'Check fürs nächste Mal',
+  'Comes the evening before every next tour of this type. Change the words as you like.': 'Kommt am Vorabend jeder nächsten Tour dieser Art. Ändere die Worte, wie du willst.',
+  'The check comes the evening before every next tour of this type.': 'Der Check kommt am Vorabend jeder nächsten Tour dieser Art.',
+  // 50 Regel mit Ablaufdatum
+  'Holds|rule': 'Gilt',
+  'How long the rule holds': 'Wie lange die Regel gilt',
+  'Always|rule': 'Immer',
+  'Only for {trip}': 'Nur für {trip}',
+  'Untitled trip': 'Tour ohne Titel',
+  'Until a day (season)': 'Bis zu einem Tag (Saison)',
+  'Holds until': 'Gilt bis',
+  'The rule holds until you change it.': 'Die Regel gilt, bis du sie änderst.',
+  'Afterwards the app asks whether the rule stays.': 'Danach fragt die App, ob die Regel bleiben soll.',
+  'Should the rule stay?': 'Soll die Regel bleiben?',
+  'held only for {trip}': 'galt nur für {trip}',
+  'held until {day}': 'galt bis {day}',
+  'Keep always': 'Immer behalten',
+  'No longer suggest': 'Nicht mehr vorschlagen',
+  '«{name}» now holds always.': '«{name}» gilt jetzt immer.',
+  '«{name}» is no longer suggested. You can switch it on again on Building blocks.': '«{name}» wird nicht mehr vorgeschlagen. Auf Bausteine kannst du es wieder einschalten.',
+};

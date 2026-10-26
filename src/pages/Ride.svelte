@@ -297,9 +297,10 @@
   }
   // v0.29.0 (Noah 8a): a note can carry an answer for the debrief ({ kind, itemId, name }); it goes
   // straight into the trip's debrief (a draft is made when there is none) and stays in the Inbox too.
-  async function writeNote(text, debriefInfo = null, extra = null) {
+  async function writeNote(text, debriefInfo = null, extra = null, more = null) {
     const now = new Date().toISOString();
     const n = newNote({ text, page: 'ride', tripId: trip.id, bikeId: trip.bikeId ?? null, day: cur }, { id: `note-${Date.now().toString(36)}${Math.random().toString(36).slice(2, 5)}`, now });
+    if (more) Object.assign(n, more);
     if (debriefInfo) n.debrief = debriefInfo;
     if (extra) n.inputs = extra;
     await db.transaction('rw', db.notes, db.debriefs, async () => {
@@ -311,9 +312,9 @@
     noteMsg = debriefInfo ? t('Saved: {text}. It is in the debrief and in the Inbox.', { text }) : t('Saved. It shows in the debrief and in the Inbox.');
     setTimeout(() => (noteMsg = ''), 4000);
   }
-  let quick = $state(null); // 'missing' | 'unused' | 'broken' | 'text'
+  let quick = $state(null); // 'missing' | 'unused' | 'broken' | 'later' | 'text'
   let missName = $state('');
-  const kindText = { missing: '{name} was missing', unused: '{name} not needed', broken: '{name} broken' };
+  const kindText = { missing: '{name} was missing', unused: '{name} not needed', broken: '{name} broken', later: 'Check {name} later' };
   // v0.30.1 (Noah C2): one tap = one note. A tap while a note is being saved does nothing, and the
   // same answer for the same item on this trip is not written a second time.
   let writing = false;
@@ -331,12 +332,15 @@
     }
   }
   const noted = (kind, itemId, name = '') =>
+    kind === 'later' ? ($notesQ ?? []).some((n) => n.tripId === trip.id && n.check?.itemId === itemId && n.status !== 'sorted') :
     ($notesQ ?? []).some((n) => n.tripId === trip.id && n.debrief?.kind === kind && (itemId ? n.debrief.itemId === itemId : !n.debrief.itemId && (n.debrief.name ?? '').toLowerCase() === name.toLowerCase()));
   function quickItem(kind, item) {
     quick = null;
     return once(async () => {
       const text = t(kindText[kind], { name: nameOf(item) });
       if (noted(kind, item.id)) return flash(t('Already noted: {text}', { text }));
+      // Idee 54 «Später prüfen»: not an answer of the debrief, an open note in the Inbox on this tour day
+      if (kind === 'later') return writeNote(text, null, null, { check: { itemId: item.id, name: item.name } });
       await writeNote(text, { kind, itemId: item.id, name: item.name });
     });
   }
@@ -754,11 +758,13 @@
             {#each DEBRIEF_KINDS as k (k.key)}
               <button type="button" class="tp-chip" aria-pressed={quick === k.key} aria-expanded={quick === k.key} onclick={() => (quick = quick === k.key ? null : k.key)}>{#if k.key === 'missing'}<Plus size={16} aria-hidden="true" />{:else if k.key === 'unused'}<Minus size={16} aria-hidden="true" />{:else}<X size={16} aria-hidden="true" />{/if}{t(k.name)}</button>
             {/each}
+            <button type="button" class="tp-chip" aria-pressed={quick === 'later'} aria-expanded={quick === 'later'} onclick={() => (quick = quick === 'later' ? null : 'later')} data-note-later><Search size={16} aria-hidden="true" />{t('Check later')}</button>
             <button type="button" class="tp-chip quiet" aria-pressed={quick === 'text'} aria-expanded={quick === 'text'} onclick={() => (quick = quick === 'text' ? null : 'text')}><Mic size={16} aria-hidden="true" />{t('Free text')}</button>
           </div>
-          {#if quick === 'unused' || quick === 'broken'}
-            <div class="pick" role="group" aria-label={quick === 'unused' ? t('What did you not need?') : t('What broke?')}>
-              <p class="tp-small tp-muted">{quick === 'unused' ? t('What did you not need?') : t('What broke?')}</p>
+          {#if quick === 'unused' || quick === 'broken' || quick === 'later'}
+            {@const ask = quick === 'unused' ? t('What did you not need?') : quick === 'later' ? t('What do you want to check later?') : t('What broke?')}
+            <div class="pick" role="group" aria-label={ask}>
+              <p class="tp-small tp-muted">{ask}{#if quick === 'later'}{' '}{t('It waits in the Inbox, with this tour day.')}{/if}</p>
               {#each bags as z (z.key)}
                 <span class="lbl">{placeName(trip, z)}</span>
                 <div class="tp-chips">{#each z.entries.filter((e) => itemsById[e.itemId]) as e (e.itemId)}<button type="button" class="tp-chip" onclick={() => quickItem(quick, itemsById[e.itemId])}>{nameOf(itemsById[e.itemId])}</button>{/each}</div>
