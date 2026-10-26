@@ -260,10 +260,13 @@ export async function unnamed(locator) {
 
 /** English UI keys that have a German text, so in German mode they must never be on the screen as they are. */
 const KEYS = new Map();
+// the German texts as a set, built once: Object.values(DE) inside the loops below copied ~29 000 texts
+// for every key and made loading this file take minutes
+const DE_TEXTS = new Set(Object.values(DE));
 for (const [en, de] of Object.entries(DE)) {
   const plain = en.replace(/\|[a-z]+$/, '');
   if (plain === de || /\{\w+\}/.test(plain) || plain.length < 4 || !/[a-z]/.test(plain)) continue;
-  if (Object.values(DE).includes(plain)) continue; // also a German word ("Tarp", "Buff", "Multitool")
+  if (DE_TEXTS.has(plain)) continue; // also a German word ("Tarp", "Buff", "Multitool")
   KEYS.set(plain, de);
 }
 // short English words a German screen should not show (beyond the keys); names and numbers aside
@@ -298,7 +301,7 @@ export async function untranslated(page) {
     if (s.includes('test_data_gtp_')) continue;
     const bare = s.replace(/[:.…,;!?]+$/, '');
     if (KEYS.has(s) || KEYS.has(bare)) exact.push(s);
-    else if (WORDS.test(s) && !/[äöüÄÖÜß]/.test(s) && !Object.values(DE).some((de) => de === s)) words.push(s);
+    else if (WORDS.test(s) && !/[äöüÄÖÜß]/.test(s) && !DE_TEXTS.has(s)) words.push(s);
   }
   return { exact: exact.slice(0, 15), words: words.slice(0, 15) };
 }

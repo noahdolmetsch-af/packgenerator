@@ -12,7 +12,8 @@
  * An entry: { id, name, own?, renamed?, hidden? }. A name the person typed (own or renamed) never goes
  * through t(): raw tells the pages.
  */
-export const APP_LISTS = ['pointKinds', 'bikeKinds', 'awayTypes', 'journalQuestions', 'journalMoods', 'medMoods'];
+// daySports: the kinds of a trip day (Touren-Ideen 45, tourplan/prep.js)
+export const APP_LISTS = ['pointKinds', 'bikeKinds', 'awayTypes', 'journalQuestions', 'journalMoods', 'medMoods', 'daySports'];
 
 // a plain object like the other lists (domains.js, care.js): App.svelte draws the page again when the
 // lists arrive (listsReady); plain, so the pure files and the browser tests can import it in Node

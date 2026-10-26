@@ -10,7 +10,7 @@ import { HOME, GAPS, WHY } from '../src/lib/know/heimat.js';
 // 233 after merging 0.187–0.189 and «Touren ohne Überraschung» part 2, built before this guard: dress rehearsal, good night,
 // arrive well, «see the effect» and «pack by need» show only in their situation; 234: «History and progress» lives on each
 // sport's page since «Aktiv neu» (0.187.0); 217 after «Live-Karte, Rennen und Packen sichtbar»; 206 after «Velos sichtbar»; 170 after «Ich, Werkzeuge und Berg sichtbar»; 165 after «Notizen sichtbar»; 161 after Material, Touren and Listen; 151 after «Aktiv sichtbar»; 147 after «Packen sichtbar 2»; 142 after «Unterwegs sichtbar»; 116 after «Namen überall» (names, Rückblick, Material and Touren links); 111 after Auswerten tiles, Abfahrt jumps and Webcams.
-const MAX_GAPS = 111;
+const MAX_GAPS = 77;
 
 describe('home pages of the functions', () => {
   it('every function of the catalogue has a home page, and no home is left over', () => {

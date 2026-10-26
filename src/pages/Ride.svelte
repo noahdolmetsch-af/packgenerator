@@ -62,6 +62,7 @@
   import Woanders from '../lib/sk/Woanders.svelte'; // SK X11 + X16 (SKX4)
   import { windyUrl, bikeShopsUrl } from '../lib/sk/links.js';
   import KomootRow from '../lib/komoot/KomootRow.svelte'; // SN1b «Tour aus komoot»
+  import UsedCard from '../lib/tourenb/UsedCard.svelte'; // Idee 58 (Touren b): count what is used up on the way
   import SpurCard from '../lib/spur/SpurCard.svelte'; // Paket S «Reise-Spur»: «Hier bin ich», «Aufzeichnen», the tour map
   import { komootSport } from '../lib/komoot.js';
   import { domainOf } from '../lib/domains.js';
@@ -297,9 +298,10 @@
   }
   // v0.29.0 (Noah 8a): a note can carry an answer for the debrief ({ kind, itemId, name }); it goes
   // straight into the trip's debrief (a draft is made when there is none) and stays in the Inbox too.
-  async function writeNote(text, debriefInfo = null, extra = null) {
+  async function writeNote(text, debriefInfo = null, extra = null, more = null) {
     const now = new Date().toISOString();
     const n = newNote({ text, page: 'ride', tripId: trip.id, bikeId: trip.bikeId ?? null, day: cur }, { id: `note-${Date.now().toString(36)}${Math.random().toString(36).slice(2, 5)}`, now });
+    if (more) Object.assign(n, more);
     if (debriefInfo) n.debrief = debriefInfo;
     if (extra) n.inputs = extra;
     await db.transaction('rw', db.notes, db.debriefs, async () => {
@@ -311,9 +313,9 @@
     noteMsg = debriefInfo ? t('Saved: {text}. It is in the debrief and in the Inbox.', { text }) : t('Saved. It shows in the debrief and in the Inbox.');
     setTimeout(() => (noteMsg = ''), 4000);
   }
-  let quick = $state(null); // 'missing' | 'unused' | 'broken' | 'text'
+  let quick = $state(null); // 'missing' | 'unused' | 'broken' | 'later' | 'text'
   let missName = $state('');
-  const kindText = { missing: '{name} was missing', unused: '{name} not needed', broken: '{name} broken' };
+  const kindText = { missing: '{name} was missing', unused: '{name} not needed', broken: '{name} broken', later: 'Check {name} later' };
   // v0.30.1 (Noah C2): one tap = one note. A tap while a note is being saved does nothing, and the
   // same answer for the same item on this trip is not written a second time.
   let writing = false;
@@ -331,12 +333,15 @@
     }
   }
   const noted = (kind, itemId, name = '') =>
+    kind === 'later' ? ($notesQ ?? []).some((n) => n.tripId === trip.id && n.check?.itemId === itemId && n.status !== 'sorted') :
     ($notesQ ?? []).some((n) => n.tripId === trip.id && n.debrief?.kind === kind && (itemId ? n.debrief.itemId === itemId : !n.debrief.itemId && (n.debrief.name ?? '').toLowerCase() === name.toLowerCase()));
   function quickItem(kind, item) {
     quick = null;
     return once(async () => {
       const text = t(kindText[kind], { name: nameOf(item) });
       if (noted(kind, item.id)) return flash(t('Already noted: {text}', { text }));
+      // Idee 54 «Später prüfen»: not an answer of the debrief, an open note in the Inbox on this tour day
+      if (kind === 'later') return writeNote(text, null, null, { check: { itemId: item.id, name: item.name } });
       await writeNote(text, { kind, itemId: item.id, name: item.name });
     });
   }
@@ -586,7 +591,7 @@
 <div class="ride trip-page">
   <TripBand {trip} tab="ride" {kicker} compact action={main.kind ? go : noteMain ? noteBtn : null} aside={main.kind ? pen : noteMain ? dayAside : null} extra={endLink} stateMore={running ? dayOf : ''} stepText={noteMain ? dayOf : ''} hint={main.kind === 'start' ? t('Tap when you set off: the blocks and the arrival then count from now.') : main.kind === 'last' ? t('End the trip when you are back home.') : noteMain ? nextLine : ''} />
   <!-- «Unterwegs sichtbar» (332 Use Cases, Noah 24.10.2026 «2b»): parts far down the page as jump chips right under the band -->
-  <QuickLinks label={t('On this page')} links={[{ key: 'eat', jump: '#eat-h', label: t('Eat reminder') }, { key: 'here', jump: '#spur-h', label: t('I am here') }, { key: 'water', jump: '[data-fold="water"]', label: t('Water and food') }, { key: 'sky', jump: '[data-fold="sky"]', label: t('Sun, moon and places') }, { key: 'convert', jump: '[data-fold="convert"]', label: t('Route for other devices') }]} />
+  <QuickLinks label={t('On this page')} links={[{ key: 'eat', jump: '#eat-h', label: t('Eat reminder') }, { key: 'here', jump: '#spur-h', label: t('I am here') }, { key: 'water', jump: '[data-fold="water"]', label: t('Water and food') }, { key: 'sky', jump: '[data-fold="sky"]', label: t('Sun, moon and places') }, { key: 'convert', jump: '[data-fold="convert"]', label: t('Route for other devices') }, { key: 'now', jump: '#now-h', label: t('The Now card on the way') }, { key: 'record', jump: '.btn.rec', label: t('Record the route') }, { key: 'komoot', jump: '[data-komoot-row]', label: t('komoot tour on On the way') }, { key: 'night', jump: '[data-uw-night]', label: t('Good night') }, { key: 'parked', jump: '[data-uw-parked]', label: t('Bike parked') }]} />
   {#if ahead}
     <!-- v0.67.0 (U002, Ü4a): before the start On the way is a calm waiting state, not a loop back to Pack. -->
     {@const n = daysFrom(today, trip.startDate)}
@@ -744,7 +749,7 @@
 
     <div class="col">
       <!-- Paket K #286 «Ess-Erinnerung» -->
-      {#if !trip.finished}{#await import('../lib/unterwegs/Essen.svelte') then m}<m.default tripId={trip.id} until={untilMs} onstate={(x) => (eatNext = x.next)} plan={tripEat(trip)} onplan={(p) => db.trips.update(trip.id, { eat: { ...tripEat(trip), ...p } })} />{/await}{/if}
+      {#if !trip.finished}{#await import('../lib/unterwegs/Essen.svelte') then m}<m.default tripId={trip.id} until={untilMs} fuelStops={trip.fuelStops ?? []} day={cur} onstate={(x) => (eatNext = x.next)} plan={tripEat(trip)} onplan={(p) => db.trips.update(trip.id, { eat: { ...tripEat(trip), ...p } })} />{/await}{/if}
       <!-- Noah 8a: quick notes for the debrief: two taps, no typing. -->
       <section class="notesec" aria-labelledby="note-h">
         <h2 id="note-h" class="sh">{t('Note for the debrief')}</h2>
@@ -754,11 +759,13 @@
             {#each DEBRIEF_KINDS as k (k.key)}
               <button type="button" class="tp-chip" aria-pressed={quick === k.key} aria-expanded={quick === k.key} onclick={() => (quick = quick === k.key ? null : k.key)}>{#if k.key === 'missing'}<Plus size={16} aria-hidden="true" />{:else if k.key === 'unused'}<Minus size={16} aria-hidden="true" />{:else}<X size={16} aria-hidden="true" />{/if}{t(k.name)}</button>
             {/each}
+            <button type="button" class="tp-chip" aria-pressed={quick === 'later'} aria-expanded={quick === 'later'} onclick={() => (quick = quick === 'later' ? null : 'later')} data-note-later><Search size={16} aria-hidden="true" />{t('Check later')}</button>
             <button type="button" class="tp-chip quiet" aria-pressed={quick === 'text'} aria-expanded={quick === 'text'} onclick={() => (quick = quick === 'text' ? null : 'text')}><Mic size={16} aria-hidden="true" />{t('Free text')}</button>
           </div>
-          {#if quick === 'unused' || quick === 'broken'}
-            <div class="pick" role="group" aria-label={quick === 'unused' ? t('What did you not need?') : t('What broke?')}>
-              <p class="tp-small tp-muted">{quick === 'unused' ? t('What did you not need?') : t('What broke?')}</p>
+          {#if quick === 'unused' || quick === 'broken' || quick === 'later'}
+            {@const ask = quick === 'unused' ? t('What did you not need?') : quick === 'later' ? t('What do you want to check later?') : t('What broke?')}
+            <div class="pick" role="group" aria-label={ask}>
+              <p class="tp-small tp-muted">{ask}{#if quick === 'later'}{' '}{t('It waits in the Inbox, with this tour day.')}{/if}</p>
               {#each bags as z (z.key)}
                 <span class="lbl">{placeName(trip, z)}</span>
                 <div class="tp-chips">{#each z.entries.filter((e) => itemsById[e.itemId]) as e (e.itemId)}<button type="button" class="tp-chip" onclick={() => quickItem(quick, itemsById[e.itemId])}>{nameOf(itemsById[e.itemId])}</button>{/each}</div>
@@ -792,6 +799,7 @@
         </div>
       </section>
       <!-- Paket S «Reise-Spur» (Noah 19.10.2026 «1a und b»): a place by tap, the own recording, the tour map -->
+      {#if !ahead && !trip.finished}<UsedCard {trip} {items} />{/if}
       {#if !ahead}<SpurCard {trip} />{/if}
 
       {#if eve?.charge.length}

@@ -24,8 +24,12 @@
   import { METRICS, NUMERIC, CMPS, DEFAULT_RULES, ruleOf, NEED, OR, ALT, BATHING_BLOCKS, OWN_RULE, ownRuleOf } from '../situation.js';
   import { cmpWord, unitOf, sourceLine, needLine, byHand } from '../situationtext.js';
   import { SETS } from '../gear.js';
+  import { liveQuery } from 'dexie';
+  import { db } from '../db.js';
+  import { localDay } from '../localday.js';
+  import { untilOf, seasonEnd } from '../tourenb/ruleuntil.js'; // Idee 50 (Touren b): a rule for one tour or a season
 
-  let { block, rule, onsave, onrename, ondelete = null, onclose, own = false } = $props();
+  let { block, rule, onsave, onrename, ondelete = null, onclose, own = false, until = null } = $props();
   // Paket H #260 «Regel-Editor»: own = an own block; every value can be its rule, the start is OWN_RULE
 
   let dialog;
@@ -36,6 +40,22 @@
   let cmp = $state(start.cmp ?? 'gte');
   let limit = $state(start.limit != null ? String(start.limit) : '');
   let alt = $state(start.alt != null ? String(start.alt) : '');
+  // Idee 50: how long the rule holds: always, one tour, or until a day (a season)
+  const today = localDay();
+  const season = seasonEnd(today);
+  // svelte-ignore state_referenced_locally
+  const u0 = untilOf(until);
+  let holds = $state(u0?.tripId ? `trip:${u0.tripId}` : u0?.date ? 'date' : 'always');
+  // svelte-ignore state_referenced_locally
+  let holdDate = $state(u0?.date ?? season.date);
+  const tripsQ = liveQuery(() => db.trips.toArray());
+  const soon = $derived(
+    ($tripsQ ?? [])
+      .filter((x) => x && !x.finished && !x.skipped && (x.id === u0?.tripId || !x.startDate || x.startDate >= today))
+      .sort((a, b) => String(a.startDate ?? '9999').localeCompare(String(b.startDate ?? '9999')))
+      .slice(0, 8),
+  );
+  const untilNow = () => (holds.startsWith('trip:') ? { tripId: holds.slice(5) } : holds === 'date' ? untilOf({ date: holdDate }) : null);
   let out = $state([]); // items taken out, saved with «Speichern»
   let error = $state('');
 
@@ -87,7 +107,7 @@
         next.alt = a;
       }
     }
-    await onsave?.({ rule: next, out: [...out] });
+    await onsave?.({ rule: next, out: [...out], until: untilNow() });
     dialog.close();
   }
 </script>
@@ -145,6 +165,18 @@
         <p class="everywhere" data-rain-everywhere><Info size={16} aria-hidden="true" /><span><b>{t('Counts everywhere in the app:')}</b> {t('Packing, rain gear, What to wear, the weather on Today, the suggestion of the day, the plan on the way.')} {t('One limit for everything: from {n} % a trip counts as wet.', { n: Number.isFinite(toNum(limit)) ? num(toNum(limit)) : num(std.limit) })}</span></p>
       {/if}
       {#if error}<p class="err" role="alert">{error}</p>{/if}
+    </fieldset>
+
+    <!-- Idee 50 (Touren b): «Regel mit Ablaufdatum» -->
+    <fieldset class="rule hold" data-rule-holds>
+      <legend class="lbl">{t('Holds|rule')}</legend>
+      <select class="sel" aria-label={t('How long the rule holds')} bind:value={holds}>
+        <option value="always">{t('Always|rule')}</option>
+        {#each soon as x (x.id)}<option value={`trip:${x.id}`}>{t('Only for {trip}', { trip: x.title || t('Untitled trip') })}</option>{/each}
+        <option value="date">{t('Until a day (season)')}</option>
+      </select>
+      {#if holds === 'date'}<input class="inp" type="date" bind:value={holdDate} min={today} aria-label={t('Holds until')} data-rule-until />{/if}
+      <p class="src">{holds === 'always' ? t('The rule holds until you change it.') : t('Afterwards the app asks whether the rule stays.')}</p>
     </fieldset>
 
     {#if BATHING_BLOCKS.includes(block.key) && block.key !== 'drybag'}

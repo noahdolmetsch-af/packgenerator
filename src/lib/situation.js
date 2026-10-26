@@ -13,6 +13,7 @@
  * Never binding: a hit is a dashed suggestion in Packen, nothing is added by itself.
  * Pure functions, tested in tests/situation.test.js.
  */
+import { ruleHolds } from './tourenb/ruleuntil.js';
 import { rainChance } from './wardrobe.js';
 import { forecastForTrip } from './weather.js';
 import { ridingHours } from './route.js';
@@ -280,7 +281,10 @@ export function situationHits(trip, setsValue) {
   const rules = rulesOf(setsValue);
   // v0.154.0: «Nasses trocken halten» follows the other bathing blocks (it has no limit of its own)
   facts.bathing = BATHING_BLOCKS.some((k) => k !== 'drybag' && ruleHit(k, rules[k], facts));
-  return Object.fromEntries(RULE_BLOCKS.map((k) => [k, ruleHit(k, rules[k], facts)]).filter(([, r]) => r));
+  // Idee 50 (Touren b): a rule that holds for one tour or until a day counts only there
+  const list = Array.isArray(setsValue) ? setsValue : [];
+  const holds = (k) => ruleHolds(list.find((s) => s?.key === k)?.until, trip);
+  return Object.fromEntries(RULE_BLOCKS.map((k) => [k, holds(k) ? ruleHit(k, rules[k], facts) : null]).filter(([, r]) => r));
 }
 
 /**
@@ -323,7 +327,7 @@ export function setOwnRule(setsValue, key, rule) {
 /** Every own block with a rule that fits the trip: { 'u-…': reason }. */
 export function ownHits(trip, setsValue) {
   if (!trip) return {};
-  const list = (Array.isArray(setsValue) ? setsValue : []).filter((s) => s?.key && !isSituation(s.key) && s.rule && !DEFAULT_RULES[s.key]);
+  const list = (Array.isArray(setsValue) ? setsValue : []).filter((s) => s?.key && !isSituation(s.key) && s.rule && !DEFAULT_RULES[s.key] && ruleHolds(s.until, trip));
   if (!list.length) return {};
   const facts = tripFacts(trip);
   return Object.fromEntries(list.map((s) => [s.key, ownHit(ownRuleOf(s.rule), facts)]).filter(([, r]) => r));

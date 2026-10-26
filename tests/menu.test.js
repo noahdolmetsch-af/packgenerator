@@ -19,7 +19,7 @@ const PAGES = ['home', 'trips', 'ski', 'pack', 'gear', 'bikes', 'care', 'templat
 describe('the pages under the places and «Ich» (v0.76.0)', () => {
   it('groups the pages by their place, «Ich» last', () => {
     expect(PAGE_GROUPS.map((g) => g.key)).toEqual(['trips', 'gear', 'active', 'me']);
-    expect(PAGE_GROUPS.find((g) => g.key === 'trips').rows.map((r) => r.id)).toEqual(['rides', 'templates', 'debriefs', 'past', 'learnings', 'pace', 'ski', 'fuel', 'travel']); // Gesamttest 20.10.2026 B3: Touren › Fahrten; «Reise-Links» (Noah 19.10.2026 «5b»), Verpflegung (Noah 19.10.2026 «1a»)
+    expect(PAGE_GROUPS.find((g) => g.key === 'trips').rows.map((r) => r.id)).toEqual(['rides', 'templates', 'debriefs', 'past', 'learnings', 'pace', 'ski', 'fuel', 'compare', 'travel']); // Gesamttest 20.10.2026 B3: Touren › Fahrten; «Reise-Links» (Noah 19.10.2026 «5b»), Verpflegung (Noah 19.10.2026 «1a»)
     expect(PAGE_GROUPS.find((g) => g.key === 'me').rows.map((r) => r.id)).toEqual(['inbox', 'notes', 'inspiration', 'data', 'helper', 'aiprojects', 'look', 'werte', 'features', 'me']); // «Diktat» 19.10.2026: + Meine KI-Projekte; «Mehr selbst einstellen»: + Eigene Werte; v0.77.0: + Ich › Helfer (K1a); v0.97.0: + Darstellung; UC2-1: + Inspiration
   });
 
