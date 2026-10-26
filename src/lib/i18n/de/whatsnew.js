@@ -14,13 +14,6 @@ export default {
   'On the computer open Trips and scroll down the list: period, filter and open debriefs stay visible on the right.': 'Öffne am Computer Touren und scrolle die Liste hinunter: Zeitraum, Filter und offene Rückblicke bleiben rechts sichtbar.',
   "Open Analysis: «Last 7 days» stands under «Wi gaht's?».": "Öffne Auswerten: «Letzte 7 Tage» steht unter «Wi gaht's?».",
   'Open Bikes: «How it works» is one line, a tap opens it.': "Öffne Velos: «So geht's» ist eine Zeile, ein Tipp öffnet sie.",
-  'Riding together on one map': 'Zusammen auf einer Karte',
-  'Friends see each other on the map, without the app.': 'Freunde sehen einander auf der Karte, ohne die App.',
-  'Group ride: send a link, everyone on one map': 'Gruppenfahrt: einen Link schicken, alle auf einer Karte',
-  'Ends after the ride, at the latest after 24 hours': 'Endet nach der Fahrt, spätestens nach 24 Stunden',
-  'Bike functions are called like their buttons': 'Velo-Funktionen heissen wie ihre Knöpfe',
-  'Open Unterwegs › Live-Karte › «Gruppenfahrt» and send yourself the link.': 'Öffne Unterwegs › Live-Karte › «Gruppenfahrt» und schick dir den Link.',
-  'Open the link in a private window: your name and km show on the map.': 'Öffne den Link in einem privaten Fenster: dein Name und die km stehen auf der Karte.',
   // 0.207.0 Touren a
   'Tours with a plan B': 'Touren mit Plan B',
   'Check the route first, agree on Plan B, learn what was missing.': 'Zuerst die Strecke prüfen, Plan B abmachen, lernen, was gefehlt hat.',
@@ -94,6 +87,13 @@ export default {
   'Open Planen › Tagebuch › «Neuer Eintrag». Under the text tap «Sprachnotiz», speak a few seconds, then «Als Text».': 'Öffne Planen › Tagebuch › «Neuer Eintrag». Tippe unter dem Text «Sprachnotiz», sprich ein paar Sekunden, dann «Als Text».',
   'Tap «Vorlage» › «Dankbarkeit»: the question stands under your text. Save; in the entry tap «Bildkarte».': 'Tippe «Vorlage» › «Dankbarkeit»: die Frage steht unter deinem Text. Speichere; tippe im Eintrag «Bildkarte».',
   // 0.200.0 Zusammen auf einer Karte
+  'Riding together on one map': 'Zusammen auf einer Karte',
+  'Friends see each other on the map, without the app.': 'Freunde sehen einander auf der Karte, ohne die App.',
+  'Group ride: send a link, everyone on one map': 'Gruppenfahrt: einen Link schicken, alle auf einer Karte',
+  'Ends after the ride, at the latest after 24 hours': 'Endet nach der Fahrt, spätestens nach 24 Stunden',
+  'Bike functions are called like their buttons': 'Velo-Funktionen heissen wie ihre Knöpfe',
+  'Open Unterwegs › Live-Karte › «Gruppenfahrt» and send yourself the link.': 'Öffne Unterwegs › Live-Karte › «Gruppenfahrt» und schick dir den Link.',
+  'Open the link in a private window: your name and km show on the map.': 'Öffne den Link in einem privaten Fenster: dein Name und die km stehen auf der Karte.',
   // 0.199.0 Flicken, ausprobieren, abmachen
   'Fix it, try it, meet up': 'Flicken, ausprobieren, abmachen',
   'Clothes get repair jobs, wishes can be borrowed first, and reminders turn into invitations.': 'Kleider bekommen Reparaturaufträge, Wünsche kannst du zuerst ausleihen, und aus Erinnerungen werden Einladungen.',
