@@ -4,6 +4,13 @@
  * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
+  // 0.212.1 Die heutige Tour sagt eins
+  "Today's tour says one thing": 'Die heutige Tour sagt eins',
+  'Not packed yet means: still packing, not done.': 'Noch nicht gepackt heisst: noch am Packen, nicht fertig.',
+  'A day ride not started yet no longer shows «Last evening» or «Completed»': 'Eine Tagestour, die noch nicht begonnen hat, zeigt nicht mehr «Letzter Abend» oder «Abgeschlossen»',
+  'Tour page before the ride: «Planned» and a button to the step you are in': 'Tourseite vor der Fahrt: «Geplant» und ein Knopf zum Schritt, in dem du bist',
+  'Plan a day ride for today and do not finish packing. In the evening Today shows no «Last evening» and no «Review today».': 'Plane eine Tagestour für heute und schliesse das Packen nicht ab. Am Abend zeigt Heute kein «Letzter Abend» und kein «Rückblick heute».',
+  'Open the tour page of that trip (step «Analysis»): it says «Planned» and «Continue to Pack».': 'Öffne die Tourseite dieser Tour (Schritt «Auswertung»): Dort steht «Geplant» und «Weiter zu Packen».',
   // 0.212.0 Touren b
   'Tours that remember': 'Touren, die mitdenken',
   'Start from what you want, get reminded at the right place.': 'Beginne mit deiner Absicht, die Erinnerung kommt am richtigen Ort.',
