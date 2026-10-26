@@ -21,6 +21,8 @@
   import { switchTrip } from '../nav.js';
   import { t, locale } from '../i18n.svelte.js';
   import SpeakButton from '../ui/SpeakButton.svelte';
+  import InputBar from '../eingabe/InputBar.svelte';
+  import { cleanInputs } from '../eingabe/inputs.js'; // «Eingaben überall» (Noah 26.10.2026): voice note, prompts, AI helper
   import { appendSpoken } from '../speak.js';
   import { Pin, PinOff, X, Route, Heart, Wrench, Link2, Plus, Trash2, ChevronLeft, NotebookPen, Unlink } from '@lucide/svelte';
   import { photosOf, linksOf, addPhoto, removePhoto, setPhotos, addLinkTo, removeLinkAt, placeFrom, placeLinks, placeText, mdToHtml, hasFormat, wrapSel, shareText, NOTE_TPL_KEY, templatesOf, addTemplate } from '../noteformats.js';
@@ -332,6 +334,7 @@
       <button type="button" class="btn sm" disabled={locating} onclick={locate} data-add-place><MapPin size={16} aria-hidden="true" />{locating ? t('Finding the place …') : draft.place ? t('Place again') : t('Place|location')}</button>
       <DrawOn list={photosOf(draft)} inks={draft.inks} label={t('Sketch')} onsave={drawn} data-add-sketch />
     </div>
+    <InputBar place="notes" text={draft.text ?? ''} ontext={(s) => (draft.text = s)} inputs={draft.inputs} oninputs={(x) => (draft.inputs = cleanInputs(x))} />
     {#if draft.place}<label class="fld"><span class="lbl">{t('Name of the place')} <small class="q">· {t('optional')}</small></span><input class="inp" type="text" maxlength="60" value={draft.place.label} oninput={(e) => (draft.place = { ...draft.place, label: e.currentTarget.value })} placeholder={t('e.g. Nice rest stop')} /></label>{/if}
 
     <p class="lbl">{t('Checklist')}{#if cl.length}<span class="q"> · {cl.filter((c) => c.done).length}/{cl.length}</span>{/if}</p>

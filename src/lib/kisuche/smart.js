@@ -40,6 +40,7 @@ const KIND_WORDS = {
   material: 'gear', sachen: 'gear', gear: 'gear',
   velos: 'bike', bikes: 'bike',
   notizen: 'note', notes: 'note',
+  tagebuch: 'diary', diary: 'diary',
   lernpunkte: 'log', logbuch: 'log', logbook: 'log',
   vorlagen: 'template', templates: 'template',
 };

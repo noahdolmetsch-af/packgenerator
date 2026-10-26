@@ -125,7 +125,7 @@ describe('Gemini in the diary (1a)', () => {
     expect(fetchFn).not.toHaveBeenCalled();
   });
   it('the server knows the diary modes: own instruction, more room, tidy stays close', () => {
-    expect(DIARY_MODES).toEqual(['title', 'tidy', 'summary', 'ask']);
+    expect(DIARY_MODES).toEqual(['title', 'tidy', 'summary', 'ask', 'prompts', 'highlights']);
     const tidy = geminiRequest({ question: 'Q', context: 'c', mode: 'tidy', lang: 'de' });
     expect(tidy.generationConfig.temperature).toBe(0.1);
     expect(tidy.generationConfig.maxOutputTokens).toBe(4096);

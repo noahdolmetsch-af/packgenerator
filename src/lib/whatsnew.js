@@ -16,6 +16,21 @@
 
 export const WHATS_NEW = [
   {
+    // v0.201.0 «Eingaben überall» (Noah 26.10.2026 «1a 2b 3 nur Ton. kein Video 4b 5a aber b möglich»): one input bar
+    // on ten pages (voice note up to 1 min, photo, file, place, tags, templates per page, prompts, AI), picture card,
+    // the diary in the app search.
+    version: '0.201.0',
+    date: '2026-10-26',
+    title: 'Speak, attach, start from a template',
+    lead: 'Under every text you can now add a voice note, a file or a template.',
+    points: [
+      { text: 'Voice note, file, place and templates under the text of ten pages', href: '#/tagebuch?neu' },
+      { text: 'Diary: gratitude, small joys and a picture card to share', href: '#/tagebuch' },
+    ],
+    small: [{ box: 'new', text: 'The search at the top also finds your diary' }, { box: 'new', text: 'Writing prompts when you are stuck' }],
+    test: ['Open Planen › Tagebuch › «Neuer Eintrag». Under the text tap «Sprachnotiz», speak a few seconds, then «Als Text».', 'Tap «Vorlage» › «Dankbarkeit»: the question stands under your text. Save; in the entry tap «Bildkarte».'],
+  },
+  {
     // v0.200.0 Gruppen-Live-Karte (Paket U Bikepacking): ride with friends on one map; friends open a link in the browser
     // without the app; ends after the ride, at the latest after 24 hours, and the places are deleted (api/sync.js ?action=group).
     version: '0.200.0',

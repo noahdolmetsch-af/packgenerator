@@ -7,6 +7,7 @@
    * Photos stay on this device (3a). Loaded only when opened (App: dynamic import), with its map.
    * #/spur/<tripId>
    */
+  import InputsView from '../lib/eingabe/InputsView.svelte'; // «Eingaben überall»: voice notes and tags of a place
   import { liveQuery } from 'dexie';
   import { Map as MapIcon, Share2, Trash2, Copy, RefreshCw, FileDown, MapPin, Pencil, Route as RouteIcon } from '@lucide/svelte';
   import { db } from '../lib/db.js';
@@ -230,6 +231,7 @@
           <div>
             <p class="tp-small tp-muted">{t('Day {n}', { n: picked.n })} · {picked.at ? zurichTime(Date.parse(picked.at)) : ''}{picked.guessed ? ` · ${t('place estimated from the time')}` : ''}</p>
             <p>{picked.text || (picked.kind === 'place' ? t('I am here') : '')}</p>
+            {#if picked.inputs}<InputsView inputs={picked.inputs} small />{/if}
             <button type="button" class="tp-link" onclick={() => (picked = null)}>{t('Close')}</button>
           </div>
         </div>

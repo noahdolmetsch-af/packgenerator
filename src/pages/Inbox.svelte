@@ -1,4 +1,5 @@
 <script>
+  import InputsView from '../lib/eingabe/InputsView.svelte'; // «Eingaben überall» (26.10.2026): voice notes, files, place of a quick note
   import { askDelete, deleteWithUndo } from '../lib/ui/ask.js'; // «Rückmeldungen» 19.10.2026: the app's own question, then 4 s «Undo»
   import { UNDO_MS } from '../lib/ui/undo.js';
   /**
@@ -304,6 +305,7 @@
                         <small>{when(n.at)}{where(n)}</small>
                       {/if}
                       {#if tip}<small class="tipl">{tip}</small>{/if}
+                      {#if n.inputs}<InputsView inputs={n.inputs} small />{/if}
                       {#if n.files?.length}
                         <span class="files" role="group" aria-label={t('Attachments')}>
                           {#each n.files as f (f.id)}

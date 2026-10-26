@@ -226,8 +226,8 @@ export async function stopRecording(db = appDb) {
  * «Hier bin ich» (answer 1a): the place now, with an optional text and photo → the stored place.
  * pos: a position from the browser (getHere()).
  */
-export async function savePlace(trip, pos, { text = '', photo = null, db = appDb, now = new Date() } = {}) {
-  const p = { id: `place-${now.getTime()}`, kind: 'place', tripId: trip?.id ?? null, day: localDay(now), at: now.toISOString(), lat: r6(pos.lat), lon: r6(pos.lon), acc: pos.acc ?? null, text: String(text ?? '').trim().slice(0, 1000), photo: photo ?? null };
+export async function savePlace(trip, pos, { text = '', photo = null, inputs = null, db = appDb, now = new Date() } = {}) {
+  const p = { id: `place-${now.getTime()}`, kind: 'place', tripId: trip?.id ?? null, day: localDay(now), at: now.toISOString(), lat: r6(pos.lat), lon: r6(pos.lon), acc: pos.acc ?? null, text: String(text ?? '').trim().slice(0, 1000), photo: photo ?? null, ...(inputs ? { inputs } : {}) };
   await db.tracks.put(p);
   return p;
 }

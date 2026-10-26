@@ -9,7 +9,7 @@
    * Data: journal.js and journaldb.js (rows of the table «frei», kind 'diary'; in every backup and sync).
    */
   import { onDestroy } from 'svelte';
-  import { Plus, Mic, Search, Star, Settings2, BookOpen, Shuffle, X, ChevronLeft, ChevronRight, Pencil, Share2, Download, Trash2, MapPin, Sun, CloudSun, Cloud, CloudFog, CloudRain, CloudSnow, CloudLightning, Feather } from '@lucide/svelte';
+  import { Plus, Mic, Search, Star, Settings2, BookOpen, Shuffle, X, ChevronLeft, ChevronRight, Pencil, Share2, Download, Trash2, MapPin, ImagePlay, Sun, CloudSun, Cloud, CloudFog, CloudRain, CloudSnow, CloudLightning, Feather } from '@lucide/svelte';
   import Crumb from '../lib/flow/kit/Crumb.svelte';
   import Seg from '../lib/ui/Seg.svelte';
   import Lightbox from '../lib/ui/Lightbox.svelte';
@@ -18,6 +18,8 @@
   import Settings from '../lib/tagebuch/Settings.svelte';
   import LockScreen from '../lib/tagebuch/LockScreen.svelte';
   import Rueckblick from '../lib/tagebuch/Rueckblick.svelte';
+  import InputsView from '../lib/eingabe/InputsView.svelte'; // «Eingaben überall» (26.10.2026): voice notes and files of an entry
+  import BildKarte from '../lib/eingabe/BildKarte.svelte'; // Noah «1a»: own photo + sentence as a picture card, no AI
   import { moodOf, moodName } from '../lib/tagebuch/insights.js';
   import { askDelete, deleteWithUndo } from '../lib/ui/ask.js';
   import { offerDone } from '../lib/ui/rename.svelte.js';
@@ -185,6 +187,7 @@
 
   let settings = $state(false);
   let lightbox = $state(null); // { list, start }
+  let cardOf = $state(null); // the entry shown as a picture card (BildKarte)
   const href = (e) => `${HREF}/${encodeURIComponent(e.id)}`;
   const thumb = (e) => e.photos?.[0]?.src ?? null;
 </script>
@@ -241,6 +244,7 @@
         {#if (reading.title?.trim() ? reading.text : reading.text.split('\n').slice(1).join('\n')).trim()}
           <div class="tb-body">{reading.title?.trim() ? reading.text.trim() : reading.text.split('\n').slice(1).join('\n').trim()}</div>
         {/if}
+        <InputsView inputs={reading.inputs} />
         {#if reading.tags?.length}
           <div class="tb-chips">{#each reading.tags as x (x)}<a class="tb-chip" href={HREF} onclick={() => ((tag = x), setView('list'))}>#{x}</a>{/each}</div>
         {/if}
@@ -248,6 +252,7 @@
           <button type="button" class="btn hi" onclick={() => (edit = { entry: reading, dictate: false })} data-tb-edit><Pencil size={16} aria-hidden="true" />{t('Change')}</button>
           <button type="button" class="btn" onclick={() => share(reading)} data-tb-share><Share2 size={16} aria-hidden="true" />{t('Share')}</button>
           <button type="button" class="btn" onclick={() => downloadOne(reading)} data-tb-download><Download size={16} aria-hidden="true" />{t('Download it')}</button>
+          <button type="button" class="btn" onclick={() => (cardOf = reading)} data-tb-card><ImagePlay size={16} aria-hidden="true" />{t('Picture card')}</button>
           <button type="button" class="btn del" onclick={() => remove(reading)} data-tb-remove><Trash2 size={16} aria-hidden="true" />{t('Delete')}</button>
         </div>
         <nav class="tb-pager" aria-label={t('More entries')}>
@@ -395,6 +400,9 @@
 {/if}
 {#if lightbox}
   <Lightbox list={lightbox.list} start={lightbox.start} onclose={() => (lightbox = null)} />
+{/if}
+{#if cardOf}
+  <BildKarte entry={cardOf} dayText={long(cardOf.day)} onclose={() => (cardOf = null)} />
 {/if}
 
 <style>

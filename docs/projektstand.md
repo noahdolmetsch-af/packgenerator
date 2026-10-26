@@ -63,6 +63,10 @@ Einzelheiten zu jeder Entscheidung stehen im [Entscheidungslog](decisions.md).
 5. **Kleiderschrank-Test** (`wardrobe`) schlägt manchmal ohne Grund fehl; die Ursache ist noch nicht behoben.
 6. **Wächter:** optional den Vercel-Zugang neu verbinden (braucht Noahs Klick).
 
+### Kurzstand 26.10.2026: Eingaben überall
+
+**0.201.0 «Sprechen, anhängen, mit Vorlage starten» (26.10.2026, Noah «1a 2b 3 nur Ton. kein Video 4b 5a aber b möglich»):** unter den Texten von zehn Seiten (Tagebuch, Notizen, Tages-Check, Tour-Tagebuch, Unterwegs, Reisespur, Velopflege, Ausrüstung, Träume, Schnellnotiz) eine Leiste «Hinzufügen»: Sprachnotiz bis 1 Minute (mit «Als Text» auf dem Gerät), Foto, Datei, Ort, Schlagwort, Vorlagen pro Seite (Tagebuch: Dankbarkeit, kleine Erfreuer, 2 gute Dinge, Lieblingsmoment; hinzufügen, ändern, ordnen, löschen), Schreibanreize, KI-Helfer (Anreize, Highlights, Titel, gratis über Gemini, nur mit Häkchen). Jede Seite zeigt nur, was dort passt. Tagebuch: «Bildkarte» aus eigenem Foto zum Teilen oder Herunterladen (kein KI-Bild, kein Video); die App-Suche findet Tagebuch-Einträge, abschaltbar in den Tagebuch-Einstellungen (mit Sperrcode nur, solange offen). Kein Dexie-Schema; neues Feld `inputs` an bestehenden Einträgen, Backup-Format gleich.
+
 ### Kurzstand 25.10.2026: Gruppen-Live-Karte
 
 **0.200.0 «Zusammen auf einer Karte»:** Auf der Live-Karte lädst du Freunde per Link in eine Gruppenfahrt ein. Sie sehen dich und einander im Browser, ohne App und ohne Konto, und teilen ihren Standort nur, wenn sie wollen. Die Gruppe endet mit der Fahrt, spätestens nach 24 Stunden. 0 Kosten.

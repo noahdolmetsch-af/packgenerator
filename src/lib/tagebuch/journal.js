@@ -8,11 +8,13 @@
  * Where the entries live: rows of the table «frei» with kind 'diary' (Dexie 19, no new table, so no schema
  * change). An entry: { id, kind: 'diary', day: 'YYYY-MM-DD', time: 'HH:MM', at, editedAt, title, text,
  * photos: [{ src }], tags: [name], place: { name, lat, lon } | null, weather: { temp, code } | null,
- * star: bool, q: question index | null, refs: [{ key, text }], inks? (Paket NE 1146: the drawings on the photos, draw/ink.js) }.
+ * star: bool, q: question index | null, refs: [{ key, text }], inks? (Paket NE 1146: the drawings on the photos, draw/ink.js),
+ * inputs? («Eingaben überall» 26.10.2026: voice notes and files, eingabe/inputs.js) }.
  * The settings: one settings record { key: 'journal', value: { questions, lock: { salt, hash }, resetAt } }.
  * Pure functions here (tested in tests/tagebuch.test.js); the database parts are in journaldb.js.
  */
 import { pruneInks } from '../draw/ink.js';
+import { cleanInputs, hasInputs, inputWords } from '../eingabe/inputs.js';
 
 export const JOURNAL_KEY = 'journal';
 export const KIND = 'diary';
@@ -61,11 +63,12 @@ export function newEntry(e = {}, { id, now = new Date().toISOString(), today = n
     mood: Number.isInteger(e.mood) && e.mood >= 1 && e.mood <= 5 ? e.mood : null,
     q: Number.isInteger(e.q) || (typeof e.q === 'string' && e.q.startsWith('own-')) ? e.q : null, // an own question by its id (Listen und Typen)
     refs: (e.refs ?? []).filter((r) => r?.key).map((r) => ({ key: String(r.key), text: clean(r.text, 300) })),
+    ...(cleanInputs(e.inputs) ? { inputs: cleanInputs(e.inputs) } : {}),
   };
 }
 
-/** Nothing written: no title, no text, no photo. Such an entry is not saved. */
-export const isEmpty = (e) => !String(e?.title ?? '').trim() && !String(e?.text ?? '').trim() && !(e?.photos ?? []).length;
+/** Nothing written: no title, no text, no photo, no voice note or file. Such an entry is not saved. */
+export const isEmpty = (e) => !String(e?.title ?? '').trim() && !String(e?.text ?? '').trim() && !(e?.photos ?? []).length && !hasInputs(e?.inputs);
 
 /** Newest first: by day, then by time. */
 export const sortEntries = (list = []) => [...list].sort((a, b) => `${b.day} ${b.time ?? ''}`.localeCompare(`${a.day} ${a.time ?? ''}`));
@@ -82,11 +85,11 @@ export function headOf(e, max = 160) {
   return { title: first.trim().slice(0, 90), preview: rest.join(' ').replace(/\s+/g, ' ').trim().slice(0, max) };
 }
 
-/** Search in title, text, tags and place (all words must be there, case-insensitive). */
+/** Search in title, text, tags, place and what was added (all words must be there, case-insensitive). */
 export function matches(e, q = '') {
   const words = String(q).toLowerCase().split(/\s+/).filter(Boolean);
   if (!words.length) return true;
-  const hay = [e.title, e.text, ...(e.tags ?? []), e.place?.name ?? ''].join(' ').toLowerCase();
+  const hay = [e.title, e.text, ...(e.tags ?? []), e.place?.name ?? '', inputWords(e.inputs)].join(' ').toLowerCase();
   return words.every((w) => hay.includes(w));
 }
 
@@ -252,3 +255,21 @@ export async function hashCode(code, salt, subtle = globalThis.crypto?.subtle) {
   return [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, '0')).join('');
 }
 export const newSalt = () => Array.from(globalThis.crypto.getRandomValues(new Uint8Array(12)), (b) => b.toString(16).padStart(2, '0')).join('');
+
+/* ---------- in the app search («Eingaben überall», Noah 26.10.2026 «5a aber b möglich») ---------- */
+/**
+ * May the app search show diary entries? Yes unless switched off in the diary settings (cfg.inSearch false),
+ * and with a lock code only while the diary is open on this device (open).
+ */
+export const diarySearchable = (cfg = {}, open = false) => cfg?.inSearch !== false && (!cfg?.lock?.hash || open);
+/** An entry without photos and sound, for the search (small in memory). */
+export const lightEntry = (e) => ({
+  id: e.id,
+  day: e.day,
+  time: e.time,
+  title: e.title ?? '',
+  text: e.text ?? '',
+  tags: e.tags ?? [],
+  place: e.place?.name ? { name: e.place.name } : null,
+  inputs: { tags: e.inputs?.tags ?? [], files: (e.inputs?.files ?? []).map((f) => ({ name: f.name })), voices: (e.inputs?.voices ?? []).filter((a) => a.text).map((a) => ({ text: a.text })) },
+});

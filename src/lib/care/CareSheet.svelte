@@ -11,6 +11,8 @@
    */
   import SpeakButton from '../ui/SpeakButton.svelte'; // «Diktat» (Noah 19.10.2026 «5a»)
   import { appendSpoken } from '../speak.js';
+  import InputBar from '../eingabe/InputBar.svelte'; // «Eingaben überall» (Noah 26.10.2026): voice note, photo, file, templates
+  import { cleanInputs } from '../eingabe/inputs.js';
   import { X } from '@lucide/svelte';
   import { backClose } from '../ui/backclose.js';
   import { keepTyped } from '../ui/keeptyped.js'; // P3b rule 3a: closing keeps what was typed
@@ -40,6 +42,8 @@
   let warn = $state(show(start.warnAt));
   let limit = $state(show(start.limit));
   let note = $state(r.note);
+  // svelte-ignore state_referenced_locally
+  let inputs = $state(bike?.careInputs?.[r.key] ?? null);
   let error = $state('');
 
   const toNum = (v) => (String(v ?? '').trim() === '' ? null : Number(String(v).replace(',', '.').replace(/[’'\s]/g, '')));
@@ -69,7 +73,7 @@
       error = res.error === 'interval' ? t('Give km, days or both.') : res.error === 'wear' ? (low ? t('The warning has to be above the replace limit.') : t('The warning has to be below the replace limit.')) : t('Only numbers above 0.');
       return;
     }
-    await onsave?.(careChange(bike, r.key, { on, values: res.values, note }));
+    await onsave?.(careChange(bike, r.key, { on, values: res.values, note, inputs: cleanInputs($state.snapshot(inputs)) }));
     dialog.close();
   }
 </script>
@@ -134,6 +138,7 @@
       <textarea class="inp" rows="2" bind:this={noteEl} bind:value={note} placeholder={t('e.g. Wax: hot wax every 600 km')}></textarea>
     </label>
     <SpeakButton wrap onsaid={(w) => (note = appendSpoken(note ?? '', w))} />
+    <InputBar place="care" text={note ?? ''} ontext={(s) => (note = s)} {inputs} oninputs={(x) => (inputs = x)} />
     <p class="src">{t('Shows in the care card.')}</p>
 
     <div class="foot">

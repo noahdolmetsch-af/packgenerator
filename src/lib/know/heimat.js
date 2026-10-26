@@ -31,6 +31,9 @@ export const HOME = {
   'f.labels': '#/me/tools/labels',
   // Paket D «Mit Freunden»: the three tabs of Ich › Mit Freunden
   'f.friendask': '#/me/freunde',
+  'f.inputbar': '#/tagebuch',
+  'f.inputtemplates': '#/tagebuch',
+  'f.picturecard': '#/tagebuch',
   'f.friendshelf': '#/me/freunde',
   'f.friendtemplate': '#/me/freunde',
   // Paket C «Ruhig und persönlich»: each function is a card title on its sub-page of Ich › Ruhig und persönlich

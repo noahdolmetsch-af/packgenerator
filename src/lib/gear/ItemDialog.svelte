@@ -1,6 +1,9 @@
 <script>
   import { powerRole } from '../power.js'; // Strombudget (Noah 19.10.2026 «2a»)
   import SpeakButton from '../ui/SpeakButton.svelte'; // «Diktat» (Noah 19.10.2026 «5a»)
+  import InputBar from '../eingabe/InputBar.svelte'; // «Eingaben überall» (Noah 26.10.2026): voice note, file, tags, templates
+  import InputsView from '../eingabe/InputsView.svelte';
+  import { cleanInputs, tagsUsed } from '../eingabe/inputs.js';
   import { appendSpoken } from '../speak.js';
   import CameraButton from '../ui/CameraButton.svelte'; // P3b Teil 3: the camera wherever a photo is added
   import { closeKeep } from '../ui/keeptyped.js';
@@ -739,6 +742,7 @@
     </dl>
     {#if item.learning}<p class="note"><b>{t('Learning:')}</b> {item.learning}</p>{/if}
     {#if item.note}<p class="note">{item.note}</p>{/if}
+    {#if item.inputs}<InputsView inputs={item.inputs} small />{/if}
   {:else}
     <div class="grid">
       {#if !isNew}
@@ -787,6 +791,7 @@
       <Field id="it-note" class="wide" label={t('Note')} optional>
         {#snippet children(f)}<textarea class="inp" rows="2" {...f.attrs} bind:value={draft.note}></textarea><SpeakButton wrap onsaid={(w) => (draft.note = appendSpoken(draft.note ?? '', w))} />{/snippet}
       </Field>
+      <div class="wide"><InputBar place="gear" text={draft.note ?? ''} ontext={(s) => (draft.note = s)} inputs={draft.inputs} oninputs={(x) => (draft.inputs = cleanInputs(x))} tags={tagsUsed(allItems ?? [])} /></div>
       <!-- v0.36.0: from the reviewed gear list (gear import); kept as they are when saving. -->
       {#if draft.sourceId || draft.rule || draft.zone || draft.layer || draft.tempClass}
         <p class="note wide">{[draft.sourceId && `${t('Source ID')}: ${draft.sourceId}`, (draft.zone || draft.layer) && `${t('Body zone')}: ${[draft.zone, draft.layer].filter(Boolean).join(' · ')}`, draft.tempClass && `${t('Temperature')}: ${draft.tempClass}`, draft.rule && `${t('Rule')}: ${draft.rule}`].filter(Boolean).join(' · ')}</p>

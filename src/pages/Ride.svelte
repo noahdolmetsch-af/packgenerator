@@ -1,5 +1,8 @@
 <script>
   import SpeakButton from '../lib/ui/SpeakButton.svelte'; // «Diktat» (Noah 19.10.2026 «5a»)
+  import InputBar from '../lib/eingabe/InputBar.svelte'; // «Eingaben überall» (Noah 26.10.2026): voice note, photo, place, templates
+  import InputsView from '../lib/eingabe/InputsView.svelte';
+  import { cleanInputs, hasInputs } from '../lib/eingabe/inputs.js';
   import { appendSpoken } from '../lib/speak.js';
   import { askDelete, deleteWithUndo } from '../lib/ui/ask.js'; // «Rückmeldungen» 19.10.2026: the app's own question, then 4 s «Undo»
   import HintCard from '../lib/pageinfo/HintCard.svelte';
@@ -278,23 +281,27 @@
   // Inbox and the debrief shows it under "Notes on the way". Older notes in the debrief still show.
   const notes = $derived(trip ? tripNotes(debrief, $notesQ ?? [], trip.id) : []);
   let note = $state('');
+  let noteInputs = $state(null);
   let noteMsg = $state('');
   async function saveNote(ev) {
     ev?.preventDefault();
-    if (!note.trim()) return;
-    const text = note;
+    const extra = cleanInputs($state.snapshot(noteInputs));
+    if (!note.trim() && !extra) return;
+    const text = note.trim() || (extra?.voices ? t('Voice note') : extra?.photos ? t('Photo') : t('Note|ride'));
     await once(async () => {
-      await writeNote(text);
+      await writeNote(text, null, extra);
       note = '';
+      noteInputs = null;
       quick = null;
     });
   }
   // v0.29.0 (Noah 8a): a note can carry an answer for the debrief ({ kind, itemId, name }); it goes
   // straight into the trip's debrief (a draft is made when there is none) and stays in the Inbox too.
-  async function writeNote(text, debriefInfo = null) {
+  async function writeNote(text, debriefInfo = null, extra = null) {
     const now = new Date().toISOString();
     const n = newNote({ text, page: 'ride', tripId: trip.id, bikeId: trip.bikeId ?? null, day: cur }, { id: `note-${Date.now().toString(36)}${Math.random().toString(36).slice(2, 5)}`, now });
     if (debriefInfo) n.debrief = debriefInfo;
+    if (extra) n.inputs = extra;
     await db.transaction('rw', db.notes, db.debriefs, async () => {
       await db.notes.put(n);
       if (!debriefInfo) return;
@@ -767,14 +774,15 @@
             <form class="noteform" onsubmit={saveNote}>
               <textarea class="inp" rows="2" bind:value={note} placeholder={t('e.g. Puncture at km 80, the rain gloves were too thin')} aria-label={t('Note for the debrief')}></textarea>
               <SpeakButton wrap answer onsaid={(w) => (note = appendSpoken(note, w))} />
-              <button type="submit" class="btn ink" disabled={!note.trim()}>{t('Save note')}</button>
+              <InputBar place="ride" text={note} ontext={(s) => (note = s)} inputs={noteInputs} oninputs={(x) => (noteInputs = x)} />
+              <button type="submit" class="btn ink" disabled={!note.trim() && !hasInputs(noteInputs)}>{t('Save note')}</button>
             </form>
           {/if}
           <p class="ok tp-small" role="status">{noteMsg}</p>
           {#if notes.length}
             <ul class="notes">
               {#each shownNotes as n (n.key)}
-                <li ontouchstart={() => pressStart(n.key)} ontouchend={pressEnd} ontouchmove={pressEnd} ontouchcancel={pressEnd}><b class="when num">{days > 1 ? `${t('Day {n}', { n: n.day + 1 })} · ` : ''}{time(n.at)}</b><span>{n.text}</span><MoreActions bind:this={noteMenus[n.key]} small title={n.text} label={t('More for this note|ride')} actions={[{ name: t('Remove'), explain: t('with Undo'), icon: X, run: () => dropNote(n) }]} /></li>
+                <li ontouchstart={() => pressStart(n.key)} ontouchend={pressEnd} ontouchmove={pressEnd} ontouchcancel={pressEnd}><b class="when num">{days > 1 ? `${t('Day {n}', { n: n.day + 1 })} · ` : ''}{time(n.at)}</b><span>{n.text}{#if n.inputs}<InputsView inputs={n.inputs} small />{/if}</span><MoreActions bind:this={noteMenus[n.key]} small title={n.text} label={t('More for this note|ride')} actions={[{ name: t('Remove'), explain: t('with Undo'), icon: X, run: () => dropNote(n) }]} /></li>
               {/each}
             </ul>
             {#if notes.length > NOTES_SHOWN}
