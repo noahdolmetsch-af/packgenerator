@@ -27,6 +27,7 @@
   import WeighMode from '../lib/gear/WeighMode.svelte';
   import ReviewMode from '../lib/gear/ReviewMode.svelte';
   import ItemDialog from '../lib/gear/ItemDialog.svelte';
+  import GearFinds from '../lib/gear/GearFinds.svelte';
   import PageTiles from '../lib/sk/PageTiles.svelte'; // SK: tiles at the page end, X7 at each wish
   // Impeccable runde 2 (Einkauf 2): the shop link of a wish only when there is one; «Enter shop link» in the row's «…»
   import OwnLinkSheet from '../lib/sk/OwnLinkSheet.svelte';
@@ -529,6 +530,7 @@
   // v0.24.1 (Noah 5a): select several items, then change their category, move them to the
   // wishlist or back, or delete them. A tap on a row ticks it instead of opening the item.
   let selecting = $state(!!hashQ.get('fill'));
+  let finds = $state(null); // «332 sichtbar»: 'light' | 'power' | null
   const picked = new SvelteSet();
   // What the list shows right now (search and filters included); only these count as selected,
   // so a hidden item is never changed by mistake.
@@ -742,7 +744,11 @@
             <a class="gq" href="#/gear/lend" data-gear-quick-item="lend">{t('Lending list')}</a>
             <button type="button" class="gq" onclick={startWeigh} data-gear-quick-item="weigh">{t('Weigh items')}</button>
             <a class="gq" href="#/gear/import" data-gear-quick-item="import">{t('Import a gear list')}</a>
+            <button type="button" class="gq" onclick={() => setSelecting(true)} data-gear-quick-item="several">{t('Change several')}</button>
+            <button type="button" class="gq" aria-pressed={finds === 'light'} onclick={() => (finds = finds === 'light' ? null : 'light')} data-gear-quick-item="lighter">{t('Lighter alternatives')}</button>
+            <button type="button" class="gq" aria-pressed={finds === 'power'} onclick={() => (finds = finds === 'power' ? null : 'power')} data-gear-quick-item="power">{t('Power values of a device')}</button>
           </nav>
+          {#if finds}<GearFinds kind={finds} {items} onopen={(item) => (dialog = { item })} onclose={() => (finds = null)} />{/if}
         {/if}
         <div class="metaline">
           <span class="sorted">{t('Sorted: {s}', { s: t(SORT_NAME[sort]) })}</span>
@@ -2676,6 +2682,10 @@
     font: 600 var(--fs-small) / 1.2 var(--font-body);
     text-decoration: none;
     cursor: pointer;
+  }
+  .gq[aria-pressed='true'] {
+    border-color: var(--accent);
+    background: var(--accent-soft);
   }
   .gq:hover {
     border-color: var(--line-strong);
