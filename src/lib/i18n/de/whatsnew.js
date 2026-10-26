@@ -4,6 +4,29 @@
  * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
+  // 0.208.0 Mehr Platz am Computer
+  'More room on the computer': 'Mehr Platz am Computer',
+  'The main thing left, the extras right.': 'Links das Wichtigste, rechts das Zusätzliche.',
+  'Trips: period, filter and open debriefs go along on the right': 'Touren: Zeitraum, Filter und offene Rückblicke laufen rechts mit',
+  'Analysis: the last 7 days stand right of the overview': 'Auswerten: die letzten 7 Tage stehen rechts neben dem Überblick',
+  'On the computer open Trips and scroll down the list: period, filter and open debriefs stay visible on the right.': 'Öffne am Computer Touren und scrolle die Liste hinunter: Zeitraum, Filter und offene Rückblicke bleiben rechts sichtbar.',
+  "Open Analysis: «Last 7 days» stands under «Wi gaht's?».": "Öffne Auswerten: «Letzte 7 Tage» steht unter «Wi gaht's?».",
+  'Open Bikes: «How it works» is one line, a tap opens it.': "Öffne Velos: «So geht's» ist eine Zeile, ein Tipp öffnet sie.",
+  // 0.207.0 Touren a
+  'Tours with a plan B': 'Touren mit Plan B',
+  'Check the route first, agree on Plan B.': 'Zuerst die Strecke prüfen, Plan B abmachen.',
+  'Route check: jumps and missing heights before you take a GPX': 'Strecke prüfen: Sprünge und fehlende Höhen, bevor du ein GPX übernimmst',
+  'Plan B with your own trigger, like from 10 mm of rain': 'Plan B mit eigenem Auslöser, etwa ab 10 mm Regen',
+  'The review asks whether what you left out was missing': 'Der Rückblick fragt, ob Weggelassenes gefehlt hat',
+  'Open Planen › Strecke and load a GPX with a gap: a hint shows before «Trotzdem übernehmen».': 'Öffne Planen › Strecke und lade ein GPX mit einer Lücke: Vor «Trotzdem übernehmen» steht ein Hinweis.',
+  'Under «Von der Haustür bis zurück» › Plan B choose «Regen am Tag» «ab 10 mm».': 'Wähle unter «Von der Haustür bis zurück» › Plan B «Regen am Tag» «ab 10 mm».',
+  // 0.206.0 Fitbit-Werte auf Heute
+  'Fitbit values with their day': 'Fitbit-Werte mit Tag',
+  "Heute keeps the last Fitbit value until today's arrives.": 'Heute zeigt den letzten Fitbit-Wert, bis der von heute da ist.',
+  'Sleep, HRV and resting pulse show their day, like «yesterday»': 'Schlaf, HRV und Ruhepuls zeigen ihren Tag, etwa «gestern»',
+  'In the morning the Fitbit tiles are no longer empty': 'Am Morgen sind die Fitbit-Kacheln nicht mehr leer',
+  "Open Heute in the morning before the Fitbit sync: the tiles show last night's values with «yesterday» or the day.": 'Öffne Heute am Morgen vor dem Fitbit-Abgleich: Die Kacheln zeigen die Werte der letzten Nacht mit «gestern» oder dem Tag.',
+  'A value older than 7 days no longer shows.': 'Ein Wert, der älter als 7 Tage ist, wird nicht mehr gezeigt.',
   // 0.205.0 Einzelideen Material und Überall
   'Group ride: «I am waiting here» and stops': 'Gruppenfahrt: «Ich warte hier» und Stopps',
   'Material that knows why': 'Material, das weiss warum',

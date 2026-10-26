@@ -352,6 +352,19 @@ export function kitPlan(kit, trip, items = []) {
   return { items: members, have: members.filter((i) => on.has(i.id)), add: members.filter((i) => !on.has(i.id)) };
 }
 
+/* ---------- Touren-Ideen 42 «Kleider für Wartezeiten» ---------- */
+
+/**
+ * Standing still feels colder than riding: time on a platform, for photos or long breaks. The person
+ * says roughly how long (trip.waitMin); the onion and the kit then count this many degrees colder.
+ * A suggestion only: «None» is the start and takes nothing away.
+ */
+export const WAIT_CHOICES = [0, 15, 30, 60];
+export function waitChill(trip) {
+  const m = Number(trip?.waitMin) || 0;
+  return m >= 60 ? 3 : m >= 30 ? 2 : m >= 15 ? 1 : 0;
+}
+
 /* ---------- the onion check ---------- */
 
 /**

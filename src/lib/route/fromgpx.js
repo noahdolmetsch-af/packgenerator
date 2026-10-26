@@ -15,6 +15,7 @@
 import { parseGpx, routeStats, GPX_MAX_MB } from '../route.js';
 import { parseWaypoints, kindOfWpt, ownPois } from '../race/files.js';
 import { t } from '../i18n.svelte.js';
+import { routeCheck } from './check.js';
 
 export const WPT_MAX = 300;
 export const WPT_MAX_OFF_KM = 5;
@@ -74,10 +75,22 @@ export function wptsOf(text, route) {
   });
 }
 
-/** GPX text → the trip route with its waypoints (throws the plain messages of parseGpx). */
+/**
+ * GPX text → the trip route with its waypoints (throws the plain messages of parseGpx).
+ * check (Touren-Ideen 41): jumps, loops and missing heights (route/check.js); the caller shows it before
+ * the route is used and does not store it (splitRoute).
+ */
 export function routeFromGpx(text, fileName = '') {
-  const route = routeStats(parseGpx(text), fileName);
-  return { ...route, wpts: wptsOf(text, route) };
+  const gpx = parseGpx(text);
+  const route = routeStats(gpx, fileName);
+  return { ...route, wpts: wptsOf(text, route), check: routeCheck(gpx) };
+}
+
+/** The route to store and its check apart: { route, check }. */
+export function splitRoute(r) {
+  if (!r) return { route: null, check: null };
+  const { check = null, ...route } = r;
+  return { route, check };
 }
 
 /** A file from the file picker → the trip route (as route.js readGpxFile, plus the waypoints). */

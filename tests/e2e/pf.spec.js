@@ -949,6 +949,8 @@ test('PF16: ride and debrief note, GPX and weather, print/PDF, photo, share link
   await packMenu(page, rec, 'Edit trip conditions');
   const sheet = page.getByRole('dialog', { name: T('Edit trip conditions') });
   await sheet.locator('input[type=file][accept*="gpx"]').first().setInputFiles({ name: 'test_data_gtp_loop.gpx', mimeType: 'application/gpx+xml', buffer: Buffer.from(GPX) });
+  // Touren-Ideen 41 (0.207.0): the fixture's track points lie ~4 km apart, so «Route prüfen» shows the jumps first
+  await sheet.locator('[data-route-check-use]').click();
   await rec.check('GPX: the route is on this trip (km, climb) and gives the start place', async () => {
     await expect.poll(async () => (await tripNamed(page, title)).route?.km ?? 0, { timeout: 3000 }).toBeGreaterThan(0);
     expect((await tripNamed(page, title)).place).toBeTruthy();

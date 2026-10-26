@@ -76,6 +76,8 @@ export const INTROS = {
     ],
     expect: 'With the km from Strava or your trips the app gets to know each bike. After a few weeks you see what is due next and how far a part has come.',
     tour: 'velos',
+    // «Computer-Breite» (Noah 26.10.2026 «3a»): the bike comes first, the Einstieg starts as one line
+    folded: true,
   },
   // Noah «4a»: the pages below a place get the same Einstieg, without a tour of their own («3»: a small
   // tour per place). page: true says «This is …» instead of «Your area …».

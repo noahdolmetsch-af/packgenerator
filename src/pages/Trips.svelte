@@ -96,7 +96,7 @@
   import Activities from '../lib/touren/Activities.svelte';
   import { tourRows, stravaOfTrip } from '../lib/touren/aktivitaeten.js';
   import { loadActs } from '../lib/review/actdata.js';
-  import { phone } from '../lib/media.svelte.js';
+  import { phone, cols12 } from '../lib/media.svelte.js';
   import { PHONE_ROWS, TOUR_ROWS, nextRows, shortLine, capGroups } from '../lib/touren/kurz.js';
   import { untrack } from 'svelte';
   import { ftpEstimate } from '../lib/training.js';
@@ -118,6 +118,8 @@
   // Paket H «3a und b»: the trips as an editable table, remembered on this device
   let tableOn = $state(savedView('trips') === 'table');
   const setTable = (on) => ((tableOn = on), saveView('trips', on ? 'table' : 'list'));
+  // «Computer-Breite» (Noah 26.10.2026 «1a»): from 1200 px a right column that goes along while you scroll
+  const side = $derived(cols12.matches && !phone.matches);
   const debriefsQ = liveQuery(() => db.debriefs.toArray());
   const ridesQ = liveQuery(() => db.rides.toArray());
   const placeQ = liveQuery(() => db.settings.get(HOME_PLACE));
@@ -385,6 +387,27 @@
   {/if}
 {/snippet}
 
+{#snippet saBand()}
+  <button type="button" class="sa-band" onclick={() => (shownRows = oldRows)}>
+    <span class="sa-bt"><b>{t('New: every trip has a sport')}</b><small>{tn(oldRows.length, 'Choose one for {n} old bike trip', 'Choose one for {n} old bike trips')}</small></span>
+    <ChevronRight size={18} aria-hidden="true" />
+  </button>
+{/snippet}
+
+{#snippet filterTools()}
+  <div class="tools">
+    <Seg full={false} label={t('Period')} value={mode} options={PERIODS} onchange={(v) => (mode = v)} />
+    <StateChips value={st} counts={stCounts} onchange={(v) => (st = v)} />
+    <button type="button" class="btn k fbtn" aria-haspopup="dialog" onclick={() => (sheet = true)} data-filter-open><SlidersHorizontal size={17} aria-hidden="true" /><span class="kl">{t('Filter')}</span>{#if chips.length}<span class="fn num" data-filter-n>{chips.length}</span>{/if}</button>
+  </div>
+  {#if tours.saved.length}
+    <div class="mine" role="group" aria-label={t('My filters')} data-my-filters>
+      <span class="al"><Bookmark size={14} aria-hidden="true" />{t('My filters')}</span>
+      {#each tours.saved as s (s.id)}<button type="button" class="mf" aria-pressed={sameFilter(filter, s.f)} onclick={() => setSaved(s)} data-saved={s.name}>{s.name}</button>{/each}
+    </div>
+  {/if}
+{/snippet}
+
 {#snippet cell(label, value, unit = '', help = '')}
   <!-- FE14: a difficult value explains itself with a «?» (one sentence, in place) -->
   <div class="vc"><dt>{label}{#if help}<Help {label} text={t(FIELD_HELP[help])} />{/if}</dt><dd class="num">{value}{#if unit && value !== DASH}{' '}<small>{unit}</small>{/if}</dd></div>
@@ -463,12 +486,7 @@
     <!-- Gesamttest 20.10.2026 B3 (Noah «3a»): every Strava activity, with its filters, tiles, map and calendar (AT1, Tour-Seite) -->
     {#if $actsQ}{@render actList()}{:else}<Skeleton rows={4} />{/if}
   {:else}
-  {#if oldRows.length}
-    <button type="button" class="sa-band" onclick={() => (shownRows = oldRows)}>
-      <span class="sa-bt"><b>{t('New: every trip has a sport')}</b><small>{tn(oldRows.length, 'Choose one for {n} old bike trip', 'Choose one for {n} old bike trips')}</small></span>
-      <ChevronRight size={18} aria-hidden="true" />
-    </button>
-  {/if}
+  {#if oldRows.length && !side}{@render saBand()}{/if}
   {#if view}
     {#if view.empty}
       <!-- Noah 19.10 «2a»: one card per page; the Einstieg lives in the card «Was hier steht» (its own card only while the page is empty) -->
@@ -483,7 +501,7 @@
       <!-- Paket D (Noah 19.10.2026 «1a», Handy kurz): on a phone the card starts as its quiet line and the tip of the day
            waits behind the line «In Zahlen · Weiter» -->
       <HintCard page="trips" intro="touren" foldedOnPhone only={phone.matches ? 'card' : ''} />
-      {#if !phone.matches}<TipLine page="trips" name={t('Trips|place')} />{/if}
+      {#if !phone.matches && !side}<TipLine page="trips" name={t('Trips|place')} />{/if}
       <!-- SN4g: the band «Packmodus» (answer 1b), a suggestion: «×» hides it, a quiet link brings it back -->
       {#if tours.band !== 'hidden' && topBand}
         <PackBand band={topBand} extra={!ride && bandRow ? extraOf(bandRow) : ''} onhide={() => saveTours({ band: 'hidden' })} />
@@ -493,7 +511,22 @@
       <!-- Handy kurz: on a phone the open debriefs stay in the folded tiles at the end («Packmodus» counts them) -->
       <!-- Impeccable 20.10.2026 P4 (UI-Ziele #14): on a wide computer the open debriefs stand right of the trips, not above them -->
       <div class="tcols">
-      {#if $dataQ && !phone.matches}<TourTiles top {wx} open={tileData.open} {map} filtered={filtered ? filterWords : ''} go={openRow} {rateHref} extraOf={tileExtra} />{/if}
+      {#if $dataQ && !phone.matches && !side}<TourTiles top {wx} open={tileData.open} {map} filtered={filtered ? filterWords : ''} go={openRow} {rateHref} extraOf={tileExtra} />{/if}
+      <!-- «Computer-Breite» (UI-Ziel #14, Noah 26.10.2026 «1a»): from 1200 px the right column goes along while you
+           scroll: period and filter of the list, the open debriefs, the new sport band and the tip of the day -->
+      {#if side}
+        <aside class="tside" aria-label={t('Beside the trips')} data-trips-side>
+          {#if !tableOn}
+            <section class="card sidef" aria-labelledby="trips-side-f" data-side-filter>
+              <h2 id="trips-side-f">{t('Period and filter')}</h2>
+              {@render filterTools()}
+            </section>
+          {/if}
+          {#if $dataQ}<TourTiles top {wx} open={tileData.open} {map} filtered={filtered ? filterWords : ''} go={openRow} {rateHref} extraOf={tileExtra} />{/if}
+          {#if oldRows.length}{@render saBand()}{/if}
+          <TipLine page="trips" name={t('Trips|place')} />
+        </aside>
+      {/if}
 
       <!-- SN4g: «Geplant», a short list (answer 3b) -->
       <section class="plan" aria-labelledby="trips-plan" data-planned>
@@ -577,17 +610,8 @@
           <!-- Paket H «3a und b»: change several trips at once (shared table) -->
           <button type="button" class="btn btn-link more" aria-pressed={tableOn} onclick={() => setTable(!tableOn)} data-trip-table>{tableOn ? t('Done') : phone.matches ? t('Change several') : t('Edit as a table')}</button>
         </div>
-        <div class="tools">
-          <Seg full={false} label={t('Period')} value={mode} options={PERIODS} onchange={(v) => (mode = v)} />
-          <StateChips value={st} counts={stCounts} onchange={(v) => (st = v)} />
-          <button type="button" class="btn k fbtn" aria-haspopup="dialog" onclick={() => (sheet = true)} data-filter-open><SlidersHorizontal size={17} aria-hidden="true" /><span class="kl">{t('Filter')}</span>{#if chips.length}<span class="fn num" data-filter-n>{chips.length}</span>{/if}</button>
-        </div>
-        {#if tours.saved.length}
-          <div class="mine" role="group" aria-label={t('My filters')} data-my-filters>
-            <span class="al"><Bookmark size={14} aria-hidden="true" />{t('My filters')}</span>
-            {#each tours.saved as s (s.id)}<button type="button" class="mf" aria-pressed={sameFilter(filter, s.f)} onclick={() => setSaved(s)} data-saved={s.name}>{s.name}</button>{/each}
-          </div>
-        {/if}
+        <!-- «Computer-Breite» (Noah 26.10.2026 «1a»): from 1200 px period and filter stand in the right column -->
+        {#if !side}{@render filterTools()}{/if}
         {@render activeRow()}
 
         {#if tableOn}
@@ -1385,11 +1409,40 @@
     .tcols > :global(*) {
       grid-column: 1;
     }
-    .tcols > :global([data-tour-tiles='top']) {
+    /* «Computer-Breite» (Noah 26.10.2026 «1a»): the right column goes along while you scroll; taller than the
+       window, it scrolls by itself */
+    .tcols > .tside {
       grid-column: 2;
       grid-row: 1 / span 4;
       position: sticky;
       top: var(--sp-4);
+      display: flex;
+      flex-direction: column;
+      gap: var(--sp-3);
+      max-height: calc(100vh - 2 * var(--sp-4));
+      max-height: calc(100dvh - 2 * var(--sp-4));
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      scrollbar-width: thin;
+      padding: 2px;
+    }
+    .tside .sidef {
+      display: grid;
+      gap: var(--sp-2);
+      padding: var(--sp-3) var(--sp-4);
+    }
+    .tside .sidef h2 {
+      margin: 0;
+      font: 600 var(--fs-body) / 1.3 var(--font-body);
+    }
+    .tside .sidef .tools {
+      margin: 0;
+    }
+    .tside .sidef .fbtn {
+      margin-left: 0;
+    }
+    .tside .sa-band {
+      margin: 0;
     }
   }
 </style>

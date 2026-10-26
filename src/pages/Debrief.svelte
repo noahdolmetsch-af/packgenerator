@@ -1,4 +1,5 @@
 <script>
+  import { leftOutToAsk } from '../lib/pack/leftout.js';
   import AskClaude from '../lib/assistent/AskClaude.svelte';
   import SpeakButton from '../lib/ui/SpeakButton.svelte'; // «Diktat» (Noah 19.10.2026 «5a»)
   import { appendSpoken } from '../lib/speak.js';
@@ -233,6 +234,8 @@
   });
   // v0.26.1 (Noah 19b): the notes on the way, from the debrief and from the Inbox (notes.js).
   const wayNotes = $derived(trip && d ? tripNotes(d, $notesQ ?? [], trip.id) : []);
+  // Touren-Ideen 43 «Was hätte gefehlt?»: what was taken off the list before the trip, one tap = was missing
+  const leftAsk = $derived(trip && d ? leftOutToAsk(trip, items, d.missing) : []);
   function addItem(item) {
     d.missing.push({ id: `m${Date.now().toString(36)}`, name: item.name, itemId: item.id });
     missName = '';
@@ -590,6 +593,12 @@
                       <button type="button" class="x" aria-label={t('Remove {name}', { name: m.name })} onclick={() => dropMissing(m.id)}><X size={18} aria-hidden="true" /></button></li>
                   {/each}
                 </ul>
+              {/if}
+              {#if leftAsk.length}
+                <div class="similar leftout" data-leftout>
+                  <span>{t('You left these at home. Was one of them missing?')}</span>
+                  {#each leftAsk as i (i.id)}<button type="button" class="btn sm" onclick={() => addItem(i)} data-leftout-item>+ {nameOf(i)}</button>{/each}
+                </div>
               {/if}
               <form class="miss" onsubmit={addMissing}>
                 <input class="inp" list="gear-names" placeholder={t('What you missed, e.g. Headlamp')} bind:value={missName} aria-label={t('What you missed')} />

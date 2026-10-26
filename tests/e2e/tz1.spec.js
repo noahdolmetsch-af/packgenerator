@@ -89,13 +89,15 @@ test('Touren: the three states on cards and rows, chips with numbers, a pill on 
 
   // «Abgeschlossene Touren» over all years: the chips «Alle» and one per state of the list with its number
   const done = page.locator('section[data-finished]');
-  await done.getByRole('button', { name: T('All|period'), exact: true }).click();
+  // «Computer-Breite» (Noah 26.10.2026 «1a», changed on purpose): from 1200 px period and chips stand in the right column
+  const tools = page.locator('section[data-finished] .tools, [data-trips-side] [data-side-filter] .tools');
+  await tools.getByRole('button', { name: T('All|period'), exact: true }).click();
   // Tempo (19.10.2026 «3a»): a new period starts at 20 rows again; open them all to count them
   const moreRows = done.locator('[data-pack-phone-more]');
   for (let i = 0; i < 30 && (await moreRows.count()); i++) await moreRows.click();
   const nState = (s) => done.locator(`[data-trip-list] li[data-row][data-state="${s}"]`).count();
   await expect(page.locator('.trips .ph .cnt[data-counts]')).toHaveText([T('{n} planned', { n: counts.plan }), `${T('since the start')}: ${T('{n} completed', { n: await nState('done') })}`, T('{n} rated', { n: await nState('rated') })].join(' · '));
-  const chips = done.getByRole('group', { name: T('Show trips') }).getByRole('button');
+  const chips = tools.getByRole('group', { name: T('Show trips') }).getByRole('button');
   await expect(chips).toHaveCount(1 + LIST_STATES.length);
   await expect(chips.first()).toHaveAttribute('aria-pressed', 'true');
   const rows = done.locator('[data-trip-list] li[data-row]');

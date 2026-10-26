@@ -169,6 +169,8 @@ for (const weather of ['down', 'network']) {
 
     // A valid synthetic route: distance, climbing, start place; the forecast then fails gracefully.
     await gpxInput.setInputFiles({ name: 'bern.gpx', mimeType: 'application/gpx+xml', buffer: Buffer.from(bernGpx()) });
+    // Touren-Ideen 41 (0.207.0): 12 points ~1.5 km apart, so «Route prüfen» shows the jumps first
+    await sheet.locator('[data-route-check-use]').click();
     await expect(sheet.getByText('test_data_gtp_ Bern loop', { exact: true })).toBeVisible();
     await expect.poll(async () => (await tripOf(page)).route?.km ?? 0).toBeGreaterThan(10);
     trip = await tripOf(page);

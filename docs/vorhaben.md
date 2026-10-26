@@ -58,6 +58,10 @@ Durchgehende Grundsätze: Alles ist ein Vorschlag, nie Pflicht, und immer änder
 
 **Nachtrag 26.10.2026:** 0.205.0 «Material, das weiss warum» (Ziel 3 «Material im Griff» und Ziel «Alltag»): eigene Ansichten, Grund für Favoriten, Wunsch löst Ärger, Zwiebel-Check; dazu Gruppenfahrt Teil 2 (Ziel «Unterwegs sicherer») und «Namen überall» (alle Ziele: Funktionen finden).
 
+**Nachtrag 26.10.2026:** 0.206.0 «Fitbit-Werte mit Tag» (Ziel «Alltag»): Heute bleibt am Morgen nicht leer.
+
+**Nachtrag 26.10.2026:** 0.207.0 «Touren mit Plan B» (Ziele «Vor der Tour Zeit sparen» und «Unterwegs sicherer»): Strecke prüfen, Plan B mit Auslöser, Offline-Reserve, Stillstehen, Weggelassenes im Rückblick.
+
 **Nachtrag 26.10.2026:** 0.203.0 «Kleine Helfer unter Ich» (Ziel «Alltag»): letzte Ergebnisse, Anmeldung erklärt, eigene Verpflegungs-Zahlen, alles Ausgeblendete auf einen Blick, was von einer Verbindung abhängt.
 
 **Nachtrag 26.10.2026:** 0.204.0 «Eine kleine Überraschung» (Ziel «Alltag» und Ziel 2 «Das Velo im Griff»): Überraschungsrunde ab zu Hause, Wetter am eigenen Platz, Bewertung aufteilen, eine Ketten-Aufgabe für mehrere nasse Fahrten, Check nach der Standzeit, Beispiele nach Interesse, «Hat sich etwas geändert?».
@@ -504,4 +508,5 @@ Kurzfassung, verbindlich ist [arbeitsweise.md](arbeitsweise.md).
 0.195.0 «Kleine Helfer für Tour und Velo» (25.10.2026, Ziel Touren und Velo): weitere Einzelideen aus Paket B (996 Ideen).
 0.195.1 «Einkaufsliste am Stück» (25.10.2026, Ziel Alltag): Korrektur der Einkaufsliste am Computer.
 0.199.0 «Flicken, ausprobieren, abmachen» (25.10.2026, Ziel Alltag): letzte Einzelideen aus Paket A (996 Ideen).
+0.208.0 «Mehr Platz am Computer» (26.10.2026, Ziel Alltag/Bedienung): UI-Ziel #14, die Hauptorte nutzen am Computer ihre Breite.
 0.200.0 «Zusammen auf einer Karte» (25.10.2026, Ziel Touren): Gruppen-Live-Karte, Freunde per Link auf einer Karte.

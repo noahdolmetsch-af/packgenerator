@@ -872,10 +872,15 @@ Die frühere gespeicherte Datei `2026-10-07-packgenerator-ablaufplan.md` wird al
 
 **25.10.2026, v0.199.0 «Flicken, ausprobieren, abmachen»:** letzte Einzelideen aus Paket A: Kleider reparieren statt aussortieren, Wunsch zuerst ausleihen, Ideen für ein Treffen, Geburtstag mit kleinen Schritten, Webcams mit Zweck und Aufräumrunde.
 
+**26.10.2026, v0.208.0 «Mehr Platz am Computer»:** UI-Ziel #14 erledigt: Touren mit mitlaufender rechter Spalte, Auswerten mit «Letzte 7 Tage» rechts, Velos mit dem Velo zuerst, Inhalt höchstens 1120 px.
 **25.10.2026, v0.200.0 «Zusammen auf einer Karte»:** Gruppen-Live-Karte: Freunde per Link auf einer Karte, freiwillig teilen, Ende mit der Fahrt, spätestens nach 24 Stunden.
 **25.10.2026, v0.198.0 «Kette vorausschauend»:** Idee «Kette messen mit Verlauf und Prognose» (Das Velo im Griff) gebaut: nächste Schritte der Kette auf Verschleiss, Prognose aus den eigenen Messungen, Tour-Check, Handy-Erinnerung «Kette messen».
 
-**26.10.2026, v0.205.0 «Material, das weiss warum» (offen):** eigene Ansichten im Material, Grund für Favoriten, Wunsch löst Ärger, Zwiebel-Check, Inhalt getrennt vom Leergewicht, Suche fragt nach; Gruppenfahrt «Ich warte hier» und Stopps; «Namen überall» (versteckte Funktionen 142 → 111).
+**26.10.2026, v0.205.0 «Material, das weiss warum» (live, #259):** eigene Ansichten im Material, Grund für Favoriten, Wunsch löst Ärger, Zwiebel-Check, Inhalt getrennt vom Leergewicht, Suche fragt nach; Gruppenfahrt «Ich warte hier» und Stopps; «Namen überall» (versteckte Funktionen 142 → 111).
+
+**26.10.2026, v0.206.0 «Fitbit-Werte mit Tag» (offen):** Heute zeigt den letzten Fitbit-Wert mit Tag, bis der von heute da ist.
+
+**26.10.2026, v0.207.0 «Touren mit Plan B» (offen):** Strecke prüfen, Stillstehen im Zwiebel-Check, «Was hat gefehlt?» aus dem Weggelassenen, Plan B mit Auslöser, Offline-Karte mit Reserve.
 
 **26.10.2026, v0.203.0 «Kleine Helfer unter Ich» (offen):** Einzelideen Ich 27–36: letzte Ergebnisse, Hinweis vor der Google-Anmeldung, eigene Verpflegungs-Zahlen pro Reise, «Ausgeblendet und aus», «Was davon abhängt», Backup-Ordner-Meldungen, Rundgang weiter, Kürzel-Tipps, Vorschläge nach Art, «Erledigt» auf allen Geräten.
 
