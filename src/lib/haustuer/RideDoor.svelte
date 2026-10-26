@@ -11,14 +11,14 @@
   import { t, num, locale } from '../i18n.svelte.js';
   import { offerDone } from '../ui/rename.svelte.js';
   import { telHref } from '../unterwegs/abfahrt.js';
-  import { planBOf, badWeather, badText, hoursOfDay, swapPlanB, staysOf, checkinOf, callState } from './haustuer.js';
+  import { planBOf, badWeather, badText, hoursOfDay, triggerText, swapPlanB, staysOf, checkinOf, callState } from './haustuer.js';
   import { CloudRain, BedDouble, Train, Route as RouteIcon, Phone, TriangleAlert, Undo2 } from '@lucide/svelte';
 
   let { trip, st, nextSt = null, onhome = null } = $props();
   const pb = $derived(planBOf(trip));
   const on = $derived(!!trip.planB?.on);
-  const badToday = $derived(st?.date ? badWeather(hoursOfDay(trip.rideWx?.[st.date], st.date)) : null);
-  const badNext = $derived(nextSt?.date ? badWeather(hoursOfDay(trip.rideWx?.[nextSt.date], nextSt.date)) : null);
+  const badToday = $derived(st?.date ? badWeather(hoursOfDay(trip.rideWx?.[st.date], st.date), trip.planB?.trigger) : null);
+  const badNext = $derived(nextSt?.date ? badWeather(hoursOfDay(trip.rideWx?.[nextSt.date], nextSt.date), trip.planB?.trigger) : null);
   const bad = $derived(badToday ? { when: t('Today'), ...badToday } : badNext ? { when: new Date(`${nextSt.date}T12:00:00`).toLocaleDateString(locale(), { weekday: 'long' }), ...badNext } : null);
 
   async function swap() {
@@ -46,6 +46,7 @@
             <span class="tp-small">{t('The shorter variant replaces the planned route on this trip.')}</span>
           {:else}
             <b>{t('{when}: {what}', { when: bad.when, what: badText(bad, t) })}</b>
+            {#if bad.own && triggerText(pb.trigger, t)}<span class="tp-small" data-ride-trigger>{t('As agreed before the trip: switch {when}.', { when: triggerText(pb.trigger, t) })}</span>{/if}
             <span class="tp-small">{pb.kind === 'train' ? t('Your plan B: the train home.') : pb.route ? t('Your plan B: the shorter variant, {km} km.', { km: num(Math.round(pb.route.km)) }) : t('Your plan B:')}{#if pb.note}{' '}{pb.note}{/if}</span>
           {/if}
           <span class="acts">

@@ -20,7 +20,7 @@ describe('plan B', () => {
   it('is null until something is set, a train needs nothing more', () => {
     expect(planBOf({})).toBe(null);
     expect(planBOf({ planB: { kind: 'short', note: ' ' } })).toBe(null);
-    expect(planBOf({ planB: { kind: 'train' } })).toEqual({ kind: 'train', note: '', route: null });
+    expect(planBOf({ planB: { kind: 'train' } })).toEqual({ kind: 'train', note: '', route: null, trigger: { mm: null, gust: null } });
     expect(planBOf({ planB: { kind: 'short', route: route(40) } }).route.km).toBe(40);
     expect(planBOf({ planB: { kind: 'odd', note: 'test_data_gtp_ Notiz' } }).kind).toBe('short');
     expect(PLANB_KINDS.map((k) => k.key)).toEqual(['short', 'train']);

@@ -32,7 +32,10 @@ export const PLANB_KINDS = [
   { key: 'train', name: 'Train home', sub: 'the next trains from where you are' },
 ];
 
-/** Heavy rain: an hour with 2 mm or more, 8 mm over the day, or 3 hours with a chance of 70 % or more. Storm: gusts from 60 km/h. */
+/**
+ * Heavy rain: an hour with 2 mm or more, 8 mm over the day, or 3 hours with a chance of 70 % or more. Storm: gusts from 60 km/h.
+ * With your own trigger (trip.planB.trigger, Touren-Ideen 46) its value counts instead: rain over the day, gusts.
+ */
 export const RAIN_HOUR_MM = 2;
 export const RAIN_DAY_MM = 8;
 export const RAIN_SURE_PCT = 70;
@@ -46,23 +49,46 @@ export function planBOf(trip) {
   const note = typeof p.note === 'string' ? p.note : '';
   const route = p.route && typeof p.route === 'object' && Number(p.route.km) > 0 ? p.route : null;
   if (kind === 'short' && !note.trim() && !route) return null;
-  return { kind, note, route };
+  return { kind, note, route, trigger: triggerOf(p.trigger) };
 }
 
 /**
  * Bad weather in forecast hours ({ rainMm, rainPct, wind, gust }): → { rain, storm, mm, gust } or null.
  * Ordinary showers (the app's rain limit) are not bad weather here: plan B is for heavy rain or a storm.
  */
-export function badWeather(hours = []) {
+export function badWeather(hours = [], trigger = null) {
   const list = Array.isArray(hours) ? hours.filter(Boolean) : [];
   if (!list.length) return null;
+  const own = triggerOf(trigger);
   const mm = Math.round(list.reduce((s, h) => s + (Number(h.rainMm) || 0), 0) * 10) / 10;
   const sure = list.filter((h) => Number(h.rainPct) >= RAIN_SURE_PCT).length;
-  const rain = list.some((h) => Number(h.rainMm) >= RAIN_HOUR_MM) || mm >= RAIN_DAY_MM || sure >= 3;
+  // Touren-Ideen 46: your own trigger, set before the trip, replaces the app's rule for rain or wind
+  const rain = own.mm != null ? mm >= own.mm : list.some((h) => Number(h.rainMm) >= RAIN_HOUR_MM) || mm >= RAIN_DAY_MM || sure >= 3;
   const gusts = list.map((h) => Number(h.gust ?? h.wind)).filter(Number.isFinite);
   const gust = gusts.length ? Math.round(Math.max(...gusts)) : null;
-  const storm = gust != null && gust >= STORM_KMH;
-  return rain || storm ? { rain, storm, mm, gust } : null;
+  const storm = gust != null && gust >= (own.gust ?? STORM_KMH);
+  return rain || storm ? { rain, storm, mm, gust, own: (rain && own.mm != null) || (storm && own.gust != null) } : null;
+}
+
+/* ---------- Touren-Ideen 46 «Plan B mit Auslöser» ---------- */
+
+/** The choices for your own trigger: rain over the day (mm) and gusts (km/h). null = the app's rule. */
+export const TRIGGER_MM = [5, 10, 20];
+export const TRIGGER_GUST = [40, 50, 70];
+
+/** A trigger made safe: { mm: number | null, gust: number | null }. Stored as trip.planB.trigger. */
+export function triggerOf(v) {
+  const n = (x) => (Number.isFinite(Number(x)) && Number(x) > 0 && x !== null && x !== '' ? Number(x) : null);
+  return { mm: n(v?.mm), gust: n(v?.gust) };
+}
+
+/** The agreed trigger in words («from 10 mm of rain · from gusts of 50 km/h»), '' without one. */
+export function triggerText(v, t) {
+  const tr = triggerOf(v);
+  const parts = [];
+  if (tr.mm != null) parts.push(t('from {n} mm of rain a day', { n: tr.mm }));
+  if (tr.gust != null) parts.push(t('from gusts of {n} km/h', { n: tr.gust }));
+  return parts.join(' · ');
 }
 
 /** All hours of a saved forecast (fetchHourly: { places: [{ hours }] }) for one day. */

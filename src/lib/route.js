@@ -26,9 +26,11 @@ export function parseGpx(text) {
     return out;
   };
   let points = grab('trkpt');
-  if (!points.length) points = grab('rtept');
+  // kind (Touren-Ideen 41, 26.10.2026): route points of a planner lie far apart on purpose, track points do not
+  let kind = 'trk';
+  if (!points.length) (points = grab('rtept')), (kind = 'rte');
   if (points.length < 2) throw new Error(t('The GPX file has no route in it.'));
-  return { name: decode(name), points };
+  return { name: decode(name), points, kind };
 }
 
 const decode = (s) => s.replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;|&apos;/g, "'");

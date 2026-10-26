@@ -30,7 +30,8 @@
   import { twiceOf, keepTwice } from '../lib/einzeln/material.js'; // Einzelidee 21
   import ClothesAt from '../lib/pack/ClothesAt.svelte';
   import { clothesAt, tempOf } from '../lib/touren/tourextra.js';
-  import { onionCheck, coldest, chooseKit, tempKits, kitPlan, pctOf, CLOTHING_OFFSET } from '../lib/wardrobe.js';
+  import { leftOutPatch } from '../lib/pack/leftout.js';
+  import { onionCheck, coldest, chooseKit, tempKits, kitPlan, pctOf, CLOTHING_OFFSET, waitChill } from '../lib/wardrobe.js';
   import { acceptReview } from '../lib/preparation.js';
   import { SWAP_MEMORY, swapEntries, rememberSwap, tripRange } from '../lib/swap.js';
   import { rowReasons, listDiff } from '../lib/reasons.js';
@@ -469,7 +470,9 @@
       if (!cur) return;
       undo = [...undo.filter((u) => u.id === id).slice(-19), { id, before: structuredClone(cur), ...(ctx ? { ctx } : {}) }];
       if (ctx) wxChange = { id, before: structuredClone(cur) };
-      await db.trips.update(id, touched(fn(structuredClone(cur))));
+      // Touren-Ideen 43: what leaves the list is remembered, the debrief asks if it was missing
+      const next = fn(structuredClone(cur));
+      await db.trips.update(id, touched({ ...next, ...leftOutPatch(cur, next) }));
     });
   }
   // N13: the bikes side by side for this trip.
@@ -606,11 +609,14 @@
   // v0.42.0 (Noah 2-5): the onion check and the temperature kit for the coldest riding hour.
   const offsetQ = liveQuery(() => db.settings.get(CLOTHING_OFFSET));
   const offset = $derived(Number($offsetQ?.value) || 0);
-  const onionCk = $derived(trip && !over ? onionCheck(trip, items, offset) : null);
+  // Touren-Ideen 42: waiting on the way (platform, photos, breaks) counts a few degrees colder
+  const chill = $derived(waitChill(trip));
+  const onionCk = $derived(trip && !over ? onionCheck(trip, items, offset + chill) : null);
   const kit = $derived.by(() => {
     const cold = onionCk ? coldest(trip) : null;
-    return cold ? chooseKit(tempKits($setsQ?.value ?? []), cold.c, offset) : null;
+    return cold ? chooseKit(tempKits($setsQ?.value ?? []), cold.c, offset + chill) : null;
   });
+  const setWait = (m) => change(() => ({ waitMin: m }));
   const kitP = $derived(kit && trip ? kitPlan(kit, trip, items) : null);
   // Einzelidee 21 «Zu viel an derselben Stelle»: pieces with the same task; the onion asks what for
   const twice = $derived(onionCk ? twiceOf(trip, items) : []);
@@ -1085,7 +1091,7 @@
       testTrip: () => change(() => ({ testTrip: trip.testTrip !== true })),
       reopen: () => askReopen(trip),
     }}>
-    {#snippet onion()}{#if onionCk}<Onion check={onionCk} {kit} plan={kitP} {offset} {itemsById} added={onionAdd?.tripId === trip.id ? onionAdd.ids : []} kitAdded={onionAdd?.tripId === trip.id ? onionAdd : null} onadd={onionItems} onkit={onionKit} {twice} ontwiceok={locked ? null : twiceOk} onremove={locked ? null : twiceHome} />{/if}{#if clothes}<ClothesAt info={clothes} {itemsById} have={new Set(trip.entries.map((e) => e.itemId))} onadd={onionItems} />{/if}{/snippet}
+    {#snippet onion()}{#if onionCk}<Onion check={onionCk} {kit} plan={kitP} {offset} wait={Number(trip.waitMin) || 0} {chill} onwait={setWait} {itemsById} added={onionAdd?.tripId === trip.id ? onionAdd.ids : []} kitAdded={onionAdd?.tripId === trip.id ? onionAdd : null} onadd={onionItems} onkit={onionKit} {twice} ontwiceok={locked ? null : twiceOk} onremove={locked ? null : twiceHome} />{/if}{#if clothes}<ClothesAt info={clothes} {itemsById} have={new Set(trip.entries.map((e) => e.itemId))} onadd={onionItems} />{/if}{/snippet}
     {#snippet suggest()}{#if placeRows.length}<PlaceSuggest rows={placeRows} {itemsById} {bags} onapply={applyRows} ondismiss={dismissRow} />{/if}{#if trip.status !== 'done'}<TourSky {trip} {items} place={trip.route?.start ?? trip.place ?? homeOf($homeQ?.value) ?? null} onadd={helperAdd} onhide={(k) => change((c) => ({ skyOff: [...new Set([...(c.skyOff ?? []), k])] }))} />{/if}{/snippet}
     {#snippet settings(mode)}
       {#if mode === 'conditions'}

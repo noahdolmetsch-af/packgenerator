@@ -9,11 +9,14 @@
    */
   import { Layers, Check, Circle, ChevronRight, ChevronDown, Plus } from '@lucide/svelte';
   import { t, tn, nameOf, locale } from '../i18n.svelte.js';
-  import { tempRange, ZONES, LAYERS } from '../wardrobe.js';
+  import { tempRange, ZONES, LAYERS, WAIT_CHOICES } from '../wardrobe.js';
+  import Seg from '../ui/Seg.svelte';
 
   // Einzelidee 21 «Zu viel an derselben Stelle»: twice = pieces with the same task (einzeln/material.js twiceOf);
   // the check asks what for: both on purpose (ontwiceok) or one stays at home (onremove, with Undo).
-  let { check, kit = null, plan = null, offset = 0, itemsById = {}, added = [], kitAdded = null, onadd, onkit, twice = [], ontwiceok = null, onremove = null } = $props();
+  // Touren-Ideen 42: wait (minutes standing still on the way), chill (the degrees it counts colder), onwait(m)
+  let { check, kit = null, plan = null, offset = 0, wait = 0, chill = 0, onwait = null, itemsById = {}, added = [], kitAdded = null, onadd, onkit, twice = [], ontwiceok = null, onremove = null } = $props();
+  const waitName = (m) => (m ? (m >= 60 ? t('{n} h', { n: m / 60 }) : t('{n} min', { n: m })) : t('None|wait'));
 
   let open = $state(false);
   const fresh = $derived(new Set(added));
@@ -72,6 +75,13 @@
             </li>
           {/each}
         </ul>
+      {/if}
+      {#if onwait}
+        <div class="wait" data-onion-wait>
+          <p class="meta" id="onion-wait-h">{t('Standing still on the way (platform, photos, breaks)')}</p>
+          <Seg small full={false} labelledby="onion-wait-h" options={WAIT_CHOICES.map((m) => ({ key: String(m), name: waitName(m) }))} value={String(WAIT_CHOICES.includes(wait) ? wait : 0)} onchange={(k) => onwait(Number(k))} />
+          {#if chill}<p class="meta">{t('Counts {n} °C colder, because you stand still.', { n: chill })}</p>{/if}
+        </div>
       {/if}
       {#if kit && plan && plan.items.length}
         <div class="kit">
@@ -137,6 +147,14 @@
   .oline .s {
     flex: 1;
     min-width: 0;
+  }
+  .wait {
+    display: grid;
+    gap: 4px;
+    margin: 8px 4px 0;
+  }
+  .wait .meta {
+    margin: 0;
   }
   .orows {
     list-style: none;
