@@ -41,10 +41,9 @@ export default {
   'Open Planen with a trip: «Einkaufsliste» and «Gewicht» stand as whole words.': 'Öffne Planen mit einer Tour: «Einkaufsliste» und «Gewicht» stehen als ganze Wörter.',
   // 0.208.0 Mehr Platz am Computer
   'Every ride is saved': 'Jede Fahrt wird gespeichert',
-  '«End the ride» keeps it in Trips at once.': '«Fahrt beenden» legt sie sofort in Touren ab.',
-  'Each live ride is its own entry in Trips, labelled «Live Navigation»': 'Jede Live-Fahrt ist ein eigener Eintrag in Touren, mit dem Label «Live Navigation»',
+  '«End the ride» asks once and keeps the ride in Trips.': '«Fahrt beenden» fragt einmal nach und legt die Fahrt in Touren ab.',
+  'Each live ride is in Trips as «Live Navigation»': 'Jede Live-Fahrt steht in Touren als «Live Navigation»',
   'The km go to your bike by themselves, with Undo': 'Die km gehen von selbst aufs Velo, mit Rückgängig',
-  '«End the ride» asks once, so a tap by mistake ends nothing': '«Fahrt beenden» fragt einmal nach, ein falscher Tipp beendet nichts',
   'Open the live map, start a ride and ride a few minutes (or walk).': 'Öffne die Live-Karte, starte eine Fahrt und fahre (oder gehe) ein paar Minuten.',
   'Tap «End the ride», then «End and save»: a line says «Saved in Trips».': 'Tippe «Fahrt beenden», dann «Beenden und speichern»: eine Zeile sagt «In Touren gespeichert».',
   'Open Trips: the ride is there with the label «Live Navigation».': 'Öffne Touren: die Fahrt steht dort mit dem Label «Live Navigation».',

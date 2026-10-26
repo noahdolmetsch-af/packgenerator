@@ -21,12 +21,9 @@ export const WHATS_NEW = [
     version: '0.213.0',
     date: '2026-10-26',
     title: 'Every ride is saved',
-    lead: '«End the ride» keeps it in Trips at once.',
-    points: [
-      { text: 'Each live ride is its own entry in Trips, labelled «Live Navigation»', href: '#/trips' },
-      { text: 'The km go to your bike by themselves, with Undo', href: '#/live' },
-    ],
-    small: [{ box: 'fixed', text: '«End the ride» asks once, so a tap by mistake ends nothing', href: '#/live' }],
+    lead: '«End the ride» asks once and keeps the ride in Trips.',
+    points: [{ text: 'Each live ride is in Trips as «Live Navigation»', href: '#/trips' }],
+    small: [{ box: 'new', text: 'The km go to your bike by themselves, with Undo', href: '#/live' }],
     test: ['Open the live map, start a ride and ride a few minutes (or walk).', 'Tap «End the ride», then «End and save»: a line says «Saved in Trips».', 'Open Trips: the ride is there with the label «Live Navigation».'],
   },
   {
