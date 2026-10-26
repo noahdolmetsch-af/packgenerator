@@ -184,6 +184,8 @@
     focused = true;
     await tick();
     if (!suche.run) return;
+    // said right after the page opened: wait for the data first, so the sentence is not lost
+    if (!$all) await new Promise((ok) => { const s = all.subscribe((v) => { if (v) { ok(); queueMicrotask(() => s.unsubscribe()); } }); });
     if (says) return doSays(says);
     const c = spokenCommand(cmds, { run: true });
     if (c) return run(c, { direct: true });

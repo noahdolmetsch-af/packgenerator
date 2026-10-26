@@ -21,7 +21,7 @@ concurrency:
 jobs:
   check:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 8
     env:
       HEALTH_URL: ${{ vars.HEALTH_URL || 'https://packgen-three.vercel.app/api/health' }}
       GH_TOKEN: ${{ github.token }}
@@ -31,8 +31,16 @@ jobs:
       - name: Ask the server
         id: ask
         run: |
-          code=$(curl -sS -o health.json -w '%{http_code}' --max-time 60 "$HEALTH_URL" || echo 000)
-          echo "HTTP $code"
+          # up to 3 tries 20 s apart: one network blip or a slow cold start is not yet «server down»
+          # (25.10.2026 issue #249 and 24.10 #239 were single misses, the next run was fine)
+          for try in 1 2 3; do
+            rm -f health.json
+            code=$(curl -sS -o health.json -w '%{http_code}' --max-time 60 "$HEALTH_URL" 2>/dev/null) || true
+            code=${code:-000}
+            echo "try $try: HTTP $code"
+            if jq -e '.checks' health.json >/dev/null 2>&1; then break; fi
+            if [ "$try" -lt 3 ]; then sleep 20; fi
+          done
           if jq -e '.checks' health.json >/dev/null 2>&1; then
             jq -r '.checks[] | "\(.state)\t\(.id)\t\(.code)\t\(.note)"' health.json
             ok=$(jq -r 'if .ok == true then "yes" else "no" end' health.json)
