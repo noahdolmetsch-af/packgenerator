@@ -159,13 +159,13 @@
       {#if booked}
         <p class="uc-done" role="status"><Check size={16} aria-hidden="true" /><span>{t('Booked on {day}.', { day: shortDay(booked.at) })}</span><button type="button" class="tp-link" onclick={unbook} data-used-unbook><Undo2 size={15} aria-hidden="true" />{t('Undo')}</button></p>
       {:else if rows.some((r) => r.used) || bought.length}
-        <h3 class="uc-h3">{t('What it does')}</h3>
+        <h3 class="uc-h3">{t('What booking does')}</h3>
         <p class="uc-sub">{t('A suggestion; switch off what you do not want.')}</p>
         <label class="uc-opt"><input type="checkbox" bind:checked={optStock} /><span><b>{t('Stock at home')}</b><small>{stockLine || t('No counted stock among these things.')}</small></span></label>
         <label class="uc-opt"><input type="checkbox" bind:checked={optShop} /><span><b>{t('Shopping list')}</b><small>{plan.shop.length ? plan.shop.map(nameOf).join(' · ') : t('Nothing runs low.')}</small></span></label>
         <label class="uc-opt"><input type="checkbox" bind:checked={optCosts} /><span><b>{t('Costs of the tour')}</b><small>{plan.costs.length ? plan.costs.map((b) => `${b.name} ${num(b.chf)} Fr.`).join(' · ') : t('No prices noted.')}</small></span></label>
         <label class="uc-opt"><input type="checkbox" bind:checked={optHint} /><span><b>{t('Next packing list')}</b><small>{t('Shows what you used last time as a hint.')}</small></span></label>
-        <button type="button" class="btn hi" onclick={bookNow} data-used-book>{t('Book')}</button>
+        <button type="button" class="btn hi" onclick={bookNow} data-used-book>{t('Book|used')}</button>
       {/if}
       {#if msg}<p class="tp-small tp-muted" role="status">{msg}</p>{/if}
     {/if}

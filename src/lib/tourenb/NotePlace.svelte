@@ -55,13 +55,13 @@
   {#if !trips.length}
     <p class="tp-small tp-muted">{t('No tour with a route yet. With a GPX route you can choose a point on it.')}</p>
   {:else}
-    <label class="fld"><span class="lbl">{t('Tour')}</span>
+    <label class="fld"><span class="np-lbl">{t('Tour')}</span>
       <select class="sel" bind:value={tripId} onchange={() => ((km = 0), (name = ''), value && set())} data-np-trip>
         {#each trips as x (x.id)}<option value={x.id}>{x.title || t('Untitled trip')}</option>{/each}
       </select>
     </label>
     {#if path}<svg class="prof" viewBox="0 0 400 100" preserveAspectRatio="none" aria-hidden="true"><path d={`${path} L400 100 L0 100 Z`} class="fill" /><path d={path} class="line" /><line x1={total ? (km / total) * 400 : 0} x2={total ? (km / total) * 400 : 0} y1="0" y2="100" class="mark" /></svg>{/if}
-    <label class="fld"><span class="lbl">{t('Point of the route: km {km}', { km: num(Math.round(km)) })}</span>
+    <label class="fld"><span class="np-lbl">{t('Point of the route: km {km}', { km: num(Math.round(km)) })}</span>
       <input type="range" min="0" max={total || 1} step="1" bind:value={km} onchange={set} aria-label={t('Kilometre of the route')} data-np-km />
     </label>
     {#if stops.length}
@@ -69,7 +69,7 @@
         {#each stops as s (s.km + s.name)}<button type="button" class="tp-chip" aria-pressed={value && Math.round(value.km) === Math.round(s.km)} onclick={() => pickStop(s)}>{s.name || t('Stop|eat')} · km {num(Math.round(s.km))}</button>{/each}
       </div>
     {/if}
-    <label class="fld"><span class="lbl">{t('Name of the place (optional)')}</span><input class="inp" bind:value={name} onchange={() => value && set()} placeholder={t('e.g. Fountain at the pass')} /></label>
+    <label class="fld"><span class="np-lbl">{t('Name of the place (optional)')}</span><input class="inp" bind:value={name} onchange={() => value && set()} placeholder={t('e.g. Fountain at the pass')} /></label>
     {#if value}
       <p class="np-on" role="status"><MapPin size={16} aria-hidden="true" />{t('Comes {m} m before km {km} on the live map of this tour.', { m: AHEAD_M, km: num(Math.round(value.km ?? 0)) })} <button type="button" class="btn sm" onclick={() => (value = undefined)} data-np-off><BellOff size={16} aria-hidden="true" />{t('No place reminder')}</button></p>
     {:else}
@@ -89,7 +89,7 @@
     display: grid;
     gap: 4px;
   }
-  .lbl {
+  .np-lbl {
     font-weight: 600;
     font-size: var(--fs-small);
   }
@@ -100,11 +100,11 @@
     background: var(--paper-2);
   }
   .prof .fill {
-    fill: color-mix(in srgb, var(--accent, #4a7360) 22%, transparent);
+    fill: color-mix(in srgb, var(--accent) 22%, transparent);
   }
   .prof .line {
     fill: none;
-    stroke: var(--accent, #4a7360);
+    stroke: var(--accent);
     stroke-width: 2;
     vector-effect: non-scaling-stroke;
   }

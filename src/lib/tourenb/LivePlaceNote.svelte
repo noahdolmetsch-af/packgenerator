@@ -54,6 +54,6 @@
     min-width: 0;
   }
   .lpn-t small {
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
   }
 </style>

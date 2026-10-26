@@ -3,6 +3,7 @@ import { describe, it, expect } from 'vitest';
 import { packStories, storyOff } from '../src/lib/tourenb/stories.js';
 import { breakCheckText, withBreakCheck, BREAK_CHECKS } from '../src/lib/tourenb/breakcheck.js';
 import { BREAK_KINDS, breakdownsOf } from '../src/lib/tourlernen/tourlernen.js';
+import { dayClips, clipDays, moveClip, dateOfDay } from '../src/lib/tourenb/tagclips.js';
 import { untilOf, ruleHolds, untilOver, setUntil, rulesOver, ruleOff, seasonEnd } from '../src/lib/tourenb/ruleuntil.js';
 
 const voice = (id) => ({ id, src: 'data:audio/webm;base64,AAAA', s: 12, at: '2026-10-26T10:00:00Z' });
@@ -172,5 +173,41 @@ describe('55 a note at a later point of the route', () => {
     expect(notesHere(notes, 't', { lat: at2.lat - 0.01, lon: 8 }, 1000)).toEqual([]);
     expect(placeNotes(notes, 't').map((x) => x.note.id)).toEqual(['a', 'c']);
     expect(placeOf({ at2: { tripId: 't' } })).toBe(null);
+  });
+});
+
+describe('56 your day to listen to', () => {
+  const v = (id, at, text) => ({ id, src: 'data:audio/webm;base64,AAAA', s: 10, at, ...(text ? { text } : {}) });
+  const route = { km: 38, line: [[47.0, 8.0], [47.0, 8.5]] };
+  const trip = { id: 't', startDate: '2026-10-24', days: 2, route };
+  const notes = [
+    { id: 'n1', tripId: 't', day: 0, at: '2026-10-24T09:00:00Z', text: 'Coffee', inputs: { voices: [v('a', '2026-10-24T09:00:00Z')] } },
+    { id: 'n2', tripId: 't', day: 1, at: '2026-10-25T08:00:00Z', inputs: { voices: [v('b', '2026-10-25T08:00:00Z', 'Rain')] } },
+    { id: 'n3', tripId: 'other', day: 0, inputs: { voices: [v('c', '2026-10-24T07:00:00Z')] } },
+  ];
+  const places = [{ id: 'p1', kind: 'place', tripId: 't', at: '2026-10-24T08:00:00Z', lat: 47.0, lon: 8.25, inputs: { voices: [v('d', '2026-10-24T08:00:00Z')] } }];
+  const diary = [{ id: 'f1', kind: 'diary', day: '2026-10-24', title: 'Evening', inputs: { voices: [v('e', '2026-10-24T18:00:00Z')] } }];
+  const src = { notes, places, diary };
+  it('gives the date of a tour day', () => {
+    expect(dateOfDay(trip, 1)).toBe('2026-10-25');
+  });
+  it('collects the voice notes of one day from notes, places and diary, in time order', () => {
+    const c = dayClips(trip, 0, src);
+    expect(c.map((x) => x.from.voiceId)).toEqual(['d', 'a', 'e']);
+    expect(c[0].km).toBe(19);
+    expect(dayClips(trip, 1, src)[0].said).toBe('Rain');
+  });
+  it('lists only days with voice notes', () => {
+    expect(clipDays(trip, src)).toEqual([
+      { day: 0, n: 3, s: 30 },
+      { day: 1, n: 1, s: 10 },
+    ]);
+  });
+  it('keeps your own order', () => {
+    const keys = dayClips(trip, 0, src).map((x) => x.key);
+    const moved = moveClip(keys, keys[2], -1);
+    expect(moved).toEqual([keys[0], keys[2], keys[1]]);
+    expect(moveClip(keys, keys[0], -1)).toEqual(keys);
+    expect(dayClips({ ...trip, clipOrder: { 0: moved } }, 0, src).map((x) => x.key)).toEqual(moved);
   });
 });
