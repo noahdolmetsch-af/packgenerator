@@ -126,6 +126,11 @@
         <a class="tp-small more" href="#/me/lists">{t('Rename or add kinds of days: Me › Lists and types')}</a>
       </div>
     </details>
+  {:else}
+    <!-- one day: nothing to set, but the row says where the function is (heimat: visible on its page) -->
+    <div class="fold one" data-prep-sports>
+      <p class="onerow"><Shuffle size={18} aria-hidden="true" /><span class="lab">{t('Sport per day')}</span><span class="r tp-small tp-muted">{t('on trips of several days')}</span></p>
+    </div>
   {/if}
 
   <details class="fold" data-prep-unclear open={isOpen('unclear')} ontoggle={toggle('unclear')}>
@@ -232,6 +237,13 @@
     min-height: 48px;
     cursor: pointer;
     list-style: none;
+  }
+  .onerow {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 48px;
+    margin: 0;
   }
   .fold summary::-webkit-details-marker {
     display: none;

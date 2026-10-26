@@ -249,6 +249,10 @@
     { key: 'ballast', label: 'Ballast card', sel: '.calm-extra', page: true },
     { key: 'newpack', label: 'New item while packing', act: () => { zoneKey = targets[0]?.key ?? zoneKey; show('add'); } }, // opens «Add material», where the new item is made
     { key: 'bags', label: 'Pack bag by bag', href: '#/pack?day' },
+    // Touren a, part 2 (bundle 26.10.2026): the three folds of «Prepare the tour», by their catalogue names
+    { key: 'daysports', label: 'Sport per day', sel: '[data-prep-sports]' },
+    { key: 'unclear', label: 'Unclear spots', sel: '[data-prep-unclear]' },
+    { key: 'border', label: 'Crossing a border', sel: '[data-prep-border]' },
   ];
   let extraHere = $state([]);
   $effect(() => {

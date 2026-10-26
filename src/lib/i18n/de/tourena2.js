@@ -5,6 +5,7 @@ export default {
   'Kinds of days, open questions on the route and the border: all optional.': 'Sportart pro Tag, offene Fragen zur Strecke und die Grenze: alles freiwillig.',
   // 45 Sportart pro Tag
   'Sport per day': 'Sportart pro Tag',
+  'on trips of several days': 'bei Touren über mehrere Tage',
   '{n} day set': '{n} Tag gesetzt',
   '{n} days set': '{n} Tage gesetzt',
   'Bike, hiking or a rest day: the packing list stays one list. Where the kind changes, the app shows what to think of.': 'Velo, Wandern oder Ruhetag: Die Packliste bleibt eine Liste. Wo die Sportart wechselt, zeigt die App, woran du denken sollst.',

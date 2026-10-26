@@ -2399,8 +2399,11 @@
   }
   .wxlinks {
     display: flex;
-    flex-wrap: wrap;
+    flex-wrap: nowrap; /* one row: two rows on a narrow phone pushed «Dein Körper heute» out of the first screen (CI 26.10.2026) */
     gap: 0 var(--sp-3);
     margin: 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+    white-space: nowrap;
   }
 </style>

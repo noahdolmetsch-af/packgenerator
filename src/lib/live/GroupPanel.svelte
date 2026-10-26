@@ -91,10 +91,15 @@
   // every few minutes (more members, less often; at night every 15 min), and at once when the group or the
   // first place is there: send my place (with my entries of the event) or read the others
   let running = false;
+  let again = false; // the first fix came while a read was running: send at once afterwards (not 15 s or minutes later)
   async function tick(fresh = null) {
     now = Date.now();
     const g = fresh ?? untrack(() => group);
-    if (!g || running || navigator.onLine === false || document.visibilityState === 'hidden') return;
+    if (running) {
+      if (sentAt === 0) again = true;
+      return;
+    }
+    if (!g || navigator.onLine === false || document.visibilityState === 'hidden') return;
     if (now - sentAt < everyMs(places.length, { night: inNight(plan?.night ?? g.plan?.night, now) })) return;
     running = true;
     sentAt = now;
@@ -119,6 +124,11 @@
       fail(e);
     }
     running = false;
+    if (again) {
+      again = false;
+      sentAt = 0;
+      tick();
+    }
   }
   const timer = setInterval(tick, 15_000);
   onDestroy(() => clearInterval(timer));
