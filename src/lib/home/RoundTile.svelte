@@ -49,7 +49,7 @@
   const known = $derived(vals.some((x) => x.v != null));
   // what is due now, as on the card of «Wi gaht's?» (an answer in the old daily check counts too)
   const due = $derived.by(() => {
-    if (!data?.stored || isQuiet(data.snooze, now)) return 0; // Noah 21.10.2026: after «Heute nicht» no hint
+    if (!data?.stored || isQuiet(data.snooze, now, configOf(data.cfg).rounds)) return 0; // Noah 21.10.2026: after «Heute nicht» no hint
     const answered = [...data.answers, ...fromChecks(data.checks).map((r) => ({ qid: r.qid, at: `${r.day}T00:00` }))];
     return dueList(data.cfg, answered, now, data.snooze).length;
   });
