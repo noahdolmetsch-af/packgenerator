@@ -1705,4 +1705,10 @@ export default {
   '«Share» opens the share menu of the phone, «Download it» keeps the picture.': '«Teilen» öffnet das Teilen-Menü des Handys, «Herunterladen» behält das Bild.',
   'Example: the photo of the pass and «The best coffee of the year at 2000 m» as a card for the family.': 'Beispiel: das Foto vom Pass und «Der beste Kaffee des Jahres auf 2000 m» als Karte für die Familie.',
   'Open a text and tap «Template» under it.': 'Öffne einen Text und tippe darunter «Vorlage».',
+  // Einzelideen Ich 29, 30, 31, 34, 36 (996 Ideen)
+  'Folder gone, full or not allowed: the message says what to do; «Try again» or «Choose a new folder».': 'Ordner weg, voll oder nicht erlaubt: die Meldung sagt, was zu tun ist; «Nochmals» oder «Neuen Ordner wählen».',
+  'Ended early? Next time «Go on at step n» starts where you stopped.': 'Früher beendet? Beim nächsten Mal beginnt «Weiter bei Schritt n» dort, wo du aufgehört hast.',
+  'Switch on the reminders you want; what you tick off on another device no longer comes.': 'Schalte die Erinnerungen ein, die du willst; was du auf einem anderen Gerät abhakst, kommt nicht mehr.',
+  'Clicked a place often with the mouse? A small tip shows its shortcut once; «No more shortcut tips» stops them.': 'Einen Ort oft mit der Maus angeklickt? Ein kleiner Tipp zeigt einmal sein Kürzel; «Keine Kürzel-Tipps mehr» stellt sie ab.',
+  'A kind (ideas to buy, performance tips, ideas for free time, fitting tools) goes off on every page at once.': 'Eine Art (Kaufideen, Leistungstipps, Ideen für freie Zeit, passende Werkzeuge) geht auf allen Seiten auf einmal aus.',
 };

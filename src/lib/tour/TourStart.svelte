@@ -7,25 +7,27 @@
   import { backClose } from '../ui/backclose.js';
   import { t } from '../i18n.svelte.js';
   import { ASK_EVENT, startTour } from './run.js';
-  import { TOUR_NAMES, stepCount } from '../tour.js';
+  import { TOUR_NAMES, stepCount, readPaused, pauseFor } from '../tour.js';
   import '../bikes/velo-dlg.css';
 
   let ask = $state(null);
   let dialog = $state();
   let busy = $state(false);
+  // Einzelidee 30: a tour ended early can go on at its step
+  let paused = $state(null);
   $effect(() => {
-    const on = (e) => ((ask = e.detail?.id ?? 'app'), (busy = false));
+    const on = (e) => ((ask = e.detail?.id ?? 'app'), (busy = false), (paused = pauseFor(readPaused(), ask)));
     window.addEventListener(ASK_EVENT, on);
     return () => window.removeEventListener(ASK_EVENT, on);
   });
   $effect(() => {
     if (ask && dialog && !dialog.open) dialog.showModal();
   });
-  async function go(play) {
+  async function go(play, from = 0) {
     busy = true;
     const id = ask;
     dialog?.close();
-    await startTour(id, { play });
+    await startTour(id, { play, from });
   }
 </script>
 
@@ -39,6 +41,12 @@
     </div>
     <p class="lead">{t('Each step lights up one part of a page and says what it is for. You only watch and tap «Next».')}</p>
     <div class="opts">
+      {#if paused}
+        <button type="button" class="opt on" disabled={busy} onclick={() => go(paused.play, paused.step)} data-choice="resume">
+          <b>{t('Go on at step {n}', { n: paused.step + 1 })}</b>
+          <small>{paused.play ? t('Where you stopped last time, with the example trip.') : t('Where you stopped last time, with your own data.')}</small>
+        </button>
+      {/if}
       <button type="button" class="opt" disabled={busy} onclick={() => go(true)} data-choice="play">
         <b>{t('With an example trip')}</b>
         <small>{t('In the playground: full pages, your data stays untouched.')}</small>
@@ -76,7 +84,8 @@
     cursor: pointer;
   }
   .opt:hover,
-  .opt:focus-visible {
+  .opt:focus-visible,
+  .opt.on {
     border-color: var(--hi);
   }
   .opt small {

@@ -8,10 +8,12 @@
   import { cfgQuery } from '../freidb.js';
   import { todayImpulse, impulseHref, collsOf } from '../frei.js';
   import { t } from '../i18n.svelte.js';
+  import { suggest, watchSuggest } from '../clear/suggest.svelte.js'; // Einzelidee 36: «Ideas for free time» can be off
 
   let { today } = $props();
   const q = cfgQuery();
-  const imp = $derived($q === undefined ? null : todayImpulse($q, today));
+  watchSuggest();
+  const imp = $derived($q === undefined || !suggest.on.impulse ? null : todayImpulse($q, today));
   const title = $derived(imp ? (imp.own || imp.edited ? imp.title : t(imp.title)) : '');
 </script>
 

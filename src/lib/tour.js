@@ -119,3 +119,44 @@ export function writeRun(run) {
     /* private mode: the tour still runs until the next reload */
   }
 }
+
+/*
+ * Einzelidee 30 «Rundgang weitermachen» (996 Ideen, Noah 25.10.2026): a tour ended before its last step is
+ * kept as paused, one per tour: { [id]: { step, play, at } } in localStorage PAUSE_KEY. The next start of
+ * that tour offers «Go on at step n». Reaching the end (or starting from the beginning) forgets it.
+ */
+export const PAUSE_KEY = 'tour.paused';
+/** The paused record after ending `run` early, or null when there is nothing to go on with (first step, the end). */
+export function pausedOf(run, at = new Date().toISOString()) {
+  if (!run || !TOURS[run.id]) return null;
+  const s = stepAt(run.id, run.step);
+  if (!s || s.end || run.step === 0) return null;
+  return { step: run.step, play: !!run.play, at };
+}
+/** The paused step of tour `id` (whole), or null. */
+export function pauseFor(all, id) {
+  const p = all && typeof all === 'object' ? all[id] : null;
+  if (!p || !TOURS[id] || !Number.isInteger(p.step) || p.step <= 0) return null;
+  const s = stepAt(id, p.step);
+  return s && !s.end ? { step: p.step, play: !!p.play, at: typeof p.at === 'string' ? p.at : '' } : null;
+}
+export function readPaused() {
+  try {
+    const v = JSON.parse(localStorage.getItem(PAUSE_KEY) ?? 'null');
+    return v && typeof v === 'object' ? v : {};
+  } catch {
+    return {};
+  }
+}
+/** Keep (p) or forget (null) the pause of tour `id`. */
+export function writePaused(id, p) {
+  try {
+    const all = readPaused();
+    if (p) all[id] = p;
+    else delete all[id];
+    if (Object.keys(all).length) localStorage.setItem(PAUSE_KEY, JSON.stringify(all));
+    else localStorage.removeItem(PAUSE_KEY);
+  } catch {
+    /* private mode: nothing kept */
+  }
+}
