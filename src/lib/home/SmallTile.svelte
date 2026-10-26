@@ -3,7 +3,8 @@
   /** The icons of the tiles (tiles.js icon keys). */
   // a long word may break on a small phone tile: only where German breaks it (a soft hyphen after the
   // first part, «Kleider-schrank»). → the label in pieces, each piece its own span.
-  const PARTS = /^(Kleider|Wunsch|Velo|Rück|Meilen|Spiel|Lieblings|Erinnerungs|Baustein|Ausrüstungs)(\p{L}{4,})$/u;
+  // Gesamttest 26.10.2026: also «Werkzeug-kasten» and «Schweiz-Mobil» (they broke mid-word in a tile)
+  const PARTS = /^(Kleider|Wunsch|Velo|Rück|Meilen|Spiel|Lieblings|Erinnerungs|Baustein|Ausrüstungs|Werkzeug|Schweiz)(\p{L}{4,})$/u;
   export const soft = (text) => text.replace(/\p{L}{11,}/gu, (w) => w.replace(PARTS, '$1\u00ad\n$2')).split('\n');
   export const ICON = { zap: Zap, bag: Backpack, shirt: Shirt, scale: Scale, wrench: Wrench, route: Route, file: FileText, wardrobe: Shirt, layers: Layers, heart: Heart, chart: ChartColumn, note: StickyNote, counter: Gauge, blocks: Blocks, star: Star, book: BookOpen, alert: TriangleAlert, flow: Activity, flame: Flame, sparkles: Sparkles, lotus: Flower2, flask: FlaskConical, sun: Sun, bulb: Lightbulb, bike: Bike, chat: MessageCircle, info: Info, inbox: Inbox, data: Database, plus: Plus, list: List, ride: Navigation };
 </script>

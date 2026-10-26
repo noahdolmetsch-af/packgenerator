@@ -47,8 +47,8 @@ export default {
   // Funktionen, Hilfe
   'Each day in the bike park as its own entry: the park, the runs and whether the protection check was done; on top the days and runs of the year.':
     'Jeder Tag im Bikepark als eigener Eintrag: der Park, die Abfahrten und ob der Schutz-Check gemacht war; oben die Tage und Abfahrten des Jahres.',
-  'On a big screen every bag stands as its own column next to the others; tick in any bag without opening it.':
-    'Am grossen Bildschirm steht jede Tasche als eigene Spalte neben den anderen; du hakst in jeder Tasche ab, ohne sie zu öffnen.',
+  'On a big screen every bag stands as its own column next to the others; tick in any bag without opening it, and drag an item into another bag.':
+    'Am grossen Bildschirm steht jede Tasche als eigene Spalte neben den anderen; du hakst in jeder Tasche ab, ohne sie zu öffnen, und ziehst ein Teil in eine andere Tasche.',
   'PDF, Word, Excel, PowerPoint (also LibreOffice and RTF), GPX, calendar, contact and short videos in a note, read in the app; scan into a note; keep a web page to read offline.':
     'PDF, Word, Excel, PowerPoint (auch LibreOffice und RTF), GPX, Kalender, Kontakt und kurze Videos in einer Notiz, in der App gelesen; in eine Notiz scannen; eine Webseite zum Offline-Lesen behalten.',
   'Tap «New bike park day» in «Bike park days».': 'Tippe in «Bikepark-Tage» auf «Neuer Bikepark-Tag».',
