@@ -89,7 +89,7 @@ export default {
   'What I did': 'Was ich gemacht habe',
   'What I did:': 'Was ich gemacht habe:',
   'What I noticed (noise, play, wear):': 'Was mir aufgefallen ist (Geräusch, Spiel, Verschleiss):',
-  Experience: 'Erfahrung',
+  'My experience': 'Erfahrung',
   'My experience with it:': 'Meine Erfahrung damit:',
   'Bought and warranty': 'Kauf und Garantie',
   'Bought at:': 'Gekauft bei:',

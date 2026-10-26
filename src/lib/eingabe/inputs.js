@@ -213,7 +213,7 @@ export const STD_TEMPLATES = {
     { key: 'noticed', name: 'What I noticed', text: 'What I noticed (noise, play, wear):\n- ' },
   ],
   gear: [
-    { key: 'use', name: 'Experience', text: 'My experience with it:\n- ' },
+    { key: 'use', name: 'My experience', text: 'My experience with it:\n- ' },
     { key: 'bought', name: 'Bought and warranty', text: 'Bought at: \nWarranty until: ' },
   ],
   dreams: [
