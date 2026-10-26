@@ -52,6 +52,9 @@
   import TemplateOffer from '../lib/debrief/TemplateOffer.svelte';
   import DebriefPlanNotes from '../lib/debrief/DebriefPlanNotes.svelte';
   import LearnCard from '../lib/tourlernen/LearnCard.svelte'; // Paket Z
+  import UsedCard from '../lib/tourenb/UsedCard.svelte'; // Idee 58 (Touren b): Verbrauch buchen
+  import IntentAsks from '../lib/tourenb/IntentAsks.svelte'; // Idee 52 (Touren b): die Fragen der Absicht
+  import DayListen from '../lib/tourenb/DayListen.svelte'; // Idee 56 (Touren b): Dein Tag zum Hören
   import DebriefLernen from '../lib/lernen/DebriefLernen.svelte'; // Paket M «Aus Touren lernen»
   import TodoButton from '../lib/lernen/TodoButton.svelte';
   import TodoPlace from '../lib/lernen/TodoPlace.svelte';
@@ -536,6 +539,9 @@
         <DebriefLernen {trip} {d} {persist} notes={wayNotes} rides={tripRides} />
         <!-- Paket Z «Aus jeder Tour lernen»: breakdown, where you slept, the tour postcard (below the answers, so the chips stay first) -->
         <LearnCard {trip} {bike} />
+        <IntentAsks {trip} />
+        <DayListen {trip} />
+        <UsedCard {trip} {items} book />
         <PageMore page="debrief" name={t('Debrief')} />
         <PageTiles page="debrief" extrasHint />
       {:else}
@@ -718,6 +724,9 @@
       <TipLine page="debrief" name={t('Debrief')} />
       <!-- Paket Z «Aus jeder Tour lernen»: below the form, so «What did you not need?» stays the first thing on the page -->
       <LearnCard {trip} {bike} />
+      <IntentAsks {trip} />
+      <DayListen {trip} />
+      <UsedCard {trip} {items} book />
       <PageMore page="debrief" name={t('Debrief')} />
       {/if}
     </div>

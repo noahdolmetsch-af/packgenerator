@@ -22,7 +22,8 @@
   import Notes from '../lib/freunde/Notes.svelte';
   import Shelf from '../lib/freunde/Shelf.svelte';
   import Templates from '../lib/freunde/Templates.svelte';
-  import { Users, BookOpen, Package, LayoutTemplate, FileUp, ChevronRight } from '@lucide/svelte';
+  import ContactCard from '../lib/freunde/ContactCard.svelte';
+  import { Users, BookOpen, Package, LayoutTemplate, FileUp, ChevronRight, Contact } from '@lucide/svelte';
   import '../lib/freunde/freunde.css';
 
   let { hash = '' } = $props();
@@ -42,6 +43,7 @@
     { key: 'ask', title: 'Ask friends', icon: Users },
     { key: 'shelf', title: 'Lending shelf for friends', icon: Package },
     { key: 'tpl', title: 'Share a template', icon: LayoutTemplate },
+    { key: 'card', title: 'Contact card', icon: Contact }, // Gruppenfahrt für Events (Noah 26.10.2026 «5a»)
   ];
   const tabOf = (h) => new URLSearchParams(String(h).split('?')[1] ?? '').get('tab');
   const first = untrack(() => tabOf(hash));
@@ -140,8 +142,10 @@
     <Notes me={me || myName.trim()} />
   {:else if tab === 'shelf'}
     <Shelf me={me || myName.trim()} />
-  {:else}
+  {:else if tab === 'tpl'}
     <Templates me={me || myName.trim()} />
+  {:else}
+    <ContactCard me={me || myName.trim()} />
   {/if}
 
   <p class="fr-fine"><BookOpen size={14} aria-hidden="true" /> {t('Signing in with Google for friends comes later; all of this works already without it.')}</p>

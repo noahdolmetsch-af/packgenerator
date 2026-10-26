@@ -36,7 +36,8 @@
 .tp-fold > summary { display: flex; align-items: center; gap: 12px; min-height: 56px; padding: 6px 16px; list-style: none; cursor: pointer; font-size: var(--fs-body); font-weight: 500; }
 .tp-fold > summary::-webkit-details-marker { display: none; }
 .tp-fold > summary > svg:first-child { color: var(--ink-3); flex: none; }
-.tp-fold > summary > span:not(.r) { min-width: 0; overflow-wrap: break-word; }
+/* Gesamttest 26.10.2026: the title keeps its longest word whole («Gewicht», «Einkaufsliste»); the right part wraps instead */
+.tp-fold > summary > span:not(.r) { min-width: min-content; overflow-wrap: break-word; }
 .tp-fold > summary .r { margin-left: auto; display: flex; flex-wrap: wrap; justify-content: flex-end; min-width: 0; align-items: center; gap: 4px 8px; font-size: var(--fs-small); font-weight: 400; color: var(--ink-3); text-align: right; }
 .tp-fold > summary .chev { flex: none; transition: transform 0.15s; color: var(--ink-3); }
 .tp-fold[open] > summary .chev { transform: rotate(90deg); }
