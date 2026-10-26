@@ -80,7 +80,7 @@ test('every function is visible on its home page', async ({ page, context }, inf
         const els = [...document.querySelectorAll('main *, header *, [role=dialog] *, dialog[open] *')].filter((e) => e.children.length === 0 || /^(BUTTON|A|SUMMARY|H\d|LABEL)$/.test(e.tagName));
         return names.map((n) => {
           const low = n.toLowerCase();
-          return els.some((e) => (e.innerText || e.getAttribute('aria-label') || '').toLowerCase().includes(low) && open(e) && (e.getBoundingClientRect().top + scrollY) / vh <= screens);
+          return els.some((e) => (e.innerText || e.getAttribute('aria-label') || '').toLowerCase().replace(/[«»★]/g, '').replace(/\s+/g, ' ').includes(low) && open(e) && (e.getBoundingClientRect().top + scrollY) / vh <= screens);
         });
       },
       { names: list.map((x) => x.name), screens: SCREENS },

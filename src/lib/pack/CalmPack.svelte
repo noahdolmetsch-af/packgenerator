@@ -241,12 +241,19 @@
     { key: 'two', label: 'Packing for two', sel: '[data-two]' },
     { key: 'packtime', label: 'Packing time', sel: '[data-packtime]' },
     { key: 'offline', label: 'Save for the way', sel: '[data-offline-save-btn]', page: true }, // under the page, outside this part
+    // «332 Use Cases» (Noah 26.10.2026: «ballast-karte, einkaufs- und ladeliste, neues teil beim packen, tasche für tasche,
+    // zwiebel check» sichtbar): by their catalogue names; «href» goes to another view, the rest jump and open their fold
+    { key: 'onion', label: 'Layer check', sel: '.onion', page: true },
+    { key: 'shop', label: 'Shopping and charging list', sel: '.shop-row', page: true },
+    { key: 'ballast', label: 'Ballast card', sel: '.calm-extra', page: true },
+    { key: 'newpack', label: 'New item while packing', sel: '[data-new-item]', page: true },
+    { key: 'bags', label: 'Pack bag by bag', href: '#/pack?day' },
   ];
   let extraHere = $state([]);
   $effect(() => {
     if (!rootEl) return;
     const look = () => {
-      const keys = EXTRA_JUMPS.filter((x) => (x.page ? document : rootEl).querySelector(x.sel)).map((x) => x.key);
+      const keys = EXTRA_JUMPS.filter((x) => x.href || (x.page ? document : rootEl).querySelector(x.sel)).map((x) => x.key);
       if (keys.join() !== extraHere.join()) extraHere = keys;
     };
     look();
@@ -272,9 +279,10 @@
     if (key === 'tasks') return onprep?.();
     const q = (sel) => rootEl?.querySelector(sel);
     const extra = EXTRA_JUMPS.find((x) => x.key === key);
+    if (extra?.href) return void (location.hash = extra.href);
     const el = extra ? (extra.page ? document.querySelector(extra.sel) : q(extra.sel)) : key === 'list' ? q('.list-head') : key === 'route' ? q('.plan-top section.rc') : (ev ? q('.plan-top section.tw') : null) ?? q('.wxcard') ?? q('.cond');
     if (!el) return;
-    if (el.tagName === 'DETAILS') el.open = true;
+    for (let e = el; e; e = e.parentElement) if (e.tagName === 'DETAILS') e.open = true; // the fold and the folds around it
     el.scrollIntoView({ block: 'start', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
     // the keyboard goes along: the heading of the section takes the focus without a second jump
     const h = el.querySelector('h2') ?? el.querySelector(':scope > summary') ?? el;

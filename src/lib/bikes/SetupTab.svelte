@@ -409,6 +409,10 @@
     <nav class="bquick" aria-label={t('Folder and photos of the {bike}', { bike: bike.name })} data-bike-quick>
       {#each BIKE_SHEETS as x (x.sheet)}<a class="bq" href={bikesHash({ bike: bike.id, sheet: x.sheet })} data-bike-quick-item={x.sheet}>{t(x.label)}</a>{/each}
       <button type="button" class="bq" onclick={() => ((photosOpen = true), queueMicrotask(() => photosEl?.scrollIntoView({ block: 'start' })))} data-bike-quick-item="photos">{t('Bike photos')}</button>
+      <!-- «332 Use Cases» (Noah 26.10.2026 «velo-inspektion, velo-service, garmin-seiten» sichtbar) -->
+      <a class="bq" href={bikesHash({ tab: 'care', view: 'inspect', bike: bike.id })} data-bike-quick-item="inspect">{t('Bike inspection')}</a>
+      <a class="bq" href={bikesHash({ tab: 'care', bike: bike.id })} data-bike-quick-item="service">{t('Bike service')}</a>
+      <a class="bq" href={bikesHash({ tab: 'garmin', bike: bike.id })} data-bike-quick-item="garmin">{t('Garmin pages')}</a>
     </nav>
 
     <!-- Design-Refresh P7 «Velo» (V1): the drawing and the bags left; care and equipment, «Import rides»
