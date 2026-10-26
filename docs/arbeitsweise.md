@@ -2,7 +2,18 @@
 
 Gilt ab 9.10.2026, 23:26, für alle folgenden Releases. Quelle: Noahs Anweisung im Projekt-Chat. Ersetzt den «Schnellmodus» vom 9.10.2026 (mehrere Pakete gleichzeitig, Mockups nur für ganz neue Seiten).
 
-## Stand 18.10.2026: Regeln, die heute gelten
+## Stand 26.10.2026: was sich seit dem 18.10.2026 geändert hat
+
+Diese Punkte gehen dem Abschnitt «Stand 18.10.2026» vor. Quelle: Noahs Nachrichten im Projekt, festgehalten im [Entscheidungslog](decisions.md) und im [Projektstand](projektstand.md).
+
+1. **Keine Freigabe mehr nötig** (Noah, 24.10.2026, 18:20 UTC «freigabe für alle»; 18:49 UTC «ziel: alles ohne meine freigabe online bringen, möglichst in wenigen paketen»): Noah bekommt weiter einen Testlink mit kurzer Anleitung, ein «ok» braucht es aber nicht. Der PR läuft mit Auto-Merge und geht online, sobald die Prüfungen grün sind. Ersetzt Punkt 3 unten.
+2. **Fragen nur vorab:** Was Claude von Noah wissen muss, fragt Claude am Anfang (höchstens 5, a/b). Danach arbeitet Claude selbständig und kommt mit Lösungsvorschlägen für entdeckte Probleme zurück.
+3. **Wenige Pakete, ein Bündler:** Bau-Threads liefern Zweig und Commit an den Koordinator. Der Bündler-Thread «Mein Überblick» fasst zusammen, nummeriert, prüft nach der Bündel-Checkliste und öffnet den PR. Ersetzt die sechs Pakete vom 18.10.2026 (Punkt 4 unten).
+4. **Nach dem Zusammenführen:** Hat der PR `api/` geändert, prüft der Bündler den Server «packgen» auf Vercel. Danach bekommt Noah eine Zeile «Online: …».
+5. **Tests unabhängig von der Uhrzeit** (PR #252, 25.10.2026): Heute öffnet in den Tests keine Fenster von selbst; Tests, die ein Fenster prüfen, schalten es gezielt ein. Die Länge von Heute am Handy wird zur Mittagszeit gemessen.
+6. **Heute** folgt dem Aufbau N2 (0.169.0, Noah 20.10.2026 «5a»), nicht mehr HN4 (Punkt 11 unten).
+
+## Stand 18.10.2026: Regeln, die damals galten
 
 Diese Regeln gehen den älteren Abschnitten weiter unten vor. Wo unten etwas anderes steht (Mockups vor dem Bau, Bilder vor dem Merge, ★-Empfehlung, Trello, «Noah merged selbst»), ist es Geschichte. Quelle: Noahs Antworten im Projekt vom 13. bis 18.10.2026, festgehalten im [Entscheidungslog](decisions.md).
 

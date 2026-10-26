@@ -1,10 +1,10 @@
 # Pack Generator: Projektdokumentation
 
-Stand: 18. Oktober 2026 (live v0.144.0). **Einstieg: [Projektstand und Plan](projektstand.md)** (was live ist, was gebaut wartet, Reihenfolge der sechs Pakete) und [Geschichte](geschichte.md) (wie das Projekt seit dem 4.10.2026 gewachsen ist). Verbindliche Quelle: dieses Repository, aktueller Hauptzweig `main`. Das Ziel ist ein persönlicher Tourvorbereitungs-Assistent; Material, Fahrradsetup, Bausteine und Vorlagen unterstützen den Tourablauf.
+Stand: 26. Oktober 2026 (auf `main` v0.198.0; PR #253 mit 0.196/0.197 offen). **Einstieg: [Projektstand und Plan](projektstand.md)** (was live ist, was gebaut wartet, Reihenfolge der sechs Pakete) und [Geschichte](geschichte.md) (wie das Projekt seit dem 4.10.2026 gewachsen ist). Verbindliche Quelle: dieses Repository, aktueller Hauptzweig `main`. Das Ziel ist ein persönlicher Tourvorbereitungs-Assistent; Material, Fahrradsetup, Bausteine und Vorlagen unterstützen den Tourablauf.
 
 | Frage | Dokument | Verantwortung |
 |---|---|---|
-| Wo stehen wir heute, was kommt als Nächstes? | [Projektstand und Plan](projektstand.md) | Einstieg, Stand 18.10.2026; wird bei jedem Paket nachgeführt und gilt vor älteren Angaben |
+| Wo stehen wir heute, was kommt als Nächstes? | [Projektstand und Plan](projektstand.md) | Einstieg, Stand 26.10.2026; wird bei jedem Paket nachgeführt und gilt vor älteren Angaben |
 | Wie ist das Projekt gewachsen? | [Geschichte](geschichte.md) | Abschnitte von 0.1.0 bis heute, mit den Wendepunkten und dem, was wir gelernt haben |
 | Was wurde seit 0.96 besprochen, entschieden, gebaut und spezifiziert? | [Zwischenstand 14.10.2026](zwischenstand/README.md) | Datierter Schnappschuss für Aussenstehende, sechs Dokumente |
 | Was muss Claude bei jeder Arbeit beachten? | [CLAUDE.md](../CLAUDE.md) | Kurzanleitung für jede Claude-Sitzung: Arbeitsweise, Datenschutz, Release-Checkliste, Tests |
@@ -40,7 +40,7 @@ Stand: 18. Oktober 2026 (live v0.144.0). **Einstieg: [Projektstand und Plan](pro
 
 ## Fortschritt in GitHub
 
-Live ist v0.144.0 (15.10.2026). Seit 15.10.2026 werden fertige Teile zu Paketen gebündelt; jedes Paket ist ein Pull Request mit Vorher/Nachher, Tests, Bildern und dem Abschnitt «Was fällt weg oder rutscht tiefer». Claude führt ein Paket zusammen, wenn Noah die Bilder gesehen und dafür «ok» geschrieben hat und alle Prüfungen grün sind. Seit 18.10.2026 gibt es sechs grosse Pakete (siehe [Projektstand](projektstand.md)). Die genaue Liste aller Versionen steht in `src/lib/whatsnew.js` (in der App unter Ich › Was ist neu) und in der Historie des [Projektstands](status.md). Ein Überblick für Aussenstehende über die Zeit seit 0.96 steht im [Zwischenstand](zwischenstand/README.md). Das [Fortschrittsregister der Roadmap](roadmap.md#fortschrittsregister) bleibt die genaue Quelle für die Arbeitspakete.
+Auf `main` ist v0.198.0 (25.10.2026). Seit 24.10.2026 geht jedes Paket ohne Noahs «ok» online, sobald die Prüfungen grün sind (Testlink und Auto-Merge, Bündler-Thread «Mein Überblick»; siehe [Arbeitsweise](arbeitsweise.md), Abschnitt «Stand 26.10.2026»). Früher (15.10.2026): fertige Teile werden zu Paketen gebündelt; jedes Paket ist ein Pull Request mit Vorher/Nachher, Tests, Bildern und dem Abschnitt «Was fällt weg oder rutscht tiefer». Claude führt ein Paket zusammen, wenn Noah die Bilder gesehen und dafür «ok» geschrieben hat und alle Prüfungen grün sind. Seit 18.10.2026 gibt es sechs grosse Pakete (siehe [Projektstand](projektstand.md)). Die genaue Liste aller Versionen steht in `src/lib/whatsnew.js` (in der App unter Ich › Was ist neu) und in der Historie des [Projektstands](status.md). Ein Überblick für Aussenstehende über die Zeit seit 0.96 steht im [Zwischenstand](zwischenstand/README.md). Das [Fortschrittsregister der Roadmap](roadmap.md#fortschrittsregister) bleibt die genaue Quelle für die Arbeitspakete.
 
 ## Dokumentationsregel für jeden Release-PR
 
