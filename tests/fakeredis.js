@@ -24,6 +24,13 @@ export function fakeRedis() {
       case 'HSET':
         hash(a[0]).set(a[1], a[2]);
         return 1;
+      // Gruppen-Live-Karte (api/_lib/spur.js makeGroupHandler)
+      case 'HGETALL':
+        return kv.has(a[0]) ? [...hash(a[0])].flat() : [];
+      case 'HDEL':
+        return hash(a[0]).delete(a[1]) ? 1 : 0;
+      case 'HLEN':
+        return kv.has(a[0]) ? hash(a[0]).size : 0;
       case 'HMGET':
         return a.slice(1).map((f) => hash(a[0]).get(f) ?? null);
       case 'ZADD':

@@ -42,8 +42,26 @@ test('every function is visible on its home page', async ({ page, context }, inf
     await settle(page);
     race = decodeURIComponent((await page.locator('main a[href^="#/race/"]').first().getAttribute('href')).split('/')[2]);
   }
+  // «:note»: the test data has no note, so the robot writes one fictional note (a note's own buttons show only in it)
+  const note = 'test_data_gtp_note';
+  if (Object.keys(byPage).some((h) => h.includes(':note') || h === '#/notes')) {
+    await page.evaluate((id) => new Promise((ok, no) => {
+      const r = indexedDB.open('pack-generator');
+      r.onsuccess = () => {
+        const now = new Date().toISOString();
+        const tx = r.result.transaction('notes', 'readwrite');
+        tx.objectStore('notes').put({ id, kind: 'note', status: 'kept', at: now, editedAt: now, title: 'test_data_gtp_ Notiz', text: 'test_data_gtp_ Text', topic: null, pinned: false, photo: null });
+        tx.oncomplete = () => (r.result.close(), ok());
+        tx.onerror = no;
+      };
+    }), note);
+    await page.reload();
+    await page.locator('main').waitFor();
+  }
   for (const [href, list] of Object.entries(byPage)) {
-    await page.goto(`./${href.replace(':trip', encodeURIComponent(trip)).replace(':race', encodeURIComponent(race))}`);
+    await page.goto(`./${href.replace(':trip', encodeURIComponent(trip)).replace(':race', encodeURIComponent(race)).replace(':note', note)}`);
+    // «?open=»: a page reads it when it starts, so start it again
+    if (href.includes('open=')) await page.reload();
     await page.locator('main').waitFor();
     await settle(page);
     const found = await page.evaluate(
@@ -57,7 +75,7 @@ test('every function is visible on its home page', async ({ page, context }, inf
           }
           return el.getClientRects().length > 0;
         };
-        const els = [...document.querySelectorAll('main *, header *, [role=dialog] *')].filter((e) => e.children.length === 0 || /^(BUTTON|A|SUMMARY|H\d|LABEL)$/.test(e.tagName));
+        const els = [...document.querySelectorAll('main *, header *, [role=dialog] *, dialog[open] *')].filter((e) => e.children.length === 0 || /^(BUTTON|A|SUMMARY|H\d|LABEL)$/.test(e.tagName));
         return names.map((n) => {
           const low = n.toLowerCase();
           return els.some((e) => (e.innerText || e.getAttribute('aria-label') || '').toLowerCase().includes(low) && open(e) && (e.getBoundingClientRect().top + scrollY) / vh <= screens);

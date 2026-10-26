@@ -124,7 +124,9 @@
     {/if}
 
     <!-- «Alles finden 2» (new proposal): the pages of «Mehr zum Velo» (4 screens down) as one row on top -->
-    <QuickLinks label={t('More for the bike')} links={[['photos', 'Wear photos'], ['sell', 'Sale listing'], ['bikepack', 'Pack the bike'], ['stock', 'Spare parts at home']].map(([view, title]) => ({ key: view, href: bikesHash({ tab: 'care', view, bike: bike.id }), label: t(title) }))} />
+    <!-- «Velos sichtbar» (332 Use Cases, Noah 24.10.2026 «1a 2b»): chain rotation and «what lasts longest» stand
+         4 screens down; two chips jump there (they show only while that part is on the page) -->
+    <QuickLinks label={t('More for the bike')} links={[...[['photos', 'Wear photos'], ['sell', 'Sale listing'], ['bikepack', 'Pack the bike'], ['stock', 'Spare parts at home']].map(([view, title]) => ({ key: view, href: bikesHash({ tab: 'care', view, bike: bike.id }), label: t(title) })), { key: 'rotation', jump: '[id^="rot-h-"]', label: t('Chain rotation') }, { key: 'brand', jump: '#gm-brand', label: t('What lasts longest') }]} />
     <WetChainHint {bike} />
     <ChainPlan {bike} />
 

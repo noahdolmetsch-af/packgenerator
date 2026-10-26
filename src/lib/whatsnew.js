@@ -16,6 +16,39 @@
 
 export const WHATS_NEW = [
   {
+    // v0.200.0 Gruppen-Live-Karte (Paket U Bikepacking): ride with friends on one map; friends open a link in the browser
+    // without the app; ends after the ride, at the latest after 24 hours, and the places are deleted (api/sync.js ?action=group).
+    version: '0.200.0',
+    date: '2026-10-25',
+    title: 'Riding together on one map',
+    lead: 'Friends see each other on the map, without the app.',
+    points: [
+      { text: 'Group ride: send a link, everyone on one map', href: '#/live' },
+      { text: 'Ends after the ride, at the latest after 24 hours', href: '#/live' },
+    ],
+    small: [
+      { box: 'nicer', text: 'Bike functions are called like their buttons' },
+    ],
+    test: ['Open Unterwegs › Live-Karte › «Gruppenfahrt» and send yourself the link.', 'Open the link in a private window: your name and km show on the map.'],
+  },
+  {
+    // v0.199.0 Paket A last single ideas (996 Ideen): webcams with a purpose, birthday steps, ideas together, repairs, borrow first
+    version: '0.199.0',
+    date: '2026-10-25',
+    title: 'Fix it, try it, meet up',
+    lead: 'Clothes get repair jobs, wishes can be borrowed first, and reminders turn into invitations.',
+    points: [
+      { text: 'Clothing: repair instead of sorting out', href: '#/wardrobe' },
+      { text: 'Wish: borrow first, then decide', href: '#/gear?view=wish' },
+      { text: 'Not seen for a while: ideas to do together', href: '#/me/alltag/menschen' },
+    ],
+    small: [
+      { box: 'new', text: 'Birthdays show small steps to tick, webcams say what they are for' },
+      { box: 'fixed', text: 'Renaming a webcam closes the window again' },
+    ],
+    test: ['Open a piece of clothing, fold «Repair instead of sorting out» and add «Replace the zip».', 'Open a wish, fold «Borrow before buying», note a friend and a day.', 'Under Me › Everyday life › Not seen for a while, give a person an idea to do together.'],
+  },
+  {
     // v0.198.0 «Kette vorausschauend» (Noah 25.10.2026): the chain's next steps on «Wear» (replace, before the trip,
     // soon, measure, oil), history and forecast from the own measurements, phone reminder «measure the chain».
     version: '0.198.0',

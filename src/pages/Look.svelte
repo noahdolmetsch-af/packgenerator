@@ -13,6 +13,7 @@
   import { t } from '../lib/i18n.svelte.js';
   import { theme, FONTS, PALETTES, MODES, SCALE_MIN, SCALE_MAX, SCALE_STEP, DEFAULT_SCALE, setFont, setPalette, setScale, setDense, setMode } from '../lib/theme.svelte.js';
   import PageHead from '../lib/ui/PageHead.svelte';
+  import QuickLinks from '../lib/ui/QuickLinks.svelte';
   import LinksOff from '../lib/sk/LinksOff.svelte'; // SK: switched-off outside links come back here
   import Seg from '../lib/ui/Seg.svelte';
   import { ChevronRight, Check, Minus, Plus } from '@lucide/svelte';
@@ -46,6 +47,9 @@
 <div class="look">
   <Crumbs crumbs={[{ label: t('Me|place'), href: '#/me' }]} here={t('Appearance')} />
   <PageHead title={t('Appearance')} text={t('Font, colours and size, only on this device. Everything is optional.')} />
+  <!-- «Ich sichtbar» (332 Use Cases, Noah 24.10.2026 «1a 2b»): AI on the device, suggestions and «customise a page»
+       stand 5 to 6 screens down; three chips jump there -->
+  <QuickLinks label={t('On this page')} links={[{ key: 'ai', jump: '[data-local-ai]', label: t('AI on this device') }, { key: 'suggest', jump: '[data-suggest-areas]', label: t('Suggestions on or off') }, { key: 'anp', jump: '[data-anp-look]', label: t('Customise a page') }]} />
 
   <div class="cols">
     <div class="sets">

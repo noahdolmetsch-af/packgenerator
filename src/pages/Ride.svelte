@@ -45,6 +45,7 @@
   import { nightName } from '../lib/context.js';
   import { isInventory } from '../lib/gear.js';
   import TripBand from '../lib/trip/TripBand.svelte';
+  import QuickLinks from '../lib/ui/QuickLinks.svelte';
   import BaseCheck from '../lib/trip/BaseCheck.svelte';
   import { openTrip, newTrip } from '../lib/nav.js';
   import { mainStep, packedAll, canReopen, daysFrom, endNeedsAsk, goDayOf, tripPhase } from '../lib/phase.js';
@@ -577,6 +578,8 @@
 {:else}
 <div class="ride trip-page">
   <TripBand {trip} tab="ride" {kicker} compact action={main.kind ? go : noteMain ? noteBtn : null} aside={main.kind ? pen : noteMain ? dayAside : null} extra={endLink} stateMore={running ? dayOf : ''} stepText={noteMain ? dayOf : ''} hint={main.kind === 'start' ? t('Tap when you set off: the blocks and the arrival then count from now.') : main.kind === 'last' ? t('End the trip when you are back home.') : noteMain ? nextLine : ''} />
+  <!-- «Unterwegs sichtbar» (332 Use Cases, Noah 24.10.2026 «2b»): parts far down the page as jump chips right under the band -->
+  <QuickLinks label={t('On this page')} links={[{ key: 'eat', jump: '#eat-h', label: t('Eat reminder') }, { key: 'here', jump: '#spur-h', label: t('I am here') }, { key: 'water', jump: '[data-fold="water"]', label: t('Water and food') }, { key: 'sky', jump: '[data-fold="sky"]', label: t('Sun, moon and places') }, { key: 'convert', jump: '[data-fold="convert"]', label: t('Route for other devices') }]} />
   {#if ahead}
     <!-- v0.67.0 (U002, Ü4a): before the start On the way is a calm waiting state, not a loop back to Pack. -->
     {@const n = daysFrom(today, trip.startDate)}
