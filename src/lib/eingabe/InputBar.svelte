@@ -26,11 +26,12 @@
   import { toolsOf, inputsOf, addVoice, dropVoice, setVoice, addFile, dropFile, addPhoto, dropPhoto, setPlace, addTag, dropTag, cleanTag, withBlock, templatesFor, tplName, tplText, promptsFor, aiLines, highlightsBlock, sizeText, FILE_MAX_BYTES, TEMPLATES_KEY } from './inputs.js';
   import { inputAi, voiceText } from './inputsdb.js';
 
-  let { place, text = '', ontext = () => {}, inputs = null, oninputs = () => {}, ontitle = null, tags = [], only = null } = $props();
+  let { place, text = '', ontext = () => {}, inputs = null, oninputs = () => {}, ontitle = null, tags = [], only = null, start = '' } = $props();
 
   const tools = $derived(toolsOf(place, only));
   const v = $derived(inputsOf(inputs));
-  let open = $state(''); // the tool whose part is open
+  // svelte-ignore state_referenced_locally
+  let open = $state(start); // the tool whose part is open (`start`: e.g. «Voice note» on the diary page opens it at once)
   let msg = $state('');
   const toggle = (k) => ((open = open === k ? '' : k), (msg = ''));
   const set = (next) => oninputs($state.snapshot(next));

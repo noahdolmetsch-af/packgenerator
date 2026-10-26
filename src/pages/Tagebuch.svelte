@@ -9,7 +9,7 @@
    * Data: journal.js and journaldb.js (rows of the table «frei», kind 'diary'; in every backup and sync).
    */
   import { onDestroy } from 'svelte';
-  import { Plus, Mic, Search, Star, Settings2, BookOpen, Shuffle, X, ChevronLeft, ChevronRight, Pencil, Share2, Download, Trash2, MapPin, ImagePlay, Sun, CloudSun, Cloud, CloudFog, CloudRain, CloudSnow, CloudLightning, Feather } from '@lucide/svelte';
+  import { Plus, Mic, Search, Star, Settings2, BookOpen, Shuffle, X, ChevronLeft, ChevronRight, Pencil, Share2, Download, Trash2, MapPin, ImagePlay, AudioLines, Sun, CloudSun, Cloud, CloudFog, CloudRain, CloudSnow, CloudLightning, Feather } from '@lucide/svelte';
   import Crumb from '../lib/flow/kit/Crumb.svelte';
   import Seg from '../lib/ui/Seg.svelte';
   import Lightbox from '../lib/ui/Lightbox.svelte';
@@ -20,6 +20,8 @@
   import Rueckblick from '../lib/tagebuch/Rueckblick.svelte';
   import InputsView from '../lib/eingabe/InputsView.svelte'; // «Eingaben überall» (26.10.2026): voice notes and files of an entry
   import BildKarte from '../lib/eingabe/BildKarte.svelte'; // Noah «1a»: own photo + sentence as a picture card, no AI
+  import { templatesQuery } from '../lib/eingabe/inputsdb.js';
+  import { templatesFor, tplName, tplText } from '../lib/eingabe/inputs.js';
   import { moodOf, moodName } from '../lib/tagebuch/insights.js';
   import { askDelete, deleteWithUndo } from '../lib/ui/ask.js';
   import { offerDone } from '../lib/ui/rename.svelte.js';
@@ -79,7 +81,10 @@
 
   /* ---------- writing ---------- */
   let edit = $state(null); // { entry, dictate }
-  const write = (extra = {}, dictate = false) => (edit = { entry: { day: today, time: now(), ...extra }, dictate });
+  const write = (extra = {}, dictate = false, start = '') => (edit = { entry: { day: today, time: now(), ...extra }, dictate, start });
+  // «Eingaben überall»: start a new entry from one of the diary's templates (changeable under «Vorlage» in the entry)
+  const tplStore = templatesQuery();
+  const tpls = $derived(templatesFor('diary', $tplStore));
   // #/tagebuch?neu and ?diktat open a new entry once (then the address is cleaned)
   $effect(() => {
     if (locked || !cfg) return;
@@ -278,7 +283,14 @@
     <div class="tb-acts">
       <button type="button" class="btn hi" onclick={() => write()} data-tb-new><Plus size={18} aria-hidden="true" />{t('New entry')}</button>
       <button type="button" class="btn" onclick={() => write({}, true)} data-tb-dictate><Mic size={18} aria-hidden="true" />{t('Dictate an entry')}</button>
+      <button type="button" class="btn" onclick={() => write({}, false, 'voice')} data-tb-voice><AudioLines size={18} aria-hidden="true" />{t('Voice note')}</button>
     </div>
+    {#if tpls.length}
+      <div class="tb-tpl" data-tb-templates>
+        <span class="tb-tpl-h">{t('Start with a template')}</span>
+        {#each tpls as x (x.key)}<button type="button" class="tb-tpl-b" onclick={() => write({ text: tplText(x, t) })} data-tb-template={x.key}>{tplName(x, t)}</button>{/each}
+      </div>
+    {/if}
 
     {#if cfg.questions !== false && !qHidden && !answeredToday && qi != null}
       <section class="tb-q" aria-labelledby="tb-q-h" data-tb-question={qi}>
@@ -393,7 +405,7 @@
 {/if}
 
 {#if edit}
-  <EntrySheet entry={edit.entry} dictate={edit.dictate} {tags} onclose={() => (edit = null)} />
+  <EntrySheet entry={edit.entry} dictate={edit.dictate} start={edit.start} {tags} onclose={() => (edit = null)} />
 {/if}
 {#if settings}
   <Settings {cfg} entries={all} ondownload={downloadAll} onclose={() => (settings = false)} />
@@ -466,6 +478,31 @@
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
+  }
+  .tb-tpl {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+  }
+  .tb-tpl-h {
+    margin-right: 4px;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+  }
+  .tb-tpl-b {
+    min-height: 44px;
+    padding: 4px 14px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: var(--paper);
+    color: var(--ink);
+    font: inherit;
+    font-size: var(--fs-small);
+    cursor: pointer;
+  }
+  .tb-tpl-b:hover {
+    background: var(--tint);
   }
   .tb-notice {
     margin: 0;

@@ -6,6 +6,8 @@
  * HOME: the page a function lives on (a hash route, as in featureHref). «:trip» stands for the trip whose
  * debrief is still open in the test data (the robot finds it under Touren › Rückblick), «:race» for the
  * first race under Touren › Rennen.
+ * «:entry» stands for the one fictional diary entry the robot writes (an entry's own buttons, e.g. «Picture card»,
+ * show only when it is open).
  * GAPS: functions that are not yet visible on their home page, with why. The robot test
  * tests/e2e/heimat.spec.js opens every home page on the phone and checks that the German title of
  * each function NOT in GAPS can be seen (not in a closed fold, within the first 2.5 screens).
@@ -30,7 +32,7 @@ export const HOME = {
   'f.friendask': '#/me/freunde',
   'f.inputbar': '#/tagebuch',
   'f.inputtemplates': '#/tagebuch',
-  'f.picturecard': '#/tagebuch',
+  'f.picturecard': '#/tagebuch/:entry',
   'f.friendshelf': '#/me/freunde',
   'f.friendtemplate': '#/me/freunde',
   // Paket C «Ruhig und persönlich»: each function is a card title on its sub-page of Ich › Ruhig und persönlich

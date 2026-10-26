@@ -31,7 +31,7 @@
   import '../bikes/velo-dlg.css';
 
   /** entry: the entry to change, or a new one ({ day, time, q, … }); tags: all tags (suggestions); dictate: start listening at once. */
-  let { entry, tags = [], dictate = false, onclose, onsaved = () => {} } = $props();
+  let { entry, tags = [], dictate = false, start = '', onclose, onsaved = () => {} } = $props();
   let dialog;
   // a copy to edit (the saved row only changes on «Save»)
   // svelte-ignore state_referenced_locally
@@ -222,7 +222,7 @@
         <SpeakButton onsaid={said} wrap always autostart={dictate} />
         <span class="tbe-count" aria-live="polite">{tn(words, '{n} word', '{n} words')}</span>
       </div>
-      <InputBar place="diary" text={e.text} ontext={(s) => (e.text = s)} inputs={e.inputs} oninputs={(x) => (e.inputs = x)} />
+      <InputBar place="diary" {start} text={e.text} ontext={(s) => (e.text = s)} inputs={e.inputs} oninputs={(x) => (e.inputs = x)} />
 
       <div class="tbe-ai" data-tb-ai>
         <label class="tbe-aiok"><input type="checkbox" bind:checked={aiOk} data-tb-ai-ok /><span><Sparkles size={16} aria-hidden="true" /> {t('Send the text of this entry to Gemini (Google) for one step. Free; photos and place stay here.')}</span></label>
