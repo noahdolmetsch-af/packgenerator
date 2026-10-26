@@ -53,7 +53,9 @@ test('Packen side by side: move an item into another bag by drag and by the arro
   await expect(board.locator(`[data-board-bag="${keyA}"] [data-board-item="${id}"]`)).toHaveCount(0);
 
   // 2. by drag: it goes back to bag A
-  await board.locator(`[data-board-item="${id}"]`).dragTo(board.locator(`[data-board-bag="${keyA}"]`));
+  const moved = board.locator(`[data-board-bag="${keyB}"] [data-board-item="${id}"]`);
+  await moved.scrollIntoViewIfNeeded();
+  await moved.dragTo(board.locator(`[data-board-bag="${keyA}"] .bchead`));
   await expect(board.locator(`[data-board-bag="${keyA}"] [data-board-item="${id}"]`)).toHaveCount(1);
   expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBeLessThanOrEqual(0);
   expect(errors).toEqual([]);

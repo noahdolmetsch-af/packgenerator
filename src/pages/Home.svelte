@@ -993,7 +993,7 @@
       <div class="hi-text">
         <!-- UI-Ziele #15 (Noah 20.10.2026 «freigabe»): the short greeting is the button itself, no «antippen» line -->
         {#if night}<h1 id="hello-h" class="hello">{hello}</h1>{:else}<HelloSheet name={S.userName ?? ''} label={hello} />{/if}
-        <p class="dl">{phone.matches ? shortDate : dateLine}{#if wx}<span aria-hidden="true">{'\u00a0· '}</span><span class="wx" data-weather>{wx.text}{#if wx.hi != null}{' '}<span class="wxr" data-weather-range>{t('↑{hi}° ↓{lo}°', { hi: wx.hi, lo: wx.lo })}</span>{/if}</span>{/if}{#if strava.changes.length}<span aria-hidden="true">{'\u00a0· '}</span><span data-strava-questions>{tn(strava.changes.length, '{n} question from Strava', '{n} questions from Strava')}</span>{/if}</p>
+        <p class="dl">{phone.matches ? shortDate : dateLine}{#if wx}<span aria-hidden="true">{'\u00a0· '}</span><span class="wx" data-weather>{wx.text}</span>{#if wx.hi != null}{' '}<span class="wxr" data-weather-range>{t('↑{hi}° ↓{lo}°', { hi: wx.hi, lo: wx.lo })}</span>{/if}{/if}{#if strava.changes.length}<span aria-hidden="true">{'\u00a0· '}</span><span data-strava-questions>{tn(strava.changes.length, '{n} question from Strava', '{n} questions from Strava')}</span>{/if}</p>
         {#if loaded}<RaceLine {today} />{/if}
         <!-- UI-Ziele #17 (Noah 20.10.2026 «freigabe»): «Was häsch vor?» as chips; while customising a list to sort -->
         <!-- «Alltag sichtbar» (Noah 24.10.2026 «1a»): the quick start «Heute fahren» stays visible at night too -->

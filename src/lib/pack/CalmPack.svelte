@@ -246,14 +246,14 @@
     { key: 'onion', label: 'Layer check', sel: '.onion', page: true },
     { key: 'shop', label: 'Shopping and charging list', sel: '.shop-row', page: true },
     { key: 'ballast', label: 'Ballast card', sel: '.calm-extra', page: true },
-    { key: 'newpack', label: 'New item while packing', sel: '[data-new-item]', page: true },
+    { key: 'newpack', label: 'New item while packing', act: () => { zoneKey = targets[0]?.key ?? zoneKey; show('add'); } }, // opens «Add material», where the new item is made
     { key: 'bags', label: 'Pack bag by bag', href: '#/pack?day' },
   ];
   let extraHere = $state([]);
   $effect(() => {
     if (!rootEl) return;
     const look = () => {
-      const keys = EXTRA_JUMPS.filter((x) => x.href || (x.page ? document : rootEl).querySelector(x.sel)).map((x) => x.key);
+      const keys = EXTRA_JUMPS.filter((x) => x.href || (x.act ? !fixed : (x.page ? document : rootEl).querySelector(x.sel))).map((x) => x.key);
       if (keys.join() !== extraHere.join()) extraHere = keys;
     };
     look();
@@ -280,6 +280,7 @@
     const q = (sel) => rootEl?.querySelector(sel);
     const extra = EXTRA_JUMPS.find((x) => x.key === key);
     if (extra?.href) return void (location.hash = extra.href);
+    if (extra?.act) return extra.act();
     const el = extra ? (extra.page ? document.querySelector(extra.sel) : q(extra.sel)) : key === 'list' ? q('.list-head') : key === 'route' ? q('.plan-top section.rc') : (ev ? q('.plan-top section.tw') : null) ?? q('.wxcard') ?? q('.cond');
     if (!el) return;
     for (let e = el; e; e = e.parentElement) if (e.tagName === 'DETAILS') e.open = true; // the fold and the folds around it
