@@ -4,6 +4,7 @@
     "deploymentEnabled": {
       "claude/**": false,
       "dependabot/**": false,
+      "claude/project-thread-jtmsou": true,
       "claude/project-thread-743v5k": true
     }
   }

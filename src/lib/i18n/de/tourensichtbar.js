@@ -19,4 +19,5 @@ export default {
   'Move {name} to another bag': '{name} in eine andere Tasche verschieben',
   'Move to another bag': 'In eine andere Tasche verschieben',
   'drag an item into another bag, or use the arrows next to it': 'zieh ein Teil in eine andere Tasche, oder nimm die Pfeile daneben',
+  'Still empty: drag an item here, or use the arrows next to an item.': 'Noch leer: zieh ein Teil hierher, oder nimm die Pfeile neben einem Teil.',
 };

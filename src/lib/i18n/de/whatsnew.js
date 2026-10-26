@@ -4,6 +4,12 @@
  * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
+  // 0.216.0 Leere Taschen nehmen Teile auf
+  'The bag now shows the item; «Undo» puts it back.': 'Die Tasche zeigt jetzt das Teil; «Rückgängig» legt es zurück.',
+  'Room in every bag': 'Platz in jeder Tasche',
+  'An empty bag now takes an item too.': 'Auch eine leere Tasche nimmt jetzt ein Teil auf.',
+  'All bags side by side: empty bags stay as a column to drag into': 'Alle Taschen nebeneinander: leere Taschen bleiben als Spalte zum Hineinziehen',
+  'On the computer open Packen › Alle Taschen nebeneinander and drag an item into an empty bag, or use the arrows next to the item.': 'Öffne am Computer Packen › Alle Taschen nebeneinander und zieh ein Teil in eine leere Tasche, oder nimm die Pfeile neben dem Teil.',
   // 0.212.0 Touren b
   'Tours that remember': 'Touren, die mitdenken',
   'Start from what you want, get reminded at the right place.': 'Beginne mit deiner Absicht, die Erinnerung kommt am richtigen Ort.',

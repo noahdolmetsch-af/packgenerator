@@ -4,6 +4,8 @@ Stand: 26. Oktober 2026 (Kopf nachgetragen; die Einträge unten werden mit jedem
 
 ## Aktuell live
 
+**0.216.0 «Platz in jeder Tasche» (26.10.2026, Noah 22:06 «starte mit 1, dann 3 und danach 2»):** In «Alle Taschen nebeneinander» bleibt eine leere Tasche als gestrichelte Spalte stehen; man zieht ein Teil hinein oder wählt sie über die Pfeile neben einem Teil. Kein neues Schema. Offen bis Noah die Bilder freigibt.
+
 **0.212.0 «Touren, die mitdenken» (26.10.2026, 996 Einzelideen Touren 50–58, Noah «freigabe 52 55 56 57 58»):** Neue Tour aus einer Absicht (oben im Fenster «Neue Tour», Formular bleibt darunter), Regel mit Ablaufdatum, kleine Geschichten beim Packen, Check aus einer echten Panne, «Später prüfen» unterwegs, Notiz an einem Ort der Strecke (meldet sich vor Ort), «Dein Tag zum Hören» im Rückblick (ohne Kartenkarte, dafür km pro Notiz), Ess-Erinnerung bei geplanten Stopps, Verbrauch buchen. Neue optionale Felder auf trips und notes, kein neues Schema. Offen bis Noah mergt.
 
 **0.211.0 «Zwei Touren, ein Blick» (26.10.2026, 996 Einzelideen Touren 44, 45, 47, 49, Noah «1a 2b 3a 4b 5b»):** Touren › «Touren nebeneinander» (#/trips/compare): zwei kommende Touren mit Tagesleiste, geteiltem Material und offenen Aufgaben; in Planen die Karte «Tour vorbereiten» mit Sportart pro Tag (Velo, Wandern, Ruhetag; Hinweise beim Wechsel), unklaren Stellen mit km und Grenzübertritt pro Land (Dokumente, Handynetz, Versicherung, nach 180 Tagen neu prüfen). Neue optionale Felder auf trips (daySports, unclear, border), kein neues Schema. Offen bis Noah mergt.

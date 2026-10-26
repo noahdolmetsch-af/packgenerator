@@ -16,6 +16,16 @@
 
 export const WHATS_NEW = [
   {
+    // v0.216.0 «Leere Taschen nehmen Teile auf» (Noah 26.10.2026 22:06 «starte mit 1, dann 3»): in «All bags side by
+    // side» an empty bag stays as a column to drag an item into
+    version: '0.216.0',
+    date: '2026-10-26',
+    title: 'Room in every bag',
+    lead: 'An empty bag now takes an item too.',
+    points: [{ text: 'All bags side by side: empty bags stay as a column to drag into', href: '#/pack?day' }],
+    test: ['On the computer open Packen › Alle Taschen nebeneinander and drag an item into an empty bag, or use the arrows next to the item.', 'The bag now shows the item; «Undo» puts it back.'],
+  },
+  {
     // v0.212.0 «Touren b» (996 Einzelideen 50–58, Noah 25./26.10.2026 «freigabe 52 55 56 57 58»): trip from an intent,
     // rule with an end, little stories, check from a breakdown, «check later», note at a place, your day to listen to,
     // eat reminder at planned stops, book what was used
