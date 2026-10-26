@@ -1309,14 +1309,14 @@
            block: stops nearby, all areas, «Customise the start page» (on a computer too; it was a button at the top
            right) and the online line. A long press on a tile still opens customising. «Diese Seite anpassen» is not on
            Heute (App.svelte): customising the start page does that here. -->
-      <div class="endbar" data-home-end>
+      <footer class="endbar" data-home-end>
         {#await import('../lib/stops/HeuteStopps.svelte') then m}<m.default {today} top={false} />{:catch}{/await}
         <div class="lkrow">
           <a class="lkb" href="#/features" data-all-areas><LayoutGrid size={16} aria-hidden="true" />{t('All areas|home')}</a>
           <button type="button" class="lkb" data-intro="custom" onclick={() => (editing = true)}><SlidersHorizontal size={16} aria-hidden="true" />{t('Customise the start page')}</button>
         </div>
         <p class="ver"><span class="odot" class:off={!online}></span>{online ? t('Online') : t('Offline')} · v{__APP_VERSION__}</p>
-      </div>
+      </footer>
     {/if}
   </div>
 
