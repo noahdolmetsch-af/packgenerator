@@ -8,6 +8,7 @@ export default {
   'Ride {date}': 'Fahrt {date}',
   'Saved in Trips. {km} km added to {bike}.': 'In Touren gespeichert. {km} km auf {bike} gebucht.',
   'Saved in Trips as «Live Navigation».': 'In Touren als «Live Navigation» gespeichert.',
+  'The ride before was not ended. It is in Trips now too.': 'Die Fahrt davor war nicht beendet. Sie ist jetzt auch in Touren.',
   'Saved as its own entry in Trips.': 'Als eigener Eintrag in Touren gespeichert.',
   'The phone had no GPS position, or the ride was shorter than a few seconds. Nothing was saved.': 'Das Handy hatte keine GPS-Position, oder die Fahrt war kürzer als ein paar Sekunden. Es wurde nichts gespeichert.',
   'Opens the saved ride with its km and pauses.': 'Öffnet die gespeicherte Fahrt mit km und Pausen.',

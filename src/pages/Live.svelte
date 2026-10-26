@@ -107,7 +107,7 @@
   // Gruppen-Live-Karte (Noah 25.10.2026 «b»): friends on the map through a link
   import GroupPanel from '../lib/live/GroupPanel.svelte';
   import { endKeptGroup } from '../lib/live/group.js';
-  import { saveLiveRide, bookBikeKm } from '../lib/live/saveride.js';
+  import { saveLiveRide, bookBikeKm, saveLeftRides } from '../lib/live/saveride.js';
   import LiveLabel from '../lib/live/LiveLabel.svelte';
   import { deleteEntries } from '../lib/kmbookdb.js';
   import { offerDone } from '../lib/ui/rename.svelte.js';
@@ -180,9 +180,17 @@
   const AFTER = import.meta.glob('../lib/live/AfterRide.svelte');
   const loadAfter = Object.values(AFTER)[0] ?? null;
 
+  const rideName = (ride, tr = trip) => tr?.title || t('Ride {date}', { date: new Date(ride.startAt || Date.now()).toLocaleDateString(locale(), { weekday: 'short', day: 'numeric', month: 'numeric' }) });
   async function start(cont = null) {
     err = '';
     after = null;
+    // a ride before that was never ended is not lost: it goes to Touren as its own entry first
+    try {
+      const kept = await saveLeftRides(db, { keep: cont?.id ?? null, nameOf: rideName });
+      if (kept.length) offerDone(t('The ride before was not ended. It is in Trips now too.'));
+    } catch (x) {
+      err = saveFailed(x);
+    }
     const e = await startRecording(trip, { cont, saver: cfg.battery });
     if (e) return (err = t(e));
     eatFromKm = null;
@@ -211,7 +219,7 @@
     const ride = await stopRecording();
     let saved = null;
     if (ride) {
-      const name = trip?.title || t('Ride {date}', { date: new Date(ride.startAt || Date.now()).toLocaleDateString(locale(), { weekday: 'short', day: 'numeric', month: 'numeric' }) });
+      const name = rideName(ride);
       try {
         saved = await saveLiveRide(db, ride, { trip, name });
         const b = await bookBikeKm(db, ride, { trip, name, note: t('Live map') });

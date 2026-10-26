@@ -10,6 +10,8 @@
  *   (setting LIVE_BIKE_KEY), else the first of your bikes.
  * - bookBikeKm(): books the km on that bike when bikeKmPlan says so (not twice, not when a Strava/Garmin
  *   ride of the same bike overlaps) → { entry, ids } or null; the caller offers Undo.
+ * - saveLeftRides(): rides that were never ended (app closed, phone off) are closed and kept in Touren
+ *   too, before a new ride starts (Noah 27.10.2026 «eine neue Live-Aufnahme überschreibt die vorherige»).
  * Plain module (no runes), tested in tests/live-saveride.test.js.
  */
 import { rideRowOf, bikeKmPlan, bikeEntryOf } from './after.js';
@@ -76,3 +78,23 @@ export async function bookBikeKm(db, ride, { trip = null, name = '', note = '' }
 
 /** Remember the bike picked for a free ride (the next ride without a trip bike takes it). */
 export const rememberBike = (db, bikeId) => db.settings.put({ key: LIVE_BIKE_KEY, value: bikeId });
+
+/**
+ * Close every open recording except keep (an id) and keep each one as its own ride in Touren; one with
+ * fewer than 2 points goes. nameOf(ride, trip) gives the shown name. → the saved ride rows.
+ */
+export async function saveLeftRides(db, { keep = null, nameOf = () => '' } = {}) {
+  const open = (await db.tracks.where('kind').equals('rec').toArray()).filter((r) => r.open && r.id !== keep);
+  const saved = [];
+  for (const r of open) {
+    if ((r.pts?.length ?? 0) < 2) {
+      await db.tracks.delete(r.id);
+      continue;
+    }
+    const done = { ...r, open: false };
+    await db.tracks.put(done);
+    const trip = done.tripId ? ((await db.trips.get(done.tripId)) ?? null) : null;
+    saved.push(await saveLiveRide(db, done, { trip, name: nameOf(done, trip) }));
+  }
+  return saved;
+}

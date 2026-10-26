@@ -3,8 +3,9 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import 'fake-indexeddb/auto';
 import { createDb } from '../src/lib/db.js';
-import { saveLiveRide, bookBikeKm, bikeFor, rememberBike, isLiveRide, LIVE_BIKE_KEY, LIVE_LABEL } from '../src/lib/live/saveride.js';
+import { saveLiveRide, saveLeftRides, bookBikeKm, bikeFor, rememberBike, isLiveRide, LIVE_BIKE_KEY, LIVE_LABEL } from '../src/lib/live/saveride.js';
 import { rideIdOf } from '../src/lib/live/after.js';
+import { openRecording } from '../src/lib/spur/recorder.svelte.js';
 import { tripFacts } from '../src/lib/review/rueckblick.js';
 import { kindOf, KINDS } from '../src/lib/touren/filter.js';
 import DE from '../src/lib/i18n/de/index.js';
@@ -94,5 +95,27 @@ describe('the bike km', () => {
 describe('German words', () => {
   it('every new text has its German entry', () => {
     for (const k of ['End the ride?', 'End and save', 'Ride {date}', 'Saved in Trips. {km} km added to {bike}.', 'Saved in Trips as «Live Navigation».', 'Saved as its own entry in Trips.', 'Open Trips', 'Wrong bike? Take the km back', 'Live Navigation']) expect(DE[k], k).toBeTruthy();
+  });
+});
+
+describe('rides that were never ended (Noah 27.10.2026)', () => {
+  it('a new start keeps every ride before as its own entry, none is overwritten', async () => {
+    const a = { ...rec('rec-a'), open: true };
+    const b = { ...rec('rec-b'), open: true, startAt: T0 + 3600e3, endAt: T0 + 7200e3 };
+    const tiny = { ...rec('rec-c'), open: true, pts: [[47, 8, 0]] };
+    await db.tracks.bulkPut([a, b, tiny]);
+    const kept = await saveLeftRides(db, { nameOf: (r) => `test_ ${r.id}` });
+    expect(kept.map((r) => r.id).sort()).toEqual([rideIdOf(a), rideIdOf(b)].sort());
+    expect(await db.rides.count()).toBe(2);
+    expect((await db.tracks.get('rec-a')).open).toBe(false);
+    expect(await db.tracks.get('rec-c')).toBeUndefined();
+    expect(await openRecording(db)).toBeNull();
+  });
+  it('continuing a ride keeps it open and saves only the others', async () => {
+    await db.tracks.bulkPut([{ ...rec('rec-a'), open: true }, { ...rec('rec-b'), open: true, startAt: T0 + 3600e3 }]);
+    expect((await openRecording(db)).id).toBe('rec-b');
+    const kept = await saveLeftRides(db, { keep: 'rec-b' });
+    expect(kept.map((r) => r.id)).toEqual([rideIdOf({ id: 'rec-a' })]);
+    expect((await db.tracks.get('rec-b')).open).toBe(true);
   });
 });

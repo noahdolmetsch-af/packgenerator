@@ -104,7 +104,8 @@ async function getLock() {
 /** The open recording of this device, if one was left running (reload, app closed). */
 export async function openRecording(db = appDb) {
   const rows = await db.tracks.where('kind').equals('rec').toArray();
-  return rows.find((r) => r.open) ?? null;
+  // the newest open one: an older ride that was never ended must not hide the one running now
+  return rows.filter((r) => r.open).sort((a, b) => (b.startAt || 0) - (a.startAt || 0))[0] ?? null;
 }
 
 /** Put a fix into the running recording (also used by tests with a fake position). */
@@ -144,7 +145,10 @@ export async function startRecording(trip, { db = appDb, cont = null, now = Date
     const lp = row.pts.at(-1);
     last = lp ? { lat: lp[0], lon: lp[1], at: row.startAt + lp[2] * 1000 } : null;
   } else {
-    row = { id: `rec-${now}`, kind: 'rec', tripId: trip?.id ?? null, day: localDay(new Date(now)), startAt: now, endAt: now, pts: [], km: 0, open: true, createdAt: new Date(now).toISOString() };
+    // a new id every time, also when two rides start in the same millisecond (or with a stopped clock)
+    let id = `rec-${now}`;
+    while (await db.tracks.get(id)) id = `rec-${now}-${Math.random().toString(36).slice(2, 7)}`;
+    row = { id, kind: 'rec', tripId: trip?.id ?? null, day: localDay(new Date(now)), startAt: now, endAt: now, pts: [], km: 0, open: true, createdAt: new Date(now).toISOString() };
     last = null;
   }
   jump = false;
