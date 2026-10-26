@@ -9,6 +9,7 @@ export default {
   'Double tiles left Today.': 'Doppelte Kacheln sind weg von Heute.',
   'Tiles that showed the same thing twice left Today once': 'Kacheln, die dasselbe doppelt zeigten, sind einmal von Heute weg',
   'You find them under «Add a tile»': 'Du findest sie unter «Kachel hinzufügen»',
+  'Body values: all of them behind «Details» in «Your body today»': 'Körperwerte: alle hinter «Details» in «Dein Körper heute»',
   'Open Today: your body values stand once, in «Your body today».': 'Öffne Heute: deine Körperwerte stehen einmal, in «Dein Körper heute».',
   'Customise the start page › Add a tile: «Body values» and the others are still there.': 'Startseite anpassen › Kachel hinzufügen: «Körperwerte» und die anderen sind noch da.',
   // 0.219.0 Heute ruhiger

@@ -27,7 +27,7 @@ export const WHATS_NEW = [
       { text: 'Tiles that showed the same thing twice left Today once' },
       { text: 'You find them under «Add a tile»' },
     ],
-    small: [],
+    small: [{ box: 'nicer', text: 'Body values: all of them behind «Details» in «Your body today»' }],
     test: ['Open Today: your body values stand once, in «Your body today».', 'Customise the start page › Add a tile: «Body values» and the others are still there.'],
   },
   {
