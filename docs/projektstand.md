@@ -1,6 +1,6 @@
 # Projektstand und Plan
 
-Stand: **26. Oktober 2026, 17:50 UTC**. Live ist **Version 0.208.0** (Sammel-PR #263 mit 0.206.0 bis 0.208.0, von Noah zusammengeführt am 26.10.2026, 17:36 UTC). Offen ist der Sammel-PR mit 0.208.1 «Ganze Wörter am kleinen Handy» (war #257), 0.209.0 «Tagelang zusammen fahren» (Gruppenfahrt für Events) und 0.210.0 «Deine Liste in Sicht» (Noahs Liste, 111 → 77 versteckte Funktionen).
+Stand: **26. Oktober 2026, 17:50 UTC**. Live ist **Version 0.208.0** (Sammel-PR #263 mit 0.206.0 bis 0.208.0, von Noah zusammengeführt am 26.10.2026, 17:36 UTC). Offen ist der Sammel-PR mit 0.208.1 «Ganze Wörter am kleinen Handy» (war #257), 0.209.0 «Tagelang zusammen fahren» (Gruppenfahrt für Events) 0.210.0 «Deine Liste in Sicht» (Noahs Liste, 111 → 77 versteckte Funktionen) und 0.211.0 «Zwei Touren, ein Blick» (Touren a Teil 2). Mit ihm gehen auch 0.206.0 bis 0.208.0 online (main war am Abend rot).
 
 Ältere Abschnitte weiter unten («Kurzstand 19.10.», Abschnitte 1 bis 5) sind der damalige Stand und bleiben als Verlauf stehen. Was unten anders steht, gilt nicht mehr, wo dieser Abschnitt etwas Neueres sagt.
 
@@ -180,12 +180,13 @@ Damals (19.10.2026) galt: keine Testlinks; Ein Paket geht online, sobald die Tes
 | 86 | Kleine Helfer unter Ich (996 Einzelideen Ich 27–36) | 0.203.0 | Letzte Ergebnisse, Hinweis vor der Google-Anmeldung, eigene Verpflegungs-Zahlen pro Reise, «Ausgeblendet und aus», «Was davon abhängt», Backup-Ordner-Meldungen, Rundgang weiter, Kürzel-Tipps, Vorschläge nach Art | live (#259) |
 | 87 | Eine kleine Überraschung (996 Einzelideen Heute) | 0.204.0 | Überraschungsrunde, Wetter am eigenen Platz, Bewertung aufteilen, Regen gebündelt, Standzeit-Check, Beispiele nach Interesse, «Hat sich etwas geändert?» | live (#259) |
 | 88 | Material, das weiss warum (996 Einzelideen Material und Überall) + Gruppenfahrt Teil 2 + Namen überall | 0.205.0 | Eigene Ansichten, Grund für Favoriten, Wunsch löst Ärger, Zwiebel-Check, Inhalt getrennt vom Leergewicht, Mikrofon-Fehler behalten Worte, Umwandeln überschreibt nie, Suche fragt nach; «Ich warte hier» und Stopps für Freunde; versteckte Funktionen 142 → 111 | live (#259) |
-| 89 | Fitbit-Werte mit Tag | 0.206.0 | Heute zeigt den letzten Fitbit-Wert innerhalb von 7 Tagen mit Tag, bis der von heute da ist | live (#263) |
-| 90 | Touren mit Plan B (996 Einzelideen Touren 41, 42, 43, 46, 48) | 0.207.0 | Strecke prüfen, Stillstehen, Was hat gefehlt, Plan B mit Auslöser, Offline-Reserve | live (#263) |
-| 91 | Mehr Platz am Computer (UI-Ziel #14) | 0.208.0 | Touren und Auswerten in zwei Spalten, Velos mit dem Velo zuerst, höchstens 1120 px | live (#263) |
+| 89 | Fitbit-Werte mit Tag | 0.206.0 | Heute zeigt den letzten Fitbit-Wert innerhalb von 7 Tagen mit Tag, bis der von heute da ist | offen (main am 26.10. abends rot, kommt mit dem Sammel-PR) |
+| 90 | Touren mit Plan B (996 Einzelideen Touren 41, 42, 43, 46, 48) | 0.207.0 | Strecke prüfen, Stillstehen, Was hat gefehlt, Plan B mit Auslöser, Offline-Reserve | offen (main am 26.10. abends rot, kommt mit dem Sammel-PR) |
+| 91 | Mehr Platz am Computer (UI-Ziel #14) | 0.208.0 | Touren und Auswerten in zwei Spalten, Velos mit dem Velo zuerst, höchstens 1120 px | offen (main am 26.10. abends rot, kommt mit dem Sammel-PR) |
 | 92 | Ganze Wörter am kleinen Handy (Gesamttest 26.10.) | 0.208.1 | Anzeige-Korrekturen am schmalen Handy, Gesamttest lädt schneller | offen |
 | 93 | Tagelang zusammen fahren (Gruppenfahrt für Events) | 0.209.0 | Eigene Seite der Gruppenfahrt mit Hilfe, Bereit, Treffpunkten, Kosten; Kontaktkarte mit QR-Code | offen |
 | 94 | Deine Liste in Sicht (Noahs Liste sichtbar) | 0.210.0 | Sprungknöpfe für versteckte Werkzeuge, alle Taschen nebeneinander, 111 → 77 versteckt | offen |
+| 95 | Zwei Touren, ein Blick (996 Einzelideen Touren 44, 45, 47, 49) | 0.211.0 | Touren nebeneinander, Tour vorbereiten (Sportart pro Tag, unklare Stellen, Grenze) | offen |
 | 62 | Skitour (Mockup-Paket P2) | 0.178.0 | Skitouren › Tour planen: Gefahrenstufe 1–5 mit Unterstufe und Satz, «Dein Morgen», Verhältnisse, Plan in Zahlen; «Gipfel erreicht» unterwegs; Nach der Tour «Plan und Wirklichkeit» und dein Material; Skitouren › Saison: Ziel, Wunschtouren, Skitage 8 Wochen, LVS-Übungen, Kurse mit «Auffrischen», Höhenmeter pro Ski, letzte Saison; Vorabend-Check zeigt Stufe, Temperatur, Wind, letzten Zug | live |
 
 «Frontend aufpeppen» ist pausiert (Noah 19.10.2026). Die Abschnitte unten sind der Stand vom 18.10.2026.

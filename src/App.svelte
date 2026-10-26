@@ -407,6 +407,7 @@
     Mountain: () => import('./pages/Mountain.svelte'), // Paket J: Berg, Schnee und Notfall
     Supplies: () => import('./pages/Supplies.svelte'), // Paket H: Material › Vorrat
     Lend: () => import('./pages/Lend.svelte'), // Paket H: Material › Ausgeliehen
+    TripsCompare: () => import('./pages/TripsCompare.svelte'), // Touren-Idee 44 (Noah 26.10.2026 «1a»): Touren › Nebeneinander
     Fuel: () => import('./pages/Fuel.svelte'), // Verpflegung (Noah 19.10.2026 «1a»): Touren › Verpflegung
     Power: () => import('./pages/Power.svelte'), // Strombudget (Noah 19.10.2026 «2a»): Material › Strom
     Pay: () => import('./pages/Pay.svelte'),
@@ -472,7 +473,7 @@
 <DbWaitLine />
 {#if !mini && !guest}<ComebackWindow care={$dueQ ?? 0} inbox={$inboxQ ?? 0} /><YearCheckWindow {hash} /><DiaryReminder {hash} />{/if}
 
-<main class:calm class:wide={page === 'pack' || page === 'ride' || page === 'debrief' || page === 'rides' || page === 'stravarides' || page === 'past' || page === 'templates' || page === 'gear' || page === 'supplies' || page === 'power' || page === 'fuel' || page === 'tour' || page === 'lend' || page === 'blocks' || page === 'blockcheck' || page === 'packcleanup' || page === 'home' || page === 'features' || page === 'wardrobe' || page === 'flow' || page === 'auswerten' || page === 'timer' || page === 'check' || page === 'routine' || page === 'week' || page === 'neuland' || page === 'heatmap' || page === 'dreams'} class:hub={HUB_PAGES.includes(page)} class:bar={!wide.matches || !!mini}>
+<main class:calm class:wide={page === 'pack' || page === 'ride' || page === 'debrief' || page === 'rides' || page === 'stravarides' || page === 'past' || page === 'templates' || page === 'gear' || page === 'supplies' || page === 'power' || page === 'fuel' || page === 'compare' || page === 'tour' || page === 'lend' || page === 'blocks' || page === 'blockcheck' || page === 'packcleanup' || page === 'home' || page === 'features' || page === 'wardrobe' || page === 'flow' || page === 'auswerten' || page === 'timer' || page === 'check' || page === 'routine' || page === 'week' || page === 'neuland' || page === 'heatmap' || page === 'dreams'} class:hub={HUB_PAGES.includes(page)} class:bar={!wide.matches || !!mini}>
   {#if !calm && !guest && !mini}<PlaceTabs {place} {hash} {moved} onclosemoved={() => (moved = null)} />{/if}
   <!-- AU1 «1b»: on a phone Velos and Ausrüstung share a slot. Gesamttest 20.10.2026 B7: the switch stands only
        on Ausrüstung (the way back); Velos already has its tabs and path, Ausrüstung is one row on Velos › Übersicht -->
@@ -565,6 +566,9 @@
   {:else if page === 'lend'}
     <!-- Paket H (answer 5a+b): Material › Ausgeliehen, loaded only when opened -->
     <LazyPage load={PAGES.Lend} />
+  {:else if page === 'compare'}
+    <!-- Touren-Idee 44 (Noah 26.10.2026 «1a»): two trips side by side, loaded only when opened -->
+    {#key hash}<LazyPage load={PAGES.TripsCompare} />{/key}
   {:else if page === 'fuel'}
     <!-- Verpflegung (Noah 19.10.2026 «1a»): Touren › Verpflegung, loaded only when opened -->
     {#key hash}<LazyPage load={PAGES.Fuel} />{/key}

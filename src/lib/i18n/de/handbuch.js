@@ -1759,4 +1759,17 @@ export default {
   'Example: say «note brake squeaks» → the note is in the Inbox. If the microphone stops, the words so far stay in the field.': 'Beispiel: Sag «Notiz Bremse quietscht» → die Notiz ist im Eingang. Stoppt das Mikrofon, bleiben die Wörter bisher im Feld.',
   'Example: IMG_0042.HEIC → IMG_0042.jpg for the online form; velo.jpg as JPG → velo-umgewandelt.jpg, the old one stays.': 'Beispiel: IMG_0042.HEIC → IMG_0042.jpg für das Online-Formular; velo.jpg als JPG → velo-umgewandelt.jpg, das alte bleibt.',
   'Example: «Wo sehe ich die Lawinengefahr?» → Alerts and news. «Kette» finds Material and a bike → «Do you mean Gear or Bikes?».': 'Beispiel: «Wo sehe ich die Lawinengefahr?» → Hinweise und News. «Kette» findet Material und ein Velo → «Meinst du Material oder Velos?».',
+  // Touren-Ideen 44, 45, 47, 49 (Noah 26.10.2026)
+  'Read the overlapping days, the shared gear and the open tasks.': 'Lies die gleichen Tage, das geteilte Material und die offenen Aufgaben.',
+  'Tick «Clarified» when you know the answer.': 'Hake «Geklärt» ab, sobald du die Antwort weisst.',
+  'Open Trips › «Trips side by side» and tap two trips.': 'Öffne Touren › «Touren nebeneinander» und tippe zwei Touren an.',
+  'Example: two tours share 2 days and one tent → take a second tent or move a date.': 'Beispiel: Zwei Touren teilen 2 Tage und ein Zelt → zweites Zelt mitnehmen oder ein Datum verschieben.',
+  'In Planen › «Prepare the tour» tap the kind of each day.': 'Tippe in Planen › «Tour vorbereiten» die Sportart jedes Tages an.',
+  'Read «When it changes»: park the bike, repack, check it again.': 'Lies «Beim Wechsel»: Velo abstellen, umpacken, wieder prüfen.',
+  'Example: 3 days by bike, then 2 days hiking → park the bike, a backpack instead of the bags.': 'Beispiel: 3 Tage Velo, dann 2 Tage Wandern → Velo abstellen, Rucksack statt Taschen.',
+  'In Planen › «Prepare the tour» › «Unclear spots» type the km and the question.': 'Gib in Planen › «Tour vorbereiten» › «Unklare Stellen» den km und die Frage ein.',
+  'Example: km 42 «Is the bridge open?» → clarified on the phone.': 'Beispiel: km 42 «Ist die Brücke offen?» → am Telefon geklärt.',
+  'In Planen › «Prepare the tour» › «Crossing a border» add a country.': 'Füge in Planen › «Tour vorbereiten» › «Grenzübertritt» ein Land hinzu.',
+  'Add your points per area with the source; tick them when checked.': 'Füge pro Bereich deine Punkte mit Quelle hinzu; hake sie nach dem Prüfen ab.',
+  'Example: France › Phone network «Roaming switched on» › source: your phone contract.': 'Beispiel: Frankreich › Handynetz «Roaming eingeschaltet» › Quelle: dein Handyvertrag.',
 };

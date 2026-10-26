@@ -439,7 +439,27 @@ export const HANDBOOK = {
     on: null,
     steps: ['Set a shorter GPX or «Train home» in Planen.', 'With heavy rain or a storm, tap «Take plan B» on On the way; Undo brings the planned route back.'],
     example: 'Example: 14 mm of rain on Saturday → the 60 km variant instead of 110 km.',
+  },  'f.tripcompare': {
+    on: null,
+    steps: ['Open Trips › «Trips side by side» and tap two trips.', 'Read the overlapping days, the shared gear and the open tasks.'],
+    example: 'Example: two tours share 2 days and one tent → take a second tent or move a date.',
   },
+  'f.daysports': {
+    on: null,
+    steps: ['In Planen › «Prepare the tour» tap the kind of each day.', 'Read «When it changes»: park the bike, repack, check it again.'],
+    example: 'Example: 3 days by bike, then 2 days hiking → park the bike, a backpack instead of the bags.',
+  },
+  'f.unclear': {
+    on: null,
+    steps: ['In Planen › «Prepare the tour» › «Unclear spots» type the km and the question.', 'Tick «Clarified» when you know the answer.'],
+    example: 'Example: km 42 «Is the bridge open?» → clarified on the phone.',
+  },
+  'f.border': {
+    on: null,
+    steps: ['In Planen › «Prepare the tour» › «Crossing a border» add a country.', 'Add your points per area with the source; tick them when checked.'],
+    example: 'Example: France › Phone network «Roaming switched on» › source: your phone contract.',
+  },
+
   'f.checkin': {
     on: null,
     steps: ['In Planen set until when you can check in each night.', 'Read the warning; call ahead with the number of the accommodation.'],

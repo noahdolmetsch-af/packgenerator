@@ -16,6 +16,19 @@
 
 export const WHATS_NEW = [
   {
+    // v0.211.0 «Touren a» part 2 (996 Einzelideen 44, 45, 47, 49; Noah 26.10.2026 «1a 2b 3a 4b 5b»): trips side by side,
+    // sport per day with «When it changes», unclear spots with km, own border points per country
+    version: '0.211.0',
+    date: '2026-10-26',
+    title: 'Two tours, one look',
+    lead: 'Compare two trips and prepare one well.',
+    points: [
+      { text: 'Trips side by side: overlapping days and shared gear', href: '#/trips/compare' },
+    ],
+    small: [{ box: 'new', text: 'Prepare the tour: sport per day, unclear spots, border', href: '#/pack' }],
+    test: ['Open Trips › «Trips side by side» and tap two trips.', 'In Planen open «Prepare the tour» and set bike on day 1 and hiking on day 2.'],
+  },
+  {
     // v0.210.0 «Noahs Liste sichtbar» (Noah 26.10.2026 «folgende möchte ich sichtbar»): jump buttons and quick rows for
     // hidden tools (Packen, Material, Aktiv, Heute weather high/low, Velo); all bags side by side on a big screen
     version: '0.210.0',

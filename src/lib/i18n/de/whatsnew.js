@@ -4,6 +4,13 @@
  * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
+  // 0.211.0 Touren a, Teil 2
+  'Two tours, one look': 'Zwei Touren, ein Blick',
+  'Compare two trips and prepare one well.': 'Zwei Touren vergleichen, eine gut vorbereiten.',
+  'Trips side by side: overlapping days and shared gear': 'Touren nebeneinander: gleiche Tage und geteiltes Material',
+  'Prepare the tour: sport per day, unclear spots, border': 'Tour vorbereiten: Sportart pro Tag, unklare Stellen, Grenze',
+  'Open Trips › «Trips side by side» and tap two trips.': 'Öffne Touren › «Touren nebeneinander» und tippe zwei Touren an.',
+  'In Planen open «Prepare the tour» and set bike on day 1 and hiking on day 2.': 'Öffne in Planen «Tour vorbereiten» und setze Tag 1 auf Velo und Tag 2 auf Wandern.',
   // 0.210.0 Noahs Liste sichtbar
   'Your list in sight': 'Deine Liste in Sicht',
   'What you asked for now has its own button.': 'Was du dir gewünscht hast, hat jetzt einen eigenen Knopf.',

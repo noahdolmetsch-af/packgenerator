@@ -4,6 +4,8 @@ Stand: 26. Oktober 2026 (Kopf nachgetragen; die Einträge unten werden mit jedem
 
 ## Aktuell live
 
+**0.211.0 «Zwei Touren, ein Blick» (26.10.2026, 996 Einzelideen Touren 44, 45, 47, 49, Noah «1a 2b 3a 4b 5b»):** Touren › «Touren nebeneinander» (#/trips/compare): zwei kommende Touren mit Tagesleiste, geteiltem Material und offenen Aufgaben; in Planen die Karte «Tour vorbereiten» mit Sportart pro Tag (Velo, Wandern, Ruhetag; Hinweise beim Wechsel), unklaren Stellen mit km und Grenzübertritt pro Land (Dokumente, Handynetz, Versicherung, nach 180 Tagen neu prüfen). Neue optionale Felder auf trips (daySports, unclear, border), kein neues Schema. Offen bis Noah mergt.
+
 **0.210.0 «Deine Liste in Sicht» (26.10.2026, Noah «folgende möchte ich sichtbar»):** Sprungknöpfe für versteckte Werkzeuge in Packen (Zwiebel-Check, Einkaufs- und Ladeliste, Ballast-Karte, Tasche für Tasche), Material (Mehrere ändern, Leichtere Alternativen, Strom-Werte), Aktiv, Touren, Unterwegs und Velo; Heute zeigt Höchst- und Tiefstwert; «Alle Taschen nebeneinander» am grossen Bildschirm mit Ziehen und Pfeil-Knopf; 111 → 77 versteckte Funktionen (MAX_GAPS 77). Offen bis Noah mergt.
 
 **0.209.0 «Tagelang zusammen fahren» (26.10.2026, Noah «1a 2b 3a 4a 5a»):** Gruppenfahrt für Events mit eigener Seite #/gruppenfahrt (Hilfe mit Ton, Bereit/im Lager, Kontrollpunkte, Treffpunkte, wer hat was aus der Packliste, Kosten teilen, Gewitter voraus, eigene Nachtzeiten, bis 7 Tage); Kontaktkarte mit QR-Code unter Ich › Mit Freunden (#/karte/… nur auf diesem Gerät). Server: api/_lib/spur.js. Offen bis Noah mergt.
