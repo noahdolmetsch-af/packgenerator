@@ -1759,4 +1759,9 @@ export default {
   'Example: say «note brake squeaks» → the note is in the Inbox. If the microphone stops, the words so far stay in the field.': 'Beispiel: Sag «Notiz Bremse quietscht» → die Notiz ist im Eingang. Stoppt das Mikrofon, bleiben die Wörter bisher im Feld.',
   'Example: IMG_0042.HEIC → IMG_0042.jpg for the online form; velo.jpg as JPG → velo-umgewandelt.jpg, the old one stays.': 'Beispiel: IMG_0042.HEIC → IMG_0042.jpg für das Online-Formular; velo.jpg als JPG → velo-umgewandelt.jpg, das alte bleibt.',
   'Example: «Wo sehe ich die Lawinengefahr?» → Alerts and news. «Kette» finds Material and a bike → «Do you mean Gear or Bikes?».': 'Beispiel: «Wo sehe ich die Lawinengefahr?» → Hinweise und News. «Kette» findet Material und ein Velo → «Meinst du Material oder Velos?».',
+  // Velo-Idee 76: Werkstatt-Runden
+  'Bikes › Care › a bike › «Workshop rounds».': 'Velos › Pflege › ein Velo › «Werkstatt-Runden».',
+  'Add a suggestion or your own round: jobs, tools, material.': 'Nimm einen Vorschlag oder mach deine eigene Runde: Arbeiten, Werkzeug, Material.',
+  '«Start the round», tick what you did, «Done»: the jobs with a part go into the part.': '«Runde starten», abhaken, was du gemacht hast, «Fertig»: Die Arbeiten mit Teil kommen ins Teil.',
+  'Example: «Autumn service» with 5 jobs; chain and brake pads ticked → both recorded today.': 'Beispiel: «Herbst-Service» mit 5 Arbeiten; Kette und Bremsbeläge abgehakt → beide heute eingetragen.',
 };

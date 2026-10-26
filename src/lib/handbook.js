@@ -663,6 +663,11 @@ export const HANDBOOK = {
     steps: ['Bikes › Care › a bike › «Wear» › «Pack the bike».', 'Tick each point; add, rename, move or delete points.', 'Take photos before packing, as proof if something breaks.'],
     example: 'Example: «Pedals off» ticked, photo of the frame from both sides.',
   },
+  'f.workshoprounds': {
+    on: null,
+    steps: ['Bikes › Care › a bike › «Workshop rounds».', 'Add a suggestion or your own round: jobs, tools, material.', '«Start the round», tick what you did, «Done»: the jobs with a part go into the part.'],
+    example: 'Example: «Autumn service» with 5 jobs; chain and brake pads ticked → both recorded today.',
+  },
   'f.sparestock': {
     on: null,
     steps: ['Bikes › Care › a bike › «Wear» › «Spare parts at home».', 'Add a row with a number, e.g. 2 chains.', 'You replace a chain yourself: one less; at 0 «Shopping list» adds it.'],
