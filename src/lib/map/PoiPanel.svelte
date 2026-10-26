@@ -472,7 +472,8 @@
 <section class="pp" aria-labelledby={hid} data-poi-panel>
   <h3 id={hid} class="pp-title">{t('Places on the map|poi')}</h3>
 
-  <div class="pp-quick" role="group" aria-label={t('Quick choice|poi')} data-poi-quick>
+  <div class="pp-quick" role="group" aria-labelledby="{hid}-q" data-poi-quick>
+    <span class="pp-qlab" id="{hid}-q">{t('Quick choice|poi')}</span>
     {#each QUICK as q (q.key)}
       <button type="button" class="pp-chip pp-q" aria-pressed={quickOn(q)} onclick={() => quick(q)} data-poi-quick-btn={q.key}>{t(q.name)}</button>
     {/each}
@@ -905,6 +906,13 @@
     display: flex;
     flex-wrap: wrap;
     gap: var(--sp-2);
+  }
+  .pp-quick {
+    align-items: center;
+  }
+  .pp-qlab {
+    font-size: var(--fs-small);
+    color: var(--ink-2);
   }
   .pp-last {
     color: var(--warn);
