@@ -11,6 +11,7 @@
   import { isConsumable } from '../gear.js';
   import { packSteps } from '../trips.js';
   import { t, tn, locale, nameOf } from '../i18n.svelte.js';
+  import { tripFill } from '../einzeln/material.js'; // Einzelidee 24: the content of bottles, gas and boxes apart
 
   // v0.106.0 Design-Refresh P5 (T6 «Gewicht nach Taschen»): the same card on Packen, with its own title.
   let { trip, stats, itemsById, title = '', sub = '' } = $props();
@@ -19,6 +20,7 @@
   const kgN = (g) => (g / 1000).toLocaleString(locale(), { minimumFractionDigits: 1, maximumFractionDigits: 1 });
   const eats = (i) => isConsumable(i) || i.waterL > 0;
   const w = $derived(weightByPlace(stats, itemsById, eats));
+  const fill = $derived(tripFill(trip?.entries ?? [], itemsById, eats));
   // Impeccable 18.10.2026 (Packen 3): the same bag name as in «Taschen» (trips.js packSteps), the model small
   // after it: «Lenkerrolle · Front roll 14 L»
   const bags = $derived(stats?.zones ? Object.fromEntries(packSteps(stats, trip.purpose ?? {}).map((s) => [s.key, s])) : {});
@@ -40,6 +42,7 @@
     <p class="foot">
       {#if w.heaviest}<span>{t('Heaviest item: {name} {kg} kg', { name: nameOf(w.heaviest.item), kg: kgN(w.heaviest.g) })}</span>{/if}
       {#if w.missing}<span>{tn(w.missing, '{n} item not weighed', '{n} items not weighed')}</span>{/if}
+      {#if fill.g}<span data-weight-fill>{t('Full: + {kg} kg content (bottles, gas, boxes), not in the total', { kg: kgN(fill.g) })}</span>{/if}
     </p>
   </div>
 </section>

@@ -70,9 +70,9 @@ export const TIPS = [
   { id: 'pace', group: 'back', icon: 'gauge', title: 'Your pace', text: 'Load a few GPX rides and riding times use your own pace.', button: 'Show your pace', go: { href: '#/debrief/pace' } },
   { id: 'trend', group: 'back', icon: 'trend', title: 'Weight trend', text: 'Compare trips and see how your base weight changes trip by trip.', button: 'Compare trips', go: { href: '#/debrief' }, needs: 'trip' },
   // Gear
-  { id: 'weigh', group: 'gear', icon: 'scale', title: 'Weigh items', text: 'Weigh your items one after the other: then every total is exact.', button: 'Start weighing', go: { href: '#/gear?tab=weigh' }, needs: 'items' },
-  { id: 'fav', group: 'gear', icon: 'star', title: 'Favourites ★', text: 'Mark your favourite things with ★ and find them all on one page.', button: 'Show favourites', go: { href: '#/favorites' }, needs: 'items' },
-  { id: 'wish', group: 'gear', icon: 'gift', title: 'Wishlist', text: 'The wishlist shows which buy saves the most grams per franc. A wish can wait 30 days; then the app asks if you still need it.', button: 'Open wishlist', go: { href: '#/gear?tab=wishlist' }, needs: 'items' },
+  { id: 'weigh', group: 'gear', icon: 'scale', title: 'Weigh items', text: 'Weigh your items one after the other: then every total is exact. Bottles, gas and food boxes: weigh them empty, the content goes apart.', button: 'Start weighing', go: { href: '#/gear?tab=weigh' }, needs: 'items' },
+  { id: 'fav', group: 'gear', icon: 'star', title: 'Favourites ★', text: 'Mark your favourite things with ★ and say why in a word (comfortable, reliable, within reach); the reason shows again when you swap or replace it.', button: 'Show favourites', go: { href: '#/favorites' }, needs: 'items' },
+  { id: 'wish', group: 'gear', icon: 'gift', title: 'Wishlist', text: 'The wishlist shows which buy saves the most grams per franc. A wish also counts for the trouble it solves, such as staying dry. A wish can wait 30 days; then the app asks if you still need it.', button: 'Open wishlist', go: { href: '#/gear?tab=wishlist' }, needs: 'items' },
   { id: 'unused', group: 'gear', icon: 'archive', title: 'Long not used', text: 'See which items were on no trip for 12 months.', button: 'Look through', go: { href: '#/gear?unused=1' }, needs: ['items', 'trip'] },
   // Bikes
   { id: 'setup', group: 'bikes', icon: 'bike', title: 'Bike setup', text: 'The bike setup shows which bag sits where, with its weight.', button: 'Open setup', go: { href: '#/bikes' }, needs: 'bikes' },

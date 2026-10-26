@@ -4,7 +4,7 @@
    * iPhone, WebP from a web page, PNG …), get JPG or PNG to save or share. Everything on the device.
    */
   import { Images } from '@lucide/svelte';
-  import { TARGETS, isHeic, convertedName, convertImage } from './convert.js';
+  import { TARGETS, isHeic, freeNames, convertImage } from './convert.js';
   import { sizeText } from './pdftools.js';
   import { deliver } from './tools.js';
   import { t } from '../i18n.svelte.js';
@@ -18,7 +18,9 @@
     const files = [...(el.files ?? [])];
     el.value = '';
     const tg = TARGETS.find((x) => x.key === target) ?? TARGETS[0];
-    rows = files.map((f) => ({ name: f.name, size: f.size, heic: isHeic(f), state: 'wait', blob: null, out: convertedName(f.name, tg.key) }));
+    // Einzelidee 38: every new picture keeps its old name and never takes the name of an old file
+    const outs = freeNames(files.map((f) => f.name), tg.key, t('converted|file'));
+    rows = files.map((f, i) => ({ name: f.name, size: f.size, heic: isHeic(f), state: 'wait', blob: null, out: outs[i] }));
     for (let i = 0; i < files.length; i++) {
       rows[i].state = 'busy';
       try {
@@ -48,7 +50,7 @@
     <ul class="tool-list" aria-live="polite">
       {#each rows as r, i (i)}
         <li data-state={r.state}>
-          <span class="cv-m"><b>{r.out}</b><small class="tool-muted">{r.name} · {sizeText(r.size)}{r.blob ? ` → ${sizeText(r.blob.size)}` : ''}</small></span>
+          <span class="cv-m"><b>{r.out}</b><small class="tool-muted">{t('from {name}', { name: r.name })} · {sizeText(r.size)}{r.blob ? ` → ${sizeText(r.blob.size)}` : ''}</small></span>
           {#if r.state === 'done'}
             <button type="button" class="btn sm" onclick={() => deliver(r.blob, r.out)}>{t('Save')}</button>
           {:else if r.state === 'fail'}
@@ -61,6 +63,7 @@
     </ul>
     {#if ready.length > 1}<div><button type="button" class="btn" onclick={saveAll}>{t('Save all ({n})', { n: ready.length })}</button></div>{/if}
   {/if}
+  <p class="tool-help" data-convert-keep>{t('Your pictures stay as they are. Each new one keeps the old name and gets a name of its own, so nothing is overwritten.')}</p>
   <p class="tool-help">{t('HEIC photos from an iPhone need a small helper from the internet the first time; after that it works offline. The pictures never leave the device.')}</p>
 </section>
 

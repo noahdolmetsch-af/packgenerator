@@ -20,6 +20,7 @@
   import SearchFree from '../kisuche/SearchFree.svelte';
   import AskAnswer from '../assistent/AskAnswer.svelte';
   import { smartSearch } from '../kisuche/smart.js';
+  import { meaningsOf } from '../suche/meanings.js'; // Einzelidee 40: two meanings, the search asks
   import { findFeatures, FEATURE, FEATURES } from '../features.js';
   import { goFeature } from '../know/featureRun.js';
   import { helpAnswers, isQuestion } from '../clear/help.js';
@@ -55,6 +56,7 @@
   // «Kluge Suche» (14.10.2026): similar words, small typos and short filters on top of searchAll.
   const smart = $derived(q.trim().length >= 2 && $all ? smartSearch(q, $all) : { groups: [], also: [], fixed: null });
   const groups = $derived(smart.groups);
+  const meanings = $derived(meaningsOf(q, groups));
   const count = $derived(groups.reduce((n, g) => n + g.rows.length, 0));
   // v0.46.0 (Noah 14a): "What do you want to do?": actions by keyword above the results.
   const cmds = $derived($all ? commandActions(q, { bikes: sortBikes($all.bikes), more: ops.search }) : []);
@@ -364,6 +366,11 @@
           {#snippet children()}<SearchFree {q} data={$all} also={smart.also} fixed={smart.fixed} chrome={suche.chrome} links={suche.links} local={suche.local} inside={suche.links} />{/snippet}
         </AskElsewhere>
       {:else}<SearchFree {q} data={$all} also={smart.also} fixed={smart.fixed} chrome={suche.chrome} links={suche.links} local={suche.local} />{/if}
+      {#if meanings.length === 2}
+        <p class="mean" data-search-meanings><span>{t('Do you mean')}</span>
+          {#each meanings as m, i (m.kind)}{#if i}<span>{t('or|choice')}</span>{/if}<button type="button" class="btn sm" onclick={() => ((q = m.q), input?.focus())} data-meaning={m.kind}>{t(m.name)} · {m.n}</button>{/each}<span>?</span>
+        </p>
+      {/if}
       {#each groups as g (g.kind)}
         <p class="gh">{t(g.name)}{g.more ? ` · ${t('{n} more', { n: g.more })}` : ''}</p>
         <ul>
@@ -521,6 +528,15 @@
     box-shadow: none;
   }
   /* v0.101.0 Design-Refresh P2 (H8): small group heads, rows with a soft corner, «Do it now» tinted */
+  .mean {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    margin: 8px 8px 2px;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+  }
   .gh {
     margin: 10px 8px 4px;
     font: 600 var(--fs-tiny) var(--font-body);

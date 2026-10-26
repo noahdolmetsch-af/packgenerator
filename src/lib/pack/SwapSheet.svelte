@@ -12,6 +12,7 @@
   import { formatWeight, itemWeight } from '../gear.js';
   import { ZONES, LAYERS, tempRange } from '../wardrobe.js';
   import { swapChoices, zoneOf, layerOf, fitOf } from '../swap.js';
+  import { favWhy } from '../einzeln/material.js'; // Einzelidee 19: why a piece is a favourite shows when you swap it
   let { trip, item, items, memory = {}, range = null, rain = 'dry', wardrobeHref, places = [], onpick, ontakeoff, onmove, onclose } = $props();
 
   let el = $state();
@@ -64,7 +65,7 @@
   <h3 class="zh">{t('On the list now|swap')}</h3>
   <div class="card now">
     <span class="ic" aria-hidden="true"><Shirt size={18} /></span>
-    <span class="mid"><span class="nm">{nameOf(item)}</span><small class="num">{[range0(item) ? t('fits {range}', { range: range0(item) }) : '', !now.ok ? whyText(now.why) : '', placeOf].filter(Boolean).join(' · ')}</small></span>
+    <span class="mid"><span class="nm">{nameOf(item)}</span><small class="num">{[range0(item) ? t('fits {range}', { range: range0(item) }) : '', !now.ok ? whyText(now.why) : '', placeOf].filter(Boolean).join(' · ')}</small>{#if favWhy(item)}<small class="fav" data-swap-favwhy>★ {t('Favourite because: {why}', { why: favWhy(item) })}</small>{/if}</span>
     <span class="w num">{g(item)}</span>
   </div>
 
@@ -111,6 +112,7 @@
       <span class="mid">
         <span class="nm">{nameOf(r.item)}{#if best}<i class="pill ok best">{t('fits best')}</i>{:else if !r.fit.ok}<i class="pill warn best">{t('fits less')}</i>{/if}</span>
         <small class="num">{[range0(r.item) ? t('fits {range}', { range: range0(r.item) }) : '', !r.fit.ok ? whyText(r.fit.why) : r.mem ? `${memText(r.mem)}${r.mem.n > 1 ? ` · ${r.mem.n}×` : ''}` : ''].filter(Boolean).join(' · ')}</small>
+        {#if favWhy(r.item)}<small class="fav">★ {favWhy(r.item)}</small>{/if}
       </span>
       <span class="w num">{g(r.item)}</span>
       <span class="go" class:first aria-hidden="true">{t('Swap')}</span>
@@ -125,6 +127,7 @@
   .st h2 { margin: 0; font: 600 var(--fs-section) / 1.25 var(--font-body); overflow-wrap: break-word; }
   .facts { color: var(--ink-2); font-size: var(--fs-small); overflow-wrap: break-word; }
   .x { flex: none; display: grid; place-items: center; width: 44px; height: 44px; border: 0; border-radius: var(--r-ctl); background: var(--paper-2); color: var(--ink); cursor: pointer; }
+  .fav { display: block; color: var(--ink-2); font-size: var(--fs-small); overflow-wrap: break-word; }
   .zh { margin: 16px 0 8px; font: 600 var(--fs-sub) / 1.3 var(--font-body); }
   .zsub { margin: -6px 0 8px; color: var(--ink-2); font-size: var(--fs-small); }
   .now { display: flex; align-items: center; gap: 12px; padding-top: 12px; padding-bottom: 12px; }
