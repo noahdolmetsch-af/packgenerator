@@ -30,6 +30,7 @@ Stand: **26. Oktober 2026, 21:30 UTC**. Auf `main` steht **Version 0.212.0** (Sa
 |---|---|---|---|
 | #265 | 0.208.1–0.212.0 | Ganze Wörter, Gruppenfahrt für Events, Deine Liste in Sicht, Zwei Touren ein Blick, Touren die mitdenken, mit den Korrekturen für grünes `main` | zusammengeführt am 26.10.2026 abends |
 | #266 | – | Neue Regeln vom 26.10.2026 abends in CLAUDE.md; Browser-Tests im fertigen Playwright-Paket (bis 13 Minuten schneller pro Prüfung) | offen; Claude merged nach Noahs «ok» |
+| #268 | 0.212.1 | 0.212.1 «Die heutige Tour sagt eins» (UI-Test T1): vor der Fahrt kein «Letzter Abend», kein «Abgeschlossen» | offen; Claude merged nach Noahs Freigabe der Bilder |
 | #261 | – | Bibliotheken aktualisieren (lucide, dexie, vite; Dependabot) | offen, wird nach dem Nachziehen auf main geprüft |
 
 ### Wie ein Release heute online geht (seit 26.10.2026 abends)

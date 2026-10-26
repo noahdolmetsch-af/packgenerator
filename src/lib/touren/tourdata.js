@@ -11,10 +11,11 @@ import { homeTrips } from '../home/heute.js';
 import { tourRows, actRow, bikeMap } from './aktivitaeten.js';
 import { activitiesForTrip, ftpEstimate } from '../training.js';
 import { parseKey, rowWithOwn, groupOf, TOUR_GROUPS_KEY } from './tour.js';
+import { tripStateInfo } from '../tripstate.js';
 
 /**
  * → { missing } or { key, kind, id, row, acts, trip, fact, debrief, group, groups, rides, bikes, items, state, partOf }
- *   state: 'done' | 'rated'; partOf: { href, name } the bigger tour an activity is a part of, or null.
+ *   state: 'plan' | 'done' | 'rated' ('plan' only for a trip still ahead or under way); partOf: { href, name } the bigger tour an activity is a part of, or null.
  */
 export async function loadTour(db, key, { today, bounds = null } = {}) {
   const k = parseKey(key);
@@ -81,7 +82,10 @@ export async function loadTour(db, key, { today, bounds = null } = {}) {
   }
   const debrief = review.debriefs.find((d) => d.tripId === trip.id) ?? null;
   const st = fact ? states[fact.id]?.state : null;
-  return { ...base, row: { ...row, name: trip.own?.name || trip.title || row.name }, acts: list, trip, fact, debrief, rides: review.rides.filter((r) => r.tripId === trip.id), state: st === 'rated' ? 'rated' : 'done' };
+  const rides = review.rides.filter((r) => r.tripId === trip.id);
+  // UI-Test 26.10.2026 T1: a trip still ahead or under way is «Geplant» here too, not «Abgeschlossen»
+  const state = tripStateInfo(trip, { debrief, rides, today }).state === 'plan' ? 'plan' : st === 'rated' ? 'rated' : 'done';
+  return { ...base, row: { ...row, name: trip.own?.name || trip.title || row.name }, acts: list, trip, fact, debrief, rides, state };
 }
 
 /** Is this activity part of a joined tour? (for the page of one activity) */
