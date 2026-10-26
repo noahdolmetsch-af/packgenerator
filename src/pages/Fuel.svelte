@@ -27,7 +27,7 @@
   import { lineKm, snap } from '../lib/race/race.js';
   import { openAt } from '../lib/race/outside.js';
   import {
-    FUEL_KEY, LIMITS, ROUTE_KINDS, PLACE_KINDS, valuesOf, withValue, withStandardValues, fuelPlan, packOf, moveProduct, productId,
+    FUEL_KEY, LIMITS, ROUTE_KINDS, PLACE_KINDS, valuesOf, withValue, withStandardValues, fuelForTrip, tripOwnOf, tripDiff, fuelPlan, packOf, moveProduct, productId,
     climbAlong, hoursAlong, etaAlong, tempFromTrip, dayStartMs,
   } from '../lib/fuel.js';
   import PathHead from '../lib/ui/PathHead.svelte';
@@ -48,7 +48,6 @@
   const paceQ = liveQuery(() => db.settings.get(PACE_KEY));
   const trips = $derived(($tripsQ ?? []).filter((x) => !x.skipped));
   const setting = $derived($fuelQ?.value ?? null);
-  const v = $derived(valuesOf(setting));
   const pace = $derived(paceOf($paceQ?.value ?? null));
 
   const asked = new URLSearchParams(location.hash.split('?')[1] ?? '').get('trip');
@@ -56,6 +55,10 @@
   const choices = $derived(upcomingTrips(trips, today));
   const chosenId = $derived(tripId ?? nextTrip(trips, today)?.id ?? choices[0]?.id ?? '');
   const trip = $derived(trips.find((x) => x.id === chosenId) ?? null);
+  // Einzelidee 32: the trip's own numbers over your standard (only for this trip)
+  const tripOwn = $derived(tripOwnOf(trip));
+  const v = $derived(valuesOf(fuelForTrip(setting, trip)));
+  const diff = $derived(tripDiff(setting, trip));
 
   // the places along the route (fountains today; shops and opening hours come with the race search)
   // 1. the places of every kind kept along the route (live map search), 2. else the route card's fountains
@@ -109,8 +112,24 @@
   const setVal = (key, raw) => {
     const n = Number(String(raw).replace(',', '.'));
     if (key !== 'view' && !Number.isFinite(n)) return;
+    if (key !== 'view' && tripOwn && trip) return saveTripOwn(withValue(tripOwn, key, n));
     return save(withValue(setting, key, key === 'view' ? raw : n));
   };
+  const OWN_NAME = { carbsGh: 'Carbohydrates per hour (g)', coolLh: 'Water per hour when cool (l)', hotLh: 'Water per hour when hot (l)', coolC: 'Cool up to (°C)', hotC: 'Hot from (°C)', bottles: 'Bottles', bottleL: 'Litres per bottle', stopH: 'A stop about every (h)', startHour: 'Start time (hour)' };
+  async function saveTripOwn(own) {
+    problem = '';
+    try {
+      await db.trips.update(trip.id, { fuelOwn: own == null ? undefined : $state.snapshot(own) });
+    } catch (err) {
+      problem = saveFailed(err);
+    }
+  }
+  async function setTripOwn(on) {
+    if (!trip) return;
+    const before = tripOwn;
+    await saveTripOwn(on ? (before ?? {}) : null);
+    if (!on && before && Object.keys(before).length) offerDone(t('This trip uses your standard numbers again.'), () => saveTripOwn(before));
+  }
   async function resetValues() {
     const before = setting;
     await save(withStandardValues(setting));
@@ -204,6 +223,19 @@
   </section>
 
   {#if trip}
+    <!-- Einzelidee 32 «Ausnahme für eine Reise»: own numbers that count only for this trip -->
+    <section class="box tripown" aria-labelledby="fu-tripown" data-fuel-tripown>
+      <label class="tosw">
+        <input type="checkbox" role="switch" checked={!!tripOwn} onchange={(e) => setTripOwn(e.currentTarget.checked)} data-fuel-tripown-switch />
+        <span><b id="fu-tripown">{t('Own numbers only for this trip')}</b>
+          <small>{tripOwn ? t('On: what you change under «Your values» counts only for «{name}». Your standard stays as it is.', { name: trip.title || t('Trip') }) : t('Off: «Your values» below are your standard for every trip.')}</small></span>
+      </label>
+      {#if diff.length}
+        <ul class="tod">
+          {#each diff as d (d.key)}<li>{t(OWN_NAME[d.key])}: <b class="num">{num(d.own)}</b> <small>{t('(standard {n})', { n: num(d.std) })}</small></li>{/each}
+        </ul>
+      {/if}
+    </section>
     <section class="box res" aria-labelledby="fu-sum" data-fuel-result>
       <h2 id="fu-sum" class="title">{t('What you need')}</h2>
       <Seg label={t('Show as')} value={v.view} options={[{ key: 'grams', name: t('Grams and litres') }, { key: 'products', name: t('My products') }]} onchange={(k) => setVal('view', k)} />
@@ -300,7 +332,8 @@
         <label class="fld"><span>{t('Start time (hour)')}</span><input class="num" type="number" min="0" max="23" step="0.5" inputmode="decimal" value={v.startHour} onchange={(e) => setVal('startHour', e.currentTarget.value)} /></label>
       </div>
     </Fold>
-    {#if setting && Object.keys(setting).some((k) => k in LIMITS)}<button type="button" class="text-button" onclick={resetValues}>{t('Back to the standard values')}</button>{/if}
+    {#if tripOwn}<p class="note" data-fuel-own-note>{t('You are changing the numbers of «{name}» only.', { name: trip.title || t('Trip') })}</p>
+    {:else if setting && Object.keys(setting).some((k) => k in LIMITS)}<button type="button" class="text-button" onclick={resetValues}>{t('Back to the standard values')}</button>{/if}
   </section>
 
   <section class="box" aria-labelledby="fu-prod">
@@ -331,6 +364,26 @@
 </div>
 
 <style>
+  .tosw {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    cursor: pointer;
+  }
+  .tosw input {
+    margin-top: 3px;
+  }
+  .tosw small {
+    display: block;
+    color: var(--ink-3);
+  }
+  .tod {
+    margin: 0;
+    padding-left: 18px;
+  }
+  .tod small {
+    color: var(--ink-3);
+  }
   .fuel {
     display: grid;
     grid-template-columns: minmax(0, 1fr);

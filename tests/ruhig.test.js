@@ -229,15 +229,15 @@ describe('Assistant with sources', () => {
 });
 
 describe('the page and its catalogue', () => {
-  it('nine sub-pages with their hash', () => {
-    expect(SUBS.length).toBe(9);
+  it('ten sub-pages with their hash', () => {
+    expect(SUBS.length).toBe(10); // Einzelidee 33 «Hidden and switched off» (Noah 26.10.2026 «4a»)
     expect(subKeyOf('#/me/ruhig/versuche?open=exp')).toBe('versuche');
     expect(subKeyOf('#/me/ruhig/nope')).toBe('');
     expect(subHash('teilen')).toBe('#/me/ruhig/teilen');
   });
   it('every function of the package lives on its sub-page and speaks German', () => {
     const mine = FEATURES.filter((f) => String(f.href ?? '').startsWith('#/me/ruhig/'));
-    expect(mine.length).toBe(28);
+    expect(mine.length).toBe(29); // + f.hiddenall (Einzelidee 33)
     for (const f of mine) {
       expect(HOME[f.id], f.id).toBe(f.href.split('?')[0]);
       expect(SUBS.some((s) => subHash(s.key) === HOME[f.id]), f.id).toBe(true);

@@ -1690,4 +1690,12 @@ export default {
   'Switch on the reminders you want; what you tick off on another device no longer comes.': 'Schalte die Erinnerungen ein, die du willst; was du auf einem anderen Gerät abhakst, kommt nicht mehr.',
   'Clicked a place often with the mouse? A small tip shows its shortcut once; «No more shortcut tips» stops them.': 'Einen Ort oft mit der Maus angeklickt? Ein kleiner Tipp zeigt einmal sein Kürzel; «Keine Kürzel-Tipps mehr» stellt sie ab.',
   'A kind (ideas to buy, performance tips, ideas for free time, fitting tools) goes off on every page at once.': 'Eine Art (Kaufideen, Leistungstipps, Ideen für freie Zeit, passende Werkzeuge) geht auf allen Seiten auf einmal aus.',
+  // Einzelideen Ich 27 und 33 (Noah 26.10.2026)
+  'Everything works without the internet; «Last results» brings back what a tool made.': 'Alles geht ohne Internet; «Letzte Ergebnisse» holt zurück, was ein Werkzeug gemacht hat.',
+  'Open Me › Calm and personal › Hidden and switched off.': 'Öffne Ich › Ruhig und persönlich › Ausgeblendet und aus.',
+  'Each area lists what you hid, with what stays behind it.': 'Jeder Bereich zeigt, was du ausgeblendet hast, und was dahinter bleibt.',
+  '«Show again» brings it back, with Undo.': '«Wieder zeigen» holt es zurück, mit Rückgängig.',
+  'Example: a hidden tab «Races» → «Show again» → it is back in the bar.': 'Beispiel: ein ausgeblendeter Reiter «Rennen» → «Wieder zeigen» → er ist wieder in der Leiste.',
+  'Find what you hid, sorted by area.': 'Finde, was du ausgeblendet hast, nach Bereich.',
+  'Tap «Show again»; Undo is there for a moment.': 'Tippe «Wieder zeigen»; Rückgängig gibt es einen Moment lang.',
 };

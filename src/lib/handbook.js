@@ -1243,7 +1243,7 @@ export const HANDBOOK = {
   },
   'f.tools': {
     on: null,
-    steps: ['Open Me › Toolbox, or the Toolbox tile on Today.', 'Choose a tool; «Fits right now» shows the ones for your next trip.', 'Everything works without the internet.'],
+    steps: ['Open Me › Toolbox, or the Toolbox tile on Today.', 'Choose a tool; «Fits right now» shows the ones for your next trip.', 'Everything works without the internet; «Last results» brings back what a tool made.'],
     example: 'Example: 3.2 bar → 46.4 psi for the tyre pump abroad.',
   },
   'f.pdftools': {
@@ -1750,7 +1750,13 @@ export const HANDBOOK = {
     on: null,
     steps: ['Open Toolbox › Box labels and add a box with its place.', 'Type what goes in: your gear or anything else.', '«Print label», stick it on; scanning the code opens the box in the app.'],
     example: 'Example: «Winter box, cellar» with headlamp, gloves and the Christmas lights.',
-  },  'f.workspace': {
+  },
+  'f.hiddenall': {
+    on: null,
+    steps: ['Open Me › Calm and personal › Hidden and switched off.', 'Each area lists what you hid, with what stays behind it.', '«Show again» brings it back, with Undo.'],
+    example: 'Example: a hidden tab «Races» → «Show again» → it is back in the bar.',
+  },
+  'f.workspace': {
     on: null,
     steps: ['Open Me › Calm and personal › Less app for the moment.', 'Choose up to 8 functions for your plan.', '«Start the workspace»; the strip stays until you end it.'],
     example: 'Example: «Workshop Saturday» with bike inspection, spare parts and workshop due.',
