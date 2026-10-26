@@ -17,7 +17,9 @@
   import { zoneSecs, ZONE_NAMES } from '../lib/training.js';
   import { t, tn, num, locale } from '../lib/i18n.svelte.js';
   import { rideTime } from '../lib/review/fmt.js';
-  import { analyseRide, tripsOn, tripFromRide, plannedFor, compareRide, rideLearnings, learningFrom, addToPace, dropFromPace, speedOf, hm, PAUSE_MIN, RIDE_MAX_MB, SHARE_CACHE, SHARE_KEY } from '../lib/gpx.js';
+  import SplitCard from '../lib/tourenc/SplitCard.svelte'; // Touren c 66
+  import { offerDone } from '../lib/ui/rename.svelte.js';
+  import { analyseRide, timedPoints, tripsOn, tripFromRide, plannedFor, compareRide, rideLearnings, learningFrom, addToPace, dropFromPace, speedOf, hm, PAUSE_MIN, RIDE_MAX_MB, SHARE_CACHE, SHARE_KEY } from '../lib/gpx.js';
   import { PACE_KEY, PACE_MIN, paceOf, startKey } from '../lib/pace.js';
   import { markSaved, savedNote, seenCard } from '../lib/ridejourney.js';
   import { sharedKind } from '../lib/komoot.js';
@@ -118,6 +120,7 @@
 
   /* ---------- upload: read the file, show it, save it ---------- */
   let draft = $state(null);
+  let draftPts = $state.raw([]); // Touren c 66: the timed points of the file, for «Aufnahme aufteilen»
   let msg = $state('');
   let busy = $state(false);
   // the chosen place; until a tap: the trip of that day when there is one (the trips may load after the file)
@@ -149,6 +152,7 @@
     batch = null;
     try {
       draft = analyseRide(text, name);
+      draftPts = timedPoints(text);
       picked = null;
     } catch (e) {
       draft = null;
@@ -312,6 +316,67 @@
     draft = null;
     msg = '';
     if (shared) location.hash = '#/debrief/ride';
+  }
+
+  /**
+   * Touren c 66 «Eine Datei, mehrere Erlebnisse»: the parts of the file as rides of their own. A stage goes to the
+   * trip chosen under «Save to» (or a new past trip); an own activity is saved on its own with its sport (only
+   * a bike part counts for the pace). Undo takes them all back.
+   */
+  async function saveParts(parts) {
+    if (!draft || busy || !parts.length) return;
+    busy = true;
+    try {
+      const now = new Date().toISOString();
+      const trip = to.startsWith('trip:') ? trips.find((x) => x.id === to.slice(5)) ?? null : null;
+      const made = to === 'new' && parts.some((p) => p.as === 'stage') ? tripFromRide(parts.find((p) => p.as === 'stage').ride, sortBikes($bikesQ ?? [])[0] ?? null) : null;
+      if (made) {
+        // a new past trip spans the days of its stages
+        const days = parts.filter((p) => p.as === 'stage').map((p) => p.ride.date).sort();
+        made.days = Math.max(1, Math.round((Date.parse(`${days.at(-1)}T12:00:00Z`) - Date.parse(`${days[0]}T12:00:00Z`)) / 864e5) + 1);
+        made.finished = days.at(-1);
+      }
+      const target = trip ?? made;
+      let setting = $state.snapshot(paceSetting);
+      const records = parts.map(({ ride, as, sport }) => {
+        const stage = as === 'stage' && target;
+        const bike = stage || sport === 'bike';
+        return {
+          ...ride,
+          tripId: stage ? target.id : null,
+          plan: stage && trip ? plannedFor(trip, ride.date, pace) : null,
+          basis: { kmh: pace.kmh, climbMh: pace.climbMh },
+          answers: {},
+          pace: usePace && bike,
+          ...(stage ? {} : { sport }),
+          createdAt: now,
+        };
+      });
+      for (const r of records) if (r.pace) setting = addToPace(setting, r, now);
+      const oldPace = $state.snapshot(paceSetting);
+      await db.transaction('rw', [db.rides, db.trips, db.settings], async () => {
+        await db.rides.bulkPut(records);
+        if (made) await db.trips.add(made);
+        if (records.some((r) => r.pace)) await db.settings.put({ key: PACE_KEY, value: setting });
+      });
+      const stages = records.filter((r) => r.tripId);
+      if (trip?.bikeId && stages.length) await kmToTrip(trip, stages);
+      await dropShared();
+      markSaved(records.map((r) => r.id), { first: rides.length === 0 });
+      draft = null;
+      draftPts = [];
+      offerDone(tn(records.length, '{n} part saved.', '{n} parts saved.'), () =>
+        db.transaction('rw', [db.rides, db.trips, db.settings], async () => {
+          await db.rides.bulkDelete(records.map((r) => r.id));
+          if (made) await db.trips.delete(made.id);
+          if (records.some((r) => r.pace)) await db.settings.put({ key: PACE_KEY, value: oldPace });
+        }),
+      );
+    } catch {
+      msg = t('Could not save. Please try again.');
+    } finally {
+      busy = false;
+    }
   }
 
   async function save() {
@@ -692,6 +757,7 @@
             <div class="rv-h"><div><h2 id="pv-h">{draft.name}</h2><p class="rv-sub">{day(draft.date)}</p></div></div>
             <div class="rv-box">
               {@render stats(draft)}
+              {#if !dup}<SplitCard pts={draftPts} name={draft.name} file={draft.file} stageOk={to !== 'ride'} {busy} onsplit={saveParts} />{/if}
             </div>
             {#if dup}
               <p class="rv-box pad dupmsg" role="status">{t('You uploaded «{name}» of {day} already. It counts only once.', { name: dup.name, day: day(dup.date) })} <a href={`#/debrief/ride/${encodeURIComponent(dup.id)}`}>{t('Open it')}</a></p>

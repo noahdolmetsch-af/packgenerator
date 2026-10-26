@@ -191,10 +191,24 @@ export function findPauses(pts, minMin = PAUSE_MIN, radiusKm = STOP_RADIUS_KM) {
  *   each with km, metres up and hours, for "Climbing slower than assumed".
  */
 export function analyseRide(text, file = '') {
-  const all = ridePoints(text)
+  const all = timedPoints(text);
+  if (all.length < 2) throw new Error(t('This file has no times. Upload a recorded ride, not a planned route.'));
+  const name =
+    text.match(/<(?:trk|metadata)>[\s\S]*?<name>\s*(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?\s*<\/name>/i)?.[1]?.trim() ||
+    file.replace(/\.(gpx|tcx)$/i, '') ||
+    t('Ride|dayride');
+  return analysePoints(all, decode(name), file);
+}
+
+/** The points of a ride file that have a time, oldest first (Touren c 66 splits these). */
+export const timedPoints = (text) =>
+  ridePoints(text)
     .filter((p) => p.t != null)
     .sort((a, b) => a.t - b.t);
-  if (all.length < 2) throw new Error(t('This file has no times. Upload a recorded ride, not a planned route.'));
+
+/** analyseRide on points already read (sorted, with times): the numbers to store. name: the shown name. */
+export function analysePoints(all, name, file = '') {
+  if (all.length < 2) throw new Error(t('This ride is too short to read.'));
   let pauses = findPauses(all);
   let s = 0;
   let e = all.length - 1;
@@ -218,13 +232,9 @@ export function analyseRide(text, file = '') {
   const totalMs = pts.at(-1).t - pts[0].t;
   const pauseMs = pauses.reduce((sum, p) => sum + p.ms, 0);
   const startAt = new Date(pts[0].t).toISOString();
-  const name =
-    text.match(/<(?:trk|metadata)>[\s\S]*?<name>\s*(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?\s*<\/name>/i)?.[1]?.trim() ||
-    file.replace(/\.(gpx|tcx)$/i, '') ||
-    t('Ride|dayride');
   return {
     id: `ride-${startAt.slice(0, 16)}-${Math.round(km)}`,
-    name: decode(name),
+    name,
     file,
     date: localDate(pts[0].t),
     startAt,

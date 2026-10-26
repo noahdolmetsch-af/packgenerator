@@ -3,9 +3,13 @@
 //   65 «Schlecht erreichbar»: the debrief tells «not needed» from «hard to reach»; «Fertig» suggests a learning.
 //   67 «Alte Reise ohne GPS»: Vergangene Touren › «Alte Reise nachtragen», a finished trip without numbers.
 //   70 «Gefühl vor den Zahlen»: the debrief asks how hard it was first.
+//   66 «Eine Datei, mehrere Erlebnisse»: an uploaded ride is cut at the long pause into two own activities.
+//   68 «Rückblick als Sprachnachricht»: the told text becomes key points (without Gemini: sentence by sentence).
 // Fictional data only (test_data_gtp_), the clock on Friday 9 October 2026 (home0460-fixture.js).
 import { test, expect } from '@playwright/test';
+import { writeFileSync } from 'node:fs';
 import { openHome, homeFixture, tr, trip, day } from './home0460-fixture.js';
+import { makeGpx } from '../test_data_gtp_gpx.js';
 
 const T = tr('de');
 const PNG = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=', 'base64');
@@ -108,5 +112,48 @@ test('67 Past trips: an old trip from memory, without numbers', async ({ page, c
   await page.goto(`./#/debrief/${made.id}`);
   await expect(page.locator('[data-memory-line]')).toContainText(T('From memory, without GPS: no numbers made up'));
   await expect(page.locator('[data-memory-line]')).toContainText('test_data_gtp_ Regen am zweiten Tag');
+  expect(errors).toEqual([]);
+});
+
+test('66 Upload: one recording cut at the long pause into two parts', async ({ page, context }, info) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await openHome(page, context, info, { data: data(), hour: 9 });
+  const file = info.outputPath('test_data_gtp_zwei.gpx');
+  writeFileSync(file, makeGpx({ name: 'test_data_gtp_ Zwei Erlebnisse', start: `${day(-12)}T07:00:00Z`, step: 30, legs: [{ km: 20, kmh: 20, gainM: 200 }, { stopMin: 60 }, { km: 3, kmh: 4 }, { km: 10, kmh: 20 }] }));
+  await page.goto('./#/debrief/ride');
+  await page.locator('main .pickbtn input[type=file]').setInputFiles(file);
+  const split = page.locator('[data-split]');
+  await expect(split).toBeVisible();
+  await tap(split.locator('summary'), info);
+  await expect(split.locator('[data-split-sugg="0"]')).toHaveAttribute('aria-pressed', 'true');
+  await expect(split.locator('[data-split-part]')).toHaveCount(2);
+  expect(await noSideways(page)).toBe(0);
+  await tap(split.locator('[data-split-go]'), info);
+  await expect.poll(async () => (await getAll(page, 'rides')).filter((r) => r.name?.startsWith('test_data_gtp_ Zwei Erlebnisse ·')).length).toBe(2);
+  const rides = (await getAll(page, 'rides')).filter((r) => r.name?.startsWith('test_data_gtp_ Zwei Erlebnisse ·'));
+  expect(rides.every((r) => r.sport && r.tripId == null)).toBe(true);
+  expect(errors).toEqual([]);
+});
+
+test('68 Debrief: told text becomes key points, taken over where they belong', async ({ page, context }, info) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await openHome(page, context, info, { data: data(), hour: 9 });
+  await page.goto(`./#/debrief/${PAST}`);
+  const vd = page.locator('[data-voice-debrief]');
+  await tap(vd.locator('summary'), info);
+  await vd.locator('[data-voice-text]').fill('Nächstes Mal nehme ich weniger Riegel mit. Die Kette quietscht seit dem Regen. Schöner Abend am See.');
+  await expect(vd.locator('[data-voice-keep]')).not.toBeChecked();
+  await tap(vd.locator('[data-voice-sort]'), info);
+  await expect(vd.locator('[data-voice-point]')).toHaveCount(3);
+  await tap(vd.locator('[data-voice-point="2"] [data-voice-no]'), info);
+  await tap(vd.locator('[data-voice-take]'), info);
+  await expect(vd.locator('[data-voice-point]')).toHaveCount(0);
+  await expect.poll(async () => (await getAll(page, 'learnings')).filter((l) => l.from === 'voice').length).toBe(1);
+  const notes = (await getAll(page, 'notes')).filter((n) => String(n.id).startsWith('note-v'));
+  expect(notes).toHaveLength(1);
+  expect(notes[0].status).toBe('open');
+  expect(await noSideways(page)).toBe(0);
   expect(errors).toEqual([]);
 });

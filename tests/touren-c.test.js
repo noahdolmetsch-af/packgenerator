@@ -5,6 +5,8 @@ import { WHYS, isWhy, whyOf, setWhy, addBreak, whyTotals, forgotStep, FORGOT_S }
 import { memoryTrip, memoryError, lastDay } from '../src/lib/tourenc/memorytrip.js';
 import { suggestions, applyDebrief, newDebrief } from '../src/lib/debrief.js';
 import { tripFacts } from '../src/lib/review/rueckblick.js';
+import { suggestCuts, partsOf, cutsOf, splitRide, timeAtKm, sportGuess } from '../src/lib/tourenc/split.js';
+import { parseLines, localPoints, withItems, applyPoints, itemIn } from '../src/lib/tourenc/voicepoints.js';
 import de from '../src/lib/i18n/de/tourenc.js';
 import DE from '../src/lib/i18n/de/index.js';
 
@@ -112,6 +114,100 @@ describe('67 Alte Reise ohne GPS', () => {
     expect(rows[0].movingH).toBe(null);
     expect(rows[0].href).toBe(`#/debrief/${trip.id}`);
     expect(memoryTrip({ title: 'x', startDate: '2019-06-01' }, T0).note).toBe(null);
+  });
+});
+
+// a ride going north, a point a minute: 60 min riding (~20 km/h), a night stop of 2 h, 40 min walking (~4 km/h), 30 min riding
+function ridePts() {
+  const out = [];
+  let t = T0;
+  let lat = 46.9;
+  const push = (n, dLat) => {
+    for (let i = 0; i < n; i++) {
+      lat += dLat;
+      t += 6e4;
+      out.push({ lat, lon: 7.4, t, ele: 500 + out.length });
+    }
+  };
+  push(60, 0.003); // ~0.33 km per minute
+  t += 120 * 6e4; // the pause: the watch saves nothing for 2 h
+  push(40, 0.0006); // ~0.067 km per minute = 4 km/h
+  push(30, 0.003);
+  return out;
+}
+
+describe('66 Eine Datei, mehrere Erlebnisse', () => {
+  it('suggests the long pause and the slow stretch', () => {
+    const s = suggestCuts(ridePts());
+    expect(s.map((x) => x.kind)).toEqual(['pause', 'slow']);
+    expect(s[0].min).toBeGreaterThanOrEqual(120);
+    expect(s[1].min).toBeGreaterThanOrEqual(30);
+  });
+
+  it('cuts into parts; the pause is in none of them', () => {
+    const pts = ridePts();
+    const s = suggestCuts(pts);
+    const parts = partsOf(pts, cutsOf(s, new Set([0, 1])));
+    expect(parts).toHaveLength(3);
+    const rides = splitRide(pts, cutsOf(s, new Set([0, 1])), 'test_data_gtp_ Jura', 'test.gpx');
+    expect(rides.map((r) => r.name)).toEqual(['test_data_gtp_ Jura · 1', 'test_data_gtp_ Jura · 2', 'test_data_gtp_ Jura · 3']);
+    expect(new Set(rides.map((r) => r.id)).size).toBe(3);
+    expect(rides.every((r) => r.totalH < 2)).toBe(true);
+    expect(sportGuess(rides[0])).toBe('bike');
+    expect(sportGuess(rides[1])).toBe('hike');
+    // only the pause chosen: two parts
+    expect(splitRide(pts, cutsOf(s, new Set([0])), 'x')).toHaveLength(2);
+    // an own cut by km
+    const at = timeAtKm(pts, 5);
+    expect(splitRide(pts, cutsOf(s, new Set(), [at]), 'x')).toHaveLength(2);
+    expect(splitRide(pts, [], 'x')).toHaveLength(1);
+  });
+});
+
+describe('68 Rückblick als Sprachnachricht', () => {
+  const items = [
+    { id: 'i1', name: 'test_data_gtp_ Kocher' },
+    { id: 'i2', name: 'test_data_gtp_ Regenjacke' },
+    { id: 'i3', name: 'test_data_gtp_ Ruecklicht' },
+  ];
+  const trip = { id: 'trip-v', title: 'test_data_gtp_ Jura', bikeId: 'bike-1', entries: [{ itemId: 'i1' }, { itemId: 'i2' }] };
+
+  it('reads the lines of Gemini', () => {
+    const p = parseLines('GELERNT: Die test_data_gtp_ Regenjacke war zu warm.\n- NICHTGEBRAUCHT: Den test_data_gtp_ Kocher nie gebraucht.\nFEHLTE: test_data_gtp_ Ruecklicht\nirgendwas anderes hier\nVELO: Kette ölen');
+    expect(p.map((x) => x.kind)).toEqual(['learn', 'unused', 'missing', 'note', 'bike']);
+  });
+
+  it('without Gemini: sentence by sentence with a guessed kind', () => {
+    const p = localPoints('Die Regenjacke war zu warm. Den Kocher habe ich nie gebraucht. Mir hat ein Rücklicht gefehlt! Die Kette quietscht. Schöner Tag am See.');
+    expect(p.map((x) => x.kind)).toEqual(['learn', 'unused', 'missing', 'bike', 'note']);
+  });
+
+  it('finds the items; not needed only for an item on the trip', () => {
+    expect(itemIn('den test_data_gtp_ kocher nie', items).id).toBe('i1');
+    const w = withItems([{ text: 'test_data_gtp_ Kocher nie gebraucht', kind: 'unused' }, { text: 'test_data_gtp_ Ruecklicht nie gebraucht', kind: 'unused' }, { text: 'test_data_gtp_ Ruecklicht fehlte', kind: 'missing' }], trip, items);
+    expect(w.map((x) => [x.kind, x.itemId])).toEqual([['unused', 'i1'], ['note', null], ['missing', 'i3']]);
+  });
+
+  it('puts the kept points where you would tap them', () => {
+    const pts = withItems(
+      [
+        { text: 'test_data_gtp_ Kocher nie gebraucht', kind: 'unused' },
+        { text: 'test_data_gtp_ Ruecklicht fehlte', kind: 'missing' },
+        { text: 'Die test_data_gtp_ Regenjacke war zu warm', kind: 'learn' },
+        { text: 'Kette ölen', kind: 'bike' },
+        { text: 'Schöner Tag', kind: 'note' },
+        { text: 'weglassen', kind: 'note' },
+      ],
+      trip,
+      items,
+    );
+    pts[5].keep = false;
+    const out = applyPoints(pts, { trip, learnings: [{ id: 4 }], now: '2026-07-04T10:00:00.000Z', stamp: 1 });
+    expect(out.items).toEqual({ i1: 'unused' });
+    expect(out.missing).toEqual([{ id: 'm11', name: 'test_data_gtp_ Ruecklicht', itemId: 'i3' }]);
+    expect(out.learnings).toHaveLength(1);
+    expect(out.learnings[0]).toMatchObject({ id: 5, itemIds: ['i2'], tripId: 'trip-v', from: 'voice' });
+    expect(out.notes.map((n) => [n.status, n.bikeId ?? null])).toEqual([['open', 'bike-1'], ['kept', null]]);
   });
 });
 

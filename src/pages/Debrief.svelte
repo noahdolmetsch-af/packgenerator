@@ -53,6 +53,7 @@
   import DebriefPlanNotes from '../lib/debrief/DebriefPlanNotes.svelte';
   import FeelScale from '../lib/tourenc/FeelScale.svelte'; // Touren c 70
   import ReachChips from '../lib/tourenc/ReachChips.svelte'; // Touren c 65
+  import VoiceDebrief from '../lib/tourenc/VoiceDebrief.svelte'; // Touren c 68
   import LearnCard from '../lib/tourlernen/LearnCard.svelte'; // Paket Z
   import DebriefLernen from '../lib/lernen/DebriefLernen.svelte'; // Paket M «Aus Touren lernen»
   import TodoButton from '../lib/lernen/TodoButton.svelte';
@@ -637,6 +638,8 @@
             <div class="rv-h"><div><h2 id="dfeel-h">{t('How hard was it?')}</h2><p class="rv-sub">{t('First your feeling; the numbers come after «Done».')}</p></div></div>
             <div class="rv-box pad"><FeelScale value={d.feel ?? null} onpick={(n) => set('feel', n)} /></div>
           </section>
+          <!-- Touren c 68 «Rückblick als Sprachnachricht» -->
+          <VoiceDebrief {trip} {d} {items} {persist} />
           <!-- Planungs-Notizen (IS 246–249): «Hat es geholfen?» -->
           <DebriefPlanNotes {trip} />
           {#if freeNotes.length}
