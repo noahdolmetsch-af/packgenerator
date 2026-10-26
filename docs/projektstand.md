@@ -25,17 +25,17 @@ Stand: **26. Oktober 2026, 00:30 UTC** (nachgetragen nach Noahs Auftrag vom 25.1
 
 | PR | Version (vorläufig) | Inhalt | Stand |
 |---|---|---|---|
-| #253 | 0.196.0 | «Flicken, ausprobieren, abmachen»: letzte Einzelideen aus Paket A (996 Ideen) | Auto-Merge an; Nummer muss über 0.198.0 |
+| #253 | 0.196.0 | «Flicken, ausprobieren, abmachen»: letzte Einzelideen aus Paket A (996 Ideen) | offen; Nummer muss über 0.198.0; Noah mergt selbst |
 | #253 | 0.197.0 | «Zusammen auf einer Karte»: Gruppen-Live-Karte (Noah 25.10. «b»: Einladungslink, Teilen nur auf Wunsch, endet nach 24 Stunden, 0 Kosten) und «Velos sichtbar» | wie oben; ändert `api/`, danach den Server «packgen» prüfen |
 | #251 | – | Bibliotheken aktualisieren (Playwright 1.64, pdfjs 6, maplibre 6.15) mit Anpassung | offen, Prüfungen seit Tagen rot |
 
-### Wie ein Release heute online geht (seit 24.10.2026)
+### Wie ein Release heute online geht (seit 26.10.2026)
 
 1. Noah stellt Fragen nur am Anfang eines Vorhabens (höchstens 5, a/b). Danach arbeiten die Threads selbständig und kommen mit Lösungsvorschlägen statt mit Fragen zurück (Noah 24.10.2026, 18:49 UTC).
 2. Ein Bau-Thread liefert Zweig und letzten Commit an den Koordinator.
-3. Der Bündler-Thread «Mein Überblick» fasst möglichst viel in **wenige Pakete** zusammen, bringt den Zweig auf den Stand von `main`, vergibt die Versionen, prüft nach der Bündel-Checkliste (eigene Tests, Heute-Länge, Wächter, alte Wörter in den Tests) und öffnet den PR **mit Auto-Merge**.
-4. Noah bekommt einen Testlink (Vercel-Vorschau, eigener Speicher, Backup laden) mit kurzer Anleitung. Ein «ok» ist **nicht mehr nötig** (Noah 24.10.2026: «freigabe für alle», dann «alles ohne meine freigabe online bringen»).
-5. Sind die Prüfungen grün, führt GitHub den PR selbst zusammen; GitHub Pages veröffentlicht. Hat der PR `api/` geändert, prüft der Bündler, dass der Server «packgen» auf Vercel bereit ist. Danach sagt der Koordinator Noah in einer Zeile «Online: …».
+3. Der Bündler-Thread «Mein Überblick» fasst möglichst viel in **wenige Pakete** zusammen, bringt den Zweig auf den Stand von `main`, vergibt die Versionen, prüft nach der Bündel-Checkliste (eigene Tests, Heute-Länge, Wächter, alte Wörter in den Tests) und öffnet den PR **ohne Auto-Merge**.
+4. Sind die Prüfungen grün, bekommt Noah den fertigen PR und einen Testlink (Vercel-Vorschau, eigener Speicher, Backup laden) mit kurzer Anleitung.
+5. **Noah führt den PR auf GitHub selbst zusammen** (Noah 26.10.2026, 00:15 UTC: «ich möchte ab sofort alle PR selber mergen»; ersetzt den Auto-Merge vom 24.10.2026). Danach veröffentlicht GitHub Pages. Hat der PR `api/` geändert, prüft der Bündler, dass der Server «packgen» auf Vercel bereit ist. Danach sagt der Koordinator Noah in einer Zeile «Online: …».
 6. «zurück» von Noah heisst: das Paket sofort rückgängig machen.
 
 ### Entscheidungen seit dem 22.10.2026 (kurz)
@@ -49,6 +49,7 @@ Stand: **26. Oktober 2026, 00:30 UTC** (nachgetragen nach Noahs Auftrag vom 25.1
 - **25.10.:** Von den 76 übrigen Einzelideen aus A und B baut Claude **63**; 13 sind geparkt (Ideenliste 1153 bis 1165, Abschnitt «Für später geparkt» in [vorhaben-liste.md](vorhaben-liste.md)). Reihenfolge: Material → Planen → Heute → Ich/Überall → Touren → Velos (Velos zuletzt).
 - **25.10.:** Gruppen-Live-Karte bauen (Noah «b»), siehe PR #253.
 - **25.10.:** Kette und Velo-Service vorausschauend (Noah «2 und 3»), live mit 0.198.0.
+- **26.10., 00:15 UTC:** **Noah mergt alle PRs selbst.** Claude liefert immer den fertigen PR und einen Testlink, kein Auto-Merge mehr.
 - **Gestrichen:** App verkaufen (Seiten nur aus Ich entfernt), Cloudflare, Google-Maps-Kacheln, Sturzerkennung. **Pausiert:** «Frontend aufpeppen».
 
 Einzelheiten zu jeder Entscheidung stehen im [Entscheidungslog](decisions.md).
@@ -155,8 +156,8 @@ Damals (19.10.2026) galt: keine Testlinks; Ein Paket geht online, sobald die Tes
 | 78 | Zusammen mit Freunden (996 Ideen, Paket D Teil 1) | 0.194.0 | Ich › Mit Freunden: Freunde fragen, Leihregal, Vorlage teilen; ohne Konto, als Link oder Datei | live |
 | 79 | Kleine Helfer für Tour und Velo (996 Ideen, Paket B, Einzelideen) | 0.195.0 | Velo abgestellt mit Schlüssel und abgenommenen Teilen, «Melden bis» pro Nacht, Hotelanfragen im Rennmodus, Reise-Links «Optionen vergleichen», Vorgeschmack einer Traumtour, Garantiefall-Entwurf | live |
 | 80 | Einkaufsliste am Stück (Korrektur) | 0.195.1 | Am Computer brachen Namen in der Einkaufsliste Buchstabe für Buchstabe um, seit «30 Tage warten» (0.192.0); jetzt rutschen die Knöpfe bei wenig Platz unter den Namen | live |
-| 81 | Flicken, ausprobieren, abmachen (996 Ideen, Paket A, letzte Einzelideen) | 0.196.0 (vorläufig) | siehe PR #253 | PR #253, Auto-Merge |
-| 82 | Zusammen auf einer Karte (Gruppen-Live-Karte) + Velos sichtbar | 0.197.0 (vorläufig) | Einladungslink, Teilen nur auf Wunsch, endet nach 24 Stunden | PR #253, Auto-Merge |
+| 81 | Flicken, ausprobieren, abmachen (996 Ideen, Paket A, letzte Einzelideen) | 0.196.0 (vorläufig) | siehe PR #253 | PR #253, Noah mergt selbst |
+| 82 | Zusammen auf einer Karte (Gruppen-Live-Karte) + Velos sichtbar | 0.197.0 (vorläufig) | Einladungslink, Teilen nur auf Wunsch, endet nach 24 Stunden | PR #253, Noah mergt selbst |
 | 83 | Kette vorausschauend | 0.198.0 | Velos › Pflege › Verschleiss: nächste Kettenschritte, Verlauf und Prognose, Handy-Erinnerung | auf `main` 25.10. |
 | 62 | Skitour (Mockup-Paket P2) | 0.178.0 | Skitouren › Tour planen: Gefahrenstufe 1–5 mit Unterstufe und Satz, «Dein Morgen», Verhältnisse, Plan in Zahlen; «Gipfel erreicht» unterwegs; Nach der Tour «Plan und Wirklichkeit» und dein Material; Skitouren › Saison: Ziel, Wunschtouren, Skitage 8 Wochen, LVS-Übungen, Kurse mit «Auffrischen», Höhenmeter pro Ski, letzte Saison; Vorabend-Check zeigt Stufe, Temperatur, Wind, letzten Zug | live |
 

@@ -107,7 +107,7 @@ Ein Klick-Rundgang durch die ganze App fand Sackgassen, tote Knöpfe und verstec
 
 ## 25.10.2026: 996 Ideen (0.191.0 bis 0.198.0)
 
-Die «996 Ideen» kamen in der Reihenfolge B → A → C → D: Die Werkstatt, klar (0.191.0), Ehrlicher Stand (0.192.0), Ruhig und persönlich (0.193.0), Zusammen mit Freunden ohne Konto (0.194.0), Kleine Helfer für Tour und Velo (0.195.0). Die Veröffentlichung blieb einen Tag rot, weil Heute am Sonntag in den Tests von selbst den Wochenrückblick öffnete; PR #252 machte die Tests unabhängig von der Uhrzeit. Am Abend kam «Kette vorausschauend» (0.198.0). Noah wählte 63 der 76 übrigen Einzelideen zum Bauen, und die Gruppen-Live-Karte ist gebaut (PR #253).
+Die «996 Ideen» kamen in der Reihenfolge B → A → C → D: Die Werkstatt, klar (0.191.0), Ehrlicher Stand (0.192.0), Ruhig und persönlich (0.193.0), Zusammen mit Freunden ohne Konto (0.194.0), Kleine Helfer für Tour und Velo (0.195.0). Die Veröffentlichung blieb einen Tag rot, weil Heute am Sonntag in den Tests von selbst den Wochenrückblick öffnete; PR #252 machte die Tests unabhängig von der Uhrzeit. Am Abend kam «Kette vorausschauend» (0.198.0). Noah wählte 63 der 76 übrigen Einzelideen zum Bauen, und die Gruppen-Live-Karte ist gebaut (PR #253). Kurz nach Mitternacht (26.10.2026) entschied Noah, dass er ab jetzt jeden PR selbst auf GitHub zusammenführt; Claude liefert dafür den fertigen PR und einen Testlink.
 
 ## Was wir dabei gelernt haben
 
