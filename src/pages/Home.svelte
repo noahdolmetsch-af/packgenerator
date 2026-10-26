@@ -999,7 +999,7 @@
         <!-- «Alltag sichtbar» (Noah 24.10.2026 «1a»): the quick start «Heute fahren» stays visible at night too -->
         {#if ready}<GoalChips {editing} {next} {now} onride={startQuick} ontrip={() => (countUse('trip'), openNew('list'))} />{/if}
         <!-- «332 Use Cases» (Noah 26.10.2026: «was ziehe ich an, wetter für meinen standort (höchst- und tiefsttemperatur)» on Heute) -->
-        {#if ready}<p class="wxlinks"><a class="linkq" href="#/wetter" data-weather-home>{t('Weather at your home place')} ›</a><button type="button" class="linkq" onclick={() => (wearOpen = true)} data-wear-open>{t('What do I wear?')}</button></p>{/if}
+        {#if ready}<p class="wxlinks"><a href="#/wetter" data-weather-home>{t('Weather at your home place')} ›</a><button type="button" onclick={() => (wearOpen = true)} data-wear-open>{t('What do I wear?')}</button></p>{/if}
         {#if !wx && ready}
           {#if !place}
             <button type="button" class="linkq" aria-expanded={placeOpen} onclick={() => (placeOpen = !placeOpen)}>{t('Set your home place for the weather')}</button>
@@ -2397,13 +2397,29 @@
   .wxr {
     white-space: nowrap;
   }
+  /* one small row like the date line (CI 26.10.2026: a row of 44 px tap links pushed «Dein Körper heute» out of the
+     first phone screen); the links keep 24 px of height to tap */
   .wxlinks {
     display: flex;
-    flex-wrap: nowrap; /* one row: two rows on a narrow phone pushed «Dein Körper heute» out of the first screen (CI 26.10.2026) */
+    flex-wrap: nowrap;
     gap: 0 var(--sp-3);
     margin: 0;
     overflow-x: auto;
     scrollbar-width: none;
     white-space: nowrap;
+  }
+  .wxlinks a,
+  .wxlinks button {
+    display: inline-flex;
+    align-items: center;
+    min-height: 24px;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--ink);
+    font: 500 14px var(--font-body);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    cursor: pointer;
   }
 </style>

@@ -22,6 +22,9 @@ export async function openShort(page) {
       const b = page.locator(sel);
       if (await b.count()) await b.first().click();
     }
+    // the finished trips can come a moment after the Packmodus (CI 26.10.2026, sn4g c): wait for their list, so its
+    // «Show n more» is there before the loop below looks for it; a page without finished trips goes on after 5 s
+    await page.locator('[data-trip-list]').first().waitFor({ state: 'attached', timeout: 5_000 }).catch(() => {});
     // Tempo (19.10.2026 «3a»): the trip list shows 20 rows at a time, on a computer too: open all of them
     for (let i = 0; i < 30 && (await page.locator('[data-pack-phone-more]').count()); i++) await page.locator('[data-pack-phone-more]').first().click();
   }
