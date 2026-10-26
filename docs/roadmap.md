@@ -877,6 +877,6 @@ Die frühere gespeicherte Datei `2026-10-07-packgenerator-ablaufplan.md` wird al
 
 **26.10.2026, v0.204.0 «Eine kleine Überraschung» (offen):** sieben Einzelideen aus «996 Ideen» (Bereich Heute): Überraschungsrunde, Wetter am eigenen Platz, Bewertung aufteilen, Regen bündeln, Check nach der Standzeit, Beispiele nach Interesse, «Hat sich etwas geändert?».
 
-**26.10.2026, v0.202.0 «Notizen, die ihren Zusammenhang kennen» (vorläufig):** Einzelideen Planen 12 «Notiz-Verbindungen mit Bedeutung», 13 «Erinnerung nach einem Ereignis», 14 «Wiederherstellen mit Anhängen» gebaut. Offen als Mockup: 10 Pflanzenpass, 11 Doppelten Eingang erkennen, 15 Erinnerungskarte, 16 Mail als Vorgang.
+**26.10.2026, v0.202.0 «Planen im Zusammenhang» (vorläufig):** Einzelideen Planen 12 «Notiz-Verbindungen mit Bedeutung», 13 «Erinnerung nach einem Ereignis», 14 «Wiederherstellen mit Anhängen» gebaut. Offen als Mockup: 10 Pflanzenpass, 11 Doppelten Eingang erkennen, 15 Erinnerungskarte, 16 Mail als Vorgang. Dazu 10 «Pflanzenpass», 11 «Doppelten Eingang erkennen», 15 «Erinnerungskarte», 16 «Mail als Vorgang» (Noah 26.10. «1a 2a 3a 4a 5a»). Titel jetzt «Planen im Zusammenhang».
 
 **26.10.2026, v0.201.0 «Sprechen, anhängen, mit Vorlage starten»:** Eingaben überall: eine gemeinsame Leiste «Hinzufügen» (Sprachnotiz, Foto, Datei, Ort, Schlagwort, Vorlagen, Schreibanreize, KI-Helfer) auf zehn Seiten, Bildkarte im Tagebuch, Tagebuch in der App-Suche (abschaltbar).

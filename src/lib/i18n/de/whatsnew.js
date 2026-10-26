@@ -4,6 +4,17 @@
  * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
+  // 0.204.0 Eine kleine Überraschung
+  'A little surprise': 'Eine kleine Überraschung',
+  'A round you do not know yet, and the app learns your own spot.': 'Eine Runde, die du noch nicht kennst, und die App lernt deinen eigenen Platz.',
+  'Surprise round: adventure and time, the app suggests the rest': 'Überraschungsrunde: Abenteuer und Zeit, den Rest schlägt die App vor',
+  'At home: note how wind and sun really felt': 'Zu Hause: notieren, wie Wind und Sonne wirklich waren',
+  'After a long standstill: what to check on the bike': 'Nach langer Standzeit: was am Velo zu prüfen ist',
+  'Rate experience, plan and body apart; «Something changed?» in «Still right?»': 'Erlebnis, Plan und Körper getrennt bewerten; «Hat sich etwas geändert?» in «Stimmt das noch?»',
+  'Several rides in the rain: one chain task, one reminder': 'Mehrere Fahrten im Regen: eine Ketten-Aufgabe, eine Erinnerung',
+  'Tap «Neu» › «Überraschungsrunde», choose «Neugierig» and 2 h, then «Runde vorschlagen».': 'Tippe «Neu» › «Überraschungsrunde», wähle «Neugierig» und 2 h, dann «Runde vorschlagen».',
+  'Open the weather page at home: «Zu Hause: wie war es wirklich?» stands below.': 'Öffne die Wetter-Seite zu Hause: unten steht «Zu Hause: wie war es wirklich?».',
+  'Me › Daten und Backup › «Stimmt das noch?»: «Hat sich etwas geändert?» › «Ich bin umgezogen».': 'Ich › Daten und Backup › «Stimmt das noch?»: «Hat sich etwas geändert?» › «Ich bin umgezogen».',
   // 0.203.0 Kleine Helfer unter Ich
   'Small helpers under Me': 'Kleine Helfer unter Ich',
   'The app explains more and nags less.': 'Die App erklärt mehr und drängt weniger.',
@@ -14,15 +25,17 @@ export default {
   'On a computer: a shortcut tip after a few clicks': 'Am Computer: ein Kürzel-Tipp nach ein paar Klicks',
   'Open Ich › Darstellung › Vorschläge: switch off «Ideen für freie Zeit»; Heute no longer shows «Idee für heute».': 'Öffne Ich › Darstellung › Vorschläge und schalte «Ideen für freie Zeit» aus: Heute zeigt «Idee für heute» nicht mehr.',
   'Start a tour under Ich › Handbuch, end it at step 3, start it again: «Weiter bei Schritt 3» is on top.': 'Starte einen Rundgang unter Ich › Handbuch, beende ihn bei Schritt 3 und starte ihn neu: «Weiter bei Schritt 3» steht oben.',
-  // 0.202.0 Notizen im Zusammenhang
-  'Notes that know their context': 'Notizen, die ihren Zusammenhang kennen',
-  'Links say what they mean, and a note comes back when the moment is right.': 'Verbindungen sagen, was sie bedeuten, und eine Notiz kommt im richtigen Moment wieder.',
-  'Links between notes with a meaning: source, counter-argument, follow-up question': 'Verbindungen zwischen Notizen mit Bedeutung: Quelle, Gegenargument, Folgefrage',
-  'A note comes back after the next trip or workshop visit': 'Eine Notiz kommt nach der nächsten Tour oder dem nächsten Werkstattbesuch wieder',
+  // 0.202.0 Planen im Zusammenhang
+  'Plan in context': 'Planen im Zusammenhang',
+  'Plants, mails and notes know what belongs together.': 'Pflanzen, Mails und Notizen wissen, was zusammengehört.',
+  'Plant passport: sun, wind, soil and every move of each plant': 'Pflanzenpass: Sonne, Wind, Erde und jeder Umzug jeder Pflanze',
+  'Matters in the inbox: booking, question and bill together': 'Vorgänge im Eingang: Buchung, Rückfrage und Rechnung zusammen',
+  'Memory cards: text, picture, place and a sound as one scene': 'Erinnerungskarten: Text, Bild, Ort und ein Ton als eine Szene',
+  'Links between notes with a meaning; a note back after the next trip or workshop visit': 'Verbindungen zwischen Notizen mit Bedeutung; eine Notiz kommt nach der nächsten Tour oder dem Werkstattbesuch wieder',
   'The trash shows what comes back with a note': 'Der Papierkorb zeigt, was mit einer Notiz zurückkommt',
-  'Open two notes, link them in one and choose «Quelle» beside the link: the other note says «ist Quelle für».': 'Öffne zwei Notizen, verknüpfe sie in einer und wähle neben der Verbindung «Quelle»: Die andere Notiz sagt «ist Quelle für».',
-  'In a note tap «Erinnern» › «Nach dem nächsten Werkstattbesuch»; save a workshop visit: the note stands on top of Notizen.': 'Tippe in einer Notiz «Erinnern» › «Nach dem nächsten Werkstattbesuch»; speichere einen Werkstattbesuch: Die Notiz steht oben in Notizen.',
-  'Delete a note with a photo, open Notizen › Mehr › Papierkorb: the row says «Kommt zurück mit: 1 Foto».': 'Lösche eine Notiz mit Foto, öffne Notizen › Mehr › Papierkorb: Die Zeile sagt «Kommt zurück mit: 1 Foto».',
+  'Planen › Merken › Pflanzenpass: «Beobachtung» for a plant, then «Umgezogen»: the old spot stays in the history.': 'Planen › Merken › Pflanzenpass: «Beobachtung» bei einer Pflanze, dann «Umgezogen»: Der alte Platz bleibt im Verlauf.',
+  'Eingang › Vorgänge: a mail and a photo with the same number show as a pair; «Zusammenführen» puts both into one matter.': 'Eingang › Vorgänge: Eine Mail und ein Foto mit derselben Nummer erscheinen als Paar; «Zusammenführen» legt beide in einen Vorgang.',
+  'Open a note › «Erinnerungskarte machen» › «Karte behalten»; Notizen › Notizen im Zusammenhang shows it.': 'Notiz öffnen › «Erinnerungskarte machen» › «Karte behalten»; Notizen › Notizen im Zusammenhang zeigt sie.',
   // 0.201.0 Eingaben überall
   'Speak, attach, start from a template': 'Sprechen, anhängen, mit Vorlage starten',
   'Under every text you can now add a voice note, a file or a template.': 'Unter jedem Text kannst du jetzt eine Sprachnotiz, eine Datei oder eine Vorlage hinzufügen.',
@@ -52,16 +65,6 @@ export default {
   'Open a wish, fold «Borrow before buying», note a friend and a day.': 'Öffne einen Wunsch, klappe «Ausleihen vor Kaufen» auf, notiere einen Freund und einen Tag.',
   'Under Me › Everyday life › Not seen for a while, give a person an idea to do together.': 'Gib unter Ich › Alltag › Lange nicht gesehen einer Person eine Idee für etwas zusammen.',
   // 0.198.0 Kette vorausschauend
-  'A little surprise': 'Eine kleine Überraschung',
-  'A round you do not know yet, and the app learns your own spot.': 'Eine Runde, die du noch nicht kennst, und die App lernt deinen eigenen Platz.',
-  'Surprise round: adventure and time, the app suggests the rest': 'Überraschungsrunde: Abenteuer und Zeit, den Rest schlägt die App vor',
-  'At home: note how wind and sun really felt': 'Zu Hause: notieren, wie Wind und Sonne wirklich waren',
-  'After a long standstill: what to check on the bike': 'Nach langer Standzeit: was am Velo zu prüfen ist',
-  'Rate experience, plan and body apart; «Something changed?» in «Still right?»': 'Erlebnis, Plan und Körper getrennt bewerten; «Hat sich etwas geändert?» in «Stimmt das noch?»',
-  'Several rides in the rain: one chain task, one reminder': 'Mehrere Fahrten im Regen: eine Ketten-Aufgabe, eine Erinnerung',
-  'Tap «Neu» › «Überraschungsrunde», choose «Neugierig» and 2 h, then «Runde vorschlagen».': 'Tippe «Neu» › «Überraschungsrunde», wähle «Neugierig» und 2 h, dann «Runde vorschlagen».',
-  'Open the weather page at home: «Zu Hause: wie war es wirklich?» stands below.': 'Öffne die Wetter-Seite zu Hause: unten steht «Zu Hause: wie war es wirklich?».',
-  'Me › Daten und Backup › «Stimmt das noch?»: «Hat sich etwas geändert?» › «Ich bin umgezogen».': 'Ich › Daten und Backup › «Stimmt das noch?»: «Hat sich etwas geändert?» › «Ich bin umgezogen».',
   'The chain, one step ahead': 'Die Kette, einen Schritt voraus',
   'The app says what the chain needs next, before it is too late.': 'Die App sagt, was die Kette als Nächstes braucht, bevor es zu spät ist.',
   'Chain: what comes next, with one button each': 'Kette: was als Nächstes kommt, mit je einem Knopf',

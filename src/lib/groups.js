@@ -39,6 +39,7 @@ export const GROUP_PLACES = [
   { name: 'Rewards without buying', file: 'src/lib/ruhig/KindsEdit.svelte' },
   { name: 'Kinds of special days', file: 'src/lib/ruhig/KindsEdit.svelte' },
   { name: 'Roles of a ride', file: 'src/lib/ruhig/KindsEdit.svelte' },
+  { name: 'Matters in the inbox', file: 'src/pages/Vorgaenge.svelte' }, // Einzelideen Planen 11 + 16 (Noah 26.10.2026 «2a»)
 ];
 
 /** The items of category `from` moved to `to` (only the ones that change). */

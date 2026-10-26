@@ -43,6 +43,7 @@
   import { Bell } from '@lucide/svelte';
   // Einzelideen Planen 13: notes that come back after a trip or a workshop visit show with the due reminders
   import { afterDue, AFTER } from '../lib/notes/context.js';
+  import { Network } from '@lucide/svelte';
   const tripsQ = liveQuery(() => db.trips.toArray());
   const visitsQ = liveQuery(() => db.visits.toArray());
 
@@ -419,6 +420,7 @@
         <div class="ich-h"><div><h2 id="nmore-h">{t('More')}</h2></div></div>
         <ul class="card ich-list">
           <li><a class="ich-row" href="#/inbox"><span class="ich-ib"><Inbox size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t('Inbox')}</b><small>{tn(inboxN, '{n} to file', '{n} to file')}</small></span><ChevronRight class="ich-chev" size={18} aria-hidden="true" /></a></li>
+          <li><a class="ich-row" href="#/notes/zusammenhang" data-notes-context><span class="ich-ib"><Network size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t('Notes in context')}</b><small>{t('Links with a meaning, reminders after an event, memory cards')}</small></span><ChevronRight class="ich-chev" size={18} aria-hidden="true" /></a></li>
           <li>
             <label class="ich-row keepin" data-keep-import>
               <span class="ich-ib"><FileInput size={18} aria-hidden="true" /></span>

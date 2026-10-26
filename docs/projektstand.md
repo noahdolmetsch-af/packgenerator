@@ -32,7 +32,7 @@ Stand: **26. Oktober 2026, 00:30 UTC** (nachgetragen nach Noahs Auftrag vom 25.1
 | #253 | 0.199.0 | «Flicken, ausprobieren, abmachen»: letzte Einzelideen aus Paket A (996 Ideen) | offen; Noah mergt selbst |
 | #253 | 0.200.0 | «Zusammen auf einer Karte»: Gruppen-Live-Karte (Noah 25.10. «b»: Einladungslink, Teilen nur auf Wunsch, endet nach 24 Stunden, 0 Kosten) und «Velos sichtbar» | wie oben; ändert `api/`, danach den Server «packgen» prüfen |
 | #251 | – | Bibliotheken aktualisieren (Playwright 1.64, pdfjs 6, maplibre 6.15) mit Anpassung | offen, Prüfungen seit Tagen rot |
-| (neu) | 0.202.0 | «Notizen, die ihren Zusammenhang kennen»: Einzelideen Planen 12, 13, 14 (996 Ideen): Verbindungen mit Bedeutung, Erinnerung nach Tour oder Werkstattbesuch, Papierkorb zeigt, was mitkommt | gebaut, wartet aufs Bündel; Noah mergt selbst. Ideen 10, 11+16, 15 (neue Seiten/Fenster) zuerst als Mockup (Regel 26.10. 01:04 «nur bei grösseren Sachen») |
+| (neu) | 0.202.0 | «Planen im Zusammenhang»: Einzelideen Planen 12, 13, 14 (996 Ideen): Verbindungen mit Bedeutung, Erinnerung nach Tour oder Werkstattbesuch, Papierkorb zeigt, was mitkommt | gebaut, wartet aufs Bündel; Noah mergt selbst. Ideen 10, 11+16, 15 (neue Seiten/Fenster) zuerst als Mockup (Regel 26.10. 01:04 «nur bei grösseren Sachen») | Dazu die grossen Teile 10, 11, 15, 16 (Noah 26.10. «1a 2a 3a 4a 5a»): Pflanzenpass, Vorgänge im Eingang (doppelter Eingang, Mail als Vorgang), Erinnerungskarte, Seite «Notizen im Zusammenhang».
 
 ### Wie ein Release heute online geht (seit 26.10.2026)
 

@@ -22,6 +22,11 @@
 
 /** The home page of every function (feature id → hash route). */
 export const HOME = {
+  // Einzelideen Planen (996 Ideen 10, 11, 15, 16): page titles and card titles of the new pages
+  'f.plantpass': '#/calendar/pflanzen',
+  'f.doubleinbox': '#/inbox/vorgaenge',
+  'f.mailcase': '#/inbox/vorgaenge',
+  'f.memorycard': '#/notes/zusammenhang',
   // 0.187–0.189 (built in parallel, merged with this guard): stops nearby on Heute, box labels in the toolbox;
   // dress rehearsal, good night and arrive well show only in their situation (a week before the start, a night
   // on a trip of several days, after the end of a trip)
