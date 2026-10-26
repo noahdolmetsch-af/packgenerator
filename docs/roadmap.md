@@ -870,4 +870,7 @@ Die frühere gespeicherte Datei `2026-10-07-packgenerator-ablaufplan.md` wird al
 
 **25.10.2026, v0.195.1 «Einkaufsliste am Stück»:** Korrektur: am Computer behält die Zeile einer Einkaufsliste 420 px, die Knöpfe rutschen sonst unter den Namen (der Gesamttest auf main war rot, darum ging 0.191–0.195 erst damit online).
 
-**25.10.2026, v0.196.0 «Flicken, ausprobieren, abmachen»:** letzte Einzelideen aus Paket A: Kleider reparieren statt aussortieren, Wunsch zuerst ausleihen, Ideen für ein Treffen, Geburtstag mit kleinen Schritten, Webcams mit Zweck und Aufräumrunde.
+**25.10.2026, v0.199.0 «Flicken, ausprobieren, abmachen»:** letzte Einzelideen aus Paket A: Kleider reparieren statt aussortieren, Wunsch zuerst ausleihen, Ideen für ein Treffen, Geburtstag mit kleinen Schritten, Webcams mit Zweck und Aufräumrunde.
+
+**25.10.2026, v0.200.0 «Zusammen auf einer Karte»:** Gruppen-Live-Karte: Freunde per Link auf einer Karte, freiwillig teilen, Ende mit der Fahrt, spätestens nach 24 Stunden.
+**25.10.2026, v0.198.0 «Kette vorausschauend»:** Idee «Kette messen mit Verlauf und Prognose» (Das Velo im Griff) gebaut: nächste Schritte der Kette auf Verschleiss, Prognose aus den eigenen Messungen, Tour-Check, Handy-Erinnerung «Kette messen».

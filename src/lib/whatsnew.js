@@ -16,8 +16,24 @@
 
 export const WHATS_NEW = [
   {
-    // v0.196.0 Paket A last single ideas (996 Ideen): webcams with a purpose, birthday steps, ideas together, repairs, borrow first
-    version: '0.196.0',
+    // v0.200.0 Gruppen-Live-Karte (Paket U Bikepacking): ride with friends on one map; friends open a link in the browser
+    // without the app; ends after the ride, at the latest after 24 hours, and the places are deleted (api/sync.js ?action=group).
+    version: '0.200.0',
+    date: '2026-10-25',
+    title: 'Riding together on one map',
+    lead: 'Friends see each other on the map, without the app.',
+    points: [
+      { text: 'Group ride: send a link, everyone on one map', href: '#/live' },
+      { text: 'Ends after the ride, at the latest after 24 hours', href: '#/live' },
+    ],
+    small: [
+      { box: 'nicer', text: 'Bike functions are called like their buttons' },
+    ],
+    test: ['Open Unterwegs › Live-Karte › «Gruppenfahrt» and send yourself the link.', 'Open the link in a private window: your name and km show on the map.'],
+  },
+  {
+    // v0.199.0 Paket A last single ideas (996 Ideen): webcams with a purpose, birthday steps, ideas together, repairs, borrow first
+    version: '0.199.0',
     date: '2026-10-25',
     title: 'Fix it, try it, meet up',
     lead: 'Clothes get repair jobs, wishes can be borrowed first, and reminders turn into invitations.',
@@ -31,6 +47,20 @@ export const WHATS_NEW = [
       { box: 'fixed', text: 'Renaming a webcam closes the window again' },
     ],
     test: ['Open a piece of clothing, fold «Repair instead of sorting out» and add «Replace the zip».', 'Open a wish, fold «Borrow before buying», note a friend and a day.', 'Under Me › Everyday life › Not seen for a while, give a person an idea to do together.'],
+  },
+  {
+    // v0.198.0 «Kette vorausschauend» (Noah 25.10.2026): the chain's next steps on «Wear» (replace, before the trip,
+    // soon, measure, oil), history and forecast from the own measurements, phone reminder «measure the chain».
+    version: '0.198.0',
+    date: '2026-10-25',
+    title: 'The chain, one step ahead',
+    lead: 'The app says what the chain needs next, before it is too late.',
+    points: [
+      { text: 'Chain: what comes next, with one button each', href: '#/bikes?tab=care&view=wear' },
+      { text: 'History and forecast from your measurements', href: '#/bikes?tab=care&view=wear' },
+    ],
+    small: [{ box: 'new', text: 'A new chain before the trip when it would run out on the way' }, { box: 'new', text: 'Phone reminder: time to measure the chain' }],
+    test: ['Open Velos › Pflege › Verschleiss: «Kette: was als Nächstes kommt» stands on top.', 'Tap «Jetzt messen», save a value: «Verlauf und Prognose» shows when the chain reaches 0.5 %.'],
   },
   {
     // v0.195.1 fix: on a computer the shopping list broke item names letter by letter since «Wait 30 days» (0.192.0)

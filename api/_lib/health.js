@@ -28,7 +28,8 @@
  *                 (the server then said «tomorrow again»; nothing cost money), else today's calls of the total
  *
  * The answer is kept 10 minutes (health:last), so calling it often costs nothing and asks nobody.
- * A check that throws counts as fail with code 'error', never with the error's text.
+ * A check that throws counts as fail with code 'error', never with the error's text; one that takes longer
+ * than CHECK_TIMEOUT_MS counts as fail with code 'timeout'. The checks run at the same time.
  */
 import { pick, redis, redisEnv, REDIS_ENV } from './core.js';
 import * as helperLib from './helper.js';
@@ -232,21 +233,30 @@ export function makeChecks({ cfg, store, doFetch, now }) {
   };
 }
 
-/** Run every check (each on its own: one failing never stops the others). */
-export async function runHealth({ cfg, store, doFetch, now }) {
+/** One check may take this long. Before 26.10.2026 a hanging outside service held the whole answer until
+ * Vercel stopped it after 300 s, so the Wächter saw «no answer» (issues #239, #249) and never which check hung. */
+export const CHECK_TIMEOUT_MS = 15_000;
+
+/** Run every check at the same time, each on its own: one failing or hanging never stops the others. */
+export async function runHealth({ cfg, store, doFetch, now, checkTimeoutMs = CHECK_TIMEOUT_MS }) {
   const checks = makeChecks({ cfg, store, doFetch, now });
-  const out = [];
-  for (const [id, fn] of Object.entries(checks)) {
+  const out = await Promise.all(Object.entries(checks).map(async ([id, fn]) => {
+    let timer;
+    const late = new Promise((resolve) => {
+      timer = setTimeout(() => resolve(fail(id, 'timeout', `Keine Antwort innerhalb ${Math.round(checkTimeoutMs / 1000)} Sekunden.`)), checkTimeoutMs);
+    });
     try {
-      out.push(await fn());
+      return await Promise.race([fn(), late]);
     } catch {
-      out.push(fail(id, 'error', 'Die Prüfung ging nicht.'));
+      return fail(id, 'error', 'Die Prüfung ging nicht.');
+    } finally {
+      clearTimeout(timer);
     }
-  }
+  }));
   return { ok: out.every((c) => c.state !== 'fail'), at: new Date(now()).toISOString(), checks: out };
 }
 
-export function makeHealth({ env = () => healthEnv(), doFetch = (...a) => fetch(...a), now = () => Date.now() } = {}) {
+export function makeHealth({ env = () => healthEnv(), doFetch = (...a) => fetch(...a), now = () => Date.now(), checkTimeoutMs = CHECK_TIMEOUT_MS } = {}) {
   return async function health() {
     const cfg = env();
     const store = redis(cfg, doFetch);
@@ -260,7 +270,7 @@ export function makeHealth({ env = () => healthEnv(), doFetch = (...a) => fetch(
         }
       }
     }
-    const result = await runHealth({ cfg, store, doFetch, now });
+    const result = await runHealth({ cfg, store, doFetch, now, checkTimeoutMs });
     if (store) await store.set(CACHE_KEY, JSON.stringify(result), CACHE_S).catch(() => {});
     return { ...result, cached: false };
   };

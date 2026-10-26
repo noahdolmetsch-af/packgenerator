@@ -26,6 +26,8 @@ export const HOME = {
   // dress rehearsal, good night and arrive well show only in their situation (a week before the start, a night
   // on a trip of several days, after the end of a trip)
   'f.stopsnear': '#/',
+  // Gruppen-Live-Karte: on the live map
+  'f.groupmap': '#/live',
   'f.labels': '#/me/tools/labels',
   // Paket D «Mit Freunden»: the three tabs of Ich › Mit Freunden
   'f.friendask': '#/me/freunde',

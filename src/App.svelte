@@ -120,7 +120,7 @@
     return tab ? `${placeLabel(p)} › ${tabLabel(place, tab)}` : placeLabel(p);
   });
   // a page for someone without the app's data (a shared list, Paket S «Reise-Spur»: a tour's read link)
-  const guest = $derived(page === 'share' || page === 'spurlink');
+  const guest = $derived(page === 'share' || page === 'spurlink' || page === 'gruppe');
   // v0.78.0 «Fünf Orte» 2 (Noah O2.2a): each place remembers the tab opened last (nav.js placeHref).
   const tab = $derived(place ? tabOf(place, hash) : null);
   $effect(() => {
@@ -395,6 +395,7 @@
     Spur: () => import('./pages/Spur.svelte'), // Paket S «Reise-Spur»
     Tour: () => import('./pages/Tour.svelte'), // «Tour» (Noah 19.10.2026 «1a»): one finished tour
     SpurLink: () => import('./pages/SpurLink.svelte'), // Paket S: the family's read link
+    Gruppe: () => import('./pages/Gruppe.svelte'), // Gruppen-Live-Karte: a friend's view of the group ride
     Abfahrt: () => import('./pages/Abfahrt.svelte'), // Paket K #87 «Vor der Abfahrt»
     Mountain: () => import('./pages/Mountain.svelte'), // Paket J: Berg, Schnee und Notfall
     Supplies: () => import('./pages/Supplies.svelte'), // Paket H: Material › Vorrat
@@ -530,6 +531,9 @@
   {:else if page === 'spurlink'}
     <!-- Paket S «Reise-Spur»: what the family sees behind the read link -->
     {#key hash}<LazyPage load={PAGES.SpurLink} {hash} />{/key}
+  {:else if page === 'gruppe'}
+    <!-- Gruppen-Live-Karte (Noah 25.10.2026 «b»): a friend's view of the group ride, no app data -->
+    {#key hash}<LazyPage load={PAGES.Gruppe} {hash} />{/key}
   {:else if page === 'packcleanup'}
     <!-- «Packliste aufräumen» (Noah 21.10.2026 «5a»): Bausteine › Packliste aufräumen -->
     <LazyPage load={PAGES.PackCleanup} />

@@ -52,6 +52,8 @@ Durchgehende Grundsätze: Alles ist ein Vorschlag, nie Pflicht, und immer änder
 
 ## Stand heute (19.10.2026, live 0.152.0)
 
+**Nachtrag 25.10.2026:** 0.198.0 «Kette vorausschauend» (Ziel 2 «Das Velo im Griff»): die Kette sagt selbst, was als Nächstes dran ist (messen, ölen, ersetzen, vor der Tour), mit Prognose aus den eigenen Messungen und Handy-Erinnerung.
+
 **Nachtrag 20.10.2026:** 0.159.0 Rennen, 0.160.0 Verpflegung mit Trainingsplan-Kopplung und Kachel «Das tut mir gut», 0.161.0 Tour-Seite (Ziel aus Touren lernen), 0.162.0 zehn kleine Korrekturen aus dem Gesamttest, 0.163.0 Gesamttest Runde 2, 0.164.0 Tests automatisieren, 0.165.0 Heute neu A «Ein Blick», 0.166.0 Neueste Version laden, 0.166.1 Heute am Handy, 0.167.0 Balken «Jetzt laden», 0.168.0 Tour-Seite Gepäck, Aktiv-Kacheln, Tour planen mit GPX, Kartengrund und KI-Schlüssel-Hinweis, 0.169.0 Neue Leiste (Heute · Planen · Touren · Auswerten · Velos), Heute neu N2 und UI-Grundlagen, 0.170.0 Live-Karte Teile 1–3 mit Umweg, Tagebuch, Form und Erholung, Heatmap, Tour-Auswertung, Check-Fragen, Zürisee, Erster Start und Haustür bis zurück, 0.170.1 Abgleich bleibt ruhig, 0.171.0 Verschleiss, Bilder, Wetter-Kern, Körperwerte, Fitbit überall, KI im Gerät, Aus jeder Tour lernen, Schneller packen, Schlafplätze im Rennen, 0.172.0 Velo im Griff und Notizen wie Evernote (Ziel «Eine App, die mich im Alltag unterstützt»). 0.173.0 Suche mit Sprache und Antworten (Ziel «Alltag»), 0.174.0 Klarer und einheitlich mit Auswertung wie Training (Ziel «Alltag»), 0.175.0 App selbst gestalten, Körperwerte und Countdown auf Heute, Zeichnen auf allen Fotos (Ziel «Alltag»), 0.176.0 Eine Tour, eine Seite mit Lernschleife (Ziele «Touren vorbereiten» und «Aus Touren lernen») und Reste.
 
 **Nachtrag 21.10.2026 (Ziel «Alltag», Regel «Alles selbst ändern»):** 0.175.0 «Eigene Werte und alle Daten anpassbar» gebaut: eigene Werte und Erinnerungen, eigene Körperwerte, sechs neue Listen, keine Browser-Fragen mehr. Bestandsaufnahme der übrigen Lücken: notes/eigene-werte-alles-anpassbar/bestandsaufnahme.md im Projektordner.
@@ -491,4 +493,5 @@ Kurzfassung, verbindlich ist [arbeitsweise.md](arbeitsweise.md).
 0.194.0 «Zusammen mit Freunden» (25.10.2026, Ziel Touren und Alltag): Paket D Teil 1 aus den 996 Ideen.
 0.195.0 «Kleine Helfer für Tour und Velo» (25.10.2026, Ziel Touren und Velo): weitere Einzelideen aus Paket B (996 Ideen).
 0.195.1 «Einkaufsliste am Stück» (25.10.2026, Ziel Alltag): Korrektur der Einkaufsliste am Computer.
-0.196.0 «Flicken, ausprobieren, abmachen» (25.10.2026, Ziel Alltag): letzte Einzelideen aus Paket A (996 Ideen).
+0.199.0 «Flicken, ausprobieren, abmachen» (25.10.2026, Ziel Alltag): letzte Einzelideen aus Paket A (996 Ideen).
+0.200.0 «Zusammen auf einer Karte» (25.10.2026, Ziel Touren): Gruppen-Live-Karte, Freunde per Link auf einer Karte.

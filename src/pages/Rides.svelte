@@ -728,7 +728,8 @@
             <ul class="rv-box" aria-labelledby="saved-h">
               {#each rides as r (r.id)}
                 {@const open = rideLearnings(r, r.plan, r.basis ?? pace).filter((s) => !r.answers?.[s.id]).length}
-                {@const due = rideOpen(r, tripOf(r))}
+                <!-- open only once the trips are loaded: before that every ride would look like one without a trip -->
+                {@const due = $tripsQ !== undefined && rideOpen(r, tripOf(r))}
                 <li class="rl" data-ride={r.id} data-open={due ? '' : null}>
                   <a class="rv-row" href={`#/debrief/ride/${encodeURIComponent(r.id)}`}>
                     <span class="rv-ic" aria-hidden="true"><Route size={18} /></span>

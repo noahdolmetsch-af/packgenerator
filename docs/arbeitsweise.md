@@ -2,13 +2,24 @@
 
 Gilt ab 9.10.2026, 23:26, für alle folgenden Releases. Quelle: Noahs Anweisung im Projekt-Chat. Ersetzt den «Schnellmodus» vom 9.10.2026 (mehrere Pakete gleichzeitig, Mockups nur für ganz neue Seiten).
 
-## Stand 18.10.2026: Regeln, die heute gelten
+## Stand 26.10.2026: was sich seit dem 18.10.2026 geändert hat
+
+Diese Punkte gehen dem Abschnitt «Stand 18.10.2026» vor. Quelle: Noahs Nachrichten im Projekt, festgehalten im [Entscheidungslog](decisions.md) und im [Projektstand](projektstand.md).
+
+1. **Noah mergt jeden PR selbst** (Noah, 26.10.2026, 00:15 UTC: «ich möchte ab sofort alle PR selber mergen. bitte liefere mir ab sofort für alles immer den fertigen PR sowie einen Link zum testen. ich gebe danach selber frei auf github.»): Claude liefert für alles den fertigen PR (Prüfungen grün) und einen Testlink mit kurzer Anleitung. Kein Auto-Merge, Claude führt nie selbst zusammen. Gilt auch für Bibliotheks-Updates und Wächter-Reparaturen. Ersetzt die Regel vom 24.10.2026 («freigabe für alle», «alles ohne meine freigabe online bringen»: Auto-Merge bei grün) und Punkt 3 unten.
+2. **Fragen nur vorab:** Was Claude von Noah wissen muss, fragt Claude am Anfang (höchstens 5, a/b). Danach arbeitet Claude selbständig und kommt mit Lösungsvorschlägen für entdeckte Probleme zurück.
+3. **Wenige Pakete, ein Bündler:** Bau-Threads liefern Zweig und Commit an den Koordinator. Der Bündler-Thread «Mein Überblick» fasst zusammen, nummeriert, prüft nach der Bündel-Checkliste, öffnet den PR ohne Auto-Merge und schickt Noah PR und Testlink. Ersetzt die sechs Pakete vom 18.10.2026 (Punkt 4 unten).
+4. **Nach Noahs Zusammenführen:** Hat der PR `api/` geändert, prüft der Bündler den Server «packgen» auf Vercel. Danach bekommt Noah eine Zeile «Online: …».
+5. **Tests unabhängig von der Uhrzeit** (PR #252, 25.10.2026): Heute öffnet in den Tests keine Fenster von selbst; Tests, die ein Fenster prüfen, schalten es gezielt ein. Die Länge von Heute am Handy wird zur Mittagszeit gemessen.
+6. **Heute** folgt dem Aufbau N2 (0.169.0, Noah 20.10.2026 «5a»), nicht mehr HN4 (Punkt 11 unten).
+
+## Stand 18.10.2026: Regeln, die damals galten
 
 Diese Regeln gehen den älteren Abschnitten weiter unten vor. Wo unten etwas anderes steht (Mockups vor dem Bau, Bilder vor dem Merge, ★-Empfehlung, Trello, «Noah merged selbst»), ist es Geschichte. Quelle: Noahs Antworten im Projekt vom 13. bis 18.10.2026, festgehalten im [Entscheidungslog](decisions.md).
 
 1. **Ziel:** «Eine App, die mich im Alltag unterstützt.» Jedes Paket dient einem der fünf Ziele in [vorhaben.md](vorhaben.md) (seit 19.10.2026 mit «Alltag»). Alle Vorhaben stehen in einer Liste: [vorhaben-liste.md](vorhaben-liste.md).
 2. **Ohne Mockups, dafür ein Testlink** (Noah, 18.10.2026, 21:52 UTC, «ab sofort, überall»): Claude baut ohne Mockups. Zu jedem Paket bekommt Noah einen Testlink, die Vercel-Vorschau des Paket-PRs, mit dem Satz «eigener Speicher, Backup hochladen zum Testen mit deinen Daten». Bilder sind nicht mehr nötig. Ersetzt «zuerst bauen, dann Bilder» vom 14.10.2026.
-3. **Veröffentlichen** (seit 15.10.2026, angepasst 18.10.2026): Claude führt ein Paket zusammen, sobald Noah den Testlink **dieses Pakets** bekommen und «ok» geschrieben hat, die Prüfungen auf dem letzten Commit grün sind und `main` sich nicht bewegt hat. Eine «Freigabe» ohne Paketnamen zählt nicht. Ausnahme: Updates von Abhängigkeiten (Dependabot) werden sofort zusammengeführt, sobald die Prüfungen grün sind.
+3. **Veröffentlichen** (seit 15.10.2026, angepasst 18.10.2026): Claude führt ein Paket zusammen, sobald Noah den Testlink **dieses Pakets** bekommen und «ok» geschrieben hat, die Prüfungen auf dem letzten Commit grün sind und `main` sich nicht bewegt hat. Eine «Freigabe» ohne Paketnamen zählt nicht. Ausnahme: Updates von Abhängigkeiten (Dependabot) werden sofort zusammengeführt, sobald die Prüfungen grün sind. **Seit 26.10.2026 (Noah «ich möchte ab sofort alle PR selber mergen»):** Noah führt jeden PR selbst zusammen, auch Dependabot-Updates und Wächter-Reparaturen; Claude liefert den fertigen PR mit Testlink.
 4. **Pakete:** fertige Teile werden zu Paketen gebündelt; jedes Paket ist ein Release mit eigener Version. Reihenfolge und Inhalt stehen im [Projektstand](projektstand.md).
 5. **Fragen:** höchstens 5 pro Runde, a/b ausgeschrieben, **ohne ★-Vorauswahl**. Claude fragt und wartet, statt für Noah zu entscheiden.
 6. **Alles im Projekt,** nicht mehr in Trello. Fragt Noah, was offen ist: höchstens drei Punkte.
