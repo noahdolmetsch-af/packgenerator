@@ -1,6 +1,7 @@
 // Gruppen-Live-Karte (Noah 25.10.2026 «b»): the pure helpers of src/lib/live/group.js. Fictional data only.
 import { describe, it, expect } from 'vitest';
-import { stillWaiting, groupGpx, gpxName, STOP_GLYPH, parseGroupLink, groupLinkOf, inviteLinks, routePayload, readRoute, placePayload, readPlace, memberRows, nearHome, initials, cleanName, groupRunning, minutesAgo, STALE_MIN, GONE_MIN, GROUP_V } from '../src/lib/live/group.js';
+import { endKeptGroup, stillWaiting, groupGpx, gpxName, STOP_GLYPH, parseGroupLink, groupLinkOf, inviteLinks, routePayload, readRoute, placePayload, readPlace, memberRows, nearHome, initials, cleanName, groupRunning, minutesAgo, STALE_MIN, GONE_MIN, GROUP_V } from '../src/lib/live/group.js';
+import { readPart } from '../src/lib/live/event.js';
 
 const T0 = Date.parse('2026-07-03T08:00:00Z');
 const route = { line: Array.from({ length: 21 }, (_, i) => [47 + i * 0.005, 8]), km: 11.1 };
@@ -34,7 +35,10 @@ describe('group.js', () => {
   it('a place: rounded, with a clean name; broken places are dropped', () => {
     const p = placePayload('  Test   Fahrerin  ', { lat: 47.123456789, lon: 8.987654321, at: T0 });
     expect(p).toEqual({ v: GROUP_V, n: 'Test Fahrerin', lat: 47.12346, lon: 8.98765, at: new Date(T0).toISOString() });
-    expect(readPlace(p)).toEqual({ name: 'Test Fahrerin', pos: [47.12346, 8.98765], at: new Date(T0).toISOString(), wait: false });
+    expect(readPlace(p)).toEqual({ name: 'Test Fahrerin', pos: [47.12346, 8.98765], at: new Date(T0).toISOString(), wait: false, part: readPart({}) });
+    // Gruppenfahrt für Events: a member without a place (night pause, or only ready / help / things)
+    const none = readPlace(placePayload('B', null, T0, { wait: true }));
+    expect(none).toMatchObject({ name: 'B', pos: null, wait: false });
     expect(readPlace(placePayload('A', { lat: 47, lon: 8, at: T0 }, T0, { wait: true })).wait).toBe(true);
     expect(readPlace({ v: GROUP_V, n: 'x', lat: 'a', lon: 8, at: 'now' })).toBeNull();
     expect(cleanName('x'.repeat(80))).toHaveLength(40);
@@ -80,5 +84,22 @@ describe('group.js', () => {
     expect(groupRunning({ gid: 'g', key: 'k', end: new Date(T0 + 1000).toISOString() }, T0)).toBe(true);
     expect(groupRunning({ gid: 'g', key: 'k', end: new Date(T0 - 1000).toISOString() }, T0)).toBe(false);
     expect(groupRunning(null, T0)).toBe(false);
+  });
+});
+
+// Gruppenfahrt für Events (Noah 26.10.2026): a group of several days goes on after the ride
+describe('endKeptGroup', () => {
+  const fakeDb = (value) => {
+    let v = value;
+    return { settings: { get: async () => (v ? { key: 'live-group', value: v } : undefined), delete: async () => (v = null) }, kept: () => v };
+  };
+  it('ends a group of one day, keeps an event group of several days', async () => {
+    const end = new Date(Date.now() + 3600_000).toISOString();
+    const one = fakeDb({ gid: 'g', key: 'k', del: 'd', end, days: 1 });
+    expect(await endKeptGroup(one, { doFetch: async () => Response.json({ ok: true }) })).toBe(true);
+    expect(one.kept()).toBeNull();
+    const three = fakeDb({ gid: 'g', key: 'k', del: 'd', end, days: 3 });
+    expect(await endKeptGroup(three)).toBe(false);
+    expect(three.kept()).not.toBeNull();
   });
 });

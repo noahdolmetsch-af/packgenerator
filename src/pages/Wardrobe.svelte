@@ -475,7 +475,7 @@
           {#if selecting}<button type="button" class="btn sm" disabled={chosen.length === w.all.length} onclick={() => w.all.forEach((i) => picked.add(i.id))}>{t('Select all')}</button>{/if}
           <button type="button" class="btn sm" aria-pressed={selecting} onclick={() => setSelecting(!selecting)}>{selecting ? t('Done') : t('Select')}</button>
           <!-- v0.45.0 (decision 5): an outfit as a temperature kit (select pieces or take today's suggestion). -->
-          {#if !kit}<button type="button" class="btn sm" onclick={openKit} data-explain={t('Save as kit …')}><Layers size={16} aria-hidden="true" />{t('As kit …')}</button>{/if}
+          {#if !kit}<button type="button" class="btn sm" onclick={openKit} data-explain={t('Save as kit …')}><Layers size={16} aria-hidden="true" />{t('Save as a kit')}</button>{/if}
         {/if}
       </div>
 

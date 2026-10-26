@@ -101,6 +101,8 @@
 
 <div class="rt">
   <div class="rtb" role="toolbar" aria-label={t('Format')} data-rt-bar>
+    <!-- «332 Use Cases» (Noah 26.10.2026 «notiz formatiert schreiben» sichtbar): the bar says what it is -->
+    <span class="rtl" aria-hidden="true">{t('Format')}</span>
     {#each BTN as b (b.key)}{@const I = b.icon}<button type="button" class="tb" aria-label={t(b.name)} title={t(b.name)} onmousedown={(e) => e.preventDefault()} onclick={b.run} data-rt={b.key}><I size={16} aria-hidden="true" /></button>{/each}
   </div>
   <div
@@ -136,6 +138,13 @@
     overflow-x: auto;
     border-bottom: 1px solid var(--line);
     scrollbar-width: thin;
+  }
+  .rtl {
+    flex: none;
+    align-self: center;
+    padding: 0 var(--sp-2);
+    color: var(--ink-2);
+    font-size: var(--fs-small);
   }
   .tb {
     flex: none;

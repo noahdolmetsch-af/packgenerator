@@ -1,0 +1,159 @@
+/* Gruppenfahrt für Events (Noah 26.10.2026): the parts of the event page (lib/live/Event*.svelte). */
+.ev-box {
+  display: grid;
+  gap: var(--sp-3);
+}
+.ev-box h2 {
+  margin: 0;
+  font-size: var(--fs-sub);
+}
+.ev-box h3 {
+  margin: 0;
+  font-size: var(--fs-body);
+}
+.ev-box p {
+  margin: 0;
+}
+.ev-acts,
+.ev-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+}
+.ev-chip {
+  min-height: 40px;
+  padding: 6px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-btn);
+  background: var(--paper);
+  color: var(--ink);
+  font: inherit;
+  font-size: var(--fs-small);
+  cursor: pointer;
+}
+.ev-chip[aria-pressed='true'] {
+  background: var(--brand);
+  border-color: var(--brand);
+  color: var(--brand-ink);
+}
+.ev-fld {
+  display: grid;
+  gap: var(--sp-1);
+  min-width: 0;
+}
+.ev-fld > span {
+  color: var(--ink-2);
+  font-size: var(--fs-small);
+}
+.ev-row2 {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: var(--sp-3);
+}
+.btn.ev-bad {
+  background: var(--bad);
+  border-color: var(--bad);
+  color: var(--brand-ink);
+  font-weight: 600;
+}
+.ev-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--sp-2);
+}
+.ev-list > li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sp-2) var(--sp-3);
+  padding-top: var(--sp-2);
+  border-top: 1px solid var(--line);
+}
+.ev-list > li:first-child {
+  padding-top: 0;
+  border-top: 0;
+}
+.ev-ic {
+  flex: none;
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--paper-2);
+}
+.ev-txt {
+  flex: 1 1 160px;
+  display: grid;
+  min-width: 0;
+  overflow-wrap: break-word;
+}
+.ev-txt small,
+.ev-muted {
+  color: var(--ink-2);
+  font-size: var(--fs-small);
+}
+.ev-tag {
+  flex: none;
+  padding: 2px var(--sp-2);
+  border-radius: 999px;
+  font-size: var(--fs-tiny);
+  font-weight: 700;
+  background: var(--warn-soft);
+  color: var(--warn);
+}
+.ev-tag.ok {
+  background: var(--ok-soft);
+  color: var(--ok);
+}
+.ev-tag.bad {
+  background: var(--bad-soft);
+  color: var(--bad);
+}
+.ev-alert {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--sp-3);
+  padding: var(--sp-3);
+  border: 2px solid var(--bad);
+  border-radius: var(--radius-card);
+  background: var(--bad-soft);
+  color: var(--ink);
+}
+.ev-alert.warn {
+  border-color: var(--warn);
+  background: var(--warn-soft);
+}
+.ev-alert > svg {
+  flex: none;
+  color: var(--bad);
+}
+.ev-alert.warn > svg {
+  color: var(--warn);
+}
+.ev-bad-t {
+  color: var(--bad);
+}
+.ev-strong {
+  font-weight: 600;
+}
+.ev-grow {
+  flex: 1 1 200px;
+}
+.ev-acts .ev-grow + .btn {
+  align-self: end;
+}
+.ev-sw {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  min-height: 44px;
+}
+.ev-board {
+  display: grid;
+  gap: var(--sp-4);
+  min-width: 0;
+}

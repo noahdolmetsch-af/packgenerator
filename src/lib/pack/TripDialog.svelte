@@ -53,6 +53,8 @@
   import '../sports.css';
   import { askDelete, deleteWithUndo, saveFailed, once } from '../ui/ask.js'; // «Rückmeldungen» 19.10.2026
   import { offerDone } from '../ui/rename.svelte.js';
+  import IntentStep from '../tourenb/IntentStep.svelte'; // Idee 52 (Touren b): Tour aus einer Absicht
+  import { intentRecord } from '../tourenb/absicht.js';
 
   /**
    * trip: the trip to edit, or null for "New trip".
@@ -147,7 +149,9 @@
   }
   /** The context fields to store (only for bike trips). */
   // v0.66.0 (Noah 7a, 9a): dark: the ride goes into the dark (Light comes); sets: the ride blocks taken off here.
-  const ctxFields = () => ({ eat: { on: ctx.eatOn, every: ctx.eatEvery }, hours: hoursOk ? hoursNum : null, overnight: night, cook: night === 'outdoor' && ctx.cook, tent: night === 'outdoor' && ctx.tent, wx: wxOut, event: ctx.event, dark, ...(isNew && off.length ? { sets: Object.fromEntries(off.map((k) => [k, false])) } : {}), ...(isNew && wxPlace ? { place: wxPlace } : {}) });
+  // Idee 52 (Touren b): the intent the new tour was made from (its questions come back in the Rückblick)
+  let intent = $state(null);
+  const ctxFields = () => ({ ...(isNew && intent ? { intent: $state.snapshot(intent) } : {}), eat: { on: ctx.eatOn, every: ctx.eatEvery }, hours: hoursOk ? hoursNum : null, overnight: night, cook: night === 'outdoor' && ctx.cook, tent: night === 'outdoor' && ctx.tent, wx: wxOut, event: ctx.event, dark, ...(isNew && off.length ? { sets: Object.fromEntries(off.map((k) => [k, false])) } : {}), ...(isNew && wxPlace ? { place: wxPlace } : {}) });
   // v0.66.0 (Noah 8a): the night as one choice: none, Bivouac, Bivouac + tent, Hotel/hut.
   const choice = $derived(night === 'outdoor' ? (ctx.tent ? 'tent' : 'bivy') : night === 'lodging' ? 'hotel' : night);
   function pickNight(key) {
@@ -513,6 +517,23 @@
     const comes = contextSets({ overnight: c.overnight || night, cook: !!c.cook });
     picked = [...new Set([...picked, ...p.blocks.filter((k) => !comes.includes(k) && sets.some((s) => s.key === k))])];
     extras = [...extras.filter((r) => !p.items.some((x) => x.id === r.id)), ...p.items];
+  }
+  /** Idee 52: the proposal of the intent step fills the window; «Create trip» then saves it at once. */
+  async function fromIntent(p, key, answers, create) {
+    intent = intentRecord(key, answers, p);
+    if (autoName) (draft.title = t(p.title)), (autoName = false);
+    if (p.startDate) draft.startDate = p.startDate;
+    draft.days = p.days;
+    moreWanted = p.days >= 3;
+    ctx.overnight = p.overnight;
+    ctx.cook = p.cook;
+    ctx.tent = p.tent;
+    if (p.hours) ctx.hours = String(p.hours);
+    chose = true;
+    if (create) {
+      await tick();
+      dialog?.querySelector('form')?.requestSubmit();
+    }
   }
   /** The helper's items into a trip: bike trips into their usual bag, other areas into their first bag. */
   const withExtras = (nt) => (extraRows.length ? addHelperItems(nt, items, extraRows.map((r) => r.id), (i) => (nt.packs?.length ? nt.packs[0].key : tripSlot(i, nt.setup))) : nt);
@@ -972,6 +993,7 @@
       <h2 id="trip-h">{isNew ? t('Conditions|newtrip') : t('Trip details')}</h2>
     </header>
     <!-- v0.114.0 (Noah: «KI helfer soll raus»): the helper only with a question from the search («Als Packliste vorschlagen»). -->
+    {#if isNew && byBike && !askPrefill}<IntentStep onapply={fromIntent} />{/if}
     {#if isNew && askPrefill && helper.loaded && isSetUp() && isOn()}
       <TripAsk {items} {bikes} {sets} areas={askAreas} prefill={askPrefill} onapply={takeProposal} />
     {/if}

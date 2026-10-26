@@ -120,7 +120,7 @@
     return tab ? `${placeLabel(p)} › ${tabLabel(place, tab)}` : placeLabel(p);
   });
   // a page for someone without the app's data (a shared list, Paket S «Reise-Spur»: a tour's read link)
-  const guest = $derived(page === 'share' || page === 'spurlink' || page === 'gruppe');
+  const guest = $derived(page === 'share' || page === 'spurlink' || page === 'gruppe' || page === 'card');
   // v0.78.0 «Fünf Orte» 2 (Noah O2.2a): each place remembers the tab opened last (nav.js placeHref).
   const tab = $derived(place ? tabOf(place, hash) : null);
   $effect(() => {
@@ -402,10 +402,13 @@
     Tour: () => import('./pages/Tour.svelte'), // «Tour» (Noah 19.10.2026 «1a»): one finished tour
     SpurLink: () => import('./pages/SpurLink.svelte'), // Paket S: the family's read link
     Gruppe: () => import('./pages/Gruppe.svelte'), // Gruppen-Live-Karte: a friend's view of the group ride
+    GroupRide: () => import('./pages/GroupRide.svelte'), // Gruppenfahrt für Events: the page of your group ride
+    Karte: () => import('./pages/Karte.svelte'), // Gruppenfahrt für Events: a contact card from a QR code
     Abfahrt: () => import('./pages/Abfahrt.svelte'), // Paket K #87 «Vor der Abfahrt»
     Mountain: () => import('./pages/Mountain.svelte'), // Paket J: Berg, Schnee und Notfall
     Supplies: () => import('./pages/Supplies.svelte'), // Paket H: Material › Vorrat
     Lend: () => import('./pages/Lend.svelte'), // Paket H: Material › Ausgeliehen
+    TripsCompare: () => import('./pages/TripsCompare.svelte'), // Touren-Idee 44 (Noah 26.10.2026 «1a»): Touren › Nebeneinander
     Fuel: () => import('./pages/Fuel.svelte'), // Verpflegung (Noah 19.10.2026 «1a»): Touren › Verpflegung
     Power: () => import('./pages/Power.svelte'), // Strombudget (Noah 19.10.2026 «2a»): Material › Strom
     Pay: () => import('./pages/Pay.svelte'),
@@ -471,7 +474,7 @@
 <DbWaitLine />
 {#if !mini && !guest}<ComebackWindow care={$dueQ ?? 0} inbox={$inboxQ ?? 0} /><YearCheckWindow {hash} /><DiaryReminder {hash} />{/if}
 
-<main class:calm class:wide={page === 'pack' || page === 'ride' || page === 'debrief' || page === 'rides' || page === 'stravarides' || page === 'past' || page === 'templates' || page === 'gear' || page === 'supplies' || page === 'power' || page === 'fuel' || page === 'tour' || page === 'lend' || page === 'blocks' || page === 'blockcheck' || page === 'packcleanup' || page === 'home' || page === 'features' || page === 'wardrobe' || page === 'flow' || page === 'auswerten' || page === 'timer' || page === 'check' || page === 'routine' || page === 'week' || page === 'neuland' || page === 'heatmap' || page === 'dreams'} class:hub={HUB_PAGES.includes(page)} class:bar={!wide.matches || !!mini}>
+<main class:calm class:wide={page === 'pack' || page === 'ride' || page === 'debrief' || page === 'rides' || page === 'stravarides' || page === 'past' || page === 'templates' || page === 'gear' || page === 'supplies' || page === 'power' || page === 'fuel' || page === 'compare' || page === 'tour' || page === 'lend' || page === 'blocks' || page === 'blockcheck' || page === 'packcleanup' || page === 'home' || page === 'features' || page === 'wardrobe' || page === 'flow' || page === 'auswerten' || page === 'timer' || page === 'check' || page === 'routine' || page === 'week' || page === 'neuland' || page === 'heatmap' || page === 'dreams'} class:hub={HUB_PAGES.includes(page)} class:bar={!wide.matches || !!mini}>
   {#if !calm && !guest && !mini}<PlaceTabs {place} {hash} {moved} onclosemoved={() => (moved = null)} />{/if}
   <!-- AU1 «1b»: on a phone Velos and Ausrüstung share a slot. Gesamttest 20.10.2026 B7: the switch stands only
        on Ausrüstung (the way back); Velos already has its tabs and path, Ausrüstung is one row on Velos › Übersicht -->
@@ -540,6 +543,12 @@
   {:else if page === 'gruppe'}
     <!-- Gruppen-Live-Karte (Noah 25.10.2026 «b»): a friend's view of the group ride, no app data -->
     {#key hash}<LazyPage load={PAGES.Gruppe} {hash} />{/key}
+  {:else if page === 'groupride'}
+    <!-- Gruppenfahrt für Events (Noah 26.10.2026 «1a»): Touren › Live-Karte › Gruppenfahrt -->
+    <LazyPage load={PAGES.GroupRide} />
+  {:else if page === 'card'}
+    <!-- Gruppenfahrt für Events «5a»: a contact card from a QR code, kept only on this device -->
+    {#key hash}<LazyPage load={PAGES.Karte} {hash} />{/key}
   {:else if page === 'packcleanup'}
     <!-- «Packliste aufräumen» (Noah 21.10.2026 «5a»): Bausteine › Packliste aufräumen -->
     <LazyPage load={PAGES.PackCleanup} />
@@ -558,6 +567,9 @@
   {:else if page === 'lend'}
     <!-- Paket H (answer 5a+b): Material › Ausgeliehen, loaded only when opened -->
     <LazyPage load={PAGES.Lend} />
+  {:else if page === 'compare'}
+    <!-- Touren-Idee 44 (Noah 26.10.2026 «1a»): two trips side by side, loaded only when opened -->
+    {#key hash}<LazyPage load={PAGES.TripsCompare} />{/key}
   {:else if page === 'fuel'}
     <!-- Verpflegung (Noah 19.10.2026 «1a»): Touren › Verpflegung, loaded only when opened -->
     {#key hash}<LazyPage load={PAGES.Fuel} />{/key}

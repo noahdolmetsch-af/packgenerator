@@ -72,7 +72,9 @@ test('sections, greeting with the weather, the trip card, the 16 functions as sm
   // 0.180.0 P6 (Noah 21.10.2026 «2b», changed on purpose): the meditation card is first on the wall, the weekly weight
   // under it; «Your body today» still starts in the first screen
   const bodyTop = await page.locator('[data-section="body"]').evaluate((el) => el.getBoundingClientRect().top);
-  expect(bodyTop, '«Your body today» starts in the first screen').toBeLessThan(page.viewportSize().height);
+  // the rows above it in the message, so a red run on GitHub says which row grew (CI 26.10.2026)
+  const above = await page.evaluate(() => [...document.querySelectorAll('section.greet > * > * > *, .wall > *')].map((e) => `${e.tagName.toLowerCase()}.${String(e.className).split(' ')[0]} ${Math.round(e.getBoundingClientRect().top)}+${Math.round(e.getBoundingClientRect().height)}`).join(', '));
+  expect(bodyTop, `«Your body today» starts in the first screen (${above})`).toBeLessThan(page.viewportSize().height);
   await expect(page.locator('.wall > [data-tile]').first()).toHaveAttribute('data-tile', 'meditation');
   const order = await page.locator('[data-section="weighin"], [data-section="body"], [data-section="acts"], [data-section="trip"], [data-section="today"]').evaluateAll((els) => els.map((e) => e.dataset.section));
   expect(order.filter((x, i, a) => a.indexOf(x) === i)).toEqual(['weighin', 'body', 'acts', 'trip', 'today']);

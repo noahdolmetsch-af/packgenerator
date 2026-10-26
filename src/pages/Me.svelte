@@ -42,6 +42,7 @@
   import HomePlaceSheet from '../lib/ich/HomePlaceSheet.svelte';
   import { Leaf, HeartHandshake, Globe, Palette, House, Inbox, NotebookPen, Database, Info, Lightbulb, Keyboard, ChevronRight, ChevronDown, Sparkles, Archive, FlaskConical, TriangleAlert, Star, ListChecks, ClipboardList, History, CreditCard, Hand, BookOpen, LayoutGrid, Compass, ListTree, CircleHelp, Check, Bell, ListTodo, SlidersHorizontal, FileText, Scale, CalendarCheck, CalendarDays, BellRing, Mail, Backpack, Link2, Wrench, ExternalLink, CalendarClock, FolderOpen, Images, Target, ShieldCheck, GraduationCap, ShoppingCart, MessageCircle, Search as SearchIcon } from '@lucide/svelte';
   import { wide } from '../lib/media.svelte.js';
+  import QuickLinks from '../lib/ui/QuickLinks.svelte';
   import { WHATS_NEW, shortVersion, newerThan, BEFORE } from '../lib/whatsnew.js';
   import NewsBanner from '../lib/know/NewsBanner.svelte';
   import StravaConnect from '../lib/strava/StravaConnect.svelte';
@@ -167,6 +168,8 @@
 
 <div class="mepage ich-page">
   <VeloHead title={t('Me|place')} {sub} />
+  <!-- «332 Use Cases» (Noah 26.10.2026 «tastenkürzel (unter ich), was mir gut tut» sichtbar) -->
+  <QuickLinks label={t('On this page')} links={[{ key: 'wohl', href: '#/me/wohl', label: t('What is good for me') }, { key: 'keys', onclick: () => window.dispatchEvent(new Event('pg:keys')), label: t('Keyboard shortcuts') }]} />
 
   {#if $waitQ}
     <!-- I1, Impeccable: on top what waits, each line with its button; nothing open: one calm line -->

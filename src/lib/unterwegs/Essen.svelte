@@ -9,14 +9,16 @@
   import { db } from '../db.js';
   import { t, num } from '../i18n.svelte.js';
   import EatEvery from './EatEvery.svelte';
-  import { EAT_KEY, eatOf, startEat, nextEat, eaten, snooze, isDue, minutesLeft, SNOOZE_MIN } from './essen.js';
+  import { EAT_KEY, eatOf, startEat, nextEat, eaten, snooze, isDue, minutesLeft, SNOOZE_MIN, eatStops, nextStop, GAP_MIN } from './essen.js';
   import { PUSH_KEY, pushOf } from '../push/schedule.js';
-  import { Utensils, Check, Clock, BellRing } from '@lucide/svelte';
+  import { Utensils, Check, Clock, BellRing, SkipForward } from '@lucide/svelte';
+  import Seg from '../ui/Seg.svelte';
   import { softTone } from './ton.js';
   import './unterwegs.css';
 
   // plan: this tour's choice from Plan (essen.js tripEat: { on, every }); onplan(patch) changes it
-  let { tripId = null, until = null, onstate = null, plan = null, onplan = null } = $props();
+  // Idee 57 (Touren b): fuelStops = trip.fuelStops (Planen › Verpflegung), day = the ride day; mode 'stops' reminds at them
+  let { tripId = null, until = null, onstate = null, plan = null, onplan = null, fuelStops = [], day = 0 } = $props();
   const eatQ = liveQuery(() => db.settings.get(EAT_KEY));
   const pushQ = liveQuery(() => db.settings.get(PUSH_KEY));
 
@@ -41,7 +43,25 @@
   $effect(() => {
     if (e) sound = e.sound;
   });
-  const start = () => save(startEat({ every, now: Date.now(), until, tripId, sound }));
+  const dayStops = $derived((Array.isArray(fuelStops) ? fuelStops : []).filter((x) => (x?.day ?? 0) === day));
+  let mode = $state('every');
+  $effect(() => {
+    mode = e ? (e.mode ?? 'every') : plan?.mode ?? (dayStops.length ? 'stops' : 'every');
+  });
+  const stopsNow = (from) => eatStops(fuelStops, { day, startMs: from, until: Number.isFinite(until) ? until : Infinity });
+  const start = () => save(startEat({ every, now: Date.now(), until, tripId, sound, mode, stops: mode === 'stops' ? stopsNow(Date.now()) : null }));
+  function setMode(m) {
+    mode = m;
+    onplan?.({ mode: m });
+    if (!e) return;
+    if (m === 'stops') save({ ...e, mode: 'stops', stops: stopsNow(e.from) });
+    else {
+      const { mode: _m, stops: _s, snoozeTo: _z, ...rest } = e;
+      save(rest);
+    }
+  }
+  const ns = $derived(nextStop(e));
+  const coming = $derived(e?.mode === 'stops' ? e.stops.filter((x) => x.at > e.last).slice(0, 4) : mode === 'stops' ? stopsNow(now).slice(0, 4) : []);
   const setSound = (on) => {
     sound = on;
     if (e) save({ ...e, sound: on });
@@ -95,6 +115,7 @@
       <h2 id="eat-h" class="sh">{t('Eat reminder')}</h2>
       <p class="tp-small tp-muted">
         {#if !e}{t('Reminds you to eat while you ride. Off until you start it.')}
+        {:else if due && ns?.name}{t('Now: {name}', { name: ns.name })}
         {:else if due}{t('Time to eat')}
         {:else if left != null}{t('Next in {n} min · at {time}', { n: num(left), time: timeOf(nextEat(e)) })}
         {:else}{t('No more reminders before the planned end.')}{/if}
@@ -103,13 +124,30 @@
     <button type="button" class="tp-link hide" onclick={hide} data-eat-hide>{t('Hide|eat')}</button>
   </div>
   {#if due}
-    <p class="uw-due" role="alert"><BellRing size={20} aria-hidden="true" /> <b>{t('Time to eat')}</b> <span>{t('A bite now keeps the strength up.')}</span></p>
+    <p class="uw-due" role="alert"><BellRing size={20} aria-hidden="true" /> <b>{ns?.name ? t('Planned stop: {name}', { name: ns.name }) : t('Time to eat')}</b> <span>{ns?.name ? t('Eat something and fill up water.') : t('A bite now keeps the strength up.')}</span></p>
     <div class="uw-row acts">
       <button type="button" class="btn hi" onclick={ate} data-eat-done><Check size={18} aria-hidden="true" />{t('Eaten')}</button>
       <button type="button" class="btn" onclick={later}><Clock size={18} aria-hidden="true" />{t('In {n} minutes', { n: SNOOZE_MIN })}</button>
+      {#if ns?.name}<button type="button" class="btn" onclick={ate} data-eat-skip><SkipForward size={18} aria-hidden="true" />{t('Skip the stop')}</button>{/if}
     </div>
   {/if}
-  <EatEvery value={every} onpick={setEvery} />
+  {#if dayStops.length}
+    <div class="uw-mode" data-eat-mode>
+      <span class="tp-small">{t('When?|eat')}</span>
+      <Seg full={false} label={t('When the reminder comes')} value={mode} options={[{ key: 'every', name: t('Every {n} min', { n: every }) }, { key: 'stops', name: t('At stops') }]} onchange={setMode} />
+    </div>
+  {/if}
+  {#if mode === 'stops' && dayStops.length}
+    {#if coming.length}
+      <ul class="uw-stops" data-eat-stops>
+        {#each coming as x (x.at)}<li class:gap={x.gap}>{#if x.gap}{t('Hint after {n} min without a stop', { n: GAP_MIN })}{:else}<b>{x.name || t('Stop|eat')}</b>{#if x.km != null}{' · '}km {num(Math.round(x.km))}{/if}{/if}<small class="num"> · {t('about {time}', { time: timeOf(x.at) })}</small></li>{/each}
+      </ul>
+    {/if}
+    <p class="tp-small tp-muted">{t('The stops come from Plan › Food and drink. With your place on the live map the reminder comes 500 m before the stop, otherwise at the estimated time.')}</p>
+  {:else}
+    <EatEvery value={every} onpick={setEvery} />
+    {#if !dayStops.length}<p class="tp-small tp-muted" data-eat-nostops>{t('With a food plan (Plan › Food and drink) the reminder can come at the planned stops.')}</p>{/if}
+  {/if}
   <label class="tp-small"><input type="checkbox" role="switch" checked={sound} onchange={(ev) => setSound(ev.currentTarget.checked)} data-eat-sound /> {t('Soft tone')}</label>
   <div class="uw-row acts">
     {#if !e}<button type="button" class="btn ink" onclick={start} data-eat-start>{t('Start eat reminder')}</button>
@@ -174,6 +212,25 @@
   }
   .closed {
     margin: 0;
+  }
+  .uw-mode {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+  }
+  .uw-stops {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .uw-stops li {
+    padding: 6px 0;
+    border-top: 1px solid var(--line);
+  }
+  .uw-stops li.gap {
+    color: var(--ink-2);
+    font-size: var(--fs-small);
   }
   .closed label {
     display: flex;

@@ -63,6 +63,8 @@
     flex-direction: column;
     gap: 0;
   }
+  /* one row each on a 390 px phone, also with a wider font: the row had 2 px to spare and wrapped on GitHub, which
+     pushed «Dein Körper heute» out of the first screen (CI 26.10.2026); the field is narrower, the small line scrolls */
   .row {
     display: flex;
     flex-wrap: wrap;
@@ -71,10 +73,10 @@
   }
   .fld {
     display: flex;
-    flex: 0 1 104px;
+    flex: 0 1 88px;
     align-items: center;
     gap: 6px;
-    min-width: 88px;
+    min-width: 72px;
     min-height: 44px;
     padding: 0 12px;
     border: 1px solid var(--line);
@@ -96,6 +98,11 @@
     margin: 0;
     color: var(--ink-3);
     font-size: var(--fs-small);
+  }
+  .more {
+    overflow-x: auto;
+    scrollbar-width: none;
+    white-space: nowrap;
   }
   .ok {
     color: var(--ink-2);
