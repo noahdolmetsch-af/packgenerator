@@ -22,6 +22,7 @@
   import { FileDown, Phone, FileText, Plus, Pencil, Trash2, Check, House, Printer } from '@lucide/svelte';
   import { HOUSE_KEY, houseOf, houseLabel, doneOf } from '../lib/unterwegs/haus.js';
   import HausCheck from '../lib/unterwegs/HausCheck.svelte';
+  import QuickLinks from '../lib/ui/QuickLinks.svelte';
   import HueterListe from '../lib/unterwegs/HueterListe.svelte';
   import '../lib/unterwegs/unterwegs.css';
 
@@ -133,6 +134,8 @@
   <PathHead crumbs={[{ label: t('On the way'), href: '#/ride' }]} title={t('Before you leave|sheet')} sub={trip ? trip.title : t('No trip yet')}>
     {#if trip}<button type="button" class="btn hi" onclick={pdf} disabled={pdfBusy} data-abfahrt-pdf><FileDown size={18} aria-hidden="true" />{pdfBusy ? t('Making …') : t('As PDF')}</button>{/if}
   </PathHead>
+  <!-- «332 Use Cases» (Noah 24.10.2026 «2b»): the two lists at the end of the page, one tap away -->
+  <QuickLinks label={t('On this page')} links={[{ key: 'house', jump: '#house-h', label: t('House check') }, { key: 'keeper', jump: '#keeper-h', label: t('List for the flat sitter') }]} />
   {#if pdfMsg}<p class="tp-small" role="status">{pdfMsg}</p>{/if}
   <p class="tp-small tp-muted">{t('Everything on this page is on your device and works without internet. «As PDF» makes it to print.')}</p>
 
