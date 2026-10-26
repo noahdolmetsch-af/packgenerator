@@ -1,6 +1,6 @@
 # Projektstand
 
-Stand: 18. Oktober 2026. Der kurze Überblick steht im [Projektstand](projektstand.md), der Verlauf in der [Geschichte](geschichte.md). Diese Datei ist das ausführliche Protokoll.
+Stand: 26. Oktober 2026 (Kopf nachgetragen; die Einträge unten werden mit jedem Release ergänzt). Der kurze Überblick steht im [Projektstand](projektstand.md), der Verlauf in der [Geschichte](geschichte.md). Diese Datei ist das ausführliche Protokoll.
 
 ## Aktuell live
 
