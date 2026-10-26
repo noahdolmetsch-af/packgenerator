@@ -2417,7 +2417,7 @@
     border: 0;
     background: none;
     color: var(--ink);
-    font: 500 14px var(--font-body);
+    font: 500 var(--fs-label) var(--font-body);
     text-decoration: underline;
     text-underline-offset: 2px;
     cursor: pointer;
