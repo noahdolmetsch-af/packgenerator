@@ -66,7 +66,7 @@
             {#if photo}<img class="pp-ph" src={photo} alt="" />{:else}<span class="rh-ic pp-ic"><Sprout size={20} aria-hidden="true" /></span>{/if}
             <div class="pp-t">
               <h2 class="rh-sub">{td.text}</h2>
-              <p class="rh-help"><MapPin size={14} aria-hidden="true" /> {td.plant.place || t('No place yet')}{#if now.n} · {[now.sun && label(SUN, now.sun), now.wind && label(WIND, now.wind), now.wet && label(WET, now.wet)].filter(Boolean).join(' · ')}{/if}</p>
+              <p class="rh-help"><MapPin size={14} aria-hidden="true" /> {td.plant.place || t('No place yet')}{#if now.n}{' '}·{' '}{[now.sun && label(SUN, now.sun), now.wind && label(WIND, now.wind), now.wet && label(WET, now.wet)].filter(Boolean).join(' · ')}{/if}</p>
             </div>
           </div>
           {#if hint}<p class="rh-note"><Lightbulb size={14} aria-hidden="true" /> {t(hint)}</p>{/if}
