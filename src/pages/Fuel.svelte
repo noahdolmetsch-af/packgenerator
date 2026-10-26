@@ -30,6 +30,7 @@
     FUEL_KEY, LIMITS, ROUTE_KINDS, PLACE_KINDS, valuesOf, withValue, withStandardValues, fuelForTrip, tripOwnOf, tripDiff, fuelPlan, packOf, moveProduct, productId,
     climbAlong, hoursAlong, etaAlong, tempFromTrip, dayStartMs,
   } from '../lib/fuel.js';
+  import { fuelStopsFor } from '../lib/unterwegs/essen.js'; // Idee 57 (Touren b): the planned stops for the eat reminder
   import PathHead from '../lib/ui/PathHead.svelte';
   import Seg from '../lib/ui/Seg.svelte';
   import Fold from '../lib/ui/Fold.svelte';
@@ -86,6 +87,13 @@
     const hoursTo = hoursAlong(pace, climbTo);
     const eta = etaAlong({ startMs: dayStartMs(trip.startDate), startHour: v.startHour, rideH, hoursTo });
     return fuelPlan({ totalKm, gainM: route.gainM, profile: route.profile, values: v, hoursTo, eta, tempAt: (ms) => tempFromTrip(trip, ms), kinds: source.kinds, pois: source.pois, openAt: source.full ? openAt : null });
+  });
+  // Idee 57 (Touren b): keep the planned stops on the trip, so the eat reminder can come at them (only when they changed)
+  $effect(() => {
+    if (!trip?.id || !plan) return;
+    const stops = fuelStopsFor(plan, { startMs: dayStartMs(trip.startDate), startHour: v.startHour });
+    if (JSON.stringify(stops) === JSON.stringify(trip.fuelStops ?? [])) return;
+    db.trips.update(trip.id, { fuelStops: stops }).catch(() => {});
   });
   // without a route: the riding hours of the trip only
   // Paket X: the one energy rule, what the ride uses next to what you eat

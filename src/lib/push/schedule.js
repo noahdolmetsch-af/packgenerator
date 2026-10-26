@@ -291,7 +291,7 @@ export function buildList(data) {
       const at = atMs(addDays(tr.startDate, -SHOP_BEFORE), DAY_AT);
       add({ key: `shop:${tr.id}:${tr.startDate}`, at, title: t('Before your trip'), body: t('{trip} in 2 days: time to shop and charge.', { trip: tourName(tr) }), url: '#/pack?shop' });
     }
-  if (on('eat')) for (const x of eatPushItems(data.settings?.eatRemind, { title: t('Time to eat'), body: t('A bite now keeps the strength up.') }, ms)) add(x);
+  if (on('eat')) for (const x of eatPushItems(data.settings?.eatRemind, { title: t('Time to eat'), body: t('A bite now keeps the strength up.'), stop: t('Planned stop: {name}. Eat something and fill up water.') }, ms)) add(x);
   const merken = Array.isArray(data.settings?.merken) ? data.settings.merken : [];
   for (const td of merken) {
     if (!td || td.off || td.doneAt) continue;

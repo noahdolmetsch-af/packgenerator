@@ -62,6 +62,7 @@
   import Woanders from '../lib/sk/Woanders.svelte'; // SK X11 + X16 (SKX4)
   import { windyUrl, bikeShopsUrl } from '../lib/sk/links.js';
   import KomootRow from '../lib/komoot/KomootRow.svelte'; // SN1b «Tour aus komoot»
+  import UsedCard from '../lib/tourenb/UsedCard.svelte'; // Idee 58 (Touren b): count what is used up on the way
   import SpurCard from '../lib/spur/SpurCard.svelte'; // Paket S «Reise-Spur»: «Hier bin ich», «Aufzeichnen», the tour map
   import { komootSport } from '../lib/komoot.js';
   import { domainOf } from '../lib/domains.js';
@@ -748,7 +749,7 @@
 
     <div class="col">
       <!-- Paket K #286 «Ess-Erinnerung» -->
-      {#if !trip.finished}{#await import('../lib/unterwegs/Essen.svelte') then m}<m.default tripId={trip.id} until={untilMs} onstate={(x) => (eatNext = x.next)} plan={tripEat(trip)} onplan={(p) => db.trips.update(trip.id, { eat: { ...tripEat(trip), ...p } })} />{/await}{/if}
+      {#if !trip.finished}{#await import('../lib/unterwegs/Essen.svelte') then m}<m.default tripId={trip.id} until={untilMs} fuelStops={trip.fuelStops ?? []} day={cur} onstate={(x) => (eatNext = x.next)} plan={tripEat(trip)} onplan={(p) => db.trips.update(trip.id, { eat: { ...tripEat(trip), ...p } })} />{/await}{/if}
       <!-- Noah 8a: quick notes for the debrief: two taps, no typing. -->
       <section class="notesec" aria-labelledby="note-h">
         <h2 id="note-h" class="sh">{t('Note for the debrief')}</h2>
@@ -798,6 +799,7 @@
         </div>
       </section>
       <!-- Paket S «Reise-Spur» (Noah 19.10.2026 «1a und b»): a place by tap, the own recording, the tour map -->
+      {#if !ahead && !trip.finished}<UsedCard {trip} {items} />{/if}
       {#if !ahead}<SpurCard {trip} />{/if}
 
       {#if eve?.charge.length}
