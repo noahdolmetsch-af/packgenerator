@@ -397,6 +397,9 @@ export const HOWTO = {
   'f.devil': ['Open Me › Calm and personal › Assistant with sources › Question my plan.', 'Read what is still open.', '«Collect the strongest counter-arguments» asks Gemini.'],
   'f.aicheck': ['Ask Gemini on the page «Assistant with sources».', 'The answer waits under «Check AI suggestions first».', '«Take» makes a to-do, «Drop» puts it away.'],
   'f.nogos': ['Open Me › Calm and personal › Assistant with sources › My own no-gos.', 'Add a no-go and its kind.', 'A packing or wish list that holds one shows it here.'],
+  'f.inputbar': ['Open a text, e.g. a new diary entry.', 'Under the text tap «Voice note», «File», «Template» or another part of «Add».', 'Save as usual; what you added stays with it.'],
+  'f.inputtemplates': ['Open a text and tap «Template» under it.', 'Tap a template; its text goes under yours.', '«Change templates»: add, change, sort or delete.'],
+  'f.picturecard': ['Open a diary entry.', 'Tap «Picture card».', 'Choose the photo, change the sentence, then «Share» or «Download it».'],
 };
 
 /** The steps of a function, or [] when it has none. */

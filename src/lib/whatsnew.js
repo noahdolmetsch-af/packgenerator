@@ -16,6 +16,21 @@
 
 export const WHATS_NEW = [
   {
+    // v0.199.0 «Eingaben überall» (Noah 26.10.2026 «1a 2b 3 nur Ton. kein Video 4b 5a aber b möglich»): one input bar
+    // on ten pages (voice note up to 1 min, photo, file, place, tags, templates per page, prompts, AI), picture card,
+    // the diary in the app search.
+    version: '0.199.0',
+    date: '2026-10-26',
+    title: 'Speak, attach, start from a template',
+    lead: 'Under every text you can now add a voice note, a file or a template.',
+    points: [
+      { text: 'Voice note, file, place and templates under the text of ten pages', href: '#/tagebuch?neu' },
+      { text: 'Diary: gratitude, small joys and a picture card to share', href: '#/tagebuch' },
+    ],
+    small: [{ box: 'new', text: 'The search at the top also finds your diary' }, { box: 'new', text: 'Writing prompts when you are stuck' }],
+    test: ['Open Planen › Tagebuch › «Neuer Eintrag». Under the text tap «Sprachnotiz», speak a few seconds, then «Als Text».', 'Tap «Vorlage» › «Dankbarkeit»: the question stands under your text. Save; in the entry tap «Bildkarte».'],
+  },
+  {
     // v0.198.0 «Kette vorausschauend» (Noah 25.10.2026): the chain's next steps on «Wear» (replace, before the trip,
     // soon, measure, oil), history and forecast from the own measurements, phone reminder «measure the chain».
     version: '0.198.0',

@@ -154,6 +154,8 @@ export const SINCE = {
   // «Auswertung wie Training» (provisional version, the bundler renumbers)
   'f.tickreview': '0.174.0',
   'f.parkdays': '0.176.0', 'f.packside': '0.176.0', // Paket «Reste» (21.10.2026)
+  // «Eingaben überall» (Noah 26.10.2026; provisional, the bundler sets the version of its release)
+  'f.inputbar': '0.199.0', 'f.inputtemplates': '0.199.0', 'f.picturecard': '0.199.0',
 };
 export const sinceOf = (id) => SINCE[id] ?? '0.1.0';
 

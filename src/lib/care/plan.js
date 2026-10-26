@@ -111,7 +111,7 @@ export function checkCare(key, values, on = true) {
  * plus { careNotes } when the note changed. on false switches it off; values null with on true is the
  * standard. A value equal to the standard is not kept (the part goes back to «Standard»).
  */
-export function careChange(stored, key, { on = true, values = null, note } = {}) {
+export function careChange(stored, key, { on = true, values = null, note, inputs } = {}) {
   const c = CARE_ITEM[key];
   if (!c) return {};
   const std = careStd(key);
@@ -138,6 +138,13 @@ export function careChange(stored, key, { on = true, values = null, note } = {})
     if (text) notes[key] = text;
     else delete notes[key];
     out.careNotes = notes;
+  }
+  // «Eingaben überall» (26.10.2026): voice notes, photos and files of this care (eingabe/inputs.js, cleaned by the caller)
+  if (inputs !== undefined) {
+    const all = { ...(stored?.careInputs ?? {}) };
+    if (inputs) all[key] = inputs;
+    else delete all[key];
+    out.careInputs = all;
   }
   return out;
 }

@@ -2,6 +2,10 @@
 
 Stand: **19. Oktober 2026, abends**. Live ist **Version 0.152.0** («Tempo», seit 19.10.2026). Mit diesem PR kommt **0.154.0** (Paket 2); 0.153.0 (Paket 1, PR #200) ist davor online gegangen.
 
+### Kurzstand 26.10.2026: Eingaben überall
+
+**0.199.0 «Sprechen, anhängen, mit Vorlage starten» (26.10.2026, Noah «1a 2b 3 nur Ton. kein Video 4b 5a aber b möglich»):** unter den Texten von zehn Seiten (Tagebuch, Notizen, Tages-Check, Tour-Tagebuch, Unterwegs, Reisespur, Velopflege, Ausrüstung, Träume, Schnellnotiz) eine Leiste «Hinzufügen»: Sprachnotiz bis 1 Minute (mit «Als Text» auf dem Gerät), Foto, Datei, Ort, Schlagwort, Vorlagen pro Seite (Tagebuch: Dankbarkeit, kleine Erfreuer, 2 gute Dinge, Lieblingsmoment; hinzufügen, ändern, ordnen, löschen), Schreibanreize, KI-Helfer (Anreize, Highlights, Titel, gratis über Gemini, nur mit Häkchen). Jede Seite zeigt nur, was dort passt. Tagebuch: «Bildkarte» aus eigenem Foto zum Teilen oder Herunterladen (kein KI-Bild, kein Video); die App-Suche findet Tagebuch-Einträge, abschaltbar in den Tagebuch-Einstellungen (mit Sperrcode nur, solange offen). Kein Dexie-Schema; neues Feld `inputs` an bestehenden Einträgen, Backup-Format gleich.
+
 ### Kurzstand 25.10.2026: Kette vorausschauend
 
 **0.198.0 «Kette vorausschauend» (25.10.2026, Noah «2 und 3»):** Velos › Pflege › Verschleiss zeigt oben «Kette: was als Nächstes kommt» (höchstens drei Schritte: ersetzen, neue Kette vor der Tour, bald neu, messen, ölen, je mit Knopf), gefaltet «Verlauf und Prognose» aus den eigenen Messungen (die neue Kette zählt als 0 %, also reicht eine Messung für eine erste Schätzung), Hinweis auf Fahrten in «Zum Prüfen»; die Verschleiss-Karte der Velopflege nennt die nächste Kettenaufgabe; Handy-Erinnerung «Kette messen» und «neue Kette vor der Tour» unter «Teile abgenutzt». Mit Noahs echtem Backup privat geprüft. Kein Dexie-Schema, Backup-Format gleich.

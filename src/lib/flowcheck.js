@@ -83,6 +83,8 @@ export function checkOf(c, day) {
     // Noah 20.10.2026 «frage überspringen»: the questions skipped today on the page (their data-q keys)
     skip: ids(c?.skip),
     mAt: typeof c?.mAt === 'string' ? c.mAt : null,
+    // «Eingaben überall» (26.10.2026): voice notes and photos of the evening (eingabe/inputs.js)
+    inputs: c?.inputs && typeof c.inputs === 'object' ? c.inputs : null,
   };
 }
 /** Some answers of the day set at once (the rest kept). */

@@ -4,6 +4,15 @@
  * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
+  // 0.199.0 Eingaben überall
+  'Speak, attach, start from a template': 'Sprechen, anhängen, mit Vorlage starten',
+  'Under every text you can now add a voice note, a file or a template.': 'Unter jedem Text kannst du jetzt eine Sprachnotiz, eine Datei oder eine Vorlage hinzufügen.',
+  'Voice note, file, place and templates under the text of ten pages': 'Sprachnotiz, Datei, Ort und Vorlagen unter dem Text von zehn Seiten',
+  'Diary: gratitude, small joys and a picture card to share': 'Tagebuch: Dankbarkeit, kleine Erfreuer und eine Bildkarte zum Teilen',
+  'The search at the top also finds your diary': 'Die Suche oben findet auch dein Tagebuch',
+  'Writing prompts when you are stuck': 'Schreibanreize, wenn du feststeckst',
+  'Open Planen › Tagebuch › «Neuer Eintrag». Under the text tap «Sprachnotiz», speak a few seconds, then «Als Text».': 'Öffne Planen › Tagebuch › «Neuer Eintrag». Tippe unter dem Text «Sprachnotiz», sprich ein paar Sekunden, dann «Als Text».',
+  'Tap «Vorlage» › «Dankbarkeit»: the question stands under your text. Save; in the entry tap «Bildkarte».': 'Tippe «Vorlage» › «Dankbarkeit»: die Frage steht unter deinem Text. Speichere; tippe im Eintrag «Bildkarte».',
   // 0.198.0 Kette vorausschauend
   'The chain, one step ahead': 'Die Kette, einen Schritt voraus',
   'The app says what the chain needs next, before it is too late.': 'Die App sagt, was die Kette als Nächstes braucht, bevor es zu spät ist.',

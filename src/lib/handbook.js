@@ -1905,6 +1905,21 @@ export const HANDBOOK = {
     steps: ['Open Me › Calm and personal › Assistant with sources › My own no-gos.', 'Add a no-go and its kind.', 'A packing or wish list that holds one shows it here.'],
     example: 'Example: «single-use batteries» → do not buy.',
   },
+  'f.inputbar': {
+    on: null,
+    steps: ['Open a text, e.g. a new diary entry, a note or the tour diary.', 'Under the text tap «Voice note», «Photo», «File», «Place», «Tag», «Template» or another tool; each page shows what fits.', 'Save as usual. A voice note can become words with «As text», on this device.'],
+    example: 'Example: on the ride «Voice note» → 40 seconds about the creaking bottom bracket, then «As text».',
+  },
+  'f.inputtemplates': {
+    on: null,
+    steps: ['Open a text and tap «Template» under it.', 'Tap a template: its text goes under yours.', '«Change templates»: add, change, sort or delete; each page has its own.'],
+    example: 'Example: in the diary «2 good things» → «Two good things that happened today: 1. 2.».',
+  },
+  'f.picturecard': {
+    on: null,
+    steps: ['Open a diary entry and tap «Picture card».', 'Choose the photo and change the sentence.', '«Share» opens the share menu of the phone, «Download it» keeps the picture.'],
+    example: 'Example: the photo of the pass and «The best coffee of the year at 2000 m» as a card for the family.',
+  },
 
 };
 
