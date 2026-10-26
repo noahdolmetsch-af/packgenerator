@@ -16,6 +16,22 @@
 
 export const WHATS_NEW = [
   {
+    // Velo-Ergänzungen (Noah 26.10.2026 «1 3 6 7 8 12a»): chain checker in the forecast, year in review, care series, calendar, noises, winter and spring. Provisional, the bundler sets the number.
+    version: '0.213.0',
+    date: '2026-10-26',
+    title: 'More for your bike',
+    lead: 'Also noises and the calendar.',
+    points: [
+      { text: 'Chain checker corrects the forecast', href: '#/bikes?tab=care&view=wear' },
+      { text: 'Bike year in review', href: '#/bikes?tab=care&view=year' },
+      { text: 'Winter and spring checklists', href: '#/bikes?tab=care&view=season' },
+    ],
+    test: [
+      'Bikes › Care › a bike › «Wear» › «Year in review».',
+      'On «Wear» note a noise under «Noises».',
+    ],
+  },
+  {
     // v0.212.1 UI-Test 26.10.2026 T1 «Heutige Tour: ein Zustand überall»: a day ride not begun yet (not packed, not
     // started) no longer shows «Letzter Abend», «Rückblick heute» or «Abgeschlossen»; the tour page says «Geplant»
     version: '0.212.1',

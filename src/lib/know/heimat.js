@@ -271,6 +271,13 @@ export const HOME = {
   'f.spick': '#/bikes?tab=care&view=spick',
   'f.partwear': '#/bikes?tab=care&view=wear',
   'f.wetchain': '#/bikes?tab=care&view=wear',
+  // Noah 26.10.2026 «1 3 6 7 8 12a»: the chips on top of «Verschleiss», the care series under the rain hint
+  'f.chainmeasure': '#/bikes?tab=care&view=wear',
+  'f.noises': '#/bikes?tab=care&view=wear',
+  'f.carestreak': '#/bikes?tab=care&view=wear',
+  'f.wearcal': '#/bikes?tab=care&view=wear',
+  'f.bikeyear': '#/bikes?tab=care&view=year',
+  'f.bikeseason': '#/bikes?tab=care&view=season',
   'f.wearphotos': '#/bikes?tab=care&view=photos',
   'f.sellbike': '#/bikes?tab=care&view=sell',
   'f.bikebox': '#/bikes?tab=care&view=wear',

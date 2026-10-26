@@ -4,6 +4,14 @@
  * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
+  // v0.213.0 Velo-Ergänzungen (Noah 26.10.2026)
+  'More for your bike': 'Mehr für dein Velo',
+  'Also noises and the calendar.': 'Auch Geräusche und der Kalender.',
+  'Chain checker corrects the forecast': 'Kettenlehre korrigiert die Prognose',
+  'Bike year in review': 'Velo-Jahresrückblick',
+  'Winter and spring checklists': 'Checklisten für Winter und Frühling',
+  'Bikes › Care › a bike › «Wear» › «Year in review».': 'Velos › Pflege › ein Velo › «Verschleiss» › «Jahresrückblick».',
+  'On «Wear» note a noise under «Noises».': 'Auf «Verschleiss» unter «Geräusche» ein Geräusch notieren.',
   // 0.212.1 Die heutige Tour sagt eins
   "Today's tour says one thing": 'Die heutige Tour sagt eins',
   'Not packed yet means: still packing, not done.': 'Noch nicht gepackt heisst: noch am Packen, nicht fertig.',
