@@ -102,6 +102,7 @@ export const HOME = {
   'f.editall': '#/me/lists',
   'f.select': '#/gear',
   'f.merge': '#/gear',
+  'f.ownviews': '#/gear', // Einzelidee 22: the row «Own views» under the view title
   'f.blockcheck': '#/blocks/check',
   'f.packcleanup': '#/blocks/aufraeumen',
   'f.gearimport': '#/gear',

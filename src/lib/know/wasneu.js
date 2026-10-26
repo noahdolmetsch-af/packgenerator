@@ -36,6 +36,8 @@ export const TOP_HREF = '#/me/news?all&sort=top';
  * missing here counts as 0.1.0 (from the start).
  */
 export const SINCE = {
+  // Einzelideen Material und Überall (996 Ideen, Noah 25.10.2026): provisional, the bundler sets the number
+  'f.ownviews': '0.205.0',
   // Paket K «Unterwegs»: v0.154.0
   'f.trainhome': '0.154.0', 'f.handlebar': '0.154.0', 'f.glove': '0.154.0', 'f.eatremind': '0.154.0', 'f.departsheet': '0.154.0', 'f.komoottour': '0.154.0', 'f.routeconvert': '0.154.0', 'f.waterfood': '0.154.0', 'f.ready': '0.154.0', 'f.listentip': '0.154.0', 'f.skyplaces': '0.154.0',
   // Paket VG «Das Velo im Griff» (Noah 20.10.2026): v0.172.0

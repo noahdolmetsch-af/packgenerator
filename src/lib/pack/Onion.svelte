@@ -9,15 +9,18 @@
    */
   import { Layers, Check, Circle, ChevronRight, ChevronDown, Plus } from '@lucide/svelte';
   import { t, tn, nameOf, locale } from '../i18n.svelte.js';
-  import { tempRange } from '../wardrobe.js';
+  import { tempRange, ZONES, LAYERS } from '../wardrobe.js';
 
-  let { check, kit = null, plan = null, offset = 0, itemsById = {}, added = [], kitAdded = null, onadd, onkit } = $props();
+  // Einzelidee 21 «Zu viel an derselben Stelle»: twice = pieces with the same task (einzeln/material.js twiceOf);
+  // the check asks what for: both on purpose (ontwiceok) or one stays at home (onremove, with Undo).
+  let { check, kit = null, plan = null, offset = 0, itemsById = {}, added = [], kitAdded = null, onadd, onkit, twice = [], ontwiceok = null, onremove = null } = $props();
 
   let open = $state(false);
   const fresh = $derived(new Set(added));
   const tr = (s, v) => t(s, v);
   const range = (k) => tempRange(k.minC, k.maxC, tr);
-  const summary = $derived(check.gaps ? tn(check.gaps, 'Onion: {n} gap', 'Onion: {n} gaps') : t('Onion: fits'));
+  const summary = $derived([check.gaps ? tn(check.gaps, 'Onion: {n} gap', 'Onion: {n} gaps') : t('Onion: fits'), twice.length ? tn(twice.length, '{n} twice', '{n} twice') : ''].filter(Boolean).join(' · '));
+  const placeName = (g) => [t(ZONES.find((z) => z.key === g.zone)?.name ?? g.zone), t(LAYERS.find((l) => l.key === g.layer)?.name ?? g.layer)].join(' · ');
   const when = $derived.by(() => {
     if (check.from !== 'hour' || !check.date) return t('lowest {c} °C', { c: check.real });
     const day = new Date(`${check.date}T12:00:00`).toLocaleDateString(locale(), { weekday: 'short' });
@@ -56,6 +59,20 @@
           </li>
         {/each}
       </ul>
+      {#if twice.length}
+        <ul class="twice" data-onion-twice>
+          {#each twice as g (g.key)}
+            <li>
+              <p class="tq"><b>{t('Same task twice')}</b> · {placeName(g)}: {g.items.map((i) => nameOf(i)).join(' · ')}</p>
+              <p class="meta">{t('What for? A spare on purpose, or one stays at home.')}</p>
+              <span class="tacts">
+                {#if ontwiceok}<button type="button" class="btn sm" onclick={() => ontwiceok(g.key)} data-twice-ok>{t('Both on purpose')}</button>{/if}
+                {#if onremove}{#each g.items as i (i.id)}<button type="button" class="btn sm" onclick={() => onremove(i.id, nameOf(i))}>{t('{name} stays home', { name: nameOf(i) })}</button>{/each}{/if}
+              </span>
+            </li>
+          {/each}
+        </ul>
+      {/if}
       {#if kit && plan && plan.items.length}
         <div class="kit">
           {#if plan.add.length}
@@ -75,6 +92,26 @@
 {/if}
 
 <style>
+  .twice {
+    margin: 4px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+  .twice li {
+    display: grid;
+    gap: 4px;
+    padding: 8px 4px;
+    border-top: 1px solid var(--line);
+  }
+  .tq {
+    margin: 0;
+    overflow-wrap: break-word;
+  }
+  .tacts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
   .onion {
     margin: 2px 6px 0;
     border-top: 1px solid var(--line);

@@ -1745,4 +1745,18 @@ export default {
   'Example: a hidden tab «Races» → «Show again» → it is back in the bar.': 'Beispiel: ein ausgeblendeter Reiter «Rennen» → «Wieder zeigen» → er ist wieder in der Leiste.',
   'Find what you hid, sorted by area.': 'Finde, was du ausgeblendet hast, nach Bereich.',
   'Tap «Show again»; Undo is there for a moment.': 'Tippe «Wieder zeigen»; Rückgängig gibt es einen Moment lang.',
+  // Einzelideen Material und Überall (996 Ideen, Noah 25.10.2026)
+  'Under «Why it is a favourite» tap a short reason or type one.': 'Tippe unter «Warum es ein Favorit ist» einen kurzen Grund an oder schreib einen.',
+  'All favourites are on one page under Gear; the reason shows again when you swap it while packing or a wish replaces it.': 'Alle Favoriten stehen auf einer Seite unter Material; der Grund erscheint wieder, wenn du beim Packen tauschst oder ein Wunsch ihn ersetzt.',
+  'In the wish under «Name, brand, note» tick what trouble it solves, e.g. «Stays dry».': 'Kreuze im Wunsch unter «Name, Marke, Notiz» an, welchen Ärger er löst, z. B. «Bleibt trocken».',
+  'The list shows which buy helps most: grams per franc or trouble solved.': 'Die Liste zeigt, welcher Kauf am meisten hilft: Gramm pro Franken oder gelöster Ärger.',
+  'Two pieces with the same task: choose «Both on purpose» or which one stays home.': 'Zwei Teile mit derselben Aufgabe: wähle «Beide mit Absicht» oder welches zu Hause bleibt.',
+  'Open Gear: your own views stand under the view title; «Edit» adds, renames, sorts or deletes.': 'Öffne Material: Unter dem Titel stehen deine eigenen Ansichten; «Bearbeiten» fügt hinzu, benennt um, sortiert oder löscht.',
+  'Open an item › «Name, brand, note» and tick the views it belongs to.': 'Öffne ein Teil › «Name, Marke, Notiz» und kreuze die Ansichten an, zu denen es gehört.',
+  'A tap on a view shows only its items; an item can be in several, without a copy.': 'Ein Tipp auf eine Ansicht zeigt nur ihre Teile; ein Teil kann in mehreren sein, ohne Kopie.',
+  'Example: the pump is in «Repair» and «Always along»; deleting «Winter» keeps all its items.': 'Beispiel: Die Pumpe ist in «Reparatur» und «Immer dabei»; «Winter» löschen behält alle seine Teile.',
+  'A bottle, gas cartridge or food box: weigh it empty, then type «Content when full» in its row «Weight».': 'Flasche, Gaskartusche oder Essensdose: leer wiegen, dann in der Zeile «Gewicht» «Inhalt, wenn voll» eintragen.',
+  'Example: say «note brake squeaks» → the note is in the Inbox. If the microphone stops, the words so far stay in the field.': 'Beispiel: Sag «Notiz Bremse quietscht» → die Notiz ist im Eingang. Stoppt das Mikrofon, bleiben die Wörter bisher im Feld.',
+  'Example: IMG_0042.HEIC → IMG_0042.jpg for the online form; velo.jpg as JPG → velo-umgewandelt.jpg, the old one stays.': 'Beispiel: IMG_0042.HEIC → IMG_0042.jpg für das Online-Formular; velo.jpg als JPG → velo-umgewandelt.jpg, das alte bleibt.',
+  'Example: «Wo sehe ich die Lawinengefahr?» → Alerts and news. «Kette» finds Material and a bike → «Do you mean Gear or Bikes?».': 'Beispiel: «Wo sehe ich die Lawinengefahr?» → Hinweise und News. «Kette» findet Material und ein Velo → «Meinst du Material oder Velos?».',
 };

@@ -43,17 +43,17 @@ export const HANDBOOK = {
   },
   weigh: {
     on: 'Needs a few items under Gear first.',
-    steps: ['Open Gear and the weighing view («Start weighing»).', 'Put each item on the scale and type the grams.'],
+    steps: ['Open Gear and the weighing view («Start weighing»).', 'Put each item on the scale and type the grams.', 'A bottle, gas cartridge or food box: weigh it empty, then type «Content when full» in its row «Weight».'],
     example: 'Example: the sleeping bag weighs 812 g instead of the guessed 900 g.',
   },
   fav: {
     on: 'Needs a few items under Gear first.',
-    steps: ['Open an item and tap the ★.', 'All favourites are on one page under Gear.'],
+    steps: ['Open an item and tap the ★.', 'Under «Why it is a favourite» tap a short reason or type one.', 'All favourites are on one page under Gear; the reason shows again when you swap it while packing or a wish replaces it.'],
     example: 'Example: ★ on your best headlamp and lightest jacket.',
   },
   wish: {
     on: 'Needs a few items under Gear first.',
-    steps: ['Open Gear › Shopping and add what you want to buy, with price and weight.', 'The list shows which buy saves the most grams per franc.'],
+    steps: ['Open Gear › Shopping and add what you want to buy, with price and weight.', 'In the wish under «Name, brand, note» tick what trouble it solves, e.g. «Stays dry».', 'The list shows which buy helps most: grams per franc or trouble solved.'],
     example: 'Example: a 300 g lighter tent for 250 francs beats a 40 g lighter cup for 30.',
   },
   unused: {
@@ -88,7 +88,7 @@ export const HANDBOOK = {
   },
   'f.onion': {
     on: 'Needs a trip first: «New» › «Plan a trip».',
-    steps: ['Open the trip in Pack.', 'The layer check shows each layer for the coldest hour; take the kit it suggests.'],
+    steps: ['Open the trip in Pack.', 'The layer check shows each layer for the coldest hour; take the kit it suggests.', 'Two pieces with the same task: choose «Both on purpose» or which one stays home.'],
     example: 'Example: 4 °C on the pass → base layer, jersey, wind vest and jacket.',
   },
   'f.shop': {
@@ -145,6 +145,12 @@ export const HANDBOOK = {
     on: 'Needs two items that are really the same.',
     steps: ['Open one of the two items under Gear.', 'At the bottom, tap «Merge with …» and choose the other.'],
     example: 'Example: «Headlamp» and «Head lamp» become one item.',
+  },
+  // Einzelidee 22 «Kategorien als Ansichten»
+  'f.ownviews': {
+    on: null,
+    steps: ['Open Gear: your own views stand under the view title; «Edit» adds, renames, sorts or deletes.', 'Open an item › «Name, brand, note» and tick the views it belongs to.', 'A tap on a view shows only its items; an item can be in several, without a copy.'],
+    example: 'Example: the pump is in «Repair» and «Always along»; deleting «Winter» keeps all its items.',
   },
   'f.blockcheck': {
     on: 'Needs a few items under Gear first.',
@@ -1309,7 +1315,7 @@ export const HANDBOOK = {
   'f.convert': {
     on: 'HEIC needs the internet once; after that it works offline.',
     steps: ['Open Me › Toolbox › Picture format.', 'Choose JPG or PNG, then the pictures.', 'Tap «Save» on each, or «Save all».'],
-    example: 'Example: IMG_0042.HEIC → IMG_0042.jpg for the online form.',
+    example: 'Example: IMG_0042.HEIC → IMG_0042.jpg for the online form; velo.jpg as JPG → velo-umgewandelt.jpg, the old one stays.',
   },
   'f.video': {
     on: null,
@@ -1374,7 +1380,7 @@ export const HANDBOOK = {
   'f.searchvoice': {
     on: 'The microphone is always in the search; Me › Search hides it and switches each answer on or off.',
     steps: ['Tap the microphone next to the magnifier and say what you want.', 'One command that fits runs at once; «Undo» takes it back.', 'A question gets the app\'s answer; when the app knows nothing, Gemini answers or you ask further at Claude or ChatGPT.'],
-    example: 'Example: say «note brake squeaks» → the note is in the Inbox.',
+    example: 'Example: say «note brake squeaks» → the note is in the Inbox. If the microphone stops, the words so far stay in the field.',
   },
   'f.aiprojects': {
     on: null,
@@ -1641,7 +1647,7 @@ export const HANDBOOK = {
   'f.helpsearch': {
     on: null,
     steps: ["Open the search (the magnifier or «/»).", "Type a whole question, e.g. «Where do I set the backup password?».", "«Fits your question» shows up to three functions with their first step; a tap opens it."],
-    example: "Example: «Wo sehe ich die Lawinengefahr?» → Alerts and news.",
+    example: "Example: «Wo sehe ich die Lawinengefahr?» → Alerts and news. «Kette» finds Material and a bike → «Do you mean Gear or Bikes?».",
   },
   'f.offlinesave': {
     on: null,
