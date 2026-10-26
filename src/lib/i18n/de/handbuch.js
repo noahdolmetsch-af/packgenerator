@@ -1684,4 +1684,6 @@ export default {
   'Add a no-go and its kind.': 'Füge ein No-Go und seine Art hinzu.',
   'A packing or wish list that holds one shows it here.': 'Eine Pack- oder Wunschliste, die eines enthält, zeigt es hier.',
   'Example: «single-use batteries» → do not buy.': 'Beispiel: «Einwegbatterien» → nicht kaufen.',
+  // Einzelideen Heute 5 (25.10.2026)
+  'Example: three short rides in the rain → one task «Care for the chain».': 'Beispiel: drei kurze Fahrten im Regen → eine Aufgabe «Kette pflegen».',
 };
