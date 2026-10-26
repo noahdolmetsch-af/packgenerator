@@ -9,9 +9,12 @@
    */
   import { Layers, Check, Circle, ChevronRight, ChevronDown, Plus } from '@lucide/svelte';
   import { t, tn, nameOf, locale } from '../i18n.svelte.js';
-  import { tempRange } from '../wardrobe.js';
+  import { tempRange, WAIT_CHOICES } from '../wardrobe.js';
+  import Seg from '../ui/Seg.svelte';
 
-  let { check, kit = null, plan = null, offset = 0, itemsById = {}, added = [], kitAdded = null, onadd, onkit } = $props();
+  // Touren-Ideen 42: wait (minutes standing still on the way), chill (the degrees it counts colder), onwait(m)
+  let { check, kit = null, plan = null, offset = 0, wait = 0, chill = 0, onwait = null, itemsById = {}, added = [], kitAdded = null, onadd, onkit } = $props();
+  const waitName = (m) => (m ? (m >= 60 ? t('{n} h', { n: m / 60 }) : t('{n} min', { n: m })) : t('None|wait'));
 
   let open = $state(false);
   const fresh = $derived(new Set(added));
@@ -56,6 +59,13 @@
           </li>
         {/each}
       </ul>
+      {#if onwait}
+        <div class="wait" data-onion-wait>
+          <p class="meta" id="onion-wait-h">{t('Standing still on the way (platform, photos, breaks)')}</p>
+          <Seg small full={false} labelledby="onion-wait-h" options={WAIT_CHOICES.map((m) => ({ key: String(m), name: waitName(m) }))} value={String(WAIT_CHOICES.includes(wait) ? wait : 0)} onchange={(k) => onwait(Number(k))} />
+          {#if chill}<p class="meta">{t('Counts {n} °C colder, because you stand still.', { n: chill })}</p>{/if}
+        </div>
+      {/if}
       {#if kit && plan && plan.items.length}
         <div class="kit">
           {#if plan.add.length}
@@ -100,6 +110,14 @@
   .oline .s {
     flex: 1;
     min-width: 0;
+  }
+  .wait {
+    display: grid;
+    gap: 4px;
+    margin: 8px 4px 0;
+  }
+  .wait .meta {
+    margin: 0;
   }
   .orows {
     list-style: none;

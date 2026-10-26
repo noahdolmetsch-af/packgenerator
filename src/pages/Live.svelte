@@ -39,6 +39,7 @@
   import LiveRouteBox from '../lib/live/LiveRouteBox.svelte';
   import { liveRouteQuery } from '../lib/live/liveroute.js';
   import OfflineBox from '../lib/map/OfflineBox.svelte';
+  import { reserveOf } from '../lib/map/offline.js';
   import SortArrows from '../lib/ui/SortArrows.svelte';
   import SortGrip from '../lib/ui/SortGrip.svelte';
   import { sortable } from '../lib/ui/sortable.js';
@@ -1030,7 +1031,7 @@
           {#if hasRoute}
             <details class="lvf-fold">
               <summary>{t('Offline strips')}</summary>
-              <OfflineBox line={route?.line ?? []} name={routeName} tripId={tid || null} />
+              <OfflineBox line={route?.line ?? []} name={routeName} tripId={tid || null} reserve={trip ? reserveOf(trip) : null} />
             </details>
           {/if}
           <button type="button" class="btn" onclick={() => ((menu = false), (small = true))} data-live-minimize><Minimize2 size={18} aria-hidden="true" />{t('Leave the full view')}</button>

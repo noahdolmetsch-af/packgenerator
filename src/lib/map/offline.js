@@ -125,14 +125,14 @@ export const groundsFor = (line) => OFFLINE_GROUNDS.filter((k) => !groundOf(k).s
  * When the strip passes the cap, the top corridor zooms are dropped (down to MIN_TOP_ZOOM).
  * → { ground, bufferKm, zooms, tiles: [{z,x,y}], count, maxZoom, cut (zooms were dropped), tooBig, cap }
  */
-export function planStrip(line, { ground = 'vector', bufferKm = 1, cap } = {}) {
+export function planStrip(line, { ground = 'vector', bufferKm = 1, cap, reserve = null } = {}) {
   const kind = kindOfGround(ground);
   const limit = cap ?? MAX_TILES[kind];
   let corridor = [...CORRIDOR_ZOOMS[kind]];
   const over = tilesAlong(line, { zooms: OVERVIEW_ZOOMS, bufferKm: Math.max(OVERVIEW_KM, bufferKm) });
   let tiles;
   for (;;) {
-    tiles = [...over, ...tilesAlong(line, { zooms: corridor, bufferKm })];
+    tiles = uniqTiles([...over, ...tilesAlong(line, { zooms: corridor, bufferKm }), ...reserveTiles(reserve, corridor, bufferKm)]);
     if (tiles.length <= limit || corridor.at(-1) <= MIN_TOP_ZOOM) break;
     corridor = corridor.slice(0, -1);
   }
@@ -149,6 +149,51 @@ export function planStrip(line, { ground = 'vector', bufferKm = 1, cap } = {}) {
     cap: limit,
   };
 }
+
+/* ---------- Touren-Ideen 48 «Offline-Karte mit Reserve» ---------- */
+
+/** Around each fallback place this many km of map come along. */
+export const RESERVE_KM = 3;
+/** At most this many fallback places (each one is a few dozen tiles). */
+export const RESERVE_MAX = 12;
+/** The waypoint kinds of a GPX route (route/fromgpx.js) that are places to fall back on. */
+export const RESERVE_KINDS = ['station', 'sleep', 'camp', 'hospital', 'repair', 'bike'];
+
+/**
+ * The reserve of a trip: the line of plan B (a shorter variant) and the fallback places along the
+ * route (stations, beds, hospitals, bike shops from the GPX waypoints).
+ * → { lines: [[[lat, lon]…]], spots: [[lat, lon]…], planB: bool, places: n } or null when there is none.
+ */
+export function reserveOf(trip) {
+  const planB = trip?.planB?.route?.line;
+  const lines = Array.isArray(planB) && planB.filter(finite).length > 1 && !trip?.planB?.on ? [planB] : [];
+  // while plan B is the route (planB.on), the planned route waits in planB.route: that one is the reserve then
+  if (trip?.planB?.on && Array.isArray(trip?.planB?.route?.line)) lines.push(trip.planB.route.line);
+  const wpts = Array.isArray(trip?.route?.wpts) ? trip.route.wpts : [];
+  const spots = wpts
+    .filter((w) => RESERVE_KINDS.includes(w?.kind) && Number.isFinite(Number(w.lat)) && Number.isFinite(Number(w.lon)))
+    .slice(0, RESERVE_MAX)
+    .map((w) => [Number(w.lat), Number(w.lon)]);
+  if (!lines.length && !spots.length) return null;
+  return { lines, spots, planB: lines.length > 0, places: spots.length };
+}
+
+/** The corridor tiles of a reserve: its lines as wide as the strip, its places RESERVE_KM around. */
+function reserveTiles(reserve, zooms, bufferKm) {
+  if (!reserve) return [];
+  const out = [];
+  for (const l of reserve.lines ?? []) out.push(...tilesAlong(l, { zooms, bufferKm }));
+  for (const p of reserve.spots ?? []) if (finite(p)) out.push(...tilesAlong([p], { zooms, bufferKm: RESERVE_KM }));
+  return out;
+}
+
+const uniqTiles = (list) => {
+  const seen = new Set();
+  return list.filter((x) => {
+    const k = `${x.z}/${x.x}/${x.y}`;
+    return seen.has(k) ? false : (seen.add(k), true);
+  });
+};
 
 /** The size estimate in bytes: tiles × the ground's average, plus the free map's style and fonts. */
 export function estimateBytes(count, ground) {
@@ -441,8 +486,8 @@ export async function stripUrls(plan, { cache, fetchFn = globalThis.fetch } = {}
  * gives pause/resume/cancel). → { strip, failed } or { cancelled: true } (what was fetched stays only
  * if another strip uses it).
  */
-export async function keepStrip(db, { line, name, tripId = null, ground, bufferKm }, { onProgress, onRunner, fetchFn = globalThis.fetch.bind(globalThis), pauseMs } = {}) {
-  const plan = planStrip(line, { ground, bufferKm });
+export async function keepStrip(db, { line, name, tripId = null, ground, bufferKm, reserve = null }, { onProgress, onRunner, fetchFn = globalThis.fetch.bind(globalThis), pauseMs } = {}) {
+  const plan = planStrip(line, { ground, bufferKm, reserve });
   if (plan.tooBig) throw new Error('too-big');
   const cache = await openCache();
   const urls = await stripUrls(plan, { cache, fetchFn });
@@ -466,7 +511,7 @@ export async function keepStrip(db, { line, name, tripId = null, ground, bufferK
   }
   const kept = urls.filter((u) => !res.failed.includes(u));
   await cache.put(manifestUrl(id), new Response(JSON.stringify({ id, urls: kept }), { headers: { 'content-type': 'application/json' } }));
-  const strip = { id, name, ground, tripId, zooms: plan.zooms, bufferKm, tiles: plan.count, bytes: res.bytes, createdAt: new Date().toISOString() };
+  const strip = { id, name, ground, tripId, zooms: plan.zooms, bufferKm, tiles: plan.count, bytes: res.bytes, createdAt: new Date().toISOString(), ...(reserve ? { reserve: true } : {}) };
   await writeStrips(db, [...(await readStrips(db)), strip]);
   tellWorker();
   return { strip, failed: res.failed.length };

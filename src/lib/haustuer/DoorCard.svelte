@@ -21,7 +21,7 @@
   import { askDelete, deleteWithUndo } from '../ui/ask.js';
   import Seg from '../ui/Seg.svelte';
   import { CONTACTS_KEY, contactsOf } from '../unterwegs/abfahrt.js';
-  import { PLANB_KINDS, planBOf, staysOf, setStay, checkinOf, nightsOf, toggleArrived, badWeather, badText, hoursOfDay } from './haustuer.js';
+  import { PLANB_KINDS, planBOf, staysOf, setStay, checkinOf, nightsOf, toggleArrived, badWeather, badText, hoursOfDay, TRIGGER_MM, TRIGGER_GUST, triggerOf } from './haustuer.js';
   import { DoorOpen, CloudRain, BedDouble, HeartHandshake, ChevronRight, Upload, Trash2, Check, TriangleAlert } from '@lucide/svelte';
 
   let { trip } = $props();
@@ -52,6 +52,12 @@
       gpxMsg = err?.message ?? String(err);
     }
   }
+  // Touren-Ideen 46 «Plan B mit Auslöser»: you agree beforehand when you switch; '' = the app's rule
+  const trig = $derived(triggerOf(trip.planB?.trigger));
+  function setTrigger(field, value) {
+    const next = { ...trig, [field]: value === '' ? null : Number(value) };
+    save({ planB: { kind: kind ?? 'short', note: trip.planB?.note ?? '', route: trip.planB?.route ?? null, ...(trip.planB ?? {}), trigger: next } });
+  }
   async function dropPlanB() {
     if ((await askDelete({ title: t('Delete plan B?'), text: t('You can bring it back for 4 seconds afterwards.') })) !== 'delete') return;
     const before = $state.snapshot(trip.planB);
@@ -60,7 +66,7 @@
   // a hint already here when a saved forecast of a trip day is bad (Unterwegs loads it)
   const bad = $derived.by(() => {
     for (const [date, wx] of Object.entries(trip.rideWx ?? {})) {
-      const b = badWeather(hoursOfDay(wx, date));
+      const b = badWeather(hoursOfDay(wx, date), trip.planB?.trigger);
       if (b) return { date, ...b };
     }
     return null;
@@ -102,6 +108,13 @@
           <p class="tp-small">{t('On the way, «Home» shows the next 3 trains from where you are.')}</p>
         {/if}
         {#if kind}
+          <div class="trig" data-door-trigger>
+            <p class="tp-small fl" id="door-trig-h">{t('When do you switch? Agree on it now, so you need not decide in the rain.')}</p>
+            <span class="tp-small tp-muted">{t('Rain over the day')}</span>
+            <Seg small full={false} label={t('Rain over the day')} options={[{ key: '', name: t('App decides') }, ...TRIGGER_MM.map((n) => ({ key: String(n), name: t('from {n} mm', { n }) }))]} value={trig.mm == null ? '' : String(trig.mm)} onchange={(k) => setTrigger('mm', k)} />
+            <span class="tp-small tp-muted">{t('Gusts')}</span>
+            <Seg small full={false} label={t('Gusts')} options={[{ key: '', name: t('App decides') }, ...TRIGGER_GUST.map((n) => ({ key: String(n), name: t('from {n} km/h', { n }) }))]} value={trig.gust == null ? '' : String(trig.gust)} onchange={(k) => setTrigger('gust', k)} />
+          </div>
           <label class="tp-small fl" for="door-note">{t('Note|planb')}</label>
           <textarea id="door-note" class="inp" rows="2" value={trip.planB?.note ?? ''} onchange={setNote} placeholder={t('e.g. from Le Locle along the lake, or the train from Biel')}></textarea>
           <button type="button" class="tp-link del" onclick={dropPlanB}><Trash2 size={14} aria-hidden="true" />{t('Delete plan B')}</button>
@@ -155,6 +168,14 @@
 {/if}
 
 <style>
+  .trig {
+    display: grid;
+    gap: 6px;
+    justify-items: start;
+  }
+  .trig .fl {
+    margin: 0;
+  }
   .callby {
     display: grid;
     gap: 4px;

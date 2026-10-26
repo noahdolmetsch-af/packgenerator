@@ -9,7 +9,8 @@
    * «Tour planen mit GPX» (20.10.2026): the simple profile became the fine, zoomable one with every climb
    * (route/RouteClimbs.svelte).
    */
-  import { readRouteFile, routeFromGpx } from '../route/fromgpx.js'; // «Neue Quellen» 20.10.2026: with the GPX waypoints
+  import { readRouteFile, routeFromGpx, splitRoute } from '../route/fromgpx.js'; // «Neue Quellen» 20.10.2026: with the GPX waypoints
+  import RouteCheck from '../route/RouteCheck.svelte';
   import RwgpsLink from '../sources/RwgpsLink.svelte';
   import { stagePlan, hasStages } from '../stages.js';
   import StaticMap from '../ui/StaticMap.svelte';
@@ -42,15 +43,23 @@
     try {
       const r = await readRouteFile(file);
       msg = '';
-      useRoute(r);
+      offer(r);
     } catch (err) {
       msg = err?.message || t('This file could not be read.');
     }
   }
   // as in the trip conditions: the start of the route becomes the weather place when there is none
   const useRoute = (r) => onchange((tr) => ({ route: r, ...(tr.place ? {} : { place: { name: r.name ? t('Start of {name}', { name: r.name }) : t('Route start'), ...r.start } }) }));
+  // Touren-Ideen 41 «Route prüfen»: jumps, loops or missing heights → the hints first, the person decides
+  let pending = $state.raw(null); // { route, check }
+  function offer(r) {
+    const p = splitRoute(r);
+    if (p.check && !p.check.ok) pending = p;
+    else ((pending = null), useRoute(p.route));
+  }
+  const usePending = () => (pending && useRoute(pending.route), (pending = null));
   // «Neue Quellen» 20.10.2026: the GPX of a Ride with GPS link, read like a file
-  const fromLink = (text, file) => ((msg = ''), useRoute(routeFromGpx(text, file)));
+  const fromLink = (text, file) => ((msg = ''), offer(routeFromGpx(text, file)));
 </script>
 
 <!-- «Tour planen mit GPX» (Noah 20.10.2026 «3a und b»): the fine profile coloured by gradient and every
@@ -84,6 +93,7 @@
       <p class="none"><Upload size={18} aria-hidden="true" /><span>{t('From Komoot, Garmin or Strava: distance, climbing and a guess of the riding hours.')}</span></p>
     {/if}
     {#if onchange}<RwgpsLink onload={fromLink} label={route ? t('Other route from Ride with GPS') : ''} />{/if}
+    {#if pending}<RouteCheck check={pending.check} name={pending.route.name} onuse={usePending} oncancel={() => (pending = null)} />{/if}
     {#if msg}<p class="warn" role="alert">{msg}</p>{/if}
     {#await import('../wetter/TourWetter.svelte') then m}<m.default {trip} />{:catch}{/await}
   </div>
