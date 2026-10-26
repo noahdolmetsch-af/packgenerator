@@ -235,12 +235,18 @@
     { key: 'door', label: 'From the door and back', sel: '[data-door]' },
     { key: 'probe', label: 'Dress rehearsal', sel: '[data-probe-row="probe"]' },
     { key: 'faster', label: 'Pack faster', sel: '[data-pack-extras]' },
+    // «Packen sichtbar 2» (Noah 26.10.2026 «was kannst du als nächstes tun»): four rows inside those cards, 3 to 7
+    // screens down, by their own name; a jump opens the row
+    { key: 'planb', label: 'Plan B for bad weather', sel: '[data-door-planb]' },
+    { key: 'two', label: 'Packing for two', sel: '[data-two]' },
+    { key: 'packtime', label: 'Packing time', sel: '[data-packtime]' },
+    { key: 'offline', label: 'Save for the way', sel: '[data-offline-save-btn]', page: true }, // under the page, outside this part
   ];
   let extraHere = $state([]);
   $effect(() => {
     if (!rootEl) return;
     const look = () => {
-      const keys = EXTRA_JUMPS.filter((x) => rootEl.querySelector(x.sel)).map((x) => x.key);
+      const keys = EXTRA_JUMPS.filter((x) => (x.page ? document : rootEl).querySelector(x.sel)).map((x) => x.key);
       if (keys.join() !== extraHere.join()) extraHere = keys;
     };
     look();
@@ -249,7 +255,7 @@
       cancelAnimationFrame(raf);
       raf = requestAnimationFrame(look);
     });
-    obs.observe(rootEl, { childList: true, subtree: true });
+    obs.observe(rootEl.parentElement ?? rootEl, { childList: true, subtree: true });
     return () => {
       obs.disconnect();
       cancelAnimationFrame(raf);
@@ -266,11 +272,12 @@
     if (key === 'tasks') return onprep?.();
     const q = (sel) => rootEl?.querySelector(sel);
     const extra = EXTRA_JUMPS.find((x) => x.key === key);
-    const el = extra ? q(extra.sel) : key === 'list' ? q('.list-head') : key === 'route' ? q('.plan-top section.rc') : (ev ? q('.plan-top section.tw') : null) ?? q('.wxcard') ?? q('.cond');
+    const el = extra ? (extra.page ? document.querySelector(extra.sel) : q(extra.sel)) : key === 'list' ? q('.list-head') : key === 'route' ? q('.plan-top section.rc') : (ev ? q('.plan-top section.tw') : null) ?? q('.wxcard') ?? q('.cond');
     if (!el) return;
+    if (el.tagName === 'DETAILS') el.open = true;
     el.scrollIntoView({ block: 'start', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
     // the keyboard goes along: the heading of the section takes the focus without a second jump
-    const h = el.querySelector('h2') ?? el;
+    const h = el.querySelector('h2') ?? el.querySelector(':scope > summary') ?? el;
     if (!h.hasAttribute('tabindex')) h.setAttribute('tabindex', '-1');
     h.focus({ preventScroll: true });
   }
