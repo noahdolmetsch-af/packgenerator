@@ -270,7 +270,7 @@
     flex: 1;
     min-width: 0;
     margin: 0;
-    overflow-wrap: break-word;
+    overflow-wrap: anywhere;
   }
   .vg-name small {
     color: var(--ink-2);

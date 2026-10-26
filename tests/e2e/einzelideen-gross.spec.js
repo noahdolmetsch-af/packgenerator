@@ -101,13 +101,12 @@ test('Vorgänge: a double entry is merged into one matter, renamed and deleted w
   await ren.locator('input').fill(`${P} Hotel Herbst`);
   await ren.getByRole('button', { name: T('Save'), exact: true }).click();
   await expect(card).toContainText(`${P} Hotel Herbst`);
+  // CI 26.10: a long name in the row widened the phone page, so «Löschen» sat off screen. On a phone the
+  // window grows with the page, so compare with the screen width, not innerWidth.
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(page.viewportSize().width);
 
   await card.getByRole('button', { name: T('Delete «{name}»', { name: `${P} Hotel Herbst` }) }).click();
-  // The phone sheet slides up; wait until it stands still before tapping «Löschen» (CI 26.10: the hint above was hit mid-slide).
-  const del = page.locator('dialog.gds[open]');
-  await expect(del).toBeVisible();
-  await del.evaluate((d) => Promise.all(d.getAnimations({ subtree: true }).map((a) => a.finished)));
-  await del.getByRole('button', { name: T('Delete'), exact: true }).click();
+  await page.locator('dialog[open]').last().getByRole('button', { name: T('Delete'), exact: true }).click();
   await expect(card).toHaveCount(0);
   const notes = await readAll(page, 'notes');
   expect(notes.filter((n) => n.id.startsWith(P)).map((n) => n.caseId ?? null)).toEqual([null, null]);
