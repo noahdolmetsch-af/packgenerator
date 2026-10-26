@@ -18,12 +18,13 @@
   import { keepState, askKeep } from '../storagekeep.js';
   import { db } from '../db.js';
   import { pickGround, groundOf } from './sources.js';
-  import { STRIPS_KEY, WIDTHS, groundsFor, planStrip, estimateBytes, fmtBytes, keepStrip, removeStrip, undoRemove, sweep, renameStrip, presentIds, storageInfo, kindOfGround } from './offline.js';
+  import { STRIPS_KEY, WIDTHS, groundsFor, planStrip, estimateBytes, fmtBytes, keepStrip, removeStrip, undoRemove, sweep, renameStrip, presentIds, storageInfo, kindOfGround, RESERVE_KM } from './offline.js';
   import { t, tn, locale } from '../i18n.svelte.js';
   import '../race/race.css';
   import PoiKeepAlong from './PoiKeepAlong.svelte';
 
-  let { ctx = null, line = null, name = '', tripId = null } = $props();
+  // reserve (Touren-Ideen 48): offline.js reserveOf(trip), the plan B line and the fallback places
+  let { ctx = null, line = null, name = '', tripId = null, reserve = null } = $props();
 
   const theLine = $derived(line ?? ctx?.route?.line ?? []);
   const theName = $derived(name || ctx?.trip?.title || ctx?.trip?.name || '');
@@ -37,7 +38,12 @@
   let chosen = $state('');
   const ground = $derived(grounds.includes(chosen) ? chosen : grounds.includes(pickGround('auto', first?.[0], first?.[1]).key) ? pickGround('auto', first?.[0], first?.[1]).key : 'vector');
   let width = $state(1);
-  const plan = $derived(theLine.length > 1 ? planStrip(theLine, { ground, bufferKm: width }) : null);
+  let withReserve = $state(true);
+  const resv = $derived(reserve && withReserve ? reserve : null);
+  const plan = $derived(theLine.length > 1 ? planStrip(theLine, { ground, bufferKm: width, reserve: resv }) : null);
+  const reserveWhat = $derived(
+    reserve ? [reserve.planB ? t('plan B') : '', reserve.places ? tn(reserve.places, '{n} fallback place', '{n} fallback places') : ''].filter(Boolean).join(' · ') : '',
+  );
   const guess = $derived(plan ? estimateBytes(plan.count, ground) : 0);
 
   const stripsQ = liveQuery(() => db.settings.get(STRIPS_KEY));
@@ -80,7 +86,7 @@
     try {
       const res = await keepStrip(
         db,
-        { line: $state.snapshot(theLine), name: label || `${theName ? `${theName} · ` : ''}${groundName(g)}`, tripId: theTrip, ground: g, bufferKm: w },
+        { line: $state.snapshot(theLine), name: label || `${theName ? `${theName} · ` : ''}${groundName(g)}`, tripId: theTrip, ground: g, bufferKm: w, reserve: resv ? $state.snapshot(resv) : null },
         { onProgress: (p) => (run = p), onRunner: (r) => (runner = r) },
       );
       if (res.cancelled) {
@@ -158,6 +164,9 @@
         {/each}
       </div>
 
+      {#if reserve}
+        <label class="om-res" data-om-reserve><input type="checkbox" bind:checked={withReserve} disabled={busy} /><span>{t('With reserve: {what}, {km} km around each place', { what: reserveWhat, km: RESERVE_KM })}</span></label>
+      {/if}
       <p class="om-size" data-om-estimate>
         {tn(plan.count, 'About {n} map tile, about {size}.', 'About {n} map tiles, about {size}.', { size: fmtBytes(guess) })}
         {#if storage}<span class="om-sub">{t('Free on this phone: {size}.', { size: fmtBytes(storage.free) })}</span>{/if}
@@ -232,6 +241,16 @@
 {/if}
 
 <style>
+  .om-res {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    min-height: 44px;
+    font-size: var(--fs-small);
+  }
+  .om-res input {
+    margin-top: 3px;
+  }
   .om {
     display: flex;
     flex-direction: column;

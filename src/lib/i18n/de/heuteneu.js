@@ -37,6 +37,11 @@ export default {
   'felt {n} of 10': 'gefühlt {n} von 10',
   "from «Wi gaht's?»": "aus «Wi gaht's?»",
   'measured with Fitbit|body': 'gemessen mit Fitbit',
+  // Noah 26.10.2026 «1a»: the last value with its day while today's is still missing
+  'Last measured sleep': 'Letzter gemessener Schlaf',
+  'night to {day}': 'Nacht auf {day}',
+  'sleep · night to {day}': 'Schlaf · Nacht auf {day}',
+  '{what} · {day}': '{what} · {day}',
   "comes with Fitbit or «Wi gaht's?»": "kommt mit Fitbit oder «Wi gaht's?»",
   'Last activity': 'Letzte Aktivität',
   'avg pulse {n}': 'Ø Puls {n}',

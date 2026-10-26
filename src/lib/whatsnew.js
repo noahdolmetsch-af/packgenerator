@@ -16,6 +16,43 @@
 
 export const WHATS_NEW = [
   {
+    // v0.208.0 «Computer-Breite besser nutzen» (UI-Ziel #14, Noah 26.10.2026 «1a 2a 3a 4a 5a»): Touren with a right
+    // column that goes along, Auswerten's «Letzte 7 Tage» on the right, Velos with the bike first, content at most 1120 px.
+    version: '0.208.0',
+    date: '2026-10-26',
+    title: 'More room on the computer',
+    lead: 'The main thing left, the extras right.',
+    points: [
+      { text: 'Trips: period, filter and open debriefs go along on the right', href: '#/trips' },
+    ],
+    small: [{ box: 'nicer', text: 'Analysis: the last 7 days stand right of the overview', href: '#/auswerten' }],
+    test: ['On the computer open Trips and scroll down the list: period, filter and open debriefs stay visible on the right.', 'Open Analysis: «Last 7 days» stands under «Wi gaht\'s?».', 'Open Bikes: «How it works» is one line, a tap opens it.'],
+  },
+  {
+    // v0.207.0 «Touren a» (996 Einzelideen Touren 41, 42, 43, 46, 48; Noah 25.10.2026): route check, Plan B with a trigger,
+    // what was left out, waiting time in the layer check, offline map with reserve
+    version: '0.207.0',
+    date: '2026-10-26',
+    title: 'Tours with a plan B',
+    lead: 'Check the route first, agree on Plan B.',
+    points: [
+      { text: 'Route check: jumps and missing heights before you take a GPX', href: '#/pack' },
+      { text: 'Plan B with your own trigger, like from 10 mm of rain', href: '#/pack' },
+    ],
+    small: [{ box: 'new', text: 'The review asks whether what you left out was missing', href: '#/debrief' }],
+    test: ['Open Planen › Strecke and load a GPX with a gap: a hint shows before «Trotzdem übernehmen».', 'Under «Von der Haustür bis zurück» › Plan B choose «Regen am Tag» «ab 10 mm».'],
+  },
+  {
+    // v0.206.0 «Fitbit-Werte auf Heute» (Noah 26.10.2026 «1a»): the last Fitbit value within 7 days, with its day
+    version: '0.206.0',
+    date: '2026-10-26',
+    title: 'Fitbit values with their day',
+    lead: 'Heute keeps the last Fitbit value until today\'s arrives.',
+    points: [{ text: 'Sleep, HRV and resting pulse show their day, like «yesterday»', href: '#/flow' }],
+    small: [{ box: 'fixed', text: 'In the morning the Fitbit tiles are no longer empty', href: '#/flow' }],
+    test: ['Open Heute in the morning before the Fitbit sync: the tiles show last night\'s values with «yesterday» or the day.', 'A value older than 7 days no longer shows.'],
+  },
+  {
     // v0.205.0 Einzelideen Material und Überall (996 Ideen, Noah 25.10.2026: 19–22, 24, 37, 38, 40); provisional, the bundler sets the number
     version: '0.205.0',
     date: '2026-10-26',

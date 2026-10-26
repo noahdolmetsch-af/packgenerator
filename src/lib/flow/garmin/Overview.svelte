@@ -22,7 +22,11 @@
   import { SPORT_ICON, sportName, km2 } from './words.js';
   import { t, tn, num, locale } from '../../i18n.svelte.js';
 
-  let { today, children } = $props();
+  // «Computer-Breite» (Noah 26.10.2026 «2a»): part 'main' leaves out «Letzte 7 Tage», part 'last7' is only
+  // «Letzte 7 Tage»; Auswerten shows them in its two columns on a computer. A phone always shows everything.
+  let { today, children, part = 'all' } = $props();
+  const top = $derived(phone.matches || part !== 'last7');
+  const tail = $derived(phone.matches || part !== 'main');
   const q = tableQuery();
   const table = $derived($q ?? new Map());
   const todays = $derived(table.get(today)?.acts ?? []);
@@ -61,19 +65,20 @@
   const kcalPct = $derived(kcal.total && kcal.active != null ? Math.max(3, Math.min(97, Math.round((kcal.active / kcal.total) * 100))) : null);
 </script>
 
-{#if todays.length}
+{#if top && todays.length}
   <Sec id="todayacts-h" title={t('Activities today')}>
     <TodayActs acts={todays} />
   </Sec>
 {/if}
 
-{#if kinds.length}
+{#if top && kinds.length}
   <Sec id="focus-h" title={t('In focus')} sub={t('per sport, the last 7 days · swipe for the next sport')}>
     <Focus {table} {today} {kinds} />
   </Sec>
 {/if}
 
 {#snippet body()}
+{#if top}
 <Sec id="overview-h" title={t('Overview|garmin')} sub={t('from Fitbit and Strava · tap a tile for more')}>
   <div class="ov" data-overview>
     <a class="card tile" href="#/flow/stats/hr" data-ov="hr">
@@ -115,7 +120,9 @@
   </div>
   {#if fitbitOff}<a class="fb" href={FITBIT_HASH}>{t('Connect Fitbit')} ›</a>{/if}
 </Sec>
+{/if}
 
+{#if tail}
 <Sec id="km-h" title={t('Last 7 days')} sub={t('compared with your usual week')}>
   <ul class="card l7" data-last7>
     {#each week.kinds as k (k.kind)}
@@ -128,6 +135,7 @@
   <WeekNumbers {today} />
   {#if !phone.matches}{@render children?.()}{/if}
 </Sec>
+{/if}
 {/snippet}
 
 {#if phone.matches}

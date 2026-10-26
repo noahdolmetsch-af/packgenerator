@@ -44,7 +44,7 @@
   });
   const bad = $derived.by(() => {
     if (!cand || !wx || wx.key !== `${cand.trip.id}:${cand.date}`) return null;
-    return badWeather(hoursOfDay(wx.saved, cand.date).filter((h) => h.h == null || (h.h >= 6 && h.h <= 21)));
+    return badWeather(hoursOfDay(wx.saved, cand.date).filter((h) => h.h == null || (h.h >= 6 && h.h <= 21)), cand.trip.planB?.trigger);
   });
   const pb = $derived(cand ? planBOf(cand.trip) : null);
   const win = $derived(cand && bad && pb && rec && mayShow(rec, ID, now) ? { ...cand, bad, pb } : null);

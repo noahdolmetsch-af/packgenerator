@@ -11,7 +11,8 @@
    * onchange(fn): fn gets a plain copy of the trip and returns the fields to store.
    */
   import { ridingHours, SPEED_KMH, CLIMB_MH } from '../route.js';
-  import { readRouteFile, routeFromGpx } from '../route/fromgpx.js'; // «Neue Quellen» 20.10.2026: with the GPX waypoints
+  import { readRouteFile, routeFromGpx, splitRoute } from '../route/fromgpx.js'; // «Neue Quellen» 20.10.2026: with the GPX waypoints
+  import RouteCheck from '../route/RouteCheck.svelte';
   import RwgpsLink from '../sources/RwgpsLink.svelte';
   import { withRainPct, pctOf } from '../wardrobe.js';
   import { searchPlace, fetchForecast, forecastForTrip, toWx, forecastFrom, ageText, tripDays } from '../weather.js';
@@ -66,7 +67,7 @@
       // v0.27.0 (Noah 1a, AP22): size and empty file checked before reading; on error nothing is stored.
       const route = await readRouteFile(file);
       routeMsg = '';
-      useRoute(route);
+      offer(route);
     } catch (err) {
       routeMsg = err?.message || t('This file could not be read.');
     }
@@ -74,7 +75,15 @@
   // The route start becomes the weather place when there is none yet.
   const useRoute = (route) => onchange((tr) => ({ route, ...(tr.place ? {} : { place: { name: route.name ? t('Start of {name}', { name: route.name }) : t('Route start'), ...route.start } }) }));
   // «Neue Quellen» 20.10.2026: the GPX of a Ride with GPS link, read like a file (RwgpsLink shows a thrown message)
-  const fromLink = (text, file) => ((routeMsg = ''), useRoute(routeFromGpx(text, file)));
+  const fromLink = (text, file) => ((routeMsg = ''), offer(routeFromGpx(text, file)));
+  // Touren-Ideen 41 «Route prüfen»: jumps, loops or missing heights → the hints first, the person decides
+  let pending = $state.raw(null); // { route, check }
+  function offer(r) {
+    const p = splitRoute(r);
+    if (p.check && !p.check.ok) pending = p;
+    else ((pending = null), useRoute(p.route));
+  }
+  const usePending = () => (pending && useRoute(pending.route), (pending = null));
   // «Rückmeldungen» 19.10.2026: the app's own question, then 4 s «Undo»
   async function dropRoute() {
     if ((await askDelete({ title: t('Remove the route from this trip?'), text: t('You can bring it back for 4 seconds afterwards.'), label: t('Remove') })) !== 'delete') return;
@@ -172,6 +181,7 @@
       <!-- GPX-Weg 5a: a route is planned; a ride you rode has its own place -->
       <p class="hint">{t('This is for a planned route. A ride you rode goes to')} <a href="#/debrief/ride">{t('Look back › Upload ride')}</a>.</p>
     {/if}
+    {#if pending}<RouteCheck check={pending.check} name={pending.route.name} onuse={usePending} oncancel={() => (pending = null)} />{/if}
     {#if routeMsg}<p class="warn" role="alert">{routeMsg}</p>{/if}
     <!-- SK X10 (the route on the national map), X12 (an idea from SchweizMobil, bike trips), X6 (ski tours only) -->
     <Woanders context={trip.title ?? ''} links={[
