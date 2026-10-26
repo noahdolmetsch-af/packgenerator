@@ -1220,6 +1220,11 @@ test('Scenario 4: gear care: log km, the due chain on Today and in Bike care, a 
   await rec.select(km.locator('select').first(), BIKE.spark);
   await rec.fill(km.getByLabel(T('km on the counter')), '5100');
   await rec.click(km.getByRole('button', { name: T('Save km') }));
+  // Velo-Idee 72 (changed on purpose): 100 km more than the ledger knows → the app asks where they come from
+  const gap = page.getByTestId('km-gap');
+  await expect(gap).toBeVisible();
+  await rec.click(gap.locator('[data-km-gap="reading"]'));
+  await rec.click(gap.locator('[data-km-gap-ok]'));
   await rec.check('km saved for the Spark', async () => expect.poll(async () => (await table(page, 'bikes')).find((b) => b.id === BIKE.spark).km, { timeout: 3000 }).toBe(5100));
   await expect(km).toBeHidden();
   const line = (await tile(page, 'bikes')).locator('li').filter({ hasText: bikeName }).first();
