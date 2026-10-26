@@ -4,16 +4,18 @@
    * in the browser, without the app's data and without signing in. The map with the route and everyone who
    * shares; «Share my location» (with a name) puts you on it while this page is open; «Stop sharing»
    * deletes your place. The group ends by itself (at most 24 h) and everything is deleted.
+   * For events (Noah 26.10.2026): «I am waiting here», the stops along the route and the route as GPX.
    * Nothing of the app's own data is read; only the name and the member codes stay in this browser.
    */
   import { onMount, onDestroy, untrack } from 'svelte';
-  import { Users, MapPin, Square, RefreshCw } from '@lucide/svelte';
+  import { Users, MapPin, Square, RefreshCw, Hand, Download } from '@lucide/svelte';
   import { t, locale } from '../lib/i18n.svelte.js';
   import Skeleton from '../lib/ui/Skeleton.svelte';
   import Empty from '../lib/ui/Empty.svelte';
   import TourMap from '../lib/spur/TourMap.svelte';
   import GroupList from '../lib/live/GroupList.svelte';
-  import { parseGroupLink, readGroup, sharePlace, leaveGroup, memberRows, initials, cleanName, GROUP_ERRORS, GROUP_EVERY_MS } from '../lib/live/group.js';
+  import { parseGroupLink, readGroup, sharePlace, leaveGroup, memberRows, initials, cleanName, stillWaiting, groupGpx, gpxName, GROUP_ERRORS, GROUP_EVERY_MS } from '../lib/live/group.js';
+  import GroupStops from '../lib/live/GroupStops.svelte';
   import { LinkError } from '../lib/spur/link.js';
 
   let { hash = '' } = $props();
@@ -45,6 +47,9 @@
   let name = $state(kept.name ?? '');
   let me = $state(kept.mid ? { mid: kept.mid, mdel: kept.mdel } : null);
   let sharing = $state(false);
+  // «Ich warte hier» (Noah 26.10.2026): the place where you wait; ends by itself when you ride on
+  let waitAt = $state(kept.wait ?? null);
+  let stopDots = $state([]);
   let fix = $state(null);
   let sentAt = 0;
   let geoErr = $state('');
@@ -110,9 +115,9 @@
     if (!fix) return;
     sentAt = Date.now();
     try {
-      const r = await sharePlace(link, me, name, fix);
+      const r = await sharePlace(link, me, name, fix, { wait: !!waitAt });
       me = { mid: r.mid, mdel: r.mdel };
-      keep({ name, ...me });
+      keep({ name, ...me, wait: waitAt });
       places = r.places;
       msg = '';
     } catch (e) {
@@ -131,6 +136,10 @@
       (p) => {
         const first = !fix;
         fix = { lat: p.coords.latitude, lon: p.coords.longitude, at: p.timestamp || Date.now() };
+        if (waitAt && !stillWaiting(waitAt, fix)) {
+          waitAt = null;
+          sentAt = 0;
+        }
         if (first) send();
       },
       (e) => {
@@ -145,9 +154,22 @@
     watchId = null;
     sharing = false;
   }
+  function flipWait() {
+    waitAt = waitAt ? null : fix ? { lat: fix.lat, lon: fix.lon } : null;
+    sentAt = 0;
+    send();
+  }
+  function downloadGpx() {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([groupGpx(title, route)], { type: 'application/gpx+xml' }));
+    a.download = gpxName(title);
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+  }
   async function stopSharing() {
     stopWatch();
     fix = null;
+    waitAt = null;
     try {
       await leaveGroup(link, me);
       places = places.filter((p) => p.m !== me?.mid);
@@ -161,7 +183,7 @@
 
   const rows = $derived(memberRows(places, route, { now, me: me?.mid ?? null }));
   const seenText = (r) => (r.ago < 1 ? t('seen just now') : t('seen {n} min ago', { n: r.ago }));
-  const dots = $derived(rows.map((r) => ({ id: `m-${r.m}`, kind: 'friend', cls: [r.me ? 'me' : '', r.stale ? 'stale' : ''].join(' '), pos: r.pos, n: initials(r.name), text: `${r.name || t('Without a name')}, ${seenText(r)}` })));
+  const dots = $derived(rows.map((r) => ({ id: `m-${r.m}`, kind: 'friend', cls: [r.me ? 'me' : '', r.stale ? 'stale' : '', r.wait ? 'wait' : ''].join(' '), pos: r.pos, n: initials(r.name), text: `${r.name || t('Without a name')}, ${seenText(r)}` })));
   const lines = $derived(route ? [{ id: 'route', pts: route.line, n: 1, src: 'plan' }] : []);
   const endTime = $derived(end ? new Date(end).toLocaleString(locale(), { weekday: 'short', hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Zurich' }) : '');
   let picked = $state(null);
@@ -182,7 +204,7 @@
     </header>
 
     {#if lines.length || dots.length}
-      <TourMap {lines} points={dots} height={420} label={t('Group ride')} onpick={(p) => (picked = p)} />
+      <TourMap {lines} points={[...stopDots, ...dots]} height={420} label={t('Group ride')} onpick={(p) => (picked = p)} />
     {/if}
     {#if picked}<p class="card pick">{picked.text} <button type="button" class="tp-link" onclick={() => (picked = null)}>{t('Close')}</button></p>{/if}
 
@@ -191,7 +213,11 @@
       {#if sharing}
         <p class="live" role="status" data-group-sharing><span class="dot" aria-hidden="true"></span>{t('You share your location as {name}.', { name })}</p>
         <p class="tp-small tp-muted">{t('Only while this page is open and the screen is on. Every 2 minutes the others see where you are.')}</p>
-        <button type="button" class="btn" onclick={stopSharing} data-group-stop><Square size={18} aria-hidden="true" />{t('Stop sharing')}</button>
+        <div class="grp-acts">
+          <button type="button" class="btn" class:hi={!waitAt} onclick={flipWait} disabled={!fix} aria-pressed={!!waitAt} data-group-waithere><Hand size={18} aria-hidden="true" />{waitAt ? t('I ride on') : t('I am waiting here')}</button>
+          <button type="button" class="btn" onclick={stopSharing} data-group-stop><Square size={18} aria-hidden="true" />{t('Stop sharing')}</button>
+        </div>
+        {#if waitAt}<p class="tp-small" role="status" data-group-waiting>{t('The others see that you are waiting here. It ends by itself when you ride on.')}</p>{/if}
       {:else}
         <p class="tp-small tp-muted">{t('Nobody sees you until you tap «Share my location». You can stop at any time.')}</p>
         <label class="fld">
@@ -203,6 +229,11 @@
       {#if geoErr}<p class="rc-warn" role="alert">{geoErr}</p>{/if}
       {#if msg}<p class="tp-small" role="status" data-group-msg>{msg}</p>{/if}
     </section>
+
+    {#if route}
+      <GroupStops gid={link.gid} {route} here={fix} onpoints={(l) => (stopDots = l)} />
+      <div><button type="button" class="btn sm" onclick={downloadGpx} data-group-gpx><Download size={16} aria-hidden="true" />{t('Route as GPX')}</button></div>
+    {/if}
 
     <section class="card grp-box" aria-labelledby="grp-all-h">
       <h2 id="grp-all-h">{t('In the group')}</h2>
@@ -262,5 +293,10 @@
   }
   .pick {
     margin: 0;
+  }
+  .grp-acts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sp-2);
   }
 </style>

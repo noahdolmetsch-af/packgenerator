@@ -270,7 +270,7 @@
     // «Neue Quellen»: the waypoints of the tour's GPX file (Ride with GPS, Komoot …)
     ...(shown.own ? wptsOnMap(trip?.route).map((w) => ({ ...w, name: w.name || kindName(w.kind) })) : []),
     // Gruppen-Live-Karte: the others of the group (you are the blue dot)
-    ...groupRows.filter((r) => !r.me).map((r) => ({ id: `grp-${r.m}`, lat: r.pos[0], lon: r.pos[1], kind: 'friend', name: r.name || t('Without a name'), minZoom: 0 })),
+    ...groupRows.filter((r) => !r.me).map((r) => ({ id: `grp-${r.m}`, lat: r.pos[0], lon: r.pos[1], kind: 'friend', name: `${r.name || t('Without a name')}${r.wait ? ` (${t('waiting')})` : ''}`, minZoom: 0 })),
     ...(detour ? [{ id: 'detour-target', lat: detour.target.lat, lon: detour.target.lon, kind: detour.target.kind === 'own' ? 'own' : detour.target.kind || 'other', name: detour.target.name || t('Detour'), minZoom: 0 }] : []),
   ]);
   const toggles = $derived([
