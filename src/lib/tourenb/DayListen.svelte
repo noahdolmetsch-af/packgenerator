@@ -105,7 +105,7 @@
     <div class="dl-top">
       <button type="button" class="dl-play" aria-label={playing >= 0 ? t('Stop') : t('Play all {n}', { n: clips.length })} onclick={() => (playing >= 0 ? stopAll() : playAt(0))} data-listen-all>{#if playing >= 0}<Pause size={22} aria-hidden="true" />{:else}<Play size={22} aria-hidden="true" />{/if}</button>
       <span class="dl-t"><b>{t('Play all {n}', { n: clips.length })}</b><small class="num">{t('{m} min {s} s', { m: Math.floor(total / 60), s: total % 60 })} · {shortDay(dateOfDay(trip, cur))}</small></span>
-      <button type="button" class="btn sm" disabled={busy || clips.every((c) => c.said)} onclick={asText} data-listen-text><Type size={16} aria-hidden="true" />{t('As text')}</button>
+      <button type="button" class="btn" disabled={busy || clips.every((c) => c.said)} onclick={asText} data-listen-text><Type size={16} aria-hidden="true" />{t('As text')}</button>
     </div>
     <audio bind:this={player} onended={ended} preload="none" class="dl-audio"></audio>
     <ul class="dl-list" use:sortable={{ onmove: move }}>

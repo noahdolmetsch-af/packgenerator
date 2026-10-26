@@ -152,7 +152,7 @@
         <span class="uc-acts"><button type="submit" class="btn ink" disabled={!bName.trim()} data-bought-save>{t('Save')}</button><button type="button" class="btn" onclick={() => (buying = false)}>{t('Cancel')}</button></span>
       </form>
     {:else if !booked}
-      <button type="button" class="btn sm" onclick={() => (buying = true)} data-bought-add><ShoppingCart size={16} aria-hidden="true" />{t('Bought on the way …')}</button>
+      <button type="button" class="btn" onclick={() => (buying = true)} data-bought-add><ShoppingCart size={16} aria-hidden="true" />{t('Bought on the way …')}</button>
     {/if}
 
     {#if book}

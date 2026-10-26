@@ -4,6 +4,7 @@ import { packStories, storyOff } from '../src/lib/tourenb/stories.js';
 import { breakCheckText, withBreakCheck, BREAK_CHECKS } from '../src/lib/tourenb/breakcheck.js';
 import { BREAK_KINDS, breakdownsOf } from '../src/lib/tourlernen/tourlernen.js';
 import { dayClips, clipDays, moveClip, dateOfDay } from '../src/lib/tourenb/tagclips.js';
+import { INTENTS, whenChoices, startAnswers, pickAnswer, proposal, intentRecord, answerAfter, dropAsk } from '../src/lib/tourenb/absicht.js';
 import { untilOf, ruleHolds, untilOver, setUntil, rulesOver, ruleOff, seasonEnd } from '../src/lib/tourenb/ruleuntil.js';
 
 const voice = (id) => ({ id, src: 'data:audio/webm;base64,AAAA', s: 12, at: '2026-10-26T10:00:00Z' });
@@ -209,5 +210,42 @@ describe('56 your day to listen to', () => {
     expect(moved).toEqual([keys[0], keys[2], keys[1]]);
     expect(moveClip(keys, keys[0], -1)).toEqual(keys);
     expect(dayClips({ ...trip, clipOrder: { 0: moved } }, 0, src).map((x) => x.key)).toEqual(moved);
+  });
+});
+
+describe('52 a tour from an intent', () => {
+  it('offers five intents, each with «When?»', () => {
+    expect(INTENTS.map((i) => i.key)).toEqual(['nature', 'visit', 'night', 'training', 'ride']);
+    for (const i of INTENTS) expect(i.questions.some((q) => q.when)).toBe(true);
+  });
+  it('gives today, tomorrow and next Saturday as calendar days', () => {
+    const w = whenChoices(new Date(2026, 9, 26, 10)); // a Monday
+    expect(w.map((x) => x.day)).toEqual(['2026-10-26', '2026-10-27', '2026-10-31']);
+    expect(whenChoices(new Date(2026, 9, 30, 10)).map((x) => x.key)).toEqual(['today', 'tomorrow']); // Friday: Saturday is tomorrow
+  });
+  it('presets the answers and switches multi answers', () => {
+    const night = INTENTS.find((i) => i.key === 'night');
+    const a = startAnswers(night, new Date(2026, 9, 26, 10));
+    expect(a).toMatchObject({ sleep: 'tent', far: 'near', test: ['cold'], when: '2026-10-27' });
+    const test = night.questions.find((q) => q.id === 'test');
+    expect(pickAnswer(pickAnswer(a, test, 'cook'), test, 'cold').test).toEqual(['cook']);
+  });
+  it('proposes a test night with the questions for afterwards', () => {
+    const p = proposal('night', { sleep: 'tent', test: ['cold', 'cook'], own: 'New jacket', when: '2026-10-31' });
+    expect(p).toMatchObject({ title: 'Test night', days: 2, overnight: 'outdoor', tent: true, cook: true, startDate: '2026-10-31' });
+    expect(p.asks).toEqual([{ text: 'How warm was the sleeping bag?' }, { text: 'Did the cooking work?' }, { own: 'New jacket' }, { text: 'What do you take differently next time?' }]);
+    expect(proposal('night', { sleep: 'hut', test: ['cook'] })).toMatchObject({ overnight: 'lodging', cook: false });
+  });
+  it('proposes training and a plain ride with hours', () => {
+    expect(proposal('training', { focus: 'climb', hours: '3' })).toMatchObject({ title: 'Training: climbing', hours: 3, days: 1 });
+    expect(proposal('ride', { long: 'half' }).hours).toBe(4);
+    expect(proposal('visit', { back: 'stay' })).toMatchObject({ days: 2, overnight: 'lodging' });
+  });
+  it('keeps answers after the tour and takes a question out', () => {
+    const rec = intentRecord('night', {}, proposal('night', { test: ['cold', 'cook'] }));
+    const a = answerAfter(answerAfter(rec, 0, 'warm'), 2, 'nothing');
+    const d = dropAsk(a, 1);
+    expect(d.asks.map((x) => x.text)).toEqual(['How warm was the sleeping bag?', 'What do you take differently next time?']);
+    expect(d.after).toEqual({ 0: 'warm', 1: 'nothing' });
   });
 });
