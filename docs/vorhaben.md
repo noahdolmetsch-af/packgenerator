@@ -56,6 +56,10 @@ Durchgehende Grundsätze: Alles ist ein Vorschlag, nie Pflicht, und immer änder
 
 **Nachtrag 25.10.2026:** 0.198.0 «Kette vorausschauend» (Ziel 2 «Das Velo im Griff»): die Kette sagt selbst, was als Nächstes dran ist (messen, ölen, ersetzen, vor der Tour), mit Prognose aus den eigenen Messungen und Handy-Erinnerung.
 
+**Nachtrag 26.10.2026:** 0.205.0 «Material, das weiss warum» (Ziel 3 «Material im Griff» und Ziel «Alltag»): eigene Ansichten, Grund für Favoriten, Wunsch löst Ärger, Zwiebel-Check; dazu Gruppenfahrt Teil 2 (Ziel «Unterwegs sicherer») und «Namen überall» (alle Ziele: Funktionen finden).
+
+**Nachtrag 26.10.2026:** 0.203.0 «Kleine Helfer unter Ich» (Ziel «Alltag»): letzte Ergebnisse, Anmeldung erklärt, eigene Verpflegungs-Zahlen, alles Ausgeblendete auf einen Blick, was von einer Verbindung abhängt.
+
 **Nachtrag 26.10.2026:** 0.204.0 «Eine kleine Überraschung» (Ziel «Alltag» und Ziel 2 «Das Velo im Griff»): Überraschungsrunde ab zu Hause, Wetter am eigenen Platz, Bewertung aufteilen, eine Ketten-Aufgabe für mehrere nasse Fahrten, Check nach der Standzeit, Beispiele nach Interesse, «Hat sich etwas geändert?».
 
 **Nachtrag 26.10.2026:** 0.202.0 «Planen im Zusammenhang» (Ziel 5 «Alltag»): Notiz-Verbindungen mit Bedeutung, Erinnerung nach der nächsten Tour oder dem nächsten Werkstattbesuch, Papierkorb zeigt, was mitkommt. Pflanzenpass, Vorgänge im Eingang und Erinnerungskarte folgen nach Noahs Mockup-Freigabe. Dazu Pflanzenpass, Vorgänge im Eingang und Erinnerungskarten (Noah 26.10. «1a–5a»).
