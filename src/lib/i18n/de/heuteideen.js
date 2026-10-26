@@ -58,7 +58,6 @@ export default {
   // 5 Regen bündeln
   '{bike} was out in the wet {n} times since the chain was last cared for ({km} km: {days}). One care is enough for all of them.': '{bike} war seit der letzten Kettenpflege {n}-mal im Nassen ({km} km: {days}). Eine Pflege reicht für alle.',
   'After a ride in the rain a hint on the page «Wear» and a phone reminder to dry and oil the chain; done counts as care. Several wet rides in a row make one task «Care for the chain» and one reminder, not one per ride.': 'Nach einer Fahrt im Regen ein Hinweis auf der Seite «Verschleiss» und eine Handy-Erinnerung, die Kette zu trocknen und zu ölen; erledigt zählt als Pflege. Mehrere nasse Fahrten nacheinander ergeben eine Aufgabe «Kette pflegen» und eine Erinnerung, nicht eine pro Fahrt.',
-  'Several wet rides before you oil it: one task «Care for the chain» with the days and km, and only one phone reminder.': 'Mehrere nasse Fahrten, bevor du ölst: eine Aufgabe «Kette pflegen» mit Tagen und km, und nur eine Handy-Erinnerung.',
   // 6 Nach der Standzeit
   'After the standstill': 'Nach der Standzeit',
   'The bike stood for {n} day before {day}. Worth a look at what changes while it stands:': 'Das Velo stand {n} Tag vor dem {day}. Ein Blick lohnt sich auf das, was sich im Stehen verändert:',
@@ -114,4 +113,18 @@ export default {
   'a category for the new gear': 'eine Kategorie für das neue Material',
   'what always comes along': 'was immer mitkommt',
   'switch on what helps, off what is old': 'einschalten, was hilft, ausschalten, was alt ist',
+  // Hilfe, Katalog und Anleitungen (alle Ideen)
+  'One click on Today plans a ride for today: 2.5 h, the bike you rode last, the standard items and the weather. «New» › «Surprise round» suggests a round from home on the side you know least.':
+    'Ein Klick auf Heute plant eine Tour für heute: 2,5 Std., das zuletzt gefahrene Velo, die Standardteile und das Wetter. «Neu» › «Überraschungsrunde» schlägt eine Runde ab zu Hause vor, auf der Seite, die du am wenigsten kennst.',
+  'One weather page from free open data: the best day and start time for your ride, warnings for storm, thunderstorm, ice and heat, Föhn and Bise, compare places, the usual weather far ahead, the Landi rain radar and what you learned about clothing. At home you note how wind and sun really felt on your spot; after a few notes your own hints show.':
+    'Eine Wetterseite aus freien, offenen Daten: bester Tag und beste Startzeit, Warnungen vor Sturm, Gewitter, Glätte und Hitze, Föhn und Bise, Orte vergleichen, das übliche Wetter weit voraus, das Landi-Regenradar und was du über Kleidung gelernt hast. Zu Hause notierst du, wie sich Wind und Sonne an deinem Platz angefühlt haben; nach ein paar Notizen kommen deine eigenen Hinweise.',
+  'A to-do in Merken in February with what is due on each bike; the month can change. After six weeks without a ride, «After the standstill» on «Wear» lists what changes while a bike stands.':
+    'Ein To-do in Merken im Februar mit dem, was an jedem Velo fällig ist; der Monat lässt sich ändern. Nach sechs Wochen ohne Fahrt listet «Nach der Standzeit» auf «Verschleiss», was sich im Stehen verändert.',
+  'A new app asks once: with made-up trips, bike and gear (only what interests you: nights out, day rides, active), or empty; then it offers the short tour. Me › Data and backup gets or removes the examples later.':
+    'Eine neue App fragt einmal: mit erfundenen Touren, Velo und Ausrüstung (nur, was dich interessiert: Übernachtung, Tagesfahrten, Aktiv) oder leer; danach bietet sie den kurzen Rundgang an. Ich › Daten und Backup holt oder entfernt die Beispiele später.',
+  'Choose «Start with examples» and what interests you, or «Start empty».': 'Wähle «Mit Beispielen starten» und was dich interessiert, oder «Leer starten».',
+  'Once a year one window asks whether weight, home place, name and papers are still right. «Something changed?» (moved, a new sport) lists only what that touches.':
+    'Einmal im Jahr fragt ein Fenster, ob Gewicht, Wohnort, Name und Papiere noch stimmen. «Hat sich etwas geändert?» (umgezogen, neue Sportart) listet nur, was davon betroffen ist.',
+  'On a trip day the evening review asks how the trip was today, 1 to 10, while it is fresh; it goes into the debrief and the diary. At 5 or less you can also say what it was about: experience, plan or body.':
+    'An einem Tourtag fragt der Abend-Rückblick, wie die Tour heute war, 1 bis 10, solange alles frisch ist; das kommt in den Rückblick und ins Tagebuch. Bei 5 oder weniger kannst du auch sagen, woran es lag: Erlebnis, Plan oder Körper.',
 };
