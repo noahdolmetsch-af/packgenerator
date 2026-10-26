@@ -61,9 +61,7 @@ test('sections, greeting with the weather, the trip card, the 16 functions as sm
   await expect(page.locator('.wall [data-fn="note"] .bd')).toHaveText('2');
 
   // Noah 2b: greeting and trip card without scrolling
-  // HG1b (mockup HG1b): a first visit without a name asks for it once, one row under the greeting;
-  // once answered («Nicht jetzt») the first screen holds the greeting and the trip card again
-  await page.locator('[data-name-ask] [data-name-later]').click();
+  // «Neuer Schwung» (Noah 26.10.2026, changed on purpose): Heute no longer asks for the name (it is set in Ich › Darstellung)
   await expect(page.locator('[data-name-ask]')).toHaveCount(0);
   expect(await inFirstScreen(page, page.locator('#hello-h')), 'greeting in the first screen').toBe(true);
   // «Heute neu» N2 (0.169.0, Noah «5a», changed on purpose): one sentence, then the body and the Aktiv tiles; the

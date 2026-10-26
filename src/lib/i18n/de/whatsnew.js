@@ -5,6 +5,7 @@
  */
 export default {
   // 0.215.0 Neuer Schwung PR 1
+  'Weather and «What do I wear?» sit in the date line; your name is set under Me › Appearance': 'Wetter und «Was ziehe ich an?» stehen in der Datumszeile; deinen Namen setzt du unter Ich › Darstellung',
   'The end of Today is one quiet line: stops nearby, all areas, customise, online': 'Das Ende von Heute ist eine ruhige Zeile: Stopps in der Nähe, Alle Bereiche, Anpassen, Online',
   'Tap it: the tiles can be moved, resized and removed, as before. A long press on a tile still works too.': 'Tippe darauf: Kacheln verschieben, Grösse ändern und entfernen geht wie bisher. Lange auf eine Kachel drücken geht weiterhin.',
   'A calmer top on Today': 'Oben auf Heute ist mehr Ruhe',

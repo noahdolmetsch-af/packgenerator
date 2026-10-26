@@ -23,7 +23,10 @@ export const WHATS_NEW = [
     title: 'A calmer top on Today',
     lead: 'Customising the start page now waits at the very bottom.',
     points: [{ text: '«Customise the start page» is at the very bottom of Today, next to «All areas»' }],
-    small: [{ box: 'nicer', text: 'The end of Today is one quiet line: stops nearby, all areas, customise, online' }],
+    small: [
+      { box: 'nicer', text: 'The end of Today is one quiet line: stops nearby, all areas, customise, online' },
+      { box: 'nicer', text: 'Weather and «What do I wear?» sit in the date line; your name is set under Me › Appearance' },
+    ],
     test: ['Open Heute on the computer and scroll to the very bottom: «Startseite anpassen» stands next to «Alle Bereiche».', 'Tap it: the tiles can be moved, resized and removed, as before. A long press on a tile still works too.'],
   },
   {
