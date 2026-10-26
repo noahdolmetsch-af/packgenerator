@@ -28,6 +28,9 @@ test('with examples: a made-up trip shows, «Beispiele entfernen» takes it away
   const sw = await page.evaluate(() => document.documentElement.scrollWidth);
   expect(sw).toBeLessThanOrEqual(page.viewportSize().width);
   await win(page).locator('[data-choice="examples"]').click();
+  // Einzelidee Heute 7: the interest check comes first, all three on
+  await expect(win(page).locator('[data-interest][aria-pressed="true"]')).toHaveCount(3);
+  await win(page).locator('[data-choice="examples-go"]').click();
   // second step: the short tour is offered, never started by itself
   await expect(win(page).locator('[data-choice="tour"]')).toBeVisible();
   await win(page).locator('[data-choice="notour"]').click();
@@ -84,6 +87,7 @@ test('the language is chosen in the window, the examples come in it, and the tou
   await win(page).locator('[data-lang="en"]').click();
   await expect(win(page).getByRole('heading', { name: 'Welcome to the Pack Generator' })).toBeVisible();
   await win(page).locator('[data-choice="examples"]').click();
+  await win(page).locator('[data-choice="examples-go"]').click();
   await win(page).locator('[data-choice="tour"]').click();
   await expect(win(page)).toBeHidden();
   await expect(page.locator('.tour[data-tour="app"]')).toBeVisible();

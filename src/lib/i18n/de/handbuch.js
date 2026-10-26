@@ -1711,4 +1711,13 @@ export default {
   'Switch on the reminders you want; what you tick off on another device no longer comes.': 'Schalte die Erinnerungen ein, die du willst; was du auf einem anderen Gerät abhakst, kommt nicht mehr.',
   'Clicked a place often with the mouse? A small tip shows its shortcut once; «No more shortcut tips» stops them.': 'Einen Ort oft mit der Maus angeklickt? Ein kleiner Tipp zeigt einmal sein Kürzel; «Keine Kürzel-Tipps mehr» stellt sie ab.',
   'A kind (ideas to buy, performance tips, ideas for free time, fitting tools) goes off on every page at once.': 'Eine Art (Kaufideen, Leistungstipps, Ideen für freie Zeit, passende Werkzeuge) geht auf allen Seiten auf einmal aus.',
+  // Einzelideen Heute 5 (25.10.2026)
+  'Example: three short rides in the rain → one task «Care for the chain».': 'Beispiel: drei kurze Fahrten im Regen → eine Aufgabe «Kette pflegen».',
+  // Einzelideen Heute (26.10.2026)
+  'Or «New» › «Surprise round»: pick adventure and time; the app suggests a round from home.': 'Oder «Neu» › «Überraschungsrunde»: Abenteuer und Zeit wählen; die App schlägt eine Runde ab zu Hause vor.',
+  'At home: «At home: how was it really?» notes wind and sun on your spot; after a few notes your own hints show.': 'Zu Hause: «Zu Hause: wie war es wirklich?» notiert Wind und Sonne an deinem Platz; nach ein paar Notizen kommen eigene Hinweise.',
+  'Example: the gravel bike stood 8 weeks → «After the standstill»: tyres, sealant, chain, brakes, a test ride.': 'Beispiel: das Gravel stand 8 Wochen → «Nach der Standzeit»: Reifen, Dichtmilch, Kette, Bremsen, eine Probefahrt.',
+  'Choose the language, «Start with examples» and what interests you, or «Start empty»; then the short tour if you like.': 'Wähle die Sprache, «Mit Beispielen starten» und was dich interessiert, oder «Leer starten»; danach, wenn du magst, den kurzen Rundgang.',
+  'Moved or a new sport? «Something changed?» lists only what it touches. Any time: Me › Data and backup.': 'Umgezogen oder neue Sportart? «Hat sich etwas geändert?» listet nur, was betroffen ist. Jederzeit: Ich › Daten und Backup.',
+  'Tap a number at «How was the trip today?»; at 5 or less also rate experience, plan and body.': 'Tippe bei «Wie war die Tour heute?» eine Zahl an; bei 5 oder weniger auch Erlebnis, Plan und Körper bewerten.',
 };

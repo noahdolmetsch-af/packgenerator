@@ -25,6 +25,10 @@ Stand: **26. Oktober 2026, 00:30 UTC** (nachgetragen nach Noahs Auftrag vom 25.1
 
 | PR | Version (vorläufig) | Inhalt | Stand |
 |---|---|---|---|
+| #253 | 0.196.0 | «Flicken, ausprobieren, abmachen»: letzte Einzelideen aus Paket A (996 Ideen) | offen; Nummer muss über 0.198.0; Noah mergt selbst |
+| #253 | 0.197.0 | «Zusammen auf einer Karte»: Gruppen-Live-Karte (Noah 25.10. «b»: Einladungslink, Teilen nur auf Wunsch, endet nach 24 Stunden, 0 Kosten) und «Velos sichtbar» | wie oben; ändert `api/`, danach den Server «packgen» prüfen |
+| (Zweig) | 0.204.0 | «Eine kleine Überraschung»: 996 Einzelideen Heute (Nr. 1, 2, 4, 5, 6, 7, 8) | fertig gebaut, geht an den Bündler; Noah mergt selbst |
+
 | #253 | 0.199.0 | «Flicken, ausprobieren, abmachen»: letzte Einzelideen aus Paket A (996 Ideen) | offen; Noah mergt selbst |
 | #253 | 0.200.0 | «Zusammen auf einer Karte»: Gruppen-Live-Karte (Noah 25.10. «b»: Einladungslink, Teilen nur auf Wunsch, endet nach 24 Stunden, 0 Kosten) und «Velos sichtbar» | wie oben; ändert `api/`, danach den Server «packgen» prüfen |
 | #251 | – | Bibliotheken aktualisieren (Playwright 1.64, pdfjs 6, maplibre 6.15) mit Anpassung | offen, Prüfungen seit Tagen rot |

@@ -63,7 +63,7 @@ export const HANDBOOK = {
   },
   'f.quickstart': {
     on: null,
-    steps: ['On Today, tap «Quick start».', 'The ride for today is planned; «Open» or «Undo».'],
+    steps: ['On Today, tap «Quick start».', 'The ride for today is planned; «Open» or «Undo».', 'Or «New» › «Surprise round»: pick adventure and time; the app suggests a round from home.'],
     example: 'Example: one click → today 2.5 h on your last bike, standard items, 14 °C and dry.',
   },
   'f.plan': {
@@ -640,7 +640,7 @@ export const HANDBOOK = {
   'f.wetchain': {
     on: null,
     steps: ['Ride in the rain: «Wear» shows «Dry and oil the chain», the phone reminds you at 19:00.', '«Done: chain oiled» writes a care entry for the chain, and the hint goes.', 'Switch it off: Bikes › Care › a bike › «Wear» › «Reminders».'],
-    example: 'Example: 40 km in the rain → in the evening «Dry and oil the chain».',
+    example: 'Example: three short rides in the rain → one task «Care for the chain».',
   },
   'f.wearphotos': {
     on: null,
@@ -670,7 +670,7 @@ export const HANDBOOK = {
   'f.springservice': {
     on: null,
     steps: ['Bikes › Care › a bike › «Wear» › «Reminders» › «Spring service».', 'Pick the month or «off».', 'The to-do in Kalender › Merken lists what is due on each bike.'],
-    example: 'Example: 1 February: «Spring service: chain on the gravel bike, service of the road bike».',
+    example: 'Example: the gravel bike stood 8 weeks → «After the standstill»: tyres, sealant, chain, brakes, a test ride.',
   },
   'f.chainrotation': {
     on: null,
@@ -876,7 +876,7 @@ export const HANDBOOK = {
   },
   'f.weather': {
     on: null,
-    steps: ['Tap the weather line on Today, on Active or on a trip.', 'Choose how long you ride: the app shows the best start; tap «Landi rain radar» for the rain.'],
+    steps: ['Tap the weather line on Today, on Active or on a trip.', 'Choose how long you ride: the app shows the best start; tap «Landi rain radar» for the rain.', 'At home: «At home: how was it really?» notes wind and sun on your spot; after a few notes your own hints show.'],
     example: 'Example: 4 h ride, thunderstorms from 15:00 → best start 08:00, back about 12:00.',
   },
   'f.webcammap': {
@@ -1519,7 +1519,7 @@ export const HANDBOOK = {
   },
   'f.firststart': {
     on: 'Only on a new, empty app: it asks once when it opens for the first time.',
-    steps: ['Choose the language and «Start with examples» or «Start empty»; then the short tour if you like.', 'Me › Data and backup › «Remove the examples» takes them away («Undo» brings them back); «Get the examples» brings them later.'],
+    steps: ['Choose the language, «Start with examples» and what interests you, or «Start empty»; then the short tour if you like.', 'Me › Data and backup › «Remove the examples» takes them away («Undo» brings them back); «Get the examples» brings them later.'],
     example: 'Example: a friend opens the link and sees the made-up «Jura loop» with its packing list right away.',
   },
   'f.playground': {
@@ -1595,7 +1595,7 @@ export const HANDBOOK = {
   },
   'f.yearcheck': {
     on: null,
-    steps: ["Once a year the window «Still right?» comes by itself.", "Tap «Still right» or «Change» for each value.", "Any time: Me › Data and backup › «Still right?»."],
+    steps: ["Once a year the window «Still right?» comes by itself.", "Tap «Still right» or «Change» for each value.", "Moved or a new sport? «Something changed?» lists only what it touches. Any time: Me › Data and backup."],
     example: "Example: weight 72 kg from last year → «Change» → Bikes › Setup.",
   },
   'f.suggestoff': {
@@ -1687,15 +1687,15 @@ export const HANDBOOK = {
     on: 'Works with Strava rides, uploaded GPX rides and routes recorded in the app.',
     steps: ['Open Trips › Look back › Heatmap.', 'Choose clouds or lines; filter by year, sport, bike or tour and everyday.', 'Tap a coloured line: the rides there show below, each with its page.'],
     example: 'Example: 2026, bike only → your way to work glows dark red, the Jura tour is a thin orange line.',
-  },  'f.eveningtour': {
-  },  'f.tickreview': {
+  },
+  'f.tickreview': {
     on: 'Works with what you tick off under «Heute abhaken» and with check questions that have a number.',
     steps: ['Open Active › Goals and tap «Evaluate».', 'Choose 30 days, 90 days or the year, and all activities or one.', 'Switch to «Your answers» for a check question; «…» on a card hides or moves it.'],
     example: 'Example: Meditation, 90 days → most often on Tuesday, mostly before 9 o’clock, 8 days in a row as the best run.',
   },
   'f.eveningtour': {
     on: 'Shows only on the days of a trip.',
-    steps: ['On a trip day, open the evening review from Today.', 'Tap a number at «How was the trip today?»; a second tap takes it back.', 'The score goes into the debrief; the diary draft names it for that day.'],
+    steps: ['On a trip day, open the evening review from Today.', 'Tap a number at «How was the trip today?»; at 5 or less also rate experience, plan and body.', 'The score goes into the debrief; the diary draft names it for that day.'],
     example: 'Example: day 2 of the Jura round → 8 of 10; the diary says «Rated in the evening: 8 of 10».',
   },
   'f.ridepage': {

@@ -149,7 +149,7 @@ export const HOWTO = {
   'f.autobackup': ['On a computer open Me › Your data.', 'Choose a folder for the auto backup.', 'After every change a file goes there; if not, a message says how to fix it.'],
   'f.tidy': ['Open Me.', 'Choose «Tidy up test data».', 'Everything with «test» in its name goes to the archive, with Undo.'],
   'f.tour': ['Open Me › Handbook › Tour.', 'Choose the example trip or your own data, or «Go on at step n».', 'Tap «Next» through the steps.'],
-  'f.firststart': ['Open the app for the first time.', 'Choose «Start with examples» or «Start empty».', 'Me › Data and backup › «Remove the examples» or «Get the examples».'],
+  'f.firststart': ['Open the app for the first time.', 'Choose «Start with examples» and what interests you, or «Start empty».', 'Me › Data and backup › «Remove the examples» or «Get the examples».'],
   'f.playground': ['Open the playground.', 'Pack, ride and debrief a made-up trip.', 'Afterwards everything is as before.'],
   'f.push': ['Open Me › Reminders on the phone.', 'Switch on «On the phone»; Chrome asks once.', 'Switch on one reminder and tap «Send a test»; what you tick off elsewhere no longer comes.'],
   'f.helper': ['Open Me › Helper.', 'Enter the helper code; it stays on this device.', 'Before sending you see what goes out.'],

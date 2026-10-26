@@ -16,6 +16,24 @@
 
 export const WHATS_NEW = [
   {
+    // v0.204.0 «Einzelideen Heute» (Noah 25./26.10.2026 «1-8 alle so bauen», ideas 1 2 4 5 6 7 8): surprise round,
+    // weather on your own spot, split rating, rain bundled, check after the standstill, examples by interest, life change.
+    version: '0.204.0',
+    date: '2026-10-26',
+    title: 'A little surprise',
+    lead: 'A round you do not know yet, and the app learns your own spot.',
+    points: [
+      { text: 'At home: note how wind and sun really felt', href: '#/wetter' },
+      { text: 'Surprise round: adventure and time, the app suggests the rest', href: '#/' },
+      { text: 'After a long standstill: what to check on the bike', href: '#/bikes?tab=care&view=wear' },
+    ],
+    small: [
+      { box: 'new', text: 'Rate experience, plan and body apart; «Something changed?» in «Still right?»' },
+      { box: 'nicer', text: 'Several rides in the rain: one chain task, one reminder' },
+    ],
+    test: ['Tap «Neu» › «Überraschungsrunde», choose «Neugierig» and 2 h, then «Runde vorschlagen».', 'Open the weather page at home: «Zu Hause: wie war es wirklich?» stands below.', 'Me › Daten und Backup › «Stimmt das noch?»: «Hat sich etwas geändert?» › «Ich bin umgezogen».'],
+  },
+  {
     // v0.203.0 «Kleine Helfer unter Ich» (Einzelideen 29, 30, 31, 34, 36 of the 996 ideas, Noah 25.10.2026):
     // clear backup-folder messages, go on with a tour, one shortcut at a time, done on every device, suggestions by kind.
     // Provisional number: the bundler sets the final one.

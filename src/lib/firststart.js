@@ -49,8 +49,53 @@ const GEAR = [
   ['ex-fleece', 'Fleece jumper|example', 'offbike', 'luggage', 300, null],
 ];
 
-/** The example data as a backup file (merged like an import). today: YYYY-MM-DD. */
-export function examplesFile(today) {
+/**
+ * Einzelidee Heute 7 (UC-309-I1 «Beispiel mit eigenem Bezug», Noah 25.10.2026): before the examples go in,
+ * a short interest check picks the few that fit, so the app is not filled with things you never use.
+ * nights: the 2-day trip with sleeping gear; days: the ridden day ride with its debrief; active: the twelve
+ * starter activities. All three are on as a suggestion; at least one stays on.
+ */
+export const INTERESTS = [
+  { key: 'nights', name: 'Trips with a night out', sub: 'a 2-day trip, sleeping bag, mat, tarp' },
+  { key: 'days', name: 'Day rides', sub: 'a ridden day ride with its debrief' },
+  { key: 'active', name: 'Active and everyday', sub: 'twelve activities like walk, yoga, sauna' },
+];
+export const ALL_INTERESTS = INTERESTS.map((x) => x.key);
+/** The interests made safe: known keys only; none at all → all. */
+export const interestsOf = (list) => {
+  const k = (Array.isArray(list) ? list : []).filter((x) => ALL_INTERESTS.includes(x));
+  return k.length ? [...new Set(k)] : [...ALL_INTERESTS];
+};
+
+/** The example data as a backup file (merged like an import). today: YYYY-MM-DD; interests: see INTERESTS. */
+export function examplesFile(today, interests = ALL_INTERESTS) {
+  const want = interestsOf(interests);
+  const file = allExamples(today);
+  const nights = want.includes('nights');
+  const days = want.includes('days');
+  if (nights && days) return file;
+  const tb = file.tables;
+  if (!nights && !days) return { ...file, tables: { bikes: [], containers: [], items: [], trips: [], debriefs: [] } };
+  // a night out needs the whole gear of its trip; day rides only the day gear
+  const keepItem = (id) => nights || DAY_GEAR.has(id);
+  const items = tb.items.filter((i) => keepItem(i.id));
+  const ids = new Set(items.map((i) => i.id));
+  const containers = tb.containers.filter((c) => ids.has(c.itemId));
+  const bags = new Set(containers.map((c) => c.id));
+  const setupOf = (setup) => Object.fromEntries(Object.entries(setup ?? {}).filter(([, id]) => bags.has(id)));
+  return {
+    ...file,
+    tables: {
+      bikes: tb.bikes.map((b) => ({ ...b, setup: setupOf(b.setup), slots: b.slots.filter((sl) => setupOf(b.setup)[sl]) })),
+      containers,
+      items,
+      trips: tb.trips.filter((x) => (x.id === 'ex-trip' ? nights : days)).map((x) => ({ ...x, setup: setupOf(x.setup) })),
+      debriefs: days ? tb.debriefs : [],
+    },
+  };
+}
+
+function allExamples(today) {
   const now = new Date().toISOString();
   const start = addDays(today, 10);
   const bike = t('Gravel bike (example)');
@@ -159,9 +204,9 @@ async function unusedSeedActs(db, ids = null) {
  * The answer: 'examples' or 'empty'. Writes the setting first, so a second tab or a reload never asks
  * again. Returns the setting's value.
  */
-export async function chooseStart(db, choice, today) {
+export async function chooseStart(db, choice, today, interests = ALL_INTERESTS) {
   const at = new Date().toISOString();
-  if (choice === 'examples') return addExamples(db, today, { at, first: true });
+  if (choice === 'examples') return addExamples(db, today, { at, first: true, interests });
   const value = { choice: 'empty', at, ids: {} };
   await db.settings.put({ key: FIRST_KEY, value });
   const acts = await unusedSeedActs(db);
@@ -174,18 +219,25 @@ export async function chooseStart(db, choice, today) {
  * the «ex-» ids are written; a starter activity that is missing comes back. Never touches own data
  * (first: the first start, where every starter activity is still the app's own).
  */
-export async function addExamples(db, today, { at = new Date().toISOString(), first = false } = {}) {
-  const file = examplesFile(today);
+export async function addExamples(db, today, { at = new Date().toISOString(), first = false, interests = ALL_INTERESTS } = {}) {
+  const want = interestsOf(interests);
+  const file = examplesFile(today, want);
+  const active = want.includes('active');
   const present = new Set((await db.flowActs.toArray()).map((a) => a.id));
-  const missing = seedActs().filter((a) => !present.has(a.id));
+  const missing = active ? seedActs().filter((a) => !present.has(a.id)) : [];
   const ids = Object.fromEntries(Object.entries(file.tables).map(([k, rows]) => [k, rows.map((r) => keyOf(k, r))]));
   // on the first start every starter activity counts as an example; later only the ones it brings back
-  ids.flowActs = first ? [...seedIds()] : missing.map((a) => a.id);
-  const value = { choice: 'examples', at, ids };
+  ids.flowActs = first ? (active ? [...seedIds()] : []) : missing.map((a) => a.id);
+  const value = { choice: 'examples', at, ids, ...(want.length < ALL_INTERESTS.length ? { interests: want } : {}) };
   await db.settings.put({ key: FIRST_KEY, value });
   await restoreBackup(db, file, 'merge');
   await blocksAfterImport(db, file, 'merge');
   if (missing.length) await db.flowActs.bulkPut(missing);
+  // without «Active and everyday» the first start takes the unused starter activities away, as an empty start does
+  if (first && !active) {
+    const acts = await unusedSeedActs(db);
+    if (acts.length) await db.flowActs.bulkDelete(acts.map((a) => a.id));
+  }
   return value;
 }
 
