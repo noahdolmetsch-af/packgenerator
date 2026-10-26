@@ -4,6 +4,12 @@
  * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
+  // 0.215.0 Neuer Schwung PR 1
+  'Tap it: the tiles can be moved, resized and removed, as before. A long press on a tile still works too.': 'Tippe darauf: Kacheln verschieben, Grösse ändern und entfernen geht wie bisher. Lange auf eine Kachel drücken geht weiterhin.',
+  'A calmer top on Today': 'Oben auf Heute ist mehr Ruhe',
+  'Customising the start page now waits at the very bottom.': '«Startseite anpassen» wartet jetzt ganz unten.',
+  '«Customise the start page» is at the very bottom of Today, next to «All areas»': '«Startseite anpassen» steht ganz unten auf Heute, neben «Alle Bereiche»',
+  'Open Heute on the computer and scroll to the very bottom: «Startseite anpassen» stands next to «Alle Bereiche».': 'Öffne Heute am Computer und scrolle ganz nach unten: «Startseite anpassen» steht neben «Alle Bereiche».',
   // 0.212.0 Touren b
   'Tours that remember': 'Touren, die mitdenken',
   'Start from what you want, get reminded at the right place.': 'Beginne mit deiner Absicht, die Erinnerung kommt am richtigen Ort.',

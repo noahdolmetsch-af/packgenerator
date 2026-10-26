@@ -16,6 +16,16 @@
 
 export const WHATS_NEW = [
   {
+    // v0.215.0 «Neuer Schwung» PR 1 (Noah 26.10.2026 «3a»): «Customise the start page» moves to the quiet line at the
+    // very bottom of Today, on a computer too (was a button at the top right)
+    version: '0.215.0',
+    date: '2026-10-26',
+    title: 'A calmer top on Today',
+    lead: 'Customising the start page now waits at the very bottom.',
+    points: [{ text: '«Customise the start page» is at the very bottom of Today, next to «All areas»' }],
+    test: ['Open Heute on the computer and scroll to the very bottom: «Startseite anpassen» stands next to «Alle Bereiche».', 'Tap it: the tiles can be moved, resized and removed, as before. A long press on a tile still works too.'],
+  },
+  {
     // v0.212.0 «Touren b» (996 Einzelideen 50–58, Noah 25./26.10.2026 «freigabe 52 55 56 57 58»): trip from an intent,
     // rule with an end, little stories, check from a breakdown, «check later», note at a place, your day to listen to,
     // eat reminder at planned stops, book what was used

@@ -165,7 +165,7 @@
   import { tripToday } from '../lib/home/ruhig.js';
   import { todayTrip, liveHref } from '../lib/live/start.js'; // Paket U3: the tile «Start a ride»
   import { quietHome } from '../lib/bedienung.svelte.js';
-  import { PartyPopper, Sun, Pencil, RotateCcw, Route, ChevronRight, SlidersHorizontal, Hand, X, ClipboardList, Flower2, Bike as BikeIcon, LayoutGrid } from '@lucide/svelte';
+  import { PartyPopper, Sun, RotateCcw, Route, ChevronRight, SlidersHorizontal, Hand, X, ClipboardList, Flower2, Bike as BikeIcon, LayoutGrid } from '@lucide/svelte';
   import DuTile from '../lib/home/DuTile.svelte'; // «Heute neu» A (Noah 20.10.2026 «3a»): «You today»
   import MedStartSheet from '../lib/flow/MedStartSheet.svelte';
   import { flowQuery, seedIfNeeded } from '../lib/flow/data.svelte.js';
@@ -1010,7 +1010,6 @@
         {#if placeOpen}<div class="pf"><HomePlaceForm onchosen={() => (placeOpen = false)} /></div>{/if}
         {#if askName}<NameAsk />{/if}
       </div>
-      {#if !phone.matches && !editing}<button type="button" class="btn adapt" data-intro="custom" onclick={() => (editing = true)}><SlidersHorizontal size={18} aria-hidden="true" />{t('Customise the start page')}</button>{/if}
     </div>
     <!-- «Heute neu» A: one personal sentence; the idea for today moved into «Up now» -->
     {#if sentence}<p class="say" data-say>{#each sentence as p, i (i)}{#if i}{' '}{/if}<span class:hi={p.hi}>{p.text}</span>{/each}</p>{/if}
@@ -1313,8 +1312,12 @@
     {:else}
       <!-- «Heute neu» A (Noah «3a»): everything that left Heute is one tap away -->
       {#await import('../lib/stops/HeuteStopps.svelte') then m}<m.default {today} top={false} />{:catch}{/await}
-      <a class="lkb" href="#/features" data-all-areas><LayoutGrid size={16} aria-hidden="true" />{t('All areas|home')}</a>
-      {#if phone.matches}<button type="button" class="lkb" data-intro="custom" onclick={() => (editing = true)}><Pencil size={16} aria-hidden="true" />{t('Customise the start page')}</button>{/if}
+      <!-- «Neuer Schwung» (Noah 26.10.2026 «3a»): «Customise the start page» sits in one quiet line at the very bottom,
+           on a computer too (it was a button at the top right); a long press on a tile still opens it -->
+      <div class="lkrow">
+        <a class="lkb" href="#/features" data-all-areas><LayoutGrid size={16} aria-hidden="true" />{t('All areas|home')}</a>
+        <button type="button" class="lkb" data-intro="custom" onclick={() => (editing = true)}><SlidersHorizontal size={16} aria-hidden="true" />{t('Customise the start page')}</button>
+      </div>
     {/if}
   </div>
 
@@ -1515,7 +1518,7 @@
     }
   }
   /* v0.101.0 Design-Refresh P2 (H1): the greeting alone in the heading, date and weather in one quiet
-     line under it, «Customise the start page» as a light button at the top right */
+     line under it (since «Neuer Schwung» 26.10.2026 «Customise the start page» is at the bottom) */
   .ghead {
     display: flex;
     flex-wrap: wrap;
@@ -1544,10 +1547,6 @@
     margin: 0;
     color: var(--ink-2);
     font-size: var(--fs-small);
-  }
-  .adapt {
-    flex: none;
-    background: var(--paper);
   }
   @media (max-width: 719px) {
     .greet :global(.hello) {
@@ -2182,6 +2181,12 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+  }
+  .lkrow {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 4px 24px;
   }
   .custom .lkb {
     gap: 6px;
