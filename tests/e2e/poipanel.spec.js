@@ -178,6 +178,11 @@ test('Here: the visible map, Search here', async ({ page, context }, info) => {
   await tap(panel.getByRole('button', { name: T('Here|poi') }), info);
   const go = panel.locator('[data-poi-search-here]');
   await expect(go).toBeVisible();
+  // the open sheet covers most of the map, so Live's «follow me» (a step every 2 s) may still move the map once
+  // to keep you visible; wait until the map is at rest (unchanged over one step), then search the view as it is
+  const view = page.locator('[data-map-view]');
+  let last = null;
+  await expect.poll(async () => { const v = await view.getAttribute('data-map-view'); const same = v != null && v === last; last = v; return same; }, { intervals: [2500], timeout: 20_000 }).toBe(true);
   const before = st.calls.length;
   await tap(go, info);
   await expect(panel.locator('[data-poi-status="ok"]')).toBeVisible();

@@ -132,7 +132,8 @@
     ownFor = null;
   };
 
-  const save = (next) => saveConfig(next);
+  // nothing is saved before the stored questions are loaded (else the standard ones would replace them)
+  const save = (next) => (data ? saveConfig(next) : undefined);
   function flip(q, on) {
     let next = setOn(cfg, q.id, on, stampOf());
     if (on && settingOf(cfg, q).every.kind === 'off') next = setEvery(next, q.id, { kind: 'daily', time: '20:00' });
