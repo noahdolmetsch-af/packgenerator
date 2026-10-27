@@ -16,6 +16,16 @@
 
 export const WHATS_NEW = [
   {
+    // v0.226.1 «Touren b» catalogue (996 Einzelideen 50–58): all in «What the app can do», the handbook and the home pages; idea 56 map
+    version: '0.226.1',
+    date: '2026-10-27',
+    title: 'Where you said it',
+    lead: 'Your day to listen to now shows a small map.',
+    points: [{ text: '«Your day to listen to» shows on a map where you recorded each note', href: '#/debrief' }],
+    small: [{ box: 'nicer', text: 'The tour ideas from 0.212.0 are now in «What the app can do», the handbook and on their home pages', href: '#/features' }],
+    test: ['After a day with voice notes open «Your day to listen to» in the debrief.', 'The map «Where you spoke them» shows a number for each note; a tap plays it.'],
+  },
+  {
     // v0.226.0 Tages-Check (Noah 26.10.2026 «1a»): «Not today» in the morning waits only until the evening check
     version: '0.226.0',
     date: '2026-10-27',

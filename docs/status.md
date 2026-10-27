@@ -4,6 +4,8 @@ Stand: 26. Oktober 2026 (Kopf nachgetragen; die Einträge unten werden mit jedem
 
 ## Aktuell live
 
+**0.226.1 «Wo du es gesagt hast» (27.10.2026, 996 Einzelideen Touren 50–58):** Die Touren-b-Funktionen aus 0.212.0 stehen in features.js, Handbuch, So geht's und auf den Heimatseiten (SINCE 0.212.0); Idee 56: «Dein Tag zum Hören» zeigt eine kleine Karte, wo jede Notiz gesprochen wurde.
+
 **0.226.0 «Der Abend-Check kommt trotzdem» (27.10.2026, Tages-Check, Noah «1a»):** ✕ oder «Heute nicht» im Morgen-Check schliesst nur den Morgen; der Abend-Check kommt zur Abendzeit (`quietToday`/`isQuiet` in abfragen.js). Am Abend bleibt es wie bisher bis morgen still.
 **0.223.0 «Die Strecke folgt jeder Kurve» (27.10.2026, Live Navigation PR 3, Noah «bitte umsetzen»):** Tour- und Rennstrecken aus GPX-Dateien behielten nur 200 gleichmässig verteilte Punkte und schnitten Kurven ab. Neu vereinfacht `src/lib/route/fineline.js` die Linie mit Douglas–Peucker (5 m Toleranz, höchstens 3000 Punkte): gerade Stücke werden kurz, Kurven bleiben. Genutzt in `routeStats` (route.js), `asTripRoute` (liveroute.js) und den Rennrouten (race/files.js). Bestehende Touren: GPX einmal neu hinzufügen.
 
