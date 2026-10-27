@@ -19,7 +19,7 @@
    * map), line ([[lat, lon]] | null: the route), profile ([[km, m]] | null: for the detour climb),
    * onpoints (places → void: the places of the switched-on kinds, each with d = distanceOf, for the
    * map symbols; a place of an own kind has the kind of its icon and catName), tripId (the route's
-   * cache), canTap (the host sends map taps to tapMap()), ontapmode (bool → void: waiting for a tap on
+   * cache), canTap (the host sends map taps to tapMap()), ongo (place → void: «Go there» in the details), ontapmode (bool → void: waiting for a tap on
    * the map, e.g. to show the map), fetcher (tests only).
    */
   import { untrack } from 'svelte';
@@ -48,7 +48,7 @@
   import { localDay } from '../localday.js';
   import OwnPointSheet from './OwnPointSheet.svelte';
 
-  let { center = null, bounds = null, line = null, profile = null, onpoints = undefined, tripId = null, canTap = false, ontapmode = undefined, fetcher = undefined } = $props();
+  let { center = null, bounds = null, line = null, profile = null, onpoints = undefined, tripId = null, canTap = false, ontapmode = undefined, fetcher = undefined, ongo = undefined } = $props();
 
   const hasLine = $derived(Array.isArray(line) && line.length >= 2);
   const prefsQ = prefsQuery();
@@ -647,7 +647,7 @@
               <a class="pp-nav" href={nav.google} target="_blank" rel="noopener noreferrer" aria-label={t('Navigate with Google Maps to {name}|poi', { name: titleOf(p) })}><Navigation size={16} aria-hidden="true" /><span>G</span></a>
               <a class="pp-nav" href={nav.osmand} target="_blank" rel="noopener noreferrer" aria-label={t('Navigate with OsmAnd to {name}|poi', { name: titleOf(p) })}><Navigation size={16} aria-hidden="true" /><span>O</span></a>
               {#if picked?.id === p.id}
-                <div class="pp-detail"><PoiDetail place={p} {from} line={modeNow === 'route' || pts.length ? line : null} {profile} onclose={() => (picked = null)} /></div>
+                <div class="pp-detail"><PoiDetail place={p} {from} line={modeNow === 'route' || pts.length ? line : null} {profile} {ongo} onclose={() => (picked = null)} /></div>
               {/if}
             </li>
           {/each}

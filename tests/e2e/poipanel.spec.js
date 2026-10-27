@@ -164,6 +164,11 @@ test('a place: detail with hours and Navigate, save, share, unsave', async ({ pa
   await tap(panel.locator('[data-poi-unstar]'), info);
   await expect(panel.locator('[data-poi-saved-row]')).toHaveCount(0);
   await noSideways(page, 'detail');
+
+  // In der Nähe (27.10.2026): «Go there» in the details of a listed place closes the window and plans the detour to it
+  await tap(d.locator('[data-poi-go]'), info);
+  await expect(page.locator('[data-live-near]')).toBeHidden();
+  await expect(page.locator('[data-reroute-sheet]')).toBeVisible();
 });
 
 test('Overpass busy (every server), then try again; offline shows the kept places', async ({ page, context }, info) => {
