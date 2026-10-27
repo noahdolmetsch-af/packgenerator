@@ -415,6 +415,9 @@ describe('Suchvorschläge · new kinds (Noah 27.10.2026)', () => {
     expect(kindOf({ shop: 'farm' }, S.ALL_KEYS)).toBe('farmshop');
     expect(kindOf({ shop: 'farm' }, KEYS)).toBe('shop');
     expect(kindOf({ emergency: 'defibrillator' }, S.ALL_KEYS)).toBe('defib');
+    expect(kindOf({ shop: 'outdoor' }, S.ALL_KEYS)).toBe('outdoor');
+    expect(kindOf({ leisure: 'firepit' }, S.ALL_KEYS)).toBe('firepit');
+    expect(kindOf({ amenity: 'device_charging_station' }, S.ALL_KEYS)).toBe('phonecharge');
     expect(kindOf({ amenity: 'vending_machine', vending: 'cigarettes' }, S.ALL_KEYS)).toBe(null);
   });
 });

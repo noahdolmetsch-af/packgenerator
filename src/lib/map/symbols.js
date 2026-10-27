@@ -37,6 +37,9 @@ export const KIND_ICON = {
   bikewash: 'spray-can',
   locker: 'lock',
   defib: 'heart-pulse',
+  outdoor: 'backpack',
+  firepit: 'flame-kindling',
+  phonecharge: 'smartphone-charging',
   supermarket: 'shopping-basket',
   bakery: 'croissant',
   icecream: 'ice-cream-cone',
@@ -70,6 +73,9 @@ export const KIND_ICON = {
 };
 /** Lucide icon name → its SVG elements (24 × 24, drawn with a stroke) */
 export const ICON_SVG = {
+  'backpack': '<path d="M4 10a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><path d="M8 10h8"/><path d="M8 18h8"/><path d="M8 22v-6a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v6"/><path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/>',
+  'flame-kindling': '<path d="M12 2c1 3 2.5 3.5 3.5 4.5A5 5 0 0 1 17 10a5 5 0 1 1-10 0c0-.3 0-.6.1-.9a2 2 0 1 0 3.3-2C8 4.5 11 2 12 2Z"/><path d="m5 22 14-4"/><path d="m5 18 14 4"/>',
+  'smartphone-charging': '<rect width="14" height="20" x="5" y="2" rx="2" ry="2"/><path d="M12.667 8 10 12h4l-2.667 4"/>',
   'flame': '<path d="M12 3q1 4 4 6.5t3 5.5a1 1 0 0 1-14 0 5 5 0 0 1 1-3 1 1 0 0 0 5 0c0-2-1.5-3-1.5-5q0-2 2.5-4"/>',
   'cup-soda': '<path d="m6 8 1.75 12.28a2 2 0 0 0 2 1.72h4.54a2 2 0 0 0 2-1.72L18 8"/><path d="M5 8h14"/><path d="M7 15a6.47 6.47 0 0 1 5 0 6.47 6.47 0 0 0 5 0"/><path d="m12 8 1-6h2"/>',
   'milk': '<path d="M8 2h8"/><path d="M9 2v2.789a4 4 0 0 1-.672 2.219l-.656.984A4 4 0 0 0 7 10.212V20a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-9.789a4 4 0 0 0-.672-2.219l-.656-.984A4 4 0 0 1 15 4.788V2"/><path d="M7 15a6.472 6.472 0 0 1 5 0 6.47 6.47 0 0 0 5 0"/>',
@@ -122,7 +128,7 @@ export const ICON_SVG = {
   'mail': '<path d="m22 7-8.991 5.727a2 2 0 0 1-2.009 0L2 7"/><rect x="2" y="4" width="20" height="16" rx="2"/>',
 };
 /** The kinds of the POI search (map/poisearch.js) that must all have a symbol. */
-export const SEARCH_KINDS = ['sauna', 'indoorpool', 'thermal', 'selecta', 'tubevend', 'foodvend', 'farmshop', 'shower', 'bikewash', 'locker', 'defib', 'water', 'shop', 'food', 'fuel', 'bike', 'repair', 'sleep', 'camp', 'shelter', 'toilet', 'pharmacy', 'hospital', 'atm', 'station', 'laundry', 'view', 'supermarket', 'bakery', 'icecream', 'bench', 'picnic', 'charge', 'bikepark', 'rental', 'roofbus', 'hut', 'bivouac', 'waitroom', 'night24', 'bus', 'transit', 'info', 'swim', 'church', 'pass', 'doctor', 'police', 'post'];
+export const SEARCH_KINDS = ['sauna', 'indoorpool', 'thermal', 'selecta', 'tubevend', 'foodvend', 'farmshop', 'shower', 'bikewash', 'locker', 'defib', 'outdoor', 'firepit', 'phonecharge', 'water', 'shop', 'food', 'fuel', 'bike', 'repair', 'sleep', 'camp', 'shelter', 'toilet', 'pharmacy', 'hospital', 'atm', 'station', 'laundry', 'view', 'supermarket', 'bakery', 'icecream', 'bench', 'picnic', 'charge', 'bikepark', 'rental', 'roofbus', 'hut', 'bivouac', 'waitroom', 'night24', 'bus', 'transit', 'info', 'swim', 'church', 'pass', 'doctor', 'police', 'post'];
 /** The image id of a kind on the map (an unknown kind gets the «other» symbol). */
 export const symbolId = (kind) => `sym-${KIND_ICON[kind] ? kind : 'other'}`;
 /** Every kind with a symbol. */

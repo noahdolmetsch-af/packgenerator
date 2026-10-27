@@ -32,6 +32,9 @@ export default {
   'Bike wash|poi': 'Velo-Waschplatz',
   'Luggage locker|poi': 'Schliessfach',
   'Defibrillator|poi': 'Defibrillator',
+  'Sport and outdoor shop|poi': 'Sport- und Outdoorgeschäft',
+  'Fireplace and barbecue|poi': 'Feuerstelle und Grillplatz',
+  'Phone charging|poi': 'Handy laden',
 
   // own radius
   'Own|radius': 'Eigener',
