@@ -305,6 +305,7 @@ Nach der Mitziehen-Regel: was in 0.47 noch nicht auf dem neuen Stand ist, mit Zi
 - 26.10.2026, 0.208.0 «Mehr Platz am Computer» (UI-Ziel #14, Kriterium 11 «Nutzt der Computer die Breite?»): Touren und Auswerten im Muster «Hauptsache links 2/3, Begleitinfo rechts 1/3» wie Packen, Aktiv und Material; Velos mit dem Einstieg als Zeile «So geht's ›» wie Touren und Material; Hauptorte höchstens 1120 px. Entwurf https://claude.ai/artifact/WfZ9dNaomjxSba2gDpdkM6 (Vorher-Bilder mit erfundenen Daten). Offen: nichts.
 - 26.10.2026, 0.219.0 «Heute ruhiger» Teil 1 (Kriterium «Ruhe/Leerraum»): Karten so hoch wie ihr Inhalt (vorher bis ~600 px leer neben hohen Karten), die 8 kleinen Knöpfe als eine Liste in 2 (Handy) oder 4 (Computer) Spalten, Velo-Arbeiten als Pillen-Knöpfe. Mockup H1 https://claude.ai/artifact/H3XYx26oxGMMBqdNxKMQf4#heute-ruhiger. Offen: Teil 2 (doppelte Kacheln) und Teil 3 (Bereiche mit Überschrift).
 - 26.10.2026, 0.212.1 «Die heutige Tour sagt eins» (UI-Test 0.205 T1, Kriterium «ein Zustand überall»): Tour-Seite, Gepäck, Rückblick und Heute zeigen vor der Fahrt denselben Zustand «Geplant · Packen». Vorher/Nachher-Bilder mit erfundenen Daten im PR. Offen: T2–T13.
+- 26.10.2026, 0.233.0 «Heute ruhiger» Teil 2 (Kriterium «Jedes Ding einmal»): Körperwerte standen bis zu 5-mal, Aktiv 3-mal auf Heute; jetzt einmal. Offen: Teil 3 (Bereiche mit Überschrift).
 - 26.10.2026, 0.220.0 «Velo-Ergänzungen»: alle neuen Teile oben auf «Verschleiss» als Sprung-Chips; Jahresrückblick und Saison-Checklisten als eigene Unterseiten statt neuer Blöcke auf der Pflege-Seite.
 - 27.10.2026, 0.226.0 «Der Abend-Check kommt trotzdem»: Hinweis im Check-Fenster sagt am Morgen «bis zum Abend-Check».
 - 27.10.2026, 0.231.0 «Wo du es gesagt hast»: kleine Karte im «Tag zum Hören», Sprung-Chips auf den Heimatseiten.
@@ -331,6 +332,10 @@ Neues Fenster «Fahrt beenden?» im Stil des Löschen-Fensters (unten auf dem Ha
 
 Filter als aufklappbarer Kasten unter der Ortsliste (Knopf «Filter» mit Zahl der aktiven Filter), Segmente wie in den Einstellungen, Schnellwahl als beschriftete Chip-Reihe. Leere Liste mit Erklärung und «Filter zurücksetzen». Screenshots auf der PR-Seite.
 
+## 27.10.2026 Live Navigation PR 5 (Umweg und zurück)
+
+Mockups R1–R4 von Noah freigegeben. Die Rückweg-Frage und das automatische Neu-Planen sitzen in der bestehenden Umweg-Karte oben auf der Karte (gleiche Knöpfe, gewählte Antwort mit Akzentfarbe wie die Segmente). Erklärsatz unter jeder Frage. Screenshots auf der PR-Seite.
+
 ## 27.10.2026 Live Navigation PR 4 (In der Nähe)
 
 Mockups N1–N3 und R4 von Noah freigegeben (27.10. «freigabe für alle mockups»). Neues Fenster rechts (Computer, 440 px) oder von unten (Handy), Situationsknöpfe als Raster mit Emoji, Schriftgrössen über Tokens. Die Schnellwahl Wasser/Essen/Schlafen fällt weg, die Situationen ersetzen sie.
@@ -338,7 +343,4 @@ Mockups N1–N3 und R4 von Noah freigegeben (27.10. «freigabe für alle mockups
 ## 27.10.2026 Live Navigation PR 3 (Strecke genau)
 
 Keine sichtbare Oberfläche neu; die Linie auf der Karte folgt den Kurven. Kein Design-Eingriff.
-
-## 27.10.2026 Kontakt-QR-Code PR 1 (0.236.0)
-
-Mockups K1–K6 von Noah beantwortet («1a 2b 3a 4a 5a»). PR 1 nutzt die Bausteine der Kontaktkarte (ev-box, ev-fld, ev-sw) und auf der Kartenseite eine Zeilenliste wie in K4 (Symbol, Name, Wert, Pfeil). Ein Hauptknopf «In Kontakte speichern». Bilder 390 und 1440 im PR.
+- 26.10.2026, «Neuer Schwung» PR 1: Kopf von Heute am Computer ohne Knopf; «Startseite anpassen» als leiser Link unten, Tippfläche 44 px wie «Alle Bereiche».

@@ -518,21 +518,19 @@ Kurzfassung, verbindlich ist [arbeitsweise.md](arbeitsweise.md).
 0.208.0 «Mehr Platz am Computer» (26.10.2026, Ziel Alltag/Bedienung): UI-Ziel #14, die Hauptorte nutzen am Computer ihre Breite.
 0.219.0 «Heute ruhiger» Teil 1 (26.10.2026, Ziel Alltag): Heute ruhiger und schöner, keine neuen Funktionen.
 0.212.1 «Die heutige Tour sagt eins» (26.10.2026, Ziel Touren): UI-Test 0.205 Teil T1, die heutige Tour sagt überall dasselbe.
-
+0.233.0 «Heute ruhiger» Teil 2 (26.10.2026, Ziel Alltag): doppelte Kacheln weg von Heute.
 0.220.0 «Velo-Ergänzungen» (26.10.2026, Ziel 2 «Das Velo im Griff»): Velo-Ideen 1, 3, 6, 7, 8, 12.
 0.226.0 «Der Abend-Check kommt trotzdem» (27.10.2026, Ziel 5 «Alltag»): Tages-Check, Morgen und Abend getrennt.
 0.231.0 «Wo du es gesagt hast» (27.10.2026, Ziel Tour: unterwegs und danach): Touren b fertig im Katalog, Idee 56.
 0.212.2 «Eine Startzeit» (26.10.2026, Ziel Touren): UI-Test 0.205 Teil T2, eine Startzeit und vor dem Start ein Knopf.
 0.200.0 «Zusammen auf einer Karte» (25.10.2026, Ziel Touren): Gruppen-Live-Karte, Freunde per Link auf einer Karte.
 
+«Oben auf Heute ist mehr Ruhe» (Ziel Alltag: verständlich und mit Schwung), Neuer Schwung PR 1, 26.10.2026.
 ## Stand 26.10.2026: Live Navigation
 
 Ziel «Unterwegs» (Tour-Begleiter). Mockups M1–M12 freigegeben; PR 1 «Fahrt speichern» (0.221.0) gebaut, weitere 9 kleine PRs folgen in der Reihenfolge der Roadmap-Notiz.
 
 Stand 27.10.2026: PR 2 «Orte» (0.222.0) gebaut. M13 «Karte frei» freigegeben (1a 2a 3a), kommt als nächster kleiner PR.
 Stand 27.10.2026: PR 3 «Strecke genau» (0.223.0) gebaut. Neu gewünscht: Suchvorschläge für «In der Nähe» (Wellness, Automaten, Situations-Knöpfe), Fragen offen.
+Stand 27.10.2026: PR 5 «Umweg und zurück» (0.234.0) gebaut. Danach M13 «Karte frei».
 Stand 27.10.2026: PR 4 «In der Nähe» (0.227.0) gebaut. Nächster Schritt PR 5 «Umweg und zurück». Vorschlag «Alle Infos zu einem Ort» an Noah geschickt, 5 Fragen offen.
-
-## Stand 27.10.2026: Kontakt-QR-Code
-
-Ziel «Zusammen unterwegs» (Leute an Events, Velo-Kollegen): Kontaktangaben per QR-Code teilen, nur was angekreuzt ist, ohne Server, 0 Kosten. Noah «1a 2b 3a 4a 5a». PR 1 «Scan mich» (0.236.0) gebaut: mehr Angaben, Seite mit Knöpfen, «In Kontakte speichern». Danach Ablaufdatum, Zahlung, Sperrbildschirm und Sticker.

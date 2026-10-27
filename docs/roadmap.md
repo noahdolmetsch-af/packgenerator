@@ -14,8 +14,6 @@
 
 **Stand:** Version 1.1 · 07.10.2026 · mit `main` nach PR #32 abgeglichen. PR #30 liefert AP03–AP06; PR #32 veröffentlicht die ausgewählten Entwürfe 2 und 3. Der Gesamtplan ist damit teilweise umgesetzt. [Releasebeleg](releases/2026-10-07-calm-preparation.md) und [Prüfregister](verification.md) unterscheiden Implementierung, Prüfung und fachliche Abnahme.
 
-**Nachtrag 27.10.2026 (v0.236.0, offen):** Kontakt-QR-Code in 4 kleinen PRs: 1 mehr Angaben + «In Kontakte speichern», 2 Ablaufdatum + Gross zeigen + Direkt Kontakte, 3 Zahlung (Swiss QR + TWINT), 4 Sperrbildschirm-Bild + Sticker «Gefunden?»; danach Gruppenfahrt und Tour als QR.
-
 **Nachtrag 27.10.2026 (v0.232.0):** «Was ziehe ich an? selbst anpassen» Schritt 1 (Tauschen, Schicht dazu, Lücke erklären, Warum so?). Schritt 2 Kleider-Sets mit 9 Mustern, Schritt 3 Grenzen pro Schicht.
 
 **Nachtrag 18.10.2026 (v0.147.0, in Paket B):** «Mail in der App» (Noah 15.10.2026 12:04 «emails versenden in der app, email eingang, kalendereinträge + zugehörige emails»; 12:16 «4a»: lesen und senden in einem Paket; 12:17 «vorerst ohne mockup»; 18.10.2026 21:52: ohne Mockup, Testlink pro Paket): Google Teil 3 (GM). Danach DF (Dateiarten inkl. .pkpass), GX (Auswertungen).
@@ -890,6 +888,7 @@ Die frühere gespeicherte Datei `2026-10-07-packgenerator-ablaufplan.md` wird al
 
 **26.10.2026, v0.208.0 «Mehr Platz am Computer»:** UI-Ziel #14 erledigt: Touren mit mitlaufender rechter Spalte, Auswerten mit «Letzte 7 Tage» rechts, Velos mit dem Velo zuerst, Inhalt höchstens 1120 px.
 **26.10.2026, v0.219.0 «Heute ruhiger» Teil 1:** keine leeren Kästen mehr auf Heute, kleine Knöpfe als Liste «Schnell öffnen», Velo-Arbeiten als runde Knöpfe. Teil 2 und 3 folgen.
+**26.10.2026, v0.233.0 «Heute ruhiger» Teil 2:** doppelte Kacheln einmal von Heute weg, sie bleiben im Katalog.
 **25.10.2026, v0.200.0 «Zusammen auf einer Karte»:** Gruppen-Live-Karte: Freunde per Link auf einer Karte, freiwillig teilen, Ende mit der Fahrt, spätestens nach 24 Stunden.
 **25.10.2026, v0.198.0 «Kette vorausschauend»:** Idee «Kette messen mit Verlauf und Prognose» (Das Velo im Griff) gebaut: nächste Schritte der Kette auf Verschleiss, Prognose aus den eigenen Messungen, Tour-Check, Handy-Erinnerung «Kette messen».
 
@@ -907,6 +906,8 @@ Die frühere gespeicherte Datei `2026-10-07-packgenerator-ablaufplan.md` wird al
 
 **26.10.2026, v0.201.0 «Sprechen, anhängen, mit Vorlage starten»:** Eingaben überall: eine gemeinsame Leiste «Hinzufügen» (Sprachnotiz, Foto, Datei, Ort, Schlagwort, Vorlagen, Schreibanreize, KI-Helfer) auf zehn Seiten, Bildkarte im Tagebuch, Tagebuch in der App-Suche (abschaltbar).
 
+> **27.10.2026 Live Navigation PR 5:** Umweg und zurück (0.234.0). Danach M13 «Karte frei», M8 Einstellungen, Wildcampen-Ebene N3 und M12 Gruppe.
+
 > **27.10.2026 Live Navigation PR 4:** In der Nähe (0.227.0). Danach PR 5 «Umweg und zurück» (Rückweg-Wahl, automatisch neu planen, gleicher Weg zurück), dann M13 «Karte frei» und M8 Einstellungen.
 
 > **27.10.2026 Live Navigation PR 3:** Strecke genau (0.223.0). Danach Suchvorschläge «In der Nähe» (Noahs Wunsch 27.10.) und M13 «Karte frei».
@@ -921,6 +922,7 @@ Die frühere gespeicherte Datei `2026-10-07-packgenerator-ablaufplan.md` wird al
 
 **26.10.2026, v0.212.0 «Touren, die mitdenken»:** Touren-Ideen 50–58 gebaut (Absicht, Regel mit Ende, Geschichten, Panne-Check, Später prüfen, Ort-Notiz, Tag zum Hören, Ess-Stopps, Verbrauch).
 
+**26.10.2026, «Neuer Schwung» PR 1:** «Startseite anpassen» ganz unten auf Heute. Danach: Aufklappen am Handy, Bewegungs-Baukasten, Stil S2 Seite für Seite.
 **27.10.2026, v0.217.0 «Nichts versteckt sich mehr»:** die 20 tief versteckten Funktionen stehen auf ihrer Seite; 77 → 57 versteckt.
 
 **27.10.2026, v0.218.0 «Platz in jeder Tasche»:** leere Taschen bleiben in «Alle Taschen nebeneinander» als Spalte zum Hineinziehen.

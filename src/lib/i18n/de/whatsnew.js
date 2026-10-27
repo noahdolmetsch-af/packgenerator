@@ -4,13 +4,14 @@
  * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
-  // 0.236.0 Kontakt-QR-Code
-  'Scan me': 'Scan mich',
-  'Your contact card now carries every way to reach you that you tick.': 'Deine Kontaktkarte trägt jetzt jeden Weg zu dir, den du ankreuzt.',
-  'Phone, WhatsApp, e-mail, Instagram, Strava, Komoot, web and address on one card': 'Telefon, WhatsApp, E-Mail, Instagram, Strava, Komoot, Webseite und Adresse auf einer Karte',
-  'Whoever scans it saves you to their contacts with one tap': 'Wer sie scannt, speichert dich mit einem Tipp in den Kontakten',
-  'Open Me › With friends › Contact card, fill in e-mail and Strava, then tick the address on: the text under the QR code lists what is on the card.': 'Öffne Ich › Mit Freunden › Kontaktkarte, trag E-Mail und Strava ein und kreuze die Adresse an: Unter dem QR-Code steht, was auf der Karte ist.',
-  'Scan the QR code with a second phone: the page shows a row for each way to reach you and «Save to contacts».': 'Scanne den QR-Code mit einem zweiten Handy: Die Seite zeigt eine Zeile für jeden Weg zu dir und «In Kontakte speichern».',
+  // 0.233.0 Alles einmal auf Heute
+  'Everything once on Today': 'Alles einmal auf Heute',
+  'Double tiles left Today.': 'Doppelte Kacheln sind weg von Heute.',
+  'Tiles that showed the same thing twice left Today once': 'Kacheln, die dasselbe doppelt zeigten, sind einmal von Heute weg',
+  'You find them under «Add a tile»': 'Du findest sie unter «Kachel hinzufügen»',
+  'Body values: all of them behind «Details» in «Your body today»': 'Körperwerte: alle hinter «Details» in «Dein Körper heute»',
+  'Open Today: your body values stand once, in «Your body today».': 'Öffne Heute: deine Körperwerte stehen einmal, in «Dein Körper heute».',
+  'Customise the start page › Add a tile: «Body values» and the others are still there.': 'Startseite anpassen › Kachel hinzufügen: «Körperwerte» und die anderen sind noch da.',
   // 0.218.0 Was ziehe ich an? selbst anpassen
   'Your clothes, your call': 'Deine Kleider, deine Wahl',
   '«What do I wear?» now lets you change the suggestion.': 'Bei «Was ziehe ich an?» änderst du jetzt den Vorschlag selbst.',
@@ -125,6 +126,14 @@ export default {
   'On a small phone open Material › Einkauf: the names read normally, «Zu kaufen» stands under them.': 'Öffne am kleinen Handy Material › Einkauf: Die Namen lesen sich normal, «Zu kaufen» steht darunter.',
   'Open Planen with a trip: «Einkaufsliste» and «Gewicht» stand as whole words.': 'Öffne Planen mit einer Tour: «Einkaufsliste» und «Gewicht» stehen als ganze Wörter.',
   // 0.208.0 Mehr Platz am Computer
+  'And back onto the route': 'Und zurück auf die Strecke',
+  'After a stop and off the route, the live map shows you the way back.': 'Nach einem Halt und neben der Strecke zeigt dir die Live-Karte den Weg zurück.',
+  'At the place of a detour: back where you left the route, or the fastest way': 'Am Ort eines Umwegs: zurück, wo du die Strecke verlassen hast, oder der schnellste Weg',
+  'Off the route the app plans the way back by itself, with Undo and «The same way back»': 'Neben der Strecke plant die App den Weg zurück von selbst, mit Rückgängig und «Gleichen Weg zurück»',
+  'In a race «back where I left» is chosen first': 'Im Rennen ist «Zurück, wo ich sie verlassen habe» vorgewählt',
+  'Open a race or tour on the live map and turn on «Off-route warning» in the settings.': 'Öffne ein Rennen oder eine Tour auf der Live-Karte und schalte in den Einstellungen «Warnung neben der Strecke» ein.',
+  'Plan a detour with «Nearby» › a place › «Go there» and ride to it: the card asks how you go back.': 'Plane einen Umweg mit «In der Nähe» › ein Ort › «Hin» und fahr hin: Die Karte fragt, wie es zurückgeht.',
+  'Ride off the route: after about 15 seconds a new way back shows up. Before, only the warning tone came.': 'Fahr neben die Strecke: Nach etwa 15 Sekunden erscheint ein neuer Weg zurück. Vorher kam nur der Warnton.',
   'What do you need?': 'Was brauchst du?',
   'On the live map, «Nearby» opens one window with everything to find a place.': 'Auf der Live-Karte öffnet «In der Nähe» ein Fenster mit allem, um einen Ort zu finden.',
   'Situation buttons: hungry, thirsty, home by train, sleeping place and more': 'Situationsknöpfe: Hunger, Durst, mit dem Zug heim, Schlafplatz und mehr',
@@ -1994,4 +2003,8 @@ export default {
   'Ask elsewhere takes your question along': '«Weiter fragen» nimmt deine Frage mit',
   'Tap «?» at the top of a page and read its help.': 'Tippe oben auf einer Seite auf «?» und lies die Hilfe.',
   'Tap + New and add an activity.': 'Tippe auf + Neu und hake eine Aktivität ab.',
+  // Version at merge time (Noah 27.10.2026 «1a»): the German texts of each news file (src/lib/news/<name>.js)
+  ...NEWS_DE,
 };
+// at the end, so that PRs still adding at the top never conflict with it
+import { NEWS_DE } from '../../news/index.gen.js';
