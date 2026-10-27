@@ -10,6 +10,8 @@ export default {
   'Chain checker corrects the forecast': 'Kettenlehre korrigiert die Prognose',
   'Bike year in review': 'Velo-Jahresrückblick',
   'Winter and spring checklists': 'Checklisten für Winter und Frühling',
+  'Noise notes with tips from the bike FAQ': 'Geräusch-Notizen mit Tipps aus der Velo-FAQ',
+  'Part changes in your Google calendar': 'Teilewechsel in deinem Google-Kalender',
   'Bikes › Care › a bike › «Wear» › «Year in review».': 'Velos › Pflege › ein Velo › «Verschleiss» › «Jahresrückblick».',
   'On «Wear» note a noise under «Noises».': 'Auf «Verschleiss» unter «Geräusche» ein Geräusch notieren.',
   // 0.212.1 Die heutige Tour sagt eins

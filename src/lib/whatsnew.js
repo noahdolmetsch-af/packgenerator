@@ -26,6 +26,10 @@ export const WHATS_NEW = [
       { text: 'Bike year in review', href: '#/bikes?tab=care&view=year' },
       { text: 'Winter and spring checklists', href: '#/bikes?tab=care&view=season' },
     ],
+    small: [
+      { box: 'new', text: 'Noise notes with tips from the bike FAQ', href: '#/bikes?tab=care&view=wear' },
+      { box: 'new', text: 'Part changes in your Google calendar', href: '#/me/connections' },
+    ],
     test: [
       'Bikes › Care › a bike › «Wear» › «Year in review».',
       'On «Wear» note a noise under «Noises».',
