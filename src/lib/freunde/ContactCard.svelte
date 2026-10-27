@@ -7,7 +7,7 @@
    * sorted (arrows and drag) and deleted (their people stay), people are changed and deleted (asked first, Undo).
    */
   import { liveQuery } from 'dexie';
-  import { Pencil, Trash2, Plus, Camera, Phone, AtSign } from '@lucide/svelte';
+  import { Pencil, Trash2, Plus, Camera, Phone, AtSign, Mail } from '@lucide/svelte';
   import { db } from '../db.js';
   import { t } from '../i18n.svelte.js';
   import QrCode from '../ich/QrCode.svelte';
@@ -19,7 +19,7 @@
   import { offerDone } from '../ui/rename.svelte.js';
   import { askDelete, deleteWithUndo } from '../ui/ask.js';
   import { cardLink, readCard } from '../live/event.js';
-  import { CARD_KEY, PEOPLE_KEY, SHOWN, peopleOf, cardShown, addPerson, groupFor, updatePerson, removePerson, renameGroup, moveGroup, deleteGroup, byGroup, instaLink, telLink } from './people.js';
+  import { CARD_KEY, PEOPLE_KEY, SHOWN, SHOW_DEFAULT, peopleOf, cardShown, addPerson, groupFor, updatePerson, removePerson, renameGroup, moveGroup, deleteGroup, byGroup, instaLink, telLink, mailLink } from './people.js';
   import '../live/event.css';
 
   let { me = '' } = $props();
@@ -28,7 +28,7 @@
   const list = $derived($peopleQ ?? peopleOf(null));
   const savePeople = (v) => db.settings.put({ key: PEOPLE_KEY, value: v });
 
-  let card = $state({ name: '', insta: '', phone: '', bike: '', note: '', show: { insta: true, phone: false, bike: true, note: true } });
+  let card = $state({ name: '', ...Object.fromEntries(SHOWN.map((f) => [f, ''])), show: { ...SHOW_DEFAULT } });
   let seen = false;
   $effect(() => {
     if (seen || $cardQ === undefined) return;
@@ -38,7 +38,11 @@
   const saveCard = () => db.settings.put({ key: CARD_KEY, value: $state.snapshot(card) });
   const shown = $derived(cardShown(card));
   const link = $derived(shown.name ? cardLink(shown, `${location.origin}${location.pathname}`) : '');
-  const LABEL = { insta: 'Instagram', phone: 'Phone number', bike: 'Bike', note: 'A line about you' };
+  /* Kontakt-QR-Code (Noah 27.10.2026 «2b»): one card, tick every part on or off before you show it. */
+  const LABEL = { phone: 'Phone number', wa: 'WhatsApp number', email: 'E-mail', insta: 'Instagram', strava: 'Strava', komoot: 'Komoot', web: 'Website', addr: 'Address', bike: 'Bike', note: 'A line about you' };
+  const TYPE = { phone: 'tel', wa: 'tel', email: 'email', web: 'url' };
+  const HINT = { wa: 'Often the same as your phone number', strava: 'Link or number of your profile', komoot: 'Link or user name', web: 'e.g. example.ch', addr: 'Street, postcode and town' };
+  const MAXLEN = (f) => (f === 'note' || f === 'addr' ? 120 : f === 'web' || f === 'strava' || f === 'komoot' ? 100 : 60);
 
   /* someone else's card: scanned from a photo, or by hand */
   let fileEl = $state(null);
@@ -107,21 +111,22 @@
 <section class="card ev-box" aria-labelledby="cc-h" data-contact-card>
   <h2 id="cc-h">{t('Contact card')}</h2>
   <p class="ev-muted">{t('New people at an event: show your card, they scan the QR code, done. Nothing goes to a server.')}</p>
+  <p class="ev-muted">{t('Tick before you show it: only what is ticked goes into the QR code. The other person can save you to their contacts with one tap. A shared card cannot be taken back.')}</p>
   <div class="cc-grid">
     <div class="ev-box">
       <label class="ev-fld"><span>{t('First name')}</span><input type="text" bind:value={card.name} maxlength="60" onchange={saveCard} data-card-name /></label>
       {#each SHOWN as f (f)}
         <div class="ev-fld">
-          <label class="ev-fld"><span>{t(LABEL[f])}</span><input type={f === 'phone' ? 'tel' : 'text'} bind:value={card[f]} maxlength={f === 'note' ? 120 : 60} onchange={saveCard} data-card-field={f} /></label>
+          <label class="ev-fld"><span>{t(LABEL[f])}</span><input type={TYPE[f] ?? 'text'} bind:value={card[f]} maxlength={MAXLEN(f)} placeholder={HINT[f] ? t(HINT[f]) : undefined} onchange={saveCard} data-card-field={f} /></label>
           <label class="ev-sw"><input type="checkbox" bind:checked={card.show[f]} onchange={saveCard} data-card-show={f} /> {t('On the card')}</label>
         </div>
       {/each}
     </div>
-    <div class="ev-box cc-qr">
+    <div class="ev-box cc-qr" data-qr-text={link}>
       {#if link}
         <QrCode text={link} label={t('Your contact card')} />
         <p class="ev-strong">{shown.name}</p>
-        <p class="ev-muted">{[shown.insta, shown.bike, shown.note].filter(Boolean).join(' · ')}</p>
+        <p class="ev-muted">{t('On the card: {list}', { list: SHOWN.filter((f) => shown[f]).map((f) => t(LABEL[f])).join(', ') || t('only your name') })}</p>
       {:else}
         <p class="ev-muted">{t('Write your first name; then the QR code appears.')}</p>
       {/if}
@@ -176,6 +181,7 @@
                 <span class="ev-acts">
                   {#if p.insta}<a class="btn sm" href={instaLink(p.insta)} target="_blank" rel="noopener noreferrer" aria-label={t('Instagram of {name}', { name: p.name })}><AtSign size={16} aria-hidden="true" /></a>{/if}
                   {#if p.phone}<a class="btn sm" href={telLink(p.phone)} aria-label={t('Call {name}', { name: p.name })}><Phone size={16} aria-hidden="true" /></a>{/if}
+                  {#if mailLink(p.email)}<a class="btn sm" href={mailLink(p.email)} aria-label={t('E-mail to {name}', { name: p.name })}><Mail size={16} aria-hidden="true" /></a>{/if}
                   <button type="button" class="btn sm" onclick={() => (editing = { ...p, old: p.name, event: evName(p.group), memo: p.memo ?? '' })} aria-label={t('Change «{name}»', { name: p.name })} data-person-edit><Pencil size={16} aria-hidden="true" /></button>
                   <button type="button" class="btn sm" onclick={() => removeP(p)} aria-label={t('Delete «{name}»', { name: p.name })} data-person-del><Trash2 size={16} aria-hidden="true" /></button>
                 </span>
