@@ -19,7 +19,9 @@
 
 <style>
   .fs { display: grid; grid-template-columns: repeat(10, minmax(0, 1fr)); gap: 4px; }
-  .fb { min-height: 40px; min-width: 0; padding: 0; border: 1px solid var(--line); border-radius: var(--r-ctl); background: var(--paper); color: var(--ink); font-weight: 600; cursor: pointer; }
+  /* 44 px touch targets: on a phone two rows of five */
+  @media (max-width: 600px) { .fs { grid-template-columns: repeat(5, minmax(44px, 1fr)); gap: 6px; } }
+  .fb { min-height: 44px; min-width: 0; padding: 0; border: 1px solid var(--line); border-radius: var(--r-ctl); background: var(--paper); color: var(--ink); font-weight: 600; cursor: pointer; }
   .fb[aria-pressed='true'] { background: var(--hi); border-color: var(--hi); color: var(--hi-ink); }
   .fw { margin: 6px 0 0; color: var(--ink-2); font-size: var(--fs-small); }
 </style>
