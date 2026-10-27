@@ -16,15 +16,27 @@
 
 export const WHATS_NEW = [
   {
-    // v0.213.0 Live Navigation PR 1 «Fahrt speichern» (Noah 26.10.2026, mockups M9/M10): «Fahrt beenden» asks once,
+    // v0.218.0 Live Navigation PR 1 «Fahrt speichern» (Noah 26.10.2026, mockups M9/M10): «Fahrt beenden» asks once,
     // every ride is saved at once as its own entry in Touren labelled «Live Navigation», bike km booked with Undo.
-    version: '0.213.0',
-    date: '2026-10-26',
+    version: '0.218.0',
+    date: '2026-10-27',
     title: 'Every ride is saved',
     lead: '«End the ride» asks once and keeps the ride in Trips.',
     points: [{ text: 'Each live ride is in Trips as «Live Navigation»', href: '#/trips' }],
     small: [{ box: 'new', text: 'The km go to your bike by themselves, with Undo', href: '#/live' }],
     test: ['Open the live map, start a ride and ride a few minutes (or walk).', 'Tap «End the ride», then «End and save»: a line says «Saved in Trips».', 'Open Trips: the ride is there with the label «Live Navigation».'],
+  },
+  {
+    // v0.217.0 «332 sichtbar» (Noah 26.10.2026 «starte mit 1, dann 3 und danach 2», 2 = the 20 deeply hidden functions):
+    // catalogue names as the page shows them, short lines on Verpflegung, Fahrten, the meditation log and the evening check,
+    // a Trello button on Merken; hidden functions 77 → 57
+    version: '0.217.0',
+    date: '2026-10-27',
+    title: 'Nothing hides any more',
+    lead: 'Twenty tools that were hard to find now stand where you look.',
+    points: [{ text: 'Remember: a Trello button at the top leads to your board settings', href: '#/calendar' }],
+    small: [{ box: 'new', text: 'Food and water and Rides say in one line what they can do', href: '#/trips/fuel' }],
+    test: ['Open Planen › Merken and tap «Trello» next to «Reminders».', 'The page jumps down to the Trello box.'],
   },
   {
     // v0.212.2 UI-Test 26.10.2026 T2 «Unterwegs: eine Startzeit, vor dem Start nur Losfahren» (G2-07, G2-15): one start

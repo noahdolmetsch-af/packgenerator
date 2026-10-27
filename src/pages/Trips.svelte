@@ -465,6 +465,7 @@
         <!-- Gesamttest 20.10.2026 B3: the tab «Fahrten» says what it holds and where the trips with a packing list are -->
         <h1 class="title">{t('Rides from Strava')}</h1>
         <p class="cnt" data-rides-intro>{t('Everything you recorded with Strava. Your trips with a packing list are under Overview.')}</p>
+        <p class="cnt" data-rides-page>{t('Every ride with all its values: tap one for its laps, splits per km and segment times.')}</p>
       {:else}
       <h1 class="title">{t('Trips|place')}</h1>
       <!-- 0.161.0 B1 (Noah 2a): completed and rated count the chosen period, as the chips, and say which -->

@@ -896,10 +896,12 @@ Die frühere gespeicherte Datei `2026-10-07-packgenerator-ablaufplan.md` wird al
 
 **26.10.2026, v0.201.0 «Sprechen, anhängen, mit Vorlage starten»:** Eingaben überall: eine gemeinsame Leiste «Hinzufügen» (Sprachnotiz, Foto, Datei, Ort, Schlagwort, Vorlagen, Schreibanreize, KI-Helfer) auf zehn Seiten, Bildkarte im Tagebuch, Tagebuch in der App-Suche (abschaltbar).
 
-> **26.10.2026 Live Navigation:** PR 1 «Fahrt speichern» (0.213.0). Danach Orte-Server und Filter, Einstellungen, «Alles», Karte mit schlauer Leiste, Ebenen, Gruppe mit Spur, Garmin Edge 850, Strava hochladen, ÖV-Ersatz, je ein kleiner PR.
+> **26.10.2026 Live Navigation:** PR 1 «Fahrt speichern» (0.218.0). Danach Orte-Server und Filter, Einstellungen, «Alles», Karte mit schlauer Leiste, Ebenen, Gruppe mit Spur, Garmin Edge 850, Strava hochladen, ÖV-Ersatz, je ein kleiner PR.
 
 **26.10.2026, v0.209.0 «Tagelang zusammen fahren» und v0.210.0 «Deine Liste in Sicht»:** Gruppenfahrt für Events mit eigener Seite und Kontaktkarte; Noahs Wunschliste sichtbar (111 → 77 versteckte Funktionen). Im Sammel-PR mit 0.208.1.
 
 **26.10.2026, v0.211.0 «Zwei Touren, ein Blick»:** Touren-Ideen 44, 45, 47, 49 gebaut (Touren nebeneinander, Sportart pro Tag, unklare Stellen, Grenze). Von Touren a fehlt nichts mehr.
 
 **26.10.2026, v0.212.0 «Touren, die mitdenken»:** Touren-Ideen 50–58 gebaut (Absicht, Regel mit Ende, Geschichten, Panne-Check, Später prüfen, Ort-Notiz, Tag zum Hören, Ess-Stopps, Verbrauch).
+
+**27.10.2026, v0.217.0 «Nichts versteckt sich mehr»:** die 20 tief versteckten Funktionen stehen auf ihrer Seite; 77 → 57 versteckt.

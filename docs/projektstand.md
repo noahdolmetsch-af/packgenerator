@@ -6,7 +6,7 @@ Stand: **26. Oktober 2026, 17:50 UTC**. Live ist **Version 0.208.0** (Sammel-PR 
 
 ## Stand 26.10.2026 auf einen Blick
 
-**Live Navigation (26.10.2026 abends):** Mockups M1–M12 freigegeben. PR 1 «Fahrt speichern» (0.213.0) offen: jede Fahrt sofort in Touren mit Label «Live Navigation», Velo-km mit Rückgängig. Danach 9 weitere kleine PRs.
+**Live Navigation (26.10.2026 abends):** Mockups M1–M12 freigegeben. PR 1 «Fahrt speichern» (0.218.0) offen: jede Fahrt sofort in Touren mit Label «Live Navigation», Velo-km mit Rückgängig. Danach 9 weitere kleine PRs.
 
 ### Was seit dem 22.10.2026 online gegangen ist
 
@@ -192,6 +192,7 @@ Damals (19.10.2026) galt: keine Testlinks; Ein Paket geht online, sobald die Tes
 | 94 | Deine Liste in Sicht (Noahs Liste sichtbar) | 0.210.0 | Sprungknöpfe für versteckte Werkzeuge, alle Taschen nebeneinander, 111 → 77 versteckt | offen |
 | 95 | Zwei Touren, ein Blick (996 Einzelideen Touren 44, 45, 47, 49) | 0.211.0 | Touren nebeneinander, Tour vorbereiten (Sportart pro Tag, unklare Stellen, Grenze) | offen |
 | 96 | Touren, die mitdenken (996 Einzelideen Touren 50–58) | 0.212.0 | Absicht, Regel mit Ende, Geschichten, Panne-Check, Später prüfen, Ort-Notiz, Tag zum Hören, Ess-Stopps, Verbrauch | offen |
+| 98 | Nichts versteckt sich mehr (die 20 tief versteckten Funktionen) | 0.217.0 | Namen wie auf der Seite, kurze Erklärzeilen, Trello-Knopf auf Merken, 77 → 57 versteckt | offen |
 | 62 | Skitour (Mockup-Paket P2) | 0.178.0 | Skitouren › Tour planen: Gefahrenstufe 1–5 mit Unterstufe und Satz, «Dein Morgen», Verhältnisse, Plan in Zahlen; «Gipfel erreicht» unterwegs; Nach der Tour «Plan und Wirklichkeit» und dein Material; Skitouren › Saison: Ziel, Wunschtouren, Skitage 8 Wochen, LVS-Übungen, Kurse mit «Auffrischen», Höhenmeter pro Ski, letzte Saison; Vorabend-Check zeigt Stufe, Temperatur, Wind, letzten Zug | live |
 
 «Frontend aufpeppen» ist pausiert (Noah 19.10.2026). Die Abschnitte unten sind der Stand vom 18.10.2026.
