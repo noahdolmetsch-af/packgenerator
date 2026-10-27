@@ -18,8 +18,8 @@ describe('Heute ruhiger: areas (3a)', () => {
   it('the ready wall: Jetzt, Dein Körper, Deine Woche, Unterwegs, Schnell öffnen; inside an area the order of the wall', () => {
     const g = sectionsOf(READY);
     expect(g.map((s) => s.key)).toEqual(['now', 'body', 'week', 'away', 'quick']);
-    expect(ids(g[0].tiles)).toEqual(['meditation', 'trip', 'important']);
-    expect(ids(g[1].tiles)).toEqual(['weighin', 'body', 'acts']);
+    expect(ids(g[0].tiles)).toEqual(['meditation', 'trip', 'weighin', 'important']);
+    expect(ids(g[1].tiles)).toEqual(['body', 'acts']);
     expect(g.at(-1).tiles).toHaveLength(8);
     // nothing lost, nothing twice
     expect(g.flatMap((s) => ids(s.tiles)).sort()).toEqual(ids(READY).sort());

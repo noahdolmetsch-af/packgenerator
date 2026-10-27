@@ -71,13 +71,13 @@ test('sections, greeting with the weather, the trip card, the 16 functions as sm
   await expect(page.locator('[data-say]')).toContainText(T('{n} day until {trip}.', { n: 1, trip: 'test_data_gtp_ Herbstrunde' }));
   // 0.180.0 P6 (Noah 21.10.2026 «2b»): the meditation card is first on the wall, the weekly weight under it.
   // «Heute ruhiger» (Noah 26.10.2026 «3a», mockup H3, changed on purpose): the tiles stand in areas with a heading;
-  // «Jetzt» (meditation, the trip, «Up now») comes first, then «Dein Körper» with the weight, the body and Aktiv
+  // «Jetzt» (meditation, the trip, the weekly weight, «Up now») comes first, then «Dein Körper» with the body and Aktiv
   await expect(page.locator('.wall > [data-tile]').first()).toHaveAttribute('data-tile', 'meditation');
   const areas = await page.locator('.wall [data-home-sec]').evaluateAll((els) => els.map((e) => e.dataset.homeSec));
   expect(areas.slice(0, 2)).toEqual(['now', 'body']);
   await expect(page.locator('[data-home-sec="now"] h2')).toHaveText(T('Now|home'));
   const order = await page.locator('[data-section="weighin"], [data-section="body"], [data-section="acts"], [data-section="trip"], [data-section="today"]').evaluateAll((els) => els.map((e) => e.dataset.section));
-  expect(order.filter((x, i, a) => a.indexOf(x) === i)).toEqual(['trip', 'today', 'weighin', 'body', 'acts']);
+  expect(order.filter((x, i, a) => a.indexOf(x) === i)).toEqual(['trip', 'weighin', 'today', 'body', 'acts']);
   // a card that fills up its row reaches from where it starts to the end of the row (it once sat alone in the last column)
   if (!phone) {
     const fills = await page.locator('.wall.secs > .ti.fill').evaluateAll((els) => {

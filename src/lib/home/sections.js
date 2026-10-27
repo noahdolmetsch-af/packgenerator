@@ -29,7 +29,7 @@ export const SECTION_OF = {
   suggest: 'now',
   body: 'body',
   acts: 'body',
-  weighin: 'body',
+  weighin: 'now', // a question for this week: it stays in the first area, found on the phone without long scrolling
   vitals: 'body',
   values: 'body',
   du: 'body',
@@ -53,12 +53,27 @@ export const SECTION_OF = {
 };
 const AREA_OF = { today: 'now', flow: 'body', trips: 'away', bikes: 'away', gear: 'away', app: 'discover' };
 
+/** A tile that stands right after another one of its area: the weekly weight under the trip card (on a trip day the trip comes first). */
+const AFTER = { weighin: 'trip' };
+
+function after(list) {
+  const out = [...list];
+  for (const [id, prev] of Object.entries(AFTER)) {
+    const i = out.findIndex((x) => x.id === id);
+    const j = out.findIndex((x) => x.id === prev);
+    if (i < 0 || j < 0 || i === j + 1) continue;
+    const [x] = out.splice(i, 1);
+    out.splice(out.findIndex((y) => y.id === prev) + 1, 0, x);
+  }
+  return out;
+}
+
 /** The area a tile shows in: every small tile in «Schnell öffnen». */
 export const sectionOf = (x) => (x.size === 's' ? 'quick' : (SECTION_OF[x.id] ?? AREA_OF[TILE[x.id]?.area] ?? 'discover'));
 
 /** The wall in areas, each with its tiles in the order of the wall; empty areas are left out. → [{ ...section, tiles }] */
 export function sectionsOf(tiles = []) {
-  return SECTIONS.map((s) => ({ ...s, tiles: tiles.filter((x) => sectionOf(x) === s.key) })).filter((s) => s.tiles.length);
+  return SECTIONS.map((s) => ({ ...s, tiles: after(tiles.filter((x) => sectionOf(x) === s.key)) })).filter((s) => s.tiles.length);
 }
 
 /** The tiles in the order Heute shows them (areas on): area by area, inside an area the order of the wall. */

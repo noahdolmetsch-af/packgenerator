@@ -15,6 +15,7 @@ PR (diese Änderung) · 27.10.2026 · Auftrag: Noah «3a 4a» (26.10.2026) und �
 - Im Bearbeiten bleibt die Wand ohne Bereiche (Ziehen und Grössen wie bisher), ein Satz erklärt das.
 - Die Bereiche lassen sich ausschalten (alles ist ein Vorschlag).
 - «Was mir gut tut» steht in «Jetzt»; eine Kachel ohne festen Bereich geht nach ihrem Katalog-Bereich.
+- «Gewicht diese Woche?» steht in «Jetzt» gleich unter der Tour-Karte, nicht in «Dein Körper»: so ist die Frage am Handy ohne langes Scrollen zu sehen (ein Test fand sie sonst erst nach fast 3 Bildschirmen).
 
 ## Entscheide (für decisions.md)
 - 26.10.2026: Heute in Bereichen mit Überschrift, «Entdecken» nebeneinander (Noah «3a 4a»). Grund: Orientierung statt einer langen Kachelwand.

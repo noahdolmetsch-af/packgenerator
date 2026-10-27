@@ -82,7 +82,7 @@ test('a trip today: no photo although the bike has one, the 8 buttons in the fir
   // the «Körperwerte» tile sits right under Aktiv, the trip card follows
   // 0.180.0 P6 (Noah «2b», changed on purpose): meditation and the weekly weight before the body; the trip still right after the head
   // «Heute ruhiger» (Noah 26.10.2026 «3a», changed on purpose): areas with a heading; on a trip day the trip card stands in
-  // «Jetzt» right under the meditation card, then «Dein Körper» with the weight, the body and Aktiv
+  // «Jetzt» right under the meditation card, the weekly weight under the trip, then «Dein Körper» with the body and Aktiv
   await expect.poll(() => page.locator('.wall [data-tile]').evaluateAll((els) => els.map((e) => e.dataset.tile)).then((o) => o.slice(0, 2))).toEqual(['meditation', 'trip']);
   const o = await page.locator('.wall [data-tile]').evaluateAll((els) => els.map((e) => e.dataset.tile));
   expect(o.filter((id) => HEAD.includes(id) && id !== 'meditation')).toEqual(HEAD.filter((id) => id !== 'meditation' && o.includes(id)));
