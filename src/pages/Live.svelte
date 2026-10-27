@@ -849,6 +849,8 @@
   /* the bottom sheet: three heights, drag the handle or tap it */
   let stageH = $state(700);
   let stageW = $state(400);
+  /* «Karte frei» (M13, Noah 27.10.2026): on the computer the numbers are a small box over the map */
+  let bandH = $state(0);
   const snaps = $derived(sheetSnaps(stageH));
   let snap = $state('peek');
   let dragH = $state(null);
@@ -1050,10 +1052,10 @@
 
 {#if rec.on}
   <!-- the full view while riding -->
-  <div class="lvf" class:lvf-hidden={!full} role="region" aria-label={t('Live map')} onpointerdowncapture={() => (touchedAt = Date.now())} data-live-full>
+  <div class="lvf" class:lvf-hidden={!full} class:lvf-onpage={dpIndex > 0} style:--lvf-box-h="{bandH}px" role="region" aria-label={t('Live map')} onpointerdowncapture={() => (touchedAt = Date.now())} data-live-full>
     {#if dimmed}<div class="lvf-dim" aria-hidden="true" data-live-dim></div>{/if}
-    <!-- the big numbers -->
-    <div class="lvf-band" data-live-panel>
+    <!-- the numbers: a band on the phone, a small box over the map on the computer -->
+    <div class="lvf-band" bind:clientHeight={bandH} data-live-panel>
       <ul class="lvf-tiles n{tiles.length}">
         {#each tiles as k (k)}
           <li data-live-tile={k} data-live-km={k === 'done' ? '' : undefined} data-live-left={k === 'left' ? '' : undefined}>
@@ -1192,6 +1194,13 @@
               <OfflineBox line={route?.line ?? []} name={routeName} tripId={tid || null} reserve={trip ? reserveOf(trip) : null} />
             </details>
           {/if}
+          <!-- «Während der Fahrt» also during the ride (Noah 27.10.2026 «1a») -->
+          <details class="lvf-fold lv-during" data-live-menu-during>
+            <summary>{t('During the ride')}</summary>
+            <ul>
+              {#each DURING_RIDE as x (x.id)}<li><b>{t(FEATURE_TITLE[x.id])}</b><span>{t(x.sub)}</span></li>{/each}
+            </ul>
+          </details>
           <button type="button" class="btn" onclick={() => ((menu = false), (small = true))} data-live-minimize><Minimize2 size={18} aria-hidden="true" />{t('Leave the full view')}</button>
           <p class="rc-note">{t('The ride goes on; «Back to the live map» brings this view back.')}</p>
         </div>
@@ -2191,8 +2200,58 @@
       width: 440px;
       border-radius: 16px 16px 0 0;
     }
+  }
+  @media (min-width: 900px) and (min-height: 561px) {
+    /* «Karte frei»: the map takes the whole screen, the numbers are a small box at the top left */
+    .lvf {
+      grid-template-rows: minmax(0, 1fr);
+    }
+    .lvf-band {
+      position: absolute;
+      top: calc(12px + env(safe-area-inset-top));
+      left: 12px;
+      z-index: 5;
+      width: min(480px, 38vw);
+      padding: 8px 6px 8px 12px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-card);
+      box-shadow: 0 2px 10px var(--shadow);
+    }
+    .lvf-stage {
+      grid-row: 1;
+    }
+    /* on a data page the page shows the numbers itself */
+    .lvf-onpage .lvf-band {
+      display: none;
+    }
     .lvf-tiles b {
-      font-size: var(--fs-display);
+      font-size: var(--fs-section);
+    }
+    /* the page dots float as a small bar at the top in the middle */
+    .lvf :global(.dps-top) {
+      position: absolute;
+      top: 12px;
+      left: 50%;
+      z-index: 4;
+      transform: translateX(-50%);
+      padding: 0 4px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      box-shadow: 0 1px 4px var(--shadow);
+    }
+    .lvf:not(.lvf-onpage) :global(.maplibregl-ctrl-top-left) {
+      top: calc(var(--lvf-box-h) + 12px);
+    }
+    .lvf:not(.lvf-onpage) .lvf-alerts {
+      top: 64px;
+      left: calc(min(480px, 38vw) + 24px);
+    }
+    .lvf-menu-btn,
+    .lvf-menu {
+      top: 12px;
+    }
+    .lvf-onpage .lvf-alerts {
+      top: 64px;
     }
   }
   /* sideways on the handlebar: the map left, the numbers right */
