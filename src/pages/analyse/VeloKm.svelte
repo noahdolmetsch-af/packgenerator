@@ -43,7 +43,7 @@
       .filter((x) => x.rows.length),
   );
   const W = 600;
-  const H = 140;
+  const H = 180;
   const PAD = 8;
   const x = (i) => PAD + (i / (WEEKS - 1)) * (W - 2 * PAD);
   const y = (km) => H - PAD - ((km - sc.lo) / (sc.hi - sc.lo || 1)) * (H - 2 * PAD);
@@ -76,17 +76,17 @@
       <div class="plot">
         <YTicks ticks={sc.ticks} {y} h={H} text={(v) => tickText(v, sc.step, num)} unit="km" width={56} />
         <!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_noninteractive_element_interactions -->
-        <svg viewBox="0 0 {W} {H}" role="img" aria-label={t('km per week per bike|bikesan')} onclick={tap}>
+        <svg viewBox="0 0 {W} {H}" preserveAspectRatio="none" role="img" aria-label={t('km per week per bike|bikesan')} onclick={tap}>
           <GridLines ticks={sc.ticks} {y} x1={0} x2={W} />
-          <line class="cur" x1={x(pw)} x2={x(pw)} y1={PAD} y2={H - PAD} />
+          <line class="cur" x1={x(pw)} x2={x(pw)} y1={PAD} y2={H - PAD} vector-effect="non-scaling-stroke" />
           {#each shownIds as id, i (id)}
-            <path class="ln" style="stroke:{SERIES_COLORS[i]}" d={weeks.map((w, j) => `${j ? 'L' : 'M'}${x(j).toFixed(1)} ${y(w.km[id] ?? 0).toFixed(1)}`).join('')} data-bike-line={id} />
-            {#each weeks as w, j (w.key)}<circle class="pt" class:on={j === pw} cx={x(j)} cy={y(w.km[id] ?? 0)} r={j === pw ? 5 : 3} style="fill:{SERIES_COLORS[i]}" />{/each}
+            <path class="ln" style="stroke:{SERIES_COLORS[i]}" d={weeks.map((w, j) => `${j ? 'L' : 'M'}${x(j).toFixed(1)} ${y(w.km[id] ?? 0).toFixed(1)}`).join('')} data-bike-line={id} vector-effect="non-scaling-stroke" />
           {/each}
         </svg>
+        {#each shownIds as id, i (id)}{#each weeks as w, j (w.key)}<i class="pt" class:on={j === pw} style="left:calc(62px + (100% - 62px) * {x(j) / W}); top:{(y(w.km[id] ?? 0) / H) * 100}%; background:{SERIES_COLORS[i]}"></i>{/each}{/each}
       </div>
-      <div class="xl" aria-hidden="true" style="margin-left:62px"><span>{dfmt(weeks[0].key, { day: 'numeric', month: 'short' })}</span><span>{t('km per week, {n} weeks|bikesan', { n: WEEKS })}</span><span>{dfmt(weeks.at(-1).key, { day: 'numeric', month: 'short' })}</span></div>
-      <p class="hint">{t('Tap a week for its exact km.|bikesan')}</p>
+      <div class="xl" aria-hidden="true" style="margin-left:62px"><span>{dfmt(weeks[0].key, { day: 'numeric', month: 'short' })}</span><span>{dfmt(weeks.at(-1).key, { day: 'numeric', month: 'short' })}</span></div>
+      <p class="hint">{t('km per week, {n} weeks|bikesan', { n: WEEKS })}. {t('Tap a week for its exact km.|bikesan')}</p>
       <div class="srw">{#each weeks as w, j (w.key)}<button type="button" onclick={() => (pickedWeek = j)}>{dfmt(w.key, { day: 'numeric', month: 'short' })}</button>{/each}</div>
     {:else}
       <p class="hint">{t('No counted rides in this period.|bikesan')}</p>
@@ -204,6 +204,7 @@
     font-size: var(--fs-small);
   }
   .plot {
+    position: relative;
     display: flex;
     gap: 6px;
     min-width: 0;
@@ -212,7 +213,7 @@
     flex: 1;
     min-width: 0;
     width: 100%;
-    height: auto;
+    height: 180px;
     cursor: crosshair;
   }
   .cur {
@@ -220,8 +221,17 @@
     stroke-dasharray: 3 3;
   }
   .pt {
-    stroke: var(--paper);
-    stroke-width: 1.5;
+    position: absolute;
+    width: 7px;
+    height: 7px;
+    border: 1.5px solid var(--paper);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+  }
+  .pt.on {
+    width: 11px;
+    height: 11px;
   }
   .pv {
     display: flex;
