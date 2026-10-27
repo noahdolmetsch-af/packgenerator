@@ -2,6 +2,10 @@
 // so a broken flow (like "New → Packing list" doing nothing on 5 Oct) can never be merged again.
 // Run with `npm run e2e`. It builds the app and serves it like GitHub Pages does (/packgenerator/).
 import { defineConfig } from '@playwright/test';
+import { writeNewsIndex } from './scripts/news.mjs';
+
+// Specs import whatsnew.js and the German texts, which read src/lib/news/index.gen.js (version at merge time).
+writeNewsIndex();
 
 // v0.24.1: E2E_PORT lets several checkouts run the tests at the same time.
 const PORT = Number(process.env.E2E_PORT) || 4191;

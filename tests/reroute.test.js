@@ -151,3 +151,93 @@ describe('gpxout', () => {
     expect(gpxFileName('')).toBe('route.gpx');
   });
 });
+
+// Umweg und zurück (Noah 27.10.2026 «1a 2b 3a»)
+import { returnPoint, returnModeStd, planReturn, shouldReroute, OFF_ROUTE_S, REROUTE_GAP_S } from '../src/lib/reroute.js';
+
+describe('back after a stop', () => {
+  it('race mode goes back to the exit point first, otherwise the fast way', () => {
+    expect(returnModeStd(true)).toBe('exit');
+    expect(returnModeStd(false)).toBe('fast');
+  });
+  it('exit: the spot where you left; fast: the nearest point ahead, never behind the exit', () => {
+    const here = { lat: 47.01, lon: 8.15 }; // north of km ~11.4
+    expect(returnPoint('exit', pts, { exitKm: 7.6, here }).km).toBe(7.6);
+    const fast = returnPoint('fast', pts, { exitKm: 7.6, here });
+    expect(fast.km).toBeGreaterThan(11);
+    expect(fast.km).toBeLessThan(12);
+    expect(returnPoint('fast', pts, { exitKm: 20, here }).km).toBe(20);
+    expect(returnPoint('exit', [], { exitKm: 1 })).toBeNull();
+  });
+  it('asks the router once and tells the km of the route left out', async () => {
+    const urls = [];
+    const fetcher = async (u) => (urls.push(u), { ok: true, status: 200, json: async () => geo([[8.15, 47.01], [8.15, 47]], { 'track-length': '1100', 'total-time': '240' }) });
+    const r = await planReturn({ here: { lat: 47.01, lon: 8.15 }, mode: 'fast', pts, exitKm: 7.6, fetcher });
+    expect(urls).toHaveLength(1);
+    expect(r).toMatchObject({ mode: 'fast', km: 1.1, min: 4 });
+    expect(r.skippedKm).toBeGreaterThan(3);
+    const back = await planReturn({ here: { lat: 47.01, lon: 8.15 }, mode: 'exit', pts, exitKm: 7.6, fetcher });
+    expect(back.skippedKm).toBe(0);
+    await expect(planReturn({ here: null, pts, exitKm: 1, fetcher })).rejects.toThrow('failed');
+  });
+});
+
+describe('off the route: plan again by itself', () => {
+  const now = 1_000_000_000;
+  it('waits a few seconds off the route, then plans, at most once a minute', () => {
+    expect(shouldReroute({ offM: 200, offSince: now - (OFF_ROUTE_S - 1) * 1000, now })).toBe(false);
+    expect(shouldReroute({ offM: 200, offSince: now - OFF_ROUTE_S * 1000, now })).toBe(true);
+    expect(shouldReroute({ offM: 200, offSince: now - 99e3, lastAt: now - (REROUTE_GAP_S - 1) * 1000, now })).toBe(false);
+    expect(shouldReroute({ offM: 200, offSince: now - 99e3, lastAt: now - REROUTE_GAP_S * 1000, now })).toBe(true);
+  });
+  it('stays quiet near the route or on a planned detour', () => {
+    expect(shouldReroute({ offM: 40, offSince: now - 99e3, now })).toBe(false);
+    expect(shouldReroute({ offM: 200, offSince: now - 99e3, now, onDetour: true })).toBe(false);
+    expect(shouldReroute({ offM: 200, offSince: null, now })).toBe(false);
+  });
+});
+
+import { backtrackOf } from '../src/lib/reroute.js';
+describe('the same way back', () => {
+  it('reverses your own track since you left the route', () => {
+    // on the route at lon 8.10 and 8.11, then north off it
+    const track = [{ lat: 47, lon: 8.1 }, { lat: 47, lon: 8.11 }, { lat: 47.003, lon: 8.112 }, { lat: 47.006, lon: 8.114 }];
+    const b = backtrackOf(track, pts);
+    expect(b.line[0]).toEqual([47.006, 8.114]);
+    expect(b.line.at(-1)).toEqual([47, 8.11]);
+    expect(b.km).toBeGreaterThan(0.5);
+    expect(b.rejoin.km).toBe(8.3); // lon 8.11 = point 11 = 11 × 0.7585 km
+  });
+  it('says null on the route or without ever being on it', () => {
+    expect(backtrackOf([{ lat: 47, lon: 8.1 }, { lat: 47, lon: 8.11 }], pts)).toBeNull();
+    expect(backtrackOf([{ lat: 47.05, lon: 8.1 }, { lat: 47.06, lon: 8.11 }], pts)).toBeNull();
+  });
+});
+
+import { atPlace, returnDetour, backDetour, AT_PLACE_M } from '../src/lib/reroute.js';
+describe('at the place and the way back as a detour', () => {
+  const place = { lat: 47.01, lon: 8.15, name: 'test_data_gtp_ Beck', kind: 'shop' };
+  it('knows when you are at the place of a detour, never on a way back', () => {
+    const d = { line: [[47, 8.1], [47.01, 8.15]], target: place };
+    expect(atPlace(d, { lat: 47.0102, lon: 8.1502 })).toBe(true);
+    expect(atPlace(d, { lat: 47.02, lon: 8.15 })).toBe(false); // about 1.1 km
+    expect(atPlace({ ...d, back: 'exit' }, place)).toBe(false);
+    expect(atPlace(null, place)).toBe(false);
+    expect(AT_PLACE_M).toBe(80);
+  });
+  it('turns a planned way back into a detour that ends on the route', () => {
+    const r = { line: [[47.01, 8.15], [47, 8.1]], km: 4.1, gainM: 12, min: 14, mode: 'exit', rejoin: { km: 7.6, lat: 47, lon: 8.1 }, skippedKm: 0 };
+    const d = returnDetour(r, { exitKm: 7.6, back: 'exit', now: 5 });
+    expect(d).toMatchObject({ km: 4.1, back: 'exit', fromKm: 7.6, at: 5, skippedKm: 0, target: { lat: 47, lon: 8.1, kind: 'route' } });
+    // done only back on the route past the point
+    expect(detourDone(d, { km: 8, offM: 10 })).toBe(true);
+    expect(detourDone(d, { km: 8, offM: 500 })).toBe(false);
+    expect(detourDone(d, { km: 7.7, offM: 10 })).toBe(false);
+  });
+  it('the same way back needs no router', () => {
+    const b = backtrackOf([{ lat: 47, lon: 8.1 }, { lat: 47, lon: 8.11 }, { lat: 47.006, lon: 8.114 }], pts);
+    const d = backDetour(b, 9);
+    expect(d).toMatchObject({ back: 'same', gainM: 0, min: null, fromKm: 8.3, rejoin: { km: 8.3 } });
+    expect(d.line).toEqual(b.line);
+  });
+});

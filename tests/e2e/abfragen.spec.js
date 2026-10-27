@@ -79,6 +79,36 @@ test.describe('AB Deine Abfragen', () => {
     await expect(page.locator('[data-row="erholung.akku"]').first()).toContainText('6');
   });
 
+  // Noah 26.10.2026 «1a»: «Heute nicht» in the morning check waits only until the evening check
+  test('AB3: Heute nicht in the morning, the evening check still comes', async ({ page, context }, info) => {
+    const d = homeFixture();
+    d.tables.settings.push({ key: 'abfragen', value: { since: `${day(-1)}T21:00`, q: {}, own: [] } });
+    const T = await openHome(page, context, info, { data: d, hour: 7 });
+    const at = async (hm) => {
+      await page.clock.setFixedTime(new Date(`${D0}T${hm}:00+02:00`));
+      await page.reload();
+      await expect(page.locator('[data-section="greeting"]')).toBeVisible();
+    };
+    await at('07:30');
+    const card = page.locator('[data-section="abfragen"]');
+    await expect(card).toHaveAttribute('data-round', 'morning');
+    await expect(card).toHaveJSProperty('open', true);
+    await expect(card.getByText(T('«Later» brings this window back in one hour. «Not today» and ✕ close it until the evening check, without a reminder.'))).toBeVisible();
+    await card.locator('[data-ab-today]').click();
+    await expect(card).toHaveCount(0);
+    await at('19:10');
+    await expect(page.locator('[data-section="abfragen"]')).toHaveCount(0);
+    await at('20:40');
+    await expect(card).toHaveAttribute('data-round', 'evening');
+    await expect(card).toHaveJSProperty('open', true);
+    await expect(card.getByText(T('«Later» brings this window back in one hour. «Not today» and ✕ close it until tomorrow, without a reminder.'))).toBeVisible();
+    // in the evening «Heute nicht» means until tomorrow
+    await card.locator('[data-ab-today]').click();
+    await expect(card).toHaveCount(0);
+    await at('22:00');
+    await expect(page.locator('[data-section="abfragen"]')).toHaveCount(0);
+  });
+
   test('AB1/AB5 and AB2: the questions by area, a switch, an interval, an own question', async ({ page, context }, info) => {
     const T = await openHome(page, context, info, { data: data({ keep: [...ON_AT_START] }) });
     await viaTab(page, 'analysis', '#/me/abfragen'); // UI-Ziele #6: Auswerten › Wi gaht's?

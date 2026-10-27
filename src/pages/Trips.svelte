@@ -37,6 +37,7 @@
    * sub 'rides'), the same page with only that list. B4: the band no longer repeats a pack draft that stands in «Geplant»;
    * its card there carries «wird gepackt · Packen öffnen ›».
    */
+  import LiveLabel from '../lib/live/LiveLabel.svelte';
   import HintCard from '../lib/pageinfo/HintCard.svelte';
   import QuickLinks from '../lib/ui/QuickLinks.svelte';
   import { komootFindUrl } from '../lib/komoot.js';
@@ -464,6 +465,7 @@
         <!-- Gesamttest 20.10.2026 B3: the tab «Fahrten» says what it holds and where the trips with a packing list are -->
         <h1 class="title">{t('Rides from Strava')}</h1>
         <p class="cnt" data-rides-intro>{t('Everything you recorded with Strava. Your trips with a packing list are under Overview.')}</p>
+        <p class="cnt" data-rides-page>{t('Every ride with all its values: tap one for its laps, splits per km and segment times.')}</p>
       {:else}
       <h1 class="title">{t('Trips|place')}</h1>
       <!-- 0.161.0 B1 (Noah 2a): completed and rated count the chosen period, as the chips, and say which -->
@@ -643,7 +645,7 @@
                   <li class="tr st-{s?.state}" data-row={r.id} data-state={s?.state}>
                     <span class="ric" aria-hidden="true">{#if s?.state === 'rated'}<Star size={18} fill="currentColor" />{:else}<Flag size={18} />{/if}</span>
                     <div class="rm">
-                      <div class="rt"><a class="rn" href={rowHref(r)} onclick={() => openRow(r)}>{r.title}</a><TripState state={s?.state} extra={stateExtraText(s?.extra)} /></div>
+                      <div class="rt"><a class="rn" href={rowHref(r)} onclick={() => openRow(r)}>{r.title}</a>{#if r.live}<LiveLabel />{/if}<TripState state={s?.state} extra={stateExtraText(s?.extra)} /></div>
                       <p class="rs">{[dates(r.start, r.end), what(r), bike].filter(Boolean).join(' · ')}</p>
                       {#if !linesOf(r).length && !phone.matches}<p class="nr"><Info size={14} aria-hidden="true" />{t('without a route')}</p>{/if}
                     </div>

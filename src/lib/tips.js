@@ -53,7 +53,7 @@ export const GROUPS = [
 export const TIPS = [
   // Plan
   { id: 'dayride', group: 'plan', icon: 'zap', title: 'Ride today', text: 'One tap plans a ride for today: 2.5 h, the bike ridden last, with the weather.', button: 'Quick start', go: { run: 'dayRide' }, needs: 'pastTrip' },
-  { id: 'blocks', group: 'plan', icon: 'blocks', title: 'New trip with building blocks', text: 'Building blocks such as sleep, cook or rain bring their items into a new trip.', button: 'Show building blocks', go: { href: '#/blocks' }, needs: 'items' },
+  { id: 'blocks', group: 'plan', icon: 'blocks', title: 'Building blocks', text: 'Building blocks such as sleep, cook or rain bring their items into a new trip.', button: 'Show building blocks', go: { href: '#/blocks' }, needs: 'items' },
   { id: 'templates', group: 'plan', icon: 'copy', title: 'Templates', text: 'Save a good trip as a template and start the next one from it.', button: 'Open templates', go: { href: '#/pack/templates' }, needs: 'trip' },
   { id: 'gpx', group: 'plan', icon: 'route', title: 'Add GPX route', text: 'Load a GPX route into a trip: km, climbing and riding time come from it.', button: 'Open the trip', go: { href: '#/pack' }, needs: 'trip' },
   { id: 'homeweather', group: 'plan', icon: 'home', title: 'Weather at your home place', text: 'Set your home place and see here what the weekend brings for a ride.', button: 'Set home place', go: { run: 'homePlace' } },
@@ -78,7 +78,7 @@ export const TIPS = [
   { id: 'setup', group: 'bikes', icon: 'bike', title: 'Bag plan', text: 'The bike setup shows which bag sits where, with its weight.', button: 'Open setup', go: { href: '#/bikes' }, needs: 'bikes' },
   { id: 'care', group: 'bikes', icon: 'wrench', title: 'Care|tab', text: 'Bike care tells you when the chain, pads and tyres are due.', button: 'Open Bike care', go: { href: '#/bikes?tab=care' }, needs: 'bikes' },
   { id: 'order', group: 'bikes', icon: 'clipboard', title: 'Order for the bike shop', text: 'A workshop order lists what the shop should do, ready to print.', button: 'Open Bike care', go: { href: '#/bikes?tab=care' }, needs: 'bikes' },
-  { id: 'receipt', group: 'bikes', icon: 'camera', title: 'Photograph a receipt', text: 'Take a photo of the workshop receipt; it waits in the Inbox.', button: 'Photo of a receipt', go: { run: 'receipt' }, needs: 'bikes' },
+  { id: 'receipt', group: 'bikes', icon: 'camera', title: 'Receipts', text: 'Take a photo of the workshop receipt; it waits in the Inbox.', button: 'Photo of a receipt', go: { run: 'receipt' }, needs: 'bikes' },
   { id: 'km', group: 'bikes', icon: 'counter', title: 'Log km', text: 'Type the km on the counter, and Bike care knows what is due.', button: 'Log km', go: { run: 'km' }, needs: 'bikes' },
   // Your data
   { id: 'backup', group: 'data', icon: 'save', title: 'Backup', text: 'A backup file keeps your data safe and moves it to another device.', button: 'Download backup', go: { run: 'backup' }, needs: 'any' },

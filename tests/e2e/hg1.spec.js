@@ -63,53 +63,34 @@ test('HG1e: at night only the night text, no name, no tap line, no name question
   await shot(page, info, 'hg1e-nacht');
 });
 
-test('HG1b: without a name the greeting has none; the name is asked once, Not now keeps it away', async ({ page, context }, info) => {
-  const T = await openHome(page, context, info, { data: homeFixture(), hour: 14 });
-  await expect(page.locator('#hello-h')).toHaveText(greetFor(14, ''));
-  const ask = page.locator('[data-name-ask]');
-  await expect(ask).toBeVisible();
-  await expect(ask.getByLabel(T('What may we call you?'))).toHaveAttribute('placeholder', T('First name'));
-  await noSideways(page);
-  await shot(page, info, 'hg1b-name-fragen');
-  // no sideways scroll on a small phone either (320 px), the question row included
-  const vp = page.viewportSize();
-  await page.setViewportSize({ width: 320, height: vp.height });
-  await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(320);
-  await page.setViewportSize(vp);
-  await ask.getByRole('button', { name: T('Not now|hello') }).click();
-  await expect(ask).toHaveCount(0);
-  await page.reload();
+// «Neuer Schwung» (Noah 26.10.2026 «das soll unter daten-ich verschwinden, nicht mehr auf der home seite», changed on
+// purpose): Heute no longer asks for the name; it is set under Ich › Darstellung (HG1c)
+test('HG1b: without a name the greeting has none, and Heute does not ask for it', async ({ page, context }, info) => {
+  await openHome(page, context, info, { data: homeFixture(), hour: 14 });
   await expect(page.locator('#hello-h')).toHaveText(greetFor(14, ''));
   await expect(page.locator('[data-hello-tap]')).toBeVisible();
   await expect(page.locator('[data-name-ask]')).toHaveCount(0);
+  await noSideways(page);
 });
 
-test('HG1b, HG1c: the name saved on Today, then changed in Ich › Darstellung (the first section)', async ({ page, context }, info) => {
+test('HG1c: the name set in Ich › Darstellung (the first section) greets on Today; empty takes it away', async ({ page, context }, info) => {
   const T = await openHome(page, context, info, { data: homeFixture(), hour: 9 });
-  const ask = page.locator('[data-name-ask]');
-  await ask.getByLabel(T('What may we call you?')).fill(NAME);
-  await ask.getByRole('button', { name: T('Save') }).click();
-  await expect(page.locator('#hello-h')).toHaveText(greetFor(9, NAME));
-  await expect(ask).toHaveCount(0);
-
   await page.goto('./#/me/look');
   const sec = page.locator('[data-look-name]');
   await expect(page.locator('.look .sets > section').first()).toHaveAttribute('data-look-name', '');
   await expect(sec.getByRole('heading', { level: 2 })).toHaveText(T('Your name'));
   const field = sec.getByRole('textbox', { name: T('Your name') });
-  await expect(field).toHaveValue(NAME);
+  await field.fill(NAME);
   await expect(sec).toContainText(T('On Today: «{text}»', { text: greetFor(9, NAME) }));
-  await field.fill('Mira');
-  await expect(sec).toContainText(T('On Today: «{text}»', { text: greetFor(9, 'Mira') }));
   await sec.getByRole('button', { name: T('Save') }).click();
   await expect(sec.getByRole('status')).toHaveText(T('Saved|name'));
   await noSideways(page);
   await shot(page, info, 'hg1c-name-aendern');
   await page.goto('./#/');
-  await expect(page.locator('#hello-h')).toHaveText(greetFor(9, 'Mira'));
-  // empty: the greeting without a name (and the question does not come back: it was asked)
+  await expect(page.locator('#hello-h')).toHaveText(greetFor(9, NAME));
+  // empty: the greeting without a name
   await page.goto('./#/me/look');
-  await expect(page.locator('[data-look-name]').getByRole('textbox')).toHaveValue('Mira'); // the stored name has loaded
+  await expect(page.locator('[data-look-name]').getByRole('textbox')).toHaveValue(NAME); // the stored name has loaded
   await page.locator('[data-look-name]').getByRole('textbox').fill('');
   await page.locator('[data-look-name]').getByRole('button', { name: T('Save') }).click();
   await page.goto('./#/');
