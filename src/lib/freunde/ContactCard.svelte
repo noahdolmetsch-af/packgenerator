@@ -344,6 +344,11 @@
   .cc-big-qr {
     width: min(86vw, 70vh, 520px);
   }
+  .cc-big-qr :global(.qr) {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1;
+  }
   .cc-big-hint {
     margin: 0;
     text-align: center;

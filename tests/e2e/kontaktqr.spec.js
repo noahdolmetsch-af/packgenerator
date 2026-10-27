@@ -73,6 +73,8 @@ test('Kontakt-QR step 2: end day, straight to contacts, show big', async ({ page
   // show big: the code alone, closes again
   await tap(page.locator('[data-card-big]'), info);
   await expect(page.locator('[data-card-bigview] svg.qr')).toBeVisible();
+  // big means big: the code fills most of the phone width, not the small 160 px of the card
+  expect((await page.locator('[data-card-bigview] svg.qr').boundingBox()).width).toBeGreaterThan(300);
   await tap(page.locator('[data-card-bigview] .cc-big-x'), info);
   await expect(page.locator('[data-card-bigview]')).not.toBeVisible();
   await noSideways(page, 'contact card step 2');
