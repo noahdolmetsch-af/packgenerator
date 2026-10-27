@@ -526,3 +526,4 @@ Kurzfassung, verbindlich ist [arbeitsweise.md](arbeitsweise.md).
 Ziel «Unterwegs» (Tour-Begleiter). Mockups M1–M12 freigegeben; PR 1 «Fahrt speichern» (0.221.0) gebaut, weitere 9 kleine PRs folgen in der Reihenfolge der Roadmap-Notiz.
 
 Stand 27.10.2026: PR 2 «Orte» (0.222.0) gebaut. M13 «Karte frei» freigegeben (1a 2a 3a), kommt als nächster kleiner PR.
+Stand 27.10.2026: PR 3 «Strecke genau» (0.223.0) gebaut. Neu gewünscht: Suchvorschläge für «In der Nähe» (Wellness, Automaten, Situations-Knöpfe), Fragen offen.

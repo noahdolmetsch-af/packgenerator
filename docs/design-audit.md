@@ -325,3 +325,7 @@ Neues Fenster «Fahrt beenden?» im Stil des Löschen-Fensters (unten auf dem Ha
 ## 27.10.2026 Live Navigation PR 2 (Orte)
 
 Filter als aufklappbarer Kasten unter der Ortsliste (Knopf «Filter» mit Zahl der aktiven Filter), Segmente wie in den Einstellungen, Schnellwahl als beschriftete Chip-Reihe. Leere Liste mit Erklärung und «Filter zurücksetzen». Screenshots auf der PR-Seite.
+
+## 27.10.2026 Live Navigation PR 3 (Strecke genau)
+
+Keine sichtbare Oberfläche neu; die Linie auf der Karte folgt den Kurven. Kein Design-Eingriff.

@@ -17,7 +17,7 @@ describe('GPX route (answer 12b)', () => {
     expect(r.gainM).toBe(400); // the 1 m wiggle does not count
     expect(r.lossM).toBe(200);
     expect(r.start).toEqual({ lat: 47, lon: 7 });
-    expect(r.line).toHaveLength(4);
+    expect(r.line).toHaveLength(2); // a straight route needs only its ends (fineLine keeps bends, Noah 27.10.2026)
   });
   it('reads route points and refuses other files', () => {
     const rte = '<gpx><rte><rtept lat="46" lon="8"/><rtept lat="46.1" lon="8"/></rte></gpx>';
