@@ -1874,4 +1874,15 @@ export default {
     '«Verschieben» ändert die Zeit in Eigene Werte, mit Rückgängig; «Nein, danke» lässt die alte Zeit.',
   'Example: check opened at 21:20, 21:40 and 21:30 → «Move the reminder to 21:15?»':
     'Beispiel: Check um 21:20, 21:40 und 21:30 geöffnet → «Erinnerung auf 21:15 verschieben?»',
+  // Idee A3 «Freie Zeit und gutes Wetter» (27.10.2026)
+  'Switch on the Google calendar (Me › Appointments and tasks) and set your home place.':
+    'Schalte den Google-Kalender ein (Ich › Termine und Aufgaben) und setz deinen Wohnort.',
+  'The app looks at the next 3 days from 07:00 to 21:00 for 2 hours without a busy appointment.':
+    'Die App sucht in den nächsten 3 Tagen von 07:00 bis 21:00 nach 2 Stunden ohne Termin.',
+  'Every hour must be dry and without thunder, the weather «good» at your home place.':
+    'Jede Stunde muss trocken und ohne Gewitter sein, das Wetter am Wohnort «gut».',
+  'The round fits your own speed; «Not now» hides that window.':
+    'Die Runde passt zu deinem eigenen Tempo; «Jetzt nicht» blendet das Fenster aus.',
+  'Example: Thursday 17:00–19:00 free and dry → «A round of about 35 km?»':
+    'Beispiel: Donnerstag 17:00–19:00 frei und trocken → «Eine Runde von etwa 35 km?»',
 };

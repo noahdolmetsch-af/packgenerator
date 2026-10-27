@@ -1569,6 +1569,11 @@ export const HANDBOOK = {
     steps: ['The app notes the time you open the check on each evening before a trip (from 16:00).', 'From 3 evenings it takes your usual time and offers a reminder 15 minutes earlier.', '«Move it» changes the time in Own values, with Undo; «No, thanks» keeps the old time.'],
     example: 'Example: check opened at 21:20, 21:40 and 21:30 → «Move the reminder to 21:15?»',
   },
+  'f.freeslot': {
+    on: 'Switch on the Google calendar (Me › Appointments and tasks) and set your home place.',
+    steps: ['The app looks at the next 3 days from 07:00 to 21:00 for 2 hours without a busy appointment.', 'Every hour must be dry and without thunder, the weather «good» at your home place.', 'The round fits your own speed; «Not now» hides that window.'],
+    example: 'Example: Thursday 17:00–19:00 free and dry → «A round of about 35 km?»',
+  },
   'f.tourhints': {
     on: 'Nothing to switch on; the hints come from the route, the start time and the forecast.',
     steps: ['A stage after sunset brings light and reflective vest; the «Light alarm» push reminds you the evening before.', 'From UV 6 sunscreen and sunglasses; on a ski tour from UV 3 the glacier glasses.', 'On a loop with wind it says which way round gives the tailwind home.'],

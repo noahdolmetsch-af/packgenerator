@@ -154,6 +154,7 @@ export const HOME = {
   'f.wxwatch': '#/me/push',
   'f.morningpush': '#/me/push',
   'f.remindtime': '#/me/push',
+  'f.freeslot': '#/week',
   'f.tourhints': '#/pack',
   'f.fuel': '#/trips',
   'f.routepois': '#/pack',
