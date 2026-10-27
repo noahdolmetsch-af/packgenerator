@@ -16,9 +16,9 @@
 
 export const WHATS_NEW = [
   {
-    // v0.228.0 «Heute ruhiger» part 2 (Noah 26.10.2026 «2a», mockup H2): tiles that show again what another tile shows
+    // v0.229.0 «Heute ruhiger» part 2 (Noah 26.10.2026 «2a», mockup H2): tiles that show again what another tile shows
     // leave Heute once (tiles.js DOUBLES, wall v 13); they stay under «Add a tile»
-    version: '0.228.0',
+    version: '0.229.0',
     date: '2026-10-27',
     title: 'Everything once on Today',
     lead: 'Double tiles left Today.',
@@ -29,6 +29,16 @@ export const WHATS_NEW = [
     ],
     small: [{ box: 'nicer', text: 'Body values: all of them behind «Details» in «Your body today»' }],
     test: ['Open Today: your body values stand once, in «Your body today».', 'Customise the start page › Add a tile: «Body values» and the others are still there.'],
+  },
+  {
+    // v0.226.0 Tages-Check (Noah 26.10.2026 «1a»): «Not today» in the morning waits only until the evening check
+    version: '0.226.0',
+    date: '2026-10-27',
+    title: 'The evening check still comes',
+    lead: '«Not today» in the morning no longer skips the evening.',
+    points: [{ text: '«Not today» in the morning check waits only until the evening check', href: '#/me/abfragen' }],
+    small: [{ box: 'fixed', text: 'The hint in the check window says «until the evening check» in the morning' }],
+    test: ['In the morning check tap «Not today»: the window closes.', 'In the evening, at your evening time, the evening check comes as usual.'],
   },
   {
     // v0.223.0 Live Navigation PR 3 «Strecke genau» (Noah 27.10.2026 «bitte umsetzen»): tour and race routes keep

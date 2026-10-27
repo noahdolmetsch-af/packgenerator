@@ -31,6 +31,8 @@ export default {
   '{n} questions': '{n} Fragen',
   '{n} question': '{n} Frage',
   '«Later» brings this window back in one hour. «Not today» and ✕ close it until tomorrow, without a reminder.': '«Später» zeigt dieses Fenster in einer Stunde wieder. «Heute nicht» und ✕ schliessen es bis morgen, ohne Erinnerung.',
+  // Noah 26.10.2026 «1a»: in the morning «Heute nicht» and ✕ wait only until the evening check
+  '«Later» brings this window back in one hour. «Not today» and ✕ close it until the evening check, without a reminder.': '«Später» zeigt dieses Fenster in einer Stunde wieder. «Heute nicht» und ✕ schliessen es bis zum Abend-Check, ohne Erinnerung.',
   'The questions stay and show under «{name}».': 'Die Fragen bleiben und stehen unter «{name}».',
   'Your own question goes. Its answers stay in the history.': 'Deine eigene Frage geht. Ihre Antworten bleiben im Verlauf.',
   'The question no longer asks. Its answers stay in the history. «Deleted questions» brings it back.': 'Die Frage kommt nicht mehr. Ihre Antworten bleiben im Verlauf. «Gelöschte Fragen» holt sie zurück.',

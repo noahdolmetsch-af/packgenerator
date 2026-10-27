@@ -4,7 +4,7 @@
  * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
-  // 0.228.0 Alles einmal auf Heute
+  // 0.229.0 Alles einmal auf Heute
   'Everything once on Today': 'Alles einmal auf Heute',
   'Double tiles left Today.': 'Doppelte Kacheln sind weg von Heute.',
   'Tiles that showed the same thing twice left Today once': 'Kacheln, die dasselbe doppelt zeigten, sind einmal von Heute weg',
@@ -12,6 +12,13 @@ export default {
   'Body values: all of them behind «Details» in «Your body today»': 'Körperwerte: alle hinter «Details» in «Dein Körper heute»',
   'Open Today: your body values stand once, in «Your body today».': 'Öffne Heute: deine Körperwerte stehen einmal, in «Dein Körper heute».',
   'Customise the start page › Add a tile: «Body values» and the others are still there.': 'Startseite anpassen › Kachel hinzufügen: «Körperwerte» und die anderen sind noch da.',
+  // v0.226.0 Tages-Check
+  'The evening check still comes': 'Der Abend-Check kommt trotzdem',
+  '«Not today» in the morning no longer skips the evening.': '«Heute nicht» am Morgen lässt den Abend nicht mehr aus.',
+  '«Not today» in the morning check waits only until the evening check': '«Heute nicht» im Morgen-Check wartet nur bis zum Abend-Check',
+  'The hint in the check window says «until the evening check» in the morning': 'Der Hinweis im Check-Fenster sagt am Morgen «bis zum Abend-Check»',
+  'In the morning check tap «Not today»: the window closes.': 'Tippe im Morgen-Check auf «Heute nicht»: das Fenster schliesst sich.',
+  'In the evening, at your evening time, the evening check comes as usual.': 'Am Abend, zu deiner Abendzeit, kommt der Abend-Check wie gewohnt.',
   // v0.220.0 Velo-Ergänzungen (Noah 26.10.2026)
   'More for your bike': 'Mehr für dein Velo',
   'Also noises and the calendar.': 'Auch Geräusche und der Kalender.',
