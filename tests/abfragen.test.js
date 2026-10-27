@@ -6,7 +6,7 @@ import { readFileSync } from 'node:fs';
 import 'fake-indexeddb/auto';
 import {
   AREAS, QUESTIONS, QUESTION, ON_AT_START, AB_KEY, configOf, settingOf, setOn, setEvery, putOwn, dropOwn, newOwn, counts,
-  everyOf, lastSlot, nextSlot, pendingSlot, dueList, snoozeAll, skipToday, quietToday, isQuiet, dayEnd, QUIET_KEY, LATER_KEY, laterStamp, valueOf, numberOf, answerRow, fromChecks, mergeHistory,
+  everyOf, lastSlot, nextSlot, pendingSlot, dueList, snoozeAll, skipToday, quietToday, isQuiet, dayEnd, eveningEve, QUIET_KEY, QUIET_ROUND, LATER_KEY, laterStamp, valueOf, numberOf, answerRow, fromChecks, mergeHistory,
   lastAnswer, filterHistory, byDay, dowOf, timeOf, CHECK_MAP, MIRROR,
   ROUNDS, roundsOf, setRounds, roundTime, roundEvery, partOf, isEveningRound, perDay, BUSY_DAY,
 } from '../src/lib/abfragen.js';
@@ -291,17 +291,36 @@ describe('what is due now (AB3)', () => {
     const skipped = skipToday({}, 'erholung.kaffee', `${D0}T12:10`);
     expect(kaffee(skipped, `${D0}T18:10`)).toBe(null);
     expect(kaffee(skipped, `${d(1)}T12:05`).slot).toBe(`${d(1)}T12:00`);
-    // «Heute nicht»: the shown ones away for the day, and the day marked quiet (also for questions due later)
-    const due = dueList(c, [], `${D0}T13:41`);
-    const quiet = quietToday({ [LATER_KEY]: 'x' }, due, `${D0}T13:41`);
-    expect(quiet[QUIET_KEY]).toBe(D0);
-    expect(quiet[LATER_KEY]).toBe('x');
-    const evening = dueList(c, [], `${D0}T18:10`, quiet).map((x) => x.q.id);
-    for (const x of due) expect(evening).not.toContain(x.q.id);
-    expect(isQuiet(quiet, `${D0}T21:00`)).toBe(true);
-    expect(isQuiet(quiet, `${d(1)}T07:05`)).toBe(false);
+    // «Heute nicht» in the evening: the shown ones away for the day, and the day marked quiet (also for questions due later)
+    const late = dueList(c, [], `${D0}T20:41`);
+    const night = quietToday({ [LATER_KEY]: 'x' }, late, `${D0}T20:41`);
+    expect(night[QUIET_KEY]).toBe(D0);
+    expect(night[QUIET_ROUND]).toBeUndefined();
+    expect(night[LATER_KEY]).toBe('x');
+    for (const x of late) expect(night[x.q.id]).toBe(`${D0}T23:59`);
+    expect(isQuiet(night, `${D0}T22:00`)).toBe(true);
+    expect(isQuiet(night, `${d(1)}T07:05`)).toBe(false);
     expect(isQuiet({}, `${D0}T21:00`)).toBe(false);
-    expect(dueList(c, [], `${d(1)}T13:05`, quiet).map((x) => x.q.id)).toEqual(expect.arrayContaining(['erholung.kaffee', 'erholung.akku']));
+    expect(dueList(c, [], `${d(1)}T13:05`, night).map((x) => x.q.id)).toEqual(expect.arrayContaining(['erholung.kaffee', 'erholung.akku']));
+    // Noah 26.10.2026 «1a» (changed on purpose): «Heute nicht» in the morning waits only until the evening check
+    const due = dueList(c, [], `${D0}T07:41`);
+    expect(due.length).toBeGreaterThan(0);
+    const quiet = quietToday({}, due, `${D0}T07:41`);
+    expect(quiet[QUIET_KEY]).toBe(D0);
+    expect(quiet[QUIET_ROUND]).toBe('morning');
+    expect(eveningEve(`${D0}T07:41`)).toBe(`${D0}T20:29`);
+    for (const x of due) expect(quiet[x.q.id]).toBe(`${D0}T20:29`);
+    expect(isQuiet(quiet, `${D0}T19:10`)).toBe(true);
+    const before = dueList(c, [], `${D0}T19:10`, quiet).map((x) => x.q.id);
+    for (const x of due) expect(before).not.toContain(x.q.id);
+    expect(isQuiet(quiet, `${D0}T20:30`)).toBe(false);
+    expect(dueList(c, [], `${D0}T20:35`, quiet).length).toBeGreaterThan(0);
+    // with an own evening time
+    expect(isQuiet(quiet, `${D0}T19:10`, { on: true, morning: '07:00', evening: '19:00' })).toBe(false);
+    // a second «Heute nicht» in the evening: quiet until tomorrow
+    const both = quietToday(quiet, dueList(c, [], `${D0}T20:35`, quiet), `${D0}T20:35`);
+    expect(both[QUIET_ROUND]).toBeUndefined();
+    expect(isQuiet(both, `${D0}T22:00`)).toBe(true);
   });
 
   it('the window says how many questions, not «… jetzt fällig» (Noah 21.10.2026 «unverständlich»)', () => {
