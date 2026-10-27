@@ -27,6 +27,32 @@ export const WHATS_NEW = [
     test: ['On the computer open Packen › Alle Taschen nebeneinander and drag an item into an empty bag, or use the arrows next to the item.', 'The bag now shows the item; «Undo» puts it back.'],
   },
   {
+    // v0.212.2 UI-Test 26.10.2026 T2 «Unterwegs: eine Startzeit, vor dem Start nur Losfahren» (G2-07, G2-15): one start
+    // time of today on Unterwegs and «Vor der Abfahrt» (an open recording gives it), «Fahrt von … weiterführen» as the
+    // main button, «Tour beenden …» in «…» before setting off, the base check as a list with boxes
+    version: '0.212.2',
+    date: '2026-10-26',
+    title: 'One start time',
+    lead: 'On the way and «Before you leave» show the same start.',
+    points: [{ text: 'A ride still recording: the main button is «Continue the ride from 19:27»', href: '#/ride' }],
+    small: [
+      { box: 'nicer', text: 'Before you set off only «Start riding»; «End the trip …» is in «…»' },
+      { box: 'nicer', text: 'Base check as a list with boxes, like Pack' },
+    ],
+    test: ['Open On the way on a trip day before setting off: the one main button is «Start riding»; «End the trip …» is in «…».', 'Open «Before you leave»: it shows the same start time as On the way.'],
+  },
+  {
+    // v0.212.1 UI-Test 26.10.2026 T1 «Heutige Tour: ein Zustand überall»: a day ride not begun yet (not packed, not
+    // started) no longer shows «Letzter Abend», «Rückblick heute» or «Abgeschlossen»; the tour page says «Geplant»
+    version: '0.212.1',
+    date: '2026-10-26',
+    title: "Today's tour says one thing",
+    lead: 'Not packed yet means: still packing, not done.',
+    points: [{ text: 'A day ride not started yet no longer shows «Last evening» or «Completed»', href: '#/trips' }],
+    small: [{ box: 'fixed', text: 'Tour page before the ride: «Planned» and a button to the step you are in' }],
+    test: ['Plan a day ride for today and do not finish packing. In the evening Today shows no «Last evening» and no «Review today».', 'Open the tour page of that trip (step «Analysis»): it says «Planned» and «Continue to Pack».'],
+  },
+  {
     // v0.212.0 «Touren b» (996 Einzelideen 50–58, Noah 25./26.10.2026 «freigabe 52 55 56 57 58»): trip from an intent,
     // rule with an end, little stories, check from a breakdown, «check later», note at a place, your day to listen to,
     // eat reminder at planned stops, book what was used

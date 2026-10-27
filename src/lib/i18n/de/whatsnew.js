@@ -11,6 +11,21 @@ export default {
   'An empty bag now takes an item too.': 'Auch eine leere Tasche nimmt jetzt ein Teil auf.',
   'All bags side by side: empty bags stay as a column to drag into': 'Alle Taschen nebeneinander: leere Taschen bleiben als Spalte zum Hineinziehen',
   'On the computer open Packen › Alle Taschen nebeneinander and drag an item into an empty bag, or use the arrows next to the item.': 'Öffne am Computer Packen › Alle Taschen nebeneinander und zieh ein Teil in eine leere Tasche, oder nimm die Pfeile neben dem Teil.',
+  // 0.212.1 Die heutige Tour sagt eins
+  // 0.212.2 UI-Test T2
+  'One start time': 'Eine Startzeit',
+  'On the way and «Before you leave» show the same start.': 'Unterwegs und «Vor der Abfahrt» zeigen dieselbe Startzeit.',
+  'A ride still recording: the main button is «Continue the ride from 19:27»': 'Läuft noch eine Aufzeichnung, heisst der Hauptknopf «Fahrt von 19:27 weiterführen»',
+  'Before you set off only «Start riding»; «End the trip …» is in «…»': 'Vor dem Start nur «Losfahren»; «Tour beenden …» steht im «…»',
+  'Base check as a list with boxes, like Pack': 'Basischeck als Liste mit Kästchen, wie beim Packen',
+  'Open On the way on a trip day before setting off: the one main button is «Start riding»; «End the trip …» is in «…».': 'Öffne Unterwegs an einem Tourtag vor dem Start: Der einzige Hauptknopf ist «Losfahren»; «Tour beenden …» steht im «…».',
+  'Open «Before you leave»: it shows the same start time as On the way.': 'Öffne «Vor der Abfahrt»: Dort steht dieselbe Startzeit wie bei Unterwegs.',
+  "Today's tour says one thing": 'Die heutige Tour sagt eins',
+  'Not packed yet means: still packing, not done.': 'Noch nicht gepackt heisst: noch am Packen, nicht fertig.',
+  'A day ride not started yet no longer shows «Last evening» or «Completed»': 'Eine Tagestour, die noch nicht begonnen hat, zeigt nicht mehr «Letzter Abend» oder «Abgeschlossen»',
+  'Tour page before the ride: «Planned» and a button to the step you are in': 'Tourseite vor der Fahrt: «Geplant» und ein Knopf zum Schritt, in dem du bist',
+  'Plan a day ride for today and do not finish packing. In the evening Today shows no «Last evening» and no «Review today».': 'Plane eine Tagestour für heute und schliesse das Packen nicht ab. Am Abend zeigt Heute kein «Letzter Abend» und kein «Rückblick heute».',
+  'Open the tour page of that trip (step «Analysis»): it says «Planned» and «Continue to Pack».': 'Öffne die Tourseite dieser Tour (Schritt «Auswertung»): Dort steht «Geplant» und «Weiter zu Packen».',
   // 0.212.0 Touren b
   'Tours that remember': 'Touren, die mitdenken',
   'Start from what you want, get reminded at the right place.': 'Beginne mit deiner Absicht, die Erinnerung kommt am richtigen Ort.',

@@ -511,4 +511,7 @@ Kurzfassung, verbindlich ist [arbeitsweise.md](arbeitsweise.md).
 0.216.0 «Platz in jeder Tasche» (Ziel Tour: besser packen, 26.10.2026, eigener kleiner PR), 0.212.0 «Touren, die mitdenken» (Ziel Tour: unterwegs und danach), 0.211.0 «Zwei Touren, ein Blick» (Ziel Tour: besser vorbereitet), 0.208.1 «Ganze Wörter am kleinen Handy», 0.209.0 «Tagelang zusammen fahren» (Ziel Tour: zusammen unterwegs) und 0.210.0 «Deine Liste in Sicht» (Ziel Alltag: was es gibt, ist auffindbar), 26.10.2026, im Sammel-PR nach #263.
 
 0.208.0 «Mehr Platz am Computer» (26.10.2026, Ziel Alltag/Bedienung): UI-Ziel #14, die Hauptorte nutzen am Computer ihre Breite.
+0.212.1 «Die heutige Tour sagt eins» (26.10.2026, Ziel Touren): UI-Test 0.205 Teil T1, die heutige Tour sagt überall dasselbe.
+
+0.212.2 «Eine Startzeit» (26.10.2026, Ziel Touren): UI-Test 0.205 Teil T2, eine Startzeit und vor dem Start ein Knopf.
 0.200.0 «Zusammen auf einer Karte» (25.10.2026, Ziel Touren): Gruppen-Live-Karte, Freunde per Link auf einer Karte.

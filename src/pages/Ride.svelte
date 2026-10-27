@@ -39,7 +39,8 @@
   import { FUEL_KEY, fuelForTrip } from '../lib/fuel.js';
   import { chargeList, chargeCount } from '../lib/charge.js';
   import ChargeList from '../lib/trip/ChargeList.svelte';
-  import { dayIndex, addTime, planHours, stage, stageCount, isNonstop, blocks, blockHours, dayProfile, placeName, fetchHourly, rideHours, wxSummary, DEFAULT_START, onTripDay } from '../lib/ride.js';
+  import { dayIndex, addTime, planHours, stage, stageCount, isNonstop, blocks, blockHours, dayProfile, placeName, fetchHourly, rideHours, wxSummary, DEFAULT_START, onTripDay, startNow, openRideOf } from '../lib/ride.js';
+  import { openRecording, startRecording } from '../lib/spur/recorder.svelte.js';
   import { RIDE_SEEN_KEY, rideSeen } from '../lib/home/startkarten.js';
   import { newNote, tripNotes, DEBRIEF_KINDS, noteToDebrief, dropNoteFromDebrief } from '../lib/notes.js';
   import { newDebrief } from '../lib/debrief.js';
@@ -119,7 +120,11 @@
   let day = $state(null); // null: the day of today
   const cur = $derived(Math.min(days - 1, day ?? (trip ? dayIndex(trip, today) : 0)));
   // v0.30.1 (Noah C1): a day without a start time starts at the hour the page was opened (today only).
-  const nowStart = `${String(new Date().getHours()).padStart(2, '0')}:00`;
+  // UI-Test T2 (G2-07): a recording of this trip still open from today gives the start instead
+  // («Fahrt von 19:27»), the same time as «Vor der Abfahrt» and the Live map (ride.js startNow).
+  const openQ = liveQuery(() => openRecording(db));
+  const openRide = $derived(openRideOf(trip, today, $openQ));
+  const nowStart = $derived(startNow(trip, today, $openQ));
   const st = $derived(trip ? stage(trip, cur, pace, { today, nowStart }) : null);
   // v0.30.1 (Noah C1): sunset and the light also without a route or start place: the home place.
   const homeQ = liveQuery(() => db.settings.get('homePlace'));
@@ -163,12 +168,26 @@
   }
   // Klick-Rundgang 22.10.2026 H06/H09: «Losfahren» starts the day now: the trip is under way and the
   // day's start time is the real one, so the blocks and the arrival count from it (not from 08:00)
-  async function startRiding() {
-    const now = new Date().toTimeString().slice(0, 5);
+  async function startRiding(at = null) {
+    const now = at || new Date().toTimeString().slice(0, 5);
     const n = goDayOf(trip, today);
     const goDays = { ...($state.snapshot(trip.goDays) ?? {}), [n]: now };
     const rideStart = { ...($state.snapshot(trip.rideStart) ?? {}), [n]: now };
     await change({ goDays, rideStart });
+  }
+  // UI-Test T2 (G2-07): a recording of this trip is still open: the main button goes on with it.
+  // The day starts at the recording's start, the recording goes on, and the Live map opens.
+  async function continueRide() {
+    const o = openRide;
+    await startRiding(nowStart);
+    let saver = false;
+    try {
+      saver = !!(await db.settings.get('live'))?.value?.battery;
+    } catch {
+      /* the default */
+    }
+    if (o) await startRecording($state.snapshot(trip), { cont: o, saver });
+    location.hash = `#/live/${encodeURIComponent(trip.id)}`;
   }
   function setStart(value) {
     const rideStart = { ...($state.snapshot(trip.rideStart) ?? {}), [cur]: value || DEFAULT_START };
@@ -491,8 +510,10 @@
     box?.scrollIntoView({ block: 'center' });
     box?.focus({ preventScroll: true });
   }
+  // UI-Test T2 (G2-15): before setting off «Losfahren» is the one button; «Tour beenden …» waits in «…»
   const moreActions = $derived([
     ...(main.kind !== null ? [{ name: t('Note|ride'), explain: t('A note for the debrief'), icon: Mic, run: startNote }] : []),
+    ...(main.kind === 'start' ? [{ name: t('End the trip …'), explain: t('Ends the trip without riding on'), icon: Flag, run: () => (endAsk = true) }] : []),
   ]);
   /* ---------- SN1: the weather of now in one sentence ---------- */
   // v0.144.0 RE: the one rain limit of the app (was 50 %)
@@ -571,12 +592,12 @@
      before the start the waiting state («Zur Startseite», or «Weiter zu Packen» while not packed),
      on the last day «Letzten Tag abschliessen», after the trip «Weiter zum Rückblick». Earlier days have
      no orange button: ending early is the quiet «Tour beenden …» in the band (it asks first). -->
-{#snippet go()}{#if main.kind === 'start'}<button type="button" class="btn hi go" onclick={startRiding} data-go-ride>{t(main.label)}<ArrowRight size={20} aria-hidden="true" /></button>{:else if main.kind === 'last'}<button type="button" class="btn hi go" onclick={finish}>{t(main.label)}<ArrowRight size={20} aria-hidden="true" /></button>{:else if main.kind === 'go'}<a class="btn hi go" href={main.href} onclick={() => openTrip(trip.id)}>{t(main.label)}<ArrowRight size={20} aria-hidden="true" /></a>{/if}{/snippet}
+{#snippet go()}{#if main.kind === 'start' && openRide}<button type="button" class="btn hi go" onclick={continueRide} data-go-ride data-go-continue>{t('Continue the ride from {time}', { time: nowStart })}<ArrowRight size={20} aria-hidden="true" /></button>{:else if main.kind === 'start'}<button type="button" class="btn hi go" onclick={() => startRiding()} data-go-ride>{t(main.label)}<ArrowRight size={20} aria-hidden="true" /></button>{:else if main.kind === 'last'}<button type="button" class="btn hi go" onclick={finish}>{t(main.label)}<ArrowRight size={20} aria-hidden="true" /></button>{:else if main.kind === 'go'}<a class="btn hi go" href={main.href} onclick={() => openTrip(trip.id)}>{t(main.label)}<ArrowRight size={20} aria-hidden="true" /></a>{/if}{/snippet}
 <!-- SN1 (question 1a): «…» holds «Tour beenden …» before the last day (it asks first), and «Notiz» when
      the main button is another one. -->
 <!-- Versteckte Funktionen (Noah 22.10.2026 «1a … 5a»): the main step of a trip is never only in «…»:
      «Tour beenden …» and the emergency window stay visible while the trip runs. -->
-{#snippet endLink()}{#if main.kind === null || main.kind === 'start'}<button type="button" class="btn sm rend" onclick={() => (endAsk = true)} data-ride-end><Flag size={16} aria-hidden="true" />{t('End the trip …')}</button>{/if}{#if running}<a class="btn sm rsos" href="#/mountain/sos" data-ride-sos><Siren size={16} aria-hidden="true" />{t('Emergency')}</a>{/if}{#if moreActions.length}<span class="rmore"><MoreActions title={trip.title} label={t('More for this trip')} actions={moreActions} /></span>{/if}{/snippet}
+{#snippet endLink()}{#if main.kind === null}<button type="button" class="btn sm rend" onclick={() => (endAsk = true)} data-ride-end><Flag size={16} aria-hidden="true" />{t('End the trip …')}</button>{/if}{#if running}<a class="btn sm rsos" href="#/mountain/sos" data-ride-sos><Siren size={16} aria-hidden="true" />{t('Emergency')}</a>{/if}{#if moreActions.length}<span class="rmore"><MoreActions title={trip.title} label={t('More for this trip')} actions={moreActions} /></span>{/if}{/snippet}
 {#snippet pen()}<button type="button" class="tp-icon-btn" aria-label={t('Note for the debrief')} onclick={goNote}><Pencil size={22} aria-hidden="true" /></button>{/snippet}
 {#snippet noteBtn()}<button type="button" class="btn hi notego" onclick={startNote}><Mic size={20} aria-hidden="true" />{t('Note|ride')}</button>{/snippet}
 {#snippet dayAside()}{#if dayOf}<span class="dayside"><b>{dayOf}</b>{#if nextLine}<small>{nextLine}</small>{/if}</span>{/if}{/snippet}
@@ -589,7 +610,7 @@
   {#if $tripsQ}<p class="parked-solo"><button type="button" class="btn" onclick={() => (parkedOpen = true)} data-uw-parked><Bike size={18} aria-hidden="true" />{t('Bike parked')}</button></p>{/if}
 {:else}
 <div class="ride trip-page">
-  <TripBand {trip} tab="ride" {kicker} compact action={main.kind ? go : noteMain ? noteBtn : null} aside={main.kind ? pen : noteMain ? dayAside : null} extra={endLink} stateMore={running ? dayOf : ''} stepText={noteMain ? dayOf : ''} hint={main.kind === 'start' ? t('Tap when you set off: the blocks and the arrival then count from now.') : main.kind === 'last' ? t('End the trip when you are back home.') : noteMain ? nextLine : ''} />
+  <TripBand {trip} tab="ride" {kicker} compact action={main.kind ? go : noteMain ? noteBtn : null} aside={main.kind ? pen : noteMain ? dayAside : null} extra={endLink} stateMore={running ? dayOf : ''} stepText={noteMain ? dayOf : ''} hint={main.kind === 'start' && openRide ? t('A recording of this trip is running since {time}. The blocks and the arrival count from then.', { time: nowStart }) : main.kind === 'start' ? t('Tap when you set off: the blocks and the arrival then count from now.') : main.kind === 'last' ? t('End the trip when you are back home.') : noteMain ? nextLine : ''} />
   <!-- «Unterwegs sichtbar» (332 Use Cases, Noah 24.10.2026 «2b»): parts far down the page as jump chips right under the band -->
   <QuickLinks label={t('On this page')} links={[{ key: 'eat', jump: '#eat-h', label: t('Eat reminder') }, { key: 'here', jump: '#spur-h', label: t('I am here') }, { key: 'water', jump: '[data-fold="water"]', label: t('Water and food') }, { key: 'sky', jump: '[data-fold="sky"]', label: t('Sun, moon and places') }, { key: 'convert', jump: '[data-fold="convert"]', label: t('Route for other devices') }, { key: 'now', jump: '#now-h', label: t('The Now card on the way') }, { key: 'record', jump: '.btn.rec', label: t('Record the route') }, { key: 'komoot', jump: '[data-komoot-row]', label: t('komoot tour on On the way') }, { key: 'night', jump: '[data-uw-night]', label: t('Good night') }, { key: 'parked', jump: '[data-uw-parked]', label: t('Bike parked') }]} />
   {#if ahead}
