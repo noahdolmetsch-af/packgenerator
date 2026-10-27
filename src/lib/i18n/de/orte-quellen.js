@@ -20,6 +20,18 @@ export default {
   'Doctor|poi': 'Arzt',
   'Police|poi': 'Polizei',
   'Post office|poi': 'Post',
+  // Suchvorschläge (Noah 27.10.2026)
+  'Sauna|poi': 'Sauna',
+  'Indoor pool|poi': 'Hallenbad',
+  'Thermal bath and spa|poi': 'Thermalbad und Wellness',
+  'Selecta|poi': 'Selecta',
+  'Bike tube vending machine|poi': 'Veloschlauch-Automat',
+  'Bread, milk and egg vending machine|poi': 'Brot-, Milch- und Eier-Automat',
+  'Farm shop|poi': 'Hofladen',
+  'Shower|poi': 'Dusche',
+  'Bike wash|poi': 'Velo-Waschplatz',
+  'Luggage locker|poi': 'Schliessfach',
+  'Defibrillator|poi': 'Defibrillator',
 
   // own radius
   'Own|radius': 'Eigener',

@@ -404,6 +404,21 @@ describe('«Weitere Quellen» · more kinds', () => {
   });
 });
 
+describe('Suchvorschläge · new kinds (Noah 27.10.2026)', () => {
+  it('finds wellness, vending machines and more, the more specific kind first', () => {
+    expect(kindOf({ leisure: 'sauna' }, S.ALL_KEYS)).toBe('sauna');
+    expect(kindOf({ amenity: 'public_bath', 'bath:type': 'thermal' }, S.ALL_KEYS)).toBe('thermal');
+    expect(kindOf({ amenity: 'public_bath' }, S.ALL_KEYS)).toBe('swim');
+    expect(kindOf({ amenity: 'vending_machine', brand: 'Selecta' }, S.ALL_KEYS)).toBe('selecta');
+    expect(kindOf({ amenity: 'vending_machine', vending: 'bicycle_tube;drinks' }, S.ALL_KEYS)).toBe('tubevend');
+    expect(kindOf({ amenity: 'vending_machine', vending: 'milk;eggs' }, S.ALL_KEYS)).toBe('foodvend');
+    expect(kindOf({ shop: 'farm' }, S.ALL_KEYS)).toBe('farmshop');
+    expect(kindOf({ shop: 'farm' }, KEYS)).toBe('shop');
+    expect(kindOf({ emergency: 'defibrillator' }, S.ALL_KEYS)).toBe('defib');
+    expect(kindOf({ amenity: 'vending_machine', vending: 'cigarettes' }, S.ALL_KEYS)).toBe(null);
+  });
+});
+
 describe('«Weitere Quellen» · OpenStreetMap tags typed by you', () => {
   it('takes the four allowed forms (and plain key=value)', () => {
     expect(S.checkSelector('["amenity"="bench"]')).toEqual({ sel: '["amenity"="bench"]' });
