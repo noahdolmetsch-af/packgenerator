@@ -4,6 +4,7 @@ Stand: 26. Oktober 2026 (Kopf nachgetragen; die Einträge unten werden mit jedem
 
 ## Aktuell live
 
+**0.220.0 «Velo-Ergänzungen» (26.10.2026, Velo-Ideen 1 3 6 7 8 12, Noah «12a alle bauen»):** Die Kettenlehre korrigiert die Prognose auf «Verschleiss»; neuer Velo-Jahresrückblick (`#/bikes?tab=care&view=year`); Pflege-Serie nach Regen; Teilewechsel im eigenen Google-Kalender «Packgenerator» (Schalter unter Ich › Verbindungen); Geräusch-Notizen mit «Ist es weg?»; Checklisten «Vor dem Winter» und «Im Frühling» (`view=season`).
 **0.218.0 «Platz in jeder Tasche» (26.10.2026, Noah 22:06 «starte mit 1, dann 3 und danach 2»):** In «Alle Taschen nebeneinander» bleibt eine leere Tasche als gestrichelte Spalte stehen; man zieht ein Teil hinein oder wählt sie über die Pfeile neben einem Teil. Kein neues Schema. Offen bis Noah die Bilder freigibt.
 **0.217.0 «Nichts versteckt sich mehr» (27.10.2026, Noah «starte mit 1, dann 3 und danach 2», Teil 2):** Die 20 tief versteckten Funktionen sind auf ihrer Seite sichtbar: Katalog-Namen wie auf der Seite (Bausteine, Neuer Baustein, Checks pro Tourart, 3 Beobachtungen, Mail), kurze Zeilen auf Verpflegung, Fahrten, im Meditations-Logbuch und im Abend-Check, Knopf «Trello» oben auf Merken. Versteckt 77 → 57. Kein neues Schema. Live seit 27.10.2026 (#278).
 

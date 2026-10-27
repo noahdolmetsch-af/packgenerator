@@ -516,5 +516,6 @@ Kurzfassung, verbindlich ist [arbeitsweise.md](arbeitsweise.md).
 0.219.0 «Heute ruhiger» Teil 1 (26.10.2026, Ziel Alltag): Heute ruhiger und schöner, keine neuen Funktionen.
 0.212.1 «Die heutige Tour sagt eins» (26.10.2026, Ziel Touren): UI-Test 0.205 Teil T1, die heutige Tour sagt überall dasselbe.
 
+0.220.0 «Velo-Ergänzungen» (26.10.2026, Ziel 2 «Das Velo im Griff»): Velo-Ideen 1, 3, 6, 7, 8, 12.
 0.212.2 «Eine Startzeit» (26.10.2026, Ziel Touren): UI-Test 0.205 Teil T2, eine Startzeit und vor dem Start ein Knopf.
 0.200.0 «Zusammen auf einer Karte» (25.10.2026, Ziel Touren): Gruppen-Live-Karte, Freunde per Link auf einer Karte.
