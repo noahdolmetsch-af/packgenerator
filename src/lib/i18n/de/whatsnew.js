@@ -14,6 +14,14 @@ export default {
   'Scroll to «Open quickly»: the small buttons stand in one list, a tap opens the place.': 'Scrolle zu «Schnell öffnen»: die kleinen Knöpfe stehen in einer Liste, ein Tipp öffnet den Ort.',
   'Look at the bike card: the jobs are small round buttons.': 'Schau die Velokarte an: die Arbeiten sind kleine runde Knöpfe.',
   // 0.212.1 Die heutige Tour sagt eins
+  // 0.212.2 UI-Test T2
+  'One start time': 'Eine Startzeit',
+  'On the way and «Before you leave» show the same start.': 'Unterwegs und «Vor der Abfahrt» zeigen dieselbe Startzeit.',
+  'A ride still recording: the main button is «Continue the ride from 19:27»': 'Läuft noch eine Aufzeichnung, heisst der Hauptknopf «Fahrt von 19:27 weiterführen»',
+  'Before you set off only «Start riding»; «End the trip …» is in «…»': 'Vor dem Start nur «Losfahren»; «Tour beenden …» steht im «…»',
+  'Base check as a list with boxes, like Pack': 'Basischeck als Liste mit Kästchen, wie beim Packen',
+  'Open On the way on a trip day before setting off: the one main button is «Start riding»; «End the trip …» is in «…».': 'Öffne Unterwegs an einem Tourtag vor dem Start: Der einzige Hauptknopf ist «Losfahren»; «Tour beenden …» steht im «…».',
+  'Open «Before you leave»: it shows the same start time as On the way.': 'Öffne «Vor der Abfahrt»: Dort steht dieselbe Startzeit wie bei Unterwegs.',
   "Today's tour says one thing": 'Die heutige Tour sagt eins',
   'Not packed yet means: still packing, not done.': 'Noch nicht gepackt heisst: noch am Packen, nicht fertig.',
   'A day ride not started yet no longer shows «Last evening» or «Completed»': 'Eine Tagestour, die noch nicht begonnen hat, zeigt nicht mehr «Letzter Abend» oder «Abgeschlossen»',
