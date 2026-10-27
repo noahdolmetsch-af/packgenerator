@@ -31,12 +31,7 @@ export const FEATS = [
 ];
 export const FEAT_KEYS = FEATS.map((f) => f.key);
 
-/** 14 · the quick buttons: each switches these kinds on (the others off). */
-export const QUICK = [
-  { key: 'water', name: 'Water|poi', kinds: ['water', 'toilet'] },
-  { key: 'food', name: 'Food|poi', kinds: ['shop', 'food', 'fuel'] },
-  { key: 'sleep', name: 'Sleep|poi', kinds: ['sleep', 'camp', 'shelter'] },
-];
+/* 14 · the quick buttons became the situation buttons (situations.js, Suchvorschläge 27.10.2026). */
 
 export const SORTS = ['dist', 'arrive', 'detour'];
 export const OPENS = ['any', 'now', 'arrive'];

@@ -116,7 +116,8 @@ test('Stops nearby along a route, and the part Stops on the live map', async ({ 
   await tap(page.locator('[data-live-sheet-toggle]'), info);
   const stops = page.locator('[data-live-stops]');
   await stops.scrollIntoViewIfNeeded();
-  await expect(stops.locator('[data-live-places] [data-poi-panel]')).toBeAttached();
+  await expect(stops.locator('[data-live-places] [data-live-near-open]')).toBeVisible();
+  await expect(page.locator('[data-live-near] [data-poi-panel]')).toBeAttached();
   await expect(stops.locator('[data-live-stops-mode] button[data-key="route"]')).toHaveAttribute('aria-pressed', 'true');
   await tap(stops.locator('[data-live-stops-mode] button[data-key="around"]'), info);
   await expect(stops.locator('[data-live-stops-mode] button[data-key="around"]')).toHaveAttribute('aria-pressed', 'true');

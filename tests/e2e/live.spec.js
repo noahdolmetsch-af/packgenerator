@@ -115,9 +115,10 @@ test('Live map on the sample race: km, stops ahead, climb, arrival, SOS, stop', 
   // the fine profile from your km, with your dot
   await page.locator('[data-live-full] [data-profile-fine]').scrollIntoViewIfNeeded();
   await expect(page.locator('[data-live-full] [data-profile-me]')).toBeVisible();
-  // the weather along the route and the place search sit in the sheet too
+  // the weather along the route sits in the sheet too, the place search opens from it («In der Nähe»)
   await expect(page.locator('[data-live-full] [data-wx-timeline]')).toBeAttached();
-  await expect(page.locator('[data-live-full] [data-poi-panel]')).toBeAttached();
+  await expect(page.locator('[data-live-full] [data-live-near-open]')).toBeAttached();
+  await expect(page.locator('[data-live-near] [data-poi-panel]')).toBeAttached();
   // the app at 130 % («Grösse», CSS zoom on <html>): still no sideways scroll
   await page.evaluate(() => (document.documentElement.style.zoom = '1.3'));
   await noSideways(page, 'zoom 130 %');
