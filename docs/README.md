@@ -27,6 +27,7 @@ Stand: 26. Oktober 2026 (live v0.208.0; 0.208.1 bis 0.212.0 offen). **Einstieg: 
 | Wie nutze ich jede Funktion (aufschalten, Beispiel)? | [Benutzerhandbuch](handbuch.md) und [Kleine Apps](kleine-apps.md) | Aus `src/lib/handbook.js` erzeugt (`node tools/handbuch.mjs`) |
 | Wie verbinde ich Strava? | [Strava verbinden](strava-verbinden.md) | Anleitung ab 0.116.0; die App liest nur |
 | Wie richte ich den KI-Helfer ein? | [KI-Helfer einrichten](ki-helfer-einrichten.md) | Schlüssel nur in Vercel; ab 0.118.0 ab Werk aus |
+| Was tue ich, wenn etwas kaputt ist? Wie bleibe ich unabhängig? | [Notfall-Handbuch](notfall-handbuch.md) und [Konten-Liste](konten.md) | Kaputt-Checkliste mit Klicks, Backup, Konten ohne Passwörter, einen anderen Helfer einweisen (seit 26.10.2026). Mini-Kurs in der App unter Ich › App verstehen |
 | Was muss ich nach der Einrichtung selbst noch tun? | [Wann du etwas tun musst](wann-du-etwas-tun-musst.md) | Die seltenen Fälle mit genauen Klicks (neues Gerät, Login abgelaufen, KI-Guthaben, Gratisdienste, Backup), Stand 19.10.2026 |
 | Wie kann ich den Code verstehen? | [Lern-Seite](learn/README.md) | Einfache technische Erklärung |
 
