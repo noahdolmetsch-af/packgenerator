@@ -1759,6 +1759,11 @@ export default {
   'Example: say «note brake squeaks» → the note is in the Inbox. If the microphone stops, the words so far stay in the field.': 'Beispiel: Sag «Notiz Bremse quietscht» → die Notiz ist im Eingang. Stoppt das Mikrofon, bleiben die Wörter bisher im Feld.',
   'Example: IMG_0042.HEIC → IMG_0042.jpg for the online form; velo.jpg as JPG → velo-umgewandelt.jpg, the old one stays.': 'Beispiel: IMG_0042.HEIC → IMG_0042.jpg für das Online-Formular; velo.jpg als JPG → velo-umgewandelt.jpg, das alte bleibt.',
   'Example: «Wo sehe ich die Lawinengefahr?» → Alerts and news. «Kette» finds Material and a bike → «Do you mean Gear or Bikes?».': 'Beispiel: «Wo sehe ich die Lawinengefahr?» → Hinweise und News. «Kette» findet Material und ein Velo → «Meinst du Material oder Velos?».',
+  // «App verstehen» (Noah 26.10.2026)
+  'Open Me › Understand the app.': 'Öffne Ich › App verstehen.',
+  'Open a lesson, read it and do the exercise.': 'Öffne eine Lektion, lies sie und mach die Übung.',
+  'Tick «Done» if you like.': 'Hake «Erledigt» ab, wenn du magst.',
+  'Example: lesson 2 «Make a backup and bring it back» → export a backup and import it in a test link.': 'Beispiel: Lektion 2 «Backup machen und zurückspielen» → ein Backup exportieren und in einem Test-Link einlesen.',
   // Touren-Ideen 44, 45, 47, 49 (Noah 26.10.2026)
   'Read the overlapping days, the shared gear and the open tasks.': 'Lies die gleichen Tage, das geteilte Material und die offenen Aufgaben.',
   'Tick «Clarified» when you know the answer.': 'Hake «Geklärt» ab, sobald du die Antwort weisst.',
