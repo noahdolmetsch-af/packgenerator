@@ -43,6 +43,7 @@ test('habits on top of Today: meditation first, then up to three chosen ones, ti
   await sheet.locator(`[data-habit-row="${itemKey}"]`).getByRole('button', { name: / nach oben$/ }).click();
   await expect.poll(rows).toEqual([expect.stringMatching(/^act:/), itemKey, actKey]);
   await sheet.evaluate((el) => el.scrollTo(0, 0));
+  await page.mouse.move(1, 1);
   await shot(page, info, 'gewohnheiten-waehlen');
   await sheet.locator('[data-habits-done]').click();
   await expect(sheet).toHaveCount(0);
