@@ -69,4 +69,7 @@ export default {
   '{n} block with suggestions': '{n} Baustein mit Vorschlägen',
   '{n} blocks with suggestions': '{n} Bausteine mit Vorschlägen',
   '{n} with suggestions. One building block after the other: keep, out or elsewhere': '{n} mit Vorschlägen. Ein Baustein nach dem anderen: behalten, raus oder anderswohin',
+  // T13 «Hinweis zum schweren Standard»
+  'On bikepacking trips your Standard brings {kg} (without what you wear). «Tidy up» suggests {n} instead of {m} things.': 'Auf Bikepacking-Touren bringt dein Standard {kg} mit (ohne Getragenes). «Aufräumen» schlägt {n} statt {m} Teile vor.',
+  'Look at it ›': 'Ansehen ›',
 };

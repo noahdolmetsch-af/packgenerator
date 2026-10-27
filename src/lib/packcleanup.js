@@ -11,7 +11,7 @@
  * (applyPlan) and offers Undo. Nothing is deleted: an item that leaves «Immer dabei» stays in Gear.
  * Pure functions, tested in tests/packcleanup.test.js. Fictional words only.
  */
-import { isInventory } from './gear.js';
+import { isInventory, itemWeight } from './gear.js';
 import { inDomain, BIKEPACKING } from './domains.js';
 import { inStandard, isWorn, STANDARD } from './blocks2026.js';
 import { ruleOf, setRule } from './situation.js';
@@ -111,6 +111,20 @@ export function suggestPlan(items = [], sets = [], saved = null) {
 
 /** What «Immer dabei» holds now (bike area), for «Kommt nicht mehr immer mit». */
 export const standardNow = (items = []) => bikeItems(items).filter((i) => inStandard(i) && !isWorn(i));
+
+/** UI-Test T13 (G4-03): from this weight on, «Standard» makes every trip heavy and Bausteine says so. */
+export const HEAVY_STANDARD_G = 5000;
+/**
+ * The hint on Bausteine when Standard is heavy and «Tidy up» suggests fewer things:
+ * { g, n, suggested } (grams of the weighed things, how many now, how many the suggestion keeps) or null.
+ */
+export function standardHint(items = [], sets = [], saved = null, heavy = HEAVY_STANDARD_G) {
+  const now = standardNow(items);
+  const g = now.reduce((s, i) => s + (itemWeight(i) ?? 0), 0);
+  if (g < heavy) return null;
+  const suggested = suggestPlan(items, sets, saved).std.length;
+  return suggested < now.length ? { g, n: now.length, suggested } : null;
+}
 
 /**
  * Write a plan. → { items: [changed item], sets: next «sets» value, rules: next «pack-rules» value,
