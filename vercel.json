@@ -5,7 +5,8 @@
       "claude/**": false,
       "dependabot/**": false,
       "claude/project-thread-743v5k": true,
-      "claude/project-thread-add6wb": true
+      "claude/project-thread-add6wb": true,
+      "claude/project-thread-gsfhzr": true
     }
   }
 }

@@ -31,6 +31,17 @@ export const WHATS_NEW = [
     test: ['Open Today: no card has a big empty space below.', 'Scroll to «Open quickly»: the small buttons stand in one list, a tap opens the place.', 'Look at the bike card: the jobs are small round buttons.'],
   },
   {
+    // v0.212.1 UI-Test 26.10.2026 T1 «Heutige Tour: ein Zustand überall»: a day ride not begun yet (not packed, not
+    // started) no longer shows «Letzter Abend», «Rückblick heute» or «Abgeschlossen»; the tour page says «Geplant»
+    version: '0.212.1',
+    date: '2026-10-26',
+    title: "Today's tour says one thing",
+    lead: 'Not packed yet means: still packing, not done.',
+    points: [{ text: 'A day ride not started yet no longer shows «Last evening» or «Completed»', href: '#/trips' }],
+    small: [{ box: 'fixed', text: 'Tour page before the ride: «Planned» and a button to the step you are in' }],
+    test: ['Plan a day ride for today and do not finish packing. In the evening Today shows no «Last evening» and no «Review today».', 'Open the tour page of that trip (step «Analysis»): it says «Planned» and «Continue to Pack».'],
+  },
+  {
     // v0.212.0 «Touren b» (996 Einzelideen 50–58, Noah 25./26.10.2026 «freigabe 52 55 56 57 58»): trip from an intent,
     // rule with an end, little stories, check from a breakdown, «check later», note at a place, your day to listen to,
     // eat reminder at planned stops, book what was used
