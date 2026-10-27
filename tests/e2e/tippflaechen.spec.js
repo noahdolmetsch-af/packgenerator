@@ -1,4 +1,4 @@
-// Klick-Rundgang 2 (Noah 27.10.2026 «3 und dann 1»): the button scan found small symbol buttons under 44 px on the
+// Klick-Rundgang 2 (Noah 27.10.2026 «3 und dann 1»): the button scan found small symbol buttons and list ticks under 44 px on the
 // phone. They keep their look and get an invisible 44 px tap area (src/lib/ui/touch.css); the sort arrows are
 // at least 24 px high on a computer. The real tap area is hit-tested from the centre outwards.
 // Fictional fixture (tests/e2e/pf-fixture.json, test_data_gtp_ names); nothing leaves the preview server.
@@ -16,9 +16,9 @@ const RAW = readFileSync(fileURLToPath(new URL('./pf-fixture.json', import.meta.
 const day = (n = 0) => ((d) => (d.setUTCDate(d.getUTCDate() + n), d.toISOString().slice(0, 10)))(new Date(`${new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Zurich' })}T12:00:00Z`));
 const fixture = () => RAW.replace(/"@([+-]\d+)"/g, (m, n) => `"${day(Number(n))}"`);
 
-async function load(page, context, info) {
+async function load(page, context, info, edit = (d) => d) {
   const file = info.outputPath('tippflaechen.json');
-  writeFileSync(file, fixture());
+  writeFileSync(file, JSON.stringify(edit(JSON.parse(fixture()))));
   await context.route(/^https?:\/\/(?!localhost[:/])/, (route) => route.abort());
   await context.addInitScript(() => localStorage.setItem('lang', 'de'));
   page.on('dialog', (d) => d.accept());
@@ -70,4 +70,24 @@ test('computer: the sort arrows are at least 24 px high', async ({ page, context
   await expect(up).toBeVisible();
   const box = await up.boundingBox();
   expect(box.height).toBeGreaterThanOrEqual(24);
+});
+
+test('phone: a list row tick has a 44 px tap area, the row keeps its height', async ({ page, context }, info) => {
+  test.skip(info.project.name !== 'phone', 'phone only');
+  // two fictional items as supplies, so Material › Vorrat shows its list
+  await load(page, context, info, (d) => {
+    d.tables.items.slice(0, 2).forEach((i) => (i.consumable = true));
+    return d;
+  });
+  await page.goto('./#/gear/supplies');
+  const row = page.locator('.lt-row').first();
+  await expect(row).toBeVisible();
+  const box = page.locator('.lt-row input[type="checkbox"]').first();
+  const a = await tapArea(page.locator('.lt-row .lt-cb').first());
+  expect(Math.min(a.w, a.h)).toBeGreaterThanOrEqual(44);
+  expect((await row.boundingBox()).height).toBeLessThan(80);
+  // a tap 18 px under the tick still ticks it
+  const b = await box.boundingBox();
+  await page.touchscreen.tap(b.x + b.width / 2, b.y + b.height / 2 + 18);
+  await expect(box).toBeChecked();
 });
