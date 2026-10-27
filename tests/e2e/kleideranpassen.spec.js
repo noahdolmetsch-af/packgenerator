@@ -4,7 +4,7 @@
 // Fictional data only (fixture.json + test_data_gtp_ clothes made here); outside requests are blocked, the home
 // forecast (6 °C all day) is written into the app's database.
 import { test, expect } from '@playwright/test';
-import { readFileSync, writeFileSync } from 'node:fs';
+import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';
 import { openData, settle } from './settle.js';
@@ -17,6 +17,14 @@ const base = JSON.parse(readFileSync(fileURLToPath(new URL('./fixture.json', imp
 const P = 'test_data_gtp_';
 const MARK = { key: 'test_data_gtp_marker', value: 1 };
 const PLACE = { name: `${P}Testdorf, Testland`, lat: 46.5, lon: 7.5 };
+// KA_SHOTS=<folder> saves pictures of the window for the review page.
+const SHOTS = process.env.KA_SHOTS;
+async function shot(page, info, name) {
+  if (!SHOTS) return;
+  mkdirSync(SHOTS, { recursive: true });
+  await page.evaluate(() => document.fonts.ready);
+  await page.locator('dialog.wear').screenshot({ path: `${SHOTS}/${name}-${info.project.name}.png` });
+}
 const cloth = (id, name, f = {}) => ({ id, name: `${P}${name}`, category: 'onbike', weightG: 100, qty: 1, weightStatus: 'measured', carry: 'body', defaultBag: 'body', ownership: 'owned', role: null, sets: [], kits: [], domains: ['bikepacking'], ...f });
 const CLOTHES = [
   cloth('KA01', 'Merino Langarm', { layer: 'base', zone: 'torso', tempMin: 0, tempMax: 15 }),
@@ -83,6 +91,7 @@ test('Was ziehe ich an: gap with reason, take anyway, swap, add a layer, why, ba
   const gap = row('hands').locator('[data-wear-gap="light"]');
   await expect(gap).toContainText(T('Your pieces here are made for {n} °C and warmer. Today: {c} °C.', { n: 15, c: 6 }));
   await expect(gap.getByRole('link', { name: T('Sort them') })).toBeVisible();
+  await shot(page, info, '1-luecke');
   await gap.locator('[data-wear-anyway]').click();
   await expect(row('hands')).toContainText(`${P}Kurzfingerhandschuhe`);
   await expect(row('hands')).toContainText(T('chosen by you · today only'));
@@ -91,6 +100,7 @@ test('Was ziehe ich an: gap with reason, take anyway, swap, add a layer, why, ba
   await row('mid').locator('[data-wear-swap="mid"]').click();
   const opt = row('mid').locator('[data-wear-opt="KA03"]');
   await expect(opt).toContainText(T('too light for {c} °C', { c: 6 }));
+  await shot(page, info, '2-tauschen');
   await opt.click();
   await expect(row('mid')).toContainText(`${P}Langarm duenn`);
   await expect.poll(async () => (await table(page, 'settings')).find((s) => s.key === 'wear.day')?.value?.pick?.mid).toBe('KA03');
@@ -105,6 +115,7 @@ test('Was ziehe ich an: gap with reason, take anyway, swap, add a layer, why, ba
   // «Warum so?»
   await card.locator('[data-wear-why] summary').click();
   await expect(card.locator('[data-wear-why]')).toContainText(T('The coldest hour of your ride: {c} °C.', { c: 6 }));
+  await shot(page, info, '3-angepasst-warum');
 
   // back to the suggestion, then Undo
   await card.locator('[data-wear-reset]').click();

@@ -107,7 +107,7 @@
     return { g, text: t('Nothing in the wardrobe for this yet.') };
   };
   const rowNames = (keys) => keys.map((k) => t(ONION.find((r) => r.key === k)?.name ?? k)).join(', ');
-  const notYet = $derived(shown ? ONION.filter((r) => r.key !== 'base' && r.key !== 'legs' && !o.outfit.rows.some((x) => x.key === r.key)).map((r) => r.key) : []);
+  const notYet = $derived(shown ? ONION.filter((r) => r.key !== 'base' && r.key !== 'legs' && !o.outfit.rows.some((x) => x.key === r.key) && !choice.add.includes(r.key)).map((r) => r.key) : []);
 </script>
 
 {#if o.state !== 'none'}
@@ -215,7 +215,7 @@
     margin: 0;
     padding: 0;
   }
-  li {
+  ul > li {
     display: grid;
     grid-template-columns: minmax(6.5em, auto) minmax(0, 1fr);
     gap: 4px 12px;
@@ -244,7 +244,7 @@
     font-size: var(--fs-small);
     font-style: normal;
   }
-  li:has(.wsw) {
+  ul > li:has(.wsw) {
     grid-template-columns: minmax(6.5em, auto) minmax(0, 1fr) auto;
     align-items: center;
   }
