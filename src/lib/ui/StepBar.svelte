@@ -11,7 +11,9 @@
    */
   import { Check } from '@lucide/svelte';
   import { t } from '../i18n.svelte.js';
-  import { TAB_NAMES, tabHref } from '../tabs.js';
+  import { tabHref } from '../tabs.js';
+  // Noah 26.10.2026 «1b»: the bar shows the short names Plan · Pack · Live · Review · Analyse
+  import { STEP_BAR } from '../stepbar.js';
 
   let { trip, tabs, status, current = null, tone = 'steps', onpick = () => {} } = $props();
   // 0.174: on a narrow phone the bar may scroll sideways; the current step is always in view
@@ -32,7 +34,7 @@
   {#each tabs as key (key)}
     {@const s = status[key] ?? { text: '', done: false }}
     <a href={tabHref(key, trip)} class:done={s.done} class:past={s.past} aria-current={key === current ? 'page' : undefined} onclick={() => onpick(key)}>
-      {#if tone === 'steps'}<span class="no" class:tick={s.done && key !== current} aria-hidden="true">{#if s.done && key !== current}<Check size={14} strokeWidth={2.6} />{/if}</span>{/if}<span class="tn">{t(TAB_NAMES[key])}</span>
+      {#if tone === 'steps'}<span class="no" class:tick={s.done && key !== current} aria-hidden="true">{#if s.done && key !== current}<Check size={14} strokeWidth={2.6} />{/if}</span>{/if}<span class="tn">{t(STEP_BAR[key])}</span>
       {#if s.text || s.done}<small>{#if s.done}<Check size={13} aria-hidden="true" />{/if}{#if s.text}{s.text}{:else}<span class="sr">{t('done|step')}</span>{/if}</small>{/if}
     </a>
   {/each}

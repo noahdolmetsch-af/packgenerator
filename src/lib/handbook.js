@@ -804,12 +804,6 @@ export const HANDBOOK = {
     steps: ['Open Aktiv › Goals: «Year goals» with km, metres climbed and minutes.', 'Switch a goal off, or tap its number to change it.'],
     example: 'Example: year goal 4000 km and 40 000 m climbed; minutes switched off.',
   },
-  // v0.147.0 Paket B (Termine buchen)
-  'f.offers': {
-    on: 'Needs the booking server; online payment only in test mode.',
-    steps: ['Open Me › Offers and start «Tennis lesson», a tour, a bike service or your own offer.', 'Tap + on a day to open a free time, then send the link by WhatsApp.', 'New bookings show on Today; tap a time to see who comes or to cancel it.'],
-    example: 'Example: Mondays 18:00 group lesson every week → a student books from the link, Today says «New booking».',
-  },
   // v0.133.0
   'f.abfragen': {
     on: null,
@@ -1594,11 +1588,6 @@ export const HANDBOOK = {
     steps: ['Open Me › Appointments and tasks, tick calendar and tasks and tap «Connect with Google».', 'The next 14 days and your open tasks appear; tick a task or add one, it changes in Google too.', '«New appointment» enters it in your Google calendar.'],
     example: 'Example: «Kette messen» due on Thursday → stands under «Next 7 days»; ticked in the app, it is done in Google Tasks too.',
   },
-  'f.webshop': {
-    on: 'Nothing to switch on; the orders wait on the server until the app fetches them.',
-    steps: ['Open Me › Payments › Shop and add a product: a download, a code or a thing to send with postage and stock.', 'Copy the shop link and send it; people buy without the app or an account.', 'Under «Orders» mark «Paid», print the label and then «Shipped» with the tracking number.'],
-    example: 'Example: a packing list as a download for CHF 5 → an order with TWINT message → «Paid» → the buyer gets the link by mail.',
-  },
   'f.fitbit': {
     on: 'Connect Fitbit once under Me › Data and backup › Fitbit (needs Strava connected on this device).',
     steps: ['Tap «Connect with Google» and allow the values.', 'Back in the app, «Health data» shows how current each value is; «Choose values» switches single ones off.'],
@@ -1608,16 +1597,6 @@ export const HANDBOOK = {
     on: 'Computer only: choose a folder under Me › Data and backup.',
     steps: ['Under «Auto-backup to a folder», tap «Choose folder».', 'After every change the newest backup lands there, plus one per day.', 'Folder gone, full or not allowed: the message says what to do; «Try again» or «Choose a new folder».'],
     example: 'Example: a folder that syncs to the cloud → always a fresh backup.',
-  },
-  'f.invoices': {
-    on: 'Enter your account once (IBAN, name, town; TWINT number if you like). It stays only on this device.',
-    steps: ['Open Me › Payments › Invoices and tap «New QR invoice».', 'Enter for whom, the amount and what for; send it by mail, as a PDF or copy the pay link.', 'When money arrives: «Paid», «Money received» or upload the bank statement.'],
-    example: 'Example: tennis lesson 80.00 CHF to Mia → she pays with TWINT, message R-0001 → «Paid».',
-  },
-  'f.bills': {
-    on: 'Nothing to switch on.',
-    steps: ['Open Me › Payments › Invoices › tab «To pay».', 'Photograph the bill or enter it by hand; check the due date.', 'Pay in your e-banking with «Payment part», then tap «Paid».'],
-    example: 'Example: workshop bill 189.50 CHF, due on the 17th → a reminder on the 14th.',
   },
   'f.tidy': {
     on: 'Only shows when something has «test» in its name.',
