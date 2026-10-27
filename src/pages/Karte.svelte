@@ -10,7 +10,7 @@
   import { untrack } from 'svelte';
   import { Contact, AtSign, Phone, MessageCircle, Mail, Activity, Mountain, Globe, MapPin, Download, ChevronRight } from '@lucide/svelte';
   import { db } from '../lib/db.js';
-  import { t } from '../lib/i18n.svelte.js';
+  import { t, locale } from '../lib/i18n.svelte.js';
   import Empty from '../lib/ui/Empty.svelte';
   import { readCard } from '../lib/live/event.js';
   import { PEOPLE_KEY, peopleOf, addPerson, instaLink, telLink, waLink, mailLink, stravaLink, komootLink, webLink, mapLink, cardVcf, expired } from '../lib/freunde/people.js';
@@ -21,7 +21,7 @@
   const card = readCard(untrack(() => hash));
   /* Kontakt-QR-Code «4a»: after its last day the card says «expired» and shows nothing more (soft, no server) */
   const over = card ? expired(card.until, localDay()) : false;
-  const untilText = (d) => new Date(`${d}T12:00:00`).toLocaleDateString(undefined, { weekday: 'short', day: 'numeric', month: 'numeric', year: 'numeric' });
+  const untilText = (d) => new Date(`${d}T12:00:00`).toLocaleDateString(locale(), { weekday: 'short', day: 'numeric', month: 'numeric', year: 'numeric' });
   /* the ways to reach the person, in the order of the card; a part without a usable link is left out */
   const ways = card
     ? [

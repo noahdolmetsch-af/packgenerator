@@ -9,7 +9,7 @@
   import { liveQuery } from 'dexie';
   import { Pencil, Trash2, Plus, Camera, Phone, AtSign, Mail, Maximize, X } from '@lucide/svelte';
   import { db } from '../db.js';
-  import { t } from '../i18n.svelte.js';
+  import { t, locale } from '../i18n.svelte.js';
   import QrCode from '../ich/QrCode.svelte';
   import RenameSheet from '../ui/RenameSheet.svelte';
   import GroupDeleteSheet from '../ui/GroupDeleteSheet.svelte';
@@ -44,7 +44,7 @@
   const link = $derived(shown.name ? cardLink({ ...shown, until }, `${location.origin}${location.pathname}`) : '');
   const qrText = $derived(shown.name ? (card.mode === 'vcard' ? cardVcf(shown) : link) : '');
   const DAYS_LABEL = { 1: 'Today only', 7: '1 week', 30: '1 month', 0: 'Always' };
-  const untilText = (d) => new Date(`${d}T12:00:00`).toLocaleDateString(undefined, { weekday: 'short', day: 'numeric', month: 'numeric' });
+  const untilText = (d) => new Date(`${d}T12:00:00`).toLocaleDateString(locale(), { weekday: 'short', day: 'numeric', month: 'numeric' });
   function setDays(d) {
     card.days = d;
     saveCard();
