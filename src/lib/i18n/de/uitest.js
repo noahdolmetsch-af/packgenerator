@@ -41,4 +41,6 @@ export default {
   'on the bike|fixed': 'am Velo',
   'The numbers at the figure count every layer.': 'Die Zahlen an der Figur zählen alle Schichten.',
   '{n} sorted ({kg}), {m} still to sort': '{n} eingeordnet ({kg}), {m} noch offen',
+  // T8 «Wetter und Tipps aus einer Vorhersage»
+  'weather not loaded right now': 'Wetter gerade nicht geladen',
 };
