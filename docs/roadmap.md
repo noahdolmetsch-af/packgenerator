@@ -879,7 +879,7 @@ Die frühere gespeicherte Datei `2026-10-07-packgenerator-ablaufplan.md` wird al
 **26.10.2026, v0.212.2 «Eine Startzeit»:** UI-Test T2: Unterwegs, «Vor der Abfahrt» und die Live-Karte nennen dieselbe Startzeit; vor dem Start nur «Losfahren».
 
 **26.10.2026, v0.208.0 «Mehr Platz am Computer»:** UI-Ziel #14 erledigt: Touren mit mitlaufender rechter Spalte, Auswerten mit «Letzte 7 Tage» rechts, Velos mit dem Velo zuerst, Inhalt höchstens 1120 px.
-**26.10.2026, v0.218.0 «Heute ruhiger» Teil 1:** keine leeren Kästen mehr auf Heute, kleine Knöpfe als Liste «Schnell öffnen», Velo-Arbeiten als runde Knöpfe. Teil 2 und 3 folgen.
+**26.10.2026, v0.219.0 «Heute ruhiger» Teil 1:** keine leeren Kästen mehr auf Heute, kleine Knöpfe als Liste «Schnell öffnen», Velo-Arbeiten als runde Knöpfe. Teil 2 und 3 folgen.
 **25.10.2026, v0.200.0 «Zusammen auf einer Karte»:** Gruppen-Live-Karte: Freunde per Link auf einer Karte, freiwillig teilen, Ende mit der Fahrt, spätestens nach 24 Stunden.
 **25.10.2026, v0.198.0 «Kette vorausschauend»:** Idee «Kette messen mit Verlauf und Prognose» (Das Velo im Griff) gebaut: nächste Schritte der Kette auf Verschleiss, Prognose aus den eigenen Messungen, Tour-Check, Handy-Erinnerung «Kette messen».
 
@@ -904,3 +904,5 @@ Die frühere gespeicherte Datei `2026-10-07-packgenerator-ablaufplan.md` wird al
 **26.10.2026, v0.212.0 «Touren, die mitdenken»:** Touren-Ideen 50–58 gebaut (Absicht, Regel mit Ende, Geschichten, Panne-Check, Später prüfen, Ort-Notiz, Tag zum Hören, Ess-Stopps, Verbrauch).
 
 **27.10.2026, v0.217.0 «Nichts versteckt sich mehr»:** die 20 tief versteckten Funktionen stehen auf ihrer Seite; 77 → 57 versteckt.
+
+**27.10.2026, v0.218.0 «Platz in jeder Tasche»:** leere Taschen bleiben in «Alle Taschen nebeneinander» als Spalte zum Hineinziehen.

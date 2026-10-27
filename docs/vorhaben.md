@@ -508,11 +508,12 @@ Kurzfassung, verbindlich ist [arbeitsweise.md](arbeitsweise.md).
 0.195.0 «Kleine Helfer für Tour und Velo» (25.10.2026, Ziel Touren und Velo): weitere Einzelideen aus Paket B (996 Ideen).
 0.195.1 «Einkaufsliste am Stück» (25.10.2026, Ziel Alltag): Korrektur der Einkaufsliste am Computer.
 0.199.0 «Flicken, ausprobieren, abmachen» (25.10.2026, Ziel Alltag): letzte Einzelideen aus Paket A (996 Ideen).
+0.218.0 «Platz in jeder Tasche» (Ziel Tour: besser packen, 27.10.2026, eigener kleiner PR).
 0.217.0 «Nichts versteckt sich mehr» (Ziel Alltag: was es gibt, ist auffindbar, 27.10.2026, eigener kleiner PR).
 0.212.0 «Touren, die mitdenken» (Ziel Tour: unterwegs und danach), 0.211.0 «Zwei Touren, ein Blick» (Ziel Tour: besser vorbereitet), 0.208.1 «Ganze Wörter am kleinen Handy», 0.209.0 «Tagelang zusammen fahren» (Ziel Tour: zusammen unterwegs) und 0.210.0 «Deine Liste in Sicht» (Ziel Alltag: was es gibt, ist auffindbar), 26.10.2026, im Sammel-PR nach #263.
 
 0.208.0 «Mehr Platz am Computer» (26.10.2026, Ziel Alltag/Bedienung): UI-Ziel #14, die Hauptorte nutzen am Computer ihre Breite.
-0.218.0 «Heute ruhiger» Teil 1 (26.10.2026, Ziel Alltag): Heute ruhiger und schöner, keine neuen Funktionen.
+0.219.0 «Heute ruhiger» Teil 1 (26.10.2026, Ziel Alltag): Heute ruhiger und schöner, keine neuen Funktionen.
 0.212.1 «Die heutige Tour sagt eins» (26.10.2026, Ziel Touren): UI-Test 0.205 Teil T1, die heutige Tour sagt überall dasselbe.
 
 0.212.2 «Eine Startzeit» (26.10.2026, Ziel Touren): UI-Test 0.205 Teil T2, eine Startzeit und vor dem Start ein Knopf.

@@ -4,7 +4,7 @@
  * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
-  // 0.218.0 Heute ruhiger
+  // 0.219.0 Heute ruhiger
   'A calmer Today': 'Heute ruhiger',
   'No more empty boxes on Today.': 'Keine leeren Kästen mehr auf Heute.',
   'Today: every card is only as tall as its content': 'Heute: jede Karte ist nur so hoch wie ihr Inhalt',
@@ -13,6 +13,13 @@ export default {
   'Open Today: no card has a big empty space below.': 'Öffne Heute: keine Karte hat unten einen grossen leeren Platz.',
   'Scroll to «Open quickly»: the small buttons stand in one list, a tap opens the place.': 'Scrolle zu «Schnell öffnen»: die kleinen Knöpfe stehen in einer Liste, ein Tipp öffnet den Ort.',
   'Look at the bike card: the jobs are small round buttons.': 'Schau die Velokarte an: die Arbeiten sind kleine runde Knöpfe.',
+  // 0.218.0 Leere Taschen nehmen Teile auf
+  'The bag now shows the item; «Undo» puts it back.': 'Die Tasche zeigt jetzt das Teil; «Rückgängig» legt es zurück.',
+  'The arrows next to an item offer the empty bags too': 'Auch die Pfeile neben einem Teil bieten die leeren Taschen an',
+  'Room in every bag': 'Platz in jeder Tasche',
+  'An empty bag now takes an item too.': 'Auch eine leere Tasche nimmt jetzt ein Teil auf.',
+  'All bags side by side: empty bags stay as a column to drag into': 'Alle Taschen nebeneinander: leere Taschen bleiben als Spalte zum Hineinziehen',
+  'On the computer open Packen › Alle Taschen nebeneinander and drag an item into an empty bag, or use the arrows next to the item.': 'Öffne am Computer Packen › Alle Taschen nebeneinander und zieh ein Teil in eine leere Tasche, oder nimm die Pfeile neben dem Teil.',
   // 0.217.0 Nichts versteckt sich mehr
   'Nothing hides any more': 'Nichts versteckt sich mehr',
   'Twenty tools that were hard to find now stand where you look.': 'Zwanzig Werkzeuge, die schwer zu finden waren, stehen jetzt dort, wo du schaust.',
