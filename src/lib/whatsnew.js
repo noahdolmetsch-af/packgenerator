@@ -16,6 +16,20 @@
 
 export const WHATS_NEW = [
   {
+    // v0.234.0 Live Navigation PR 5 «Umweg und zurück» (Noah 27.10.2026 «1a 2b 3a» + «entlang gleicher strecke zurück
+    // zur route»): at the place the app asks how you go back; off the route it plans the way back by itself
+    version: '0.234.0',
+    date: '2026-10-27',
+    title: 'And back onto the route',
+    lead: 'After a stop and off the route, the live map shows you the way back.',
+    points: [
+      { text: 'At the place of a detour: back where you left the route, or the fastest way', href: '#/live' },
+      { text: 'Off the route the app plans the way back by itself, with Undo and «The same way back»', href: '#/live' },
+    ],
+    small: [{ box: 'new', text: 'In a race «back where I left» is chosen first' }],
+    test: ['Open a race or tour on the live map and turn on «Off-route warning» in the settings.', 'Plan a detour with «Nearby» › a place › «Go there» and ride to it: the card asks how you go back.', 'Ride off the route: after about 15 seconds a new way back shows up. Before, only the warning tone came.'],
+  },
+  {
     // v0.233.0 «Heute ruhiger» part 2 (Noah 26.10.2026 «2a», mockup H2): tiles that show again what another tile shows
     // leave Heute once (tiles.js DOUBLES, wall v 13); they stay under «Add a tile»
     version: '0.233.0',

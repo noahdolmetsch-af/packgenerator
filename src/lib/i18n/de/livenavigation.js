@@ -76,4 +76,17 @@ export default {
   'Card payment|poi': 'Kartenzahlung',
   'Vegetarian|poi': 'Vegetarisch',
   'Socket|poi': 'Steckdose',
+  // PR 5 «Umweg und zurück» (Noah 27.10.2026 «1a 2b 3a» + «Gleichen Weg zurück»)
+  'New way back onto the route': 'Neuer Weg zurück zur Strecke',
+  'Way back onto the route': 'Weg zurück zur Strecke',
+  'The same way back': 'Gleichen Weg zurück',
+  '{d} km of the route left out': '{d} km der Strecke ausgelassen',
+  'You were off the route, so the app planned the shortest way back.': 'Du warst neben der Strecke, darum hat die App den kürzesten Weg zurück geplant.',
+  'Go on without the route': 'Ohne Strecke weiter',
+  'You are there. How do you go back?': 'Du bist da. Wie geht es zurück?',
+  'The way back': 'Der Weg zurück',
+  'Back where I left the route (km {km})': 'Zurück, wo ich die Strecke verlassen habe (km {km})',
+  'The fastest way onto the route': 'Schnellster Weg auf die Strecke',
+  'In a race only the whole route counts, so «back where I left» is chosen first.': 'Im Rennen zählt nur die ganze Strecke, darum ist «Zurück, wo ich sie verlassen habe» vorgewählt.',
+  'Plan the way back': 'Weg zurück planen',
 };
