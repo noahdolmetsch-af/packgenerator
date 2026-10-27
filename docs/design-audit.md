@@ -316,3 +316,7 @@ Nach der Mitziehen-Regel: was in 0.47 noch nicht auf dem neuen Stand ist, mit Zi
 
 - 26.10.2026, 0.202.0 «Planen im Zusammenhang»: nur kleine Zusätze in vorhandenen Fenstern: eine kleine Auswahl neben der Verbindung (wie die Felder im Notizfenster), ein grauer Kasten «Oder nach einem Ereignis» unter «Erinnern» im Stil von NoteRemind (vd-chips), eine Zeile «Kommt zurück mit …» pro Papierkorb-Zeile. Keine neue Seite, kein Mockup nötig (Regel 26.10. «nur bei grösseren Sachen»). Grosse Teile nach Noahs OK (26.10. «1a–5a»): drei neue Seiten im Baukasten (Crumbs, PageHead, ruhig-Karten wie «Ruhig und persönlich»), Zugänge als je eine Linkzeile auf Merken, Eingang und Notizen › Mehr.
 - 26.10.2026, 0.201.0 «Sprechen, anhängen, mit Vorlage starten»: eine ruhige Werkzeugzeile «Hinzufügen» unter dem Text (kleine Knöpfe, nur die Werkzeuge der Seite, immer nur ein Teil offen); Angehängtes als Zeilen und Chips (InputsView); Vorlagen-Blatt mit Pfeilen und Ziehen; Bildkarte als Blatt von unten.
+
+## 26.10.2026 Live Navigation PR 1
+
+Neues Fenster «Fahrt beenden?» im Stil des Löschen-Fensters (unten auf dem Handy, klein am Computer, sichere Wahl «Weiterfahren» mit Fokus). Label «Live Navigation» als kleine Pille neben dem Tournamen. Screenshots im PR.

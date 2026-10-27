@@ -29,7 +29,7 @@ export function factStates(facts = [], { debriefs = [], rides = [], today = loca
     const open = f.debrief === 'open' || f.debrief === 'draft';
     if (f.kind !== 'trip' || !f.trip) {
       const r = f.rides?.[0];
-      out[f.id] = { state: r && !rideOpen(r) ? 'rated' : 'done', extra: { key: r?.source === 'strava' ? 'strava' : 'gpx' }, open: false };
+      out[f.id] = { state: r && !rideOpen(r) ? 'rated' : 'done', extra: r?.source === 'live' ? null : { key: r?.source === 'strava' ? 'strava' : 'gpx' }, open: false };
       continue;
     }
     const debrief = dBy[f.trip.id] ?? null;

@@ -127,6 +127,7 @@ export function tripFacts({ trips = [], debriefs = [], rides = [], learnings = [
     return {
       id: trip.id,
       kind: 'trip',
+      live: own.some((r) => r.source === 'live'),
       trip,
       rides: own,
       title: trip.title ?? '',
@@ -163,6 +164,7 @@ export function tripFacts({ trips = [], debriefs = [], rides = [], learnings = [
       return {
         id: r.id,
         kind: 'ride',
+        live: r.source === 'live',
         trip: null,
         rides: [r],
         title: r.name ?? '',

@@ -519,3 +519,7 @@ Kurzfassung, verbindlich ist [arbeitsweise.md](arbeitsweise.md).
 0.220.0 «Velo-Ergänzungen» (26.10.2026, Ziel 2 «Das Velo im Griff»): Velo-Ideen 1, 3, 6, 7, 8, 12.
 0.212.2 «Eine Startzeit» (26.10.2026, Ziel Touren): UI-Test 0.205 Teil T2, eine Startzeit und vor dem Start ein Knopf.
 0.200.0 «Zusammen auf einer Karte» (25.10.2026, Ziel Touren): Gruppen-Live-Karte, Freunde per Link auf einer Karte.
+
+## Stand 26.10.2026: Live Navigation
+
+Ziel «Unterwegs» (Tour-Begleiter). Mockups M1–M12 freigegeben; PR 1 «Fahrt speichern» (0.221.0) gebaut, weitere 9 kleine PRs folgen in der Reihenfolge der Roadmap-Notiz.
