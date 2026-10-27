@@ -4,7 +4,8 @@
   import TipWeek from '../lib/clear/TipWeek.svelte';
   import DueToday from '../lib/home/DueToday.svelte';
   import { WALL_TIME_KEY, byTime } from '../lib/clear/tipweek.js';
-  import { SECTIONS_KEY } from '../lib/home/sections.js';
+  import { SECTIONS_KEY, AREAS_KEY } from '../lib/home/sections.js';
+  import AreasEdit from '../lib/home/AreasEdit.svelte';
   /**
    * Today (Heute). v0.46.0 «Startseite neu» (Noah, 9.10.2026, answers 1a 2b 3a 4b 5a+menu 6-33a 34b):
    * a calm cockpit instead of many big tiles, top to bottom (a phone stacks it in the same order):
@@ -191,7 +192,7 @@
   // AU1 «Ausrüstung» 4a (Noah 15.10.2026): the care due of the main equipment is a row of «Important today»
   const mainLogQ = liveQuery(async () => ((await db.items.filter((i) => !!i.main).count()) ? db.flowLog.toArray() : []));
   const NEWS_OFF_KEY = 'homeNewsOff'; // P6 H1: «New» on top taken away for this version
-  const SKEYS = [MERKEN_KEY, LISTS_KEY, TRELLO_KEY, WALL_TIME_KEY, 'riderWeightG', TEMPLATES_KEY, USAGE_KEY, LAYOUT_KEY, WALL_KEY, 'userName', NAME_ASKED_KEY, MILESTONE_KEY, SETS_KEY, HOME_PLACE, TIPS_KEY, PACE_KEY, CHALLENGES_KEY, 'homeHintLongPress', INTRO_KEY, COMPASS_KEY, WEIGH_KEY, NEWS_OFF_KEY, SECTIONS_KEY];
+  const SKEYS = [MERKEN_KEY, LISTS_KEY, TRELLO_KEY, WALL_TIME_KEY, 'riderWeightG', TEMPLATES_KEY, USAGE_KEY, LAYOUT_KEY, WALL_KEY, 'userName', NAME_ASKED_KEY, MILESTONE_KEY, SETS_KEY, HOME_PLACE, TIPS_KEY, PACE_KEY, CHALLENGES_KEY, 'homeHintLongPress', INTRO_KEY, COMPASS_KEY, WEIGH_KEY, NEWS_OFF_KEY, SECTIONS_KEY, AREAS_KEY];
   const setQ = liveQuery(async () => {
     const rows = await db.settings.bulkGet(SKEYS);
     return Object.fromEntries(SKEYS.map((k, i) => [k, rows[i]?.value ?? null]));
@@ -883,6 +884,7 @@
   const timeOn = $derived(S[WALL_TIME_KEY] !== false);
   // «Heute ruhiger» (Noah 26.10.2026 «3a»): the tiles in areas with a heading; a suggestion, switched off under «Customise»
   const secOn = $derived(S[SECTIONS_KEY] !== false);
+  const areasCfg = $derived(S[AREAS_KEY] ?? null);
   const timeWall = $derived(editing ? shownWall : byTime(shownWall, now.getHours(), timeOn));
   const saveShown = (tiles) => saveWall(keepHidden(tiles, wall, hiddenTiles));
   const toggleTile = (id) => saveWall(onWall.has(id) ? removeTile(wall, id) : addTile(wall, id));
@@ -1291,9 +1293,9 @@
   <!-- v0.127.0 A-U2 (mockup «Laden»): calm placeholders until Today has read its data, then the wall -->
   {#if newsRow}<div class="newsrow" data-news-row><NewsTile size="long" days={newsDays} onremove={() => db.settings.put({ key: NEWS_OFF_KEY, value: WHATS_NEW[0].version })} /></div>{/if}
   {#if ready && emptyDevice}
-    <Wall tiles={timeWall.filter((x) => EMPTY_KEEP.has(x.id))} body={tileBody} {editing} sections={secOn} onedit={() => (editing = true)} onchange={(kept) => saveShown(timeWall.map((x) => kept.find((y) => y.id === x.id) ?? x))} onadd={() => (catalogOpen = true)} />
+    <Wall tiles={timeWall.filter((x) => EMPTY_KEEP.has(x.id))} body={tileBody} {editing} sections={secOn} areas={areasCfg} onedit={() => (editing = true)} onchange={(kept) => saveShown(timeWall.map((x) => kept.find((y) => y.id === x.id) ?? x))} onadd={() => (catalogOpen = true)} />
     <p class="muted emptywall" data-empty-wall>{t('The rest of Today comes as soon as you have a bike, an item or a trip.')} <button type="button" class="linkq" onclick={() => (wallAnyway = true)}>{t('Show everything now')}</button></p>
-  {:else if ready}<Wall tiles={timeWall} body={tileBody} {editing} sections={secOn} onedit={() => (editing = true)} onchange={saveShown} onadd={() => (catalogOpen = true)} />
+  {:else if ready}<Wall tiles={timeWall} body={tileBody} {editing} sections={secOn} areas={areasCfg} onedit={() => (editing = true)} onchange={saveShown} onadd={() => (catalogOpen = true)} />
   {:else}<Skeleton kind="home" rows={2} />{/if}
   <!-- «Heute neu» A: the half-width trip card has no room for the weekly km check; it shows under the wall then -->
   {#if ready && !editing && timeWall.some((x) => x.id === 'trip' && x.size === 'l')}<div class="kmrow"><KmCard {today} /></div>{/if}
@@ -1308,6 +1310,7 @@
       </form>
       <label class="bytime" data-wall-bytime><input type="checkbox" role="switch" checked={timeOn} onchange={(e) => db.settings.put({ key: WALL_TIME_KEY, value: e.currentTarget.checked })} />{t('Order the tiles by time of day (morning tiles in the morning, evening tiles in the evening)')}</label>
       <label class="bytime" data-wall-sections><input type="checkbox" role="switch" checked={secOn} onchange={(e) => db.settings.put({ key: SECTIONS_KEY, value: e.currentTarget.checked })} />{t('Show the tiles in areas with a heading (Now, Your body, Your week …)')}</label>
+      {#if secOn}<AreasEdit cfg={areasCfg} tiles={timeWall} />{/if}
     {:else}
       <!-- «Neuer Schwung» (Noah 26.10.2026 «3a», then «diesen bereich zusammen nehmen»): the end of Heute is one quiet
            block: stops nearby, all areas, «Customise the start page» (on a computer too; it was a button at the top
