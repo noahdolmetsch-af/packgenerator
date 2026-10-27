@@ -40,3 +40,14 @@
     transform: translate(-50%, -50%);
   }
 }
+
+/*
+ * Klick-Rundgang 2, Paket 3 (Noah 27.10.2026 «2a»): a tick or radio with its text in one label is one tap
+ * target; on the phone such a label is at least 44 px high (a label shown inline keeps its line). Zero
+ * specificity, so a component's own size wins.
+ */
+@media (pointer: coarse) {
+  :where(label:has(> input[type='checkbox'], > input[type='radio'])) {
+    min-height: 44px;
+  }
+}
