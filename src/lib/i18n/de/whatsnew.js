@@ -4,6 +4,13 @@
  * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
+  // v0.226.0 Tages-Check
+  'The evening check still comes': 'Der Abend-Check kommt trotzdem',
+  '«Not today» in the morning no longer skips the evening.': '«Heute nicht» am Morgen lässt den Abend nicht mehr aus.',
+  '«Not today» in the morning check waits only until the evening check': '«Heute nicht» im Morgen-Check wartet nur bis zum Abend-Check',
+  'The hint in the check window says «until the evening check» in the morning': 'Der Hinweis im Check-Fenster sagt am Morgen «bis zum Abend-Check»',
+  'In the morning check tap «Not today»: the window closes.': 'Tippe im Morgen-Check auf «Heute nicht»: das Fenster schliesst sich.',
+  'In the evening, at your evening time, the evening check comes as usual.': 'Am Abend, zu deiner Abendzeit, kommt der Abend-Check wie gewohnt.',
   // v0.220.0 Velo-Ergänzungen (Noah 26.10.2026)
   'More for your bike': 'Mehr für dein Velo',
   'Also noises and the calendar.': 'Auch Geräusche und der Kalender.',
