@@ -1,6 +1,6 @@
 # Gross und mit Ablauf
 
-PR #(folgt) · 27.10.2026 · Auftrag: Noah «1a 2b 3a 4a 5a» (Thread «Entwerfen Kontakt-QR-Code»), Schritt 2 von 4
+PR #313 · 27.10.2026 · Auftrag: Noah «1a 2b 3a 4a 5a» (Thread «Entwerfen Kontakt-QR-Code»), Schritt 2 von 4
 
 ## Was ist neu
 - Kontaktkarte: «Wie lange die Karte gilt»: nur heute, 1 Woche (Start), 1 Monat oder immer. Der Tag steckt im Link (`until`); die Seite `#/karte/…` zeigt «Geteilt bis …» und nach dem letzten Tag «Diese Karte ist abgelaufen» ohne Angaben.
