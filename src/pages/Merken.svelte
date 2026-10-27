@@ -121,12 +121,22 @@
       x.remind?.at ? `${x.remind.before ? t('1 day before') + ' ' : ''}${x.remind.at}` : '',
     ].filter(Boolean);
   }
+  // «332 sichtbar»: the Trello box is the last part of the page
+  function toTrello() {
+    const h = document.getElementById('tb-h');
+    if (!h) return;
+    h.scrollIntoView({ block: 'start', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+    h.setAttribute('tabindex', '-1');
+    h.focus({ preventScroll: true });
+  }
 </script>
 
 <div class="mk">
   <PageHead title={t('Remember')} text={t('Your to-dos first, the dates of the app smaller below.')} />
   <AreaIntro place="merken" />
-  <p class="set"><a href="#/me/reminders"><Settings2 size={16} aria-hidden="true" />{t('Reminders')}</a></p>
+  <p class="set"><a href="#/me/reminders"><Settings2 size={16} aria-hidden="true" />{t('Reminders')}</a>
+    <!-- «332 sichtbar»: Trello stands at the end of the page; one tap brings you there -->
+    <button type="button" class="tlk" onclick={toTrello} data-merken-trello><ListChecks size={16} aria-hidden="true" />{t('Trello')}</button></p>
 
   <div class="card list">
     <button type="button" class="add" onclick={() => (sheet = {})}><Plus size={18} aria-hidden="true" />{t('Add a to-do')}</button>
@@ -291,13 +301,25 @@
   }
   .set {
     margin: -6px 0 14px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 18px;
   }
-  .set a {
+  .set a,
+  .set .tlk {
     display: inline-flex;
     align-items: center;
     gap: 6px;
     min-height: 44px;
     color: var(--ink-2);
+  }
+  .set .tlk {
+    padding: 0;
+    border: 0;
+    background: none;
+    font: inherit;
+    text-decoration: underline;
+    cursor: pointer;
   }
   .list {
     padding: 16px 18px;

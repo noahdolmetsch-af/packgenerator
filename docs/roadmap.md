@@ -874,7 +874,7 @@ Die frühere gespeicherte Datei `2026-10-07-packgenerator-ablaufplan.md` wird al
 
 **25.10.2026, v0.199.0 «Flicken, ausprobieren, abmachen»:** letzte Einzelideen aus Paket A: Kleider reparieren statt aussortieren, Wunsch zuerst ausleihen, Ideen für ein Treffen, Geburtstag mit kleinen Schritten, Webcams mit Zweck und Aufräumrunde.
 
-**26.10.2026, v0.216.0 «Velo-Ergänzungen»:** Velo-Ideen 1, 3, 6, 7, 8 und 12 gebaut (Kettenlehre-Prognose, Jahresrückblick, Pflege-Serie, Kalender-Wechsel, Geräusche, Saison-Checklisten).
+**26.10.2026, v0.220.0 «Velo-Ergänzungen»:** Velo-Ideen 1, 3, 6, 7, 8 und 12 gebaut (Kettenlehre-Prognose, Jahresrückblick, Pflege-Serie, Kalender-Wechsel, Geräusche, Saison-Checklisten).
 
 **26.10.2026, v0.212.1 «Die heutige Tour sagt eins»:** UI-Test T1: die heutige Tour zeigt vor der Fahrt überall «Packen», nicht «Letzter Abend», «Abgeschlossen» oder «Alles wurde gebraucht».
 
@@ -903,3 +903,7 @@ Die frühere gespeicherte Datei `2026-10-07-packgenerator-ablaufplan.md` wird al
 **26.10.2026, v0.211.0 «Zwei Touren, ein Blick»:** Touren-Ideen 44, 45, 47, 49 gebaut (Touren nebeneinander, Sportart pro Tag, unklare Stellen, Grenze). Von Touren a fehlt nichts mehr.
 
 **26.10.2026, v0.212.0 «Touren, die mitdenken»:** Touren-Ideen 50–58 gebaut (Absicht, Regel mit Ende, Geschichten, Panne-Check, Später prüfen, Ort-Notiz, Tag zum Hören, Ess-Stopps, Verbrauch).
+
+**27.10.2026, v0.217.0 «Nichts versteckt sich mehr»:** die 20 tief versteckten Funktionen stehen auf ihrer Seite; 77 → 57 versteckt.
+
+**27.10.2026, v0.218.0 «Platz in jeder Tasche»:** leere Taschen bleiben in «Alle Taschen nebeneinander» als Spalte zum Hineinziehen.
