@@ -13,10 +13,17 @@ const T = (en) => DE[en] ?? en.replace(/\|[a-z ]+$/, '');
 const P = 'test_data_dg_';
 
 function rows() {
+  // fictional, but not too regular: a fixed noise per day, sleep a bit longer the night after sauna
+  const rnd = (i, k) => {
+    const x = Math.sin(i * 12.9898 + k * 78.233) * 43758.5453;
+    return x - Math.floor(x);
+  };
   const healthDays = [];
   for (let i = 0; i < 95; i++) {
     const date = addDays(TODAY, -i);
-    healthDays.push({ date, azm: 15 + (i % 6) * 8, restingHr: 49 + (i % 4), hrvMs: 50 + (i % 7), steps: 6000 + (i % 5) * 1500, sleep: { asleepMin: 380 + (i % 7) * 15, deepMin: 70, remMin: 85, lightMin: 220, awakeMin: 20, start: '23:20', end: '06:50', efficiency: 90 + (i % 5) }, spo2: 95 + (i % 3), breath: 14, kcal: 2200 + (i % 9) * 40, kcalActive: 550, hrMax: 140 + (i % 9), src: 'google', at: `${date}T08:00:00Z` });
+    const azm = (k) => Math.round(20 + 50 * rnd(k, 1));
+    const sleep = Math.round(380 + 40 * rnd(i, 2) + (i % 4 === 0 ? 25 : 0) + 0.4 * azm(i + 1));
+    healthDays.push({ date, azm: azm(i), restingHr: 48 + Math.round(4 * rnd(i, 3)) + (i >= 26 && i <= 31 ? 3 : 0), hrvMs: 45 + Math.round(15 * rnd(i, 4)), steps: 5000 + Math.round(6000 * rnd(i, 5)), sleep: { asleepMin: sleep, deepMin: 70, remMin: 85, lightMin: 220, awakeMin: 20, start: '23:20', end: '06:50', efficiency: 88 + Math.round(6 * rnd(i, 6)) }, spo2: 95 + Math.round(2 * rnd(i, 7)), breath: 14, kcal: 2100 + Math.round(500 * rnd(i, 8)), kcalActive: 550, hrMax: 135 + Math.round(30 * rnd(i, 9)), src: 'google', at: `${date}T08:00:00Z` });
   }
   const act = (id, day, km) => ({
     id: `${P}${id}`, day, time: '17:10', start: `${day}T15:10:00Z`, name: `${P}${id}`, type: 'Ride', kind: 'bike', km, hm: 300, movingS: 4800, elapsedS: 5100, gearId: null,
@@ -34,7 +41,7 @@ function rows() {
     if (i % 2 === 0) tick('meditation', i, { min: 15 });
   }
   const flowChecks = [];
-  for (let i = 0; i < 90; i++) flowChecks.push({ day: addDays(TODAY, -i), sleep: 6 + (i % 4), energy: 5 + (i % 5), mood: 6 + (i % 3) });
+  for (let i = 0; i < 90; i++) flowChecks.push({ day: addDays(TODAY, -i), sleep: 5 + Math.round(4 * rnd(i, 10)), energy: 4 + Math.round(5 * rnd(i, 11)), mood: 5 + Math.round(4 * rnd(i, 12)) });
   const trips = [{ id: `${P}trip`, name: 'Probefahrt Jura', domain: 'bike', status: 'done', startDate: addDays(TODAY, -30), days: 4 }];
   return { healthDays, activities, flowLog, flowChecks, trips };
 }
@@ -174,5 +181,39 @@ test('Eigenes Diagramm: a filter for everything, one for a single value, marked 
   await expect(dg.locator('[data-dg-part="act"]')).toHaveCount(0);
   await expect(dg.locator('[data-dg-part="wd"]')).toBeVisible();
   await expect(dg.locator('[data-dg-row="km:bike"] .ownf')).toBeVisible();
+  expect(errors).toEqual([]);
+});
+
+test('Was hängt zusammen?: one value against another with an offset, in words, the strongest links as a list', async ({ page, context }, info) => {
+  const errors = await open(page, context);
+  await go(page, '#/auswerten/analyse');
+  const zh = page.locator('[data-links]');
+  await expect(zh).toBeVisible();
+  // under the diagram
+  const [yd, yz] = await Promise.all([page.locator('[data-diagram]').boundingBox(), zh.boundingBox()]);
+  expect(yz.y).toBeGreaterThan(yd.y);
+  await expect(zh.locator('[data-link-x]')).toHaveValue('azm');
+  await expect(zh.locator('[data-link-y]')).toHaveValue('sleep');
+  await expect(zh.locator('circle.pt').first()).toBeVisible();
+  await expect(zh.locator('circle.pt.on').first()).toBeVisible();
+  await expect(zh.locator('[data-link-word]')).toBeVisible();
+  await expect(zh.locator('[data-link-text]')).toContainText(T('Only an observation|link'));
+  await expect(zh.locator('[data-link-list] tbody tr').first()).toBeVisible();
+  await zh.scrollIntoViewIfNeeded();
+  await shot(page, 'zusammenhang', info);
+  // the same day instead of the day after
+  const n1 = await zh.locator('circle.pt').count();
+  await zh.getByRole('button', { name: T('the same day|link'), exact: true }).click();
+  await expect(zh.getByRole('button', { name: T('the same day|link'), exact: true })).toHaveAttribute('aria-pressed', 'true');
+  expect(Math.abs((await zh.locator('circle.pt').count()) - n1)).toBeLessThanOrEqual(2);
+  // a line of the list shows that pair
+  const row = zh.locator('[data-link-row]').first();
+  const [x, y] = (await row.getAttribute('data-link-row')).split('|');
+  await row.click();
+  await expect(zh.locator('[data-link-x]')).toHaveValue(x);
+  await expect(zh.locator('[data-link-y]')).toHaveValue(y);
+  // a point opens its day
+  await zh.locator('circle.pt').first().dispatchEvent('click');
+  await expect(page.locator('[data-day-sheet]')).toBeVisible();
   expect(errors).toEqual([]);
 });
