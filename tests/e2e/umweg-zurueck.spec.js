@@ -197,6 +197,16 @@ test('Live: a goal tapped on the map is only the way there, the way back is aske
   await page.goto('./#/live/race-sample');
   await tap(page.locator('[data-live-start]'), info);
   await expect(page.locator('[data-live-full]')).toBeVisible();
+  // the router answers with an L: 600 m north, then a right turn east to the goal (Navigation 2: the turn shows)
+  await context.route(/brouter\.de\/brouter/, (route) => {
+    const url = route.request().url();
+    asked.push(url);
+    const ll = decodeURIComponent(new URL(url).searchParams.get('lonlats') ?? '').split('|').map((x) => x.split(',').map(Number));
+    const [a, b] = [ll[0], ll.at(-1)];
+    const corner = [a[0], b[1]];
+    const line = Array.from({ length: 21 }, (_, i) => (i <= 10 ? [a[0] + ((corner[0] - a[0]) * i) / 10, a[1] + ((corner[1] - a[1]) * i) / 10] : [corner[0] + ((b[0] - corner[0]) * (i - 10)) / 10, corner[1] + ((b[1] - corner[1]) * (i - 10)) / 10]));
+    return route.fulfill({ json: { type: 'FeatureCollection', features: [{ type: 'Feature', properties: { 'track-length': '1200', 'filtered ascend': '5', 'total-time': '300' }, geometry: { type: 'LineString', coordinates: line.map((p) => [...p, 500]) } }] } });
+  });
   await tap(page.locator('[data-live-goal]'), info);
   await expect(page.locator('[data-live-goal-hint]')).toBeVisible();
   const map = page.locator('[data-live-full] .maplibregl-canvas').first();
@@ -218,6 +228,8 @@ test('Live: a goal tapped on the map is only the way there, the way back is aske
   expect(d.oneWay).toBe(true);
   expect(d.rejoin).toBeNull();
   expect(d.target.name).toBeTruthy();
+  // on the way to the goal the big turn card shows the turn of that way
+  await expect(page.locator('[data-live-turn] [data-turn-hint]')).toBeVisible({ timeout: 10_000 });
   await page.screenshot({ path: info.outputPath('ziel-nur-hin.png') });
 
   // at the place: the way back question

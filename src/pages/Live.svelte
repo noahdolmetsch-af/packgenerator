@@ -58,7 +58,7 @@
   import { localDay as todayLocal } from '../lib/localday.js';
   import SosSheet from '../lib/live/SosSheet.svelte';
   import RerouteSheet from '../lib/live/RerouteSheet.svelte';
-  import { onDetour, detourDone, detourGpx, saveDetour, loadDetour, DETOUR_COLOUR, atPlace, returnDetour, backDetour, backtrackOf, planReturn, returnModeStd, shouldReroute, OFF_ROUTE_M } from '../lib/reroute.js';
+  import { snapAhead, onDetour, detourDone, detourGpx, saveDetour, loadDetour, DETOUR_COLOUR, atPlace, returnDetour, backDetour, backtrackOf, planReturn, returnModeStd, shouldReroute, OFF_ROUTE_M } from '../lib/reroute.js';
   import { saveGpx } from '../lib/gpxout.js';
   import { LANDI_RADAR } from '../lib/wetter/kern.js';
   import LiveWetter from '../lib/live/LiveWetter.svelte';
@@ -283,7 +283,15 @@
   const climb = $derived(km != null ? nextClimb(climbs, km) : null);
   // Abbiege-Hinweise (turns.js): the turns of the route, once; the next one while you are on the route
   const turns = $derived(hasRoute ? turnsOf(pts) : []);
-  const turnNext = $derived(cfg.turns && at && at.offM < 100 ? nextTurn(turns, at.kmx ?? at.km) : null);
+  // Navigation zum Ziel 2 (Noah 27.10.2026 «1a»): on the way to a goal the turns come from that way, always shown
+  const detourPts = $derived(detour?.line?.length > 1 ? lineKm({ line: detour.line }) : []);
+  const detourTurns = $derived(detourPts.length ? turnsOf(detourPts) : []);
+  const detourKm = $derived(detourPts.length && me && onDetour(detour, me) ? (snapAhead(detourPts, me, 0)?.km ?? null) : null);
+  const navTurns = $derived(detourKm != null ? detourTurns : turns);
+  const navKm = $derived(detourKm != null ? detourKm : cfg.turns && at && at.offM < 100 ? (at.kmx ?? at.km) : null);
+  const turnNext = $derived(navKm != null ? nextTurn(navTurns, navKm) : null);
+  // the turn after it, for «danach …» under the big arrow
+  const turnThen = $derived(turnNext ? nextTurn(navTurns, turnNext.km + 0.06) : null);
   const running = $derived(planRunning(plan, now));
   const delta = $derived(running && km != null ? planDelta(plan, km, now) : null);
   const bed = $derived(km != null && (isRace || pois.some((p) => p.kind === 'sleep')) ? bedTonight({ plan: running ? plan : null, pois, km, now, pace, profile, light }) : null);
@@ -1153,7 +1161,7 @@
 
       <!-- warnings over the map -->
       <div class="lvf-alerts">
-        {#if turnNext && turnNext.distM <= 1000}<div class="lvf-turn" data-live-turn><TurnHint turn={turnNext} distM={turnNext.distM} /></div>{/if}
+        {#if turnNext && (detourKm != null || turnNext.distM <= 1000)}<div class="lvf-turn" data-live-turn><TurnHint turn={turnNext} distM={turnNext.distM} then={turnThen} thenM={turnThen ? Math.round((turnThen.km - turnNext.km) * 1000) : null} /></div>{/if}
         {#if !me}<p class="lvf-alert" role="status">{t('Waiting for the GPS …')}</p>{/if}
         {#if goalTapping}<p class="lvf-alert" role="status" data-live-goal-hint><Flag size={18} aria-hidden="true" /><span>{t('Tap the map where you want to go.')}</span> <button type="button" class="btn sm" onclick={() => (goalTapping = false)}>{t('Cancel')}</button></p>{/if}
         {#if resumed}<p class="lvf-alert" role="status" data-live-resumed-full><RefreshCw size={18} aria-hidden="true" /><span>{t('The app had loaded anew: your ride goes on.')}</span> <button type="button" class="btn sm" onclick={() => (resumed = false)}>{t('OK')}</button></p>{/if}
@@ -1189,8 +1197,6 @@
                   <span><button type="button" class="btn sm primary" onclick={planBack} disabled={backBusy || !me} data-live-return-go>{backBusy ? t('Planning…') : t('Plan the way back')}</button></span>
                   {#if backErr}<small class="lv-back-err" role="alert" data-live-return-error>{backErr}</small>{/if}
                 </span>
-              {:else if detour.back !== 'auto'}
-                <span><button type="button" class="btn sm" onclick={detourToGarmin} data-live-detour-garmin>{t('GPX for Garmin')}</button></span>
               {/if}
               {#if gpxMsg}<small data-live-detour-gpx>{gpxMsg}</small>{/if}
             </span>
@@ -1222,6 +1228,8 @@
           <button type="button" class="btn lvf-sos" onclick={() => ((menu = false), (sos = true))} data-live-sos><LifeBuoy size={20} aria-hidden="true" />{t('Emergency')} · SOS</button>
           <a class="btn" href={LANDI_RADAR} target="_blank" rel="noopener noreferrer" data-landi><CloudRain size={18} aria-hidden="true" />{t('Landi rain radar')}</a>
           <button type="button" class="btn" onclick={() => ((menu = false), (picked = null), (reroute = true))} data-live-reroute><Route size={18} aria-hidden="true" />{t('Plan a new way to …')}</button>
+          <!-- Navigation zum Ziel 2: the card on the map stays small, the GPX of the way lives here -->
+          {#if detour && detour.back !== 'auto'}<button type="button" class="btn" onclick={() => ((menu = false), detourToGarmin())} data-live-detour-garmin><Route size={18} aria-hidden="true" />{t('GPX for Garmin')}</button>{/if}
           <button type="button" class="btn" onclick={() => ((menu = false), (place = true))} data-live-place><MapPin size={18} aria-hidden="true" />{t('I am here')}</button>
           <div class="lv-dictation" data-live-dictation-slot>
             {#if DICTATION}
