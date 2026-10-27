@@ -1,6 +1,6 @@
 # Genaue Achsen auf der Tour-Seite
 
-PR #<Nummer> · 27.10.2026 · Auftrag: Noah «Diagramme sollen genaue Werte zeigen … und überall sonst auf der Webseite» (Thread «Tour-Detailseite übersichtlicher machen»)
+PR #350 · 27.10.2026 · Auftrag: Noah «Diagramme sollen genaue Werte zeigen … und überall sonst auf der Webseite» (Thread «Tour-Detailseite übersichtlicher machen»)
 
 ## Was ist neu
 - Geschwindigkeitsprofil: km/h in runden Stufen ab 0 (zum Beispiel 0, 20, 40, 60 km/h) mit Gitterlinie bei jeder Stufe, die Einheit beim obersten Wert. Die Zeit darunter in runden Stufen (0:00, 1:00, 2:00 …) statt in Fünfteln der Fahrzeit.
