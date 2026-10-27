@@ -30,7 +30,7 @@ Stand: **27. Oktober 2026, 02:45 UTC**. Auf `main` steht **Version 0.217.0**. **
 |---|---|---|---|
 | #265 | 0.208.1–0.212.0 | Ganze Wörter, Gruppenfahrt für Events, Deine Liste in Sicht, Zwei Touren ein Blick, Touren die mitdenken, mit den Korrekturen für grünes `main` | zusammengeführt am 26.10.2026 abends |
 | #266 | – | Neue Regeln vom 26.10.2026 abends in CLAUDE.md; Browser-Tests im fertigen Playwright-Paket (bis 13 Minuten schneller pro Prüfung) | Noah gab frei am 26.10.2026 23:29 UTC; zusammengeführt am 27.10.2026 02:39 UTC |
-| #T2 | – | Feste Uhrzeit für die Browser-Tests (T2): jeder Test läuft um 12:00 Uhr Zürich des echten Tages, wer eine eigene Uhr stellt, behält sie; dazu die Regeln «Testlink mit Prüfschritten» und «beim Warten weiterarbeiten» | offen |
+| #280 | – | Feste Uhrzeit für die Browser-Tests (T2): jeder Test läuft um 12:00 Uhr Zürich des echten Tages, wer eine eigene Uhr stellt, behält sie; dazu die Regeln «Testlink mit Prüfschritten» und «beim Warten weiterarbeiten» | offen |
 | neu | 0.212.2 | 0.212.2 «Eine Startzeit» (UI-Test T2): Unterwegs und «Vor der Abfahrt» mit derselben Startzeit, «Fahrt von … weiterführen», vor dem Start nur «Losfahren» | offen; Claude merged nach Noahs Freigabe der Bilder |
 | live | 0.212.1 | 0.212.1 «Die heutige Tour sagt eins» (UI-Test T1, #268) | gemergt 26.10.2026 23:12 |
 | #261 | – | Bibliotheken aktualisieren (lucide, dexie, vite; Dependabot) | offen, wird nach dem Nachziehen auf main geprüft |
