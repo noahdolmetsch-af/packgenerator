@@ -119,6 +119,8 @@ test('Live map on the sample race: km, stops ahead, climb, arrival, SOS, stop', 
   await expect(page.locator('[data-live-full] [data-wx-timeline]')).toBeAttached();
   await expect(page.locator('[data-live-full] [data-live-near-open]')).toBeAttached();
   await expect(page.locator('[data-live-near] [data-poi-panel]')).toBeAttached();
+  // one heading in the window (Noah 27.10.2026: «Mehr Orte auf der Karte» and «Orte auf der Karte» twice was too much)
+  await expect(page.locator('[data-live-near] h2, [data-live-near] h3')).toHaveCount(1);
   // the app at 130 % («Grösse», CSS zoom on <html>): still no sideways scroll
   await page.evaluate(() => (document.documentElement.style.zoom = '1.3'));
   await noSideways(page, 'zoom 130 %');
