@@ -3,7 +3,7 @@
 export default {
   title: 'Every Undo stays',
   lead: 'Two deletes in a row: both can come back.',
-  points: [{ text: 'A second note no longer pushes away the first one: each keeps its own «Undo» for 4 seconds' }],
+  points: [{ text: 'A second note no longer pushes away the first one: each keeps its own «Undo» for 4 seconds', href: '#/gelernt' }],
   small: [{ box: 'nicer', text: 'Notes glide up from below, a thin line shows the time left, swipe sideways or × closes them' }],
   test: ['Delete two learnings one after the other under Touren › Rückblick › Gelernt.', 'Both notes are at the bottom: «Zurücknehmen» on the upper one brings the first learning back.'],
   since: [],
