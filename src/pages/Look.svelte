@@ -21,6 +21,8 @@
   import { OPS, START_PLACES } from '../lib/bedienung.js';
   import { ops, setOp, setStart } from '../lib/bedienung.svelte.js';
   import { SUGGEST_AREAS } from '../lib/clear/suggest.js';
+  // Noah 27.10.2026 «2b»: the kinds (to buy, performance, free time, tools) switch only on Ich › Ruhig › Ausgeblendet und aus
+  const AREAS = SUGGEST_AREAS.filter((a) => !a.kind);
   import { suggest, setArea, watchSuggest } from '../lib/clear/suggest.svelte.js';
   watchSuggest();
   import { glove, setGlove } from '../lib/unterwegs/handschuh.svelte.js';
@@ -142,7 +144,7 @@
         <h2 id="look-sugg">{t('Suggestions')}</h2>
         <p class="note">{t('What the app suggests by itself; switch off what you do not want. Saved with your data.')}</p>
         <ul class="ops">
-          {#each SUGGEST_AREAS as a (a.key)}
+          {#each AREAS as a (a.key)}
             <li>
               <label class="op">
                 <span class="nm"><span>{t(a.label)}</span><small>{t(a.text)}</small></span>
@@ -151,6 +153,7 @@
             </li>
           {/each}
         </ul>
+        <p class="note" data-suggest-kinds-link>{t('Suggestions by kind (to buy, performance, free time, tools):')} <a href="#/me/ruhig/aus">{t('Me › Calm and personal › Hidden and switched off')}</a></p>
       </section>
       <!-- «Anpassen» (Noah 20.10.2026 «1a 2a 5a»): the menu and every page you changed -->
       <LookSection />
