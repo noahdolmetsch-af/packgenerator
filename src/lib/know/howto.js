@@ -172,7 +172,7 @@ export const HOWTO = {
   'f.alerts': ["Open Me › Alerts and news.", "Type your region and tick your passes.", "Add, change or delete your news sources."],
   'f.backuplock': ["Open Me › Data and backup.", "Switch on «Lock backups with a password».", "Type the password twice and save it."],
   'f.yearcheck': ["Open Me › Data and backup.", "Tap «Still right?».", "Tick what is right, change the rest."],
-  'f.suggestoff': ["Open Me › Appearance.", "Go to «Suggestions».", "Switch off what you do not want, by area or by kind."],
+  'f.suggestoff': ["Open Me › Appearance.", "Go to «Suggestions».", "Switch off an area; kinds: under Hidden and switched off."],
   'f.tipweek': ["Open Today.", "Look at «Tip of the week».", "Tap its button to try it."],
   'f.comeback': ["Come back after three weeks away.", "Read «Welcome back».", "Tap a line to go there."],
   'f.tripalert': ["Plan a trip with its start place.", "From five days before it, a warning for its days and place shows as a line on the trip.", "Tap «Read more» for the details."],

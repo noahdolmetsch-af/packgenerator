@@ -1697,7 +1697,7 @@ export const HANDBOOK = {
   },
   'f.suggestoff': {
     on: null,
-    steps: ["Open Me › Appearance › Suggestions.", "Switch off an area you do not want.", "A kind (ideas to buy, performance tips, ideas for free time, fitting tools) goes off on every page at once."],
+    steps: ["Open Me › Appearance › Suggestions.", "Switch off an area you do not want.", "A kind (ideas to buy, performance tips, ideas for free time, fitting tools): Me › Calm and personal › Hidden and switched off."],
     example: "Example: «Ideas in Active» off → Active shows no suggested actions.",
   },
   'f.tipweek': {
