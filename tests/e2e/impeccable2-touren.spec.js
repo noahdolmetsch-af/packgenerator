@@ -4,7 +4,7 @@
 //   moves to its row in «Geplant».
 // - Touren 2: «Keine Fahrt verknüpft» is said once above the list, not in every card.
 // German UI, Europe/Zurich, service workers blocked.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { settle } from './settle.js';
 import { openShort } from './kurz-open.js';
 import { fixture, prepare, importBackup, view, tr, sideways } from './gesamttest/lib.js';

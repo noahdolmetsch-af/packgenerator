@@ -1,7 +1,7 @@
 // «Kluge Suche» (Noah 14.10.2026 «alle 3 in einem schritt, ohne mockups»): similar words, a typo, a
 // filter, «Für Claude kopieren» (the text on the clipboard, nothing sent) and the Chrome AI (a fake
 // `LanguageModel`; without it the button stays away). Fictional v0.77.0 data, nothing goes out.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import DE from '../../src/lib/i18n/de/index.js';
 import { v0770File, P } from './v0770-fixture.js';
 import { openData, settle } from './settle.js';

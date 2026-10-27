@@ -1,7 +1,7 @@
 // FE1, FE13, FE14, FE16 (Noah 13.10.2026: FE1 «b», FE13/FE14/FE16 «a»): Daumen-Zone, Farbe nie allein,
 // «?» an Ort und Stelle, passende Handy-Tastatur. The big fictional data set of the Gesamttest
 // (test_data_gtp_), German, phone + desktop. FE_SHOTS=<dir> also writes screenshots.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { mkdirSync } from 'node:fs';
 import { start, DE, fixture, day } from './gesamttest/lib.js';
 import { at1Acts } from './at1-acts.js';

@@ -3,7 +3,7 @@
 // page where a full bag jumps to the next one; quick notes on the way go straight into the debrief;
 // the debrief is one page (0 exceptions = 1 tap); weather changes show their reason and an Undo per row.
 // Fictional fixture plus test_data_gtp_ items; nothing outside the preview server.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { endToDebrief } from './ending.js';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';

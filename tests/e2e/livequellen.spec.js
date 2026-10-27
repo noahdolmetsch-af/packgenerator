@@ -1,7 +1,7 @@
 // Live-Karte Teil 3 (Noah 20.10.2026): the public transport near you in the sheet (stops, then the next
 // departures; the timetable answered by the test), an own place by a tap on the live map, and the picture
 // to share after the ride. Fake GPS, every outside request mocked or blocked (openHome); no sideways scroll.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { openHome } from './home0460-fixture.js';
 
 const PNG = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=', 'base64');

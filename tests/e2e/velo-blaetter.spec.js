@@ -2,7 +2,7 @@
 // the Bike pass with values from the data and empty lines «eintragen», the Service plan, the
 // Workshop order (jobs taken off, wishes) and the Pick-up check (ticks stored, work taken into care
 // with a start point, Undo). Fictional data only (velo-blaetter-fixture.js).
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { vbFile, TRAIL, REPAIR, P } from './velo-blaetter-fixture.js';
 import { readFileSync } from 'node:fs';
 import DE from '../../src/lib/i18n/de/index.js';

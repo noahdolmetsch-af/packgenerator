@@ -4,7 +4,7 @@
 // switched in «Analysen anpassen». «Mehr Inhalt» (Noah 15.10.2026 «1-5 a»): T1 plan kept, T3 endurance check,
 // T4 FTP over the months, and their quiet lines without data. Fictional activities only (leistung-data.js),
 // nothing leaves the device.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { ready } from './settle.js';
 import { seedActivities, zurichToday, planSessions, activities, day } from './leistung-data.js';
 import DE from '../../src/lib/i18n/de/index.js';

@@ -6,7 +6,7 @@
 // 3. Ich › Dokumente: add a PDF, set «gültig bis» and «In die Packliste»; the overview shows the reminder
 //    and «ID und Cash dabei?».
 // 4. Rule 3a: a window closed with ✕ keeps the typed text; «Verwerfen» takes it back; a tap beside closes.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import DE from '../../src/lib/i18n/de/index.js';
 import { v048File } from './v048-fixture.js';
 import { openData, settle } from './settle.js';

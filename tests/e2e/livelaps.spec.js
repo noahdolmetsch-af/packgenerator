@@ -2,7 +2,7 @@
 // listed in the sheet), the turn hint before a turn of the route (arrow + distance), and «Against your
 // last ride» from a made-up earlier ride of the sample race. Fake GPS, every outside request mocked or
 // blocked (openHome); no sideways scroll.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { openHome } from './home0460-fixture.js';
 import { turnsOf } from '../../src/lib/live/turns.js';
 

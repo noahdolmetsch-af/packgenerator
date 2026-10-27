@@ -1,7 +1,7 @@
 // Paket P8 «Fotoalbum» (Noah 21.10.2026 «7a», mockups design/fotoalbum): Ich › Fotoalbum with all photos of the app
 // by month and by place, chips Album / Velo / Tour, several photos added at once, the photo window (place, date, «Auf Heute
 // zeigen», delete with Undo), a bike photo opens its bike. German UI, fictional data (test_data_gtp_), clock Fri 9.10.2026.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { openHome, homeFixture } from './home0460-fixture.js';
 
 const PNG = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=', 'base64');

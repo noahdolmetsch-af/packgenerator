@@ -2,7 +2,7 @@
 // start page → import the fictional fixture → New → Plan a trip → area Weekend (in the New trip window)
 // → Create trip → add an item → packing day → Next: debrief (ends the trip) → saved.
 // Then Gear filtered by area and the page "All my favourite things".
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';
 import { openData, settle } from './settle.js';

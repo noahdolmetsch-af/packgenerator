@@ -4,7 +4,7 @@
 // suggestion is one slim row under a trip of today (big beside the greeting without one), and
 // «Weitermachen» is left out for the trip the card already shows. Fictional data only (test_data_gtp_),
 // the clock on Friday 9 October 2026 (Europe/Zurich), Open-Meteo mocked; SHOTS=<folder> saves screenshots.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { D0, homeFixture, openHome, trip, entries } from './home0460-fixture.js';
 import { openMore } from './bike-more.js';
 import { READY, HEAD_N2 } from '../../src/lib/home/tiles.js';
