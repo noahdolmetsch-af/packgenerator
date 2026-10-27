@@ -1103,7 +1103,7 @@
         {#if !me}<p class="lvf-alert" role="status">{t('Waiting for the GPS …')}</p>{/if}
         {#if goalTapping}<p class="lvf-alert" role="status" data-live-goal-hint><Flag size={18} aria-hidden="true" /><span>{t('Tap the map where you want to go.')}</span> <button type="button" class="btn sm" onclick={() => (goalTapping = false)}>{t('Cancel')}</button></p>{/if}
         {#if resumed}<p class="lvf-alert" role="status" data-live-resumed-full><RefreshCw size={18} aria-hidden="true" /><span>{t('The app had loaded anew: your ride goes on.')}</span> <button type="button" class="btn sm" onclick={() => (resumed = false)}>{t('OK')}</button></p>{/if}
-        {#if offWarn}<p class="lvf-alert lvf-bad" role="alert" data-live-offroute><TriangleAlert size={18} aria-hidden="true" /><span>{t('Off the route: {m} m away.', { m: at?.offM })}</span></p>{/if}
+        {#if offWarn}<p class="lvf-alert lvf-bad" role="alert" data-live-offroute><TriangleAlert size={18} aria-hidden="true" /><span>{at?.offM >= 1000 ? t('Off the route: {d} km away.', { d: fmtKm(at.offM / 1000) }) : t('Off the route: {m} m away.', { m: at?.offM })}</span></p>{/if}
         {#if storm}<p class="lvf-alert lvf-bad" role="alert" data-live-storm><CloudLightning size={18} aria-hidden="true" /><span>{storm.km != null ? t('Thunderstorm possible around km {km} from {at}.', { km: storm.km, at: hhmm(storm.at) }) : t('Thunderstorm possible here from {at}.', { at: hhmm(storm.at) })}</span></p>{/if}
         {#if cfg.eatHm && eatGain >= 300}<p class="lvf-alert" role="alert"><Utensils size={18} aria-hidden="true" /><span>{t('{m} m up since you last ate: time to eat.', { m: eatGain })}</span> <button type="button" class="btn sm" onclick={ateNow}>{t('Eaten')}</button></p>{/if}
         {#if msg}<p class="lvf-alert lvf-bad" role="alert">{msg}</p>{/if}
@@ -1480,7 +1480,7 @@
   {#if poiPicked}
     <div data-live-poi-detail><PoiDetail place={poiPicked} from={me} line={route?.line ?? null} profile={route?.profile ?? null} ongo={goTo} onclose={() => (poiPicked = null)} /></div>
   {/if}
-  <PoiPanel bind:this={poiPanel} canTap ongo={goTo} ontapmode={(v) => ((poiTapping = v), v && (closeNear(), (snap = 'peek')))} center={me ? { lat: me.lat, lon: me.lon } : null} bounds={mapBounds} line={route?.line ?? null} profile={route?.profile ?? null} tripId={trip?.id ?? null} onpoints={(l) => (poiPoints = l ?? [])} />
+  <PoiPanel bind:this={poiPanel} title={false} canTap ongo={goTo} ontapmode={(v) => ((poiTapping = v), v && (closeNear(), (snap = 'peek')))} center={me ? { lat: me.lat, lon: me.lon } : null} bounds={mapBounds} line={route?.line ?? null} profile={route?.profile ?? null} tripId={trip?.id ?? null} onpoints={(l) => (poiPoints = l ?? [])} />
 </dialog>
 {#if reroute}<RerouteSheet here={me} pts={hasRoute ? pts : []} {km} {pois} {own} {picked} onplan={setDetour} onclose={() => ((reroute = false), (picked = null))} />{/if}
 {#if sos}<SosSheet here={me} {km} {routeName} {pois} onclose={() => (sos = false)} />{/if}
