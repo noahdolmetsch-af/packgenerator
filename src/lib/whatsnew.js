@@ -16,15 +16,26 @@
 
 export const WHATS_NEW = [
   {
-    // v0.222.1 «332 sichtbar», next 4 hidden functions (Noah 26.10.2026 «wie kannst du weiter machen»): catalogue
+    // v0.223.1 «332 sichtbar», next 4 hidden functions (Noah 26.10.2026 «wie kannst du weiter machen»): catalogue
     // names like on the page, Ozone and pollen lives on Weather, Chain after rain on Messages, Receipts on the bike shop tab
-    version: '0.222.1',
+    version: '0.223.1',
     date: '2026-10-27',
     title: 'Found where you look',
     lead: 'Four more tools now live on the page where you see them.',
     points: [{ text: 'Ozone and pollen: found on the Weather page', href: '#/wetter' }, { text: 'Chain after rain: found under Messages', href: '#/me/push' }],
     small: [{ box: 'nicer', text: 'Receipts and Ice in the morning carry the name the page shows', href: '#/bikes?tab=shop' }],
     test: ['Open «What the app can do», search «Pollen» and tap «Try it».', 'The Weather page opens with ozone and pollen.'],
+  },
+  {
+    // v0.223.0 Live Navigation PR 3 «Strecke genau» (Noah 27.10.2026 «bitte umsetzen»): tour and race routes keep
+    // their bends (route/fineline.js, Douglas–Peucker 5 m, up to 3000 points) instead of 200 even points
+    version: '0.223.0',
+    date: '2026-10-27',
+    title: 'The route follows every bend',
+    lead: 'Routes from a GPX file now keep their curves on the map.',
+    points: [{ text: 'Tour and race routes keep their bends instead of cutting corners', href: '#/trips' }],
+    small: [{ box: 'fixed', text: 'Add the GPX file once more for a tour you made before' }],
+    test: ['Open Pack, open a tour and tap «Add GPX route».', 'Choose a GPX file with many bends, then open the live map of this tour.', 'Zoom in close: the line follows the road. Before, it cut across bends.'],
   },
   {
     // v0.222.0 Live Navigation PR 2 «Orte» (Noah 26.10.2026, filters 1–14, 17, 18): every server in turn with the

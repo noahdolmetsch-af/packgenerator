@@ -899,6 +899,8 @@ Die frühere gespeicherte Datei `2026-10-07-packgenerator-ablaufplan.md` wird al
 
 **26.10.2026, v0.201.0 «Sprechen, anhängen, mit Vorlage starten»:** Eingaben überall: eine gemeinsame Leiste «Hinzufügen» (Sprachnotiz, Foto, Datei, Ort, Schlagwort, Vorlagen, Schreibanreize, KI-Helfer) auf zehn Seiten, Bildkarte im Tagebuch, Tagebuch in der App-Suche (abschaltbar).
 
+> **27.10.2026 Live Navigation PR 3:** Strecke genau (0.223.0). Danach Suchvorschläge «In der Nähe» (Noahs Wunsch 27.10.) und M13 «Karte frei».
+
 > **27.10.2026 Live Navigation PR 2:** Orte (0.222.0). Als Nächstes M13 «Karte frei» (Menü weg, ⋯-Knopf, «In der Nähe», Aufnahme-Hinweis), dann M12 Gruppe auf der Karte mit Treffpunkt.
 
 > **26.10.2026 Live Navigation:** PR 1 «Fahrt speichern» (0.221.0). Danach Orte-Server und Filter, Einstellungen, «Alles», Karte mit schlauer Leiste, Ebenen, Gruppe mit Spur, Garmin Edge 850, Strava hochladen, ÖV-Ersatz, je ein kleiner PR.
@@ -913,4 +915,4 @@ Die frühere gespeicherte Datei `2026-10-07-packgenerator-ablaufplan.md` wird al
 
 **27.10.2026, v0.218.0 «Platz in jeder Tasche»:** leere Taschen bleiben in «Alle Taschen nebeneinander» als Spalte zum Hineinziehen.
 
-**27.10.2026, v0.222.1 «Da, wo du schaust»:** vier weitere versteckte Funktionen auf ihrer Seite; 57 → 53 versteckt.
+**27.10.2026, v0.223.1 «Da, wo du schaust»:** vier weitere versteckte Funktionen auf ihrer Seite; 57 → 53 versteckt.

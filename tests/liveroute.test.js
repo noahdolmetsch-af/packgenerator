@@ -1,4 +1,5 @@
 // Paket U «GPX auf der Live-Karte öffnen» (liveroute.js): thinning the line, reading a GPX, cleaning a
+import { FINE_MAX, fineLine } from '../src/lib/route/fineline.js';
 // stored value, rename, the trip offer, and keeping it in the settings record (fake-indexeddb).
 // Synthetic GPX only: made-up coordinates, never a real route.
 import { describe, it, expect, beforeEach } from 'vitest';
@@ -122,10 +123,11 @@ describe('rename and the trip offer', () => {
     expect(canSaveToTrip({ id: 't1', route: null })).toBe(true);
     expect(canSaveToTrip({ id: 't1', route: { km: 80, line: [[1, 2], [3, 4]] } })).toBe(false);
   });
-  it('as trip.route: line ≤ 200 points, profile ≤ 300, the numbers kept', () => {
+  it('as trip.route: the line keeps its bends (≤ FINE_MAX), profile ≤ 300, the numbers kept', () => {
     const big = liveRouteOf({ name: 'Lang', points: Array.from({ length: 20000 }, (_, i) => ({ lat: 10 + Math.sin(i / 7) * 0.002, lon: 30 + i * 0.0003, ele: 400 + (i % 50) })) }, 'lang.gpx', NOW);
     const tr = asTripRoute(big);
-    expect(tr.line.length).toBeLessThanOrEqual(200);
+    expect(tr.line.length).toBeGreaterThan(200);
+    expect(tr.line.length).toBeLessThanOrEqual(FINE_MAX);
     expect(tr.profile.length).toBeLessThanOrEqual(300);
     expect(tr).toMatchObject({ name: 'Lang', km: big.km, gainM: big.gainM, start: big.start, end: big.end, file: 'lang.gpx' });
     expect(asTripRoute(null)).toBeNull();

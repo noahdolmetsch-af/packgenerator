@@ -15,70 +15,19 @@
  * Tested in tests/liveroute.test.js.
  */
 import { liveQuery } from 'dexie';
-import { parseGpx, routeStats, distKm, thin } from '../route.js';
+import { parseGpx, routeStats, distKm } from '../route.js';
+import { fineLine, FINE_MAX, FINE_TOLERANCE_M } from '../route/fineline.js';
 
 export const LIVE_ROUTE_KEY = 'live-route';
-export const LIVE_LINE_MAX = 1500;
-export const LIVE_TOLERANCE_M = 5;
+export const LIVE_LINE_MAX = FINE_MAX;
+export const LIVE_TOLERANCE_M = FINE_TOLERANCE_M;
+/** The line to keep (route/fineline.js). */
+export const thinLine = fineLine;
 export const NAME_MAX = 80;
-const CHUNK = 400;
 
 const round = (v) => Math.round(v * 1e5) / 1e5;
 const pair = (p) => (Array.isArray(p) ? { lat: Number(p[0]), lon: Number(p[1]) } : { lat: Number(p?.lat), lon: Number(p?.lon) });
 const okPt = (p) => Number.isFinite(p.lat) && Number.isFinite(p.lon) && Math.abs(p.lat) <= 90 && Math.abs(p.lon) <= 180;
-
-/** Distance (m) of p from the segment a–b in a flat local frame (good enough for metres). */
-function offM(p, a, b) {
-  const k = Math.cos((a.lat * Math.PI) / 180) * 111320;
-  const ax = a.lon * k;
-  const ay = a.lat * 110540;
-  const bx = b.lon * k - ax;
-  const by = b.lat * 110540 - ay;
-  const px = p.lon * k - ax;
-  const py = p.lat * 110540 - ay;
-  const len = bx * bx + by * by;
-  const f = len ? Math.max(0, Math.min(1, (px * bx + py * by) / len)) : 0;
-  return Math.hypot(px - bx * f, py - by * f);
-}
-
-/**
- * The line to keep: Douglas–Peucker with toleranceM (no recursion, so a 50 000-point file is fine),
- * then at most max points evenly spread (first and last kept). points: [{ lat, lon }] or [[lat, lon]].
- * → [[lat, lon], …] rounded to 1 m.
- */
-export function thinLine(points = [], max = LIVE_LINE_MAX, toleranceM = LIVE_TOLERANCE_M) {
-  const pts = points.map(pair).filter(okPt);
-  if (pts.length <= 2) return pts.map((p) => [round(p.lat), round(p.lon)]);
-  const keep = new Uint8Array(pts.length);
-  keep[0] = keep[pts.length - 1] = 1;
-  // in windows of CHUNK points (their ends kept): a zig-zag track would make one pass over all points
-  // quadratic and hang a phone; this way it stays about n × CHUNK
-  const stack = [];
-  for (let s = 0; s < pts.length - 1; s += CHUNK) {
-    const e = Math.min(pts.length - 1, s + CHUNK);
-    keep[s] = keep[e] = 1;
-    stack.push([s, e]);
-  }
-  while (stack.length) {
-    const [s, e] = stack.pop();
-    let best = -1;
-    let at = -1;
-    for (let i = s + 1; i < e; i++) {
-      const d = offM(pts[i], pts[s], pts[e]);
-      if (d > best) (best = d), (at = i);
-    }
-    if (best > toleranceM && at > 0) {
-      keep[at] = 1;
-      stack.push([s, at], [at, e]);
-    }
-  }
-  let out = pts.filter((_, i) => keep[i]);
-  if (out.length > max) {
-    const step = (out.length - 1) / (max - 1);
-    out = Array.from({ length: max }, (_, i) => out[Math.round(i * step)]);
-  }
-  return out.map((p) => [round(p.lat), round(p.lon)]);
-}
 
 /** A name the user typed: trimmed, inner spaces folded, at most NAME_MAX characters. */
 export const cleanName = (name = '') => String(name ?? '').replace(/\s+/g, ' ').trim().slice(0, NAME_MAX);
@@ -146,7 +95,7 @@ export const renameLiveRoute = (r, name) => (r ? { ...r, name: cleanName(name) |
 export const canSaveToTrip = (trip) => !!trip && !(trip.route?.line?.length > 1) && !(trip.route?.km > 0);
 
 /**
- * The live route as trip.route (route.js format: line thinned to 200 points like every trip route,
+ * The live route as trip.route (route.js format: the line keeps its bends like every trip route,
  * profile ≤ 300 points).
  */
 export function asTripRoute(r) {
@@ -160,7 +109,7 @@ export function asTripRoute(r) {
     lossM: r.lossM ?? 0,
     start: r.start,
     end: r.end,
-    line: thin(pts, 200),
+    line: fineLine(pts),
     profile: p.length > 300 ? Array.from({ length: 300 }, (_, i) => p[Math.round((i * (p.length - 1)) / 299)]) : p,
     profileFine: r.profileFine ?? null,
     file: r.file ?? '',
