@@ -31,16 +31,21 @@ let memo = null; // when localStorage is not there
 /**
  * Asks for the online version. Returns it when this device has been behind for WAIT, else null.
  */
-export async function checkBehind(w = globalThis, { now = Date.now(), running = __APP_VERSION__, base = import.meta.env.BASE_URL } = {}) {
+/** The version that is online right now (version.json, never from the offline copy), or null offline / on an error. */
+export async function onlineVersion(w = globalThis, { now = Date.now(), base = import.meta.env.BASE_URL } = {}) {
   if (w.navigator?.onLine === false) return null;
-  let live;
   try {
     const r = await w.fetch(`${base}version.json?t=${now}`, { cache: 'no-store' });
     if (!r.ok) return null;
-    live = (await r.json())?.version;
+    return (await r.json())?.version || null;
   } catch {
     return null;
   }
+}
+
+export async function checkBehind(w = globalThis, { now = Date.now(), running = __APP_VERSION__, base = import.meta.env.BASE_URL } = {}) {
+  const live = await onlineVersion(w, { now, base });
+  if (live === null) return null;
   const ls = (() => { try { return w.localStorage ?? null; } catch { return null; } })();
   if (!live || !newer(live, running)) {
     memo = null;

@@ -61,6 +61,7 @@
   import { listBills, billsSummary } from '../lib/pay/bills.js';
   import { formatAmount } from '../lib/pay/qrbill.js';
   import Btn from '../lib/ui/Btn.svelte';
+  import VersionRow from '../lib/ich/VersionRow.svelte';
   import '../lib/ich/ich.css';
   import { docs as docList } from '../lib/docs/client.svelte.js';
   import { dueCount } from '../lib/docs.js';
@@ -368,6 +369,10 @@
             </a>
           </li>
           
+          <li>
+            <!-- «Neueste Version» (Noah 27.10.2026 «1-5 a»): this device's version, the online one, «Neueste laden» -->
+            <VersionRow />
+          </li>
           <li>
             <!-- v0.110.0 Design-Refresh P10 (I11): Ich › Was ist neu -->
             <a class="ich-row" href="#/me/news">
