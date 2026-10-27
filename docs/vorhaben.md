@@ -526,6 +526,8 @@ Kurzfassung, verbindlich ist [arbeitsweise.md](arbeitsweise.md).
 0.200.0 «Zusammen auf einer Karte» (25.10.2026, Ziel Touren): Gruppen-Live-Karte, Freunde per Link auf einer Karte.
 
 «Oben auf Heute ist mehr Ruhe» (Ziel Alltag: verständlich und mit Schwung), Neuer Schwung PR 1, 26.10.2026.
+
+Neuer Schwung, Bausteine B13 bis B24 (Noah 27.10.2026 «ich möchte b13 bis b24 alle umsetzen. 1a 2a 3a 4a 5a»): alle zwölf Bausteine und die Ideen E1 bis E8, je ein kleiner PR. Reihenfolge: zuerst die Bausteine für alle Seiten (B22 Rückgängig-Meldungen, B15 gleitende Umschalter, B19 Hochheben, E8 Schalter «Bewegung»), dann Listen (B13 Wischen, B20 langes Drücken), Touren › Rückblick (B18 Jahr als Farbfelder, E5 Tour-Story), Aktiv (B14 Ziehen, B16 Wochen-Story, E4), Touren (B24 Wetterbilder, E1 bis E3), Heute und Packen mit «Neuer Schwung» (B17 Himmel ruhig gezeichnet, B23 Velo mit Taschen), zum Schluss B21 Hinweise nur auf neuen Seiten, E6, E7. Wischen ist in allen Listen gleich (rechts erledigt, links verschieben oder löschen).
 ## Stand 26.10.2026: Live Navigation
 
 Ziel «Unterwegs» (Tour-Begleiter). Mockups M1–M12 freigegeben; PR 1 «Fahrt speichern» (0.221.0) gebaut, weitere 9 kleine PRs folgen in der Reihenfolge der Roadmap-Notiz.
