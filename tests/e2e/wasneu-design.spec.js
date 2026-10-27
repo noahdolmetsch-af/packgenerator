@@ -8,6 +8,7 @@
 import { test, expect } from '@playwright/test';
 import { D0, openHome, tr, atHour } from './home0460-fixture.js';
 import { WHATS_NEW, shortVersion } from '../../src/lib/whatsnew.js';
+import { NEWS } from '../../src/lib/news/index.gen.js';
 import { readFileSync } from 'node:fs';
 import { READY, HELPER_TILES, tripUp } from '../../src/lib/home/tiles.js';
 import { inShownOrder } from '../../src/lib/home/quick.js';
@@ -22,6 +23,8 @@ const SHOWN = inShownOrder(atHour(tripUp(READY.filter((x) => !HELPER_TILES.inclu
 const NEWEST = WHATS_NEW[0];
 // the newest function (highest since-version) and whether the newest version brought it
 const SINCE_ALL = [...readFileSync(new URL('../../src/lib/know/wasneu.js', import.meta.url), 'utf8').matchAll(/'?([\w.]+)'?: '(\d+\.\d+\.\d+)'/g)].map((m) => [m[1], m[2]]);
+// since 27.10.2026 a news file names its functions (since: ['f.x']) and they get its version (wasneu.js does the same)
+for (const e of NEWS) for (const id of e.since ?? []) SINCE_ALL.push([id, e.version]);
 const vnum = (v) => v.split('.').reduce((a, n) => a * 1000 + Number(n), 0);
 const NEW_V = SINCE_ALL.reduce((a, b) => (vnum(b[1]) > vnum(a[1]) ? b : a))[1];
 // v0.125.0 Tagespaket: one version can bring several functions (f.tripstate, f.yeargoals); among them the page sorts by name
