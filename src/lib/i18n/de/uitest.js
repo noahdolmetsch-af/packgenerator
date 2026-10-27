@@ -10,4 +10,10 @@ export default {
   // T2 «Unterwegs: eine Startzeit, vor dem Start nur Losfahren»
   'A recording of this trip is running since {time}. The blocks and the arrival count from then.': 'Eine Aufzeichnung dieser Tour läuft seit {time}. Die Blöcke und die Ankunft zählen ab dann.',
   'Ends the trip without riding on': 'Beendet die Tour, ohne weiterzufahren',
+  // Schrittleiste (Noah 26.10.2026 «1b»): the short names of the step bar, the same words in German
+  'Plan|bar': 'Plan',
+  'Pack|bar': 'Pack',
+  'Live|bar': 'Live',
+  'Review|bar': 'Review',
+  'Analyse|bar': 'Analyse',
 };

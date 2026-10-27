@@ -125,6 +125,15 @@ Währungen umrechnen · Weiter-Knöpfe und Schrittleiste · Touren als Kacheln n
 |---|---|---|
 | Heatmap aller Fahrten (Noah 20.10.2026 «1a+b 2b+a 3 alle Fahrten 4a 5a») | mittel | Alle Fahrten auf einer Karte; wo du oft fährst, wird die Farbe kräftiger. Wolken oder Linien, Filter nach Jahr, Sportart, Velo, Tour/Alltag. |
 
+### Gewünscht, geparkt (gebaut wird erst, wenn Noah es sagt)
+
+Tour-Detailseite übersichtlicher (Noah 26.10.2026 «1a 2a 3a 4a 5b», dann «so lassen … nur als geplant»; 27.10.2026 «2b»: später in 2 Schritten). Plan: [Tour-Detailseite übersichtlicher](https://claude.ai/artifact/8GWMXHq4zVtwbzNGpDnz5X).
+
+| Vorhaben | Grösse | Nutzen |
+|---|---|---|
+| Schritt 1: Klappen und Doppeltes weg (3 Stufen: auf einen Blick, verstehen, Details eingeklappt; Strava-/Garmin-Ansicht eingeklappt; eine Teilstrecken-Tabelle mit Umschalter 1 km / 5 km / Runden; Zahlen nur einmal) | mittel | Die Tour-Seite ist kürzer und zeigt jede Zahl nur einmal. |
+| Schritt 2: Karte «Das zeichnet diese Tour aus» (höchstens 3 Sätze aus echten Daten), Karte und Höhenprofil in beide Richtungen verknüpft, Zeile «Nächstes Mal» beim Gepäck | mittel | Du siehst sofort, was die Tour besonders macht, und lernst fürs nächste Packen. |
+
 ### Ideen, noch nicht entschieden
 
 | Vorhaben | Grösse | Nutzen |
