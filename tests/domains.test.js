@@ -2,7 +2,7 @@ import 'fake-indexeddb/auto';
 import { describe, it, expect } from 'vitest';
 import { createDb } from '../src/lib/db.js';
 import { DOMAINS, hasBike, domainOf, itemDomains, inDomain, countByDomain, packSlot, domainEntries, newPackTrip, favoritesByDomain, readyKey, READY_BY_DOMAIN } from '../src/lib/domains.js';
-import { tripStats, standardEntries, newTrip, packSteps, ensureTrips } from '../src/lib/trips.js';
+import { tripStats, standardEntries, newTrip, packSteps, emptySteps, ensureTrips } from '../src/lib/trips.js';
 import { matches } from '../src/lib/gear.js';
 import { searchAll } from '../src/lib/search.js';
 
@@ -77,6 +77,8 @@ describe('areas (package 5)', () => {
     expect(s.zones[1].vol).toBe(30);
     expect([s.baseG, s.wornG, s.bagsG, s.gearG + s.onMeG]).toEqual([1000, 500, 0, 1500]);
     expect(packSteps(s).map((x) => x.title)).toEqual(['Backpack 60 L', 'Wear and carry']);
+    // «leere Taschen nehmen Teile auf»: the empty daypack is a place to drag into, «Wear and carry» never is
+    expect(emptySteps(s).map((x) => [x.key, x.title, x.entries.length])).toEqual([['day', 'Daypack', 0]]);
   });
 
   it('packSlot and domainEntries', () => {
