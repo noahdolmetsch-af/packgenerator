@@ -81,7 +81,11 @@ test('a trip today: no photo although the bike has one, the 8 buttons in the fir
   // trip card right under them; 0.175.0 (Noah 21.10.2026 06:49 «Körperwerte und countdown ok», changed on purpose):
   // the «Körperwerte» tile sits right under Aktiv, the trip card follows
   // 0.180.0 P6 (Noah «2b», changed on purpose): meditation and the weekly weight before the body; the trip still right after the head
-  await expect.poll(() => page.locator('.wall [data-tile]').evaluateAll((els) => els.map((e) => e.dataset.tile)).then((o) => o.slice(0, HEAD.length + 1))).toEqual([...HEAD, 'trip']);
+  // «Heute ruhiger» (Noah 26.10.2026 «3a», changed on purpose): areas with a heading; on a trip day the trip card stands in
+  // «Jetzt» right under the meditation card, then «Dein Körper» with the weight, the body and Aktiv
+  await expect.poll(() => page.locator('.wall [data-tile]').evaluateAll((els) => els.map((e) => e.dataset.tile)).then((o) => o.slice(0, 2))).toEqual(['meditation', 'trip']);
+  const o = await page.locator('.wall [data-tile]').evaluateAll((els) => els.map((e) => e.dataset.tile));
+  expect(o.filter((id) => HEAD.includes(id) && id !== 'meditation')).toEqual(HEAD.filter((id) => id !== 'meditation' && o.includes(id)));
   await shot(page, info, 'heute-mit-tour');
 
   // the photo is still there, under Velos › Setup › More

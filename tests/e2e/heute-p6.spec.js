@@ -19,7 +19,11 @@ test.describe('P6 Heute erganzen', () => {
     await closeCheck(page);
     await expect(page.locator('[data-section="weighin"]')).toBeVisible();
     const o = await order(page);
-    expect(o.slice(0, 2)).toEqual(['meditation', 'weighin']);
+    // «Heute ruhiger» (Noah 26.10.2026 «3a», changed on purpose): «Jetzt» first (meditation, the trip of tomorrow), then
+    // «Dein Körper» with the weekly weight on top
+    expect(o[0]).toBe('meditation');
+    expect(o.filter((id) => ['weighin', 'body', 'acts'].includes(id))).toEqual(['weighin', 'body', 'acts']);
+    await expect(page.locator('[data-home-sec="body"] + [data-tile="weighin"]')).toBeVisible();
     for (const id of ['body', 'acts', 'balance', 'strava']) expect(o, id).toContain(id);
     expect(o.indexOf('strava')).toBeGreaterThan(o.indexOf('balance'));
     await expect(page.locator('[data-tile="meditation"]').getByText(T('Meditation')).first()).toBeVisible();
