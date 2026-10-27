@@ -1841,4 +1841,8 @@ export default {
   'Count what was used with + and −; add what you bought on the way.': 'Mit + und − zählen, was verbraucht wurde; unterwegs Gekauftes ergänzen.',
   '«Book» lowers the stock, fills the shopping list and writes the costs; Undo takes it back.': '«Buchen» senkt den Vorrat, füllt die Einkaufsliste und schreibt die Kosten; Rückgängig nimmt es zurück.',
   'Example: 4 of 6 gels used → stock 2, gels on the shopping list.': 'Beispiel: 4 von 6 Gels verbraucht → Vorrat 2, Gels auf der Einkaufsliste.',
+  // «Rennen detailliert planen» (Noah 27.10.2026 «1b 2b»)
+  'Open Trips › «Plan races in detail» and tap a race.': 'Öffne Touren › «Rennen detailliert planen» und tippe ein Rennen an.',
+  'Fill in the five sheets one by one; everything saves by itself.': 'Füll die fünf Blätter nacheinander aus; alles speichert von selbst.',
+  'Example: sheet 2 «Target setup»: the frame bag holds the rain jacket and the head torch, 150 g empty.': 'Beispiel: Blatt 2 «Soll-Setup»: in der Rahmentasche sind Regenjacke und Stirnlampe, leer 150 g.',
 };

@@ -163,6 +163,7 @@ export function pageOf(hash = '', careTab = false) {
   if (h === '#/gruppenfahrt') return 'groupride'; // Gruppenfahrt für Events (Noah 26.10.2026 «1a»): the page of your group ride
   if (h.startsWith('#/karte/')) return 'card'; // Gruppenfahrt für Events «5a»: a contact card from a QR code
   if (h === '#/live' || h.startsWith('#/live/') || h.startsWith('#/live?')) return 'live'; // Paket U3 «Live-Karte»: #/live, #/live/<tripId>
+  if (h === '#/racecheck' || h.startsWith('#/racecheck/') || h.startsWith('#/racecheck?')) return 'raceplan'; // «Rennen detailliert planen» (Noah 27.10.2026 «1b 2b»): the coming races with their Rennen-Check
   if (h === '#/race' || h.startsWith('#/race/') || h.startsWith('#/race?')) return 'race'; // Paket U «Rennen»: Touren › Rennen
   if (h.startsWith('#/travel')) return 'travel'; // «Reise-Links» (Noah 19.10.2026 «5b»): Touren › Reise-Links
   // N1 «Neue Leiste» (Noah 20.10.2026 «2a»): Touren › Fahrten is Auswerten › Fahrten now, same address
@@ -464,7 +465,7 @@ export function placeOf(page, hash = '') {
   if (['vorgaenge', 'notecontext', 'plantpass', 'week', 'agenda', 'calendar', 'notes', 'tagebuch', 'inbox', 'mail', 'compass', 'alltag', 'frei', 'inspiration', 'weblinks'].includes(page)) return 'week';
   if (page === 'tools') return 'trips'; // «Alles finden 2» (Noah 22.10.2026 «4a»): the toolbox is a tab of Touren
   if (['stravarides', 'insights', 'history', 'abfragen', 'analysis', 'wohl', 'weight'].includes(page)) return 'analysis';
-  if (['trips', 'dreams', 'between', 'pack', 'templates', 'past', 'ride', 'debrief', 'rides', 'share', 'review', 'ski', 'mountain', 'quiz', 'chronik', 'gelernt', 'jahr', 'neuland', 'heatmap', 'spur', 'tour', 'travel', 'race', 'live', 'groupride', 'fuel', 'compare', 'wetter'].includes(page)) return 'trips'; // wetter: Paket Y, the weather to plan rides (no own tab: Touren has its 5)
+  if (['trips', 'dreams', 'between', 'pack', 'templates', 'past', 'ride', 'debrief', 'rides', 'share', 'review', 'ski', 'mountain', 'quiz', 'chronik', 'gelernt', 'jahr', 'neuland', 'heatmap', 'spur', 'tour', 'travel', 'race', 'raceplan', 'live', 'groupride', 'fuel', 'compare', 'wetter'].includes(page)) return 'trips'; // wetter: Paket Y, the weather to plan rides (no own tab: Touren has its 5)
   if (page === 'gear' || page === 'supplies' || page === 'lend' || page === 'power' || page === 'gearimport' || page === 'favorites' || page === 'blocks' || page === 'blockcheck' || page === 'packcleanup' || page === 'wardrobe') return 'gear';
   if (page === 'bikes' || page === 'care') return 'bikes';
   if (page === 'equipment') return 'equipment';

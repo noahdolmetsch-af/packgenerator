@@ -130,6 +130,7 @@ export const HOME = {
   'f.scales': '#/mountain',
   'f.race': '#/race',
   'f.racesample': '#/race',
+  'f.racecheck': '#/racecheck',
   'f.racemap': '#/race/:race',
   'f.climbs': '#/race/:race',
   'f.mapoffline': '#/race/:race/map',

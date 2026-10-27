@@ -1071,6 +1071,11 @@ export const HANDBOOK = {
     steps: ['Open a race › «Along the route» and tap «Load the weather».', 'Look at «Nights by the weather»; move a night yourself under «Strategy».'],
     example: 'Example: night 2 at km 310 with 80 % rain → 30 km further only 20 %.',
   },
+  'f.racecheck': {
+    on: null,
+    steps: ['Open Trips › «Plan races in detail» and tap a race.', 'Fill in the five sheets one by one; everything saves by itself.'],
+    example: 'Example: sheet 2 «Target setup»: the frame bag holds the rain jacket and the head torch, 150 g empty.',
+  },
   'f.racesample': {
     on: null,
     steps: ['Open Trips › Races › «See the sample race».', 'Tap «Show me around» for the tour, then do the small tasks in «Plan».'],
