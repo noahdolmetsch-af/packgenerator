@@ -6,6 +6,7 @@ Stand: **26. Oktober 2026, 21:30 UTC**. Auf `main` steht **Version 0.212.0** (Sa
 
 ## Stand 26.10.2026 auf einen Blick
 
+**Live Navigation PR 4 (27.10.2026):** «Was brauchst du?» (0.227.0): Fenster «In der Nähe» mit Situationsknöpfen, «Alles», «Hin» und 14 neuen Ortsarten.
 **Live Navigation PR 3 (27.10.2026):** «Die Strecke folgt jeder Kurve» (0.223.0): GPX-Strecken behalten ihre Kurven (bis 3000 Punkte statt 200).
 
 **Live Navigation PR 2 (27.10.2026):** «Orte, die dich finden» (0.222.0): Server der Reihe nach mit ehrlicher Meldung, Schnellwahl, Filter und gespeicherte Filter. Danach M13 «Karte frei» (Noah «1a 2a 3a»).

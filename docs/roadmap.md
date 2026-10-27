@@ -901,6 +901,8 @@ Die frühere gespeicherte Datei `2026-10-07-packgenerator-ablaufplan.md` wird al
 
 **26.10.2026, v0.201.0 «Sprechen, anhängen, mit Vorlage starten»:** Eingaben überall: eine gemeinsame Leiste «Hinzufügen» (Sprachnotiz, Foto, Datei, Ort, Schlagwort, Vorlagen, Schreibanreize, KI-Helfer) auf zehn Seiten, Bildkarte im Tagebuch, Tagebuch in der App-Suche (abschaltbar).
 
+> **27.10.2026 Live Navigation PR 4:** In der Nähe (0.227.0). Danach PR 5 «Umweg und zurück» (Rückweg-Wahl, automatisch neu planen, gleicher Weg zurück), dann M13 «Karte frei» und M8 Einstellungen.
+
 > **27.10.2026 Live Navigation PR 3:** Strecke genau (0.223.0). Danach Suchvorschläge «In der Nähe» (Noahs Wunsch 27.10.) und M13 «Karte frei».
 
 > **27.10.2026 Live Navigation PR 2:** Orte (0.222.0). Als Nächstes M13 «Karte frei» (Menü weg, ⋯-Knopf, «In der Nähe», Aufnahme-Hinweis), dann M12 Gruppe auf der Karte mit Treffpunkt.

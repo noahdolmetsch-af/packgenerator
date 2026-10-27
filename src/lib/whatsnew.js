@@ -16,6 +16,20 @@
 
 export const WHATS_NEW = [
   {
+    // v0.227.0 Live Navigation PR 4 «In der Nähe» (Noah 27.10.2026 «1a 2a 3a 4a», «freigabe für alle mockups»): one
+    // window with all place filters, 14 situation buttons (map/situations.js), «Everything» at once, «Go there», 14 new kinds
+    version: '0.227.0',
+    date: '2026-10-27',
+    title: 'What do you need?',
+    lead: 'On the live map, «Nearby» opens one window with everything to find a place.',
+    points: [
+      { text: 'Situation buttons: hungry, thirsty, home by train, sleeping place and more', href: '#/live' },
+      { text: 'New places: sauna, indoor pool, Selecta, tube vending machine, farm shop, firepit, phone charging', href: '#/live' },
+    ],
+    small: [{ box: 'new', text: '«Everything» shows every kind of your row at once' }],
+    test: ['Open the live map and tap «Nearby».', 'Tap «Hunger»: only food places that are open now show up.', 'Tap a place and then «Go there». Before, the place search sat at the bottom of the sheet.'],
+  },
+  {
     // v0.226.0 Tages-Check (Noah 26.10.2026 «1a»): «Not today» in the morning waits only until the evening check
     version: '0.226.0',
     date: '2026-10-27',

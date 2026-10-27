@@ -65,7 +65,6 @@ export default {
   'Save filters|poi': 'Filter speichern',
   'Switch {n} filter off': '{n} Filter ausschalten',
   'Switch all {n} filters off': 'Alle {n} Filter ausschalten',
-  'Quick choice|poi': 'Schnellwahl',
   'No place fits the filters. Switch a filter off.|poi': 'Kein Ort passt zu den Filtern. Schalte einen Filter aus.',
   'there about {time}|poi': 'dort etwa {time}',
   'No longer marked as «I was here».|poi': 'Nicht mehr als «Ich war hier» markiert.',
@@ -77,5 +76,4 @@ export default {
   'Card payment|poi': 'Kartenzahlung',
   'Vegetarian|poi': 'Vegetarisch',
   'Socket|poi': 'Steckdose',
-  'Sleep|poi': 'Schlafen',
 };

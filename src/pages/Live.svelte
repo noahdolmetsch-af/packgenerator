@@ -836,14 +836,38 @@
       reroute = true;
       return;
     }
+    // a place set by tapping the map: the window «In der Nähe» comes back with it
+    const was = poiTapping;
     poiPanel?.tapMap(e);
+    if (was) openNear();
+  }
+  // Suchvorschläge (Noah 27.10.2026 «In der Nähe als Popup»): the place search in its own window, on the
+  // phone from below, on the computer on the right; the map stays usable beside it (not modal)
+  let nearDlg = $state(null);
+  let nearOpen = $state(false);
+  function openNear() {
+    if (!nearDlg) return;
+    if (!nearDlg.open) nearDlg.show();
+    nearOpen = true;
+  }
+  function closeNear() {
+    if (nearDlg?.open) nearDlg.close();
+    nearOpen = false;
+  }
+  // «Hin» on a place: the detour planner with this place chosen (Umweg und zurück)
+  function goTo(p) {
+    if (!p) return;
+    picked = { lat: Number(p.lat), lon: Number(p.lon), name: p.name || kindName(p.kind) };
+    closeNear();
+    reroute = true;
   }
   function pickPoint(p) {
     const id = String(p?.id ?? '');
     if (id.startsWith('cam-')) return (camPicked = camOfPoint($camsQ, id));
     if (!id.startsWith('poi-')) return;
     poiPicked = poiPoints.find((x) => `poi-${x.id}` === id) ?? null;
-    if (poiPicked && snap === 'peek') snap = 'half';
+    if (!poiPicked) return;
+    openNear();
     tick().then(() => document.querySelector('[data-live-poi-detail]')?.scrollIntoView({ block: 'start' }));
   }
   const showRouteBox = $derived(!isRace && !(trip?.route?.line?.length > 1));
@@ -1043,6 +1067,8 @@
 
       <!-- Versteckte Funktionen (Noah 22.10.2026): the emergency window one tap away, not only in «⋯» -->
       <button type="button" class="lvf-ic lvf-sosq" class:lvf-hidden={snap === 'full' || dpIndex > 0} onclick={() => (sos = true)} style:bottom="{sheetPx + 126}px" aria-label={t('Emergency')} data-live-sos-quick><LifeBuoy size={22} aria-hidden="true" /></button>
+      <!-- «In der Nähe» (Suchvorschläge): the place window one tap away -->
+      <button type="button" class="lvf-nearbtn" class:lvf-hidden={snap === 'full' || dpIndex > 0} aria-expanded={nearOpen} onclick={() => (nearOpen ? closeNear() : openNear())} style:bottom="{sheetPx + 238}px" data-live-near-btn><MapPin size={18} aria-hidden="true" />{t('Nearby')}</button>
       <!-- «Ziel wählen»: tap the button, then the spot on the map (the long press still works) -->
       <button type="button" class="lvf-ic lvf-goal" class:lvf-hidden={snap === 'full' || dpIndex > 0} aria-pressed={goalTapping} onclick={() => ((goalTapping = !goalTapping), goalTapping && (snap = 'peek'))} style:bottom="{sheetPx + 182}px" aria-label={t('Choose a goal')} title={t('Choose a goal')} data-live-goal><Flag size={22} aria-hidden="true" /></button>
       <!-- the «⋯» menu -->
@@ -1205,13 +1231,10 @@
                 {/if}
               </div>
               {#if stopsMsg}<p class="rc-note" role="status" data-live-stops-msg>{stopsMsg}</p>{/if}
-              <!-- places: the place search and a tapped place (inside «Stops», Noah 24.10.2026 «3a») -->
+              <!-- places: the window «In der Nähe» (Suchvorschläge, Noah 27.10.2026) -->
               <div class="lv-places" data-live-places>
                 <h3 class="lv-h3">{t('More places on the map')}</h3>
-                {#if poiPicked}
-                  <div data-live-poi-detail><PoiDetail place={poiPicked} from={me} line={route?.line ?? null} profile={route?.profile ?? null} onclose={() => (poiPicked = null)} /></div>
-                {/if}
-                <PoiPanel bind:this={poiPanel} canTap ontapmode={(v) => ((poiTapping = v), v && (snap = "peek"))} center={me ? { lat: me.lat, lon: me.lon } : null} bounds={mapBounds} line={route?.line ?? null} profile={route?.profile ?? null} tripId={trip?.id ?? null} onpoints={(l) => (poiPoints = l ?? [])} />
+                <button type="button" class="btn" onclick={openNear} data-live-near-open><MapPin size={18} aria-hidden="true" />{t('Nearby: what do you need?')}</button>
               </div>
             </div>
 
@@ -1363,6 +1386,16 @@
 {/snippet}
 
 {#if camPicked}<LiveWebcam cam={camPicked} onclose={() => (camPicked = null)} />{/if}
+<dialog class="lv-near" bind:this={nearDlg} onclose={() => (nearOpen = false)} aria-labelledby="lv-near-h" data-live-near>
+  <div class="lv-near-head">
+    <h2 id="lv-near-h">{t('Nearby')}</h2>
+    <button type="button" class="lvf-ic" onclick={closeNear} aria-label={t('Close')} data-live-near-close><X size={20} aria-hidden="true" /></button>
+  </div>
+  {#if poiPicked}
+    <div data-live-poi-detail><PoiDetail place={poiPicked} from={me} line={route?.line ?? null} profile={route?.profile ?? null} ongo={goTo} onclose={() => (poiPicked = null)} /></div>
+  {/if}
+  <PoiPanel bind:this={poiPanel} canTap ongo={goTo} ontapmode={(v) => ((poiTapping = v), v && (closeNear(), (snap = 'peek')))} center={me ? { lat: me.lat, lon: me.lon } : null} bounds={mapBounds} line={route?.line ?? null} profile={route?.profile ?? null} tripId={trip?.id ?? null} onpoints={(l) => (poiPoints = l ?? [])} />
+</dialog>
 {#if reroute}<RerouteSheet here={me} pts={hasRoute ? pts : []} {km} {pois} {own} {picked} onplan={setDetour} onclose={() => ((reroute = false), (picked = null))} />{/if}
 {#if sos}<SosSheet here={me} {km} {routeName} {pois} onclose={() => (sos = false)} />{/if}
 {#if place}<PlaceSheet {trip} onclose={() => (place = false)} />{/if}
@@ -1507,6 +1540,72 @@
   }
   .lvf-turn {
     pointer-events: none;
+  }
+  /* Suchvorschläge: the button «In der Nähe» and its window (phone from below, computer on the right) */
+  .lvf-nearbtn {
+    position: absolute;
+    right: 10px;
+    z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 44px;
+    padding: 0 14px;
+    border-radius: 999px;
+    border: 1px solid var(--line-strong);
+    background: var(--paper);
+    color: var(--ink);
+    font: 600 var(--fs-body) var(--font-body);
+    box-shadow: 0 1px 4px var(--shadow);
+    cursor: pointer;
+    transition: bottom 0.15s var(--ease-out);
+  }
+  .lvf-nearbtn[aria-expanded='true'] {
+    background: var(--brand);
+    border-color: var(--brand);
+    color: var(--brand-ink);
+  }
+  .lv-near {
+    position: fixed;
+    inset: 70px 0 0 0;
+    z-index: 40; /* like the full view (.lvf), later in the page so above it; toasts (40, later still) stay on top */
+    width: 100%;
+    max-width: none;
+    height: auto;
+    max-height: none;
+    margin: 0;
+    padding: 10px 16px 24px;
+    border: 0;
+    border-radius: 20px 20px 0 0;
+    background: var(--paper);
+    color: var(--ink);
+    box-shadow: 0 -6px 24px var(--shadow);
+    overflow: auto;
+    overscroll-behavior: contain;
+  }
+  .lv-near-head {
+    position: sticky;
+    top: -10px;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin: -10px -16px 8px;
+    padding: 10px 16px 8px;
+    background: var(--paper);
+  }
+  .lv-near-head h2 {
+    margin: 0;
+  }
+  @media (min-width: 900px) {
+    .lv-near {
+      inset: 0 0 0 auto;
+      width: 440px;
+      border-radius: 0;
+      border-left: 1px solid var(--line);
+      box-shadow: -8px 0 30px var(--shadow);
+    }
   }
   .lvf-lap {
     position: absolute;

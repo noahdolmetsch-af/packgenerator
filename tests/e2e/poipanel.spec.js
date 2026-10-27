@@ -11,6 +11,18 @@
 import { test, expect } from '@playwright/test';
 import { openHome } from './home0460-fixture.js';
 
+// Suchvorschläge (27.10.2026): the place search sits in the window «In der Nähe»; open it from the map
+async function openNear(page, info) {
+  const near = page.locator('[data-live-near]');
+  if (await near.evaluate((d) => d.open).catch(() => false)) return;
+  const b = page.locator('[data-live-near-open]');
+  await b.scrollIntoViewIfNeeded();
+  if (info.project.name === 'phone') await b.tap();
+  else await b.click();
+  await expect(near).toBeVisible();
+}
+
+
 const HERE = { lat: 46.95, lon: 7.45 };
 const PLACES = [
   { type: 'node', id: 1, lat: 46.9512, lon: 7.4505, tags: { amenity: 'drinking_water', name: 'test_data_gtp_ Brunnen Nord' } },
@@ -50,6 +62,7 @@ async function openLive(page, context, info) {
   await context.setGeolocation({ latitude: HERE.lat, longitude: HERE.lon, accuracy: 10 });
   await page.goto('./#/live');
   await tap(page.locator('[data-live-start]'), info);
+  await openNear(page, info);
   const panel = page.locator('[data-poi-panel]');
   await expect(panel).toBeVisible();
   await panel.scrollIntoViewIfNeeded();
@@ -151,6 +164,11 @@ test('a place: detail with hours and Navigate, save, share, unsave', async ({ pa
   await tap(panel.locator('[data-poi-unstar]'), info);
   await expect(panel.locator('[data-poi-saved-row]')).toHaveCount(0);
   await noSideways(page, 'detail');
+
+  // In der Nähe (27.10.2026): «Go there» in the details of a listed place closes the window and plans the detour to it
+  await tap(d.locator('[data-poi-go]'), info);
+  await expect(page.locator('[data-live-near]')).toBeHidden();
+  await expect(page.locator('[data-reroute-sheet]')).toBeVisible();
 });
 
 test('Overpass busy (every server), then try again; offline shows the kept places', async ({ page, context }, info) => {
@@ -340,6 +358,7 @@ test('the kinds: rename, take out and Undo, put more in, sort, an own kind with 
   await expect(page.locator('[data-poi-chips] [data-poi-chip^="my-"]')).toContainText('test_data_gtp_ Ruhebänke');
   await expect(page.locator('[data-poi-chip="water"]')).toContainText('test_data_gtp_ Brünneli');
   // delete the own kind: asked first, then gone
+  await openNear(page, info);
   const p2 = page.locator('[data-poi-panel]');
   await tap(p2.locator('[data-poi-kinds-edit]'), info);
   await tap(p2.locator('[data-poi-kind-remove^="my-"]'), info);

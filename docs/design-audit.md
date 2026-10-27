@@ -326,6 +326,10 @@ Neues Fenster «Fahrt beenden?» im Stil des Löschen-Fensters (unten auf dem Ha
 
 Filter als aufklappbarer Kasten unter der Ortsliste (Knopf «Filter» mit Zahl der aktiven Filter), Segmente wie in den Einstellungen, Schnellwahl als beschriftete Chip-Reihe. Leere Liste mit Erklärung und «Filter zurücksetzen». Screenshots auf der PR-Seite.
 
+## 27.10.2026 Live Navigation PR 4 (In der Nähe)
+
+Mockups N1–N3 und R4 von Noah freigegeben (27.10. «freigabe für alle mockups»). Neues Fenster rechts (Computer, 440 px) oder von unten (Handy), Situationsknöpfe als Raster mit Emoji, Schriftgrössen über Tokens. Die Schnellwahl Wasser/Essen/Schlafen fällt weg, die Situationen ersetzen sie.
+
 ## 27.10.2026 Live Navigation PR 3 (Strecke genau)
 
 Keine sichtbare Oberfläche neu; die Linie auf der Karte folgt den Kurven. Kein Design-Eingriff.
