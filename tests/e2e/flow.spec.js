@@ -3,6 +3,7 @@
 // start page → import the fictional fixture → New → Packing list → Standard set → Create trip
 // → Pack (everything ticked bag by bag, ready check done) → On the way → Tour beendet → saved on one page.
 import { test, expect } from '@playwright/test';
+import { STEP_BAR as BAR } from '../../src/lib/stepbar.js'; // Schrittleiste (Noah 26.10.2026 «1b», changed on purpose): the bar's short names
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';
 import { openData, settle } from './settle.js';
@@ -80,17 +81,17 @@ for (const lang of ['en', 'de']) {
     // at once (v0.24.1, Noah 2a); this test goes through Pack bag by bag (the "Pack" tab in the band).
     await expect(page).toHaveURL(/#\/pack/);
     const steps = page.getByRole('navigation', { name: T('Steps of this trip') });
-    await expect(steps.getByRole('link')).toHaveText([T('Plan|stage'), T('Pack|stage'), T('On the way'), T('Debrief'), T('Analysis|stage')].map((n) => new RegExp(`^${esc(n)}`)));
+    await expect(steps.getByRole('link')).toHaveText([T(BAR.plan), T(BAR.pack), T(BAR.ride), T(BAR.debrief), T(BAR.analysis)].map((n) => new RegExp(`^${esc(n)}`)));
     const go = page.locator('.trip-band .go');
     // 0.182 (Klick-Rundgang H03): nothing packed yet, so the button says «Alles einpacken, los»
     await expect(go).toContainText(T("Pack everything, let's go"));
     await fits('Plan');
-    await steps.getByRole('link', { name: new RegExp(`^${esc(T('Pack|stage'))}`) }).click();
+    await steps.getByRole('link', { name: new RegExp(`^${esc(T(BAR.pack))}`) }).click();
 
     // 5. Pack: a normal page (Noah 2a). Tick every item; a full bag jumps to the next one by itself,
     // the ready check is the last "bag".
     await expect(page).toHaveURL(/#\/pack\?day/);
-    await expect(steps.locator('[aria-current="page"]')).toContainText(T('Pack|stage'));
+    await expect(steps.locator('[aria-current="page"]')).toContainText(T(BAR.pack));
     const missed = [];
     // what the page shows as done: packed rows, ticked checks and the bag that is open
     const pressed = () => page.locator('.pd').evaluate((el) => `${el.querySelector('.pbag.cur .bagh')?.innerText} ${el.querySelectorAll('[aria-pressed="true"]').length}`);

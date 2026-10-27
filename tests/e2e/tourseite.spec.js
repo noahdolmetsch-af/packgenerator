@@ -8,6 +8,7 @@
 //    «Verbindung lösen» takes it apart again;
 // d) hide and show again, delete with Undo; a trip of the Packmodus opens its page with Gepäck and Rückblick (1a).
 import { test, expect } from '@playwright/test';
+import { STEP_BAR as BAR } from '../../src/lib/stepbar.js'; // Schrittleiste (Noah 26.10.2026 «1b», changed on purpose): the bar's short names
 import { writeFileSync, mkdirSync } from 'node:fs';
 import DE from '../../src/lib/i18n/de/index.js';
 import { sn4plusData, P, D0, day } from './sn4plus-fixture.js';
@@ -218,9 +219,9 @@ test('d) hide and show again, delete with Undo; a Packmodus trip opens its page 
   await expect(tour(page).locator('[data-review-template]')).toHaveCount(written ? 1 : 0);
   // 0.174 «Eine Tour, eine Seite» (UI-Ziele #5): the trip's head with its step tabs; «Rückblick» leads there,
   // and the Rückblick leads back with «Tour-Seite ansehen ›»
-  const toReview = tour(page).locator('[data-tour-steps] .stepbar a').filter({ hasText: T('Debrief') });
+  const toReview = tour(page).locator('[data-tour-steps] .stepbar a').filter({ hasText: T(BAR.debrief) });
   await expect(toReview).toHaveAttribute('href', `#/debrief/${encodeURIComponent(`${P}herbst`)}`);
-  await expect(tour(page).locator('[data-tour-steps] .stepbar a[aria-current="page"]')).toContainText(T('Analysis|stage'));
+  await expect(tour(page).locator('[data-tour-steps] .stepbar a[aria-current="page"]')).toContainText(T(BAR.analysis));
   await shot(page, info, 'T9-packmodus-tour');
   await noSideways(page);
   await toReview.click();
