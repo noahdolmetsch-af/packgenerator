@@ -55,7 +55,7 @@
   // Muster-Rennen (Noah «7b»): open it, or make it first
   const hasSample = $derived(!!($racesQ ?? {})[SAMPLE_ID] && ($tripsQ ?? []).some((x) => x.id === SAMPLE_ID));
   async function openSample(tour = false) {
-    if (!hasSample) await makeSample({ db, newTrip, putRace, today, title: t('Sample race 1000') });
+    if (!hasSample) await makeSample({ db, newTrip, putRace, today, title: t('Sample race 1000'), tr: t });
     if (tour) return startTour('race');
     location.hash = raceHref(SAMPLE_ID);
   }
