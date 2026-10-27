@@ -48,4 +48,5 @@ export default {
   'Last|patterns': 'Zuletzt',
   'Numbers are days. «Now» counts while you ticked today or yesterday.|patterns': 'Die Zahlen sind Tage. «Jetzt» zählt, solange du heute oder gestern abgehakt hast.',
   'No ticks yet.|patterns': 'Noch keine Haken.',
+  'Tap a month for its exact values.|patterns': 'Tippe auf einen Monat für die genauen Werte.',
 };

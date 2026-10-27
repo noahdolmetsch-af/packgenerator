@@ -11,6 +11,9 @@
   import { ticksPerDay, longestRun, heatWeeks, ranking, perWeek } from '../../lib/analyse/overview.js';
   import { actName } from '../../lib/flow/ui.svelte.js';
   import { t, num, locale } from '../../lib/i18n.svelte.js';
+  import { niceScale, tickText, LABEL_MAX } from '../../lib/charts/axis.js';
+  import GridLines from '../../lib/charts/GridLines.svelte';
+  import YTicks from '../../lib/charts/YTicks.svelte';
 
   let { days = [], byKey = new Map(), acts = [], log = [], on = [], onday } = $props();
 
@@ -22,7 +25,9 @@
   const rank = $derived(ranking(acts, log, days));
   const rankTop = $derived(Math.max(1, ...rank.map((r) => r.n)));
   const weeks = $derived(perWeek(days, perDay));
-  const weekTop = $derived(Math.max(1, ...weeks.map((w) => w.n)));
+  const wsc = $derived(niceScale(weeks.flatMap((w) => [w.n, w.mean4]), { zero: true }));
+  let pickedWeek = $state(null);
+  const pw = $derived(pickedWeek != null && pickedWeek < weeks.length ? pickedWeek : weeks.length - 1);
   const BAR = ['var(--l1)', 'var(--l3)', 'var(--l4)', 'var(--pz5)', 'var(--pz3)', 'var(--pz6)', 'var(--pz4)', 'var(--l2)'];
 
   // the boxes: only from the sources switched on, only with a value
@@ -61,6 +66,11 @@
   };
   const W = 600;
   const H = 160;
+  const wy = (n) => H - 2 - ((n - wsc.lo) / (wsc.hi - wsc.lo || 1)) * (H - 12);
+  function tapWeek(e) {
+    const r = e.currentTarget.getBoundingClientRect();
+    pickedWeek = Math.max(0, Math.min(weeks.length - 1, Math.floor(((e.clientX - r.left) / r.width) * weeks.length)));
+  }
 </script>
 
 <section class="card ov" aria-labelledby="ov-h" data-overview>
@@ -123,14 +133,22 @@
     </section>
     <section class="card wk" aria-labelledby="wk-h" data-weekly>
       <div class="ch"><h2 id="wk-h">{t('Course|analyse')}</h2><small>{t('ticks per week|overview')}</small></div>
-      <svg viewBox="0 0 {W} {H}" role="img" aria-label={t('Ticks per week|overview')}>
-        <line class="base" x1="0" x2={W} y1={H - 2} y2={H - 2} />
-        {#each weeks as w, i (w.key)}
-          <rect class="wb" x={(i / weeks.length) * W + 2} width={Math.max(2, W / weeks.length - 4)} y={H - 2 - (w.n / weekTop) * (H - 12)} height={(w.n / weekTop) * (H - 12)}><title>{dfmt(w.key, { day: 'numeric', month: 'short' })}: {w.n}</title></rect>
-        {/each}
-        <path class="m4" d={weeks.map((w, i) => `${i ? 'L' : 'M'}${(((i + 0.5) / weeks.length) * W).toFixed(1)} ${(H - 2 - (w.mean4 / weekTop) * (H - 12)).toFixed(1)}`).join('')} />
-      </svg>
-      <div class="xl" aria-hidden="true"><span>{weeks[0] ? dfmt(weeks[0].key, { day: 'numeric', month: 'short' }) : ''}</span><span>{weeks.at(-1) ? dfmt(weeks.at(-1).key, { day: 'numeric', month: 'short' }) : ''}</span></div>
+      {#if weeks[pw]}<p class="pv" data-week-value aria-live="polite"><b>{t('Week of {day}|overview', { day: dfmt(weeks[pw].key, { day: 'numeric', month: 'short' }) })}</b>: {t('{n} ticks|overview', { n: num(weeks[pw].n) })} · {t('mean of 4 weeks|overview')} {num(Math.round(weeks[pw].mean4 * 10) / 10)}</p>{/if}
+      <div class="plot">
+        <YTicks ticks={wsc.ticks} y={wy} h={H} text={(v) => tickText(v, wsc.step, num)} width={56} />
+        <!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_noninteractive_element_interactions -->
+        <svg viewBox="0 0 {W} {H}" role="img" aria-label={t('Ticks per week|overview')} onclick={tapWeek}>
+          <GridLines ticks={wsc.ticks} y={wy} x1={0} x2={W} />
+          {#each weeks as w, i (w.key)}
+            <rect class="wb" class:on={i === pw} x={(i / weeks.length) * W + 2} width={Math.max(2, W / weeks.length - 4)} y={wy(w.n)} height={wy(0) - wy(w.n)}><title>{dfmt(w.key, { day: 'numeric', month: 'short' })}: {w.n}</title></rect>
+          {/each}
+          <path class="m4" d={weeks.map((w, i) => `${i ? 'L' : 'M'}${(((i + 0.5) / weeks.length) * W).toFixed(1)} ${wy(w.mean4).toFixed(1)}`).join('')} />
+        </svg>
+        {#if weeks.length <= LABEL_MAX}
+          {#each weeks as w, i (w.key)}<span class="vl num" style="left:calc(62px + (100% - 62px) * {(i + 0.5) / weeks.length}); top:{(wy(w.n) / H) * 100}%" data-bar-label>{num(w.n)}</span>{/each}
+        {/if}
+      </div>
+      <div class="xl" aria-hidden="true" style="margin-left:62px"><span>{weeks[0] ? dfmt(weeks[0].key, { day: 'numeric', month: 'short' }) : ''}</span><span>{weeks.at(-1) ? dfmt(weeks.at(-1).key, { day: 'numeric', month: 'short' }) : ''}</span></div>
       <ul class="legend"><li><i class="lsw"></i>{t('ticks per week|overview')}</li><li><i class="lsw ln"></i>{t('mean of 4 weeks|overview')}</li></ul>
     </section>
   </div>
@@ -298,12 +316,34 @@
   .rk .n small {
     color: var(--ink-3);
   }
+  .plot {
+    position: relative;
+    display: flex;
+    gap: 6px;
+    min-width: 0;
+  }
   svg {
+    flex: 1;
+    min-width: 0;
     width: 100%;
     height: auto;
+    cursor: crosshair;
   }
-  .base {
-    stroke: var(--line);
+  .wb.on {
+    fill-opacity: 0.7;
+    stroke: var(--ink);
+    stroke-width: 1.5;
+  }
+  .pv {
+    margin: 0;
+    font-size: var(--fs-small);
+  }
+  .vl {
+    position: absolute;
+    transform: translate(-50%, -130%);
+    color: var(--ink-2);
+    font-size: var(--fs-label);
+    pointer-events: none;
   }
   .wb {
     fill: var(--l1);
