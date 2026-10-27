@@ -1701,6 +1701,50 @@ html:root[data-contrast='high'][data-theme='dark'] {
   }
 }
 
+/* «Neuer Schwung» Teil 2 (Noah 26.10.2026 «4a»: motion everywhere, kept subtle): Heute comes alive when it opens.
+   The tiles fade in one after another (at most ten steps, 40 ms apart), big numbers rise in, packing bars fill
+   from the left and rings draw themselves. Only opacity, clip-path and stroke move: no box changes size or
+   place, so nothing jumps and every tap works from the first moment. «Reduce motion» switches all of it off. */
+@keyframes sw-in {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes sw-rise {
+  from {
+    opacity: 0;
+    clip-path: inset(100% 0 0 0);
+  }
+}
+@keyframes sw-fill {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+}
+@keyframes sw-ring {
+  from {
+    stroke-dashoffset: var(--ring-c);
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .wall > .ti {
+    animation: sw-in 320ms var(--ease-out) backwards;
+    animation-delay: calc(min(var(--i, 0), 10) * 40ms);
+  }
+  .wall .big.num,
+  .wall b.num,
+  .wall dd.num {
+    animation: sw-rise 420ms var(--ease-out) 120ms backwards;
+  }
+  .bar[role='progressbar'] > span {
+    animation: sw-fill 700ms var(--ease-out) 150ms backwards;
+    transition: width 400ms var(--ease-out);
+  }
+  .rt-ring .fg {
+    animation: sw-ring 800ms var(--ease-out) 150ms backwards;
+  }
+}
+
 /* Gesamttest 20.10.2026 «2a» + Design 2: the quiet help line «ⓘ So geht's ›» for a page without the card
    (Rennen); the same look as the folded card (HintCard .mini, AreaIntro .ai-line). */
 .help-line {

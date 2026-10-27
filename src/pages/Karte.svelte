@@ -10,14 +10,18 @@
   import { untrack } from 'svelte';
   import { Contact, AtSign, Phone, MessageCircle, Mail, Activity, Mountain, Globe, MapPin, Download, ChevronRight } from '@lucide/svelte';
   import { db } from '../lib/db.js';
-  import { t } from '../lib/i18n.svelte.js';
+  import { t, locale } from '../lib/i18n.svelte.js';
   import Empty from '../lib/ui/Empty.svelte';
   import { readCard } from '../lib/live/event.js';
-  import { PEOPLE_KEY, peopleOf, addPerson, instaLink, telLink, waLink, mailLink, stravaLink, komootLink, webLink, mapLink, cardVcf } from '../lib/freunde/people.js';
+  import { PEOPLE_KEY, peopleOf, addPerson, instaLink, telLink, waLink, mailLink, stravaLink, komootLink, webLink, mapLink, cardVcf, expired } from '../lib/freunde/people.js';
+  import { localDay } from '../lib/localday.js';
   import '../lib/live/event.css';
 
   let { hash = '' } = $props();
   const card = readCard(untrack(() => hash));
+  /* Kontakt-QR-Code «4a»: after its last day the card says «expired» and shows nothing more (soft, no server) */
+  const over = card ? expired(card.until, localDay()) : false;
+  const untilText = (d) => new Date(`${d}T12:00:00`).toLocaleDateString(locale(), { weekday: 'short', day: 'numeric', month: 'numeric', year: 'numeric' });
   /* the ways to reach the person, in the order of the card; a part without a usable link is left out */
   const ways = card
     ? [
@@ -54,9 +58,12 @@
 <div class="page kc-page" data-card-page>
   {#if !card}
     <Empty icon={Contact} title={t('Contact card not readable')} text={t('This link is not complete. Ask for the card again.')} />
+  {:else if over}
+    <div data-card-expired><Empty icon={Contact} title={t('This card has expired')} text={t('Ask {name} for a new card.', { name: card.name })} /></div>
   {:else}
     <p class="kc-kick">{t('Contact card')}</p>
     <h1 tabindex="-1" data-page-title>{card.name}</h1>
+    {#if card.until}<p class="kc-line" data-card-valid>{t('Shared until {day}', { day: untilText(card.until) })}</p>{/if}
     {#if card.bike || card.note}<p class="kc-line">{[card.bike, card.note].filter(Boolean).join(' · ')}</p>{/if}
     <div><button type="button" class="btn hi kc-save" onclick={saveContact} data-card-vcf><Download size={20} aria-hidden="true" />{t('Save to contacts')}</button></div>
     {#if ways.length}
