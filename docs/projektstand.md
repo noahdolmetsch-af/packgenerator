@@ -1,12 +1,15 @@
 # Projektstand und Plan
 
-Stand: **26. Oktober 2026, 17:50 UTC**. Live ist **Version 0.208.0** (Sammel-PR #263 mit 0.206.0 bis 0.208.0, von Noah zusammengeführt am 26.10.2026, 17:36 UTC). Offen ist der Sammel-PR mit 0.208.1 «Ganze Wörter am kleinen Handy» (war #257), 0.209.0 «Tagelang zusammen fahren» (Gruppenfahrt für Events) 0.210.0 «Deine Liste in Sicht» (Noahs Liste, 111 → 77 versteckte Funktionen) 0.211.0 «Zwei Touren, ein Blick» (Touren a Teil 2) und 0.212.0 «Touren, die mitdenken» (Touren b). Mit ihm gehen auch 0.206.0 bis 0.208.0 online (main war am Abend rot).
+Stand: **26. Oktober 2026, 21:30 UTC**. Auf `main` steht **Version 0.212.0** (Sammel-PR #265 mit 0.208.1 bis 0.212.0, zusammengeführt am 26.10.2026 abends; damit kommen auch 0.206.0 bis 0.208.0 online). **Seit 26.10.2026 abends gelten neue Regeln** (kleine PRs, Screenshots und Testlink, Noah gibt frei, Claude merged; siehe [CLAUDE.md](../CLAUDE.md) und [Arbeitsweise](arbeitsweise.md)). Offen sind kleine PRs: #266 (Regeln + schnellere Browser-Tests), #267 «Heute ruhiger» Teil 1, #268 «Die heutige Tour sagt eins», #269 Bibliotheks-Updates, #270 «Live Navigation 1».
 
 Ältere Abschnitte weiter unten («Kurzstand 19.10.», Abschnitte 1 bis 5) sind der damalige Stand und bleiben als Verlauf stehen. Was unten anders steht, gilt nicht mehr, wo dieser Abschnitt etwas Neueres sagt.
 
 ## Stand 26.10.2026 auf einen Blick
 
-**Nachtrag 27.10.2026, 0.218.0 «Deine Kleider, deine Wahl» (PR offen):** Schritt 1 von 3 aus «Was ziehe ich an? selbst anpassen» (Noah «1a 2a oder b wählbar 3a 4a kann aber trotzdem übergangen werden 5a»). Im Fenster auf Heute: Tauschen pro Zeile, «Nichts», «+ Schicht dazu», Lücke mit Grund und «Trotzdem», «Warum so?»; alles nur für den Tag der Fahrt. Danach: 2) Kleider-Sets mit 9 Mustern für Heute und Packliste, Merken wählbar · 3) Grenzen pro Schicht.
+**Nachtrag 27.10.2026, 0.224.0 «Deine Kleider, deine Wahl» (#279):** Schritt 1 von 3 aus «Was ziehe ich an? selbst anpassen» (Noah «1a 2a oder b wählbar 3a 4a kann aber trotzdem übergangen werden 5a»). Im Fenster auf Heute: Tauschen pro Zeile, «Nichts», «+ Schicht dazu», Lücke mit Grund und «Trotzdem», «Warum so?»; alles nur für den Tag der Fahrt. Danach: 2) Kleider-Sets mit 9 Mustern für Heute und Packliste, Merken wählbar · 3) Grenzen pro Schicht.
+**Live Navigation PR 2 (27.10.2026):** «Orte, die dich finden» (0.222.0): Server der Reihe nach mit ehrlicher Meldung, Schnellwahl, Filter und gespeicherte Filter. Danach M13 «Karte frei» (Noah «1a 2a 3a»).
+
+**Live Navigation (26.10.2026 abends):** Mockups M1–M12 freigegeben. PR 1 «Fahrt speichern» (0.221.0) offen: jede Fahrt sofort in Touren mit Label «Live Navigation», Velo-km mit Rückgängig. Danach 9 weitere kleine PRs.
 
 ### Was seit dem 22.10.2026 online gegangen ist
 
@@ -30,21 +33,22 @@ Stand: **26. Oktober 2026, 17:50 UTC**. Live ist **Version 0.208.0** (Sammel-PR 
 
 | PR | Version (vorläufig) | Inhalt | Stand |
 |---|---|---|---|
+| neu | 0.220.0 | 0.220.0 «Velo-Ergänzungen»: Kettenlehre in der Prognose, Velo-Jahresrückblick, Pflege-Serie nach Regen, Wechsel im Google-Kalender, Geräusch-Notizen, Winter- und Frühlings-Checklisten | offen; Claude merged bei Grün |
+| #265 | 0.208.1–0.212.0 | Ganze Wörter, Gruppenfahrt für Events, Deine Liste in Sicht, Zwei Touren ein Blick, Touren die mitdenken, mit den Korrekturen für grünes `main` | zusammengeführt am 26.10.2026 abends |
+| #266 | – | Neue Regeln vom 26.10.2026 abends in CLAUDE.md; Browser-Tests im fertigen Playwright-Paket (bis 13 Minuten schneller pro Prüfung) | Noah gab frei am 26.10.2026 23:29 UTC |
 | neu | 0.212.2 | 0.212.2 «Eine Startzeit» (UI-Test T2): Unterwegs und «Vor der Abfahrt» mit derselben Startzeit, «Fahrt von … weiterführen», vor dem Start nur «Losfahren» | offen; Claude merged nach Noahs Freigabe der Bilder |
 | live | 0.212.1 | 0.212.1 «Die heutige Tour sagt eins» (UI-Test T1, #268) | gemergt 26.10.2026 23:12 |
-| (Sammel-PR) | 0.208.1 | «Ganze Wörter am kleinen Handy» (Gesamttest 26.10., war #257): Titel neben Schildern behalten ihr längstes Wort, «Zu kaufen» unter dem Namen, Verschleiss-Namen umbrechen | offen; Noah mergt selbst |
-| (Sammel-PR) | 0.209.0 | «Tagelang zusammen fahren»: Gruppenfahrt für Events mit eigener Seite (Hilfe mit Ton, Bereit, Kontrollpunkte, Treffpunkte, wer hat was, Kosten teilen, Gewitter, Nachtpause), Kontaktkarte mit QR-Code | offen; Noah mergt selbst |
-| (Sammel-PR) | 0.210.0 | «Deine Liste in Sicht»: Noahs Wunschliste sichtbar (Sprungknöpfe in Packen, Material, Aktiv, Velo; Heute mit Höchst/Tiefst; alle Taschen nebeneinander), 111 → 77 versteckte Funktionen | offen; Noah mergt selbst |
 | #261 | – | Bibliotheken aktualisieren (lucide, dexie, vite; Dependabot) | offen, wird nach dem Nachziehen auf main geprüft |
+| neu | 0.219.0 | «Heute ruhiger» Teil 1: Karten so hoch wie ihr Inhalt, kleine Knöpfe als Liste «Schnell öffnen», Velo-Arbeiten als runde Knöpfe (Teil 2 doppelte Kacheln, Teil 3 Bereiche folgen als eigene PRs) | offen; Claude mergt nach Noahs Freigabe der Screenshots |
 
-### Wie ein Release heute online geht (seit 26.10.2026)
+### Wie ein Release heute online geht (seit 26.10.2026 abends)
 
-1. Noah stellt Fragen nur am Anfang eines Vorhabens (höchstens 5, a/b). Danach arbeiten die Threads selbständig und kommen mit Lösungsvorschlägen statt mit Fragen zurück (Noah 24.10.2026, 18:49 UTC).
-2. Ein Bau-Thread liefert Zweig und letzten Commit an den Koordinator.
-3. Der Bündler-Thread «Mein Überblick» fasst möglichst viel in **wenige Pakete** zusammen, bringt den Zweig auf den Stand von `main`, vergibt die Versionen, prüft nach der Bündel-Checkliste (eigene Tests, Heute-Länge, Wächter, alte Wörter in den Tests) und öffnet den PR **ohne Auto-Merge**.
-4. Sind die Prüfungen grün, bekommt Noah den fertigen PR und einen Testlink (Vercel-Vorschau, eigener Speicher, Backup laden) mit kurzer Anleitung.
-5. **Noah führt den PR auf GitHub selbst zusammen** (Noah 26.10.2026, 00:15 UTC: «ich möchte ab sofort alle PR selber mergen»; ersetzt den Auto-Merge vom 24.10.2026). Danach veröffentlicht GitHub Pages. Hat der PR `api/` geändert, prüft der Bündler, dass der Server «packgen» auf Vercel bereit ist. Danach sagt der Koordinator Noah in einer Zeile «Online: …».
-6. «zurück» von Noah heisst: das Paket sofort rückgängig machen.
+1. Fragen an Noah nur am Anfang (höchstens 5, a/b mit Empfehlung ★). Danach arbeitet Claude selbständig.
+2. Jede Änderung ist ein **eigener kleiner PR** mit eigener Version (keine Bündel, kein Bündler-Thread mehr).
+3. Mockups nur bei grossen Sachen. Sonst wird gebaut, und wenn die Prüfungen grün sind, bekommt Noah **Screenshots** (Handy und Computer) und den **Testlink** dieses PRs.
+4. **Noah gibt frei** («ok» oder «Freigeben»), **dann merged Claude**. Danach prüft Claude GitHub Pages (und den Server «packgen», wenn `api/` geändert hat) und meldet «Online: …».
+5. Jeder PR legt seine Dokumentation auf GitHub ab: diese Seite, Status, Entscheidungen, Roadmap, Vorhaben und «Was ist neu».
+6. «zurück» von Noah heisst: den PR sofort rückgängig machen.
 
 ### Entscheidungen seit dem 22.10.2026 (kurz)
 
@@ -57,7 +61,8 @@ Stand: **26. Oktober 2026, 17:50 UTC**. Live ist **Version 0.208.0** (Sammel-PR 
 - **25.10.:** Von den 76 übrigen Einzelideen aus A und B baut Claude **63**; 13 sind geparkt (Ideenliste 1153 bis 1165, Abschnitt «Für später geparkt» in [vorhaben-liste.md](vorhaben-liste.md)). Reihenfolge: Material → Planen → Heute → Ich/Überall → Touren → Velos (Velos zuletzt).
 - **25.10.:** Gruppen-Live-Karte bauen (Noah «b»), siehe PR #253.
 - **25.10.:** Kette und Velo-Service vorausschauend (Noah «2 und 3»), live mit 0.198.0.
-- **26.10., 00:15 UTC:** **Noah mergt alle PRs selbst.** Claude liefert immer den fertigen PR und einen Testlink, kein Auto-Merge mehr.
+- **26.10., 00:15 UTC:** Noah mergt alle PRs selbst (abends ersetzt).
+- **26.10., 20:31–21:19 UTC:** Neue Regeln: kleine PRs für alles, Screenshots und Testlink, Noah gibt frei und Claude merged, Mockups nur bei Grossem, Fragen mit ★, keine Längen-Vorgaben, Heute nicht mehr geschützt, keine Status-Meldungen zu festen Zeiten, Dokumentation zu jedem Release auf GitHub.
 - **Gestrichen:** App verkaufen (Seiten nur aus Ich entfernt), Cloudflare, Google-Maps-Kacheln, Sturzerkennung. **Pausiert:** «Frontend aufpeppen».
 
 Einzelheiten zu jeder Entscheidung stehen im [Entscheidungslog](decisions.md).
@@ -192,6 +197,8 @@ Damals (19.10.2026) galt: keine Testlinks; Ein Paket geht online, sobald die Tes
 | 94 | Deine Liste in Sicht (Noahs Liste sichtbar) | 0.210.0 | Sprungknöpfe für versteckte Werkzeuge, alle Taschen nebeneinander, 111 → 77 versteckt | offen |
 | 95 | Zwei Touren, ein Blick (996 Einzelideen Touren 44, 45, 47, 49) | 0.211.0 | Touren nebeneinander, Tour vorbereiten (Sportart pro Tag, unklare Stellen, Grenze) | offen |
 | 96 | Touren, die mitdenken (996 Einzelideen Touren 50–58) | 0.212.0 | Absicht, Regel mit Ende, Geschichten, Panne-Check, Später prüfen, Ort-Notiz, Tag zum Hören, Ess-Stopps, Verbrauch | offen |
+| 97 | Platz in jeder Tasche (leere Taschen nehmen Teile auf) | 0.218.0 | Alle Taschen nebeneinander: leere Tasche als Spalte zum Hineinziehen | offen |
+| 98 | Nichts versteckt sich mehr (die 20 tief versteckten Funktionen) | 0.217.0 | Namen wie auf der Seite, kurze Erklärzeilen, Trello-Knopf auf Merken, 77 → 57 versteckt | offen |
 | 62 | Skitour (Mockup-Paket P2) | 0.178.0 | Skitouren › Tour planen: Gefahrenstufe 1–5 mit Unterstufe und Satz, «Dein Morgen», Verhältnisse, Plan in Zahlen; «Gipfel erreicht» unterwegs; Nach der Tour «Plan und Wirklichkeit» und dein Material; Skitouren › Saison: Ziel, Wunschtouren, Skitage 8 Wochen, LVS-Übungen, Kurse mit «Auffrischen», Höhenmeter pro Ski, letzte Saison; Vorabend-Check zeigt Stufe, Temperatur, Wind, letzten Zug | live |
 
 «Frontend aufpeppen» ist pausiert (Noah 19.10.2026). Die Abschnitte unten sind der Stand vom 18.10.2026.

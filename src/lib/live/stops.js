@@ -6,8 +6,9 @@
  * Answers live on this device (meta table, cacheGet/cacheSet); a new request only when the kept one does
  * not fit any more. The fetcher is passed in for tests.
  */
-import { OVERPASS, POI_CACHE, poiQuery, poisFrom, overpassFailed } from '../race/outside.js';
+import { POI_CACHE, poiQuery, poisFrom, overpassFailed } from '../race/outside.js';
 import { queued, postTimed } from '../route/oneatatime.js';
+import { overpassUrls, whyFailed } from '../route/pois.js';
 import { cacheGet, cacheSet } from '../race/store.js';
 import { aroundQuery, aroundFresh } from './live-lib.js';
 
@@ -15,17 +16,35 @@ export const AROUND_CACHE = 'live-poi-around';
 /** The kinds asked for around you; a kept answer of fewer kinds (before «Stopps in der Nähe», 24.10.2026) is asked anew. */
 export const AROUND_V = 2;
 
+/**
+ * Live Navigation PR 2 (Noah 26.10.2026 «OSM ausgelastet, Backup-Server»): the live map asked only one server.
+ * Now each server in turn (the Swiss one first in Switzerland); when all fail, the error is the true reason:
+ * 'busy' (full or too slow), 'net' (none reachable) or 'failed'. → the JSON answer.
+ */
+export async function askServers(fetcher, query, pts = [], ms = undefined) {
+  const errors = [];
+  for (const url of overpassUrls(pts)) {
+    try {
+      const res = await postTimed(fetcher, url, { method: 'POST', body: `data=${encodeURIComponent(query)}`, headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }, ms);
+      if (!res.ok) throw new Error(`overpass ${res.status}`);
+      const json = await res.json();
+      if (overpassFailed(json)) throw new Error('overpass gave up'); // the query was too big for it: not «busy»
+      return json;
+    } catch (e) {
+      errors.push(e);
+    }
+  }
+  throw new Error(whyFailed(errors));
+}
+
 /** Overpass JSON → stops without km: [{ id, kind, name, lat, lon, hours, sub, phone }]. */
 export const aroundFrom = (json) => poisFrom(json, []).map(({ km, offKm, ...p }) => p);
 
-/** The stops around here: the kept ones when they still fit, else a new request (throws 'busy' | 'failed'). */
+/** The stops around here: the kept ones when they still fit, else a new request (throws 'busy' | 'net' | 'failed'). */
 export async function loadAround(here, { fetcher = fetch, force = false, now = Date.now() } = {}) {
   const kept = await cacheGet(AROUND_CACHE);
   if (!force && kept?.data?.v === AROUND_V && aroundFresh({ ...kept.data, at: kept.at }, here, now)) return kept.data.list;
-  const res = await queued(() => postTimed(fetcher, OVERPASS, { method: 'POST', body: `data=${encodeURIComponent(aroundQuery(here))}`, headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }));
-  if (!res.ok) throw new Error(res.status === 429 ? 'busy' : 'failed');
-  const json = await res.json();
-  if (overpassFailed(json)) throw new Error('failed');
+  const json = await queued(() => askServers(fetcher, aroundQuery(here), [here]));
   const list = aroundFrom(json);
   await cacheSet(AROUND_CACHE, { v: AROUND_V, center: { lat: here.lat, lon: here.lon }, list });
   return list;
@@ -64,7 +83,7 @@ export function stretches(pts = [], fromKm = 0, toKm = Infinity, chunkKm = ALONG
   return out;
 }
 
-/** The stops along a trip's route ahead of fromKm (kept per trip); throws 'busy' | 'failed'. */
+/** The stops along a trip's route ahead of fromKm (kept per trip); throws 'busy' | 'net' | 'failed'. */
 export async function loadAlong(tripId, pts, { fetcher = fetch, fromKm = 0, aheadKm = ALONG_AHEAD_KM, chunkKm = ALONG_CHUNK_KM } = {}) {
   const from = Math.max(0, Number.isFinite(fromKm) ? fromKm : 0);
   const parts = stretches(pts, from, from + aheadKm, chunkKm);
@@ -74,10 +93,7 @@ export async function loadAlong(tripId, pts, { fetcher = fetch, fromKm = 0, ahea
   for (const part of parts) {
     const a = part[0].km;
     const b = part.at(-1).km;
-    const res = await queued(() => postTimed(fetcher, OVERPASS, { method: 'POST', body: `data=${encodeURIComponent(poiQuery(part))}`, headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }, ALONG_REQUEST_MS));
-    if (!res.ok) throw new Error(res.status === 429 ? 'busy' : 'failed');
-    const json = await res.json();
-    if (overpassFailed(json)) throw new Error('failed');
+    const json = await queued(() => askServers(fetcher, poiQuery(part), part, ALONG_REQUEST_MS));
     const found = poisFrom(json, pts);
     const ids = new Set(found.map((p) => p.id));
     list = [...list.filter((p) => !ids.has(p.id) && !(p.km >= a && p.km <= b)), ...found].sort((x, y) => x.km - y.km);

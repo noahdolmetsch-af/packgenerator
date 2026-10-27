@@ -14,7 +14,7 @@
 
 **Stand:** Version 1.1 · 07.10.2026 · mit `main` nach PR #32 abgeglichen. PR #30 liefert AP03–AP06; PR #32 veröffentlicht die ausgewählten Entwürfe 2 und 3. Der Gesamtplan ist damit teilweise umgesetzt. [Releasebeleg](releases/2026-10-07-calm-preparation.md) und [Prüfregister](verification.md) unterscheiden Implementierung, Prüfung und fachliche Abnahme.
 
-**Nachtrag 27.10.2026 (v0.218.0):** «Was ziehe ich an? selbst anpassen» Schritt 1 (Tauschen, Schicht dazu, Lücke erklären, Warum so?). Schritt 2 Kleider-Sets mit 9 Mustern, Schritt 3 Grenzen pro Schicht.
+**Nachtrag 27.10.2026 (v0.224.0):** «Was ziehe ich an? selbst anpassen» Schritt 1 (Tauschen, Schicht dazu, Lücke erklären, Warum so?). Schritt 2 Kleider-Sets mit 9 Mustern, Schritt 3 Grenzen pro Schicht.
 
 **Nachtrag 18.10.2026 (v0.147.0, in Paket B):** «Mail in der App» (Noah 15.10.2026 12:04 «emails versenden in der app, email eingang, kalendereinträge + zugehörige emails»; 12:16 «4a»: lesen und senden in einem Paket; 12:17 «vorerst ohne mockup»; 18.10.2026 21:52: ohne Mockup, Testlink pro Paket): Google Teil 3 (GM). Danach DF (Dateiarten inkl. .pkpass), GX (Auswertungen).
 
@@ -876,11 +876,14 @@ Die frühere gespeicherte Datei `2026-10-07-packgenerator-ablaufplan.md` wird al
 
 **25.10.2026, v0.199.0 «Flicken, ausprobieren, abmachen»:** letzte Einzelideen aus Paket A: Kleider reparieren statt aussortieren, Wunsch zuerst ausleihen, Ideen für ein Treffen, Geburtstag mit kleinen Schritten, Webcams mit Zweck und Aufräumrunde.
 
+**26.10.2026, v0.220.0 «Velo-Ergänzungen»:** Velo-Ideen 1, 3, 6, 7, 8 und 12 gebaut (Kettenlehre-Prognose, Jahresrückblick, Pflege-Serie, Kalender-Wechsel, Geräusche, Saison-Checklisten).
+
 **26.10.2026, v0.212.1 «Die heutige Tour sagt eins»:** UI-Test T1: die heutige Tour zeigt vor der Fahrt überall «Packen», nicht «Letzter Abend», «Abgeschlossen» oder «Alles wurde gebraucht».
 
 **26.10.2026, v0.212.2 «Eine Startzeit»:** UI-Test T2: Unterwegs, «Vor der Abfahrt» und die Live-Karte nennen dieselbe Startzeit; vor dem Start nur «Losfahren».
 
 **26.10.2026, v0.208.0 «Mehr Platz am Computer»:** UI-Ziel #14 erledigt: Touren mit mitlaufender rechter Spalte, Auswerten mit «Letzte 7 Tage» rechts, Velos mit dem Velo zuerst, Inhalt höchstens 1120 px.
+**26.10.2026, v0.219.0 «Heute ruhiger» Teil 1:** keine leeren Kästen mehr auf Heute, kleine Knöpfe als Liste «Schnell öffnen», Velo-Arbeiten als runde Knöpfe. Teil 2 und 3 folgen.
 **25.10.2026, v0.200.0 «Zusammen auf einer Karte»:** Gruppen-Live-Karte: Freunde per Link auf einer Karte, freiwillig teilen, Ende mit der Fahrt, spätestens nach 24 Stunden.
 **25.10.2026, v0.198.0 «Kette vorausschauend»:** Idee «Kette messen mit Verlauf und Prognose» (Das Velo im Griff) gebaut: nächste Schritte der Kette auf Verschleiss, Prognose aus den eigenen Messungen, Tour-Check, Handy-Erinnerung «Kette messen».
 
@@ -898,8 +901,16 @@ Die frühere gespeicherte Datei `2026-10-07-packgenerator-ablaufplan.md` wird al
 
 **26.10.2026, v0.201.0 «Sprechen, anhängen, mit Vorlage starten»:** Eingaben überall: eine gemeinsame Leiste «Hinzufügen» (Sprachnotiz, Foto, Datei, Ort, Schlagwort, Vorlagen, Schreibanreize, KI-Helfer) auf zehn Seiten, Bildkarte im Tagebuch, Tagebuch in der App-Suche (abschaltbar).
 
+> **27.10.2026 Live Navigation PR 2:** Orte (0.222.0). Als Nächstes M13 «Karte frei» (Menü weg, ⋯-Knopf, «In der Nähe», Aufnahme-Hinweis), dann M12 Gruppe auf der Karte mit Treffpunkt.
+
+> **26.10.2026 Live Navigation:** PR 1 «Fahrt speichern» (0.221.0). Danach Orte-Server und Filter, Einstellungen, «Alles», Karte mit schlauer Leiste, Ebenen, Gruppe mit Spur, Garmin Edge 850, Strava hochladen, ÖV-Ersatz, je ein kleiner PR.
+
 **26.10.2026, v0.209.0 «Tagelang zusammen fahren» und v0.210.0 «Deine Liste in Sicht»:** Gruppenfahrt für Events mit eigener Seite und Kontaktkarte; Noahs Wunschliste sichtbar (111 → 77 versteckte Funktionen). Im Sammel-PR mit 0.208.1.
 
 **26.10.2026, v0.211.0 «Zwei Touren, ein Blick»:** Touren-Ideen 44, 45, 47, 49 gebaut (Touren nebeneinander, Sportart pro Tag, unklare Stellen, Grenze). Von Touren a fehlt nichts mehr.
 
 **26.10.2026, v0.212.0 «Touren, die mitdenken»:** Touren-Ideen 50–58 gebaut (Absicht, Regel mit Ende, Geschichten, Panne-Check, Später prüfen, Ort-Notiz, Tag zum Hören, Ess-Stopps, Verbrauch).
+
+**27.10.2026, v0.217.0 «Nichts versteckt sich mehr»:** die 20 tief versteckten Funktionen stehen auf ihrer Seite; 77 → 57 versteckt.
+
+**27.10.2026, v0.218.0 «Platz in jeder Tasche»:** leere Taschen bleiben in «Alle Taschen nebeneinander» als Spalte zum Hineinziehen.

@@ -16,10 +16,10 @@
 
 export const WHATS_NEW = [
   {
-    // v0.218.0 «Was ziehe ich an? selbst anpassen» Schritt 1 (Noah 27.10.2026 «1a 2a oder b wählbar 3a 4a … 5a»): in the
+    // v0.224.0 «Was ziehe ich an? selbst anpassen» Schritt 1 (Noah 27.10.2026 «1a 2a oder b wählbar 3a 4a … 5a»): in the
     // window on Today every row can be swapped or left out and a layer added, for this ride day only; a gap says why
     // (too light, still in «To sort», nothing yet) with «Take anyway» and the wishlist; «Why so?» explains the rule
-    version: '0.218.0',
+    version: '0.224.0',
     date: '2026-10-27',
     title: 'Your clothes, your call',
     lead: '«What do I wear?» now lets you change the suggestion.',
@@ -29,6 +29,86 @@ export const WHATS_NEW = [
       { box: 'new', text: '«Why so?» explains how the app chooses' },
     ],
     test: ['On Today tap «What do I wear?» and then «Swap» on a row: pick another piece; the row says «chosen by you · today only».', 'Open «Why so?» under the list: it names the temperature and from when each layer comes.'],
+  },
+  {
+    // v0.222.0 Live Navigation PR 2 «Orte» (Noah 26.10.2026, filters 1–14, 17, 18): every server in turn with the
+    // true reason when all fail, a quick choice row, filters (open, on the way, detour, climb, features, sort) and presets
+    version: '0.222.0',
+    date: '2026-10-27',
+    title: 'Places that find you',
+    lead: 'Places on the live map: more servers, and filters that think ahead.',
+    points: [{ text: 'Filter places: open now or when you get there, on your way, small detour', href: '#/live' }],
+    small: [{ box: 'new', text: 'Save your filters and use them again' }],
+    test: ['Open the live map and search places around you.', 'Tap «Filter»: choose «Open when I get there» and a detour of 2 km. The list gets shorter and shows «there about …».', 'Tap «Save filters», switch the filter off and pick it again under «Saved filters».'],
+  },
+  {
+    // v0.221.0 Live Navigation PR 1 «Fahrt speichern» (Noah 26.10.2026, mockups M9/M10): «Fahrt beenden» asks once,
+    // every ride is saved at once as its own entry in Touren labelled «Live Navigation», bike km booked with Undo.
+    version: '0.221.0',
+    date: '2026-10-27',
+    title: 'Every ride is saved',
+    lead: '«End the ride» asks once and keeps the ride in Trips.',
+    points: [{ text: 'Each live ride is in Trips as «Live Navigation»', href: '#/trips' }],
+    small: [{ box: 'new', text: 'The km go to your bike by themselves, with Undo', href: '#/live' }],
+    test: ['Open the live map, start a ride and ride a few minutes (or walk).', 'Tap «End the ride», then «End and save»: a line says «Saved in Trips».', 'Open Trips: the ride is there with the label «Live Navigation».'],
+  },
+  {
+    // Velo-Ergänzungen (Noah 26.10.2026 «1 3 6 7 8 12a»): chain checker in the forecast, year in review, care series, calendar, noises, winter and spring. v0.220.0.
+    version: '0.220.0',
+    date: '2026-10-27',
+    title: 'More for your bike',
+    lead: 'Also noises and the calendar.',
+    points: [
+      { text: 'Chain checker corrects the forecast', href: '#/bikes?tab=care&view=wear' },
+      { text: 'Bike year in review', href: '#/bikes?tab=care&view=year' },
+      { text: 'Winter and spring checklists', href: '#/bikes?tab=care&view=season' },
+    ],
+    small: [
+      { box: 'new', text: 'Noise notes with tips from the bike FAQ', href: '#/bikes?tab=care&view=wear' },
+      { box: 'new', text: 'Part changes in your Google calendar', href: '#/me/connections' },
+    ],
+    test: [
+      'Bikes › Care › a bike › «Wear» › «Year in review».',
+      'On «Wear» note a noise under «Noises».',
+    ],
+  },
+  {
+    // v0.219.0 «Heute ruhiger» part 1 (Noah 26.10.2026 «1a 5a», mockup H1): cards as tall as their content, the small
+    // tiles as one list «Schnell öffnen», the bike jobs as small round buttons
+    version: '0.219.0',
+    date: '2026-10-27',
+    title: 'A calmer Today',
+    lead: 'No more empty boxes on Today.',
+    points: [
+      // all on Today itself, so no «Try it» address (0.121.0: '#/' would do nothing)
+      { text: 'Today: every card is only as tall as its content' },
+      { text: 'The small buttons are one list «Open quickly»' },
+    ],
+    small: [{ box: 'nicer', text: 'Bikes on Today: the jobs are small round buttons' }],
+    test: ['Open Today: no card has a big empty space below.', 'Scroll to «Open quickly»: the small buttons stand in one list, a tap opens the place.', 'Look at the bike card: the jobs are small round buttons.'],
+  },
+  {
+    // v0.218.0 «Leere Taschen nehmen Teile auf» (Noah 26.10.2026 22:06 «starte mit 1, dann 3»): in «All bags side by
+    // side» an empty bag stays as a column to drag an item into
+    version: '0.218.0',
+    date: '2026-10-27',
+    title: 'Room in every bag',
+    lead: 'An empty bag now takes an item too.',
+    points: [{ text: 'All bags side by side: empty bags stay as a column to drag into', href: '#/pack?day' }],
+    small: [{ box: 'new', text: 'The arrows next to an item offer the empty bags too', href: '#/pack?day' }],
+    test: ['On the computer open Packen › Alle Taschen nebeneinander and drag an item into an empty bag, or use the arrows next to the item.', 'The bag now shows the item; «Undo» puts it back.'],
+  },
+  {
+    // v0.217.0 «332 sichtbar» (Noah 26.10.2026 «starte mit 1, dann 3 und danach 2», 2 = the 20 deeply hidden functions):
+    // catalogue names as the page shows them, short lines on Verpflegung, Fahrten, the meditation log and the evening check,
+    // a Trello button on Merken; hidden functions 77 → 57
+    version: '0.217.0',
+    date: '2026-10-27',
+    title: 'Nothing hides any more',
+    lead: 'Twenty tools that were hard to find now stand where you look.',
+    points: [{ text: 'Remember: a Trello button at the top leads to your board settings', href: '#/calendar' }],
+    small: [{ box: 'new', text: 'Food and water and Rides say in one line what they can do', href: '#/trips/fuel' }],
+    test: ['Open Planen › Merken and tap «Trello» next to «Reminders».', 'The page jumps down to the Trello box.'],
   },
   {
     // v0.212.2 UI-Test 26.10.2026 T2 «Unterwegs: eine Startzeit, vor dem Start nur Losfahren» (G2-07, G2-15): one start

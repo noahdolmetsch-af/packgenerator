@@ -15,6 +15,8 @@ import { addDays } from './agenda.js';
 import { newNote } from './notes.js';
 import { t } from './i18n.svelte.js';
 import { isTestTrip, isArchived } from './testname.js';
+import { wearRows, wearItems } from './wear.js';
+import { withVisits } from './workshop.js';
 
 export const OWN_KEY = 'google.own';
 /** Reminder of a tour: two days before at 18:00 (an all-day event starts at 0:00, 30 hours later). */
@@ -27,6 +29,8 @@ export const prefsOf = (v) => ({
   cal: v?.cal === true,
   notes: v?.notes === true,
   remind: v?.remind !== false,
+  // Noah 26.10.2026 «7a»: the coming part changes of the bikes too (on with the calendar, own switch)
+  wear: v?.wear !== false,
   // the Google login allows the own calendar (status «owncal»)
   owncal: v?.owncal === true,
   calId: typeof v?.calId === 'string' ? v.calId : null,
@@ -78,6 +82,10 @@ export async function syncCal({ db = appDb, c = call, today = localDay(), force 
   const p = prefsOf((await db.settings.get(OWN_KEY))?.value);
   if (!p.cal) return null;
   const items = tripItems(await db.trips.toArray(), today, { remind: p.remind });
+  if (p.wear) {
+    const [bikes, visits, entries] = await Promise.all([db.bikes.toArray(), db.visits.toArray(), db.kmBook.toArray()]);
+    items.push(...wearItems(bikes.map((b) => ({ bike: b, rows: wearRows(withVisits(b, visits), { entries, today }) })), today, t));
+  }
   const fp = fingerprint(items);
   const fresh = p.calAt && Date.now() - Date.parse(p.calAt) < 24 * 3600e3;
   if (!force && fp === p.lastCal && fresh) return { skipped: true };

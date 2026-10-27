@@ -152,7 +152,8 @@ const toMin = (s) => {
 
 /**
  * Parse «Mo-Fr 08:00-18:30; Sa 08:00-16:00; Su off», «24/7», «Mo-Sa 07:00-12:00,13:30-18:30».
- * → { always: true } | { days: [[{ from, to }]] (index 0 = Monday) } | null (not understood)
+ * Public holidays («PH off», «Su,PH 10:00-12:00») go into `ph` (Live Navigation PR 3; poifilter.js openOn).
+ * → { always: true } | { days: [[{ from, to }]] (index 0 = Monday), ph?: [{ from, to }] } | null (not understood)
  */
 export function parseHours(s = '') {
   const str = String(s).trim();
@@ -160,12 +161,15 @@ export function parseHours(s = '') {
   if (/^24\/7$/.test(str)) return { always: true };
   const days = Array.from({ length: 7 }, () => null);
   let any = false;
+  let ph = null;
   for (const raw of str.split(';')) {
     const part = raw.trim();
-    if (!part || /^PH\b/.test(part)) continue;
-    const m = part.match(/^((?:(?:Mo|Tu|We|Th|Fr|Sa|Su)(?:-(?:Mo|Tu|We|Th|Fr|Sa|Su))?,?)+)?\s*(.*)$/);
+    if (!part) continue;
+    const m = part.match(/^((?:(?:Mo|Tu|We|Th|Fr|Sa|Su|PH)(?:-(?:Mo|Tu|We|Th|Fr|Sa|Su))?,?)+)?\s*(.*)$/);
     if (!m) return null;
-    const sel = m[1] ? m[1].split(',').filter(Boolean) : ['Mo-Su'];
+    const all = m[1] ? m[1].split(',').filter(Boolean) : ['Mo-Su'];
+    const onPh = all.includes('PH');
+    const sel = all.filter((d) => d !== 'PH');
     const what = m[2].trim();
     const idx = [];
     for (const d of sel) {
@@ -188,11 +192,13 @@ export function parseHours(s = '') {
         spans.push({ from: toMin(t[1]), to: toMin(t[2]) <= toMin(t[1]) ? toMin(t[2]) + 1440 : toMin(t[2]) });
       }
     }
+    if (onPh) ph = spans;
+    if (!sel.length) continue;
     for (const k of idx) days[k] = spans;
     any = true;
   }
   if (!any) return null;
-  return { days: days.map((d) => d ?? []) };
+  return { days: days.map((d) => d ?? []), ...(ph ? { ph } : {}) };
 }
 
 /**

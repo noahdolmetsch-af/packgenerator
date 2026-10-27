@@ -26,6 +26,7 @@
   import ChainRotation from './ChainRotation.svelte';
   import GriffMore from './GriffMore.svelte';
   import WetChainHint from './WetChainHint.svelte';
+  import NoiseCard from './NoiseCard.svelte';
   import ChainPlan from './ChainPlan.svelte'; // «Kette vorausschauend» (25.10.2026)
   import StandCheck from './StandCheck.svelte'; // Einzelidee Heute 6: after the standstill
   import { brandStats, bestFor } from '../griff.js';
@@ -124,10 +125,11 @@
       </nav>
     {/if}
 
-    <!-- «Alles finden 2» (new proposal): the pages of «Mehr zum Velo» (4 screens down) as one row on top -->
+    <!-- «Alles finden 2» (new proposal): the pages of «Mehr zum Velo» (4 screens down) as one row on top;
+         Noah 26.10.2026 «1 3 7 8 12a»: chain checker, noises, year in review, winter and spring, calendar too -->
     <!-- «Velos sichtbar» (332 Use Cases, Noah 24.10.2026 «1a 2b»): chain rotation and «what lasts longest» stand
          4 screens down; two chips jump there (they show only while that part is on the page) -->
-    <QuickLinks label={t('More for the bike')} links={[...[['photos', 'Wear photos'], ['sell', 'Sale listing'], ['bikepack', 'Pack the bike'], ['stock', 'Spare parts at home']].map(([view, title]) => ({ key: view, href: bikesHash({ tab: 'care', view, bike: bike.id }), label: t(title) })), { key: 'rotation', jump: '[id^="rot-h-"]', label: t('Chain rotation') }, { key: 'brand', jump: '#gm-brand', label: t('What lasts longest') }]} />
+    <QuickLinks label={t('More for the bike')} links={[...[['photos', 'Wear photos'], ['sell', 'Sale listing'], ['bikepack', 'Pack the bike'], ['stock', 'Spare parts at home']].map(([view, title]) => ({ key: view, href: bikesHash({ tab: 'care', view, bike: bike.id }), label: t(title) })), { key: 'rotation', jump: '[id^="rot-h-"]', label: t('Chain rotation') }, { key: 'brand', jump: '#gm-brand', label: t('What lasts longest') }, ...(rows.some((r) => r.key === 'chain') ? [{ key: 'measure', jump: '[data-wear="chain"]', label: t('Chain checker in the forecast') }] : []), { key: 'noises', jump: '[data-noises]', label: t('Noise notes') }, ...[['year', 'Year in review'], ['season', 'Winter and spring']].map(([view, title]) => ({ key: view, href: bikesHash({ tab: 'care', view, bike: bike.id }), label: t(title) })), { key: 'cal', href: '#/me/connections', label: t('Part changes in the calendar') }]} />
     <WetChainHint {bike} />
     <StandCheck {bike} />
     <ChainPlan {bike} />
@@ -189,6 +191,11 @@
               <p class="quiet">{t('The app does not know when this part was mounted.')} <a class="lnk" href={bikesHash({ tab: 'care', bike: bike.id, open: true })}>{t('Set a start point in Bike care')}</a></p>
             {/if}
             {#if whyText(r)}<p class="quiet">{whyText(r)}</p>{/if}
+            {#if r.meas}
+              <p class="quiet num" data-wear-meas={r.byMeas ? 'counts' : 'fine'}>{t('Chain checker: {value} % at {km} km ({date})', { value: num(r.meas.value), km: num(r.meas.km), date: dateOf(r.meas.date) })}{' · '}{r.meas.left > 0 ? t('about {km} km to {limit} %', { km: num(r.meas.left), limit: num(r.meas.limit) }) : t('at the limit of {limit} %', { limit: num(r.meas.limit) })}{#if r.byMeas}{' · '}{t('the forecast follows your measurement')}{/if}</p>
+            {:else if r.key === 'chain' && r.km != null}
+              <p class="quiet" data-wear-meas="none">{t('Measure the chain with a chain checker: the forecast gets more exact.')}</p>
+            {/if}
             {#if (r.state === 'soon' || r.state === 'due') && bestFor(stats, r.key)}<p class="quiet" data-wear-best>{t('Lasted longest for you: {brand}, about {km} km', { brand: bestFor(stats, r.key).brand, km: num(bestFor(stats, r.key).km) })}</p>{/if}
             {#if r.since}<p class="quiet num">{t('Since the last service on {date}: {km} km', { date: dateOf(r.since.date), km: num(r.since.km) })}</p>{/if}
             <p class="quiet src">{r.life.km ? t('Lasts about {km} km', { km: num(r.life.km) }) : ''}{r.life.km ? ` · ${srcText(r.life)}` : ''}{#if r.cost}{' · '}{t('CHF {chf} per 1000 km', { chf: num(r.cost.chf) })}{/if}</p>
@@ -234,6 +241,7 @@
     <!-- Paket VG «Das Velo im Griff»: chain rotation (1135), what lasts longest (1133), the pages and the reminders -->
     <div class="gp">
       <ChainRotation {bike} />
+      <NoiseCard {bike} {view} />
       <GriffMore {bike} {stats} />
     </div>
     <p class="quiet"><a class="lnk" href={bikesHash({ tab: 'shop', bike: bike.id })}>{t('Workshop visits and receipts')}<ChevronRight size={14} aria-hidden="true" /></a></p>

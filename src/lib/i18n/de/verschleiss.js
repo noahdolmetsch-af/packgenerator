@@ -79,4 +79,10 @@ export default {
   'When a part reaches its km, e.g. the chain. At 08:00.': 'Wenn ein Teil seine km erreicht, z. B. die Kette. Um 08:00.',
   '{bike}: {part} reaches {life} km soon ({km} km left). Time to replace it.': '{bike}: {part} erreicht bald {life} km (noch {km} km). Zeit zum Ersetzen.',
   '{bike}: {part} has reached {life} km. Time to replace it.': '{bike}: {part} hat {life} km erreicht. Zeit zum Ersetzen.',
+  // Noah 26.10.2026 «1a»: the chain checker corrects the forecast
+  'Chain checker: {value} % at {km} km ({date})': 'Kettenlehre: {value} % bei {km} km ({date})',
+  'about {km} km to {limit} %': 'noch etwa {km} km bis {limit} %',
+  'at the limit of {limit} %': 'an der Grenze von {limit} %',
+  'the forecast follows your measurement': 'die Prognose folgt deiner Messung',
+  'Measure the chain with a chain checker: the forecast gets more exact.': 'Miss die Kette mit der Kettenlehre: Die Prognose wird genauer.',
 };
