@@ -72,7 +72,7 @@ export default {
   'Voice announcements': 'Sprachansagen',
   'The phone says the next shop or climb a few km ahead.': 'Das Handy sagt den nächsten Laden oder Anstieg ein paar km vorher an.',
   'Off-route warning': 'Warnung neben der Strecke',
-  'A tone and a vibration when you are more than 100 m off the route.': 'Ein Ton und eine Vibration, wenn du mehr als 100 m neben der Strecke bist.',
+  'A tone and a vibration when you are more than 100 m off the route. The app then plans the way back by itself.': 'Ein Ton und eine Vibration, wenn du mehr als 100 m neben der Strecke bist. Die App plant dann den Weg zurück von selbst.',
   'Needs a route.': 'Braucht eine Strecke.',
   'Eat every 300 m up': 'Essen alle 300 Hm',
   'On top of the eat reminder by time: a vibration after 300 m of climbing.': 'Zusätzlich zur Ess-Erinnerung nach Zeit: eine Vibration nach 300 Hm Aufstieg.',

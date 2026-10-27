@@ -19,7 +19,7 @@
    * map), line ([[lat, lon]] | null: the route), profile ([[km, m]] | null: for the detour climb),
    * onpoints (places → void: the places of the switched-on kinds, each with d = distanceOf, for the
    * map symbols; a place of an own kind has the kind of its icon and catName), tripId (the route's
-   * cache), canTap (the host sends map taps to tapMap()), ontapmode (bool → void: waiting for a tap on
+   * cache), canTap (the host sends map taps to tapMap()), ongo (place → void: «Go there» in the details), ontapmode (bool → void: waiting for a tap on
    * the map, e.g. to show the map), fetcher (tests only).
    */
   import { untrack } from 'svelte';
@@ -41,9 +41,14 @@
   import { iconOf } from './poiicons.js';
   import { titleOf, kindText, distText, openText } from './poitext.js';
   import PoiDetail from './PoiDetail.svelte';
+  import PoiFilter from './PoiFilter.svelte';
+  import { applyFilter, NO_FILTER, normFilter } from './poifilter.js';
+  import { SITUATIONS, SITUATION, situationOf } from './situations.js';
+  import { sunTimes } from '../blockplan.js';
+  import { localDay } from '../localday.js';
   import OwnPointSheet from './OwnPointSheet.svelte';
 
-  let { center = null, bounds = null, line = null, profile = null, onpoints = undefined, tripId = null, canTap = false, ontapmode = undefined, fetcher = undefined } = $props();
+  let { center = null, bounds = null, line = null, profile = null, onpoints = undefined, tripId = null, canTap = false, ontapmode = undefined, fetcher = undefined, ongo = undefined } = $props();
 
   const hasLine = $derived(Array.isArray(line) && line.length >= 2);
   const prefsQ = prefsQuery();
@@ -163,6 +168,13 @@
     radiusBad = false;
     remember();
   }
+  // the servers were too busy for this radius: half of it, as your own radius (one tap)
+  function smallerRadius(km) {
+    radiusKm = km;
+    radiusText = RADII.includes(km) ? '' : num(km);
+    radiusBad = false;
+    remember();
+  }
   function setOwnRadius() {
     if (!String(radiusText).trim()) {
       radiusBad = false;
@@ -184,12 +196,70 @@
     const nm = prefs.names[p.kind];
     return nm ? { ...p, cat: p.kind, catName: nm } : { ...p, cat: p.kind };
   }
-  const places = $derived(res?.list?.length ? withDistance(res.list, from, modeNow === 'route' ? line : null).map(deco) : []);
+  const found = $derived(res?.list?.length ? withDistance(res.list, from, modeNow === 'route' ? line : null).map(deco) : []);
+  // Live Navigation PR 3: the filters (poifilter.js); the clock moves on every minute for «open now»
+  let nowMs = $state(Date.now());
+  $effect(() => {
+    const id = setInterval(() => (nowMs = Date.now()), 60e3);
+    return () => clearInterval(id);
+  });
+  const onRoute = $derived(modeNow === 'route' && hasLine);
+  const fctx = $derived.by(() => {
+    const now = new Date(nowMs);
+    const routePts = onRoute ? ptsOf(line) : [];
+    return {
+      now,
+      starred: prefs.starred.map((p) => p.id),
+      visited: prefs.visited,
+      profile: onRoute ? profile : null,
+      myKm: routePts.length && from ? distanceOf(from, from, routePts).atKm : null,
+      endKm: routePts.at(-1)?.km ?? null,
+      sun: from ? sunTimes(localDay(now), from.lat, from.lon) : null,
+      onRoute,
+    };
+  });
+  const places = $derived(applyFilter(found, prefs.filter, fctx));
   $effect(() => {
     const list = places;
     untrack(() => onpoints?.(on.length ? list : []));
   });
   const shown = $derived(showAll ? places : places.slice(0, FIRST));
+  const etaText = (ms) => (ms ? new Date(ms).toLocaleTimeString(locale(), { hour: '2-digit', minute: '2-digit' }) : '');
+  // Suchvorschläge (Noah 27.10.2026 «1a»): the situation buttons. One tap switches its kinds on (put into
+  // the row when needed), the others off, and its filter (e.g. «open now»); what the situation before
+  // switched on goes back. A second tap switches them off again.
+  const sitNow = $derived(situationOf(on));
+  const ALL_RADIUS_KM = 2;
+  let allOn = $state(false);
+  function situation(s) {
+    const prev = SITUATION[sitNow];
+    const back = prev ? Object.fromEntries(Object.keys(prev.filter).map((k) => [k, NO_FILTER[k]])) : {};
+    allOn = false;
+    if (sitNow === s.key) {
+      on = [];
+      savePrefs((v) => ({ ...v, on: [], mode, radiusKm, filter: normFilter({ ...v.filter, ...back }) })).catch(() => {});
+      return;
+    }
+    on = [...s.kinds];
+    const snap = [...s.kinds];
+    savePrefs((v) => ({ ...s.kinds.reduce((acc, k) => showChip(acc, k), v), on: snap, mode, radiusKm, filter: normFilter({ ...v.filter, ...back, ...s.filter }) })).catch(() => {});
+  }
+  // «Alles» (Noah 27.10.2026): every kind of your row at once, around you within 2 km so it stays quick
+  function everything() {
+    if (allOn) {
+      allOn = false;
+      on = [];
+      remember();
+      return;
+    }
+    allOn = true;
+    on = [...prefs.row];
+    if (modeNow === 'around' && radiusKm > ALL_RADIUS_KM) {
+      radiusKm = ALL_RADIUS_KM;
+      radiusText = RADII.includes(ALL_RADIUS_KM) ? '' : num(ALL_RADIUS_KM);
+    }
+    remember();
+  }
   const moved = $derived(modeNow === 'here' && viewMoved(lastBounds, bounds));
   const tooBig = $derived(modeNow === 'here' && !!bounds && boundsKm(bounds) > MAX_VIEW_KM);
   const when = (ms) => (ms ? new Date(ms).toLocaleString(locale(), { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : '');
@@ -206,7 +276,12 @@
     const count = res.list.length ? tn(res.list.length, '{n} place found', '{n} places found', {}) : t('Nothing found here.|poi');
     const asOf = res.at ? t('as of {when}|poi', { when: when(res.at) }) : '';
     if (e === 'offline') return { kind: res.stale ? 'warn' : 'bad', text: res.stale ? `${t('Offline: the kept places, as of {when}.|poi', { when: when(res.at) })} ${count}` : t('Offline and nothing kept for here. Search once with internet.|poi') };
-    if (e === 'busy' || e === 'failed') return { kind: 'bad', retry: true, text: res.stale ? t('OpenStreetMap is busy; showing the kept places, as of {when}.|poi', { when: when(res.at) }) : t('OpenStreetMap is busy right now. Try again in a minute.|poi') };
+    // Live Navigation PR 2: the true reason; with kept places, they stay with their date
+    const kept = res.stale ? ` ${t('Showing the kept places, as of {when}.|poi', { when: when(res.at) })}` : '';
+    const smaller = modeNow === 'around' && radiusKm > 2 ? Math.max(2, Math.round(radiusKm / 2)) : null;
+    if (e === 'busy') return { kind: 'bad', retry: true, smaller, text: `${t('All OpenStreetMap servers are full or too slow right now.|poi')}${kept || ` ${smaller ? t('A smaller radius often works.|poi') : t('Try again in a minute.|poi')}`}` };
+    if (e === 'net') return { kind: 'bad', retry: true, text: `${t('No OpenStreetMap server could be reached. Check the internet connection.|poi')}${kept}` };
+    if (e === 'failed') return { kind: 'bad', retry: true, text: `${t('The search did not work (an error at OpenStreetMap).|poi')}${kept}` };
     return { kind: 'ok', text: [count, res.cut ? t('the nearest {n}|poi', { n: num(MAX_PLACES) }) : '', asOf].filter(Boolean).join(' · ') };
   });
 
@@ -421,6 +496,17 @@
 <section class="pp" aria-labelledby={hid} data-poi-panel>
   <h3 id={hid} class="pp-title">{t('Places on the map|poi')}</h3>
 
+  <div class="pp-sits" role="group" aria-labelledby="{hid}-q" data-poi-quick>
+    <span class="pp-qlab" id="{hid}-q">{t('What do you need?|poi')}</span>
+    <div class="pp-sitgrid">
+      {#each SITUATIONS as s (s.key)}
+        <button type="button" class="pp-sit" aria-pressed={sitNow === s.key && !allOn} onclick={() => situation(s)} data-poi-quick-btn={s.key}><span class="pp-emo" aria-hidden="true">{s.emoji}</span>{t(s.name)}</button>
+      {/each}
+      <button type="button" class="pp-sit" aria-pressed={allOn} onclick={everything} data-poi-all><span class="pp-emo" aria-hidden="true">✳️</span>{t('Everything|poi')}</button>
+    </div>
+    {#if allOn}<p class="pp-sithint" data-poi-sithint>{t('Every kind of your row at once, within {km} km.|poi', { km: num(ALL_RADIUS_KM) })}</p>
+    {:else if sitNow}<p class="pp-sithint" data-poi-sithint>{t('«{name}» looks for: {kinds}.|poi', { name: t(SITUATION[sitNow].name), kinds: SITUATION[sitNow].kinds.map(labelOf).join(', ') })}{#if SITUATION[sitNow].filter.open === 'now'}{' '}{t('Only what is open now.|poi')}{/if}</p>{/if}
+  </div>
   <div class="pp-chips" role="group" aria-label={t('Kinds of places|poi')} data-poi-chips>
     {#each chips as c (c.key)}
       {@const Icon = iconOf(c.icon)}
@@ -527,9 +613,18 @@
           <RefreshCw size={14} aria-hidden="true" />{status.retry ? t('Try again') : t('Load again')}
         </button>
       {/if}
+      {#if status.smaller}
+        <button type="button" class="pp-re" onclick={() => smallerRadius(status.smaller)} disabled={busy} data-poi-smaller>{t('Search {km} km around me|poi', { km: num(status.smaller) })}</button>
+      {/if}
     </p>
   {/if}
 
+  {#if found.length}
+    <PoiFilter filter={prefs.filter} presets={prefs.presets} hasRoute={onRoute} hasProfile={onRoute && Array.isArray(profile) && profile.length > 1} shown={places.length} total={found.length} />
+    {#if !places.length}
+      <p class="pp-status pp-warn" role="status" data-poi-filter-empty>{t('No place fits the filters. Switch a filter off.|poi')}</p>
+    {/if}
+  {/if}
   {#if places.length}
     <div class="pp-fold">
       <button type="button" class="pp-fh" aria-expanded={listOpen} onclick={() => (listOpen = !listOpen)} data-poi-list-toggle>
@@ -546,13 +641,13 @@
                 <span class="pp-ic" aria-hidden="true"><Icon size={16} /></span>
                 <span class="pp-txt">
                   <span class="pp-name">{titleOf(p)}</span>
-                  <span class="pp-meta"><span class="num">{distText(p.d)}</span>{#if o.text}{' · '}<span class="pp-o-{o.state}">{o.text}</span>{/if}</span>
+                  <span class="pp-meta"><span class="num">{distText(p.d)}</span>{#if p.eta && (prefs.filter.open === 'arrive' || prefs.filter.sort === 'arrive' || prefs.filter.dark)}{' · '}<span class="num" data-poi-eta>{t('there about {time}|poi', { time: etaText(p.eta) })}</span>{/if}{#if o.text}{' · '}<span class="pp-o-{o.state}">{o.text}</span>{/if}{#if p.last && onRoute}{' · '}<span class="pp-last" data-poi-last>{t('Last chance|poi')}</span>{/if}</span>
                 </span>
               </button>
               <a class="pp-nav" href={nav.google} target="_blank" rel="noopener noreferrer" aria-label={t('Navigate with Google Maps to {name}|poi', { name: titleOf(p) })}><Navigation size={16} aria-hidden="true" /><span>G</span></a>
               <a class="pp-nav" href={nav.osmand} target="_blank" rel="noopener noreferrer" aria-label={t('Navigate with OsmAnd to {name}|poi', { name: titleOf(p) })}><Navigation size={16} aria-hidden="true" /><span>O</span></a>
               {#if picked?.id === p.id}
-                <div class="pp-detail"><PoiDetail place={p} {from} line={modeNow === 'route' || pts.length ? line : null} {profile} onclose={() => (picked = null)} /></div>
+                <div class="pp-detail"><PoiDetail place={p} {from} line={modeNow === 'route' || pts.length ? line : null} {profile} {ongo} onclose={() => (picked = null)} /></div>
               {/if}
             </li>
           {/each}
@@ -835,6 +930,53 @@
     font-size: var(--fs-tiny);
     color: var(--ink-3);
     overflow-wrap: break-word;
+  }
+  .pp-sits {
+    display: grid;
+    gap: var(--sp-2);
+  }
+  .pp-sitgrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(92px, 1fr));
+    gap: var(--sp-2);
+  }
+  .pp-sit {
+    display: grid;
+    justify-items: center;
+    align-content: center;
+    gap: 2px;
+    min-height: 64px;
+    padding: 8px 4px;
+    border: 1px solid var(--line-strong);
+    border-radius: 14px;
+    background: var(--paper);
+    color: var(--ink);
+    font: 600 var(--fs-small) var(--font-body);
+    text-align: center;
+    overflow-wrap: break-word;
+    cursor: pointer;
+  }
+  .pp-sit[aria-pressed='true'] {
+    background: var(--brand);
+    border-color: var(--brand);
+    color: var(--brand-ink);
+  }
+  .pp-emo {
+    font-size: var(--fs-section);
+    line-height: 1;
+  }
+  .pp-sithint {
+    margin: 0;
+    font-size: var(--fs-small);
+    color: var(--ink-2);
+  }
+  .pp-qlab {
+    font-size: var(--fs-small);
+    color: var(--ink-2);
+  }
+  .pp-last {
+    color: var(--warn);
+    font-weight: 600;
   }
   .pp-o-open {
     color: var(--ok);

@@ -421,7 +421,7 @@ export const HANDBOOK = {
   },
   'f.eatremind': {
     on: null,
-    steps: ['On On the way choose 30, 45 or 60 min and tap «Start eat reminder».', '«Eaten» starts the next interval; «Stop» ends it.'],
+    steps: ['On On the way choose 30, 45 or 60 min and tap «Start eat reminder».', '«Eaten» starts the next interval; «Stop» ends it.', 'With stops planned in Supplies choose «At stops»: it rings at each stop and after 60 min without one.'],
     example: 'Example: start at 08:00 → 08:45 a buzz → «Eaten» → next at 09:30.',
   },
   // Paket W «Von der Haustür bis zurück» (Noah 20.10.2026)
@@ -473,8 +473,44 @@ export const HANDBOOK = {
   // Paket Z and SP (Noah 20.10.2026)
   'f.breakdown': {
     on: null,
-    steps: ['In the debrief under «For next time» tap «Note a breakdown».', 'Choose what broke; with the tick a bike-care job waits in Velopflege.'],
+    steps: ['In the debrief under «For next time» tap «Note a breakdown».', 'Choose what broke; with the tick a bike-care job waits in Velopflege.', 'Tick «A check for next time»: it comes the evening before every next tour of this type.'],
     example: 'Example: a flat after the pass → a job «Check tyre and tube» and next time «Spare tube» as a suggestion.',
+  },
+  // Paket «Touren b» (996 Ideen 50–58)
+  'f.ruleuntil': {
+    on: null,
+    steps: ['Open Gear › Building blocks and a block with a rule.', 'Under «Holds» choose always, only for one tour or until a day.', 'When it is over, a card asks: keep it always or no longer suggest it.'],
+    example: 'Example: «Rain» only for the Jura tour → after the tour the card asks whether it stays.',
+  },
+  'f.itemstories': {
+    on: 'Needs a voice note on an item first.',
+    steps: ['Open an item and record a short voice note.', 'On the packing day the card «Little stories» plays it.'],
+    example: 'Example: the pump says «it saved the Napf tour».',
+  },
+  'f.intent': {
+    on: null,
+    steps: ['Tap «New» › «Plan a trip».', 'Under «What do you have in mind?» choose an intent and change the preset answers.', '«Create trip» makes the tour; its questions come back in the look back.'],
+    example: 'Example: «Test a night out», tent, cooking → a test night of 2 days, and afterwards «Did the cooking work?».',
+  },
+  'f.checklater': {
+    on: 'Needs a trip on its way.',
+    steps: ['On On the way tap «Check later» under the note.', 'Choose the item; the note waits in the Inbox with the day.'],
+    example: 'Example: the brake squeaks → «Check later: brake» in the Inbox.',
+  },
+  'f.placenote': {
+    on: 'Needs a tour with a route.',
+    steps: ['Open a note › «Remind» › «At a point of the route».', 'Choose the tour and the km, or a planned stop.', 'On the live map it comes 500 m before, with a sound and a vibration.'],
+    example: 'Example: km 48 «Fill the bottles at the fountain».',
+  },
+  'f.daylisten': {
+    on: 'Needs voice notes from a tour.',
+    steps: ['Open the debrief of a tour.', '«Your day to listen to» plays all voice notes of the day; arrows or drag change the order.', '«As text» turns them into words on this device.'],
+    example: 'Example: five notes of the Jura day, 2 min in a row.',
+  },
+  'f.usedbook': {
+    on: 'Needs food or other things with a stock on the list.',
+    steps: ['Open the debrief of a tour.', 'Count what was used with + and −; add what you bought on the way.', '«Book» lowers the stock, fills the shopping list and writes the costs; Undo takes it back.'],
+    example: 'Example: 4 of 6 gels used → stock 2, gels on the shopping list.',
   },
   'f.sleepspots': {
     on: null,
@@ -662,6 +698,36 @@ export const HANDBOOK = {
     on: null,
     steps: ['Bikes › Care › a bike: «Setup photos» top right opens the timeline; «+ Photo» adds a setup of today.', '«…» at a photo: change the day, rename, show it behind the bike, remove.', 'Report a problem with several photos; cut the edges or keep them all as one PDF in Me › Documents.'],
     example: 'Example: photo of the new bag setup → it shows pale at the top of Bike care and lines up under this month.',
+  },
+  'f.chainmeasure': {
+    on: null,
+    steps: ['Measure the chain in Bike care with the chain checker, e.g. 0.3 %.', '«Wear» shows the value and the km to 0.5 %.', 'When it wears faster than the km say, the forecast follows it.'],
+    example: 'Example: 0.3 % after 1000 km → about 650 km to 0.5 %.',
+  },
+  'f.bikeyear': {
+    on: null,
+    steps: ['Bikes › Care › a bike › «Wear» › «Year in review».', 'Choose a year; all bikes on top, then each bike.', 'Each change says how long the old part lasted.'],
+    example: 'Example: 2026: 4200 km, chain and tyres changed, CHF 160.',
+  },
+  'f.bikeseason': {
+    on: null,
+    steps: ['Bikes › Care › a bike › «Wear» › «Winter and spring».', 'Tick the points; add, rename, move or delete them.', 'The ticks are per bike and season.'],
+    example: 'Example: «Pump the tyres to the upper pressure» ticked in November.',
+  },
+  'f.noises': {
+    on: null,
+    steps: ['Bikes › Care › a bike › «Wear» › «Noises»: describe it.', 'Tips from the bike FAQ show below it.', 'After a change the app asks «Is the noise gone?».'],
+    example: 'Example: «creaks when pedalling» → tip «Something creaks. Where?».',
+  },
+  'f.carestreak': {
+    on: null,
+    steps: ['Bikes › Care › a bike › «Wear»: the line below the rain hint.', 'Care the same day or the next counts.', 'A wet day without care starts a new series.'],
+    example: 'Example: «Chain cared for after rain: 5 times in a row».',
+  },
+  'f.wearcal': {
+    on: null,
+    steps: ['Me › Connections › Calendar «Packgenerator».', 'Switch on «Part changes of your bikes».', 'The evening before at 18:00 your phone reminds you.'],
+    example: 'Example: «Test bike: replace Chain» on 1 December.',
   },
   'f.wetchain': {
     on: null,

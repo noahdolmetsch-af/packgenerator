@@ -151,7 +151,8 @@
   <header class="ph">
     <Crumb path={[{ href: '#/flow', label: t('Active|place') }, { href: base, label: act ? actName(act) : t('Meditation') }]} here={t('Logbook')} />
     <h1 class="h1" tabindex="-1" data-page-title>{t('Logbook')}</h1>
-    <p class="sub">{act ? actName(act) : t('Meditation')} · {t('every number opens the matching sessions')}</p>
+    <!-- «332 sichtbar»: the catalogue name «Meditation log»; another meditation kind keeps its own name after it -->
+    <p class="sub">{t('Meditation log')}{act && actName(act) !== t('Meditation') ? `: ${actName(act)}` : ''} · {t('every number opens the matching sessions')}</p>
   </header>
 
   <div class="tools">

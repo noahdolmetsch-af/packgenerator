@@ -1,10 +1,12 @@
 import { describe, it, expect } from 'vitest';
 import {
   prefsOf, PREFS_STD, wetRides, wetChainEntry, chainCaredOn, shotsOf, shotDue, ownShot, saleText,
-  PACK_STD, packOf, addPackItem, renamePackItem, removePackItem, movePackItem, tickPack, ticksOf, clearPack,
+  PACK_STD, packOf, addPackItem, renamePackItem, removePackItem, movePackItem, ticksOf, clearPack,
   stockOf, usedSince, stockRow, addStock, changeStock, removeStock,
   brandOf, brandStats, bestFor, springDay, springText, syncSpring, SPRING_SRC,
   rotationOf, addChain, renameChain, removeChain, swapChain, rotationSet, ROTATE_STD,
+  careStreak, wetDaysOf, noiseTips, noisesOf, addNoise, renameNoise, removeNoise, solveNoise, reopenNoise, noiseAsk,
+  seasonOf, WINTER_STD, SPRING_STD, tickPack, ticksOf as ticksOfSeason,
 } from '../src/lib/griff.js';
 
 // Paket VG «Das Velo im Griff» (Noah 20.10.2026): fictional bikes, fictional km, plain calendar days.
@@ -202,5 +204,62 @@ describe('1135 chain rotation', () => {
     const gone = { ...bike, ...removeChain(bike, 'b') };
     expect(rotationOf(gone)).toMatchObject({ on: false, current: 'a', due: false });
     expect(rotationOf({ km: 10 })).toMatchObject({ on: false, list: [], current: null, due: false });
+  });
+});
+
+describe('Noah 26.10.2026 «6a»: care series after rain', () => {
+  const svc = (date) => ({ date, km: 0, action: 'service', result: 'done', by: 'self' });
+  const bike = (dates) => ({ parts: [{ key: 'chain', history: dates.map(svc) }] });
+  it('counts the wet days in a row with care that day or the next; today and yesterday still have time', () => {
+    const wet = ['2026-10-01', '2026-10-05', '2026-10-09', '2026-10-12'];
+    expect(careStreak(bike(['2026-10-06', '2026-10-09', '2026-10-13']), wet, '2026-10-20')).toEqual({ streak: 3, cared: 3, of: 4 });
+    expect(careStreak(bike(['2026-10-06']), wet, '2026-10-20')).toEqual({ streak: 0, cared: 1, of: 4 });
+    expect(careStreak(bike(['2026-10-06', '2026-10-10']), [...wet, '2026-10-19'], '2026-10-20').streak).toBe(0);
+    expect(careStreak(bike(['2026-10-12']), ['2026-10-12', '2026-10-19'], '2026-10-20').streak).toBe(1);
+    expect(careStreak(bike([]), [], '2026-10-20')).toEqual({ streak: 0, cared: 0, of: 0 });
+  });
+  it('takes the wet days of one bike from counted rides', () => {
+    const e = (bikeId, date, wet, state = 'counted') => ({ bikeId, date, wet, state, kind: 'ride' });
+    expect(wetDaysOf([e('a', '2026-10-02', true), e('a', '2026-10-01', true), e('a', '2026-10-01', true), e('b', '2026-10-03', true), e('a', '2026-10-04', false), e('a', '2026-10-05', true, 'open')], 'a', (x) => x.wet)).toEqual(['2026-10-01', '2026-10-02']);
+  });
+});
+
+describe('Noah 26.10.2026 «8a»: noise notes', () => {
+  it('finds FAQ tips from German and English words', () => {
+    expect(noiseTips('Knackt beim Antritt')).toEqual(['creak']);
+    expect(noiseTips('brake squeals')).toEqual(['squeal', 'rotor', 'pads']);
+    expect(noiseTips('nothing')).toEqual([]);
+  });
+  it('adds with day and km, renames, marks gone and back, removes', () => {
+    let b = { id: 'b1', km: 1234 };
+    b = { ...b, ...addNoise(b, '  knackt  ', 'n1', '2026-10-01') };
+    expect(noisesOf(b)).toEqual([{ id: 'n1', text: 'knackt', date: '2026-10-01', km: 1234, done: null }]);
+    expect(addNoise(b, ' ', 'n2', '2026-10-01')).toBe(null);
+    b = { ...b, ...renameNoise(b, 'n1', 'knackt links') };
+    b = { ...b, ...solveNoise(b, 'n1', '2026-10-09') };
+    expect(noisesOf(b)[0]).toMatchObject({ text: 'knackt links', done: '2026-10-09' });
+    b = { ...b, ...reopenNoise(b, 'n1') };
+    expect(noisesOf(b)[0].done).toBe(null);
+    expect(noisesOf({ ...b, ...removeNoise(b, 'n1') })).toEqual([]);
+  });
+  it('asks «Is it gone?» after a change or service after the note', () => {
+    const note = { id: 'n', text: 'x', date: '2026-10-01', done: null };
+    const bike = (h) => ({ parts: [{ key: 'chain', history: h }] });
+    expect(noiseAsk(bike([rep('2026-09-01', 0)]), note)).toBe(null);
+    expect(noiseAsk(bike([rep('2026-10-05', 900)]), note)).toBe('chain');
+    expect(noiseAsk(bike([{ date: '2026-10-05', action: 'check' }]), note)).toBe(null);
+    expect(noiseAsk(bike([rep('2026-10-05', 900)]), { ...note, done: '2026-10-06' })).toBe(null);
+  });
+});
+
+describe('Noah 26.10.2026 «12a»: winter and spring', () => {
+  it('two own lists with the standard points to start, ticks per bike and season', () => {
+    const s = seasonOf(undefined);
+    expect(s.winter.items.map((x) => x.text)).toEqual(WINTER_STD);
+    expect(s.spring.items.map((x) => x.text)).toEqual(SPRING_STD);
+    const w = tickPack(s.winter, 'b1', 'std-0', '2026');
+    expect(ticksOfSeason(w, 'b1', '2026')).toEqual(['std-0']);
+    expect(ticksOfSeason(w, 'b1', '2027')).toEqual([]);
+    expect(seasonOf({ winter: { items: [{ id: 'x', text: 'Own' }] } }).winter.items).toEqual([{ id: 'x', text: 'Own' }]);
   });
 });

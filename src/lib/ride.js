@@ -15,6 +15,7 @@ import { newDebrief } from './debrief.js';
 import { t } from './i18n.svelte.js';
 import { ownStages, dayRange, gainBetween, pointAtKm } from './stages.js';
 import { wetHour } from './rainlimit.svelte.js';
+import { zurichTime } from './spur/spur.js';
 
 const addDays = (date, n) => {
   const d = new Date(`${date}T00:00:00Z`);
@@ -24,6 +25,16 @@ const addDays = (date, n) => {
 
 /** Start time when none is set. */
 export const DEFAULT_START = '08:00';
+/**
+ * UI-Test 26.10.2026 T2 (G2-07): the one start time of today when none is set, the same on On the way and
+ * «Vor der Abfahrt». A recording of this trip still open from today: its start («Fahrt von 19:27»);
+ * else the hour now (v0.30.1, Noah C1). open: openRecording() of the recorder.
+ */
+export const openRideOf = (trip, today, open) => (open?.open && open.kind === 'rec' && trip?.id && open.tripId === trip.id && open.day === today ? open : null);
+export function startNow(trip, today, open = null, now = new Date()) {
+  const o = openRideOf(trip, today, open);
+  return o ? zurichTime(o.startAt) : `${String(now.getHours()).padStart(2, '0')}:00`;
+}
 /** v0.30.1 (Noah C1): riding hours assumed for a day without a route and without riding hours (one block). */
 export const NO_ROUTE_HOURS = 3;
 

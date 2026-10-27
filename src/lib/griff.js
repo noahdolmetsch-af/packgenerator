@@ -154,9 +154,9 @@ export const PACK_STD = [
 ];
 
 /** The checklist record: { items: [{ id, text, std }], ticks: { [bikeId]: { day, ids } } } with the standard points on first use. */
-export function packOf(raw) {
+export function packOf(raw, std = PACK_STD) {
   const r = raw && typeof raw === 'object' ? raw : {};
-  const items = Array.isArray(r.items) ? r.items.filter((x) => x?.id && clean(x.text, 120)) : PACK_STD.map((text, i) => ({ id: `std-${i}`, text, std: true }));
+  const items = Array.isArray(r.items) ? r.items.filter((x) => x?.id && clean(x.text, 120)) : std.map((text, i) => ({ id: `std-${i}`, text, std: true }));
   return { items, ticks: r.ticks && typeof r.ticks === 'object' ? r.ticks : {} };
 }
 export const addPackItem = (rec, text, id) => (clean(text, 120) ? { ...rec, items: [...rec.items, { id, text: clean(text, 120) }] } : rec);
@@ -393,3 +393,79 @@ export const removeChain = (bike, id) => ({ chains: { ...chainsOf(bike), list: c
 export const swapChain = (bike, to, day) => ({ chains: { ...chainsOf(bike), swaps: [...chainsOf(bike).swaps, { day, km: okNum(bike?.km) ? bike.km : 0, to }] } });
 export const rotationSet = (bike, patch) => ({ chains: { ...chainsOf(bike), ...patch } });
 
+
+/* ---------- Noah 26.10.2026 «6a»: Pflege-Serie ---------- */
+
+/**
+ * The care after rain of one bike: the days with a wet ride (wetDays, oldest first) and whether the chain
+ * was cared for (service or replace) that day or the next. → { streak (in a row up to the newest wet day
+ * that is over), cared, of } — today's wet ride does not break the streak yet.
+ */
+export function careStreak(bike, wetDays = [], today) {
+  const chain = (bike?.parts ?? []).find((p) => p.key === 'chain');
+  const careDays = new Set((chain?.history ?? []).filter((h) => (h.action === 'service' || h.action === 'replace') && h.result !== 'needed' && h.date).map((h) => h.date));
+  const days = [...new Set(wetDays)].sort();
+  const next = (d) => new Date(Date.parse(`${d}T00:00:00Z`) + DAY).toISOString().slice(0, 10);
+  const ok = days.map((d) => careDays.has(d) || careDays.has(next(d)));
+  let streak = 0;
+  for (let i = days.length - 1; i >= 0; i--) {
+    if (ok[i]) streak++;
+    else if (days[i] === today || (today && next(days[i]) === today)) continue; // still time
+    else break;
+  }
+  return { streak, cared: ok.filter(Boolean).length, of: days.length };
+}
+
+/** The days with a wet ride of one bike (kmBook entries, isWet from rain.js wetOf), oldest first. */
+export const wetDaysOf = (entries = [], bikeId, isWet) => [...new Set(entries.filter((e) => e?.bikeId === bikeId && e.kind === 'ride' && e.state === 'counted' && e.date && isWet?.(e)).map((e) => e.date))].sort();
+
+/* ---------- Noah 26.10.2026 «8a»: Geräusch-Notiz ---------- */
+
+/** Words → the matching questions of the bike FAQ (velofaq.js keys). German and English. */
+export const NOISE_HINTS = [
+  { words: ['knack', 'knarz', 'knarr', 'creak', 'click', 'klick'], keys: ['creak'] },
+  { words: ['quietsch', 'squeal', 'squeak', 'pfeif'], keys: ['squeal'] },
+  { words: ['spring', 'jump', 'schalt', 'shift', 'rattert'], keys: ['shift', 'chainwear'] },
+  { words: ['kette', 'chain', 'rassel', 'rattle', 'trocken', 'dry'], keys: ['oil', 'chainwear'] },
+  { words: ['schleif', 'rub', 'brems', 'brake'], keys: ['rotor', 'pads'] },
+];
+export const noiseTips = (text) => {
+  const s = String(text ?? '').toLowerCase();
+  return [...new Set(NOISE_HINTS.filter((h) => h.words.some((w) => s.includes(w))).flatMap((h) => h.keys))];
+};
+
+/** The noise notes of a bike: [{ id, text, date, km, done }] (done: the day it was gone). */
+export const noisesOf = (bike) => (Array.isArray(bike?.noises) ? bike.noises.filter((x) => x?.id && clean(x.text, 200)) : []);
+export const addNoise = (bike, text, id, day) => (clean(text, 200) ? { noises: [...noisesOf(bike), { id, text: clean(text, 200), date: day, km: okNum(bike?.km) ? bike.km : null, done: null }] } : null);
+export const renameNoise = (bike, id, text) => (clean(text, 200) ? { noises: noisesOf(bike).map((x) => (x.id === id ? { ...x, text: clean(text, 200) } : x)) } : null);
+export const removeNoise = (bike, id) => ({ noises: noisesOf(bike).filter((x) => x.id !== id) });
+export const solveNoise = (bike, id, day) => ({ noises: noisesOf(bike).map((x) => (x.id === id ? { ...x, done: day } : x)) });
+export const reopenNoise = (bike, id) => ({ noises: noisesOf(bike).map((x) => (x.id === id ? { ...x, done: null } : x)) });
+/** An open note asks «Is it gone?» once a part was changed or serviced after it: → the name key of that part, or null. */
+export function noiseAsk(bike, note) {
+  if (!note || note.done) return null;
+  for (const p of bike?.parts ?? []) for (const h of p.history ?? []) if ((h.action === 'replace' || h.action === 'service') && h.result !== 'needed' && !h.start && h.date && h.date > note.date) return p.key;
+  return null;
+}
+
+/* ---------- Noah 26.10.2026 «12a»: Velo einwintern und Frühling ---------- */
+
+export const SEASON_KEY = 'griff.season';
+export const WINTER_STD = [
+  'Wash the bike and let it dry',
+  'Clean the chain and oil it well',
+  'Pump the tyres to the upper pressure',
+  'Charge the batteries (lights, shifting, computer) to about half and take them out',
+  'Loosen the quick release of the saddle bag, empty the bags',
+  'Store it dry, wheels off the floor if you can',
+];
+export const SPRING_STD = [
+  'Check the tyres for cracks and pump them',
+  'Wipe the chain and oil it',
+  'Check the brakes and the pads',
+  'Charge the batteries and put them back',
+  'Check the bolts with the torque wrench',
+  'A first short ride near home',
+];
+/** The two lists: { winter: { items, ticks }, spring: { items, ticks } } (ticks per bike and year). */
+export const seasonOf = (raw) => ({ winter: packOf(raw?.winter, WINTER_STD), spring: packOf(raw?.spring, SPRING_STD) });

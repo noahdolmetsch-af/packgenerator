@@ -246,6 +246,8 @@
     </section>
     <section class="box res" aria-labelledby="fu-sum" data-fuel-result>
       <h2 id="fu-sum" class="title">{t('What you need')}</h2>
+      <!-- «332 sichtbar»: the energy rule behind these numbers, under the catalogue name -->
+      <p class="note" data-fuel-energy>{t('Energy for a ride: from your weight, the time, the km, the climbing and the temperature.')}</p>
       <Seg label={t('Show as')} value={v.view} options={[{ key: 'grams', name: t('Grams and litres') }, { key: 'products', name: t('My products') }]} onchange={(k) => setVal('view', k)} />
       {#if plan}
         <div class="sum">
@@ -262,6 +264,7 @@
           <span><Cookie size={18} aria-hidden="true" /><b class="num">{carbsText(Math.round((plain.hours * v.carbsGh) / 5) * 5)}</b><small>{t('carbohydrates')}</small></span>
         </div>
         <p class="note">{t('This trip has no route yet. With a GPX route the app splits it into sections between shops and adds water.')} <button type="button" class="text-button" onclick={() => { openTrip(trip.id); location.hash = '#/pack'; }}>{t('Add GPX route')}</button></p>
+        <p class="note" data-fuel-gpxstops>{t('Stops as waypoints: with a route, the shops and the water go into one GPX for the Garmin or the Wahoo.')}</p>
       {/if}
     </section>
 

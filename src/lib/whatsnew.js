@@ -16,15 +16,221 @@
 
 export const WHATS_NEW = [
   {
-    // v0.214.0 «App verstehen» (Noah 26.10.2026 21:11 «mini kurs … in der app einsehbar mit links und übungen»):
+    // v0.237.0 «App verstehen» (Noah 26.10.2026 21:11 «mini kurs … in der app einsehbar mit links und übungen»):
     // Me › Understand the app, seven lessons to keep the app going without a helper; docs/notfall-handbuch.md and konten.md.
-    version: '0.214.0',
-    date: '2026-10-26',
+    version: '0.237.0',
+    date: '2026-10-27',
     title: 'Understand your app',
     lead: 'Seven short lessons, so the app stays yours.',
     points: [{ text: 'Me › Understand the app: lessons with links and one exercise each', href: '#/me/verstehen' }],
     small: [{ box: 'new', text: 'On GitHub: emergency handbook and account list in plain German' }],
     test: ['Open Me › Understand the app.', 'Open lesson 2 and tick «Mark as done»: the count above says 1 of 7 done.', 'Tap «Emergency handbook»: GitHub opens the handbook.'],
+  },
+  {
+    // v0.234.0 Live Navigation PR 5 «Umweg und zurück» (Noah 27.10.2026 «1a 2b 3a» + «entlang gleicher strecke zurück
+    // zur route»): at the place the app asks how you go back; off the route it plans the way back by itself
+    version: '0.234.0',
+    date: '2026-10-27',
+    title: 'And back onto the route',
+    lead: 'After a stop and off the route, the live map shows you the way back.',
+    points: [
+      { text: 'At the place of a detour: back where you left the route, or the fastest way', href: '#/live' },
+      { text: 'Off the route the app plans the way back by itself, with Undo and «The same way back»', href: '#/live' },
+    ],
+    small: [{ box: 'new', text: 'In a race «back where I left» is chosen first' }],
+    test: ['Open a race or tour on the live map and turn on «Off-route warning» in the settings.', 'Plan a detour with «Nearby» › a place › «Go there» and ride to it: the card asks how you go back.', 'Ride off the route: after about 15 seconds a new way back shows up. Before, only the warning tone came.'],
+  },
+  {
+    // v0.233.0 «Heute ruhiger» part 2 (Noah 26.10.2026 «2a», mockup H2): tiles that show again what another tile shows
+    // leave Heute once (tiles.js DOUBLES, wall v 13); they stay under «Add a tile»
+    version: '0.233.0',
+    date: '2026-10-27',
+    title: 'Everything once on Today',
+    lead: 'Double tiles left Today.',
+    points: [
+      // on Today itself, so no «Try it» address (0.121.0: '#/' would do nothing)
+      { text: 'Tiles that showed the same thing twice left Today once' },
+      { text: 'You find them under «Add a tile»' },
+    ],
+    small: [{ box: 'nicer', text: 'Body values: all of them behind «Details» in «Your body today»' }],
+    test: ['Open Today: your body values stand once, in «Your body today».', 'Customise the start page › Add a tile: «Body values» and the others are still there.'],
+  },
+  {
+    // v0.232.0 «Was ziehe ich an? selbst anpassen» Schritt 1 (Noah 27.10.2026 «1a 2a oder b wählbar 3a 4a … 5a»): in the
+    // window on Today every row can be swapped or left out and a layer added, for this ride day only; a gap says why
+    // (too light, still in «To sort», nothing yet) with «Take anyway» and the wishlist; «Why so?» explains the rule
+    version: '0.232.0',
+    date: '2026-10-27',
+    title: 'Your clothes, your call',
+    lead: '«What do I wear?» now lets you change the suggestion.',
+    points: [{ text: 'Swap any piece, leave one out or add a layer, for today only' }],
+    small: [
+      { box: 'new', text: 'A gap says why: too light, still to sort, or nothing yet' },
+      { box: 'new', text: '«Why so?» explains how the app chooses' },
+    ],
+    test: ['On Today tap «What do I wear?» and then «Swap» on a row: pick another piece; the row says «chosen by you · today only».', 'Open «Why so?» under the list: it names the temperature and from when each layer comes.'],
+  },
+  {
+    // v0.231.1 «332 sichtbar», next 4 hidden functions (Noah 26.10.2026 «wie kannst du weiter machen»): catalogue
+    // names like on the page, Ozone and pollen lives on Weather, Chain after rain on Messages, Receipts on the bike shop tab
+    version: '0.231.1',
+    date: '2026-10-27',
+    title: 'Found where you look',
+    lead: 'Four more tools now live on the page where you see them.',
+    points: [{ text: 'Ozone and pollen: found on the Weather page', href: '#/wetter' }, { text: 'Chain after rain: found under Messages', href: '#/me/push' }],
+    small: [{ box: 'nicer', text: 'Receipts and Ice in the morning carry the name the page shows', href: '#/bikes?tab=shop' }],
+    test: ['Open «What the app can do», search «Pollen» and tap «Try it».', 'The Weather page opens with ozone and pollen.'],
+  },
+  {
+    // v0.231.0 «Touren b» catalogue (996 Einzelideen 50–58): all in «What the app can do», the handbook and the home pages; idea 56 map
+    version: '0.231.0',
+    date: '2026-10-27',
+    title: 'Where you said it',
+    lead: 'Your day to listen to now shows a small map.',
+    points: [{ text: '«Your day to listen to» shows on a map where you recorded each note', href: '#/debrief' }],
+    small: [{ box: 'nicer', text: 'The tour ideas from 0.212.0 are now in «What the app can do», the handbook and on their home pages', href: '#/features' }],
+    test: ['After a day with voice notes open «Your day to listen to» in the debrief.', 'The map «Where you spoke them» shows a number for each note; a tap plays it.'],
+  },
+  {
+    // v0.227.0 Live Navigation PR 4 «In der Nähe» (Noah 27.10.2026 «1a 2a 3a 4a», «freigabe für alle mockups»): one
+    // window with all place filters, 14 situation buttons (map/situations.js), «Everything» at once, «Go there», 14 new kinds
+    version: '0.227.0',
+    date: '2026-10-27',
+    title: 'What do you need?',
+    lead: 'On the live map, «Nearby» opens one window with everything to find a place.',
+    points: [
+      { text: 'Situation buttons: hungry, thirsty, home by train, sleeping place and more', href: '#/live' },
+      { text: 'New places: sauna, indoor pool, Selecta, tube vending machine, farm shop, firepit, phone charging', href: '#/live' },
+    ],
+    small: [{ box: 'new', text: '«Everything» shows every kind of your row at once' }],
+    test: ['Open the live map and tap «Nearby».', 'Tap «Hunger»: only food places that are open now show up.', 'Tap a place and then «Go there». Before, the place search sat at the bottom of the sheet.'],
+  },
+  {
+    // v0.226.0 Tages-Check (Noah 26.10.2026 «1a»): «Not today» in the morning waits only until the evening check
+    version: '0.226.0',
+    date: '2026-10-27',
+    title: 'The evening check still comes',
+    lead: '«Not today» in the morning no longer skips the evening.',
+    points: [{ text: '«Not today» in the morning check waits only until the evening check', href: '#/me/abfragen' }],
+    small: [{ box: 'fixed', text: 'The hint in the check window says «until the evening check» in the morning' }],
+    test: ['In the morning check tap «Not today»: the window closes.', 'In the evening, at your evening time, the evening check comes as usual.'],
+  },
+  {
+    // v0.223.0 Live Navigation PR 3 «Strecke genau» (Noah 27.10.2026 «bitte umsetzen»): tour and race routes keep
+    // their bends (route/fineline.js, Douglas–Peucker 5 m, up to 3000 points) instead of 200 even points
+    version: '0.223.0',
+    date: '2026-10-27',
+    title: 'The route follows every bend',
+    lead: 'Routes from a GPX file now keep their curves on the map.',
+    points: [{ text: 'Tour and race routes keep their bends instead of cutting corners', href: '#/trips' }],
+    small: [{ box: 'fixed', text: 'Add the GPX file once more for a tour you made before' }],
+    test: ['Open Pack, open a tour and tap «Add GPX route».', 'Choose a GPX file with many bends, then open the live map of this tour.', 'Zoom in close: the line follows the road. Before, it cut across bends.'],
+  },
+  {
+    // v0.222.0 Live Navigation PR 2 «Orte» (Noah 26.10.2026, filters 1–14, 17, 18): every server in turn with the
+    // true reason when all fail, a quick choice row, filters (open, on the way, detour, climb, features, sort) and presets
+    version: '0.222.0',
+    date: '2026-10-27',
+    title: 'Places that find you',
+    lead: 'Places on the live map: more servers, and filters that think ahead.',
+    points: [{ text: 'Filter places: open now or when you get there, on your way, small detour', href: '#/live' }],
+    small: [{ box: 'new', text: 'Save your filters and use them again' }],
+    test: ['Open the live map and search places around you.', 'Tap «Filter»: choose «Open when I get there» and a detour of 2 km. The list gets shorter and shows «there about …».', 'Tap «Save filters», switch the filter off and pick it again under «Saved filters».'],
+  },
+  {
+    // v0.221.0 Live Navigation PR 1 «Fahrt speichern» (Noah 26.10.2026, mockups M9/M10): «Fahrt beenden» asks once,
+    // every ride is saved at once as its own entry in Touren labelled «Live Navigation», bike km booked with Undo.
+    version: '0.221.0',
+    date: '2026-10-27',
+    title: 'Every ride is saved',
+    lead: '«End the ride» asks once and keeps the ride in Trips.',
+    points: [{ text: 'Each live ride is in Trips as «Live Navigation»', href: '#/trips' }],
+    small: [{ box: 'new', text: 'The km go to your bike by themselves, with Undo', href: '#/live' }],
+    test: ['Open the live map, start a ride and ride a few minutes (or walk).', 'Tap «End the ride», then «End and save»: a line says «Saved in Trips».', 'Open Trips: the ride is there with the label «Live Navigation».'],
+  },
+  {
+    // Velo-Ergänzungen (Noah 26.10.2026 «1 3 6 7 8 12a»): chain checker in the forecast, year in review, care series, calendar, noises, winter and spring. v0.220.0.
+    version: '0.220.0',
+    date: '2026-10-27',
+    title: 'More for your bike',
+    lead: 'Also noises and the calendar.',
+    points: [
+      { text: 'Chain checker corrects the forecast', href: '#/bikes?tab=care&view=wear' },
+      { text: 'Bike year in review', href: '#/bikes?tab=care&view=year' },
+      { text: 'Winter and spring checklists', href: '#/bikes?tab=care&view=season' },
+    ],
+    small: [
+      { box: 'new', text: 'Noise notes with tips from the bike FAQ', href: '#/bikes?tab=care&view=wear' },
+      { box: 'new', text: 'Part changes in your Google calendar', href: '#/me/connections' },
+    ],
+    test: [
+      'Bikes › Care › a bike › «Wear» › «Year in review».',
+      'On «Wear» note a noise under «Noises».',
+    ],
+  },
+  {
+    // v0.219.0 «Heute ruhiger» part 1 (Noah 26.10.2026 «1a 5a», mockup H1): cards as tall as their content, the small
+    // tiles as one list «Schnell öffnen», the bike jobs as small round buttons
+    version: '0.219.0',
+    date: '2026-10-27',
+    title: 'A calmer Today',
+    lead: 'No more empty boxes on Today.',
+    points: [
+      // all on Today itself, so no «Try it» address (0.121.0: '#/' would do nothing)
+      { text: 'Today: every card is only as tall as its content' },
+      { text: 'The small buttons are one list «Open quickly»' },
+    ],
+    small: [{ box: 'nicer', text: 'Bikes on Today: the jobs are small round buttons' }],
+    test: ['Open Today: no card has a big empty space below.', 'Scroll to «Open quickly»: the small buttons stand in one list, a tap opens the place.', 'Look at the bike card: the jobs are small round buttons.'],
+  },
+  {
+    // v0.218.0 «Leere Taschen nehmen Teile auf» (Noah 26.10.2026 22:06 «starte mit 1, dann 3»): in «All bags side by
+    // side» an empty bag stays as a column to drag an item into
+    version: '0.218.0',
+    date: '2026-10-27',
+    title: 'Room in every bag',
+    lead: 'An empty bag now takes an item too.',
+    points: [{ text: 'All bags side by side: empty bags stay as a column to drag into', href: '#/pack?day' }],
+    small: [{ box: 'new', text: 'The arrows next to an item offer the empty bags too', href: '#/pack?day' }],
+    test: ['On the computer open Packen › Alle Taschen nebeneinander and drag an item into an empty bag, or use the arrows next to the item.', 'The bag now shows the item; «Undo» puts it back.'],
+  },
+  {
+    // v0.217.0 «332 sichtbar» (Noah 26.10.2026 «starte mit 1, dann 3 und danach 2», 2 = the 20 deeply hidden functions):
+    // catalogue names as the page shows them, short lines on Verpflegung, Fahrten, the meditation log and the evening check,
+    // a Trello button on Merken; hidden functions 77 → 57
+    version: '0.217.0',
+    date: '2026-10-27',
+    title: 'Nothing hides any more',
+    lead: 'Twenty tools that were hard to find now stand where you look.',
+    points: [{ text: 'Remember: a Trello button at the top leads to your board settings', href: '#/calendar' }],
+    small: [{ box: 'new', text: 'Food and water and Rides say in one line what they can do', href: '#/trips/fuel' }],
+    test: ['Open Planen › Merken and tap «Trello» next to «Reminders».', 'The page jumps down to the Trello box.'],
+  },
+  {
+    // v0.212.2 UI-Test 26.10.2026 T2 «Unterwegs: eine Startzeit, vor dem Start nur Losfahren» (G2-07, G2-15): one start
+    // time of today on Unterwegs and «Vor der Abfahrt» (an open recording gives it), «Fahrt von … weiterführen» as the
+    // main button, «Tour beenden …» in «…» before setting off, the base check as a list with boxes
+    version: '0.212.2',
+    date: '2026-10-26',
+    title: 'One start time',
+    lead: 'On the way and «Before you leave» show the same start.',
+    points: [{ text: 'A ride still recording: the main button is «Continue the ride from 19:27»', href: '#/ride' }],
+    small: [
+      { box: 'nicer', text: 'Before you set off only «Start riding»; «End the trip …» is in «…»' },
+      { box: 'nicer', text: 'Base check as a list with boxes, like Pack' },
+    ],
+    test: ['Open On the way on a trip day before setting off: the one main button is «Start riding»; «End the trip …» is in «…».', 'Open «Before you leave»: it shows the same start time as On the way.'],
+  },
+  {
+    // v0.212.1 UI-Test 26.10.2026 T1 «Heutige Tour: ein Zustand überall»: a day ride not begun yet (not packed, not
+    // started) no longer shows «Letzter Abend», «Rückblick heute» or «Abgeschlossen»; the tour page says «Geplant»
+    version: '0.212.1',
+    date: '2026-10-26',
+    title: "Today's tour says one thing",
+    lead: 'Not packed yet means: still packing, not done.',
+    points: [{ text: 'A day ride not started yet no longer shows «Last evening» or «Completed»', href: '#/trips' }],
+    small: [{ box: 'fixed', text: 'Tour page before the ride: «Planned» and a button to the step you are in' }],
+    test: ['Plan a day ride for today and do not finish packing. In the evening Today shows no «Last evening» and no «Review today».', 'Open the tour page of that trip (step «Analysis»): it says «Planned» and «Continue to Pack».'],
   },
   {
     // v0.212.0 «Touren b» (996 Einzelideen 50–58, Noah 25./26.10.2026 «freigabe 52 55 56 57 58»): trip from an intent,
@@ -3501,6 +3707,13 @@ export const WHATS_NEW = [
     ],
   },
 ];
+
+// Version at merge time (Noah 27.10.2026 «1a»): since 0.232.0 a PR no longer adds its entry above. It adds
+// src/lib/news/<name>.js (see the README there); scripts/news.mjs gives it its version and day from the
+// order of merges on main. They come first, newest first. Tested in tests/version-at-merge.test.js.
+// (Kept here at the end of the list so that PRs still numbered by hand never conflict with it.)
+import { NEWS } from './news/index.gen.js';
+WHATS_NEW.unshift(...NEWS);
 
 /** How many versions show open; the older ones fold away. */
 export const SHOWN = 3;

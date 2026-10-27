@@ -1,12 +1,14 @@
 // Hängt das Handy fest? (Noah 20.10.2026): when a newer version has been online for 15 minutes and this
 // device still runs the old one, a bar says so, with «Jetzt laden» and «Später» (src/lib/behind.js).
 import { test, expect } from '@playwright/test';
+import { appVersion } from '../../scripts/news.mjs';
 import { tr } from './home0460-fixture.js';
 import { readFileSync } from 'node:fs';
 
 // the key from the app source (behind.js imports the Svelte translation, so it is read, not imported)
 const KEY = readFileSync(new URL('../../src/lib/behind.js', import.meta.url), 'utf8').match(/export const KEY = '([^']+)'/)[1];
-const VERSION = JSON.parse(readFileSync(new URL('../../package.json', import.meta.url), 'utf8')).version;
+// since 27.10.2026 the version comes from the order of merges (scripts/news.mjs), not package.json
+const VERSION = appVersion();
 
 const T = tr('de');
 
