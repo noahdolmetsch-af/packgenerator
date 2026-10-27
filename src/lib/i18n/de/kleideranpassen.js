@@ -80,12 +80,12 @@ export default {
   'Empty means no border. The set fits when the felt temperature is in this range.': 'Leer heisst ohne Grenze. Das Set passt, wenn die gefühlte Temperatur in diesem Bereich liegt.',
   'Fits at {range}: change': 'Passt bei {range}: ändern',
   'Give the set a °C range': 'Dem Set einen °C-Bereich geben',
-  // Schritt 3 «Deine Regel» (0.220.0)
+  // Schritt 3 «Deine Regel»
   'I get cold quickly': 'Ich friere schnell',
   'normally|cold': 'Normal',
   'I get warm quickly': 'Mir wird schnell warm',
   '{row} now below {n} °C.': '{row} jetzt unter {n} °C.',
-  'Saved: you get cold {how}.': 'Gespeichert: Du frierst {how}.',
+  'Saved: «{how}».': 'Gespeichert: «{how}».',
   'Saved: the warmer piece first.': 'Gespeichert: zuerst das wärmere Teil.',
   'Saved: the lighter piece first.': 'Gespeichert: zuerst das leichtere Teil.',
   'Back to the standard rule.': 'Zurück zur Standardregel.',

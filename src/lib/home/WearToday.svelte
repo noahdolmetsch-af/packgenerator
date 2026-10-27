@@ -80,7 +80,7 @@
     const v = stepLimit($ruleQ?.value, k, d);
     return saveRule(v, t('{row} now below {n} °C.', { row: rowName(k), n: wearRule(v).limits[k] }));
   };
-  const setFeel = (feel) => saveRule({ ...($ruleQ?.value ?? {}), feel }, t('Saved: you get cold {how}.', { how: t(FEEL.find((f) => f[0] === feel)[1]) }));
+  const setFeel = (feel) => saveRule({ ...($ruleQ?.value ?? {}), feel }, t('Saved: «{how}».', { how: t(FEEL.find((f) => f[0] === feel)[1]) }));
   const setPrefer = (prefer) => saveRule({ ...($ruleQ?.value ?? {}), prefer }, prefer === 'warm' ? t('Saved: the warmer piece first.') : t('Saved: the lighter piece first.'));
   const resetRule = () => saveRule({}, t('Back to the standard rule.'));
   let seeding = false;
