@@ -227,4 +227,17 @@ export default {
   'Ride somewhere new (or tick a place in New ground).': 'Fahr irgendwo neu hin (oder hake in Neuland einen Ort ab).',
   'Today shows «New since yesterday»; × closes it.': 'Heute zeigt «Neu seit gestern»; × schliesst es.',
   'Tap the line: New ground shows what is new.': 'Tippe die Zeile an: Neuland zeigt, was neu ist.',
+  // «Neue Kilometer» (Träume und Neuland N4)
+  'New kilometres': 'Neue Kilometer',
+  'How many km ran on roads you rode for the first time.': 'Wie viele km auf Strassen, die du zum ersten Mal gefahren bist.',
+  'No ride with a line yet. Connect Strava or upload a ride, then the app counts your new km.': 'Noch keine Fahrt mit Linie. Verbinde Strava oder lade eine Fahrt hoch, dann zählt die App deine neuen km.',
+  '{km} km new': '{km} km neu',
+  'of {km} km': 'von {km} km',
+  'Latest rides with new km': 'Letzte Fahrten mit neuen km',
+  '{km} of {all} km new': '{km} von {all} km neu',
+  'A stretch counts as new when none of your earlier rides passed within {m} m. Rides from Strava, GPX files and your own recordings count.': 'Ein Stück zählt als neu, wenn keine frühere Fahrt näher als {m} m vorbeiführte. Fahrten von Strava, GPX-Dateien und eigene Aufzeichnungen zählen.',
+  'Per year and per ride: how many km ran on roads you rode for the first time, in New ground.': 'Pro Jahr und pro Fahrt: wie viele km auf Strassen, die du zum ersten Mal gefahren bist, in Neuland.',
+  'Ride somewhere new; Strava lines, GPX and recordings count.': 'Fahr irgendwo neu; Strava-Linien, GPX und Aufzeichnungen zählen.',
+  'Open New ground and scroll to «New kilometres».': 'Öffne Neuland und scrolle zu «Neue Kilometer».',
+  'Each year shows its new km; below, the latest rides with new km.': 'Jedes Jahr zeigt seine neuen km; darunter die letzten Fahrten mit neuen km.',
 };

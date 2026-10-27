@@ -20,6 +20,7 @@
   } from '../lib/neuland/neuland.js';
   import NeulandMap from '../lib/neuland/NeulandMap.svelte';
   import Bingo from '../lib/neuland/Bingo.svelte';
+  import NeueKm from '../lib/neuland/NeueKm.svelte'; // N4 «Neue Kilometer»
   import ItemSheet from '../lib/neuland/ItemSheet.svelte';
   import CollectionsSheet from '../lib/neuland/CollectionsSheet.svelte';
   import ItemEditSheet from '../lib/neuland/ItemEditSheet.svelte';
@@ -338,6 +339,8 @@
     {/if}
   {/if}
   <PasstHier place="neuland" />
+
+  <NeueKm {today} />
 
   {#if openIt}
     {@const c = openItem}
