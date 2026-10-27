@@ -89,4 +89,9 @@ export default {
   'The fastest way onto the route': 'Schnellster Weg auf die Strecke',
   'In a race only the whole route counts, so «back where I left» is chosen first.': 'Im Rennen zählt nur die ganze Strecke, darum ist «Zurück, wo ich sie verlassen habe» vorgewählt.',
   'Plan the way back': 'Weg zurück planen',
+  // «Karte frei» Teil 2 (M13b): «Alles» at the right on the computer
+  'Everything': 'Alles',
+  'Show everything': 'Alles zeigen',
+  'Hide everything': 'Alles ausblenden',
+  'Hide': 'Ausblenden',
 };
