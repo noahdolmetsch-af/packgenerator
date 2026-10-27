@@ -53,7 +53,7 @@
   const caseName = (id) => cases.find((c) => c.id === id)?.name ?? '';
   const hrefOf = (n) => (n.status === 'kept' ? `#/notes?open=${encodeURIComponent(n.id)}` : '#/inbox');
   const WHY = { number: 'Same number {x}', amount: 'Same amount {x}', words: 'Same words: {x}' };
-  const MAIL_WHY = { subject: 'same sender and subject', number: 'a shared number', sender: 'same sender, similar words' };
+  const MAIL_WHY = { subject: 'same sender and subject', number: 'a shared number', sender: 'same sender, similar words', similar: 'the same amount or words' };
 
   async function together(p) {
     let id = p.a.caseId || p.b.caseId;
@@ -133,14 +133,14 @@
       {:else}<p class="rh-empty">{t('No double entry found right now.')}</p>{/if}
     </Card>
 
-    <Card id="mail" icon={Mail} title={t('Mail as a matter')} lead={sugg.length ? tn(sugg.length, '{n} mail fits a matter', '{n} mails fit a matter') : t('Confirmation, question and bill together')} bind:open={open.mail}>
-      <p class="rh-help">{t('A confirmation, a question and the bill later can go into the same matter. The app suggests one when the sender and the subject or a number fit; nothing moves by itself.')}</p>
+    <Card id="mail" icon={Mail} title={t('Mail as a matter')} lead={sugg.length ? tn(sugg.length, '{n} entry fits a matter', '{n} entries fit a matter') : t('Confirmation, question and bill together')} bind:open={open.mail}>
+      <p class="rh-help">{t('A confirmation, a question and the bill later can go into the same matter, with the photo of the receipt and your note. The app suggests one when the sender, the subject, a number, the amount or the words fit; nothing moves by itself.')}</p>
       {#if sugg.length}
         <ul class="rh-list">
           {#each sugg as s (s.note.id)}
             {@const role = mailRole(s.note)}
             <li data-mail-sugg>
-              <span class="rh-grow"><a href={hrefOf(s.note)}>{title(s.note)}</a>{#if role}{' '}<span class="rh-tag">{t(ROLES[role])}</span>{/if}<small>{t('Fits «{name}»: {why}', { name: caseName(s.caseId), why: t(MAIL_WHY[s.why]) })}</small>
+              <span class="rh-grow"><a href={hrefOf(s.note)}>{title(s.note)}</a>{#if role}{' '}<span class="rh-tag">{t(ROLES[role])}</span>{/if}<small>{#if !s.note.mail}{t(SRC[sourceOf(s.note)])}{' · '}{/if}{t('Fits «{name}»: {why}', { name: caseName(s.caseId), why: t(MAIL_WHY[s.why]) })}</small>
                 <span class="rh-row vg-acts">
                   <button type="button" class="btn sm hi" onclick={() => intoCase(s.note, s.caseId)} data-mail-yes><Check size={14} aria-hidden="true" />{t('Into «{name}»', { name: caseName(s.caseId) })}</button>
                   <button type="button" class="btn sm" onclick={() => sayNo(noKey(s.note.id, s.caseId))} data-mail-no><X size={14} aria-hidden="true" />{t('No')}</button>

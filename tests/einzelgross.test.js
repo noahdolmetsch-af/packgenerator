@@ -116,3 +116,34 @@ describe('every label of the new parts has a German text', () => {
     expect(keys.filter((k) => !DE[k])).toEqual([]);
   });
 });
+
+describe('Nachträge Planen (Noah 27.10.2026 «1b 2b»)', () => {
+  it('the plant hint offers a watering interval; a windy spot or every 1 day offers none', async () => {
+    const { passAdvice } = await import('../src/lib/merken/plantpass.js');
+    let td = moveTo(plant(), { id: 'm1', day: '2026-10-12', place: 'Terrasse' });
+    td = withEntry(td, passEntry({ id: 'o1', day: '2026-10-21', sun: 'full', wet: 'dry' }));
+    expect(passAdvice(td)).toBeNull();
+    td = withEntry(td, passEntry({ id: 'o2', day: '2026-10-25', sun: 'full', wet: 'dry' }));
+    expect(passAdvice(td)).toEqual({ hint: 'Here it dries out fast: water a little more often?', every: 3, obs: 'o2' });
+    expect(passAdvice({ ...td, plant: { ...td.plant, every: 3, everyFor: 'o2' } }).every).toBeNull(); // taken: waits for a new observation
+    expect(passAdvice({ ...td, plant: { ...td.plant, every: 1 } }).every).toBeNull();
+    let wet = plant();
+    for (const [id, day] of [['w1', '2026-10-20'], ['w2', '2026-10-24']]) wet = withEntry(wet, passEntry({ id, day, sun: 'shade', wet: 'wet' }));
+    expect(passAdvice(wet).every).toBe(5);
+    let windy = plant();
+    for (const [id, day] of [['x1', '2026-10-20'], ['x2', '2026-10-24']]) windy = withEntry(windy, passEntry({ id, day, wind: 'windy' }));
+    expect(passAdvice(windy)).toEqual({ hint: 'A windy spot: a more sheltered place may suit it better.', every: null, obs: 'x2' });
+  });
+  it('a photo or a note gets a matter by a shared number, or by amount and words; old ones and a «no» get none', () => {
+    const now = Date.parse('2026-10-25T12:00:00Z');
+    const c = newCase('Hotel Beispiel', 'now');
+    const first = { ...mail('h1', 'Buchung Hotel Beispiel Nr. 482913', 'info@hotel-beispiel.ch', '2026-10-23T10:00:00Z'), caseId: c.id };
+    const photo = { id: `${P}p1`, status: 'open', at: '2026-10-24T09:00:00Z', photo: 'data:image/png;base64,AA', text: 'Quittung 482913' };
+    const note = { id: `${P}n1`, status: 'kept', at: '2026-10-24T09:00:00Z', text: 'Hotel Beispiel Buchung bezahlen' };
+    const old = { ...photo, id: `${P}p0`, at: '2026-05-01T09:00:00Z' };
+    expect(caseFor(photo, [first, photo], [c], { now })).toEqual({ caseId: c.id, why: 'number' });
+    expect(caseFor(note, [first, note], [c], { now })).toEqual({ caseId: c.id, why: 'similar' });
+    expect(caseFor(old, [first, old], [c], { now })).toBeNull();
+    expect(caseSuggestions([first, photo], [c], { now, no: [noKey(photo.id, c.id)] })).toEqual([]);
+  });
+});
