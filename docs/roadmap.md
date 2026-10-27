@@ -882,7 +882,7 @@ Die frühere gespeicherte Datei `2026-10-07-packgenerator-ablaufplan.md` wird al
 
 **26.10.2026, v0.208.0 «Mehr Platz am Computer»:** UI-Ziel #14 erledigt: Touren mit mitlaufender rechter Spalte, Auswerten mit «Letzte 7 Tage» rechts, Velos mit dem Velo zuerst, Inhalt höchstens 1120 px.
 **26.10.2026, v0.219.0 «Heute ruhiger» Teil 1:** keine leeren Kästen mehr auf Heute, kleine Knöpfe als Liste «Schnell öffnen», Velo-Arbeiten als runde Knöpfe. Teil 2 und 3 folgen.
-**26.10.2026, v0.222.0 «Heute ruhiger» Teil 2:** doppelte Kacheln einmal von Heute weg, sie bleiben im Katalog.
+**26.10.2026, v0.223.0 «Heute ruhiger» Teil 2:** doppelte Kacheln einmal von Heute weg, sie bleiben im Katalog.
 **25.10.2026, v0.200.0 «Zusammen auf einer Karte»:** Gruppen-Live-Karte: Freunde per Link auf einer Karte, freiwillig teilen, Ende mit der Fahrt, spätestens nach 24 Stunden.
 **25.10.2026, v0.198.0 «Kette vorausschauend»:** Idee «Kette messen mit Verlauf und Prognose» (Das Velo im Griff) gebaut: nächste Schritte der Kette auf Verschleiss, Prognose aus den eigenen Messungen, Tour-Check, Handy-Erinnerung «Kette messen».
 
@@ -899,6 +899,10 @@ Die frühere gespeicherte Datei `2026-10-07-packgenerator-ablaufplan.md` wird al
 **26.10.2026, v0.202.0 «Planen im Zusammenhang» (vorläufig):** Einzelideen Planen 12 «Notiz-Verbindungen mit Bedeutung», 13 «Erinnerung nach einem Ereignis», 14 «Wiederherstellen mit Anhängen» gebaut. Offen als Mockup: 10 Pflanzenpass, 11 Doppelten Eingang erkennen, 15 Erinnerungskarte, 16 Mail als Vorgang. Dazu 10 «Pflanzenpass», 11 «Doppelten Eingang erkennen», 15 «Erinnerungskarte», 16 «Mail als Vorgang» (Noah 26.10. «1a 2a 3a 4a 5a»). Titel jetzt «Planen im Zusammenhang».
 
 **26.10.2026, v0.201.0 «Sprechen, anhängen, mit Vorlage starten»:** Eingaben überall: eine gemeinsame Leiste «Hinzufügen» (Sprachnotiz, Foto, Datei, Ort, Schlagwort, Vorlagen, Schreibanreize, KI-Helfer) auf zehn Seiten, Bildkarte im Tagebuch, Tagebuch in der App-Suche (abschaltbar).
+
+> **27.10.2026 Live Navigation PR 2:** Orte (0.222.0). Als Nächstes M13 «Karte frei» (Menü weg, ⋯-Knopf, «In der Nähe», Aufnahme-Hinweis), dann M12 Gruppe auf der Karte mit Treffpunkt.
+
+> **26.10.2026 Live Navigation:** PR 1 «Fahrt speichern» (0.221.0). Danach Orte-Server und Filter, Einstellungen, «Alles», Karte mit schlauer Leiste, Ebenen, Gruppe mit Spur, Garmin Edge 850, Strava hochladen, ÖV-Ersatz, je ein kleiner PR.
 
 **26.10.2026, v0.209.0 «Tagelang zusammen fahren» und v0.210.0 «Deine Liste in Sicht»:** Gruppenfahrt für Events mit eigener Seite und Kontaktkarte; Noahs Wunschliste sichtbar (111 → 77 versteckte Funktionen). Im Sammel-PR mit 0.208.1.
 

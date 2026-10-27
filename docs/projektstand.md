@@ -1,10 +1,14 @@
 # Projektstand und Plan
 
-Stand: **27. Oktober 2026, 05:00 UTC**. Auf `main` steht **Version 0.220.0** («Velo-Ergänzungen», #277; davor «Heute ruhiger» Teil 1 0.219.0, #267). **Seit 26.10.2026 abends gelten neue Regeln** (kleine PRs, Screenshots und Testlink, Noah gibt frei, Claude merged; siehe [CLAUDE.md](../CLAUDE.md) und [Arbeitsweise](arbeitsweise.md)). Offen sind kleine PRs: #266 (Regeln + schnellere Browser-Tests), #267 «Heute ruhiger» Teil 1, #268 «Die heutige Tour sagt eins», #269 Bibliotheks-Updates, #270 «Live Navigation 1».
+Stand: **27. Oktober 2026, 09:05 UTC**. Auf `main` steht **Version 0.222.0** (Live Navigation 2 «Orte», #284; davor 0.221.0 #270, 0.220.0 «Velo-Ergänzungen» #277, 0.219.0 «Heute ruhiger» Teil 1 #267). **Seit 26.10.2026 abends gelten neue Regeln** (kleine PRs, Screenshots und Testlink, Noah gibt frei, Claude merged; siehe [CLAUDE.md](../CLAUDE.md) und [Arbeitsweise](arbeitsweise.md)). Offen sind kleine PRs: #266 (Regeln + schnellere Browser-Tests), #267 «Heute ruhiger» Teil 1, #268 «Die heutige Tour sagt eins», #269 Bibliotheks-Updates, #270 «Live Navigation 1».
 
 Ältere Abschnitte weiter unten («Kurzstand 19.10.», Abschnitte 1 bis 5) sind der damalige Stand und bleiben als Verlauf stehen. Was unten anders steht, gilt nicht mehr, wo dieser Abschnitt etwas Neueres sagt.
 
 ## Stand 26.10.2026 auf einen Blick
+
+**Live Navigation PR 2 (27.10.2026):** «Orte, die dich finden» (0.222.0): Server der Reihe nach mit ehrlicher Meldung, Schnellwahl, Filter und gespeicherte Filter. Danach M13 «Karte frei» (Noah «1a 2a 3a»).
+
+**Live Navigation (26.10.2026 abends):** Mockups M1–M12 freigegeben. PR 1 «Fahrt speichern» (0.221.0) offen: jede Fahrt sofort in Touren mit Label «Live Navigation», Velo-km mit Rückgängig. Danach 9 weitere kleine PRs.
 
 ### Was seit dem 22.10.2026 online gegangen ist
 
@@ -35,7 +39,7 @@ Stand: **27. Oktober 2026, 05:00 UTC**. Auf `main` steht **Version 0.220.0** («
 | live | 0.212.1 | 0.212.1 «Die heutige Tour sagt eins» (UI-Test T1, #268) | gemergt 26.10.2026 23:12 |
 | #261 | – | Bibliotheken aktualisieren (lucide, dexie, vite; Dependabot) | offen, wird nach dem Nachziehen auf main geprüft |
 | live | 0.219.0 | «Heute ruhiger» Teil 1 (#267): Karten so hoch wie ihr Inhalt, kleine Knöpfe als Liste «Schnell öffnen», Velo-Arbeiten als runde Knöpfe | gemergt 27.10.2026 04:15 UTC |
-| neu | 0.222.0 | «Heute ruhiger» Teil 2: doppelte Kacheln einmal von Heute weg (bleiben im Katalog) | offen; Claude mergt nach Noahs Freigabe der Bilder |
+| neu | 0.223.0 | «Heute ruhiger» Teil 2 (#282): doppelte Kacheln einmal von Heute weg (bleiben im Katalog) | Noah gab frei 27.10.2026 08:58 UTC |
 
 ### Wie ein Release heute online geht (seit 26.10.2026 abends)
 
