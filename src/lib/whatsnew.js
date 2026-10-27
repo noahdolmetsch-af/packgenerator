@@ -16,9 +16,9 @@
 
 export const WHATS_NEW = [
   {
-    // v0.219.0 «332 sichtbar», next 4 hidden functions (Noah 26.10.2026 «wie kannst du weiter machen»): catalogue
+    // v0.222.1 «332 sichtbar», next 4 hidden functions (Noah 26.10.2026 «wie kannst du weiter machen»): catalogue
     // names like on the page, Ozone and pollen lives on Weather, Chain after rain on Messages, Receipts on the bike shop tab
-    version: '0.219.0',
+    version: '0.222.1',
     date: '2026-10-27',
     title: 'Found where you look',
     lead: 'Four more tools now live on the page where you see them.',

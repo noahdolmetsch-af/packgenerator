@@ -1,6 +1,6 @@
 # Projektstand und Plan
 
-Stand: **27. Oktober 2026, 03:30 UTC**. Auf `main` steht **Version 0.218.0** (#278 «Nichts versteckt sich mehr» 0.217.0 und #272 «Platz in jeder Tasche» 0.218.0 am 27.10.2026 zusammengeführt). **Seit 26.10.2026 abends gelten neue Regeln** (kleine PRs, Screenshots und Testlink, Noah gibt frei, Claude merged; siehe [CLAUDE.md](../CLAUDE.md) und [Arbeitsweise](arbeitsweise.md)). Offen ist unter anderem 0.219.0 «Da, wo du schaust» (4 weitere versteckte Funktionen).
+Stand: **27. Oktober 2026, 03:30 UTC**. Auf `main` steht **Version 0.218.0** (#278 «Nichts versteckt sich mehr» 0.217.0 und #272 «Platz in jeder Tasche» 0.218.0 am 27.10.2026 zusammengeführt). **Seit 26.10.2026 abends gelten neue Regeln** (kleine PRs, Screenshots und Testlink, Noah gibt frei, Claude merged; siehe [CLAUDE.md](../CLAUDE.md) und [Arbeitsweise](arbeitsweise.md)). Offen ist unter anderem 0.222.1 «Da, wo du schaust» (4 weitere versteckte Funktionen).
 
 Ältere Abschnitte weiter unten («Kurzstand 19.10.», Abschnitte 1 bis 5) sind der damalige Stand und bleiben als Verlauf stehen. Was unten anders steht, gilt nicht mehr, wo dieser Abschnitt etwas Neueres sagt.
 
@@ -192,7 +192,7 @@ Damals (19.10.2026) galt: keine Testlinks; Ein Paket geht online, sobald die Tes
 | 96 | Touren, die mitdenken (996 Einzelideen Touren 50–58) | 0.212.0 | Absicht, Regel mit Ende, Geschichten, Panne-Check, Später prüfen, Ort-Notiz, Tag zum Hören, Ess-Stopps, Verbrauch | offen |
 | 97 | Platz in jeder Tasche (leere Taschen nehmen Teile auf) | 0.218.0 | Alle Taschen nebeneinander: leere Tasche als Spalte zum Hineinziehen | live |
 | 98 | Nichts versteckt sich mehr (die 20 tief versteckten Funktionen) | 0.217.0 | Namen wie auf der Seite, kurze Erklärzeilen, Trello-Knopf auf Merken, 77 → 57 versteckt | live |
-| 99 | Da, wo du schaust (4 weitere versteckte Funktionen) | 0.219.0 | Ozon/Pollen auf Wetter, Kette nach Regen unter Nachrichten, Belege im Laden-Tab, 57 → 53 versteckt | offen |
+| 99 | Da, wo du schaust (4 weitere versteckte Funktionen) | 0.222.1 | Ozon/Pollen auf Wetter, Kette nach Regen unter Nachrichten, Belege im Laden-Tab, 57 → 53 versteckt | offen |
 | 62 | Skitour (Mockup-Paket P2) | 0.178.0 | Skitouren › Tour planen: Gefahrenstufe 1–5 mit Unterstufe und Satz, «Dein Morgen», Verhältnisse, Plan in Zahlen; «Gipfel erreicht» unterwegs; Nach der Tour «Plan und Wirklichkeit» und dein Material; Skitouren › Saison: Ziel, Wunschtouren, Skitage 8 Wochen, LVS-Übungen, Kurse mit «Auffrischen», Höhenmeter pro Ski, letzte Saison; Vorabend-Check zeigt Stufe, Temperatur, Wind, letzten Zug | live |
 
 «Frontend aufpeppen» ist pausiert (Noah 19.10.2026). Die Abschnitte unten sind der Stand vom 18.10.2026.

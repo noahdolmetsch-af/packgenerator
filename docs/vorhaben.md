@@ -510,7 +510,7 @@ Kurzfassung, verbindlich ist [arbeitsweise.md](arbeitsweise.md).
 0.199.0 «Flicken, ausprobieren, abmachen» (25.10.2026, Ziel Alltag): letzte Einzelideen aus Paket A (996 Ideen).
 0.218.0 «Platz in jeder Tasche» (Ziel Tour: besser packen, 27.10.2026, eigener kleiner PR).
 0.217.0 «Nichts versteckt sich mehr» (Ziel Alltag: was es gibt, ist auffindbar, 27.10.2026, eigener kleiner PR).
-0.219.0 «Da, wo du schaust» (Ziel Alltag: was es gibt, ist auffindbar, 27.10.2026, eigener kleiner PR).
+0.222.1 «Da, wo du schaust» (Ziel Alltag: was es gibt, ist auffindbar, 27.10.2026, eigener kleiner PR).
 0.212.0 «Touren, die mitdenken» (Ziel Tour: unterwegs und danach), 0.211.0 «Zwei Touren, ein Blick» (Ziel Tour: besser vorbereitet), 0.208.1 «Ganze Wörter am kleinen Handy», 0.209.0 «Tagelang zusammen fahren» (Ziel Tour: zusammen unterwegs) und 0.210.0 «Deine Liste in Sicht» (Ziel Alltag: was es gibt, ist auffindbar), 26.10.2026, im Sammel-PR nach #263.
 
 0.208.0 «Mehr Platz am Computer» (26.10.2026, Ziel Alltag/Bedienung): UI-Ziel #14, die Hauptorte nutzen am Computer ihre Breite.

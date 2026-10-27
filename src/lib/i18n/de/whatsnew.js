@@ -4,7 +4,7 @@
  * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
-  // 0.219.0 Da, wo du schaust
+  // 0.222.1 Da, wo du schaust
   'Found where you look': 'Da, wo du schaust',
   'Four more tools now live on the page where you see them.': 'Vier weitere Werkzeuge wohnen jetzt auf der Seite, wo du sie siehst.',
   'Ozone and pollen: found on the Weather page': 'Ozon und Pollen: zu finden auf der Wetter-Seite',
