@@ -1,6 +1,6 @@
 # Erinnerung zu deiner Zeit
 
-PR #? · 27.10.2026 · Auftrag: Noah «ich möchte alle umsetzen 1a 2a 3a 4a 5a» (Thread «Brainstormen intelligentere vernetzte App», Idee A2)
+PR #346 · 27.10.2026 · Auftrag: Noah «ich möchte alle umsetzen 1a 2a 3a 4a 5a» (Thread «Brainstormen intelligentere vernetzte App», Idee A2)
 
 ## Was ist neu
 - Die App merkt sich, um welche Zeit du den Abend-Check am Vorabend einer Tour öffnest (ab 16:00, der erste Mal pro Abend, die letzten 8 Abende).
