@@ -1,6 +1,6 @@
 # Projektstand und Plan
 
-Stand: **27. Oktober 2026, 04:20 UTC**. Auf `main` steht **Version 0.219.0** («Heute ruhiger» Teil 1, #267) (Sammel-PR #265 mit 0.208.1 bis 0.212.0, zusammengeführt am 26.10.2026 abends; damit kommen auch 0.206.0 bis 0.208.0 online). **Seit 26.10.2026 abends gelten neue Regeln** (kleine PRs, Screenshots und Testlink, Noah gibt frei, Claude merged; siehe [CLAUDE.md](../CLAUDE.md) und [Arbeitsweise](arbeitsweise.md)). Offen sind kleine PRs: #266 (Regeln + schnellere Browser-Tests), #267 «Heute ruhiger» Teil 1, #268 «Die heutige Tour sagt eins», #269 Bibliotheks-Updates, #270 «Live Navigation 1».
+Stand: **27. Oktober 2026, 04:20 UTC**. Auf `main` steht **Version 0.219.0** («Heute ruhiger» Teil 1, #267; davor kleine PRs bis 0.218.0). **Seit 26.10.2026 abends gelten neue Regeln** (kleine PRs, Screenshots und Testlink, Noah gibt frei, Claude merged; siehe [CLAUDE.md](../CLAUDE.md) und [Arbeitsweise](arbeitsweise.md)). Offen sind kleine PRs: #266 (Regeln + schnellere Browser-Tests), #267 «Heute ruhiger» Teil 1, #268 «Die heutige Tour sagt eins», #269 Bibliotheks-Updates, #270 «Live Navigation 1».
 
 Ältere Abschnitte weiter unten («Kurzstand 19.10.», Abschnitte 1 bis 5) sind der damalige Stand und bleiben als Verlauf stehen. Was unten anders steht, gilt nicht mehr, wo dieser Abschnitt etwas Neueres sagt.
 
