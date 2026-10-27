@@ -10,11 +10,13 @@
   import { t, tn, nameOf, locale } from '../i18n.svelte.js';
   import { formatWeight, itemWeight } from '../gear.js';
   import { ZONES, tempRange } from '../wardrobe.js';
-  let { worn, itemsById, range = null, reasons = {}, wardrobeHref, onswap } = $props();
+  let { worn, itemsById, range = null, reasons = {}, wardrobeHref, onswap, totalG = null } = $props();
+  // UI-Test T7 (G2-08): totalG = the trip's «On me» (trips.js onMeG, with the worn bags), the number of the
+  // drawing and of «Weight»; without it the card adds up its own rows
 
   const LN = { base: 1, mid: 2, outer: 3, accessory: 4 };
   const zoneName = (key) => (key === 'gear' ? t('More on me') : key === 'other' ? t('More clothing') : t(ZONES.find((z) => z.key === key)?.name ?? key));
-  const grams = $derived(worn.zones.reduce((s, z) => s + z.rows.reduce((g, r) => g + (itemWeight(r.item) ?? 0) * (r.entry.qty || 1), 0), 0));
+  const grams = $derived(totalG ?? worn.zones.reduce((s, z) => s + z.rows.reduce((g, r) => g + (itemWeight(r.item) ?? 0) * (r.entry.qty || 1), 0), 0));
   const kg = (g) => `${(g / 1000).toLocaleString(locale(), { minimumFractionDigits: 1, maximumFractionDigits: 1 })} kg`;
   const CLASS = { warm: 'warm|temp', mittel: 'medium|temp', kalt: 'cold|temp' };
   const tr = (s, v) => t(s, v);
