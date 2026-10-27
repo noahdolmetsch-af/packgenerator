@@ -4,7 +4,7 @@
  * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
-  // 0.213.0 Heute ruhiger
+  // 0.218.0 Heute ruhiger
   'A calmer Today': 'Heute ruhiger',
   'No more empty boxes on Today.': 'Keine leeren Kästen mehr auf Heute.',
   'Today: every card is only as tall as its content': 'Heute: jede Karte ist nur so hoch wie ihr Inhalt',
@@ -13,6 +13,13 @@ export default {
   'Open Today: no card has a big empty space below.': 'Öffne Heute: keine Karte hat unten einen grossen leeren Platz.',
   'Scroll to «Open quickly»: the small buttons stand in one list, a tap opens the place.': 'Scrolle zu «Schnell öffnen»: die kleinen Knöpfe stehen in einer Liste, ein Tipp öffnet den Ort.',
   'Look at the bike card: the jobs are small round buttons.': 'Schau die Velokarte an: die Arbeiten sind kleine runde Knöpfe.',
+  // 0.217.0 Nichts versteckt sich mehr
+  'Nothing hides any more': 'Nichts versteckt sich mehr',
+  'Twenty tools that were hard to find now stand where you look.': 'Zwanzig Werkzeuge, die schwer zu finden waren, stehen jetzt dort, wo du schaust.',
+  'Remember: a Trello button at the top leads to your board settings': 'Merken: ein Knopf «Trello» oben führt zu deinem Board',
+  'Food and water and Rides say in one line what they can do': 'Verpflegung und Fahrten sagen in einer Zeile, was sie können',
+  'Open Planen › Merken and tap «Trello» next to «Reminders».': 'Öffne Planen › Merken und tippe auf «Trello» neben «Erinnerungen».',
+  'The page jumps down to the Trello box.': 'Die Seite springt hinunter zur Trello-Box.',
   // 0.212.1 Die heutige Tour sagt eins
   // 0.212.2 UI-Test T2
   'One start time': 'Eine Startzeit',
