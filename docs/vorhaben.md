@@ -48,6 +48,8 @@ Die geplanten Vorhaben verfolgen fünf Ziele (das fünfte seit 19.10.2026, Noah 
 
 **Neu 24.10.2026, 996 Ideen:** vier Pakete nach der 332-Arbeit, in dieser Reihenfolge: B «Touren ohne Überraschung» (Ziel 3: Generalprobe, Folgen vorher sehen, QR an der Kiste, Gut ankommen, Packen nach Bedürfnis), A «Ehrlicher Stand im Alltag» (Ziel 5), C «Ruhig und persönlich» (Ziele 4 und 5), D «Mit Freunden» (wieder offen). Übersicht: `notes/ideen-996/` im Projektordner.
 
+**Träume und Neuland (Noah 27.10.2026 «1-5 a», Ziele 3 und 4):** Träume rückt unter Touren an die zweite Stelle und bekommt «Entdecken»: Ausflugstipps nach Wetter und freier Zeit, weisse Flecken in der Nähe, Herausforderungen mit Ende, kleine Abenteuer (Feierabend-Biwak, Zug hin und Velo heim), Ideen pro Monat; dazu Link wird Traum, Karte aller Träume, Wetterfenster, «Bereit?», erfüllte Träume, neue Sammlungen (Aussichtstürme, Hängebrücken, Wasserfälle) und ein Abenteuer-Würfel. Die Träume aus dem Kompass und die Reisewünsche aus Freie Zeit kommen in Träume; Neuland, Gipfelbuch und «Neuland des Jahres» werden eine Fundliste. Die Neuland-Seite bleibt unter Rückblick. Jede Idee ist ein eigener kleiner PR. Keine neue Kachel auf Heute (nur die Zeilen «Neu heute» und «Abenteuer im Monat»).
+
 Durchgehende Grundsätze: Alles ist ein Vorschlag, nie Pflicht, und immer änderbar. Private Daten bleiben privat. Keine fremden Dienste, wenn es eine eigene, schlanke Lösung gibt.
 
 ## Stand heute (19.10.2026, live 0.152.0)
