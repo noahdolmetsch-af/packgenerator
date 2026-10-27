@@ -4,7 +4,7 @@
  * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
-  // 0.220.0 Alles einmal auf Heute
+  // 0.222.0 Alles einmal auf Heute
   'Everything once on Today': 'Alles einmal auf Heute',
   'Double tiles left Today.': 'Doppelte Kacheln sind weg von Heute.',
   'Tiles that showed the same thing twice left Today once': 'Kacheln, die dasselbe doppelt zeigten, sind einmal von Heute weg',

@@ -34,7 +34,7 @@ Stand: **27. Oktober 2026, 04:20 UTC**. Auf `main` steht **Version 0.219.0** («
 | live | 0.212.1 | 0.212.1 «Die heutige Tour sagt eins» (UI-Test T1, #268) | gemergt 26.10.2026 23:12 |
 | #261 | – | Bibliotheken aktualisieren (lucide, dexie, vite; Dependabot) | offen, wird nach dem Nachziehen auf main geprüft |
 | live | 0.219.0 | «Heute ruhiger» Teil 1 (#267): Karten so hoch wie ihr Inhalt, kleine Knöpfe als Liste «Schnell öffnen», Velo-Arbeiten als runde Knöpfe | gemergt 27.10.2026 04:15 UTC |
-| neu | 0.220.0 | «Heute ruhiger» Teil 2: doppelte Kacheln einmal von Heute weg (bleiben im Katalog) | offen; Claude mergt nach Noahs Freigabe der Bilder |
+| neu | 0.222.0 | «Heute ruhiger» Teil 2: doppelte Kacheln einmal von Heute weg (bleiben im Katalog) | offen; Claude mergt nach Noahs Freigabe der Bilder |
 
 ### Wie ein Release heute online geht (seit 26.10.2026 abends)
 

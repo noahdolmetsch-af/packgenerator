@@ -16,9 +16,9 @@
 
 export const WHATS_NEW = [
   {
-    // v0.220.0 «Heute ruhiger» part 2 (Noah 26.10.2026 «2a», mockup H2): tiles that show again what another tile shows
+    // v0.222.0 «Heute ruhiger» part 2 (Noah 26.10.2026 «2a», mockup H2): tiles that show again what another tile shows
     // leave Heute once (tiles.js DOUBLES, wall v 13); they stay under «Add a tile»
-    version: '0.220.0',
+    version: '0.222.0',
     date: '2026-10-27',
     title: 'Everything once on Today',
     lead: 'Double tiles left Today.',
