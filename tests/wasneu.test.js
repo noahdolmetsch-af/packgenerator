@@ -5,6 +5,7 @@ import { FUNCTIONS } from '../src/lib/home/fnlist.js';
 import { TILE } from '../src/lib/home/tiles.js';
 import { t, lang } from '../src/lib/i18n.svelte.js';
 import DE from '../src/lib/i18n/de/index.js';
+import { NEWS } from '../src/lib/news/index.gen.js';
 import {
   SINCE, BEST, SORTS, PLANNED, HOME_FEATURE, sinceOf, sortKey, usesOf, bumpUse, rowsOf, sortRows, searchRows, newSince, neverTried, byMonth,
   daysBetween, messageOn, BANNER_DAYS, tileDaysLeft, pinNews, unpinNews, TILE_DAYS,
@@ -12,7 +13,10 @@ import {
 
 // v0.110.0 Design-Refresh P10 «Was ist neu» (I11–I11e)
 afterEach(() => (lang.v = 'en'));
-const ids = (rows) => rows.map((r) => r.id);
+// Version number at merge time (27.10.2026): a function brought by a news file (src/lib/news, its `since`) gets
+// the number only at the merge, so these fixed lists leave them out (like newerThan in whatsnew.test.js)
+const NEWS_IDS = new Set(NEWS.flatMap((e) => e.since ?? []));
+const ids = (rows) => rows.map((r) => r.id).filter((id) => !NEWS_IDS.has(id));
 
 describe('every function has a version it came with', () => {
   it('known for every function, never newer than this version, all real versions of the list', () => {
@@ -138,7 +142,7 @@ describe('the list and its sorts', () => {
   it('newest first; name A–Z; by category and by place in their order', () => {
     const newest = sortRows(rows, 'new');
     // 0.216.0 (Velo-Ergänzungen) first; then 0.212.0 (Touren b, by English name); then 0.211.0 (Touren a); then 0.202.0 (Planen im Zusammenhang); then 0.201.0 (Eingaben überall); then 0.200.0 (Gruppenfahrt); then 0.193.0 (Mit Freunden); then 0.192.0 (Ruhig und persönlich, by English name); then 0.190.0 (Nach Bedürfnis packen, Vorher ansehen); then 0.189.0, 0.188.0; 0.187.0 (Stopps in der Nähe); then older
-    expect(ids(newest.slice(0, 73))).toEqual(['f.carestreak', 'f.chainmeasure', 'f.noises', 'f.wearcal', 'f.bikeseason', 'f.bikeyear', 'f.usedbook', 'f.checklater', 'f.itemstories', 'f.placenote', 'f.ruleuntil', 'f.intent', 'f.daylisten', 'f.border', 'f.daysports', 'f.tripcompare', 'f.unclear', 'f.ownviews', 'f.hiddenall', 'f.doubleinbox', 'f.mailcase', 'f.memorycard', 'f.plantpass', 'f.picturecard', 'f.inputtemplates', 'f.inputbar', 'f.groupmap', 'f.friendask', 'f.friendshelf', 'f.friendtemplate', 'f.sources', 'f.letterreply', 'f.arrival', 'f.calmview', 'f.aicheck', 'f.counterdays', 'f.experiment', 'f.gooddecisions', 'f.weightsure', 'f.letters', 'f.nogos', 'f.notforme', 'f.tworoles', 'f.sleeporigin', 'f.bodytalk', 'f.sharepreview', 'f.devil', 'f.pushbudget', 'f.freerewards', 'f.laterview', 'f.skillmap', 'f.specialdays', 'f.meaning', 'f.voiceletters', 'f.knowhow', 'f.scalemeaning', 'f.workspace', 'f.ownbingo', 'f.needs', 'f.blockeffect', 'f.homecoming', 'f.labels', 'f.probe', 'f.goodnight', 'f.stopsnear', 'f.photoalbum', 'f.next', 'f.sortround', 'f.yogaclasses', 'f.goodday', 'f.tennistop', 'f.decides', 'f.forgotten']);
+    expect(ids(newest.filter((r) => !NEWS_IDS.has(r.id)).slice(0, 73))).toEqual(['f.carestreak', 'f.chainmeasure', 'f.noises', 'f.wearcal', 'f.bikeseason', 'f.bikeyear', 'f.usedbook', 'f.checklater', 'f.itemstories', 'f.placenote', 'f.ruleuntil', 'f.intent', 'f.daylisten', 'f.border', 'f.daysports', 'f.tripcompare', 'f.unclear', 'f.ownviews', 'f.hiddenall', 'f.doubleinbox', 'f.mailcase', 'f.memorycard', 'f.plantpass', 'f.picturecard', 'f.inputtemplates', 'f.inputbar', 'f.groupmap', 'f.friendask', 'f.friendshelf', 'f.friendtemplate', 'f.sources', 'f.letterreply', 'f.arrival', 'f.calmview', 'f.aicheck', 'f.counterdays', 'f.experiment', 'f.gooddecisions', 'f.weightsure', 'f.letters', 'f.nogos', 'f.notforme', 'f.tworoles', 'f.sleeporigin', 'f.bodytalk', 'f.sharepreview', 'f.devil', 'f.pushbudget', 'f.freerewards', 'f.laterview', 'f.skillmap', 'f.specialdays', 'f.meaning', 'f.voiceletters', 'f.knowhow', 'f.scalemeaning', 'f.workspace', 'f.ownbingo', 'f.needs', 'f.blockeffect', 'f.homecoming', 'f.labels', 'f.probe', 'f.goodnight', 'f.stopsnear', 'f.photoalbum', 'f.next', 'f.sortround', 'f.yogaclasses', 'f.goodday', 'f.tennistop', 'f.decides', 'f.forgotten']);
     for (let i = 1; i < newest.length; i++) expect(compareVersions(newest[i - 1].since, newest[i].since)).toBeGreaterThanOrEqual(0);
     const abc = sortRows(rows, 'name').map((r) => r.title);
     expect(abc).toEqual([...abc].sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' })));
