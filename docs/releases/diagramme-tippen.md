@@ -1,6 +1,6 @@
 # Diagramme zum Antippen
 
-PR #<nummer> · 27.10.2026 · Auftrag: Noah «1-5 a» (Thread «Diagramme klickbar machen»)
+PR #331 · 27.10.2026 · Auftrag: Noah «1-5 a» (Thread «Diagramme klickbar machen»)
 
 ## Was ist neu
 - Gemeinsame Bausteine für alle Diagramme: `src/lib/charts/BarChart.svelte` (Achse mit runden Schritten ab 0, Zeigen → genaue Zahlen in der Zeile darüber, Tippen/Enter → Fenster), `ChartSheet.svelte` (Fenster mit Blättern), `DataTable.svelte` («Als Tabelle»), `Readout.svelte`, `pick.js`.
