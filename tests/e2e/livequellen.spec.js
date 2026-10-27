@@ -4,6 +4,18 @@
 import { test, expect } from '@playwright/test';
 import { openHome } from './home0460-fixture.js';
 
+// Suchvorschläge (27.10.2026): the place search sits in the window «In der Nähe»; open it from the map
+async function openNear(page, info) {
+  const near = page.locator('[data-live-near]');
+  if (await near.evaluate((d) => d.open).catch(() => false)) return;
+  const b = page.locator('[data-live-near-open]');
+  await b.scrollIntoViewIfNeeded();
+  if (info.project.name === 'phone') await b.tap();
+  else await b.click();
+  await expect(near).toBeVisible();
+}
+
+
 const PNG = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=', 'base64');
 const HERE = { lat: 46.95, lon: 7.45 };
 const phone = (info) => info.project.name === 'phone';
@@ -103,6 +115,7 @@ test('An own place by a tap on the live map, then the picture to share after the
   });
   const T = await startRide(page, context, info);
   await openSheet(page, info);
+  await openNear(page, info);
   const panel = page.locator('[data-poi-panel]');
   await panel.scrollIntoViewIfNeeded();
   await tap(panel.locator('[data-poi-own-toggle]'), info);
@@ -119,15 +132,19 @@ test('An own place by a tap on the live map, then the picture to share after the
   await expect(sheet.locator('[data-own-name]')).toBeVisible();
   await sheet.locator('[data-own-name]').fill('test_data_gtp_ Rastplatz');
   await sheet.getByRole('button', { name: T('Save'), exact: true }).click();
-  await openSheet(page, info);
+  await expect(page.locator('[data-live-near]')).toBeVisible();
   await expect(panel.locator('[data-poi-own-row]')).toHaveCount(1);
   await expect(panel.locator('[data-poi-own-row]')).toContainText('test_data_gtp_ Rastplatz');
+  // the window «In der Nähe» came back with the new place; close it for the map
+  await tap(page.locator('[data-live-near-close]'), info);
+  await expect(page.locator('[data-live-near]')).toBeHidden();
 
   // ride a little, stop, the picture
   await context.setGeolocation({ latitude: HERE.lat + 0.01, longitude: HERE.lon, accuracy: 8 });
   await expect(page.locator('[data-live-km]')).not.toContainText(/^0([.,]0)?\b/, { timeout: 10_000 });
   await page.locator('[data-live-stop]').scrollIntoViewIfNeeded();
   await tap(page.locator('[data-live-stop]'), info);
+  await tap(page.locator('[data-live-end-yes]'), info); // «Fahrt beenden?» asks once (M9)
   const after = page.locator('[data-after-share]');
   await after.scrollIntoViewIfNeeded();
   await expect(after).toBeVisible();

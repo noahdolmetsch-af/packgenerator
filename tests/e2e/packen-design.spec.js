@@ -116,11 +116,12 @@ test('Unterwegs (T12, T13): base check, «Der Tag in Blöcken», «Heute Abend l
   const check = page.getByRole('region', { name: T('Base check') });
   await expect(check).toBeVisible();
   // Impeccable (changed on purpose): from day 2 the open check is one quiet line; «Abhaken» opens it
-  await expect(check.locator('button.chip')).toHaveCount(0);
+  // UI-Test T2 (G2-15, changed on purpose): the rows are boxes to tick like Packen (button.it), no pills
+  await expect(check.locator('button.it')).toHaveCount(0);
   await expect(check).toContainText(T('Tick off'));
   await check.getByRole('button', { name: new RegExp(T('Tick off')) }).click();
   await expect(check).toContainText(counted('{n} of {total}'));
-  const chip = check.locator('button.chip').first();
+  const chip = check.locator('button.it').first();
   await chip.click();
   await expect(chip).toHaveAttribute('aria-pressed', 'true');
   // the block of now, the other blocks folded

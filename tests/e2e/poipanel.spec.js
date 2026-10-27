@@ -11,6 +11,18 @@
 import { test, expect } from '@playwright/test';
 import { openHome } from './home0460-fixture.js';
 
+// Suchvorschläge (27.10.2026): the place search sits in the window «In der Nähe»; open it from the map
+async function openNear(page, info) {
+  const near = page.locator('[data-live-near]');
+  if (await near.evaluate((d) => d.open).catch(() => false)) return;
+  const b = page.locator('[data-live-near-open]');
+  await b.scrollIntoViewIfNeeded();
+  if (info.project.name === 'phone') await b.tap();
+  else await b.click();
+  await expect(near).toBeVisible();
+}
+
+
 const HERE = { lat: 46.95, lon: 7.45 };
 const PLACES = [
   { type: 'node', id: 1, lat: 46.9512, lon: 7.4505, tags: { amenity: 'drinking_water', name: 'test_data_gtp_ Brunnen Nord' } },
@@ -50,6 +62,7 @@ async function openLive(page, context, info) {
   await context.setGeolocation({ latitude: HERE.lat, longitude: HERE.lon, accuracy: 10 });
   await page.goto('./#/live');
   await tap(page.locator('[data-live-start]'), info);
+  await openNear(page, info);
   const panel = page.locator('[data-poi-panel]');
   await expect(panel).toBeVisible();
   await panel.scrollIntoViewIfNeeded();
@@ -68,8 +81,8 @@ test('places around me: chips, one query per tap, list nearest first, Navigate, 
   for (const b of await chips.locator('[data-poi-chip]').all()) expect((await b.boundingBox()).height).toBeGreaterThanOrEqual(44);
 
   // two chips tapped fast: one query with both kinds; «Around me» 10 km by default
-  await tap(chips.locator('[data-poi-chip="water"]'), info);
-  await tap(chips.locator('[data-poi-chip="toilet"]'), info);
+  // both taps in the same moment, so a slow test machine cannot pull them apart past the 600 ms wait
+  await chips.evaluate((e) => ['water', 'toilet'].forEach((k) => e.querySelector(`[data-poi-chip="${k}"]`).click()));
   await expect(panel.locator('[data-poi-status="ok"]')).toBeVisible();
   expect(st.calls).toHaveLength(1);
   expect(st.calls[0]).toContain('"amenity"="drinking_water"');
@@ -151,14 +164,21 @@ test('a place: detail with hours and Navigate, save, share, unsave', async ({ pa
   await tap(panel.locator('[data-poi-unstar]'), info);
   await expect(panel.locator('[data-poi-saved-row]')).toHaveCount(0);
   await noSideways(page, 'detail');
+
+  // In der Nähe (27.10.2026): «Go there» in the details of a listed place closes the window and plans the detour to it
+  await tap(d.locator('[data-poi-go]'), info);
+  await expect(page.locator('[data-live-near]')).toBeHidden();
+  await expect(page.locator('[data-reroute-sheet]')).toBeVisible();
 });
 
-test('Overpass busy, then try again; offline shows the kept places', async ({ page, context }, info) => {
+test('Overpass busy (every server), then try again; offline shows the kept places', async ({ page, context }, info) => {
   const { T, st, panel } = await openLive(page, context, info);
   st.status = 429;
   await tap(panel.locator('[data-poi-chip="water"]'), info);
-  await expect(panel.locator('[data-poi-status="bad"]')).toContainText(T('OpenStreetMap is busy right now. Try again in a minute.|poi'));
-  expect(st.calls).toHaveLength(2); // both mirrors
+  // Live Navigation PR 2: the true reason, every server asked, and a smaller radius offered
+  await expect(panel.locator('[data-poi-status="bad"]')).toContainText(T('All OpenStreetMap servers are full or too slow right now.|poi'));
+  expect(st.calls.length).toBeGreaterThanOrEqual(3);
+  await expect(panel.locator('[data-poi-smaller]')).toBeVisible();
   st.status = 200;
   await tap(panel.locator('[data-poi-retry]'), info);
   await expect(panel.locator('[data-poi-status="ok"]')).toBeVisible();
@@ -338,6 +358,7 @@ test('the kinds: rename, take out and Undo, put more in, sort, an own kind with 
   await expect(page.locator('[data-poi-chips] [data-poi-chip^="my-"]')).toContainText('test_data_gtp_ Ruhebänke');
   await expect(page.locator('[data-poi-chip="water"]')).toContainText('test_data_gtp_ Brünneli');
   // delete the own kind: asked first, then gone
+  await openNear(page, info);
   const p2 = page.locator('[data-poi-panel]');
   await tap(p2.locator('[data-poi-kinds-edit]'), info);
   await tap(p2.locator('[data-poi-kind-remove^="my-"]'), info);

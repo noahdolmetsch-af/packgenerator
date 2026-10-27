@@ -10,6 +10,7 @@
  */
 import { FEATURES, FEATURE_GROUPS, PAGE_GROUPS, pageOf } from '../features.js';
 import { WHATS_NEW, compareVersions } from '../whatsnew.js';
+import { NEWS } from '../news/index.gen.js';
 
 /** localStorage: { featureId: times opened } on this device. */
 export const USES_KEY = 'wasneu.uses';
@@ -36,6 +37,10 @@ export const TOP_HREF = '#/me/news?all&sort=top';
  * missing here counts as 0.1.0 (from the start).
  */
 export const SINCE = {
+  // Noah 26.10.2026 «1 3 6 7 8 12a» (Velo-Ergänzungen): v0.220.0
+  'f.chainmeasure': '0.220.0', 'f.bikeyear': '0.220.0', 'f.bikeseason': '0.220.0', 'f.noises': '0.220.0', 'f.carestreak': '0.220.0', 'f.wearcal': '0.220.0',
+  // Paket «Touren b» (996 Ideen 50–58, Noah 26.10.2026): live since 0.212.0
+  'f.ruleuntil': '0.212.0', 'f.itemstories': '0.212.0', 'f.intent': '0.212.0', 'f.checklater': '0.212.0', 'f.placenote': '0.212.0', 'f.daylisten': '0.212.0', 'f.usedbook': '0.212.0',
   // Einzelideen Material und Überall (996 Ideen, Noah 25.10.2026): provisional, the bundler sets the number
   'f.ownviews': '0.205.0',
   // Paket K «Unterwegs»: v0.154.0
@@ -62,7 +67,6 @@ export const SINCE = {
   'f.friendask': '0.194.0', 'f.friendshelf': '0.194.0', 'f.friendtemplate': '0.194.0',
   // Paket C «Ruhig und persönlich» (996 Ideen); bundler: renumber with the package version
   'f.hiddenall': '0.203.0', // Einzelidee 33
-  'f.workshoprounds': '0.217.0', // Velo-Idee 76
   'f.workspace': '0.193.0', 'f.calmview': '0.193.0', 'f.pushbudget': '0.193.0', 'f.notforme': '0.193.0', 'f.experiment': '0.193.0', 'f.specialdays': '0.193.0', 'f.counterdays': '0.193.0', 'f.sleeporigin': '0.193.0', 'f.weightsure': '0.193.0', 'f.letters': '0.193.0', 'f.letterreply': '0.193.0', 'f.laterview': '0.193.0', 'f.voiceletters': '0.193.0', 'f.meaning': '0.193.0', 'f.gooddecisions': '0.193.0', 'f.ownbingo': '0.193.0', 'f.freerewards': '0.193.0', 'f.skillmap': '0.193.0', 'f.knowhow': '0.193.0', 'f.sharepreview': '0.193.0', 'f.arrival': '0.193.0', 'f.tworoles': '0.193.0', 'f.scalemeaning': '0.193.0', 'f.bodytalk': '0.193.0', 'f.sources': '0.193.0', 'f.devil': '0.193.0', 'f.aicheck': '0.193.0', 'f.nogos': '0.193.0',
   'f.blockeffect': '0.190.0', 'f.needs': '0.190.0', 'f.probe': '0.189.0', 'f.homecoming': '0.189.0', 'f.labels': '0.189.0', 'f.groupmap': '0.200.0', 'f.stopsnear': '0.187.0', 'f.lighter': '0.63.0', 'f.select': '0.24.1', 'f.merge': '0.37.1', 'f.blockcheck': '0.66.0', 'f.packcleanup': '0.177.0', 'f.namesde': '0.177.0', 'f.skiplan': '0.178.0', 'f.skiseason': '0.178.0', 'f.newpack': '0.179.0', 'f.powervalues': '0.179.0', 'f.decides': '0.181.0', 'f.tennistop': '0.182.0', 'f.yogaclasses': '0.182.0', 'f.photoalbum': '0.185.0', 'f.weighin': '0.180.0', 'f.next': '0.184.0', 'f.sortround': '0.183.0', 'f.goodday': '0.182.0', 'f.forgotten': '0.181.0', 'f.gearimport': '0.36.0',
   bags: '0.5.0', share: '0.16.0', ride: '0.29.0', note: '0.19.3', event: '0.22.1', 'f.basecheck': '0.45.2', 'f.dayblocks': '0.19.5', 'f.evening': '0.34.0', 'f.ridenote': '0.26.0', 'f.finish': '0.20.1',
@@ -164,6 +168,8 @@ export const SINCE = {
   'f.inputbar': '0.201.0', 'f.inputtemplates': '0.201.0', 'f.picturecard': '0.201.0',
   'f.tripcompare': '0.211.0', 'f.daysports': '0.211.0', 'f.unclear': '0.211.0', 'f.border': '0.211.0', // Touren a, part 2 (bundler renumbers)
 };
+// Since 27.10.2026 a news file names the functions it brings (since: ['f.x']); they get its version.
+for (const e of NEWS) for (const id of e.since ?? []) SINCE[id] = e.version;
 export const sinceOf = (id) => SINCE[id] ?? '0.1.0';
 
 /** I11d «Wichtigste 10»: a fixed choice, what brings the most when packing, riding and caring. */

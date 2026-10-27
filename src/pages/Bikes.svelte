@@ -125,6 +125,12 @@
   {:else if route.tab === 'care' && route.view === 'rounds'}
     <!-- Velo-Idee 76 «Werkstatt-Runden» (Noah 26.10.2026 «4a 5a»); loaded only when opened -->
     {#await import('../lib/werkstatt/RoundsPage.svelte') then m}<m.default bikeId={route.bike} />{:catch}<p class="quiet">{t('This page could not load. Please check the connection and try again.')}</p>{/await}
+  {:else if route.tab === 'care' && route.view === 'year'}
+    <!-- Velo-Jahresrückblick (Noah 26.10.2026 «3a»); loaded only when opened -->
+    {#await import('../lib/care/YearPage.svelte') then m}<m.default bikeId={route.bike} />{:catch}<p class="quiet">{t('This page could not load. Please check the connection and try again.')}</p>{/await}
+  {:else if route.tab === 'care' && route.view === 'season'}
+    <!-- Velo einwintern (Noah 26.10.2026 «12a»); loaded only when opened -->
+    {#await import('../lib/care/SeasonPage.svelte') then m}<m.default bikeId={route.bike} />{:catch}<p class="quiet">{t('This page could not load. Please check the connection and try again.')}</p>{/await}
   {:else if route.tab === 'care' && route.view === 'templates'}
     <!-- «Velo im Griff» #1009: the part template per bike kind; loaded only when opened -->
     {#await import('../lib/care/TemplatePage.svelte') then m}<m.default bikeId={route.bike} />{/await}

@@ -395,7 +395,7 @@ export function warmEnough(item, c) {
 export const rainProof = (item) => !!rainOf(item) || /regen|rain|wasserdicht|waterproof|poncho|gore-?tex/i.test(`${item.name} ${item.nameDe ?? ''}`);
 
 // The three layer rows are the upper body (leg warmers count under Legs, not under Mid).
-const matchesRow = (row, item) => (row.layer ? layerKey(item.layer) === row.layer && (!item.zone || zoneGroup(item.zone) === 'upper') : zoneGroup(item.zone) === row.zone);
+export const matchesRow = (row, item) => (row.layer ? layerKey(item.layer) === row.layer && (!item.zone || zoneGroup(item.zone) === 'upper') : zoneGroup(item.zone) === row.zone);
 
 /**
  * The onion check of a trip: { c, from, wet, pct, rows, gaps } or null (no temperature, or no
@@ -430,7 +430,7 @@ export function onionCheck(trip, items = [], offset = 0) {
 }
 
 /** The best item for a gap: a range that holds c first, then the closest lower border, then the lighter one. */
-function best(list, c) {
+export function best(list, c) {
   const holds = (i) => typeof i.tempMin === 'number' && i.tempMin <= c && (typeof i.tempMax !== 'number' || i.tempMax >= c);
   return (
     [...list].sort(

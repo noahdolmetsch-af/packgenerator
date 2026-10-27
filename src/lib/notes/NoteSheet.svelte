@@ -424,6 +424,7 @@
       <button type="button" class="btn btn-link" onclick={share} data-note-share><Share2 size={16} aria-hidden="true" />{t('Share|note')}</button>
       <button type="button" class="btn btn-link" onclick={asTemplate} data-note-astpl><FilePlus2 size={16} aria-hidden="true" />{t('Save as a template')}</button>
       <button type="button" class="btn btn-link" aria-expanded={remindOpen} onclick={() => (remindOpen = !remindOpen)} data-note-remind-open><Bell size={16} aria-hidden="true" />{draft.remind?.at && !draft.remind.done ? t('Reminder {when}', { when: remindText(draft) }) : afterLabel(draft.after) || (draft.at2?.tripId && !draft.at2.done ? t('At km {km} of a tour', { km: Math.round(draft.at2.km ?? 0) }) : t('Remind me'))}</button>
+      <button type="button" class="btn btn-link" aria-expanded={remindOpen && remindKind === 'place'} onclick={() => ((remindOpen = true), (remindKind = 'place'))} data-note-place-open><MapPin size={16} aria-hidden="true" />{t('Remind at a point of the route')}</button>
       <button type="button" class="btn btn-link" onclick={() => (cardOpen = true)} data-note-card-open><Sparkles size={16} aria-hidden="true" />{draft.card ? t('Memory card') : t('Make a memory card')}</button>
       <button type="button" class="btn btn-link" aria-expanded={versionsOpen} onclick={() => (versionsOpen = !versionsOpen)} data-note-versions-open><History size={16} aria-hidden="true" />{t('Earlier versions')}</button>
     </div>

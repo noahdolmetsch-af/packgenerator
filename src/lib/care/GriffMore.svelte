@@ -7,7 +7,7 @@
    * bike: the shown bike; stats: brandStats of all bikes.
    */
   import { liveQuery } from 'dexie';
-  import { Award, Camera, Tag, Luggage, Package, ChevronRight, Bell } from '@lucide/svelte';
+  import { Award, Camera, Tag, Luggage, Package, ChevronRight, Bell, CalendarRange, Snowflake } from '@lucide/svelte';
   import { db } from '../db.js';
   import { t, tn, num, locale } from '../i18n.svelte.js';
   import { bikesHash } from '../bikes.js';
@@ -31,6 +31,9 @@
     { view: 'sell', icon: Tag, title: 'Sale listing', sub: 'A text from km, services and parts' },
     { view: 'bikepack', icon: Luggage, title: 'Pack the bike', sub: 'Checklist and photos for train or plane' },
     { view: 'stock', icon: Package, title: 'Spare parts at home', sub: 'What is in stock, what is missing' },
+    // Noah 26.10.2026 «3a» and «12a»
+    { view: 'year', icon: CalendarRange, title: 'Year in review', sub: 'km, changes, services and costs per year' },
+    { view: 'season', icon: Snowflake, title: 'Winter and spring', sub: 'Put the bike away for the winter, get it ready in spring' },
   ];
 </script>
 
@@ -70,6 +73,8 @@
     </select>
   </label>
   <p class="quiet">{t('The spring reminder is a to-do in Kalender › Merken, with what is due on each bike. On the phone: Me › Reminders on the phone.')}</p>
+  <!-- Noah 26.10.2026 «7a»: the coming changes in the Google calendar «Packgenerator» -->
+  <p class="quiet">{t('The coming part changes can also go into your Google calendar «Packgenerator»:')} <a class="lnk" href="#/me/connections" data-griff-cal>{t('Me › Connections')}</a></p>
 </section>
 
 <style>
