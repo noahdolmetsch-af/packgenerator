@@ -3,7 +3,7 @@
 export default {
   title: 'Your bike while packing',
   lead: 'On the packing day your bike shows every bag at its place.',
-  points: [{ text: 'Each bag fills from below as you pack; a full bag shows a tick' }],
+  points: [{ text: 'Each bag fills from below as you pack; a full bag shows a tick', href: '#/pack?day' }],
   small: [{ box: 'nicer', text: 'Tap a bag on the bike to open it' }],
   test: ['Open a trip on its packing day and tap «Pack»: above the bag tiles stands your bike with the bags.', 'Tick an item: its bag on the bike fills a little.'],
   since: [],
