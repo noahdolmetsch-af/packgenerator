@@ -78,7 +78,7 @@ export const TIPS = [
   { id: 'setup', group: 'bikes', icon: 'bike', title: 'Bag plan', text: 'The bike setup shows which bag sits where, with its weight.', button: 'Open setup', go: { href: '#/bikes' }, needs: 'bikes' },
   { id: 'care', group: 'bikes', icon: 'wrench', title: 'Care|tab', text: 'Bike care tells you when the chain, pads and tyres are due.', button: 'Open Bike care', go: { href: '#/bikes?tab=care' }, needs: 'bikes' },
   { id: 'order', group: 'bikes', icon: 'clipboard', title: 'Order for the bike shop', text: 'A workshop order lists what the shop should do, ready to print.', button: 'Open Bike care', go: { href: '#/bikes?tab=care' }, needs: 'bikes' },
-  { id: 'receipt', group: 'bikes', icon: 'camera', title: 'Photograph a receipt', text: 'Take a photo of the workshop receipt; it waits in the Inbox.', button: 'Photo of a receipt', go: { run: 'receipt' }, needs: 'bikes' },
+  { id: 'receipt', group: 'bikes', icon: 'camera', title: 'Receipts', text: 'Take a photo of the workshop receipt; it waits in the Inbox.', button: 'Photo of a receipt', go: { run: 'receipt' }, needs: 'bikes' },
   { id: 'km', group: 'bikes', icon: 'counter', title: 'Log km', text: 'Type the km on the counter, and Bike care knows what is due.', button: 'Log km', go: { run: 'km' }, needs: 'bikes' },
   // Your data
   { id: 'backup', group: 'data', icon: 'save', title: 'Backup', text: 'A backup file keeps your data safe and moves it to another device.', button: 'Download backup', go: { run: 'backup' }, needs: 'any' },

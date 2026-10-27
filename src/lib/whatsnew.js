@@ -16,9 +16,9 @@
 
 export const WHATS_NEW = [
   {
-    // v0.229.0 «Heute ruhiger» part 2 (Noah 26.10.2026 «2a», mockup H2): tiles that show again what another tile shows
+    // v0.233.0 «Heute ruhiger» part 2 (Noah 26.10.2026 «2a», mockup H2): tiles that show again what another tile shows
     // leave Heute once (tiles.js DOUBLES, wall v 13); they stay under «Add a tile»
-    version: '0.229.0',
+    version: '0.233.0',
     date: '2026-10-27',
     title: 'Everything once on Today',
     lead: 'Double tiles left Today.',
@@ -29,6 +29,56 @@ export const WHATS_NEW = [
     ],
     small: [{ box: 'nicer', text: 'Body values: all of them behind «Details» in «Your body today»' }],
     test: ['Open Today: your body values stand once, in «Your body today».', 'Customise the start page › Add a tile: «Body values» and the others are still there.'],
+  },
+  {
+    // v0.232.0 «Was ziehe ich an? selbst anpassen» Schritt 1 (Noah 27.10.2026 «1a 2a oder b wählbar 3a 4a … 5a»): in the
+    // window on Today every row can be swapped or left out and a layer added, for this ride day only; a gap says why
+    // (too light, still in «To sort», nothing yet) with «Take anyway» and the wishlist; «Why so?» explains the rule
+    version: '0.232.0',
+    date: '2026-10-27',
+    title: 'Your clothes, your call',
+    lead: '«What do I wear?» now lets you change the suggestion.',
+    points: [{ text: 'Swap any piece, leave one out or add a layer, for today only' }],
+    small: [
+      { box: 'new', text: 'A gap says why: too light, still to sort, or nothing yet' },
+      { box: 'new', text: '«Why so?» explains how the app chooses' },
+    ],
+    test: ['On Today tap «What do I wear?» and then «Swap» on a row: pick another piece; the row says «chosen by you · today only».', 'Open «Why so?» under the list: it names the temperature and from when each layer comes.'],
+  },
+  {
+    // v0.231.1 «332 sichtbar», next 4 hidden functions (Noah 26.10.2026 «wie kannst du weiter machen»): catalogue
+    // names like on the page, Ozone and pollen lives on Weather, Chain after rain on Messages, Receipts on the bike shop tab
+    version: '0.231.1',
+    date: '2026-10-27',
+    title: 'Found where you look',
+    lead: 'Four more tools now live on the page where you see them.',
+    points: [{ text: 'Ozone and pollen: found on the Weather page', href: '#/wetter' }, { text: 'Chain after rain: found under Messages', href: '#/me/push' }],
+    small: [{ box: 'nicer', text: 'Receipts and Ice in the morning carry the name the page shows', href: '#/bikes?tab=shop' }],
+    test: ['Open «What the app can do», search «Pollen» and tap «Try it».', 'The Weather page opens with ozone and pollen.'],
+  },
+  {
+    // v0.231.0 «Touren b» catalogue (996 Einzelideen 50–58): all in «What the app can do», the handbook and the home pages; idea 56 map
+    version: '0.231.0',
+    date: '2026-10-27',
+    title: 'Where you said it',
+    lead: 'Your day to listen to now shows a small map.',
+    points: [{ text: '«Your day to listen to» shows on a map where you recorded each note', href: '#/debrief' }],
+    small: [{ box: 'nicer', text: 'The tour ideas from 0.212.0 are now in «What the app can do», the handbook and on their home pages', href: '#/features' }],
+    test: ['After a day with voice notes open «Your day to listen to» in the debrief.', 'The map «Where you spoke them» shows a number for each note; a tap plays it.'],
+  },
+  {
+    // v0.227.0 Live Navigation PR 4 «In der Nähe» (Noah 27.10.2026 «1a 2a 3a 4a», «freigabe für alle mockups»): one
+    // window with all place filters, 14 situation buttons (map/situations.js), «Everything» at once, «Go there», 14 new kinds
+    version: '0.227.0',
+    date: '2026-10-27',
+    title: 'What do you need?',
+    lead: 'On the live map, «Nearby» opens one window with everything to find a place.',
+    points: [
+      { text: 'Situation buttons: hungry, thirsty, home by train, sleeping place and more', href: '#/live' },
+      { text: 'New places: sauna, indoor pool, Selecta, tube vending machine, farm shop, firepit, phone charging', href: '#/live' },
+    ],
+    small: [{ box: 'new', text: '«Everything» shows every kind of your row at once' }],
+    test: ['Open the live map and tap «Nearby».', 'Tap «Hunger»: only food places that are open now show up.', 'Tap a place and then «Go there». Before, the place search sat at the bottom of the sheet.'],
   },
   {
     // v0.226.0 Tages-Check (Noah 26.10.2026 «1a»): «Not today» in the morning waits only until the evening check

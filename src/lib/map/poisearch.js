@@ -68,6 +68,22 @@ export const KEYS = CATEGORIES.map((c) => c.key);
  * default one when both are on (a bakery is «Bakery», not «Shopping»).
  */
 export const MORE = [
+  // Suchvorschläge (Noah 27.10.2026 «1a 2a 3a 4a»): wellness, vending machines around the clock and more for on the way.
+  // First, so a thermal bath wins over «Swimming» and a farm shop over «Shopping».
+  { key: 'sauna', name: 'Sauna|poi', icon: 'flame', widthM: 3000, tags: ['["leisure"="sauna"]', '["amenity"="sauna"]'] },
+  { key: 'indoorpool', name: 'Indoor pool|poi', icon: 'waves-horizontal', widthM: 3000, tags: ['["leisure"="sports_centre"]["sport"="swimming"]', '["leisure"="water_park"]', '["leisure"="swimming_pool"]["access"~"^(yes|public|customers)$"]'] },
+  { key: 'thermal', name: 'Thermal bath and spa|poi', icon: 'thermometer-sun', widthM: 5000, tags: ['["amenity"="public_bath"]["bath:type"="thermal"]', '["leisure"="spa"]'] },
+  { key: 'selecta', name: 'Selecta|poi', icon: 'cup-soda', widthM: 1000, tags: ['["amenity"="vending_machine"]["brand"="Selecta"]', '["amenity"="vending_machine"]["operator"="Selecta"]'] },
+  { key: 'tubevend', name: 'Bike tube vending machine|poi', icon: 'life-buoy', widthM: 3000, tags: ['["amenity"="vending_machine"]["vending"~"bicycle_tube"]'] },
+  { key: 'foodvend', name: 'Bread, milk and egg vending machine|poi', icon: 'milk', widthM: 1500, tags: ['["amenity"="vending_machine"]["vending"~"bread|milk|eggs|cheese"]'] },
+  { key: 'farmshop', name: 'Farm shop|poi', icon: 'apple', widthM: 2000, tags: ['["shop"="farm"]'] },
+  { key: 'shower', name: 'Shower|poi', icon: 'shower-head', widthM: 1000, tags: ['["amenity"="shower"]'] },
+  { key: 'bikewash', name: 'Bike wash|poi', icon: 'spray-can', widthM: 1000, tags: ['["amenity"="bicycle_wash"]'] },
+  { key: 'locker', name: 'Luggage locker|poi', icon: 'lock', widthM: 2000, tags: ['["amenity"="luggage_locker"]'] },
+  { key: 'defib', name: 'Defibrillator|poi', icon: 'heart-pulse', widthM: 1000, tags: ['["emergency"="defibrillator"]'] },
+  { key: 'outdoor', name: 'Sport and outdoor shop|poi', icon: 'backpack', widthM: 3000, tags: ['["shop"~"^(outdoor|sports)$"]'] },
+  { key: 'firepit', name: 'Fireplace and barbecue|poi', icon: 'flame-kindling', widthM: 1000, tags: ['["leisure"="firepit"]', '["amenity"="bbq"]'] },
+  { key: 'phonecharge', name: 'Phone charging|poi', icon: 'smartphone-charging', widthM: 1500, tags: ['["amenity"="device_charging_station"]'] },
   { key: 'supermarket', name: 'Supermarket|poi', icon: 'shopping-basket', widthM: 1000, tags: ['["shop"="supermarket"]'] },
   { key: 'bakery', name: 'Bakery|poi', icon: 'croissant', widthM: 1000, tags: ['["shop"="bakery"]'] },
   { key: 'icecream', name: 'Ice cream|poi', icon: 'ice-cream-cone', widthM: 500, tags: ['["amenity"="ice_cream"]', '["shop"="ice_cream"]'] },
