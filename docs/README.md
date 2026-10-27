@@ -44,6 +44,8 @@ Auf `main` ist v0.198.0 (25.10.2026). Seit 26.10.2026 liefert Claude für alles 
 
 ## Dokumentationsregel für jeden Release-PR
 
+**Seit 27.10.2026 (Noah «1a», Versionsnummer beim Merge):** jeder PR legt seine eigene Datei `docs/releases/<name>.md` an (Vorlage: [releases/README.md](releases/README.md)) statt Kopfzeilen und Tabellenzeilen in `projektstand.md` und `status.md` zu ändern. Die Versionsnummer steht nicht im PR; sie entsteht beim Merge (`scripts/news.mjs`) und steht in der App unter Ich › Was ist neu. Die Regel unten gilt für Releases bis 0.232.0.
+
 Seit 8.10.2026 auf Noahs Wunsch („immer wieder alles gut dokumentiert“). Jeder Release-PR aktualisiert im selben PR:
 
 1. **[projektstand.md](projektstand.md):** Abschnitte 2 (live), 3 (Pakete) und 5 (Entscheide) nachführen (seit 18.10.2026).

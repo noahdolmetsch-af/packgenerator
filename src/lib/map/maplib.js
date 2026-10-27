@@ -83,6 +83,21 @@ export const KIND_TOKEN = {
   doctor: '--bad',
   police: '--ink-2',
   post: '--ink-2',
+  // Suchvorschläge (27.10.2026): the new kinds
+  sauna: '--l3',
+  indoorpool: '--l3',
+  thermal: '--l3',
+  selecta: '--l4',
+  tubevend: '--ok',
+  foodvend: '--l2',
+  farmshop: '--l2',
+  shower: '--l3',
+  bikewash: '--ok',
+  locker: '--ink-2',
+  defib: '--bad',
+  outdoor: '--ok',
+  firepit: '--hi',
+  phonecharge: '--warn',
 };
 /** The plain colour of a kind (for the symbol images). */
 export const kindColour = (colours, kind) => colours[KIND_TOKEN[kind] ?? '--ink-3'] ?? FALLBACK[KIND_TOKEN[kind] ?? '--ink-3'] ?? FALLBACK['--ink-3'];

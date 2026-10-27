@@ -38,12 +38,10 @@ test.describe('HA Heute neu A', () => {
     await expect(pc).toContainText('55');
     await expect(pc.locator('[data-body-azm]')).toContainText('12');
     await expect(pc).toContainText(T('measured with Fitbit|body'));
-    // Noah 21.10.2026 «Körperwerte und countdown ok»: the body values right under the two tiles, each into its chart
-    const vit = page.locator('[data-section="vitals"]');
-    await expect(vit.getByRole('heading', { name: T('Body values') })).toBeVisible();
-    await expect(vit.locator('[data-vital="rhr"]')).toContainText('55');
-    await expect(vit.locator('[data-vital="rhr"]')).toHaveAttribute('href', '#/flow/stats/hr');
-    await expect(vit.locator('[data-vital="sleep"]')).toContainText(/7[.,]5/);
+    // «Heute ruhiger» (Noah 26.10.2026 «2a», changed on purpose): «Körperwerte» repeated the values of «Dein Körper heute»
+    // and left the ready wall (it stays in the catalog); all values are one tap away under «Details»
+    await expect(page.locator('[data-section="vitals"]')).toHaveCount(0);
+    await expect(body.getByRole('link', { name: new RegExp(T('Details|body')) })).toBeVisible();
     // the countdown chip to the next trip (tomorrow), with the trip's own name
     const chip = page.locator('[data-goals] [data-goal-countdown]');
     await expect(chip).toContainText('Herbstrunde');
@@ -55,11 +53,14 @@ test.describe('HA Heute neu A', () => {
     // the order of the wall
     const order = await page.evaluate(() => [...document.querySelectorAll('.wall > [data-tile]')].map((x) => x.dataset.tile));
     // 0.180.0 P6 (Noah 21.10.2026 «2b», changed on purpose): meditation and the weekly weight on top, then body, Aktiv, Körperwerte
-    expect(order.slice(0, HEAD_N2.length)).toEqual(HEAD_N2);
+    // «Heute ruhiger» 2a (changed on purpose): «Körperwerte» left the ready wall, the rest of the head stays on top
+    const head = HEAD_N2.filter((id) => READY.some((x) => x.id === id));
+    expect(order.slice(0, head.length)).toEqual(head);
     for (const id of ['week', 'balance', 'bikes']) expect(order, id).toContain(id);
     expect(order.indexOf('week')).toBeLessThan(order.indexOf('bikes'));
     expect(order.indexOf('balance')).toBeLessThan(order.indexOf('bikes'));
-    expect(order.filter((id) => id.startsWith('fn:')).length).toBe(8);
+    // «Heute ruhiger» 1a (changed on purpose): the 8 shortcuts are one list «Schnell öffnen»
+    await expect(page.locator('.wall [data-quick] [data-tile^="fn:"]')).toHaveCount(8);
     expect(READY.filter((x) => x.size === 's').length).toBe(8);
     // the top of the wall in the first screen; 0.180.0 P6 (Noah 21.10.2026 «2b», changed on purpose): that is the
     // meditation card now, the body follows under it (with the name question open it can be below the first screen)

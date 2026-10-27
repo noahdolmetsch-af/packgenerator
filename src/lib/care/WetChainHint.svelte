@@ -6,12 +6,12 @@
    * the switch «Reminders» turns it off with the push (griff.prefs.wetChain).
    */
   import { liveQuery } from 'dexie';
-  import { Droplets } from '@lucide/svelte';
+  import { Droplets, Flame } from '@lucide/svelte';
   import { db } from '../db.js';
-  import { t, num, locale } from '../i18n.svelte.js';
+  import { t, tn, num, locale } from '../i18n.svelte.js';
   import { localDay } from '../localday.js';
   import { addDays } from '../play.js';
-  import { PREFS_KEY, prefsOf, wetSince, wetTaskShows, chainCaredOn, WET_LOOK_DAYS } from '../griff.js';
+  import { PREFS_KEY, prefsOf, wetSince, wetTaskShows, chainCaredOn, WET_LOOK_DAYS, careStreak, wetDaysOf } from '../griff.js';
   import { wetChainDone } from '../griffdb.js';
   import { wetOf } from '../inspect/rain.js';
   import { INSPECT_RAIN } from '../inspect/inspect.js';
@@ -31,6 +31,16 @@
   const run = $derived(bike && $wetQ ? wetSince($wetQ.rides, bike, today, $wetQ.isWet) : null);
   const wet = $derived(bike && !chainCaredOn(bike, today) && !wetRests($laterQ?.value, bike.id, today) && wetTaskShows(run) ? run : null);
   const dayName = (d) => new Date(`${d}T12:00:00Z`).toLocaleDateString(locale(), { timeZone: 'UTC', weekday: 'short', day: 'numeric', month: 'numeric' });
+
+  // Noah 26.10.2026 «6a» «Pflege-Serie»: how often in a row the chain was cared for after rain (that day or the next)
+  const streakQ = $derived.by(() => {
+    const bikeId = bike?.id ?? '';
+    return liveQuery(async () => {
+      const [prefs, rides, rain] = await Promise.all([db.settings.get(PREFS_KEY), db.kmBook.where('bikeId').equals(bikeId).toArray().catch(() => []), db.meta.get(INSPECT_RAIN)]);
+      return prefsOf(prefs?.value).wetChain ? wetDaysOf(rides, bikeId, wetOf(rain)) : null;
+    });
+  });
+  const streak = $derived(bike && $streakQ ? careStreak(bike, $streakQ, today) : null);
 
   async function done() {
     const undo = await wetChainDone(bike.id, today);
@@ -54,6 +64,12 @@
     <WetLater {bike} {today} />
   </section>
 {/if}
+{#if streak}
+  <p class="streak" data-care-streak={streak.streak}>
+    <Flame size={16} aria-hidden="true" />
+    <span><b>{t('Care series after rain')}:</b>{' '}{#if !streak.of}{t('no ride in the rain yet')}{:else}{streak.streak ? tn(streak.streak, '{n} time in a row', '{n} times in a row') : t('the next care starts a new series')}{' · '}{t('{n} of {m} wet days', { n: streak.cared, m: streak.of })}{/if}</span>
+  </p>
+{/if}
 
 <style>
   .wetc {
@@ -73,5 +89,13 @@
   .grow {
     flex: 1 1 14rem;
     min-width: 0;
+  }
+  .streak {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0 0 12px;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
   }
 </style>

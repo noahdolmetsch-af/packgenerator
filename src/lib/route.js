@@ -6,6 +6,7 @@
  * The start also gives the place for the weather forecast.
  */
 import { t } from './i18n.svelte.js';
+import { fineLine } from './route/fineline.js';
 import { buildFine } from './map/fineprofile.js';
 
 /** Read the points of a GPX file (track points, else route points). Works without a browser. */
@@ -113,7 +114,7 @@ export function routeStats(gpx, file = '') {
     lossM: loss,
     start: { lat: round(first.lat), lon: round(first.lon) },
     end: { lat: round(last.lat), lon: round(last.lon) },
-    line: thin(points),
+    line: fineLine(points), // keeps the bends (route/fineline.js); before: 200 evenly picked points
     profile: profileOf(points),
     profileFine: buildFine(points),
     file,

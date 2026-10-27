@@ -399,7 +399,7 @@
     <Btn icon={Eraser} label={t('Tidy up')} explain={t('Tidy up the packing list: what comes along by itself')} href="#/blocks/aufraeumen" />
     <Btn kind="hi" icon={Plus} label={t('New building block')} aria-expanded={adding} onclick={startNew} />
   </PathHead>
-  <RulesOver />
+  <RulesOver hint />
   <AreaIntro place="blocks" />
   {#if adding}
     <form class="newset card" onsubmit={create}>

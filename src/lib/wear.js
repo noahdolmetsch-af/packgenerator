@@ -98,6 +98,30 @@ export function partCost(bike, part) {
 }
 
 /**
+ * Noah 26.10.2026 «1a»: the chain checker corrects the forecast. From the values measured on the chain since it
+ * was mounted (with km): the growth per km from the first to the last value (one value: from 0 % at mounting),
+ * then the km until the limit, minus the km ridden since the last measurement (50 km steps).
+ * → { value, km, date, limit, left } or null (no value with km, or no growth).
+ */
+export function measuredLeft(bike, part) {
+  if (part?.key !== 'chain') return null;
+  const start = partStart(part);
+  if (!start) return null;
+  const limit = ok(part.limit) ? part.limit : PART.chain?.limit;
+  const vals = (part.history ?? [])
+    .filter((h) => h.action === 'check' && typeof h.value === 'number' && typeof h.km === 'number' && h.date && h.date >= start.date && h.km >= start.km)
+    .sort((a, b) => a.km - b.km || a.date.localeCompare(b.date));
+  const last = vals.at(-1);
+  if (!last || !ok(limit)) return null;
+  const first = vals.length > 1 ? vals[0] : { km: start.km - start.carried, value: 0 };
+  const rate = last.km > first.km ? (last.value - first.value) / (last.km - first.km) : 0;
+  const since = typeof bike?.km === 'number' ? Math.max(0, bike.km - last.km) : 0;
+  const left = last.value >= limit ? -since : rate > 0 ? Math.round(((limit - last.value) / rate - since) / 50) * 50 : null;
+  if (left == null) return null;
+  return { value: last.value, km: Math.max(0, last.km - start.km) + start.carried, date: last.date, limit, left };
+}
+
+/**
  * One row per wear part of a bike (bike: withVisits view with km), most worn first.
  * → [{ key, name, model, km, life, left, frac, state: 'ok'|'soon'|'due'|'unknown', why, since, past,
  *      cost, due }]
@@ -110,11 +134,18 @@ export function wearRows(bike, { entries = [], today = localDay(), keys = null }
     const life = lifeOf(bike, p);
     const start = partStart(p);
     const km = start ? partKm(bike, p) : null;
-    const left = km != null && life.km ? Math.round(life.km - km) : null;
-    const frac = km != null && life.km ? km / life.km : null;
+    let left = km != null && life.km ? Math.round(life.km - km) : null;
+    let frac = km != null && life.km ? km / life.km : null;
+    // the chain checker: when the measured growth says less than the km, the measurement counts
+    const meas = km != null ? measuredLeft(bike, p) : null;
+    const byMeas = !!meas && (left == null || meas.left < left);
+    if (byMeas) {
+      left = meas.left;
+      frac = km + left > 0 ? Math.min(1.5, km / (km + left)) : 1;
+    }
     const m = measured(p);
     let state = frac == null ? 'unknown' : frac >= 1 ? 'due' : frac >= SOON ? 'soon' : 'ok';
-    let why = frac == null ? null : state === 'ok' ? null : 'km';
+    let why = frac == null ? null : state === 'ok' ? null : byMeas ? 'measured' : 'km';
     if (needsWork(p)) [state, why] = ['due', 'work'];
     else if (m === 'worn') [state, why] = ['due', 'measured'];
     else if (m === 'warn' && state !== 'due') [state, why] = ['soon', 'measured'];
@@ -136,6 +167,8 @@ export function wearRows(bike, { entries = [], today = localDay(), keys = null }
       due: left != null ? dueDay(left, perWeek, today) : null,
       start: start ? start.date : null,
       unit: partInfo(p).unit,
+      meas,
+      byMeas,
     };
   });
   const rank = { due: 0, soon: 1, ok: 2, unknown: 3 };
@@ -268,4 +301,31 @@ export function wearPush(bikes = [], { visits = [], entries = [], today = localD
     }
   }
   return out;
+}
+
+/**
+ * Noah 26.10.2026 «7a»: the coming changes as all-day items for the calendar «Packgenerator» (googleown.js).
+ * list: [{ bike, rows }] (rows: wearRows of that bike). A part with a forecast day within a year; a due part
+ * today. The reminder: the evening before at 18:00. T: t() (the language of the calendar).
+ * → [{ key, title, day, allDay, note, remind }]
+ */
+export function wearItems(list = [], today = localDay(), T = (s, v) => s.replace(/\{(\w+)\}/g, (m, k) => v?.[k] ?? m)) {
+  const out = [];
+  const until = addDays(today, 366);
+  for (const { bike, rows } of list) {
+    if (!bike?.id || bike.status === 'sold' || bike.archived) continue;
+    for (const r of rows ?? []) {
+      const day = r.state === 'due' ? today : r.due && r.state !== 'unknown' ? r.due : null;
+      if (!day || day > until) continue;
+      out.push({
+        key: `wear:${String(bike.id).replace(/[^\w:.-]/g, '-').slice(0, 60)}:${String(r.key).replace(/[^\w.-]/g, '-').slice(0, 30)}`,
+        title: T('{bike}: replace {part}', { bike: String(bike.name ?? '').slice(0, 80), part: r.name }),
+        day,
+        allDay: true,
+        note: r.state === 'due' ? T('From the Pack Generator: due now.') : T('From the Pack Generator: about {km} km left at your pace. The day moves with your km.', { km: Math.max(0, r.left ?? 0) }),
+        remind: [6 * 60],
+      });
+    }
+  }
+  return out.sort((a, b) => a.day.localeCompare(b.day) || a.key.localeCompare(b.key));
 }

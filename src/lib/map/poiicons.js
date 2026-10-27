@@ -2,7 +2,7 @@
  * «Orte auf der Karte»: the lucide icon of each kind (CATEGORIES[].icon in poisearch.js names it; the
  * test checks both agree). For the chips, the list, the detail and the map symbols.
  */
-import { Droplet, ShoppingCart, Utensils, Fuel, Bike, Wrench, Bed, Tent, House, Toilet, Pill, Hospital, Banknote, TrainFront, WashingMachine, Binoculars, MapPin, ShoppingBasket, Croissant, IceCreamCone, Armchair, TreePine, PlugZap, CircleParking, Bus, TramFront, Info, WavesHorizontal, Church, Mountain, Stethoscope, Shield, Mail, Moon } from '@lucide/svelte';
+import { Droplet, ShoppingCart, Utensils, Fuel, Bike, Wrench, Bed, Tent, House, Toilet, Pill, Hospital, Banknote, TrainFront, WashingMachine, Binoculars, MapPin, ShoppingBasket, Croissant, IceCreamCone, Armchair, TreePine, PlugZap, CircleParking, Bus, TramFront, Info, WavesHorizontal, Church, Mountain, Stethoscope, Shield, Mail, Moon, Flame, ThermometerSun, CupSoda, LifeBuoy, Milk, Apple, ShowerHead, SprayCan, Lock, HeartPulse, Backpack, FlameKindling, SmartphoneCharging } from '@lucide/svelte';
 
 export const POI_ICONS = {
   water: Droplet,
@@ -22,6 +22,20 @@ export const POI_ICONS = {
   laundry: WashingMachine,
   view: Binoculars,
   // MORE (switched into the row by you)
+  sauna: Flame,
+  indoorpool: WavesHorizontal,
+  thermal: ThermometerSun,
+  selecta: CupSoda,
+  tubevend: LifeBuoy,
+  foodvend: Milk,
+  farmshop: Apple,
+  shower: ShowerHead,
+  bikewash: SprayCan,
+  locker: Lock,
+  defib: HeartPulse,
+  outdoor: Backpack,
+  firepit: FlameKindling,
+  phonecharge: SmartphoneCharging,
   supermarket: ShoppingBasket,
   bakery: Croissant,
   icecream: IceCreamCone,

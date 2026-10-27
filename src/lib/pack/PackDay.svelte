@@ -38,7 +38,7 @@
   import { localDay } from '../localday.js';
   import '../trip/trip.css';
 
-  let { trip, steps, itemsById, badges = {}, ready = [], wxGap = null, onwx = () => {}, ontoggle, onready, onpack = () => {}, onreadyall = () => {}, onnext, onundo = () => {}, canUndo = false, main = { kind: 'finish', label: 'Finish packing' }, onend = () => {}, bike = true, lessons = [], reminders = [], oncharge = null, pressure = '', stats = null, charge = null, top = null, fixed = false, onread = null, onmove = null } = $props();
+  let { trip, steps, itemsById, badges = {}, ready = [], wxGap = null, onwx = () => {}, ontoggle, onready, onpack = () => {}, onreadyall = () => {}, onnext, onundo = () => {}, canUndo = false, main = { kind: 'finish', label: 'Finish packing' }, onend = () => {}, bike = true, lessons = [], reminders = [], oncharge = null, pressure = '', stats = null, charge = null, top = null, fixed = false, onread = null, onmove = null, spare = [] } = $props();
   // TZ-2 «Fest nach der Fahrt» (mockup TZ2, Noah 5a): a completed or rated trip (fixed) shows its bags as
   // packed then, to read: no ticks, no «Whole bag packed»; the band under the steps says why and offers
   // «Wieder öffnen».
@@ -495,7 +495,7 @@
                   {#if canMove}<button type="button" class="mvbtn" aria-expanded={moving === e.itemId} aria-label={t('Move {name} to another bag', { name: itemsById[e.itemId] ? nameOf(itemsById[e.itemId]) : e.itemId })} title={t('Move to another bag')} onclick={() => (moving = moving === e.itemId ? null : e.itemId)} data-board-move><ArrowLeftRight size={16} aria-hidden="true" /></button>{/if}
                   {#if moving === e.itemId}
                     <div class="mvto" role="group" aria-label={t('Move to another bag')}>
-                      {#each steps.filter((o) => o.key !== s.key) as o (o.key)}<button type="button" class="btn sm" onclick={() => moveTo(e.itemId, o.key)} data-board-move-to={o.key}>{o.title}</button>{/each}
+                      {#each [...steps, ...spare].filter((o) => o.key !== s.key) as o (o.key)}<button type="button" class="btn sm" onclick={() => moveTo(e.itemId, o.key)} data-board-move-to={o.key}>{o.title}</button>{/each}
                     </div>
                   {/if}
                 </li>
@@ -504,6 +504,15 @@
             {#if !done && !fixed}<div class="bagfoot"><button type="button" class="tp-link" onclick={() => wholeBag(s)}>{t('Whole bag packed')}</button></div>{/if}
           </section>
         {/each}
+        {#if canMove}
+          {#each spare as s (s.key)}
+            {@const Icon = iconOf(s.key)}
+            <section class="card bcol empty" class:drop={dropKey === s.key} aria-labelledby="bc-{s.key}" data-board-bag={s.key} data-board-empty ondragover={(ev) => dragOver(ev, s.key)} ondragleave={() => dropKey === s.key && (dropKey = null)} ondrop={(ev) => drop(ev, s.key)}>
+              <div class="bchead"><span class="bic" aria-hidden="true"><Icon size={18} /></span><span class="bt"><b id="bc-{s.key}">{s.title}</b><small>{s.sub}</small></span><span class="r"><span class="num">0</span></span></div>
+              <p class="emptyhint">{t('Still empty: drag an item here, or use the arrows next to an item.')}</p>
+            </section>
+          {/each}
+        {/if}
         {#if ready.length}
           <section class="card bcol" class:done={readyAll} aria-labelledby="bc-ready" data-board-bag="ready">
             <div class="bchead"><span class="bic" aria-hidden="true"><ListChecks size={18} /></span><span class="bt"><b id="bc-ready">{t('Ready check')}</b></span><span class="r"><span class="num">{readyN}/{ready.length}</span></span></div>
@@ -638,6 +647,8 @@
   .board { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 16px; align-items: start; }
   .bcol { min-width: 0; padding-top: 4px; padding-bottom: 4px; }
   .bcol.done { background: var(--ok-soft); }
+  .bcol.empty { border-style: dashed; }
+  .emptyhint { margin: 12px 0; color: var(--ink-2); font-size: var(--fs-small); }
   .bcol.drop { outline: 2px dashed var(--accent); outline-offset: 2px; }
   .items li.mv { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; column-gap: 4px; }
   .items li.mv[draggable='true'] { cursor: grab; }

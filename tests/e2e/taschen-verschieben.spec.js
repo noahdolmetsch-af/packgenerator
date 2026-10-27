@@ -2,6 +2,7 @@
 // taschen verschieben»), German UI, fictional data only (test_data_gtp_):
 // - on a big screen, in «Alle Taschen nebeneinander», an item can be dragged into another bag;
 // - the arrows button next to it does the same without a mouse (rule: arrows and drag).
+// - an empty bag stays as a column to drag into (Noah 26.10.2026 «3»: leere Taschen nehmen Teile auf).
 import { test, expect } from '@playwright/test';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';
@@ -13,6 +14,20 @@ const T = (en, vars) => {
 };
 const FIX = fileURLToPath(new URL('../fixtures/gesamttest/test_data_gtp_daten.json', import.meta.url));
 const PACKING = 'test_data_gtp_trip27';
+
+// The empty bag stands far below the item: start the drag on the item first, then scroll and drop
+// (dragTo scrolls before the drag starts, so it would pick up whatever item is then under the mouse).
+async function dragFar(page, from, to) {
+  await from.evaluate((el) => el.scrollIntoView({ block: 'center' }));
+  const a = await from.boundingBox();
+  await page.mouse.move(a.x + a.width / 2, a.y + a.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(a.x + a.width / 2 + 12, a.y + a.height / 2 + 12, { steps: 4 });
+  await to.evaluate((el) => el.scrollIntoView({ block: 'center' }));
+  const b = await to.boundingBox();
+  await page.mouse.move(b.x + b.width / 2, b.y + b.height / 2, { steps: 8 });
+  await page.mouse.up();
+}
 
 test('Packen side by side: move an item into another bag by drag and by the arrows', async ({ page, context }, info) => {
   const errors = [];
@@ -54,9 +69,28 @@ test('Packen side by side: move an item into another bag by drag and by the arro
 
   // 2. by drag: it goes back to bag A
   const moved = board.locator(`[data-board-bag="${keyB}"] [data-board-item="${id}"]`);
-  await moved.scrollIntoViewIfNeeded();
+  await moved.evaluate((el) => el.scrollIntoView({ block: 'center' }));
   await moved.dragTo(board.locator(`[data-board-bag="${keyA}"] .bchead`));
   await expect(board.locator(`[data-board-bag="${keyA}"] [data-board-item="${id}"]`)).toHaveCount(1);
+
+  // 3. an empty bag stays as a place to drag into: empty the bag with the fewest items, then fill it again
+  const counts = [];
+  for (let i = 0; i < (await cols.count()); i++) counts.push({ key: await cols.nth(i).getAttribute('data-board-bag'), n: await cols.nth(i).locator('[data-board-item]').count() });
+  const small = counts.filter((c) => c.n > 0).sort((a, b) => a.n - b.n)[0];
+  const other = counts.find((c) => c.key !== small.key).key;
+  for (let i = 0; i < small.n; i++) {
+    const it = board.locator(`[data-board-bag="${small.key}"] [data-board-item]`).first();
+    await it.locator('[data-board-move]').click();
+    await it.locator(`[data-board-move-to="${other}"]`).click();
+  }
+  const empty = board.locator(`[data-board-empty][data-board-bag="${small.key}"]`);
+  await expect(empty).toBeVisible();
+  await expect(empty).toContainText(T('Still empty: drag an item here, or use the arrows next to an item.'));
+  const back = board.locator(`[data-board-bag="${other}"] [data-board-item]`).first();
+  const backId = await back.getAttribute('data-board-item');
+  await dragFar(page, back, empty);
+  await expect(board.locator(`[data-board-bag="${small.key}"] [data-board-item="${backId}"]`)).toHaveCount(1);
+  await expect(board.locator(`[data-board-empty][data-board-bag="${small.key}"]`)).toHaveCount(0);
   expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBeLessThanOrEqual(0);
   expect(errors).toEqual([]);
 });

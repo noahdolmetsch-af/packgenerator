@@ -1,6 +1,6 @@
 // 0.163.0 «Handy kurz» (Durchklick 2, Noah 15.10.2026 «freigabe», answers 1 «wo sinnvoll» and 2b), fictional data
 // (the Gesamttest set plus 47 fictional Strava activities):
-// a) the guard: on a phone Trips, Favourites and What is new are at most MAX_SCREENS screens high;
+// a) (removed 27.10.2026: no page-length rule any more, Noah 26.10.2026)
 // b) Trips: the trips with a packing list (was «Packmodus») and «In Zahlen · Weiter» behind one line each, one row to
 //    «Fahrten»; Touren › Fahrten (Gesamttest 20.10.2026 B3): five activities with a grey value line (2b), «Show n more»;
 //    the computer keeps the full rows;
@@ -10,10 +10,9 @@
 import { test, expect } from '@playwright/test';
 import { start, fixture, day, tr } from './gesamttest/lib.js';
 import { at1Acts } from './at1-acts.js';
-import { PHONE_ROWS, MAX_SCREENS } from '../../src/lib/touren/kurz.js';
+import { PHONE_ROWS } from '../../src/lib/touren/kurz.js';
 
 const T = tr('de');
-const PAGES = ['#/trips', '#/trips/rides', '#/favorites', '#/me/news'];
 
 /** The Gesamttest data plus 47 activities (seven of AT1, forty rides every three days). */
 function data() {
@@ -28,19 +27,9 @@ const open = async (page, hash) => {
   await page.locator('main h1').first().waitFor();
   await page.waitForTimeout(800);
 };
-const height = (page) => page.evaluate(() => document.documentElement.scrollHeight);
 
 test.describe('Handy kurz', () => {
-  test('phone: every long page is at most three screens', async ({ page, context }, info) => {
-    test.skip(info.project.name !== 'phone', 'the rule is for the phone');
-    const errors = await start(page, context, info, { data: data() });
-    const vh = page.viewportSize().height;
-    for (const h of PAGES) {
-      await open(page, h);
-      expect.soft(await height(page), `${h} at most ${MAX_SCREENS} screens`).toBeLessThanOrEqual(MAX_SCREENS * vh);
-    }
-    expect(errors).toEqual([]);
-  });
+  // The rule «every long page is at most three screens» is gone: Noah 26.10.2026 «keine anforderung an eine länge der seite».
 
   // «Handy kürzer» (Brainstorming, Noah 20.10.2026 «4b»): Woche and Velos first; each long list shows five, then «Show n more»
   test('phone: Woche, Velopflege and Werkstatt show five rows, then the rest after one tap', async ({ page, context }, info) => {

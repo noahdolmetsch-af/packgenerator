@@ -6,7 +6,7 @@
    * order can be changed (arrows and drag). Stays on this device like the voice notes themselves.
    */
   import { liveQuery } from 'dexie';
-  import { Play, Pause, Type, Headphones } from '@lucide/svelte';
+  import { Play, Pause, Type, Headphones, MapPin } from '@lucide/svelte';
   import { db } from '../db.js';
   import { touched } from '../trips.js';
   import { saveFailed } from '../ui/ask.js';
@@ -29,6 +29,25 @@
   let day = $state(null);
   const cur = $derived(day ?? days[0]?.day ?? 0);
   const clips = $derived(dayClips(trip, cur, sources));
+  // «Wo du sie gesprochen hast» (mockup B56, Noah 26.10.2026 «idee 56»): the route of the day and a numbered dot per voice note
+  const W = 400;
+  const H = 220;
+  const map = $derived.by(() => {
+    const line = Array.isArray(trip.route?.line) ? trip.route.line.filter((p) => Number.isFinite(p?.[0]) && Number.isFinite(p?.[1])) : [];
+    const dots = clips.map((c, i) => ({ i, c })).filter((d) => Number.isFinite(d.c.lat) && Number.isFinite(d.c.lon));
+    const pts = [...line.map((p) => [p[0], p[1]]), ...dots.map((d) => [d.c.lat, d.c.lon])];
+    if (!dots.length || !pts.length) return null;
+    const k = Math.cos((pts[0][0] * Math.PI) / 180);
+    const xs = pts.map((p) => p[1] * k);
+    const ys = pts.map((p) => p[0]);
+    const [x0, x1, y0, y1] = [Math.min(...xs), Math.max(...xs), Math.min(...ys), Math.max(...ys)];
+    const span = Math.max(x1 - x0, (y1 - y0) * (W / H), 1e-4);
+    const f = (W - 40) / span;
+    const ox = (W - (x1 - x0) * f) / 2;
+    const oy = (H - (y1 - y0) * f) / 2;
+    const xy = (lat, lon) => [ox + (lon * k - x0) * f, H - (oy + (lat - y0) * f)];
+    return { path: line.length > 1 ? line.map((p, i) => `${i ? 'L' : 'M'}${xy(p[0], p[1]).map((v) => v.toFixed(1)).join(' ')}`).join(' ') : '', dots: dots.map((d) => ({ ...d, at: xy(d.c.lat, d.c.lon) })) };
+  });
   const total = $derived(clips.reduce((x, c) => x + (c.s || 0), 0));
   const time = (iso) => (iso ? new Date(iso).toTimeString().slice(0, 5) : '');
   const whereOf = (c) => [c.km != null ? `km ${num(c.km)}` : '', c.where ?? ''].filter(Boolean).join(' · ') || t('Voice note');
@@ -112,7 +131,7 @@
       {#each clips as c, i (c.key)}
         <li class:on={playing === i} data-listen-clip>
           <SortGrip name={whereOf(c)} onstep={(d) => step(c.key, d)} />
-          <span class="dl-h num">{time(c.at)}</span>
+          <span class="dl-h num">{#if map?.dots.some((d) => d.i === i)}<b class="dl-n">{i + 1}</b>{/if}{time(c.at)}</span>
           <span class="dl-w"><b>{whereOf(c)}</b>{#if c.said || c.text}<small>«{c.said || c.text}»</small>{/if}</span>
           <button type="button" class="tp-icon-btn" aria-label={t('Play {name}', { name: whereOf(c) })} onclick={() => playAt(i)}><Play size={16} aria-hidden="true" /></button>
           <span class="tp-badge num">{t('{n} s', { n: num(c.s) })}</span>
@@ -120,9 +139,27 @@
         </li>
       {/each}
     </ul>
+    {#if map}
+      <div class="dl-map" data-listen-map>
+        <h3><MapPin size={16} aria-hidden="true" /> {t('Where you spoke them')}</h3>
+        <svg viewBox="0 0 {W} {H}" role="img" aria-label={t('The places of the voice notes on the route of the day')}>
+          {#if map.path}<path d={map.path} class="dl-route" />{/if}
+          {#each map.dots as d (d.c.key)}
+            <g class="dl-dot" class:on={playing === d.i} role="button" tabindex="0" aria-label={t('Play {name}', { name: whereOf(d.c) })} onclick={() => playAt(d.i)} onkeydown={(e) => (e.key === 'Enter' || e.key === ' ') && (e.preventDefault(), playAt(d.i))}>
+              <circle cx={d.at[0]} cy={d.at[1]} r="11" />
+              <text x={d.at[0]} y={d.at[1] + 4} text-anchor="middle" font-size="12">{d.i + 1}</text>
+            </g>
+          {/each}
+        </svg>
+        <p class="tp-small tp-muted">{t('A tap on a number plays that voice note.')}</p>
+      </div>
+    {/if}
     {#if msg}<p class="tp-small tp-muted" role="status">{msg}</p>{/if}
     <p class="tp-small tp-muted">{t('A voice note comes from the ride page, «I am here» on the live map, a quick note or the diary of that day.')}</p>
   </section>
+{:else}
+  <!-- no voice notes yet: one line says what would be here -->
+  <p class="tp-small tp-muted dl-none" data-day-listen><Headphones size={15} aria-hidden="true" /> <b>{t('Your day to listen to')}</b>: {t('voice notes from the way play here, by time and place.')}</p>
 {/if}
 
 <style>
@@ -169,6 +206,57 @@
     color: var(--ink-2);
     font-size: var(--fs-small);
   }
+  .dl-none {
+    display: flex;
+    gap: 6px;
+    align-items: baseline;
+    flex-wrap: wrap;
+    margin: 0 0 var(--sp-4);
+  }
+  .dl-map {
+    margin-top: 12px;
+  }
+  .dl-map h3 {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0 0 6px;
+    font-size: var(--fs-small);
+  }
+  .dl-map svg {
+    width: 100%;
+    height: auto;
+    border-radius: 12px;
+    background: var(--paper-2);
+  }
+  .dl-route {
+    fill: none;
+    stroke: var(--accent);
+    stroke-width: 3;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .dl-dot {
+    cursor: pointer;
+  }
+  .dl-dot circle {
+    fill: var(--brand);
+    stroke: var(--paper);
+    stroke-width: 2;
+  }
+  .dl-dot.on circle {
+    fill: var(--accent);
+  }
+  .dl-dot text {
+    fill: var(--brand-ink);
+    font-weight: 700;
+  }
+  .dl-n {
+    display: inline-block;
+    min-width: 1.4em;
+    margin-right: 4px;
+    color: var(--ink);
+  }
   .dl-audio {
     display: none;
   }
@@ -189,7 +277,7 @@
     background: var(--paper-2);
   }
   .dl-h {
-    width: 3em;
+    min-width: 3em;
     flex: none;
     color: var(--ink-2);
     font-size: var(--fs-small);
