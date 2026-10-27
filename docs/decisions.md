@@ -1971,3 +1971,7 @@ Noah 19.10.2026: «1a 2a 3a 4 a oder b beides wählbar 5a», danach «a und b»,
 - Noah «1a 2a 3a 4a 5a»: Schnellspur nach dem Merge (main geht nach Bauen und Kurztests online, volle Browsertests und Gesamttest danach in `volle-pruefung.yml` und nachts, rot = GitHub-Meldung); pro PR nur Handy-Browsertests plus Wächter am Computer; den Stau vom 27.10. abends durch Abbrechen wartender PR-Läufe lösen; Vercel-Vorschauen («packgenerator») von GitHub trennen; nach jedem Online-Gehen ein automatischer Eintrag auf GitHub. Grund: ein Prüflauf brauchte 18 der 20 Gratis-Prüf-Computer, gemergte PRs warteten bis 2 Stunden. Analyse: https://claude.ai/artifact/42o5ciwHWYuFXTWx6cZrGb
 
 - 27.10.2026: **Neuer Schwung Teil 2** (Noah «4a» Bewegung überall dezent): zuerst Heute. Selbst entschieden: nur Deckkraft, clip-path und SVG-Strich bewegen sich, nie transform, damit keine Box springt und Tests und Tippen nicht warten müssen; Lottie kommt als eigener kleiner PR (2b).
+
+## 27.10.2026 Freunde jederzeit umstellen
+
+- Noah «ich möchte jetzt bauen, dass wir in zukunft jederzeit umstellen können», dann «ok 335» (★ 1a 2a 3a): Freunde lädt Noah in der App ein (Link, einmal, 7 Tage) und entfernt sie dort (fragt zuerst, dann «Rückgängig»); neben dem Link steht der Hinweis auf Stravas eigene Grenze (gratis Antrag). Die Vercel-Liste `STRAVA_ATHLETES` gilt weiter.

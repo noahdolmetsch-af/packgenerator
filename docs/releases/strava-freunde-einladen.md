@@ -1,6 +1,6 @@
 # Freunde zu Strava einladen
 
-PR #? · 27.10.2026 · Auftrag: Noah «ich möchte jetzt bauen, dass wir in zukunft jederzeit umstellen können», Vorschlag ★ 1a 2a 3a, wartet auf Noahs Antwort (Thread «Geräte und Datenquellen»)
+PR #? · 27.10.2026 · Auftrag: Noah «ich möchte jetzt bauen, dass wir in zukunft jederzeit umstellen können», Vorschlag ★ 1a 2a 3a, Noah «ok 335» (Thread «Geräte und Datenquellen»)
 
 ## Was ist neu
 - Velo › Pflege › Strava (nur auf Noahs Geräten): neuer Teil **«Freunde mit eigenem Strava»**.
@@ -19,7 +19,7 @@ PR #? · 27.10.2026 · Auftrag: Noah «ich möchte jetzt bauen, dass wir in zuku
 - Der Server merkt sich vom Freund nur den Strava-Vornamen und das Datum. Beides bleibt auf dem Server und kommt nie ins Repo.
 
 ## Entscheide (für decisions.md)
-- nach Noahs Antwort: Freunde werden in der App eingeladen und entfernt (★ 1a 2a 3a), ohne Vercel.
+- 27.10.2026, Noah «ok 335» (★ 1a 2a 3a): Freunde werden in der App eingeladen und entfernt, ohne Vercel.
 
 ## Stand im Plan (roadmap.md / vorhaben.md)
 - Geräte und Datenquellen: Umstellen jederzeit möglich. Offen: Apple-Trainings in die Aktiv-Liste und Garmin mit eigenem Schlüssel (wartet auf Noah).
