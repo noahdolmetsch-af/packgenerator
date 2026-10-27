@@ -1971,3 +1971,7 @@ Noah 19.10.2026: «1a 2a 3a 4 a oder b beides wählbar 5a», danach «a und b»,
 - 2a: Die App darf aus Fitbit-Werten beim Planen eine kürzere Variante **anbieten**, nur als Angebot, mit den Werten daneben, ohne Bewertung.
 - 3a: Die Erinnerungen um 08:00 kommen gebündelt um 07:00; Warnungen bleiben einzeln.
 - 4a: «Frag die App» über alle Bereiche nur mit Gratis-KI (Chrome am Computer, Gemini über den eigenen Server).
+
+## 27.10.2026 Weg von gebaut zu online
+
+- Noah «1a 2a 3a 4a 5a»: Schnellspur nach dem Merge (main geht nach Bauen und Kurztests online, volle Browsertests und Gesamttest danach in `volle-pruefung.yml` und nachts, rot = GitHub-Meldung); pro PR nur Handy-Browsertests plus Wächter am Computer; den Stau vom 27.10. abends durch Abbrechen wartender PR-Läufe lösen; Vercel-Vorschauen («packgenerator») von GitHub trennen; nach jedem Online-Gehen ein automatischer Eintrag auf GitHub. Grund: ein Prüflauf brauchte 18 der 20 Gratis-Prüf-Computer, gemergte PRs warteten bis 2 Stunden. Analyse: https://claude.ai/artifact/42o5ciwHWYuFXTWx6cZrGb
