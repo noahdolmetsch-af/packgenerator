@@ -144,6 +144,8 @@
   .vd h2 { display: flex; align-items: center; gap: 6px; }
   textarea { width: 100%; }
   .row { margin: 6px 0; }
+  /* 44 px touch target like the rest of the look back */
+  .row :global(.btn.speak) { min-height: 44px; }
   .keep { display: flex; gap: 8px; align-items: flex-start; margin: 8px 0; }
   .keep span { display: grid; }
   .keep small { color: var(--ink-2); font-size: var(--fs-small); }
