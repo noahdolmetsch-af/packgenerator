@@ -16,6 +16,16 @@
 
 export const WHATS_NEW = [
   {
+    // v0.220.1 Tages-Check (Noah 26.10.2026 «1a»): «Not today» in the morning waits only until the evening check
+    version: '0.220.1',
+    date: '2026-10-27',
+    title: 'The evening check still comes',
+    lead: '«Not today» in the morning no longer skips the evening.',
+    points: [{ text: '«Not today» in the morning check waits only until the evening check', href: '#/me/abfragen' }],
+    small: [{ box: 'fixed', text: 'The hint in the check window says «until the evening check» in the morning' }],
+    test: ['In the morning check tap «Not today»: the window closes.', 'In the evening, at your evening time, the evening check comes as usual.'],
+  },
+  {
     // Velo-Ergänzungen (Noah 26.10.2026 «1 3 6 7 8 12a»): chain checker in the forecast, year in review, care series, calendar, noises, winter and spring. v0.220.0.
     version: '0.220.0',
     date: '2026-10-27',
