@@ -2,7 +2,10 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "git": {
     "deploymentEnabled": {
-      "dependabot/**": false
+      "claude/**": false,
+      "dependabot/**": false,
+      "claude/project-thread-743v5k": true,
+      "claude/project-thread-gsfhzr": true
     }
   }
 }

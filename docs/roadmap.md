@@ -874,6 +874,8 @@ Die frühere gespeicherte Datei `2026-10-07-packgenerator-ablaufplan.md` wird al
 
 **25.10.2026, v0.199.0 «Flicken, ausprobieren, abmachen»:** letzte Einzelideen aus Paket A: Kleider reparieren statt aussortieren, Wunsch zuerst ausleihen, Ideen für ein Treffen, Geburtstag mit kleinen Schritten, Webcams mit Zweck und Aufräumrunde.
 
+**26.10.2026, v0.220.0 «Velo-Ergänzungen»:** Velo-Ideen 1, 3, 6, 7, 8 und 12 gebaut (Kettenlehre-Prognose, Jahresrückblick, Pflege-Serie, Kalender-Wechsel, Geräusche, Saison-Checklisten).
+
 **26.10.2026, v0.212.1 «Die heutige Tour sagt eins»:** UI-Test T1: die heutige Tour zeigt vor der Fahrt überall «Packen», nicht «Letzter Abend», «Abgeschlossen» oder «Alles wurde gebraucht».
 
 **26.10.2026, v0.212.2 «Eine Startzeit»:** UI-Test T2: Unterwegs, «Vor der Abfahrt» und die Live-Karte nennen dieselbe Startzeit; vor dem Start nur «Losfahren».

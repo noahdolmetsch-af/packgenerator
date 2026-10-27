@@ -217,6 +217,8 @@
           <div class="card ich-list">
             <label class="ich-row"><input type="checkbox" role="switch" checked={d.own.cal} onchange={(e) => calOn(e.currentTarget.checked)} /><span class="ich-ib"><CalendarDays size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t('Enter tours in the calendar «Packgenerator»')}</b><small>{d.own.calAt ? t('last time {when}', { when: when(d.own.calAt) }) : t('The app makes the calendar once; it shows on your phone too.')}</small></span></label>
             <label class="ich-row"><input type="checkbox" role="switch" checked={d.own.remind} onchange={(e) => saveOwn({ remind: e.currentTarget.checked, lastCal: null })} /><span class="ich-ib"><ListChecks size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t('Reminder to pack')}</b><small>{t('two days before the tour, at 18:00')}</small></span></label>
+            <!-- Noah 26.10.2026 «7a»: the coming part changes of the bikes in the same calendar -->
+            <label class="ich-row"><input type="checkbox" role="switch" checked={d.own.wear} onchange={(e) => saveOwn({ wear: e.currentTarget.checked, lastCal: null })} data-own-wear /><span class="ich-ib"><Bike size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t('Part changes of your bikes')}</b><small>{t('e.g. «Chain» on the day it is about due at your pace; it moves with your km')}</small></span></label>
           </div>
           {#if d.own.cal}
             <div class="card ich-body">

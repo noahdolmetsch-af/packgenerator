@@ -31,6 +31,26 @@ export const WHATS_NEW = [
     test: ['Open Today: your body values stand once, in «Your body today».', 'Customise the start page › Add a tile: «Body values» and the others are still there.'],
   },
   {
+    // Velo-Ergänzungen (Noah 26.10.2026 «1 3 6 7 8 12a»): chain checker in the forecast, year in review, care series, calendar, noises, winter and spring. v0.220.0.
+    version: '0.220.0',
+    date: '2026-10-27',
+    title: 'More for your bike',
+    lead: 'Also noises and the calendar.',
+    points: [
+      { text: 'Chain checker corrects the forecast', href: '#/bikes?tab=care&view=wear' },
+      { text: 'Bike year in review', href: '#/bikes?tab=care&view=year' },
+      { text: 'Winter and spring checklists', href: '#/bikes?tab=care&view=season' },
+    ],
+    small: [
+      { box: 'new', text: 'Noise notes with tips from the bike FAQ', href: '#/bikes?tab=care&view=wear' },
+      { box: 'new', text: 'Part changes in your Google calendar', href: '#/me/connections' },
+    ],
+    test: [
+      'Bikes › Care › a bike › «Wear» › «Year in review».',
+      'On «Wear» note a noise under «Noises».',
+    ],
+  },
+  {
     // v0.219.0 «Heute ruhiger» part 1 (Noah 26.10.2026 «1a 5a», mockup H1): cards as tall as their content, the small
     // tiles as one list «Schnell öffnen», the bike jobs as small round buttons
     version: '0.219.0',

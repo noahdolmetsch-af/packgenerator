@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { LIFE_STD, pastParts, lifeOf, weeklyKm, dueDay, partCost, wearRows, wearSummary, wearForTrip, lifeChange, isHidden, addableParts, serviceAt, serviceWithout, serviceDropDay, servicePeriods } from '../src/lib/wear.js';
+import { LIFE_STD, measuredLeft, wearItems, pastParts, lifeOf, weeklyKm, dueDay, partCost, wearRows, wearSummary, wearForTrip, lifeChange, isHidden, addableParts, serviceAt, serviceWithout, serviceDropDay, servicePeriods } from '../src/lib/wear.js';
 import { serviceDone, serviceLast } from '../src/lib/bikeservice.js';
 import { withVisits } from '../src/lib/workshop.js';
 
@@ -132,5 +132,51 @@ describe('reminders on the phone (Noah: «Kette nach 1000 km ersetzen … als Re
     const entries = [{ bikeId: 'lux', kind: 'ride', state: 'counted', date: '2026-10-15', km: 560 }];
     expect(wearPush([soon], { entries, today: TODAY })[0]).toMatchObject({ day: '2026-10-30', left: 100 });
     expect(wearPush([soon], { today: TODAY })).toEqual([]); // no pace, not reached: no reminder yet
+  });
+});
+
+describe('the chain checker corrects the forecast (Noah 26.10.2026 «1a»)', () => {
+  const chk = (date, km, value) => ({ date, km, value, action: 'check', result: 'done' });
+  it('one value: growth from 0 % at mounting; less than the km say → the measurement counts', () => {
+    const chain = { key: 'chain', history: [rep('2026-01-01', 1000), chk('2026-06-01', 2000, 0.3)] };
+    const b = bike([chain], { km: 2400 });
+    // 0.3 % in 1000 km → 0.2 % left = ~667 km, minus 400 since → 250 (50 steps)
+    expect(measuredLeft(b, chain)).toEqual({ value: 0.3, km: 1000, date: '2026-06-01', limit: 0.5, left: 250 });
+    const row = wearRows(b, { today: TODAY }).find((r) => r.key === 'chain');
+    expect(row).toMatchObject({ left: 250, byMeas: true, state: 'soon', why: 'measured' });
+    expect(row.frac).toBeCloseTo(1400 / 1650);
+  });
+  it('two values: the growth between them; slower than the km → the km stay', () => {
+    const chain = { key: 'chain', history: [rep('2026-01-01', 1000), chk('2026-03-01', 1500, 0.05), chk('2026-06-01', 2500, 0.15)] };
+    const b = bike([chain], { km: 2500 });
+    expect(measuredLeft(b, chain).left).toBe(3500);
+    const row = wearRows(b, { today: TODAY }).find((r) => r.key === 'chain');
+    expect(row).toMatchObject({ byMeas: false, left: LIFE_STD.chain - 1500 });
+    expect(row.meas.left).toBe(3500);
+  });
+  it('values from before the last change, other parts and no growth give nothing', () => {
+    expect(measuredLeft(bike(), { key: 'chain', history: [chk('2025-06-01', 500, 0.4), rep('2026-01-01', 1000)] })).toBe(null);
+    expect(measuredLeft(bike(), { key: 'tyres', history: [rep('2026-01-01', 0), chk('2026-02-01', 100, 3)] })).toBe(null);
+    expect(measuredLeft(bike(), { key: 'chain', history: [rep('2026-01-01', 1000), chk('2026-02-01', 1500, 0)] })).toBe(null);
+    const worn = { key: 'chain', history: [rep('2026-01-01', 1000), chk('2026-02-01', 1500, 0.5)] };
+    expect(measuredLeft(bike([], { km: 1600 }), worn).left).toBe(-100);
+  });
+});
+
+describe('the coming changes for the calendar (Noah 26.10.2026 «7a»)', () => {
+  it('a part with a forecast day within a year, a due part today; sold bikes and unknown parts not', () => {
+    const rows = [
+      { key: 'chain', name: 'Chain', state: 'soon', due: '2026-12-01', left: 300 },
+      { key: 'tyres', name: 'Tyres', state: 'due', due: '2026-10-01', left: -50 },
+      { key: 'cassette', name: 'Cassette', state: 'ok', due: '2028-01-01', left: 9000 },
+      { key: 'padsF', name: 'Pads', state: 'unknown', due: null, left: null },
+    ];
+    const items = wearItems([{ bike: { id: 'b 1', name: 'Test-Velo' }, rows }, { bike: { id: 'b2', name: 'Alt', status: 'sold' }, rows }], TODAY);
+    expect(items.map((i) => [i.key, i.day, i.title])).toEqual([
+      ['wear:b-1:tyres', TODAY, 'Test-Velo: replace Tyres'],
+      ['wear:b-1:chain', '2026-12-01', 'Test-Velo: replace Chain'],
+    ]);
+    expect(items[1]).toMatchObject({ allDay: true, remind: [360] });
+    expect(items[1].note).toContain('300 km');
   });
 });

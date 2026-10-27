@@ -1,6 +1,6 @@
 # Projektstand und Plan
 
-Stand: **27. Oktober 2026, 04:20 UTC**. Auf `main` steht **Version 0.219.0** («Heute ruhiger» Teil 1, #267; davor kleine PRs bis 0.218.0). **Seit 26.10.2026 abends gelten neue Regeln** (kleine PRs, Screenshots und Testlink, Noah gibt frei, Claude merged; siehe [CLAUDE.md](../CLAUDE.md) und [Arbeitsweise](arbeitsweise.md)). Offen sind kleine PRs: #266 (Regeln + schnellere Browser-Tests), #267 «Heute ruhiger» Teil 1, #268 «Die heutige Tour sagt eins», #269 Bibliotheks-Updates, #270 «Live Navigation 1».
+Stand: **27. Oktober 2026, 05:00 UTC**. Auf `main` steht **Version 0.220.0** («Velo-Ergänzungen», #277; davor «Heute ruhiger» Teil 1 0.219.0, #267). **Seit 26.10.2026 abends gelten neue Regeln** (kleine PRs, Screenshots und Testlink, Noah gibt frei, Claude merged; siehe [CLAUDE.md](../CLAUDE.md) und [Arbeitsweise](arbeitsweise.md)). Offen sind kleine PRs: #266 (Regeln + schnellere Browser-Tests), #267 «Heute ruhiger» Teil 1, #268 «Die heutige Tour sagt eins», #269 Bibliotheks-Updates, #270 «Live Navigation 1».
 
 Ältere Abschnitte weiter unten («Kurzstand 19.10.», Abschnitte 1 bis 5) sind der damalige Stand und bleiben als Verlauf stehen. Was unten anders steht, gilt nicht mehr, wo dieser Abschnitt etwas Neueres sagt.
 
@@ -28,6 +28,7 @@ Stand: **27. Oktober 2026, 04:20 UTC**. Auf `main` steht **Version 0.219.0** («
 
 | PR | Version (vorläufig) | Inhalt | Stand |
 |---|---|---|---|
+| live | 0.220.0 | 0.220.0 «Velo-Ergänzungen»: Kettenlehre in der Prognose, Velo-Jahresrückblick, Pflege-Serie nach Regen, Wechsel im Google-Kalender, Geräusch-Notizen, Winter- und Frühlings-Checklisten | offen; Claude merged bei Grün |
 | #265 | 0.208.1–0.212.0 | Ganze Wörter, Gruppenfahrt für Events, Deine Liste in Sicht, Zwei Touren ein Blick, Touren die mitdenken, mit den Korrekturen für grünes `main` | zusammengeführt am 26.10.2026 abends |
 | #266 | – | Neue Regeln vom 26.10.2026 abends in CLAUDE.md; Browser-Tests im fertigen Playwright-Paket (bis 13 Minuten schneller pro Prüfung) | Noah gab frei am 26.10.2026 23:29 UTC |
 | neu | 0.212.2 | 0.212.2 «Eine Startzeit» (UI-Test T2): Unterwegs und «Vor der Abfahrt» mit derselben Startzeit, «Fahrt von … weiterführen», vor dem Start nur «Losfahren» | offen; Claude merged nach Noahs Freigabe der Bilder |

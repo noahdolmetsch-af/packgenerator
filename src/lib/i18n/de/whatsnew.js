@@ -12,6 +12,16 @@ export default {
   'Body values: all of them behind «Details» in «Your body today»': 'Körperwerte: alle hinter «Details» in «Dein Körper heute»',
   'Open Today: your body values stand once, in «Your body today».': 'Öffne Heute: deine Körperwerte stehen einmal, in «Dein Körper heute».',
   'Customise the start page › Add a tile: «Body values» and the others are still there.': 'Startseite anpassen › Kachel hinzufügen: «Körperwerte» und die anderen sind noch da.',
+  // v0.220.0 Velo-Ergänzungen (Noah 26.10.2026)
+  'More for your bike': 'Mehr für dein Velo',
+  'Also noises and the calendar.': 'Auch Geräusche und der Kalender.',
+  'Chain checker corrects the forecast': 'Kettenlehre korrigiert die Prognose',
+  'Bike year in review': 'Velo-Jahresrückblick',
+  'Winter and spring checklists': 'Checklisten für Winter und Frühling',
+  'Noise notes with tips from the bike FAQ': 'Geräusch-Notizen mit Tipps aus der Velo-FAQ',
+  'Part changes in your Google calendar': 'Teilewechsel in deinem Google-Kalender',
+  'Bikes › Care › a bike › «Wear» › «Year in review».': 'Velos › Pflege › ein Velo › «Verschleiss» › «Jahresrückblick».',
+  'On «Wear» note a noise under «Noises».': 'Auf «Verschleiss» unter «Geräusche» ein Geräusch notieren.',
   // 0.219.0 Heute ruhiger
   'A calmer Today': 'Heute ruhiger',
   'No more empty boxes on Today.': 'Keine leeren Kästen mehr auf Heute.',
