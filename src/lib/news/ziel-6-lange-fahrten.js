@@ -4,10 +4,11 @@ export default {
   title: 'A sixth goal: long rides',
   lead: 'The plans now have a goal for races and long rides.',
   points: [{ text: 'The project shelf shows goal 6 with 13 wished points from your race learnings' }],
-  small: [],
+  small: [{ box: 'new', text: 'Tap goal 6: its 13 points stand under «wished»' }],
   test: ['Open Ich › Projekt-Ablage and unfold «Ideen»: a sixth chip «6 Lange Fahrten unterwegs verstehen» is there.', 'Tap it: 13 points stand under «gewünscht».'],
   since: [],
   de: {
+    'Tap goal 6: its 13 points stand under «wished»': 'Tippe auf Ziel 6: seine 13 Punkte stehen unter «gewünscht»',
     'A sixth goal: long rides': 'Ein sechstes Ziel: lange Fahrten',
     'The plans now have a goal for races and long rides.': 'Die Pläne haben jetzt ein Ziel für Rennen und lange Fahrten.',
     'The project shelf shows goal 6 with 13 wished points from your race learnings': 'Die Projekt-Ablage zeigt Ziel 6 mit 13 gewünschten Punkten aus deinen Renn-Learnings',
