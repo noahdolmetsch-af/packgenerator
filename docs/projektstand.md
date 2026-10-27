@@ -34,6 +34,7 @@ Stand: **26. Oktober 2026, 21:30 UTC**. Auf `main` steht **Version 0.212.0** (Sa
 | neu | 0.212.2 | 0.212.2 «Eine Startzeit» (UI-Test T2): Unterwegs und «Vor der Abfahrt» mit derselben Startzeit, «Fahrt von … weiterführen», vor dem Start nur «Losfahren» | offen; Claude merged nach Noahs Freigabe der Bilder |
 | live | 0.212.1 | 0.212.1 «Die heutige Tour sagt eins» (UI-Test T1, #268) | gemergt 26.10.2026 23:12 |
 | #261 | – | Bibliotheken aktualisieren (lucide, dexie, vite; Dependabot) | offen, wird nach dem Nachziehen auf main geprüft |
+| neu | 0.219.0 | «Heute ruhiger» Teil 1: Karten so hoch wie ihr Inhalt, kleine Knöpfe als Liste «Schnell öffnen», Velo-Arbeiten als runde Knöpfe (Teil 2 doppelte Kacheln, Teil 3 Bereiche folgen als eigene PRs) | offen; Claude mergt nach Noahs Freigabe der Screenshots |
 
 ### Wie ein Release heute online geht (seit 26.10.2026 abends)
 

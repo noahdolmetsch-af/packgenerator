@@ -36,6 +36,21 @@ export const WHATS_NEW = [
     ],
   },
   {
+    // v0.219.0 «Heute ruhiger» part 1 (Noah 26.10.2026 «1a 5a», mockup H1): cards as tall as their content, the small
+    // tiles as one list «Schnell öffnen», the bike jobs as small round buttons
+    version: '0.219.0',
+    date: '2026-10-27',
+    title: 'A calmer Today',
+    lead: 'No more empty boxes on Today.',
+    points: [
+      // all on Today itself, so no «Try it» address (0.121.0: '#/' would do nothing)
+      { text: 'Today: every card is only as tall as its content' },
+      { text: 'The small buttons are one list «Open quickly»' },
+    ],
+    small: [{ box: 'nicer', text: 'Bikes on Today: the jobs are small round buttons' }],
+    test: ['Open Today: no card has a big empty space below.', 'Scroll to «Open quickly»: the small buttons stand in one list, a tap opens the place.', 'Look at the bike card: the jobs are small round buttons.'],
+  },
+  {
     // v0.218.0 «Leere Taschen nehmen Teile auf» (Noah 26.10.2026 22:06 «starte mit 1, dann 3»): in «All bags side by
     // side» an empty bag stays as a column to drag an item into
     version: '0.218.0',

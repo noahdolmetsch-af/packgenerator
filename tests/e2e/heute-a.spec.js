@@ -59,7 +59,8 @@ test.describe('HA Heute neu A', () => {
     for (const id of ['week', 'balance', 'bikes']) expect(order, id).toContain(id);
     expect(order.indexOf('week')).toBeLessThan(order.indexOf('bikes'));
     expect(order.indexOf('balance')).toBeLessThan(order.indexOf('bikes'));
-    expect(order.filter((id) => id.startsWith('fn:')).length).toBe(8);
+    // «Heute ruhiger» 1a (changed on purpose): the 8 shortcuts are one list «Schnell öffnen»
+    await expect(page.locator('.wall [data-quick] [data-tile^="fn:"]')).toHaveCount(8);
     expect(READY.filter((x) => x.size === 's').length).toBe(8);
     // the top of the wall in the first screen; 0.180.0 P6 (Noah 21.10.2026 «2b», changed on purpose): that is the
     // meditation card now, the body follows under it (with the name question open it can be below the first screen)

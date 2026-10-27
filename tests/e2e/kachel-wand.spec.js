@@ -9,11 +9,13 @@ import { test, expect } from '@playwright/test';
 import { D0, openHome, atHour, homeFixture } from './home0460-fixture.js';
 import { HN4, withWall } from './wall-fixture.js';
 import { READY, TILE, TILES, HELPER_TILES, isNew, tripUp } from '../../src/lib/home/tiles.js';
+import { inShownOrder } from '../../src/lib/home/quick.js';
 
 // v0.155.0 «Heute neu geordnet» (4b, changed on purpose): the fixture's trip starts tomorrow, so its card stands
 // right under the day card; the helper's tile rests while the AI helper is off (v0.118.0)
 // Paket Q #74 (Noah 19.10.2026 «4a»): at the fixture's 09:00 the morning tiles move up (byTime, changed on purpose)
-const SHOWN = atHour(tripUp(READY.filter((x) => !HELPER_TILES.includes(x.id)), true), 9);
+// «Heute ruhiger» (Noah 26.10.2026 «1a», changed on purpose): the small tiles are one list «Schnell öffnen» where the first stands
+const SHOWN = inShownOrder(atHour(tripUp(READY.filter((x) => !HELPER_TILES.includes(x.id)), true), 9));
 
 async function shot(page, info, name) {
   if (!process.env.SHOTS) return;
@@ -49,12 +51,13 @@ test('the ready wall: every tile in its place and size, 8 columns on a computer,
   // the functions are small buttons, the numbers where something waits (0.155.0: the bike care is a line in
   // Important today now, the two open notes stay a number)
   await expect(page.locator('.wall [data-fn="note"] .bd')).toHaveText('2');
-  // the columns: a small tile is an eighth (computer) or a quarter (phone) of the wall
-  const wall = await page.locator('.wall').boundingBox();
+  // «Heute ruhiger» 1a (changed on purpose): the small tiles are rows of one list, a quarter (computer) or a half (phone) of it
+  const list = await page.locator('.wall [data-quick] .qgrid').boundingBox();
   // «Heute neu» A (0.165.0): «Weigh» left the ready wall; «Note» is one of its 8 shortcuts
-  const small = await page.locator('.wall [data-tile="fn:note"]').boundingBox();
-  const cols = phone ? 4 : 8;
-  expect(Math.abs(small.width - (wall.width - (cols - 1) * (phone ? 8 : 12)) / cols)).toBeLessThan(2);
+  const small = await page.locator('.wall [data-quick] [data-tile="fn:note"]').boundingBox();
+  const cols = phone ? 2 : 4;
+  expect(Math.abs(small.width - (list.width - (cols - 1) * (phone ? 12 : 20)) / cols)).toBeLessThan(2);
+  expect(small.height).toBeLessThan(60); // one calm row, no tall empty box
   // the last field is «+»
   await expect(page.locator('.wall .plusw')).toBeVisible();
   await expect(page.locator('.wall > div').last()).toHaveClass(/plusw/);
