@@ -1,7 +1,7 @@
 <script>
   /**
    * «Rennen detailliert planen» (Ziel 6, Noah 27.10.2026 «1b 2b»): its own page with all coming races,
-   * each with its Rennen-Check (the five paper sheets: order A–Z, target setup, basic list, sleep, one
+   * each with its Rennen-Check (the paper sheets: order A–Z, target setup, basic list, sleep, one
    * night). #/racecheck = the races, #/racecheck/<tripId> = the check of one race. A race is a trip with
    * the race parts (race.js); the check lives in the race (stored.check), so it is in the backup.
    */

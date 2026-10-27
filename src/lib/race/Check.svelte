@@ -6,7 +6,7 @@
    * Gets `ctx` from RaceDetail; the sheets live in check-lib.js.
    */
   import { Upload, Eraser, ChevronLeft, ChevronRight, Copy } from '@lucide/svelte';
-  import { SHEETS, STATIONS, RACE_QUESTIONS, BAGS, LIST, SLEEP_COLS, SLEEP_ROWS, NIGHT, valueOf, withValue, answersFrom, filled, takeOver, setupWeight } from './check-lib.js';
+  import { SHEETS, STATIONS, RACE_QUESTIONS, BAGS, LIST, SLEEP_COLS, SLEEP_ROWS, NIGHT, DAY_BEFORE, dayBeforeDone, valueOf, withValue, answersFrom, filled, takeOver, setupWeight } from './check-lib.js';
   import { offerDone } from '../ui/rename.svelte.js';
   import { askDelete } from '../ui/ask.js';
   import { t, num } from '../i18n.svelte.js';
@@ -120,7 +120,7 @@
 {/snippet}
 
 <div class="ck" data-race-part="check" data-race-check>
-  <p class="rc-note">{t('The paper check of the race, five sheets. Everything is a suggestion: write your own, leave out what does not fit.')}</p>
+  <p class="rc-note">{t('The paper check of the race, sheet by sheet. Everything is a suggestion: write your own, leave out what does not fit.')}</p>
   <div class="ck-tabs" role="tablist" aria-label={t('Sheets')}>
     {#each SHEETS as s (s.id)}
       {@const f = filled(check, s.id)}
@@ -220,6 +220,17 @@
         </div>
       {/each}
       <div class="ck-step">{@render area('nacht.help', t('What would have helped you most on the phone in this night?'), '', 3)}</div>
+    {:else if cur.id === 'vorher'}
+      {@const d = dayBeforeDone(check)}
+      <p class="ck-progress" class:ck-all={d.done === d.of} role="status" data-check-daybefore-done>{d.done === d.of ? t('All done. Sleep well!') : t('{done} of {of} done', d)}</p>
+      {#each DAY_BEFORE as r, i (r.name)}
+        <div class="ck-step" class:ck-ticked={v(`vorher.${i}.done`)}>
+          <h3 class="ck-h3">{t(r.name)}</h3>
+          {@render area(`vorher.${i}.v`, t('Your plan'), t(r.ph))}
+          <div class="ck-ticks">{@render tick(`vorher.${i}.done`, t('done|ticked'))}</div>
+        </div>
+      {/each}
+      <div class="ck-step">{@render area('vorher.own', t('Anything else for the evening before?'), '', 3)}</div>
     {/if}
 
     <div class="ck-nav">
@@ -330,6 +341,16 @@
   }
   .ck-num {
     fill: var(--accent);
+  }
+  .ck-progress {
+    margin: 0;
+    font-weight: 600;
+  }
+  .ck-all {
+    color: var(--accent);
+  }
+  .ck-ticked {
+    opacity: 0.75;
   }
   .ck-weight {
     display: grid;

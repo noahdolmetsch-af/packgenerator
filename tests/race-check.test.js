@@ -1,10 +1,10 @@
-// «Rennen-Check» (Noah 27.10.2026 «1b 2b»): the five sheets, their keys and loading answers. Made-up answers.
+// «Rennen-Check» (Noah 27.10.2026 «1b 2b»): the sheets, their keys and loading answers. Made-up answers.
 import { describe, it, expect } from 'vitest';
-import { SHEETS, fieldKeys, valueOf, withValue, answersFrom, filled, takeOver, gramsOf, setupWeight } from '../src/lib/race/check-lib.js';
+import { SHEETS, fieldKeys, valueOf, withValue, answersFrom, filled, takeOver, gramsOf, setupWeight, DAY_BEFORE, dayBeforeDone } from '../src/lib/race/check-lib.js';
 
 describe('the race check', () => {
-  it('has five sheets and every key belongs to one of them', () => {
-    expect(SHEETS.map((s) => s.id)).toEqual(['ablauf', 'setup', 'liste', 'schlaf', 'nacht']);
+  it('has six sheets and every key belongs to one of them', () => {
+    expect(SHEETS.map((s) => s.id)).toEqual(['ablauf', 'setup', 'liste', 'schlaf', 'nacht', 'vorher']);
     for (const k of Object.keys(fieldKeys())) expect(SHEETS.some((s) => k.startsWith(`${s.id}.`)), k).toBe(true);
   });
   it('starts empty, the ticks with their suggestion', () => {
@@ -53,5 +53,17 @@ describe('the race check', () => {
     const w = setupWeight(c);
     expect(w).toMatchObject({ empty: 500, full: 1600, target: 1500, over: 100, counted: 2 });
     expect(setupWeight(null)).toMatchObject({ empty: 0, full: 0, target: null, over: null, counted: 0 });
+  });
+  it('the day before: counts the ticked steps, the ticks start empty', () => {
+    expect(dayBeforeDone(null)).toEqual({ done: 0, of: DAY_BEFORE.length });
+    let c = withValue(null, 'vorher.0.done', true);
+    c = withValue(c, 'vorher.3.v', 'Start 06:00, alarm 04:30');
+    expect(dayBeforeDone(c).done).toBe(1);
+    expect(filled(c, 'vorher').done).toBe(1);
+    expect(answersFrom({ values: { 'vorher.1.done': true } }).values).toEqual({ 'vorher.1.done': true });
+    // taking over another race brings the plan, not the ticks
+    const got = takeOver(null, c).check.values;
+    expect(got['vorher.3.v']).toBe('Start 06:00, alarm 04:30');
+    expect('vorher.0.done' in got).toBe(false);
   });
 });
