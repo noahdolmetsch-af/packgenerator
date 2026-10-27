@@ -6,7 +6,7 @@
  * Water Source, Campground, Residence = depot, Bell = start and finish).
  *
  * The race keeps (in the settings record, so in the backup):
- *   race.route = { km, gainM, lossM, maxM, start, end, line [[lat, lon]] (≤ 800), profile [[km, m]] (≤ 800),
+ *   race.route = { km, gainM, lossM, maxM, start, end, line [[lat, lon]] (keeps its bends, ≤ 3000), profile [[km, m]] (≤ 800),
  *                  profileFine (the detailed profile of map/fineprofile.js, for drawing and the climbs),
  *                  sectors [{ name, fromKm, toKm, gainM }], files [name] }
  *   race.pois  = [{ id, kind, name, lat, lon, km, offKm, sym, own: true }]
@@ -14,6 +14,7 @@
  */
 import { distKm, climb, thin, profileOf, parseGpx } from '../route.js';
 import { lineKm, snap } from './race.js';
+import { fineLine } from '../route/fineline.js';
 import { fineFromSeries } from '../map/fineprofile.js';
 
 /** «Sektor 2», «Sektor-10» sort as numbers: file names in their natural order. */
@@ -62,7 +63,7 @@ export function joinSectors(files = []) {
       maxM: ele.length ? Math.round(Math.max(...ele)) : null,
       start: { lat: r5(all[0].lat), lon: r5(all[0].lon) },
       end: { lat: r5(all.at(-1).lat), lon: r5(all.at(-1).lon) },
-      line: thin(all, 800),
+      line: fineLine(all),
       profile: profileOf(all, 800),
       profileFine: es.length > 1 ? fineFromSeries(ks, es, km) : null,
       sectors,
@@ -157,7 +158,7 @@ export function ownPois(wpts = [], route, maxOffKm = 5) {
   return { pois: pois.sort((a, b) => a.km - b.km), far };
 }
 
-/** The route as the trip stores it (route.js format: 200 points, 300 profile points), for the other pages. */
+/** The route as the trip stores it (route.js format: the line keeps its bends, 300 profile points), for the other pages. */
 export function tripRouteOf(route, name = '') {
   if (!route) return null;
   const pts = route.line.map(([lat, lon]) => ({ lat, lon }));
@@ -168,7 +169,7 @@ export function tripRouteOf(route, name = '') {
     lossM: route.lossM,
     start: route.start,
     end: route.end,
-    line: thin(pts, 200),
+    line: fineLine(pts),
     profile: route.profile.length > 300 ? Array.from({ length: 300 }, (_, i) => route.profile[Math.round((i * (route.profile.length - 1)) / 299)]) : route.profile,
     file: (route.files ?? []).join(', '),
   };
