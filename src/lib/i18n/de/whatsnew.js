@@ -9,6 +9,7 @@ export default {
   'Short steps': 'Kurze Schritte',
   'The step bar of a tour says Plan · Pack · Live · Review · Analyse.': 'Die Schrittleiste einer Tour heisst jetzt Plan · Pack · Live · Review · Analyse.',
   'Step bar with short names, on the phone and the computer': 'Schrittleiste mit kurzen Namen, auf dem Handy und am Computer',
+  'Buttons keep their words, for example «Continue to Pack»': 'Die Knöpfe behalten ihre Wörter, zum Beispiel «Weiter zu Packen»',
   'Open a tour: the bar above says Plan · Pack · Live · Review · Analyse.': 'Öffne eine Tour: Die Leiste oben zeigt Plan · Pack · Live · Review · Analyse.',
   'The buttons keep their words, for example «Continue to Pack».': 'Die Knöpfe behalten ihre Wörter, zum Beispiel «Weiter zu Packen».',
   // 0.212.2 UI-Test T2
