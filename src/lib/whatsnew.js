@@ -3668,6 +3668,13 @@ export const WHATS_NEW = [
   },
 ];
 
+// Version at merge time (Noah 27.10.2026 «1a»): since 0.232.0 a PR no longer adds its entry above. It adds
+// src/lib/news/<name>.js (see the README there); scripts/news.mjs gives it its version and day from the
+// order of merges on main. They come first, newest first. Tested in tests/version-at-merge.test.js.
+// (Kept here at the end of the list so that PRs still numbered by hand never conflict with it.)
+import { NEWS } from './news/index.gen.js';
+WHATS_NEW.unshift(...NEWS);
+
 /** How many versions show open; the older ones fold away. */
 export const SHOWN = 3;
 /** localStorage: the newest version seen on Today. */

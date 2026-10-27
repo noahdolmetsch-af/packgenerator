@@ -1987,4 +1987,8 @@ export default {
   'Ask elsewhere takes your question along': '«Weiter fragen» nimmt deine Frage mit',
   'Tap «?» at the top of a page and read its help.': 'Tippe oben auf einer Seite auf «?» und lies die Hilfe.',
   'Tap + New and add an activity.': 'Tippe auf + Neu und hake eine Aktivität ab.',
+  // Version at merge time (Noah 27.10.2026 «1a»): the German texts of each news file (src/lib/news/<name>.js)
+  ...NEWS_DE,
 };
+// at the end, so that PRs still adding at the top never conflict with it
+import { NEWS_DE } from '../../news/index.gen.js';

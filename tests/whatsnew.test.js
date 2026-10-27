@@ -4,14 +4,17 @@ import { WHATS_NEW, SHOWN, BEFORE, BOXES, compareVersions, splitNews, groupOlder
 import { pageOf } from '../src/lib/nav.js';
 import { t, lang } from '../src/lib/i18n.svelte.js';
 import DE from '../src/lib/i18n/de/index.js';
+import { APP_VERSION } from '../src/lib/news/index.gen.js';
 
 // v0.35.0 (Noah): "New in the last updates", from now on with every release.
 const pkg = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8'));
 afterEach(() => (lang.v = 'en'));
 
 describe('the list of what is new', () => {
-  it('the newest entry is this version (every release adds one), newest first', () => {
-    expect(WHATS_NEW[0].version).toBe(pkg.version);
+  it('the newest entry is at most this version (since 27.10.2026 numbered at merge time), newest first', () => {
+    // scripts/news.mjs: a merge without a news file gets a patch number, so the app can be newer
+    expect(compareVersions(WHATS_NEW[0].version, APP_VERSION)).toBeLessThanOrEqual(0);
+    expect(compareVersions(APP_VERSION, pkg.version)).toBeGreaterThanOrEqual(0);
     const versions = WHATS_NEW.map((e) => e.version);
     expect([...versions].sort((a, b) => compareVersions(b, a))).toEqual(versions);
     expect(new Set(versions).size).toBe(versions.length);
@@ -52,7 +55,7 @@ describe('the list of what is new', () => {
     // All source files except this list: an address counts when the app itself uses it.
     const src = new URL('../src/', import.meta.url);
     const files = readdirSync(src, { recursive: true })
-      .filter((f) => /\.(js|svelte)$/.test(f) && !f.endsWith('whatsnew.js'))
+      .filter((f) => /\.(js|svelte)$/.test(f) && !f.endsWith('whatsnew.js') && !/^lib[\\/]news[\\/]/.test(f))
       .map((f) => readFileSync(new URL(f, src), 'utf8'))
       .join('\n');
     for (const e of WHATS_NEW) {
