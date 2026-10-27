@@ -161,7 +161,7 @@
     {#if acts.length}
       <div class="chips" role="group" aria-label={t('Activities|compare')}>
         {#each chosen as id, i (id)}
-          <span class="chip on pick" data-cmp-act={id}><i class="dot" style="background:{SERIES_COLORS[i]}"></i>{actName(actOf(id))}<button type="button" class="x" aria-label={t('Remove {name}|compare', { name: actName(actOf(id)) })} onclick={() => dropAct(id)}><X size={14} aria-hidden="true" /></button></span>
+          <span class="chip on ca" data-cmp-act={id}><i class="dot" style="background:{SERIES_COLORS[i]}"></i>{actName(actOf(id))}<button type="button" class="x" aria-label={t('Remove {name}|compare', { name: actName(actOf(id)) })} onclick={() => dropAct(id)}><X size={14} aria-hidden="true" /></button></span>
         {/each}
         {#if chosen.length < MAX_ACTS && others.length}
           <label class="add">
@@ -277,7 +277,7 @@
     color: var(--ink);
     font-weight: 600;
   }
-  .pick {
+  .ca {
     padding-right: 6px;
     cursor: default;
   }
