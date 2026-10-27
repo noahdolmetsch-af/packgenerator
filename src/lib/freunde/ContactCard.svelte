@@ -18,7 +18,9 @@
   import { sortable } from '../ui/sortable.js';
   import { offerDone } from '../ui/rename.svelte.js';
   import { askDelete, deleteWithUndo } from '../ui/ask.js';
-  import { cardLink, readCard } from '../live/event.js';
+  import { cardLink, readCard, cardPay } from '../live/event.js';
+  import { readAccount } from '../pay/invoices.js';
+  import { formatIban } from '../pay/qrbill.js';
   import { CARD_KEY, PEOPLE_KEY, SHOWN, SHOW_DEFAULT, VALID_DAYS, untilFor, cardVcf, peopleOf, cardShown, addPerson, groupFor, updatePerson, removePerson, renameGroup, moveGroup, deleteGroup, byGroup, instaLink, telLink, mailLink } from './people.js';
   import { localDay } from '../localday.js';
   import '../live/event.css';
@@ -29,7 +31,7 @@
   const list = $derived($peopleQ ?? peopleOf(null));
   const savePeople = (v) => db.settings.put({ key: PEOPLE_KEY, value: v });
 
-  let card = $state({ name: '', ...Object.fromEntries(SHOWN.map((f) => [f, ''])), show: { ...SHOW_DEFAULT }, days: 7, mode: 'link' });
+  let card = $state({ name: '', ...Object.fromEntries(SHOWN.map((f) => [f, ''])), show: { ...SHOW_DEFAULT }, days: 7, mode: 'link', payOn: false });
   let seen = false;
   $effect(() => {
     if (seen || $cardQ === undefined) return;
@@ -41,12 +43,21 @@
   /* Kontakt-QR-Code step 2 (Noah «1a», «4a»): the code opens the card page with a soft end day, or (chosen) holds the
      contact itself, which the phone puts straight into its contacts, also without internet (then without an end day). */
   const until = $derived(untilFor(card.days, localDay()));
-  const link = $derived(shown.name ? cardLink({ ...shown, until }, `${location.origin}${location.pathname}`) : '');
+  /* step 3 («3a»): payment details from Ich › Bezahlen, only when ticked and only on the page with buttons;
+     the person who scans sees them after a tap, apart from the rest */
+  const account = readAccount();
+  const payAvail = cardPay({ t: account?.twint, q: account });
+  const pay = $derived(card.payOn && card.mode !== 'vcard' ? payAvail : null);
+  const link = $derived(shown.name ? cardLink({ ...shown, until, pay }, `${location.origin}${location.pathname}`) : '');
   const qrText = $derived(shown.name ? (card.mode === 'vcard' ? cardVcf(shown) : link) : '');
   const DAYS_LABEL = { 1: 'Today only', 7: '1 week', 30: '1 month', 0: 'Always' };
   const untilText = (d) => new Date(`${d}T12:00:00`).toLocaleDateString(locale(), { weekday: 'short', day: 'numeric', month: 'numeric' });
   function setDays(d) {
     card.days = d;
+    saveCard();
+  }
+  function setPay(on) {
+    card.payOn = on;
     saveCard();
   }
   function setMode(m) {
@@ -160,7 +171,7 @@
         <QrCode text={qrText} label={t('Your contact card')} />
         <p class="ev-strong">{shown.name}</p>
         <button type="button" class="btn hi" onclick={showBig} data-card-big><Maximize size={18} aria-hidden="true" />{t('Show big')}</button>
-        <p class="ev-muted">{t('On the card: {list}', { list: SHOWN.filter((f) => shown[f]).map((f) => t(LABEL[f])).join(', ') || t('only your name') })}</p>
+        <p class="ev-muted">{t('On the card: {list}', { list: [...SHOWN.filter((f) => shown[f]).map((f) => t(LABEL[f])), ...(pay ? [t('Payment|card')] : [])].join(', ') || t('only your name') })}</p>
       {:else}
         <p class="ev-muted">{t('Write your first name; then the QR code appears.')}</p>
       {/if}
@@ -173,7 +184,7 @@
         <button type="button" class="btn sm" aria-pressed={card.mode !== 'vcard'} onclick={() => setMode('link')} data-card-mode="link">{t('Page with buttons')}</button>
         <button type="button" class="btn sm" aria-pressed={card.mode === 'vcard'} onclick={() => setMode('vcard')} data-card-mode="vcard">{t('Straight to contacts')}</button>
       </div>
-      <p class="ev-muted">{card.mode === 'vcard' ? t('The phone offers to save you as a contact right away, also without internet. Without an end day: what is in the address book stays.') : t('A page with a button for each way to reach you and «Save to contacts». Needs internet for a moment.')}</p>
+      <p class="ev-muted">{card.mode === 'vcard' ? t('The phone offers to save you as a contact right away, also without internet. Without an end day: what is in the address book stays.') + (payAvail ? ' ' + t('Payment details go only with «Page with buttons».') : '') : t('A page with a button for each way to reach you and «Save to contacts». Needs internet for a moment.')}</p>
     </div>
     {#if card.mode !== 'vcard'}
       <div role="group" aria-labelledby="cc-days-h">
@@ -184,6 +195,16 @@
           {/each}
         </div>
         <p class="ev-muted" data-card-until>{until ? t('The card shows until {day}. After that the page says «expired». Whoever knows how can still read the details in the link.', { day: untilText(until) }) : t('The card shows without an end.')}</p>
+      </div>
+      <div role="group" aria-labelledby="cc-pay-h" data-card-paypart>
+        <p id="cc-pay-h" class="ev-strong">{t('Payment|card')}</p>
+        {#if payAvail}
+          <label class="ev-sw"><input type="checkbox" checked={!!card.payOn} onchange={(e) => setPay(e.currentTarget.checked)} data-card-pay /> {t('Add payment details')}</label>
+          <p class="ev-muted">{[payAvail.t ? t('TWINT {no}', { no: payAvail.t }) : '', payAvail.q ? t('QR bill to {iban}', { iban: formatIban(payAvail.q.iban) }) : ''].filter(Boolean).join(' · ')}</p>
+          <p class="ev-muted">{t('The person who scans sees them only after a tap on «Show payment details», apart from the rest. Off at the start.')}</p>
+        {:else}
+          <p class="ev-muted" data-card-paymissing>{t('No account and no TWINT number yet. Enter them once under Me › Pay, then you can add them here.')} <a href="#/me/pay/invoices/new">{t('Enter account')}</a></p>
+        {/if}
       </div>
     {/if}
   </div>
