@@ -953,7 +953,7 @@
     color: var(--ink);
     font: 600 var(--fs-small) var(--font-body);
     text-align: center;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
     cursor: pointer;
   }
   .pp-sit[aria-pressed='true'] {
@@ -962,7 +962,7 @@
     color: var(--brand-ink);
   }
   .pp-emo {
-    font-size: 22px;
+    font-size: var(--fs-section);
     line-height: 1;
   }
   .pp-sithint {
