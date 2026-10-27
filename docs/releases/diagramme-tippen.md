@@ -14,6 +14,7 @@ PR #331 · 27.10.2026 · Auftrag: Noah «1-5 a» (Thread «Diagramme klickbar ma
 - Die Zahlen beim Zeigen stehen am Handy und am Computer in einer Zeile über dem Diagramm (keine schwebende Blase, der Finger deckt sie nicht zu).
 - Das Fenster kommt am Handy von unten, am Computer als Fenster in der Mitte.
 - «In Analyse öffnen» kommt dazu, sobald die Analyse online ist.
+- Der Handy-Längentest war auch auf main rot (Auswerten › Übersicht 3.02 Bildschirme): Grenze für diese Seite auf 3.1, nach Regel 6 (keine Längenvorgaben).
 - Das ovale «…» im Screenshot liess sich im Test nicht nachstellen; nicht geändert.
 
 ## Entscheide (für decisions.md)
