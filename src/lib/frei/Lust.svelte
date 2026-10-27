@@ -110,7 +110,7 @@
 {/snippet}
 
 <div class="fz" data-page="lust">
-  <Crumb path={[{ href: '#/me', label: t('Me|place') }, { href: '#/me/frei', label: t('Free time') }]} here={t('What am I up for?')} />
+  <Crumb path={[{ href: '#/week', label: t('Plan|place') }, { href: '#/me/frei', label: t('Free time') }]} here={t('What am I up for?')} />
   <h1 class="fz-h1" tabindex="-1" data-page-title>{t('What am I up for?')}</h1>
   <p class="fz-intro">{t('Tap what fits right now. Nothing is a must: one choice is enough, all four make it precise.')}</p>
 

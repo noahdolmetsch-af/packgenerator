@@ -265,7 +265,7 @@
   {#if fromActive}
     <Crumb path={[{ href: '#/auswerten', label: t('Analysis|place') }]} here={t('Impulses')} />
   {:else}
-    <Crumb path={[{ href: '#/me', label: t('Me|place') }, { href: '#/me/frei', label: t('Free time') }]} here={t('Impulses')} />
+    <Crumb path={[{ href: '#/week', label: t('Plan|place') }, { href: '#/me/frei', label: t('Free time') }]} here={t('Impulses')} />
   {/if}
   <h1 class="fz-h1" tabindex="-1" data-page-title>{t('Impulses')}</h1>
   <p class="fz-intro">{t('Small ideas for free time, in ten areas. Tap one, try it, or hide what is not for you.')}</p>

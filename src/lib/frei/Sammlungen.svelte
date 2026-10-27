@@ -172,7 +172,7 @@
 
 {#if part === 'sammlungen' || !coll}
   <div class="fz" data-page="sammlungen">
-    <Crumb path={[{ href: '#/me', label: t('Me|place') }, { href: '#/me/frei', label: t('Free time') }]} here={t('My collections')} />
+    <Crumb path={[{ href: '#/week', label: t('Plan|place') }, { href: '#/me/frei', label: t('Free time') }]} here={t('My collections')} />
     <h1 class="fz-h1" tabindex="-1" data-page-title>{t('My collections')}</h1>
     <p class="fz-intro">{t('Keep what is worth keeping: places, moments, photo series, recipes, songs. Rename, sort or delete the collections, or start your own.')}</p>
     <ul class="fz-box fz-list" use:sortable={{ onmove }} aria-label={t('My collections')}>
