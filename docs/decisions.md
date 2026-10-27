@@ -1958,3 +1958,12 @@ Noah 19.10.2026: «1a 2a 3a 4 a oder b beides wählbar 5a», danach «a und b»,
 - Noah 27.10.2026 Suchvorschläge «1a 2a 3a 4a»: Situations-Knöpfe ganz oben bei «In der Nähe», neue Arten unter «Weitere Arten», Automaten aus OpenStreetMap, auf Live-Karte und Tour-Seite. Schlafplatz finden ohne Regel-Hinweis («ohne hinweis»). Umweg und zurück «1a 2b 3a»: nach dem Halt immer fragen (Renn-Modus: zurück an die Ausstiegsstelle vorgewählt), neben der Strecke sofort selbst neu berechnen, dazu Sport-/Outdoorgeschäft, Feuerstelle und Handy laden.
 - Noah 27.10.2026 01:15: Freigabe für alle Mockups (M8 neu, N1–N3, R1–R4); dazu «Gleichen Weg zurück» auf der eigenen Spur, wenn man von der Strecke abkommt.
 - 26.10.2026: **Neuer Schwung PR 1** (Noah «1a 2a 3a 4a 5a + 5b»: Stil S2 «Kacheln mit Tiefe», Handy-Bereiche zu ausser «Jetzt», «Startseite anpassen» als Zeile unten, Bewegung überall dezent, kleine Bausteine plus Lottie). PR 1 nur die Zeile unten; Aufklappen wartet auf «Heute ruhiger» Teil 3. Vorschläge: https://claude.ai/artifact/8qMe2aMYPgj93cpRHEQRXv
+
+## 27.10.2026 Ultra-Rennen: Herausforderungen und Ziel 6
+
+- Noah 27.10.2026 16:06 «alle ideen 1-13 umsetzen. 1a 2a 3a und b weitere varianten auf dem papier durchspielen 4a 5a» (Thread «Analysieren Herausforderungen Ultra-Rennen», Grundlage: seine Excel mit Learnings Hope 2025/2026 und die Analyse-Seite https://claude.ai/artifact/Ax8ERdNVsRHmzC9osXqjhb).
+- 1a: Schritt 1 ist Packen A bis Z auf Papier mit vorausgefüllten Druckblättern; erst danach wird der Packprozess in der App neu gedacht.
+- 2a: neues **Ziel 6 «Lange Fahrten unterwegs verstehen»** in vorhaben.md und vorhaben-liste.md, mit den 13 Punkten als «gewünscht».
+- 3a und b: Schlaf-Grundlage fürs nächste Rennen ist Hotel plus Notfall-Biwak; die anderen Varianten spielt Noah trotzdem auf Papier durch.
+- 4a: Wetter für die nächsten 2, 4, 6 und 8 Stunden dort, wo man dann auf der Route ist, aus mehreren Wettermodellen.
+- 5a: die laufende Auswertung während der Fahrt nimmt die Aufnahme des Handys (Live-Karte, Pulsgurt über Bluetooth); der Garmin bleibt fürs Navigieren.
