@@ -3,7 +3,7 @@
 export default {
   title: 'Ticks easier to hit',
   lead: 'Lines with a tick are a full finger high on the phone.',
-  points: [{ text: 'Tick lines like the house check before you leave are 44 px high' }, { text: 'The page dots on the live map and the sport names react to a bigger tap' }],
+  points: [{ text: 'Tick lines like the house check before you leave are 44 px high', go: null }, { text: 'The page dots on the live map and the sport names react to a bigger tap', go: null }],
   small: [],
   test: ['On the phone open Unterwegs › Vor der Abfahrt › Haus-Check: each line is easy to tick.', 'Open a live map with several pages: the dots at the bottom are easier to tap.'],
   since: [],

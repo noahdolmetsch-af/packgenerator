@@ -363,6 +363,7 @@ Was die App heute schon kann: Material mit Gewicht und Kategorie, Touren mit Pac
 - **Pakete:** F1 Alles finden · F2 Perlen nach vorn (verteilt auf Seiten, die ohnehin angefasst werden) · Kal1 Merken + Agenda (neuer Ort, To-dos mit Datum und Wiederholung, Notizen und Eingang ziehen um) · Kal2 Ablage mit Links · Kal3 .ics raus und rein · Kal4 Abo-Link nur lesen, freie Wochenenden mit Wetter, Feiertage, Wochenblick · Kal5 Dateien in der Ablage; beide Richtungen mit S3.
 - **Beispiel:** «Ersatz-Schaltauge bestellen» steht oben in Merken; darunter «Jura-Runde: Einkauf und Laden (−2 Tage)» und «Dichtmilch fällig».
 - **Stand:** entschieden, noch nicht gebaut. Vorschlag https://claude.ai/artifact/TuvocwdUios23adoGp6e5D, Inventar im Projektordner `notes/funktionen-kalender-2026-10-11/inventar.md`.
+- **Ausprobieren führt genau hin (Noah 27.10.2026 «1a 2a 3a 4a 5a»):** jede Neuigkeit und jede Katalog-Funktion springt an die genaue Stelle (Seite, Reiter, Fenster) und lässt sie 3 Sekunden leuchten; ein gemeinsamer Sprung (`src/lib/know/spot.js`). Reihenfolge: Neuigkeiten-Zeilen mit Pflichtfeld `go` → alte Neuigkeiten nach Bereich, neueste zuerst → Tipps, Handbuch, Rundgang und Rennen auf denselben Sprung. Was nur manchmal erscheint, sagt in einer Zeile, wann. Vorschlag https://claude.ai/artifact/Wh4boiGG28WUp5WE4os8FB.
 
 ### 12. Design-Refresh: neues Aussehen für alle Seiten (R1–R24)
 

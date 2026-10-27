@@ -7,6 +7,7 @@
 // { …, unless: 'CSS' } skips a step when that is already on screen (a fold that is open already).
 // heimat.js marks the same functions in GAPS with 'spot'; tests/e2e/spot.spec.js taps each one.
 import { t } from '../i18n.svelte.js';
+import './spot.css';
 
 export const SPOT = {
   'f.switch': [{ text: '{n} more trips open' }],
@@ -20,6 +21,8 @@ export const SPOT = {
 
 const WAIT = 6000;
 const STEP = 150;
+/** How long a spot glows (Noah 27.10.2026 «2a»: 3 seconds). */
+export const GLOW = 3000;
 
 /** Is the element on screen: not hidden, not inside a closed fold (its summary counts as open). */
 function visible(el) {
@@ -60,35 +63,108 @@ async function wait(step) {
   return null;
 }
 
-/** Light the spot up for a moment (a calm ring; without motion when the device asks for less). */
+/** Light the spot up for a moment, 3 s (a calm ring; without motion when the device asks for less). */
 export function light(el, id = '') {
   for (let e = el.parentElement; e; e = e.parentElement) if (e.tagName === 'DETAILS' && !e.open) e.open = true;
-  el.scrollIntoView({ block: 'center', behavior: 'instant' });
+  // a tall spot (a whole card) shows from its top, a small one in the middle
+  const show = () => {
+    const tall = el.getBoundingClientRect().height > innerHeight * 0.6;
+    el.scrollIntoView({ block: tall ? 'start' : 'center', behavior: 'instant' });
+    if (tall) scrollBy(0, -96);
+  };
+  show();
+  // a window or edit mode that just opened may still move the page: look once more when it has settled
+  setTimeout(() => {
+    const r = el.isConnected && el.getBoundingClientRect();
+    if (r && (r.bottom < 0 || r.top > innerHeight)) show();
+  }, 400);
   el.dataset.spotOn = id || '1';
   const calm = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const ring = '0 0 0 4px color-mix(in srgb, var(--accent, #276a43) 55%, transparent)';
   if (calm || !el.animate) {
     const old = el.style.boxShadow;
     el.style.boxShadow = ring;
-    setTimeout(() => ((el.style.boxShadow = old), delete el.dataset.spotOn), 2600);
+    setTimeout(() => ((el.style.boxShadow = old), delete el.dataset.spotOn), GLOW);
   } else {
-    el.animate([{ boxShadow: '0 0 0 0 transparent' }, { boxShadow: ring, offset: 0.25 }, { boxShadow: ring, offset: 0.75 }, { boxShadow: '0 0 0 0 transparent' }], { duration: 1300, iterations: 2 }).finished.finally(() => delete el.dataset.spotOn);
+    el.animate([{ boxShadow: '0 0 0 0 transparent' }, { boxShadow: ring, offset: 0.25 }, { boxShadow: ring, offset: 0.75 }, { boxShadow: '0 0 0 0 transparent' }], { duration: GLOW / 2, iterations: 2 }).finished.finally(() => delete el.dataset.spotOn);
   }
 }
 
-/** Go to the spot of a function (any key of SPOT, also one that is not in the catalogue). False when a step is missing. */
-export const showSpot = (id) => (SPOT[id] ? showSteps(SPOT[id], id) : Promise.resolve(false));
+/**
+ * «Ausprobieren» (Noah 27.10.2026 «2a»): a short line at the bottom, «New here: …» or where a thing shows up,
+ * with ✕; it goes by itself after a while. go: an optional button { label, run } (e.g. «Show it in the example»).
+ * near: the lit element; when the line would cover it at the bottom, it goes to the top.
+ */
+export function note(text, { go = null, ms = 8000, near = null } = {}) {
+  document.querySelector('.spot-note')?.remove();
+  const box = document.createElement('div');
+  box.className = 'spot-note';
+  box.setAttribute('role', 'status');
+  box.dataset.spotNote = '';
+  const p = document.createElement('span');
+  p.textContent = text;
+  box.append(p);
+  if (go) {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'spot-go';
+    b.textContent = go.label;
+    b.onclick = () => (box.remove(), go.run());
+    box.append(b);
+  }
+  const x = document.createElement('button');
+  x.type = 'button';
+  x.className = 'spot-x';
+  x.setAttribute('aria-label', t('Close'));
+  x.textContent = '✕';
+  x.onclick = () => box.remove();
+  box.append(x);
+  document.body.append(box);
+  const place = () => {
+    const r = near?.isConnected && near.getBoundingClientRect();
+    box.classList.remove('top');
+    const b = box.getBoundingClientRect();
+    // covered at the bottom, and the spot starts low enough that the top is free
+    if (r && b.top < r.bottom && b.bottom > r.top && r.top > b.height + 24) box.classList.add('top');
+  };
+  place();
+  // the page may still settle (a window opens, content loads): place it again while it shows
+  const again = () => requestAnimationFrame(place);
+  addEventListener('scroll', again, true);
+  addEventListener('resize', again);
+  const stop = setInterval(place, 300);
+  const gone = () => (clearInterval(stop), removeEventListener('scroll', again, true), removeEventListener('resize', again));
+  new MutationObserver((_, o) => !box.isConnected && (gone(), o.disconnect())).observe(document.body, { childList: true });
+  setTimeout(() => box.remove(), ms);
+  return box;
+}
 
-/** Tap the steps in turn, then light up the last one. id marks it (data-spot-on). False when a step is missing. */
-export async function showSteps(steps, id = '') {
+/** Go to the spot of a function (any key of SPOT, also one that is not in the catalogue). False when a step is missing. */
+export const showSpot = (id, opts = {}) => (SPOT[id] ? showSteps(SPOT[id], id, opts) : Promise.resolve(false));
+
+/**
+ * Tap the steps in turn, then light up the last one. id marks it (data-spot-on). False when a step is missing.
+ * opts.note: a line shown with the light; opts.miss: the line shown instead when a step is missing (e.g. where it
+ * shows up); opts.go: a button on that line. Without opts nothing else shows (the catalogue).
+ */
+export async function showSteps(steps, id = '', { note: said = '', miss = '', go = null } = {}) {
   // the new page first: the page the tap came from may show the same words
   await new Promise((ok) => setTimeout(ok, 300));
   for (let i = 0; i < steps.length; i++) {
     if (steps[i].unless && find({ sel: steps[i].unless })) continue;
     const el = await wait(steps[i]);
-    if (!el) return false;
-    if (i < steps.length - 1) el.click();
-    else light(el, id);
+    if (!el) {
+      if (miss) note(miss, { go });
+      return false;
+    }
+    if (i < steps.length - 1) {
+      el.click();
+      // what the tap opens (a window, edit mode) draws itself first, so the next step finds the new element
+      await new Promise((ok) => setTimeout(ok, 250));
+    } else {
+      light(el, id);
+      if (said) note(said, { go, near: el });
+    }
   }
   return true;
 }
