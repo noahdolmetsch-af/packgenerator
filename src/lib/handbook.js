@@ -1554,6 +1554,11 @@ export const HANDBOOK = {
     steps: ['Plan a tour; its start place, or else your home place, is where the weather is looked at.', 'Twice a day, from 10 days before up to the day before, the server compares the forecast.', 'A message comes only when something changes: the weather turns, gets good again, or a better day shows up.'],
     example: 'Example: tour on Saturday, rain forecast on Thursday → «The weather for Testtour turns. From Sun 25.10. it looks better.»',
   },
+  'f.morningpush': {
+    on: 'On by itself once reminders on the phone are on; switch it off under Me › Reminders on the phone › In the morning.',
+    steps: ['Every reminder at 08:00 (parts worn, chain, supplies, lent things, shopping, race registration) waits for the morning message.', 'At 07:00 one message comes: first a trip that starts and up to two appointments of the day, then the reminders.', 'Warnings (weather, ice, light, rain on the way, eating) still come on their own and on time.'],
+    example: 'Example: «Your morning» → «Appointment: 10:00 Dentist», «Testvelo: Chain reaches 1000 km soon», «and 1 more in the app».',
+  },
   'f.tourhints': {
     on: 'Nothing to switch on; the hints come from the route, the start time and the forecast.',
     steps: ['A stage after sunset brings light and reflective vest; the «Light alarm» push reminds you the evening before.', 'From UV 6 sunscreen and sunglasses; on a ski tour from UV 3 the glacier glasses.', 'On a loop with wind it says which way round gives the tailwind home.'],
