@@ -4,6 +4,14 @@
  * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
+  // 0.218.0 Was ziehe ich an? selbst anpassen
+  'Your clothes, your call': 'Deine Kleider, deine Wahl',
+  '«What do I wear?» now lets you change the suggestion.': 'Bei «Was ziehe ich an?» änderst du jetzt den Vorschlag selbst.',
+  'Swap any piece, leave one out or add a layer, for today only': 'Teil tauschen, weglassen oder eine Schicht dazu, nur für heute',
+  'A gap says why: too light, still to sort, or nothing yet': 'Eine Lücke sagt warum: zu leicht, noch einzuordnen oder noch nichts da',
+  '«Why so?» explains how the app chooses': '«Warum so?» erklärt, wie die App wählt',
+  'On Today tap «What do I wear?» and then «Swap» on a row: pick another piece; the row says «chosen by you · today only».': 'Tippe auf Heute auf «Was ziehe ich an?» und bei einer Zeile auf «Tauschen»: Wähle ein anderes Teil; die Zeile zeigt «von dir gewählt · nur heute».',
+  'Open «Why so?» under the list: it names the temperature and from when each layer comes.': 'Öffne «Warum so?» unter der Liste: Dort stehen die Temperatur und ab wann jede Schicht kommt.',
   // 0.231.1 Da, wo du schaust
   'Found where you look': 'Da, wo du schaust',
   'Four more tools now live on the page where you see them.': 'Vier weitere Werkzeuge wohnen jetzt auf der Seite, wo du sie siehst.',
