@@ -344,3 +344,4 @@ Mockups N1–N3 und R4 von Noah freigegeben (27.10. «freigabe für alle mockups
 ## 27.10.2026 Live Navigation PR 3 (Strecke genau)
 
 Keine sichtbare Oberfläche neu; die Linie auf der Karte folgt den Kurven. Kein Design-Eingriff.
+- 26.10.2026, «Neuer Schwung» PR 1: Kopf von Heute am Computer ohne Knopf; «Startseite anpassen» als leiser Link unten, Tippfläche 44 px wie «Alle Bereiche».
