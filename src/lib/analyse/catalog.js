@@ -15,8 +15,9 @@ import { actName } from '../flow/ui.svelte.js';
 import { sourceOf, ticksByDay, tickPeriod, hourProfile, activeHours, meanOfHours, sumOf } from '../analyse.js';
 import { t } from '../i18n.svelte.js';
 import { sleepScoreOf, restlessOf, cardioLoadOf } from './own.js';
+import { valueHref } from './jump.js';
 
-export const detailHref = (key) => `#/auswerten/analyse/${encodeURIComponent(key)}`;
+export const detailHref = (key) => valueHref(key);
 
 export function analyseGroups({ table = new Map(), weights = new Map(), ctx = {}, acts = [], log = [], ownKeys = [], period = 30 } = {}) {
   const at = (it) => ({ href: detailHref(it.key), ...it });
