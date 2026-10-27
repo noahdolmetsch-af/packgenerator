@@ -37,6 +37,8 @@
   const exceptions = $derived(gearList.filter((it) => it.mark === 'unused' || it.mark === 'broken'));
   const waiting = $derived(!d.debrief ? groups.gear.open.length : 0);
   const counts = (side) => [...MARKS, 'open'].map((m) => [m, side[m].length]).filter(([, n]) => n);
+  // UI-Test 26.10.2026 T1: before the ride (state «Geplant») nothing was used yet: no verdict, no marks
+  const before = $derived(d.kind === 't' && d.state === 'plan');
   const partTrip = $derived(d.kind !== 't' && d.partOf?.href?.includes('t%3A') ? d.partOf : null);
 
   /* ---- 4a: the weight of the gear, against the trip before ---- */
@@ -154,11 +156,17 @@
     <div class="gh">
       {#if weight}<p class="wt num" data-gear-weight>{weight}</p>{/if}
       <p class="sum tp-muted tp-small num" data-gear-sum>
-        {#if gearList.length}{counts(groups.gear).map(([m, n]) => `${num(n)} ${t(MARK_NAMES[m])}`).join(' · ')}{:else}{t('No gear yet.')}{/if}
+        {#if gearList.length && before}{tn(gearList.length, '{n} thing on the list', '{n} things on the list')}{:else if gearList.length}{counts(groups.gear).map(([m, n]) => `${num(n)} ${t(MARK_NAMES[m])}`).join(' · ')}{:else}{t('No gear yet.')}{/if}
       </p>
       <button type="button" class="btn" onclick={() => (picking = true)} data-gear-change><Backpack size={16} aria-hidden="true" />{gearList.length || foodList.length ? t('Change gear') : t('Enter the gear')}</button>
     </div>
-    {#if folded}
+    {#if before}
+      <div class="before" data-gear-before>
+        <Check size={20} aria-hidden="true" />
+        <div><p class="bt">{t('After the ride: tick off')}</p><p class="bs">{t('After the ride you can mark here what you used.')}</p></div>
+      </div>
+      <a class="btn btn-link packl" href={tabHref('pack', trip)} onclick={() => openTrip(trip.id)} data-gear-packtab>{t('The whole list is under Pack')}<ChevronRight size={16} aria-hidden="true" /></a>
+    {:else if folded}
       {#if exceptions.length}<ul class="glist2" data-gear-ex>{#each exceptions as it (it.id)}{@render thing(it)}{/each}</ul>{/if}
       {#if waiting}
         <p class="wait" data-gear-wait><b class="num">{tn(waiting, '{n} thing waits for your verdict', '{n} things wait for your verdict')}</b><button type="button" class="btn" onclick={() => (going = true)} data-gear-go>{t('Go through')}<ChevronRight size={16} aria-hidden="true" /></button></p>
@@ -173,6 +181,7 @@
     {#if gearList.length}<ul class="glist2">{#each gearList as it (it.id)}{@render thing(it)}{/each}</ul>{/if}
     {#if going}<button type="button" class="btn btn-link" onclick={() => (going = false)} data-gear-less>{t('Only the exceptions')}</button>{/if}
     {/if}
+    {#if !before}
     {@render missingBox(missing, false)}
 
     <h3 class="h3 food"><Utensils size={16} aria-hidden="true" />{t('Food and drink')}</h3>
@@ -183,6 +192,7 @@
     {/if}
     {@render missingBox(missingFood, true)}
     <p class="tp-muted tp-small">{t('What you did not use, what broke and your notes come back the next time you pack.')}</p>
+    {/if}
   </div>
 {:else if partTrip}
   <div class="card pad" data-no-gear>
@@ -405,5 +415,28 @@
     width: 36px;
     justify-content: center;
     padding: 0;
+  }
+  /* UI-Test T1 (Noah «schöner machen»): before the ride a calm tinted box, like «Die Auswertung kommt nach der Tour» */
+  .before {
+    display: flex;
+    gap: 12px;
+    margin: 4px 0 6px;
+    padding: 14px 16px;
+    border-radius: var(--radius-card);
+    background: var(--paper-2);
+  }
+  .before > :global(svg) {
+    flex: none;
+    margin-top: 2px;
+    color: var(--ink-3);
+  }
+  .bt {
+    margin: 0;
+    font-weight: 600;
+  }
+  .bs {
+    margin: 2px 0 0;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
   }
 </style>
