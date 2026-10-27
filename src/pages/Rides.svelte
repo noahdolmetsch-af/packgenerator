@@ -88,6 +88,10 @@
   const heart = $derived(ride ? heartOfRide($kmBookQ ?? [], ride) : null);
   // 19.10.2026 «3a»: the sensor values from the file itself; the heart rate of the file comes before Strava's
   const sens = $derived(ride?.sensors ?? null);
+  // «FIT-Dateien ganz lesen»: the extra values of the unit (src/lib/fit.js deviceValues)
+  const dev = $derived(ride?.device ?? null);
+  const BAT_KIND = { unit: 'Bike computer', power: 'Power meter', 'heart rate': 'Heart rate strap', speed: 'Speed sensor', cadence: 'Cadence sensor', shifting: 'Shifting', radar: 'Radar', light: 'Light', sensor: 'Sensor' };
+  const BAT_STATUS = { new: 'new|battery', good: 'good|battery', ok: 'ok|battery', low: 'low|battery', critical: 'almost empty|battery' };
   const fileHeart = $derived(sens?.hrAvg != null ? { avg: sens.hrAvg, max: sens.hrMax } : null);
   const sensZones = $derived(sens?.hist ? zoneSecs(sens.hist, zones.bounds) : null);
   const zMost = $derived(sensZones ? Math.max(...sensZones) : 0);
@@ -174,8 +178,28 @@
     const file = files[0];
     if (file.size > RIDE_MAX_MB * 1024 * 1024) return (msg = t('This file is too big (more than {mb} MB).', { mb: RIDE_MAX_MB }));
     busy = true;
-    await read(await file.text(), file.name);
+    if (isFitName(file.name)) await readFit(file);
+    else await read(await file.text(), file.name);
     busy = false;
+  }
+
+  // «FIT-Dateien ganz lesen» (27.10.2026): a FIT file is binary; its reader loads on first use
+  const isFitName = (name) => /\.fit$/i.test(name ?? '');
+  async function fitOf(file) {
+    const { analyseFit } = await import('../lib/fit.js');
+    return analyseFit(await file.arrayBuffer(), file.name);
+  }
+  async function readFit(file) {
+    msg = '';
+    route = null;
+    batch = null;
+    try {
+      draft = await fitOf(file);
+      picked = null;
+    } catch (e) {
+      draft = null;
+      msg = e.message || t('This file could not be read.');
+    }
   }
 
   /**
@@ -249,13 +273,22 @@
         skipped.push({ name: f.name, why: t('too big') });
         continue;
       }
-      const text = await f.text();
       let r;
-      try {
-        r = analyseRide(text, f.name);
-      } catch {
-        skipped.push({ name: f.name, why: sharedKind(text) === 'route' ? t('a planned route, no times') : t('could not be read') });
-        continue;
+      if (isFitName(f.name)) {
+        try {
+          r = await fitOf(f);
+        } catch {
+          skipped.push({ name: f.name, why: t('could not be read') });
+          continue;
+        }
+      } else {
+        const text = await f.text();
+        try {
+          r = analyseRide(text, f.name);
+        } catch {
+          skipped.push({ name: f.name, why: sharedKind(text) === 'route' ? t('a planned route, no times') : t('could not be read') });
+          continue;
+        }
       }
       if (rides.some((x) => startKey(x.id) === startKey(r.id)) || saved.some((x) => startKey(x.id) === startKey(r.id))) {
         skipped.push({ name: r.name, why: t('saved already') });
@@ -595,6 +628,19 @@
               {#if sens?.wAvg != null}<div class="rv-tile" data-file-w><dd><b class="num">{sens.wAvg}{sens.wMax != null ? ` / ${sens.wMax}` : ''} W</b></dd><dt><small>{t('Power Ø / max (power meter)')}</small></dt></div>{/if}
               {#if sens?.tempAvg != null}<div class="rv-tile" data-file-temp><dd><b class="num">{sens.tempMin != null && sens.tempMax != null && sens.tempMin !== sens.tempMax ? `${num(sens.tempMin)}–${num(sens.tempMax)}` : num(sens.tempAvg)} °C</b></dd><dt><small>{t('Temperature (bike computer)')}</small></dt></div>{/if}
             </dl>
+            {#if dev}
+              <!-- «FIT-Dateien ganz lesen» (27.10.2026): what only the unit knows, only when the file has it -->
+              <h3 class="devh">{t('From the unit')}</h3>
+              <dl class="rv-box rv-tiles nums" data-fit-device>
+                {#if dev.np != null}<div class="rv-tile" data-fit-np><dd><b class="num">{dev.np} W</b></dd><dt><small>{t('Normalized power')}</small></dt></div>{/if}
+                {#if dev.ifac != null || dev.tss != null}<div class="rv-tile" data-fit-load><dd><b class="num">{dev.ifac != null ? num(dev.ifac) : '–'} / {dev.tss != null ? num(Math.round(dev.tss)) : '–'}</b></dd><dt><small>{t('Intensity / training stress (IF / TSS)')}</small></dt></div>{/if}
+                {#if dev.te != null}<div class="rv-tile" data-fit-te><dd><b class="num">{num(dev.te)}{dev.teAn != null ? ` / ${num(dev.teAn)}` : ''}</b></dd><dt><small>{dev.teAn != null ? t('Training effect aerobic / anaerobic') : t('Training effect')}</small></dt></div>{/if}
+                {#if dev.lr}<div class="rv-tile" data-fit-lr><dd><b class="num">{dev.lr.left} / {dev.lr.right} %</b></dd><dt><small>{t('Left / right balance')}</small></dt></div>{/if}
+                {#if dev.laps}<div class="rv-tile" data-fit-laps><dd><b class="num">{dev.laps}</b></dd><dt><small>{t('Laps')}</small></dt></div>{/if}
+                {#if dev.gears}<div class="rv-tile" data-fit-gears><dd><b class="num">{dev.gears}</b></dd><dt><small>{t('Gear changes')}</small></dt></div>{/if}
+              </dl>
+              {#if dev.battery?.length}<p class="rv-note" data-fit-battery>{t('Battery at the end')}: {dev.battery.map((b) => `${t(BAT_KIND[b.kind] ?? 'Sensor')} ${t(BAT_STATUS[b.status] ?? '')}${b.volt != null ? ` (${num(b.volt)} V)` : ''}`.trim()).join(' · ')}</p>{/if}
+            {/if}
             {#if sens}<p class="rv-note num" data-file-sensors>{t('Heart rate, cadence, power and temperature come from the file itself.')}</p>{/if}
             {#if sensZones}
               <div class="rv-box pad szones" data-file-zones aria-label={t('Time in heart rate zones')}>
@@ -688,7 +734,7 @@
     <nav class="crumb" aria-label={t('Path')}><a href="#/trips"><ChevronLeft size={14} aria-hidden="true" />{t('Trips|place')}</a><ChevronRight size={12} aria-hidden="true" /><a href="#/debrief">{t('Look back|page')}</a><ChevronRight size={12} aria-hidden="true" /><span aria-current="page">{t('Rides|page')}</span></nav>
     <!-- Impeccable Runde 2 (Fahrten 1): the page is the list of rides; uploading is the button in the card -->
     <h1 class="title">{t('Rides|page')}</h1>
-    <p class="page-sub">{t('A recorded ride as GPX or TCX: pauses, planned vs real, learnings. A CSV list from Strava or Garmin: the km of your trips. Read on this device.')}</p>
+    <p class="page-sub">{t('A recorded ride as GPX, TCX or FIT: pauses, planned vs real, learnings. A CSV list from Strava or Garmin: the km of your trips. Read on this device.')}</p>
     <HintCard page="rides" />
 
     <div class="rv-lay">
@@ -696,13 +742,13 @@
         <section class="up" aria-label={t('Upload ride')}>
           <div class="drop">
             <span class="rv-ic" aria-hidden="true"><Plus size={18} /></span>
-            <span class="rv-m"><span class="rv-t">{t('Choose a ride file')}</span>{#if !draft}<span class="rv-s">{t('GPX, TCX or CSV. Garmin, Wahoo, Strava or Komoot: a ride → Export GPX. On Android you can also share the file to Pack Generator.')}</span>{/if}</span>
-            <label class="btn pickbtn" class:hi={!draft}><Upload size={18} aria-hidden="true" />{busy && !draft ? t('Reading …') : draft ? t('Choose another file') : t('Choose file')}<input type="file" multiple accept=".gpx,.tcx,.csv,application/gpx+xml,application/vnd.garmin.tcx+xml,application/xml,text/xml,text/csv" onchange={pick} disabled={busy} /></label>
+            <span class="rv-m"><span class="rv-t">{t('Choose a ride file')}</span>{#if !draft}<span class="rv-s">{t('GPX, TCX, FIT or CSV. Garmin, Wahoo, Strava or Komoot: a ride → Export GPX or the original FIT file. On Android you can also share the file to Pack Generator.')}</span>{/if}</span>
+            <label class="btn pickbtn" class:hi={!draft}><Upload size={18} aria-hidden="true" />{busy && !draft ? t('Reading …') : draft ? t('Choose another file') : t('Choose file')}<input type="file" multiple accept=".gpx,.tcx,.fit,.csv,application/gpx+xml,application/vnd.garmin.tcx+xml,application/xml,text/xml,text/csv" onchange={pick} disabled={busy} /></label>
           </div>
           {#if !draft && !route && !batch && !list && !rides.length}
             <!-- GPX-Weg 3a/5a: before the first ride, what a ride file does here -->
             <ol class="rv-box pad how" aria-label={t('How it works')}>
-              <li><b>{t('Choose a file')}</b> · {t('a recorded ride from your bike computer or phone (GPX or TCX), or the CSV list from Strava or Garmin. Several at once work too.')}</li>
+              <li><b>{t('Choose a file')}</b> · {t('a recorded ride from your bike computer, watch or phone (GPX, TCX or FIT), or the CSV list from Strava or Garmin. Several at once work too.')}</li>
               <li><b>{t('Check and save')}</b> · {t('you see km, climbing, riding time and pauses, and where it is saved.')}</li>
               <li><b>{t('The app learns')}</b> · {t('the ride shows up in Look back, counts for your pace and suggests learnings.')}</li>
             </ol>
@@ -711,8 +757,8 @@
           <details class="rv-box pad howto" data-where-from>
             <summary>{t('Where do I get the file?')}</summary>
             <p><b>Strava:</b> {t('on a ride → ••• → Export GPX (one ride), or Settings → My Account → Download your data → activities.csv (all rides).')}</p>
-            <p><b>Garmin Connect:</b> {t('on a ride → ⚙ → Export to GPX or TCX, or Activities → Export CSV (the list).')}</p>
-            <p>{t('One ride (GPX or TCX): pauses, planned vs real, your pace. The list (CSV): only date and km, for the km of your trips and bikes.')}</p>
+            <p><b>Garmin Connect:</b> {t('on a ride → ⚙ → Export Original (a ZIP: open it, then choose the .fit file), Export to GPX or TCX, or Activities → Export CSV (the list).')}</p>
+            <p>{t('One ride (GPX, TCX or FIT): pauses, planned vs real, your pace. A FIT file also brings what only the unit knows (normalized power, training effect, laps, gear changes, battery). The list (CSV): only date and km, for the km of your trips and bikes.')}</p>
           </details>
           {#if msg}<p class="warnmsg" role="status">{msg}</p>{/if}
           {#if list}
@@ -1343,4 +1389,5 @@
     color: var(--ink-2);
     cursor: pointer;
   }
+  .devh { margin: var(--sp-3) 0 var(--sp-2); font-size: var(--fs-section); }
 </style>

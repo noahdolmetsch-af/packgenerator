@@ -191,13 +191,11 @@ export function findPauses(pts, minMin = PAUSE_MIN, radiusKm = STOP_RADIUS_KM) {
  *   each with km, metres up and hours, for "Climbing slower than assumed".
  */
 export function analyseRide(text, file = '') {
-  const all = timedPoints(text);
-  if (all.length < 2) throw new Error(t('This file has no times. Upload a recorded ride, not a planned route.'));
   const name =
     text.match(/<(?:trk|metadata)>[\s\S]*?<name>\s*(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?\s*<\/name>/i)?.[1]?.trim() ||
     file.replace(/\.(gpx|tcx)$/i, '') ||
     t('Ride|dayride');
-  return analysePoints(all, decode(name), file);
+  return analysePoints(ridePoints(text), decode(name), file);
 }
 
 /** The points of a ride file that have a time, oldest first (Touren c 66 splits these). */
@@ -206,9 +204,16 @@ export const timedPoints = (text) =>
     .filter((p) => p.t != null)
     .sort((a, b) => a.t - b.t);
 
-/** analyseRide on points already read (sorted, with times): the numbers to store. name: the shown name. */
-export function analysePoints(all, name, file = '') {
-  if (all.length < 2) throw new Error(t('This ride is too short to read.'));
+/**
+ * The same numbers from points that are already read ({ lat, lon, ele, t, hr?, cad?, w?, temp? }),
+ * for a GPX/TCX text (analyseRide), a FIT file (src/lib/fit.js analyseFit) or one stage of a split ride
+ * (src/lib/tourenc/split.js).
+ */
+export function analysePoints(points, name, file = '') {
+  const all = points
+    .filter((p) => p.t != null)
+    .sort((a, b) => a.t - b.t);
+  if (all.length < 2) throw new Error(t('This file has no times. Upload a recorded ride, not a planned route.'));
   let pauses = findPauses(all);
   let s = 0;
   let e = all.length - 1;

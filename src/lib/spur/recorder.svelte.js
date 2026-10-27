@@ -148,7 +148,9 @@ export async function addFix(pos, db = appDb) {
   if (rec.paused) return false; // paused: the map still shows where you are, nothing is kept
   if (!keepFix(last, fix)) return false;
   const sec = Math.max(0, Math.round((fix.at - row.startAt) / 1000));
-  const p = [r6(fix.lat), r6(fix.lon), sec];
+  // the GPS height as a 4th value, when the phone has one (Nachprüfung 27.10.2026: Hm and profile after a ride without a route)
+  const alt = pos.coords.altitude;
+  const p = Number.isFinite(alt) ? [r6(fix.lat), r6(fix.lon), sec, Math.round(alt)] : [r6(fix.lat), r6(fix.lon), sec];
   if (last && !jump) rec.km = Math.round((rec.km + distKm([last.lat, last.lon], [fix.lat, fix.lon])) * 100) / 100;
   jump = false;
   row.pts.push(p);
