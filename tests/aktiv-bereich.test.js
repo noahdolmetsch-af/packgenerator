@@ -74,3 +74,29 @@ describe('A06 (Klick-Rundgang 22.10.2026): the tabs of Aktiv on a phone never ch
     }
   });
 });
+
+describe('a cover on every sport page (Noah 27.10.2026 «1a»)', () => {
+  it('keeps one cover per sport, takes only images, removes with null', async () => {
+    const { coverOf, withCover } = await import('../src/lib/sportpage/covers.js');
+    expect(coverOf(null, 'trip:hiking')).toEqual({ cover: null, y: 50 });
+    let v = withCover({}, 'trip:hiking', { cover: 'data:image/jpeg;base64,AAAA', y: 130 });
+    v = withCover(v, 'act:x', { cover: 'data:image/png;base64,BBBB', y: 20 });
+    expect(coverOf(v, 'trip:hiking')).toEqual({ cover: 'data:image/jpeg;base64,AAAA', y: 100 });
+    expect(coverOf({ a: { cover: 'javascript:alert(1)' } }, 'a').cover).toBe(null);
+    v = withCover(v, 'trip:hiking', { cover: null });
+    expect(Object.keys(v)).toEqual(['act:x']);
+  });
+  it('Sport.svelte shows the cover for every sport but Tennis, which has its own', () => {
+    const page = readFileSync('src/pages/flow/Sport.svelte', 'utf8');
+    expect(page).toMatch(/TENNIS_ID\}<TennisTop[\s\S]*\{:else\}<SportCover/);
+  });
+});
+
+describe('«Nächstes Ziel» and shorter milestones (Noah 27.10.2026 «2a 3a»)', () => {
+  it('Meine Sportarten shows the next goal; the milestones page folds on a phone and needs no length exception', async () => {
+    expect(readFileSync('src/pages/flow/MySports.svelte', 'utf8')).toContain('<NextGoalRow');
+    expect(readFileSync('src/pages/flow/Milestones.svelte', 'utf8')).toContain('data-ms-fold="all"');
+    const { TOO_LONG } = await import('../src/lib/laenge.js');
+    expect(TOO_LONG['#/flow/milestones']).toBeUndefined();
+  });
+});
