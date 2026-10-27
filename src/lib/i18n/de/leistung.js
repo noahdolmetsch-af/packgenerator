@@ -1,6 +1,6 @@
 // «Leistung und Analysen» TR5–TR7 (Noah 14.10.2026 «TR5–TR7 freigegeben»): the shared «Analysen» cards and «Analysen anpassen».
 export default {
-  'Fitness, fatigue and form': 'Fitness, Ermüdung und Form',
+  'Fitness, fatigue and form': 'Fitness, Müdigkeit und Form',
   'Power curve: 90 days against the year': 'Leistungskurve: 90 Tage gegen das Jahr',
   'Efficiency: watts per heartbeat': 'Effizienz: Watt pro Herzschlag',
   'Climbs of this ride': 'Anstiege dieser Fahrt',
@@ -26,7 +26,7 @@ export default {
   Dots: 'Punktwolke',
   'Best values': 'Bestwerte',
   Table: 'Tabelle',
-  'Fitness, fatigue, form': 'Fitness, Ermüdung, Form',
+  'Fitness, fatigue, form': 'Fitness, Müdigkeit, Form',
   Lines: 'Linien',
   'Load per week': 'Belastung pro Woche',
   'Power curve 90 days / year': 'Leistungskurve 90 Tage / Jahr',

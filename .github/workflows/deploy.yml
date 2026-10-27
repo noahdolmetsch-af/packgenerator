@@ -133,3 +133,34 @@ jobs:
     steps:
       - id: deployment
         uses: actions/deploy-pages@v5
+
+  # Noah 26.10.2026 «1a» and 27.10.2026 «5a»: after every going online GitHub writes its own entry
+  # under Releases (github.com/noahdolmetsch-af/packgenerator/releases): the version that is online now
+  # and every merged PR in it. Only GITHUB_TOKEN, no secret. Going online is already done when this runs.
+  release:
+    if: github.ref == 'refs/heads/main'
+    needs: [deploy]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0 # the version comes from the order of merges on main
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+      - name: Write the entry
+        run: node scripts/release-notes.mjs > notes.md && cat notes.md >> "$GITHUB_STEP_SUMMARY"
+      - name: Publish it
+        run: |
+          v="v$(node scripts/news.mjs --version)"
+          if gh release view "$v" >/dev/null 2>&1; then
+            gh release edit "$v" --notes-file notes.md
+          else
+            gh release create "$v" --target "$GITHUB_SHA" --title "Online: $v" --notes-file notes.md --latest
+          fi
