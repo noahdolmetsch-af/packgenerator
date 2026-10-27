@@ -3718,6 +3718,8 @@ export const WHATS_NEW = [
 // (Kept here at the end of the list so that PRs still numbered by hand never conflict with it.)
 import { NEWS } from './news/index.gen.js';
 WHATS_NEW.unshift(...NEWS);
+// A PR still numbered by hand (Touren c, 0.236.0) can be newer than a news entry merged before it: keep newest first.
+WHATS_NEW.sort((a, b) => compareVersions(b.version, a.version));
 
 /** How many versions show open; the older ones fold away. */
 export const SHOWN = 3;

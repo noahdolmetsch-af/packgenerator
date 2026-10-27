@@ -50,7 +50,8 @@ describe('the news files', () => {
   it('every file has a plain name and is in the list, newest first, versions unique', () => {
     for (const f of files) expect(f, f).toMatch(/^[a-z0-9][a-z0-9-]*\.js$/);
     expect(NEWS.map((n) => `${n.id}.js`).sort()).toEqual(files.sort());
-    expect(WHATS_NEW.slice(0, NEWS.length)).toEqual(NEWS);
+    // news entries keep their order; a PR still numbered by hand (Touren c) may stand above them
+    expect(WHATS_NEW.filter((e) => NEWS.includes(e))).toEqual(NEWS);
     expect(new Set(NEWS.map((n) => n.version)).size).toBe(NEWS.length);
     for (const n of NEWS) expect(compare(n.version, ANCHOR_VERSION), n.id).toBe(1);
     expect(compare(APP_VERSION, pkg.version)).toBeGreaterThanOrEqual(0);
