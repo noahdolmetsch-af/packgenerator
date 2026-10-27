@@ -534,3 +534,12 @@ Stand 27.10.2026: PR 2 «Orte» (0.222.0) gebaut. M13 «Karte frei» freigegeben
 Stand 27.10.2026: PR 3 «Strecke genau» (0.223.0) gebaut. Neu gewünscht: Suchvorschläge für «In der Nähe» (Wellness, Automaten, Situations-Knöpfe), Fragen offen.
 Stand 27.10.2026: PR 5 «Umweg und zurück» (0.234.0) gebaut. Danach M13 «Karte frei».
 Stand 27.10.2026: PR 4 «In der Nähe» (0.227.0) gebaut. Nächster Schritt PR 5 «Umweg und zurück». Vorschlag «Alle Infos zu einem Ort» an Noah geschickt, 5 Fragen offen.
+
+## App denkt mit (27.10.2026)
+
+Warum: Daten aus verschiedenen Bereichen sollen zusammenspielen, damit die App im Alltag mehr abnimmt (Ziele 2, 3 und 5). Noah «alle umsetzen 1a 2a 3a 4a 5a». Ideenseite: `notes/intelligenter-vernetzt/ideen.html` im Projektordner.
+
+- **A Heute denkt mit:** A1 eine Nachricht am Morgen (gebaut), A2 Erinnerung zur Zeit, wann du es machst, A3 freie Zeit plus gutes Wetter gibt einen Vorschlag.
+- **B Körper und Planung:** B1 Erholung beim Planen sehen (kürzere Variante als Angebot), B2 nach jeder Tour wieder erholt?, B3 Schonmodus.
+- **C Velo, Wetter, Material:** C1 Verschleiss-Kosten voraus, C2 Packliste folgt dem Wetterumschwung, C3 welches Velo passt?
+- **D Ein Helfer, der alles kennt:** D1 «Frag die App» über alle Bereiche, D2 eigene Faustregeln vorschlagen, D3 was die App noch wissen müsste, D4 «Hängt zusammen mit».

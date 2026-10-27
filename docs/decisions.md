@@ -1964,3 +1964,10 @@ Noah 19.10.2026: «1a 2a 3a 4 a oder b beides wählbar 5a», danach «a und b»,
 
 - 26.10.2026: Plan in 3 Stufen (auf einen Blick, verstehen, Details eingeklappt), Noah «1a 2a 3a 4a 5b»: Schalter «Alles auf einer Seite / Einzeln» bleibt, Strava-/Garmin-Ansicht eingeklappt, eine Teilstrecken-Tabelle mit Umschalter, neue Karte «Das zeichnet diese Tour aus». Danach «so lassen … nur als geplant».
 - 27.10.2026, Noah «1a 2b 3a»: die zwei kleinen Fehler jetzt beheben (Gesamtzeit lesbar, Sprungleiste), den Plan später in 2 Schritten bauen, den Plan in `docs/vorhaben-liste.md` eintragen.
+
+## 27.10.2026 App denkt mit (13 Ideen)
+
+- 27.10.2026, Noah «ich möchte alle umsetzen 1a 2a 3a 4a 5a»: alle 13 Ideen der Seite «Die App denkt mit» bauen, als kleine PRs mit Bildern, Reihenfolge A Heute denkt mit → B Körper und Planung → C Velo, Wetter, Material → D Ein Helfer, der alles kennt.
+- 2a: Die App darf aus Fitbit-Werten beim Planen eine kürzere Variante **anbieten**, nur als Angebot, mit den Werten daneben, ohne Bewertung.
+- 3a: Die Erinnerungen um 08:00 kommen gebündelt um 07:00; Warnungen bleiben einzeln.
+- 4a: «Frag die App» über alle Bereiche nur mit Gratis-KI (Chrome am Computer, Gemini über den eigenen Server).
