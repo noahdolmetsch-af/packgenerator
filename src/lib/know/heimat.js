@@ -438,15 +438,15 @@ export const GAPS = {
   'f.needs': 'name',
   'f.homecoming': 'name',
   'f.tripstate': 'name',
-  'f.tripbike': 'name',
-  'f.switch': 'name',
+  'f.tripbike': 'spot',
+  'f.switch': 'spot',
   'f.merge': 'name',
   'f.sports': 'name',
   'f.checkin': 'name',
   'f.laundry': 'name',
   'f.morninglist': 'name',
   'f.abroad': 'name',
-  'f.starters': 'name',
+  'f.starters': 'spot',
   'f.packside': 'name',
   'f.tourhints': 'name',
   'f.routepois': 'name',
@@ -469,7 +469,7 @@ export const GAPS = {
   'f.feel': 'name',
   'install': 'name',
   'lang': 'name',
-  'f.namesde': 'name',
+  'f.namesde': 'spot',
   'f.search': 'name',
   'f.noteocr': 'name',
   'f.noteformats': 'name',
@@ -478,7 +478,7 @@ export const GAPS = {
   'f.tidy': 'low',
   'f.playground': 'folded',
   'f.explain': 'name',
-  'f.fitbitold': 'name',
+  'f.fitbitold': 'spot',
   'f.tipweek': 'name',
   'f.comeback': 'name',
   'f.helpsearch': 'name',
@@ -486,4 +486,4 @@ export const GAPS = {
 };
 
 /** The why codes, for the test messages. */
-export const WHY = { deep: 'only through a fold, «More», the search or 3+ taps', low: 'further down than 2.5 screens', folded: 'inside a closed fold', name: 'another name, a ••• menu or only in some situations', gone: 'left out on purpose' };
+export const WHY = { deep: 'only through a fold, «More», the search or 3+ taps', low: 'further down than 2.5 screens', folded: 'inside a closed fold', name: 'another name, a ••• menu or only in some situations', spot: 'inside a window, a fold or further down; the catalogue goes to the spot and lights it up (know/spot.js)', gone: 'left out on purpose' };
