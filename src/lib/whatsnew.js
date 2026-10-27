@@ -16,10 +16,10 @@
 
 export const WHATS_NEW = [
   {
-    // v0.224.0 «Was ziehe ich an? selbst anpassen» Schritt 1 (Noah 27.10.2026 «1a 2a oder b wählbar 3a 4a … 5a»): in the
+    // v0.227.0 «Was ziehe ich an? selbst anpassen» Schritt 1 (Noah 27.10.2026 «1a 2a oder b wählbar 3a 4a … 5a»): in the
     // window on Today every row can be swapped or left out and a layer added, for this ride day only; a gap says why
     // (too light, still in «To sort», nothing yet) with «Take anyway» and the wishlist; «Why so?» explains the rule
-    version: '0.224.0',
+    version: '0.227.0',
     date: '2026-10-27',
     title: 'Your clothes, your call',
     lead: '«What do I wear?» now lets you change the suggestion.',
@@ -29,6 +29,16 @@ export const WHATS_NEW = [
       { box: 'new', text: '«Why so?» explains how the app chooses' },
     ],
     test: ['On Today tap «What do I wear?» and then «Swap» on a row: pick another piece; the row says «chosen by you · today only».', 'Open «Why so?» under the list: it names the temperature and from when each layer comes.'],
+  },
+  {
+    // v0.226.0 Tages-Check (Noah 26.10.2026 «1a»): «Not today» in the morning waits only until the evening check
+    version: '0.226.0',
+    date: '2026-10-27',
+    title: 'The evening check still comes',
+    lead: '«Not today» in the morning no longer skips the evening.',
+    points: [{ text: '«Not today» in the morning check waits only until the evening check', href: '#/me/abfragen' }],
+    small: [{ box: 'fixed', text: 'The hint in the check window says «until the evening check» in the morning' }],
+    test: ['In the morning check tap «Not today»: the window closes.', 'In the evening, at your evening time, the evening check comes as usual.'],
   },
   {
     // v0.223.0 Live Navigation PR 3 «Strecke genau» (Noah 27.10.2026 «bitte umsetzen»): tour and race routes keep
