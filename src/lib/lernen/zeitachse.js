@@ -64,7 +64,7 @@ export function timeline({ trips = [], debriefs = [], rides = [], activities = [
   }
   for (const m of maintenance) {
     if (m?.status !== 'done' || !m.statusDate || m.statusDate > today) continue;
-    out.push({ kind: 'care', id: `m-${m.id}`, date: m.statusDate, title: m.task ?? '', sub: m.subject ?? '', km: null, href: '#/bikes?tab=care', velo: true });
+    out.push({ kind: 'care', id: `m-${m.id}`, date: m.statusDate, title: m.task ?? '', sub: bikeBy[m.bikeId]?.name ?? m.subject ?? '', km: null, href: '#/bikes?tab=care', velo: true });
   }
   for (const f of flowLog) {
     if (f?.actId !== 'meditation' || !f.day || f.day > today) continue;
