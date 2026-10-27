@@ -5,6 +5,7 @@
 // 3. Every control on Today, Pack and Gear has a name a screen reader can read.
 // Fictional fixture plus test_data_gtp_ records; nothing outside the preview server.
 import { test, expect } from './clock.js';
+import { STEP_BAR as BAR } from '../../src/lib/stepbar.js'; // Schrittleiste (Noah 26.10.2026 «1b», changed on purpose): the bar's short names
 import { pickLook } from './gear-look.js';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
@@ -138,7 +139,7 @@ test('no core view scrolls sideways at 320 and 390 px', async ({ page, context }
     await fits(page, 'Edit trip conditions');
     await page.keyboard.press('Escape');
     // v0.29.0: Pack is a normal page (the "Pack" tab in the band), no longer a full-screen dialog.
-    await page.getByRole('navigation', { name: T('Steps of this trip') }).getByRole('link', { name: new RegExp(`^${T('Pack|stage')}`) }).click();
+    await page.getByRole('navigation', { name: T('Steps of this trip') }).getByRole('link', { name: new RegExp(`^${T(BAR.pack)}`) }).click();
     const day = page.locator('.pd');
     await expect(day).toHaveAttribute('aria-label', T('Packing day: {title}', { title: 'test_data_gtp_ Jura Runde mit einem recht langen Tournamen' }));
     await expect(day.locator('ul.items button[aria-pressed]').first()).toBeVisible();

@@ -3,6 +3,7 @@
 // four steps with a number, and the next step in a bar at the bottom («Schritt 1 von 4 · Zurück zu Touren ·
 // Weiter zu …»). On a phone the bar sits above the five places.
 import { test, expect } from '@playwright/test';
+import { STEP_BAR as BAR } from '../../src/lib/stepbar.js'; // Schrittleiste (Noah 26.10.2026 «1b», changed on purpose): the bar's short names
 import { base, tr, mockWeather } from './home0460-fixture.js';
 import { importAndSettle, settle } from './settle.js';
 
@@ -52,7 +53,7 @@ test('a trip page: light head with «‹ Touren», numbered steps, the next step
   await expect(steps).toHaveCount(5);
   await expect(steps.first()).toHaveAttribute('aria-current', 'page');
   // the number comes from a counter (on a computer, in a circle), so the link's text stays the name
-  await expect(steps.first()).toHaveText(new RegExp(`^${T('Plan|stage')}`));
+  await expect(steps.first()).toHaveText(new RegExp(`^${T(BAR.plan)}`));
   if (info.project.name === 'desktop') expect(await steps.first().locator('.no').evaluate((el) => getComputedStyle(el, '::before').content)).toBe('counter(step)');
 
   await page.screenshot({ path: info.outputPath(`schritte-oben.png`) });

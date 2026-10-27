@@ -8,6 +8,7 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';
 import { openData, settle } from './settle.js';
+import { STEP_BAR as BAR } from '../../src/lib/stepbar.js'; // Schrittleiste (Noah 26.10.2026 «1b», changed on purpose): the bar's short names
 
 const T = (en) => DE[en] ?? en.replace(/\|[a-z]+$/, '');
 const base = JSON.parse(readFileSync(fileURLToPath(new URL('./fixture.json', import.meta.url)), 'utf8'));
@@ -25,7 +26,7 @@ async function packDay(page, context, info) {
   await expect(panel.getByText(/importiert/)).toBeVisible();
   await page.evaluate(() => window.dispatchEvent(new Event('pg:dayride')));
   await expect(page.locator('.made-card')).toBeVisible();
-  await page.locator('.trip-band nav a').filter({ hasText: T('Pack|stage') }).click();
+  await page.locator('.trip-band nav a').filter({ hasText: T(BAR.pack) }).click();
   await expect(page.locator('.pd .pbag.cur')).toBeVisible();
 }
 

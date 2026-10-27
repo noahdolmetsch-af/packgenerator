@@ -2,6 +2,7 @@
 // and take out), a day ride packed in one tap ("All packed, let's go") and "Add material" with
 // tick boxes. Fictional fixture plus test_data_gtp_ items; nothing outside the preview server.
 import { test, expect } from './clock.js';
+import { STEP_BAR as BAR } from '../../src/lib/stepbar.js'; // Schrittleiste (Noah 26.10.2026 «1b», changed on purpose): the bar's short names
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';
@@ -124,7 +125,7 @@ test("a day ride: Pack everything, let's go lands on On the way with everything 
   // 0.182 (Klick-Rundgang H03): nothing packed yet, so the button says «Alles einpacken, los»
   await expect(go).toHaveText(T("Pack everything, let's go"));
   // v0.29.0: packing bag by bag is the "Pack" tab in the band.
-  await expect(page.getByRole('navigation', { name: T('Steps of this trip') }).getByRole('link', { name: new RegExp(`^${T('Pack|stage')}`) })).toHaveAttribute('href', '#/pack?day');
+  await expect(page.getByRole('navigation', { name: T('Steps of this trip') }).getByRole('link', { name: new RegExp(`^${T(BAR.pack)}`) })).toHaveAttribute('href', '#/pack?day');
   const before = await stored(page, title);
   expect(before.entries.some((e) => !e.packed)).toBe(true);
   expect(before.ready.some((r) => !r.itemId && !r.done)).toBe(true);
