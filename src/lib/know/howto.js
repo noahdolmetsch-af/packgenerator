@@ -99,6 +99,7 @@ const LISTED = {
   'f.whitespots': ['Open Trips › Dreams.', 'Scroll to «White spots nearby».', 'Choose the radius and tap a place.'],
   'f.nlgoals': ['Open Trips › Dreams.', 'Scroll to «Challenges with an end».', 'Tap a ready one or «Own challenge», then «Start challenge».'],
   'f.nlround': ['Open Trips › Dreams.', 'Tap a place you have never been, then «Round through it».', 'Tap «Plan as a trip» or «GPX for the Garmin».'],
+  'f.dreamlink': ['Open Trips › Dreams.', 'Paste the link of a tour in the field at the top and tap «Add».', 'In a dream: «Read from the link».'],
   'f.races': ['Open Trips › Dreams.', 'Under «Races to plan» tap «Plan as a trip».', 'Add the registration deadline.'],
   'f.compass': ['Open Me › My compass.', 'Add a goal with a day and type its steps.', 'Answer «How is it going?» once a week.'],
   'f.drawphoto': ['Open a photo or a note and tap «Draw».', 'Draw with pen, arrows, shapes or text; «Move» changes a line later.', 'In a note «Sketch» opens a pad with pages, blank, squared or lined.'],
