@@ -140,7 +140,7 @@
 
         <Sec id="all-h" title={actOf ? tileName(actOf) : t('All milestones')} sub={actOf ? '' : t('over all activities')}>
           {#if cards.length || scoped.length}
-            <!-- phone: the first six, the rest after «Alle n zeigen» (the page stays within its length budget, laenge.js) -->
+            <!-- phone: the first six, the rest after «Alle n zeigen» -->
             <div class="grid">{#each phone.matches && !allCards ? cards.slice(0, CARDS_PHONE) : cards as r (r.id)}<MsCard {r} sub={r.m.area ? '' : label(r)} />{/each}</div>
             {#if phone.matches && !allCards && cards.length > CARDS_PHONE}<button type="button" class="btn btn-link" onclick={() => (allCards = true)} data-ms-all>{t('Show all {n}', { n: cards.length })} ›</button>{/if}
           {:else}
