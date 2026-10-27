@@ -377,18 +377,24 @@ export const towardStorm = (storm, rows = []) => (storm ? rows.filter((r) => fin
 /* ---------- the contact card (device only) ---------- */
 
 export const CARD_V = 1;
-export const CARD_FIELDS = ['name', 'insta', 'phone', 'bike', 'note'];
+/**
+ * Kontakt-QR-Code (Noah 27.10.2026 «1a 2b 3a 4a 5a»): the card carries more ways to reach you. Still
+ * version 1: an older app reads name, Instagram, phone, bike and note and leaves the rest out.
+ */
+export const CARD_FIELDS = ['name', 'insta', 'phone', 'bike', 'note', 'wa', 'email', 'strava', 'komoot', 'web', 'addr'];
+/** How long each part may be (links and the address are longer). */
+export const cardMax = (f) => (f === 'note' || f === 'addr' ? 120 : f === 'web' || f === 'strava' || f === 'komoot' ? 100 : 60);
 /** A card → the link behind the QR code: …#/karte/<base64url of the card>. Nothing goes to a server. */
 export function cardLink(card, base) {
   const o = { v: CARD_V };
-  for (const f of CARD_FIELDS) if (clean(card?.[f])) o[f] = clean(card[f], f === 'note' ? 120 : 60);
+  for (const f of CARD_FIELDS) if (clean(card?.[f])) o[f] = clean(card[f], cardMax(f));
   const b = btoa(String.fromCharCode(...new TextEncoder().encode(JSON.stringify(o))))
     .replace(/\+/g, '-')
     .replace(/\//g, '_')
     .replace(/=+$/, '');
   return `${base}#/karte/${b}`;
 }
-/** «…#/karte/<…>» → the card { name, insta, phone, bike, note } or null. */
+/** «…#/karte/<…>» → the card { name, insta, phone, bike, note, wa, email, strava, komoot, web, addr } or null. */
 export function readCard(hash = '') {
   const m = /^#\/karte\/([A-Za-z0-9_-]{4,2000})$/.exec(hash);
   if (!m) return null;
@@ -396,7 +402,7 @@ export function readCard(hash = '') {
     const bin = atob(m[1].replace(/-/g, '+').replace(/_/g, '/'));
     const o = JSON.parse(new TextDecoder().decode(Uint8Array.from(bin, (c) => c.charCodeAt(0))));
     if (o?.v !== CARD_V || !clean(o.name)) return null;
-    return Object.fromEntries(CARD_FIELDS.map((f) => [f, clean(o[f], f === 'note' ? 120 : 60)]));
+    return Object.fromEntries(CARD_FIELDS.map((f) => [f, clean(o[f], cardMax(f))]));
   } catch {
     return null;
   }

@@ -12,16 +12,17 @@
    * tiles: [{ id, size }]; body: snippet (tile) → the tile's content; editing; onedit(); onchange; onadd.
    * A tile may hold another one (Im Flow + Balance, 0.155.0): its inner `data-tile` is the one a long press picks.
    *
-   * «Heute ruhiger» part 1 (Noah 26.10.2026 «1a 5a», mockup H1): outside edit mode every small tile stands in one
-   * calm list «Schnell öffnen» (where the first small tile stands, quick.js), and a card is only as tall as its
-   * content (no tile stretched by its neighbour any more).
+   * «Heute ruhiger» (Noah 26.10.2026 «1a 2a 3a 4a 5a», mockup H3): outside edit mode the tiles stand in areas with a
+   * heading (sections.js; sections = false: without headings), every small tile in one calm list «Schnell öffnen»,
+   * and a card is only as tall as its content (no tile stretched by its neighbour any more).
    */
   import { GripVertical, X, ChevronLeft, ChevronRight, Plus } from '@lucide/svelte';
   import { TILE, SIZE_NAME, stepTile, moveTile, removeTile, resizeTile } from './tiles.js';
+  import { sectionsOf, fillers } from './sections.js';
   import { runsOf } from './quick.js';
   import { t } from '../i18n.svelte.js';
 
-  let { tiles = [], body, editing = false, onedit, onchange, onadd } = $props();
+  let { tiles = [], body, editing = false, sections = true, onedit, onchange, onadd } = $props();
 
   let picked = $state(null); // the tile whose ‹ › and sizes show
   $effect(() => {
@@ -91,8 +92,8 @@
   $effect(() => () => clearTimeout(holdTimer));
 </script>
 
-{#snippet tileEl(x, cls = '')}
-  <div class="ti {x.size} {cls}" class:moving={drag?.id === x.id} class:picked={picked === x.id} data-tile={x.id} data-size={x.size} role="listitem" onpointerdowncapture={(e) => holdDown(e, e.target.closest?.('[data-tile]')?.dataset.tile ?? x.id)} onpointermovecapture={holdMove} onpointerupcapture={holdStop} onpointercancelcapture={holdStop} onclickcapture={holdClick}>
+{#snippet tileEl(x, cls = '', fill = undefined)}
+  <div class="ti {x.size} {cls}" style:--fill={fill} class:moving={drag?.id === x.id} class:picked={picked === x.id} data-tile={x.id} data-size={x.size} role="listitem" onpointerdowncapture={(e) => holdDown(e, e.target.closest?.('[data-tile]')?.dataset.tile ?? x.id)} onpointermovecapture={holdMove} onpointerupcapture={holdStop} onpointercancelcapture={holdStop} onclickcapture={holdClick}>
     <!-- «Heute lädt nicht» (19.10.2026): an error in one tile stays in that tile; the rest of Heute works -->
     <div class="body" inert={editing}><svelte:boundary onerror={(e) => console.error(`Tile ${x.id}:`, e)}>{@render body(x)}{#snippet failed(_, reset)}<p class="tile-err" data-tile-error={x.id}>{t('This tile could not load.')} <button type="button" class="link" onclick={reset}>{t('Try again')}</button></p>{/snippet}</svelte:boundary></div>
     {#if editing}
@@ -106,7 +107,7 @@
   <!-- «Heute ruhiger» 1a: every small tile in one calm list; a long press on a row customises it, as on a tile -->
   <div class="ti long quick" data-quick role="listitem">
     <div class="qcard">
-      {#if head}<h2 class="qh">{t('Open quickly')}</h2>{/if}
+      {#if head && !sections}<h2 class="qh">{t('Open quickly')}</h2>{/if}
       <div class="qgrid" role="list" aria-label={t('Open quickly')}>
         {#each list as x (x.id)}{@render tileEl(x, 'qi')}{/each}
       </div>
@@ -121,11 +122,24 @@
       <button type="button" class="plus" onclick={onadd} aria-haspopup="dialog"><Plus size={20} aria-hidden="true" /><span>{t('Add a tile')}</span></button>
     </div>
   </div>
+  <!-- «Heute ruhiger» 3a: while customising the wall shows in its own order; Heute groups it into areas -->
+  {#if sections}<p class="ehint" data-sections-hint>{t('Today shows the tiles in areas with a heading. Here you set their order inside an area.')}</p>{/if}
 {:else}
-  <div class="wall" bind:this={wallEl} role="list" aria-label={t('Your start page')}>
-    {#each runsOf(shown) as r, i (r.key === 'quick' ? 'quick' : `${i}`)}
-      {#if r.key === 'quick'}{@render quickS(r.tiles)}{:else}{#each r.tiles as x (x.id)}{@render tileEl(x)}{/each}{/if}
-    {/each}
+  <div class="wall" class:secs={sections} bind:this={wallEl} role="list" aria-label={t('Your start page')}>
+    {#if sections}
+      {#each sectionsOf(shown) as g (g.key)}
+        <div class="ti long sech" data-home-sec={g.key} role="listitem"><h2>{t(g.name)}</h2>{#if g.sub}<p>{t(g.sub)}</p>{/if}</div>
+        {#if g.key === 'quick'}{@render quickS(g.tiles)}
+        {:else if g.key === 'discover'}
+          <!-- 4a: «Neu», «Schon probiert?» and the tip side by side -->
+          <div class="ti long disc" role="listitem"><div class="dgrid" role="list">{#each g.tiles as x (x.id)}{@render tileEl(x, 'di')}{/each}</div></div>
+        {:else}{@const fill = fillers(g.tiles)}{#each g.tiles as x (x.id)}{@render tileEl(x, fill.has(x.id) ? 'fill' : '', fill.get(x.id))}{/each}{/if}
+      {/each}
+    {:else}
+      {#each runsOf(shown) as r, i (r.key === 'quick' ? 'quick' : `${i}`)}
+        {#if r.key === 'quick'}{@render quickS(r.tiles)}{:else}{#each r.tiles as x (x.id)}{@render tileEl(x)}{/each}{/if}
+      {/each}
+    {/if}
     <div class="ti long plusw quiet" role="listitem">
       <button type="button" class="plus" onclick={onadd} aria-haspopup="dialog"><Plus size={18} aria-hidden="true" /><span>{t('Add a tile')}</span></button>
     </div>
@@ -195,6 +209,33 @@
   .wall:not(.editing) .body > :global(*) {
     height: auto;
   }
+  /* 3a: inside an area the cards keep their order (no filling up from the next area); a card that would leave its
+     row half empty stretches to the end of it (span set per card: «auto / -1» would put it in the last column only) */
+  .wall.secs {
+    grid-auto-flow: row;
+  }
+  @media (min-width: 720px) {
+    .wall.secs > .ti.fill {
+      grid-column: span var(--fill, 1);
+    }
+  }
+  /* 3a: the heading of an area */
+  .sech {
+    margin: 20px 2px 0;
+  }
+  .sech:first-child {
+    margin-top: 4px;
+  }
+  .sech h2 {
+    margin: 0;
+    font: 700 var(--fs-sub) / 1.25 var(--font-body);
+    color: var(--ink);
+  }
+  .sech p {
+    margin: 2px 0 0;
+    color: var(--ink-3);
+    font-size: var(--fs-small);
+  }
   /* 1a: the small tiles as one calm list, two columns on a phone, four on a computer */
   .qcard {
     padding: 8px 14px;
@@ -222,9 +263,6 @@
   .qi {
     position: relative;
     min-width: 0;
-  }
-  .qgrid > .ti {
-    grid-column: auto;
   }
   .qi :global(.st) {
     flex-direction: row;
@@ -268,6 +306,33 @@
   .qi :global(.st .nw) {
     position: static;
     flex: none;
+  }
+  /* 4a: «Neu», «Schon probiert?» and the tip side by side, as tall as the tallest */
+  .dgrid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 8px;
+  }
+  @media (min-width: 720px) {
+    .dgrid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+  }
+  .di {
+    min-width: 0;
+  }
+  .dgrid > .ti,
+  .qgrid > .ti {
+    grid-column: auto;
+  }
+  .wall .dgrid .di .body > :global(*) {
+    height: 100%;
+  }
+  .ehint {
+    margin: 8px 2px 0;
+    color: var(--ink-3);
+    font-size: var(--fs-small);
   }
   /* «Add a tile» outside edit mode: one quiet line at the end, no big dashed square */
   .plusw.quiet .plus {
