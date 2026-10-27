@@ -6,10 +6,10 @@
    * Gets `ctx` from RaceDetail; the sheets live in check-lib.js.
    */
   import { Upload, Eraser, ChevronLeft, ChevronRight, Copy } from '@lucide/svelte';
-  import { SHEETS, STATIONS, RACE_QUESTIONS, BAGS, LIST, SLEEP_COLS, SLEEP_ROWS, NIGHT, valueOf, withValue, answersFrom, filled, takeOver } from './check-lib.js';
+  import { SHEETS, STATIONS, RACE_QUESTIONS, BAGS, LIST, SLEEP_COLS, SLEEP_ROWS, NIGHT, valueOf, withValue, answersFrom, filled, takeOver, setupWeight } from './check-lib.js';
   import { offerDone } from '../ui/rename.svelte.js';
   import { askDelete } from '../ui/ask.js';
-  import { t } from '../i18n.svelte.js';
+  import { t, num } from '../i18n.svelte.js';
 
   let { ctx } = $props();
 
@@ -36,6 +36,9 @@
   const cur = $derived(SHEETS[at]);
   const check = $derived(ctx.stored.check ?? null);
   const v = (k) => valueOf(check, k);
+  // «Gewichtsrechner» (Noah 27.10.2026 «6a»): sheet 2 added up against your target
+  const weight = $derived(setupWeight(check));
+  const kg = (g) => `${num(Math.round(g / 10) / 100)} kg`;
   const when = (x) => (/^\d/.test(x) ? x : t(x)); // «17:00» stays, «Sunday» is a word
 
   // typing saves after a short pause, leaving the field at once
@@ -172,6 +175,20 @@
         {@render line('setup.total', t('Weight target in all (without bike and water)'), t('e.g. 4 kg'))}
         {@render area('setup.gone', t('No longer along'))}
         {@render area('setup.newbags', t('New bags / changes'))}
+      </div>
+      <div class="ck-weight" data-check-weight>
+        <h3 class="ck-h3">{t('Weight of the setup')}</h3>
+        {#if weight.counted}
+          <p class="ck-wrow"><span>{t('Bags empty')}</span><b>{kg(weight.empty)}</b></p>
+          <p class="ck-wrow"><span>{t('Packed (full)')}</span><b data-check-weight-full>{kg(weight.full)}</b></p>
+          {#if weight.target != null}
+            <p class="ck-wrow"><span>{t('Your target')}</span><b>{kg(weight.target)}</b></p>
+            <p class="ck-wrow" class:ck-over={weight.over > 0} data-check-weight-over>{weight.over > 0 ? t('{kg} over the target', { kg: kg(weight.over) }) : t('{kg} under the target', { kg: kg(-weight.over) })}</p>
+          {/if}
+          <p class="rc-note">{t('From the grams of {n} bags. A bag without «full» counts with its empty weight.', { n: weight.counted })}</p>
+        {:else}
+          <p class="rc-note">{t('Write the grams of your bags above (e.g. «200» or «2× 100»), then the sum shows here.')}</p>
+        {/if}
       </div>
     {:else if cur.id === 'liste'}
       {#each LIST as r, i (r.name)}
@@ -313,6 +330,24 @@
   }
   .ck-num {
     fill: var(--accent);
+  }
+  .ck-weight {
+    display: grid;
+    gap: 4px;
+    padding: 12px;
+    border-radius: 10px;
+    background: var(--paper-2);
+  }
+  .ck-wrow {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    margin: 0;
+    font-variant-numeric: tabular-nums;
+  }
+  .ck-over {
+    color: var(--warn);
+    font-weight: 600;
   }
   .ck-cols {
     display: grid;

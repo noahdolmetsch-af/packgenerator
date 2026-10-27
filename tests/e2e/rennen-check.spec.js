@@ -156,3 +156,26 @@ test('Learned in earlier races: the learnings of past races on top', async ({ pa
   await noSideways(page);
   await box.screenshot({ path: info.outputPath('rennen-learnings.png') });
 });
+
+test('Weight of the setup: the grams of sheet 2 added up against the target', async ({ page, context }, info) => {
+  const T = await openHome(page, context, info);
+  await page.goto('./#/race');
+  await page.locator('[data-race-sample-open]').click();
+  await expect(page).toHaveURL(/#\/race\/race-sample$/);
+  await page.goto('./#/racecheck/race-sample');
+  await page.locator('[data-check-tab="setup"]').click();
+  const set = async (k, v) => {
+    await page.locator(`[data-check-field="${k}"]`).fill(v);
+    await page.locator(`[data-check-field="${k}"]`).blur();
+  };
+  await set('setup.0.g', '300');
+  await set('setup.0.full', '1.4 kg');
+  await set('setup.1.g', '2× 100');
+  await set('setup.total', '1.5 kg');
+  const box = page.locator('[data-check-weight]');
+  // 300 g + 1.4 kg full, 200 g → 1.6 kg packed, 0.1 kg over 1.5 kg (Swiss number format)
+  await expect(box.locator('[data-check-weight-full]')).toHaveText('1.6 kg');
+  await expect(box.locator('[data-check-weight-over]')).toHaveText(T('{kg} over the target', { kg: '0.1 kg' }));
+  await noSideways(page);
+  await box.screenshot({ path: info.outputPath('rennen-gewicht.png') });
+});
