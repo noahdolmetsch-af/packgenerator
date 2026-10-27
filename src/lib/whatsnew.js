@@ -16,15 +16,50 @@
 
 export const WHATS_NEW = [
   {
-    // v0.219.0 Live Navigation PR 1 «Fahrt speichern» (Noah 26.10.2026, mockups M9/M10): «Fahrt beenden» asks once,
+    // v0.221.0 Live Navigation PR 1 «Fahrt speichern» (Noah 26.10.2026, mockups M9/M10): «Fahrt beenden» asks once,
     // every ride is saved at once as its own entry in Touren labelled «Live Navigation», bike km booked with Undo.
-    version: '0.219.0',
+    version: '0.221.0',
     date: '2026-10-27',
     title: 'Every ride is saved',
     lead: '«End the ride» asks once and keeps the ride in Trips.',
     points: [{ text: 'Each live ride is in Trips as «Live Navigation»', href: '#/trips' }],
     small: [{ box: 'new', text: 'The km go to your bike by themselves, with Undo', href: '#/live' }],
     test: ['Open the live map, start a ride and ride a few minutes (or walk).', 'Tap «End the ride», then «End and save»: a line says «Saved in Trips».', 'Open Trips: the ride is there with the label «Live Navigation».'],
+  },
+  {
+    // Velo-Ergänzungen (Noah 26.10.2026 «1 3 6 7 8 12a»): chain checker in the forecast, year in review, care series, calendar, noises, winter and spring. v0.220.0.
+    version: '0.220.0',
+    date: '2026-10-27',
+    title: 'More for your bike',
+    lead: 'Also noises and the calendar.',
+    points: [
+      { text: 'Chain checker corrects the forecast', href: '#/bikes?tab=care&view=wear' },
+      { text: 'Bike year in review', href: '#/bikes?tab=care&view=year' },
+      { text: 'Winter and spring checklists', href: '#/bikes?tab=care&view=season' },
+    ],
+    small: [
+      { box: 'new', text: 'Noise notes with tips from the bike FAQ', href: '#/bikes?tab=care&view=wear' },
+      { box: 'new', text: 'Part changes in your Google calendar', href: '#/me/connections' },
+    ],
+    test: [
+      'Bikes › Care › a bike › «Wear» › «Year in review».',
+      'On «Wear» note a noise under «Noises».',
+    ],
+  },
+  {
+    // v0.219.0 «Heute ruhiger» part 1 (Noah 26.10.2026 «1a 5a», mockup H1): cards as tall as their content, the small
+    // tiles as one list «Schnell öffnen», the bike jobs as small round buttons
+    version: '0.219.0',
+    date: '2026-10-27',
+    title: 'A calmer Today',
+    lead: 'No more empty boxes on Today.',
+    points: [
+      // all on Today itself, so no «Try it» address (0.121.0: '#/' would do nothing)
+      { text: 'Today: every card is only as tall as its content' },
+      { text: 'The small buttons are one list «Open quickly»' },
+    ],
+    small: [{ box: 'nicer', text: 'Bikes on Today: the jobs are small round buttons' }],
+    test: ['Open Today: no card has a big empty space below.', 'Scroll to «Open quickly»: the small buttons stand in one list, a tap opens the place.', 'Look at the bike card: the jobs are small round buttons.'],
   },
   {
     // v0.218.0 «Leere Taschen nehmen Teile auf» (Noah 26.10.2026 22:06 «starte mit 1, dann 3»): in «All bags side by
