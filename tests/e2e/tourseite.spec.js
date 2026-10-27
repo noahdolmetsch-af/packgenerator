@@ -8,6 +8,7 @@
 //    «Verbindung lösen» takes it apart again;
 // d) hide and show again, delete with Undo; a trip of the Packmodus opens its page with Gepäck and Rückblick (1a).
 import { test, expect } from '@playwright/test';
+import { STEP_BAR as BAR } from '../../src/lib/stepbar.js'; // Schrittleiste (Noah 26.10.2026 «1b», changed on purpose): the bar's short names
 import { writeFileSync, mkdirSync } from 'node:fs';
 import DE from '../../src/lib/i18n/de/index.js';
 import { sn4plusData, P, D0, day } from './sn4plus-fixture.js';
@@ -218,14 +219,30 @@ test('d) hide and show again, delete with Undo; a Packmodus trip opens its page 
   await expect(tour(page).locator('[data-review-template]')).toHaveCount(written ? 1 : 0);
   // 0.174 «Eine Tour, eine Seite» (UI-Ziele #5): the trip's head with its step tabs; «Rückblick» leads there,
   // and the Rückblick leads back with «Tour-Seite ansehen ›»
-  const toReview = tour(page).locator('[data-tour-steps] .stepbar a').filter({ hasText: T('Debrief') });
+  const toReview = tour(page).locator('[data-tour-steps] .stepbar a').filter({ hasText: T(BAR.debrief) });
   await expect(toReview).toHaveAttribute('href', `#/debrief/${encodeURIComponent(`${P}herbst`)}`);
-  await expect(tour(page).locator('[data-tour-steps] .stepbar a[aria-current="page"]')).toContainText(T('Analysis|stage'));
+  await expect(tour(page).locator('[data-tour-steps] .stepbar a[aria-current="page"]')).toContainText(T(BAR.analysis));
   await shot(page, info, 'T9-packmodus-tour');
   await noSideways(page);
   await toReview.click();
   await expect(page).toHaveURL(new RegExp(`#/debrief/${encodeURIComponent(`${P}herbst`)}$`));
   await expect(page.locator('main a[data-to-tour-page]')).toHaveAttribute('href', key(`t:${P}herbst`));
   await expect(page.locator('main a[data-to-tour-page]')).toContainText(T('See the tour page'));
+  expect(errors).toEqual([]);
+});
+
+test('e) the elapsed time reads in words; on a computer the jump bar marks the part on screen', async ({ page, context }, info) => {
+  // Noah 27.10.2026 «1a»: «2 h 45 min 00 s» instead of «00:02:45:00»; at the top «Übersicht» lights up, not «Gepäck»
+  const errors = await start(page, context, info);
+  await acts(page).locator(`[data-act-row="a:${A}1"]`).click({ position: { x: 30, y: 30 } });
+  await expect(tour(page).locator('[data-tour-part="values"]')).toBeVisible();
+  await expect(tour(page).locator('[data-field="verstr"] dd')).toHaveText(/^\d+ h \d\d min \d\d s$/);
+  if (info.project.name !== 'phone') {
+    await page.evaluate(() => window.scrollTo(0, 0));
+    await expect(tour(page).locator('[data-tour-bar] [data-part="overview"]')).toHaveClass(/\bon\b/);
+    await expect(tour(page).locator('[data-tour-bar] [data-part="pack"]')).not.toHaveClass(/\bon\b/);
+    await tour(page).locator('[data-tour-bar] [data-part="analysis"]').click();
+    await expect(tour(page).locator('[data-tour-bar] [data-part="analysis"]')).toHaveClass(/\bon\b/);
+  }
   expect(errors).toEqual([]);
 });

@@ -1,0 +1,143 @@
+# Volle Prüfung (Noah 27.10.2026 «1a 2a», thread «Weg von gebaut zu online»): the browser tests that no
+# longer hold up going online. After every publish of main it runs the computer browser tests (5 parts)
+# and the Gesamttest (phone and computer, 2 parts each) on exactly the version that just went online.
+# Every night it also runs the phone browser tests, so the whole set runs at least once a day.
+# Only on a failure it opens an issue (or adds to the open one), so Noah gets a mail and Claude repairs
+# it (or Noah says «zurück»). When all is fine again, it closes the issue. Only GITHUB_TOKEN, no secret.
+name: Volle Prüfung
+
+on:
+  workflow_run:
+    workflows: ['Build and deploy']
+    types: [completed]
+    branches: [main]
+  schedule:
+    - cron: '7 2 * * *' # every night 02:07 UTC, after the Nacht-Rundgang has started
+  workflow_dispatch:
+
+permissions:
+  issues: write
+  contents: read
+
+# One runs, the newest waits; an older waiting one is replaced (the newer version holds its changes).
+concurrency:
+  group: volle-pruefung
+  cancel-in-progress: false
+
+jobs:
+  e2e-part:
+    # after a publish only when it went online (a red run published nothing)
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    # The tag must match @playwright/test in package.json (tests/ci-image.test.js).
+    container:
+      image: mcr.microsoft.com/playwright:v1.64.1-noble
+      options: --ipc=host
+    strategy:
+      fail-fast: false
+      matrix:
+        # the phone parts already ran on the pull request; at night both run
+        project: ${{ github.event_name == 'workflow_run' && fromJSON('["desktop"]') || fromJSON('["phone","desktop"]') }}
+        shard: [1, 2, 3, 4, 5]
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0 # the whole history: scripts/news.mjs numbers versions by the order of merges
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }} # the version that just went online
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run e2e -- --project=${{ matrix.project }} --shard=${{ matrix.shard }}/5
+        env:
+          E2E_SKIP_GESAMTTEST: '1' # its own job below
+      - if: failure()
+        run: for f in test-results/*/error-context.md; do echo "::group::$f"; head -c 20000 "$f"; echo "::endgroup::"; done
+      - uses: actions/upload-artifact@v7
+        if: failure()
+        with:
+          name: voll-e2e-${{ matrix.project }}-${{ matrix.shard }}
+          path: test-results
+          retention-days: 1 # Noah 11.10.2026: 0 costs, small storage
+
+  # v0.45.1: the Gesamttest with the big fictional data set (tests/e2e/gesamttest, 700 items).
+  gesamttest:
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    container:
+      image: mcr.microsoft.com/playwright:v1.64.1-noble
+      options: --ipc=host
+    strategy:
+      fail-fast: false
+      matrix:
+        project: [phone, desktop]
+        shard: [1, 2]
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx playwright test tests/e2e/gesamttest --project=${{ matrix.project }} --shard=${{ matrix.shard }}/2
+      - if: failure()
+        run: for f in test-results/*/error-context.md; do echo "::group::$f"; head -c 20000 "$f"; echo "::endgroup::"; done
+      - uses: actions/upload-artifact@v7
+        if: failure()
+        with:
+          name: voll-gesamttest-${{ matrix.project }}-${{ matrix.shard }}
+          path: test-results
+          retention-days: 1
+
+  report:
+    needs: [e2e-part, gesamttest]
+    if: always() && (github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success')
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      LABEL: volle-pruefung
+      SHA: ${{ github.event.workflow_run.head_sha || github.sha }}
+      RUN: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+    steps:
+      - name: Write the report
+        run: |
+          {
+            echo "### Volle Prüfung $(date -u +'%Y-%m-%d %H:%M') UTC"
+            echo
+            echo "Version auf main: \`${SHA:0:8}\` · Anlass: ${{ github.event_name == 'workflow_run' && 'nach dem Online-Gehen' || 'Nacht oder von Hand' }}"
+            echo
+            echo "- Browsertests: ${{ needs.e2e-part.result }}"
+            echo "- Gesamttest: ${{ needs.gesamttest.result }}"
+            echo
+            echo "Ganzer Lauf: $RUN"
+          } > report.md
+          cat report.md >> "$GITHUB_STEP_SUMMARY"
+      - name: Open or update the issue
+        if: needs.e2e-part.result != 'success' || needs.gesamttest.result != 'success'
+        run: |
+          gh label create "$LABEL" --color D93F0B --description 'Die volle Prüfung nach dem Online-Gehen hat einen Fehler gefunden' 2>/dev/null || true
+          num=$(gh issue list --label "$LABEL" --state open --json number --jq '.[0].number // empty')
+          if [ -n "$num" ]; then
+            gh issue comment "$num" --body-file report.md
+          else
+            {
+              echo 'Die volle Prüfung hat an der Version, die online ist, einen Fehler gefunden. Claude repariert ihn mit einem kleinen PR. Ist es dringend, sag «zurück».'
+              echo
+              cat report.md
+            } > body.md
+            gh issue create --title 'Volle Prüfung: ein Test ist rot' --label "$LABEL" --body-file body.md
+          fi
+      - name: Close the issue when all is fine again
+        if: needs.e2e-part.result == 'success' && needs.gesamttest.result == 'success'
+        run: |
+          for num in $(gh issue list --label "$LABEL" --state open --json number --jq '.[].number'); do
+            gh issue close "$num" --comment "Alles wieder grün.$(printf '\n\n')$(cat report.md)"
+          done
