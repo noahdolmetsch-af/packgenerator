@@ -309,7 +309,7 @@ Nach der Mitziehen-Regel: was in 0.47 noch nicht auf dem neuen Stand ist, mit Zi
 - 26.10.2026, 0.220.0 «Velo-Ergänzungen»: alle neuen Teile oben auf «Verschleiss» als Sprung-Chips; Jahresrückblick und Saison-Checklisten als eigene Unterseiten statt neuer Blöcke auf der Pflege-Seite.
 - 27.10.2026, 0.226.0 «Der Abend-Check kommt trotzdem»: Hinweis im Check-Fenster sagt am Morgen «bis zum Abend-Check».
 - 27.10.2026, 0.231.0 «Wo du es gesagt hast»: kleine Karte im «Tag zum Hören», Sprung-Chips auf den Heimatseiten.
-- 27.10.2026, 0.235.0 «Pausen mit Grund»: Gründe als Chips im Pause-Band; Aufteilen und Sprechen als Falten, damit die Seiten ruhig bleiben; Zahlen nach der Live-Fahrt erst nach der Gefühls-Frage.
+- 27.10.2026, 0.236.0 «Pausen mit Grund»: Gründe als Chips im Pause-Band; Aufteilen und Sprechen als Falten, damit die Seiten ruhig bleiben; Zahlen nach der Live-Fahrt erst nach der Gefühls-Frage.
 - 26.10.2026, 0.212.2 «Eine Startzeit» (UI-Test 0.205 T2, Kriterien «ein Hauptknopf» und «Abhaken sieht aus wie Abhaken»): Unterwegs zeigt vor dem Start nur «Losfahren», der Basischeck ist eine Liste mit Kästchen. Offen: T3–T13 und die Schrittleiste.
 - 25.10.2026, 0.200.0 «Zusammen auf einer Karte»: ein ruhiger Bereich «Gruppenfahrt» auf der Live-Karte (vor dem Start und im Blatt), eine schlanke neue Seite für Freunde im Browser; Freunde als eigene Punkte auf der Karte.
 - 25.10.2026, 0.198.0 «Kette vorausschauend»: neue Karte «Kette: was als Nächstes kommt» oben auf Verschleiss, gebaut aus den vorhandenen Bausteinen der Seite (wcard, btn sm, lnk, fold wie die Teile-Zeilen); Mitziehen: die Verschleiss-Karte der Velopflege zeigt dieselbe nächste Kettenaufgabe als eine Zeile. Ohne Mockup (Regel 18.10.2026). Offen: nichts.
@@ -344,3 +344,4 @@ Mockups N1–N3 und R4 von Noah freigegeben (27.10. «freigabe für alle mockups
 ## 27.10.2026 Live Navigation PR 3 (Strecke genau)
 
 Keine sichtbare Oberfläche neu; die Linie auf der Karte folgt den Kurven. Kein Design-Eingriff.
+- 26.10.2026, «Neuer Schwung» PR 1: Kopf von Heute am Computer ohne Knopf; «Startseite anpassen» als leiser Link unten, Tippfläche 44 px wie «Alle Bereiche».

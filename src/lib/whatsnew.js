@@ -16,9 +16,9 @@
 
 export const WHATS_NEW = [
   {
-    // v0.235.0 «Touren c» (996 Einzelideen 60, 61, 65, 66, 67, 68, 70; Noah 26.10.2026): pause reasons, forgotten pause,
+    // v0.236.0 «Touren c» (996 Einzelideen 60, 61, 65, 66, 67, 68, 70; Noah 26.10.2026): pause reasons, forgotten pause,
     // hard to reach, split a recording, old trip from memory, speak your look back, feeling before the numbers
-    version: '0.235.0',
+    version: '0.236.0',
     date: '2026-10-27',
     title: 'Pauses with a reason',
     lead: 'And your look back can simply be spoken.',
@@ -3711,6 +3711,13 @@ export const WHATS_NEW = [
     ],
   },
 ];
+
+// Version at merge time (Noah 27.10.2026 «1a»): since 0.232.0 a PR no longer adds its entry above. It adds
+// src/lib/news/<name>.js (see the README there); scripts/news.mjs gives it its version and day from the
+// order of merges on main. They come first, newest first. Tested in tests/version-at-merge.test.js.
+// (Kept here at the end of the list so that PRs still numbered by hand never conflict with it.)
+import { NEWS } from './news/index.gen.js';
+WHATS_NEW.unshift(...NEWS);
 
 /** How many versions show open; the older ones fold away. */
 export const SHOWN = 3;

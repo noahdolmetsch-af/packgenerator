@@ -906,7 +906,7 @@ Die frühere gespeicherte Datei `2026-10-07-packgenerator-ablaufplan.md` wird al
 
 **26.10.2026, v0.201.0 «Sprechen, anhängen, mit Vorlage starten»:** Eingaben überall: eine gemeinsame Leiste «Hinzufügen» (Sprachnotiz, Foto, Datei, Ort, Schlagwort, Vorlagen, Schreibanreize, KI-Helfer) auf zehn Seiten, Bildkarte im Tagebuch, Tagebuch in der App-Suche (abschaltbar).
 
-**27.10.2026, v0.235.0 «Pausen mit Grund»:** Touren c gebaut (Pausengrund, vergessene Pause, schlecht erreichbar, Aufnahme aufteilen, alte Reise, Rückblick sprechen, Gefühl vor den Zahlen).
+**27.10.2026, v0.236.0 «Pausen mit Grund»:** Touren c gebaut (Pausengrund, vergessene Pause, schlecht erreichbar, Aufnahme aufteilen, alte Reise, Rückblick sprechen, Gefühl vor den Zahlen).
 
 > **27.10.2026 Live Navigation PR 5:** Umweg und zurück (0.234.0). Danach M13 «Karte frei», M8 Einstellungen, Wildcampen-Ebene N3 und M12 Gruppe.
 
@@ -924,6 +924,7 @@ Die frühere gespeicherte Datei `2026-10-07-packgenerator-ablaufplan.md` wird al
 
 **26.10.2026, v0.212.0 «Touren, die mitdenken»:** Touren-Ideen 50–58 gebaut (Absicht, Regel mit Ende, Geschichten, Panne-Check, Später prüfen, Ort-Notiz, Tag zum Hören, Ess-Stopps, Verbrauch).
 
+**26.10.2026, «Neuer Schwung» PR 1:** «Startseite anpassen» ganz unten auf Heute. Danach: Aufklappen am Handy, Bewegungs-Baukasten, Stil S2 Seite für Seite.
 **27.10.2026, v0.217.0 «Nichts versteckt sich mehr»:** die 20 tief versteckten Funktionen stehen auf ihrer Seite; 77 → 57 versteckt.
 
 **27.10.2026, v0.218.0 «Platz in jeder Tasche»:** leere Taschen bleiben in «Alle Taschen nebeneinander» als Spalte zum Hineinziehen.

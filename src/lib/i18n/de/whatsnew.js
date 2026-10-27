@@ -4,7 +4,7 @@
  * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
-  // v0.235.0 Touren c
+  // v0.236.0 Touren c
   'Pauses with a reason': 'Pausen mit Grund',
   'And your look back can simply be spoken.': 'Und deinen Rückblick kannst du einfach sprechen.',
   'Pauses with a reason, and the app notices a forgotten pause': 'Pausen mit Grund, und die App merkt vergessene Pausen',
@@ -2012,4 +2012,8 @@ export default {
   'Ask elsewhere takes your question along': '«Weiter fragen» nimmt deine Frage mit',
   'Tap «?» at the top of a page and read its help.': 'Tippe oben auf einer Seite auf «?» und lies die Hilfe.',
   'Tap + New and add an activity.': 'Tippe auf + Neu und hake eine Aktivität ab.',
+  // Version at merge time (Noah 27.10.2026 «1a»): the German texts of each news file (src/lib/news/<name>.js)
+  ...NEWS_DE,
 };
+// at the end, so that PRs still adding at the top never conflict with it
+import { NEWS_DE } from '../../news/index.gen.js';
