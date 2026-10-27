@@ -12,7 +12,7 @@
   import { suggestPacks, suggestBack, choosePack, rankBags, wantFor } from '../lib/backpacks.js';
   import { CATEGORIES, catApplies, formatWeight, weightText, isInventory, matches } from '../lib/gear.js';
   import { weighQueue } from '../lib/weigh.js';
-  import { tripStats, packSteps, togglePacked, packAll, tickReady, addEntries, readyDone, whenLabel, onTrip, zoneName, freshReady, bagItemIds, NIGHT_SETS, toggleSet, WX_PRESETS, RAIN, axleLoad, axleSplit, switchBike, setQty, touched, isDayTrip } from '../lib/trips.js';
+  import { tripStats, packSteps, emptySteps, togglePacked, packAll, tickReady, addEntries, readyDone, whenLabel, onTrip, zoneName, freshReady, bagItemIds, NIGHT_SETS, toggleSet, WX_PRESETS, RAIN, axleLoad, axleSplit, switchBike, setQty, touched, isDayTrip } from '../lib/trips.js';
   import { suggestPlaces, applyPlaces, dismissPlace } from '../lib/bagsuggest.js';
   import PlaceSuggest from '../lib/pack/PlaceSuggest.svelte';
   import { RIDES, layerSuggest, openRows, waterOn } from '../lib/layers.js';
@@ -273,6 +273,7 @@
   const charge = $derived(trip ? chargeList(trip, items) : []);
   const charged = $derived(trip ? chargeCount(trip, charge) : { done: 0, total: 0 });
   const daySteps = $derived(stats ? packSteps(stats, trip.purpose ?? {}) : []);
+  const spareSteps = $derived(stats ? emptySteps(stats, trip.purpose ?? {}) : []); // empty bags to drag into
   // v0.18.1 (303 demo): the forecast says something else than what the trip is packed for.
   // The packing day says so first, so the layers get added before the bags are closed.
   const fcWx = $derived(trip ? toWx(forecastForTrip(trip)) : null);
@@ -1077,7 +1078,7 @@
   <!-- H04: before setting off only once everything is packed; under way (set off or day 2+) always -->
   {#if todayTrip([trip], today) && trip.entries?.length && (packedAll(trip) || trip.goDays?.[0] || goDayOf(trip, today) > 0)}<LiveStart {trip} />{/if}
   {#if packTab}
-    <PackDay top={fixed ? null : blocksCard} onread={!fixed && trip.entries.some((e) => !e.packed) ? () => (reading = true) : null} {trip} {fixed} bike={bikeTrip} pressure={pressureText(targetPressure(bike), num)} wxGap={bikeTrip && !fixed ? wxGap : null} onwx={() => { useForecast(); review = true; }} steps={daySteps} {itemsById} {badges} {ready} onmove={moveTo} ontoggle={toggleIn} onready={toggleReady} onpack={packIn} onreadyall={tickAllReady} onnext={finishPacking} onend={endTrip} main={mainStep(trip, today, 'pack', phaseOpts)} onundo={undoLast} {canUndo} lessons={learningsFor(trip, $learnQ ?? [], 2)} {reminders} oncharge={charge.length ? () => (chargeOpen = true) : null} {stats} charge={charge.length ? { ...charged, names: charge.map((r) => r.name) } : null} />
+    <PackDay top={fixed ? null : blocksCard} onread={!fixed && trip.entries.some((e) => !e.packed) ? () => (reading = true) : null} {trip} {fixed} bike={bikeTrip} pressure={pressureText(targetPressure(bike), num)} wxGap={bikeTrip && !fixed ? wxGap : null} onwx={() => { useForecast(); review = true; }} steps={daySteps} {itemsById} {badges} {ready} onmove={moveTo} spare={spareSteps} ontoggle={toggleIn} onready={toggleReady} onpack={packIn} onreadyall={tickAllReady} onnext={finishPacking} onend={endTrip} main={mainStep(trip, today, 'pack', phaseOpts)} onundo={undoLast} {canUndo} lessons={learningsFor(trip, $learnQ ?? [], 2)} {reminders} oncharge={charge.length ? () => (chargeOpen = true) : null} {stats} charge={charge.length ? { ...charged, names: charge.map((r) => r.name) } : null} />
   {:else}
   <CalmPack {trip} {stats} {carry} {bike} {bikeTrip} domainLabel={t(domainName(domain))} {items} {itemsById} {trips} {candidates} {targets} {templates} hasPhoto={!!shot} photo={shot?.src ?? null} {openLayers} {canUndo} {changeNote} ctxChanged={!!ctxDiff} {ctxRows} {reasons} {notice} edit={locked ? null : factEdit} {fixed} {readyCount} {readyTotal} {over} {phaseOpts} made={!!(dayMade && dayMade.id === trip.id)} swapMemory={$swapQ?.value ?? {}} onroute={changeContext} onstages={(fn) => change(fn)} onlist={(fn) => change(fn)} prep={before} onprep={before ? openBefore : null} lessons={learningsFor(trip, $learnQ ?? [], 3)} {reminders} power={charge.length > 0 && !over} bind:q bind:zoneKey bind:review
     actions={{

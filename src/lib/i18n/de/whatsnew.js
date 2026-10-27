@@ -4,6 +4,13 @@
  * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
+  // 0.218.0 Leere Taschen nehmen Teile auf
+  'The bag now shows the item; «Undo» puts it back.': 'Die Tasche zeigt jetzt das Teil; «Rückgängig» legt es zurück.',
+  'The arrows next to an item offer the empty bags too': 'Auch die Pfeile neben einem Teil bieten die leeren Taschen an',
+  'Room in every bag': 'Platz in jeder Tasche',
+  'An empty bag now takes an item too.': 'Auch eine leere Tasche nimmt jetzt ein Teil auf.',
+  'All bags side by side: empty bags stay as a column to drag into': 'Alle Taschen nebeneinander: leere Taschen bleiben als Spalte zum Hineinziehen',
+  'On the computer open Packen › Alle Taschen nebeneinander and drag an item into an empty bag, or use the arrows next to the item.': 'Öffne am Computer Packen › Alle Taschen nebeneinander und zieh ein Teil in eine leere Tasche, oder nimm die Pfeile neben dem Teil.',
   // 0.217.0 Nichts versteckt sich mehr
   'Nothing hides any more': 'Nichts versteckt sich mehr',
   'Twenty tools that were hard to find now stand where you look.': 'Zwanzig Werkzeuge, die schwer zu finden waren, stehen jetzt dort, wo du schaust.',

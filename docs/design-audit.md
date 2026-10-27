@@ -296,6 +296,7 @@ Nach der Mitziehen-Regel: was in 0.47 noch nicht auf dem neuen Stand ist, mit Zi
 - 25.10.2026, 0.195.0 «Kleine Helfer für Tour und Velo»: nur ruhige Zusätze in bestehenden Fenstern (Abgestellt, Unterkunft, Hotels, Traum, Garantie); eine neue Karte «Optionen vergleichen» auf Reise-Links.
 - 25.10.2026, 0.195.1 «Einkaufsliste am Stück»: Einkaufsliste am Computer: Knöpfe rutschen bei wenig Platz unter den Namen, statt den Namen zu zerbrechen.
 - 25.10.2026, 0.199.0 «Flicken, ausprobieren, abmachen»: zwei neue Klappen im Fenster eines Teils (Reparieren, Ausleihen), ruhige Zeilen bei Webcams, Geburtstagen und Menschen; keine neue Seite.
+- 26.10.2026, 0.218.0 «Platz in jeder Tasche»: leere Tasche als Karte mit gestricheltem Rand und einem Satz, Ablageziel mit gestricheltem Umriss in der Akzentfarbe.
 - 27.10.2026, 0.217.0 «Nichts versteckt sich mehr»: nur ruhige Zeilen im Stil der bestehenden Hinweise (note/cnt/sub) und ein Textknopf «Trello» neben «Erinnerungen», 44 px hoch.
 - 26.10.2026, 0.212.0 «Touren, die mitdenken»: Absicht als erster Schritt im bestehenden Fenster «Neue Tour»; Knöpfe im Rückblick mindestens 44 px; Ort-Notiz als ruhiges Band auf der Live-Karte.
 - 26.10.2026, 0.211.0 «Zwei Touren, ein Blick»: neue Seite #/trips/compare im Baukasten (Crumb, Karten, Tagesleiste); «Tour vorbereiten» als zugeklappte Karte unter «Von der Haustür bis zurück», Pfeile hoch/runter für Grenzpunkte.
