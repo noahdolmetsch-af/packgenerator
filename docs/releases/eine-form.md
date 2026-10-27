@@ -1,6 +1,6 @@
 # Eine Form
 
-PR #? · 27.10.2026 · Auftrag: Noah 26.10.2026 20:31 «1a» alle B-Fehler aus dem UI-Test 0.205 (Thread «Testen komplette App mit Fehlerliste»)
+PR #319 · 27.10.2026 · Auftrag: Noah 26.10.2026 20:31 «1a» alle B-Fehler aus dem UI-Test 0.205 (Thread «Testen komplette App mit Fehlerliste»)
 
 ## Was ist neu
 - Training (training/week/AnaForm.svelte) und «Form und Erholung» (pages/flow/Form.svelte) lesen dieselbe Form aus form.js (`shownForm`, `formWeeksOf`): gleicher Tag, gleiche Zahlen, egal welcher Zeitraum.
