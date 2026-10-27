@@ -320,3 +320,7 @@ Nach der Mitziehen-Regel: was in 0.47 noch nicht auf dem neuen Stand ist, mit Zi
 ## 26.10.2026 Live Navigation PR 1
 
 Neues Fenster «Fahrt beenden?» im Stil des Löschen-Fensters (unten auf dem Handy, klein am Computer, sichere Wahl «Weiterfahren» mit Fokus). Label «Live Navigation» als kleine Pille neben dem Tournamen. Screenshots im PR.
+
+## 27.10.2026 Live Navigation PR 2 (Orte)
+
+Filter als aufklappbarer Kasten unter der Ortsliste (Knopf «Filter» mit Zahl der aktiven Filter), Segmente wie in den Einstellungen, Schnellwahl als beschriftete Chip-Reihe. Leere Liste mit Erklärung und «Filter zurücksetzen». Screenshots auf der PR-Seite.

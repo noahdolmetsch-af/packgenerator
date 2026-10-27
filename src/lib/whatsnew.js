@@ -16,6 +16,17 @@
 
 export const WHATS_NEW = [
   {
+    // v0.222.0 Live Navigation PR 2 «Orte» (Noah 26.10.2026, filters 1–14, 17, 18): every server in turn with the
+    // true reason when all fail, a quick choice row, filters (open, on the way, detour, climb, features, sort) and presets
+    version: '0.222.0',
+    date: '2026-10-27',
+    title: 'Places that find you',
+    lead: 'Places on the live map: more servers, and filters that think ahead.',
+    points: [{ text: 'Filter places: open now or when you get there, on your way, small detour', href: '#/live' }],
+    small: [{ box: 'new', text: 'Save your filters and use them again' }],
+    test: ['Open the live map and search places around you.', 'Tap «Filter»: choose «Open when I get there» and a detour of 2 km. The list gets shorter and shows «there about …».', 'Tap «Save filters», switch the filter off and pick it again under «Saved filters».'],
+  },
+  {
     // v0.221.0 Live Navigation PR 1 «Fahrt speichern» (Noah 26.10.2026, mockups M9/M10): «Fahrt beenden» asks once,
     // every ride is saved at once as its own entry in Touren labelled «Live Navigation», bike km booked with Undo.
     version: '0.221.0',

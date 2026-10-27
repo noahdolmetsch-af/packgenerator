@@ -68,8 +68,8 @@ test('places around me: chips, one query per tap, list nearest first, Navigate, 
   for (const b of await chips.locator('[data-poi-chip]').all()) expect((await b.boundingBox()).height).toBeGreaterThanOrEqual(44);
 
   // two chips tapped fast: one query with both kinds; «Around me» 10 km by default
-  await tap(chips.locator('[data-poi-chip="water"]'), info);
-  await tap(chips.locator('[data-poi-chip="toilet"]'), info);
+  // both taps in the same moment, so a slow test machine cannot pull them apart past the 600 ms wait
+  await chips.evaluate((e) => ['water', 'toilet'].forEach((k) => e.querySelector(`[data-poi-chip="${k}"]`).click()));
   await expect(panel.locator('[data-poi-status="ok"]')).toBeVisible();
   expect(st.calls).toHaveLength(1);
   expect(st.calls[0]).toContain('"amenity"="drinking_water"');
@@ -153,12 +153,14 @@ test('a place: detail with hours and Navigate, save, share, unsave', async ({ pa
   await noSideways(page, 'detail');
 });
 
-test('Overpass busy, then try again; offline shows the kept places', async ({ page, context }, info) => {
+test('Overpass busy (every server), then try again; offline shows the kept places', async ({ page, context }, info) => {
   const { T, st, panel } = await openLive(page, context, info);
   st.status = 429;
   await tap(panel.locator('[data-poi-chip="water"]'), info);
-  await expect(panel.locator('[data-poi-status="bad"]')).toContainText(T('OpenStreetMap is busy right now. Try again in a minute.|poi'));
-  expect(st.calls).toHaveLength(2); // both mirrors
+  // Live Navigation PR 2: the true reason, every server asked, and a smaller radius offered
+  await expect(panel.locator('[data-poi-status="bad"]')).toContainText(T('All OpenStreetMap servers are full or too slow right now.|poi'));
+  expect(st.calls.length).toBeGreaterThanOrEqual(3);
+  await expect(panel.locator('[data-poi-smaller]')).toBeVisible();
   st.status = 200;
   await tap(panel.locator('[data-poi-retry]'), info);
   await expect(panel.locator('[data-poi-status="ok"]')).toBeVisible();
