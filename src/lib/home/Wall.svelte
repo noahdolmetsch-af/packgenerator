@@ -91,8 +91,8 @@
   $effect(() => () => clearTimeout(holdTimer));
 </script>
 
-{#snippet tileEl(x, cls = '')}
-  <div class="ti {x.size} {cls}" class:moving={drag?.id === x.id} class:picked={picked === x.id} data-tile={x.id} data-size={x.size} role="listitem" onpointerdowncapture={(e) => holdDown(e, e.target.closest?.('[data-tile]')?.dataset.tile ?? x.id)} onpointermovecapture={holdMove} onpointerupcapture={holdStop} onpointercancelcapture={holdStop} onclickcapture={holdClick}>
+{#snippet tileEl(x, cls = '', i = 0)}
+  <div class="ti {x.size} {cls}" style:--i={i} class:moving={drag?.id === x.id} class:picked={picked === x.id} data-tile={x.id} data-size={x.size} role="listitem" onpointerdowncapture={(e) => holdDown(e, e.target.closest?.('[data-tile]')?.dataset.tile ?? x.id)} onpointermovecapture={holdMove} onpointerupcapture={holdStop} onpointercancelcapture={holdStop} onclickcapture={holdClick}>
     <!-- «Heute lädt nicht» (19.10.2026): an error in one tile stays in that tile; the rest of Heute works -->
     <div class="body" inert={editing}><svelte:boundary onerror={(e) => console.error(`Tile ${x.id}:`, e)}>{@render body(x)}{#snippet failed(_, reset)}<p class="tile-err" data-tile-error={x.id}>{t('This tile could not load.')} <button type="button" class="link" onclick={reset}>{t('Try again')}</button></p>{/snippet}</svelte:boundary></div>
     {#if editing}
@@ -104,7 +104,7 @@
 {/snippet}
 {#snippet quickS(list, head = true)}
   <!-- «Heute ruhiger» 1a: every small tile in one calm list; a long press on a row customises it, as on a tile -->
-  <div class="ti long quick" data-quick role="listitem">
+  <div class="ti long quick" style:--i={shown.indexOf(list[0])} data-quick role="listitem">
     <div class="qcard">
       {#if head}<h2 class="qh">{t('Open quickly')}</h2>{/if}
       <div class="qgrid" role="list" aria-label={t('Open quickly')}>
@@ -116,7 +116,7 @@
 
 {#if editing}
   <div class="wall editing" bind:this={wallEl} role="list" aria-label={t('Your start page')} onpointermove={dragMove} onpointerup={dragEnd} onpointercancel={dragEnd}>
-    {#each shown as x (x.id)}{@render tileEl(x)}{/each}
+    {#each shown as x, i (x.id)}{@render tileEl(x, '', i)}{/each}
     <div class="ti s plusw" role="listitem">
       <button type="button" class="plus" onclick={onadd} aria-haspopup="dialog"><Plus size={20} aria-hidden="true" /><span>{t('Add a tile')}</span></button>
     </div>
@@ -124,7 +124,7 @@
 {:else}
   <div class="wall" bind:this={wallEl} role="list" aria-label={t('Your start page')}>
     {#each runsOf(shown) as r, i (r.key === 'quick' ? 'quick' : `${i}`)}
-      {#if r.key === 'quick'}{@render quickS(r.tiles)}{:else}{#each r.tiles as x (x.id)}{@render tileEl(x)}{/each}{/if}
+      {#if r.key === 'quick'}{@render quickS(r.tiles)}{:else}{#each r.tiles as x (x.id)}{@render tileEl(x, '', shown.indexOf(x))}{/each}{/if}
     {/each}
     <div class="ti long plusw quiet" role="listitem">
       <button type="button" class="plus" onclick={onadd} aria-haspopup="dialog"><Plus size={18} aria-hidden="true" /><span>{t('Add a tile')}</span></button>

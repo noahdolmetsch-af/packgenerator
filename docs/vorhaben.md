@@ -525,6 +525,7 @@ Kurzfassung, verbindlich ist [arbeitsweise.md](arbeitsweise.md).
 0.212.2 «Eine Startzeit» (26.10.2026, Ziel Touren): UI-Test 0.205 Teil T2, eine Startzeit und vor dem Start ein Knopf.
 0.200.0 «Zusammen auf einer Karte» (25.10.2026, Ziel Touren): Gruppen-Live-Karte, Freunde per Link auf einer Karte.
 
+«Heute wird lebendig» (Ziel Alltag: mit Schwung), Neuer Schwung Teil 2, 27.10.2026.
 «Oben auf Heute ist mehr Ruhe» (Ziel Alltag: verständlich und mit Schwung), Neuer Schwung PR 1, 26.10.2026.
 ## Stand 26.10.2026: Live Navigation
 
