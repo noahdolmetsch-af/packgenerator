@@ -103,6 +103,7 @@ const LISTED = {
   'f.newtoday': ['Ride somewhere new (or tick a place in New ground).', 'Today shows «New since yesterday»; × closes it.', 'Tap the line: New ground shows what is new.'],
   'f.triptips': ['Open Trips › Dreams; «Fits today» is at the top.', 'Choose the hours you have.', 'Tap «Round through it» at a place.'],
   'f.newkm': ['Ride somewhere new; Strava lines, GPX and recordings count.', 'Open New ground and scroll to «New kilometres».', 'Each year shows its new km; below, the latest rides with new km.'],
+  'f.monthideas': ['Open Trips › Dreams.', 'Read the ideas of the month; tap another month in «Your year».', 'Add your own or tap «As a dream».'],
   'f.dreamsmap': ['Give dreams a map (GPX or link).', 'Scroll to «All dreams on one map».', 'Tap a dream in the list to open it.'],
   'f.dreamwx': ['Give a dream the months it fits.', 'Open Trips › Dreams.', 'Dry days show at the dream and in the trips overview.'],
   'f.dreamready': ['Open a dream with km or a map.', 'Look at «Ready for it?».', 'Rings not filled show what is still missing.'],
