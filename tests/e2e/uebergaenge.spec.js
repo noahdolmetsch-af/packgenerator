@@ -368,6 +368,9 @@ test('the kit: soft 44 px buttons, the empty card with its picture, confetti onc
   expect(await confetti.evaluate((el) => getComputedStyle(el).pointerEvents)).toBe('none');
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(page.viewportSize().width);
   await expect(main(page)).toBeEnabled();
+  // v0.217.0 «Neuer Schwung» 2b: the tick draws itself as a small Lottie animation (loaded on first use)
+  await expect(page.locator('.celebrate .lot[data-lottie="on"] svg')).toBeVisible();
+  await expect(page.locator('.celebrate .lot .lt-check path').first()).toBeAttached();
 
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await expect(confetti).toBeHidden();

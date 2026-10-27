@@ -99,7 +99,7 @@ describe('reminder on a note', () => {
     const now = new Date(2026, 9, 21, 9, 0);
     const off = buildList({ notes, settings: { push: { on: true, kinds: {} } }, now });
     expect(off.items.filter((i) => i.key.startsWith('note:'))).toEqual([]);
-    const on = buildList({ notes, settings: { push: { on: true, kinds: { note: true } } }, now });
+    const on = buildList({ notes, settings: { push: { on: true, kinds: { note: true }, morning: false } }, now });
     const items = on.items.filter((i) => i.key.startsWith('note:'));
     expect(items.map((i) => [i.body, i.url])).toEqual([
       ['test_data_gtp_ Schlauch kaufen', '#/notes?open=n1'],
