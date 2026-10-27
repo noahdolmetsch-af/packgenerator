@@ -1270,6 +1270,11 @@ const LISTED = {
     steps: ['Open Trips › Look back › New ground.', 'Scroll to «New kilometres»: each year with its new km and share.', 'Below: your latest rides that brought new km.'],
     example: 'Example: 3210 km this year, of which 412 km new (13 %).',
   },
+  'f.dreamready': {
+    on: 'Needs km, climb or days in the dream (a GPX file or a link brings them), and rides with km.',
+    steps: ['Open a dream in Trips › Dreams.', 'Scroll to «Ready for it?».', 'A ring that is not filled shows what is still missing.'],
+    example: 'Example: 3 days, 360 km → «needs about 120 km a day»; longest ride 110 km → ready.',
+  },
   'f.dreamsdone': {
     on: 'Needs a dream planned as a trip, and the debrief of that trip.',
     steps: ['Plan a dream as a trip (Trips › Dreams › the dream › «Plan the tour»).', 'After the trip, finish its debrief.', 'The dream shows under «Fulfilled dreams» and in the year card.'],
