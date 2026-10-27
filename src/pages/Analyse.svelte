@@ -82,7 +82,8 @@
   const periodOpts = $derived(PERIODS.map((p) => ({ key: String(p), name: p === 365 ? t('Year|analyse') : t('{n} days|analyse', { n: p }) })));
 
   const valueText = (x) => fmtValue(x, x.value, num);
-  const howText = (x) =>
+  const howText = (x) => (x.own && !x.empty ? `${t('own calculation|own')} · ${baseHow(x)}` : baseHow(x));
+  const baseHow = (x) =>
     x.later === 'garmin'
       ? t('Garmin does not give this out')
       : x.later
