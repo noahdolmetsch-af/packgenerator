@@ -4,6 +4,7 @@
 // fold, a row that opens a window), the last one is the spot. A step is { sel } (a CSS selector),
 // { text } (an English text: the first visible element whose text starts with it in the shown language;
 // «{n}» and other placeholders match anything) or { aria } (the same for the element's aria-label).
+// { …, unless: 'CSS' } skips a step when that is already on screen (a fold that is open already).
 // heimat.js marks the same functions in GAPS with 'spot'; tests/e2e/spot.spec.js taps each one.
 import { t } from '../i18n.svelte.js';
 
@@ -13,6 +14,8 @@ export const SPOT = {
   'f.tripbike': [{ aria: 'Bike: {value}. Change' }, { text: 'Compare bikes' }],
   'f.namesde': [{ sel: '#names-h' }],
   'f.fitbitold': [{ sel: '#fi-h' }],
+  'f.merge': [{ sel: 'main h2 > button', unless: 'main li[data-item] button.main' }, { sel: 'main li[data-item] button.main' }, { sel: 'details[data-fold="more"] > summary' }, { text: 'Merge with …' }],
+  'f.noteformats': [{ text: 'New note' }],
 };
 
 const WAIT = 6000;
@@ -80,6 +83,7 @@ export async function showSpot(id) {
   // the new page first: the page the tap came from may show the same words
   await new Promise((ok) => setTimeout(ok, 300));
   for (let i = 0; i < steps.length; i++) {
+    if (steps[i].unless && find({ sel: steps[i].unless })) continue;
     const el = await wait(steps[i]);
     if (!el) return false;
     if (i < steps.length - 1) el.click();
