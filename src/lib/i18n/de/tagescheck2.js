@@ -28,8 +28,9 @@ export default {
   'Your 15 questions': 'Wi gaht\'s? · 15 Fragen', // Noah 20.10.2026 «3a»: one name for the daily questions
   'When they come and where they count': 'Wann sie kommen und wo sie zählen',
   'When they come, how you answer and where they count in the ring.': 'Wann sie kommen, wie du antwortest und wo sie im Ring zählen.',
-  'Morning · {n} taps': 'Morgen · {n} Tipps',
-  'Evening · from 20:30 · {n} taps': 'Abend · ab 20:30 · {n} Tipps',
+  // UI-Test T12 (G1-16): «Tipps» read as tips; it is how many questions come each day (4/5 and 12/13 take turns)
+  'Morning · {n} taps': 'Morgen · {n} Fragen am Tag',
+  'Evening · from 20:30 · {n} taps': 'Abend · ab 20:30 · {n} Fragen am Tag',
   'Sunday|group': 'Sonntag',
   'Question|table': 'Frage',
   'Answer|table': 'Antwort',
