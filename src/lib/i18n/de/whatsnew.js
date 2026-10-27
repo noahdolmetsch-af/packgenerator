@@ -4,7 +4,7 @@
  * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
-  // 0.223.0 Alles einmal auf Heute
+  // 0.228.0 Alles einmal auf Heute
   'Everything once on Today': 'Alles einmal auf Heute',
   'Double tiles left Today.': 'Doppelte Kacheln sind weg von Heute.',
   'Tiles that showed the same thing twice left Today once': 'Kacheln, die dasselbe doppelt zeigten, sind einmal von Heute weg',
@@ -96,6 +96,13 @@ export default {
   'On a small phone open Material › Einkauf: the names read normally, «Zu kaufen» stands under them.': 'Öffne am kleinen Handy Material › Einkauf: Die Namen lesen sich normal, «Zu kaufen» steht darunter.',
   'Open Planen with a trip: «Einkaufsliste» and «Gewicht» stand as whole words.': 'Öffne Planen mit einer Tour: «Einkaufsliste» und «Gewicht» stehen als ganze Wörter.',
   // 0.208.0 Mehr Platz am Computer
+  'The route follows every bend': 'Die Strecke folgt jeder Kurve',
+  'Routes from a GPX file now keep their curves on the map.': 'Strecken aus einer GPX-Datei behalten jetzt ihre Kurven auf der Karte.',
+  'Tour and race routes keep their bends instead of cutting corners': 'Tour- und Rennstrecken behalten ihre Kurven und schneiden keine Ecken mehr ab',
+  'Add the GPX file once more for a tour you made before': 'Bei einer älteren Tour die GPX-Datei einmal neu hinzufügen',
+  'Open Pack, open a tour and tap «Add GPX route».': 'Öffne Packen, öffne eine Tour und tippe auf «GPX-Route hinzufügen».',
+  'Choose a GPX file with many bends, then open the live map of this tour.': 'Wähle eine GPX-Datei mit vielen Kurven und öffne dann die Live-Karte dieser Tour.',
+  'Zoom in close: the line follows the road. Before, it cut across bends.': 'Zoome nah heran: Die Linie folgt der Strasse. Vorher schnitt sie Kurven ab.',
   'Places that find you': 'Orte, die dich finden',
   'Places on the live map: more servers, and filters that think ahead.': 'Orte auf der Live-Karte: mehr Server und Filter, die vorausdenken.',
   'Filter places: open now or when you get there, on your way, small detour': 'Orte filtern: jetzt offen oder bei Ankunft, auf dem Weg, kleiner Umweg',

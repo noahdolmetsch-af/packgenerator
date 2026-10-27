@@ -304,7 +304,7 @@ Nach der Mitziehen-Regel: was in 0.47 noch nicht auf dem neuen Stand ist, mit Zi
 - 26.10.2026, 0.208.0 «Mehr Platz am Computer» (UI-Ziel #14, Kriterium 11 «Nutzt der Computer die Breite?»): Touren und Auswerten im Muster «Hauptsache links 2/3, Begleitinfo rechts 1/3» wie Packen, Aktiv und Material; Velos mit dem Einstieg als Zeile «So geht's ›» wie Touren und Material; Hauptorte höchstens 1120 px. Entwurf https://claude.ai/artifact/WfZ9dNaomjxSba2gDpdkM6 (Vorher-Bilder mit erfundenen Daten). Offen: nichts.
 - 26.10.2026, 0.219.0 «Heute ruhiger» Teil 1 (Kriterium «Ruhe/Leerraum»): Karten so hoch wie ihr Inhalt (vorher bis ~600 px leer neben hohen Karten), die 8 kleinen Knöpfe als eine Liste in 2 (Handy) oder 4 (Computer) Spalten, Velo-Arbeiten als Pillen-Knöpfe. Mockup H1 https://claude.ai/artifact/H3XYx26oxGMMBqdNxKMQf4#heute-ruhiger. Offen: Teil 2 (doppelte Kacheln) und Teil 3 (Bereiche mit Überschrift).
 - 26.10.2026, 0.212.1 «Die heutige Tour sagt eins» (UI-Test 0.205 T1, Kriterium «ein Zustand überall»): Tour-Seite, Gepäck, Rückblick und Heute zeigen vor der Fahrt denselben Zustand «Geplant · Packen». Vorher/Nachher-Bilder mit erfundenen Daten im PR. Offen: T2–T13.
-- 26.10.2026, 0.223.0 «Heute ruhiger» Teil 2 (Kriterium «Jedes Ding einmal»): Körperwerte standen bis zu 5-mal, Aktiv 3-mal auf Heute; jetzt einmal. Offen: Teil 3 (Bereiche mit Überschrift).
+- 26.10.2026, 0.228.0 «Heute ruhiger» Teil 2 (Kriterium «Jedes Ding einmal»): Körperwerte standen bis zu 5-mal, Aktiv 3-mal auf Heute; jetzt einmal. Offen: Teil 3 (Bereiche mit Überschrift).
 - 26.10.2026, 0.220.0 «Velo-Ergänzungen»: alle neuen Teile oben auf «Verschleiss» als Sprung-Chips; Jahresrückblick und Saison-Checklisten als eigene Unterseiten statt neuer Blöcke auf der Pflege-Seite.
 - 26.10.2026, 0.212.2 «Eine Startzeit» (UI-Test 0.205 T2, Kriterien «ein Hauptknopf» und «Abhaken sieht aus wie Abhaken»): Unterwegs zeigt vor dem Start nur «Losfahren», der Basischeck ist eine Liste mit Kästchen. Offen: T3–T13 und die Schrittleiste.
 - 25.10.2026, 0.200.0 «Zusammen auf einer Karte»: ein ruhiger Bereich «Gruppenfahrt» auf der Live-Karte (vor dem Start und im Blatt), eine schlanke neue Seite für Freunde im Browser; Freunde als eigene Punkte auf der Karte.
@@ -325,3 +325,7 @@ Neues Fenster «Fahrt beenden?» im Stil des Löschen-Fensters (unten auf dem Ha
 ## 27.10.2026 Live Navigation PR 2 (Orte)
 
 Filter als aufklappbarer Kasten unter der Ortsliste (Knopf «Filter» mit Zahl der aktiven Filter), Segmente wie in den Einstellungen, Schnellwahl als beschriftete Chip-Reihe. Leere Liste mit Erklärung und «Filter zurücksetzen». Screenshots auf der PR-Seite.
+
+## 27.10.2026 Live Navigation PR 3 (Strecke genau)
+
+Keine sichtbare Oberfläche neu; die Linie auf der Karte folgt den Kurven. Kein Design-Eingriff.
