@@ -330,6 +330,12 @@ export default {
   'Plan a dream as a trip, ride it and finish its debrief.': 'Plane einen Traum als Tour, fahr sie und schliess den Rückblick ab.',
   'Trips › Dreams shows it under «Fulfilled dreams».': 'Touren › Träume zeigt ihn unter «Erfüllte Träume».',
   'The year card of Past trips counts it too.': 'Die Jahreskarte von Vergangene Touren zählt ihn auch.',
+  // «Wetterfenster für Träume» (Träume und Neuland N15)
+  'Fits now, dry {days}': 'Passt jetzt, trocken {days}',
+  'dry {days}': 'trocken {days}',
+  'When a dream that fits now gets two or three dry days in a row, Dreams and the trips overview say so quietly.': 'Wenn ein Traum, der jetzt passt, zwei oder drei trockene Tage am Stück bekommt, sagen es Träume und die Touren-Übersicht leise.',
+  'Give a dream the months it fits.': 'Gib einem Traum die Monate, in denen er passt.',
+  'Dry days show at the dream and in the trips overview.': 'Trockene Tage stehen beim Traum und in der Touren-Übersicht.',
   // «Bereit für den Traum?» (Träume und Neuland N16)
   'Ready for it?': 'Bereit dafür?',
   ready: 'bereit',
