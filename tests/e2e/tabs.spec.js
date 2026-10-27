@@ -142,9 +142,10 @@ test('Pack: a full bag jumps to the next one by itself', async ({ page, context 
   await expect(cur.locator('.bagh b')).not.toHaveText(first);
   const next = await cur.locator('.bagh b').textContent();
   await expect(page.getByRole('status').filter({ hasText: T('{bag} is packed. Next: {next}', { bag: first, next }) })).toBeVisible();
-  // The full bag is closed with a ✓ and its count.
+  // The full bag is closed with a ✓ in a full ring («Neuer Schwung» Packen 1, changed on purpose: the ring shows ✓ instead of n/n).
   const done = page.locator('.pd .pbag.done').filter({ hasText: first });
-  await expect(done).toContainText(`${n}/${n}`);
+  await expect(done.locator('[data-bag-ring].full')).toHaveAttribute('aria-label', T('all in'));
+  await expect(done.locator('[data-bag-ring] .rn svg')).toHaveCount(1);
   await expect(done.locator('.bagh')).toHaveAttribute('aria-expanded', 'false');
   // The current bag's rows are a thumb high.
   expect((await cur.locator('ul.items button').first().boundingBox()).height).toBeGreaterThanOrEqual(44);
