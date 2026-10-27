@@ -22,4 +22,9 @@ export default {
   // T4 «Serien und Tage aktiv gleich gezählt»
   'Nothing entered yet': 'Noch nichts eingetragen',
   'Fitbit measured {n} active zone min': 'Fitbit hat {n} Aktivzonen-Minuten gemessen',
+  // T6 «Touren- und Strava-Zahlen mit Zeitraum»
+  '{n} waits for your review': '{n} wartet auf deinen Rückblick',
+  '{n} wait for your review': '{n} warten auf deinen Rückblick',
+  '{n} in all': '{n} insgesamt',
+  'in all years': 'in allen Jahren',
 };
