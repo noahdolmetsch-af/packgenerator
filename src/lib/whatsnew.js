@@ -16,14 +16,36 @@
 
 export const WHATS_NEW = [
   {
-    // v0.220.1 Tages-Check (Noah 26.10.2026 «1a»): «Not today» in the morning waits only until the evening check
-    version: '0.220.1',
+    // v0.226.0 Tages-Check (Noah 26.10.2026 «1a»): «Not today» in the morning waits only until the evening check
+    version: '0.226.0',
     date: '2026-10-27',
     title: 'The evening check still comes',
     lead: '«Not today» in the morning no longer skips the evening.',
     points: [{ text: '«Not today» in the morning check waits only until the evening check', href: '#/me/abfragen' }],
     small: [{ box: 'fixed', text: 'The hint in the check window says «until the evening check» in the morning' }],
     test: ['In the morning check tap «Not today»: the window closes.', 'In the evening, at your evening time, the evening check comes as usual.'],
+  },
+  {
+    // v0.222.0 Live Navigation PR 2 «Orte» (Noah 26.10.2026, filters 1–14, 17, 18): every server in turn with the
+    // true reason when all fail, a quick choice row, filters (open, on the way, detour, climb, features, sort) and presets
+    version: '0.222.0',
+    date: '2026-10-27',
+    title: 'Places that find you',
+    lead: 'Places on the live map: more servers, and filters that think ahead.',
+    points: [{ text: 'Filter places: open now or when you get there, on your way, small detour', href: '#/live' }],
+    small: [{ box: 'new', text: 'Save your filters and use them again' }],
+    test: ['Open the live map and search places around you.', 'Tap «Filter»: choose «Open when I get there» and a detour of 2 km. The list gets shorter and shows «there about …».', 'Tap «Save filters», switch the filter off and pick it again under «Saved filters».'],
+  },
+  {
+    // v0.221.0 Live Navigation PR 1 «Fahrt speichern» (Noah 26.10.2026, mockups M9/M10): «Fahrt beenden» asks once,
+    // every ride is saved at once as its own entry in Touren labelled «Live Navigation», bike km booked with Undo.
+    version: '0.221.0',
+    date: '2026-10-27',
+    title: 'Every ride is saved',
+    lead: '«End the ride» asks once and keeps the ride in Trips.',
+    points: [{ text: 'Each live ride is in Trips as «Live Navigation»', href: '#/trips' }],
+    small: [{ box: 'new', text: 'The km go to your bike by themselves, with Undo', href: '#/live' }],
+    test: ['Open the live map, start a ride and ride a few minutes (or walk).', 'Tap «End the ride», then «End and save»: a line says «Saved in Trips».', 'Open Trips: the ride is there with the label «Live Navigation».'],
   },
   {
     // Velo-Ergänzungen (Noah 26.10.2026 «1 3 6 7 8 12a»): chain checker in the forecast, year in review, care series, calendar, noises, winter and spring. v0.220.0.

@@ -4,7 +4,7 @@
  * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
-  // v0.220.1 Tages-Check
+  // v0.226.0 Tages-Check
   'The evening check still comes': 'Der Abend-Check kommt trotzdem',
   '«Not today» in the morning no longer skips the evening.': '«Heute nicht» am Morgen lässt den Abend nicht mehr aus.',
   '«Not today» in the morning check waits only until the evening check': '«Heute nicht» im Morgen-Check wartet nur bis zum Abend-Check',
@@ -95,6 +95,20 @@ export default {
   'On a small phone open Material › Einkauf: the names read normally, «Zu kaufen» stands under them.': 'Öffne am kleinen Handy Material › Einkauf: Die Namen lesen sich normal, «Zu kaufen» steht darunter.',
   'Open Planen with a trip: «Einkaufsliste» and «Gewicht» stand as whole words.': 'Öffne Planen mit einer Tour: «Einkaufsliste» und «Gewicht» stehen als ganze Wörter.',
   // 0.208.0 Mehr Platz am Computer
+  'Places that find you': 'Orte, die dich finden',
+  'Places on the live map: more servers, and filters that think ahead.': 'Orte auf der Live-Karte: mehr Server und Filter, die vorausdenken.',
+  'Filter places: open now or when you get there, on your way, small detour': 'Orte filtern: jetzt offen oder bei Ankunft, auf dem Weg, kleiner Umweg',
+  'Save your filters and use them again': 'Filter speichern und wieder nutzen',
+  'Open the live map and search places around you.': 'Öffne die Live-Karte und suche Orte um dich herum.',
+  'Tap «Filter»: choose «Open when I get there» and a detour of 2 km. The list gets shorter and shows «there about …».': 'Tippe «Filter»: wähle «Offen, wenn ich ankomme» und 2 km Umweg. Die Liste wird kürzer und zeigt «dort etwa …».',
+  'Tap «Save filters», switch the filter off and pick it again under «Saved filters».': 'Tippe «Filter speichern», schalte den Filter aus und wähle ihn unter «Gespeicherte Filter» wieder.',
+  'Every ride is saved': 'Jede Fahrt wird gespeichert',
+  '«End the ride» asks once and keeps the ride in Trips.': '«Fahrt beenden» fragt einmal nach und legt die Fahrt in Touren ab.',
+  'Each live ride is in Trips as «Live Navigation»': 'Jede Live-Fahrt steht in Touren als «Live Navigation»',
+  'The km go to your bike by themselves, with Undo': 'Die km gehen von selbst aufs Velo, mit Rückgängig',
+  'Open the live map, start a ride and ride a few minutes (or walk).': 'Öffne die Live-Karte, starte eine Fahrt und fahre (oder gehe) ein paar Minuten.',
+  'Tap «End the ride», then «End and save»: a line says «Saved in Trips».': 'Tippe «Fahrt beenden», dann «Beenden und speichern»: eine Zeile sagt «In Touren gespeichert».',
+  'Open Trips: the ride is there with the label «Live Navigation».': 'Öffne Touren: die Fahrt steht dort mit dem Label «Live Navigation».',
   'More room on the computer': 'Mehr Platz am Computer',
   'The main thing left, the extras right.': 'Links das Wichtigste, rechts das Zusätzliche.',
   'Trips: period, filter and open debriefs go along on the right': 'Touren: Zeitraum, Filter und offene Rückblicke laufen rechts mit',

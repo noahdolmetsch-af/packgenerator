@@ -108,7 +108,7 @@ describe('fetching', () => {
     };
     const json = await fetchOverpass('Q [x]', { fetcher });
     expect(json.elements).toHaveLength(ANSWER.elements.length);
-    expect(calls.map((c) => c.url)).toEqual(OVERPASS_URLS);
+    expect(calls.map((c) => c.url)).toEqual(OVERPASS_URLS.slice(0, 2)); // the second server answered, the third is not asked
     expect(calls[0].init.method).toBe('POST');
     expect(calls[0].init.body).toBe(`data=${encodeURIComponent('Q [x]')}`);
     expect(calls[0].init.headers['Content-Type']).toMatch(/x-www-form-urlencoded/);

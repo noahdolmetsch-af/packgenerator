@@ -16,11 +16,9 @@
   import { sortBikes } from '../bikes.js';
   import { makeEntry } from '../kmbook.js';
   import { addEntries, deleteEntries, ensureKmBook } from '../kmbookdb.js';
-  import { PACE_KEY, paceOf } from '../pace.js';
-  import { plannedFor } from '../gpx.js';
-  import { kmIntoDebrief } from '../ridelist.js';
+  import { saveLiveRide, rememberBike, bikeFor, LIVE_BIKE_KEY } from './saveride.js';
   import SensorCurve from './SensorCurve.svelte';
-  import { rideSummary, rideRowOf, bikeKmPlan, bikeEntryOf, durText } from './after.js';
+  import { rideSummary, bikeKmPlan, bikeEntryOf, durText } from './after.js';
 
   let { ride, trip = null } = $props();
 
@@ -34,7 +32,8 @@
   const sum = $derived(rideSummary(cur, trip));
   const bikes = $derived(sortBikes($bikesQ ?? []));
   let picked = $state('');
-  const bikeId = $derived(trip?.bikeId ?? (picked || bikes[0]?.id || ''));
+  const lastBikeQ = liveQuery(() => db.settings.get(LIVE_BIKE_KEY));
+  const bikeId = $derived(trip?.bikeId ?? (picked || bikeFor(null, $bikesQ ?? [], $lastBikeQ?.value ?? null)?.id || ''));
   const bike = $derived(($bikesQ ?? []).find((b) => b.id === bikeId) ?? null);
   const plan = $derived($actsQ && $bookQ ? bikeKmPlan(cur, bikeId || null, { acts: $actsQ, entries: $bookQ }) : null);
   const name = $derived(trip?.title || t('Live ride'));
@@ -46,19 +45,8 @@
     busy = true;
     err = '';
     try {
-      const pace = paceOf((await db.settings.get(PACE_KEY))?.value);
-      const draft = rideRowOf($state.snapshot(cur), { trip, name, basis: { kmh: pace.kmh, climbMh: pace.climbMh } });
-      const row = { ...draft, plan: trip ? plannedFor(trip, draft.date, pace) : null };
-      const old = await db.rides.get(row.id);
-      await db.rides.put(old ? { ...row, answers: old.answers ?? {}, createdAt: old.createdAt ?? row.createdAt } : row);
-      // the km of the ride into the trip's look back (as an uploaded ride does), unless it is finished
-      if (trip?.bikeId) {
-        const stored = await db.debriefs.get(trip.id);
-        if (stored?.status !== 'done') {
-          const d = kmIntoDebrief(stored, trip, [row]);
-          if (d) await db.debriefs.put(d);
-        }
-      }
+      // saved already at «Fahrt beenden» (saveride.js); saved again here, so an older ride gets its row too
+      const row = await saveLiveRide(db, $state.snapshot(cur), { trip, name });
       location.hash = trip ? `#/debrief/${encodeURIComponent(trip.id)}` : `#/debrief/ride/${encodeURIComponent(row.id)}`;
     } catch (e) {
       err = saveFailed(e);
@@ -100,6 +88,21 @@
     }
   }
 
+  // the km were booked by themselves at «Fahrt beenden»: take them back, then pick the right bike
+  async function takeBack() {
+    if (busy || !cur.kmId) return;
+    busy = true;
+    err = '';
+    try {
+      await deleteEntries(db, [cur.kmId]);
+      await db.tracks.update(cur.id, { kmId: null });
+    } catch (x) {
+      err = saveFailed(x);
+    } finally {
+      busy = false;
+    }
+  }
+
   async function addKm() {
     if (busy || !bike || !plan?.count) return;
     busy = true;
@@ -109,6 +112,7 @@
       const e = makeEntry(bikeEntryOf($state.snapshot(cur), bike.id, { name, note: t('Live map') }));
       const ids = await addEntries(db, [e]);
       await db.tracks.update(cur.id, { kmId: e.id });
+      if (!trip?.bikeId) await rememberBike(db, bike.id);
       const what = { km: num(e.km), bike: bike.name };
       offerDone(t('{km} km added to {bike}.', what), async () => {
         await deleteEntries(db, ids);
@@ -142,7 +146,7 @@
 
   <div class="row">
     <button type="button" class="btn hi" disabled={busy} onclick={toDebrief} data-after-debrief><ClipboardCheck size={18} aria-hidden="true" />{t('Debrief')}</button>
-    <span class="tp-small tp-muted">{trip ? t('Opens the look back of this trip with the km and pauses filled in.') : t('Saves the ride with its km and pauses and opens it.')}</span>
+    <span class="tp-small tp-muted">{trip ? t('Opens the look back of this trip with the km and pauses filled in.') : t('Opens the saved ride with its km and pauses.')}</span>
   </div>
 
   <div class="bk" data-after-share>
@@ -161,6 +165,7 @@
       <p class="tp-small tp-muted">{t('No bike yet. Add one under Bikes to count its km.')}</p>
     {:else if plan?.why === 'added'}
       <p class="ok" data-after-added><Check size={16} aria-hidden="true" /> {t('Added to the ride ledger.')}</p>
+      <button type="button" class="btn btn-link" disabled={busy} onclick={takeBack} data-after-takeback>{t('Wrong bike? Take the km back')}</button>
     {:else if plan?.why === 'overlap'}
       <p class="tp-small tp-muted" data-after-overlap>{t('A Strava or Garmin ride of this bike at the same time counts already, so these km are not added twice.')}</p>
     {:else if plan?.why === 'none'}
@@ -168,7 +173,7 @@
     {:else if plan}
       {#if !trip?.bikeId && bikes.length > 1}
         <label class="pick">{t('Which bike?')}
-          <select class="inp" bind:value={picked} data-after-pick>
+          <select class="inp" value={bikeId} onchange={(e) => (picked = e.currentTarget.value)} data-after-pick>
             {#each bikes as b (b.id)}<option value={b.id}>{b.name}</option>{/each}
           </select>
         </label>
