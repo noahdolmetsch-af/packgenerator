@@ -27,10 +27,16 @@
  * In the Strava API settings the «Authorization Callback Domain» must be packgen-three.vercel.app.
  *
  * Redis: strava:tokens (JSON, access + refresh token), strava:athlete (owner id), app:keys (device key hashes).
+ *
+ * «Strava pro Person vorbereiten» (Noah 27.10.2026 «3: nur ich bleibe verbunden, aber vorbereiten»): a friend
+ * may connect their own Strava once their athlete id is in STRAVA_ATHLETES (comma list, empty = nobody, so
+ * today only the owner). A friend's tokens live in strava:tokens:<id>; the friend's device key is NOT in
+ * app:keys (that set also opens Google, which stays the owner's) but in strava:device:<key hash> → <id>.
+ * Strava itself lets an app have one athlete until Strava approves more (free request).
  * Never logged or answered: tokens, codes, the secret.
  */
 import { route, json, needStore, redisEnv, pick, ApiError, API_BASE } from './_lib/core.js';
-import { needDevice, newDevice, saveState, takeState, backToApp, jsonBody } from './_lib/oauth.js';
+import { needDevice, newDevice, saveState, takeState, backToApp, jsonBody, bearer, hash, randomKey } from './_lib/oauth.js';
 import { rateOf } from './_lib/rate.js';
 
 export const AUTHORIZE_URL = 'https://www.strava.com/oauth/authorize';
@@ -42,11 +48,32 @@ export const SCOPE = 'read,profile:read_all,activity:read_all';
 export const CALLBACK = `${API_BASE}/api/strava?step=callback`;
 const PER_PAGE = 200; // Strava's maximum; Noah's ~1300 rides are 7 pages
 
+/** The owner's tokens (unchanged key, so the owner needs no new login); a friend's: strava:tokens:<athlete id>. */
+export const OWNER_TOKENS = 'strava:tokens';
+export const friendTokens = (id) => `strava:tokens:${id}`;
+/** A friend's device: its key hash → the athlete id. Not in app:keys, so it never opens Google. */
+export const friendDevice = (h) => `strava:device:${h}`;
+
+/**
+ * Whose Strava this request reads: the owner's for a key in app:keys, a friend's for a friend's key,
+ * else 401 (as needDevice). Returns the Redis key of the tokens.
+ */
+export async function whoseTokens(request, store) {
+  const key = bearer(request);
+  if (key) {
+    const friend = await store.get(friendDevice(hash(key)));
+    if (friend && /^\d{1,20}$/.test(friend)) return friendTokens(friend);
+  }
+  await needDevice(request, store);
+  return OWNER_TOKENS;
+}
+
 export function stravaEnv(e = process.env) {
   return {
     clientId: pick('STRAVA_CLIENT_ID', e),
     clientSecret: pick('STRAVA_CLIENT_SECRET', e),
     allowedAthlete: pick('ALLOWED_ATHLETE_ID', e),
+    athletes: (pick('STRAVA_ATHLETES', e) ?? '').split(',').map((x) => x.trim()).filter((x) => /^\d{1,20}$/.test(x)),
     ...redisEnv(e),
   };
 }
@@ -742,18 +769,18 @@ export function makeHandler({ env = () => stravaEnv(), doFetch = (...a) => fetch
   }
 
   /** A valid access token, refreshed when it ends within a minute. */
-  async function accessToken(cfg, store) {
-    const raw = await store.get('strava:tokens');
+  async function accessToken(cfg, store, tokKey = OWNER_TOKENS) {
+    const raw = await store.get(tokKey);
     if (!raw) throw new ApiError(409, 'not_connected', 'Strava is not connected.');
     const t = JSON.parse(raw);
     if ((t.expires_at ?? 0) * 1000 - 60_000 > now()) return t.access_token;
     const fresh = await tokenCall(cfg, { grant_type: 'refresh_token', refresh_token: t.refresh_token });
-    await store.set('strava:tokens', JSON.stringify({ access_token: fresh.access_token, refresh_token: fresh.refresh_token ?? t.refresh_token, expires_at: fresh.expires_at, scope: t.scope }));
+    await store.set(tokKey, JSON.stringify({ access_token: fresh.access_token, refresh_token: fresh.refresh_token ?? t.refresh_token, expires_at: fresh.expires_at, scope: t.scope }));
     return fresh.access_token;
   }
 
   async function stravaGet(cfg, store, path, ctx = {}) {
-    const token = await accessToken(cfg, store);
+    const token = await accessToken(cfg, store, ctx.tokKey ?? OWNER_TOKENS);
     let res;
     try {
       res = await doFetch(`${API}${path}`, { headers: { Authorization: `Bearer ${token}` } });
@@ -791,19 +818,27 @@ export function makeHandler({ env = () => stravaEnv(), doFetch = (...a) => fetch
           const tok = await tokenCall(cfg, { grant_type: 'authorization_code', code: url.searchParams.get('code') });
           const athlete = String(tok.athlete?.id ?? '');
           const owner = cfg.allowedAthlete || (await store.get('strava:athlete'));
+          const saved = JSON.stringify({ access_token: tok.access_token, refresh_token: tok.refresh_token, expires_at: tok.expires_at, scope: granted.join(',') });
+          if (athlete && owner && owner !== athlete && (cfg.athletes ?? []).includes(athlete)) {
+            // a friend with their own Strava: own tokens, a device key that opens only their Strava
+            await store.set(friendTokens(athlete), saved);
+            const key = randomKey();
+            await store.set(friendDevice(hash(key)), athlete);
+            return backToApp(st.returnTo, { strava: 'connected', key });
+          }
           if (!athlete || (owner && owner !== athlete)) return backToApp(st.returnTo, { strava: 'error', error: 'other_athlete' });
           if (!owner) await store.set('strava:athlete', athlete);
-          await store.set('strava:tokens', JSON.stringify({ access_token: tok.access_token, refresh_token: tok.refresh_token, expires_at: tok.expires_at, scope: granted.join(',') }));
+          await store.set(OWNER_TOKENS, saved);
           const key = await newDevice(store);
           return backToApp(st.returnTo, { strava: 'connected', key });
         }
 
-        await needDevice(request, store);
+        const tokKey = await whoseTokens(request, store);
         setUp(cfg);
-        const ctx = {};
+        const ctx = { tokKey };
         const withRate = (body) => (ctx.rate ? { ...body, rate: ctx.rate } : body);
         if (step === 'status') {
-          const raw = await store.get('strava:tokens');
+          const raw = await store.get(tokKey);
           if (!raw) return json(request, 200, { ok: true, connected: false });
           const me = await stravaGet(cfg, store, '/athlete', ctx);
           return json(request, 200, withRate({ ok: true, connected: true, athlete: { firstname: me.firstname ?? '' }, scope: JSON.parse(raw).scope ?? '' }));
@@ -826,15 +861,15 @@ export function makeHandler({ env = () => stravaEnv(), doFetch = (...a) => fetch
           return json(request, 200, withRate({ ok: true, page, more: arr.length === PER_PAGE, activities: arr.map(trimActivity) }));
         }
         if (step === 'zones') {
-          return json(request, 200, { ok: true, ...trimZones(await stravaGet(cfg, store, '/athlete/zones')) });
+          return json(request, 200, { ok: true, ...trimZones(await stravaGet(cfg, store, '/athlete/zones', { tokKey })) });
         }
         if (step === 'detail') {
           const id = url.searchParams.get('id') ?? '';
           if (!/^\d{1,20}$/.test(id)) throw new ApiError(400, 'bad_request', 'id must be an activity number.');
-          const one = await stravaGet(cfg, store, `/activities/${id}?include_all_efforts=true`);
+          const one = await stravaGet(cfg, store, `/activities/${id}?include_all_efforts=true`, { tokKey });
           // the streams for the breaks too (moving), so every activity; still two calls in all
           // distance, altitude and cadence too (TR5b–TR7f), still no position
-          const streams = await stravaGet(cfg, store, `/activities/${id}/streams?keys=time,heartrate,watts,moving,cadence,distance,altitude,temp&key_by_type=true`);
+          const streams = await stravaGet(cfg, store, `/activities/${id}/streams?keys=time,heartrate,watts,moving,cadence,distance,altitude,temp&key_by_type=true`, { tokKey });
           // power only from a power meter (Strava's estimate has no stream worth a best effort)
           const pm = !!one.device_watts;
           const where = { time: streams?.time?.data, dist: streams?.distance?.data, startLocal: one.start_date_local, start: one.start_date };
@@ -843,7 +878,7 @@ export function makeHandler({ env = () => stravaEnv(), doFetch = (...a) => fetch
           let photos = [];
           if (Number(one.total_photo_count) > 0) {
             try {
-              photos = trimPhotos(await stravaGet(cfg, store, `/activities/${id}/photos?size=1024&photo_sources=true`), where);
+              photos = trimPhotos(await stravaGet(cfg, store, `/activities/${id}/photos?size=1024&photo_sources=true`, { tokKey }), where);
             } catch {
               photos = [];
             }
@@ -873,18 +908,20 @@ export function makeHandler({ env = () => stravaEnv(), doFetch = (...a) => fetch
           return json(request, 200, { ok: true, url: `${AUTHORIZE_URL}?${q}` });
         }
         if (step === 'disconnect') {
-          await needDevice(request, store);
-          const raw = await store.get('strava:tokens');
+          const tokKey = await whoseTokens(request, store);
+          const raw = await store.get(tokKey);
           if (raw) {
             try {
-              const token = await accessToken(cfg, store);
+              const token = await accessToken(cfg, store, tokKey);
               await doFetch(DEAUTH_URL, { method: 'POST', headers: { Authorization: `Bearer ${token}` } });
             } catch {
               // Strava unreachable or already withdrawn: the server forgets everything anyway.
             }
           }
           // Device keys stay: they also open Google; a new Strava login reconnects.
-          await store.del('strava:tokens');
+          await store.del(tokKey);
+          // a friend's device key opens nothing else: it goes with the Strava access
+          if (tokKey !== OWNER_TOKENS) await store.del(friendDevice(hash(bearer(request))));
           return json(request, 200, { ok: true });
         }
         throw new ApiError(400, 'bad_request', 'Unknown step.');

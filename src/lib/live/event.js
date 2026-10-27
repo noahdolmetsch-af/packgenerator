@@ -381,7 +381,7 @@ export const CARD_V = 1;
  * Kontakt-QR-Code (Noah 27.10.2026 «1a 2b 3a 4a 5a»): the card carries more ways to reach you. Still
  * version 1: an older app reads name, Instagram, phone, bike and note and leaves the rest out.
  */
-export const CARD_FIELDS = ['name', 'insta', 'phone', 'bike', 'note', 'wa', 'email', 'strava', 'komoot', 'web', 'addr'];
+export const CARD_FIELDS = ['name', 'insta', 'phone', 'bike', 'note', 'wa', 'email', 'strava', 'komoot', 'web', 'addr', 'until'];
 /** How long each part may be (links and the address are longer). */
 export const cardMax = (f) => (f === 'note' || f === 'addr' ? 120 : f === 'web' || f === 'strava' || f === 'komoot' ? 100 : 60);
 /** A card → the link behind the QR code: …#/karte/<base64url of the card>. Nothing goes to a server. */
@@ -402,7 +402,10 @@ export function readCard(hash = '') {
     const bin = atob(m[1].replace(/-/g, '+').replace(/_/g, '/'));
     const o = JSON.parse(new TextDecoder().decode(Uint8Array.from(bin, (c) => c.charCodeAt(0))));
     if (o?.v !== CARD_V || !clean(o.name)) return null;
-    return Object.fromEntries(CARD_FIELDS.map((f) => [f, clean(o[f], cardMax(f))]));
+    const c = Object.fromEntries(CARD_FIELDS.map((f) => [f, clean(o[f], cardMax(f))]));
+    // Kontakt-QR-Code «4a»: the day the card stops showing (soft, the page says «expired»); only a real date counts
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(c.until)) c.until = '';
+    return c;
   } catch {
     return null;
   }

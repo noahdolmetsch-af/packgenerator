@@ -20,4 +20,26 @@ export default {
   'Tick before you show it: only what is ticked goes into the QR code. The other person can save you to their contacts with one tap. A shared card cannot be taken back.':
     'Vor dem Zeigen ankreuzen: Nur was angekreuzt ist, steckt im QR-Code. Die andere Person speichert dich mit einem Tipp in ihren Kontakten. Eine geteilte Karte lässt sich nicht zurückholen.',
   'E-mail to {name}': 'E-Mail an {name}',
+  // step 2: end day, show big, straight to contacts
+  'Show big': 'Gross zeigen',
+  'What the QR code opens': 'Was der QR-Code öffnet',
+  'Page with buttons': 'Seite mit Knöpfen',
+  'Straight to contacts': 'Direkt Kontakte',
+  'The phone offers to save you as a contact right away, also without internet. Without an end day: what is in the address book stays.':
+    'Das Handy bietet sofort an, dich als Kontakt zu speichern, auch ohne Internet. Ohne Ablaufdatum: Was im Adressbuch ist, bleibt.',
+  'A page with a button for each way to reach you and «Save to contacts». Needs internet for a moment.':
+    'Eine Seite mit einem Knopf für jeden Weg zu dir und «In Kontakte speichern». Braucht kurz Internet.',
+  'How long the card shows': 'Wie lange die Karte gilt',
+  'Today only': 'Nur heute',
+  '1 week': '1 Woche',
+  '1 month': '1 Monat',
+  Always: 'Immer',
+  'The card shows until {day}. After that the page says «expired». Whoever knows how can still read the details in the link.':
+    'Die Karte gilt bis {day}. Danach steht auf der Seite «abgelaufen». Wer sich auskennt, kann die Angaben im Link trotzdem lesen.',
+  'The card shows without an end.': 'Die Karte gilt ohne Ende.',
+  'Hold the phone camera on the code.': 'Halte die Handy-Kamera auf den Code.',
+  'Hold the phone camera on the code. Shows until {day}.': 'Halte die Handy-Kamera auf den Code. Gilt bis {day}.',
+  'This card has expired': 'Diese Karte ist abgelaufen',
+  'Ask {name} for a new card.': 'Frag {name} nach einer neuen Karte.',
+  'Shared until {day}': 'Geteilt bis {day}',
 };

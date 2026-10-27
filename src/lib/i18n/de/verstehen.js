@@ -1,0 +1,117 @@
+/**
+ * «App verstehen» (Noah 26.10.2026): Ich › App verstehen, der Mini-Kurs in sieben Lektionen (lib/verstehen.js).
+ */
+export default {
+  // Ich › Zeile und Seitenkopf
+  'Understand the app': 'App verstehen',
+  'Seven lessons: keep the app going yourself': 'Sieben Lektionen: die App selbst am Leben halten',
+  'Seven short lessons, so you can keep the app going yourself': 'Sieben kurze Lektionen, damit du die App selbst am Leben halten kannst',
+  'Two parts': 'Zwei Teile',
+  'Packing, planning, trips, bikes, gear and notes run only on this device. They need no server and no helper, and keep running for years.': 'Packen, Planen, Touren, Velos, Material und Notizen laufen nur auf diesem Gerät. Sie brauchen keinen Server und keinen Helfer und laufen noch Jahre weiter.',
+  'Strava, Fitbit and Google, AI, sync and reminders need a small server and outside accounts. One of them can stop now and then; the rest goes on.': 'Strava, Fitbit und Google, KI, Abgleich und Erinnerungen brauchen einen kleinen Server und fremde Konten. Davon kann ab und zu eines ausfallen; der Rest geht weiter.',
+  'The biggest risk is losing your data without a backup. Lesson 2 shows how to avoid it.': 'Das grösste Risiko: deine Daten gehen ohne Backup verloren. Lektion 2 zeigt, wie du das verhinderst.',
+  'Emergency handbook': 'Notfall-Handbuch',
+  'Account list': 'Konten-Liste',
+  Lessons: 'Lektionen',
+  '{n} of {total} done': '{n} von {total} erledigt',
+  'Pick any lesson, in any order. Each one takes 15 to 20 minutes. Tick «Done» when you like; it is only for you.': 'Nimm irgendeine Lektion, in beliebiger Reihenfolge. Jede dauert 15 bis 20 Minuten. Hake «Erledigt» ab, wenn du magst; es ist nur für dich.',
+  'Done|lesson': 'Erledigt',
+  'Mark as done': 'Als erledigt abhaken',
+  'Step by step': 'Schritt für Schritt',
+  Exercise: 'Übung',
+
+  // Lektion 1
+  'The map: where is what': 'Die Landkarte: wo liegt was',
+  'The four parts of the app and what each one does.': 'Die vier Teile der App und was jeder macht.',
+  'The code is the building plan. It lies on GitHub, and every change is kept, so every change can be taken back.': 'Der Code ist der Bauplan. Er liegt auf GitHub, und jede Änderung bleibt gespeichert, darum lässt sich jede Änderung zurücknehmen.',
+  'GitHub Pages is the shop window. Your devices load the app from there once and keep a copy, so it also starts without internet.': 'GitHub Pages ist das Schaufenster. Deine Geräte laden die App einmal von dort und behalten eine Kopie, darum startet sie auch ohne Internet.',
+  'Your data lies only in this browser on this device. Nobody else has it, so the backup is yours to make.': 'Deine Daten liegen nur in diesem Browser auf diesem Gerät. Niemand sonst hat sie, darum ist das Backup deine Sache.',
+  'The server «packgen» on Vercel runs the extras: Strava, Fitbit and Google, AI, sync between devices and reminders. If it stops, only the extras stop.': 'Der Server «packgen» bei Vercel macht die Extras: Strava, Fitbit und Google, KI, Abgleich zwischen Geräten und Erinnerungen. Fällt er aus, fallen nur die Extras aus.',
+  'Open the code on GitHub.': 'Öffne den Code auf GitHub.',
+  'Open the file package.json and find the line «version».': 'Öffne die Datei package.json und suche die Zeile «version».',
+  'Compare it with the version under Me › What is new.': 'Vergleiche sie mit der Version unter Ich › Was ist neu.',
+  'Find the version number on GitHub and in the app. Are they the same?': 'Finde die Versionsnummer auf GitHub und in der App. Sind sie gleich?',
+  'Code on GitHub': 'Code auf GitHub',
+  'package.json': 'package.json',
+
+  // Lektion 2
+  'Make a backup and bring it back': 'Backup machen und zurückspielen',
+  'Keep your data safe, even if a phone gets lost.': 'Deine Daten sichern, auch wenn ein Handy verloren geht.',
+  'A backup is one file with all your data.': 'Ein Backup ist eine Datei mit all deinen Daten.',
+  'Keep it in two places, for example Google Drive and a USB stick.': 'Leg sie an zwei Orten ab, zum Beispiel in Google Drive und auf einem USB-Stick.',
+  'The app reminds you when the last backup is older than the days set under Me › Own values.': 'Die App erinnert dich, wenn das letzte Backup älter ist als die Tage, die unter Ich › Eigene Werte stehen.',
+  'On a computer the app can also write a backup into a folder after every change.': 'Am Computer kann die App ausserdem nach jeder Änderung ein Backup in einen Ordner schreiben.',
+  'Me › Data and backup › Export backup.': 'Ich › Daten und Backup › Backup exportieren.',
+  'Save the file in two places.': 'Die Datei an zwei Orten speichern.',
+  'To bring it back: Me › Data and backup › choose the file › Check import.': 'Zum Zurückspielen: Ich › Daten und Backup › Datei wählen › Import prüfen.',
+  'Export a backup. Then open the test link of a pull request (its own storage, nothing can break there) and import the file.': 'Exportiere ein Backup. Öffne dann den Test-Link eines Pull Requests (eigener Speicher, dort kann nichts kaputtgehen) und lies die Datei ein.',
+
+  // Lektion 3
+  'Read green and red checks': 'Grüne und rote Haken lesen',
+  'See at a glance whether a change is safe.': 'Auf einen Blick sehen, ob eine Änderung sicher ist.',
+  'Every change comes as a pull request: a proposal that is not online yet.': 'Jede Änderung kommt als Pull Request: ein Vorschlag, der noch nicht online ist.',
+  'Robots test it on a phone and a computer screen. A green tick means all tests passed. A red cross means something broke, so it must not go online.': 'Roboter testen ihn auf einem Handy- und einem Computer-Bildschirm. Ein grüner Haken heisst: alle Tests bestanden. Ein rotes Kreuz heisst: etwas ist kaputt, so darf es nicht online.',
+  'A yellow dot means the tests are still running, up to about 45 minutes.': 'Ein gelber Punkt heisst: die Tests laufen noch, bis etwa 45 Minuten.',
+  'Open the list of pull requests.': 'Öffne die Liste der Pull Requests.',
+  'Open one and scroll to the bottom, to the checks.': 'Öffne einen und scrolle nach unten zu den Prüfungen.',
+  'At a red one, open «Details»: the first red line says what broke.': 'Bei einem roten auf «Details»: die erste rote Zeile sagt, was kaputt ist.',
+  'Open the newest pull request and look whether all its checks are green.': 'Öffne den neuesten Pull Request und schau, ob alle Prüfungen grün sind.',
+  'Pull requests': 'Pull Requests',
+  'All test runs': 'Alle Testläufe',
+
+  // Lektion 4
+  'Merge and take back': 'Mergen und zurücknehmen',
+  'Put a change online, and take it back when it is worse.': 'Eine Änderung online bringen, und sie zurücknehmen, wenn sie schlechter ist.',
+  'Merge means: take the change into the app. About 30 to 60 minutes later it is online, and the app shows «Load now».': 'Mergen heisst: die Änderung in die App übernehmen. Etwa 30 bis 60 Minuten später ist sie online, und die App zeigt «Jetzt laden».',
+  'Revert means: take a merged change back. GitHub makes a new pull request that undoes it.': 'Revert heisst: eine gemergte Änderung zurücknehmen. GitHub macht einen neuen Pull Request, der sie rückgängig macht.',
+  'Nothing is ever lost: every older version stays on GitHub.': 'Es geht nie etwas verloren: jede ältere Version bleibt auf GitHub.',
+  'In a pull request with green checks: Merge pull request › Confirm merge.': 'In einem Pull Request mit grünen Haken: Merge pull request › Confirm merge.',
+  'To take it back: open the merged pull request › Revert › Create pull request › merge it.': 'Zum Zurücknehmen: den gemergten Pull Request öffnen › Revert › Create pull request › diesen mergen.',
+  'Practise on a small pull request that only changes one sentence in the docs: merge it, then revert it.': 'Übe an einem kleinen Pull Request, der nur einen Satz in den Dokumenten ändert: mergen, dann zurücknehmen.',
+  'Merged pull requests': 'Gemergte Pull Requests',
+
+  // Lektion 5
+  'Change a word yourself': 'Selber ein Wort ändern',
+  'Fix a German text of the app without a helper.': 'Einen deutschen Text der App ohne Helfer verbessern.',
+  'All German texts of the app are in the folder src/lib/i18n/de. On the left is the English key, on the right the German text.': 'Alle deutschen Texte der App liegen im Ordner src/lib/i18n/de. Links steht der englische Schlüssel, rechts der deutsche Text.',
+  'Change only the right part between the quotes. The tests check it, and the test link shows it before anything goes online.': 'Ändere nur den rechten Teil zwischen den Anführungszeichen. Die Tests prüfen es, und der Test-Link zeigt es, bevor etwas online geht.',
+  'Open the folder on GitHub and pick a file.': 'Öffne den Ordner auf GitHub und wähle eine Datei.',
+  'Tap the pencil symbol.': 'Tippe auf das Stift-Symbol.',
+  'Change one word on the right side.': 'Ändere ein Wort auf der rechten Seite.',
+  'Commit changes › Create a new branch › Propose changes › Create pull request.': 'Commit changes › Create a new branch › Propose changes › Create pull request.',
+  'Wait for the checks and look at the test link.': 'Warte auf die Prüfungen und schau den Test-Link an.',
+  'Change one German word, look at it in the test link, then merge or close the pull request.': 'Ändere ein deutsches Wort, schau es im Test-Link an, dann merge oder schliesse den Pull Request.',
+  'German texts on GitHub': 'Deutsche Texte auf GitHub',
+
+  // Lektion 6
+  'The round of accounts': 'Die Konten-Runde',
+  'Know where things run and see whether they are fine.': 'Wissen, wo was läuft, und sehen, ob es gut läuft.',
+  'The app needs a few free accounts. The keys live only in Vercel, never in the code.': 'Die App braucht ein paar Gratis-Konten. Die Schlüssel liegen nur bei Vercel, nie im Code.',
+  'Every morning a guard checks the server and the live app. Only when something is wrong you get a mail from GitHub.': 'Jeden Morgen prüft ein Wächter den Server und die echte App. Nur wenn etwas nicht stimmt, bekommst du eine Mail von GitHub.',
+  'Vercel › packgen › Deployments: the top entry should say «Ready».': 'Vercel › packgen › Deployments: der oberste Eintrag soll «Ready» zeigen.',
+  'Vercel › packgen › Settings › Environment Variables: only look, change nothing.': 'Vercel › packgen › Settings › Environment Variables: nur anschauen, nichts ändern.',
+  'Read the account list on GitHub.': 'Lies die Konten-Liste auf GitHub.',
+  'Check in Vercel that packgen says «Ready», and print the recovery codes of your GitHub account.': 'Prüfe in Vercel, dass packgen «Ready» zeigt, und drucke die Wiederherstellungs-Codes deines GitHub-Kontos aus.',
+  Vercel: 'Vercel',
+  'GitHub recovery codes': 'GitHub-Wiederherstellungs-Codes',
+
+  // Lektion 7
+  'Brief another helper': 'Einen anderen Helfer einweisen',
+  'Keep the app going with another AI or a person.': 'Die App mit einer anderen KI oder einem Menschen weiterführen.',
+  'The app is normal web technology (Svelte, Vite, JavaScript). Any web developer and other AIs can work on it.': 'Die App ist normale Web-Technik (Svelte, Vite, JavaScript). Jeder, der Webseiten baut, und andere KIs können daran arbeiten.',
+  'Give the helper three files: CLAUDE.md, docs/projektstand.md and the emergency handbook. The handbook has a first message to copy.': 'Gib dem Helfer drei Dateien: CLAUDE.md, docs/projektstand.md und das Notfall-Handbuch. Im Handbuch steht eine erste Nachricht zum Kopieren.',
+  'Never share keys or passwords. If something must change in Vercel, you click yourself.': 'Gib nie Schlüssel oder Passwörter weiter. Muss in Vercel etwas ändern, klickst du selbst.',
+  'Open the emergency handbook, part 4.': 'Öffne das Notfall-Handbuch, Teil 4.',
+  'Copy the first message and add your problem.': 'Kopiere die erste Nachricht und ergänze dein Problem.',
+  'Ask the helper for a pull request that you check and merge yourself.': 'Bitte den Helfer um einen Pull Request, den du selbst prüfst und mergst.',
+  'Give another AI the emergency handbook and ask: «What do I do if Strava stops working?» Compare its answer with the handbook.': 'Gib einer anderen KI das Notfall-Handbuch und frage: «Was tue ich, wenn Strava nicht mehr geht?» Vergleiche ihre Antwort mit dem Handbuch.',
+  'CLAUDE.md': 'CLAUDE.md',
+  'Project status': 'Projektstand',
+
+  // Hilfe und Funktionen
+  'Me › Understand the app: seven short lessons with links and one exercise each, so you can keep the app going without a helper: the four parts, backups, checks, merge and take back, change a word, the accounts, brief another helper.': 'Ich › App verstehen: sieben kurze Lektionen mit Links und je einer Übung, damit du die App ohne Helfer am Leben hältst: die vier Teile, Backups, Haken, mergen und zurücknehmen, ein Wort ändern, die Konten, einen anderen Helfer einweisen.',
+  'Open Me › Understand the app.': 'Öffne Ich › App verstehen.',
+  'Open a lesson, read it and do the exercise.': 'Öffne eine Lektion, lies sie und mach die Übung.',
+  'Tick «Done» if you like.': 'Hake «Erledigt» ab, wenn du magst.',
+  'Example: lesson 2 «Make a backup and bring it back» → export a backup and import it in a test link.': 'Beispiel: Lektion 2 «Backup machen und zurückspielen» → ein Backup exportieren und in einem Test-Link einlesen.',
+};
