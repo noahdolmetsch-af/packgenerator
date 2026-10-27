@@ -16,21 +16,6 @@
 
 export const WHATS_NEW = [
   {
-    // v0.238.0 «Touren c» (996 Einzelideen 60, 61, 65, 66, 67, 68, 70; Noah 26.10.2026): pause reasons, forgotten pause,
-    // hard to reach, split a recording, old trip from memory, speak your look back, feeling before the numbers
-    version: '0.238.0',
-    date: '2026-10-27',
-    title: 'Pauses with a reason',
-    lead: 'And your look back can simply be spoken.',
-    points: [
-      { text: 'Pauses with a reason, and the app notices a forgotten pause', href: '#/ride' },
-      { text: 'Speak your look back: the app sorts it into learned, missing and not needed', href: '#/debrief' },
-      { text: 'Add an old trip from memory, without GPS', href: '#/pack/past' },
-    ],
-    small: [{ box: 'new', text: 'Split one recording into stages when you upload a ride', href: '#/debrief/ride' }],
-    test: ['On the way tap «Pause» and choose a reason: rest, repair or waiting.', 'In the look back tap «Speak your look back», say two sentences and accept the points you want.'],
-  },
-  {
     // v0.234.0 Live Navigation PR 5 «Umweg und zurück» (Noah 27.10.2026 «1a 2b 3a» + «entlang gleicher strecke zurück
     // zur route»): at the place the app asks how you go back; off the route it plans the way back by itself
     version: '0.234.0',
@@ -3718,8 +3703,6 @@ export const WHATS_NEW = [
 // (Kept here at the end of the list so that PRs still numbered by hand never conflict with it.)
 import { NEWS } from './news/index.gen.js';
 WHATS_NEW.unshift(...NEWS);
-// A PR still numbered by hand (Touren c) can be newer than a news entry merged before it: keep newest first.
-WHATS_NEW.sort((a, b) => compareVersions(b.version, a.version));
 
 /** How many versions show open; the older ones fold away. */
 export const SHOWN = 3;

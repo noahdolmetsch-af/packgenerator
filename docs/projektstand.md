@@ -1,7 +1,6 @@
 # Projektstand und Plan
 
 Stand: **27. Oktober 2026, 13:35 UTC**. Auf `main` steht **Version 0.234.0** (zuletzt 0.217.0 bis 0.234.0 am 27.10.2026 zusammengeführt). **Seit 26.10.2026 abends gelten neue Regeln** (kleine PRs, Screenshots und Testlink, Noah gibt frei, Claude merged; siehe [CLAUDE.md](../CLAUDE.md) und [Arbeitsweise](arbeitsweise.md)). Dieser PR bringt 0.231.1 «Da, wo du schaust» (4 weitere versteckte Funktionen).
-| neu | 0.238.0 | 0.238.0 «Pausen mit Grund»: Touren c (Ideen 60, 61, 65, 66, 67, 68, 70) | offen; Claude merged bei Grün |
 
 Ältere Abschnitte weiter unten («Kurzstand 19.10.», Abschnitte 1 bis 5) sind der damalige Stand und bleiben als Verlauf stehen. Was unten anders steht, gilt nicht mehr, wo dieser Abschnitt etwas Neueres sagt.
 
