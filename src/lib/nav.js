@@ -418,7 +418,9 @@ export const PLACE_TABS = {
   ],
   // «Aktiv neu»: what you look at. The start takes the form card, Strava and «Wi gaht's?» from the old Aktiv.
   analysis: [
-    { key: 'start', label: 'Overview|tab', href: '#/auswerten', match: (h) => /^#\/auswerten(\/|\?|$)/.test(h) },
+    { key: 'start', label: 'Overview|tab', href: '#/auswerten', match: (h) => /^#\/auswerten(\/(?!analyse)|\?|$)/.test(h) },
+    // Analyse PR 1 (Noah 27.10.2026 «1a»): every value as a tile, also behind «Mehr» on Heute
+    { key: 'analyse', label: 'Analyse|page', href: '#/auswerten/analyse', match: (h) => /^#\/auswerten\/analyse(\/|\?|$)/.test(h) },
     { key: 'form', label: 'Form|tab', href: '#/flow/form', match: (h) => /^#\/flow\/form(\/|\?|$)/.test(h) },
     { key: 'body', label: 'Body values', href: '#/flow/stats/hr', match: (h) => /^#\/flow\/stats(\/|\?|$)/.test(h) },
     // Gesamttest 20.10.2026 B3: the Strava activities, tab «Fahrten»; same address
