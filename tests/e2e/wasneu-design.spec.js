@@ -12,6 +12,7 @@ import { readFileSync } from 'node:fs';
 import { READY, HELPER_TILES, tripUp } from '../../src/lib/home/tiles.js';
 import { inAreas } from '../../src/lib/home/sections.js';
 import { openShort } from './kurz-open.js';
+import { NEWS } from '../../src/lib/news/index.gen.js';
 
 // v0.155.0 «Heute neu geordnet» (4b, changed on purpose): the fixture's trip starts tomorrow, so its card stands
 // right under the day card; the helper's tile rests while the AI helper is off
@@ -22,7 +23,9 @@ const SHOWN = inAreas(atHour(tripUp(READY.filter((x) => !HELPER_TILES.includes(x
 
 const NEWEST = WHATS_NEW[0];
 // the newest function (highest since-version) and whether the newest version brought it
-const SINCE_ALL = [...readFileSync(new URL('../../src/lib/know/wasneu.js', import.meta.url), 'utf8').matchAll(/'?([\w.]+)'?: '(\d+\.\d+\.\d+)'/g)].map((m) => [m[1], m[2]]);
+const SINCE_ALL = [...readFileSync(new URL('../../src/lib/know/wasneu.js', import.meta.url), 'utf8').matchAll(/'?([\w.]+)'?: '(\d+\.\d+\.\d+)'/g)].map((m) => [m[1], m[2]])
+  // since 27.10.2026 a news file names its functions and they get its version at the merge (wasneu.js reads NEWS)
+  .concat(NEWS.flatMap((e) => (e.since ?? []).map((id) => [id, e.version])));
 const vnum = (v) => v.split('.').reduce((a, n) => a * 1000 + Number(n), 0);
 const NEW_V = SINCE_ALL.reduce((a, b) => (vnum(b[1]) > vnum(a[1]) ? b : a))[1];
 // v0.125.0 Tagespaket: one version can bring several functions (f.tripstate, f.yeargoals); among them the page sorts by name
@@ -150,7 +153,7 @@ test('I11: Ich, Was ist neu: the newest version, every function, all versions an
   await expect(page.getByRole('heading', { name: T('Since your last visit') })).toBeVisible();
   // the functions newer than the version before (none when the newest version brings no function of its own)
   const newer = (a, b) => { const x = a.split('.').map(Number), y = b.split('.').map(Number); for (let i = 0; i < 3; i++) if (x[i] !== y[i]) return x[i] > y[i]; return false; };
-  const sinceIds = [...SRC.matchAll(/'?([\w.]+)'?: '([\d.]+)'/g)].filter((m) => newer(m[2], BEFORE)).map((m) => m[1]);
+  const sinceIds = SINCE_ALL.filter(([, v]) => newer(v, BEFORE)).map(([id]) => id);
   const sinceSec = page.locator('section[aria-labelledby="wn-since-h"], [data-group="wn-since"]');
   await expect(sinceSec.getByText(sinceIds.length === 1 ? T('{n} new function since {v}', { n: 1, v: shortVersion(BEFORE) }) : T('{n} new functions since {v}', { n: sinceIds.length, v: shortVersion(BEFORE) }))).toBeVisible();
   // Paket 2 (0.135.0 brings six functions): the column shows at most SINCE_ROWS of them (read from the page source)
