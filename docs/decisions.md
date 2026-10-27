@@ -1956,3 +1956,8 @@ Noah 19.10.2026: «1a 2a 3a 4 a oder b beides wählbar 5a», danach «a und b»,
 - Noah 27.10.2026 Einstellungen Live Navigation «1a 2 ja 3a 4 Anstieg, Laden, Abzweigung … 5a 6a»: Mockup M8 neu mit sechs Gruppen und 12 Auslösern für die Leiste (3 an, 9 zum Dazuschalten).
 - Noah 27.10.2026 Suchvorschläge «1a 2a 3a 4a»: Situations-Knöpfe ganz oben bei «In der Nähe», neue Arten unter «Weitere Arten», Automaten aus OpenStreetMap, auf Live-Karte und Tour-Seite. Schlafplatz finden ohne Regel-Hinweis («ohne hinweis»). Umweg und zurück «1a 2b 3a»: nach dem Halt immer fragen (Renn-Modus: zurück an die Ausstiegsstelle vorgewählt), neben der Strecke sofort selbst neu berechnen, dazu Sport-/Outdoorgeschäft, Feuerstelle und Handy laden.
 - Noah 27.10.2026 01:15: Freigabe für alle Mockups (M8 neu, N1–N3, R1–R4); dazu «Gleichen Weg zurück» auf der eigenen Spur, wenn man von der Strecke abkommt.
+
+## 27.10.2026 Kontakt-QR-Code
+
+- Noah 27.10.2026 13:25 UTC «1a 2b 3a 4a 5a» (Entwurf https://claude.ai/artifact/54AdarKSkTYZrVh4BfQb1R): 1a der QR-Code öffnet eine Seite mit Knöpfen, «direkt Kontakte» (vCard) wählbar; 2b keine Profile, eine Karte, vor dem Zeigen ankreuzen; 3a «Zahlung» separat mit Swiss QR Code und TWINT, erst nach Tippen sichtbar; 4a weiches Ablaufdatum ohne Server; 5a Sperrbildschirm-Bild und Sticker «Gefunden?» gleich einplanen, Gruppenfahrt und Tour danach.
+- PR 1 (0.236.0) Selbst entschieden: bestehende Kontaktkarte ausgebaut statt neue Seite; Link bleibt Version 1 (ältere Apps lesen weiter); Adresse, Telefon und WhatsApp starten aus, der Rest zeigt sich, sobald ausgefüllt; Strava nur als Link oder Profilnummer (Strava hat keine Namen-Links); Adresse öffnet OpenStreetMap; Kontaktdatei als vCard 3.0, weil iPhone und Android sie beide lesen.

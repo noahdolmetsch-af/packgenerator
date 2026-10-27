@@ -338,3 +338,7 @@ Mockups N1–N3 und R4 von Noah freigegeben (27.10. «freigabe für alle mockups
 ## 27.10.2026 Live Navigation PR 3 (Strecke genau)
 
 Keine sichtbare Oberfläche neu; die Linie auf der Karte folgt den Kurven. Kein Design-Eingriff.
+
+## 27.10.2026 Kontakt-QR-Code PR 1 (0.236.0)
+
+Mockups K1–K6 von Noah beantwortet («1a 2b 3a 4a 5a»). PR 1 nutzt die Bausteine der Kontaktkarte (ev-box, ev-fld, ev-sw) und auf der Kartenseite eine Zeilenliste wie in K4 (Symbol, Name, Wert, Pfeil). Ein Hauptknopf «In Kontakte speichern». Bilder 390 und 1440 im PR.

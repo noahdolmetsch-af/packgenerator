@@ -4,6 +4,13 @@
  * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
+  // 0.236.0 Kontakt-QR-Code
+  'Scan me': 'Scan mich',
+  'Your contact card now carries every way to reach you that you tick.': 'Deine Kontaktkarte trägt jetzt jeden Weg zu dir, den du ankreuzt.',
+  'Phone, WhatsApp, e-mail, Instagram, Strava, Komoot, web and address on one card': 'Telefon, WhatsApp, E-Mail, Instagram, Strava, Komoot, Webseite und Adresse auf einer Karte',
+  'Whoever scans it saves you to their contacts with one tap': 'Wer sie scannt, speichert dich mit einem Tipp in den Kontakten',
+  'Open Me › With friends › Contact card, fill in e-mail and Strava, then tick the address on: the text under the QR code lists what is on the card.': 'Öffne Ich › Mit Freunden › Kontaktkarte, trag E-Mail und Strava ein und kreuze die Adresse an: Unter dem QR-Code steht, was auf der Karte ist.',
+  'Scan the QR code with a second phone: the page shows a row for each way to reach you and «Save to contacts».': 'Scanne den QR-Code mit einem zweiten Handy: Die Seite zeigt eine Zeile für jeden Weg zu dir und «In Kontakte speichern».',
   // 0.218.0 Was ziehe ich an? selbst anpassen
   'Your clothes, your call': 'Deine Kleider, deine Wahl',
   '«What do I wear?» now lets you change the suggestion.': 'Bei «Was ziehe ich an?» änderst du jetzt den Vorschlag selbst.',

@@ -1,11 +1,12 @@
 # Projektstand und Plan
 
-Stand: **27. Oktober 2026, 12:05 UTC**. Auf `main` steht **Version 0.231.0** (zuletzt 0.217.0 bis 0.231.0 am 27.10.2026 zusammengeführt). **Seit 26.10.2026 abends gelten neue Regeln** (kleine PRs, Screenshots und Testlink, Noah gibt frei, Claude merged; siehe [CLAUDE.md](../CLAUDE.md) und [Arbeitsweise](arbeitsweise.md)). Dieser PR bringt 0.231.1 «Da, wo du schaust» (4 weitere versteckte Funktionen).
+Stand: **27. Oktober 2026, 13:45 UTC**. Auf `main` steht **Version 0.232.0** (zuletzt #279 am 27.10.2026 zusammengeführt). **Seit 26.10.2026 abends gelten neue Regeln** (kleine PRs, Screenshots und Testlink, Noah gibt frei, Claude merged; siehe [CLAUDE.md](../CLAUDE.md) und [Arbeitsweise](arbeitsweise.md)). Dieser PR bringt 0.231.1 «Da, wo du schaust» (4 weitere versteckte Funktionen).
 
 Ältere Abschnitte weiter unten («Kurzstand 19.10.», Abschnitte 1 bis 5) sind der damalige Stand und bleiben als Verlauf stehen. Was unten anders steht, gilt nicht mehr, wo dieser Abschnitt etwas Neueres sagt.
 
 ## Stand 26.10.2026 auf einen Blick
 
+**Nachtrag 27.10.2026, 0.236.0 «Scan mich» (Kontakt-QR-Code PR 1, offen):** Noah «1a 2b 3a 4a 5a». Die Kontaktkarte unter Ich › Mit Freunden trägt neu Telefon, WhatsApp, E-Mail, Instagram, Strava, Komoot, Webseite und Adresse (Adresse erst nach Ankreuzen). Wer den QR-Code scannt, sieht eine Zeile pro Weg und «In Kontakte speichern». Danach: Ablaufdatum und «Gross zeigen», dann «Zahlung», dann Sperrbildschirm und Sticker.
 **Nachtrag 27.10.2026, 0.232.0 «Deine Kleider, deine Wahl» (#279):** Schritt 1 von 3 aus «Was ziehe ich an? selbst anpassen» (Noah «1a 2a oder b wählbar 3a 4a kann aber trotzdem übergangen werden 5a»). Im Fenster auf Heute: Tauschen pro Zeile, «Nichts», «+ Schicht dazu», Lücke mit Grund und «Trotzdem», «Warum so?»; alles nur für den Tag der Fahrt. Danach: 2) Kleider-Sets mit 9 Mustern für Heute und Packliste, Merken wählbar · 3) Grenzen pro Schicht.
 **Live Navigation PR 4 (27.10.2026):** «Was brauchst du?» (0.227.0): Fenster «In der Nähe» mit Situationsknöpfen, «Alles», «Hin» und 14 neuen Ortsarten.
 **Live Navigation PR 3 (27.10.2026):** «Die Strecke folgt jeder Kurve» (0.223.0): GPX-Strecken behalten ihre Kurven (bis 3000 Punkte statt 200).
@@ -37,6 +38,7 @@ Stand: **27. Oktober 2026, 12:05 UTC**. Auf `main` steht **Version 0.231.0** (zu
 | PR | Version (vorläufig) | Inhalt | Stand |
 |---|---|---|---|
 | neu | 0.220.0 | 0.220.0 «Velo-Ergänzungen»: Kettenlehre in der Prognose, Velo-Jahresrückblick, Pflege-Serie nach Regen, Wechsel im Google-Kalender, Geräusch-Notizen, Winter- und Frühlings-Checklisten | offen; Claude merged bei Grün |
+| neu | 0.236.0 | 0.236.0 «Scan mich»: Kontakt-QR-Code PR 1, mehr Angaben auf der Kontaktkarte und «In Kontakte speichern» | offen; wartet auf Noahs Freigabe |
 | neu | 0.226.0 | 0.226.0 «Der Abend-Check kommt trotzdem»: «Heute nicht» am Morgen wartet nur bis zum Abend-Check | offen; Claude merged bei Grün |
 | neu | 0.231.0 | 0.231.0 «Wo du es gesagt hast»: Touren b im Katalog, Handbuch und auf den Heimatseiten; Idee 56 Karte im «Tag zum Hören» | offen; Claude merged bei Grün |
 | #265 | 0.208.1–0.212.0 | Ganze Wörter, Gruppenfahrt für Events, Deine Liste in Sicht, Zwei Touren ein Blick, Touren die mitdenken, mit den Korrekturen für grünes `main` | zusammengeführt am 26.10.2026 abends |

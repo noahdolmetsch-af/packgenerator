@@ -532,3 +532,7 @@ Ziel «Unterwegs» (Tour-Begleiter). Mockups M1–M12 freigegeben; PR 1 «Fahrt 
 Stand 27.10.2026: PR 2 «Orte» (0.222.0) gebaut. M13 «Karte frei» freigegeben (1a 2a 3a), kommt als nächster kleiner PR.
 Stand 27.10.2026: PR 3 «Strecke genau» (0.223.0) gebaut. Neu gewünscht: Suchvorschläge für «In der Nähe» (Wellness, Automaten, Situations-Knöpfe), Fragen offen.
 Stand 27.10.2026: PR 4 «In der Nähe» (0.227.0) gebaut. Nächster Schritt PR 5 «Umweg und zurück». Vorschlag «Alle Infos zu einem Ort» an Noah geschickt, 5 Fragen offen.
+
+## Stand 27.10.2026: Kontakt-QR-Code
+
+Ziel «Zusammen unterwegs» (Leute an Events, Velo-Kollegen): Kontaktangaben per QR-Code teilen, nur was angekreuzt ist, ohne Server, 0 Kosten. Noah «1a 2b 3a 4a 5a». PR 1 «Scan mich» (0.236.0) gebaut: mehr Angaben, Seite mit Knöpfen, «In Kontakte speichern». Danach Ablaufdatum, Zahlung, Sperrbildschirm und Sticker.

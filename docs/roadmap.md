@@ -14,6 +14,8 @@
 
 **Stand:** Version 1.1 · 07.10.2026 · mit `main` nach PR #32 abgeglichen. PR #30 liefert AP03–AP06; PR #32 veröffentlicht die ausgewählten Entwürfe 2 und 3. Der Gesamtplan ist damit teilweise umgesetzt. [Releasebeleg](releases/2026-10-07-calm-preparation.md) und [Prüfregister](verification.md) unterscheiden Implementierung, Prüfung und fachliche Abnahme.
 
+**Nachtrag 27.10.2026 (v0.236.0, offen):** Kontakt-QR-Code in 4 kleinen PRs: 1 mehr Angaben + «In Kontakte speichern», 2 Ablaufdatum + Gross zeigen + Direkt Kontakte, 3 Zahlung (Swiss QR + TWINT), 4 Sperrbildschirm-Bild + Sticker «Gefunden?»; danach Gruppenfahrt und Tour als QR.
+
 **Nachtrag 27.10.2026 (v0.232.0):** «Was ziehe ich an? selbst anpassen» Schritt 1 (Tauschen, Schicht dazu, Lücke erklären, Warum so?). Schritt 2 Kleider-Sets mit 9 Mustern, Schritt 3 Grenzen pro Schicht.
 
 **Nachtrag 18.10.2026 (v0.147.0, in Paket B):** «Mail in der App» (Noah 15.10.2026 12:04 «emails versenden in der app, email eingang, kalendereinträge + zugehörige emails»; 12:16 «4a»: lesen und senden in einem Paket; 12:17 «vorerst ohne mockup»; 18.10.2026 21:52: ohne Mockup, Testlink pro Paket): Google Teil 3 (GM). Danach DF (Dateiarten inkl. .pkpass), GX (Auswertungen).
