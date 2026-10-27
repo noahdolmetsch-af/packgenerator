@@ -90,6 +90,7 @@ test('Was ziehe ich an: gap with reason, take anyway, swap, add a layer, why, ba
   // the gap at the hands says why (pieces too light, one still to sort) and offers «Trotzdem»
   const gap = row('hands').locator('[data-wear-gap="light"]');
   await expect(gap).toContainText(T('Your pieces here are made for {n} °C and warmer. Today: {c} °C.', { n: 15, c: 6 }));
+  await expect(gap).toContainText(T('{n} piece for this still waits in «To sort». Once sorted, it counts.', { n: 1 }));
   await expect(gap.getByRole('link', { name: T('Sort them') })).toBeVisible();
   await shot(page, info, '1-luecke');
   await gap.locator('[data-wear-anyway]').click();

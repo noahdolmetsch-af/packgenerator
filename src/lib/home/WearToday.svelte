@@ -102,7 +102,10 @@
   const reasonText = (r) => {
     const g = gapReason(r.key, items, o.outfit.c, { rain: r.rain });
     if (g.kind === 'rain') return { g, text: t('Nothing waterproof is sorted as outer layer.') };
-    if (g.kind === 'light') return { g, text: g.from != null ? t('Your pieces here are made for {n} °C and warmer. Today: {c} °C.', { n: g.from, c: o.outfit.c }) : t('Your pieces here are too light for {c} °C.', { c: o.outfit.c }) };
+    if (g.kind === 'light') {
+      const first = g.from != null ? t('Your pieces here are made for {n} °C and warmer. Today: {c} °C.', { n: g.from, c: o.outfit.c }) : t('Your pieces here are too light for {c} °C.', { c: o.outfit.c });
+      return { g, text: g.unsorted ? `${first} ${tn(g.unsorted, '{n} piece for this still waits in «To sort». Once sorted, it counts.', '{n} pieces for this still wait in «To sort». Once sorted, they count.')}` : first };
+    }
     if (g.kind === 'unsorted') return { g, text: tn(g.unsorted, '{n} piece for this still waits in «To sort». Once sorted, it counts.', '{n} pieces for this still wait in «To sort». Once sorted, they count.') };
     return { g, text: t('Nothing in the wardrobe for this yet.') };
   };
