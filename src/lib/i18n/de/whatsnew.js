@@ -12,6 +12,14 @@ export default {
   '«Why so?» explains how the app chooses': '«Warum so?» erklärt, wie die App wählt',
   'On Today tap «What do I wear?» and then «Swap» on a row: pick another piece; the row says «chosen by you · today only».': 'Tippe auf Heute auf «Was ziehe ich an?» und bei einer Zeile auf «Tauschen»: Wähle ein anderes Teil; die Zeile zeigt «von dir gewählt · nur heute».',
   'Open «Why so?» under the list: it names the temperature and from when each layer comes.': 'Öffne «Warum so?» unter der Liste: Dort stehen die Temperatur und ab wann jede Schicht kommt.',
+  // 0.231.1 Da, wo du schaust
+  'Found where you look': 'Da, wo du schaust',
+  'Four more tools now live on the page where you see them.': 'Vier weitere Werkzeuge wohnen jetzt auf der Seite, wo du sie siehst.',
+  'Ozone and pollen: found on the Weather page': 'Ozon und Pollen: zu finden auf der Wetter-Seite',
+  'Chain after rain: found under Messages': 'Kette nach Regen: zu finden unter Nachrichten',
+  'Receipts and Ice in the morning carry the name the page shows': 'Belege und Glätte am Morgen tragen den Namen, den die Seite zeigt',
+  'Open «What the app can do», search «Pollen» and tap «Try it».': 'Öffne «Was die App kann», suche «Pollen» und tippe auf «Ausprobieren».',
+  'The Weather page opens with ozone and pollen.': 'Die Wetter-Seite öffnet sich mit Ozon und Pollen.',
   // v0.231.0 Touren b Katalog
   'Where you said it': 'Wo du es gesagt hast',
   'Your day to listen to now shows a small map.': 'Dein Tag zum Hören zeigt jetzt eine kleine Karte.',
