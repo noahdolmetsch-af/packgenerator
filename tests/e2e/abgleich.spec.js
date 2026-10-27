@@ -168,9 +168,15 @@ test('Pairing: «Syncing …» while it runs, no question after the first round,
 
   const a = await device(browser, info, server);
   // a slow server: the line shows while it pairs
+  let waiting = 0;
   await a.context.route(/packgen-three\.vercel\.app\/api\/sync/, async (route) => {
-    await new Promise((ok) => setTimeout(ok, 700));
-    await route.fallback();
+    waiting++;
+    try {
+      await new Promise((ok) => setTimeout(ok, 700));
+      await route.fallback();
+    } finally {
+      waiting--;
+    }
   });
   await a.page.goto('./');
   await importAndSettle(a.page, fixture);
@@ -183,9 +189,10 @@ test('Pairing: «Syncing …» while it runs, no question after the first round,
   // switched off, and pairing again while the server cannot be reached: the panel says so
   await syncBox(a.page).getByRole('button', { name: T('Switch off|sync') }).click();
   await syncBox(a.page).getByRole('group', { name: T('Switch off sync?') }).getByRole('button', { name: T('Only switch off') }).click();
-  // No unrouteAll: a request still waiting in the slow route above would then fall through to the real
-  // server (which answers «daily_cap» on a busy day). The newest route runs first, so this one blocks
-  // every new request, and a waiting one still falls back to the fake server.
+  // The round that was running when it was switched off ends first, on the test server. Without this wait
+  // it went on to the real server (27.10.2026: that one had reached its daily cap, the panel said «Gratis-Grenze»).
+  await expect.poll(() => waiting).toBe(0);
+  await a.context.unrouteAll();
   await a.context.route(/^https?:\/\/(?!localhost[:/])/, (route) => route.abort());
   await syncBox(a.page).getByRole('button', { name: T('I have a code') }).click();
   await syncBox(a.page).getByLabel(T('Code from the other device')).fill(code);
