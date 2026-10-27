@@ -3,7 +3,7 @@
 PR (diese Änderung) · 27.10.2026 · Auftrag: Noah «1a» (Thread «Live Navigation», Bilder der Live-Karte vom 27.10.)
 
 ## Was ist neu
-- Das Fenster «In der Nähe» auf der Live-Karte hat nur noch eine Überschrift («Mehr Orte auf der Karte»); «Orte auf der Karte» darunter fällt weg.
+- Das Fenster «In der Nähe» auf der Live-Karte hat nur noch eine Überschrift («In der Nähe»); «Orte auf der Karte» darunter fällt weg.
 - Neben der Strecke: ab 1 km zeigt die rote Zeile km (z. B. «27.4 km entfernt» statt «27400 m entfernt»).
 
 ## Was fällt weg oder rutscht tiefer
