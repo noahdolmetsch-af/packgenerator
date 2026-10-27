@@ -4,6 +4,13 @@
  * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
+  // 0.212.1 Die heutige Tour sagt eins
+  "Today's tour says one thing": 'Die heutige Tour sagt eins',
+  'Not packed yet means: still packing, not done.': 'Noch nicht gepackt heisst: noch am Packen, nicht fertig.',
+  'A day ride not started yet no longer shows «Last evening» or «Completed»': 'Eine Tagestour, die noch nicht begonnen hat, zeigt nicht mehr «Letzter Abend» oder «Abgeschlossen»',
+  'Tour page before the ride: «Planned» and a button to the step you are in': 'Tourseite vor der Fahrt: «Geplant» und ein Knopf zum Schritt, in dem du bist',
+  'Plan a day ride for today and do not finish packing. In the evening Today shows no «Last evening» and no «Review today».': 'Plane eine Tagestour für heute und schliesse das Packen nicht ab. Am Abend zeigt Heute kein «Letzter Abend» und kein «Rückblick heute».',
+  'Open the tour page of that trip (step «Analysis»): it says «Planned» and «Continue to Pack».': 'Öffne die Tourseite dieser Tour (Schritt «Auswertung»): Dort steht «Geplant» und «Weiter zu Packen».',
   // 0.212.0 Touren b
   'Tours that remember': 'Touren, die mitdenken',
   'Start from what you want, get reminded at the right place.': 'Beginne mit deiner Absicht, die Erinnerung kommt am richtigen Ort.',
@@ -41,10 +48,9 @@ export default {
   'Open Planen with a trip: «Einkaufsliste» and «Gewicht» stand as whole words.': 'Öffne Planen mit einer Tour: «Einkaufsliste» und «Gewicht» stehen als ganze Wörter.',
   // 0.208.0 Mehr Platz am Computer
   'Every ride is saved': 'Jede Fahrt wird gespeichert',
-  '«End the ride» keeps it in Trips at once.': '«Fahrt beenden» legt sie sofort in Touren ab.',
-  'Each live ride is its own entry in Trips, labelled «Live Navigation»': 'Jede Live-Fahrt ist ein eigener Eintrag in Touren, mit dem Label «Live Navigation»',
+  '«End the ride» asks once and keeps the ride in Trips.': '«Fahrt beenden» fragt einmal nach und legt die Fahrt in Touren ab.',
+  'Each live ride is in Trips as «Live Navigation»': 'Jede Live-Fahrt steht in Touren als «Live Navigation»',
   'The km go to your bike by themselves, with Undo': 'Die km gehen von selbst aufs Velo, mit Rückgängig',
-  '«End the ride» asks once, so a tap by mistake ends nothing': '«Fahrt beenden» fragt einmal nach, ein falscher Tipp beendet nichts',
   'Open the live map, start a ride and ride a few minutes (or walk).': 'Öffne die Live-Karte, starte eine Fahrt und fahre (oder gehe) ein paar Minuten.',
   'Tap «End the ride», then «End and save»: a line says «Saved in Trips».': 'Tippe «Fahrt beenden», dann «Beenden und speichern»: eine Zeile sagt «In Touren gespeichert».',
   'Open Trips: the ride is there with the label «Live Navigation».': 'Öffne Touren: die Fahrt steht dort mit dem Label «Live Navigation».',

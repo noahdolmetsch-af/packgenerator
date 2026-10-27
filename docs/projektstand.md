@@ -30,6 +30,7 @@ Stand: **26. Oktober 2026, 17:50 UTC**. Live ist **Version 0.208.0** (Sammel-PR 
 
 | PR | Version (vorläufig) | Inhalt | Stand |
 |---|---|---|---|
+| neu | 0.212.1 | 0.212.1 «Die heutige Tour sagt eins» (UI-Test T1): vor der Fahrt kein «Letzter Abend», kein «Abgeschlossen» | offen; Claude merged nach Noahs Freigabe der Bilder |
 | (Sammel-PR) | 0.208.1 | «Ganze Wörter am kleinen Handy» (Gesamttest 26.10., war #257): Titel neben Schildern behalten ihr längstes Wort, «Zu kaufen» unter dem Namen, Verschleiss-Namen umbrechen | offen; Noah mergt selbst |
 | (Sammel-PR) | 0.209.0 | «Tagelang zusammen fahren»: Gruppenfahrt für Events mit eigener Seite (Hilfe mit Ton, Bereit, Kontrollpunkte, Treffpunkte, wer hat was, Kosten teilen, Gewitter, Nachtpause), Kontaktkarte mit QR-Code | offen; Noah mergt selbst |
 | (Sammel-PR) | 0.210.0 | «Deine Liste in Sicht»: Noahs Wunschliste sichtbar (Sprungknöpfe in Packen, Material, Aktiv, Velo; Heute mit Höchst/Tiefst; alle Taschen nebeneinander), 111 → 77 versteckte Funktionen | offen; Noah mergt selbst |

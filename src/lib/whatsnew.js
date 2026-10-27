@@ -21,13 +21,21 @@ export const WHATS_NEW = [
     version: '0.213.0',
     date: '2026-10-26',
     title: 'Every ride is saved',
-    lead: '«End the ride» keeps it in Trips at once.',
-    points: [
-      { text: 'Each live ride is its own entry in Trips, labelled «Live Navigation»', href: '#/trips' },
-      { text: 'The km go to your bike by themselves, with Undo', href: '#/live' },
-    ],
-    small: [{ box: 'fixed', text: '«End the ride» asks once, so a tap by mistake ends nothing', href: '#/live' }],
+    lead: '«End the ride» asks once and keeps the ride in Trips.',
+    points: [{ text: 'Each live ride is in Trips as «Live Navigation»', href: '#/trips' }],
+    small: [{ box: 'new', text: 'The km go to your bike by themselves, with Undo', href: '#/live' }],
     test: ['Open the live map, start a ride and ride a few minutes (or walk).', 'Tap «End the ride», then «End and save»: a line says «Saved in Trips».', 'Open Trips: the ride is there with the label «Live Navigation».'],
+  },
+  {
+    // v0.212.1 UI-Test 26.10.2026 T1 «Heutige Tour: ein Zustand überall»: a day ride not begun yet (not packed, not
+    // started) no longer shows «Letzter Abend», «Rückblick heute» or «Abgeschlossen»; the tour page says «Geplant»
+    version: '0.212.1',
+    date: '2026-10-26',
+    title: "Today's tour says one thing",
+    lead: 'Not packed yet means: still packing, not done.',
+    points: [{ text: 'A day ride not started yet no longer shows «Last evening» or «Completed»', href: '#/trips' }],
+    small: [{ box: 'fixed', text: 'Tour page before the ride: «Planned» and a button to the step you are in' }],
+    test: ['Plan a day ride for today and do not finish packing. In the evening Today shows no «Last evening» and no «Review today».', 'Open the tour page of that trip (step «Analysis»): it says «Planned» and «Continue to Pack».'],
   },
   {
     // v0.212.0 «Touren b» (996 Einzelideen 50–58, Noah 25./26.10.2026 «freigabe 52 55 56 57 58»): trip from an intent,

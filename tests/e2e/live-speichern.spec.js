@@ -59,3 +59,37 @@ test('End the ride: asks once, saves the ride in Touren with its label', async (
   await label.scrollIntoViewIfNeeded();
   await page.screenshot({ path: info.outputPath('live-touren.png') });
 });
+
+// Noah 27.10.2026: «wenn ich eine neue Live-Aufnahme starte, überschreibt es die vorherige». Two rides in a
+// row are two entries in Touren.
+test('Two rides in a row: both stay in Touren', async ({ page, context }, info) => {
+  await openHome(page, context, info);
+  await context.route(/tiles\.openfreemap\.org|wmts\.geo\.admin\.ch|tile\.openstreetmap\.org|opentopomap|rainviewer/, (route) =>
+    route.fulfill({ status: 200, contentType: 'image/png', body: Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=', 'base64') }),
+  );
+  await context.route(/overpass/, (route) => route.fulfill({ json: { elements: [] } }));
+  await context.grantPermissions(['geolocation']);
+  await page.goto('./#/live');
+  for (const [n, lat0] of [[1, 46.95], [2, 46.99]]) {
+    await context.setGeolocation({ latitude: lat0, longitude: 7.45, accuracy: 6 });
+    const startBtn = page.locator('[data-live-start]');
+    await startBtn.scrollIntoViewIfNeeded();
+    await tap(startBtn, info);
+    await expect(page.locator('[data-live-stop]')).toBeAttached();
+    for (let i = 1; i <= 5; i++) {
+      await context.setGeolocation({ latitude: lat0 + 0.2 * i * KM_LAT, longitude: 7.45, accuracy: 6 });
+      await page.waitForTimeout(400);
+    }
+    await tap(page.locator('[data-live-sheet-toggle]'), info);
+    const stop = page.locator('[data-live-stop]');
+    await stop.scrollIntoViewIfNeeded();
+    await tap(stop, info);
+    await tap(page.locator('[data-live-end-yes]'), info);
+    await expect(page.locator('[data-live-saved]'), `ride ${n}`).toBeVisible();
+  }
+  await page.clock.setFixedTime(new Date(Date.now() + 864e5));
+  await tap(page.locator('[data-live-saved-link]'), info);
+  await expect(page).toHaveURL(/#\/trips/);
+  if (phone(info)) await tap(page.locator('[data-packmode-open]'), info);
+  await expect(page.locator('[data-row] [data-live-label]')).toHaveCount(2, { timeout: 15_000 });
+});
