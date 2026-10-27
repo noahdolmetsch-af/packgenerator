@@ -4,6 +4,7 @@
   import TipWeek from '../lib/clear/TipWeek.svelte';
   import DueToday from '../lib/home/DueToday.svelte';
   import { WALL_TIME_KEY, byTime } from '../lib/clear/tipweek.js';
+  import { SECTIONS_KEY } from '../lib/home/sections.js';
   /**
    * Today (Heute). v0.46.0 «Startseite neu» (Noah, 9.10.2026, answers 1a 2b 3a 4b 5a+menu 6-33a 34b):
    * a calm cockpit instead of many big tiles, top to bottom (a phone stacks it in the same order):
@@ -94,7 +95,6 @@
   import { TEMPLATES_KEY } from '../lib/templates.js';
   import { standalone } from '../lib/install.js';
   import HelloSheet from '../lib/home/HelloSheet.svelte'; // HG1d
-  import NameAsk from '../lib/home/NameAsk.svelte'; // HG1b
   import { helloPart, NAME_ASKED_KEY } from '../lib/home/hallo.js'; // HG1
   import { homeTrips, testTrips, archiveChanges, greeting, weatherLine, dayDry, dayPart, countdown, timeLeft, packedOf, soonTrips, milestoneLevels, milestoneStep, milestonesNow, milestoneText, stepOf as stepOfMs, MILESTONE_KEY, LAYOUT_KEY } from '../lib/home/heute.js';
   import { isEveningOn } from '../lib/dayclock.js';
@@ -165,7 +165,7 @@
   import { tripToday } from '../lib/home/ruhig.js';
   import { todayTrip, liveHref } from '../lib/live/start.js'; // Paket U3: the tile «Start a ride»
   import { quietHome } from '../lib/bedienung.svelte.js';
-  import { PartyPopper, Sun, Pencil, RotateCcw, Route, ChevronRight, SlidersHorizontal, Hand, X, ClipboardList, Flower2, Bike as BikeIcon, LayoutGrid } from '@lucide/svelte';
+  import { PartyPopper, Sun, RotateCcw, Route, ChevronRight, SlidersHorizontal, Hand, X, ClipboardList, Flower2, Bike as BikeIcon, LayoutGrid } from '@lucide/svelte';
   import DuTile from '../lib/home/DuTile.svelte'; // «Heute neu» A (Noah 20.10.2026 «3a»): «You today»
   import MedStartSheet from '../lib/flow/MedStartSheet.svelte';
   import { flowQuery, seedIfNeeded } from '../lib/flow/data.svelte.js';
@@ -191,7 +191,7 @@
   // AU1 «Ausrüstung» 4a (Noah 15.10.2026): the care due of the main equipment is a row of «Important today»
   const mainLogQ = liveQuery(async () => ((await db.items.filter((i) => !!i.main).count()) ? db.flowLog.toArray() : []));
   const NEWS_OFF_KEY = 'homeNewsOff'; // P6 H1: «New» on top taken away for this version
-  const SKEYS = [MERKEN_KEY, LISTS_KEY, TRELLO_KEY, WALL_TIME_KEY, 'riderWeightG', TEMPLATES_KEY, USAGE_KEY, LAYOUT_KEY, WALL_KEY, 'userName', NAME_ASKED_KEY, MILESTONE_KEY, SETS_KEY, HOME_PLACE, TIPS_KEY, PACE_KEY, CHALLENGES_KEY, 'homeHintLongPress', INTRO_KEY, COMPASS_KEY, WEIGH_KEY, NEWS_OFF_KEY];
+  const SKEYS = [MERKEN_KEY, LISTS_KEY, TRELLO_KEY, WALL_TIME_KEY, 'riderWeightG', TEMPLATES_KEY, USAGE_KEY, LAYOUT_KEY, WALL_KEY, 'userName', NAME_ASKED_KEY, MILESTONE_KEY, SETS_KEY, HOME_PLACE, TIPS_KEY, PACE_KEY, CHALLENGES_KEY, 'homeHintLongPress', INTRO_KEY, COMPASS_KEY, WEIGH_KEY, NEWS_OFF_KEY, SECTIONS_KEY];
   const setQ = liveQuery(async () => {
     const rows = await db.settings.bulkGet(SKEYS);
     return Object.fromEntries(SKEYS.map((k, i) => [k, rows[i]?.value ?? null]));
@@ -289,7 +289,6 @@
   // HG1 3: at night only «Guät Nacht, Nachtülä», no tap line and no name question
   const night = $derived(helloPart(now.getHours()) === 'night');
   // HG1b: no name yet: one quiet row under the greeting, asked only once
-  const askName = $derived(ready && !night && !editing && !String(S.userName ?? '').trim() && !S[NAME_ASKED_KEY]);
   const wx = $derived(fc ? weatherLine(fc, now) : null);
   const shortDate = $derived(now.toLocaleDateString(locale(), { weekday: 'short', day: 'numeric', month: 'short' }));
   const dateLine = $derived([now.toLocaleDateString(locale(), { weekday: 'long', day: 'numeric', month: 'long' }), place?.name?.split(',')[0]].filter(Boolean).join(' · '));
@@ -882,6 +881,8 @@
   const shownWall = $derived(editing ? hideTiles(wall, hiddenTiles) : joinFlow(tripUp(hideTiles(wall, [...hiddenTiles, ...quiet]), !!near)));
   // Paket Q #74 (Noah 19.10.2026 «4a»): the wall follows the time of day; while editing the stored order shows
   const timeOn = $derived(S[WALL_TIME_KEY] !== false);
+  // «Heute ruhiger» (Noah 26.10.2026 «3a»): the tiles in areas with a heading; a suggestion, switched off under «Customise»
+  const secOn = $derived(S[SECTIONS_KEY] !== false);
   const timeWall = $derived(editing ? shownWall : byTime(shownWall, now.getHours(), timeOn));
   const saveShown = (tiles) => saveWall(keepHidden(tiles, wall, hiddenTiles));
   const toggleTile = (id) => saveWall(onWall.has(id) ? removeTile(wall, id) : addTile(wall, id));
@@ -993,13 +994,11 @@
       <div class="hi-text">
         <!-- UI-Ziele #15 (Noah 20.10.2026 «freigabe»): the short greeting is the button itself, no «antippen» line -->
         {#if night}<h1 id="hello-h" class="hello">{hello}</h1>{:else}<HelloSheet name={S.userName ?? ''} label={hello} />{/if}
-        <p class="dl">{phone.matches ? shortDate : dateLine}{#if wx}<span aria-hidden="true">{'\u00a0· '}</span><span class="wx" data-weather>{wx.text}</span>{#if wx.hi != null}{' '}<span class="wxr" data-weather-range>{t('↑{hi}° ↓{lo}°', { hi: wx.hi, lo: wx.lo })}</span>{/if}{/if}{#if strava.changes.length}<span aria-hidden="true">{'\u00a0· '}</span><span data-strava-questions>{tn(strava.changes.length, '{n} question from Strava', '{n} questions from Strava')}</span>{/if}</p>
+        <p class="dl">{phone.matches ? shortDate : dateLine}{#if wx}<span aria-hidden="true">{'\u00a0· '}</span><a class="wxa" href="#/wetter" title={t('Weather at your home place')} data-weather-home><span class="sr">{t('Weather at your home place')}: </span><span class="wx" data-weather>{wx.text}</span>{#if wx.hi != null}{' '}<span class="wxr" data-weather-range>{t('↑{hi}° ↓{lo}°', { hi: wx.hi, lo: wx.lo })}</span>{/if}{'\u00a0›'}</a>{:else if ready}<span aria-hidden="true">{'\u00a0· '}</span><a class="wxa" href="#/wetter" data-weather-home>{t('Weather at your home place')}{'\u00a0›'}</a>{/if}{#if ready}<span aria-hidden="true">{'\u00a0· '}</span><button type="button" class="wearq" onclick={() => (wearOpen = true)} data-wear-open>{t('What do I wear?')}</button>{/if}{#if strava.changes.length}<span aria-hidden="true">{'\u00a0· '}</span><span data-strava-questions>{tn(strava.changes.length, '{n} question from Strava', '{n} questions from Strava')}</span>{/if}</p>
         {#if loaded}<RaceLine {today} />{/if}
         <!-- UI-Ziele #17 (Noah 20.10.2026 «freigabe»): «Was häsch vor?» as chips; while customising a list to sort -->
         <!-- «Alltag sichtbar» (Noah 24.10.2026 «1a»): the quick start «Heute fahren» stays visible at night too -->
         {#if ready}<GoalChips {editing} {next} {now} onride={startQuick} ontrip={() => (countUse('trip'), openNew('list'))} />{/if}
-        <!-- «332 Use Cases» (Noah 26.10.2026: «was ziehe ich an, wetter für meinen standort (höchst- und tiefsttemperatur)» on Heute) -->
-        {#if ready}<p class="wxlinks"><a class="linkq" href="#/wetter" data-weather-home>{t('Weather at your home place')} ›</a><button type="button" class="linkq" onclick={() => (wearOpen = true)} data-wear-open>{t('What do I wear?')}</button></p>{/if}
         {#if !wx && ready}
           {#if !place}
             <button type="button" class="linkq" aria-expanded={placeOpen} onclick={() => (placeOpen = !placeOpen)}>{t('Set your home place for the weather')}</button>
@@ -1008,9 +1007,7 @@
           {/if}
         {/if}
         {#if placeOpen}<div class="pf"><HomePlaceForm onchosen={() => (placeOpen = false)} /></div>{/if}
-        {#if askName}<NameAsk />{/if}
       </div>
-      {#if !phone.matches && !editing}<button type="button" class="btn adapt" data-intro="custom" onclick={() => (editing = true)}><SlidersHorizontal size={18} aria-hidden="true" />{t('Customise the start page')}</button>{/if}
     </div>
     <!-- «Heute neu» A: one personal sentence; the idea for today moved into «Up now» -->
     {#if sentence}<p class="say" data-say>{#each sentence as p, i (i)}{#if i}{' '}{/if}<span class:hi={p.hi}>{p.text}</span>{/each}</p>{/if}
@@ -1294,9 +1291,9 @@
   <!-- v0.127.0 A-U2 (mockup «Laden»): calm placeholders until Today has read its data, then the wall -->
   {#if newsRow}<div class="newsrow" data-news-row><NewsTile size="long" days={newsDays} onremove={() => db.settings.put({ key: NEWS_OFF_KEY, value: WHATS_NEW[0].version })} /></div>{/if}
   {#if ready && emptyDevice}
-    <Wall tiles={timeWall.filter((x) => EMPTY_KEEP.has(x.id))} body={tileBody} {editing} onedit={() => (editing = true)} onchange={(kept) => saveShown(timeWall.map((x) => kept.find((y) => y.id === x.id) ?? x))} onadd={() => (catalogOpen = true)} />
+    <Wall tiles={timeWall.filter((x) => EMPTY_KEEP.has(x.id))} body={tileBody} {editing} sections={secOn} onedit={() => (editing = true)} onchange={(kept) => saveShown(timeWall.map((x) => kept.find((y) => y.id === x.id) ?? x))} onadd={() => (catalogOpen = true)} />
     <p class="muted emptywall" data-empty-wall>{t('The rest of Today comes as soon as you have a bike, an item or a trip.')} <button type="button" class="linkq" onclick={() => (wallAnyway = true)}>{t('Show everything now')}</button></p>
-  {:else if ready}<Wall tiles={timeWall} body={tileBody} {editing} onedit={() => (editing = true)} onchange={saveShown} onadd={() => (catalogOpen = true)} />
+  {:else if ready}<Wall tiles={timeWall} body={tileBody} {editing} sections={secOn} onedit={() => (editing = true)} onchange={saveShown} onadd={() => (catalogOpen = true)} />
   {:else}<Skeleton kind="home" rows={2} />{/if}
   <!-- «Heute neu» A: the half-width trip card has no room for the weekly km check; it shows under the wall then -->
   {#if ready && !editing && timeWall.some((x) => x.id === 'trip' && x.size === 'l')}<div class="kmrow"><KmCard {today} /></div>{/if}
@@ -1310,18 +1307,23 @@
         <button type="submit" class="btn">{t('Save name')}</button>
       </form>
       <label class="bytime" data-wall-bytime><input type="checkbox" role="switch" checked={timeOn} onchange={(e) => db.settings.put({ key: WALL_TIME_KEY, value: e.currentTarget.checked })} />{t('Order the tiles by time of day (morning tiles in the morning, evening tiles in the evening)')}</label>
+      <label class="bytime" data-wall-sections><input type="checkbox" role="switch" checked={secOn} onchange={(e) => db.settings.put({ key: SECTIONS_KEY, value: e.currentTarget.checked })} />{t('Show the tiles in areas with a heading (Now, Your body, Your week …)')}</label>
     {:else}
-      <!-- «Heute neu» A (Noah «3a»): everything that left Heute is one tap away -->
-      {#await import('../lib/stops/HeuteStopps.svelte') then m}<m.default {today} top={false} />{:catch}{/await}
-      <a class="lkb" href="#/features" data-all-areas><LayoutGrid size={16} aria-hidden="true" />{t('All areas|home')}</a>
-      {#if phone.matches}<button type="button" class="lkb" data-intro="custom" onclick={() => (editing = true)}><Pencil size={16} aria-hidden="true" />{t('Customise the start page')}</button>{/if}
+      <!-- «Neuer Schwung» (Noah 26.10.2026 «3a», then «diesen bereich zusammen nehmen»): the end of Heute is one quiet
+           block: stops nearby, all areas, «Customise the start page» (on a computer too; it was a button at the top
+           right) and the online line. A long press on a tile still opens customising. «Diese Seite anpassen» is not on
+           Heute (App.svelte): customising the start page does that here. -->
+      <footer class="endbar" data-home-end>
+        {#await import('../lib/stops/HeuteStopps.svelte') then m}<m.default {today} top={false} />{:catch}{/await}
+        <div class="lkrow">
+          <a class="lkb" href="#/features" data-all-areas><LayoutGrid size={16} aria-hidden="true" />{t('All areas|home')}</a>
+          <button type="button" class="lkb" data-intro="custom" onclick={() => (editing = true)}><SlidersHorizontal size={16} aria-hidden="true" />{t('Customise the start page')}</button>
+        </div>
+        <p class="ver"><span class="odot" class:off={!online}></span>{online ? t('Online') : t('Offline')} · v{__APP_VERSION__}</p>
+      </footer>
     {/if}
   </div>
 
-  <footer>
-    <span class="odot" class:off={!online}></span>
-    {online ? t('Online') : t('Offline')} · v{__APP_VERSION__}
-  </footer>
 </div>
 
 <!-- KT (3a): the short intro, once -->
@@ -1515,7 +1517,7 @@
     }
   }
   /* v0.101.0 Design-Refresh P2 (H1): the greeting alone in the heading, date and weather in one quiet
-     line under it, «Customise the start page» as a light button at the top right */
+     line under it (since «Neuer Schwung» 26.10.2026 «Customise the start page» is at the bottom) */
   .ghead {
     display: flex;
     flex-wrap: wrap;
@@ -1544,10 +1546,6 @@
     margin: 0;
     color: var(--ink-2);
     font-size: var(--fs-small);
-  }
-  .adapt {
-    flex: none;
-    background: var(--paper);
   }
   @media (max-width: 719px) {
     .greet :global(.hello) {
@@ -2183,6 +2181,30 @@
     flex-direction: column;
     align-items: center;
   }
+  .endbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 4px 20px;
+    align-self: stretch;
+    padding: 12px 16px;
+    border-top: 1px solid var(--line);
+  }
+  .lkrow {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 4px 20px;
+  }
+  .ver {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    color: var(--ink-3);
+    font-size: var(--fs-small);
+  }
   .custom .lkb {
     gap: 6px;
     color: var(--ink-2);
@@ -2303,13 +2325,6 @@
     font-size: 14px;
   }
 
-  footer {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    color: var(--ink-3);
-    font-size: var(--fs-small);
-  }
   .odot {
     width: 8px;
     height: 8px;
@@ -2397,13 +2412,26 @@
   .wxr {
     white-space: nowrap;
   }
-  .wxlinks {
-    display: flex;
-    flex-wrap: nowrap; /* one row: two rows on a narrow phone pushed «Dein Körper heute» out of the first screen (CI 26.10.2026) */
-    gap: 0 var(--sp-3);
-    margin: 0;
-    overflow-x: auto;
-    scrollbar-width: none;
-    white-space: nowrap;
+  /* «Neuer Schwung» (Noah 26.10.2026 «diese beiden buttons scheinen verschoben zu sein»): the weather and «What do I
+     wear?» sit in the date line as two quiet links (they were a crooked row of their own under the chips);
+     «332 Use Cases»: «was ziehe ich an, wetter für meinen standort (höchst- und tiefsttemperatur)» on Heute */
+  .wxa,
+  .wearq {
+    display: inline;
+    padding: 12px 0; /* a taller tap area without moving the line */
+    margin: -12px 0;
+    border: 0;
+    background: none;
+    color: inherit;
+    font: inherit;
+    text-decoration: underline;
+    text-decoration-color: var(--line-strong);
+    text-underline-offset: 3px;
+    cursor: pointer;
+  }
+  .wxa:hover,
+  .wearq:hover {
+    color: var(--ink);
+    text-decoration-color: currentColor;
   }
 </style>
