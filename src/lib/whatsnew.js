@@ -16,6 +16,20 @@
 
 export const WHATS_NEW = [
   {
+    // v0.224.0 Live Navigation PR 4 «In der Nähe» (Noah 27.10.2026 «1a 2a 3a 4a», «freigabe für alle mockups»): one
+    // window with all place filters, 14 situation buttons (map/situations.js), «Everything» at once, «Go there», 14 new kinds
+    version: '0.224.0',
+    date: '2026-10-27',
+    title: 'What do you need?',
+    lead: 'On the live map, «Nearby» opens one window with everything to find a place.',
+    points: [
+      { text: 'Situation buttons: hungry, thirsty, home by train, sleeping place and more', href: '#/live' },
+      { text: 'New places: sauna, indoor pool, Selecta, tube vending machine, farm shop, firepit, phone charging', href: '#/live' },
+    ],
+    small: [{ box: 'new', text: '«Everything» shows every kind of your row at once' }],
+    test: ['Open the live map and tap «Nearby».', 'Tap «Hunger»: only food places that are open now show up.', 'Tap a place and then «Go there». Before, the place search sat at the bottom of the sheet.'],
+  },
+  {
     // v0.223.0 Live Navigation PR 3 «Strecke genau» (Noah 27.10.2026 «bitte umsetzen»): tour and race routes keep
     // their bends (route/fineline.js, Douglas–Peucker 5 m, up to 3000 points) instead of 200 even points
     version: '0.223.0',
