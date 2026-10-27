@@ -150,4 +150,16 @@ export default {
   'Name or address, e.g. Handbook': 'Name oder Adresse, z. B. Handbuch',
   'No address yet: tap to add it': 'Noch keine Adresse: antippen und eintragen',
   'Open the link «{name}»': 'Link «{name}» öffnen',
+  // «Zielzeit nonstop»
+  'Good day': 'Guter Tag',
+  'Hard day': 'Harter Tag',
+  'Naps in all': 'Powernaps gesamt',
+  'Finish time riding through': 'Zielzeit nonstop',
+  'When are you at the finish if you ride through without sleeping? Change any number; speed, climbing, stops and tiredness are the same as under Strategy.': 'Wann bist du im Ziel, wenn du ohne Schlaf durchfährst? Jede Zahl ist änderbar; Tempo, Steigen, Pausen und Müdigkeit sind die gleichen wie unter Strategie.',
+  '{total} in all: riding {ride}, stops {stops}': '{total} gesamt: fahren {ride}, Pausen {stops}',
+  'naps {naps}': 'Powernaps {naps}',
+  'Put in the km and the start, then the finish time shows.': 'Trag km und Start ein, dann steht hier die Zielzeit.',
+  'Change the numbers': 'Zahlen ändern',
+  'Good day: 10 % faster and fewer stops. Hard day: 10 % slower and more stops. Only a guide.': 'Guter Tag: 10 % schneller und weniger Pausen. Harter Tag: 10 % langsamer und mehr Pausen. Nur ein Richtwert.',
+  'Rule: km ÷ speed on the flat + metres up ÷ climbing rate, plus tiredness, then the stops on top.': 'Regel: km ÷ Tempo in der Ebene + Höhenmeter ÷ Steigrate, plus Müdigkeit, dann die Pausen obendrauf.',
 };

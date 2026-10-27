@@ -10,6 +10,7 @@
   import Crumb from '../lib/flow/kit/Crumb.svelte';
   import Check from '../lib/race/Check.svelte';
   import RaceLinks from '../lib/race/RaceLinks.svelte';
+  import Nonstop from '../lib/race/Nonstop.svelte';
   import { db } from '../lib/db.js';
   import { racesQuery, saveRace } from '../lib/race/store.js';
   import { raceTrips, countdown } from '../lib/race/race.js';
@@ -50,7 +51,7 @@
         {#if countdown(trip.startDate, today)?.days > 0}{' '}· {tn(countdown(trip.startDate, today).days, 'in {n} day', 'in {n} days')}{/if}
       </p>
       <p><a class="btn sm" href={raceHref(trip.id)} data-racecheck-race><Flag size={16} aria-hidden="true" />{t('Route, strategy and race mode')}</a></p>
-      {#if ctx}<RaceLinks {ctx} /><Check {ctx} />{/if}
+      {#if ctx}<RaceLinks {ctx} /><Nonstop {ctx} /><Check {ctx} />{/if}
     {/if}
   </div>
 {:else}
