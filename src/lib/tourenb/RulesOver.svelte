@@ -14,6 +14,8 @@
   import { rulesOver, setUntil, ruleOff } from './ruleuntil.js';
   import { t } from '../i18n.svelte.js';
 
+  /** hint: with nothing to ask, one line says that a rule can have an end (on Bausteine). */
+  let { hint = false } = $props();
   const setsQ = liveQuery(() => db.settings.get(SETS_KEY));
   const tripsQ = liveQuery(() => db.trips.toArray());
   const today = localDay();
@@ -51,9 +53,14 @@
     </ul>
     {#if msg}<p class="ro-msg tp-small" role="status">{msg}</p>{/if}
   </section>
+{:else if hint}
+  <p class="tp-small tp-muted ro-hint" data-rule-until-hint><CalendarClock size={15} aria-hidden="true" /> <b>{t('Rule with an end')}</b>: {t('a rule can hold only for one tour or until a day. Tap a rule and choose under «Holds».')}</p>
 {/if}
 
 <style>
+  .ro-hint {
+    margin: 0 0 var(--sp-3);
+  }
   .ro {
     margin: 0 0 var(--sp-4);
   }
