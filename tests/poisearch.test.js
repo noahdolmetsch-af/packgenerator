@@ -3,8 +3,9 @@
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
 import * as S from '../src/lib/map/poisearch.js';
-import { lineHash } from '../src/lib/route/pois.js';
+import { lineHash, OVERPASS_CH, overpassUrls, whyFailed } from '../src/lib/route/pois.js';
 import { distKm } from '../src/lib/live/live-lib.js';
+import { NO_FILTER } from '../src/lib/map/poifilter.js';
 
 const {
   CATEGORIES,
@@ -234,7 +235,7 @@ describe('loadPlaces', () => {
     };
     const q = { mode: 'around', keys: ['water'], center: HERE, radiusKm: 5 };
     const r = await loadPlaces(q, { store, fetcher, now });
-    expect(urls).toEqual(S.OVERPASS_URLS);
+    expect(urls).toEqual([OVERPASS_CH, ...S.OVERPASS_URLS]); // in Switzerland the Swiss server first
     expect(r).toMatchObject({ error: 'busy', list: [] });
     await store.put({ key: 'poi-search:around', value: { at: now - 2 * DAY_MS, keys: ['water'], list: [{ id: 'node/1', kind: 'water', lat: 46.95, lon: 7.45 }], center: HERE, radiusKm: 5 } });
     const old = await loadPlaces(q, { store, fetcher, now });
@@ -258,8 +259,8 @@ describe('loadPlaces', () => {
 describe('prefs and stars', () => {
   it('cleans the record', () => {
     // «Weitere Quellen» 20.10.2026: the record also has the chip row, your names and your own kinds; any radius of 1–50 km
-    expect(prefsOf(null)).toEqual({ on: [], mode: 'around', radiusKm: 10, starred: [], row: KEYS, names: {}, own: [] });
-    expect(prefsOf({ on: ['water', 'nope', 'water'], mode: 'x', radiusKm: 70 })).toEqual({ on: ['water'], mode: 'around', radiusKm: 10, starred: [], row: KEYS, names: {}, own: [] });
+    expect(prefsOf(null)).toEqual({ on: [], mode: 'around', radiusKm: 10, starred: [], row: KEYS, names: {}, own: [], filter: { ...NO_FILTER }, presets: [], visited: [] });
+    expect(prefsOf({ on: ['water', 'nope', 'water'], mode: 'x', radiusKm: 70 })).toEqual({ on: ['water'], mode: 'around', radiusKm: 10, starred: [], row: KEYS, names: {}, own: [], filter: { ...NO_FILTER }, presets: [], visited: [] });
     expect(prefsOf({ radiusKm: 7 }).radiusKm).toBe(7);
   });
   it('stars and unstars a place', () => {
@@ -286,7 +287,7 @@ describe('1a · along the route in chunks', () => {
     let n = 0;
     const fetcher = async (url, init) => {
       n++;
-      if (n === 3 || n === 4) return { ok: false, status: 504 }; // chunk 2: both mirrors fail
+      if (n >= 3 && n < 3 + S.OVERPASS_URLS.length) return { ok: false, status: 504 }; // chunk 2: every server fails
       const k = n;
       return { ok: true, json: async () => json([el(k, 46.95, 7.4 + k * 0.01, { amenity: 'drinking_water' }), el(100, 46.95, 7.45, { shop: 'bakery' })]) };
     };
@@ -501,5 +502,28 @@ describe('«Weitere Quellen» · OpenStreetMap tags typed by you', () => {
   it('a starred place of an own kind keeps the name of the kind', () => {
     const s = S.starOf({ id: 'node/5', kind: 'bench', name: '', lat: 46.95, lon: 7.45, sub: 'bench', catName: 'test_data_gtp_ Bänke' });
     expect(s).toEqual({ id: 'node/5', kind: 'bench', name: '', lat: 46.95, lon: 7.45, sub: 'bench', catName: 'test_data_gtp_ Bänke' });
+  });
+});
+
+describe('Live Navigation PR 2: servers and the true reason', () => {
+  it('asks the Swiss server first only for a search in Switzerland', () => {
+    expect(overpassUrls([{ lat: 46.95, lon: 7.45 }])[0]).toBe(OVERPASS_CH);
+    expect(overpassUrls([{ lat: 46.95, lon: 7.45 }, { lat: 48.5, lon: 7.7 }])).toEqual(S.OVERPASS_URLS);
+    expect(overpassUrls([])).toEqual(S.OVERPASS_URLS);
+    expect(S.OVERPASS_URLS.length).toBeGreaterThanOrEqual(3);
+  });
+  it('tells busy, unreachable and other errors apart', () => {
+    expect(whyFailed([new Error('overpass 504'), new TypeError('Failed to fetch')])).toBe('busy');
+    expect(whyFailed([new TypeError('Failed to fetch'), new TypeError('Failed to fetch')])).toBe('net');
+    expect(whyFailed([new Error('overpass 400')])).toBe('failed');
+    expect(S.errorOf(new Error('x'), false)).toBe('offline');
+    expect(S.errorOf(Object.assign(new Error('x'), { why: 'net' }), true)).toBe('net');
+  });
+  it('a search where no server is reachable says so, not «busy»', async () => {
+    const fetcher = async () => {
+      throw new TypeError('Failed to fetch');
+    };
+    const r = await loadPlaces({ mode: 'around', keys: ['water'], center: HERE, radiusKm: 5 }, { store: memStore(), fetcher, now: 1 });
+    expect(r.error).toBe('net');
   });
 });
