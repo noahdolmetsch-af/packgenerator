@@ -4,6 +4,7 @@ Stand: 26. Oktober 2026 (Kopf nachgetragen; die Einträge unten werden mit jedem
 
 ## Aktuell live
 
+**0.219.0 «Da, wo du schaust» (27.10.2026, Noah «wie kannst du weiter machen», 332 Use Cases sichtbar):** Vier weitere versteckte Funktionen wohnen auf ihrer Seite: Ozon und Pollen auf der Wetter-Seite, Kette nach Regen unter Nachrichten, Belege im Velo-Laden-Tab, «Glätte am Morgen» heisst im Katalog wie auf der Seite. 57 → 53 versteckt. Kein neues Schema.
 **0.218.0 «Platz in jeder Tasche» (26.10.2026, Noah 22:06 «starte mit 1, dann 3 und danach 2»):** In «Alle Taschen nebeneinander» bleibt eine leere Tasche als gestrichelte Spalte stehen; man zieht ein Teil hinein oder wählt sie über die Pfeile neben einem Teil. Kein neues Schema. Offen bis Noah die Bilder freigibt.
 **0.217.0 «Nichts versteckt sich mehr» (27.10.2026, Noah «starte mit 1, dann 3 und danach 2», Teil 2):** Die 20 tief versteckten Funktionen sind auf ihrer Seite sichtbar: Katalog-Namen wie auf der Seite (Bausteine, Neuer Baustein, Checks pro Tourart, 3 Beobachtungen, Mail), kurze Zeilen auf Verpflegung, Fahrten, im Meditations-Logbuch und im Abend-Check, Knopf «Trello» oben auf Merken. Versteckt 77 → 57. Kein neues Schema. Live seit 27.10.2026 (#278).
 

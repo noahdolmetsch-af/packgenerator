@@ -905,3 +905,5 @@ Die frühere gespeicherte Datei `2026-10-07-packgenerator-ablaufplan.md` wird al
 **27.10.2026, v0.217.0 «Nichts versteckt sich mehr»:** die 20 tief versteckten Funktionen stehen auf ihrer Seite; 77 → 57 versteckt.
 
 **27.10.2026, v0.218.0 «Platz in jeder Tasche»:** leere Taschen bleiben in «Alle Taschen nebeneinander» als Spalte zum Hineinziehen.
+
+**27.10.2026, v0.219.0 «Da, wo du schaust»:** vier weitere versteckte Funktionen auf ihrer Seite; 57 → 53 versteckt.

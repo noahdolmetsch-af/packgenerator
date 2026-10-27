@@ -4,6 +4,14 @@
  * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
+  // 0.219.0 Da, wo du schaust
+  'Found where you look': 'Da, wo du schaust',
+  'Four more tools now live on the page where you see them.': 'Vier weitere Werkzeuge wohnen jetzt auf der Seite, wo du sie siehst.',
+  'Ozone and pollen: found on the Weather page': 'Ozon und Pollen: zu finden auf der Wetter-Seite',
+  'Chain after rain: found under Messages': 'Kette nach Regen: zu finden unter Nachrichten',
+  'Receipts and Ice in the morning carry the name the page shows': 'Belege und Glätte am Morgen tragen den Namen, den die Seite zeigt',
+  'Open «What the app can do», search «Pollen» and tap «Try it».': 'Öffne «Was die App kann», suche «Pollen» und tippe auf «Ausprobieren».',
+  'The Weather page opens with ozone and pollen.': 'Die Wetter-Seite öffnet sich mit Ozon und Pollen.',
   // 0.218.0 Leere Taschen nehmen Teile auf
   'The bag now shows the item; «Undo» puts it back.': 'Die Tasche zeigt jetzt das Teil; «Rückgängig» legt es zurück.',
   'The arrows next to an item offer the empty bags too': 'Auch die Pfeile neben einem Teil bieten die leeren Taschen an',

@@ -16,6 +16,17 @@
 
 export const WHATS_NEW = [
   {
+    // v0.219.0 «332 sichtbar», next 4 hidden functions (Noah 26.10.2026 «wie kannst du weiter machen»): catalogue
+    // names like on the page, Ozone and pollen lives on Weather, Chain after rain on Messages, Receipts on the bike shop tab
+    version: '0.219.0',
+    date: '2026-10-27',
+    title: 'Found where you look',
+    lead: 'Four more tools now live on the page where you see them.',
+    points: [{ text: 'Ozone and pollen: found on the Weather page', href: '#/wetter' }, { text: 'Chain after rain: found under Messages', href: '#/me/push' }],
+    small: [{ box: 'nicer', text: 'Receipts and Ice in the morning carry the name the page shows', href: '#/bikes?tab=shop' }],
+    test: ['Open «What the app can do», search «Pollen» and tap «Try it».', 'The Weather page opens with ozone and pollen.'],
+  },
+  {
     // v0.218.0 «Leere Taschen nehmen Teile auf» (Noah 26.10.2026 22:06 «starte mit 1, dann 3»): in «All bags side by
     // side» an empty bag stays as a column to drag an item into
     version: '0.218.0',

@@ -192,6 +192,7 @@ Damals (19.10.2026) galt: keine Testlinks; Ein Paket geht online, sobald die Tes
 | 96 | Touren, die mitdenken (996 Einzelideen Touren 50–58) | 0.212.0 | Absicht, Regel mit Ende, Geschichten, Panne-Check, Später prüfen, Ort-Notiz, Tag zum Hören, Ess-Stopps, Verbrauch | offen |
 | 97 | Platz in jeder Tasche (leere Taschen nehmen Teile auf) | 0.218.0 | Alle Taschen nebeneinander: leere Tasche als Spalte zum Hineinziehen | offen |
 | 98 | Nichts versteckt sich mehr (die 20 tief versteckten Funktionen) | 0.217.0 | Namen wie auf der Seite, kurze Erklärzeilen, Trello-Knopf auf Merken, 77 → 57 versteckt | offen |
+| 99 | Da, wo du schaust (4 weitere versteckte Funktionen) | 0.219.0 | Ozon/Pollen auf Wetter, Kette nach Regen unter Nachrichten, Belege im Laden-Tab, 57 → 53 versteckt | offen |
 | 62 | Skitour (Mockup-Paket P2) | 0.178.0 | Skitouren › Tour planen: Gefahrenstufe 1–5 mit Unterstufe und Satz, «Dein Morgen», Verhältnisse, Plan in Zahlen; «Gipfel erreicht» unterwegs; Nach der Tour «Plan und Wirklichkeit» und dein Material; Skitouren › Saison: Ziel, Wunschtouren, Skitage 8 Wochen, LVS-Übungen, Kurse mit «Auffrischen», Höhenmeter pro Ski, letzte Saison; Vorabend-Check zeigt Stufe, Temperatur, Wind, letzten Zug | live |
 
 «Frontend aufpeppen» ist pausiert (Noah 19.10.2026). Die Abschnitte unten sind der Stand vom 18.10.2026.
