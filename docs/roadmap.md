@@ -874,6 +874,8 @@ Die frühere gespeicherte Datei `2026-10-07-packgenerator-ablaufplan.md` wird al
 
 **25.10.2026, v0.199.0 «Flicken, ausprobieren, abmachen»:** letzte Einzelideen aus Paket A: Kleider reparieren statt aussortieren, Wunsch zuerst ausleihen, Ideen für ein Treffen, Geburtstag mit kleinen Schritten, Webcams mit Zweck und Aufräumrunde.
 
+**27.10.2026, v0.231.0 «Wo du es gesagt hast»:** Touren b vollständig im Katalog; Karte «Wo du sie gesprochen hast».
+
 **27.10.2026, v0.226.0 «Der Abend-Check kommt trotzdem»:** Tages-Check: «Heute nicht» am Morgen lässt den Abend-Check nicht mehr aus.
 
 **26.10.2026, v0.220.0 «Velo-Ergänzungen»:** Velo-Ideen 1, 3, 6, 7, 8 und 12 gebaut (Kettenlehre-Prognose, Jahresrückblick, Pflege-Serie, Kalender-Wechsel, Geräusche, Saison-Checklisten).
@@ -919,4 +921,4 @@ Die frühere gespeicherte Datei `2026-10-07-packgenerator-ablaufplan.md` wird al
 
 **27.10.2026, v0.218.0 «Platz in jeder Tasche»:** leere Taschen bleiben in «Alle Taschen nebeneinander» als Spalte zum Hineinziehen.
 
-**27.10.2026, v0.227.1 «Da, wo du schaust»:** vier weitere versteckte Funktionen auf ihrer Seite; 57 → 53 versteckt.
+**27.10.2026, v0.231.1 «Da, wo du schaust»:** vier weitere versteckte Funktionen auf ihrer Seite; 57 → 53 versteckt.

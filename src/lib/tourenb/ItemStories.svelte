@@ -10,7 +10,8 @@
   import { packStories, storyOff } from './stories.js';
   import { t, nameOf, num } from '../i18n.svelte.js';
 
-  let { trip, itemsById = {} } = $props();
+  // hint: with no voice notes on the list, one line says what would play here
+  let { trip, itemsById = {}, hint = false } = $props();
   const list = $derived(packStories(trip, itemsById));
   let undo = $state(null); // { id, name }
 
@@ -54,9 +55,14 @@
     </ul>
     {#if undo}<p class="st-undo" role="status"><span>{t('«{name}» is no longer shown.', { name: undo.name })}</span><button type="button" class="tp-link" onclick={back}><Undo2 size={15} aria-hidden="true" />{t('Undo')}</button></p>{/if}
   </section>
+{:else if hint}
+  <p class="tp-small tp-muted st-hint" data-stories-hint><Mic size={15} aria-hidden="true" /> <b>{t('Little stories while packing')}</b>: {t('a voice note on an item plays here on the packing day.')}</p>
 {/if}
 
 <style>
+  .st-hint {
+    margin: 0 0 var(--sp-3);
+  }
   .st {
     margin: 0 0 var(--sp-4);
   }
