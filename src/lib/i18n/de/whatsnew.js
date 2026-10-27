@@ -6,12 +6,11 @@
 export default {
   // 0.215.0 Neuer Schwung PR 1
   'Weather and «What do I wear?» sit in the date line; your name is set under Me › Appearance': 'Wetter und «Was ziehe ich an?» stehen in der Datumszeile; deinen Namen setzt du unter Ich › Darstellung',
-  'The end of Today is one quiet line: stops nearby, all areas, customise, online': 'Das Ende von Heute ist eine ruhige Zeile: Stopps in der Nähe, Alle Bereiche, Anpassen, Online',
-  'Tap it: the tiles can be moved, resized and removed, as before. A long press on a tile still works too.': 'Tippe darauf: Kacheln verschieben, Grösse ändern und entfernen geht wie bisher. Lange auf eine Kachel drücken geht weiterhin.',
+  'Tap it: the tiles can be moved and removed as before.': 'Tippe darauf: Kacheln verschieben und entfernen geht wie bisher.',
   'A calmer top on Today': 'Oben auf Heute ist mehr Ruhe',
   'Customising the start page now waits at the very bottom.': '«Startseite anpassen» wartet jetzt ganz unten.',
   '«Customise the start page» is at the very bottom of Today, next to «All areas»': '«Startseite anpassen» steht ganz unten auf Heute, neben «Alle Bereiche»',
-  'Open Heute on the computer and scroll to the very bottom: «Startseite anpassen» stands next to «Alle Bereiche».': 'Öffne Heute am Computer und scrolle ganz nach unten: «Startseite anpassen» steht neben «Alle Bereiche».',
+  'Scroll Heute to the very bottom: «Startseite anpassen» stands next to «Alle Bereiche».': 'Scrolle Heute ganz nach unten: «Startseite anpassen» steht neben «Alle Bereiche».',
   // 0.212.1 Die heutige Tour sagt eins
   // 0.212.2 UI-Test T2
   'One start time': 'Eine Startzeit',
