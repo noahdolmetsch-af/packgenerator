@@ -30,6 +30,21 @@ export const WHATS_NEW = [
     test: ['Open a race or tour on the live map and turn on «Off-route warning» in the settings.', 'Plan a detour with «Nearby» › a place › «Go there» and ride to it: the card asks how you go back.', 'Ride off the route: after about 15 seconds a new way back shows up. Before, only the warning tone came.'],
   },
   {
+    // v0.233.0 «Heute ruhiger» part 2 (Noah 26.10.2026 «2a», mockup H2): tiles that show again what another tile shows
+    // leave Heute once (tiles.js DOUBLES, wall v 13); they stay under «Add a tile»
+    version: '0.233.0',
+    date: '2026-10-27',
+    title: 'Everything once on Today',
+    lead: 'Double tiles left Today.',
+    points: [
+      // on Today itself, so no «Try it» address (0.121.0: '#/' would do nothing)
+      { text: 'Tiles that showed the same thing twice left Today once' },
+      { text: 'You find them under «Add a tile»' },
+    ],
+    small: [{ box: 'nicer', text: 'Body values: all of them behind «Details» in «Your body today»' }],
+    test: ['Open Today: your body values stand once, in «Your body today».', 'Customise the start page › Add a tile: «Body values» and the others are still there.'],
+  },
+  {
     // v0.232.0 «Was ziehe ich an? selbst anpassen» Schritt 1 (Noah 27.10.2026 «1a 2a oder b wählbar 3a 4a … 5a»): in the
     // window on Today every row can be swapped or left out and a layer added, for this ride day only; a gap says why
     // (too light, still in «To sort», nothing yet) with «Take anyway» and the wishlist; «Why so?» explains the rule

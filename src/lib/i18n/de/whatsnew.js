@@ -4,6 +4,14 @@
  * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
+  // 0.233.0 Alles einmal auf Heute
+  'Everything once on Today': 'Alles einmal auf Heute',
+  'Double tiles left Today.': 'Doppelte Kacheln sind weg von Heute.',
+  'Tiles that showed the same thing twice left Today once': 'Kacheln, die dasselbe doppelt zeigten, sind einmal von Heute weg',
+  'You find them under «Add a tile»': 'Du findest sie unter «Kachel hinzufügen»',
+  'Body values: all of them behind «Details» in «Your body today»': 'Körperwerte: alle hinter «Details» in «Dein Körper heute»',
+  'Open Today: your body values stand once, in «Your body today».': 'Öffne Heute: deine Körperwerte stehen einmal, in «Dein Körper heute».',
+  'Customise the start page › Add a tile: «Body values» and the others are still there.': 'Startseite anpassen › Kachel hinzufügen: «Körperwerte» und die anderen sind noch da.',
   // 0.218.0 Was ziehe ich an? selbst anpassen
   'Your clothes, your call': 'Deine Kleider, deine Wahl',
   '«What do I wear?» now lets you change the suggestion.': 'Bei «Was ziehe ich an?» änderst du jetzt den Vorschlag selbst.',
