@@ -2,7 +2,7 @@
 // the plan, a member's own part, the board (ready, help, gaps, who has what, costs, checkpoints), the
 // thunderstorm along the route and the contact card. Fictional data only.
 import { describe, it, expect } from 'vitest';
-import { planPayload, readPlan, inNight, everyMs, partPayload, readPart, statusCount, helpCalls, helpKey, withGaps, itemsBoard, pointsOf, settle, chf, centsOf, checkpoints, cpNear, lastCp, placeAtKm, kmOfPoint, stormSamples, stormUrl, stormOf, towardStorm, cardLink, readCard } from '../src/lib/live/event.js';
+import { planPayload, readPlan, inNight, everyMs, partPayload, readPart, statusCount, helpCalls, helpKey, withGaps, itemsBoard, pointsOf, settle, chf, centsOf, checkpoints, cpNear, lastCp, placeAtKm, kmOfPoint, stormSamples, stormUrl, stormOf, towardStorm, cardLink, readCard, cardPay } from '../src/lib/live/event.js';
 
 const at = (iso) => new Date(iso).toISOString();
 const route = { line: Array.from({ length: 41 }, (_, i) => [46.9 + i * 0.01, 7.4]), km: 44.5 };
@@ -137,6 +137,15 @@ describe('Gruppenfahrt für Events', () => {
     const bad = Buffer.from(JSON.stringify({ v: 1, name: 'test_data_gtp_ Sam', until: 'morgen' })).toString('base64url');
     expect(readCard(`#/karte/${bad}`).until).toBe('');
     expect(readCard(more.slice(more.indexOf('#')))).toMatchObject({ email: 'sam@example.test', strava: '123', komoot: 'sam-k', web: 'example.test', wa: '+41 79 000 00 00', addr: 'Testweg 1, 0000 Testdorf' });
+    // Kontakt-QR-Code step 3: payment details travel apart and only when usable
+    const acc = { iban: 'CH93 0076 2011 6238 5295 7', name: 'test_data_gtp_ Sam', street: 'Testweg', house: '1', zip: '0000', town: 'Testdorf' };
+    const paid = cardLink({ name: 'test_data_gtp_ Sam', pay: { t: '079 000 00 00', q: acc } }, 'https://example.test/app/');
+    expect(readCard(paid.slice(paid.indexOf('#'))).pay).toEqual({ t: '079 000 00 00', q: { ...acc, iban: 'CH9300762011623852957' } });
+    expect(readCard(more.slice(more.indexOf('#'))).pay).toBeNull();
+    expect(cardPay({ t: 'abc', q: { ...acc, iban: 'CH00 1234' } })).toBeNull();
+    expect(cardPay({ q: { ...acc, town: '' } })).toBeNull();
+    expect(cardPay({ t: '+41 79 000 00 00' })).toEqual({ t: '+41 79 000 00 00' });
+    expect(cardPay('x')).toBeNull();
     expect(readCard('#/karte/@@')).toBeNull();
     expect(readCard('#/karte/abcdef')).toBeNull();
   });
