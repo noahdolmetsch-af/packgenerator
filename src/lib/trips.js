@@ -509,6 +509,16 @@ export function packSteps(stats, purpose = {}) {
     });
 }
 
+/**
+ * «332 sichtbar» (Noah 26.10.2026 «leere Taschen nehmen Teile auf»): the bags of the trip that are still empty,
+ * named like packSteps, so «All bags side by side» can show them as places to drag an item into.
+ * «Wear and carry» and «On the bike» are left out: they are not bags.
+ */
+export function emptySteps(stats, purpose = {}) {
+  const empty = stats.zones.filter((z) => !z.entries.length && z.bag);
+  return packSteps({ zones: empty.map((z) => ({ ...z, entries: [{}] })) }, purpose).map((st) => ({ ...st, entries: [], done: 0 }));
+}
+
 /** Tick or untick one item as "in the bag" on the packing day. */
 export const togglePacked = (entries, itemId) => entries.map((e) => (e.itemId === itemId ? { ...e, packed: !e.packed } : e));
 
