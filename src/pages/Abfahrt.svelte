@@ -11,7 +11,8 @@
   import { t, locale, num } from '../lib/i18n.svelte.js';
   import { localDay } from '../lib/localday.js';
   import { nextTrip } from '../lib/debrief.js';
-  import { stage, dayIndex, stageCount } from '../lib/ride.js';
+  import { stage, dayIndex, stageCount, startNow } from '../lib/ride.js';
+  import { openRecording } from '../lib/spur/recorder.svelte.js';
   import { sunTimes } from '../lib/blockplan.js';
   import { homeOf } from '../lib/dayride.js';
   import { readyDone } from '../lib/trips.js';
@@ -42,7 +43,9 @@
   const trips = $derived($tripsQ ?? []);
   const trip = $derived(trips.find((x) => x.id === chosen && x.startDate) ?? nextTrip(trips, today) ?? trips.find((x) => x.id === chosen) ?? null);
   const day = $derived(trip ? Math.max(0, Math.min(stageCount(trip) - 1, dayIndex(trip, today))) : 0);
-  const st = $derived(trip ? stage(trip, day, null, { today }) : null);
+  // UI-Test T2 (G2-07): the same start as On the way (an open recording of today, else the hour now)
+  const openQ = liveQuery(() => openRecording(db));
+  const st = $derived(trip ? stage(trip, day, null, { today, nowStart: startNow(trip, today, $openQ) }) : null);
   const home = $derived(homeOf($homeQ?.value));
   const place = $derived(st?.from ?? trip?.place ?? trip?.route?.start ?? home ?? null);
   const sunset = $derived.by(() => {

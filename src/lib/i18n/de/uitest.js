@@ -7,4 +7,7 @@ export default {
   '{n} things on the list': '{n} Sachen auf der Liste',
   'After the ride: tick off': 'Nach der Fahrt abhaken',
   'Then the app asks what you did not use, what was missing and how it went.': 'Dann fragt dich die App, was du nicht gebraucht hast, was gefehlt hat und wie es war.',
+  // T2 «Unterwegs: eine Startzeit, vor dem Start nur Losfahren»
+  'A recording of this trip is running since {time}. The blocks and the arrival count from then.': 'Eine Aufzeichnung dieser Tour läuft seit {time}. Die Blöcke und die Ankunft zählen ab dann.',
+  'Ends the trip without riding on': 'Beendet die Tour, ohne weiterzufahren',
 };

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { stageCount, blocks, blockHours, addHours, dayIndex, onTripDay, pointAt, stage, addTime, dayGain, dayProfile, placeName, fetchHourly, rideHours, wxSummary, addRideNote } from '../src/lib/ride.js';
+import { stageCount, blocks, blockHours, addHours, dayIndex, onTripDay, pointAt, stage, addTime, dayGain, dayProfile, placeName, fetchHourly, rideHours, wxSummary, addRideNote, startNow, openRideOf } from '../src/lib/ride.js';
 import { parseGpx, routeStats, profileOf } from '../src/lib/route.js';
 import { beforeTrip, REMIND_DAYS, tripPrep, prepGroups } from '../src/lib/workshop.js';
 
@@ -243,5 +243,27 @@ describe('time plan hours (v0.19.0)', async () => {
     const schedule = [{ block: 'Block 1', from: '09:00', to: '12:00' }, { block: 'Break', from: '12:00', to: '13:00' }, { block: 'Block 2', from: '22:30', to: '01:30' }, { block: 'Note', from: null, to: null }];
     expect(planHours({ plan: { schedule } })).toBe(6);
     expect(planHours({})).toBe(null);
+  });
+});
+
+// UI-Test 26.10.2026 T2 (G2-07): one start time of today on On the way, «Vor der Abfahrt» and the Live map
+describe('startNow', () => {
+  const trip = { id: 'trip-a', startDate: '2026-10-26' };
+  const at = new Date('2026-10-26T19:27:00+01:00').getTime();
+  const open = { kind: 'rec', open: true, tripId: 'trip-a', day: '2026-10-26', startAt: at };
+  it('takes the start of an open recording of this trip from today', () => {
+    expect(startNow(trip, '2026-10-26', open, new Date(2026, 9, 26, 20, 5))).toBe('19:27');
+    expect(openRideOf(trip, '2026-10-26', open)).toBe(open);
+  });
+  it('else the hour now: another trip, another day or a closed recording', () => {
+    const now = new Date(2026, 9, 26, 20, 5);
+    expect(startNow(trip, '2026-10-26', { ...open, tripId: 'trip-b' }, now)).toBe('20:00');
+    expect(startNow(trip, '2026-10-27', open, now)).toBe('20:00');
+    expect(startNow(trip, '2026-10-26', { ...open, open: false }, now)).toBe('20:00');
+    expect(startNow(trip, '2026-10-26', null, now)).toBe('20:00');
+  });
+  it('gives the same start to stage() on both pages', () => {
+    const nowStart = startNow(trip, '2026-10-26', open);
+    expect(stage(trip, 0, null, { today: '2026-10-26', nowStart }).start).toBe('19:27');
   });
 });

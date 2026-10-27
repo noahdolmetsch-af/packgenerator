@@ -878,6 +878,8 @@ Die frühere gespeicherte Datei `2026-10-07-packgenerator-ablaufplan.md` wird al
 
 **26.10.2026, v0.212.1 «Die heutige Tour sagt eins»:** UI-Test T1: die heutige Tour zeigt vor der Fahrt überall «Packen», nicht «Letzter Abend», «Abgeschlossen» oder «Alles wurde gebraucht».
 
+**26.10.2026, v0.212.2 «Eine Startzeit»:** UI-Test T2: Unterwegs, «Vor der Abfahrt» und die Live-Karte nennen dieselbe Startzeit; vor dem Start nur «Losfahren».
+
 **26.10.2026, v0.208.0 «Mehr Platz am Computer»:** UI-Ziel #14 erledigt: Touren mit mitlaufender rechter Spalte, Auswerten mit «Letzte 7 Tage» rechts, Velos mit dem Velo zuerst, Inhalt höchstens 1120 px.
 **25.10.2026, v0.200.0 «Zusammen auf einer Karte»:** Gruppen-Live-Karte: Freunde per Link auf einer Karte, freiwillig teilen, Ende mit der Fahrt, spätestens nach 24 Stunden.
 **25.10.2026, v0.198.0 «Kette vorausschauend»:** Idee «Kette messen mit Verlauf und Prognose» (Das Velo im Griff) gebaut: nächste Schritte der Kette auf Verschleiss, Prognose aus den eigenen Messungen, Tour-Check, Handy-Erinnerung «Kette messen».
