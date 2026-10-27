@@ -16,9 +16,9 @@
 
 export const WHATS_NEW = [
   {
-    // v0.236.0 «Touren c» (996 Einzelideen 60, 61, 65, 66, 67, 68, 70; Noah 26.10.2026): pause reasons, forgotten pause,
+    // v0.238.0 «Touren c» (996 Einzelideen 60, 61, 65, 66, 67, 68, 70; Noah 26.10.2026): pause reasons, forgotten pause,
     // hard to reach, split a recording, old trip from memory, speak your look back, feeling before the numbers
-    version: '0.236.0',
+    version: '0.238.0',
     date: '2026-10-27',
     title: 'Pauses with a reason',
     lead: 'And your look back can simply be spoken.',
@@ -3718,7 +3718,7 @@ export const WHATS_NEW = [
 // (Kept here at the end of the list so that PRs still numbered by hand never conflict with it.)
 import { NEWS } from './news/index.gen.js';
 WHATS_NEW.unshift(...NEWS);
-// A PR still numbered by hand (Touren c, 0.236.0) can be newer than a news entry merged before it: keep newest first.
+// A PR still numbered by hand (Touren c) can be newer than a news entry merged before it: keep newest first.
 WHATS_NEW.sort((a, b) => compareVersions(b.version, a.version));
 
 /** How many versions show open; the older ones fold away. */

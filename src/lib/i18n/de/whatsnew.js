@@ -4,7 +4,7 @@
  * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
-  // v0.236.0 Touren c
+  // v0.238.0 Touren c
   'Pauses with a reason': 'Pausen mit Grund',
   'And your look back can simply be spoken.': 'Und deinen Rückblick kannst du einfach sprechen.',
   'Pauses with a reason, and the app notices a forgotten pause': 'Pausen mit Grund, und die App merkt vergessene Pausen',

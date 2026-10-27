@@ -906,7 +906,7 @@ Die frühere gespeicherte Datei `2026-10-07-packgenerator-ablaufplan.md` wird al
 
 **26.10.2026, v0.201.0 «Sprechen, anhängen, mit Vorlage starten»:** Eingaben überall: eine gemeinsame Leiste «Hinzufügen» (Sprachnotiz, Foto, Datei, Ort, Schlagwort, Vorlagen, Schreibanreize, KI-Helfer) auf zehn Seiten, Bildkarte im Tagebuch, Tagebuch in der App-Suche (abschaltbar).
 
-**27.10.2026, v0.236.0 «Pausen mit Grund»:** Touren c gebaut (Pausengrund, vergessene Pause, schlecht erreichbar, Aufnahme aufteilen, alte Reise, Rückblick sprechen, Gefühl vor den Zahlen).
+**27.10.2026, v0.238.0 «Pausen mit Grund»:** Touren c gebaut (Pausengrund, vergessene Pause, schlecht erreichbar, Aufnahme aufteilen, alte Reise, Rückblick sprechen, Gefühl vor den Zahlen).
 
 > **27.10.2026 Live Navigation PR 5:** Umweg und zurück (0.234.0). Danach M13 «Karte frei», M8 Einstellungen, Wildcampen-Ebene N3 und M12 Gruppe.
 
