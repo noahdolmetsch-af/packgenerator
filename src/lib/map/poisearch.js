@@ -16,9 +16,10 @@
  * Pure: the store ({ get(key), put(rec) }, e.g. db.meta) and the fetcher are passed in. Names come from
  * OpenStreetMap as they are and never go through t(). Tested in tests/poisearch.test.js.
  */
-import { thinLine, fetchOverpass, OVERPASS_URLS, lineHash } from '../route/pois.js';
+import { thinLine, fetchOverpass, OVERPASS_URLS, lineHash, overpassUrls, whyFailed } from '../route/pois.js';
 import { lineKm, snap } from '../race/race.js';
 import { distKm } from '../live/live-lib.js';
+import { heightAt, featsOf, normFilter, presetsOf, visitedOf } from './poifilter.js';
 
 export { OVERPASS_URLS };
 export const SETTINGS_KEY = 'poi-search';
@@ -67,6 +68,22 @@ export const KEYS = CATEGORIES.map((c) => c.key);
  * default one when both are on (a bakery is «Bakery», not «Shopping»).
  */
 export const MORE = [
+  // Suchvorschläge (Noah 27.10.2026 «1a 2a 3a 4a»): wellness, vending machines around the clock and more for on the way.
+  // First, so a thermal bath wins over «Swimming» and a farm shop over «Shopping».
+  { key: 'sauna', name: 'Sauna|poi', icon: 'flame', widthM: 3000, tags: ['["leisure"="sauna"]', '["amenity"="sauna"]'] },
+  { key: 'indoorpool', name: 'Indoor pool|poi', icon: 'waves-horizontal', widthM: 3000, tags: ['["leisure"="sports_centre"]["sport"="swimming"]', '["leisure"="water_park"]', '["leisure"="swimming_pool"]["access"~"^(yes|public|customers)$"]'] },
+  { key: 'thermal', name: 'Thermal bath and spa|poi', icon: 'thermometer-sun', widthM: 5000, tags: ['["amenity"="public_bath"]["bath:type"="thermal"]', '["leisure"="spa"]'] },
+  { key: 'selecta', name: 'Selecta|poi', icon: 'cup-soda', widthM: 1000, tags: ['["amenity"="vending_machine"]["brand"="Selecta"]', '["amenity"="vending_machine"]["operator"="Selecta"]'] },
+  { key: 'tubevend', name: 'Bike tube vending machine|poi', icon: 'life-buoy', widthM: 3000, tags: ['["amenity"="vending_machine"]["vending"~"bicycle_tube"]'] },
+  { key: 'foodvend', name: 'Bread, milk and egg vending machine|poi', icon: 'milk', widthM: 1500, tags: ['["amenity"="vending_machine"]["vending"~"bread|milk|eggs|cheese"]'] },
+  { key: 'farmshop', name: 'Farm shop|poi', icon: 'apple', widthM: 2000, tags: ['["shop"="farm"]'] },
+  { key: 'shower', name: 'Shower|poi', icon: 'shower-head', widthM: 1000, tags: ['["amenity"="shower"]'] },
+  { key: 'bikewash', name: 'Bike wash|poi', icon: 'spray-can', widthM: 1000, tags: ['["amenity"="bicycle_wash"]'] },
+  { key: 'locker', name: 'Luggage locker|poi', icon: 'lock', widthM: 2000, tags: ['["amenity"="luggage_locker"]'] },
+  { key: 'defib', name: 'Defibrillator|poi', icon: 'heart-pulse', widthM: 1000, tags: ['["emergency"="defibrillator"]'] },
+  { key: 'outdoor', name: 'Sport and outdoor shop|poi', icon: 'backpack', widthM: 3000, tags: ['["shop"~"^(outdoor|sports)$"]'] },
+  { key: 'firepit', name: 'Fireplace and barbecue|poi', icon: 'flame-kindling', widthM: 1000, tags: ['["leisure"="firepit"]', '["amenity"="bbq"]'] },
+  { key: 'phonecharge', name: 'Phone charging|poi', icon: 'smartphone-charging', widthM: 1500, tags: ['["amenity"="device_charging_station"]'] },
   { key: 'supermarket', name: 'Supermarket|poi', icon: 'shopping-basket', widthM: 1000, tags: ['["shop"="supermarket"]'] },
   { key: 'bakery', name: 'Bakery|poi', icon: 'croissant', widthM: 1000, tags: ['["shop"="bakery"]'] },
   { key: 'icecream', name: 'Ice cream|poi', icon: 'ice-cream-cone', widthM: 500, tags: ['["amenity"="ice_cream"]', '["shop"="ice_cream"]'] },
@@ -256,7 +273,7 @@ export function prefsOf(v) {
     if (CATEGORY[k] && s) names[k] = s;
   }
   const starred = (Array.isArray(v?.starred) ? v.starred : []).filter((p) => p?.id && Number.isFinite(Number(p.lat)) && Number.isFinite(Number(p.lon))).map(starOf);
-  return { on, mode: MODES.includes(v?.mode) ? v.mode : DEFAULTS.mode, radiusKm: radiusOf(v?.radiusKm) ?? DEFAULTS.radiusKm, starred, row, names, own };
+  return { on, mode: MODES.includes(v?.mode) ? v.mode : DEFAULTS.mode, radiusKm: radiusOf(v?.radiusKm) ?? DEFAULTS.radiusKm, starred, row, names, own, filter: normFilter(v?.filter), presets: presetsOf(v?.presets), visited: visitedOf(v?.visited) };
 }
 
 /* ---------- changing the chip row (each → new prefs) ---------- */
@@ -457,6 +474,7 @@ export function parsePlaces(json, keys = KEYS, { near = null, max = MAX_PLACES, 
       fee: str(tags.fee),
       access: str(tags.access),
       ele: Number.isFinite(parseFloat(tags.ele)) ? Math.round(parseFloat(tags.ele)) : null,
+      ...featsOf(tags),
       n: Object.keys(tags).length,
       ...(kinds.length > 1 ? { also: kinds.slice(1) } : {}),
     });
@@ -524,10 +542,19 @@ export function queryOf(q) {
   return { error: 'nothing' };
 }
 
-const errorOf = (err, online) => {
+// Live Navigation PR 2: the true reason (pois.js whyFailed): 'busy' (a server full or too slow), 'net' (no
+// server reachable) or 'failed' (another error). Before, every error said «OpenStreetMap is busy».
+export const errorOf = (err, online) => {
   if (!online) return 'offline';
-  return /\b(429|504|503)\b|abort/i.test(String(err?.message ?? err?.name ?? '')) ? 'busy' : 'failed';
+  if (err?.why) return err.why;
+  return whyFailed([err]);
 };
+/** The points a search covers, for the choice of servers (pois.js overpassUrls). */
+export function areaPts(q) {
+  if (q?.mode === 'route') return ptsOf(q.line).map(({ lat, lon }) => ({ lat, lon }));
+  if (q?.mode === 'here' && okBounds(q.bounds)) return [{ lat: q.bounds.s, lon: q.bounds.w }, { lat: q.bounds.n, lon: q.bounds.e }];
+  return q?.center ? [q.center] : [];
+}
 
 /**
  * The panel's one call. q: { mode, keys, center, radiusKm, bounds, line, tripId, own (your kinds) }.
@@ -549,7 +576,7 @@ export async function loadPlaces(q, { store, fetcher, force = false, now = Date.
   const old = fresh(rec, q, now, { stale: true }) ? rec : null;
   if (!online) return old ? { list: fitting(old, q), at: old.at, cut: !!old.cut, cached: true, error: 'offline', stale: true } : { list: [], at: null, cut: false, cached: false, error: 'offline', stale: false };
   try {
-    const json = await fetchOverpass(query, { ...(fetcher ? { fetcher } : {}), ...(urls ? { urls } : {}), timeout: TIMEOUT_S * 1000 });
+    const json = await fetchOverpass(query, { ...(fetcher ? { fetcher } : {}), urls: urls ?? overpassUrls(areaPts(q)), timeout: TIMEOUT_S * 1000 });
     const pts = q.mode === 'route' ? ptsOf(q.line) : [];
     const mid = q.mode === 'here' && okBounds(q.bounds) ? { lat: (q.bounds.s + q.bounds.n) / 2, lon: (q.bounds.w + q.bounds.e) / 2 } : q.center;
     const near = q.mode === 'route' ? (p) => snap(pts, p).offKm : mid ? (p) => distKm(mid, p) : null;
@@ -644,16 +671,7 @@ export async function keptAlong(store, tripId, line) {
 /* ---------- 3a · detour ---------- */
 
 /** The route's height at km of a profile [[km, m]] (linear), or null. */
-export function heightAt(profile, km) {
-  if (!Array.isArray(profile) || !profile.length || !Number.isFinite(km)) return null;
-  if (km <= profile[0][0]) return profile[0][1];
-  for (let i = 1; i < profile.length; i++) {
-    const [k1, m1] = profile[i];
-    const [k0, m0] = profile[i - 1];
-    if (k1 >= km) return k1 > k0 ? m0 + ((m1 - m0) * (km - k0)) / (k1 - k0) : m1;
-  }
-  return profile.at(-1)[1];
-}
+export { heightAt };
 
 /**
  * The detour to a place beside the route, there and back from the nearest route point (straight, so

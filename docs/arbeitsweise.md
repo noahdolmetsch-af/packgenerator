@@ -18,6 +18,8 @@ Diese Regeln ersetzen alle Abschnitte weiter unten (sie sind nur noch Geschichte
 10. **Gratis und privat;** alles ist ein Vorschlag, alles änderbar und löschbar mit Rückgängig, Verschieben mit Pfeilen und Ziehen, Erklärtexte.
 11. **Dokumentation auf GitHub zu jedem Release** (Noah 26.10.2026, 21:19 UTC): jeder PR führt im selben PR `docs/projektstand.md` (Kopfzeile «Stand» und Zeile in der Tabelle), `status.md`, `decisions.md`, `roadmap.md`, `vorhaben.md` und «Was ist neu» nach. Auch ein PR ohne App-Änderung (Tests, Regeln) bekommt eine Zeile in `projektstand.md` und `decisions.md`.
 
+12. **Versionsnummer beim Merge** (Noah, 27.10.2026, «1a»): ein PR vergibt keine Versionsnummer mehr. Er legt eine eigene Datei `src/lib/news/<name>.js` («Was ist neu») und eine eigene Datei `docs/releases/<name>.md` (Doku) an. Die Nummer entsteht beim Merge aus der Reihenfolge auf `main` (`scripts/news.mjs`): mit «Was ist neu» 0.233.0, ohne 0.233.1. So geraten offene PRs nicht mehr wegen Nummer, «Was ist neu» oder Doku-Kopfzeilen in Konflikt, und die Tests laufen nur einmal. Noah prüft nach dem Merge auf der echten Seite statt auf einem Vercel-Testlink; Bilder und Prüfschritte kommen vorher wie bisher; «zurück» heisst Revert. Punkt 11 gilt weiter, aber in der eigenen Release-Datei statt in den Kopfzeilen von `projektstand.md` und `status.md`.
+
 Die Regeln stehen nur noch an einem Ort (CLAUDE.md). Die Projektanweisung in Claude verweist nur darauf, das Projekt-Gedächtnis hält den Stand fest, nicht die Regeln.
 
 ## Stand 26.10.2026 (morgens, Geschichte): was sich seit dem 18.10.2026 geändert hat

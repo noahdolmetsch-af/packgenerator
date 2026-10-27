@@ -1,10 +1,19 @@
 # Projektstand und Plan
 
-Stand: **27. Oktober 2026, 02:45 UTC**. Auf `main` steht **Version 0.217.0**. **Seit 26.10.2026 abends gelten neue Regeln** (kleine PRs, Screenshots und Testlink mit Prüfschritten, Noah gibt frei, Claude merged; siehe [CLAUDE.md](../CLAUDE.md) und [Arbeitsweise](arbeitsweise.md)). #266 (Regeln + schnellere Browser-Tests) ist seit 27.10.2026 02:39 UTC auf `main`. Offen aus dem Thread «Verschlanken»: feste Uhrzeit für die Browser-Tests (T2); danach GitHub Releases, keine Längenvorgaben, «Was belegt Platz?».
+Stand: **27. Oktober 2026, 13:35 UTC**. Auf `main` steht **Version 0.234.0** (zuletzt 0.217.0 bis 0.234.0 am 27.10.2026 zusammengeführt). **Seit 26.10.2026 abends gelten neue Regeln** (kleine PRs, Screenshots und Testlink, Noah gibt frei, Claude merged; siehe [CLAUDE.md](../CLAUDE.md) und [Arbeitsweise](arbeitsweise.md)). Dieser PR bringt 0.231.1 «Da, wo du schaust» (4 weitere versteckte Funktionen).
 
 Ältere Abschnitte weiter unten («Kurzstand 19.10.», Abschnitte 1 bis 5) sind der damalige Stand und bleiben als Verlauf stehen. Was unten anders steht, gilt nicht mehr, wo dieser Abschnitt etwas Neueres sagt.
 
 ## Stand 26.10.2026 auf einen Blick
+
+**Live Navigation PR 5 (27.10.2026):** «Und zurück auf die Strecke» (0.234.0): am Ort eines Umwegs fragt die App, wie es zurückgeht; neben der Strecke plant sie den Weg zurück selbst (Rückgängig, Ohne Strecke weiter, Gleichen Weg zurück).
+**Nachtrag 27.10.2026, 0.232.0 «Deine Kleider, deine Wahl» (#279):** Schritt 1 von 3 aus «Was ziehe ich an? selbst anpassen» (Noah «1a 2a oder b wählbar 3a 4a kann aber trotzdem übergangen werden 5a»). Im Fenster auf Heute: Tauschen pro Zeile, «Nichts», «+ Schicht dazu», Lücke mit Grund und «Trotzdem», «Warum so?»; alles nur für den Tag der Fahrt. Danach: 2) Kleider-Sets mit 9 Mustern für Heute und Packliste, Merken wählbar · 3) Grenzen pro Schicht.
+**Live Navigation PR 4 (27.10.2026):** «Was brauchst du?» (0.227.0): Fenster «In der Nähe» mit Situationsknöpfen, «Alles», «Hin» und 14 neuen Ortsarten.
+**Live Navigation PR 3 (27.10.2026):** «Die Strecke folgt jeder Kurve» (0.223.0): GPX-Strecken behalten ihre Kurven (bis 3000 Punkte statt 200).
+
+**Live Navigation PR 2 (27.10.2026):** «Orte, die dich finden» (0.222.0): Server der Reihe nach mit ehrlicher Meldung, Schnellwahl, Filter und gespeicherte Filter. Danach M13 «Karte frei» (Noah «1a 2a 3a»).
+
+**Live Navigation (26.10.2026 abends):** Mockups M1–M12 freigegeben. PR 1 «Fahrt speichern» (0.221.0) offen: jede Fahrt sofort in Touren mit Label «Live Navigation», Velo-km mit Rückgängig. Danach 9 weitere kleine PRs.
 
 ### Was seit dem 22.10.2026 online gegangen ist
 
@@ -28,12 +37,17 @@ Stand: **27. Oktober 2026, 02:45 UTC**. Auf `main` steht **Version 0.217.0**. **
 
 | PR | Version (vorläufig) | Inhalt | Stand |
 |---|---|---|---|
+| neu | 0.220.0 | 0.220.0 «Velo-Ergänzungen»: Kettenlehre in der Prognose, Velo-Jahresrückblick, Pflege-Serie nach Regen, Wechsel im Google-Kalender, Geräusch-Notizen, Winter- und Frühlings-Checklisten | offen; Claude merged bei Grün |
+| neu | 0.226.0 | 0.226.0 «Der Abend-Check kommt trotzdem»: «Heute nicht» am Morgen wartet nur bis zum Abend-Check | offen; Claude merged bei Grün |
+| neu | 0.231.0 | 0.231.0 «Wo du es gesagt hast»: Touren b im Katalog, Handbuch und auf den Heimatseiten; Idee 56 Karte im «Tag zum Hören» | offen; Claude merged bei Grün |
 | #265 | 0.208.1–0.212.0 | Ganze Wörter, Gruppenfahrt für Events, Deine Liste in Sicht, Zwei Touren ein Blick, Touren die mitdenken, mit den Korrekturen für grünes `main` | zusammengeführt am 26.10.2026 abends |
 | #266 | – | Neue Regeln vom 26.10.2026 abends in CLAUDE.md; Browser-Tests im fertigen Playwright-Paket (bis 13 Minuten schneller pro Prüfung) | Noah gab frei am 26.10.2026 23:29 UTC; zusammengeführt am 27.10.2026 02:39 UTC |
 | #280 | – | Feste Uhrzeit für die Browser-Tests (T2): jeder Test läuft um 12:00 Uhr Zürich des echten Tages, wer eine eigene Uhr stellt, behält sie; dazu die Regeln «Testlink mit Prüfschritten» und «beim Warten weiterarbeiten» | offen |
 | neu | 0.212.2 | 0.212.2 «Eine Startzeit» (UI-Test T2): Unterwegs und «Vor der Abfahrt» mit derselben Startzeit, «Fahrt von … weiterführen», vor dem Start nur «Losfahren» | offen; Claude merged nach Noahs Freigabe der Bilder |
 | live | 0.212.1 | 0.212.1 «Die heutige Tour sagt eins» (UI-Test T1, #268) | gemergt 26.10.2026 23:12 |
 | #261 | – | Bibliotheken aktualisieren (lucide, dexie, vite; Dependabot) | offen, wird nach dem Nachziehen auf main geprüft |
+| live | 0.219.0 | «Heute ruhiger» Teil 1 (#267): Karten so hoch wie ihr Inhalt, kleine Knöpfe als Liste «Schnell öffnen», Velo-Arbeiten als runde Knöpfe | gemergt 27.10.2026 04:15 UTC |
+| neu | 0.233.0 | «Heute ruhiger» Teil 2 (#282): doppelte Kacheln einmal von Heute weg (bleiben im Katalog) | Noah gab frei 27.10.2026 08:58 UTC |
 
 ### Wie ein Release heute online geht (seit 26.10.2026 abends)
 
@@ -191,7 +205,10 @@ Damals (19.10.2026) galt: keine Testlinks; Ein Paket geht online, sobald die Tes
 | 94 | Deine Liste in Sicht (Noahs Liste sichtbar) | 0.210.0 | Sprungknöpfe für versteckte Werkzeuge, alle Taschen nebeneinander, 111 → 77 versteckt | offen |
 | 95 | Zwei Touren, ein Blick (996 Einzelideen Touren 44, 45, 47, 49) | 0.211.0 | Touren nebeneinander, Tour vorbereiten (Sportart pro Tag, unklare Stellen, Grenze) | offen |
 | 96 | Touren, die mitdenken (996 Einzelideen Touren 50–58) | 0.212.0 | Absicht, Regel mit Ende, Geschichten, Panne-Check, Später prüfen, Ort-Notiz, Tag zum Hören, Ess-Stopps, Verbrauch | offen |
-| 98 | Nichts versteckt sich mehr (die 20 tief versteckten Funktionen) | 0.217.0 | Namen wie auf der Seite, kurze Erklärzeilen, Trello-Knopf auf Merken, 77 → 57 versteckt | offen |
+| 97 | Platz in jeder Tasche (leere Taschen nehmen Teile auf) | 0.218.0 | Alle Taschen nebeneinander: leere Tasche als Spalte zum Hineinziehen | live |
+| 98 | Nichts versteckt sich mehr (die 20 tief versteckten Funktionen) | 0.217.0 | Namen wie auf der Seite, kurze Erklärzeilen, Trello-Knopf auf Merken, 77 → 57 versteckt | live |
+| 99 | Da, wo du schaust (4 weitere versteckte Funktionen) | 0.231.1 | Ozon/Pollen auf Wetter, Kette nach Regen unter Nachrichten, Belege im Laden-Tab, 57 → 53 versteckt | offen |
+| 100 | Oben auf Heute ist mehr Ruhe (Neuer Schwung PR 1) | beim Merge | «Startseite anpassen» ganz unten, auch am Computer | offen |
 | 62 | Skitour (Mockup-Paket P2) | 0.178.0 | Skitouren › Tour planen: Gefahrenstufe 1–5 mit Unterstufe und Satz, «Dein Morgen», Verhältnisse, Plan in Zahlen; «Gipfel erreicht» unterwegs; Nach der Tour «Plan und Wirklichkeit» und dein Material; Skitouren › Saison: Ziel, Wunschtouren, Skitage 8 Wochen, LVS-Übungen, Kurse mit «Auffrischen», Höhenmeter pro Ski, letzte Saison; Vorabend-Check zeigt Stufe, Temperatur, Wind, letzten Zug | live |
 
 «Frontend aufpeppen» ist pausiert (Noah 19.10.2026). Die Abschnitte unten sind der Stand vom 18.10.2026.

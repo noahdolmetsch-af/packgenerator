@@ -57,7 +57,8 @@ test('Live map: the button for stops along the route loads the stretch ahead and
   const say = page.locator('[data-live-stops-msg]');
   await expect(say).toBeVisible({ timeout: 15_000 });
   await expect(btn).toBeEnabled();
-  expect(bodies.length).toBe(1);
+  expect(bodies.length).toBeGreaterThanOrEqual(3); // Live Navigation PR 2: every server is asked once before it says so
+  expect(bodies.length).toBeLessThanOrEqual(4);
 
   // the server answers: the stretch ahead in small pieces (60 km in pieces of 20 km), the stop is kept
   mode = 'ok';

@@ -28,6 +28,8 @@ export const KINDS = [
   { key: 'event', name: 'Race|art' },
   { key: 'other', name: 'Without a bike|art' },
   { key: 'ride', name: 'Ride from GPX|kind' },
+  // Live Navigation M10 (Noah 26.10.2026): a ride recorded on the live map, on its own
+  { key: 'live', name: 'Live Navigation' },
 ];
 /** FL4. */
 export const DURS = [
@@ -67,7 +69,8 @@ export function normFilter(f) {
 
 /** FL1: the kind of a row of tripFacts (an uploaded ride on its own is «Fahrt aus GPX»). */
 export function kindOf(row) {
-  if (!row || row.kind === 'ride') return 'ride';
+  if (!row) return 'ride';
+  if (row.kind === 'ride') return row.live ? 'live' : 'ride';
   if (row.art === 'event' || row.art === 'other') return row.art;
   if (isBikepacking(row.trip)) return 'bikepacking';
   return row.art === 'multi' ? 'multi' : 'day';

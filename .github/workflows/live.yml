@@ -36,6 +36,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
         with:
+          fetch-depth: 0 # the whole history: scripts/news.mjs numbers versions by the order of merges
           # the version that just went online
           ref: ${{ github.event.workflow_run.head_sha || github.sha }}
       - uses: actions/setup-node@v7
@@ -61,7 +62,7 @@ jobs:
           {
             echo "### Live-Check $(date -u +'%Y-%m-%d %H:%M') UTC"
             echo
-            echo "Version: $(node -p "require('./package.json').version") · Adresse: https://noahdolmetsch-af.github.io/packgenerator/"
+            echo "Version: $(node scripts/news.mjs --version) · Adresse: https://noahdolmetsch-af.github.io/packgenerator/"
             echo
             echo '```'
             grep -E '✓|✘|passed|failed|flaky|Error:|Expected|Received' live.log | head -40 || true

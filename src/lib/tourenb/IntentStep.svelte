@@ -36,6 +36,7 @@
 
 {#if open}
   <section class="ia" aria-labelledby="ia-h" data-intent-step>
+    <p class="ia-kick">{t('Tour from an intent')}</p>
     <h3 id="ia-h">{t('What do you have in mind?')}</h3>
     <p class="ia-sub">{t('Pick an intent. The app then asks only the questions that fit and proposes the tour. Everything stays changeable.')}</p>
     <div class="ia-grid" role="group" aria-label={t('Intent')}>
@@ -89,6 +90,12 @@
     padding: 12px;
     margin: 0 0 12px;
     background: var(--paper);
+  }
+  .ia-kick {
+    margin: 0;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+    font-weight: 600;
   }
   .ia h3 {
     margin: 0;

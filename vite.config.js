@@ -10,13 +10,17 @@ import { viewportZoom } from './scripts/viewport-zoom.mjs';
 const vercel = !!process.env.VERCEL || !!process.env.CF_PAGES;
 const base = vercel ? '/' : '/packgenerator/';
 
-import pkg from './package.json' with { type: 'json' };
+import { writeNewsIndex } from './scripts/news.mjs';
+
+// Version at merge time (Noah 27.10.2026 «1a»): the version comes from the order of merges on main
+// (scripts/news.mjs), not from package.json; this also writes src/lib/news/index.gen.js.
+const pkg = { version: writeNewsIndex().version };
 
 export default defineConfig({
   base,
   preview: { host: "127.0.0.1" },
   server: { host: "0.0.0.0", allowedHosts: ["terminal.local"] },
-  // Replaces __APP_VERSION__ in the code with the version from package.json.
+  // Replaces __APP_VERSION__ in the code with the version (scripts/news.mjs).
   // APP_VERSION_OVERRIDE: only the update test (tests/e2e/live/update.spec.js) builds an «older» app with it.
   define: { __APP_VERSION__: JSON.stringify(process.env.APP_VERSION_OVERRIDE || pkg.version), __PREVIEW__: JSON.stringify(vercel) },
   // v0.21.0: Vitest runs the unit tests only; the browser test in tests/e2e runs with `npm run e2e`.

@@ -12,4 +12,7 @@ export const DEBRIEF_JUMPS = [
   { key: 'breakdown', label: 'Note a breakdown', jump: '[data-learn-break]' },
   { key: 'sleep', label: 'Rate a place to sleep', jump: '[data-learn-sleep]' },
   { key: 'picture', label: 'Tour picture', jump: '[data-postcard-open]' },
+  // Touren b (996 Ideen 56, 58)
+  { key: 'listen', label: 'Your day to listen to', jump: '[data-day-listen]' },
+  { key: 'used', label: 'Book what was used', jump: '[data-used]' },
 ];

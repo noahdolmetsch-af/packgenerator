@@ -19,6 +19,7 @@ export default {
   'Move {name} to another bag': '{name} in eine andere Tasche verschieben',
   'Move to another bag': 'In eine andere Tasche verschieben',
   'drag an item into another bag, or use the arrows next to it': 'zieh ein Teil in eine andere Tasche, oder nimm die Pfeile daneben',
+  'Still empty: drag an item here, or use the arrows next to an item.': 'Noch leer: zieh ein Teil hierher, oder nimm die Pfeile neben einem Teil.',
   // 20 tief versteckte Funktionen
   'Energy for a ride: from your weight, the time, the km, the climbing and the temperature.': 'Energie für eine Fahrt: aus deinem Gewicht, der Zeit, den km, den Höhenmetern und der Temperatur.',
   'Stops as waypoints: with a route, the shops and the water go into one GPX for the Garmin or the Wahoo.': 'Stopps als Wegpunkte: Mit einer Route kommen die Läden und das Wasser in eine GPX-Datei für Garmin oder Wahoo.',

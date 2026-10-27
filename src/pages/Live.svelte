@@ -58,7 +58,7 @@
   import { localDay as todayLocal } from '../lib/localday.js';
   import SosSheet from '../lib/live/SosSheet.svelte';
   import RerouteSheet from '../lib/live/RerouteSheet.svelte';
-  import { onDetour, detourDone, detourGpx, saveDetour, loadDetour, DETOUR_COLOUR } from '../lib/reroute.js';
+  import { onDetour, detourDone, detourGpx, saveDetour, loadDetour, DETOUR_COLOUR, atPlace, returnDetour, backDetour, backtrackOf, planReturn, returnModeStd, shouldReroute, OFF_ROUTE_M } from '../lib/reroute.js';
   import { saveGpx } from '../lib/gpxout.js';
   import { LANDI_RADAR } from '../lib/wetter/kern.js';
   import LiveWetter from '../lib/live/LiveWetter.svelte';
@@ -107,6 +107,12 @@
   // Gruppen-Live-Karte (Noah 25.10.2026 «b»): friends on the map through a link
   import GroupPanel from '../lib/live/GroupPanel.svelte';
   import { endKeptGroup } from '../lib/live/group.js';
+  import { saveLiveRide, bookBikeKm, saveLeftRides } from '../lib/live/saveride.js';
+  import LiveLabel from '../lib/live/LiveLabel.svelte';
+  import { deleteEntries } from '../lib/kmbookdb.js';
+  import { offerDone } from '../lib/ui/rename.svelte.js';
+  import { saveFailed } from '../lib/ui/ask.js';
+  import EndRideSheet from '../lib/live/EndRideSheet.svelte';
   import { pointDots } from '../lib/live/event.js';
   import { t, tn, locale, num } from '../lib/i18n.svelte.js';
   import SleepList from '../lib/race/ride/SleepList.svelte';
@@ -174,9 +180,17 @@
   const AFTER = import.meta.glob('../lib/live/AfterRide.svelte');
   const loadAfter = Object.values(AFTER)[0] ?? null;
 
+  const rideName = (ride, tr = trip) => tr?.title || t('Ride {date}', { date: new Date(ride.startAt || Date.now()).toLocaleDateString(locale(), { weekday: 'short', day: 'numeric', month: 'numeric' }) });
   async function start(cont = null) {
     err = '';
     after = null;
+    // a ride before that was never ended is not lost: it goes to Touren as its own entry first
+    try {
+      const kept = await saveLeftRides(db, { keep: cont?.id ?? null, nameOf: rideName });
+      if (kept.length) offerDone(t('The ride before was not ended. It is in Trips now too.'));
+    } catch (x) {
+      err = saveFailed(x);
+    }
     const e = await startRecording(trip, { cont, saver: cfg.battery });
     if (e) return (err = t(e));
     eatFromKm = null;
@@ -194,9 +208,32 @@
   });
   let groupRows = $state([]);
   let groupEnded = $state(false);
+  // Live Navigation M9/M10 (Noah 26.10.2026): «Fahrt beenden» asks once, then the ride is saved at once as
+  // its own entry in Touren («Live Navigation») and its km go to the bike, with Undo (saveride.js)
+  let askEnd = $state(false);
+  async function endAnswer(a) {
+    askEnd = false;
+    if (a === 'end') await stop();
+  }
   async function stop() {
     const ride = await stopRecording();
-    after = { ride };
+    let saved = null;
+    if (ride) {
+      const name = rideName(ride);
+      try {
+        saved = await saveLiveRide(db, ride, { trip, name });
+        const b = await bookBikeKm(db, ride, { trip, name, note: t('Live map') });
+        if (b) {
+          offerDone(t('Saved in Trips. {km} km added to {bike}.', { km: num(b.entry.km), bike: b.bike.name }), async () => {
+            await deleteEntries(db, b.ids);
+            await db.tracks.update(ride.id, { kmId: null });
+          }, 10_000);
+        } else offerDone(t('Saved in Trips as «Live Navigation».'));
+      } catch (x) {
+        err = saveFailed(x);
+      }
+    }
+    after = { ride, saved };
     // the group ride ends with the ride: every place of it is deleted (an event group of several days goes on)
     groupEnded = await endKeptGroup(db);
     groupRows = [];
@@ -326,7 +363,8 @@
   /* ---------- the stops from outside ---------- */
   let busy = $state('');
   let msg = $state('');
-  const fail = (e) => (navigator.onLine === false ? t('You are offline. Try again with internet.') : e?.message === 'busy' ? t('The free service is busy. Try again in a minute.') : t('Could not load. Try again later.'));
+  // Live Navigation PR 2: the true reason (stops.js askServers tries every server first)
+  const fail = (e) => (navigator.onLine === false ? t('You are offline. Try again with internet.') : e?.message === 'busy' ? t('All OpenStreetMap servers are full or too slow right now.|poi') + ' ' + t('Try again in a minute.|poi') : e?.message === 'net' ? t('No OpenStreetMap server could be reached. Check the internet connection.|poi') : t('Could not load. Try again later.'));
   async function getAround(force = false) {
     if (busy || !me) return;
     busy = 'around';
@@ -483,7 +521,8 @@
       }
     }
     // off-route
-    if (cfg.offRoute && at && !onDetour(detour, me)) {
+    if (cfg.offRoute && at) autoStep();
+    if (cfg.offRoute && at && !onDetour(detour, me) && autoHold !== 'free') {
       const r = offRouteStep(at.offM, offState, 100);
       offState = r.state;
       offWarn = r.state === 'off';
@@ -583,19 +622,83 @@
   let picked = $state(null); // a point pressed long on the map
   let detour = $state(loadDetour());
   let gpxMsg = $state('');
-  const setDetour = (d) => {
+  const setDetour = (d, fit = true) => {
     detour = d;
     gpxMsg = '';
+    backErr = '';
     saveDetour(d);
-    if (d?.line?.length > 1) {
+    if (fit && d?.line?.length > 1) {
       follow = false;
       mapView?.fitLine?.(d.line.map(([a, b]) => [a, b]), sheetPx);
     }
   };
   // back on the route past the rejoin point (or at the place): the detour has done its job
   $effect(() => {
-    if (detour && detourDone(detour, { km, here: me })) untrack(() => setDetour(null));
+    if (detour && detourDone(detour, { km, here: me, offM: at?.offM ?? null })) untrack(() => setDetour(null));
   });
+
+  /* ---------- Umweg und zurück (Noah 27.10.2026 «1a 2b 3a», PR 5) ---------- */
+  // 1a: at the place the app asks how you go back; a race chooses «back where I left» first
+  let backPick = $state(null);
+  const backMode = $derived(backPick ?? returnModeStd(isRace));
+  let backBusy = $state(false);
+  let backErr = $state('');
+  const arrived = $derived(hasRoute && detour?.fromKm != null && atPlace(detour, me));
+  const routerErr = (e) =>
+    e?.message === 'busy'
+      ? t('The bike router is busy right now. Try again in a minute, or use a navigation app.')
+      : navigator.onLine === false
+        ? t('Offline: a new way needs the internet. A navigation app with offline maps still works.')
+        : t('The bike router did not answer. Try again, or use a navigation app.');
+  async function planBack() {
+    if (!me || !detour || backBusy) return;
+    backBusy = true;
+    backErr = '';
+    const exitKm = detour.fromKm;
+    try {
+      const r = await planReturn({ here: me, mode: backMode, pts, exitKm, profile: detour.profile });
+      setDetour(returnDetour(r, { exitKm, back: backMode }));
+    } catch (e) {
+      backErr = routerErr(e);
+    } finally {
+      backBusy = false;
+    }
+  }
+  // 2b: off the route the app plans the way back by itself (with the off-route warning on);
+  // «Undo» waits until you are back on the route, «Go on without the route» also keeps the warning quiet
+  let offSince = null;
+  let lastOnKm = null;
+  let autoAt = null;
+  let autoBusy = false;
+  let autoHold = $state(null); // null | 'undo' | 'free'
+  function autoStep() {
+    if (at.offM <= OFF_ROUTE_M) {
+      offSince = null;
+      lastOnKm = at.km;
+      autoHold = null;
+      return;
+    }
+    offSince ??= now;
+    if (detour || autoHold || autoBusy || lastOnKm == null || !navigator.onLine) return;
+    if (shouldReroute({ offM: at.offM, offSince, lastAt: autoAt, now })) autoPlan(lastOnKm);
+  }
+  async function autoPlan(exitKm) {
+    autoBusy = true;
+    autoAt = now;
+    try {
+      const r = await planReturn({ here: me, mode: 'fast', pts, exitKm });
+      if (!detour) setDetour(returnDetour(r, { exitKm, back: 'auto' }), false);
+    } catch {
+      /* no answer: the off-route warning still tells you, the next try in a minute */
+    } finally {
+      autoBusy = false;
+    }
+  }
+  // 3a (Noah): «Gleichen Weg zurück»: your own track back to where you left the route, no router
+  const sameBack = $derived(detour?.back === 'auto' && hasRoute ? backtrackOf(fixesOf(row), pts) : null);
+  const autoUndo = () => ((autoHold = 'undo'), setDetour(null));
+  const autoFree = () => ((autoHold = 'free'), setDetour(null));
+  const takeSame = () => sameBack && setDetour(backDetour(sameBack), false);
   const detourLine = $derived(detour ? detour.line.map(([a, b]) => [a, b]) : []);
   async function detourToGarmin() {
     const name = `${t('Detour')} ${detour.target.name || ''}`.trim();
@@ -798,14 +901,38 @@
       reroute = true;
       return;
     }
+    // a place set by tapping the map: the window «In der Nähe» comes back with it
+    const was = poiTapping;
     poiPanel?.tapMap(e);
+    if (was) openNear();
+  }
+  // Suchvorschläge (Noah 27.10.2026 «In der Nähe als Popup»): the place search in its own window, on the
+  // phone from below, on the computer on the right; the map stays usable beside it (not modal)
+  let nearDlg = $state(null);
+  let nearOpen = $state(false);
+  function openNear() {
+    if (!nearDlg) return;
+    if (!nearDlg.open) nearDlg.show();
+    nearOpen = true;
+  }
+  function closeNear() {
+    if (nearDlg?.open) nearDlg.close();
+    nearOpen = false;
+  }
+  // «Hin» on a place: the detour planner with this place chosen (Umweg und zurück)
+  function goTo(p) {
+    if (!p) return;
+    picked = { lat: Number(p.lat), lon: Number(p.lon), name: p.name || kindName(p.kind) };
+    closeNear();
+    reroute = true;
   }
   function pickPoint(p) {
     const id = String(p?.id ?? '');
     if (id.startsWith('cam-')) return (camPicked = camOfPoint($camsQ, id));
     if (!id.startsWith('poi-')) return;
     poiPicked = poiPoints.find((x) => `poi-${x.id}` === id) ?? null;
-    if (poiPicked && snap === 'peek') snap = 'half';
+    if (!poiPicked) return;
+    openNear();
     tick().then(() => document.querySelector('[data-live-poi-detail]')?.scrollIntoView({ block: 'start' }));
   }
   const showRouteBox = $derived(!isRace && !(trip?.route?.line?.length > 1));
@@ -880,6 +1007,7 @@
       <h2 class="rc-h2">{t('Ride done')}</h2>
       {#if after.ride}
         <p class="rc-text">{t('{km} km recorded. The line is in the travel track of the day.', { km: num(after.ride.km ?? 0) })}</p>
+        {#if after.saved}<p class="rc-text" data-live-saved><LiveLabel /> {t('Saved as its own entry in Trips.')} <a href="#/trips" data-live-saved-link>{t('Open Trips')}</a></p>{/if}
         {#if loadAfter}
           {#await loadAfter() then m}
             <m.default ride={after.ride} {trip} />
@@ -888,7 +1016,7 @@
           {/await}
         {/if}
       {:else}
-        <p class="rc-text">{t('Too few points to keep this ride.')}</p>
+        <p class="rc-text" data-live-too-short>{t('Too few points to keep this ride.')} {t('The phone had no GPS position, or the ride was shorter than a few seconds. Nothing was saved.')}</p>
       {/if}
       {#if groupEnded}<p class="rc-note" data-live-group-ended>{t('The group ride has ended. The places are deleted.')}</p>{/if}
     </section>
@@ -983,12 +1111,33 @@
         <LiveEssen {me} />
         <LivePlaceNote {me} tripId={trip?.id ?? null} />
         {#if detour}
-          <div class="lvf-alert lv-detour" role="status" data-live-detour>
+          <div class="lvf-alert lv-detour" role="status" data-live-detour data-live-detour-back={detour.back ?? null}>
             <Route size={18} aria-hidden="true" />
             <span class="lv-detour-main">
-              <b>{t('Detour to {name}', { name: detour.target.name || t('the point') })}</b>
-              <small>{[t('{d} km', { d: fmtKm(detour.km) }), detour.gainM ? `${num(detour.gainM)} m ↑` : '', detour.min ? t('about {min} min', { min: num(detour.min) }) : '', detour.rejoin ? t('back on the route at km {km}', { km: num(Math.round(detour.rejoin.km)) }) : '', detour.extraKm != null && detour.extraKm > 0 ? t('{d} km more', { d: fmtKm(detour.extraKm) }) : ''].filter(Boolean).join(' · ')}</small>
-              <span><button type="button" class="btn sm" onclick={detourToGarmin} data-live-detour-garmin>{t('GPX for Garmin')}</button></span>
+              <b>{detour.back === 'auto' ? t('New way back onto the route') : detour.back === 'same' ? t('The same way back') : detour.back ? t('Way back onto the route') : t('Detour to {name}', { name: detour.target.name || t('the point') })}</b>
+              <small>{[t('{d} km', { d: fmtKm(detour.km) }), detour.gainM ? `${num(detour.gainM)} m ↑` : '', detour.min ? t('about {min} min', { min: num(detour.min) }) : '', detour.rejoin ? t('back on the route at km {km}', { km: num(Math.round(detour.rejoin.km)) }) : '', detour.extraKm != null && detour.extraKm > 0 ? t('{d} km more', { d: fmtKm(detour.extraKm) }) : '', detour.skippedKm > 0 ? t('{d} km of the route left out', { d: fmtKm(detour.skippedKm) }) : ''].filter(Boolean).join(' · ')}</small>
+              {#if detour.back === 'auto'}
+                <small>{t('You were off the route, so the app planned the shortest way back.')}</small>
+                <span class="lv-back-acts">
+                  <button type="button" class="btn sm" onclick={autoUndo} data-live-auto-undo>{t('Undo')}</button>
+                  <button type="button" class="btn sm" onclick={autoFree} data-live-auto-free>{t('Go on without the route')}</button>
+                  {#if sameBack}<button type="button" class="btn sm" onclick={takeSame} data-live-auto-same>{t('The same way back')}</button>{/if}
+                </span>
+              {/if}
+              {#if arrived}
+                <span class="lv-back" data-live-return>
+                  <b>{t('You are there. How do you go back?')}</b>
+                  <span class="lv-back-acts" role="group" aria-label={t('The way back')}>
+                    <button type="button" class="btn sm" aria-pressed={backMode === 'exit'} onclick={() => (backPick = 'exit')} data-live-return-mode="exit">{t('Back where I left the route (km {km})', { km: num(Math.round(detour.fromKm)) })}</button>
+                    <button type="button" class="btn sm" aria-pressed={backMode === 'fast'} onclick={() => (backPick = 'fast')} data-live-return-mode="fast">{t('The fastest way onto the route')}</button>
+                  </span>
+                  {#if isRace}<small>{t('In a race only the whole route counts, so «back where I left» is chosen first.')}</small>{/if}
+                  <span><button type="button" class="btn sm primary" onclick={planBack} disabled={backBusy || !me} data-live-return-go>{backBusy ? t('Planning…') : t('Plan the way back')}</button></span>
+                  {#if backErr}<small class="lv-back-err" role="alert" data-live-return-error>{backErr}</small>{/if}
+                </span>
+              {:else if detour.back !== 'auto'}
+                <span><button type="button" class="btn sm" onclick={detourToGarmin} data-live-detour-garmin>{t('GPX for Garmin')}</button></span>
+              {/if}
               {#if gpxMsg}<small data-live-detour-gpx>{gpxMsg}</small>{/if}
             </span>
             <button type="button" class="lvf-ic lv-detour-x" onclick={() => setDetour(null)} aria-label={t('Remove the detour')} data-live-detour-off><X size={18} aria-hidden="true" /></button>
@@ -1004,6 +1153,8 @@
 
       <!-- Versteckte Funktionen (Noah 22.10.2026): the emergency window one tap away, not only in «⋯» -->
       <button type="button" class="lvf-ic lvf-sosq" class:lvf-hidden={snap === 'full' || dpIndex > 0} onclick={() => (sos = true)} style:bottom="{sheetPx + 126}px" aria-label={t('Emergency')} data-live-sos-quick><LifeBuoy size={22} aria-hidden="true" /></button>
+      <!-- «In der Nähe» (Suchvorschläge): the place window one tap away -->
+      <button type="button" class="lvf-nearbtn" class:lvf-hidden={snap === 'full' || dpIndex > 0} aria-expanded={nearOpen} onclick={() => (nearOpen ? closeNear() : openNear())} style:bottom="{sheetPx + 238}px" data-live-near-btn><MapPin size={18} aria-hidden="true" />{t('Nearby')}</button>
       <!-- «Ziel wählen»: tap the button, then the spot on the map (the long press still works) -->
       <button type="button" class="lvf-ic lvf-goal" class:lvf-hidden={snap === 'full' || dpIndex > 0} aria-pressed={goalTapping} onclick={() => ((goalTapping = !goalTapping), goalTapping && (snap = 'peek'))} style:bottom="{sheetPx + 182}px" aria-label={t('Choose a goal')} title={t('Choose a goal')} data-live-goal><Flag size={22} aria-hidden="true" /></button>
       <!-- the «⋯» menu -->
@@ -1166,13 +1317,10 @@
                 {/if}
               </div>
               {#if stopsMsg}<p class="rc-note" role="status" data-live-stops-msg>{stopsMsg}</p>{/if}
-              <!-- places: the place search and a tapped place (inside «Stops», Noah 24.10.2026 «3a») -->
+              <!-- places: the window «In der Nähe» (Suchvorschläge, Noah 27.10.2026) -->
               <div class="lv-places" data-live-places>
                 <h3 class="lv-h3">{t('More places on the map')}</h3>
-                {#if poiPicked}
-                  <div data-live-poi-detail><PoiDetail place={poiPicked} from={me} line={route?.line ?? null} profile={route?.profile ?? null} onclose={() => (poiPicked = null)} /></div>
-                {/if}
-                <PoiPanel bind:this={poiPanel} canTap ontapmode={(v) => ((poiTapping = v), v && (snap = "peek"))} center={me ? { lat: me.lat, lon: me.lon } : null} bounds={mapBounds} line={route?.line ?? null} profile={route?.profile ?? null} tripId={trip?.id ?? null} onpoints={(l) => (poiPoints = l ?? [])} />
+                <button type="button" class="btn" onclick={openNear} data-live-near-open><MapPin size={18} aria-hidden="true" />{t('Nearby: what do you need?')}</button>
               </div>
             </div>
 
@@ -1261,7 +1409,8 @@
             {@render options()}
 
             <div class="lvf-part lvf-end">
-              <button type="button" class="btn lv-stop" onclick={stop} data-live-stop><Square size={18} aria-hidden="true" />{t('Stop the ride')}</button>
+              <button type="button" class="btn lv-stop" onclick={() => (askEnd = true)} data-live-stop><Square size={18} aria-hidden="true" />{t('Stop the ride')}</button>
+              {#if askEnd}<EndRideSheet km={rec.km} movingS={movingLive} ondone={endAnswer} />{/if}
               <p class="rc-note">{t('Pull the handle down for the map. SOS, «I am here» and the map ground are in the «⋯» menu top right.')}</p>
             </div>
         </div>
@@ -1279,7 +1428,7 @@
         <label class="lv-opt"><input type="checkbox" checked={cfg.voice} onchange={(e) => setOpt('voice', e.currentTarget.checked)} data-live-opt="voice" /><span><b>{t('Voice announcements')}</b><small>{t('The phone says the next shop or climb a few km ahead.')}</small></span></label>
       </li>
       <li class="rc-row">
-        <label class="lv-opt"><input type="checkbox" checked={cfg.offRoute} onchange={(e) => setOpt('offRoute', e.currentTarget.checked)} disabled={!hasRoute} data-live-opt="offRoute" /><span><b>{t('Off-route warning')}</b><small>{hasRoute ? t('A tone and a vibration when you are more than 100 m off the route.') : t('Needs a route.')}</small></span></label>
+        <label class="lv-opt"><input type="checkbox" checked={cfg.offRoute} onchange={(e) => setOpt('offRoute', e.currentTarget.checked)} disabled={!hasRoute} data-live-opt="offRoute" /><span><b>{t('Off-route warning')}</b><small>{hasRoute ? t('A tone and a vibration when you are more than 100 m off the route. The app then plans the way back by itself.') : t('Needs a route.')}</small></span></label>
       </li>
       <li class="rc-row">
         <label class="lv-opt"><input type="checkbox" checked={cfg.eatHm} onchange={(e) => setOpt('eatHm', e.currentTarget.checked)} disabled={!hasRoute} data-live-opt="eatHm" /><span><b>{t('Eat every 300 m up')}</b><small>{t('On top of the eat reminder by time: a vibration after 300 m of climbing.')}</small></span></label>
@@ -1323,6 +1472,16 @@
 {/snippet}
 
 {#if camPicked}<LiveWebcam cam={camPicked} onclose={() => (camPicked = null)} />{/if}
+<dialog class="lv-near" bind:this={nearDlg} onclose={() => (nearOpen = false)} aria-labelledby="lv-near-h" data-live-near>
+  <div class="lv-near-head">
+    <h2 id="lv-near-h">{t('Nearby')}</h2>
+    <button type="button" class="lvf-ic" onclick={closeNear} aria-label={t('Close')} data-live-near-close><X size={20} aria-hidden="true" /></button>
+  </div>
+  {#if poiPicked}
+    <div data-live-poi-detail><PoiDetail place={poiPicked} from={me} line={route?.line ?? null} profile={route?.profile ?? null} ongo={goTo} onclose={() => (poiPicked = null)} /></div>
+  {/if}
+  <PoiPanel bind:this={poiPanel} canTap ongo={goTo} ontapmode={(v) => ((poiTapping = v), v && (closeNear(), (snap = 'peek')))} center={me ? { lat: me.lat, lon: me.lon } : null} bounds={mapBounds} line={route?.line ?? null} profile={route?.profile ?? null} tripId={trip?.id ?? null} onpoints={(l) => (poiPoints = l ?? [])} />
+</dialog>
 {#if reroute}<RerouteSheet here={me} pts={hasRoute ? pts : []} {km} {pois} {own} {picked} onplan={setDetour} onclose={() => ((reroute = false), (picked = null))} />{/if}
 {#if sos}<SosSheet here={me} {km} {routeName} {pois} onclose={() => (sos = false)} />{/if}
 {#if place}<PlaceSheet {trip} onclose={() => (place = false)} />{/if}
@@ -1467,6 +1626,72 @@
   }
   .lvf-turn {
     pointer-events: none;
+  }
+  /* Suchvorschläge: the button «In der Nähe» and its window (phone from below, computer on the right) */
+  .lvf-nearbtn {
+    position: absolute;
+    right: 10px;
+    z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 44px;
+    padding: 0 14px;
+    border-radius: 999px;
+    border: 1px solid var(--line-strong);
+    background: var(--paper);
+    color: var(--ink);
+    font: 600 var(--fs-body) var(--font-body);
+    box-shadow: 0 1px 4px var(--shadow);
+    cursor: pointer;
+    transition: bottom 0.15s var(--ease-out);
+  }
+  .lvf-nearbtn[aria-expanded='true'] {
+    background: var(--brand);
+    border-color: var(--brand);
+    color: var(--brand-ink);
+  }
+  .lv-near {
+    position: fixed;
+    inset: 70px 0 0 0;
+    z-index: 40; /* like the full view (.lvf), later in the page so above it; toasts (40, later still) stay on top */
+    width: 100%;
+    max-width: none;
+    height: auto;
+    max-height: none;
+    margin: 0;
+    padding: 10px 16px 24px;
+    border: 0;
+    border-radius: 20px 20px 0 0;
+    background: var(--paper);
+    color: var(--ink);
+    box-shadow: 0 -6px 24px var(--shadow);
+    overflow: auto;
+    overscroll-behavior: contain;
+  }
+  .lv-near-head {
+    position: sticky;
+    top: -10px;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin: -10px -16px 8px;
+    padding: 10px 16px 8px;
+    background: var(--paper);
+  }
+  .lv-near-head h2 {
+    margin: 0;
+  }
+  @media (min-width: 900px) {
+    .lv-near {
+      inset: 0 0 0 auto;
+      width: 440px;
+      border-radius: 0;
+      border-left: 1px solid var(--line);
+      box-shadow: -8px 0 30px var(--shadow);
+    }
   }
   .lvf-lap {
     position: absolute;
@@ -1690,6 +1915,26 @@
   }
   .lv-detour-main .btn {
     margin-top: 4px;
+  }
+  .lv-back {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--sp-1);
+    margin-top: var(--sp-1);
+  }
+  .lv-back-acts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sp-1);
+  }
+  .lv-back-acts .btn[aria-pressed='true'] {
+    border-color: var(--accent);
+    background: var(--accent-soft);
+    font-weight: 600;
+  }
+  .lv-detour .lv-back-err {
+    color: var(--bad);
   }
   .lv-detour .lv-detour-x {
     width: 36px;

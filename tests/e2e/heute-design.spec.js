@@ -16,19 +16,20 @@ test('Heute in the new look: header, trip card, light tiles, new tiles, New by a
   // the greeting alone in the heading, the weather in the line under it
   await expect(page.locator('#hello-h [data-weather]')).toHaveCount(0);
   await expect(page.locator('.greet .dl [data-weather]')).toBeVisible();
-  // «Customise the start page»: at the top on a computer, at the bottom on a phone
+  // «Customise the start page»: since «Neuer Schwung» (Noah 26.10.2026 «3a») in the quiet line at the very bottom,
+  // on a computer too, next to «All areas» and under the trip card and the wall
   const adapt = page.getByRole('button', { name: T('Customise the start page') });
+  await expect(adapt).toHaveCount(1);
   await expect(adapt).toBeVisible();
   const [a, h] = [await adapt.boundingBox(), await page.locator('#hello-h').boundingBox()];
-  if (phone) expect(a.y).toBeGreaterThan(h.y + 400);
-  else {
-    // HG1 (mockups HG1a, HG1b): the longer greeting and the name question push it under the date line,
-    // still in the greeting's header, above the trip card
-    const g = await page.locator('section.greet').boundingBox();
-    expect(a.y).toBeGreaterThan(h.y);
-    expect(a.y + a.height).toBeLessThanOrEqual(g.y + g.height + 1);
-    expect(a.y + a.height).toBeLessThan((await page.locator('section.trip').boundingBox()).y);
-  }
+  expect(a.y).toBeGreaterThan(h.y + 400);
+  // measured together in one poll: tiles that load late grow the wall and push the button down
+  await expect.poll(async () => {
+    const [b, w] = [await adapt.boundingBox(), await page.locator('.wall').first().boundingBox()];
+    return b.y - (w.y + w.height);
+  }).toBeGreaterThan(-1);
+  const all = await page.locator('[data-all-areas]').boundingBox();
+  if (!phone) expect(Math.abs(all.y - a.y)).toBeLessThan(8); // one line on a computer
 
   // the trip card: number fields, the packing bar, one strong button, no photo
   const card = page.locator('section.trip');
