@@ -219,4 +219,12 @@ export default {
   'A round from home through a white spot: tap a place you have never been, the free bike router finds the way; plan it as a trip or take the GPX.': 'Eine Runde von zu Hause durch einen weissen Flecken: einen Ort antippen, an dem du nie warst, der freie Velo-Router findet den Weg; als Tour planen oder das GPX nehmen.',
   'Tap a place you have never been, then «Round through it».': 'Tippe einen Ort an, an dem du nie warst, dann «Runde hindurch».',
   'Tap «Plan as a trip» or «GPX for the Garmin».': 'Tippe «Als Tour planen» oder «GPX fürs Garmin».',
+  // «Neu heute» (Träume und Neuland N11)
+  'New since yesterday: {list}': 'Neu seit gestern: {list}',
+  'First time ever. A tap shows them in New ground.': 'Zum ersten Mal überhaupt. Ein Tipp zeigt sie in Neuland.',
+  'Close «New since yesterday»': '«Neu seit gestern» schliessen',
+  'After a ride, one quiet line on Today: what you reached for the first time; a tap opens New ground.': 'Nach einer Fahrt eine ruhige Zeile auf Heute: was du zum ersten Mal erreicht hast; ein Tipp öffnet Neuland.',
+  'Ride somewhere new (or tick a place in New ground).': 'Fahr irgendwo neu hin (oder hake in Neuland einen Ort ab).',
+  'Today shows «New since yesterday»; × closes it.': 'Heute zeigt «Neu seit gestern»; × schliesst es.',
+  'Tap the line: New ground shows what is new.': 'Tippe die Zeile an: Neuland zeigt, was neu ist.',
 };

@@ -2081,4 +2081,10 @@ export default {
   'Tap «Add»: name, km and climb come from the link.': 'Tippe «Hinzufügen»: Name, km und Höhenmeter kommen aus dem Link.',
   'In an existing dream with a link: «Read from the link».': 'In einem Traum mit Link: «Aus dem Link lesen».',
   'Example: ridewithgps.com/routes/12345 → «Jura crossing» · 84 km · 1250 m up, with a map.': 'Beispiel: ridewithgps.com/routes/12345 → «Jura-Querung» · 84 km · 1250 m hoch, mit Karte.',
+  // «Träume und Neuland» N11
+  'Shows only on the day of a ride and the day after.': 'Erscheint nur am Tag einer Fahrt und am Tag danach.',
+  'Ride somewhere you have never been; the route or the ride counts.': 'Fahr irgendwohin, wo du noch nie warst; die Route oder die Fahrt zählt.',
+  'Today shows «New since yesterday: …» under the greeting.': 'Heute zeigt «Neu seit gestern: …» unter dem Gruss.',
+  'Tap it for New ground, or × to close it.': 'Tippe es an für Neuland, oder × zum Schliessen.',
+  'Example: a ride round the lake → «New since yesterday: 3 municipalities, 1 lake».': 'Beispiel: eine Fahrt um den See → «Neu seit gestern: 3 Gemeinden, 1 See».',
 };

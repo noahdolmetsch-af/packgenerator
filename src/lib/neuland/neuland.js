@@ -542,7 +542,7 @@ export function newOnTrip(tripId, result) {
   return out;
 }
 
-const COUNT_WORDS = {
+export const COUNT_WORDS = {
   cantons: ['{n} canton', '{n} cantons'],
   municipalities: ['{n} municipality', '{n} municipalities'],
   countries: ['{n} country', '{n} countries'],
