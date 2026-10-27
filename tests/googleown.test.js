@@ -32,6 +32,19 @@ describe('tours as calendar items', () => {
     expect(sent).toEqual([['own-sync', 1], ['own-sync', 2]]);
     expect((await db.settings.get(OWN_KEY)).value.calId).toBe('own@x');
   });
+  it('Noah 26.10.2026 «7a»: the due part changes of the bikes go along, with their own switch', async () => {
+    const db = createDb(`own-${Math.random()}`);
+    // a fictional bike: the chain mounted at 0 km, now 3200 km → over its start life, due today
+    await db.bikes.put({ id: 'b1', name: 'Test-Velo', km: 3200, parts: [{ key: 'chain', history: [{ date: '2026-01-01', km: 0, action: 'replace', result: 'done' }] }] });
+    let items = [];
+    const c = async (step, o) => ((items = o.body.items), { ok: true, cal: 'own@x' });
+    await savePrefs({ cal: true }, db);
+    await syncCal({ db, c, today: '2026-10-19', force: true });
+    expect(items.map((i) => [i.key, i.day])).toEqual([['wear:b1:chain', '2026-10-19']]);
+    await savePrefs({ wear: false }, db);
+    await syncCal({ db, c, today: '2026-10-19', force: true });
+    expect(items).toEqual([]);
+  });
 });
 
 describe('notes and Google Tasks, both ways', () => {

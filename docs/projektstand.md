@@ -1,10 +1,14 @@
 # Projektstand und Plan
 
-Stand: **27. Oktober 2026, 03:30 UTC**. Auf `main` steht **Version 0.218.0** (#278 «Nichts versteckt sich mehr» 0.217.0 und #272 «Platz in jeder Tasche» 0.218.0 am 27.10.2026 zusammengeführt). **Seit 26.10.2026 abends gelten neue Regeln** (kleine PRs, Screenshots und Testlink, Noah gibt frei, Claude merged; siehe [CLAUDE.md](../CLAUDE.md) und [Arbeitsweise](arbeitsweise.md)). Offen ist unter anderem 0.222.1 «Da, wo du schaust» (4 weitere versteckte Funktionen).
+Stand: **27. Oktober 2026, 09:05 UTC**. Auf `main` steht **Version 0.222.0** (zuletzt 0.217.0 bis 0.222.0 am 27.10.2026 zusammengeführt). **Seit 26.10.2026 abends gelten neue Regeln** (kleine PRs, Screenshots und Testlink, Noah gibt frei, Claude merged; siehe [CLAUDE.md](../CLAUDE.md) und [Arbeitsweise](arbeitsweise.md)). Dieser PR bringt 0.222.1 «Da, wo du schaust» (4 weitere versteckte Funktionen).
 
 Ältere Abschnitte weiter unten («Kurzstand 19.10.», Abschnitte 1 bis 5) sind der damalige Stand und bleiben als Verlauf stehen. Was unten anders steht, gilt nicht mehr, wo dieser Abschnitt etwas Neueres sagt.
 
 ## Stand 26.10.2026 auf einen Blick
+
+**Live Navigation PR 2 (27.10.2026):** «Orte, die dich finden» (0.222.0): Server der Reihe nach mit ehrlicher Meldung, Schnellwahl, Filter und gespeicherte Filter. Danach M13 «Karte frei» (Noah «1a 2a 3a»).
+
+**Live Navigation (26.10.2026 abends):** Mockups M1–M12 freigegeben. PR 1 «Fahrt speichern» (0.221.0) offen: jede Fahrt sofort in Touren mit Label «Live Navigation», Velo-km mit Rückgängig. Danach 9 weitere kleine PRs.
 
 ### Was seit dem 22.10.2026 online gegangen ist
 
@@ -28,11 +32,13 @@ Stand: **27. Oktober 2026, 03:30 UTC**. Auf `main` steht **Version 0.218.0** (#2
 
 | PR | Version (vorläufig) | Inhalt | Stand |
 |---|---|---|---|
+| neu | 0.220.0 | 0.220.0 «Velo-Ergänzungen»: Kettenlehre in der Prognose, Velo-Jahresrückblick, Pflege-Serie nach Regen, Wechsel im Google-Kalender, Geräusch-Notizen, Winter- und Frühlings-Checklisten | offen; Claude merged bei Grün |
 | #265 | 0.208.1–0.212.0 | Ganze Wörter, Gruppenfahrt für Events, Deine Liste in Sicht, Zwei Touren ein Blick, Touren die mitdenken, mit den Korrekturen für grünes `main` | zusammengeführt am 26.10.2026 abends |
 | #266 | – | Neue Regeln vom 26.10.2026 abends in CLAUDE.md; Browser-Tests im fertigen Playwright-Paket (bis 13 Minuten schneller pro Prüfung) | Noah gab frei am 26.10.2026 23:29 UTC |
 | neu | 0.212.2 | 0.212.2 «Eine Startzeit» (UI-Test T2): Unterwegs und «Vor der Abfahrt» mit derselben Startzeit, «Fahrt von … weiterführen», vor dem Start nur «Losfahren» | offen; Claude merged nach Noahs Freigabe der Bilder |
 | live | 0.212.1 | 0.212.1 «Die heutige Tour sagt eins» (UI-Test T1, #268) | gemergt 26.10.2026 23:12 |
 | #261 | – | Bibliotheken aktualisieren (lucide, dexie, vite; Dependabot) | offen, wird nach dem Nachziehen auf main geprüft |
+| neu | 0.219.0 | «Heute ruhiger» Teil 1: Karten so hoch wie ihr Inhalt, kleine Knöpfe als Liste «Schnell öffnen», Velo-Arbeiten als runde Knöpfe (Teil 2 doppelte Kacheln, Teil 3 Bereiche folgen als eigene PRs) | offen; Claude mergt nach Noahs Freigabe der Screenshots |
 
 ### Wie ein Release heute online geht (seit 26.10.2026 abends)
 

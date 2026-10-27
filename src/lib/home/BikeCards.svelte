@@ -87,31 +87,36 @@
 {/if}
 
 <style>
+  /* «Heute ruhiger» (Noah 26.10.2026 «5a»): the bike jobs as small round buttons, no longer a row of underlined words */
   .jobs {
     display: flex;
     flex-wrap: wrap;
-    gap: 0 18px;
-    margin: 6px 0 0;
+    align-items: center;
+    gap: 8px;
+    margin: 10px 0 0;
   }
   .lk {
     display: inline-flex;
     align-items: center;
     min-height: 44px;
-    padding: 0;
-    border: 0;
-    background: none;
+    padding: 0 14px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: var(--paper);
     color: var(--ink-2);
     font: 500 14px/1.3 var(--font-body);
-    text-decoration: underline;
-    text-underline-offset: 3px;
+    text-decoration: none;
     cursor: pointer;
     overflow-wrap: break-word;
   }
   .lk:hover {
     color: var(--ink);
+    border-color: var(--line-strong);
   }
   .lk.quiet {
-    text-decoration: none;
+    padding: 0 4px;
+    border: 0;
+    background: none;
     color: var(--ink-3);
   }
   .saved {

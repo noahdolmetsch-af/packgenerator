@@ -128,6 +128,7 @@ test('An own place by a tap on the live map, then the picture to share after the
   await expect(page.locator('[data-live-km]')).not.toContainText(/^0([.,]0)?\b/, { timeout: 10_000 });
   await page.locator('[data-live-stop]').scrollIntoViewIfNeeded();
   await tap(page.locator('[data-live-stop]'), info);
+  await tap(page.locator('[data-live-end-yes]'), info); // «Fahrt beenden?» asks once (M9)
   const after = page.locator('[data-after-share]');
   await after.scrollIntoViewIfNeeded();
   await expect(after).toBeVisible();

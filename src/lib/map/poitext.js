@@ -2,7 +2,7 @@
  * «Orte auf der Karte»: the shown words of a place (through t(); OSM names stay as they are).
  */
 import { t, num } from '../i18n.svelte.js';
-import { openAt } from '../race/outside.js';
+import { openOn } from './poifilter.js';
 import { CATEGORY, SUB_NAMES, labelOf } from './poisearch.js';
 
 /**
@@ -31,9 +31,9 @@ export function distText(d) {
   return '';
 }
 
-/** Open now? → { state: 'open' | 'closed' | 'unknown', text } */
+/** Open now? Public holidays count (poifilter.js openOn). → { state: 'open' | 'closed' | 'unknown', text } */
 export function openText(hours, now = new Date()) {
-  const s = openAt(hours, now);
+  const s = openOn(hours, now);
   if (s.open === true) return { state: 'open', text: s.closes ? t('Open, closes {time}|poi', { time: s.closes }) : t('Open now|poi') };
   if (s.open === false) {
     if (!s.opens) return { state: 'closed', text: t('Closed now|poi') };

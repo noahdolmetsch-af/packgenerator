@@ -663,6 +663,36 @@ export const HANDBOOK = {
     steps: ['Bikes › Care › a bike: «Setup photos» top right opens the timeline; «+ Photo» adds a setup of today.', '«…» at a photo: change the day, rename, show it behind the bike, remove.', 'Report a problem with several photos; cut the edges or keep them all as one PDF in Me › Documents.'],
     example: 'Example: photo of the new bag setup → it shows pale at the top of Bike care and lines up under this month.',
   },
+  'f.chainmeasure': {
+    on: null,
+    steps: ['Measure the chain in Bike care with the chain checker, e.g. 0.3 %.', '«Wear» shows the value and the km to 0.5 %.', 'When it wears faster than the km say, the forecast follows it.'],
+    example: 'Example: 0.3 % after 1000 km → about 650 km to 0.5 %.',
+  },
+  'f.bikeyear': {
+    on: null,
+    steps: ['Bikes › Care › a bike › «Wear» › «Year in review».', 'Choose a year; all bikes on top, then each bike.', 'Each change says how long the old part lasted.'],
+    example: 'Example: 2026: 4200 km, chain and tyres changed, CHF 160.',
+  },
+  'f.bikeseason': {
+    on: null,
+    steps: ['Bikes › Care › a bike › «Wear» › «Winter and spring».', 'Tick the points; add, rename, move or delete them.', 'The ticks are per bike and season.'],
+    example: 'Example: «Pump the tyres to the upper pressure» ticked in November.',
+  },
+  'f.noises': {
+    on: null,
+    steps: ['Bikes › Care › a bike › «Wear» › «Noises»: describe it.', 'Tips from the bike FAQ show below it.', 'After a change the app asks «Is the noise gone?».'],
+    example: 'Example: «creaks when pedalling» → tip «Something creaks. Where?».',
+  },
+  'f.carestreak': {
+    on: null,
+    steps: ['Bikes › Care › a bike › «Wear»: the line below the rain hint.', 'Care the same day or the next counts.', 'A wet day without care starts a new series.'],
+    example: 'Example: «Chain cared for after rain: 5 times in a row».',
+  },
+  'f.wearcal': {
+    on: null,
+    steps: ['Me › Connections › Calendar «Packgenerator».', 'Switch on «Part changes of your bikes».', 'The evening before at 18:00 your phone reminds you.'],
+    example: 'Example: «Test bike: replace Chain» on 1 December.',
+  },
   'f.wetchain': {
     on: null,
     steps: ['Ride in the rain: «Wear» shows «Dry and oil the chain», the phone reminds you at 19:00.', '«Done: chain oiled» writes a care entry for the chain, and the hint goes.', 'Switch it off: Bikes › Care › a bike › «Wear» › «Reminders».'],
