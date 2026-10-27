@@ -16,6 +16,18 @@
 
 export const WHATS_NEW = [
   {
+    // v0.217.0 «332 sichtbar» (Noah 26.10.2026 «starte mit 1, dann 3 und danach 2», 2 = the 20 deeply hidden functions):
+    // catalogue names as the page shows them, short lines on Verpflegung, Fahrten, the meditation log and the evening check,
+    // a Trello button on Merken; hidden functions 77 → 57
+    version: '0.217.0',
+    date: '2026-10-27',
+    title: 'Nothing hides any more',
+    lead: 'Twenty tools that were hard to find now stand where you look.',
+    points: [{ text: 'Remember: a Trello button at the top leads to your board settings', href: '#/calendar' }],
+    small: [{ box: 'new', text: 'Food and water and Rides say in one line what they can do', href: '#/trips/fuel' }],
+    test: ['Open Planen › Merken and tap «Trello» next to «Reminders».', 'The page jumps down to the Trello box.'],
+  },
+  {
     // v0.212.2 UI-Test 26.10.2026 T2 «Unterwegs: eine Startzeit, vor dem Start nur Losfahren» (G2-07, G2-15): one start
     // time of today on Unterwegs and «Vor der Abfahrt» (an open recording gives it), «Fahrt von … weiterführen» as the
     // main button, «Tour beenden …» in «…» before setting off, the base check as a list with boxes

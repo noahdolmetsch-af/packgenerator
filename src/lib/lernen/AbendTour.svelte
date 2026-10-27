@@ -31,7 +31,7 @@
 
 {#if trip && $dQ !== undefined}
   <div class="q at" data-q="tour" data-abendtour>
-    <span class="qt"><b id="cq-tour">{t('How was the trip «{name}» today?', { name: trip.title || t('This trip') })}</b><small>{t('1 tough … 10 wonderful · goes into its debrief')}</small></span>
+    <span class="qt"><b id="cq-tour">{t('How was the trip «{name}» today?', { name: trip.title || t('This trip') })}</b><small>{t('Rate the trip in the evening: 1 tough … 10 wonderful, goes into its debrief')}</small></span>
     <Scale value={score} label="cq-tour" onpick={pick} />
     {#if split}
       <div class="at-parts" data-abendtour-parts>
