@@ -66,20 +66,70 @@ export function sparkOf(values = [], sum = false, max = 30) {
  * the period is left out, so is a group without a tile.
  * → [{ key, name, tiles: [{ ...item, value, n, spark }] }]
  */
-export function tilesOf(groups = [], days = [], on = SOURCES) {
+export function tilesOf(groups = [], days = [], on = SOURCES, { all = false } = {}) {
   const out = [];
   for (const g of groups) {
     const tiles = [];
     for (const it of g.items ?? []) {
       if (!on.includes(it.src)) continue;
+      // a value the app cannot get yet (only a place holder) shows only with «all»
+      if (it.later) {
+        if (all) tiles.push({ ...it, value: null, n: 0, spark: [], empty: true });
+        continue;
+      }
       const values = days.map((d) => fin(it.get?.(d)));
       const s = summaryOf(values, !!it.sum);
-      if (!s.n) continue;
-      tiles.push({ ...it, value: s.value, n: s.n, spark: sparkOf(values, !!it.sum) });
+      if (!s.n) {
+        if (all) tiles.push({ ...it, value: null, n: 0, spark: [], empty: true });
+        continue;
+      }
+      const spark = typeof it.profile === 'function' ? it.profile(days) : sparkOf(values, !!it.sum);
+      tiles.push({ ...it, value: s.value, n: s.n, spark });
     }
     if (tiles.length) out.push({ key: g.key, name: g.name, tiles });
   }
   return out;
+}
+
+/**
+ * «Alle Werte» (27.10.2026): the mean per hour of the day over the days (24 places, null = no value),
+ * from Fitbit's hourly values (healthDays stepH or hrH). hoursOf(d) gives the 24 values of a day or null.
+ */
+export function hourProfile(days = [], hoursOf) {
+  const sum = Array(24).fill(0);
+  const n = Array(24).fill(0);
+  for (const d of days) {
+    const h = hoursOf?.(d);
+    if (!Array.isArray(h)) continue;
+    h.forEach((v, i) => {
+      if (fin(v) == null || i > 23) return;
+      sum[i] += v;
+      n[i]++;
+    });
+  }
+  return sum.map((v, i) => (n[i] ? v / n[i] : null));
+}
+
+/** Fitbit's «hourly activity»: of the 12 hours from 09 to 21 o'clock, how many had at least 250 steps; null without hours. */
+export const ACTIVE_HOUR_STEPS = 250;
+export function activeHours(stepH) {
+  if (!Array.isArray(stepH)) return null;
+  const part = stepH.slice(9, 21);
+  if (!part.some((v) => fin(v) != null)) return null;
+  return part.filter((v) => fin(v) != null && v >= ACTIVE_HOUR_STEPS).length;
+}
+
+/** The mean of the hours of a day that have a value, or null. */
+export function meanOfHours(h) {
+  const vals = Array.isArray(h) ? h.map(fin).filter((v) => v != null) : [];
+  return vals.length ? vals.reduce((a, b) => a + b, 0) / vals.length : null;
+}
+
+/** The sum of the numbers of an object ({ light, mod, … }), or null without any. */
+export function sumOf(o, keys = null) {
+  if (!o || typeof o !== 'object') return null;
+  const vals = (keys ?? Object.keys(o)).map((k) => fin(o[k])).filter((v) => v != null);
+  return vals.length ? vals.reduce((a, b) => a + b, 0) : null;
 }
 
 /** The ticks of one activity per day (Map day → count) from Aktiv's log. */

@@ -62,7 +62,7 @@
 import { route, json, needStore, redisEnv, pick, ApiError, API_BASE } from './core.js';
 import { needDevice, saveState, takeState, backToApp, jsonBody } from './oauth.js';
 import { makeAccount } from './account.js';
-import { MAX_DAYS, spanDays, rollUpBody, listFilter, daysFrom, chunks, civilOf, sleepOf } from './googledays.js';
+import { MAX_DAYS, spanDays, rollUpBody, hourBody, listFilter, daysFrom, chunks, civilOf, sleepOf } from './googledays.js';
 
 /** A log line about the nights Google sent: counts, wake-up days and field names only, no values. */
 export function sleepNote(points) {
@@ -128,7 +128,7 @@ export const TYPES = ['sleep', 'steps', 'daily-resting-heart-rate', 'daily-heart
 /** Pages per list call in the days step (a night or a day is one point; 90 days fit in one page). */
 const MAX_PAGES = 5;
 /** Sleep (and exercise) come at most 25 per page (health.googleapis.com discovery, v4); the rest 200. */
-export const pageSizeOf = (type) => (type === 'sleep' ? 25 : 200);
+export const pageSizeOf = (type) => (type === 'sleep' || type === 'exercise' ? 25 : 200);
 /** Errors that stop the whole fetch: the login, the connection or Google's limit. */
 const STOPS = new Set(['google_login_needed', 'not_connected', 'google_busy', 'google_unreachable']);
 
@@ -239,8 +239,11 @@ export function makeHandler({ env = () => googleEnv(), doFetch = (...a) => fetch
     return out;
   }
 
-  const rollUp = async (token, type, from, to) =>
-    (await healthCall(token, `dataTypes/${type}/dataPoints:dailyRollUp`, { method: 'POST', body: JSON.stringify(rollUpBody(from, to)) })).rollupDataPoints ?? [];
+  const rollUp = async (token, type, from, to, opts = {}) =>
+    (await healthCall(token, `dataTypes/${type}/dataPoints:dailyRollUp`, { method: 'POST', body: JSON.stringify(rollUpBody(from, to, opts)) })).rollupDataPoints ?? [];
+  /** Hourly windows (steps, pulse) for the days from..to. */
+  const hourRollUp = async (token, type, from, to) =>
+    (await healthCall(token, `dataTypes/${type}/dataPoints:rollUp`, { method: 'POST', body: JSON.stringify(hourBody(from, to)) })).rollupDataPoints ?? [];
 
   /** One Drive, Calendar or Tasks call; Google's answer as JSON, or a clear error. */
   async function gapi(token, url, init = {}, forbidden = ['drive_not_allowed', 'Google Drive is not allowed yet: connect Drive in the app.']) {
@@ -537,7 +540,47 @@ export function makeHandler({ env = () => googleEnv(), doFetch = (...a) => fetch
           const spo2 = await listed('daily-oxygen-saturation');
           const breath = await listed('daily-respiratory-rate');
           const skin = await listed('daily-sleep-temperature-derivations');
-          const days = daysFrom({ steps, azm, sleep, rhr, hrv, kcal, kcalActive, hr, spo2, breath, skin }, from, to);
+          // «Alle Werte» (Noah 27.10.2026): every further value Google gives, each optional (a refused one is left out)
+          // They never stop the values above: after a login or limit error the rest is skipped.
+          let halted = false;
+          const opt = async (get) => {
+            if (halted) return [];
+            try {
+              return await get();
+            } catch (err) {
+              if (STOPS.has(err?.code) && err.code !== 'google_unreachable') halted = true;
+              return [];
+            }
+          };
+          const inChunks = async (get, n) => {
+            const out = [];
+            for (const [a, b] of chunks(from, to, n)) out.push(...(await get(a, b)));
+            return out;
+          };
+          const vo2 = await opt(() => listAll(token, 'daily-vo2-max', from, to));
+          const dist = await opt(() => rollUp(token, 'distance', from, to));
+          const floors = await opt(() => rollUp(token, 'floors', from, to));
+          const alt = await opt(() => rollUp(token, 'altitude', from, to));
+          const kg = await opt(() => rollUp(token, 'weight', from, to, { all: true }));
+          const fat = await opt(() => rollUp(token, 'body-fat', from, to, { all: true }));
+          const levels = await opt(() => rollUp(token, 'activity-level', from, to));
+          const zones = await opt(() => rollUp(token, 'time-in-heart-rate-zone', from, to));
+          const exercise = await opt(async () => {
+            // the workouts that started in from..to; without a filter Google's newest ones, sorted here
+            const got = await listAll(token, 'exercise', from, to).catch((err) => {
+              if (STOPS.has(err?.code)) throw err;
+              return null;
+            });
+            if (got?.length) return got;
+            const all = await listAll(token, 'exercise', from, to, { filtered: false });
+            return all.filter((p) => {
+              const d = civilOf(p?.exercise?.interval, 'start')?.date;
+              return d && d >= from && d <= to;
+            });
+          });
+          const stepHours = await opt(() => inChunks((a, b) => hourRollUp(token, 'steps', a, b), MAX_DAYS));
+          const hrHours = await opt(() => inChunks((a, b) => hourRollUp(token, 'heart-rate', a, b), 14));
+          const days = daysFrom({ steps, azm, sleep, rhr, hrv, kcal, kcalActive, hr, spo2, breath, skin, vo2, dist, floors, alt, kg, fat, levels, zones, exercise, stepHours, hrHours }, from, to);
           // one line for the Vercel log: how many days and which values did not come (no values, no names)
           console.log(`google days: ${n} asked, ${days.length} with values${missing.length ? `, missing ${missing.join(' ')}` : ''}`);
           return json(request, 200, { ok: true, from, to, days, missing });
