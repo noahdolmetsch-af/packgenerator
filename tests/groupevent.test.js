@@ -132,6 +132,10 @@ describe('Gruppenfahrt für Events', () => {
     expect(readCard(link.slice(link.indexOf('#')))).toMatchObject({ name: 'test_data_gtp_ Sam', insta: '@test_data_velo', phone: '', bike: '', note: 'Gravel · Zürich', email: '', addr: '' });
     // Kontakt-QR-Code: the new parts travel too
     const more = cardLink({ name: 'test_data_gtp_ Sam', email: 'sam@example.test', strava: '123', komoot: 'sam-k', web: 'example.test', wa: '+41 79 000 00 00', addr: 'Testweg 1, 0000 Testdorf' }, 'https://example.test/app/');
+    const until = cardLink({ name: 'test_data_gtp_ Sam', until: '2026-11-02' }, 'https://example.test/app/');
+    expect(readCard(until.slice(until.indexOf('#'))).until).toBe('2026-11-02');
+    const bad = Buffer.from(JSON.stringify({ v: 1, name: 'test_data_gtp_ Sam', until: 'morgen' })).toString('base64url');
+    expect(readCard(`#/karte/${bad}`).until).toBe('');
     expect(readCard(more.slice(more.indexOf('#')))).toMatchObject({ email: 'sam@example.test', strava: '123', komoot: 'sam-k', web: 'example.test', wa: '+41 79 000 00 00', addr: 'Testweg 1, 0000 Testdorf' });
     expect(readCard('#/karte/@@')).toBeNull();
     expect(readCard('#/karte/abcdef')).toBeNull();
