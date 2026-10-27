@@ -13,6 +13,8 @@ PR #<Nummer> · 27.10.2026 · Auftrag: Noah «1b 2b 3a» (Thread «Einzelideen P
 - Nach einem Tipp wartet der Knopf auf die nächste Beobachtung, damit der Rhythmus nicht immer weiter sinkt.
 - Der Knopf schlägt einen Tag weniger (trocken an sonnigem oder windigem Platz) oder einen Tag mehr (nass im Schatten) vor, nie weniger als 1 Tag. Beim Hinweis «windiger Platz» gibt es keinen Knopf, weil der Rhythmus dort nicht das Problem ist.
 - Fotos und Notizen: nur die letzten 90 Tage, damit alte Notizen nicht plötzlich Vorschläge bekommen.
+- Steht ein Eintrag schon in einem Vorgang, zeigt «Doppelter Eingang» das Paar nicht mehr; der andere Eintrag kommt als Vorschlag unter «Mail als Vorgang». So steht nichts doppelt da.
+- Notizen bekommen keinen Rollen-Chip (Bestätigung/Rechnung), Mails und Fotos schon.
 - Die Karte heisst weiter «Mail als Vorgang»; ihr Hilfetext nennt jetzt auch Foto und Notiz.
 - Frage 3a: Die Erinnerungskarte bleibt nur in der App (kein Teilen als Bild).
 

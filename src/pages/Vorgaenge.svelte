@@ -138,7 +138,7 @@
       {#if sugg.length}
         <ul class="rh-list">
           {#each sugg as s (s.note.id)}
-            {@const role = mailRole(s.note)}
+            {@const role = sourceOf(s.note) === 'note' ? null : mailRole(s.note)}
             <li data-mail-sugg>
               <span class="rh-grow"><a href={hrefOf(s.note)}>{title(s.note)}</a>{#if role}{' '}<span class="rh-tag">{t(ROLES[role])}</span>{/if}<small>{#if !s.note.mail}{t(SRC[sourceOf(s.note)])}{' · '}{/if}{t('Fits «{name}»: {why}', { name: caseName(s.caseId), why: t(MAIL_WHY[s.why]) })}</small>
                 <span class="rh-row vg-acts">

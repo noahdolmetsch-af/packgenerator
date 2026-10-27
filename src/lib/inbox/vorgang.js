@@ -59,7 +59,8 @@ export const noKey = (a, b) => [a, b].sort().join('|');
 
 /**
  * «Doppelten Eingang erkennen»: pairs of entries from different sources (mail, photo, note) that look like
- * the same matter, best first, at most `max`. Pairs already in the same Vorgang or answered «no» are left out.
+ * the same matter, best first, at most `max`. Pairs with an entry already in a Vorgang (caseFor suggests the other
+ * one there) or answered «no» are left out.
  * → [{ a, b, why }]
  */
 export function doublePairs(notes = [], { no = [], now = Date.now(), max = 6 } = {}) {
@@ -71,7 +72,8 @@ export function doublePairs(notes = [], { no = [], now = Date.now(), max = 6 } =
       const a = recent[i];
       const b = recent[j];
       if (sourceOf(a) === sourceOf(b)) continue;
-      if (a.caseId && a.caseId === b.caseId) continue;
+      // one of them already in a matter: «Mail als Vorgang» suggests the other one there (Noah 27.10.2026 «2b»)
+      if (a.caseId || b.caseId) continue;
       if (Math.abs(msOf(a) - msOf(b)) > PAIR_DAYS * DAY_MS) continue;
       if (nope.has(noKey(a.id, b.id))) continue;
       const m = sameMatter(a, b);

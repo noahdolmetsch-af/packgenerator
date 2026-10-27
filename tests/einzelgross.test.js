@@ -51,6 +51,7 @@ describe('Vorgänge: double entries and mail as a matter', () => {
     expect(pairs[0].why[0]).toEqual({ kind: 'number', text: '482913' });
     expect(doublePairs([hotel, photo], { now, no: [noKey(photo.id, hotel.id)] })).toEqual([]);
     expect(doublePairs([hotel, { ...photo, caseId: 'c' }].map((n) => ({ ...n, caseId: 'c' })), { now })).toEqual([]);
+    expect(doublePairs([{ ...hotel, caseId: 'c' }, photo], { now })).toEqual([]); // the photo gets a matter suggestion instead
   });
   it('a reply with the same subject fits the matter of the first mail', () => {
     const c = newCase('Hotel Alpenblick', 'now');
