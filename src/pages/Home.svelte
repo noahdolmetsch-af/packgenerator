@@ -112,7 +112,8 @@
   import { WEIGH_KEY, weighDue } from '../lib/home/weighin.js';
   import GoalChips from '../lib/home/GoalChips.svelte';
   import ActsTile from '../lib/home/ActsTile.svelte';
-  import { activeDays, seriesOf, restOf, REST_KEY, SERIES_STEPS } from '../lib/home/series.js';
+  import { SERIES_STEPS } from '../lib/home/series.js';
+  import { readSeries, seriesTables } from '../lib/home/series-data.js';
   import { FUNCTIONS, USAGE_KEY, usageOf, dataUsed, usedFunctions, levelOf, untried } from '../lib/home/functions.js';
   import { countUse } from '../lib/home/usage.js';
   import { recordCare, undoCare } from '../lib/home/care-tap.js';
@@ -606,14 +607,15 @@
   // (bikes {}, or 0 trips) and written again a moment later; with 0 trips stored first, the import
   // itself could later be celebrated as "Your 10th trip".
   async function stepMilestones(day) {
-    await db.transaction('rw', [db.trips, db.bikes, db.debriefs, db.settings, db.flowLog, db.rides], async () => {
-      const [all, bikeRows, drs, stored, log, rideRows, rest] = await Promise.all([db.trips.toArray(), db.bikes.toArray(), db.debriefs.toArray(), db.settings.get(MILESTONE_KEY), db.flowLog.toArray(), db.rides.toArray(), db.settings.get(REST_KEY)]);
+    await db.transaction('rw', [...new Set([db.bikes, ...seriesTables(db)])], async () => {
+      const [all, bikeRows, drs, stored, ser] = await Promise.all([db.trips.toArray(), db.bikes.toArray(), db.debriefs.toArray(), db.settings.get(MILESTONE_KEY), readSeries(db, day)]);
       if (!all.length && !bikeRows.length) return; // nothing to count yet
       const home = homeTrips(all);
       const done = home.filter((x) => tripDone(x, drs, day));
       const nights = yearReview({ today: day, trips: home, debriefs: drs, rides: [] }).ride.nights + 0;
       // v0.94.0 (idea 6): the series over everything reaching 2, 4, 8 … weeks is celebrated too
-      const series = stepOfMs(seriesOf(activeDays({ log, rides: rideRows, trips: home, debriefs: drs, today: day }), restOf(rest?.value), day).n, SERIES_STEPS);
+      // UI-Test T4: the one series (series-data.js), the same number as the tiles
+      const series = stepOfMs(ser.s.n, SERIES_STEPS);
       const cur = milestoneLevels({ tripsDone: done.length, bikes: bikeRows, nights: done.some((x) => Number(x.days) > 1 && x.overnight !== 'lodging' && x.overnight !== 'none') ? Math.max(1, nights) : 0, series });
       const r = milestoneStep(stored?.value ?? null, cur, day);
       if (r.changed) await db.settings.put({ key: MILESTONE_KEY, value: r.state });
