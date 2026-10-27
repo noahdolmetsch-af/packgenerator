@@ -53,5 +53,12 @@ export async function endedPage(page, T) {
 /** SN1: «Tour beenden …» before the last day on On the way. Versteckte Funktionen (Noah 22.10.2026, changed
  *  on purpose): it is a visible button in the trip band, no longer an entry of its «…». */
 export async function endMenu(page, T) {
-  await page.locator('.trip-band').getByRole('button', { name: T('End the trip …') }).click();
+  const band = page.locator('.trip-band');
+  const btn = band.getByRole('button', { name: T('End the trip …') });
+  // UI-Test T2 (G2-15, changed on purpose): before «Losfahren» the entry waits in the band's «…»
+  const more = band.getByRole('button', { name: T('More for this trip') });
+  await expect(btn.or(more).first()).toBeVisible();
+  if (await btn.count()) return btn.click();
+  await more.click();
+  await page.getByRole('menuitem', { name: new RegExp(`^${T('End the trip …').replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`) }).click();
 }

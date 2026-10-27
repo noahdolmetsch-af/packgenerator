@@ -30,6 +30,21 @@ export const WHATS_NEW = [
     test: ['Open Heute on the computer and scroll to the very bottom: «Startseite anpassen» stands next to «Alle Bereiche».', 'Tap it: the tiles can be moved, resized and removed, as before. A long press on a tile still works too.'],
   },
   {
+    // v0.212.2 UI-Test 26.10.2026 T2 «Unterwegs: eine Startzeit, vor dem Start nur Losfahren» (G2-07, G2-15): one start
+    // time of today on Unterwegs and «Vor der Abfahrt» (an open recording gives it), «Fahrt von … weiterführen» as the
+    // main button, «Tour beenden …» in «…» before setting off, the base check as a list with boxes
+    version: '0.212.2',
+    date: '2026-10-26',
+    title: 'One start time',
+    lead: 'On the way and «Before you leave» show the same start.',
+    points: [{ text: 'A ride still recording: the main button is «Continue the ride from 19:27»', href: '#/ride' }],
+    small: [
+      { box: 'nicer', text: 'Before you set off only «Start riding»; «End the trip …» is in «…»' },
+      { box: 'nicer', text: 'Base check as a list with boxes, like Pack' },
+    ],
+    test: ['Open On the way on a trip day before setting off: the one main button is «Start riding»; «End the trip …» is in «…».', 'Open «Before you leave»: it shows the same start time as On the way.'],
+  },
+  {
     // v0.212.1 UI-Test 26.10.2026 T1 «Heutige Tour: ein Zustand überall»: a day ride not begun yet (not packed, not
     // started) no longer shows «Letzter Abend», «Rückblick heute» or «Abgeschlossen»; the tour page says «Geplant»
     version: '0.212.1',

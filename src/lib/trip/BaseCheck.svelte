@@ -2,7 +2,7 @@
   /**
    * v0.45.2 (Noah: "vor jedem Ride einen kurzen Reminder"): the base check on the ride page.
    * The trip's ready check (checks.js READY_DEFAULT: lock, mini backpack, bottle, sunglasses, cap,
-   * wind jacket …) as big tap buttons until everything is ticked, then one quiet line.
+   * wind jacket …) as a list with boxes to tick (UI-Test T2, like Packen) until everything is ticked, then one quiet line.
    */
   import { buzz } from '../bedienung.svelte.js';
   import { db } from '../db.js';
@@ -43,9 +43,11 @@
   <section class="card bc" class:ok={!open.length} aria-labelledby="bc-h-{trip.id}">
     <h2 id="bc-h-{trip.id}">{t('Base check')}</h2>
     {#if open.length || show}
-      <ul class="chips">
+      <!-- UI-Test T2 (G2-15): a list with boxes to tick, like Packen (were pills that looked like buttons) -->
+      <ul class="items">
         {#each rows as r (r.id)}
-          <li><button type="button" class="chip" aria-pressed={readyDone(r, trip)} onclick={() => toggle(r)}>{#if readyDone(r, trip)}<Check size={16} aria-hidden="true" />{/if}{label(r)}</button></li>
+          {@const ok = readyDone(r, trip)}
+          <li class:in={ok}><button type="button" class="it" aria-pressed={ok} onclick={() => toggle(r)}><span class="box" aria-hidden="true">{#if ok}<Check size={16} strokeWidth={2.5} />{/if}</span><span class="nm">{label(r)}</span></button></li>
         {/each}
       </ul>
     {:else}
@@ -98,35 +100,57 @@
     font-size: var(--fs-small);
     font-weight: 600;
   }
-  .chips {
+  .items {
     list-style: none;
     margin: 0;
     padding: 0;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 0 16px;
     min-width: 0;
   }
-  .chip {
-    display: inline-flex;
+  .it {
+    display: flex;
     align-items: center;
-    gap: 6px;
-    min-height: 44px;
-    max-width: 100%;
-    padding: 8px 14px;
-    border: 1px solid var(--line);
-    border-radius: 999px;
-    background: var(--paper);
+    gap: 12px;
+    width: 100%;
+    min-height: 48px;
+    padding: 4px 0;
+    border: 0;
+    background: none;
     color: var(--ink);
-    font: 500 var(--fs-small) / 1.25 var(--font-body);
+    font: 400 var(--fs-body) / 1.3 var(--font-body);
     text-align: left;
-    overflow-wrap: break-word;
     cursor: pointer;
   }
-  .chip[aria-pressed='true'] {
-    border-color: var(--ink);
-    background: var(--ink);
-    color: var(--paper);
+  .box {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+    border: 1.5px solid var(--line-strong);
+    background: var(--paper);
+    transition: background-color 120ms var(--ease-out), border-color 120ms var(--ease-out);
+  }
+  .nm {
+    flex: 1;
+    min-width: 0;
+    overflow-wrap: break-word;
+  }
+  .in .box {
+    background: var(--hi);
+    border-color: var(--hi);
+    color: var(--hi-ink);
+  }
+  .in .nm {
+    color: var(--ink-3);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .box {
+      transition: none;
+    }
   }
   .link {
     border: 0;
