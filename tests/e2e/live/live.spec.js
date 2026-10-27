@@ -5,10 +5,11 @@
 // second page alike. Only .github/workflows/live.yml runs it (LIVE=1); it reads nothing and writes
 // nothing of Noah's: a fresh browser has its own empty data.
 import { test, expect } from '@playwright/test';
+import { appVersion } from '../../../scripts/news.mjs';
 import { readFileSync } from 'node:fs';
 
 const URL_LIVE = process.env.LIVE_URL || 'https://noahdolmetsch-af.github.io/packgenerator/';
-const WANT = process.env.EXPECT_VERSION || JSON.parse(readFileSync(new URL('../../../package.json', import.meta.url), 'utf8')).version;
+const WANT = process.env.EXPECT_VERSION || appVersion(); // scripts/news.mjs (version at merge time)
 
 test.use({ serviceWorkers: 'allow', baseURL: URL_LIVE });
 test.setTimeout(15 * 60_000);

@@ -6,13 +6,14 @@
 // 3. after starting the app again, Ich shows today's version, and it also starts without network.
 // The workflow .github/workflows/live.yml builds both folders first (LIVE=1); a pull request does not run it.
 import { test, expect } from '@playwright/test';
+import { appVersion } from '../../../scripts/news.mjs';
 import { createServer } from 'node:http';
 import { readFileSync, existsSync, statSync } from 'node:fs';
 import { extname, join, normalize } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = fileURLToPath(new URL('../../../', import.meta.url));
-const NEW = JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf8')).version;
+const NEW = appVersion(); // scripts/news.mjs (version at merge time)
 const OLD = '0.0.1';
 const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.svg': 'image/svg+xml', '.png': 'image/png', '.json': 'application/json', '.webmanifest': 'application/manifest+json', '.woff2': 'font/woff2' };
 

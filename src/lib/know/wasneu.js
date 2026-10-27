@@ -10,6 +10,7 @@
  */
 import { FEATURES, FEATURE_GROUPS, PAGE_GROUPS, pageOf } from '../features.js';
 import { WHATS_NEW, compareVersions } from '../whatsnew.js';
+import { NEWS } from '../news/index.gen.js';
 
 /** localStorage: { featureId: times opened } on this device. */
 export const USES_KEY = 'wasneu.uses';
@@ -167,6 +168,8 @@ export const SINCE = {
   'f.inputbar': '0.201.0', 'f.inputtemplates': '0.201.0', 'f.picturecard': '0.201.0',
   'f.tripcompare': '0.211.0', 'f.daysports': '0.211.0', 'f.unclear': '0.211.0', 'f.border': '0.211.0', // Touren a, part 2 (bundler renumbers)
 };
+// Since 27.10.2026 a news file names the functions it brings (since: ['f.x']); they get its version.
+for (const e of NEWS) for (const id of e.since ?? []) SINCE[id] = e.version;
 export const sinceOf = (id) => SINCE[id] ?? '0.1.0';
 
 /** I11d «Wichtigste 10»: a fixed choice, what brings the most when packing, riding and caring. */
