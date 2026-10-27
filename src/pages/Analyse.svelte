@@ -24,6 +24,11 @@
   import Ueberblick from './analyse/Ueberblick.svelte';
   import Vergleiche from './analyse/Vergleiche.svelte';
   import Muster from './analyse/Muster.svelte';
+  import Ansichten from './analyse/Ansichten.svelte';
+  import { liveQuery } from 'dexie';
+  import { fromStore } from 'svelte/store';
+  import { db } from '../lib/db.js';
+  import { VIEWS_KEY, cleanViews, applyDiagram } from '../lib/analyse/views.js';
   import DaySheet from './analyse/DaySheet.svelte';
   import { itemsByKey } from '../lib/analyse/catalog.js';
   import { addDays } from '../lib/analyse.js';
@@ -68,6 +73,25 @@
       /* a private window: the choice is only for now */
     }
   });
+  // saved views (Ansichten): the diagram reports its state; a view starts the diagram anew with its own
+  const viewsQ = fromStore({
+    subscribe(run) {
+      const sub = liveQuery(() => db.settings.get(VIEWS_KEY)).subscribe({ next: run, error: () => {} });
+      return () => sub.unsubscribe();
+    },
+  });
+  const views = $derived(cleanViews(viewsQ.current?.value));
+  let dgState = $state({});
+  let dgStart = $state(null);
+  let dgRun = $state(0);
+  const nowShown = () => ({ diagram: dgState, tiles: { period, on, all } });
+  function applyView(v) {
+    dgStart = applyDiagram(dgState, v);
+    dgRun += 1;
+    if (v.tiles.period != null && PERIODS.includes(v.tiles.period)) period = v.tiles.period;
+    if (Array.isArray(v.tiles.on)) on = SOURCES.filter((s) => v.tiles.on.includes(s));
+    if (typeof v.tiles.all === 'boolean') all = v.tiles.all;
+  }
   const toggle = (s) => (on = on.includes(s) ? on.filter((x) => x !== s) : SOURCES.filter((x) => x === s || on.includes(x)));
 
   // a year back, so «Eigenes Diagramm» has its counted values (readiness, load) too
@@ -108,7 +132,10 @@
     <PageHead title={t('Analyse|page')} sub={t('All your values from Fitbit, Strava, your body, «Wi gaht\'s?» and Aktiv. Tap a value to see its course. Only to look at, nothing is rated.')} />
   </header>
 
-  {#if !loading}<Diagramm {groups} {byKey} trips={data.trips} acts={data.acts} log={data.log} {today} />{/if}
+  {#if !loading}
+    <section class="card vw" aria-label={t('Views|views')}><Ansichten {views} now={nowShown} onapply={applyView} /></section>
+    {#key dgRun}<Diagramm {groups} {byKey} trips={data.trips} acts={data.acts} log={data.log} {today} start={dgStart} onstate={(st) => (dgState = st)} />{/key}
+  {/if}
   {#if !loading}<Vergleiche {byKey} acts={data.acts} log={data.log} trips={data.trips} {today} />{/if}
   {#if !loading}<Muster {days} {byKey} acts={data.acts} log={data.log} {today} />{/if}
 
@@ -190,6 +217,11 @@
     flex-wrap: wrap;
     gap: 12px 28px;
     align-items: flex-start;
+  }
+  .vw {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
   }
   .pr {
     display: flex;
