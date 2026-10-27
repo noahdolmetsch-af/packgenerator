@@ -82,7 +82,7 @@ export default {
   'Give the set a °C range': 'Dem Set einen °C-Bereich geben',
   // Schritt 3 «Deine Regel» (0.220.0)
   'I get cold quickly': 'Ich friere schnell',
-  'normally|cold': 'normal',
+  'normally|cold': 'Normal',
   'I get warm quickly': 'Mir wird schnell warm',
   '{row} now below {n} °C.': '{row} jetzt unter {n} °C.',
   'Saved: you get cold {how}.': 'Gespeichert: Du frierst {how}.',
