@@ -158,6 +158,7 @@ const LISTED_HOME = {
   'f.dreamsdone': '#/trips/dreams',
   'f.dreamready': '#/trips/dreams',
   'f.dreamwx': '#/trips/dreams',
+  'f.dreamsmap': '#/trips/dreams',
   'f.newkm': '#/neuland',
   'f.triptips': '#/trips/dreams',
   'f.races': '#/trips/dreams',

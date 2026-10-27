@@ -32,6 +32,7 @@
   import WhiteSpots from '../lib/neuland/WhiteSpots.svelte'; // Träume und Neuland N1
   import NeulandGoals from '../lib/neuland/NeulandGoals.svelte'; // Träume und Neuland N5
   import TripTips from '../lib/neuland/TripTips.svelte'; // N3 «Heute passt: Ausflugstipps»
+  import DreamsMap from '../lib/dreams/DreamsMap.svelte'; // N14 «Karte aller Träume»
   import { linkIn, readLink, withLink, distText } from '../lib/dreams/fromlink.js'; // N13 «Ein Link wird ein Traum»
   import { fulfilledDreams } from '../lib/dreams/erfuellt.js'; // N17 «Erfüllte Träume»
   import { refreshDreamWx, windowsOf, dayRange, DREAM_WX } from '../lib/dreams/wetterfenster.js'; // N15 «Wetterfenster»
@@ -245,6 +246,8 @@
       </ul>
     {/if}
   </section>
+
+  <DreamsMap dreams={list.filter((d) => !doneDay.has(d.id))} onopen={(id) => (open = id)} />
 
   {#if fulfilled.length}
     <!-- N17 «Erfüllte Träume»: the dreams you rode, once the debrief is done; a tap opens the debrief -->
