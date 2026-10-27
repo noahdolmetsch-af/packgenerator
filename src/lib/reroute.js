@@ -6,7 +6,7 @@
  * the route) or open it in Google Maps / OsmAnd.
  *
  * Router: BRouter (brouter.de, the public server of the open-source bike router; free, no account, no
- * key, fair use: one request per tap, never in the background). Profiles «trekking» (quiet roads and
+ * key, fair use: one request per tap; off the route the app asks by itself at most once a minute). Profiles «trekking» (quiet roads and
  * good paths) and «fastbike» (road bike, short and paved). When it does not answer, the app says so and
  * offers the navigation apps instead. The answer stays on this device (localStorage, so a reload during
  * the ride keeps the detour); nothing else is sent.
@@ -166,8 +166,10 @@ export function offLineM(line = [], p) {
 export const onDetour = (detour, here, m = ON_DETOUR_M) => !!detour?.line?.length && !!here && offLineM(detour.line, here) <= m;
 
 /** The detour is done once you are back on the route past the rejoin point (or at the place without a route). */
-export function detourDone(detour, { km = null, here = null } = {}) {
+export function detourDone(detour, { km = null, here = null, offM = null } = {}) {
   if (!detour) return false;
+  // still off the route (offM given): a km near the place is not «back on the route»
+  if (offM != null && offM > OFF_ROUTE_M) return false;
   if (detour.rejoin && fin(km)) return km >= detour.rejoin.km + 0.3;
   if (!detour.rejoin && here) return distKm(P(here), P(detour.target)) < 0.05;
   return false;
@@ -274,3 +276,33 @@ export function backtrackOf(track = [], pts = []) {
   const p = pointAt(pts, s.km);
   return { line: back.map((q) => [Number(q.lat), Number(q.lon)]), km: Math.round(km * 10) / 10, rejoin: { km: Math.round(s.km * 10) / 10, lat: p.lat, lon: p.lon } };
 }
+
+/* ---------- at the place: the way back (PR 5 «Umweg und zurück») ---------- */
+
+/** Within this of the detour's place counts as «arrived»: the app asks how you go back. */
+export const AT_PLACE_M = 80;
+/** At the place of a detour to a place (not on a way back)? */
+export const atPlace = (detour, here, m = AT_PLACE_M) => !!detour?.target && !detour.back && !!here && distKm(P(here), P(detour.target)) * 1000 <= m;
+
+/**
+ * A planned way back as a detour the map shows like any other. r: planReturn's answer; back: 'exit',
+ * 'fast', 'auto' (planned by itself off the route) or 'same' (your own track back).
+ */
+export function returnDetour(r, { exitKm = null, back = 'fast', now = Date.now() } = {}) {
+  return {
+    line: r.line,
+    km: r.km,
+    gainM: r.gainM ?? 0,
+    min: r.min ?? null,
+    target: { lat: r.rejoin.lat, lon: r.rejoin.lon, name: '', kind: 'route' },
+    rejoin: r.rejoin,
+    fromKm: exitKm != null && fin(exitKm) ? Math.round(exitKm * 10) / 10 : null,
+    extraKm: null,
+    skippedKm: r.skippedKm ?? 0,
+    profile: r.profile ?? PROFILE_STD,
+    back,
+    at: now,
+  };
+}
+/** «Gleichen Weg zurück» as a detour (backtrackOf's answer; no router). */
+export const backDetour = (b, now = Date.now()) => returnDetour({ ...b, gainM: 0, min: null, skippedKm: 0 }, { exitKm: b.rejoin.km, back: 'same', now });

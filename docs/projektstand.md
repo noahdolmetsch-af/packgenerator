@@ -6,6 +6,7 @@ Stand: **26. Oktober 2026, 21:30 UTC**. Auf `main` steht **Version 0.212.0** (Sa
 
 ## Stand 26.10.2026 auf einen Blick
 
+**Live Navigation PR 5 (27.10.2026):** «Und zurück auf die Strecke» (0.225.0): am Ort eines Umwegs fragt die App, wie es zurückgeht; neben der Strecke plant sie den Weg zurück selbst (Rückgängig, Ohne Strecke weiter, Gleichen Weg zurück).
 **Live Navigation PR 4 (27.10.2026):** «Was brauchst du?» (0.224.0): Fenster «In der Nähe» mit Situationsknöpfen, «Alles», «Hin» und 14 neuen Ortsarten.
 **Live Navigation PR 3 (27.10.2026):** «Die Strecke folgt jeder Kurve» (0.223.0): GPX-Strecken behalten ihre Kurven (bis 3000 Punkte statt 200).
 
