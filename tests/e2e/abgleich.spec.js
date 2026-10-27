@@ -183,7 +183,9 @@ test('Pairing: «Syncing …» while it runs, no question after the first round,
   // switched off, and pairing again while the server cannot be reached: the panel says so
   await syncBox(a.page).getByRole('button', { name: T('Switch off|sync') }).click();
   await syncBox(a.page).getByRole('group', { name: T('Switch off sync?') }).getByRole('button', { name: T('Only switch off') }).click();
-  await a.context.unrouteAll({ behavior: 'ignoreErrors' });
+  // No unrouteAll: a request still waiting in the slow route above would then fall through to the real
+  // server (which answers «daily_cap» on a busy day). The newest route runs first, so this one blocks
+  // every new request, and a waiting one still falls back to the fake server.
   await a.context.route(/^https?:\/\/(?!localhost[:/])/, (route) => route.abort());
   await syncBox(a.page).getByRole('button', { name: T('I have a code') }).click();
   await syncBox(a.page).getByLabel(T('Code from the other device')).fill(code);
