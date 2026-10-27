@@ -140,6 +140,7 @@ export const HOME = {
   'f.abroad': '#/trips',
   'f.dreams': '#/trips/dreams',
   'f.whitespots': '#/trips/dreams',
+  'f.nlgoals': '#/trips/dreams',
   'f.races': '#/trips/dreams',
   'f.starters': '#/pack',
   'f.packside': '#/pack',

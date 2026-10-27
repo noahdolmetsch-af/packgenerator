@@ -1232,6 +1232,11 @@ export const HANDBOOK = {
     steps: ['Open Trips › Dreams › White spots nearby.', 'Choose 10, 25 or 50 km.', 'Tap a place on the map or in the list: its name and distance.'],
     example: 'Example: 25 km around Zürich → 209 municipalities never visited, the nearest 5 km away.',
   },
+  'f.nlgoals': {
+    on: 'Counts from New ground: your routes, rides and own ticks.',
+    steps: ['Open Trips › Dreams › Challenges with an end.', 'Tap a ready one or «Own challenge»: collection, new ones or all, until when.', 'The bar fills by itself; tap the pencil to change or delete it.'],
+    example: 'Example: «5 new municipalities this month» → 2 of 5 · 12 days left.',
+  },
   'f.races': {
     on: 'Needs a race with a date in Inspiration, or a race in your Google calendar.',
     steps: ['Open Trips › Dreams › Races to plan.', 'Tap «Plan as a trip» and add the registration deadline.', 'Tick «Signed up» once you are registered.'],
