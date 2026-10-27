@@ -9,7 +9,13 @@
  */
 export const CARD_KEY = 'contact-card';
 export const PEOPLE_KEY = 'people-met';
-export const SHOWN = ['insta', 'phone', 'bike', 'note'];
+/**
+ * Kontakt-QR-Code (Noah 27.10.2026 «1a 2b 3a 4a 5a»): one card, every part ticked on or off before you show
+ * it. Order = order on the card. The address starts off (only ticked on by you); the rest shows once filled in.
+ */
+export const SHOWN = ['phone', 'wa', 'email', 'insta', 'strava', 'komoot', 'web', 'addr', 'bike', 'note'];
+export const SHOW_DEFAULT = { phone: false, wa: false, email: true, insta: true, strava: true, komoot: true, web: true, addr: false, bike: true, note: true };
+const MAX = (f) => (f === 'note' || f === 'addr' ? 120 : f === 'web' || f === 'strava' || f === 'komoot' ? 100 : 60);
 
 const clean = (s, n = 60) => String(s ?? '').replace(/\s+/g, ' ').trim().slice(0, n);
 const same = (a, b) => clean(a).toLocaleLowerCase('de') === clean(b).toLocaleLowerCase('de');
@@ -21,7 +27,7 @@ export const peopleOf = (v) => ({ groups: Array.isArray(v?.groups) ? v.groups : 
 /** What of your card goes into the QR code: the name and the parts you ticked. */
 export function cardShown(card = {}) {
   const out = { name: clean(card.name) };
-  for (const f of SHOWN) if (card.show?.[f] !== false && clean(card[f])) out[f] = clean(card[f], f === 'note' ? 120 : 60);
+  for (const f of SHOWN) if ((card.show?.[f] ?? SHOW_DEFAULT[f]) !== false && clean(card[f])) out[f] = clean(card[f], MAX(f));
   return out;
 }
 
@@ -37,7 +43,8 @@ export function groupFor(list, name) {
 
 /** Remember a person (from a card or by hand), in the event `event`; the same name and Instagram in the same event is updated. */
 export function addPerson(list, card, event = '', now = new Date().toISOString()) {
-  const p = { name: clean(card.name), insta: clean(card.insta), phone: clean(card.phone), bike: clean(card.bike), note: clean(card.note, 120) };
+  const p = { name: clean(card.name) };
+  for (const f of SHOWN) if (clean(card[f]) || f === 'insta' || f === 'phone' || f === 'bike' || f === 'note') p[f] = clean(card[f], MAX(f));
   if (!p.name) return peopleOf(list);
   const [l, gid] = groupFor(peopleOf(list), event);
   const old = l.people.find((x) => x.group === gid && same(x.name, p.name) && same(x.insta, p.insta));
@@ -73,3 +80,54 @@ export function byGroup(list) {
 /** Links to reach a person: Instagram and phone. */
 export const instaLink = (h) => (clean(h) ? `https://www.instagram.com/${encodeURIComponent(clean(h).replace(/^@/, ''))}/` : '');
 export const telLink = (p) => (clean(p) ? `tel:${clean(p).replace(/[^\d+]/g, '')}` : '');
+
+/* Kontakt-QR-Code: the ways to reach a person. Only web links (https) and the usual app links come out; anything else gives ''. */
+const digits = (p) => clean(p).replace(/[^\d+]/g, '').replace(/^00/, '+');
+/** WhatsApp: wa.me wants the number without + and without the leading 0 of a Swiss number. */
+export function waLink(p) {
+  let d = digits(p);
+  if (!d) return '';
+  if (d.startsWith('0') && !d.startsWith('00')) d = `+41${d.slice(1)}`;
+  return `https://wa.me/${d.replace(/^\+/, '')}`;
+}
+export const mailLink = (m) => (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(clean(m)) ? `mailto:${clean(m)}` : '');
+/** A web address as typed (with or without https://) → a https link, or '' when it is not one. */
+export function webLink(u) {
+  const v = clean(u, 100);
+  if (!v) return '';
+  const w = /^https?:\/\//i.test(v) ? v : `https://${v}`;
+  try {
+    const x = new URL(w);
+    return x.protocol === 'https:' || x.protocol === 'http:' ? x.href : '';
+  } catch {
+    return '';
+  }
+}
+/** Strava: a link or the number of the profile. */
+export const stravaLink = (s) => (/^\d+$/.test(clean(s)) ? `https://www.strava.com/athletes/${clean(s)}` : /strava\./i.test(clean(s)) ? webLink(s) : '');
+/** Komoot: a link or the user name / number. */
+export const komootLink = (s) => (/komoot\./i.test(clean(s)) ? webLink(s) : /^[\w.-]+$/.test(clean(s)) ? `https://www.komoot.com/user/${encodeURIComponent(clean(s))}` : '');
+/** The address on a map (OpenStreetMap search, free). */
+export const mapLink = (a) => (clean(a, 120) ? `https://www.openstreetmap.org/search?query=${encodeURIComponent(clean(a, 120))}` : '');
+
+const vEsc = (s) => String(s).replace(/\\/g, '\\\\').replace(/\n/g, '\\n').replace(/([,;])/g, '\\$1');
+/**
+ * The card as a contact file (vCard 3.0), so «In Kontakte speichern» puts the person into the phone's
+ * address book. Made on the device that opened the card; nothing goes to a server.
+ */
+export function cardVcf(card = {}) {
+  const c = Object.fromEntries(Object.entries(card).map(([k, v]) => [k, clean(v, MAX(k))]));
+  if (!c.name) return '';
+  const parts = c.name.split(' ');
+  const last = parts.length > 1 ? parts.pop() : '';
+  const lines = ['BEGIN:VCARD', 'VERSION:3.0', `FN:${vEsc(c.name)}`, `N:${vEsc(last)};${vEsc(parts.join(' '))};;;`];
+  if (c.phone) lines.push(`TEL;TYPE=CELL:${digits(c.phone)}`);
+  if (c.wa && digits(c.wa) !== digits(c.phone)) lines.push(`TEL;TYPE=CELL:${digits(c.wa)}`);
+  if (mailLink(c.email)) lines.push(`EMAIL;TYPE=INTERNET:${c.email}`);
+  if (c.addr) lines.push(`ADR;TYPE=HOME:;;${vEsc(c.addr)};;;;`);
+  for (const u of [webLink(c.web), stravaLink(c.strava), komootLink(c.komoot), instaLink(c.insta), waLink(c.wa)]) if (u) lines.push(`URL:${u}`);
+  const note = [c.bike, c.note].filter(Boolean).join(' · ');
+  if (note) lines.push(`NOTE:${vEsc(note)}`);
+  lines.push('END:VCARD');
+  return lines.join('\r\n') + '\r\n';
+}

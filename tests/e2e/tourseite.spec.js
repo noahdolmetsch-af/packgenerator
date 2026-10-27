@@ -229,3 +229,19 @@ test('d) hide and show again, delete with Undo; a Packmodus trip opens its page 
   await expect(page.locator('main a[data-to-tour-page]')).toContainText(T('See the tour page'));
   expect(errors).toEqual([]);
 });
+
+test('e) the elapsed time reads in words; on a computer the jump bar marks the part on screen', async ({ page, context }, info) => {
+  // Noah 27.10.2026 «1a»: «2 h 45 min 00 s» instead of «00:02:45:00»; at the top «Übersicht» lights up, not «Gepäck»
+  const errors = await start(page, context, info);
+  await acts(page).locator(`[data-act-row="a:${A}1"]`).click({ position: { x: 30, y: 30 } });
+  await expect(tour(page).locator('[data-tour-part="values"]')).toBeVisible();
+  await expect(tour(page).locator('[data-field="verstr"] dd')).toHaveText(/^\d+ h \d\d min \d\d s$/);
+  if (info.project.name !== 'phone') {
+    await page.evaluate(() => window.scrollTo(0, 0));
+    await expect(tour(page).locator('[data-tour-bar] [data-part="overview"]')).toHaveClass(/\bon\b/);
+    await expect(tour(page).locator('[data-tour-bar] [data-part="pack"]')).not.toHaveClass(/\bon\b/);
+    await tour(page).locator('[data-tour-bar] [data-part="analysis"]').click();
+    await expect(tour(page).locator('[data-tour-bar] [data-part="analysis"]')).toHaveClass(/\bon\b/);
+  }
+  expect(errors).toEqual([]);
+});
