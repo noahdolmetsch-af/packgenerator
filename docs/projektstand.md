@@ -1,11 +1,12 @@
 # Projektstand und Plan
 
-Stand: **27. Oktober 2026, 10:45 UTC**. Auf `main` steht **Version 0.226.0** (zuletzt 0.217.0 bis 0.226.0 am 27.10.2026 zusammengeführt). **Seit 26.10.2026 abends gelten neue Regeln** (kleine PRs, Screenshots und Testlink, Noah gibt frei, Claude merged; siehe [CLAUDE.md](../CLAUDE.md) und [Arbeitsweise](arbeitsweise.md)). Dieser PR bringt 0.226.1 «Da, wo du schaust» (4 weitere versteckte Funktionen).
+Stand: **27. Oktober 2026, 11:45 UTC**. Auf `main` steht **Version 0.227.0** (zuletzt 0.217.0 bis 0.227.0 am 27.10.2026 zusammengeführt). **Seit 26.10.2026 abends gelten neue Regeln** (kleine PRs, Screenshots und Testlink, Noah gibt frei, Claude merged; siehe [CLAUDE.md](../CLAUDE.md) und [Arbeitsweise](arbeitsweise.md)). Dieser PR bringt 0.227.1 «Da, wo du schaust» (4 weitere versteckte Funktionen).
 
 Ältere Abschnitte weiter unten («Kurzstand 19.10.», Abschnitte 1 bis 5) sind der damalige Stand und bleiben als Verlauf stehen. Was unten anders steht, gilt nicht mehr, wo dieser Abschnitt etwas Neueres sagt.
 
 ## Stand 26.10.2026 auf einen Blick
 
+**Live Navigation PR 4 (27.10.2026):** «Was brauchst du?» (0.227.0): Fenster «In der Nähe» mit Situationsknöpfen, «Alles», «Hin» und 14 neuen Ortsarten.
 **Live Navigation PR 3 (27.10.2026):** «Die Strecke folgt jeder Kurve» (0.223.0): GPX-Strecken behalten ihre Kurven (bis 3000 Punkte statt 200).
 
 **Live Navigation PR 2 (27.10.2026):** «Orte, die dich finden» (0.222.0): Server der Reihe nach mit ehrlicher Meldung, Schnellwahl, Filter und gespeicherte Filter. Danach M13 «Karte frei» (Noah «1a 2a 3a»).
@@ -201,7 +202,7 @@ Damals (19.10.2026) galt: keine Testlinks; Ein Paket geht online, sobald die Tes
 | 96 | Touren, die mitdenken (996 Einzelideen Touren 50–58) | 0.212.0 | Absicht, Regel mit Ende, Geschichten, Panne-Check, Später prüfen, Ort-Notiz, Tag zum Hören, Ess-Stopps, Verbrauch | offen |
 | 97 | Platz in jeder Tasche (leere Taschen nehmen Teile auf) | 0.218.0 | Alle Taschen nebeneinander: leere Tasche als Spalte zum Hineinziehen | live |
 | 98 | Nichts versteckt sich mehr (die 20 tief versteckten Funktionen) | 0.217.0 | Namen wie auf der Seite, kurze Erklärzeilen, Trello-Knopf auf Merken, 77 → 57 versteckt | live |
-| 99 | Da, wo du schaust (4 weitere versteckte Funktionen) | 0.226.1 | Ozon/Pollen auf Wetter, Kette nach Regen unter Nachrichten, Belege im Laden-Tab, 57 → 53 versteckt | offen |
+| 99 | Da, wo du schaust (4 weitere versteckte Funktionen) | 0.227.1 | Ozon/Pollen auf Wetter, Kette nach Regen unter Nachrichten, Belege im Laden-Tab, 57 → 53 versteckt | offen |
 | 62 | Skitour (Mockup-Paket P2) | 0.178.0 | Skitouren › Tour planen: Gefahrenstufe 1–5 mit Unterstufe und Satz, «Dein Morgen», Verhältnisse, Plan in Zahlen; «Gipfel erreicht» unterwegs; Nach der Tour «Plan und Wirklichkeit» und dein Material; Skitouren › Saison: Ziel, Wunschtouren, Skitage 8 Wochen, LVS-Übungen, Kurse mit «Auffrischen», Höhenmeter pro Ski, letzte Saison; Vorabend-Check zeigt Stufe, Temperatur, Wind, letzten Zug | live |
 
 «Frontend aufpeppen» ist pausiert (Noah 19.10.2026). Die Abschnitte unten sind der Stand vom 18.10.2026.

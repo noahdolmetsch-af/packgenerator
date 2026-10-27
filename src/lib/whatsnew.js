@@ -16,15 +16,29 @@
 
 export const WHATS_NEW = [
   {
-    // v0.226.1 «332 sichtbar», next 4 hidden functions (Noah 26.10.2026 «wie kannst du weiter machen»): catalogue
+    // v0.227.1 «332 sichtbar», next 4 hidden functions (Noah 26.10.2026 «wie kannst du weiter machen»): catalogue
     // names like on the page, Ozone and pollen lives on Weather, Chain after rain on Messages, Receipts on the bike shop tab
-    version: '0.226.1',
+    version: '0.227.1',
     date: '2026-10-27',
     title: 'Found where you look',
     lead: 'Four more tools now live on the page where you see them.',
     points: [{ text: 'Ozone and pollen: found on the Weather page', href: '#/wetter' }, { text: 'Chain after rain: found under Messages', href: '#/me/push' }],
     small: [{ box: 'nicer', text: 'Receipts and Ice in the morning carry the name the page shows', href: '#/bikes?tab=shop' }],
     test: ['Open «What the app can do», search «Pollen» and tap «Try it».', 'The Weather page opens with ozone and pollen.'],
+  },
+  {
+    // v0.227.0 Live Navigation PR 4 «In der Nähe» (Noah 27.10.2026 «1a 2a 3a 4a», «freigabe für alle mockups»): one
+    // window with all place filters, 14 situation buttons (map/situations.js), «Everything» at once, «Go there», 14 new kinds
+    version: '0.227.0',
+    date: '2026-10-27',
+    title: 'What do you need?',
+    lead: 'On the live map, «Nearby» opens one window with everything to find a place.',
+    points: [
+      { text: 'Situation buttons: hungry, thirsty, home by train, sleeping place and more', href: '#/live' },
+      { text: 'New places: sauna, indoor pool, Selecta, tube vending machine, farm shop, firepit, phone charging', href: '#/live' },
+    ],
+    small: [{ box: 'new', text: '«Everything» shows every kind of your row at once' }],
+    test: ['Open the live map and tap «Nearby».', 'Tap «Hunger»: only food places that are open now show up.', 'Tap a place and then «Go there». Before, the place search sat at the bottom of the sheet.'],
   },
   {
     // v0.226.0 Tages-Check (Noah 26.10.2026 «1a»): «Not today» in the morning waits only until the evening check
