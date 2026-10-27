@@ -305,6 +305,8 @@
   <!-- extra 7: my webcams -->
   <section class="card wx-sec" aria-labelledby="wx-cams" data-wx-cams>
     <h2 id="wx-cams" class="wx-h"><Camera size={18} aria-hidden="true" />{t('My webcams')}</h2>
+    <!-- «332 Use Cases» (Noah 26.10.2026 «webcams und live-karte» sichtbar) -->
+    <p class="cam-map" data-webcam-map><b>{t('Webcams on the live map')}</b>: {t('give a webcam a place, and it shows as a point on the live map under «My points».')}</p>
     <WebcamList />
   </section>
   <p class="rc-src"><Mountain size={14} aria-hidden="true" /> {t('Weather from Open-Meteo (free, open data). Avalanches: the SLF bulletin, shown as it is; the app never rates the danger itself.')}</p>
@@ -459,5 +461,10 @@
     min-width: 44px;
     min-height: 44px;
     cursor: pointer;
+  }
+  .cam-map {
+    margin: 0 0 var(--sp-2);
+    color: var(--ink-2);
+    font-size: var(--fs-small);
   }
 </style>

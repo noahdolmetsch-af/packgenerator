@@ -85,7 +85,10 @@ export function weatherLine(forecast, now = new Date()) {
     text = rain === 'rain' ? t('{t}° and rain.', { t: temp }) : rain === 'showers' ? t('{t}°, showers possible.', { t: temp }) : t('{t}° and dry.', { t: temp });
   }
   if (tomorrow) text = t('Tomorrow {weather}', { weather: text });
-  return { text, temp, dry, when: tomorrow ? 'tomorrow' : 'today' };
+  // «332 Use Cases» (Noah 26.10.2026): the day's high and low beside the sentence
+  const hi = day.max != null ? Math.round(day.max) : null;
+  const lo = day.min != null ? Math.round(day.min) : null;
+  return { text, temp, dry, when: tomorrow ? 'tomorrow' : 'today', hi: hi != null && lo != null ? hi : null, lo: hi != null && lo != null ? lo : null };
 }
 
 /**

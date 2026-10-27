@@ -1,7 +1,7 @@
 // v0.67.0 «Übergänge 1»: the phase of a trip and the one main button of each trip page (phase.js).
 // Dates in calendar days (Europe/Zurich is the app's clock; here plain YYYY-MM-DD strings).
 import { describe, it, expect } from 'vitest';
-import { tripPhase, currentStep, stepOf, mainStep, afterPacking, endNeedsAsk, canReopen, eveningBefore, lastEvening, parseBetween, betweenHref, addDays, daysFrom, packedAll, goDayOf, goneToday } from '../src/lib/phase.js';
+import { tripPhase, currentStep, stepOf, mainStep, afterPacking, endNeedsAsk, canReopen, eveningBefore, lastEvening, parseBetween, betweenHref, addDays, daysFrom, packedAll, goDayOf, goneToday, notBegun } from '../src/lib/phase.js';
 import { pageOf, placeOf } from '../src/lib/nav.js';
 
 const D0 = '2026-10-14';
@@ -166,7 +166,18 @@ describe('the evening (Ü6a, U21a, U22b)', () => {
     expect(lastEvening(trip(), day(6), 12)).toBe(false);
     expect(lastEvening(trip(), day(5), 19)).toBe(false);
     expect(lastEvening(trip({ finished: day(6) }), day(6), 19)).toBe(false);
-    expect(lastEvening(trip({ days: 1, startDate: D0 }), D0, 19)).toBe(true);
+    // UI-Test 26.10.2026 T1: a day ride is only on its last evening once it began (packed, or «Losfahren» tapped)
+    expect(lastEvening(trip({ days: 1, startDate: D0, packedAt: `${D0}T07:00` }), D0, 19)).toBe(true);
+    expect(lastEvening(trip({ days: 1, startDate: D0, goDays: { 0: '08:10' } }), D0, 19)).toBe(true);
+    expect(lastEvening(trip({ days: 1, startDate: D0 }), D0, 19)).toBe(false);
+  });
+  it('notBegun: the start day, not packed, not started, not ended (T1)', () => {
+    expect(notBegun(trip({ days: 1, startDate: D0, entries: es(10, 5) }), D0)).toBe(true);
+    expect(notBegun(trip({ days: 1, startDate: D0, packedAt: `${D0}T07:00` }), D0)).toBe(false);
+    expect(notBegun(trip({ days: 1, startDate: D0, entries: es(3, 3) }), D0)).toBe(false);
+    expect(notBegun(trip({ days: 1, startDate: D0, goDays: { 0: '08:10' } }), D0)).toBe(false);
+    expect(notBegun(trip({ days: 1, startDate: D0, finished: D0 }), D0)).toBe(false);
+    expect(notBegun(trip({ days: 1, startDate: D0 }), day(1))).toBe(false);
   });
   it('packedAll: an empty list is not packed', () => {
     expect(packedAll(trip({ entries: [] }))).toBe(false);

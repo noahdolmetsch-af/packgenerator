@@ -1,6 +1,6 @@
 # Projektstand und Plan
 
-Stand: **26. Oktober 2026, 10:30 UTC**. Live ist **Version 0.205.0** (Sammel-PR #259 mit 0.201.0 bis 0.205.0, von Noah zusammengeführt am 26.10.2026, 10:14 UTC). Offen ist PR #263 mit 0.206.0 «Fitbit-Werte mit Tag», 0.207.0 «Touren mit Plan B» und 0.208.0 «Mehr Platz am Computer».
+Stand: **26. Oktober 2026, 17:50 UTC**. Live ist **Version 0.208.0** (Sammel-PR #263 mit 0.206.0 bis 0.208.0, von Noah zusammengeführt am 26.10.2026, 17:36 UTC). Offen ist der Sammel-PR mit 0.208.1 «Ganze Wörter am kleinen Handy» (war #257), 0.209.0 «Tagelang zusammen fahren» (Gruppenfahrt für Events) 0.210.0 «Deine Liste in Sicht» (Noahs Liste, 111 → 77 versteckte Funktionen) 0.211.0 «Zwei Touren, ein Blick» (Touren a Teil 2) und 0.212.0 «Touren, die mitdenken» (Touren b). Mit ihm gehen auch 0.206.0 bis 0.208.0 online (main war am Abend rot).
 
 Ältere Abschnitte weiter unten («Kurzstand 19.10.», Abschnitte 1 bis 5) sind der damalige Stand und bleiben als Verlauf stehen. Was unten anders steht, gilt nicht mehr, wo dieser Abschnitt etwas Neueres sagt.
 
@@ -20,6 +20,7 @@ Stand: **26. Oktober 2026, 10:30 UTC**. Live ist **Version 0.205.0** (Sammel-PR 
 | 0.198.0 | #254 | Kette vorausschauend (nächste Kettenschritte, Prognose, Erinnerung) | 26.10. |
 | 0.199.0, 0.200.0 | #253 | Flicken, ausprobieren, abmachen · Zusammen auf einer Karte · Velos und 332 sichtbar (217 → 142 versteckte Funktionen) | 26.10., 03:20 UTC |
 | 0.201.0 bis 0.205.0 | #259 | Eingaben überall · Planen im Zusammenhang · Kleine Helfer unter Ich · Eine kleine Überraschung · Material, das weiss warum (+ Namen überall, 142 → 111) | 26.10., 10:14 UTC |
+| 0.206.0 bis 0.208.0 | #263 | Fitbit-Werte mit Tag · Touren mit Plan B · Mehr Platz am Computer | 26.10., 17:36 UTC |
 
 **Warum 0.191 bis 0.195.1 erst am Abend des 25.10. online kamen:** Die Pull Requests waren am frühen Morgen zusammengeführt, aber die Veröffentlichung auf GitHub Pages blieb rot. Ursache: Am Sonntag öffnete Heute in den Tests von selbst das Fenster «Wochenrückblick» und verdeckte Knöpfe; die Länge von Heute am Handy hing zudem von der Uhrzeit ab. PR #252 schaltet die Heute-Fenster in den Tests aus (eigene Tests für die Fenster schalten sie gezielt ein), zeigt kein Fenster über «Erste Schritte» oder einer laufenden Tour und misst die Länge von Heute zur Mittagszeit. Danach war alles grün.
 
@@ -27,10 +28,12 @@ Stand: **26. Oktober 2026, 10:30 UTC**. Live ist **Version 0.205.0** (Sammel-PR 
 
 | PR | Version (vorläufig) | Inhalt | Stand |
 |---|---|---|---|
-| #263 | 0.206.0 | «Fitbit-Werte mit Tag»: Heute zeigt den letzten Fitbit-Wert der letzten 7 Tage mit seinem Tag («gestern», «Nacht auf So.»), bis der von heute da ist | offen; Noah mergt selbst |
-| #263 | 0.207.0 | «Touren mit Plan B»: Strecke prüfen, Stillstehen im Zwiebel-Check, «Was hat gefehlt?» aus dem Weggelassenen, Plan B mit Auslöser, Offline-Karte mit Reserve | offen; Noah mergt selbst |
-| #263 | 0.208.0 | «Mehr Platz am Computer»: Touren mit mitlaufender rechter Spalte, Auswerten mit «Letzte 7 Tage» rechts, Velos mit dem Velo zuerst, Inhalt höchstens 1120 px breit | offen; Noah mergt selbst |
-| #251 | – | Bibliotheken aktualisieren (Playwright 1.64, pdfjs 6, maplibre 6.15) mit Anpassung | offen, Prüfungen seit Tagen rot |
+| neu | 0.217.0 | 0.217.0 «Werkstatt zu Hause» (996 Einzelideen Velos 71–76): Werkstatt-Runden, Quittung aufteilen, Foto mit Vorlage, km-Sprung fragt, Setup zurück, Teil prüfen | offen; Noah gibt frei |
+| neu | 0.212.1 | 0.212.1 «Die heutige Tour sagt eins» (UI-Test T1): vor der Fahrt kein «Letzter Abend», kein «Abgeschlossen» | offen; Claude merged nach Noahs Freigabe der Bilder |
+| (Sammel-PR) | 0.208.1 | «Ganze Wörter am kleinen Handy» (Gesamttest 26.10., war #257): Titel neben Schildern behalten ihr längstes Wort, «Zu kaufen» unter dem Namen, Verschleiss-Namen umbrechen | offen; Noah mergt selbst |
+| (Sammel-PR) | 0.209.0 | «Tagelang zusammen fahren»: Gruppenfahrt für Events mit eigener Seite (Hilfe mit Ton, Bereit, Kontrollpunkte, Treffpunkte, wer hat was, Kosten teilen, Gewitter, Nachtpause), Kontaktkarte mit QR-Code | offen; Noah mergt selbst |
+| (Sammel-PR) | 0.210.0 | «Deine Liste in Sicht»: Noahs Wunschliste sichtbar (Sprungknöpfe in Packen, Material, Aktiv, Velo; Heute mit Höchst/Tiefst; alle Taschen nebeneinander), 111 → 77 versteckte Funktionen | offen; Noah mergt selbst |
+| #261 | – | Bibliotheken aktualisieren (lucide, dexie, vite; Dependabot) | offen, wird nach dem Nachziehen auf main geprüft |
 
 ### Wie ein Release heute online geht (seit 26.10.2026)
 
@@ -179,9 +182,15 @@ Damals (19.10.2026) galt: keine Testlinks; Ein Paket geht online, sobald die Tes
 | 86 | Kleine Helfer unter Ich (996 Einzelideen Ich 27–36) | 0.203.0 | Letzte Ergebnisse, Hinweis vor der Google-Anmeldung, eigene Verpflegungs-Zahlen pro Reise, «Ausgeblendet und aus», «Was davon abhängt», Backup-Ordner-Meldungen, Rundgang weiter, Kürzel-Tipps, Vorschläge nach Art | live (#259) |
 | 87 | Eine kleine Überraschung (996 Einzelideen Heute) | 0.204.0 | Überraschungsrunde, Wetter am eigenen Platz, Bewertung aufteilen, Regen gebündelt, Standzeit-Check, Beispiele nach Interesse, «Hat sich etwas geändert?» | live (#259) |
 | 88 | Material, das weiss warum (996 Einzelideen Material und Überall) + Gruppenfahrt Teil 2 + Namen überall | 0.205.0 | Eigene Ansichten, Grund für Favoriten, Wunsch löst Ärger, Zwiebel-Check, Inhalt getrennt vom Leergewicht, Mikrofon-Fehler behalten Worte, Umwandeln überschreibt nie, Suche fragt nach; «Ich warte hier» und Stopps für Freunde; versteckte Funktionen 142 → 111 | live (#259) |
-| 89 | Fitbit-Werte mit Tag | 0.206.0 | Heute zeigt den letzten Fitbit-Wert innerhalb von 7 Tagen mit Tag, bis der von heute da ist | offen |
-| 90 | Touren mit Plan B (996 Einzelideen Touren 41, 42, 43, 46, 48) | 0.207.0 | Strecke prüfen, Stillstehen, Was hat gefehlt, Plan B mit Auslöser, Offline-Reserve | offen |
-| 91 | Mehr Platz am Computer (UI-Ziel #14) | 0.208.0 | Touren und Auswerten in zwei Spalten, Velos mit dem Velo zuerst, höchstens 1120 px | offen |
+| 89 | Fitbit-Werte mit Tag | 0.206.0 | Heute zeigt den letzten Fitbit-Wert innerhalb von 7 Tagen mit Tag, bis der von heute da ist | offen (main am 26.10. abends rot, kommt mit dem Sammel-PR) |
+| 90 | Touren mit Plan B (996 Einzelideen Touren 41, 42, 43, 46, 48) | 0.207.0 | Strecke prüfen, Stillstehen, Was hat gefehlt, Plan B mit Auslöser, Offline-Reserve | offen (main am 26.10. abends rot, kommt mit dem Sammel-PR) |
+| 91 | Mehr Platz am Computer (UI-Ziel #14) | 0.208.0 | Touren und Auswerten in zwei Spalten, Velos mit dem Velo zuerst, höchstens 1120 px | offen (main am 26.10. abends rot, kommt mit dem Sammel-PR) |
+| 92 | Ganze Wörter am kleinen Handy (Gesamttest 26.10.) | 0.208.1 | Anzeige-Korrekturen am schmalen Handy, Gesamttest lädt schneller | offen |
+| 93 | Tagelang zusammen fahren (Gruppenfahrt für Events) | 0.209.0 | Eigene Seite der Gruppenfahrt mit Hilfe, Bereit, Treffpunkten, Kosten; Kontaktkarte mit QR-Code | offen |
+| 94 | Deine Liste in Sicht (Noahs Liste sichtbar) | 0.210.0 | Sprungknöpfe für versteckte Werkzeuge, alle Taschen nebeneinander, 111 → 77 versteckt | offen |
+| 95 | Zwei Touren, ein Blick (996 Einzelideen Touren 44, 45, 47, 49) | 0.211.0 | Touren nebeneinander, Tour vorbereiten (Sportart pro Tag, unklare Stellen, Grenze) | offen |
+| 97 | Werkstatt zu Hause (996 Einzelideen Velos 71–76) | 0.217.0 | Werkstatt-Runden, Quittung aufteilen, Foto mit Vorlage, km-Sprung, Setup zurückbauen, Teil prüfen | offen |
+| 96 | Touren, die mitdenken (996 Einzelideen Touren 50–58) | 0.212.0 | Absicht, Regel mit Ende, Geschichten, Panne-Check, Später prüfen, Ort-Notiz, Tag zum Hören, Ess-Stopps, Verbrauch | offen |
 | 62 | Skitour (Mockup-Paket P2) | 0.178.0 | Skitouren › Tour planen: Gefahrenstufe 1–5 mit Unterstufe und Satz, «Dein Morgen», Verhältnisse, Plan in Zahlen; «Gipfel erreicht» unterwegs; Nach der Tour «Plan und Wirklichkeit» und dein Material; Skitouren › Saison: Ziel, Wunschtouren, Skitage 8 Wochen, LVS-Übungen, Kurse mit «Auffrischen», Höhenmeter pro Ski, letzte Saison; Vorabend-Check zeigt Stufe, Temperatur, Wind, letzten Zug | live |
 
 «Frontend aufpeppen» ist pausiert (Noah 19.10.2026). Die Abschnitte unten sind der Stand vom 18.10.2026.

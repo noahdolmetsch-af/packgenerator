@@ -106,6 +106,13 @@ export const goDayOf = (trip, today) => (trip?.nonstop ? 0 : Math.max(0, Math.mi
 export const goneToday = (trip, today) => !!trip?.goDays?.[goDayOf(trip, today)];
 
 /**
+ * UI-Test 26.10.2026 T1: the start day of a trip that has not begun: not packed (things still open on the
+ * list and «Packen abschliessen» not tapped), «Losfahren» not tapped, not ended. By the date it is under way, but everything still says
+ * «Packen»: no «Letzter Abend», no «Rückblick heute», no debrief yet.
+ */
+export const notBegun = (trip, today) => packingDay(trip, today) && !packedAll(trip) && !goneToday(trip, today) && !trip.finished;
+
+/**
  * The ONE main button of a trip page, by the phase (U008, U009, U013, U014): { kind, label, href? }.
  * label: the English key for t(). kind:
  *   'go'     a link to href
@@ -189,6 +196,6 @@ export function eveningBefore(trip, today, hour) {
   return hour >= EVENING_HOUR && addDays(today, 1) === trip.startDate;
 }
 export function lastEvening(trip, today, hour, opts = {}) {
-  if (!trip?.startDate || hour < EVENING_HOUR) return false;
+  if (!trip?.startDate || hour < EVENING_HOUR || notBegun(trip, today)) return false;
   return tripPhase(trip, today, opts) === 'during' && tripEnd(trip) === today;
 }

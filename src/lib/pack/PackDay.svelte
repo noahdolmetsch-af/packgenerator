@@ -19,7 +19,7 @@
   import HintCard from '../pageinfo/HintCard.svelte';
   import PowerLine from './PowerLine.svelte';
   import TipLine from '../pageinfo/TipLine.svelte';
-  import { Check, ChevronRight, Undo2, ArrowRight, Briefcase, UserRound, Bike, ListChecks, BatteryCharging, Volume2, Columns3, Camera } from '@lucide/svelte';
+  import { Check, ChevronRight, Undo2, ArrowRight, Briefcase, UserRound, Bike, ListChecks, BatteryCharging, Volume2, Columns3, Camera, ArrowLeftRight } from '@lucide/svelte';
   import WeightCard from './WeightCard.svelte';
   import LessonsCard from './LessonsCard.svelte';
   import DocChecks from './DocChecks.svelte';
@@ -38,7 +38,7 @@
   import { localDay } from '../localday.js';
   import '../trip/trip.css';
 
-  let { trip, steps, itemsById, badges = {}, ready = [], wxGap = null, onwx = () => {}, ontoggle, onready, onpack = () => {}, onreadyall = () => {}, onnext, onundo = () => {}, canUndo = false, main = { kind: 'finish', label: 'Finish packing' }, onend = () => {}, bike = true, lessons = [], reminders = [], oncharge = null, pressure = '', stats = null, charge = null, top = null, fixed = false, onread = null } = $props();
+  let { trip, steps, itemsById, badges = {}, ready = [], wxGap = null, onwx = () => {}, ontoggle, onready, onpack = () => {}, onreadyall = () => {}, onnext, onundo = () => {}, canUndo = false, main = { kind: 'finish', label: 'Finish packing' }, onend = () => {}, bike = true, lessons = [], reminders = [], oncharge = null, pressure = '', stats = null, charge = null, top = null, fixed = false, onread = null, onmove = null } = $props();
   // TZ-2 «Fest nach der Fahrt» (mockup TZ2, Noah 5a): a completed or rated trip (fixed) shows its bags as
   // packed then, to read: no ticks, no «Whole bag packed»; the band under the steps says why and offers
   // «Wieder öffnen».
@@ -317,6 +317,34 @@
     return () => boardQ?.removeEventListener('change', f);
   });
   const SIDE_KEY = 'pack-side-by-side';
+  // «332 sichtbar» (Noah 26.10.2026): in «All bags side by side» an item can be dragged into another bag; the
+  // arrows button next to it does the same without a mouse (Regel: arrows and drag).
+  const canMove = $derived(!!onmove && !fixed);
+  let dragId = $state(null);
+  let dropKey = $state(null);
+  let moving = $state(null); // the item whose «Move to» row is open
+  function dragStart(ev, e) {
+    dragId = e.itemId;
+    ev.dataTransfer?.setData('text/plain', e.itemId);
+    if (ev.dataTransfer) ev.dataTransfer.effectAllowed = 'move';
+  }
+  function dragOver(ev, key) {
+    if (!dragId) return;
+    ev.preventDefault();
+    dropKey = key;
+  }
+  function drop(ev, key) {
+    ev.preventDefault();
+    const id = dragId ?? ev.dataTransfer?.getData('text/plain');
+    dragId = dropKey = null;
+    if (id) moveTo(id, key);
+  }
+  function moveTo(id, key) {
+    moving = null;
+    const from = steps.find((st) => st.entries.some((x) => x.itemId === id));
+    if (!from || from.key === key) return;
+    onmove?.(id, key);
+  }
   const readSide = () => {
     try {
       return localStorage.getItem(SIDE_KEY) === '1';
@@ -453,15 +481,25 @@
   {#if total > 0 && side}
     <section class="psec" aria-labelledby="bags-h" data-pack-board>
       <h2 id="bags-h" class="sh">{t('Bags')}</h2>
-      <p class="ssub"><span class="num packed-count">{t('{n} of {total} packed', { n: packed, total })}</span>{' · '}{t('all bags side by side: tick in any bag')}{#if !fixed}{@render photoTick()}{/if}{#if onread}<button type="button" class="btn sm pd-read-w" onclick={onread}><Volume2 size={16} aria-hidden="true" /> {t('Read aloud')}</button>{/if}{@render sideSwitch()}</p>
+      <p class="ssub"><span class="num packed-count">{t('{n} of {total} packed', { n: packed, total })}</span>{' · '}{t('all bags side by side: tick in any bag')}{#if canMove}{' · '}{t('drag an item into another bag, or use the arrows next to it')}{/if}{#if !fixed}{@render photoTick()}{/if}{#if onread}<button type="button" class="btn sm pd-read-w" onclick={onread}><Volume2 size={16} aria-hidden="true" /> {t('Read aloud')}</button>{/if}{@render sideSwitch()}</p>
       <div class="board">
         {#each steps as s (s.key)}
           {@const Icon = iconOf(s.key)}
           {@const done = full(s)}
-          <section class="card bcol" class:done aria-labelledby="bc-{s.key}" data-board-bag={s.key}>
+          <section class="card bcol" class:done class:drop={dropKey === s.key} aria-labelledby="bc-{s.key}" data-board-bag={s.key} ondragover={(ev) => dragOver(ev, s.key)} ondragleave={() => dropKey === s.key && (dropKey = null)} ondrop={(ev) => drop(ev, s.key)}>
             <div class="bchead"><span class="bic" aria-hidden="true"><Icon size={18} /></span><span class="bt"><b id="bc-{s.key}">{s.title}</b><small>{subOf(s)}</small></span><span class="r"><span class="num">{s.done}/{s.entries.length}</span>{#if done}<span class="tp-okdot" aria-label={t('all in')}><Check size={16} aria-hidden="true" /></span>{/if}</span></div>
             <ul class="items">
-              {#each s.entries as e (e.itemId)}<li class:in={e.packed}>{@render itemRow(s, e)}</li>{/each}
+              {#each s.entries as e (e.itemId)}
+                <li class:in={e.packed} class:mv={canMove} class:dragging={dragId === e.itemId} draggable={canMove} ondragstart={(ev) => dragStart(ev, e)} ondragend={() => (dragId = dropKey = null)} data-board-item={e.itemId}>
+                  {@render itemRow(s, e)}
+                  {#if canMove}<button type="button" class="mvbtn" aria-expanded={moving === e.itemId} aria-label={t('Move {name} to another bag', { name: itemsById[e.itemId] ? nameOf(itemsById[e.itemId]) : e.itemId })} title={t('Move to another bag')} onclick={() => (moving = moving === e.itemId ? null : e.itemId)} data-board-move><ArrowLeftRight size={16} aria-hidden="true" /></button>{/if}
+                  {#if moving === e.itemId}
+                    <div class="mvto" role="group" aria-label={t('Move to another bag')}>
+                      {#each steps.filter((o) => o.key !== s.key) as o (o.key)}<button type="button" class="btn sm" onclick={() => moveTo(e.itemId, o.key)} data-board-move-to={o.key}>{o.title}</button>{/each}
+                    </div>
+                  {/if}
+                </li>
+              {/each}
             </ul>
             {#if !done && !fixed}<div class="bagfoot"><button type="button" class="tp-link" onclick={() => wholeBag(s)}>{t('Whole bag packed')}</button></div>{/if}
           </section>
@@ -600,6 +638,13 @@
   .board { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 16px; align-items: start; }
   .bcol { min-width: 0; padding-top: 4px; padding-bottom: 4px; }
   .bcol.done { background: var(--ok-soft); }
+  .bcol.drop { outline: 2px dashed var(--accent); outline-offset: 2px; }
+  .items li.mv { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; column-gap: 4px; }
+  .items li.mv[draggable='true'] { cursor: grab; }
+  .items li.dragging { opacity: 0.5; }
+  .mvbtn { display: inline-grid; place-items: center; min-width: 44px; min-height: 44px; border: 0; border-radius: 8px; background: none; color: var(--ink-2); cursor: pointer; }
+  .mvbtn:hover, .mvbtn[aria-expanded='true'] { background: var(--accent-soft); color: var(--accent); }
+  .mvto { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 8px; padding: 4px 0 10px; }
   .bchead { display: flex; align-items: center; gap: 10px; min-height: 56px; border-bottom: 1px solid var(--line); }
   .board-foot { border-top: 0; margin-top: 8px; justify-content: flex-start; gap: 0 16px; }
   .board-side { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); margin-top: 24px; }
@@ -658,6 +703,8 @@
   .nm small { display: block; font: 400 var(--fs-small) / 1.35 var(--font-body); color: var(--ink-3); }
   .q { font: inherit; color: var(--ink-3); white-space: nowrap; }
   .w { flex: none; font-size: var(--fs-small); color: var(--ink-2); white-space: nowrap; }
+  /* Gesamttest 26.10.2026: on a very small phone «nicht gewogen» takes two lines, so a long name keeps its words whole */
+  @media (max-width: 359px) { .w { white-space: normal; max-width: 5.5em; text-align: right; } }
   .in .box { background: var(--hi); border-color: var(--hi); color: var(--hi-ink); }
   /* UI-Grundlagen (Gestaltungsregeln B §5.3): packed rows are quieter, never struck through; the word «drin» says it */
   .in .nm { color: var(--ink-3); font-weight: 400; }

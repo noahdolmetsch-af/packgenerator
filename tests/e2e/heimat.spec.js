@@ -82,7 +82,8 @@ test('every function is visible on its home page', async ({ page, context }, inf
     // pages load later (lazy): wait for the page's own title before reading it (it sometimes came after settle)
     await page.locator('main h1').first().waitFor({ timeout: 5000 }).catch(() => {});
     await settle(page);
-    const found = await page.evaluate(
+    // parts that come with the page's data (mosaic, packing rows) can render a moment after settle: look a second time
+    const look = () => page.evaluate(
       ({ names, screens }) => {
         const vh = innerHeight;
         const open = (el) => {
@@ -96,11 +97,17 @@ test('every function is visible on its home page', async ({ page, context }, inf
         const els = [...document.querySelectorAll('main *, header *, [role=dialog] *, dialog[open] *')].filter((e) => e.children.length === 0 || /^(BUTTON|A|SUMMARY|H\d|LABEL)$/.test(e.tagName));
         return names.map((n) => {
           const low = n.toLowerCase();
-          return els.some((e) => (e.innerText || e.getAttribute('aria-label') || '').toLowerCase().includes(low) && open(e) && (e.getBoundingClientRect().top + scrollY) / vh <= screens);
+          return els.some((e) => (e.innerText || e.getAttribute('aria-label') || '').toLowerCase().replace(/[«»★]/g, '').replace(/\s+/g, ' ').includes(low) && open(e) && (e.getBoundingClientRect().top + scrollY) / vh <= screens);
         });
       },
       { names: list.map((x) => x.name), screens: SCREENS },
     );
+    let found = await look();
+    if (found.includes(false)) {
+      await page.waitForTimeout(1500);
+      const again = await look();
+      found = found.map((f, i) => f || again[i]);
+    }
     list.forEach((x, i) => found[i] || missing.push(`${x.id} «${x.name}» on ${href}`));
   }
   info.annotations.push({ type: 'checked', description: `${Object.values(byPage).flat().length} functions on ${Object.keys(byPage).length} pages` });

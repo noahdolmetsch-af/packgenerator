@@ -63,7 +63,8 @@
   import { tripPhotos, addTripPhotos, removeTripPhoto, FOTO_MAX, FOTOS_PER_TRIP, coverPhoto, tripCover, setTripCover } from '../lib/lernen/fotos.js';
   import { shrinkImage } from '../lib/photo.js';
   import { saveTripAsTemplate } from '../lib/templates.js';
-  import { newTrip, openNew, RIDES_HREF } from '../lib/nav.js';
+  import { newTrip, openNew, RIDES_HREF, openTrip } from '../lib/nav.js';
+  import { stepOf } from '../lib/phase.js';
   import { askDelete, deleteWithUndo } from '../lib/ui/ask.js';
   import { offerDone, offerRename } from '../lib/ui/rename.svelte.js';
   import { FIELD_HELP } from '../lib/daumen.js';
@@ -101,6 +102,10 @@
   const noRide = $derived(d?.kind === 't' && !d.acts.length && !(d.rides ?? []).length);
   // #10: the warm countdown chip on the drawn head and one sentence with a number
   const cd = $derived(d?.kind === 't' ? countdownOf(d.trip, today) : null);
+  // UI-Test 26.10.2026 T1: a trip still planned (ahead or under way) has nothing to evaluate yet; one line says
+  // so and its button leads to the step the trip is in now («Weiter zu Packen»)
+  const STEP_GO = { plan: 'Continue to Plan', pack: 'Continue to Pack', ride: 'Continue to On the way', debrief: 'Continue to Debrief' };
+  const planned = $derived(d?.kind === 't' && d.state === 'plan' && d.trip ? stepOf(d.trip, today, { debriefDone: d.debrief?.status === 'done' }) : null);
   const tripSay = $derived.by(() => {
     if (d?.kind !== 't') return null;
     const es = d.trip?.entries ?? [];
@@ -396,12 +401,18 @@
          0.174 (#10): on a trip a warm chip first: «In 5 Tagen», «Tag 2 von 3», «Zurück seit 2 Tagen» -->
     <TourLandscape points={prof} photo={coverPhoto(photos, cover)?.data ?? null} warm={cd ? t(cd.key, cd.vars) : ''} chips={[dates(row.day, row.endDay ?? row.day), wxS ? deg(wxS.tmin, wxS.tmax) : ''].filter(Boolean)} />
     {#if say}<p class="say" data-tour-say>{say}</p>{/if}
+    {#if planned}
+      <div class="card pad planned" data-tour-planned>
+        <p>{t('This tour is still planned. The next step:')}</p>
+        <a class="btn hi" href={planned.href} onclick={() => openTrip(d.trip.id)} data-tour-planned-go>{t(STEP_GO[planned.key] ?? 'Continue to Pack')}<ChevronRight size={16} aria-hidden="true" /></a>
+      </div>
+    {/if}
     <!-- 0.174 (#18 Lernschleife): one question after the tour, at most one card a day -->
     {#if d.kind === 't' && steps}<TourAsk {d} {key} {over} />{/if}
     {#if d.kind === 't' && !steps}
       <!-- Gesamttest 20.10.2026 (journey): a trip's two pages lead to each other; the Rückblick has «Tour-Seite ansehen ›» -->
       <ul class="rowlist" aria-label={t('Look back|tour')}>
-        <li><a class="lrow" href="#/debrief/{encodeURIComponent(d.id)}" data-to-review><span class="ic" aria-hidden="true"><Star size={18} /></span><span class="m"><span class="t">{t('Look back|tour')}</span><span class="s">{d.state === 'rated' ? t('The Rückblick is written.') : t('The Rückblick is still open.')}</span></span><ChevronRight class="chev" size={18} aria-hidden="true" /></a></li>
+        <li><a class="lrow" href="#/debrief/{encodeURIComponent(d.id)}" data-to-review><span class="ic" aria-hidden="true"><Star size={18} /></span><span class="m"><span class="t">{t('Look back|tour')}</span><span class="s">{d.state === 'rated' ? t('The Rückblick is written.') : d.state === 'plan' ? t('The Rückblick opens after the ride.') : t('The Rückblick is still open.')}</span></span><ChevronRight class="chev" size={18} aria-hidden="true" /></a></li>
       </ul>
     {/if}
 
@@ -548,10 +559,17 @@
         <div class="sh"><h2 id="th-review">{t('Look back|tour')}</h2></div>
         <div class="card pad">
           {#if d.kind === 't' && !d.trip?.fromActs?.length}
+            {#if d.state === 'plan'}
+              <div class="connect" data-review-before>
+                <Star size={20} aria-hidden="true" />
+                <div><p class="ct">{t('The Rückblick opens after the ride.')}</p><p class="cs">{t('Then the app asks what you did not use, what was missing and how it went.')}</p></div>
+              </div>
+            {:else}
             <p><TripState state={d.state} /> {d.state === 'rated' ? t('The Rückblick is written.') : t('The Rückblick is still open.')}</p>
+            {/if}
             {#if d.debrief?.note}<p class="quote">{d.debrief.note}</p>{/if}
             <div class="revacts">
-              <a class="btn hi" href="#/debrief/{encodeURIComponent(d.id)}" data-open-review>{d.state === 'rated' ? t('Open the Rückblick') : t('Write the Rückblick')}<ChevronRight size={16} aria-hidden="true" /></a>
+              {#if d.state !== 'plan'}<a class="btn hi" href="#/debrief/{encodeURIComponent(d.id)}" data-open-review>{d.state === 'rated' ? t('Open the Rückblick') : t('Write the Rückblick')}<ChevronRight size={16} aria-hidden="true" /></a>{/if}
               <!-- Versteckte Funktionen (Noah 22.10.2026 «1a»): after the Rückblick «Als Vorlage speichern» is a visible button, not only in «•••» -->
               {#if d.state === 'rated' && (d.trip?.entries ?? []).length}<button type="button" class="btn" onclick={() => asTemplate(false)} data-review-template><BookmarkPlus size={16} aria-hidden="true" />{t('Save as a template')}</button>{/if}
             </div>
@@ -661,6 +679,17 @@
     flex-wrap: wrap;
     gap: 8px 14px;
     margin-top: 10px;
+  }
+  .planned {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px 16px;
+  }
+  .planned p {
+    margin: 0;
+    flex: 1 1 260px;
   }
   .say {
     margin: -6px 0 0;

@@ -25,6 +25,7 @@
   import WeightCard from './WeightCard.svelte';
   import StagesCard from './StagesCard.svelte';
   import DoorCard from '../haustuer/DoorCard.svelte';
+  import TourPrep from '../tourplan/TourPrep.svelte';
   import ProbeRow from '../probe/ProbeRow.svelte'; // Paket B: «Generalprobe» from 7 days before the start
   import PlanHints from '../tourlernen/PlanHints.svelte'; // Paket Z: spare parts after a breakdown, sleep spots nearby
   import PackExtras from '../schnellpacken/PackExtras.svelte'; // Paket SP «Schneller packen»
@@ -241,12 +242,23 @@
     { key: 'two', label: 'Packing for two', sel: '[data-two]' },
     { key: 'packtime', label: 'Packing time', sel: '[data-packtime]' },
     { key: 'offline', label: 'Save for the way', sel: '[data-offline-save-btn]', page: true }, // under the page, outside this part
+    // «332 Use Cases» (Noah 26.10.2026: «ballast-karte, einkaufs- und ladeliste, neues teil beim packen, tasche für tasche,
+    // zwiebel check» sichtbar): by their catalogue names; «href» goes to another view, the rest jump and open their fold
+    { key: 'onion', label: 'Layer check', sel: '.onion', page: true },
+    { key: 'shop', label: 'Shopping and charging list', sel: '.shop-row', page: true },
+    { key: 'ballast', label: 'Ballast card', sel: '.calm-extra', page: true },
+    { key: 'newpack', label: 'New item while packing', act: () => { zoneKey = targets[0]?.key ?? zoneKey; show('add'); } }, // opens «Add material», where the new item is made
+    { key: 'bags', label: 'Pack bag by bag', href: '#/pack?day' },
+    // Touren a, part 2 (bundle 26.10.2026): the three folds of «Prepare the tour», by their catalogue names
+    { key: 'daysports', label: 'Sport per day', sel: '[data-prep-sports]' },
+    { key: 'unclear', label: 'Unclear spots', sel: '[data-prep-unclear]' },
+    { key: 'border', label: 'Crossing a border', sel: '[data-prep-border]' },
   ];
   let extraHere = $state([]);
   $effect(() => {
     if (!rootEl) return;
     const look = () => {
-      const keys = EXTRA_JUMPS.filter((x) => (x.page ? document : rootEl).querySelector(x.sel)).map((x) => x.key);
+      const keys = EXTRA_JUMPS.filter((x) => x.href || (x.act ? !fixed : (x.page ? document : rootEl).querySelector(x.sel))).map((x) => x.key);
       if (keys.join() !== extraHere.join()) extraHere = keys;
     };
     look();
@@ -272,9 +284,11 @@
     if (key === 'tasks') return onprep?.();
     const q = (sel) => rootEl?.querySelector(sel);
     const extra = EXTRA_JUMPS.find((x) => x.key === key);
+    if (extra?.href) return void (location.hash = extra.href);
+    if (extra?.act) return extra.act();
     const el = extra ? (extra.page ? document.querySelector(extra.sel) : q(extra.sel)) : key === 'list' ? q('.list-head') : key === 'route' ? q('.plan-top section.rc') : (ev ? q('.plan-top section.tw') : null) ?? q('.wxcard') ?? q('.cond');
     if (!el) return;
-    if (el.tagName === 'DETAILS') el.open = true;
+    for (let e = el; e; e = e.parentElement) if (e.tagName === 'DETAILS') e.open = true; // the fold and the folds around it
     el.scrollIntoView({ block: 'start', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
     // the keyboard goes along: the heading of the section takes the focus without a second jump
     const h = el.querySelector('h2') ?? el.querySelector(':scope > summary') ?? el;
@@ -339,6 +353,8 @@
           <!-- Paket W «Von der Haustür bis zurück» (Noah 20.10.2026): plan B, check-in, «Gut angekommen» -->
           <PlanHints {trip} {trips} {items} />
           <DoorCard {trip} />
+          <!-- Touren-Ideen 45, 47, 49 (Noah 26.10.2026 «2b 3a 4b 5b»): sport per day, unclear spots, border -->
+          <TourPrep {trip} />
           <ProbeRow {trip} {items} card />
           <PackExtras {trip} {trips} {itemsById} />
           <!-- Planungs-Notizen (IS 246–249): what comes to mind while planning; «Daraus wird …» -->
@@ -349,6 +365,7 @@
       <PlanNotesCard {trip} {bike} {fixed} />
       <PlanHints {trip} {trips} {items} />
       <DoorCard {trip} />
+      <TourPrep {trip} />
       <ProbeRow {trip} {items} card />
       <PackExtras {trip} {trips} {itemsById} />
     {/if}

@@ -15,6 +15,9 @@
   import { whereAmI } from '../unterwegs/here.js';
   import { stage, stageCount } from '../ride.js';
   import { ownQuery, saveOwn, putOwn, newPoint } from '../map/ownpoints.js';
+  import { domainOf } from '../domains.js';
+  import { checkKey } from '../checks.js';
+  import { breakCheckText, withBreakCheck } from '../tourenb/breakcheck.js'; // Idee 53 (Touren b): a check from the breakdown
   import { BREAK_KINDS, breakKind, breakdownsOf, newBreakdown, repairFor, sleepSpots, starText } from './tourlernen.js';
   import { Wrench, BedDouble, Image as ImageIcon, Trash2, Plus, Check, Star, ChevronRight } from '@lucide/svelte';
 
@@ -36,6 +39,10 @@
   let bPart = $state('');
   let bPlace = $state('');
   let bTask = $state(true);
+  // Idee 53: a short check for next time, in your words (suggested from the kind and the part)
+  let bCheck = $state(true);
+  let bCheckOwn = $state(null); // the words once you changed them
+  const bCheckWords = $derived(bCheckOwn ?? breakCheckText(bKind, bPart, t));
   let msg = $state('');
   async function addBreak(e) {
     e.preventDefault();
@@ -47,9 +54,18 @@
       await db.maintenance.put(job);
       b.taskId = job.id;
     }
+    if (bCheck && bCheckWords.trim()) {
+      const key = checkKey('eve', domainOf(trip));
+      await db.transaction('rw', db.settings, async () => {
+        const out = withBreakCheck((await db.settings.get(key))?.value ?? null, domainOf(trip), bCheckWords);
+        await db.settings.put({ key, value: out.list });
+        if (out.id) b.checkId = out.id;
+      });
+    }
     await save({ breakdowns: [...breaks, b] });
-    msg = bTask ? t('Saved. A bike-care job is waiting, and next time the spare part is suggested.') : t('Saved. Next time the spare part is suggested.');
+    msg = [bTask ? t('Saved. A bike-care job is waiting, and next time the spare part is suggested.') : t('Saved. Next time the spare part is suggested.'), b.checkId ? t('The check comes the evening before every next tour of this type.') : ''].filter(Boolean).join(' ');
     bPart = bPlace = '';
+    bCheckOwn = null;
     bOpen = false;
   }
   async function dropBreak(b) {
@@ -110,7 +126,7 @@
     {#if breaks.length}
       <ul class="rows">
         {#each breaks as b (b.id)}
-          <li><span class="grow"><b>{t(breakKind(b.kind).name)}</b>{#if b.part}{' · '}{b.part}{/if}{#if b.place}{' · '}<small>{b.place}</small>{/if}{#if b.taskId}{' · '}<small class="tp-muted">{t('in bike care')}</small>{/if}</span><button type="button" class="tp-icon-btn" aria-label={t('Delete {name}', { name: t(breakKind(b.kind).name) })} onclick={() => dropBreak(b)}><Trash2 size={16} aria-hidden="true" /></button></li>
+          <li><span class="grow"><b>{t(breakKind(b.kind).name)}</b>{#if b.part}{' · '}{b.part}{/if}{#if b.place}{' · '}<small>{b.place}</small>{/if}{#if b.taskId}{' · '}<small class="tp-muted">{t('in bike care')}</small>{/if}{#if b.checkId}{' · '}<a class="tp-muted tp-small" href={`#/me/checks?${domainOf(trip)}`}>{t('in the evening-before check')}</a>{/if}</span><button type="button" class="tp-icon-btn" aria-label={t('Delete {name}', { name: t(breakKind(b.kind).name) })} onclick={() => dropBreak(b)}><Trash2 size={16} aria-hidden="true" /></button></li>
         {/each}
       </ul>
     {/if}
@@ -122,6 +138,8 @@
         <input class="inp" bind:value={bPart} placeholder={t('Part, e.g. rear tube')} aria-label={t('Part')} />
         <input class="inp" bind:value={bPlace} placeholder={t('Where, e.g. after the pass')} aria-label={t('Where')} />
         <label class="chk"><input type="checkbox" bind:checked={bTask} />{t('Add a bike-care job')}</label>
+        <label class="chk"><input type="checkbox" bind:checked={bCheck} data-break-check />{t('A check for next time')}</label>
+        {#if bCheck}<input class="inp" value={bCheckWords} oninput={(e) => (bCheckOwn = e.currentTarget.value)} aria-label={t('Check for next time')} data-break-check-text /><small class="tp-small tp-muted">{t('Comes the evening before every next tour of this type. Change the words as you like.')}</small>{/if}
         <div class="row"><button type="submit" class="btn ink" data-break-save><Check size={16} aria-hidden="true" />{t('Save')}</button><button type="button" class="btn" onclick={() => (bOpen = false)}>{t('Cancel')}</button></div>
       </form>
     {:else}

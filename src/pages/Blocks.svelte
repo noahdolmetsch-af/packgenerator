@@ -56,6 +56,8 @@
   import { BLOCK_GROUPS, OPEN_GROUPS, FIXED_WHEN, MORE_KEY, newParts, undoMore } from '../lib/blocksmore.js';
   import OptionButton from '../lib/ui/OptionButton.svelte';
   import RuleSheet from '../lib/gear/RuleSheet.svelte';
+  import { setUntil, untilIn } from '../lib/tourenb/ruleuntil.js';
+  import RulesOver from '../lib/tourenb/RulesOver.svelte';
   import RenameSheet from '../lib/ui/RenameSheet.svelte';
   import GroupDeleteSheet from '../lib/ui/GroupDeleteSheet.svelte';
   import { SvelteSet } from 'svelte/reactivity';
@@ -111,9 +113,9 @@
   const isOwnRule = (s) => !!s && !s.builtIn && !hasRule(s.key);
   const rulingCard = $derived(ruling ? cards.find((c) => c.key === ruling) ?? null : null);
   // Save the rule (on the block's record) and take out the items crossed out in the sheet; one Undo.
-  async function saveRule(s, { rule, out }) {
-    // Paket H #260: an own block keeps its own rule on its record (setOwnRule)
-    const res = await editSets(db, (v) => ({ value: isOwnRule(s) ? setOwnRule(v, s.key, rule) : setRule(v, s.key, rule) }));
+  async function saveRule(s, { rule, out, until = null }) {
+    // Paket H #260: an own block keeps its own rule on its record (setOwnRule); Idee 50: and how long it holds
+    const res = await editSets(db, (v) => ({ value: setUntil(isOwnRule(s) ? setOwnRule(v, s.key, rule) : setRule(v, s.key, rule), s.key, until) }));
     if (res.error) return;
     let snap = res.snap;
     if (out.length) {
@@ -397,6 +399,7 @@
     <Btn icon={Eraser} label={t('Tidy up')} explain={t('Tidy up the packing list: what comes along by itself')} href="#/blocks/aufraeumen" />
     <Btn kind="hi" icon={Plus} label={t('New building block')} aria-expanded={adding} onclick={startNew} />
   </PathHead>
+  <RulesOver />
   <AreaIntro place="blocks" />
   {#if adding}
     <form class="newset card" onsubmit={create}>
@@ -551,7 +554,7 @@
 
 {#if rulingCard}
   {@const s = rulingCard}
-  <RuleSheet own={isOwnRule(s)} block={{ ...s, name: blockLabel(s) }} rule={s.rule ?? null} onsave={(res) => saveRule(s, res)} onrename={() => ((ruling = null), (renaming = s))} ondelete={() => remove(s)} onclose={() => (ruling = null)} />
+  <RuleSheet own={isOwnRule(s)} block={{ ...s, name: blockLabel(s) }} rule={s.rule ?? null} until={untilIn($setsQ?.value, s.key)} onsave={(res) => saveRule(s, res)} onrename={() => ((ruling = null), (renaming = s))} ondelete={() => remove(s)} onclose={() => (ruling = null)} />
 {/if}
 
 {#if deleting}

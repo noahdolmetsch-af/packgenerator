@@ -140,5 +140,10 @@
       grid-column: 1 / -1;
       grid-row: 2;
     }
+    /* Gesamttest 26.10.2026: on a phone the part name wraps instead of «Bremsbeläg…» */
+    .n {
+      white-space: normal;
+      overflow: visible;
+    }
   }
 </style>

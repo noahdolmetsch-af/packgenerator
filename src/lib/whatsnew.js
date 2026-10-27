@@ -16,6 +16,92 @@
 
 export const WHATS_NEW = [
   {
+    // v0.217.0 «Velos» (996 Einzelideen 71–76, Noah 26.10.2026 «1a 2a 3a 4a 5a», «71-76 freigabe»): split a workshop
+    // receipt, photo with the old one as template, workshop rounds; km gap question, setup back, part to check
+    version: '0.217.0',
+    date: '2026-10-26',
+    title: 'Workshop at home',
+    lead: 'Your own rounds, a split receipt and photos you can compare.',
+    points: [
+      { text: 'Workshop rounds: tick your own jobs, the parts get them', href: '#/bikes?tab=care&view=rounds' },
+      { text: 'Split a workshop receipt into parts and jobs', href: '#/bikes?tab=care' },
+    ],
+    small: [
+      { box: 'new', text: 'Wear photo with the old photo as template; a big km jump asks about rides outside the app', href: '#/bikes?tab=care&view=wear' },
+      { box: 'new', text: 'After a crash or noise: mark a part «check»; the setup log keeps the old measures', href: '#/bikes?tab=care&view=wear' },
+    ],
+    test: ['Velos › Pflege › Werkstatt-Runden: take «Herbst-Service», start it, tick two jobs, «Fertig».', 'Open a workshop visit with a receipt photo and tap «Quittung aufteilen».', 'Wear photos: with a photo there, tap «Foto mit Vorlage».'],
+  },
+  {
+    // v0.212.1 UI-Test 26.10.2026 T1 «Heutige Tour: ein Zustand überall»: a day ride not begun yet (not packed, not
+    // started) no longer shows «Letzter Abend», «Rückblick heute» or «Abgeschlossen»; the tour page says «Geplant»
+    version: '0.212.1',
+    date: '2026-10-26',
+    title: "Today's tour says one thing",
+    lead: 'Not packed yet means: still packing, not done.',
+    points: [{ text: 'A day ride not started yet no longer shows «Last evening» or «Completed»', href: '#/trips' }],
+    small: [{ box: 'fixed', text: 'Tour page before the ride: «Planned» and a button to the step you are in' }],
+    test: ['Plan a day ride for today and do not finish packing. In the evening Today shows no «Last evening» and no «Review today».', 'Open the tour page of that trip (step «Analysis»): it says «Planned» and «Continue to Pack».'],
+  },
+  {
+    // v0.212.0 «Touren b» (996 Einzelideen 50–58, Noah 25./26.10.2026 «freigabe 52 55 56 57 58»): trip from an intent,
+    // rule with an end, little stories, check from a breakdown, «check later», note at a place, your day to listen to,
+    // eat reminder at planned stops, book what was used
+    version: '0.212.0',
+    date: '2026-10-26',
+    title: 'Tours that remember',
+    lead: 'Start from what you want, get reminded at the right place.',
+    points: [{ text: 'New trip: start from what you have in mind', href: '#/trips' }],
+    small: [{ box: 'new', text: 'A note at a place of the route comes up when you get there', href: '#/ride' }],
+    test: ['Open Touren › Neue Tour: on top choose what you have in mind, the form stays below.', 'On the way tap «Später prüfen» and say what to check: it waits in the Inbox.'],
+  },
+  {
+    // v0.211.0 «Touren a» part 2 (996 Einzelideen 44, 45, 47, 49; Noah 26.10.2026 «1a 2b 3a 4b 5b»): trips side by side,
+    // sport per day with «When it changes», unclear spots with km, own border points per country
+    version: '0.211.0',
+    date: '2026-10-26',
+    title: 'Two tours, one look',
+    lead: 'Compare two trips and prepare one well.',
+    points: [
+      { text: 'Trips side by side: overlapping days and shared gear', href: '#/trips/compare' },
+    ],
+    small: [{ box: 'new', text: 'Prepare the tour: sport per day, unclear spots, border', href: '#/pack' }],
+    test: ['Open Trips › «Trips side by side» and tap two trips.', 'In Planen open «Prepare the tour» and set bike on day 1 and hiking on day 2.'],
+  },
+  {
+    // v0.210.0 «Noahs Liste sichtbar» (Noah 26.10.2026 «folgende möchte ich sichtbar»): jump buttons and quick rows for
+    // hidden tools (Packen, Material, Aktiv, Heute weather high/low, Velo); all bags side by side on a big screen
+    version: '0.210.0',
+    date: '2026-10-26',
+    title: 'Your list in sight',
+    lead: 'What you asked for now has its own button.',
+    points: [{ text: 'Planning: buttons for layer check, shopping list and bag by bag', href: '#/pack' }],
+    small: [{ box: 'new', text: 'On a big screen drag an item into another bag', href: '#/pack' }],
+    test: ['Open Planen with a trip: «Zwiebel-Check» and «Tasche für Tasche packen» stand as buttons on top.', 'Open Heute: the weather line shows the high and the low.'],
+  },
+  {
+    // v0.209.0 «Gruppenfahrt für Events» (Noah 26.10.2026 «1a 2b 3a 4a 5a»): own page with help, ready, checkpoints,
+    // meeting points, who has what, split costs, storm warning, night pause; contact card with QR code
+    version: '0.209.0',
+    date: '2026-10-26',
+    title: 'Riding together for days',
+    lead: 'A group ride with help, meeting points and shared costs.',
+    points: [{ text: 'Group ride: own page with help, ready and meeting points', href: '#/gruppenfahrt' }],
+    small: [{ box: 'new', text: 'Your contact card with a QR code', href: '#/me/freunde' }],
+    test: ['Open Touren › Live-Karte › Gruppenfahrt: help, ready and meeting points stand on one page.', 'Open Ich › Mit Freunden: your contact card shows a QR code.'],
+  },
+  {
+    // v0.208.1 Gesamttest 26.10.2026 (with a real backup, was PR #257 0.200.1): on a small phone words broke in the middle
+    // (shopping list, weight, small tiles, Ich lists, wear card); a long Strava name made a row of tiles on Today very tall.
+    version: '0.208.1',
+    date: '2026-10-26',
+    title: 'Whole words on a small phone',
+    lead: 'On a small phone names and titles keep their words whole again.',
+    points: [{ text: 'Shopping list: «To buy» stands under the name', href: '#/gear?view=wish' }],
+    small: [{ box: 'fixed', text: 'Shopping list and Weight in Plan no longer break in the middle' }],
+    test: ['On a small phone open Material › Einkauf: the names read normally, «Zu kaufen» stands under them.', 'Open Planen with a trip: «Einkaufsliste» and «Gewicht» stand as whole words.'],
+  },
+  {
     // v0.208.0 «Computer-Breite besser nutzen» (UI-Ziel #14, Noah 26.10.2026 «1a 2a 3a 4a 5a»): Touren with a right
     // column that goes along, Auswerten's «Letzte 7 Tage» on the right, Velos with the bike first, content at most 1120 px.
     version: '0.208.0',
