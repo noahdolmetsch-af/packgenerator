@@ -3,7 +3,7 @@
 export default {
   title: 'Swipe to pack',
   lead: 'On the phone you tick an item by swiping its row to the right.',
-  points: [{ text: 'The row follows your finger and turns green; far enough and it is packed' }],
+  points: [{ text: 'The row follows your finger and turns green; far enough and it is packed', href: '#/pack?day' }],
   small: [{ box: 'nicer', text: 'Tapping works as before; up and down still scrolls' }],
   test: ['On the phone open a trip on its packing day and tap «Pack».', 'Swipe an item row to the right: it is ticked and the ring of its bag fills.'],
   since: [],
