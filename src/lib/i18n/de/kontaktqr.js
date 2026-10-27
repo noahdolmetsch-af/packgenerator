@@ -42,4 +42,18 @@ export default {
   'This card has expired': 'Diese Karte ist abgelaufen',
   'Ask {name} for a new card.': 'Frag {name} nach einer neuen Karte.',
   'Shared until {day}': 'Geteilt bis {day}',
+  // Kontakt-QR-Code step 3: payment (Noah «3a»)
+  'Payment|card': 'Zahlung',
+  'Add payment details': 'Zahlungsangaben mitgeben',
+  'TWINT {no}': 'TWINT {no}',
+  'QR bill to {iban}': 'QR-Rechnung an {iban}',
+  'The person who scans sees them only after a tap on «Show payment details», apart from the rest. Off at the start.': 'Wer scannt, sieht sie erst nach einem Tipp auf «Zahlungsangaben zeigen», getrennt vom Rest. Am Anfang aus.',
+  'No account and no TWINT number yet. Enter them once under Me › Pay, then you can add them here.': 'Noch kein Konto und keine TWINT-Nummer. Trag sie einmal unter Ich › Bezahlen ein, dann kannst du sie hier mitgeben.',
+  'Payment details go only with «Page with buttons».': 'Zahlungsangaben gehen nur mit «Seite mit Knöpfen» mit.',
+  '{name} added payment details, for example to share costs after a ride.': '{name} hat Zahlungsangaben mitgegeben, zum Beispiel um Kosten nach einer Fahrt zu teilen.',
+  'Show payment details': 'Zahlungsangaben zeigen',
+  'Hide payment details': 'Zahlungsangaben ausblenden',
+  'Copy TWINT number': 'TWINT-Nummer kopieren',
+  'QR bill for {name}': 'QR-Rechnung für {name}',
+  'Scan it with your banking app and type the amount there.': 'Mit der Banking-App scannen und dort den Betrag eintragen.',
 };

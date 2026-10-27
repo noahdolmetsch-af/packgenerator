@@ -14,6 +14,7 @@
  */
 import { lineKm, pointAt, snap } from '../race/race.js';
 import { thundery } from '../wetter/kern.js';
+import { isIban, cleanIban } from '../pay/qrbill.js';
 
 export const PLAN_V = 1;
 /** How long an event group lives: 1, 3 or 7 days (the server's most is 7 days). */
@@ -384,10 +385,28 @@ export const CARD_V = 1;
 export const CARD_FIELDS = ['name', 'insta', 'phone', 'bike', 'note', 'wa', 'email', 'strava', 'komoot', 'web', 'addr', 'until'];
 /** How long each part may be (links and the address are longer). */
 export const cardMax = (f) => (f === 'note' || f === 'addr' ? 120 : f === 'web' || f === 'strava' || f === 'komoot' ? 100 : 60);
+/**
+ * Kontakt-QR-Code step 3 (Noah «3a»): payment details, kept apart from the rest of the card.
+ * { t: TWINT number, q: { iban, name, street, house, zip, town } for a Swiss QR bill } → the same, cleaned,
+ * or null when neither part is usable. The page shows them only after a tap.
+ */
+export function cardPay(p) {
+  if (!p || typeof p !== 'object') return null;
+  const out = {};
+  const tw = clean(p.t, 20);
+  if (/^\+?[\d ]{9,19}$/.test(tw)) out.t = tw;
+  const q = p.q;
+  if (q && typeof q === 'object' && isIban(q.iban) && clean(q.name) && clean(q.town)) {
+    out.q = { iban: cleanIban(q.iban), name: clean(q.name, 70), street: clean(q.street, 70), house: clean(q.house, 16), zip: clean(q.zip, 16), town: clean(q.town, 35) };
+  }
+  return out.t || out.q ? out : null;
+}
 /** A card → the link behind the QR code: …#/karte/<base64url of the card>. Nothing goes to a server. */
 export function cardLink(card, base) {
   const o = { v: CARD_V };
   for (const f of CARD_FIELDS) if (clean(card?.[f])) o[f] = clean(card[f], cardMax(f));
+  const pay = cardPay(card?.pay);
+  if (pay) o.pay = pay;
   const b = btoa(String.fromCharCode(...new TextEncoder().encode(JSON.stringify(o))))
     .replace(/\+/g, '-')
     .replace(/\//g, '_')
@@ -405,6 +424,7 @@ export function readCard(hash = '') {
     const c = Object.fromEntries(CARD_FIELDS.map((f) => [f, clean(o[f], cardMax(f))]));
     // Kontakt-QR-Code «4a»: the day the card stops showing (soft, the page says «expired»); only a real date counts
     if (!/^\d{4}-\d{2}-\d{2}$/.test(c.until)) c.until = '';
+    c.pay = cardPay(o.pay);
     return c;
   } catch {
     return null;
