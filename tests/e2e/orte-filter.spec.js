@@ -1,14 +1,26 @@
-// Live Navigation PR 3 (Noah 26.10.2026 «1–14, 17, 18»): the «Places» filters on the live map. Quick buttons
-// Water / Food / Sleep, «Filter» with properties, «I was here», saved filters (rename, delete with Undo),
+// Live Navigation PR 3 (Noah 26.10.2026 «1–14, 17, 18»): the «Places» filters on the live map. The situation
+// buttons (Suchvorschläge 27.10.2026), «Filter» with properties, «I was here», saved filters (rename, delete with Undo),
 // «All filters off». Fictional data only (test_data_gtp_ names); Overpass is mocked.
 import { test, expect } from '@playwright/test';
 import { openHome } from './home0460-fixture.js';
 import { readFileSync } from 'node:fs';
 
-// the quick buttons from the app source (poifilter.js imports runes, so it is read as text)
-const SRC = readFileSync(new URL('../../src/lib/map/poifilter.js', import.meta.url), 'utf8');
+// Suchvorschläge (27.10.2026): the place search sits in the window «In der Nähe»; open it from the map
+async function openNear(page, info) {
+  const near = page.locator('[data-live-near]');
+  if (await near.evaluate((d) => d.open).catch(() => false)) return;
+  const b = page.locator('[data-live-near-open]');
+  await b.scrollIntoViewIfNeeded();
+  if (info.project.name === 'phone') await b.tap();
+  else await b.click();
+  await expect(near).toBeVisible();
+}
+
+
+// the situation buttons from the app source (situations.js imports poifilter.js with runes, so it is read as text)
+const SRC = readFileSync(new URL('../../src/lib/map/situations.js', import.meta.url), 'utf8');
 const quickOf = (key) => {
-  const m = SRC.match(new RegExp(`\\{ key: '${key}', name: '([^']+)', kinds: \\[([^\\]]+)\\] \\}`));
+  const m = SRC.match(new RegExp(`\\{ key: '${key}', name: '([^']+)', emoji: '[^']+', kinds: \\[([^\\]]+)\\]`));
   return { name: m[1], kinds: [...m[2].matchAll(/'([^']+)'/g)].map((x) => x[1]) };
 };
 
@@ -30,24 +42,30 @@ async function openLive(page, context, info) {
   await context.setGeolocation({ latitude: HERE.lat, longitude: HERE.lon, accuracy: 10 });
   await page.goto('./#/live');
   await tap(page.locator('[data-live-start]'), info);
+  await openNear(page, info);
   const panel = page.locator('[data-poi-panel]');
   await expect(panel).toBeVisible();
   await panel.scrollIntoViewIfNeeded();
   return { T, panel };
 }
 
-test('quick button, a property filter, I was here, saved filters with Undo, all off', async ({ page, context }, info) => {
+test('situation button, a property filter, I was here, saved filters with Undo, all off', async ({ page, context }, info) => {
   const { T, panel } = await openLive(page, context, info);
-  const water = quickOf('water');
+  const water = quickOf('thirst');
   expect(water.kinds.length).toBeGreaterThan(0);
 
-  // 14 · «Water» switches its kinds on, the others off
-  const qb = panel.locator('[data-poi-quick-btn="water"]');
-  await expect(qb).toHaveText(T(water.name));
+  // Suchvorschläge: the situation «Thirst» switches its kinds on, the others off, and says what it looks for
+  const qb = panel.locator('[data-poi-quick-btn="thirst"]');
+  await expect(qb).toContainText(T(water.name));
   await tap(qb, info);
   await expect(qb).toHaveAttribute('aria-pressed', 'true');
   for (const k of water.kinds) await expect(panel.locator(`[data-poi-chip="${k}"]`)).toHaveAttribute('aria-pressed', 'true');
+  await expect(panel.locator('[data-poi-sithint]')).toBeVisible();
   const rows = panel.locator('[data-poi-row]');
+  await expect(rows).toHaveCount(1);
+  // the WC chip on top: the two WCs come too
+  await tap(panel.locator('[data-poi-chip="toilet"]'), info);
+  await expect(qb).toHaveAttribute('aria-pressed', 'false');
   await expect(rows).toHaveCount(3);
 
   // 5 · «Free WC»: only the free one stays; the toggle says how many are left

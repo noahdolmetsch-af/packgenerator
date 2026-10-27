@@ -42,7 +42,8 @@
   import { titleOf, kindText, distText, openText } from './poitext.js';
   import PoiDetail from './PoiDetail.svelte';
   import PoiFilter from './PoiFilter.svelte';
-  import { applyFilter, QUICK } from './poifilter.js';
+  import { applyFilter, NO_FILTER, normFilter } from './poifilter.js';
+  import { SITUATIONS, SITUATION, situationOf } from './situations.js';
   import { sunTimes } from '../blockplan.js';
   import { localDay } from '../localday.js';
   import OwnPointSheet from './OwnPointSheet.svelte';
@@ -224,17 +225,40 @@
   });
   const shown = $derived(showAll ? places : places.slice(0, FIRST));
   const etaText = (ms) => (ms ? new Date(ms).toLocaleTimeString(locale(), { hour: '2-digit', minute: '2-digit' }) : '');
-  // 14 · Water / Food / Sleep: these kinds on (put into the row when needed), the others off
-  const quickOn = (q) => q.kinds.length === on.length && q.kinds.every((k) => on.includes(k));
-  function quick(q) {
-    if (quickOn(q)) {
+  // Suchvorschläge (Noah 27.10.2026 «1a»): the situation buttons. One tap switches its kinds on (put into
+  // the row when needed), the others off, and its filter (e.g. «open now»); what the situation before
+  // switched on goes back. A second tap switches them off again.
+  const sitNow = $derived(situationOf(on));
+  const ALL_RADIUS_KM = 2;
+  let allOn = $state(false);
+  function situation(s) {
+    const prev = SITUATION[sitNow];
+    const back = prev ? Object.fromEntries(Object.keys(prev.filter).map((k) => [k, NO_FILTER[k]])) : {};
+    allOn = false;
+    if (sitNow === s.key) {
+      on = [];
+      savePrefs((v) => ({ ...v, on: [], mode, radiusKm, filter: normFilter({ ...v.filter, ...back }) })).catch(() => {});
+      return;
+    }
+    on = [...s.kinds];
+    const snap = [...s.kinds];
+    savePrefs((v) => ({ ...s.kinds.reduce((acc, k) => showChip(acc, k), v), on: snap, mode, radiusKm, filter: normFilter({ ...v.filter, ...back, ...s.filter }) })).catch(() => {});
+  }
+  // «Alles» (Noah 27.10.2026): every kind of your row at once, around you within 2 km so it stays quick
+  function everything() {
+    if (allOn) {
+      allOn = false;
       on = [];
       remember();
       return;
     }
-    on = [...q.kinds];
-    const snap = [...q.kinds];
-    savePrefs((v) => ({ ...q.kinds.reduce((acc, k) => showChip(acc, k), v), on: snap, mode, radiusKm })).catch(() => {});
+    allOn = true;
+    on = [...prefs.row];
+    if (modeNow === 'around' && radiusKm > ALL_RADIUS_KM) {
+      radiusKm = ALL_RADIUS_KM;
+      radiusText = RADII.includes(ALL_RADIUS_KM) ? '' : num(ALL_RADIUS_KM);
+    }
+    remember();
   }
   const moved = $derived(modeNow === 'here' && viewMoved(lastBounds, bounds));
   const tooBig = $derived(modeNow === 'here' && !!bounds && boundsKm(bounds) > MAX_VIEW_KM);
@@ -472,11 +496,16 @@
 <section class="pp" aria-labelledby={hid} data-poi-panel>
   <h3 id={hid} class="pp-title">{t('Places on the map|poi')}</h3>
 
-  <div class="pp-quick" role="group" aria-labelledby="{hid}-q" data-poi-quick>
-    <span class="pp-qlab" id="{hid}-q">{t('Quick choice|poi')}</span>
-    {#each QUICK as q (q.key)}
-      <button type="button" class="pp-chip pp-q" aria-pressed={quickOn(q)} onclick={() => quick(q)} data-poi-quick-btn={q.key}>{t(q.name)}</button>
-    {/each}
+  <div class="pp-sits" role="group" aria-labelledby="{hid}-q" data-poi-quick>
+    <span class="pp-qlab" id="{hid}-q">{t('What do you need?|poi')}</span>
+    <div class="pp-sitgrid">
+      {#each SITUATIONS as s (s.key)}
+        <button type="button" class="pp-sit" aria-pressed={sitNow === s.key && !allOn} onclick={() => situation(s)} data-poi-quick-btn={s.key}><span class="pp-emo" aria-hidden="true">{s.emoji}</span>{t(s.name)}</button>
+      {/each}
+      <button type="button" class="pp-sit" aria-pressed={allOn} onclick={everything} data-poi-all><span class="pp-emo" aria-hidden="true">✳️</span>{t('Everything|poi')}</button>
+    </div>
+    {#if allOn}<p class="pp-sithint" data-poi-sithint>{t('Every kind of your row at once, within {km} km.|poi', { km: num(ALL_RADIUS_KM) })}</p>
+    {:else if sitNow}<p class="pp-sithint" data-poi-sithint>{t('«{name}» looks for: {kinds}.|poi', { name: t(SITUATION[sitNow].name), kinds: SITUATION[sitNow].kinds.map(labelOf).join(', ') })}{#if SITUATION[sitNow].filter.open === 'now'}{' '}{t('Only what is open now.|poi')}{/if}</p>{/if}
   </div>
   <div class="pp-chips" role="group" aria-label={t('Kinds of places|poi')} data-poi-chips>
     {#each chips as c (c.key)}
@@ -902,13 +931,44 @@
     color: var(--ink-3);
     overflow-wrap: break-word;
   }
-  .pp-quick {
-    display: flex;
-    flex-wrap: wrap;
+  .pp-sits {
+    display: grid;
     gap: var(--sp-2);
   }
-  .pp-quick {
-    align-items: center;
+  .pp-sitgrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(92px, 1fr));
+    gap: var(--sp-2);
+  }
+  .pp-sit {
+    display: grid;
+    justify-items: center;
+    align-content: center;
+    gap: 2px;
+    min-height: 64px;
+    padding: 8px 4px;
+    border: 1px solid var(--line-strong);
+    border-radius: 14px;
+    background: var(--paper);
+    color: var(--ink);
+    font: 600 var(--fs-small) var(--font-body);
+    text-align: center;
+    overflow-wrap: anywhere;
+    cursor: pointer;
+  }
+  .pp-sit[aria-pressed='true'] {
+    background: var(--brand);
+    border-color: var(--brand);
+    color: var(--brand-ink);
+  }
+  .pp-emo {
+    font-size: 22px;
+    line-height: 1;
+  }
+  .pp-sithint {
+    margin: 0;
+    font-size: var(--fs-small);
+    color: var(--ink-2);
   }
   .pp-qlab {
     font-size: var(--fs-small);

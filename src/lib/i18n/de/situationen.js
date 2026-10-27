@@ -14,4 +14,13 @@ export default {
   'Battery empty|situation': 'Akku leer',
   'Emergency|situation': 'Notfall',
   'Sunday|situation': 'Sonntag',
+  'What do you need?|poi': 'Was brauchst du?',
+  'Everything|poi': 'Alles',
+  'Every kind of your row at once, within {km} km.|poi': 'Alle Arten deiner Reihe auf einmal, im Umkreis von {km} km.',
+  '«{name}» looks for: {kinds}.|poi': '«{name}» sucht: {kinds}.',
+  'Only what is open now.|poi': 'Nur was jetzt offen hat.',
+  'Go there|poi': 'Hin',
+  'The bike router plans the way there and back onto your route, with the extra km and minutes.|poi': 'Der Velo-Router plant den Weg hin und zurück auf deine Strecke, mit den Zusatz-km und -Minuten.',
+  'Nearby': 'In der Nähe',
+  'Nearby: what do you need?': 'In der Nähe: Was brauchst du?',
 };
