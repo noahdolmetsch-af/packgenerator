@@ -9,7 +9,7 @@ PR (diese Änderung) · 27.10.2026 · Auftrag: Noah «1a 2a 3a» (Thread «Aktiv
 
 ## Was fällt weg oder rutscht tiefer
 - Am Handy rutschen auf der Meilenstein-Seite (Filter «Alle») die übrigen Karten und «Serien, Touren und Velos» in Klappen (Noah «2a»). Alter Weg: alles offen untereinander. Neuer Weg: Klappe antippen.
-- Die Längen-Grenze für `#/flow/milestones` in `laenge.js` fällt weg (Regel 6, keine Seitenlänge).
+- Die Längen-Grenze für `#/flow/milestones` in `laenge.js` sinkt von 6,5 auf 3,5 Bildschirme (gemessen 3,19).
 - Sonst nichts; am Computer bleibt die Meilenstein-Seite wie bisher.
 
 ## Selbst entschieden
