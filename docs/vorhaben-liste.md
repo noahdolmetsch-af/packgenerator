@@ -210,6 +210,25 @@ Routine «Das tut mir gut» auf Heute · Kachel «Heute baden oder Sauna?» · W
 
 </details>
 
+## Neuer Schwung (Noah 26.10.2026 «ok bitte dieses vorhaben speichern»)
+
+Ziel 5 Alltag. Entscheid «1a 2a 3a 4a 5a und b»: Stil S2 «Kacheln mit Tiefe», Handy alles zu ausser «Jetzt» (gemerkt), «Startseite anpassen» unten, Bewegung überall sanft (aus mit «Bewegung reduzieren»), kleine Bausteine plus Lottie. Jeder Schritt ein kleiner PR mit Bildern und Testlink.
+
+| # | Schritt | Stand |
+|---|---|---|
+| 1 | Heute: «Startseite anpassen» unten, Wetter und «Was ziehe ich an?» in der Datumszeile, Namensfrage weg | gebaut (#271) |
+| 2 | Bewegung auf Heute: Kacheln nacheinander, Zahlen, Balken, Ring | gebaut |
+| 2b | Lottie für grosse Momente (Startklar, erledigt) | gebaut |
+| 3 | Aufklappen am Handy (alles zu ausser «Jetzt», gemerkt), nach «Heute ruhiger» Teil 3 | gewünscht |
+| 4 | Stil S2 auf Heute | gewünscht |
+| 5 | Packen: Wischen zum Abhaken, gezeichnetes Velo mit Taschen | gewünscht |
+| 6 | Startklar: grosser Moment | gewünscht |
+| 7 | Touren: Kacheln mit Tiefe, Jahres-Übersicht als Farbfelder | gewünscht |
+| 8 | Velo: gezeichnetes Velo, Verschleiss als Ringe | gewünscht |
+| 9 | Aktiv: zählende Zahlen, Wochen-Story zum Durchwischen | gewünscht |
+| 10 | Laden und leere Seiten: kleine Animationen | gewünscht |
+| 11 | Übrige Bausteine: Himmel je nach Wetter, gleitende Umschalter, langes Drücken = Menü, Hinweise beim ersten Mal | gewünscht |
+
 ## Bewusst nicht
 
 Foto-KI für Material · Live-Sync über Drive · Keine fremden Einbettungen, nur Links · Privat-Zone beim Teilen um dein Zuhause · Inhalte von anderen Nutzern · KI: aus einem Satz wird ein Eintrag · KI: Wochen-Rückblick am Sonntag · Einkauf, Lebenslauf, Werkstatt (D2) · Computer als Werkzeug (D4) · Rückkehr-Melder für Notfall-Person · Aussortieren und weitergeben · Leiste mit 7 Orten · Keine native App, die Web-App bleibt · App zieht nicht auf Vercel um · Ton-Aufnahmen (nur wenn klein)

@@ -7,9 +7,9 @@
    * sorted (arrows and drag) and deleted (their people stay), people are changed and deleted (asked first, Undo).
    */
   import { liveQuery } from 'dexie';
-  import { Pencil, Trash2, Plus, Camera, Phone, AtSign, Mail } from '@lucide/svelte';
+  import { Pencil, Trash2, Plus, Camera, Phone, AtSign, Mail, Maximize, X } from '@lucide/svelte';
   import { db } from '../db.js';
-  import { t } from '../i18n.svelte.js';
+  import { t, locale } from '../i18n.svelte.js';
   import QrCode from '../ich/QrCode.svelte';
   import RenameSheet from '../ui/RenameSheet.svelte';
   import GroupDeleteSheet from '../ui/GroupDeleteSheet.svelte';
@@ -19,7 +19,8 @@
   import { offerDone } from '../ui/rename.svelte.js';
   import { askDelete, deleteWithUndo } from '../ui/ask.js';
   import { cardLink, readCard } from '../live/event.js';
-  import { CARD_KEY, PEOPLE_KEY, SHOWN, SHOW_DEFAULT, peopleOf, cardShown, addPerson, groupFor, updatePerson, removePerson, renameGroup, moveGroup, deleteGroup, byGroup, instaLink, telLink, mailLink } from './people.js';
+  import { CARD_KEY, PEOPLE_KEY, SHOWN, SHOW_DEFAULT, VALID_DAYS, untilFor, cardVcf, peopleOf, cardShown, addPerson, groupFor, updatePerson, removePerson, renameGroup, moveGroup, deleteGroup, byGroup, instaLink, telLink, mailLink } from './people.js';
+  import { localDay } from '../localday.js';
   import '../live/event.css';
 
   let { me = '' } = $props();
@@ -28,7 +29,7 @@
   const list = $derived($peopleQ ?? peopleOf(null));
   const savePeople = (v) => db.settings.put({ key: PEOPLE_KEY, value: v });
 
-  let card = $state({ name: '', ...Object.fromEntries(SHOWN.map((f) => [f, ''])), show: { ...SHOW_DEFAULT } });
+  let card = $state({ name: '', ...Object.fromEntries(SHOWN.map((f) => [f, ''])), show: { ...SHOW_DEFAULT }, days: 7, mode: 'link' });
   let seen = false;
   $effect(() => {
     if (seen || $cardQ === undefined) return;
@@ -37,7 +38,39 @@
   });
   const saveCard = () => db.settings.put({ key: CARD_KEY, value: $state.snapshot(card) });
   const shown = $derived(cardShown(card));
-  const link = $derived(shown.name ? cardLink(shown, `${location.origin}${location.pathname}`) : '');
+  /* Kontakt-QR-Code step 2 (Noah «1a», «4a»): the code opens the card page with a soft end day, or (chosen) holds the
+     contact itself, which the phone puts straight into its contacts, also without internet (then without an end day). */
+  const until = $derived(untilFor(card.days, localDay()));
+  const link = $derived(shown.name ? cardLink({ ...shown, until }, `${location.origin}${location.pathname}`) : '');
+  const qrText = $derived(shown.name ? (card.mode === 'vcard' ? cardVcf(shown) : link) : '');
+  const DAYS_LABEL = { 1: 'Today only', 7: '1 week', 30: '1 month', 0: 'Always' };
+  const untilText = (d) => new Date(`${d}T12:00:00`).toLocaleDateString(locale(), { weekday: 'short', day: 'numeric', month: 'numeric' });
+  function setDays(d) {
+    card.days = d;
+    saveCard();
+  }
+  function setMode(m) {
+    card.mode = m;
+    saveCard();
+  }
+  /* «Show big»: the code alone on a white screen; the screen stays on while it is open (when the phone allows it) */
+  let big = $state(null);
+  let lock = null;
+  async function showBig() {
+    big?.showModal();
+    try {
+      lock = await navigator.wakeLock?.request('screen');
+    } catch {
+      lock = null;
+    }
+  }
+  function closeBig() {
+    big?.close();
+  }
+  function onBigClose() {
+    lock?.release?.().catch(() => {});
+    lock = null;
+  }
   /* Kontakt-QR-Code (Noah 27.10.2026 «2b»): one card, tick every part on or off before you show it. */
   const LABEL = { phone: 'Phone number', wa: 'WhatsApp number', email: 'E-mail', insta: 'Instagram', strava: 'Strava', komoot: 'Komoot', web: 'Website', addr: 'Address', bike: 'Bike', note: 'A line about you' };
   const TYPE = { phone: 'tel', wa: 'tel', email: 'email', web: 'url' };
@@ -122,17 +155,46 @@
         </div>
       {/each}
     </div>
-    <div class="ev-box cc-qr" data-qr-text={link}>
-      {#if link}
-        <QrCode text={link} label={t('Your contact card')} />
+    <div class="ev-box cc-qr" data-qr-text={qrText} data-qr-mode={card.mode}>
+      {#if qrText}
+        <QrCode text={qrText} label={t('Your contact card')} />
         <p class="ev-strong">{shown.name}</p>
+        <button type="button" class="btn hi" onclick={showBig} data-card-big><Maximize size={18} aria-hidden="true" />{t('Show big')}</button>
         <p class="ev-muted">{t('On the card: {list}', { list: SHOWN.filter((f) => shown[f]).map((f) => t(LABEL[f])).join(', ') || t('only your name') })}</p>
       {:else}
         <p class="ev-muted">{t('Write your first name; then the QR code appears.')}</p>
       {/if}
     </div>
   </div>
+  <div class="ev-box cc-opts">
+    <div role="group" aria-labelledby="cc-mode-h">
+      <p id="cc-mode-h" class="ev-strong">{t('What the QR code opens')}</p>
+      <div class="cc-seg">
+        <button type="button" class="btn sm" aria-pressed={card.mode !== 'vcard'} onclick={() => setMode('link')} data-card-mode="link">{t('Page with buttons')}</button>
+        <button type="button" class="btn sm" aria-pressed={card.mode === 'vcard'} onclick={() => setMode('vcard')} data-card-mode="vcard">{t('Straight to contacts')}</button>
+      </div>
+      <p class="ev-muted">{card.mode === 'vcard' ? t('The phone offers to save you as a contact right away, also without internet. Without an end day: what is in the address book stays.') : t('A page with a button for each way to reach you and «Save to contacts». Needs internet for a moment.')}</p>
+    </div>
+    {#if card.mode !== 'vcard'}
+      <div role="group" aria-labelledby="cc-days-h">
+        <p id="cc-days-h" class="ev-strong">{t('How long the card shows')}</p>
+        <div class="cc-seg">
+          {#each VALID_DAYS as d (d)}
+            <button type="button" class="btn sm" aria-pressed={Number(card.days) === d} onclick={() => setDays(d)} data-card-days={d}>{t(DAYS_LABEL[d])}</button>
+          {/each}
+        </div>
+        <p class="ev-muted" data-card-until>{until ? t('The card shows until {day}. After that the page says «expired». Whoever knows how can still read the details in the link.', { day: untilText(until) }) : t('The card shows without an end.')}</p>
+      </div>
+    {/if}
+  </div>
 </section>
+
+<dialog class="cc-big" bind:this={big} onclose={onBigClose} aria-label={t('Your contact card')} data-card-bigview>
+  <button type="button" class="btn sm cc-big-x" onclick={closeBig} aria-label={t('Close')}><X size={20} aria-hidden="true" /></button>
+  <p class="cc-big-name">{shown.name}</p>
+  {#if qrText}<div class="cc-big-qr"><QrCode text={qrText} label={t('Your contact card')} /></div>{/if}
+  <p class="cc-big-hint">{card.mode === 'vcard' ? t('Hold the phone camera on the code.') : until ? t('Hold the phone camera on the code. Shows until {day}.', { day: untilText(until) }) : t('Hold the phone camera on the code.')}</p>
+</dialog>
 
 <section class="card ev-box" aria-labelledby="cc-p-h" data-people>
   <h2 id="cc-p-h">{t('People from events')}</h2>
@@ -234,6 +296,61 @@
   }
   .cc-qr {
     justify-items: center;
+    text-align: center;
+  }
+  .cc-opts {
+    margin-top: var(--sp-3);
+  }
+  .cc-seg {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sp-2);
+    margin: var(--sp-2) 0;
+  }
+  .cc-seg .btn[aria-pressed='true'] {
+    background: var(--brand);
+    border-color: var(--brand);
+    color: var(--brand-ink);
+  }
+  .cc-big {
+    width: 100%;
+    max-width: 100%;
+    height: 100%;
+    max-height: 100%;
+    margin: 0;
+    padding: var(--sp-4);
+    border: 0;
+    background: var(--paper);
+    color: var(--ink);
+  }
+  .cc-big[open] {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--sp-3);
+  }
+  .cc-big-x {
+    position: absolute;
+    top: var(--sp-3);
+    right: var(--sp-3);
+  }
+  .cc-big-name {
+    margin: 0;
+    font-size: var(--fs-title);
+    font-weight: 700;
+    text-align: center;
+  }
+  .cc-big-qr {
+    width: min(86vw, 70vh, 520px);
+  }
+  .cc-big-qr :global(.qr) {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1;
+  }
+  .cc-big-hint {
+    margin: 0;
     text-align: center;
   }
   @media (min-width: 760px) {
