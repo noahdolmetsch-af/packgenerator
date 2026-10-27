@@ -24,11 +24,12 @@
   const hist = historyQuery();
   const healthQ = liveQuery(() => db.healthDays.toArray());
   const logQ = liveQuery(() => db.flowLog.where('actId').equals('meditation').toArray());
-  const dayQ = liveQuery(() => loadDayData(db));
+  let dayQ = $state(liveQuery(() => loadDayData(db)));
   const offQ = liveQuery(async () => (await db.settings.get(OWN_OFF_KEY))?.value ?? []);
   const placeQ = liveQuery(async () => !!(await db.settings.get(HOME_PLACE))?.value);
-  // the weather of the last days, quietly, at most once a day (daydata.js)
-  onMount(() => void keepDayWeather(db).catch(() => {}));
+  // the weather of the last days, quietly, at most once a day (daydata.js); when new days came, read them
+  // again, because the first read can run before the weather is kept and then sometimes missed it
+  onMount(() => void keepDayWeather(db).then((got) => got && (dayQ = liveQuery(() => loadDayData(db)))).catch(() => {}));
   /** Every own number question (scale or number), and those that count (not switched off). */
   const ownAll = $derived(ownNumberQuestions(configOf($hist?.cfg).own));
   const own = $derived(ownNumberQuestions(ownAll, $offQ ?? []));

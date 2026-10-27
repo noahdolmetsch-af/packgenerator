@@ -721,16 +721,32 @@ export const snoozeAll = (snooze = {}, due = []) => ({ ...(snooze ?? {}), ...Obj
  * Erinnerung»: «Heute nicht», ✕ and «Überspringen» put away until the end of the day (not only until the next
  * time, which brought questions asked several times a day back at noon). After «Heute nicht» or ✕ the window
  * and every hint on Heute stay quiet the whole day (QUIET_KEY = that day), also for questions due later.
+ * Noah 26.10.2026 «1a»: «Heute nicht» or ✕ in the morning check put away only the morning; the evening check
+ * still comes at the evening time (QUIET_ROUND = 'morning'). In the evening it stays quiet until tomorrow.
  */
 export const QUIET_KEY = '_quiet';
+/** 'morning' when «Heute nicht» was tapped in the morning check: quiet only until the evening time. */
+export const QUIET_ROUND = '_quietRound';
 /** The last minute of the stamp's day: a question put away until then comes back tomorrow at its time. */
 export const dayEnd = (now) => `${String(now).slice(0, 10)}T23:59`;
+/** The minute before the evening time on the stamp's day: a question put away until then asks again in the evening round. */
+export function eveningEve(now, rounds) {
+  const [h, m] = roundsOf(rounds).evening.split(':').map(Number);
+  const min = h * 60 + m - 1;
+  return min < 0 ? dayEnd(now) : `${String(now).slice(0, 10)}T${p2(Math.floor(min / 60))}:${p2(min % 60)}`;
+}
 /** One question skipped: away for the rest of the day. */
 export const skipToday = (snooze = {}, qid, now) => ({ ...(snooze ?? {}), [qid]: dayEnd(now) });
-/** «Heute nicht» / ✕: the shown questions away for the day, and the window quiet until tomorrow. */
-export const quietToday = (snooze = {}, due = [], now) => ({ ...(snooze ?? {}), ...Object.fromEntries(due.map((d) => [d.q.id, dayEnd(now)])), [QUIET_KEY]: String(now).slice(0, 10) });
-/** true when «Heute nicht» or ✕ was tapped on this day (a stamp or a day 'YYYY-MM-DD'). */
-export const isQuiet = (snooze, now) => !!snooze?.[QUIET_KEY] && snooze[QUIET_KEY] === String(now).slice(0, 10);
+/** «Heute nicht» / ✕: the shown questions away (in the morning until the evening round, else for the day), and the window quiet as long. */
+export function quietToday(snooze = {}, due = [], now, rounds) {
+  const eve = isEveningRound(now, rounds);
+  const until = eve ? dayEnd(now) : eveningEve(now, rounds);
+  const { [QUIET_ROUND]: _, ...rest } = snooze ?? {};
+  return { ...rest, ...Object.fromEntries(due.map((d) => [d.q.id, until])), [QUIET_KEY]: String(now).slice(0, 10), ...(eve ? {} : { [QUIET_ROUND]: 'morning' }) };
+}
+/** true when «Heute nicht» or ✕ was tapped on this day (a stamp or a day 'YYYY-MM-DD'); after a morning one, not in the evening round. */
+export const isQuiet = (snooze, now, rounds) =>
+  !!snooze?.[QUIET_KEY] && snooze[QUIET_KEY] === String(now).slice(0, 10) && !(snooze[QUIET_ROUND] === 'morning' && String(now).length > 10 && isEveningRound(now, rounds));
 
 /* ---------------------------------------------------------------- answers */
 

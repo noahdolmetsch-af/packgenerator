@@ -296,11 +296,19 @@ Nach der Mitziehen-Regel: was in 0.47 noch nicht auf dem neuen Stand ist, mit Zi
 - 25.10.2026, 0.195.0 «Kleine Helfer für Tour und Velo»: nur ruhige Zusätze in bestehenden Fenstern (Abgestellt, Unterkunft, Hotels, Traum, Garantie); eine neue Karte «Optionen vergleichen» auf Reise-Links.
 - 25.10.2026, 0.195.1 «Einkaufsliste am Stück»: Einkaufsliste am Computer: Knöpfe rutschen bei wenig Platz unter den Namen, statt den Namen zu zerbrechen.
 - 25.10.2026, 0.199.0 «Flicken, ausprobieren, abmachen»: zwei neue Klappen im Fenster eines Teils (Reparieren, Ausleihen), ruhige Zeilen bei Webcams, Geburtstagen und Menschen; keine neue Seite.
+- 26.10.2026, 0.218.0 «Platz in jeder Tasche»: leere Tasche als Karte mit gestricheltem Rand und einem Satz, Ablageziel mit gestricheltem Umriss in der Akzentfarbe.
+- 27.10.2026, 0.217.0 «Nichts versteckt sich mehr»: nur ruhige Zeilen im Stil der bestehenden Hinweise (note/cnt/sub) und ein Textknopf «Trello» neben «Erinnerungen», 44 px hoch.
+- 27.10.2026, 0.231.1 «Da, wo du schaust»: keine neue Oberfläche, nur Katalog-Namen und Heimatseiten geändert.
 - 26.10.2026, 0.212.0 «Touren, die mitdenken»: Absicht als erster Schritt im bestehenden Fenster «Neue Tour»; Knöpfe im Rückblick mindestens 44 px; Ort-Notiz als ruhiges Band auf der Live-Karte.
 - 26.10.2026, 0.211.0 «Zwei Touren, ein Blick»: neue Seite #/trips/compare im Baukasten (Crumb, Karten, Tagesleiste); «Tour vorbereiten» als zugeklappte Karte unter «Von der Haustür bis zurück», Pfeile hoch/runter für Grenzpunkte.
 - 26.10.2026, 0.209.0 «Tagelang zusammen fahren» und 0.210.0 «Deine Liste in Sicht»: neue Seite #/gruppenfahrt im Baukasten (Crumb, Karten, event.css mit Tokens); Sprungknöpfe als Chips wie die bestehenden Schnellzeilen; «Alle Taschen nebeneinander» nur ab grossem Bildschirm, mit Pfeil-Knopf als Weg ohne Maus. 0.208.1: Wörter brechen am Handy nur an der Fuge.
 - 26.10.2026, 0.208.0 «Mehr Platz am Computer» (UI-Ziel #14, Kriterium 11 «Nutzt der Computer die Breite?»): Touren und Auswerten im Muster «Hauptsache links 2/3, Begleitinfo rechts 1/3» wie Packen, Aktiv und Material; Velos mit dem Einstieg als Zeile «So geht's ›» wie Touren und Material; Hauptorte höchstens 1120 px. Entwurf https://claude.ai/artifact/WfZ9dNaomjxSba2gDpdkM6 (Vorher-Bilder mit erfundenen Daten). Offen: nichts.
+- 26.10.2026, 0.219.0 «Heute ruhiger» Teil 1 (Kriterium «Ruhe/Leerraum»): Karten so hoch wie ihr Inhalt (vorher bis ~600 px leer neben hohen Karten), die 8 kleinen Knöpfe als eine Liste in 2 (Handy) oder 4 (Computer) Spalten, Velo-Arbeiten als Pillen-Knöpfe. Mockup H1 https://claude.ai/artifact/H3XYx26oxGMMBqdNxKMQf4#heute-ruhiger. Offen: Teil 2 (doppelte Kacheln) und Teil 3 (Bereiche mit Überschrift).
 - 26.10.2026, 0.212.1 «Die heutige Tour sagt eins» (UI-Test 0.205 T1, Kriterium «ein Zustand überall»): Tour-Seite, Gepäck, Rückblick und Heute zeigen vor der Fahrt denselben Zustand «Geplant · Packen». Vorher/Nachher-Bilder mit erfundenen Daten im PR. Offen: T2–T13.
+- 26.10.2026, 0.233.0 «Heute ruhiger» Teil 2 (Kriterium «Jedes Ding einmal»): Körperwerte standen bis zu 5-mal, Aktiv 3-mal auf Heute; jetzt einmal. Offen: Teil 3 (Bereiche mit Überschrift).
+- 26.10.2026, 0.220.0 «Velo-Ergänzungen»: alle neuen Teile oben auf «Verschleiss» als Sprung-Chips; Jahresrückblick und Saison-Checklisten als eigene Unterseiten statt neuer Blöcke auf der Pflege-Seite.
+- 27.10.2026, 0.226.0 «Der Abend-Check kommt trotzdem»: Hinweis im Check-Fenster sagt am Morgen «bis zum Abend-Check».
+- 27.10.2026, 0.231.0 «Wo du es gesagt hast»: kleine Karte im «Tag zum Hören», Sprung-Chips auf den Heimatseiten.
 - 26.10.2026, 0.212.2 «Eine Startzeit» (UI-Test 0.205 T2, Kriterien «ein Hauptknopf» und «Abhaken sieht aus wie Abhaken»): Unterwegs zeigt vor dem Start nur «Losfahren», der Basischeck ist eine Liste mit Kästchen. Offen: T3–T13 und die Schrittleiste.
 - 25.10.2026, 0.200.0 «Zusammen auf einer Karte»: ein ruhiger Bereich «Gruppenfahrt» auf der Live-Karte (vor dem Start und im Blatt), eine schlanke neue Seite für Freunde im Browser; Freunde als eigene Punkte auf der Karte.
 - 25.10.2026, 0.198.0 «Kette vorausschauend»: neue Karte «Kette: was als Nächstes kommt» oben auf Verschleiss, gebaut aus den vorhandenen Bausteinen der Seite (wcard, btn sm, lnk, fold wie die Teile-Zeilen); Mitziehen: die Verschleiss-Karte der Velopflege zeigt dieselbe nächste Kettenaufgabe als eine Zeile. Ohne Mockup (Regel 18.10.2026). Offen: nichts.
@@ -312,3 +320,27 @@ Nach der Mitziehen-Regel: was in 0.47 noch nicht auf dem neuen Stand ist, mit Zi
 
 - 26.10.2026, 0.202.0 «Planen im Zusammenhang»: nur kleine Zusätze in vorhandenen Fenstern: eine kleine Auswahl neben der Verbindung (wie die Felder im Notizfenster), ein grauer Kasten «Oder nach einem Ereignis» unter «Erinnern» im Stil von NoteRemind (vd-chips), eine Zeile «Kommt zurück mit …» pro Papierkorb-Zeile. Keine neue Seite, kein Mockup nötig (Regel 26.10. «nur bei grösseren Sachen»). Grosse Teile nach Noahs OK (26.10. «1a–5a»): drei neue Seiten im Baukasten (Crumbs, PageHead, ruhig-Karten wie «Ruhig und persönlich»), Zugänge als je eine Linkzeile auf Merken, Eingang und Notizen › Mehr.
 - 26.10.2026, 0.201.0 «Sprechen, anhängen, mit Vorlage starten»: eine ruhige Werkzeugzeile «Hinzufügen» unter dem Text (kleine Knöpfe, nur die Werkzeuge der Seite, immer nur ein Teil offen); Angehängtes als Zeilen und Chips (InputsView); Vorlagen-Blatt mit Pfeilen und Ziehen; Bildkarte als Blatt von unten.
+
+### 27.10.2026 · 0.232.0 «Was ziehe ich an?» anpassbar
+
+Mockups K1–K5 (Offene Mockups 3 #kleider, 390 und 1440 hell), umgesetzt Teil K1/K2 im Fenster auf Heute: Tauschen als Auswahl in der Zeile (44 px Knöpfe, «passt», «eher zu warm», «zu leicht» als Schild), Lücke als ruhiger gelber Kasten, «Warum so?» eingeklappt. Rückgängig im Fenster, weil der Toast hinter dem Fenster nicht antippbar wäre. Kein seitliches Scrollen bei 320 und 390 (Browser-Test).
+## 26.10.2026 Live Navigation PR 1
+
+Neues Fenster «Fahrt beenden?» im Stil des Löschen-Fensters (unten auf dem Handy, klein am Computer, sichere Wahl «Weiterfahren» mit Fokus). Label «Live Navigation» als kleine Pille neben dem Tournamen. Screenshots im PR.
+
+## 27.10.2026 Live Navigation PR 2 (Orte)
+
+Filter als aufklappbarer Kasten unter der Ortsliste (Knopf «Filter» mit Zahl der aktiven Filter), Segmente wie in den Einstellungen, Schnellwahl als beschriftete Chip-Reihe. Leere Liste mit Erklärung und «Filter zurücksetzen». Screenshots auf der PR-Seite.
+
+## 27.10.2026 Live Navigation PR 5 (Umweg und zurück)
+
+Mockups R1–R4 von Noah freigegeben. Die Rückweg-Frage und das automatische Neu-Planen sitzen in der bestehenden Umweg-Karte oben auf der Karte (gleiche Knöpfe, gewählte Antwort mit Akzentfarbe wie die Segmente). Erklärsatz unter jeder Frage. Screenshots auf der PR-Seite.
+
+## 27.10.2026 Live Navigation PR 4 (In der Nähe)
+
+Mockups N1–N3 und R4 von Noah freigegeben (27.10. «freigabe für alle mockups»). Neues Fenster rechts (Computer, 440 px) oder von unten (Handy), Situationsknöpfe als Raster mit Emoji, Schriftgrössen über Tokens. Die Schnellwahl Wasser/Essen/Schlafen fällt weg, die Situationen ersetzen sie.
+
+## 27.10.2026 Live Navigation PR 3 (Strecke genau)
+
+Keine sichtbare Oberfläche neu; die Linie auf der Karte folgt den Kurven. Kein Design-Eingriff.
+- 26.10.2026, «Neuer Schwung» PR 1: Kopf von Heute am Computer ohne Knopf; «Startseite anpassen» als leiser Link unten, Tippfläche 44 px wie «Alle Bereiche».

@@ -10,6 +10,7 @@
  */
 import { FEATURES, FEATURE_GROUPS, PAGE_GROUPS, pageOf } from '../features.js';
 import { WHATS_NEW, compareVersions } from '../whatsnew.js';
+import { NEWS } from '../news/index.gen.js';
 
 /** localStorage: { featureId: times opened } on this device. */
 export const USES_KEY = 'wasneu.uses';
@@ -36,6 +37,10 @@ export const TOP_HREF = '#/me/news?all&sort=top';
  * missing here counts as 0.1.0 (from the start).
  */
 export const SINCE = {
+  // Noah 26.10.2026 «1 3 6 7 8 12a» (Velo-Ergänzungen): v0.220.0
+  'f.chainmeasure': '0.220.0', 'f.bikeyear': '0.220.0', 'f.bikeseason': '0.220.0', 'f.noises': '0.220.0', 'f.carestreak': '0.220.0', 'f.wearcal': '0.220.0',
+  // Paket «Touren b» (996 Ideen 50–58, Noah 26.10.2026): live since 0.212.0
+  'f.ruleuntil': '0.212.0', 'f.itemstories': '0.212.0', 'f.intent': '0.212.0', 'f.checklater': '0.212.0', 'f.placenote': '0.212.0', 'f.daylisten': '0.212.0', 'f.usedbook': '0.212.0',
   // Einzelideen Material und Überall (996 Ideen, Noah 25.10.2026): provisional, the bundler sets the number
   'f.ownviews': '0.205.0',
   // Paket K «Unterwegs»: v0.154.0
@@ -163,6 +168,8 @@ export const SINCE = {
   'f.inputbar': '0.201.0', 'f.inputtemplates': '0.201.0', 'f.picturecard': '0.201.0',
   'f.tripcompare': '0.211.0', 'f.daysports': '0.211.0', 'f.unclear': '0.211.0', 'f.border': '0.211.0', // Touren a, part 2 (bundler renumbers)
 };
+// Since 27.10.2026 a news file names the functions it brings (since: ['f.x']); they get its version.
+for (const e of NEWS) for (const id of e.since ?? []) SINCE[id] = e.version;
 export const sinceOf = (id) => SINCE[id] ?? '0.1.0';
 
 /** I11d «Wichtigste 10»: a fixed choice, what brings the most when packing, riding and caring. */

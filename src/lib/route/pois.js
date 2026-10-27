@@ -14,7 +14,26 @@ import { distKm } from '../route.js';
 
 import { queued } from './oneatatime.js';
 
-export const OVERPASS_URLS = ['https://overpass-api.de/api/interpreter', 'https://overpass.kumi.systems/api/interpreter'];
+// Live Navigation PR 2 (Noah 26.10.2026 «OSM ausgelastet, Backup-Server»): three free servers in turn, and the
+// Swiss one first when the search lies in Switzerland (it only knows Swiss data, so only there)
+export const OVERPASS_URLS = ['https://overpass-api.de/api/interpreter', 'https://overpass.kumi.systems/api/interpreter', 'https://overpass.private.coffee/api/interpreter'];
+export const OVERPASS_CH = 'https://overpass.osm.ch/api/interpreter';
+/** Switzerland as a box (lat, lon), a little generous at the borders it is not used for. */
+export const CH_BOX = { s: 45.82, n: 47.81, w: 5.96, e: 10.49 };
+const inCh = (p) => !!p && Number.isFinite(p.lat) && Number.isFinite(p.lon) && p.lat >= CH_BOX.s && p.lat <= CH_BOX.n && p.lon >= CH_BOX.w && p.lon <= CH_BOX.e;
+/** The servers to ask for a search whose points are pts ([{ lat, lon }]): the Swiss one first when all lie in Switzerland. */
+export const overpassUrls = (pts = []) => (pts.length && pts.every(inCh) ? [OVERPASS_CH, ...OVERPASS_URLS] : OVERPASS_URLS);
+
+/**
+ * Why the servers did not answer → 'busy' (a server said it is full or too slow: 429, 503, 504, a timeout),
+ * 'net' (none could be reached: no internet, or blocked) or 'failed' (another error, e.g. a wrong answer).
+ */
+export function whyFailed(errors = []) {
+  const msgs = errors.map((e) => `${e?.name ?? ''} ${e?.message ?? e ?? ''}`);
+  if (msgs.some((m) => /\b(429|503|504)\b|abort|timeout/i.test(m))) return 'busy';
+  if (msgs.length && msgs.every((m) => /TypeError|Failed to fetch|NetworkError|Load failed|ENOTFOUND|ECONN/i.test(m))) return 'net';
+  return 'failed';
+}
 export const AROUND_M = 250;
 export const MAX_PTS = 150;
 export const MAX_POIS = 300;
@@ -139,12 +158,12 @@ export function lineHash(line, km = 0) {
   return (h >>> 0).toString(36);
 }
 
-/** Asks Overpass (main server, then the mirror). → the JSON answer; throws when both fail. */
+/** Asks Overpass (each server in turn). → the JSON answer; throws when all fail (err.why: whyFailed). */
 export function fetchOverpass(query, opts = {}) {
   return queued(() => askOverpass(query, opts));
 }
 async function askOverpass(query, { fetcher = (...a) => fetch(...a), urls = OVERPASS_URLS, timeout = TIMEOUT_MS } = {}) {
-  let last = null;
+  const errors = [];
   for (const url of urls) {
     const ctl = typeof AbortController === 'undefined' ? null : new AbortController();
     const timer = ctl ? setTimeout(() => ctl.abort(), timeout) : null;
@@ -160,12 +179,16 @@ async function askOverpass(query, { fetcher = (...a) => fetch(...a), urls = OVER
       if (!Array.isArray(json?.elements)) throw new Error('overpass: no elements');
       return json;
     } catch (err) {
-      last = err;
+      errors.push(err);
     } finally {
       if (timer) clearTimeout(timer);
     }
   }
-  throw last ?? new Error('overpass');
+  // every server failed: the error says why (whyFailed) and how many were asked
+  const err = new Error(`overpass: ${errors.map((e) => e?.message ?? e).join(' | ') || 'no server'}`);
+  err.why = whyFailed(errors);
+  err.tried = urls.length;
+  throw err;
 }
 
 /** The stored answer of a trip: { hash, fetchedAt, items, cut } or null. */

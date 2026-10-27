@@ -123,6 +123,7 @@ test('Group ride: while riding the maker shares and sees the group in the sheet;
   await noSideways(page, 'riding with a group');
   await page.locator('[data-live-stop]').scrollIntoViewIfNeeded();
   await tap(page.locator('[data-live-stop]'), info);
+  await tap(page.locator('[data-live-end-yes]'), info); // «Fahrt beenden?» asks once (M9)
   await expect(page.locator('[data-live-group-ended]')).toBeVisible();
   expect([...redis.kv.keys()].filter((k) => k.startsWith('grp:') && !k.startsWith('grp:rate:'))).toEqual([]);
   await expect(page.locator('[data-group-panel] [data-group-invite]')).toBeVisible();

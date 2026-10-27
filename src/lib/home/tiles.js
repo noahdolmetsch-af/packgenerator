@@ -126,7 +126,6 @@ export const READY = [
   ['weighin', 'long'],
   ['body', 'l'],
   ['acts', 'l'],
-  ['vitals', 'long'],
   ['week', 'l'],
   ['balance', 'l'],
   ['strava', 'l'],
@@ -231,7 +230,9 @@ export function wallOf(value, legacy = null) {
     // Noah 21.10.2026 «Körperwerte … ok»: a wall of N2 (v 10) gets «Körperwerte» once; taken away after that, it stays away
     const w = (value.v ?? 1) < 11 ? withVitals(wallBefore5(value)) : wallBefore5(value);
     // P6 «Heute ergänzen» (Noah 21.10.2026 «2b»): a wall of before (v < 12) gets meditation, the weekly weight and the last activity once
-    return (value.v ?? 1) < 12 ? withP6(w) : w;
+    const p6 = (value.v ?? 1) < 12 ? withP6(w) : w;
+    // «Heute ruhiger» (Noah 26.10.2026 «2a»): a wall of before (v < 13) loses its double tiles once; they stay in the catalog
+    return (value.v ?? 1) < 13 ? withoutDoubles(p6) : p6;
   }
   const off = new Set((Array.isArray(legacy?.off) ? legacy.off : []).flatMap((k) => FROM_SECTION[k] ?? []));
   return READY.filter((x) => !off.has(x.id)).map((x) => ({ ...x }));
@@ -386,8 +387,28 @@ export function withP6(tiles = []) {
   }
   return out;
 }
-/** The record to store (v 12: P6 «Heute ergänzen» came once; v 11: «Körperwerte» came once; v 10: «Heute neu» N2; v 9: «Heute neu» A; v 5: the order of 0.155.0 HN4; v 6: «Deine 15 Fragen» is back; v 7: the routine came once; v 8: «Your values today» (P) and the tip of the week (Q) came once). */
-export const wallRecord = (tiles) => ({ v: 12, tiles: tiles.map((x) => ({ id: x.id, size: sizeFor(x.id, x.size) })) });
+/**
+ * «Heute ruhiger» (Noah 26.10.2026 «2a», mockup H2): tiles that show again what another tile on the wall already
+ * shows. A wall of before (v < 13) loses them once, but only while the tile that covers them is on the wall; they stay
+ * in the catalog («Add a tile»), and added again later they stay. { double: [tiles that cover it] }
+ */
+export const DOUBLES = {
+  vitals: ['body'], // Körperwerte: the same values as «Dein Körper heute» (all six behind «Details»)
+  values: ['body'], // «Deine Werte heute»
+  du: ['body', 'balance'], // «Du heute»: ring, sleep, pulse
+  aktiv: ['acts'], // «Aktiv · nur Beobachtung»
+  flow: ['acts'], // «Aktiv · letzte 7 Tage» (Im Flow)
+  morningcheck: ['body'], // the round: the check sits in «Dein Körper heute»
+  series: ['year'], // «Serie und Meilensteine»: the series stands in the 12 months row
+  nextms: ['balance'], // «Nächster Meilenstein»: the balance shows it
+  milestones: ['balance'], // «Meilensteine»
+};
+export function withoutDoubles(tiles = []) {
+  const has = new Set(tiles.map((x) => x.id));
+  return tiles.filter((x) => !(DOUBLES[x.id] ?? []).some((id) => has.has(id)));
+}
+/** The record to store (v 13: «Heute ruhiger», the double tiles went once; v 12: P6 «Heute ergänzen» came once; v 11: «Körperwerte» came once; v 10: «Heute neu» N2; v 9: «Heute neu» A; v 5: the order of 0.155.0 HN4; v 6: «Deine 15 Fragen» is back; v 7: the routine came once; v 8: «Your values today» (P) and the tip of the week (Q) came once). */
+export const wallRecord = (tiles) => ({ v: 13, tiles: tiles.map((x) => ({ id: x.id, size: sizeFor(x.id, x.size) })) });
 
 /** Move tile `id` to place `to` (0 … n − 1). */
 export function moveTile(tiles, id, to) {

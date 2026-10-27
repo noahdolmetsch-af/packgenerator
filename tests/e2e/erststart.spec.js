@@ -20,6 +20,9 @@ async function open(page, context, hash = '#/', ask = true) {
   return errors;
 }
 const win = (page) => page.getByTestId('first-start');
+// Closing the window goes one step back in the history (src/lib/ui/backclose.js). A reload while that step is
+// still running is aborted (net::ERR_ABORTED, seen in the Playwright image on GitHub), so wait for it first.
+const backDone = (page) => page.waitForFunction(() => !history.state?.pgDialog);
 
 test('with examples: a made-up trip shows, «Beispiele entfernen» takes it away again', async ({ page, context }) => {
   const errors = await open(page, context);
@@ -68,11 +71,13 @@ test('start empty: no examples, the window never comes back; «Später» asks ag
   await expect(win(page)).toBeVisible();
   await win(page).locator('[data-choice="later"]').click();
   await expect(win(page)).toBeHidden();
+  await backDone(page);
   await page.reload();
   await expect(win(page)).toBeVisible();
   await win(page).locator('[data-choice="empty"]').click();
   await win(page).locator('[data-choice="notour"]').click();
   await expect(win(page)).toBeHidden();
+  await backDone(page);
   await page.reload();
   await expect(page.locator('html[data-ready="1"]')).toBeAttached();
   await expect(win(page)).toHaveCount(0);
