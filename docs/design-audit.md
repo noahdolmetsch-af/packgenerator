@@ -306,7 +306,7 @@ Nach der Mitziehen-Regel: was in 0.47 noch nicht auf dem neuen Stand ist, mit Zi
 - 26.10.2026, 0.212.1 «Die heutige Tour sagt eins» (UI-Test 0.205 T1, Kriterium «ein Zustand überall»): Tour-Seite, Gepäck, Rückblick und Heute zeigen vor der Fahrt denselben Zustand «Geplant · Packen». Vorher/Nachher-Bilder mit erfundenen Daten im PR. Offen: T2–T13.
 - 26.10.2026, 0.220.0 «Velo-Ergänzungen»: alle neuen Teile oben auf «Verschleiss» als Sprung-Chips; Jahresrückblick und Saison-Checklisten als eigene Unterseiten statt neuer Blöcke auf der Pflege-Seite.
 - 27.10.2026, 0.226.0 «Der Abend-Check kommt trotzdem»: Hinweis im Check-Fenster sagt am Morgen «bis zum Abend-Check».
-- 27.10.2026, 0.226.1 «Wo du es gesagt hast»: kleine Karte im «Tag zum Hören», Sprung-Chips auf den Heimatseiten.
+- 27.10.2026, 0.231.0 «Wo du es gesagt hast»: kleine Karte im «Tag zum Hören», Sprung-Chips auf den Heimatseiten.
 - 26.10.2026, 0.212.2 «Eine Startzeit» (UI-Test 0.205 T2, Kriterien «ein Hauptknopf» und «Abhaken sieht aus wie Abhaken»): Unterwegs zeigt vor dem Start nur «Losfahren», der Basischeck ist eine Liste mit Kästchen. Offen: T3–T13 und die Schrittleiste.
 - 25.10.2026, 0.200.0 «Zusammen auf einer Karte»: ein ruhiger Bereich «Gruppenfahrt» auf der Live-Karte (vor dem Start und im Blatt), eine schlanke neue Seite für Freunde im Browser; Freunde als eigene Punkte auf der Karte.
 - 25.10.2026, 0.198.0 «Kette vorausschauend»: neue Karte «Kette: was als Nächstes kommt» oben auf Verschleiss, gebaut aus den vorhandenen Bausteinen der Seite (wcard, btn sm, lnk, fold wie die Teile-Zeilen); Mitziehen: die Verschleiss-Karte der Velopflege zeigt dieselbe nächste Kettenaufgabe als eine Zeile. Ohne Mockup (Regel 18.10.2026). Offen: nichts.

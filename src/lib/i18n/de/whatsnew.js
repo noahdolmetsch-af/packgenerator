@@ -4,7 +4,7 @@
  * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
-  // v0.226.1 Touren b Katalog
+  // v0.231.0 Touren b Katalog
   'Where you said it': 'Wo du es gesagt hast',
   'Your day to listen to now shows a small map.': 'Dein Tag zum Hören zeigt jetzt eine kleine Karte.',
   '«Your day to listen to» shows on a map where you recorded each note': '«Dein Tag zum Hören» zeigt auf einer Karte, wo du jede Notiz aufgenommen hast',

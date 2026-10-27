@@ -16,8 +16,8 @@
 
 export const WHATS_NEW = [
   {
-    // v0.226.1 «Touren b» catalogue (996 Einzelideen 50–58): all in «What the app can do», the handbook and the home pages; idea 56 map
-    version: '0.226.1',
+    // v0.231.0 «Touren b» catalogue (996 Einzelideen 50–58): all in «What the app can do», the handbook and the home pages; idea 56 map
+    version: '0.231.0',
     date: '2026-10-27',
     title: 'Where you said it',
     lead: 'Your day to listen to now shows a small map.',
