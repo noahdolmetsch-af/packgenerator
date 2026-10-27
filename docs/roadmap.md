@@ -922,7 +922,6 @@ Die frühere gespeicherte Datei `2026-10-07-packgenerator-ablaufplan.md` wird al
 
 **26.10.2026, v0.212.0 «Touren, die mitdenken»:** Touren-Ideen 50–58 gebaut (Absicht, Regel mit Ende, Geschichten, Panne-Check, Später prüfen, Ort-Notiz, Tag zum Hören, Ess-Stopps, Verbrauch).
 
-**27.10.2026, «Neuer Schwung» Teil 2:** Bewegung auf Heute. Danach: Lottie für grosse Momente (2b), Aufklappen am Handy, Stil S2.
 **26.10.2026, «Neuer Schwung» PR 1:** «Startseite anpassen» ganz unten auf Heute. Danach: Aufklappen am Handy, Bewegungs-Baukasten, Stil S2 Seite für Seite.
 **27.10.2026, v0.217.0 «Nichts versteckt sich mehr»:** die 20 tief versteckten Funktionen stehen auf ihrer Seite; 77 → 57 versteckt.
 
