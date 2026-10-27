@@ -52,6 +52,8 @@ Durchgehende Grundsätze: Alles ist ein Vorschlag, nie Pflicht, und immer änder
 
 ## Stand heute (19.10.2026, live 0.152.0)
 
+**Nachtrag 27.10.2026:** «Was ziehe ich an? selbst anpassen» dient «Alltag» und «Schneller packen» (dieselben Kleider-Sets für Heute und Packliste). Schritt 1 = 0.218.0, Schritte 2 und 3 folgen als kleine PRs.
+
 **Nachtrag 26.10.2026:** 0.201.0 «Sprechen, anhängen, mit Vorlage starten» (Ziel «Alltag» und «Aus Touren lernen»): auf zehn Seiten sprechen, anhängen, Ort und Schlagwort setzen, mit Vorlage oder Anreiz starten; Bildkarte im Tagebuch; Tagebuch in der Suche.
 
 **Nachtrag 25.10.2026:** 0.198.0 «Kette vorausschauend» (Ziel 2 «Das Velo im Griff»): die Kette sagt selbst, was als Nächstes dran ist (messen, ölen, ersetzen, vor der Tour), mit Prognose aus den eigenen Messungen und Handy-Erinnerung.

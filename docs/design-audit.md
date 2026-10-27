@@ -312,3 +312,7 @@ Nach der Mitziehen-Regel: was in 0.47 noch nicht auf dem neuen Stand ist, mit Zi
 
 - 26.10.2026, 0.202.0 «Planen im Zusammenhang»: nur kleine Zusätze in vorhandenen Fenstern: eine kleine Auswahl neben der Verbindung (wie die Felder im Notizfenster), ein grauer Kasten «Oder nach einem Ereignis» unter «Erinnern» im Stil von NoteRemind (vd-chips), eine Zeile «Kommt zurück mit …» pro Papierkorb-Zeile. Keine neue Seite, kein Mockup nötig (Regel 26.10. «nur bei grösseren Sachen»). Grosse Teile nach Noahs OK (26.10. «1a–5a»): drei neue Seiten im Baukasten (Crumbs, PageHead, ruhig-Karten wie «Ruhig und persönlich»), Zugänge als je eine Linkzeile auf Merken, Eingang und Notizen › Mehr.
 - 26.10.2026, 0.201.0 «Sprechen, anhängen, mit Vorlage starten»: eine ruhige Werkzeugzeile «Hinzufügen» unter dem Text (kleine Knöpfe, nur die Werkzeuge der Seite, immer nur ein Teil offen); Angehängtes als Zeilen und Chips (InputsView); Vorlagen-Blatt mit Pfeilen und Ziehen; Bildkarte als Blatt von unten.
+
+### 27.10.2026 · 0.218.0 «Was ziehe ich an?» anpassbar
+
+Mockups K1–K5 (Offene Mockups 3 #kleider, 390 und 1440 hell), umgesetzt Teil K1/K2 im Fenster auf Heute: Tauschen als Auswahl in der Zeile (44 px Knöpfe, «passt», «eher zu warm», «zu leicht» als Schild), Lücke als ruhiger gelber Kasten, «Warum so?» eingeklappt. Rückgängig im Fenster, weil der Toast hinter dem Fenster nicht antippbar wäre. Kein seitliches Scrollen bei 320 und 390 (Browser-Test).

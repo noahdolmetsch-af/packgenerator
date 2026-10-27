@@ -16,6 +16,21 @@
 
 export const WHATS_NEW = [
   {
+    // v0.218.0 «Was ziehe ich an? selbst anpassen» Schritt 1 (Noah 27.10.2026 «1a 2a oder b wählbar 3a 4a … 5a»): in the
+    // window on Today every row can be swapped or left out and a layer added, for this ride day only; a gap says why
+    // (too light, still in «To sort», nothing yet) with «Take anyway» and the wishlist; «Why so?» explains the rule
+    version: '0.218.0',
+    date: '2026-10-27',
+    title: 'Your clothes, your call',
+    lead: '«What do I wear?» now lets you change the suggestion.',
+    points: [{ text: 'Swap any piece, leave one out or add a layer, for today only' }],
+    small: [
+      { box: 'new', text: 'A gap says why: too light, still to sort, or nothing yet' },
+      { box: 'new', text: '«Why so?» explains how the app chooses' },
+    ],
+    test: ['On Today tap «What do I wear?» and then «Swap» on a row: pick another piece; the row says «chosen by you · today only».', 'Open «Why so?» under the list: it names the temperature and from when each layer comes.'],
+  },
+  {
     // v0.212.2 UI-Test 26.10.2026 T2 «Unterwegs: eine Startzeit, vor dem Start nur Losfahren» (G2-07, G2-15): one start
     // time of today on Unterwegs and «Vor der Abfahrt» (an open recording gives it), «Fahrt von … weiterführen» as the
     // main button, «Tour beenden …» in «…» before setting off, the base check as a list with boxes

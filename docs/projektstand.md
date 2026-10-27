@@ -6,6 +6,8 @@ Stand: **26. Oktober 2026, 17:50 UTC**. Live ist **Version 0.208.0** (Sammel-PR 
 
 ## Stand 26.10.2026 auf einen Blick
 
+**Nachtrag 27.10.2026, 0.218.0 «Deine Kleider, deine Wahl» (PR offen):** Schritt 1 von 3 aus «Was ziehe ich an? selbst anpassen» (Noah «1a 2a oder b wählbar 3a 4a kann aber trotzdem übergangen werden 5a»). Im Fenster auf Heute: Tauschen pro Zeile, «Nichts», «+ Schicht dazu», Lücke mit Grund und «Trotzdem», «Warum so?»; alles nur für den Tag der Fahrt. Danach: 2) Kleider-Sets mit 9 Mustern für Heute und Packliste, Merken wählbar · 3) Grenzen pro Schicht.
+
 ### Was seit dem 22.10.2026 online gegangen ist
 
 | Version | PR | Inhalt | Online |

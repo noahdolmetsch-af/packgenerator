@@ -1344,7 +1344,7 @@
 <dialog data-backdrop="own" class="sheet wear" bind:this={wearDlg} onclose={() => (wearOpen = false)} onclick={(e) => e.target === wearDlg && (wearOpen = false)} aria-label={t('What do I wear?')}>
   <div class="wh"><button type="button" class="btn sm" onclick={() => (wearOpen = false)}>{t('Close')}</button></div>
   {#if wearOpen}
-    <WearToday {items} {trips} />
+    <WearToday {items} {trips} edit />
     <p class="muted wnote">{t('Your clothes for the coldest hour of a ride at your home place, from the wardrobe.')} <a href="#/wardrobe" onclick={() => (wearOpen = false)}>{t('Open the wardrobe')}</a></p>
   {/if}
 </dialog>
