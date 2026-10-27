@@ -110,16 +110,8 @@ export function targetsOf({ pois = [], own = [], here = null, kinds = TARGET_KIN
   return [...out, ...mine];
 }
 
-/**
- * Ask the router. here: where you are; target: { lat, lon, name, kind }; pts/fromKm: the route and your km
- * (optional). → the detour { line, km, gainM, min, target, rejoin, fromKm, extraKm, profile, at }.
- * Throws 'busy' (too many requests), 'noroute' (no way found) or 'failed'.
- */
-export async function planDetour({ here, target, pts = [], fromKm = null, profile = PROFILE_STD, fetcher = fetch, now = Date.now() }) {
-  if (!here || !target) throw new Error('failed');
-  const hasRoute = pts.length > 1 && fin(fromKm);
-  const rejoin = hasRoute ? rejoinOf(pts, target, fromKm) : null;
-  const way = [P(here), P(target), ...(rejoin ? [rejoin] : [])];
+/** One request to the router for the way [{ lat, lon }] → parseBrouter's answer. Throws 'busy', 'noroute' or 'failed'. */
+export async function askRouter(way, profile = PROFILE_STD, fetcher = fetch) {
   let res;
   try {
     res = await fetcher(brouterUrl(way, profile));
@@ -136,6 +128,20 @@ export async function planDetour({ here, target, pts = [], fromKm = null, profil
   }
   const r = parseBrouter(json);
   if (!r) throw new Error('noroute');
+  return r;
+}
+
+/**
+ * Ask the router. here: where you are; target: { lat, lon, name, kind }; pts/fromKm: the route and your km
+ * (optional). → the detour { line, km, gainM, min, target, rejoin, fromKm, extraKm, profile, at }.
+ * Throws 'busy' (too many requests), 'noroute' (no way found) or 'failed'.
+ */
+export async function planDetour({ here, target, pts = [], fromKm = null, profile = PROFILE_STD, fetcher = fetch, now = Date.now() }) {
+  if (!here || !target) throw new Error('failed');
+  const hasRoute = pts.length > 1 && fin(fromKm);
+  const rejoin = hasRoute ? rejoinOf(pts, target, fromKm) : null;
+  const way = [P(here), P(target), ...(rejoin ? [rejoin] : [])];
+  const r = await askRouter(way, profile, fetcher);
   const along = rejoin ? Math.max(0, rejoin.km - fromKm) : 0;
   return {
     ...r,
@@ -194,4 +200,54 @@ export function loadDetour(store = globalThis.localStorage, now = Date.now()) {
   } catch {
     return null;
   }
+}
+
+/* ---------- Umweg und zurück (Noah 27.10.2026 «1a 2b 3a») ---------- */
+
+/**
+ * After a stop the app asks how you go back (1a): 'exit' back to the spot where you left the route (a race
+ * counts only the whole route), or 'fast' the shortest way onto the route ahead. In race mode 'exit' is
+ * chosen first, else 'fast'.
+ */
+export const RETURN_MODES = ['exit', 'fast'];
+export const returnModeStd = (race = false) => (race ? 'exit' : 'fast');
+
+/**
+ * The point you ride back to: 'exit' the route at exitKm; 'fast' the nearest point of the route ahead of
+ * exitKm (never behind it). → { km, lat, lon } or null without a route.
+ */
+export function returnPoint(mode, pts = [], { exitKm = 0, here = null } = {}) {
+  if (pts.length < 2 || !fin(exitKm)) return null;
+  let km = Number(exitKm);
+  if (mode === 'fast' && here) km = Math.max(km, snapAhead(pts, here, km)?.km ?? km);
+  km = Math.min(km, pts.at(-1).km);
+  const p = pointAt(pts, km);
+  return { km: Math.round(km * 10) / 10, lat: p.lat, lon: p.lon };
+}
+
+/**
+ * The way back onto the route from here. → { line, km, gainM, min, mode, rejoin, skippedKm } where
+ * skippedKm is the part of the route you leave out (0 for 'exit'). Throws like askRouter, 'failed'
+ * without a route or position.
+ */
+export async function planReturn({ here, mode = 'fast', pts = [], exitKm = null, profile = PROFILE_STD, fetcher = fetch }) {
+  const rejoin = here ? returnPoint(mode, pts, { exitKm, here }) : null;
+  if (!rejoin) throw new Error('failed');
+  const r = await askRouter([P(here), rejoin], profile, fetcher);
+  return { ...r, mode: RETURN_MODES.includes(mode) ? mode : 'fast', rejoin, skippedKm: Math.max(0, Math.round((rejoin.km - Number(exitKm)) * 10) / 10) };
+}
+
+/**
+ * Off the route the app plans the way back by itself at once (2b), but asks the router at most once a
+ * minute (fair use of the free router). Off: more than OFF_ROUTE_M from the route (and from a detour) for
+ * OFF_ROUTE_S seconds.
+ */
+export const OFF_ROUTE_M = 80;
+export const OFF_ROUTE_S = 15;
+export const REROUTE_GAP_S = 60;
+/** offM: metres from the route now; offSince: when you went off (ms) or null; lastAt: the last automatic plan (ms). */
+export function shouldReroute({ offM = 0, offSince = null, lastAt = null, now = Date.now(), onDetour: onD = false } = {}) {
+  if (onD || !(offM > OFF_ROUTE_M) || offSince == null || !fin(offSince)) return false;
+  if (now - offSince < OFF_ROUTE_S * 1000) return false;
+  return lastAt == null || !fin(lastAt) || now - lastAt >= REROUTE_GAP_S * 1000;
 }
