@@ -25,6 +25,4 @@ export default {
   'Stops as waypoints: with a route, the shops and the water go into one GPX for the Garmin or the Wahoo.': 'Stopps als Wegpunkte: Mit einer Route kommen die Läden und das Wasser in eine GPX-Datei für Garmin oder Wahoo.',
   'Rate the trip in the evening: 1 tough … 10 wonderful, goes into its debrief': 'Tour am Abend bewerten: 1 zäh … 10 wunderbar, kommt in ihren Rückblick',
   'Every ride with all its values: tap one for its laps, splits per km and segment times.': 'Jede Fahrt mit allen Werten: Tippe eine an für Runden, Zeiten pro km und Segmentzeiten.',
-  // Catalogue name as on the page (332 Use Cases, 1a)
-  'All tips': 'Alle Tipps',
 };
