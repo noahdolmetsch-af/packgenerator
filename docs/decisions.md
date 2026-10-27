@@ -1968,3 +1968,7 @@ Noah 19.10.2026: «1a 2a 3a 4 a oder b beides wählbar 5a», danach «a und b»,
 ## 27.10.2026 Weg von gebaut zu online
 
 - Noah «1a 2a 3a 4a 5a»: Schnellspur nach dem Merge (main geht nach Bauen und Kurztests online, volle Browsertests und Gesamttest danach in `volle-pruefung.yml` und nachts, rot = GitHub-Meldung); pro PR nur Handy-Browsertests plus Wächter am Computer; den Stau vom 27.10. abends durch Abbrechen wartender PR-Läufe lösen; Vercel-Vorschauen («packgenerator») von GitHub trennen; nach jedem Online-Gehen ein automatischer Eintrag auf GitHub. Grund: ein Prüflauf brauchte 18 der 20 Gratis-Prüf-Computer, gemergte PRs warteten bis 2 Stunden. Analyse: https://claude.ai/artifact/42o5ciwHWYuFXTWx6cZrGb
+
+## 27.10.2026 Diagramme zeigen genaue Werte
+
+- Noah: «die Diagramme sollen für den Nutzer exakte Daten repräsentieren und nicht nur Schätzungen anhand ungenauer Skalen am Rand … und überall sonst auf der Webseite». Regel für jedes Diagramm: (1) eine Achse mit runden, beschrifteten Stufen und Einheit plus feinen Gitterlinien, nicht nur min/max am Rand; (2) beim Antippen oder Darüberfahren der genaue Wert mit Datum; (3) bei bis zu 12 Punkten steht die Zahl direkt am Punkt oder an der Säule. Gemeinsamer Baustein: `src/lib/charts/` (axis.js, GridLines.svelte, YTicks.svelte), keine eigene Achse pro Seite.
