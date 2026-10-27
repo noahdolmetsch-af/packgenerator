@@ -1,6 +1,6 @@
 # Eine Serie
 
-PR #? · 27.10.2026 · Auftrag: Noah 26.10.2026 20:31 «1a» alle B-Fehler aus dem UI-Test 0.205 (Thread «Testen komplette App mit Fehlerliste»)
+PR #352 · 27.10.2026 · Auftrag: Noah 26.10.2026 20:31 «1a» alle B-Fehler aus dem UI-Test 0.205 (Thread «Testen komplette App mit Fehlerliste»)
 
 ## Was ist neu
 - Die Serie über alles wird an einer Stelle gelesen (`readSeries` in src/lib/home/series-data.js): Jahreszeile, Kachel «Serie und Meilensteine», Seite Meilensteine und der Meilenstein-Check auf Heute zählen gleich, mit denselben Fahrten wie «Diese Woche» (Fahrtenbuch, gezählte Strava-Fahrten, Strava-Velofahrten).
