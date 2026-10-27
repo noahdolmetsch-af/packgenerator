@@ -76,10 +76,11 @@ export function light(el, id = '') {
   }
 }
 
-/** Go to the spot of a function: tap the steps in turn, then light up the last one. False when a step is missing. */
-export async function showSpot(id) {
-  const steps = SPOT[id];
-  if (!steps) return false;
+/** Go to the spot of a function (any key of SPOT, also one that is not in the catalogue). False when a step is missing. */
+export const showSpot = (id) => (SPOT[id] ? showSteps(SPOT[id], id) : Promise.resolve(false));
+
+/** Tap the steps in turn, then light up the last one. id marks it (data-spot-on). False when a step is missing. */
+export async function showSteps(steps, id = '') {
   // the new page first: the page the tap came from may show the same words
   await new Promise((ok) => setTimeout(ok, 300));
   for (let i = 0; i < steps.length; i++) {
