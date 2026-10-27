@@ -251,3 +251,26 @@ export function shouldReroute({ offM = 0, offSince = null, lastAt = null, now = 
   if (now - offSince < OFF_ROUTE_S * 1000) return false;
   return lastAt == null || !fin(lastAt) || now - lastAt >= REROUTE_GAP_S * 1000;
 }
+
+/**
+ * «Gleichen Weg zurück» (Noah 27.10.2026): off the route, ride your own track back to where you left it.
+ * track: your recorded points [{ lat, lon }] (oldest first); pts: the route [{ lat, lon, km }].
+ * The way back is your track since the last point within OFF_ROUTE_M of the route, reversed (no
+ * router, works offline). → { line: [[lat, lon]], km, rejoin: { km, lat, lon } } or null when you never
+ * were on the route or are on it now.
+ */
+export function backtrackOf(track = [], pts = []) {
+  const T = (track ?? []).filter((p) => fin(p?.lat) && fin(p?.lon));
+  if (T.length < 2 || pts.length < 2) return null;
+  const near = (p) => (snap(pts, P(p))?.offKm ?? Infinity) * 1000 <= OFF_ROUTE_M;
+  let i = T.length - 1;
+  if (near(T[i])) return null;
+  while (i >= 0 && !near(T[i])) i--;
+  if (i < 0) return null;
+  const back = T.slice(i).reverse();
+  let km = 0;
+  for (let j = 1; j < back.length; j++) km += distKm(P(back[j - 1]), P(back[j]));
+  const s = snap(pts, P(T[i]));
+  const p = pointAt(pts, s.km);
+  return { line: back.map((q) => [Number(q.lat), Number(q.lon)]), km: Math.round(km * 10) / 10, rejoin: { km: Math.round(s.km * 10) / 10, lat: p.lat, lon: p.lon } };
+}

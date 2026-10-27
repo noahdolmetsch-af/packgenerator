@@ -196,3 +196,20 @@ describe('off the route: plan again by itself', () => {
     expect(shouldReroute({ offM: 200, offSince: null, now })).toBe(false);
   });
 });
+
+import { backtrackOf } from '../src/lib/reroute.js';
+describe('the same way back', () => {
+  it('reverses your own track since you left the route', () => {
+    // on the route at lon 8.10 and 8.11, then north off it
+    const track = [{ lat: 47, lon: 8.1 }, { lat: 47, lon: 8.11 }, { lat: 47.003, lon: 8.112 }, { lat: 47.006, lon: 8.114 }];
+    const b = backtrackOf(track, pts);
+    expect(b.line[0]).toEqual([47.006, 8.114]);
+    expect(b.line.at(-1)).toEqual([47, 8.11]);
+    expect(b.km).toBeGreaterThan(0.5);
+    expect(b.rejoin.km).toBe(8.3); // lon 8.11 = point 11 = 11 × 0.7585 km
+  });
+  it('says null on the route or without ever being on it', () => {
+    expect(backtrackOf([{ lat: 47, lon: 8.1 }, { lat: 47, lon: 8.11 }], pts)).toBeNull();
+    expect(backtrackOf([{ lat: 47.05, lon: 8.1 }, { lat: 47.06, lon: 8.11 }], pts)).toBeNull();
+  });
+});
