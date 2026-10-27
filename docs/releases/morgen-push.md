@@ -1,6 +1,6 @@
 # Eine Nachricht am Morgen
 
-PR #? · 27.10.2026 · Auftrag: Noah «ich möchte alle umsetzen 1a 2a 3a 4a 5a» (Thread «Brainstormen intelligentere vernetzte App», Idee A1)
+PR #317 · 27.10.2026 · Auftrag: Noah «ich möchte alle umsetzen 1a 2a 3a 4a 5a» (Thread «Brainstormen intelligentere vernetzte App», Idee A1)
 
 ## Was ist neu
 - Die Erinnerungen, die die App auf 08:00 legt (Verschleiss, Kette, Vorräte, Ausgeliehenes, Einkauf vor der Tour, Rennanmeldung, Geburtstage um 08:00), kommen zusammen um 07:00 als **eine** Nachricht «Dein Morgen».
