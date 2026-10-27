@@ -5,6 +5,12 @@
  */
 export default {
   // 0.212.1 Die heutige Tour sagt eins
+  // 0.212.3 Schrittleiste
+  'Short steps': 'Kurze Schritte',
+  'The step bar of a tour says Plan · Pack · Live · Review · Analyse.': 'Die Schrittleiste einer Tour heisst jetzt Plan · Pack · Live · Review · Analyse.',
+  'Step bar with short names, on the phone and the computer': 'Schrittleiste mit kurzen Namen, auf dem Handy und am Computer',
+  'Open a tour: the bar above says Plan · Pack · Live · Review · Analyse.': 'Öffne eine Tour: Die Leiste oben zeigt Plan · Pack · Live · Review · Analyse.',
+  'The buttons keep their words, for example «Continue to Pack».': 'Die Knöpfe behalten ihre Wörter, zum Beispiel «Weiter zu Packen».',
   // 0.212.2 UI-Test T2
   'One start time': 'Eine Startzeit',
   'On the way and «Before you leave» show the same start.': 'Unterwegs und «Vor der Abfahrt» zeigen dieselbe Startzeit.',

@@ -16,6 +16,17 @@
 
 export const WHATS_NEW = [
   {
+    // v0.212.3 «Schrittleiste» (Noah 26.10.2026 «1b nur die schrittleiste (mobile und computer)»): the step bar of
+    // a trip shows the short names Plan · Pack · Live · Review · Analyse; buttons and texts keep their words
+    version: '0.212.3',
+    date: '2026-10-27',
+    title: 'Short steps',
+    lead: 'The step bar of a tour says Plan · Pack · Live · Review · Analyse.',
+    points: [{ text: 'Step bar with short names, on the phone and the computer', href: '#/trips' }],
+    small: [],
+    test: ['Open a tour: the bar above says Plan · Pack · Live · Review · Analyse.', 'The buttons keep their words, for example «Continue to Pack».'],
+  },
+  {
     // v0.212.2 UI-Test 26.10.2026 T2 «Unterwegs: eine Startzeit, vor dem Start nur Losfahren» (G2-07, G2-15): one start
     // time of today on Unterwegs and «Vor der Abfahrt» (an open recording gives it), «Fahrt von … weiterführen» as the
     // main button, «Tour beenden …» in «…» before setting off, the base check as a list with boxes
