@@ -188,8 +188,6 @@ export const HOWTO = {
   'f.garmin': ['Open Bikes: under «Garmin pages» tap a profile.', 'Switch pages on or off, choose Edge 1040 or 850.', 'Open a page to see why each value is there.'],
   'f.yeargoals': ['Open Aktiv › Goals.', '«Year goals» show km, metres climbed and minutes.', 'Switch a goal off, or tap its number to change it.'],
   // v0.133.0
-  'f.offers': ['Open Me › Offers and start an offer.', 'Tap + on a day to open a free time.', 'Send the link; new bookings show on Today.'],
-  'f.webshop': ['Open Me › Payments › Shop and add a product.', 'Copy the shop link and send it.', 'Open «Orders» to mark paid and shipped.'],
   'f.abfragen': ['Open Me › «Wi gaht\'s?».', 'Switch questions on or off; «Edit questions and groups» changes and sorts them.', 'From 07:00 and 20:30 the card on Today asks them; «Skip» puts one question away.'],
   // v0.134.0 «Inspiration»
   'f.inspiration': ['Open Inspiration: on a computer in the sidebar, on the phone under Me.', 'Paste a link: the app recognises the kind from the address.', 'Tap «What I take from it»: packing rule, wishlist or note.'],
@@ -279,8 +277,6 @@ export const HOWTO = {
   'f.training': ['Open Aktiv › Training: every activity from Strava.', 'Tap an activity: the minutes in each heart rate zone.', '«Plan the week» sets the sessions and an optional goal.'],
   'f.weekplan': ['Open Woche: the whole week in one place.', 'On Sunday «Plan the week»: take or leave out what the app suggests.', 'Holidays once under Woche › Holidays.'],
   // v0.139.0 «Rechnungen ohne Gebühren» (HOWTO added in Paket 2; the PR came before «So geht's»)
-  'f.invoices': ['Open Me › Payments › Invoices and tap «New QR invoice».', 'Enter for whom, the amount and what for; then send it.', 'When money arrives, tap «Paid» or «Money received».'],
-  'f.bills': ['Open Me › Payments › Invoices › tab «To pay».', 'Photograph the bill or enter it by hand; check the due date.', 'Pay in your e-banking with «Payment part», then tap «Paid».'],
   'f.sports': ['Open New tour.', 'Choose the sport: a bike sport brings its own standard bike.', 'Tap another bike and «Make standard for …» to keep it for that sport.'],
   // v0.147.0 Paket B (Fitbit)
   // v0.147.0 Paket B: GM «Mail in der App»
