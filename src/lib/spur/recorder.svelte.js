@@ -14,8 +14,9 @@ import { keepFix, zurichDay } from './spur.js';
 import { distKm } from './polyline.js';
 import { hold } from '../holdreload.js';
 import { keepSample } from '../live/ble.js';
+import { setWhy, addBreak } from '../tourenc/pausewhy.js';
 
-export const rec = $state({ on: false, id: null, tripId: null, startAt: 0, pts: 0, km: 0, acc: null, lastAt: 0, error: '', lock: false, here: null, paused: false, auto: false, breaks: [], laps: [] });
+export const rec = $state({ on: false, id: null, tripId: null, startAt: 0, pts: 0, km: 0, acc: null, lastAt: 0, error: '', lock: false, here: null, paused: false, auto: false, breaks: [], laps: [], whys: {} });
 
 let watch = null;
 let lock = null;
@@ -72,6 +73,34 @@ export async function pauseRecording({ db = appDb, now = Date.now(), auto = fals
   rec.paused = true;
   rec.auto = auto;
   rec.breaks = row.breaks.map((x) => x.slice());
+  await saveRow(db);
+  return true;
+}
+
+/**
+ * Touren c 60 «Pausengrund»: the reason of a pause (rest, repair, waiting), kept as row.whys by the pause's
+ * start. fromMs: the start of that pause (default: the open or last one).
+ */
+export async function setPauseWhy(why, { db = appDb, fromMs = null } = {}) {
+  if (!rec.on || !row) return false;
+  const from = fromMs ?? row.breaks?.at(-1)?.[0];
+  if (from == null) return false;
+  row.whys = setWhy(row.whys, from, why);
+  rec.whys = { ...row.whys };
+  await saveRow(db);
+  return true;
+}
+
+/** Touren c 61 «Vergessene Pause»: a long standing time put in afterwards as a pause, with its reason. */
+export async function addPastPause(from, to, why, { db = appDb } = {}) {
+  if (!rec.on || !row) return false;
+  const next = addBreak(row.breaks, from, to);
+  if (next.length === (row.breaks ?? []).length) return false;
+  const added = next.find((b) => !(row.breaks ?? []).some((x) => x[0] === b[0]));
+  row.breaks = next;
+  if (added) row.whys = setWhy(row.whys, added[0], why);
+  rec.breaks = row.breaks.map((x) => x.slice());
+  rec.whys = { ...(row.whys ?? {}) };
   await saveRow(db);
   return true;
 }
@@ -155,7 +184,7 @@ export async function startRecording(trip, { db = appDb, cont = null, now = Date
   await db.tracks.put({ ...row, pts: row.pts.slice() });
   // a pause still open when the app closed: it goes on paused
   const paused = row.breaks?.at(-1)?.[1] === null;
-  Object.assign(rec, { on: true, id: row.id, tripId: row.tripId, startAt: row.startAt, pts: row.pts.length, km: row.km ?? 0, acc: null, lastAt: row.endAt, paused, auto: false, breaks: (row.breaks ?? []).map((x) => x.slice()), laps: (row.laps ?? []).map((x) => ({ ...x })) });
+  Object.assign(rec, { on: true, id: row.id, tripId: row.tripId, startAt: row.startAt, pts: row.pts.length, km: row.km ?? 0, acc: null, lastAt: row.endAt, paused, auto: false, breaks: (row.breaks ?? []).map((x) => x.slice()), laps: (row.laps ?? []).map((x) => ({ ...x })), whys: { ...(row.whys ?? {}) } });
   release = hold('recording');
   await getLock();
   onVis = () => document.visibilityState === 'visible' && rec.on && getLock();
@@ -216,7 +245,7 @@ export async function stopRecording(db = appDb) {
   const done = row ? { ...row, pts: row.pts.slice(), open: false, day: row.pts.length ? zurichDay(row.startAt + row.pts[0][2] * 1000) : row.day } : null;
   row = null;
   last = null;
-  Object.assign(rec, { on: false, id: null, tripId: null, startAt: 0, pts: 0, km: 0, acc: null, lastAt: 0, lock: false, here: null, paused: false, auto: false, breaks: [], laps: [] });
+  Object.assign(rec, { on: false, id: null, tripId: null, startAt: 0, pts: 0, km: 0, acc: null, lastAt: 0, lock: false, here: null, paused: false, auto: false, breaks: [], laps: [], whys: {} });
   if (!done) return null;
   if (done.pts.length < 2) {
     await db.tracks.delete(done.id);
