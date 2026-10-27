@@ -213,3 +213,47 @@ test('Was ziehe ich an: clothing sets, the fitting one first, a swap saved in th
   }
   expect(errors).toEqual([]);
 });
+
+// Step 3 «Deine Regel» (Noah «4a»): a border per row with −/+, «Du frierst», lighter or warmer first; the
+// same rule for Today and Pack; back to the standard rule with Undo.
+test('Was ziehe ich an: own borders, you get cold, warmer first, back to the standard', async ({ page, context }, info) => {
+  const errors = await setup(page, context, info);
+  await page.locator('[data-wear-open]').click();
+  const card = page.locator('dialog.wear [data-wear-card]');
+  const row = (k) => card.locator(`[data-wear-row="${k}"]`);
+  await card.locator('[data-wear-why] summary').click();
+  const rule = card.locator('[data-wear-rule]');
+  await expect(rule.locator('[data-wear-limit="feet"]')).toContainText('5 °C');
+
+  // feet below 5 °C → at 6 °C not needed; two steps up: below 7 °C, the overshoes come
+  await expect(row('feet')).toHaveCount(0);
+  await rule.locator('[data-wear-up="feet"]').click();
+  await rule.locator('[data-wear-up="feet"]').click();
+  await expect(rule.locator('[data-wear-limit="feet"]')).toContainText('7 °C');
+  await expect(row('feet')).toContainText(`${P}Ueberschuhe`);
+  await expect(card.getByRole('status')).toContainText(T('{row} now below {n} °C.', { row: T('Feet'), n: 7 }));
+  await expect.poll(async () => (await table(page, 'settings')).find((s) => s.key === 'wear.rule')?.value?.limits?.feet).toBe(7);
+
+  // «Du frierst schnell»: counts 2 °C colder
+  await rule.locator('[data-wear-feel="cold"]').click();
+  await expect(rule.locator('[data-wear-feel="cold"]')).toHaveAttribute('aria-pressed', 'true');
+  await expect(card.locator('.meta')).toContainText(T('feels {c} °C', { c: 4 }));
+  await rule.locator('[data-wear-prefer="warm"]').click();
+  await expect(rule.locator('[data-wear-prefer="warm"]')).toHaveAttribute('aria-pressed', 'true');
+  await shot(page, info, '6-regel');
+
+  // back to the standard rule, then Undo
+  await rule.locator('[data-wear-rulereset]').click();
+  await expect(row('feet')).toHaveCount(0);
+  await expect(rule.locator('[data-wear-feel="normal"]')).toHaveAttribute('aria-pressed', 'true');
+  await card.getByRole('status').getByRole('button', { name: T('Undo') }).click();
+  await expect(row('feet')).toHaveCount(1);
+
+  for (const w of [320, 390]) {
+    const size = page.viewportSize();
+    await page.setViewportSize({ width: w, height: size.height });
+    await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(w);
+    await page.setViewportSize(size);
+  }
+  expect(errors).toEqual([]);
+});

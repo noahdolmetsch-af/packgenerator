@@ -9,8 +9,8 @@
   import { liveQuery } from 'dexie';
   import { db } from '../db.js';
   import { HOME_PLACE, HOME_FORECAST } from '../know.js';
-  import { CLOTHING_OFFSET, ONION, GAP_RULES, gapWish, tempRange, zoneGroup, layerKey } from '../wardrobe.js';
-  import { WEAR_DAY, NONE, WHY_LIMITS, dayChoice, dayRecord, isChanged, withPick, withoutPick, withAdd, withoutAdd, withSet, applyDay, addableRows, swapOptions, gapReason } from './wearday.js';
+  import { CLOTHING_OFFSET, ONION, GAP_RULES, gapWish, tempRange, zoneGroup, layerKey, WEAR_RULE, wearRule, stepLimit, ruleChanged, LIMIT_RANGE } from '../wardrobe.js';
+  import { WEAR_DAY, NONE, dayChoice, dayRecord, isChanged, withPick, withoutPick, withAdd, withoutAdd, withSet, applyDay, addableRows, swapOptions, gapReason } from './wearday.js';
   import { WEAR_SEEDED, WEAR_REMEMBER, AUTO, seedPlan, wearSets, matchSet, activeSet, orderedSets, setPieces, setOutfit, setRowPlan, fillPlan, rangePlan } from './wearsets.js';
   import { SETS_KEY } from '../sets.js';
   import { todayOutfit } from './outfit.js';
@@ -24,9 +24,12 @@
   const placeQ = liveQuery(async () => (await db.settings.get(HOME_PLACE))?.value ?? null);
   const fcQ = liveQuery(async () => (await db.meta.get(HOME_FORECAST)) ?? null);
   const offsetQ = liveQuery(async () => (await db.settings.get(CLOTHING_OFFSET)) ?? null);
+  // step 3 (Noah «4a»): your own rule: borders per row, «you get cold», lighter or warmer first
+  const ruleQ = liveQuery(async () => (await db.settings.get(WEAR_RULE)) ?? null);
+  const rule = $derived(wearRule($ruleQ?.value));
 
   const ready = $derived($placeQ !== undefined && $fcQ !== undefined && $offsetQ !== undefined);
-  const o = $derived(ready ? todayOutfit({ place: $placeQ, forecast: $fcQ, items, trips, offset: Number($offsetQ?.value) || 0 }) : { state: 'none' });
+  const o = $derived(ready ? todayOutfit({ place: $placeQ, forecast: $fcQ, items, trips, offset: Number($offsetQ?.value) || 0, rule }) : { state: 'none' });
   const hh = (h) => `${String(h).padStart(2, '0')}`;
   const meta = $derived.by(() => {
     if (o.state !== 'ok') return '';
@@ -58,7 +61,26 @@
   const hidden = $derived(chips.filter((s) => s.key !== match?.key && s.key !== active?.key).length);
   const pieces = $derived(setPieces(active, items));
   const remember = $derived(active ? $rememberQ : 'today');
-  const shown = $derived(o.state === 'ok' ? applyDay(setOutfit(o.outfit, active, items), items, choice) : null);
+  const shown = $derived(o.state === 'ok' ? applyDay(setOutfit(o.outfit, active, items, rule.prefer), items, choice, rule.prefer) : null);
+  const LIMIT_ROWS = ['mid', 'outer', 'hands', 'head', 'feet'];
+  const FEEL = [
+    ['cold', 'quickly|cold'],
+    ['normal', 'normally|cold'],
+    ['warm', 'rarely|cold'],
+  ];
+  async function saveRule(value, text) {
+    const prev = $ruleQ;
+    await db.settings.put({ key: WEAR_RULE, value });
+    toast(text, () => (prev ? db.settings.put(prev) : db.settings.delete(WEAR_RULE)));
+  }
+  const rowName = (k) => t(ONION.find((r) => r.key === k)?.name ?? k);
+  const stepRow = (k, d) => {
+    const v = stepLimit($ruleQ?.value, k, d);
+    return saveRule(v, t('{row} now below {n} °C.', { row: rowName(k), n: wearRule(v).limits[k] }));
+  };
+  const setFeel = (feel) => saveRule({ ...($ruleQ?.value ?? {}), feel }, t('Saved: you get cold {how}.', { how: t(FEEL.find((f) => f[0] === feel)[1]) }));
+  const setPrefer = (prefer) => saveRule({ ...($ruleQ?.value ?? {}), prefer }, prefer === 'warm' ? t('Saved: the warmer piece first.') : t('Saved: the lighter piece first.'));
+  const resetRule = () => saveRule({}, t('Back to the standard rule.'));
   let seeding = false;
   $effect(() => {
     if (edit && o.state !== 'none' && $seededQ === null && !seeding) {
@@ -252,7 +274,7 @@
             {#if edit && swapKey === r.key}
               <div class="swap" id="wsw-{r.key}" role="group" aria-label={t('Swap {row}', { row: t(r.name) })}>
                 <p class="sh">{t('Your pieces for this, for today ({c} °C):', { c: o.outfit.c })}</p>
-                {#each swapOptions(r.key, items, o.outfit.c) as op (op.item.id)}
+                {#each swapOptions(r.key, items, o.outfit.c, rule.prefer) as op (op.item.id)}
                   <button type="button" class="opt" class:on={r.item?.id === op.item.id} aria-pressed={r.item?.id === op.item.id} onclick={() => pick(r.key, op.item.id)} data-wear-opt={op.item.id}>
                     <span class="on1">{nameOf(op.item)}</span>
                     <span class="tg {op.fit}">{t(FIT[op.fit], { c: o.outfit.c })}</span>
@@ -295,13 +317,34 @@
         <details class="why" data-wear-why>
           <summary>{t('Why so?')}</summary>
           <ol>
-            <li>{o.outfit.from === 'hour' ? t('The coldest hour of your ride: {c} °C.', { c: o.outfit.real }) : t('The lowest temperature of the day: {c} °C.', { c: o.outfit.real })}{#if o.outfit.c !== o.outfit.real}{' '}{t('From your debriefs it counts as {c} °C.', { c: o.outfit.c })}{/if}</li>
-            <li>{t('Base layer and legs always. Mid layer below {mid} °C, outer layer below {outer} °C or with rain, hands below {hands} °C, head below {head} °C, feet below {feet} °C.', WHY_LIMITS)}</li>
+            <li>{o.outfit.from === 'hour' ? t('The coldest hour of your ride: {c} °C.', { c: o.outfit.real }) : t('The lowest temperature of the day: {c} °C.', { c: o.outfit.real })}{#if o.outfit.c !== o.outfit.real}{' '}{rule.shift ? t('For you it counts as {c} °C (your debriefs and «You get cold»).', { c: o.outfit.c }) : t('From your debriefs it counts as {c} °C.', { c: o.outfit.c })}{/if}</li>
+            <li>{t('Base layer and legs always. Mid layer below {mid} °C, outer layer below {outer} °C or with rain, hands below {hands} °C, head below {head} °C, feet below {feet} °C.', rule.limits)}</li>
             {#if notYet.length}<li>{t('Not needed yet today: {rows}. «+ Add a layer» adds them anyway.', { rows: rowNames(notYet) })}</li>{/if}
-            <li>{t('A piece fits when its lower border is at most 2 °C above that. Of several, the one made for this temperature comes, then the lightest.')}</li>
+            <li>{rule.prefer === 'warm' ? t('A piece fits when its lower border is at most 2 °C above that. Of several, the one made for this temperature comes, then the warmest.') : t('A piece fits when its lower border is at most 2 °C above that. Of several, the one made for this temperature comes, then the lightest.')}</li>
             <li>{t('Only sorted pieces count (layer and body part), not those only for everyday.')}</li>
             {#if sets.length}<li>{t('A clothing set fits by its °C range, with rain the set Rain. Its pieces come before the app’s choice.')}</li>{/if}
           </ol>
+          <div class="rule" data-wear-rule>
+            <p class="sh"><b>{t('Your rule')}</b> · {t('Holds on Today and in Pack. Every layer can still be added or left out.')}</p>
+            {#each LIMIT_ROWS as k (k)}
+              <div class="lim" data-wear-limit={k}>
+                <span class="lk">{t('{row} below', { row: rowName(k) })} <b class="num">{rule.limits[k]} °C</b></span>
+                <button type="button" class="btn sm" aria-label={t('{row}: 1 °C lower', { row: rowName(k) })} disabled={rule.limits[k] <= LIMIT_RANGE[0]} onclick={() => stepRow(k, -1)} data-wear-down={k}>−</button>
+                <button type="button" class="btn sm" aria-label={t('{row}: 1 °C higher', { row: rowName(k) })} disabled={rule.limits[k] >= LIMIT_RANGE[1]} onclick={() => stepRow(k, 1)} data-wear-up={k}>+</button>
+              </div>
+            {/each}
+            <p class="sh">{t('Higher border: the layer comes sooner.')}</p>
+            <div class="acts rem" role="group" aria-label={t('You get cold')}>
+              <span>{t('You get cold:')}</span>
+              {#each FEEL as [key, label] (key)}<button type="button" class="btn sm" aria-pressed={rule.feel === key} onclick={() => setFeel(key)} data-wear-feel={key}>{t(label)}</button>{/each}
+            </div>
+            <div class="acts rem" role="group" aria-label={t('First the')}>
+              <span>{t('First the')}</span>
+              <button type="button" class="btn sm" aria-pressed={rule.prefer === 'light'} onclick={() => setPrefer('light')} data-wear-prefer="light">{t('lighter piece')}</button>
+              <button type="button" class="btn sm" aria-pressed={rule.prefer === 'warm'} onclick={() => setPrefer('warm')} data-wear-prefer="warm">{t('warmer piece')}</button>
+            </div>
+            {#if ruleChanged($ruleQ?.value)}<div class="acts"><button type="button" class="btn sm" onclick={resetRule} data-wear-rulereset>{t('Back to the standard rule')}</button></div>{/if}
+          </div>
         </details>
       {/if}
       <a class="btn sm go" href="#/wardrobe">{t('Open the wardrobe')}</a>
@@ -492,6 +535,22 @@
   .wrange .sh {
     flex-basis: 100%;
     margin: 0;
+  }
+  .rule {
+    margin-top: 10px;
+    padding-top: 8px;
+    border-top: 1px solid var(--line);
+  }
+  .lim {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 44px 44px;
+    align-items: center;
+    gap: 6px;
+    margin: 4px 0;
+  }
+  .lim .btn {
+    min-height: 40px;
+    justify-content: center;
   }
   .wsets {
     display: flex;
