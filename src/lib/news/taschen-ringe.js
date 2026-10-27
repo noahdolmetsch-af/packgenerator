@@ -3,7 +3,7 @@
 export default {
   title: 'Bags with rings',
   lead: 'On the packing day every bag is a tile with a ring.',
-  points: [{ text: 'The ring fills with every item you pack; a full bag shows a tick' }],
+  points: [{ text: 'The ring fills with every item you pack; a full bag shows a tick', href: '#/pack?day' }],
   small: [{ box: 'nicer', text: 'The open bag is framed; the rings draw themselves when the page opens' }],
   test: ['Open a trip on its packing day and tap «Pack»: the bags stand as tiles with a ring each.', 'Tick an item: the ring of its bag fills a little and the number goes up.'],
   since: [],
