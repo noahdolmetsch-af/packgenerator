@@ -191,7 +191,19 @@ export function findPauses(pts, minMin = PAUSE_MIN, radiusKm = STOP_RADIUS_KM) {
  *   each with km, metres up and hours, for "Climbing slower than assumed".
  */
 export function analyseRide(text, file = '') {
-  const all = ridePoints(text)
+  const name =
+    text.match(/<(?:trk|metadata)>[\s\S]*?<name>\s*(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?\s*<\/name>/i)?.[1]?.trim() ||
+    file.replace(/\.(gpx|tcx)$/i, '') ||
+    t('Ride|dayride');
+  return analysePoints(ridePoints(text), decode(name), file);
+}
+
+/**
+ * The same numbers from points that are already read ({ lat, lon, ele, t, hr?, cad?, w?, temp? }),
+ * for a GPX/TCX text (analyseRide) or a FIT file (src/lib/fit.js analyseFit).
+ */
+export function analysePoints(points, name, file = '') {
+  const all = points
     .filter((p) => p.t != null)
     .sort((a, b) => a.t - b.t);
   if (all.length < 2) throw new Error(t('This file has no times. Upload a recorded ride, not a planned route.'));
@@ -218,13 +230,9 @@ export function analyseRide(text, file = '') {
   const totalMs = pts.at(-1).t - pts[0].t;
   const pauseMs = pauses.reduce((sum, p) => sum + p.ms, 0);
   const startAt = new Date(pts[0].t).toISOString();
-  const name =
-    text.match(/<(?:trk|metadata)>[\s\S]*?<name>\s*(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?\s*<\/name>/i)?.[1]?.trim() ||
-    file.replace(/\.(gpx|tcx)$/i, '') ||
-    t('Ride|dayride');
   return {
     id: `ride-${startAt.slice(0, 16)}-${Math.round(km)}`,
-    name: decode(name),
+    name,
     file,
     date: localDate(pts[0].t),
     startAt,

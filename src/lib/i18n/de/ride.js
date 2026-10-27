@@ -142,8 +142,8 @@ export default {
   'How to get the file': 'So bekommst du die Datei',
   'on a ride → ••• → Export GPX (one ride), or Settings → My Account → Download your data → activities.csv (all rides).':
     'bei einer Fahrt → ••• → Export GPX (eine Fahrt), oder Settings → My Account → Download your data → activities.csv (alle Fahrten).',
-  'on a ride → ⚙ → Export to GPX or TCX, or Activities → Export CSV (the list).':
-    'bei einer Fahrt → ⚙ → Export to GPX oder TCX, oder Activities → Export CSV (die Liste).',
+  'on a ride → ⚙ → Export Original (a ZIP: open it, then choose the .fit file), Export to GPX or TCX, or Activities → Export CSV (the list).':
+    'bei einer Fahrt → ⚙ → Export Original (eine ZIP-Datei: öffnen, dann die .fit-Datei wählen), Export to GPX oder TCX, oder Activities → Export CSV (die Liste).',
   'Several files at once are fine (one per day). Only rides on the days of this trip count.':
     'Mehrere Dateien auf einmal gehen (eine pro Tag). Nur Fahrten an den Tagen dieser Tour zählen.',
   'One sentence for next time': 'Ein Satz fürs nächste Mal',
