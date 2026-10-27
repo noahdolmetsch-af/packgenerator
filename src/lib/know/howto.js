@@ -289,6 +289,7 @@ export const HOWTO = {
   'f.fitbitold': ['Export your Fitbit data at takeout.google.com.', 'Open Me › Connections › Earlier Fitbit data and choose the file.', 'Check the preview and tap «Take over».'],
   'f.wxwatch': ['Open Me › Reminders on the phone and switch on «Weather alarm».', 'Plan a tour with a start place, or set your home place.', 'Up to 10 days before, the phone tells you when the weather turns or a better day comes.'],
   'f.morningpush': ['Open Me › Reminders on the phone.', 'Under «In the morning» the switch «One message in the morning» is on.', 'The reminders of 08:00 now come at 07:00 as one message.'],
+  'f.remindtime': ['Open the evening-before check on the evening before a trip, as usual.', 'From the third evening the app knows your usual time.', 'Gepackt then offers to move the reminder; «No, thanks» keeps it.'],
   'f.tourhints': ['Open a planned tour on Pack.', 'Under the list, the hints show when they apply: dark, UV or wind.', 'Tap «Add» for an item, or «×» to hide a hint for this tour.'],
   'f.rainsoon': ['Open Me › Reminders on the phone and switch on «Rain on the way».', 'Plan the tour with a route and a start time.', 'While you ride, the phone tells you before the rain comes.'],
   'f.air': ['Set your home place.', 'Look at the card «Ozone and pollen» on Aktiv.', 'Under «Which values count» choose your pollen.'],

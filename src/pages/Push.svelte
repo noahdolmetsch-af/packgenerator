@@ -16,6 +16,7 @@
   import { dayShort } from '../lib/flow/words.js';
   import { supported, permission, syncNow, off, testNow, cronUrl } from '../lib/push/client.js';
   import VeloHead from '../lib/bikes/VeloHead.svelte';
+  import EveOffer from '../lib/remindlearn/EveOffer.svelte';
   import { BellRing, Send, Info, Copy, Check } from '@lucide/svelte';
   import '../lib/ich/ich.css';
 
@@ -158,6 +159,8 @@
         {/if}
       {/each}
     </ul>
+    <!-- Idee A2: the evening reminder at your usual time -->
+    {#if p.kinds.eve}<EveOffer />{/if}
   </section>
 
   {#if p.on}<p class="ps-acts"><button type="button" class="btn" onclick={test} data-push-test><Send size={16} aria-hidden="true" />{t('Send a test')}</button></p>{/if}
