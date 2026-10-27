@@ -141,3 +141,29 @@ export function fillPlan(value, items = [], setKey, rows = [], now = new Date().
   const changed = cur.filter((i) => before.has(i.id));
   return { value: v, items: changed, before: [...before.values()] };
 }
+
+/** A typed °C border: '' → no border, a whole or decimal number (comma allowed) → that number, else NaN. */
+export function readC(v) {
+  const s = String(v ?? '').trim().replace(',', '.').replace('−', '-');
+  if (!s) return undefined;
+  const n = Number(s);
+  return Number.isFinite(n) ? Math.round(n) : NaN;
+}
+
+/**
+ * Noah 27.10.2026 «2a»: change the °C range of a set in the window. Empty «from» or «to» means no border.
+ * → { value } or { error: 'number' | 'order' }.
+ */
+export function rangePlan(value, setKey, from, to) {
+  const list = Array.isArray(value) ? value : [];
+  const lo = readC(from);
+  const hi = readC(to);
+  if (Number.isNaN(lo) || Number.isNaN(hi)) return { error: 'number' };
+  if (lo != null && hi != null && lo > hi) return { error: 'order' };
+  const next = list.map((s) => {
+    if (s.key !== setKey) return s;
+    const { minC: _a, maxC: _b, ...rest } = s;
+    return { ...rest, ...(lo != null ? { minC: lo } : {}), ...(hi != null ? { maxC: hi } : {}) };
+  });
+  return { value: next };
+}

@@ -72,4 +72,12 @@ export default {
   'Saved in the set {set}: {row}.': 'Im Set {set} gespeichert: {row}.',
   'The set {set} holds {n} piece now.': 'Das Set {set} hat jetzt {n} Teil.',
   'The set {set} holds {n} pieces now.': 'Das Set {set} hat jetzt {n} Teile.',
+  // Noah 27.10.2026 «2a»: °C range of a set in the window
+  '«From» must not be above «to».': '«Ab» darf nicht über «bis» liegen.',
+  'Please type numbers only, e.g. 5 or −3.': 'Bitte nur Zahlen, zum Beispiel 5 oder −3.',
+  'Set {set} now fits at {range}.': 'Das Set {set} passt jetzt bei {range}.',
+  'Set {set} has no °C range now: choose it by hand.': 'Das Set {set} hat jetzt keinen °C-Bereich: Du wählst es von Hand.',
+  'Empty means no border. The set fits when the felt temperature is in this range.': 'Leer heisst ohne Grenze. Das Set passt, wenn die gefühlte Temperatur in diesem Bereich liegt.',
+  'Fits at {range}: change': 'Passt bei {range}: ändern',
+  'Give the set a °C range': 'Dem Set einen °C-Bereich geben',
 };

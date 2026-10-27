@@ -5,7 +5,7 @@ import { outfitFor, chooseKit, tempKits } from '../src/lib/wardrobe.js';
 import { WEAR_PRESETS, presetKey } from '../src/lib/wearpresets.js';
 import { allSets } from '../src/lib/sets.js';
 import { NONE, applyDay, dayChoice, dayRecord, withPick, withSet } from '../src/lib/home/wearday.js';
-import { AUTO, seedPlan, wearSets, matchSet, activeSet, orderedSets, setOutfit, setRowPlan, fillPlan } from '../src/lib/home/wearsets.js';
+import { AUTO, seedPlan, wearSets, matchSet, activeSet, orderedSets, setOutfit, setRowPlan, fillPlan, rangePlan, readC } from '../src/lib/home/wearsets.js';
 
 const P = 'test_data_gtp_';
 const item = (id, name, f = {}) => ({ id, name: `${P}${name}`, category: 'onbike', weightG: 100, qty: 1, ownership: 'owned', sets: [], domains: ['bikepacking'], ...f });
@@ -128,5 +128,33 @@ describe('a swap saved in the set (2b)', () => {
     const p = fillPlan(empty.value, ITEMS, camp, out.rows, 'now');
     expect(p.items.map((i) => i.id).sort()).toEqual(out.rows.filter((r) => r.item).map((r) => r.item.id).sort());
     expect(p.items.every((i) => i.sets.includes(camp))).toBe(true);
+  });
+});
+
+describe('the °C range of a set (Noah «2a»)', () => {
+  const value = [{ key: 'w-long', name: 'Long', preset: 'long', minC: 5, maxC: 12 }, { key: 'w-rain', preset: 'rain', rain: true }];
+  it('reads typed borders: empty is none, comma and minus work', () => {
+    expect(readC('')).toBeUndefined();
+    expect(readC(' 7 ')).toBe(7);
+    expect(readC('−3')).toBe(-3);
+    expect(readC('4,6')).toBe(5);
+    expect(readC('warm')).toBeNaN();
+  });
+  it('changes only that set, keeps its other fields', () => {
+    const r = rangePlan(value, 'w-long', '3', '14');
+    expect(r.value[0]).toEqual({ key: 'w-long', name: 'Long', preset: 'long', minC: 3, maxC: 14 });
+    expect(r.value[1]).toBe(value[1]);
+  });
+  it('an empty border is removed', () => {
+    expect(rangePlan(value, 'w-long', '', '14').value[0]).toEqual({ key: 'w-long', name: 'Long', preset: 'long', maxC: 14 });
+  });
+  it('the new range is what the window and Pack use', () => {
+    const two = [...value, { key: 'w-between', preset: 'between', minC: 12, maxC: 18 }];
+    expect(matchSet(two, 13)?.key).toBe('w-between');
+    expect(matchSet(rangePlan(two, 'w-long', '3', '14').value, 13)?.key).toBe('w-long');
+  });
+  it('refuses text and a «from» above «to»', () => {
+    expect(rangePlan(value, 'w-long', 'x', '3')).toEqual({ error: 'number' });
+    expect(rangePlan(value, 'w-long', '15', '3')).toEqual({ error: 'order' });
   });
 });

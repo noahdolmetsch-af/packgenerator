@@ -177,6 +177,27 @@ test('Was ziehe ich an: clothing sets, the fitting one first, a swap saved in th
   await expect(row('mid')).toContainText(`${P}Thermotrikot`);
   await expect.poll(async () => (await table(page, 'items')).find((i) => i.id === 'KA02').sets.includes('w-long')).toBe(true);
 
+  // Noah «2a»: the °C range of the set, right in the window; a wrong order is refused; Undo
+  const longRange = async () => (await table(page, 'settings')).find((s) => s.key === 'sets')?.value?.find((x) => x.key === 'w-long');
+  await card.locator('[data-wear-rangeopen]').click();
+  await expect(card.locator('[data-wear-from]')).toHaveValue('5');
+  await card.locator('[data-wear-from]').fill('15');
+  await card.locator('[data-wear-to]').fill('3');
+  await card.locator('[data-wear-rangesave]').click();
+  await expect(card.locator('[data-wear-range]')).toContainText(T('«From» must not be above «to».'));
+  await card.locator('[data-wear-from]').fill('0');
+  await card.locator('[data-wear-to]').fill('14');
+  await expect(card.locator('[data-wear-range]')).not.toContainText(T('«From» must not be above «to».'));
+  await shot(page, info, '5b-bereich');
+  await card.locator('[data-wear-rangesave]').click();
+  await expect(card.getByRole('status')).toContainText(T('Set {set} now fits at {range}.', { set: T('Long top and bottom'), range: '0–14 °C' }));
+  await expect(card.locator('[data-wear-rangeopen]')).toContainText('0–14 °C');
+  await expect.poll(async () => (await longRange())?.minC).toBe(0);
+  expect((await longRange()).maxC).toBe(14);
+  await card.getByRole('status').getByRole('button', { name: T('Undo') }).click();
+  await expect.poll(async () => (await longRange())?.minC).toBe(5);
+  await expect(card.locator('[data-wear-rangeopen]')).toContainText('5–12 °C');
+
   // Automatic: the app picks from all pieces again
   await sets.locator('[data-wear-set="auto"]').click();
   await expect(sets.locator('[data-wear-set="auto"]')).toHaveAttribute('aria-pressed', 'true');

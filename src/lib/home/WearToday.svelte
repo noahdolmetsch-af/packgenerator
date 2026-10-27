@@ -11,7 +11,7 @@
   import { HOME_PLACE, HOME_FORECAST } from '../know.js';
   import { CLOTHING_OFFSET, ONION, GAP_RULES, gapWish, tempRange, zoneGroup, layerKey } from '../wardrobe.js';
   import { WEAR_DAY, NONE, WHY_LIMITS, dayChoice, dayRecord, isChanged, withPick, withoutPick, withAdd, withoutAdd, withSet, applyDay, addableRows, swapOptions, gapReason } from './wearday.js';
-  import { WEAR_SEEDED, WEAR_REMEMBER, AUTO, seedPlan, wearSets, matchSet, activeSet, orderedSets, setPieces, setOutfit, setRowPlan, fillPlan } from './wearsets.js';
+  import { WEAR_SEEDED, WEAR_REMEMBER, AUTO, seedPlan, wearSets, matchSet, activeSet, orderedSets, setPieces, setOutfit, setRowPlan, fillPlan, rangePlan } from './wearsets.js';
   import { SETS_KEY } from '../sets.js';
   import { todayOutfit } from './outfit.js';
   import HomePlaceForm from '../know/HomePlaceForm.svelte';
@@ -100,6 +100,23 @@
     // the day choice of this row steps back, so the set shows
     if (choice.pick[key] != null) await save(withoutPick(choice, key));
     await writeSet(plan, id == null ? t('{row}: the app picks again, not the set {set}.', { row, set: active.name }) : t('Saved in the set {set}: {row}.', { set: active.name, row }));
+  }
+  /* Noah 27.10.2026 «2a»: the °C range of the chosen set, changed right here (empty = no border). */
+  let range = $state(null); // { key, from, to, err } while the form is open
+  function openRange() {
+    range = { key: active.key, from: active.minC ?? '', to: active.maxC ?? '', err: '' };
+  }
+  async function saveRange() {
+    const plan = rangePlan($setsQ?.value ?? [], range.key, range.from, range.to);
+    if (plan.error) {
+      range.err = plan.error === 'order' ? t('«From» must not be above «to».') : t('Please type numbers only, e.g. 5 or −3.');
+      return;
+    }
+    const name = active.name;
+    range = null;
+    const s = plan.value.find((x) => x.key === active.key);
+    const text = tempRange(s?.minC, s?.maxC, t);
+    await writeSet({ ...plan, items: [], before: [] }, text ? t('Set {set} now fits at {range}.', { set: name, range: text }) : t('Set {set} has no °C range now: choose it by hand.', { set: name }));
   }
   async function fillSet() {
     const plan = fillPlan($setsQ?.value ?? [], items, active.key, shown.rows);
@@ -195,6 +212,19 @@
           {active ? t('Set {set}: its pieces come first. Rows it has nothing for, the app fills.', { set: active.name }) : t('The app picks from all your pieces.')}
           <a href="#/blocks">{t('Edit the sets')}</a>
         </p>
+        {#if active}
+          {#if range?.key === active.key}
+            <form class="wrange" onsubmit={(e) => (e.preventDefault(), saveRange())} data-wear-range>
+              <label><span class="lbl">{t('from °C')}</span><input class="inp num" type="text" inputmode="numeric" bind:value={range.from} oninput={() => (range.err = "")} placeholder="–" data-wear-from /></label>
+              <label><span class="lbl">{t('to °C')}</span><input class="inp num" type="text" inputmode="numeric" bind:value={range.to} oninput={() => (range.err = "")} placeholder="–" data-wear-to /></label>
+              <button type="submit" class="btn sm" data-wear-rangesave>{t('Save')}</button>
+              <button type="button" class="btn sm" onclick={() => (range = null)}>{t('Cancel')}</button>
+              <p class="sh">{range.err || t('Empty means no border. The set fits when the felt temperature is in this range.')}</p>
+            </form>
+          {:else}
+            <div class="acts"><button type="button" class="btn sm" onclick={openRange} data-wear-rangeopen>{tempRange(active.minC, active.maxC, t) ? t('Fits at {range}: change', { range: tempRange(active.minC, active.maxC, t) }) : t('Give the set a °C range')}</button></div>
+          {/if}
+        {/if}
         {#if active && !pieces.length}
           <div class="acts"><button type="button" class="btn sm" onclick={fillSet} data-wear-fill>{t('Fill the set with this suggestion')}</button></div>
         {/if}
@@ -444,6 +474,24 @@
   }
   .pf {
     margin-top: 8px;
+  }
+  .wrange {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: end;
+    gap: 6px;
+    margin: 4px 0 8px;
+  }
+  .wrange label {
+    display: grid;
+    gap: 2px;
+  }
+  .wrange .inp {
+    width: 5.5em;
+  }
+  .wrange .sh {
+    flex-basis: 100%;
+    margin: 0;
   }
   .wsets {
     display: flex;
