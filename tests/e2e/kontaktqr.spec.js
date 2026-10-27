@@ -91,3 +91,35 @@ test('Kontakt-QR step 2: after its last day the card page says expired', async (
   await expect(page.locator('[data-card-way]')).toHaveCount(0);
   await expect(page.locator('[data-card-vcf]')).toHaveCount(0);
 });
+
+test('Kontakt-QR step 3: payment details apart, shown only after a tap', async ({ page, context }, info) => {
+  await openHome(page, context, info);
+  await page.goto('./#/me/freunde?tab=card');
+  await page.locator('[data-card-name]').fill('test_data_gtp_ Sam');
+  await page.locator('[data-card-name]').blur();
+  // no account yet: the card says where to enter it
+  await expect(page.locator('[data-card-paymissing]')).toBeVisible();
+  await page.evaluate(() => localStorage.setItem('pg.pay.account', JSON.stringify({ iban: 'CH93 0076 2011 6238 5295 7', name: 'test_data_gtp_ Sam', street: 'Testweg', house: '1', zip: '0000', town: 'Testdorf', twint: '079 000 00 00' })));
+  await page.reload();
+  await expect(page.locator('[data-card-name]')).toHaveValue('test_data_gtp_ Sam');
+  const qrText = () => page.locator('[data-qr-text]').getAttribute('data-qr-text');
+  // off at the start: nothing about money in the code
+  await expect.poll(async () => cardOf(await qrText()).pay).toBeUndefined();
+  await tap(page.locator('[data-card-pay]'), info);
+  await expect.poll(async () => cardOf(await qrText()).pay?.t).toBe('079 000 00 00');
+  const link = await qrText();
+  expect(cardOf(link).pay.q).toMatchObject({ iban: 'CH9300762011623852957', town: 'Testdorf' });
+  // straight to contacts: payment stays out of the contact file
+  await tap(page.locator('[data-card-mode="vcard"]'), info);
+  await expect.poll(qrText).toContain('BEGIN:VCARD');
+  expect(await qrText()).not.toContain('CH93');
+  // the page the code opens: the payment box is closed until tapped
+  await page.goto(`./${link.slice(link.indexOf('#'))}`);
+  await expect(page.locator('[data-card-paybox]')).toBeVisible();
+  await expect(page.locator('[data-card-twint]')).toHaveCount(0);
+  await tap(page.locator('[data-card-payopen]'), info);
+  await expect(page.locator('[data-card-twint]')).toContainText('079 000 00 00');
+  await expect(page.locator('[data-card-bill] svg')).toBeVisible();
+  await expect(page.locator('[data-card-bill]')).toContainText('CH93 0076 2011 6238 5295 7');
+  await noSideways(page, 'card page with payment');
+});
