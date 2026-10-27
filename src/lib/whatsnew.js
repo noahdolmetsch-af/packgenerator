@@ -21,16 +21,10 @@ export const WHATS_NEW = [
     version: '0.217.0',
     date: '2026-10-26',
     title: 'Workshop at home',
-    lead: 'Your own rounds, a split receipt and photos you can compare.',
-    points: [
-      { text: 'Workshop rounds: tick your own jobs, the parts get them', href: '#/bikes?tab=care&view=rounds' },
-      { text: 'Split a workshop receipt into parts and jobs', href: '#/bikes?tab=care' },
-    ],
-    small: [
-      { box: 'new', text: 'Wear photo with the old photo as template; a big km jump asks about rides outside the app', href: '#/bikes?tab=care&view=wear' },
-      { box: 'new', text: 'After a crash or noise: mark a part «check»; the setup log keeps the old measures', href: '#/bikes?tab=care&view=wear' },
-    ],
-    test: ['Velos › Pflege › Werkstatt-Runden: take «Herbst-Service», start it, tick two jobs, «Fertig».', 'Open a workshop visit with a receipt photo and tap «Quittung aufteilen».', 'Wear photos: with a photo there, tap «Foto mit Vorlage».'],
+    lead: 'Your own rounds for the work at home.',
+    points: [{ text: 'Workshop rounds: tick your jobs, the parts get them', href: '#/bikes?tab=care&view=rounds' }],
+    small: [{ box: 'new', text: 'Split a receipt, photo with a template', href: '#/bikes?tab=care' }],
+    test: ['Velos › Pflege › Werkstatt-Runden: take «Herbst-Service», start it, tick two jobs, «Fertig».', 'Open a workshop visit with a receipt photo and tap «Quittung aufteilen».'],
   },
   {
     // v0.212.1 UI-Test 26.10.2026 T1 «Heutige Tour: ein Zustand überall»: a day ride not begun yet (not packed, not

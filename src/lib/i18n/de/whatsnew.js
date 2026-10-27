@@ -6,14 +6,11 @@
 export default {
   // 0.217.0 Werkstatt zu Hause
   'Workshop at home': 'Werkstatt zu Hause',
-  'Your own rounds, a split receipt and photos you can compare.': 'Eigene Runden, eine aufgeteilte Quittung und Fotos zum Vergleichen.',
-  'Workshop rounds: tick your own jobs, the parts get them': 'Werkstatt-Runden: Hake deine eigenen Arbeiten ab, die Teile bekommen sie',
-  'Split a workshop receipt into parts and jobs': 'Werkstatt-Quittung auf Teile und Arbeiten aufteilen',
-  'Wear photo with the old photo as template; a big km jump asks about rides outside the app': 'Verschleiss-Foto mit dem alten Foto als Vorlage; ein grosser km-Sprung fragt nach Fahrten ausserhalb der App',
-  'After a crash or noise: mark a part «check»; the setup log keeps the old measures': 'Nach Sturz oder Geräusch: Teil auf «prüfen» setzen; das Setup-Logbuch behält die alten Masse',
+  'Your own rounds for the work at home.': 'Eigene Runden für die Arbeit zu Hause.',
+  'Workshop rounds: tick your jobs, the parts get them': 'Werkstatt-Runden: Arbeiten abhaken, die Teile bekommen sie',
+  'Split a receipt, photo with a template': 'Quittung aufteilen, Foto mit Vorlage',
   'Velos › Pflege › Werkstatt-Runden: take «Herbst-Service», start it, tick two jobs, «Fertig».': 'Velos › Pflege › Werkstatt-Runden: «Herbst-Service» nehmen, starten, zwei Arbeiten abhaken, «Fertig».',
   'Open a workshop visit with a receipt photo and tap «Quittung aufteilen».': 'Öffne einen Werkstattbesuch mit Quittungsfoto und tippe «Quittung aufteilen».',
-  'Wear photos: with a photo there, tap «Foto mit Vorlage».': 'Verschleiss-Fotos: Wenn schon ein Foto da ist, tippe «Foto mit Vorlage».',
   // 0.212.1 Die heutige Tour sagt eins
   "Today's tour says one thing": 'Die heutige Tour sagt eins',
   'Not packed yet means: still packing, not done.': 'Noch nicht gepackt heisst: noch am Packen, nicht fertig.',
