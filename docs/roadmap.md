@@ -14,7 +14,7 @@
 
 **Stand:** Version 1.1 · 07.10.2026 · mit `main` nach PR #32 abgeglichen. PR #30 liefert AP03–AP06; PR #32 veröffentlicht die ausgewählten Entwürfe 2 und 3. Der Gesamtplan ist damit teilweise umgesetzt. [Releasebeleg](releases/2026-10-07-calm-preparation.md) und [Prüfregister](verification.md) unterscheiden Implementierung, Prüfung und fachliche Abnahme.
 
-**Nachtrag 27.10.2026 (v0.228.0):** «Was ziehe ich an? selbst anpassen» Schritt 1 (Tauschen, Schicht dazu, Lücke erklären, Warum so?). Schritt 2 Kleider-Sets mit 9 Mustern, Schritt 3 Grenzen pro Schicht.
+**Nachtrag 27.10.2026 (v0.232.0):** «Was ziehe ich an? selbst anpassen» Schritt 1 (Tauschen, Schicht dazu, Lücke erklären, Warum so?). Schritt 2 Kleider-Sets mit 9 Mustern, Schritt 3 Grenzen pro Schicht.
 
 **Nachtrag 18.10.2026 (v0.147.0, in Paket B):** «Mail in der App» (Noah 15.10.2026 12:04 «emails versenden in der app, email eingang, kalendereinträge + zugehörige emails»; 12:16 «4a»: lesen und senden in einem Paket; 12:17 «vorerst ohne mockup»; 18.10.2026 21:52: ohne Mockup, Testlink pro Paket): Google Teil 3 (GM). Danach DF (Dateiarten inkl. .pkpass), GX (Auswertungen).
 
@@ -875,6 +875,8 @@ Die frühere gespeicherte Datei `2026-10-07-packgenerator-ablaufplan.md` wird al
 **25.10.2026, v0.195.1 «Einkaufsliste am Stück»:** Korrektur: am Computer behält die Zeile einer Einkaufsliste 420 px, die Knöpfe rutschen sonst unter den Namen (der Gesamttest auf main war rot, darum ging 0.191–0.195 erst damit online).
 
 **25.10.2026, v0.199.0 «Flicken, ausprobieren, abmachen»:** letzte Einzelideen aus Paket A: Kleider reparieren statt aussortieren, Wunsch zuerst ausleihen, Ideen für ein Treffen, Geburtstag mit kleinen Schritten, Webcams mit Zweck und Aufräumrunde.
+
+**27.10.2026, v0.231.0 «Wo du es gesagt hast»:** Touren b vollständig im Katalog; Karte «Wo du sie gesprochen hast».
 
 **27.10.2026, v0.226.0 «Der Abend-Check kommt trotzdem»:** Tages-Check: «Heute nicht» am Morgen lässt den Abend-Check nicht mehr aus.
 

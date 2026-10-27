@@ -125,14 +125,16 @@ test('Touren b: the day to listen to and booking what was used', async ({ page, 
   const gel = { id: 'test_data_gtp_gel', name: 'test_data_gtp_ Gel', category: 'Food', ownership: 'owned', stock: 6, minStock: 2 };
   d.tables.items = [...d.tables.items, gel];
   past.entries = [...past.entries, { itemId: gel.id, slot: 'seat', qty: 3, packed: true }];
-  d.tables.notes = [...d.tables.notes, ...[1, 2].map((n) => ({ id: `test_data_gtp_vn${n}`, tripId: PAST, day: 0, text: `test_data_gtp_ Stimme ${n}`, status: 'open', at: `${past.startDate}T1${n}:00:00.000Z`, inputs: { voices: [{ id: `test_data_gtp_vv${n}`, src: VOICE, s: 5 + n, at: `${past.startDate}T1${n}:00:00.000Z` }] } }))];
+  d.tables.notes = [...d.tables.notes, ...[1, 2].map((n) => ({ id: `test_data_gtp_vn${n}`, tripId: PAST, day: 0, text: `test_data_gtp_ Stimme ${n}`, status: 'open', at: `${past.startDate}T1${n}:00:00.000Z`, inputs: { place: { name: `test_data_gtp_ Ort ${n}`, lat: 47 + n / 100, lon: 8 + n / 50 }, voices: [{ id: `test_data_gtp_vv${n}`, src: VOICE, s: 5 + n, at: `${past.startDate}T1${n}:00:00.000Z` }] } }))];
   const T = await openHome(page, context, info, { data: d });
   await page.goto(`./#/debrief/${PAST}`);
   const dl = page.locator('[data-day-listen]');
   await expect(dl).toContainText(T('Your day to listen to'));
   await expect(dl.locator('[data-listen-clip]')).toHaveCount(2);
   await expect(dl.locator('[data-listen-clip]').first()).toContainText('test_data_gtp_ Stimme 1');
-  await tap(dl.locator('[data-listen-clip]').first().getByRole('button', { name: T('Move {name} down', { name: T('Voice note') }) }), info);
+  await expect(dl.locator('[data-listen-map]')).toContainText(T('Where you spoke them'));
+  await expect(dl.locator('[data-listen-map] .dl-dot')).toHaveCount(2);
+  await tap(dl.locator('[data-listen-clip]').first().getByRole('button', { name: T('Move {name} down', { name: 'test_data_gtp_ Ort 1' }) }), info);
   await expect(dl.locator('[data-listen-clip]').first()).toContainText('test_data_gtp_ Stimme 2');
   await expect.poll(async () => (await read(page, 'trips', PAST)).clipOrder?.[0]?.[0]).toBe(`notes:test_data_gtp_vn2:test_data_gtp_vv2`);
 

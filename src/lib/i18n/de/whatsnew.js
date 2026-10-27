@@ -12,6 +12,13 @@ export default {
   '«Why so?» explains how the app chooses': '«Warum so?» erklärt, wie die App wählt',
   'On Today tap «What do I wear?» and then «Swap» on a row: pick another piece; the row says «chosen by you · today only».': 'Tippe auf Heute auf «Was ziehe ich an?» und bei einer Zeile auf «Tauschen»: Wähle ein anderes Teil; die Zeile zeigt «von dir gewählt · nur heute».',
   'Open «Why so?» under the list: it names the temperature and from when each layer comes.': 'Öffne «Warum so?» unter der Liste: Dort stehen die Temperatur und ab wann jede Schicht kommt.',
+  // v0.231.0 Touren b Katalog
+  'Where you said it': 'Wo du es gesagt hast',
+  'Your day to listen to now shows a small map.': 'Dein Tag zum Hören zeigt jetzt eine kleine Karte.',
+  '«Your day to listen to» shows on a map where you recorded each note': '«Dein Tag zum Hören» zeigt auf einer Karte, wo du jede Notiz aufgenommen hast',
+  'The tour ideas from 0.212.0 are now in «What the app can do», the handbook and on their home pages': 'Die Tour-Ideen aus 0.212.0 stehen jetzt in «Was die App kann», im Handbuch und auf ihren Heimatseiten',
+  'After a day with voice notes open «Your day to listen to» in the debrief.': 'Öffne nach einem Tag mit Sprachnotizen «Dein Tag zum Hören» im Rückblick.',
+  'The map «Where you spoke them» shows a number for each note; a tap plays it.': 'Die Karte «Wo du sie gesprochen hast» zeigt eine Nummer pro Notiz; ein Tippen spielt sie ab.',
   // v0.226.0 Tages-Check
   'The evening check still comes': 'Der Abend-Check kommt trotzdem',
   '«Not today» in the morning no longer skips the evening.': '«Heute nicht» am Morgen lässt den Abend nicht mehr aus.',

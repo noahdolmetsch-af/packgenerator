@@ -16,10 +16,10 @@
 
 export const WHATS_NEW = [
   {
-    // v0.228.0 «Was ziehe ich an? selbst anpassen» Schritt 1 (Noah 27.10.2026 «1a 2a oder b wählbar 3a 4a … 5a»): in the
+    // v0.232.0 «Was ziehe ich an? selbst anpassen» Schritt 1 (Noah 27.10.2026 «1a 2a oder b wählbar 3a 4a … 5a»): in the
     // window on Today every row can be swapped or left out and a layer added, for this ride day only; a gap says why
     // (too light, still in «To sort», nothing yet) with «Take anyway» and the wishlist; «Why so?» explains the rule
-    version: '0.228.0',
+    version: '0.232.0',
     date: '2026-10-27',
     title: 'Your clothes, your call',
     lead: '«What do I wear?» now lets you change the suggestion.',
@@ -29,6 +29,16 @@ export const WHATS_NEW = [
       { box: 'new', text: '«Why so?» explains how the app chooses' },
     ],
     test: ['On Today tap «What do I wear?» and then «Swap» on a row: pick another piece; the row says «chosen by you · today only».', 'Open «Why so?» under the list: it names the temperature and from when each layer comes.'],
+  },
+  {
+    // v0.231.0 «Touren b» catalogue (996 Einzelideen 50–58): all in «What the app can do», the handbook and the home pages; idea 56 map
+    version: '0.231.0',
+    date: '2026-10-27',
+    title: 'Where you said it',
+    lead: 'Your day to listen to now shows a small map.',
+    points: [{ text: '«Your day to listen to» shows on a map where you recorded each note', href: '#/debrief' }],
+    small: [{ box: 'nicer', text: 'The tour ideas from 0.212.0 are now in «What the app can do», the handbook and on their home pages', href: '#/features' }],
+    test: ['After a day with voice notes open «Your day to listen to» in the debrief.', 'The map «Where you spoke them» shows a number for each note; a tap plays it.'],
   },
   {
     // v0.227.0 Live Navigation PR 4 «In der Nähe» (Noah 27.10.2026 «1a 2a 3a 4a», «freigabe für alle mockups»): one
