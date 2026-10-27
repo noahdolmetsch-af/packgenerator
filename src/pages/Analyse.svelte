@@ -20,6 +20,9 @@
   import { localDay } from '../lib/localday.js';
   import { t, num } from '../lib/i18n.svelte.js';
   import AnalyseWert from './analyse/AnalyseWert.svelte';
+  import Diagramm from './analyse/Diagramm.svelte';
+  import { itemsByKey } from '../lib/analyse/catalog.js';
+  import { addDays } from '../lib/analyse.js';
 
   // #/auswerten/analyse/<key>: the page of one value (M6)
   const keyOf = (h) => {
@@ -61,9 +64,11 @@
   });
   const toggle = (s) => (on = on.includes(s) ? on.filter((x) => x !== s) : SOURCES.filter((x) => x === s || on.includes(x)));
 
-  const data = analyseData({ from: () => days[0] });
+  // a year back, so «Eigenes Diagramm» has its counted values (readiness, load) too
+  const data = analyseData({ from: () => addDays(today, -400) });
   const days = $derived(periodDays(today, period));
   const groups = $derived(analyseGroups({ table: data.table, weights: data.weights, ctx: data.ctx, acts: data.acts, log: data.log, ownKeys: data.ownKeys, period }));
+  const byKey = $derived(itemsByKey(groups));
   const shownGroups = $derived(tilesOf(groups, days, on, { all }));
   const loading = $derived(data.loading);
 
@@ -95,6 +100,8 @@
     <Crumb path={[{ href: '#/auswerten', label: t('Analysis|place') }]} here={t('Analyse|page')} />
     <PageHead title={t('Analyse|page')} sub={t('All your values from Fitbit, Strava, your body, «Wi gaht\'s?» and Aktiv. Tap a value to see its course. Only to look at, nothing is rated.')} />
   </header>
+
+  {#if !loading}<Diagramm {groups} {byKey} trips={data.trips} {today} />{/if}
 
   <section class="card pick" aria-label={t('Choose what you see')}>
     <div class="pr">
