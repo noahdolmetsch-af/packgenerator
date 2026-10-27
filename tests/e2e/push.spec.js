@@ -55,6 +55,22 @@ test('Ich: the row leads to «Erinnerungen aufs Handy»; all off at the start; a
   await expect(page.locator('[data-push-page]').getByRole('switch', { name: T('Birthdays') })).toBeChecked();
 });
 
+test('In the morning: «One message in the morning» is on at the start, switched off it is kept', async ({ page, context }) => {
+  // Idee A1 (Noah 27.10.2026 «3a»): the 08:00 reminders as one message at 07:00
+  await open(page, context);
+  await page.goto('./#/me/push');
+  await settle(page);
+  const sec = page.locator('[data-push-morning]');
+  await expect(sec.getByRole('heading', { name: T('In the morning') })).toBeVisible();
+  const sw = sec.getByRole('switch', { name: T('One message in the morning') });
+  await expect(sw).toBeChecked();
+  await sw.uncheck();
+  await expect.poll(() => stored(page, 'push')).toMatchObject({ morning: false });
+  await page.reload();
+  await settle(page);
+  await expect(page.locator('[data-push-morning]').getByRole('switch', { name: T('One message in the morning') })).not.toBeChecked();
+});
+
 test('the main switch says so when the server is not set up, and stays off', async ({ page, context }) => {
   await open(page, context);
   await page.goto('./#/me/push');

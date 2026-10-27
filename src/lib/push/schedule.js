@@ -28,6 +28,7 @@ import { chainPush } from '../chainplan.js';
 import { withVisits } from '../workshop.js';
 import { wetRides, prefsOf, wetSince, wetPushToday } from '../griff.js';
 import { wetOf } from '../inspect/rain.js';
+import { bundleMorning, morningOn } from './morning.js';
 
 export const PUSH_KEY = 'push';
 export const AHEAD_DAYS = 14;
@@ -94,7 +95,8 @@ export function pushOf(value) {
   const kinds = Object.fromEntries(KINDS.map((k) => [k.key, value?.kinds?.[k.key] === true]));
   // Wetter-Wecker: single tours switched off (trip ids), everything is a suggestion
   const wxOff = (Array.isArray(value?.wxOff) ? value.wxOff : []).filter((x) => typeof x === 'string').slice(0, 200);
-  return { on: value?.on === true, kinds, wxOff };
+  // Idee A1: the morning message is on unless switched off (Noah «3a»)
+  return { on: value?.on === true, kinds, wxOff, morning: value?.morning !== false };
 }
 export const anyOn = (p) => p.on && Object.values(p.kinds).some(Boolean);
 
@@ -321,6 +323,10 @@ export function buildList(data) {
       add({ key: `note:${n.id}:${r.day}T${r.hm}`, at: atMs(r.day, r.hm), title: t('Note reminder'), body: String(n.title || first.replace(/^[#\-*\s[\]x]+/, '') || t('Note')).slice(0, 200), url: `#/notes?open=${n.id}` });
     }
   items.sort((a, b) => a.at - b.at);
+  // Idee A1 (Noah 27.10.2026 «3a»): the 08:00 reminders of a day come together at 07:00, safety stays single
+  const out = p.on && morningOn(data.settings?.push)
+    ? bundleMorning(items, { ms, atMs, trips: upcoming, events: data.events ?? [], texts: { title: t('Your morning'), trip: t('Today: {trip}', { trip: '{trip}' }), event: t('Appointment: {what}', { what: '{what}' }), more: t('and {n} more in the app', { n: '{n}' }) } })
+    : items;
   const wxOn = on('weather');
   const texts = {
     title: t('Weather on the tour day'),
@@ -343,5 +349,5 @@ export function buildList(data) {
     better: t('From {day} it looks better.', { day: '{day}' }),
     wdays: [4, 5, 6, 7, 8, 9, 10].map((d) => new Date(Date.UTC(2026, 0, d, 12)).toLocaleDateString(locale(), { weekday: 'short', timeZone: 'UTC' })), // Sun … Sat
   };
-  return { items, weather, watch, rain, air: on('air') ? airPrefs(data.settings?.air) : null, texts, hotC };
+  return { items: out, weather, watch, rain, air: on('air') ? airPrefs(data.settings?.air) : null, texts, hotC };
 }

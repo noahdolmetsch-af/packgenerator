@@ -151,6 +151,7 @@ export const HOME = {
   'f.barcode': '#/me/tools',
   'f.packphoto': '#/me/tools',
   'f.wxwatch': '#/me/push',
+  'f.morningpush': '#/me/push',
   'f.tourhints': '#/pack',
   'f.fuel': '#/trips',
   'f.routepois': '#/pack',
