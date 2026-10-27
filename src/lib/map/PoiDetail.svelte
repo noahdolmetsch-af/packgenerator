@@ -8,9 +8,10 @@
    *
    * Props: place ({ id, kind, name, lat, lon, hours, phone, website, sub, fee, access, ele }),
    * from ({ lat, lon } | null: where you are), line ([[lat, lon]] | null), profile ([[km, m]] | null),
-   * onclose (optional: shows a close button).
+   * onclose (optional: shows a close button), ongo (optional, place → void: the big «Go there» button,
+   * the live map plans the way with the bike router; Umweg und zurück, Noah 27.10.2026).
    */
-  import { X, Navigation, Star, Share2, Phone, Globe, ExternalLink, Check } from '@lucide/svelte';
+  import { X, Navigation, Route, Star, Share2, Phone, Globe, ExternalLink, Check } from '@lucide/svelte';
   import { t } from '../i18n.svelte.js';
   import { navLinks } from '../live/live-lib.js';
   import { osmUrl } from '../route/pois.js';
@@ -20,7 +21,7 @@
   import { kindText, titleOf, distText, kmText, openText } from './poitext.js';
   import { toggleVisited } from './poifilter.js';
 
-  let { place, from = null, line = null, profile = null, onclose = undefined } = $props();
+  let { place, from = null, line = null, profile = null, onclose = undefined, ongo = undefined } = $props();
 
   const pts = $derived(ptsOf(line));
   const d = $derived(place ? distanceOf(place, from, pts) : null);
@@ -85,6 +86,10 @@
     {/if}
     {#if place.fee === 'yes'}<p class="pd-hint">{t('Costs a fee.|poi')}</p>{/if}
 
+    {#if ongo}
+      <button type="button" class="btn pd-hin" onclick={() => ongo(place)} data-poi-go><Route size={18} aria-hidden="true" />{t('Go there|poi')}</button>
+      <p class="pd-hint">{t('The bike router plans the way there and back onto your route, with the extra km and minutes.|poi')}</p>
+    {/if}
     <div class="pd-acts">
       <a class="pd-go" href={nav.google} target="_blank" rel="noopener noreferrer" data-poi-nav="google"><Navigation size={16} aria-hidden="true" />{t('Google Maps')}</a>
       <a class="pd-go" href={nav.osmand} target="_blank" rel="noopener noreferrer" data-poi-nav="osmand"><Navigation size={16} aria-hidden="true" />{t('OsmAnd')}</a>
@@ -105,6 +110,12 @@
 {/if}
 
 <style>
+  .pd-hin {
+    width: 100%;
+    background: var(--brand);
+    border-color: var(--brand);
+    color: var(--brand-ink);
+  }
   .pd {
     display: grid;
     gap: var(--sp-2);

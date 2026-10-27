@@ -14,7 +14,7 @@
 
 **Stand:** Version 1.1 · 07.10.2026 · mit `main` nach PR #32 abgeglichen. PR #30 liefert AP03–AP06; PR #32 veröffentlicht die ausgewählten Entwürfe 2 und 3. Der Gesamtplan ist damit teilweise umgesetzt. [Releasebeleg](releases/2026-10-07-calm-preparation.md) und [Prüfregister](verification.md) unterscheiden Implementierung, Prüfung und fachliche Abnahme.
 
-**Nachtrag 27.10.2026 (v0.227.0):** «Was ziehe ich an? selbst anpassen» Schritt 1 (Tauschen, Schicht dazu, Lücke erklären, Warum so?). Schritt 2 Kleider-Sets mit 9 Mustern, Schritt 3 Grenzen pro Schicht.
+**Nachtrag 27.10.2026 (v0.228.0):** «Was ziehe ich an? selbst anpassen» Schritt 1 (Tauschen, Schicht dazu, Lücke erklären, Warum so?). Schritt 2 Kleider-Sets mit 9 Mustern, Schritt 3 Grenzen pro Schicht.
 
 **Nachtrag 18.10.2026 (v0.147.0, in Paket B):** «Mail in der App» (Noah 15.10.2026 12:04 «emails versenden in der app, email eingang, kalendereinträge + zugehörige emails»; 12:16 «4a»: lesen und senden in einem Paket; 12:17 «vorerst ohne mockup»; 18.10.2026 21:52: ohne Mockup, Testlink pro Paket): Google Teil 3 (GM). Danach DF (Dateiarten inkl. .pkpass), GX (Auswertungen).
 
@@ -902,6 +902,8 @@ Die frühere gespeicherte Datei `2026-10-07-packgenerator-ablaufplan.md` wird al
 **26.10.2026, v0.202.0 «Planen im Zusammenhang» (vorläufig):** Einzelideen Planen 12 «Notiz-Verbindungen mit Bedeutung», 13 «Erinnerung nach einem Ereignis», 14 «Wiederherstellen mit Anhängen» gebaut. Offen als Mockup: 10 Pflanzenpass, 11 Doppelten Eingang erkennen, 15 Erinnerungskarte, 16 Mail als Vorgang. Dazu 10 «Pflanzenpass», 11 «Doppelten Eingang erkennen», 15 «Erinnerungskarte», 16 «Mail als Vorgang» (Noah 26.10. «1a 2a 3a 4a 5a»). Titel jetzt «Planen im Zusammenhang».
 
 **26.10.2026, v0.201.0 «Sprechen, anhängen, mit Vorlage starten»:** Eingaben überall: eine gemeinsame Leiste «Hinzufügen» (Sprachnotiz, Foto, Datei, Ort, Schlagwort, Vorlagen, Schreibanreize, KI-Helfer) auf zehn Seiten, Bildkarte im Tagebuch, Tagebuch in der App-Suche (abschaltbar).
+
+> **27.10.2026 Live Navigation PR 4:** In der Nähe (0.227.0). Danach PR 5 «Umweg und zurück» (Rückweg-Wahl, automatisch neu planen, gleicher Weg zurück), dann M13 «Karte frei» und M8 Einstellungen.
 
 > **27.10.2026 Live Navigation PR 3:** Strecke genau (0.223.0). Danach Suchvorschläge «In der Nähe» (Noahs Wunsch 27.10.) und M13 «Karte frei».
 
