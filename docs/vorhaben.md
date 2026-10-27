@@ -518,6 +518,7 @@ Kurzfassung, verbindlich ist [arbeitsweise.md](arbeitsweise.md).
 
 0.220.0 «Velo-Ergänzungen» (26.10.2026, Ziel 2 «Das Velo im Griff»): Velo-Ideen 1, 3, 6, 7, 8, 12.
 0.226.0 «Der Abend-Check kommt trotzdem» (27.10.2026, Ziel 5 «Alltag»): Tages-Check, Morgen und Abend getrennt.
+0.231.0 «Wo du es gesagt hast» (27.10.2026, Ziel Tour: unterwegs und danach): Touren b fertig im Katalog, Idee 56.
 0.212.2 «Eine Startzeit» (26.10.2026, Ziel Touren): UI-Test 0.205 Teil T2, eine Startzeit und vor dem Start ein Knopf.
 0.200.0 «Zusammen auf einer Karte» (25.10.2026, Ziel Touren): Gruppen-Live-Karte, Freunde per Link auf einer Karte.
 

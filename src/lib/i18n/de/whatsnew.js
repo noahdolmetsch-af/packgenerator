@@ -4,6 +4,13 @@
  * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
+  // v0.231.0 Touren b Katalog
+  'Where you said it': 'Wo du es gesagt hast',
+  'Your day to listen to now shows a small map.': 'Dein Tag zum Hören zeigt jetzt eine kleine Karte.',
+  '«Your day to listen to» shows on a map where you recorded each note': '«Dein Tag zum Hören» zeigt auf einer Karte, wo du jede Notiz aufgenommen hast',
+  'The tour ideas from 0.212.0 are now in «What the app can do», the handbook and on their home pages': 'Die Tour-Ideen aus 0.212.0 stehen jetzt in «Was die App kann», im Handbuch und auf ihren Heimatseiten',
+  'After a day with voice notes open «Your day to listen to» in the debrief.': 'Öffne nach einem Tag mit Sprachnotizen «Dein Tag zum Hören» im Rückblick.',
+  'The map «Where you spoke them» shows a number for each note; a tap plays it.': 'Die Karte «Wo du sie gesprochen hast» zeigt eine Nummer pro Notiz; ein Tippen spielt sie ab.',
   // v0.226.0 Tages-Check
   'The evening check still comes': 'Der Abend-Check kommt trotzdem',
   '«Not today» in the morning no longer skips the evening.': '«Heute nicht» am Morgen lässt den Abend nicht mehr aus.',

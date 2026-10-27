@@ -16,6 +16,16 @@
 
 export const WHATS_NEW = [
   {
+    // v0.231.0 «Touren b» catalogue (996 Einzelideen 50–58): all in «What the app can do», the handbook and the home pages; idea 56 map
+    version: '0.231.0',
+    date: '2026-10-27',
+    title: 'Where you said it',
+    lead: 'Your day to listen to now shows a small map.',
+    points: [{ text: '«Your day to listen to» shows on a map where you recorded each note', href: '#/debrief' }],
+    small: [{ box: 'nicer', text: 'The tour ideas from 0.212.0 are now in «What the app can do», the handbook and on their home pages', href: '#/features' }],
+    test: ['After a day with voice notes open «Your day to listen to» in the debrief.', 'The map «Where you spoke them» shows a number for each note; a tap plays it.'],
+  },
+  {
     // v0.227.0 Live Navigation PR 4 «In der Nähe» (Noah 27.10.2026 «1a 2a 3a 4a», «freigabe für alle mockups»): one
     // window with all place filters, 14 situation buttons (map/situations.js), «Everything» at once, «Go there», 14 new kinds
     version: '0.227.0',
