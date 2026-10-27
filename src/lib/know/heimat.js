@@ -437,8 +437,8 @@ export const HOME = {
 
 /** Not yet visible on the home page (feature id → why code). Only gets shorter. */
 export const GAPS = {
-  'f.blockeffect': 'name',
-  'f.needs': 'name',
+  'f.blockeffect': 'spot',
+  'f.needs': 'spot',
   'f.homecoming': 'name',
   'f.tripstate': 'name',
   'f.tripbike': 'spot',
