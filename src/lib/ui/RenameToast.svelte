@@ -37,7 +37,7 @@
       <div
         class={last ? 'rtoast' : 'rtoast-old'}
         class:dragging={drag.id === x.id}
-        role="status"
+        role={last ? 'status' : undefined}
         style:translate={drag.id === x.id ? `${drag.x}px 0` : null}
         style:opacity={drag.id === x.id ? Math.max(0.3, 1 - Math.abs(drag.x) / 200) : null}
         onpointerdown={(e) => down(e, x.id)}
@@ -47,7 +47,7 @@
       >
         <Check size={18} aria-hidden="true" />
         <span>{x.text}</span>
-        {#if x.undo}<button type="button" class="undo" onclick={() => undoToast(x.id)}><Undo2 size={16} aria-hidden="true" />{t('Undo')}</button>{/if}
+        {#if x.undo}<button type="button" class={last ? 'undo' : 'undo-old'} onclick={() => undoToast(x.id)}><Undo2 size={16} aria-hidden="true" />{last ? t('Undo') : t('Take back|older note')}</button>{/if}
         <button type="button" class="close" aria-label={t('Dismiss message')} onclick={() => closeToast(x.id)}><X size={16} aria-hidden="true" /></button>
         <i class="left" style:animation-duration={`${x.ms}ms`} aria-hidden="true"></i>
       </div>
@@ -94,6 +94,7 @@
     overflow-wrap: break-word;
   }
   .undo,
+  .undo-old,
   .close {
     display: inline-flex;
     align-items: center;
@@ -106,7 +107,8 @@
     background: none;
     cursor: pointer;
   }
-  .undo {
+  .undo,
+  .undo-old {
     padding: 0 12px;
     color: var(--hi-bright);
     font: 700 var(--fs-body)/1 var(--font-body);

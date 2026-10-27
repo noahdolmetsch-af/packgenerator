@@ -49,7 +49,7 @@ test('two deletes in a row: both notes keep their Undo', async ({ page, context 
   await expect(older).toContainText(T('"{name}" deleted.', { name: A }));
 
   // the first delete can still come back
-  await older.getByRole('button', { name: T('Undo') }).click();
+  await older.getByRole('button', { name: T('Take back|older note') }).click();
   await expect.poll(async () => (await table(page, 'learnings')).map((l) => l.rule)).toEqual([A]);
   await expect(page.locator('.rtoast')).toContainText(T('"{name}" is back.', { name: A }));
 
