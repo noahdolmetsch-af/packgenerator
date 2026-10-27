@@ -9,7 +9,7 @@
   import { liveQuery } from 'dexie';
   import { db } from '../db.js';
   import { HOME_PLACE, HOME_FORECAST } from '../know.js';
-  import { CLOTHING_OFFSET, ONION, GAP_RULES, gapWish, tempRange, zoneGroup, layerKey, WEAR_RULE, wearRule, stepLimit, ruleChanged, LIMIT_RANGE } from '../wardrobe.js';
+  import { CLOTHING_OFFSET, ONION, GAP_RULES, gapWish, tempRange, zoneGroup, layerKey, WEAR_RULE, wearRule, stepLimit, ruleChanged, LIMIT_RANGE, ONION_LIMITS } from '../wardrobe.js';
   import { WEAR_DAY, NONE, dayChoice, dayRecord, isChanged, withPick, withoutPick, withAdd, withoutAdd, withSet, applyDay, addableRows, swapOptions, gapReason } from './wearday.js';
   import { WEAR_SEEDED, WEAR_REMEMBER, AUTO, seedPlan, wearSets, matchSet, activeSet, orderedSets, setPieces, setOutfit, setRowPlan, fillPlan, rangePlan } from './wearsets.js';
   import { SETS_KEY } from '../sets.js';
@@ -63,10 +63,12 @@
   const remember = $derived(active ? $rememberQ : 'today');
   const shown = $derived(o.state === 'ok' ? applyDay(setOutfit(o.outfit, active, items, rule.prefer), items, choice, rule.prefer) : null);
   const LIMIT_ROWS = ['mid', 'outer', 'hands', 'head', 'feet'];
+  // the layer borders stay folded until one differs from the standard
+  const limitsMoved = $derived(LIMIT_ROWS.some((k) => rule.limits[k] !== ONION_LIMITS[k]));
   const FEEL = [
-    ['cold', 'quickly|cold'],
+    ['cold', 'I get cold quickly'],
     ['normal', 'normally|cold'],
-    ['warm', 'rarely|cold'],
+    ['warm', 'I get warm quickly'],
   ];
   async function saveRule(value, text) {
     const prev = $ruleQ;
@@ -317,7 +319,7 @@
         <details class="why" data-wear-why>
           <summary>{t('Why so?')}</summary>
           <ol>
-            <li>{o.outfit.from === 'hour' ? t('The coldest hour of your ride: {c} °C.', { c: o.outfit.real }) : t('The lowest temperature of the day: {c} °C.', { c: o.outfit.real })}{#if o.outfit.c !== o.outfit.real}{' '}{rule.shift ? t('For you it counts as {c} °C (your debriefs and «You get cold»).', { c: o.outfit.c }) : t('From your debriefs it counts as {c} °C.', { c: o.outfit.c })}{/if}</li>
+            <li>{o.outfit.from === 'hour' ? t('The coldest hour of your ride: {c} °C.', { c: o.outfit.real }) : t('The lowest temperature of the day: {c} °C.', { c: o.outfit.real })}{#if o.outfit.c !== o.outfit.real}{' '}{rule.shift ? t('For you it counts as {c} °C (your debriefs and your rule).', { c: o.outfit.c }) : t('From your debriefs it counts as {c} °C.', { c: o.outfit.c })}{/if}</li>
             <li>{t('Base layer and legs always. Mid layer below {mid} °C, outer layer below {outer} °C or with rain, hands below {hands} °C, head below {head} °C, feet below {feet} °C.', rule.limits)}</li>
             {#if notYet.length}<li>{t('Not needed yet today: {rows}. «+ Add a layer» adds them anyway.', { rows: rowNames(notYet) })}</li>{/if}
             <li>{rule.prefer === 'warm' ? t('A piece fits when its lower border is at most 2 °C above that. Of several, the one made for this temperature comes, then the warmest.') : t('A piece fits when its lower border is at most 2 °C above that. Of several, the one made for this temperature comes, then the lightest.')}</li>
@@ -326,16 +328,7 @@
           </ol>
           <div class="rule" data-wear-rule>
             <p class="sh"><b>{t('Your rule')}</b> · {t('Holds on Today and in Pack. Every layer can still be added or left out.')}</p>
-            {#each LIMIT_ROWS as k (k)}
-              <div class="lim" data-wear-limit={k}>
-                <span class="lk">{t('{row} below', { row: rowName(k) })} <b class="num">{rule.limits[k]} °C</b></span>
-                <button type="button" class="btn sm" aria-label={t('{row}: 1 °C lower', { row: rowName(k) })} disabled={rule.limits[k] <= LIMIT_RANGE[0]} onclick={() => stepRow(k, -1)} data-wear-down={k}>−</button>
-                <button type="button" class="btn sm" aria-label={t('{row}: 1 °C higher', { row: rowName(k) })} disabled={rule.limits[k] >= LIMIT_RANGE[1]} onclick={() => stepRow(k, 1)} data-wear-up={k}>+</button>
-              </div>
-            {/each}
-            <p class="sh">{t('Higher border: the layer comes sooner.')}</p>
-            <div class="acts rem" role="group" aria-label={t('You get cold')}>
-              <span>{t('You get cold:')}</span>
+            <div class="acts rem" role="group" aria-label={t('How quickly you get cold')} data-wear-feels>
               {#each FEEL as [key, label] (key)}<button type="button" class="btn sm" aria-pressed={rule.feel === key} onclick={() => setFeel(key)} data-wear-feel={key}>{t(label)}</button>{/each}
             </div>
             <div class="acts rem" role="group" aria-label={t('First the')}>
@@ -343,6 +336,17 @@
               <button type="button" class="btn sm" aria-pressed={rule.prefer === 'light'} onclick={() => setPrefer('light')} data-wear-prefer="light">{t('lighter piece')}</button>
               <button type="button" class="btn sm" aria-pressed={rule.prefer === 'warm'} onclick={() => setPrefer('warm')} data-wear-prefer="warm">{t('warmer piece')}</button>
             </div>
+            <details class="limits" open={limitsMoved} data-wear-limits>
+              <summary>{t('More exact: from when each layer comes')}</summary>
+              {#each LIMIT_ROWS as k (k)}
+                <div class="lim" data-wear-limit={k}>
+                  <span class="lk">{t('{row} below', { row: rowName(k) })} <b class="num">{rule.limits[k]} °C</b></span>
+                  <button type="button" class="btn sm" aria-label={t('{row}: 1 °C lower', { row: rowName(k) })} disabled={rule.limits[k] <= LIMIT_RANGE[0]} onclick={() => stepRow(k, -1)} data-wear-down={k}>−</button>
+                  <button type="button" class="btn sm" aria-label={t('{row}: 1 °C higher', { row: rowName(k) })} disabled={rule.limits[k] >= LIMIT_RANGE[1]} onclick={() => stepRow(k, 1)} data-wear-up={k}>+</button>
+                </div>
+              {/each}
+              <p class="sh">{t('Higher border: the layer comes sooner.')}</p>
+            </details>
             {#if ruleChanged($ruleQ?.value)}<div class="acts"><button type="button" class="btn sm" onclick={resetRule} data-wear-rulereset>{t('Back to the standard rule')}</button></div>{/if}
           </div>
         </details>
@@ -540,6 +544,10 @@
     margin-top: 10px;
     padding-top: 8px;
     border-top: 1px solid var(--line);
+  }
+  .limits summary {
+    cursor: pointer;
+    margin: 6px 0;
   }
   .lim {
     display: grid;

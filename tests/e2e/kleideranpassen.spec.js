@@ -118,7 +118,7 @@ test('Was ziehe ich an: gap with reason, take anyway, swap, add a layer, why, ba
   await expect(row('feet')).toContainText(T('added by you · today only'));
 
   // «Warum so?»
-  await card.locator('[data-wear-why] summary').click();
+  await card.locator('[data-wear-why] > summary').click();
   await expect(card.locator('[data-wear-why]')).toContainText(T('The coldest hour of your ride: {c} °C.', { c: 6 }));
   await shot(page, info, '3-angepasst-warum');
 
@@ -221,8 +221,12 @@ test('Was ziehe ich an: own borders, you get cold, warmer first, back to the sta
   await page.locator('[data-wear-open]').click();
   const card = page.locator('dialog.wear [data-wear-card]');
   const row = (k) => card.locator(`[data-wear-row="${k}"]`);
-  await card.locator('[data-wear-why] summary').click();
+  await card.locator('[data-wear-why] > summary').click();
   const rule = card.locator('[data-wear-rule]');
+  // simple choice first; the layer borders wait folded behind «Genauer»
+  await expect(rule.locator('[data-wear-feel="normal"]')).toHaveAttribute('aria-pressed', 'true');
+  await expect(rule.locator('[data-wear-limits]')).not.toHaveAttribute('open', '');
+  await rule.locator('[data-wear-limits] summary').click();
   await expect(rule.locator('[data-wear-limit="feet"]')).toContainText('5 °C');
 
   // feet below 5 °C → at 6 °C not needed; two steps up: below 7 °C, the overshoes come
