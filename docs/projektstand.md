@@ -47,7 +47,6 @@ Stand: **27. Oktober 2026, 13:35 UTC**. Auf `main` steht **Version 0.234.0** (zu
 | #261 | – | Bibliotheken aktualisieren (lucide, dexie, vite; Dependabot) | offen, wird nach dem Nachziehen auf main geprüft |
 | live | 0.219.0 | «Heute ruhiger» Teil 1 (#267): Karten so hoch wie ihr Inhalt, kleine Knöpfe als Liste «Schnell öffnen», Velo-Arbeiten als runde Knöpfe | gemergt 27.10.2026 04:15 UTC |
 | neu | 0.233.0 | «Heute ruhiger» Teil 2 (#282): doppelte Kacheln einmal von Heute weg (bleiben im Katalog) | Noah gab frei 27.10.2026 08:58 UTC |
-| #269 / neu | 0.237.0 | «App verstehen»: Ich › App verstehen mit 7 Lektionen (Links, Übungen, abhaken); Notfall-Handbuch und Konten-Liste in docs/; Dependabot-Updates mergen wieder von selbst (#269) | offen; Noah gibt frei |
 
 ### Wie ein Release heute online geht (seit 26.10.2026 abends)
 

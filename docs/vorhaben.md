@@ -510,7 +510,6 @@ Kurzfassung, verbindlich ist [arbeitsweise.md](arbeitsweise.md).
 0.195.0 «Kleine Helfer für Tour und Velo» (25.10.2026, Ziel Touren und Velo): weitere Einzelideen aus Paket B (996 Ideen).
 0.195.1 «Einkaufsliste am Stück» (25.10.2026, Ziel Alltag): Korrektur der Einkaufsliste am Computer.
 0.199.0 «Flicken, ausprobieren, abmachen» (25.10.2026, Ziel Alltag): letzte Einzelideen aus Paket A (996 Ideen).
-0.237.0 «App verstehen» (26.10.2026, Ziel Alltag): Noah hält die App selbst am Leben, auch ohne Claude: Kurs in der App, Notfall-Handbuch, Konten-Liste.
 0.218.0 «Platz in jeder Tasche» (Ziel Tour: besser packen, 27.10.2026, eigener kleiner PR).
 0.217.0 «Nichts versteckt sich mehr» (Ziel Alltag: was es gibt, ist auffindbar, 27.10.2026, eigener kleiner PR).
 0.231.1 «Da, wo du schaust» (Ziel Alltag: was es gibt, ist auffindbar, 27.10.2026, eigener kleiner PR).

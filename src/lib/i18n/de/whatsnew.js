@@ -4,14 +4,6 @@
  * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
-  // 0.237.0 App verstehen
-  'Understand your app': 'Deine App verstehen',
-  'Seven short lessons, so the app stays yours.': 'Sieben kurze Lektionen, damit die App deine bleibt.',
-  'Me › Understand the app: lessons with links and one exercise each': 'Ich › App verstehen: Lektionen mit Links und je einer Übung',
-  'On GitHub: emergency handbook and account list in plain German': 'Auf GitHub: Notfall-Handbuch und Konten-Liste in einfachem Deutsch',
-  'Open Me › Understand the app.': 'Öffne Ich › App verstehen.',
-  'Open lesson 2 and tick «Mark as done»: the count above says 1 of 7 done.': 'Öffne Lektion 2 und tippe «Als erledigt abhaken»: oben steht 1 von 7 erledigt.',
-  'Tap «Emergency handbook»: GitHub opens the handbook.': 'Tippe «Notfall-Handbuch»: GitHub öffnet das Handbuch.',
   // 0.233.0 Alles einmal auf Heute
   'Everything once on Today': 'Alles einmal auf Heute',
   'Double tiles left Today.': 'Doppelte Kacheln sind weg von Heute.',

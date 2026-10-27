@@ -876,7 +876,6 @@ Die frühere gespeicherte Datei `2026-10-07-packgenerator-ablaufplan.md` wird al
 
 **25.10.2026, v0.199.0 «Flicken, ausprobieren, abmachen»:** letzte Einzelideen aus Paket A: Kleider reparieren statt aussortieren, Wunsch zuerst ausleihen, Ideen für ein Treffen, Geburtstag mit kleinen Schritten, Webcams mit Zweck und Aufräumrunde.
 
-**26.10.2026, v0.237.0 «App verstehen»:** Ich › App verstehen (sieben Lektionen), Notfall-Handbuch und Konten-Liste: Noah kann die App ohne Claude am Leben halten.
 **27.10.2026, v0.231.0 «Wo du es gesagt hast»:** Touren b vollständig im Katalog; Karte «Wo du sie gesprochen hast».
 
 **27.10.2026, v0.226.0 «Der Abend-Check kommt trotzdem»:** Tages-Check: «Heute nicht» am Morgen lässt den Abend-Check nicht mehr aus.
