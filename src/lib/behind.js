@@ -5,13 +5,14 @@
 // - every build writes version.json next to the app (vite.config.js); it is never in the offline copy,
 // - the app asks for it (on start, when it comes back, every hour) and compares with its own version,
 // - when a newer version has been online for 15 minutes and this device still runs the old one,
-//   a small bar says so, with «Jetzt laden» (freshreload.js: loads anew from the internet, data stays).
+//   a small bar says so (since 27.10.2026 after 2 minutes, before 15), with «Jetzt laden» (freshreload.js: loads anew from the internet, data stays).
 // The 15 minutes give the normal update time to work first, so the bar only shows when it is stuck.
 import { freshReload } from './freshreload.js';
 import { t } from './i18n.svelte.js';
 
 export const KEY = 'pg-behind';
-export const WAIT = 15 * 60 * 1000;
+// 27.10.2026 (Noah «1-5 a», question 3): 2 minutes instead of 15, so a stuck device hears about it soon
+export const WAIT = 2 * 60 * 1000;
 const BAR = 'data-behind-bar';
 
 /** true when version a is newer than version b («0.165.0» > «0.157.0»). */
