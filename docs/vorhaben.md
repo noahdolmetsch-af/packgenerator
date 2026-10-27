@@ -517,6 +517,7 @@ Kurzfassung, verbindlich ist [arbeitsweise.md](arbeitsweise.md).
 0.212.1 «Die heutige Tour sagt eins» (26.10.2026, Ziel Touren): UI-Test 0.205 Teil T1, die heutige Tour sagt überall dasselbe.
 
 0.220.0 «Velo-Ergänzungen» (26.10.2026, Ziel 2 «Das Velo im Griff»): Velo-Ideen 1, 3, 6, 7, 8, 12.
+0.226.0 «Der Abend-Check kommt trotzdem» (27.10.2026, Ziel 5 «Alltag»): Tages-Check, Morgen und Abend getrennt.
 0.212.2 «Eine Startzeit» (26.10.2026, Ziel Touren): UI-Test 0.205 Teil T2, eine Startzeit und vor dem Start ein Knopf.
 0.200.0 «Zusammen auf einer Karte» (25.10.2026, Ziel Touren): Gruppen-Live-Karte, Freunde per Link auf einer Karte.
 
@@ -526,5 +527,5 @@ Ziel «Unterwegs» (Tour-Begleiter). Mockups M1–M12 freigegeben; PR 1 «Fahrt 
 
 Stand 27.10.2026: PR 2 «Orte» (0.222.0) gebaut. M13 «Karte frei» freigegeben (1a 2a 3a), kommt als nächster kleiner PR.
 Stand 27.10.2026: PR 3 «Strecke genau» (0.223.0) gebaut. Neu gewünscht: Suchvorschläge für «In der Nähe» (Wellness, Automaten, Situations-Knöpfe), Fragen offen.
-Stand 27.10.2026: PR 5 «Umweg und zurück» (0.225.0) gebaut. Danach M13 «Karte frei».
-Stand 27.10.2026: PR 4 «In der Nähe» (0.224.0) gebaut. Nächster Schritt PR 5 «Umweg und zurück». Vorschlag «Alle Infos zu einem Ort» an Noah geschickt, 5 Fragen offen.
+Stand 27.10.2026: PR 5 «Umweg und zurück» (0.228.0) gebaut. Danach M13 «Karte frei».
+Stand 27.10.2026: PR 4 «In der Nähe» (0.227.0) gebaut. Nächster Schritt PR 5 «Umweg und zurück». Vorschlag «Alle Infos zu einem Ort» an Noah geschickt, 5 Fragen offen.

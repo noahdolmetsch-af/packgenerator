@@ -16,9 +16,9 @@
 
 export const WHATS_NEW = [
   {
-    // v0.225.0 Live Navigation PR 5 «Umweg und zurück» (Noah 27.10.2026 «1a 2b 3a» + «entlang gleicher strecke zurück
+    // v0.228.0 Live Navigation PR 5 «Umweg und zurück» (Noah 27.10.2026 «1a 2b 3a» + «entlang gleicher strecke zurück
     // zur route»): at the place the app asks how you go back; off the route it plans the way back by itself
-    version: '0.225.0',
+    version: '0.228.0',
     date: '2026-10-27',
     title: 'And back onto the route',
     lead: 'After a stop and off the route, the live map shows you the way back.',
@@ -30,9 +30,9 @@ export const WHATS_NEW = [
     test: ['Open a race or tour on the live map and turn on «Off-route warning» in the settings.', 'Plan a detour with «Nearby» › a place › «Go there» and ride to it: the card asks how you go back.', 'Ride off the route: after about 15 seconds a new way back shows up. Before, only the warning tone came.'],
   },
   {
-    // v0.224.0 Live Navigation PR 4 «In der Nähe» (Noah 27.10.2026 «1a 2a 3a 4a», «freigabe für alle mockups»): one
+    // v0.227.0 Live Navigation PR 4 «In der Nähe» (Noah 27.10.2026 «1a 2a 3a 4a», «freigabe für alle mockups»): one
     // window with all place filters, 14 situation buttons (map/situations.js), «Everything» at once, «Go there», 14 new kinds
-    version: '0.224.0',
+    version: '0.227.0',
     date: '2026-10-27',
     title: 'What do you need?',
     lead: 'On the live map, «Nearby» opens one window with everything to find a place.',
@@ -42,6 +42,16 @@ export const WHATS_NEW = [
     ],
     small: [{ box: 'new', text: '«Everything» shows every kind of your row at once' }],
     test: ['Open the live map and tap «Nearby».', 'Tap «Hunger»: only food places that are open now show up.', 'Tap a place and then «Go there». Before, the place search sat at the bottom of the sheet.'],
+  },
+  {
+    // v0.226.0 Tages-Check (Noah 26.10.2026 «1a»): «Not today» in the morning waits only until the evening check
+    version: '0.226.0',
+    date: '2026-10-27',
+    title: 'The evening check still comes',
+    lead: '«Not today» in the morning no longer skips the evening.',
+    points: [{ text: '«Not today» in the morning check waits only until the evening check', href: '#/me/abfragen' }],
+    small: [{ box: 'fixed', text: 'The hint in the check window says «until the evening check» in the morning' }],
+    test: ['In the morning check tap «Not today»: the window closes.', 'In the evening, at your evening time, the evening check comes as usual.'],
   },
   {
     // v0.223.0 Live Navigation PR 3 «Strecke genau» (Noah 27.10.2026 «bitte umsetzen»): tour and race routes keep

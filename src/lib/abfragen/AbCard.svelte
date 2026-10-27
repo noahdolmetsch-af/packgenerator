@@ -14,7 +14,7 @@
   import { ClipboardList, X, ChevronRight } from '@lucide/svelte';
   import { backClose } from '../ui/backclose.js';
   import { abQuery, ensureConfig, saveAnswers, saveSnooze } from '../abdb.js';
-  import { fitbitFill, dueList, snoozeAll, skipToday, quietToday, isQuiet, QUIET_KEY, answerRow, lastAnswer, stampOf, settingOf, fromChecks, dayOf, configOf, isEveningRound, LATER_KEY, laterStamp, fitNow } from '../abfragen.js';
+  import { fitbitFill, dueList, snoozeAll, skipToday, quietToday, isQuiet, QUIET_KEY, QUIET_ROUND, answerRow, lastAnswer, stampOf, settingOf, fromChecks, dayOf, configOf, isEveningRound, LATER_KEY, laterStamp, fitNow } from '../abfragen.js';
   import { kgOf } from '../review/actdata.js';
   import { t, tn } from '../i18n.svelte.js';
   import AnswerInput from './AnswerInput.svelte';
@@ -100,14 +100,14 @@
     delete notes[d.q.id];
     saveSnooze(skipToday(data?.snooze, d.q.id, now));
   }
-  // «Heute nicht» and ✕ (Noah 21.10.2026 «nie mehr eine Erinnerung»): the shown questions away for the day,
-  // and neither the window nor Heute's hint come back before tomorrow
-  const notToday = () => saveSnooze(quietToday(data?.snooze, shown, now));
+  // «Heute nicht» and ✕ (Noah 21.10.2026 «nie mehr eine Erinnerung»): the shown questions away, and neither the window
+  // nor Heute's hint come back before tomorrow; in the morning only until the evening check (Noah 26.10.2026 «1a»)
+  const notToday = () => saveSnooze(quietToday(data?.snooze, shown, now, configOf(data?.cfg).rounds));
   // «Später»: the window waits one hour (LATER_KEY in the snooze record; dueList reads only question ids)
   const later = () => saveSnooze({ ...(data?.snooze ?? {}), [LATER_KEY]: laterStamp(now) });
   const waiting = $derived(!!data?.snooze?.[LATER_KEY] && now < data.snooze[LATER_KEY]);
   const evening = $derived(isEveningRound(now, configOf(data?.cfg).rounds));
-  const quiet = $derived(isQuiet(data?.snooze, now));
+  const quiet = $derived(isQuiet(data?.snooze, now, configOf(data?.cfg).rounds));
   const open = $derived(shown.length > 0 && !waiting && !quiet);
   $effect(() => {
     due = quiet ? 0 : Math.min(shown.length, FIRST); // Noah 2: the row on Heute names the 3 questions of the window
@@ -118,7 +118,7 @@
   $effect(() => {
     if (!ask) return;
     ask = false;
-    const { [LATER_KEY]: _, [QUIET_KEY]: __, ...rest } = data?.snooze ?? {};
+    const { [LATER_KEY]: _, [QUIET_KEY]: __, [QUIET_ROUND]: ___, ...rest } = data?.snooze ?? {};
     saveSnooze(rest);
   });
   // «Heute neu» A (Noah 20.10.2026 «2 Morgen-Check mit nur 3 Fragen, wobei andere Fragen optional eingeblendet und
@@ -197,7 +197,7 @@
       <button type="button" class="btn" onclick={later} data-ab-later>{t('Later|mask')}</button>
       <button type="button" class="btn hi" onclick={save} disabled={!filled || saving} data-ab-save>{t('Save')}</button>
     </div>
-    <small class="hint">{t('«Later» brings this window back in one hour. «Not today» and ✕ close it until tomorrow, without a reminder.')}</small>
+    <small class="hint">{evening ? t('«Later» brings this window back in one hour. «Not today» and ✕ close it until tomorrow, without a reminder.') : t('«Later» brings this window back in one hour. «Not today» and ✕ close it until the evening check, without a reminder.')}</small>
   </dialog>
 {/if}
 
