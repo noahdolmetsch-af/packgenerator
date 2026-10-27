@@ -4,7 +4,7 @@
  * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
-  // v0.213.0 Velo-Ergänzungen (Noah 26.10.2026)
+  // v0.216.0 Velo-Ergänzungen (Noah 26.10.2026)
   'More for your bike': 'Mehr für dein Velo',
   'Also noises and the calendar.': 'Auch Geräusche und der Kalender.',
   'Chain checker corrects the forecast': 'Kettenlehre korrigiert die Prognose',

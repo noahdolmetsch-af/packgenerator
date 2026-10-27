@@ -37,7 +37,7 @@ export const TOP_HREF = '#/me/news?all&sort=top';
  */
 export const SINCE = {
   // Noah 26.10.2026 «1 3 6 7 8 12a» (Velo-Ergänzungen): provisional, the bundler sets the number
-  'f.chainmeasure': '0.213.0', 'f.bikeyear': '0.213.0', 'f.bikeseason': '0.213.0', 'f.noises': '0.213.0', 'f.carestreak': '0.213.0', 'f.wearcal': '0.213.0',
+  'f.chainmeasure': '0.216.0', 'f.bikeyear': '0.216.0', 'f.bikeseason': '0.216.0', 'f.noises': '0.216.0', 'f.carestreak': '0.216.0', 'f.wearcal': '0.216.0',
   // Einzelideen Material und Überall (996 Ideen, Noah 25.10.2026): provisional, the bundler sets the number
   'f.ownviews': '0.205.0',
   // Paket K «Unterwegs»: v0.154.0

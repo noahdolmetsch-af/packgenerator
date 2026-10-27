@@ -17,7 +17,7 @@
 export const WHATS_NEW = [
   {
     // Velo-Ergänzungen (Noah 26.10.2026 «1 3 6 7 8 12a»): chain checker in the forecast, year in review, care series, calendar, noises, winter and spring. Provisional, the bundler sets the number.
-    version: '0.213.0',
+    version: '0.216.0',
     date: '2026-10-26',
     title: 'More for your bike',
     lead: 'Also noises and the calendar.',

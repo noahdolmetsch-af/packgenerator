@@ -512,4 +512,6 @@ Kurzfassung, verbindlich ist [arbeitsweise.md](arbeitsweise.md).
 
 0.208.0 «Mehr Platz am Computer» (26.10.2026, Ziel Alltag/Bedienung): UI-Ziel #14, die Hauptorte nutzen am Computer ihre Breite.
 0.212.1 «Die heutige Tour sagt eins» (26.10.2026, Ziel Touren): UI-Test 0.205 Teil T1, die heutige Tour sagt überall dasselbe.
+
+0.216.0 «Velo-Ergänzungen» (26.10.2026, Ziel 2 «Das Velo im Griff»): Velo-Ideen 1, 3, 6, 7, 8, 12.
 0.200.0 «Zusammen auf einer Karte» (25.10.2026, Ziel Touren): Gruppen-Live-Karte, Freunde per Link auf einer Karte.
