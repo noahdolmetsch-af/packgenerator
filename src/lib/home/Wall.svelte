@@ -54,6 +54,8 @@
     if (list.map((x) => x.id).join() !== tiles.map((x) => x.id).join()) onchange?.(list);
   }
   const shown = $derived(drag ? drag.list : tiles);
+  // «Neuer Schwung» Teil 2: the tiles appear in the order they stand on the page (in areas: area by area)
+  const seen = $derived(sections ? sectionsOf(shown).flatMap((g) => g.tiles) : shown);
   const pickedTile = $derived(picked ? (tiles.find((x) => x.id === picked) ?? null) : null);
 
   /* a long press on a tile opens edit mode; the tap that follows is swallowed.
@@ -92,8 +94,8 @@
   $effect(() => () => clearTimeout(holdTimer));
 </script>
 
-{#snippet tileEl(x, cls = '', fill = undefined)}
-  <div class="ti {x.size} {cls}" style:--fill={fill} class:moving={drag?.id === x.id} class:picked={picked === x.id} data-tile={x.id} data-size={x.size} role="listitem" onpointerdowncapture={(e) => holdDown(e, e.target.closest?.('[data-tile]')?.dataset.tile ?? x.id)} onpointermovecapture={holdMove} onpointerupcapture={holdStop} onpointercancelcapture={holdStop} onclickcapture={holdClick}>
+{#snippet tileEl(x, cls = '', fill = undefined, i = 0)}
+  <div class="ti {x.size} {cls}" style:--fill={fill} style:--i={i} class:moving={drag?.id === x.id} class:picked={picked === x.id} data-tile={x.id} data-size={x.size} role="listitem" onpointerdowncapture={(e) => holdDown(e, e.target.closest?.('[data-tile]')?.dataset.tile ?? x.id)} onpointermovecapture={holdMove} onpointerupcapture={holdStop} onpointercancelcapture={holdStop} onclickcapture={holdClick}>
     <!-- «Heute lädt nicht» (19.10.2026): an error in one tile stays in that tile; the rest of Heute works -->
     <div class="body" inert={editing}><svelte:boundary onerror={(e) => console.error(`Tile ${x.id}:`, e)}>{@render body(x)}{#snippet failed(_, reset)}<p class="tile-err" data-tile-error={x.id}>{t('This tile could not load.')} <button type="button" class="link" onclick={reset}>{t('Try again')}</button></p>{/snippet}</svelte:boundary></div>
     {#if editing}
@@ -105,7 +107,7 @@
 {/snippet}
 {#snippet quickS(list, head = true)}
   <!-- «Heute ruhiger» 1a: every small tile in one calm list; a long press on a row customises it, as on a tile -->
-  <div class="ti long quick" data-quick role="listitem">
+  <div class="ti long quick" style:--i={seen.indexOf(list[0])} data-quick role="listitem">
     <div class="qcard">
       {#if head && !sections}<h2 class="qh">{t('Open quickly')}</h2>{/if}
       <div class="qgrid" role="list" aria-label={t('Open quickly')}>
@@ -117,7 +119,7 @@
 
 {#if editing}
   <div class="wall editing" bind:this={wallEl} role="list" aria-label={t('Your start page')} onpointermove={dragMove} onpointerup={dragEnd} onpointercancel={dragEnd}>
-    {#each shown as x (x.id)}{@render tileEl(x)}{/each}
+    {#each shown as x, i (x.id)}{@render tileEl(x, '', undefined, i)}{/each}
     <div class="ti s plusw" role="listitem">
       <button type="button" class="plus" onclick={onadd} aria-haspopup="dialog"><Plus size={20} aria-hidden="true" /><span>{t('Add a tile')}</span></button>
     </div>
@@ -132,12 +134,12 @@
         {#if g.key === 'quick'}{@render quickS(g.tiles)}
         {:else if g.key === 'discover'}
           <!-- 4a: «Neu», «Schon probiert?» and the tip side by side -->
-          <div class="ti long disc" role="listitem"><div class="dgrid" role="list">{#each g.tiles as x (x.id)}{@render tileEl(x, 'di')}{/each}</div></div>
-        {:else}{@const fill = fillers(g.tiles)}{#each g.tiles as x (x.id)}{@render tileEl(x, fill.has(x.id) ? 'fill' : '', fill.get(x.id))}{/each}{/if}
+          <div class="ti long disc" role="listitem"><div class="dgrid" role="list">{#each g.tiles as x (x.id)}{@render tileEl(x, 'di', undefined, seen.indexOf(x))}{/each}</div></div>
+        {:else}{@const fill = fillers(g.tiles)}{#each g.tiles as x (x.id)}{@render tileEl(x, fill.has(x.id) ? 'fill' : '', fill.get(x.id), seen.indexOf(x))}{/each}{/if}
       {/each}
     {:else}
       {#each runsOf(shown) as r, i (r.key === 'quick' ? 'quick' : `${i}`)}
-        {#if r.key === 'quick'}{@render quickS(r.tiles)}{:else}{#each r.tiles as x (x.id)}{@render tileEl(x)}{/each}{/if}
+        {#if r.key === 'quick'}{@render quickS(r.tiles)}{:else}{#each r.tiles as x (x.id)}{@render tileEl(x, '', undefined, seen.indexOf(x))}{/each}{/if}
       {/each}
     {/if}
     <div class="ti long plusw quiet" role="listitem">

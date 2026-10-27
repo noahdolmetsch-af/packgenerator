@@ -15,6 +15,20 @@ export const PEOPLE_KEY = 'people-met';
  */
 export const SHOWN = ['phone', 'wa', 'email', 'insta', 'strava', 'komoot', 'web', 'addr', 'bike', 'note'];
 export const SHOW_DEFAULT = { phone: false, wa: false, email: true, insta: true, strava: true, komoot: true, web: true, addr: false, bike: true, note: true };
+/**
+ * Kontakt-QR-Code (Noah «4a»): how long a shown card stays readable, in days (0 = always). Soft: the card page
+ * says «expired» after that day; the details still sit in the link, so nothing is truly taken back.
+ */
+export const VALID_DAYS = [1, 7, 30, 0];
+/** The last day a card made on `today` (YYYY-MM-DD) shows, or '' for always. Calendar days, no clock. */
+export function untilFor(days, today) {
+  const d = Number(days);
+  if (!d || !/^\d{4}-\d{2}-\d{2}$/.test(String(today))) return '';
+  const [y, m, dd] = today.split('-').map(Number);
+  return new Date(Date.UTC(y, m - 1, dd + d - 1)).toISOString().slice(0, 10);
+}
+/** Is the card over (today after its last day)? */
+export const expired = (until, today) => !!until && /^\d{4}-\d{2}-\d{2}$/.test(until) && String(today) > until;
 const MAX = (f) => (f === 'note' || f === 'addr' ? 120 : f === 'web' || f === 'strava' || f === 'komoot' ? 100 : 60);
 
 const clean = (s, n = 60) => String(s ?? '').replace(/\s+/g, ' ').trim().slice(0, n);

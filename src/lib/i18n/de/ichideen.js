@@ -7,12 +7,12 @@ export default {
   'Six short steps light up the places of the app; plus a small tour per place. A tour you end early goes on at its step next time.': 'Sechs kurze Schritte zeigen die Orte der App; dazu ein kleiner Rundgang pro Ort. Ein abgebrochener Rundgang geht beim nächsten Mal beim richtigen Schritt weiter.',
   'Birthdays, plants, the evening before, the tour weather, the workshop and the backup as a message on the phone; each one switched on by itself. Done on one device: the message no longer comes.': 'Geburtstage, Pflanzen, der Vorabend, das Tourwetter, die Werkstatt und das Backup als Nachricht aufs Handy; jede einzeln einschaltbar. Auf einem Gerät erledigt: die Nachricht kommt nicht mehr.',
   'g h, g t … switch places, n = New, / = search, ? = the list. After a few mouse clicks the app shows the matching shortcut once.': 'g h, g t … wechseln die Orte, n = Neu, / = Suche, ? = die Liste. Nach ein paar Mausklicks zeigt die App einmal das passende Kürzel.',
-  'Switch off what the app suggests by itself, by area or by kind on every page: clothing for the weather, inspiration rules, ideas in Active, ideas to buy, performance tips, ideas for free time, fitting tools.': 'Schalte aus, was die App von selbst vorschlägt, nach Bereich oder nach Art auf jeder Seite: Kleider fürs Wetter, Regeln aus der Inspiration, Ideen in Aktiv, Kaufideen, Leistungstipps, Ideen für freie Zeit, passende Werkzeuge.',
+  'Switch off what the app suggests by itself, area by area: clothing for the weather, inspiration rules, ideas in Active. By kind on every page (ideas to buy, performance tips, ideas for free time, fitting tools) under Me › Calm and personal › Hidden and switched off.': 'Schalte aus, was die App von selbst vorschlägt, Bereich für Bereich: Kleider fürs Wetter, Inspirationsregeln, Ideen in Aktiv. Nach Art auf jeder Seite (Kaufideen, Leistungstipps, Ideen für freie Zeit, passende Werkzeuge) unter Ich › Ruhig und persönlich › Ausgeblendet und aus.',
   'After every change a file goes there; if not, a message says how to fix it.': 'Nach jeder Änderung kommt dort eine Datei hin; sonst sagt eine Meldung, wie du es löst.',
   'Choose the example trip or your own data, or «Go on at step n».': 'Wähle die Beispieltour oder deine eigenen Daten, oder «Weiter bei Schritt n».',
   'Switch on one reminder and tap «Send a test»; what you tick off elsewhere no longer comes.': 'Schalte eine Erinnerung ein und tippe «Test senden»; was du anderswo abhakst, kommt nicht mehr.',
   'Try g h, g t, n or /; after a few mouse clicks a tip shows the shortcut.': 'Probiere g h, g t, n oder /; nach ein paar Mausklicks zeigt ein Tipp das Kürzel.',
-  'Switch off what you do not want, by area or by kind.': 'Schalte aus, was du nicht willst, nach Bereich oder nach Art.',
+  'Switch off an area; kinds: under Hidden and switched off.': 'Schalte einen Bereich aus; Arten: unter Ausgeblendet und aus.',
   'Ideas to buy': 'Kaufideen',
   'Every page: the best upgrade from your wishlist and other hints to buy something.': 'Auf jeder Seite: das beste Upgrade aus deiner Wunschliste und andere Hinweise zum Kaufen.',
   'Performance tips': 'Leistungstipps',
@@ -39,4 +39,7 @@ export default {
   '«?» shows all shortcuts.': '«?» zeigt alle Kürzel.',
   'No more shortcut tips': 'Keine Kürzel-Tipps mehr',
   'OK': 'OK',
+  // Noah 27.10.2026 «2b»: kinds only on «Ausgeblendet und aus»; Darstellung points there
+  'Suggestions by kind (to buy, performance, free time, tools):': 'Vorschläge nach Art (Kaufen, Leistung, freie Zeit, Werkzeuge):',
+  'Me › Calm and personal › Hidden and switched off': 'Ich › Ruhig und persönlich › Ausgeblendet und aus',
 };
