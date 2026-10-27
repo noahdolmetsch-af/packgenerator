@@ -1,6 +1,6 @@
 // «Rennen-Check» (Noah 27.10.2026 «1b 2b»): the sheets, their keys and loading answers. Made-up answers.
 import { describe, it, expect } from 'vitest';
-import { SHEETS, fieldKeys, valueOf, withValue, answersFrom, filled, takeOver, gramsOf, setupWeight, DAY_BEFORE, dayBeforeDone } from '../src/lib/race/check-lib.js';
+import { SHEETS, fieldKeys, valueOf, withValue, answersFrom, filled, takeOver, gramsOf, setupWeight, DAY_BEFORE, dayBeforeDone, afterNotes, afterCount } from '../src/lib/race/check-lib.js';
 
 describe('the race check', () => {
   it('has six sheets and every key belongs to one of them', () => {
@@ -66,4 +66,13 @@ describe('the race check', () => {
     expect(got['vorher.3.v']).toBe('Start 06:00, alarm 04:30');
     expect('vorher.0.done' in got).toBe(false);
   });
+  it('after the race: answers per sheet show in the other races, never taken over', () => {
+    const past = withValue(withValue(null, 'liste.after.missing', 'Second gloves'), 'liste.after.change', 'Gloves in the frame bag');
+    expect(afterCount(past, 'liste')).toBe(2);
+    const others = [{ id: 'a', title: 'Old race', check: past }, { id: 'me', title: 'This race', check: withValue(null, 'liste.after.much', 'mine') }];
+    expect(afterNotes(others, 'liste', 'me').map((x) => [x.title, x.k, x.text])).toEqual([['Old race', 'missing', 'Second gloves'], ['Old race', 'change', 'Gloves in the frame bag']]);
+    expect(afterNotes(others, 'nacht', 'me')).toEqual([]);
+    expect(takeOver(null, past).n).toBe(0);
+  });
 });
+

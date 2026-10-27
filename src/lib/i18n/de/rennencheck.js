@@ -201,4 +201,14 @@ export default {
   '{done} of {of} done': '{done} von {of} erledigt',
   'All done. Sleep well!': 'Alles erledigt. Schlaf gut!',
   'Anything else for the evening before?': 'Sonst noch etwas für den Abend davor?',
+  // «Fragen nach dem Rennen» (Noah «8a»)
+  'What was missing?': 'Was hat gefehlt?',
+  'What was too much or never used?': 'Was war zu viel oder nie gebraucht?',
+  'What do you change next time?': 'Was änderst du nächstes Mal?',
+  'From your earlier races': 'Aus deinen früheren Rennen',
+  'Missing': 'Gefehlt',
+  'Too much': 'Zu viel',
+  'Change': 'Ändern',
+  'After the race|sheet': 'Nach dem Rennen',
+  'Answer after the race. Your answers show on top of this sheet in your next races.': 'Nach dem Rennen beantworten. Deine Antworten stehen in deinen nächsten Rennen oben auf diesem Blatt.',
 };
