@@ -91,3 +91,13 @@ test('phone: a list row tick has a 44 px tap area, the row keeps its height', as
   await page.touchscreen.tap(b.x + b.width / 2, b.y + b.height / 2 + 18);
   await expect(box).toBeChecked();
 });
+
+test('phone: a tick with its text in one label is at least 44 px high (Paket 3)', async ({ page, context }, info) => {
+  test.skip(info.project.name !== 'phone', 'phone only');
+  await load(page, context, info);
+  // «Vor der Abfahrt» › Haus-Check: each line is a label around its tick (was 28 px high)
+  await page.goto('./#/ride/abfahrt');
+  const label = page.locator('main label:has(> input[type="checkbox"])').first();
+  await expect(label).toBeVisible();
+  expect((await label.boundingBox()).height).toBeGreaterThanOrEqual(44);
+});

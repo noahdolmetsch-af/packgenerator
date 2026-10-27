@@ -888,6 +888,12 @@ export const HANDBOOK = {
     steps: ['At the end of the evening review tap «Keep this day».', 'Write what made it good and save.', 'In What is good for me tap «Repeat on Saturday».'],
     example: 'Example: «quiet morning, outside in the afternoon» → on Saturday morning the check reminds you.',
   },
+  // «App verstehen» (Noah 26.10.2026)
+  'f.verstehen': {
+    on: null,
+    steps: ['Open Me › Understand the app.', 'Open a lesson, read it and do the exercise.', 'Tick «Done» if you like.'],
+    example: 'Example: lesson 2 «Make a backup and bring it back» → export a backup and import it in a test link.',
+  },
   // Paket P3 «Warum? und Regeln»
   'f.decides': {
     on: null,
@@ -1691,7 +1697,7 @@ export const HANDBOOK = {
   },
   'f.suggestoff': {
     on: null,
-    steps: ["Open Me › Appearance › Suggestions.", "Switch off an area you do not want.", "A kind (ideas to buy, performance tips, ideas for free time, fitting tools) goes off on every page at once."],
+    steps: ["Open Me › Appearance › Suggestions.", "Switch off an area you do not want.", "A kind (ideas to buy, performance tips, ideas for free time, fitting tools): Me › Calm and personal › Hidden and switched off."],
     example: "Example: «Ideas in Active» off → Active shows no suggested actions.",
   },
   'f.tipweek': {

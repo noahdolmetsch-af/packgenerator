@@ -1959,6 +1959,7 @@ Noah 19.10.2026: «1a 2a 3a 4 a oder b beides wählbar 5a», danach «a und b»,
 - Noah 27.10.2026 Suchvorschläge «1a 2a 3a 4a»: Situations-Knöpfe ganz oben bei «In der Nähe», neue Arten unter «Weitere Arten», Automaten aus OpenStreetMap, auf Live-Karte und Tour-Seite. Schlafplatz finden ohne Regel-Hinweis («ohne hinweis»). Umweg und zurück «1a 2b 3a»: nach dem Halt immer fragen (Renn-Modus: zurück an die Ausstiegsstelle vorgewählt), neben der Strecke sofort selbst neu berechnen, dazu Sport-/Outdoorgeschäft, Feuerstelle und Handy laden.
 - Noah 27.10.2026 01:15: Freigabe für alle Mockups (M8 neu, N1–N3, R1–R4); dazu «Gleichen Weg zurück» auf der eigenen Spur, wenn man von der Strecke abkommt.
 - 26.10.2026: **Neuer Schwung PR 1** (Noah «1a 2a 3a 4a 5a + 5b»: Stil S2 «Kacheln mit Tiefe», Handy-Bereiche zu ausser «Jetzt», «Startseite anpassen» als Zeile unten, Bewegung überall dezent, kleine Bausteine plus Lottie). PR 1 nur die Zeile unten; Aufklappen wartet auf «Heute ruhiger» Teil 3. Vorschläge: https://claude.ai/artifact/8qMe2aMYPgj93cpRHEQRXv
+- Noah 27.10.2026 15:17 (Einzelideen Ich, Übersicht): «1a 2b 3a» = letzte Werkzeug-Ergebnisse bleiben nur auf dem Gerät; Vorschläge nach Art nur noch unter Ich › Ruhig und persönlich › Ausgeblendet und aus (Darstellung verlinkt dorthin); Dokumente-Test unabhängig von der Uhrzeit machen.
 
 ## 26.–27.10.2026 Tour-Detailseite übersichtlicher
 
@@ -1968,6 +1969,8 @@ Noah 19.10.2026: «1a 2a 3a 4 a oder b beides wählbar 5a», danach «a und b»,
 ## 27.10.2026 Weg von gebaut zu online
 
 - Noah «1a 2a 3a 4a 5a»: Schnellspur nach dem Merge (main geht nach Bauen und Kurztests online, volle Browsertests und Gesamttest danach in `volle-pruefung.yml` und nachts, rot = GitHub-Meldung); pro PR nur Handy-Browsertests plus Wächter am Computer; den Stau vom 27.10. abends durch Abbrechen wartender PR-Läufe lösen; Vercel-Vorschauen («packgenerator») von GitHub trennen; nach jedem Online-Gehen ein automatischer Eintrag auf GitHub. Grund: ein Prüflauf brauchte 18 der 20 Gratis-Prüf-Computer, gemergte PRs warteten bis 2 Stunden. Analyse: https://claude.ai/artifact/42o5ciwHWYuFXTWx6cZrGb
+
+- 27.10.2026: **Neuer Schwung Teil 2** (Noah «4a» Bewegung überall dezent): zuerst Heute. Selbst entschieden: nur Deckkraft, clip-path und SVG-Strich bewegen sich, nie transform, damit keine Box springt und Tests und Tippen nicht warten müssen; Lottie kommt als eigener kleiner PR (2b).
 
 ## 27.10.2026 Gewohnheiten oben auf Heute
 
