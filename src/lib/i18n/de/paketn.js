@@ -320,4 +320,14 @@ export default {
   'Paste a link of a tour and the dream gets its name, km and climb; from Ride with GPS also the map.': 'Füge den Link einer Tour ein, und der Traum bekommt Name, km und Höhenmeter; von Ride with GPS auch die Karte.',
   'Paste the link of a tour in the field at the top and tap «Add».': 'Füge oben ins Feld den Link einer Tour ein und tippe «Hinzufügen».',
   'In a dream: «Read from the link».': 'In einem Traum: «Aus dem Link lesen».',
+  // «Erfüllte Träume» (Träume und Neuland N17)
+  'Fulfilled in {when}': 'Erfüllt im {when}',
+  'Fulfilled dreams': 'Erfüllte Träume',
+  'Dreams you rode. They count once the debrief is done.': 'Träume, die du gefahren bist. Sie zählen, sobald der Rückblick fertig ist.',
+  'Fulfilled dream {year}: {n}': 'Erfüllter Traum {year}: {n}',
+  'Fulfilled dreams {year}: {n}': 'Erfüllte Träume {year}: {n}',
+  'A dream you rode counts as fulfilled once its debrief is done: on Dreams with its month and photo, and in the year card of the review.': 'Ein gefahrener Traum zählt als erfüllt, sobald sein Rückblick fertig ist: unter Träume mit Monat und Foto und in der Jahreskarte des Rückblicks.',
+  'Plan a dream as a trip, ride it and finish its debrief.': 'Plane einen Traum als Tour, fahr sie und schliess den Rückblick ab.',
+  'Trips › Dreams shows it under «Fulfilled dreams».': 'Touren › Träume zeigt ihn unter «Erfüllte Träume».',
+  'The year card of Past trips counts it too.': 'Die Jahreskarte von Vergangene Touren zählt ihn auch.',
 };
