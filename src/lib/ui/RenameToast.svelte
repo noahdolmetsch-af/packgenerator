@@ -31,8 +31,9 @@
 
 {#if toasts.list.length}
   <div class="rstack">
-    {#each toasts.list as x, i (x.id)}
-      {@const last = i === toasts.list.length - 1}
+    <!-- the newest note comes first for the screen reader and the keyboard; on screen it is at the bottom -->
+    {#each [...toasts.list].reverse() as x, i (x.id)}
+      {@const last = i === 0}
       <div
         class={last ? 'rtoast' : 'rtoast-old'}
         class:dragging={drag.id === x.id}
@@ -47,7 +48,7 @@
         <Check size={18} aria-hidden="true" />
         <span>{x.text}</span>
         {#if x.undo}<button type="button" class="undo" onclick={() => undoToast(x.id)}><Undo2 size={16} aria-hidden="true" />{t('Undo')}</button>{/if}
-        <button type="button" class="close" aria-label={t('Close note')} onclick={() => closeToast(x.id)}><X size={16} aria-hidden="true" /></button>
+        <button type="button" class="close" aria-label={t('Dismiss message')} onclick={() => closeToast(x.id)}><X size={16} aria-hidden="true" /></button>
         <i class="left" style:animation-duration={`${x.ms}ms`} aria-hidden="true"></i>
       </div>
     {/each}
@@ -63,7 +64,7 @@
     z-index: 40;
     width: min(520px, calc(100vw - 32px));
     display: flex;
-    flex-direction: column;
+    flex-direction: column-reverse;
     gap: 6px;
   }
   .rtoast,

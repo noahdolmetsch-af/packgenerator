@@ -54,6 +54,6 @@ test('two deletes in a row: both notes keep their Undo', async ({ page, context 
   await expect(page.locator('.rtoast')).toContainText(T('"{name}" is back.', { name: A }));
 
   // × closes a note
-  await page.locator('.rtoast').getByRole('button', { name: T('Close note') }).click();
+  await page.locator('.rtoast').getByRole('button', { name: T('Dismiss message') }).click();
   await expect(page.getByText(T('"{name}" is back.', { name: A }))).toHaveCount(0);
 });

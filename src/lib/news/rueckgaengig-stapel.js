@@ -9,6 +9,7 @@ export default {
   since: [],
   de: {
     'Every Undo stays': 'Jedes Rückgängig bleibt',
+    'Dismiss message': 'Meldung ausblenden',
     'Two deletes in a row: both can come back.': 'Zweimal nacheinander gelöscht: beides kommt zurück.',
     'A second note no longer pushes away the first one: each keeps its own «Undo» for 4 seconds': 'Eine zweite Meldung verdrängt die erste nicht mehr: jede behält 4 Sekunden ihr eigenes «Rückgängig»',
     'Notes glide up from below, a thin line shows the time left, swipe sideways or × closes them': 'Meldungen gleiten von unten auf, ein dünner Strich zeigt die Zeit, zur Seite wischen oder × schliesst sie',
