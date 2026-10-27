@@ -23,8 +23,11 @@ test('Heute in the new look: header, trip card, light tiles, new tiles, New by a
   await expect(adapt).toBeVisible();
   const [a, h] = [await adapt.boundingBox(), await page.locator('#hello-h').boundingBox()];
   expect(a.y).toBeGreaterThan(h.y + 400);
-  const w = await page.locator('.wall').first().boundingBox();
-  expect(a.y).toBeGreaterThan(w.y + w.height - 1);
+  // measured together in one poll: tiles that load late grow the wall and push the button down
+  await expect.poll(async () => {
+    const [b, w] = [await adapt.boundingBox(), await page.locator('.wall').first().boundingBox()];
+    return b.y - (w.y + w.height);
+  }).toBeGreaterThan(-1);
   const all = await page.locator('[data-all-areas]').boundingBox();
   if (!phone) expect(Math.abs(all.y - a.y)).toBeLessThan(8); // one line on a computer
 
