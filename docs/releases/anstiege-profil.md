@@ -1,6 +1,6 @@
 # Anstiege mit dem feinen Profil
 
-PR #<Nummer> · 27.10.2026 · Auftrag: Noah «prüfe, ob wir wirklich alles so gemacht haben» (Thread «Bikepacking und Ultra-Rennen»)
+PR #318 · 27.10.2026 · Auftrag: Noah «prüfe, ob wir wirklich alles so gemacht haben» (Thread «Bikepacking und Ultra-Rennen»)
 
 ## Was ist neu
 - Rennen › Anstiege: unter «Alle Anstiege kurz» steht das feine, zoombare Höhenprofil der ganzen Strecke (Zoom mit + und −, Fingern oder Mausrad, Stück auswählen), mit einer Marke an jedem Anstieg. Öffnest du einen Anstieg, zoomt das Profil auf ihn. Zugesagt am 19.10.2026 («dasselbe genaue Profil auf der Seite Anstiege»).
