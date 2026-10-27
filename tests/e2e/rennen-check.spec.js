@@ -3,6 +3,7 @@
 import { test, expect } from '@playwright/test';
 import { openHome, homeFixture } from './home0460-fixture.js';
 import { SHEETS, DAY_BEFORE } from '../../src/lib/race/check-lib.js';
+import { STEPS } from '../../src/lib/race/countdown-lib.js';
 
 const noSideways = async (page) => {
   const d = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
@@ -240,5 +241,29 @@ test('After the race: questions under every sheet, shown on top in the next race
   await page.locator('[data-check-tab="liste"]').click();
   await noSideways(page);
   await box.screenshot({ path: info.outputPath('rennen-nachher-oben.png') });
+});
+
+test('Bike countdown: steps weeks before the race, tick and own steps', async ({ page, context }, info) => {
+  const T = await openHome(page, context, info);
+  await page.goto('./#/race');
+  await page.locator('[data-race-sample-open]').click();
+  await expect(page).toHaveURL(/#\/race\/race-sample$/);
+  await page.goto('./#/racecheck/race-sample');
+  const box = page.locator('[data-race-countdown]');
+  await expect(box).toContainText(T('Bike countdown'));
+  await expect(box.locator('[data-countdown-list] li')).toHaveCount(STEPS.length);
+  await expect(box).toContainText(T(STEPS[0].text));
+  await expect(box.locator('[data-countdown-sum]')).toContainText(T('{done} of {of} done', { done: 0, of: STEPS.length }));
+  await box.locator(`[data-countdown-done="${STEPS[0].id}"]`).check();
+  await expect(box.locator('[data-countdown-sum]')).toContainText(T('{done} of {of} done', { done: 1, of: STEPS.length }));
+  await box.locator('[data-countdown-edit]').click();
+  await box.locator('[data-race-add="countdown"]').fill('Fit the new saddle bag');
+  await box.locator('[data-race-add="countdown"]').press('Enter');
+  await expect(box.locator('[data-countdown-list] li')).toHaveCount(STEPS.length + 1);
+  await page.reload();
+  await expect(box.locator(`[data-countdown-done="${STEPS[0].id}"]`)).toBeChecked();
+  await expect(box).toContainText('Fit the new saddle bag');
+  await noSideways(page);
+  await box.screenshot({ path: info.outputPath('velo-countdown.png') });
 });
 
