@@ -16,9 +16,9 @@
 
 export const WHATS_NEW = [
   {
-    // v0.228.0 Live Navigation PR 5 «Umweg und zurück» (Noah 27.10.2026 «1a 2b 3a» + «entlang gleicher strecke zurück
+    // v0.234.0 Live Navigation PR 5 «Umweg und zurück» (Noah 27.10.2026 «1a 2b 3a» + «entlang gleicher strecke zurück
     // zur route»): at the place the app asks how you go back; off the route it plans the way back by itself
-    version: '0.228.0',
+    version: '0.234.0',
     date: '2026-10-27',
     title: 'And back onto the route',
     lead: 'After a stop and off the route, the live map shows you the way back.',
@@ -28,6 +28,42 @@ export const WHATS_NEW = [
     ],
     small: [{ box: 'new', text: 'In a race «back where I left» is chosen first' }],
     test: ['Open a race or tour on the live map and turn on «Off-route warning» in the settings.', 'Plan a detour with «Nearby» › a place › «Go there» and ride to it: the card asks how you go back.', 'Ride off the route: after about 15 seconds a new way back shows up. Before, only the warning tone came.'],
+  },
+  {
+    // v0.232.0 «Was ziehe ich an? selbst anpassen» Schritt 1 (Noah 27.10.2026 «1a 2a oder b wählbar 3a 4a … 5a»): in the
+    // window on Today every row can be swapped or left out and a layer added, for this ride day only; a gap says why
+    // (too light, still in «To sort», nothing yet) with «Take anyway» and the wishlist; «Why so?» explains the rule
+    version: '0.232.0',
+    date: '2026-10-27',
+    title: 'Your clothes, your call',
+    lead: '«What do I wear?» now lets you change the suggestion.',
+    points: [{ text: 'Swap any piece, leave one out or add a layer, for today only' }],
+    small: [
+      { box: 'new', text: 'A gap says why: too light, still to sort, or nothing yet' },
+      { box: 'new', text: '«Why so?» explains how the app chooses' },
+    ],
+    test: ['On Today tap «What do I wear?» and then «Swap» on a row: pick another piece; the row says «chosen by you · today only».', 'Open «Why so?» under the list: it names the temperature and from when each layer comes.'],
+  },
+  {
+    // v0.231.1 «332 sichtbar», next 4 hidden functions (Noah 26.10.2026 «wie kannst du weiter machen»): catalogue
+    // names like on the page, Ozone and pollen lives on Weather, Chain after rain on Messages, Receipts on the bike shop tab
+    version: '0.231.1',
+    date: '2026-10-27',
+    title: 'Found where you look',
+    lead: 'Four more tools now live on the page where you see them.',
+    points: [{ text: 'Ozone and pollen: found on the Weather page', href: '#/wetter' }, { text: 'Chain after rain: found under Messages', href: '#/me/push' }],
+    small: [{ box: 'nicer', text: 'Receipts and Ice in the morning carry the name the page shows', href: '#/bikes?tab=shop' }],
+    test: ['Open «What the app can do», search «Pollen» and tap «Try it».', 'The Weather page opens with ozone and pollen.'],
+  },
+  {
+    // v0.231.0 «Touren b» catalogue (996 Einzelideen 50–58): all in «What the app can do», the handbook and the home pages; idea 56 map
+    version: '0.231.0',
+    date: '2026-10-27',
+    title: 'Where you said it',
+    lead: 'Your day to listen to now shows a small map.',
+    points: [{ text: '«Your day to listen to» shows on a map where you recorded each note', href: '#/debrief' }],
+    small: [{ box: 'nicer', text: 'The tour ideas from 0.212.0 are now in «What the app can do», the handbook and on their home pages', href: '#/features' }],
+    test: ['After a day with voice notes open «Your day to listen to» in the debrief.', 'The map «Where you spoke them» shows a number for each note; a tap plays it.'],
   },
   {
     // v0.227.0 Live Navigation PR 4 «In der Nähe» (Noah 27.10.2026 «1a 2a 3a 4a», «freigabe für alle mockups»): one
