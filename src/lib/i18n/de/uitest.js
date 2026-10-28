@@ -16,4 +16,10 @@ export default {
   'Live|bar': 'Live',
   'Review|bar': 'Review',
   'Analyse|bar': 'Analyse',
+  // T3 «Form: eine Rechnung, ein Wort»
+  'Form {form} = fitness {fit} − fatigue {fat}': 'Form {form} = Fitness {fit} − Müdigkeit {fat}',
+  'Form effect on today': 'Form-Einfluss auf heute',
+  // T4 «Serien und Tage aktiv gleich gezählt»
+  'Nothing entered yet': 'Noch nichts eingetragen',
+  'Fitbit measured {n} active zone min': 'Fitbit hat {n} Aktivzonen-Minuten gemessen',
 };
