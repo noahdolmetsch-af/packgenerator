@@ -1,7 +1,7 @@
 // «Weisse Flecken in der Nähe» (Träume und Neuland N1, Noah 27.10.2026 «1-5 a»): on Touren › Träume, without a
 // home place a button sets it; with one, the municipalities around it, a fictional ride colours some in,
 // the radius changes, a tap names a place. Fictional data only.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { mkdirSync } from 'node:fs';
 import DE from '../../src/lib/i18n/de/index.js';
 import { ready } from './settle.js';

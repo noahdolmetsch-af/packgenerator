@@ -1,7 +1,7 @@
 // «Gut zu wissen» über die Suche ausblenden (Noah 28.10.2026 «b»): «Gut zu wissen ausblenden» in the top
 // search hides the tip line on every page, Undo brings it back, «Tipps einblenden» shows it again.
 // German UI, the clock fixed in Europe/Zurich, no network, an empty app (fictional data only).
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import DE from '../../src/lib/i18n/de/index.js';
 import { ready } from './settle.js';
 

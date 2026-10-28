@@ -1,7 +1,7 @@
 // Paket U «Rennen» (Noah 19.10.2026): Touren › Rennen with the sample race (made up, in the app source),
 // the plan that recalculates, the tasks that tick themselves, all 40 functions with their switches and
 // every part of the race on the phone without sideways scrolling. Fictional data (home0460-fixture.js).
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { openHome } from './home0460-fixture.js';
 import { PARTS } from '../../src/lib/race/parts.js';
 
