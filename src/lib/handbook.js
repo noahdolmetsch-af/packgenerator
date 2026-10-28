@@ -1959,6 +1959,11 @@ export const HANDBOOK = {
     steps: ['Open Me › Mini tools › Fair draw and pick e.g. «Who cooks?».', 'Add the people; untick who is not there this time.', 'Tap «Draw now»; next time whoever was drawn less often comes first.'],
     example: 'Example: four on a hut weekend; Lena cooked on Friday, so on Saturday one of the other three cooks.',
   },
+  'f.miniabfahrt': {
+    on: null,
+    steps: ['Open Me › Mini tools › When do I leave? and tap «New meeting».', 'Pick the meeting point and the time.', 'Add each person with their start place and speed; the plan shows who leaves when.'],
+    example: 'Example: meeting at 9:00 in Olten; Mia comes 25 km from the east and leaves at 7:55, Jon lives 3 km away and leaves at 8:45.',
+  },
   'f.friendask': {
     on: null,
     steps: ['Open Me › With friends and choose what you ask, e.g. «Tell the trip together».', 'Choose the trip, check the lines, «Make the link» and send it to who you choose.', 'Your friend answers in the app and sends a link back; open it and tap «Keep it».'],
