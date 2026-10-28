@@ -2,8 +2,8 @@
 export default {
   title: 'Each ride its own GPX',
   lead: 'A trip without a route starts on the live map without one. Your last GPX is only offered.',
-  points: [{ text: 'A trip without a route no longer gets an old GPX', href: '#/live' }],
-  small: [{ box: 'nicer', text: '«Load for this ride» takes your last GPX for this ride' }],
+  points: [{ text: 'A trip without a route no longer gets an old GPX', href: '#/live', go: 'f.live' }],
+  small: [{ box: 'nicer', text: '«Load for this ride» takes your last GPX for this ride', go: 'f.live' }],
   test: ['Plan a new trip without a GPX and open its live map: there is no route, and «Load for this ride» offers your last GPX.', 'Tap «Load for this ride»: the route is there for this trip only.'],
   since: [],
   de: {

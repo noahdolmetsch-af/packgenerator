@@ -2,8 +2,8 @@
 export default {
   title: 'White spots nearby',
   lead: 'Where around your home you have never been.',
-  points: [{ text: 'Trips › Dreams: a map of the municipalities around your home', href: '#/trips/dreams' }],
-  small: [{ box: 'new', text: 'The nearest places you have never been to as a list, within 10, 25 or 50 km' }],
+  points: [{ text: 'Trips › Dreams: a map of the municipalities around your home', href: '#/trips/dreams', go: 'f.whitespots' }],
+  small: [{ box: 'new', text: 'The nearest places you have never been to as a list, within 10, 25 or 50 km', go: 'f.whitespots' }],
   test: [
     'Open Trips › Dreams and scroll to «White spots nearby».',
     'Without a home place: «Set your home place» opens the window to set it.',

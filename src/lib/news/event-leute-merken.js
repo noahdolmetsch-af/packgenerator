@@ -2,7 +2,7 @@
 export default {
   title: 'Remember who you met',
   lead: 'After an event of several days the app reminds you who you met.',
-  points: [{ text: 'A group ride of 3 or 7 days leaves a reminder in Kalender › Merken for the day after', href: '#/calendar' }],
+  points: [{ text: 'A group ride of 3 or 7 days leaves a reminder in Kalender › Merken for the day after', href: '#/calendar', go: 'f.remember' }],
   small: [],
   test: [
     'Live-Karte › Gruppenfahrt › «3 Tage» › «Gruppe einladen»: in Kalender › Merken waits «Wen hast du am Event kennengelernt?» for the day after the end.',
