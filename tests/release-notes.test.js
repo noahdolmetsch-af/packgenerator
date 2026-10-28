@@ -23,12 +23,13 @@ describe('release notes', () => {
     expect(md).toContain('[#320](https://github.com/noahdolmetsch-af/packgenerator/pull/320) Schnellspur\n');
   });
 
-  it('runs after going online, on main only', () => {
+  it('runs right after going online, on main only, and never stops going online', () => {
     const deploy = readFileSync(new URL('../.github/workflows/deploy.yml', import.meta.url), 'utf8');
-    const job = deploy.slice(deploy.indexOf('\n  release:'));
-    expect(job).toContain('needs: [deploy]');
+    const job = deploy.slice(deploy.indexOf('\n  online:'));
     expect(job).toContain("if: github.ref == 'refs/heads/main'");
     expect(job).toContain('contents: write');
-    expect(job).toContain('node scripts/release-notes.mjs');
+    const entry = job.slice(job.indexOf('actions/deploy-pages'));
+    expect(entry).toContain('node scripts/release-notes.mjs');
+    expect(entry).toContain('continue-on-error: true');
   });
 });
