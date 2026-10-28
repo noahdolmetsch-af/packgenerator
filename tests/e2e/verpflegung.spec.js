@@ -2,7 +2,7 @@
 // 300» (135 km, 1100 m up, 8 h a day). Without shops the route is one section with a warning; the places along
 // the route (the live map's search, Overpass mocked, fictional answer) add a shop and a water stop; your values change the grams; «Meine
 // Produkte» shows bars and gels; a product can be added and deleted (own window, Undo). Nothing leaves the test.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';
 import { importAndSettle } from './settle.js';

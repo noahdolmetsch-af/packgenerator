@@ -7,7 +7,7 @@
 //     into the field places the caret.
 // Fictional data only (test_data_gtp_), the clock on Friday 9 October 2026 09:00 (Europe/Zurich),
 // Open-Meteo mocked. SHOTS=<folder> saves the screenshots (1440 and 390, light).
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { mkdirSync } from 'node:fs';
 import { D0, openHome } from './home0460-fixture.js';
 import { settle } from './settle.js';

@@ -5,7 +5,7 @@
 // analysis: the round only once, no empty ring, Quick start high, «Try it» not cut off at 390 px.
 // Fictional data only (test_data_gtp_), Friday 9 October 2026 (Europe/Zurich), Open-Meteo mocked.
 // SHOTS=<folder> saves full-page screenshots (light) of the morning, the day and the day before a trip.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { homeFixture, openHome, D0, atHour } from './home0460-fixture.js';
 import { READY, REMOVED_0155, HEAD_0155, HELPER_TILES, tripUp } from '../../src/lib/home/tiles.js';
 import { HN4, withWall } from './wall-fixture.js';

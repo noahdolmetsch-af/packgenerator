@@ -1,7 +1,7 @@
 // «Packliste aufräumen» (Noah 21.10.2026 «5a»), in German, with the fictional data of home0460-fixture.js.
 // Bausteine › «Aufräumen»: the suggestion «Immer dabei», a thing added from the search and moved up with the
 // arrow, «Übernehmen» writes it, «Rückgängig» takes it back. No horizontal scrolling.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { openHome } from './home0460-fixture.js';
 
 const table = (page, name) =>

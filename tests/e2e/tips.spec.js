@@ -1,7 +1,7 @@
 // v0.30.0 (Noah 1a, 2a, 3a): Good to know is 6 tiles with tips "Did you know?"; "I know it" hides a
 // tip for good; the overview «Was die App alles kann» lists all tips by area with ✓ and progress.
 // Fictional fixture (pf-fixture.json); the internet is blocked.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';
