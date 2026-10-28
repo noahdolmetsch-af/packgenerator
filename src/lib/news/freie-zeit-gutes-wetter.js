@@ -2,8 +2,8 @@
 export default {
   title: 'Free time and good weather',
   lead: 'The week shows the next free and dry window for a ride.',
-  points: [{ text: 'From your Google calendar and the weather at home, with a round that fits your speed', href: '#/week' }],
-  small: [{ box: 'new', text: '«Not now» hides one window, the next one comes' }],
+  points: [{ text: 'From your Google calendar and the weather at home, with a round that fits your speed', href: '#/week', go: 'f.freeslot' }],
+  small: [{ box: 'new', text: '«Not now» hides one window, the next one comes', go: 'f.freeslot' }],
   test: [
     'With the calendar switched on and a home place, open Plan › Week.',
     'On top: «Thursday 17:00–19:00 free and dry» with a round of about … km.',

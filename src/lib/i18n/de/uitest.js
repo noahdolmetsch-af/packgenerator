@@ -27,4 +27,6 @@ export default {
   '{n} wait for your review': '{n} warten auf deinen Rückblick',
   '{n} in all': '{n} insgesamt',
   'in all years': 'in allen Jahren',
+  // T5 «Velo-Jahresziel und 7-Tage-km zählen dieselben Fahrten»
+  'Counted: every bike ride from Strava, uploaded rides and your recordings, as on Today.': 'Gezählt: jede Velofahrt von Strava, hochgeladene Fahrten und deine Aufzeichnungen, wie auf Heute.',
 };
