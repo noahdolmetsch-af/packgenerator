@@ -13,7 +13,7 @@
   import Crumb from '../../lib/flow/kit/Crumb.svelte';
   import Sec from '../../lib/flow/kit/Sec.svelte';
   import { formQuery } from '../../lib/form-data.js';
-  import { RAMP_MAX, FIT_DAYS, FAT_DAYS } from '../../lib/form.js';
+  import { RAMP_MAX, FIT_DAYS, FAT_DAYS, shownForm } from '../../lib/form.js';
   import { levelWord, levelLine, partText, tourText, PART_NAMES } from '../../lib/flow/form/words.js';
   import { dm } from '../../lib/flow/garmin/words.js';
   import { localDay } from '../../lib/localday.js';
@@ -27,6 +27,8 @@
   const f = $derived($q);
   const r = $derived(f?.ready);
   const s = $derived(f?.series ?? []);
+  // UI-Test T3 (G3-01): today's numbers rounded so that form = fitness − Müdigkeit on screen (form.js shownForm)
+  const shown = $derived(shownForm(s.at(-1)));
   const rows = $derived(r ? [...r.parts, ...(r.formPts != null ? [{ key: 'form', v: r.form, delta: r.form, points: r.formPts }] : [])] : []);
 
   // the chart: 84 days, fitness and fatigue as lines, form as bars around 0
@@ -100,10 +102,12 @@
       <div class="card chart" data-form-curve>
         {#if s.some((x) => x.load > 0)}
           <ul class="lg">
-            <li><i class="c-fit"></i>{t('Fitness|form')} <b class="num">{num(Math.round(r?.fit ?? 0))}</b></li>
-            <li><i class="c-fat"></i>{t('Fatigue|form')} <b class="num">{num(Math.round(r?.fat ?? 0))}</b></li>
-            <li><i class="c-form"></i>{t('Form|form')} <b class="num">{num(Math.round(r?.form ?? 0))}</b></li>
+            <li><i class="c-fit"></i>{t('Fitness|form')} <b class="num">{num(shown.fit)}</b></li>
+            <li><i class="c-fat"></i>{t('Fatigue|form')} <b class="num">{num(shown.fat)}</b></li>
+            <li><i class="c-form"></i>{t('Form|form')} <b class="num">{num(shown.form)}</b></li>
           </ul>
+          <!-- UI-Test T3 (G3-01): the one calculation in words, the same on Training -->
+          <p class="sum num" data-form-sum>{t('Form {form} = fitness {fit} − fatigue {fat}', { form: shown.form > 0 ? `+${num(shown.form)}` : num(shown.form), fit: num(shown.fit), fat: num(shown.fat) })}</p>
           <svg viewBox="0 0 {W} {H}" preserveAspectRatio="none" class="lines" role="img" aria-label={t('Fitness and fatigue over 12 weeks')}>
             <path d={path('fit')} class="fit" />
             <path d={path('fat')} class="fat" />
@@ -423,5 +427,10 @@
     color: var(--ink-2);
     font-size: var(--fs-small);
     line-height: 1.45;
+  }
+  .sum {
+    margin: 4px 0 0;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
   }
 </style>
