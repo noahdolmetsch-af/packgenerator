@@ -21,6 +21,14 @@ const ignore = [
   ...(process.env.LIVE ? [] : ['**/live/**']),
 ];
 
+// 27.10.2026 (thread «Weg von gebaut zu online»): the tests never reach the real server packgen. On GitHub
+// every page load of Heute asked it for the lake (well over 1000 calls per PR check), so the server's free daily
+// cap was used up by the evening and the real app could not sync any more. A test that needs the server
+// answers with its own route (page.route / context.route); everything else gets «no network», as locally.
+// Only the check of the live app (LIVE=1) talks to the real server.
+export const NO_REAL_SERVER = '--host-resolver-rules=MAP packgen-three.vercel.app ~NOTFOUND';
+const browserArgs = process.env.LIVE ? [] : [NO_REAL_SERVER];
+
 export default defineConfig({
   testDir: 'tests/e2e',
   testIgnore: ignore,
@@ -41,7 +49,7 @@ export default defineConfig({
     trace: 'retain-on-failure',
     screenshot: 'only-on-failure',
     // Locally a preinstalled Chromium can be used (PW_CHROMIUM=/path/to/chrome); CI installs its own.
-    launchOptions: process.env.PW_CHROMIUM ? { executablePath: process.env.PW_CHROMIUM } : {},
+    launchOptions: { args: browserArgs, ...(process.env.PW_CHROMIUM ? { executablePath: process.env.PW_CHROMIUM } : {}) },
   },
   projects: [
     { name: 'phone', use: { browserName: 'chromium', viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true } },
