@@ -3,9 +3,9 @@ export default {
   title: 'Analysis overview',
   lead: 'At the top of Analyse: the period at a glance, every day as a field, your activities as a ranking.',
   points: [
-    { text: 'Numbers of the period: ticks, bike km, sleep, active zone minutes, resting pulse, longest run', href: '#/auswerten/analyse' },
-    { text: 'Every day a field: darker means more ticked; a tap shows the day', href: '#/auswerten/analyse' },
-    { text: 'Ranking of your activities against the same number of days before, and ticks per week', href: '#/auswerten/analyse' },
+    { text: 'Numbers of the period: ticks, bike km, sleep, active zone minutes, resting pulse, longest run', go: 'f.analyse' },
+    { text: 'Every day a field: darker means more ticked; a tap shows the day', go: 'f.analyse' },
+    { text: 'Ranking of your activities against the same number of days before, and ticks per week', go: 'f.analyse' },
   ],
   small: [],
   test: [
