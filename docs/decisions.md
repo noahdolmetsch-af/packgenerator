@@ -1946,6 +1946,7 @@ Noah 19.10.2026: «1a 2a 3a 4 a oder b beides wählbar 5a», danach «a und b»,
 - 27.10.2026: **Touren b Katalog** (Bündler): SINCE der Touren-b-Funktionen = 0.212.0 (dort live geworden); Version 0.231.0.
 - 27.10.2026: **Keine Seitenlänge mehr im Handy-Test** (Noah 26.10.2026 20:31 «keine anforderung an eine länge der seite»): handy-kurz prüft nicht mehr «höchstens drei Bildschirme»; die Kurz-Listen (fünf Zeilen, dann «mehr») bleiben.
 - 27.10.2026: **Längenbudget weg** (gleiche Entscheidung, Noah 26.10.2026 20:31): `src/lib/laenge.js`, `tests/laenge.test.js` und `tests/e2e/handy-laenge.spec.js` sind entfernt; sie verlangten höchstens drei Bildschirme bzw. die Zahl in TOO_LONG. `MAX_SCREENS` in `src/lib/touren/kurz.js` bleibt für die Kurz-Listen.
+- 28.10.2026: **«Zurück» nach einem Fenster, das von selbst aufgeht** (Noah 27.10.2026 «bauen und live bringen»): Ein Fenster ohne Tipp (Tages-Check auf Heute) legte einen Verlaufseintrag ohne Nutzeraktion an; Chrome überspringt dann den Eintrag davor, und beim Schliessen landete man auf der Seite davor oder ausserhalb der App. `src/lib/ui/backclose.js` räumt so einen Eintrag jetzt an Ort und Stelle weg (replaceState) statt mit history.back(). Test: `tests/backclose.test.js`.
 
 ## 26.10.2026 Live Navigation
 
