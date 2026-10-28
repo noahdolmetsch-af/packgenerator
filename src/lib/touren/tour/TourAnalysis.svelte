@@ -10,11 +10,13 @@
    */
   import { liveQuery } from 'dexie';
   import { db } from '../../db.js';
-  import { t, tn } from '../../i18n.svelte.js';
+  import { t, tn, num } from '../../i18n.svelte.js';
   import { hasDetail } from '../../training.js';
   import { tourValues, restOfTour, restDots, corrOf, corrWord } from '../tourana.js';
   import { longTimeS, n0, dates, DASH } from '../../review/fmt.js';
   import Help from '../../ui/Help.svelte';
+  import { niceScale } from '../../charts/axis.js';
+  import GridLines from '../../charts/GridLines.svelte';
 
   /** d: the tour (tourdata.js loadTour). */
   let { d } = $props();
@@ -69,18 +71,23 @@
     if (ds.length < 3) return null;
     const xs = ds.map((p) => p.rest);
     const ys = ds.map((p) => p.y);
-    const x0 = Math.min(...xs) - 2;
-    const x1 = Math.max(...xs) + 2;
-    const y0 = Math.min(...ys) * 0.95;
-    const y1 = Math.max(...ys) * 1.05;
+    // «Genaue Werte» (Noah 27.10.2026): both axes in round steps with grid lines
+    // a little room around the dots, so none sits on the edge
+    const xs0 = niceScale([Math.min(...xs) - 1, Math.max(...xs) + 1], { count: 3 });
+    const ys0 = niceScale([Math.min(...ys) * 0.97, Math.max(...ys) * 1.03], { count: 3 });
+    const x0 = xs0.lo;
+    const x1 = xs0.hi;
+    const y0 = ys0.lo;
+    const y1 = ys0.hi;
     const X = (v) => PAD.l + ((v - x0) / (x1 - x0 || 1)) * (W - PAD.l - PAD.r);
     const Y = (v) => H - PAD.b - ((v - y0) / (y1 - y0 || 1)) * (H - PAD.t - PAD.b);
-    const xt = [Math.ceil(x0), Math.round((x0 + x1) / 2), Math.floor(x1)];
-    const yt = [Math.ceil(y0), Math.round((y0 + y1) / 2), Math.floor(y1)];
+    const xt = xs0.ticks;
+    const yt = ys0.ticks;
     return {
       pts: ds.map((p) => ({ ...p, x: X(p.rest), y2: Y(p.y), me: mine.has(p.id) })).sort((a, b) => a.me - b.me),
       xt: xt.map((v) => ({ v, x: X(v) })),
       yt: yt.map((v) => ({ v, y: Y(v) })),
+      Y,
     };
   });
   const yName = $derived(dotsOf.mode === 'np' ? t('NP') : t('Ø HR'));
@@ -127,8 +134,9 @@
   {#if plot}
     <figure class="dots" data-ana-dots={dotsOf.mode}>
       <svg viewBox="0 0 {W} {H}" role="img" aria-label={t('Resting heart rate against {y} on {n} rides', { y: yName, n: dotsOf.dots.length })}>
-        {#each plot.yt as g (g.v)}<line class="grid" x1={PAD.l} x2={W - PAD.r} y1={g.y} y2={g.y} /><text class="tick" x={PAD.l - 4} y={g.y + 3} text-anchor="end">{g.v}</text>{/each}
-        {#each plot.xt as g (g.v)}<text class="tick" x={g.x} y={H - PAD.b + 14} text-anchor="middle">{g.v}</text>{/each}
+        <GridLines ticks={plot.yt.map((g) => g.v)} y={plot.Y} x1={PAD.l} x2={W - PAD.r} />
+        {#each plot.yt as g (g.v)}<text class="tick" x={PAD.l - 4} y={g.y + 3} text-anchor="end" data-ana-yt>{num(g.v)}</text>{/each}
+        {#each plot.xt as g (g.v)}<text class="tick" x={g.x} y={H - PAD.b + 14} text-anchor="middle" data-ana-xt>{num(g.v)}</text>{/each}
         {#each plot.pts as p (p.id)}<circle cx={p.x} cy={p.y2} r={p.me ? 6 : 3.5} class:me={p.me}><title>{dates(p.day)}: {p.rest} · {Math.round(p.y)}</title></circle>{/each}
       </svg>
       <figcaption class="tp-small">
@@ -219,9 +227,6 @@
     width: 100%;
     max-width: 560px;
     height: auto;
-  }
-  .grid {
-    stroke: var(--line);
   }
   .tick {
     fill: var(--ink-2);
