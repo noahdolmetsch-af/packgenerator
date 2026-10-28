@@ -6,12 +6,14 @@
    * Kontaktkarte, in the event you write (only with you).
    * Kontakt-QR-Code (Noah 27.10.2026 «1a»): a row for each way to reach the person (call, WhatsApp, e-mail,
    * Instagram, Strava, Komoot, web, address on the map) and «Save to contacts», a contact file made here.
+   * Step 3 («3a»): payment details (TWINT, Swiss QR bill) in their own box, shown only after a tap.
    */
   import { untrack } from 'svelte';
   import { Contact, AtSign, Phone, MessageCircle, Mail, Activity, Mountain, Globe, MapPin, Download, ChevronRight } from '@lucide/svelte';
   import { db } from '../lib/db.js';
   import { t, locale } from '../lib/i18n.svelte.js';
   import Empty from '../lib/ui/Empty.svelte';
+  import CardPay from '../lib/freunde/CardPay.svelte';
   import { readCard } from '../lib/live/event.js';
   import { PEOPLE_KEY, peopleOf, addPerson, instaLink, telLink, waLink, mailLink, stravaLink, komootLink, webLink, mapLink, cardVcf, expired } from '../lib/freunde/people.js';
   import { localDay } from '../lib/localday.js';
@@ -82,6 +84,7 @@
         </ul>
       </section>
     {/if}
+    {#if card.pay}<CardPay pay={card.pay} name={card.name} />{/if}
     <section class="card ev-box" aria-labelledby="kc-k-h">
       <h2 id="kc-k-h">{t('Keep in the Pack Generator')}</h2>
       {#if kept}

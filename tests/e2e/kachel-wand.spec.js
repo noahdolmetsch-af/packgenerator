@@ -205,6 +205,8 @@ test('one series over everything with the next milestone, a rest week, all miles
   await expect(page).toHaveURL(/#\/flow\/milestones$/);
   const top = page.locator('[data-ms-series]');
   await expect(top.locator('[data-n]')).toHaveAttribute('data-n', '3');
+  // «Meilensteine kürzer» (Noah 27.10.2026 «2a», changed on purpose): on a phone series, trips and bikes wait folded
+  if (info.project.name === 'phone') await page.locator('[data-ms-fold="areas"] > summary').click();
   await expect(page.locator('[data-ms-trips]')).toBeVisible();
   await shot(page, info, 'D-Meilensteine');
   expect(errors).toEqual([]);
