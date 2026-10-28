@@ -28,6 +28,7 @@ export default {
   'It is dark.': 'Es ist dunkel.',
   '{left} of light left': 'Noch {left} Licht',
   'Off the route: {m} m away.': 'Neben der Strecke: {m} m entfernt.',
+  'Off the route: {d} km away.': 'Neben der Strecke: {d} km entfernt.',
   'Thunderstorm possible around km {km} from {at}.': 'Gewitter möglich um km {km} ab {at}.',
   'Thunderstorm possible here from {at}.': 'Gewitter möglich hier ab {at}.',
   '(high storm energy in the air)': '(viel Gewitterenergie in der Luft)',

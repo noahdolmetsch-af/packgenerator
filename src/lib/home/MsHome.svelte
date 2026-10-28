@@ -8,19 +8,20 @@
   import { liveQuery } from 'dexie';
   import { Flame, Pause, Backpack, Bike, Moon } from '@lucide/svelte';
   import { db } from '../db.js';
-  import { activeDays, seriesOf, toggleRest, restOf, REST_KEY, SERIES_STEPS } from './series.js';
-  import { homeTrips, TRIP_STEPS } from './heute.js';
+  import { toggleRest, REST_KEY, SERIES_STEPS } from './series.js';
+  import { readSeries } from './series-data.js';
+  import { TRIP_STEPS } from './heute.js';
   import { tripDone } from '../yearreview.js';
   import { localDay } from '../localday.js';
   import { t, tn, num } from '../i18n.svelte.js';
 
   const today = localDay();
   const q = liveQuery(async () => {
-    const [log, rides, trips, debriefs, bikes, rest] = await Promise.all([db.flowLog.toArray(), db.rides.toArray(), db.trips.toArray(), db.debriefs.toArray(), db.bikes.toArray(), db.settings.get(REST_KEY)]);
-    const home = homeTrips(trips);
+    // UI-Test T4: the one series (series-data.js), the same number as on Today
+    const [{ s, trips: home, debriefs }, bikes] = await Promise.all([readSeries(db, today), db.bikes.toArray()]);
     const done = home.filter((x) => tripDone(x, debriefs, today));
     return {
-      s: seriesOf(activeDays({ log, rides, trips: home, debriefs, today }), restOf(rest?.value), today),
+      s,
       trips: done.length,
       night: done.some((x) => Number(x.days) > 1 && x.overnight !== 'lodging' && x.overnight !== 'none'),
       bikes: bikes.filter((b) => typeof b.km === 'number' && b.km > 0).map((b) => ({ id: b.id, name: b.name, km: b.km })),

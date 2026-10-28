@@ -38,6 +38,10 @@ test('Climbs: the list, sorting, one climb with its chart, a note with Undo, no 
   await expect(page.locator('[data-climbs-sum]')).toBeVisible();
   await expect(page.locator('[data-climbs-bars] rect').nth(10)).toBeAttached();
   await noSideways(page, 'list');
+  // the fine, zoomable profile of the whole route is on the page too
+  const prof = page.locator('[data-climbs-profile] [data-profile]');
+  await expect(prof).toBeVisible();
+  await expect(prof).toHaveAttribute('data-profile-fine', '');
 
   // sort by steepness: the first row is the steepest
   await page.locator('[data-climbs-sort="steep"]').click();
@@ -64,6 +68,9 @@ test('Climbs: the list, sorting, one climb with its chart, a note with Undo, no 
   await expect(card.locator('[data-climb-mini]')).toBeVisible();
   await expect(card.locator('[data-climb-when]')).toBeVisible();
   await expect(card.locator('[data-climb-map]')).toHaveAttribute('href', /#\/race\/race-sample\/map\?km=\d/);
+  // opening the climb zooms the profile to it
+  const range = page.locator('[data-climbs-profile] [data-profile-range]');
+  await expect.poll(async () => Number(await range.getAttribute('data-to')) - Number(await range.getAttribute('data-from'))).toBeLessThan(200);
   await noSideways(page, 'card');
 
   // a note: write, save, it is stored; delete asks, Undo brings it back

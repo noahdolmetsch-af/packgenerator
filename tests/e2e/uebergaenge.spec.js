@@ -5,6 +5,7 @@
 // Fictional data only (tests/e2e/fixture.json, test_data_gtp_ records). Labels come from the app's
 // German texts (src/lib/i18n/de), the button names from phase.js.
 import { test, expect } from '@playwright/test';
+import { STEP_BAR as BAR } from '../../src/lib/stepbar.js'; // Schrittleiste (Noah 26.10.2026 «1b», changed on purpose): the bar's short names
 import { endMenu } from './ending.js';
 import { base, tr, mockWeather } from './home0460-fixture.js';
 import { importAndSettle, settle } from './settle.js';
@@ -101,7 +102,7 @@ test('Packen → «Gepackt»: own address, reload, «Zur Startseite», reminder 
   await main(page).click();
   await expect(page).toHaveURL(new RegExp(`#/trip/${ID('Alpen')}/packed$`));
   await expect(page.getByRole('heading', { level: 1, name: T('Packed') })).toBeVisible();
-  await expect(page.locator('.stepbar.light a[aria-current="page"]')).toContainText(T('On the way'));
+  await expect(page.locator('.stepbar.light a[aria-current="page"]')).toContainText(T(BAR.ride));
   await expect(page.getByText(T('Start in {n} days', { n: 4 }))).toBeVisible();
   await page.reload(); // Ü3a: the address holds
   await expect(page.getByRole('heading', { level: 1, name: T('Packed') })).toBeVisible();
@@ -367,6 +368,9 @@ test('the kit: soft 44 px buttons, the empty card with its picture, confetti onc
   expect(await confetti.evaluate((el) => getComputedStyle(el).pointerEvents)).toBe('none');
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(page.viewportSize().width);
   await expect(main(page)).toBeEnabled();
+  // v0.217.0 «Neuer Schwung» 2b: the tick draws itself as a small Lottie animation (loaded on first use)
+  await expect(page.locator('.celebrate .lot[data-lottie="on"] svg')).toBeVisible();
+  await expect(page.locator('.celebrate .lot .lt-check path').first()).toBeAttached();
 
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await expect(confetti).toBeHidden();

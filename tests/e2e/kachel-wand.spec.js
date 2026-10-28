@@ -9,13 +9,14 @@ import { test, expect } from '@playwright/test';
 import { D0, openHome, atHour, homeFixture } from './home0460-fixture.js';
 import { HN4, withWall } from './wall-fixture.js';
 import { READY, TILE, TILES, HELPER_TILES, isNew, tripUp } from '../../src/lib/home/tiles.js';
-import { inShownOrder } from '../../src/lib/home/quick.js';
+import { inAreas } from '../../src/lib/home/sections.js';
 
 // v0.155.0 «Heute neu geordnet» (4b, changed on purpose): the fixture's trip starts tomorrow, so its card stands
 // right under the day card; the helper's tile rests while the AI helper is off (v0.118.0)
 // Paket Q #74 (Noah 19.10.2026 «4a»): at the fixture's 09:00 the morning tiles move up (byTime, changed on purpose)
 // «Heute ruhiger» (Noah 26.10.2026 «1a», changed on purpose): the small tiles are one list «Schnell öffnen» where the first stands
-const SHOWN = inShownOrder(atHour(tripUp(READY.filter((x) => !HELPER_TILES.includes(x.id)), true), 9));
+// «Heute ruhiger» 3a (changed on purpose): Heute shows the tiles in areas, inside an area in wall order
+const SHOWN = inAreas(atHour(tripUp(READY.filter((x) => !HELPER_TILES.includes(x.id)), true), 9));
 
 async function shot(page, info, name) {
   if (!process.env.SHOTS) return;
@@ -167,7 +168,9 @@ test('plus adds any tile from the catalog by area, with a search; the tick takes
   await expect(add).toHaveAttribute('aria-pressed', 'true');
   await page.keyboard.press('Escape');
   await expect(sheet).toHaveCount(0);
-  expect((await ids(page)).at(-1)).toBe('nextms');
+  // «Heute ruhiger» 3a: it is stored at the end of the wall and shows at the end of its area «Deine Woche»
+  expect((await wallStored(page)).tiles.at(-1).id).toBe('nextms');
+  await expect(page.locator('[data-home-sec="week"] ~ [data-tile="nextms"]')).toBeVisible();
   await page.locator('.wall [data-tile="nextms"] a').click();
   await expect(page).toHaveURL(/#\/flow\/milestones$/);
   await page.goBack();
@@ -202,6 +205,8 @@ test('one series over everything with the next milestone, a rest week, all miles
   await expect(page).toHaveURL(/#\/flow\/milestones$/);
   const top = page.locator('[data-ms-series]');
   await expect(top.locator('[data-n]')).toHaveAttribute('data-n', '3');
+  // «Meilensteine kürzer» (Noah 27.10.2026 «2a», changed on purpose): on a phone series, trips and bikes wait folded
+  if (info.project.name === 'phone') await page.locator('[data-ms-fold="areas"] > summary').click();
   await expect(page.locator('[data-ms-trips]')).toBeVisible();
   await shot(page, info, 'D-Meilensteine');
   expect(errors).toEqual([]);
