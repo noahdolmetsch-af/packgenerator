@@ -36,7 +36,7 @@
 </script>
 
 <div class="seg" class:full class:small class:chips class:glide={!!pill} class:moving bind:this={box} role="group" aria-label={labelledby ? undefined : label} aria-labelledby={labelledby}>
-  {#if pill}<span class="pill" aria-hidden="true" style:translate={`${pill.x}px ${pill.y}px`} style:width={`${pill.w}px`} style:height={`${pill.h}px`}></span>{/if}
+  {#if pill}<span class="seg-pill" aria-hidden="true" style:translate={`${pill.x}px ${pill.y}px`} style:width={`${pill.w}px`} style:height={`${pill.h}px`}></span>{/if}
   {#each options as o (o.key)}
     <button type="button" data-key={o.key} class:sug={value !== o.key && suggest === o.key} aria-pressed={value === o.key} aria-description={value !== o.key && suggest === o.key ? o.hint : undefined} onclick={() => value !== o.key && onchange?.(o.key)}>{o.name}{#if o.n != null}{' '}<small class="n">{o.n}</small>{/if}</button>
   {/each}
@@ -88,7 +88,7 @@
   .seg {
     position: relative;
   }
-  .pill {
+  .seg-pill {
     position: absolute;
     left: 0;
     top: 0;
@@ -105,7 +105,7 @@
     box-shadow: none;
   }
   @media (prefers-reduced-motion: no-preference) {
-    .moving .pill {
+    .moving .seg-pill {
       transition: translate 0.25s cubic-bezier(0.23, 1, 0.32, 1), width 0.25s cubic-bezier(0.23, 1, 0.32, 1), height 0.25s;
     }
   }

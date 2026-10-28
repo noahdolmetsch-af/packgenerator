@@ -8,7 +8,7 @@ test('the pill moves to the chosen button', async ({ page, context }) => {
   await page.goto('./#/review');
   const seg = page.locator('.seg.glide:has(button[data-key="all"]):has(button[data-key="12m"])').first();
   await expect(seg).toBeVisible();
-  const pill = seg.locator('.pill');
+  const pill = seg.locator('.seg-pill');
   const box = async (l) => {
     const b = await l.boundingBox();
     return Math.round(b.x);
