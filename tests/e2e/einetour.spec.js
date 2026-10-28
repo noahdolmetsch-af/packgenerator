@@ -8,6 +8,7 @@
 // c) Lernschleife: after a tour with a ride one question, the heaviest thing first; «Nein» marks it «nicht
 //    gebraucht», «Heute nicht» ends the questions of the day, and no other tour asks that day.
 import { test, expect } from '@playwright/test';
+import { STEP_BAR as BAR } from '../../src/lib/stepbar.js'; // Schrittleiste (Noah 26.10.2026 «1b», changed on purpose): the bar's short names
 import { writeFileSync, mkdirSync } from 'node:fs';
 import DE from '../../src/lib/i18n/de/index.js';
 import { sn4plusData, P, D0, day } from './sn4plus-fixture.js';
@@ -64,7 +65,7 @@ test('a) Planen says what is missing; «Auswertung» is the fifth tab with the s
   // the trip's head and its step bar: five tabs, «Auswertung» is this page
   const steps = tour(page).locator('[data-tour-steps] .stepbar a');
   await expect(steps).toHaveCount(5);
-  await expect(steps.last()).toHaveText(new RegExp(`^${T('Analysis|stage')}`));
+  await expect(steps.last()).toHaveText(new RegExp(`^${T(BAR.analysis)}`));
   await expect(steps.last()).toHaveAttribute('aria-current', 'page');
   await expect(tour(page).locator('h1')).toHaveText('Planung Seeland');
   // #10: the warm countdown chip; #8: before the tour no empty values, one calm card

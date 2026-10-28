@@ -8,17 +8,14 @@
   import { liveQuery } from 'dexie';
   import { Flame, Pause, PartyPopper } from '@lucide/svelte';
   import { db } from '../db.js';
-  import { activeDays, seriesOf, toggleRest, restOf, REST_KEY } from './series.js';
+  import { toggleRest, REST_KEY } from './series.js';
+  import { readSeries } from './series-data.js';
   import { t, tn } from '../i18n.svelte.js';
 
   let { today, size = 'w', party = false } = $props();
-  const q = $derived(
-    liveQuery(async () => {
-      const [log, rides, trips, debriefs, rest] = await Promise.all([db.flowLog.toArray(), db.rides.toArray(), db.trips.toArray(), db.debriefs.toArray(), db.settings.get(REST_KEY)]);
-      return { days: activeDays({ log, rides, trips: trips.filter((x) => !x.archivedAt), debriefs, today }), rest: restOf(rest?.value) };
-    }),
-  );
-  const s = $derived($q ? seriesOf($q.days, $q.rest, today) : null);
+  // UI-Test T4: the one series (series-data.js), the same number as «Serie» in the year row
+  const q = $derived(liveQuery(() => readSeries(db, today)));
+  const s = $derived($q?.s ?? null);
   const big = $derived(size === 'l');
   async function rest() {
     const cur = (await db.settings.get(REST_KEY))?.value ?? [];

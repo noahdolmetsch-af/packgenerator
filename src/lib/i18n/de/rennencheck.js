@@ -144,7 +144,6 @@ export default {
   // «Links pro Rennen»
   'Rules|race': 'Regeln',
   Tracker: 'Tracker',
-  Website: 'Website',
   'Links to the race': 'Links zum Rennen',
   'Handbook, rules, tracker, website: everything about this race one tap away. Tap a row to put in or change its address.': 'Handbuch, Regeln, Tracker, Website: alles zum Rennen mit einem Tipp. Tippe eine Zeile an, um die Adresse einzutragen oder zu ändern.',
   'Name or address, e.g. Handbook': 'Name oder Adresse, z. B. Handbuch',
@@ -272,4 +271,6 @@ export default {
   'Your bike has a battery': 'Dein Velo hat einen Akku',
   'Cable ties and some tape': 'Kabelbinder und etwas Klebeband',
   'For quick fixes': 'Für schnelle Reparaturen',
+  'Coming|races': 'Kommende',
+  'Done|races': 'Vorbei',
 };

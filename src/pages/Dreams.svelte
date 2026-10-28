@@ -29,8 +29,9 @@
   import VeloHead from '../lib/bikes/VeloHead.svelte';
   import DreamSheet from '../lib/dreams/DreamSheet.svelte';
   import PlanSheet from '../lib/dreams/PlanSheet.svelte';
+  import WhiteSpots from '../lib/neuland/WhiteSpots.svelte'; // Träume und Neuland N1
   import { t, tn, locale } from '../lib/i18n.svelte.js';
-  import { Sparkles, Flag, ChevronRight, Plus, Check, CalendarClock, Route, Pencil } from '@lucide/svelte';
+  import { Sparkles, Flag, ChevronRight, Plus, Check, CalendarClock, Route, Pencil, Compass, Flame } from '@lucide/svelte';
   import '../lib/ich/ich.css';
 
   const today = localDay();
@@ -193,6 +194,8 @@
     {/if}
   </section>
 
+  <WhiteSpots />
+
   <section class="ich-sec" aria-labelledby="dr-races" data-races>
     <div class="ich-h"><div><h2 id="dr-races">{t('Races to plan')}</h2><p class="ich-hs">{t('From Inspiration and from your Google calendar («Rennen», «Race» … in the title).')}</p></div></div>
     {#if races.length}
@@ -208,6 +211,15 @@
     {:else}
       <p class="ich-help">{t('No upcoming race yet. Add one in Inspiration with its date, or put it in your Google calendar.')} <a href="#/inspiration">{t('Inspiration')}</a></p>
     {/if}
+  </section>
+
+  <!-- «Träume und Neuland» (Noah 27.10.2026 «1-5 a»): what you reached for the first time stays under Rückblick, linked from here -->
+  <section class="ich-sec" aria-labelledby="dr-got" data-dreams-got>
+    <div class="ich-h"><div><h2 id="dr-got">{t('Collected|dreams')}</h2><p class="ich-hs">{t('Where you were for the first time: cantons, passes, lakes and more, and all your rides on one map.')}</p></div></div>
+    <div class="got">
+      <a class="btn" href="#/neuland" data-dreams-neuland><Compass size={16} aria-hidden="true" />{t('New ground')}</a>
+      <a class="btn" href="#/heatmap" data-dreams-heatmap><Flame size={16} aria-hidden="true" />{t('Heatmap')}</a>
+    </div>
   </section>
 
   <section class="ich-sec" aria-labelledby="dr-kinds" data-kinds>
@@ -350,6 +362,11 @@
   }
   .kfold summary span {
     display: grid;
+  }
+  .got {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sp-2);
   }
   .kinds {
     display: grid;

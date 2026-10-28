@@ -451,3 +451,15 @@
     margin-left: auto;
   }
 }
+
+/* Klick-Rundgang 2, Paket 3: the sport name link is a 44 px tap target on the phone; the row keeps its height */
+@media (pointer: coarse) {
+  .sp .mn {
+    position: relative;
+  }
+  .sp .mn::after {
+    content: '';
+    position: absolute;
+    inset: -6px 0;
+  }
+}
