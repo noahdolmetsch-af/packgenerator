@@ -162,6 +162,8 @@ export function containerWeight(container, itemsById) {
  */
 export const ON_BIKE_SLOTS = ['cage1', 'cage2'];
 export const addedWeight = (container, itemsById) => (ON_BIKE_SLOTS.includes(container.slot) ? 0 : containerWeight(container, itemsById));
+/** UI-Test T7 (G4-01): is this place a bottle cage, weighed with the bike? */
+export const onBikeSlot = (key) => ON_BIKE_SLOTS.includes(key);
 
 /** Bags on a bike: one row per slot the bike has, with the bag and its numbers. */
 export function bikeSetup(bike, containers, items) {
@@ -177,6 +179,8 @@ export function bikeSetup(bike, containers, items) {
   return {
     rows,
     bagCount: used.length,
+    // UI-Test T7 (G4-01): bottle cages are named apart («1 bag, 2 bottle cages»); they weigh 0 on top (in the bike)
+    cageCount: used.filter((r) => onBikeSlot(r.slot.key)).length,
     volumeL: used.reduce((t, r) => t + (r.bag.volumeL || 0), 0),
     bagsG: used.reduce((t, r) => t + (r.weightG || 0), 0),
     unweighed: used.filter((r) => r.weightG == null).length,
