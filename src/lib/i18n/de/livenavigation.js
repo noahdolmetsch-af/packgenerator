@@ -106,4 +106,6 @@ export default {
   'A ride needs at least 2 GPS points. Tip: start outside and wait until the dot on the map is blue.': 'Eine Fahrt braucht mindestens 2 GPS-Punkte. Tipp: Draussen starten und warten, bis der Punkt auf der Karte blau ist.',
   'Save anyway': 'Trotzdem speichern',
   '«Save anyway» keeps it in Trips all the same, for example to try the app.': '«Trotzdem speichern» legt sie trotzdem in Touren ab, zum Beispiel zum Ausprobieren.',
+  // Navigation zum Ziel 2: the turn after the next one
+  'Then: {text}': 'Danach: {text}',
 };

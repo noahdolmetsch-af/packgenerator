@@ -16,6 +16,9 @@ export const SPOT = {
   'f.fitbitold': [{ sel: '#fi-h' }],
   'f.merge': [{ sel: 'main h2 > button', unless: 'main li[data-item] button.main' }, { sel: 'main li[data-item] button.main' }, { sel: 'details[data-fold="more"] > summary' }, { text: 'Merge with …' }],
   'f.noteformats': [{ text: 'New note' }],
+  // «Add material» is a text button on a computer and a + in the head on the phone: both carry data-add-mat
+  'f.blockeffect': [{ sel: '[data-add-mat]' }, { text: 'Before adding: see the effect' }],
+  'f.needs': [{ sel: '[data-add-mat]' }, { text: 'Pack by need' }],
 };
 
 const WAIT = 6000;
@@ -87,8 +90,10 @@ export async function showSteps(steps, id = '') {
     if (steps[i].unless && find({ sel: steps[i].unless })) continue;
     const el = await wait(steps[i]);
     if (!el) return false;
-    if (i < steps.length - 1) el.click();
-    else light(el, id);
+    if (i < steps.length - 1) {
+      el.click();
+      await new Promise((ok) => setTimeout(ok, 250)); // let the window or tab open before the next step looks
+    } else light(el, id);
   }
   return true;
 }
