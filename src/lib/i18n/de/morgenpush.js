@@ -32,4 +32,6 @@ export default {
   'Switch on the calendar under Me › Appointments and tasks and set your home place.': 'Schalte den Kalender unter Ich › Termine und Aufgaben ein und setz deinen Wohnort.',
   'Open Plan › Week: on top the next free and dry window.': 'Öffne Planen › Woche: oben das nächste freie, trockene Fenster.',
   '«Not now» hides it; the next one comes.': '«Jetzt nicht» blendet es aus; das nächste kommt.',
+  'no free and dry window in the next {n} days yet.': 'in den nächsten {n} Tagen noch kein freies, trockenes Fenster.',
+  'with the calendar on and your home place set, the next free and dry window shows here.': 'mit eingeschaltetem Kalender und gesetztem Wohnort steht hier das nächste freie, trockene Fenster.',
 };

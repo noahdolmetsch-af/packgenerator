@@ -51,6 +51,10 @@
       <button type="button" class="btn sm" onclick={notNow}>{t('Not now')}</button>
     </span>
   </div>
+{:else}
+  <p class="fz-hint" data-free-slot-hint>
+    <b>{t('Free time and good weather')}</b>: {calOn && place ? t('no free and dry window in the next {n} days yet.', { n: DAYS }) : t('with the calendar on and your home place set, the next free and dry window shows here.')}
+  </p>
 {/if}
 
 <style>
@@ -81,6 +85,11 @@
   }
   .fz-t small {
     color: var(--ink-2);
+  }
+  .fz-hint {
+    margin: 0 0 12px;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
   }
   .fz-acts {
     display: flex;
