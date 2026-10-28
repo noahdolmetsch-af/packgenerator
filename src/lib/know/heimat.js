@@ -141,6 +141,7 @@ export const HOME = {
   'f.dreams': '#/trips/dreams',
   'f.quicklinks': '#/quick',
   'f.whitespots': '#/trips/dreams',
+  'f.nlgoals': '#/trips/dreams',
   'f.races': '#/trips/dreams',
   'f.starters': '#/pack',
   'f.packside': '#/pack',

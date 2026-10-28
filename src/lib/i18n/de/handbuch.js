@@ -1897,4 +1897,10 @@ export default {
     'Die Runde passt zu deinem eigenen Tempo; «Jetzt nicht» blendet das Fenster aus.',
   'Example: Thursday 17:00–19:00 free and dry → «A round of about 35 km?»':
     'Beispiel: Donnerstag 17:00–19:00 frei und trocken → «Eine Runde von etwa 35 km?»',
+  // «Träume und Neuland» N5
+  'Counts from New ground: your routes, rides and own ticks.': 'Zählt aus Neuland: deine Routen, Fahrten und eigenen Haken.',
+  'Open Trips › Dreams › Challenges with an end.': 'Öffne Touren › Träume › Herausforderungen mit Ende.',
+  'Tap a ready one or «Own challenge»: collection, new ones or all, until when.': 'Tippe eine fertige an oder «Eigene Herausforderung»: Sammlung, neue oder alle, bis wann.',
+  'The bar fills by itself; tap the pencil to change or delete it.': 'Der Balken füllt sich von selbst; mit dem Stift änderst oder löschst du sie.',
+  'Example: «5 new municipalities this month» → 2 of 5 · 12 days left.': 'Beispiel: «5 neue Gemeinden diesen Monat» → 2 von 5 · noch 12 Tage.',
 };
