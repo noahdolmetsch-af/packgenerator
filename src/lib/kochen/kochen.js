@@ -184,3 +184,29 @@ export function shoppingLines(recipe, portions = 1, tr = (s) => s) {
 
 /** The meals a recipe is for, as their English labels. */
 export const mealLabels = (recipe) => (recipe?.meals ?? []).map((k) => MEALS.find((m) => m.key === k)?.label).filter(Boolean);
+
+/* ---------- cooking mode (Noah «5a»: one step per screen, a timer, the screen stays on) ---------- */
+
+/** «#/me/alltag/kochen/pasta-tuna?cook=2» → 2 (the step, from 1); not cooking → 0. */
+export function cookStepOfHash(hash) {
+  const m = /^#\/me\/alltag\/kochen\/[^?]+\?(?:.*&)?cook=(\d+)/.exec(String(hash ?? ''));
+  return m ? Math.max(1, Number(m[1])) : 0;
+}
+/** The link to step n (from 1) of a recipe's cooking mode. */
+export const cookHref = (id, n = 1) => `${recipeHref(id)}?cook=${n}`;
+/** Step n kept inside 1 … count. */
+export const clampStep = (n, count) => Math.min(Math.max(1, Math.round(Number(n) || 1)), Math.max(1, count));
+/** The timer a step offers, in seconds (only steps marked timer, or own steps never). */
+export const timerOf = (step) => (step?.timer && step.min > 0 ? Math.round(step.min * 60) : 0);
+/** Seconds left of a timer that ends at `endAt` (ms). */
+export const secondsLeft = (endAt, now = Date.now()) => Math.max(0, Math.ceil((endAt - now) / 1000));
+/** 540 → «9:00», 3725 → «1:02:05». */
+export function fmtClock(sec) {
+  const s = Math.max(0, Math.round(sec));
+  const h = Math.floor(s / 3600);
+  const m = Math.floor((s % 3600) / 60);
+  const r = String(s % 60).padStart(2, '0');
+  return h ? `${h}:${String(m).padStart(2, '0')}:${r}` : `${m}:${r}`;
+}
+/** The minutes of all steps together (for «All steps · 15 min»). */
+export const stepsMinutes = (recipe) => (recipe?.steps ?? []).reduce((a, s) => a + (Number(s.min) || 0), 0);

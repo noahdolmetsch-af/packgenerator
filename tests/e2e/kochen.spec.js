@@ -104,3 +104,39 @@ test('Groups: filter by a group, put a recipe in, rename, delete with Undo choic
   expect(await noScroll(page)).toBe(true);
   expect(errors).toEqual([]);
 });
+
+test('Cooking mode: one step per screen, a timer that keeps running and rings, all steps, done', async ({ page, context }, info) => {
+  const salad = RECIPES.find((r) => r.id === 'pasta-salad');
+  const n = salad.steps.length;
+  const errors = await open(page, context, `./#/me/alltag/kochen/${salad.id}`);
+  await expect(page.locator('[data-ko-cook-start]')).toBeVisible();
+  await shot(page, info, 'kochmodus-start');
+  await page.locator('[data-ko-cook-start]').click();
+  await expect(page.locator('[data-ko-cook-step="1"]')).toContainText(T('Step {n} of {m}', { n: 1, m: n }));
+  await expect(page.locator('[data-ko-cook-step="1"]')).toContainText(T(salad.steps[0].text));
+  await expect(page.locator('[data-ko-timer-left]')).toHaveText(`${salad.steps[0].min}:00`);
+  await page.locator('[data-ko-timer-start]').click();
+  await page.clock.fastForward('00:30');
+  await expect(page.locator('[data-ko-timer-left]')).not.toHaveText(`${salad.steps[0].min}:00`);
+  await shot(page, info, 'kochmodus');
+  expect(await noScroll(page)).toBe(true);
+  await page.locator('[data-ko-cook-next]').click();
+  await expect(page.locator('[data-ko-cook-step="2"]')).toBeVisible();
+  await expect(page.locator('[data-ko-cook-running="1"]')).toBeVisible();
+  // the phone's back key goes one step back
+  await page.goBack();
+  await expect(page.locator('[data-ko-cook-step="1"]')).toBeVisible();
+  await page.locator('[data-ko-cook-next]').click();
+  await page.clock.fastForward(`${salad.steps[0].min}:00`);
+  await expect(page.locator('[data-ko-cook-rung="1"]')).toContainText(T('The timer of step {n} is done.', { n: 1 }));
+
+  await page.locator('[data-ko-cook-all]').click();
+  await expect(page.locator('[data-ko-cook-jump]')).toHaveCount(n);
+  await shot(page, info, 'kochmodus-alle');
+  await page.locator(`[data-ko-cook-jump="${n}"]`).click();
+  await expect(page.locator(`[data-ko-cook-step="${n}"]`)).toContainText(T('Step {n} of {m}', { n, m: n }));
+  await page.locator('[data-ko-cook-done]').click();
+  await expect(page.getByText(T('Enjoy your meal!'))).toBeVisible();
+  await expect(page.getByRole('heading', { level: 1, name: T(salad.title) })).toBeVisible();
+  expect(errors).toEqual([]);
+});

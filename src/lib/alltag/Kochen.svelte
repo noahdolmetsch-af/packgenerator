@@ -9,7 +9,8 @@
    * rename, sort (arrows and drag), delete (asks where its recipes go, Undo), add own ones, back to the standard;
    * a recipe page puts the recipe in or out of any group.
    */
-  import { ChevronRight, Clock, Minus, Plus, ShoppingCart, EyeOff, Eye, Pencil, ChefHat, X, RotateCcw } from '@lucide/svelte';
+  import { ChevronRight, Clock, Play, Minus, Plus, ShoppingCart, EyeOff, Eye, Pencil, ChefHat, X, RotateCcw } from '@lucide/svelte';
+  import CookMode from './CookMode.svelte';
   import RenameSheet from '../ui/RenameSheet.svelte';
   import GroupDeleteSheet from '../ui/GroupDeleteSheet.svelte';
   import SortGrip from '../ui/SortGrip.svelte';
@@ -25,7 +26,7 @@
   import { collsOf, collHref, pageHref } from '../frei.js';
   import { loadLists, changeList, restoreLists } from '../frei/shoplist.js';
   import { ALLTAG_HASH } from '../alltag.js';
-  import { PREFS_KEY, KOCHEN_HASH, FILTERS, GROUP_FILTER, prefsOf, recipeOfHash, recipeHref, ownRecipes, listFor, hiddenRecipes, findRecipe, ingredientRows, shoppingLines, mealLabels, groupsOf, groupName, groupsOfRecipe, idsIn, setRecipeGroup, addGroup, renameGroup, deleteGroup, moveGroup, resetGroups } from '../kochen/kochen.js';
+  import { PREFS_KEY, KOCHEN_HASH, FILTERS, GROUP_FILTER, prefsOf, recipeOfHash, recipeHref, ownRecipes, listFor, hiddenRecipes, findRecipe, ingredientRows, shoppingLines, mealLabels, groupsOf, groupName, groupsOfRecipe, idsIn, setRecipeGroup, addGroup, renameGroup, deleteGroup, moveGroup, resetGroups, cookStepOfHash, cookHref } from '../kochen/kochen.js';
   import { uid } from '../alltag.js';
   import { t, tn } from '../i18n.svelte.js';
 
@@ -50,6 +51,7 @@
 
   const openId = $derived(recipeOfHash(hash));
   const recipe = $derived(findRecipe(openId, own));
+  const cookStep = $derived(recipe?.steps?.length ? cookStepOfHash(hash) : 0);
   let portions = $state(1);
   $effect(() => {
     openId;
@@ -108,10 +110,21 @@
     return save((p) => deleteGroup(p, g.id, to ?? '', own), t('"{name}" deleted.', { name: gname(g) }));
   };
   const reset = () => save(resetGroups, t('The standard groups are back.'));
+  // cooking mode: each step is its own address, so the back key goes one step back
+  const toStep = (n) => (location.hash = cookHref(recipe.id, n));
+  const stopCooking = () => (location.hash = recipeHref(recipe.id));
+  function doneCooking() {
+    stopCooking();
+    offerDone(t('Enjoy your meal!'));
+  }
   const ownHref = $derived(recipeColl ? collHref(recipeColl.id) : pageHref('sammlungen'));
 </script>
 
-{#if openId}
+{#if openId && recipe && cookStep}
+  <div class="fz" data-page="kochen-kochen">
+    <CookMode {recipe} step={cookStep} {rows} onstep={toStep} onclose={stopCooking} ondone={doneCooking} />
+  </div>
+{:else if openId}
   <div class="fz" data-page="kochen-rezept">
     <Crumb path={[{ href: ALLTAG_HASH, label: t('Everyday life') }, { href: KOCHEN_HASH, label: t('Cooking') }]} here={recipe ? (recipe.own ? recipe.title : t(recipe.title)) : t('Recipe')} />
     {#if !recipe}
@@ -149,6 +162,8 @@
         <section class="fz-box" aria-labelledby="ko-steps-h" data-ko-steps>
           <h2 class="fz-h2" id="ko-steps-h">{t('All steps at a glance')}</h2>
           {#if recipe.steps.length}
+            <p class="fz-note">{t('Cooking mode: one step per screen, a timer where needed, the screen stays on.')}</p>
+            <div class="fz-acts"><a class="btn hi" href={cookHref(recipe.id, 1)} data-ko-cook-start><Play size={16} aria-hidden="true" />{t('Start cooking')}</a></div>
             <ol class="ko-ol">
               {#each recipe.steps as s, i (i)}
                 <li data-ko-step={i + 1}><span class="ko-num" aria-hidden="true">{i + 1}</span><span>{recipe.own ? s.text : t(s.text)}{#if s.min}<small>{t('about {n} min', { n: s.min })}</small>{/if}</span></li>
