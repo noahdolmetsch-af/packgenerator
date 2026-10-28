@@ -539,6 +539,8 @@ const OWN = [
   // «Eingaben überall» (Noah 26.10.2026 «1a 2b 3 nur Ton 4b 5a aber b möglich»): one input bar on ten pages
   { id: 'f.inputbar', group: 'data', title: 'Voice note', text: 'Under the text of the diary, notes, daily check, tour diary, ride note, journey trail, bike care, gear, dreams and quick note: a voice note up to one minute, photo, file, place, tags, templates, writing prompts and the AI helper.', href: '#/tagebuch?neu', words: 'eingabe sprachnotiz ton aufnahme datei anhängen ort schlagwort vorlage schreibanreiz ki helfer highlights titel' },
   { id: 'f.inputtemplates', group: 'data', title: 'Start with a template', text: 'Gratitude, small joys, 2 good things, favourite moment and more: each page has its own templates; add, change, sort and delete them.', href: '#/tagebuch?neu', words: 'vorlage dankbarkeit kleine erfreuer gute dinge lieblingsmoment eigene vorlage' },
+  // «Quick Links» (Noah 28.10.2026 «1a 2a 3a 4a 5a»): your pins, its own place
+  { id: 'f.quicklinks', group: 'data', title: 'Quick Links', text: 'Your shortcuts in their own place: pin the functions you use most, in your own groups; a tap takes you there. Phone and computer keep their own pins.', href: '#/quick', words: 'quick links pins anpinnen pinnadel abkürzung shortcut favoriten schnell lieblings verknüpfung' },
   { id: 'f.picturecard', group: 'data', title: 'Picture card', text: 'A diary entry as a picture to share: your own photo and a sentence, made on this device without AI.', href: '#/tagebuch', words: 'bildkarte bild teilen foto satz karte postkarte' },
 ];
 

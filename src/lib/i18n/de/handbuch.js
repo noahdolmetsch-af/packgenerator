@@ -1867,6 +1867,14 @@ export default {
     'Warnungen (Wetter, Glätte, Licht, Regen unterwegs, Essen) kommen weiter einzeln und pünktlich.',
   'Example: «Your morning» → «Appointment: 10:00 Dentist», «Testvelo: Chain reaches 1000 km soon», «and 1 more in the app».':
     'Beispiel: «Dein Morgen» → «Termin: 10:00 Zahnarzt», «Testvelo: Kette erreicht bald 1000 km», «und 1 weitere in der App».',
+  // «Quick Links» (Noah 28.10.2026)
+  'Open Quick Links in the bar (on a computer: in the sidebar).': 'Öffne Quick Links in der Leiste (am Computer: in der Seitenleiste).',
+  'Tap «Add a pin», search a function and tap «Pin».': 'Tippe auf «Pin hinzufügen», suche eine Funktion und tippe auf «Anpinnen».',
+  'Tap «Edit»: rename, add a note, move with the arrows or drag, unpin.': 'Tippe auf «Bearbeiten»: umbenennen, Notiz dazu, mit Pfeilen oder Ziehen verschieben, entfernen.',
+  'Example: pin «Wear» into the group «Bike» with the note «after rain».': 'Beispiel: «Verschleiss» in die Gruppe «Velo» pinnen, mit der Notiz «nach Regen».',
+  'Open Quick Links in the bar.': 'Öffne Quick Links in der Leiste.',
+  'Tap «Add a pin» and pin a function.': 'Tippe auf «Pin hinzufügen» und pinne eine Funktion an.',
+  'Tap a pin: the app goes there.': 'Tippe auf einen Pin: die App geht dorthin.',
   // Idee A2 «Erinnerung zu deiner Zeit» (27.10.2026)
   'Nothing to switch on: it learns while you open the evening-before check.':
     'Nichts einzuschalten: die App lernt, während du den Abend-Check öffnest.',
