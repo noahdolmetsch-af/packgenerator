@@ -2001,3 +2001,8 @@ Noah 19.10.2026: «1a 2a 3a 4 a oder b beides wählbar 5a», danach «a und b»,
 ## 27.10.2026 Gewohnheiten oben auf Heute
 
 - Noah «1a 2a und b 3b»: die Karte oben auf Heute zeigt nicht mehr fest die Meditation, sondern bis zu drei gewählte Gewohnheiten (Aktivitäten aus Aktiv und Punkte aus «Das tut mir gut»); gewählt mit dem Stift auf der Karte und unter «Startseite anpassen». Ohne Wahl bleibt es die Meditation.
+
+## 28.10.2026 Nacht-Ideen im Rennen
+- Nacht-Stopp-Ablauf als Liste zum Abhaken, «Nächster Stopp» nimmt die Haken weg (Noah «1a»).
+- Belohnung jede Stunde: eigene Liste, Renn-Modus zeigt die nächste mit voller Stunde (Noah «2a»).
+- Bäckerei am Morgen: im Plan pro Nacht und im Renn-Modus nach Mitternacht (Noah «3b und a»).
