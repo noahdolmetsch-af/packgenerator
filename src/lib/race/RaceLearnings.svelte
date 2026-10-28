@@ -6,7 +6,7 @@
    * ctx.past = the past races (trips).
    */
   import { liveQuery } from 'dexie';
-  import { Lightbulb } from '@lucide/svelte';
+  import { Lightbulb, ArrowRight, Flag, ChevronRight } from '@lucide/svelte';
   import { db } from '../db.js';
   import { learningsOf } from '../review/rueckblick.js';
   import { t, tn } from '../i18n.svelte.js';
@@ -37,9 +37,12 @@
     <ul class="rlr-list">
       {#each shown as l (l.id)}
         <li data-race-learning={l.id}>
-          <b>{l.rule}</b>
-          {#if l.action}<span class="rlr-do">{l.action}</span>{/if}
-          {#if l.race}<small>{l.race}</small>{/if}
+          <span class="rlr-ic" aria-hidden="true"><Lightbulb size={16} /></span>
+          <span class="rlr-txt">
+            <b>{l.rule}</b>
+            {#if l.action}<span class="rlr-do"><ArrowRight size={14} aria-hidden="true" />{l.action}</span>{/if}
+            {#if l.race}<small class="rlr-race"><Flag size={12} aria-hidden="true" />{l.race}</small>{/if}
+          </span>
         </li>
       {/each}
     </ul>
@@ -47,7 +50,7 @@
       <button type="button" class="btn sm" onclick={() => (all = !all)} data-race-learnings-all>{all ? t('Show fewer') : tn(rows.length, 'Show all {n}', 'Show all {n}')}</button>
     {/if}
   {/if}
-  <a class="rc-note" href="#/debrief/learnings">{t('All learnings')} ›</a>
+  <a class="rlr-all" href="#/debrief/learnings">{t('All learnings')}<ChevronRight size={16} aria-hidden="true" /></a>
 </section>
 
 <style>
@@ -56,18 +59,54 @@
     margin: 0;
     padding: 0;
     display: grid;
-    gap: 8px;
+    grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr));
+    gap: var(--sp-2);
   }
   .rlr-list li {
     display: grid;
-    gap: 2px;
-    padding-left: 10px;
-    border-left: 3px solid var(--accent);
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 10px;
+    align-items: start;
+    padding: 12px 14px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-card);
+    background: var(--paper);
+  }
+  .rlr-ic {
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
+    background: var(--accent-soft);
+    color: var(--accent);
+  }
+  .rlr-txt {
+    display: grid;
+    gap: 4px;
   }
   .rlr-do {
+    display: flex;
+    gap: 6px;
+    align-items: baseline;
     color: var(--ink-2);
   }
-  .rlr-list small {
-    color: var(--ink-3);
+  .rlr-race {
+    justify-self: start;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: var(--accent-soft);
+    color: var(--ink-2);
+  }
+  .rlr-all {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    min-height: 44px;
+    font-weight: 600;
+    color: var(--accent);
   }
 </style>
