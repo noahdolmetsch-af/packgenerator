@@ -8,8 +8,8 @@
 #   A running publish is never cancelled; merges that come meanwhile go online together right after.
 #   Since the evening of 27.10.2026 this is one job («online»: build, unit tests, publish, Releases entry):
 #   GitHub has no priority, so every extra job waited again behind all pull request tests.
-# - the full browser tests on the computer and the Gesamttest run after going online and every night
-#   (.github/workflows/volle-pruefung.yml); a red one opens an issue, Claude repairs, «zurück» stays possible.
+# - the full browser tests on the computer and the Gesamttest run at most once an hour after new merges and
+#   every night (.github/workflows/volle-pruefung.yml); a red one opens an issue, Claude repairs, «zurück» stays possible.
 # Noah 28.10.2026 «1a»: the phone browser tests of a pull request run only after his approval (a tap on
 # «Freigeben», or «ok N»). Claude then puts the label «ok» on the PR; that starts «e2e (phone)», and Claude
 # merges when it is green. Before the ok a PR runs only build + unit tests and the Wächter on the computer, so PRs that are still changing leave the test
@@ -79,7 +79,8 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
-      - run: npm run e2e -- --project=phone --shard=${{ matrix.shard }}/5
+      # Noah 28.10.2026 «1a»: 3 tests at once on the 4 cores of a GitHub computer (Playwright's default is 2)
+      - run: npm run e2e -- --project=phone --shard=${{ matrix.shard }}/5 --workers=3
         env:
           E2E_SKIP_GESAMTTEST: '1' # runs after going online (volle-pruefung.yml)
       # The page as the failing test saw it, readable in the log (the artifact can't be opened everywhere).

@@ -50,15 +50,24 @@ describe('Schnellspur (Weg zu online)', () => {
     expect(deploy).toMatch(/group: pages-\$\{\{ github\.ref \}\}\$\{\{ github\.event\.action == 'labeled'/);
   });
 
+  it('a phone part runs 3 tests at once (Noah 28.10.2026 «1a»)', () => {
+    expect(deploy).toContain('--project=phone --shard=${{ matrix.shard }}/5 --workers=3');
+  });
+
   it('keeps the check names the branch rule asks for', () => {
     expect(deploy).toContain('name: e2e (phone)');
     expect(deploy).toContain('name: e2e (desktop)');
     expect(deploy).toMatch(/\n  build:\n/);
   });
 
-  it('the full tests run after going online and report a red one', () => {
+  it('the full tests run at most once an hour after new merges and every night, and report a red one (Noah 28.10.2026 «3a»)', () => {
     const v = files['volle-pruefung.yml'];
-    expect(v).toContain("workflows: ['Build and deploy']");
+    expect(v).not.toContain('workflow_run');
+    expect(v).toContain("cron: '37 * * * *'");
+    expect(v).toContain("cron: '7 2 * * *'");
+    // the hourly run only tests a main the last full check has not tested yet
+    expect(v).toMatch(/gh run list --workflow volle-pruefung\.yml/);
+    for (const job of ['e2e-part', 'gesamttest']) expect(v.slice(v.indexOf(`\n  ${job}:`))).toMatch(/^\n  [\w-]+:\n    needs: gate\n    if: needs\.gate\.outputs\.run == 'true'/);
     expect(v).toContain('tests/e2e/gesamttest');
     expect(v).toContain('gh issue create');
   });
