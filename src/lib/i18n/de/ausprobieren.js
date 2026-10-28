@@ -13,4 +13,5 @@ export default {
   'Shows on the ride page after a recorded ride.': 'Erscheint auf der Fahrt-Seite nach einer aufgezeichneten Fahrt.',
   'Shows while you pack a trip.': 'Erscheint, während du eine Tour packst.',
   'Shows on Trips › Overview when a dream fits this month.': 'Erscheint unter Touren › Übersicht, wenn ein Traum in diesen Monat passt.',
+  'Shows on the live map during a ride.': 'Erscheint auf der Live-Karte während einer Fahrt.',
 };
