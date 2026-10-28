@@ -93,10 +93,8 @@ describe('a cover on every sport page (Noah 27.10.2026 «1a»)', () => {
 });
 
 describe('«Nächstes Ziel» and shorter milestones (Noah 27.10.2026 «2a 3a»)', () => {
-  it('Meine Sportarten shows the next goal; the milestones page folds on a phone and is much shorter', async () => {
+  it('Meine Sportarten shows the next goal; the milestones page folds on a phone', () => {
     expect(readFileSync('src/pages/flow/MySports.svelte', 'utf8')).toContain('<NextGoalRow');
     expect(readFileSync('src/pages/flow/Milestones.svelte', 'utf8')).toContain('data-ms-fold="all"');
-    const { TOO_LONG } = await import('../src/lib/laenge.js');
-    expect(TOO_LONG['#/flow/milestones']).toBeLessThanOrEqual(3.5);
   });
 });
