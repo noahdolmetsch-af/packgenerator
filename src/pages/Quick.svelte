@@ -20,9 +20,11 @@
   import { goFeature, runOf } from '../lib/know/featureRun.js';
   import { MARK_KEYS } from '../lib/quick/pinmarks.js';
   import { glowFeature } from '../lib/quick/findcard.js';
+  import { USAGE_KEYS, cleanUsage, suggestions, stalePins, usePin, pathOf } from '../lib/quick/usage.js';
+  import { localDay } from '../lib/localday.js';
   import { startTour } from '../lib/tour/run.js';
   import {
-    QUICK_KEYS, deviceKind, otherKind, cleanQuick, groupLabel, pinLabel, pinsIn, isPinned, shownGroups,
+    QUICK_KEYS, deviceKind, otherKind, cleanQuick, groupLabel, pinLabel, pinsIn, isPinned, shownGroups, addView, isViewPinned,
     addPin, removePin, editPin, movePin, addGroup, renameGroup, deleteGroup, moveGroup, findForPin,
   } from '../lib/quick/quicklinks.js';
   import { t, tn } from '../lib/i18n.svelte.js';
@@ -32,6 +34,8 @@
   const kind = deviceKind();
   const KEY = QUICK_KEYS[kind];
   const OTHER = QUICK_KEYS[otherKind(kind)];
+  const USED = USAGE_KEYS[kind];
+  const today = localDay();
 
   let s = $state(cleanQuick(null));
   let other = $state(null);
@@ -45,10 +49,12 @@
   let groupText = $state('');
   let open = $state(null); // the pin whose name and note are being changed
   let marksOn = $state(true); // step 2: the small pin on every card in the app
+  let u = $state(cleanUsage(null)); // step 4: what this device opened lately
 
   $effect(() => {
-    const sub = liveQuery(() => db.settings.bulkGet([KEY, OTHER, MARK_KEYS.on])).subscribe({
-      next: ([mine, theirs, marks]) => {
+    const sub = liveQuery(() => db.settings.bulkGet([KEY, OTHER, MARK_KEYS.on, USED])).subscribe({
+      next: ([mine, theirs, marks, used]) => {
+        u = cleanUsage(used?.value);
         marksOn = marks?.value !== false;
         s = cleanQuick(mine?.value);
         other = theirs?.value ? cleanQuick(theirs.value) : null;
@@ -60,6 +66,14 @@
   db.bikes.toCollection().first().then((b) => (bikeId = b?.id ?? null)).catch(() => {});
 
   const groups = $derived(shownGroups(s));
+  // step 4 (Noah «6a 7a», «20»): recently opened, one suggestion to pin, one pin to tidy up
+  const recent = $derived(u.recent.slice(0, 5));
+  const suggest = $derived(suggestions(u, s, today)[0] ?? null);
+  const stale = $derived(s.pins.find((p) => p.id === stalePins(u, s, today)[0]) ?? null);
+  const saveUsage = (next) => db.settings.put({ key: USED, value: JSON.parse(JSON.stringify(next)) });
+  const pinView = (r) => change(addView(s, r.href, r.title, s.groups[0]?.id ?? '', today), t('«{name}» pinned.', { name: r.title }));
+  const noThanks = (r) => saveUsage({ ...u, no: { ...u.no, [pathOf(r.href)]: today } });
+  const keep = (p) => saveUsage({ ...u, keep: { ...u.keep, [p.id]: today } });
   const gName = (g) => groupLabel(g, t);
   const hits = $derived(findForPin(FEATURES, q, t).slice(0, 40));
   const here = $derived(kind === 'phone' ? t('this phone') : t('this computer'));
@@ -75,6 +89,7 @@
 
   // step 3 (Noah «5a»): go to the spot and light it up; a view opens with its filter (Noah «18a»)
   function go(p) {
+    saveUsage(usePin(u, p.id, today));
     if (!p.feature) return void (location.hash = p.href);
     const f = FEATURE[p.feature];
     if (!f) return;
@@ -156,6 +171,25 @@
     </section>
   {/if}
 
+  {#if suggest}
+    <div class="ql-tip" role="status" data-quick-suggest={suggest.href}>
+      <p>{t('You often open «{name}». Pin it here?', { name: suggest.title })}</p>
+      <div class="tool-row">
+        <button type="button" class="btn sm hi" onclick={() => pinView(suggest)}><Plus size={15} aria-hidden="true" />{t('Pin|quick')}</button>
+        <button type="button" class="btn sm" onclick={() => noThanks(suggest)}>{t('No, thanks')}</button>
+      </div>
+    </div>
+  {/if}
+  {#if stale && !editing}
+    <div class="ql-tip" role="status" data-quick-stale={stale.id}>
+      <p>{t('You have not opened «{name}» for 30 days. Unpin it?', { name: pinLabel(stale, t) })}</p>
+      <div class="tool-row">
+        <button type="button" class="btn sm" onclick={() => unpin(stale)}><Trash2 size={15} aria-hidden="true" />{t('Unpin|quick')}</button>
+        <button type="button" class="btn sm" onclick={() => keep(stale)}>{t('Keep|quick')}</button>
+      </div>
+    </div>
+  {/if}
+
   {#if editing && s.groups.length > 1}
     <section class="ich-sec ql-order" aria-labelledby="ql-order-h">
       <div class="ich-h"><div><h2 id="ql-order-h">{t('Order of the groups')}</h2><p class="ich-hs">{t('Drag or use the arrows.')}</p></div></div>
@@ -234,6 +268,21 @@
     </form>
   {:else}
     <div class="tool-row"><button type="button" class="btn" onclick={() => (newGroupOpen = true)}><Plus size={16} aria-hidden="true" />{t('New group')}</button></div>
+  {/if}
+
+  {#if recent.length && !editing}
+    <section class="ich-sec" aria-labelledby="ql-recent-h" data-quick-recent>
+      <div class="ich-h"><div><h2 id="ql-recent-h">{t('Opened lately')}</h2><p class="ich-hs">{t('On this device. A pin keeps one for good.')}</p></div></div>
+      <ul class="card ich-list ql-list">
+        {#each recent as r (r.href)}
+          <li class="ql-row">
+            <a class="ql-a" href={r.href}><span class="ql-m"><b>{r.title}</b><small>{r.href.includes('?') ? t('View with its filter') : t('Page|quick')}</small></span></a>
+            {#if isViewPinned(s, r.href)}<span class="ql-on"><Check size={15} aria-hidden="true" />{t('Pinned|quick')}</span>
+            {:else}<button type="button" class="btn sm" aria-label={t('Pin «{name}»', { name: r.title })} onclick={() => pinView(r)}><Plus size={15} aria-hidden="true" />{t('Pin|quick')}</button>{/if}
+          </li>
+        {/each}
+      </ul>
+    </section>
   {/if}
 
   <div class="ql-foot">
@@ -386,6 +435,18 @@
     justify-items: start;
     gap: var(--sp-2);
     margin: var(--sp-4) 0;
+  }
+  .ql-tip {
+    display: grid;
+    gap: var(--sp-2);
+    padding: var(--sp-3) var(--sp-4);
+    margin: 0 0 var(--sp-4);
+    border-radius: var(--r-md, 12px);
+    background: var(--paper-2);
+    max-width: 640px;
+  }
+  .ql-tip p {
+    margin: 0;
   }
   .ql-marks {
     justify-self: stretch;
