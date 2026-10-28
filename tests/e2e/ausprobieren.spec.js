@@ -2,7 +2,7 @@
 // exact place (know/newsgo.js, newsRun.js): the spot glows and the line «New here: …» shows; a thing without a fixed
 // place shows the line where it shows up. Every line of the news files and of know/newsgo-map.js is tapped once.
 // Fictional data only (gesamttest fixture).
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { start, tr } from './gesamttest/lib.js';
 import { settle } from './settle.js';
 import { NEWS, NEWS_DE } from '../../src/lib/news/index.gen.js';

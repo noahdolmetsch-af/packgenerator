@@ -2,7 +2,7 @@
 // dayRide), the New trip dialog that creates without typing, and the weather preset from the
 // forecast at the home place (Open-Meteo mocked; nothing leaves the preview server).
 // Fictional fixture plus test_data_gtp_ items.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';

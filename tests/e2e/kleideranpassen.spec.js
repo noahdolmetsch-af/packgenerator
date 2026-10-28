@@ -3,7 +3,7 @@
 // adds a row the temperature does not need yet, «Warum so?» explains the rule, «Zurück zum Vorschlag» with Undo.
 // Fictional data only (fixture.json + test_data_gtp_ clothes made here); outside requests are blocked, the home
 // forecast (6 °C all day) is written into the app's database.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';

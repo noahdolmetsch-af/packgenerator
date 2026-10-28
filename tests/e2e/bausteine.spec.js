@@ -2,7 +2,7 @@
 // the Workshop order are made of blocks. Arranged right in the sheet or on the page «Bausteine»; the
 // first change asks for all bikes or only this one; a switched off block is missing in the text too;
 // an own block deleted on one bike asks about the others.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { start, fixture, tr, table } from './gesamttest/lib.js';
 
 const T = tr('de');

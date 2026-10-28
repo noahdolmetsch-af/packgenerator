@@ -4,7 +4,7 @@
 //   moves to its row in «Geplant».
 // - Touren 2: «Keine Fahrt verknüpft» is said once above the list, not in every card.
 // German UI, Europe/Zurich, service workers blocked.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { STEP_BAR as BAR } from '../../src/lib/stepbar.js'; // Schrittleiste (Noah 26.10.2026 «1b», changed on purpose): the bar's short names
 import { settle } from './settle.js';
 import { openShort } from './kurz-open.js';

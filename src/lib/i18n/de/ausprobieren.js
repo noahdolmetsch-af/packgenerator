@@ -18,4 +18,5 @@ export default {
   'Shows on top of Today once you choose habits.': 'Erscheint oben auf Heute, sobald du Gewohnheiten wählst.',
   'Shows on every toggle, for example in Trips › Review.': 'Erscheint bei jedem Umschalter, zum Beispiel in Touren › Rückblick.',
   'Shows in the timeline of a trip with a voice note.': 'Erscheint in der Zeitleiste einer Tour mit Sprachnotiz.',
+  'Shows in «What the app can do».': 'Erscheint unter «Was die App alles kann».',
 };

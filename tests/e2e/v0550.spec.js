@@ -7,7 +7,7 @@
 // 3. A new trip with nights: Biwak / Biwak + Zelt / Hotel/Hütte; Reparatur and Laden pressed, Licht
 //    only when the ride goes into the dark, Rennen only on an event, Komfort only as unticked offers.
 // Screenshots (V0550_SHOTS=dir): 390 and 1440, light and dark.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { join } from 'node:path';
