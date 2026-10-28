@@ -71,3 +71,20 @@ export function nightWx(days = [], { day, next }) {
   const mins = [a.min, b?.min].filter(Number.isFinite);
   return { min: mins.length ? Math.min(...mins) : null, rain: a.rain ?? null };
 }
+
+/**
+ * Free places to sleep from OpenStreetMap (Noah 28.10.2026 «2b»): camp sites, forest and picnic huts, bivouac boxes
+ * (the kinds of the map's place search). Asked only on a tap, never by itself; nothing is stored.
+ */
+export const BIWAK_OSM = ['camp', 'hut', 'bivouac'];
+
+/** The found places within maxKm of home, nearest first. list: parsePlaces().list → [{ ...place, km }] (at most `max`). */
+export function osmSpots(list = [], home, maxKm = BIWAK_DEFAULT.maxKm, max = 5) {
+  if (!home || !Number.isFinite(home.lat) || !Number.isFinite(home.lon)) return [];
+  return list
+    .filter((p) => Number.isFinite(p?.lat) && Number.isFinite(p?.lon))
+    .map((p) => ({ ...p, km: Math.round(distKm(home, p) * 10) / 10 }))
+    .filter((p) => p.km <= maxKm)
+    .sort((a, b) => a.km - b.km || String(a.id).localeCompare(String(b.id)))
+    .slice(0, max);
+}

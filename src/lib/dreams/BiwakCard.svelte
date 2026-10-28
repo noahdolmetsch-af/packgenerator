@@ -8,7 +8,7 @@
    */
   import { liveQuery } from 'dexie';
   import { db } from '../db.js';
-  import { BIWAK_KEY, BIWAK_KM, biwakCfg, nextEvening, biwakSpots, rideMin, nightWx } from './biwak.js';
+  import { BIWAK_KEY, BIWAK_KM, BIWAK_OSM, biwakCfg, nextEvening, biwakSpots, osmSpots, rideMin, nightWx } from './biwak.js';
   import { ownQuery } from '../map/ownpoints.js';
   import { homeForecast } from '../home-weather.js';
   import { localDay } from '../localday.js';
@@ -17,7 +17,7 @@
   import HomePlaceSheet from '../ich/HomePlaceSheet.svelte';
   import { offerDone } from '../ui/rename.svelte.js';
   import { t, num, locale } from '../i18n.svelte.js';
-  import { Tent, MapPin, Star, CloudMoon, Backpack } from '@lucide/svelte';
+  import { Tent, MapPin, Star, CloudMoon, Backpack, Search } from '@lucide/svelte';
 
   let { onplan } = $props();
 
@@ -48,6 +48,28 @@
   });
   const dayName = (day) => new Date(`${day}T12:00:00Z`).toLocaleDateString(locale(), { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC' });
   const wdName = (day) => new Date(`${day}T12:00:00Z`).toLocaleDateString(locale(), { weekday: 'short', timeZone: 'UTC' });
+
+  // free places from OpenStreetMap (Noah 28.10.2026 «2b»): only on a tap, nothing stored
+  let osm = $state.raw(null); // null | 'busy' | { list } | { error }
+  let osmFor = $state(''); // the home and distance the answer is for
+  const osmKey = $derived(home ? `${home.lat},${home.lon},${cfg.maxKm}` : '');
+  const osmList = $derived(osm?.list && osmFor === osmKey ? osmSpots(osm.list, home, cfg.maxKm) : null);
+  async function findOsm() {
+    if (!home || osm === 'busy') return;
+    osm = 'busy';
+    const key = osmKey;
+    try {
+      const [ps, op] = await Promise.all([import('../map/poisearch.js'), import('../route/pois.js')]);
+      const q = ps.aroundQuery(BIWAK_OSM, home, cfg.maxKm);
+      const json = await op.fetchOverpass(q, { urls: op.overpassUrls([home]) });
+      osm = { list: ps.parsePlaces(json, BIWAK_OSM).list.map((p) => ({ ...p, label: ps.labelOf(p) })) };
+      osmFor = key;
+    } catch (err) {
+      console.error(err);
+      osm = { error: true };
+    }
+  }
+  const osmName = (p) => p.name || t(p.label);
 
   let editing = $state(false);
   let placeOpen = $state(false);
@@ -92,6 +114,30 @@
         <p class="ich-help" data-bw-none>{t('No place to sleep within {km} km yet. After a trip, rate where you slept, or mark a «Place to sleep» on the map.', { km: cfg.maxKm })}</p>
         <button type="button" class="btn sm" onclick={() => onplan?.({ name: t('After-work bivouac'), day: ev.day, spot: null, cfg })} data-bw-plan><Backpack size={16} aria-hidden="true" />{t('Plan it without a place')}</button>
       {/if}
+      <div class="bw-osm" data-bw-osm-box>
+        {#if osmList}
+          <p class="lbl">{t('Free places from OpenStreetMap')}</p>
+          {#if osmList.length}
+            <ul class="bw-list">
+              {#each osmList as p (p.id)}
+                <li class="bw-row" data-bw-osm-spot={p.id}>
+                  <span class="bw-m">
+                    <b>{osmName(p)}</b>
+                    <small>{t(p.label)}{' · '}{t('{km} km · about {min} min', { km: num(p.km), min: rideMin(p.km) })}</small>
+                  </span>
+                  <button type="button" class="btn sm" onclick={() => onplan?.({ name: t('After-work bivouac: {name}', { name: osmName(p) }), day: ev.day, spot: { name: osmName(p), lat: p.lat, lon: p.lon, km: p.km }, cfg })} data-bw-plan><Backpack size={16} aria-hidden="true" />{t('Plan it')}</button>
+                </li>
+              {/each}
+            </ul>
+          {:else}
+            <p class="ich-help" data-bw-osm-none>{t('No free place within {km} km in OpenStreetMap.', { km: cfg.maxKm })}</p>
+          {/if}
+          <p class="bw-credit" data-bw-osm-credit>{t('Data © OpenStreetMap contributors. Check on the spot whether you may stay the night.')}</p>
+        {:else}
+          {#if osm?.error}<p class="ich-help" data-bw-osm-error>{t("OpenStreetMap didn't answer. Try again later.")}</p>{/if}
+          <button type="button" class="btn sm" onclick={findOsm} disabled={osm === 'busy'} data-bw-osm><Search size={16} aria-hidden="true" />{osm === 'busy' ? t('Searching…') : t('Find free places nearby (OpenStreetMap)')}</button>
+        {/if}
+      </div>
     {/if}
 
     <button type="button" class="btn btn-link" aria-expanded={editing} onclick={() => (editing = !editing)} data-bw-change>{editing ? t('Close') : t('Change evening, times, distance')}</button>
@@ -114,6 +160,19 @@
 {#if placeOpen}<HomePlaceSheet current={null} onclose={() => (placeOpen = false)} />{/if}
 
 <style>
+  .bw-osm {
+    display: grid;
+    gap: var(--sp-2);
+    justify-items: start;
+  }
+  .bw-osm .bw-list {
+    justify-self: stretch;
+  }
+  .bw-credit {
+    margin: 0;
+    font-size: var(--fs-small);
+    color: var(--ink-3);
+  }
   .bw {
     display: grid;
     gap: var(--sp-3);

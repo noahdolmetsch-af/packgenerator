@@ -430,4 +430,11 @@ export default {
   'Open Trips › Dreams and scroll to «After-work bivouac».': 'Öffne Touren › Träume und scrolle zu «Feierabend-Biwak».',
   'Choose a place to sleep and tap «Plan it».': 'Wähle einen Schlafplatz und tippe «Einplanen».',
   'Pack with the list of the new trip.': 'Packe mit der Liste der neuen Tour.',
+  // Feierabend-Biwak: freie Plätze aus OpenStreetMap (Noah 28.10.2026 «2b»)
+  'Free places from OpenStreetMap': 'Freie Plätze aus OpenStreetMap',
+  'No free place within {km} km in OpenStreetMap.': 'In OpenStreetMap kein freier Platz im Umkreis von {km} km.',
+  'Data © OpenStreetMap contributors. Check on the spot whether you may stay the night.': 'Daten © OpenStreetMap-Mitwirkende. Prüfe vor Ort, ob du dort übernachten darfst.',
+  "OpenStreetMap didn't answer. Try again later.": 'OpenStreetMap hat nicht geantwortet. Versuch es später nochmals.',
+  'Searching…': 'Suche läuft …',
+  'Find free places nearby (OpenStreetMap)': 'Freie Plätze in der Nähe suchen (OpenStreetMap)',
 };

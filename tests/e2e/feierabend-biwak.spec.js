@@ -138,3 +138,50 @@ test('After-work bivouac: next Friday, own places to sleep near home, the night,
   await noSideways(page);
   expect(errors).toEqual([]);
 });
+
+// Noah 28.10.2026 «2b»: on a tap, free places from OpenStreetMap (faked answer, fictional names), nearest first
+const OSM = {
+  elements: [
+    { type: 'node', id: 1, lat: 47.42, lon: 8.56, tags: { tourism: 'camp_site', name: `${P}Zeltplatz am Bach` } },
+    { type: 'node', id: 2, lat: 47.4, lon: 8.55, tags: { amenity: 'shelter', shelter_type: 'basic_hut', name: `${P}Waldhütte` } },
+    { type: 'node', id: 3, lat: 46.6, lon: 8.1, tags: { tourism: 'wilderness_hut', name: `${P}Zu weit weg` } },
+    { type: 'node', id: 4, lat: 47.41, lon: 8.57, tags: { tourism: 'camp_site', access: 'private', name: `${P}Privat` } },
+  ],
+};
+
+test('After-work bivouac: free places from OpenStreetMap only on a tap', async ({ page, context }, info) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  let asked = 0;
+  await context.route(/^https?:\/\/(?!localhost[:/])/, (r) => r.abort());
+  await context.route(/overpass/, (r) => ((asked += 1), r.fulfill({ json: OSM, headers: { 'access-control-allow-origin': '*' } })));
+  await context.addInitScript(() => localStorage.setItem('lang', 'de'));
+  await page.goto('./');
+  await ready(page);
+  await put(page, 'settings', [{ key: 'homePlace', value: { name: `${P}Zürich`, lat: 47.3769, lon: 8.5417 } }]);
+  await put(page, 'bikes', [BIKE]);
+  await page.goto('./#/trips/dreams');
+  await page.reload();
+  await ready(page);
+  const sec = page.locator('[data-biwak]');
+  await expect(sec.locator('[data-bw-none]')).toBeVisible();
+  // nothing asked by itself
+  await page.waitForTimeout(800);
+  expect(asked).toBe(0);
+  await sec.locator('[data-bw-osm]').click();
+  const found = sec.locator('[data-bw-osm-spot]');
+  await expect(found).toHaveCount(2);
+  await expect(found.first()).toContainText(`${P}Waldhütte`);
+  await expect(found.nth(1)).toContainText(`${P}Zeltplatz am Bach`);
+  await expect(sec.locator('[data-bw-osm-credit]')).toContainText('OpenStreetMap');
+  expect(asked).toBe(1);
+  await noSideways(page);
+  await shot(sec, info, 'FB4-osm');
+
+  // «Plan it» at a found place opens the plan form with its name
+  await found.first().locator('[data-bw-plan]').click();
+  const dlg = page.getByRole('dialog', { name: T('Plan the tour') });
+  await expect(dlg).toBeVisible();
+  await expect.poll(() => dlg.locator('input, textarea').evaluateAll((els, n) => els.some((e) => e.value.includes(n)), `${P}Waldhütte`)).toBe(true);
+  expect(errors).toEqual([]);
+});

@@ -1,6 +1,6 @@
 // «Feierabend-Biwak» (Träume und Neuland N6, Noah 27.10.2026 «1-5 a»): the evening, the places to sleep, the night.
 import { describe, it, expect } from 'vitest';
-import { biwakCfg, nextEvening, biwakSpots, rideMin, nightWx, weekdayOf, BIWAK_DEFAULT } from '../src/lib/dreams/biwak.js';
+import { biwakCfg, nextEvening, biwakSpots, osmSpots, rideMin, nightWx, weekdayOf, BIWAK_DEFAULT } from '../src/lib/dreams/biwak.js';
 
 const P = 'test_data_gtp_';
 const HOME = { lat: 47.38, lon: 8.54 };
@@ -53,4 +53,20 @@ describe('the night', () => {
     expect(nightWx(days, { day: '2026-10-30', next: '2026-10-31' })).toEqual({ min: 3, rain: 'none' });
     expect(nightWx(days, { day: '2026-11-06', next: '2026-11-07' })).toBe(null);
   });
+});
+
+describe('free places from OpenStreetMap (Noah 28.10.2026 «2b»)', () => {
+  const list = [
+    { id: 'node/1', name: `${P}Zeltplatz`, lat: 47.42, lon: 8.56 },
+    { id: 'node/2', name: `${P}Hütte`, lat: 47.4, lon: 8.55 },
+    { id: 'node/3', name: `${P}Weit`, lat: 46.6, lon: 8.1 },
+    { id: 'node/4', name: `${P}Ohne Ort` },
+  ];
+  it('keeps the places in reach, nearest first, with km', () => {
+    const r = osmSpots(list, HOME, 30);
+    expect(r.map((p) => p.id)).toEqual(['node/2', 'node/1']);
+    expect(r[0].km).toBeGreaterThan(0);
+  });
+  it('no home: nothing', () => expect(osmSpots(list, null)).toEqual([]));
+  it('at most max', () => expect(osmSpots(list, HOME, 30, 1)).toHaveLength(1));
 });
