@@ -22,7 +22,7 @@
   import { runsOf } from './quick.js';
   import { t } from '../i18n.svelte.js';
 
-  let { tiles = [], body, editing = false, sections = true, onedit, onchange, onadd } = $props();
+  let { tiles = [], body, editing = false, sections = true, areas = null, onedit, onchange, onadd } = $props();
 
   let picked = $state(null); // the tile whose ‹ › and sizes show
   $effect(() => {
@@ -55,7 +55,7 @@
   }
   const shown = $derived(drag ? drag.list : tiles);
   // «Neuer Schwung» Teil 2: the tiles appear in the order they stand on the page (in areas: area by area)
-  const seen = $derived(sections ? sectionsOf(shown).flatMap((g) => g.tiles) : shown);
+  const seen = $derived(sections ? sectionsOf(shown, areas).flatMap((g) => g.tiles) : shown);
   const pickedTile = $derived(picked ? (tiles.find((x) => x.id === picked) ?? null) : null);
 
   /* a long press on a tile opens edit mode; the tap that follows is swallowed.
@@ -125,17 +125,22 @@
     </div>
   </div>
   <!-- «Heute ruhiger» 3a: while customising the wall shows in its own order; Heute groups it into areas -->
-  {#if sections}<p class="ehint" data-sections-hint>{t('Today shows the tiles in areas with a heading. Here you set their order inside an area.')}</p>{/if}
+  {#if sections}<p class="ehint" data-sections-hint>{t('Today shows the tiles in areas with a heading. Here you set their order inside an area; the areas themselves under «Areas of Today».')}</p>{/if}
 {:else}
   <div class="wall" class:secs={sections} bind:this={wallEl} role="list" aria-label={t('Your start page')}>
     {#if sections}
-      {#each sectionsOf(shown) as g (g.key)}
-        <div class="ti long sech" data-home-sec={g.key} role="listitem"><h2>{t(g.name)}</h2>{#if g.sub}<p>{t(g.sub)}</p>{/if}</div>
-        {#if g.key === 'quick'}{@render quickS(g.tiles)}
-        {:else if g.key === 'discover'}
+      {#each sectionsOf(shown, areas) as g (g.key)}
+        <div class="ti long sech" data-home-sec={g.key} role="listitem"><h2>{g.own ?? t(g.name)}</h2>{#if g.sub && !g.own}<p>{t(g.sub)}</p>{/if}</div>
+        {#if g.tiles.every((x) => x.size === 's')}{@render quickS(g.tiles)}
+        {:else if g.key === 'discover' && !g.tiles.some((x) => x.size === 's')}
           <!-- 4a: «Neu», «Schon probiert?» and the tip side by side -->
           <div class="ti long disc" role="listitem"><div class="dgrid" role="list">{#each g.tiles as x (x.id)}{@render tileEl(x, 'di', undefined, seen.indexOf(x))}{/each}</div></div>
-        {:else}{@const fill = fillers(g.tiles)}{#each g.tiles as x (x.id)}{@render tileEl(x, fill.has(x.id) ? 'fill' : '', fill.get(x.id), seen.indexOf(x))}{/each}{/if}
+        {:else}
+          <!-- a hidden «Open quickly» sends its small tiles elsewhere: they stay one calm list at the end of that area -->
+          {@const big = g.tiles.filter((x) => x.size !== 's')}{@const small = g.tiles.filter((x) => x.size === 's')}{@const fill = fillers(big)}
+          {#each big as x (x.id)}{@render tileEl(x, fill.has(x.id) ? 'fill' : '', fill.get(x.id), seen.indexOf(x))}{/each}
+          {#if small.length}{@render quickS(small)}{/if}
+        {/if}
       {/each}
     {:else}
       {#each runsOf(shown) as r, i (r.key === 'quick' ? 'quick' : `${i}`)}
