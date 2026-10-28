@@ -7,14 +7,16 @@ export default {
     {
       text: 'Cut, draw, highlight and write on screenshots, then one PDF of all pages',
       href: '#/me/tools/markup',
+      go: 'f.markup',
     },
   ],
   small: [
     {
       box: 'new',
       text: 'Turn or remove a page, put the pages in order with arrows or by dragging',
+      go: 'f.markup',
     },
-    { box: 'new', text: 'Single pictures instead of a PDF, as you choose' },
+    { box: 'new', text: 'Single pictures instead of a PDF, as you choose', go: 'f.markup' },
   ],
   test: [
     'On the phone take a screenshot, then open Trips › Toolbox › «Edit a picture» and tap «Choose pictures»: pick two screenshots.',
