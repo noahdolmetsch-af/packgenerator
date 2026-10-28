@@ -3,7 +3,7 @@
 // lights; To the phone with a QR code of the app's address; Inbox with the view chips and «Recently
 // filed»; Notes as rows; the Helper in two columns; the windows (shortcuts, home place) in the window look.
 // Fictional data only (tests/e2e/v048-fixture.js, test_data_gtp_ names); nothing leaves the preview server.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import DE from '../../src/lib/i18n/de/index.js';
 import { v048File, P } from './v048-fixture.js';
 import { openData, settle } from './settle.js';

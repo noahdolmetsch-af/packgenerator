@@ -2,7 +2,7 @@
 // GPX + weather (service down), photos, print and share link, export/import, offline + reload.
 // Fictional fixture plus test_data_gtp_ records; a synthetic route around Bern (public place);
 // every request outside the preview server is blocked or answered by the test itself.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { inflateRawSync } from 'node:zlib';
 import { fileURLToPath } from 'node:url';

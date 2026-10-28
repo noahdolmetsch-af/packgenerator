@@ -1,6 +1,6 @@
 // Hängt das Handy fest? (Noah 20.10.2026): when a newer version has been online for a while (2 minutes since 27.10.2026) and this
 // device still runs the old one, a bar says so, with «Jetzt laden» and «Später» (src/lib/behind.js).
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { appVersion } from '../../scripts/news.mjs';
 import { tr } from './home0460-fixture.js';
 import { readFileSync } from 'node:fs';

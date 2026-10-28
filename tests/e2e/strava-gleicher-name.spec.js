@@ -2,7 +2,7 @@
 // import time (the bike was renamed later) are assigned on opening «Zum Prüfen», with «Rückgängig».
 // A ride whose sensor says another bike stays for you. Fictional bikes and rides only; in German, no
 // sideways scroll, no page errors.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import DE from '../../src/lib/i18n/de/index.js';
 import { ready } from './settle.js';
 

@@ -1,6 +1,6 @@
 // Einzelideen «Ich» (996 Ideen, Noah 25.10.2026): 30 a tour ended early goes on at its step; 31 a shortcut tip
 // after a few mouse clicks in the sidebar; 36 suggestions off by kind (Ich › Ruhig › Ausgeblendet und aus). Empty app, German UI.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import DE from '../../src/lib/i18n/de/index.js';
 import { TOURS, stepCount } from '../../src/lib/tour.js';
 import { SUGGEST_KINDS } from '../../src/lib/clear/suggest.js';

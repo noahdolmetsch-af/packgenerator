@@ -3,7 +3,7 @@
 // P6-1 meditation on top (ME1), the weekly weight under it (SN2l), the ring (T3) and «Last activity» after it (TR1);
 // P6-2 the weight is saved where Ich › Gewicht keeps it; «Not today» puts the card away until tomorrow;
 // P6-3 after an update «New» stands on top as a whole row (H1) and can be taken away.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { openHome, homeFixture } from './home0460-fixture.js';
 import { SEEN_KEY } from '../../src/lib/whatsnew.js';
 

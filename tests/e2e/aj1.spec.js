@@ -5,7 +5,7 @@
 // (a quiet hint for 30 days); it stays in Neu and at the bike (Velos › Pflege).
 // Fictional data only (test_data_gtp_), German UI, Europe/Zurich, service workers blocked (config).
 // SHOTS=<folder> saves the screenshots (1440 and 390, light).
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';

@@ -1,7 +1,7 @@
 // v0.83.0 «Ausstattung» (Noah 11.10.2026, A1–A5 a): Velos › Ausstattung shows one bike's parts in groups
 // with name, weight and price; empty parts fold; a part is edited in a small sheet; «Velos vergleichen»
 // shows only rows with values. Fictional v048 fixture (the Spark has parts, the Bergziege none).
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { v048File, P, SPARK, GOAT } from './v048-fixture.js';
 import { openData, settle } from './settle.js';
 import { TABS } from './placetab.js';

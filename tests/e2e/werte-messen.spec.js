@@ -1,7 +1,7 @@
 // «Werte messen» Teil 1 (Noah 15.10.2026, W1–W3 «freigeben», «1a 2b 3a 4a 5a»): a value saved in the
 // Pick-up check is «checked at the pick-up» on the Bike pass and «as it should be again» on the next
 // Workshop order; a replaced part shows on the Bike pass, the Theft sheet, Warranty and the Repair kit.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { start, fixture, tr, day, table } from './gesamttest/lib.js';
 
 const T = tr('de');

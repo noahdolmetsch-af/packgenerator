@@ -4,7 +4,7 @@
 // greeting whose answer lands in the one history of «Deine Abfragen». Fictional data only (the name
 // «Lena»); the clock stands on Friday 9 October 2026. The greeting words come from the app source.
 // (test titles stay plain ASCII: the upload of the fixture fails from an output folder with «» in its name)
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { homeFixture, openHome } from './home0460-fixture.js';
 import { greetFor, helloTitle, HELLO_NIGHT, HELLO_TAP, HELLO_MOOD, HELLO_PLAN } from '../../src/lib/home/hallo.js';
 

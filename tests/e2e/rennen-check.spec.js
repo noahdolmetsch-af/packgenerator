@@ -1,6 +1,6 @@
 // «Rennen detailliert planen» + «Rennen-Check» (Noah 27.10.2026 «1b 2b»): the coming races with their check,
 // five sheets that save by themselves and answers loaded from a file. Fictional data (sample race, made-up answers).
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { openHome } from './home0460-fixture.js';
 import { SHEETS } from '../../src/lib/race/check-lib.js';
 
@@ -82,4 +82,28 @@ test('Race links: handbook, rules, tracker, website and own links', async ({ pag
   await expect(box).toContainText('example-race.org');
   await noSideways(page);
   await box.screenshot({ path: info.outputPath('rennen-links.png') });
+});
+
+test('Finish time riding through: three answers that follow your numbers', async ({ page, context }, info) => {
+  await openHome(page, context, info);
+  await page.goto('./#/race');
+  await page.locator('[data-race-sample-open]').click();
+  await expect(page).toHaveURL(/#\/race\/race-sample$/);
+  await page.goto('./#/racecheck/race-sample');
+  const box = page.locator('[data-race-nonstop]');
+  await box.locator('[data-nonstop-edit]').click();
+  await box.locator('[data-nonstop-field="km"]').fill('300');
+  await box.locator('[data-nonstop-field="km"]').press('Tab');
+  await box.locator('[data-nonstop-field="gainM"]').fill('6500');
+  await box.locator('[data-nonstop-field="gainM"]').press('Tab');
+  await box.locator('[data-nonstop-field="start"]').fill('2027-05-04T06:00');
+  await box.locator('[data-nonstop-field="start"]').press('Tab');
+  await expect(box.locator('[data-nonstop]')).toHaveCount(3);
+  const plan = box.locator('[data-nonstop="plan"] .ns-at');
+  const before = await plan.textContent();
+  await box.locator('[data-nonstop-field="flatKmh"]').fill('30');
+  await box.locator('[data-nonstop-field="flatKmh"]').press('Tab');
+  await expect(plan).not.toHaveText(before ?? '');
+  await noSideways(page);
+  await box.screenshot({ path: info.outputPath('rennen-zielzeit.png') });
 });

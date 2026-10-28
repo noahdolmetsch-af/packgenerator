@@ -4,7 +4,7 @@
 //     the bikes, 8 shortcuts, «Alle Bereiche»;
 //     no Strava card, no news banner, no «Tipp der Woche» on Heute (5b: under Ich › Was ist neu);
 // HA2 the Morgen-Check shows 3 questions, «weitere Fragen einblenden» shows the rest, saving keeps the folded ones away.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { openHome, homeFixture, day } from './home0460-fixture.js';
 import { QUESTIONS, ON_AT_START } from '../../src/lib/abfragen.js';
 import { READY, HEAD_N2 } from '../../src/lib/home/tiles.js';

@@ -2,7 +2,7 @@
 // back; a deleted note waits in the trash and comes back from there; a reminder on a note shows on top
 // of Notes when it is due, until «Done». In German, on a phone and a computer; no sideways scroll, no page
 // errors. Fictional data only.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import DE from '../../src/lib/i18n/de/index.js';
 import { prep, newNote, storedNote, noSideScroll } from './notes-helpers.js';
 

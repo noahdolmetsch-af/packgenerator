@@ -1,7 +1,7 @@
 // TR6/TR6b «Gewicht» (Noah 14.10.2026 «TR5–TR7 freigegeben»): Ich › Meine Daten › Gewicht. Enter a
 // weight, see the weight over time with a 7-day mean and watts per kg over the weeks, hide a chart and
 // bring it back. Fictional activities and weights only; nothing leaves the device (all outside blocked).
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { viaTab } from './placetab.js'; // UI-Ziele #6: the pages that were rows under Ich are tabs now
 import { ready } from './settle.js';
 import { day, seedActivities } from './leistung-data.js';

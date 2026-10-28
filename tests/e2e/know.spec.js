@@ -1,6 +1,6 @@
 // v0.25.1 (Noah 1a, 7.10.2026): Good to know shows only cards with content, the most urgent first,
 // each with one button. Fictional fixture plus test_data_gtp_ records; Open-Meteo is mocked.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';

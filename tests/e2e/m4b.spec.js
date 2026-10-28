@@ -2,7 +2,7 @@
 // volume text without litres), update or new template, a ride-day note in the debrief and in the
 // Inbox, and a missing item that becomes a learning. Fictional fixture plus test_data_gtp_ records;
 // nothing leaves the preview server.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { endToDebrief } from './ending.js';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';

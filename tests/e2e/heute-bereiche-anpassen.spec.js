@@ -1,7 +1,7 @@
 // «Bereiche anpassen» (Noah 27.10.2026 «1a 2a»): under «Customise the start page» the areas of Heute move with the
 // arrows (1a), get an own name and can be hidden, with Undo (2a). Hiding asks where the tiles go: «Without area» is
 // chosen first; the tiles stay on Heute. Fictional data only (test_data_gtp_); SHOTS=<folder> saves screenshots.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { openHome } from './home0460-fixture.js';
 
 const areas = (page) => page.locator('.wall [data-home-sec]').evaluateAll((els) => els.map((e) => e.dataset.homeSec));

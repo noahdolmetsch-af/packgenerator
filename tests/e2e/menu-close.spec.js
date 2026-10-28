@@ -3,7 +3,7 @@
 // was hit again, and covered the next row's •••). Bike care problems and the packing list's •••.
 // No ••• in the test titles: Playwright puts them in the output folder, and the file upload then fails.
 // Fictional data only (tests/e2e/pf-fixture.json plus two test_data_gtp_ problems).
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';

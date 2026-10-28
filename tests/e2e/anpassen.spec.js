@@ -1,7 +1,7 @@
 // «Anpassen» (Noah 20.10.2026 «1a 2a 3a 4a 5a»), fictional data: «Diese Seite anpassen» at the end of a page hides,
 // renames and sorts its parts, changes the tabs (start tab) and the menu, keeps it after a reload, and «Wie am Anfang»
 // puts everything back.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { start, tr } from './gesamttest/lib.js';
 
 const T = tr('de');

@@ -1,7 +1,7 @@
 // Paket P7 «Projekt-Ablage» (Noah 21.10.2026 «6a», mockups design/projekt-ablage A–C): Ich › Projekt-Ablage with the
 // head (ideas live), «Für dich jetzt» (own points: add, change, move, delete), «Der Weg», the folded idea board by goal
 // and the releases. German UI, fictional data (test_data_gtp_), the clock on Fri 9.10.2026 09:00.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { openHome } from './home0460-fixture.js';
 
 const noSideScroll = (page) => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1);

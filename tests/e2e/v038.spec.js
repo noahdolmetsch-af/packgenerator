@@ -2,7 +2,7 @@
 // "More", Gear's compact rows with "Compact | With bag" and swipe, and Bike care as one list.
 // Fictional data only (test_data_gtp_ names, tests/e2e/v038-fixture.js). Phone and desktop.
 // V038_SHOTS=<folder> saves screenshots (never into the repo).
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { viaTab } from './placetab.js'; // UI-Ziele #6: the pages that were rows under Ich are tabs now
 import { lookButton, pickLook, closeLook } from './gear-look.js';
 import { P, SPARK, v038Start, day } from './v038-fixture.js';

@@ -2,7 +2,7 @@
 // read in the app: PDF (pages and searchable text), Word, Excel/CSV, GPX map, calendar and contact with
 // «into my calendar / contacts», a web page kept offline (the server answer is faked), a scan straight
 // into the note. In German, on a phone and a computer; no sideways scroll, no page errors. Fictional data only.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { PDFDocument, StandardFonts } from 'pdf-lib';
 import DE from '../../src/lib/i18n/de/index.js';
 import { png, prep, newNote, storedNote, noSideScroll, zip } from './notes-helpers.js';

@@ -3,7 +3,7 @@
 // (Escape is what Chrome's CloseWatcher sends on a real Android back, history.back() the other way),
 // ✕ leaves it, «Renamed to … · Undo» afterwards, and Setup stays on the renamed bike.
 // Fictional data only (home0460-fixture.js, test_data_gtp_ records).
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { openHome } from './home0460-fixture.js';
 import { openMore } from './bike-more.js';
 

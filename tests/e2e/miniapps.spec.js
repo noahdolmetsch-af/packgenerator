@@ -4,7 +4,7 @@
 // (own icon), shows only its tabs and «Ganze App» at the bottom (no five places, no sidebar), every tab
 // opens its page, «Ganze App» leads to the big app with the five places. A note written in the big app
 // is seen from the small app (one database). No sideways scroll, no page errors. Fictional data only.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import DE from '../../src/lib/i18n/de/index.js';
 import { MINI_APPS } from '../../src/lib/miniapps.js';
 import { ready } from './settle.js';

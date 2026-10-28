@@ -1,7 +1,7 @@
 // Einzelideen Planen, grosse Teile (996 Ideen 10, 11, 15, 16; Noah 26.10.2026 «1a 2a 3a 4a 5a»):
 // Pflanzenpass, Vorgänge (doppelter Eingang, Mail als Vorgang), Erinnerungskarte and «Notizen im Zusammenhang».
 // In German, phone and computer; no sideways scroll, no page errors. Fictional data only.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import DE from '../../src/lib/i18n/de/index.js';
 import { prep, newNote, storedNote, noSideScroll, png } from './notes-helpers.js';
 import { ready } from './settle.js';

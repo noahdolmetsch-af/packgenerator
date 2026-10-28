@@ -9,7 +9,7 @@
 // - an own link not entered yet is dashed with «eintragen»; entering one keeps it on the device.
 // Fictional data only (test_data_gtp_), own links on example.org, German UI, Europe/Zurich, service workers
 // blocked (config), every outside address blocked. SHOTS=<folder> saves screenshots (1440 and 390, light).
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';

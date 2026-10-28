@@ -5,7 +5,7 @@
 // SA2  A night with a day sport: the quiet hint «Zu Bikepacking»; nothing changes without a tap (3a).
 // SA3  Touren: a quiet band opens «Sportart für deine alten Touren», suggested by bike and days (4b).
 // Fictional data only (test_data_gtp_), German UI, Europe/Zurich, service workers blocked (config).
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';

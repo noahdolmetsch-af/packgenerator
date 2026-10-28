@@ -2,7 +2,7 @@
 // person came for is a visible button, «…» only holds the rest: «Erledigt» in every Velopflege row, «Tour
 // beenden …» and «Notfall» on Unterwegs (sn-a.spec.js), «Notfall» on the live map (live.spec.js).
 // German, fictional v0.77.0 data only.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import DE from '../../src/lib/i18n/de/index.js';
 import { v0770File } from './v0770-fixture.js';
 import { openData, settle } from './settle.js';

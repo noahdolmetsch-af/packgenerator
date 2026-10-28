@@ -1,7 +1,7 @@
 // «Neuer Schwung» Teil 2 (Noah 26.10.2026 «4a»: motion everywhere, kept subtle, off with «reduce motion»):
 // on Heute the tiles fade in one after another, big numbers rise in, the packing bar fills and the ring draws
 // itself. Nothing changes size or place while it moves, so taps work at once. Fictional data only.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { openHome } from './home0460-fixture.js';
 
 const anim = (loc) => loc.evaluate((el) => getComputedStyle(el).animationName);

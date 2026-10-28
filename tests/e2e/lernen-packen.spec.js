@@ -3,7 +3,7 @@
 // on Planen the spare part comes back as a suggestion, the sleep spot nearby, and the card «Schneller packen»
 // (two people, the wash, the morning, the packing time); on Unterwegs the morning list on the start day.
 // Fictional data only (test_data_gtp_), the clock on Friday 9 October 2026 (home0460-fixture.js).
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { openHome, homeFixture, tr, trip, day, entries } from './home0460-fixture.js';
 
 const T = tr('de');

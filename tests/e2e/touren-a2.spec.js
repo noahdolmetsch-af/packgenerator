@@ -4,7 +4,7 @@
 //   47 «Unklare Stellen»: a list with km; «Geklärt» ticks it off.
 //   49 «Grenzübertritt»: own points per country, with a source.
 // Fictional data only (test_data_gtp_), the clock on Friday 9 October 2026 (home0460-fixture.js).
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { openHome, homeFixture, tr, trip, day, entries } from './home0460-fixture.js';
 
 const T = tr('de');

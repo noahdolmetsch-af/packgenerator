@@ -3,7 +3,7 @@
 // each is a small tile on the ready wall (1 tap); a tile taken away comes back through «+» (the catalog
 // lists all 16). The list below is written out on purpose: when a function disappears, this test fails. Fictional data of
 // home0460-fixture.js (test_data_gtp_ records), clock on Friday 9 October 2026, Open-Meteo mocked.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { openHome } from './home0460-fixture.js';
 import { flowSeeded, putWall } from './wall-fixture.js';
 import { READY } from '../../src/lib/home/tiles.js';

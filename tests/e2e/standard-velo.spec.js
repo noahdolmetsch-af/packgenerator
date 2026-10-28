@@ -6,7 +6,7 @@
 //      arrows and «Als Standard», and what a new trip brings.
 // VS4  A new bike: «Neues Standard-Velo?» right after adding it; «Ja» puts it on top.
 // Fictional data only (test_data_gtp_), German UI, Europe/Zurich, service workers blocked (config).
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';

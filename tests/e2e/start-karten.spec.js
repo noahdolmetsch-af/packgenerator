@@ -1,6 +1,6 @@
 // Start-Karten ST1/ST2 (Noah 14.10.2026, App-Start 2b/3b, «1a 2a 3b»): Today no longer jumps to On the way
 // or «Tour beendet»; a card with the trip card leads there. The ride card goes away once On the way was open.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { openHome, homeFixture, trip, entries, day } from './home0460-fixture.js';
 
 function data(kind) {

@@ -2,7 +2,7 @@
 // Velos › «Mein Setup»: make one, change its bags and places, copy, rename, delete with 4 s undo,
 // compare two and all, and choose one while planning a trip («Ins Setup übernehmen»).
 // Fictional v048 fixture plus bags, a bottle and a trip on the Gravel.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { writeFileSync } from 'node:fs';
 import { v048Data, P, GRAVEL, day } from './v048-fixture.js';
 import { openData, settle } from './settle.js';

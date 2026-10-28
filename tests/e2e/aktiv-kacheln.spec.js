@@ -4,7 +4,7 @@
 // 3. «Kachel ausblenden» in the ••• window takes the tile off «Heute abhaken»; it waits paused under Aktivitäten.
 // 4. «Wi gaht's?» › «Starten» opens the morning questions (#/check/morning), not their settings.
 // Fictional data only (the start activities).
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import DE from '../../src/lib/i18n/de/index.js';
 import { ready } from './settle.js';
 import { TABS } from './placetab.js';

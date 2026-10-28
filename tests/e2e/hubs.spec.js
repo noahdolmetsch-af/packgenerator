@@ -2,7 +2,7 @@
 // v0.25.1 (Noah 1a, 1b, 2b, 3a): more buttons on the Trips and Bikes tiles of Today: four visible,
 // the rest under "More" (keyboard and touch). Past trips, Log a problem → Bike care, an idea on the
 // bike ("Was geil wäre"). Fictional fixture plus test_data_gtp_ trips; nothing leaves the preview.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';

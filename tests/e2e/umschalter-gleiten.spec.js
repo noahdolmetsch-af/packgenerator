@@ -1,6 +1,6 @@
 // B15 «Gleitende Umschalter» (Noah 27.10.2026 «ich möchte b13 bis b24 alle umsetzen»): the white pill of every
 // segmented toggle is one shape that moves to the new choice (here: Touren › Rückblick «12 Monate · <Jahr> · Alle»).
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 
 test('the pill moves to the chosen button', async ({ page, context }) => {
   await context.route(/^https?:\/\/(?!localhost[:/])/, (route) => route.abort());

@@ -1,7 +1,7 @@
 // Kamera-Knopf (Noah, 14.10.2026 «bei Belegen immer»): wherever a receipt is added, the phone gets
 // «Beleg fotografieren» (opens the camera at once) next to «Galerie»; a computer keeps one
 // «Foto wählen». Fictional fixture; the photo is a tiny generated PNG and never leaves the page.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';

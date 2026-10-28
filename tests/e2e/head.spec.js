@@ -2,7 +2,7 @@
 // freigegeben»): the top bar and the sidebar are light; on a phone «Neu» (+) sits in the top bar next to
 // the search and the round + over the page is gone; on a computer the sidebar shows the pages of the
 // chosen place only and «Ich» is a card at the bottom.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { PLACE_TABS } from '../../src/lib/nav.js';
 import DE from '../../src/lib/i18n/de/index.js';
 

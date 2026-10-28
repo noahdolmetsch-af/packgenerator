@@ -1,7 +1,7 @@
 // v0.68.0 «Q1 Jeder km zählt»: the ride ledger per bike, «Import rides» (Strava CSV with the bike
 // column, FIT files with the sensor), start points of the parts with the Q1 status, and the weekly
 // card on Today. Fictional data only (q1km-fixture.js); every action is undone once.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { q1File, q1Data, q1ImportFiles, NEU, GRAVEL, day } from './q1km-fixture.js';
 import { openData, settle } from './settle.js';
 

@@ -3,7 +3,7 @@
 // And the Android share target: a GPX file POSTed to share-target (the service worker) opens the
 // upload; text still goes to the Inbox. Synthetic, fictional ride (tests/test_data_gtp_gpx.js);
 // nothing leaves the preview.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';

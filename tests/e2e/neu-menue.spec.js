@@ -1,6 +1,6 @@
 // Klick-Rundgang H19 (Noah 22.10.2026 «1a»): the + menu also offers «Velo hinzufügen», «Aktivität abhaken»,
 // «Tagebuch-Eintrag» and «Inspiration-Link»; each leads to its place. Fictional data only, no internet.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { ready } from './settle.js';
 import { newButton } from './newbutton.js';
 import DE from '../../src/lib/i18n/de/index.js';

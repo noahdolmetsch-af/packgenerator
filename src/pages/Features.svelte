@@ -40,7 +40,8 @@
   import VeloHead from '../lib/bikes/VeloHead.svelte';
   import { db } from '../lib/db.js';
   import { INTRO_KEY } from '../lib/home/introkt.js';
-  import { Keyboard, Hand, Scale as RuleIcon } from '@lucide/svelte';
+  import { Keyboard, Hand, Scale as RuleIcon, Clock } from '@lucide/svelte';
+  import { WHEN } from '../lib/know/wann.js'; // «332 sichtbar» 2a: when a function appears
   // «Alles finden 2» (Noah 22.10.2026 «3a»): one help place. The handbook, the keyboard shortcuts, how the app
   // decides and the start page intro moved here from Ich (they were in its fold «Hilfe»).
   const keysHelp = () => window.dispatchEvent(new Event('pg:keys'));
@@ -138,6 +139,8 @@
   <span class="fm">
     <span class="ft">{t(x.title)}</span>
     <span class="fs">{t(x.text)}</span>
+    <!-- «332 sichtbar» 2a (Noah 27.10.2026): a function that shows only in its situation says when -->
+    {#if WHEN[x.id]}<span class="fwhen" data-when={x.id}><Clock size={13} aria-hidden="true" />{t(WHEN[x.id])}</span>{/if}
     <!-- Impeccable Runde 2: the state in words, not a sign to guess -->
     {#if x.notForMe}<span class="pill fstate">{t('Not for me|feature')}</span>{:else if x.used}<span class="pill ok fstate">{t('used|features')}</span>{:else}<span class="pill act fstate">{t('new for you')}</span>{/if}
   </span>
@@ -657,6 +660,19 @@
     line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
+  }
+  .fwhen {
+    display: flex;
+    gap: 6px;
+    align-items: baseline;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+    line-height: 1.4;
+    font-style: italic;
+  }
+  .fwhen :global(svg) {
+    flex: none;
+    transform: translateY(2px);
   }
   .used .ft,
   .used .fs {

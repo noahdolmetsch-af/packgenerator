@@ -1,7 +1,7 @@
 // v0.48.0 «Pflege-Übersicht + Teile pro Velo + Eingang/Notizen»: focused checks with the fictional
 // v048 fixture (four bikes, the «Bergziege» without part data, problems, a receipt note, kept notes).
 import { readFileSync } from 'node:fs';
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { v048File, P, SPARK, SCALE, GOAT } from './v048-fixture.js';
 import { openData, settle } from './settle.js';
 import { openMore } from './bike-more.js';

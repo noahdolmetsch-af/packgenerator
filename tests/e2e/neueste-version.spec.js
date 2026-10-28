@@ -1,7 +1,7 @@
 // «Neueste Version» in Ich (Noah 27.10.2026 «1-5 a», questions 1 and 2): the row shows this device's version and
 // the one online (version.json), and «Neueste laden» is always there. Fictional state only, German UI.
 // SHOTS=<folder> saves the screenshots (1440 and 390, light).
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { mkdirSync } from 'node:fs';
 import DE from '../../src/lib/i18n/de/index.js';
 

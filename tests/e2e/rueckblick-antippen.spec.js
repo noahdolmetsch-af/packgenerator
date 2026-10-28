@@ -2,7 +2,7 @@
 // items as chips; a tap marks one as not needed and the tally counts it with its weight. «What was
 // missing?», «How was it?» and the rest are rows below; «Fertig» saves. Fictional fixture
 // (test_data_gtp_), German UI, nothing leaves the preview.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';

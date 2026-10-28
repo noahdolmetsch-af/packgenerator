@@ -1,7 +1,7 @@
 // Paket 4 (Noah 19.10.2026 «1a», «3a»): the house check and the list for the flat sitter on the sheet
 // «Vor der Abfahrt», the shared sitter page, and «Bereit für morgen?» the evening before a tour.
 // Fictional data only (test_data_gtp_), the clock on Friday 9 October 2026 09:00.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { openHome, homeFixture, tr, trip, day } from './home0460-fixture.js';
 
 const T = tr('de');

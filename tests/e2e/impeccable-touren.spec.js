@@ -5,7 +5,7 @@
 //   offen») and the jump marks Packliste, Aufgaben, Strecke, Wetter; a tap goes there.
 // - Planen 2: «Bis zum Start» shows «2 überfällig» under the open box; a tap opens «Vor der Tour».
 // German UI, Europe/Zurich, service workers blocked.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { settle, foldPageInfo } from './settle.js';
 import { fixture, prepare, importBackup, view, tr, sideways } from './gesamttest/lib.js';
 

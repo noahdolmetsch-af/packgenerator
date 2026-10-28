@@ -6,7 +6,7 @@
 // L9: a first start: the browser's language, "First steps" until bike, gear and trip have data, and no
 //     tip that needs data the app does not have yet.
 // Fictional fixture plus test_data_gtp_ records; nothing leaves the preview.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';

@@ -5,7 +5,7 @@
 // - «Löschen» asks in the app's own window (never the browser's), «Archivieren» first for a used item;
 //   Escape keeps everything; «Löschen» takes it off the trip too; «Rückgängig» brings item and trip line back.
 // Fictional fixture plus test_data_gtp_ items; nothing leaves the preview server.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';

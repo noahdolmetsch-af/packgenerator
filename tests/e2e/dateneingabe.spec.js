@@ -1,7 +1,7 @@
 // Bugfix Dateneingabe (Noah 13.10.2026: at the bike shop he could not enter the values, the app kept
 // landing on other pages). «enter» on a sheet of the bike's folder opens exactly that value of exactly
 // that bike for typing, and saving or cancelling comes back to the sheet, with the value on it.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { start, fixture, tr, esc, table } from './gesamttest/lib.js';
 
 const T = tr('de');

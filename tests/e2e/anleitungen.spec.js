@@ -1,6 +1,6 @@
 // «Anleitungen überall» (Noah 19.10.2026): every page with a new guide shows it as one line; a tap opens the
 // three steps, «Einklappen» folds it again, × hides it. Empty app, German UI, nothing leaves the preview.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import DE from '../../src/lib/i18n/de/index.js';
 import { GUIDE_INTROS, GUIDE_LATER } from '../../src/lib/guides.js';
 

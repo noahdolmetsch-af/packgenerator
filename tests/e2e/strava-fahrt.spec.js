@@ -2,7 +2,7 @@
 // knows (kind, device, bests, «How hard?», comment, laps, splits per km, segment times); Ich › Verlauf names
 // the activity and opens its page; an uploaded GPX shows heart rate, cadence, power and temperature from the
 // file. Fictional data only; everything outside the preview server is blocked.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { writeFileSync, mkdirSync } from 'node:fs';
 import DE from '../../src/lib/i18n/de/index.js';
 import { ready } from './settle.js';

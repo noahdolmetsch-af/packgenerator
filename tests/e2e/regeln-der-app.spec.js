@@ -2,7 +2,7 @@
 // A a: nothing jumps on its own (a day trip without a bike stays on Pack, with a link to Today).
 // C b: a tap opens to edit (an item on the phone too; the bike pencil: see feinschliff.spec.js).
 // 1b: a tab that comes back after a pause starts at the start place; back closes every window first.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { openHome, homeFixture, trip, entries, day } from './home0460-fixture.js';
 import { AWAY_MS, SEEN_KEY } from '../../src/lib/bedienung.js';
 

@@ -1,6 +1,6 @@
 // B19 «Hochheben beim Sortieren» (Noah 27.10.2026 «ich möchte b13 bis b24 alle umsetzen»): while a row is held it
 // lifts with a shadow above the others (Ich › Listen und Typen › Kategorien); letting go puts the order.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';
 import { openData, settle } from './settle.js';

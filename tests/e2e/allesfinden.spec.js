@@ -3,7 +3,7 @@
 // used first, «Hinbringen» and «Ausprobieren»; the search shows
 // commands to try, the last searches and all functions, and finds a function («garantie»).
 // Fictional data (home0460-fixture.js, test_data_gtp_), German UI, nothing leaves the preview.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { openHome } from './home0460-fixture.js';
 import { readFileSync } from 'node:fs';
 import DE from '../../src/lib/i18n/de/index.js';

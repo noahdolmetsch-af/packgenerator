@@ -2,7 +2,7 @@
 // answers (page.route on /api/helper, nothing goes out): New trip, the search, the Rückblick draft,
 // «Liste prüfen», the bike care, the once-a-day cache, the monthly cap (429), offline, the notice
 // before the setup, and what goes to Claude (the privacy allowlist). Fictional data only.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import DE from '../../src/lib/i18n/de/index.js';
 import { v0770File, P, SPARK, JURA, EVENT, CODE } from './v0770-fixture.js';
 import { openData, settle } from './settle.js';

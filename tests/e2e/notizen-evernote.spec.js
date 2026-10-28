@@ -1,7 +1,7 @@
 // Paket NE «Notizen wie Evernote», part 1 (Noah 20.10.2026): draw on a photo (tools, undo/redo, move,
 // remove, the lines stay changeable), a drawing pad with pages and paper, and formatted writing without
 // marks. In German, on a phone and a computer; no sideways scroll, no page errors. Fictional data only.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import DE from '../../src/lib/i18n/de/index.js';
 import { png, prep, newNote, storedNote, noSideScroll } from './notes-helpers.js';
 

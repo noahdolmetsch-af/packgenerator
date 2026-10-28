@@ -1,7 +1,7 @@
 // v0.97.0 Design-Refresh R1 «Darstellung» (G1 neu, Noah 11.10 23:10 «Runde 1 alles ★ und G1–G12
 // freigegeben»; 12.10 «1a 2a»): Ich › Darstellung chooses the font, the colour world, the text size and
 // light or dark; every choice stays after a reload; the old default Gletscher becomes Salbei once.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import DE from '../../src/lib/i18n/de/index.js';
 import { readFileSync } from 'node:fs';
 

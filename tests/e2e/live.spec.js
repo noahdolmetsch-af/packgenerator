@@ -4,7 +4,7 @@
 // climb, the arrival, the SOS window with the coordinates, stop → the after-ride area. #/live without a
 // tour: the stops around you (Overpass answered by the test). Every outside request is mocked or
 // blocked (openHome); no sideways scroll on phone and desktop.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { openHome, homeFixture } from './home0460-fixture.js';
 
 // the sample route as the app stored it (settings 'races'); km scaled like race.js lineKm

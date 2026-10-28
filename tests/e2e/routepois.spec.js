@@ -1,7 +1,7 @@
 // «Brunnen und Velo-Werkstätten an der Strecke» (Noah 19.10.2026): on Plan, the route card searches
 // OpenStreetMap only after a tap, lists the places by km with a link to openstreetmap.org, filters by
 // kind, and keeps the list offline. Overpass is mocked (fictional answer); nothing leaves the test.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { fileURLToPath } from 'node:url';
 import { readFileSync } from 'node:fs';
 import DE from '../../src/lib/i18n/de/index.js';

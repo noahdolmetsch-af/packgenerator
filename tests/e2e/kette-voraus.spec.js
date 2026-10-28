@@ -2,7 +2,7 @@
 // A fictional bike: new chain at 1000 km, measured 0.2 % at 2000 km, now 2700 km (700 km since the measurement)
 // and oiled 200 km ago: «Kette ölen» and «Kette messen» stand on top; «Geölt» saves with Undo; a measurement
 // in the window takes «messen» away and the forecast shows. Fictional fixture; nothing leaves the preview server.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';

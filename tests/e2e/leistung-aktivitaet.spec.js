@@ -2,7 +2,7 @@
 // «Leistung», «Zeit in Leistungsbereichen», «Belastung», «Leistungskurve» and the analyses «Mehr aus der
 // Leistung», «Leistungsbereiche als Balken», «Trittfrequenz verteilt»; a card hidden and brought back.
 // Fictional activities only (leistung-data.js); nothing leaves the preview server.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { ready } from './settle.js';
 import { activities, detail, seedActivities, day, P } from './leistung-data.js';
 import { ftpEstimate, powerLoad, wkg } from '../../src/lib/training.js';

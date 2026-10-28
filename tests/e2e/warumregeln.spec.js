@@ -1,7 +1,7 @@
 // Paket P3 «Warum? und Regeln» (Noah 21.10.2026, mockups RG1, RG3, C): «Warum?» next to a row in Planen,
 // Ich › So entscheidet die App (#/me/regeln: groups, search, a block rule off and on), «Meist vergessen» at
 // the top of Packen. German UI, fictional data (test_data_gtp_).
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { openHome, homeFixture } from './home0460-fixture.js';
 
 const VEST = { id: 'CL90', name: 'test_data_gtp_ Windweste', category: 'clothing', weightG: 90, qty: 1, weightStatus: 'measured', defaultBag: 'seat', ownership: 'owned', role: null, sets: [], kits: [], domains: ['bikepacking'], coldBelow: 12 };

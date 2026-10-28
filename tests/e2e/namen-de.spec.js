@@ -2,7 +2,7 @@
 // names with a German suggestion; «Übernehmen» sets the German name (the original stays), «Rückgängig»
 // takes it back, «Nicht vorschlagen» is remembered after a reload, the link in Material › ••• leads here.
 // Fictional data only; nothing leaves the preview server.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import DE from '../../src/lib/i18n/de/index.js';
 import { ready } from './settle.js';
 

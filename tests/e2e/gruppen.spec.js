@@ -1,6 +1,6 @@
 // «Gruppen überall» (Noah 18.10.2026): the topics of «Gelernt» can be renamed and deleted; deleting asks
 // where the learnings go («Ohne Thema» first), then Undo. Fictional learnings only.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';
 import { openData, settle } from './settle.js';

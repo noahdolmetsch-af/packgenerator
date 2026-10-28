@@ -2,7 +2,7 @@
 // function (src/lib/know/heimat.js) on the phone and checks that the function can be seen there under its
 // catalogue name: not inside a closed fold and within the first 2.5 screens. Functions in GAPS are not yet
 // visible and are left out; the packages «Alltag sichtbar» and «Touren sichtbar» shorten that list.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { HOME, GAPS } from '../../src/lib/know/heimat.js';

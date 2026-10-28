@@ -3,7 +3,7 @@
 // the last one leaves a calm line with an action. In Gear → Check one answer brings the next item and
 // can be taken back. (The wardrobe's «Noch einordnen» is in wardrobe042.spec.js.)
 // Fictional data only (test_data_gtp_ names, tests/e2e/v038-fixture.js). Phone and desktop.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import DE from '../../src/lib/i18n/de/index.js';
 import { v038Start } from './v038-fixture.js';
 

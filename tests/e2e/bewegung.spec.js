@@ -3,7 +3,7 @@
 // Stelle 2: a window slides up from below on a phone and grows in on a computer.
 // Stelle 3: what a fold reveals fades in under its row.
 // Reduced motion: no sliding or growing, only fades and colours. Fictional fixture; nothing leaves the preview server.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';

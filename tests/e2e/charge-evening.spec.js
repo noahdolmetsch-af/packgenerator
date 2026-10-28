@@ -4,7 +4,7 @@
 //     with its own ticks, what to lay out for tomorrow, tomorrow morning), none on the last day.
 // L10 the Data panel has "Send to phone" (download here: the test browser cannot share files).
 // Fictional fixture plus test_data_gtp_ items and a trip; nothing leaves the preview server.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';

@@ -1,7 +1,7 @@
 // Paket X «Umweg neu planen» (Noah 20.10.2026 «unbedingt umsetzen»): on the live map «⋯ › Neu planen zu …»,
 // choose a stop around you, the (mocked) bike router answers, the detour shows with km and «GPX für Garmin»,
 // and it can be removed. Made-up places only; every outside request is mocked or blocked (openHome).
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { openHome } from './home0460-fixture.js';
 
 const phone = (info) => info.project.name === 'phone';

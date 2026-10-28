@@ -1,7 +1,7 @@
 // «Neuer Schwung» Packen 2 (block B6, Noah 27.10.2026 «1a 2a 3a» page by page with motion, «ok Packen»): on a phone
 // a row swiped to the right is ticked like a tap; an up or down move scrolls and ticks nothing; the tap stays.
 // Fictional fixture; nothing leaves the preview server.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';

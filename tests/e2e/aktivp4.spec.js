@@ -2,7 +2,7 @@
 // played like last time, a planned time and «Gespielt?», the booking link), the yoga card on Meditation
 // (a regular class, «War dort», the studio), «Diesen Tag merken» in the evening review and the kept days and
 // «Gewünscht und erlebt» in Was mir gut tut. German UI, fictional data (test_data_gtp_), the clock on Fri 9.10.2026 09:00.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { openHome, D0 } from './home0460-fixture.js';
 
 const TENNIS = '#/flow/sport/act%3Atennis';

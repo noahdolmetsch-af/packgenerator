@@ -2,7 +2,7 @@
 // before the start (Packen › «Generalprobe», #/trip/<id>/probe), «Gut ankommen» after a trip (#/trip/<id>/heim) and
 // the box labels with a QR code (Werkzeugkasten › Kisten-Etiketten). Fictional data only (test_data_gtp_), the
 // clock on Friday 9 October 2026 (home0460-fixture.js), every outside address blocked.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { openHome, homeFixture, tr, trip, day } from './home0460-fixture.js';
 
 const T = tr('de');

@@ -1,7 +1,7 @@
 // Paket P5 «Eingang» (Noah 21.10.2026, mockup A-J4 «Ablegen-Runde»): the open notes one after the other with the
 // suggestion and why; file, keep, skip, delete; the end screen counts it. A chip opens another target, «Pause»
 // goes back to the list. German UI, fictional data (test_data_gtp_), the clock on Fri 9.10.2026 09:00.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { openHome, homeFixture, D0 } from './home0460-fixture.js';
 
 const noSideScroll = (page) => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1);

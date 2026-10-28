@@ -1,7 +1,7 @@
 // Live Navigation PR 3 (Noah 26.10.2026 «1–14, 17, 18»): the «Places» filters on the live map. The situation
 // buttons (Suchvorschläge 27.10.2026), «Filter» with properties, «I was here», saved filters (rename, delete with Undo),
 // «All filters off». Fictional data only (test_data_gtp_ names); Overpass is mocked.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { openHome } from './home0460-fixture.js';
 import { readFileSync } from 'node:fs';
 

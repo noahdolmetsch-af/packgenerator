@@ -1,6 +1,6 @@
 // v0.47.2 «Material-Ansichten» (Noah 6a-9a): seven fixed views with counts, «Nie gebraucht» in one
 // sentence, the desktop detail column, the item's year on tour; no sideways scroll, 44 px on the phone.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { openHome } from './home0460-fixture.js';
 import { materialFixture, COUNTS } from './material0472-fixture.js';
 

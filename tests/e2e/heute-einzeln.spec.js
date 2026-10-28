@@ -3,7 +3,7 @@
 // is answered by the test), 4 a low evening score split in parts, 5 three wet rides make one chain task,
 // 6 «Nach der Standzeit» on «Verschleiss», 7 the interest check of the first start, 8 «Hat sich etwas
 // geändert?» in «Stimmt das noch?». With SHOTS=<folder> each step also writes a picture (390 and 1440 px).
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';

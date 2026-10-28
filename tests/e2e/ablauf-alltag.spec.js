@@ -2,7 +2,7 @@
 // before every release: Mein Tag (Assistent), Meine Woche (Aktiv ticks in the week) and Velo pflegen (a problem
 // logged, done, undone). Each step: the next button is named, the click changes something, the numbers agree,
 // Undo works. German, fictional v0.77.0 data only.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import DE from '../../src/lib/i18n/de/index.js';
 import { v0770File } from './v0770-fixture.js';
 import { openData, settle } from './settle.js';

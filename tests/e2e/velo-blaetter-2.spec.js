@@ -4,7 +4,7 @@
 // on Today with «später» (W3 a); the Repair kit per kind of ride (W4 a) with «hinzufügen» and «Auf die
 // Packliste …» (W5 a); Warranty & receipts with the years per part, the calendar file (W6 a); the Theft
 // sheet with the frame number in the copied text (W7 a) and a photo per tile. Fictional data only.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { vb2File, XC, XC_TRIP, TRAIL, P, PIXEL_B64 } from './velo-blaetter-2-fixture.js';
 import { readFileSync } from 'node:fs';
 import DE from '../../src/lib/i18n/de/index.js';

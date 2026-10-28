@@ -4,7 +4,7 @@
 // Gear → "Rückgängig" restores everything; archiving a "Nicht im Import" item keeps it (Gone).
 // Fictional data only (fixture.json + importgear-fixture.json, test_data_gtp_ names); nothing leaves
 // the preview server. (The test title has no umlaut: its output folder holds the fixture file.) V036_SHOTS=<folder> saves screenshots of the staging page there.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';

@@ -2,7 +2,7 @@
 // Training with every Strava activity and its zones, one activity, own zones. The server
 // (packgen-three.vercel.app/api/strava) and the Strava login are answered by the test; everything else
 // outside the preview server is blocked. Fictional activities only.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { ready } from './settle.js';
 import { DETAIL_V } from '../../src/lib/training.js';
 

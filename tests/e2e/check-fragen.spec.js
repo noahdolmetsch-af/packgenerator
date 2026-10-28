@@ -6,7 +6,7 @@
 // CF1 + CF2 also: the day and the time of the check stand at the top (Noah 21.10.2026, for testing);
 // CF3 Ich › Deine Abfragen › «Fragen und Bereiche bearbeiten»: change a question's text, delete it (ask + Undo,
 //     «Gelöschte Fragen» brings it back), a new question in a group, a new group, rename and delete a group.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { openHome, homeFixture, day } from './home0460-fixture.js';
 import { QUESTIONS, ON_AT_START } from '../../src/lib/abfragen.js';
 

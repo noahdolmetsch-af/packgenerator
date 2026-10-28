@@ -5,7 +5,7 @@
 //    #348: a new item «Stirnlampe» gets usual values with «Übernehmen».
 // 3. Computer: Material as «Tabelle», two rows ticked, one field «Für alle setzen», «Rückgängig» takes it back.
 // 4. Packen (the Packen step): «Vorlesen» with «Nur Knopf»; the big button ticks the item off.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { openHome, homeFixture, day } from './home0460-fixture.js';
 
 const fixture = () => {

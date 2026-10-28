@@ -3,7 +3,7 @@
 // Ü3a: «Ich» shows the number of notes in the Inbox. I2a: Darstellung has the full path «‹ Ich › Darstellung».
 // T1a: a new trip is kept as soon as something is chosen, also when the window is closed.
 // Ü1a: «g m» opens the Material tab opened last (computer). Ü2a: on a phone a window comes from below.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import DE from '../../src/lib/i18n/de/index.js';
 import { v048File } from './v048-fixture.js';
 import { openData, settle } from './settle.js';

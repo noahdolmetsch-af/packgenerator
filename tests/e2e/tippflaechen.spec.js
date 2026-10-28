@@ -2,7 +2,7 @@
 // phone. They keep their look and get an invisible 44 px tap area (src/lib/ui/touch.css); the sort arrows are
 // at least 24 px high on a computer. The real tap area is hit-tested from the centre outwards.
 // Fictional fixture (tests/e2e/pf-fixture.json, test_data_gtp_ names); nothing leaves the preview server.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';

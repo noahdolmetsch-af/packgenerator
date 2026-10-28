@@ -1,7 +1,7 @@
 // Paket M «Aus Touren lernen»: the Chronik-Karte and #/chronik (#1027), «Was die App gelernt hat» #/gelernt
 // (#38) and «Dein Jahr als Bildgeschichte» #/jahr (#208). Phone and computer, in German, no sideways scroll,
 // no page errors. Fictional data only: the Gesamttest fixture plus tests/e2e/lernen-fixture.js around today.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { start, fixture, day, tr } from './gesamttest/lib.js';
 import { settle } from './settle.js';
 import { lernenData, P } from './lernen-fixture.js';

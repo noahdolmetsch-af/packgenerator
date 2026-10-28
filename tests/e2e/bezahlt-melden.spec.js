@@ -2,7 +2,7 @@
 // sees TWINT and bank details and reports «paid»; the writer sees «Mia sagt: … bezahlt» on the invoice
 // list and confirms with «Stimmt, bezahlt». The server is faked. Fictional data only: the IBAN is the
 // public sample QR-IBAN of the Swiss standard.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { tr } from './home0460-fixture.js';
 import { ready } from './settle.js';
 import { put } from './aktiv-fixture.js';

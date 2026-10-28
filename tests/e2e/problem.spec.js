@@ -1,6 +1,6 @@
 // v0.45.2 (Noah on the bike, 9.10.2026): several problems with one bike from the + menu, sorted by
 // the app into a way to fix them (one tap changes it), with Undo. Fictional fixture only.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';

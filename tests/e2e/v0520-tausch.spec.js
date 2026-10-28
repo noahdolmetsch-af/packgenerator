@@ -4,7 +4,7 @@
 // - The alternatives are ordered by the trip's weather, then by the last picks (swap.memory).
 // - «Im Kleiderschrank öffnen» shows the wardrobe with the trip band; unsuitable duplicates are hidden with a hint.
 // - Phone 390: no sideways scroll on the packing list, in the sheet and in the wardrobe.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { openLayers } from './wardrobe-open.js';
 import { writeFileSync, mkdirSync } from 'node:fs';
 import { tauschData, P, TRIP } from './v0520-fixture.js';

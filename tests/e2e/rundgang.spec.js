@@ -2,7 +2,7 @@
 // steps starts the tour, with own data or the example trip; Next through six places to the end card; the
 // Einstieg on top of Active with × and «show again» in the Handbook; the small tour of a place.
 // Empty app plus the playground's made-up trip only, German UI, nothing leaves the preview.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import DE from '../../src/lib/i18n/de/index.js';
 import { TOURS, stepCount } from '../../src/lib/tour.js';
 import { INTROS } from '../../src/lib/intro.js';

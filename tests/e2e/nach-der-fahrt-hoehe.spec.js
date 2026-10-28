@@ -1,7 +1,7 @@
 // Nachprüfung Bikepacking (Noah 27.10.2026 «prüfe, ob wir wirklich alles so gemacht haben»): a free ride without a
 // route keeps the GPS height, so «Your ride» shows the climbing and the elevation profile. Playwright's fake GPS
 // has no height, so an init script adds one (rising 10 m a point). Fictional data; outside requests mocked.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { openHome } from './home0460-fixture.js';
 
 const phone = (info) => info.project.name === 'phone';

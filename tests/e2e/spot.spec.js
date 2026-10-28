@@ -1,6 +1,6 @@
 // «332 sichtbar», Frage 1 (Noah 27.10.2026 «c»): a tap on a function in «What the app can do» goes to its
 // spot (src/lib/know/spot.js) and lights it up, also when it sits inside a window or a fold.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { start, tr } from './gesamttest/lib.js';

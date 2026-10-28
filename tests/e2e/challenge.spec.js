@@ -2,7 +2,7 @@
 // «Heute baden oder Sauna?» shows alternatives to choose from; the chosen one can be ticked off today
 // and set as a challenge (how often, until when). It counts by itself and, once reached, is celebrated
 // on the tile and under «Heute wichtig». Fictional data only (test_data_gtp_), clock from openHome.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { openHome, homeFixture } from './home0460-fixture.js';
 import { withWall } from './wall-fixture.js';
 

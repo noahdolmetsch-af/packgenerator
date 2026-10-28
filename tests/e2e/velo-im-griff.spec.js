@@ -4,7 +4,7 @@
 // - «Teilevorlage»: a part switched off for a kind, an own part added, moved, renamed, deleted and back with Undo;
 // - «Werkstatt-Spick»: the torque note, an own row added, its value changed, deleted and back; a breakdown opens.
 // Fictional fixture plus test_data_gtp_ data; nothing leaves the preview server; service workers blocked (config).
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';

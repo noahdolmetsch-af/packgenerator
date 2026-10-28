@@ -3,7 +3,7 @@
 // most of the 390 px, and the steps were hard to reach. Now: a low top bar, a compact band, a small
 // bottom bar, nothing cut off, no sideways scroll, and room left for the content.
 // LANDSCAPE_SHOTS=<folder> saves a screenshot per page and size there (never into the repo).
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';

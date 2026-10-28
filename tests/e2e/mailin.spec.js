@@ -2,7 +2,7 @@
 // attachment («In die App übernehmen»); a labelled mail comes by itself when the Eingang opens; the row shows the
 // tip and the attachment's button; «Ablegen als …» has the new targets and an own new place; the Mac bookmark
 // keeps a web page as an entry. The server and Google are answered by the test. Fictional mails only.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { ready } from './settle.js';
 import DE from '../../src/lib/i18n/de/index.js';
 import { readFileSync } from 'node:fs';

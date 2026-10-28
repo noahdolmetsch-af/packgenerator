@@ -3,7 +3,7 @@
 // the light «Fitbit» and the card «Gesundheitsdaten» (G2) with «Werte wählen» and «Trennen». The server
 // (packgen-three.vercel.app/api/google) and the Google login are answered by the test; everything else
 // outside the preview server is blocked. Fictional values only.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { ready } from './settle.js';
 
 const P = 'test_data_gtp_';

@@ -7,7 +7,7 @@
 // - "Neu in den letzten Updates" on #/features and the one-time line on Today.
 // Fictional fixture plus test_data_gtp_ trips; nothing leaves the preview server.
 // V035_SHOTS=<folder> saves screenshots there.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';

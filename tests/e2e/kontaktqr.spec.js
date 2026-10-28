@@ -1,7 +1,7 @@
 // Kontakt-QR-Code (Noah 27.10.2026 «1a 2b 3a 4a 5a»), PR 1: the card carries e-mail, WhatsApp, Strava, Komoot,
 // web and address; the page the QR code opens shows a row for each and «In Kontakte speichern» gives a contact
 // file made on the device. The address stays off until ticked. Fictional data only.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { readFileSync } from 'node:fs';
 import { openHome } from './home0460-fixture.js';
 

@@ -5,7 +5,7 @@
 // 3. An empty app: no card on Today, one sentence on #/review.
 // Fictional data only (tests/e2e/v038-fixture.js + test_data_gtp_ records made here); every outside
 // request is blocked (Open-Meteo too). V044_SHOTS=<folder> saves screenshots (never into the repo).
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { writeFileSync, mkdirSync } from 'node:fs';
 import { P, SPARK, GRAVEL, v038Data, day } from './v038-fixture.js';
 import { openData, settle } from './settle.js';

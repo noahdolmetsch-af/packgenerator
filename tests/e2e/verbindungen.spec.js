@@ -1,7 +1,7 @@
 // Package G «Daten kommen von selbst»: the page Ich › Verbindungen (#155), Strava ticks Aktiv with
 // «Erst vorschlagen» (#156), the lake card (#9) and the tours as .ics (#84). The servers are answered by
 // the test; everything else outside the preview server is blocked. Fictional values only.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { ready } from './settle.js';
 
 const zurichToday = () => new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Zurich' });

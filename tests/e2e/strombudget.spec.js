@@ -5,7 +5,7 @@
 // 2. With a socket every night: no power bank needed, and the charger with 3 sockets.
 // 3. A device without values says «geschätzt»; its window has «Akku (mAh)».
 // 4. Packen › «Am Vorabend laden» shows the same answer in one line.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { openHome, homeFixture } from './home0460-fixture.js';
 
 const ID = 'test_data_gtp_Herbstrunde';

@@ -1,6 +1,6 @@
 // Paket «Touren b» (996 Ideen 50, 51, 53, 54): a rule with an end, the little stories while packing, a check from
 // a real breakdown, «Später prüfen» on the way. Fictional data only (test_data_gtp_), the clock on 9 October 2026.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { openHome, homeFixture, day } from './home0460-fixture.js';
 
 const phone = (info) => info.project.name === 'phone';

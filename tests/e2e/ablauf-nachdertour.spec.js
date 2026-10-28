@@ -3,7 +3,7 @@
 // the upload (H10), On the way of an ended trip says it is over and leads to the debrief (H28).
 // 2) A first start: the first bike is added, the bike page says step 1 is done and leads on to step 2 (H31).
 // Fictional fixture plus test_data_gtp_ items; nothing leaves the preview server.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';

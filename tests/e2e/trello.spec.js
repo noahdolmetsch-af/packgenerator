@@ -3,7 +3,7 @@
 // a due card stands in «Heute wichtig», and a list can choose «Auch in Trello».
 // The server (packgen-three.vercel.app/api/google?svc=trello) and Trello's permission page are answered by the test with a
 // small board in memory; everything else outside the preview server is blocked. Fictional entries only.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { ready } from './settle.js';
 import DE from '../../src/lib/i18n/de/index.js';
 

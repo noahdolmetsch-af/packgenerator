@@ -1,7 +1,7 @@
 // «Assistent» (Noah 15.10.2026 «1 beides 2a und b 3 a und b»): own button (sidebar / phone top bar) and
 // in the search; «Frag die App» answers free from own data; «Hilf mir planen» opens New trip filled in.
 // Fictional v0.77.0 data; nothing goes out (the AI helper is off).
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import DE from '../../src/lib/i18n/de/index.js';
 import { v0770File } from './v0770-fixture.js';
 import { openData, settle } from './settle.js';

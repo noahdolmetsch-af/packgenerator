@@ -5,7 +5,7 @@
 // - the Reise-Spur shows the evening line of a day from the own recordings;
 // - the family link shows the live point while it is younger than 30 minutes.
 // Fictional data only (test_data_gtp_), the clock on Friday 9 October 2026 09:00, every outside address blocked.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { openHome, homeFixture, tr, trip, day } from './home0460-fixture.js';
 import { linkPayload, seal, newKey } from '../../src/lib/spur/link.js';
 import { withLive } from '../../src/lib/live/familylive.js';

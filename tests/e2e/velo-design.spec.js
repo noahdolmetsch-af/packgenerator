@@ -3,7 +3,7 @@
 // the care overview and one bike's care page; the windows in the new window look; the folder beside the
 // sheet; import, workshop, equipment and compare with their head.
 // Fictional data only (tests/e2e/v048-fixture.js, test_data_gtp_ names); nothing leaves the preview server.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import DE from '../../src/lib/i18n/de/index.js';
 import { v048File, P, SPARK } from './v048-fixture.js';
 import { openData, settle } from './settle.js';

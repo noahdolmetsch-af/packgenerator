@@ -1,7 +1,7 @@
 // v0.24.1 (Noah 1a, 2a, 6a, 7.10.2026): a calmer packing list (a tap on a row opens amount, move
 // and take out), a day ride packed in one tap ("All packed, let's go") and "Add material" with
 // tick boxes. Fictional fixture plus test_data_gtp_ items; nothing outside the preview server.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { STEP_BAR as BAR } from '../../src/lib/stepbar.js'; // Schrittleiste (Noah 26.10.2026 «1b», changed on purpose): the bar's short names
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';

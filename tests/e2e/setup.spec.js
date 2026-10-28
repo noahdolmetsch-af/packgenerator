@@ -5,7 +5,7 @@
 // - the card "Wer schraubt": ich / Velomech this year, the last jobs, "Als Nächstes für den Velomech" → Auftrag.
 // Fictional data only (test_data_gtp_ names), built from tests/e2e/pf-fixture.json.
 // SETUP_SHOTS=<folder> saves phone and desktop screenshots (never into the repo).
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';

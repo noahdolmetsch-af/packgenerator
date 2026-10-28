@@ -1,7 +1,7 @@
 // «Neuland» (wish #1007 «Kantonskarte und Bingo» + #1006 «Was war neu?»): a fictional day trip over the
 // Klausenpass colours in ZH, SZ, UR and GL, finds the pass, shows the bingo card; a tick by hand, an untick
 // of a found canton, an own collection with an entry, rename and delete with Undo. Fictional data only.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { mkdirSync } from 'node:fs';
 import DE from '../../src/lib/i18n/de/index.js';
 import { ready } from './settle.js';

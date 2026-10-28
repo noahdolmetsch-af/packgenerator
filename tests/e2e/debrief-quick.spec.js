@@ -1,7 +1,7 @@
 // v0.24.1 (Noah 3a and 4a): a finished day ride asks on Today "How was …?". "All good" saves the
 // debrief at once (with Undo for a few seconds) and offers to keep the ride as a template, which then
 // shows in New → Plan a trip. Fictional fixture plus one test_data_gtp_ trip; nothing leaves the preview.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';

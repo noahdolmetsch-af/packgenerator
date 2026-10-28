@@ -1,6 +1,6 @@
 // SL3 «Scrollen und Listen» (Noah 14.10.2026 «SL1–SL4 freigegeben», answers «alle a»): the ride ledger of a
 // bike by month with its km, the newest month open. Fictional data only (q1km-fixture.js).
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { q1File, NEU } from './q1km-fixture.js';
 import { openData, settle } from './settle.js';
 

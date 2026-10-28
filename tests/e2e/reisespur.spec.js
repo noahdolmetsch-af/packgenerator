@@ -8,7 +8,7 @@
 // Fictional data only (test_data_gtp_), a made-up line, the clock on Friday 9 October 2026 09:00, every
 // outside address blocked; the share server is answered by the test. Test names stay ASCII (their
 // output folder holds the imported file).
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { openHome, homeFixture, tr, trip, day } from './home0460-fixture.js';
 import { encodePolyline } from '../../src/lib/spur/polyline.js';
 

@@ -1,7 +1,7 @@
 // «Eigene Werte und alle Daten anpassbar» (Noah 21.10.2026 «1 a und b 2 a 3a 4a»): own reminders on
 // Ich › Eigene Werte that show in Velos › Pflege, built-in values renamed, deleted and brought back,
 // own body values from an own question, the new lists in «Listen und Typen». Fictional data, German.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';

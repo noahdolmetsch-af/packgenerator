@@ -3,7 +3,7 @@
 // pen, own category, back to Standard), the window of one entry (LI3: rename, symbol, hide, delete with
 // the number of items) and «Liste bearbeiten» in Material › Sortieren und filtern (LI4). The changes
 // reach Material at once and stay in the backup (settings «listOverrides»). Fictional fixture only.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { pickLook } from './gear-look.js';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';

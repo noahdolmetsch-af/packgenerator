@@ -6,7 +6,7 @@
 //   66 «Eine Datei, mehrere Erlebnisse»: an uploaded ride is cut at the long pause into two own activities.
 //   68 «Rückblick als Sprachnachricht»: the told text becomes key points (without Gemini: sentence by sentence).
 // Fictional data only (test_data_gtp_), the clock on Friday 9 October 2026 (home0460-fixture.js).
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { writeFileSync } from 'node:fs';
 import { openHome, homeFixture, tr, trip, day } from './home0460-fixture.js';
 import { makeGpx } from '../test_data_gtp_gpx.js';

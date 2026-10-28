@@ -8,7 +8,7 @@
 //       always changeable; a name that already exists shows at the field with a free name to take.
 // Fictional data only (home0460-fixture, test_data_gtp_ names), the clock on Friday 9 October 2026
 // (Europe/Zurich), service workers blocked (config). SHOTS=<folder> saves the screenshots (1440 and 390, light).
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { openHome, homeFixture, trip, day, tr } from './home0460-fixture.js';
 import { newButton } from './newbutton.js';
 import { WHATS_NEW, shortVersion } from '../../src/lib/whatsnew.js';

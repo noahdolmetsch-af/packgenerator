@@ -3,7 +3,7 @@
 // goes; the button on Heute can be hidden and comes back. Along the route of the made-up sample race the page
 // loads the stops itself. On the live map «Stops» holds the next stops, the switch route / around me and the
 // place search; «Choose a goal» waits for a tap on the map. Every outside request is mocked or blocked.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { openHome } from './home0460-fixture.js';
 import { sheetFull } from './live-sheet.js';
 

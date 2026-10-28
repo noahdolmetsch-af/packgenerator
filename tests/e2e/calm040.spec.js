@@ -4,7 +4,7 @@
 // its limit going on the wishlist (Today and Bike care, with Undo). Phone and desktop.
 // Fictional data only (test_data_gtp_ names, tests/e2e/v038-fixture.js).
 // V040_SHOTS=<folder> saves screenshots (never into the repo).
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import DE from '../../src/lib/i18n/de/index.js';
 import { newButton } from './newbutton.js';
 import { P, SPARK, v038Start } from './v038-fixture.js';

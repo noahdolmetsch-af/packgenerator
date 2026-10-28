@@ -2,7 +2,7 @@
 // of the free map (style, TileJSON, sprites, fonts and tiles mocked), watch the progress reach done, see the
 // size, rename it, delete it with Undo, and after the undo window the tiles leave the cache. A tiny made-up
 // route keeps the strip small. The service worker is blocked in the tests (unit test: map-offline.test.js).
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { openHome } from './home0460-fixture.js';
 import { STRIPS_KEY } from '../../src/lib/map/offline.js';
 import { OFFLINE_CACHE } from '../../src/lib/map/sources.js';

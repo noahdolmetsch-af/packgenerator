@@ -1,7 +1,7 @@
 // «Velo-FAQ» (Noah 19.10.2026), German UI: the link on a bike's care card, the question of the day and
 // «Andere Frage», the search, a question opens with its wink and its link, an own question added, changed,
 // deleted and back with Undo. Fictional fixture plus test_data_gtp_ data; nothing leaves the preview server.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';

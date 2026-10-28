@@ -5,7 +5,7 @@
 // - the calm offline line comes and goes;
 // - «Stimmt das noch?» opens from Ich › Daten.
 // Fictional data only; nothing leaves the preview server.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';

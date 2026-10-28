@@ -1,6 +1,6 @@
 // Einheitliche Formulare (Noah 19.10.2026 «1b 2a 3a 4b 5a»): the first form built from Form, Field and
 // ChipChoice: «Aus Notiz wird …» in the note window. Fictional v048 fixture only.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { v048File, P } from './v048-fixture.js';
 import { openData, settle } from './settle.js';
 

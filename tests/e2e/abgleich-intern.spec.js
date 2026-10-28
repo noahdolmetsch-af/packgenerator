@@ -2,7 +2,7 @@
 // setting «strava.last» with «Wert: geändert» on both sides, and a «Schliessen» bubble covered the text.
 // Now: the app's own settings settle by themselves (the newer one wins); since Noah 24.10.2026 a real
 // setting does too, and its replaced version waits in the quiet fold under its name. Fictional data only.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';
 import { importAndSettle } from './settle.js';

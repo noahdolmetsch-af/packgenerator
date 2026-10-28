@@ -1,7 +1,7 @@
 // Paket U2 «Anstiege» (Noah 19.10.2026 «2a»): the page Rennen › Anstiege with the sample race (made up, in the
 // app source): more than 10 climbs, sort by steepness, one climb opens with its gradient bars, a note is
 // written and deleted with Undo, and nothing scrolls sideways. Fictional data (home0460-fixture.js).
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { openHome } from './home0460-fixture.js';
 
 const noSideways = async (page, where = '') => {

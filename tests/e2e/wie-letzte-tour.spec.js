@@ -3,7 +3,7 @@
 // Tour» opens a new trip that starts as a copy of the last ridden trip of the chosen bike, never a trip planned
 // for later; another bike chip switches the copy to that bike's last trip. Phone and computer, in German, no
 // sideways scroll, no page errors. Fictional data only (the Gesamttest fixture).
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { start, fixture, tr } from './gesamttest/lib.js';
 
 // the rule of src/lib/trips.js (riddenTrips, lastTripOn); that module needs Svelte, so it is restated here.

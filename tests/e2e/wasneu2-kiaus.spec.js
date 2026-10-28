@@ -6,7 +6,7 @@
 // default; one switch under Ich › KI-Helfer brings every place back, the tile on Today included; the key stays.
 // The lists come from the app source. Fictional data only (home0460-fixture, test_data_gtp_ names), the clock
 // on Friday 9 October 2026 (Europe/Zurich); SHOTS=<folder> saves screenshots.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { openHome, homeFixture } from './home0460-fixture.js';
 import { WHATS_NEW, BOXES, shortVersion } from '../../src/lib/whatsnew.js';
 import { READY, HELPER_TILES, wallRecord } from '../../src/lib/home/tiles.js';

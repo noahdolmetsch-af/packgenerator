@@ -2,7 +2,7 @@
 // (the IDs stay), clean up the test entries with search → Select → Select all → Delete (also
 // off the trip and the template), Undo brings everything back, and a 320 px phone never
 // scrolls sideways. Fictional fixture plus test_data_gtp_ items; nothing outside the preview server.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';

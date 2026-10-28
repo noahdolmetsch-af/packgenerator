@@ -3,7 +3,7 @@
 // and Open-Meteo: fictional JSON), nothing leaves the preview. The map draws with WebGL when the browser has
 // it, else a fallback sentence stands there; the rest of the page works in both cases.
 import { readFileSync } from 'node:fs';
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { openHome } from './home0460-fixture.js';
 
 // a 1×1 PNG for every map tile

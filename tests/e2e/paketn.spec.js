@@ -2,7 +2,7 @@
 // In German, on a phone and a computer: two notes are written, one is linked from the other, the link
 // shows on both, «Auf einen Blick» counts it, a #tag searches; Ich › Projekt-Ablage shows the ideas and the way.
 // No sideways scroll, no page errors. Fictional data only.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { viaTab } from './placetab.js'; // UI-Ziele #6: the pages that were rows under Ich are tabs now
 import DE from '../../src/lib/i18n/de/index.js';
 import { ready } from './settle.js';

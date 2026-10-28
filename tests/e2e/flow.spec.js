@@ -2,7 +2,7 @@
 // English and German. Runs on every pull request (npm run e2e), so a broken step can't be merged.
 // start page → import the fictional fixture → New → Packing list → Standard set → Create trip
 // → Pack (everything ticked bag by bag, ready check done) → On the way → Tour beendet → saved on one page.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { STEP_BAR as BAR } from '../../src/lib/stepbar.js'; // Schrittleiste (Noah 26.10.2026 «1b», changed on purpose): the bar's short names
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';

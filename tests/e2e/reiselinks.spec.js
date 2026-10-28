@@ -1,7 +1,7 @@
 // «Reise-Links» (Noah 19.10.2026 «1b 2b 3a 4a 5b»): at a trip, «Anreise und Unterkunft» with Booking.com,
 // Airbnb and Hostelworld for its nights, the flight number for Flightradar24 and the links for abroad; the page
 // Touren › Reise-Links. German UI, fictional data (test_data_gtp_), no outside site is reached.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';

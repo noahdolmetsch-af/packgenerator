@@ -1,7 +1,7 @@
 // «Woche planen» WP1–WP4 (Noah 15.10.2026 21:11 «1a 2a 3b 4a 5a»): the place «Woche», the Sunday
 // planning, the holidays and «Diese Woche» on Heute. Fictional data (home0460-fixture.js, test_data_gtp_);
 // the clock stands on Friday 9 October 2026, 09:00 (week of Monday 5 October).
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { openHome, homeFixture, day } from './home0460-fixture.js';
 import { BAR_PLACES } from '../../src/lib/nav.js';
 import { KINDS } from '../../src/lib/woche/kinds.js';

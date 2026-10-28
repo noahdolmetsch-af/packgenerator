@@ -5,7 +5,7 @@
 //   «Auswählen» and «Kompakt | Mit Tasche» in one line; on a phone the two toggles are in «Sortieren und filtern»
 //   under «Darstellung»; the link says «… ohne Gewicht · jetzt wiegen».
 // Fictional data only (material0472-fixture.js).
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { openHome } from './home0460-fixture.js';
 import { materialFixture } from './material0472-fixture.js';
 

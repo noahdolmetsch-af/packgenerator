@@ -6,7 +6,7 @@
 // 6. The packing lists: Touren shows them (v0.46.3: no longer as rows in «Mehr», Noah found it untidy).
 // 7. «Touren» opens an overview of all trips (#/trips), not the last trip at Packen.
 // SHOTS=<folder> saves screenshots (never into the repo).
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { newButton } from './newbutton.js';

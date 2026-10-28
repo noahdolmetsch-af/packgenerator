@@ -1,7 +1,7 @@
 // Einzelideen Material und Überall (996 Ideen, Noah 25.10.2026: 19–22, 24, 37, 38, 40). A favourite gets a short
 // reason, a wish the trouble it solves, a bottle its content apart from the empty weight, the picture tool keeps the old
 // names, and the search asks when a word means two things. Fictional data only (test_data_gtp_).
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { openHome, homeFixture, tr } from './home0460-fixture.js';
 
 const T = tr('de');

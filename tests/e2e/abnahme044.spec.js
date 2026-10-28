@@ -4,7 +4,7 @@
 // 3. Touch targets on a phone: gear category heads, "PG", "All ✓ / All –" in the debrief, the bike care link in Pack.
 // 4. Import preview: one or many per count ("1 Tour", "1 Learning").
 // Fictional fixture (tests/e2e/pf-fixture.json, test_data_gtp_ names); Open-Meteo mocked, nothing leaves the preview server.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';
