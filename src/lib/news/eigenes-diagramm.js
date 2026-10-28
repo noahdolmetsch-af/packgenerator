@@ -3,11 +3,11 @@ export default {
   title: 'Your own diagram',
   lead: 'At the top of Analyse: up to 6 values from every area on one time axis.',
   points: [
-    { text: 'Each value its own row (under each other), or all in one picture measured from their own mean (on top of each other)', href: '#/auswerten/analyse' },
-    { text: 'Add values with search, take them away, change the order with arrows or by dragging', href: '#/auswerten/analyse' },
-    { text: 'Tap a day: a line through every row and the day with all its values', href: '#/auswerten/analyse' },
+    { text: 'Each value its own row (under each other), or all in one picture measured from their own mean (on top of each other)', go: 'f.analyse' },
+    { text: 'Add values with search, take them away, change the order with arrows or by dragging', go: 'f.analyse' },
+    { text: 'Tap a day: a line through every row and the day with all its values', go: 'f.analyse' },
   ],
-  small: [{ box: 'nicer', text: 'The tiles of every value now sit below the diagram' }],
+  small: [{ box: 'nicer', text: 'The tiles of every value now sit below the diagram', go: 'f.analyse' }],
   test: [
     'Open Auswerten › Analyse: on top «Eigenes Diagramm» with Schlaf, Ruhepuls, Aktivzonen-Minuten, Velo and Energie.',
     'Tap «+ Wert», search «Sauna» and pick it; tap «Fertig».',
