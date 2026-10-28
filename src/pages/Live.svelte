@@ -37,7 +37,7 @@
   import PoiDetail from '../lib/map/PoiDetail.svelte';
   import WxTimeline from '../lib/map/WxTimeline.svelte';
   import LiveRouteBox from '../lib/live/LiveRouteBox.svelte';
-  import { liveRouteQuery } from '../lib/live/liveroute.js';
+  import { liveRouteQuery, liveRouteFor } from '../lib/live/liveroute.js';
   import OfflineBox from '../lib/map/OfflineBox.svelte';
   import { reserveOf } from '../lib/map/offline.js';
   import SortArrows from '../lib/ui/SortArrows.svelte';
@@ -139,13 +139,15 @@
   const stored = $derived(($racesQ ?? {})[tid] ?? null);
   const isRace = $derived(!!trip && !!stored);
   const race = $derived(isRace ? raceOf(stored, trip) : null);
-  // a GPX opened on the live map (LiveRouteBox, settings 'live-route') when the ride has no route of its own
+  // a GPX opened on the live map (LiveRouteBox, settings 'live-route') when the ride has no route of its own;
+  // only the GPX opened for this very ride counts (Noah 28.10.2026: a new trip without a route had an old GPX)
   const liveQ = liveRouteQuery(db.settings);
-  const route = $derived(withSampleFine(stored)?.route ?? trip?.route ?? (!isRace ? $liveQ : null) ?? null);
+  const liveRoute = $derived(liveRouteFor($liveQ, tid));
+  const route = $derived(withSampleFine(stored)?.route ?? trip?.route ?? (!isRace ? liveRoute : null) ?? null);
   const pts = $derived(lineKm(route));
   const profile = $derived(route?.profile ?? []);
   const hasRoute = $derived(pts.length > 1);
-  const routeName = $derived(trip?.title ?? $liveQ?.name ?? '');
+  const routeName = $derived(trip?.title ?? liveRoute?.name ?? '');
   const osm = $derived($osmQ?.data ?? []);
   const around = $derived($aroundQ?.data?.list ?? []);
   const pois = $derived((hasRoute ? mergePois(Array.isArray(stored?.pois) ? stored.pois : [], osm) : around).filter((p) => Number.isFinite(Number(p.lat)) && Number.isFinite(Number(p.lon))));
