@@ -155,4 +155,12 @@ export default {
   'Charts over': 'Diagramme über',
   'Height & heart rate zones': 'Höhe & Herzfrequenz-Bereiche',
   'Total|laps': 'Gesamt',
+  // «Diagramme zum Antippen» on the resting heart rate dots (27.10.2026)
+  'this tour': 'diese Tour',
+  'Point at a dot for its numbers, tap it for the ride.': 'Zeig auf einen Punkt für seine Zahlen, tipp ihn an für die Fahrt.',
+  'Ride|dots': 'Fahrt',
+  'Dot to the left': 'Punkt links',
+  'Dot to the right': 'Punkt rechts',
+  'This is the tour you are looking at.': 'Das ist die Tour, die du gerade anschaust.',
+  'Open this ride': 'Diese Fahrt öffnen',
 };
