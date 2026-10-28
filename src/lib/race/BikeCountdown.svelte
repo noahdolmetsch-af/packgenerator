@@ -132,7 +132,7 @@
     line-height: 1;
   }
   .bc-wk small {
-    font-size: 10px;
+    font-size: var(--fs-small);
     font-weight: 500;
     color: var(--ink-2);
   }
