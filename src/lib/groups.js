@@ -41,7 +41,8 @@ export const GROUP_PLACES = [
   { name: 'Roles of a ride', file: 'src/lib/ruhig/KindsEdit.svelte' },
   { name: 'Matters in the inbox', file: 'src/pages/Vorgaenge.svelte' }, // Einzelideen Planen 11 + 16 (Noah 26.10.2026 «2a»)
   { name: 'Own views of Material', file: 'src/lib/ruhig/KindsEdit.svelte' }, // Einzelidee 22 (einzeln/OwnViews.svelte)
-  { name: 'Areas of Today', file: 'src/lib/home/AreasEdit.svelte' }, // «Bereiche anpassen» (Noah 27.10.2026 «2a»): hidden, not deleted
+  { name: 'Areas of Today', file: 'src/lib/home/AreasEdit.svelte' },
+  { name: 'Groups of the Quick Links', file: 'src/pages/Quick.svelte' }, // «Quick Links» (Noah 28.10.2026 «5a») // «Bereiche anpassen» (Noah 27.10.2026 «2a»): hidden, not deleted
 ];
 
 /** The items of category `from` moved to `to` (only the ones that change). */
