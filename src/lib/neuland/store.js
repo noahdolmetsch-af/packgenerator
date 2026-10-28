@@ -8,6 +8,8 @@ import { areaAt, gridOf } from './geo.js';
 import { localDay } from '../localday.js';
 import { splitNeuland } from './split.js';
 import { OSM_KEY } from './osm.js';
+import { GB_KEY } from '../gipfelbuch.js';
+import { bookTracks } from './funde.js';
 
 export async function readState(db) {
   return stateOf((await db.settings.get(NEULAND_KEY))?.value);
@@ -28,15 +30,16 @@ export async function cantonAt(place) {
 
 /** The person's data Neuland reads (only Dexie reads, so a liveQuery can watch it). */
 export async function readRaw(db) {
-  const [rec, trips, rides, activities, homeRec, osmRec] = await Promise.all([
+  const [rec, trips, rides, activities, homeRec, osmRec, book] = await Promise.all([
     db.settings.get(NEULAND_KEY),
     db.trips.toArray(),
     db.rides.toArray(),
     db.activities ? db.activities.toArray() : [],
     db.settings.get('homePlace'),
     db.meta.get(OSM_KEY), // N18: when the OpenStreetMap places were loaded (so a liveQuery recomputes after a refresh)
+    db.settings.get(GB_KEY), // N10: the Gipfelbuch counts too
   ]);
-  return { value: rec?.value ?? null, trips, rides, activities, homePlace: homeRec?.value ?? null, osmAt: osmRec?.value?.at ?? 0 };
+  return { value: rec?.value ?? null, trips, rides, activities, homePlace: homeRec?.value ?? null, osmAt: osmRec?.value?.at ?? 0, book: book?.value ?? null };
 }
 
 /**
@@ -54,7 +57,7 @@ export async function computeFrom(raw, { today = localDay(), only = null } = {})
     const { items, hidden } = itemsOf(state, c.id, bases[i]);
     return { ...c, kind: def?.kind ?? 'point', radius: def?.radius, map: def?.map ?? null, items, hidden };
   });
-  const found = detect(parts, tracks);
+  const found = detect(parts, raw.book ? [...tracks, ...bookTracks(raw.book, today)] : tracks); // N10: the Gipfelbuch ticks too (not a line for the maps)
   const collections = parts.map((p) => ({ ...p, found: found[p.id] ?? {}, visited: visitedOf(state, p.id, p.items, found) }));
   const home = state.home ?? (await cantonAt(raw.homePlace)) ?? DEFAULT_HOME;
   return { state, home, tracks, collections, all };

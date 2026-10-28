@@ -1295,6 +1295,11 @@ const LISTED = {
     steps: ['Open Trips › Look back › New ground.', 'Scroll to «New kilometres»: each year with its new km and share.', 'Below: your latest rides that brought new km.'],
     example: 'Example: 3210 km this year, of which 412 km new (13 %).',
   },
+  'f.findlist': {
+    on: 'Works by itself; places in the summit book need a position to tick New ground.',
+    steps: ['Enter a summit or pass in the summit book.', 'New ground ticks it: «from your summit book».', 'Me › What is good for me › «Neuland» shows everything new this year once.'],
+    example: 'Example: Piz Corvatsch entered by hand → New ground › Peaks ticked, and once in «Neuland 2026».',
+  },
   'f.osmsets': {
     on: 'Needs the internet now and then to load the places (once a week by itself); then it works offline.',
     steps: ['Open Trips › Look back › New ground.', 'Choose «Lookout towers», «Suspension bridges» or «Waterfalls».', 'Tap «Load again» to bring the places up to date; the list shows what you reached.'],

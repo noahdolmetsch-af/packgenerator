@@ -43,7 +43,7 @@
       <div>
         <p><b>{t('First time: {day}', { day: dayLong(visit.day) })}</b></p>
         {#if visit.tripId}<p><a href="#/debrief/{visit.tripId}">{trip ? t('On the trip «{name}»', { name: trip }) : t('Open the trip')}</a></p>{/if}
-        <p class="q">{visit.by === 'hand' ? t('Ticked by you.') : t('Found by the app on your route.')}</p>
+        <p class="q">{visit.by === 'hand' ? t('Ticked by you.') : visit.book ? t('Found in your summit book.') : t('Found by the app on your route.')}</p>
       </div>
     </div>
     <ItemProof {item} found={auto} hand={visit.by === 'hand'} {reachKm} {tracks} />

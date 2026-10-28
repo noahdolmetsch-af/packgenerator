@@ -533,6 +533,24 @@ export default {
   'Needs a dream planned as a trip, and the debrief of that trip.': 'Braucht einen als Tour geplanten Traum und den Rückblick dieser Tour.',
   'Plan a dream as a trip (Trips › Dreams › the dream › «Plan the tour»).': 'Plane einen Traum als Tour (Touren › Träume › der Traum › «Tour planen»).',
   'After the trip, finish its debrief.': 'Schliess nach der Tour ihren Rückblick ab.',
+  // «Träume und Neuland» N10
+  'Works by itself; places in the summit book need a position to tick New ground.': 'Geht von selbst; Orte im Gipfelbuch brauchen eine Position, damit Neuland sie abhakt.',
+  'Enter a summit or pass in the summit book.': 'Trag einen Gipfel oder Pass ins Gipfelbuch ein.',
+  'New ground ticks it: «from your summit book».': 'Neuland hakt ihn ab: «aus deinem Gipfelbuch».',
+  'Me › What is good for me › «Neuland» shows everything new this year once.': 'Auswerten › Was mir gut tut › «Neuland» zeigt alles Neue des Jahres einmal.',
+  'Example: Piz Corvatsch entered by hand → New ground › Peaks ticked, and once in «Neuland 2026».': 'Beispiel: Piz Corvatsch von Hand eingetragen → Neuland › Gipfel abgehakt, und einmal in «Neuland 2026».',
+  // «Träume und Neuland» N18
+  'Needs the internet to load the places (by themselves, once a week); then offline.': 'Braucht Internet zum Laden der Orte (von selbst, einmal pro Woche); danach offline.',
+  'Open Trips › Look back › New ground and choose «Waterfalls».': 'Öffne Touren › Rückblick › Neuland und wähle «Wasserfälle».',
+  'Wait a moment: the places load by themselves.': 'Warte einen Moment: die Orte laden von selbst.',
+  'Your routes tick what you passed; tick more by hand.': 'Deine Routen haken ab, wo du vorbeikamst; weitere hakst du von Hand ab.',
+  'Example: Waterfalls → 640 places, 12 reached.': 'Beispiel: Wasserfälle → 640 Orte, 12 erreicht.',
+  // «Träume und Neuland» N12
+  'Everything is a suggestion: «Not this month» always works.': 'Alles ist ein Vorschlag: «Diesen Monat nicht» geht immer.',
+  'Open Trips › Dreams: «Adventure of the month» at the top.': 'Öffne Touren › Träume: «Abenteuer des Monats» oben.',
+  'The button leads to the part that plans it; «Another one» switches.': 'Der Knopf führt zum Teil, der es plant; «Ein anderes» wechselt.',
+  'Afterwards tap «Done»; the count grows month by month.': 'Danach «Erledigt» tippen; die Zahl wächst Monat für Monat.',
+  'Example: October → «One night out after work» → to the after-work bivouac.': 'Beispiel: Oktober → «Eine Nacht draussen nach der Arbeit» → zum Feierabend-Biwak.',
   // «Träume und Neuland» N19
   'Works offline; the rules are on the device.': 'Geht offline; die Regeln sind auf dem Gerät.',
   'Open Trips › Dreams: «Adventure dice».': 'Öffne Touren › Träume: «Abenteuer-Würfel».',

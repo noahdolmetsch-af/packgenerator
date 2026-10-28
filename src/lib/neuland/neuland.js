@@ -430,7 +430,11 @@ function detectNow(defs, tracks) {
   const rec = (cid, id, tr) => {
     const m = (found[cid] ??= {});
     const e = (m[id] ??= { day: null, tripId: null, rideId: null, years: {} });
-    if (!e.day || tr.day < e.day) Object.assign(e, { day: tr.day, tripId: tr.tripId ?? null, rideId: tr.rideId ?? null });
+    if (!e.day || tr.day < e.day) {
+      Object.assign(e, { day: tr.day, tripId: tr.tripId ?? null, rideId: tr.rideId ?? null });
+      if (tr.src === 'gipfelbuch') e.book = true; // N10: reached by a Gipfelbuch entry
+      else delete e.book;
+    }
     const y = tr.day.slice(0, 4);
     if (!e.years[y] || tr.day < e.years[y]) e.years[y] = tr.day;
   };

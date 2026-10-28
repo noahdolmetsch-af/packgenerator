@@ -322,7 +322,7 @@
                       </button>
                       <button type="button" class="nm" aria-haspopup="dialog" onclick={() => (itemOpen = { cid: cur.id, id: it.id })}>
                         <b>{label}</b>
-                        <small>{v ? `${dayLong(v.day)}${v.tripId && tripNames[v.tripId] ? ` · ${tripNames[v.tripId]}` : ''}${v.by === 'hand' ? ` · ${t('by hand')}` : ''}` : state.nope[cur.id]?.[it.id] ? t('Marked «not there»') : t('Not yet')}</small>
+                        <small>{v ? `${dayLong(v.day)}${v.tripId && tripNames[v.tripId] ? ` · ${tripNames[v.tripId]}` : ''}${v.by === 'hand' ? ` · ${t('by hand')}` : v.book ? ` · ${t('from your summit book')}` : ''}` : state.nope[cur.id]?.[it.id] ? t('Marked «not there»') : t('Not yet')}</small>
                       </button>
                     </li>
                   {/each}

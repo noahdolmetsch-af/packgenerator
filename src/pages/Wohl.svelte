@@ -30,7 +30,7 @@
   import {
     dayData, lifts, helps, drains, combos, comfort, recipe, goodRecipes, surprises, scoredDays, FACT, MIN_DAYS, MIN_BOTH, GOOD,
     WISH_KEY, wishOf, wishGap, wishArcs, MINUTES, shortOf,
-    NEULAND_KEY, neulandYear, addNeuland, renameNeuland, dropNeuland,
+    NEULAND_KEY, addNeuland, renameNeuland, dropNeuland,
     SEASON_KEY, seasonOf, nextSeason, seasonListOf, tickSeason, addSeasonItem, renameSeasonItem, dropSeasonItem, moveSeasonItem,
     WOHL_KEY, wohlOf,
     EXP_KEY, EXP_DAYS, EXP_IDEAS, expSuggestion, experimentsOf, startExperiment, tickExperiment, stopExperiment, dropExperiment, renameExperiment, experimentState,
@@ -48,6 +48,8 @@
   import { isFor as routineFor, isDone as routineDone, feltOf as routineFelt } from '../lib/routine.js';
   import { itemName as routineName } from '../lib/routine-words.js';
   import { routineCarry } from '../lib/wohl.js';
+  import { readRaw, computeFrom } from '../lib/neuland/store.js'; // N10: one list with Neuland and the Gipfelbuch
+  import { findsOfYear } from '../lib/neuland/funde.js';
   import '../lib/ich/ich.css';
   import '../lib/ui/daumen.css';
 
@@ -141,7 +143,21 @@
   const shortCats = $derived(bal ? [...bal.cats].sort((a, b) => (a.value ?? 101) - (b.value ?? 101)).slice(0, 3).map((c) => c.key) : keys.slice(0, 3));
 
   // #253 Neuland
-  const neu = $derived(neulandYear(ex?.neuland ?? [], rows, year));
+  // N10 «Eine Fundliste»: your entries, the evenings with «New», what Neuland found first this year and the
+  // Gipfelbuch places first reached this year, one line per name
+  const nlRaw = liveQuery(() => readRaw(db));
+  let nlCols = $state.raw([]);
+  $effect(() => {
+    const raw = $nlRaw;
+    if (!raw) return;
+    let live = true;
+    computeFrom(raw, { today })
+      .then((r) => live && (nlCols = r.collections))
+      .catch((err) => console.error(err));
+    return () => (live = false);
+  });
+  const neu = $derived(findsOfYear({ own: ex?.neuland ?? [], rows, collections: nlCols, book: $nlRaw?.book ?? null, year }));
+  const FROM = { evening: 'from your evening answer', neuland: 'from New ground', gipfelbuch: 'from your summit book' };
   let nlEdit = $state(null); // { id?, name }
   async function saveNeuland(name) {
     const clean = String(name ?? '').trim();
@@ -614,11 +630,11 @@
           {#each neu as x (x.id)}
             <li class="srow">
               <span class="sib done"><Compass size={18} aria-hidden="true" /></span>
-              <span class="sm"><b>{x.name}</b><small>{dayLong(x.day)}{x.auto ? ` · ${t('from your evening answer')}` : ''}</small></span>
-              {#if !x.auto}<span class="rowacts"><button type="button" class="btn ic" aria-label={t('Rename «{name}»', { name: x.name })} onclick={() => (nlEdit = { id: x.id, name: x.name })}><Pencil size={16} aria-hidden="true" /></button><button type="button" class="btn ic" aria-label={t('Delete «{name}»', { name: x.name })} onclick={() => delNeuland(x)}><Trash2 size={16} aria-hidden="true" /></button></span>{/if}
+              <span class="sm"><b>{x.name}</b><small data-nl-from={x.from}>{dayLong(x.day)}{FROM[x.from] ? ' · ' : ''}{#if x.href}<a href={x.href}>{t(FROM[x.from])}</a>{:else if FROM[x.from]}{t(FROM[x.from])}{/if}</small></span>
+              {#if x.from === 'own'}<span class="rowacts"><button type="button" class="btn ic" aria-label={t('Rename «{name}»', { name: x.name })} onclick={() => (nlEdit = { id: x.id, name: x.name })}><Pencil size={16} aria-hidden="true" /></button><button type="button" class="btn ic" aria-label={t('Delete «{name}»', { name: x.name })} onclick={() => delNeuland(x)}><Trash2 size={16} aria-hidden="true" /></button></span>{/if}
             </li>
           {:else}
-            <li class="srow"><span class="sm"><small>{t('Nothing new yet this year. An evening with «New» and a note lands here by itself.')}</small></span></li>
+            <li class="srow"><span class="sm"><small>{t('Nothing new yet this year. New places from New ground and the summit book land here by themselves, and an evening with «New» and a note too.')}</small></span></li>
           {/each}
         </ul>
         <button type="button" class="btn wl-add" onclick={() => (nlEdit = { name: '' })} data-neuland-add><Plus size={18} aria-hidden="true" />{t('Add Neuland')}</button>
