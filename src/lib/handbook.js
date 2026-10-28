@@ -1398,6 +1398,11 @@ export const HANDBOOK = {
     steps: ['Open Me › Toolbox › Photos and choose a photo.', 'Drag the frame to cut, choose the size; «Cut out» removes the background.', 'Tap «Make photo», then «Save or share».'],
     example: 'Example: bike photo 4.2 MB → Medium 1280 px, about 300 KB.',
   },
+  'f.markup': {
+    on: null,
+    steps: ['Take the screenshot on your phone as always, then open Me › Toolbox › Edit a picture.', 'Tap «Choose pictures»; per page turn, cut or draw (pen, highlighter, text, arrow).', 'Choose «One PDF» or «Single pictures», then «Save or share».'],
+    example: 'Example: three screenshots of a booking → cut, the price highlighted → one PDF of 3 pages.',
+  },
   'f.money': {
     on: 'The rates need the internet once a day; offline the last ones count.',
     steps: ['Open Me › Toolbox › Currencies.', 'Type the amount and choose its currency.', 'See it in Franken and the other main currencies.'],

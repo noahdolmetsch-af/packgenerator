@@ -1872,6 +1872,11 @@ export default {
     'Warnungen (Wetter, Glätte, Licht, Regen unterwegs, Essen) kommen weiter einzeln und pünktlich.',
   'Example: «Your morning» → «Appointment: 10:00 Dentist», «Testvelo: Chain reaches 1000 km soon», «and 1 more in the app».':
     'Beispiel: «Dein Morgen» → «Termin: 10:00 Zahnarzt», «Testvelo: Kette erreicht bald 1000 km», «und 1 weitere in der App».',
+  // «Bild bearbeiten» (Noah 28.10.2026)
+  'Take the screenshot on your phone as always, then open Me › Toolbox › Edit a picture.': 'Mach den Screenshot wie immer am Handy und öffne dann Ich › Werkzeugkasten › Bild bearbeiten.',
+  'Tap «Choose pictures»; per page turn, cut or draw (pen, highlighter, text, arrow).': 'Tippe «Bilder auswählen»; pro Seite drehen, zuschneiden oder zeichnen (Stift, Markierstift, Text, Pfeil).',
+  'Choose «One PDF» or «Single pictures», then «Save or share».': 'Wähle «Ein PDF» oder «Einzelne Bilder», dann «Speichern oder teilen».',
+  'Example: three screenshots of a booking → cut, the price highlighted → one PDF of 3 pages.': 'Beispiel: drei Screenshots einer Buchung → zugeschnitten, der Preis markiert → ein PDF mit 3 Seiten.',
   // «Quick Links» (Noah 28.10.2026)
   'Open Quick Links in the bar (on a computer: in the sidebar).': 'Öffne Quick Links in der Leiste (am Computer: in der Seitenleiste).',
   'Tap «Add a pin», search a function and tap «Pin».': 'Tippe auf «Pin hinzufügen», suche eine Funktion und tippe auf «Anpinnen».',

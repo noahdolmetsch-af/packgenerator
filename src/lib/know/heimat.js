@@ -390,6 +390,7 @@ export const HOME = {
   'f.tools': '#/me/tools',
   'f.pdftools': '#/me/tools',
   'f.phototools': '#/me/tools',
+  'f.markup': '#/me/tools/markup',
   'f.ablage': '#/me/tools',
   'f.weblinks': '#/me/links',
   'f.chains': '#/me/tools',
