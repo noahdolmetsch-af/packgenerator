@@ -3,11 +3,11 @@ export default {
   title: 'A page for every value',
   lead: 'Tap a tile on Analyse: you see the course of that value over a day, week, month, 3 months, year or everything.',
   points: [
-    { text: 'Mean, lowest, highest and your typical range; trips as a band, the 7-day mean, the year before alongside', href: '#/auswerten/analyse' },
-    { text: 'Up to two more values in the same chart, per weekday, and the days with what you did the day before', href: '#/auswerten/analyse' },
-    { text: 'Tap a point: the day with all its values', href: '#/auswerten/analyse' },
+    { text: 'Mean, lowest, highest and your typical range; trips as a band, the 7-day mean, the year before alongside', go: 'f.analyse' },
+    { text: 'Up to two more values in the same chart, per weekday, and the days with what you did the day before', go: 'f.analyse' },
+    { text: 'Tap a point: the day with all its values', go: 'f.analyse' },
   ],
-  small: [{ box: 'nicer', text: 'A tile no longer opens Körperwerte or «Haken ausgewertet»; both are one link further down on the new page' }],
+  small: [{ box: 'nicer', text: 'A tile no longer opens Körperwerte or «Haken ausgewertet»; both are one link further down on the new page', go: 'f.analyse' }],
   test: [
     'Open Auswerten › Analyse and tap «Ruhepuls».',
     'Switch between T, W, M, 3 M, J and Alles; go back with ‹.',
