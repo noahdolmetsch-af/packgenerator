@@ -127,8 +127,34 @@ export const appVersion = () => computeNews().version;
 
 const ident = (file) => `n_${file.slice(0, -3).replace(/-/g, '_')}`;
 
+const DE_DIR = 'src/lib/i18n/de';
+
+/**
+ * Writes src/lib/i18n/de/auto.gen.js: every German text file that de/index.js does not import by name, so a new
+ * part of the app only adds its own file in de/ and nobody edits index.js (no merge clashes). Not in git.
+ */
+export function writeDeAuto() {
+  const dir = join(ROOT, DE_DIR);
+  const files = readdirSync(dir).filter((f) => /^[\w-]+\.js$/.test(f));
+  // imported by index.js or by another file in de/ (a sub-file) = already loaded
+  const listed = new Set(files.flatMap((f) => [...readFileSync(join(dir, f), 'utf8').matchAll(/from '\.\/([\w-]+)\.js'/g)].map((m) => m[1])));
+  const extra = files
+    .filter((f) => f !== 'index.js' && !listed.has(f.slice(0, -3)))
+    .sort();
+  const id = (f) => `d_${f.slice(0, -3).replace(/-/g, '_')}`;
+  const text = [
+    '// Written by scripts/news.mjs (vite.config.js, playwright.config.js). Not in git, do not edit.',
+    ...extra.map((f) => `import ${id(f)} from './${f}';`),
+    `export default Object.assign({}, ${extra.map(id).join(', ') || '{}'});`,
+    '',
+  ].join('\n');
+  const out = join(dir, 'auto.gen.js');
+  if (!existsSync(out) || readFileSync(out, 'utf8') !== text) writeFileSync(out, text);
+}
+
 /** Writes src/lib/news/index.gen.js; returns what computeNews() found. */
 export function writeNewsIndex() {
+  writeDeAuto();
   const r = computeNews();
   const lines = [
     '// Written by scripts/news.mjs (vite.config.js, playwright.config.js). Not in git, do not edit.',

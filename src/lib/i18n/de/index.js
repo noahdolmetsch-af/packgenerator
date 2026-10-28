@@ -679,6 +679,7 @@ import ausprobieren from './ausprobieren.js';
 import quicklinks from './quicklinks.js';
 // Velo-Ideen 71–76 (996 Ideen, Noah 25.10.2026); spread last
 import veloideen from './veloideen.js';
+import AUTO from './auto.gen.js';
 
 const ORDERED = [
   blocks,
@@ -1036,10 +1037,7 @@ const ORDERED = [
   applehealth,
 ];
 
-// Every other file in this folder is picked up by itself and spread after the list above (alphabetical).
-// A new part of the app adds only its own file and does not touch this one, so open PRs no longer
-// conflict over it. New file = new texts; do not append to handbuch.js either.
-const AUTO = import.meta.glob(['./*.js', '!./index.js'], { eager: true, import: 'default' });
-const REST = Object.values(AUTO).filter((m) => !ORDERED.includes(m));
-
-export default Object.assign({}, ...ORDERED, ...REST);
+// Every other file in this folder is listed by scripts/news.mjs in auto.gen.js (not in git) and spread after
+// the list above (alphabetical). A new part of the app adds only its own file here and does not touch this
+// one, so open PRs no longer conflict over it. New file = new texts; do not append to handbuch.js either.
+export default Object.assign({}, ...ORDERED, AUTO);

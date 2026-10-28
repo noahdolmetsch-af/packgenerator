@@ -2,7 +2,7 @@
 export default {
   title: 'Behind the scenes: fewer clashes',
   lead: 'Nothing changes for you; updates of the app now fit together more smoothly.',
-  points: [{ text: 'Nothing visible: new German texts no longer collide with each other when several changes are prepared', href: '#/', go: null }],
+  points: [{ text: 'Nothing visible: new German texts no longer collide with each other when several changes are prepared', href: '#/me/news', go: null }],
   test: [
     'Open the app and look at Today: the German texts look as before.',
     'Open Me › What is new: the list opens as before.',
