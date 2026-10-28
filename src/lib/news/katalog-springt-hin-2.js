@@ -2,8 +2,8 @@
 export default {
   title: 'The catalogue shows two more spots',
   lead: '«See the effect first» and «Pack by need» sit in the window «Add material». A tap in the catalogue now opens it and lights them up.',
-  points: [{ text: 'Catalogue: «See the effect first» and «Pack by need» open «Add material» and light up', href: '#/features' }],
-  small: [{ box: 'nicer', text: 'The jump now waits a moment after opening a window' }],
+  points: [{ text: 'Catalogue: «See the effect first» and «Pack by need» open «Add material» and light up', href: '#/features', go: 'f.needs' }],
+  small: [{ box: 'nicer', text: 'The jump now waits a moment after opening a window', go: null }],
   test: ['Open «What the app can do» and search «Pack by need».', 'Tap the entry: Packen opens, then the window «Add material», and «Pack by need» lights up.'],
   since: [],
   de: {
