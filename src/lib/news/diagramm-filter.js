@@ -3,9 +3,9 @@ export default {
   title: 'Filters for your diagram',
   lead: 'Choose which days count: weekdays, with or without an activity, trips, how you felt, without outliers.',
   points: [
-    { text: 'One filter for the whole diagram, and on wish one more for a single value (the small funnel next to its name)', href: '#/auswerten/analyse' },
-    { text: 'Days left out stay a gap, so the time stays true; you see how many days fit', href: '#/auswerten/analyse' },
-    { text: 'Mark the days of an activity with a dot under every row; trips as a band on or off', href: '#/auswerten/analyse' },
+    { text: 'One filter for the whole diagram, and on wish one more for a single value (the small funnel next to its name)', go: 'f.analyse' },
+    { text: 'Days left out stay a gap, so the time stays true; you see how many days fit', go: 'f.analyse' },
+    { text: 'Mark the days of an activity with a dot under every row; trips as a band on or off', go: 'f.analyse' },
   ],
   small: [],
   test: [
