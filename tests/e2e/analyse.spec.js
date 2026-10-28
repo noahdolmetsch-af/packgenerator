@@ -2,7 +2,7 @@
 // opens Auswerten › Analyse; every value is a tile; the «•••» of the activity tiles never cover a name.
 // German, phone + desktop, fictional Fitbit days, Strava rides and ticks written straight into the app's
 // IndexedDB. The clock stands on Friday 9 October 2026 (aktiv-fixture.js). Fictional data only.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import DE from '../../src/lib/i18n/de/index.js';
 import { D0, TODAY, addDays, put } from './aktiv-fixture.js';
 import { ready } from './settle.js';

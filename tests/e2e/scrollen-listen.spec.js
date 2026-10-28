@@ -1,7 +1,7 @@
 // SL «Scrollen und Listen» (mockups SL1–SL4, Noah 14.10.2026 «SL1–SL4 freigegeben», answers «alle a»): the
 // head of a long list stays on top with the group you are in, the jump bar opens a group and goes there,
 // «Back to top» shows after two screens. Fictional data only (home0460-fixture); SHOTS=<folder> saves pictures.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { openHome } from './home0460-fixture.js';
 import { WHATS_NEW } from '../../src/lib/whatsnew.js';
 import { materialFixture } from './material0472-fixture.js';

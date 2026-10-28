@@ -4,7 +4,7 @@
 // - a workshop visit: another part «ersetzt» starts it at 0 km, «Service am ganzen Velo» sets the counter to 0,
 //   Undo takes the visit and its counter point back.
 // Fictional fixture; nothing leaves the preview server; service workers blocked (config).
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';

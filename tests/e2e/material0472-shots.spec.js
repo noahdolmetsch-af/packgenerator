@@ -1,6 +1,6 @@
 // v0.47.2 «Material-Ansichten»: before/after screenshots of #/gear and one item for the design audit.
 // Runs only with MAT_SHOTS=<folder> (and MAT_MODES=light,dark); a normal run skips it.
-import { test } from '@playwright/test';
+import { test } from './clock.js';
 import { mkdirSync } from 'node:fs';
 import { openHome } from './home0460-fixture.js';
 import { materialFixture } from './material0472-fixture.js';

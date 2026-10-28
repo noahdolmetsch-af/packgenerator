@@ -1,7 +1,7 @@
 // Paket Y «Wetter-Kern» (Noah 20.10.2026 «1-5a», «1-8 alle», «1a»): the line on Heute when a ride is planned
 // today, the weather page (today, best window, Landi radar), and «Meine Webcams» with the home cam on Heute.
 // Made-up places and weather; every outside request is mocked or blocked (openHome).
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { openHome, D0 } from './home0460-fixture.js';
 
 const phone = (info) => info.project.name === 'phone';

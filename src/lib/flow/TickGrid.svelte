@@ -199,8 +199,10 @@
     .tx b {
       font-size: var(--fs-label);
     }
-    /* KT: a smaller «•••» and symbol, so the name keeps its room and is never broken */
-    li {
+    /* KT: a smaller «•••» and symbol, so the name keeps its room and is never broken. Set on the
+       tile and the «•••» (inside the li), since a container query cannot style the li itself */
+    .tile,
+    .more {
       --dots: 22px;
     }
     .tg:not(.big) .tile {

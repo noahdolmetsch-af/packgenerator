@@ -1,7 +1,7 @@
 // v0.137.0 Durchklick (Noah 14.10.2026 «1-5 freigeben», mockups DK6/DK7): plain words, long names
 // without spaces wrap, a 0 line in the km chart, and no «older» warning when importing on an empty
 // device. Fictional data (tests/fixtures/gesamttest), German.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { writeFileSync } from 'node:fs';
 import { start, prepare, fixture, sideways, openData, tr } from './gesamttest/lib.js';
 import { settle } from './settle.js';
