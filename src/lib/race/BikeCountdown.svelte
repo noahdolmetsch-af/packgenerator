@@ -28,20 +28,25 @@
   {#if !race}
     <p class="rc-warn" data-countdown-nodate>{t('The race has no date yet, so the steps have no day. Set the date under Route, strategy and race mode.')}</p>
   {:else if rows.length}
+    <div class="bc-head">
     <p class="bc-sum" role="status" data-countdown-sum>
       {t('{done} of {of} done', sum)}{#if sum.late}{' '}· <span class="bc-late">{tn(sum.late, '{n} overdue', '{n} overdue')}</span>{/if}{#if sum.now}{' '}· {tn(sum.now, '{n} this week', '{n} this week')}{/if}
     </p>
+    <span class="bc-bar" aria-hidden="true"><span style:width="{Math.round((sum.done / Math.max(sum.of, 1)) * 100)}%"></span></span>
+    </div>
   {/if}
   {#if rows.length}
     <ul class="bc-list" data-countdown-list>
       {#each rows as r (r.id)}
         {@const st = stateOf(r, race, today)}
-        <li class="bc-row" class:bc-done={r.done}>
+        <li class="bc-row bc-s-{st}" class:bc-done={r.done}>
+          <span class="bc-wk num" aria-hidden="true">{r.weeks}<small>{t('wk|countdown')}</small></span>
           <label class="bc-tick">
             <input type="checkbox" checked={r.done} onchange={(e) => tick(r.id, e.currentTarget.checked)} data-countdown-done={r.id} />
             <span class="bc-text">
               <b>{r.text}</b>
-              <small class="bc-when" class:bc-late={st === 'late'} data-countdown-state={st}>{tn(r.weeks, '{n} week before', '{n} weeks before')}{#if race}{' '}· {day(dueOf(race, r.weeks))}{/if}{#if STATE[st] && st !== 'done'}{' '}· {t(STATE[st])}{/if}</small>
+              <small class="bc-when" class:bc-late={st === 'late'} data-countdown-state={st}>{tn(r.weeks, '{n} week before', '{n} weeks before')}{#if race}{' '}· {day(dueOf(race, r.weeks))}{/if}</small>
+              {#if STATE[st] && st !== 'done'}<small class="bc-chip">{t(STATE[st])}</small>{/if}
             </span>
           </label>
         </li>
@@ -62,9 +67,28 @@
 </section>
 
 <style>
+  .bc-head {
+    display: grid;
+    gap: 6px;
+    padding: 12px 14px;
+    border-radius: var(--radius-card);
+    background: var(--accent-soft);
+  }
   .bc-sum {
     margin: 0;
     font-weight: 600;
+  }
+  .bc-bar {
+    display: block;
+    height: 8px;
+    border-radius: 4px;
+    background: var(--paper);
+    overflow: hidden;
+  }
+  .bc-bar span {
+    display: block;
+    height: 100%;
+    background: var(--accent);
   }
   .bc-when {
     color: var(--ink-2);
@@ -78,14 +102,62 @@
     margin: 0;
     padding: 0;
     display: grid;
-    gap: 2px;
+  }
+  .bc-row {
+    position: relative;
+    display: grid;
+    grid-template-columns: 44px minmax(0, 1fr);
+    gap: 12px;
+    padding: 6px 0;
+  }
+  .bc-row:not(:last-child)::before {
+    content: '';
+    position: absolute;
+    left: 21px;
+    top: 50px;
+    bottom: -6px;
+    width: 2px;
+    background: var(--line);
+  }
+  .bc-wk {
+    display: grid;
+    place-items: center;
+    align-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: 2px solid var(--line);
+    background: var(--paper);
+    font-weight: 700;
+    line-height: 1;
+  }
+  .bc-wk small {
+    font-size: 10px;
+    font-weight: 500;
+    color: var(--ink-2);
+  }
+  .bc-s-now .bc-wk {
+    border-color: var(--accent);
+    background: var(--accent-soft);
+  }
+  .bc-s-late .bc-wk {
+    border-color: var(--warn);
+    background: var(--warn-soft);
+  }
+  .bc-done .bc-wk {
+    border-color: var(--accent);
+    background: var(--accent);
+    color: var(--paper);
+  }
+  .bc-done .bc-wk small {
+    color: var(--paper);
   }
   .bc-tick {
     display: flex;
     align-items: flex-start;
     gap: 12px;
     min-height: 44px;
-    padding: 6px 0;
+    padding: 4px 0;
     cursor: pointer;
   }
   .bc-tick input {
@@ -98,6 +170,18 @@
     display: grid;
     gap: 2px;
     min-width: 0;
+  }
+  .bc-chip {
+    justify-self: start;
+    padding: 1px 8px;
+    border-radius: 999px;
+    background: var(--accent-soft);
+    color: var(--accent);
+    font-weight: 600;
+  }
+  .bc-s-late .bc-chip {
+    background: var(--warn-soft);
+    color: var(--warn);
   }
   .bc-done b {
     color: var(--ink-2);
