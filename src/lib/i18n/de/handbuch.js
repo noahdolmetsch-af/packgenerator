@@ -1846,6 +1846,12 @@ export default {
   'Count what was used with + and −; add what you bought on the way.': 'Mit + und − zählen, was verbraucht wurde; unterwegs Gekauftes ergänzen.',
   '«Book» lowers the stock, fills the shopping list and writes the costs; Undo takes it back.': '«Buchen» senkt den Vorrat, füllt die Einkaufsliste und schreibt die Kosten; Rückgängig nimmt es zurück.',
   'Example: 4 of 6 gels used → stock 2, gels on the shopping list.': 'Beispiel: 4 von 6 Gels verbraucht → Vorrat 2, Gels auf der Einkaufsliste.',
+  // «Träume und Neuland» N1
+  'Needs your home place.': 'Braucht deinen Wohnort.',
+  'Open Trips › Dreams › White spots nearby.': 'Öffne Touren › Träume › Weisse Flecken in der Nähe.',
+  'Choose 10, 25 or 50 km.': 'Wähle 10, 25 oder 50 km.',
+  'Tap a place on the map or in the list: its name and distance.': 'Tippe einen Ort auf der Karte oder in der Liste an: Name und Entfernung.',
+  'Example: 25 km around Zürich → 209 municipalities never visited, the nearest 5 km away.': 'Beispiel: 25 km um Zürich → 209 Gemeinden noch nie besucht, die nächste 5 km entfernt.',
   // Idee A1 «Eine Nachricht am Morgen» (27.10.2026)
   'On by itself once reminders on the phone are on; switch it off under Me › Reminders on the phone › In the morning.':
     'Von selbst an, sobald Erinnerungen aufs Handy an sind; ausschalten unter Ich › Erinnerungen aufs Handy › Am Morgen.',

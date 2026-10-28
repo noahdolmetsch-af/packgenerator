@@ -339,7 +339,9 @@ export function chooseKit(kits = [], c, offset = 0) {
   const list = tempKits(kits);
   if (!list.length || c == null) return null;
   const f = felt(c, offset);
-  const fit = list.filter((k) => kitFits(k, c, offset)).sort((a, b) => hi(a) - hi(b) || lo(a) - lo(b));
+  // Kleider-Sets (27.10.2026): your own kits come before the sample sets of the app (wearpresets.js).
+  const own = (k) => (k.preset ? 1 : 0);
+  const fit = list.filter((k) => kitFits(k, c, offset)).sort((a, b) => own(a) - own(b) || hi(a) - hi(b) || lo(a) - lo(b));
   if (fit.length) return fit[0];
   const dist = (k) => (f < lo(k) ? lo(k) - f : f - hi(k));
   return [...list].sort((a, b) => dist(a) - dist(b) || hi(a) - hi(b))[0];
@@ -526,6 +528,11 @@ export function outfitFor(forecast, items = [], { date, start = 8, hours = 2, of
   const c = felt(cold.c, offset);
   const wet = isWet(trip) || day?.rain === 'rain' || day?.rain === 'showers';
   const own = items.filter((i) => isInventory(i) && isClothing(i) && !everydayOnly(i));
+  return { c, real: cold.c, hour: cold.hour ?? null, from: cold.from, wet, pct: rainChance(trip), rows: onionRows(own, c, wet) };
+}
+
+/** The rows the onion needs at a felt temperature (the legs always), each with the best fitting piece of own. */
+export function onionRows(own = [], c, wet = false) {
   const rows = [];
   for (const row of ONION) {
     if (!row.need(c, wet) && row.key !== 'legs') continue;
@@ -533,7 +540,7 @@ export function outfitFor(forecast, items = [], { date, start = 8, hours = 2, of
     const fits = own.filter((i) => matchesRow(row, i) && warmEnough(i, c) && (!rain || rainProof(i)));
     rows.push({ key: row.key, name: row.name, item: best(fits, c), rain });
   }
-  return { c, real: cold.c, hour: cold.hour ?? null, from: cold.from, wet, pct: rainChance(trip), rows };
+  return rows;
 }
 
 /**
