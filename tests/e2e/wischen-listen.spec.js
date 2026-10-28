@@ -1,7 +1,7 @@
 // B13 «Wischen in Listen» (Noah 27.10.2026 «4a»): the same swipe in every list. Notizen on the phone:
 // right pins a note, left puts it into the trash; each with Undo. The computer shows no swipe actions.
 // Fictional data only.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import DE from '../../src/lib/i18n/de/index.js';
 import { prep, storedNote } from './notes-helpers.js';
 import { ready } from './settle.js';
