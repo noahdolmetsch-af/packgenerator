@@ -2,7 +2,7 @@
 // «Abgleich einschalten» on one device, the pairing link on the other, and the question when both
 // changed the same entry (3b). Two browser contexts are two devices; the server is the real handler
 // (api/sync.js) with a fake Redis in this test. Fictional fixture data only.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';

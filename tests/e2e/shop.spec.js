@@ -2,7 +2,7 @@
 // and a thing by post, looks at the shop link as a buyer and orders with TWINT; the orders page
 // fetches orders from the (faked) server, marks paid and sent. German, no sideways scrolling.
 // Fictional data only: the IBAN is the public sample QR-IBAN of the Swiss standard.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { tr } from './home0460-fixture.js';
 import { ready } from './settle.js';
 import { put } from './aktiv-fixture.js';

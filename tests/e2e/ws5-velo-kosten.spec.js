@@ -3,7 +3,7 @@
 // Strava row («verbinden: neue Fahrten kommen von selbst») leads to the Strava page.
 // Fictional data only (test_data_gtp_ names), built from tests/e2e/pf-fixture.json.
 // SHOTS=<folder> saves the screenshots (1440 and 390, light).
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';

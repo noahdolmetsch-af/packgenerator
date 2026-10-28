@@ -3,7 +3,7 @@
 // 1. «…» of an own group › «Umbenennen»: the heading and the document change; «Rückgängig» takes it back.
 // 2. The default «Importierte PDF» can be renamed (only «Umbenennen», no «Löschen»).
 // 3. «…» › «Löschen» asks once, keeps the document (back in the default group); «Rückgängig» restores.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import DE from '../../src/lib/i18n/de/index.js';
 import { v048File } from './v048-fixture.js';
 import { openData, settle } from './settle.js';

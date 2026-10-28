@@ -2,7 +2,7 @@
 // asked once and stays on the device, a new invoice shows TWINT and the payment part, «PDF teilen»
 // makes a PDF, the list marks paid by amount («Geld erhalten») and opens again. German, no sideways
 // scrolling. Fictional data only: the IBAN is the public sample QR-IBAN of the Swiss standard.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { tr } from './home0460-fixture.js';
 import { ready } from './settle.js';
 import { put } from './aktiv-fixture.js';
