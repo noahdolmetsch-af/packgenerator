@@ -41,6 +41,7 @@ export const HOME = {
   'f.minidate': '#/me/mini', // Mini-Tools (Noah 28.10.2026)
   'f.minipoll': '#/me/mini',
   'f.minilist': '#/me/mini',
+  'f.miniinvite': '#/me/mini',
   'f.inputbar': '#/tagebuch',
   'f.inputtemplates': '#/tagebuch',
   'f.picturecard': '#/tagebuch/:entry',
