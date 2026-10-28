@@ -1,6 +1,6 @@
 // «332 sichtbar», Frage 1 (Noah 27.10.2026 «c»): a tap on a function in «What the app can do» goes to its
 // spot (src/lib/know/spot.js) and lights it up, also when it sits inside a window or a fold.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { start, tr } from './gesamttest/lib.js';
@@ -37,6 +37,8 @@ test('a tap in the catalogue lights up the spot of the function', async ({ page,
       missing.push(`${id}: no spot lit up on ${page.url().split('#')[1]}`);
     }
     await page.keyboard.press('Escape');
+    // a window that opened steps back in history a moment after closing; the next address must wait for it
+    await expect.poll(() => page.evaluate(() => history.state?.pgDialog ?? null)).toBeNull();
   }
   expect(missing).toEqual([]);
 });

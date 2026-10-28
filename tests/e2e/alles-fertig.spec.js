@@ -1,7 +1,7 @@
 // «Alles fertig» (Noah 24.10.2026 «1a 2b 3a 4a»): the leftovers of the older threads. Heute on an empty device
 // stays short and leads to the weather page; the logbook takes an own entry; a bike's «…» opens the sale listing.
 // German, fictional data only (v0.77.0 fixture), no internet.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import DE from '../../src/lib/i18n/de/index.js';
 import { v0770File } from './v0770-fixture.js';
 import { openData, settle } from './settle.js';

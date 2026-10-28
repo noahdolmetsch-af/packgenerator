@@ -10,12 +10,17 @@
 #   GitHub has no priority, so every extra job waited again behind all pull request tests.
 # - the full browser tests on the computer and the Gesamttest run after going online and every night
 #   (.github/workflows/volle-pruefung.yml); a red one opens an issue, Claude repairs, «zurück» stays possible.
+# Noah 28.10.2026 «1a»: the phone browser tests of a pull request run only after his approval (a tap on
+# «Freigeben», or «ok N»). Claude then puts the label «ok» on the PR; that starts «e2e (phone)», and Claude
+# merges when it is green. Before the ok a PR runs only build + unit tests and the Wächter on the computer, so PRs that are still changing leave the test
+# computers free. A push after the label runs everything again.
 name: Build and deploy
 
 on:
   push:
     branches: [main]
   pull_request:
+    types: [opened, synchronize, reopened, labeled]
   workflow_dispatch:
 
 permissions:
@@ -24,14 +29,16 @@ permissions:
   id-token: write
 
 concurrency:
-  group: pages-${{ github.ref }}
+  # the label «ok» starts its own run (only the phone tests), so it never cancels the running build check;
+  # any other label lands in a group of its own and runs nothing
+  group: pages-${{ github.ref }}${{ github.event.action == 'labeled' && format('-{0}', github.event.label.name) || '' }}
   # a new push to a pull request replaces its old check; on main a running publish always finishes
   cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 jobs:
   # The check «build» of a pull request (the branch rule asks for it).
   build:
-    if: github.ref != 'refs/heads/main'
+    if: github.ref != 'refs/heads/main' && github.event.action != 'labeled'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -45,10 +52,12 @@ jobs:
       - run: npm test
       - run: npm run build
 
-  # Phone browser tests in five parts at the same time (about 13 minutes). Only on pull requests: they ran
-  # here already before the merge, so main does not wait for them again.
+  # Phone browser tests in five parts at the same time (about 13 minutes). Only on pull requests with the
+  # label «ok» (Noah's ok, see above): they ran here already before the merge, so main does not wait again.
   e2e-part:
-    if: github.event_name == 'pull_request'
+    if: >-
+      github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'ok') &&
+      (github.event.action != 'labeled' || github.event.label.name == 'ok')
     runs-on: ubuntu-latest
     # 45 since 22.10.2026: on slow runners the parts passed every test but hit 30 min (#238).
     timeout-minutes: 45
@@ -85,9 +94,12 @@ jobs:
 
   # The branch rule asks for the checks «e2e (phone)» and «e2e (desktop)».
   # «e2e (phone)» is green only when all five phone parts passed (a skipped job would count as green).
+  # Without the label it does not run: the PR waits for Noah's ok, and Claude merges only after this ran green.
   e2e-phone:
     name: e2e (phone)
-    if: always() && github.event_name == 'pull_request'
+    if: >-
+      always() && github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'ok') &&
+      (github.event.action != 'labeled' || github.event.label.name == 'ok')
     needs: [e2e-part]
     runs-on: ubuntu-latest
     steps:
@@ -97,7 +109,7 @@ jobs:
   # words, one page title). The other computer tests run after going online and every night.
   e2e-desktop:
     name: e2e (desktop)
-    if: github.event_name == 'pull_request'
+    if: github.event_name == 'pull_request' && github.event.action != 'labeled'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     container:

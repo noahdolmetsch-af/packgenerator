@@ -3,7 +3,7 @@
 // Fictional v048 fixture plus a trip on the Gravel with bags, own links and one log entry.
 // Taschen-Setups (14.10.2026): the tab is «Mein Setup», the photo card «Fotos», the bag setups come
 // first and the weight card shows the last used setup (here «Standard», its places from the trip).
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { writeFileSync } from 'node:fs';
 import { v048Data, P, GRAVEL, day } from './v048-fixture.js';
 import { openData, settle } from './settle.js';

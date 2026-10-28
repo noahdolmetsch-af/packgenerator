@@ -3,7 +3,7 @@
 // page without the app (BU2, BU3); Heute shows «Neue Buchung» (BU4, 9a) and the offer shows who
 // comes; Noah cancels the time and gets the person to write to. The server is the real
 // api/booking.js with a Redis in memory (tests/booking-fake.js); names and numbers are fictional.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { tr } from './home0460-fixture.js';
 import { ready } from './settle.js';
 import { makeHandler } from '../../api/booking.js';

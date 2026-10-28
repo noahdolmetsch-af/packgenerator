@@ -3,7 +3,7 @@
 // - Velopflege 2: no «Woanders» row under a due row: Park Tool and the workshop booking are in its «…»,
 //   the booking link is entered once under «Mehr»;
 // - Velos 1: «Werkstatt» and «Velos vergleichen» are no default tiles, they wait under «Kachel hinzufügen».
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { start, view } from './gesamttest/lib.js';
 import de from '../../src/lib/i18n/de/index.js';
 
