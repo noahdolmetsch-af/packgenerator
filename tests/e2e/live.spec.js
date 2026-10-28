@@ -5,7 +5,7 @@
 // tour: the stops around you (Overpass answered by the test). Every outside request is mocked or
 // blocked (openHome); no sideways scroll on phone and desktop.
 import { test, expect } from './clock.js';
-import { openHome } from './home0460-fixture.js';
+import { openHome, homeFixture } from './home0460-fixture.js';
 
 // the sample route as the app stored it (settings 'races'); km scaled like race.js lineKm
 async function routeOf(page) {
@@ -242,4 +242,44 @@ test('Live map: after a reload in the middle of a ride, it goes on by itself', a
   await tap(page.locator('[data-live-resumed-full] button'), info);
   await expect(page.locator('[data-live-resumed-full]')).toBeHidden();
   await noSideways(page, 'resumed');
+});
+
+// Noah 28.10.2026 «wenn ich eine neue leere Tour starte, ohne GPX … ist immer noch ein altes Dings hinterlegt»
+// (answer a «Ohne Route starten»): a GPX opened on the live map counts only for the ride it was opened for.
+// A trip without a route starts without one; the last GPX is offered and, loaded, belongs to that trip.
+test('Live map: a trip without a route starts without the old GPX, which is only offered', async ({ page, context }, info) => {
+  const data = homeFixture();
+  const line = Array.from({ length: 41 }, (_, i) => [46.93 + i * 0.002, 7.43 + i * 0.002]);
+  data.tables.settings.push({ key: 'live-route', value: { name: 'test_data_gtp_ Alte Runde', line, km: 21 } });
+  const trip = data.tables.trips.find((t) => !(t.route?.line?.length > 1));
+  expect(trip).toBeTruthy();
+  await openHome(page, context, info, { data });
+  await page.goto(`./#/live/${trip.id}`);
+  const box = page.locator('[data-live-route]');
+  await expect(box).toBeVisible();
+  // no route: the old GPX is only offered
+  await expect(box.locator('[data-live-route-rename]')).toHaveCount(0);
+  await expect(box.locator('[data-live-route-last]')).toContainText('test_data_gtp_ Alte Runde');
+  await box.scrollIntoViewIfNeeded();
+  await page.screenshot({ path: info.outputPath('gpx-angebot.png') });
+  await tap(box.locator('[data-live-route-reuse]'), info);
+  await expect(box.locator('[data-live-route-rename]')).toBeVisible();
+  await expect(box.locator('[data-live-route-last]')).toHaveCount(0);
+  const forTrip = await page.evaluate(
+    () =>
+      new Promise((resolve, reject) => {
+        const req = indexedDB.open('pack-generator');
+        req.onerror = () => reject(req.error);
+        req.onsuccess = () => {
+          const g = req.result.transaction('settings').objectStore('settings').get('live-route');
+          g.onsuccess = () => resolve(g.result?.value?.forTrip ?? null);
+          g.onerror = () => reject(g.error);
+        };
+      }),
+  );
+  expect(forTrip).toBe(trip.id);
+  // a ride without a trip now starts without it, and gets the offer
+  await page.goto('./#/live');
+  await expect(page.locator('[data-live-route] [data-live-route-last]')).toBeVisible();
+  await expect(page.locator('[data-live-route] [data-live-route-rename]')).toHaveCount(0);
 });

@@ -37,6 +37,8 @@ test('a tap in the catalogue lights up the spot of the function', async ({ page,
       missing.push(`${id}: no spot lit up on ${page.url().split('#')[1]}`);
     }
     await page.keyboard.press('Escape');
+    // a window that opened steps back in history a moment after closing; the next address must wait for it
+    await expect.poll(() => page.evaluate(() => history.state?.pgDialog ?? null)).toBeNull();
   }
   expect(missing).toEqual([]);
 });
