@@ -1759,6 +1759,11 @@ export default {
   'Example: say «note brake squeaks» → the note is in the Inbox. If the microphone stops, the words so far stay in the field.': 'Beispiel: Sag «Notiz Bremse quietscht» → die Notiz ist im Eingang. Stoppt das Mikrofon, bleiben die Wörter bisher im Feld.',
   'Example: IMG_0042.HEIC → IMG_0042.jpg for the online form; velo.jpg as JPG → velo-umgewandelt.jpg, the old one stays.': 'Beispiel: IMG_0042.HEIC → IMG_0042.jpg für das Online-Formular; velo.jpg als JPG → velo-umgewandelt.jpg, das alte bleibt.',
   'Example: «Wo sehe ich die Lawinengefahr?» → Alerts and news. «Kette» finds Material and a bike → «Do you mean Gear or Bikes?».': 'Beispiel: «Wo sehe ich die Lawinengefahr?» → Hinweise und News. «Kette» findet Material und ein Velo → «Meinst du Material oder Velos?».',
+  // Velo-Idee 76: Werkstatt-Runden
+  'Bikes › Care › a bike › «Workshop rounds».': 'Velos › Pflege › ein Velo › «Werkstatt-Runden».',
+  'Add a suggestion or your own round: jobs, tools, material.': 'Nimm einen Vorschlag oder mach deine eigene Runde: Arbeiten, Werkzeug, Material.',
+  '«Start the round», tick what you did, «Done»: the jobs with a part go into the part.': '«Runde starten», abhaken, was du gemacht hast, «Fertig»: Die Arbeiten mit Teil kommen ins Teil.',
+  'Example: «Autumn service» with 5 jobs; chain and brake pads ticked → both recorded today.': 'Beispiel: «Herbst-Service» mit 5 Arbeiten; Kette und Bremsbeläge abgehakt → beide heute eingetragen.',
   // «App verstehen» (Noah 26.10.2026)
   'Open Me › Understand the app.': 'Öffne Ich › App verstehen.',
   'Open a lesson, read it and do the exercise.': 'Öffne eine Lektion, lies sie und mach die Übung.',
@@ -1902,4 +1907,10 @@ export default {
     'Die Runde passt zu deinem eigenen Tempo; «Jetzt nicht» blendet das Fenster aus.',
   'Example: Thursday 17:00–19:00 free and dry → «A round of about 35 km?»':
     'Beispiel: Donnerstag 17:00–19:00 frei und trocken → «Eine Runde von etwa 35 km?»',
+  // «Träume und Neuland» N5
+  'Counts from New ground: your routes, rides and own ticks.': 'Zählt aus Neuland: deine Routen, Fahrten und eigenen Haken.',
+  'Open Trips › Dreams › Challenges with an end.': 'Öffne Touren › Träume › Herausforderungen mit Ende.',
+  'Tap a ready one or «Own challenge»: collection, new ones or all, until when.': 'Tippe eine fertige an oder «Eigene Herausforderung»: Sammlung, neue oder alle, bis wann.',
+  'The bar fills by itself; tap the pencil to change or delete it.': 'Der Balken füllt sich von selbst; mit dem Stift änderst oder löschst du sie.',
+  'Example: «5 new municipalities this month» → 2 of 5 · 12 days left.': 'Beispiel: «5 neue Gemeinden diesen Monat» → 2 von 5 · noch 12 Tage.',
 };

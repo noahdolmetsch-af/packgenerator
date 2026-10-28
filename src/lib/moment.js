@@ -89,7 +89,7 @@ export function loopOf(key) {
 export const FEATURE_MOMENTS = {
   // Lust und Ideen
   lust: [
-    'dayride', 'f.quickstart', 'f.inspiration', 'f.skiseason', 'f.dreams', 'f.whitespots', 'f.races',
+    'dayride', 'f.quickstart', 'f.inspiration', 'f.skiseason', 'f.dreams', 'f.whitespots', 'f.nlgoals', 'f.races',
     'f.ownbingo', 'f.impulse', 'f.compass', 'f.freeslot',
   ],
   // Tour planen
@@ -136,7 +136,7 @@ export const FEATURE_MOMENTS = {
     'f.garmin', 'f.problem', 'f.workshop', 'f.equipment', 'f.bikecompare', 'f.folder', 'f.breakin',
     'f.repairkit', 'f.warranty', 'f.theft', 'f.partstart', 'f.prep', 'f.skiequipment', 'f.bikeservice',
     'f.parttemplate', 'f.spick', 'f.partwear', 'f.wetchain', 'f.chainmeasure', 'f.bikeyear', 'f.bikeseason',
-    'f.noises', 'f.carestreak', 'f.wearcal', 'f.wearphotos', 'f.sellbike', 'f.bikebox', 'f.sparestock',
+    'f.noises', 'f.carestreak', 'f.wearcal', 'f.wearphotos', 'f.sellbike', 'f.bikebox', 'f.sparestock', 'f.workshoprounds',
     'f.brandkm', 'f.springservice', 'f.chainrotation', 'f.velofaq', 'f.setupphotos', 'f.inspect', 'f.measure',
     'f.gears', 'f.level', 'f.sitpos', 'f.pros', 'f.table', 'f.lend',
   ],
