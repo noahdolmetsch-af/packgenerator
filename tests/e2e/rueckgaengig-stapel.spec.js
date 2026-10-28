@@ -1,6 +1,6 @@
 // B22 «Rückgängig gleitet» (Noah 27.10.2026 «1a 2a 3a 4a 5a»): two deletes in a row, both notes stay with
 // their own Undo (before, the second note replaced the first and the first learning could not come back).
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';

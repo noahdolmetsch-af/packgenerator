@@ -1,7 +1,7 @@
 // Paket A «Ehrlicher Stand im Alltag» part 1 (Noah 24.10.2026, 996 Ideen; 25.10 «mit A anfangen»): a to-do waits on
 // something (Merken › «Wartet»), an own list ends without ticking every point, a goal ends as reached, changed or let
 // go. Fictional data only (test_data_gtp_), the clock on Friday 9 October 2026 (home0460-fixture.js).
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { openHome, homeFixture, tr, day } from './home0460-fixture.js';
 
 const T = tr('de');

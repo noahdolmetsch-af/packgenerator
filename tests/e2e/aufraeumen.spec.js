@@ -2,7 +2,7 @@
 // archives the test trip and test gear with Undo; a trip ended before its start date asks before a
 // debrief and comes back with «Wieder planen»; Ich › Ausprobieren starts the playground, and ending
 // it puts the data back. Fictional fixture (test_data_gtp_), German UI, nothing leaves the preview.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';

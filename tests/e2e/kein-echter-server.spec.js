@@ -1,6 +1,6 @@
 // 27.10.2026 (thread «Weg von gebaut zu online»): browser tests never reach the real server packgen
 // (NO_REAL_SERVER in playwright.config.js). Its free daily cap belongs to the real app, not to the tests.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 
 const ask = (page, url) =>
   page.evaluate(async (u) => {
