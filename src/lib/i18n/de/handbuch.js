@@ -533,6 +533,12 @@ export default {
   'Needs a dream planned as a trip, and the debrief of that trip.': 'Braucht einen als Tour geplanten Traum und den Rückblick dieser Tour.',
   'Plan a dream as a trip (Trips › Dreams › the dream › «Plan the tour»).': 'Plane einen Traum als Tour (Touren › Träume › der Traum › «Tour planen»).',
   'After the trip, finish its debrief.': 'Schliess nach der Tour ihren Rückblick ab.',
+  // «Träume und Neuland» N6
+  'Needs your home place and places to sleep (rated after a trip or marked on the map).': 'Braucht deinen Wohnort und Schlafplätze (nach einer Tour bewertet oder auf der Karte gesetzt).',
+  'Open Trips › Dreams: «After-work bivouac» names the next evening.': 'Öffne Touren › Träume: «Feierabend-Biwak» nennt den nächsten Abend.',
+  'Tap «Plan it» at a place to sleep: a two-day trip with the bivouac building block.': 'Tippe bei einem Schlafplatz «Einplanen»: eine Tour über zwei Tage mit dem Baustein Biwak.',
+  'Under «Change evening, times, distance» set your own evening.': 'Unter «Abend, Zeiten, Distanz ändern» stellst du deinen eigenen Abend ein.',
+  'Example: Fri 31 Oct 17:30 off · Sat 9:00 back · forest clearing 12 km, about 50 min.': 'Beispiel: Fr 31. Okt. 17:30 los · Sa 9:00 zurück · Waldlichtung 12 km, etwa 50 Min.',
   // «Träume und Neuland» N8
   'Pass opening is the usual months, not live.': 'Die Pass-Öffnung sind die üblichen Monate, nicht live.',
   'Open Trips › Dreams: «Fits now» shows the ideas of this month.': 'Öffne Touren › Träume: «Passt jetzt» zeigt die Ideen dieses Monats.',
