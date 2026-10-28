@@ -1997,3 +1997,8 @@ Noah 19.10.2026: «1a 2a 3a 4 a oder b beides wählbar 5a», danach «a und b»,
 ## 27.10.2026 Diagramme zeigen genaue Werte
 
 - Noah: «die Diagramme sollen für den Nutzer exakte Daten repräsentieren und nicht nur Schätzungen anhand ungenauer Skalen am Rand … und überall sonst auf der Webseite». Regel für jedes Diagramm: (1) eine Achse mit runden, beschrifteten Stufen und Einheit plus feinen Gitterlinien, nicht nur min/max am Rand; (2) beim Antippen oder Darüberfahren der genaue Wert mit Datum; (3) bei bis zu 12 Punkten steht die Zahl direkt am Punkt oder an der Säule. Gemeinsamer Baustein: `src/lib/charts/` (axis.js, GridLines.svelte, YTicks.svelte), keine eigene Achse pro Seite.
+
+
+## 27.10.2026 Gewohnheiten oben auf Heute
+
+- Noah «1a 2a und b 3b»: die Karte oben auf Heute zeigt nicht mehr fest die Meditation, sondern bis zu drei gewählte Gewohnheiten (Aktivitäten aus Aktiv und Punkte aus «Das tut mir gut»); gewählt mit dem Stift auf der Karte und unter «Startseite anpassen». Ohne Wahl bleibt es die Meditation.
