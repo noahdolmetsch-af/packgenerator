@@ -2,7 +2,7 @@
 // Calculator, units, currencies (the rate server is answered by the test), time zones (add, rename, delete
 // with Undo), trip costs (a person, an expense, who owes whom), PDF (two made-up photos become one PDF),
 // photos (smaller), and the links also under Ich › Dokumente.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { viaTab } from './placetab.js';
 import { ready } from './settle.js';
 import DE from '../../src/lib/i18n/de/index.js';

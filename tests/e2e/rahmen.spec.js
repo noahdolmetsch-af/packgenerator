@@ -4,7 +4,7 @@
 // folded with Standard, own templates and two examples as buttons, the weather from a start postcode
 // (Open-Meteo, answered here by page.route), the event with its hint, the list in four groups and the
 // button counting the bag items only. Fictional data only (test_data_gtp_), German UI.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';

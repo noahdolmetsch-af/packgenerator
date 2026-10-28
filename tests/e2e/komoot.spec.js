@@ -10,7 +10,7 @@
 // Fictional data only (test_data_gtp_), generic komoot links, the clock on Friday 9 October 2026 09:00,
 // every outside address blocked (komoot answered by the test). SHOTS=<folder>: screenshots 1440 and 390.
 // The test names stay plain: their output folder holds the imported file (home0460-fixture.js openHome).
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { openHome, homeFixture, tr, trip, day, D0 } from './home0460-fixture.js';
 import { makeGpx } from '../test_data_gtp_gpx.js';
