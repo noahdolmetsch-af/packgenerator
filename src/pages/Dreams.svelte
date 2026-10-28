@@ -39,6 +39,7 @@
   import SunTip from '../lib/dreams/SunTip.svelte'; // N9 «Sonnenaufgang auf dem Hügel»
   import DiceCard from '../lib/dreams/DiceCard.svelte'; // N19 «Abenteuer-Würfel»
   import MonthAdventureCard from '../lib/dreams/MonthAdventureCard.svelte'; // N12 «Ein Abenteuer im Monat»
+  import MoreDreams from '../lib/dreams/MoreDreams.svelte'; // «Träume an einem Ort»: Kompass and Reise-Wünsche link here
   import { nightFields } from '../lib/context.js';
   import { linkIn, readLink, withLink, distText } from '../lib/dreams/fromlink.js'; // N13 «Ein Link wird ein Traum»
   import { fulfilledDreams } from '../lib/dreams/erfuellt.js'; // N17 «Erfüllte Träume»
@@ -111,6 +112,16 @@
     plan = { kind: 'biwak', name, start: day, days: 2, note: [t('Off {start}, back {back}', { start: cfg.start, back: cfg.back }), where].filter(Boolean).join(' · ') };
   }
   // N8: a month idea becomes a dream with its months
+  // «Träume an einem Ort»: a dream from the Kompass box becomes a dream tour here (Undo takes it out again)
+  async function compassDream(text) {
+    const d = newDream({ title: text }, { id: `dream-${Date.now().toString(36)}`, kinds });
+    await save({ dreams: [d, ...store.dreams] });
+    return d.id;
+  }
+  const dropDream = async (id) => {
+    const cur = storeOf((await db.settings.get(DREAMS_KEY))?.value);
+    await save({ dreams: cur.dreams.filter((x) => x.id !== id) });
+  };
   async function ideaDream({ title: name, months }) {
     const d = { ...newDream({ title: name }, { id: `dream-${Date.now().toString(36)}`, kinds }), months: [...months] };
     await save({ dreams: [d, ...store.dreams] });
@@ -289,6 +300,7 @@
 
   {#if view !== 'map'}
   <MonthAdventureCard />
+  <MoreDreams onmove={compassDream} ondrop={dropDream} />
   <MonthIdeas month={month || nowMonth} current={!month || month === nowMonth} onmakedream={ideaDream} />
   <BiwakCard onplan={biwakPlan} />
   <TrainHome />
