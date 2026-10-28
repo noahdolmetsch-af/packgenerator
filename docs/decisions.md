@@ -1921,6 +1921,7 @@ Noah 19.10.2026: «1a 2a 3a 4 a oder b beides wählbar 5a», danach «a und b»,
 - 26.10.2026: **0.204.0 «Eine kleine Überraschung»** = 996 Einzelideen Heute Nr. 1, 2, 4, 5, 6, 7, 8 (Noah 26.10 «1-8 alle so bauen» nach den Bildern). Selbst entschieden: jede Idee erweitert eine bestehende Funktion (Schnellstart, Wetter, Abend-Tour, Kette bei Nässe, Frühlingsservice, Erststart, «Stimmt das noch?»), darum keine neue Lücke im Katalog; die Überraschungsrunde fragt BRouter nur auf Tipp, nie im Hintergrund; «bekannt» = eigene Tour-Routenpunkte bis 80 km um den Wohnort, in acht Himmelsrichtungen; Standzeit ab 42 Tagen ohne Fahrt, Check bleibt bis 14 Tage nach der ersten Fahrt; die Nässe-Erinnerung nur am ersten nassen Tag einer Serie; ohne «Aktiv und Alltag» nimmt der Erststart die unbenutzten Start-Aktivitäten weg wie «Leer starten».
 
 - 26.10.2026: **0.202.0 «Planen im Zusammenhang»** (Einzelideen Planen 12, 13, 14). Noah 26.10. 01:04 «nur bei grösseren Sachen» Mockup zuerst: 10 Pflanzenpass, 11+16 Vorgänge im Eingang (neue Seiten) und 15 Erinnerungskarte (neues Fenster) kommen zuerst als Mockup; Entwurf liegt im Projektordner notes/einzelideen-planen/. Selbst entschieden: Erinnerung nach Ereignis als eigenes Feld `note.after` (die Zeit-Erinnerung und ihre Handy-Nachricht bleiben unberührt); Ereignisse «nächste Tour» (am Tag nach dem letzten Tourtag) und «nächster Werkstattbesuch» (Besuche, die beim Setzen schon da sind, zählen nicht); Bedeutung nur auf der Notiz, die die Verbindung hält; Wasneu-Versionen der drei erweiterten Funktionen bleiben (es sind Erweiterungen, keine neuen Funktionen). **Nachtrag 26.10.2026 01:42:** Noah «1a 2a 3a 4a 5a» auf die Mockups (Offene Mockups 3): Pflanzenpass als eigene Seite (#/calendar/pflanzen), Vorgänge als eigene Seite (#/inbox/vorgaenge, eine Gruppe in GROUP_PLACES), doppelter Eingang mit «Zusammenführen» (legt beide in einen Vorgang, Rückgängig), Erinnerungskarte mit Ton bis 1 Minute, Seite «Notizen im Zusammenhang» (#/notes/zusammenhang). Selbst entschieden: «Zusammenführen» löscht nie einen Eintrag; der Pflanzen-Hinweis zählt nur Beobachtungen, nicht Umzüge, und ändert nie den Giess-Rhythmus.
+- 27.10.2026: Nachträge Planen (Noah «1b 2b 3a»): Pflanzen-Hinweis mit Knopf für den Giess-Rhythmus (mit Rückgängig); Vorgangs-Vorschläge auch für Fotos und Notizen der letzten 90 Tage; Erinnerungskarte bleibt nur in der App.
 
 ### Nachtrag 26.10.2026: Arbeitsweise und Pipeline (Doku-Abgleich)
 
@@ -1944,6 +1945,7 @@ Noah 19.10.2026: «1a 2a 3a 4 a oder b beides wählbar 5a», danach «a und b»,
 - 27.10.2026: **Tages-Check «Heute nicht»** (Noah «1a»): am Morgen schliesst «Heute nicht» und ✕ nur bis zum Abend-Check; am Abend bis morgen. Version 0.226.0.
 - 27.10.2026: **Touren b Katalog** (Bündler): SINCE der Touren-b-Funktionen = 0.212.0 (dort live geworden); Version 0.231.0.
 - 27.10.2026: **Keine Seitenlänge mehr im Handy-Test** (Noah 26.10.2026 20:31 «keine anforderung an eine länge der seite»): handy-kurz prüft nicht mehr «höchstens drei Bildschirme»; die Kurz-Listen (fünf Zeilen, dann «mehr») bleiben.
+- 27.10.2026: **Längenbudget weg** (gleiche Entscheidung, Noah 26.10.2026 20:31): `src/lib/laenge.js`, `tests/laenge.test.js` und `tests/e2e/handy-laenge.spec.js` sind entfernt; sie verlangten höchstens drei Bildschirme bzw. die Zahl in TOO_LONG. `MAX_SCREENS` in `src/lib/touren/kurz.js` bleibt für die Kurz-Listen.
 
 ## 26.10.2026 Live Navigation
 
@@ -1958,3 +1960,26 @@ Noah 19.10.2026: «1a 2a 3a 4 a oder b beides wählbar 5a», danach «a und b»,
 - Noah 27.10.2026 Suchvorschläge «1a 2a 3a 4a»: Situations-Knöpfe ganz oben bei «In der Nähe», neue Arten unter «Weitere Arten», Automaten aus OpenStreetMap, auf Live-Karte und Tour-Seite. Schlafplatz finden ohne Regel-Hinweis («ohne hinweis»). Umweg und zurück «1a 2b 3a»: nach dem Halt immer fragen (Renn-Modus: zurück an die Ausstiegsstelle vorgewählt), neben der Strecke sofort selbst neu berechnen, dazu Sport-/Outdoorgeschäft, Feuerstelle und Handy laden.
 - Noah 27.10.2026 01:15: Freigabe für alle Mockups (M8 neu, N1–N3, R1–R4); dazu «Gleichen Weg zurück» auf der eigenen Spur, wenn man von der Strecke abkommt.
 - 26.10.2026: **Neuer Schwung PR 1** (Noah «1a 2a 3a 4a 5a + 5b»: Stil S2 «Kacheln mit Tiefe», Handy-Bereiche zu ausser «Jetzt», «Startseite anpassen» als Zeile unten, Bewegung überall dezent, kleine Bausteine plus Lottie). PR 1 nur die Zeile unten; Aufklappen wartet auf «Heute ruhiger» Teil 3. Vorschläge: https://claude.ai/artifact/8qMe2aMYPgj93cpRHEQRXv
+- Noah 27.10.2026 15:17 (Einzelideen Ich, Übersicht): «1a 2b 3a» = letzte Werkzeug-Ergebnisse bleiben nur auf dem Gerät; Vorschläge nach Art nur noch unter Ich › Ruhig und persönlich › Ausgeblendet und aus (Darstellung verlinkt dorthin); Dokumente-Test unabhängig von der Uhrzeit machen.
+
+## 26.–27.10.2026 Tour-Detailseite übersichtlicher
+
+- 26.10.2026: Plan in 3 Stufen (auf einen Blick, verstehen, Details eingeklappt), Noah «1a 2a 3a 4a 5b»: Schalter «Alles auf einer Seite / Einzeln» bleibt, Strava-/Garmin-Ansicht eingeklappt, eine Teilstrecken-Tabelle mit Umschalter, neue Karte «Das zeichnet diese Tour aus». Danach «so lassen … nur als geplant».
+- 27.10.2026, Noah «1a 2b 3a»: die zwei kleinen Fehler jetzt beheben (Gesamtzeit lesbar, Sprungleiste), den Plan später in 2 Schritten bauen, den Plan in `docs/vorhaben-liste.md` eintragen.
+
+## 27.10.2026 App denkt mit (13 Ideen)
+
+- 27.10.2026, Noah «ich möchte alle umsetzen 1a 2a 3a 4a 5a»: alle 13 Ideen der Seite «Die App denkt mit» bauen, als kleine PRs mit Bildern, Reihenfolge A Heute denkt mit → B Körper und Planung → C Velo, Wetter, Material → D Ein Helfer, der alles kennt.
+- 2a: Die App darf aus Fitbit-Werten beim Planen eine kürzere Variante **anbieten**, nur als Angebot, mit den Werten daneben, ohne Bewertung.
+- 3a: Die Erinnerungen um 08:00 kommen gebündelt um 07:00; Warnungen bleiben einzeln.
+- 4a: «Frag die App» über alle Bereiche nur mit Gratis-KI (Chrome am Computer, Gemini über den eigenen Server).
+
+## 27.10.2026 Weg von gebaut zu online
+
+- Noah «1a 2a 3a 4a 5a»: Schnellspur nach dem Merge (main geht nach Bauen und Kurztests online, volle Browsertests und Gesamttest danach in `volle-pruefung.yml` und nachts, rot = GitHub-Meldung); pro PR nur Handy-Browsertests plus Wächter am Computer; den Stau vom 27.10. abends durch Abbrechen wartender PR-Läufe lösen; Vercel-Vorschauen («packgenerator») von GitHub trennen; nach jedem Online-Gehen ein automatischer Eintrag auf GitHub. Grund: ein Prüflauf brauchte 18 der 20 Gratis-Prüf-Computer, gemergte PRs warteten bis 2 Stunden. Analyse: https://claude.ai/artifact/42o5ciwHWYuFXTWx6cZrGb
+
+- 27.10.2026: **Neuer Schwung Teil 2** (Noah «4a» Bewegung überall dezent): zuerst Heute. Selbst entschieden: nur Deckkraft, clip-path und SVG-Strich bewegen sich, nie transform, damit keine Box springt und Tests und Tippen nicht warten müssen; Lottie kommt als eigener kleiner PR (2b).
+- 27.10.2026: **Neuer Schwung 2b** (Noah «5b» Lottie für grosse Momente). Selbst entschieden: lottie-web light (MIT, gratis) statt dotlottie (grosses wasm); eine eigene, selbst gezeichnete Animation statt einer heruntergeladenen (keine Lizenzfrage); Farben über CSS, damit jede Farbpalette passt. Noah 27.10.2026 «bei 2b ist die animation viel zu schnell»: 24 statt 60 Bilder pro Sekunde, Kreis und Haken zusammen etwa 1,3 Sekunden.
+## 27.10.2026 Diagramme zeigen genaue Werte
+
+- Noah: «die Diagramme sollen für den Nutzer exakte Daten repräsentieren und nicht nur Schätzungen anhand ungenauer Skalen am Rand … und überall sonst auf der Webseite». Regel für jedes Diagramm: (1) eine Achse mit runden, beschrifteten Stufen und Einheit plus feinen Gitterlinien, nicht nur min/max am Rand; (2) beim Antippen oder Darüberfahren der genaue Wert mit Datum; (3) bei bis zu 12 Punkten steht die Zahl direkt am Punkt oder an der Säule. Gemeinsamer Baustein: `src/lib/charts/` (axis.js, GridLines.svelte, YTicks.svelte), keine eigene Achse pro Seite.

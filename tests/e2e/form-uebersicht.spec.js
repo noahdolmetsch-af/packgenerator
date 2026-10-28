@@ -145,6 +145,64 @@ test('the page «Form»: what counts, 12 weeks, tour readiness', async ({ page, 
   expect(errors).toEqual([]);
 });
 
+// «Diagramme zum Antippen» K1 (Noah 27.10.2026 «1-5 a»): «Verlauf» has axes, the exact day on pointing, a
+// window behind a tap, the span switch, the parts on and off and «Als Tabelle». Fictional data.
+test('the page «Form»: Verlauf with axes, exact numbers, the day behind a tap', async ({ page, context }, info) => {
+  const errors = await open(page, context);
+  await go(page, '#/flow/form');
+  const ch = page.locator('[data-chart="formweeks"]');
+  await expect(ch).toBeVisible();
+  // three axes (lines, form, resting pulse), each with at least three round labels; lines from 0
+  const axes = ch.locator('[data-yticks]');
+  await expect(axes).toHaveCount(3);
+  for (let i = 0; i < 3; i++) expect(await axes.nth(i).locator('span').count()).toBeGreaterThanOrEqual(3);
+  await expect(axes.first().locator('span').first()).toHaveText('0');
+  await expect(ch.locator('[data-normal]')).toHaveCount(1);
+  if (process.env.SHOTS) await page.locator('[data-form-curve]').screenshot({ path: `${process.env.SHOTS}/verlauf-12wo-${info.project.name === 'phone' ? 390 : 1440}.png` });
+  // at least three dates under the chart, the last is today
+  expect(await ch.locator('[data-xdates] span').count()).toBeGreaterThanOrEqual(3);
+  await expect(ch.locator('[data-xdates] span').last()).toHaveText(T('today'));
+  // the line above shows today; keyboard: Home is the first day, Enter opens it
+  await expect(ch.locator('[data-readout]')).toContainText(T('today'));
+  const plot = ch.locator('[data-plot]');
+  expect(Number(await plot.getAttribute('data-n'))).toBe(84);
+  await plot.focus();
+  await page.keyboard.press('End');
+  await page.keyboard.press('ArrowLeft');
+  await expect(ch.locator('[data-readout]')).not.toContainText(T('today'));
+  await page.keyboard.press('Enter');
+  const sheet = page.locator('[data-chart-sheet]');
+  await expect(sheet).toBeVisible();
+  await expect(sheet.locator('[data-sheet-vals] div')).toHaveCount(5);
+  await expect(sheet.locator('[data-sheet-acts] li')).toContainText(`${P}lauf`);
+  if (process.env.SHOTS) await page.screenshot({ path: `${process.env.SHOTS}/verlauf-tag-${info.project.name === 'phone' ? 390 : 1440}.png` });
+  await sheet.getByRole('button', { name: T('Next day') }).click();
+  await expect(sheet.locator('[data-sheet-acts] li')).toContainText(`${P}heute`);
+  await expect(sheet.getByRole('button', { name: T('Next day') })).toBeDisabled();
+  await page.keyboard.press('Escape');
+  await expect(sheet).toHaveCount(0);
+  // a tap on the chart opens a day too
+  const pa = ch.locator('.pa');
+  await pa.scrollIntoViewIfNeeded();
+  const b = await pa.boundingBox();
+  await page.mouse.click(b.x + b.width * 0.5, b.y + b.height * 0.5);
+  await expect(sheet).toBeVisible();
+  await sheet.getByRole('button', { name: T('Close') }).click();
+  // hide the resting pulse: its axis goes; 4 weeks: 28 days
+  await ch.locator('[data-layer="rhr"]').click();
+  await expect(ch.locator('[data-layer="rhr"]')).toHaveAttribute('aria-pressed', 'false');
+  await expect(axes).toHaveCount(2);
+  await ch.getByRole('button', { name: T('4 wk|span') }).click();
+  await expect(plot).toHaveAttribute('data-n', '28');
+  if (process.env.SHOTS) await ch.screenshot({ path: `${process.env.SHOTS}/verlauf-${info.project.name === 'phone' ? 390 : 1440}.png` });
+  // «Als Tabelle»: the days as rows
+  await ch.getByRole('button', { name: T('As table') }).click();
+  await expect(ch.locator('[data-chart-table]')).toBeVisible();
+  expect(await ch.locator('[data-chart-table] tbody tr').count()).toBeGreaterThan(5);
+  await fits(page, 'Verlauf');
+  expect(errors).toEqual([]);
+});
+
 test('Körperwerte: groups, tabs, own entries', async ({ page, context }) => {
   const errors = await open(page, context);
   await go(page, '#/flow/stats/hr');

@@ -25,7 +25,7 @@
    */
   import { untrack, tick } from 'svelte';
   import { liveQuery } from 'dexie';
-  import { CloudRain, Route, Play, Square, Crosshair, MapPin, Navigation, Mountain, Clock, Settings, BatteryMedium, CloudLightning, TriangleAlert, RefreshCw, Utensils, Moon, Flag, LifeBuoy, Ellipsis, Minimize2, Maximize2, SlidersHorizontal, Check, X, Layers, Camera, WifiOff } from '@lucide/svelte';
+  import { CloudRain, Route, Play, Square, Crosshair, MapPin, Navigation, Mountain, Clock, Settings, BatteryMedium, CloudLightning, TriangleAlert, RefreshCw, Utensils, Moon, Flag, LifeBuoy, Ellipsis, ChevronLeft, ChevronRight, Minimize2, Maximize2, SlidersHorizontal, Check, X, Layers, Camera, WifiOff } from '@lucide/svelte';
   import KindIcon from '../lib/map/KindIcon.svelte';
   import { DURING_RIDE } from '../lib/live/during.js';
   import { FEATURES } from '../lib/features.js';
@@ -505,7 +505,7 @@
     if (rec.on) rideStep();
     if (!rec.on || !me) return;
     // on a data page the map is not moved (Stromsparen 2a: no drawing while you do not see it)
-    if (follow && viewSet && dpIndex === 0) mapView?.keep?.(me.lat, me.lon, sheetPx);
+    if (follow && viewSet && dpIndex === 0) mapView?.keep?.(me.lat, me.lon, padB);
     // the turn ahead (Abbiege-Hinweise): its voice first, before the stops and climbs
     const ts = cfg.turns && cfg.turnVoice && turnNext ? turnSay(turnNext, turnNext.distM, said) : null;
     if (ts) {
@@ -629,7 +629,7 @@
     saveDetour(d);
     if (fit && d?.line?.length > 1) {
       follow = false;
-      mapView?.fitLine?.(d.line.map(([a, b]) => [a, b]), sheetPx);
+      mapView?.fitLine?.(d.line.map(([a, b]) => [a, b]), padB);
     }
   };
   // back on the route past the rejoin point (or at the place): the detour has done its job
@@ -711,7 +711,7 @@
   });
   const recenter = () => {
     follow = true;
-    if (me) mapView?.centerOn?.(me.lat, me.lon, 14, sheetPx);
+    if (me) mapView?.centerOn?.(me.lat, me.lon, 14, padB);
   };
 
   /* ---------- the full-screen map (Paket U3 neu) ---------- */
@@ -746,8 +746,8 @@
       await new Promise((r) => setTimeout(r, 400)); // the map needs its first frame
       if (viewSet || !mapView) return;
       viewSet = true;
-      if (hasRoute && km != null) mapView.fitLine?.(aheadLine(pts, km, 20), sheetPx);
-      else mapView.centerOn?.(me.lat, me.lon, 14, sheetPx);
+      if (hasRoute && km != null) mapView.fitLine?.(aheadLine(pts, km, 20), padB);
+      else mapView.centerOn?.(me.lat, me.lon, 14, padB);
     });
   });
   $effect(() => {
@@ -849,12 +849,47 @@
   /* the bottom sheet: three heights, drag the handle or tap it */
   let stageH = $state(700);
   let stageW = $state(400);
+  /* «Karte frei» (M13, Noah 27.10.2026): on the computer the numbers are a small box over the map */
+  let bandH = $state(0);
   const snaps = $derived(sheetSnaps(stageH));
   let snap = $state('peek');
   let dragH = $state(null);
   const sheetPx = $derived(Math.min(stageH, dragH ?? snaps[snap]));
+  /* «Karte frei» part 2 (M13b): on the computer the panel is «Alles» at the right, open or hidden; the app remembers it */
+  const DESK_MQ = '(min-width: 900px) and (min-height: 561px)';
+  const ALL_KEY = 'pg-live-all';
+  let desk = $state(typeof matchMedia === 'function' && matchMedia(DESK_MQ).matches);
+  $effect(() => {
+    if (typeof matchMedia !== 'function') return;
+    const mq = matchMedia(DESK_MQ);
+    const on = () => (desk = mq.matches);
+    mq.addEventListener?.('change', on);
+    return () => mq.removeEventListener?.('change', on);
+  });
+  $effect(() => {
+    if (!desk) return;
+    untrack(() => {
+      try {
+        if (localStorage.getItem(ALL_KEY) === 'open') snap = 'full';
+      } catch {
+        /* no storage: starts hidden */
+      }
+    });
+  });
+  $effect(() => {
+    if (!desk) return;
+    const open = snap !== 'peek';
+    try {
+      localStorage.setItem(ALL_KEY, open ? 'open' : 'hidden');
+    } catch {
+      /* no storage: not remembered */
+    }
+  });
+  /* what the map and the buttons keep free at the bottom: the sheet on the phone, nothing on the computer */
+  const padB = $derived(desk ? 0 : sheetPx);
   let drag = null;
   function sheetDown(e) {
+    if (desk) return;
     drag = { y: e.clientY, h: sheetPx, moved: false };
     e.currentTarget.setPointerCapture?.(e.pointerId);
   }
@@ -865,6 +900,10 @@
     if (drag.moved) dragH = Math.max(snaps.peek - 40, Math.min(snaps.full + 20, drag.h - dy));
   }
   function sheetUp() {
+    if (desk) {
+      snap = snap === 'peek' ? 'full' : 'peek';
+      return;
+    }
     if (!drag) return;
     if (drag.moved && dragH != null) snap = nearestSnap(dragH, snaps);
     else snap = snap === 'peek' ? 'half' : snap === 'half' ? 'full' : 'peek';
@@ -1050,10 +1089,10 @@
 
 {#if rec.on}
   <!-- the full view while riding -->
-  <div class="lvf" class:lvf-hidden={!full} role="region" aria-label={t('Live map')} onpointerdowncapture={() => (touchedAt = Date.now())} data-live-full>
+  <div class="lvf" class:lvf-hidden={!full} class:lvf-onpage={dpIndex > 0} class:lvf-all={desk && snap !== 'peek'} style:--lvf-box-h="{bandH}px" role="region" aria-label={t('Live map')} onpointerdowncapture={() => (touchedAt = Date.now())} data-live-full>
     {#if dimmed}<div class="lvf-dim" aria-hidden="true" data-live-dim></div>{/if}
-    <!-- the big numbers -->
-    <div class="lvf-band" data-live-panel>
+    <!-- the numbers: a band on the phone, a small box over the map on the computer -->
+    <div class="lvf-band" bind:clientHeight={bandH} data-live-panel>
       <ul class="lvf-tiles n{tiles.length}">
         {#each tiles as k (k)}
           <li data-live-tile={k} data-live-km={k === 'done' ? '' : undefined} data-live-left={k === 'left' ? '' : undefined}>
@@ -1065,7 +1104,7 @@
       <button type="button" class="lvf-ic" onclick={() => ((choose = true), openSheet('full'))} aria-label={t('Choose numbers')} data-live-choose><SlidersHorizontal size={20} aria-hidden="true" /></button>
     </div>
 
-    <div class="lvf-stage" bind:clientHeight={stageH} bind:clientWidth={stageW} style:--dp-pad="{(stageW >= 900 ? 0 : sheetPx) + DP_BUTTONS}px">
+    <div class="lvf-stage" bind:clientHeight={stageH} bind:clientWidth={stageW} style:--dp-pad="{padB + DP_BUTTONS}px">
       <DataPages barTop set={dpSet} fields={dpFields} values={dpValues} {series} {profileAhead} route={hasRoute} bind:index={dpIndex} onedit={(pid) => ((dpEdit = pid), (dpOpen = true), openSheet('full'))}>
         {#snippet map()}
           <MapView
@@ -1103,7 +1142,7 @@
         {#if !me}<p class="lvf-alert" role="status">{t('Waiting for the GPS …')}</p>{/if}
         {#if goalTapping}<p class="lvf-alert" role="status" data-live-goal-hint><Flag size={18} aria-hidden="true" /><span>{t('Tap the map where you want to go.')}</span> <button type="button" class="btn sm" onclick={() => (goalTapping = false)}>{t('Cancel')}</button></p>{/if}
         {#if resumed}<p class="lvf-alert" role="status" data-live-resumed-full><RefreshCw size={18} aria-hidden="true" /><span>{t('The app had loaded anew: your ride goes on.')}</span> <button type="button" class="btn sm" onclick={() => (resumed = false)}>{t('OK')}</button></p>{/if}
-        {#if offWarn}<p class="lvf-alert lvf-bad" role="alert" data-live-offroute><TriangleAlert size={18} aria-hidden="true" /><span>{t('Off the route: {m} m away.', { m: at?.offM })}</span></p>{/if}
+        {#if offWarn}<p class="lvf-alert lvf-bad" role="alert" data-live-offroute><TriangleAlert size={18} aria-hidden="true" /><span>{at?.offM >= 1000 ? t('Off the route: {d} km away.', { d: fmtKm(at.offM / 1000) }) : t('Off the route: {m} m away.', { m: at?.offM })}</span></p>{/if}
         {#if storm}<p class="lvf-alert lvf-bad" role="alert" data-live-storm><CloudLightning size={18} aria-hidden="true" /><span>{storm.km != null ? t('Thunderstorm possible around km {km} from {at}.', { km: storm.km, at: hhmm(storm.at) }) : t('Thunderstorm possible here from {at}.', { at: hhmm(storm.at) })}</span></p>{/if}
         {#if cfg.eatHm && eatGain >= 300}<p class="lvf-alert" role="alert"><Utensils size={18} aria-hidden="true" /><span>{t('{m} m up since you last ate: time to eat.', { m: eatGain })}</span> <button type="button" class="btn sm" onclick={ateNow}>{t('Eaten')}</button></p>{/if}
         {#if msg}<p class="lvf-alert lvf-bad" role="alert">{msg}</p>{/if}
@@ -1147,16 +1186,16 @@
         {#if limitMsg}<p class="lvf-alert lvf-bad" role="alert" data-live-limit><TriangleAlert size={18} aria-hidden="true" /><span>{limitMsg}</span></p>{/if}
       </div>
 
-      {#if !rec.paused}<button type="button" class="lvf-lap" style:bottom="{sheetPx + 12}px" onclick={newLap} aria-label={t('New lap')} data-live-lap><Flag size={20} aria-hidden="true" /><small>{lap?.n ?? 1}</small></button>{/if}
-      <PauseBar paused={rec.paused} auto={rec.auto} {standing} movingS={movingLive} pausedS={pausedLive} limit={autoKmh} bottom={sheetPx + 12} onpause={() => pauseNow(false)} onresume={goOn} onstop={stop} />
-      <button type="button" class="lvf-ic lvf-photo" class:lvf-hidden={snap === 'full' || dpIndex > 0} onclick={() => (place = true)} style:bottom="{sheetPx + 70}px" aria-label={t('Photo or note with the place')} data-live-photo><Camera size={22} aria-hidden="true" /></button>
+      {#if !rec.paused}<button type="button" class="lvf-lap" style:bottom="{padB + 12}px" onclick={newLap} aria-label={t('New lap')} data-live-lap><Flag size={20} aria-hidden="true" /><small>{lap?.n ?? 1}</small></button>{/if}
+      <PauseBar paused={rec.paused} auto={rec.auto} {standing} movingS={movingLive} pausedS={pausedLive} limit={autoKmh} bottom={padB + 12} onpause={() => pauseNow(false)} onresume={goOn} onstop={stop} />
+      <button type="button" class="lvf-ic lvf-photo" class:lvf-hidden={snap === 'full' || dpIndex > 0} onclick={() => (place = true)} style:bottom="{padB + 70}px" aria-label={t('Photo or note with the place')} data-live-photo><Camera size={22} aria-hidden="true" /></button>
 
       <!-- Versteckte Funktionen (Noah 22.10.2026): the emergency window one tap away, not only in «⋯» -->
-      <button type="button" class="lvf-ic lvf-sosq" class:lvf-hidden={snap === 'full' || dpIndex > 0} onclick={() => (sos = true)} style:bottom="{sheetPx + 126}px" aria-label={t('Emergency')} data-live-sos-quick><LifeBuoy size={22} aria-hidden="true" /></button>
+      <button type="button" class="lvf-ic lvf-sosq" class:lvf-hidden={snap === 'full' || dpIndex > 0} onclick={() => (sos = true)} style:bottom="{padB + 126}px" aria-label={t('Emergency')} data-live-sos-quick><LifeBuoy size={22} aria-hidden="true" /></button>
       <!-- «In der Nähe» (Suchvorschläge): the place window one tap away -->
-      <button type="button" class="lvf-nearbtn" class:lvf-hidden={snap === 'full' || dpIndex > 0} aria-expanded={nearOpen} onclick={() => (nearOpen ? closeNear() : openNear())} style:bottom="{sheetPx + 238}px" data-live-near-btn><MapPin size={18} aria-hidden="true" />{t('Nearby')}</button>
+      <button type="button" class="lvf-nearbtn" class:lvf-hidden={snap === 'full' || dpIndex > 0} aria-expanded={nearOpen} onclick={() => (nearOpen ? closeNear() : openNear())} style:bottom="{padB + 238}px" data-live-near-btn><MapPin size={18} aria-hidden="true" />{t('Nearby')}</button>
       <!-- «Ziel wählen»: tap the button, then the spot on the map (the long press still works) -->
-      <button type="button" class="lvf-ic lvf-goal" class:lvf-hidden={snap === 'full' || dpIndex > 0} aria-pressed={goalTapping} onclick={() => ((goalTapping = !goalTapping), goalTapping && (snap = 'peek'))} style:bottom="{sheetPx + 182}px" aria-label={t('Choose a goal')} title={t('Choose a goal')} data-live-goal><Flag size={22} aria-hidden="true" /></button>
+      <button type="button" class="lvf-ic lvf-goal" class:lvf-hidden={snap === 'full' || dpIndex > 0} aria-pressed={goalTapping} onclick={() => ((goalTapping = !goalTapping), goalTapping && (snap = 'peek'))} style:bottom="{padB + 182}px" aria-label={t('Choose a goal')} title={t('Choose a goal')} data-live-goal><Flag size={22} aria-hidden="true" /></button>
       <!-- the «⋯» menu -->
       <button type="button" class="lvf-ic lvf-menu-btn" aria-expanded={menu} aria-haspopup="true" onclick={() => (menu = !menu)} aria-label={t('More')} data-live-menu><Ellipsis size={22} aria-hidden="true" /></button>
       {#if menu}
@@ -1192,24 +1231,33 @@
               <OfflineBox line={route?.line ?? []} name={routeName} tripId={tid || null} reserve={trip ? reserveOf(trip) : null} />
             </details>
           {/if}
+          <!-- «Während der Fahrt» also during the ride (Noah 27.10.2026 «1a») -->
+          <details class="lvf-fold lv-during" data-live-menu-during>
+            <summary>{t('During the ride')}</summary>
+            <ul>
+              {#each DURING_RIDE as x (x.id)}<li><b>{t(FEATURE_TITLE[x.id])}</b><span>{t(x.sub)}</span></li>{/each}
+            </ul>
+          </details>
           <button type="button" class="btn" onclick={() => ((menu = false), (small = true))} data-live-minimize><Minimize2 size={18} aria-hidden="true" />{t('Leave the full view')}</button>
           <p class="rc-note">{t('The ride goes on; «Back to the live map» brings this view back.')}</p>
         </div>
       {/if}
 
-      <button type="button" class="lvf-ic lvf-follow" class:lvf-hidden={snap === 'full' || dpIndex > 0} aria-pressed={follow} onclick={() => (follow ? (follow = false) : recenter())} style:bottom="{sheetPx + 12}px" aria-label={follow ? t('Map follows you') : t('Follow me')} data-live-follow><Crosshair size={22} aria-hidden="true" /></button>
+      <button type="button" class="lvf-ic lvf-follow" class:lvf-hidden={snap === 'full' || dpIndex > 0} aria-pressed={follow} onclick={() => (follow ? (follow = false) : recenter())} style:bottom="{padB + 12}px" aria-label={follow ? t('Map follows you') : t('Follow me')} data-live-follow><Crosshair size={22} aria-hidden="true" /></button>
 
       <!-- the bottom sheet -->
-      <section class="lvf-sheet" class:lvf-dragging={dragH != null} style:height="{sheetPx}px" aria-label={t('Ahead of you')} data-live-sheet={snap}>
+      <section class="lvf-sheet" class:lvf-dragging={dragH != null} style:height={desk ? null : `${sheetPx}px`} aria-label={desk ? t('Everything') : t('Ahead of you')} data-live-sheet={snap}>
         <button
           type="button"
           class="lvf-handle"
-          aria-label={snap === 'full' ? t('Pull the panel down') : t('Pull the panel up')}
+          aria-label={desk ? (snap === 'peek' ? t('Show everything') : t('Hide everything')) : snap === 'full' ? t('Pull the panel down') : t('Pull the panel up')}
+          aria-expanded={desk ? snap !== 'peek' : undefined}
           onpointerdown={sheetDown}
           onpointermove={sheetMove}
           onpointerup={sheetUp}
           onpointercancel={sheetUp}
-          data-live-sheet-toggle><span aria-hidden="true"></span></button
+          data-live-sheet-toggle
+          >{#if desk}{#if snap === 'peek'}<ChevronLeft size={18} aria-hidden="true" />{t('Everything')}{:else}{t('Hide')}<ChevronRight size={18} aria-hidden="true" />{/if}{:else}<span aria-hidden="true"></span>{/if}</button
         >
         <!-- a tap or a key inside the pulled-down sheet pulls it up -->
         <div class="lvf-body" class:lvf-scroll={snap !== 'peek'} onfocusin={() => snap === 'peek' && (snap = 'full')}>
@@ -1480,7 +1528,7 @@
   {#if poiPicked}
     <div data-live-poi-detail><PoiDetail place={poiPicked} from={me} line={route?.line ?? null} profile={route?.profile ?? null} ongo={goTo} onclose={() => (poiPicked = null)} /></div>
   {/if}
-  <PoiPanel bind:this={poiPanel} canTap ongo={goTo} ontapmode={(v) => ((poiTapping = v), v && (closeNear(), (snap = 'peek')))} center={me ? { lat: me.lat, lon: me.lon } : null} bounds={mapBounds} line={route?.line ?? null} profile={route?.profile ?? null} tripId={trip?.id ?? null} onpoints={(l) => (poiPoints = l ?? [])} />
+  <PoiPanel bind:this={poiPanel} title={false} canTap ongo={goTo} ontapmode={(v) => ((poiTapping = v), v && (closeNear(), (snap = 'peek')))} center={me ? { lat: me.lat, lon: me.lon } : null} bounds={mapBounds} line={route?.line ?? null} profile={route?.profile ?? null} tripId={trip?.id ?? null} onpoints={(l) => (poiPoints = l ?? [])} />
 </dialog>
 {#if reroute}<RerouteSheet here={me} pts={hasRoute ? pts : []} {km} {pois} {own} {picked} onplan={setDetour} onclose={() => ((reroute = false), (picked = null))} />{/if}
 {#if sos}<SosSheet here={me} {km} {routeName} {pois} onclose={() => (sos = false)} />{/if}
@@ -2191,8 +2239,107 @@
       width: 440px;
       border-radius: 16px 16px 0 0;
     }
+  }
+  @media (min-width: 900px) and (min-height: 561px) {
+    /* «Karte frei»: the map takes the whole screen, the numbers are a small box at the top left */
+    .lvf {
+      grid-template-rows: minmax(0, 1fr);
+    }
+    .lvf-band {
+      position: absolute;
+      top: calc(12px + env(safe-area-inset-top));
+      left: 12px;
+      z-index: 5;
+      width: min(480px, 38vw);
+      padding: 8px 6px 8px 12px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-card);
+      box-shadow: 0 2px 10px var(--shadow);
+    }
+    .lvf-stage {
+      grid-row: 1;
+    }
+    /* on a data page the page shows the numbers itself */
+    .lvf-onpage .lvf-band {
+      display: none;
+    }
     .lvf-tiles b {
-      font-size: var(--fs-display);
+      font-size: var(--fs-section);
+    }
+    /* the page dots float as a small bar at the top in the middle */
+    .lvf :global(.dps-top) {
+      position: absolute;
+      top: 12px;
+      left: 50%;
+      z-index: 4;
+      transform: translateX(-50%);
+      padding: 0 4px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      box-shadow: 0 1px 4px var(--shadow);
+    }
+    .lvf:not(.lvf-onpage) :global(.maplibregl-ctrl-top-left) {
+      top: calc(var(--lvf-box-h) + 12px);
+    }
+    .lvf:not(.lvf-onpage) .lvf-alerts {
+      top: 64px;
+      left: calc(min(480px, 38vw) + 24px);
+    }
+    .lvf-menu-btn,
+    .lvf-menu {
+      top: 12px;
+    }
+    .lvf-onpage .lvf-alerts {
+      top: 64px;
+    }
+    /* «Alles» (M13b): the panel stands at the right over the whole height; hidden, only its tab shows */
+    .lvf-sheet {
+      top: 0;
+      bottom: 0;
+      left: auto;
+      right: 0;
+      width: 400px;
+      max-width: 40vw;
+      border-radius: 0;
+      border-left: 1px solid var(--line);
+      box-shadow: -6px 0 24px var(--shadow);
+      transition: transform 0.2s var(--ease-drawer);
+    }
+    .lvf-sheet[data-live-sheet='peek'] {
+      transform: translateX(100%);
+      box-shadow: none;
+    }
+    .lvf-handle {
+      position: absolute;
+      top: 50%;
+      right: 100%;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      width: auto;
+      min-height: 44px;
+      padding: 10px 8px;
+      border: 1px solid var(--line);
+      border-right: 0;
+      border-radius: 12px 0 0 12px;
+      background: var(--paper);
+      box-shadow: -2px 0 8px var(--shadow);
+      color: var(--ink);
+      font: 600 var(--fs-small) / 1 var(--font-body);
+      transform: translateY(-50%);
+      white-space: nowrap;
+      cursor: pointer;
+    }
+    .lvf-body {
+      padding-top: 12px;
+      overflow-y: auto;
+    }
+    .lvf-all .lvf-menu-btn,
+    .lvf-all .lvf-menu {
+      right: calc(min(400px, 40vw) + 8px);
+    }
+    .lvf-all .lvf-alerts {
+      right: calc(min(400px, 40vw) + 60px);
     }
   }
   /* sideways on the handlebar: the map left, the numbers right */
