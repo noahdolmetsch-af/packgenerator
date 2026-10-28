@@ -4,10 +4,10 @@ export default {
   title: 'Your picture for every sport',
   lead: 'Every sport page can carry a photo, and the next goal is in sight again.',
   points: [
-    { text: 'A cover photo for every sport, or its colour and symbol', href: '#/flow/sports' },
-    { text: '«Next goal» on top of My sports', href: '#/flow/sports' },
+    { text: 'A cover photo for every sport, or its colour and symbol', href: '#/flow/sports', go: 'f.sportpage' },
+    { text: '«Next goal» on top of My sports', href: '#/flow/sports', go: 'f.sportpage' },
   ],
-  small: [{ box: 'nicer', text: 'Milestones on a phone: the long parts wait folded' }],
+  small: [{ box: 'nicer', text: 'Milestones on a phone: the long parts wait folded', go: 'f.milestones' }],
   test: [
     'Open Auswerten › Meine Sportarten: on top stands «Nächstes Ziel» with a bar; tap it, the sport page opens.',
     'On a sport page tap the camera at the top and pick a photo; «Ohne Bild» brings back colour and symbol, with Undo.',

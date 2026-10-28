@@ -50,7 +50,7 @@
   import { readUpdate, readMute } from '../lib/know/wasneuStore.js';
   import { helper, isSetUp, isPaused, noCredit } from '../lib/helper/client.svelte.js';
   import { testDataState } from '../lib/testdatadb.js';
-  import { PLAY_WISH } from '../lib/play.js';
+  import { PLAY_WISH, DAYS } from '../lib/play.js';
   import { take } from '../lib/nav.js';
   import { movedHint } from '../lib/visitprefill.js';
   import { localDay } from '../lib/localday.js';
@@ -112,9 +112,15 @@
   });
   const testQ = liveQuery(() => testDataState(db));
   let tidyOpen = $state(false);
-  let playOpen = $state(take(PLAY_WISH) === '1');
+  // «Ausprobieren» (Noah 27.10.2026 «4a»): the wish may name the day of the example trip (play.js DAYS)
+  const playWish = (v) => (DAYS.includes(v) ? v : v ? 'today' : null);
+  let playDayWish = $state(playWish(take(PLAY_WISH)));
+  let playOpen = $state(!!playDayWish);
   $effect(() => {
-    const onPlay = () => take(PLAY_WISH) && (playOpen = true);
+    const onPlay = () => {
+      const d = playWish(take(PLAY_WISH));
+      if (d) (playDayWish = d), (playOpen = true);
+    };
     window.addEventListener('pg:play', onPlay);
     return () => window.removeEventListener('pg:play', onPlay);
   });
@@ -458,7 +464,7 @@
 
   <PageMore page="me" name={t('Me|place')} />
   {#if tidyOpen}<TestDataSheet onclose={() => (tidyOpen = false)} />{/if}
-  {#if playOpen}<PlaySheet running={!!$waitQ?.demo} onclose={() => (playOpen = false)} />{/if}
+  {#if playOpen}<PlaySheet running={!!$waitQ?.demo} day={playDayWish ?? 'today'} onclose={() => ((playOpen = false), (playDayWish = null))} />{/if}
   {#if placeOpen}<HomePlaceSheet current={$waitQ?.home || null} onclose={() => (placeOpen = false)} />{/if}
 </div>
 
