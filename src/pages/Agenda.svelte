@@ -241,7 +241,7 @@
 
       {#if p.calendar}
         <section class="ich-sec" aria-labelledby="ev-h">
-          <div class="ich-h">
+          <div class="ich-h evh">
             <div><h2 id="ev-h">{t('Appointments')}</h2><p class="ich-hs">{view === 'week' ? t('Week {n}', { n: isoWeek(first) }) : t('the next 14 days')}</p></div>
             <div class="vbtns">
               <div class="chips" role="group" aria-label={t('View|calendar')}>
@@ -619,6 +619,12 @@
   }
   .ich-cols.wide {
     grid-template-columns: minmax(0, 1fr);
+  }
+  .evh {
+    flex-wrap: wrap;
+  }
+  .evh > div:first-child {
+    flex: 1 1 9rem;
   }
   .vbtns {
     display: flex;
