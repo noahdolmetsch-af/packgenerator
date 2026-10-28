@@ -1,6 +1,6 @@
 # Zahlen mit Zeitraum
 
-PR #? · 27.10.2026 · Auftrag: Noah 26.10.2026 20:31 «1a» alle B-Fehler aus dem UI-Test 0.205 (Thread «Testen komplette App mit Fehlerliste»)
+PR #394 · 27.10.2026 · Auftrag: Noah 26.10.2026 20:31 «1a» alle B-Fehler aus dem UI-Test 0.205 (Thread «Testen komplette App mit Fehlerliste»)
 
 ## Was ist neu
 - Der Kopf von Touren (pages/Trips.svelte) sagt «{n} geplant · {n} gefahren in 12 Monaten · {n} warten auf deinen Rückblick» statt «in 12 Monaten: … abgeschlossen · … bewertet».
