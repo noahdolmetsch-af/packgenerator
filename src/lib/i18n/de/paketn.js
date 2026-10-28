@@ -465,4 +465,17 @@ export default {
   'Open Trips › Dreams and scroll to «Train there, bike home».': 'Öffne Touren › Träume und scrolle zu «Zug hin, Velo heim».',
   'Choose how far you want to ride home.': 'Wähle, wie weit du heimfahren willst.',
   'Tap «Trains and the way home» at a place.': 'Tippe bei einem Ort «Züge und Heimweg».',
+  // «Träume und Neuland» N9 «Sonnenaufgang auf dem Hügel»
+  'Sunrise on the hill': 'Sonnenaufgang auf dem Hügel',
+  'The next clear morning and evening, with when to leave.': 'Der nächste klare Morgen und Abend, mit der Zeit zum Losfahren.',
+  'Clear morning {day}: sunrise {at}': 'Klarer Morgen {day}: Sonnenaufgang {at}',
+  'Clear evening {day}: sunset {at}': 'Klarer Abend {day}: Sonnenuntergang {at}',
+  'Leave {at} for {name} ({km} km)': 'Los um {at} zu {name} ({km} km)',
+  'Leave {at} for a hill nearby': 'Los um {at} auf einen Hügel in der Nähe',
+  'No clear morning or evening in the forecast yet.': 'In der Prognose noch kein klarer Morgen oder Abend.',
+  'Mark a «View» point on the map near home, then the tip names it.': 'Setze auf der Karte einen Punkt «Aussicht» nahe bei zu Hause, dann nennt ihn der Tipp.',
+  'The next clear sunrise and sunset near home, with when to leave for your view point.': 'Der nächste klare Sonnenaufgang und -untergang nahe bei zu Hause, mit der Zeit zum Losfahren zu deinem Aussichtspunkt.',
+  'Open Trips › Dreams and scroll to «Sunrise on the hill».': 'Öffne Touren › Träume und scrolle zu «Sonnenaufgang auf dem Hügel».',
+  'Read the next clear morning or evening.': 'Lies den nächsten klaren Morgen oder Abend.',
+  'Mark a «View» point on the map: the tip names it.': 'Setze auf der Karte einen Punkt «Aussicht»: der Tipp nennt ihn.',
 };

@@ -36,6 +36,7 @@
   import MonthIdeas from '../lib/dreams/MonthIdeas.svelte'; // N8 «Passt jetzt: Ideen pro Monat»
   import BiwakCard from '../lib/dreams/BiwakCard.svelte'; // N6 «Feierabend-Biwak»
   import TrainHome from '../lib/neuland/TrainHome.svelte'; // N7 «Zug hin, Velo heim»
+  import SunTip from '../lib/dreams/SunTip.svelte'; // N9 «Sonnenaufgang auf dem Hügel»
   import { nightFields } from '../lib/context.js';
   import { linkIn, readLink, withLink, distText } from '../lib/dreams/fromlink.js'; // N13 «Ein Link wird ein Traum»
   import { fulfilledDreams } from '../lib/dreams/erfuellt.js'; // N17 «Erfüllte Träume»
@@ -288,6 +289,7 @@
   <MonthIdeas month={month || nowMonth} current={!month || month === nowMonth} onmakedream={ideaDream} />
   <BiwakCard onplan={biwakPlan} />
   <TrainHome />
+  <SunTip />
   {/if}
 
   {#if view === 'list'}
