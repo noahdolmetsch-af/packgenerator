@@ -107,15 +107,15 @@
         <li class="pn-q" data-pn-q={i}>
           <div class="pn-qh">
             <SortGrip name={label(q, i)} onstep={(dir) => move(i, i + dir)} />
-            <b class="pn-n">{i + 1}</b>
-            <label class="pn-type"><span class="sr">{t('Kind of question')}</span>
-              <select bind:value={q.type} data-pn-type>
-                {#each TYPES as x (x.key)}<option value={x.key}>{t(x.label)}</option>{/each}
-              </select>
-            </label>
+            <b class="pn-n">{t('Question {n}', { n: i + 1 })}</b>
             <SortArrows name={label(q, i)} {i} n={qs.length} onstep={(dir) => move(i, i + dir)} />
             <button type="button" class="pn-x" aria-label={t('Remove {name}', { name: label(q, i) })} onclick={() => (qs = qs.filter((x) => x.uid !== q.uid))} data-pn-del><X size={16} aria-hidden="true" /></button>
           </div>
+          <label class="pn-type"><span class="sr">{t('Kind of question')}</span>
+            <select bind:value={q.type} data-pn-type>
+              {#each TYPES as x (x.key)}<option value={x.key}>{t(x.label)}</option>{/each}
+            </select>
+          </label>
           <label class="pn-fld"><span class="sr">{t('Question {n}', { n: i + 1 })}</span><input type="text" bind:value={q.text} maxlength="140" placeholder={t('Your question')} data-pn-text /></label>
           {#if hasOpts(q.type)}
             <ul class="pn-opts">
@@ -240,13 +240,11 @@
     gap: var(--sp-2);
   }
   .pn-n {
-    flex: none;
-    width: 24px;
-    text-align: center;
-  }
-  .pn-type {
     flex: 1;
     min-width: 0;
+  }
+  .pn-type {
+    display: block;
   }
   .pn-type select {
     width: 100%;

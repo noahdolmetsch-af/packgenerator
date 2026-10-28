@@ -53,13 +53,22 @@ describe('counting and summary', () => {
   });
   it('writes one sentence per question', () => {
     const s = summarize(countPoll(poll, rows), T);
-    expect(s[0]).toBe('Wohin?: most chose «Schwarzwald» (2 of 3).');
-    expect(s[2]).toBe('Wie lang?: on average 3.7 of 5.');
-    expect(s[3]).toBe('Mit Zug?: 1 yes, 1 no.');
+    expect(s[0]).toBe('Wohin: most chose «Schwarzwald» (2 of 3).');
+    expect(s[2]).toBe('Wie lang: on average 3.7 of 5.');
+    expect(s[3]).toBe('Mit Zug: 1 yes, 1 no.');
     expect(s[4]).toContain('«essen»');
     expect(summarize(countPoll(poll, []), T)).toEqual([]);
   });
   it('frequent words need two people', () => {
     expect(frequentWords(['Velo Velo Velo'])).toEqual([]);
+  });
+});
+
+describe('summary lines', () => {
+  it('start with the question without its scale note and closing marks', async () => {
+    const { lead } = await import('../src/lib/mini/poll.js');
+    expect(lead('Wie lang darf ein Tag sein? (1 kurz, 5 lang)')).toBe('Wie lang darf ein Tag sein');
+    expect(lead('Wohin gehen wir?')).toBe('Wohin gehen wir');
+    expect(lead('Budget')).toBe('Budget');
   });
 });

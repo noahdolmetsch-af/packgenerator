@@ -80,7 +80,7 @@ export function cleanPollAnswer({ name = '', r = {} }, poll) {
 export const answered = (q, r) => r?.[q.id] !== undefined;
 
 const STOP = new Set(
-  'und oder aber auch nicht kein keine ein eine einen einem einer der die das den dem des ist sind war wäre mit ohne für von vom zum zur auf aus bei im in an am es ich du er sie wir ihr man mir mich dir dich uns euch mehr sehr so wie was wenn dass da noch nur schon gut gern gerne mal ja nein the a an and or but not no of to in on at for with is are was be it i you we they my our very more just too'.split(' '),
+  'und oder aber auch nicht kein keine ein eine einen einem einer der die das den dem des ist sind war wäre mit ohne für von vom zum zur auf aus bei im in an am es ich du er sie wir ihr man mir mich dir dich uns euch mehr sehr so wie was wenn dass da noch nur schon gut gute guten guter gutes gern gerne mal ja nein the a an and or but not no of to in on at for with is are was be it i you we they my our very more just too'.split(' '),
 );
 /** The words said most often in text answers (at least twice), most first. → [{ word, n }] */
 export function frequentWords(texts, top = 3) {
@@ -126,6 +126,9 @@ export function countPoll(poll, rows) {
   });
 }
 
+/** A question as the start of a summary line: without a closing «(1 short, 5 long)» and without ?:. */
+export const lead = (text) => String(text).replace(/\s*\([^)]*\)\s*$/, '').replace(/[\s?:.!]+$/, '');
+
 /**
  * The summary in sentences, without AI: one line per question that has answers.
  * T: the app's t(); fmt(n): a number in the app's language. → [string]
@@ -139,17 +142,17 @@ export function summarize(counted, T, fmt = String) {
       const tops = c.opts.filter((_, i) => c.counts[i] === max);
       out.push(
         tops.length === 1
-          ? T('{q}: most chose «{a}» ({n} of {m}).', { q: c.text, a: tops[0], n: max, m: c.n })
-          : T('{q}: a tie between {list} ({n} each).', { q: c.text, list: tops.map((x) => `«${x}»`).join(', '), n: max }),
+          ? T('{q}: most chose «{a}» ({n} of {m}).', { q: lead(c.text), a: tops[0], n: max, m: c.n })
+          : T('{q}: a tie between {list} ({n} each).', { q: lead(c.text), list: tops.map((x) => `«${x}»`).join(', '), n: max }),
       );
     } else if (c.type === 'yesno') {
-      out.push(T('{q}: {yes} yes, {no} no.', { q: c.text, yes: c.counts[1], no: c.counts[0] }));
+      out.push(T('{q}: {yes} yes, {no} no.', { q: lead(c.text), yes: c.counts[1], no: c.counts[0] }));
     } else if (c.type === 'scale') {
-      out.push(T('{q}: on average {avg} of 5.', { q: c.text, avg: fmt(c.avg) }));
+      out.push(T('{q}: on average {avg} of 5.', { q: lead(c.text), avg: fmt(c.avg) }));
     } else if (c.words.length) {
-      out.push(T('{q}: often said {list}.', { q: c.text, list: c.words.map((w) => `«${w.word}»`).join(', ') }));
+      out.push(T('{q}: often said {list}.', { q: lead(c.text), list: c.words.map((w) => `«${w.word}»`).join(', ') }));
     } else {
-      out.push(T('{q}: {n} answers in words.', { q: c.text, n: c.n }));
+      out.push(T('{q}: {n} answers in words.', { q: lead(c.text), n: c.n }));
     }
   }
   return out;
