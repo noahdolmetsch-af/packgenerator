@@ -100,4 +100,6 @@ export default {
   'Only there': 'Nur hin',
   'There and back onto the route': 'Hin und zurück auf die Strecke',
   'Choose a place: the app plans a bike way there. At the place it asks how you go back onto your route.': 'Wähle einen Ort: Die App plant einen Veloweg dorthin. Dort fragt sie, wie du zurück auf deine Strecke kommst.',
+  // Navigation zum Ziel 2: the turn after the next one
+  'Then: {text}': 'Danach: {text}',
 };
