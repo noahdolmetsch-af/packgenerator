@@ -41,6 +41,8 @@ test('After a ride without a route: climbing and the elevation profile from the 
   await tap(page.locator('[data-live-end-yes]'), info);
   const after = page.locator('[data-after-ride]');
   await expect(after).toBeVisible();
+  // Touren c 70 (Noah «5a»): the feeling comes first; «Show the numbers without it» opens the numbers
+  await tap(after.locator('[data-after-feel-skip]'), info);
   const hm = after.locator('[data-after-hm]');
   await expect(hm).toHaveAttribute('data-after-hm-from', 'gps');
   await expect(hm).toContainText(/\d+ m/);
