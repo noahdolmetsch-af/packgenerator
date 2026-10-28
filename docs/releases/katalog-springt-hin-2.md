@@ -1,6 +1,6 @@
 # Der Katalog zeigt zwei weitere Stellen
 
-PR #<Nummer> · 27.10.2026 · Auftrag: Noah «c und d zusammen», Teil c, Schritt 2 (Thread «332 Use Cases sichtbar machen»)
+PR #<Nummer> · 28.10.2026 · Auftrag: Noah «c und d zusammen», Teil c, Schritt 2 (Thread «332 Use Cases sichtbar machen»)
 
 ## Was ist neu
 - «Folgen vorher sehen» und «Nach Bedürfnis packen» stecken im Fenster «Material ergänzen» auf Packen. Ein Tipp im Katalog «Was die App alles kann» öffnet jetzt Packen, dann das Fenster, und lässt den Knopf kurz aufleuchten.
@@ -13,6 +13,7 @@ PR #<Nummer> · 27.10.2026 · Auftrag: Noah «c und d zusammen», Teil c, Schrit
 
 ## Selbst entschieden
 - «Wasser und Werkstätten unterwegs» bleibt vorerst ohne Sprung: der Teil erscheint nur bei einer Tour mit GPX-Strecke.
+- `tests/e2e/spot.spec.js` wartet nach Escape, bis ein geschlossenes Fenster seinen Verlaufs-Eintrag weggenommen hat. Sonst kann die nächste Adresse am Computer rückgängig gemacht werden (das Fenster «Material ergänzen» ist neu im Test).
 
 ## Entscheide (für decisions.md)
 - keine neuen.
