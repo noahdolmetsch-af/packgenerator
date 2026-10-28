@@ -93,6 +93,8 @@ test('Heatmap: rides on one map, clouds and lines, filters, a tap names the ride
   const map = main.locator('[data-heatmap]');
   await expect(map).toHaveAttribute('data-lines', '3');
   await expect(main.getByTestId('heat-sum')).toContainText(T('{n} rides', { n: 3 }));
+  // UI-Test T6 (G2-04): the number names its years
+  await expect(main.getByTestId('heat-sum')).toContainText(T('in all years'));
   await expect(map).toHaveAttribute('data-mode', 'clouds');
   await expect.poll(async () => (await hottest(page)).n).toBeGreaterThan(50);
   await noSideways(page);
