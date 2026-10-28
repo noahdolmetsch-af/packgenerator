@@ -89,6 +89,19 @@ describe('planDetour', () => {
     expect(d.target).toMatchObject({ name: 'Laden', kind: 'shop' });
     expect(d.at).toBe(5);
   });
+  it('only there (Noah «2a»): here → place, no rejoin; done once you were there and are back on the route', async () => {
+    const urls = [];
+    const d = await planDetour({ here: { lat: 47, lon: 8.1 }, target: { lat: 47.003, lon: 8.1, name: 'Laden', kind: 'shop' }, pts, fromKm: 7.6, oneWay: true, fetcher: async (u) => (urls.push(u), { ok: true, status: 200, json: async () => answer }) });
+    expect(urls[0].split('lonlats=')[1].split('&')[0].split('|')).toHaveLength(2);
+    expect(d).toMatchObject({ oneWay: true, rejoin: null, fromKm: 7.6, extraKm: null });
+    const far = { lat: 47, lon: 8.1 };
+    // not yet at the place: never done, even on the route
+    expect(detourDone(d, { km: 7.6, here: far, offM: 5 })).toBe(false);
+    // at the place: not done (the app asks how you go back)
+    expect(detourDone({ ...d, reached: true }, { km: 7.9, here: d.target, offM: 300 })).toBe(false);
+    // back on the route away from the place: done
+    expect(detourDone({ ...d, reached: true }, { km: 7.7, here: far, offM: 10 })).toBe(true);
+  });
   it('without a route: here → place only', async () => {
     const d = await planDetour({ here: { lat: 47, lon: 8.1 }, target: { lat: 47.003, lon: 8.1 }, fetcher: async (u) => ({ ok: true, status: 200, json: async () => (expect(u.split('lonlats=')[1].split('&')[0].split('|')).toHaveLength(2), answer) }) });
     expect(d.rejoin).toBeNull();

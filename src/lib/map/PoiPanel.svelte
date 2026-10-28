@@ -48,7 +48,7 @@
   import { localDay } from '../localday.js';
   import OwnPointSheet from './OwnPointSheet.svelte';
 
-  let { center = null, bounds = null, line = null, profile = null, onpoints = undefined, tripId = null, canTap = false, ontapmode = undefined, fetcher = undefined, ongo = undefined } = $props();
+  let { center = null, bounds = null, line = null, profile = null, onpoints = undefined, tripId = null, canTap = false, ontapmode = undefined, fetcher = undefined, ongo = undefined, title = true } = $props();
 
   const hasLine = $derived(Array.isArray(line) && line.length >= 2);
   const prefsQ = prefsQuery();
@@ -493,8 +493,9 @@
   }
 </script>
 
-<section class="pp" aria-labelledby={hid} data-poi-panel>
-  <h3 id={hid} class="pp-title">{t('Places on the map|poi')}</h3>
+<!-- title false: the window around it has its own heading (Live «In der Nähe»), so no second one -->
+<section class="pp" aria-labelledby={title ? hid : undefined} aria-label={title ? undefined : t('Places on the map|poi')} data-poi-panel>
+  {#if title}<h3 id={hid} class="pp-title">{t('Places on the map|poi')}</h3>{/if}
 
   <div class="pp-sits" role="group" aria-labelledby="{hid}-q" data-poi-quick>
     <span class="pp-qlab" id="{hid}-q">{t('What do you need?|poi')}</span>

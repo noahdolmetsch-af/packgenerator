@@ -5,6 +5,7 @@
 // place search; «Choose a goal» waits for a tap on the map. Every outside request is mocked or blocked.
 import { test, expect } from '@playwright/test';
 import { openHome } from './home0460-fixture.js';
+import { sheetFull } from './live-sheet.js';
 
 const phone = (info) => info.project.name === 'phone';
 const tap = (loc, info) => (phone(info) ? loc.tap() : loc.click());
@@ -112,8 +113,7 @@ test('Stops nearby along a route, and the part Stops on the live map', async ({ 
   await expect(page.locator('[data-live-goal-hint]')).toBeVisible();
   await tap(page.locator('[data-live-goal-hint] button'), info);
   await expect(page.locator('[data-live-goal-hint]')).toHaveCount(0);
-  await tap(page.locator('[data-live-sheet-toggle]'), info);
-  await tap(page.locator('[data-live-sheet-toggle]'), info);
+  await sheetFull(page, info);
   const stops = page.locator('[data-live-stops]');
   await stops.scrollIntoViewIfNeeded();
   await expect(stops.locator('[data-live-places] [data-live-near-open]')).toBeVisible();
