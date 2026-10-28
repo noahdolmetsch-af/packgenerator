@@ -36,7 +36,7 @@ test('Packen: the drawn bike shows each bag, fills as you pack and opens a bag o
   const bags = bike.locator('[data-bike-bag]');
   expect(await bags.count()).toBeGreaterThan(0);
   // the open bag is marked on the bike too
-  const open = bike.locator('[data-bike-bag][aria-current="true"]');
+  const open = bike.locator('[data-bike-bag].open');
   await expect(open).toHaveCount(1);
   const key = await open.getAttribute('data-bike-bag');
   const fill = () => open.locator('.fill').evaluate((el) => Number(el.style.getPropertyValue('--fill')));
@@ -51,10 +51,10 @@ test('Packen: the drawn bike shows each bag, fills as you pack and opens a bag o
   // a tap on another bag opens it below
   const other = bike.locator('[data-bike-bag]:not(.full)').first();
   const otherKey = await other.getAttribute('data-bike-bag');
-  const label = await other.getAttribute('aria-label');
+  const label = await other.getAttribute('data-bag-name');
   await other.click();
-  await expect(bike.locator(`[data-bike-bag="${otherKey}"]`)).toHaveAttribute('aria-current', 'true');
-  await expect(page.locator('.pd section.pbag.cur .bagh b')).toHaveText(label.split(':')[0]);
+  await expect(bike.locator(`[data-bike-bag="${otherKey}"]`)).toHaveClass(/\bopen\b/);
+  await expect(page.locator('.pd section.pbag.cur .bagh b')).toHaveText(label);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1)).toBe(true);
 });
 

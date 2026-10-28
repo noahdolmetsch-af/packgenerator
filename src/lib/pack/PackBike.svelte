@@ -5,6 +5,8 @@
    * of RigBike) with every bag of the trip at its place. Each bag fills from below as you pack, a full bag turns
    * green with a tick, the open bag is framed. A tap on a bag opens it, like its tile below.
    * Only bags on the bike: «Wear and carry», «On the bike» and worn bags stay as tiles.
+   * The bags in the drawing are a pointer shortcut only: on a phone they are smaller than a 44 px tap target, so
+   * they are no buttons; the tiles below are the real buttons (keyboard and screen reader use those).
    * steps: packSteps(); cur: the open step's key; onpick(key).
    */
   import { SLOT } from '../bikes.js';
@@ -16,16 +18,10 @@
   // the drawing starts just above the highest bag (no empty band on top)
   const top = $derived(Math.max(0, Math.min(60, ...bags.map((s) => SLOT[s.key].box.y - 12))));
   const share = (s) => (s.entries.length ? s.done / s.entries.length : 0);
-  const key = (e, s) => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault();
-      onpick(s.key);
-    }
-  };
 </script>
 
 {#if bags.length}
-  <svg class="pkbike" viewBox="0 {top} 720 {420 - top}" role="group" aria-label={t('Your bike with the bags of this trip')} data-pack-bike>
+  <svg class="pkbike" viewBox="0 {top} 720 {420 - top}" role="img" aria-label={t('Your bike with the bags of this trip')} data-pack-bike>
     <g class="frame" aria-hidden="true">
       <circle cx="150" cy="300" r="104" /><circle cx="590" cy="300" r="104" />
       <path d="M150 300 L330 300 L300 140 Z" /><path d="M300 145 L545 128 L560 178 L330 300" /><path d="M560 178 L590 300" />
@@ -36,18 +32,8 @@
     {#each bags as s (s.key)}
       {@const b = SLOT[s.key].box}
       {@const full = s.done === s.entries.length}
-      <g
-        class="bag"
-        class:full
-        class:open={s.key === cur}
-        role="button"
-        tabindex="0"
-        aria-current={s.key === cur ? 'true' : undefined}
-        aria-label={t('{bag}: {n} of {total} packed', { bag: s.title, n: s.done, total: s.entries.length })}
-        onclick={() => onpick(s.key)}
-        onkeydown={(e) => key(e, s)}
-        data-bike-bag={s.key}
-      >
+      <!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions -->
+      <g class="bag" class:full class:open={s.key === cur} onclick={() => onpick(s.key)} data-bike-bag={s.key} data-bag-name={s.title}>
         <rect class="shell" x={b.x} y={b.y} width={b.w} height={b.h} rx="12" />
         <rect class="fill" x={b.x} y={b.y} width={b.w} height={b.h} rx="12" style:--fill={share(s)} />
         <text class="no num" x={b.x + b.w / 2} y={b.y + b.h / 2 + 8} text-anchor="middle" font-size="26" aria-hidden="true">{full ? '✓' : `${s.done}/${s.entries.length}`}</text>
@@ -90,10 +76,6 @@
     fill: color-mix(in srgb, var(--ok) 45%, var(--paper));
   }
   .bag.open .shell,
-  .bag:focus-visible .shell {
-    stroke: var(--hi);
-    stroke-width: 6;
-  }
   .no {
     fill: var(--ink);
     font-family: var(--font-body);

@@ -15,6 +15,7 @@ Neuer Schwung · Packen 3 · 27.10.2026 · Auftrag: Noah «1a 2a 3a» (Seite fü
 - Nur Taschen am Velo: «Anziehen und tragen», «Am Velo» und Rucksack oder Hüfttasche bleiben nur als Kacheln.
 - Die Zeichnung beginnt knapp über der höchsten Tasche, damit oben kein leerer Streifen bleibt.
 - Die Taschen wachsen beim Öffnen von unten herein, still bei «Bewegung reduzieren».
+- Die Taschen in der Zeichnung sind nur eine Abkürzung für Finger und Maus: am Handy sind sie kleiner als 44 px, darum keine eigenen Knöpfe. Die Kacheln darunter bleiben die Knöpfe (auch für Tastatur und Vorlese-Hilfe).
 
 ## Entscheide (für decisions.md)
 - keine neuen
