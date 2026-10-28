@@ -3,12 +3,12 @@ export default {
   title: 'Templates with fields',
   lead: '22 note templates with real fields: choose the ones you use.',
   points: [
-    { text: 'Notes › «Choose templates»: tour report, race note, bike condition, to-do, vision, strategy, cool place and more', href: '#/notes' },
-    { text: 'Fill in a template: numbers, 1 to 5, choices, checklists and dates; the note keeps the values' },
+    { text: 'Notes › «Choose templates»: tour report, race note, bike condition, to-do, vision, strategy, cool place and more', href: '#/notes', go: 'f.noteforms' },
+    { text: 'Fill in a template: numbers, 1 to 5, choices, checklists and dates; the note keeps the values', go: 'f.noteforms' },
   ],
   small: [
-    { box: 'new', text: 'The input bar («Add» › Template) offers the chosen templates that fit the page' },
-    { box: 'new', text: 'Rename a template, change its fields, delete it or add your own' },
+    { box: 'new', text: 'The input bar («Add» › Template) offers the chosen templates that fit the page', go: 'f.inputtemplates' },
+    { box: 'new', text: 'Rename a template, change its fields, delete it or add your own', go: 'f.noteforms' },
   ],
   test: [
     'Planen › Notizen: under the note tap «Vorlagen auswählen», then «Verwenden» at «Vision». «Vision» shows above the note.',
