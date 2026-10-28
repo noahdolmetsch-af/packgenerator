@@ -1227,10 +1227,20 @@ export const HANDBOOK = {
     steps: ['Open Trips › Dreams and write the name of a dream tour.', 'Tap it: change the kind of tour and the months it fits.', 'Tap «Plan the tour»: a trip draft on the first Saturday of the season.'],
     example: 'Example: «Over the Furka» → Alpine passes, July to September → trip on 3 July.',
   },
+  'f.quicklinks': {
+    on: null,
+    steps: ['Open Quick Links in the bar (on a computer: in the sidebar).', 'Tap «Add a pin», search a function and tap «Pin».', 'Tap «Edit»: rename, add a note, move with the arrows or drag, unpin.'],
+    example: 'Example: pin «Wear» into the group «Bike» with the note «after rain».',
+  },
   'f.whitespots': {
     on: 'Needs your home place.',
     steps: ['Open Trips › Dreams › White spots nearby.', 'Choose 10, 25 or 50 km.', 'Tap a place on the map or in the list: its name and distance.'],
     example: 'Example: 25 km around Zürich → 209 municipalities never visited, the nearest 5 km away.',
+  },
+  'f.nlgoals': {
+    on: 'Counts from New ground: your routes, rides and own ticks.',
+    steps: ['Open Trips › Dreams › Challenges with an end.', 'Tap a ready one or «Own challenge»: collection, new ones or all, until when.', 'The bar fills by itself; tap the pencil to change or delete it.'],
+    example: 'Example: «5 new municipalities this month» → 2 of 5 · 12 days left.',
   },
   'f.races': {
     on: 'Needs a race with a date in Inspiration, or a race in your Google calendar.',
