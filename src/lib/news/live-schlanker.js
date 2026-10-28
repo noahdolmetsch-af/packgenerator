@@ -2,8 +2,8 @@
 export default {
   title: 'More map while riding',
   lead: 'The page dots float as a small bar over the map, and the panel at the bottom shows one line until you pull it up.',
-  points: [{ text: 'Pulled down: only the next stop; pull up for the climb and everything else', href: '#/live' }],
-  small: [{ box: 'nicer', text: 'Page dots as a small floating bar' }],
+  points: [{ text: 'Pulled down: only the next stop; pull up for the climb and everything else', href: '#/live', go: 'f.live' }],
+  small: [{ box: 'nicer', text: 'Page dots as a small floating bar', go: 'f.live' }],
   test: ['Start a ride on the phone: under the numbers the map begins at once; the dots float as a small bar.', 'At the bottom only the next stop shows; tap the handle: the climb and the rest come.'],
   since: [],
   de: {
