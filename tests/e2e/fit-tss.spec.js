@@ -1,7 +1,7 @@
 // «TSS vom Gerät in Form, Trainingseffekt in der Fahrtenliste» (Noah 28.10.2026 «1a»): a fictional FIT ride
 // without a Strava twin, German, phone + desktop. The list of saved rides shows its training effect and TSS,
 // and Körperwerte › Aktivität › Belastung counts its TSS on its day.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import DE from '../../src/lib/i18n/de/index.js';
 import { D0, TODAY, addDays, put } from './aktiv-fixture.js';
 import { ready } from './settle.js';

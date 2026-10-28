@@ -1,7 +1,7 @@
 // Paket L2 «Bilderkennung» (Noah 19.10.2026): Packliste per Foto (Abhaken, Neu erfassen, «Was ist das?»)
 // and the sitting position from a photo and a video, with fictional data and a made-up photo. The MediaPipe
 // library is answered by a stand-in (vision-fake.js); nothing leaves the preview server.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';

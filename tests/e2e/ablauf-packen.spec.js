@@ -4,7 +4,7 @@
 // the main button names the next step (H03, H06), «Ausfahrt starten» only once packed (H04), the start
 // time is the real one (H09), food from the bag (H08) and the step Plan with open points (H35).
 // Fictional fixture plus test_data_gtp_ items; nothing leaves the preview server.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';
