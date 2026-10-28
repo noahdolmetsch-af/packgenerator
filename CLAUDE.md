@@ -51,6 +51,7 @@ These are the only rules. They replace every older rule here, in `docs/arbeitswe
 
 - `npm test`: vitest.
 - `npx playwright test <spec> --workers=1`, with `E2E_PORT=52xx` and `E2E_SKIP_GESAMTTEST=1`, for your own specs plus `tests/e2e/guard.spec.js`.
+- **Phone tests after the approval** (Noah 28.10.2026 «1a», approval by a tap on «Freigeben» or «ok N»): a PR first runs only `build` and `e2e (desktop)` (the Wächter). After Noah approves, put the label `ok` on the PR; that starts `e2e (phone)` (5 parts). Merge only when it ran green on the current head. Before the label, `e2e (phone)` is skipped and looks green, so never auto-merge.
 - Before every PR, run locally only your own specs, the specs of the pages you changed and `guard.spec.js` (Noah, 11.10.2026 «1-5 a»). The full Gesamttest runs on GitHub. To run one shard by hand: `npx playwright test tests/e2e/gesamttest --project=desktop --shard=1/2 --workers=2`.
 - Tests read their lists (blocks, categories, labels) from the app source instead of keeping copies.
 - Afterwards run `git checkout -- qa/` (tests write screenshots there).

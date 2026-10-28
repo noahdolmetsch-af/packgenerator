@@ -1987,6 +1987,7 @@ Noah 19.10.2026: «1a 2a 3a 4 a oder b beides wählbar 5a», danach «a und b»,
 ## 27.10.2026 Weg von gebaut zu online
 
 - Noah «1a 2a 3a 4a 5a»: Schnellspur nach dem Merge (main geht nach Bauen und Kurztests online, volle Browsertests und Gesamttest danach in `volle-pruefung.yml` und nachts, rot = GitHub-Meldung); pro PR nur Handy-Browsertests plus Wächter am Computer; den Stau vom 27.10. abends durch Abbrechen wartender PR-Läufe lösen; Vercel-Vorschauen («packgenerator») von GitHub trennen; nach jedem Online-Gehen ein automatischer Eintrag auf GitHub. Grund: ein Prüflauf brauchte 18 der 20 Gratis-Prüf-Computer, gemergte PRs warteten bis 2 Stunden. Analyse: https://claude.ai/artifact/42o5ciwHWYuFXTWx6cZrGb
+- 28.10.2026 Noah «1a»: Handy-Browsertests eines PR erst nach der Freigabe (Etikett «ok», von Claude gesetzt); vorher nur Bauen, Einzeltests und Wächter. Freigabe per Tipp auf «Freigeben», kein «ok N» nötig. Nie Auto-Merge, weil «e2e (phone)» ohne Etikett übersprungen ist und grün aussieht.
 
 - 27.10.2026: **Neuer Schwung Teil 2** (Noah «4a» Bewegung überall dezent): zuerst Heute. Selbst entschieden: nur Deckkraft, clip-path und SVG-Strich bewegen sich, nie transform, damit keine Box springt und Tests und Tippen nicht warten müssen; Lottie kommt als eigener kleiner PR (2b).
 - 27.10.2026: **Neuer Schwung 2b** (Noah «5b» Lottie für grosse Momente). Selbst entschieden: lottie-web light (MIT, gratis) statt dotlottie (grosses wasm); eine eigene, selbst gezeichnete Animation statt einer heruntergeladenen (keine Lizenzfrage); Farben über CSS, damit jede Farbpalette passt. Noah 27.10.2026 «bei 2b ist die animation viel zu schnell»: 24 statt 60 Bilder pro Sekunde, Kreis und Haken zusammen etwa 1,3 Sekunden.
@@ -1996,3 +1997,8 @@ Noah 19.10.2026: «1a 2a 3a 4 a oder b beides wählbar 5a», danach «a und b»,
 ## 27.10.2026 Diagramme zeigen genaue Werte
 
 - Noah: «die Diagramme sollen für den Nutzer exakte Daten repräsentieren und nicht nur Schätzungen anhand ungenauer Skalen am Rand … und überall sonst auf der Webseite». Regel für jedes Diagramm: (1) eine Achse mit runden, beschrifteten Stufen und Einheit plus feinen Gitterlinien, nicht nur min/max am Rand; (2) beim Antippen oder Darüberfahren der genaue Wert mit Datum; (3) bei bis zu 12 Punkten steht die Zahl direkt am Punkt oder an der Säule. Gemeinsamer Baustein: `src/lib/charts/` (axis.js, GridLines.svelte, YTicks.svelte), keine eigene Achse pro Seite.
+
+
+## 27.10.2026 Gewohnheiten oben auf Heute
+
+- Noah «1a 2a und b 3b»: die Karte oben auf Heute zeigt nicht mehr fest die Meditation, sondern bis zu drei gewählte Gewohnheiten (Aktivitäten aus Aktiv und Punkte aus «Das tut mir gut»); gewählt mit dem Stift auf der Karte und unter «Startseite anpassen». Ohne Wahl bleibt es die Meditation.
