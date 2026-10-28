@@ -114,6 +114,8 @@
         <a class="rc-tab" href={raceHref(id, p.key)} aria-current={p.key === part ? 'page' : undefined} data-race-tab={p.key}>{t(p.title)}</a>
       {/each}
     </nav>
+    <!-- «Rennen detailliert planen» (Noah 27.10.2026 «1b 2b»): the check of this race on its own page -->
+    <p class="rc-brieftop"><a class="btn sm" href="#/racecheck/{encodeURIComponent(trip.id)}" data-race-to-check>{t('Race check')} ›</a></p>
     <RaceJumps {part} />
     {#if part === 'prepare'}
       <!-- Paket «Alles finden» (Noah 22.10.2026 «1a»): the briefing sheet on top, not 9 screens down -->

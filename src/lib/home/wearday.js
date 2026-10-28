@@ -58,11 +58,11 @@ export function fitOf(item, c) {
  * The pieces you can choose for one row: every riding piece of that row. Those that fit first (the
  * app's choice on top), then the warmer ones, then the too light ones; each { item, fit }.
  */
-export function swapOptions(key, items = [], c) {
+export function swapOptions(key, items = [], c, prefer = 'light') {
   const row = rowOf(key);
   if (!row) return [];
   const mine = riding(items).filter((i) => matchesRow(row, i));
-  const top = best(mine.filter((i) => warmEnough(i, c)), c);
+  const top = best(mine.filter((i) => warmEnough(i, c)), c, prefer);
   const rank = { ok: 0, warm: 1, light: 2 };
   const lo = (i) => floorOf(i) ?? -99;
   return mine
@@ -102,7 +102,7 @@ export function gapReason(key, items = [], c, { rain = false } = {}) {
  * picked piece replaces the app's one, 'none' leaves the row empty. Each row: { key, name, item,
  * rain, added (you added it), mine (you changed it), none (you left it out) }.
  */
-export function applyDay(outfit, items = [], choice = EMPTY) {
+export function applyDay(outfit, items = [], choice = EMPTY, prefer = 'light') {
   if (!outfit) return null;
   const c = outfit.c;
   const byId = new Map(items.map((i) => [i.id, i]));
@@ -112,7 +112,7 @@ export function applyDay(outfit, items = [], choice = EMPTY) {
     const auto = outfit.rows.find((r) => r.key === row.key);
     const added = !auto && choice.add.includes(row.key);
     if (!auto && !added) continue;
-    let item = auto ? auto.item : best(all.filter((i) => matchesRow(row, i) && warmEnough(i, c)), c);
+    let item = auto ? auto.item : best(all.filter((i) => matchesRow(row, i) && warmEnough(i, c)), c, prefer);
     const p = choice.pick[row.key];
     const picked = p && p !== NONE ? byId.get(p) : null;
     if (p === NONE) item = null;
