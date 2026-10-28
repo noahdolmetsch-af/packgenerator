@@ -12,6 +12,7 @@ import DE from '../../src/lib/i18n/de/index.js';
 import { sn4plusData, D0, day } from './sn4plus-fixture.js';
 import { at1Acts } from './at1-acts.js';
 import { importAndSettle } from './settle.js';
+import { expectRound } from './roundaxis.js';
 import { trimCourse, trimMore, trimPower } from '../../api/strava.js';
 import { DETAIL_V } from '../../src/lib/training.js';
 // the spans from the app source (tourana.js pulls in Svelte runes, so it is read as text)
@@ -116,11 +117,31 @@ test('a) a ride with a power meter: stops, NP, best minutes, resting heart rate,
   await expect(ana.locator('[data-ana-rest] li')).toHaveCount(1);
   await expect(ana.locator('[data-ana-normal]')).toBeVisible();
   await expect(ana.locator('[data-ana-dots] circle.me')).toHaveCount(1);
+  // «Genaue Werte» (27.10.2026): both axes of the dots in round steps, a grid line at every step up
+  const yt = await ana.locator('[data-ana-dots] [data-yticks] span').allTextContents();
+  expectRound(yt);
+  expectRound(await ana.locator('[data-ana-xt]').allTextContents());
+  await expect(ana.locator('[data-ana-dots] [data-grid] line')).toHaveCount(yt.length);
   await expect(ana.locator('[data-ana-corr]')).not.toBeEmpty();
   // the 20 minutes are no longer twice on the page
   await expect(page.locator('[data-tour-values] [data-field="w20"]')).toHaveCount(0);
   mkdirSync(SHOTS, { recursive: true });
   await ana.screenshot({ path: `${SHOTS}/A1-werte-${info.project.name === 'phone' ? 390 : 1440}.png` });
+  // «Diagramme zum Antippen» (27.10.2026): the line over the dots names this tour; few dots carry their number;
+  // a tap on another dot opens a window with its numbers and the way to that ride; «Als Tabelle» the same as rows
+  const dots = ana.locator('[data-ana-dots]');
+  await expect(dots.locator('[data-readout]')).toContainText(T('this tour'));
+  const nDots = await dots.locator('circle').count();
+  await expect(dots.locator('[data-ana-lab]')).toHaveCount(nDots);
+  await dots.locator('circle:not(.me)').first().click();
+  const sheet = page.locator('[data-chart-sheet]');
+  await expect(sheet.locator('[data-ana-sheet] dd')).toHaveCount(2);
+  await expect(sheet.locator('[data-ana-open]')).toHaveAttribute('href', /#\/tour\//);
+  await sheet.screenshot({ path: `${SHOTS}/A2-punkt-${info.project.name === 'phone' ? 390 : 1440}.png` });
+  await sheet.getByRole('button', { name: T('Close') }).click();
+  await expect(sheet).toHaveCount(0);
+  await dots.getByText(T('As table'), { exact: true }).click();
+  await expect(dots.locator('[data-chart-table] tbody tr')).toHaveCount(nDots);
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(page.viewportSize().width);
   expect(errors).toEqual([]);
 });
@@ -145,6 +166,11 @@ test('c) like komoot: the profile by gradient with ascent, descent, highest and 
   await expect(course.locator('[data-tour-course-sum] dd').nth(2)).toContainText(/1[.’']?5\d\d m/);
   const speed = page.locator('[data-tour-part="overview"] [data-tour-speed]');
   await expect(speed.getByRole('heading', { name: T('Speed profile') })).toBeVisible();
+  // «Genaue Werte» (27.10.2026): km/h in round steps from 0 with a grid line at each, the unit at the top
+  const ys = await speed.locator('[data-yticks] span').allTextContents();
+  expectRound(ys, { zero: true });
+  expect(ys.at(-1)).toContain('km/h');
+  await expect(speed.locator('[data-grid] line')).toHaveCount(ys.length);
   // drag over the speed profile: the numbers of that stretch
   await speed.locator('svg').scrollIntoViewIfNeeded();
   const box = await speed.locator('svg').boundingBox();

@@ -1,7 +1,9 @@
 /* v0.97.0 «Skitouren»: the shared pieces of the ski pages (#/ski …), tokens only. The same calm
    vocabulary as the meditation page (v0.86.0 «Einfach-Muster»): a head, one main card with the one
-   main button, rows with an icon and a chevron, «Mehr» folded. Prefixed sk- so nothing clashes. */
-.sk {
+   main button, rows with an icon and a chevron, «Mehr» folded. Prefixed sk- so nothing clashes.
+   div.sk only: the page tiles (<section class="sk">) and some <p class="sk"> lines share the name, and this
+   file stays loaded after a ski page, so a bare .sk changed their spacing (Auswerten 14 px longer). */
+div.sk {
   display: flex;
   flex-direction: column;
   gap: 14px;

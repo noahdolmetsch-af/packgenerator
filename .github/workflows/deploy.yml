@@ -1,7 +1,15 @@
 # Builds the app and publishes it to GitHub Pages.
-# Pull requests only build and test (a check that nothing is broken); main also deploys.
-# v0.21.0 (decision 7a): the e2e job plays the whole trip loop in a browser (phone and desktop,
-# English and German); main only deploys when it passes.
+# Noah 27.10.2026 «1a 2a» (thread «Weg von gebaut zu online»): GitHub gives 20 test computers at once and
+# the old check took 18 of them, so only one check ran at a time and merged PRs waited hours to go online.
+# Now:
+# - a pull request: build + unit tests, the phone browser tests (5 parts) and the Wächter on the computer
+#   (tests/e2e/guard.spec.js, every main page at 1440 px). 8 instead of 18 computers.
+# - main (after a merge): build + unit tests, then straight online (the «Schnellspur», about 5 minutes).
+#   A running publish is never cancelled; merges that come meanwhile go online together right after.
+#   Since the evening of 27.10.2026 this is one job («online»: build, unit tests, publish, Releases entry):
+#   GitHub has no priority, so every extra job waited again behind all pull request tests.
+# - the full browser tests on the computer and the Gesamttest run after going online and every night
+#   (.github/workflows/volle-pruefung.yml); a red one opens an issue, Claude repairs, «zurück» stays possible.
 name: Build and deploy
 
 on:
@@ -17,10 +25,13 @@ permissions:
 
 concurrency:
   group: pages-${{ github.ref }}
-  cancel-in-progress: true
+  # a new push to a pull request replaces its old check; on main a running publish always finishes
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 jobs:
+  # The check «build» of a pull request (the branch rule asks for it).
   build:
+    if: github.ref != 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -33,29 +44,22 @@ jobs:
       - run: npm ci
       - run: npm test
       - run: npm run build
-      - uses: actions/upload-pages-artifact@v5
-        if: github.ref == 'refs/heads/main'
-        with:
-          path: dist
 
-  # v0.30.0 (Noah 1a): phone and desktop run side by side, so a check takes about half as long.
+  # Phone browser tests in five parts at the same time (about 13 minutes). Only on pull requests: they ran
+  # here already before the merge, so main does not wait for them again.
   e2e-part:
+    if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
-    # 30 like the Gesamttest: the phone run has 583 tests and stopped at 582 after 20 min (18.10.2026)
-    # Noah 19.10.2026 «können wir diese tests in zukunft kürzen?»: each project runs in three parts at
-    # the same time (about 10 instead of 30 minutes). Every test still runs; GitHub is free for public repos.
-    # 45 since 22.10.2026: on slow runners three parts passed every test but hit 30 min (#238).
+    # 45 since 22.10.2026: on slow runners the parts passed every test but hit 30 min (#238).
     timeout-minutes: 45
     # Noah 26.10.2026 «1a»: the official Playwright image already has Chromium and its system
-    # packages. Installing them on a plain runner took up to 13 minutes (slow Ubuntu mirror), about
-    # half of every check. The tag must match @playwright/test in package.json (tests/ci-image.test.js).
+    # packages. The tag must match @playwright/test in package.json (tests/ci-image.test.js).
     container:
       image: mcr.microsoft.com/playwright:v1.64.1-noble
       options: --ipc=host
     strategy:
       fail-fast: false
       matrix:
-        project: [phone, desktop]
         shard: [1, 2, 3, 4, 5]
     steps:
       - uses: actions/checkout@v7
@@ -66,48 +70,77 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
-      - run: npm run e2e -- --project=${{ matrix.project }} --shard=${{ matrix.shard }}/5
+      - run: npm run e2e -- --project=phone --shard=${{ matrix.shard }}/5
         env:
-          E2E_SKIP_GESAMTTEST: '1' # runs in its own job below
+          E2E_SKIP_GESAMTTEST: '1' # runs after going online (volle-pruefung.yml)
       # The page as the failing test saw it, readable in the log (the artifact can't be opened everywhere).
       - if: failure()
         run: for f in test-results/*/error-context.md; do echo "::group::$f"; head -c 20000 "$f"; echo "::endgroup::"; done
       - uses: actions/upload-artifact@v7
         if: failure()
         with:
-          name: e2e-results-${{ matrix.project }}-${{ matrix.shard }}
+          name: e2e-results-phone-${{ matrix.shard }}
           path: test-results
           retention-days: 1 # Noah 11.10.2026: 0 costs; the free 0.5 GB Actions storage filled up with 7-day test results
 
-  # The branch rule asks for the checks «e2e (desktop)» and «e2e (phone)»: one summary job per
-  # device that is green only when all three parts passed (a skipped job would count as green).
-  e2e:
-    if: always()
+  # The branch rule asks for the checks «e2e (phone)» and «e2e (desktop)».
+  # «e2e (phone)» is green only when all five phone parts passed (a skipped job would count as green).
+  e2e-phone:
+    name: e2e (phone)
+    if: always() && github.event_name == 'pull_request'
     needs: [e2e-part]
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        project: [phone, desktop]
     steps:
       - run: test "${{ needs.e2e-part.result }}" = "success"
 
-  # v0.45.1 (Noah: browser tests stay in CI): the Gesamttest with the big fictional data set
-  # (tests/e2e/gesamttest, 700 items): every page at 390/320/1366 px in German and English, the
-  # scenarios S1-S8 and the same counts everywhere. Split in two per project so it stays short.
-  gesamttest:
+  # «e2e (desktop)»: the Wächter on the computer, every main page at 1440 px (sideways scrolling, broken
+  # words, one page title). The other computer tests run after going online and every night.
+  e2e-desktop:
+    name: e2e (desktop)
+    if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    # Noah 26.10.2026 «1a»: the official Playwright image already has Chromium and its system
-    # packages. Installing them on a plain runner took up to 13 minutes (slow Ubuntu mirror), about
-    # half of every check. The tag must match @playwright/test in package.json (tests/ci-image.test.js).
     container:
       image: mcr.microsoft.com/playwright:v1.64.1-noble
       options: --ipc=host
-    strategy:
-      fail-fast: false
-      matrix:
-        project: [phone, desktop]
-        shard: [1, 2]
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx playwright test tests/e2e/guard.spec.js --project=desktop
+      - if: failure()
+        run: for f in test-results/*/error-context.md; do echo "::group::$f"; head -c 20000 "$f"; echo "::endgroup::"; done
+      - uses: actions/upload-artifact@v7
+        if: failure()
+        with:
+          name: e2e-results-desktop-guard
+          path: test-results
+          retention-days: 1
+
+  # Schnellspur: main goes online as soon as it is built and the unit tests passed, all in ONE job, so it
+  # waits only once for a free GitHub computer (27.10.2026: the separate publish job waited 25 minutes more).
+  # Noah 26.10.2026 «1a» and 27.10.2026 «5a»: right after going online GitHub writes its own entry under
+  # Releases (github.com/noahdolmetsch-af/packgenerator/releases): the version that is online now and every
+  # merged PR in it. Only GITHUB_TOKEN, no secret. If the entry fails, the app is online anyway.
+  online:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: write
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
     steps:
       - uses: actions/checkout@v7
         with:
@@ -117,23 +150,20 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
-      - run: npx playwright test tests/e2e/gesamttest --project=${{ matrix.project }} --shard=${{ matrix.shard }}/2
-      - if: failure()
-        run: for f in test-results/*/error-context.md; do echo "::group::$f"; head -c 20000 "$f"; echo "::endgroup::"; done
-      - uses: actions/upload-artifact@v7
-        if: failure()
+      - run: npm test
+      - run: npm run build
+      - uses: actions/upload-pages-artifact@v5
         with:
-          name: gesamttest-results-${{ matrix.project }}-${{ matrix.shard }}
-          path: test-results
-          retention-days: 1 # Noah 11.10.2026: 0 costs; the free 0.5 GB Actions storage filled up with 7-day test results
-
-  deploy:
-    if: github.ref == 'refs/heads/main'
-    needs: [build, e2e, gesamttest]
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
+          path: dist
       - id: deployment
         uses: actions/deploy-pages@v5
+      - name: Releases entry
+        continue-on-error: true
+        run: |
+          node scripts/release-notes.mjs > notes.md && cat notes.md >> "$GITHUB_STEP_SUMMARY"
+          v="v$(node scripts/news.mjs --version)"
+          if gh release view "$v" >/dev/null 2>&1; then
+            gh release edit "$v" --notes-file notes.md
+          else
+            gh release create "$v" --target "$GITHUB_SHA" --title "Online: $v" --notes-file notes.md --latest
+          fi

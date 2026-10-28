@@ -34,7 +34,7 @@ export function partText(p) {
       return '';
   }
 }
-export const PART_NAMES = { rhr: 'Resting pulse', hrv: 'HRV', sleep: 'Sleep|metric', feltSleep: 'Sleep, felt', energy: 'Energy, felt', form: 'Form|form' };
+export const PART_NAMES = { rhr: 'Resting pulse', hrv: 'HRV', sleep: 'Sleep|metric', feltSleep: 'Sleep, felt', energy: 'Energy, felt', form: 'Form effect on today' }; // UI-Test T3: its own name, so it is not taken for the form number
 
 /** The tour line of the card: before or during a trip. */
 export function tourText(tour) {

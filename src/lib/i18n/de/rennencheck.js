@@ -144,7 +144,6 @@ export default {
   // «Links pro Rennen»
   'Rules|race': 'Regeln',
   Tracker: 'Tracker',
-  Website: 'Website',
   'Links to the race': 'Links zum Rennen',
   'Handbook, rules, tracker, website: everything about this race one tap away. Tap a row to put in or change its address.': 'Handbuch, Regeln, Tracker, Website: alles zum Rennen mit einem Tipp. Tippe eine Zeile an, um die Adresse einzutragen oder zu ändern.',
   'Name or address, e.g. Handbook': 'Name oder Adresse, z. B. Handbuch',
@@ -178,4 +177,6 @@ export default {
   '{kg} under the target': '{kg} unter dem Ziel',
   'From the grams of {n} bags. A bag without «full» counts with its empty weight.': 'Aus den Gramm von {n} Taschen. Eine Tasche ohne «voll» zählt mit ihrem Leergewicht.',
   'Write the grams of your bags above (e.g. «200» or «2× 100»), then the sum shows here.': 'Schreib oben die Gramm deiner Taschen (z. B. «200» oder «2× 100»), dann steht hier die Summe.',
+  'Coming|races': 'Kommende',
+  'Done|races': 'Vorbei',
 };

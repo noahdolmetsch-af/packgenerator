@@ -99,10 +99,10 @@ test('Live map on the sample race: km, stops ahead, climb, arrival, SOS, stop', 
     await page.screenshot({ path: info.outputPath('live-landscape.png') });
     await page.setViewportSize(size);
   }
-  // pull the sheet up (a tap on the handle: peek → half → full)
+  // pull the sheet up (a tap on the handle: peek → half → full on the phone; on the computer «Alles» opens at the right)
   await tap(page.locator('[data-live-sheet-toggle]'), info);
-  await expect(page.locator('[data-live-sheet]')).toHaveAttribute('data-live-sheet', 'half');
-  await tap(page.locator('[data-live-sheet-toggle]'), info);
+  await expect(page.locator('[data-live-sheet]')).toHaveAttribute('data-live-sheet', info.project.name === 'phone' ? 'half' : 'full');
+  if (info.project.name === 'phone') await tap(page.locator('[data-live-sheet-toggle]'), info);
   await expect(page.locator('[data-live-sheet]')).toHaveAttribute('data-live-sheet', 'full');
   await expect(page.locator('[data-live-stop]')).toBeAttached();
   await expect(page.locator('[data-live-arrival]')).toBeVisible();
@@ -119,6 +119,8 @@ test('Live map on the sample race: km, stops ahead, climb, arrival, SOS, stop', 
   await expect(page.locator('[data-live-full] [data-wx-timeline]')).toBeAttached();
   await expect(page.locator('[data-live-full] [data-live-near-open]')).toBeAttached();
   await expect(page.locator('[data-live-near] [data-poi-panel]')).toBeAttached();
+  // one heading in the window (Noah 27.10.2026: two headings in the window were too much)
+  await expect(page.locator('[data-live-near] h2, [data-live-near] h3')).toHaveCount(1);
   // the app at 130 % («Grösse», CSS zoom on <html>): still no sideways scroll
   await page.evaluate(() => (document.documentElement.style.zoom = '1.3'));
   await noSideways(page, 'zoom 130 %');
