@@ -142,6 +142,7 @@ export const HOME = {
   'f.abroad': '#/trips',
   'f.dreams': '#/trips/dreams',
   'f.quicklinks': '#/quick',
+  'f.pinmarks': '#/quick',
   'f.whitespots': '#/trips/dreams',
   'f.nlgoals': '#/trips/dreams',
   'f.races': '#/trips/dreams',

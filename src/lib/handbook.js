@@ -1242,6 +1242,11 @@ export const HANDBOOK = {
     steps: ['Open Quick Links in the bar (on a computer: in the sidebar).', 'Tap «Add a pin», search a function and tap «Pin».', 'Tap «Edit»: rename, add a note, move with the arrows or drag, unpin.'],
     example: 'Example: pin «Wear» into the group «Bike» with the note «after rain».',
   },
+  'f.pinmarks': {
+    on: 'On by itself; switch it off in Quick Links.',
+    steps: ['Open a page, for example Today or Trips.', 'Tap the small pin at the top right of a card.', 'Open Quick Links: the card is in your first group; a tap there brings you back.'],
+    example: 'Example: pin «Upload a ride» on Trips, then open it from Quick Links in one tap.',
+  },
   'f.whitespots': {
     on: 'Needs your home place.',
     steps: ['Open Trips › Dreams › White spots nearby.', 'Choose 10, 25 or 50 km.', 'Tap a place on the map or in the list: its name and distance.'],
