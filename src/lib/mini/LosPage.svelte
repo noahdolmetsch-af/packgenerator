@@ -180,7 +180,7 @@
 
 {#if !id}
   <VeloHead crumbs={[{ label: t('Me|place'), href: '#/me' }, { label: t('Mini tools'), href: '#/me/mini' }]} title={t('Fair draw')} sub={t('Who cooks, who rides in front, who sleeps where: fair, and it stays on this device')} />
-  <div class="ich-main" data-los>
+  <div class="ich-main lo-main" data-los>
     <section class="card lo-box" aria-labelledby="lo-start-h">
       <h2 id="lo-start-h">{t('New draw')}</h2>
       <div class="lo-chips">
@@ -217,7 +217,7 @@
   <p class="lo-help" data-los-gone>{t('This draw is no longer here.')} <a href="#/me/mini/los">{t('To the draws')}</a></p>
 {:else}
   <VeloHead crumbs={[{ label: t('Me|place'), href: '#/me' }, { label: t('Mini tools'), href: '#/me/mini' }, { label: t('Fair draw'), href: '#/me/mini/los' }]} title={draw.title} sub={`${t(modeOf(draw.mode).label)} · ${t('{n} people', { n: draw.people.length })}`} />
-  <div class="ich-main" data-los-draw>
+  <div class="ich-main lo-main" data-los-draw>
     <section class="card lo-box lo-go" aria-labelledby="lo-res-h">
       <h2 id="lo-res-h" class="lo-vh">{t('Result')}</h2>
       {#if latest}
@@ -267,17 +267,19 @@
           {#each draw.people as p, i (p.id)}
             <li class="lo-p" data-los-person={p.name}>
               <SortGrip name={p.name} onstep={(dir) => movePerson(i, i + dir)} />
-              <label class="lo-in"><input type="checkbox" checked={!away[p.id]} onchange={(e) => (away = { ...away, [p.id]: !e.currentTarget.checked })} /><span>{p.name}</span></label>
-              <span class="lo-pa">
+              <span class="lo-in">
+                <input type="checkbox" checked={!away[p.id]} aria-label={t('{name} takes part', { name: p.name })} onchange={(e) => (away = { ...away, [p.id]: !e.currentTarget.checked })} />
+                <button type="button" class="lo-name" aria-label={t('Rename {name}', { name: p.name })} onclick={() => (renaming = { what: 'person', p })} data-los-pname>{p.name}</button>
                 {#if draw.mode !== 'groups'}<small class="lo-n" title={t('How often drawn')}>{counts[p.id] ?? 0}×</small>{/if}
-                <button type="button" class="lo-ic" aria-label={t('Rename {name}', { name: p.name })} onclick={() => (renaming = { what: 'person', p })}><Pencil size={16} aria-hidden="true" /></button>
+              </span>
+              <span class="lo-pa">
                 <button type="button" class="lo-ic" aria-label={t('Remove {name}', { name: p.name })} onclick={() => removePerson(p)} data-los-remove><Trash2 size={16} aria-hidden="true" /></button>
                 <SortArrows name={p.name} {i} n={draw.people.length} onstep={(dir) => movePerson(i, i + dir)} />
               </span>
             </li>
           {/each}
         </ul>
-        <p class="lo-help">{t('Untick who is not there this time.')}{draw.mode !== 'groups' ? ` ${t('The number says how often someone was drawn.')}` : ''}</p>
+        <p class="lo-help">{t('Untick who is not there this time. Tap a name to change it.')}{draw.mode !== 'groups' ? ` ${t('The number says how often someone was drawn.')}` : ''}</p>
       {/if}
       <form class="lo-add" onsubmit={addPerson}>
         <input type="text" bind:value={newName} maxlength="40" placeholder={t('Name')} aria-label={t('Name')} data-los-name />
@@ -311,8 +313,13 @@
 {/if}
 
 <style>
+  .lo-main {
+    display: grid;
+    gap: var(--sp-3);
+  }
   .lo-box {
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
     gap: var(--sp-3);
     min-width: 0;
   }
@@ -426,10 +433,8 @@
     margin: 0;
     padding: 0;
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
     gap: 2px;
-  }
-  .lo-p {
-    flex-wrap: wrap;
   }
   .lo-pa {
     display: flex;
@@ -446,24 +451,33 @@
     border-bottom: 1px solid var(--line);
   }
   .lo-in {
-    flex: 1 1 140px;
+    flex: 1 1 0;
     min-width: 0;
     display: flex;
     align-items: center;
     gap: var(--sp-2);
     min-height: 44px;
-    cursor: pointer;
   }
   .lo-in input {
     width: 20px;
     height: 20px;
     flex: none;
   }
-  .lo-in span {
-    overflow-wrap: break-word;
+  .lo-name {
+    flex: 1;
     min-width: 0;
+    min-height: 44px;
+    padding: 0 4px;
+    border: 0;
+    background: none;
+    color: var(--ink);
+    font: inherit;
+    text-align: left;
+    overflow-wrap: break-word;
+    cursor: pointer;
   }
   .lo-n {
+    flex: none;
     color: var(--ink-3);
     font-variant-numeric: tabular-nums;
   }
@@ -483,8 +497,12 @@
     display: flex;
     gap: var(--sp-2);
   }
+  .lo-add .btn {
+    flex: none;
+  }
   .lo-add input {
     flex: 1;
+    width: auto;
     min-width: 0;
     min-height: 44px;
   }
