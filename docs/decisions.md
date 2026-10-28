@@ -1963,6 +1963,15 @@ Noah 19.10.2026: «1a 2a 3a 4 a oder b beides wählbar 5a», danach «a und b»,
 - 26.10.2026: **Neuer Schwung PR 1** (Noah «1a 2a 3a 4a 5a + 5b»: Stil S2 «Kacheln mit Tiefe», Handy-Bereiche zu ausser «Jetzt», «Startseite anpassen» als Zeile unten, Bewegung überall dezent, kleine Bausteine plus Lottie). PR 1 nur die Zeile unten; Aufklappen wartet auf «Heute ruhiger» Teil 3. Vorschläge: https://claude.ai/artifact/8qMe2aMYPgj93cpRHEQRXv
 - Noah 27.10.2026 15:17 (Einzelideen Ich, Übersicht): «1a 2b 3a» = letzte Werkzeug-Ergebnisse bleiben nur auf dem Gerät; Vorschläge nach Art nur noch unter Ich › Ruhig und persönlich › Ausgeblendet und aus (Darstellung verlinkt dorthin); Dokumente-Test unabhängig von der Uhrzeit machen.
 
+## 27.10.2026 Ultra-Rennen: Herausforderungen und Ziel 6
+
+- Noah 27.10.2026 16:06 «alle ideen 1-13 umsetzen. 1a 2a 3a und b weitere varianten auf dem papier durchspielen 4a 5a» (Thread «Analysieren Herausforderungen Ultra-Rennen», Grundlage: seine Excel mit Learnings Hope 2025/2026 und die Analyse-Seite https://claude.ai/artifact/Ax8ERdNVsRHmzC9osXqjhb).
+- 1a: Schritt 1 ist Packen A bis Z auf Papier mit vorausgefüllten Druckblättern; erst danach wird der Packprozess in der App neu gedacht.
+- 2a: neues **Ziel 6 «Lange Fahrten unterwegs verstehen»** in vorhaben.md und vorhaben-liste.md, mit den 13 Punkten als «gewünscht».
+- 3a und b: Schlaf-Grundlage fürs nächste Rennen ist Hotel plus Notfall-Biwak; die anderen Varianten spielt Noah trotzdem auf Papier durch.
+- 4a: Wetter für die nächsten 2, 4, 6 und 8 Stunden dort, wo man dann auf der Route ist, aus mehreren Wettermodellen.
+- 5a: die laufende Auswertung während der Fahrt nimmt die Aufnahme des Handys (Live-Karte, Pulsgurt über Bluetooth); der Garmin bleibt fürs Navigieren.
+
 ## 26.–27.10.2026 Tour-Detailseite übersichtlicher
 
 - 26.10.2026: Plan in 3 Stufen (auf einen Blick, verstehen, Details eingeklappt), Noah «1a 2a 3a 4a 5b»: Schalter «Alles auf einer Seite / Einzeln» bleibt, Strava-/Garmin-Ansicht eingeklappt, eine Teilstrecken-Tabelle mit Umschalter, neue Karte «Das zeichnet diese Tour aus». Danach «so lassen … nur als geplant».
@@ -1981,6 +1990,8 @@ Noah 19.10.2026: «1a 2a 3a 4 a oder b beides wählbar 5a», danach «a und b»,
 
 - 27.10.2026: **Neuer Schwung Teil 2** (Noah «4a» Bewegung überall dezent): zuerst Heute. Selbst entschieden: nur Deckkraft, clip-path und SVG-Strich bewegen sich, nie transform, damit keine Box springt und Tests und Tippen nicht warten müssen; Lottie kommt als eigener kleiner PR (2b).
 - 27.10.2026: **Neuer Schwung 2b** (Noah «5b» Lottie für grosse Momente). Selbst entschieden: lottie-web light (MIT, gratis) statt dotlottie (grosses wasm); eine eigene, selbst gezeichnete Animation statt einer heruntergeladenen (keine Lizenzfrage); Farben über CSS, damit jede Farbpalette passt. Noah 27.10.2026 «bei 2b ist die animation viel zu schnell»: 24 statt 60 Bilder pro Sekunde, Kreis und Haken zusammen etwa 1,3 Sekunden.
+- 27.10.2026 (Kleider-Sets): Kleider-Sets sind Bausteine mit °C-Bereich wie die Kits (9 Muster einmal angelegt); dieselben Sets gelten auf Heute und beim Packen, eigene Kits vor Mustern. Details: `docs/releases/kleider-sets.md`.
+
 ## 27.10.2026 Diagramme zeigen genaue Werte
 
 - Noah: «die Diagramme sollen für den Nutzer exakte Daten repräsentieren und nicht nur Schätzungen anhand ungenauer Skalen am Rand … und überall sonst auf der Webseite». Regel für jedes Diagramm: (1) eine Achse mit runden, beschrifteten Stufen und Einheit plus feinen Gitterlinien, nicht nur min/max am Rand; (2) beim Antippen oder Darüberfahren der genaue Wert mit Datum; (3) bei bis zu 12 Punkten steht die Zahl direkt am Punkt oder an der Säule. Gemeinsamer Baustein: `src/lib/charts/` (axis.js, GridLines.svelte, YTicks.svelte), keine eigene Achse pro Seite.
