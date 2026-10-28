@@ -1710,7 +1710,7 @@ export default {
   'Ended early? Next time «Go on at step n» starts where you stopped.': 'Früher beendet? Beim nächsten Mal beginnt «Weiter bei Schritt n» dort, wo du aufgehört hast.',
   'Switch on the reminders you want; what you tick off on another device no longer comes.': 'Schalte die Erinnerungen ein, die du willst; was du auf einem anderen Gerät abhakst, kommt nicht mehr.',
   'Clicked a place often with the mouse? A small tip shows its shortcut once; «No more shortcut tips» stops them.': 'Einen Ort oft mit der Maus angeklickt? Ein kleiner Tipp zeigt einmal sein Kürzel; «Keine Kürzel-Tipps mehr» stellt sie ab.',
-  'A kind (ideas to buy, performance tips, ideas for free time, fitting tools) goes off on every page at once.': 'Eine Art (Kaufideen, Leistungstipps, Ideen für freie Zeit, passende Werkzeuge) geht auf allen Seiten auf einmal aus.',
+  'A kind (ideas to buy, performance tips, ideas for free time, fitting tools): Me › Calm and personal › Hidden and switched off.': 'Eine Art (Kaufideen, Leistungstipps, Ideen für freie Zeit, passende Werkzeuge): Ich › Ruhig und persönlich › Ausgeblendet und aus.',
   // Einzelideen Heute 5 (25.10.2026)
   'Example: three short rides in the rain → one task «Care for the chain».': 'Beispiel: drei kurze Fahrten im Regen → eine Aufgabe «Kette pflegen».',
   // Einzelideen Heute (26.10.2026)
@@ -1759,6 +1759,11 @@ export default {
   'Example: say «note brake squeaks» → the note is in the Inbox. If the microphone stops, the words so far stay in the field.': 'Beispiel: Sag «Notiz Bremse quietscht» → die Notiz ist im Eingang. Stoppt das Mikrofon, bleiben die Wörter bisher im Feld.',
   'Example: IMG_0042.HEIC → IMG_0042.jpg for the online form; velo.jpg as JPG → velo-umgewandelt.jpg, the old one stays.': 'Beispiel: IMG_0042.HEIC → IMG_0042.jpg für das Online-Formular; velo.jpg als JPG → velo-umgewandelt.jpg, das alte bleibt.',
   'Example: «Wo sehe ich die Lawinengefahr?» → Alerts and news. «Kette» finds Material and a bike → «Do you mean Gear or Bikes?».': 'Beispiel: «Wo sehe ich die Lawinengefahr?» → Hinweise und News. «Kette» findet Material und ein Velo → «Meinst du Material oder Velos?».',
+  // «App verstehen» (Noah 26.10.2026)
+  'Open Me › Understand the app.': 'Öffne Ich › App verstehen.',
+  'Open a lesson, read it and do the exercise.': 'Öffne eine Lektion, lies sie und mach die Übung.',
+  'Tick «Done» if you like.': 'Hake «Erledigt» ab, wenn du magst.',
+  'Example: lesson 2 «Make a backup and bring it back» → export a backup and import it in a test link.': 'Beispiel: Lektion 2 «Backup machen und zurückspielen» → ein Backup exportieren und in einem Test-Link einlesen.',
   // Touren-Ideen 44, 45, 47, 49 (Noah 26.10.2026)
   'Read the overlapping days, the shared gear and the open tasks.': 'Lies die gleichen Tage, das geteilte Material und die offenen Aufgaben.',
   'Tick «Clarified» when you know the answer.': 'Hake «Geklärt» ab, sobald du die Antwort weisst.',
@@ -1845,4 +1850,15 @@ export default {
   'Open Trips › «Plan races in detail» and tap a race.': 'Öffne Touren › «Rennen detailliert planen» und tippe ein Rennen an.',
   'Fill in the five sheets one by one; everything saves by itself.': 'Füll die fünf Blätter nacheinander aus; alles speichert von selbst.',
   'Example: sheet 2 «Target setup»: the frame bag holds the rain jacket and the head torch, 150 g empty.': 'Beispiel: Blatt 2 «Soll-Setup»: in der Rahmentasche sind Regenjacke und Stirnlampe, leer 150 g.',
+  // Idee A1 «Eine Nachricht am Morgen» (27.10.2026)
+  'On by itself once reminders on the phone are on; switch it off under Me › Reminders on the phone › In the morning.':
+    'Von selbst an, sobald Erinnerungen aufs Handy an sind; ausschalten unter Ich › Erinnerungen aufs Handy › Am Morgen.',
+  'Every reminder at 08:00 (parts worn, chain, supplies, lent things, shopping, race registration) waits for the morning message.':
+    'Jede Erinnerung um 08:00 (Verschleiss, Kette, Vorräte, Ausgeliehenes, Einkauf, Rennanmeldung) wartet auf die Morgen-Nachricht.',
+  'At 07:00 one message comes: first a trip that starts and up to two appointments of the day, then the reminders.':
+    'Um 07:00 kommt eine Nachricht: zuerst eine Tour, die startet, und bis zu zwei Termine des Tages, dann die Erinnerungen.',
+  'Warnings (weather, ice, light, rain on the way, eating) still come on their own and on time.':
+    'Warnungen (Wetter, Glätte, Licht, Regen unterwegs, Essen) kommen weiter einzeln und pünktlich.',
+  'Example: «Your morning» → «Appointment: 10:00 Dentist», «Testvelo: Chain reaches 1000 km soon», «and 1 more in the app».':
+    'Beispiel: «Dein Morgen» → «Termin: 10:00 Zahnarzt», «Testvelo: Kette erreicht bald 1000 km», «und 1 weitere in der App».',
 };

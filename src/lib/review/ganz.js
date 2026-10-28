@@ -21,6 +21,7 @@ import { situationHits, SITUATION_BLOCKS } from '../situation.js';
 import { ridesIntoDark } from '../blockplan.js';
 import { heartOf } from '../kmbook.js';
 import { tripPower, effortOf, loadOf } from './power.js';
+import { inputsOf } from '../eingabe/inputs.js';
 
 const pos = (v) => (typeof v === 'number' && Number.isFinite(v) && v > 0 ? v : null);
 const r1 = (v) => (v == null ? null : Math.round(v * 10) / 10);
@@ -228,14 +229,15 @@ export function stravaRides(acts = []) {
 }
 
 /**
- * The timeline of a trip or of one day: [{ kind: 'start' | 'note' | 'pause' | 'best' | 'climb' | 'photo' | 'end', at, day, km, min, text, n, short }].
+ * The timeline of a trip or of one day: [{ kind: 'start' | 'note' | 'voice' | 'pause' | 'best' | 'climb' | 'photo' | 'end', at, day, km, min, text, n, short, voices? }].
+ * voices: the voice notes to play at that entry [{ id, src, s, text? }] (a note's own, or a 'voice' entry of `voices`).
  * best, climb and photo (from Strava rides, stravaRides) carry no number (plain): they show their km only.
  * km counts from the start of that day (null when unknown); a note gets its km from the ride it falls in.
  * n: the number shown on map, profile and timeline (entries with a km only; the end of a round trip takes
  * the start's number); tkm: the km from the trip's start (for the map of the whole trip).
  * rides: the trip's uploaded rides (oldest first); notes: tripNotes(); trip: for the days.
  */
-export function timeline({ trip, rides = [], notes = [], day = null, loop = false } = {}) {
+export function timeline({ trip, rides = [], notes = [], voices = [], day = null, loop = false } = {}) {
   if (!trip?.startDate) return [];
   const dayIdx = (date) => Math.round((Date.parse(`${date}T00:00:00Z`) - Date.parse(`${trip.startDate}T00:00:00Z`)) / 864e5);
   const sorted = [...rides].filter((r) => r.date).sort((a, b) => (a.startAt ?? a.date).localeCompare(b.startAt ?? b.date));
@@ -259,8 +261,13 @@ export function timeline({ trip, rides = [], notes = [], day = null, loop = fals
     for (const p of r.photos ?? []) out.push({ kind: 'photo', at: p.at, day: d, km: p.km != null ? r1(off + p.km) : null, tkm: p.km != null ? r1(before[r.id] + p.km) : null, url: p.url, caption: p.caption, plain: true });
     if (Number.isFinite(endMs)) out.push({ kind: 'end', at: new Date(endMs).toISOString(), day: d, km: r1(off + (Number(r.km) || 0)), tkm: r1(before[r.id] + (Number(r.km) || 0)) });
   }
-  for (const n of notes) {
+  // Noah 27.10.2026 «1a»: the voice notes show where they were spoken. A note brings its own (note.inputs.voices);
+  // `voices` are the other ones of the trip («Hier bin ich» on the live map, the diary): [{ day, at, text, where, voices }]
+  const vOf = (list) => list.map((v) => ({ id: v.id, src: v.src, s: v.s, ...(v.text ? { text: v.text } : {}) }));
+  const items = [...notes.map((n) => ({ n, kind: 'note', voices: vOf(inputsOf(n.inputs).voices) })), ...voices.map((n) => ({ n, kind: 'voice', voices: vOf(n.voices ?? []) }))];
+  for (const { n, kind, voices: vs } of items) {
     if (n.day == null) continue;
+    if (kind === 'voice' && !vs.length) continue;
     if (day != null && n.day !== day) continue;
     const t = msOf(n.at);
     const r = sorted.find((x) => dayIdx(x.date) === n.day && Number.isFinite(msOf(x.startAt)) && pos(x.totalH) && t >= msOf(x.startAt) && t <= msOf(x.startAt) + x.totalH * 36e5);
@@ -272,7 +279,7 @@ export function timeline({ trip, rides = [], notes = [], day = null, loop = fals
       km = r1(off + f * (Number(r.km) || 0));
       tkm = r1(before[r.id] + f * (Number(r.km) || 0));
     }
-    out.push({ kind: 'note', at: n.at, day: n.day, km, tkm, text: n.text, photo: n.photo ?? null });
+    out.push({ kind, at: n.at, day: n.day, km, tkm, text: n.text ?? '', photo: n.photo ?? null, ...(n.where ? { where: n.where } : {}), ...(vs.length ? { voices: vs } : {}) });
   }
   out.sort((a, b) => a.day - b.day || (a.at ?? '').localeCompare(b.at ?? '') || (a.kind === 'start' ? -1 : b.kind === 'start' ? 1 : 0));
   let n = 0;
