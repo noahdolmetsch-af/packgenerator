@@ -140,6 +140,12 @@
           <span class="ps-m"><b id="ps-{k.key}">{t(k.label)}</b><small>{t(k.hint)}</small></span>
           <input class="ps-sw" type="checkbox" role="switch" aria-labelledby="ps-{k.key}" checked={p.kinds[k.key]} disabled={busy} onchange={(e) => setKind(k.key, e.currentTarget.checked)} />
         </li>
+        {#if k.key === 'eve'}
+          <!-- Idee A2: the name and what it does stay in sight; the offer itself comes after 3 evenings -->
+          <li class="ps-row ps-sub" data-remind-time>
+            <span class="ps-m"><b>{t('Reminder at your time')}</b><small>{t('After 3 evenings the app suggests moving the reminder to when you usually do the check.')}</small></span>
+          </li>
+        {/if}
         {#if k.key === 'wxwatch' && p.kinds.wxwatch}
           <li class="ps-row ps-sub" data-push-tours>
             {#if watchTrips.length}

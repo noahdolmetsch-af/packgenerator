@@ -5,6 +5,7 @@ export default {
   'No, thanks': 'Nein, danke',
   'The evening reminder now comes at {time}.': 'Die Abend-Erinnerung kommt jetzt um {time}.',
   'Reminder at your time': 'Erinnerung zu deiner Zeit',
+  'After 3 evenings the app suggests moving the reminder to when you usually do the check.': 'Nach 3 Abenden schlägt die App vor, die Erinnerung dorthin zu schieben, wann du den Check meist machst.',
   'The app notes when you open the evening-before check and offers to move the reminder there.': 'Die App merkt sich, wann du den Abend-Check öffnest, und schlägt vor, die Erinnerung dorthin zu legen.',
   'Open the evening-before check on the evening before a trip, as usual.': 'Öffne den Abend-Check am Vorabend einer Tour wie immer.',
   'From the third evening the app knows your usual time.': 'Ab dem dritten Abend kennt die App deine übliche Zeit.',
