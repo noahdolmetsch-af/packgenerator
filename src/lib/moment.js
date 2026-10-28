@@ -144,7 +144,7 @@ export const FEATURE_MOMENTS = {
   koerper: [
     'f.tick', 'f.check', 'f.stopwatch', 'f.sportpage', 'f.progress', 'f.mosaic', 'f.sportextras', 'f.goals',
     'f.yeargoals', 'f.abfragen', 'f.stravaticks', 'f.lake', 'f.datastars', 'f.training', 'f.form',
-    'f.overview', 'f.trainplans', 'f.feel', 'f.analyses', 'f.weekreview', 'f.milestones', 'f.meditation',
+    'f.overview', 'f.trainplans', 'f.feel', 'f.analyses', 'f.analyse', 'f.weekreview', 'f.milestones', 'f.meditation',
     'f.medlog', 'f.medreview', 'f.gipfelbuch', 'f.routine', 'f.insights', 'f.timer', 'f.medmore',
     'f.parkdays', 'f.tennistop', 'f.yogaclasses', 'f.ownbody', 'f.observations', 'f.ridepage', 'f.tickreview',
     'f.experiment', 'f.specialdays', 'f.counterdays', 'f.laterview', 'f.freerewards', 'f.tworoles',
