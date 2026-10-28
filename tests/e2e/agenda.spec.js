@@ -112,10 +112,32 @@ test('Termine und Aufgaben: connect, see the next days, tick and add a task, ent
   await form.getByLabel(de('Title')).fill('Velo-Service');
   await form.getByLabel(de('From|time')).fill('17:30');
   await form.getByLabel(de('To|time'), { exact: true }).fill('18:00');
+  // the editor of Google: a reminder a day before, free, a description
+  await form.getByLabel(de('Description (optional)')).fill('Kette und Bremsen');
+  await form.getByLabel(de('Google standard reminders')).uncheck();
+  await form.getByLabel(de('How long before')).fill('1');
+  await form.getByLabel(de('Unit')).selectOption('days');
+  await form.getByLabel(de('Show me as')).selectOption({ label: de('Free|show') });
   await shot(page, info, 'A3-termin');
   await form.getByRole('button', { name: de('Enter in Google') }).click();
-  await expect.poll(() => log.find((x) => x.step === 'cal-save')?.body).toMatchObject({ cal: 'cal1', title: 'Velo-Service', day: day(0), allDay: false, from: '17:30', to: '18:00' });
+  await expect.poll(() => log.find((x) => x.step === 'cal-save')?.body).toMatchObject({ cal: 'cal1', title: 'Velo-Service', day: day(0), allDay: false, from: '17:30', to: '18:00', note: 'Kette und Bremsen', busy: false, visibility: 'default', tz: 'Europe/Zurich', remind: [{ minutes: 1440, method: 'popup' }] });
   await expect(page.getByText('Velo-Service').first()).toBeVisible();
+
+  // «Duplicate»: the form is filled in and nothing goes to Google before «Enter in Google»
+  const saves = log.filter((x) => x.step === 'cal-save').length;
+  const row = page.getByRole('button', { name: /Zahnarzt Muster/ });
+  const shown = (await row.locator('.time').innerText()).trim(); // the fixture says +02:00; Zurich is on winter time now
+  await row.click();
+  await page.getByRole('button', { name: de('Duplicate') }).click();
+  const copy = page.getByRole('form', { name: de('Copy appointment') });
+  await expect(copy.getByLabel(de('Title'))).toHaveValue('Zahnarzt Muster');
+  await expect(copy.getByLabel(de('From|time'))).toHaveValue(shown);
+  expect(log.filter((x) => x.step === 'cal-save').length).toBe(saves);
+  await copy.getByRole('button', { name: de('Enter in Google') }).click();
+  await expect.poll(() => log.filter((x) => x.step === 'cal-save').length).toBe(saves + 1);
+  const dup = log.filter((x) => x.step === 'cal-save').at(-1).body;
+  expect(dup).toMatchObject({ cal: 'cal1', title: 'Zahnarzt Muster', day: day(0), from: shown });
+  expect(dup.gid).toBeUndefined();
 
   // which calendars: the holidays too
   await page.getByRole('checkbox', { name: /Feiertage/ }).check();
