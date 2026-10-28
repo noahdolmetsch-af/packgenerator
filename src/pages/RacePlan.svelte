@@ -14,6 +14,7 @@
   import RaceLearnings from '../lib/race/RaceLearnings.svelte';
   import BikeCountdown from '../lib/race/BikeCountdown.svelte';
   import RaceTools from '../lib/race/RaceTools.svelte';
+  import StopRoutine from '../lib/race/StopRoutine.svelte';
   import { db } from '../lib/db.js';
   import { racesQuery, saveRace } from '../lib/race/store.js';
   import { raceTrips, countdown } from '../lib/race/race.js';
@@ -56,7 +57,7 @@
         {#if countdown(trip.startDate, today)?.days > 0}{' '}· {tn(countdown(trip.startDate, today).days, 'in {n} day', 'in {n} days')}{/if}
       </p>
       <p><a class="btn sm" href={raceHref(trip.id)} data-racecheck-race><Flag size={16} aria-hidden="true" />{t('Route, strategy and race mode')}</a></p>
-      {#if ctx}<RaceLearnings {ctx} /><RaceLinks {ctx} /><Nonstop {ctx} /><BikeCountdown {ctx} /><RaceTools {ctx} /><Check {ctx} />{/if}
+      {#if ctx}<RaceLearnings {ctx} /><RaceLinks {ctx} /><Nonstop {ctx} /><BikeCountdown {ctx} /><RaceTools {ctx} /><StopRoutine {ctx} /><Check {ctx} />{/if}
     {/if}
   </div>
 {:else}

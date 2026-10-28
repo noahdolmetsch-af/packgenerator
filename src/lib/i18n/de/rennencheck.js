@@ -278,4 +278,18 @@ export default {
   'For quick fixes': 'Für schnelle Reparaturen',
   'Coming|races': 'Kommende',
   'Done|races': 'Vorbei',
+  // «Nacht-Stopp-Ablauf» (Noah 28.10.2026)
+  'Night stop routine': 'Nacht-Stopp-Ablauf',
+  'What you do at every night stop, one after the other. Tick it off, then start fresh at the next stop.': 'Was du bei jedem Nacht-Stopp machst, eins nach dem andern. Abhaken, beim nächsten Stopp neu anfangen.',
+  'All done. Good night!': 'Alles erledigt. Gute Nacht!',
+  'stop {n}': 'Stopp {n}',
+  'Next stop: ticks off': 'Nächster Stopp: Haken weg',
+  'e.g. Brush your teeth': 'z. B. Zähne putzen',
+  'Ready for the next stop: all ticks are off.': 'Bereit für den nächsten Stopp: alle Haken sind weg.',
+  'Buy for the next stretch: food and drink for how many hours?': 'Einkaufen fürs nächste Stück: Essen und Trinken für wie viele Stunden?',
+  'Eat something warm and drink': 'Etwas Warmes essen und trinken',
+  'Charge phone, bike computer and lights': 'Handy, Velocomputer und Lichter laden',
+  'Dry or change clothes, warm layer ready': 'Kleider trocknen oder wechseln, warme Schicht bereit',
+  'Check the tyre pressure': 'Reifendruck prüfen',
+  'Set the alarm, then sleep': 'Wecker stellen, dann schlafen',
 };
