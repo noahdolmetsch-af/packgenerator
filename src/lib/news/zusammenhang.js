@@ -3,9 +3,9 @@ export default {
   title: 'What goes together?',
   lead: 'One value against another, each point a day; also the day after, e.g. sauna today and sleep the night after.',
   points: [
-    { text: 'In words: how strong, how much per step, how many days; activity days in orange', href: '#/auswerten/analyse' },
-    { text: 'The strongest links in your data as a list; a tap shows the pair', href: '#/auswerten/analyse' },
-    { text: '«Was auffällt» under your diagram: the clearest links among its values', href: '#/auswerten/analyse' },
+    { text: 'In words: how strong, how much per step, how many days; activity days in orange', go: 'f.analyse' },
+    { text: 'The strongest links in your data as a list; a tap shows the pair', go: 'f.analyse' },
+    { text: '«Was auffällt» under your diagram: the clearest links among its values', go: 'f.analyse' },
   ],
   small: [],
   test: [
