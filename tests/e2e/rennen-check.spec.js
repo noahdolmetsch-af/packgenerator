@@ -59,3 +59,27 @@ test('Race check: the races page, five sheets that keep what you write, answers 
   await page.goto('./#/racecheck');
   await expect(row).toContainText(T('check: {n} fields filled', { n: 4 }));
 });
+
+test('Race links: handbook, rules, tracker, website and own links', async ({ page, context }, info) => {
+  const T = await openHome(page, context, info);
+  await page.goto('./#/race');
+  await page.locator('[data-race-sample-open]').click();
+  await expect(page).toHaveURL(/#\/race\/race-sample$/);
+  await page.goto('./#/racecheck/race-sample');
+  const box = page.locator('[data-race-links]');
+  await expect(box).toContainText(T('Links to the race'));
+  await box.locator('[data-race-link-kind="handbook"]').click();
+  await expect(box.locator('[data-race-link-kind="handbook"]')).toHaveCount(0);
+  await expect(box).toContainText(T('No address yet: tap to add it'));
+  await box.locator('.rc-row-main').first().click();
+  await page.locator('[data-race-link-url]').fill('https://example.org/handbook.pdf');
+  await page.locator('[data-sheet-save]').click();
+  await expect(box.locator('[data-race-link-open]')).toHaveAttribute('href', 'https://example.org/handbook.pdf');
+  // an address typed as the name becomes the link
+  await box.locator('[data-race-add="links"]').fill('www.example-race.org/live');
+  await box.locator('[data-race-add="links"]').press('Enter');
+  await expect(box.locator('[data-race-link-open]')).toHaveCount(2);
+  await expect(box).toContainText('example-race.org');
+  await noSideways(page);
+  await box.screenshot({ path: info.outputPath('rennen-links.png') });
+});
