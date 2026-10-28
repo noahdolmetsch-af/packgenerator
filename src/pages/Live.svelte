@@ -68,8 +68,10 @@
   import LiveWebcam from '../lib/live/LiveWebcam.svelte';
   import { camsQuery, camsOnMap, camOfPoint } from '../lib/wetter/webcamsmap.js';
   import { db } from '../lib/db.js';
-  import { rec, startRecording, stopRecording, openRecording, pauseRecording, resumeRecording, addSensor, setGpsLow, lapRecording } from '../lib/spur/recorder.svelte.js';
+  import { rec, startRecording, stopRecording, openRecording, pauseRecording, resumeRecording, addSensor, setGpsLow, lapRecording, setPauseWhy, addPastPause } from '../lib/spur/recorder.svelte.js';
   import PauseBar from '../lib/live/PauseBar.svelte';
+  import ForgotPause from '../lib/tourenc/ForgotPause.svelte'; // Touren c 61
+  import { forgotStep, whyOf } from '../lib/tourenc/pausewhy.js'; // Touren c 60/61
   import TurnHint from '../lib/live/TurnHint.svelte';
   import { turnsOf, nextTurn, turnSay } from '../lib/live/turns.js';
   import { lapNow, lapsOf, ghostOf, ghostDelta, lastRideOf, deltaText } from '../lib/live/laps.js';
@@ -79,6 +81,7 @@
   import { PAGES_KEY, cleanPages, fieldCatalogue } from '../lib/live/datapages.js';
   import { statsOf } from '../lib/live/ble.js';
   import { distKm as distKmPts } from '../lib/spur/polyline.js';
+  import { CATEGORY as PLACE_KIND } from '../lib/map/poisearch.js';
   import SensorBox from '../lib/live/SensorBox.svelte';
   import { fresh, onValue } from '../lib/live/sensors.svelte.js';
   import { limitStep } from '../lib/live/ble.js';
@@ -293,7 +296,8 @@
   /* ---------- formatting ---------- */
   const when = (ms) => (Number.isFinite(ms) ? (dayOfMs(ms) === dayOfMs(now) ? hhmm(ms) : `${new Date(ms).toLocaleDateString(locale(), { weekday: 'short', timeZone: 'Europe/Zurich' })} ${hhmm(ms)}`) : '');
   const fmtKm = (k) => (k == null ? '–' : k >= 100 ? num(Math.round(k)) : num(Math.round(k * 10) / 10));
-  const kindName = (k) => t(POI_KIND[k]?.name ?? 'Other stop');
+  // a kind of the place search (sauna, shower …) has its own name; a point without a kind is «a point on the map», never «Other stop» (Noah 27.10.2026)
+  const kindName = (k) => t(POI_KIND[k]?.name ?? PLACE_KIND[k]?.name ?? 'Point on the map');
   const openLine = (s) => {
     // water, beds and stations have no shop hours: say nothing rather than «unknown»
     if (!s.open || s.open.open == null) return ['shop', 'food', 'fuel', 'bike'].includes(s.kind) ? t('Opening hours unknown') : '';
@@ -429,6 +433,14 @@
   let autoSt = {};
   let standSince = null;
   let standing = $state(false);
+  // Touren c 61: a long standing time without «Pause» → ask afterwards what it was
+  let forgotSt = {};
+  let forgotAsk = $state(null);
+  async function answerForgot(why) {
+    const a = forgotAsk;
+    forgotAsk = null;
+    if (a && why) await addPastPause(a.from, a.to, why);
+  }
   let gainSt = $state({ base: null, gain: 0 });
   let maxKmh = $state(0);
   let hrSt = {};
@@ -465,6 +477,12 @@
       if (r.act === 'pause') pauseNow(true);
       if (r.act === 'resume') goOn();
     }
+    // Touren c 61: only without the auto-pause (that one pauses by itself)
+    if (rec.on && !cfg.autoPause) {
+      const f = forgotStep(forgotSt, { kmh: kmhNow, now, paused: rec.paused });
+      forgotSt = f.st;
+      if (f.ask) forgotAsk = f.ask;
+    }
     // the hint: standing a minute without a pause
     if (!rec.paused && !cfg.autoPause && Number.isFinite(kmhNow) && kmhNow < 2) {
       standSince ??= now;
@@ -495,6 +513,8 @@
       maxKmh = 0;
       autoSt = {};
       standing = false;
+      forgotSt = {};
+      forgotAsk = null;
     });
   });
 
@@ -644,6 +664,10 @@
   let backBusy = $state(false);
   let backErr = $state('');
   const arrived = $derived(hasRoute && detour?.fromKm != null && atPlace(detour, me));
+  // «Nur hin»: the detour remembers that you were at the place, so riding back onto the route ends it
+  $effect(() => {
+    if (arrived && detour?.oneWay && !detour.reached) untrack(() => setDetour({ ...detour, reached: true }, false));
+  });
   const routerErr = (e) =>
     e?.message === 'busy'
       ? t('The bike router is busy right now. Try again in a minute, or use a navigation app.')
@@ -933,10 +957,19 @@
   let poiTapping = $state(false);
   // «Ziel wählen» (Versteckte Funktionen, Noah 22.10.2026 «1a»): a button in place of the long press only; the next tap on the map is the goal
   let goalTapping = $state(false);
+  // a tapped goal takes the name of a known place right there (80 m), else it stays «a point on the map»
+  function nameNear(p) {
+    let best = null;
+    for (const x of [...pois, ...poiPoints]) {
+      const d = distKmPts([Number(x.lat), Number(x.lon)], [p.lat, p.lon]) * 1000;
+      if (d <= 80 && (!best || d < best.d)) best = { d, name: x.name || kindName(x.kind) };
+    }
+    return best?.name ?? t('Point on the map');
+  }
   function mapTap(e) {
     if (goalTapping && Number.isFinite(e?.lat)) {
       goalTapping = false;
-      picked = { lat: e.lat, lon: e.lon };
+      picked = { lat: e.lat, lon: e.lon, name: nameNear(e) };
       reroute = true;
       return;
     }
@@ -1153,8 +1186,8 @@
           <div class="lvf-alert lv-detour" role="status" data-live-detour data-live-detour-back={detour.back ?? null}>
             <Route size={18} aria-hidden="true" />
             <span class="lv-detour-main">
-              <b>{detour.back === 'auto' ? t('New way back onto the route') : detour.back === 'same' ? t('The same way back') : detour.back ? t('Way back onto the route') : t('Detour to {name}', { name: detour.target.name || t('the point') })}</b>
-              <small>{[t('{d} km', { d: fmtKm(detour.km) }), detour.gainM ? `${num(detour.gainM)} m ↑` : '', detour.min ? t('about {min} min', { min: num(detour.min) }) : '', detour.rejoin ? t('back on the route at km {km}', { km: num(Math.round(detour.rejoin.km)) }) : '', detour.extraKm != null && detour.extraKm > 0 ? t('{d} km more', { d: fmtKm(detour.extraKm) }) : '', detour.skippedKm > 0 ? t('{d} km of the route left out', { d: fmtKm(detour.skippedKm) }) : ''].filter(Boolean).join(' · ')}</small>
+              <b>{detour.back === 'auto' ? t('New way back onto the route') : detour.back === 'same' ? t('The same way back') : detour.back ? t('Way back onto the route') : detour.oneWay ? t('To {name}', { name: detour.target.name || t('the point') }) : t('Detour to {name}', { name: detour.target.name || t('the point') })}</b>
+              <small>{[t('{d} km', { d: fmtKm(detour.km) }), detour.gainM ? `${num(detour.gainM)} m ↑` : '', detour.min ? t('about {min} min', { min: num(detour.min) }) : '', detour.oneWay && detour.min && !detour.reached ? t('there about {at}', { at: hhmm(detour.at + detour.min * 60000) }) : '', detour.rejoin ? t('back on the route at km {km}', { km: num(Math.round(detour.rejoin.km)) }) : '', detour.extraKm != null && detour.extraKm > 0 ? t('{d} km more', { d: fmtKm(detour.extraKm) }) : '', detour.skippedKm > 0 ? t('{d} km of the route left out', { d: fmtKm(detour.skippedKm) }) : ''].filter(Boolean).join(' · ')}</small>
               {#if detour.back === 'auto'}
                 <small>{t('You were off the route, so the app planned the shortest way back.')}</small>
                 <span class="lv-back-acts">
@@ -1187,7 +1220,8 @@
       </div>
 
       {#if !rec.paused}<button type="button" class="lvf-lap" style:bottom="{padB + 12}px" onclick={newLap} aria-label={t('New lap')} data-live-lap><Flag size={20} aria-hidden="true" /><small>{lap?.n ?? 1}</small></button>{/if}
-      <PauseBar paused={rec.paused} auto={rec.auto} {standing} movingS={movingLive} pausedS={pausedLive} limit={autoKmh} bottom={padB + 12} onpause={() => pauseNow(false)} onresume={goOn} onstop={stop} />
+      <PauseBar paused={rec.paused} auto={rec.auto} {standing} movingS={movingLive} pausedS={pausedLive} limit={autoKmh} bottom={padB + 12} why={whyOf(rec.whys, rec.breaks.at(-1)?.[0])} eta={arr ? when(arr.eta) : ''} onwhy={(w) => setPauseWhy(w)} onpause={() => pauseNow(false)} onresume={goOn} onstop={stop} />
+      {#if forgotAsk && !rec.paused}<ForgotPause ask={forgotAsk} bottom={padB + 12} onanswer={answerForgot} />{/if}
       <button type="button" class="lvf-ic lvf-photo" class:lvf-hidden={snap === 'full' || dpIndex > 0} onclick={() => (place = true)} style:bottom="{padB + 70}px" aria-label={t('Photo or note with the place')} data-live-photo><Camera size={22} aria-hidden="true" /></button>
 
       <!-- Versteckte Funktionen (Noah 22.10.2026): the emergency window one tap away, not only in «⋯» -->

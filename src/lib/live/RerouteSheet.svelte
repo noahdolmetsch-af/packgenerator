@@ -22,6 +22,9 @@
   });
 
   let profile = $state(PROFILE_STD);
+  // «Nur hin» first (Noah 27.10.2026 «2a»): only the way there, the app asks at the place how you go back
+  let oneWay = $state(true);
+  const withRoute = $derived(pts.length > 1);
   let busy = $state('');
   let err = $state('');
   let failed = $state(null); // the place the router could not answer for (offer the navigation apps)
@@ -38,7 +41,7 @@
     err = '';
     failed = null;
     try {
-      const d = await planDetour({ here, target, pts, fromKm: pts.length > 1 ? km : null, profile });
+      const d = await planDetour({ here, target, pts, fromKm: pts.length > 1 ? km : null, profile, oneWay: withRoute && oneWay });
       onplan?.(d);
       dialog.close();
     } catch (e) {
@@ -88,7 +91,13 @@
     <h2 id="rr-h">{t('Plan a new way to …')}</h2>
     <button type="button" class="rc-icon" aria-label={t('Close')} onclick={() => dialog.close()}><X size={20} aria-hidden="true" /></button>
   </div>
-  <p class="rc-note">{pts.length > 1 ? t('Choose a place: the app plans a bike way there and back onto your route a little after it. Your route stays as it is.') : t('Choose a place: the app plans a bike way there from where you are.')}</p>
+  <p class="rc-note">{withRoute ? (oneWay ? t('Choose a place: the app plans a bike way there. At the place it asks how you go back onto your route.') : t('Choose a place: the app plans a bike way there and back onto your route a little after it. Your route stays as it is.')) : t('Choose a place: the app plans a bike way there from where you are.')}</p>
+  {#if withRoute}
+    <div class="rr-chips" role="group" aria-label={t('Which way')}>
+      <button type="button" class="rr-chip" aria-pressed={oneWay} onclick={() => (oneWay = true)} data-reroute-oneway>{t('Only there')}</button>
+      <button type="button" class="rr-chip" aria-pressed={!oneWay} onclick={() => (oneWay = false)} data-reroute-roundtrip>{t('There and back onto the route')}</button>
+    </div>
+  {/if}
   {#if !here}<p class="rc-warn" role="status">{t('Waiting for the GPS …')}</p>{/if}
 
   <div class="rr-chips" role="group" aria-label={t('Kind of way')}>
