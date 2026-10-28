@@ -24,6 +24,7 @@ export function backClose(node, onBack = null) {
   let token = null; // our entry while the dialog is open
   let url = '';
   let leaving = false; // we call history.back() ourselves
+  let tapped = true; // our entry was added in a tap (user activation)
 
   const push = () => {
     if (token) return;
@@ -36,10 +37,18 @@ export function backClose(node, onBack = null) {
     // («Neu» → «Werkstattbesuch»); a dialog that is no longer open gives its entry up too.
     const cur = history.state?.pgDialog;
     const owner = cur ? live.get(cur) : null;
+    // Fix 27.10.2026 (AB3): a dialog that opens by itself (Heute's check window, no tap) adds its entry without
+    // user activation. Chrome then marks the page's own entry as skippable, and history.back() skips it too:
+    // closing the dialog left Heute. Such an entry is not taken back with history.back() but cleared in place.
+    // An entry taken over from before a reload counts as one without a tap as well.
     if (cur && (!owner || !owner.open)) {
       live.delete(cur);
+      tapped = !!owner && (navigator.userActivation?.isActive ?? true);
       history.replaceState(state, '', url);
-    } else history.pushState(state, '', url);
+    } else {
+      tapped = navigator.userActivation?.isActive ?? true;
+      history.pushState(state, '', url);
+    }
     live.set(token, node);
   };
   const drop = () => {
@@ -52,6 +61,11 @@ export function backClose(node, onBack = null) {
     // entry over; only when we are still on our own entry, it is taken away
     setTimeout(() => {
       if (history.state?.pgDialog === mine && location.href === url) {
+        if (!tapped) {
+          const { pgDialog: _, ...rest } = history.state ?? {};
+          history.replaceState(Object.keys(rest).length ? rest : null, '', url);
+          return;
+        }
         leaving = true;
         history.back();
       }
