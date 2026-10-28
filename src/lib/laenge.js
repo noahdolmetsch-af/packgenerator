@@ -42,9 +42,8 @@ export const TOO_LONG = {
   '#/flow/training': 7,
   // «Aktiv neu» (Noah 22.10.2026): «Ziele» is «Meine Sportarten»; «Aktivität» is a page of it, no tab any more
   '#/flow/sports': 4.5,
-  // «Aktiv neu»: Meilensteine is a tab of Auswerten now, so the guard measures it for the first time (6.25 on the phone);
-  // the thread «Meilensteine als Belohnung» rebuilds the page and lowers this number
-  '#/flow/milestones': 6.5,
+  // «Meilensteine kürzer» (Noah 27.10.2026 «2a»): the long parts wait folded on a phone (3.19 measured; 6.25 before)
+  '#/flow/milestones': 3.5,
   '#/flow/impulse': 14,
   // 0.171: the sample questions that are off wait folded per area (6.33 measured; 7.22 in 0.170)
   '#/me/abfragen': 6.5,
