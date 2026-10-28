@@ -2,8 +2,8 @@
 export default {
   title: 'Fold the goal box in',
   lead: 'The X on the box «To …» folds it to one line. Ending the navigation is its own button, with Undo.',
-  points: [{ text: 'Tap the one line to open the box again', href: '#/live' }],
-  small: [{ box: 'nicer', text: '«End navigation» can be undone' }],
+  points: [{ text: 'Tap the one line to open the box again', href: '#/live', go: 'f.reroute' }],
+  small: [{ box: 'nicer', text: '«End navigation» can be undone', go: 'f.reroute' }],
   test: ['Live map: ride to a goal, tap the X on the box: it shrinks to one line.', 'Tap the line, then «Navigation beenden»: the box goes, «Rückgängig» brings it back.'],
   since: [],
   de: {
