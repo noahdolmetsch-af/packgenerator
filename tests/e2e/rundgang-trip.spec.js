@@ -3,7 +3,7 @@
 // L7  the debrief opens from the trip's last day; before the start On the way leads back to Pack.
 // L9  New trip without a bike adds one inline; a trip without any gear lands in a friendly empty Plan.
 // Fictional fixture plus test_data_gtp_ items, bikes and trips; nothing leaves the preview server.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { endMenu } from './ending.js';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';

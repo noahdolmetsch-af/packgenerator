@@ -6,7 +6,7 @@
 // Import: after "Alle sicheren übernehmen" the line says "übernommen …"; an apply without anything
 // new says "Nichts zu ergänzen: alle Teile waren schon vollständig.", Undo still works.
 // Fictional fixture (pf-fixture.json, test_data_gtp_ names); nothing leaves the preview server.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';

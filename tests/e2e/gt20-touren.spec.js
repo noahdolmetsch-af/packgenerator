@@ -3,7 +3,7 @@
 // a) B3: Touren › Fahrten is its own tab (bar and sidebar), the old address #/trips still opens Übersicht;
 // b) C9: the races are rows like the app's other lists (not underlined, the whole row a 44 px link, ›);
 // c) C4: a very long trip name without spaces wraps on the Reise-Spur, the page never moves sideways.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { openHome, homeFixture } from './home0460-fixture.js';
 import { toAnalysis, tapTab } from './placetab.js';
 

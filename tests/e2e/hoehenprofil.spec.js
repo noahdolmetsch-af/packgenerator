@@ -3,7 +3,7 @@
 // «Geplant gegen echt», the planned route dashed over it, a planned trip with a route shows a small profile on
 // its Touren tile, and Vergangene Touren shows a small profile per trip with a GPX ride. Phone and computer,
 // in German, no sideways scroll, no page errors. Fictional data only (the Gesamttest fixture).
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { start, fixture } from './gesamttest/lib.js';
 import { settle } from './settle.js';
 import DE from '../../src/lib/i18n/de/index.js';
