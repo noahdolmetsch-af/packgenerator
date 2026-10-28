@@ -141,4 +141,6 @@ export default {
   'Open Trips › «Plan races in detail».': 'Öffne Touren › «Rennen detailliert planen».',
   'Tap a race.': 'Tippe ein Rennen an.',
   'Fill in the sheets 1 to 5; «Load answers» takes a file from the fillable sheets page.': 'Füll die Blätter 1 bis 5 aus; «Antworten laden» nimmt eine Datei von der Seite zum Ausfüllen.',
+  'Coming|races': 'Kommende',
+  'Done|races': 'Vorbei',
 };
