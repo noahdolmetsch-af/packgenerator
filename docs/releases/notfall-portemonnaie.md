@@ -13,6 +13,7 @@ PR (diese Änderung) · 28.10.2026 · Auftrag: Noah «a) bauen» (Thread «16 ne
 - Schwarz auf Weiss, damit es auf jedem Drucker lesbar ist; der Code steht rechts, 24 mm gross.
 - Höchstens 8 Zeilen auf der Karte; der Code enthält immer alle Angaben.
 - Nur am Knopf sichtbar, kein neuer Eintrag in «Was kann die App» (Teil von «Notfall-QR»).
+- Die Druckgrössen und Druckfarben stehen als eigene Werte in `src/app.css` (`--fs-print`, `--print-ink`), damit der Stil-Wächter streng bleibt.
 
 ## Entscheide (für decisions.md)
 - 28.10.2026: Notfall-Karte zum Ausdrucken fürs Portemonnaie bauen (Noah «a) bauen», Idee 1158).
