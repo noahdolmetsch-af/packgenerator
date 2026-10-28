@@ -3,10 +3,10 @@ export default {
   title: 'FIT files with all their values',
   lead: 'Upload a FIT file from your bike computer or watch like a GPX, with what only the unit knows.',
   points: [
-    { text: 'Rides › Choose file takes .fit too: km, climbing, pauses, heart rate, cadence, power and temperature', href: '#/debrief/ride' },
-    { text: 'New on the ride page: «From the unit» with normalized power, IF / TSS, training effect, left / right balance, laps, gear changes and battery' },
+    { text: 'Rides › Choose file takes .fit too: km, climbing, pauses, heart rate, cadence, power and temperature', href: '#/debrief/ride', go: 'f.upload' },
+    { text: 'New on the ride page: «From the unit» with normalized power, IF / TSS, training effect, left / right balance, laps, gear changes and battery', go: { href: '#/debrief/ride', where: 'Shows on the ride page after you open a .fit file.' } },
   ],
-  small: [{ box: 'new', text: 'Works for Garmin, Wahoo, Hammerhead, Coros, Polar and Suunto; the file stays on your device' }],
+  small: [{ box: 'new', text: 'Works for Garmin, Wahoo, Hammerhead, Coros, Polar and Suunto; the file stays on your device', go: null }],
   test: [
     'In Garmin Connect open a ride, ⚙ → Export Original, open the ZIP: you get a .fit file.',
     'In the app: Touren › Rückblick › Fahrten › Datei wählen, choose the .fit file, save: the ride page shows km, Puls and, under «Vom Gerät», Normleistung and Trainingseffekt.',
