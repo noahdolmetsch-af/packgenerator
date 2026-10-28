@@ -7,7 +7,7 @@
    * sorted (arrows and drag) and deleted (their people stay), people are changed and deleted (asked first, Undo).
    */
   import { liveQuery } from 'dexie';
-  import { Pencil, Trash2, Plus, Camera, Phone, AtSign, Mail, Maximize, X } from '@lucide/svelte';
+  import { Pencil, Trash2, Plus, Camera, Phone, AtSign, Mail, Maximize, X, Smartphone, Sticker } from '@lucide/svelte';
   import { db } from '../db.js';
   import { t, locale } from '../i18n.svelte.js';
   import QrCode from '../ich/QrCode.svelte';
@@ -55,6 +55,41 @@
   function setDays(d) {
     card.days = d;
     saveCard();
+  }
+  /* step 4 («5a»): the card as a lock-screen image or a sticker «Found?»; the link has no end day and no
+     payment details, because an image stays for a long time. Drawn here, shared or downloaded. */
+  const imgLink = $derived(shown.name ? cardLink(shown, `${location.origin}${location.pathname}`) : '');
+  let imgBusy = $state('');
+  let imgMsg = $state('');
+  async function image(kind) {
+    imgBusy = kind;
+    imgMsg = '';
+    try {
+      const { drawCardImage, toFile } = await import('./cardimage.js');
+      const words = {
+        title: kind === 'sticker' ? t('Found?') : t('Found this phone?'),
+        scan: t('Scan to reach me'),
+        name: shown.name,
+        line: shown.phone || shown.email || '',
+      };
+      const canvas = await drawCardImage(kind, imgLink, words);
+      const file = await toFile(canvas, kind === 'sticker' ? t('sticker-found.png') : t('contact-lock-screen.png'));
+      if (navigator.canShare?.({ files: [file] })) {
+        await navigator.share({ files: [file], title: t('Contact card') });
+      } else {
+        const url = URL.createObjectURL(file);
+        const a = Object.assign(document.createElement('a'), { href: url, download: file.name });
+        document.body.append(a);
+        a.click();
+        a.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 5000);
+      }
+      imgMsg = kind === 'sticker' ? t('Sticker ready. Print it about 5 cm wide, for example on sticker paper.') : t('Image ready. Set it as the lock screen in the phone settings under wallpaper.');
+    } catch (err) {
+      if (err?.name !== 'AbortError') imgMsg = t('The image could not be made. Try again.');
+    } finally {
+      imgBusy = '';
+    }
   }
   function setPay(on) {
     card.payOn = on;
@@ -205,6 +240,17 @@
         {:else}
           <p class="ev-muted" data-card-paymissing>{t('No account and no TWINT number yet. Enter them once under Me › Pay, then you can add them here.')} <a href="#/me/pay/invoices/new">{t('Enter account')}</a></p>
         {/if}
+      </div>
+    {/if}
+    {#if shown.name}
+      <div role="group" aria-labelledby="cc-img-h" data-card-images>
+        <p id="cc-img-h" class="ev-strong">{t('As an image')}</p>
+        <div class="cc-seg">
+          <button type="button" class="btn sm" onclick={() => image('lock')} disabled={!!imgBusy} data-card-img="lock"><Smartphone size={18} aria-hidden="true" />{t('Lock screen')}</button>
+          <button type="button" class="btn sm" onclick={() => image('sticker')} disabled={!!imgBusy} data-card-img="sticker"><Sticker size={18} aria-hidden="true" />{t('Sticker «Found?»')}</button>
+        </div>
+        <p class="ev-muted">{t('The lock-screen image helps whoever finds your phone; the sticker goes on the bike, the helmet or a bag. Both open the page with buttons, without an end day and without payment details.')}</p>
+        {#if imgMsg}<p class="ev-muted" role="status" data-card-imgmsg>{imgMsg}</p>{/if}
       </div>
     {/if}
   </div>

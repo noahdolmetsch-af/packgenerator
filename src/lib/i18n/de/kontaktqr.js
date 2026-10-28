@@ -56,4 +56,17 @@ export default {
   'Copy TWINT number': 'TWINT-Nummer kopieren',
   'QR bill for {name}': 'QR-Rechnung für {name}',
   'Scan it with your banking app and type the amount there.': 'Mit der Banking-App scannen und dort den Betrag eintragen.',
+  // Kontakt-QR-Code step 4: lock screen and sticker (Noah «5a»)
+  'As an image': 'Als Bild',
+  'Lock screen': 'Sperrbildschirm',
+  'Sticker «Found?»': 'Sticker «Gefunden?»',
+  'The lock-screen image helps whoever finds your phone; the sticker goes on the bike, the helmet or a bag. Both open the page with buttons, without an end day and without payment details.':
+    'Das Sperrbildschirm-Bild hilft, wer dein Handy findet; der Sticker kommt aufs Velo, den Helm oder eine Tasche. Beide öffnen die Seite mit Knöpfen, ohne Ablauf und ohne Zahlungsangaben.',
+  'Found?': 'Gefunden?',
+  'Found this phone?': 'Handy gefunden?',
+  'Scan to reach me': 'Scannen, um mich zu erreichen',
+  'sticker-found.png': 'sticker-gefunden.png',
+  'contact-lock-screen.png': 'kontakt-sperrbild.png',
+  'Sticker ready. Print it about 5 cm wide, for example on sticker paper.': 'Sticker bereit. Druck ihn etwa 5 cm breit, zum Beispiel auf Klebepapier.',
+  'Image ready. Set it as the lock screen in the phone settings under wallpaper.': 'Bild bereit. Leg es in den Handy-Einstellungen unter Hintergrund als Sperrbildschirm fest.',
 };

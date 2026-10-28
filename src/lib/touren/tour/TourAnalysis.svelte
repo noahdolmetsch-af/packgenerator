@@ -10,11 +10,20 @@
    */
   import { liveQuery } from 'dexie';
   import { db } from '../../db.js';
-  import { t, tn } from '../../i18n.svelte.js';
+  import { t, tn, num } from '../../i18n.svelte.js';
   import { hasDetail } from '../../training.js';
   import { tourValues, restOfTour, restDots, corrOf, corrWord } from '../tourana.js';
   import { longTimeS, n0, dates, DASH } from '../../review/fmt.js';
   import Help from '../../ui/Help.svelte';
+  import { niceScale, LABEL_MAX } from '../../charts/axis.js';
+  import GridLines from '../../charts/GridLines.svelte';
+  import YTicks from '../../charts/YTicks.svelte';
+  import Readout from '../../charts/Readout.svelte';
+  import DataTable from '../../charts/DataTable.svelte';
+  import ChartSheet from '../../charts/ChartSheet.svelte';
+  import { stepKey } from '../../charts/pick.js';
+  import Seg from '../../ui/Seg.svelte';
+  import { tourHref } from '../tour.js';
 
   /** d: the tour (tourdata.js loadTour). */
   let { d } = $props();
@@ -63,27 +72,93 @@
   /* ---- the dots: resting heart rate (x) against NP or Ø heart rate (y) ---- */
   const W = 420;
   const H = 170;
-  const PAD = { l: 38, r: 10, t: 10, b: 28 };
+  const PAD = { l: 10, r: 10, t: 10, b: 28 };
   const plot = $derived.by(() => {
     const ds = dotsOf.dots;
     if (ds.length < 3) return null;
     const xs = ds.map((p) => p.rest);
     const ys = ds.map((p) => p.y);
-    const x0 = Math.min(...xs) - 2;
-    const x1 = Math.max(...xs) + 2;
-    const y0 = Math.min(...ys) * 0.95;
-    const y1 = Math.max(...ys) * 1.05;
+    // «Genaue Werte» (Noah 27.10.2026): both axes in round steps with grid lines
+    // a little room around the dots, so none sits on the edge
+    const xs0 = niceScale([Math.min(...xs) - 1, Math.max(...xs) + 1], { count: 3 });
+    const ys0 = niceScale([Math.min(...ys) * 0.97, Math.max(...ys) * 1.03], { count: 3 });
+    const x0 = xs0.lo;
+    const x1 = xs0.hi;
+    const y0 = ys0.lo;
+    const y1 = ys0.hi;
     const X = (v) => PAD.l + ((v - x0) / (x1 - x0 || 1)) * (W - PAD.l - PAD.r);
     const Y = (v) => H - PAD.b - ((v - y0) / (y1 - y0 || 1)) * (H - PAD.t - PAD.b);
-    const xt = [Math.ceil(x0), Math.round((x0 + x1) / 2), Math.floor(x1)];
-    const yt = [Math.ceil(y0), Math.round((y0 + y1) / 2), Math.floor(y1)];
+    const xt = xs0.ticks;
+    const yt = ys0.ticks;
     return {
       pts: ds.map((p) => ({ ...p, x: X(p.rest), y2: Y(p.y), me: mine.has(p.id) })).sort((a, b) => a.me - b.me),
       xt: xt.map((v) => ({ v, x: X(v) })),
       yt: yt.map((v) => ({ v, y: Y(v) })),
+      Y,
     };
   });
   const yName = $derived(dotsOf.mode === 'np' ? t('NP') : t('Ø HR'));
+
+  /* ---- «Diagramme zum Antippen» (Noah 27.10.2026): the exact numbers of a dot, a tap opens its ride ---- */
+  const yUnit = $derived(dotsOf.mode === 'np' ? 'W' : t('bpm'));
+  // left to right by resting heart rate: the order of the arrow keys and of «‹ ›» in the window
+  const order = $derived(plot ? [...plot.pts].sort((a, b) => a.rest - b.rest || b.y - a.y || a.day.localeCompare(b.day)) : []);
+  let pick = $state(null);
+  let open = $state(null);
+  let view = $state('chart');
+  let svgEl = $state();
+  const fallback = $derived(Math.max(0, order.findIndex((p) => p.me)));
+  const cur = $derived(order[pick ?? fallback] ?? null);
+  const readout = $derived(
+    cur
+      ? {
+          title: cur.me ? `${dates(cur.day)} · ${t('this tour')}` : dates(cur.day),
+          items: [
+            { label: t('Resting heart rate'), value: `${n0(cur.rest)} ${t('bpm')}` },
+            { label: yName, value: `${n0(cur.y)} ${yUnit}` },
+          ],
+        }
+      : null,
+  );
+  const table = $derived({
+    head: [t('Date'), `${t('Resting heart rate')} (${t('bpm')})`, `${yName} (${yUnit})`],
+    rows: [...order].sort((a, b) => b.day.localeCompare(a.day)).map((p) => ({ key: p.id, cells: [dates(p.day), n0(p.rest), n0(p.y)] })),
+  });
+  /** The dot nearest to the finger or the mouse, in the svg's own units (it scales evenly). */
+  function nearest(e) {
+    const r = svgEl?.getBoundingClientRect();
+    if (!r || !(r.width > 0) || !order.length) return null;
+    const k = W / r.width;
+    const x = (e.clientX - r.left) * k;
+    const y = (e.clientY - r.top) * k;
+    let best = null;
+    let bd = Infinity;
+    order.forEach((p, i) => {
+      const dd = (p.x - x) ** 2 + (p.y2 - y) ** 2;
+      if (dd < bd) (bd = dd), (best = i);
+    });
+    return bd <= 40 ** 2 ? best : null;
+  }
+  function point(e) {
+    const i = nearest(e);
+    if (i != null) pick = i;
+  }
+  function tap(e) {
+    const i = nearest(e);
+    if (i != null) (pick = i), (open = i);
+  }
+  function key(e) {
+    if (e.key === 'Enter' || e.key === ' ') {
+      if (cur) open = order.indexOf(cur);
+      e.preventDefault();
+      return;
+    }
+    const i = stepKey(e.key, pick ?? fallback, order.length);
+    if (i == null) return;
+    pick = i;
+    e.preventDefault();
+  }
+  const sheet = $derived(open == null ? null : order[open]);
   const corrText = $derived.by(() => {
     if (!word) return t('From 5 rides with a resting heart rate the app shows whether the two go together.');
     if (word.strength === 'none') return t('So far no connection to see (r = {r}).', { r: r.toFixed(2) });
@@ -126,16 +201,36 @@
 
   {#if plot}
     <figure class="dots" data-ana-dots={dotsOf.mode}>
-      <svg viewBox="0 0 {W} {H}" role="img" aria-label={t('Resting heart rate against {y} on {n} rides', { y: yName, n: dotsOf.dots.length })}>
-        {#each plot.yt as g (g.v)}<line class="grid" x1={PAD.l} x2={W - PAD.r} y1={g.y} y2={g.y} /><text class="tick" x={PAD.l - 4} y={g.y + 3} text-anchor="end">{g.v}</text>{/each}
-        {#each plot.xt as g (g.v)}<text class="tick" x={g.x} y={H - PAD.b + 14} text-anchor="middle">{g.v}</text>{/each}
-        {#each plot.pts as p (p.id)}<circle cx={p.x} cy={p.y2} r={p.me ? 6 : 3.5} class:me={p.me}><title>{dates(p.day)}: {p.rest} · {Math.round(p.y)}</title></circle>{/each}
+      <div class="vw"><Seg small full={false} label={t('Show as')} value={view} onchange={(v) => (view = v)} options={[{ key: 'chart', name: t('Chart|table') }, { key: 'table', name: t('As table') }]} /></div>
+      {#if view === 'table'}
+      <DataTable head={table.head} rows={table.rows} />
+      {:else}
+      {#if readout}<Readout title={readout.title} items={readout.items} />{/if}
+      <!-- svelte-ignore a11y_no_noninteractive_tabindex, a11y_no_noninteractive_element_interactions, a11y_click_events_have_key_events -->
+      <div class="plotrow">
+      <YTicks ticks={plot.yt.map((g) => g.v)} y={plot.Y} h={H} text={(v) => num(v)} unit={yUnit} />
+      <svg bind:this={svgEl} viewBox="0 0 {W} {H}" role="img" tabindex="0" aria-label={t('Resting heart rate against {y} on {n} rides', { y: yName, n: dotsOf.dots.length })} onpointermove={point} onpointerdown={point} onclick={tap} onkeydown={key}>
+        <GridLines ticks={plot.yt.map((g) => g.v)} y={plot.Y} x1={PAD.l} x2={W - PAD.r} />
+        {#each plot.xt as g (g.v)}<text class="tick" x={g.x} y={H - PAD.b + 14} text-anchor="middle" data-ana-xt>{num(g.v)}</text>{/each}
+        {#each plot.pts as p (p.id)}<circle cx={p.x} cy={p.y2} r={p.me ? 6 : 3.5} class:me={p.me} class:on={cur?.id === p.id} data-ana-dot={p.id}></circle>{#if plot.pts.length <= LABEL_MAX}<text class="lab" x={p.x} y={p.y2 - 9} text-anchor="middle" data-ana-lab>{n0(p.y)}</text>{/if}{/each}
       </svg>
+      </div>
+      <p class="tp-muted tp-small">{t('Point at a dot for its numbers, tap it for the ride.')}</p>
+      {/if}
       <figcaption class="tp-small">
         <span class="tp-muted">{t('Across: resting heart rate in the morning (bpm). Up: {y}.', { y: dotsOf.mode === 'np' ? t('NP (W)') : t('Ø HR (bpm)') })}{#if [...mine].some((id) => plot.pts.some((p) => p.id === id && p.me))}{' '}{t('The big dot is this tour.')}{/if}</span>
         <span data-ana-corr>{corrText}</span>
       </figcaption>
     </figure>
+  {/if}
+  {#if sheet}
+    <ChartSheet kicker={t('Ride|dots')} title={dates(sheet.day)} onclose={() => (open = null)} onprev={open > 0 ? () => (open--, (pick = open)) : null} onnext={open < order.length - 1 ? () => (open++, (pick = open)) : null} prevLabel={t('Dot to the left')} nextLabel={t('Dot to the right')}>
+      <dl class="vals" data-ana-sheet>
+        <div class="vc"><dt>{t('Resting heart rate')}</dt><dd class="num">{n0(sheet.rest)} <small>{t('bpm')}</small></dd></div>
+        <div class="vc"><dt>{yName}</dt><dd class="num">{n0(sheet.y)} <small>{yUnit}</small></dd></div>
+      </dl>
+      {#if sheet.me}<p class="tp-small">{t('This is the tour you are looking at.')}</p>{:else}<p><a class="btn" href={tourHref(`a:${sheet.id}`)} onclick={() => (open = null)} data-ana-open>{t('Open this ride')}</a></p>{/if}
+    </ChartSheet>
   {/if}
 </div>
 
@@ -214,14 +309,15 @@
   .dots {
     margin: 0;
   }
+  .plotrow {
+    display: flex;
+    max-width: 600px;
+  }
   .dots svg {
     display: block;
-    width: 100%;
-    max-width: 560px;
+    flex: 1;
+    min-width: 0;
     height: auto;
-  }
-  .grid {
-    stroke: var(--line);
   }
   .tick {
     fill: var(--ink-2);
@@ -236,6 +332,28 @@
     opacity: 1;
     stroke: var(--paper);
     stroke-width: 2;
+  }
+  circle.on {
+    stroke: var(--ink);
+    stroke-width: 2;
+    opacity: 1;
+  }
+  .lab {
+    fill: var(--ink-2);
+    font-size: var(--fs-tiny);
+    pointer-events: none;
+  }
+  .dots svg {
+    cursor: pointer;
+    touch-action: pan-y;
+  }
+  .dots svg:focus:not(:focus-visible) {
+    outline: none;
+  }
+  .vw {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 6px;
   }
   figcaption {
     display: grid;

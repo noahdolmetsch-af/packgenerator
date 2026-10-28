@@ -40,6 +40,8 @@
   import QuizEveRow from '../lib/lernen/QuizEveRow.svelte';
   import ProbePage from '../lib/probe/ProbePage.svelte';
   import ProbeRow from '../lib/probe/ProbeRow.svelte';
+  import EveOffer from '../lib/remindlearn/EveOffer.svelte';
+  import { LEARN_KEY, noteEve } from '../lib/remindlearn/learn.js';
   import '../lib/review/review.css';
 
   let { id, kind } = $props();
@@ -97,6 +99,14 @@
   const kgLine = $derived(stats && stats.gearG + stats.onMeG ? tn(bags.length, '{kg} kg in {n} bag', '{kg} kg in {n} bags', { kg: kg(stats.gearG + stats.onMeG) }) : '');
   const charge = $derived(trip ? chargeList(trip, items) : []);
   const charged = $derived(trip ? chargeCount(trip, charge) : { done: 0, total: 0 });
+  // Idee A2: when the evening-before check is opened on the evening before, the app notes the time
+  // (remindlearn/learn.js); from 3 evenings it offers to move the reminder to your usual time
+  $effect(() => {
+    if (sheet !== 'check' || !trip || eveDay !== today) return;
+    const now = new Date();
+    const min = now.getHours() * 60 + now.getMinutes();
+    db.settings.get(LEARN_KEY).then((r) => db.settings.put({ key: LEARN_KEY, value: noteEve(r?.value, today, min) })).catch(() => {});
+  });
   async function setRemind(on) {
     await db.trips.update(trip.id, { remindEve: on, updatedAt: new Date().toISOString() });
   }
@@ -212,6 +222,8 @@
         {/if}
         <li><a class="row" href="#/pack?day" onclick={pick}><span class="ic" aria-hidden="true"><Briefcase size={18} /></span><span class="bt"><b>{t('See the packing list')}</b>{#if stats}<small class="num">{tn(bags.length, '{n} bag', '{n} bags')} · {tn(stats.count, '{n} item', '{n} items')}</small>{/if}</span><ChevronRight size={18} aria-hidden="true" /></a></li>
       </ul>
+      <!-- Idee A2: the offer to move the evening reminder to your usual time -->
+      {#if until != null && until >= 0}<EveOffer />{/if}
     </section>
     <MainBar main={packedMain} second={{ label: t('Back to Trips'), href: '#/trips' }} step={tabs.includes(current) ? t('Step {n} of {m}', { n: tabs.indexOf(current) + 1, m: tabs.length }) : ''} />
   </article>

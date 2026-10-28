@@ -14,6 +14,7 @@ import DE from '../../src/lib/i18n/de/index.js';
 import { sn4plusData, P, D0, day } from './sn4plus-fixture.js';
 import { at1Acts } from './at1-acts.js';
 import { importAndSettle } from './settle.js';
+import { expectRound } from './roundaxis.js';
 import { openShort } from './kurz-open.js';
 import { encodePolyline } from '../../src/lib/spur/polyline.js';
 
@@ -82,6 +83,10 @@ test('a) a finished tour opens its page: key figures, map, profile, jump bar or 
   await page.mouse.move(b.x + b.width * 0.5, b.y + b.height * 0.5);
   await expect(tour(page).locator('[data-map-marker]')).toHaveCount(1);
   await expect(tour(page).locator('[data-profile-at]')).toContainText('km');
+  // «Genaue Werte» (27.10.2026): the heights in round steps, the top one with «m»
+  const ms = await tour(page).locator('[data-profile-tick]').allTextContents();
+  expectRound(ms);
+  expect(ms.at(-1)).toMatch(/ m$/);
   // all five parts on one page; the bar jumps
   for (const p of ['overview', 'values', 'pack', 'diary', 'review']) await expect(tour(page).locator(`[data-tour-part="${p}"]`)).toBeVisible();
   await shot(page, info, 'T1-tour-seite');
