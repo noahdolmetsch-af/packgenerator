@@ -2,8 +2,8 @@
 export default {
   title: 'One message in the morning',
   lead: 'The reminders of 08:00 now come together at 07:00.',
-  points: [{ text: 'Your trip, the first appointments and the reminders of the day in one message', href: '#/me/push' }],
-  small: [{ box: 'new', text: 'Warnings (weather, ice, light, rain) still come on their own' }],
+  points: [{ text: 'Your trip, the first appointments and the reminders of the day in one message', href: '#/me/push', go: 'f.morningpush' }],
+  small: [{ box: 'new', text: 'Warnings (weather, ice, light, rain) still come on their own', go: null }],
   test: [
     'Open Me › Reminders on the phone: under «In the morning» the switch «One message in the morning» is on.',
     'With a reminder at 08:00 (e.g. Parts worn), the phone shows «Your morning» at 07:00 instead.',

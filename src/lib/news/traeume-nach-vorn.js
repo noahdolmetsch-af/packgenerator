@@ -4,12 +4,12 @@ export default {
   title: 'Dreams move forward',
   lead: 'Dreams stand right after the overview, and the overview says when one fits.',
   points: [
-    { text: 'Trips: Dreams is the second tab now', href: '#/trips/dreams' },
-    { text: 'Trips › Overview: a row when a dream fits this month', href: '#/trips' },
+    { text: 'Trips: Dreams is the second tab now', href: '#/trips/dreams', go: 'f.dreams' },
+    { text: 'Trips › Overview: a row when a dream fits this month', href: '#/trips', go: { href: '#/trips', where: 'Shows on Trips › Overview when a dream fits this month.' } },
   ],
   small: [
-    { box: 'nicer', text: 'Dreams: New ground and Heatmap at the bottom under «Collected»' },
-    { box: 'fixed', text: 'New ground of the year and the New ground page no longer overwrite each other' },
+    { box: 'nicer', text: 'Dreams: New ground and Heatmap at the bottom under «Collected»', go: 'f.dreams' },
+    { box: 'fixed', text: 'New ground of the year and the New ground page no longer overwrite each other', go: null },
   ],
   test: [
     'Open Trips: the tabs start with Overview, Dreams.',
