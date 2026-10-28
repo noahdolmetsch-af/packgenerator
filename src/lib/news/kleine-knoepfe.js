@@ -4,8 +4,8 @@ export default {
   title: 'Easier to tap',
   lead: 'Small buttons on the phone react to a bigger tap.',
   points: [
-    { text: 'Stars, arrows, chips and list ticks can be tapped a little beside them' },
-    { text: 'The sample race and bags speak German: «Hüfttasche», «Hotels früh buchen»' },
+    { text: 'Stars, arrows, chips and list ticks can be tapped a little beside them', go: null },
+    { text: 'The sample race and bags speak German: «Hüfttasche», «Hotels früh buchen»', go: 'f.racesample' },
   ],
   small: [{ box: 'nicer', text: 'They look as before; only the area you can tap is bigger' }],
   test: [

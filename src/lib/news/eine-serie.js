@@ -2,8 +2,8 @@
 export default {
   title: 'One series',
   lead: 'Today and Milestones count the same series, Strava rides included.',
-  points: [{ text: 'The series counts weeks with a Strava ride too', href: '#/flow/milestones' }],
-  small: [{ box: 'nicer', text: 'An empty week says «Nothing entered yet» and what Fitbit measured' }],
+  points: [{ text: 'The series counts weeks with a Strava ride too', href: '#/flow/milestones', go: 'f.milestones' }],
+  small: [{ box: 'nicer', text: 'An empty week says «Nothing entered yet» and what Fitbit measured', go: 'f.milestones' }],
   test: ['Today, «This week»: with nothing entered it says «Nothing entered yet · Fitbit measured … active zone min».', 'Analyse › Milestones: «Series over everything» shows the same number as the tile on Today.'],
   since: [],
   de: {

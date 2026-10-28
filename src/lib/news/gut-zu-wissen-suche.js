@@ -4,8 +4,8 @@ export default {
   title: 'Hide «Good to know» from the search',
   lead: 'One sentence instead of a setting.',
   points: [
-    { text: 'Type «Gut zu wissen ausblenden» in the search: the tip line on top of the pages is gone, with Undo' },
-    { text: '«Tipps einblenden» shows it again; «Gut zu wissen» alone offers both' },
+    { text: 'Type «Gut zu wissen ausblenden» in the search: the tip line on top of the pages is gone, with Undo', go: null },
+    { text: '«Tipps einblenden» shows it again; «Gut zu wissen» alone offers both', go: null },
   ],
   test: [
     'Open Velos or Ich, tap the magnifier and type «Gut zu wissen ausblenden», then tap the row: the line «Gut zu wissen» under the title is gone.',

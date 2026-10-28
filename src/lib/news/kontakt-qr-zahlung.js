@@ -3,8 +3,8 @@
 export default {
   title: 'Pay me back',
   lead: 'Your contact card can carry TWINT and a QR bill, apart from the rest.',
-  points: [{ text: 'Tick «Add payment details» on your contact card', href: '#/me/freunde?tab=card' }],
-  small: [{ box: 'new', text: 'Whoever scans sees TWINT and the QR bill only after a tap' }],
+  points: [{ text: 'Tick «Add payment details» on your contact card', href: '#/me/freunde?tab=card', go: { href: '#/me/freunde?tab=card', steps: [{ sel: '[data-contact-card]' }] } }],
+  small: [{ box: 'new', text: 'Whoever scans sees TWINT and the QR bill only after a tap', go: null }],
   test: [
     'Open Me › With friends › Contact card: under «Payment» tick «Add payment details» (your account from Me › Pay).',
     'Scan the code with a second phone: the page shows a box «Payment»; only «Show payment details» opens TWINT and the QR bill.',

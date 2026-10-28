@@ -4,11 +4,11 @@ export default {
   title: 'Today in areas',
   lead: 'Now, your body, your week, on the road.',
   points: [
-    // on Today itself, so no «Try it» address (0.121.0: '#/' would do nothing)
-    { text: 'Today: the tiles stand in areas with a heading' },
-    { text: '«New», «Tried it yet?» and the tip side by side under «Discover»' },
+    // «Ausprobieren» (know/newsgo.js): the first heading, the area «Discover»
+    { text: 'Today: the tiles stand in areas with a heading', go: { href: '#/', steps: [{ sel: '[data-home-sec]' }] } },
+    { text: '«New», «Tried it yet?» and the tip side by side under «Discover»', go: { href: '#/', steps: [{ sel: '[data-home-sec="discover"]' }], where: 'Shows on Today under «Discover» while an update is new or a tip waits.' } },
   ],
-  small: [{ box: 'nicer', text: 'Customise the start page: switch the areas off if you like' }],
+  small: [{ box: 'nicer', text: 'Customise the start page: switch the areas off if you like', go: { href: '#/', steps: [{ sel: '[data-intro="custom"]' }, { sel: '[data-wall-sections]' }] } }],
   test: [
     'Open Today: the headings Now, Your body, Your week, On the road and bikes, Open quickly.',
     'Customise the start page: the switch «Show the tiles in areas» turns the headings off and on.',
