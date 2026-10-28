@@ -1227,6 +1227,11 @@ export const HANDBOOK = {
     steps: ['Open Trips › Dreams and write the name of a dream tour.', 'Tap it: change the kind of tour and the months it fits.', 'Tap «Plan the tour»: a trip draft on the first Saturday of the season.'],
     example: 'Example: «Over the Furka» → Alpine passes, July to September → trip on 3 July.',
   },
+  'f.whitespots': {
+    on: 'Needs your home place.',
+    steps: ['Open Trips › Dreams › White spots nearby.', 'Choose 10, 25 or 50 km.', 'Tap a place on the map or in the list: its name and distance.'],
+    example: 'Example: 25 km around Zürich → 209 municipalities never visited, the nearest 5 km away.',
+  },
   'f.races': {
     on: 'Needs a race with a date in Inspiration, or a race in your Google calendar.',
     steps: ['Open Trips › Dreams › Races to plan.', 'Tap «Plan as a trip» and add the registration deadline.', 'Tick «Signed up» once you are registered.'],

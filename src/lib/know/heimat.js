@@ -139,6 +139,7 @@ export const HOME = {
   'f.nightswx': '#/race/:race/route',
   'f.abroad': '#/trips',
   'f.dreams': '#/trips/dreams',
+  'f.whitespots': '#/trips/dreams',
   'f.races': '#/trips/dreams',
   'f.starters': '#/pack',
   'f.packside': '#/pack',
