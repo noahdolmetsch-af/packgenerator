@@ -102,4 +102,8 @@ export default {
   'Choose a place: the app plans a bike way there. At the place it asks how you go back onto your route.': 'Wähle einen Ort: Die App plant einen Veloweg dorthin. Dort fragt sie, wie du zurück auf deine Strecke kommst.',
   // Navigation zum Ziel 2: the turn after the next one
   'Then: {text}': 'Danach: {text}',
+  // Gespeichert in Touren (Noah 28.10.2026 Handy-Test, «b Automatisch, Umbenennen später»)
+  'Saved in Trips': 'Gespeichert in Touren',
+  'In Trips with the tour, under «Live Navigation».': 'In Touren bei der Tour, unter «Live Navigation».',
+  'In Trips as its own entry «Live Navigation».': 'In Touren als eigener Eintrag «Live Navigation».',
 };
