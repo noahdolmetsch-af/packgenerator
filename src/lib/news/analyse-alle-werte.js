@@ -4,10 +4,10 @@ export default {
   title: 'All Fitbit values on Analyse',
   lead: 'The app now also fetches VO₂max, distance, floors, pulse over the day, Fitbit workouts and more.',
   points: [
-    { text: 'New tiles on Analyse: VO₂max, distance and climb of the watch, floors, hourly activity, pulse over the day, active and sitting minutes, Fitbit workouts, weight and body fat', href: '#/auswerten/analyse' },
-    { text: '«Also values without data» shows every value, also the ones without a day yet', href: '#/auswerten/analyse' },
+    { text: 'New tiles on Analyse: VO₂max, distance and climb of the watch, floors, hourly activity, pulse over the day, active and sitting minutes, Fitbit workouts, weight and body fat', go: 'f.analyse' },
+    { text: '«Also values without data» shows every value, also the ones without a day yet', go: { href: '#/auswerten/analyse', steps: [{ sel: '[data-all]' }] } },
   ],
-  small: [{ box: 'new', text: 'The next Fitbit fetch takes the last 90 days again, once, so the new values fill in' }],
+  small: [{ box: 'new', text: 'The next Fitbit fetch takes the last 90 days again, once, so the new values fill in', go: { href: '#/me', where: 'At the next fetch in Ich › Fitbit.' } }],
   test: [
     'Open Ich › Fitbit and tap «Jetzt holen». Wait until it says the values came.',
     'Open Auswerten › Analyse: under Herz you see «VO₂max (Cardio-Fitness)» and «Puls über den Tag», under Bewegung «Distanz (Uhr)», «Stockwerke» and «Stündliche Aktivität».',
@@ -15,6 +15,7 @@ export default {
   ],
   since: [],
   de: {
+    'At the next fetch in Ich › Fitbit.': 'Beim nächsten Abruf unter Ich › Fitbit.',
     'All Fitbit values on Analyse': 'Alle Fitbit-Werte in der Analyse',
     'The app now also fetches VO₂max, distance, floors, pulse over the day, Fitbit workouts and more.': 'Die App holt jetzt auch VO₂max, Distanz, Stockwerke, Puls über den Tag, Fitbit-Trainings und mehr.',
     'New tiles on Analyse: VO₂max, distance and climb of the watch, floors, hourly activity, pulse over the day, active and sitting minutes, Fitbit workouts, weight and body fat':
