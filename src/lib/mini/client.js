@@ -97,7 +97,7 @@ export async function editQuestion(srv, question, opts = {}) {
 /** Anyone with the link: the question → { end, question } (question null when the link is broken). */
 export async function openQuestion(id, key, opts = {}) {
   const d = await call('GET', { ...opts, id });
-  return { end: d.end, question: await unseal(d.e, key) };
+  return { end: d.end, n: Number(d.n) || 0, question: await unseal(d.e, key) };
 }
 
 /** The maker: all answers, opened → { end, answers: [{ a, at, ...answer }] } (unreadable ones left out). */
@@ -106,7 +106,7 @@ export async function readAnswers(srv, opts = {}) {
   const answers = [];
   for (const x of d.answers ?? []) {
     const v = await openWith(x.e, srv.priv);
-    if (v && typeof v === 'object') answers.push({ ...v, a: x.a, at: x.at });
+    if (v && typeof v === 'object') answers.push({ ...v, a: x.a, at: x.at, t0: x.t0 ?? x.at });
   }
   return { end: d.end, answers };
 }
@@ -125,6 +125,22 @@ export async function endQuestion(srv, opts = {}) {
   await call('POST', { ...opts, step: 'end', body: { id: srv.id, del: srv.del } });
 }
 
+/** My place among all answers, by when they came in first (sign-up list). mine: { aid, del } → { pos, n }. */
+export async function myPlace(id, mine, opts = {}) {
+  const d = await call('POST', { ...opts, step: 'place', body: { id, aid: mine.aid, del: mine.del } });
+  return { pos: d.pos, n: d.n };
+}
+
+/** I take my answer back (it is deleted on the server). */
+export async function leaveAnswer(id, mine, opts = {}) {
+  await call('POST', { ...opts, step: 'leave', body: { id, aid: mine.aid, del: mine.del } });
+}
+
+/** The maker takes one answer off the list (back: true puts it on again, for Undo). */
+export async function dropAnswer(srv, aid, { back = false, ...opts } = {}) {
+  await call('POST', { ...opts, step: 'drop', body: { id: srv.id, del: srv.del, aid, back } });
+}
+
 /** «…#/mitmachen/<id>/<key>» → { id, key } or null. */
 export function parseJoinLink(hash = '') {
   const m = /^#\/mitmachen\/([A-Za-z0-9_-]{22})\/([A-Za-z0-9_-]{43})\/?$/.exec(hash);
@@ -140,6 +156,7 @@ export const MINI_ERRORS = {
   too_many: 'Too many answers today. Try again tomorrow.',
   full: 'This question has enough answers.',
   forbidden: 'This answer was sent from another device.',
+  gone: 'Your answer is not there any more.',
   daily_cap: 'The server has done enough for today. It works again tomorrow.',
   storage_not_set_up: 'The share server is not ready yet.',
   server_error: 'The share server did not answer. Try again later.',
