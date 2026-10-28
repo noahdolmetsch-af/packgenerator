@@ -22,4 +22,6 @@ export default {
   // T4 «Serien und Tage aktiv gleich gezählt»
   'Nothing entered yet': 'Noch nichts eingetragen',
   'Fitbit measured {n} active zone min': 'Fitbit hat {n} Aktivzonen-Minuten gemessen',
+  // T5 «Velo-Jahresziel und 7-Tage-km zählen dieselben Fahrten»
+  'Counted: every bike ride from Strava, uploaded rides and your recordings, as on Today.': 'Gezählt: jede Velofahrt von Strava, hochgeladene Fahrten und deine Aufzeichnungen, wie auf Heute.',
 };
