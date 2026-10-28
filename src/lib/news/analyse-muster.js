@@ -3,9 +3,9 @@ export default {
   title: 'Patterns and records',
   lead: 'When in the week you are active, this year against last year, your best values, and the runs and gaps of every activity.',
   points: [
-    { text: 'Week pattern: weekday against morning, midday, evening and night; for all or one activity', href: '#/auswerten/analyse' },
-    { text: 'Year against year per month or per season, for bike km, ticks, sleep and more', href: '#/auswerten/analyse' },
-    { text: 'Records (marked «neu» in the last 30 days) and runs and gaps per activity', href: '#/auswerten/analyse' },
+    { text: 'Week pattern: weekday against morning, midday, evening and night; for all or one activity', go: 'f.analyse' },
+    { text: 'Year against year per month or per season, for bike km, ticks, sleep and more', go: 'f.analyse' },
+    { text: 'Records (marked «neu» in the last 30 days) and runs and gaps per activity', go: 'f.analyse' },
   ],
   small: [],
   test: [
