@@ -195,6 +195,10 @@ test('Live map without a tour: the stops around you', async ({ page, context }, 
   await tap(page.locator('[data-live-start]'), info);
   await expect(page.locator('[data-live-next]')).toBeVisible();
   await expect(page.locator('[data-live-tile]')).toHaveCount(3);
+  // Noah 28.10.2026: distance (m, then km with 2 decimals), time since the start as a timer, speed
+  await expect(page.locator('[data-live-tile="done"]')).toContainText(/\d+\s*m\b/);
+  await expect(page.locator('[data-live-tile="total"] b')).toHaveText(/^\d+:\d\d$/);
+  await expect(page.locator('[data-live-tile="speed"]')).toBeVisible();
   await page.waitForTimeout(1500);
   await page.screenshot({ path: info.outputPath('live-free.png') });
   await tap(page.locator('[data-live-sheet-toggle]'), info);

@@ -268,7 +268,9 @@
   // Pausieren (pause.js): the riding time runs every second and stands in a pause; the whole time and the pauses
   const breaks = $derived(rec.on ? rec.breaks : (row?.breaks ?? []));
   const movingLive = $derived(rec.on ? movingNow({ movingS: pz.movingS, lastAt: rec.lastAt, now, paused: rec.paused, breaks }) : pz.movingS);
-  const totalS = $derived(rec.on ? totalNow(rec.startAt, now) : 0);
+  // the time since the start counts every second while it is on show (not with the battery saver)
+  let secNow = $state(0);
+  const totalS = $derived(rec.on ? totalNow(rec.startAt, Math.max(now, secNow)) : 0);
   const pausedLive = $derived(pausedNow(breaks, now));
   const fallbackKmh = $derived(isRace ? Number(as?.flatKmh?.value) || 20 : 18);
   const kmh = $derived(paceOf({ km: rec.km, movingS: pz.movingS }, fallbackKmh));
@@ -787,8 +789,8 @@
   });
 
   /* the numbers on top */
-  // a ride without a route starts with km ridden, riding time and the clock
-  const chosen = $derived(cfg.tiles || hasRoute ? tilesOf(cfg.tiles) : ['done', 'moving', 'clock']);
+  // a ride without a route starts with the distance, the time since the start and the speed (Noah 28.10.2026)
+  const chosen = $derived(cfg.tiles || hasRoute ? tilesOf(cfg.tiles) : ['done', 'total', 'speed']);
   const tiles = $derived(chosen.filter((k) => hasRoute || !TILE[k].route));
   const saveTiles = (list) => setOpt('tiles', list);
   const nextTop = $derived(climb && km != null ? { distKm: Math.max(0, climb.toKm - km) } : null);
@@ -876,7 +878,12 @@
     nextWp: dash,
     upToTop: climb && km != null ? vv(gainBetween(profile, km, climb.toKm)) : dash,
   });
-  const tileLabel = (k) => (k === 'done' && !hasRoute ? t('km ridden') : t(TILE[k].label));
+  const tileLabel = (k) => t(TILE[k].label);
+  $effect(() => {
+    if (!rec.on || cfg.battery || !tiles.includes('total')) return;
+    const timer = setInterval(() => (secNow = Date.now()), 1000);
+    return () => clearInterval(timer);
+  });
 
   /* the bottom sheet: three heights, drag the handle or tap it */
   let stageH = $state(700);
@@ -1137,7 +1144,7 @@
       <ul class="lvf-tiles n{tiles.length}">
         {#each tiles as k (k)}
           <li data-live-tile={k} data-live-km={k === 'done' ? '' : undefined} data-live-left={k === 'left' ? '' : undefined}>
-            <b>{vals[k].value}{#if TILE[k].unit && vals[k].value !== '–'}<small>{TILE[k].unit}</small>{/if}</b>
+            <b>{vals[k].value}{#if (vals[k].unit ?? TILE[k].unit) && vals[k].value !== '–'}<small>{vals[k].unit ?? TILE[k].unit}</small>{/if}</b>
             <span>{tileLabel(k)}</span>
           </li>
         {/each}
