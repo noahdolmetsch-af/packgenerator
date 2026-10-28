@@ -9,7 +9,7 @@
   import { SHEETS, STATIONS, RACE_QUESTIONS, BAGS, LIST, SLEEP_COLS, SLEEP_ROWS, NIGHT, valueOf, withValue, answersFrom, filled, takeOver, setupWeight } from './check-lib.js';
   import { offerDone } from '../ui/rename.svelte.js';
   import { askDelete } from '../ui/ask.js';
-  import { t, num } from '../i18n.svelte.js';
+  import { t, tn, num } from '../i18n.svelte.js';
 
   let { ctx } = $props();
 
@@ -81,8 +81,9 @@
   // «Check übernehmen» (Noah 27.10.2026, idea 3): another race's answers into the empty fields here
   const others = $derived((ctx.others ?? []).filter((o) => o.id !== ctx.trip.id && Object.keys(o.check?.values ?? {}).length));
   let fromId = $state('');
+  const fromSel = $derived(others.some((o) => o.id === fromId) ? fromId : (others[0]?.id ?? ''));
   async function copyFrom() {
-    const o = others.find((x) => x.id === (fromId || others[0]?.id));
+    const o = others.find((x) => x.id === fromSel);
     if (!o) return;
     let before = null;
     let n = 0;
@@ -93,7 +94,7 @@
       return { ...s, check: r.check };
     });
     note = '';
-    offerDone(n ? t('{n} answers taken over from «{name}».', { n, name: o.title }) : t('Nothing to take over: your fields are filled already.'), n ? () => ctx.save((s) => ({ ...s, check: before })) : null);
+    offerDone(n ? tn(n, '{n} answer taken over from «{name}».', '{n} answers taken over from «{name}».', { name: o.title }) : t('Nothing to take over: your fields are filled already.'), n ? () => ctx.save((s) => ({ ...s, check: before })) : null);
   }
 
   async function clearSheet() {
@@ -236,13 +237,19 @@
       <button type="button" class="btn sm" onclick={clearSheet} data-check-clear><Eraser size={16} aria-hidden="true" />{t('Empty this sheet')}</button>
     </div>
     {#if others.length}
-      <div class="rc-inline ck-copy">
-        <select class="inp" bind:value={fromId} aria-label={t('Race to take over from')} data-check-from>
-          {#each others as o (o.id)}<option value={o.id}>{o.title}</option>{/each}
-        </select>
-        <button type="button" class="btn sm" onclick={copyFrom} data-check-copy><Copy size={16} aria-hidden="true" />{t('Take over')}</button>
+      <div class="ck-copy" data-check-copy-card>
+        <span class="ck-copy-ic" aria-hidden="true"><Copy size={18} /></span>
+        <div class="ck-copy-txt">
+          <strong>{t('From another race')}</strong>
+          <small>{t('Takes the answers of another race into the fields that are still empty here. Name, date and test ride stay yours.')}</small>
+        </div>
+        <div class="ck-copy-row">
+          <select class="inp" value={fromSel} onchange={(e) => (fromId = e.currentTarget.value)} aria-label={t('Race to take over from')} data-check-from>
+            {#each others as o (o.id)}<option value={o.id}>{o.title}</option>{/each}
+          </select>
+          <button type="button" class="btn hi sm" onclick={copyFrom} data-check-copy><Copy size={16} aria-hidden="true" />{t('Take over')}</button>
+        </div>
       </div>
-      <p class="rc-note">{t('Takes the answers of another race into the fields that are still empty here. Name, date and test ride stay yours.')}</p>
     {/if}
     <input bind:this={fileEl} type="file" accept=".json,application/json" hidden onchange={load} data-check-file />
     {#if note}<p class="rc-warn" role="status">{note}</p>{/if}
@@ -250,6 +257,42 @@
 </div>
 
 <style>
+  .ck-copy {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 8px 12px;
+    margin-top: var(--sp-2);
+    padding: 12px 14px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-card);
+    background: var(--accent-soft);
+  }
+  .ck-copy-ic {
+    display: grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: var(--paper);
+    color: var(--accent);
+  }
+  .ck-copy-txt {
+    display: grid;
+    gap: 2px;
+  }
+  .ck-copy-txt small {
+    color: var(--ink-2);
+  }
+  .ck-copy-row {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .ck-copy-row select {
+    flex: 1 1 12rem;
+    min-width: 0;
+  }
   .ck {
     display: grid;
     grid-template-columns: minmax(0, 1fr);
