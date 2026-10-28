@@ -3,9 +3,9 @@ export default {
   title: 'Compare in Analyse',
   lead: 'This month against the last one, one activity against another, and the days before a trip against the days after.',
   points: [
-    { text: 'Period against period: week, month or year, one line each, with a sentence where you stand today', href: '#/auswerten/analyse' },
-    { text: 'Activity against activity: how often per week over 12 weeks, up to 4 activities', href: '#/auswerten/analyse' },
-    { text: 'Before and after a trip: sleep, pulse, energy and more, 7 days before against 7 days after', href: '#/auswerten/analyse' },
+    { text: 'Period against period: week, month or year, one line each, with a sentence where you stand today', go: 'f.analyse' },
+    { text: 'Activity against activity: how often per week over 12 weeks, up to 4 activities', go: 'f.analyse' },
+    { text: 'Before and after a trip: sleep, pulse, energy and more, 7 days before against 7 days after', go: 'f.analyse' },
   ],
   small: [],
   test: [
