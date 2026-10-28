@@ -385,6 +385,24 @@ describe('Google Health', () => {
     expect(new URL(rhrCall.url).searchParams.get('filter')).toBe('daily_resting_heart_rate.date >= "2026-10-12" AND daily_resting_heart_rate.date < "2026-10-14"');
   });
 
+  it('«Alle Werte»: brings VO2max, distance and the hourly steps too, and an unreachable extra stops nothing (fictional values)', async () => {
+    const d = (day) => ({ year: 2026, month: 10, day });
+    const t = await setup({
+      [`${G_API}/dataTypes/steps/dataPoints:dailyRollUp`]: () => Response.json({ rollupDataPoints: [{ civilStartTime: { date: d(13) }, steps: { countSum: '8123' } }] }),
+      [`${G_API}/dataTypes/active-zone-minutes/dataPoints:dailyRollUp`]: () => Response.json({ rollupDataPoints: [] }),
+      [`${G_API}/dataTypes/sleep/dataPoints`]: () => Response.json({ dataPoints: [] }),
+      [`${G_API}/dataTypes/daily-resting-heart-rate/dataPoints`]: () => Response.json({ dataPoints: [] }),
+      [`${G_API}/dataTypes/daily-heart-rate-variability/dataPoints`]: () => Response.json({ dataPoints: [] }),
+      [`${G_API}/dataTypes/daily-vo2-max/dataPoints`]: () => Response.json({ dataPoints: [{ dailyVo2Max: { date: d(13), vo2Max: 55.9 } }] }),
+      [`${G_API}/dataTypes/distance/dataPoints:dailyRollUp`]: () => Response.json({ rollupDataPoints: [{ civilStartTime: { date: d(13) }, distance: { millimetersSum: '6100000' } }] }),
+      [`${G_API}/dataTypes/steps/dataPoints:rollUp`]: () => Response.json({ rollupDataPoints: [{ startTime: '2026-10-13T08:00:00Z', steps: { countSum: '900' } }] }),
+    });
+    await connectGoogle(t);
+    const body = await (await t.main(get('/api/google?step=days&from=2026-10-12&to=2026-10-13', { key: t.key }))).json();
+    expect(body.days[0]).toMatchObject({ date: '2026-10-13', steps: 8123, vo2max: 55.9, distKm: 6.1 });
+    expect(body.days[0].stepH[10]).toBe(900);
+  });
+
   it('refuses a days range that is wrong or longer than 90 days', async () => {
     const t = await setup();
     await connectGoogle(t);
