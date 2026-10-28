@@ -56,6 +56,8 @@
 
   /* the filter chips: all, over all, the favourites and every other activity with milestones */
   const filter = $derived(params.get('act') || 'all');
+  // «Meilensteine kürzer» (Noah 27.10.2026 «2a»): on a phone, over all sports, the long parts wait folded
+  const fold = $derived(phone.matches && filter === 'all');
   const favs = $derived(data ? favActs(data.acts) : []);
   const chipActs = $derived.by(() => {
     if (!data) return [];
@@ -141,14 +143,27 @@
         <Sec id="all-h" title={actOf ? tileName(actOf) : t('All milestones')} sub={actOf ? '' : t('over all activities')}>
           {#if cards.length || scoped.length}
             <!-- phone: the first six, the rest after «Alle n zeigen» (the page stays within its length budget, laenge.js) -->
-            <div class="grid">{#each phone.matches && !allCards ? cards.slice(0, CARDS_PHONE) : cards as r (r.id)}<MsCard {r} sub={r.m.area ? '' : label(r)} />{/each}</div>
-            {#if phone.matches && !allCards && cards.length > CARDS_PHONE}<button type="button" class="btn btn-link" onclick={() => (allCards = true)} data-ms-all>{t('Show all {n}', { n: cards.length })} ›</button>{/if}
+            {#if fold && cards.length}
+              <!-- Noah 27.10.2026 «2a»: on a phone only the next star per sport stays open (above); all cards wait folded -->
+              <details class="card fold" data-ms-fold="all">
+                <summary data-ms-all>{t('Show all {n}', { n: cards.length })}</summary>
+                <div class="grid">{#each cards as r (r.id)}<MsCard {r} sub={r.m.area ? '' : label(r)} />{/each}</div>
+              </details>
+            {:else}
+              <div class="grid">{#each phone.matches && !allCards ? cards.slice(0, CARDS_PHONE) : cards as r (r.id)}<MsCard {r} sub={r.m.area ? '' : label(r)} />{/each}</div>
+              {#if phone.matches && !allCards && cards.length > CARDS_PHONE}<button type="button" class="btn btn-link" onclick={() => (allCards = true)} data-ms-all>{t('Show all {n}', { n: cards.length })} ›</button>{/if}
+            {/if}
           {:else}
             <Empty text={t('This activity has no milestones yet.')} />
           {/if}
         </Sec>
 
-        {#if filter === 'all'}<MsHome />{/if}
+        {#if filter === 'all' && fold}
+          <details class="card fold" data-ms-fold="areas">
+            <summary>{t('Series, trips and bikes')}</summary>
+            <MsHome />
+          </details>
+        {:else if filter === 'all'}<MsHome />{/if}
       </div>
 
       <aside class="col">
@@ -277,6 +292,20 @@
   .note :global(svg) {
     flex: none;
     margin-top: 2px;
+  }
+  .fold {
+    min-width: 0;
+    padding: 0 var(--sp-4);
+  }
+  .fold > summary {
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .fold[open] {
+    padding-bottom: var(--sp-4);
   }
   .tune {
     padding: var(--sp-2) var(--sp-4) var(--sp-4);

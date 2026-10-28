@@ -1,6 +1,6 @@
 # Nach der Fahrt: Höhe, Runden und Strava-Werte
 
-PR #<Nummer> · 27.10.2026 · Auftrag: Noah «prüfe, ob wir wirklich alles so gemacht haben» (Thread «Bikepacking und Ultra-Rennen»)
+PR #338 · 27.10.2026 · Auftrag: Noah «prüfe, ob wir wirklich alles so gemacht haben» (Thread «Bikepacking und Ultra-Rennen»)
 
 ## Was ist neu
 - Die Aufnahme speichert die GPS-Höhe des Handys mit jedem Punkt. Eine Fahrt ohne Strecke hat darum ihre Höhenmeter (in 4-m-Schritten gegen das Zittern, wie die Live-Kachel).
