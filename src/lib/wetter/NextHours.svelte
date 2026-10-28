@@ -63,6 +63,7 @@
             {#if r.agree === 'dry'}<Sun size={15} aria-hidden="true" />{:else}<CloudRain size={15} aria-hidden="true" />{/if}
             {agreeText(r)}
           </span>
+          <span class="nh-dots" aria-hidden="true">{#each Array(r.of) as _, i (i)}<i class:wet={i < r.wet}></i>{/each}</span>
           <span class="nh-vals">
             {#if r.rainMm && r.rainMm[1] > 0}<span>{range(r.rainMm, 'mm')}{#if r.rainFrom}{' '}· {t('from {at}', { at: hm(r.rainFrom) })}{/if}</span>{/if}
             {#if r.temp}<span>{range(r.temp, '°C')}</span>{/if}
@@ -91,7 +92,7 @@
           </tbody>
         </table>
       </div>
-      <p class="rc-src">{t('Rain is the sum from now until then; °C the warmest hour. MeteoSchweiz covers Switzerland and its neighbours, AROME France, ICON-D2 Central Europe, ECMWF the whole world. A model that does not cover the place is left out.')}</p>
+      <p class="nh-src">{t('Rain is the sum from now until then; °C the warmest hour. MeteoSchweiz covers Switzerland and its neighbours, AROME France, ICON-D2 Central Europe, ECMWF the whole world. A model that does not cover the place is left out.')}</p>
     </details>
   {/if}
 
@@ -124,22 +125,51 @@
     margin: 0;
     padding: 0;
     display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(9.5rem, 1fr));
     gap: var(--sp-2);
   }
   .nh-row {
     display: grid;
-    grid-template-columns: 4.5rem 1fr;
-    gap: var(--sp-1) var(--sp-3);
-    padding-bottom: var(--sp-2);
-    border-bottom: 1px solid var(--line);
+    gap: 6px;
+    align-content: start;
+    padding: 12px 14px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-card);
+    background: var(--ok-soft);
+  }
+  .nh-row[data-agree='split'] {
+    background: var(--warn-soft);
+  }
+  .nh-row[data-agree='wet'] {
+    background: var(--warn-soft);
+    border: 2px solid var(--warn);
   }
   .nh-in {
-    grid-row: span 2;
+    font-size: var(--fs-section);
     font-variant-numeric: tabular-nums;
   }
+  .nh-dots {
+    display: flex;
+    gap: 4px;
+  }
+  .nh-dots i {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--paper);
+    border: 1px solid var(--line);
+  }
+  .nh-dots i.wet {
+    background: var(--warn);
+    border-color: var(--warn);
+  }
+  .nh-agree :global(svg),
+  .nh-vals :global(svg) {
+    flex: none;
+  }
   .nh-agree {
-    display: inline-flex;
-    align-items: center;
+    display: flex;
+    align-items: flex-start;
     gap: var(--sp-1);
     font-weight: 600;
   }
@@ -147,7 +177,7 @@
     color: var(--warn);
   }
   .a-wet {
-    color: var(--accent);
+    color: var(--warn);
   }
   .nh-vals {
     display: flex;
@@ -191,6 +221,11 @@
     padding: 4px 8px;
     border-bottom: 1px solid var(--line);
     white-space: nowrap;
+  }
+  .nh-src {
+    margin: var(--sp-2) 0 0;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
   }
   .nh-foot {
     display: flex;
