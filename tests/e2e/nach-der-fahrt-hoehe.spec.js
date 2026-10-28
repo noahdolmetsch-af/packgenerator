@@ -1,7 +1,7 @@
 // Nachprüfung Bikepacking (Noah 27.10.2026 «prüfe, ob wir wirklich alles so gemacht haben»): a free ride without a
 // route keeps the GPS height, so «Your ride» shows the climbing and the elevation profile. Playwright's fake GPS
 // has no height, so an init script adds one (rising 10 m a point). Fictional data; outside requests mocked.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { openHome } from './home0460-fixture.js';
 
 const phone = (info) => info.project.name === 'phone';
@@ -41,6 +41,8 @@ test('After a ride without a route: climbing and the elevation profile from the 
   await tap(page.locator('[data-live-end-yes]'), info);
   const after = page.locator('[data-after-ride]');
   await expect(after).toBeVisible();
+  // Touren c 70 (Noah «5a»): the feeling comes first; «Show the numbers without it» opens the numbers
+  await tap(after.locator('[data-after-feel-skip]'), info);
   const hm = after.locator('[data-after-hm]');
   await expect(hm).toHaveAttribute('data-after-hm-from', 'gps');
   await expect(hm).toContainText(/\d+ m/);

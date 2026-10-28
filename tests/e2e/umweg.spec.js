@@ -1,7 +1,7 @@
 // Paket X «Umweg neu planen» (Noah 20.10.2026 «unbedingt umsetzen»): on the live map «⋯ › Neu planen zu …»,
 // choose a stop around you, the (mocked) bike router answers, the detour shows with km and «GPX für Garmin»,
 // and it can be removed. Made-up places only; every outside request is mocked or blocked (openHome).
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { openHome } from './home0460-fixture.js';
 
 const phone = (info) => info.project.name === 'phone';
@@ -52,7 +52,9 @@ test('Live map: plan a new way to a shop, see it, save it for the Garmin, remove
   await expect(card).toContainText('test_data_gtp_ Beck');
   await expect(card).toContainText(/2[.,]4 km/);
   const dl = page.waitForEvent('download');
-  await tap(card.locator('[data-live-detour-garmin]'), info);
+  // the GPX of the way lives in «⋯» (Navigation zum Ziel 2: the card on the map stays small)
+  await tap(page.locator('[data-live-menu]'), info);
+  await tap(page.locator('[data-live-menu-panel] [data-live-detour-garmin]'), info);
   const file = await dl;
   expect(file.suggestedFilename()).toMatch(/\.gpx$/);
   await expect(card.locator('[data-live-detour-gpx]')).toBeVisible();

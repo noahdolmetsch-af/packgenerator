@@ -1,7 +1,7 @@
 // «KI im Gerät» (Noah 20.10.2026 «1a 2a 3 beide 4b 5a und b», «a weitere modelle»): choose a model, load
 // it on a tap, check the speed, ask in the search without internet. The model library is a fake module
 // served at the CDN address (nothing real is downloaded); fictional v0.77.0 data, nothing goes out.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import DE from '../../src/lib/i18n/de/index.js';
 import { v0770File } from './v0770-fixture.js';
 import { openData, settle } from './settle.js';

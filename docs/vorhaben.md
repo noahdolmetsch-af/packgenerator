@@ -6,13 +6,13 @@ Stand 10.10.2026, nachgeführt am 19.10.2026 (Abschnitte «Stand heute» und «R
 
 Diese Datei wird geprüft:
 
-- **vor jedem neuen Paket** (bevor Mockups entstehen): Passt das Paket zu einem der fünf Ziele unten und zur Reihenfolge? Wenn nicht: Noah fragen, ob das Ziel oder die Reihenfolge ändert.
+- **vor jedem neuen Paket** (bevor Mockups entstehen): Passt das Paket zu einem der sechs Ziele unten und zur Reihenfolge? Wenn nicht: Noah fragen, ob das Ziel oder die Reihenfolge ändert.
 - **in jedem Release-PR**: Abschnitt «Stand heute» und den Stand des Vorhabens nachführen. Neue Entscheide von Noah hier und in `decisions.md` eintragen.
 - **etwa alle fünf Releases**: kurzer Kurs-Check an Noah. Pro Ziel ein Satz, was erreicht ist, was fehlt und ob die Reihenfolge noch stimmt, mit a/b-Fragen, falls etwas abweicht.
 
 Prüffragen:
 
-1. Dient es einem der fünf Ziele, und merkt Noah den Nutzen im Alltag oder auf Tour?
+1. Dient es einem der sechs Ziele, und merkt Noah den Nutzen im Alltag oder auf Tour?
 2. Bleibt alles ein Vorschlag, nie Pflicht, immer änderbar?
 3. Bleiben private Daten auf dem Gerät und aus dem Repo?
 4. Braucht es einen fremden Dienst, wo eine eigene, schlanke Lösung reicht?
@@ -38,13 +38,14 @@ Der Pack Generator ist eine persönliche Web-App (PWA) für Bikepacking- und Vel
 
 **Alle Vorhaben in einer Liste:** [vorhaben-liste.md](vorhaben-liste.md) (seit 19.10.2026, gegen den Code geprüft, nach Ziel geordnet). Sie ist die Übersicht; die Abschnitte unten erklären die grossen Vorhaben genauer.
 
-Die geplanten Vorhaben verfolgen fünf Ziele (das fünfte seit 19.10.2026, Noah «1a»):
+Die geplanten Vorhaben verfolgen sechs Ziele (das fünfte seit 19.10.2026, Noah «1a»; das sechste seit 27.10.2026, Noah «2a»):
 
 1. **Schneller packen.** Vorschläge statt leerer Listen: Bausteine, Vorlagen und ein KI-Helfer, der aus dem eigenen Material eine Liste vorschlägt. Beispiel: «3 Tage Jura, 5 °C, Biwak» ergibt eine fertige Liste mit Begründungen.
 2. **Das Velo im Griff haben.** km pro Velo (später automatisch aus Strava), Wartung von Kette, Kassette, Bremsbelägen, Bremsscheiben und Reifen mit konkreten Hinweisen. Beispiel: «Kette 2 400 km seit Wechsel, mit der Lehre 0,5 messen.»
 3. **Von der Haustür bis zurück.** Eine Startseite, die sich der Phase anpasst (vor, während, nach der Tour), mit SBB, swisstopo-Karte, Wetter und dem Knopf «Take me home».
 4. **Aus jeder Tour lernen.** Rückblick, Learnings, die beim nächsten Packen wieder auftauchen, und ein Aktivitätsmosaik über alle Sportarten und Meditation.
 5. **Alltag.** Die App hilft auch an Tagen ohne Tour: Woche und Termine, Bewegung und Erholung, Dokumente und Geld, Menschen und Zuhause. Beispiel: am Sonntag die Woche planen, am Morgen der Tages-Check, eine Erinnerung, bevor der Pass abläuft.
+6. **Lange Fahrten unterwegs verstehen.** Bei Rennen und langen Fahrten schon während der Fahrt sehen, wie es läuft: die letzten Stunden ausgewertet, das Wetter der nächsten 2 bis 8 Stunden auf der Route, Essen und Schlaf in der Nacht. Dazu ein Rennen gut vorbereitet: Grundliste, Soll-Setup, geprüftes Velo. Beispiel: nach 9 Stunden «Bergauf 12 % langsamer als am Morgen, 40 g Kohlenhydrate pro Stunde zu wenig, letzter Laden schliesst in 50 Minuten».
 
 **Neu 24.10.2026, 996 Ideen:** vier Pakete nach der 332-Arbeit, in dieser Reihenfolge: B «Touren ohne Überraschung» (Ziel 3: Generalprobe, Folgen vorher sehen, QR an der Kiste, Gut ankommen, Packen nach Bedürfnis), A «Ehrlicher Stand im Alltag» (Ziel 5), C «Ruhig und persönlich» (Ziele 4 und 5), D «Mit Freunden» (wieder offen). Übersicht: `notes/ideen-996/` im Projektordner.
 
@@ -543,7 +544,14 @@ Stand 27.10.2026: PR 4 «In der Nähe» (0.227.0) gebaut. Nächster Schritt PR 5
 
 Warum: Daten aus verschiedenen Bereichen sollen zusammenspielen, damit die App im Alltag mehr abnimmt (Ziele 2, 3 und 5). Noah «alle umsetzen 1a 2a 3a 4a 5a». Ideenseite: `notes/intelligenter-vernetzt/ideen.html` im Projektordner.
 
-- **A Heute denkt mit:** A1 eine Nachricht am Morgen (gebaut), A2 Erinnerung zur Zeit, wann du es machst, A3 freie Zeit plus gutes Wetter gibt einen Vorschlag.
+- **A Heute denkt mit:** A1 eine Nachricht am Morgen (gebaut), A2 Erinnerung zur Zeit, wann du es machst (gebaut), A3 freie Zeit plus gutes Wetter gibt einen Vorschlag.
 - **B Körper und Planung:** B1 Erholung beim Planen sehen (kürzere Variante als Angebot), B2 nach jeder Tour wieder erholt?, B3 Schonmodus.
 - **C Velo, Wetter, Material:** C1 Verschleiss-Kosten voraus, C2 Packliste folgt dem Wetterumschwung, C3 welches Velo passt?
 - **D Ein Helfer, der alles kennt:** D1 «Frag die App» über alle Bereiche, D2 eigene Faustregeln vorschlagen, D3 was die App noch wissen müsste, D4 «Hängt zusammen mit».
+
+### 15. Heute als Begleiter (28.10.2026)
+
+- **Warum:** Die App kann über 500 Dinge, viele davon kennt man nicht. Noah (28.10.2026): die App soll Funktionen zeigen, von denen man nicht weiss, dass man sie brauchen kann, und den Nutzer über die ganze Reise begleiten, je nachdem, was er gerade tun möchte. Ziel: «Von der Haustür bis zurück» und «Aus jeder Tour lernen».
+- **Was (Noah «1a 2a 3a», «1a 2a 3a 4a», «ok freigabe»):** 8 Momente (Lust, Planen, Packen, Unterwegs, Zurück, dazu Velo und Material, Körper und Training, Alltag und Woche). Heute erkennt den Moment und zeigt eine Karte mit dem nächsten Schritt, dazu eine ruhige Funktion zum Entdecken mit «Später» und «Nicht für mich». «Was die App kann» bekommt die Ansicht «Nach Moment», jede Seite eine Zeile «Gehört dazu». Am Ende hat jede der 517 Funktionen einen Ort, einen Moment und einen sichtbaren Namen; der Wächter-Test hält das fest.
+- **Plan:** 13 kleine PRs. 1 Moment-Regeln, 2–3 die 117 fehlenden Katalog-Einträge, 4 Moment-Karte, 5 Entdecken-Karte, 6 «Nach Moment», 7–9 «Gehört dazu», 10 Versteckte sichtbar, 11 Namen, 12 Gesten erklären, 13 Wächter für alle. Skizzen: https://claude.ai/artifact/Hbqb7wZAPaxwvtMm7irumB.
+- **Stand:** PR 1 (Regeln in `src/lib/moment.js`, nichts sichtbar).

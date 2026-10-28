@@ -1,6 +1,6 @@
 # VO2max in deinen Körperwerten
 
-PR #… · 28.10.2026 · Auftrag: Noah «haben wir sichergestellt, das Vo2max und andere wichtige Kennzahlen im Front End auch an sinnvollen Stellen angezeigt werden?» (Thread «Geräte und Datenquellen», weitergegeben an Aktiv)
+PR #373 · 28.10.2026 · Auftrag: Noah «haben wir sichergestellt, das Vo2max und andere wichtige Kennzahlen im Front End auch an sinnvollen Stellen angezeigt werden?» (Thread «Geräte und Datenquellen», weitergegeben an Aktiv)
 
 ## Was ist neu
 - Körperwerte › Körper hat einen neuen Reiter «VO2max» (zwischen Gewicht und Wasser): Linie pro Tag, im Jahr der Mittelwert pro Monat, Mittelwert und tiefster bis höchster Wert.

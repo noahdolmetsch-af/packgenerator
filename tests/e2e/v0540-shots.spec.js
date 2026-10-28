@@ -1,6 +1,6 @@
 // v0.63.0 «Material-Detail ruhig»: before/after screenshots and the height of the item window.
 // Runs only with SHOTS_0540=<folder> (and SHOTS_MODES=light,dark); a normal run skips it.
-import { test } from '@playwright/test';
+import { test } from './clock.js';
 import { mkdirSync, writeFileSync, readFileSync, existsSync } from 'node:fs';
 import { openHome, homeFixture } from './home0460-fixture.js';
 import { materialFixture } from './material0472-fixture.js';

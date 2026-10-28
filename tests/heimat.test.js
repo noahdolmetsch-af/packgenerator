@@ -3,6 +3,7 @@
 import { describe, it, expect } from 'vitest';
 import { FEATURES } from '../src/lib/features.js';
 import { HOME, GAPS, WHY } from '../src/lib/know/heimat.js';
+import { WHEN } from '../src/lib/know/wann.js';
 import { SPOT } from '../src/lib/know/spot.js';
 
 // Measured 24.10.2026 on 0.181.4. Lower this number whenever a package makes functions visible;
@@ -10,8 +11,8 @@ import { SPOT } from '../src/lib/know/spot.js';
 // 263 after merging 0.182–0.186 (tennis page, yoga classes and good day came before this guard); 249 after «Alltag sichtbar»; 228 after «Touren sichtbar»;
 // 233 after merging 0.187–0.189 and «Touren ohne Überraschung» part 2, built before this guard: dress rehearsal, good night,
 // arrive well, «see the effect» and «pack by need» show only in their situation; 234: «History and progress» lives on each
-// sport's page since «Aktiv neu» (0.187.0); 217 after «Live-Karte, Rennen und Packen sichtbar»; 206 after «Velos sichtbar»; 170 after «Ich, Werkzeuge und Berg sichtbar»; 165 after «Notizen sichtbar»; 161 after Material, Touren and Listen; 151 after «Aktiv sichtbar»; 147 after «Packen sichtbar 2»; 142 after «Unterwegs sichtbar»; 116 after «Namen überall» (names, Rückblick, Material and Touren links); 111 after Auswerten tiles, Abfahrt jumps and Webcams; 77 after «Noahs Liste sichtbar»; 57 after the 20 «deep» ones (names, short lines, Trello jump, a sport page and the rides page as home); 53 after ozone on Wetter, ice and wet chain on the push page, receipts in the workshop.
-const MAX_GAPS = 49;
+// sport's page since «Aktiv neu» (0.187.0); 217 after «Live-Karte, Rennen und Packen sichtbar»; 206 after «Velos sichtbar»; 170 after «Ich, Werkzeuge und Berg sichtbar»; 165 after «Notizen sichtbar»; 161 after Material, Touren and Listen; 151 after «Aktiv sichtbar»; 147 after «Packen sichtbar 2»; 142 after «Unterwegs sichtbar»; 116 after «Namen überall» (names, Rückblick, Material and Touren links); 111 after Auswerten tiles, Abfahrt jumps and Webcams; 77 after «Noahs Liste sichtbar»; 57 after the 20 «deep» ones (names, short lines, Trello jump, a sport page and the rides page as home); 53 after ozone on Wetter, ice and wet chain on the push page, receipts in the workshop; 49 after the four left-out functions left the catalogue; 45 after four catalogue names as on the page.
+const MAX_GAPS = 45;
 
 describe('home pages of the functions', () => {
   it('every function of the catalogue has a home page, and no home is left over', () => {
@@ -26,6 +27,12 @@ describe('home pages of the functions', () => {
       expect(HOME[id], id).toBeTruthy();
       expect(Object.keys(WHY), id).toContain(why);
     }
+  });
+
+  it('a function that shows only in its situation says when, in the catalogue (Noah 27.10.2026 «2a»)', () => {
+    const when = Object.keys(GAPS).filter((id) => GAPS[id] === 'when').sort();
+    expect(Object.keys(WHEN).sort()).toEqual(when);
+    for (const id of when) expect(WHEN[id], id).toMatch(/\.$/);
   });
 
   it('a function inside a window or a fold has its spot, which the catalogue lights up (Noah 27.10.2026 «c»)', () => {

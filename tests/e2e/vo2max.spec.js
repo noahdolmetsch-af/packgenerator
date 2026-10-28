@@ -1,7 +1,7 @@
 // «VO2max in Körperwerte» (Noah 28.10.2026): fictional Fitbit/Apple days with a VO₂max now and then, German,
 // phone + desktop. The tab sits in the group «Körper», shows the mean and its range, the year by month,
 // and without any value a line that says where it comes from.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import DE from '../../src/lib/i18n/de/index.js';
 import { D0, TODAY, addDays, put } from './aktiv-fixture.js';
 import { ready } from './settle.js';

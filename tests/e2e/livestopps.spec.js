@@ -2,7 +2,7 @@
 // OpenStreetMap for the whole route at once; the free server gave up and answered with an empty list and
 // a «runtime error» note. Now the button asks for the stretch ahead in small pieces and says under
 // itself when nothing came or the server gave up. Made-up sample race, every outside request mocked.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { openHome } from './home0460-fixture.js';
 import { sheetFull } from './live-sheet.js';
 
