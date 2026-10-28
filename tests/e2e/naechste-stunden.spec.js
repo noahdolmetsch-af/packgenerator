@@ -1,6 +1,6 @@
 // Ziel 6 «Die nächsten Stunden» (Noah 27.10.2026 «4a»): the weather page shows the next 2, 4, 6 and 8 hours from
 // several weather models side by side. Made-up weather; every outside request is mocked or blocked (openHome).
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { openHome } from './home0460-fixture.js';
 import { MODELS } from '../../src/lib/wetter/stunden.js';
 
