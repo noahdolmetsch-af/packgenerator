@@ -126,9 +126,10 @@ test('Take over the check of another race into the empty fields', async ({ page,
   const id = decodeURIComponent(page.url().split('#/race/')[1]);
   await page.goto(`./#/racecheck/${encodeURIComponent(id)}`);
   await expect(page.locator('[data-check-from]')).toBeVisible();
+  await expect(page.locator('[data-check-from]')).not.toHaveValue('');
+  await page.locator('section[aria-labelledby="ck-more"]').screenshot({ path: info.outputPath('rennen-uebernehmen.png') });
   await page.locator('[data-check-copy]').click();
   await expect(page.locator('[data-check-field="ablauf.B"]')).toHaveValue('Gravel bike, made up');
   await expect(page.locator('[data-check-field="ablauf.race"]')).toHaveValue('');
   await noSideways(page);
-  await page.locator('[data-check-copy]').screenshot({ path: info.outputPath('rennen-uebernehmen.png') });
 });
