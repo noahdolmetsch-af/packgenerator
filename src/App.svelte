@@ -341,6 +341,7 @@
     PastTrips: () => import('./pages/PastTrips.svelte'),
     Trips: () => import('./pages/Trips.svelte'),
     Race: () => import('./pages/Race.svelte'),
+    RacePlan: () => import('./pages/RacePlan.svelte'),
     Live: () => import('./pages/Live.svelte'),
     Blocks: () => import('./pages/Blocks.svelte'),
     BlockCheck: () => import('./pages/BlockCheck.svelte'),
@@ -509,6 +510,9 @@
   {:else if page === 'quiz'}
     <!-- Paket M «Quiz am Vorabend» (#207): #/quiz, #/quiz/<tripId> -->
     {#key hash}<LazyPage load={PAGES.Quiz} tripId={decodeURIComponent(hash.split('?')[0].split('/')[2] ?? '')} />{/key}
+  {:else if page === 'raceplan'}
+    <!-- «Rennen detailliert planen» (Noah 27.10.2026 «1b 2b»): #/racecheck, #/racecheck/<trip> -->
+    {#key hash.split('?')[0]}<LazyPage load={PAGES.RacePlan} id={decodeURIComponent(hash.split('?')[0].split('/')[2] ?? '')} />{/key}
   {:else if page === 'race'}
     <!-- Paket U «Rennen»: #/race, #/race/<trip>/<part>, #/race/brief/<trip> -->
     <LazyPage load={PAGES.Race} {hash} />
