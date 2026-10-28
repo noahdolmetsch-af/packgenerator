@@ -1,5 +1,9 @@
 /** Benutzerhandbuch (Noah 14.10.2026): wie man jede Funktion aufschaltet und nutzt, mit Beispielen (handbook.js). */
 export default {
+  // «Kochen» (Noah 28.10.2026 «1b 2a 3a 4a 5a»)
+  'Open Plan › Everyday life › Cooking and choose a meal.': 'Öffne Planen › Alltag › Kochen und wähle eine Mahlzeit.',
+  'Tap a recipe: set the portions, put the ingredients on the shopping list and read all steps.': 'Tippe auf ein Rezept: Portionen wählen, Zutaten auf die Einkaufsliste setzen und alle Schritte lesen.',
+  'Example: «Pasta with tomatoes and tuna», 2 portions → 4 ingredients for two on your shopping list.': 'Beispiel: «Pasta mit Tomaten und Thon», 2 Portionen → 4 Zutaten für zwei auf deiner Einkaufsliste.',
   // Einzelideen Planen (996 Ideen 12, 13, 14)
   'Or below «Or after an event»: after the next trip or the next workshop visit.': 'Oder darunter «Oder nach einem Ereignis»: nach der nächsten Tour oder dem nächsten Werkstattbesuch.',
   '«Put back» brings it back with its photos, files and links; each row says what comes with it.': '«Zurückholen» holt sie mit Fotos, Dateien und Verbindungen zurück; jede Zeile sagt, was mitkommt.',

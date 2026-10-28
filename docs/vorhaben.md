@@ -548,3 +548,9 @@ Warum: Daten aus verschiedenen Bereichen sollen zusammenspielen, damit die App i
 - **B Körper und Planung:** B1 Erholung beim Planen sehen (kürzere Variante als Angebot), B2 nach jeder Tour wieder erholt?, B3 Schonmodus.
 - **C Velo, Wetter, Material:** C1 Verschleiss-Kosten voraus, C2 Packliste folgt dem Wetterumschwung, C3 welches Velo passt?
 - **D Ein Helfer, der alles kennt:** D1 «Frag die App» über alle Bereiche, D2 eigene Faustregeln vorschlagen, D3 was die App noch wissen müsste, D4 «Hängt zusammen mit».
+
+### 15. Kochen (Ziel 5 Alltag, Noah 28.10.2026 «1b 2a 3a 4a 5a»)
+
+**Warum:** Noah isst schlecht und möchte, dass die App ihm hilft, sehr einfache Dinge zu kochen. **Wo:** eigene Seite Planen › Alltag › Kochen, nichts auf Heute. **Rezepte:** eigene, sehr einfache Rezepte offline im Repo (höchstens 6 Zutaten, 20 Minuten), ohne Kosten und ohne fremde Texte; eigene Rezepte aus Freie Zeit kommen dazu.
+
+In vier kleinen Schritten: 1 Seite mit Rezepten, Portionen und Einkaufsliste · 2 Kochmodus (ein Schritt pro Bildschirm, Timer, Bildschirm bleibt an, alle Schritte auf einen Blick) · 3 ein Tipp pro Mahlzeit und Tag, ohne Wiederholung, mit «Anderer Vorschlag», «Mag ich», «Nie mehr zeigen» und kurzem Start (was du nicht isst, wie lange) · 4 ungefähre Nährwerte pro Portion. Später: Bezug zum Training, Link zur Suche im Online-Shop.

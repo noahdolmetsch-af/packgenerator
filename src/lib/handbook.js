@@ -1141,6 +1141,11 @@ export const HANDBOOK = {
     steps: ['Open Me › Everyday life › Shopping list and type what you need.', 'Tick what is in the basket; groups sort the list like the shop and can be renamed, sorted and deleted.'],
     example: 'Example: switch on «Together with the trip shopping»: the gels and bars of your next trip stand below your everyday points.',
   },
+  'f.cook': {
+    on: null,
+    steps: ['Open Plan › Everyday life › Cooking and choose a meal.', 'Tap a recipe: set the portions, put the ingredients on the shopping list and read all steps.'],
+    example: 'Example: «Pasta with tomatoes and tuna», 2 portions → 4 ingredients for two on your shopping list.',
+  },
   'f.contracts': {
     on: null,
     steps: ['Open Me › Documents › Contracts and subscriptions, or Me › Everyday life.', 'Enter the cost, the end of the term and the notice period: the app shows the last day to cancel and reminds you in Remember.'],

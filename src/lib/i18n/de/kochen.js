@@ -1,0 +1,45 @@
+/**
+ * «Kochen» (Noah 28.10.2026 «1b 2a 3a 4a 5a»): Planen › Alltag › Kochen. The texts of the page, and the
+ * German texts of all recipes (written once as [English, German] in src/lib/kochen/rezepte.js).
+ */
+import { DE as RECIPES } from '../../kochen/rezepte.js';
+
+export default {
+  ...RECIPES,
+  'Very simple recipes with all steps': 'Sehr einfache Rezepte mit allen Schritten',
+  'Very simple meals: at most 6 ingredients and 20 minutes. Tap a recipe for its ingredients and all steps.': 'Sehr einfache Mahlzeiten: höchstens 6 Zutaten und 20 Minuten. Tippe auf ein Rezept für die Zutaten und alle Schritte.',
+  'Which meal': 'Welche Mahlzeit',
+  Breakfast: 'Frühstück',
+  Dinner: 'Abendessen',
+  'My recipes': 'Meine eigenen',
+  'Your own recipe from Free time': 'Dein eigenes Rezept aus Freie Zeit',
+  '{n} ingredient': '{n} Zutat',
+  '{n} ingredients': '{n} Zutaten',
+  'This recipe is not here any more.': 'Dieses Rezept gibt es nicht mehr.',
+  'All recipes': 'Alle Rezepte',
+  Ingredients: 'Zutaten',
+  Portions: 'Portionen',
+  'One portion less': 'Eine Portion weniger',
+  'One portion more': 'Eine Portion mehr',
+  '{n} portion': '{n} Portion',
+  '{n} portions': '{n} Portionen',
+  'Salt, pepper and water are not on the list; you have them at home.': 'Salz, Pfeffer und Wasser stehen nicht auf der Liste; die hast du zu Hause.',
+  'Add to the shopping list': 'Auf die Einkaufsliste',
+  'All steps at a glance': 'Alle Schritte auf einen Blick',
+  'about {n} min': 'etwa {n} Min.',
+  'No steps written yet.': 'Noch keine Schritte aufgeschrieben.',
+  'Change it in Free time': 'In Freie Zeit ändern',
+  "Don't show again": 'Nie mehr zeigen',
+  'No own recipe yet. Write one in Free time › My collections; it shows here too.': 'Noch kein eigenes Rezept. Schreib eines in Freie Zeit › Meine Sammlungen; es erscheint auch hier.',
+  'All recipes of this meal are hidden. «Hidden» below brings them back.': 'Alle Rezepte dieser Mahlzeit sind ausgeblendet. «Ausgeblendet» unten holt sie zurück.',
+  'Write a recipe': 'Rezept schreiben',
+  'Your own recipes from Free time › My collections show here too.': 'Deine eigenen Rezepte aus Freie Zeit › Meine Sammlungen erscheinen auch hier.',
+  'Hidden ({n})': 'Ausgeblendet ({n})',
+  'Show again': 'Wieder zeigen',
+  '«{name}» is hidden. «Hidden» at the end of the list brings it back.': '«{name}» ist ausgeblendet. «Ausgeblendet» am Ende der Liste holt es zurück.',
+  '«{name}» is back in the list.': '«{name}» ist wieder in der Liste.',
+  '60 very simple recipes for breakfast, lunch and dinner, with portions and all steps; the ingredients go to your shopping list. Your own recipes from Free time show there too.': '60 sehr einfache Rezepte für Frühstück, Mittag- und Abendessen, mit Portionen und allen Schritten; die Zutaten kommen auf deine Einkaufsliste. Deine eigenen Rezepte aus Freie Zeit erscheinen dort auch.',
+  'Open Plan › Everyday life › Cooking.': 'Öffne Planen › Alltag › Kochen.',
+  'Tap a recipe.': 'Tippe auf ein Rezept.',
+  'Tap «Add to the shopping list»; all steps are below.': 'Tippe auf «Auf die Einkaufsliste»; alle Schritte stehen darunter.',
+};

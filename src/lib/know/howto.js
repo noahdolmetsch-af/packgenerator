@@ -268,6 +268,7 @@ export const HOWTO = {
   'f.journal': ['Open Plan › Diary.', 'Tap «New entry» or answer the question of the day.', 'Settings (top right): lock with a code, tags, download.'],
   'f.impulse': ['Open Active › Impulses.', 'Tap an area, then «Try it».', 'Your own impulse: «Your own impulse» at the end of the list.'],
   'f.shopping': ['Open Me › Everyday life › Shopping list.', 'Type a point and tap «Add»; tick it in the shop.', 'Groups: «Groups» at the end of the page.'],
+  'f.cook': ['Open Plan › Everyday life › Cooking.', 'Tap a recipe.', 'Tap «Add to the shopping list»; all steps are below.'],
   'f.contracts': ['Open Me › Documents › Contracts and subscriptions.', 'Tap «New contract» and enter the end of the term and the notice period.', 'The reminder comes in Calendar › Remember, before the last day to cancel.'],
   'f.people': ['Open Me › Everyday life › Not seen for a while.', 'Tap «Add a person» and choose how often.', 'After you met: «Seen today».'],
   'f.abroad': ['Open a trip, Plan, and choose its country.', 'Below the country: emergency numbers, travel insurance and the currency.', 'Tap «Change» to set your own numbers for that country.'],
