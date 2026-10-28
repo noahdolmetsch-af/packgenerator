@@ -43,6 +43,7 @@ export const HOME = {
   'f.minilist': '#/me/mini',
   'f.miniinvite': '#/me/mini',
   'f.minifood': '#/me/mini',
+  'f.minilos': '#/me/mini/los',
   'f.inputbar': '#/tagebuch',
   'f.inputtemplates': '#/tagebuch',
   'f.picturecard': '#/tagebuch/:entry',
