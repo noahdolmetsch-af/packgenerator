@@ -3,8 +3,8 @@
 export default {
   title: 'You decide how much moves',
   lead: 'Full, calm or off: one switch for all movements.',
-  points: [{ text: 'Me › Appearance › Handling › Motion: Full, Calm or Off', href: '#/me/look' }],
-  small: [{ box: 'new', text: 'Calm leaves out the confetti, Off stops every movement in the app' }],
+  points: [{ text: 'Me › Appearance › Handling › Motion: Full, Calm or Off', href: '#/me/look', go: { href: '#/me/look', where: 'Shows in Me › Appearance under Handling.' } }],
+  small: [{ box: 'new', text: 'Calm leaves out the confetti, Off stops every movement in the app', go: { href: '#/me/look', where: 'Shows in Me › Appearance under Handling.' } }],
   test: ['Open Ich › Darstellung and choose «Aus» under Bedienung › Bewegung.', 'Delete something and look at the note at the bottom: it appears without gliding. Then choose «Voll» again.'],
   since: [],
   de: {
