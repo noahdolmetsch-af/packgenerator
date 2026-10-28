@@ -36,7 +36,10 @@
     {#if bike}{t('Made from your bike «{name}»: tyres, chain, brakes. Tick off what is packed.', { name: bike.name })}{:else}{t('The race has no bike yet, so these are general suggestions. Tick off what is packed.')}{/if}
   </p>
   {#if rows.length}
-    <p class="tl-sum" role="status" data-tools-sum>{t('{done} of {of} packed', { done, of: rows.length })}</p>
+    <div class="tl-head">
+      <p class="tl-sum" role="status" data-tools-sum>{t('{done} of {of} packed', { done, of: rows.length })}</p>
+      <span class="tl-bar" aria-hidden="true"><span style:width="{Math.round((done / Math.max(rows.length, 1)) * 100)}%"></span></span>
+    </div>
     <ul class="tl-list" data-tools-list>
       {#each rows as r (r.id)}
         <li class:tl-done={r.done}>
@@ -56,23 +59,52 @@
 </section>
 
 <style>
+  .tl-head {
+    display: grid;
+    gap: 6px;
+    padding: 12px 14px;
+    border-radius: var(--radius-card);
+    background: var(--accent-soft);
+  }
   .tl-sum {
     margin: 0;
     font-weight: 600;
+  }
+  .tl-bar {
+    display: block;
+    height: 8px;
+    border-radius: 4px;
+    background: var(--paper);
+    overflow: hidden;
+  }
+  .tl-bar span {
+    display: block;
+    height: 100%;
+    background: var(--accent);
   }
   .tl-list {
     list-style: none;
     margin: 0;
     padding: 0;
     display: grid;
-    gap: 2px;
+    grid-template-columns: repeat(auto-fill, minmax(17rem, 1fr));
+    gap: 8px;
+  }
+  .tl-list li {
+    border: 1px solid var(--line);
+    border-radius: var(--radius-card);
+    background: var(--paper);
+  }
+  .tl-list li.tl-done {
+    border-color: transparent;
+    background: var(--ok-soft);
   }
   .tl-tick {
     display: flex;
     align-items: flex-start;
     gap: 12px;
     min-height: 44px;
-    padding: 6px 0;
+    padding: 10px 12px;
     cursor: pointer;
   }
   .tl-tick input {
@@ -92,6 +124,7 @@
   .tl-done b {
     color: var(--ink-2);
     font-weight: 500;
+    text-decoration: line-through;
   }
   .tl-more {
     display: grid;
