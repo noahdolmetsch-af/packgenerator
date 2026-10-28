@@ -6,6 +6,7 @@
    * app sends the server its next reminders (push/client.js), and the server sends them at their time.
    * Paket B (anleitung.md Teil 7): «Adresse für cron-job.org kopieren» fetches the tick address (with the
    * code the server made itself) and copies it; when the clipboard refuses, the address is shown to select.
+   * Idee A1 (Noah 27.10.2026 «3a»): «One message in the morning» (on unless switched off, push/morning.js).
    */
   import { liveQuery } from 'dexie';
   import { db } from '../lib/db.js';
@@ -64,6 +65,10 @@
     await save({ ...p, kinds: { ...p.kinds, [key]: on } });
     if (p.on) await sync();
   }
+  async function setMorning(on) {
+    await save({ ...p, morning: on });
+    if (p.on) await sync();
+  }
   async function setTour(id, on) {
     await save({ ...p, wxOff: on ? p.wxOff.filter((x) => x !== id) : [...p.wxOff, id] });
     if (p.on) await sync();
@@ -114,6 +119,16 @@
       <input class="ps-sw" type="checkbox" role="switch" aria-labelledby="ps-main-l" checked={p.on} disabled={busy} onchange={(e) => setMain(e.currentTarget.checked)} data-push-main />
     </div>
     {#if msg}<p class="ps-msg" role="alert">{msg}</p>{/if}
+  </section>
+
+  <section class="ps-sec" aria-labelledby="ps-morning-h" data-push-morning>
+    <h2 id="ps-morning-h">{t('In the morning')}</h2>
+    <div class="card ps-card">
+      <div class="ps-row">
+        <span class="ps-m"><b id="ps-morning-l">{t('One message in the morning')}</b><small>{t('The reminders of 08:00 come together at 07:00 as one message, with your trip and the first appointments of the day. Warnings (weather, ice, light, rain) still come on their own.')}</small></span>
+        <input class="ps-sw" type="checkbox" role="switch" aria-labelledby="ps-morning-l" checked={p.morning} disabled={busy} onchange={(e) => setMorning(e.currentTarget.checked)} />
+      </div>
+    </div>
   </section>
 
   <section class="ps-sec" aria-labelledby="ps-kinds-h">

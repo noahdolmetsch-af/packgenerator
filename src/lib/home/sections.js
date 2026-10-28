@@ -9,6 +9,15 @@
 import { TILE } from './tiles.js';
 
 export const SECTIONS_KEY = 'homeSections';
+/**
+ * «Bereiche anpassen» (Noah 27.10.2026 «1a 2a»): the person's own setup of the areas, one settings row
+ * { order: [keys], names: { key: own name }, off: { key: where its tiles go, '' = «Without area» } }.
+ * Nothing stored: the areas as the app has them.
+ */
+export const AREAS_KEY = 'homeAreas';
+/** The area at the end that takes the tiles of a hidden area (GroupDeleteSheet «Ohne Bereich»). */
+export const NONE = 'none';
+const NONE_AREA = { key: NONE, name: 'Without area', sub: '' };
 
 /** The areas in their order: key, heading (English for t()), a quiet line or ''. */
 export const SECTIONS = [
@@ -71,13 +80,75 @@ function after(list) {
 /** The area a tile shows in: every small tile in «Schnell öffnen». */
 export const sectionOf = (x) => (x.size === 's' ? 'quick' : (SECTION_OF[x.id] ?? AREA_OF[TILE[x.id]?.area] ?? 'discover'));
 
-/** The wall in areas, each with its tiles in the order of the wall; empty areas are left out. → [{ ...section, tiles }] */
-export function sectionsOf(tiles = []) {
-  return SECTIONS.map((s) => ({ ...s, tiles: after(tiles.filter((x) => sectionOf(x) === s.key)) })).filter((s) => s.tiles.length);
+const KEYS = SECTIONS.map((s) => s.key);
+
+/** The stored setup, cleaned: unknown keys and empty names left out. */
+export function normAreas(v) {
+  const order = Array.isArray(v?.order) ? v.order.filter((k, i, a) => KEYS.includes(k) && a.indexOf(k) === i) : [];
+  const names = Object.fromEntries(Object.entries(v?.names ?? {}).filter(([k, n]) => KEYS.includes(k) && typeof n === 'string' && n.trim()).map(([k, n]) => [k, n.trim()]));
+  const off = Object.fromEntries(Object.entries(v?.off ?? {}).filter(([k]) => KEYS.includes(k)).map(([k, to]) => [k, KEYS.includes(to) && to !== k ? to : '']));
+  return { order, names, off };
+}
+
+/** All six areas in the person's order: [{ ...section, own: own name or null, off: hidden }]. */
+export function areasOf(cfg) {
+  const c = normAreas(cfg);
+  const keys = [...c.order, ...KEYS.filter((k) => !c.order.includes(k))];
+  return keys.map((k) => ({ ...SECTIONS.find((s) => s.key === k), own: c.names[k] ?? null, off: k in c.off }));
+}
+
+/** Where a tile shows with the setup: its area, or where a hidden area sends it (a hidden target: «Without area»). */
+function homeOf(x, c) {
+  const k = sectionOf(x);
+  if (!(k in c.off)) return k;
+  const to = c.off[k];
+  return to && !(to in c.off) ? to : NONE;
+}
+
+/** The wall in areas, each with its tiles in the order of the wall; empty areas are left out. → [{ ...section, own, tiles }] */
+export function sectionsOf(tiles = [], cfg = null) {
+  const c = normAreas(cfg);
+  const shown = [...areasOf(c).filter((a) => !a.off), { ...NONE_AREA, own: null, off: false }];
+  return shown.map((s) => ({ ...s, tiles: after(tiles.filter((x) => homeOf(x, c) === s.key)) })).filter((s) => s.tiles.length);
 }
 
 /** The tiles in the order Heute shows them (areas on): area by area, inside an area the order of the wall. */
-export const inAreas = (tiles = []) => sectionsOf(tiles).flatMap((s) => s.tiles);
+export const inAreas = (tiles = [], cfg = null) => sectionsOf(tiles, cfg).flatMap((s) => s.tiles);
+
+/** The shown areas moved: from and to are places in the list of shown areas; hidden ones keep their place at the end. */
+export function moveArea(cfg, from, to) {
+  const c = normAreas(cfg);
+  const all = areasOf(c);
+  const shown = all.filter((a) => !a.off).map((a) => a.key);
+  if (from < 0 || to < 0 || from >= shown.length || to >= shown.length || from === to) return c;
+  const [k] = shown.splice(from, 1);
+  shown.splice(to, 0, k);
+  return { ...c, order: [...shown, ...all.filter((a) => a.off).map((a) => a.key)] };
+}
+
+/** An own name for an area; an empty name brings back the app's name. */
+export function renameArea(cfg, key, name) {
+  const c = normAreas(cfg);
+  const names = { ...c.names };
+  const n = String(name ?? '').trim();
+  if (n) names[key] = n;
+  else delete names[key];
+  return { ...c, names };
+}
+
+/** Hides an area; its tiles go to the area `to`, or with '' to «Without area» at the end. The tiles stay on Heute. */
+export function hideArea(cfg, key, to = '') {
+  const c = normAreas(cfg);
+  return normAreas({ ...c, off: { ...c.off, [key]: to || '' } });
+}
+
+/** Shows a hidden area again, with its tiles. */
+export function showArea(cfg, key) {
+  const c = normAreas(cfg);
+  const off = { ...c.off };
+  delete off[key];
+  return { ...c, off };
+}
 
 /**
  * On a computer (8 columns) a card that would leave the rest of its row empty (the next card does not fit beside it,

@@ -49,6 +49,8 @@ Die geplanten Vorhaben verfolgen sechs Ziele (das fünfte seit 19.10.2026, Noah 
 
 **Neu 24.10.2026, 996 Ideen:** vier Pakete nach der 332-Arbeit, in dieser Reihenfolge: B «Touren ohne Überraschung» (Ziel 3: Generalprobe, Folgen vorher sehen, QR an der Kiste, Gut ankommen, Packen nach Bedürfnis), A «Ehrlicher Stand im Alltag» (Ziel 5), C «Ruhig und persönlich» (Ziele 4 und 5), D «Mit Freunden» (wieder offen). Übersicht: `notes/ideen-996/` im Projektordner.
 
+**Träume und Neuland (Noah 27.10.2026 «1-5 a», Ziele 3 und 4):** Träume rückt unter Touren an die zweite Stelle und bekommt «Entdecken»: Ausflugstipps nach Wetter und freier Zeit, weisse Flecken in der Nähe, Herausforderungen mit Ende, kleine Abenteuer (Feierabend-Biwak, Zug hin und Velo heim), Ideen pro Monat; dazu Link wird Traum, Karte aller Träume, Wetterfenster, «Bereit?», erfüllte Träume, neue Sammlungen (Aussichtstürme, Hängebrücken, Wasserfälle) und ein Abenteuer-Würfel. Die Träume aus dem Kompass und die Reisewünsche aus Freie Zeit kommen in Träume; Neuland, Gipfelbuch und «Neuland des Jahres» werden eine Fundliste. Die Neuland-Seite bleibt unter Rückblick. Jede Idee ist ein eigener kleiner PR. Keine neue Kachel auf Heute (nur die Zeilen «Neu heute» und «Abenteuer im Monat»).
+
 Durchgehende Grundsätze: Alles ist ein Vorschlag, nie Pflicht, und immer änderbar. Private Daten bleiben privat. Keine fremden Dienste, wenn es eine eigene, schlanke Lösung gibt.
 
 ## Stand heute (19.10.2026, live 0.152.0)
@@ -535,3 +537,12 @@ Stand 27.10.2026: PR 2 «Orte» (0.222.0) gebaut. M13 «Karte frei» freigegeben
 Stand 27.10.2026: PR 3 «Strecke genau» (0.223.0) gebaut. Neu gewünscht: Suchvorschläge für «In der Nähe» (Wellness, Automaten, Situations-Knöpfe), Fragen offen.
 Stand 27.10.2026: PR 5 «Umweg und zurück» (0.234.0) gebaut. Danach M13 «Karte frei».
 Stand 27.10.2026: PR 4 «In der Nähe» (0.227.0) gebaut. Nächster Schritt PR 5 «Umweg und zurück». Vorschlag «Alle Infos zu einem Ort» an Noah geschickt, 5 Fragen offen.
+
+## App denkt mit (27.10.2026)
+
+Warum: Daten aus verschiedenen Bereichen sollen zusammenspielen, damit die App im Alltag mehr abnimmt (Ziele 2, 3 und 5). Noah «alle umsetzen 1a 2a 3a 4a 5a». Ideenseite: `notes/intelligenter-vernetzt/ideen.html` im Projektordner.
+
+- **A Heute denkt mit:** A1 eine Nachricht am Morgen (gebaut), A2 Erinnerung zur Zeit, wann du es machst, A3 freie Zeit plus gutes Wetter gibt einen Vorschlag.
+- **B Körper und Planung:** B1 Erholung beim Planen sehen (kürzere Variante als Angebot), B2 nach jeder Tour wieder erholt?, B3 Schonmodus.
+- **C Velo, Wetter, Material:** C1 Verschleiss-Kosten voraus, C2 Packliste folgt dem Wetterumschwung, C3 welches Velo passt?
+- **D Ein Helfer, der alles kennt:** D1 «Frag die App» über alle Bereiche, D2 eigene Faustregeln vorschlagen, D3 was die App noch wissen müsste, D4 «Hängt zusammen mit».
