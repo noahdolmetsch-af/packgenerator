@@ -2,8 +2,8 @@
 export default {
   title: 'Finish time riding through',
   lead: 'When are you at the finish if you ride through? Good day, as planned, hard day.',
-  points: [{ text: 'Plan races in detail › a race: «Finish time riding through» with three answers', href: '#/racecheck' }],
-  small: [{ box: 'new', text: 'Change km, metres up, start, speed, stops and naps; the times follow at once' }],
+  points: [{ text: 'Plan races in detail › a race: «Finish time riding through» with three answers', href: '#/racecheck', go: 'f.racecheck' }],
+  small: [{ box: 'new', text: 'Change km, metres up, start, speed, stops and naps; the times follow at once', go: 'f.racecheck' }],
   test: ['Open Touren › «Rennen detailliert planen» › a race: «Zielzeit nonstop» shows three times.', 'Open «Zahlen ändern» and set the speed higher: all three times get earlier.'],
   since: [],
   de: {

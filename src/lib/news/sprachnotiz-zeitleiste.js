@@ -2,8 +2,8 @@
 export default {
   title: 'Voice notes in the timeline',
   lead: 'In the look back of a trip, every voice note plays right where you spoke it.',
-  points: [{ text: 'Notes with a voice note get a «Play» button in the timeline, with the words below once turned into text', href: '#/trips' }],
-  small: [{ box: 'new', text: 'Voice notes from «I am here» on the live map and from the diary show as their own entries' }],
+  points: [{ text: 'Notes with a voice note get a «Play» button in the timeline, with the words below once turned into text', href: '#/trips', go: { href: '#/trips', where: 'Shows in the timeline of a trip with a voice note.' } }],
+  small: [{ box: 'new', text: 'Voice notes from «I am here» on the live map and from the diary show as their own entries', go: { href: '#/trips', where: 'Shows in the timeline of a trip with a voice note.' } }],
   test: [
     'Open Touren › a past trip with a voice note › Rückblick: in «Zeitleiste» the note has the button «Abspielen» with its length.',
     'Tap «Abspielen»: the voice note plays and the button says «Stopp». Tap another one: the first stops.',
