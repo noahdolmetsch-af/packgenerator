@@ -4,7 +4,7 @@
 // - a new bike name says that Garmin and Strava need the same name;
 // - a learning can be added, changed and deleted; a problem renamed and deleted; a logbook entry renamed.
 // Fictional fixture plus test_data_gtp_ data; nothing leaves the preview server.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';

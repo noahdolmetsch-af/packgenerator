@@ -2,7 +2,7 @@
 // is really due today (a late to-do, a birthday today, a plant to water); a tap opens Planen › Merken.
 // Fictional data (home0460-fixture.js; Friday 9 October 2026, 09:00). Then the five tour-free places: the Merken tab
 // in Planen, the quick links on a bike's Setup page and on Material.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { openHome, homeFixture, day } from './home0460-fixture.js';
 
 test('Heute faellig: due to-do, birthday and plant under the body check, a tap opens Merken', async ({ page, context }, info) => {

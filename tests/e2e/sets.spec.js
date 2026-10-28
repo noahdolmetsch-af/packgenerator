@@ -1,7 +1,7 @@
 // v0.26.0 (Noah 1a, 2a/2b, 3a; AP10/AP11): building blocks (code: item sets) you can see and make,
 // assigning many items at once, "+ {block}" in Pack, and kits that become templates on start.
 // Fictional fixture plus test_data_gtp_ items; nothing outside the preview server.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';
