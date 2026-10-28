@@ -58,6 +58,12 @@ test('New since yesterday: one line on Today after a ride, opens New ground, clo
   // a tap opens New ground
   await line.locator('a').click();
   await expect.poll(() => page.evaluate(() => location.hash)).toBe('#/neuland');
+  // New ground shows the same line on top (Noah 28.10.2026 «1 a und b»); a chip opens that collection
+  const fresh = page.locator('[data-nl-fresh]');
+  await expect(fresh).toContainText(T('New since yesterday: {list}', { list: '' }).trim(), { timeout: 20000 });
+  await fresh.locator('[data-nl-fresh-c="municipalities"]').click();
+  await expect(fresh.locator('[data-nl-fresh-c="municipalities"]')).toHaveAttribute('aria-pressed', 'true');
+  await shot(page, info, 'NH2-neuland');
   await page.goBack();
   await ready(page);
 
