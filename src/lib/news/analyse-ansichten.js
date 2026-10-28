@@ -3,9 +3,9 @@ export default {
   title: 'Saved views in Analyse',
   lead: 'Keep what you look at under a name, one tap brings it back: values, period, filter and look of your diagram.',
   points: [
-    { text: 'Two starters: «Alles im Blick» and «Schlaf und Training»; only suggestions', href: '#/auswerten/analyse' },
-    { text: '«+ Neue Ansicht» keeps what you see now', href: '#/auswerten/analyse' },
-    { text: '«Bearbeiten»: rename, move with arrows or drag, delete with Undo', href: '#/auswerten/analyse' },
+    { text: 'Two starters: «Alles im Blick» and «Schlaf und Training»; only suggestions', go: 'f.analyse' },
+    { text: '«+ Neue Ansicht» keeps what you see now', go: 'f.analyse' },
+    { text: '«Bearbeiten»: rename, move with arrows or drag, delete with Undo', go: 'f.analyse' },
   ],
   small: [],
   test: [
