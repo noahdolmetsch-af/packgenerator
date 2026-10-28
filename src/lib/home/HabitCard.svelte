@@ -50,7 +50,7 @@
   <span class="mi" aria-hidden="true">{#if isAct}<ActIcon icon={st?.act.icon} ring={st?.act.ring} box={false} size={20} />{:else}<Heart size={20} />{/if}</span>
   <span class="mt">
     <a id="hc-{kind}-{id}" {href}>{name}</a>
-    <small>{line}{#if goal} · {t('Goal|flow')} {goal}{/if}</small>
+    <small>{line}{#if goal}{` · ${t('Goal|flow')} ${goal}`}{/if}</small>
   </span>
   {#if onpick}<button type="button" class="pen" aria-label={t('Choose other habits')} title={t('Choose other habits')} onclick={onpick} data-habit-pick><Pencil size={16} aria-hidden="true" /></button>{/if}
   <span class="dots" role="img" aria-label={t('{n} of 7 days', { n: week.filter((g) => g.on).length })}>
