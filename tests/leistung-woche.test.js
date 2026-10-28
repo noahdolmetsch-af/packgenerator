@@ -3,7 +3,7 @@
 import { describe, it, expect } from 'vitest';
 import { shiftDay, mondayOf, isoWeek, DEFAULT_BOUNDS } from '../src/lib/training.js';
 import {
-  actLoad, loadsOf, dailyLoads, formDays, formWeeks, weekLoads, mondays, curveBests, nearSame, monthStart, daysBetween,
+  actLoad, loadsOf, dailyLoads, weekLoads, mondays, curveBests, nearSame, monthStart, daysBetween,
   effPoints, trendOf, sums, monthSums, defaultMonths, lastYearDay, yearSums, niceTicks, WEEKS, CURVE_SPANS,
 } from '../src/lib/training/week/weeks.js';
 
@@ -25,33 +25,6 @@ describe('the load of one activity', () => {
     const d = dailyLoads(acts, loadsOf(acts));
     expect(d.get(TODAY)).toBe(50);
     expect(d.get(shiftDay(TODAY, -1))).toBe(5);
-  });
-});
-
-describe('fitness, fatigue and form', () => {
-  it('42- and 7-day means from the first activity; form is the day before’s difference', () => {
-    const acts = [act('a', '2026-10-01', { effort: 84 })];
-    const f = formDays(acts, '2026-10-02');
-    expect(f.get('2026-10-01').ctl).toBeCloseTo(2, 6); // 84 / 42
-    expect(f.get('2026-10-01').atl).toBeCloseTo(12, 6); // 84 / 7
-    expect(f.get('2026-10-01').tsb).toBe(0);
-    expect(f.get('2026-10-02').tsb).toBeCloseTo(-10, 6); // 2 − 12 of the day before
-    expect(f.get('2026-10-02').ctl).toBeCloseTo(2 * (41 / 42), 6);
-  });
-  it('a steady load lifts fitness towards it; one point per week, this week until today', () => {
-    const acts = [];
-    for (let i = 0; i < 300; i++) acts.push(act(`s${i}`, shiftDay(TODAY, -i), { effort: 50 }));
-    const r = formWeeks(acts, TODAY);
-    expect(r.weeks).toHaveLength(WEEKS);
-    expect(r.weeks.at(-1).monday).toBe(mondayOf(TODAY));
-    expect(r.weeks.at(-1).kw).toBe(42);
-    expect(r.weeks[0].kw).toBe(27);
-    expect(r.now.ctl).toBe(50);
-    expect(r.now.atl).toBe(50);
-    expect(r.now.tsb).toBe(0);
-  });
-  it('nothing without activities', () => {
-    expect(formWeeks([], TODAY)).toBeNull();
   });
 });
 

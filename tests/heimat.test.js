@@ -4,6 +4,7 @@ import { describe, it, expect } from 'vitest';
 import { FEATURES } from '../src/lib/features.js';
 import { HOME, GAPS, WHY } from '../src/lib/know/heimat.js';
 import { WHEN } from '../src/lib/know/wann.js';
+import { SPOT } from '../src/lib/know/spot.js';
 
 // Measured 24.10.2026 on 0.181.4. Lower this number whenever a package makes functions visible;
 // never raise it: a new function comes with a visible place on its home page.
@@ -32,6 +33,11 @@ describe('home pages of the functions', () => {
     const when = Object.keys(GAPS).filter((id) => GAPS[id] === 'when').sort();
     expect(Object.keys(WHEN).sort()).toEqual(when);
     for (const id of when) expect(WHEN[id], id).toMatch(/\.$/);
+  });
+
+  it('a function inside a window or a fold has its spot, which the catalogue lights up (Noah 27.10.2026 «c»)', () => {
+    expect(Object.keys(SPOT).sort()).toEqual(Object.keys(GAPS).filter((id) => GAPS[id] === 'spot').sort());
+    for (const [id, steps] of Object.entries(SPOT)) for (const st of steps) expect(st.sel || st.text || st.aria, id).toBeTruthy();
   });
 
   it('the list of gaps only gets shorter', () => {
