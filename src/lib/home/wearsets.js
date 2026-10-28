@@ -75,7 +75,7 @@ export const setPieces = (set, items = []) => (set ? items.filter((i) => isInven
  * enough one first); a row the set leaves out (set.off) stays empty; every other row as the app
  * picked it. Rows: { key, name, item, rain, fromSet, setOff, light (the set piece is too light) }.
  */
-export function setOutfit(outfit, set, items = []) {
+export function setOutfit(outfit, set, items = [], prefer = 'light') {
   if (!outfit || !set) return outfit;
   const c = outfit.c;
   const mine = setPieces(set, items);
@@ -93,7 +93,7 @@ export function setOutfit(outfit, set, items = []) {
       rows.push({ ...auto, fromSet: false, setOff: false, light: false });
       continue;
     }
-    const item = best(ms.filter((i) => warmEnough(i, c)), c) ?? lowest(ms);
+    const item = best(ms.filter((i) => warmEnough(i, c)), c, prefer) ?? lowest(ms);
     rows.push({ key: row.key, name: row.name, item, rain: auto?.rain ?? false, fromSet: true, setOff: false, light: !warmEnough(item, c) });
   }
   return { ...outfit, rows };
