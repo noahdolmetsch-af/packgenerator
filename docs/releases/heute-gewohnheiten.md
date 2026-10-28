@@ -18,6 +18,7 @@ Noah fragte, warum oben auf Heute genau die Meditation steht. Die Karte kam am 1
 - Eine gelöschte oder pausierte Aktivität und ein gelöschter Punkt fallen still aus der Karte; ist nichts mehr übrig, steht dort ein kurzer Hinweis mit «Gewohnheiten wählen».
 - Die Kachel heisst im Katalog weiter «Meditation», damit bestehende Wände und Tests gleich bleiben.
 - Abhaken einer Aktivität trägt das Tagesziel ein wie ein Tipp in Aktiv; Dauer und Ort gibt es über «Mit Stoppuhr».
+- Test «Daumen-Zone» (Material am Handy) misst jetzt erneut, bis die Seite fertig gewachsen ist; vorher mass er manchmal, während die Liste noch lud (gleiche Prüfung, nur ohne Wackeln).
 
 ## Entscheide (für decisions.md)
 - 27.10.2026: Hauptkarte oben auf Heute wählbar: Stift auf der Karte und «Startseite anpassen» (1a), Aktivitäten aus Aktiv und Punkte aus «Das tut mir gut» (2a+b), bis zu drei (3b).
