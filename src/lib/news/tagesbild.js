@@ -2,7 +2,7 @@
 export default {
   title: 'Picture of the day',
   lead: 'A tapped day in Analyse now shows its 24 hours: when you slept, steps and pulse per hour, your rides and when you ticked what.',
-  points: [{ text: 'Tap a day in the diagram or in «Jeder Tag ein Feld»: on top the picture of the day', href: '#/auswerten/analyse' }],
+  points: [{ text: 'Tap a day in the diagram or in «Jeder Tag ein Feld»: on top the picture of the day', go: 'f.analyse' }],
   small: [],
   test: [
     'Open Auswerten › Analyse and tap a field in «Jeder Tag ein Feld».',
