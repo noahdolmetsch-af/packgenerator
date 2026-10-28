@@ -4,7 +4,7 @@
 // «Mehr Inhalt» T2 hard pieces (a tap shades the piece in Verlauf) and T5 the home loop over time.
 // Hiding via «…» › Ausblenden with Rückgängig, and a switch in «Analysen anpassen». Fictional data only;
 // everything outside the preview server is blocked.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { ready } from './settle.js';
 import { P, GEAR, ZONES, day, routeStrava, seedActivities, activities, detail } from './leistung-data.js';
 import { ftpEstimate } from '../../src/lib/training.js';

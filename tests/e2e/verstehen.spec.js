@@ -1,7 +1,7 @@
 // «App verstehen» (Noah 26.10.2026 «mini kurs … in der app einsehbar mit links und übungen … unter ich - app verstehen»):
 // Ich › App verstehen (#/me/verstehen): seven lessons from lib/verstehen.js, each folded with steps, an exercise
 // and links; «Done» ticks and unticks, stays after a reload. German UI, fictional data (test_data_gtp_).
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { openHome } from './home0460-fixture.js';
 import { LESSONS, HANDBOOK } from '../../src/lib/verstehen.js';
 

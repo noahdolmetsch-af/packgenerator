@@ -1,7 +1,7 @@
 // «Neuer Schwung» Packen 3 (drawn bike with bags, Noah 27.10.2026 «1a 2a 3a», «alle anderen Vorschläge umsetzen»):
 // the bike with every bag of the trip at its place; a bag fills as you pack, a full one shows ✓, a tap opens it.
 // Fictional fixture; nothing leaves the preview server.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';

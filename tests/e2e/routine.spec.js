@@ -2,7 +2,7 @@
 // top of Heute). Fictional data only (test_data_gtp_); the clock stands on Friday 9 October 2026, 09:00
 // (Europe/Zurich, home0460-fixture.js). The examples and the record come from the app source.
 // SHOTS=<folder> saves the pictures (viewport shots, light mode).
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { D0, openHome, homeFixture } from './home0460-fixture.js';
 import { ROUTINE_KEY, seedItems, addDays } from '../../src/lib/routine.js';
 import { READY, HEAD_0155 } from '../../src/lib/home/tiles.js';

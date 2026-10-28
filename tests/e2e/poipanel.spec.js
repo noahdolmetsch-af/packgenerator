@@ -8,7 +8,7 @@
 // PLACEMENT: the tests marked [needs placement] need the map worker to put <PoiPanel> into src/pages/Live.svelte
 // (#/live and #/live/<trip>). The test marked [no placement] runs today (OfflineBox → PoiKeepAlong).
 // Fictional data only (test_data_gtp_ names). Every outside request is mocked or blocked (openHome).
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { openHome } from './home0460-fixture.js';
 
 // Suchvorschläge (27.10.2026): the place search sits in the window «In der Nähe»; open it from the map

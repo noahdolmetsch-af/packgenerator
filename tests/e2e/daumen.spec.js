@@ -1,7 +1,7 @@
 // FE1, FE13, FE14, FE16 (Noah 13.10.2026: FE1 «b», FE13/FE14/FE16 «a»): Daumen-Zone, Farbe nie allein,
 // «?» an Ort und Stelle, passende Handy-Tastatur. The big fictional data set of the Gesamttest
 // (test_data_gtp_), German, phone + desktop. FE_SHOTS=<dir> also writes screenshots.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { mkdirSync } from 'node:fs';
 import { start, DE, fixture, day } from './gesamttest/lib.js';
 import { at1Acts } from './at1-acts.js';
@@ -34,14 +34,18 @@ async function expectThumb(page, info, button) {
     const top = await barTop(page);
     expect(box.y + box.height).toBeLessThanOrEqual(top);
     expect(box.y + box.height).toBeGreaterThan(top - 80);
-    // the page ends with room for the bar: its last content is not covered
-    await page.evaluate(() => scrollTo(0, document.documentElement.scrollHeight));
-    const last = await page.evaluate(() => {
-      const els = [...document.querySelectorAll('main *')].filter((e) => e.checkVisibility() && !e.closest('.daumen') && getComputedStyle(e).position !== 'fixed' && e.getBoundingClientRect().height > 0);
-      return Math.max(...els.map((e) => e.getBoundingClientRect().bottom));
-    });
+    // the page ends with room for the bar: its last content is not covered. Scroll and measure again until
+    // the page has finished growing (a list that still renders below makes the first scroll stop short).
     const bar = await button.evaluate((b) => b.closest('.daumen').getBoundingClientRect().top);
-    expect(last).toBeLessThanOrEqual(bar + 1);
+    await expect
+      .poll(() =>
+        page.evaluate(() => {
+          scrollTo(0, document.documentElement.scrollHeight);
+          const els = [...document.querySelectorAll('main *')].filter((e) => e.checkVisibility() && !e.closest('.daumen') && getComputedStyle(e).position !== 'fixed' && e.getBoundingClientRect().height > 0);
+          return Math.max(...els.map((e) => e.getBoundingClientRect().bottom));
+        }),
+      )
+      .toBeLessThanOrEqual(bar + 1);
   } else {
     // Paket A: the approved card «Was hier steht» (HT1–HT2) and the tip line «Gut zu wissen» now sit above
     // the toolbar, so the button is lower than the old 500 px; it stays in the page's flow on the first screen.

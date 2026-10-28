@@ -2,7 +2,7 @@
 // hours per day, overnight stay, weather and event; the list comes straight from it (6b), a later
 // change in "Edit trip" applies at once with Undo (9b), and a short ride shows no bike care (10).
 // Fictional fixture plus test_data_gtp_ items; nothing outside the preview server.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';

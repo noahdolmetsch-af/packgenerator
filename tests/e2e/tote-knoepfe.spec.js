@@ -1,7 +1,7 @@
 // «Tote Knöpfe» (Klick-Rundgang 22.10.2026, Noah «5a»: a robot plays it through before every release): every
 // button the walk found without a reaction now shows an effect or says why not. And Ich lists no page of the
 // dropped «App verkaufen» (Noah «3a»). German, fictional v0.77.0 data only, no internet.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import DE from '../../src/lib/i18n/de/index.js';
 import { v0770File } from './v0770-fixture.js';
 import { openData, settle } from './settle.js';
