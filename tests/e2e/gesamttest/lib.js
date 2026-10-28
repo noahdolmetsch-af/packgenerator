@@ -7,6 +7,7 @@ import { expect } from '@playwright/test';
 import { writeFileSync, mkdirSync, appendFileSync, readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import DE from '../../../src/lib/i18n/de/index.js';
+import { SUGGESTED as WEB_SUGGESTED } from '../../../src/lib/tools/weblinks.js';
 import { build, step1, step2, track, gpxText, P } from '../../fixtures/gesamttest/make.mjs';
 import { openData as openDataFold, settle } from '../settle.js';
 
@@ -263,10 +264,13 @@ const KEYS = new Map();
 // the German texts as a set, built once: Object.values(DE) inside the loops below copied ~29 000 texts
 // for every key and made loading this file take minutes
 const DE_TEXTS = new Set(Object.values(DE));
+// the names of the web services in «Links» (src/lib/tools/weblinks.js) stay as they are in every language
+const SERVICE_NAMES = new Set(WEB_SUGGESTED.map((s) => s.name));
 for (const [en, de] of Object.entries(DE)) {
   const plain = en.replace(/\|[a-z]+$/, '');
   if (plain === de || /\{\w+\}/.test(plain) || plain.length < 4 || !/[a-z]/.test(plain)) continue;
   if (DE_TEXTS.has(plain)) continue; // also a German word ("Tarp", "Buff", "Multitool")
+  if (SERVICE_NAMES.has(plain)) continue; // a service's own name ("Windy"), never translated
   KEYS.set(plain, de);
 }
 // short English words a German screen should not show (beyond the keys); names and numbers aside
