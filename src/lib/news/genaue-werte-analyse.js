@@ -3,9 +3,9 @@ export default {
   title: 'Exact values in every Analyse chart',
   lead: 'Every chart has round, labelled steps with grid lines, and a tap shows the exact value.',
   points: [
-    { text: 'An axis with round numbers and the unit (e.g. 0, 50, 100, 150 km; 6 h, 7 h, 8 h), with thin grid lines', href: '#/auswerten/analyse' },
-    { text: 'Tap a day, week, month or hour: its exact values stand above the chart', href: '#/auswerten/analyse' },
-    { text: 'Few points: the number stands right at the point', href: '#/auswerten/analyse' },
+    { text: 'An axis with round numbers and the unit (e.g. 0, 50, 100, 150 km; 6 h, 7 h, 8 h), with thin grid lines', go: 'f.analyse' },
+    { text: 'Tap a day, week, month or hour: its exact values stand above the chart', go: 'f.analyse' },
+    { text: 'Few points: the number stands right at the point', go: 'f.analyse' },
   ],
   small: [],
   test: [
