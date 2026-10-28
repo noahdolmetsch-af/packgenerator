@@ -321,7 +321,8 @@
           {:else}
             <Empty icon={NotebookPen} text={t('No notes yet. Write one above, or keep an entry from the Inbox with «Just keep».')}><OwnSpark place="notes" /></Empty>
           {/if}
-          {#if $trashQ}<p class="tblrow"><button type="button" class="btn btn-link" onclick={() => (trashOpen = true)} data-notes-trash-empty><Trash2 size={16} aria-hidden="true" />{tn($trashQ, '{n} note in the trash', '{n} notes in the trash')}</button></p>{/if}
+          <!-- Auffälligkeiten 28.10.2026 (Noah «3a»): the trash shows always, also when it is empty -->
+          <p class="tblrow"><button type="button" class="btn btn-link" onclick={() => (trashOpen = true)} data-notes-trash-empty><Trash2 size={16} aria-hidden="true" />{$trashQ ? tn($trashQ, '{n} note in the trash', '{n} notes in the trash') : t('Trash · empty')}</button></p>
         </div>
       {/if}
       <!-- Paket H «3a und b»: the notes as an editable table; tick several to change the topic or delete them -->
