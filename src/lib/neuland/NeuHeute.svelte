@@ -8,6 +8,7 @@
   import { db } from '../db.js';
   import { readRaw, computeFrom } from './store.js';
   import { SEEN_KEY, dayBefore, rodeSince, newSince } from './neuheute.js';
+  import { refreshDue } from './osm.js';
   import { t } from '../i18n.svelte.js';
   import { Compass, X } from '@lucide/svelte';
 
@@ -22,7 +23,11 @@
     if (!raw || !rodeSince(raw, from, today)) return void (news = null);
     let live = true;
     computeFrom(raw, { today })
-      .then((r) => live && (news = newSince(r, from)))
+      .then((r) => {
+        // Noah 28.10.2026 «5b»: after a ride, the collections from OpenStreetMap freshen up by themselves (once a week)
+        refreshDue(db, r.collections.filter((c) => c.on && c.osm).map((c) => c.id)).catch(() => {});
+        if (live) news = newSince(r, from);
+      })
       .catch((err) => console.error(err));
     return () => (live = false);
   });

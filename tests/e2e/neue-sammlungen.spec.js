@@ -45,14 +45,37 @@ async function seed(page, trips) {
   );
 }
 
-test('Neue Sammlungen: Wasserfälle load from OpenStreetMap once, a route ticks one', async ({ page, context }, info) => {
+// ages the kept waterfalls to `old` (ISO) and forgets their try, as if a week had passed
+const ageOsm = (page, old) =>
+  page.evaluate(
+    (at) =>
+      new Promise((ok, bad) => {
+        const r = indexedDB.open('pack-generator');
+        r.onerror = () => bad(r.error);
+        r.onsuccess = () => {
+          const st = r.result.transaction('meta', 'readwrite').objectStore('meta');
+          const g = st.get('neuland.osm');
+          g.onsuccess = () => {
+            const rec = g.result;
+            st.put({ ...rec, tried: { ...rec.tried, waterfalls: undefined }, waterfalls: { ...rec.waterfalls, at } }).onsuccess = () => (r.result.close(), ok());
+          };
+        };
+      }),
+    old,
+  );
+
+// Noah 28.10.2026 «5b»: the places load by themselves and once a week again; without internet one tap loads them
+test('Neue Sammlungen: Wasserfälle load from OpenStreetMap by themselves, a route ticks one', async ({ page, context }, info) => {
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
+  let online = false;
   let asked = 0;
   await context.route(/^https?:\/\/(?!localhost[:/])/, (r) => {
     if (r.request().url().startsWith('https://overpass-api.de/')) {
+      if (!online) return r.abort();
       asked++;
-      return r.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(ANSWER) });
+      const body = decodeURIComponent(r.request().postData() ?? '');
+      return r.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(body.includes('waterfall') ? ANSWER : { elements: [] }) });
     }
     return r.abort();
   });
@@ -65,28 +88,37 @@ test('Neue Sammlungen: Wasserfälle load from OpenStreetMap once, a route ticks 
   await ready(page);
   const main = page.locator('main');
 
-  // 1. not loaded yet: a short explanation and one button
+  // 1. no internet: the try by itself fails quietly; a short explanation and one button stay
   const load = main.locator('[data-osm-load="waterfalls"]');
-  await expect(load).toContainText(T('These places come from OpenStreetMap. Load them once (Switzerland, a few hundred places); then they are on this device and work offline.'));
+  await expect(load).toContainText(T('These places come from OpenStreetMap. They load by themselves (Switzerland, a few hundred places) and again once a week; then they are on this device and work offline.'));
+  await expect(load.locator('[data-osm-btn]')).toBeEnabled();
   await noSideways(page);
   await shot(page, info, 'NS1-laden');
 
-  // 2. one tap loads; the waterfall on the route is found, the credit line shows
+  // 2. back online: one tap loads; the waterfall on the route is found, the credit line names the weekly update
+  online = true;
   await load.locator('[data-osm-btn]').click();
   const list = main.getByRole('list', { name: T('Waterfalls') });
   await expect(list.locator('li')).toHaveCount(3);
   await expect(list.locator('li', { hasText: `${P}Tobelfall` }).getByRole('button', { pressed: true })).toBeVisible();
   await expect(list.locator('li', { hasText: `${P}Talfall` }).locator('button.tk[aria-pressed=false]')).toBeVisible();
-  await expect(main.locator('[data-osm-credit]')).toContainText('OpenStreetMap');
+  await expect(main.locator('[data-osm-credit]')).toContainText(T('Places © OpenStreetMap contributors (ODbL), loaded {day}. They update by themselves once a week.', { day: '' }).split('{day}')[0].slice(0, 20));
   await expect(main.locator('[data-osm-load]')).toHaveCount(0);
   expect(asked).toBe(1);
   await noSideways(page);
   await shot(page, info, 'NS2-geladen');
 
-  // 3. kept on this device: after a reload it is still there without asking again
+  // 3. a week later: opening New ground loads the switched-on collections again by themselves, no tap
+  await ageOsm(page, new Date(Date.now() - 8 * 864e5).toISOString());
   await page.reload();
   await ready(page);
+  await expect.poll(() => asked, { timeout: 15000 }).toBe(2);
   await expect(main.getByRole('list', { name: T('Waterfalls') }).locator('li')).toHaveCount(3);
-  expect(asked).toBe(1);
+  // the towers and bridges (failed without internet just now) wait a while before the next try by themselves
+  const after = asked;
+  await page.reload();
+  await ready(page);
+  await page.waitForTimeout(1500);
+  expect(asked).toBe(after);
   expect(errors).toEqual([]);
 });

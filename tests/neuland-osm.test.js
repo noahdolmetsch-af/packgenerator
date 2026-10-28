@@ -2,7 +2,7 @@
 import 'fake-indexeddb/auto';
 import { describe, it, expect } from 'vitest';
 import Dexie from 'dexie';
-import { OSM_KEY, OVERPASS, OSM_SETS, isOsm, osmQuery, parseOsm, osmItems, osmLoadedAt, fetchOsm } from '../src/lib/neuland/osm.js';
+import { OSM_KEY, OVERPASS, OSM_SETS, isOsm, osmQuery, parseOsm, osmItems, osmLoadedAt, fetchOsm, osmDue, refreshDue, OSM_EVERY_DAYS, OSM_RETRY_MS } from '../src/lib/neuland/osm.js';
 import { COLLECTIONS } from '../src/lib/neuland/neuland.js';
 
 const P = 'test_data_gtp_';
@@ -78,5 +78,39 @@ describe('neuland osm', () => {
     await expect(fetchOsm(db, 'towers', { fetcher: async () => { throw new Error('net'); } })).rejects.toThrow('failed');
     await expect(fetchOsm(db, 'passes', { fetcher: async () => ({ ok: true }) })).rejects.toThrow('failed');
     expect(await db.meta.get(OSM_KEY)).toBeUndefined();
+  });
+});
+
+// Noah 28.10.2026 «5b»: the switched-on collections load by themselves, and once a week again
+describe('neuland osm by itself', () => {
+  const NOW = Date.parse('2026-10-28T12:00:00Z');
+  const ago = (ms) => new Date(NOW - ms).toISOString();
+  it('due: never loaded, or a week old; not right after a failed try', () => {
+    expect(osmDue(null, ['waterfalls', 'towers', 'cantons'], NOW)).toEqual(['waterfalls', 'towers']);
+    const rec = { waterfalls: { at: ago(2 * 864e5), list: [] }, towers: { at: ago(OSM_EVERY_DAYS * 864e5), list: [] } };
+    expect(osmDue(rec, ['waterfalls', 'towers'], NOW)).toEqual(['towers']);
+    expect(osmDue({ tried: { bridges: ago(3600e3) } }, ['bridges'], NOW)).toEqual([]);
+    expect(osmDue({ tried: { bridges: ago(OSM_RETRY_MS + 1) } }, ['bridges'], NOW)).toEqual(['bridges']);
+    // a try before the last load does not hold back the weekly one
+    expect(osmDue({ towers: { at: ago(8 * 864e5), list: [] }, tried: { towers: ago(9 * 864e5) } }, ['towers'], NOW)).toEqual(['towers']);
+  });
+  it('loads the due ones one after the other and keeps going after an error', async () => {
+    const db = memDb();
+    const asked = [];
+    const fetcher = async (url, init) => {
+      const q = decodeURIComponent(init.body);
+      asked.push(q);
+      if (q.includes('tower')) throw new TypeError('Failed to fetch');
+      return { ok: true, status: 200, json: async () => ANSWER };
+    };
+    const done = await refreshDue(db, ['towers', 'waterfalls'], { fetcher, now: NOW });
+    expect(done).toEqual(['waterfalls']);
+    expect(asked).toHaveLength(2);
+    const rec = await db.meta.get(OSM_KEY);
+    expect(rec.waterfalls.list.length).toBeGreaterThan(0);
+    expect(rec.tried.towers).toBe(new Date(NOW).toISOString());
+    // right after: nothing is asked again
+    expect(await refreshDue(db, ['towers', 'waterfalls'], { fetcher, now: NOW + 60e3 })).toEqual([]);
+    expect(asked).toHaveLength(2);
   });
 });

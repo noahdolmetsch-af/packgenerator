@@ -2,7 +2,8 @@
  * «Neue Sammlungen: Aussichtstürme, Hängebrücken, Wasserfälle» (Träume und Neuland N18, Noah 27.10.2026 «1-5 a»):
  * small goals near home that Neuland finds on your rides. The places come from OpenStreetMap (ODbL,
  * «© OpenStreetMap-Mitwirkende»), loaded once on a tap from the free Overpass service for Switzerland and kept
- * on this device (db.meta, OSM_KEY; not in the backup, one tap loads it again). Nothing of yours is sent: the
+ * on this device (db.meta, OSM_KEY; not in the backup, one tap loads it again). Since Noah 28.10.2026 «5b» a
+ * switched-on collection also loads by itself and once a week again (refreshDue). Nothing of yours is sent: the
  * question only names the kind of place and Switzerland.
  * Pure helpers plus fetchOsm (a fetcher is passed in). Tested in tests/neuland-osm.test.js.
  */
@@ -85,4 +86,50 @@ export async function fetchOsm(db, cid, { fetcher = fetch, now = Date.now() } = 
   const next = { ...rec, key: OSM_KEY, [cid]: { at: new Date(now).toISOString(), list } };
   await db.meta.put(next);
   return next;
+}
+
+/** Load again by itself after this many days (Noah 28.10.2026 «5b»: once a week). */
+export const OSM_EVERY_DAYS = 7;
+/** After a failed try, wait this long before the next try by itself (ms). */
+export const OSM_RETRY_MS = 6 * 3600e3;
+
+/** The switched-on collections that are due: never loaded, or loaded OSM_EVERY_DAYS ago, and not tried just now. */
+export function osmDue(rec, cids = [], now = Date.now()) {
+  return cids.filter((cid) => {
+    if (!isOsm(cid)) return false;
+    const at = Date.parse(osmLoadedAt(rec, cid) ?? '');
+    const tried = Date.parse(rec?.tried?.[cid] ?? '');
+    // a try after the last load that failed: wait a while before the next one
+    if (Number.isFinite(tried) && !(tried <= at) && now - tried < OSM_RETRY_MS) return false;
+    return !Number.isFinite(at) || now - at >= OSM_EVERY_DAYS * 864e5;
+  });
+}
+
+let running = null;
+/**
+ * Loads the due collections one after the other, quietly (an error only waits for the next try). One run at a
+ * time on this device. → the ids that were loaded.
+ */
+export function refreshDue(db, cids = [], { fetcher, now = Date.now() } = {}) {
+  if (running) return running;
+  running = (async () => {
+    const done = [];
+    try {
+      const rec = await db.meta.get(OSM_KEY);
+      for (const cid of osmDue(rec, cids, now)) {
+        const cur = (await db.meta.get(OSM_KEY)) ?? { key: OSM_KEY };
+        await db.meta.put({ ...cur, key: OSM_KEY, tried: { ...(cur.tried ?? {}), [cid]: new Date(now).toISOString() } });
+        try {
+          await fetchOsm(db, cid, { ...(fetcher ? { fetcher } : {}), now });
+          done.push(cid);
+        } catch {
+          /* busy or offline: the next try comes by itself later, or a tap loads it now */
+        }
+      }
+    } finally {
+      running = null;
+    }
+    return done;
+  })();
+  return running;
 }

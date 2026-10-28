@@ -1296,8 +1296,8 @@ const LISTED = {
     example: 'Example: 3210 km this year, of which 412 km new (13 %).',
   },
   'f.osmsets': {
-    on: 'Needs the internet once per collection to load the places; then offline.',
-    steps: ['Open Trips › Look back › New ground and choose «Waterfalls».', 'Tap «Load from OpenStreetMap».', 'Your routes tick what you passed; tick more by hand.'],
+    on: 'Needs the internet to load the places (by themselves, once a week); then offline.',
+    steps: ['Open Trips › Look back › New ground and choose «Waterfalls».', 'Wait a moment: the places load by themselves.', 'Your routes tick what you passed; tick more by hand.'],
     example: 'Example: Waterfalls → 640 places, 12 reached.',
   },
   'f.monthadv': {

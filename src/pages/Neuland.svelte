@@ -14,7 +14,7 @@
   import { reachOf } from '../lib/neuland/beleg.js';
   import { loadBase } from '../lib/neuland/load.js';
   import { newSince, dayBefore } from '../lib/neuland/neuheute.js'; // N11 «Neu heute» here too (Noah 28.10.2026 «1 a und b»)
-  import { fetchOsm } from '../lib/neuland/osm.js'; // N18: towers, bridges, waterfalls from OpenStreetMap
+  import { fetchOsm, refreshDue } from '../lib/neuland/osm.js'; // N18: towers, bridges, waterfalls from OpenStreetMap
   import {
     stateOf, collectionsOf, collectionName, setOn, moveCollection, moveCollectionTo, addCustom, renameCollection, deleteCustom,
     addItem, editItem, hideItem, removeItem, restoreItem, tick, untick, clearNope, newIn, bingoCard, bingoLines, cantonsInYear,
@@ -109,6 +109,18 @@
       osmBusy = false;
     }
   }
+  // Noah 28.10.2026 «5b»: a switched-on collection from OpenStreetMap loads by itself, and once a week again
+  const osmOn = $derived(on.filter((c) => c.osm).map((c) => c.id).join(','));
+  let osmAsked = ''; // not reactive: one quiet run per set of collections while the page is open
+  $effect(() => {
+    const ids = osmOn ? osmOn.split(',') : [];
+    if (!ids.length || osmAsked === osmOn) return;
+    osmAsked = osmOn;
+    osmBusy = true;
+    refreshDue(db, ids)
+      .catch((err) => console.error(err))
+      .finally(() => (osmBusy = false));
+  });
   let mode = $state('all'); // 'year' | 'all'
   let q = $state('');
   let showAll = $state(false);
@@ -319,7 +331,7 @@
               <label class="find"><Search size={16} aria-hidden="true" /><input type="search" bind:value={q} placeholder={t('Search in {name}', { name: name(cur) })} aria-label={t('Search in {name}', { name: name(cur) })} autocomplete="off" /></label>
               {#if cur.osm && !cur.osmAt}
                 <div class="nl-osm" data-osm-load={cur.id}>
-                  <p>{t('These places come from OpenStreetMap. Load them once (Switzerland, a few hundred places); then they are on this device and work offline.')}</p>
+                  <p>{t('These places come from OpenStreetMap. They load by themselves (Switzerland, a few hundred places) and again once a week; then they are on this device and work offline.')}</p>
                   <button type="button" class="btn hi" disabled={osmBusy} onclick={() => loadOsm(cur.id)} data-osm-btn><Download size={16} aria-hidden="true" />{osmBusy ? t('Loading …') : t('Load from OpenStreetMap')}</button>
                   {#if osmErr}<p class="err" role="alert">{osmErr}</p>{/if}
                   <small>{t('Only the kind of place and «Switzerland» are sent, nothing of yours.')}</small>
@@ -363,7 +375,7 @@
                 </ul>
               </details>
             {/if}
-            {#if cur.osm && cur.osmAt}<p class="rv-note nl-note" data-osm-credit><Info size={15} aria-hidden="true" /><span>{t('Places © OpenStreetMap contributors (ODbL), loaded {day}.', { day: dayLong(cur.osmAt.slice(0, 10)) })} <button type="button" class="btn btn-link" disabled={osmBusy} onclick={() => loadOsm(cur.id)} data-osm-again>{t('Load again')}</button></span></p>{/if}
+            {#if cur.osm && cur.osmAt}<p class="rv-note nl-note" data-osm-credit><Info size={15} aria-hidden="true" /><span>{t('Places © OpenStreetMap contributors (ODbL), loaded {day}. They update by themselves once a week.', { day: dayLong(cur.osmAt.slice(0, 10)) })} <button type="button" class="btn btn-link" disabled={osmBusy} onclick={() => loadOsm(cur.id)} data-osm-again>{t('Load again')}</button></span></p>{/if}
             <p class="rv-note nl-note"><Info size={15} aria-hidden="true" /><span>{cur.kind === 'area' ? t('A route counts where it runs through.') : cur.id === 'lakes' ? t('A route within 300 m of the shore counts as «passed by»; tick a swim yourself.') : cur.id === 'passes' ? t('A route within 600 m of the top counts. Between 600 m and 1.2 km the app asks you to confirm.') : cur.osm ? t('A route close by counts (tower and bridge about 200 m, waterfall 300 m). Correct a place in its window.') : cur.builtIn ? t('A route close by counts (pass 600 m, hut 400 m, peak 250 m). Places are rounded; correct one in its window.') : t('An entry with a place counts when a route passes within 200 m.')}</span></p>
           </div>
         </div>

@@ -534,9 +534,9 @@ export default {
   'Plan a dream as a trip (Trips › Dreams › the dream › «Plan the tour»).': 'Plane einen Traum als Tour (Touren › Träume › der Traum › «Tour planen»).',
   'After the trip, finish its debrief.': 'Schliess nach der Tour ihren Rückblick ab.',
   // «Träume und Neuland» N18
-  'Needs the internet once per collection to load the places; then offline.': 'Braucht pro Sammlung einmal Internet zum Laden der Orte; dann offline.',
+  'Needs the internet to load the places (by themselves, once a week); then offline.': 'Braucht Internet zum Laden der Orte (von selbst, einmal pro Woche); danach offline.',
   'Open Trips › Look back › New ground and choose «Waterfalls».': 'Öffne Touren › Rückblick › Neuland und wähle «Wasserfälle».',
-  'Tap «Load from OpenStreetMap».': 'Tippe «Aus OpenStreetMap laden».',
+  'Wait a moment: the places load by themselves.': 'Warte einen Moment: die Orte laden von selbst.',
   'Your routes tick what you passed; tick more by hand.': 'Deine Routen haken ab, wo du vorbeikamst; weitere hakst du von Hand ab.',
   'Example: Waterfalls → 640 places, 12 reached.': 'Beispiel: Wasserfälle → 640 Orte, 12 erreicht.',
   // «Träume und Neuland» N12
