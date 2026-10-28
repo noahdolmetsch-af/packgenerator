@@ -102,4 +102,8 @@ export default {
   'Choose a place: the app plans a bike way there. At the place it asks how you go back onto your route.': 'Wähle einen Ort: Die App plant einen Veloweg dorthin. Dort fragt sie, wie du zurück auf deine Strecke kommst.',
   // Navigation zum Ziel 2: the turn after the next one
   'Then: {text}': 'Danach: {text}',
+  // Noah 28.10.2026: X folds the box in, «End navigation» ends it
+  'Show the navigation': 'Navigation zeigen',
+  'End navigation': 'Navigation beenden',
+  'Navigation ended.': 'Navigation beendet.',
 };
