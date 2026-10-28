@@ -45,7 +45,9 @@
     if (!q) return (formErr = t('Write a title first, so people know what it is about.'));
     making = true;
     try {
-      const srv = await createQuestion(q, { days });
+      // sign-up closes the day after the event at the latest
+      const until = q.day ? Math.max(1, Math.round((Date.parse(`${q.day}T12:00:00Z`) - Date.parse(`${today}T12:00:00Z`)) / 86_400_000) + 1) : days;
+      const srv = await createQuestion(q, { days: Math.min(days, until) });
       const rec = { id: `mt-${Date.now().toString(36)}`, ...q, kind: KIND_LIST, made: new Date().toISOString(), srv, answers: [], read: null, closed: false };
       delete rec.v;
       await saveMine(db, [rec, ...(await readMine(db))]);
@@ -87,6 +89,7 @@
         {#each DAYS_OPEN as n (n)}<option value={n}>{t('{n} days', { n })}</option>{/each}
       </select>
     </label>
+    {#if day}<p class="ln-help">{t('With a day, sign-up closes the day after it at the latest.')}</p>{/if}
     <p class="ln-help"><Lock size={14} aria-hidden="true" /> {t('Only you see the names. They are locked on the other person’s device; the server only counts the places and deletes everything after these days.')}</p>
   </section>
   {#if formErr}<p class="ln-err" role="alert" data-ln-err>{formErr}</p>{/if}

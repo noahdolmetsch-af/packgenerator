@@ -200,4 +200,5 @@ export default {
   'Send the link; tap «Look for new answers» to see who is in and who waits.': 'Schick den Link; mit «Neue Antworten holen» siehst du, wer dabei ist und wer wartet.',
   'Example: «Workshop evening» with 6 places; 8 sign up, 2 wait, one signs off and the first on the waiting list moves up.':
     'Beispiel: «Werkstatt-Abend» mit 6 Plätzen; 8 melden sich an, 2 warten, eine Person sagt ab und die erste auf der Warteliste rückt nach.',
+  'With a day, sign-up closes the day after it at the latest.': 'Mit einem Tag endet die Anmeldung spätestens am Tag danach.',
 };
