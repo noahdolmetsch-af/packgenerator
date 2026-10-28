@@ -2,8 +2,8 @@
 export default {
   title: 'Apple Health from the iPhone',
   lead: 'The export of the Health app becomes days of sleep, resting heart rate, HRV, steps, VO2max and weight.',
-  points: [{ text: 'Ich › Connections › Apple Health: choose the zip, check, take over, Undo possible', href: '#/me/connections' }],
-  small: [{ box: 'new', text: 'The same places as Fitbit show the values; the file stays on your device' }],
+  points: [{ text: 'Ich › Connections › Apple Health: choose the zip, check, take over, Undo possible', href: '#/me/connections', go: 'f.connections' }],
+  small: [{ box: 'new', text: 'The same places as Fitbit show the values; the file stays on your device', go: null }],
   test: [
     'Ich › Verbindungen: the card «Apple Health (iPhone)» is under «Alte Fitbit-Daten» and says in three steps how to export.',
     'Without an iPhone: nothing changes for your Fitbit days.',

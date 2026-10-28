@@ -32,6 +32,8 @@ test('the Apple Health export becomes days, with Undo', async ({ page, context }
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
   await context.route(/^https?:\/\/(?!localhost[:/])/, (r) => r.abort());
+  // a fixed noon, so the test does not depend on the hour it runs at (tests/clock-fixture.test.js)
+  await page.clock.setFixedTime(new Date('2026-06-20T10:00:00Z'));
   await context.addInitScript(() => {
     localStorage.setItem('lang', 'de');
     if (!localStorage.getItem('whatsnew.seen')) localStorage.setItem('whatsnew.seen', '9.9.9');
