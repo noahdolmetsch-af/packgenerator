@@ -67,7 +67,7 @@
     {/if}
 
     {#if $tripsQ !== undefined && $racesQ !== undefined}
-      {#each [{ key: 'coming', name: 'Coming', rows: list.coming }, { key: 'past', name: 'Done', rows: list.past }] as g (g.key)}
+      {#each [{ key: 'coming', name: 'Coming|races', rows: list.coming }, { key: 'past', name: 'Done|races', rows: list.past }] as g (g.key)}
         {#if g.rows.length}
           <section class="rc-box" aria-labelledby="rck-{g.key}">
             <h2 id="rck-{g.key}" class="rc-h2">{t(g.name)}</h2>

@@ -150,4 +150,6 @@ export default {
   'Name or address, e.g. Handbook': 'Name oder Adresse, z. B. Handbuch',
   'No address yet: tap to add it': 'Noch keine Adresse: antippen und eintragen',
   'Open the link «{name}»': 'Link «{name}» öffnen',
+  'Coming|races': 'Kommende',
+  'Done|races': 'Vorbei',
 };

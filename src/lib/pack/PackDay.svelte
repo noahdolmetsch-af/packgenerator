@@ -36,6 +36,7 @@
   import { t, tn, nameOf, locale } from '../i18n.svelte.js';
   import { phone } from '../media.svelte.js';
   import { localDay } from '../localday.js';
+  import { swipeRight } from '../ui/swipe.js';
   import '../trip/trip.css';
 
   let { trip, steps, itemsById, badges = {}, ready = [], wxGap = null, onwx = () => {}, ontoggle, onready, onpack = () => {}, onreadyall = () => {}, onnext, onundo = () => {}, canUndo = false, main = { kind: 'finish', label: 'Finish packing' }, onend = () => {}, bike = true, lessons = [], reminders = [], oncharge = null, pressure = '', stats = null, charge = null, top = null, fixed = false, onread = null, onmove = null, spare = [] } = $props();
@@ -395,18 +396,25 @@
 {#snippet aside()}{@render ring(52)}{#if onread}<button type="button" class="tp-icon-btn pd-read" aria-label={t('Read aloud')} title={t('Read aloud')} onclick={onread}><Volume2 size={22} aria-hidden="true" /></button>{/if}{/snippet}
 
 <!-- v0.105.0 P5 (T6): one bag in the list «Taschen»: icon, name, «6 Teile · 3.4 kg», a small bar, the count -->
+{#snippet bagRing(n, of, done)}
+  <!-- «Neuer Schwung» Packen (S2 «Kacheln mit Tiefe», Baustein B4 Ringe): each bag as a tile with a ring that fills
+       as you pack; n of the total in the middle, a ✓ when the bag is full. The ring draws itself when the page opens. -->
+  <span class="bring" class:full={done} data-bag-ring role="img" aria-label={done ? t('all in') : t('{n} of {total} packed', { n, total: of })}>
+    <svg viewBox="0 0 48 48" aria-hidden="true"><circle class="bg" cx="24" cy="24" r="20" /><circle class="fg" cx="24" cy="24" r="20" pathLength="100" style:stroke-dashoffset={100 - (of ? (n / of) * 100 : 0)} /></svg>
+    <span class="rn num" aria-hidden="true">{#if done}<Check size={18} strokeWidth={2.5} />{:else}{n}/{of}{/if}</span>
+  </span>
+{/snippet}
+
 {#snippet bagRow(s, Icon, done, isCur)}
   {#if isCur}
     <!-- the open bag: tinted in the list; its items (with the id and the heading) are in the section below -->
     <li class="brow open"><button type="button" class="bsel" aria-current="true" onclick={() => pick(s.key)}>
-      <span class="bic" aria-hidden="true"><Icon size={18} /></span><span class="bt"><b>{s.title}</b><small>{subOf(s)}</small></span>
-      <span class="r"><span class="mini" aria-hidden="true"><i style:width="{(s.done / s.entries.length) * 100}%"></i></span><span class="num">{s.done}/{s.entries.length}</span></span>
+      {@render bagRing(s.done, s.entries.length, done)}<span class="bt"><b>{s.title}</b><small>{subOf(s)}</small></span>
     </button></li>
   {:else}
     <li class="brow pbag" class:done class:flash={flash === s.key} aria-labelledby="pb-{s.key}">
       <button type="button" class="bagh" aria-expanded="false" onclick={() => pick(s.key)}>
-        <span class="bic" aria-hidden="true"><Icon size={18} /></span><span class="bt"><b id="pb-{s.key}">{s.title}</b><small>{subOf(s)}</small></span>
-        <span class="r">{#if done}<span class="num">{s.done}/{s.entries.length}</span><span class="tp-okdot" aria-label={t('all in')}><Check size={16} aria-hidden="true" /></span>{:else}<span class="mini" aria-hidden="true"><i style:width="{(s.done / s.entries.length) * 100}%"></i></span><span class="num">{s.done}/{s.entries.length}</span>{/if}</span>
+        {@render bagRing(s.done, s.entries.length, done)}<span class="bt"><b id="pb-{s.key}">{s.title}</b><small>{subOf(s)}</small></span>
       </button>
     </li>
   {/if}
@@ -415,7 +423,7 @@
 {#snippet itemRow(s, e)}
   {@const it = itemsById[e.itemId]}
   {@const hint = hintOf(e.itemId)}
-  <button type="button" class="it" aria-pressed={!!e.packed} disabled={fixed} onclick={(ev) => tick(s, e, ev)}>
+  <button type="button" class="it" aria-pressed={!!e.packed} disabled={fixed} onclick={(ev) => tick(s, e, ev)} use:swipeRight={() => tick(s, e)}>
     <span class="box" aria-hidden="true">{#if e.packed}<Check size={16} strokeWidth={2.5} />{/if}</span>
     <span class="nm">{it ? nameOf(it) : e.itemId}{#if (e.qty || 1) > 1}<b class="q">{' '}× {e.qty}</b>{/if}{#if hint}<small>{hint}</small>{:else if e.packed}<small class="drin">{t('in|packed')}</small>{/if}</span>
     <span class="w num">{it?.weightG != null ? formatWeight(it.weightG * (e.qty || 1)) : t('not weighed')}</span>
@@ -537,16 +545,15 @@
       <section class="psec" aria-labelledby="bags-h">
         <h2 id="bags-h" class="sh">{t('Bags')}</h2>
         <p class="ssub"><span class="num packed-count">{t('{n} of {total} packed', { n: packed, total })}</span>{' · '}{t('tap a bag')}{#if !fixed}{@render photoTick()}{/if}{#if onread && !phone.matches}<button type="button" class="btn sm pd-read-w" onclick={onread}><Volume2 size={16} aria-hidden="true" /> {t('Read aloud')}</button>{/if}{@render sideSwitch()}</p>
-        <ul class="card blist">
+        <ul class="blist">
           {#each steps as s (s.key)}{@render bagRow(s, iconOf(s.key), full(s), s.key === cur)}{/each}
           {#if ready.length}
             {#if cur === READY}
-              <li class="brow open"><button type="button" class="bsel" aria-current="true" onclick={() => pick(READY)}><span class="bic" aria-hidden="true"><ListChecks size={18} /></span><span class="bt"><b>{t('Ready check')}</b></span><span class="r"><span class="num">{readyN}/{ready.length}</span></span></button></li>
+              <li class="brow open"><button type="button" class="bsel" aria-current="true" onclick={() => pick(READY)}>{@render bagRing(readyN, ready.length, readyAll)}<span class="bt"><b>{t('Ready check')}</b></span></button></li>
             {:else}
               <li class="brow pbag" class:done={readyAll} aria-labelledby="pb-ready">
                 <button type="button" class="bagh" aria-expanded="false" onclick={() => pick(READY)}>
-                  <span class="bic" aria-hidden="true"><ListChecks size={18} /></span><span class="bt"><b id="pb-ready">{t('Ready check')}</b>{#if !readyAll}<small>{ready.filter((r) => !readyDone(r, trip)).map((r) => readyLabel(r)).join(' · ')}</small>{/if}</span>
-                  <span class="r"><span class="num">{readyN}/{ready.length}</span>{#if readyAll}<span class="tp-okdot"><Check size={16} aria-hidden="true" /></span>{:else}<ChevronRight size={18} aria-hidden="true" />{/if}</span>
+                  {@render bagRing(readyN, ready.length, readyAll)}<span class="bt"><b id="pb-ready">{t('Ready check')}</b>{#if !readyAll}<small>{ready.filter((r) => !readyDone(r, trip)).map((r) => readyLabel(r)).join(' · ')}</small>{/if}</span>
                 </button>
               </li>
             {/if}
@@ -560,7 +567,7 @@
           <section class="pbag cur" aria-labelledby="pb-{s.key}" bind:this={openEl} onpointerdown={touchBag}>
             <div class="bagh">
               <h2 class="sh"><b id="pb-{s.key}">{s.title}</b></h2>
-              <p class="ssub">{t('{done} of {n} · a full bag jumps to the next one', { done: s.done, n: s.entries.length })}{#if s.sub}{' · '}{s.sub}{/if}</p>
+              <p class="ssub">{t('{done} of {n} · a full bag jumps to the next one', { done: s.done, n: s.entries.length })}{#if phone.matches && !fixed}{' · '}<span data-swipe-hint>{t('or swipe a row to the right')}</span>{/if}{#if s.sub}{' · '}{s.sub}{/if}</p>
             </div>
             <div class="card ibox">
               <ul class="items">
@@ -591,7 +598,7 @@
               {#each readySort.order(ready) as r (r.id)}
                 {@const ok = readyDone(r, trip)}
                 <li class:in={ok} animate:flip={glide()}>
-                  <button type="button" class="it" aria-pressed={ok} disabled={fixed || (!!r.itemId && ok)} onclick={() => readyTick(r)}>
+                  <button type="button" class="it" aria-pressed={ok} disabled={fixed || (!!r.itemId && ok)} onclick={() => readyTick(r)} use:swipeRight={() => readyTick(r)}>
                     <span class="box" aria-hidden="true">{#if ok}<Check size={16} strokeWidth={2.5} />{/if}</span>
                     <span class="nm">{readyLabel(r)}</span>
                   </button>
@@ -665,13 +672,31 @@
   /* Paket H: on a computer «Read aloud» stands in the line above the bags (on a phone it is next to the ring) */
   .pd-read-w { margin-left: 12px; vertical-align: middle; }
   .photo-tick { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; margin-left: 8px; vertical-align: middle; text-decoration: none; }
-  /* the list of bags: one row each, the open one tinted */
-  .blist, .mlist { list-style: none; margin: 0; padding: 0; overflow: hidden; }
-  .brow + .brow, .mlist li + li { border-top: 1px solid var(--line); }
-  .bagh, .bsel, .mrow { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 64px; padding: 8px 16px; border: 0; background: none; color: var(--ink); font: 400 var(--fs-body) var(--font-body); text-align: left; cursor: pointer; }
-  .brow.open { background: var(--hi-soft); }
-  .brow .r, .mrow .r { flex-shrink: 0; }
-  @media (max-width: 479px) { .mini { width: 44px; flex-basis: 44px; } }
+  /* «Neuer Schwung» Packen (S2, B4): the bags as tiles with a ring each, the open one framed in the accent */
+  .mlist { list-style: none; margin: 0; padding: 0; overflow: hidden; }
+  .mlist li + li { border-top: 1px solid var(--line); }
+  .mrow { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 64px; padding: 8px 16px; border: 0; background: none; color: var(--ink); font: 400 var(--fs-body) var(--font-body); text-align: left; cursor: pointer; }
+  .blist { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(132px, 100%), 1fr)); gap: 10px; }
+  @media (max-width: 479px) { .blist { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; } }
+  .brow { min-width: 0; border: 1px solid var(--line); border-radius: 14px; background: var(--paper); box-shadow: 0 1px 2px var(--shadow); transition: border-color 200ms var(--ease-out), box-shadow 200ms var(--ease-out); }
+  .brow.open { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+  .brow .bagh, .brow .bsel { display: flex; flex-direction: column; align-items: center; gap: 6px; width: 100%; height: 100%; min-height: 44px; padding: 12px 6px 10px; border: 0; border-radius: inherit; background: none; color: var(--ink); font: 400 var(--fs-body) var(--font-body); text-align: center; cursor: pointer; }
+  .bring { position: relative; display: grid; place-items: center; width: 56px; height: 56px; flex: none; }
+  .bring > svg { position: absolute; inset: 0; width: 100%; height: 100%; rotate: -90deg; }
+  .bring circle { fill: none; stroke-width: 5; }
+  .bring .bg { stroke: var(--paper-2); }
+  .bring .fg { stroke: var(--hi); stroke-linecap: round; stroke-dasharray: 100; transition: stroke-dashoffset 450ms var(--ease-out); }
+  .bring.full .fg { stroke: var(--ok, var(--hi)); }
+  .bring .rn { position: relative; font: 600 var(--fs-small) / 1 var(--font-body); color: var(--ink); }
+  .bring.full .rn { color: var(--ok, var(--hi)); }
+  @keyframes pk-ring { from { stroke-dashoffset: 100; } }
+  @media (prefers-reduced-motion: no-preference) { .bring .fg { animation: pk-ring 700ms var(--ease-out) 120ms backwards; } }
+  @media (prefers-reduced-motion: reduce) { .bring .fg { transition: none; } }
+  .brow .bt { flex: none; width: 100%; min-width: 0; }
+  .brow .bt b { overflow-wrap: break-word; font-size: var(--fs-small); line-height: 1.3; }
+  @media (max-width: 479px) { .brow .bt b { letter-spacing: -0.02em; } .brow .bagh, .brow .bsel { padding-inline: 4px; } }
+  .brow .bt small { display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .mrow .r { flex-shrink: 0; }
   .bic { display: grid; flex: none; place-items: center; width: 34px; height: 34px; border-radius: 8px; background: var(--paper-2); color: var(--ink-2); }
   /* v0.77.0: the title never gets narrower than its longest word (capped at the row), so a short
      row takes the room from the bar (.r) instead (no «Oberrohrtasche» broken mid-word). */
@@ -681,9 +706,6 @@
   .pbag.done .bt b { color: var(--ink-3); }
   .r { margin-left: auto; min-width: 0; flex-shrink: 20; display: flex; align-items: center; gap: 10px; font-size: var(--fs-small); color: var(--ink-2); white-space: nowrap; }
   .r :global(svg) { color: var(--ink-3); flex: none; }
-  .mini { width: 72px; flex: 0 1 72px; min-width: 20px; height: 6px; border-radius: 9px; background: var(--paper-2); overflow: hidden; }
-  .mini i { display: block; height: 100%; background: var(--hi); }
-  @media (max-width: 359px) { .mini { display: none; } }
   /* the open bag: its own section, the items with check boxes */
   .pbag.cur { scroll-margin-top: 72px; }
   /* «Bewegung» Stelle 1 (Noah 19.10.2026 «alle 1-3», notes/bewegung-2026-10-19): the bag that opens comes up
@@ -708,6 +730,12 @@
   .it { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 52px; padding: 6px 0; border: 0; background: none; color: var(--ink); font: 400 var(--fs-body) / 1.3 var(--font-body); text-align: left; cursor: pointer; }
   /* TZ-2: a fixed list is to read: the ticks as they were, no hand */
   .it:disabled { cursor: default; }
+  /* «Neuer Schwung» Packen 2 (B6): swipe a row to the right to tick it; the row follows the finger, green shows through */
+  .it { position: relative; overflow: hidden; touch-action: pan-y; }
+  .it::before { content: ''; position: absolute; inset: 0; background: color-mix(in srgb, var(--ok) 22%, transparent); opacity: var(--sp, 0); pointer-events: none; }
+  .it > span { position: relative; }
+  /* only while the finger is on the row (the own transitions of the box and the name stay as they are) */
+  .it:global(.swiping) > span { translate: var(--sx, 0) 0; }
   .box { flex: none; display: grid; place-items: center; width: 24px; height: 24px; border-radius: 6px; border: 1.5px solid var(--line-strong); background: var(--paper); }
   /* v0.30.1 (Noah B1): every item name in the same face, size and weight; × n and the hint only quieter. */
   .nm { flex: 1; min-width: 0; overflow-wrap: break-word; font: inherit; }
