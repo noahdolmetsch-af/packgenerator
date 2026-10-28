@@ -37,6 +37,7 @@
   import BiwakCard from '../lib/dreams/BiwakCard.svelte'; // N6 «Feierabend-Biwak»
   import TrainHome from '../lib/neuland/TrainHome.svelte'; // N7 «Zug hin, Velo heim»
   import SunTip from '../lib/dreams/SunTip.svelte'; // N9 «Sonnenaufgang auf dem Hügel»
+  import DiceCard from '../lib/dreams/DiceCard.svelte'; // N19 «Abenteuer-Würfel»
   import { nightFields } from '../lib/context.js';
   import { linkIn, readLink, withLink, distText } from '../lib/dreams/fromlink.js'; // N13 «Ein Link wird ein Traum»
   import { fulfilledDreams } from '../lib/dreams/erfuellt.js'; // N17 «Erfüllte Träume»
@@ -290,6 +291,7 @@
   <BiwakCard onplan={biwakPlan} />
   <TrainHome />
   <SunTip />
+  <DiceCard />
   {/if}
 
   {#if view === 'list'}
