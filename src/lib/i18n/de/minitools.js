@@ -56,6 +56,7 @@ export default {
   'The question and its answers go. The link stops working.': 'Die Frage und ihre Antworten sind weg. Der Link geht danach nicht mehr.',
   'The question and its answers go from this device.': 'Die Frage und ihre Antworten verschwinden von diesem Gerät.',
   'A title is needed.': 'Ein Titel ist nötig.',
+  'Works|answer': 'Geht',
   'Maybe': 'Vielleicht',
   'Does not work': 'Geht nicht',
   // the page of the people asked

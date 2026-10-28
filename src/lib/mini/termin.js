@@ -12,7 +12,7 @@ export const NOTE_MAX = 200;
 export const NAME_MAX = 40;
 /** The three answers for one day, and how much each counts for «best day». */
 export const PICKS = [
-  { key: 'y', label: 'Works', score: 1 },
+  { key: 'y', label: 'Works|answer', score: 1 },
   { key: 'm', label: 'Maybe', score: 0.5 },
   { key: 'n', label: 'Does not work', score: 0 },
 ];
