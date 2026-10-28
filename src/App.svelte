@@ -39,7 +39,6 @@
   import { placeLabel, tabLabel } from './lib/anpassen.svelte.js';
   import Keys from './lib/nav/Keys.svelte';
   import { shortcutOf, typing, G_WAIT } from './lib/nav/keys.js';
-  import { ops } from './lib/bedienung.svelte.js';
   import { sortBikes } from './lib/bikes.js';
   import { withVisits } from './lib/workshop.js';
   import { bikeCare } from './lib/readiness.js';
@@ -50,6 +49,8 @@
   import { pageOf, placeOf, redirectOf, tabOf, keepTab, ALL_PLACES, PLACE_TABS } from './lib/nav.js';
   import PlaceTabs from './lib/nav/PlaceTabs.svelte';
   import PlaceSwitch from './lib/nav/PlaceSwitch.svelte';
+  import PathLine from './lib/nav/PathLine.svelte'; // «Pfad auf jeder Seite» (Noah 28.10.2026 «1a»)
+  import { ops } from './lib/bedienung.svelte.js';
   import ErrorPage from './lib/ui/ErrorPage.svelte';
   import OfflineLine from './lib/clear/OfflineLine.svelte';
   import DbWaitLine from './lib/clear/DbWaitLine.svelte';
@@ -485,6 +486,7 @@
   <!-- AU1 «1b»: on a phone Velos and Ausrüstung share a slot. Gesamttest 20.10.2026 B7: the switch stands only
        on Ausrüstung (the way back); Velos already has its tabs and path, Ausrüstung is one row on Velos › Übersicht -->
   {#if (place === 'equipment' || place === 'gear' || place === 'active' || place === 'analysis') && !mini}<PlaceSwitch {place} {hash} />{/if}
+  {#if ops.path && place && page !== 'home' && !calm && !guest && !mini}<PathLine {place} {hash} {page} />{/if}
   <!-- ER1/ER2: «Soll ich dich erinnern?» on top of the next page, in the page (never over its buttons) -->
   {#if !guest && page !== 'home'}<RemindCard /><RuhigLine {hash} />{/if}
   <svelte:boundary onerror={onfail}>
@@ -870,6 +872,8 @@
     min-width: 0;
   }
   /* v0.29.0: the trip steps use the same gutter as every page (16 px on a phone). */
+  /* «Pfad auf jeder Seite»: a page with its own path (PathHead, Crumbs, VeloHead) keeps it, no second line */
+  main:has(.pcrumbs, .crumbs, .crumb) :global([data-pathline]) { display: none; }
   main.calm { padding: var(--gut) var(--gut) 80px; max-width: none; }
   @media (max-width: 719px) { main.calm { padding: 12px var(--gut) calc(106px + env(safe-area-inset-bottom)); } }
 

@@ -12,6 +12,8 @@ export default {
   'A short buzz when you tick off an item while packing, where the phone can.': 'Ein kurzes Summen, wenn du beim Packen etwas abhakst, wo das Handy es kann.',
   'Night quiet': 'Nachtruhe',
   'From 22:00 to 06:00 Today shows no tips.': 'Von 22 bis 6 Uhr zeigt Heute keine Tipps.',
+  'Show the path on every page': 'Pfad auf jeder Seite zeigen',
+  'A quiet line above the title, for example Plan › Notes, so you see where you are. Pages with their own path keep it.': 'Eine ruhige Zeile über dem Titel, zum Beispiel Planen › Notizen, damit du siehst, wo du bist. Seiten mit eigenem Pfad behalten ihren.',
   'Search can act': 'Suche kann handeln',
   'The search also offers backup, settings, a quick note or a bike.': 'Die Suche bietet auch Backup, Einstellungen, eine schnelle Notiz oder ein Velo an.',
   'High contrast (outdoors)': 'Hoher Kontrast (draussen)',
