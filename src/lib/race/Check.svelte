@@ -5,7 +5,7 @@
    * (stored.check, in the backup). «Load answers» takes the file of the fillable sheets page.
    * Gets `ctx` from RaceDetail; the sheets live in check-lib.js.
    */
-  import { Upload, Eraser, ChevronLeft, ChevronRight, Copy, History, Scale, Check as CheckIcon } from '@lucide/svelte';
+  import { Upload, Eraser, ChevronLeft, ChevronRight, Copy, History, ClipboardCheck, Scale, Check as CheckIcon } from '@lucide/svelte';
   import { SHEETS, STATIONS, RACE_QUESTIONS, BAGS, LIST, SLEEP_COLS, SLEEP_ROWS, NIGHT, DAY_BEFORE, dayBeforeDone, AFTER, afterNotes, afterCount, valueOf, withValue, answersFrom, filled, takeOver, setupWeight } from './check-lib.js';
   import { offerDone } from '../ui/rename.svelte.js';
   import { askDelete } from '../ui/ask.js';
@@ -143,7 +143,7 @@
         <h3 class="ck-h3"><History size={16} aria-hidden="true" /> {t('From your earlier races')}</h3>
         <ul>
           {#each earlier as e (e.id + e.k)}
-            <li data-check-earlier-row={e.k}><b>{t(ASKED[e.k])}:</b> {e.text} <small>{e.title}</small></li>
+            <li class="ck-e ck-e-{e.k}" data-check-earlier-row={e.k}><span class="ck-etag">{t(ASKED[e.k])}</span><span class="ck-etxt">{e.text}<small>{e.title}</small></span></li>
           {/each}
         </ul>
       </div>
@@ -256,7 +256,7 @@
 
     {#key cur.id}
       <details class="ck-after" open={isPast || afterCount(check, cur.id) > 0} data-check-after>
-        <summary>{t('After the race|sheet')}{#if afterCount(check, cur.id)}<small class="ck-n">{afterCount(check, cur.id)}</small>{/if}</summary>
+        <summary><ClipboardCheck size={18} aria-hidden="true" />{t('After the race|sheet')}{#if afterCount(check, cur.id)}<small class="ck-n">{afterCount(check, cur.id)}</small>{/if}</summary>
         <p class="rc-note">{t('Answer after the race. Your answers show on top of this sheet in your next races.')}</p>
         {#each AFTER as q (q.k)}{@render area(`${cur.id}.after.${q.k}`, t(q.label))}{/each}
       </details>
@@ -415,32 +415,62 @@
   }
   .ck-earlier {
     display: grid;
-    gap: 4px;
-    padding: 12px;
-    border-radius: 10px;
-    background: var(--paper-2);
+    gap: 8px;
+    padding: 12px 14px;
+    border: 1px solid var(--line);
+    border-left: 4px solid var(--accent);
+    border-radius: var(--radius-card);
+    background: var(--paper);
   }
   .ck-earlier ul {
+    list-style: none;
     margin: 0;
-    padding-left: 18px;
+    padding: 0;
     display: grid;
-    gap: 4px;
+    gap: 8px;
   }
-  .ck-earlier small {
+  .ck-e {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 10px;
+    align-items: start;
+  }
+  .ck-etag {
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: var(--accent-soft);
+    color: var(--accent);
+    font-size: var(--fs-small);
+    font-weight: 600;
+    white-space: nowrap;
+    min-width: 6.5em;
+    text-align: center;
+  }
+  .ck-e-missing .ck-etag,
+  .ck-e-much .ck-etag {
+    background: var(--warn-soft);
+    color: var(--warn);
+  }
+  .ck-etxt {
+    display: grid;
+  }
+  .ck-etxt small {
     color: var(--ink-3);
   }
   .ck-after {
     display: grid;
     gap: 8px;
-    border-top: 1px solid var(--line);
-    padding-top: 8px;
+    margin-top: 8px;
+    padding: 4px 14px 12px;
+    border-radius: var(--radius-card);
+    background: var(--accent-soft);
   }
   .ck-after summary {
     cursor: pointer;
     min-height: 44px;
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
     font-weight: 600;
   }
   .ck-prog {
