@@ -36,6 +36,7 @@
   import { t, tn, nameOf, locale } from '../i18n.svelte.js';
   import { phone } from '../media.svelte.js';
   import { localDay } from '../localday.js';
+  import { swipeRight } from '../ui/swipe.js';
   import '../trip/trip.css';
 
   let { trip, steps, itemsById, badges = {}, ready = [], wxGap = null, onwx = () => {}, ontoggle, onready, onpack = () => {}, onreadyall = () => {}, onnext, onundo = () => {}, canUndo = false, main = { kind: 'finish', label: 'Finish packing' }, onend = () => {}, bike = true, lessons = [], reminders = [], oncharge = null, pressure = '', stats = null, charge = null, top = null, fixed = false, onread = null, onmove = null, spare = [] } = $props();
@@ -422,7 +423,7 @@
 {#snippet itemRow(s, e)}
   {@const it = itemsById[e.itemId]}
   {@const hint = hintOf(e.itemId)}
-  <button type="button" class="it" aria-pressed={!!e.packed} disabled={fixed} onclick={(ev) => tick(s, e, ev)}>
+  <button type="button" class="it" aria-pressed={!!e.packed} disabled={fixed} onclick={(ev) => tick(s, e, ev)} use:swipeRight={() => tick(s, e)}>
     <span class="box" aria-hidden="true">{#if e.packed}<Check size={16} strokeWidth={2.5} />{/if}</span>
     <span class="nm">{it ? nameOf(it) : e.itemId}{#if (e.qty || 1) > 1}<b class="q">{' '}× {e.qty}</b>{/if}{#if hint}<small>{hint}</small>{:else if e.packed}<small class="drin">{t('in|packed')}</small>{/if}</span>
     <span class="w num">{it?.weightG != null ? formatWeight(it.weightG * (e.qty || 1)) : t('not weighed')}</span>
@@ -566,7 +567,7 @@
           <section class="pbag cur" aria-labelledby="pb-{s.key}" bind:this={openEl} onpointerdown={touchBag}>
             <div class="bagh">
               <h2 class="sh"><b id="pb-{s.key}">{s.title}</b></h2>
-              <p class="ssub">{t('{done} of {n} · a full bag jumps to the next one', { done: s.done, n: s.entries.length })}{#if s.sub}{' · '}{s.sub}{/if}</p>
+              <p class="ssub">{t('{done} of {n} · a full bag jumps to the next one', { done: s.done, n: s.entries.length })}{#if phone.matches && !fixed}{' · '}<span data-swipe-hint>{t('or swipe a row to the right')}</span>{/if}{#if s.sub}{' · '}{s.sub}{/if}</p>
             </div>
             <div class="card ibox">
               <ul class="items">
@@ -597,7 +598,7 @@
               {#each readySort.order(ready) as r (r.id)}
                 {@const ok = readyDone(r, trip)}
                 <li class:in={ok} animate:flip={glide()}>
-                  <button type="button" class="it" aria-pressed={ok} disabled={fixed || (!!r.itemId && ok)} onclick={() => readyTick(r)}>
+                  <button type="button" class="it" aria-pressed={ok} disabled={fixed || (!!r.itemId && ok)} onclick={() => readyTick(r)} use:swipeRight={() => readyTick(r)}>
                     <span class="box" aria-hidden="true">{#if ok}<Check size={16} strokeWidth={2.5} />{/if}</span>
                     <span class="nm">{readyLabel(r)}</span>
                   </button>
@@ -729,6 +730,12 @@
   .it { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 52px; padding: 6px 0; border: 0; background: none; color: var(--ink); font: 400 var(--fs-body) / 1.3 var(--font-body); text-align: left; cursor: pointer; }
   /* TZ-2: a fixed list is to read: the ticks as they were, no hand */
   .it:disabled { cursor: default; }
+  /* «Neuer Schwung» Packen 2 (B6): swipe a row to the right to tick it; the row follows the finger, green shows through */
+  .it { position: relative; overflow: hidden; touch-action: pan-y; }
+  .it::before { content: ''; position: absolute; inset: 0; background: color-mix(in srgb, var(--ok) 22%, transparent); opacity: var(--sp, 0); pointer-events: none; }
+  .it > span { position: relative; }
+  /* only while the finger is on the row (the own transitions of the box and the name stay as they are) */
+  .it:global(.swiping) > span { translate: var(--sx, 0) 0; }
   .box { flex: none; display: grid; place-items: center; width: 24px; height: 24px; border-radius: 6px; border: 1.5px solid var(--line-strong); background: var(--paper); }
   /* v0.30.1 (Noah B1): every item name in the same face, size and weight; × n and the hint only quieter. */
   .nm { flex: 1; min-width: 0; overflow-wrap: break-word; font: inherit; }
