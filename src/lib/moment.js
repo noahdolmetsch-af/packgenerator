@@ -89,7 +89,7 @@ export function loopOf(key) {
 export const FEATURE_MOMENTS = {
   // Lust und Ideen
   lust: [
-    'dayride', 'f.quickstart', 'f.inspiration', 'f.skiseason', 'f.dreams', 'f.whitespots', 'f.races',
+    'dayride', 'f.quickstart', 'f.inspiration', 'f.skiseason', 'f.dreams', 'f.whitespots', 'f.nlgoals', 'f.races',
     'f.ownbingo', 'f.impulse', 'f.compass', 'f.freeslot',
   ],
   // Tour planen
@@ -164,7 +164,7 @@ export const FEATURE_MOMENTS = {
   // App, Daten und Hilfe
   app: [
     'f.lists', 'f.editall', 'f.decides', 'f.pagetips', 'backup', 'install', 'lang', 'demo', 'f.namesde',
-    'f.search', 'f.localai', 'f.askfurther', 'f.searchvoice', 'f.startfresh', 'f.sync', 'f.autosync',
+    'f.search', 'f.quicklinks', 'f.localai', 'f.askfurther', 'f.searchvoice', 'f.startfresh', 'f.sync', 'f.autosync',
     'f.account', 'f.verstehen', 'f.privacy', 'f.camera', 'f.autobackup', 'f.tidy', 'f.tour', 'f.firststart',
     'f.playground', 'f.helper', 'f.shortcuts', 'f.ownvalues', 'f.ownreminders', 'f.listsmore', 'f.push',
     'f.theme', 'f.uisize', 'f.custompage', 'f.explain', 'f.connections', 'f.owncal', 'f.notestasks',

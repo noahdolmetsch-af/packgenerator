@@ -1872,6 +1872,14 @@ export default {
     'Warnungen (Wetter, Glätte, Licht, Regen unterwegs, Essen) kommen weiter einzeln und pünktlich.',
   'Example: «Your morning» → «Appointment: 10:00 Dentist», «Testvelo: Chain reaches 1000 km soon», «and 1 more in the app».':
     'Beispiel: «Dein Morgen» → «Termin: 10:00 Zahnarzt», «Testvelo: Kette erreicht bald 1000 km», «und 1 weitere in der App».',
+  // «Quick Links» (Noah 28.10.2026)
+  'Open Quick Links in the bar (on a computer: in the sidebar).': 'Öffne Quick Links in der Leiste (am Computer: in der Seitenleiste).',
+  'Tap «Add a pin», search a function and tap «Pin».': 'Tippe auf «Pin hinzufügen», suche eine Funktion und tippe auf «Anpinnen».',
+  'Tap «Edit»: rename, add a note, move with the arrows or drag, unpin.': 'Tippe auf «Bearbeiten»: umbenennen, Notiz dazu, mit Pfeilen oder Ziehen verschieben, entfernen.',
+  'Example: pin «Wear» into the group «Bike» with the note «after rain».': 'Beispiel: «Verschleiss» in die Gruppe «Velo» pinnen, mit der Notiz «nach Regen».',
+  'Open Quick Links in the bar.': 'Öffne Quick Links in der Leiste.',
+  'Tap «Add a pin» and pin a function.': 'Tippe auf «Pin hinzufügen» und pinne eine Funktion an.',
+  'Tap a pin: the app goes there.': 'Tippe auf einen Pin: die App geht dorthin.',
   // Idee A2 «Erinnerung zu deiner Zeit» (27.10.2026)
   'Nothing to switch on: it learns while you open the evening-before check.':
     'Nichts einzuschalten: die App lernt, während du den Abend-Check öffnest.',
@@ -1894,4 +1902,10 @@ export default {
     'Die Runde passt zu deinem eigenen Tempo; «Jetzt nicht» blendet das Fenster aus.',
   'Example: Thursday 17:00–19:00 free and dry → «A round of about 35 km?»':
     'Beispiel: Donnerstag 17:00–19:00 frei und trocken → «Eine Runde von etwa 35 km?»',
+  // «Träume und Neuland» N5
+  'Counts from New ground: your routes, rides and own ticks.': 'Zählt aus Neuland: deine Routen, Fahrten und eigenen Haken.',
+  'Open Trips › Dreams › Challenges with an end.': 'Öffne Touren › Träume › Herausforderungen mit Ende.',
+  'Tap a ready one or «Own challenge»: collection, new ones or all, until when.': 'Tippe eine fertige an oder «Eigene Herausforderung»: Sammlung, neue oder alle, bis wann.',
+  'The bar fills by itself; tap the pencil to change or delete it.': 'Der Balken füllt sich von selbst; mit dem Stift änderst oder löschst du sie.',
+  'Example: «5 new municipalities this month» → 2 of 5 · 12 days left.': 'Beispiel: «5 neue Gemeinden diesen Monat» → 2 von 5 · noch 12 Tage.',
 };
