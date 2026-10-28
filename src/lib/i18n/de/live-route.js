@@ -41,4 +41,8 @@ export default {
   'GPX route': 'GPX-Route',
   'Rename route': 'Route umbenennen',
   'Only the name on the live map changes.': 'Nur der Name auf der Live-Karte ändert sich.',
+  // Noah 28.10.2026: only the GPX of this ride counts, the last one is offered
+  'This ride starts without a route. Your last GPX «{name}» ({km} km) is still here.': 'Diese Fahrt startet ohne Route. Deine letzte GPX «{name}» ({km} km) ist noch da.',
+  'Your last GPX «{name}» ({km} km) is still here.': 'Deine letzte GPX «{name}» ({km} km) ist noch da.',
+  'Load for this ride': 'Für diese Fahrt laden',
 };

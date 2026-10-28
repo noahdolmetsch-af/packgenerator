@@ -6,7 +6,8 @@
 // default; one switch under Ich › KI-Helfer brings every place back, the tile on Today included; the key stays.
 // The lists come from the app source. Fictional data only (home0460-fixture, test_data_gtp_ names), the clock
 // on Friday 9 October 2026 (Europe/Zurich); SHOTS=<folder> saves screenshots.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
+import { linkOf } from './newsgo-lib.js';
 import { openHome, homeFixture } from './home0460-fixture.js';
 import { WHATS_NEW, BOXES, shortVersion } from '../../src/lib/whatsnew.js';
 import { READY, HELPER_TILES, wallRecord } from '../../src/lib/home/tiles.js';
@@ -74,8 +75,9 @@ test('W2 + SL1: Ich, Was ist neu: the newest on top, one row to all functions, t
   await expect(page.locator('main').getByText(new RegExp(T('{n} updates since 0.1 · each with its own text · last {date}', { n: WHATS_NEW.length, date: 'X' }).split('X')[0]))).toBeVisible();
   const top = page.locator('.wn-top');
   await expect(top.getByRole('heading', { level: 2, name: T(WHATS_NEW[0].title) })).toBeVisible();
-  await expect(top.locator('.vn-pts a')).toHaveCount(WHATS_NEW[0].points.filter((p) => p.href).length);
-  await expect(top.getByRole('link', { name: T('Try it') })).toBeVisible();
+  // «Ausprobieren» (Noah 27.10.2026 «1a», changed on purpose): a line is a link when it has a place (newsgo-lib.js)
+  await expect(top.locator('.vn-pts a')).toHaveCount(WHATS_NEW[0].points.filter((p) => linkOf(p)).length);
+  await expect(top.getByRole('link', { name: T('Try it'), exact: true })).toBeVisible();
   await expect(page.locator('a.wn-allrow')).toHaveAttribute('href', '#/me/news?all&sort=new');
 
   // SL1 (changed on purpose, Noah 14.10.2026 «SL1–SL4 freigegeben», answers «alle a»): every version after
@@ -120,13 +122,14 @@ test('W2 + SL1: Ich, Was ist neu: the newest on top, one row to all functions, t
   await shot(page, info, 'W2-alle-versionen');
 
   // a line of an open row leads to its place
-  const withHref = WHATS_NEW.slice(1).find((x) => x.date === days[0] && x.points.some((p) => p.href));
+  const withHref = WHATS_NEW.slice(1).find((x) => x.date === days[0] && x.points.some((p) => linkOf(p) && linkOf(p) !== '#/me/news'));
   if (withHref) {
     if (withHref.version !== e.version) await vers.locator(`[data-row="${withHref.version}"]`).click();
     await vers.locator(`article[data-version="${withHref.version}"] .vn-pts a`).first().click();
-    // a point with action 'data' opens «Data and backup» (#/me/data) instead of its href (0.186.1)
-    const p0 = withHref.points.find((p) => p.href);
-    await expect.poll(() => new URL(page.url()).hash).toBe(p0.action === 'data' ? '#/me/data' : p0.href);
+    // a point with action 'data' opens «Data and backup» (#/me/data) instead of its href (0.186.1);
+    // «Ausprobieren» (27.10.2026): the line goes to its own place (newsgo-lib.js linkOf)
+    const p0 = withHref.points.find((p) => linkOf(p));
+    await expect.poll(() => new URL(page.url()).hash).toBe(p0.action === 'data' ? '#/me/data' : linkOf(p0));
   }
   expect(errors).toEqual([]);
 });

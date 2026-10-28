@@ -364,6 +364,7 @@ Was die App heute schon kann: Material mit Gewicht und Kategorie, Touren mit Pac
 - **Pakete:** F1 Alles finden · F2 Perlen nach vorn (verteilt auf Seiten, die ohnehin angefasst werden) · Kal1 Merken + Agenda (neuer Ort, To-dos mit Datum und Wiederholung, Notizen und Eingang ziehen um) · Kal2 Ablage mit Links · Kal3 .ics raus und rein · Kal4 Abo-Link nur lesen, freie Wochenenden mit Wetter, Feiertage, Wochenblick · Kal5 Dateien in der Ablage; beide Richtungen mit S3.
 - **Beispiel:** «Ersatz-Schaltauge bestellen» steht oben in Merken; darunter «Jura-Runde: Einkauf und Laden (−2 Tage)» und «Dichtmilch fällig».
 - **Stand:** entschieden, noch nicht gebaut. Vorschlag https://claude.ai/artifact/TuvocwdUios23adoGp6e5D, Inventar im Projektordner `notes/funktionen-kalender-2026-10-11/inventar.md`.
+- **Ausprobieren führt genau hin (Noah 27.10.2026 «1a 2a 3a 4a 5a»):** jede Neuigkeit und jede Katalog-Funktion springt an die genaue Stelle (Seite, Reiter, Fenster) und lässt sie 3 Sekunden leuchten; ein gemeinsamer Sprung (`src/lib/know/spot.js`). Reihenfolge: Neuigkeiten-Zeilen mit Pflichtfeld `go` → alte Neuigkeiten nach Bereich, neueste zuerst → Tipps, Handbuch, Rundgang und Rennen auf denselben Sprung. Was nur manchmal erscheint, sagt in einer Zeile, wann. Vorschlag https://claude.ai/artifact/Wh4boiGG28WUp5WE4os8FB.
 
 ### 12. Design-Refresh: neues Aussehen für alle Seiten (R1–R24)
 
@@ -544,7 +545,14 @@ Stand 27.10.2026: PR 4 «In der Nähe» (0.227.0) gebaut. Nächster Schritt PR 5
 
 Warum: Daten aus verschiedenen Bereichen sollen zusammenspielen, damit die App im Alltag mehr abnimmt (Ziele 2, 3 und 5). Noah «alle umsetzen 1a 2a 3a 4a 5a». Ideenseite: `notes/intelligenter-vernetzt/ideen.html` im Projektordner.
 
-- **A Heute denkt mit:** A1 eine Nachricht am Morgen (gebaut), A2 Erinnerung zur Zeit, wann du es machst (gebaut), A3 freie Zeit plus gutes Wetter gibt einen Vorschlag.
+- **A Heute denkt mit:** A1 eine Nachricht am Morgen (gebaut), A2 Erinnerung zur Zeit, wann du es machst (gebaut), A3 freie Zeit plus gutes Wetter gibt einen Vorschlag (gebaut, in der Woche).
 - **B Körper und Planung:** B1 Erholung beim Planen sehen (kürzere Variante als Angebot), B2 nach jeder Tour wieder erholt?, B3 Schonmodus.
 - **C Velo, Wetter, Material:** C1 Verschleiss-Kosten voraus, C2 Packliste folgt dem Wetterumschwung, C3 welches Velo passt?
 - **D Ein Helfer, der alles kennt:** D1 «Frag die App» über alle Bereiche, D2 eigene Faustregeln vorschlagen, D3 was die App noch wissen müsste, D4 «Hängt zusammen mit».
+
+### 15. Heute als Begleiter (28.10.2026)
+
+- **Warum:** Die App kann über 500 Dinge, viele davon kennt man nicht. Noah (28.10.2026): die App soll Funktionen zeigen, von denen man nicht weiss, dass man sie brauchen kann, und den Nutzer über die ganze Reise begleiten, je nachdem, was er gerade tun möchte. Ziel: «Von der Haustür bis zurück» und «Aus jeder Tour lernen».
+- **Was (Noah «1a 2a 3a», «1a 2a 3a 4a», «ok freigabe»):** 8 Momente (Lust, Planen, Packen, Unterwegs, Zurück, dazu Velo und Material, Körper und Training, Alltag und Woche). Heute erkennt den Moment und zeigt eine Karte mit dem nächsten Schritt, dazu eine ruhige Funktion zum Entdecken mit «Später» und «Nicht für mich». «Was die App kann» bekommt die Ansicht «Nach Moment», jede Seite eine Zeile «Gehört dazu». Am Ende hat jede der 517 Funktionen einen Ort, einen Moment und einen sichtbaren Namen; der Wächter-Test hält das fest.
+- **Plan:** 13 kleine PRs. 1 Moment-Regeln, 2–3 die 117 fehlenden Katalog-Einträge, 4 Moment-Karte, 5 Entdecken-Karte, 6 «Nach Moment», 7–9 «Gehört dazu», 10 Versteckte sichtbar, 11 Namen, 12 Gesten erklären, 13 Wächter für alle. Skizzen: https://claude.ai/artifact/Hbqb7wZAPaxwvtMm7irumB.
+- **Stand:** PR 1 (Regeln in `src/lib/moment.js`, nichts sichtbar).

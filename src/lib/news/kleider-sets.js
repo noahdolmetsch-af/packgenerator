@@ -4,11 +4,11 @@
 export default {
   title: 'Clothing sets',
   lead: 'Nine sample sets are ready, all changeable.',
-  points: [{ text: 'The set that fits today comes first; its pieces before the app’s choice' }],
+  points: [{ text: 'The set that fits today comes first; its pieces before the app’s choice', go: 'f.wear' }],
   small: [
-    { box: 'new', text: 'A swap holds for today only or goes into the set, as you choose' },
-    { box: 'new', text: 'Change the °C range of a set right in the window' },
-    { box: 'nicer', text: 'Pack suggests the same sets' },
+    { box: 'new', text: 'A swap holds for today only or goes into the set, as you choose', go: 'f.wear' },
+    { box: 'new', text: 'Change the °C range of a set right in the window', go: 'f.kit' },
+    { box: 'nicer', text: 'Pack suggests the same sets', go: null },
   ],
   test: ['On Today tap «What do I wear?»: on top the set that fits today, marked «fits today».', 'Tap «Swap», then «Remember: in the set …» and pick a piece: the row says «from the set».'],
   since: [],

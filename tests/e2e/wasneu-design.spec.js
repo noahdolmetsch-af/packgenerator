@@ -5,7 +5,8 @@
 // only for this start); the tile «New» on top of Today for 14 days. The lists come from the app source.
 // Fictional data only (home0460-fixture, test_data_gtp_ names), the clock on Friday 9 October 2026
 // (Europe/Zurich); SHOTS=<folder> saves screenshots.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
+import { linkOf, tryLine } from './newsgo-lib.js';
 import { D0, openHome, tr, atHour } from './home0460-fixture.js';
 import { WHATS_NEW, shortVersion } from '../../src/lib/whatsnew.js';
 import { readFileSync } from 'node:fs';
@@ -99,7 +100,8 @@ test('I11: Ich, Was ist neu: the newest version, every function, all versions an
   await expect(top.getByText(T(NEWEST.lead))).toBeVisible();
   await expect(top.locator('.vn-pts li')).toHaveCount(NEWEST.points.length);
   await expect(top.locator('.vn-small li')).toHaveCount(NEWEST.small?.length ?? 0);
-  await expect(top.getByRole('link', { name: T('Try it') })).toHaveAttribute('href', NEWEST.points[0].href);
+  // «Ausprobieren» (Noah 27.10.2026 «1a», changed on purpose): the line with the exact place (newsgo-lib.js tryLine)
+  await expect(top.getByRole('link', { name: T('Try it'), exact: true })).toHaveAttribute('href', linkOf(tryLine(NEWEST)) ?? '#/me/news');
   await top.getByRole('button', { name: T('How to test it') }).click();
   await expect(page.locator('#wn-test')).toBeInViewport();
   await expect(page.locator('#wn-test li')).toHaveCount(NEWEST.test.length);

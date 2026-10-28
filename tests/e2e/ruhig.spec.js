@@ -1,6 +1,6 @@
 // Paket C «Ruhig und persönlich» (Noah 24.10.2026, 996 Ideen «5a»): Ich › Ruhig und persönlich and its nine
 // sub-pages. German, fictional data only, no internet. Phone and desktop.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import DE from '../../src/lib/i18n/de/index.js';
 import { SUBS } from '../../src/lib/ruhig/subs.js';
 import { settle } from './settle.js';
