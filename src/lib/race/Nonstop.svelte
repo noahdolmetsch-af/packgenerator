@@ -5,7 +5,7 @@
    * can be changed here (stored.nonstop); speed, climbing, stops and tiredness are the race's assumptions
    * (stored.assume, the same as under Strategy). Three answers: good day, as planned, hard day (nonstop.js).
    */
-  import { Timer } from '@lucide/svelte';
+  import { Timer, Sun, Target, CloudRain, SlidersHorizontal } from '@lucide/svelte';
   import { nonstop, hm } from './nonstop.js';
   import { assumptionsOf, ASSUME } from './strategy.js';
   import { msOf } from './race.js';
@@ -33,6 +33,10 @@
     if (OWN.includes(k)) ctx.save((s) => ({ ...s, nonstop: { ...(s.nonstop ?? {}), [k]: v } }));
     else ctx.save((s) => ({ ...s, assume: { ...(s.assume ?? {}), [k]: v } }));
   }
+  const ICON = { good: Sun, plan: Target, hard: CloudRain };
+  const day = (local) => new Date(msOf(local)).toLocaleDateString(locale(), { weekday: 'short', day: 'numeric', month: 'short' });
+  const clock = (local) => new Date(msOf(local)).toLocaleTimeString(locale(), { hour: '2-digit', minute: '2-digit' });
+  const share = (r) => Math.round((r.rideH / Math.max(r.totalH, 0.01)) * 100);
   const when = (local) => new Date(msOf(local)).toLocaleString(locale(), { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
   const dur = (h) => ((x) => t('{h} h {m} min', { h: x.h, m: String(x.m).padStart(2, '0') }))(hm(h));
   const FIELDS = [
@@ -53,19 +57,22 @@
   {#if rows}
     <ul class="ns-rows">
       {#each rows as r (r.key)}
-        <li class="ns-row" class:ns-plan={r.key === 'plan'} data-nonstop={r.key}>
-          <span class="ns-name">{t(r.name)}</span>
-          <b class="ns-at">{when(r.finish)}</b>
-          <small>{t('{total} in all: riding {ride}, stops {stops}', { total: dur(r.totalH), ride: dur(r.rideH), stops: dur(r.stopH) })}{#if r.napH}{' '}· {t('naps {naps}', { naps: dur(r.napH) })}{/if}</small>
+        {@const Icon = ICON[r.key] ?? Target}
+        <li class="ns-row ns-{r.key}" class:ns-plan={r.key === 'plan'} data-nonstop={r.key}>
+          <span class="ns-name"><Icon size={16} aria-hidden="true" /> {t(r.name)}</span>
+          <span class="ns-at" aria-label={when(r.finish)}><b class="ns-clock num">{clock(r.finish)}</b><span class="ns-day">{day(r.finish)}</span></span>
+          <span class="ns-bar" aria-hidden="true"><span class="ns-ride" style:width="{share(r)}%"></span></span>
+          <small class="ns-sum">{t('{total} in all: riding {ride}, stops {stops}', { total: dur(r.totalH), ride: dur(r.rideH), stops: dur(r.stopH) })}{#if r.napH}{' '}· {t('naps {naps}', { naps: dur(r.napH) })}{/if}</small>
         </li>
       {/each}
     </ul>
+    <p class="ns-key" aria-hidden="true"><span class="ns-dot"></span>{t('riding|finish bar')} <span class="ns-dot ns-dot-stop"></span>{t('stops|finish bar')}</p>
   {:else}
     <p class="rc-warn" data-nonstop-missing>{t('Put in the km and the start, then the finish time shows.')}</p>
   {/if}
 
   <details class="ns-more">
-    <summary data-nonstop-edit>{t('Change the numbers')}</summary>
+    <summary data-nonstop-edit><SlidersHorizontal size={16} aria-hidden="true" /> {t('Change the numbers')}</summary>
     <div class="ns-fields">
       <label class="rc-lab">{t('Start')}<input class="inp" type="datetime-local" value={vals.start} onchange={(e) => put('start', e.currentTarget.value)} data-nonstop-field="start" /></label>
       {#each FIELDS as f (f.k)}
@@ -73,8 +80,8 @@
       {/each}
     </div>
     <p class="rc-note">{t('Good day: 10 % faster and fewer stops. Hard day: 10 % slower and more stops. Only a guide.')}</p>
-  </details>
   <small class="rc-note">{t('Rule: km ÷ speed on the flat + metres up ÷ climbing rate, plus tiredness, then the stops on top.')}</small>
+  </details>
 </section>
 
 <style>
@@ -83,30 +90,88 @@
     margin: 0;
     padding: 0;
     display: grid;
-    gap: 8px;
+    grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+    gap: var(--sp-2);
   }
   .ns-row {
     display: grid;
-    gap: 2px;
-    padding: 8px 12px;
+    gap: 6px;
+    align-content: start;
+    padding: 12px 14px;
     border: 1px solid var(--line);
-    border-radius: 10px;
+    border-radius: var(--radius-card);
+    background: var(--paper);
+  }
+  .ns-good {
+    background: var(--ok-soft);
+  }
+  .ns-hard {
+    background: var(--warn-soft);
   }
   .ns-plan {
-    border-color: var(--accent);
+    border: 2px solid var(--accent);
+    background: var(--accent-soft);
   }
   .ns-name {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+    font-weight: 600;
+  }
+  .ns-at {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    column-gap: 8px;
+  }
+  .ns-clock {
+    font-size: var(--fs-display);
+    line-height: 1.1;
+  }
+  .ns-day {
+    color: var(--ink-2);
+  }
+  .ns-bar {
+    display: block;
+    height: 6px;
+    border-radius: 3px;
+    background: var(--warn);
+    overflow: hidden;
+  }
+  .ns-ride {
+    display: block;
+    height: 100%;
+    background: var(--accent);
+  }
+  .ns-key {
+    margin: 4px 0 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
     color: var(--ink-2);
     font-size: var(--fs-small);
   }
-  .ns-at {
-    font-size: var(--fs-section);
+  .ns-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+  .ns-dot-stop {
+    margin-left: 8px;
+    background: var(--warn);
+  }
+  .ns-sum {
+    color: var(--ink-2);
   }
   .ns-more summary {
     cursor: pointer;
     min-height: 44px;
     display: flex;
     align-items: center;
+    gap: 6px;
     font-weight: 600;
   }
   .ns-fields {
