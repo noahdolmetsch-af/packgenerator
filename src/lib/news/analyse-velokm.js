@@ -3,8 +3,8 @@ export default {
   title: 'Bike km and wear in Analyse',
   lead: 'The km of every bike in the period and per week, and its most worn parts with the km left.',
   points: [
-    { text: 'km per bike in the period and per week over 12 weeks (only counted rides)', href: '#/auswerten/analyse' },
-    { text: 'The three most worn parts of each bike, with km left and the month it is due', href: '#/auswerten/analyse' },
+    { text: 'km per bike in the period and per week over 12 weeks (only counted rides)', go: 'f.analyse' },
+    { text: 'The three most worn parts of each bike, with km left and the month it is due', go: 'f.analyse' },
   ],
   small: [],
   test: [
