@@ -139,6 +139,25 @@ test('Termine und Aufgaben: connect, see the next days, tick and add a task, ent
   expect(dup).toMatchObject({ cal: 'cal1', title: 'Zahnarzt Muster', day: day(0), from: shown });
   expect(dup.gid).toBeUndefined();
 
+  // the week grid (Noah 28.10.2026 «wie bei Google»): blocks, a tap opens one, a tap on an empty place starts a new one
+  await page.locator('[data-view="week"]').click();
+  const grid = page.locator('[data-week-grid]');
+  await expect(grid).toBeVisible();
+  await expect(grid.getByRole('button', { name: /Zahnarzt Muster/ }).first()).toBeVisible();
+  await expect(grid.getByRole('button', { name: /Tennis-Lektion/ })).toBeVisible();
+  await shot(page, info, 'A5-wochenraster');
+  await grid.getByRole('button', { name: /Tennis-Lektion/ }).click();
+  await expect(page.locator('.pk').getByRole('heading', { name: 'Tennis-Lektion' })).toBeVisible();
+  await expect(page.locator('.pk').getByRole('button', { name: de('Duplicate') })).toBeVisible();
+  const col = grid.locator('.col').first();
+  await col.click({ position: { x: 4, y: 44 * 15 + 4 } }); // about 15:00
+  const fresh = page.getByRole('form', { name: de('New appointment') });
+  await expect(fresh).toBeVisible();
+  await expect(fresh.getByLabel(de('From|time'))).toHaveValue('15:00');
+  await expect(fresh.getByLabel(de('To|time'), { exact: true })).toHaveValue('16:00');
+  await fresh.getByRole('button', { name: de('Cancel') }).click();
+  await page.locator('[data-view="list"]').click();
+
   // which calendars: the holidays too
   await page.getByRole('checkbox', { name: /Feiertage/ }).check();
   await expect.poll(() => log.filter((x) => x.step === 'cal-events').at(-1)?.params.cal).toBe('cal1,cal2');
