@@ -8,6 +8,9 @@
   import { t, num } from '../i18n.svelte.js';
   import { niceScale } from '../charts/axis.js';
   import GridLines from '../charts/GridLines.svelte';
+  import Readout from '../charts/Readout.svelte';
+  import DataTable from '../charts/DataTable.svelte';
+  import Seg from '../ui/Seg.svelte';
 
   let { points = [], onpoint = null } = $props();
 
@@ -38,6 +41,15 @@
     const sx = ((e.clientX - r.left) / r.width) * W;
     setKm(((sx - PAD.l) / (W - PAD.l - PAD.r)) * end);
   }
+  // «Diagramme zum Antippen» (Noah 27.10.2026): the exact spot in one line over the profile, the same as rows
+  const readout = $derived(
+    at != null
+      ? { title: t('km {km}', { km: num(Math.round(at * 10) / 10) }), items: [{ label: t('Height'), value: `${num(eleAt(at))} m` }] }
+      : { title: t('Whole tour|profile'), items: [{ label: t('Highest point'), value: `${num(top)} m` }, { label: t('Lowest point'), value: `${num(Math.min(...points.map((p) => p[1])))} m` }] },
+  );
+  let view = $state('chart');
+  const table = $derived({ head: ['km', `${t('Height')} (m)`], rows: niceScale([0, end], { zero: true, count: 10 }).ticks.filter((k) => k <= end + 1e-9).map((k) => ({ key: String(k), cells: [num(k), num(eleAt(k))] })) });
+
   function key(e) {
     const step = end / 50;
     if (e.key === 'ArrowRight') setKm((at ?? 0) + step);
@@ -50,6 +62,11 @@
 
 {#if points.length > 1}
   <figure class="tprof" data-tour-profile bind:clientWidth={box}>
+    <div class="vw"><Seg small full={false} label={t('Show as')} value={view} onchange={(v) => (view = v)} options={[{ key: 'chart', name: t('Chart|table') }, { key: 'table', name: t('As table') }]} /></div>
+    {#if view === 'table'}
+    <DataTable head={table.head} rows={table.rows} limit={24} />
+    {:else}
+    <div data-profile-at><Readout title={readout.title} items={readout.items} /></div>
     <!-- svelte-ignore a11y_no_noninteractive_tabindex, a11y_no_noninteractive_element_interactions -->
     <svg viewBox="0 0 {W} {H}" role="img" aria-label={t('Elevation profile: move along it to see the spot on the map')} tabindex="0" onpointermove={move} onpointerdown={move} onpointerleave={() => setKm(null)} onkeydown={key} onblur={() => setKm(null)}>
       <GridLines ticks={mSc.ticks} {y} x1={PAD.l} x2={W - PAD.r} />
@@ -61,15 +78,20 @@
         <circle cx={x(at)} cy={y(eleAt(at))} r="5" class="dot" />
       {/if}
     </svg>
-    <figcaption class="cap num" aria-live="polite" data-profile-at>
-      {#if at != null}{t('km {km} · {m} m', { km: num(Math.round(at * 10) / 10), m: num(eleAt(at)) })}{:else}{t('highest point {m} m', { m: num(top) })}{/if}
-    </figcaption>
+    {/if}
+    <figcaption class="cap">{t('Point at the profile for the height at that spot.')}</figcaption>
   </figure>
 {/if}
 
 <style>
   .tprof {
+    display: grid;
+    gap: 6px;
     margin: 0;
+  }
+  .vw {
+    display: flex;
+    justify-content: flex-end;
   }
   svg {
     display: block;

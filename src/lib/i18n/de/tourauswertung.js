@@ -163,4 +163,9 @@ export default {
   'Dot to the right': 'Punkt rechts',
   'This is the tour you are looking at.': 'Das ist die Tour, die du gerade anschaust.',
   'Open this ride': 'Diese Fahrt öffnen',
+  // «Diagramme zum Antippen» on the speed and height profile (28.10.2026)
+  '{a} to {b} h': '{a} bis {b} Std',
+  'Whole ride': 'Ganze Fahrt',
+  'Whole tour|profile': 'Ganze Tour',
+  'Point at the profile for the height at that spot.': 'Zeig auf das Profil für die Höhe an dieser Stelle.',
 };

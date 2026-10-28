@@ -5,7 +5,7 @@
 //     the sealant is no longer due, and the screen says so.
 // Fictional data only (test_data_gtp_ names), built from tests/e2e/pf-fixture.json.
 // BIKECARE_SHOTS=<folder> saves a screenshot after the sealant is saved (never into the repo).
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { openData, settle } from './settle.js';

@@ -6,7 +6,7 @@
 //   75 «Foto mit Vorlage»: the camera in the app (Chromium's fake camera) with the old photo on top.
 //   76 «Werkstatt-Runden»: a suggestion becomes a round; a run writes the ticked jobs into the parts.
 // Fictional fixture; nothing leaves the preview server; service workers blocked (config).
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';
