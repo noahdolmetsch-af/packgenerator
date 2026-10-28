@@ -15,6 +15,9 @@
   import { courseOf, speedOf, speedIn } from '../tourcourse.js';
   import { t, locale } from '../../i18n.svelte.js';
   import { rideTimeS, longTimeS, hours } from '../../review/fmt.js';
+  import { niceScale, MINUTE_STEPS } from '../../charts/axis.js';
+  import GridLines from '../../charts/GridLines.svelte';
+  import YTicks from '../../charts/YTicks.svelte';
 
   /** acts: the activities of the tour; trip: the trip (for its GPX route); moving, elapsed in seconds; onkm(share 0…1 | null). */
   let { acts = [], trip = null, moving = null, elapsed = null, onkm = null } = $props();
@@ -37,7 +40,10 @@
   const W = 1000;
   const H = 180;
   const PAD = { l: 0, r: 0, t: 8, b: 0 };
-  const top = $derived(sp ? Math.max(10, Math.ceil(sp.max / 10) * 10) : 10);
+  // «Genaue Werte» (Noah 27.10.2026): round steps from 0 km/h with grid lines, the time in round steps too
+  const sc = $derived(niceScale([0, sp?.max ?? 10], { zero: true, count: 4 }));
+  const top = $derived(sc.hi);
+  const tSc = $derived(niceScale([0, sp?.end || 1], { zero: true, count: 5, steps: MINUTE_STEPS }));
   const X = (min) => PAD.l + (min / (sp?.end || 1)) * (W - PAD.l - PAD.r);
   const Y = (v) => PAD.t + (1 - v / top) * (H - PAD.t - PAD.b);
   const area = $derived(sp ? `M${X(sp.pts[0][0])},${Y(0)} ` + sp.pts.map(([m, v]) => `L${X(m).toFixed(1)},${Y(v).toFixed(1)}`).join(' ') + ` L${X(sp.pts.at(-1)[0])},${Y(0)} Z` : '');
@@ -49,8 +55,7 @@
     const yE = (h) => PAD.t + (1 - (h - lo) / (hi - lo)) * (H - PAD.t - PAD.b) * 0.9 + (H - PAD.t - PAD.b) * 0.1;
     return `M${X(sp.ele[0][0])},${Y(0)} ` + sp.ele.map(([m, h]) => `L${X(m).toFixed(1)},${yE(h).toFixed(1)}`).join(' ') + ` L${X(sp.ele.at(-1)[0])},${Y(0)} Z`;
   });
-  const yTicks = $derived([0, top / 3, (2 * top) / 3, top].map((v) => ({ v, y: Y(v) })));
-  const xTicks = $derived(sp ? Array.from({ length: 6 }, (_, i) => (sp.end * i) / 5).map((m) => ({ m, x: X(m) })) : []);
+  const xTicks = $derived(sp ? tSc.ticks.filter((m) => m <= sp.end + 1e-9).map((m) => ({ m, x: X(m) })) : []);
 
   let svg = $state();
   let sel = $state(null); // { a, b } minutes
@@ -109,11 +114,11 @@
       {#if selStats}{t('{a} to {b} h: Ø {v} km/h over {t}', { a: hm(sel.a), b: hm(sel.b), v: num(selStats.kmh, 1), t: hm(selStats.min) })}{:else if at != null}{t('{a} h: {v} km/h', { a: hm(at), v: num(speedAt(at), 1) })}{:else}{t('Tap or drag over the profile to see the numbers of a stretch.')}{/if}
     </p>
     <div class="tc-plot">
-    <div class="tc-y" aria-hidden="true">{#each yTicks as g (g.v)}<span class="tick y" style:top="{(g.y / H) * 100}%">{num(g.v, 0)}</span>{/each}</div>
+    <YTicks ticks={sc.ticks} y={Y} h={H} text={(v) => num(v, 0)} unit="km/h" />
     <div class="tc-box">
     <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
     <svg bind:this={svg} viewBox="0 0 {W} {H}" preserveAspectRatio="none" class="tc-svg" role="img" tabindex="0" aria-label={t('Speed over the time of the tour, the height behind it')} onpointerdown={down} onpointermove={move} onpointerup={up} onpointerleave={() => dragFrom == null && (at = null)} onkeydown={key}>
-      {#each yTicks as g (g.v)}<line class="grid" x1={PAD.l} x2={W - PAD.r} y1={g.y} y2={g.y} />{/each}
+      <GridLines ticks={sc.ticks} y={Y} x1={PAD.l} x2={W - PAD.r} />
       {#each xTicks as g (g.m)}<line class="grid" x1={g.x} x2={g.x} y1={PAD.t} y2={H - PAD.b} />{/each}
       {#if eleLine}<path class="ele" d={eleLine} />{/if}
       <path class="spd" d={area} />
@@ -121,7 +126,6 @@
       {#if at != null}<line class="cur" x1={X(at)} x2={X(at)} y1={PAD.t} y2={H - PAD.b} />{/if}
     </svg>
     </div>
-    <span class="tick unit" aria-hidden="true">km/h</span>
     <div class="tc-x" aria-hidden="true">{#each xTicks as g, i (g.m)}<span class="tick x" class:first={i === 0} class:last={i === xTicks.length - 1} style:left="{(g.x / W) * 100}%">{hm(g.m)}</span>{/each}</div>
     </div>
     <dl class="tc-sum">
@@ -186,11 +190,10 @@
   }
   .tc-plot {
     display: grid;
-    grid-template-columns: 30px minmax(0, 1fr);
+    grid-template-columns: auto minmax(0, 1fr);
     grid-template-rows: auto 18px;
     gap: 2px 4px;
   }
-  .tc-y,
   .tc-box,
   .tc-x {
     position: relative;
@@ -211,10 +214,6 @@
     line-height: 1;
     pointer-events: none;
   }
-  .tick.y {
-    right: 0;
-    transform: translateY(-50%);
-  }
   .tick.x {
     top: 4px;
     transform: translateX(-50%);
@@ -224,12 +223,6 @@
   }
   .tick.x.last {
     transform: translateX(-100%);
-  }
-  .tick.unit {
-    grid-column: 1;
-    grid-row: 2;
-    position: static;
-    align-self: end;
   }
   .ele {
     fill: var(--line);

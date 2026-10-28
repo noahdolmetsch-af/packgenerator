@@ -1,6 +1,6 @@
 // Gruppenfahrt für Events «5a»: the contact card and the people met at events, grouped by event. Fictional data only.
 import { describe, it, expect } from 'vitest';
-import { cardShown, addPerson, peopleOf, byGroup, renameGroup, moveGroup, deleteGroup, removePerson, updatePerson, instaLink, telLink, waLink, mailLink, webLink, stravaLink, komootLink, mapLink, cardVcf } from '../src/lib/freunde/people.js';
+import { cardShown, addPerson, peopleOf, byGroup, renameGroup, moveGroup, deleteGroup, removePerson, updatePerson, instaLink, telLink, waLink, mailLink, webLink, stravaLink, komootLink, mapLink, cardVcf, untilFor, expired, VALID_DAYS } from '../src/lib/freunde/people.js';
 
 const P = 'test_data_gtp_';
 describe('Kontaktkarte und Leute von Events', () => {
@@ -68,5 +68,16 @@ describe('Kontaktkarte und Leute von Events', () => {
     expect(v).toContain('URL:https://www.strava.com/athletes/123');
     expect(v.trimEnd().endsWith('END:VCARD')).toBe(true);
     expect(cardVcf({ name: '' })).toBe('');
+  });
+  it('Kontakt-QR-Code step 2: the end day counts calendar days, today included', () => {
+    expect(VALID_DAYS).toEqual([1, 7, 30, 0]);
+    expect(untilFor(1, '2026-10-27')).toBe('2026-10-27');
+    expect(untilFor(7, '2026-10-27')).toBe('2026-11-02');
+    expect(untilFor(30, '2026-12-15')).toBe('2027-01-13');
+    expect(untilFor(0, '2026-10-27')).toBe('');
+    expect(expired('2026-10-27', '2026-10-27')).toBe(false);
+    expect(expired('2026-10-27', '2026-10-28')).toBe(true);
+    expect(expired('', '2030-01-01')).toBe(false);
+    expect(expired('kaputt', '2030-01-01')).toBe(false);
   });
 });
