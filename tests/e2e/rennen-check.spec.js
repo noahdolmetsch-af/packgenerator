@@ -1,0 +1,61 @@
+// «Rennen detailliert planen» + «Rennen-Check» (Noah 27.10.2026 «1b 2b»): the coming races with their check,
+// five sheets that save by themselves and answers loaded from a file. Fictional data (sample race, made-up answers).
+import { test, expect } from '@playwright/test';
+import { openHome } from './home0460-fixture.js';
+import { SHEETS } from '../../src/lib/race/check-lib.js';
+
+const noSideways = async (page) => {
+  const d = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+  expect(d).toBeLessThanOrEqual(1);
+};
+
+test('Race check: the races page, five sheets that keep what you write, answers from a file', async ({ page, context }, info) => {
+  const T = await openHome(page, context, info);
+  // a race to plan: the sample race
+  await page.goto('./#/race');
+  await page.locator('[data-race-sample-open]').click();
+  await expect(page).toHaveURL(/#\/race\/race-sample$/);
+  // Touren › «Rennen detailliert planen»
+  await page.goto('./#/trips');
+  await page.getByRole('link', { name: T('Plan races in detail') }).first().click();
+  await expect(page).toHaveURL(/#\/racecheck$/);
+  await expect(page.locator('h1')).toHaveText(T('Plan races in detail'));
+  const row = page.locator('[data-racecheck-row="race-sample"]');
+  await expect(row).toContainText(T('check not started'));
+  await noSideways(page);
+  await page.screenshot({ path: info.outputPath('rennen-liste.png'), fullPage: true });
+
+  await row.click();
+  await expect(page).toHaveURL(/#\/racecheck\/race-sample$/);
+  await expect(page.locator('[data-check-tab]')).toHaveCount(SHEETS.length);
+  await expect(page.locator('[data-check-sheet="ablauf"]')).toBeVisible();
+  await page.locator('[data-check-field="ablauf.race"]').fill('Hill race 300');
+  await page.locator('[data-check-field="ablauf.q.outside"]').check();
+  await page.locator('[data-check-tab="liste"]').click();
+  await expect(page.locator('[data-check-sheet="liste"]')).toBeVisible();
+  await page.locator('[data-check-field="liste.1.v"]').fill('1 light rain jacket');
+  await page.locator('[data-check-tab="ablauf"]').click();
+  await expect(page.locator('[data-check-field="ablauf.race"]')).toHaveValue('Hill race 300');
+  await expect(page.locator('[data-check-field="ablauf.q.outside"]')).toBeChecked();
+  await noSideways(page);
+  await page.screenshot({ path: info.outputPath('rennen-check-blatt1.png'), fullPage: false });
+
+  // after a reload everything is still there (saved in the race)
+  await page.reload();
+  await expect(page.locator('[data-check-field="ablauf.race"]')).toHaveValue('Hill race 300');
+
+  // answers from the fillable sheets page, as a file
+  const file = { name: 'antworten.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify({ values: { 'ablauf.B': 'Gravel bike, made up', 'nacht.0': 'Shop at the station, open until 21:00' } })) };
+  await page.locator('[data-check-file]').setInputFiles(file);
+  await expect(page.locator('[data-check-field="ablauf.B"]')).toHaveValue('Gravel bike, made up');
+  await page.locator('[data-check-next]').click();
+  await expect(page.locator('[data-check-sheet="setup"]')).toBeVisible();
+  await noSideways(page);
+  await page.screenshot({ path: info.outputPath('rennen-check-blatt2.png'), fullPage: false });
+  await page.locator('[data-check-tab="nacht"]').click();
+  await expect(page.locator('[data-check-field="nacht.0"]')).toHaveValue('Shop at the station, open until 21:00');
+
+  // the list counts what is filled
+  await page.goto('./#/racecheck');
+  await expect(row).toContainText(T('check: {n} fields filled', { n: 4 }));
+});

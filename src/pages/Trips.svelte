@@ -484,7 +484,7 @@
     </div>
   </header>
   <!-- «332 Use Cases» (Noah 24.10.2026 «2b»): pages for every tour that were only reachable through search -->
-  {#if !onRides}<QuickLinks label={t('More for your tours')} links={[{ key: 'fuel', href: '#/trips/fuel', label: t('Food and water plan') }, { key: 'compare', href: '#/trips/compare', label: t('Trips side by side') }, { key: 'weather', href: '#/wetter', label: t('Weather for a ride') }, { key: 'travel', href: '#/travel', label: t('Travel links') }, { key: 'komoot', onclick: () => window.open(komootFindUrl(), '_blank', 'noopener'), label: t('Tour from komoot') }]} />{/if}
+  {#if !onRides}<QuickLinks label={t('More for your tours')} links={[{ key: 'racecheck', href: '#/racecheck', label: t('Plan races in detail') }, { key: 'fuel', href: '#/trips/fuel', label: t('Food and water plan') }, { key: 'compare', href: '#/trips/compare', label: t('Trips side by side') }, { key: 'weather', href: '#/wetter', label: t('Weather for a ride') }, { key: 'travel', href: '#/travel', label: t('Travel links') }, { key: 'komoot', onclick: () => window.open(komootFindUrl(), '_blank', 'noopener'), label: t('Tour from komoot') }]} />{/if}
   {#if !onRides}<NextRaceRow />{/if}
   {#if !onRides}<DreamNowRow />{/if}
   {#if onRides}
