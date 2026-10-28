@@ -13,6 +13,7 @@
   import { openTrip, addItem, openNew, openNote, quickRide, openData, openWear } from '../nav.js';
   import { sortBikes } from '../bikes.js';
   import { recordCare, undoCare } from '../home/care-tap.js';
+  import { switchTips } from '../pageinfo/switchtips.js';
   import { countUse } from '../home/usage.js';
   import { phone } from '../media.svelte.js';
   import { t } from '../i18n.svelte.js';
@@ -198,6 +199,14 @@
     if (direct && cmd.kind === 'note' && String(cmd.text ?? '').trim()) return doSays([{ kind: 'cmd', cmd, writes: true }]);
     spoken = false;
     if (USE[cmd.kind]) countUse(USE[cmd.kind]);
+    if (cmd.kind === 'tipsoff' || cmd.kind === 'tipson') {
+      const r = await switchTips(cmd.kind === 'tipson');
+      q = '';
+      clearTimeout(doneTimer);
+      done = { text: r.text, undoFn: r.undo };
+      doneTimer = setTimeout(() => (done = null), UNDO_MS);
+      return;
+    }
     if (['chain', 'sealant', 'wash'].includes(cmd.kind)) {
       const r = await recordCare(cmd.bikeId, cmd.kind);
       q = '';
