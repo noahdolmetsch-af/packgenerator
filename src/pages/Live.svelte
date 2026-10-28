@@ -37,7 +37,7 @@
   import PoiDetail from '../lib/map/PoiDetail.svelte';
   import WxTimeline from '../lib/map/WxTimeline.svelte';
   import LiveRouteBox from '../lib/live/LiveRouteBox.svelte';
-  import { liveRouteQuery } from '../lib/live/liveroute.js';
+  import { liveRouteQuery, liveRouteFor } from '../lib/live/liveroute.js';
   import OfflineBox from '../lib/map/OfflineBox.svelte';
   import { reserveOf } from '../lib/map/offline.js';
   import SortArrows from '../lib/ui/SortArrows.svelte';
@@ -68,8 +68,10 @@
   import LiveWebcam from '../lib/live/LiveWebcam.svelte';
   import { camsQuery, camsOnMap, camOfPoint } from '../lib/wetter/webcamsmap.js';
   import { db } from '../lib/db.js';
-  import { rec, startRecording, stopRecording, openRecording, pauseRecording, resumeRecording, addSensor, setGpsLow, lapRecording } from '../lib/spur/recorder.svelte.js';
+  import { rec, startRecording, stopRecording, openRecording, pauseRecording, resumeRecording, addSensor, setGpsLow, lapRecording, setPauseWhy, addPastPause } from '../lib/spur/recorder.svelte.js';
   import PauseBar from '../lib/live/PauseBar.svelte';
+  import ForgotPause from '../lib/tourenc/ForgotPause.svelte'; // Touren c 61
+  import { forgotStep, whyOf } from '../lib/tourenc/pausewhy.js'; // Touren c 60/61
   import TurnHint from '../lib/live/TurnHint.svelte';
   import { turnsOf, nextTurn, turnSay } from '../lib/live/turns.js';
   import { lapNow, lapsOf, ghostOf, ghostDelta, lastRideOf, deltaText } from '../lib/live/laps.js';
@@ -139,13 +141,15 @@
   const stored = $derived(($racesQ ?? {})[tid] ?? null);
   const isRace = $derived(!!trip && !!stored);
   const race = $derived(isRace ? raceOf(stored, trip) : null);
-  // a GPX opened on the live map (LiveRouteBox, settings 'live-route') when the ride has no route of its own
+  // a GPX opened on the live map (LiveRouteBox, settings 'live-route') when the ride has no route of its own;
+  // only the GPX opened for this very ride counts (Noah 28.10.2026: a new trip without a route had an old GPX)
   const liveQ = liveRouteQuery(db.settings);
-  const route = $derived(withSampleFine(stored)?.route ?? trip?.route ?? (!isRace ? $liveQ : null) ?? null);
+  const liveRoute = $derived(liveRouteFor($liveQ, tid));
+  const route = $derived(withSampleFine(stored)?.route ?? trip?.route ?? (!isRace ? liveRoute : null) ?? null);
   const pts = $derived(lineKm(route));
   const profile = $derived(route?.profile ?? []);
   const hasRoute = $derived(pts.length > 1);
-  const routeName = $derived(trip?.title ?? $liveQ?.name ?? '');
+  const routeName = $derived(trip?.title ?? liveRoute?.name ?? '');
   const osm = $derived($osmQ?.data ?? []);
   const around = $derived($aroundQ?.data?.list ?? []);
   const pois = $derived((hasRoute ? mergePois(Array.isArray(stored?.pois) ? stored.pois : [], osm) : around).filter((p) => Number.isFinite(Number(p.lat)) && Number.isFinite(Number(p.lon))));
@@ -439,6 +443,14 @@
   let autoSt = {};
   let standSince = null;
   let standing = $state(false);
+  // Touren c 61: a long standing time without «Pause» → ask afterwards what it was
+  let forgotSt = {};
+  let forgotAsk = $state(null);
+  async function answerForgot(why) {
+    const a = forgotAsk;
+    forgotAsk = null;
+    if (a && why) await addPastPause(a.from, a.to, why);
+  }
   let gainSt = $state({ base: null, gain: 0 });
   let maxKmh = $state(0);
   let hrSt = {};
@@ -475,6 +487,12 @@
       if (r.act === 'pause') pauseNow(true);
       if (r.act === 'resume') goOn();
     }
+    // Touren c 61: only without the auto-pause (that one pauses by itself)
+    if (rec.on && !cfg.autoPause) {
+      const f = forgotStep(forgotSt, { kmh: kmhNow, now, paused: rec.paused });
+      forgotSt = f.st;
+      if (f.ask) forgotAsk = f.ask;
+    }
     // the hint: standing a minute without a pause
     if (!rec.paused && !cfg.autoPause && Number.isFinite(kmhNow) && kmhNow < 2) {
       standSince ??= now;
@@ -505,6 +523,8 @@
       maxKmh = 0;
       autoSt = {};
       standing = false;
+      forgotSt = {};
+      forgotAsk = null;
     });
   });
 
@@ -1225,7 +1245,8 @@
       </div>
 
       {#if !rec.paused}<button type="button" class="lvf-lap" style:bottom="{padB + 12}px" onclick={newLap} aria-label={t('New lap')} data-live-lap><Flag size={20} aria-hidden="true" /><small>{lap?.n ?? 1}</small></button>{/if}
-      <PauseBar paused={rec.paused} auto={rec.auto} {standing} movingS={movingLive} pausedS={pausedLive} limit={autoKmh} bottom={padB + 12} onpause={() => pauseNow(false)} onresume={goOn} onstop={stop} />
+      <PauseBar paused={rec.paused} auto={rec.auto} {standing} movingS={movingLive} pausedS={pausedLive} limit={autoKmh} bottom={padB + 12} why={whyOf(rec.whys, rec.breaks.at(-1)?.[0])} eta={arr ? when(arr.eta) : ''} onwhy={(w) => setPauseWhy(w)} onpause={() => pauseNow(false)} onresume={goOn} onstop={stop} />
+      {#if forgotAsk && !rec.paused}<ForgotPause ask={forgotAsk} bottom={padB + 12} onanswer={answerForgot} />{/if}
       <button type="button" class="lvf-ic lvf-photo" class:lvf-hidden={snap === 'full' || dpIndex > 0} onclick={() => (place = true)} style:bottom="{padB + 70}px" aria-label={t('Photo or note with the place')} data-live-photo><Camera size={22} aria-hidden="true" /></button>
 
       <!-- Versteckte Funktionen (Noah 22.10.2026): the emergency window one tap away, not only in «⋯» -->
