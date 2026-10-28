@@ -1,6 +1,6 @@
 // E8 «Schalter Bewegung» (Noah 27.10.2026 «1a 2a 3a 4a 5a»): Ich › Darstellung › Bedienung › Bewegung sets how much
 // the app moves (Voll is the default and sets nothing); «Aus» stops the glide of the notes and stays after a reload.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import NEWS from '../../src/lib/news/bewegung-schalter.js';
 import DE from '../../src/lib/i18n/de/index.js';
 
