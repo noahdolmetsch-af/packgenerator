@@ -3,9 +3,9 @@ export default {
   title: 'Own calculations in Analyse',
   lead: 'Where Google gives nothing out, the app now counts its own: sleep score, restlessness in sleep and cardio load, always marked «eigene Rechnung».',
   points: [
-    { text: 'Sleep score 0–100 from duration, deep and REM sleep and calm', href: '#/auswerten/analyse' },
-    { text: 'Restlessness: minutes awake per hour of sleep', href: '#/auswerten/analyse' },
-    { text: 'Cardio load: minutes per pulse zone, weighted', href: '#/auswerten/analyse' },
+    { text: 'Sleep score 0–100 from duration, deep and REM sleep and calm', go: 'f.analyse' },
+    { text: 'Restlessness: minutes awake per hour of sleep', go: 'f.analyse' },
+    { text: 'Cardio load: minutes per pulse zone, weighted', go: 'f.analyse' },
   ],
   small: [],
   test: [
