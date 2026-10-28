@@ -14,7 +14,7 @@
  *   too, before a new ride starts (Noah 27.10.2026 «eine neue Live-Aufnahme überschreibt die vorherige»).
  * Plain module (no runes), tested in tests/live-saveride.test.js.
  */
-import { rideRowOf, bikeKmPlan, bikeEntryOf } from './after.js';
+import { rideRowOf, bikeKmPlan, bikeEntryOf, twinActivity } from './after.js';
 import { PACE_KEY, paceOf } from '../pace.js';
 import { plannedFor } from '../gpx.js';
 import { kmIntoDebrief } from '../ridelist.js';
@@ -36,7 +36,9 @@ export const isLiveRide = (r) => r?.source === 'live';
  */
 export async function saveLiveRide(db, ride, { trip = null, name = '', now = new Date() } = {}) {
   const pace = paceOf((await db.settings.get(PACE_KEY))?.value);
-  const draft = rideRowOf(ride, { trip, name, basis: { kmh: pace.kmh, climbMh: pace.climbMh }, now });
+  // a Strava/Garmin ride at the same time fills what the phone did not measure (Hm, pulse, power)
+  const twin = twinActivity(ride, await db.activities.toArray());
+  const draft = rideRowOf(ride, { trip, name, basis: { kmh: pace.kmh, climbMh: pace.climbMh }, twin, now });
   const row = { ...draft, plan: trip ? plannedFor(trip, draft.date, pace) : null };
   const old = await db.rides.get(row.id);
   const kept = old ? { ...row, name: old.name || row.name, answers: old.answers ?? {}, createdAt: old.createdAt ?? row.createdAt } : row;

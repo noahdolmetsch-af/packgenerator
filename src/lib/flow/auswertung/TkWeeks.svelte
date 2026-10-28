@@ -2,9 +2,16 @@
   /**
    * «Haken pro Woche» (Noah 20.10.2026, like «Leistungsbereiche als Balken» on the ride page): one bar
    * per week, stacked by ring (Bewegung, Achtsamkeit, Erholung), the count on top. Observation only.
+   * «Diagramme zum Antippen» (Noah 27.10.2026 «1-5 a»): a labelled axis, the exact numbers of a week when
+   * pointing at it, a tap opens the week with its days and ticks, «Als Tabelle» the same as rows.
    */
   import AnaCard from '../../training/AnaCard.svelte';
-  import { perWeek } from '../auswertung.js';
+  import BarChart from '../../charts/BarChart.svelte';
+  import ChartSheet from '../../charts/ChartSheet.svelte';
+  import TkSheet from './TkSheet.svelte';
+  import { perWeek, daysWith, inRange } from '../auswertung.js';
+  import { diffText } from '../../charts/pick.js';
+  import { addDays } from '../../flow.js';
   import { RING_WORDS, dayName } from './words.js';
   import { t, num } from '../../i18n.svelte.js';
 
@@ -14,25 +21,35 @@
   const weeks = $derived(perWeek(d.list, d.from, d.to, d.ringOf));
   // a year has 53 weeks: the bars stay readable, the labels only every few weeks
   const step = $derived(weeks.length > 26 ? 8 : weeks.length > 8 ? 4 : 1);
-  const most = $derived(Math.max(1, ...weeks.map((w) => w.n)));
   const rings = $derived(Object.keys(RING_WORDS).filter((r) => weeks.some((w) => w.rings[r] > 0)));
   const mean = $derived(weeks.length ? Math.round((weeks.reduce((s, w) => s + w.n, 0) / weeks.length) * 10) / 10 : 0);
   const aria = $derived(weeks.map((w) => `${dayName(w.mon)}: ${w.n}`).join(', '));
+  const range = (w) => `${dayName(w.mon)} – ${dayName(addDays(w.mon, 6))}`;
+  const cols = $derived(weeks.map((w, i) => ({ key: w.mon, x: i % step === 0 ? dayName(w.mon) : '', top: w.n ? num(w.n) : '', parts: rings.map((r) => ({ v: w.rings[r], color: RING_COLOUR[r] })) })));
+  const readout = (i) => ({
+    title: t('Week from {d}', { d: dayName(weeks[i].mon) }),
+    items: [{ label: t('Ticks'), value: num(weeks[i].n) }, ...(rings.length > 1 ? rings.map((r) => ({ label: t(RING_WORDS[r]), value: num(weeks[i].rings[r]), color: RING_COLOUR[r] })) : [])],
+  });
+  const table = $derived({
+    head: [t('Week from'), ...(rings.length > 1 ? rings.map((r) => t(RING_WORDS[r])) : []), t('Ticks')],
+    rows: [...weeks].reverse().map((w) => ({ key: w.mon, cells: [dayName(w.mon), ...(rings.length > 1 ? rings.map((r) => num(w.rings[r])) : []), num(w.n)] })),
+  });
+
+  let open = $state(null);
+  const wk = $derived(open == null ? null : weeks[open]);
+  const pills = $derived.by(() => {
+    if (!wk) return [];
+    const out = [];
+    if (open > 0) out.push({ text: t('{d} against the week before', { d: diffText(wk.n, weeks[open - 1].n, num) }) });
+    out.push({ text: t('Ø {n} a week in this period', { n: num(mean) }) });
+    for (const r of rings) if (wk.rings[r]) out.push({ text: `${t(RING_WORDS[r])} ${num(wk.rings[r])}` });
+    return out;
+  });
 </script>
 
 {#if weeks.some((w) => w.n > 0)}
   <AnaCard key="tkweeks" sub={t('Ticks')} wide>
-    <div class="bars num" class:many={weeks.length > 26} role="img" aria-label={t('Ticks per week: {list}', { list: aria })} style:grid-template-columns="repeat({weeks.length}, minmax(0, 1fr))">
-      {#each weeks as w, i (w.mon)}
-        <div class="col" data-week={w.mon}>
-          {#if weeks.length <= 26}<b>{w.n || ''}</b>{/if}
-          <span class="stack" style:height="{Math.max(w.n ? 3 : 0, (w.n / most) * 100)}px">
-            {#each rings as r (r)}{#if w.rings[r]}<i style:flex-grow={w.rings[r]} style:background={RING_COLOUR[r]}></i>{/if}{/each}
-          </span>
-          <small>{i % step === 0 ? dayName(w.mon) : ''}</small>
-        </div>
-      {/each}
-    </div>
+    <BarChart id="tkweeks" {cols} {readout} {table} onopen={(i) => (open = i)} label={t('Ticks per week: {list}', { list: aria })} hint={t('Point at a week for its numbers, tap it for its days.')} />
     {#if rings.length > 1}
       <ul class="lg">{#each rings as r (r)}<li><i style:background={RING_COLOUR[r]}></i>{t(RING_WORDS[r])}</li>{/each}</ul>
     {/if}
@@ -40,46 +57,13 @@
   </AnaCard>
 {/if}
 
+{#if wk}
+  <ChartSheet kicker={t('Ticks per week')} title={range(wk)} onclose={() => (open = null)} onprev={open > 0 ? () => open-- : null} onnext={open < weeks.length - 1 ? () => open++ : null} prevLabel={t('Week before')} nextLabel={t('Next week')}>
+    <TkSheet n={wk.n} {pills} days={daysWith(inRange(d.list, d.from, d.to), wk.mon, addDays(wk.mon, 6))} nameOf={d.nameOf} />
+  </ChartSheet>
+{/if}
+
 <style>
-  .bars {
-    display: grid;
-    gap: 4px;
-    height: 150px;
-    align-items: end;
-  }
-  .bars.many {
-    gap: 2px;
-  }
-  .col {
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
-    height: 100%;
-    min-width: 0;
-  }
-  .col b {
-    text-align: center;
-    font-size: var(--fs-tiny);
-    margin-bottom: 4px;
-  }
-  .stack {
-    display: flex;
-    flex-direction: column-reverse;
-    border-radius: 4px 4px 0 0;
-    overflow: hidden;
-  }
-  .stack i {
-    display: block;
-    flex-basis: 0;
-  }
-  .col small {
-    height: 1.4em;
-    margin-top: 6px;
-    color: var(--ink-3);
-    font-size: var(--fs-tiny);
-    white-space: nowrap;
-    overflow: visible;
-  }
   .lg {
     display: flex;
     flex-wrap: wrap;

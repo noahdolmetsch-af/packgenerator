@@ -2,7 +2,7 @@
 // fatigue, form, readiness 0–100, the recovery hint, tour readiness, the overview numbers.
 // Fictional data only.
 import { describe, it, expect } from 'vitest';
-import { loadOf, dayLoads, formSeries, recoveryParts, readiness, recoveryAlarm, tourOf, pastTours, RAMP_MAX } from '../src/lib/form.js';
+import { loadOf, dayLoads, formSeries, recoveryParts, readiness, recoveryAlarm, tourOf, pastTours, RAMP_MAX, shownForm, formWeeksOf, weekForm } from '../src/lib/form.js';
 import { formOf } from '../src/lib/form-data.js';
 import { dayTable } from '../src/lib/messwerte.js';
 import { focus, lastWeek, caloriesOf, stats, hrStats, kindsOf, windowOf, monthStart, kindDay } from '../src/lib/uebersicht.js';
@@ -234,5 +234,33 @@ describe('form: the line of the Wochenrückblick', () => {
     expect(weekForm(series, T)).toEqual({ fit: 29, form: -1, delta: 7 });
     expect(weekForm(series.map((s) => ({ ...s, load: 0 })), T)).toBeNull();
     expect(weekForm(series, '2020-01-01')).toBeNull();
+  });
+});
+
+// UI-Test 26.10.2026 T3 (G3-01): one calculation for Form, Training and the Wochenrückblick
+describe('one form for every page', () => {
+  const loads = new Map();
+  for (let i = 0; i < 200; i++) loads.set(add(T, -i), i % 3 ? 40 : 90);
+  it('the same day has the same numbers, whatever span a page shows', () => {
+    const short = formSeries(loads, add(T, -83), T).at(-1);
+    const long = formSeries(loads, add(T, -111), T).at(-1);
+    expect(long).toEqual(short);
+  });
+  it('the shown form is the shown fitness minus the shown Müdigkeit', () => {
+    expect(shownForm({ fit: 23.4, fat: 15.6, form: 7.8 })).toEqual({ fit: 23, fat: 16, form: 7 });
+    expect(shownForm(null)).toEqual({ fit: 0, fat: 0, form: 0 });
+  });
+  it('Training: one point per week from the same series; today is the page «Form»', () => {
+    const series = formSeries(loads, add(T, -111), T);
+    const mons = ['2026-10-12', '2026-10-19'];
+    const r = formWeeksOf(series, T, mons);
+    expect(r.weeks.map((w) => w.monday)).toEqual(mons);
+    expect(r.weeks[0]).toMatchObject(shownForm(series.find((s) => s.day === '2026-10-18')));
+    expect(r.now).toEqual(shownForm(formSeries(loads, add(T, -83), T).at(-1)));
+    expect(formWeeksOf([], T, mons)).toBeNull();
+  });
+  it('the Wochenrückblick rounds the same way', () => {
+    const series = formSeries(loads, add(T, -83), T);
+    expect(weekForm(series, T).form).toBe(shownForm(series.at(-1)).form);
   });
 });

@@ -13,6 +13,7 @@ import { quickRide, openNew, openNote, openData, openWear } from '../nav.js';
 import { localDay } from '../localday.js';
 import { t, lang, setLang } from '../i18n.svelte.js';
 import { countFeature } from './wasneuStore.js';
+import { SPOT, showSpot } from './spot.js';
 
 /** Count the function as used. v0.110.0 Design-Refresh P10 (I11c): and once more for «Your top 10» on this device. */
 export const tapFeature = (id) => (countFeature(id), updateTips(db, (s) => tapTip(s, id, localDay())));
@@ -57,4 +58,6 @@ export async function goFeature(f, { bikeId = null } = {}) {
   if (!href) return;
   if (location.hash === href) window.dispatchEvent(new HashChangeEvent('hashchange'));
   else location.hash = href;
+  // «332 sichtbar» c (Noah 27.10.2026): a function inside a window or a fold: go to the spot and light it up
+  if (SPOT[f.id]) showSpot(f.id);
 }
