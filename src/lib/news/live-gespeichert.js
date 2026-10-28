@@ -2,8 +2,8 @@
 export default {
   title: 'Clear where your ride is saved',
   lead: 'After a ride a card says it is saved in Trips, under which name and where. Open it or rename it right there.',
-  points: [{ text: 'Card «Saved in Trips» with the name, Open and Rename', href: '#/live' }],
-  small: [{ box: 'nicer', text: 'Rename the ride right after riding, with Undo' }],
+  points: [{ text: 'Card «Saved in Trips» with the name, Open and Rename', href: '#/live', go: 'f.live' }],
+  small: [{ box: 'nicer', text: 'Rename the ride right after riding, with Undo', go: 'f.live' }],
   test: ['Ride a few hundred metres and tap «Fahrt beenden» › «Beenden und speichern»: a green card «Gespeichert in Touren» with the name shows.', 'Tap «Umbenennen», type a new name, «Speichern»: the card shows the new name; «Öffnen» opens the ride.'],
   since: [],
   de: {
