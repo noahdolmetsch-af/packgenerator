@@ -2,10 +2,10 @@
 export default {
   title: 'Quick Links',
   lead: 'Your shortcuts in their own place in the bar.',
-  points: [{ text: 'Quick Links: 20 suggested pins in five groups, a tap takes you there', href: '#/quick' }],
+  points: [{ text: 'Quick Links: 20 suggested pins in five groups, a tap takes you there', href: '#/quick', go: 'f.quicklinks' }],
   small: [
-    { box: 'new', text: 'Add a pin from all functions, rename it, add a note, order with arrows or drag' },
-    { box: 'new', text: 'Own groups: add, rename, delete; phone and computer keep their own pins' },
+    { box: 'new', text: 'Add a pin from all functions, rename it, add a note, order with arrows or drag', go: 'f.quicklinks' },
+    { box: 'new', text: 'Own groups: add, rename, delete; phone and computer keep their own pins', go: 'f.quicklinks' },
   ],
   test: [
     'Tap «Quick Links» in the bar (on a computer: in the sidebar).',
