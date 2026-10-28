@@ -5,7 +5,7 @@
 // with milestones; «Data and backup» lives under Me. The tiles come from the app source (tiles.js).
 // Fictional data only (test_data_gtp_), the clock on Friday 9 October 2026 (Europe/Zurich), Open-Meteo
 // mocked; SHOTS=<folder> saves screenshots.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { D0, openHome, atHour, homeFixture } from './home0460-fixture.js';
 import { HN4, withWall } from './wall-fixture.js';
 import { READY, TILE, TILES, HELPER_TILES, isNew, tripUp } from '../../src/lib/home/tiles.js';

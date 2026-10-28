@@ -10,7 +10,7 @@
 // Today's counts live in tests/guard-baseline.json ("layout": route@width → rule → count). A test
 // fails only when a page gets MORE than its baseline. Update after a planned change (and say why in
 // the PR): GUARD_UPDATE=1 npx playwright test tests/e2e/guard.spec.js; node scripts/style-lint.mjs --merge-e2e
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { openHome } from './home0460-fixture.js';

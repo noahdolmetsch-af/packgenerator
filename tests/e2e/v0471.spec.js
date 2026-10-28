@@ -6,7 +6,7 @@
 // d) The forecast range stays as the forecast says (it was rounded to the nearest preset: 10–16 became 10–18),
 //    and the trip says where its range comes from.
 // SHOTS=<folder> saves screenshots (never into the repo).
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { v038Data, SPARK } from './v038-fixture.js';
