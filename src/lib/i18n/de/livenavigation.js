@@ -94,4 +94,10 @@ export default {
   'Show everything': 'Alles zeigen',
   'Hide everything': 'Alles ausblenden',
   'Hide': 'Ausblenden',
+  // Navigation zum Ziel 1 (Noah 27.10.2026 «2a»): only the way there first
+  'To {name}': 'Zum Ziel: {name}',
+  'Which way': 'Welcher Weg',
+  'Only there': 'Nur hin',
+  'There and back onto the route': 'Hin und zurück auf die Strecke',
+  'Choose a place: the app plans a bike way there. At the place it asks how you go back onto your route.': 'Wähle einen Ort: Die App plant einen Veloweg dorthin. Dort fragt sie, wie du zurück auf deine Strecke kommst.',
 };
