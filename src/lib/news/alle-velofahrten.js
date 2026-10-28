@@ -2,8 +2,8 @@
 export default {
   title: 'All bike rides',
   lead: 'The bike year goal counts every ride, as Today does.',
-  points: [{ text: 'Year goals: rides inside a bike\'s start km count too', href: '#/flow/sports' }],
-  small: [{ box: 'nicer', text: 'Under the goal: what is counted, and the Strava rides that wait for «OK»' }],
+  points: [{ text: 'Year goals: rides inside a bike\'s start km count too', href: '#/flow/sports', go: 'f.yeargoals' }],
+  small: [{ box: 'nicer', text: 'Under the goal: what is counted, and the Strava rides that wait for «OK»', go: 'f.yeargoals' }],
   test: ['Active › My sports › «Year goals»: the bike km count every ride; below it says what is counted.', 'Today: «This week» and «Bike this month» count the same rides.'],
   since: [],
   de: {
