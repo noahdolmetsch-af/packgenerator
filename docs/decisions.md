@@ -2001,3 +2001,5 @@ Noah 19.10.2026: «1a 2a 3a 4 a oder b beides wählbar 5a», danach «a und b»,
 ## 27.10.2026 Gewohnheiten oben auf Heute
 
 - Noah «1a 2a und b 3b»: die Karte oben auf Heute zeigt nicht mehr fest die Meditation, sondern bis zu drei gewählte Gewohnheiten (Aktivitäten aus Aktiv und Punkte aus «Das tut mir gut»); gewählt mit dem Stift auf der Karte und unter «Startseite anpassen». Ohne Wahl bleibt es die Meditation.
+## 28.10.2026 «Gut zu wissen» über die Suche ausblenden
+- «Gut zu wissen» = die Tipp-Zeile oben auf den Seiten (Velos, Packen, Aktiv …). Sie lässt sich über die Suche ausblenden («Gut zu wissen ausblenden», mit Rückgängig) und wieder einblenden («Tipps einblenden»). Gleicher Schalter wie Ich › Eigene Werte (Noah «b»).
