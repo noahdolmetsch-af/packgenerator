@@ -2,7 +2,7 @@
 // a webcam says what it is for, a birthday carries small steps, a person carries ideas for an invitation,
 // clothing gets repair jobs, a wish can be borrowed first. Fictional data only (test_data_gtp_), the clock on
 // Friday 9 October 2026 (home0460-fixture.js).
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { openHome, homeFixture, tr, day } from './home0460-fixture.js';
 
 const T = tr('de');

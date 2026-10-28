@@ -118,14 +118,30 @@ test('a) a ride with a power meter: stops, NP, best minutes, resting heart rate,
   await expect(ana.locator('[data-ana-normal]')).toBeVisible();
   await expect(ana.locator('[data-ana-dots] circle.me')).toHaveCount(1);
   // «Genaue Werte» (27.10.2026): both axes of the dots in round steps, a grid line at every step up
-  expectRound(await ana.locator('[data-ana-yt]').allTextContents());
+  const yt = await ana.locator('[data-ana-dots] [data-yticks] span').allTextContents();
+  expectRound(yt);
   expectRound(await ana.locator('[data-ana-xt]').allTextContents());
-  await expect(ana.locator('[data-ana-dots] [data-grid] line')).toHaveCount(await ana.locator('[data-ana-yt]').count());
+  await expect(ana.locator('[data-ana-dots] [data-grid] line')).toHaveCount(yt.length);
   await expect(ana.locator('[data-ana-corr]')).not.toBeEmpty();
   // the 20 minutes are no longer twice on the page
   await expect(page.locator('[data-tour-values] [data-field="w20"]')).toHaveCount(0);
   mkdirSync(SHOTS, { recursive: true });
   await ana.screenshot({ path: `${SHOTS}/A1-werte-${info.project.name === 'phone' ? 390 : 1440}.png` });
+  // «Diagramme zum Antippen» (27.10.2026): the line over the dots names this tour; few dots carry their number;
+  // a tap on another dot opens a window with its numbers and the way to that ride; «Als Tabelle» the same as rows
+  const dots = ana.locator('[data-ana-dots]');
+  await expect(dots.locator('[data-readout]')).toContainText(T('this tour'));
+  const nDots = await dots.locator('circle').count();
+  await expect(dots.locator('[data-ana-lab]')).toHaveCount(nDots);
+  await dots.locator('circle:not(.me)').first().click();
+  const sheet = page.locator('[data-chart-sheet]');
+  await expect(sheet.locator('[data-ana-sheet] dd')).toHaveCount(2);
+  await expect(sheet.locator('[data-ana-open]')).toHaveAttribute('href', /#\/tour\//);
+  await sheet.screenshot({ path: `${SHOTS}/A2-punkt-${info.project.name === 'phone' ? 390 : 1440}.png` });
+  await sheet.getByRole('button', { name: T('Close') }).click();
+  await expect(sheet).toHaveCount(0);
+  await dots.getByText(T('As table'), { exact: true }).click();
+  await expect(dots.locator('[data-chart-table] tbody tr')).toHaveCount(nDots);
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(page.viewportSize().width);
   expect(errors).toEqual([]);
 });
@@ -162,11 +178,17 @@ test('c) like komoot: the profile by gradient with ascent, descent, highest and 
   await page.mouse.down();
   await page.mouse.move(box.x + box.width * 0.6, box.y + box.height / 2, { steps: 5 });
   await page.mouse.up();
-  await expect(speed.locator('.tc-hint')).toContainText('km/h');
+  // «Diagramme zum Antippen» (28.10.2026): the line over the chart names the stretch with its exact Ø speed
+  await expect(speed.locator('[data-readout]')).toContainText('km/h');
+  await expect(speed.locator('[data-readout]')).toContainText(T('Ø speed'));
   mkdirSync(SHOTS, { recursive: true });
   const w = info.project.name === 'phone' ? 390 : 1440;
   await course.screenshot({ path: `${SHOTS}/C1-hoehenprofil-${w}.png` });
   await speed.screenshot({ path: `${SHOTS}/C2-tempo-${w}.png` });
+  // «Als Tabelle»: the Ø speed of every round time step, the same steps as the axis under the chart
+  await speed.getByText(T('As table'), { exact: true }).click();
+  await expect(speed.locator('[data-chart-table] tbody tr').first()).toContainText('0:00');
+  expect(await speed.locator('[data-chart-table] tbody tr').count()).toBeGreaterThanOrEqual(2);
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(page.viewportSize().width);
   expect(errors).toEqual([]);
 });

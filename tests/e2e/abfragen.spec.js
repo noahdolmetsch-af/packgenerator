@@ -6,7 +6,7 @@
 // AB3     the card on Heute with what is due (a battery 1–10, the weight with «zuletzt»), «Speichern» and
 //         «Jetzt nicht»; since Noah 19.10.2026 its own window (Morgen-Check) with «Später» and «Heute nicht»;
 // AB4     Ich › Daten › Verlauf: the answers and an old daily check, filter by area and source, change an answer.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { viaTab } from './placetab.js'; // UI-Ziele #6: the pages that were rows under Ich are tabs now
 import { mkdirSync } from 'node:fs';
 import { openHome, homeFixture, D0, day } from './home0460-fixture.js';

@@ -18,6 +18,9 @@
   import { niceScale, MINUTE_STEPS } from '../../charts/axis.js';
   import GridLines from '../../charts/GridLines.svelte';
   import YTicks from '../../charts/YTicks.svelte';
+  import Readout from '../../charts/Readout.svelte';
+  import DataTable from '../../charts/DataTable.svelte';
+  import Seg from '../../ui/Seg.svelte';
 
   /** acts: the activities of the tour; trip: the trip (for its GPX route); moving, elapsed in seconds; onkm(share 0…1 | null). */
   let { acts = [], trip = null, moving = null, elapsed = null, onkm = null } = $props();
@@ -91,6 +94,25 @@
   const speedAt = (m) => (sp ? sp.pts.reduce((b, p) => (Math.abs(p[0] - m) < Math.abs(b[0] - m) ? p : b), sp.pts[0])[1] : null);
   const selStats = $derived(sel ? speedIn(sp, sel.a, sel.b) : null);
   const avg = $derived(sp ? speedIn(sp, 0, sp.end)?.kmh : null);
+
+  // «Diagramme zum Antippen» (Noah 27.10.2026): the exact numbers in one line over the chart, the same as rows
+  const readout = $derived.by(() => {
+    if (!sp) return null;
+    if (selStats) return { title: t('{a} to {b} h', { a: hm(sel.a), b: hm(sel.b) }), items: [{ label: t('Ø speed'), value: `${num(selStats.kmh, 1)} km/h` }, { label: t('Duration'), value: `${hm(selStats.min)} h` }] };
+    if (at != null) return { title: `${hm(at)} h`, items: [{ label: t('Speed|komoot'), value: `${num(speedAt(at), 1)} km/h` }] };
+    return { title: t('Whole ride'), items: [{ label: t('Ø speed'), value: `${num(avg, 1)} km/h` }, { label: t('Moving time'), value: secs(moving) }] };
+  });
+  let spView = $state('chart');
+  const table = $derived.by(() => {
+    if (!sp) return null;
+    const st = tSc.step;
+    const rows = [];
+    for (let m = 0; m < sp.end; m += st) {
+      const b = Math.min(sp.end, m + st);
+      rows.push({ key: String(m), cells: [`${hm(m)}–${hm(b)} h`, num(speedIn(sp, m, b)?.kmh, 1)] });
+    }
+    return { head: [t('Time'), t('Ø km/h')], rows };
+  });
 </script>
 
 {#if course}
@@ -110,9 +132,11 @@
 {#if sp}
   <div class="tc" data-tour-speed>
     <h3 class="tc-h">{t('Speed profile')}</h3>
-    <p class="tc-hint" aria-live="polite">
-      {#if selStats}{t('{a} to {b} h: Ø {v} km/h over {t}', { a: hm(sel.a), b: hm(sel.b), v: num(selStats.kmh, 1), t: hm(selStats.min) })}{:else if at != null}{t('{a} h: {v} km/h', { a: hm(at), v: num(speedAt(at), 1) })}{:else}{t('Tap or drag over the profile to see the numbers of a stretch.')}{/if}
-    </p>
+    <div class="tc-vw"><Seg small full={false} label={t('Show as')} value={spView} onchange={(v) => (spView = v)} options={[{ key: 'chart', name: t('Chart|table') }, { key: 'table', name: t('As table') }]} /></div>
+    {#if spView === 'table'}
+    <DataTable head={table.head} rows={table.rows} limit={24} />
+    {:else}
+    <Readout title={readout.title} items={readout.items} />
     <div class="tc-plot">
     <YTicks ticks={sc.ticks} y={Y} h={H} text={(v) => num(v, 0)} unit="km/h" />
     <div class="tc-box">
@@ -128,6 +152,8 @@
     </div>
     <div class="tc-x" aria-hidden="true">{#each xTicks as g, i (g.m)}<span class="tick x" class:first={i === 0} class:last={i === xTicks.length - 1} style:left="{(g.x / W) * 100}%">{hm(g.m)}</span>{/each}</div>
     </div>
+    <p class="tc-hint">{t('Tap or drag over the profile to see the numbers of a stretch.')}</p>
+    {/if}
     <dl class="tc-sum">
       <div><dt>{t('Speed|komoot')}</dt><dd class="num">{num(avg, 1)} km/h</dd></div>
       <div><dt>{t('Moving time')}</dt><dd class="num">{secs(moving)}</dd></div>
@@ -154,6 +180,10 @@
     margin: 0;
     color: var(--ink-2);
     font-size: var(--fs-small);
+  }
+  .tc-vw {
+    display: flex;
+    justify-content: flex-end;
   }
   .tc-sum {
     display: grid;

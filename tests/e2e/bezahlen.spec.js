@@ -1,7 +1,7 @@
 // Ich › Bezahlen (mockups BZ1 + BZ2b, Noah 14.10.2026 «1a 2b», «bz freigeben»): the row under Ich ›
 // The app opens #/me/pay; the page shows the note on top, one card per idea, the prepared parts, the
 // costs and what is missing, in German, without sideways scrolling. Lists are read from the app source.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { tr } from './home0460-fixture.js';
 import { ready } from './settle.js';
 import { USE_CASES, PREPARED, MISSING } from '../../src/lib/pay/info.js';

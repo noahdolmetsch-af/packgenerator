@@ -3,7 +3,7 @@
 // language of the place, the power nap timer, the boxes switched off and on, a list of places to sleep
 // loaded from a GPX file (fictional, test_data_gtp_) and shown as «From a list», then deleted with Undo.
 // Every outside request is blocked (openHome); nothing scrolls sideways on the phone.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { openHome } from './home0460-fixture.js';
 
 const phone = (info) => info.project.name === 'phone';

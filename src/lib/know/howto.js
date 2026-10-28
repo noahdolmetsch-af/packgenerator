@@ -259,6 +259,7 @@ export const HOWTO = {
   'f.powernap': ['Open a race › «Race mode».', 'Tap «20 min» under «Power nap».', 'Tap «I am awake» when it rings.'],
   'f.sleeplists': ['Open a race › «Along the route».', 'Under «Places to sleep from lists» choose a file or paste a link.', 'Look for them under «From a list» in race mode.'],
   'f.nightswx': ['Open a race › «Along the route».', 'Tap «Load the weather».', 'Read «Nights by the weather».'],
+  'f.racecheck': ['Open Trips › «Plan races in detail».', 'Tap a race.', 'Fill in the sheets 1 to 5; «Load answers» takes a file from the fillable sheets page.'],
   'f.racesample': ['Open Trips › Races.', 'Tap «See the sample race».', 'Do the tasks in «Plan»; «Reset the sample» makes it new.'],
   'f.skiequipment': ['Open Velos › Ausrüstung.', 'Add a piece from Material and choose its sport.', 'Log a use or tick off its care when it is due.'],
   'f.gipfelbuch': ['Open Aktiv › Aktivität › «Summit book».', 'Confirm a top found in your rides or enter a place by hand.', 'Tap a place to see its visits and stars.'],
