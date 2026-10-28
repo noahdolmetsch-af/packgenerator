@@ -260,6 +260,8 @@ test('Live map: a trip without a route starts without the old GPX, which is only
   // no route: the old GPX is only offered
   await expect(box.locator('[data-live-route-rename]')).toHaveCount(0);
   await expect(box.locator('[data-live-route-last]')).toContainText('test_data_gtp_ Alte Runde');
+  await box.scrollIntoViewIfNeeded();
+  await page.screenshot({ path: info.outputPath('gpx-angebot.png') });
   await tap(box.locator('[data-live-route-reuse]'), info);
   await expect(box.locator('[data-live-route-rename]')).toBeVisible();
   await expect(box.locator('[data-live-route-last]')).toHaveCount(0);
