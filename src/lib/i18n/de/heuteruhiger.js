@@ -3,10 +3,13 @@
 import gewohnheiten from './gewohnheiten.js';
 // «Gut zu wissen» über die Suche ausblenden (Noah 28.10.2026 «b»), same reason
 import gutzuwissen from './gutzuwissen.js';
+// «VO2max auf Heute» (Noah 28.10.2026 «2 a und b»), same reason
+import vo2heute from './vo2heute.js';
 
 export default {
   ...gewohnheiten,
   ...gutzuwissen,
+  ...vo2heute,
   'Now|home': 'Jetzt',
   'What is up today': 'Was heute ansteht',
   'Your body|home': 'Dein Körper',

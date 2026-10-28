@@ -7,7 +7,7 @@
 // SHOTS=<folder> saves full-page screenshots (light) of the morning, the day and the day before a trip.
 import { test, expect } from './clock.js';
 import { homeFixture, openHome, D0, atHour } from './home0460-fixture.js';
-import { READY, REMOVED_0155, HEAD_0155, HELPER_TILES, tripUp } from '../../src/lib/home/tiles.js';
+import { READY, REMOVED_0155, HEAD_0155, HELPER_TILES, VALUE_TILES, tripUp } from '../../src/lib/home/tiles.js';
 import { HN4, withWall } from './wall-fixture.js';
 import { inAreas } from '../../src/lib/home/sections.js';
 
@@ -166,7 +166,7 @@ test('a stored wall of before (v 4) gets the new order once; Try it of a wide Ne
   await openHome(page, context, info, { data, hour: 13 });
   // Tages-Check back: «Deine 15 Fragen» after the balance; Routine «Das tut mir gut»: the routine once, under the tiles on top
   // «Heute neu» A (homeWall v 9, changed on purpose): every wall stored before becomes the new ready wall once
-  await expect.poll(() => order(page)).toEqual(areaOrder(atHour(tripUp(READY.filter((x) => !HELPER_TILES.includes(x.id)), false), 13)).map((x) => x.id));
+  await expect.poll(() => order(page)).toEqual(areaOrder(atHour(tripUp(READY.filter((x) => !HELPER_TILES.includes(x.id) && !VALUE_TILES.includes(x.id)), false), 13)).map((x) => x.id));
   // put «New» wide on a wall of the user (as it was) and check its button stays inside the tile at 390 px too
   const v5 = { v: 11, tiles: HN4().map((x) => (x.id === 'news' ? { ...x, size: 'w' } : x)) };
   await page.evaluate(async (value) => {
