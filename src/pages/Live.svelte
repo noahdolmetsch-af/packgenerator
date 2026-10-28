@@ -37,7 +37,7 @@
   import PoiDetail from '../lib/map/PoiDetail.svelte';
   import WxTimeline from '../lib/map/WxTimeline.svelte';
   import LiveRouteBox from '../lib/live/LiveRouteBox.svelte';
-  import { liveRouteQuery } from '../lib/live/liveroute.js';
+  import { liveRouteQuery, liveRouteFor } from '../lib/live/liveroute.js';
   import OfflineBox from '../lib/map/OfflineBox.svelte';
   import { reserveOf } from '../lib/map/offline.js';
   import SortArrows from '../lib/ui/SortArrows.svelte';
@@ -58,7 +58,7 @@
   import { localDay as todayLocal } from '../lib/localday.js';
   import SosSheet from '../lib/live/SosSheet.svelte';
   import RerouteSheet from '../lib/live/RerouteSheet.svelte';
-  import { onDetour, detourDone, detourGpx, saveDetour, loadDetour, DETOUR_COLOUR, atPlace, returnDetour, backDetour, backtrackOf, planReturn, returnModeStd, shouldReroute, OFF_ROUTE_M } from '../lib/reroute.js';
+  import { snapAhead, onDetour, detourDone, detourGpx, saveDetour, loadDetour, DETOUR_COLOUR, atPlace, returnDetour, backDetour, backtrackOf, planReturn, returnModeStd, shouldReroute, OFF_ROUTE_M } from '../lib/reroute.js';
   import { saveGpx } from '../lib/gpxout.js';
   import { LANDI_RADAR } from '../lib/wetter/kern.js';
   import LiveWetter from '../lib/live/LiveWetter.svelte';
@@ -68,8 +68,10 @@
   import LiveWebcam from '../lib/live/LiveWebcam.svelte';
   import { camsQuery, camsOnMap, camOfPoint } from '../lib/wetter/webcamsmap.js';
   import { db } from '../lib/db.js';
-  import { rec, startRecording, stopRecording, openRecording, pauseRecording, resumeRecording, addSensor, setGpsLow, lapRecording } from '../lib/spur/recorder.svelte.js';
+  import { rec, startRecording, stopRecording, openRecording, pauseRecording, resumeRecording, addSensor, setGpsLow, lapRecording, setPauseWhy, addPastPause } from '../lib/spur/recorder.svelte.js';
   import PauseBar from '../lib/live/PauseBar.svelte';
+  import ForgotPause from '../lib/tourenc/ForgotPause.svelte'; // Touren c 61
+  import { forgotStep, whyOf } from '../lib/tourenc/pausewhy.js'; // Touren c 60/61
   import TurnHint from '../lib/live/TurnHint.svelte';
   import { turnsOf, nextTurn, turnSay } from '../lib/live/turns.js';
   import { lapNow, lapsOf, ghostOf, ghostDelta, lastRideOf, deltaText } from '../lib/live/laps.js';
@@ -139,13 +141,15 @@
   const stored = $derived(($racesQ ?? {})[tid] ?? null);
   const isRace = $derived(!!trip && !!stored);
   const race = $derived(isRace ? raceOf(stored, trip) : null);
-  // a GPX opened on the live map (LiveRouteBox, settings 'live-route') when the ride has no route of its own
+  // a GPX opened on the live map (LiveRouteBox, settings 'live-route') when the ride has no route of its own;
+  // only the GPX opened for this very ride counts (Noah 28.10.2026: a new trip without a route had an old GPX)
   const liveQ = liveRouteQuery(db.settings);
-  const route = $derived(withSampleFine(stored)?.route ?? trip?.route ?? (!isRace ? $liveQ : null) ?? null);
+  const liveRoute = $derived(liveRouteFor($liveQ, tid));
+  const route = $derived(withSampleFine(stored)?.route ?? trip?.route ?? (!isRace ? liveRoute : null) ?? null);
   const pts = $derived(lineKm(route));
   const profile = $derived(route?.profile ?? []);
   const hasRoute = $derived(pts.length > 1);
-  const routeName = $derived(trip?.title ?? $liveQ?.name ?? '');
+  const routeName = $derived(trip?.title ?? liveRoute?.name ?? '');
   const osm = $derived($osmQ?.data ?? []);
   const around = $derived($aroundQ?.data?.list ?? []);
   const pois = $derived((hasRoute ? mergePois(Array.isArray(stored?.pois) ? stored.pois : [], osm) : around).filter((p) => Number.isFinite(Number(p.lat)) && Number.isFinite(Number(p.lon))));
@@ -283,7 +287,15 @@
   const climb = $derived(km != null ? nextClimb(climbs, km) : null);
   // Abbiege-Hinweise (turns.js): the turns of the route, once; the next one while you are on the route
   const turns = $derived(hasRoute ? turnsOf(pts) : []);
-  const turnNext = $derived(cfg.turns && at && at.offM < 100 ? nextTurn(turns, at.kmx ?? at.km) : null);
+  // Navigation zum Ziel 2 (Noah 27.10.2026 «1a»): on the way to a goal the turns come from that way, always shown
+  const detourPts = $derived(detour?.line?.length > 1 ? lineKm({ line: detour.line }) : []);
+  const detourTurns = $derived(detourPts.length ? turnsOf(detourPts) : []);
+  const detourKm = $derived(detourPts.length && me && onDetour(detour, me) ? (snapAhead(detourPts, me, 0)?.km ?? null) : null);
+  const navTurns = $derived(detourKm != null ? detourTurns : turns);
+  const navKm = $derived(detourKm != null ? detourKm : cfg.turns && at && at.offM < 100 ? (at.kmx ?? at.km) : null);
+  const turnNext = $derived(navKm != null ? nextTurn(navTurns, navKm) : null);
+  // the turn after it, for «danach …» under the big arrow
+  const turnThen = $derived(turnNext ? nextTurn(navTurns, turnNext.km + 0.06) : null);
   const running = $derived(planRunning(plan, now));
   const delta = $derived(running && km != null ? planDelta(plan, km, now) : null);
   const bed = $derived(km != null && (isRace || pois.some((p) => p.kind === 'sleep')) ? bedTonight({ plan: running ? plan : null, pois, km, now, pace, profile, light }) : null);
@@ -431,6 +443,14 @@
   let autoSt = {};
   let standSince = null;
   let standing = $state(false);
+  // Touren c 61: a long standing time without «Pause» → ask afterwards what it was
+  let forgotSt = {};
+  let forgotAsk = $state(null);
+  async function answerForgot(why) {
+    const a = forgotAsk;
+    forgotAsk = null;
+    if (a && why) await addPastPause(a.from, a.to, why);
+  }
   let gainSt = $state({ base: null, gain: 0 });
   let maxKmh = $state(0);
   let hrSt = {};
@@ -467,6 +487,12 @@
       if (r.act === 'pause') pauseNow(true);
       if (r.act === 'resume') goOn();
     }
+    // Touren c 61: only without the auto-pause (that one pauses by itself)
+    if (rec.on && !cfg.autoPause) {
+      const f = forgotStep(forgotSt, { kmh: kmhNow, now, paused: rec.paused });
+      forgotSt = f.st;
+      if (f.ask) forgotAsk = f.ask;
+    }
     // the hint: standing a minute without a pause
     if (!rec.paused && !cfg.autoPause && Number.isFinite(kmhNow) && kmhNow < 2) {
       standSince ??= now;
@@ -497,6 +523,8 @@
       maxKmh = 0;
       autoSt = {};
       standing = false;
+      forgotSt = {};
+      forgotAsk = null;
     });
   });
 
@@ -1153,7 +1181,7 @@
 
       <!-- warnings over the map -->
       <div class="lvf-alerts">
-        {#if turnNext && turnNext.distM <= 1000}<div class="lvf-turn" data-live-turn><TurnHint turn={turnNext} distM={turnNext.distM} /></div>{/if}
+        {#if turnNext && (detourKm != null || turnNext.distM <= 1000)}<div class="lvf-turn" data-live-turn><TurnHint turn={turnNext} distM={turnNext.distM} then={turnThen} thenM={turnThen ? Math.round((turnThen.km - turnNext.km) * 1000) : null} /></div>{/if}
         {#if !me}<p class="lvf-alert" role="status">{t('Waiting for the GPS …')}</p>{/if}
         {#if goalTapping}<p class="lvf-alert" role="status" data-live-goal-hint><Flag size={18} aria-hidden="true" /><span>{t('Tap the map where you want to go.')}</span> <button type="button" class="btn sm" onclick={() => (goalTapping = false)}>{t('Cancel')}</button></p>{/if}
         {#if resumed}<p class="lvf-alert" role="status" data-live-resumed-full><RefreshCw size={18} aria-hidden="true" /><span>{t('The app had loaded anew: your ride goes on.')}</span> <button type="button" class="btn sm" onclick={() => (resumed = false)}>{t('OK')}</button></p>{/if}
@@ -1189,8 +1217,6 @@
                   <span><button type="button" class="btn sm primary" onclick={planBack} disabled={backBusy || !me} data-live-return-go>{backBusy ? t('Planning…') : t('Plan the way back')}</button></span>
                   {#if backErr}<small class="lv-back-err" role="alert" data-live-return-error>{backErr}</small>{/if}
                 </span>
-              {:else if detour.back !== 'auto'}
-                <span><button type="button" class="btn sm" onclick={detourToGarmin} data-live-detour-garmin>{t('GPX for Garmin')}</button></span>
               {/if}
               {#if gpxMsg}<small data-live-detour-gpx>{gpxMsg}</small>{/if}
             </span>
@@ -1202,7 +1228,8 @@
       </div>
 
       {#if !rec.paused}<button type="button" class="lvf-lap" style:bottom="{padB + 12}px" onclick={newLap} aria-label={t('New lap')} data-live-lap><Flag size={20} aria-hidden="true" /><small>{lap?.n ?? 1}</small></button>{/if}
-      <PauseBar paused={rec.paused} auto={rec.auto} {standing} movingS={movingLive} pausedS={pausedLive} limit={autoKmh} bottom={padB + 12} onpause={() => pauseNow(false)} onresume={goOn} onstop={stop} />
+      <PauseBar paused={rec.paused} auto={rec.auto} {standing} movingS={movingLive} pausedS={pausedLive} limit={autoKmh} bottom={padB + 12} why={whyOf(rec.whys, rec.breaks.at(-1)?.[0])} eta={arr ? when(arr.eta) : ''} onwhy={(w) => setPauseWhy(w)} onpause={() => pauseNow(false)} onresume={goOn} onstop={stop} />
+      {#if forgotAsk && !rec.paused}<ForgotPause ask={forgotAsk} bottom={padB + 12} onanswer={answerForgot} />{/if}
       <button type="button" class="lvf-ic lvf-photo" class:lvf-hidden={snap === 'full' || dpIndex > 0} onclick={() => (place = true)} style:bottom="{padB + 70}px" aria-label={t('Photo or note with the place')} data-live-photo><Camera size={22} aria-hidden="true" /></button>
 
       <!-- Versteckte Funktionen (Noah 22.10.2026): the emergency window one tap away, not only in «⋯» -->
@@ -1222,6 +1249,8 @@
           <button type="button" class="btn lvf-sos" onclick={() => ((menu = false), (sos = true))} data-live-sos><LifeBuoy size={20} aria-hidden="true" />{t('Emergency')} · SOS</button>
           <a class="btn" href={LANDI_RADAR} target="_blank" rel="noopener noreferrer" data-landi><CloudRain size={18} aria-hidden="true" />{t('Landi rain radar')}</a>
           <button type="button" class="btn" onclick={() => ((menu = false), (picked = null), (reroute = true))} data-live-reroute><Route size={18} aria-hidden="true" />{t('Plan a new way to …')}</button>
+          <!-- Navigation zum Ziel 2: the card on the map stays small, the GPX of the way lives here -->
+          {#if detour && detour.back !== 'auto'}<button type="button" class="btn" onclick={() => ((menu = false), detourToGarmin())} data-live-detour-garmin><Route size={18} aria-hidden="true" />{t('GPX for Garmin')}</button>{/if}
           <button type="button" class="btn" onclick={() => ((menu = false), (place = true))} data-live-place><MapPin size={18} aria-hidden="true" />{t('I am here')}</button>
           <div class="lv-dictation" data-live-dictation-slot>
             {#if DICTATION}
