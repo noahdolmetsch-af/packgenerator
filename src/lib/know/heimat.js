@@ -153,6 +153,7 @@ export const HOME = {
   'f.packphoto': '#/me/tools',
   'f.wxwatch': '#/me/push',
   'f.morningpush': '#/me/push',
+  'f.remindtime': '#/me/push',
   'f.tourhints': '#/pack',
   'f.fuel': '#/trips',
   'f.routepois': '#/pack',
