@@ -21,6 +21,7 @@
   import { dayLoads, formSeries, shownForm } from '../../form.js';
   import { addDays } from '../../health.js';
   import { SPANS, SPAN_DEFAULT, rhrNormal, dateMarks, peakOf } from './zeitraum.js';
+  import { tripsIn } from './tourtage.js';
   import { dm } from '../garmin/words.js';
   import { t, num, locale } from '../../i18n.svelte.js';
 
@@ -80,6 +81,13 @@
     return null;
   });
 
+  // K4: the tours of the span as light bands behind the lines, and in the window of a day
+  const bands = $derived.by(() => {
+    if (!n) return [];
+    const at = new Map(pts.map((p, i) => [p.day, i]));
+    return tripsIn(f.trips ?? [], pts[0].day, pts[n - 1].day).map((b) => ({ ...b, i0: b.s < pts[0].day ? 0 : at.get(b.s), i1: b.e > pts[n - 1].day ? n - 1 : at.get(b.e) }));
+  });
+  const tourOn = (day) => bands.find((b) => b.s <= day && day <= b.e) ?? null;
   const signed = (v) => (v > 0 ? `+${num(v)}` : v < 0 ? `−${num(-v)}` : num(0));
   const longDay = (d) => new Date(`${d}T12:00:00Z`).toLocaleDateString(locale(), { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC' });
   const shownSel = $derived(sel ?? (n ? n - 1 : null));
@@ -163,6 +171,7 @@
           <YTicks ticks={scA.ticks} y={yA} h={100} text={(v) => tickText(v, scA.step, num)} width={40} />
           <div class="p pa" onpointermove={move} onpointerdown={move} onpointerleave={leave} onclick={tap} role="presentation">
             <svg viewBox="0 0 {W} 100" preserveAspectRatio="none" class="lines" aria-hidden="true">
+              {#each bands as b (b.trip.id ?? b.s)}<rect class="tb" x={b.i0 * 10} width={(b.i1 - b.i0 + 1) * 10} y="0" height="100" data-tour-band />{/each}
               <GridLines ticks={scA.ticks} y={yA} x1={0} x2={W} />
               {#if sel != null}<line class="cur" x1={X(sel)} x2={X(sel)} y1="0" y2="100" />{/if}
               {#if on.fit}<path d={line('fit', yA)} class="fit" />{/if}
@@ -223,6 +232,7 @@
       <div><dt><i style:background={od.form < 0 ? 'var(--bad)' : 'var(--ok)'}></i>{t('Form|form')}</dt><dd class="num">{signed(od.form)} <small>{od.form < 0 ? t('rather tired') : t('rather fresh')}</small></dd></div>
       <div><dt><i style:background="var(--bad)"></i>{t('Resting pulse')}</dt><dd class="num">{od.rhr != null ? `${num(od.rhr)} bpm` : '–'} <small>{rhrWord(od.rhr)}</small></dd></div>
       <div><dt>{t('Load|day')}</dt><dd class="num">{num(Math.round(od.load ?? 0))}</dd></div>
+      {#if tourOn(od.day)}{@const tb = tourOn(od.day)}<div data-sheet-tour><dt>{t('Tour')}</dt><dd>{tb.trip.title || t('Tour')}</dd></div>{/if}
     </dl>
     <p class="sh">{t('Activities|day')}</p>
     {#if acts.length}
@@ -347,6 +357,10 @@
   }
   .band {
     fill: var(--paper-2);
+  }
+  .tb {
+    fill: var(--hi-soft, var(--paper-2));
+    opacity: 0.6;
   }
   .cur {
     stroke: var(--ink-2);

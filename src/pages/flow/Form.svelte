@@ -14,11 +14,12 @@
   import Sec from '../../lib/flow/kit/Sec.svelte';
   import FormVerlauf from '../../lib/flow/form/FormVerlauf.svelte';
   import FormTeile from '../../lib/flow/form/FormTeile.svelte';
+  import FormTour from '../../lib/flow/form/FormTour.svelte';
   import { formQuery } from '../../lib/form-data.js';
   import { RAMP_MAX, FIT_DAYS, FAT_DAYS, shownForm } from '../../lib/form.js';
   import { levelWord, levelLine, tourText } from '../../lib/flow/form/words.js';
   import { localDay } from '../../lib/localday.js';
-  import { t, num, locale } from '../../lib/i18n.svelte.js';
+  import { t, num } from '../../lib/i18n.svelte.js';
   import { strava, STRAVA_HASH } from '../../lib/strava/client.svelte.js';
   import { suggest, watchSuggest } from '../../lib/clear/suggest.svelte.js'; // Einzelidee 36: «Performance tips» can be off
   watchSuggest();
@@ -32,10 +33,6 @@
   const shown = $derived(shownForm(s.at(-1)));
   const rows = $derived(r ? [...r.parts, ...(r.formPts != null ? [{ key: 'form', v: r.form, delta: r.form, points: r.formPts }] : [])] : []);
 
-  const wd = (d) => new Date(`${d}T00:00:00Z`).toLocaleDateString(locale(), { weekday: 'short', day: 'numeric', month: 'numeric', timeZone: 'UTC' });
-  const last7 = $derived(Array.from({ length: 7 }, (_, i) => f?.table.get(s[s.length - 7 + i]?.day)?.rhr ?? null));
-  const tourMax = (days) => Math.max(1, ...days.map((d) => d.rhr ?? 0));
-  const tourMin = (days) => Math.min(...days.map((d) => d.rhr ?? 999)) - 4;
 </script>
 
 <div class="fp">
@@ -86,25 +83,10 @@
       <div class="card tour" data-form-tours>
         {#if f.tour}
           <p class="tl" data-tour-now><Mountain size={18} aria-hidden="true" /><span>{tourText(f.tour)}</span></p>
-          {@const mx = tourMax(f.tour.days)}
-          {@const mn = tourMin(f.tour.days)}
-          {#if f.tour.phase === 'before'}<p class="ph2" data-tour-before>{t('Resting pulse of the last 7 days: {list}', { list: last7.map((v) => v ?? '–').join(' · ') })}</p>{/if}
-          <ul class="td">
-            {#each f.tour.days as d, i (d.day)}
-              <li class:fut={d.future}><span class="num">{d.rhr ?? '–'}</span><span class="col"><i style="height:{d.rhr ? Math.max(8, Math.round(((d.rhr - mn) / (mx - mn)) * 100)) : 0}%"></i></span><small>{t('Day {n}', { n: i + 1 })}</small></li>
-            {/each}
-          </ul>
         {/if}
-        {#if f.past.length}
-          <p class="ph2">{t('Your last tours: resting pulse per day')}</p>
-          <ul class="past">
-            {#each f.past as p (p.trip.id)}
-              <li data-past-tour>
-                <b>{p.trip.title || t('Tour')}</b><small>{wd(p.days[0].day)}</small>
-                <span class="num">{p.days.map((d) => d.rhr ?? '–').join(' · ')}</span>
-              </li>
-            {/each}
-          </ul>
+        {#if f.tour || f.past.length}
+          <!-- «Diagramme zum Antippen» K4 (Noah 27.10.2026 «1-5 a»): one chart, day 1 = tour start, earlier tours on top -->
+          <FormTour {f} {today} />
         {/if}
         {#if !f.tour && !f.past.length}
           <p class="wait">{t('No tour in the next 7 days. When one comes, its days show here, with your resting pulse per tour day.')}</p>
@@ -183,62 +165,6 @@
   .tl :global(svg) {
     flex: none;
     color: var(--hi);
-  }
-  .td {
-    display: flex;
-    gap: 8px;
-    margin: 0;
-    padding: 0;
-    overflow-x: auto;
-    list-style: none;
-  }
-  .td li {
-    display: grid;
-    flex: 0 0 48px;
-    justify-items: center;
-    gap: 3px;
-    font-size: var(--fs-tiny);
-  }
-  .td .col {
-    display: flex;
-    align-items: flex-end;
-    width: 18px;
-    height: 60px;
-  }
-  .td .col i {
-    display: block;
-    width: 100%;
-    border-radius: 4px 4px 0 0;
-    background: var(--bad);
-  }
-  .td li.fut {
-    color: var(--ink-3);
-  }
-  .ph2 {
-    margin: 6px 0 0;
-    color: var(--ink-2);
-    font-size: var(--fs-small);
-  }
-  .past {
-    display: grid;
-    gap: 8px;
-    margin: 0;
-    padding: 0;
-    list-style: none;
-  }
-  .past li {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    gap: 2px 8px;
-  }
-  .past small {
-    color: var(--ink-3);
-    font-size: var(--fs-tiny);
-  }
-  .past span {
-    grid-column: 1 / -1;
-    color: var(--ink-2);
-    font-size: var(--fs-small);
   }
   .how {
     padding: 0 16px;

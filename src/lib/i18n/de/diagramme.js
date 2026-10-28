@@ -59,4 +59,8 @@ export default {
   'Normal: 7.5 h.': 'Normal: 7,5 h.',
   'Normal: 6 of 10.': 'Normal: 6 von 10.',
   'Normal: 0, load and recovery in balance.': 'Normal: 0, Belastung und Erholung im Gleichgewicht.',
+  // K4 Tour-Bereitschaft (FormTour.svelte, tourtage.js)
+  'Start|tour': 'Start',
+  'Resting pulse before and during the tour, {n} days': 'Ruhepuls vor und während der Tour, {n} Tage',
+  'Numbers below: days before the tour (−) and tour days. Point at a day for the numbers, tap it for the whole day.': 'Zahlen unten: Tage vor der Tour (−) und Tourtage. Zeig auf einen Tag für die Zahlen, tippe ihn an für den ganzen Tag.',
 };

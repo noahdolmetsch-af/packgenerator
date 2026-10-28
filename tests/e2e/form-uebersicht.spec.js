@@ -139,7 +139,9 @@ test('the page «Form»: what counts, 12 weeks, tour readiness', async ({ page, 
   await expect(page.locator('[data-form-curve] svg.lines path')).toHaveCount(2);
   await expect(page.locator('[data-form-curve] svg.rhr')).toBeVisible();
   await expect(page.locator('[data-tour-now]')).toContainText(`${P}Testtour`);
-  await expect(page.locator('[data-form-tours] .td li')).toHaveCount(4);
+  // K4: one chart from 7 days before to the last tour day; the 6 days after today stay open
+  await expect(page.locator('[data-form-tours] [data-tour-plot]')).toHaveAttribute('data-n', '11');
+  await expect(page.locator('[data-form-tours] [data-open-day]')).toHaveCount(6);
   await fits(page, 'Form');
   await page.screenshot({ path: 'qa/form-uebersicht/form.png', fullPage: true });
   expect(errors).toEqual([]);
@@ -256,6 +258,59 @@ test('the page «Form»: what counts today, each row opens its days', async ({ p
   await page.keyboard.press('Escape');
   await expect(sheet).toHaveCount(0);
   await fits(page, 'Was heute zählt');
+  expect(errors).toEqual([]);
+});
+
+// «Diagramme zum Antippen» K4 (Noah 27.10.2026 «1-5 a»): the Tour-Bereitschaft as one chart: 7 days before
+// and the tour days, the normal as a band, an earlier tour on top (switchable), the day behind a tap, a
+// table; the tour as a band in «Verlauf». Fictional data, one earlier tour.
+test('the page «Form»: tour readiness as one chart with an earlier tour', async ({ page, context }, info) => {
+  const errors = await open(page, context);
+  await put(page, { trips: [{ id: `${P}alt`, title: `${P}Frühere Tour`, startDate: addDays(TODAY, -20), days: 3, status: 'done', entries: [], createdAt: `${TODAY}T07:00:00Z` }] });
+  await go(page, '#/flow/form');
+  const ch = page.locator('[data-chart="tourdays"]');
+  await expect(ch).toBeVisible();
+  // two lines: this tour and the earlier one, each a switch
+  await expect(ch.locator('[data-tour-line]')).toHaveCount(2);
+  const plot = ch.locator('[data-tour-plot]');
+  await expect(plot).toHaveAttribute('data-n', '11');
+  expect(await plot.locator('[data-yticks] span').count()).toBeGreaterThanOrEqual(3);
+  await expect(plot.locator('[data-normal]')).toHaveCount(1);
+  await expect(plot.locator('[data-tour-zone]')).toHaveCount(1);
+  // the tour starts in 3 days: 5 days with a number, 6 still open
+  await expect(plot.locator('[data-point-label]')).toHaveCount(5);
+  await expect(plot.locator('[data-open-day]')).toHaveCount(6);
+  // the line above starts at today (3 days before the tour), with both tours
+  await expect(ch.locator('[data-readout]')).toContainText(T('{n} days before').replace('{n}', '3'));
+  await expect(ch.locator('[data-readout]')).toContainText(`${P}Frühere Tour`);
+  if (process.env.SHOTS) await page.locator('[data-form-tours]').screenshot({ path: `${process.env.SHOTS}/tour-${info.project.name === 'phone' ? 390 : 1440}.png` });
+  // keyboard: Home = 7 days before; Enter opens the day with both tours
+  await plot.focus();
+  await page.keyboard.press('End');
+  await expect(ch.locator('[data-readout]')).toContainText(T('Day {n}').replace('{n}', '4'));
+  await expect(ch.locator('[data-readout]')).toContainText(T('still to come'));
+  await page.keyboard.press('Home');
+  await expect(ch.locator('[data-readout]')).toContainText(T('{n} days before').replace('{n}', '7'));
+  await page.keyboard.press('Enter');
+  const sheet = page.locator('[data-chart-sheet]');
+  await expect(sheet.locator('[data-tour-sheet] > div')).toHaveCount(2);
+  await expect(sheet.locator('[data-tour-sheet]')).toContainText(`${P}Frühere Tour`);
+  await expect(sheet.locator('[data-tour-sheet]')).toContainText('bpm');
+  if (process.env.SHOTS) await page.screenshot({ path: `${process.env.SHOTS}/tour-tag-${info.project.name === 'phone' ? 390 : 1440}.png` });
+  await sheet.getByRole('button', { name: T('Next day') }).click();
+  await page.keyboard.press('Escape');
+  await expect(sheet).toHaveCount(0);
+  // switch off the earlier tour; one line stays
+  await ch.locator(`[data-tour-line="p0"]`).click();
+  await expect(ch.locator('[data-tour-line="p0"]')).toHaveAttribute('aria-pressed', 'false');
+  await ch.locator('[data-tour-line="now"]').click();
+  await expect(ch.locator('[data-tour-line="now"]')).toHaveAttribute('aria-pressed', 'true');
+  // «Als Tabelle»: 11 rows
+  await ch.getByRole('button', { name: T('As table') }).click();
+  await expect(ch.locator('[data-chart-table] tbody tr')).toHaveCount(11);
+  // «Verlauf»: the earlier tour as a band; its day says which tour
+  await expect(page.locator('[data-chart="formweeks"] [data-tour-band]')).toHaveCount(1);
+  await fits(page, 'Tour-Bereitschaft');
   expect(errors).toEqual([]);
 });
 

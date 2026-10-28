@@ -49,6 +49,7 @@ export function formOf({ table, trips = [], checks = [], today, days = 84 }) {
     past: pastTours(trips, table, today),
     felt,
     feltBy,
+    trips,
     table,
   };
 }
