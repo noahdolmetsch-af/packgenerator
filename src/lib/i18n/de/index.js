@@ -653,6 +653,8 @@ import kontaktqr from './kontaktqr.js';
 import tourenc from './tourenc.js';
 // «App verstehen» (Noah 26.10.2026): Ich › App verstehen; spread last
 import verstehen from './verstehen.js';
+// «Apple-Health-Export einlesen» (Noah 27.10.2026 «4a»); spread last
+import applehealth from './applehealth.js';
 // «FIT-Dateien ganz lesen» (Noah 27.10.2026 «2a»); spread last
 import fitganz from './fitganz.js';
 // Idee A1 «Ein Morgen-Push statt vieler» (Noah 27.10.2026 «3a»); spread last
@@ -1031,6 +1033,7 @@ const ORDERED = [
   ausprobieren,
   quicklinks,
   veloideen,
+  applehealth,
 ];
 
 // Every other file in this folder is picked up by itself and spread after the list above (alphabetical).
