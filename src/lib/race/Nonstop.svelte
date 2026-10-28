@@ -66,7 +66,7 @@
         </li>
       {/each}
     </ul>
-    <p class="ns-key" aria-hidden="true"><span class="ns-dot"></span>{t('riding|finish bar')} <span class="ns-dot ns-dot-stop"></span>{t('stops|finish bar')}</p>
+    <p class="ns-key" aria-hidden="true"><span class="ns-dot"></span>{t('riding|nonstop')} <span class="ns-dot ns-dot-stop"></span>{t('stops|nonstop')}</p>
   {:else}
     <p class="rc-warn" data-nonstop-missing>{t('Put in the km and the start, then the finish time shows.')}</p>
   {/if}
