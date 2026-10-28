@@ -38,6 +38,18 @@ describe('Schnellspur (Weg zu online)', () => {
     expect(deploy).toContain("cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}");
   });
 
+  it('the phone browser tests of a PR run only with the label «ok» (Noah 28.10.2026 «1a»)', () => {
+    const job = (name) => deploy.slice(deploy.indexOf(`\n  ${name}:`), deploy.indexOf('\n\n', deploy.indexOf(`\n  ${name}:`)));
+    expect(deploy).toContain('types: [opened, synchronize, reopened, labeled]');
+    for (const name of ['e2e-part', 'e2e-phone']) {
+      expect(job(name)).toContain("contains(github.event.pull_request.labels.*.name, 'ok')");
+      expect(job(name)).toContain("github.event.label.name == 'ok'");
+    }
+    // the label run never builds or runs the Wächter again, and never cancels the running code check
+    for (const name of ['build', 'e2e-desktop']) expect(job(name)).toContain("github.event.action != 'labeled'");
+    expect(deploy).toMatch(/group: pages-\$\{\{ github\.ref \}\}\$\{\{ github\.event\.action == 'labeled'/);
+  });
+
   it('keeps the check names the branch rule asks for', () => {
     expect(deploy).toContain('name: e2e (phone)');
     expect(deploy).toContain('name: e2e (desktop)');

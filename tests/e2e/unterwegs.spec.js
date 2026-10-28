@@ -3,7 +3,7 @@
 // the Ess-Erinnerung, «Bereit für heute?» with the Hör-Tipp, and in «Mehr» Wasser und Essen, Sonne/Mond/Orte,
 // Strecke umwandeln and the komoot tour. Fictional data only (test_data_gtp_), the clock on Friday 9 October 2026
 // 09:00, every outside address blocked; transport.opendata.ch and Wikipedia are answered by the test.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { openHome, homeFixture, tr, trip, day } from './home0460-fixture.js';
 
 const T = tr('de');

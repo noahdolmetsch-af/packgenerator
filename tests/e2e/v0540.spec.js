@@ -4,7 +4,7 @@
 // the weight field is the first row «Gewicht», with the lighter alternatives (bars, a card per
 // suggestion, «Als Alternative merken», «Passt nicht» and Undo). An empty «Nie gebraucht» shows a
 // green check, three numbers and «Auf dem Weg dahin» with dots and «Zu Hause lassen».
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { openHome, homeFixture, base } from './home0460-fixture.js';
 import { materialFixture } from './material0472-fixture.js';
 

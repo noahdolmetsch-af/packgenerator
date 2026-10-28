@@ -2,7 +2,7 @@
 // page (computer: sidebar under the five places; phone: Ich › Inspiration), the kind recognised from the
 // address, the filter, and a note that becomes a packing rule shown while packing.
 // Fictional v048 fixture plus a planned trip on the Gravel and one race-rig link of Velos › Setup.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { writeFileSync } from 'node:fs';
 import { v048Data, P, GRAVEL, day } from './v048-fixture.js';
 import { openData, settle } from './settle.js';
