@@ -1,6 +1,6 @@
 // «Quick Links» (Noah 28.10.2026 «1a 2a 3a 4a 5a», Schritt 1): the place in the bar, 20 suggested pins,
 // a tap goes to the function, add a pin, edit (order, note, unpin with Undo), own groups.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { openHome } from './home0460-fixture.js';
 import { readFileSync } from 'node:fs';
 
