@@ -3,10 +3,10 @@ export default {
   title: 'Clear numbers on the live map',
   lead: 'Distance in metres, from 1 km with 2 decimals. The time since the start counts like a timer.',
   points: [
-    { text: 'Without a route the band shows distance, time elapsed and speed', href: '#/live' },
-    { text: 'The timer runs in seconds: 0:05, 12:34, 1:02:03', href: '#/live' },
+    { text: 'Without a route the band shows distance, time elapsed and speed', href: '#/live', go: 'f.live' },
+    { text: 'The timer runs in seconds: 0:05, 12:34, 1:02:03', href: '#/live', go: 'f.live' },
   ],
-  small: [{ box: 'nicer', text: 'New names: Distance, Time elapsed, Speed' }],
+  small: [{ box: 'nicer', text: 'New names: Distance, Time elapsed, Speed', go: 'f.live' }],
   test: ['Start a ride without a route: at the top you see «Distanz», «Zeit verstrichen» and «Geschwindigkeit».', 'Ride a few metres: the distance counts in m, from 1 km as 1.00 km; the time counts every second.'],
   since: [],
   de: {
