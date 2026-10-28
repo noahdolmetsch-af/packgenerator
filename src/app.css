@@ -53,6 +53,11 @@
   /* v0.67.0 «Übergänge 1» (kit): the two sizes the trip band and the step bar need, so they use
      the scale instead of their own numbers: the step states and badges, and a trip's name. */
   --fs-tiny: 12px;
+  /* #1158 the printed wallet card (85.6 × 54 mm): its own small print sizes, always black on white */
+  --fs-print: 6.5pt;
+  --fs-print-title: 8pt;
+  --print-ink: #000;
+  --print-paper: #fff;
   --fs-title: clamp(23px, 1.25vw + 18px, 32px);
   --lh: 1.5;
   --lh-title: 1.2;
