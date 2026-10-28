@@ -142,7 +142,7 @@
 
         <Sec id="all-h" title={actOf ? tileName(actOf) : t('All milestones')} sub={actOf ? '' : t('over all activities')}>
           {#if cards.length || scoped.length}
-            <!-- phone: the first six, the rest after «Alle n zeigen» (the page stays within its length budget, laenge.js) -->
+            <!-- phone: the first six, the rest after «Alle n zeigen» -->
             {#if fold && cards.length}
               <!-- Noah 27.10.2026 «2a»: on a phone only the next star per sport stays open (above); all cards wait folded -->
               <details class="card fold" data-ms-fold="all">

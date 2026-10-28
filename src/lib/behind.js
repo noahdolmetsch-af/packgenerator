@@ -5,13 +5,14 @@
 // - every build writes version.json next to the app (vite.config.js); it is never in the offline copy,
 // - the app asks for it (on start, when it comes back, every hour) and compares with its own version,
 // - when a newer version has been online for 15 minutes and this device still runs the old one,
-//   a small bar says so, with «Jetzt laden» (freshreload.js: loads anew from the internet, data stays).
+//   a small bar says so (since 27.10.2026 after 2 minutes, before 15), with «Jetzt laden» (freshreload.js: loads anew from the internet, data stays).
 // The 15 minutes give the normal update time to work first, so the bar only shows when it is stuck.
 import { freshReload } from './freshreload.js';
 import { t } from './i18n.svelte.js';
 
 export const KEY = 'pg-behind';
-export const WAIT = 15 * 60 * 1000;
+// 27.10.2026 (Noah «1-5 a», question 3): 2 minutes instead of 15, so a stuck device hears about it soon
+export const WAIT = 2 * 60 * 1000;
 const BAR = 'data-behind-bar';
 
 /** true when version a is newer than version b («0.165.0» > «0.157.0»). */
@@ -31,16 +32,21 @@ let memo = null; // when localStorage is not there
 /**
  * Asks for the online version. Returns it when this device has been behind for WAIT, else null.
  */
-export async function checkBehind(w = globalThis, { now = Date.now(), running = __APP_VERSION__, base = import.meta.env.BASE_URL } = {}) {
+/** The version that is online right now (version.json, never from the offline copy), or null offline / on an error. */
+export async function onlineVersion(w = globalThis, { now = Date.now(), base = import.meta.env.BASE_URL } = {}) {
   if (w.navigator?.onLine === false) return null;
-  let live;
   try {
     const r = await w.fetch(`${base}version.json?t=${now}`, { cache: 'no-store' });
     if (!r.ok) return null;
-    live = (await r.json())?.version;
+    return (await r.json())?.version || null;
   } catch {
     return null;
   }
+}
+
+export async function checkBehind(w = globalThis, { now = Date.now(), running = __APP_VERSION__, base = import.meta.env.BASE_URL } = {}) {
+  const live = await onlineVersion(w, { now, base });
+  if (live === null) return null;
   const ls = (() => { try { return w.localStorage ?? null; } catch { return null; } })();
   if (!live || !newer(live, running)) {
     memo = null;
