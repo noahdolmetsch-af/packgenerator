@@ -26,7 +26,9 @@ const ignore = [
 // cap was used up by the evening and the real app could not sync any more. A test that needs the server
 // answers with its own route (page.route / context.route); everything else gets «no network», as locally.
 // Only the check of the live app (LIVE=1) talks to the real server.
-export const NO_REAL_SERVER = '--host-resolver-rules=MAP packgen-three.vercel.app ~NOTFOUND';
+// 28.10.2026: the same for GitHub's public API (Ich asks it which merges are not online yet, versionline.js);
+// without an account it answers 60 questions an hour, and that belongs to the real app too.
+export const NO_REAL_SERVER = '--host-resolver-rules=MAP packgen-three.vercel.app ~NOTFOUND, MAP api.github.com ~NOTFOUND';
 const browserArgs = process.env.LIVE ? [] : [NO_REAL_SERVER];
 
 export default defineConfig({

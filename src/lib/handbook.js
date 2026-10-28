@@ -1071,6 +1071,11 @@ export const HANDBOOK = {
     steps: ['Open a race › «Along the route» and tap «Load the weather».', 'Look at «Nights by the weather»; move a night yourself under «Strategy».'],
     example: 'Example: night 2 at km 310 with 80 % rain → 30 km further only 20 %.',
   },
+  'f.racecheck': {
+    on: null,
+    steps: ['Open Trips › «Plan races in detail» and tap a race.', 'Fill in the five sheets one by one; everything saves by itself.'],
+    example: 'Example: sheet 2 «Target setup»: the frame bag holds the rain jacket and the head torch, 150 g empty.',
+  },
   'f.racesample': {
     on: null,
     steps: ['Open Trips › Races › «See the sample race».', 'Tap «Show me around» for the tour, then do the small tasks in «Plan».'],
@@ -1221,6 +1226,11 @@ export const HANDBOOK = {
     on: null,
     steps: ['Open Trips › Dreams and write the name of a dream tour.', 'Tap it: change the kind of tour and the months it fits.', 'Tap «Plan the tour»: a trip draft on the first Saturday of the season.'],
     example: 'Example: «Over the Furka» → Alpine passes, July to September → trip on 3 July.',
+  },
+  'f.whitespots': {
+    on: 'Needs your home place.',
+    steps: ['Open Trips › Dreams › White spots nearby.', 'Choose 10, 25 or 50 km.', 'Tap a place on the map or in the list: its name and distance.'],
+    example: 'Example: 25 km around Zürich → 209 municipalities never visited, the nearest 5 km away.',
   },
   'f.races': {
     on: 'Needs a race with a date in Inspiration, or a race in your Google calendar.',
@@ -1563,6 +1573,11 @@ export const HANDBOOK = {
     on: 'On by itself once reminders on the phone are on; switch it off under Me › Reminders on the phone › In the morning.',
     steps: ['Every reminder at 08:00 (parts worn, chain, supplies, lent things, shopping, race registration) waits for the morning message.', 'At 07:00 one message comes: first a trip that starts and up to two appointments of the day, then the reminders.', 'Warnings (weather, ice, light, rain on the way, eating) still come on their own and on time.'],
     example: 'Example: «Your morning» → «Appointment: 10:00 Dentist», «Testvelo: Chain reaches 1000 km soon», «and 1 more in the app».',
+  },
+  'f.remindtime': {
+    on: 'Nothing to switch on: it learns while you open the evening-before check.',
+    steps: ['The app notes the time you open the check on each evening before a trip (from 16:00).', 'From 3 evenings it takes your usual time and offers a reminder 15 minutes earlier.', '«Move it» changes the time in Own values, with Undo; «No, thanks» keeps the old time.'],
+    example: 'Example: check opened at 21:20, 21:40 and 21:30 → «Move the reminder to 21:15?»',
   },
   'f.tourhints': {
     on: 'Nothing to switch on; the hints come from the route, the start time and the forecast.',

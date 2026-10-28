@@ -7,4 +7,6 @@ export default {
   'Version {v} on this device': 'Version {v} auf diesem Gerät',
   'Load newest|update': 'Neueste laden',
   'Loads the app fresh from the internet. Your data stays on this device.': 'Lädt die App frisch aus dem Internet. Deine Daten bleiben auf diesem Gerät.',
+  '1 finished change is not online yet (usually about 5 minutes)': '1 fertige Änderung ist noch nicht online (meist etwa 5 Minuten)',
+  '{n} finished changes are not online yet (usually about 5 minutes)': '{n} fertige Änderungen sind noch nicht online (meist etwa 5 Minuten)',
 };
