@@ -2,7 +2,7 @@
 // the greeting holds only the greeting (date and weather under it), the trip card has number fields
 // and the packing bar, every tile is a light card, the four new tiles are on the wall with «neu», and
 // «New» is sorted by area. Fictional data only (test_data_gtp_), clock and weather from openHome.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { openHome } from './home0460-fixture.js';
 
 const noSideways = async (page) => expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(page.viewportSize().width);

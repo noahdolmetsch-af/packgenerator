@@ -3,7 +3,7 @@
 // «Importierte PDF», the text reading fails quietly (everything outside the preview server is blocked),
 // rename and move to an own group work, and Google Drive is connected with the same Google login as
 // Fitbit and gets the PDF; renaming, undoing and deleting its group moves the Drive copy along. The server (packgen-three.vercel.app/api/google) is answered by the test.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { ready } from './settle.js';
 import DE from '../../src/lib/i18n/de/index.js';
 import { renameGroupVia, deleteGroupVia } from './groups.js';

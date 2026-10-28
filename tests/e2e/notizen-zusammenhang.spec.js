@@ -2,7 +2,7 @@
 // other note reads it back; a note comes back after the next workshop visit; the trash says what comes back
 // with a note and brings a linked note back together. In German, phone and computer; no sideways scroll,
 // no page errors. Fictional data only.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import DE from '../../src/lib/i18n/de/index.js';
 import { prep, newNote, storedNote, noSideScroll } from './notes-helpers.js';
 import { ready } from './settle.js';

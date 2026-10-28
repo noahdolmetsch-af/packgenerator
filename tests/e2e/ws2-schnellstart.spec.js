@@ -3,7 +3,7 @@
 // ridden last, the weather of the home forecast, the time stamp as its name. Pack opens it with
 // «Ändern» and «Rückgängig». Fictional data only (test_data_gtp_), the clock on D0 09:00 (Europe/Zurich),
 // Open-Meteo mocked. SHOTS=<folder> saves the screenshots (1440 and 390, light).
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { mkdirSync } from 'node:fs';
 import { D0, openHome, homeFixture } from './home0460-fixture.js';
 

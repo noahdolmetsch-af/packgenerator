@@ -1,6 +1,6 @@
 // Paket N idea 5 (Noah 19.10.2026 «1-5 a»): «Woche planen» shows a dream that fits now and can hide the
 // card; Touren › Träume brings it back. Fictional data only.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import DE from '../../src/lib/i18n/de/index.js';
 import { ready } from './settle.js';
 
