@@ -120,7 +120,7 @@
     return tab ? `${placeLabel(p)} › ${tabLabel(place, tab)}` : placeLabel(p);
   });
   // a page for someone without the app's data (a shared list, Paket S «Reise-Spur»: a tour's read link)
-  const guest = $derived(page === 'share' || page === 'spurlink' || page === 'gruppe' || page === 'card');
+  const guest = $derived(page === 'share' || page === 'spurlink' || page === 'gruppe' || page === 'card' || page === 'mitmachen');
   // v0.78.0 «Fünf Orte» 2 (Noah O2.2a): each place remembers the tab opened last (nav.js placeHref).
   const tab = $derived(place ? tabOf(place, hash) : null);
   $effect(() => {
@@ -403,6 +403,8 @@
     SpurLink: () => import('./pages/SpurLink.svelte'), // Paket S: the family's read link
     Gruppe: () => import('./pages/Gruppe.svelte'), // Gruppen-Live-Karte: a friend's view of the group ride
     GroupRide: () => import('./pages/GroupRide.svelte'), // Gruppenfahrt für Events: the page of your group ride
+    MiniTools: () => import('./pages/MiniTools.svelte'), // Mini-Tools (Noah 28.10.2026 «2a»): Ich › Mini-Tools
+    Mitmachen: () => import('./pages/Mitmachen.svelte'), // Mini-Tools: the page of the people asked, no app data
     Karte: () => import('./pages/Karte.svelte'), // Gruppenfahrt für Events: a contact card from a QR code
     Abfahrt: () => import('./pages/Abfahrt.svelte'), // Paket K #87 «Vor der Abfahrt»
     Mountain: () => import('./pages/Mountain.svelte'), // Paket J: Berg, Schnee und Notfall
@@ -657,6 +659,12 @@
     <LazyPage load={PAGES.WasKommt} />
   {:else if page === 'album'}
     <LazyPage load={PAGES.Album} />
+  {:else if page === 'minitools'}
+    <!-- Mini-Tools (Noah 28.10.2026 «2a»): #/me/mini, #/me/mini/neu, #/me/mini/<id> -->
+    {#key hash}<LazyPage load={PAGES.MiniTools} {hash} />{/key}
+  {:else if page === 'mitmachen'}
+    <!-- Mini-Tools: a question shared by link, answered without the app -->
+    {#key hash}<LazyPage load={PAGES.Mitmachen} {hash} />{/key}
   {:else if page === 'freunde'}
     <!-- Paket D «Mit Freunden»: #/me/freunde, a message from a friend at #/me/freunde/in/<code> -->
     {#key hash.startsWith('#/me/freunde/in/') ? hash : ''}<LazyPage load={PAGES.Freunde} {hash} />{/key}

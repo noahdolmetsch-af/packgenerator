@@ -547,3 +547,11 @@ Warum: Daten aus verschiedenen Bereichen sollen zusammenspielen, damit die App i
 - **B Körper und Planung:** B1 Erholung beim Planen sehen (kürzere Variante als Angebot), B2 nach jeder Tour wieder erholt?, B3 Schonmodus.
 - **C Velo, Wetter, Material:** C1 Verschleiss-Kosten voraus, C2 Packliste folgt dem Wetterumschwung, C3 welches Velo passt?
 - **D Ein Helfer, der alles kennt:** D1 «Frag die App» über alle Bereiche, D2 eigene Faustregeln vorschlagen, D3 was die App noch wissen müsste, D4 «Hängt zusammen mit».
+
+## Mini-Tools (28.10.2026)
+
+Warum: mit anderen Leuten schneller abmachen, ohne langes Hin und Her im Chat (Ziele Touren und Alltag). Noah «1b 2a 3a, Ideen 1, 2, 4, 5, 7, 9, 10, 5a». Ideenseite mit Skizzen: https://claude.ai/artifact/HA5TAJLzAtuhUBAAHqJApH
+
+- Eigene Seite Ich › Mini-Tools. Die Gefragten antworten im Browser, ohne App und ohne Konto; die Antworten kommen verschlüsselt über einen kleinen Gratis-Speicher zurück, nur der Fragende kann sie lesen. Auszählen ohne KI.
+- Reihenfolge, je ein PR: 1 Termin finden (gebaut), 2 Mini-Umfrage, 4 Anmeldeliste mit Warteliste, 5 Spontan-Einladung «Fährst du morgen mit?», 7 Essen und Unverträglichkeiten, 9 Fair auslosen, 10 Wann muss ich losfahren?
+- Nicht gewählt: 3 Mitfahren und Velo-Plätze, 6 Rennen-Helferplan, 8 gemeinsame Bewertung nach der Tour.

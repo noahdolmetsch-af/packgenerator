@@ -1857,4 +1857,9 @@ export default {
     'Warnungen (Wetter, Glätte, Licht, Regen unterwegs, Essen) kommen weiter einzeln und pünktlich.',
   'Example: «Your morning» → «Appointment: 10:00 Dentist», «Testvelo: Chain reaches 1000 km soon», «and 1 more in the app».':
     'Beispiel: «Dein Morgen» → «Termin: 10:00 Zahnarzt», «Testvelo: Kette erreicht bald 1000 km», «und 1 weitere in der App».',
+  // Mini-Tools (Noah 28.10.2026)
+  'Open Me › Mini tools › Find a date.': 'Öffne Ich › Mini-Tools › Termin finden.',
+  'Write what it is about, pick 2 to 8 days and tap «Make the link».': 'Schreib, worum es geht, wähle 2 bis 8 Tage und tipp «Link machen».',
+  'Send the link; tap «Look for new answers» to see who can when.': 'Schick den Link; mit «Neue Antworten holen» siehst du, wer wann kann.',
+  'Example: «Weekend trip Jura» with three Saturdays; four people answer, the 14th works for all.': 'Beispiel: «Wochenend-Tour Jura» mit drei Samstagen; vier Leute antworten, am 14. können alle.',
 };

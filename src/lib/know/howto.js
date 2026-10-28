@@ -387,6 +387,7 @@ export const HOWTO = {
   'f.blockeffect': ['Open Pack › Add material.', 'Tap «Before adding: see the effect».', 'Check it, then «Add …».'],
   'f.needs': ['Open Pack › Add material › «Pack by need».', 'Tap needs, set people, choose a variant.', 'Tap «Take it onto the list».'],
   'f.labels': ['Open Toolbox › Box labels.', 'Add a box and what is inside.', '«Print label» and stick it on.'],
+  'f.minidate': ['Open Me › Mini tools › Find a date.', 'Pick 2 to 8 days and tap «Make the link».', 'Send it; the best day is on top.'],
   'f.friendask': ['Open Me › With friends and choose what to ask.', 'Tap «Make the link» and send it.', 'Open the answer link: «Keep it».'],
   'f.friendshelf': ['Open Me › With friends › Lending shelf for friends.', 'Put things on the shelf, then «Send the shelf».', 'A request comes: «Say yes», then «Handed over».'],
   'f.friendtemplate': ['Open Me › With friends › Share a template.', 'Choose a building block or your layout.', 'Send it; your friend takes it over with Undo.'],

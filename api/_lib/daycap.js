@@ -36,6 +36,7 @@ export const DAY_CAPS = {
   account: 300,
   rwgps: 200, // «Neue Quellen» 20.10.2026: Ride with GPS links (api/lake.js ?action=rwgps)
   group: 1500, // Gruppen-Live-Karte 25.10.2026: the group map of a ride (api/sync.js ?action=group)
+  mini: 600, // Mini-Tools 28.10.2026: questions shared by link and their answers (api/sync.js ?action=mini)
   ov: 1500, // stops and departures (api/lake.js ?action=ov-…; Vercel's cache answers most)
 };
 /** Never counted: the watcher must always be able to look. */
