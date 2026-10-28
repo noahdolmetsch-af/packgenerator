@@ -144,7 +144,6 @@ export default {
   // «Links pro Rennen»
   'Rules|race': 'Regeln',
   Tracker: 'Tracker',
-  Website: 'Website',
   'Links to the race': 'Links zum Rennen',
   'Handbook, rules, tracker, website: everything about this race one tap away. Tap a row to put in or change its address.': 'Handbuch, Regeln, Tracker, Website: alles zum Rennen mit einem Tipp. Tippe eine Zeile an, um die Adresse einzutragen oder zu ändern.',
   'Name or address, e.g. Handbook': 'Name oder Adresse, z. B. Handbuch',
@@ -211,4 +210,6 @@ export default {
   'Change': 'Ändern',
   'After the race|sheet': 'Nach dem Rennen',
   'Answer after the race. Your answers show on top of this sheet in your next races.': 'Nach dem Rennen beantworten. Deine Antworten stehen in deinen nächsten Rennen oben auf diesem Blatt.',
+  'Coming|races': 'Kommende',
+  'Done|races': 'Vorbei',
 };

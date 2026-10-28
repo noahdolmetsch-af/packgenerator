@@ -30,4 +30,9 @@ export default {
   'No km recorded.': 'Keine km aufgezeichnet.',
   'Add {km} km to {bike}': '{km} km zu {bike} zählen',
   'For chain, pads and tyres. Undo right after, or change it later in the ride ledger.': 'Für Kette, Beläge und Reifen. Gleich danach rückgängig machen oder später im Fahrten-Buch ändern.',
+  // Nachprüfung 27.10.2026: nach der Fahrt Höhe, Runden und Werte von Strava/Garmin
+  'Laps|after': 'Runden',
+  'Lap|after': 'Runde',
+  'Ride|twin': 'Fahrt',
+  'Filled in from your Strava or Garmin ride at the same time: {name}.': 'Ergänzt aus deiner Strava- oder Garmin-Fahrt zur selben Zeit: {name}.',
 };
