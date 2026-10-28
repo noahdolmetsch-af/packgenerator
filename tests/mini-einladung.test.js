@@ -14,7 +14,7 @@ describe('the invite', () => {
     expect(cleanUrl('https://example.test/route/1')).toBe('https://example.test/route/1');
   });
   it('takes the weather of the day from a forecast', () => {
-    const f = { place: { name: 'Testdorf' }, days: [{ date: '2026-11-03', min: 3, max: 9, rainPct: 60 }] };
+    const f = { place: { name: 'Testdorf, Testkanton' }, days: [{ date: '2026-11-03', min: 3, max: 9, rainPct: 60 }] };
     expect(wxOf(f, '2026-11-03')).toEqual({ place: 'Testdorf', min: 3, max: 9, rain: 60 });
     expect(wxOf(f, '2026-11-04')).toBeNull();
   });

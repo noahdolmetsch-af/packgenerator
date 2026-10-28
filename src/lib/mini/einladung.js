@@ -39,7 +39,7 @@ export function cleanWx(w) {
 /** The weather of one day from a forecast ({ place, days: [{ date, min, max, rainPct }] }). */
 export function wxOf(forecast, day) {
   const d = forecast?.days?.find((x) => x.date === day);
-  return d ? cleanWx({ place: forecast.place?.name, min: d.min, max: d.max, rain: d.rainPct }) : null;
+  return d ? cleanWx({ place: String(forecast.place?.name ?? '').split(',')[0], min: d.min, max: d.max, rain: d.rainPct }) : null;
 }
 
 /** The invite as it is sealed into the link → object, or null (no day). */
