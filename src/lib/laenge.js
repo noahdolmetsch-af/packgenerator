@@ -54,6 +54,9 @@ export const TOO_LONG = {
   // now on; they were this long before (5.89 and 3.61 on CI). Shorten them, then lower the number.
   '#/gear/supplies': 6,
   '#/me/links': 3.7,
+  // Auswerten › Übersicht measured 3.02 on main on 27.10.2026 evening (red on main too). Noah 26.10.2026 «keine
+  // anforderung an eine länge der seite» (CLAUDE.md rule 6): the guard only keeps it from growing unnoticed.
+  '#/auswerten': 3.1,
 };
 
 /** The screens a page may have on a phone. */
