@@ -3,8 +3,8 @@
 export default {
   title: 'Workshop at home',
   lead: 'Your own rounds for the work at home.',
-  points: [{ text: 'Workshop rounds: tick your jobs, the parts get them', href: '#/bikes?tab=care&view=rounds' }],
-  small: [{ box: 'new', text: 'Split a receipt, photo with a template', href: '#/bikes?tab=care' }],
+  points: [{ text: 'Workshop rounds: tick your jobs, the parts get them', href: '#/bikes?tab=care&view=rounds', go: 'f.workshoprounds' }],
+  small: [{ box: 'new', text: 'Split a receipt, photo with a template', href: '#/bikes?tab=care', go: { href: '#/bikes?tab=care', where: 'In a workshop visit with a receipt photo: tap «Split the receipt».' } }],
   test: ['Velos › Pflege › Werkstatt-Runden: take «Herbst-Service», start it, tick two jobs, «Fertig».', 'Open a workshop visit with a receipt photo and tap «Quittung aufteilen».'],
   since: ['f.workshoprounds'],
   de: {
@@ -14,5 +14,6 @@ export default {
     'Split a receipt, photo with a template': 'Quittung aufteilen, Foto mit Vorlage',
     'Velos › Pflege › Werkstatt-Runden: take «Herbst-Service», start it, tick two jobs, «Fertig».': 'Velos › Pflege › Werkstatt-Runden: «Herbst-Service» nehmen, starten, zwei Arbeiten abhaken, «Fertig».',
     'Open a workshop visit with a receipt photo and tap «Quittung aufteilen».': 'Öffne einen Werkstattbesuch mit Quittungsfoto und tippe «Quittung aufteilen».',
+    'In a workshop visit with a receipt photo: tap «Split the receipt».': 'In einem Werkstattbesuch mit Quittungsfoto: «Quittung aufteilen» tippen.',
   },
 };
