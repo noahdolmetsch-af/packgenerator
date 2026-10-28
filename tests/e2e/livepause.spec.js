@@ -3,6 +3,7 @@
 // editor). Fake GPS, every outside request mocked or blocked (openHome); no sideways scroll.
 import { test, expect } from '@playwright/test';
 import { openHome } from './home0460-fixture.js';
+import { sheetFull } from './live-sheet.js';
 
 const PNG = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=', 'base64');
 const phone = (info) => info.project.name === 'phone';
@@ -63,8 +64,7 @@ test('Pause: the band says «Paused», the riding time stands, the pause is kept
 test('Auto-pause with your own limit, the sensors box, the data pages', async ({ page, context }, info) => {
   const T = await startRide(page, context, info);
   // the settings in the sheet: auto-pause on, limit 6 km/h (a comma works)
-  await tap(page.locator('[data-live-sheet-toggle]'), info);
-  await tap(page.locator('[data-live-sheet-toggle]'), info);
+  await sheetFull(page, info);
   const opts = page.locator('[data-live-sheet] [data-live-options]');
   await opts.locator('summary').scrollIntoViewIfNeeded();
   await tap(opts.locator('summary'), info);
