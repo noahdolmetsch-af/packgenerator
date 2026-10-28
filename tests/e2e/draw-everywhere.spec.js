@@ -1,7 +1,7 @@
 // Paket NE 1146 (Noah 20.10.2026 «1b»): draw on every photo of the app, not only in notes: setup photos,
 // problem photos and wear photos get «Draw»; the drawn picture replaces the photo and the drawing stays on
 // the same record (inks). Fictional data; the photos are generated PNGs that never leave the page.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';

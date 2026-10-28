@@ -8,7 +8,7 @@
 // - Packen (SN3j): Zwei Nächte («Fr.–So., 2 Nächte») and Abfahrt warm dashed in front; cold: one suggestion PER stage (4b).
 // Fictional data only (test_data_gtp_; the example parts are generic), German UI, Europe/Zurich, service workers blocked.
 // SHOTS=<folder> saves the screenshots (1440 and 390, light).
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';
