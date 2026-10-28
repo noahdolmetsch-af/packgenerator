@@ -2,7 +2,7 @@
 // "3 of 3 trips not used" with the trips and their context, "Not now" puts it in the History,
 // Home shows a card while there are suggestions. First aid only comes with a night (v0.72.0: small set on a day ride).
 // Fictional fixture plus test_data_gtp_ records; nothing outside the preview server.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';

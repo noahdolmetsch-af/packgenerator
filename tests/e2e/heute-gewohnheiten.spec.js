@@ -1,7 +1,7 @@
 // «Deine Gewohnheiten» (Noah 27.10.2026 «1a 2a und b 3b»): the pencil on the card on top of Heute (and «Customise the
 // start page») chooses up to three habits: activities of Aktiv (2a) and items of «Das tut mir gut» (2b), in their order
 // (3b). Without a choice the card stays meditation. Fictional data only (test_data_gtp_); SHOTS=<folder> saves screenshots.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { openHome } from './home0460-fixture.js';
 
 async function shot(page, info, name, at = null) {

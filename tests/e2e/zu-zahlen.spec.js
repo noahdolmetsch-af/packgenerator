@@ -4,7 +4,7 @@
 // shows «fällig in 2 Tagen». German, no sideways scrolling. Fictional data only: the IBAN is the
 // public sample QR-IBAN of the Swiss standard. The test browser has no BarcodeDetector, so a small
 // stand-in returns the QR text.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { tr } from './home0460-fixture.js';
 import { ready } from './settle.js';
 import { payload } from '../../src/lib/pay/qrbill.js';

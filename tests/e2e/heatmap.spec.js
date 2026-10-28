@@ -1,7 +1,7 @@
 // «Heatmap» (Noah 20.10.2026 «1a+b 2b+a 3 alle Fahrten von Strava 4a 5a»): fictional Strava rides and a
 // run on one map, clouds and lines, filters by sport and year, a tap names the rides there; the way in
 // from Rückblick and from «Neuland». Fictional data only.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { mkdirSync } from 'node:fs';
 import DE from '../../src/lib/i18n/de/index.js';
 import { encodePolyline } from '../../src/lib/spur/polyline.js';

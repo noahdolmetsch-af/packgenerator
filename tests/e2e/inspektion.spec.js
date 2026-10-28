@@ -4,7 +4,7 @@
 // - the Inspections page: «Später weitermachen» keeps a draft, the history lists a finished check, delete with Undo;
 // - «1»: the Kurzcheck before a tour in the tour preparation, switchable off; «2a»: a soon worn chain goes on the wishlist.
 // Fictional fixture; nothing leaves the preview server; service workers blocked (config).
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';

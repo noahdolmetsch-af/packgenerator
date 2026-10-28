@@ -2,7 +2,7 @@
 // in the app, the answer comes back as a link and is kept as their own contribution; the lending shelf goes out, a
 // friend asks, you say yes and hand it over (a lending list in Material › Ausgeliehen). Fictional data only
 // (test_data_gtp_), the clock on Friday 9 October 2026 (home0460-fixture.js), every outside address blocked.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { openHome, homeFixture, tr } from './home0460-fixture.js';
 
 const T = tr('de');

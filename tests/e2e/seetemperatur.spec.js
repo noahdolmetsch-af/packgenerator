@@ -2,7 +2,7 @@
 // «Zürisee», shows the cold-water scale, «Sauna und See heute?» ticks the sauna and the swim (a second
 // tap takes it back), each swim keeps its water temperature, the limits change and the block can be
 // hidden and shown again. The server is answered by the test; fictional values only.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { ready } from './settle.js';
 import de from '../../src/lib/i18n/de/seetemperatur.js';
 
