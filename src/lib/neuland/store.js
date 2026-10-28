@@ -7,6 +7,7 @@ import { loadBase } from './load.js';
 import { areaAt, gridOf } from './geo.js';
 import { localDay } from '../localday.js';
 import { splitNeuland } from './split.js';
+import { OSM_KEY, isOsm, osmItems, osmLoadedAt } from './osm.js';
 
 export async function readState(db) {
   return stateOf((await db.settings.get(NEULAND_KEY))?.value);
@@ -27,14 +28,15 @@ export async function cantonAt(place) {
 
 /** The person's data Neuland reads (only Dexie reads, so a liveQuery can watch it). */
 export async function readRaw(db) {
-  const [rec, trips, rides, activities, homeRec] = await Promise.all([
+  const [rec, trips, rides, activities, homeRec, osm] = await Promise.all([
     db.settings.get(NEULAND_KEY),
     db.trips.toArray(),
     db.rides.toArray(),
     db.activities ? db.activities.toArray() : [],
     db.settings.get('homePlace'),
+    db.meta ? db.meta.get(OSM_KEY) : null, // N18: the places loaded from OpenStreetMap
   ]);
-  return { value: rec?.value ?? null, trips, rides, activities, homePlace: homeRec?.value ?? null };
+  return { value: rec?.value ?? null, trips, rides, activities, homePlace: homeRec?.value ?? null, osm: osm ?? null };
 }
 
 /**
@@ -45,12 +47,12 @@ export async function computeFrom(raw, { today = localDay(), only = null } = {})
   const state = stateOf(raw.value);
   const all = collectionsOf(state);
   const want = all.filter((c) => (only ? only.includes(c.id) : c.on));
-  const bases = await Promise.all(want.map((c) => loadBase(c.id)));
+  const bases = await Promise.all(want.map((c) => (isOsm(c.id) ? osmItems(raw.osm, c.id) : loadBase(c.id))));
   const tracks = tracksOf({ trips: raw.trips, rides: raw.rides, activities: raw.activities, lines: raw.lines ?? [], today }); // raw.lines: more lines from elsewhere (package S «Reise-Spur» allLines)
   const parts = want.map((c, i) => {
     const def = defOf(c.id);
     const { items, hidden } = itemsOf(state, c.id, bases[i]);
-    return { ...c, kind: def?.kind ?? 'point', radius: def?.radius, map: def?.map ?? null, items, hidden };
+    return { ...c, kind: def?.kind ?? 'point', radius: def?.radius, map: def?.map ?? null, osm: !!def?.osm, osmAt: def?.osm ? osmLoadedAt(raw.osm, c.id) : null, items, hidden };
   });
   const found = detect(parts, tracks);
   const collections = parts.map((p) => ({ ...p, found: found[p.id] ?? {}, visited: visitedOf(state, p.id, p.items, found) }));

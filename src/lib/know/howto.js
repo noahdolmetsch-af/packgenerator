@@ -104,6 +104,8 @@ const LISTED = {
   'f.triptips': ['Open Trips › Dreams; «Fits today» is at the top.', 'Choose the hours you have.', 'Tap «Round through it» at a place.'],
   'f.newkm': ['Ride somewhere new; Strava lines, GPX and recordings count.', 'Open New ground and scroll to «New kilometres».', 'Each year shows its new km; below, the latest rides with new km.'],
   'f.monthadv': ['Open Trips › Dreams and scroll to «One adventure a month».', 'Tap «Show me» or «Not this month».', 'Under «Kinds» add your own adventure.'],
+  'f.osmsets': ['Open New ground and choose «Observation towers», «Suspension bridges» or «Waterfalls».', 'Tap «Load from OpenStreetMap» once.', 'Ride there: the app ticks them on your routes.'],
+  'f.monthadv': ['Open Trips › Dreams: «Adventure of the month» is at the top.', 'Tap the button to the part that plans it, or «Another one».', 'After it: «Done»; or «Not this month».'],
   'f.dice': ['Open Trips › Dreams and scroll to «Adventure dice».', 'Tap «Roll»: a rule for your next ride.', 'Under «Rules» add your own or hide one.'],
   'f.suntip': ['Open Trips › Dreams and scroll to «Sunrise on the hill».', 'Read the next clear morning or evening.', 'Mark a «View» point on the map: the tip names it.'],
   'f.trainthere': ['Open Trips › Dreams and scroll to «Train there, bike home».', 'Choose how far you want to ride home.', 'Tap «Trains and the way home» at a place.'],

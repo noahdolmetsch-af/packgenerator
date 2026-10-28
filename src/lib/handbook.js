@@ -1295,6 +1295,11 @@ const LISTED = {
     steps: ['Open Trips › Look back › New ground.', 'Scroll to «New kilometres»: each year with its new km and share.', 'Below: your latest rides that brought new km.'],
     example: 'Example: 3210 km this year, of which 412 km new (13 %).',
   },
+  'f.osmsets': {
+    on: 'Needs the internet once per collection to load the places; then offline.',
+    steps: ['Open Trips › Look back › New ground and choose «Waterfalls».', 'Tap «Load from OpenStreetMap».', 'Your routes tick what you passed; tick more by hand.'],
+    example: 'Example: Waterfalls → 640 places, 12 reached.',
+  },
   'f.monthadv': {
     on: 'Works offline; the kinds that start from home need your home place.',
     steps: ['Open Trips › Dreams: «One adventure a month» names this month\'s adventure.', 'Tap «Show me»: you land at the card for it.', 'Under «Kinds» hide one, add your own, or switch the line on Today off.'],

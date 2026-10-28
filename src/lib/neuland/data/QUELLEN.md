@@ -12,6 +12,7 @@ Alle Daten liegen in der App (offline, keine Kosten, kein Dienst mit Schlüssel)
 | `huts.js` | SAC-Hütten und weitere Berghütten in der Schweiz | eigene Zusammenstellung, Koordinaten gerundet | frei, ohne fremde Rechte |
 | `peaks.js` | Gipfel ab 3000 m in der Schweiz, alle Viertausender | eigene Zusammenstellung, Koordinaten gerundet | frei, ohne fremde Rechte |
 | `lakes-points.js` | kleinere Seen (Mitte und ungefährer Radius) | eigene Zusammenstellung, Koordinaten gerundet | frei, ohne fremde Rechte |
+| (keine Datei) Aussichtstürme, Hängebrücken, Wasserfälle | benannte Orte in der Schweiz | OpenStreetMap über den freien Overpass-Dienst, erst auf dem Gerät geladen (ein Tipp in Neuland), dort in `db.meta` `neuland.osm` | ODbL, «© OpenStreetMap-Mitwirkende» (steht unter der Liste) |
 
 ## Erzeugen
 

@@ -71,8 +71,11 @@
     huts: ['{n} new hut', '{n} new huts'],
     peaks: ['{n} new peak', '{n} new peaks'],
     lakes: ['{n} new lake', '{n} new lakes'],
+    towers: ['{n} new observation tower', '{n} new observation towers'],
+    bridges: ['{n} new suspension bridge', '{n} new suspension bridges'],
+    waterfalls: ['{n} new waterfall', '{n} new waterfalls'],
   };
-  const ALL = { municipalities: 'All municipalities', cantons: 'All cantons', countries: 'All countries', passes: 'All passes', huts: 'All huts', peaks: 'All peaks', lakes: 'All lakes' };
+  const ALL = { municipalities: 'All municipalities', cantons: 'All cantons', countries: 'All countries', passes: 'All passes', huts: 'All huts', peaks: 'All peaks', lakes: 'All lakes', towers: 'All observation towers', bridges: 'All suspension bridges', waterfalls: 'All waterfalls' };
   function whatText(g) {
     const c = all.find((x) => x.id === g.cid);
     const own = c ? collectionName(c) : g.cid;

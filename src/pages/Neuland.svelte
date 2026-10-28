@@ -14,6 +14,7 @@
   import { reachOf } from '../lib/neuland/beleg.js';
   import { loadBase } from '../lib/neuland/load.js';
   import { newSince, dayBefore } from '../lib/neuland/neuheute.js'; // N11 «Neu heute» here too (Noah 28.10.2026 «1 a und b»)
+  import { fetchOsm } from '../lib/neuland/osm.js'; // N18: towers, bridges, waterfalls from OpenStreetMap
   import {
     stateOf, collectionsOf, collectionName, setOn, moveCollection, moveCollectionTo, addCustom, renameCollection, deleteCustom,
     addItem, editItem, hideItem, removeItem, restoreItem, tick, untick, clearNope, newIn, bingoCard, bingoLines, cantonsInYear,
@@ -39,7 +40,7 @@
   import { localDay } from '../lib/localday.js';
   import { t, tn, lang } from '../lib/i18n.svelte.js';
   import AreaIntro from '../lib/intro/AreaIntro.svelte'; // «Anleitungen überall»: the guide of this page (lib/guides.js)
-  import { Check, Circle, Search, Plus, SlidersHorizontal, Info, Eye, Compass, Flame } from '@lucide/svelte';
+  import { Check, Circle, Search, Plus, SlidersHorizontal, Info, Eye, Compass, Flame, Download } from '@lucide/svelte';
   import '../lib/review/review.css';
 
   const today = localDay();
@@ -93,6 +94,21 @@
     }
   }
   const cur = $derived(on.find((c) => c.id === selWant) ?? on[0] ?? null);
+  // N18: a collection from OpenStreetMap is loaded once on a tap, then it is on this device
+  let osmBusy = $state(false);
+  let osmErr = $state('');
+  async function loadOsm(cid) {
+    if (osmBusy) return;
+    osmBusy = true;
+    osmErr = '';
+    try {
+      await fetchOsm(db, cid);
+    } catch (e) {
+      osmErr = e?.message === 'busy' ? t('OpenStreetMap is busy right now. Try again in a minute.') : navigator.onLine === false ? t('Offline: loading needs the internet once.') : t('OpenStreetMap did not answer. Try again.');
+    } finally {
+      osmBusy = false;
+    }
+  }
   let mode = $state('all'); // 'year' | 'all'
   let q = $state('');
   let showAll = $state(false);
@@ -301,7 +317,14 @@
             <MaybeList list={maybes} onyes={maybeYes} onno={maybeNo} onopen={(m) => (itemOpen = { cid: cur.id, id: m.id })} />
             <div class="rv-box nl-list">
               <label class="find"><Search size={16} aria-hidden="true" /><input type="search" bind:value={q} placeholder={t('Search in {name}', { name: name(cur) })} aria-label={t('Search in {name}', { name: name(cur) })} autocomplete="off" /></label>
-              {#if !cur.items.length}
+              {#if cur.osm && !cur.osmAt}
+                <div class="nl-osm" data-osm-load={cur.id}>
+                  <p>{t('These places come from OpenStreetMap. Load them once (Switzerland, a few hundred places); then they are on this device and work offline.')}</p>
+                  <button type="button" class="btn hi" disabled={osmBusy} onclick={() => loadOsm(cur.id)} data-osm-btn><Download size={16} aria-hidden="true" />{osmBusy ? t('Loading …') : t('Load from OpenStreetMap')}</button>
+                  {#if osmErr}<p class="err" role="alert">{osmErr}</p>{/if}
+                  <small>{t('Only the kind of place and «Switzerland» are sent, nothing of yours.')}</small>
+                </div>
+              {:else if !cur.items.length}
                 <Empty text={cur.builtIn ? t('All entries are hidden.') : t('No entries yet. Add a place, e.g. a café with its place.')} action={{ label: t('Add an entry'), onclick: () => startName('newItem', cur) }} />
               {:else if !rows.length}
                 <p class="none">{q.trim() ? t('Nothing found for «{q}».', { q: q.trim() }) : t('Nothing new in {year} yet.', { year })}</p>
@@ -340,7 +363,8 @@
                 </ul>
               </details>
             {/if}
-            <p class="rv-note nl-note"><Info size={15} aria-hidden="true" /><span>{cur.kind === 'area' ? t('A route counts where it runs through.') : cur.id === 'lakes' ? t('A route within 300 m of the shore counts as «passed by»; tick a swim yourself.') : cur.id === 'passes' ? t('A route within 600 m of the top counts. Between 600 m and 1.2 km the app asks you to confirm.') : cur.builtIn ? t('A route close by counts (pass 600 m, hut 400 m, peak 250 m). Places are rounded; correct one in its window.') : t('An entry with a place counts when a route passes within 200 m.')}</span></p>
+            {#if cur.osm && cur.osmAt}<p class="rv-note nl-note" data-osm-credit><Info size={15} aria-hidden="true" /><span>{t('Places © OpenStreetMap contributors (ODbL), loaded {day}.', { day: dayLong(cur.osmAt.slice(0, 10)) })} <button type="button" class="btn btn-link" disabled={osmBusy} onclick={() => loadOsm(cur.id)} data-osm-again>{t('Load again')}</button></span></p>{/if}
+            <p class="rv-note nl-note"><Info size={15} aria-hidden="true" /><span>{cur.kind === 'area' ? t('A route counts where it runs through.') : cur.id === 'lakes' ? t('A route within 300 m of the shore counts as «passed by»; tick a swim yourself.') : cur.id === 'passes' ? t('A route within 600 m of the top counts. Between 600 m and 1.2 km the app asks you to confirm.') : cur.osm ? t('A route close by counts (tower and bridge about 200 m, waterfall 300 m). Correct a place in its window.') : cur.builtIn ? t('A route close by counts (pass 600 m, hut 400 m, peak 250 m). Places are rounded; correct one in its window.') : t('An entry with a place counts when a route passes within 200 m.')}</span></p>
           </div>
         </div>
       </section>
@@ -656,5 +680,17 @@
   .nl-note :global(svg) {
     flex: none;
     margin-top: 2px;
+  }
+  .nl-osm {
+    display: grid;
+    gap: 8px;
+    justify-items: start;
+    padding: 12px 4px;
+  }
+  .nl-osm p {
+    margin: 0;
+  }
+  .nl-osm small {
+    color: var(--ink-3);
   }
 </style>

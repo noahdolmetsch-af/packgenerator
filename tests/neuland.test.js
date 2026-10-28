@@ -142,7 +142,7 @@ describe('collections: on and off, order, own ones', () => {
     expect(collectionsOf(s).every((c) => c.on)).toBe(true);
     s = moveCollection(s, 'lakes', -1);
     expect(collectionsOf(s).map((c) => c.id).slice(4, 6)).toEqual(['lakes', 'peaks']);
-    s = moveCollectionTo(s, 0, 6);
+    s = moveCollectionTo(s, 0, collectionsOf(s).length - 1); // the last place (N18 added towers, bridges, waterfalls)
     expect(collectionsOf(s).at(-1).id).toBe('cantons');
   });
   it('own collection: add, rename, items, delete moves the items to «Ohne Sammlung» or another one', () => {
