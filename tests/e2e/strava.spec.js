@@ -3,7 +3,7 @@
 // settings (S3), «Zum Prüfen» with «Passt» (S5) and a changed Strava bike asked on Today (S4) with
 // «Übernehmen». The server (packgen-three.vercel.app/api/strava) and the Strava login are answered by
 // the test; everything else outside the preview server is blocked. Fictional bikes and rides only.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { ready } from './settle.js';
 
 const P = 'test_data_gtp_';

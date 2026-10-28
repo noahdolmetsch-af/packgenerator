@@ -5,7 +5,7 @@
 // 2. The phone ••• menu of the packing list was cut off at the left edge at 390 px (with «Rückgängig»
 //    in the toolbar the ••• moved left and the right-aligned menu ran off the screen). Every ••• menu now
 //    stays inside the screen (ui/inview.js): checked here at 320 and 390 px.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { openData, settle } from './settle.js';

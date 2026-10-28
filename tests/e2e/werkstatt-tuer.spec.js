@@ -2,7 +2,7 @@
 // the door. Workshop order with a cost limit, a refund on a visit, the handover after a sale, a problem like an earlier
 // one, the last look at the door on the start morning. Fictional data only (test_data_gtp_), the clock on Friday
 // 9 October 2026 (home0460-fixture.js), every outside address blocked.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { openHome, homeFixture, tr, day } from './home0460-fixture.js';
 
 const T = tr('de');
