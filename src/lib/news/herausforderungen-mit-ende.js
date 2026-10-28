@@ -2,8 +2,8 @@
 export default {
   title: 'Challenges with an end',
   lead: 'Set yourself a New ground goal with an end day.',
-  points: [{ text: 'Trips › Dreams: e.g. 5 new municipalities this month or all lakes in your canton this year', href: '#/trips/dreams' }],
-  small: [{ box: 'new', text: 'The app counts by itself from your routes, rides and ticks; a bar shows how far you are and how many days are left' }],
+  points: [{ text: 'Trips › Dreams: e.g. 5 new municipalities this month or all lakes in your canton this year', href: '#/trips/dreams', go: 'f.nlgoals' }],
+  small: [{ box: 'new', text: 'The app counts by itself from your routes, rides and ticks; a bar shows how far you are and how many days are left', go: 'f.nlgoals' }],
   test: [
     'Open Trips › Dreams and scroll to «Challenges with an end».',
     'Tap «5 new municipalities this month», then «Start challenge»: it shows «0 of 5» and the days left.',
