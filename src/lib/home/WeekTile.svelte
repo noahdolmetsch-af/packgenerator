@@ -55,7 +55,9 @@
 
 <section class="wk surf" aria-labelledby="wk-h" data-section="week">
   <TileHead icon={Activity} id="wk-h" title={t('This week')} {isnew} />
-  <p class="sub">{tn(n, '{n} day active', '{n} days active')}</p>
+  <!-- UI-Test T4: «0 Tage aktiv» beside measured Fitbit minutes read like a contradiction: an empty week
+       says nothing is entered yet, and what Fitbit measured -->
+  <p class="sub" data-week-sub>{n ? tn(n, '{n} day active', '{n} days active') : t('Nothing entered yet')}{#if !n && azm.any}{' · '}{t('Fitbit measured {n} active zone min', { n: num(azm.sum) })}{/if}</p>
   <ol class="days">
     {#each days as d (d.day)}
       {@const parts = [d.ride ? (d.km ? t('Bike {km} km', { km: num(d.km) }) : t('Bike|ride')) : '', ...d.acts.slice(0, 2).map((a) => actName(acts[a]))].filter(Boolean)}

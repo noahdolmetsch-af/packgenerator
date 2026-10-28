@@ -2,6 +2,7 @@
 // web and address; the page the QR code opens shows a row for each and «In Kontakte speichern» gives a contact
 // file made on the device. The address stays off until ticked. Fictional data only.
 import { test, expect } from '@playwright/test';
+import { readFileSync } from 'node:fs';
 import { openHome } from './home0460-fixture.js';
 
 const phone = (info) => info.project.name === 'phone';
@@ -122,4 +123,22 @@ test('Kontakt-QR step 3: payment details apart, shown only after a tap', async (
   await expect(page.locator('[data-card-bill] svg')).toBeVisible();
   await expect(page.locator('[data-card-bill]')).toContainText('CH93 0076 2011 6238 5295 7');
   await noSideways(page, 'card page with payment');
+});
+
+test('Kontakt-QR step 4: lock-screen image and sticker Found as PNG files', async ({ page, context }, info) => {
+  await openHome(page, context, info);
+  await page.goto('./#/me/freunde?tab=card');
+  // no share sheet in the test: the image comes as a download (same page, only the hash changed)
+  await page.evaluate(() => Object.defineProperty(navigator, 'canShare', { value: undefined, configurable: true }));
+  await expect(page.locator('[data-card-images]')).toHaveCount(0);
+  await page.locator('[data-card-name]').fill('test_data_gtp_ Sam');
+  await page.locator('[data-card-name]').blur();
+  for (const [kind, file] of [['lock', 'kontakt-sperrbild.png'], ['sticker', 'sticker-gefunden.png']]) {
+    const [dl] = await Promise.all([page.waitForEvent('download'), tap(page.locator(`[data-card-img="${kind}"]`), info)]);
+    expect(dl.suggestedFilename()).toBe(file);
+    const bytes = readFileSync(await dl.path());
+    expect(bytes.subarray(1, 4).toString()).toBe('PNG');
+    await expect(page.locator('[data-card-imgmsg]')).toBeVisible();
+  }
+  await noSideways(page, 'card with image buttons');
 });

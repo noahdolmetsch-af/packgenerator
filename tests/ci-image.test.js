@@ -29,8 +29,12 @@ describe('CI Playwright image', () => {
 describe('Schnellspur (Weg zu online)', () => {
   const deploy = files['deploy.yml'];
 
-  it('going online waits only for the build, and main never cancels a running publish', () => {
-    expect(deploy).toMatch(/\n  deploy:\n(?:.*\n)*?    needs: \[build\]\n/);
+  it('main goes online in one job (one wait for a free computer), and never cancels a running publish', () => {
+    const online = deploy.slice(deploy.indexOf('\n  online:'));
+    expect(online).toContain("if: github.ref == 'refs/heads/main'");
+    expect(online).not.toMatch(/\n    needs:/);
+    for (const step of ['npm test', 'npm run build', 'actions/upload-pages-artifact', 'actions/deploy-pages']) expect(online).toContain(step);
+    expect(deploy.slice(deploy.indexOf('\njobs:')).match(/\n  [\w-]+:\n/g).map((s) => s.trim())).toEqual(['build:', 'e2e-part:', 'e2e-phone:', 'e2e-desktop:', 'online:']);
     expect(deploy).toContain("cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}");
   });
 
