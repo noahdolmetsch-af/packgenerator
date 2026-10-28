@@ -209,4 +209,6 @@ export default {
   'Only with you: on your devices and in your backup, never in a group. Rename, sort and delete like everywhere.': 'Nur bei dir: auf deinen Geräten und in deiner Sicherung, nie in einer Gruppe. Umbenennen, sortieren und löschen geht wie überall.',
   'They stay and show under «Without an event».': 'Sie bleiben und stehen unter «Ohne Event».',
   'needs help': 'braucht Hilfe',
+  // Nachprüfung 27.10.2026: «Neue Leute merken» nach dem Event
+  'Who did you meet at the event? Keep their contact under Me › With friends › Contact card.': 'Wen hast du am Event kennengelernt? Speichere die Kontakte unter Ich › Mit Freunden › Kontaktkarte.',
 };
