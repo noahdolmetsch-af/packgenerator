@@ -804,12 +804,6 @@ export const HANDBOOK = {
     steps: ['Open Aktiv › Goals: «Year goals» with km, metres climbed and minutes.', 'Switch a goal off, or tap its number to change it.'],
     example: 'Example: year goal 4000 km and 40 000 m climbed; minutes switched off.',
   },
-  // v0.147.0 Paket B (Termine buchen)
-  'f.offers': {
-    on: 'Needs the booking server; online payment only in test mode.',
-    steps: ['Open Me › Offers and start «Tennis lesson», a tour, a bike service or your own offer.', 'Tap + on a day to open a free time, then send the link by WhatsApp.', 'New bookings show on Today; tap a time to see who comes or to cancel it.'],
-    example: 'Example: Mondays 18:00 group lesson every week → a student books from the link, Today says «New booking».',
-  },
   // v0.133.0
   'f.abfragen': {
     on: null,
@@ -893,6 +887,12 @@ export const HANDBOOK = {
     on: null,
     steps: ['At the end of the evening review tap «Keep this day».', 'Write what made it good and save.', 'In What is good for me tap «Repeat on Saturday».'],
     example: 'Example: «quiet morning, outside in the afternoon» → on Saturday morning the check reminds you.',
+  },
+  // «App verstehen» (Noah 26.10.2026)
+  'f.verstehen': {
+    on: null,
+    steps: ['Open Me › Understand the app.', 'Open a lesson, read it and do the exercise.', 'Tick «Done» if you like.'],
+    example: 'Example: lesson 2 «Make a backup and bring it back» → export a backup and import it in a test link.',
   },
   // Paket P3 «Warum? und Regeln»
   'f.decides': {
@@ -1227,6 +1227,11 @@ export const HANDBOOK = {
     steps: ['Open Trips › Dreams and write the name of a dream tour.', 'Tap it: change the kind of tour and the months it fits.', 'Tap «Plan the tour»: a trip draft on the first Saturday of the season.'],
     example: 'Example: «Over the Furka» → Alpine passes, July to September → trip on 3 July.',
   },
+  'f.whitespots': {
+    on: 'Needs your home place.',
+    steps: ['Open Trips › Dreams › White spots nearby.', 'Choose 10, 25 or 50 km.', 'Tap a place on the map or in the list: its name and distance.'],
+    example: 'Example: 25 km around Zürich → 209 municipalities never visited, the nearest 5 km away.',
+  },
   'f.races': {
     on: 'Needs a race with a date in Inspiration, or a race in your Google calendar.',
     steps: ['Open Trips › Dreams › Races to plan.', 'Tap «Plan as a trip» and add the registration deadline.', 'Tick «Signed up» once you are registered.'],
@@ -1559,6 +1564,16 @@ export const HANDBOOK = {
     steps: ['Plan a tour; its start place, or else your home place, is where the weather is looked at.', 'Twice a day, from 10 days before up to the day before, the server compares the forecast.', 'A message comes only when something changes: the weather turns, gets good again, or a better day shows up.'],
     example: 'Example: tour on Saturday, rain forecast on Thursday → «The weather for Testtour turns. From Sun 25.10. it looks better.»',
   },
+  'f.morningpush': {
+    on: 'On by itself once reminders on the phone are on; switch it off under Me › Reminders on the phone › In the morning.',
+    steps: ['Every reminder at 08:00 (parts worn, chain, supplies, lent things, shopping, race registration) waits for the morning message.', 'At 07:00 one message comes: first a trip that starts and up to two appointments of the day, then the reminders.', 'Warnings (weather, ice, light, rain on the way, eating) still come on their own and on time.'],
+    example: 'Example: «Your morning» → «Appointment: 10:00 Dentist», «Testvelo: Chain reaches 1000 km soon», «and 1 more in the app».',
+  },
+  'f.remindtime': {
+    on: 'Nothing to switch on: it learns while you open the evening-before check.',
+    steps: ['The app notes the time you open the check on each evening before a trip (from 16:00).', 'From 3 evenings it takes your usual time and offers a reminder 15 minutes earlier.', '«Move it» changes the time in Own values, with Undo; «No, thanks» keeps the old time.'],
+    example: 'Example: check opened at 21:20, 21:40 and 21:30 → «Move the reminder to 21:15?»',
+  },
   'f.tourhints': {
     on: 'Nothing to switch on; the hints come from the route, the start time and the forecast.',
     steps: ['A stage after sunset brings light and reflective vest; the «Light alarm» push reminds you the evening before.', 'From UV 6 sunscreen and sunglasses; on a ski tour from UV 3 the glacier glasses.', 'On a loop with wind it says which way round gives the tailwind home.'],
@@ -1599,11 +1614,6 @@ export const HANDBOOK = {
     steps: ['Open Me › Appointments and tasks, tick calendar and tasks and tap «Connect with Google».', 'The next 14 days and your open tasks appear; tick a task or add one, it changes in Google too.', '«New appointment» enters it in your Google calendar.'],
     example: 'Example: «Kette messen» due on Thursday → stands under «Next 7 days»; ticked in the app, it is done in Google Tasks too.',
   },
-  'f.webshop': {
-    on: 'Nothing to switch on; the orders wait on the server until the app fetches them.',
-    steps: ['Open Me › Payments › Shop and add a product: a download, a code or a thing to send with postage and stock.', 'Copy the shop link and send it; people buy without the app or an account.', 'Under «Orders» mark «Paid», print the label and then «Shipped» with the tracking number.'],
-    example: 'Example: a packing list as a download for CHF 5 → an order with TWINT message → «Paid» → the buyer gets the link by mail.',
-  },
   'f.fitbit': {
     on: 'Connect Fitbit once under Me › Data and backup › Fitbit (needs Strava connected on this device).',
     steps: ['Tap «Connect with Google» and allow the values.', 'Back in the app, «Health data» shows how current each value is; «Choose values» switches single ones off.'],
@@ -1613,16 +1623,6 @@ export const HANDBOOK = {
     on: 'Computer only: choose a folder under Me › Data and backup.',
     steps: ['Under «Auto-backup to a folder», tap «Choose folder».', 'After every change the newest backup lands there, plus one per day.', 'Folder gone, full or not allowed: the message says what to do; «Try again» or «Choose a new folder».'],
     example: 'Example: a folder that syncs to the cloud → always a fresh backup.',
-  },
-  'f.invoices': {
-    on: 'Enter your account once (IBAN, name, town; TWINT number if you like). It stays only on this device.',
-    steps: ['Open Me › Payments › Invoices and tap «New QR invoice».', 'Enter for whom, the amount and what for; send it by mail, as a PDF or copy the pay link.', 'When money arrives: «Paid», «Money received» or upload the bank statement.'],
-    example: 'Example: tennis lesson 80.00 CHF to Mia → she pays with TWINT, message R-0001 → «Paid».',
-  },
-  'f.bills': {
-    on: 'Nothing to switch on.',
-    steps: ['Open Me › Payments › Invoices › tab «To pay».', 'Photograph the bill or enter it by hand; check the due date.', 'Pay in your e-banking with «Payment part», then tap «Paid».'],
-    example: 'Example: workshop bill 189.50 CHF, due on the 17th → a reminder on the 14th.',
   },
   'f.tidy': {
     on: 'Only shows when something has «test» in its name.',
@@ -1717,7 +1717,7 @@ export const HANDBOOK = {
   },
   'f.suggestoff': {
     on: null,
-    steps: ["Open Me › Appearance › Suggestions.", "Switch off an area you do not want.", "A kind (ideas to buy, performance tips, ideas for free time, fitting tools) goes off on every page at once."],
+    steps: ["Open Me › Appearance › Suggestions.", "Switch off an area you do not want.", "A kind (ideas to buy, performance tips, ideas for free time, fitting tools): Me › Calm and personal › Hidden and switched off."],
     example: "Example: «Ideas in Active» off → Active shows no suggested actions.",
   },
   'f.tipweek': {

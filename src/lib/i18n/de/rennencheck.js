@@ -144,7 +144,6 @@ export default {
   // «Links pro Rennen»
   'Rules|race': 'Regeln',
   Tracker: 'Tracker',
-  Website: 'Website',
   'Links to the race': 'Links zum Rennen',
   'Handbook, rules, tracker, website: everything about this race one tap away. Tap a row to put in or change its address.': 'Handbuch, Regeln, Tracker, Website: alles zum Rennen mit einem Tipp. Tippe eine Zeile an, um die Adresse einzutragen oder zu ändern.',
   'Name or address, e.g. Handbook': 'Name oder Adresse, z. B. Handbuch',
@@ -162,4 +161,6 @@ export default {
   'Change the numbers': 'Zahlen ändern',
   'Good day: 10 % faster and fewer stops. Hard day: 10 % slower and more stops. Only a guide.': 'Guter Tag: 10 % schneller und weniger Pausen. Harter Tag: 10 % langsamer und mehr Pausen. Nur ein Richtwert.',
   'Rule: km ÷ speed on the flat + metres up ÷ climbing rate, plus tiredness, then the stops on top.': 'Regel: km ÷ Tempo in der Ebene + Höhenmeter ÷ Steigrate, plus Müdigkeit, dann die Pausen obendrauf.',
+  'Coming|races': 'Kommende',
+  'Done|races': 'Vorbei',
 };

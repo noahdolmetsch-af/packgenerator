@@ -6,16 +6,21 @@
    * points: [[km, m], …].
    */
   import { t, num } from '../i18n.svelte.js';
+  import { niceScale } from '../charts/axis.js';
+  import GridLines from '../charts/GridLines.svelte';
 
   let { points = [], onpoint = null } = $props();
 
   let box = $state(600); // the measured width: the profile stays 150 px high on every screen
   const W = $derived(Math.max(240, Math.round(box || 600)));
   const H = 150;
-  const PAD = { l: 40, r: 8, t: 10, b: 22 };
+  const PAD = { l: 52, r: 8, t: 10, b: 22 };
   const end = $derived(points.at(-1)?.[0] || 1);
-  const lo = $derived(Math.floor(Math.min(...points.map((p) => p[1])) / 50) * 50);
-  const hi = $derived(Math.max(lo + 100, Math.ceil(Math.max(...points.map((p) => p[1])) / 50) * 50));
+  // «Genaue Werte» (Noah 27.10.2026): round height steps with grid lines, round km steps under it
+  const mSc = $derived(niceScale(points.map((p) => p[1]), { count: 3 }));
+  const lo = $derived(mSc.lo);
+  const hi = $derived(mSc.hi);
+  const kmTicks = $derived(niceScale([0, end], { zero: true, count: 4 }).ticks.filter((k) => k <= end + 1e-9));
   const x = (km) => PAD.l + (km / end) * (W - PAD.l - PAD.r);
   const y = (m) => PAD.t + (1 - (m - lo) / (hi - lo)) * (H - PAD.t - PAD.b);
   const area = $derived(points.length < 2 ? '' : `M${x(points[0][0])},${y(lo)} ` + points.map(([km, m]) => `L${x(km).toFixed(1)},${y(m).toFixed(1)}`).join(' ') + ` L${x(end)},${y(lo)} Z`);
@@ -47,12 +52,9 @@
   <figure class="tprof" data-tour-profile bind:clientWidth={box}>
     <!-- svelte-ignore a11y_no_noninteractive_tabindex, a11y_no_noninteractive_element_interactions -->
     <svg viewBox="0 0 {W} {H}" role="img" aria-label={t('Elevation profile: move along it to see the spot on the map')} tabindex="0" onpointermove={move} onpointerdown={move} onpointerleave={() => setKm(null)} onkeydown={key} onblur={() => setKm(null)}>
-      {#each [lo, hi] as m (m)}
-        <line x1={PAD.l} x2={W - PAD.r} y1={y(m)} y2={y(m)} class="grid" />
-        <text x={PAD.l - 6} y={y(m) + 4} class="ax" text-anchor="end">{num(m)}</text>
-      {/each}
-      <text x={PAD.l} y={H - 4} class="ax">0</text>
-      <text x={W - PAD.r} y={H - 4} class="ax" text-anchor="end">{num(Math.round(end))} km</text>
+      <GridLines ticks={mSc.ticks} {y} x1={PAD.l} x2={W - PAD.r} />
+      {#each mSc.ticks as m, i (m)}<text x={PAD.l - 6} y={y(m) + 4} class="ax" text-anchor="end" data-profile-tick>{num(m)}{i === mSc.ticks.length - 1 ? ' m' : ''}</text>{/each}
+      {#each kmTicks as k, i (k)}<text x={x(k)} y={H - 4} class="ax" text-anchor={i === 0 ? 'start' : x(k) > W - PAD.r - 30 ? 'end' : 'middle'}>{num(k)}{i === kmTicks.length - 1 ? ' km' : ''}</text>{/each}
       <path d={area} class="area" />
       {#if at != null}
         <line x1={x(at)} x2={x(at)} y1={PAD.t} y2={H - PAD.b} class="cur" />
@@ -81,10 +83,6 @@
     fill: var(--accent-soft, var(--paper-2));
     stroke: var(--accent);
     stroke-width: 2;
-  }
-  .grid {
-    stroke: var(--card-line);
-    stroke-dasharray: 3 4;
   }
   .ax {
     fill: var(--ink-3);

@@ -6,6 +6,7 @@
    * app sends the server its next reminders (push/client.js), and the server sends them at their time.
    * Paket B (anleitung.md Teil 7): «Adresse für cron-job.org kopieren» fetches the tick address (with the
    * code the server made itself) and copies it; when the clipboard refuses, the address is shown to select.
+   * Idee A1 (Noah 27.10.2026 «3a»): «One message in the morning» (on unless switched off, push/morning.js).
    */
   import { liveQuery } from 'dexie';
   import { db } from '../lib/db.js';
@@ -15,6 +16,7 @@
   import { dayShort } from '../lib/flow/words.js';
   import { supported, permission, syncNow, off, testNow, cronUrl } from '../lib/push/client.js';
   import VeloHead from '../lib/bikes/VeloHead.svelte';
+  import EveOffer from '../lib/remindlearn/EveOffer.svelte';
   import { BellRing, Send, Info, Copy, Check } from '@lucide/svelte';
   import '../lib/ich/ich.css';
 
@@ -62,6 +64,10 @@
   }
   async function setKind(key, on) {
     await save({ ...p, kinds: { ...p.kinds, [key]: on } });
+    if (p.on) await sync();
+  }
+  async function setMorning(on) {
+    await save({ ...p, morning: on });
     if (p.on) await sync();
   }
   async function setTour(id, on) {
@@ -116,6 +122,16 @@
     {#if msg}<p class="ps-msg" role="alert">{msg}</p>{/if}
   </section>
 
+  <section class="ps-sec" aria-labelledby="ps-morning-h" data-push-morning>
+    <h2 id="ps-morning-h">{t('In the morning')}</h2>
+    <div class="card ps-card">
+      <div class="ps-row">
+        <span class="ps-m"><b id="ps-morning-l">{t('One message in the morning')}</b><small>{t('The reminders of 08:00 come together at 07:00 as one message, with your trip and the first appointments of the day. Warnings (weather, ice, light, rain) still come on their own.')}</small></span>
+        <input class="ps-sw" type="checkbox" role="switch" aria-labelledby="ps-morning-l" checked={p.morning} disabled={busy} onchange={(e) => setMorning(e.currentTarget.checked)} />
+      </div>
+    </div>
+  </section>
+
   <section class="ps-sec" aria-labelledby="ps-kinds-h">
     <h2 id="ps-kinds-h">{t('Which reminders')}</h2>
     <ul class="card ps-list">
@@ -124,6 +140,12 @@
           <span class="ps-m"><b id="ps-{k.key}">{t(k.label)}</b><small>{t(k.hint)}</small></span>
           <input class="ps-sw" type="checkbox" role="switch" aria-labelledby="ps-{k.key}" checked={p.kinds[k.key]} disabled={busy} onchange={(e) => setKind(k.key, e.currentTarget.checked)} />
         </li>
+        {#if k.key === 'eve'}
+          <!-- Idee A2: the name and what it does stay in sight; the offer itself comes after 3 evenings -->
+          <li class="ps-row ps-sub" data-remind-time>
+            <span class="ps-m"><b>{t('Reminder at your time')}</b><small>{t('After 3 evenings the app suggests moving the reminder to when you usually do the check.')}</small></span>
+          </li>
+        {/if}
         {#if k.key === 'wxwatch' && p.kinds.wxwatch}
           <li class="ps-row ps-sub" data-push-tours>
             {#if watchTrips.length}
@@ -143,6 +165,8 @@
         {/if}
       {/each}
     </ul>
+    <!-- Idee A2: the evening reminder at your usual time -->
+    {#if p.kinds.eve}<EveOffer />{/if}
   </section>
 
   {#if p.on}<p class="ps-acts"><button type="button" class="btn" onclick={test} data-push-test><Send size={16} aria-hidden="true" />{t('Send a test')}</button></p>{/if}

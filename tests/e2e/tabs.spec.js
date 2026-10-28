@@ -4,6 +4,7 @@
 // the debrief is one page (0 exceptions = 1 tap); weather changes show their reason and an Undo per row.
 // Fictional fixture plus test_data_gtp_ items; nothing outside the preview server.
 import { test, expect } from '@playwright/test';
+import { STEP_BAR as BAR } from '../../src/lib/stepbar.js'; // Schrittleiste (Noah 26.10.2026 «1b», changed on purpose): the bar's short names
 import { endToDebrief } from './ending.js';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
@@ -73,7 +74,9 @@ const table = (page, name) =>
 const stored = async (page, title) => (await table(page, 'trips')).find((x) => x.title === title) ?? null;
 
 const steps = (page, T) => page.getByRole('navigation', { name: T('Steps of this trip') });
-const tab = (page, T, key) => steps(page, T).getByRole('link', { name: new RegExp(`^${esc(T(key))}`) });
+// the step bar shows the short names (Noah 26.10.2026 «1b»); the specs name a step by its usual key
+const BAR_OF = { 'Plan|stage': BAR.plan, 'Pack|stage': BAR.pack, 'On the way': BAR.ride, Debrief: BAR.debrief, 'Analysis|stage': BAR.analysis };
+const tab = (page, T, key) => steps(page, T).getByRole('link', { name: new RegExp(`^${esc(T(BAR_OF[key] ?? key))}`) });
 const go = (page) => page.locator('.trip-band .go');
 const noSideScroll = async (page) => expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(page.viewportSize().width);
 
@@ -88,8 +91,9 @@ for (const lang of ['de', 'en']) {
     // must be done first, so the weather is set (Warm: nothing for the cold, nothing left to decide).
     const trip = await newTrip(page, T, title, { date: day(1), weather: 'Warm' });
     // 0.176 «Eine Tour, eine Seite» (UI-Ziele #5): the fifth tab «Auswertung» is the tour page
-    const NAMES = ['Plan|stage', 'Pack|stage', 'On the way', 'Debrief', 'Analysis|stage'];
-    if (lang === 'de') expect(NAMES.map((k) => T(k))).toEqual(['Planen', 'Packen', 'Unterwegs', 'Rückblick', 'Auswertung']);
+    // Schrittleiste (Noah 26.10.2026 «1b», changed on purpose): the bar shows the short names in both languages
+    const NAMES = [BAR.plan, BAR.pack, BAR.ride, BAR.debrief, BAR.analysis];
+    if (lang === 'de') expect(NAMES.map((k) => T(k))).toEqual(['Plan', 'Pack', 'Live', 'Review', 'Analyse']);
     // The old addresses stay: #/pack, #/pack?day, #/ride, #/debrief/<id>.
     const pages = [['#/pack', 0], ['#/pack?day', 1], ['#/ride', 2], [`#/debrief/${trip.id}`, 3]];
     for (const [hash, n] of pages) {
@@ -111,7 +115,7 @@ for (const lang of ['de', 'en']) {
     await expect(page).toHaveURL(/#\/pack\?day$/);
     // The old full-screen address #/pack/day still opens Pack.
     await page.goto('./#/pack/day');
-    await expect(steps(page, T).locator('a[aria-current="page"]')).toContainText(T('Pack|stage'));
+    await expect(steps(page, T).locator('a[aria-current="page"]')).toContainText(T(BAR.pack));
     // Today's button for this trip (it starts tomorrow) says "Pack", like the tab, and opens the same address.
     await page.goto('./#/');
     const band = page.getByRole('region', { name: title });
@@ -142,9 +146,10 @@ test('Pack: a full bag jumps to the next one by itself', async ({ page, context 
   await expect(cur.locator('.bagh b')).not.toHaveText(first);
   const next = await cur.locator('.bagh b').textContent();
   await expect(page.getByRole('status').filter({ hasText: T('{bag} is packed. Next: {next}', { bag: first, next }) })).toBeVisible();
-  // The full bag is closed with a ✓ and its count.
+  // The full bag is closed with a ✓ in a full ring («Neuer Schwung» Packen 1, changed on purpose: the ring shows ✓ instead of n/n).
   const done = page.locator('.pd .pbag.done').filter({ hasText: first });
-  await expect(done).toContainText(`${n}/${n}`);
+  await expect(done.locator('[data-bag-ring].full')).toHaveAttribute('aria-label', T('all in'));
+  await expect(done.locator('[data-bag-ring] .rn svg')).toHaveCount(1);
   await expect(done.locator('.bagh')).toHaveAttribute('aria-expanded', 'false');
   // The current bag's rows are a thumb high.
   expect((await cur.locator('ul.items button').first().boundingBox()).height).toBeGreaterThanOrEqual(44);
