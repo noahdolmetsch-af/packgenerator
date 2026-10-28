@@ -5,7 +5,7 @@
 // the old trips in the Logbook with a search, and the clothing row of the debrief (the border offset).
 // Fictional data only (fixture.json + test_data_gtp_ items made here); every outside request is blocked.
 // V042_SHOTS=<folder> saves screenshots of the new screens there.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { openLayers } from './wardrobe-open.js';
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';

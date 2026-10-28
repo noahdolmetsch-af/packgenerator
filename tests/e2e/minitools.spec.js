@@ -2,7 +2,7 @@
 // opens it in a second tab (no app data), answers per day; the maker reads the answers, sees the best day and
 // his own row; rename, end, delete with Undo. The server (/api/sync?action=mini) is the real handler over a small
 // fake Redis; it keeps only sealed text. Fictional data only.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { openHome } from './home0460-fixture.js';
 import { makeMiniHandler } from '../../api/_lib/mini.js';
 import { fakeRedis } from '../fakeredis.js';

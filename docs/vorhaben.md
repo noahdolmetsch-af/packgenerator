@@ -549,6 +549,13 @@ Warum: Daten aus verschiedenen Bereichen sollen zusammenspielen, damit die App i
 - **C Velo, Wetter, Material:** C1 Verschleiss-Kosten voraus, C2 Packliste folgt dem Wetterumschwung, C3 welches Velo passt?
 - **D Ein Helfer, der alles kennt:** D1 «Frag die App» über alle Bereiche, D2 eigene Faustregeln vorschlagen, D3 was die App noch wissen müsste, D4 «Hängt zusammen mit».
 
+### 15. Heute als Begleiter (28.10.2026)
+
+- **Warum:** Die App kann über 500 Dinge, viele davon kennt man nicht. Noah (28.10.2026): die App soll Funktionen zeigen, von denen man nicht weiss, dass man sie brauchen kann, und den Nutzer über die ganze Reise begleiten, je nachdem, was er gerade tun möchte. Ziel: «Von der Haustür bis zurück» und «Aus jeder Tour lernen».
+- **Was (Noah «1a 2a 3a», «1a 2a 3a 4a», «ok freigabe»):** 8 Momente (Lust, Planen, Packen, Unterwegs, Zurück, dazu Velo und Material, Körper und Training, Alltag und Woche). Heute erkennt den Moment und zeigt eine Karte mit dem nächsten Schritt, dazu eine ruhige Funktion zum Entdecken mit «Später» und «Nicht für mich». «Was die App kann» bekommt die Ansicht «Nach Moment», jede Seite eine Zeile «Gehört dazu». Am Ende hat jede der 517 Funktionen einen Ort, einen Moment und einen sichtbaren Namen; der Wächter-Test hält das fest.
+- **Plan:** 13 kleine PRs. 1 Moment-Regeln, 2–3 die 117 fehlenden Katalog-Einträge, 4 Moment-Karte, 5 Entdecken-Karte, 6 «Nach Moment», 7–9 «Gehört dazu», 10 Versteckte sichtbar, 11 Namen, 12 Gesten erklären, 13 Wächter für alle. Skizzen: https://claude.ai/artifact/Hbqb7wZAPaxwvtMm7irumB.
+- **Stand:** PR 1 (Regeln in `src/lib/moment.js`, nichts sichtbar).
+
 ## Mini-Tools (28.10.2026)
 
 Warum: mit anderen Leuten schneller abmachen, ohne langes Hin und Her im Chat (Ziele Touren und Alltag). Noah «1b 2a 3a, Ideen 1, 2, 4, 5, 7, 9, 10, 5a». Ideenseite mit Skizzen: https://claude.ai/artifact/HA5TAJLzAtuhUBAAHqJApH

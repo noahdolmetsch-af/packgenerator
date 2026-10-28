@@ -2,7 +2,7 @@
 // phone: the sections, test trips hidden and cleaned up with Undo, the colour worlds and dark mode, the
 // command "wiegen", no sideways scroll at 320 and 390 px. Fictional fixture plus test_data_gtp_ records;
 // the clock stands on Friday 9 October 2026, 09:00; Open-Meteo is mocked, nothing leaves the preview.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { READY } from '../../src/lib/home/tiles.js';
 import { D0, homeFixture, openHome, trip, entries } from './home0460-fixture.js';
 import { greetFor } from '../../src/lib/home/hallo.js';

@@ -5,7 +5,7 @@
 // - RE3: the card «Pflege für …» above the parts: switch a care off, own interval (km and/or days), a note, reset.
 // Fictional data only (test_data_gtp_), German UI, Europe/Zurich, service workers blocked (config).
 // SHOTS=<folder> saves the screenshots for Noah (1440 and 390, light).
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';

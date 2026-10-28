@@ -87,6 +87,11 @@ test('a) a finished tour opens its page: key figures, map, profile, jump bar or 
   const ms = await tour(page).locator('[data-profile-tick]').allTextContents();
   expectRound(ms);
   expect(ms.at(-1)).toMatch(/ m$/);
+  // «Diagramme zum Antippen» (28.10.2026): the exact height in the line over the profile; «Als Tabelle» per round km
+  await expect(tour(page).locator('[data-profile-at] [data-readout]')).toContainText(' m');
+  await tour(page).locator('[data-tour-profile]').getByText(T('As table'), { exact: true }).click();
+  expect(await tour(page).locator('[data-tour-profile] [data-chart-table] tbody tr').count()).toBeGreaterThanOrEqual(2);
+  await tour(page).locator('[data-tour-profile]').getByText(T('Chart|table'), { exact: true }).click();
   // all five parts on one page; the bar jumps
   for (const p of ['overview', 'values', 'pack', 'diary', 'review']) await expect(tour(page).locator(`[data-tour-part="${p}"]`)).toBeVisible();
   await shot(page, info, 'T1-tour-seite');
