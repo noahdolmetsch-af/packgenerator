@@ -7,7 +7,7 @@ PR (E8) · 27.10.2026 · Auftrag: Noah «ich möchte b13 bis b24 alle umsetzen. 
 - Voll (wie bisher): alles gleitet, grosse Momente mit Farbregen. Ruhig: kleine Bewegungen, kein Farbregen. Aus: nichts gleitet oder bewegt sich, wie «Bewegung reduzieren» am Gerät.
 
 ## Was fällt weg oder rutscht tiefer
-- nichts. Die Zeile «Bewegung» steht in «Bedienung» über «Handschuh-Modus».
+- nichts. Die Zeile «Bewegung» steht in «Bedienung» unter «Handschuh-Modus».
 
 ## Selbst entschieden
 - Voll ist der Start, damit sich für dich nichts ändert, bis du wählst.
