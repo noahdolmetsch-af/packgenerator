@@ -51,7 +51,7 @@
         <label class="sr" for="lv-saved-name">{t('Name')}</label>
         <!-- svelte-ignore a11y_autofocus -->
         <input id="lv-saved-name" class="input" bind:value={draft} autofocus data-live-saved-input />
-        <button type="submit" class="btn sm primary" data-live-saved-keep>{t('Save')}</button>
+        <button type="submit" class="btn sm hi" data-live-saved-keep>{t('Save')}</button>
         <button type="button" class="btn sm" onclick={() => (editing = false)}>{t('Cancel')}</button>
       </form>
     {:else}
@@ -59,7 +59,7 @@
     {/if}
     <small>{trip?.id ? t('In Trips with the tour, under «Live Navigation».') : t('In Trips as its own entry «Live Navigation».')}</small>
     <span class="lv-saved-acts">
-      <a class="btn sm primary" href={openHref} data-live-saved-open>{t('Open')}</a>
+      <a class="btn sm hi" href={openHref} data-live-saved-open>{t('Open')}</a>
       {#if !editing}<button type="button" class="btn sm" onclick={edit} data-live-saved-rename><Pencil size={16} aria-hidden="true" />{t('Rename')}</button>{/if}
       <a class="btn sm" href="#/trips" data-live-saved-link>{t('Open Trips')}</a>
     </span>
