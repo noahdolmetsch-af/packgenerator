@@ -1227,6 +1227,11 @@ export const HANDBOOK = {
     steps: ['Open Trips › Dreams and write the name of a dream tour.', 'Tap it: change the kind of tour and the months it fits.', 'Tap «Plan the tour»: a trip draft on the first Saturday of the season.'],
     example: 'Example: «Over the Furka» → Alpine passes, July to September → trip on 3 July.',
   },
+  'f.quicklinks': {
+    on: null,
+    steps: ['Open Quick Links in the bar (on a computer: in the sidebar).', 'Tap «Add a pin», search a function and tap «Pin».', 'Tap «Edit»: rename, add a note, move with the arrows or drag, unpin.'],
+    example: 'Example: pin «Wear» into the group «Bike» with the note «after rain».',
+  },
   'f.whitespots': {
     on: 'Needs your home place.',
     steps: ['Open Trips › Dreams › White spots nearby.', 'Choose 10, 25 or 50 km.', 'Tap a place on the map or in the list: its name and distance.'],

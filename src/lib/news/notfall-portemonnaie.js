@@ -3,8 +3,8 @@
 export default {
   title: 'Emergency card for the wallet',
   lead: 'Print your emergency card in credit-card size.',
-  points: [{ text: 'Emergency QR: «Print a wallet card» prints the lines and the code on a small card', href: '#/mountain/qr' }],
-  small: [{ box: 'new', text: 'It helps when the phone is empty or broken' }],
+  points: [{ text: 'Emergency QR: «Print a wallet card» prints the lines and the code on a small card', href: '#/mountain/qr', go: 'f.sosqr' }],
+  small: [{ box: 'new', text: 'It helps when the phone is empty or broken', go: null }],
   test: ['Open Mountain and emergency › Emergency QR and save your card.', 'Tap «Print a wallet card»: the print window shows one small card with the code.'],
   since: [],
   de: {
