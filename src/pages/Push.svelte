@@ -16,6 +16,7 @@
   import { dayShort } from '../lib/flow/words.js';
   import { supported, permission, syncNow, off, testNow, cronUrl } from '../lib/push/client.js';
   import VeloHead from '../lib/bikes/VeloHead.svelte';
+  import EveOffer from '../lib/remindlearn/EveOffer.svelte';
   import { BellRing, Send, Info, Copy, Check } from '@lucide/svelte';
   import '../lib/ich/ich.css';
 
@@ -139,6 +140,12 @@
           <span class="ps-m"><b id="ps-{k.key}">{t(k.label)}</b><small>{t(k.hint)}</small></span>
           <input class="ps-sw" type="checkbox" role="switch" aria-labelledby="ps-{k.key}" checked={p.kinds[k.key]} disabled={busy} onchange={(e) => setKind(k.key, e.currentTarget.checked)} />
         </li>
+        {#if k.key === 'eve'}
+          <!-- Idee A2: the name and what it does stay in sight; the offer itself comes after 3 evenings -->
+          <li class="ps-row ps-sub" data-remind-time>
+            <span class="ps-m"><b>{t('Reminder at your time')}</b><small>{t('After 3 evenings the app suggests moving the reminder to when you usually do the check.')}</small></span>
+          </li>
+        {/if}
         {#if k.key === 'wxwatch' && p.kinds.wxwatch}
           <li class="ps-row ps-sub" data-push-tours>
             {#if watchTrips.length}
@@ -158,6 +165,8 @@
         {/if}
       {/each}
     </ul>
+    <!-- Idee A2: the evening reminder at your usual time -->
+    {#if p.kinds.eve}<EveOffer />{/if}
   </section>
 
   {#if p.on}<p class="ps-acts"><button type="button" class="btn" onclick={test} data-push-test><Send size={16} aria-hidden="true" />{t('Send a test')}</button></p>{/if}
