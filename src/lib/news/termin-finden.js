@@ -2,10 +2,10 @@
 export default {
   title: 'Find a date',
   lead: 'Ask a group which day works, by link and without an account.',
-  points: [{ text: 'Me › Mini tools › Find a date: pick days, send the link, the best day is on top', href: '#/me/mini' }],
+  points: [{ text: 'Me › Mini tools › Find a date: pick days, send the link, the best day is on top', href: '#/me/mini', go: 'f.minidate' }],
   small: [
-    { box: 'new', text: 'People answer in the browser; only you can read the answers' },
-    { box: 'new', text: 'Plan a trip on the best day or add it to your calendar' },
+    { box: 'new', text: 'People answer in the browser; only you can read the answers', go: 'f.minidate' },
+    { box: 'new', text: 'Plan a trip on the best day or add it to your calendar', go: 'f.minidate' },
   ],
   test: [
     'Open Me › Mini tools › Find a date, write a title, pick three days and tap «Make the link».',
