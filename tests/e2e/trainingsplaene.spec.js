@@ -1,7 +1,7 @@
 // «Trainingspläne» (Noah 19.10.2026): Aktiv › Training › Trainingspläne, a sample plan written into the week
 // plan backwards from a race day, taken out again, and «How hard was it?» after a ride. Fictional data only;
 // everything outside the preview server is blocked.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { ready } from './settle.js';
 import DE from '../../src/lib/i18n/de/index.js';
 import { PLAN_TEMPLATES } from '../../src/lib/training/plans.js';

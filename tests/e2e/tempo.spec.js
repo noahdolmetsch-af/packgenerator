@@ -2,7 +2,7 @@
 // - Material: a search shows five rows per category and «Noch n zeigen» (before: every hit at once, the
 //   first letter drew ~650 rows and froze the phone).
 // - Touren › Packmodus: 20 rows first (on a phone five), «Noch n Touren zeigen» adds 20 at a time.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { start, tr } from './gesamttest/lib.js';
 import { SHOW_ROWS } from '../../src/lib/list/listen.js';
 import { TOUR_ROWS, PHONE_ROWS } from '../../src/lib/touren/kurz.js';

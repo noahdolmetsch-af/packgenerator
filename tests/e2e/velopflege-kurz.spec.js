@@ -2,7 +2,7 @@
 // C7: on a phone the care page of one bike and its inspections show the first rows of each long list, then
 // «{n} weitere zeigen»; the page is shorter until you tap it. The computer keeps every row.
 // C8: a part row reads «name model» with a space between them (screen readers read the text as one).
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { openData, settle } from './settle.js';
