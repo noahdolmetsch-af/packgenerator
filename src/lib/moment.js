@@ -90,7 +90,7 @@ export const FEATURE_MOMENTS = {
   // Lust und Ideen
   lust: [
     'dayride', 'f.quickstart', 'f.inspiration', 'f.skiseason', 'f.dreams', 'f.whitespots', 'f.nlgoals', 'f.races',
-    'f.ownbingo', 'f.impulse', 'f.compass', 'f.freeslot',
+    'f.ownbingo', 'f.impulse', 'f.compass', 'f.freeslot', 'f.freiwesentlich', 'f.freireise', 'f.freinacht', 'f.freilust', 'f.freisamml',
   ],
   // Tour planen
   planen: [
@@ -108,7 +108,7 @@ export const FEATURE_MOMENTS = {
     'f.laundry', 'f.morninglist', 'f.packtime', 'f.rwgps', 'f.starters', 'f.packside', 'f.ownrules',
     'f.forgotten', 'f.newpack', 'f.power', 'f.packphoto', 'f.tourhints', 'f.routepois', 'f.tripalert',
     'f.quiz', 'f.probe', 'f.blockeffect', 'f.needs', 'f.weightsure', 'f.sharepreview', 'bags', 'share',
-    'f.tripcheck', 'f.readytomorrow', 'f.readaloud', 'f.offlinesave', 'f.labels', 'f.lightpush',
+    'f.tripcheck', 'f.readytomorrow', 'f.readaloud', 'f.offlinesave', 'f.labels', 'f.lightpush', 'f.skicheck',
   ],
   // Unterwegs
   unterwegs: [
@@ -118,7 +118,7 @@ export const FEATURE_MOMENTS = {
     'f.arrived', 'f.goodnight', 'f.parked', 'f.sos', 'f.webcammap', 'f.reroute', 'f.live', 'f.livepause',
     'f.sensors', 'f.datapages', 'f.turns', 'f.laps', 'f.moreplaces', 'f.ovnear', 'f.groupmap', 'f.stopsnear',
     'f.sleeptonight', 'f.callhotels', 'f.powernap', 'f.here', 'f.record', 'f.money', 'f.light', 'f.rainsoon',
-    'f.arrival', 'f.zones', 'f.compasstool', 'f.phrases',
+    'f.arrival', 'f.zones', 'f.compasstool', 'f.phrases', 'f.skistart',
   ],
   // Zurück und lernen
   zurueck: [
@@ -126,7 +126,7 @@ export const FEATURE_MOMENTS = {
     'f.postcard', 'f.unneeded', 'f.missing', 'f.upload', 'f.past', 'f.logbook', 'f.learnings', 'f.best',
     'f.spurmap', 'f.spurlink', 'f.travelbook', 'f.tripcosts', 'f.tourpage', 'f.diary', 'f.extraq',
     'f.notetodo', 'f.future', 'f.chronik', 'f.gelernt', 'f.jahr', 'f.neuland', 'f.heatmap', 'f.eveningtour',
-    'f.homecoming', 'f.letters', 'f.letterreply', 'f.meaning', 'f.gooddecisions', 'f.knowhow', 'f.skillmap',
+    'f.homecoming', 'f.letters', 'f.letterreply', 'f.meaning', 'f.gooddecisions', 'f.knowhow', 'f.skillmap', 'f.freinaechstes', 'f.skiafter',
   ],
   // Velo und Material
   velo: [
@@ -138,7 +138,7 @@ export const FEATURE_MOMENTS = {
     'f.parttemplate', 'f.spick', 'f.partwear', 'f.wetchain', 'f.chainmeasure', 'f.bikeyear', 'f.bikeseason',
     'f.noises', 'f.carestreak', 'f.wearcal', 'f.wearphotos', 'f.sellbike', 'f.bikebox', 'f.sparestock', 'f.workshoprounds',
     'f.brandkm', 'f.springservice', 'f.chainrotation', 'f.velofaq', 'f.setupphotos', 'f.inspect', 'f.measure',
-    'f.gears', 'f.level', 'f.sitpos', 'f.pros', 'f.table', 'f.lend', 'f.wearpush',
+    'f.gears', 'f.level', 'f.sitpos', 'f.pros', 'f.table', 'f.lend', 'f.wearpush', 'f.skicare',
   ],
   // Körper und Training
   koerper: [
@@ -159,7 +159,7 @@ export const FEATURE_MOMENTS = {
     'f.dictate', 'f.aiprojects', 'f.photoalbum', 'f.sortround', 'f.docs', 'f.tools', 'f.pdftools', 'f.markup',
     'f.phototools', 'f.ablage', 'f.weblinks', 'f.chains', 'f.convert', 'f.video', 'f.qr', 'f.docscan',
     'f.mailin', 'f.mail', 'f.agenda', 'f.trello', 'f.friendask', 'f.friendshelf', 'f.friendtemplate', 'f.minidate',
-    'f.inputbar', 'f.inputtemplates', 'f.noteforms', 'f.picturecard', 'f.calc', 'f.units',
+    'f.inputbar', 'f.inputtemplates', 'f.noteforms', 'f.picturecard', 'f.calc', 'f.units', 'f.freiabend',
   ],
   // App, Daten und Hilfe
   app: [
@@ -170,7 +170,7 @@ export const FEATURE_MOMENTS = {
     'f.theme', 'f.uisize', 'f.custompage', 'f.explain', 'f.connections', 'f.owncal', 'f.notestasks',
     'f.fitbitold', 'f.alerts', 'f.backuplock', 'f.yearcheck', 'f.suggestoff', 'f.tipweek', 'f.comeback',
     'f.helpsearch', 'f.news', 'f.workspace', 'f.calmview', 'f.pushbudget', 'f.notforme', 'f.sources',
-    'f.aicheck', 'f.hiddenall',
+    'f.aicheck', 'f.hiddenall', 'f.miniapps', 'f.ruhig',
   ],
 };
 
