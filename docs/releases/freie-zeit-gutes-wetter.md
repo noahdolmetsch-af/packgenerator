@@ -1,6 +1,6 @@
 # Freie Zeit und gutes Wetter
 
-PR #? · 27.10.2026 · Auftrag: Noah «ich möchte alle umsetzen 1a 2a 3a 4a 5a» (Thread «Brainstormen intelligentere vernetzte App», Idee A3)
+PR #384 · 27.10.2026 · Auftrag: Noah «ich möchte alle umsetzen 1a 2a 3a 4a 5a» (Thread «Brainstormen intelligentere vernetzte App», Idee A3)
 
 ## Was ist neu
 - Planen › Woche zeigt oben eine Karte: «Donnerstag 17:00–19:00 frei und trocken. Eine Runde von etwa 35 km?»
@@ -8,7 +8,7 @@ PR #? · 27.10.2026 · Auftrag: Noah «ich möchte alle umsetzen 1a 2a 3a 4a 5a�
 - Die km kommen aus deinem eigenen Tempo (sonst 16 km/h). «Jetzt nicht» blendet dieses Fenster aus.
 
 ## Was fällt weg oder rutscht tiefer
-- nichts (die Karte kommt über die Woche, die Tage rutschen um eine Kartenhöhe tiefer, nur wenn es ein Fenster gibt)
+- nichts (über der Woche steht eine Zeile «Freie Zeit und gutes Wetter» bzw. die Karte; die Tage rutschen etwas tiefer)
 
 ## Selbst entschieden
 - Erst in der Woche, noch nicht auf Heute: Heute gehört gerade den Threads «Heute ruhiger» und «Neuer Schwung»; die Karte kann dort mit einer Zeile dazukommen.
