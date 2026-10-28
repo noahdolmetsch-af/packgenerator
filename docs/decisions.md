@@ -2003,3 +2003,10 @@ Noah 19.10.2026: «1a 2a 3a 4 a oder b beides wählbar 5a», danach «a und b»,
 ## 27.10.2026 Gewohnheiten oben auf Heute
 
 - Noah «1a 2a und b 3b»: die Karte oben auf Heute zeigt nicht mehr fest die Meditation, sondern bis zu drei gewählte Gewohnheiten (Aktivitäten aus Aktiv und Punkte aus «Das tut mir gut»); gewählt mit dem Stift auf der Karte und unter «Startseite anpassen». Ohne Wahl bleibt es die Meditation.
+
+## 28.10.2026: Heute als Begleiter
+
+- Variante B «Heute als Begleiter» statt Momente als Navigation (Noah «1a»): die Navigation bleibt, Heute erkennt den Moment. Grund: am wenigsten Umbau, begleitet trotzdem durch die ganze Reise.
+- 8 Momente, eine ruhige Funktion zum Entdecken pro Moment mit «Nicht für mich» (Noah «2a 3a»).
+- Die vier Knöpfe oben auf Heute wandern in die Moment-Karte, die Tourkarte «1/7» fällt weg, «Was die App kann» bekommt die Ansicht «Nach Moment», «Gehört dazu» Seite für Seite ab Packen (Noah «1a 2a 3a 4a»). 13 kleine PRs (Noah «ok freigabe», «ja»).
+- Jede Funktion in `features.js` hat genau einen Moment in `FEATURE_MOMENTS` (`src/lib/moment.js`); `tests/moment.test.js` prüft das.
