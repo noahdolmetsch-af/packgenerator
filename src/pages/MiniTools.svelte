@@ -4,6 +4,8 @@
    * Ich › Mini-Tools (#/me/mini). Small tools to ask a group by link, without an account; the answers come
    * back by themselves (sealed, only this device can read them) and the app counts them (no AI, «3a»).
    * The first tool: «Find a date» (idea 1, like Doodle). #/me/mini/neu makes one, #/me/mini/<id> is one question.
+   * The second: «Mini survey» (idea 2), #/me/mini/umfrage makes one (lib/mini/PollNew.svelte), its result is
+   * lib/mini/PollResult.svelte.
    * The others follow as their own small PRs on the same store (lib/mini/client.js, api/_lib/mini.js).
    */
   import { untrack } from 'svelte';
@@ -22,13 +24,17 @@
   import { openTrip } from '../lib/nav.js';
   import { createQuestion, editQuestion, readAnswers, endQuestion, joinLinkOf, MINI_ERRORS } from '../lib/mini/client.js';
   import { MINE_KEY, listOf, readMine, saveMine, updateOne, running } from '../lib/mini/store.js';
+  import PollNew from '../lib/mini/PollNew.svelte';
+  import PollResult from '../lib/mini/PollResult.svelte';
+  import { KIND_POLL, pollQuestion, countPoll, summarize } from '../lib/mini/poll.js';
   import { KIND_DATE, OPTS_MIN, OPTS_MAX, PICKS, dateQuestion, cleanOpts, optKey, tally, busyDays, nextDays, summaryLines, icsOf } from '../lib/mini/termin.js';
-  import { CalendarCheck, Plus, ChevronRight, Share2, Copy, QrCode as QrIcon, RefreshCw, CalendarPlus, Route, MessageCircle, Pencil, Trash2, CircleStop, Lock } from '@lucide/svelte';
+  import { CalendarCheck, Plus, ChevronRight, Share2, Copy, QrCode as QrIcon, RefreshCw, CalendarPlus, Route, MessageCircle, Pencil, Trash2, CircleStop, Lock, ListChecks } from '@lucide/svelte';
 
   let { hash = '' } = $props();
   const sub = untrack(() => String(hash).replace(/^#\/me\/mini\/?/, '').split('?')[0]);
   const isNew = sub === 'neu';
-  const openId = !isNew && sub ? decodeURIComponent(sub) : '';
+  const isNewPoll = sub === 'umfrage';
+  const openId = !isNew && !isNewPoll && sub ? decodeURIComponent(sub) : '';
 
   const mineQ = liveQuery(() => db.settings.get(MINE_KEY));
   const mine = $derived(listOf($mineQ?.value));
@@ -89,6 +95,7 @@
 
   /* ---------- one question ---------- */
   const q = $derived(openId ? (mine.find((x) => x.id === openId) ?? null) : null);
+  const isPoll = $derived(q?.kind === KIND_POLL);
   const link = $derived(q?.srv ? joinLinkOf(q.srv.id, q.srv.key) : '');
   const isOpen = $derived(running(q));
   const rows = $derived(q ? [...(q.answers ?? []), ...(Object.keys(q.me?.picks ?? {}).length ? [{ name: t('You'), picks: q.me.picks, me: true }] : [])] : []);
@@ -106,7 +113,11 @@
     readErr = '';
     try {
       const d = await readAnswers(q.srv);
-      await updateOne(db, q.id, (x) => ({ ...x, answers: d.answers.map((a) => ({ a: a.a, name: String(a.name ?? '').slice(0, 40), picks: a.picks ?? {}, note: String(a.note ?? '').slice(0, 200), at: a.at })), read: new Date().toISOString() }));
+      const keep = (a) =>
+        q.kind === KIND_POLL
+          ? { a: a.a, name: q.anon ? '' : String(a.name ?? '').slice(0, 40), r: a.r && typeof a.r === 'object' ? a.r : {}, at: a.at }
+          : { a: a.a, name: String(a.name ?? '').slice(0, 40), picks: a.picks ?? {}, note: String(a.note ?? '').slice(0, 200), at: a.at };
+      await updateOne(db, q.id, (x) => ({ ...x, answers: d.answers.map(keep), read: new Date().toISOString() }));
     } catch (err) {
       if (err?.code === 'not_found') await updateOne(db, q.id, (x) => ({ ...x, closed: true }));
       readErr = errText(err);
@@ -131,7 +142,9 @@
     });
   }
 
-  const shareText = $derived(q ? t('{title}: which day works for you? Tap your answer, no app and no account needed.', { title: q.title }) : '');
+  const shareText = $derived(
+    !q ? '' : isPoll ? t('{title}: a few short questions. Tap your answers, no app and no account needed.', { title: q.title }) : t('{title}: which day works for you? Tap your answer, no app and no account needed.', { title: q.title }),
+  );
   async function share() {
     said = '';
     try {
@@ -149,8 +162,11 @@
       said = t('Copying did not work. Select the link and copy it by hand.');
     }
   }
+  const fmtNum = (n) => Number(n).toLocaleString(locale(), { maximumFractionDigits: 1 });
   const resultText = $derived(
-    q
+    q && isPoll
+      ? [q.title, answersText(q.answers?.length ?? 0), ...summarize(countPoll(q, q.answers ?? []), t, fmtNum)].join('\n')
+      : q
       ? [
           `${q.title}`,
           bestOpt ? t('Best day: {day}', { day: optFmt(bestOpt) }) : t('No answers yet'),
@@ -190,7 +206,7 @@
     if (!v) return t('A title is needed.');
     if (isOpen) {
       try {
-        await editQuestion(q.srv, dateQuestion({ title: v, note: q.note, by: q.by, opts: q.opts }));
+        await editQuestion(q.srv, q.kind === KIND_POLL ? pollQuestion({ title: v, note: q.note, by: q.by, anon: q.anon, qs: q.qs }) : dateQuestion({ title: v, note: q.note, by: q.by, opts: q.opts }));
       } catch (err) {
         return errText(err);
       }
@@ -231,7 +247,9 @@
       location.hash = '#/me/mini';
     }
   }
-  const answersText = (n) => (n === 1 ? t('1 answer') : t('{n} answers', { n }));
+  function answersText(n) {
+    return n === 1 ? t('1 answer') : t('{n} answers', { n });
+  }
   const cell = (r, o) => r.picks?.[optKey(o)] ?? '';
   const pickLabel = (k) => t(PICKS.find((p) => p.key === k)?.label ?? 'No answer yet');
 </script>
@@ -275,6 +293,8 @@
       {#if formErr}<p class="mt-err" role="alert" data-mt-err>{formErr}</p>{/if}
       <div class="mt-acts"><button type="submit" class="btn hi" disabled={making} data-mt-make><Share2 size={18} aria-hidden="true" />{t('Make the link')}</button><a class="btn btn-link" href="#/me/mini">{t('Cancel')}</a></div>
     </form>
+  {:else if isNewPoll}
+    <PollNew />
   {:else if openId}
     {#if !loaded}
       <p class="mt-help">…</p>
@@ -297,6 +317,12 @@
           </section>
         {/if}
 
+        {#if isPoll}
+          <PollResult {q} waLink={(q.answers?.length ?? 0) ? waResult : ''} />
+          {#if isOpen}<div><button type="button" class="btn sm" onclick={refresh} disabled={busyRead} data-mt-refresh><RefreshCw size={16} aria-hidden="true" />{t('Look for new answers')}</button></div>{/if}
+          {#if readErr}<p class="mt-err" role="alert" data-mt-readerr>{readErr}</p>{/if}
+          {#if said}<p class="mt-help" role="status">{said}</p>{/if}
+        {:else}
         <section class="card mt-box mt-best" aria-labelledby="mt-best-h" data-mt-best>
           <h2 id="mt-best-h">{bestOpt ? t('Best day: {day}', { day: optFmt(bestOpt) }) : t('No answers yet')}</h2>
           <p class="mt-help" data-mt-answers>{answersText(q.answers?.length ?? 0)}{q.read ? ` · ${t('read {time}', { time: new Date(q.read).toLocaleTimeString(locale(), { hour: '2-digit', minute: '2-digit' }) })}` : ''}</p>
@@ -349,6 +375,7 @@
           </div>
           <p class="mt-help">{t('Your own row stays on this device. Tap again to change it: ✓ works, ? maybe, ✗ does not work.')}</p>
         </section>
+        {/if}
 
         <div class="mt-acts">
           <button type="button" class="btn sm" onclick={() => (renaming = true)} data-mt-rename><Pencil size={16} aria-hidden="true" />{t('Rename')}</button>
@@ -356,7 +383,7 @@
           <button type="button" class="btn sm" onclick={remove} data-mt-delete><Trash2 size={16} aria-hidden="true" />{t('Delete')}</button>
         </div>
       </div>
-      {#if renaming}<RenameSheet kicker={t('Find a date')} title={t('Rename')} value={q.title} max={80} onsave={rename} onclose={() => (renaming = false)} />{/if}
+      {#if renaming}<RenameSheet kicker={isPoll ? t('Mini survey') : t('Find a date')} title={t('Rename')} value={q.title} max={80} onsave={rename} onclose={() => (renaming = false)} />{/if}
     {/if}
   {:else}
     <VeloHead crumbs={[{ label: t('Me|place'), href: '#/me' }]} title={t('Mini tools')} sub={t('Ask a group by link and get the answers counted')} />
@@ -371,19 +398,26 @@
               <Plus class="ich-chev" size={18} aria-hidden="true" />
             </a>
           </li>
+          <li>
+            <a class="ich-row" href="#/me/mini/umfrage" data-mt-tool="poll">
+              <span class="ich-ib"><ListChecks size={18} aria-hidden="true" /></span>
+              <span class="ich-m"><b>{t('Mini survey')}</b><small>{t('A few short questions; the app counts the answers and sums them up.')}</small></span>
+              <Plus class="ich-chev" size={18} aria-hidden="true" />
+            </a>
+          </li>
         </ul>
         <p class="mt-help">{t('How it works: you make a question and send the link. People answer in the browser, without the app and without an account. Their answers come back by themselves, and the app counts them for you.')}</p>
       </section>
       <section class="ich-sec" aria-labelledby="mt-mine-h">
         <div class="ich-h"><div><h2 id="mt-mine-h">{t('Your questions')}</h2></div></div>
         {#if !mine.length}
-          <p class="mt-help" data-mt-empty>{t('None yet. Start with «Find a date».')}</p>
+          <p class="mt-help" data-mt-empty>{t('None yet. Start with «Find a date» or a «Mini survey».')}</p>
         {:else}
           <ul class="ich-list card" data-mt-list>
             {#each mine as x (x.id)}
               <li>
                 <a class="ich-row" href={`#/me/mini/${encodeURIComponent(x.id)}`} data-mt-item={x.id}>
-                  <span class="ich-ib"><CalendarCheck size={18} aria-hidden="true" /></span>
+                  <span class="ich-ib">{#if x.kind === KIND_POLL}<ListChecks size={18} aria-hidden="true" />{:else}<CalendarCheck size={18} aria-hidden="true" />{/if}</span>
                   <span class="ich-m"><b>{x.title}</b><small>{answersText(x.answers?.length ?? 0)} · {running(x) ? t('open until {day}', { day: endFmt(x.srv.end) }) : t('ended')}</small></span>
                   <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
                 </a>

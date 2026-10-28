@@ -4,6 +4,7 @@
    * without the app's pages around it, without an account. The first kind: «Find a date» (idea 1): per day
    * «Works», «Maybe» or «Does not work», then «Send my answer». The answer is locked for the maker alone
    * (lib/mini/client.js sealFor); this device keeps a code to change it later (db.settings «mini-joined»).
+   * The second kind: «Mini survey» (idea 2), answered one question at a time in lib/mini/PollAnswer.svelte.
    */
   import { untrack } from 'svelte';
   import { db } from '../lib/db.js';
@@ -11,12 +12,15 @@
   import Empty from '../lib/ui/Empty.svelte';
   import { parseJoinLink, openQuestion, sendAnswer, MINI_ERRORS } from '../lib/mini/client.js';
   import { readJoined, saveJoined } from '../lib/mini/store.js';
+  import PollAnswer from '../lib/mini/PollAnswer.svelte';
+  import { readPoll } from '../lib/mini/poll.js';
   import { readDateQuestion, cleanAnswer, cleanName, optKey, PICKS } from '../lib/mini/termin.js';
   import { CalendarCheck, Lock, Send } from '@lucide/svelte';
 
   let { hash = '' } = $props();
   const link = parseJoinLink(untrack(() => hash));
   let q = $state.raw(null);
+  let poll = $state.raw(null);
   let end = $state('');
   let err = $state(link ? '' : t(MINI_ERRORS.broken));
   let loaded = $state(false);
@@ -36,8 +40,12 @@
     untrack(async () => {
       try {
         const d = await openQuestion(link.id, link.key);
-        const read = readDateQuestion(d.question);
-        if (!read) err = t(MINI_ERRORS.broken);
+        const p = readPoll(d.question);
+        const read = p ? null : readDateQuestion(d.question);
+        if (p) {
+          poll = p;
+          end = d.end;
+        } else if (!read) err = t(MINI_ERRORS.broken);
         else {
           q = read;
           end = d.end;
@@ -91,6 +99,8 @@
     <Empty icon={CalendarCheck} title={t('Question not available')} text={err} />
   {:else if !loaded}
     <p class="mm-help">…</p>
+  {:else if poll}
+    <PollAnswer {poll} id={link.id} {end} />
   {:else}
     <header>
       <p class="kick">{q.by ? t('{name} asks', { name: q.by }) : t('Find a date')}</p>

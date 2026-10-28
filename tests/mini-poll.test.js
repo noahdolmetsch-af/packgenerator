@@ -30,17 +30,17 @@ describe('the survey', () => {
   });
 
   it('keeps only answers that fit, and no name when anonymous', () => {
-    const a = cleanPollAnswer({ name: 'Test', a: { q1: 1, q2: [1, 0, 5, 1], q3: 9, q4: 1, q5: '  gutes   Essen ', q9: 1 } }, poll);
-    expect(a).toEqual({ name: 'Test', a: { q1: 1, q2: [0, 1], q4: 1, q5: 'gutes Essen' } });
-    expect(cleanPollAnswer({ name: 'Test', a: {} }, { ...poll, anon: true }).name).toBe('');
+    const a = cleanPollAnswer({ name: 'Test', r: { q1: 1, q2: [1, 0, 5, 1], q3: 9, q4: 1, q5: '  gutes   Essen ', q9: 1 } }, poll);
+    expect(a).toEqual({ name: 'Test', r: { q1: 1, q2: [0, 1], q4: 1, q5: 'gutes Essen' } });
+    expect(cleanPollAnswer({ name: 'Test', r: {} }, { ...poll, anon: true }).name).toBe('');
   });
 });
 
 describe('counting and summary', () => {
   const rows = [
-    { name: 'A', a: { q1: 1, q2: [0], q3: 3, q4: 1, q5: 'gutes Essen, keine Hektik' } },
-    { name: 'B', a: { q1: 1, q2: [0, 1], q3: 4, q4: 0, q5: 'Essen und Ruhe' } },
-    { name: 'C', a: { q1: 0, q3: 4, q5: 'keine Hektik bitte' } },
+    { name: 'A', r: { q1: 1, q2: [0], q3: 3, q4: 1, q5: 'gutes Essen, keine Hektik' } },
+    { name: 'B', r: { q1: 1, q2: [0, 1], q3: 4, q4: 0, q5: 'Essen und Ruhe' } },
+    { name: 'C', r: { q1: 0, q3: 4, q5: 'keine Hektik bitte' } },
   ];
   it('counts per question', () => {
     const c = countPoll(poll, rows);

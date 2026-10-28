@@ -39,6 +39,7 @@ export const HOME = {
   // Paket D «Mit Freunden»: the three tabs of Ich › Mit Freunden
   'f.friendask': '#/me/freunde',
   'f.minidate': '#/me/mini', // Mini-Tools (Noah 28.10.2026)
+  'f.minipoll': '#/me/mini',
   'f.inputbar': '#/tagebuch',
   'f.inputtemplates': '#/tagebuch',
   'f.picturecard': '#/tagebuch/:entry',

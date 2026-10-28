@@ -60,11 +60,11 @@ export function readPoll(obj) {
   return q ? { ...q, pk: obj.pk } : null;
 }
 
-/** One person's answers: only questions of the survey, only values that fit their kind. */
-export function cleanPollAnswer({ name = '', a = {} }, poll) {
+/** One person's answers ({ name, r: { [question id]: value } }; «r» because «a» is the answer's id): only questions of the survey, only values that fit their kind. */
+export function cleanPollAnswer({ name = '', r = {} }, poll) {
   const out = {};
   for (const q of poll.qs) {
-    const v = a?.[q.id];
+    const v = r?.[q.id];
     if (q.type === 'one' && Number.isInteger(v) && v >= 0 && v < q.opts.length) out[q.id] = v;
     else if (q.type === 'many' && Array.isArray(v)) {
       const ok = [...new Set(v.filter((x) => Number.isInteger(x) && x >= 0 && x < q.opts.length))].sort((x, y) => x - y);
@@ -73,11 +73,11 @@ export function cleanPollAnswer({ name = '', a = {} }, poll) {
     else if (q.type === 'yesno' && (v === 0 || v === 1)) out[q.id] = v;
     else if (q.type === 'text' && clip(v, TEXT_MAX)) out[q.id] = clip(v, TEXT_MAX);
   }
-  return { name: poll.anon ? '' : cleanName(name), a: out };
+  return { name: poll.anon ? '' : cleanName(name), r: out };
 }
 
 /** Is this question answered in an answer? */
-export const answered = (q, a) => a?.[q.id] !== undefined;
+export const answered = (q, r) => r?.[q.id] !== undefined;
 
 const STOP = new Set(
   'und oder aber auch nicht kein keine ein eine einen einem einer der die das den dem des ist sind war wäre mit ohne für von vom zum zur auf aus bei im in an am es ich du er sie wir ihr man mir mich dir dich uns euch mehr sehr so wie was wenn dass da noch nur schon gut gern gerne mal ja nein the a an and or but not no of to in on at for with is are was be it i you we they my our very more just too'.split(' '),
@@ -97,13 +97,13 @@ export function frequentWords(texts, top = 3) {
 }
 
 /**
- * Count all answers. rows: [{ name, a }]. → per question:
+ * Count all answers. rows: [{ name, r }]. → per question:
  * one/many: { counts: [n per option], n } · yesno: { counts: [no, yes], n } · scale: { counts: [n for 1..5], avg, n } ·
  * text: { texts: [{ name, text }], words, n } (n = how many answered this question).
  */
 export function countPoll(poll, rows) {
   return poll.qs.map((q) => {
-    const vals = rows.map((r) => ({ name: r.name, v: r.a?.[q.id] })).filter((x) => x.v !== undefined);
+    const vals = rows.map((x) => ({ name: x.name, v: x.r?.[q.id] })).filter((x) => x.v !== undefined);
     const base = { id: q.id, type: q.type, text: q.text, n: vals.length };
     if (q.type === 'one' || q.type === 'many') {
       const counts = q.opts.map(() => 0);
