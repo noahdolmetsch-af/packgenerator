@@ -2,8 +2,8 @@
 export default {
   title: 'Invite friends to Strava',
   lead: 'You decide in the app who may connect their own Strava, and change it at any time.',
-  points: [{ text: 'Bike › Care › Strava › «Invite a friend» makes a link that works once within 7 days', href: '#/bikes?tab=care&view=strava' }],
-  small: [{ box: 'new', text: 'The list of friends, each with «Remove» and «Undo»' }],
+  points: [{ text: 'Bike › Care › Strava › «Invite a friend» makes a link that works once within 7 days', href: '#/bikes?tab=care&view=strava', go: 'f.strava' }],
+  small: [{ box: 'new', text: 'The list of friends, each with «Remove» and «Undo»', go: 'f.strava' }],
   test: ['Open Bike › Care › Strava and tap «Invite a friend».', 'A link appears with «Copy link» and the note about Strava’s own limit.', 'Under «Friends with their own Strava» it says «Only you are connected».'],
   since: [],
   de: {
