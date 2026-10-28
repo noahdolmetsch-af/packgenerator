@@ -4,7 +4,7 @@
 // after a reload. Fictional data only (gear-fixture.json, test_data_gtp_…).
 // v0.23.1 (Noah 5b): the category change runs on the phone too (its read-only view has the category
 // next to the weight).
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { pickLook } from './gear-look.js';
 import { fileURLToPath } from 'node:url';
 import { readFileSync, writeFileSync } from 'node:fs';
