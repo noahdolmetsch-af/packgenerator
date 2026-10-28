@@ -178,11 +178,17 @@ test('c) like komoot: the profile by gradient with ascent, descent, highest and 
   await page.mouse.down();
   await page.mouse.move(box.x + box.width * 0.6, box.y + box.height / 2, { steps: 5 });
   await page.mouse.up();
-  await expect(speed.locator('.tc-hint')).toContainText('km/h');
+  // «Diagramme zum Antippen» (28.10.2026): the line over the chart names the stretch with its exact Ø speed
+  await expect(speed.locator('[data-readout]')).toContainText('km/h');
+  await expect(speed.locator('[data-readout]')).toContainText(T('Ø speed'));
   mkdirSync(SHOTS, { recursive: true });
   const w = info.project.name === 'phone' ? 390 : 1440;
   await course.screenshot({ path: `${SHOTS}/C1-hoehenprofil-${w}.png` });
   await speed.screenshot({ path: `${SHOTS}/C2-tempo-${w}.png` });
+  // «Als Tabelle»: the Ø speed of every round time step, the same steps as the axis under the chart
+  await speed.getByText(T('As table'), { exact: true }).click();
+  await expect(speed.locator('[data-chart-table] tbody tr').first()).toContainText('0:00');
+  expect(await speed.locator('[data-chart-table] tbody tr').count()).toBeGreaterThanOrEqual(2);
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(page.viewportSize().width);
   expect(errors).toEqual([]);
 });
