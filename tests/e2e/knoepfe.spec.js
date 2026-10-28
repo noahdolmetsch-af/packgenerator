@@ -7,7 +7,7 @@
 // - «Erledigt» in Velopflege says what was saved, with «Rückgängig» that takes it back.
 // Fictional data only (test_data_gtp_ names), built from tests/e2e/pf-fixture.json like care-accordion.
 // KNOEPFE_SHOTS=<folder> saves screenshots (never into the repo).
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { openData, settle } from './settle.js';

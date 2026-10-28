@@ -1,7 +1,7 @@
 // v0.163.x «Pfeile und Ziehen» (Noah 15.10.2026 «2a und b möglich - gilt überall für alles»): a sortable
 // list has the arrows ↑↓ and a handle to drag the row. Checked on the categories (Ich › Listen und Typen
 // › Kategorien: drag added) and the goals list of Aktiv (#/flow/goals: arrows added). Fictional fixture.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';
 import { openData, settle } from './settle.js';

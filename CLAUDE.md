@@ -15,7 +15,7 @@ These are the only rules. They replace every older rule here, in `docs/arbeitswe
 5. **Questions:** at most 5 per round, a/b written out, **with Claude's recommendation ★**. Ask what you need up front, then work on your own and come back with proposed solutions.
 6. **No page-length requirements** (Noah «keine anforderung an eine länge der seite»): no screen budgets, no «max N screens», no «first screen» rules. **Heute** is treated like every other page (no protected layout).
 7. **Every PR** has «Was fällt weg oder rutscht tiefer» and «Was ist neu» (Noah «4a»; in the app the «Neu» tile sits at the bottom of Heute). No new ideas per release. Course check once a week in the Sunday brief.
-8. **Order:** Noah says what comes next. «zurück» = revert that PR at once.
+8. **Order:** Noah says what comes next. «zurück» = revert that PR at once. While a PR waits for CI or for Noah's check, go on with the next planned step as the next small PR (Noah 27.10.2026 00:14 UTC «sobald ein thread am warten ist auf einen PR (testen), soll er immer gleich mit den nächsten sinnvollen und geplanten schritten bereits weiter machen»).
 9. **Quiet:** speak only with a result, a blocker or a question, in short German. No status posts at fixed times. When Noah asks what is open, name at most 3 items.
 10. **Free and private:** zero costs; private data only outside the repo, no real names.
 11. **Always:** everything is a suggestion and changeable; every kind of data and group can be added, renamed and deleted, with Undo; reorder with arrows and drag; explanatory text wherever users could get lost.
@@ -43,6 +43,7 @@ These are the only rules. They replace every older rule here, in `docs/arbeitswe
 
 - No version bump (rule 13). Add `src/lib/news/<name>.js` (1–3 points, `test` with 2+ steps, German in `de`, new feature ids in `since`; see `src/lib/news/README.md`).
 - Add `docs/releases/<name>.md` (same name, template in `docs/releases/README.md`); change `docs/roadmap.md`, `docs/vorhaben.md`, `docs/decisions.md`, `docs/design-audit.md` only where their content changes, without version numbers.
+- A new function in `src/lib/features.js` also goes into `FEATURE_MOMENTS` in `src/lib/moment.js` (its moment, or `app`); `tests/moment.test.js` checks it.
 - Every new UI text goes through `t('English')` and needs a German entry in `src/lib/i18n/de/*.js`, imported in `de/index.js`. The Gesamttest fails on English words in the German UI.
 - Use the repo's PR template if there is one; otherwise start the body with «Before:» and «After:».
 - **Was fällt weg oder rutscht tiefer** (Noah, 14.10.2026 «3a»): every PR has this section. List what is no longer there and what moves behind «Mehr», into a fold or further down, with the old and the new way; write «nichts» if nothing does. A loss that Noah did not approve needs his answer before the merge.

@@ -1,7 +1,7 @@
 // Vorlagen mit Feldern (Noah 27.10.2026 «3b 4a 5a», 19:18 «ca. 20 Vorlagen zur Auswahl im Frontend»):
 // choose templates, fill one in Notizen (the note keeps text and values), change a template's fields, and a
 // fitting template in the input bar of the diary. German, phone 390 and desktop 1440, fictional data only.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import DE from '../../src/lib/i18n/de/index.js';
 import { FORMS, DEFAULT_ON } from '../../src/lib/notes/forms.js';
 import { ready } from './settle.js';
