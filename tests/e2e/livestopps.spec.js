@@ -4,6 +4,7 @@
 // itself when nothing came or the server gave up. Made-up sample race, every outside request mocked.
 import { test, expect } from '@playwright/test';
 import { openHome } from './home0460-fixture.js';
+import { sheetFull } from './live-sheet.js';
 
 const phone = (info) => info.project.name === 'phone';
 const tap = (loc, info) => (phone(info) ? loc.tap() : loc.click());
@@ -46,8 +47,7 @@ test('Live map: the button for stops along the route loads the stretch ahead and
   await page.goto('./#/live/race-sample');
   await tap(page.locator('[data-live-start]'), info);
   await expect(page.locator('[data-live-full]')).toBeVisible();
-  await tap(page.locator('[data-live-sheet-toggle]'), info);
-  await tap(page.locator('[data-live-sheet-toggle]'), info);
+  await sheetFull(page, info);
   await expect(page.locator('[data-live-sheet]')).toHaveAttribute('data-live-sheet', 'full');
 
   // the server gives up: the answer stands right under the button
