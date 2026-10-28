@@ -90,7 +90,7 @@ export const FEATURE_MOMENTS = {
   // Lust und Ideen
   lust: [
     'dayride', 'f.quickstart', 'f.inspiration', 'f.skiseason', 'f.dreams', 'f.whitespots', 'f.races',
-    'f.ownbingo', 'f.impulse', 'f.compass',
+    'f.ownbingo', 'f.impulse', 'f.compass', 'f.freeslot',
   ],
   // Tour planen
   planen: [
