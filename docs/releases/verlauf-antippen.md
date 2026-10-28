@@ -1,6 +1,6 @@
 # Form-Verlauf zum Antippen
 
-PR #<nummer> · 28.10.2026 · Auftrag: Noah «1-5 a» (Thread «Diagramme klickbar machen»), PR 2 von 8 (K1)
+PR #356 · 28.10.2026 · Auftrag: Noah «1-5 a» (Thread «Diagramme klickbar machen»), PR 2 von 8 (K1)
 
 ## Was ist neu
 - «Form und Erholung» › Verlauf (`src/lib/flow/form/FormVerlauf.svelte`): Fitness und Müdigkeit, Form und Ruhepuls je mit eigener Achse (runde Stufen, Gitterlinien), der letzte Wert am Ende jeder Linie, der höchste markiert, mindestens drei Daten unten.
