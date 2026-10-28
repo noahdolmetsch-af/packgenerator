@@ -103,7 +103,9 @@
   import { todayImpulse } from '../lib/frei.js';
   import { WALL_KEY, TILE, wallOf, wallRecord, addTile, removeTile, isNew, HELPER_TILES, hideTiles, keepHidden, tripUp, HEAD_0155 } from '../lib/home/tiles.js';
   import { tourNear } from '../lib/home/heuteneu.js';
-  import MedCard from '../lib/home/MedCard.svelte';
+  import HabitCards from '../lib/home/HabitCards.svelte';
+  import HabitsSheet from '../lib/home/HabitsSheet.svelte';
+  import { HABITS_KEY } from '../lib/home/habits.js';
   import TagesKarte from '../lib/home/TagesKarte.svelte';
   import AktivTile from '../lib/home/AktivTile.svelte';
   import BodyTile from '../lib/home/BodyTile.svelte';
@@ -193,7 +195,7 @@
   // AU1 «Ausrüstung» 4a (Noah 15.10.2026): the care due of the main equipment is a row of «Important today»
   const mainLogQ = liveQuery(async () => ((await db.items.filter((i) => !!i.main).count()) ? db.flowLog.toArray() : []));
   const NEWS_OFF_KEY = 'homeNewsOff'; // P6 H1: «New» on top taken away for this version
-  const SKEYS = [MERKEN_KEY, LISTS_KEY, TRELLO_KEY, WALL_TIME_KEY, 'riderWeightG', TEMPLATES_KEY, USAGE_KEY, LAYOUT_KEY, WALL_KEY, 'userName', NAME_ASKED_KEY, MILESTONE_KEY, SETS_KEY, HOME_PLACE, TIPS_KEY, PACE_KEY, CHALLENGES_KEY, 'homeHintLongPress', INTRO_KEY, COMPASS_KEY, WEIGH_KEY, NEWS_OFF_KEY, SECTIONS_KEY, AREAS_KEY];
+  const SKEYS = [MERKEN_KEY, LISTS_KEY, TRELLO_KEY, WALL_TIME_KEY, 'riderWeightG', TEMPLATES_KEY, USAGE_KEY, LAYOUT_KEY, WALL_KEY, 'userName', NAME_ASKED_KEY, MILESTONE_KEY, SETS_KEY, HOME_PLACE, TIPS_KEY, PACE_KEY, CHALLENGES_KEY, 'homeHintLongPress', INTRO_KEY, COMPASS_KEY, WEIGH_KEY, NEWS_OFF_KEY, SECTIONS_KEY, AREAS_KEY, HABITS_KEY];
   const setQ = liveQuery(async () => {
     const rows = await db.settings.bulkGet(SKEYS);
     return Object.fromEntries(SKEYS.map((k, i) => [k, rows[i]?.value ?? null]));
@@ -850,6 +852,8 @@
   const on = (key) => onWall.has(key);
   let editing = $state(false);
   let catalogOpen = $state(false);
+  // «Deine Gewohnheiten» (Noah 27.10.2026 «1a»): the pencil on the card and «Choose habits on top» open the same window
+  let habitsOpen = $state(false);
   const saveWall = (tiles) => db.settings.put({ key: WALL_KEY, value: wallRecord(tiles) });
   // v0.118.0 «KI-Helfer ausblenden» (K4): while the AI helper is off its tile leaves the wall, but stays stored
   // A-U1 (Noah ★ «Nur das Banner»): at most one «new» on Today; while the banner shows, the tile «New» waits
@@ -1187,7 +1191,7 @@
   {:else if x.id === 'aktiv'}<AktivTile {today} rides={$ridesQ ?? []} size={x.size} hm={`${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`} />
   {:else if x.id === 'series'}<SeriesTile {today} size={x.size} party={seriesParty} />
   {:else if x.id === 'news'}<NewsTile size={x.size} days={newsDays} onremove={() => saveWall(removeTile(wall, 'news'))} />
-  {:else if x.id === 'meditation'}{#if x.size === 'long'}<MedCard {today} />{:else}<MedTile {today} size={x.size} isnew={newTile('meditation')} />{/if}
+  {:else if x.id === 'meditation'}{#if x.size === 'long'}<HabitCards {today} cfg={S[HABITS_KEY] ?? null} onpick={() => (habitsOpen = true)} />{:else}<MedTile {today} size={x.size} isnew={newTile('meditation')} />{/if}
   {:else if x.id === 'play'}<SmallTile tile={TILE.play} size={x.size} isnew={newTile('play')} sub={$demoQ?.play ? t('The playground is running') : t('try without risk')} onclick={openPlay} />
   {:else if x.id === 'ski'}<SkiTile {today} size={x.size} isnew={newTile('ski')} />
   {:else if x.id === 'try'}<TryCard list={tryList} used={used.size} total={FUNCTIONS.length} level={levelOf(used.size)} />
@@ -1313,6 +1317,7 @@
       <label class="bytime" data-wall-bytime><input type="checkbox" role="switch" checked={timeOn} onchange={(e) => db.settings.put({ key: WALL_TIME_KEY, value: e.currentTarget.checked })} />{t('Order the tiles by time of day (morning tiles in the morning, evening tiles in the evening)')}</label>
       <label class="bytime" data-wall-sections><input type="checkbox" role="switch" checked={secOn} onchange={(e) => db.settings.put({ key: SECTIONS_KEY, value: e.currentTarget.checked })} />{t('Show the tiles in areas with a heading (Now, Your body, Your week …)')}</label>
       {#if secOn}<AreasEdit cfg={areasCfg} tiles={timeWall} />{/if}
+      {#if timeWall.some((x) => x.id === 'meditation')}<button type="button" class="btn sm" onclick={() => (habitsOpen = true)} data-habits-open>{t('Choose habits on top')}</button>{/if}
     {:else}
       <!-- «Neuer Schwung» (Noah 26.10.2026 «3a», then «diesen bereich zusammen nehmen»): the end of Heute is one quiet
            block: stops nearby, all areas, «Customise the start page» (on a computer too; it was a button at the top
@@ -1347,6 +1352,7 @@
   </div>
 {/if}
 {#if medOpen && medSt}<MedStartSheet st={medSt} {today} onclose={() => (medOpen = false)} />{/if}
+{#if habitsOpen}<HabitsSheet {today} cfg={S[HABITS_KEY] ?? null} onclose={() => (habitsOpen = false)} />{/if}
 {#if catalogOpen}<TileCatalog on={onWall} hidden={hiddenTiles} ontoggle={toggleTile} onclose={() => (catalogOpen = false)} />{/if}
 <dialog data-backdrop="own" class="sheet wear" bind:this={wearDlg} onclose={() => (wearOpen = false)} onclick={(e) => e.target === wearDlg && (wearOpen = false)} aria-label={t('What do I wear?')}>
   <div class="wh"><button type="button" class="btn sm" onclick={() => (wearOpen = false)}>{t('Close')}</button></div>
