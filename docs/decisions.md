@@ -1989,6 +1989,8 @@ Noah 19.10.2026: «1a 2a 3a 4 a oder b beides wählbar 5a», danach «a und b»,
 
 - 27.10.2026: **Neuer Schwung Teil 2** (Noah «4a» Bewegung überall dezent): zuerst Heute. Selbst entschieden: nur Deckkraft, clip-path und SVG-Strich bewegen sich, nie transform, damit keine Box springt und Tests und Tippen nicht warten müssen; Lottie kommt als eigener kleiner PR (2b).
 - 27.10.2026: **Neuer Schwung 2b** (Noah «5b» Lottie für grosse Momente). Selbst entschieden: lottie-web light (MIT, gratis) statt dotlottie (grosses wasm); eine eigene, selbst gezeichnete Animation statt einer heruntergeladenen (keine Lizenzfrage); Farben über CSS, damit jede Farbpalette passt. Noah 27.10.2026 «bei 2b ist die animation viel zu schnell»: 24 statt 60 Bilder pro Sekunde, Kreis und Haken zusammen etwa 1,3 Sekunden.
+- 27.10.2026 (Kleider-Sets): Kleider-Sets sind Bausteine mit °C-Bereich wie die Kits (9 Muster einmal angelegt); dieselben Sets gelten auf Heute und beim Packen, eigene Kits vor Mustern. Details: `docs/releases/kleider-sets.md`.
+
 ## 27.10.2026 Diagramme zeigen genaue Werte
 
 - Noah: «die Diagramme sollen für den Nutzer exakte Daten repräsentieren und nicht nur Schätzungen anhand ungenauer Skalen am Rand … und überall sonst auf der Webseite». Regel für jedes Diagramm: (1) eine Achse mit runden, beschrifteten Stufen und Einheit plus feinen Gitterlinien, nicht nur min/max am Rand; (2) beim Antippen oder Darüberfahren der genaue Wert mit Datum; (3) bei bis zu 12 Punkten steht die Zahl direkt am Punkt oder an der Säule. Gemeinsamer Baustein: `src/lib/charts/` (axis.js, GridLines.svelte, YTicks.svelte), keine eigene Achse pro Seite.
