@@ -243,3 +243,39 @@ test('Live map: after a reload in the middle of a ride, it goes on by itself', a
   await expect(page.locator('[data-live-resumed-full]')).toBeHidden();
   await noSideways(page, 'resumed');
 });
+
+// Noah 28.10.2026 «nicht speichern, klar melden, kann zu testzwecken umgangen werden (trotzdem speichern)»:
+// a ride with fewer than 2 GPS points is not kept; a window says so, and «Trotzdem speichern» keeps it.
+test('Live map: a ride too short to keep says so in a window, and can be saved anyway', async ({ page, context }, info) => {
+  await openHome(page, context, info);
+  await context.route(/overpass/, (route) => route.fulfill({ json: { elements: [] } }));
+  await context.grantPermissions(['geolocation']);
+  await context.setGeolocation({ latitude: 46.95, longitude: 7.45, accuracy: 10 });
+  await page.goto('./#/live');
+  await tap(page.locator('[data-live-start]'), info);
+  // the first fix is kept: one point, then end at once
+  await page.waitForTimeout(1500);
+  await page.locator('[data-live-stop]').scrollIntoViewIfNeeded();
+  await tap(page.locator('[data-live-stop]'), info);
+  await tap(page.locator('[data-live-end-yes]'), info);
+  const ask = page.locator('[data-live-too-short-ask]');
+  await expect(ask).toBeVisible();
+  await expect(ask).toContainText(/\(1\)/);
+  await page.screenshot({ path: info.outputPath('too-short.png') });
+  await tap(ask.locator('[data-live-too-short-save]'), info);
+  await expect(ask).toBeHidden();
+  await expect(page.locator('[data-live-saved]')).toBeVisible();
+  const rides = await page.evaluate(
+    () =>
+      new Promise((resolve, reject) => {
+        const req = indexedDB.open('pack-generator');
+        req.onerror = () => reject(req.error);
+        req.onsuccess = () => {
+          const g = req.result.transaction('rides').objectStore('rides').getAll();
+          g.onsuccess = () => resolve(g.result.filter((r) => r.source === 'live').length);
+          g.onerror = () => reject(g.error);
+        };
+      }),
+  );
+  expect(rides).toBe(1);
+});

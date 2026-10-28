@@ -196,8 +196,20 @@ export function setGpsLow(low) {
   return true;
 }
 
-/** Stop recording; the recording stays (closed). Returns it, or null when it had fewer than 2 points (then it goes). */
+let tooShort = null;
+/**
+ * The last recording that was too short to keep (fewer than 2 points), once; then null.
+ * Noah 28.10.2026 «nicht speichern, klar melden, kann zu testzwecken umgangen werden (trotzdem speichern)».
+ */
+export function takeTooShort() {
+  const r = tooShort;
+  tooShort = null;
+  return r;
+}
+
+/** Stop recording; the recording stays (closed). Returns it, or null when it had fewer than 2 points (then it goes; takeTooShort()). */
 export async function stopRecording(db = appDb) {
+  tooShort = null;
   if (watch != null) navigator.geolocation?.clearWatch(watch);
   watch = null;
   gpsLow = false;
@@ -222,6 +234,8 @@ export async function stopRecording(db = appDb) {
   if (!done) return null;
   if (done.pts.length < 2) {
     await db.tracks.delete(done.id);
+    // kept in memory only: the live map asks, and «Save anyway» puts it back (Noah 28.10.2026, for tests)
+    tooShort = done;
     return null;
   }
   await db.tracks.put(done);
