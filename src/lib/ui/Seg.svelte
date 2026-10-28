@@ -27,16 +27,24 @@
   });
   $effect(() => {
     if (!box || chips || typeof ResizeObserver === 'undefined') return;
-    const ro = new ResizeObserver(measure);
+    // a new size (turned phone, narrower window) moves the pill at once: gliding there would let the old,
+    // wider pill stick out for a moment and widen the page
+    let f = 0;
+    const ro = new ResizeObserver(() => {
+      moving = false;
+      measure();
+      cancelAnimationFrame(f);
+      f = requestAnimationFrame(() => (moving = true));
+    });
     ro.observe(box);
     // the first place is set without gliding; after that every change glides
-    const f = requestAnimationFrame(() => (moving = true));
+    f = requestAnimationFrame(() => (moving = true));
     return () => (ro.disconnect(), cancelAnimationFrame(f));
   });
 </script>
 
 <div class="seg" class:full class:small class:chips class:glide={!!pill} class:moving bind:this={box} role="group" aria-label={labelledby ? undefined : label} aria-labelledby={labelledby}>
-  {#if pill}<span class="seg-pill" aria-hidden="true" style:translate={`${pill.x}px ${pill.y}px`} style:width={`${pill.w}px`} style:height={`${pill.h}px`}></span>{/if}
+  {#if pill}<span class="seg-track" aria-hidden="true"><span class="seg-pill" style:translate={`${pill.x}px ${pill.y}px`} style:width={`${pill.w}px`} style:height={`${pill.h}px`}></span></span>{/if}
   {#each options as o (o.key)}
     <button type="button" data-key={o.key} class:sug={value !== o.key && suggest === o.key} aria-pressed={value === o.key} aria-description={value !== o.key && suggest === o.key ? o.hint : undefined} onclick={() => value !== o.key && onchange?.(o.key)}>{o.name}{#if o.n != null}{' '}<small class="n">{o.n}</small>{/if}</button>
   {/each}
@@ -87,6 +95,14 @@
   /* B15: the pill glides behind the buttons; the chosen button itself stays clear */
   .seg {
     position: relative;
+  }
+  /* the track clips the pill: a pill measured before the row got narrower never widens the page */
+  .seg-track {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    border-radius: inherit;
+    pointer-events: none;
   }
   .seg-pill {
     position: absolute;
