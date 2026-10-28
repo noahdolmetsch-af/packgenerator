@@ -5,7 +5,7 @@
 // Fictional data only (fixture.json + test_data_gtp_ clothes made here); every outside request is
 // blocked, the home forecast is written into the app's database. Service workers are blocked
 // (playwright.config.js). V045_SHOTS=<folder> saves the screenshots of the new screens there.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { openLayers } from './wardrobe-open.js';
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';

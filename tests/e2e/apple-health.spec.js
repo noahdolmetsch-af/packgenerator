@@ -1,6 +1,6 @@
 // «Apple-Health-Export einlesen» (Noah 27.10.2026 «4a», thread «Geraete und Datenquellen»): Ich › Verbindungen
 // takes the export.xml (or its zip), shows a preview, takes the days over and Undo puts them back. Fictional data.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { writeFileSync, mkdirSync } from 'node:fs';
 import DE from '../../src/lib/i18n/de/index.js';
 import { ready } from './settle.js';
@@ -32,8 +32,6 @@ test('the Apple Health export becomes days, with Undo', async ({ page, context }
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
   await context.route(/^https?:\/\/(?!localhost[:/])/, (r) => r.abort());
-  // a fixed noon, so the test does not depend on the hour it runs at (tests/clock-fixture.test.js)
-  await page.clock.setFixedTime(new Date('2026-06-20T10:00:00Z'));
   await context.addInitScript(() => {
     localStorage.setItem('lang', 'de');
     if (!localStorage.getItem('whatsnew.seen')) localStorage.setItem('whatsnew.seen', '9.9.9');

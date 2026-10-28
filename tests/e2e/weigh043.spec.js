@@ -6,7 +6,7 @@
 //    "Auswählen" removes 2 at once, Undo; in the wardrobe, 2 pieces get a zone at once, Undo.
 // Fictional data only (fixture.json + test_data_gtp_ records made here); every outside request is
 // blocked. V043_SHOTS=<folder> saves screenshots of the new screens there.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';

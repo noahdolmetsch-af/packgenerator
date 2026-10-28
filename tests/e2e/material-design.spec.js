@@ -3,7 +3,7 @@
 // (right column on a computer, under the list on a phone), the item window with flat rows and «More»,
 // chips in «Sort and filter», «Up next» beside the weighing card. 44 px buttons, no sideways scroll.
 // Fictional data only (material0472-fixture.js); screenshots go to the test's output folder.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { lookButton, pickLook, closeLook } from './gear-look.js';
 import { openHome } from './home0460-fixture.js';
 import { materialFixture } from './material0472-fixture.js';

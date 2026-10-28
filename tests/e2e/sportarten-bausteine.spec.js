@@ -5,7 +5,7 @@
 // - «Bausteine anpassen»: switch a block off, add an own block, delete it and take it back with Undo;
 //   the colour of the sport is saved.
 // Fictional data only (test_data_gtp_); nothing leaves the preview server.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import DE from '../../src/lib/i18n/de/index.js';
 import { BLOCK_NAMES } from '../../src/lib/sportsbase.js';
 import { settle } from './settle.js';
