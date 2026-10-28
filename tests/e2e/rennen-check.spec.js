@@ -1,6 +1,6 @@
 // «Rennen detailliert planen» + «Rennen-Check» (Noah 27.10.2026 «1b 2b»): the coming races with their check,
 // five sheets that save by themselves and answers loaded from a file. Fictional data (sample race, made-up answers).
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { openHome } from './home0460-fixture.js';
 import { SHEETS } from '../../src/lib/race/check-lib.js';
 

@@ -1,7 +1,7 @@
 // «Abgleich aus» (Noah 19.10.2026 «1a»): while the automatic sync is off, Ich › «Wartet auf dich» shows a line
 // «Abgleich Handy und Computer: aus» with «Einschalten» (opens Daten und Backup at «Handy und Computer») and
 // «Nur ein Gerät» (hides the line on this device). Fictional data only (tests/e2e/v048-fixture.js).
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import DE from '../../src/lib/i18n/de/index.js';
 import { v048File } from './v048-fixture.js';
 import { openData, settle } from './settle.js';
