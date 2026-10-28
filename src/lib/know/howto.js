@@ -132,6 +132,7 @@ export const HOWTO = {
   'f.docs': ['Open Me › Documents.', 'Tap «Add PDF» and choose a PDF or a photo.', 'Set «valid until» and «In the packing list».'],
   'f.tools': ['Open Me › Toolbox.', 'Choose a tool.', 'It works offline.'],
   'f.pdftools': ['Open Toolbox › PDF.', 'Choose PDFs or photos and put them in order.', '«Merge into one PDF» or «Make smaller».'],
+  'f.markup': ['Open Toolbox › Edit a picture.', 'Choose screenshots; turn, cut, draw or write on each page.', '«One PDF» or «Single pictures», then save or share.'],
   'f.phototools': ['Open Toolbox › Photos.', 'Choose a photo, cut it and choose the size.', '«Make photo», then save or share.'],
   'f.money': ['Open Toolbox › Currencies.', 'Type the amount and choose the currency.', 'Read it in Franken.'],
   'f.tripcosts': ['Open Toolbox › Trip costs.', 'Add the people and each expense.', '«Who owes whom»: request it by TWINT.'],
