@@ -36,7 +36,7 @@
  * Never logged or answered: tokens, codes, the secret.
  */
 import { route, json, needStore, redisEnv, pick, ApiError, API_BASE } from './_lib/core.js';
-import { needDevice, newDevice, saveState, takeState, backToApp, jsonBody, bearer, hash, randomKey } from './_lib/oauth.js';
+import { needDevice, newDevice, saveState, takeState, backToApp, jsonBody, bearer, hash, randomKey, friendDevice, friendOf } from './_lib/oauth.js';
 import { rateOf } from './_lib/rate.js';
 
 export const AUTHORIZE_URL = 'https://www.strava.com/oauth/authorize';
@@ -51,19 +51,16 @@ const PER_PAGE = 200; // Strava's maximum; Noah's ~1300 rides are 7 pages
 /** The owner's tokens (unchanged key, so the owner needs no new login); a friend's: strava:tokens:<athlete id>. */
 export const OWNER_TOKENS = 'strava:tokens';
 export const friendTokens = (id) => `strava:tokens:${id}`;
-/** A friend's device: its key hash → the athlete id. Not in app:keys, so it never opens Google. */
-export const friendDevice = (h) => `strava:device:${h}`;
+/** A friend's device: its key hash → the athlete id. Not in app:keys, so it opens only its own Strava and Fitbit values. */
+export { friendDevice };
 
 /**
  * Whose Strava this request reads: the owner's for a key in app:keys, a friend's for a friend's key,
  * else 401 (as needDevice). Returns the Redis key of the tokens.
  */
 export async function whoseTokens(request, store) {
-  const key = bearer(request);
-  if (key) {
-    const friend = await store.get(friendDevice(hash(key)));
-    if (friend && /^\d{1,20}$/.test(friend)) return friendTokens(friend);
-  }
+  const friend = await friendOf(request, store);
+  if (friend) return friendTokens(friend);
   await needDevice(request, store);
   return OWNER_TOKENS;
 }
