@@ -1,6 +1,6 @@
 // Idee A3 «Freie Zeit plus gutes Wetter» (Noah 27.10.2026): Planen › Woche shows the next free and dry window
 // from the Google calendar (the copy on this device) and the weather at home. Fictional data; Open-Meteo is mocked.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { base, tr } from './home0460-fixture.js';
 import { importAndSettle, settle } from './settle.js';
 
