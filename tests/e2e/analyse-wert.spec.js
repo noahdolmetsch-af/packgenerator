@@ -2,7 +2,7 @@
 // ranges, boxes, the course (trip band, typical range, layers), per weekday and the days. German, phone +
 // desktop; fictional Fitbit days and one fictional trip written straight into IndexedDB; the clock stands on
 // Friday 9 October 2026 (aktiv-fixture.js).
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import DE from '../../src/lib/i18n/de/index.js';
 import { D0, TODAY, addDays, put } from './aktiv-fixture.js';
 import { ready } from './settle.js';
