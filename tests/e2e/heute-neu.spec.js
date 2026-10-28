@@ -9,6 +9,15 @@ import { test, expect } from '@playwright/test';
 import { homeFixture, openHome, D0, atHour } from './home0460-fixture.js';
 import { READY, REMOVED_0155, HEAD_0155, HELPER_TILES, tripUp } from '../../src/lib/home/tiles.js';
 import { HN4, withWall } from './wall-fixture.js';
+import { inAreas } from '../../src/lib/home/sections.js';
+
+// «Heute ruhiger» (Noah 26.10.2026 «3a», changed on purpose): Heute shows the tiles in areas (Jetzt, Dein Körper …),
+// inside an area in the order of the wall; Im Flow with the balance after it stays one card (in «Dein Körper»)
+const areaOrder = (list) => {
+  const i = list.findIndex((x) => x.id === 'flow');
+  const one = i >= 0 && list[i + 1]?.id === 'balance' ? [...list.slice(0, i), { ...list[i], size: 'long', with: list[i + 1] }, ...list.slice(i + 2)] : list;
+  return inAreas(one).flatMap((x) => (x.with ? [x, x.with] : [x]));
+};
 
 // «Heute neu» A «Ein Blick» (0.165.0, Noah 20.10.2026 «1A … 3a») replaced HN4 as the ready wall. The HN4 tiles
 // (meditation card, day card, Im Flow + balance, Aktiv …) stay in the catalog: these tests run on a device
@@ -40,7 +49,7 @@ test('morning: meditation, day card Morgen, Important today in one line, the HN4
 
   // the wall in the order of HN4 (the helper is hidden while the AI helper is off)
   // Paket Q #74: at 08:00 the morning tiles move up right under the head (byTime, changed on purpose)
-  await expect.poll(() => order(page)).toEqual(atHour(HN4().filter((x) => x.id !== 'helper'), 8).map((x) => x.id));
+  await expect.poll(() => order(page)).toEqual(areaOrder(atHour(HN4().filter((x) => x.id !== 'helper'), 8)).map((x) => x.id));
   expect((await order(page)).slice(0, 3)).toEqual(HEAD_0155);
   for (const id of REMOVED_0155) await expect(page.locator(`.wall [data-tile="${id}"]`), id).toHaveCount(0);
 
@@ -121,8 +130,9 @@ test('day: the day card Tag with Quick start, Plan a trip and the bikes; the clo
   // the round is not in the card by day, and not anywhere else either
   await expect(page.locator('[data-section="morningcheck"]')).toHaveCount(0);
   await expect(page.locator('[data-check-entry]')).toHaveCount(0);
-  // the trip card in its place after the milestones (the next trip is in 5 days)
-  await expect.poll(async () => { const ids = await order(page); return ids.indexOf('trip') - ids.indexOf('milestones'); }).toBe(1);
+  // the trip card in its place (the next trip is in 5 days); «Heute ruhiger» 3a (changed on purpose): in the area «Jetzt»
+  await expect.poll(async () => { const ids = await order(page); return ids.indexOf('trip') >= 0 && ids.indexOf('trip') < ids.indexOf('flow'); }).toBe(true);
+  await expect(page.locator('[data-home-sec="now"] ~ [data-tile="trip"]')).toBeVisible();
   await shot(page, info, 'heute-tag');
   // a tap on «Abend» shows the evening, «Tag» again is now
   await dk.locator('[data-clock="evening"]').click();
@@ -156,7 +166,7 @@ test('a stored wall of before (v 4) gets the new order once; Try it of a wide Ne
   await openHome(page, context, info, { data, hour: 13 });
   // Tages-Check back: «Deine 15 Fragen» after the balance; Routine «Das tut mir gut»: the routine once, under the tiles on top
   // «Heute neu» A (homeWall v 9, changed on purpose): every wall stored before becomes the new ready wall once
-  await expect.poll(() => order(page)).toEqual(atHour(tripUp(READY.filter((x) => !HELPER_TILES.includes(x.id)), false), 13).map((x) => x.id));
+  await expect.poll(() => order(page)).toEqual(areaOrder(atHour(tripUp(READY.filter((x) => !HELPER_TILES.includes(x.id)), false), 13)).map((x) => x.id));
   // put «New» wide on a wall of the user (as it was) and check its button stays inside the tile at 390 px too
   const v5 = { v: 11, tiles: HN4().map((x) => (x.id === 'news' ? { ...x, size: 'w' } : x)) };
   await page.evaluate(async (value) => {

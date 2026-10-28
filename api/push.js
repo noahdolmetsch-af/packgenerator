@@ -78,6 +78,8 @@ export async function tickKey(cfg, store, create = false) {
   return (await store.get(TICK_KEY)) ?? '';
 }
 
+/** The daily-cap name of a call: the cron-job.org tick has its own cap (daycap.js «tick»). */
+export const pushCapName = (request) => (new URL(request.url).searchParams.get('a') === 'tick' ? 'tick' : 'push');
 export const tickUrl = (code) => `${API_BASE}/api/push?a=tick&key=${encodeURIComponent(code)}`;
 
 /** Only a device of this server (Strava login key) or the Helfer-Code; else 401. */
@@ -275,6 +277,7 @@ export function makeHandler({ env = () => pushEnv(), doFetch = (...a) => fetch(.
       },
     },
     'push',
+    { capName: pushCapName },
   );
 
   async function doTick(request, key, cfg, store, ready) {

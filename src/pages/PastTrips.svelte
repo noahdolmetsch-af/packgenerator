@@ -19,6 +19,7 @@
    * settings 'pastView'). On a phone each trip is a card with these values. Under the table «In Zahlen»: 10
    * blocks in 4 groups that follow the period and filters (review/InZahlen.svelte).
    */
+  import MemoryTripSheet from '../lib/tourenc/MemoryTripSheet.svelte'; // Touren c 67
   import NeulandLine from '../lib/wohl/NeulandLine.svelte'; // Paket P #253 «Neuland im Jahresheft»
   import HintCard from '../lib/pageinfo/HintCard.svelte';
   import { homeTrips } from '../lib/home/heute.js';
@@ -46,7 +47,7 @@
   import { bikeTypeName } from '../lib/bikes.js';
   import PastColumns from '../lib/review/PastColumns.svelte';
   import InZahlen from '../lib/review/InZahlen.svelte';
-  import { Columns3, Bike, MessageSquareText, Download, ChevronUp } from '@lucide/svelte';
+  import { Columns3, Bike, MessageSquareText, Download, ChevronUp, History } from '@lucide/svelte';
   import PageTiles from '../lib/sk/PageTiles.svelte'; // SK: the tile row at the page end
   import EarthEverest from '../lib/pageinfo/EarthEverest.svelte';
 
@@ -56,6 +57,7 @@
   const facts = $derived($dataQ ? tripFacts({ ...$dataQ, trips: homeTrips($dataQ.trips), today }) : []);
 
   let mode = $state('12m');
+  let memOpen = $state(false); // Touren c 67
   let art = $state('all');
   let q = $state('');
   let artOpen = $state(false);
@@ -189,8 +191,13 @@
       <h1 class="title">{t('Past trips')}</h1>
       {#if $dataQ}<p class="page-sub">{[(mode === '12m' ? t('{n} in 12 months', { n: inPeriod.length }) : mode === 'year' ? t('{n} in {year}', { n: inPeriod.length, year }) : tn(inPeriod.length, '{n} trip', '{n} trips')), notRated ? t('{n} without a debrief', { n: notRated }) : ''].filter(Boolean).join(' · ')}</p>{/if}
     </div>
-    <Btn icon={Upload} label={t('Upload ride')} href="#/debrief/ride" />
+    <span class="hbtns">
+      <Btn icon={Upload} label={t('Upload ride')} href="#/debrief/ride" />
+      <!-- Touren c 67: a trip from long ago, from memory, without numbers -->
+      <Btn icon={History} label={t('Add an old trip')} onclick={() => (memOpen = true)} data-memory-open />
+    </span>
   </header>
+  {#if memOpen}<MemoryTripSheet onclose={() => (memOpen = false)} />{/if}
   <!-- Hinweistexte HT 3a (Noah 14.10.2026): the card «Was hier steht» -->
   <!-- Noah 19.10 «2a»: one card per page; the Einstieg lives in the card «Was hier steht» (its own card only while the page is empty) -->
   <HintCard page="past" intro="past" />
@@ -355,6 +362,11 @@
     justify-content: space-between;
     gap: 8px 16px;
     margin-bottom: 14px;
+  }
+  .hbtns {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
   }
   .nopast {
     margin-top: 12px;

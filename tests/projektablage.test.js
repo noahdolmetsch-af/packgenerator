@@ -71,7 +71,7 @@ describe('Projekt-Ablage: the list of plans', () => {
   });
   it('reads the real list of the repo', () => {
     const real = parseList(readFileSync('docs/vorhaben-liste.md', 'utf8'));
-    expect(real.goals.map((g) => g.n)).toEqual([1, 2, 3, 4, 5]);
+    expect(real.goals.map((g) => g.n)).toEqual([1, 2, 3, 4, 5, 6]);
     const c = countStates(real.ideas);
     expect(c.live).toBeGreaterThan(100);
     expect(c.idea + c.wish + c.work).toBeGreaterThan(10);
