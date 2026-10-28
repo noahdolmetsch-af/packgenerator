@@ -1,6 +1,6 @@
 // Gruppenfahrt für Events «5a»: the contact card and the people met at events, grouped by event. Fictional data only.
 import { describe, it, expect } from 'vitest';
-import { cardShown, addPerson, peopleOf, byGroup, renameGroup, moveGroup, deleteGroup, removePerson, updatePerson, instaLink, telLink } from '../src/lib/freunde/people.js';
+import { cardShown, addPerson, peopleOf, byGroup, renameGroup, moveGroup, deleteGroup, removePerson, updatePerson, instaLink, telLink, waLink, mailLink, webLink, stravaLink, komootLink, mapLink, cardVcf, untilFor, expired, VALID_DAYS } from '../src/lib/freunde/people.js';
 
 const P = 'test_data_gtp_';
 describe('Kontaktkarte und Leute von Events', () => {
@@ -39,5 +39,45 @@ describe('Kontaktkarte und Leute von Events', () => {
     expect(instaLink('@test_data_velo')).toBe('https://www.instagram.com/test_data_velo/');
     expect(telLink('+41 79 000 00 00')).toBe('tel:+41790000000');
     expect(instaLink('')).toBe('');
+  });
+  it('Kontakt-QR-Code: the address stays off until ticked, the rest shows once filled in', () => {
+    const card = { name: `${P}Sam`, email: 'sam@example.test', addr: 'Testweg 1', strava: '123', phone: '079' };
+    expect(cardShown(card)).toEqual({ name: `${P}Sam`, email: 'sam@example.test', strava: '123' });
+    expect(cardShown({ ...card, show: { addr: true, phone: true, email: false } })).toEqual({ name: `${P}Sam`, phone: '079', strava: '123', addr: 'Testweg 1' });
+  });
+  it('Kontakt-QR-Code: only safe links come out', () => {
+    expect(waLink('079 000 00 00')).toBe('https://wa.me/41790000000');
+    expect(waLink('+49 170 000')).toBe('https://wa.me/49170000');
+    expect(mailLink('sam@example.test')).toBe('mailto:sam@example.test');
+    expect(mailLink('nicht-mail')).toBe('');
+    expect(webLink('example.test')).toBe('https://example.test/');
+    expect(webLink('javascript:alert(1)')).toBe('');
+    expect(stravaLink('123')).toBe('https://www.strava.com/athletes/123');
+    expect(stravaLink('https://www.strava.com/athletes/123')).toBe('https://www.strava.com/athletes/123');
+    expect(stravaLink('sam')).toBe('');
+    expect(komootLink('sam-k')).toBe('https://www.komoot.com/user/sam-k');
+    expect(mapLink('Testweg 1')).toBe('https://www.openstreetmap.org/search?query=Testweg%201');
+  });
+  it('Kontakt-QR-Code: the card as a contact file', () => {
+    const v = cardVcf({ name: `${P}Sam Test;er`, phone: '079 000 00 00', email: 'sam@example.test', addr: 'Testweg 1, 0000 Testdorf', strava: '123', note: 'Gravel' });
+    expect(v.startsWith('BEGIN:VCARD\r\nVERSION:3.0\r\n')).toBe(true);
+    expect(v).toContain('N:Test\\;er;test_data_gtp_Sam;;;');
+    expect(v).toContain('TEL;TYPE=CELL:0790000000');
+    expect(v).toContain('EMAIL;TYPE=INTERNET:sam@example.test');
+    expect(v).toContain('ADR;TYPE=HOME:;;Testweg 1\\, 0000 Testdorf;;;;');
+    expect(v).toContain('URL:https://www.strava.com/athletes/123');
+    expect(v.trimEnd().endsWith('END:VCARD')).toBe(true);
+    expect(cardVcf({ name: '' })).toBe('');
+  });
+  it('Kontakt-QR-Code step 2: the end day counts calendar days, today included', () => {
+    expect(VALID_DAYS).toEqual([1, 7, 30, 0]);
+    expect(untilFor(1, '2026-10-27')).toBe('2026-10-27');
+    expect(untilFor(7, '2026-10-27')).toBe('2026-11-02');
+    expect(untilFor(30, '2026-12-15')).toBe('2027-01-13');
+    expect(untilFor(0, '2026-10-27')).toBe('');
+    expect(expired('2026-10-27', '2026-10-27')).toBe(false);
+    expect(expired('2026-10-27', '2026-10-28')).toBe(true);
+    expect(expired('', '2030-01-01')).toBe(false);
+    expect(expired('kaputt', '2030-01-01')).toBe(false);
   });
 });

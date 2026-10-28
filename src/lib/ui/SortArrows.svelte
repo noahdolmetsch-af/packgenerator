@@ -20,13 +20,13 @@
     flex: none;
     display: flex;
     flex-direction: column;
-    gap: 2px;
+    gap: 0;
   }
   .sort-ar {
     display: grid;
     place-items: center;
     width: 32px;
-    height: 22px;
+    height: 24px; /* Klick-Rundgang 2: at least 24 px on a computer (WCAG 2.2 target size) */
     padding: 0;
     border: 1px solid var(--line);
     border-radius: 6px;

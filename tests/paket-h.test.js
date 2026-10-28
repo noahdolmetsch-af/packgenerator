@@ -167,7 +167,8 @@ describe('5 lending to guests', () => {
 
 describe('reminders on the phone for Paket H', async () => {
   const { buildList, KINDS, atMs } = await import('../src/lib/push/schedule.js');
-  const allOn = { on: true, kinds: Object.fromEntries(KINDS.map((k) => [k.key, true])) };
+  // morning: false = each reminder on its own (the morning message of idea A1: push-morning.test.js)
+  const allOn = { on: true, kinds: Object.fromEntries(KINDS.map((k) => [k.key, true])), morning: false };
   const now = new Date(2026, 9, 19, 10, 0);
   it('supply 2 weeks before, lend on the return day, shopping 2 days before a trip', () => {
     const l = buildList({

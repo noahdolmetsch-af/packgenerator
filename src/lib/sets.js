@@ -16,6 +16,7 @@ import { SETS, isInventory, itemWeight, sumKnown, isOldSetKey } from './gear.js'
 import { slotFor } from './trips.js';
 import { t, tn } from './i18n.svelte.js';
 import { STANDARD, isWorn } from './blocks2026.js';
+import { presetOf } from './wearpresets.js';
 
 export const SETS_KEY = 'sets';
 export const BUILT_IN = Object.keys(SETS);
@@ -35,9 +36,10 @@ export function allSets(value) {
   const builtIn = BUILT_IN.filter((key) => !rec(key)?.deleted).map((key) => ({ key, name: rec(key)?.name || t(SETS[key]), note: '', builtIn: true, renamed: !!rec(key)?.name, qty: { ...(rec(key)?.qty ?? {}) }, ...(rec(key)?.rule ? { rule: { ...rec(key).rule } } : {}) }));
   // v0.42.0: a temperature kit keeps its range (minC / maxC) and the Excel id it came from (sourceId).
   // SN5+: a block made from the favourites keeps its kind and the favourites of that moment (favplus.js).
-  const extra = (s) => Object.fromEntries(['minC', 'maxC', 'sourceId', 'mergedIds', 'fav', 'rule'].filter((k) => s[k] !== undefined).map((k) => [k, s[k]]));
+  const extra = (s) => Object.fromEntries(['minC', 'maxC', 'sourceId', 'mergedIds', 'fav', 'rule', 'preset', 'rain', 'off'].filter((k) => s[k] !== undefined).map((k) => [k, s[k]]));
   // v0.66.0: records of the old built-in keys (gear.js OLD_SETS, kept for older versions) are not own blocks.
-  const own = list.filter((s) => s?.key && !isBuiltIn(s.key) && !isOldSetKey(s.key)).map((s) => ({ key: s.key, name: s.name ?? s.key, note: s.note ?? '', builtIn: false, qty: { ...(s.qty ?? {}) }, ...extra(s) }));
+  // Kleider-Sets (27.10.2026): a sample set shows its label through t() until you rename it.
+  const own = list.filter((s) => s?.key && !isBuiltIn(s.key) && !isOldSetKey(s.key)).map((s) => ({ key: s.key, name: s.name ?? (presetOf(s.preset) ? t(presetOf(s.preset).name) : s.key), note: s.note ?? '', builtIn: false, qty: { ...(s.qty ?? {}) }, ...extra(s) }));
   return [...builtIn, ...own];
 }
 

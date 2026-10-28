@@ -19,9 +19,14 @@ const PDF = Buffer.from('%PDF-1.4\n1 0 obj<</Type/Catalog/Pages 2 0 R>>endobj\n2
 
 async function start(page, context, info) {
   await context.route(/^https?:\/\/(?!localhost[:/])/, (route) => route.abort());
+  // The PDF viewer frame has no localStorage (null): skip it there, or the test's own script throws
+  // «Cannot read properties of null (reading 'getItem')» and the error check fails.
   await context.addInitScript(() => {
-    if (!localStorage.getItem('lang')) localStorage.setItem('lang', 'de');
-    if (!localStorage.getItem('whatsnew.seen')) localStorage.setItem('whatsnew.seen', '9.9.9');
+    let store = null;
+    try { store = window.localStorage; } catch { return; }
+    if (!store) return;
+    if (!store.getItem('lang')) store.setItem('lang', 'de');
+    if (!store.getItem('whatsnew.seen')) store.setItem('whatsnew.seen', '9.9.9');
   });
   page.on('dialog', (d) => d.accept());
   const errors = [];
