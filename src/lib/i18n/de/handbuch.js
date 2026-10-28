@@ -1857,4 +1857,9 @@ export default {
     'Warnungen (Wetter, Glätte, Licht, Regen unterwegs, Essen) kommen weiter einzeln und pünktlich.',
   'Example: «Your morning» → «Appointment: 10:00 Dentist», «Testvelo: Chain reaches 1000 km soon», «and 1 more in the app».':
     'Beispiel: «Dein Morgen» → «Termin: 10:00 Zahnarzt», «Testvelo: Kette erreicht bald 1000 km», «und 1 weitere in der App».',
+  // Vorlagen mit Feldern (Noah 27.10.2026)
+  'Open Notes and tap «Choose templates».': 'Öffne Notizen und tippe «Vorlagen auswählen».',
+  'Tap «Use» on the templates you want; the pencil changes their fields.': 'Tippe bei den gewünschten Vorlagen auf «Verwenden»; der Stift ändert ihre Felder.',
+  'Tap a template above the note, fill in what you like, «Take over».': 'Tippe eine Vorlage über der Notiz an, füll aus, was du magst, «Übernehmen».',
+  'Example: «Tour report» with route, best moment, weather «rain» and 4 of 5.': 'Beispiel: «Tourenbericht» mit Strecke, schönstem Moment, Wetter «Regen» und 4 von 5.',
 };

@@ -369,6 +369,7 @@ export const HOME = {
   'f.noteformats': '#/notes',
   'f.next': '#/me/next',
   'f.notes': '#/notes',
+  'f.noteforms': '#/notes',
   'f.localai': '#/me/look',
   'f.dictate': '#/notes',
   'f.askfurther': '#/assistent',
