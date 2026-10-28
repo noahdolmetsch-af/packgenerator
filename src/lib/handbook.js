@@ -2079,6 +2079,47 @@ export const HANDBOOK = {
     example: 'Example: the photo of the pass and «The best coffee of the year at 2000 m» as a card for the family.',
   },
 
+  // Heute als Begleiter PR 2 (Noah 28.10.2026 «ok freigabe»): 5 tools and 3 phone reminders that had no line in the catalogue
+  'f.calc': {
+    on: null,
+    steps: ['Open Me › Toolbox › Calculator.', 'Type the numbers or tap the keys.', 'Tap one of the last ten lines to use it again.'],
+    example: 'Example: 68 × 3 ÷ 2 = 102 for the hut, shared by two.',
+  },
+  'f.units': {
+    on: null,
+    steps: ['Open Me › Toolbox › Convert units.', 'Choose the kind, e.g. pressure.', 'Type the value and pick the two units.'],
+    example: 'Example: 2.1 bar → 30.5 psi for the pump abroad.',
+  },
+  'f.zones': {
+    on: null,
+    steps: ['Open Me › Toolbox › Time zones.', 'Add a place or a zone.', 'See its time and the difference to here.'],
+    example: 'Example: Reykjavik is 1 hour behind, Tokyo 8 hours ahead.',
+  },
+  'f.compasstool': {
+    on: 'Needs the motion sensor of the phone; a computer has no compass.',
+    steps: ['Open Me › Toolbox › Compass.', 'Allow the motion sensor once.', 'Hold the phone flat and read your direction.'],
+    example: 'Example: you head south-west, the wind comes from the west.',
+  },
+  'f.phrases': {
+    on: null,
+    steps: ['Open Me › Toolbox › Phrases abroad.', 'Choose the language.', 'Show the sentence to the person.'],
+    example: 'Example: «Est-ce que je peux remplir ma gourde ?»',
+  },
+  'f.lightpush': {
+    on: 'Needs messages switched on for the app on this phone.',
+    steps: ['Open Me › Reminders on the phone.', 'Switch on «Light alarm».', 'The evening before a late ride, the message comes by itself.'],
+    example: 'Example: «Jura round: you ride after sunset (21:10). Pack the light and the reflective vest.»',
+  },
+  'f.wearpush': {
+    on: 'Needs messages switched on for the app on this phone.',
+    steps: ['Open Me › Reminders on the phone.', 'Switch on «Parts worn».', 'When a part reaches its km, a message comes at 08:00.'],
+    example: 'Example: «Gravel: the chain reaches 3000 km soon (150 km left).»',
+  },
+  'f.racepush': {
+    on: 'Needs messages switched on and a registration deadline on the race.',
+    steps: ['Give the race its registration deadline in Trips › Races.', 'Switch on «Race registration» in Me › Reminders on the phone.', 'A message comes 3 days and 1 day before, at 08:00.'],
+    example: 'Example: «Jura Gravel 200: registration closes in 3 days.»',
+  },
 };
 
 /** The small apps: each opens right on its area, with its own icon, and shares the data of the whole app. */

@@ -431,6 +431,15 @@ export const HOWTO = {
   'f.inputbar': ['Open a text, e.g. a new diary entry.', 'Under the text tap «Voice note», «File», «Template» or another part of «Add».', 'Save as usual; what you added stays with it.'],
   'f.inputtemplates': ['Open a text and tap «Template» under it.', 'Tap a template; its text goes under yours.', '«Change templates»: add, change, sort or delete.'],
   'f.picturecard': ['Open a diary entry.', 'Tap «Picture card».', 'Choose the photo, change the sentence, then «Share» or «Download it».'],
+  // Heute als Begleiter PR 2 (Noah 28.10.2026 «ok freigabe»): 5 tools and 3 phone reminders that had no line in the catalogue
+  'f.calc': ['Open Toolbox › Calculator.', 'Type the numbers or tap the keys.', 'Read the result; the last lines stay.'],
+  'f.units': ['Open Toolbox › Convert units.', 'Choose the kind and the two units.', 'Type the value and read the result.'],
+  'f.zones': ['Open Toolbox › Time zones.', 'Add a place or a zone.', 'Read its time and the difference.'],
+  'f.compasstool': ['Open Toolbox › Compass.', 'Allow the motion sensor.', 'Hold the phone flat and read it.'],
+  'f.phrases': ['Open Toolbox › Phrases abroad.', 'Choose the language.', 'Show the sentence to the person.'],
+  'f.lightpush': ['Open Me › Reminders on the phone.', 'Switch on «Light alarm».', 'Wait for the evening before a late ride.'],
+  'f.wearpush': ['Open Me › Reminders on the phone.', 'Switch on «Parts worn».', 'A message comes when a part is due.'],
+  'f.racepush': ['Give the race its registration deadline.', 'Switch on «Race registration».', 'A message comes 3 days and 1 day before.'],
 };
 
 /** The steps of a function, or [] when it has none. */

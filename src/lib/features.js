@@ -78,7 +78,7 @@ const OWN = [
   { id: 'f.tripstate', group: 'before', title: 'Trip states', text: 'Every trip shows its state: Planned, Completed or Rated, on Touren, in the trip header and on Today.', href: '#/trips', words: 'zustand geplant abgeschlossen bewertet status touren' },
   { id: 'f.wear', group: 'before', title: 'What do I wear?', text: 'Clothing for the coldest hour of a day ride, from your own wardrobe.', run: 'wear', words: 'anziehen kleider outfit' },
   { id: 'f.onion', group: 'before', title: 'Layer check', text: 'Checks every layer for the coldest riding hour and suggests the kit; for two pieces with the same task it asks what for.', href: '#/pack', play: 'pack', words: 'zwiebel schicht kit temperatur doppelt zweimal gleiche aufgabe ersatz zu viel wartezeit warten bahnsteig stillstehen' },
-  { id: 'f.shop', group: 'before', title: 'Shopping and charging list', text: 'What you buy and charge 2 days before the trip.', href: '#/pack?shop', play: 'pack', words: 'einkauf einkaufsliste laden ladeliste akku' },
+  { id: 'f.shop', group: 'before', title: 'Shopping and charging list', text: 'What you buy and charge 2 days before the trip.', href: '#/pack?shop', play: 'pack', words: 'einkauf einkaufsliste laden ladeliste akku erinnerung handy einkaufen vor einer tour' },
   { id: 'f.ballast', group: 'before', title: 'Ballast card', text: 'What came along and was not used: leave it at home or keep it.', href: '#/pack', words: 'ballast zu hause lassen leichter' },
   { id: 'f.tripbike', group: 'before', title: 'Compare bikes for a trip', text: 'Which bike is lighter for this trip; switch with one tap.', href: '#/pack', play: 'pack', words: 'velo wechseln vergleichen' },
   { id: 'f.switch', group: 'before', title: 'Switch to another trip', text: 'The small «more» button in the dark trip band lists every trip.', href: '#/pack', words: 'andere tour wechseln' },
@@ -547,6 +547,15 @@ const OWN = [
   // «Quick Links» (Noah 28.10.2026 «1a 2a 3a 4a 5a»): your pins, its own place
   { id: 'f.quicklinks', group: 'data', title: 'Quick Links', text: 'Your shortcuts in their own place: pin the functions you use most, in your own groups; a tap takes you there. Phone and computer keep their own pins.', href: '#/quick', words: 'quick links pins anpinnen pinnadel abkürzung shortcut favoriten schnell lieblings verknüpfung' },
   { id: 'f.picturecard', group: 'data', title: 'Picture card', text: 'A diary entry as a picture to share: your own photo and a sentence, made on this device without AI.', href: '#/tagebuch', words: 'bildkarte bild teilen foto satz karte postkarte' },
+  // Heute als Begleiter PR 2 (Noah 28.10.2026 «ok freigabe»): 5 tools and 3 phone reminders that had no line in the catalogue
+  { id: 'f.calc', group: 'data', title: 'Calculator', text: 'Plus, minus, times, divided, percent', href: '#/me/tools/calc', words: 'rechner taschenrechner rechnen prozent plus minus' },
+  { id: 'f.units', group: 'data', title: 'Convert units', text: 'km, kg, °C, tyre pressure; works offline', href: '#/me/tools/units', words: 'einheiten umrechnen masse meilen pfund fahrenheit psi bar reifendruck' },
+  { id: 'f.zones', group: 'onway', title: 'Time zones', text: 'The time in other places', href: '#/me/tools/zones', words: 'zeitzonen uhrzeit zeit ausland reise flug' },
+  { id: 'f.compasstool', group: 'onway', title: 'Compass', text: 'North and your direction, from the phone', href: '#/me/tools/compass', words: 'kompass norden richtung himmelsrichtung orientierung' },
+  { id: 'f.phrases', group: 'onway', title: 'Phrases abroad', text: 'Important sentences, offline', href: '#/me/tools/phrases', words: 'sätze ausland sprache übersetzen französisch italienisch englisch' },
+  { id: 'f.lightpush', group: 'onway', title: 'Light alarm', text: 'The evening before, when the ride goes on after sunset: pack the light and the reflective vest.', href: '#/me/push', words: 'licht wecker erinnerung dunkel sonnenuntergang reflexweste lampe' },
+  { id: 'f.wearpush', group: 'bike', title: 'Parts worn', text: 'When a part reaches its km, e.g. the chain. At 08:00.', href: '#/me/push', words: 'teile abgenutzt verschleiss erinnerung kette reifen beläge km' },
+  { id: 'f.racepush', group: 'before', title: 'Race registration', text: '3 days and 1 day before the registration deadline, at 08:00.', href: '#/me/push', words: 'rennen anmeldung anmeldeschluss erinnerung frist' },
 ];
 
 /** Every function: the tips (with their group) first, then the own entries, by group order. */
