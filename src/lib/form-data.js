@@ -34,6 +34,8 @@ export function formOf({ table, trips = [], checks = [], today, days = 84 }) {
   const series = formSeries(loads, addDays(today, -(days - 1)), today);
   const c = checkOf(checks.find((x) => x.day === today), today);
   const felt = { sleep: c.sleep, energy: c.energy };
+  // K3: the felt sleep and energy of every answered morning, for the days behind «Was heute zählt»
+  const feltBy = new Map(checks.filter((x) => x?.day).map((x) => [x.day, (({ sleep, energy }) => ({ sleep, energy }))(checkOf(x, x.day))]));
   const parts = recoveryParts(table, today, felt);
   const ready = readiness({ series, parts });
   return {
@@ -46,12 +48,13 @@ export function formOf({ table, trips = [], checks = [], today, days = 84 }) {
     tour: tourOf(trips, table, today),
     past: pastTours(trips, table, today),
     felt,
+    feltBy,
     table,
   };
 }
 
 export async function loadForm(today, d = db) {
-  const [table, trips, checks] = await Promise.all([loadTable(d), d.trips ? d.trips.toArray() : [], d.flowChecks ? d.flowChecks.where('day').aboveOrEqual(addDays(today, -1)).toArray() : []]);
+  const [table, trips, checks] = await Promise.all([loadTable(d), d.trips ? d.trips.toArray() : [], d.flowChecks ? d.flowChecks.where('day').aboveOrEqual(addDays(today, -31)).toArray() : []]);
   return formOf({ table, trips, checks, today });
 }
 /** A Svelte store: the whole «Form und Erholung» of today, again after every change. */
