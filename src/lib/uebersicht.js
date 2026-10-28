@@ -200,7 +200,7 @@ export const BODY_KEYS = [
   { key: 'steps', name: 'Steps', unit: '', src: 'fitbit', sum: true },
   { key: 'kcal', name: 'Calories', unit: 'kcal', src: 'fitbit', sum: true },
   { key: 'zones', name: 'Pulse zones', unit: 'min', src: 'zones', sum: true, stack: ['z1', 'z2', 'z3', 'z4', 'z5'] },
-  { key: 'load', name: 'Load|body', unit: '', src: 'strava', sum: true },
+  { key: 'load', name: 'Load|body', unit: '', src: 'load', sum: true },
   { key: 'med', name: 'Meditation', unit: 'min', src: 'med', sum: true },
   { key: 'weight', name: 'Weight', unit: 'kg', line: true, src: 'own', entry: true },
   { key: 'water', name: 'Water|drink', unit: 'l', src: 'own', entry: true, sum: true },

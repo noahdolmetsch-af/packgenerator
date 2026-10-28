@@ -4,4 +4,6 @@ export default {
     'Belastung: jede Aktivität zählt, jede Sportart. Mit einer FIT-Datei vom Velocomputer zählt zuerst deren TSS (eine Fahrt, die auch auf Strava ist, nur einmal); mit Wattmesser aus der Leistung gegen deine FTP, sonst aus Stravas relativer Anstrengung, sonst aus Puls und Zeit.',
   'Training effect {a}': 'Trainingseffekt {a}',
   'TSS {n}': 'TSS {n}',
+  'From your activities: first the TSS of a FIT file from your bike computer, else power, Strava’s relative effort or pulse and time (see Form).':
+    'Aus deinen Aktivitäten: zuerst die TSS einer FIT-Datei vom Velocomputer, sonst Leistung, Stravas relative Anstrengung oder Puls und Zeit (siehe Form).',
 };

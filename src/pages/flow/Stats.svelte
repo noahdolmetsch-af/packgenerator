@@ -90,6 +90,7 @@
     app: 'Counted by the app from your activities, Fitbit and the morning check (see Form and recovery).',
     check: 'Your answers of the morning check, 1 to 10.',
     strava: 'From your Strava activities; watts per kg with your weight of that day.',
+    load: 'From your activities: first the TSS of a FIT file from your bike computer, else power, Strava’s relative effort or pulse and time (see Form).',
     zones: 'Minutes in your pulse zones (Training › Zones), from the pulse of your Strava activities.',
     med: 'Your meditation ticks in Aktiv; a tick without minutes counts as 10.',
     temp: 'Your rides with a temperature from the device (Strava or FIT file). Warm rides often have a higher pulse.',
