@@ -1944,6 +1944,11 @@ export const HANDBOOK = {
     steps: ['Open Me › Mini tools › Quick invite.', 'Pick the day, add the meeting point and tap «Make the link».', 'Send the link; tap «Look for new answers» to see who is in.'],
     example: 'Example: «Are you riding with me?» tomorrow 17:30 at the fountain; three are in, one maybe.',
   },
+  'f.minifood': {
+    on: null,
+    steps: ['Open Me › Mini tools › Who eats what.', 'Write what it is about, say what you eat and tap «Make the link».', 'Send the link; pick a menu and the shopping list is ready.'],
+    example: 'Example: «Hut evening» for 7; two vegetarian, one gluten-free; the pasta list has 250 g gluten-free pasta.',
+  },
   'f.friendask': {
     on: null,
     steps: ['Open Me › With friends and choose what you ask, e.g. «Tell the trip together».', 'Choose the trip, check the lines, «Make the link» and send it to who you choose.', 'Your friend answers in the app and sends a link back; open it and tap «Keep it».'],
