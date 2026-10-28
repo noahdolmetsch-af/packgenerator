@@ -2,8 +2,8 @@
 export default {
   title: 'Too short: said clearly',
   lead: 'A ride with fewer than 2 GPS points is not kept, and a window says so. «Save anyway» keeps it all the same.',
-  points: [{ text: 'A window says why a ride was not saved, with a tip', href: '#/live' }],
-  small: [{ box: 'nicer', text: '«Save anyway» for tests' }],
+  points: [{ text: 'A window says why a ride was not saved, with a tip', href: '#/live', go: 'f.live' }],
+  small: [{ box: 'nicer', text: '«Save anyway» for tests', go: 'f.live' }],
   test: ['Start a ride indoors and end it at once: the window «Not saved» says how many GPS points there were.', 'Tap «Save anyway»: the ride is in Trips.'],
   since: [],
   de: {
