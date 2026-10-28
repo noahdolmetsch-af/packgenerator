@@ -31,6 +31,7 @@ export const GROUP_PLACES = [
   { name: 'Impulse areas', file: 'src/lib/frei/Impulse.svelte' }, // Paket T «Freie Zeit»
   { name: 'Collections', file: 'src/lib/frei/Sammlungen.svelte' },
   { name: 'Shopping list groups', file: 'src/lib/alltag/Einkauf.svelte' }, // Paket V «Alltag»
+  { name: 'Recipe groups', file: 'src/lib/alltag/Kochen.svelte' }, // «Kochen» (Noah 28.10.2026): Meat, Shakes, Sunday brunch …
   { name: 'Areas of the questions', file: 'src/pages/Abfragen.svelte' }, // Noah 20.10.2026: morning and evening check questions
   { name: 'Diary tags', file: 'src/lib/tagebuch/Settings.svelte' }, // «Tagebuch»: tags are its groups
   // Paket C «Ruhig und persönlich»: own marks, bingo fields, rewards, kinds of days and ride roles (KindsEdit)

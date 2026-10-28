@@ -3,7 +3,7 @@
 // desktop 1440, fixed clock in Europe/Zurich, fictional data only. SHOTS=<folder> saves shots.
 import { test, expect } from '@playwright/test';
 import DE from '../../src/lib/i18n/de/index.js';
-import { RECIPES } from '../../src/lib/kochen/rezepte.js';
+import { RECIPES, STD_GROUPS } from '../../src/lib/kochen/rezepte.js';
 import { shoppingLines } from '../../src/lib/kochen/kochen.js';
 import { ready } from './settle.js';
 
@@ -65,5 +65,42 @@ test('A recipe: two portions on the shopping list, all steps, hide and show agai
   await page.locator('[data-ko-hidden] summary').click();
   await page.locator(`[data-ko-unhide="${oats.id}"]`).click();
   await expect(page.locator(`[data-ko-recipe="${oats.id}"]`)).toHaveCount(1);
+  expect(errors).toEqual([]);
+});
+
+test('Groups: filter by a group, put a recipe in, rename, delete with Undo choice, own group', async ({ page, context }, info) => {
+  const errors = await open(page, context, './#/me/alltag/kochen');
+  const grill = STD_GROUPS.find((g) => g.key === 'grill');
+  await expect(page.locator('[data-ko-group-chips] [data-ko-filter]')).toHaveCount(STD_GROUPS.length);
+  await page.locator('[data-ko-filter="g:grill"]').click();
+  await expect(page.locator('[data-ko-recipe]')).toHaveCount(grill.ids.length);
+  await shot(page, info, 'kochen-gruppe');
+
+  // a recipe goes into the group Grill from its page
+  await page.goto('./#/me/alltag/kochen/pasta-pesto');
+  const chip = page.locator('[data-ko-in-group="grill"]');
+  await expect(chip).toHaveAttribute('aria-pressed', 'false');
+  await chip.click();
+  await expect(chip).toHaveAttribute('aria-pressed', 'true');
+  await page.goto('./#/me/alltag/kochen');
+  await page.locator('[data-ko-filter="g:grill"]').click();
+  await expect(page.locator('[data-ko-recipe]')).toHaveCount(grill.ids.length + 1);
+
+  // rename, add own, delete
+  await page.locator('[data-ko-groups] summary').click();
+  await page.locator('[data-ko-grp="grill"] [data-ko-grp-rename]').click();
+  await page.getByRole('dialog').locator('input').fill('Test BBQ');
+  await page.getByRole('dialog').getByRole('button', { name: T('Save') }).click();
+  await expect(page.locator('[data-ko-filter="g:grill"]')).toHaveText('Test BBQ');
+  await page.locator('[data-ko-grp-new]').fill('Test guests');
+  await page.locator('[data-ko-groups] form button[type="submit"]').click();
+  await expect(page.locator('[data-ko-group-chips] [data-ko-filter]')).toHaveCount(STD_GROUPS.length + 1);
+  await page.locator('[data-ko-grp="grill"] [data-ko-grp-delete]').click();
+  await page.getByRole('dialog').getByRole('button', { name: T('Delete') }).click();
+  await expect(page.locator('[data-ko-filter="g:grill"]')).toHaveCount(0);
+  await expect(page.locator('[data-ko-recipe]')).toHaveCount(RECIPES.length); // back to «All», nothing lost
+  await page.locator('[data-ko-grp-reset]').click();
+  await expect(page.locator('[data-ko-group-chips] [data-ko-filter]')).toHaveCount(STD_GROUPS.length);
+  expect(await noScroll(page)).toBe(true);
   expect(errors).toEqual([]);
 });

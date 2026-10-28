@@ -109,6 +109,38 @@ const ING = {
   polenta: ['Quick polenta', 'Schnellkoch-Polenta', []],
   pepper: ['Red pepper', 'Rote Peperoni', []],
   sweetChili: ['Sweet chili sauce', 'Sweet-Chili-Sauce', ['spicy']],
+  minuteSteaks: ['Beef minute steaks', 'Rindsplätzli', ['meat']],
+  bratwurst: ['Bratwurst', 'Bratwurst', ['meat']],
+  herbButter: ['Herb butter', 'Kräuterbutter', ['dairy']],
+  greenBeans: ['Frozen green beans', 'Tiefkühl-Bohnen', []],
+  risottoRice: ['Risotto rice', 'Risottoreis', []],
+  smokedSalmon: ['Smoked salmon', 'Rauchlachs', ['fish']],
+  chocolate: ['Dark chocolate', 'Dunkle Schokolade', ['dairy']],
+  vanillaSugar: ['Vanilla sugar', 'Vanillezucker', []],
+  sugar: ['Sugar', 'Zucker', []],
+  iceCream: ['Vanilla ice cream', 'Vanilleglace', ['dairy']],
+  cocoa: ['Cocoa powder', 'Kakaopulver', []],
+  orangeJuice: ['Orange juice', 'Orangensaft', []],
+  skyr: ['Skyr', 'Skyr', ['dairy']],
+  quinoa: ['Quinoa', 'Quinoa', []],
+  lentilsCan: ['Cooked lentils (can)', 'Gekochte Linsen (Dose)', []],
+  sweetPotato: ['Sweet potato', 'Süsskartoffel', []],
+  flour: ['Flour', 'Mehl', ['gluten']],
+  maple: ['Maple syrup', 'Ahornsirup', []],
+  zucchini: ['Courgette', 'Zucchetti', []],
+  mustard: ['Mustard', 'Senf', []],
+  halloumi: ['Halloumi', 'Halloumi', ['dairy']],
+  cornCobs: ['Corn on the cob (cooked)', 'Maiskolben (vorgekocht)', []],
+  zopf: ['Zopf (plaited bread)', 'Zopf', ['gluten', 'dairy']],
+  croissants: ['Croissants', 'Gipfeli', ['gluten', 'dairy']],
+  buns: ['Burger buns', 'Burger-Brötchen', ['gluten']],
+  patties: ['Beef burgers', 'Rindsburger', ['meat']],
+  ketchup: ['Ketchup', 'Ketchup', []],
+  wienerli: ['Wienerli sausages', 'Wienerli', ['meat']],
+  hotdogBuns: ['Hot dog buns', 'Hotdog-Brötchen', ['gluten']],
+  nuggets: ['Frozen chicken nuggets', 'Tiefkühl-Chicken-Nuggets', ['meat', 'gluten']],
+  fries: ['Frozen oven chips', 'Tiefkühl-Ofenpommes', []],
+  kebabMeat: ['Kebab meat (cooked)', 'Kebabfleisch (gegart)', ['meat']],
 };
 
 /* ---------- units: [English, German] ---------- */
@@ -480,6 +512,271 @@ r('sweet-chili-chicken', ['dinner'], 15, ['Sweet chili chicken with rice', 'Swee
   ['Add the frozen vegetables and fry them with it.', 'Das gefrorene Gemüse dazu geben und mitbraten.', 5, true],
   ['Stir in the sweet chili sauce and warm the rice. Done.', 'Die Sweet-Chili-Sauce einrühren und den Reis wärmen. Fertig.', 2],
 ]);
+
+/* ---------- more recipes for the groups (Noah 28.10.2026: «je 4 von meinen genannten») ---------- */
+
+/* Meat */
+r('minute-steaks', ['dinner'], 12, ['Minute steaks with rice and broccoli', 'Rindsplätzli mit Reis und Brokkoli'], [['minuteSteaks', 150, 'g'], ['ricePouch', 1, 'pack'], ['broccoli', 150, 'g'], ['butter', 1, 'tbsp']], [
+  ['Cook the broccoli in salted water.', 'Den Brokkoli in Salzwasser kochen.', 6, true],
+  ['Melt the butter in a hot pan and fry the steaks 1 minute on each side.', 'Die Butter in einer heissen Pfanne schmelzen und die Plätzli pro Seite 1 Minute braten.', 2, true],
+  ['Salt and pepper the meat and let it rest on the plate.', 'Das Fleisch salzen, pfeffern und auf dem Teller ruhen lassen.', 1],
+  ['Warm the rice. Done.', 'Den Reis wärmen. Fertig.', 2],
+]);
+r('bratwurst-roesti', ['dinner'], 20, ['Bratwurst with onion sauce and rösti', 'Bratwurst mit Zwiebelsauce und Rösti'], [['bratwurst', 1, 'pc'], ['onion', 1, 'pc'], ['roesti', 1, 'pack'], ['stock', 0.5, 'pc'], ['oil', 2, 'tbsp']], [
+  ['Fry the rösti in 1 tablespoon of oil, about 6 minutes on each side.', 'Die Rösti in 1 EL Öl braten, etwa 6 Minuten pro Seite.', 12, true],
+  ['In a second pan fry the bratwurst in the rest of the oil, turning it.', 'In einer zweiten Pfanne die Bratwurst im restlichen Öl braten und wenden.', 10, true],
+  ['Cut the onion into rings, add it to the sausage and fry it soft.', 'Die Zwiebel in Ringe schneiden, zur Wurst geben und weich braten.', 4],
+  ['Add 100 ml water and the stock cube and let it bubble 2 minutes. Done.', '100 ml Wasser und den Bouillonwürfel dazu geben und 2 Minuten köcheln lassen. Fertig.', 2, true],
+]);
+r('chicken-herb-butter', ['dinner'], 18, ['Chicken breast with herb butter and beans', 'Pouletbrust mit Kräuterbutter und Bohnen'], [['chicken', 150, 'g'], ['herbButter', 1, 'tbsp'], ['greenBeans', 150, 'g'], ['oil', 1, 'tbsp']], [
+  ['Cut the chicken breast in half lengthwise so it cooks faster, salt it.', 'Die Pouletbrust der Länge nach halbieren, damit sie schneller gar ist, und salzen.', 2],
+  ['Fry it in the oil on medium heat until it is no longer pink inside.', 'Im Öl bei mittlerer Hitze braten, bis sie innen nicht mehr rosa ist.', 10, true],
+  ['Meanwhile cook the beans in salted water.', 'Inzwischen die Bohnen in Salzwasser kochen.', 8, true],
+  ['Put the herb butter on the hot chicken. Done.', 'Die Kräuterbutter auf das heisse Poulet legen. Fertig.', 1],
+]);
+r('mince-pepper-rice', ['dinner'], 15, ['Minced beef with pepper and rice', 'Hackfleisch-Pfanne mit Peperoni und Reis'], [['mince', 125, 'g'], ['pepper', 1, 'pc'], ['ricePouch', 1, 'pack'], ['soy', 1, 'tbsp'], ['oil', 1, 'tbsp']], [
+  ['Cut the pepper into small pieces.', 'Die Peperoni in kleine Stücke schneiden.', 3],
+  ['Fry the mince in the oil until crumbly, then add the pepper.', 'Das Hackfleisch im Öl krümelig braten, dann die Peperoni dazu geben.', 7, true],
+  ['Add the rice and the soy sauce and fry everything 2 minutes. Done.', 'Reis und Sojasauce dazu geben und alles 2 Minuten braten. Fertig.', 3],
+]);
+
+/* Rice */
+r('quick-risotto', ['dinner'], 20, ['Quick risotto with peas', 'Schnelles Risotto mit Erbsen'], [['risottoRice', 80, 'g'], ['stock', 1, 'pc'], ['peas', 1, 'handful'], ['parmesan', 20, 'g'], ['butter', 1, 'tbsp']], [
+  ['Dissolve the stock cube in 400 ml hot water.', 'Den Bouillonwürfel in 400 ml heissem Wasser auflösen.', 1],
+  ['Fry the rice in half the butter for 1 minute, stirring.', 'Den Reis in der Hälfte der Butter 1 Minute unter Rühren anbraten.', 1],
+  ['Add the stock little by little and stir often, until the rice is soft.', 'Die Bouillon nach und nach dazu giessen und oft rühren, bis der Reis weich ist.', 16, true],
+  ['Stir in the peas, the parmesan and the rest of the butter. Done.', 'Erbsen, Parmesan und die restliche Butter einrühren. Fertig.', 2],
+]);
+r('rice-bowl-egg', ['lunch'], 10, ['Rice bowl with avocado and egg', 'Reis-Bowl mit Avocado und Ei'], [['ricePouch', 1, 'pack'], ['avocado', 1, 'pc'], ['eggs', 1, 'pc'], ['cucumber', 0.5, 'pc'], ['soy', 1, 'tbsp']], [
+  ['Cook the egg 7 minutes, then rinse it cold.', 'Das Ei 7 Minuten kochen, dann kalt abschrecken.', 7, true],
+  ['Meanwhile warm the rice and slice the avocado and the cucumber.', 'Inzwischen den Reis wärmen, Avocado und Gurke in Scheiben schneiden.', 3],
+  ['Put everything in a bowl, the egg cut in half on top, soy sauce over it. Done.', 'Alles in eine Schale geben, das halbierte Ei darauf, Sojasauce darüber. Fertig.', 1],
+]);
+r('mexican-rice', ['lunch', 'dinner'], 10, ['Mexican rice with beans and cheese', 'Mexikanischer Reis mit Bohnen und Käse'], [['ricePouch', 1, 'pack'], ['beans', 100, 'g'], ['corn', 70, 'g'], ['choppedTomatoes', 0.5, 'can'], ['gratedCheese', 30, 'g']], [
+  ['Rinse and drain the beans and the sweetcorn.', 'Bohnen und Mais abspülen und abtropfen lassen.', 1],
+  ['Warm everything except the cheese in a pan, stirring, salt it.', 'Alles ausser dem Käse in einer Pfanne unter Rühren wärmen, salzen.', 6, true],
+  ['Cheese on top, cover and let it melt. Done.', 'Käse darüber, zudecken und schmelzen lassen. Fertig.', 2],
+]);
+r('salmon-rice-bowl', ['lunch'], 8, ['Rice bowl with smoked salmon', 'Reis-Bowl mit Rauchlachs'], [['ricePouch', 1, 'pack'], ['smokedSalmon', 80, 'g'], ['avocado', 0.5, 'pc'], ['cucumber', 0.5, 'pc'], ['soy', 1, 'tbsp']], [
+  ['Warm the rice and let it cool a little.', 'Den Reis wärmen und etwas abkühlen lassen.', 2],
+  ['Slice the avocado and the cucumber, tear the salmon into pieces.', 'Avocado und Gurke in Scheiben schneiden, den Lachs in Stücke zupfen.', 4],
+  ['Put everything on the rice, soy sauce over it. Done.', 'Alles auf den Reis geben, Sojasauce darüber. Fertig.', 1],
+]);
+
+/* Desserts */
+r('choco-banana', [], 5, ['Banana with warm chocolate', 'Banane mit warmer Schokolade'], [['banana', 1, 'pc'], ['chocolate', 30, 'g'], ['walnuts', 1, 'tbsp']], [
+  ['Break the chocolate into a cup and melt it 1 minute in the microwave, stirring halfway.', 'Die Schokolade in eine Tasse brechen und 1 Minute in der Mikrowelle schmelzen, nach der Hälfte umrühren.', 1, true],
+  ['Slice the banana onto a plate.', 'Die Banane in Scheiben auf einen Teller schneiden.', 1],
+  ['Pour the chocolate over it, nuts on top. Done.', 'Die Schokolade darüber giessen, Nüsse darauf. Fertig.', 1],
+]);
+r('berry-quark', [], 4, ['Berry quark', 'Beeren-Quark'], [['quark', 150, 'g'], ['berries', 1, 'handful'], ['vanillaSugar', 1, 'tsp'], ['milk', 2, 'tbsp']], [
+  ['Stir the quark with the milk and the vanilla sugar until creamy.', 'Den Quark mit Milch und Vanillezucker cremig rühren.', 1],
+  ['Add the frozen berries and wait 3 minutes. Done.', 'Die gefrorenen Beeren dazu geben und 3 Minuten warten. Fertig.', 3, true],
+]);
+r('fried-apple', [], 8, ['Fried apple slices with cinnamon', 'Gebratene Apfelschnitze mit Zimt'], [['apple', 1, 'pc'], ['butter', 1, 'tbsp'], ['sugar', 1, 'tsp'], ['cinnamon', 1, 'pinch']], [
+  ['Cut the apple into thin slices (no core).', 'Den Apfel in dünne Schnitze schneiden (ohne Kerngehäuse).', 2],
+  ['Melt the butter in a pan and fry the slices until soft and golden.', 'Die Butter in einer Pfanne schmelzen und die Schnitze weich und goldbraun braten.', 5, true],
+  ['Sprinkle sugar and cinnamon over them. Done.', 'Zucker und Zimt darüber streuen. Fertig.', 1],
+]);
+r('ice-hot-berries', [], 6, ['Vanilla ice cream with hot berries', 'Vanilleglace mit heissen Beeren'], [['iceCream', 2, 'pcs'], ['berries', 1, 'handful'], ['sugar', 1, 'tsp']], [
+  ['Warm the berries with the sugar in a small pot until they bubble.', 'Die Beeren mit dem Zucker in einer kleinen Pfanne wärmen, bis sie blubbern.', 4, true],
+  ['Put two scoops of ice cream in a bowl.', 'Zwei Kugeln Glace in eine Schale geben.', 1],
+  ['Hot berries over it. Done.', 'Die heissen Beeren darüber. Fertig.', 1],
+]);
+
+/* Shakes */
+r('berry-shake', ['breakfast'], 3, ['Berry shake', 'Beeren-Shake'], [['berries', 1, 'handful'], ['milk', 250, 'ml'], ['banana', 1, 'pc'], ['honey', 1, 'tsp']], [
+  ['Put everything in a blender or a tall cup.', 'Alles in einen Mixer oder einen hohen Becher geben.', 1],
+  ['Blend until smooth. Done.', 'Fein pürieren. Fertig.', 2],
+]);
+r('choco-protein-shake', ['breakfast'], 3, ['Chocolate protein shake', 'Schoko-Protein-Shake'], [['milk', 250, 'ml'], ['quark', 100, 'g'], ['cocoa', 1, 'tbsp'], ['banana', 1, 'pc']], [
+  ['Put everything in a blender or a tall cup.', 'Alles in einen Mixer oder einen hohen Becher geben.', 1],
+  ['Blend until smooth. Done.', 'Fein pürieren. Fertig.', 2],
+]);
+r('green-shake', ['breakfast'], 4, ['Green shake', 'Grüner Shake'], [['spinach', 1, 'handful'], ['banana', 1, 'pc'], ['apple', 1, 'pc'], ['orangeJuice', 200, 'ml']], [
+  ['Let the spinach thaw a little; cut the apple into pieces.', 'Den Spinat kurz antauen lassen; den Apfel in Stücke schneiden.', 2],
+  ['Put everything in a blender and blend until smooth. Done.', 'Alles in einen Mixer geben und fein pürieren. Fertig.', 2],
+]);
+r('mango-lassi', ['breakfast'], 3, ['Mango lassi', 'Mango-Lassi'], [['mango', 1, 'handful'], ['yogurt', 180, 'g'], ['milk', 100, 'ml'], ['honey', 1, 'tsp']], [
+  ['Put everything in a blender or a tall cup.', 'Alles in einen Mixer oder einen hohen Becher geben.', 1],
+  ['Blend until smooth. Done.', 'Fein pürieren. Fertig.', 2],
+]);
+
+/* Power food */
+r('quinoa-bowl', ['lunch'], 18, ['Quinoa bowl with chickpeas and feta', 'Quinoa-Bowl mit Kichererbsen und Feta'], [['quinoa', 60, 'g'], ['chickpeas', 0.5, 'can'], ['cucumber', 0.5, 'pc'], ['feta', 50, 'g'], ['oliveOil', 1, 'tbsp']], [
+  ['Rinse the quinoa and cook it in salted water.', 'Den Quinoa abspülen und in Salzwasser kochen.', 15, true],
+  ['Meanwhile drain the chickpeas, cut the cucumber small, crumble the feta.', 'Inzwischen die Kichererbsen abtropfen, die Gurke klein schneiden, den Feta zerbröseln.', 3],
+  ['Drain the quinoa and mix everything with the oil. Done.', 'Den Quinoa abgiessen und alles mit dem Öl mischen. Fertig.', 1],
+]);
+r('lentil-salad', ['lunch'], 8, ['Lentil salad with feta', 'Linsensalat mit Feta'], [['lentilsCan', 1, 'can'], ['tomato', 1, 'pc'], ['feta', 50, 'g'], ['oliveOil', 1, 'tbsp'], ['vinegar', 1, 'tbsp']], [
+  ['Rinse and drain the lentils.', 'Die Linsen abspülen und abtropfen lassen.', 1],
+  ['Cut the tomato small and crumble the feta.', 'Die Tomate klein schneiden und den Feta zerbröseln.', 3],
+  ['Mix everything with oil, vinegar, salt and pepper. Done.', 'Alles mit Öl, Essig, Salz und Pfeffer mischen. Fertig.', 2],
+]);
+r('sweet-potato-quark', ['lunch', 'dinner'], 12, ['Sweet potato with herb quark', 'Süsskartoffel mit Kräuterquark'], [['sweetPotato', 1, 'pc'], ['quark', 100, 'g'], ['chives', 1, 'handful']], [
+  ['Wash the sweet potato and prick it all over with a fork.', 'Die Süsskartoffel waschen und rundum mit einer Gabel einstechen.', 1],
+  ['Cook it in the microwave at full power until soft, turning it halfway.', 'In der Mikrowelle auf voller Stufe weich garen, nach der Hälfte wenden.', 8, true],
+  ['Stir the cut chives into the quark with salt.', 'Den geschnittenen Schnittlauch mit Salz unter den Quark rühren.', 2],
+  ['Cut the potato open and fill it with the quark. Done.', 'Die Kartoffel aufschneiden und mit dem Quark füllen. Fertig.', 1],
+]);
+r('energy-balls', [], 10, ['Oat energy balls', 'Hafer-Energiekugeln'], [['oats', 80, 'g'], ['peanutButter', 3, 'tbsp'], ['honey', 2, 'tbsp'], ['chocolate', 20, 'g']], [
+  ['Chop the chocolate small.', 'Die Schokolade klein hacken.', 2],
+  ['Mix everything in a bowl with a spoon.', 'Alles in einer Schüssel mit einem Löffel mischen.', 2],
+  ['Roll small balls with wet hands.', 'Mit nassen Händen kleine Kugeln formen.', 5],
+  ['Keep them in the fridge. Done.', 'Im Kühlschrank aufbewahren. Fertig.', 1],
+]);
+
+/* Protein bombs */
+r('cottage-tuna-bread', ['lunch'], 4, ['Bread with cottage cheese and tuna', 'Brot mit Hüttenkäse und Thon'], [['bread', 2, 'slices'], ['cottage', 100, 'g'], ['tuna', 1, 'can'], ['tomato', 1, 'pc']], [
+  ['Drain the tuna and mix it with the cottage cheese, salt and pepper.', 'Den Thon abtropfen und mit Hüttenkäse, Salz und Pfeffer mischen.', 2],
+  ['Spread it on the bread, tomato slices on top. Done.', 'Auf das Brot streichen, Tomatenscheiben darauf. Fertig.', 2],
+]);
+r('protein-pancakes', ['breakfast'], 12, ['Protein pancakes', 'Protein-Pancakes'], [['eggs', 2, 'pcs'], ['quark', 100, 'g'], ['oats', 4, 'tbsp'], ['oil', 1, 'tsp'], ['berries', 1, 'handful']], [
+  ['Stir the eggs, the quark and the oats into a batter.', 'Eier, Quark und Haferflocken zu einem Teig rühren.', 2],
+  ['Heat the oil in a pan on medium heat.', 'Das Öl in einer Pfanne bei mittlerer Hitze erhitzen.', 1],
+  ['Fry small pancakes, 2 minutes on each side.', 'Kleine Pancakes braten, pro Seite 2 Minuten.', 8, true],
+  ['Berries on top. Done.', 'Beeren darauf. Fertig.', 1],
+]);
+r('skyr-bowl', ['breakfast'], 3, ['Skyr bowl with nuts and berries', 'Skyr-Bowl mit Nüssen und Beeren'], [['skyr', 200, 'g'], ['walnuts', 1, 'handful'], ['berries', 1, 'handful'], ['honey', 1, 'tsp']], [
+  ['Put the skyr in a bowl.', 'Den Skyr in eine Schale geben.', 1],
+  ['Berries, nuts and honey on top. Done.', 'Beeren, Nüsse und Honig darauf. Fertig.', 2],
+]);
+r('egg-tuna-salad', ['lunch', 'dinner'], 12, ['Egg and tuna salad', 'Eier-Thon-Salat'], [['eggs', 2, 'pcs'], ['tuna', 1, 'can'], ['lettuce', 2, 'handfuls'], ['cherryTomatoes', 6, 'pcs'], ['oliveOil', 1, 'tbsp']], [
+  ['Cook the eggs 8 minutes, then rinse them cold and peel them.', 'Die Eier 8 Minuten kochen, dann kalt abschrecken und schälen.', 9, true],
+  ['Meanwhile put the salad and the halved tomatoes in a bowl.', 'Inzwischen den Salat und die halbierten Tomaten in eine Schüssel geben.', 2],
+  ['Add the drained tuna and the eggs in quarters, oil, salt and pepper. Done.', 'Den abgetropften Thon und die geviertelten Eier dazu, Öl, Salz und Pfeffer. Fertig.', 1],
+]);
+
+/* Carbs */
+r('butter-pasta', ['dinner'], 12, ['Pasta with butter and parmesan', 'Pasta mit Butter und Parmesan'], [['pasta', 120, 'g'], ['butter', 1, 'tbsp'], ['parmesan', 30, 'g']], [
+  ['Cook the pasta in salted water as written on the pack.', 'Die Pasta in Salzwasser kochen, wie auf der Packung steht.', 10, true],
+  ['Drain it, keep a little of the water.', 'Abgiessen, wenig Kochwasser aufheben.', 1],
+  ['Mix with the butter, the parmesan and a spoon of the water. Done.', 'Mit Butter, Parmesan und einem Löffel Kochwasser mischen. Fertig.', 1],
+]);
+r('maple-pancakes', ['breakfast'], 15, ['Pancakes with maple syrup', 'Pancakes mit Ahornsirup'], [['flour', 80, 'g'], ['milk', 120, 'ml'], ['eggs', 1, 'pc'], ['oil', 1, 'tsp'], ['maple', 2, 'tbsp']], [
+  ['Whisk the flour, the milk, the egg and a pinch of salt into a smooth batter.', 'Mehl, Milch, Ei und eine Prise Salz zu einem glatten Teig verrühren.', 2],
+  ['Heat a little oil in a pan on medium heat.', 'Wenig Öl in einer Pfanne bei mittlerer Hitze erhitzen.', 1],
+  ['Fry small pancakes until bubbles show, then turn them.', 'Kleine Pancakes braten, bis Blasen kommen, dann wenden.', 10, true],
+  ['Maple syrup over them. Done.', 'Ahornsirup darüber. Fertig.', 1],
+]);
+r('fried-potatoes-egg', ['dinner'], 20, ['Fried potatoes with an egg', 'Bratkartoffeln mit Spiegelei'], [['potatoes', 300, 'g'], ['onion', 0.5, 'pc'], ['eggs', 1, 'pc'], ['oil', 2, 'tbsp']], [
+  ['Cut the potatoes into thin slices, the onion into strips.', 'Die Kartoffeln in dünne Scheiben, die Zwiebel in Streifen schneiden.', 4],
+  ['Fry the potatoes in the oil, covered, turning them now and then.', 'Die Kartoffeln im Öl zugedeckt braten und ab und zu wenden.', 12, true],
+  ['Add the onion, salt, and fry 2 more minutes without a lid.', 'Die Zwiebel dazu, salzen und ohne Deckel 2 Minuten weiter braten.', 2],
+  ['Push them aside and fry the egg in the pan. Done.', 'An den Rand schieben und das Ei in der Pfanne braten. Fertig.', 2],
+]);
+r('cinnamon-rice', [], 8, ['Rice with milk and cinnamon', 'Reis mit Milch und Zimt'], [['ricePouch', 1, 'pack'], ['milk', 150, 'ml'], ['sugar', 1, 'tbsp'], ['cinnamon', 1, 'pinch']], [
+  ['Warm the rice with the milk and the sugar in a small pot.', 'Den Reis mit Milch und Zucker in einer kleinen Pfanne wärmen.', 1],
+  ['Let it simmer, stirring, until creamy.', 'Unter Rühren köcheln lassen, bis es cremig ist.', 6, true],
+  ['Cinnamon on top. Done.', 'Zimt darüber. Fertig.', 1],
+]);
+
+/* Veggies */
+r('veg-curry', ['dinner'], 15, ['Vegetable curry with coconut', 'Gemüse-Curry mit Kokos'], [['vegMix', 250, 'g'], ['coconutMilk', 200, 'ml'], ['curryPaste', 1, 'tbsp'], ['ricePouch', 1, 'pack']], [
+  ['Warm the curry paste in a pan for 1 minute, stirring.', 'Die Currypaste in einer Pfanne 1 Minute unter Rühren wärmen.', 1],
+  ['Add the frozen vegetables and the coconut milk, salt it.', 'Das gefrorene Gemüse und die Kokosmilch dazu geben, salzen.', 1],
+  ['Let it simmer until the vegetables are soft.', 'Köcheln lassen, bis das Gemüse weich ist.', 10, true],
+  ['Warm the rice and eat it with the curry. Done.', 'Den Reis wärmen und mit dem Curry essen. Fertig.', 2],
+]);
+r('zucchini-pasta', ['dinner'], 15, ['Pasta with courgette and garlic', 'Pasta mit Zucchetti und Knoblauch'], [['pasta', 100, 'g'], ['zucchini', 1, 'pc'], ['garlic', 1, 'pc'], ['oliveOil', 2, 'tbsp'], ['parmesan', 20, 'g']], [
+  ['Cook the pasta in salted water as written on the pack.', 'Die Pasta in Salzwasser kochen, wie auf der Packung steht.', 10, true],
+  ['Meanwhile cut the courgette into small cubes and slice the garlic.', 'Inzwischen die Zucchetti in kleine Würfel und den Knoblauch in Scheiben schneiden.', 3],
+  ['Fry both in the oil until soft, salt and pepper.', 'Beides im Öl weich braten, salzen und pfeffern.', 5, true],
+  ['Mix with the pasta, parmesan on top. Done.', 'Mit der Pasta mischen, Parmesan darüber. Fertig.', 1],
+]);
+r('spinach-eggs', ['lunch', 'dinner'], 8, ['Spinach with scrambled eggs', 'Spinat mit Rührei'], [['spinach', 2, 'handfuls'], ['eggs', 2, 'pcs'], ['butter', 1, 'tsp'], ['bread', 1, 'slice']], [
+  ['Warm the frozen spinach in a pan with the butter, salt it.', 'Den gefrorenen Spinat mit der Butter in einer Pfanne wärmen, salzen.', 4, true],
+  ['Push it aside, crack in the eggs and stir them until set.', 'An den Rand schieben, die Eier hineinschlagen und rühren, bis sie fest sind.', 3],
+  ['Eat it with the bread. Done.', 'Mit dem Brot essen. Fertig.', 1],
+]);
+r('veg-soup', ['lunch', 'dinner'], 15, ['Vegetable soup', 'Gemüsesuppe'], [['vegMix', 250, 'g'], ['stock', 1, 'pc'], ['cream', 3, 'tbsp'], ['bread', 2, 'slices']], [
+  ['Bring 500 ml water with the stock cube to a boil.', '500 ml Wasser mit dem Bouillonwürfel aufkochen.', 3],
+  ['Add the frozen vegetables and let them cook.', 'Das gefrorene Gemüse dazu geben und kochen lassen.', 10, true],
+  ['Stir in the cream. Eat with the bread. Done.', 'Den Rahm einrühren. Mit dem Brot essen. Fertig.', 1],
+]);
+
+/* Grill */
+r('grill-bratwurst', ['dinner'], 15, ['Grilled bratwurst with bread and mustard', 'Bratwurst vom Grill mit Brot und Senf'], [['bratwurst', 1, 'pc'], ['bread', 1, 'slice'], ['mustard', 1, 'tbsp']], [
+  ['Heat the grill (or a grill pan) to medium.', 'Den Grill (oder eine Grillpfanne) auf mittlere Hitze bringen.', 5],
+  ['Grill the bratwurst, turning it often, until brown all round.', 'Die Bratwurst grillen und oft wenden, bis sie rundum braun ist.', 10, true],
+  ['Eat it with bread and mustard. Done.', 'Mit Brot und Senf essen. Fertig.', 0],
+]);
+r('chicken-skewers', ['dinner'], 15, ['Chicken skewers with pepper', 'Pouletspiessli mit Peperoni'], [['chicken', 150, 'g'], ['pepper', 1, 'pc'], ['paprika', 1, 'tsp'], ['oil', 1, 'tbsp']], [
+  ['Cut the chicken and the pepper into cubes.', 'Poulet und Peperoni in Würfel schneiden.', 4],
+  ['Mix them with the oil, the paprika and salt, and put them on skewers.', 'Mit Öl, Paprika und Salz mischen und auf Spiesse stecken.', 3],
+  ['Grill them, turning them, until the chicken is no longer pink inside. Done.', 'Grillen und wenden, bis das Poulet innen nicht mehr rosa ist. Fertig.', 8, true],
+]);
+r('halloumi-veg', ['dinner'], 15, ['Grilled vegetables with halloumi', 'Grillgemüse mit Halloumi'], [['halloumi', 1, 'pack'], ['zucchini', 1, 'pc'], ['pepper', 1, 'pc'], ['oliveOil', 2, 'tbsp']], [
+  ['Cut the courgette into slices, the pepper into strips, the halloumi into slices.', 'Die Zucchetti in Scheiben, die Peperoni in Streifen und den Halloumi in Scheiben schneiden.', 4],
+  ['Brush the vegetables with oil and salt them.', 'Das Gemüse mit Öl bestreichen und salzen.', 1],
+  ['Grill the vegetables, then the halloumi 2 minutes on each side. Done.', 'Das Gemüse grillen, dann den Halloumi pro Seite 2 Minuten. Fertig.', 10, true],
+]);
+r('corn-cobs', ['dinner'], 12, ['Corn on the cob with butter', 'Maiskolben mit Butter'], [['cornCobs', 2, 'pcs'], ['butter', 1, 'tbsp'], ['bread', 1, 'slice']], [
+  ['Grill the cobs, turning them, until they get brown spots.', 'Die Maiskolben grillen und wenden, bis sie braune Stellen bekommen.', 10, true],
+  ['Butter and salt on top. Eat with bread. Done.', 'Butter und Salz darauf. Mit Brot essen. Fertig.', 1],
+]);
+
+/* Sunday brunch */
+r('eggs-salmon', ['breakfast'], 8, ['Scrambled eggs with smoked salmon', 'Rührei mit Rauchlachs'], [['eggs', 3, 'pcs'], ['smokedSalmon', 50, 'g'], ['bread', 2, 'slices'], ['butter', 1, 'tsp']], [
+  ['Whisk the eggs with a pinch of salt and toast the bread.', 'Die Eier mit einer Prise Salz verquirlen und das Brot toasten.', 2],
+  ['Melt the butter and stir the eggs slowly until just set.', 'Die Butter schmelzen und die Eier langsam rühren, bis sie gerade fest sind.', 3, true],
+  ['Eggs on the toast, salmon on top. Done.', 'Rührei auf das Brot, Lachs darauf. Fertig.', 1],
+]);
+r('zopf-honey', ['breakfast'], 2, ['Zopf with butter and honey', 'Zopf mit Butter und Honig'], [['zopf', 2, 'slices'], ['butter', 1, 'tbsp'], ['honey', 1, 'tbsp']], [
+  ['Cut two thick slices of zopf.', 'Zwei dicke Scheiben Zopf abschneiden.', 1],
+  ['Butter and honey on top. Done.', 'Butter und Honig darauf. Fertig.', 1],
+]);
+r('french-toast', ['breakfast'], 12, ['French toast', 'Fotzelschnitten'], [['toast', 3, 'slices'], ['eggs', 2, 'pcs'], ['milk', 100, 'ml'], ['cinnamon', 1, 'pinch'], ['butter', 1, 'tbsp']], [
+  ['Whisk the eggs with the milk and the cinnamon in a flat plate.', 'Eier mit Milch und Zimt in einem tiefen Teller verquirlen.', 2],
+  ['Dip the slices in it on both sides.', 'Die Scheiben auf beiden Seiten darin tunken.', 2],
+  ['Fry them in the butter until golden, 2 minutes on each side. Done.', 'In der Butter goldbraun braten, pro Seite 2 Minuten. Fertig.', 8, true],
+]);
+r('croissant-ham', ['breakfast'], 8, ['Croissants with ham and cheese', 'Gipfeli mit Schinken und Käse'], [['croissants', 2, 'pcs'], ['ham', 2, 'slices'], ['cheeseSlices', 2, 'slices']], [
+  ['Heat the oven to 180 degrees.', 'Den Ofen auf 180 Grad vorheizen.', 3],
+  ['Cut the croissants open and fill them with ham and cheese.', 'Die Gipfeli aufschneiden und mit Schinken und Käse füllen.', 2],
+  ['Warm them in the oven until the cheese melts. Done.', 'Im Ofen wärmen, bis der Käse schmilzt. Fertig.', 4, true],
+]);
+
+/* Fast food */
+r('pan-burger', ['dinner'], 15, ['Burger from the pan', 'Burger aus der Pfanne'], [['patties', 1, 'pc'], ['buns', 1, 'pc'], ['cheeseSlices', 1, 'slice'], ['lettuce', 1, 'handful'], ['tomato', 1, 'pc'], ['ketchup', 1, 'tbsp']], [
+  ['Fry the burger in a hot pan without oil, 4 minutes on each side; salt it.', 'Den Burger in einer heissen Pfanne ohne Öl braten, pro Seite 4 Minuten; salzen.', 8, true],
+  ['Put the cheese on top for the last minute.', 'In der letzten Minute den Käse darauf legen.', 1],
+  ['Toast the bun cut side down in the pan; slice the tomato.', 'Das Brötchen mit der Schnittseite in der Pfanne rösten; die Tomate in Scheiben schneiden.', 2],
+  ['Ketchup, salad, burger and tomato into the bun. Done.', 'Ketchup, Salat, Burger und Tomate ins Brötchen. Fertig.', 2],
+]);
+r('hot-dog', ['dinner'], 8, ['Hot dog', 'Hotdog'], [['wienerli', 2, 'pcs'], ['hotdogBuns', 2, 'pcs'], ['mustard', 1, 'tbsp'], ['ketchup', 1, 'tbsp']], [
+  ['Heat the sausages in hot (not boiling) water.', 'Die Würstchen in heissem (nicht kochendem) Wasser wärmen.', 5, true],
+  ['Warm the buns briefly in the toaster or the oven.', 'Die Brötchen kurz im Toaster oder Ofen wärmen.', 2],
+  ['Sausage into the bun, mustard and ketchup over it. Done.', 'Würstchen ins Brötchen, Senf und Ketchup darüber. Fertig.', 1],
+]);
+r('nuggets-fries', ['dinner'], 20, ['Chicken nuggets with oven chips', 'Chicken-Nuggets mit Ofenpommes'], [['nuggets', 8, 'pcs'], ['fries', 200, 'g'], ['ketchup', 2, 'tbsp']], [
+  ['Heat the oven as written on the chips pack (often 220 degrees).', 'Den Ofen vorheizen, wie auf der Pommes-Packung steht (oft 220 Grad).', 3],
+  ['Spread the chips and the nuggets on a baking tray with paper.', 'Pommes und Nuggets auf einem Blech mit Backpapier verteilen.', 1],
+  ['Bake them, turning them once halfway.', 'Backen und nach der Hälfte einmal wenden.', 15, true],
+  ['Salt the chips. Eat with ketchup. Done.', 'Die Pommes salzen. Mit Ketchup essen. Fertig.', 1],
+]);
+r('kebab-wrap', ['lunch', 'dinner'], 8, ['Kebab wrap', 'Kebab-Wrap'], [['tortilla', 1, 'pc'], ['kebabMeat', 120, 'g'], ['lettuce', 1, 'handful'], ['onion', 0.5, 'pc'], ['yogurt', 3, 'tbsp']], [
+  ['Warm the meat in a pan for a few minutes.', 'Das Fleisch einige Minuten in einer Pfanne wärmen.', 4, true],
+  ['Stir the yogurt with salt; cut the onion into rings.', 'Den Joghurt mit Salz verrühren; die Zwiebel in Ringe schneiden.', 2],
+  ['Warm the wrap, fill it with salad, meat, onion and sauce and roll it up. Done.', 'Den Fladen wärmen, mit Salat, Fleisch, Zwiebel und Sauce füllen und aufrollen. Fertig.', 2],
+]);
+
+/* ---------- the groups (Noah 28.10.2026: «sinnvolle gruppen erstellen») ----------
+ * The app's standard groups with the recipes in them. A person renames, sorts, deletes or adds groups,
+ * and puts any recipe in or out of a group (kochen.js). */
+export const STD_GROUPS = [
+  { key: 'meat', label: 'Meat', ids: ['minute-steaks', 'bratwurst-roesti', 'chicken-herb-butter', 'mince-pepper-rice', 'chicken-rice', 'mince-pasta', 'chicken-cream', 'sweet-chili-chicken', 'chicken-wrap', 'caesar-salad', 'wurstsalat', 'eggs-bacon', 'ham-cheese-toast', 'turkey-sandwich', 'tortellini-cream', 'grill-bratwurst', 'chicken-skewers', 'pan-burger', 'hot-dog', 'nuggets-fries', 'kebab-wrap'] },
+  { key: 'rice', label: 'Rice', ids: ['quick-risotto', 'rice-bowl-egg', 'mexican-rice', 'salmon-rice-bowl', 'egg-fried-rice', 'chicken-rice', 'rice-tuna', 'chili-sin-carne', 'chickpea-curry', 'salmon-rice', 'chicken-cream', 'sweet-chili-chicken', 'mince-pepper-rice', 'minute-steaks', 'veg-curry', 'cinnamon-rice'] },
+  { key: 'dessert', label: 'Desserts', ids: ['choco-banana', 'berry-quark', 'fried-apple', 'ice-hot-berries', 'cinnamon-rice', 'energy-balls', 'banana-pancakes'] },
+  { key: 'shakes', label: 'Shakes', ids: ['berry-shake', 'choco-protein-shake', 'green-shake', 'mango-lassi', 'banana-smoothie'] },
+  { key: 'power', label: 'Power food', ids: ['quinoa-bowl', 'lentil-salad', 'sweet-potato-quark', 'energy-balls', 'overnight-oats', 'lentil-soup', 'chickpea-curry', 'hummus-plate', 'green-shake', 'avocado-egg-toast'] },
+  { key: 'protein', label: 'Protein bombs', ids: ['cottage-tuna-bread', 'protein-pancakes', 'skyr-bowl', 'egg-tuna-salad', 'choco-protein-shake', 'quark-honey', 'cheese-omelette', 'scrambled-eggs', 'tuna-corn-salad', 'chicken-herb-butter', 'minute-steaks', 'salmon-rice', 'egg-fried-rice', 'boiled-eggs', 'pasta-tuna'] },
+  { key: 'carbs', label: 'Carbs', ids: ['butter-pasta', 'maple-pancakes', 'fried-potatoes-egg', 'cinnamon-rice', 'pasta-pesto', 'aglio-olio', 'mac-cheese', 'gnocchi-tomato', 'pasta-salad', 'apple-porridge', 'gschwellti', 'cheese-polenta'] },
+  { key: 'veggies', label: 'Veggies', ids: ['veg-curry', 'zucchini-pasta', 'spinach-eggs', 'veg-soup', 'veg-feta-pan', 'greek-salad', 'chili-sin-carne', 'chickpea-curry', 'halloumi-veg', 'lentil-soup', 'tomato-soup', 'shakshuka', 'veg-omelette', 'couscous-salad', 'caprese', 'bean-salad', 'falafel-pita'] },
+  { key: 'grill', label: 'Grill', ids: ['grill-bratwurst', 'chicken-skewers', 'halloumi-veg', 'corn-cobs'] },
+  { key: 'brunch', label: 'Sunday brunch', ids: ['eggs-salmon', 'zopf-honey', 'french-toast', 'croissant-ham', 'banana-pancakes', 'eggs-bacon', 'maple-pancakes', 'avocado-egg-toast', 'bircher'] },
+  { key: 'fastfood', label: 'Fast food', ids: ['pan-burger', 'hot-dog', 'nuggets-fries', 'kebab-wrap', 'tortilla-pizza', 'quesadilla', 'ham-cheese-toast'] },
+];
 
 /* ---------- built for the app ---------- */
 const DE_MAP = {};

@@ -5,8 +5,17 @@
    * A recipe (#/me/alltag/kochen/<id>) shows its ingredients for 1 to 8 portions, puts them on the shopping
    * list (Undo) and lists all steps. «Don't show again» hides an app recipe (Undo; «Hidden» brings it back).
    * Nothing on Heute (Noah «1b»). Cooking step by step and the daily tips come in their own steps.
+   * Groups (Noah 28.10.2026 «sinnvolle gruppen»): Meat, Rice, Desserts … as a second filter row. Gruppen überall:
+   * rename, sort (arrows and drag), delete (asks where its recipes go, Undo), add own ones, back to the standard;
+   * a recipe page puts the recipe in or out of any group.
    */
-  import { ChevronRight, Clock, Minus, Plus, ShoppingCart, EyeOff, Eye, Pencil, ChefHat } from '@lucide/svelte';
+  import { ChevronRight, Clock, Minus, Plus, ShoppingCart, EyeOff, Eye, Pencil, ChefHat, X, RotateCcw } from '@lucide/svelte';
+  import RenameSheet from '../ui/RenameSheet.svelte';
+  import GroupDeleteSheet from '../ui/GroupDeleteSheet.svelte';
+  import SortGrip from '../ui/SortGrip.svelte';
+  import SortArrows from '../ui/SortArrows.svelte';
+  import { sortable } from '../ui/sortable.js';
+  import { phone } from '../media.svelte.js';
   import { liveQuery } from 'dexie';
   import Crumb from '../flow/kit/Crumb.svelte';
   import { offerDone } from '../ui/rename.svelte.js';
@@ -16,13 +25,15 @@
   import { collsOf, collHref, pageHref } from '../frei.js';
   import { loadLists, changeList, restoreLists } from '../frei/shoplist.js';
   import { ALLTAG_HASH } from '../alltag.js';
-  import { PREFS_KEY, KOCHEN_HASH, FILTERS, prefsOf, recipeOfHash, recipeHref, ownRecipes, listFor, hiddenRecipes, findRecipe, ingredientRows, shoppingLines, mealLabels } from '../kochen/kochen.js';
+  import { PREFS_KEY, KOCHEN_HASH, FILTERS, GROUP_FILTER, prefsOf, recipeOfHash, recipeHref, ownRecipes, listFor, hiddenRecipes, findRecipe, ingredientRows, shoppingLines, mealLabels, groupsOf, groupName, groupsOfRecipe, idsIn, setRecipeGroup, addGroup, renameGroup, deleteGroup, moveGroup, resetGroups } from '../kochen/kochen.js';
+  import { uid } from '../alltag.js';
   import { t, tn } from '../i18n.svelte.js';
 
   let { hash = '' } = $props();
 
   const prefsQ = liveQuery(async () => prefsOf((await db.settings.get(PREFS_KEY))?.value));
-  const prefs = $derived($prefsQ ?? { hidden: [] });
+  const prefs = $derived($prefsQ ?? prefsOf(null));
+  const groups = $derived(groupsOf(prefs));
   const cfgQ = cfgQuery();
   const colls = $derived(collsOf($cfgQ ?? {}));
   const rowsQ = liveQuery(() => db.frei.where('kind').equals('entry').toArray());
@@ -30,7 +41,11 @@
   const recipeColl = $derived(colls.find((c) => c.type === 'recipes' && !c.hidden) ?? null);
 
   let filter = $state('all');
-  const list = $derived(listFor(filter, { hidden: prefs.hidden, own }));
+  const list = $derived(listFor(filter, { hidden: prefs.hidden, own, prefs }));
+  $effect(() => {
+    // a deleted group's filter goes back to «All»
+    if (filter.startsWith(GROUP_FILTER) && !groups.some((g) => GROUP_FILTER + g.id === filter)) filter = 'all';
+  });
   const hidden = $derived(hiddenRecipes(prefs.hidden));
 
   const openId = $derived(recipeOfHash(hash));
@@ -45,7 +60,7 @@
   const line = (x) =>
     x.own
       ? t('Your own recipe from Free time')
-      : [t('{n} min', { n: x.min }), tn(x.ingredients.length, '{n} ingredient', '{n} ingredients'), mealLabels(x).map((m) => t(m)).join(', ')].join(' · ');
+      : [t('{n} min', { n: x.min }), tn(x.ingredients.length, '{n} ingredient', '{n} ingredients'), mealLabels(x).map((m) => t(m)).join(', ')].filter(Boolean).join(' · ');
 
   async function toShopping() {
     const lines = shoppingLines(recipe, portions, t);
@@ -63,6 +78,36 @@
     const before = await change(PREFS_KEY, {}, (p) => ({ ...p, hidden: prefsOf(p).hidden.filter((id) => id !== x.id) }));
     offerDone(t('«{name}» is back in the list.', { name: t(x.title) }), () => restore(PREFS_KEY, before));
   }
+  /* ---------- groups ---------- */
+  const save = (fn, text = '') =>
+    change(PREFS_KEY, {}, fn).then((before) => {
+      if (text) offerDone(text, () => restore(PREFS_KEY, before));
+      return before;
+    });
+  const gname = (g) => groupName(g, t);
+  const inGroups = $derived(recipe ? groupsOfRecipe(prefs, recipe.id) : []);
+  const toggleGroup = (g) => save((p) => setRecipeGroup(p, recipe.id, g.id, !inGroups.includes(g.id)));
+  const countIn = (g) => idsIn(prefs, g.id, own).length;
+  let newGroup = $state('');
+  let renaming = $state(null);
+  let deleting = $state(null);
+  async function addGroupForm(e) {
+    e.preventDefault();
+    const v = newGroup.trim();
+    if (!v || groups.some((g) => gname(g).toLowerCase() === v.toLowerCase())) return;
+    await save((p) => addGroup(p, v, uid('kg')));
+    newGroup = '';
+  }
+  const stepGroup = (id, dir) => {
+    const i = groups.findIndex((g) => g.id === id);
+    const to = Math.min(Math.max(i + dir, 0), groups.length - 1);
+    return to === i ? null : save((p) => moveGroup(p, id, to));
+  };
+  const deleteNow = (to) => {
+    const g = deleting;
+    return save((p) => deleteGroup(p, g.id, to ?? '', own), t('"{name}" deleted.', { name: gname(g) }));
+  };
+  const reset = () => save(resetGroups, t('The standard groups are back.'));
   const ownHref = $derived(recipeColl ? collHref(recipeColl.id) : pageHref('sammlungen'));
 </script>
 
@@ -114,6 +159,15 @@
           {/if}
         </section>
       </div>
+      <section class="fz-box" aria-labelledby="ko-grp-h" data-ko-recipe-groups>
+        <h2 class="fz-h2" id="ko-grp-h">{t('Groups')}</h2>
+        <p class="fz-note">{t('Tap a group to put this recipe in or take it out.')}</p>
+        <div class="fz-chips">
+          {#each groups as g (g.id)}
+            <button type="button" class="fz-chip" aria-pressed={inGroups.includes(g.id)} onclick={() => toggleGroup(g)} data-ko-in-group={g.id}>{gname(g)}</button>
+          {/each}
+        </div>
+      </section>
       <div class="fz-acts">
         {#if recipe.own}
           <a class="btn" href={collHref(recipe.coll)} data-ko-edit-own><Pencil size={16} aria-hidden="true" />{t('Change it in Free time')}</a>
@@ -133,9 +187,16 @@
         <button type="button" class="fz-chip" aria-pressed={filter === f.key} onclick={() => (filter = f.key)} data-ko-filter={f.key}>{t(f.label)}</button>
       {/each}
     </div>
+    {#if groups.length}
+      <div class="fz-chips" role="group" aria-label={t('Groups')} data-ko-group-chips>
+        {#each groups as g (g.id)}
+          <button type="button" class="fz-chip" aria-pressed={filter === GROUP_FILTER + g.id} onclick={() => (filter = GROUP_FILTER + g.id)} data-ko-filter={GROUP_FILTER + g.id}>{gname(g)}</button>
+        {/each}
+      </div>
+    {/if}
     {#if !list.length}
       <p class="fz-empty" data-ko-empty>
-        {filter === 'own' ? t('No own recipe yet. Write one in Free time › My collections; it shows here too.') : t('All recipes of this meal are hidden. «Hidden» below brings them back.')}
+        {filter === 'own' ? t('No own recipe yet. Write one in Free time › My collections; it shows here too.') : filter.startsWith(GROUP_FILTER) ? t('No recipe in this group yet. Open a recipe and tap the group to put it in.') : t('All recipes of this meal are hidden. «Hidden» below brings them back.')}
         {#if filter === 'own'}<a href={ownHref}>{t('Write a recipe')}</a>{/if}
       </p>
     {:else}
@@ -162,7 +223,47 @@
         </ul>
       </details>
     {/if}
+    <details class="fz-box" data-ko-groups>
+      <summary>{t('Groups')}<small class="fz-note ko-count">{tn(groups.length, '{n} group', '{n} groups')}</small></summary>
+      <p class="fz-note">{t('Rename, sort or delete the groups, or add your own. A deleted group never deletes its recipes.')}</p>
+      {#if groups.length}
+        <ul class="fz-list" use:sortable={{ onmove: (from, to) => save((p) => moveGroup(p, groups[from].id, to)) }}>
+          {#each groups as g, n (g.id)}
+            <li class="fz-row" data-sort-id={g.id} data-ko-grp={g.id}>
+              <SortGrip name={gname(g)} onstep={(dir) => stepGroup(g.id, dir)} />
+              <span class="fz-row-main"><b>{gname(g)}</b><small>{tn(countIn(g), '{n} recipe', '{n} recipes')}</small></span>
+              {#if !phone.matches}<SortArrows name={gname(g)} i={n} n={groups.length} onstep={(dir) => stepGroup(g.id, dir)} />{/if}
+              <button type="button" class="fz-icon" aria-label={t('Rename {name}', { name: gname(g) })} onclick={() => (renaming = g)} data-ko-grp-rename><Pencil size={18} aria-hidden="true" /></button>
+              <button type="button" class="fz-icon" aria-label={t('Delete {name}', { name: gname(g) })} onclick={() => (deleting = g)} data-ko-grp-delete><X size={18} aria-hidden="true" /></button>
+            </li>
+          {/each}
+        </ul>
+      {/if}
+      <form class="fz-inline" onsubmit={addGroupForm}>
+        <input class="inp" maxlength="40" bind:value={newGroup} aria-label={t('New group')} placeholder={t('New group, e.g. For guests')} data-ko-grp-new />
+        <button type="submit" class="btn"><Plus size={16} aria-hidden="true" />{t('Add')}</button>
+      </form>
+      {#if prefs.groups}
+        <div class="fz-acts"><button type="button" class="btn sm" onclick={reset} data-ko-grp-reset><RotateCcw size={16} aria-hidden="true" />{t('Back to the standard groups')}</button></div>
+      {/if}
+    </details>
   </div>
+{/if}
+
+{#if renaming}
+  <RenameSheet kicker={t('Group')} title={t('Rename group')} value={gname(renaming)} empty={renaming.std ? t('Empty brings back the standard name.') : ''} onsave={(name) => save((p) => renameGroup(p, renaming.id, name))} onclose={() => (renaming = null)} />
+{/if}
+{#if deleting}
+  <GroupDeleteSheet
+    title={t('Delete group «{name}»?', { name: gname(deleting) })}
+    count={countIn(deleting)}
+    what={(n) => tn(n, '{n} recipe', '{n} recipes')}
+    none={t('Without a group')}
+    noneHint={t('They stay in «All» and in their meal.')}
+    targets={groups.filter((g) => g.id !== deleting.id).map((g) => ({ id: g.id, name: gname(g) }))}
+    onconfirm={deleteNow}
+    onclose={() => (deleting = null)}
+  />
 {/if}
 
 <style>
@@ -245,6 +346,10 @@
     place-items: center;
     font-weight: 700;
     font-size: var(--fs-small);
+  }
+  .ko-count {
+    margin-left: 8px;
+    font-weight: 400;
   }
   details summary {
     cursor: pointer;
