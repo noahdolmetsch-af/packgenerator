@@ -9,8 +9,10 @@
   import { liveQuery } from 'dexie';
   import { db } from '../db.js';
   import { HOME_PLACE, HOME_FORECAST } from '../know.js';
-  import { CLOTHING_OFFSET, ONION, GAP_RULES, gapWish, tempRange, zoneGroup, layerKey } from '../wardrobe.js';
-  import { WEAR_DAY, NONE, WHY_LIMITS, dayChoice, dayRecord, isChanged, withPick, withoutPick, withAdd, withoutAdd, applyDay, addableRows, swapOptions, gapReason } from './wearday.js';
+  import { CLOTHING_OFFSET, ONION, GAP_RULES, gapWish, tempRange, zoneGroup, layerKey, WEAR_RULE, wearRule, stepLimit, ruleChanged, LIMIT_RANGE, ONION_LIMITS } from '../wardrobe.js';
+  import { WEAR_DAY, NONE, dayChoice, dayRecord, isChanged, withPick, withoutPick, withAdd, withoutAdd, withSet, applyDay, addableRows, swapOptions, gapReason } from './wearday.js';
+  import { WEAR_SEEDED, WEAR_REMEMBER, AUTO, seedPlan, wearSets, matchSet, activeSet, orderedSets, setPieces, setOutfit, setRowPlan, fillPlan, rangePlan } from './wearsets.js';
+  import { SETS_KEY } from '../sets.js';
   import { todayOutfit } from './outfit.js';
   import HomePlaceForm from '../know/HomePlaceForm.svelte';
   import { t, tn, nameOf } from '../i18n.svelte.js';
@@ -22,9 +24,12 @@
   const placeQ = liveQuery(async () => (await db.settings.get(HOME_PLACE))?.value ?? null);
   const fcQ = liveQuery(async () => (await db.meta.get(HOME_FORECAST)) ?? null);
   const offsetQ = liveQuery(async () => (await db.settings.get(CLOTHING_OFFSET)) ?? null);
+  // step 3 (Noah «4a»): your own rule: borders per row, «you get cold», lighter or warmer first
+  const ruleQ = liveQuery(async () => (await db.settings.get(WEAR_RULE)) ?? null);
+  const rule = $derived(wearRule($ruleQ?.value));
 
   const ready = $derived($placeQ !== undefined && $fcQ !== undefined && $offsetQ !== undefined);
-  const o = $derived(ready ? todayOutfit({ place: $placeQ, forecast: $fcQ, items, trips, offset: Number($offsetQ?.value) || 0 }) : { state: 'none' });
+  const o = $derived(ready ? todayOutfit({ place: $placeQ, forecast: $fcQ, items, trips, offset: Number($offsetQ?.value) || 0, rule }) : { state: 'none' });
   const hh = (h) => `${String(h).padStart(2, '0')}`;
   const meta = $derived.by(() => {
     if (o.state !== 'ok') return '';
@@ -40,7 +45,107 @@
      can be swapped, left out or added, for this ride day only; a gap says why; «Why so?» explains the rule. */
   const dayQ = liveQuery(async () => (await db.settings.get(WEAR_DAY)) ?? null);
   const choice = $derived(dayChoice($dayQ, o.win?.date));
-  const shown = $derived(o.state === 'ok' ? applyDay(o.outfit, items, choice) : null);
+
+  /* Step 2 «Kleider-Sets» (Noah 27.10.2026 «1a 2a oder b wählbar 3a 5a»): the nine sample sets are made
+     once when the window opens; the set that fits today comes first, its pieces before the app's;
+     a swap holds for today only or goes into the set, as you choose. */
+  const setsQ = liveQuery(async () => (await db.settings.get(SETS_KEY)) ?? null);
+  const seededQ = liveQuery(async () => (await db.settings.get(WEAR_SEEDED)) ?? null);
+  const rememberQ = liveQuery(async () => (await db.settings.get(WEAR_REMEMBER))?.value ?? 'today');
+  const sets = $derived(wearSets($setsQ?.value));
+  const match = $derived(o.state === 'ok' ? matchSet(sets, o.outfit.c, o.outfit.wet) : null);
+  const active = $derived(activeSet(sets, choice.set, match));
+  const chips = $derived(orderedSets(sets, match));
+  // calm: «Automatic», the set that fits and the chosen one; the others behind «More sets»
+  let moreSets = $state(false);
+  const hidden = $derived(chips.filter((s) => s.key !== match?.key && s.key !== active?.key).length);
+  const pieces = $derived(setPieces(active, items));
+  const remember = $derived(active ? $rememberQ : 'today');
+  const shown = $derived(o.state === 'ok' ? applyDay(setOutfit(o.outfit, active, items, rule.prefer), items, choice, rule.prefer) : null);
+  const LIMIT_ROWS = ['mid', 'outer', 'hands', 'head', 'feet'];
+  // the layer borders stay folded until one differs from the standard
+  const limitsMoved = $derived(LIMIT_ROWS.some((k) => rule.limits[k] !== ONION_LIMITS[k]));
+  const FEEL = [
+    ['cold', 'I get cold quickly'],
+    ['normal', 'normally|cold'],
+    ['warm', 'I get warm quickly'],
+  ];
+  async function saveRule(value, text) {
+    const prev = $ruleQ;
+    await db.settings.put({ key: WEAR_RULE, value });
+    toast(text, () => (prev ? db.settings.put(prev) : db.settings.delete(WEAR_RULE)));
+  }
+  const rowName = (k) => t(ONION.find((r) => r.key === k)?.name ?? k);
+  const stepRow = (k, d) => {
+    const v = stepLimit($ruleQ?.value, k, d);
+    return saveRule(v, t('{row} now below {n} °C.', { row: rowName(k), n: wearRule(v).limits[k] }));
+  };
+  const setFeel = (feel) => saveRule({ ...($ruleQ?.value ?? {}), feel }, t('Saved: «{how}».', { how: t(FEEL.find((f) => f[0] === feel)[1]) }));
+  const setPrefer = (prefer) => saveRule({ ...($ruleQ?.value ?? {}), prefer }, prefer === 'warm' ? t('Saved: the warmer piece first.') : t('Saved: the lighter piece first.'));
+  const resetRule = () => saveRule({}, t('Back to the standard rule.'));
+  let seeding = false;
+  $effect(() => {
+    if (edit && o.state !== 'none' && $seededQ === null && !seeding) {
+      seeding = true;
+      seedSets();
+    }
+  });
+  async function seedSets() {
+    await db.transaction('rw', db.settings, db.items, async () => {
+      if (await db.settings.get(WEAR_SEEDED)) return;
+      const prev = (await db.settings.get(SETS_KEY)) ?? null;
+      const plan = seedPlan(prev?.value ?? [], await db.items.toArray());
+      await db.settings.put({ ...(prev ?? { key: SETS_KEY }), value: plan.value });
+      if (plan.items.length) await db.items.bulkPut(plan.items);
+      await db.settings.put({ key: WEAR_SEEDED, value: 1 });
+    });
+  }
+  async function chooseSet(key) {
+    await save(withSet(choice, key));
+  }
+  const setRemember = (v) => db.settings.put({ key: WEAR_REMEMBER, value: v });
+  /** Write a set plan (setRowPlan / fillPlan) and offer Undo. */
+  async function writeSet(plan, text) {
+    const prev = (await db.settings.get(SETS_KEY)) ?? null;
+    await db.transaction('rw', db.settings, db.items, async () => {
+      await db.settings.put({ ...(prev ?? { key: SETS_KEY }), value: plan.value });
+      if (plan.items.length) await db.items.bulkPut(plan.items);
+    });
+    toast(text, async () => {
+      await db.transaction('rw', db.settings, db.items, async () => {
+        if (prev) await db.settings.put(prev);
+        if (plan.before.length) await db.items.bulkPut(plan.before);
+      });
+    });
+  }
+  async function setRow(key, id) {
+    const plan = setRowPlan($setsQ?.value ?? [], items, active.key, key, id);
+    const row = t(ONION.find((r) => r.key === key)?.name ?? key);
+    // the day choice of this row steps back, so the set shows
+    if (choice.pick[key] != null) await save(withoutPick(choice, key));
+    await writeSet(plan, id == null ? t('{row}: the app picks again, not the set {set}.', { row, set: active.name }) : t('Saved in the set {set}: {row}.', { set: active.name, row }));
+  }
+  /* Noah 27.10.2026 «2a»: the °C range of the chosen set, changed right here (empty = no border). */
+  let range = $state(null); // { key, from, to, err } while the form is open
+  function openRange() {
+    range = { key: active.key, from: active.minC ?? '', to: active.maxC ?? '', err: '' };
+  }
+  async function saveRange() {
+    const plan = rangePlan($setsQ?.value ?? [], range.key, range.from, range.to);
+    if (plan.error) {
+      range.err = plan.error === 'order' ? t('«From» must not be above «to».') : t('Please type numbers only, e.g. 5 or −3.');
+      return;
+    }
+    const name = active.name;
+    range = null;
+    const s = plan.value.find((x) => x.key === active.key);
+    const text = tempRange(s?.minC, s?.maxC, t);
+    await writeSet({ ...plan, items: [], before: [] }, text ? t('Set {set} now fits at {range}.', { set: name, range: text }) : t('Set {set} has no °C range now: choose it by hand.', { set: name }));
+  }
+  async function fillSet() {
+    const plan = fillPlan($setsQ?.value ?? [], items, active.key, shown.rows);
+    await writeSet(plan, tn(plan.items.length, 'The set {set} holds {n} piece now.', 'The set {set} holds {n} pieces now.', { set: active.name }));
+  }
   const addable = $derived(edit && shown ? addableRows(o.outfit, choice) : []);
   const changed = $derived(isChanged(choice));
   let swapKey = $state(null);
@@ -68,6 +173,7 @@
   }
   async function pick(key, id) {
     swapKey = null;
+    if (remember === 'set' && active) return setRow(key, id);
     await save(withPick(choice, key, id));
   }
   async function backToApp(key) {
@@ -118,15 +224,45 @@
     <h2 id="wear-h" class="lbl"><Shirt size={16} aria-hidden="true" />{o.win?.tomorrow ? t('What do I wear tomorrow?') : t('What do I wear today?')}</h2>
     {#if o.state === 'ok'}
       <p class="meta num">{meta}</p>
+      {#if edit && sets.length}
+        <div class="wsets" role="group" aria-label={t('Clothing sets')} data-wear-sets>
+          <button type="button" class="wset" aria-pressed={!active} onclick={() => chooseSet(AUTO)} data-wear-set="auto">{t('Automatic|wear')}</button>
+          {#each chips.filter((s) => moreSets || s.key === match?.key || s.key === active?.key) as s (s.key)}
+            <button type="button" class="wset" aria-pressed={active?.key === s.key} onclick={() => chooseSet(s.key)} data-wear-set={s.key}>{s.name}{#if match?.key === s.key}<small>{t('fits today')}</small>{/if}</button>
+          {/each}
+          {#if !moreSets && hidden}<button type="button" class="wset" aria-expanded="false" onclick={() => (moreSets = true)} data-wear-more>{t('More sets ({n})', { n: hidden })}</button>{/if}
+        </div>
+        <p class="sh2" data-wear-setline>
+          {active ? t('Set {set}: its pieces come first. Rows it has nothing for, the app fills.', { set: active.name }) : t('The app picks from all your pieces.')}
+          <a href="#/blocks">{t('Edit the sets')}</a>
+        </p>
+        {#if active}
+          {#if range?.key === active.key}
+            <form class="wrange" onsubmit={(e) => (e.preventDefault(), saveRange())} data-wear-range>
+              <label><span class="lbl">{t('from °C')}</span><input class="inp num" type="text" inputmode="numeric" bind:value={range.from} oninput={() => (range.err = "")} placeholder="–" data-wear-from /></label>
+              <label><span class="lbl">{t('to °C')}</span><input class="inp num" type="text" inputmode="numeric" bind:value={range.to} oninput={() => (range.err = "")} placeholder="–" data-wear-to /></label>
+              <button type="submit" class="btn sm" data-wear-rangesave>{t('Save')}</button>
+              <button type="button" class="btn sm" onclick={() => (range = null)}>{t('Cancel')}</button>
+              <p class="sh">{range.err || t('Empty means no border. The set fits when the felt temperature is in this range.')}</p>
+            </form>
+          {:else}
+            <div class="acts"><button type="button" class="btn sm" onclick={openRange} data-wear-rangeopen>{tempRange(active.minC, active.maxC, t) ? t('Fits at {range}: change', { range: tempRange(active.minC, active.maxC, t) }) : t('Give the set a °C range')}</button></div>
+          {/if}
+        {/if}
+        {#if active && !pieces.length}
+          <div class="acts"><button type="button" class="btn sm" onclick={fillSet} data-wear-fill>{t('Fill the set with this suggestion')}</button></div>
+        {/if}
+      {/if}
       <ul>
         {#each shown.rows as r (r.key)}
           <li data-wear-row={r.key}>
             <span class="k">{t(r.name)}</span>
-            {#if r.item}<span class="v">{nameOf(r.item)}{#if r.mine}<small class="own">{r.added ? t('added by you · today only') : t('chosen by you · today only')}</small>{/if}</span>
+            {#if r.item}<span class="v">{nameOf(r.item)}{#if r.mine}<small class="own">{r.added ? t('added by you · today only') : t('chosen by you · today only')}</small>{:else if r.fromSet && active}<small class="own" data-wear-fromset>{r.light ? t('from the set · too light for {c} °C', { c: o.outfit.c }) : t('from the set')}</small>{/if}</span>
             {:else if r.none}<span class="v gap">{t('nothing|wear')}<small class="own">{t('left out by you · today only')}</small></span>
+            {:else if r.setOff && active}<span class="v gap">{t('nothing|wear')}<small class="own">{t('left out in the set {set}', { set: active.name })}</small></span>
             {:else}<span class="v gap">{r.rain ? t('nothing waterproof') : t('nothing warm enough')}</span>{/if}
             {#if edit}<button type="button" class="btn sm wsw" aria-expanded={swapKey === r.key} aria-controls="wsw-{r.key}" onclick={() => (swapKey = swapKey === r.key ? null : r.key)} data-wear-swap={r.key}>{t('Swap|wear')}</button>{/if}
-            {#if edit && !r.item && !r.none}
+            {#if edit && !r.item && !r.none && !r.setOff}
               {@const why = reasonText(r)}
               <div class="gapbox" data-wear-gap={why.g.kind}>
                 <p>{why.text}</p>
@@ -140,7 +276,7 @@
             {#if edit && swapKey === r.key}
               <div class="swap" id="wsw-{r.key}" role="group" aria-label={t('Swap {row}', { row: t(r.name) })}>
                 <p class="sh">{t('Your pieces for this, for today ({c} °C):', { c: o.outfit.c })}</p>
-                {#each swapOptions(r.key, items, o.outfit.c) as op (op.item.id)}
+                {#each swapOptions(r.key, items, o.outfit.c, rule.prefer) as op (op.item.id)}
                   <button type="button" class="opt" class:on={r.item?.id === op.item.id} aria-pressed={r.item?.id === op.item.id} onclick={() => pick(r.key, op.item.id)} data-wear-opt={op.item.id}>
                     <span class="on1">{nameOf(op.item)}</span>
                     <span class="tg {op.fit}">{t(FIT[op.fit], { c: o.outfit.c })}</span>
@@ -149,13 +285,21 @@
                 {:else}
                   <p class="sh">{t('No sorted piece for this yet.')}</p>
                 {/each}
-                <button type="button" class="opt" class:on={r.none} aria-pressed={r.none} onclick={() => pick(r.key, NONE)} data-wear-opt="none"><span class="on1">{t('Nothing|wear')}</span><small>{t('leave it out today')}</small></button>
+                <button type="button" class="opt" class:on={r.none} aria-pressed={r.none} onclick={() => pick(r.key, NONE)} data-wear-opt="none"><span class="on1">{t('Nothing|wear')}</span><small>{remember === 'set' && active ? t('leave it out in the set') : t('leave it out today')}</small></button>
                 <div class="acts">
                   {#if r.added}<button type="button" class="btn sm" onclick={() => dropRow(r.key)}>{t('Remove the row')}</button>
-                  {:else if r.mine}<button type="button" class="btn sm" onclick={() => backToApp(r.key)} data-wear-back>{t('Back to the suggestion')}</button>{/if}
+                  {:else if r.mine}<button type="button" class="btn sm" onclick={() => backToApp(r.key)} data-wear-back>{t('Back to the suggestion')}</button>
+                  {:else if active && (r.fromSet || r.setOff)}<button type="button" class="btn sm" onclick={() => ((swapKey = null), setRow(r.key, null))} data-wear-unset>{t('Let the app pick')}</button>{/if}
                   <a class="btn sm" href="#/wardrobe">{t('Open the wardrobe')}</a>
                 </div>
-                <p class="sh">{t('Holds for today only. Tomorrow the app suggests again.')}</p>
+                {#if active}
+                  <div class="acts rem" role="group" aria-label={t('Remember the swap')}>
+                    <span>{t('Remember:')}</span>
+                    <button type="button" class="btn sm" aria-pressed={remember === 'today'} onclick={() => setRemember('today')} data-wear-remember="today">{t('today only')}</button>
+                    <button type="button" class="btn sm" aria-pressed={remember === 'set'} onclick={() => setRemember('set')} data-wear-remember="set">{t('in the set {set}', { set: active.name })}</button>
+                  </div>
+                {/if}
+                <p class="sh">{remember === 'set' && active ? t('Goes into the set {set}. It comes again whenever the set fits.', { set: active.name }) : t('Holds for today only. Tomorrow the app suggests again.')}</p>
               </div>
             {/if}
           </li>
@@ -175,12 +319,36 @@
         <details class="why" data-wear-why>
           <summary>{t('Why so?')}</summary>
           <ol>
-            <li>{o.outfit.from === 'hour' ? t('The coldest hour of your ride: {c} °C.', { c: o.outfit.real }) : t('The lowest temperature of the day: {c} °C.', { c: o.outfit.real })}{#if o.outfit.c !== o.outfit.real}{' '}{t('From your debriefs it counts as {c} °C.', { c: o.outfit.c })}{/if}</li>
-            <li>{t('Base layer and legs always. Mid layer below {mid} °C, outer layer below {outer} °C or with rain, hands below {hands} °C, head below {head} °C, feet below {feet} °C.', WHY_LIMITS)}</li>
+            <li>{o.outfit.from === 'hour' ? t('The coldest hour of your ride: {c} °C.', { c: o.outfit.real }) : t('The lowest temperature of the day: {c} °C.', { c: o.outfit.real })}{#if o.outfit.c !== o.outfit.real}{' '}{rule.shift ? t('For you it counts as {c} °C (your debriefs and your rule).', { c: o.outfit.c }) : t('From your debriefs it counts as {c} °C.', { c: o.outfit.c })}{/if}</li>
+            <li>{t('Base layer and legs always. Mid layer below {mid} °C, outer layer below {outer} °C or with rain, hands below {hands} °C, head below {head} °C, feet below {feet} °C.', rule.limits)}</li>
             {#if notYet.length}<li>{t('Not needed yet today: {rows}. «+ Add a layer» adds them anyway.', { rows: rowNames(notYet) })}</li>{/if}
-            <li>{t('A piece fits when its lower border is at most 2 °C above that. Of several, the one made for this temperature comes, then the lightest.')}</li>
+            <li>{rule.prefer === 'warm' ? t('A piece fits when its lower border is at most 2 °C above that. Of several, the one made for this temperature comes, then the warmest.') : t('A piece fits when its lower border is at most 2 °C above that. Of several, the one made for this temperature comes, then the lightest.')}</li>
             <li>{t('Only sorted pieces count (layer and body part), not those only for everyday.')}</li>
+            {#if sets.length}<li>{t('A clothing set fits by its °C range, with rain the set Rain. Its pieces come before the app’s choice.')}</li>{/if}
           </ol>
+          <div class="rule" data-wear-rule>
+            <p class="sh"><b>{t('Your rule')}</b> · {t('Holds on Today and in Pack. Every layer can still be added or left out.')}</p>
+            <div class="acts rem" role="group" aria-label={t('How quickly you get cold')} data-wear-feels>
+              {#each FEEL as [key, label] (key)}<button type="button" class="btn sm" aria-pressed={rule.feel === key} onclick={() => setFeel(key)} data-wear-feel={key}>{t(label)}</button>{/each}
+            </div>
+            <div class="acts rem" role="group" aria-label={t('First the')}>
+              <span>{t('First the')}</span>
+              <button type="button" class="btn sm" aria-pressed={rule.prefer === 'light'} onclick={() => setPrefer('light')} data-wear-prefer="light">{t('lighter piece')}</button>
+              <button type="button" class="btn sm" aria-pressed={rule.prefer === 'warm'} onclick={() => setPrefer('warm')} data-wear-prefer="warm">{t('warmer piece')}</button>
+            </div>
+            <details class="limits" open={limitsMoved} data-wear-limits>
+              <summary>{t('More exact: from when each layer comes')}</summary>
+              {#each LIMIT_ROWS as k (k)}
+                <div class="lim" data-wear-limit={k}>
+                  <span class="lk">{t('{row} below', { row: rowName(k) })} <b class="num">{rule.limits[k]} °C</b></span>
+                  <button type="button" class="btn sm" aria-label={t('{row}: 1 °C lower', { row: rowName(k) })} disabled={rule.limits[k] <= LIMIT_RANGE[0]} onclick={() => stepRow(k, -1)} data-wear-down={k}>−</button>
+                  <button type="button" class="btn sm" aria-label={t('{row}: 1 °C higher', { row: rowName(k) })} disabled={rule.limits[k] >= LIMIT_RANGE[1]} onclick={() => stepRow(k, 1)} data-wear-up={k}>+</button>
+                </div>
+              {/each}
+              <p class="sh">{t('Higher border: the layer comes sooner.')}</p>
+            </details>
+            {#if ruleChanged($ruleQ?.value)}<div class="acts"><button type="button" class="btn sm" onclick={resetRule} data-wear-rulereset>{t('Back to the standard rule')}</button></div>{/if}
+          </div>
         </details>
       {/if}
       <a class="btn sm go" href="#/wardrobe">{t('Open the wardrobe')}</a>
@@ -353,5 +521,86 @@
   }
   .pf {
     margin-top: 8px;
+  }
+  .wrange {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: end;
+    gap: 6px;
+    margin: 4px 0 8px;
+  }
+  .wrange label {
+    display: grid;
+    gap: 2px;
+  }
+  .wrange .inp {
+    width: 5.5em;
+  }
+  .wrange .sh {
+    flex-basis: 100%;
+    margin: 0;
+  }
+  .rule {
+    margin-top: 10px;
+    padding-top: 8px;
+    border-top: 1px solid var(--line);
+  }
+  .limits summary {
+    cursor: pointer;
+    margin: 6px 0;
+  }
+  .lim {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 44px 44px;
+    align-items: center;
+    gap: 6px;
+    margin: 4px 0;
+  }
+  .lim .btn {
+    min-height: 40px;
+    justify-content: center;
+  }
+  .wsets {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 8px 0 4px;
+  }
+  .wset {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    min-height: 40px;
+    padding: 4px 12px;
+    border: 1px solid var(--line-strong);
+    border-radius: 999px;
+    background: var(--paper);
+    color: var(--ink);
+    font: inherit;
+    font-size: var(--fs-small);
+    cursor: pointer;
+  }
+  .wset[aria-pressed='true'] {
+    border-width: 2px;
+    border-color: var(--accent);
+    font-weight: 600;
+  }
+  .wset small {
+    font-weight: 400;
+    color: var(--ink-3);
+  }
+  .sh2 {
+    margin: 4px 0 6px;
+    font-size: var(--fs-small);
+    color: var(--ink-2);
+  }
+  .rem span {
+    align-self: center;
+    font-size: var(--fs-small);
+  }
+  .rem .btn[aria-pressed='true'] {
+    border-color: var(--accent);
+    font-weight: 600;
   }
 </style>

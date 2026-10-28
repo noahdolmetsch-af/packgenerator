@@ -61,6 +61,7 @@
   import { distKm } from '../route.js';
   import { situationHits } from '../situation.js';
   import { tripPower, effortOf, loadOf } from './power.js';
+  import FeelScale from '../tourenc/FeelScale.svelte'; // Touren c 70
   import { GROUPS, openOf, dayTabs, dayFacts, actsOn, timeline, stravaRides, tripNoteList, wearRows, chainLeft, packedList, packedTotals, pointsOf, compareGroup, similarRows, tripNumbers, compareRows, lastSeries } from './ganz.js';
   import TlVoice from './TlVoice.svelte'; // Noah 27.10.2026 «1a»: voice notes in the timeline
   import { dayClips } from '../tourenb/tagclips.js';
@@ -433,6 +434,7 @@
               <!-- Impeccable Runde 2 (Rückblick einer Tour 2): the card «Gespeichert» is gone; its line lives here -->
               <p class="savedline" role="status" data-saved>{savedLine}</p>
               <p class="kick">{[trip.title, dates(trip.startDate, tripEnd(trip)), trip.days > 1 ? tn(trip.days, '{n} day', '{n} days') : t('Day ride|art')].join(' · ')}</p>
+              {#if trip.memory}<p class="rv-note memline" data-memory-line>{[t('From memory, without GPS: no numbers made up'), trip.memory.place, d.note ? `«${d.note}»` : ''].filter(Boolean).join(' · ')}</p>{/if}
               <dl class="rv-tiles big">
                 <div class="rv-tile"><dd><b>{n0(row?.km)} km</b></dd><dt><small>{t('Distance')}</small></dt></div>
                 <div class="rv-tile"><dd><b>{n0(row?.gainM)} Hm</b></dd><dt><small>{t('Climbing|hm')}</small></dt></div>
@@ -608,6 +610,11 @@
     <Group key="body" title={titleOf(GROUPS[1])} line={lineOf.body} icon={ICON.body} open={!!open.body} ontoggle={(v) => toggle('body', v)}>
       <div class="rv-lay">
         <div class="rv-col">
+          <!-- Touren c 70 «Gefühl vor den Zahlen»: how hard it felt, asked before the numbers; kept on the debrief -->
+          <section class="rv-sec" aria-labelledby="feel-h" data-trip-feel>
+            <div class="rv-h"><div><h2 id="feel-h">{t('How hard was it?')}</h2><p class="rv-sub">{t('your feeling, before the numbers')}</p></div></div>
+            <div class="rv-box pad"><FeelScale value={d.feel ?? null} onpick={(n) => onpatch?.({ feel: n })} /></div>
+          </section>
           {#if w}<HeartPower {values} zones={w.zones?.source ?? null} bike={meterBike || trip.bike || bike?.name || ''} {tempo} {power} {effort} {load} {efforts} {loads} mark={trip.id} {best} strava={acts.length > 0} sub={day != null ? t('Day {n} · from Strava · to look at, without rating', { n: day + 1 }) : ''} />{/if}
         </div>
         <div class="rv-col">
