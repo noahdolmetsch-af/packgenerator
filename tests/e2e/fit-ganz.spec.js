@@ -1,6 +1,6 @@
 // «FIT-Dateien ganz lesen» (Noah 27.10.2026 «2a», thread «Geraete und Datenquellen»): a FIT file uploaded in
 // Fahrten becomes a ride with its sensor values and a «Vom Gerät» part. Fictional file from tests/fixtures/fit.js.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { writeFileSync, mkdirSync } from 'node:fs';
 import DE from '../../src/lib/i18n/de/index.js';
 import { ready } from './settle.js';

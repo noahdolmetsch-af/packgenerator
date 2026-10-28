@@ -2,7 +2,7 @@
 // upload; before saving it says what happens, after saving you land on the ride with the card «Fahrt
 // gespeichert»; «Dein Tempo» explains itself, says the standard plainly and marks the new rides; the same
 // ride twice counts once; a planned route offers the trip. Fictional rides only (tests/test_data_gtp_gpx.js).
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { writeFileSync, mkdirSync } from 'node:fs';
 import DE from '../../src/lib/i18n/de/index.js';
 import { makeGpx } from '../test_data_gtp_gpx.js';

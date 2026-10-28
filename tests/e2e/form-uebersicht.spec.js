@@ -203,6 +203,62 @@ test('the page «Form»: Verlauf with axes, exact numbers, the day behind a tap'
   expect(errors).toEqual([]);
 });
 
+// «Diagramme zum Antippen» K3 (Noah 27.10.2026 «1-5 a»): every row of «Was heute zählt» shows 7 days and opens
+// its days: today, the normal, the points and why, an axis, the number at each point, a second value with its
+// own axis, «Als Tabelle», the next part. Fictional data, a few more morning checks.
+test('the page «Form»: what counts today, each row opens its days', async ({ page, context }, info) => {
+  const errors = await open(page, context);
+  await put(page, { flowChecks: [1, 2, 3, 4, 5, 6].map((i) => ({ day: addDays(TODAY, -i), sleep: 5 + (i % 4), energy: 4 + (i % 5), mood: 6 })) });
+  await go(page, '#/flow/form');
+  const parts = page.locator('[data-form-parts]');
+  for (const k of ['rhr', 'hrv', 'sleep', 'feltSleep', 'energy', 'form']) await expect(parts.locator(`[data-part="${k}"] [data-mini] path`)).toHaveCount(1);
+  if (process.env.SHOTS) await parts.screenshot({ path: `${process.env.SHOTS}/teile-${info.project.name === 'phone' ? 390 : 1440}.png` });
+  await parts.locator('[data-part="rhr"] [data-part-open]').click();
+  const sheet = page.locator('[data-chart-sheet]');
+  await expect(sheet).toBeVisible();
+  await expect(sheet.locator('#cs-h')).toHaveText(T('Resting pulse'));
+  await expect(sheet.locator('[data-part-sum]')).toContainText('bpm');
+  await expect(sheet.locator('[data-part-why]')).toContainText(T('Normal: the middle of your 30 days before.'));
+  const plot = sheet.locator('[data-part-plot]');
+  await expect(plot).toHaveAttribute('data-n', '7');
+  expect(await plot.locator('[data-yticks] span').count()).toBeGreaterThanOrEqual(3);
+  await expect(plot.locator('[data-point-label]')).toHaveCount(7);
+  await expect(plot.locator('[data-xdates] span')).toHaveCount(7);
+  await expect(plot.locator('[data-xdates] span').last()).toHaveText(T('today'));
+  await expect(plot.locator('[data-normal-line]')).toHaveCount(1);
+  // pointing: the line above shows that day
+  await expect(sheet.locator('[data-readout]')).toContainText(T('today'));
+  await plot.focus();
+  await page.keyboard.press('Home');
+  await expect(sheet.locator('[data-readout]')).not.toContainText(T('today'));
+  // a second value with its own axis on the right
+  await sheet.locator('[data-second-key="sleep"]').click();
+  await expect(plot.locator('[data-yticks]')).toHaveCount(2);
+  await expect(sheet.locator('[data-readout]')).toContainText(T('Sleep|metric'));
+  if (process.env.SHOTS) await page.screenshot({ path: `${process.env.SHOTS}/teil-ruhepuls-${info.project.name === 'phone' ? 390 : 1440}.png` });
+  // 30 days and «Als Tabelle»
+  await sheet.getByRole('button', { name: T('30 days') }).click();
+  await expect(plot).toHaveAttribute('data-n', '30');
+  await expect(plot.locator('[data-point-label]')).toHaveCount(0);
+  await sheet.getByRole('button', { name: T('As table') }).click();
+  await expect(sheet.locator('[data-chart-table] tbody tr')).toHaveCount(30);
+  await sheet.getByRole('button', { name: T('Chart|table') }).click();
+  // the next part: HRV, then on to the felt sleep
+  await sheet.locator('[data-sheet-next]').click();
+  await expect(sheet.locator('#cs-h')).toHaveText(T('HRV'));
+  await sheet.locator('[data-sheet-next]').click();
+  await sheet.locator('[data-sheet-next]').click();
+  await expect(sheet.locator('#cs-h')).toHaveText(T('Sleep, felt'));
+  await expect(sheet.locator('[data-part-sum]')).toContainText('8/10');
+  await sheet.getByRole('button', { name: T('7 days') }).click();
+  await expect(sheet.locator('[data-part-plot] [data-point-label]')).toHaveCount(7);
+  if (process.env.SHOTS) await page.screenshot({ path: `${process.env.SHOTS}/teil-gefuehlt-${info.project.name === 'phone' ? 390 : 1440}.png` });
+  await page.keyboard.press('Escape');
+  await expect(sheet).toHaveCount(0);
+  await fits(page, 'Was heute zählt');
+  expect(errors).toEqual([]);
+});
+
 test('Körperwerte: groups, tabs, own entries', async ({ page, context }) => {
   const errors = await open(page, context);
   await go(page, '#/flow/stats/hr');

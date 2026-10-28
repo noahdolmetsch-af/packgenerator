@@ -2,7 +2,7 @@
 // off the parked bike, «get in touch by» before no signal, options to compare on Reise-Links, a small taste of a dream
 // tour, a warranty claim draft. Fictional data only (test_data_gtp_), the clock on Friday 9 October 2026
 // (home0460-fixture.js), every outside address blocked.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { openHome, homeFixture, tr, trip, day } from './home0460-fixture.js';
 
 const T = tr('de');

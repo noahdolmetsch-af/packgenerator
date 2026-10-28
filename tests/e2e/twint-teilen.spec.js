@@ -2,7 +2,7 @@
 // sharing a picture goes to Dokumente): a TWINT screenshot chosen with «TWINT-Bildschirmfoto wählen» is
 // read on the phone and the fitting open invoice is suggested: «Ja, bezahlt» marks it. The text reader
 // (loaded from the CDN on first use) is faked here. Fictional data only.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { tr } from './home0460-fixture.js';
 import { ready } from './settle.js';
 import { put } from './aktiv-fixture.js';
