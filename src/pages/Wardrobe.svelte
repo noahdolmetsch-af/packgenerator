@@ -16,7 +16,7 @@
   import TipLine from '../lib/pageinfo/TipLine.svelte';
   import { liveQuery } from 'dexie';
   import { db } from '../lib/db.js';
-  import { wardrobe, USES, LAYERS, ZONES, tempRange, tempKey, tempKits, CLOTHING_OFFSET, wardrobeGaps, gapWish, offsetLine, resetOffset, kitFromOutfit, rangeAround, barStyle } from '../lib/wardrobe.js';
+  import { wardrobe, USES, LAYERS, ZONES, tempRange, tempKey, tempKits, CLOTHING_OFFSET, WEAR_RULE, wearRule, wardrobeGaps, gapWish, offsetLine, resetOffset, kitFromOutfit, rangeAround, barStyle } from '../lib/wardrobe.js';
   import { SETS_KEY, allSets } from '../lib/sets.js';
   import { tick } from 'svelte';
   import { slide } from 'svelte/transition';
@@ -206,7 +206,9 @@
     offer(t('{name} is on the wishlist', { name: rec.name }), null, () => db.items.delete(rec.id));
   }
   // Decision 5: the selected pieces (or today's suggestion) as a temperature kit.
-  const suggestion = $derived(todayOutfit({ place: $placeQ ?? null, forecast: $fcQ ?? null, items, trips: $tripsQ ?? [], offset }));
+  // «Was ziehe ich an?» step 3: the same own rule as the window on Today
+  const ruleQ = liveQuery(() => db.settings.get(WEAR_RULE));
+  const suggestion = $derived(todayOutfit({ place: $placeQ ?? null, forecast: $fcQ ?? null, items, trips: $tripsQ ?? [], offset, rule: wearRule($ruleQ?.value) }));
   const suggestIds = $derived(suggestion.outfit ? suggestion.outfit.rows.map((r) => r.item?.id).filter(Boolean) : []);
   let kit = $state(null); // { name, minC, maxC, err } while the form is open
   function openKit() {

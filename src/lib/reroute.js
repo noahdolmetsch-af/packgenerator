@@ -136,10 +136,11 @@ export async function askRouter(way, profile = PROFILE_STD, fetcher = fetch) {
  * (optional). → the detour { line, km, gainM, min, target, rejoin, fromKm, extraKm, profile, at }.
  * Throws 'busy' (too many requests), 'noroute' (no way found) or 'failed'.
  */
-export async function planDetour({ here, target, pts = [], fromKm = null, profile = PROFILE_STD, fetcher = fetch, now = Date.now() }) {
+export async function planDetour({ here, target, pts = [], fromKm = null, profile = PROFILE_STD, oneWay = false, fetcher = fetch, now = Date.now() }) {
   if (!here || !target) throw new Error('failed');
   const hasRoute = pts.length > 1 && fin(fromKm);
-  const rejoin = hasRoute ? rejoinOf(pts, target, fromKm) : null;
+  // «Nur hin» (Noah 27.10.2026 «2a»): only the way there; at the place the app asks how you go back
+  const rejoin = hasRoute && !oneWay ? rejoinOf(pts, target, fromKm) : null;
   const way = [P(here), P(target), ...(rejoin ? [rejoin] : [])];
   const r = await askRouter(way, profile, fetcher);
   const along = rejoin ? Math.max(0, rejoin.km - fromKm) : 0;
@@ -149,6 +150,7 @@ export async function planDetour({ here, target, pts = [], fromKm = null, profil
     rejoin,
     fromKm: hasRoute ? Math.round(fromKm * 10) / 10 : null,
     extraKm: rejoin ? Math.round((r.km - along) * 10) / 10 : null,
+    ...(oneWay && hasRoute ? { oneWay: true } : {}),
     profile,
     at: now,
   };
@@ -171,6 +173,8 @@ export function detourDone(detour, { km = null, here = null, offM = null } = {})
   // still off the route (offM given): a km near the place is not «back on the route»
   if (offM != null && offM > OFF_ROUTE_M) return false;
   if (detour.rejoin && fin(km)) return km >= detour.rejoin.km + 0.3;
+  // only the way there: done once you were at the place and are back on the route away from it
+  if (detour.oneWay) return !!detour.reached && offM != null && !!here && distKm(P(here), P(detour.target)) * 1000 > AT_PLACE_M * 2;
   if (!detour.rejoin && here) return distKm(P(here), P(detour.target)) < 0.05;
   return false;
 }
