@@ -2,7 +2,7 @@
 // shows a «Garmin pages» card (GA-A1), a tap opens the pages of the profile (GA-A2), a page opens with both
 // Edges and the reasons (GA-A3). Power pedals bring the power pages; the Edge 850 (it replaced the 540) shows the same fields as the 1040.
 // Fictional fixture (test_data_gtp_), German UI.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';
 import { importAndSettle } from './settle.js';

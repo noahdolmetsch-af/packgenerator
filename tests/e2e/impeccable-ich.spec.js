@@ -4,7 +4,7 @@
 // - Ich: «Wartet auf dich» on top (inbox; never a key that runs out, Noah 20.10.2026); «App-Wartung», «Mehr» and «Hilfe» folded.
 // - Daten und Backup: the head in words, one main button «Backup speichern», the last backup named.
 // Fictional data only (tests/e2e/v048-fixture.js, test_data_gtp_ names); nothing leaves the preview server.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import DE from '../../src/lib/i18n/de/index.js';
 import { readFileSync } from 'node:fs';
 // the targets of «Ablegen als …», read from the app source (inbox.js imports page code that needs the browser)

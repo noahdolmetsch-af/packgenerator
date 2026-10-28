@@ -57,6 +57,24 @@ export const MODES = [
   { key: 'light', name: 'Light|theme' },
   { key: 'dark', name: 'Dark|theme' },
 ];
+/**
+ * E8 «Schalter Bewegung» (Noah 27.10.2026 «1a 2a 3a 4a 5a», idea E8): how much the app moves, for all building
+ * blocks at once. Full (default, as before): everything incl. the big moments (confetti). Calm: the small
+ * movements, no confetti. Off: nothing glides or moves, as with «reduce motion» on the device.
+ */
+export const MOTIONS = [
+  { key: 'full', name: 'Full|motion' },
+  { key: 'calm', name: 'Calm|motion' },
+  { key: 'off', name: 'Off|motion' },
+];
+export const DEFAULT_MOTION = 'full';
+export const MOTION_KEY = 'theme.motion';
+export const motionOf = (v) => (MOTIONS.some((m) => m.key === v) ? v : DEFAULT_MOTION);
+// One small style sheet for the switch, so app.css stays as it is: «Off» stops every animation and transition.
+const MOTION_CSS = `html[data-motion='off'] *,html[data-motion='off'] *::before,html[data-motion='off'] *::after{animation-duration:0.01ms!important;animation-delay:0s!important;animation-iteration-count:1!important;transition-duration:0.01ms!important;transition-delay:0s!important;scroll-behavior:auto!important}
+html[data-motion='off'] .confetti,html[data-motion='calm'] .confetti{display:none!important}`;
+/** Should this movement stay still? true with «Off», or with «reduce motion» on the device. */
+export const motionStill = () => theme.motion === 'off' || (typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches);
 export const PALETTE_KEY = 'theme.palette';
 export const MODE_KEY = 'theme.mode';
 export const FONT_KEY = 'theme.font';
@@ -102,7 +120,7 @@ const put = (k, v) => {
 const darkQuery = () => (typeof matchMedia === 'function' ? matchMedia('(prefers-color-scheme: dark)') : null);
 
 /** The current choice: { palette, mode, dark } (dark: what shows now). */
-export const theme = $state({ palette: DEFAULT_PALETTE, mode: DEFAULT_MODE, font: DEFAULT_FONT, scale: DEFAULT_SCALE, dense: false, dark: false });
+export const theme = $state({ palette: DEFAULT_PALETTE, mode: DEFAULT_MODE, font: DEFAULT_FONT, scale: DEFAULT_SCALE, dense: false, dark: false, motion: DEFAULT_MOTION });
 
 function apply() {
   if (typeof document === 'undefined') return;
@@ -114,6 +132,14 @@ function apply() {
   root.style.setProperty('--ui-zoom', String(theme.scale / 100));
   if (theme.dense) root.dataset.dense = '1';
   else delete root.dataset.dense;
+  if (theme.motion === DEFAULT_MOTION) delete root.dataset.motion;
+  else root.dataset.motion = theme.motion;
+  if (!document.getElementById('motion-css')) {
+    const el = document.createElement('style');
+    el.id = 'motion-css';
+    el.textContent = MOTION_CSS;
+    document.head.append(el);
+  }
   // the browser bar on a phone takes the brand colour of the world shown
   const brand = getComputedStyle(root).getPropertyValue('--brand').trim();
   if (brand) document.querySelector('meta[name="theme-color"]')?.setAttribute('content', brand);
@@ -131,6 +157,7 @@ export function initTheme() {
   theme.font = fontOf(get(FONT_KEY));
   theme.scale = scaleOf(get(SCALE_KEY) ?? get(SIZE_KEY));
   theme.dense = get(DENSE_KEY) === '1';
+  theme.motion = motionOf(get(MOTION_KEY));
   apply();
   darkQuery()?.addEventListener?.('change', () => theme.mode === 'system' && apply());
 }
@@ -158,6 +185,11 @@ export function setScale(v) {
 export function setDense(on) {
   theme.dense = !!on;
   put(DENSE_KEY, theme.dense ? '1' : '0');
+  apply();
+}
+export function setMotion(key) {
+  theme.motion = motionOf(key);
+  put(MOTION_KEY, theme.motion);
   apply();
 }
 /** The short line of the row «Darstellung» on Ich: font · colour world · size (· Compact). tr is t(). */

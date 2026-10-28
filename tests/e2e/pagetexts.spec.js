@@ -2,7 +2,7 @@
 // «Das kann die App hier» on ten more places, «Passt zu heute» for rain on Packen (4a) with a link to
 // MeteoSchweiz (5a), and an example that becomes an own note (3a). German, on a phone and a computer, no
 // sideways scroll, no page errors. Fictional fixture and test_data_gtp_ trips only.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';

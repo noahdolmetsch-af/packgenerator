@@ -4,7 +4,7 @@
 // - the year in review (km of this year), winter and spring checklists (tick, own point);
 // - the calendar switch for part changes under Me › Connections.
 // Fictional fixture; nothing leaves the preview server; service workers blocked (config).
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';

@@ -1,7 +1,7 @@
 // v0.95.0 «Velo kurz» (App einfach D, Noah 5a, mockup D): Bikes › Overview shows three rows (bike
 // care, bags, equipment), «Import rides» as the one button and «More» for everything else; nothing
 // is gone. Fictional fixture (test_data_gtp_), German UI.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';
 import { importAndSettle } from './settle.js';

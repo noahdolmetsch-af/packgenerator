@@ -2,7 +2,7 @@
 // and the fitting blocks): on the packing day each bag is a tile with a ring that fills as you pack (block B4);
 // the open bag is framed, a full bag shows ✓, the ring draws itself when the page opens and stays still with
 // reduce motion. Fictional fixture; nothing leaves the preview server.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';

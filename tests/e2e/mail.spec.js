@@ -2,7 +2,7 @@
 // lists the inbox, opens a mail, answers it and writes a new one; «Mails dazu» under an appointment
 // searches Gmail. The server (packgen-three.vercel.app/api/google) and the Google login are answered by
 // the test; everything else outside the preview server is blocked. Fictional mails only.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { viaTab } from './placetab.js'; // UI-Ziele #6: the pages that were rows under Ich are tabs now
 import { ready } from './settle.js';
 import DE from '../../src/lib/i18n/de/index.js';

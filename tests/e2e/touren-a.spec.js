@@ -4,7 +4,7 @@
 //   43 «Was hätte gefehlt?»: what was taken off the list shows in the debrief; one tap = was missing.
 //   46 «Plan B mit Auslöser»: the own trigger on Planen; on Unterwegs the agreed trigger in the hint.
 // Fictional data only (test_data_gtp_), the clock on Friday 9 October 2026 (home0460-fixture.js).
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { openHome, homeFixture, tr, trip, day, D0 } from './home0460-fixture.js';
 
 const T = tr('de');

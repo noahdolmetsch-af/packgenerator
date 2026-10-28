@@ -2,7 +2,7 @@
 // page the list of friends with «Entfernen» (asks, then «Rückgängig»), «Freund einladen» with the link and
 // Strava's own limit; on a friend's phone the invite link says «Du wurdest eingeladen» and the login
 // carries the invite. The server is answered by the test. Fictional names only.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { ready } from './settle.js';
 
 const P = 'test_data_gtp_';

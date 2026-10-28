@@ -1,6 +1,6 @@
 // v0.30.1: Noah's phone test of 0.29.2, findings E5, E6, A2, C1, C2, C3, C5 (German UI).
 // Fictional fixture plus test_data_gtp_ bikes, items and trips; nothing leaves the preview server.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { endToDebrief } from './ending.js';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
