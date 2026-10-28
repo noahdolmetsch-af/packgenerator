@@ -29,6 +29,7 @@
   import RouteBlock from '../../lib/sportpage/RouteBlock.svelte';
   import ParkDaysBlock from '../../lib/sportpage/ParkDaysBlock.svelte';
   import TennisTop from '../../lib/tennis/TennisTop.svelte';
+  import SportCover from '../../lib/sportpage/SportCover.svelte';
   import { TENNIS_ID } from '../../lib/tennisday.js';
   import ActHistory from '../../lib/sportpage/ActHistory.svelte';
   import MilestoneSlot from '../../lib/sportpage/MilestoneSlot.svelte';
@@ -36,7 +37,7 @@
   import { actSport } from '../../lib/flow/mysports.js';
   import { tickWith } from '../../lib/flow/ui.svelte.js';
   import { DOMAINS } from '../../lib/domains.js';
-  import { activeGoals } from '../../lib/flow.js';
+  import { activeGoals, addDays } from '../../lib/flow.js';
   import { sortBikes } from '../../lib/bikes.js';
   import { sportBikeId } from '../../lib/sports.js';
   import { equipmentRows } from '../../lib/maingear.js';
@@ -48,7 +49,7 @@
   import { sportsQuery } from '../../lib/sportpage/data.js';
   import { sportName, blockName } from '../../lib/sportpage/words.js';
   import { localDay } from '../../lib/localday.js';
-  import { t } from '../../lib/i18n.svelte.js';
+  import { t, tn } from '../../lib/i18n.svelte.js';
   import AreaIntro from '../../lib/intro/AreaIntro.svelte'; // «Anleitungen überall»: the guide «Sportarten» (lib/guides.js)
   import '../../lib/sportpage/sport.css';
 
@@ -79,6 +80,10 @@
   const mine = $derived(sport && data ? data.items.filter((x) => x.sport === sport.id) : []);
   const strava = $derived(sport && data ? stravaOf(data.activities, sport.id) : []);
   const dayMap = $derived(sport && data ? sportDays(sport, { log: data.log, trips: data.trips, values: data.items, strava, today }) : new Map());
+  // the line on the cover: days with this sport in the last 7 days, against its goal when it has one
+  const week7 = $derived([...dayMap.keys()].filter((d) => d > addDays(today, -7) && d <= today).length);
+  const goal7 = $derived(sport?.act?.goals?.[0] ?? null);
+  const coverLine = $derived(goal7?.count ? t('{n} of {goal} in the last 7 days', { n: week7, goal: goal7.count }) : tn(week7, '{n} day in the last 7 days', '{n} days in the last 7 days'));
   const uses = $derived([...dayMap.values()].reduce((s, n) => s + n, 0));
   const mgKey = $derived(!sport || sport.bike ? null : sport.kind === 'act' ? sport.id : `dom:${sport.key}`);
   const gearRows = $derived(mgKey && data ? equipmentRows(data.gear, { trips: data.trips, log: data.log, today }).filter((r) => r.main.sport === mgKey) : []);
@@ -118,7 +123,9 @@
   {#if sport && data}
     {#if editing}<BlockEdit {sport} {cfg} {color} items={mine} onclose={() => (editing = false)} />{/if}
     <!-- Paket P4 (TN1, TN2, TN4, TN5; Noah 5b «nur für Tennis»): cover photo, tick off, planned, history -->
-    {#if sport.id === TENNIS_ID}<TennisTop {sport} items={mine} log={data.log} act={sport.act} {today} />{/if}
+    {#if sport.id === TENNIS_ID}<TennisTop {sport} items={mine} log={data.log} act={sport.act} {today} />
+    <!-- «Bild pro Sportart» (Noah 27.10.2026 «1a»): every other sport gets the cover too -->
+    {:else}<SportCover {sport} {color} line={coverLine} />{/if}
 
     {#if isAct}
       {#if onKey.has('goals')}

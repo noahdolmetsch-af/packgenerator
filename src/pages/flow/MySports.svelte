@@ -42,6 +42,7 @@
   import { phone } from '../../lib/media.svelte.js';
   import { t, tn } from '../../lib/i18n.svelte.js';
   import QuickLinks from '../../lib/ui/QuickLinks.svelte';
+  import NextGoalRow from '../../lib/flow/NextGoalRow.svelte';
   import '../../lib/sportpage/sport.css';
 
   const today = localDay();
@@ -131,6 +132,8 @@
     <p class="sub">{t('Every sport with its goal, its last 7 days and its own page.')}{#if season}{' · '}{season.half === 'summer' ? t('Summer') : t('Winter')}{/if}</p>
   </header>
   <AreaIntro place="goals" />
+  <!-- «Nächstes Ziel» (Noah 27.10.2026 «3a»): the milestone closest to its next star, one line -->
+  {#if data}<NextGoalRow acts={data.acts} tripDays={data.tripDays} {today} />{/if}
   <!-- «332 Use Cases» (Noah 26.10.2026: «aktivitätsmosaik, bikepark tage, jahresziele, sterne» sichtbar) -->
   <QuickLinks label={t('On this page')} links={[{ key: 'mosaic', jump: '[data-mosaic]', label: t('Activity mosaic') }, { key: 'year', jump: '#yg-h', label: t('Year goals') }, { key: 'park', href: `#/flow/sport/${encodeURIComponent('trip:downhill')}`, label: t('Bike park days') }, { key: 'stars', href: '#/flow/milestones', label: t('Stars from your data') }]} />
   <div class="tools">

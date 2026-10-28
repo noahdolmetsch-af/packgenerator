@@ -326,8 +326,11 @@ export function rideNumbers(km = [], day) {
 export const scoredDays = (data = []) => data.filter((d) => d.score != null).length;
 
 /* ---------- #253 Neuland: new places and things of the year ---------- */
-/** settings: [{ id, name, day }] typed by you (names never go through t()). */
-export const NEULAND_KEY = 'neuland';
+/**
+ * settings: [{ id, name, day }] typed by you (names never go through t()). Its own setting since 27.10.2026:
+ * it shared 'neuland' with the Neuland page before (neuland/split.js moves old lists over).
+ */
+export const NEULAND_KEY = 'neulandYear';
 const isDay = (x) => typeof x === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(x);
 export function neulandOf(value) {
   return (Array.isArray(value) ? value : [])

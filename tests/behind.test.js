@@ -1,5 +1,5 @@
 // src/lib/behind.js: a device stuck on an old offline copy hears about it, but only after the normal
-// update had 15 minutes to work.
+// update had its time (WAIT, 2 minutes since 27.10.2026).
 import { describe, it, expect, vi } from 'vitest';
 import { newer, checkBehind, WAIT, KEY } from '../src/lib/behind.js';
 
@@ -21,7 +21,7 @@ describe('behind', () => {
     expect(newer('1.0.0', '0.999.9')).toBe(true);
   });
 
-  it('says nothing at first, then after 15 minutes still behind', async () => {
+  it('says nothing at first, then after WAIT still behind', async () => {
     const w = win('0.165.0');
     const o = { running: '0.157.0', base: '/packgenerator/' };
     expect(await checkBehind(w, { ...o, now: 1000 })).toBe(null);
@@ -45,7 +45,7 @@ describe('behind', () => {
     expect(await checkBehind({ navigator: {} }, { running: '0.1.0', base: '/', now: 0 })).toBe(null);
   });
 
-  it('a newer version again starts its own 15 minutes', async () => {
+  it('a newer version again starts its own WAIT', async () => {
     const w = win('0.165.0');
     const o = { running: '0.157.0', base: '/' };
     await checkBehind(w, { ...o, now: 0 });
