@@ -12,10 +12,10 @@
   import { Info, ChevronDown, Mountain } from '@lucide/svelte';
   import Crumb from '../../lib/flow/kit/Crumb.svelte';
   import Sec from '../../lib/flow/kit/Sec.svelte';
+  import FormVerlauf from '../../lib/flow/form/FormVerlauf.svelte';
   import { formQuery } from '../../lib/form-data.js';
   import { RAMP_MAX, FIT_DAYS, FAT_DAYS, shownForm } from '../../lib/form.js';
   import { levelWord, levelLine, partText, tourText, PART_NAMES } from '../../lib/flow/form/words.js';
-  import { dm } from '../../lib/flow/garmin/words.js';
   import { localDay } from '../../lib/localday.js';
   import { t, num, locale } from '../../lib/i18n.svelte.js';
   import { strava, STRAVA_HASH } from '../../lib/strava/client.svelte.js';
@@ -31,30 +31,6 @@
   const shown = $derived(shownForm(s.at(-1)));
   const rows = $derived(r ? [...r.parts, ...(r.formPts != null ? [{ key: 'form', v: r.form, delta: r.form, points: r.formPts }] : [])] : []);
 
-  // the chart: 84 days, fitness and fatigue as lines, form as bars around 0
-  const W = 336;
-  const H = 150;
-  const top = $derived(Math.max(10, ...s.map((x) => Math.max(x.fit, x.fat))));
-  const fmin = $derived(Math.min(-10, ...s.map((x) => x.form)));
-  const fmax = $derived(Math.max(10, ...s.map((x) => x.form)));
-  const X = (i) => (s.length > 1 ? (i / (s.length - 1)) * W : 0);
-  const Y = (v) => 8 + (1 - v / top) * (H - 16);
-  const path = (k) => s.map((x, i) => `${i ? 'L' : 'M'}${X(i).toFixed(1)} ${Y(x[k]).toFixed(1)}`).join('');
-  const FH = 70;
-  const zeroY = $derived(4 + (fmax / (fmax - fmin)) * (FH - 8));
-  const fy = (v) => 4 + ((fmax - v) / (fmax - fmin)) * (FH - 8);
-  const rhr = $derived(s.map((x) => f?.table.get(x.day)?.rhr ?? null));
-  const rv = $derived(rhr.filter((v) => v != null));
-  const rlo = $derived(rv.length ? Math.min(...rv) - 2 : 0);
-  const rhi = $derived(rv.length ? Math.max(...rv) + 2 : 1);
-  const rpath = $derived.by(() => {
-    let out = '';
-    rhr.forEach((v, i) => {
-      if (v == null) return;
-      out += `${out ? 'L' : 'M'}${X(i).toFixed(1)} ${(4 + (1 - (v - rlo) / (rhi - rlo)) * 52).toFixed(1)}`;
-    });
-    return out;
-  });
   const wd = (d) => new Date(`${d}T00:00:00Z`).toLocaleDateString(locale(), { weekday: 'short', day: 'numeric', month: 'numeric', timeZone: 'UTC' });
   const last7 = $derived(Array.from({ length: 7 }, (_, i) => f?.table.get(s[s.length - 7 + i]?.day)?.rhr ?? null));
   const tourMax = (days) => Math.max(1, ...days.map((d) => d.rhr ?? 0));
@@ -98,35 +74,17 @@
       </Sec>
     {/if}
 
-    <Sec id="curve-h" title={t('12 weeks')} sub={t('fitness, fatigue and form · resting pulse')}>
+    <Sec id="curve-h" title={t('Over time|form')} sub={t('fitness, fatigue and form · resting pulse')}>
       <div class="card chart" data-form-curve>
         {#if s.some((x) => x.load > 0)}
-          <ul class="lg">
-            <li><i class="c-fit"></i>{t('Fitness|form')} <b class="num">{num(shown.fit)}</b></li>
-            <li><i class="c-fat"></i>{t('Fatigue|form')} <b class="num">{num(shown.fat)}</b></li>
-            <li><i class="c-form"></i>{t('Form|form')} <b class="num">{num(shown.form)}</b></li>
-          </ul>
           <!-- UI-Test T3 (G3-01): the one calculation in words, the same on Training -->
           <p class="sum num" data-form-sum>{t('Form {form} = fitness {fit} − fatigue {fat}', { form: shown.form > 0 ? `+${num(shown.form)}` : num(shown.form), fit: num(shown.fit), fat: num(shown.fat) })}</p>
-          <svg viewBox="0 0 {W} {H}" preserveAspectRatio="none" class="lines" role="img" aria-label={t('Fitness and fatigue over 12 weeks')}>
-            <path d={path('fit')} class="fit" />
-            <path d={path('fat')} class="fat" />
-          </svg>
-          <svg viewBox="0 0 {W} {FH}" preserveAspectRatio="none" class="bars" role="img" aria-label={t('Form over 12 weeks')}>
-            <line x1="0" x2={W} y1={zeroY} y2={zeroY} class="zero" />
-            {#each s as x, i (x.day)}
-              <rect x={X(i) - 1.4} width="2.8" y={Math.min(zeroY, fy(x.form))} height={Math.max(0.5, Math.abs(fy(x.form) - zeroY))} class:neg={x.form < 0} />
-            {/each}
-          </svg>
-          <div class="ax"><span>{dm(s[0].day)}</span><span>{t('today')}</span></div>
+          <!-- «Diagramme zum Antippen» K1 (Noah 27.10.2026 «1-5 a»): axes, the exact day on pointing, the day on a tap -->
+          <FormVerlauf {f} {today} />
         {:else}
           <p class="wait">{t('The curve comes with your first activities from Strava.')}</p>
           <!-- Klick-Rundgang A07: the empty text shows the way -->
           {#if !strava.key}<a class="btn sm" href={STRAVA_HASH} data-form-strava>{t('Connect Strava')}</a>{/if}
-        {/if}
-        {#if rpath}
-          <p class="rl"><b>{t('Resting pulse')}</b> <span class="num">{num(rlo + 2)}–{num(rhi - 2)} bpm</span></p>
-          <svg viewBox="0 0 {W} 60" preserveAspectRatio="none" class="rhr" role="img" aria-label={t('Resting pulse over 12 weeks')}><path d={rpath} /></svg>
         {/if}
       </div>
     </Sec>
@@ -254,91 +212,6 @@
     display: grid;
     gap: 8px;
     padding: 14px 16px;
-  }
-  .lg {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 4px 16px;
-    margin: 0;
-    padding: 0;
-    color: var(--ink-2);
-    font-size: var(--fs-small);
-    list-style: none;
-  }
-  .lg li {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-  .lg i {
-    width: 14px;
-    height: 4px;
-    border-radius: 2px;
-  }
-  .lg b {
-    color: var(--ink);
-  }
-  .c-fit {
-    background: var(--hi);
-  }
-  .c-fat {
-    background: var(--warn);
-  }
-  .c-form {
-    background: linear-gradient(90deg, var(--ok) 50%, var(--bad) 50%);
-  }
-  .lines,
-  .bars,
-  .rhr {
-    width: 100%;
-  }
-  .lines {
-    height: 150px;
-  }
-  .bars {
-    height: 70px;
-  }
-  .rhr {
-    height: 60px;
-  }
-  .lines path,
-  .rhr path {
-    fill: none;
-    stroke-width: 2;
-    vector-effect: non-scaling-stroke;
-  }
-  .lines .fit {
-    stroke: var(--hi);
-  }
-  .lines .fat {
-    stroke: var(--warn);
-  }
-  .rhr path {
-    stroke: var(--bad);
-  }
-  .bars rect {
-    fill: var(--ok);
-  }
-  .bars rect.neg {
-    fill: var(--bad);
-  }
-  .zero {
-    stroke: var(--line-strong);
-    stroke-width: 1;
-    vector-effect: non-scaling-stroke;
-  }
-  .ax {
-    display: flex;
-    justify-content: space-between;
-    color: var(--ink-3);
-    font-size: var(--fs-tiny);
-  }
-  .rl {
-    margin: 8px 0 0;
-    font-size: var(--fs-small);
-  }
-  .rl span {
-    color: var(--ink-2);
   }
   .tl {
     display: flex;
