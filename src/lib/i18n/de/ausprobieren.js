@@ -15,4 +15,7 @@ export default {
   'Shows on Trips › Overview when a dream fits this month.': 'Erscheint unter Touren › Übersicht, wenn ein Traum in diesen Monat passt.',
   'Shows on the live map during a ride.': 'Erscheint auf der Live-Karte während einer Fahrt.',
   'Shows in Me under Help.': 'Erscheint unter Ich › Hilfe.',
+  'Shows on top of Today once you choose habits.': 'Erscheint oben auf Heute, sobald du Gewohnheiten wählst.',
+  'Shows on every toggle, for example in Trips › Review.': 'Erscheint bei jedem Umschalter, zum Beispiel in Touren › Rückblick.',
+  'Shows in the timeline of a trip with a voice note.': 'Erscheint in der Zeitleiste einer Tour mit Sprachnotiz.',
 };

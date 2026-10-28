@@ -3,8 +3,8 @@
 export default {
   title: 'Toggles that glide',
   lead: 'The white marker moves softly to your new choice.',
-  points: [{ text: 'Every toggle like «12 months · year · All» glides to the new choice in a quarter of a second', href: '#/review' }],
-  small: [{ box: 'nicer', text: 'With «reduce motion» on your device it jumps as before' }],
+  points: [{ text: 'Every toggle like «12 months · year · All» glides to the new choice in a quarter of a second', href: '#/review', go: { href: '#/review', where: 'Shows on every toggle, for example in Trips › Review.' } }],
+  small: [{ box: 'nicer', text: 'With «reduce motion» on your device it jumps as before', go: null }],
   test: ['Open Touren › Rückblick and tap «Alle» at the top right.', 'The white marker glides from «12 Monate» to «Alle» instead of jumping.'],
   since: [],
   de: {
