@@ -6,6 +6,8 @@
 #   (tests/e2e/guard.spec.js, every main page at 1440 px). 8 instead of 18 computers.
 # - main (after a merge): build + unit tests, then straight online (the «Schnellspur», about 5 minutes).
 #   A running publish is never cancelled; merges that come meanwhile go online together right after.
+#   Since the evening of 27.10.2026 this is one job («online»: build, unit tests, publish, Releases entry):
+#   GitHub has no priority, so every extra job waited again behind all pull request tests.
 # - the full browser tests on the computer and the Gesamttest run after going online and every night
 #   (.github/workflows/volle-pruefung.yml); a red one opens an issue, Claude repairs, «zurück» stays possible.
 name: Build and deploy
@@ -27,7 +29,9 @@ concurrency:
   cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 jobs:
+  # The check «build» of a pull request (the branch rule asks for it).
   build:
+    if: github.ref != 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -40,10 +44,6 @@ jobs:
       - run: npm ci
       - run: npm test
       - run: npm run build
-      - uses: actions/upload-pages-artifact@v5
-        if: github.ref == 'refs/heads/main'
-        with:
-          path: dist
 
   # Phone browser tests in five parts at the same time (about 13 minutes). Only on pull requests: they ran
   # here already before the merge, so main does not wait for them again.
@@ -122,42 +122,45 @@ jobs:
           path: test-results
           retention-days: 1
 
-  # Schnellspur: main goes online as soon as it is built and the unit tests passed.
-  deploy:
+  # Schnellspur: main goes online as soon as it is built and the unit tests passed, all in ONE job, so it
+  # waits only once for a free GitHub computer (27.10.2026: the separate publish job waited 25 minutes more).
+  # Noah 26.10.2026 «1a» and 27.10.2026 «5a»: right after going online GitHub writes its own entry under
+  # Releases (github.com/noahdolmetsch-af/packgenerator/releases): the version that is online now and every
+  # merged PR in it. Only GITHUB_TOKEN, no secret. If the entry fails, the app is online anyway.
+  online:
     if: github.ref == 'refs/heads/main'
-    needs: [build]
     runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: write
+      pages: write
+      id-token: write
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - id: deployment
-        uses: actions/deploy-pages@v5
-
-  # Noah 26.10.2026 «1a» and 27.10.2026 «5a»: after every going online GitHub writes its own entry
-  # under Releases (github.com/noahdolmetsch-af/packgenerator/releases): the version that is online now
-  # and every merged PR in it. Only GITHUB_TOKEN, no secret. Going online is already done when this runs.
-  release:
-    if: github.ref == 'refs/heads/main'
-    needs: [deploy]
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    permissions:
-      contents: write
     env:
       GH_TOKEN: ${{ github.token }}
       GH_REPO: ${{ github.repository }}
     steps:
       - uses: actions/checkout@v7
         with:
-          fetch-depth: 0 # the version comes from the order of merges on main
+          fetch-depth: 0 # the whole history: scripts/news.mjs numbers versions by the order of merges
       - uses: actions/setup-node@v7
         with:
           node-version: 22
-      - name: Write the entry
-        run: node scripts/release-notes.mjs > notes.md && cat notes.md >> "$GITHUB_STEP_SUMMARY"
-      - name: Publish it
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - run: npm run build
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: dist
+      - id: deployment
+        uses: actions/deploy-pages@v5
+      - name: Releases entry
+        continue-on-error: true
         run: |
+          node scripts/release-notes.mjs > notes.md && cat notes.md >> "$GITHUB_STEP_SUMMARY"
           v="v$(node scripts/news.mjs --version)"
           if gh release view "$v" >/dev/null 2>&1; then
             gh release edit "$v" --notes-file notes.md

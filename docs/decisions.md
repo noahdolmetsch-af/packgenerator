@@ -1945,6 +1945,7 @@ Noah 19.10.2026: «1a 2a 3a 4 a oder b beides wählbar 5a», danach «a und b»,
 - 27.10.2026: **Tages-Check «Heute nicht»** (Noah «1a»): am Morgen schliesst «Heute nicht» und ✕ nur bis zum Abend-Check; am Abend bis morgen. Version 0.226.0.
 - 27.10.2026: **Touren b Katalog** (Bündler): SINCE der Touren-b-Funktionen = 0.212.0 (dort live geworden); Version 0.231.0.
 - 27.10.2026: **Keine Seitenlänge mehr im Handy-Test** (Noah 26.10.2026 20:31 «keine anforderung an eine länge der seite»): handy-kurz prüft nicht mehr «höchstens drei Bildschirme»; die Kurz-Listen (fünf Zeilen, dann «mehr») bleiben.
+- 27.10.2026: **Längenbudget weg** (gleiche Entscheidung, Noah 26.10.2026 20:31): `src/lib/laenge.js`, `tests/laenge.test.js` und `tests/e2e/handy-laenge.spec.js` sind entfernt; sie verlangten höchstens drei Bildschirme bzw. die Zahl in TOO_LONG. `MAX_SCREENS` in `src/lib/touren/kurz.js` bleibt für die Kurz-Listen.
 
 ## 26.10.2026 Live Navigation
 
