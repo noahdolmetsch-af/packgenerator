@@ -6,7 +6,7 @@
 // - Ich › Datenschutz und Nutzung shows its sections;
 // - Ich › Velomech und Guide: add a contact, prepare a request mail, delete with Undo.
 // Fictional fixture data only.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';
 import { importAndSettle } from './settle.js';
