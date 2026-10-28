@@ -35,6 +35,7 @@
   import DreamsMap from '../lib/dreams/DreamsMap.svelte'; // N14 «Karte aller Träume»
   import MonthIdeas from '../lib/dreams/MonthIdeas.svelte'; // N8 «Passt jetzt: Ideen pro Monat»
   import BiwakCard from '../lib/dreams/BiwakCard.svelte'; // N6 «Feierabend-Biwak»
+  import TrainHome from '../lib/neuland/TrainHome.svelte'; // N7 «Zug hin, Velo heim»
   import { nightFields } from '../lib/context.js';
   import { linkIn, readLink, withLink, distText } from '../lib/dreams/fromlink.js'; // N13 «Ein Link wird ein Traum»
   import { fulfilledDreams } from '../lib/dreams/erfuellt.js'; // N17 «Erfüllte Träume»
@@ -285,6 +286,7 @@
   {#if view !== 'map'}
   <MonthIdeas month={month || nowMonth} current={!month || month === nowMonth} onmakedream={ideaDream} />
   <BiwakCard onplan={biwakPlan} />
+  <TrainHome />
   {/if}
 
   {#if view === 'list'}
