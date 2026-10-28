@@ -1,6 +1,6 @@
 # Was heute zählt, Tag für Tag
 
-PR #? · 28.10.2026 · Auftrag: Noah «1-5 a» (Thread «Diagramme klickbar machen»), PR 3 von 8 (K3)
+PR #370 · 28.10.2026 · Auftrag: Noah «1-5 a» (Thread «Diagramme klickbar machen»), PR 3 von 8 (K3)
 
 ## Was ist neu
 - «Form und Erholung» › Was heute zählt (`src/lib/flow/form/FormTeile.svelte`, `teile.js`): jede Zeile (Ruhepuls, HRV, Schlaf, Schlaf gefühlt, Energie gefühlt, Form) behält Satz und Punkte und bekommt eine kleine Linie der letzten 7 Tage.
