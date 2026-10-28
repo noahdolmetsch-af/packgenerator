@@ -50,7 +50,7 @@
       >
         <label class="sr" for="lv-saved-name">{t('Name')}</label>
         <!-- svelte-ignore a11y_autofocus -->
-        <input id="lv-saved-name" class="input" bind:value={draft} autofocus data-live-saved-input />
+        <input id="lv-saved-name" class="inp" bind:value={draft} autofocus data-live-saved-input />
         <button type="submit" class="btn sm hi" data-live-saved-keep>{t('Save')}</button>
         <button type="button" class="btn sm" onclick={() => (editing = false)}>{t('Cancel')}</button>
       </form>
