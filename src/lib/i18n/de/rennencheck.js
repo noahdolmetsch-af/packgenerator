@@ -159,6 +159,7 @@ export default {
   'naps {naps}': 'Powernaps {naps}',
   'Put in the km and the start, then the finish time shows.': 'Trag km und Start ein, dann steht hier die Zielzeit.',
   'Change the numbers': 'Zahlen ändern',
+  'wk|countdown': 'Wo.',
   'riding|nonstop': 'fahren',
   'stops|nonstop': 'Pausen',
   'From another race': 'Aus einem anderen Rennen übernehmen',
