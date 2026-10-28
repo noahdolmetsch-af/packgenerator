@@ -93,7 +93,7 @@ export default {
   'Busy|show': 'Beschäftigt',
   'Free|show': 'Frei',
   'Who sees it': 'Wer sieht es',
-  'Calendar standard': 'Standard des Kalenders',
+  'Default|visibility': 'Standard',
   'Public|view': 'Öffentlich',
   'Private|view': 'Privat',
   'Description (optional)': 'Beschreibung (optional)',

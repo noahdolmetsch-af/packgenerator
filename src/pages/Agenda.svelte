@@ -231,7 +231,7 @@
               {/if}
               <div class="two">
                 <label>{t('Show me as')}<select bind:value={ev.busy} data-ev-busy><option value={true}>{t('Busy|show')}</option><option value={false}>{t('Free|show')}</option></select></label>
-                <label>{t('Who sees it')}<select bind:value={ev.visibility}><option value="default">{t('Calendar standard')}</option><option value="public">{t('Public|view')}</option><option value="private">{t('Private|view')}</option></select></label>
+                <label>{t('Who sees it')}<select bind:value={ev.visibility}><option value="default">{t('Default|visibility')}</option><option value="public">{t('Public|view')}</option><option value="private">{t('Private|view')}</option></select></label>
               </div>
               <label>{t('Description (optional)')}<textarea bind:value={ev.note} rows="4" maxlength="4000" data-ev-note></textarea></label>
               {#if ev.repeat}<p class="ich-help">{t('This appointment repeats. A change here counts only for this one.')}</p>{/if}
@@ -577,6 +577,14 @@
   }
   .remrow input {
     min-width: 0;
+  }
+  @media (max-width: 520px) {
+    .remrow {
+      grid-template-columns: minmax(0, 0.6fr) minmax(0, 1fr) auto;
+    }
+    .remrow select:first-child {
+      grid-column: 1 / -1;
+    }
   }
   .go {
     display: flex;
