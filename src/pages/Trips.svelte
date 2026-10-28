@@ -74,7 +74,7 @@
   import { Plus, ChevronRight, ChevronDown, Route, Upload, Flag, Star, SlidersHorizontal, Bookmark, X, Zap, ZapOff, Info, Calendar, Backpack, Search, Activity } from '@lucide/svelte';
   // SN4g: the rows, their values and the filters
   import { loadReview } from '../lib/review/load.js';
-  import { tripFacts, periodOf } from '../lib/review/rueckblick.js';
+  import { tripFacts, periodOf, withActs } from '../lib/review/rueckblick.js';
   import { factStates, factCounts, matchesState } from '../lib/review/state.js';
   import { homeTrips, testTrips } from '../lib/home/heute.js';
   import TestDataSheet from '../lib/testdata/TestDataSheet.svelte';
@@ -97,7 +97,7 @@
   import DreamNowRow from '../lib/dreams/DreamNowRow.svelte'; // «Träume und Neuland»: a dream that fits now
   // AT1: the Strava activities
   import Activities from '../lib/touren/Activities.svelte';
-  import { tourRows, stravaOfTrip } from '../lib/touren/aktivitaeten.js';
+  import { tourRows, stravaOfTrip, inPeriodRows } from '../lib/touren/aktivitaeten.js';
   import { loadActs } from '../lib/review/actdata.js';
   import { phone, cols12 } from '../lib/media.svelte.js';
   import { PHONE_ROWS, TOUR_ROWS, nextRows, shortLine, capGroups } from '../lib/touren/kurz.js';
@@ -224,6 +224,9 @@
   const tourOpts = $derived(pageOpts($pageQ?.value));
   const actRows = $derived(tourRows(acts, { packed, kmBook: $moreQ?.entries ?? [], bounds: zones.bounds, ftp: ftpEstimate(acts, today), groups: tourGroups, showHidden: true }));
   const actById = $derived(new Map(acts.map((a) => [String(a.id), a])));
+  // UI-Test T6 (G2-05): a trip row takes km, Hm and its line from its Strava rides too, as the tour page
+  // does, so «ohne Strecke · – km» only shows when there is really nothing
+  const hasLine = (r) => linesOf(r).length > 0 || tourLines(vals[r.id]?.acts ?? []).length > 0;
   const lineOfRow = (r) => tourLines(r.actIds.map((id) => actById.get(String(id))).filter(Boolean));
   let joining = $state(null); // the rows to join (5a), while the name is asked
   async function join(name) {
@@ -342,6 +345,11 @@
     tvNow = keep;
     db.settings.put({ key: TOUR_VIEW_KEY, value: { ...keep, at: new Date().toISOString() } });
   }
+  // UI-Test T6 (G2-04): the Strava card counts the rows of «Fahrten» (visible ones) and names the period,
+  // «309 in 12 months · 1440 in all», so it agrees with the page it opens
+  const shownActs = $derived(actRows.filter((r) => !r.hidden));
+  const actsInPeriod = $derived(inPeriodRows(shownActs, period).length);
+  const actsWords = $derived(!shownActs.length ? t('No activity yet') : mode === 'all' ? tn(shownActs.length, '{n} activity', '{n} activities') : `${tn(actsInPeriod, '{n} activity', '{n} activities')} ${periodWords} · ${t('{n} in all', { n: num(shownActs.length) })}`);
   const periodWords = $derived(mode === '12m' ? t('in 12 months') : mode === 'year' ? t('in {year}', { year }) : t('since the start'));
   const periodName = $derived(PERIODS.find((p) => p.key === mode)?.name ?? '');
   const scope = $derived([periodName, filtered ? t('{n} of {all} trips', { n: num(rows.length), all: num(inPeriod.length) }) : tn(inPeriod.length, 'the {n} trip', 'all {n} trips')].join(', '));
@@ -376,7 +384,7 @@
 {#snippet ridesRow()}
   <!-- Gesamttest 20.10.2026 B3: one quiet row to the tab «Fahrten» -->
   {#if $actsQ}
-    <a class="phone-more extras torides" href={RIDES_HREF} data-to-rides><Activity size={16} aria-hidden="true" /><span><b>{t('Rides from Strava')}</b><small class="num">{acts.length ? tn(acts.length, '{n} activity', '{n} activities') : t('No activity yet')}</small></span><ChevronRight size={16} aria-hidden="true" /></a>
+    <a class="phone-more extras torides" href={RIDES_HREF} data-to-rides><Activity size={16} aria-hidden="true" /><span><b>{t('Rides from Strava')}</b><small class="num" data-rides-count>{actsWords}</small></span><ChevronRight size={16} aria-hidden="true" /></a>
   {/if}
 {/snippet}
 
@@ -470,7 +478,7 @@
       {:else}
       <h1 class="title">{t('Trips|place')}</h1>
       <!-- 0.161.0 B1 (Noah 2a): completed and rated count the chosen period, as the chips, and say which -->
-      {#if counts}<p class="cnt num" data-counts>{[tn(counts.plan, '{n} planned', '{n} planned'), `${periodWords}: ${tn(stCounts.done, '{n} completed', '{n} completed')}`, tn(stCounts.rated, '{n} rated', '{n} rated')].join(' · ')}</p>{/if}
+      {#if counts}<p class="cnt num" data-counts>{[tn(counts.plan, '{n} planned', '{n} planned'), `${tn(stCounts.all, '{n} ridden', '{n} ridden')} ${periodWords}`, stCounts.done ? tn(stCounts.done, '{n} waits for your review', '{n} wait for your review') : ''].filter(Boolean).join(' · ')}</p>{/if}
       {#if hiddenTests}<p class="cnt tests" data-hidden-tests>{tn(hiddenTests, '{n} test trip hidden', '{n} test trips hidden')} · <button type="button" class="btn btn-link" onclick={() => (tidyOpen = true)}>{t('Clean up test data')}</button></p>{/if}
       {/if}
     </div>
@@ -602,7 +610,7 @@
            Gesamttest 20.10.2026 B3: the Strava activities above it moved to the tab «Fahrten»; one quiet row below leads there. -->
       {#if phone.matches && !packOpen}
         <!-- 0.163.0: on a phone the list is one line with its count and what waits for a rating -->
-        <button type="button" class="phone-more extras" aria-expanded="false" onclick={() => (packOpen = true)} data-packmode-open><Backpack size={16} aria-hidden="true" /><span><b>{t('With packing list|section')}</b><small class="num">{[tn(inPeriod.length, '{n} trip', '{n} trips'), stCounts.done ? tn(stCounts.done, '{n} to rate', '{n} to rate') : ''].filter(Boolean).join(' · ')}</small></span><ChevronRight size={16} aria-hidden="true" /></button>
+        <button type="button" class="phone-more extras" aria-expanded="false" onclick={() => (packOpen = true)} data-packmode-open><Backpack size={16} aria-hidden="true" /><span><b>{t('With packing list|section')}</b><small class="num">{[tn(inPeriod.length, '{n} trip', '{n} trips'), stCounts.done ? tn(stCounts.done, '{n} waits for your review', '{n} wait for your review') : ''].filter(Boolean).join(' · ')}</small></span><ChevronRight size={16} aria-hidden="true" /></button>
       {:else}
       <section class="done" aria-labelledby="trips-done" data-finished data-packmode>
         <div class="sh">
@@ -644,14 +652,15 @@
                 {#each g.rows as r (r.id)}
                   {@const s = states[r.id]}
                   {@const bike = rowBike(r)}
+                  {@const kv = withActs(r, vals[r.id]?.acts ?? [])}
                   <li class="tr st-{s?.state}" data-row={r.id} data-state={s?.state}>
                     <span class="ric" aria-hidden="true">{#if s?.state === 'rated'}<Star size={18} fill="currentColor" />{:else}<Flag size={18} />{/if}</span>
                     <div class="rm">
                       <div class="rt"><a class="rn" href={rowHref(r)} onclick={() => openRow(r)}>{r.title}</a>{#if r.live}<LiveLabel />{/if}<TripState state={s?.state} extra={stateExtraText(s?.extra)} /></div>
                       <p class="rs">{[dates(r.start, r.end), what(r), bike].filter(Boolean).join(' · ')}</p>
-                      {#if !linesOf(r).length && !phone.matches}<p class="nr"><Info size={14} aria-hidden="true" />{t('without a route')}</p>{/if}
+                      {#if !hasLine(r) && !phone.matches}<p class="nr"><Info size={14} aria-hidden="true" />{t('without a route')}</p>{/if}
                     </div>
-                    <div class="rk num"><span><b>{n0(r.km)}</b><small>km</small></span><span><b>{n0(r.gainM)}</b><small>{t('Hm|col')}</small></span></div>
+                    <div class="rk num"><span><b>{n0(kv.km)}</b><small>km</small></span><span><b>{n0(kv.gainM)}</b><small>{t('Hm|col')}</small></span></div>
                     {#if s?.state === 'done'}
                       <div class="rr"><Btn label={r.kind === 'ride' ? t('Rate briefly') : t('Rate|debrief')} href={rateHref(r)} onclick={() => openRow(r)} aria="{r.kind === 'ride' ? t('Rate briefly') : t('Rate|debrief')}: {r.title}" data-rate={r.id} /></div>
                     {/if}
