@@ -1,6 +1,6 @@
 # Gewichte gleich gezählt
 
-PR #? · 27.10.2026 · Auftrag: Noah 26.10.2026 20:31 «1a» alle B-Fehler aus dem UI-Test 0.205 (Thread «Testen komplette App mit Fehlerliste»)
+PR #396 · 27.10.2026 · Auftrag: Noah 26.10.2026 20:31 «1a» alle B-Fehler aus dem UI-Test 0.205 (Thread «Testen komplette App mit Fehlerliste»)
 
 ## Was ist neu
 - `src/lib/bikes/bagwords.js` nennt Taschen und Flaschenhalter getrennt («1 Tasche, 2 Flaschenhalter»); Halter stecken im Velogewicht (SetupBand, SetupTab, SetupBar, TripBike, CalmPack).
