@@ -749,6 +749,11 @@ export const HANDBOOK = {
     steps: ['Bikes › Care › a bike › «Wear» › «Pack the bike».', 'Tick each point; add, rename, move or delete points.', 'Take photos before packing, as proof if something breaks.'],
     example: 'Example: «Pedals off» ticked, photo of the frame from both sides.',
   },
+  'f.workshoprounds': {
+    on: null,
+    steps: ['Bikes › Care › a bike › «Workshop rounds».', 'Add a suggestion or your own round: jobs, tools, material.', '«Start the round», tick what you did, «Done»: the jobs with a part go into the part.'],
+    example: 'Example: «Autumn service» with 5 jobs; chain and brake pads ticked → both recorded today.',
+  },
   'f.sparestock': {
     on: null,
     steps: ['Bikes › Care › a bike › «Wear» › «Spare parts at home».', 'Add a row with a number, e.g. 2 chains.', 'You replace a chain yourself: one less; at 0 «Shopping list» adds it.'],
@@ -1227,10 +1232,20 @@ export const HANDBOOK = {
     steps: ['Open Trips › Dreams and write the name of a dream tour.', 'Tap it: change the kind of tour and the months it fits.', 'Tap «Plan the tour»: a trip draft on the first Saturday of the season.'],
     example: 'Example: «Over the Furka» → Alpine passes, July to September → trip on 3 July.',
   },
+  'f.quicklinks': {
+    on: null,
+    steps: ['Open Quick Links in the bar (on a computer: in the sidebar).', 'Tap «Add a pin», search a function and tap «Pin».', 'Tap «Edit»: rename, add a note, move with the arrows or drag, unpin.'],
+    example: 'Example: pin «Wear» into the group «Bike» with the note «after rain».',
+  },
   'f.whitespots': {
     on: 'Needs your home place.',
     steps: ['Open Trips › Dreams › White spots nearby.', 'Choose 10, 25 or 50 km.', 'Tap a place on the map or in the list: its name and distance.'],
     example: 'Example: 25 km around Zürich → 209 municipalities never visited, the nearest 5 km away.',
+  },
+  'f.nlgoals': {
+    on: 'Counts from New ground: your routes, rides and own ticks.',
+    steps: ['Open Trips › Dreams › Challenges with an end.', 'Tap a ready one or «Own challenge»: collection, new ones or all, until when.', 'The bar fills by itself; tap the pencil to change or delete it.'],
+    example: 'Example: «5 new municipalities this month» → 2 of 5 · 12 days left.',
   },
   'f.races': {
     on: 'Needs a race with a date in Inspiration, or a race in your Google calendar.',
