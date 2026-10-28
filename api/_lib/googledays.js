@@ -13,11 +13,6 @@
  * - spo2, breath, skinTemp («Körperwerte» 20.10.2026 «1a 2a»): the daily summaries of oxygen saturation
  *   (%), breathing rate (per minute) and the nightly skin temperature (difference to your normal, °C).
  *   Read tolerantly as well (dailyOf + pick).
- * - «Alle Werte» (Noah 27.10.2026 «alle holen, zumindest optional anzeigen»): VO₂max (daily-vo2-max), the
- *   watch's distance (km), floors, climbed metres, weight and body fat (scale or Fitbit app), the lowest and
- *   mean pulse of the day, minutes per pulse zone (light, moderate, vigorous, peak), minutes per activity
- *   level (sitting, light, moderate, very active), the Fitbit workouts of the day, and per hour the steps
- *   and the mean pulse (24 values, local time). Field names from the v4 discovery document.
  * A value Google did not send stays out of the row (nothing is invented).
  */
 
@@ -123,77 +118,14 @@ export function spanDays(from, to) {
   return Math.round((b - a) / 864e5) + 1;
 }
 
-/** The roll-up request body for the days from..to (inclusive). all: every source (a scale, the Fitbit app). */
-export function rollUpBody(from, to, { all = false } = {}) {
+/** The roll-up request body for the days from..to (inclusive). */
+export function rollUpBody(from, to) {
   return {
     range: { start: { date: dateParts(from) }, end: { date: dateParts(nextDay(to)) } },
     windowSizeDays: 1,
     pageSize: MAX_DAYS + 1,
-    ...(all ? {} : { dataSourceFamily: 'users/me/dataSourceFamilies/google-wearables' }),
-  };
-}
-
-/**
- * The hourly roll-up body for the days from..to: windows of one hour on the clock (UTC hours are local
- * hours too, Zurich is a whole hour ahead). It starts two hours early, so local midnight is in; hours
- * outside the days are dropped later.
- */
-export function hourBody(from, to) {
-  const d = new Date(`${from}T00:00:00Z`);
-  d.setUTCHours(-2);
-  return {
-    range: { startTime: d.toISOString().replace('.000', ''), endTime: `${nextDay(to)}T00:00:00Z` },
-    windowSize: '3600s',
-    pageSize: 10000,
     dataSourceFamily: 'users/me/dataSourceFamilies/google-wearables',
   };
-}
-
-/** Minutes from Google's duration «5400s» (or a number of seconds), else null. */
-export function minutesOf(v) {
-  const n = typeof v === 'string' ? Number(v.replace(/s$/, '')) : Number(v);
-  return v === undefined || v === null || v === '' || !Number.isFinite(n) ? null : Math.round(n / 60);
-}
-
-/** Local day and hour of a moment in Zurich: { date, hour } or null. */
-export function localHour(at) {
-  const ms = Date.parse(at ?? '');
-  if (!Number.isFinite(ms)) return null;
-  const parts = Object.fromEntries(
-    new Intl.DateTimeFormat('en-CA', { timeZone: ZONE, year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', hourCycle: 'h23' })
-      .formatToParts(new Date(ms))
-      .map((x) => [x.type, x.value]),
-  );
-  return { date: `${parts.year}-${parts.month}-${parts.day}`, hour: Number(parts.hour) };
-}
-
-/** One Fitbit workout as the app keeps it, or null. */
-export function exerciseOf(e) {
-  if (!e?.interval) return null;
-  const m = e.metricsSummary ?? {};
-  const start = civilOf(e.interval, 'start');
-  const end = civilOf(e.interval, 'end');
-  let min = minutesOf(e.activeDuration);
-  if (min === null) {
-    const a = Date.parse(e.interval.startTime ?? '');
-    const b = Date.parse(e.interval.endTime ?? '');
-    if (Number.isFinite(a) && Number.isFinite(b) && b > a) min = Math.round((b - a) / 60000);
-  }
-  if (!start?.date || min === null) return null;
-  const out = { date: start.date, type: String(e.exerciseType ?? 'OTHER').slice(0, 40), name: String(e.displayName ?? '').slice(0, 60), start: hhmm(start.time), end: hhmm(end?.time), min };
-  const kcal = num(m.caloriesKcal);
-  const mm = num(m.distanceMillimeters);
-  const hr = num(m.averageHeartRateBeatsPerMinute);
-  const azm = num(m.activeZoneMinutes);
-  const steps = num(m.steps);
-  const up = num(m.elevationGainMillimeters);
-  if (kcal !== null) out.kcal = Math.round(kcal);
-  if (mm !== null && mm > 0) out.km = Math.round(mm / 1e4) / 100;
-  if (hr !== null && hr > 0) out.hr = Math.round(hr);
-  if (azm !== null) out.azm = azm;
-  if (steps !== null) out.steps = steps;
-  if (up !== null && up > 0) out.hm = Math.round(up / 1000);
-  return out;
 }
 
 /** The list filters for the daily summaries and the nights that ended in from..to. */
@@ -201,7 +133,6 @@ export function listFilter(type, from, to, { clock = false } = {}) {
   const end = nextDay(to);
   const at = clock ? 'T00:00:00' : '';
   if (type === 'sleep') return `sleep.interval.civil_end_time >= "${from}${at}" AND sleep.interval.civil_end_time < "${end}${at}"`;
-  if (type === 'exercise') return `exercise.interval.civil_start_time >= "${from}T00:00:00" AND exercise.interval.civil_start_time < "${end}T00:00:00"`;
   const field = type.replaceAll('-', '_');
   return `${field}.date >= "${from}" AND ${field}.date < "${end}"`;
 }
@@ -242,7 +173,7 @@ export function dailyOf(p) {
 
 /**
  * Builds the day rows from Google's answers.
- * @param {{ steps?: any[], azm?: any[], sleep?: any[], rhr?: any[], hrv?: any[], kcal?: any[], kcalActive?: any[], hr?: any[], spo2?: any[], breath?: any[], skin?: any[], vo2?: any[], dist?: any[], floors?: any[], alt?: any[], kg?: any[], fat?: any[], levels?: any[], zones?: any[], exercise?: any[], stepHours?: any[], hrHours?: any[] }} src
+ * @param {{ steps?: any[], azm?: any[], sleep?: any[], rhr?: any[], hrv?: any[], kcal?: any[], kcalActive?: any[], hr?: any[], spo2?: any[], breath?: any[], skin?: any[] }} src
  *   steps/azm: rollupDataPoints; sleep/rhr/hrv: dataPoints of the list call
  * @param {string} from first day (inclusive)
  * @param {string} to last day (inclusive)
@@ -291,96 +222,9 @@ export function daysFrom(src, from, to) {
   }
   for (const p of src.hr ?? []) {
     const r = row(isoOf(p?.civilStartTime?.date));
-    const hr = p?.heartRate ?? p?.heart_rate;
-    const v = pick(hr, /max/i);
+    const v = pick(p?.heartRate ?? p?.heart_rate, /max/i);
     if (r && v !== null && v > 0) r.hrMax = Math.round(v);
-    const lo = num(hr?.beatsPerMinuteMin);
-    const avg = num(hr?.beatsPerMinuteAvg);
-    if (r && lo !== null && lo > 0) r.hrMin = Math.round(lo);
-    if (r && avg !== null && avg > 0) r.hrAvg = Math.round(avg);
   }
-  // «Alle Werte» 27.10.2026: one number per day from the daily roll-ups
-  const rolled = (list, k, get) => {
-    for (const p of list ?? []) {
-      const v = get(p);
-      if (v === null || v === undefined) continue;
-      const r = row(isoOf(p?.civilStartTime?.date));
-      if (r) r[k] = v;
-    }
-  };
-  rolled(src.dist, 'distKm', (p) => {
-    const mm = num(p?.distance?.millimetersSum);
-    return mm === null ? null : Math.round(mm / 1e4) / 100;
-  });
-  rolled(src.floors, 'floors', (p) => num(p?.floors?.countSum));
-  rolled(src.alt, 'climbM', (p) => {
-    const mm = num(p?.altitude?.gainMillimetersSum);
-    return mm === null ? null : Math.round(mm / 1000);
-  });
-  rolled(src.kg, 'fitKg', (p) => {
-    const g = num(p?.weight?.weightGramsAvg);
-    return g === null || g < 20000 || g > 300000 ? null : Math.round(g / 100) / 10;
-  });
-  rolled(src.fat, 'bodyFat', (p) => {
-    const v = num(p?.bodyFat?.bodyFatPercentageAvg);
-    return v === null || v <= 0 || v >= 80 ? null : Math.round(v * 10) / 10;
-  });
-  const LEVELS = { SEDENTARY: 'sed', LIGHTLY_ACTIVE: 'light', MODERATELY_ACTIVE: 'mod', VERY_ACTIVE: 'very' };
-  rolled(src.levels, 'levels', (p) => {
-    const out = {};
-    for (const x of p?.activityLevel?.activityLevelRollupsByActivityLevelType ?? []) {
-      const k = LEVELS[x?.activityLevelType];
-      const m = minutesOf(x?.totalDuration);
-      if (k && m !== null) out[k] = m;
-    }
-    return Object.keys(out).length ? out : null;
-  });
-  const ZONES = { LIGHT: 'light', MODERATE: 'mod', VIGOROUS: 'vig', PEAK: 'peak' };
-  rolled(src.zones, 'hrZones', (p) => {
-    const out = {};
-    for (const x of p?.timeInHeartRateZone?.timeInHeartRateZones ?? []) {
-      const k = ZONES[x?.heartRateZone];
-      const m = minutesOf(x?.duration);
-      if (k && m !== null) out[k] = m;
-    }
-    return Object.keys(out).length ? out : null;
-  });
-  // VO₂max: the daily value Fitbit estimates (ml/kg/min) and its level («Cardio-Fitness»)
-  for (const p of src.vo2 ?? []) {
-    const d = p?.dailyVo2Max;
-    const v = num(d?.vo2Max);
-    if (v === null || v <= 0 || v > 100) continue;
-    const r = row(isoOf(d?.date));
-    if (!r) continue;
-    r.vo2max = Math.round(v * 10) / 10;
-    if (typeof d.cardioFitnessLevel === 'string' && d.cardioFitnessLevel) r.vo2level = d.cardioFitnessLevel.slice(0, 30);
-    if (d.estimated) r.vo2est = true;
-  }
-  // the Fitbit workouts of the day, at most 20, by start
-  for (const p of src.exercise ?? []) {
-    const e = exerciseOf(p?.exercise);
-    const r = e ? row(e.date) : null;
-    if (!r) continue;
-    const { date: _d, ...one } = e;
-    r.exercises = [...(r.exercises ?? []), one].sort((a, b) => String(a.start).localeCompare(String(b.start))).slice(0, 20);
-  }
-  // per hour: steps and the mean pulse, 24 places per day (null: no value in that hour)
-  const hourly = (list, k, get) => {
-    for (const p of list ?? []) {
-      const at = localHour(p?.startTime);
-      const v = get(p);
-      if (!at || v === null) continue;
-      const r = row(at.date);
-      if (!r) continue;
-      if (!r[k]) r[k] = Array(24).fill(null);
-      r[k][at.hour] = v;
-    }
-  };
-  hourly(src.stepHours, 'stepH', (p) => num(p?.steps?.countSum));
-  hourly(src.hrHours, 'hrH', (p) => {
-    const v = num(p?.heartRate?.beatsPerMinuteAvg);
-    return v === null || v <= 0 ? null : Math.round(v);
-  });
   // the field Google documents (health.googleapis.com discovery, v4), else a tolerant pick
   const daily = (list, k, field, re, ok) => {
     for (const p of list ?? []) {

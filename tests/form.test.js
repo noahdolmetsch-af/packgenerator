@@ -219,10 +219,9 @@ describe('Fitbit calories and highest pulse', () => {
       T,
       T,
     );
-    // «Alle Werte» 27.10.2026: the lowest pulse of the day comes along
-    expect(rows[0]).toEqual({ date: T, kcal: 2100, kcalActive: 500, hrMax: 171, hrMin: 45 });
+    expect(rows[0]).toEqual({ date: T, kcal: 2100, kcalActive: 500, hrMax: 171 });
     const c = cleanDay(rows[0]);
-    expect(c).toEqual({ date: T, kcal: 2100, kcalActive: 500, hrMax: 171, hrMin: 45 });
+    expect(c).toEqual({ date: T, kcal: 2100, kcalActive: 500, hrMax: 171 });
     expect(mergeDay({ date: T, steps: 5 }, c, 'google', 'x')).toMatchObject({ steps: 5, kcal: 2100, hrMax: 171 });
   });
 });

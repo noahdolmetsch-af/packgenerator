@@ -27,7 +27,7 @@
   import { normAct } from '../lib/flow.js';
   import { actName } from '../lib/flow/ui.svelte.js';
   import { sportName } from '../lib/flow/garmin/words.js';
-  import { PERIODS, DEFAULT_PERIOD, SOURCES, sourceOf, periodDays, tilesOf, ticksByDay, tickPeriod, sparkPath, hourProfile, activeHours, meanOfHours, sumOf } from '../lib/analyse.js';
+  import { PERIODS, DEFAULT_PERIOD, SOURCES, sourceOf, periodDays, tilesOf, ticksByDay, tickPeriod, sparkPath } from '../lib/analyse.js';
   import { localDay } from '../lib/localday.js';
   import { t, num } from '../lib/i18n.svelte.js';
 
@@ -42,11 +42,9 @@
   })();
   let period = $state(PERIODS.includes(saved.period) ? saved.period : DEFAULT_PERIOD);
   let on = $state(Array.isArray(saved.on) ? SOURCES.filter((s) => saved.on.includes(s)) : [...SOURCES]);
-  // «Alle Werte» (Noah 27.10.2026 «zumindest optional»): also the values without any day, as dashed tiles
-  let all = $state(saved.all === true);
   $effect(() => {
     try {
-      localStorage.setItem(LS, JSON.stringify({ period, on, all }));
+      localStorage.setItem(LS, JSON.stringify({ period, on }));
     } catch {
       /* a private window: the choice is only for now */
     }
@@ -91,11 +89,6 @@
     ...extra,
   });
   const PART = { sleep: 'Sleep|flow', energy: 'Energy', mood: 'Mood' };
-  // «Alle Werte»: the further Fitbit values of the day (healthDays via the day table's «fit»)
-  const fit = (d, k) => table.get(d)?.fit?.[k];
-  const fb = (key, name, unit, get, extra = {}) => ({ key, name, unit, src: 'fitbit', href: null, get, ...extra });
-  // values Google or Garmin do not give out: only a place holder until the app counts its own version
-  const later = (key, name, why) => ({ key, name, unit: '', src: 'fitbit', later: why });
   const groups = $derived([
     {
       key: 'heart',
@@ -107,38 +100,10 @@
         body('spo2'),
         body('breath'),
         body('bp', { key: 'bp', part: 'sys', name: t('Blood pressure') }),
-        fb('hrMin', t('Lowest pulse of the day'), 'bpm', (d) => fit(d, 'hrMin')),
-        fb('hrAvg', t('Mean pulse of the day'), 'bpm', (d) => fit(d, 'hrAvg')),
-        fb('hrDay', t('Pulse over the day'), 'bpm', (d) => meanOfHours(fit(d, 'hrH')), { hours: true, profile: (ds) => hourProfile(ds, (d) => fit(d, 'hrH')) }),
-        fb('vo2max', t('VO₂max (cardio fitness)'), 'ml/kg/min', (d) => fit(d, 'vo2max'), { dec: 1 }),
-        fb('fitZones', t('Minutes in pulse zones (Fitbit)'), 'min', (d) => sumOf(fit(d, 'hrZones')), { sum: true }),
-        later('cardioLoad', t('Cardio load'), 'own'),
-        later('readiness', t('Daily readiness|fitbit'), 'own'),
       ],
     },
-    {
-      key: 'sleep',
-      name: t('Sleep|group'),
-      items: [body('sleep'), body('eff'), body('bed'), body('skin'), later('sleepScore', t('Sleep score'), 'own'), later('restless', t('Restlessness|sleep'), 'own')],
-    },
-    {
-      key: 'move',
-      name: t('Movement|analyse'),
-      items: [
-        body('azm'),
-        body('steps'),
-        body('kcal'),
-        body('zones'),
-        body('load'),
-        fb('distKm', t('Distance (watch)'), 'km', (d) => fit(d, 'distKm'), { sum: true, dec: 1 }),
-        fb('floors', t('Floors'), '', (d) => fit(d, 'floors'), { sum: true }),
-        fb('climbM', t('Climb (watch)'), 'm', (d) => fit(d, 'climbM'), { sum: true }),
-        fb('actHours', t('Hourly activity'), t('of 12|hours'), (d) => activeHours(fit(d, 'stepH')), { hours: true, bars: true, profile: (ds) => hourProfile(ds, (d) => fit(d, 'stepH')) }),
-        fb('activeMin', t('Active minutes'), 'min', (d) => sumOf(fit(d, 'levels'), ['light', 'mod', 'very']), { sum: true }),
-        fb('sedMin', t('Sitting time'), 'min', (d) => fit(d, 'levels')?.sed ?? null),
-        fb('workouts', t('Fitbit workouts'), 'min', (d) => sumOf(Object.fromEntries((fit(d, 'exercises') ?? []).map((e, i) => [i, e.min]))), { sum: true }),
-      ],
-    },
+    { key: 'sleep', name: t('Sleep|group'), items: [body('sleep'), body('eff'), body('bed'), body('skin')] },
+    { key: 'move', name: t('Movement|analyse'), items: [body('azm'), body('steps'), body('kcal'), body('zones'), body('load')] },
     {
       key: 'sports',
       name: t('Sports and bike|analyse'),
@@ -149,29 +114,7 @@
         body('spd'),
       ],
     },
-    {
-      key: 'body',
-      name: t('Body|group'),
-      items: [
-        body('weight'),
-        body('water'),
-        body('ready'),
-        fb('fitKg', t('Weight (Fitbit)'), 'kg', (d) => fit(d, 'fitKg'), { dec: 1 }),
-        fb('bodyFat', t('Body fat'), '%', (d) => fit(d, 'bodyFat'), { dec: 1 }),
-      ],
-    },
-    {
-      key: 'garmin',
-      name: t('Garmin|analyse'),
-      items: [
-        later('gTrain', t('Training status'), 'garmin'),
-        later('gEffect', t('Training effect'), 'garmin'),
-        later('gVo2', t('VO₂max (Garmin)'), 'garmin'),
-        later('gLactate', t('Lactate threshold'), 'garmin'),
-        later('gStress', t('HRV stress'), 'garmin'),
-        later('gCycling', t('Cycling ability'), 'garmin'),
-      ],
-    },
+    { key: 'body', name: t('Body|group'), items: [body('weight'), body('water'), body('ready')] },
     {
       key: 'felt',
       name: t("Wi gaht's?|analyse"),
@@ -190,7 +133,7 @@
       }),
     },
   ]);
-  const shownGroups = $derived(tilesOf(groups, days, on, { all }));
+  const shownGroups = $derived(tilesOf(groups, days, on));
   const loading = $derived($q === undefined || $flowQ === undefined);
 
   const SRC_NAMES = { aktiv: 'Aktiv', fitbit: 'Fitbit', strava: 'Strava', body: 'Body|group', check: "Wi gaht's?|analyse" };
@@ -203,26 +146,11 @@
     if (x.key === 'sleep') return shown('sleep', v, num);
     if (x.key === 'bed') return bedText(v);
     if (x.key === 'skin') return `${v > 0 ? '+' : ''}${num(Math.round(v * 10) / 10)}`;
-    if (x.dec) return num(Math.round(v * 10) / 10);
-    if (x.key === 'actHours') return num(Math.round(v));
     if (Math.abs(v) < 20 && !x.sum) return num(Math.round(v * 10) / 10);
     return num(Math.round(v));
   }
   const unitText = (x) => (x.key === 'sleep' || x.key === 'bed' ? '' : x.unit);
-  const howText = (x) =>
-    x.later === 'garmin'
-      ? t('Garmin does not give this out')
-      : x.later
-        ? t('Google does not give this out; the app will count its own')
-        : x.empty
-          ? t('No data yet|analyse')
-          : x.tick
-            ? t('in {n} days|analyse', { n: period })
-            : x.hours
-              ? t('{avg}, small picture: per hour of the day|analyse', { avg: t('average|analyse') })
-              : x.sum
-                ? t('total|analyse')
-                : t('average|analyse');
+  const howText = (x) => (x.tick ? t('in {n} days|analyse', { n: period }) : x.sum ? t('total|analyse') : t('average|analyse'));
 </script>
 
 <div class="an">
@@ -244,10 +172,6 @@
       <span class="pl" id="an-period">{t('Period|tk')}</span>
       <Seg options={periodOpts} value={String(period)} onchange={(v) => (period = Number(v))} labelledby="an-period" full={false} />
     </div>
-    <div class="pr">
-      <span class="pl" id="an-all">{t('Show|analyse')}</span>
-      <button type="button" class="chip" class:on={all} aria-pressed={all} data-all onclick={() => (all = !all)} aria-labelledby="an-all">{t('Also values without data')}</button>
-    </div>
   </section>
 
   {#if loading}
@@ -266,14 +190,12 @@
         <ul class="tiles">
           {#each g.tiles as x (x.key)}
             <li>
-              <svelte:element this={x.href && !x.empty ? 'a' : 'div'} class="tile" class:empty={x.empty} href={x.href && !x.empty ? x.href : undefined} data-value={x.key}>
-                <span class="nm"><span class="tx">{x.name}</span>{#if x.href && !x.empty}<ChevronRight size={14} aria-hidden="true" />{/if}</span>
-                <span class="v num"><b>{valueText(x)}</b>{#if unitText(x) && !x.empty}<small>{unitText(x)}</small>{/if}</span>
+              <a class="tile" href={x.href} data-value={x.key}>
+                <span class="nm"><span class="tx">{x.name}</span><ChevronRight size={14} aria-hidden="true" /></span>
+                <span class="v num"><b>{valueText(x)}</b>{#if unitText(x)}<small>{unitText(x)}</small>{/if}</span>
                 <span class="how">{howText(x)}</span>
                 <svg class="sp" class:bars={x.sum} viewBox="0 0 100 28" preserveAspectRatio="none" aria-hidden="true">
-                  {#if x.empty}
-                    <line x1="0" y1="14" x2="100" y2="14" class="none" vector-effect="non-scaling-stroke" />
-                  {:else if x.sum || x.bars}
+                  {#if x.sum}
                     {@const top = Math.max(...x.spark.map((v) => v ?? 0), 1)}
                     {#each x.spark as v, i (i)}
                       {#if v}<rect x={(i * 100) / x.spark.length + 0.6} width={Math.max(100 / x.spark.length - 1.2, 0.8)} y={28 - (v / top) * 26} height={(v / top) * 26} rx="0.8" />{/if}
@@ -282,13 +204,13 @@
                     <path d={sparkPath(x.spark)} vector-effect="non-scaling-stroke" />
                   {/if}
                 </svg>
-              </svelte:element>
+              </a>
             </li>
           {/each}
         </ul>
       </section>
     {/each}
-    <p class="hint">{#if all}{t('Dashed tiles have no data in this period yet. New Fitbit values come with the next fetch:')} <a href="#/me/fitbit">{t('Fitbit')}</a>{:else}{ t('A value without any day in this period is left out; «Also values without data» shows every value. Values come from your Fitbit (Google), Strava and what you enter or tick in the app.')}{/if}</p>
+    <p class="hint">{t('A value without any day in this period is left out. Values come from your Fitbit (Google), Strava and what you enter or tick in the app.')}</p>
   {/if}
 </div>
 
@@ -410,17 +332,7 @@
     color: var(--ink);
     text-decoration: none;
   }
-  .tile.empty {
-    border-style: dashed;
-    background: var(--paper-2);
-    color: var(--ink-2);
-  }
-  .sp .none {
-    stroke: var(--line);
-    stroke-width: 2;
-    stroke-dasharray: 4 4;
-  }
-  a.tile:hover {
+  .tile:hover {
     background: var(--paper-2);
   }
   .tile:focus-visible {

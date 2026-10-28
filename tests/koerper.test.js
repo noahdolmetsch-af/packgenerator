@@ -167,13 +167,12 @@ describe('Körperwerte: new values reach the older days once', () => {
     };
   };
   const now = new Date('2026-10-09T10:00:00+02:00');
-  // «Alle Werte» (27.10.2026, FILL_V 4): once the whole 90 days again, so VO₂max, floors … fill in
-  it('the first fetch after the update goes back 90 days, the next one only a few', async () => {
+  it('the first fetch after the update goes back 30 days, the next one only a few', async () => {
     const db = fake([{ date: '2026-10-08', restingHr: 50 }]);
     const asked = [];
     const c = async (_s, o) => (asked.push(o.params), { days: [] });
     await syncHealth(db, { c, now });
-    expect(asked[0]).toEqual({ from: '2026-07-12', to: TODAY });
+    expect(asked[0]).toEqual({ from: '2026-09-10', to: TODAY });
     expect((await db.settings.get(HEALTH_KEY)).value.fill).toBe(FILL_V);
     await syncHealth(db, { c, now });
     expect(asked[1]).toEqual({ from: '2026-10-05', to: TODAY });
