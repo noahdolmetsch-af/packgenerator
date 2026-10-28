@@ -39,7 +39,8 @@ export async function saveLiveRide(db, ride, { trip = null, name = '', now = new
   // a Strava/Garmin ride at the same time fills what the phone did not measure (Hm, pulse, power)
   const twin = twinActivity(ride, await db.activities.toArray());
   const draft = rideRowOf(ride, { trip, name, basis: { kmh: pace.kmh, climbMh: pace.climbMh }, twin, now });
-  const row = { ...draft, plan: trip ? plannedFor(trip, draft.date, pace) : null };
+  // Touren c 70: the feeling of the ride (asked before the numbers) goes with it
+  const row = { ...draft, plan: trip ? plannedFor(trip, draft.date, pace) : null, ...(ride.feel ? { feel: ride.feel } : {}) };
   const old = await db.rides.get(row.id);
   const kept = old ? { ...row, name: old.name || row.name, answers: old.answers ?? {}, createdAt: old.createdAt ?? row.createdAt } : row;
   await db.rides.put(kept);
@@ -48,6 +49,8 @@ export async function saveLiveRide(db, ride, { trip = null, name = '', now = new
     const stored = await db.debriefs.get(trip.id);
     if (stored?.status !== 'done') {
       const d = kmIntoDebrief(stored, trip, [kept]);
+      // Touren c 70: the feeling goes with it, unless the look back has its own already
+      if (d && ride.feel && d.feel == null) d.feel = ride.feel;
       if (d) await db.debriefs.put(d);
     }
   }
