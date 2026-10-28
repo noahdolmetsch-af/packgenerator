@@ -198,9 +198,16 @@ export function analyseRide(text, file = '') {
   return analysePoints(ridePoints(text), decode(name), file);
 }
 
+/** The points of a ride file that have a time, oldest first (Touren c 66 splits these). */
+export const timedPoints = (text) =>
+  ridePoints(text)
+    .filter((p) => p.t != null)
+    .sort((a, b) => a.t - b.t);
+
 /**
  * The same numbers from points that are already read ({ lat, lon, ele, t, hr?, cad?, w?, temp? }),
- * for a GPX/TCX text (analyseRide) or a FIT file (src/lib/fit.js analyseFit).
+ * for a GPX/TCX text (analyseRide), a FIT file (src/lib/fit.js analyseFit) or one stage of a split ride
+ * (src/lib/tourenc/split.js).
  */
 export function analysePoints(points, name, file = '') {
   const all = points

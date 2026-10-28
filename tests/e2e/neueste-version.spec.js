@@ -8,10 +8,15 @@ import DE from '../../src/lib/i18n/de/index.js';
 const T = (en) => DE[en] ?? en.replace(/\|[a-z]+$/, '');
 const phone = (info) => info.project.name === 'phone';
 
-async function openMe(page, context, live) {
+async function openMe(page, context, live, waiting = 0) {
   await context.route(/^https?:\/\/(?!localhost[:/]|127\.0\.0\.1[:/])/, (route) => route.abort());
   await context.addInitScript(() => localStorage.setItem('lang', 'de'));
   await page.route(/version\.json/, (route) => (live ? route.fulfill({ contentType: 'application/json', body: JSON.stringify({ version: live }) }) : route.abort()));
+  // question 5: GitHub's public API, answered here (the tests never ask the real one)
+  await page.route(/api\.github\.com\/.*\/runs\?/, (route) => route.fulfill({ json: { workflow_runs: [{ head_sha: 'abc' }] } }));
+  await page.route(/api\.github\.com\/.*\/compare\//, (route) =>
+    route.fulfill({ json: { commits: Array.from({ length: waiting }, (_, i) => ({ commit: { message: `Merge pull request #${i + 1} from x` } })) } }),
+  );
   await page.goto('./#/me');
   const row = page.locator('[data-version-row]');
   await row.scrollIntoViewIfNeeded();
@@ -53,4 +58,16 @@ test('Neueste Version: «Neueste laden» loads the page anew', async ({ page, co
   await row.getByRole('button', { name: T('Load newest|update') }).click();
   await loaded;
   await expect(page.locator('[data-version-row]')).toBeVisible();
+});
+
+test('Neueste Version: merged changes that are not online yet are counted', async ({ page, context }, info) => {
+  const row = await openMe(page, context, '0.0.1', 2);
+  await expect(row.locator('[data-not-online]')).toHaveText(T('{n} finished changes are not online yet (usually about 5 minutes)').replace('{n}', '2'));
+  await shot(page, info, 'NV4-noch-nicht-online');
+});
+
+test('Neueste Version: nothing waiting, no extra line', async ({ page, context }) => {
+  const row = await openMe(page, context, '0.0.1', 0);
+  await expect(row).toHaveAttribute('data-version-state', 'current');
+  await expect(row.locator('[data-not-online]')).toHaveCount(0);
 });
