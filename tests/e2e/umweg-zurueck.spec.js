@@ -187,3 +187,56 @@ test('Live: off the route the app plans the way back by itself, with Undo, go on
   await expect(card).toHaveCount(0);
   await expect(page.locator('[data-live-offroute]')).toBeHidden();
 });
+
+// Navigation zum Ziel 1 (Noah 27.10.2026 «2a»): a goal tapped on the map is only the way there; it has a
+// name (never «Other stop»); at the place the app asks how you go back, and back on the route the goal ends
+test('Live: a goal tapped on the map is only the way there, the way back is asked at the place', async ({ page, context }, info) => {
+  const asked = [];
+  const pts = await startRace(page, context, info, asked);
+  await context.setGeolocation(geo(pointAt(pts, 410)));
+  await page.goto('./#/live/race-sample');
+  await tap(page.locator('[data-live-start]'), info);
+  await expect(page.locator('[data-live-full]')).toBeVisible();
+  // the router answers with an L: 600 m north, then a right turn east to the goal (Navigation 2: the turn shows)
+  await context.route(/brouter\.de\/brouter/, (route) => {
+    const url = route.request().url();
+    asked.push(url);
+    const ll = decodeURIComponent(new URL(url).searchParams.get('lonlats') ?? '').split('|').map((x) => x.split(',').map(Number));
+    const [a, b] = [ll[0], ll.at(-1)];
+    const corner = [a[0], b[1]];
+    const line = Array.from({ length: 21 }, (_, i) => (i <= 10 ? [a[0] + ((corner[0] - a[0]) * i) / 10, a[1] + ((corner[1] - a[1]) * i) / 10] : [corner[0] + ((b[0] - corner[0]) * (i - 10)) / 10, corner[1] + ((b[1] - corner[1]) * (i - 10)) / 10]));
+    return route.fulfill({ json: { type: 'FeatureCollection', features: [{ type: 'Feature', properties: { 'track-length': '1200', 'filtered ascend': '5', 'total-time': '300' }, geometry: { type: 'LineString', coordinates: line.map((p) => [...p, 500]) } }] } });
+  });
+  await tap(page.locator('[data-live-goal]'), info);
+  await expect(page.locator('[data-live-goal-hint]')).toBeVisible();
+  const map = page.locator('[data-live-full] .maplibregl-canvas').first();
+  const box = await map.boundingBox();
+  await page.mouse.click(box.x + box.width / 2 + 40, box.y + box.height / 3);
+  const sheet = page.locator('[data-reroute-sheet]');
+  await expect(sheet).toBeVisible();
+  // «Nur hin» is chosen first
+  await expect(sheet.locator('[data-reroute-oneway]')).toHaveAttribute('aria-pressed', 'true');
+  await expect(sheet).not.toContainText(/Other stop|Anderer Stopp/);
+  await tap(sheet.locator('[data-reroute-go="pick"]'), info);
+  await expect(sheet).toBeHidden();
+  // only here → the goal, nothing back onto the route
+  expect(asked).toHaveLength(1);
+  expect(decodeURIComponent(new URL(asked[0]).searchParams.get('lonlats')).split('|')).toHaveLength(2);
+  const card = page.locator('[data-live-detour]');
+  await expect(card).toBeVisible();
+  const d = await page.evaluate(() => JSON.parse(localStorage.getItem('pg-live-detour')));
+  expect(d.oneWay).toBe(true);
+  expect(d.rejoin).toBeNull();
+  expect(d.target.name).toBeTruthy();
+  // on the way to the goal the big turn card shows the turn of that way
+  await expect(page.locator('[data-live-turn] [data-turn-hint]')).toBeVisible({ timeout: 10_000 });
+  await page.screenshot({ path: info.outputPath('ziel-nur-hin.png') });
+
+  // at the place: the way back question
+  await context.setGeolocation(geo(d.target));
+  await expect(card.locator('[data-live-return]')).toBeVisible({ timeout: 10_000 });
+  await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('pg-live-detour'))?.reached)).toBe(true);
+  // riding back onto the route on your own ends the goal
+  await context.setGeolocation(geo(pointAt(pts, 410.6)));
+  await expect(card).toHaveCount(0, { timeout: 15_000 });
+});

@@ -90,6 +90,8 @@
 
     <div class="rc-acts">
       <button type="button" class="btn hi" onclick={openNew} data-race-new><Plus size={16} aria-hidden="true" />{t('New race')}</button>
+      <!-- «Rennen detailliert planen» (Noah 27.10.2026 «1b»): the Rennen-Check of every race on its own page -->
+      <a class="btn" href="#/racecheck" data-race-to-check>{t('Plan races in detail')}</a>
     </div>
 
     {#if $tripsQ !== undefined}
