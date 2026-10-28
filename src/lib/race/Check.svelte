@@ -5,7 +5,7 @@
    * (stored.check, in the backup). «Load answers» takes the file of the fillable sheets page.
    * Gets `ctx` from RaceDetail; the sheets live in check-lib.js.
    */
-  import { Upload, Eraser, ChevronLeft, ChevronRight, Copy } from '@lucide/svelte';
+  import { Upload, Eraser, ChevronLeft, ChevronRight, Copy, Scale } from '@lucide/svelte';
   import { SHEETS, STATIONS, RACE_QUESTIONS, BAGS, LIST, SLEEP_COLS, SLEEP_ROWS, NIGHT, valueOf, withValue, answersFrom, filled, takeOver, setupWeight } from './check-lib.js';
   import { offerDone } from '../ui/rename.svelte.js';
   import { askDelete } from '../ui/ask.js';
@@ -178,13 +178,16 @@
         {@render area('setup.newbags', t('New bags / changes'))}
       </div>
       <div class="ck-weight" data-check-weight>
-        <h3 class="ck-h3">{t('Weight of the setup')}</h3>
+        <h3 class="ck-h3"><Scale size={16} aria-hidden="true" /> {t('Weight of the setup')}</h3>
         {#if weight.counted}
-          <p class="ck-wrow"><span>{t('Bags empty')}</span><b>{kg(weight.empty)}</b></p>
-          <p class="ck-wrow"><span>{t('Packed (full)')}</span><b data-check-weight-full>{kg(weight.full)}</b></p>
+          <div class="ck-wbig">
+            <span class="ck-wstat"><small>{t('Packed (full)')}</small><b class="num" data-check-weight-full>{kg(weight.full)}</b></span>
+            <span class="ck-wstat ck-wsmall"><small>{t('Bags empty')}</small><b class="num">{kg(weight.empty)}</b></span>
+            {#if weight.target != null}<span class="ck-wstat ck-wsmall"><small>{t('Your target')}</small><b class="num">{kg(weight.target)}</b></span>{/if}
+          </div>
           {#if weight.target != null}
-            <p class="ck-wrow"><span>{t('Your target')}</span><b>{kg(weight.target)}</b></p>
-            <p class="ck-wrow" class:ck-over={weight.over > 0} data-check-weight-over>{weight.over > 0 ? t('{kg} over the target', { kg: kg(weight.over) }) : t('{kg} under the target', { kg: kg(-weight.over) })}</p>
+            <span class="ck-wbar" class:ck-wbar-over={weight.over > 0} aria-hidden="true"><span style:width="{Math.min(100, Math.round((weight.full / Math.max(weight.target, 1)) * 100))}%"></span></span>
+            <p class="ck-wtag" class:ck-over={weight.over > 0} data-check-weight-over>{weight.over > 0 ? t('{kg} over the target', { kg: kg(weight.over) }) : t('{kg} under the target', { kg: kg(-weight.over) })}</p>
           {/if}
           <p class="rc-note">{t('From the grams of {n} bags. A bag without «full» counts with its empty weight.', { n: weight.counted })}</p>
         {:else}
@@ -376,21 +379,62 @@
   }
   .ck-weight {
     display: grid;
-    gap: 4px;
-    padding: 12px;
-    border-radius: 10px;
-    background: var(--paper-2);
-  }
-  .ck-wrow {
-    display: flex;
-    justify-content: space-between;
     gap: 8px;
-    margin: 0;
-    font-variant-numeric: tabular-nums;
+    padding: 14px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-card);
+    background: var(--paper);
   }
-  .ck-over {
-    color: var(--warn);
+  .ck-weight .ck-h3 {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .ck-wbig {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: end;
+    gap: 8px 20px;
+  }
+  .ck-wstat {
+    display: grid;
+  }
+  .ck-wstat small {
+    color: var(--ink-2);
+  }
+  .ck-wstat b {
+    font-size: var(--fs-display);
+    line-height: 1.1;
+  }
+  .ck-wsmall b {
+    font-size: var(--fs-section);
+  }
+  .ck-wbar {
+    display: block;
+    height: 8px;
+    border-radius: 4px;
+    background: var(--accent-soft);
+    overflow: hidden;
+  }
+  .ck-wbar span {
+    display: block;
+    height: 100%;
+    background: var(--accent);
+  }
+  .ck-wbar-over span {
+    background: var(--warn);
+  }
+  .ck-wtag {
+    justify-self: start;
+    margin: 0;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: var(--ok-soft);
     font-weight: 600;
+  }
+  .ck-wtag.ck-over {
+    background: var(--warn-soft);
+    color: var(--warn);
   }
   .ck-cols {
     display: grid;
