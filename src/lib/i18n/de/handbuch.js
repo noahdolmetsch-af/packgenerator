@@ -1867,4 +1867,15 @@ export default {
     'Warnungen (Wetter, Glätte, Licht, Regen unterwegs, Essen) kommen weiter einzeln und pünktlich.',
   'Example: «Your morning» → «Appointment: 10:00 Dentist», «Testvelo: Chain reaches 1000 km soon», «and 1 more in the app».':
     'Beispiel: «Dein Morgen» → «Termin: 10:00 Zahnarzt», «Testvelo: Kette erreicht bald 1000 km», «und 1 weitere in der App».',
+  // Idee A2 «Erinnerung zu deiner Zeit» (27.10.2026)
+  'Nothing to switch on: it learns while you open the evening-before check.':
+    'Nichts einzuschalten: die App lernt, während du den Abend-Check öffnest.',
+  'The app notes the time you open the check on each evening before a trip (from 16:00).':
+    'Die App merkt sich, um welche Zeit du den Check am Vorabend einer Tour öffnest (ab 16:00).',
+  'From 3 evenings it takes your usual time and offers a reminder 15 minutes earlier.':
+    'Ab 3 Abenden nimmt sie deine übliche Zeit und schlägt eine Erinnerung 15 Minuten früher vor.',
+  '«Move it» changes the time in Own values, with Undo; «No, thanks» keeps the old time.':
+    '«Verschieben» ändert die Zeit in Eigene Werte, mit Rückgängig; «Nein, danke» lässt die alte Zeit.',
+  'Example: check opened at 21:20, 21:40 and 21:30 → «Move the reminder to 21:15?»':
+    'Beispiel: Check um 21:20, 21:40 und 21:30 geöffnet → «Erinnerung auf 21:15 verschieben?»',
 };

@@ -1946,6 +1946,7 @@ Noah 19.10.2026: «1a 2a 3a 4 a oder b beides wählbar 5a», danach «a und b»,
 - 27.10.2026: **Touren b Katalog** (Bündler): SINCE der Touren-b-Funktionen = 0.212.0 (dort live geworden); Version 0.231.0.
 - 27.10.2026: **Keine Seitenlänge mehr im Handy-Test** (Noah 26.10.2026 20:31 «keine anforderung an eine länge der seite»): handy-kurz prüft nicht mehr «höchstens drei Bildschirme»; die Kurz-Listen (fünf Zeilen, dann «mehr») bleiben.
 - 27.10.2026: **Längenbudget weg** (gleiche Entscheidung, Noah 26.10.2026 20:31): `src/lib/laenge.js`, `tests/laenge.test.js` und `tests/e2e/handy-laenge.spec.js` sind entfernt; sie verlangten höchstens drei Bildschirme bzw. die Zahl in TOO_LONG. `MAX_SCREENS` in `src/lib/touren/kurz.js` bleibt für die Kurz-Listen.
+- 28.10.2026: **«Zurück» nach einem Fenster, das von selbst aufgeht** (Noah 27.10.2026 «bauen und live bringen»): Ein Fenster ohne Tipp (Tages-Check auf Heute) legte einen Verlaufseintrag ohne Nutzeraktion an; Chrome überspringt dann den Eintrag davor, und beim Schliessen landete man auf der Seite davor oder ausserhalb der App. `src/lib/ui/backclose.js` räumt so einen Eintrag jetzt an Ort und Stelle weg (replaceState) statt mit history.back(). Test: `tests/backclose.test.js`.
 
 ## 26.10.2026 Live Navigation
 
@@ -1989,6 +1990,9 @@ Noah 19.10.2026: «1a 2a 3a 4 a oder b beides wählbar 5a», danach «a und b»,
 
 - 27.10.2026: **Neuer Schwung Teil 2** (Noah «4a» Bewegung überall dezent): zuerst Heute. Selbst entschieden: nur Deckkraft, clip-path und SVG-Strich bewegen sich, nie transform, damit keine Box springt und Tests und Tippen nicht warten müssen; Lottie kommt als eigener kleiner PR (2b).
 - 27.10.2026: **Neuer Schwung 2b** (Noah «5b» Lottie für grosse Momente). Selbst entschieden: lottie-web light (MIT, gratis) statt dotlottie (grosses wasm); eine eigene, selbst gezeichnete Animation statt einer heruntergeladenen (keine Lizenzfrage); Farben über CSS, damit jede Farbpalette passt. Noah 27.10.2026 «bei 2b ist die animation viel zu schnell»: 24 statt 60 Bilder pro Sekunde, Kreis und Haken zusammen etwa 1,3 Sekunden.
+- 27.10.2026 (Kleider-Sets): Kleider-Sets sind Bausteine mit °C-Bereich wie die Kits (9 Muster einmal angelegt); dieselben Sets gelten auf Heute und beim Packen, eigene Kits vor Mustern. Details: `docs/releases/kleider-sets.md`.
+- 27.10.2026 (Deine Regel, Noah «2a und b möglich»; selbst entschieden): einfache Wahl «Ich friere schnell / normal / Mir wird schnell warm» zuerst, Grenzen pro Schicht hinter «Genauer». «Ich friere schnell / Mir wird schnell warm» rechnet 2 °C kälter / wärmer, zusätzlich zur gelernten Verschiebung aus den Rückblicken. Grenzen −15 bis 30 °C in 1-°C-Schritten; die Beine bleiben im Fenster immer dabei, ihre Grenze (10 °C) gilt nur beim Packen und ist nicht verstellbar. Die Regel steht unter «Warum so?», damit das Fenster ruhig bleibt.
+
 ## 27.10.2026 Diagramme zeigen genaue Werte
 
 - Noah: «die Diagramme sollen für den Nutzer exakte Daten repräsentieren und nicht nur Schätzungen anhand ungenauer Skalen am Rand … und überall sonst auf der Webseite». Regel für jedes Diagramm: (1) eine Achse mit runden, beschrifteten Stufen und Einheit plus feinen Gitterlinien, nicht nur min/max am Rand; (2) beim Antippen oder Darüberfahren der genaue Wert mit Datum; (3) bei bis zu 12 Punkten steht die Zahl direkt am Punkt oder an der Säule. Gemeinsamer Baustein: `src/lib/charts/` (axis.js, GridLines.svelte, YTicks.svelte), keine eigene Achse pro Seite.

@@ -1569,6 +1569,11 @@ export const HANDBOOK = {
     steps: ['Every reminder at 08:00 (parts worn, chain, supplies, lent things, shopping, race registration) waits for the morning message.', 'At 07:00 one message comes: first a trip that starts and up to two appointments of the day, then the reminders.', 'Warnings (weather, ice, light, rain on the way, eating) still come on their own and on time.'],
     example: 'Example: «Your morning» → «Appointment: 10:00 Dentist», «Testvelo: Chain reaches 1000 km soon», «and 1 more in the app».',
   },
+  'f.remindtime': {
+    on: 'Nothing to switch on: it learns while you open the evening-before check.',
+    steps: ['The app notes the time you open the check on each evening before a trip (from 16:00).', 'From 3 evenings it takes your usual time and offers a reminder 15 minutes earlier.', '«Move it» changes the time in Own values, with Undo; «No, thanks» keeps the old time.'],
+    example: 'Example: check opened at 21:20, 21:40 and 21:30 → «Move the reminder to 21:15?»',
+  },
   'f.tourhints': {
     on: 'Nothing to switch on; the hints come from the route, the start time and the forecast.',
     steps: ['A stage after sunset brings light and reflective vest; the «Light alarm» push reminds you the evening before.', 'From UV 6 sunscreen and sunglasses; on a ski tour from UV 3 the glacier glasses.', 'On a loop with wind it says which way round gives the tailwind home.'],
