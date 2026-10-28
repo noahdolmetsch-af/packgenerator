@@ -5,11 +5,11 @@
    * (stored.check, in the backup). «Load answers» takes the file of the fillable sheets page.
    * Gets `ctx` from RaceDetail; the sheets live in check-lib.js.
    */
-  import { Upload, Eraser, ChevronLeft, ChevronRight, Copy, History } from '@lucide/svelte';
+  import { Upload, Eraser, ChevronLeft, ChevronRight, Copy, History, Scale, Check as CheckIcon } from '@lucide/svelte';
   import { SHEETS, STATIONS, RACE_QUESTIONS, BAGS, LIST, SLEEP_COLS, SLEEP_ROWS, NIGHT, DAY_BEFORE, dayBeforeDone, AFTER, afterNotes, afterCount, valueOf, withValue, answersFrom, filled, takeOver, setupWeight } from './check-lib.js';
   import { offerDone } from '../ui/rename.svelte.js';
   import { askDelete } from '../ui/ask.js';
-  import { t, num } from '../i18n.svelte.js';
+  import { t, tn, num } from '../i18n.svelte.js';
 
   let { ctx } = $props();
 
@@ -85,8 +85,9 @@
   // «Check übernehmen» (Noah 27.10.2026, idea 3): another race's answers into the empty fields here
   const others = $derived((ctx.others ?? []).filter((o) => o.id !== ctx.trip.id && Object.keys(o.check?.values ?? {}).length));
   let fromId = $state('');
+  const fromSel = $derived(others.some((o) => o.id === fromId) ? fromId : (others[0]?.id ?? ''));
   async function copyFrom() {
-    const o = others.find((x) => x.id === (fromId || others[0]?.id));
+    const o = others.find((x) => x.id === fromSel);
     if (!o) return;
     let before = null;
     let n = 0;
@@ -97,7 +98,7 @@
       return { ...s, check: r.check };
     });
     note = '';
-    offerDone(n ? t('{n} answers taken over from «{name}».', { n, name: o.title }) : t('Nothing to take over: your fields are filled already.'), n ? () => ctx.save((s) => ({ ...s, check: before })) : null);
+    offerDone(n ? tn(n, '{n} answer taken over from «{name}».', '{n} answers taken over from «{name}».', { name: o.title }) : t('Nothing to take over: your fields are filled already.'), n ? () => ctx.save((s) => ({ ...s, check: before })) : null);
   }
 
   async function clearSheet() {
@@ -191,13 +192,16 @@
         {@render area('setup.newbags', t('New bags / changes'))}
       </div>
       <div class="ck-weight" data-check-weight>
-        <h3 class="ck-h3">{t('Weight of the setup')}</h3>
+        <h3 class="ck-h3"><Scale size={16} aria-hidden="true" /> {t('Weight of the setup')}</h3>
         {#if weight.counted}
-          <p class="ck-wrow"><span>{t('Bags empty')}</span><b>{kg(weight.empty)}</b></p>
-          <p class="ck-wrow"><span>{t('Packed (full)')}</span><b data-check-weight-full>{kg(weight.full)}</b></p>
+          <div class="ck-wbig">
+            <span class="ck-wstat"><small>{t('Packed (full)')}</small><b class="num" data-check-weight-full>{kg(weight.full)}</b></span>
+            <span class="ck-wstat ck-wsmall"><small>{t('Bags empty')}</small><b class="num">{kg(weight.empty)}</b></span>
+            {#if weight.target != null}<span class="ck-wstat ck-wsmall"><small>{t('Your target')}</small><b class="num">{kg(weight.target)}</b></span>{/if}
+          </div>
           {#if weight.target != null}
-            <p class="ck-wrow"><span>{t('Your target')}</span><b>{kg(weight.target)}</b></p>
-            <p class="ck-wrow" class:ck-over={weight.over > 0} data-check-weight-over>{weight.over > 0 ? t('{kg} over the target', { kg: kg(weight.over) }) : t('{kg} under the target', { kg: kg(-weight.over) })}</p>
+            <span class="ck-wbar" class:ck-wbar-over={weight.over > 0} aria-hidden="true"><span style:width="{Math.min(100, Math.round((weight.full / Math.max(weight.target, 1)) * 100))}%"></span></span>
+            <p class="ck-wtag" class:ck-over={weight.over > 0} data-check-weight-over>{weight.over > 0 ? t('{kg} over the target', { kg: kg(weight.over) }) : t('{kg} under the target', { kg: kg(-weight.over) })}</p>
           {/if}
           <p class="rc-note">{t('From the grams of {n} bags. A bag without «full» counts with its empty weight.', { n: weight.counted })}</p>
         {:else}
@@ -236,10 +240,13 @@
       <div class="ck-step">{@render area('nacht.help', t('What would have helped you most on the phone in this night?'), '', 3)}</div>
     {:else if cur.id === 'vorher'}
       {@const d = dayBeforeDone(check)}
-      <p class="ck-progress" class:ck-all={d.done === d.of} role="status" data-check-daybefore-done>{d.done === d.of ? t('All done. Sleep well!') : t('{done} of {of} done', d)}</p>
+      <div class="ck-prog" class:ck-all={d.done === d.of}>
+        <p class="ck-progress" role="status" data-check-daybefore-done>{d.done === d.of ? t('All done. Sleep well!') : t('{done} of {of} done', d)}</p>
+        <span class="ck-pbar" aria-hidden="true"><span style:width="{Math.round((d.done / Math.max(d.of, 1)) * 100)}%"></span></span>
+      </div>
       {#each DAY_BEFORE as r, i (r.name)}
-        <div class="ck-step" class:ck-ticked={v(`vorher.${i}.done`)}>
-          <h3 class="ck-h3">{t(r.name)}</h3>
+        <div class="ck-step ck-vstep" class:ck-ticked={v(`vorher.${i}.done`)}>
+          <h3 class="ck-h3"><span class="ck-vnum" aria-hidden="true">{#if v(`vorher.${i}.done`)}<CheckIcon size={14} />{:else}{i + 1}{/if}</span>{t(r.name)}</h3>
           {@render area(`vorher.${i}.v`, t('Your plan'), t(r.ph))}
           <div class="ck-ticks">{@render tick(`vorher.${i}.done`, t('done|ticked'))}</div>
         </div>
@@ -269,13 +276,19 @@
       <button type="button" class="btn sm" onclick={clearSheet} data-check-clear><Eraser size={16} aria-hidden="true" />{t('Empty this sheet')}</button>
     </div>
     {#if others.length}
-      <div class="rc-inline ck-copy">
-        <select class="inp" bind:value={fromId} aria-label={t('Race to take over from')} data-check-from>
-          {#each others as o (o.id)}<option value={o.id}>{o.title}</option>{/each}
-        </select>
-        <button type="button" class="btn sm" onclick={copyFrom} data-check-copy><Copy size={16} aria-hidden="true" />{t('Take over')}</button>
+      <div class="ck-copy" data-check-copy-card>
+        <span class="ck-copy-ic" aria-hidden="true"><Copy size={18} /></span>
+        <div class="ck-copy-txt">
+          <strong>{t('From another race')}</strong>
+          <small>{t('Takes the answers of another race into the fields that are still empty here. Name, date and test ride stay yours.')}</small>
+        </div>
+        <div class="ck-copy-row">
+          <select class="inp" value={fromSel} onchange={(e) => (fromId = e.currentTarget.value)} aria-label={t('Race to take over from')} data-check-from>
+            {#each others as o (o.id)}<option value={o.id}>{o.title}</option>{/each}
+          </select>
+          <button type="button" class="btn hi sm" onclick={copyFrom} data-check-copy><Copy size={16} aria-hidden="true" />{t('Take over')}</button>
+        </div>
       </div>
-      <p class="rc-note">{t('Takes the answers of another race into the fields that are still empty here. Name, date and test ride stay yours.')}</p>
     {/if}
     <input bind:this={fileEl} type="file" accept=".json,application/json" hidden onchange={load} data-check-file />
     {#if note}<p class="rc-warn" role="status">{note}</p>{/if}
@@ -283,6 +296,42 @@
 </div>
 
 <style>
+  .ck-copy {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 8px 12px;
+    margin-top: var(--sp-2);
+    padding: 12px 14px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-card);
+    background: var(--accent-soft);
+  }
+  .ck-copy-ic {
+    display: grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: var(--paper);
+    color: var(--accent);
+  }
+  .ck-copy-txt {
+    display: grid;
+    gap: 2px;
+  }
+  .ck-copy-txt small {
+    color: var(--ink-2);
+  }
+  .ck-copy-row {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .ck-copy-row select {
+    flex: 1 1 12rem;
+    min-width: 0;
+  }
   .ck {
     display: grid;
     grid-template-columns: minmax(0, 1fr);
@@ -394,33 +443,110 @@
     gap: 6px;
     font-weight: 600;
   }
+  .ck-prog {
+    display: grid;
+    gap: 6px;
+    padding: 12px 14px;
+    border-radius: var(--radius-card);
+    background: var(--accent-soft);
+  }
   .ck-progress {
     margin: 0;
     font-weight: 600;
   }
-  .ck-all {
+  .ck-all .ck-progress {
     color: var(--accent);
   }
-  .ck-ticked {
-    opacity: 0.75;
+  .ck-pbar {
+    display: block;
+    height: 8px;
+    border-radius: 4px;
+    background: var(--paper);
+    overflow: hidden;
+  }
+  .ck-pbar span {
+    display: block;
+    height: 100%;
+    background: var(--accent);
+    transition: width 0.3s;
+  }
+  .ck-vnum {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: var(--accent-soft);
+    color: var(--accent);
+    font-size: var(--fs-small);
+    font-weight: 700;
+  }
+  .ck-ticked .ck-vnum {
+    background: var(--accent);
+    color: var(--paper);
+  }
+  .ck-ticked .ck-h3 {
+    color: var(--ink-2);
   }
   .ck-weight {
     display: grid;
-    gap: 4px;
-    padding: 12px;
-    border-radius: 10px;
-    background: var(--paper-2);
-  }
-  .ck-wrow {
-    display: flex;
-    justify-content: space-between;
     gap: 8px;
-    margin: 0;
-    font-variant-numeric: tabular-nums;
+    padding: 14px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-card);
+    background: var(--paper);
   }
-  .ck-over {
-    color: var(--warn);
+  .ck-weight .ck-h3 {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .ck-wbig {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: end;
+    gap: 8px 20px;
+  }
+  .ck-wstat {
+    display: grid;
+  }
+  .ck-wstat small {
+    color: var(--ink-2);
+  }
+  .ck-wstat b {
+    font-size: var(--fs-display);
+    line-height: 1.1;
+  }
+  .ck-wsmall b {
+    font-size: var(--fs-section);
+  }
+  .ck-wbar {
+    display: block;
+    height: 8px;
+    border-radius: 4px;
+    background: var(--accent-soft);
+    overflow: hidden;
+  }
+  .ck-wbar span {
+    display: block;
+    height: 100%;
+    background: var(--accent);
+  }
+  .ck-wbar-over span {
+    background: var(--warn);
+  }
+  .ck-wtag {
+    justify-self: start;
+    margin: 0;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: var(--ok-soft);
     font-weight: 600;
+  }
+  .ck-wtag.ck-over {
+    background: var(--warn-soft);
+    color: var(--warn);
   }
   .ck-cols {
     display: grid;
