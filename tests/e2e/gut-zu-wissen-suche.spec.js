@@ -45,6 +45,10 @@ test('hide «Good to know» from the search, Undo, show it again', async ({ page
   // hidden again, it stays hidden on another page; «Tipps einblenden» shows it again
   await search(page, 'Gut zu wissen ausblenden');
   await page.locator('[data-cmd="tipsoff"]:visible').click();
+  await page.reload();
+  await ready(page);
+  await expect(page.locator('main [data-tip]')).toHaveCount(0);
+  if (shots) await page.screenshot({ path: `${shots}/gzw-after-${info.project.name}.png` });
   await page.goto('./#/auswerten');
   await ready(page);
   await expect(page.locator('main [data-tip]')).toHaveCount(0);
