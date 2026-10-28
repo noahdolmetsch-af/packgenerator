@@ -25,6 +25,7 @@ test('hide «Good to know» from the search, Undo, show it again', async ({ page
   await ready(page);
   const line = page.locator('main [data-tip]');
   await expect(line).toBeVisible();
+  if (shots) await page.screenshot({ path: `${shots}/gzw-before-${info.project.name}.png` });
 
   await search(page, 'Gut zu wissen');
   const off = page.locator('[data-cmd="tipsoff"]:visible');
