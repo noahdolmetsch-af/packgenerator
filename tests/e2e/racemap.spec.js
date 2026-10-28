@@ -143,7 +143,8 @@ test('Race map: map or fallback, profile, weather, own point add rename delete u
   await page.locator('[data-sheet-delete]').click();
   await page.getByTestId('ask-delete').locator('.btn.del').click();
   await expect(rows).toHaveCount(0);
-  await page.locator('.rtoast button').last().click();
+  // B22 (Noah 27.10.2026): the note has a × too now; the Undo button by its class
+  await page.locator('.rtoast button.undo').click();
   await expect(rows).toHaveCount(1);
   await expect(rows.first()).toContainText('test_data_gtp_ Dorfbrunnen');
 

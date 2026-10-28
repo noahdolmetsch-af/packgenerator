@@ -61,8 +61,11 @@
   import { distKm } from '../route.js';
   import { situationHits } from '../situation.js';
   import { tripPower, effortOf, loadOf } from './power.js';
+  import FeelScale from '../tourenc/FeelScale.svelte'; // Touren c 70
   import { GROUPS, openOf, dayTabs, dayFacts, actsOn, timeline, stravaRides, tripNoteList, wearRows, chainLeft, packedList, packedTotals, pointsOf, compareGroup, similarRows, tripNumbers, compareRows, lastSeries } from './ganz.js';
-  import { Undo2, Route as RouteIc, HeartPulse, Map as MapIc, Briefcase as BagIc, ArrowRight, Flag, Coffee, NotebookPen, Image as ImageIc, Trophy, Mountain, Copy, MoonStar, Smile, Utensils, CloudSun, Gauge, ArrowLeftRight, Info, Calendar, ChevronDown } from '@lucide/svelte';
+  import TlVoice from './TlVoice.svelte'; // Noah 27.10.2026 «1a»: voice notes in the timeline
+  import { dayClips } from '../tourenb/tagclips.js';
+  import { Mic, Undo2, Route as RouteIc, HeartPulse, Map as MapIc, Briefcase as BagIc, ArrowRight, Flag, Coffee, NotebookPen, Image as ImageIc, Trophy, Mountain, Copy, MoonStar, Smile, Utensils, CloudSun, Gauge, ArrowLeftRight, Info, Calendar, ChevronDown } from '@lucide/svelte';
   import { Check, Lightbulb, Sparkles, Sun, CloudRain, Cloud, Thermometer, Bike, Briefcase, Wrench, X, Minus, Plus, ChevronRight, Package, BookmarkPlus, Wind } from '@lucide/svelte';
 
   import Woanders from '../sk/Woanders.svelte'; // SK X2 + X14 (SKX2)
@@ -203,8 +206,20 @@
   const wayNotes = $derived([...(d.rideNotes ?? []).map((n) => ({ ...n, day: n.day ?? 0 })), ...notes.filter((n) => n.tripId === trip.id && n.day != null)]);
   // a trip without an uploaded ride: the Strava rides (pauses, best times, climbs, photos at their place)
   const tlRides = $derived(row?.rides?.length ? row.rides : stravaRides(acts));
-  const tlAll = $derived(timeline({ trip, rides: tlRides, notes: wayNotes, loop }));
-  const tl = $derived(day == null ? tlAll : timeline({ trip, rides: tlRides, notes: wayNotes, day, loop }));
+  // the other voice notes of the trip («Hier bin ich» on the live map, the diary of the trip days); a note's own come with it
+  const voiceQ = liveQuery(async () => {
+    const [places, diary] = await Promise.all([db.tracks.where('tripId').equals(trip.id).toArray().catch(() => []), db.frei.where('kind').equals('diary').toArray().catch(() => [])]);
+    return { places, diary };
+  });
+  const tlVoices = $derived.by(() => {
+    const src = $voiceQ ?? { places: [], diary: [] };
+    const out = [];
+    for (let i = 0; i < Math.max(1, Math.round(Number(trip.days) || 1)); i++)
+      for (const c of dayClips(trip, i, { notes: [], ...src })) out.push({ day: i, at: c.at, text: c.text ?? '', where: c.where ?? '', voices: [{ id: c.key, src: c.src, s: c.s, ...(c.said ? { text: c.said } : {}) }] });
+    return out;
+  });
+  const tlAll = $derived(timeline({ trip, rides: tlRides, notes: wayNotes, voices: tlVoices, loop }));
+  const tl = $derived(day == null ? tlAll : timeline({ trip, rides: tlRides, notes: wayNotes, voices: tlVoices, day, loop }));
   const tlShown = $derived(tl.filter((e) => !e.short));
   const shortN = $derived(tl.filter((e) => e.short).length);
   const marks = $derived.by(() => {
@@ -419,6 +434,7 @@
               <!-- Impeccable Runde 2 (Rückblick einer Tour 2): the card «Gespeichert» is gone; its line lives here -->
               <p class="savedline" role="status" data-saved>{savedLine}</p>
               <p class="kick">{[trip.title, dates(trip.startDate, tripEnd(trip)), trip.days > 1 ? tn(trip.days, '{n} day', '{n} days') : t('Day ride|art')].join(' · ')}</p>
+              {#if trip.memory}<p class="rv-note memline" data-memory-line>{[t('From memory, without GPS: no numbers made up'), trip.memory.place, d.note ? `«${d.note}»` : ''].filter(Boolean).join(' · ')}</p>{/if}
               <dl class="rv-tiles big">
                 <div class="rv-tile"><dd><b>{n0(row?.km)} km</b></dd><dt><small>{t('Distance')}</small></dt></div>
                 <div class="rv-tile"><dd><b>{n0(row?.gainM)} Hm</b></dd><dt><small>{t('Climbing|hm')}</small></dt></div>
@@ -549,7 +565,8 @@
                       {:else if e.kind === 'best'}<b data-tl-best><Trophy size={15} aria-hidden="true" />{t(e.pr === 1 ? 'Best time|timeline' : e.pr === 2 ? '2nd best time|timeline' : '3rd best time|timeline')}</b><span>{e.name} · {mmss(e.s)}</span>
                       {:else if e.kind === 'climb'}<b data-tl-climb><Mountain size={15} aria-hidden="true" />{t('Climb|timeline')}</b><span>{[e.name, e.len ? `${num(e.len)} km` : '', e.grade ? `${num(e.grade)} %` : '', e.hm ? `${n0(e.hm)} Hm` : '', mmss(e.s)].filter(Boolean).join(' · ')}</span>
                       {:else if e.kind === 'photo'}<b><ImageIc size={15} aria-hidden="true" />{t('Photo')}</b><a class="tlph" href={e.url} target="_blank" rel="noopener noreferrer" data-tl-photo><img src={e.url} alt={e.caption || t('Photo from Strava')} loading="lazy" referrerpolicy="no-referrer" /></a>{#if e.caption}<span>{e.caption}</span>{/if}
-                      {:else}<b><NotebookPen size={15} aria-hidden="true" />{t('Note')}</b><span>«{e.text}»</span>{#if e.photo}<span class="ph" aria-label={t('Photo')}><ImageIc size={18} aria-hidden="true" /></span>{/if}{/if}
+                      {:else if e.kind === 'voice'}<b data-tl-voicenote><Mic size={15} aria-hidden="true" />{t('Voice note')}</b>{#if e.where || e.text}<span>{[e.where, e.text ? `«${e.text}»` : ''].filter(Boolean).join(' · ')}</span>{/if}<TlVoice voices={e.voices ?? []} />
+                      {:else}<b><NotebookPen size={15} aria-hidden="true" />{t('Note')}</b>{#if e.text}<span>«{e.text}»</span>{/if}{#if e.photo}<span class="ph" aria-label={t('Photo')}><ImageIc size={18} aria-hidden="true" /></span>{/if}{#if e.voices?.length}<TlVoice voices={e.voices} />{/if}{/if}
                     </span>
                   </li>
                 {/each}
@@ -593,6 +610,11 @@
     <Group key="body" title={titleOf(GROUPS[1])} line={lineOf.body} icon={ICON.body} open={!!open.body} ontoggle={(v) => toggle('body', v)}>
       <div class="rv-lay">
         <div class="rv-col">
+          <!-- Touren c 70 «Gefühl vor den Zahlen»: how hard it felt, asked before the numbers; kept on the debrief -->
+          <section class="rv-sec" aria-labelledby="feel-h" data-trip-feel>
+            <div class="rv-h"><div><h2 id="feel-h">{t('How hard was it?')}</h2><p class="rv-sub">{t('your feeling, before the numbers')}</p></div></div>
+            <div class="rv-box pad"><FeelScale value={d.feel ?? null} onpick={(n) => onpatch?.({ feel: n })} /></div>
+          </section>
           {#if w}<HeartPower {values} zones={w.zones?.source ?? null} bike={meterBike || trip.bike || bike?.name || ''} {tempo} {power} {effort} {load} {efforts} {loads} mark={trip.id} {best} strava={acts.length > 0} sub={day != null ? t('Day {n} · from Strava · to look at, without rating', { n: day + 1 }) : ''} />{/if}
         </div>
         <div class="rv-col">

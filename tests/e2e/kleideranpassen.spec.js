@@ -61,7 +61,7 @@ const writeForecast = (page) =>
     };
   }), PLACE);
 
-test('Was ziehe ich an: gap with reason, take anyway, swap, add a layer, why, back with Undo', async ({ page, context }, info) => {
+async function setup(page, context, info) {
   const data = structuredClone(base);
   data.tables.items.push(...CLOTHES);
   data.tables.settings.push(MARK, { key: 'homePlace', value: PLACE });
@@ -80,7 +80,11 @@ test('Was ziehe ich an: gap with reason, take anyway, swap, add a layer, why, ba
   await writeForecast(page);
   await page.goto('./');
   await page.reload();
+  return errors;
+}
 
+test('Was ziehe ich an: gap with reason, take anyway, swap, add a layer, why, back with Undo', async ({ page, context }, info) => {
+  const errors = await setup(page, context, info);
   await page.locator('[data-wear-open]').click();
   const card = page.locator('dialog.wear [data-wear-card]');
   await expect(card).toBeVisible();
@@ -114,7 +118,7 @@ test('Was ziehe ich an: gap with reason, take anyway, swap, add a layer, why, ba
   await expect(row('feet')).toContainText(T('added by you · today only'));
 
   // «Warum so?»
-  await card.locator('[data-wear-why] summary').click();
+  await card.locator('[data-wear-why] > summary').click();
   await expect(card.locator('[data-wear-why]')).toContainText(T('The coldest hour of your ride: {c} °C.', { c: 6 }));
   await shot(page, info, '3-angepasst-warum');
 
@@ -124,6 +128,129 @@ test('Was ziehe ich an: gap with reason, take anyway, swap, add a layer, why, ba
   await expect(row('feet')).toHaveCount(0);
   await card.getByRole('status').getByRole('button', { name: T('Undo') }).click();
   await expect(row('mid')).toContainText(`${P}Langarm duenn`);
+  await expect(row('feet')).toHaveCount(1);
+
+  for (const w of [320, 390]) {
+    const size = page.viewportSize();
+    await page.setViewportSize({ width: w, height: size.height });
+    await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(w);
+    await page.setViewportSize(size);
+  }
+  expect(errors).toEqual([]);
+});
+
+// Step 2 «Kleider-Sets» (Noah «1a 2a oder b wählbar 3a 5a»): the nine sample sets come with the first opening,
+// the one that fits 6 °C is chosen, a swap can go into the set (with Undo), «Automatisch» leaves the sets aside.
+test('Was ziehe ich an: clothing sets, the fitting one first, a swap saved in the set, Automatic', async ({ page, context }, info) => {
+  const errors = await setup(page, context, info);
+  await page.locator('[data-wear-open]').click();
+  const card = page.locator('dialog.wear [data-wear-card]');
+  const row = (k) => card.locator(`[data-wear-row="${k}"]`);
+  const sets = card.locator('[data-wear-sets]');
+  await expect(sets.locator('[data-wear-set]')).toHaveCount(2);
+  await expect(row('mid')).toContainText(T('from the set'));
+  await shot(page, info, '4-sets');
+  await sets.locator('[data-wear-more]').click();
+  await expect(sets.locator('[data-wear-set]')).toHaveCount(10);
+  const long = sets.locator('[data-wear-set="w-long"]');
+  await expect(long).toHaveAttribute('aria-pressed', 'true');
+  await expect(long).toContainText(T('fits today'));
+  await expect(long).toContainText(T('Long top and bottom'));
+  await expect(row('mid')).toContainText(T('from the set'));
+  await expect.poll(async () => (await table(page, 'settings')).find((s) => s.key === 'sets')?.value?.filter((x) => x.preset).length).toBe(9);
+  expect((await table(page, 'items')).find((i) => i.id === 'KA02').sets).toContain('w-long');
+
+  // swap the mid layer and keep it in the set
+  await row('mid').locator('[data-wear-swap="mid"]').click();
+  await row('mid').locator('[data-wear-remember="set"]').click();
+  await expect(row('mid').locator('[data-wear-remember="set"]')).toHaveAttribute('aria-pressed', 'true');
+  await shot(page, info, '5-im-set-merken');
+  await row('mid').locator('[data-wear-opt="KA03"]').click();
+  await expect(card.getByRole('status')).toContainText(T('Saved in the set {set}: {row}.', { set: T('Long top and bottom'), row: T('Mid|layer') }));
+  await expect(row('mid')).toContainText(`${P}Langarm duenn`);
+  await expect(row('mid')).toContainText(T('from the set · too light for {c} °C', { c: 6 }));
+  await expect.poll(async () => (await table(page, 'items')).find((i) => i.id === 'KA03').sets.includes('w-long')).toBe(true);
+  expect((await table(page, 'items')).find((i) => i.id === 'KA02').sets).not.toContain('w-long');
+
+  // Undo inside the window
+  await card.getByRole('status').getByRole('button', { name: T('Undo') }).click();
+  await expect(row('mid')).toContainText(`${P}Thermotrikot`);
+  await expect.poll(async () => (await table(page, 'items')).find((i) => i.id === 'KA02').sets.includes('w-long')).toBe(true);
+
+  // Noah «2a»: the °C range of the set, right in the window; a wrong order is refused; Undo
+  const longRange = async () => (await table(page, 'settings')).find((s) => s.key === 'sets')?.value?.find((x) => x.key === 'w-long');
+  await card.locator('[data-wear-rangeopen]').click();
+  await expect(card.locator('[data-wear-from]')).toHaveValue('5');
+  await card.locator('[data-wear-from]').fill('15');
+  await card.locator('[data-wear-to]').fill('3');
+  await card.locator('[data-wear-rangesave]').click();
+  await expect(card.locator('[data-wear-range]')).toContainText(T('«From» must not be above «to».'));
+  await card.locator('[data-wear-from]').fill('0');
+  await card.locator('[data-wear-to]').fill('14');
+  await expect(card.locator('[data-wear-range]')).not.toContainText(T('«From» must not be above «to».'));
+  await shot(page, info, '5b-bereich');
+  await card.locator('[data-wear-rangesave]').click();
+  await expect(card.getByRole('status')).toContainText(T('Set {set} now fits at {range}.', { set: T('Long top and bottom'), range: '0–14 °C' }));
+  await expect(card.locator('[data-wear-rangeopen]')).toContainText('0–14 °C');
+  await expect.poll(async () => (await longRange())?.minC).toBe(0);
+  expect((await longRange()).maxC).toBe(14);
+  await card.getByRole('status').getByRole('button', { name: T('Undo') }).click();
+  await expect.poll(async () => (await longRange())?.minC).toBe(5);
+  await expect(card.locator('[data-wear-rangeopen]')).toContainText('5–12 °C');
+
+  // Automatic: the app picks from all pieces again
+  await sets.locator('[data-wear-set="auto"]').click();
+  await expect(sets.locator('[data-wear-set="auto"]')).toHaveAttribute('aria-pressed', 'true');
+  await expect(row('mid').locator('[data-wear-fromset]')).toHaveCount(0);
+  await expect(card.locator('[data-wear-setline]')).toContainText(T('The app picks from all your pieces.'));
+  await expect.poll(async () => (await table(page, 'settings')).find((s) => s.key === 'wear.day')?.value?.set).toBe('auto');
+
+  for (const w of [320, 390]) {
+    const size = page.viewportSize();
+    await page.setViewportSize({ width: w, height: size.height });
+    await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(w);
+    await page.setViewportSize(size);
+  }
+  expect(errors).toEqual([]);
+});
+
+// Step 3 «Deine Regel» (Noah «4a»): a border per row with −/+, «Du frierst», lighter or warmer first; the
+// same rule for Today and Pack; back to the standard rule with Undo.
+test('Was ziehe ich an: own borders, you get cold, warmer first, back to the standard', async ({ page, context }, info) => {
+  const errors = await setup(page, context, info);
+  await page.locator('[data-wear-open]').click();
+  const card = page.locator('dialog.wear [data-wear-card]');
+  const row = (k) => card.locator(`[data-wear-row="${k}"]`);
+  await card.locator('[data-wear-why] > summary').click();
+  const rule = card.locator('[data-wear-rule]');
+  // simple choice first; the layer borders wait folded behind «Genauer»
+  await expect(rule.locator('[data-wear-feel="normal"]')).toHaveAttribute('aria-pressed', 'true');
+  await expect(rule.locator('[data-wear-limits]')).not.toHaveAttribute('open', '');
+  await rule.locator('[data-wear-limits] summary').click();
+  await expect(rule.locator('[data-wear-limit="feet"]')).toContainText('5 °C');
+
+  // feet below 5 °C → at 6 °C not needed; two steps up: below 7 °C, the overshoes come
+  await expect(row('feet')).toHaveCount(0);
+  await rule.locator('[data-wear-up="feet"]').click();
+  await rule.locator('[data-wear-up="feet"]').click();
+  await expect(rule.locator('[data-wear-limit="feet"]')).toContainText('7 °C');
+  await expect(row('feet')).toContainText(`${P}Ueberschuhe`);
+  await expect(card.getByRole('status')).toContainText(T('{row} now below {n} °C.', { row: T('Feet'), n: 7 }));
+  await expect.poll(async () => (await table(page, 'settings')).find((s) => s.key === 'wear.rule')?.value?.limits?.feet).toBe(7);
+
+  // «Du frierst schnell»: counts 2 °C colder
+  await rule.locator('[data-wear-feel="cold"]').click();
+  await expect(rule.locator('[data-wear-feel="cold"]')).toHaveAttribute('aria-pressed', 'true');
+  await expect(card.locator('.meta')).toContainText(T('feels {c} °C', { c: 4 }));
+  await rule.locator('[data-wear-prefer="warm"]').click();
+  await expect(rule.locator('[data-wear-prefer="warm"]')).toHaveAttribute('aria-pressed', 'true');
+  await shot(page, info, '6-regel');
+
+  // back to the standard rule, then Undo
+  await rule.locator('[data-wear-rulereset]').click();
+  await expect(row('feet')).toHaveCount(0);
+  await expect(rule.locator('[data-wear-feel="normal"]')).toHaveAttribute('aria-pressed', 'true');
+  await card.getByRole('status').getByRole('button', { name: T('Undo') }).click();
   await expect(row('feet')).toHaveCount(1);
 
   for (const w of [320, 390]) {

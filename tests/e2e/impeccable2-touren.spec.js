@@ -5,6 +5,7 @@
 // - Touren 2: «Keine Fahrt verknüpft» is said once above the list, not in every card.
 // German UI, Europe/Zurich, service workers blocked.
 import { test, expect } from '@playwright/test';
+import { STEP_BAR as BAR } from '../../src/lib/stepbar.js'; // Schrittleiste (Noah 26.10.2026 «1b», changed on purpose): the bar's short names
 import { settle } from './settle.js';
 import { openShort } from './kurz-open.js';
 import { fixture, prepare, importBackup, view, tr, sideways } from './gesamttest/lib.js';
@@ -119,10 +120,10 @@ test('Tour beendet (Heute 2 + 3): the bar as on every trip page; the way behind 
   // Heute 3: Unterwegs with ✓, Rückblick the open step; tour critique 5a (Noah 21.10.2026): Packen not ticked
   // to the end is grey «n of m ticked» without the tick
   const steps = page.locator('.stepbar a');
-  await expect(steps.filter({ hasText: T('Pack|stage') })).toHaveClass(/past/);
-  await expect(steps.filter({ hasText: T('Pack|stage') })).not.toHaveClass(/done/);
-  await expect(steps.filter({ hasText: T('On the way') })).toHaveClass(/done/);
-  await expect(steps.filter({ hasText: T('Debrief') })).toHaveAttribute('aria-current', 'page');
+  await expect(steps.filter({ hasText: T(BAR.pack) })).toHaveClass(/past/);
+  await expect(steps.filter({ hasText: T(BAR.pack) })).not.toHaveClass(/done/);
+  await expect(steps.filter({ hasText: T(BAR.ride) })).toHaveClass(/done/);
+  await expect(steps.filter({ hasText: T(BAR.debrief) })).toHaveAttribute('aria-current', 'page');
   // Heute 2: on a computer the step on the left, the quiet link, then the main button on one line
   const bar = page.locator('main .mainbar');
   const go = bar.locator('.btn.hi');

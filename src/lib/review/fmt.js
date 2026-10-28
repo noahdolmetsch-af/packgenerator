@@ -1,7 +1,7 @@
 /**
  * v0.49.0 R1: how the Rückblick pages write their numbers. Unknown is a calm «–», never 0 or NaN.
  */
-import { t, num, locale } from '../i18n.svelte.js';
+import { t, tn, num, locale } from '../i18n.svelte.js';
 import { hm } from '../gpx.js';
 import { formatWeight } from '../gear.js';
 import { dhms } from '../touren/strava/fmt.js';
@@ -26,6 +26,23 @@ export const rideTimeS = (s) => (known(s) && s > 0 ? rideTime(s / 3600) : DASH);
 /** The elapsed or total time: dd:hh:mm:ss (Noah 21.10.2026). h: hours; elapsedS takes seconds. */
 export const elapsed = (h) => (known(h) && h > 0 ? dhms(h * 3600) : DASH);
 export const elapsedS = (s) => (known(s) && s > 0 ? dhms(s) : DASH);
+/**
+ * A long time in words, for the tour page (Noah 27.10.2026 «1a»: «Gesamtzeit gut lesbar» instead of «00:02:02:18»):
+ * «2 h 02 min 18 s», «26 min 45 s», «45 s»; from one day on without seconds: «1 day 2 h 15 min».
+ */
+export function longTimeS(s) {
+  if (!known(s) || s <= 0) return DASH;
+  const v = Math.round(s);
+  const d = Math.floor(v / 86400);
+  const h = Math.floor((v % 86400) / 3600);
+  const m = Math.floor((v % 3600) / 60);
+  const x = v % 60;
+  const p2 = (n) => String(n).padStart(2, '0');
+  if (d) return `${tn(d, '{n} day', '{n} days')} ${h} h ${p2(m)} min`;
+  if (h) return `${h} h ${p2(m)} min ${p2(x)} s`;
+  if (m) return `${m} min ${p2(x)} s`;
+  return `${x} s`;
+}
 /** 4–15° / –. */
 export const temps = (a, b) => (known(a) && known(b) ? `${a}–${b}°` : known(a) ? `${a}°` : known(b) ? `${b}°` : DASH);
 /** 6,8 kg / –. */

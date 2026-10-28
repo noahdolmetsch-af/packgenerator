@@ -13,7 +13,7 @@
   import { yearReview } from '../yearreview.js';
   import { formatWeight } from '../gear.js';
   import { homeTrips, monthBars } from './heute.js';
-  import { activeDays, seriesOf, restOf, REST_KEY } from './series.js';
+  import { readSeries } from './series-data.js';
   import { t, tn, num, locale } from '../i18n.svelte.js';
 
   let { today } = $props();
@@ -22,8 +22,10 @@
   const data = $derived($dataQ ? { ...$dataQ, trips: homeTrips($dataQ.trips) } : null);
   const review = $derived(data ? yearReview({ ...data, today }) : null);
   const bars = $derived(review ? monthBars(review.months, today) : []);
-  const flowQ = liveQuery(async () => ({ log: await db.flowLog.toArray(), rest: restOf((await db.settings.get(REST_KEY))?.value) }));
-  const streak = $derived(data && $flowQ ? seriesOf(activeDays({ log: $flowQ.log, rides: data.rides, trips: data.trips, debriefs: data.debriefs, today }), $flowQ.rest, today).n : 0);
+  // UI-Test T4: the one series (series-data.js); null while it loads, so «A new series starts» never
+  // shows for a moment beside the tile that says «9 weeks in a row»
+  const seriesQ = $derived(liveQuery(() => readSeries(db, today)));
+  const streak = $derived($seriesQ ? $seriesQ.s.n : null);
   const base = $derived(review?.pack.trend?.diffG ?? null);
   const monthName = (m) => new Date(`${m}-15T12:00:00`).toLocaleDateString(locale(), { month: 'long', year: 'numeric' });
 </script>
@@ -42,7 +44,7 @@
       </div>
       <a class="lnk" href="#/debrief">{t('Look back|function')} ›</a>
     </div>
-    <div class="streak">
+    {#if streak != null}<div class="streak" data-year-series={streak}>
       <span class="k">{t('Series')}</span>
       {#if streak}
         <b class="num">{tn(streak, '{n} week in a row', '{n} weeks in a row')}</b>
@@ -51,7 +53,7 @@
         <b>{t('A new series starts')}</b>
         <span class="k">{t('with your next ride, trip or activity')}</span>
       {/if}
-    </div>
+    </div>{/if}
   </section>
 {/if}
 

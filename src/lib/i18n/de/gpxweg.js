@@ -6,8 +6,8 @@ export default {
   'could not be read': 'nicht lesbar',
   'saved already': 'schon gespeichert',
   'Choose a file': 'Datei wählen',
-  'a recorded ride from your bike computer or phone (GPX or TCX), or the CSV list from Strava or Garmin. Several at once work too.':
-    'eine aufgezeichnete Fahrt vom Velocomputer oder Handy (GPX oder TCX) oder die CSV-Liste von Strava oder Garmin. Mehrere auf einmal gehen auch.',
+  'a recorded ride from your bike computer, watch or phone (GPX, TCX or FIT), or the CSV list from Strava or Garmin. Several at once work too.':
+    'eine aufgezeichnete Fahrt vom Velocomputer, von der Uhr oder vom Handy (GPX, TCX oder FIT) oder die CSV-Liste von Strava oder Garmin. Mehrere auf einmal gehen auch.',
   'Check and save': 'Prüfen und speichern',
   'you see km, climbing, riding time and pauses, and where it is saved.': 'du siehst km, Höhenmeter, Fahrzeit und Pausen, und wo sie gespeichert wird.',
   'The app learns': 'Die App lernt',
@@ -72,14 +72,14 @@ export default {
   'This is for a planned route. A ride you rode goes to': 'Das ist für eine geplante Route. Eine gefahrene Fahrt gehört zu',
   'Look back › Upload ride': 'Rückblick › Fahrt hochladen',
   // R3 (Noah 15.10.2026 «5a»): one way for GPX, TCX and CSV
-  'A recorded ride as GPX or TCX: pauses, planned vs real, learnings. A CSV list from Strava or Garmin: the km of your trips. Read on this device.':
-    'Eine aufgezeichnete Fahrt als GPX oder TCX: Pausen, geplant gegen echt, Erkenntnisse. Eine CSV-Liste von Strava oder Garmin: die km deiner Touren. Wird auf diesem Gerät gelesen.',
+  'A recorded ride as GPX, TCX or FIT: pauses, planned vs real, learnings. A CSV list from Strava or Garmin: the km of your trips. Read on this device.':
+    'Eine aufgezeichnete Fahrt als GPX, TCX oder FIT: Pausen, geplant gegen echt, Erkenntnisse. Eine CSV-Liste von Strava oder Garmin: die km deiner Touren. Wird auf diesem Gerät gelesen.',
   'Choose a ride file': 'Fahrt-Datei wählen',
-  'GPX, TCX or CSV. Garmin, Wahoo, Strava or Komoot: a ride → Export GPX. On Android you can also share the file to Pack Generator.':
-    'GPX, TCX oder CSV. Garmin, Wahoo, Strava oder Komoot: eine Fahrt → GPX exportieren. Am Android-Handy kannst du die Datei auch an Pack Generator teilen.',
+  'GPX, TCX, FIT or CSV. Garmin, Wahoo, Strava or Komoot: a ride → Export GPX or the original FIT file. On Android you can also share the file to Pack Generator.':
+    'GPX, TCX, FIT oder CSV. Garmin, Wahoo, Strava oder Komoot: eine Fahrt → GPX oder die Original-FIT-Datei exportieren. Am Android-Handy kannst du die Datei auch an Pack Generator teilen.',
   'Where do I get the file?': 'Woher bekomme ich die Datei?',
-  'One ride (GPX or TCX): pauses, planned vs real, your pace. The list (CSV): only date and km, for the km of your trips and bikes.':
-    'Eine Fahrt (GPX oder TCX): Pausen, geplant gegen echt, dein Tempo. Die Liste (CSV): nur Datum und km, für die km deiner Touren und Velos.',
+  'One ride (GPX, TCX or FIT): pauses, planned vs real, your pace. A FIT file also brings what only the unit knows (normalized power, training effect, laps, gear changes, battery). The list (CSV): only date and km, for the km of your trips and bikes.':
+    'Eine Fahrt (GPX, TCX oder FIT): Pausen, geplant gegen echt, dein Tempo. Eine FIT-Datei bringt auch, was nur das Gerät weiss (Normleistung, Trainingseffekt, Runden, Schaltvorgänge, Akku). Die Liste (CSV): nur Datum und km, für die km deiner Touren und Velos.',
   'List read: {n} ride': 'Liste gelesen: {n} Fahrt',
   'List read: {n} rides': 'Liste gelesen: {n} Fahrten',
   '{n} ride, {km} km: in the look back of this trip.': '{n} Fahrt, {km} km: im Rückblick dieser Tour.',

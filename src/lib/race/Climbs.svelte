@@ -10,6 +10,8 @@
   import { untrack, onMount, tick } from 'svelte';
   import { ChevronDown, MapPin, Trash2, Droplet, ShoppingBasket, Moon, Sun } from '@lucide/svelte';
   import RaceBox from './RaceBox.svelte';
+  import ProfileStrip from '../map/ProfileStrip.svelte';
+  import { viewFor } from '../route/routeclimbs.js';
   import { cacheQuery } from './store.js';
   import { WX_CACHE } from './outside.js';
   import { pointAt, hhmm, hm } from './race.js';
@@ -29,6 +31,10 @@
   let minGain = $state(untrack(() => (Number(ctx.stored.climbMin) > 0 ? Number(ctx.stored.climbMin) : DEFAULT_MIN)));
   let sortBy = $state('order');
   let open = $state(null); // the key (fromKm) of the open climb
+  // the fine, zoomable profile of the whole route (Noah 19.10.2026: «dasselbe genaue Profil auf der Seite
+  // Anstiege»); opening a climb zooms it to that climb
+  let view = $state(null);
+  let cursorKm = $state(null);
 
   // the fine profile (a point every 50–100 m) when the route has one, else the coarse one
   const profile = $derived(climbProfile(ctx.route));
@@ -75,6 +81,10 @@
   function toggle(c) {
     open = open === c.key ? null : c.key;
     hashWith(open ? c.n : null);
+    if (open) {
+      view = viewFor(c, routeKm);
+      cursorKm = c.maxAt;
+    }
   }
   onMount(async () => {
     const v = climbParam(location.hash);
@@ -152,6 +162,12 @@
           <figcaption class="cl-axis"><span>{t('km {km}', { km: 0 })}</span><span>{t('km {km}', { km: num(routeKm / 2) })}</span><span>{t('km {km}', { km: num(routeKm) })}</span></figcaption>
         </figure>
         <p class="rc-note">{t('Bar height: metres up. Colour: average gradient (see the legend below).')}</p>
+      {/if}
+      {#if profile.length > 1}
+        <div class="cl-strip" data-climbs-profile>
+          <h3 class="cl-strip-h">{t('Elevation profile')}</h3>
+          <ProfileStrip profile={ctx.route?.profile ?? []} fine={ctx.route?.profileFine ?? null} bind:view bind:cursorKm withMap={false} marks={climbs.map((c) => ({ km: c.fromKm }))} />
+        </div>
       {/if}
     </RaceBox>
 
@@ -438,6 +454,13 @@
     background: var(--warn-soft);
     color: var(--warn);
     font: 500 var(--fs-tiny) var(--font-body);
+  }
+  .cl-strip {
+    margin-top: var(--sp-4);
+  }
+  .cl-strip-h {
+    margin: 0 0 var(--sp-2);
+    font: 600 var(--fs-body) / 1.3 var(--font-body);
   }
   .cl-fig {
     margin: 0;

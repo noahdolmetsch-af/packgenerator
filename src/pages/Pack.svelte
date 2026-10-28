@@ -31,7 +31,7 @@
   import ClothesAt from '../lib/pack/ClothesAt.svelte';
   import { clothesAt, tempOf } from '../lib/touren/tourextra.js';
   import { leftOutPatch } from '../lib/pack/leftout.js';
-  import { onionCheck, coldest, chooseKit, tempKits, kitPlan, pctOf, CLOTHING_OFFSET, waitChill } from '../lib/wardrobe.js';
+  import { onionCheck, coldest, chooseKit, tempKits, kitPlan, pctOf, CLOTHING_OFFSET, waitChill, WEAR_RULE, wearRule } from '../lib/wardrobe.js';
   import { acceptReview } from '../lib/preparation.js';
   import { SWAP_MEMORY, swapEntries, rememberSwap, tripRange } from '../lib/swap.js';
   import { rowReasons, listDiff } from '../lib/reasons.js';
@@ -620,10 +620,13 @@
   }
   // v0.42.0 (Noah 2-5): the onion check and the temperature kit for the coldest riding hour.
   const offsetQ = liveQuery(() => db.settings.get(CLOTHING_OFFSET));
-  const offset = $derived(Number($offsetQ?.value) || 0);
+  // «Was ziehe ich an?» step 3: your own rule (borders, «you get cold», lighter or warmer first), as on Today
+  const ruleQ = liveQuery(() => db.settings.get(WEAR_RULE));
+  const wrule = $derived(wearRule($ruleQ?.value));
+  const offset = $derived((Number($offsetQ?.value) || 0) + wrule.shift);
   // Touren-Ideen 42: waiting on the way (platform, photos, breaks) counts a few degrees colder
   const chill = $derived(waitChill(trip));
-  const onionCk = $derived(trip && !over ? onionCheck(trip, items, offset + chill) : null);
+  const onionCk = $derived(trip && !over ? onionCheck(trip, items, offset + chill, wrule) : null);
   const kit = $derived.by(() => {
     const cold = onionCk ? coldest(trip) : null;
     return cold ? chooseKit(tempKits($setsQ?.value ?? []), cold.c, offset + chill) : null;

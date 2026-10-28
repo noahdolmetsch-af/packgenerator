@@ -1,16 +1,24 @@
 <script>
   /**
-   * TR7d «Fitness, Ermüdung und Form»: from the load of every activity (power, else Relative Effort) the
+   * TR7d «Fitness, Müdigkeit und Form»: from the load of every activity (power, else Relative Effort) the
    * 42-day mean (fitness), the 7-day mean (fatigue) and their difference of the day before (form), one point
-   * per week for 16 weeks. Observation only. weeks.js formWeeks.
+   * per week for 16 weeks. Observation only.
+   * UI-Test 26.10.2026 T3 (G3-01): the same calculation as the page «Form» (form-data.js formOf, form.js
+   * formWeeksOf), so both show the same fitness, «Müdigkeit» and form for today; form = fitness − Müdigkeit.
    */
+  import { liveQuery } from 'dexie';
   import AnaCard from '../AnaCard.svelte';
-  import { t } from '../../i18n.svelte.js';
-  import { formWeeks, niceTicks, WEEKS } from './weeks.js';
+  import { t, num } from '../../i18n.svelte.js';
+  import { loadTable } from '../../messwerte-data.js';
+  import { formOf } from '../../form-data.js';
+  import { formWeeksOf } from '../../form.js';
+  import { mondays, niceTicks, WEEKS } from './weeks.js';
 
-  let { acts = [], today = '' } = $props();
-  const data = $derived(today ? formWeeks(acts, today) : null);
-  const has = $derived(!!data && data.weeks.some((w) => w.ctl > 0 || w.atl > 0));
+  // acts: given to every week card; this one reads the day table like the page «Form»
+  let { acts: _acts = [], today = '' } = $props();
+  const q = $derived(liveQuery(async () => (today ? formWeeksOf(formOf({ table: await loadTable(), today, days: WEEKS * 7 }).series, today, mondays(today, WEEKS)) : null)));
+  const data = $derived($q ?? null);
+  const has = $derived(!!data && data.weeks.some((w) => w.fit > 0 || w.fat > 0));
   const signed = (v) => (v > 0 ? `+${v}` : String(v));
 
   let w = $state(0);
@@ -21,7 +29,7 @@
   const width = $derived(Math.max(240, w || 600));
   const ax = $derived.by(() => {
     if (!has) return null;
-    const vals = data.weeks.flatMap((x) => [x.ctl, x.atl, x.tsb]);
+    const vals = data.weeks.flatMap((x) => [x.fit, x.fat, x.form]);
     return niceTicks(Math.min(0, ...vals), Math.max(...vals), 4);
   });
   const X = (i) => L + (i * (width - L - R)) / (WEEKS - 1);
@@ -29,7 +37,7 @@
   const line = (k) => data.weeks.map((x, i) => `${i ? 'L' : 'M'}${X(i).toFixed(1)},${Y(x[k]).toFixed(1)}`).join('');
   const label = $derived(
     has
-      ? t('Fitness {f}, fatigue {a}, form {s} today; {n} weeks', { f: data.now.ctl, a: data.now.atl, s: signed(data.now.tsb), n: WEEKS })
+      ? t('Fitness {f}, fatigue {a}, form {s} today; {n} weeks', { f: data.now.fit, a: data.now.fat, s: signed(data.now.form), n: WEEKS })
       : '',
   );
 </script>
@@ -42,9 +50,9 @@
           <line x1={L} x2={width - R} y1={Y(v)} y2={Y(v)} class={v === 0 ? 'zero' : 'grid'} />
           <text x={L - 8} y={Y(v) + 4} text-anchor="end">{v}</text>
         {/each}
-        <path d={line('ctl')} class="ctl" />
-        <path d={line('atl')} class="atl" />
-        <path d={line('tsb')} class="tsb" />
+        <path d={line('fit')} class="ctl" />
+        <path d={line('fat')} class="atl" />
+        <path d={line('form')} class="tsb" />
         {#each data.weeks as x, i (x.monday)}
           {#if i % 5 === 0}
             <text x={X(i)} y={H + T + 18} text-anchor={i === 0 ? 'start' : i === WEEKS - 1 ? 'end' : 'middle'}>{t('Wk {n}', { n: x.kw })}</text>
@@ -53,10 +61,11 @@
       </svg>
     </div>
     <ul class="leg">
-      <li><i class="k ctl"></i>{t('Fitness {n} (42-day mean)', { n: data.now.ctl })}</li>
-      <li><i class="k atl"></i>{t('Fatigue {n} (7-day mean)', { n: data.now.atl })}</li>
-      <li><i class="k tsb"></i>{t('Form {n} (fitness – fatigue)', { n: signed(data.now.tsb) })}</li>
+      <li><i class="k ctl"></i>{t('Fitness {n} (42-day mean)', { n: data.now.fit })}</li>
+      <li><i class="k atl"></i>{t('Fatigue {n} (7-day mean)', { n: data.now.fat })}</li>
+      <li><i class="k tsb"></i>{t('Form {n} (fitness – fatigue)', { n: signed(data.now.form) })}</li>
     </ul>
+    <p class="sum num" data-form-sum>{t('Form {form} = fitness {fit} − fatigue {fat}', { form: signed(data.now.form), fit: num(data.now.fit), fat: num(data.now.fat) })}</p>
     <p class="cap">{t('Form above zero = rather rested, below zero = rather tired. Just to look at. Rides without a power meter count with Relative Effort from the heart rate.')}</p>
   </AnaCard>
 {/if}
@@ -127,5 +136,10 @@
   }
   .k.tsb {
     border-color: var(--pz4);
+  }
+  .sum {
+    margin: 0;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
   }
 </style>

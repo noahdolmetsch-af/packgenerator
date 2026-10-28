@@ -2,6 +2,7 @@
 // A day ride from New to a saved debrief with the shortcuts, and new gear from the searches.
 // Fictional fixture plus one test_data_gtp_ base-set item; nothing outside the preview server.
 import { test, expect } from '@playwright/test';
+import { STEP_BAR as BAR } from '../../src/lib/stepbar.js'; // Schrittleiste (Noah 26.10.2026 «1b», changed on purpose): the bar's short names
 import { endToDebrief } from './ending.js';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
@@ -70,7 +71,7 @@ for (const lang of ['de', 'en']) {
     const go = page.locator('.trip-band .go');
     // 0.182 (Klick-Rundgang H03): nothing packed yet, so the button says «Alles einpacken, los»
     await expect(go).toContainText(T("Pack everything, let's go"));
-    await expect(page.getByRole('navigation', { name: T('Steps of this trip') }).getByRole('link', { name: new RegExp(`^${T('Pack|stage')}`) })).toBeVisible();
+    await expect(page.getByRole('navigation', { name: T('Steps of this trip') }).getByRole('link', { name: new RegExp(`^${T(BAR.pack)}`) })).toBeVisible();
     await click(go);
     await expect(page).toHaveURL(/#\/ride/);
 

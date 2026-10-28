@@ -45,10 +45,14 @@ test('Training › Woche: the analyses over the weeks, hide and undo, switch in 
   expect(await sec.locator('[data-ana]').evaluateAll((els) => els.map((e) => e.dataset.ana))).toEqual(keys);
 
   // TR7d form: three lines, the legend with today's numbers, the calm caption
-  await expect(card('form').getByRole('img')).toHaveAttribute('aria-label', /^Heute Fitness \d+, Ermüdung \d+, Form [+-]?\d+; 16 Wochen$/);
+  // UI-Test T3 (G3-01, changed on purpose): one word «Müdigkeit», and the sum in words adds up
+  await expect(card('form').getByRole('img')).toHaveAttribute('aria-label', /^Heute Fitness \d+, Müdigkeit \d+, Form [+-]?\d+; 16 Wochen$/);
   await expect(card('form')).toContainText(/Fitness \d+ \(Mittel 42 Tage\)/);
-  await expect(card('form')).toContainText(/Ermüdung \d+ \(Mittel 7 Tage\)/);
-  await expect(card('form')).toContainText(/Form [+-]?\d+ \(Fitness – Ermüdung\)/);
+  await expect(card('form')).toContainText(/Müdigkeit \d+ \(Mittel 7 Tage\)/);
+  await expect(card('form')).toContainText(/Form [+-]?\d+ \(Fitness – Müdigkeit\)/);
+  const sum = (await card('form').locator('[data-form-sum]').textContent()).match(/^Form ([+-]?\d+) = Fitness (\d+) − Müdigkeit (\d+)$/);
+  expect(sum).not.toBeNull();
+  expect(Number(sum[1])).toBe(Number(sum[2]) - Number(sum[3]));
   await expect(card('form')).toContainText('Form über null = eher ausgeruht');
   await expect(card('form').locator('svg text', { hasText: /^KW \d+$/ })).toHaveCount(4);
   // load per week: 16 weeks, this week lighter

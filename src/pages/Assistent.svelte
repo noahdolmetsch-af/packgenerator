@@ -198,6 +198,8 @@
   .as-how summary {
     cursor: pointer;
     font-weight: 600;
+    /* Klick-Rundgang 2: a 44 px tap height */
+    padding-block: 10px;
   }
   .as-how dl {
     margin: var(--sp-2) 0 0;

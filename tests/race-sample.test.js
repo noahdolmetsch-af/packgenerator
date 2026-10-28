@@ -14,6 +14,12 @@ const as = assumptionsOf(stored, null);
 const sims = compareWays({ km: route.km, profile: route.profile, pois, start: stored.start, as });
 
 describe('sample race', () => {
+  it('stores its own learnings and drop bag in the language of the app (Klick-Rundgang 2)', () => {
+    const de = sampleStored(today, (k) => `de:${k}`);
+    expect(de.learnOwn.map((l) => l.text)).toEqual(stored.learnOwn.map((l) => `de:${l.text}`));
+    expect(de.dropBags[0].items).toBe(`de:${stored.dropBags[0].items}`);
+  });
+
   it('has 11 sectors, about 30 000 m up, one pass over 2000 m and a Saturday start', () => {
     expect(route.sectors).toHaveLength(11);
     expect(route.km).toBe(SAMPLE_KM);

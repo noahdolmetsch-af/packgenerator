@@ -216,6 +216,9 @@ export function suggestions(debrief, trip, items, learnings = [], templates = []
   // v0.26.1 (AP20, Noah 20a): what was missing becomes "Take … next time" (only when ticked).
   for (const m of debrief.missing)
     if (m.name?.trim()) out.push({ id: `next:${m.id}`, group: 'learn', label: t('Take {name} next time', { name: missName(m, byId) }), detail: t('Saved as a learning from {trip}.', { trip: trip.title }) });
+  // Touren c 65: used, but hard to reach → «pack it within reach» (a learning at the item, shown in Pack)
+  for (const id of debrief.reach ?? [])
+    if (byId[id] && !debrief.items[id]) out.push({ id: `reach:${id}`, group: 'learn', label: t('Pack {name} within reach', { name: nameOf(byId[id]) }), detail: t('It was hard to reach on {trip}. Shown at the item when you pack.', { trip: trip.title }) });
   // v0.19.2 (N10): the notes from the ride day can become learnings too.
   // v0.26.1 (Noah 19b): rideNotes may come from notes.js tripNotes (key per note; older ones ride:<index>).
   (debrief.rideNotes ?? []).forEach((n, i) => {
@@ -273,6 +276,11 @@ export function applyDebrief(debrief, trip, items, learnings, templates, ticked,
     if (on.has(`next:${m.id}`) && m.name?.trim()) {
       learn(t('Take {name} next time', { name: missName(m, byId) }), 'Debrief');
       if (m.itemId && byId[m.itemId]) learnOut.at(-1).itemIds = [m.itemId];
+    }
+  for (const id of debrief.reach ?? [])
+    if (on.has(`reach:${id}`) && byId[id]) {
+      learn(t('Pack {name} within reach', { name: nameOf(byId[id]) }), 'Debrief');
+      learnOut.at(-1).itemIds = [id];
     }
   const notesOut = [];
   (debrief.rideNotes ?? []).forEach((n, i) => {

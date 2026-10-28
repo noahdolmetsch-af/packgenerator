@@ -339,7 +339,9 @@ export function chooseKit(kits = [], c, offset = 0) {
   const list = tempKits(kits);
   if (!list.length || c == null) return null;
   const f = felt(c, offset);
-  const fit = list.filter((k) => kitFits(k, c, offset)).sort((a, b) => hi(a) - hi(b) || lo(a) - lo(b));
+  // Kleider-Sets (27.10.2026): your own kits come before the sample sets of the app (wearpresets.js).
+  const own = (k) => (k.preset ? 1 : 0);
+  const fit = list.filter((k) => kitFits(k, c, offset)).sort((a, b) => own(a) - own(b) || hi(a) - hi(b) || lo(a) - lo(b));
   if (fit.length) return fit[0];
   const dist = (k) => (f < lo(k) ? lo(k) - f : f - hi(k));
   return [...list].sort((a, b) => dist(a) - dist(b) || hi(a) - hi(b))[0];
@@ -371,15 +373,53 @@ export function waitChill(trip) {
  * The rows of the onion and when each is needed (c: the felt temperature). layer / zone: what an
  * item must be to count. rain: on a wet trip the outer layer must keep rain out.
  */
+/**
+ * The borders of the onion (felt °C): a row is needed below its border. «Was ziehe ich an? selbst
+ * anpassen» step 3 (Noah 27.10.2026 «4a»): you can move each border (wear rule, wearRule()); without
+ * a change these hold. The window on Today and Pack use the same borders.
+ */
+export const ONION_LIMITS = { mid: 15, outer: 12, legs: 10, hands: 12, head: 8, feet: 5 };
 export const ONION = [
   { key: 'base', name: 'Base|layer', layer: 'base', need: () => true },
-  { key: 'mid', name: 'Mid|layer', layer: 'mid', need: (c) => c < 15 },
-  { key: 'outer', name: 'Outer|layer', layer: 'outer', need: (c, wet) => c < 12 || wet },
-  { key: 'legs', name: 'Legs', zone: 'legs', below: 10, need: (c) => c < 10 },
-  { key: 'hands', name: 'Hands', zone: 'hands', below: 12, need: (c) => c < 12 },
-  { key: 'head', name: 'Head', zone: 'head', below: 8, need: (c) => c < 8 },
-  { key: 'feet', name: 'Feet', zone: 'feet', below: 5, need: (c) => c < 5 },
+  { key: 'mid', name: 'Mid|layer', layer: 'mid', need: (c, wet, L = ONION_LIMITS) => c < L.mid },
+  { key: 'outer', name: 'Outer|layer', layer: 'outer', need: (c, wet, L = ONION_LIMITS) => c < L.outer || wet },
+  { key: 'legs', name: 'Legs', zone: 'legs', below: 10, need: (c, wet, L = ONION_LIMITS) => c < L.legs },
+  { key: 'hands', name: 'Hands', zone: 'hands', below: 12, need: (c, wet, L = ONION_LIMITS) => c < L.hands },
+  { key: 'head', name: 'Head', zone: 'head', below: 8, need: (c, wet, L = ONION_LIMITS) => c < L.head },
+  { key: 'feet', name: 'Feet', zone: 'feet', below: 5, need: (c, wet, L = ONION_LIMITS) => c < L.feet },
 ];
+
+/* ---------- your own rule (step 3): borders, how fast you get cold, lighter or warmer first ---------- */
+
+/** The settings record of your rule: { limits: { mid, … }, feel: 'cold'|'normal'|'warm', prefer: 'light'|'warm' }. */
+export const WEAR_RULE = 'wear.rule';
+export const FEELS = { cold: 2, normal: 0, warm: -2 };
+export const LIMIT_RANGE = [-15, 30];
+const whole = (n) => Math.max(LIMIT_RANGE[0], Math.min(LIMIT_RANGE[1], Math.round(n)));
+/** The rule from the settings value: borders (yours over the standard), feel shift (°C colder), prefer. */
+export function wearRule(value) {
+  const v = value && typeof value === 'object' ? value : {};
+  const limits = { ...ONION_LIMITS };
+  for (const k of Object.keys(ONION_LIMITS)) if (Number.isFinite(Number(v.limits?.[k])) && v.limits?.[k] !== null && v.limits?.[k] !== '') limits[k] = whole(Number(v.limits[k]));
+  const feel = v.feel in FEELS ? v.feel : 'normal';
+  return { limits, feel, shift: FEELS[feel], prefer: v.prefer === 'warm' ? 'warm' : 'light' };
+}
+/** One border one step up or down: the new settings value (a border back at the standard leaves the value). */
+export function stepLimit(value, key, step) {
+  const v = value && typeof value === 'object' ? value : {};
+  const cur = wearRule(v).limits[key];
+  const n = whole(cur + step);
+  const limits = { ...(v.limits ?? {}) };
+  if (n === ONION_LIMITS[key]) delete limits[key];
+  else limits[key] = n;
+  const { limits: _, ...rest } = v;
+  return Object.keys(limits).length ? { ...rest, limits } : rest;
+}
+/** Did you change anything of the rule? */
+export const ruleChanged = (value) => {
+  const r = wearRule(value);
+  return r.feel !== 'normal' || r.prefer !== 'light' || Object.keys(ONION_LIMITS).some((k) => r.limits[k] !== ONION_LIMITS[k]);
+};
 
 /**
  * Is an item warm enough for this temperature? Its range (layers add up, so 2 °C below its lower
@@ -403,7 +443,9 @@ export const matchesRow = (row, item) => (row.layer ? layerKey(item.layer) === r
  * rain (the outer layer must keep rain out), fix (the best owned item for a gap, or null) }.
  * Only the rows that are needed, or that something on the list covers, are shown.
  */
-export function onionCheck(trip, items = [], offset = 0) {
+export function onionCheck(trip, items = [], offset = 0, rule = null) {
+  const L = rule?.limits ?? ONION_LIMITS;
+  const prefer = rule?.prefer ?? 'light';
   const cold = coldest(trip);
   if (!cold) return null;
   if (!items.some((i) => isInventory(i) && (layerKey(i.layer) || zoneGroup(i.zone)))) return null;
@@ -414,7 +456,7 @@ export function onionCheck(trip, items = [], offset = 0) {
   const onIds = new Set(on.map((i) => i.id));
   const rows = [];
   for (const row of ONION) {
-    const need = row.need(c, wet);
+    const need = row.need(c, wet, L);
     const mine = on.filter((i) => matchesRow(row, i));
     if (!need && !mine.length) continue;
     const warm = mine.filter((i) => warmEnough(i, c));
@@ -423,20 +465,22 @@ export function onionCheck(trip, items = [], offset = 0) {
     if (rain && !mine.some(rainProof)) ok = false;
     const needRain = rain && !mine.some(rainProof);
     let fix = null;
-    if (!ok) fix = best(items.filter((i) => isInventory(i) && !onIds.has(i.id) && matchesRow(row, i) && (needRain && warm.length ? rainProof(i) : warmEnough(i, c) && (!needRain || rainProof(i)))), c);
-    rows.push({ key: row.key, name: row.name, below: row.below ?? null, need, ok, rain: needRain, items: mine, fix });
+    if (!ok) fix = best(items.filter((i) => isInventory(i) && !onIds.has(i.id) && matchesRow(row, i) && (needRain && warm.length ? rainProof(i) : warmEnough(i, c) && (!needRain || rainProof(i)))), c, prefer);
+    rows.push({ key: row.key, name: row.name, below: row.below != null ? L[row.key] : null, need, ok, rain: needRain, items: mine, fix });
   }
   return { c, real: cold.c, from: cold.from, date: cold.date ?? null, hour: cold.hour ?? null, wet, pct: rainChance(trip), rows, gaps: rows.filter((r) => !r.ok).length };
 }
 
 /** The best item for a gap: a range that holds c first, then the closest lower border, then the lighter one. */
-export function best(list, c) {
+export function best(list, c, prefer = 'light') {
   const holds = (i) => typeof i.tempMin === 'number' && i.tempMin <= c && (typeof i.tempMax !== 'number' || i.tempMax >= c);
+  // step 3 (prefer 'warm'): of the pieces that hold c, the warmer one (the lower border) first
+  const dir = prefer === 'warm' ? -1 : 1;
   return (
     [...list].sort(
       (a, b) =>
         Number(holds(b)) - Number(holds(a)) ||
-        (typeof b.tempMin === 'number' ? b.tempMin : -99) - (typeof a.tempMin === 'number' ? a.tempMin : -99) ||
+        dir * ((typeof b.tempMin === 'number' ? b.tempMin : -99) - (typeof a.tempMin === 'number' ? a.tempMin : -99)) ||
         (a.weightG ?? 9999) - (b.weightG ?? 9999) ||
         a.id.localeCompare(b.id),
     )[0] ?? null
@@ -514,7 +558,7 @@ export function gapWish(gap, items = [], { name, reason, now = new Date().toISOS
  * owned piece for it (never everyday-only), or null when nothing owned fits.
  * → { c (felt), real, hour, from, wet, pct, rows: [{ key, name, item, rain }] } or null (no forecast for that day).
  */
-export function outfitFor(forecast, items = [], { date, start = 8, hours = 2, offset = 0 } = {}) {
+export function outfitFor(forecast, items = [], { date, start = 8, hours = 2, offset = 0, rule = null } = {}) {
   if (!forecast || !date) return null;
   const trip = { startDate: date, days: 1, hours, rideStart: [`${String(start).padStart(2, '0')}:00`], forecast, wx: null };
   const day = (forecast.days ?? []).find((x) => x.date === date);
@@ -526,14 +570,20 @@ export function outfitFor(forecast, items = [], { date, start = 8, hours = 2, of
   const c = felt(cold.c, offset);
   const wet = isWet(trip) || day?.rain === 'rain' || day?.rain === 'showers';
   const own = items.filter((i) => isInventory(i) && isClothing(i) && !everydayOnly(i));
+  return { c, real: cold.c, hour: cold.hour ?? null, from: cold.from, wet, pct: rainChance(trip), rows: onionRows(own, c, wet, rule) };
+}
+
+/** The rows the onion needs at a felt temperature (the legs always), each with the best fitting piece of own. */
+export function onionRows(own = [], c, wet = false, rule = null) {
+  const L = rule?.limits ?? ONION_LIMITS;
   const rows = [];
   for (const row of ONION) {
-    if (!row.need(c, wet) && row.key !== 'legs') continue;
+    if (!row.need(c, wet, L) && row.key !== 'legs') continue;
     const rain = row.key === 'outer' && wet;
     const fits = own.filter((i) => matchesRow(row, i) && warmEnough(i, c) && (!rain || rainProof(i)));
-    rows.push({ key: row.key, name: row.name, item: best(fits, c), rain });
+    rows.push({ key: row.key, name: row.name, item: best(fits, c, rule?.prefer), rain });
   }
-  return { c, real: cold.c, hour: cold.hour ?? null, from: cold.from, wet, pct: rainChance(trip), rows };
+  return rows;
 }
 
 /**

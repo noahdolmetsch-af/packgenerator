@@ -341,6 +341,7 @@ export default {
   'The tent was never used: leave it at home': 'Das Zelt nie gebraucht: zu Hause lassen',
   'Big bags tempt you to take more': 'Grosse Taschen verleiten zu mehr Zeug',
   'Book the hotels early': 'Hotels früh buchen',
+  'Clean clothes, bars, brake pads': 'Saubere Kleider, Riegel, Bremsbeläge',
   'Planning a race?': 'Ein Rennen planen?',
   'See a made-up sample race and try what you can change.': 'Sieh ein erfundenes Muster-Rennen an und probier aus, was du anpassen kannst.',
 

@@ -97,6 +97,35 @@ export function hours(list = []) {
   return n.map((x, i) => ({ from: HOUR_SLOTS[i], n: x, pct: sum ? Math.round((x / sum) * 100) : 0 }));
 }
 
+/**
+ * «Diagramme zum Antippen» (Noah 27.10.2026 «1-5 a»): what is behind a tapped bar. The ticks of one
+ * weekday (kind 'days', i 0 = Monday) or one slot of three hours (kind 'hours', i 0 = from 0 o'clock),
+ * counted like weekdays() and hours() above.
+ */
+export function inSlot(list = [], kind, i) {
+  if (kind === 'days') return list.filter((e) => e?.day && dow(e.day) === i);
+  return list.filter((e) => {
+    const d = e?.at ? new Date(e.at) : null;
+    return d && !Number.isNaN(d.getTime()) && e.via !== 'trip' && Math.floor(d.getHours() / 3) === i;
+  });
+}
+
+/** How often each activity was ticked, most first (then by id): [{ actId, n }]. */
+export function actCounts(list = []) {
+  const by = new Map();
+  for (const e of list) if (e?.actId) by.set(e.actId, (by.get(e.actId) ?? 0) + 1);
+  return [...by].map(([actId, n]) => ({ actId, n })).sort((a, b) => b.n - a.n || String(a.actId).localeCompare(String(b.actId)));
+}
+
+/** The days from `from` to `to`, each with its ticks in the order they were ticked: [{ day, es }]. */
+export function daysWith(list = [], from, to) {
+  const out = [];
+  for (let d = from; d <= to; d = addDays(d, 1)) out.push({ day: d, es: [] });
+  const at = new Map(out.map((x, i) => [x.day, i]));
+  for (const e of [...inRange(list, from, to)].sort((a, b) => String(a.at ?? '').localeCompare(String(b.at ?? '')))) out[at.get(e.day)]?.es.push(e);
+  return out;
+}
+
 /** Ticks per day and the mean of the 7 days up to it: [{ day, n, mean }]. */
 export function daily(list = [], from, to) {
   const by = new Map();

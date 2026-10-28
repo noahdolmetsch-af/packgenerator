@@ -67,15 +67,26 @@ test('sections, greeting with the weather, the trip card, the 16 functions as sm
   // «Heute neu» N2 (0.169.0, Noah «5a», changed on purpose): one sentence, then the body and the Aktiv tiles; the
   // trip of tomorrow right under them, «Up now» after the trip
   await expect(page.locator('[data-say]')).toContainText(T('{n} day until {trip}.', { n: 1, trip: 'test_data_gtp_ Herbstrunde' }));
-  // 0.180.0 P6 (Noah 21.10.2026 «2b», changed on purpose): the meditation card is first on the wall, the weekly weight
-  // under it; «Your body today» still starts in the first screen
-  const bodyTop = await page.locator('[data-section="body"]').evaluate((el) => el.getBoundingClientRect().top);
-  // the rows above it in the message, so a red run on GitHub says which row grew (CI 26.10.2026)
-  const above = await page.evaluate(() => [...document.querySelectorAll('section.greet > * > * > *, .wall > *')].map((e) => `${e.tagName.toLowerCase()}.${String(e.className).split(' ')[0]} ${Math.round(e.getBoundingClientRect().top)}+${Math.round(e.getBoundingClientRect().height)}`).join(', '));
-  expect(bodyTop, `«Your body today» starts in the first screen (${above})`).toBeLessThan(page.viewportSize().height);
+  // 0.180.0 P6 (Noah 21.10.2026 «2b»): the meditation card is first on the wall, the weekly weight under it.
+  // «Heute ruhiger» (Noah 26.10.2026 «3a», mockup H3, changed on purpose): the tiles stand in areas with a heading;
+  // «Jetzt» (meditation, the trip, the weekly weight, «Up now») comes first, then «Dein Körper» with the body and Aktiv
   await expect(page.locator('.wall > [data-tile]').first()).toHaveAttribute('data-tile', 'meditation');
+  const areas = await page.locator('.wall [data-home-sec]').evaluateAll((els) => els.map((e) => e.dataset.homeSec));
+  expect(areas.slice(0, 2)).toEqual(['now', 'body']);
+  await expect(page.locator('[data-home-sec="now"] h2')).toHaveText(T('Now|home'));
   const order = await page.locator('[data-section="weighin"], [data-section="body"], [data-section="acts"], [data-section="trip"], [data-section="today"]').evaluateAll((els) => els.map((e) => e.dataset.section));
-  expect(order.filter((x, i, a) => a.indexOf(x) === i)).toEqual(['weighin', 'body', 'acts', 'trip', 'today']);
+  expect(order.filter((x, i, a) => a.indexOf(x) === i)).toEqual(['trip', 'weighin', 'today', 'body', 'acts']);
+  // a card that fills up its row reaches from where it starts to the end of the row (it once sat alone in the last column)
+  if (!phone) {
+    const fills = await page.locator('.wall.secs > .ti.fill').evaluateAll((els) => {
+      const wall = els[0]?.parentElement.getBoundingClientRect();
+      return els.map((e) => ({ id: e.dataset.tile, w: e.getBoundingClientRect().width / wall.width, right: wall.right - e.getBoundingClientRect().right }));
+    });
+    for (const f of fills) {
+      expect(f.w, f.id).toBeGreaterThan(0.2);
+      expect(Math.abs(f.right), f.id).toBeLessThan(2);
+    }
+  }
 
   // Up now, Tried it yet?, bikes, customise
   // «Heute neu» A (changed on purpose): at most 4 rows, «Show all» opens the rest; the 12 months left Heute (catalog)

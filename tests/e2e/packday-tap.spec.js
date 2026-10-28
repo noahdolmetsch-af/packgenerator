@@ -7,6 +7,7 @@ import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';
 import { openData, settle } from './settle.js';
+import { STEP_BAR as BAR } from '../../src/lib/stepbar.js'; // Schrittleiste (Noah 26.10.2026 «1b», changed on purpose): the bar's short names
 
 const T = (en, vars) => {
   const text = DE[en] ?? en.replace(/\|[a-z]+$/, '');
@@ -38,7 +39,7 @@ async function start(page, context, info, extra = []) {
 }
 
 async function packTab(page) {
-  await page.locator('.trip-band nav a').filter({ hasText: T('Pack|stage') }).click();
+  await page.locator('.trip-band nav a').filter({ hasText: T(BAR.pack) }).click();
   await expect(page.locator('.pd')).toBeVisible();
 }
 

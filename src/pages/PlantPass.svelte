@@ -13,8 +13,9 @@
   import PageHead from '../lib/ui/PageHead.svelte';
   import PassSheet from '../lib/merken/PassSheet.svelte';
   import { askDelete, deleteWithUndo } from '../lib/ui/ask.js';
+  import { offerDone } from '../lib/ui/rename.svelte.js';
   import { MERKEN_KEY, updateTodo, restoreTodos } from '../lib/merkendb.js';
-  import { SUN, WIND, WET, passOf, withEntry, withoutEntry, moveTo, spots, spotNow, passHint } from '../lib/merken/plantpass.js';
+  import { SUN, WIND, WET, passOf, withEntry, withoutEntry, moveTo, spots, spotNow, passAdvice } from '../lib/merken/plantpass.js';
   import { Sprout, Eye, MoveRight, Pencil, Trash2, MapPin, Lightbulb } from '@lucide/svelte';
   import '../lib/ruhig/ruhig.css';
 
@@ -42,6 +43,12 @@
       name: what,
     });
   }
+  // the hint's watering interval in one tap, with Undo (Noah 27.10.2026 «1b»)
+  async function setEvery(td, every, obs) {
+    const now = $state.snapshot(($q ?? []).find((x) => x.id === td.id) ?? td);
+    const undo = await updateTodo(db, td.id, { plant: { ...now.plant, every, everyFor: obs } });
+    offerDone(t('Now every {n} days. You can change it in the plant window too.', { n: every }), undo);
+  }
   const obsLine = (e) => [e.sun && label(SUN, e.sun), e.wind && label(WIND, e.wind), e.wet && label(WET, e.wet)].filter(Boolean).join(' · ');
 </script>
 
@@ -57,7 +64,7 @@
     {#each plants as td (td.id)}
       {@const pass = passOf(td)}
       {@const now = spotNow(td)}
-      {@const hint = passHint(td)}
+      {@const adv = passAdvice(td)}
       {@const photo = pass.find((e) => e.photo)?.photo}
       {@const sp = spots(td)}
       <li class="rh-card pp-card" data-plant={td.id}>
@@ -69,7 +76,12 @@
               <p class="rh-help"><MapPin size={14} aria-hidden="true" /> {td.plant.place || t('No place yet')}{#if now.n}{' '}·{' '}{[now.sun && label(SUN, now.sun), now.wind && label(WIND, now.wind), now.wet && label(WET, now.wet)].filter(Boolean).join(' · ')}{/if}</p>
             </div>
           </div>
-          {#if hint}<p class="rh-note"><Lightbulb size={14} aria-hidden="true" /> {t(hint)}</p>{/if}
+          {#if adv}
+            <div class="rh-note pp-adv" data-pass-hint>
+              <span><Lightbulb size={14} aria-hidden="true" /> {t(adv.hint)}</span>
+              {#if adv.every}<button type="button" class="btn sm" onclick={() => setEvery(td, adv.every, adv.obs)} data-pass-every={adv.every}>{t('Water every {n} days', { n: adv.every })}</button>{/if}
+            </div>
+          {/if}
           <div class="rh-row">
             <button type="button" class="btn sm hi" onclick={() => (sheet = { td, kind: 'obs' })} data-pass-obs><Eye size={16} aria-hidden="true" />{t('Observation')}</button>
             <button type="button" class="btn sm" onclick={() => (sheet = { td, kind: 'move' })} data-pass-move><MoveRight size={16} aria-hidden="true" />{t('Moved')}</button>
@@ -105,6 +117,13 @@
 {/if}
 
 <style>
+  .pp-adv {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
   .pp-page {
     max-width: 760px;
   }

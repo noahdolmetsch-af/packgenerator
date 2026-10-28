@@ -68,7 +68,7 @@
   import { askDelete, deleteWithUndo } from '../lib/ui/ask.js';
   import { offerDone, offerRename } from '../lib/ui/rename.svelte.js';
   import { FIELD_HELP } from '../lib/daumen.js';
-  import { rideTimeS, elapsedS, n0, n1, dates, DASH } from '../lib/review/fmt.js';
+  import { rideTimeS, longTimeS, n0, n1, dates, DASH } from '../lib/review/fmt.js';
   import { tidyAllTitles, fileOf, needsTitle } from '../lib/touren/titel.js';
   import { ask, showNow } from '../lib/remind/ask.svelte.js';
   import { Route, Pencil, SlidersHorizontal, EyeOff, Eye, Unlink, Trash2, ExternalLink, Activity, Star, Share2, Copy, Map as MapIcon, ImagePlus, X, ChevronRight, Repeat, BookmarkPlus, Plus, LayoutGrid, CloudSun, RefreshCw, Heart, FileText, Bell, MapPin } from '@lucide/svelte';
@@ -129,7 +129,7 @@
   const secs = rideTimeS;
   const FIELD = {
     dauer: (r) => [t('Duration|act'), secs(r.dauer), ''],
-    verstr: (r) => [t('Elapsed|col'), elapsedS(r.verstr), ''],
+    verstr: (r) => [t('Elapsed|col'), longTimeS(r.verstr), ''],
     tss: (r) => [t('TSS'), n0(r.tss), ''],
     hf: (r) => [t('Ø HR'), n0(r.hf), t('bpm')],
     hfmax: (r) => [t('Max. HR'), n0(r.hfmax), t('bpm')],
@@ -140,7 +140,7 @@
     wmax: (r) => [t('Max. power'), n0(r.wmax), 'W'],
     w20: (r) => [t('Max. 20 min'), n0(r.w20), 'W'],
   };
-  const KPI_FMT = { km: n1, hm: n0, dauer: (v) => secs(v), verstr: (v) => elapsedS(v), kmh: n1, hf: n0, hfmax: n0, w: n0, tss: n0, n: n0 };
+  const KPI_FMT = { km: n1, hm: n0, dauer: (v) => secs(v), verstr: (v) => longTimeS(v), kmh: n1, hf: n0, hfmax: n0, w: n0, tss: n0, n: n0 };
   const CHANGED_OF = { km: 'km', hm: 'hm', dauer: 'movingS' };
   const isChanged = (k) => (row?.changed ?? []).includes(CHANGED_OF[k]);
   const stravaWas = (k) => {
@@ -257,9 +257,14 @@
   let seen = $state('overview');
   $effect(() => {
     if (!d || d.missing || opts.mode !== 'all' || typeof IntersectionObserver === 'undefined') return;
+    // Noah 27.10.2026 «1a»: with two columns the right one (Gepäck) lit up while the left one was read. The observer
+    // only reports what changed, so keep every part in the band and mark the first in reading order (PARTS: the left
+    // column first, then the right one, then the analysis)
+    const inBand = new Set();
     const io = new IntersectionObserver((ents) => {
-      const vis = ents.filter((e) => e.isIntersecting).sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top)[0];
-      if (vis) seen = vis.target.dataset.tourPart;
+      for (const e of ents) e.isIntersecting ? inBand.add(e.target.dataset.tourPart) : inBand.delete(e.target.dataset.tourPart);
+      const first = PARTS.find((p) => inBand.has(p.key));
+      if (first) seen = first.key;
     }, { rootMargin: '-20% 0px -60% 0px' });
     for (const el of document.querySelectorAll('[data-tour-part]')) io.observe(el);
     return () => io.disconnect();

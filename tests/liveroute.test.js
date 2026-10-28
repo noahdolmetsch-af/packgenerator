@@ -6,7 +6,7 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import { readFileSync } from 'node:fs';
 import 'fake-indexeddb/auto';
 import {
-  LIVE_ROUTE_KEY, LIVE_LINE_MAX, NAME_MAX, thinLine, cleanName, liveRouteOf, liveRouteFromText, cleanLiveRoute, renameLiveRoute, canSaveToTrip, asTripRoute,
+  LIVE_ROUTE_KEY, LIVE_LINE_MAX, liveRouteFor, forRide, NAME_MAX, thinLine, cleanName, liveRouteOf, liveRouteFromText, cleanLiveRoute, renameLiveRoute, canSaveToTrip, asTripRoute,
   loadLiveRoute, saveLiveRoute, clearLiveRoute,
 } from '../src/lib/live/liveroute.js';
 import { createDb } from '../src/lib/db.js';
@@ -106,6 +106,29 @@ describe('a stored value', () => {
     expect(c.km).toBeCloseTo(10.9, 0);
     expect(c.start).toEqual({ lat: 10, lon: 30 });
     expect(c.end).toEqual({ lat: 10, lon: 30.1 });
+  });
+});
+
+// Noah 28.10.2026: a new trip without a route had the GPX of an old ride
+describe('the GPX counts only for the ride it was opened for', () => {
+  const r = liveRouteFromText(gpx(), 'export.gpx', NOW);
+  it('opened without a trip: only for a ride without a trip (also an old one stored before forTrip)', () => {
+    expect(liveRouteFor(r, null)).toBe(r);
+    expect(liveRouteFor(r, '')).toBe(r);
+    expect(liveRouteFor(r, 'trip-1')).toBeNull();
+    const old = cleanLiveRoute({ name: 'Alt', line: [[10, 30], [10, 30.1]] });
+    expect(old.forTrip).toBe('');
+    expect(liveRouteFor(old, 'trip-1')).toBeNull();
+  });
+  it('opened for a trip: only for that trip; loaded for another ride it moves there', () => {
+    const t1 = forRide(r, 'trip-1');
+    expect(cleanLiveRoute(t1).forTrip).toBe('trip-1');
+    expect(liveRouteFor(t1, 'trip-1')).toBe(t1);
+    expect(liveRouteFor(t1, 'trip-2')).toBeNull();
+    expect(liveRouteFor(t1, null)).toBeNull();
+    expect(liveRouteFor(forRide(t1, null), null)?.name).toBe(r.name);
+    expect(liveRouteFor(null, null)).toBeNull();
+    expect(renameLiveRoute(t1, 'Neu').forTrip).toBe('trip-1');
   });
 });
 

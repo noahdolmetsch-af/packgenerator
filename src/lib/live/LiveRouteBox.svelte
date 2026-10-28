@@ -14,7 +14,7 @@
   import RwgpsLink from '../sources/RwgpsLink.svelte';
   import { db } from '../db.js';
   import { GPX_MAX_MB } from '../route.js';
-  import { liveRouteQuery, liveRouteFromText, saveLiveRoute, clearLiveRoute, renameLiveRoute, canSaveToTrip, asTripRoute, NAME_MAX } from './liveroute.js';
+  import { liveRouteQuery, liveRouteFromText, saveLiveRoute, clearLiveRoute, renameLiveRoute, canSaveToTrip, asTripRoute, liveRouteFor, forRide, NAME_MAX } from './liveroute.js';
   import { askDelete, deleteWithUndo } from '../ui/ask.js';
   import { offerDone, offerRename } from '../ui/rename.svelte.js';
   import { t, num, locale } from '../i18n.svelte.js';
@@ -22,7 +22,9 @@
   let { trip = null, onchange = null } = $props();
 
   const routeQ = liveRouteQuery(db.settings);
-  const route = $derived($routeQ ?? null);
+  // only the GPX opened for this ride counts; one opened for another ride is only offered (Noah 28.10.2026)
+  const route = $derived(liveRouteFor($routeQ ?? null, trip?.id));
+  const last = $derived(!route ? ($routeQ ?? null) : null);
   const offerTrip = $derived(!!route && canSaveToTrip(trip));
 
   let busy = $state(false);
@@ -56,7 +58,7 @@
 
   // a GPX text (a file, or the GPX of a Ride with GPS link) → the live route, with Undo; throws a plain message
   async function openText(text, fileName) {
-    const r = liveRouteFromText(text, fileName);
+    const r = forRide(liveRouteFromText(text, fileName), trip?.id);
     const before = await saveLiveRoute(db.settings, r);
     changed(r);
     offerDone(
@@ -67,6 +69,16 @@
         changed(before);
       },
     );
+  }
+  // the GPX of another ride, for this one (Undo: back to the other ride)
+  async function reuse() {
+    if (!last) return;
+    const before = await saveLiveRoute(db.settings, forRide(last, trip?.id));
+    changed(forRide(last, trip?.id));
+    offerDone(t('Route «{name}» opened: {km} km.', { name: last.name, km: num(Math.round(last.km)) }), async () => {
+      if (before) await saveLiveRoute(db.settings, before);
+      changed(before);
+    });
   }
   // «Neue Quellen» 20.10.2026: a Ride with GPS link (RwgpsLink shows the message when this throws)
   const fromLink = (text, fileName) => ((msg = ''), openText(text, fileName));
@@ -149,6 +161,12 @@
     {/if}
   {:else}
     <p class="lr-help">{t('Export the route as a GPX file from komoot, Ride with GPS or Garmin and open it here. The map then shows km along the route, how far to the end, arrival and the climbs. The file stays on this device.')}</p>
+    {#if last}
+      <div class="lr-offer" data-live-route-last>
+        <p class="lr-help">{trip ? t('This ride starts without a route. Your last GPX «{name}» ({km} km) is still here.', { name: last.name, km: num(Math.round(last.km * 10) / 10) }) : t('Your last GPX «{name}» ({km} km) is still here.', { name: last.name, km: num(Math.round(last.km * 10) / 10) })}</p>
+        <button type="button" class="btn sm lr-tbtn" onclick={reuse} data-live-route-reuse><RouteIcon size={16} aria-hidden="true" />{t('Load for this ride')}</button>
+      </div>
+    {/if}
     <label class="btn lr-file">
       <Upload size={17} aria-hidden="true" />{busy ? t('Reading…') : t('Open GPX file')}
       <input type="file" accept=".gpx,application/gpx+xml" onchange={pick} disabled={busy} class="sr" data-live-route-file />

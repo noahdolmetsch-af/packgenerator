@@ -10,13 +10,14 @@
    * none: the word for «no group» on this page («No category»); noneHint: what «none» means there;
    * targets: the other groups [{ id, name }] (name already translated); onconfirm(targetId | null).
  * empty: the line when nothing is in it (default «The group is empty.»; a bike: «No trip uses it.»).
+   * action: the word on the button when the group is hidden rather than deleted (Heute's areas: «Hide»).
    */
   import { backClose } from './backclose.js';
   import { t } from '../i18n.svelte.js';
   import { X, Trash2 } from '@lucide/svelte';
   import '../bikes/velo-dlg.css';
 
-  let { title, count = 0, what = (n) => String(n), none = '', noneHint = '', targets = [], note = '', empty = '', onconfirm, onclose } = $props();
+  let { title, count = 0, what = (n) => String(n), none = '', noneHint = '', targets = [], note = '', empty = '', action = '', onconfirm, onclose } = $props();
 
   let dialog;
   $effect(() => {
@@ -58,7 +59,7 @@
 
   <div class="vd-foot">
     <button type="button" class="btn" onclick={() => dialog.close()}>{t('Cancel')}</button>
-    <button type="button" class="btn del" onclick={confirm}><Trash2 size={16} aria-hidden="true" />{t('Delete')}</button>
+    <button type="button" class="btn del" onclick={confirm}>{#if action}{action}{:else}<Trash2 size={16} aria-hidden="true" />{t('Delete')}{/if}</button>
   </div>
 </dialog>
 

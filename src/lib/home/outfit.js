@@ -13,11 +13,12 @@ import { isInventory } from '../gear.js';
  * → { state, place, win, outfit }. state: 'none' (no sorted owned clothing: no card at all),
  * 'noplace' (no home place), 'noforecast' (no usable forecast for that day), 'ok'.
  * place: the setting homePlace; forecast: the saved home forecast (meta); now: a Date.
+ * rule: your own rule (wardrobe.js wearRule: borders, «you get cold» shift, lighter or warmer first).
  */
-export function todayOutfit({ place = null, forecast = null, items = [], trips = [], offset = 0, now = new Date() } = {}) {
+export function todayOutfit({ place = null, forecast = null, items = [], trips = [], offset = 0, rule = null, now = new Date() } = {}) {
   if (!items.some((i) => isInventory(i) && isClothing(i) && (layerKey(i.layer) || zoneGroup(i.zone)))) return { state: 'none', place, win: null, outfit: null };
   if (!place) return { state: 'noplace', place, win: null, outfit: null };
   const win = rideWindow(now, { late: LATE_HOUR, hours: daySource(trips)?.hours ?? DAY_HOURS });
-  const outfit = forecast && usable(place, forecast, now.getTime()) ? outfitFor(forecast, items, { ...win, offset }) : null;
+  const outfit = forecast && usable(place, forecast, now.getTime()) ? outfitFor(forecast, items, { ...win, offset: offset + (rule?.shift ?? 0), rule }) : null;
   return { state: outfit ? 'ok' : 'noforecast', place, win, outfit };
 }

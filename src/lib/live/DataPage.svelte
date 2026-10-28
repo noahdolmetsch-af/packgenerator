@@ -168,6 +168,12 @@
     overflow: hidden;
   }
   /* a phone on its side: little height, so the small map takes a little less and the head is slimmer */
+  /* on the computer the numbers stay at the display size: room for the overview, not for one number */
+  @media (min-width: 900px) and (min-height: 521px) {
+    .dp-num {
+      --fs-dp-num: max(var(--fs-sub), min(58cqh, 24cqw, var(--fs-display)));
+    }
+  }
   @media (orientation: landscape) and (max-height: 520px) {
     .dp-map {
       flex-basis: 30%;

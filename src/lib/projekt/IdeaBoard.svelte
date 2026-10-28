@@ -1,7 +1,7 @@
 <script>
   /**
    * Paket P7 «Projekt-Ablage», mockup B «Ideen»: the ideas of the list of plans as a board in four columns
-   * (Idee, Geplant, Im Bau, Live), chips for the five goals on top. Each column shows six and «Alle n zeigen».
+   * (Idee, Geplant, Im Bau, Live), chips for the goals on top. Each column shows six and «Alle n zeigen».
    * The titles are Noah's list as it is (German), never through t().
    */
   import { STATES, column } from './ablage.js';

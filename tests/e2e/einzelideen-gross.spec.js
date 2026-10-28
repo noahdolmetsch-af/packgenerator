@@ -134,3 +134,46 @@ test('Erinnerungskarte: a note becomes a card and shows on «Notizen im Zusammen
   await noSideScroll(page);
   expect(errors).toEqual([]);
 });
+
+// Nachträge Planen (Noah 27.10.2026 «1b 2b»)
+test('Pflanzenpass: the hint sets the watering interval in one tap, with Undo', async ({ page, context }) => {
+  const errors = await prep(page, context);
+  const d = today();
+  const pass = [
+    { id: 'o2', day: d, kind: 'obs', place: '', sun: 'full', wet: 'dry' },
+    { id: 'o1', day: d, kind: 'obs', place: '', sun: 'full', wet: 'dry' },
+  ];
+  const plant = { id: `${P}basil`, kind: 'plant', text: `${P}Basilikum`, created: '2026-05-29T08:00:00.000Z', plant: { every: 4, place: 'Fenster', last: d, pass } };
+  await seed(page, 'settings', [{ key: 'merken', value: [plant] }]);
+  await page.goto('./#/calendar/pflanzen');
+  await ready(page);
+  const hint = page.locator('[data-pass-hint]');
+  await expect(hint).toContainText(T('Here it dries out fast: water a little more often?'));
+  await hint.locator('[data-pass-every="3"]').click();
+  const every = async () => (await readAll(page, 'settings')).find((s) => s.key === 'merken')?.value?.[0]?.plant?.every;
+  await expect.poll(every).toBe(3);
+  await expect(hint.locator("[data-pass-every]")).toHaveCount(0); // taken: it waits for a new observation
+  await page.getByRole('button', { name: T('Undo'), exact: true }).click();
+  await expect.poll(every).toBe(4);
+  await noSideScroll(page);
+  expect(errors).toEqual([]);
+});
+
+test('Vorgänge: a photo with the booking number of a matter gets a suggestion', async ({ page, context }) => {
+  const errors = await prep(page, context);
+  const at = new Date(Date.now() - 2 * 3600e3).toISOString();
+  await seed(page, 'settings', [{ key: 'inbox.cases', value: [{ id: `${P}case`, name: `${P} Hotel Herbst`, at }] }]);
+  await seed(page, 'notes', [
+    { id: `${P}mail`, status: 'open', page: 'mail', at, caseId: `${P}case`, title: `${P} Buchung Hotel 482913`, text: '', mail: { subject: `${P} Buchung Hotel 482913`, from: 'info@hotel-beispiel.ch', fromName: 'Hotel Beispiel', date: at } },
+    { id: `${P}photo`, status: 'open', at, title: `${P} Quittung`, text: 'Quittung 482913', photo: `data:image/png;base64,${png(4, 4).toString('base64')}` },
+  ]);
+  await page.goto('./#/inbox/vorgaenge');
+  await ready(page);
+  const sugg = page.locator('[data-mail-sugg]');
+  await expect(sugg).toHaveCount(1);
+  await expect(sugg).toContainText(T('Photo|source'));
+  await sugg.locator('[data-mail-yes]').click();
+  await expect(sugg).toHaveCount(0);
+  await expect.poll(async () => (await readAll(page, 'notes')).find((n) => n.id === `${P}photo`)?.caseId).toBe(`${P}case`);
+  expect(errors).toEqual([]);
+});

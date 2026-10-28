@@ -20,6 +20,7 @@
   import { askDelete } from '../ui/ask.js';
   import { createGroup, readGroup, sharePlace, leaveGroup, endGroup, groupLinkOf, inviteLinks, memberRows, groupRunning, nearHome, cleanName, stillWaiting, GROUP_KEY, GROUP_ERRORS } from './group.js';
   import { EVENT_DAYS, NIGHT_DEFAULT, everyMs, inNight, helpCalls } from './event.js';
+  import { addMetReminder } from './eventmet.js';
   import { LinkError } from '../spur/link.js';
   import GroupList from './GroupList.svelte';
   import EventHelp from './EventHelp.svelte';
@@ -79,6 +80,8 @@
       const p = { night: nightOn ? { from: nightFrom || NIGHT_DEFAULT.from, to: nightTo || NIGHT_DEFAULT.to } : null, race: false, cps: [], start: null };
       const g = await createGroup({ title, route: hasLine ? route : null, hours: days * 24, plan: p });
       await save({ ...g, name: n, share: shareMe, days, plan: p });
+      // «Neue Leute merken»: after an event of several days a reminder in Kalender › Merken
+      if (days > 1) await addMetReminder(db, { gid: g.gid, end: g.end, days }, t('Who did you meet at the event? Keep their contact under Me › With friends › Contact card.'));
       plan = p;
       sentAt = 0;
       places = [];

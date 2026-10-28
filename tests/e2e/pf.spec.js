@@ -16,6 +16,7 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';
+import { STEP_BAR as BAR } from '../../src/lib/stepbar.js'; // Schrittleiste (Noah 26.10.2026 «1b», changed on purpose): the bar's short names
 import { openData, settle, replaceAll } from './settle.js';
 import { openMore } from './bike-more.js';
 
@@ -231,7 +232,9 @@ const planningRow = (page, key) => page.locator('.calm-pack :is(.planning-row, .
 const rowButton = (page, key) => page.getByRole('button', { name: T('Amount, move or take out: {name}', { name: nm(key) }) });
 
 /** A tab in the trip band (v0.29.0): 'Plan|stage', 'Pack|stage', 'On the way', 'Debrief'. */
-const tab = (page, key) => page.getByRole('navigation', { name: T('Steps of this trip') }).getByRole('link', { name: new RegExp(`^${esc(T(key))}`) });
+// the step bar shows the short names (Noah 26.10.2026 «1b»); the specs name a step by its usual key
+const BAR_OF = { 'Plan|stage': BAR.plan, 'Pack|stage': BAR.pack, 'On the way': BAR.ride, Debrief: BAR.debrief, 'Analysis|stage': BAR.analysis };
+const tab = (page, key) => page.getByRole('navigation', { name: T('Steps of this trip') }).getByRole('link', { name: new RegExp(`^${esc(T(BAR_OF[key] ?? key))}`) });
 /** The one orange button of the page (in the band; at the bottom on a phone). */
 const goBtn = (page) => page.locator('.trip-band .go');
 

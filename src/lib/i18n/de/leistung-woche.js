@@ -1,11 +1,11 @@
 // TR5–TR7 «Leistung und Analysen» (Noah 14.10.2026 «TR5–TR7 freigegeben»): leistung-woche.
 export default {
-  // TR7d Fitness, Ermüdung und Form
+  // TR7d Fitness, Müdigkeit und Form (UI-Test T3: one word, «Müdigkeit», like the page «Form»)
   '{n} weeks · from the load of every activity': '{n} Wochen · aus der Belastung jeder Aktivität',
   'Fitness {n} (42-day mean)': 'Fitness {n} (Mittel 42 Tage)',
-  'Fatigue {n} (7-day mean)': 'Ermüdung {n} (Mittel 7 Tage)',
-  'Form {n} (fitness – fatigue)': 'Form {n} (Fitness – Ermüdung)',
-  'Fitness {f}, fatigue {a}, form {s} today; {n} weeks': 'Heute Fitness {f}, Ermüdung {a}, Form {s}; {n} Wochen',
+  'Fatigue {n} (7-day mean)': 'Müdigkeit {n} (Mittel 7 Tage)',
+  'Form {n} (fitness – fatigue)': 'Form {n} (Fitness – Müdigkeit)',
+  'Fitness {f}, fatigue {a}, form {s} today; {n} weeks': 'Heute Fitness {f}, Müdigkeit {a}, Form {s}; {n} Wochen',
   'Form above zero = rather rested, below zero = rather tired. Just to look at. Rides without a power meter count with Relative Effort from the heart rate.':
     'Form über null = eher ausgeruht, unter null = eher müde. Nur zum Anschauen. Fahrten ohne Leistungsmesser zählen mit Relative Effort aus dem Puls.',
   // TR7d Belastung pro Woche

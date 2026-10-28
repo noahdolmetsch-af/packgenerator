@@ -10,12 +10,29 @@
 import { snap } from '../race/race.js';
 import { pausedS } from './live-lib.js';
 
-/** The laps of a recording with their numbers so far: [{ n, km, movingS, at }] (the running one last). */
-export function lapsOf(laps = [], { km = 0, movingS = 0, now = Date.now(), startAt = 0 } = {}) {
+/**
+ * The laps of a recording with their numbers so far: [{ n, km, movingS, at, hrAvg, wAvg }] (the running one
+ * last). sensors: the recording's row.sensors ({ hr, power: [[sec, value]] }); each lap gets the average of
+ * the samples inside it (Noah 20.10.2026: «eigener Ø-Puls und Ø-Leistung» per lap), else null.
+ */
+export function lapsOf(laps = [], { km = 0, movingS = 0, now = Date.now(), startAt = 0, sensors = null } = {}) {
   const starts = [{ at: startAt, km: 0, movingS: 0 }, ...(laps ?? [])];
+  const avg = (list, from, to, noZero) => {
+    const v = (list ?? []).filter((x) => x[0] >= from && x[0] < to && Number.isFinite(x[1]) && (!noZero || x[1] > 0)).map((x) => x[1]);
+    return v.length ? Math.round(v.reduce((a, b) => a + b, 0) / v.length) : null;
+  };
   return starts.map((s, i) => {
     const next = starts[i + 1] ?? { at: now, km, movingS };
-    return { n: i + 1, at: s.at, km: Math.max(0, Math.round((next.km - s.km) * 100) / 100), movingS: Math.max(0, Math.round(next.movingS - s.movingS)) };
+    const from = (s.at - startAt) / 1000;
+    const to = i + 1 < starts.length ? (next.at - startAt) / 1000 : Infinity;
+    return {
+      n: i + 1,
+      at: s.at,
+      km: Math.max(0, Math.round((next.km - s.km) * 100) / 100),
+      movingS: Math.max(0, Math.round(next.movingS - s.movingS)),
+      hrAvg: avg(sensors?.hr, from, to, false),
+      wAvg: avg(sensors?.power, from, to, true),
+    };
   });
 }
 

@@ -51,6 +51,9 @@
   import { mainStep, betweenHref, isDayTrip } from '../lib/phase.js';
   import TemplateOffer from '../lib/debrief/TemplateOffer.svelte';
   import DebriefPlanNotes from '../lib/debrief/DebriefPlanNotes.svelte';
+  import FeelScale from '../lib/tourenc/FeelScale.svelte'; // Touren c 70
+  import ReachChips from '../lib/tourenc/ReachChips.svelte'; // Touren c 65
+  import VoiceDebrief from '../lib/tourenc/VoiceDebrief.svelte'; // Touren c 68
   import LearnCard from '../lib/tourlernen/LearnCard.svelte'; // Paket Z
   import UsedCard from '../lib/tourenb/UsedCard.svelte'; // Idee 58 (Touren b): Verbrauch buchen
   import IntentAsks from '../lib/tourenb/IntentAsks.svelte'; // Idee 52 (Touren b): die Fragen der Absicht
@@ -572,6 +575,7 @@
                 {/each}
               </div>
               <p class="tally" role="status">{#if unusedN}<b>{tn(unusedN, '{n} not used', '{n} not used')}</b>{#if unusedG > 0}{' · '}{t('{weight} less next time?', { weight: formatWeight(unusedG) })}{/if}{:else}{t('Nothing tapped: everything counts as used.')}{/if}</p>
+              <ReachChips rows={chips} {d} onchange={(list) => set('reach', list)} />
             </div>
           </section>
 
@@ -635,6 +639,13 @@
         </div>
 
         <div class="rv-col">
+          <!-- Touren c 70 «Gefühl vor den Zahlen»: how hard it was, before the numbers (they come after «Fertig») -->
+          <section class="rv-sec" aria-labelledby="dfeel-h" data-debrief-feel>
+            <div class="rv-h"><div><h2 id="dfeel-h">{t('How hard was it?')}</h2><p class="rv-sub">{t('First your feeling; the numbers come after «Done».')}</p></div></div>
+            <div class="rv-box pad"><FeelScale value={d.feel ?? null} onpick={(n) => set('feel', n)} /></div>
+          </section>
+          <!-- Touren c 68 «Rückblick als Sprachnachricht» -->
+          <VoiceDebrief {trip} {d} {items} {persist} />
           <!-- Planungs-Notizen (IS 246–249): «Hat es geholfen?» -->
           <DebriefPlanNotes {trip} />
           {#if freeNotes.length}

@@ -2,7 +2,8 @@
   /**
    * Paket P4 «Aktiv», mockup TN4 «Titelbild für Tennis»: a photo from the device, made small (it stays on
    * this device and goes into the backup), the crop moved up or down, another photo or none.
-   * onsave({ cover, y }) saves; cover null means «Ohne Bild».
+   * onsave({ cover, y }) saves; cover null means «Ohne Bild». name: the sport (Tennis by default; «Bild pro
+   * Sportart», Noah 27.10.2026 «1a», uses it for every sport).
    */
   import { untrack } from 'svelte';
   import { X } from '@lucide/svelte';
@@ -11,7 +12,7 @@
   import { shrinkImage } from '../photo.js';
   import { t } from '../i18n.svelte.js';
 
-  let { cover = null, y = 50, onsave, onclose } = $props();
+  let { cover = null, y = 50, name = '', onsave, onclose } = $props();
 
   let src = $state(untrack(() => cover));
   let pos = $state(untrack(() => y));
@@ -41,7 +42,7 @@
 
 <dialog class="sheet from-below tn-cs" bind:this={dialog} use:backClose onclose={() => onclose?.()} aria-labelledby="tn-cs-h" data-cover-sheet>
   <div class="tn-cs-head">
-    <h2 id="tn-cs-h">{t('Cover photo for {sport}', { sport: t('Tennis') })}</h2>
+    <h2 id="tn-cs-h">{t('Cover photo for {sport}', { sport: name || t('Tennis') })}</h2>
     <button type="button" class="tn-cs-x" aria-label={t('Close')} onclick={() => dialog.close()}><X size={20} aria-hidden="true" /></button>
   </div>
   <p class="tn-cs-fine">{t('A photo from this device. It is made small, stays on this device and goes into the backup.')}</p>

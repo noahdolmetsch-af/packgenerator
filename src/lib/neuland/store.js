@@ -6,11 +6,13 @@ import { NEULAND_KEY, stateOf, collectionsOf, itemsOf, tracksOf, detect, visited
 import { loadBase } from './load.js';
 import { areaAt, gridOf } from './geo.js';
 import { localDay } from '../localday.js';
+import { splitNeuland } from './split.js';
 
 export async function readState(db) {
   return stateOf((await db.settings.get(NEULAND_KEY))?.value);
 }
 export async function saveState(db, state) {
+  await splitNeuland(db); // an old «Neuland des Jahres» list under the same setting moves out first, so it is never overwritten
   // a plain copy: IndexedDB cannot store a reactive proxy
   await db.settings.put({ key: NEULAND_KEY, value: JSON.parse(JSON.stringify(stateOf(state))) });
 }

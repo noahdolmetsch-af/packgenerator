@@ -1,13 +1,16 @@
-# Paket B «Server», der Wächter (Noah 18.10.2026 «3a und b»): every morning GitHub asks the server
+# Paket B «Server», der Wächter (Noah 18.10.2026 «3a und b»): every 3 hours GitHub asks the server
 # (api/health) whether keys, storage, logins, the AI credit, the sync and the reminders are fine.
 # Only on a failure it opens an issue (or adds a comment to the open one), so Noah gets an e-mail.
 # When everything is fine again, it says so and closes the issue. Only GITHUB_TOKEN, no secret.
 # The address: the repository variable HEALTH_URL when set, else the «packgen» server.
+# Every 3 hours since 28.10.2026 (Noah «bitte umsetzen»): on 27.10 cron-job.org switched itself off in the
+# evening and the morning run found it only after 8 hours. A new or changed problem comments at once;
+# the same problem again comments only in the morning run, so Noah gets no mail every 3 hours.
 name: Wächter
 
 on:
   schedule:
-    - cron: '17 5 * * *' # every day 05:17 UTC (07:17 in Zurich in summer)
+    - cron: '17 */3 * * *' # every 3 hours, 05:17 UTC is the morning run (06:17 in Zurich in winter)
   workflow_dispatch:
 
 permissions:
@@ -57,6 +60,9 @@ jobs:
             echo '|---|---|---|---|'
             jq -r '.checks[] | "| \(.id) | \(if .state == "fail" then "❌ Fehler" elif .state == "ok" then "✅ ok" else "– übersprungen" end) | \(.code) | \(.note // "") |"' health.json
           } > report.md
+          # what fails, as one line: the same line again later is the same problem
+          sig=$(jq -r '[.checks[] | select(.state == "fail") | "\(.id):\(.code)"] | sort | join(" ")' health.json)
+          echo "<!-- waechter-sig: $sig -->" >> report.md
           cat report.md >> "$GITHUB_STEP_SUMMARY"
           echo "ok=$ok" >> "$GITHUB_OUTPUT"
 
@@ -66,7 +72,14 @@ jobs:
           gh label create "$LABEL" --color B60205 --description 'Der Wächter hat einen Fehler am Server gefunden' 2>/dev/null || true
           num=$(gh issue list --label "$LABEL" --state open --json number --jq '.[0].number // empty')
           if [ -n "$num" ]; then
-            gh issue comment "$num" --body-file report.md
+            sig=$(grep -o 'waechter-sig: [^>]*' report.md | head -1)
+            last=$(gh issue view "$num" --json body,comments --jq '([.body] + [.comments[].body]) | map(select(test("waechter-sig: "))) | last // ""' | grep -o 'waechter-sig: [^>]*' | head -1 || true)
+            hour=$(date -u +%H)
+            if [ "$sig" != "$last" ] || [ "$hour" = "05" ] || [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+              gh issue comment "$num" --body-file report.md
+            else
+              echo "Same problem as the last comment, no new mail: $sig"
+            fi
           else
             {
               echo 'Der Wächter hat heute einen Fehler am Server «packgen» gefunden. Claude repariert ihn und bringt dir die Lösung.'

@@ -1,0 +1,21 @@
+// «Bereiche anpassen» (Noah 27.10.2026 «1a 2a»): the areas of Heute moved, renamed and hidden
+export default {
+  'Without area': 'Ohne Bereich',
+  'Areas of Today': 'Bereiche von Heute',
+  'Move the areas with the arrows or drag, rename them or hide them. The tiles of a hidden area stay on Today.': 'Verschiebe die Bereiche mit den Pfeilen oder durch Ziehen, benenne sie um oder blende sie aus. Die Kacheln eines ausgeblendeten Bereichs bleiben auf Heute.',
+  '1 tile': '1 Kachel',
+  '{n} tiles': '{n} Kacheln',
+  'Hidden areas': 'Ausgeblendete Bereiche',
+  'Show {name} again': '{name} wieder zeigen',
+  'Area of Today': 'Bereich von Heute',
+  'The heading of the area on Today.': 'Die Überschrift des Bereichs auf Heute.',
+  'Empty: back to the name of the app.': 'Leer: wieder der Name der App.',
+  'Hide area "{name}"?': 'Bereich «{name}» ausblenden?',
+  'At the end of Today, under one heading': 'Am Ende von Heute, unter einer Überschrift',
+  'The tiles stay on Today. «Show again» below brings the area back.': 'Die Kacheln bleiben auf Heute. «Wieder zeigen» unten holt den Bereich zurück.',
+  'No tile is in it right now.': 'Gerade ist keine Kachel darin.',
+  'Hide|area': 'Ausblenden',
+  'Area "{name}" hidden.': 'Bereich «{name}» ausgeblendet.',
+  'Area "{name}" shown again.': 'Bereich «{name}» wieder da.',
+  'Today shows the tiles in areas with a heading. Here you set their order inside an area; the areas themselves under «Areas of Today».': 'Heute zeigt die Kacheln in Bereichen mit Überschrift. Hier ordnest du sie innerhalb eines Bereichs, die Bereiche selbst unter «Bereiche von Heute».',
+};

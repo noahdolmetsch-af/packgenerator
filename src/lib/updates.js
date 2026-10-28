@@ -18,6 +18,7 @@ import { moveSeatHeight } from './bikespecs.js';
 import { blocksMore2026 } from './blocksmore.js';
 import { oldMedNick } from './flowtiles.js';
 import { isTestName } from './testname.js';
+import { splitNeuland } from './neuland/split.js';
 
 const now = () => new Date().toISOString();
 
@@ -322,7 +323,8 @@ export async function testTrips2026(db) {
 }
 
 // v0.154.0 «Bausteine mehr» (1a, 2a): the example parts of the new blocks and the new parts of existing ones, once
-export const UPDATES = [kitTemplates2026, firstAid2026, toolsAlways2026, basicCheck2026, flowSeed2026, fitMove2026, medName2026, blocks2026, templatesLinked2026, blockSplit2026, (db) => blocksMore2026(db), testTrips2026];
+// splitNeuland («Träume und Neuland» 27.10.2026): «Neuland des Jahres» gets its own setting; it touches only that, so it can run first
+export const UPDATES = [splitNeuland, kitTemplates2026, firstAid2026, toolsAlways2026, basicCheck2026, flowSeed2026, fitMove2026, medName2026, blocks2026, templatesLinked2026, blockSplit2026, (db) => blocksMore2026(db), testTrips2026];
 
 export async function applyUpdates(db) {
   for (const update of UPDATES) await update(db);

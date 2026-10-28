@@ -3,6 +3,7 @@
 // → Create trip → add an item → packing day → Next: debrief (ends the trip) → saved.
 // Then Gear filtered by area and the page "All my favourite things".
 import { test, expect } from '@playwright/test';
+import { STEP_BAR as BAR } from '../../src/lib/stepbar.js'; // Schrittleiste (Noah 26.10.2026 «1b», changed on purpose): the bar's short names
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';
 import { openData, settle } from './settle.js';
@@ -71,7 +72,7 @@ for (const lang of ['en', 'de']) {
     await expect(page.locator('.trip-band .meta')).toContainText(T('Weekend'));
     const steps = page.getByRole('navigation', { name: T('Steps of this trip') }).getByRole('link');
     await expect(steps).toHaveCount(4); // Plan, Pack, Debrief and (0.176) «Auswertung», the tour page
-    await expect(page.getByRole('navigation', { name: T('Steps of this trip') })).not.toContainText(T('On the way'));
+    await expect(page.getByRole('navigation', { name: T('Steps of this trip') })).not.toContainText(T(BAR.ride));
     await fits('Pack, weekend');
 
     // 5. Add an item of the area ("Paperback book" is optional, so not on the list yet).

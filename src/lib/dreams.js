@@ -127,6 +127,15 @@ export function newDream({ title, kind = null, days = 2, note = '', url = '' }, 
 }
 
 /**
+ * «Träume und Neuland» (Noah 27.10.2026): the dreams that fit this month and are no trip yet, in your
+ * order. For the row on Touren › Übersicht (DreamNowRow).
+ */
+export function dreamsNow(value, today) {
+  const s = storeOf(value);
+  return dreamList(s.dreams).filter((d) => !d.tripId && nextWindow(d, today, s.kinds)?.now);
+}
+
+/**
  * The year band: for each month 1..12 the dreams that fit then, in the dreams' own order.
  * → [{ month, dreams: [dream] }]
  */

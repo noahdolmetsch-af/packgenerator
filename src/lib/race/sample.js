@@ -151,8 +151,12 @@ export function samplePois(route = sampleRoute()) {
   return out.sort((a, b) => a.km - b.km);
 }
 
-/** The stored race of the sample: start Saturday 08:00, 10 days as the goal, night 1 open. */
-export function sampleStored(today) {
+/**
+ * The stored race of the sample: start Saturday 08:00, 10 days as the goal, night 1 open.
+ * tr: t() of the app. The sample's own learnings and drop bag are stored as text you can change, so they are
+ * stored in the language of the app (Klick-Rundgang 2, 27.10.2026: they showed in English in the German app).
+ */
+export function sampleStored(today, tr = (s) => s) {
   const route = sampleRoute();
   return {
     sample: true,
@@ -166,11 +170,11 @@ export function sampleStored(today) {
     assume: { climbMh: 650, flatKmh: 25 },
     assumeNote: { climbMh: 'Testrennen 2026', fatiguePct: 'Testrennen 2026 (Plan 27 h, echt 30 h)' },
     learnOwn: [
-      { id: 'sl1', text: 'The tent was never used: leave it at home' },
-      { id: 'sl2', text: 'Big bags tempt you to take more' },
-      { id: 'sl3', text: 'Book the hotels early' },
+      { id: 'sl1', text: tr('The tent was never used: leave it at home') },
+      { id: 'sl2', text: tr('Big bags tempt you to take more') },
+      { id: 'sl3', text: tr('Book the hotels early') },
     ],
-    dropBags: [{ id: 'sd1', text: 'Depot 500', km: 500, items: 'Clean clothes, bars, brake pads' }],
+    dropBags: [{ id: 'sd1', text: 'Depot 500', km: 500, items: tr('Clean clothes, bars, brake pads') }],
   };
 }
 
@@ -196,11 +200,11 @@ export function sampleTrip(base, title, today) {
 /* ---------- db helpers ---------- */
 
 /** Create the sample (or put it back as new): the trip and its race. Returns the trip id. */
-export async function makeSample({ db, newTrip, putRace, today, title }) {
+export async function makeSample({ db, newTrip, putRace, today, title, tr }) {
   const bikes = await db.bikes.toArray();
   const bike = bikes[0] ?? { id: '', name: '', setup: {} };
   const base = newTrip({ title, startDate: sampleStart(today), days: 10, bike }, [], await db.items.toArray());
   await db.trips.put(sampleTrip(base, title, today));
-  await putRace(SAMPLE_ID, sampleStored(today));
+  await putRace(SAMPLE_ID, sampleStored(today, tr));
   return SAMPLE_ID;
 }

@@ -56,7 +56,7 @@ export default {
   'Today in {place}': 'Heute in {place}',
   'real {c} °C': 'gemessen {c} °C',
   'To Today': 'Zu Heute',
-  'Your kits': "Deine Kleider-Bausteine",
+  'Your kits': 'Deine Kleider-Sets',
   'Show all|filter': 'Alle zeigen',
   'Only {what}': 'Nur {what}',
   'Sort …': 'Einordnen …',

@@ -64,7 +64,7 @@ describe('idea 2: push before a registration deadline', () => {
     { id: 'r2', title: 'angemeldet', status: 'planned', event: { signupBy: '2026-10-25', signedUp: true } },
   ];
   it('3 days and 1 day before at 08:00, only when switched on and not signed up', () => {
-    const on = buildList({ trips, now, settings: { push: { on: true, kinds: { race: true } } } });
+    const on = buildList({ trips, now, settings: { push: { on: true, kinds: { race: true }, morning: false } } });
     expect(on.items.map((x) => x.key)).toEqual(['race:r1:2026-10-25:3', 'race:r1:2026-10-25:1']);
     expect(new Date(on.items[0].at).getHours()).toBe(8);
     expect(on.items[1].body).toContain(`${P}Rennen`);

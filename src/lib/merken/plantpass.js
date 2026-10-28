@@ -126,3 +126,23 @@ export function passHint(td) {
   if (s.wind === 'windy') return 'A windy spot: a more sheltered place may suit it better.';
   return null;
 }
+
+/**
+ * The hint with a watering interval to take in one tap (Noah 27.10.2026 «1b»): { hint, every } or null.
+ * every: the suggested «every N days», or null when the hint has no interval (a windy spot) or nothing would change.
+ * Only a suggestion: the page shows a button; nothing changes without a tap, and the tap can be undone.
+ * Once taken, it waits for a new observation (plant.everyFor = id of the newest observation it was taken for),
+ * so the interval never keeps shrinking on the same observations.
+ */
+export function passAdvice(td) {
+  const hint = passHint(td);
+  if (!hint) return null;
+  const now = Math.round(Number(td?.plant?.every)) || 0;
+  const s = spotNow(td);
+  let every = null;
+  if (now >= 1 && s.wet === 'dry' && (s.sun === 'full' || s.wind === 'windy')) every = Math.max(1, now - 1);
+  else if (now >= 1 && s.wet === 'wet' && s.sun === 'shade') every = now + 1;
+  const newest = passOf(td).find((e) => e.kind === 'obs')?.id ?? null;
+  if (newest && td.plant.everyFor === newest) every = null;
+  return { hint, every: every && every !== now ? every : null, obs: newest };
+}

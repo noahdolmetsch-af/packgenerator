@@ -28,6 +28,10 @@ export const DAY_CAPS = {
   // cron-job.org wakes the server every minute (1440 a day); 25.10.2026 had 25 hours (end of summer time),
   // so its 1500 ticks plus the phones' own calls passed the old cap of 1500 and stopped the last reminders
   push: 2000,
+  // the tick of cron-job.org itself (api/push.js ?a=tick, 1440 a day, 1500 on a 25-hour day). It has its
+  // own cap and never stops because of the total: on 27.10.2026 the total was reached in the evening,
+  // the ticks got 429, and cron-job.org switched the job off after many failures (no reminders).
+  tick: 1600,
   linkcheck: 300,
   account: 300,
   rwgps: 200, // «Neue Quellen» 20.10.2026: Ride with GPS links (api/lake.js ?action=rwgps)
@@ -36,6 +40,8 @@ export const DAY_CAPS = {
 };
 /** Never counted: the watcher must always be able to look. */
 export const UNCAPPED = new Set(['health']);
+/** Counted (also in the total), but stopped only by their own cap, never by the total. */
+export const OWN_CAP_ONLY = new Set(['tick']);
 export const CAP_TTL_S = 2 * 86_400;
 
 export const CAP_LUA =
@@ -63,7 +69,8 @@ export async function countCall(store, name, now = Date.now(), caps = DAY_CAPS) 
   const n = Number(out?.[0]) || 0;
   const total = Number(out?.[1]) || 0;
   const own = caps[name];
-  return { n, total, over: total > caps.total || (Number.isFinite(own) && n > own) };
+  const overTotal = !OWN_CAP_ONLY.has(name) && total > caps.total;
+  return { n, total, over: overTotal || (Number.isFinite(own) && n > own) };
 }
 
 /** The day's numbers for the watcher: { day, total, limit, over: [names over their cap] }. */

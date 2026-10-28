@@ -1,7 +1,6 @@
 # Paket B «Server», automatische Updates (Noah 18.10.2026 «2 immer sofort ohne bilder und ohne mein ok»):
-# GitHub proposes library updates every day, all in one pull request per kind; the tests check them.
-# Since 26.10.2026 (Noah «ich möchte ab sofort alle PR selber mergen») nothing merges by itself:
-# Noah merges every pull request, Dependabot's too.
+# GitHub proposes library updates every day, all in one pull request per kind; the tests check them and
+# .github/workflows/dependabot-automerge.yml merges them once the required checks are green.
 version: 2
 updates:
   - package-ecosystem: npm

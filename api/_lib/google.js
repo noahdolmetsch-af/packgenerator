@@ -55,12 +55,15 @@
  *                           Google Cloud is https://packgen-three.vercel.app/api/google/callback)
  *
  * The device key comes from the Strava login (api/strava.js): only Noah's devices can connect Google.
+ * Fitbit per person (prepared 27.10.2026, Noah «Strava pro Person vorbereiten»): a friend's device
+ * (strava:device:<hash>, see api/strava.js) may connect only the Fitbit values of their own Google.
+ * Their tokens live in google:tokens:<athlete id>; Mail, Calendar, Tasks and Drive stay Noah's alone.
  * Environment (values only in the Vercel project «packgen»): GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET.
  * Redis: google:tokens (JSON). While the Google app is in testing mode a refresh token ends after
  * 7 days; then the data step answers 401 google_login_needed and the app asks for a new login.
  */
 import { route, json, needStore, redisEnv, pick, ApiError, API_BASE } from './core.js';
-import { needDevice, saveState, takeState, backToApp, jsonBody } from './oauth.js';
+import { needDevice, friendOf, saveState, takeState, backToApp, jsonBody } from './oauth.js';
 import { makeAccount } from './account.js';
 import { MAX_DAYS, spanDays, rollUpBody, listFilter, daysFrom, chunks, civilOf, sleepOf } from './googledays.js';
 
@@ -99,6 +102,23 @@ const FOLDERS_KEY = 'google:drive:folders';
 export const HEALTH_TOKEN_KEY = 'google:tokens:health';
 const OWN_CAL_KEY = 'google:cal:own';
 const OWN_LIST_KEY = 'google:tasks:own';
+
+/** Where a person's Google tokens live: Noah's keys unchanged, a friend's with the Strava athlete id. */
+export const OWNER_GOOGLE = { friend: null, tokens: 'google:tokens', health: HEALTH_TOKEN_KEY };
+export const friendGoogle = (id) => ({ friend: id, tokens: `google:tokens:${id}`, health: `google:tokens:health:${id}` });
+/** The only steps a friend's device may use: their own Fitbit values. */
+export const FRIEND_STEPS = new Set(['status', 'data', 'days', 'start', 'disconnect']);
+
+/** Whose Google this request reads: a friend's for a friend's key, Noah's for a key in app:keys, else 401. */
+export async function whoseGoogle(request, store, step) {
+  const id = await friendOf(request, store);
+  if (!id) {
+    await needDevice(request, store);
+    return OWNER_GOOGLE;
+  }
+  if (!FRIEND_STEPS.has(step)) throw new ApiError(403, 'owner_only', 'Only the owner of this app can use this.');
+  return friendGoogle(id);
+}
 
 /** Every scope this app may ask Google for. */
 const KNOWN_SCOPES = [...SCOPES, DRIVE_SCOPE, ...CALENDAR_SCOPES, TASKS_SCOPE, OWN_CAL_SCOPE, ...MAIL_SCOPES];
@@ -180,15 +200,15 @@ export function makeHandler({ env = () => googleEnv(), doFetch = (...a) => fetch
    * «Jetzt holen»). So the kept refresh token is asked for an access with only the Health scopes, and that
    * access is kept apart until it runs out. One login stays for everything.
    */
-  async function healthToken(cfg, store) {
-    const kept = JSON.parse((await store.get(HEALTH_TOKEN_KEY)) || 'null');
+  async function healthToken(cfg, store, who = OWNER_GOOGLE) {
+    const kept = JSON.parse((await store.get(who.health)) || 'null');
     if (kept?.access_token && (kept.expires_at ?? 0) - 60_000 > now()) return kept.access_token;
-    const raw = await store.get('google:tokens');
+    const raw = await store.get(who.tokens);
     if (!raw) throw new ApiError(409, 'not_connected', 'Google is not connected.');
     const t = JSON.parse(raw);
     if (!t.refresh_token) throw new ApiError(401, 'google_login_needed', 'Google needs a new login.');
     const fresh = await tokenCall(cfg, { grant_type: 'refresh_token', refresh_token: t.refresh_token, scope: SCOPES.join(' ') });
-    await store.set(HEALTH_TOKEN_KEY, JSON.stringify({ access_token: fresh.access_token, expires_at: now() + (Number(fresh.expires_in) || 3600) * 1000 }));
+    await store.set(who.health, JSON.stringify({ access_token: fresh.access_token, expires_at: now() + (Number(fresh.expires_in) || 3600) * 1000 }));
     return fresh.access_token;
   }
 
@@ -346,8 +366,12 @@ export function makeHandler({ env = () => googleEnv(), doFetch = (...a) => fetch
     const tok = await tokenCall(cfg, { grant_type: 'authorization_code', code: url.searchParams.get('code'), redirect_uri: CALLBACK });
     const granted = String(tok.scope ?? '').split(' ');
     if (!KNOWN_SCOPES.some((s) => granted.includes(s))) return backToApp(st.returnTo, { google: 'error', error: 'scope' });
-    await store.set('google:tokens', JSON.stringify({ access_token: tok.access_token, refresh_token: tok.refresh_token ?? null, expires_at: now() + (Number(tok.expires_in) || 3600) * 1000, scope: granted.join(' ') }));
-    await store.del(HEALTH_TOKEN_KEY);
+    const who = /^\d{1,20}$/.test(String(st.friend ?? '')) ? friendGoogle(String(st.friend)) : OWNER_GOOGLE;
+    // a friend keeps only the Fitbit values, even if they ticked more
+    if (who.friend && !SCOPES.some((s) => granted.includes(s))) return backToApp(st.returnTo, { google: 'error', error: 'scope' });
+    const keep = who.friend ? granted.filter((s) => SCOPES.includes(s)) : granted;
+    await store.set(who.tokens, JSON.stringify({ access_token: tok.access_token, refresh_token: tok.refresh_token ?? null, expires_at: now() + (Number(tok.expires_in) || 3600) * 1000, scope: keep.join(' ') }));
+    await store.del(who.health);
     return backToApp(st.returnTo, { google: 'connected' });
   };
 
@@ -358,10 +382,10 @@ export function makeHandler({ env = () => googleEnv(), doFetch = (...a) => fetch
         const step = url.searchParams.get('step');
         const cfg = env();
         const store = needStore(cfg, doFetch);
-        await needDevice(request, store);
+        const who = await whoseGoogle(request, store, step);
         setUp(cfg);
         if (step === 'status') {
-          const raw = await store.get('google:tokens');
+          const raw = await store.get(who.tokens);
           const scopes = raw ? JSON.parse(raw).scope ?? '' : '';
           const has = scopes.split(' ');
           return json(request, 200, { ok: true, connected: !!raw, scopes, drive: has.includes(DRIVE_SCOPE), calendar: CALENDAR_SCOPES.every((x) => has.includes(x)), tasks: has.includes(TASKS_SCOPE), owncal: has.includes(OWN_CAL_SCOPE), mail: MAIL_SCOPES.every((x) => has.includes(x)) });
@@ -450,7 +474,7 @@ export function makeHandler({ env = () => googleEnv(), doFetch = (...a) => fetch
           if (!TYPES.includes(type)) throw new ApiError(400, 'bad_request', `type must be one of ${TYPES.join(', ')}.`);
           const pageToken = url.searchParams.get('pageToken');
           if (pageToken && !/^[\w.~-]{1,2000}$/.test(pageToken)) throw new ApiError(400, 'bad_request', 'Bad pageToken.');
-          const token = await healthToken(cfg, store);
+          const token = await healthToken(cfg, store, who);
           const body = await healthCall(token, `dataTypes/${type}/dataPoints${pageToken ? `?pageToken=${encodeURIComponent(pageToken)}` : ''}`);
           return json(request, 200, { ok: true, type, points: body.dataPoints ?? [], next: body.nextPageToken ?? null });
         }
@@ -459,7 +483,7 @@ export function makeHandler({ env = () => googleEnv(), doFetch = (...a) => fetch
           const to = url.searchParams.get('to');
           const n = spanDays(from, to);
           if (!n || n > MAX_DAYS) throw new ApiError(400, 'bad_request', `from and to must be days (YYYY-MM-DD), at most ${MAX_DAYS} days apart.`);
-          const token = await healthToken(cfg, store).catch((err) => {
+          const token = await healthToken(cfg, store, who).catch((err) => {
             console.log(`google days: no login, ${err?.code}`);
             throw err;
           });
@@ -549,15 +573,15 @@ export function makeHandler({ env = () => googleEnv(), doFetch = (...a) => fetch
         const step = new URL(request.url).searchParams.get('step');
         const cfg = env();
         const store = needStore(cfg, doFetch);
-        await needDevice(request, store);
+        const who = await whoseGoogle(request, store, step);
         if (step === 'start') {
           setUp(cfg);
           const body = await jsonBody(request);
-          const state = await saveState(store, 'google', { returnTo: typeof body.returnTo === 'string' ? body.returnTo.slice(0, 500) : null });
+          const state = await saveState(store, 'google', { returnTo: typeof body.returnTo === 'string' ? body.returnTo.slice(0, 500) : null, ...(who.friend ? { friend: who.friend } : {}) });
           // Noah 21.10.2026: connecting Mail or Kalender later dropped the Fitbit ticks (the values stopped
           // with google_scope). Every new login asks again for what this Google login already allows.
-          const had = String(JSON.parse((await store.get('google:tokens')) ?? '{}').scope ?? '').split(' ').filter(Boolean);
-          const scope = [...new Set([...scopesFor(body.services), ...had.filter((x) => KNOWN_SCOPES.includes(x))])];
+          const had = String(JSON.parse((await store.get(who.tokens)) ?? '{}').scope ?? '').split(' ').filter(Boolean);
+          const scope = who.friend ? SCOPES : [...new Set([...scopesFor(body.services), ...had.filter((x) => KNOWN_SCOPES.includes(x))])];
           const q = new URLSearchParams({ client_id: cfg.clientId, redirect_uri: CALLBACK, response_type: 'code', access_type: 'offline', prompt: 'consent', include_granted_scopes: 'true', scope: scope.join(' '), state });
           return json(request, 200, { ok: true, url: `${AUTHORIZE_URL}?${q}` });
         }
@@ -702,7 +726,7 @@ export function makeHandler({ env = () => googleEnv(), doFetch = (...a) => fetch
           return json(request, 200, { ok: true, task: taskRow(made, l) });
         }
         if (step === 'disconnect') {
-          const raw = await store.get('google:tokens');
+          const raw = await store.get(who.tokens);
           if (raw) {
             const t = JSON.parse(raw);
             try {
@@ -711,8 +735,9 @@ export function makeHandler({ env = () => googleEnv(), doFetch = (...a) => fetch
               // Google unreachable: the server forgets the tokens anyway.
             }
           }
-          await store.del('google:tokens');
-          await store.del(HEALTH_TOKEN_KEY);
+          await store.del(who.tokens);
+          await store.del(who.health);
+          if (who.friend) return json(request, 200, { ok: true });
           await store.del(FOLDERS_KEY);
           await store.del(OWN_CAL_KEY);
           await store.del(OWN_LIST_KEY);

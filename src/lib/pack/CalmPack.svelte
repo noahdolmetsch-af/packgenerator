@@ -317,7 +317,7 @@
   {:else if main.kind === 'go'}<a class="btn hi go" href={main.href} onclick={() => actions.choose(trip.id)}>{t(main.label)}<ArrowRight size={20} aria-hidden="true" /></a>{/if}
 {/snippet}
 {#snippet checkBtn()}<button type="button" class="tp-icon-btn kh-go-check" onclick={openCheck}><Sparkles size={18} aria-hidden="true" /><span class="kh-lbl">{t('Check the list')}</span></button>{/snippet}
-{#snippet plus()}{#if checkHere && phone.matches}{@render checkBtn()}{/if}<button type="button" class="tp-icon-btn" aria-label={t('Add material')} onclick={() => show('add')}><Plus size={22} aria-hidden="true" /></button>{/snippet}
+{#snippet plus()}{#if checkHere && phone.matches}{@render checkBtn()}{/if}<button type="button" class="tp-icon-btn" aria-label={t('Add material')} onclick={() => show('add')} data-add-mat><Plus size={22} aria-hidden="true" /></button>{/snippet}
 
 <div class="calm-pack trip-page" class:review-mode={review} bind:this={rootEl}>
   {#if review}
@@ -429,7 +429,7 @@
           <h2>{t('Packing list')}</h2>
           <div class="list-toolbar">
             <label class="group-control"><select aria-label={t('Group packing list')} bind:value={grouping}><option value="bags">{t('By bags')}</option><option value="category">{t('By category')}</option></select><ChevronDown size={16} aria-hidden="true" /></label>
-            {#if !fixed}<button class="tp-link add-mat" onclick={() => show('add')}><Plus size={18} aria-hidden="true" />{t('Add material')}</button>{/if}
+            {#if !fixed}<button class="tp-link add-mat" onclick={() => show('add')} data-add-mat><Plus size={18} aria-hidden="true" />{t('Add material')}</button>{/if}
             <!-- v0.27.0 (Noah 1a): Undo is announced when it appears (a live region). -->
             <span class="undo-live" role="status" aria-live="polite">{#if canUndo}<button class="tp-link undo" onclick={actions.undo}><Undo2 size={18} aria-hidden="true" />{t('Undo')}</button>{/if}</span>
             <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->

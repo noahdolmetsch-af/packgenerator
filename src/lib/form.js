@@ -10,7 +10,7 @@
  * Only to look at, no diagnosis. Pure functions; tests/form.test.js.
  */
 import { addDays } from './health.js';
-import { powerLoad } from './training.js';
+import { powerLoad, isoWeek } from './training.js';
 
 export const FIT_DAYS = 42;
 export const FAT_DAYS = 7;
@@ -48,6 +48,8 @@ export function dayLoads(acts = [], opts = {}) {
 /**
  * Fitness, fatigue and form for every day from..to: [{ day, load, fit, fat, form }]. The means start
  * `warm` days before «from», so the first days already carry the weeks before.
+ * UI-Test 26.10.2026 T3 (G3-01): they start at the first load when that is earlier, so every page (Form,
+ * Training, Wochenrückblick) gets the same numbers for the same day, whatever span it shows.
  */
 export function formSeries(loads, from, to, warm = 120) {
   const kFit = 1 - Math.exp(-1 / FIT_DAYS);
@@ -55,7 +57,9 @@ export function formSeries(loads, from, to, warm = 120) {
   let fit = 0;
   let fat = 0;
   const out = [];
-  for (let d = addDays(from, -warm); d <= to; d = addDays(d, 1)) {
+  const first = [...loads.keys()].filter((d) => typeof d === 'string' && d <= to).sort()[0];
+  const start = first && first < addDays(from, -warm) ? first : addDays(from, -warm);
+  for (let d = start; d <= to; d = addDays(d, 1)) {
     const load = loads.get(d) ?? 0;
     fit += (load - fit) * kFit;
     fat += (load - fat) * kFat;
@@ -183,6 +187,32 @@ export function pastTours(trips = [], table, today, n = 3) {
 }
 
 /**
+ * UI-Test 26.10.2026 T3 (G3-01): the shown numbers of a day, rounded so the sum adds up on screen:
+ * form = fitness − fatigue of the rounded values («Form 7 = Fitness 23 − Müdigkeit 16»). → { fit, fat, form }
+ */
+export const shownForm = (x) => {
+  const fit = Math.round(x?.fit ?? 0);
+  const fat = Math.round(x?.fat ?? 0);
+  return { fit, fat, form: fit - fat };
+};
+
+/**
+ * Training «Fitness, Müdigkeit und Form» (UI-Test T3): one point per week (the value of the week's Sunday,
+ * or today for this week) for n weeks from the same series as the page «Form». → { weeks: [{ monday, kw,
+ * fit, fat, form }], now } or null without any load. mondays: the Mondays of the weeks, oldest first.
+ */
+export function formWeeksOf(series, today, mondays) {
+  if (!series?.some((s) => s.load > 0)) return null;
+  const at = new Map(series.map((s) => [s.day, s]));
+  const pick = (d) => shownForm(at.get(d) ?? series.filter((s) => s.day <= d).at(-1));
+  const weeks = mondays.map((m) => {
+    const end = addDays(m, 6) < today ? addDays(m, 6) : today;
+    return { monday: m, kw: isoWeek(m), ...pick(end) };
+  });
+  return { weeks, now: pick(today) };
+}
+
+/**
  * The line of the Wochenrückblick: fitness and form at the end of the week («end») and the change of
  * the fitness against the week before. → { fit, form, delta } or null without any load.
  */
@@ -191,7 +221,8 @@ export function weekForm(series, end) {
   if (i < 0 || !series.slice(0, i + 1).some((s) => s.load > 0)) return null;
   const a = series[i];
   const b = series[i - 7];
-  return { fit: Math.round(a.fit), form: Math.round(a.form), delta: b ? Math.round(a.fit - b.fit) : null };
+  const s = shownForm(a); // UI-Test T3: the same rounding as the page «Form»
+  return { fit: s.fit, form: s.form, delta: b ? Math.round(a.fit - b.fit) : null };
 }
 
 /**

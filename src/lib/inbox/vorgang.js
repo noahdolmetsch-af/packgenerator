@@ -59,7 +59,8 @@ export const noKey = (a, b) => [a, b].sort().join('|');
 
 /**
  * «Doppelten Eingang erkennen»: pairs of entries from different sources (mail, photo, note) that look like
- * the same matter, best first, at most `max`. Pairs already in the same Vorgang or answered «no» are left out.
+ * the same matter, best first, at most `max`. Pairs with an entry already in a Vorgang (caseFor suggests the other
+ * one there) or answered «no» are left out.
  * → [{ a, b, why }]
  */
 export function doublePairs(notes = [], { no = [], now = Date.now(), max = 6 } = {}) {
@@ -71,7 +72,8 @@ export function doublePairs(notes = [], { no = [], now = Date.now(), max = 6 } =
       const a = recent[i];
       const b = recent[j];
       if (sourceOf(a) === sourceOf(b)) continue;
-      if (a.caseId && a.caseId === b.caseId) continue;
+      // one of them already in a matter: «Mail als Vorgang» suggests the other one there (Noah 27.10.2026 «2b»)
+      if (a.caseId || b.caseId) continue;
       if (Math.abs(msOf(a) - msOf(b)) > PAIR_DAYS * DAY_MS) continue;
       if (nope.has(noKey(a.id, b.id))) continue;
       const m = sameMatter(a, b);
@@ -95,12 +97,15 @@ export function mailRole(n) {
 export const ROLES = { confirm: 'Confirmation', question: 'Question|mail', bill: 'Bill|mail' };
 
 /**
- * «Mail als Vorgang»: the Vorgang a mail without one may belong to, or null.
- * Same sender and the same subject (without Re:/AW:), a shared number, or same sender plus shared words.
- * → { caseId, why: 'subject' | 'number' | 'sender' }
+ * «Mail als Vorgang»: the Vorgang an entry without one may belong to, or null.
+ * A mail: same sender and the same subject (without Re:/AW:), a shared number, or same sender plus shared words.
+ * A photo or a note (Noah 27.10.2026 «2b», only of the last LOOK_DAYS): a shared number, or the same amount
+ * or words as an entry of the Vorgang (sameMatter score 3+).
+ * → { caseId, why: 'subject' | 'number' | 'sender' | 'similar' }
  */
-export function caseFor(note, notes = [], cases = [], { no = [] } = {}) {
-  if (!note?.mail || note.caseId) return null;
+export function caseFor(note, notes = [], cases = [], { no = [], now = Date.now() } = {}) {
+  if (!note?.id || note.caseId) return null;
+  if (!note.mail) return caseForEntry(note, notes, cases, { no, now });
   const ids = new Set(cases.map((c) => c.id));
   const nope = new Set(no);
   const from = senderOf(note);
@@ -119,7 +124,23 @@ export function caseFor(note, notes = [], cases = [], { no = [] } = {}) {
   return best ? { caseId: best.caseId, why: best.why } : null;
 }
 
-/** The suggestions for all mails without a Vorgang: [{ note, caseId, why }]. */
+/** caseFor for a photo or a note: a shared number first, then the same amount or words. */
+function caseForEntry(note, notes, cases, { no, now }) {
+  if (now - msOf(note) > LOOK_DAYS * DAY_MS) return null;
+  const ids = new Set(cases.map((c) => c.id));
+  const nope = new Set(no);
+  let best = null;
+  for (const o of notes) {
+    if (!o?.caseId || !ids.has(o.caseId) || o.id === note.id || nope.has(noKey(note.id, o.caseId))) continue;
+    const m = sameMatter(note, o);
+    const why = m.why.some((w) => w.kind === 'number') ? 'number' : m.score >= 3 ? 'similar' : null;
+    const score = why === 'number' ? 10 + m.score : m.score;
+    if (why && (!best || score > best.score)) best = { caseId: o.caseId, why, score };
+  }
+  return best ? { caseId: best.caseId, why: best.why } : null;
+}
+
+/** The suggestions for all entries without a Vorgang (mails, photos, notes): [{ note, caseId, why }]. */
 export function caseSuggestions(notes = [], cases = [], opts = {}) {
   const out = [];
   for (const n of notes) {

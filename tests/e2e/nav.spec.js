@@ -9,6 +9,7 @@ import { newButton } from './newbutton.js';
 import { PLACES, SIDE_PLACES, BAR_PLACES } from '../../src/lib/nav.js';
 import { REMOVED_0155 } from '../../src/lib/home/tiles.js';
 import { openData, settle } from './settle.js';
+import { STEP_BAR as BAR } from '../../src/lib/stepbar.js'; // Schrittleiste (Noah 26.10.2026 «1b», changed on purpose): the bar's short names
 
 const tr = (lang) => (en, vars) => {
   const text = (lang === 'de' ? DE[en] : null) ?? en.replace(/\|[a-z]+$/, '');
@@ -126,7 +127,7 @@ for (const [soon, button, step, wx] of [['2026-10-08', 'Pack|stage', 'Pack|stage
     await band.getByRole('link', { name: T(button), exact: true }).click();
     await expect(page.locator('.trip-band h1')).toHaveText('test_data_gtp_ sooner');
     // the band's tab of that step is the current one
-    await expect(page.locator('.trip-band nav a[aria-current="page"]')).toContainText(T(step));
+    await expect(page.locator('.trip-band nav a[aria-current="page"]')).toContainText(T(step === 'Pack|stage' ? BAR.pack : BAR.plan));
     if (step === 'Pack|stage') await expect(page.locator('.pd')).toHaveAttribute('aria-label', T('Packing day: {title}', { title: 'test_data_gtp_ sooner' }));
     // v0.67.0: the trip's steps are the StepBar (nav.stepbar), not a place
     await expect(page.locator('nav[aria-label]:not(.steps):not(.stepbar) a[aria-current="page"]').filter({ visible: true })).toHaveText(T('Trips|place'));

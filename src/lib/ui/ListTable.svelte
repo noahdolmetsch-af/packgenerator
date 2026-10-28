@@ -131,7 +131,7 @@
       <li class="lall"><label><input type="checkbox" checked={allOn} onchange={flipAll} /> {t('Select all')}</label></li>
       {#each shown as r (idOf(r))}
         <li class="lt-row" class:on={picked.has(idOf(r))}>
-          <input type="checkbox" checked={picked.has(idOf(r))} onchange={() => flip(idOf(r))} aria-label={nameOf(r)} />
+          <label class="lt-cb"><input type="checkbox" checked={picked.has(idOf(r))} onchange={() => flip(idOf(r))} aria-label={nameOf(r)} /></label>
           {#if onopen}
             <button type="button" class="lname" onclick={() => onopen(r)}>{nameOf(r)}</button>
           {:else}
@@ -391,6 +391,23 @@
   }
   .lt-row.on {
     background: var(--hi-soft);
+  }
+  /* Klick-Rundgang 2: the tick and the name each get a 44 px tap area; the row keeps its height */
+  .lt-cb {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    margin: -6px 0 -6px -12px;
+    cursor: pointer;
+  }
+  button.lname {
+    position: relative;
+  }
+  button.lname::after {
+    content: '';
+    position: absolute;
+    inset: -6px 0;
   }
   .lname {
     border: 0;

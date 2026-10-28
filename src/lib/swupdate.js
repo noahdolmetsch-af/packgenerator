@@ -8,9 +8,12 @@
 //   waits until the app goes to the background or the field is left.
 // - never while a ride is recorded (holdreload.js): then after the ride, when the app goes to the background.
 // - when the new version still has not arrived 15 minutes after it went online, a bar says so (behind.js).
+// 27.10.2026 (Noah «1-5 a»): the bar comes after 2 minutes; and 30 seconds after a start the app loads itself
+// fresh once when a newer version is online but has not arrived (autofresh.js).
 
 import { warnIfBehind } from './behind.js';
 import { held as heldNow } from './holdreload.js';
+import { autoFresh, AFTER } from './autofresh.js';
 
 const HOUR = 60 * 60 * 1000;
 
@@ -24,7 +27,7 @@ const typing = (d) => {
  * Starts the watcher. `w` is the window (tests pass a fake one).
  * Returns { check, reloadPending } for the tests.
  */
-export function watchUpdates(w = globalThis, { every = HOUR, behind = warnIfBehind, held = heldNow } = {}) {
+export function watchUpdates(w = globalThis, { every = HOUR, behind = warnIfBehind, held = heldNow, fresh = autoFresh } = {}) {
   const sw = w.navigator?.serviceWorker;
   if (!sw) return null;
   const d = w.document;
@@ -73,7 +76,8 @@ export function watchUpdates(w = globalThis, { every = HOUR, behind = warnIfBehi
     if (pending) w.setTimeout(() => pending && !typing(d) && !held() && reloadNow(), 0);
   });
   w.setInterval(() => d.visibilityState === 'visible' && check(), every);
-  // on start too (the browser itself looks for a new worker on a start; this only asks for the version)
-  w.setTimeout?.(() => behind(w).catch(() => {}), 20_000);
+  // on start too (the browser itself looks for a new worker on a start; this only asks for the version):
+  // a newer version that has not arrived after 30 seconds is loaded fresh once, else the bar may come
+  w.setTimeout?.(() => fresh(w).then((loading) => loading || behind(w)).catch(() => {}), AFTER);
   return { check, reloadPending: () => pending };
 }

@@ -20,3 +20,34 @@
     transform: translateY(-50%);
   }
 }
+
+/*
+ * Klick-Rundgang 2 (Noah 27.10.2026 «3 und dann 1»): the small symbol and chip buttons the button scan found
+ * under 44 px on the phone (star, «ausblenden» ×, Früher/Später, Gebraucht/Kaputt marks, chips, the photo
+ * thumb) get the same invisible 44 px tap area. The look stays; a button that is bigger already keeps its box.
+ */
+@media (pointer: coarse) {
+  :where(button.fav, button.sx, button.nav, button.ib, button.mk, button.th, button.chip, button.ev-chip, button.rh-chip, button.as-egb, button.ofb, .ch.add) {
+    position: relative;
+  }
+  :is(button.fav, button.sx, button.nav, button.ib, button.mk, button.th, button.chip, button.ev-chip, button.rh-chip, button.as-egb, button.ofb, .ch.add)::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: max(100%, 44px);
+    height: max(100%, 44px);
+    transform: translate(-50%, -50%);
+  }
+}
+
+/*
+ * Klick-Rundgang 2, Paket 3 (Noah 27.10.2026 «2a»): a tick or radio with its text in one label is one tap
+ * target; on the phone such a label is at least 44 px high (a label shown inline keeps its line). Zero
+ * specificity, so a component's own size wins.
+ */
+@media (pointer: coarse) {
+  :where(label:has(> input[type='checkbox'], > input[type='radio'])) {
+    min-height: 44px;
+  }
+}

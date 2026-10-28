@@ -122,14 +122,15 @@ export function json(request, status, body, extra = {}) {
 /**
  * Wraps a handler: OPTIONS, the allowed methods and errors as clear JSON. name: for the one log line,
  * and the name the daily cap counts under (daycap.js, Paket R). capStore: the store the cap counts in
- * (default: the Upstash store when it is set up; null = no cap, e.g. in tests).
+ * (default: the Upstash store when it is set up; null = no cap, e.g. in tests). capName: the cap name
+ * for one request when it differs from name (e.g. the cron-job.org tick of api/push.js counts as «tick»).
  */
-export function route(methods, name = 'api', { capStore = () => redis(), now = () => Date.now() } = {}) {
+export function route(methods, name = 'api', { capStore = () => redis(), now = () => Date.now(), capName = () => name } = {}) {
   return async (request) => {
     if (request.method === 'OPTIONS') return preflight(request);
     const fn = methods[request.method];
     if (!fn) return json(request, 405, { error: 'method_not_allowed', code: 'method_not_allowed', message: `Use ${Object.keys(methods).join(' or ')}.` }, { Allow: [...Object.keys(methods), 'OPTIONS'].join(', ') });
-    const used = await countCall(capStore(), name, now());
+    const used = await countCall(capStore(), capName(request), now());
     if (used?.over) return json(request, 429, { error: 'daily_cap', code: 'daily_cap', message: 'The server has done enough for today (free limit). It works again tomorrow.' }, { 'Retry-After': '3600' });
     try {
       return await fn(request);

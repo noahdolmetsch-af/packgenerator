@@ -40,7 +40,7 @@
   import Seg from '../lib/ui/Seg.svelte';
   import VeloHead from '../lib/bikes/VeloHead.svelte';
   import HomePlaceSheet from '../lib/ich/HomePlaceSheet.svelte';
-  import { Leaf, HeartHandshake, Globe, Palette, House, Inbox, NotebookPen, Database, Info, Lightbulb, Keyboard, ChevronRight, ChevronDown, Sparkles, Archive, FlaskConical, TriangleAlert, Star, ListChecks, ClipboardList, History, CreditCard, Hand, BookOpen, LayoutGrid, Compass, ListTree, CircleHelp, Check, Bell, ListTodo, SlidersHorizontal, FileText, Scale, CalendarCheck, CalendarDays, BellRing, Mail, Backpack, Link2, Wrench, ExternalLink, CalendarClock, FolderOpen, Images, Target, ShieldCheck, ShoppingCart, MessageCircle, Search as SearchIcon } from '@lucide/svelte';
+  import { Leaf, HeartHandshake, Globe, Palette, House, Inbox, NotebookPen, Database, Info, Lightbulb, Keyboard, ChevronRight, ChevronDown, Sparkles, Archive, FlaskConical, TriangleAlert, Star, ListChecks, ClipboardList, History, CreditCard, Hand, BookOpen, LayoutGrid, Compass, ListTree, CircleHelp, Check, Bell, ListTodo, SlidersHorizontal, FileText, Scale, CalendarCheck, CalendarDays, BellRing, Mail, Backpack, Link2, Wrench, ExternalLink, CalendarClock, FolderOpen, Images, Target, ShieldCheck, GraduationCap, ShoppingCart, MessageCircle, Search as SearchIcon } from '@lucide/svelte';
   import { wide } from '../lib/media.svelte.js';
   import QuickLinks from '../lib/ui/QuickLinks.svelte';
   import { WHATS_NEW, shortVersion, newerThan, BEFORE } from '../lib/whatsnew.js';
@@ -61,6 +61,7 @@
   import { listBills, billsSummary } from '../lib/pay/bills.js';
   import { formatAmount } from '../lib/pay/qrbill.js';
   import Btn from '../lib/ui/Btn.svelte';
+  import VersionRow from '../lib/ich/VersionRow.svelte';
   import '../lib/ich/ich.css';
   import { docs as docList } from '../lib/docs/client.svelte.js';
   import { dueCount } from '../lib/docs.js';
@@ -358,7 +359,14 @@
               <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
             </a>
           </li>
-          
+          <li>
+            <!-- «App verstehen» (Noah 26.10.2026 «unter ich - app verstehen»): seven lessons with links and exercises -->
+            <a class="ich-row" href="#/me/verstehen" data-me-row="verstehen">
+              <span class="ich-ib"><GraduationCap size={18} aria-hidden="true" /></span>
+              <span class="ich-m"><b>{t('Understand the app')}</b><small>{t('Seven lessons: keep the app going yourself')}</small></span>
+              <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
+            </a>
+          </li>
           <li>
             <!-- Paket R: what stays on the device, what the server keeps, costs, terms -->
             <a class="ich-row" href="#/me/privacy">
@@ -368,6 +376,10 @@
             </a>
           </li>
           
+          <li>
+            <!-- «Neueste Version» (Noah 27.10.2026 «1-5 a»): this device's version, the online one, «Neueste laden» -->
+            <VersionRow />
+          </li>
           <li>
             <!-- v0.110.0 Design-Refresh P10 (I11): Ich › Was ist neu -->
             <a class="ich-row" href="#/me/news">

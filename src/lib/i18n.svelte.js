@@ -78,7 +78,7 @@ export const num = (n) => (n == null ? '' : Number(n).toLocaleString(lang.v === 
  * v0.30.2 (test P4.1/PL3.12): a bag's own name (stored as typed, often English like "Seat pack 14 L")
  * with its common words in German when German is on: "Satteltasche 14 L".
  */
-const BAG_WORDS = [['Seat pack', 'Satteltasche'], ['Saddle bag', 'Satteltasche'], ['Frame bag', 'Rahmentasche'], ['Top tube bag', 'Oberrohrtasche'], ['Handlebar roll', 'Lenkerrolle'], ['Handlebar bag', 'Lenkertasche'], ['Stem bag', 'Vorbautasche'], ['Feed bag', 'Vorbautasche'], ['Fork cage', 'Gabelhalter'], ['Fork bag', 'Gabeltasche'], ['Downtube bag', 'Unterrohrtasche'], ['Backpack', 'Rucksack'], ['large', 'gross'], ['small', 'klein'], ['medium', 'mittel']];
+const BAG_WORDS = [['Seat pack', 'Satteltasche'], ['Saddle bag', 'Satteltasche'], ['Frame bag', 'Rahmentasche'], ['Top tube bag', 'Oberrohrtasche'], ['Handlebar roll', 'Lenkerrolle'], ['Handlebar bag', 'Lenkertasche'], ['Stem bag', 'Vorbautasche'], ['Feed bag', 'Vorbautasche'], ['Fork cage', 'Gabelhalter'], ['Fork bag', 'Gabeltasche'], ['Downtube bag', 'Unterrohrtasche'], ['Backpack', 'Rucksack'], ['Hip bag', 'Hüfttasche'], ['Hip pack', 'Hüfttasche'], ['large', 'gross'], ['small', 'klein'], ['medium', 'mittel']];
 export function bagName(name) {
   const s = String(name ?? '');
   if (lang.v !== 'de') return s;

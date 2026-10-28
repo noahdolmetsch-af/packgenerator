@@ -49,7 +49,8 @@ test('Fotoalbum: add photos, give one a place, by place, off on Today, delete wi
   await sheet.locator('[data-photo-delete]').click();
   await page.getByTestId('ask-delete').getByRole('button', { name: T('Delete'), exact: true }).click();
   await expect(root.locator('[data-album-photo="album"]')).toHaveCount(1);
-  await page.getByRole('button', { name: T('Undo') }).last().click();
+  // B22 (Noah 27.10.2026): earlier notes stay; the newest one (.rtoast) undoes the delete
+  await page.locator('.rtoast').getByRole('button', { name: T('Undo') }).click();
   await expect(root.locator('[data-album-photo="album"]')).toHaveCount(2);
   expect(await noSideScroll(page)).toBe(true);
   // a bike photo comes by itself: it opens its bike

@@ -39,6 +39,17 @@ export async function needDevice(request, store) {
   return key;
 }
 
+/** A friend's device (Strava per person): its key hash → the friend's Strava athlete id. Not in app:keys. */
+export const friendDevice = (h) => `strava:device:${h}`;
+
+/** The friend's athlete id for this request's key, or null (owner devices and unknown keys). */
+export async function friendOf(request, store) {
+  const key = bearer(request);
+  if (!key) return null;
+  const id = await store.get(friendDevice(hash(key)));
+  return id && /^\d{1,20}$/.test(id) ? id : null;
+}
+
 /** A new device key: stored as hash, returned once. */
 export async function newDevice(store) {
   const key = randomKey();

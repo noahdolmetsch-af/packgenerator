@@ -7,8 +7,6 @@
 import { ftpEstimate, powerLoad, shiftDay, mondayOf, isoWeek, zoneSecs, mainZone } from '../../training.js';
 
 export const WEEKS = 16;
-export const CTL_DAYS = 42;
-export const ATL_DAYS = 7;
 export const CURVE_SPANS = [5, 60, 300, 1200, 3600];
 export const CURVE_DAYS = 90;
 export const EFF_MONTHS = 4;
@@ -36,45 +34,11 @@ export function dailyLoads(acts, loads = loadsOf(acts)) {
   return m;
 }
 
-/**
- * Fitness (CTL, 42 days), fatigue (ATL, 7 days) and form (TSB = CTL − ATL of the day before), every day from
- * the first activity to today. → Map day → { ctl, atl, tsb } (unrounded).
- */
-export function formDays(acts, today, loads = loadsOf(acts)) {
-  const daily = dailyLoads(acts, loads);
-  const days = [...daily.keys()].filter((d) => d <= today).sort();
-  const out = new Map();
-  if (!days.length) return out;
-  let ctl = 0;
-  let atl = 0;
-  for (let d = days[0]; d <= today; d = shiftDay(d, 1)) {
-    const tsb = ctl - atl;
-    const l = daily.get(d) ?? 0;
-    ctl += (l - ctl) / CTL_DAYS;
-    atl += (l - atl) / ATL_DAYS;
-    out.set(d, { ctl, atl, tsb });
-  }
-  return out;
-}
-
 /** The Mondays of the last n weeks, oldest first, this week last. */
 export const mondays = (today, n = WEEKS) => Array.from({ length: n }, (_, i) => shiftDay(mondayOf(today), (i - n + 1) * 7));
 
-/**
- * One point per week (the value on the week's Sunday, or today for this week) for n weeks, and today's values.
- * → { weeks: [{ monday, kw, ctl, atl, tsb }], now: { ctl, atl, tsb } } rounded, or null without activities.
- */
-export function formWeeks(acts, today, n = WEEKS) {
-  const f = formDays(acts, today);
-  if (!f.size) return null;
-  const zero = { ctl: 0, atl: 0, tsb: 0 };
-  const round = (v) => ({ ctl: Math.round(v.ctl) || 0, atl: Math.round(v.atl) || 0, tsb: Math.round(v.tsb) || 0 });
-  const weeks = mondays(today, n).map((m) => {
-    const end = shiftDay(m, 6) < today ? shiftDay(m, 6) : today;
-    return { monday: m, kw: isoWeek(m), ...round(f.get(end) ?? zero) };
-  });
-  return { weeks, now: round(f.get(today) ?? zero) };
-}
+// UI-Test 26.10.2026 T3 (G3-01): fitness, Müdigkeit and form per week come from form.js (formSeries, formWeeksOf),
+// the same calculation as the page «Form»; the own CTL/ATL/TSB maths here is gone.
 
 /** Load and count per week for n weeks, this week (until today) last. → [{ monday, kw, load, n, current }] */
 export function weekLoads(acts, today, n = WEEKS, loads = loadsOf(acts)) {

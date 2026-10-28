@@ -6,8 +6,10 @@
    * 7 days as dots, the streak, one button and «Other duration». Not done today: «Like last time · 20 min»;
    * done: «Again · 10 min». The button starts the session (one tap, rule A: nothing opens by itself).
    * Like every card on the wall it can be moved or taken away (a suggestion, never a must).
+   * «Deine Gewohnheiten» (Noah 27.10.2026 «1a 2a und b 3b»): HabitCards.svelte shows it for the chosen
+   * meditation activity (actId); the pencil (onpick) opens «Which habits on top?».
    */
-  import { Timer as TimerIcon, Check, Flower2 } from '@lucide/svelte';
+  import { Timer as TimerIcon, Check, Flower2, Pencil } from '@lucide/svelte';
   import MedStartSheet from '../flow/MedStartSheet.svelte';
   import { medQuery, seedMed, flowQuery } from '../flow/data.svelte.js';
   import { flowStates } from '../flow.js';
@@ -17,9 +19,9 @@
   import { actGoalText, wd } from '../flow/words.js';
   import { t, tn } from '../i18n.svelte.js';
 
-  let { today } = $props();
+  let { today, actId: chosen = null, onpick = null } = $props();
   const fq = $derived(flowQuery(today));
-  const st = $derived($fq ? (flowStates($fq.acts, $fq.log, today, $fq.tripDays).find((s) => isMedAct(s.act) && !s.act.paused) ?? null) : null);
+  const st = $derived($fq ? (flowStates($fq.acts, $fq.log, today, $fq.tripDays).find((s) => (chosen ? s.act.id === chosen : isMedAct(s.act) && !s.act.paused)) ?? null) : null);
   const actId = $derived(st?.act.id ?? 'meditation');
   const q = $derived(medQuery(actId, today));
   const data = $derived($q);
@@ -47,6 +49,7 @@
       <a id="mc-h" href="#/flow/act/{encodeURIComponent(actId)}">{actName(st.act)}</a>
       <small>{done ? t('done today ✓ · {n} min', { n: todayMin }) : t('still open today')} · {t('Goal|flow')} {actGoalText(st.act, today)}</small>
     </span>
+    {#if onpick}<button type="button" class="pen" aria-label={t('Choose other habits')} title={t('Choose other habits')} onclick={onpick} data-habit-pick><Pencil size={16} aria-hidden="true" /></button>{/if}
     <span class="dots" role="img" aria-label={t('{n} of 7 days', { n: week.filter((g) => g.on).length })}>
       {#each week as g (g.day)}<span><i class:ok={g.on} aria-hidden="true">{#if g.on}<Check size={11} strokeWidth={3} />{/if}</i>{wd(g.day)}</span>{/each}
     </span>
@@ -111,6 +114,19 @@
     gap: 8px;
     margin-left: auto;
   }
+  .pen {
+    flex: none;
+    order: 9;
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border: 0;
+    border-radius: 50%;
+    background: none;
+    color: var(--ink-2);
+    cursor: pointer;
+  }
   .dots > span {
     display: flex;
     flex-direction: column;
@@ -164,6 +180,11 @@
     /* the name and its line sit beside the flower, not in a row of their own («Dein Körper heute» stays in the first screen) */
     .mt {
       flex: 1 1 0;
+    }
+    /* the pencil stays beside the name on a phone */
+    .pen {
+      order: 0;
+      margin: -6px -6px -6px 0;
     }
     .dots {
       width: 100%;

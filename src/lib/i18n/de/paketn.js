@@ -298,4 +298,10 @@ export default {
   'Plan|dream': 'Planen',
   'Hide|week': 'Ausblenden',
   'Show fitting dreams and deadlines in «Plan the week»': 'Passende Träume und Anmeldeschlüsse in «Woche planen» zeigen',
+  // «Träume und Neuland» (Noah 27.10.2026 «1-5 a»)
+  'A dream that fits now: {name}': 'Ein Traum passt jetzt: {name}',
+  'A dream that fits now: {name} and one more': 'Ein Traum passt jetzt: {name} und ein weiterer',
+  'A dream that fits now: {name} and {n} more': 'Ein Traum passt jetzt: {name} und {n} weitere',
+  'Collected|dreams': 'Gesammelt',
+  'Where you were for the first time: cantons, passes, lakes and more, and all your rides on one map.': 'Wo du zum ersten Mal warst: Kantone, Pässe, Seen und mehr, und alle deine Fahrten auf einer Karte.',
 };

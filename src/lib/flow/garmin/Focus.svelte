@@ -205,4 +205,14 @@
   .pg button.on::after {
     background: var(--ink);
   }
+  /* Klick-Rundgang 2: on a touch screen each dot is a 44 px button (the dot itself stays small) */
+  @media (pointer: coarse) {
+    .pg {
+      gap: 0;
+    }
+    .pg button {
+      width: 44px;
+      height: 44px;
+    }
+  }
 </style>

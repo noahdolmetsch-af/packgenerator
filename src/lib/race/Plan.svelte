@@ -385,6 +385,11 @@
     cursor: pointer;
     min-height: 32px;
   }
+  /* Klick-Rundgang 2: each case line is 44 px high to tap */
+  .rc-cases summary {
+    cursor: pointer;
+    padding-block: 6px;
+  }
   .rc-case-n {
     display: inline-block;
     min-width: 2ch;

@@ -2,6 +2,8 @@
 
 Stand 19.10.2026. Im Alltag musst du nichts tun. Diese Fälle kommen selten vor. Meist sagt dir die App oder der Wächter von selbst, dass es so weit ist.
 
+Ist etwas kaputt? Dann zuerst das [Notfall-Handbuch](notfall-handbuch.md). Alle Konten: [Konten-Liste](konten.md).
+
 **Immer gilt:** nur in der richtigen App arbeiten: https://noahdolmetsch-af.github.io/packgenerator/
 Unten steht ein brauner Balken «Test preview»? Dann bist du in der falschen App: Tab schliessen.
 

@@ -8,6 +8,8 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { openData, settle } from './settle.js';
+import DE from '../../src/lib/i18n/de/index.js';
+import { STEP_BAR as BAR } from '../../src/lib/stepbar.js';
 
 const P = 'test_data_gtp_';
 const RAW = readFileSync(fileURLToPath(new URL('./pf-fixture.json', import.meta.url)), 'utf8');
@@ -73,7 +75,8 @@ for (const [w, hgt] of [
     await page.getByLabel('Mehr: andere Tour, Tour bearbeiten, Vorlagen, drucken').click();
     await page.locator('.list-menu-content select').selectOption(EVENT);
     await expect(page.locator('.trip-band h1')).toBeVisible();
-    for (const step of ['Plan', 'Packen', 'Unterwegs', 'Rückblick']) {
+    // the step bar's short names (0.212.3), read from the app
+    for (const step of [BAR.plan, BAR.pack, BAR.ride, BAR.debrief].map((k) => DE[k] ?? k.replace(/\|bar$/, ''))) {
       await page.locator('.trip-band .steps a').filter({ hasText: step }).first().click();
       await expect(page.locator('.trip-band .steps a[aria-current="page"]')).toContainText(step);
       await expect(page.locator('.trip-band h1')).toBeVisible();

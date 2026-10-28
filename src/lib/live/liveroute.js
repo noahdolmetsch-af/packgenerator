@@ -5,7 +5,10 @@
  *
  * The file is read on the device (route.js parseGpx/routeStats); only a thinned line and the numbers are
  * kept in the settings record LIVE_ROUTE_KEY (on this device only once db.js DEVICE_SETTINGS lists it):
- *   { name, line: [[lat, lon], …], km, gainM, lossM, profile: [[km, m], …], profileFine, start, end, file, loadedAt }
+ *   { name, line: [[lat, lon], …], km, gainM, lossM, profile: [[km, m], …], profileFine, start, end, file, loadedAt, forTrip }
+ * forTrip (Noah 28.10.2026 «bei jedem Betätigen der Buttons den jeweiligen Use Case berücksichtigen»): the ride
+ * the GPX was opened for, a trip id or '' for a ride without a trip. It counts only for that ride; a trip
+ * without a route starts without one, and the last GPX is only offered («Load for this ride»).
  * The line keeps the bends (Douglas–Peucker, about 5 m) and at most LIVE_LINE_MAX points, enough for
  * «km along the route» and the off-route warning without a heavy settings record.
  * The user can rename it and delete it (askDelete + deleteWithUndo in LiveRouteBox.svelte). When the
@@ -50,6 +53,7 @@ export function liveRouteOf(gpx, fileName = '', now = new Date()) {
     end: s.end,
     file: fileName,
     loadedAt: (now instanceof Date ? now : new Date(now)).toISOString(),
+    forTrip: '',
   };
 }
 
@@ -85,8 +89,15 @@ export function cleanLiveRoute(v) {
     end: v.end && okPt(pair(v.end)) ? v.end : last,
     file: typeof v.file === 'string' ? v.file : '',
     loadedAt: typeof v.loadedAt === 'string' ? v.loadedAt : '',
+    forTrip: typeof v.forTrip === 'string' ? v.forTrip : '',
   };
 }
+
+/** The live route when it was opened for this ride (tripId, or none for a ride without a trip), else null. */
+export const liveRouteFor = (r, tripId = null) => (r && (r.forTrip ?? '') === (tripId || '') ? r : null);
+
+/** The live route given to this ride (tripId, or none for a ride without a trip). */
+export const forRide = (r, tripId = null) => (r ? { ...r, forTrip: tripId || '' } : r);
 
 /** Renamed: an empty name keeps the old one. */
 export const renameLiveRoute = (r, name) => (r ? { ...r, name: cleanName(name) || r.name } : r);

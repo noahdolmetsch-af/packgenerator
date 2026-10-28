@@ -84,7 +84,7 @@
     <span class="rt-side num" data-routine-count>{t('{n} of {m}', { n: num(count.n), m: num(count.of) })} · {dayShort(weekdayOf(today))}</span>
     <svg class="rt-ring" viewBox="0 0 36 36" width="36" height="36" role="progressbar" aria-label={t('What does me good')} aria-valuemin="0" aria-valuemax={count.of} aria-valuenow={count.n}>
       <circle cx="18" cy="18" r={R} class="bg" />
-      <circle cx="18" cy="18" r={R} class="fg" stroke-dasharray={C} stroke-dashoffset={count.of ? C * (1 - count.n / count.of) : C} transform="rotate(-90 18 18)" />
+      <circle cx="18" cy="18" r={R} class="fg" style:--ring-c={C} stroke-dasharray={C} stroke-dashoffset={count.of ? C * (1 - count.n / count.of) : C} transform="rotate(-90 18 18)" />
     </svg>
   </div>
   {#if sentence}<p class="rt-say" data-routine-say>{sentence}</p>{/if}

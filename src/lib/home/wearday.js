@@ -24,18 +24,21 @@ export const WHY_LIMITS = { mid: 15, outer: 12, hands: 12, head: 8, feet: 5 };
 export function dayChoice(rec, date) {
   const v = rec?.value;
   if (!v || !date || v.date !== date) return { pick: {}, add: [] };
-  return { pick: { ...(v.pick ?? {}) }, add: [...(v.add ?? [])] };
+  return { pick: { ...(v.pick ?? {}) }, add: [...(v.add ?? [])], ...(v.set ? { set: v.set } : {}) };
 }
-export const dayRecord = (date, choice = EMPTY) => ({ key: WEAR_DAY, value: { date, pick: { ...choice.pick }, add: [...choice.add] } });
+// step 2 (Kleider-Sets): set is the set you chose for the day (wearsets.js AUTO: none).
+const keepSet = (choice) => (choice?.set ? { set: choice.set } : {});
+export const dayRecord = (date, choice = EMPTY) => ({ key: WEAR_DAY, value: { date, pick: { ...choice.pick }, add: [...choice.add], ...keepSet(choice) } });
+export const withSet = (choice, key) => ({ pick: { ...choice.pick }, add: [...choice.add], set: key });
 export const isChanged = (choice) => !!choice && (Object.keys(choice.pick ?? {}).length > 0 || (choice.add ?? []).length > 0);
 
-export const withPick = (choice, key, id) => ({ pick: { ...choice.pick, [key]: id }, add: [...choice.add] });
+export const withPick = (choice, key, id) => ({ pick: { ...choice.pick, [key]: id }, add: [...choice.add], ...keepSet(choice) });
 export function withoutPick(choice, key) {
   const pick = { ...choice.pick };
   delete pick[key];
-  return { pick, add: [...choice.add] };
+  return { pick, add: [...choice.add], ...keepSet(choice) };
 }
-export const withAdd = (choice, key) => ({ pick: { ...choice.pick }, add: choice.add.includes(key) ? [...choice.add] : [...choice.add, key] });
+export const withAdd = (choice, key) => ({ pick: { ...choice.pick }, add: choice.add.includes(key) ? [...choice.add] : [...choice.add, key], ...keepSet(choice) });
 export const withoutAdd = (choice, key) => ({ ...withoutPick(choice, key), add: choice.add.filter((k) => k !== key) });
 
 /** The clothing that counts for a ride: owned (or unclear), not gone, not everyday-only. */
@@ -55,11 +58,11 @@ export function fitOf(item, c) {
  * The pieces you can choose for one row: every riding piece of that row. Those that fit first (the
  * app's choice on top), then the warmer ones, then the too light ones; each { item, fit }.
  */
-export function swapOptions(key, items = [], c) {
+export function swapOptions(key, items = [], c, prefer = 'light') {
   const row = rowOf(key);
   if (!row) return [];
   const mine = riding(items).filter((i) => matchesRow(row, i));
-  const top = best(mine.filter((i) => warmEnough(i, c)), c);
+  const top = best(mine.filter((i) => warmEnough(i, c)), c, prefer);
   const rank = { ok: 0, warm: 1, light: 2 };
   const lo = (i) => floorOf(i) ?? -99;
   return mine
@@ -99,7 +102,7 @@ export function gapReason(key, items = [], c, { rain = false } = {}) {
  * picked piece replaces the app's one, 'none' leaves the row empty. Each row: { key, name, item,
  * rain, added (you added it), mine (you changed it), none (you left it out) }.
  */
-export function applyDay(outfit, items = [], choice = EMPTY) {
+export function applyDay(outfit, items = [], choice = EMPTY, prefer = 'light') {
   if (!outfit) return null;
   const c = outfit.c;
   const byId = new Map(items.map((i) => [i.id, i]));
@@ -109,12 +112,14 @@ export function applyDay(outfit, items = [], choice = EMPTY) {
     const auto = outfit.rows.find((r) => r.key === row.key);
     const added = !auto && choice.add.includes(row.key);
     if (!auto && !added) continue;
-    let item = auto ? auto.item : best(all.filter((i) => matchesRow(row, i) && warmEnough(i, c)), c);
+    let item = auto ? auto.item : best(all.filter((i) => matchesRow(row, i) && warmEnough(i, c)), c, prefer);
     const p = choice.pick[row.key];
     const picked = p && p !== NONE ? byId.get(p) : null;
     if (p === NONE) item = null;
     else if (picked && isInventory(picked)) item = picked;
-    rows.push({ key: row.key, name: row.name, item, rain: auto?.rain ?? false, added, mine: added || p === NONE || !!(picked && isInventory(picked)), none: p === NONE });
+    const mine = added || p === NONE || !!(picked && isInventory(picked));
+    // step 2: a row from a set (wearsets.js setOutfit) says so, until you change it for today
+    rows.push({ key: row.key, name: row.name, item, rain: auto?.rain ?? false, added, mine, none: p === NONE, fromSet: !mine && !!auto?.fromSet, setOff: !mine && !!auto?.setOff, light: !mine && !!auto?.light });
   }
   return { ...outfit, rows };
 }

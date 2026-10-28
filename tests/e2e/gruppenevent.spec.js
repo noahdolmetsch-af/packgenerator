@@ -62,6 +62,19 @@ test('Event group: help with a sound, ready, costs, things, meeting point, race 
   const url = await panel.locator('[data-group-link]').inputValue();
   expect(url).toMatch(/#\/gruppe\//);
   await expect(panel.locator('[data-group-open-event]')).toBeVisible();
+  // «Neue Leute merken»: a reminder for the day after the event waits in Kalender › Merken
+  const todos = () =>
+    page.evaluate(
+      () =>
+        new Promise((resolve) => {
+          const rq = indexedDB.open('pack-generator');
+          rq.onsuccess = () => {
+            const g = rq.result.transaction('settings').objectStore('settings').get('merken');
+            g.onsuccess = () => resolve(g.result?.value ?? []);
+          };
+        }),
+    );
+  await expect.poll(async () => (await todos()).filter((x) => x.src?.startsWith('group-met:')).map((x) => x.text)).toEqual([T('Who did you meet at the event? Keep their contact under Me › With friends › Contact card.')]);
 
   // a friend in the browser: name, share, and calls for help
   const friend = await context.newPage();

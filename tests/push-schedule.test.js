@@ -5,7 +5,8 @@ import { buildList, pushOf, anyOn, KINDS, atMs, addDays, watchable } from '../sr
 import de from '../src/lib/i18n/de/index.js';
 
 const now = new Date(2026, 9, 20, 10, 0); // Tuesday 20 Oct 2026, 10:00 on this device
-const allOn = { on: true, kinds: Object.fromEntries(KINDS.map((k) => [k.key, true])) };
+// morning: false = every reminder on its own (the morning message of idea A1 has its own tests in push-morning.test.js)
+const allOn = { on: true, kinds: Object.fromEntries(KINDS.map((k) => [k.key, true])), morning: false };
 const trip = (id, start, extra = {}) => ({ id, title: `Testtour ${id}`, status: 'planned', startDate: start, ...extra });
 const base = (over = {}) => ({ trips: [], repairs: [], bikes: [], settings: { push: allOn }, lastBackup: null, now, ...over });
 const keys = (l) => l.items.map((i) => i.key);

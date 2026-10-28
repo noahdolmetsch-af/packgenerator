@@ -120,6 +120,107 @@ describe('Strava login', () => {
   });
 });
 
+describe('Strava pro Person vorbereiten (Noah 27.10.2026)', () => {
+  const asFriend = () => stravaToken({ athlete: { id: 7777 }, access_token: 'acc-f', refresh_token: 'ref-f' });
+
+  it('without STRAVA_ATHLETES a second athlete is still refused (only the owner)', async () => {
+    const w = world({ [TOKEN_URL]: asFriend() });
+    w.kv['strava:athlete'] = '4242';
+    const h = stravaHandler({ env: sEnv(), doFetch: w.doFetch, now: () => NOW });
+    expect(fragment(await connect(h, w)).get('error')).toBe('other_athlete');
+    expect(w.kv['strava:tokens:7777']).toBeUndefined();
+  });
+
+  it('a listed friend gets own tokens and a key that reads only their Strava and their own Fitbit values', async () => {
+    const w = world({ [TOKEN_URL]: asFriend(), [`${API}/athlete/activities`]: () => Response.json([]) });
+    w.kv['strava:athlete'] = '4242';
+    w.kv['strava:tokens'] = JSON.stringify({ access_token: 'acc-owner', refresh_token: 'ref-owner', expires_at: NOW / 1000 + 3600 });
+    const h = stravaHandler({ env: sEnv({ athletes: ['7777'] }), doFetch: w.doFetch, now: () => NOW });
+    const key = fragment(await connect(h, w)).get('key');
+    expect(key).toBeTruthy();
+    expect(JSON.parse(w.kv['strava:tokens:7777']).refresh_token).toBe('ref-f');
+    expect(JSON.parse(w.kv['strava:tokens']).refresh_token).toBe('ref-owner');
+    expect(w.sets[KEYS]?.has(hash(key)) ?? false).toBe(false);
+    expect(w.kv[`strava:device:${hash(key)}`]).toBe('7777');
+    expect((await h(get('/api/strava?step=activities', { key }))).status).toBe(200);
+    const call = w.calls.find((c) => c.url.startsWith(`${API}/athlete/activities`));
+    expect(call.init.headers.Authorization).toBe('Bearer acc-f');
+    const { main } = googleHandler({ env: gEnv(), doFetch: w.doFetch, now: () => NOW });
+    const status = await main(get('/api/google?step=status', { key }));
+    expect(status.status).toBe(200);
+    expect((await status.json()).connected).toBe(false);
+    const cal = await main(get('/api/google?step=cal-list', { key }));
+    expect(cal.status).toBe(403);
+    expect((await cal.json()).code).toBe('owner_only');
+  });
+
+  it('a friend disconnecting removes only their tokens and key', async () => {
+    const w = world({ [TOKEN_URL]: asFriend(), [DEAUTH_URL]: () => Response.json({}) });
+    w.kv['strava:athlete'] = '4242';
+    w.kv['strava:tokens'] = JSON.stringify({ access_token: 'acc-owner', refresh_token: 'ref-owner', expires_at: NOW / 1000 + 3600 });
+    const h = stravaHandler({ env: sEnv({ athletes: ['7777'] }), doFetch: w.doFetch, now: () => NOW });
+    const key = fragment(await connect(h, w)).get('key');
+    expect((await h(post('/api/strava?step=disconnect', {}, { key }))).status).toBe(200);
+    expect(w.kv['strava:tokens:7777']).toBeUndefined();
+    expect(w.kv[`strava:device:${hash(key)}`]).toBeUndefined();
+    expect(w.kv['strava:tokens']).toBeTruthy();
+    expect((await h(get('/api/strava?step=activities', { key }))).status).toBe(401);
+  });
+
+  it('reads the list of athlete ids from the environment, ignoring anything else', async () => {
+    const { stravaEnv } = await import('../api/strava.js');
+    expect(stravaEnv({ STRAVA_ATHLETES: ' 7777, abc,8888 ' }).athletes).toEqual(['7777', '8888']);
+    expect(stravaEnv({}).athletes).toEqual([]);
+  });
+});
+
+describe('Fitbit pro Person vorbereiten (Noah 27.10.2026)', () => {
+  const asFriend = () => stravaToken({ athlete: { id: 7777 }, access_token: 'acc-f', refresh_token: 'ref-f' });
+  const ownerGoogle = { access_token: 'g-owner', refresh_token: 'g-ref-owner', expires_at: NOW + 3_600_000, scope: [...SCOPES, ...MAIL_SCOPES].join(' ') };
+  async function friendSetup(routes = {}) {
+    const w = world({ [TOKEN_URL]: asFriend(), [G_TOKEN]: () => Response.json({ access_token: 'g-friend', refresh_token: 'g-ref-friend', expires_in: 3600, scope: [...SCOPES, DRIVE_SCOPE].join(' ') }), ...routes });
+    w.kv['strava:athlete'] = '4242';
+    w.kv['google:tokens'] = JSON.stringify(ownerGoogle);
+    const s = stravaHandler({ env: sEnv({ athletes: ['7777'] }), doFetch: w.doFetch, now: () => NOW });
+    const key = fragment(await connect(s, w)).get('key');
+    const { main, callback } = googleHandler({ env: gEnv(), doFetch: w.doFetch, now: () => NOW });
+    const start = await (await main(post('/api/google?step=start', { services: ['health', 'mail', 'drive'] }, { key }))).json();
+    const res = await callback(get(`/api/google/callback?code=g-code&state=${new URL(start.url).searchParams.get('state')}`));
+    return { w, key, main, start, res };
+  }
+
+  it('a friend asks Google only for the Fitbit values and keeps them under their own name', async () => {
+    const t = await friendSetup();
+    expect(new URL(t.start.url).searchParams.get('scope').split(' ')).toEqual(SCOPES);
+    expect(t.res.headers.get('location')).toContain('google=connected');
+    const mine = JSON.parse(t.w.kv['google:tokens:7777']);
+    expect(mine.refresh_token).toBe('g-ref-friend');
+    expect(mine.scope.split(' ')).toEqual(SCOPES);
+    expect(JSON.parse(t.w.kv['google:tokens'])).toEqual(ownerGoogle);
+    expect((await (await t.main(get('/api/google?step=status', { key: t.key }))).json()).connected).toBe(true);
+  });
+
+  it('a friend reads their own values with their own access, Mail and Drive stay closed', async () => {
+    const t = await friendSetup({ [`${G_API}/dataTypes/steps/dataPoints`]: () => Response.json({ dataPoints: [] }) });
+    expect((await t.main(get('/api/google?step=data&type=steps', { key: t.key }))).status).toBe(200);
+    const call = t.w.calls.find((c) => String(c.url).startsWith(`${G_API}/dataTypes/steps`));
+    expect(call.init.headers.Authorization).toBe('Bearer g-friend');
+    expect(JSON.parse(t.w.kv['google:tokens:health:7777']).access_token).toBe('g-friend');
+    expect(t.w.kv['google:tokens:health']).toBeUndefined();
+    expect((await t.main(get('/api/google?step=mail-list', { key: t.key }))).status).toBe(403);
+    expect((await t.main(post('/api/google?step=drive-rename', { fileId: 'abcdef', name: 'x' }, { key: t.key }))).status).toBe(403);
+  });
+
+  it('a friend disconnecting Google removes only their Google tokens', async () => {
+    const t = await friendSetup();
+    t.w.kv['google:drive:folders'] = '{}';
+    expect((await t.main(post('/api/google?step=disconnect', {}, { key: t.key }))).status).toBe(200);
+    expect(t.w.kv['google:tokens:7777']).toBeUndefined();
+    expect(JSON.parse(t.w.kv['google:tokens'])).toEqual(ownerGoogle);
+    expect(t.w.kv['google:drive:folders']).toBe('{}');
+  });
+});
+
 describe('Strava data', () => {
   const activity = { id: 111, name: 'Abendrunde', sport_type: 'GravelRide', start_date: '2026-10-11T16:00:00Z', start_date_local: '2026-10-11T18:00:00Z', distance: 42345, total_elevation_gain: 512.4, moving_time: 6000, elapsed_time: 6300, gear_id: 'b100', device_name: 'Garmin Edge 540', commute: false, trainer: false, has_heartrate: true, average_heartrate: 141.6, max_heartrate: 172, map: { polyline: 'secret-route', summary_polyline: '_p~iF~ps|U' }, start_latlng: [46.98765, 7.45678], end_latlng: [46.91234, 7.41234] };
 

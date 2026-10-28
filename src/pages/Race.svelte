@@ -55,7 +55,7 @@
   // Muster-Rennen (Noah «7b»): open it, or make it first
   const hasSample = $derived(!!($racesQ ?? {})[SAMPLE_ID] && ($tripsQ ?? []).some((x) => x.id === SAMPLE_ID));
   async function openSample(tour = false) {
-    if (!hasSample) await makeSample({ db, newTrip, putRace, today, title: t('Sample race 1000') });
+    if (!hasSample) await makeSample({ db, newTrip, putRace, today, title: t('Sample race 1000'), tr: t });
     if (tour) return startTour('race');
     location.hash = raceHref(SAMPLE_ID);
   }
@@ -90,6 +90,8 @@
 
     <div class="rc-acts">
       <button type="button" class="btn hi" onclick={openNew} data-race-new><Plus size={16} aria-hidden="true" />{t('New race')}</button>
+      <!-- «Rennen detailliert planen» (Noah 27.10.2026 «1b»): the Rennen-Check of every race on its own page -->
+      <a class="btn" href="#/racecheck" data-race-to-check>{t('Plan races in detail')}</a>
     </div>
 
     {#if $tripsQ !== undefined}

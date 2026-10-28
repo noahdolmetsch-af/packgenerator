@@ -23,7 +23,7 @@
   }
   async function reset() {
     const before = await snapshot();
-    await deleteWithUndo({ run: () => makeSample({ db, newTrip, putRace, today: localDay(), title: t('Sample race 1000') }), undo: () => restore(before), text: t('The sample race is as new again.'), name: t('Sample race 1000') });
+    await deleteWithUndo({ run: () => makeSample({ db, newTrip, putRace, today: localDay(), title: t('Sample race 1000'), tr: t }), undo: () => restore(before), text: t('The sample race is as new again.'), name: t('Sample race 1000') });
   }
   async function remove() {
     if ((await askDelete({ title: t('Delete the sample race?'), text: t('Your own races stay. You can make the sample again under Trips › Races.') })) !== 'delete') return;

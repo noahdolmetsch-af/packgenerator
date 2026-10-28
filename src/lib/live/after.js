@@ -13,6 +13,7 @@ import { pauses, pausedS as pausedBetween, liveKmCounts, distKm, gainBetween, on
 import { statsOf } from './ble.js';
 import { lineKm } from '../race/race.js';
 import { thin } from '../route.js';
+import { lapsOf } from './laps.js';
 import { zurichDay } from '../spur/spur.js';
 
 const r1 = (v) => Math.round(v * 10) / 10;
@@ -23,7 +24,76 @@ export const ON_ROUTE_M = 1000;
 export const GUESS_KMH = 15;
 
 /** The points of a recording as fixes { lat, lon, at (ms) }. */
-export const fixesOf = (ride) => (ride?.pts ?? []).filter((p) => Array.isArray(p) && Number.isFinite(p[0]) && Number.isFinite(p[1])).map(([lat, lon, s]) => ({ lat, lon, at: (ride.startAt ?? 0) + (Number(s) || 0) * 1000 }));
+export const fixesOf = (ride) => (ride?.pts ?? []).filter((p) => Array.isArray(p) && Number.isFinite(p[0]) && Number.isFinite(p[1])).map(([lat, lon, s, alt]) => ({ lat, lon, at: (ride.startAt ?? 0) + (Number(s) || 0) * 1000, alt: Number.isFinite(alt) ? alt : null }));
+
+/* Nachprüfung 27.10.2026 (Noah «prüfe, ob wir wirklich alles so gemacht haben»): the recording keeps the GPS
+   height as a 4th value of each point ([lat, lon, sec, alt], recorder.svelte.js), so a ride without a route
+   gets its Hm and its elevation profile too. */
+
+/** Metres up from the GPS heights of the fixes (4 m steps against the jitter, like the live tile), or null. */
+export function gpsGainOf(fixes = []) {
+  const alts = fixes.map((f) => f.alt).filter(Number.isFinite);
+  if (alts.length < 2) return null;
+  let base = alts[0];
+  let gain = 0;
+  for (const a of alts) {
+    if (a < base) base = a;
+    else if (a - base >= 4) {
+      gain += a - base;
+      base = a;
+    }
+  }
+  return Math.round(gain);
+}
+
+/** The elevation over the ride time: [[sec, m]] from the GPS heights (at most `max` points), or []. */
+export function heightCurve(ride, max = 400) {
+  const p = (ride?.pts ?? []).filter((x) => Array.isArray(x) && Number.isFinite(x[2]) && Number.isFinite(x[3]));
+  if (p.length < 2) return [];
+  const step = Math.max(1, Math.ceil(p.length / max));
+  return p.filter((_, i) => i % step === 0 || i === p.length - 1).map((x) => [x[2], Math.round(x[3])]);
+}
+
+/** The elevation profile of the ride as [[km, m]] (shaped like a route profile), or []. */
+export function heightProfile(ride, max = 400) {
+  const f = fixesOf(ride);
+  const out = [];
+  let k = 0;
+  for (let i = 0; i < f.length; i++) {
+    if (i) k += distKm(f[i - 1], f[i]);
+    if (Number.isFinite(f[i].alt)) out.push([Math.round(k * 100) / 100, Math.round(f[i].alt)]);
+  }
+  if (out.length < 2) return [];
+  const step = Math.max(1, Math.ceil(out.length / max));
+  return out.filter((_, i) => i % step === 0 || i === out.length - 1);
+}
+
+/**
+ * A Strava or Garmin ride (table activities) at the same time as the live ride, or null: its Hm, pulse and
+ * power fill what the phone did not measure (Noah 20.10.2026: «kommt später eine Garmin- oder Strava-Fahrt
+ * vom selben Tag, ergänzt die App ihre Daten damit»). The one that overlaps most in time wins.
+ */
+export function twinActivity(ride, acts = []) {
+  const f = fixesOf(ride);
+  const start = f[0]?.at ?? ride?.startAt;
+  const end = f.at(-1)?.at ?? ride?.endAt;
+  if (!Number.isFinite(start) || !Number.isFinite(end) || end <= start) return null;
+  let best = null;
+  let most = 0;
+  for (const a of acts ?? []) {
+    if (a?.kind !== 'bike' || a.trainer) continue;
+    const s = Date.parse(a.start);
+    const dur = Number(a.elapsedS) || Number(a.movingS) || 0;
+    if (!Number.isFinite(s) || !(dur > 0)) continue;
+    const over = Math.min(end, s + dur * 1000) - Math.max(start, s);
+    if (over > most) {
+      most = over;
+      best = a;
+    }
+  }
+  // at least a third of the live ride lies in it, so a short ride the same day is not taken
+  return best && most >= (end - start) / 3 ? best : null;
+}
 
 /** Hm of the ride from the trip's route profile, when start and end lie on the route; else null. */
 export function hmOf(ride, trip = null) {
@@ -54,7 +124,7 @@ function kmAtStops(fixes, stops) {
 
 /**
  * The summary of a ride: { km, hm, movingS, stoppedS, totalS, stops: [{ at, s, lat, lon, km }] }.
- * hm is null without a profile.
+ * hm: from the trip's route profile, else from the GPS heights (hmFrom 'route' | 'gps'), else null.
  */
 export function rideSummary(ride, trip = null) {
   const fixes = fixesOf(ride);
@@ -65,7 +135,18 @@ export function rideSummary(ride, trip = null) {
   const pausedS = Math.round(pausedBetween(0, Number.MAX_SAFE_INTEGER, (ride?.breaks ?? []).filter((b) => b?.[1] != null)));
   const sn = ride?.sensors ?? {};
   const sensors = { hr: statsOf(sn.hr), power: statsOf(sn.power, { noZero: true }), cadence: statsOf(sn.cadence, { noZero: true }) };
-  return { km: r1(Number(ride?.km) || 0), hm: hmOf(ride, trip), movingS: p.movingS, stoppedS: p.stoppedS, totalS, pausedS, sensors, stops: p.stops.map((x, i) => ({ ...x, km: r1(at[i]) })) };
+  const routeHm = hmOf(ride, trip);
+  const gpsHm = routeHm == null ? gpsGainOf(fixes) : null;
+  return { km: r1(Number(ride?.km) || 0), hm: routeHm ?? gpsHm, hmFrom: routeHm != null ? 'route' : gpsHm != null ? 'gps' : null, movingS: p.movingS, stoppedS: p.stoppedS, totalS, pausedS, sensors, stops: p.stops.map((x, i) => ({ ...x, km: r1(at[i]) })) };
+}
+
+/** The laps of a closed recording with their own pulse and power: [{ n, km, movingS, hrAvg, wAvg }] or null. */
+export function lapRows(ride) {
+  if (!ride?.laps?.length) return null;
+  const f = fixesOf(ride);
+  const end = f.at(-1)?.at ?? ride.endAt ?? ride.startAt;
+  const total = rideSummary(ride);
+  return lapsOf(ride.laps, { km: Number(ride.km) || 0, movingS: total.movingS, now: end, startAt: ride.startAt ?? 0, sensors: ride.sensors ?? null });
 }
 
 /** The id of the ride row made from a recording (one per recording, so «Debrief» twice makes it once). */
@@ -76,8 +157,15 @@ export const rideIdOf = (ride) => `ride-live-${ride.id}`;
  * so the look back, «Planned vs real» and the ride list read it as they read any ride.
  * plan: plannedFor(trip, date, pace) or null; name: the shown name (the trip's title or «Live ride»).
  */
-export function rideRowOf(ride, { trip = null, name = '', plan = null, basis = null, now = new Date() } = {}) {
+export function rideRowOf(ride, { trip = null, name = '', plan = null, basis = null, twin = null, now = new Date() } = {}) {
   const s = rideSummary(ride, trip);
+  // the sensor numbers as the look back reads them (review/werte.js: hrAvg, hrMax, wAvg, wMax); what the
+  // phone did not measure comes from a Strava/Garmin ride at the same time (twinActivity)
+  const hr = s.sensors.hr;
+  const w = s.sensors.power;
+  const fill = (own, other) => (own != null ? own : Number.isFinite(other) ? Math.round(other) : null);
+  const sensors = { hrAvg: fill(hr?.avg, twin?.hrAvg), hrMax: fill(hr?.max, twin?.hrMax), wAvg: fill(w?.avg, twin?.wAvg), wMax: fill(w?.max, twin?.wMax) };
+  const hasSensors = Object.values(sensors).some((v) => v != null);
   const fixes = fixesOf(ride);
   const first = fixes[0] ?? { lat: 0, lon: 0, at: ride.startAt };
   const last = fixes.at(-1) ?? first;
@@ -91,7 +179,7 @@ export function rideRowOf(ride, { trip = null, name = '', plan = null, basis = n
     date: ride.day ?? zurichDay(first.at),
     startAt: new Date(first.at).toISOString(),
     km: s.km,
-    gainM: s.hm,
+    gainM: s.hm ?? (Number.isFinite(twin?.hm) ? Math.round(twin.hm) : null),
     lossM: null,
     totalH: r2(s.totalS / 3600),
     pauseH: r2(s.stoppedS / 3600),
@@ -99,8 +187,10 @@ export function rideRowOf(ride, { trip = null, name = '', plan = null, basis = n
     pauses: s.stops.map((x) => ({ km: x.km, at: new Date(x.at).toISOString(), min: Math.round(x.s / 60) })),
     parts: null,
     line: thin(fixes),
-    profile: [],
-    sensors: null,
+    profile: heightProfile(ride),
+    sensors: hasSensors ? sensors : null,
+    laps: lapRows(ride),
+    twinId: twin?.id != null ? String(twin.id) : null,
     start: { lat: r5(first.lat), lon: r5(first.lon) },
     end: { lat: r5(last.lat), lon: r5(last.lon) },
     tripId: trip?.id ?? ride.tripId ?? null,

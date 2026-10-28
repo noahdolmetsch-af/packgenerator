@@ -28,8 +28,25 @@ export function shiftOf(i, from, to) {
   return 0;
 }
 
+/**
+ * B19 «Hochheben beim Sortieren» (Noah 27.10.2026 «ich möchte b13 bis b24 alle umsetzen»): the held row lifts with a
+ * shadow and sits above the others, the others glide aside more softly, and the phone gives a short buzz when the
+ * row lands at a new place. The look comes with this file (one small style sheet), so every sortable list has it.
+ */
+const LIFT_CSS = `.sort-moving{position:relative;z-index:5;background:var(--paper);border-radius:12px;box-shadow:0 12px 28px var(--shadow),0 2px 6px var(--shadow)}
+@media (prefers-reduced-motion:no-preference){.sort-moving{scale:1.02}}
+.sort-active{user-select:none;-webkit-user-select:none}`;
+function liftStyle() {
+  if (typeof document === 'undefined' || document.getElementById('sort-lift')) return;
+  const el = document.createElement('style');
+  el.id = 'sort-lift';
+  el.textContent = LIFT_CSS;
+  document.head.append(el);
+}
+
 export function sortable(node, opts = {}) {
   let o = opts;
+  liftStyle();
   let st = null;
   const rowsOf = () => [...node.querySelectorAll(o.row ?? ':scope > li')];
 
@@ -64,7 +81,7 @@ export function sortable(node, opts = {}) {
     st.rows.forEach((r, i) => {
       if (i === st.from) r.style.transform = `translateY(${dy / st.z}px)`;
       else {
-        r.style.transition = 'transform 120ms ease';
+        r.style.transition = 'transform 180ms cubic-bezier(0.23, 1, 0.32, 1)';
         r.style.transform = `translateY(${(shiftOf(i, st.from, st.to) * st.h) / st.z}px)`;
       }
     });
@@ -73,7 +90,10 @@ export function sortable(node, opts = {}) {
     if (!st) return;
     const { from, to } = st;
     reset();
-    if (to !== from) o.onmove?.(from, to);
+    if (to !== from) {
+      navigator.vibrate?.(10);
+      o.onmove?.(from, to);
+    }
   }
   const key = (e) => e.key === 'Escape' && st && (e.preventDefault(), reset());
 

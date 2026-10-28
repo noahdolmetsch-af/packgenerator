@@ -1,7 +1,7 @@
 // Paket R: the daily cap of the small server (api/_lib/daycap.js, route() in api/_lib/core.js) and the
 // watcher's check «tagesgrenze». A tiny fake store; fictional values only.
 import { describe, it, expect } from 'vitest';
-import { DAY_CAPS, CAP_LUA, UNCAPPED, countCall, dayUsage, dayOf, capKeys } from '../api/_lib/daycap.js';
+import { DAY_CAPS, CAP_LUA, UNCAPPED, OWN_CAP_ONLY, countCall, dayUsage, dayOf, capKeys } from '../api/_lib/daycap.js';
 import { route, json } from '../api/_lib/core.js';
 import { makeChecks } from '../api/_lib/health.js';
 
@@ -52,6 +52,18 @@ describe('the daily cap', () => {
     expect(UNCAPPED.has('health')).toBe(true);
     expect(await countCall(fakeStore(), 'health')).toBeNull();
   });
+  it('the cron-job.org tick is stopped only by its own cap, never by the total (27.10.2026)', async () => {
+    const s = fakeStore();
+    const caps = { total: 1, tick: 2 };
+    expect(OWN_CAP_ONLY.has('tick')).toBe(true);
+    s.kv.set('cap:2026-10-19:total', '50');
+    expect(await countCall(s, 'tick', LATE, caps)).toEqual({ n: 1, total: 51, over: false });
+    expect((await countCall(s, 'tick', LATE, caps)).over).toBe(false);
+    expect((await countCall(s, 'tick', LATE, caps)).over).toBe(true);
+    expect((await countCall(s, 'push', LATE, caps)).over).toBe(true);
+    // a whole 25-hour day of ticks every minute fits
+    expect(DAY_CAPS.tick).toBeGreaterThan(25 * 60);
+  });
   it('keeps every cap below the free tiers (rule «0 Kosten»)', () => {
     // Vercel Hobby: about 1 000 000 calls a month; Upstash free: about 500 000 commands a month
     expect(DAY_CAPS.total * 31).toBeLessThan(1_000_000);
@@ -72,6 +84,21 @@ describe('route() with the cap', () => {
     const pre = await ok(new Request('https://packgen.test/api/sync', { method: 'OPTIONS', headers: { origin: 'https://noahdolmetsch-af.github.io' } }));
     expect(pre.status).toBe(204);
     expect(s.kv.get('cap:2026-10-19:sync')).toBe(String(DAY_CAPS.sync + 1));
+  });
+  it('counts the push tick as «tick»: it still goes when the total is reached', async () => {
+    const { pushCapName } = await import('../api/push.js');
+    const names = [];
+    const r = route({ GET: async (q) => json(q, 200, { ok: true }) }, 'push', {
+      capStore: () => s,
+      now: () => LATE,
+      capName: (q) => { const n = pushCapName(q); names.push(n); return n; },
+    });
+    s = fakeStore();
+    s.kv.set('cap:2026-10-19:total', String(DAY_CAPS.total));
+    expect((await r(new Request('https://packgen.test/api/push?a=tick&key=x'))).status).toBe(200);
+    expect((await r(new Request('https://packgen.test/api/push?a=key'))).status).toBe(429);
+    expect(names).toEqual(['tick', 'push']);
+    expect(s.kv.get('cap:2026-10-19:tick')).toBe('1');
   });
   it('lets the call through below the cap', async () => {
     s = fakeStore();

@@ -1,5 +1,5 @@
 // Einzelideen «Ich» (996 Ideen, Noah 25.10.2026): 30 a tour ended early goes on at its step; 31 a shortcut tip
-// after a few mouse clicks in the sidebar; 36 suggestions off by kind (Ich › Darstellung). Empty app, German UI.
+// after a few mouse clicks in the sidebar; 36 suggestions off by kind (Ich › Ruhig › Ausgeblendet und aus). Empty app, German UI.
 import { test, expect } from '@playwright/test';
 import DE from '../../src/lib/i18n/de/index.js';
 import { TOURS, stepCount } from '../../src/lib/tour.js';
@@ -56,18 +56,22 @@ test('31: after a few mouse clicks on a place the sidebar shows its shortcut onc
   expect(await page.evaluate(() => JSON.parse(localStorage.getItem('keys.hint')).off)).toBe(true);
 });
 
-test('36: the kinds of suggestions stand under Ich › Darstellung and switch off', async ({ page }) => {
+test('36: the kinds of suggestions switch on «Ausgeblendet und aus»; Darstellung points there (Noah 27.10.2026 «2b»)', async ({ page }) => {
   await page.goto('./#/me/look');
   const box = page.locator('[data-suggest-areas]');
-  for (const a of SUGGEST_KINDS) await expect(box).toContainText(T(a.label));
-  const sw = box.locator('[data-suggest="impulse"]');
+  for (const a of SUGGEST_KINDS) await expect(box.locator(`[data-suggest="${a.key}"]`)).toHaveCount(0);
+  await box.locator('[data-suggest-kinds-link]').getByRole('link').click();
+  await expect(page).toHaveURL(/#\/me\/ruhig\/aus/);
+  const kinds = page.locator('[data-aus="kinds"]');
+  for (const a of SUGGEST_KINDS) await expect(kinds).toContainText(T(a.label));
+  const sw = kinds.locator('[data-suggest-kind="impulse"]');
   await expect(sw).toBeChecked();
   await sw.uncheck();
   await expect(sw).not.toBeChecked();
   // the switch is saved in the database; after a reload it stays off
   await expect(async () => {
     await page.reload();
-    await expect(page.locator('[data-suggest-areas] [data-suggest="impulse"]')).not.toBeChecked({ timeout: 2000 });
+    await expect(page.locator('[data-aus="kinds"] [data-suggest-kind="impulse"]')).not.toBeChecked({ timeout: 2000 });
   }).toPass({ timeout: 15000 });
 });
 

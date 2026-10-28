@@ -21,6 +21,7 @@
   import { hiddenGroups, hiddenCount } from '../ichideen/hidden.js';
   import { offerDone } from '../ui/rename.svelte.js';
   import { t, tn } from '../i18n.svelte.js';
+  import { actName } from '../flow/ui.svelte.js';
   import Card from './Card.svelte';
   import { openFromHash } from './open.js';
 
@@ -44,7 +45,8 @@
       places: ALL_PLACES,
       tabs: PLACE_TABS,
       lists: STANDARD_LISTS.map((l) => ({ key: l.key, name: l.name, entries: listFor(l.key, all) })),
-      acts: $actsQ?.acts ?? [],
+      // paused activities in the language of the app (their German name when there is one)
+      acts: ($actsQ?.acts ?? []).map((a) => ({ ...a, name: actName(a) })),
       logs: $actsQ?.logs ?? {},
       notFor: notForMeOf($notQ),
       features: FEATURES,

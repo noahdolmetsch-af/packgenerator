@@ -90,7 +90,7 @@
       if (!from && r?.todo && (plan.together || plan.contact)) await updateTodo(db, r.todo.id, plan);
     } else {
       const n = Math.max(1, Math.round(+every || PLANT_EVERY));
-      const fields = { text: name.trim(), plant: { every: n, place: place.trim() || null, last: last || today, ...(winter ? {} : { winter: false }), ...(from?.plant?.pass ? { pass: from.plant.pass } : {}) }, remind: remindOn ? { at: plantAt || PLANT_AT, before: 0 } : null };
+      const fields = { text: name.trim(), plant: { every: n, place: place.trim() || null, last: last || today, ...(winter ? {} : { winter: false }), ...(from?.plant?.pass ? { pass: from.plant.pass } : {}), ...(from?.plant?.everyFor ? { everyFor: from.plant.everyFor } : {}) }, remind: remindOn ? { at: plantAt || PLANT_AT, before: 0 } : null };
       // Pflanzenpass (996 Ideen 10): a new place stays in the plant's history as a move
       const moved = from && place.trim() && place.trim() !== (from.plant?.place ?? '');
       if (moved) fields.plant = moveTo({ ...from, plant: { ...fields.plant, place: from.plant?.place ?? null } }, { place: place.trim(), day: today }).plant;

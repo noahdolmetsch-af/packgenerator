@@ -5,6 +5,7 @@
 import { test, expect } from '@playwright/test';
 import { openHome } from './home0460-fixture.js';
 import { turnsOf } from '../../src/lib/live/turns.js';
+import { sheetFull } from './live-sheet.js';
 
 const PNG = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=', 'base64');
 const phone = (info) => info.project.name === 'phone';
@@ -72,8 +73,7 @@ test('Laps: a tap starts a new lap, the sheet lists them', async ({ page, contex
   await tap(lap, info);
   await expect(lap).toContainText('2');
   await expect.poll(() => idb(page, 'tracks', (rows) => rows.find((r) => r.kind === 'rec' && r.open)?.laps?.length ?? 0)).toBe(1);
-  await tap(page.locator('[data-live-sheet-toggle]'), info);
-  await tap(page.locator('[data-live-sheet-toggle]'), info);
+  await sheetFull(page, info);
   const laps = page.locator('[data-live-sheet] [data-live-laps]');
   await expect(laps).toBeAttached();
   await expect(laps.locator('li')).toHaveCount(2);
@@ -129,8 +129,7 @@ test('Sample race: a turn hint before the turn and against your last ride', asyn
   await page.screenshot({ path: info.outputPath('live-turn.png') });
 
   // the sheet: against your last ride
-  await tap(page.locator('[data-live-sheet-toggle]'), info);
-  await tap(page.locator('[data-live-sheet-toggle]'), info);
+  await sheetFull(page, info);
   const ghost = page.locator('[data-live-sheet] [data-live-ghost]');
   await expect(ghost).toBeAttached({ timeout: 10_000 });
   await expect(ghost).toContainText(T('Against your last ride'));

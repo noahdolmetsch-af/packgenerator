@@ -17,7 +17,8 @@
     import('qrcode-generator')
       .then(({ default: qrcode }) => {
         const qr = qrcode(0, 'M');
-        qr.addData(value);
+        // Kontakt-QR-Code: the library writes each character as one byte, so hand it the UTF-8 bytes (ä, é, …)
+        qr.addData(String.fromCharCode(...new TextEncoder().encode(value)), 'Byte');
         qr.make();
         const n = qr.getModuleCount();
         let d = '';
