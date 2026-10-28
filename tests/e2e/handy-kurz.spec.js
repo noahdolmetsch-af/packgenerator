@@ -7,7 +7,7 @@
 // c) Favourites: every kind is one closed line, open it shows five items, then «Show n more»;
 // d) What is new: the side parts are closed lines; «How to test it» opens its line;
 // e) «Handy kürzer» (Noah 20.10.2026 «4b»): Woche › Noch einplanen, Velopflege › Jetzt fällig, Werkstatt › Besuche show five rows.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { start, fixture, day, tr } from './gesamttest/lib.js';
 import { at1Acts } from './at1-acts.js';
 import { PHONE_ROWS } from '../../src/lib/touren/kurz.js';

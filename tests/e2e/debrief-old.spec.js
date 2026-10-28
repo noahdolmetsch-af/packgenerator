@@ -2,7 +2,7 @@
 // its list of not-used items (`items`) or without `missing`. Its Rückblick page stayed empty: the page
 // crashed on `debrief.items[…]`. Now such a debrief opens like any other, every item counted as used.
 // Fictional fixture plus one test_data_gtp_ trip; nothing leaves the preview.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';

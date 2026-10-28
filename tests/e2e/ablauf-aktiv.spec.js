@@ -1,7 +1,7 @@
 // «Aktiv fertig bauen» (Klick-Rundgang 22.10.2026, Noah «5a»: a robot plays it through before every release):
 // a sample plan tried and taken back with Undo (A02), a planned session ticked by hand and back (A04), the
 // plan page from this week on (A03), the FTP card with its way to type one (A07). Fictional data only.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { ready } from './settle.js';
 import DE from '../../src/lib/i18n/de/index.js';
 

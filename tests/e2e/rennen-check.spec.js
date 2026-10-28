@@ -1,6 +1,6 @@
 // «Rennen detailliert planen» + «Rennen-Check» (Noah 27.10.2026 «1b 2b»): the coming races with their check,
 // five sheets that save by themselves and answers loaded from a file. Fictional data (sample race, made-up answers).
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { openHome } from './home0460-fixture.js';
 import { SHEETS } from '../../src/lib/race/check-lib.js';
 
@@ -58,4 +58,28 @@ test('Race check: the races page, five sheets that keep what you write, answers 
   // the list counts what is filled
   await page.goto('./#/racecheck');
   await expect(row).toContainText(T('check: {n} fields filled', { n: 4 }));
+});
+
+test('Race links: handbook, rules, tracker, website and own links', async ({ page, context }, info) => {
+  const T = await openHome(page, context, info);
+  await page.goto('./#/race');
+  await page.locator('[data-race-sample-open]').click();
+  await expect(page).toHaveURL(/#\/race\/race-sample$/);
+  await page.goto('./#/racecheck/race-sample');
+  const box = page.locator('[data-race-links]');
+  await expect(box).toContainText(T('Links to the race'));
+  await box.locator('[data-race-link-kind="handbook"]').click();
+  await expect(box.locator('[data-race-link-kind="handbook"]')).toHaveCount(0);
+  await expect(box).toContainText(T('No address yet: tap to add it'));
+  await box.locator('.rc-row-main').first().click();
+  await page.locator('[data-race-link-url]').fill('https://example.org/handbook.pdf');
+  await page.locator('[data-sheet-save]').click();
+  await expect(box.locator('[data-race-link-open]')).toHaveAttribute('href', 'https://example.org/handbook.pdf');
+  // an address typed as the name becomes the link
+  await box.locator('[data-race-add="links"]').fill('www.example-race.org/live');
+  await box.locator('[data-race-add="links"]').press('Enter');
+  await expect(box.locator('[data-race-link-open]')).toHaveCount(2);
+  await expect(box).toContainText('example-race.org');
+  await noSideways(page);
+  await box.screenshot({ path: info.outputPath('rennen-links.png') });
 });

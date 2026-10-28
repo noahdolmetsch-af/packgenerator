@@ -2,7 +2,7 @@
 // help of that page, «Alle n» as a grid with one sentence per page, Ich keeps data, settings and help, the
 // emergency and the checks in «+ Neu», new tabs (Vorrat, Ausgeliehen, Reise-Links, Werkzeugkasten).
 // Fictional data (home0460-fixture.js), German UI, nothing leaves the preview.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { openHome } from './home0460-fixture.js';
 import { PLACE_TABS } from '../../src/lib/nav.js';
 

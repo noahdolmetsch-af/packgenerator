@@ -1,6 +1,6 @@
 // «Bild bearbeiten» (Noah 28.10.2026 «1a 2a 3a 4a 5a»): Werkzeugkasten › Bild bearbeiten with two made-up
 // screenshots (a fictional shop order): choose, turn, draw, remove with Undo, order, one PDF and single pictures.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { ready } from './settle.js';
 import DE from '../../src/lib/i18n/de/index.js';
 
