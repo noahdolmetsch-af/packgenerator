@@ -6,7 +6,7 @@
 // 2. a bike trip puts a hip bag on "Hüfte" and a running vest on "Rücken": their weight shows under
 //    "Am Körper", the base weight (bike luggage) stays the same.
 // V037_SHOTS=<folder> saves screenshots (Pack hiking, Pack bike, Bikes setup) there.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';

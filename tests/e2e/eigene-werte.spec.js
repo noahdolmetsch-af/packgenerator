@@ -1,7 +1,7 @@
 // «Mehr selbst einstellen» (Noah 15.10.2026, IS 254–258): Ich › Eigene Werte (#/me/werte). The backup
 // reminder follows the own days (content approved by Noah 18.10.2026 19:36), packing starts N days before a trip, «cold» is the suggested
 // temperature rule, everything goes back to Standard. Fictional fixture only, German texts.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';

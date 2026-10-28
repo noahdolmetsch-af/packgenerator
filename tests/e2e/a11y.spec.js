@@ -4,7 +4,7 @@
 //    focus goes back to the button that opened it.
 // 3. Every control on Today, Pack and Gear has a name a screen reader can read.
 // Fictional fixture plus test_data_gtp_ records; nothing outside the preview server.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { STEP_BAR as BAR } from '../../src/lib/stepbar.js'; // Schrittleiste (Noah 26.10.2026 «1b», changed on purpose): the bar's short names
 import { pickLook } from './gear-look.js';
 import { readFileSync, writeFileSync } from 'node:fs';

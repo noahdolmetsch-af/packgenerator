@@ -4,7 +4,7 @@
 // - Velos 2: no empty «Hersteller und Garantie» box under the bike's name, the head line names the next trip;
 // - Ausstattung 2: on a phone the bike choice is one row that does not wrap;
 // - Setup 1: its own head with the title «Mein Setup» (the tab's name since Taschen-Setups).
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { start, view } from './gesamttest/lib.js';
 import de from '../../src/lib/i18n/de/index.js';
 
