@@ -18,15 +18,22 @@ export const sync = $state({ running: false, last: null, error: null, on: false,
 const device = () => (globalThis.matchMedia?.('(pointer: coarse)').matches ? 'phone' : 'computer');
 
 let running = null;
-let again = false;
+let queued = null; // the round asked for while one runs: it starts right after that one
 let dbRef = null;
 
-/** Run one round now (or once more right after the one running). */
+/**
+ * Run one round now, or once more right after the one running. The promise is always for a round that
+ * starts after this call: pairing while a round already runs waits for its own round, so the panel says
+ * «Gekoppelt» or the error of that round, not the result of the older one.
+ */
 export function runSync(db = dbRef) {
   if (!db) return Promise.resolve(null);
   if (running) {
-    again = true;
-    return running;
+    queued ??= running.then(() => {
+      queued = null;
+      return runSync(db);
+    });
+    return queued;
   }
   running = (async () => {
     sync.running = true;
@@ -40,10 +47,6 @@ export function runSync(db = dbRef) {
     } finally {
       sync.running = false;
       running = null;
-      if (again) {
-        again = false;
-        runSync(db);
-      }
     }
   })();
   return running;

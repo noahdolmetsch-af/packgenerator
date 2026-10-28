@@ -8,6 +8,9 @@
    * «reduce motion» it stays the quiet tick.
    */
   import { Check } from '@lucide/svelte';
+  import { lottie } from './lottie.js';
+  // «Neuer Schwung» 2b (27.10.2026): the big moment draws its tick as a small Lottie animation (still icon until then)
+  const doneAnim = () => import('./lottie/done.json');
 
   let { title, text = '', size = 'small' } = $props();
 
@@ -28,7 +31,11 @@
       {#each pieces as p, i (i)}<i style="--x:{p.x}vw;--y:{p.y}vh;--r:{p.r}deg;--d:{p.d}ms;background:{p.c}"></i>{/each}
     </span>
   {/if}
-  <span class="tick" aria-hidden="true"><Check size={size === 'big' ? 30 : 18} strokeWidth={2.5} /></span>
+  {#if size === 'big'}
+    <span class="tick" aria-hidden="true"><Check size={30} strokeWidth={2.5} /><span class="lot" use:lottie={doneAnim}></span></span>
+  {:else}
+    <span class="tick" aria-hidden="true"><Check size={18} strokeWidth={2.5} /></span>
+  {/if}
   {#if size === 'big'}<h1 tabindex="-1" data-page-title>{title}</h1>{:else}<b>{title}</b>{/if}
   {#if text}<p>{text}</p>{/if}
 </div>
@@ -49,6 +56,27 @@
     border-radius: 50%;
     background: var(--accent-soft);
     color: var(--accent);
+  }
+  /* the Lottie tick sits over the still one; once it plays, the still icon steps back */
+  .tick {
+    position: relative;
+  }
+  .lot {
+    position: absolute;
+    inset: -14px;
+    pointer-events: none;
+  }
+  .tick:has(:global(.lot[data-lottie='on'])) > :global(svg:first-child) {
+    visibility: hidden;
+  }
+  .lot :global(.lt-disc path) {
+    fill: var(--accent);
+  }
+  .lot :global(.lt-ring path) {
+    stroke: var(--accent);
+  }
+  .lot :global(.lt-check path) {
+    stroke: var(--paper);
   }
   h1 {
     margin: 4px 0 0;
