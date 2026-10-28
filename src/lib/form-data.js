@@ -30,7 +30,7 @@ function restOf(table, today) {
 export function formOf({ table, trips = [], checks = [], today, days = 84 }) {
   const acts = [...table.values()].flatMap((r) => r.acts ?? []);
   const opts = { ftp: ftpEstimate(acts, today), rest: restOf(table, today), max: maxOf(acts, today) };
-  const loads = dayLoads(acts, opts);
+  const loads = dayLoads(acts, opts, table);
   const series = formSeries(loads, addDays(today, -(days - 1)), today);
   const c = checkOf(checks.find((x) => x.day === today), today);
   const felt = { sleep: c.sleep, energy: c.energy };
@@ -64,7 +64,7 @@ export const formQuery = (today) => liveQuery(() => loadForm(today));
 export function bodyExtras({ table, checks = [], from, to }) {
   const acts = [...table.values()].flatMap((r) => r.acts ?? []);
   const opts = { ftp: ftpEstimate(acts, to), rest: restOf(table, to), max: maxOf(acts, to) };
-  const loads = dayLoads(acts, opts);
+  const loads = dayLoads(acts, opts, table);
   const byDay = new Map(checks.map((c) => [c.day, checkOf(c, c.day)]));
   const ready = readinessOf(loads, table, byDay, from, to);
   const load = new Map([...loads].filter(([d]) => d >= from && d <= to));

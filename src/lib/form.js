@@ -23,6 +23,8 @@ const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
  */
 export function loadOf(a, { ftp = null, rest = 55, max = 190 } = {}) {
   if (!a || a.hidden) return null;
+  // «TSS vom Gerät» (Noah 28.10.2026 «1a»): the training stress the bike computer wrote into the FIT file
+  if (fin(a.tssDevice) > 0) return { load: Math.round(a.tssDevice), how: 'device' };
   const p = a.wDevice ? powerLoad(a, ftp) : null;
   if (p?.load > 0) return { load: p.load, how: 'power' };
   if (fin(a.effort) > 0) return { load: Math.round(a.effort), how: 'effort' };
@@ -34,14 +36,18 @@ export function loadOf(a, { ftp = null, rest = 55, max = 190 } = {}) {
   return null;
 }
 
-/** The load per day: Map day → sum of the loads. */
-export function dayLoads(acts = [], opts = {}) {
+/**
+ * The load per day: Map day → sum of the loads. table (optional): the day table, whose rows add the TSS of
+ * FIT rides without a Strava twin (row.fitTss, messwerte-data.js).
+ */
+export function dayLoads(acts = [], opts = {}, table = null) {
   const out = new Map();
   for (const a of acts) {
     const l = loadOf(a, opts);
     if (!l || !a.day) continue;
     out.set(a.day, (out.get(a.day) ?? 0) + l.load);
   }
+  for (const row of table?.values?.() ?? []) if (fin(row?.fitTss) > 0) out.set(row.day, (out.get(row.day) ?? 0) + Math.round(row.fitTss));
   return out;
 }
 

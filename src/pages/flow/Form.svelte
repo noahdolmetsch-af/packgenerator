@@ -122,7 +122,7 @@
 
     <details class="card how">
       <summary><Info size={16} aria-hidden="true" /><span>{t('How the app counts')}</span><ChevronDown class="cv" size={16} aria-hidden="true" /></summary>
-      <p>{t('Load: every activity counts, every sport. With a power meter from the power against your FTP, else from Strava’s relative effort, else from pulse and time.')}</p>
+      <p>{t('Load: every activity counts, every sport. With a FIT file from your bike computer its TSS counts first (a ride also on Strava only once); with a power meter from the power against your FTP, else from Strava’s relative effort, else from pulse and time.')}</p>
       <p>{t('Fitness is the mean load of about {a} days, fatigue of about {b} days. Form = fitness − fatigue: below 0 you are tired, above 0 fresh.', { a: FIT_DAYS, b: FAT_DAYS })}</p>
       <p>{t('Readiness starts at 60. Form, resting pulse, HRV and sleep against your normal, and how you felt in the morning check, add or take away points. 75 and more suits a hard ride, under 35 a rest day.')}</p>
       <p>{t('Fitness rising by more than {n} a week is a lot: a calm hint, no rule.', { n: RAMP_MAX })}</p>

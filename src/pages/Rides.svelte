@@ -41,6 +41,14 @@
   let { sub = '' } = $props();
 
   const ridesQ = liveQuery(() => db.rides.toArray());
+  // «Trainingseffekt in der Liste» (Noah 28.10.2026 «1a»): from a FIT file the training effect (aerobic / anaerobic) and the TSS
+  const devLine = (r) => {
+    const d = r?.device;
+    if (!d) return '';
+    const te = Number.isFinite(d.te) ? t('Training effect {a}', { a: Number.isFinite(d.teAn) ? `${num(d.te)} / ${num(d.teAn)}` : num(d.te) }) : '';
+    const tss = Number.isFinite(d.tss) ? t('TSS {n}', { n: num(Math.round(d.tss)) }) : '';
+    return [te, tss].filter(Boolean).join(' · ');
+  };
   const tripsQ = liveQuery(() => db.trips.toArray());
   const bikesQ = liveQuery(() => db.bikes.toArray());
   const learnQ = liveQuery(() => db.learnings.toArray());
@@ -845,7 +853,7 @@
                 <li class="rl" data-ride={r.id} data-open={due ? '' : null}>
                   <a class="rv-row" href={`#/debrief/ride/${encodeURIComponent(r.id)}`}>
                     <span class="rv-ic" aria-hidden="true"><Route size={18} /></span>
-                    <span class="rv-m"><span class="rv-t">{r.name}{#if r.id === firstNew}<span class="rv-tag nw">{t('New|ride')}</span>{/if}</span><span class="rv-s num">{[day(r.date), `${num(r.km)} km`, tripOf(r)?.title, tn(r.pauses.length, '{n} pause', '{n} pauses')].filter(Boolean).join(' · ')}</span>{#if due || open}<span class="tags">{#if due}<span class="rv-tag warn lt">{t('Debrief open')}</span>{/if}{#if open}<span class="rv-tag warn lt">{tn(open, '{n} learning', '{n} learnings')}</span>{/if}</span>{/if}</span>
+                    <span class="rv-m"><span class="rv-t">{r.name}{#if r.id === firstNew}<span class="rv-tag nw">{t('New|ride')}</span>{/if}</span><span class="rv-s num">{[day(r.date), `${num(r.km)} km`, tripOf(r)?.title, tn(r.pauses.length, '{n} pause', '{n} pauses'), devLine(r)].filter(Boolean).join(' · ')}</span>{#if due || open}<span class="tags">{#if due}<span class="rv-tag warn lt">{t('Debrief open')}</span>{/if}{#if open}<span class="rv-tag warn lt">{tn(open, '{n} learning', '{n} learnings')}</span>{/if}</span>{/if}</span>
                     <ChevronRight class="rv-chev" size={18} aria-hidden="true" />
                   </a>
                   {#if due}<button type="button" class="link okbtn" onclick={() => allGood(r)} aria-label="{t('Short: all good')}: {r.name}">{t('Short: all good')}</button>{/if}

@@ -43,7 +43,7 @@
   const series = $derived.by(() => {
     if (days === f.series.length) return f.series;
     const acts = [...f.table.values()].flatMap((r) => r.acts ?? []);
-    return formSeries(dayLoads(acts, f.opts), addDays(today, -(days - 1)), today);
+    return formSeries(dayLoads(acts, f.opts, f.table), addDays(today, -(days - 1)), today);
   });
   const pts = $derived(series.map((x) => ({ day: x.day, load: x.load, ...shownForm(x), rhr: f.table.get(x.day)?.rhr ?? null })));
   const n = $derived(pts.length);
