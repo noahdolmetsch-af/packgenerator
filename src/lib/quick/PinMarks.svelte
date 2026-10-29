@@ -91,6 +91,8 @@
   function place() {
     if (!on || !s) return (marks = []);
     const w = document.documentElement.clientWidth;
+    // «Grösse» zooms the whole app (html zoom): the boxes are in screen pixels, the layer in zoomed ones
+    const z = parseFloat(getComputedStyle(document.documentElement).zoom) || 1;
     const next = [];
     for (const f of found) {
       if (!f.card.isConnected) continue;
@@ -99,7 +101,7 @@
       const tr = f.title.getBoundingClientRect();
       const doc = (q) => ({ top: q.top + scrollY, right: q.right + scrollX, height: q.height });
       const at = placePin(doc(r), doc(tr), w, free);
-      if (at) next.push({ id: f.id, x: at.x, y: at.y, hx: Math.max(8, Math.min(at.x - 200, w - 248)) });
+      if (at) next.push({ id: f.id, x: at.x / z, y: at.y / z, hx: Math.max(8, Math.min(at.x - 200, w - 248)) / z });
     }
     marks = next;
   }
