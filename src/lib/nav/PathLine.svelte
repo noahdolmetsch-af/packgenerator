@@ -10,7 +10,7 @@
   import { ALL_PLACES, PLACE_TABS, tabOf } from '../nav.js';
   import { placeLabel, tabLabel } from '../anpassen.svelte.js';
 
-  let { place, hash, page } = $props();
+  let { place, hash } = $props();
 
   const steps = $derived.by(() => {
     const p = ALL_PLACES.find((x) => x.key === place);
@@ -46,7 +46,7 @@
 </script>
 
 {#if !own && steps.length && (steps.length > 1 || last)}
-  <nav class="pathline" aria-label={t('Where you are')} data-pathline data-page={page}>
+  <nav class="pathline" aria-label={t('Where you are')} data-pathline>
     {#each steps as s, n (n)}
       {#if n > 0}<ChevronRight class="sep" size={12} aria-hidden="true" />{/if}
       {#if n === steps.length - 1 && !last}<span aria-current="page">{s.label}</span>{:else}<a href={s.href}>{s.label}</a>{/if}
