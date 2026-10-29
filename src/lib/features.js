@@ -13,6 +13,7 @@
  * Pure (no database, no screen), tested in tests/features.test.js.
  */
 import { TIP, isUsed, tipState } from './tips.js';
+import { momentOfFeature } from './moment.js';
 
 /** The situations, in order (labels are English keys for t()). */
 export const FEATURE_GROUPS = [
@@ -34,6 +35,21 @@ export const PAGE_GROUPS = [
   { key: 'bikes', label: 'Bikes|place', icon: 'bike' },
   { key: 'flow', label: 'Active|place', icon: 'leaf' },
   { key: 'me', label: 'Me|place', icon: 'save' },
+];
+/**
+ * «Heute als Begleiter» PR 6 (Noah 28.10.2026 «1a 2a 3a»): the same functions by the moment they belong to
+ * (the map of moment.js, 9 groups: the trip loop, three that are always there, and the base «App»).
+ */
+export const MOMENT_GROUPS = [
+  { key: 'lust', label: 'Dreaming and ideas|moment', icon: 'compass' },
+  { key: 'planen', label: 'Planning a trip|moment', icon: 'compass' },
+  { key: 'packen', label: 'Packing|moment', icon: 'backpack' },
+  { key: 'unterwegs', label: 'On the way|moment', icon: 'backpack' },
+  { key: 'zurueck', label: 'Back home|moment', icon: 'book' },
+  { key: 'velo', label: 'Bike and gear|moment', icon: 'bike' },
+  { key: 'koerper', label: 'Body and training|moment', icon: 'leaf' },
+  { key: 'alltag', label: 'Everyday and week|moment', icon: 'book' },
+  { key: 'app', label: 'App and help|moment', icon: 'save' },
 ];
 const PAGE_OF = [
   [/^#\/(pack|ride|debrief|trips)/, 'trips'],
@@ -606,15 +622,15 @@ export function seenOf({ counts = {}, folder = false, play = false } = {}) {
  * The catalogue as the page shows it: [{ ...group, items: [{ ...feature, used }], used, total }],
  * in each group what you never used first (in catalogue order), then the used ones.
  * state: the settings record "tips" (taps count as used); used: tips used (usedTips) and own
- * entries seen (seenOf), one Set; by: 'situation' (FEATURE_GROUPS) or 'page' (PAGE_GROUPS);
+ * entries seen (seenOf), one Set; by: 'situation' (FEATURE_GROUPS), 'page' (PAGE_GROUPS) or 'moment' (MOMENT_GROUPS);
  * notForMe: { [id]: … } the functions marked «Not for me» (Paket C, lib/ruhig/weniger.js), last in their group.
  */
 export function catalogue(state, used = new Set(), by = 'situation', notForMe = {}) {
   const s = tipState(state);
-  const byPage = by === 'page';
   const no = notForMe ?? {};
-  const groups = (byPage ? PAGE_GROUPS : FEATURE_GROUPS).map((g) => {
-    const items = FEATURES.filter((x) => (byPage ? pageOf(x) : x.group) === g.key).map((x) => ({ ...x, used: isUsed(s, x.id, used), ...(no[x.id] ? { notForMe: true } : {}) }));
+  const place = by === 'page' ? pageOf : by === 'moment' ? (x) => momentOfFeature(x.id) : (x) => x.group;
+  const groups = (by === 'page' ? PAGE_GROUPS : by === 'moment' ? MOMENT_GROUPS : FEATURE_GROUPS).map((g) => {
+    const items = FEATURES.filter((x) => place(x) === g.key).map((x) => ({ ...x, used: isUsed(s, x.id, used), ...(no[x.id] ? { notForMe: true } : {}) }));
     // Paket C «Nicht für mich» (996 Ideen UC-217-I2): a function marked so is no longer «never used» on top; it stays, last
     const mine = items.filter((x) => !x.notForMe);
     const sorted = [...mine.filter((x) => !x.used), ...mine.filter((x) => x.used), ...items.filter((x) => x.notForMe)];
