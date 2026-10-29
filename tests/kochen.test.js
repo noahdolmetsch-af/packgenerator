@@ -80,8 +80,8 @@ describe('the page', () => {
   it('addresses and saved choices', () => {
     expect(recipeOfHash(recipeHref('own:e1'))).toBe('own:e1');
     expect(recipeOfHash('#/me/alltag/kochen')).toBe('');
-    expect(prefsOf(null)).toEqual({ hidden: [], groups: null, member: {} });
-    expect(prefsOf({ hidden: ['a', 3], member: { x: ['meat', 2] } })).toEqual({ hidden: ['a'], groups: null, member: { x: ['meat'] } });
+    expect(prefsOf(null)).toEqual({ hidden: [], groups: null, member: {}, liked: [], dislikes: [], maxMin: 0, asked: false, tips: { day: '', pick: {}, seen: { breakfast: [], lunch: [], dinner: [] } } });
+    expect(prefsOf({ hidden: ['a', 3], member: { x: ['meat', 2] } })).toMatchObject({ hidden: ['a'], groups: null, member: { x: ['meat'] } });
   });
 });
 

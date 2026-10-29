@@ -1099,6 +1099,8 @@
           <Profile points={prof} />
         </div>
       {/if}
+      <!-- «Neuer Schwung» Stil S2 (Noah 26.10.2026 «1a»): a drawn landscape with the dashed route at the foot of the trip card -->
+      <svg class="land" viewBox="0 0 400 44" preserveAspectRatio="none" aria-hidden="true" data-trip-land><path class="h1" d="M0 30 C60 14 110 18 160 26 S260 40 310 22 S380 12 400 18 V44 H0 Z" /><path class="h2" d="M0 38 C70 28 140 34 200 38 S330 30 400 34 V44 H0 Z" /><path class="rt" d="M8 40 C80 34 150 36 210 32 S320 18 392 16" /></svg>
     </section>
     {#if slim}
       <div class="srow" data-suggestion data-slim>
@@ -1459,6 +1461,43 @@
     gap: 24px;
     max-width: 1328px;
     margin: 0 auto;
+    /* «Neuer Schwung» Stil S2 «Kacheln mit Tiefe» (Noah 26.10.2026 «1a»): on Today the cards lose their frame, get a
+       soft shadow and rounder corners; the other pages keep the palette's cards */
+    --card-line: transparent;
+    --card-shadow: 0 1px 2px color-mix(in srgb, var(--shadow) 30%, transparent), 0 10px 24px -14px var(--shadow);
+    --radius-card: 18px;
+  }
+  .land {
+    grid-column: 1 / -1;
+    display: block;
+    width: 100%;
+    height: 44px;
+    margin-top: -4px;
+  }
+  .land .h1 {
+    fill: color-mix(in srgb, var(--accent) 14%, var(--paper));
+  }
+  .land .h2 {
+    fill: color-mix(in srgb, var(--accent) 24%, var(--paper));
+  }
+  .land .rt {
+    fill: none;
+    stroke: var(--accent);
+    stroke-width: 2;
+    stroke-dasharray: 6 6;
+    stroke-linecap: round;
+    vector-effect: non-scaling-stroke;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .land .rt {
+      animation: land-go 1200ms ease-out 200ms backwards;
+    }
+  }
+  @keyframes land-go {
+    from {
+      opacity: 0;
+      stroke-dashoffset: 120;
+    }
   }
   @media (max-width: 719px) {
     .home {
