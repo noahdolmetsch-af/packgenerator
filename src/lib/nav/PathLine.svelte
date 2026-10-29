@@ -9,6 +9,8 @@
   import { t } from '../i18n.svelte.js';
   import { ALL_PLACES, PLACE_TABS, tabOf } from '../nav.js';
   import { placeLabel, tabLabel } from '../anpassen.svelte.js';
+  import InfoDot from './InfoDot.svelte';
+  import { infoOfTab } from './spotinfo.js';
 
   let { place, hash } = $props();
 
@@ -42,26 +44,46 @@
     return () => mo.disconnect();
   });
 
+  // the «i» of the tab (Schritt 2): where it comes from, what belongs to it
+  const tabInfo = $derived(infoOfTab(place, tabOf(place, hash)));
   const last = $derived(title && title !== steps.at(-1)?.label ? title : '');
+  const showPath = $derived(!own && steps.length > 0 && (steps.length > 1 || !!last));
 </script>
 
-{#if !own && steps.length && (steps.length > 1 || last)}
-  <nav class="pathline" aria-label={t('Where you are')} data-pathline>
-    {#each steps as s, n (n)}
-      {#if n > 0}<ChevronRight class="sep" size={12} aria-hidden="true" />{/if}
-      {#if n === steps.length - 1 && !last}<span aria-current="page">{s.label}</span>{:else}<a href={s.href}>{s.label}</a>{/if}
-    {/each}
-    {#if last}<ChevronRight class="sep" size={12} aria-hidden="true" /><span aria-current="page">{last}</span>{/if}
-  </nav>
+{#if showPath || tabInfo}
+  <div class="pathrow">
+    {#if showPath}
+      <nav class="pathline" aria-label={t('Where you are')} data-pathline>
+        {#each steps as s, n (n)}
+          {#if n > 0}<ChevronRight class="sep" size={12} aria-hidden="true" />{/if}
+          {#if n === steps.length - 1 && !last}<span aria-current="page">{s.label}</span>{:else}<a href={s.href}>{s.label}</a>{/if}
+        {/each}
+        {#if last}<ChevronRight class="sep" size={12} aria-hidden="true" /><span aria-current="page">{last}</span>{/if}
+      </nav>
+    {/if}
+    {#if tabInfo}<span class="pi"><InfoDot info={tabInfo} id={`tab.${place}`} /></span>{/if}
+  </div>
 {/if}
 
 <style>
+  .pathrow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin: 0 0 var(--sp-2, 8px);
+    min-width: 0;
+  }
+  .pi {
+    margin-left: auto;
+  }
   .pathline {
+    flex: 1 1 0;
     display: flex;
     flex-wrap: wrap;
     align-items: center;
     gap: 0 2px;
-    margin: 0 0 var(--sp-2, 8px);
+    margin: 0;
     font-size: var(--fs-small);
     color: var(--ink-3);
     min-width: 0;
