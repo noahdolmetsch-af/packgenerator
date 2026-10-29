@@ -17,7 +17,7 @@
 </script>
 
 {#if !hits || groups.length}
-  <section class="tricks" data-block="tricks" aria-labelledby="tricks-h">
+  <section class="tricks" data-tricks-block aria-labelledby="tricks-h">
     <button type="button" class="thead" aria-expanded={shown} aria-controls="tricks-body" onclick={() => (open = !open)} disabled={!!hits}>
       <span class="tic" aria-hidden="true"><Hand size={18} /></span>
       <span class="tm"><b id="tricks-h">{t('Gestures and tricks')}</b><small>{t('Gestures, keys, search commands and «⋯» actions, each in one line.')} · {total}</small></span>

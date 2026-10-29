@@ -9,7 +9,7 @@ test('Gestures and tricks: folded, 4 groups when opened, the search narrows and 
   page.on('pageerror', (e) => errors.push(e.message));
   const T = await openHome(page, context, info);
   await page.goto('./#/features');
-  const block = page.locator('[data-block="tricks"]');
+  const block = page.locator('[data-tricks-block]');
   await block.scrollIntoViewIfNeeded();
   await expect(block.getByRole('button', { name: new RegExp(T('Gestures and tricks')) })).toBeVisible();
   await expect(block.locator('[data-trick]')).toHaveCount(0);
