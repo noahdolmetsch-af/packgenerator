@@ -32,7 +32,7 @@
 
 <section class="ak surf" aria-labelledby="ak-h" data-section="acts">
   <div class="hd">
-    <TileHead icon={Flame} id="ak-h" title={t('Active today')} side={states.length ? t('{n} done today|acts', { n: done }) : ''} />
+    <TileHead icon={Flame} id="ak-h" title={t('Active today')} side={states.length ? t('{n} done today|acts', { n: done }) : ''} info="tile.acts" />
   </div>
   {#if shown.length}
     <TickGrid states={shown} {today} cols={phone.matches ? 2 : 4} onmed={(s) => (medFor = s.act.id)} />

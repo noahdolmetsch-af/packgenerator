@@ -5,7 +5,7 @@ import { makeDispatch } from '../api/sync.js';
 import { makeMiniHandler, ANSWERS_MAX, MINI_DAYS_MAX } from '../api/_lib/mini.js';
 import { DAY_CAPS } from '../api/_lib/daycap.js';
 import { fakeRedis } from './fakeredis.js';
-import { createQuestion, openQuestion, readAnswers, sendAnswer, editQuestion, endQuestion, sealFor, openWith, newPair, parseJoinLink, joinLinkOf } from '../src/lib/mini/client.js';
+import { createQuestion, openQuestion, readAnswers, sendAnswer, editQuestion, endQuestion, myPlace, leaveAnswer, dropAnswer, sealFor, openWith, newPair, parseJoinLink, joinLinkOf } from '../src/lib/mini/client.js';
 
 const T0 = Date.parse('2026-11-02T08:00:00Z');
 
@@ -74,6 +74,40 @@ describe('/api/sync?action=mini', () => {
     await expect(sendAnswer(srv.id, pk, { name: 'one more', picks: {} }, null, opts)).rejects.toMatchObject({ code: 'full' });
     later(MINI_DAYS_MAX * 86_400_000 + 1);
     await expect(openQuestion(srv.id, srv.key, opts)).rejects.toMatchObject({ code: 'not_found' });
+  });
+
+  it('sign-up list: places in the order answers came in first, leave and drop move the others up', async () => {
+    const { opts, later } = setup();
+    const srv = await createQuestion({ ...Q, kind: 'list' }, opts);
+    const pk = (await openQuestion(srv.id, srv.key, opts)).question.pk;
+    const a = await sendAnswer(srv.id, pk, { name: 'A' }, null, opts);
+    later(1000);
+    const b = await sendAnswer(srv.id, pk, { name: 'B' }, null, opts);
+    later(1000);
+    const c = await sendAnswer(srv.id, pk, { name: 'C' }, null, opts);
+    expect((await openQuestion(srv.id, srv.key, opts)).n).toBe(3);
+    expect(await myPlace(srv.id, c, opts)).toEqual({ pos: 3, n: 3 });
+    // changing an answer keeps the place
+    later(1000);
+    await sendAnswer(srv.id, pk, { name: 'A2' }, a, opts);
+    expect((await myPlace(srv.id, a, opts)).pos).toBe(1);
+    const read = await readAnswers(srv, opts);
+    expect(read.answers.find((x) => x.name === 'A2').t0).toBe(new Date(T0).toISOString());
+    // A leaves: B and C move up; nobody else can take B's answer back
+    await expect(leaveAnswer(srv.id, { aid: b.aid, del: 'z'.repeat(32) }, opts)).rejects.toMatchObject({ code: 'forbidden' });
+    await leaveAnswer(srv.id, a, opts);
+    expect(await myPlace(srv.id, c, opts)).toEqual({ pos: 2, n: 2 });
+    await expect(myPlace(srv.id, a, opts)).rejects.toMatchObject({ code: 'gone' });
+    // the maker removes B; only with the owner code
+    await expect(dropAnswer({ ...srv, del: 'y'.repeat(32) }, b.aid, opts)).rejects.toMatchObject({ code: 'forbidden' });
+    await dropAnswer(srv, b.aid, opts);
+    expect(await myPlace(srv.id, c, opts)).toEqual({ pos: 1, n: 1 });
+    expect((await readAnswers(srv, opts)).answers.map((x) => x.name)).toEqual(['C']);
+    expect((await openQuestion(srv.id, srv.key, opts)).n).toBe(1);
+    await expect(myPlace(srv.id, b, opts)).rejects.toMatchObject({ code: 'gone' });
+    // Undo: B is back on its old place
+    await dropAnswer(srv, b.aid, { ...opts, back: true });
+    expect(await myPlace(srv.id, b, opts)).toEqual({ pos: 1, n: 2 });
   });
 
   it('has its own daily cap and a link form', () => {

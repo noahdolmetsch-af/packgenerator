@@ -445,7 +445,7 @@ r('roesti-egg', ['dinner'], 15, ['Rösti with a fried egg', 'Rösti mit Spiegele
   ['Turn it with a plate and fry the other side.', 'Mit einem Teller wenden und die andere Seite braten.', 5, true],
   ['Fry the eggs in a second pan with the rest of the oil and put them on top. Done.', 'Die Eier in einer zweiten Pfanne mit dem restlichen Öl braten und darauf legen. Fertig.', 3],
 ]);
-r('tortellini-cream', ['dinner'], 12, ['Tortellini with ham and peas', 'Tortellini mit Schinken und Erbsen'], [['tortellini', 250, 'g'], ['cream', 100, 'ml'], ['ham', 2, 'slices'], ['peas', 1, 'handful']], [
+r('tortellini-cream', ['dinner'], 12, ['Tortellini with ham and peas', 'Tortellini mit Schinken und Erbsen'], [['tortellini', 250, 'g'], ['cream', 60, 'ml'], ['ham', 2, 'slices'], ['peas', 1, 'handful']], [
   ['Cook the tortellini in salted water as written on the pack.', 'Die Tortellini in Salzwasser kochen, wie auf der Packung steht.', 5, true],
   ['Meanwhile cut the ham into strips.', 'Inzwischen den Schinken in Streifen schneiden.', 2],
   ['Warm the cream with the ham and the frozen peas in a pan.', 'Den Rahm mit Schinken und gefrorenen Erbsen in einer Pfanne wärmen.', 3],

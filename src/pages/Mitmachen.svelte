@@ -14,6 +14,10 @@
   import { readJoined, saveJoined } from '../lib/mini/store.js';
   import PollAnswer from '../lib/mini/PollAnswer.svelte';
   import { readPoll } from '../lib/mini/poll.js';
+  import ListAnswer from '../lib/mini/ListAnswer.svelte';
+  import { readList } from '../lib/mini/liste.js';
+  import InviteAnswer from '../lib/mini/InviteAnswer.svelte';
+  import { readInvite } from '../lib/mini/einladung.js';
   import { readDateQuestion, cleanAnswer, cleanName, optKey, PICKS } from '../lib/mini/termin.js';
   import { CalendarCheck, Lock, Send } from '@lucide/svelte';
 
@@ -21,6 +25,9 @@
   const link = parseJoinLink(untrack(() => hash));
   let q = $state.raw(null);
   let poll = $state.raw(null);
+  let list = $state.raw(null);
+  let invite = $state.raw(null);
+  let count = $state(0);
   let end = $state('');
   let err = $state(link ? '' : t(MINI_ERRORS.broken));
   let loaded = $state(false);
@@ -41,8 +48,17 @@
       try {
         const d = await openQuestion(link.id, link.key);
         const p = readPoll(d.question);
-        const read = p ? null : readDateQuestion(d.question);
-        if (p) {
+        const l = p ? null : readList(d.question);
+        const inv = p || l ? null : readInvite(d.question);
+        const read = p || l || inv ? null : readDateQuestion(d.question);
+        if (inv) {
+          invite = inv;
+          end = d.end;
+        } else if (l) {
+          list = l;
+          end = d.end;
+          count = d.n ?? 0;
+        } else if (p) {
           poll = p;
           end = d.end;
         } else if (!read) err = t(MINI_ERRORS.broken);
@@ -99,6 +115,10 @@
     <Empty icon={CalendarCheck} title={t('Question not available')} text={err} />
   {:else if !loaded}
     <p class="mm-help">…</p>
+  {:else if invite}
+    <InviteAnswer {invite} id={link.id} />
+  {:else if list}
+    <ListAnswer {list} id={link.id} {end} n={count} />
   {:else if poll}
     <PollAnswer {poll} id={link.id} {end} />
   {:else}

@@ -568,5 +568,5 @@ In vier kleinen Schritten: 1 Seite mit Rezepten, Gruppen (Fleisch, Shakes, Sonnt
 Warum: mit anderen Leuten schneller abmachen, ohne langes Hin und Her im Chat (Ziele Touren und Alltag). Noah «1b 2a 3a, Ideen 1, 2, 4, 5, 7, 9, 10, 5a». Ideenseite mit Skizzen: https://claude.ai/artifact/HA5TAJLzAtuhUBAAHqJApH
 
 - Eigene Seite Ich › Mini-Tools. Die Gefragten antworten im Browser, ohne App und ohne Konto; die Antworten kommen verschlüsselt über einen kleinen Gratis-Speicher zurück, nur der Fragende kann sie lesen. Auszählen ohne KI.
-- Reihenfolge, je ein PR: 1 Termin finden (gebaut), 2 Mini-Umfrage (gebaut), 4 Anmeldeliste mit Warteliste, 5 Spontan-Einladung «Fährst du morgen mit?», 7 Essen und Unverträglichkeiten, 9 Fair auslosen, 10 Wann muss ich losfahren?
+- Reihenfolge, je ein PR: 1 Termin finden (gebaut), 2 Mini-Umfrage (gebaut), 4 Anmeldeliste mit Warteliste (gebaut), 5 Spontan-Einladung «Fährst du morgen mit?» (gebaut), 7 Essen und Unverträglichkeiten, 9 Fair auslosen, 10 Wann muss ich losfahren?
 - Nicht gewählt: 3 Mitfahren und Velo-Plätze, 6 Rennen-Helferplan, 8 gemeinsame Bewertung nach der Tour.

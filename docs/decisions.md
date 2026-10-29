@@ -2019,3 +2019,6 @@ Noah 19.10.2026: «1a 2a 3a 4 a oder b beides wählbar 5a», danach «a und b»,
 ## 27.10.2026 Freunde jederzeit umstellen
 
 - Noah «ich möchte jetzt bauen, dass wir in zukunft jederzeit umstellen können», dann «ok 335» (★ 1a 2a 3a): Freunde lädt Noah in der App ein (Link, einmal, 7 Tage) und entfernt sie dort (fragt zuerst, dann «Rückgängig»); neben dem Link steht der Hinweis auf Stravas eigene Grenze (gratis Antrag). Die Vercel-Liste `STRAVA_ATHLETES` gilt weiter.
+
+## 28.10.2026 VO2max auf Heute
+- Noah «2 a und b»: VO2max mit Verlauf in Analyse/Körperwerte und dazu als eigene Kachel auf Heute (Bereich «Dein Körper»). Nur anschauen, keine Wertung; ohne Wert in 90 Tagen bleibt die Kachel weg. Eine gespeicherte Startseite bekommt sie einmal (Wand v 14).

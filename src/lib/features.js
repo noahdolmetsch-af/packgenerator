@@ -13,6 +13,7 @@
  * Pure (no database, no screen), tested in tests/features.test.js.
  */
 import { TIP, isUsed, tipState } from './tips.js';
+import { momentOfFeature } from './moment.js';
 
 /** The situations, in order (labels are English keys for t()). */
 export const FEATURE_GROUPS = [
@@ -34,6 +35,21 @@ export const PAGE_GROUPS = [
   { key: 'bikes', label: 'Bikes|place', icon: 'bike' },
   { key: 'flow', label: 'Active|place', icon: 'leaf' },
   { key: 'me', label: 'Me|place', icon: 'save' },
+];
+/**
+ * «Heute als Begleiter» PR 6 (Noah 28.10.2026 «1a 2a 3a»): the same functions by the moment they belong to
+ * (the map of moment.js, 9 groups: the trip loop, three that are always there, and the base «App»).
+ */
+export const MOMENT_GROUPS = [
+  { key: 'lust', label: 'Dreaming and ideas|moment', icon: 'compass' },
+  { key: 'planen', label: 'Planning a trip|moment', icon: 'compass' },
+  { key: 'packen', label: 'Packing|moment', icon: 'backpack' },
+  { key: 'unterwegs', label: 'On the way|moment', icon: 'backpack' },
+  { key: 'zurueck', label: 'Back home|moment', icon: 'book' },
+  { key: 'velo', label: 'Bike and gear|moment', icon: 'bike' },
+  { key: 'koerper', label: 'Body and training|moment', icon: 'leaf' },
+  { key: 'alltag', label: 'Everyday and week|moment', icon: 'book' },
+  { key: 'app', label: 'App and help|moment', icon: 'save' },
 ];
 const PAGE_OF = [
   [/^#\/(pack|ride|debrief|trips)/, 'trips'],
@@ -319,7 +335,7 @@ const OWN = [
   { id: 'f.contracts', group: 'data', title: 'Contracts and subscriptions', text: 'What runs, what it costs per month and year, the last day to cancel and a reminder before it. The cancellation in steps, and what you used it for with the cost per use.', href: '#/me/alltag/abos', words: 'nutzung genutzt kosten pro nutzung verträge abos abonnement kündigen kündigungsfrist versicherung handy streaming kosten erinnerung' },
   { id: 'f.people', group: 'data', title: 'Not seen for a while', text: 'People you want to see now and then, with a quiet reminder in Remember when it is time again, and ideas to do together that turn it into an invitation.', href: '#/me/alltag/menschen', words: 'lange nicht gesehen freunde menschen treffen kontakt melden erinnerung einladung einladen idee' },
   // «Kochen» (Noah 28.10.2026 «1b 2a 3a 4a 5a»): Ich › Alltag › Kochen
-  { id: 'f.cook', group: 'data', title: 'Cooking', text: 'Over 100 very simple recipes for breakfast, lunch and dinner and in groups like Meat, Shakes or Sunday brunch, with portions and all steps; the ingredients go to your shopping list. Your own recipes and groups too.', href: '#/me/alltag/kochen', words: 'kochen rezepte rezept essen mahlzeit frühstück mittagessen abendessen zutaten portionen einfach schnell gruppen fleisch reis dessert shakes power food protein carbs veggies grill brunch fast food kochmodus schritt timer bildschirm tipp tipps tag vorschlag mag ich' },
+  { id: 'f.cook', group: 'data', title: 'Cooking', text: 'Over 100 very simple recipes for breakfast, lunch and dinner and in groups like Meat, Shakes or Sunday brunch, with portions and all steps; the ingredients go to your shopping list. Your own recipes and groups too.', href: '#/me/alltag/kochen', words: 'kochen rezepte rezept essen mahlzeit frühstück mittagessen abendessen zutaten portionen einfach schnell gruppen fleisch reis dessert shakes power food protein carbs veggies grill brunch fast food kochmodus schritt timer bildschirm tipp tipps tag vorschlag mag ich kalorien kcal nährwerte kohlenhydrate eiweiss fett' },
   { id: 'f.abroad', group: 'before', title: 'Abroad', text: 'At a trip abroad: the emergency numbers of the country, your travel insurance and the currency converter set to the country.', href: '#/trips', words: 'ausland notfall notruf 112 reiseversicherung währung umrechnen euro flug abendfenster' },
   { id: 'f.timer', group: 'active', title: 'Timer', text: 'Count up, countdown, interval, Pomodoro or until a time; five faces, a log with notes. It says what it runs for, also after a break.', href: '#/timer', seen: 'timerLog', words: 'timer countdown intervall pomodoro uhr log wofür zweck' },
   { id: 'f.medmore', group: 'active', title: 'More about meditation', text: 'Listen to the sounds; kinds, places, quotes and your own links.', href: '#/flow/act/meditation/mehr', words: 'meditation · mehr klänge zitate links' },
@@ -516,6 +532,8 @@ const OWN = [
   // Mini-Tools (Noah 28.10.2026 «1b 2a 3a»): ask a group by link, the answers come back sealed and are counted
   { id: 'f.minidate', group: 'data', title: 'Find a date', text: 'Pick a few days and send a link; people tap «Works», «Maybe» or «Does not work» in the browser, without the app or an account. The best day is on top; plan a trip on it or add it to your calendar.', href: '#/me/mini', words: 'termin finden doodle abstimmen umfrage datum tag gruppe freunde wann passt verfügbar mini tools' },
   { id: 'f.minipoll', group: 'data', title: 'Mini survey', text: 'A few short questions by link: one or several answers, a scale, yes or no, or a short text. People answer in the browser without an account; the app counts the answers and sums them up, without AI.', href: '#/me/mini', words: 'umfrage mini umfrage abstimmung fragen meinung gruppe freunde auswerten zusammenfassung anonym skala mini tools' },
+  { id: 'f.minilist', group: 'data', title: 'Sign-up list', text: 'A ride or an evening with a number of places by link: people sign up in the browser without an account; who comes too late is on the waiting list and moves up when someone signs off.', href: '#/me/mini', words: 'anmeldeliste anmelden warteliste plätze teilnehmer ausfahrt werkstatt abend gruppe freunde nachrücken abmelden mini tools' },
+  { id: 'f.miniinvite', group: 'data', title: 'Quick invite', text: 'One link with day, time, meeting point, route and weather; people tap «I am in», «Maybe» or «Not this time» in the browser, without an account. The link closes the day after the ride.', href: '#/me/mini', words: 'spontan einladung fährst du mit morgen ausfahrt treffpunkt route wetter dabei vielleicht gruppe freunde mini tools' },
   // Paket C «Ruhig und persönlich» (Noah 24.10.2026, 996 Ideen «5a»): Ich › Ruhig und persönlich
   { id: 'f.workspace', group: 'data', title: 'Workspace for one plan', text: 'For one plan, a trip or a workshop Saturday: only the functions you choose, as a strip on top of every page. Ends by itself after the day you set.', href: '#/me/ruhig/weniger?open=space', words: 'arbeitsraum vorhaben fokus werkstatt nur diese funktionen leiste weniger app' },
   { id: 'f.calmview', group: 'data', title: 'Calm view', text: 'Write what you do now; until you tap «Done», the strip on top shows only that, and the app asks you nothing.', href: '#/me/ruhig/weniger?open=calm', words: 'ruhige ansicht ruhe rückzug nur eine sache ohne zahlen sterne vorschläge fokus' },
@@ -607,15 +625,15 @@ export function seenOf({ counts = {}, folder = false, play = false } = {}) {
  * The catalogue as the page shows it: [{ ...group, items: [{ ...feature, used }], used, total }],
  * in each group what you never used first (in catalogue order), then the used ones.
  * state: the settings record "tips" (taps count as used); used: tips used (usedTips) and own
- * entries seen (seenOf), one Set; by: 'situation' (FEATURE_GROUPS) or 'page' (PAGE_GROUPS);
+ * entries seen (seenOf), one Set; by: 'situation' (FEATURE_GROUPS), 'page' (PAGE_GROUPS) or 'moment' (MOMENT_GROUPS);
  * notForMe: { [id]: … } the functions marked «Not for me» (Paket C, lib/ruhig/weniger.js), last in their group.
  */
 export function catalogue(state, used = new Set(), by = 'situation', notForMe = {}) {
   const s = tipState(state);
-  const byPage = by === 'page';
   const no = notForMe ?? {};
-  const groups = (byPage ? PAGE_GROUPS : FEATURE_GROUPS).map((g) => {
-    const items = FEATURES.filter((x) => (byPage ? pageOf(x) : x.group) === g.key).map((x) => ({ ...x, used: isUsed(s, x.id, used), ...(no[x.id] ? { notForMe: true } : {}) }));
+  const place = by === 'page' ? pageOf : by === 'moment' ? (x) => momentOfFeature(x.id) : (x) => x.group;
+  const groups = (by === 'page' ? PAGE_GROUPS : by === 'moment' ? MOMENT_GROUPS : FEATURE_GROUPS).map((g) => {
+    const items = FEATURES.filter((x) => place(x) === g.key).map((x) => ({ ...x, used: isUsed(s, x.id, used), ...(no[x.id] ? { notForMe: true } : {}) }));
     // Paket C «Nicht für mich» (996 Ideen UC-217-I2): a function marked so is no longer «never used» on top; it stays, last
     const mine = items.filter((x) => !x.notForMe);
     const sorted = [...mine.filter((x) => !x.used), ...mine.filter((x) => x.used), ...items.filter((x) => x.notForMe)];

@@ -399,6 +399,8 @@ export const HOWTO = {
   'f.blockeffect': ['Open Pack › Add material.', 'Tap «Before adding: see the effect».', 'Check it, then «Add …».'],
   'f.needs': ['Open Pack › Add material › «Pack by need».', 'Tap needs, set people, choose a variant.', 'Tap «Take it onto the list».'],
   'f.labels': ['Open Toolbox › Box labels.', 'Add a box and what is inside.', '«Print label» and stick it on.'],
+  'f.miniinvite': ['Open Me › Mini tools › Quick invite.', 'Pick the day, add the meeting point and tap «Make the link».', 'Send it; who is in is on top.'],
+  'f.minilist': ['Open Me › Mini tools › Sign-up list.', 'Set the places and tap «Make the link».', 'Send it; who is in and who waits is on top.'],
   'f.minipoll': ['Open Me › Mini tools › Mini survey.', 'Pick a start, change the questions and tap «Make the link».', 'Send it; the summary is on top.'],
   'f.minidate': ['Open Me › Mini tools › Find a date.', 'Pick 2 to 8 days and tap «Make the link».', 'Send it; the best day is on top.'],
   'f.friendask': ['Open Me › With friends and choose what to ask.', 'Tap «Make the link» and send it.', 'Open the answer link: «Keep it».'],
