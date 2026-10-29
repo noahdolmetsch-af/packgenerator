@@ -53,9 +53,9 @@ export function cleanShaped(k, v) {
 /**
  * Kept as well, without their own switch (Garmin-Übersicht 20.10.2026): calories of the day, active
  * calories, highest pulse; «Körperwerte»: oxygen saturation (%), breathing rate, skin temperature (°C
- * difference to your normal).
+ * difference to your normal). Apple Health export (27.10.2026): VO2max (ml/kg/min) and body weight (kg).
  */
-export const EXTRA = ['kcal', 'kcalActive', 'hrMax', 'spo2', 'breath', 'skinTemp', ...MORE_NUM, ...MORE_SHAPED];
+export const EXTRA = ['kcal', 'kcalActive', 'hrMax', 'spo2', 'breath', 'skinTemp', ...MORE_NUM, ...MORE_SHAPED, 'weightKg'];
 export const FIRST_DAYS = 90;
 /**
  * Raised when the server reads new values (2: calories, highest pulse, oxygen, breathing, skin

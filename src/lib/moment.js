@@ -89,7 +89,7 @@ export function loopOf(key) {
 export const FEATURE_MOMENTS = {
   // Lust und Ideen
   lust: [
-    'dayride', 'f.quickstart', 'f.inspiration', 'f.skiseason', 'f.dreams', 'f.whitespots', 'f.races',
+    'dayride', 'f.quickstart', 'f.inspiration', 'f.skiseason', 'f.dreams', 'f.whitespots', 'f.nlgoals', 'f.races',
     'f.ownbingo', 'f.impulse', 'f.compass', 'f.freeslot',
   ],
   // Tour planen
@@ -136,7 +136,7 @@ export const FEATURE_MOMENTS = {
     'f.garmin', 'f.problem', 'f.workshop', 'f.equipment', 'f.bikecompare', 'f.folder', 'f.breakin',
     'f.repairkit', 'f.warranty', 'f.theft', 'f.partstart', 'f.prep', 'f.skiequipment', 'f.bikeservice',
     'f.parttemplate', 'f.spick', 'f.partwear', 'f.wetchain', 'f.chainmeasure', 'f.bikeyear', 'f.bikeseason',
-    'f.noises', 'f.carestreak', 'f.wearcal', 'f.wearphotos', 'f.sellbike', 'f.bikebox', 'f.sparestock',
+    'f.noises', 'f.carestreak', 'f.wearcal', 'f.wearphotos', 'f.sellbike', 'f.bikebox', 'f.sparestock', 'f.workshoprounds',
     'f.brandkm', 'f.springservice', 'f.chainrotation', 'f.velofaq', 'f.setupphotos', 'f.inspect', 'f.measure',
     'f.gears', 'f.level', 'f.sitpos', 'f.pros', 'f.table', 'f.lend',
   ],
@@ -156,15 +156,15 @@ export const FEATURE_MOMENTS = {
     'f.remember', 'f.reminders', 'f.birthdays', 'f.shopping', 'f.contracts', 'f.people', 'f.inbox',
     'f.notelinks', 'f.drawphoto', 'f.richtext', 'f.noteattach', 'f.noteocr', 'f.noteremind', 'f.notetrash',
     'f.plantpass', 'f.doubleinbox', 'f.mailcase', 'f.memorycard', 'f.noteformats', 'f.next', 'f.notes',
-    'f.dictate', 'f.aiprojects', 'f.photoalbum', 'f.sortround', 'f.docs', 'f.tools', 'f.pdftools',
+    'f.dictate', 'f.aiprojects', 'f.photoalbum', 'f.sortround', 'f.docs', 'f.tools', 'f.pdftools', 'f.markup',
     'f.phototools', 'f.ablage', 'f.weblinks', 'f.chains', 'f.convert', 'f.video', 'f.qr', 'f.docscan',
     'f.mailin', 'f.mail', 'f.agenda', 'f.trello', 'f.friendask', 'f.friendshelf', 'f.friendtemplate',
-    'f.inputbar', 'f.inputtemplates', 'f.picturecard',
+    'f.inputbar', 'f.inputtemplates', 'f.noteforms', 'f.picturecard',
   ],
   // App, Daten und Hilfe
   app: [
     'f.lists', 'f.editall', 'f.decides', 'f.pagetips', 'backup', 'install', 'lang', 'demo', 'f.namesde',
-    'f.search', 'f.localai', 'f.askfurther', 'f.searchvoice', 'f.startfresh', 'f.sync', 'f.autosync',
+    'f.search', 'f.quicklinks', 'f.localai', 'f.askfurther', 'f.searchvoice', 'f.startfresh', 'f.sync', 'f.autosync',
     'f.account', 'f.verstehen', 'f.privacy', 'f.camera', 'f.autobackup', 'f.tidy', 'f.tour', 'f.firststart',
     'f.playground', 'f.helper', 'f.shortcuts', 'f.ownvalues', 'f.ownreminders', 'f.listsmore', 'f.push',
     'f.theme', 'f.uisize', 'f.custompage', 'f.explain', 'f.connections', 'f.owncal', 'f.notestasks',

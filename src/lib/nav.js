@@ -260,6 +260,7 @@ export function pageOf(hash = '', careTab = false) {
   if (h.startsWith('#/routine')) return 'routine'; // Routine «Das tut mir gut» (mockup D2): the list, a page of Heute
   if (h.startsWith('#/timer')) return 'timer'; // «Timer» (mockups Z2–Z5): Heute › Timer, its faces and its log
   if (h.startsWith('#/week')) return 'week'; // «Woche planen» (WP1–WP3, Noah 15.10.2026 «1a»): its own place
+  if (/^#\/quick(\/|\?|$)/.test(h)) return 'quick'; // «Quick Links» (Noah 28.10.2026 «3a»): its own place
   return 'home';
 }
 
@@ -312,6 +313,8 @@ export const PLACES = [
   { key: 'bikes', href: '#/bikes', label: 'Bikes|place', bar: 'Bikes and gear|place', letter: 'v' },
   // N1: Material belongs to Velos (sidebar: under Velos; phone: the slot of Velos, like Ausrüstung).
   { key: 'gear', href: '#/gear', label: 'Gear|place', letter: 'm' },
+  // «Quick Links» (Noah 28.10.2026 «3a»): your pins, last in the bar (a sixth place on a phone) and in the sidebar; g q
+  { key: 'quick', href: '#/quick', label: 'Quick Links|place', bar: 'Quick Links|place', letter: 'q' },
 ];
 
 /**
@@ -356,6 +359,7 @@ export function isRidesHash(h = '') {
  */
 export const PLACE_TABS = {
   today: [],
+  quick: [],
   // «Woche planen» WP1–WP3: the week, the Sunday planning and the holidays
   week: [
     // UI-Ziele #6 (Noah 20.10.2026 «freigabe», 4a): «Ich» keeps data, settings and help; what you plan moved here.
@@ -459,6 +463,7 @@ export function tabOf(place, hash = '') {
  */
 export function placeOf(page, hash = '') {
   if (page === 'home') return 'today';
+  if (page === 'quick') return 'quick'; // «Quick Links» (Noah 28.10.2026)
   if (page === 'timer') return 'today'; // «Timer» (Z2): opened from its tile on Heute
   if (page === 'check') return 'today'; // Tages-Check (Noah 18.10.2026): pages of Heute
   if (page === 'routine') return 'today'; // Routine «Das tut mir gut» (D2): opened from its tile on Heute

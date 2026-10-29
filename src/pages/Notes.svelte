@@ -33,7 +33,10 @@
   import { NOTE_TPL_KEY, templatesOf, tplName, tplText, renameTemplate, removeTemplate, qrToNote, isKeepNote, keepImport } from '../lib/noteformats.js';
   import { zipEntries } from '../lib/zipread.js';
   import { deleteWithUndo } from '../lib/ui/ask.js';
-  import { QrCode, FileInput, LayoutTemplate, Trash2 } from '@lucide/svelte';
+  import { QrCode, FileInput, LayoutTemplate, Trash2, ClipboardList, SlidersHorizontal } from '@lucide/svelte';
+  import FormSheet from '../lib/notes/FormSheet.svelte'; // Vorlagen mit Feldern (Noah 27.10.2026 «3b»)
+  import FormGallery from '../lib/notes/FormGallery.svelte';
+  import { FORMS_KEY, chosenForms, formsOf, formName } from '../lib/notes/forms.js';
   import OwnSpark from '../lib/clear/OwnSpark.svelte';
   import '../lib/ich/ich.css';
   import { onMount } from 'svelte';
@@ -77,6 +80,13 @@
     text = tplText(x, t);
     checkMode = /(^|\n)- /.test(text);
   }
+  // Vorlagen mit Feldern: the chosen ones as chips; filled in, they become the note's text (and note.form)
+  const formsQ = liveQuery(async () => (await db.settings.get(FORMS_KEY))?.value ?? null);
+  const forms = $derived(chosenForms($formsQ ?? null, 'notes'));
+  const formsAll = $derived(formsOf($formsQ ?? null).length);
+  let fillForm = $state(null);
+  let pendingForm = $state(null);
+  let galleryOpen = $state(false);
   let renaming = $state(null);
   let renameTo = $state('');
   async function dropTpl(x) {
@@ -216,7 +226,9 @@
     }
     if (!text.trim() && !photo && !link) return (msg = t('Write a few words, add a photo or a link.'));
     const n = newKeptNote({ text, photo, link, dictated }, { id: `note-${Date.now().toString(36)}` });
+    if (pendingForm) n.form = $state.snapshot(pendingForm);
     await db.notes.put(n);
+    pendingForm = null;
     text = '';
     photo = null;
     linkOpen = false;
@@ -277,7 +289,7 @@
     {/if}
     {#if photo}<p class="phrow"><img src={photo} alt={t('Photo of the note')} /><button type="button" class="btn btn-link" onclick={() => (photo = null)}>{t('Remove photo')}</button></p>{/if}
     {#if !text.trim()}
-      <p class="tpls" data-templates><span class="hint">{t('Start from')}</span>{#each tpls as x (x.key)}<button type="button" class="fchip" onclick={() => useTpl(x)}>{tplName(x, t)}</button>{/each}</p>
+      <p class="tpls" data-templates><span class="hint">{t('Start from')}</span>{#each tpls as x (x.key)}<button type="button" class="fchip" onclick={() => useTpl(x)}>{tplName(x, t)}</button>{/each}{#each forms as x (x.key)}<button type="button" class="fchip" onclick={() => (fillForm = x)} data-form-chip={x.key}><ClipboardList size={16} aria-hidden="true" />{formName(x, t)}</button>{/each}<button type="button" class="fchip more" onclick={() => (galleryOpen = true)} data-form-choose><SlidersHorizontal size={16} aria-hidden="true" />{t('Choose templates')}</button></p>
     {/if}
     <p class="tools hintrow"><span class="hint">{text.trim() ? t('Topic: {topic}', { topic: topicText(topicNow ?? '', t) }) : t('The topic follows the text')}</span></p>
     {#if msg}<p class="err" role="alert">{msg}</p>{/if}
@@ -414,6 +426,7 @@
           {/each}
         </ul>
         <p class="ich-help">{t('Your own: open a note and tap «Save as a template».')}</p>
+        <button type="button" class="btn sm" onclick={() => (galleryOpen = true)} data-form-choose-list><SlidersHorizontal size={16} aria-hidden="true" />{t('Templates with fields: choose ({n})', { n: formsAll })}</button>
       </details>
 
       <section class="ich-sec" aria-labelledby="nmore-h">
@@ -444,6 +457,9 @@
 {#if trashOpen}<NoteTrash onclose={() => (trashOpen = false)} />{/if}
 {#if made}<div class="toast" role="status"><Check size={18} aria-hidden="true" /><span>{made}</span></div>{/if}
 
+
+{#if fillForm}<FormSheet form={fillForm} onsave={(r) => ((text = r.text), (pendingForm = r.record), (checkMode = /(^|\n)- /.test(r.text)))} onclose={() => (fillForm = null)} />{/if}
+{#if galleryOpen}<FormGallery onclose={() => (galleryOpen = false)} />{/if}
 
 <style>
   /* «Tagebuch» (20.10.2026): the diary row under the notes */
@@ -633,6 +649,10 @@
     color: var(--ink);
     font: 500 var(--fs-small) / 1.25 var(--font-body);
     cursor: pointer;
+  }
+  .fchip.more {
+    border-style: dashed;
+    color: var(--ink-2);
   }
   .fchip[aria-pressed='true'] {
     border-color: var(--ink);

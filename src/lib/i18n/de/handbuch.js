@@ -1759,6 +1759,11 @@ export default {
   'Example: say «note brake squeaks» → the note is in the Inbox. If the microphone stops, the words so far stay in the field.': 'Beispiel: Sag «Notiz Bremse quietscht» → die Notiz ist im Eingang. Stoppt das Mikrofon, bleiben die Wörter bisher im Feld.',
   'Example: IMG_0042.HEIC → IMG_0042.jpg for the online form; velo.jpg as JPG → velo-umgewandelt.jpg, the old one stays.': 'Beispiel: IMG_0042.HEIC → IMG_0042.jpg für das Online-Formular; velo.jpg als JPG → velo-umgewandelt.jpg, das alte bleibt.',
   'Example: «Wo sehe ich die Lawinengefahr?» → Alerts and news. «Kette» finds Material and a bike → «Do you mean Gear or Bikes?».': 'Beispiel: «Wo sehe ich die Lawinengefahr?» → Hinweise und News. «Kette» findet Material und ein Velo → «Meinst du Material oder Velos?».',
+  // Velo-Idee 76: Werkstatt-Runden
+  'Bikes › Care › a bike › «Workshop rounds».': 'Velos › Pflege › ein Velo › «Werkstatt-Runden».',
+  'Add a suggestion or your own round: jobs, tools, material.': 'Nimm einen Vorschlag oder mach deine eigene Runde: Arbeiten, Werkzeug, Material.',
+  '«Start the round», tick what you did, «Done»: the jobs with a part go into the part.': '«Runde starten», abhaken, was du gemacht hast, «Fertig»: Die Arbeiten mit Teil kommen ins Teil.',
+  'Example: «Autumn service» with 5 jobs; chain and brake pads ticked → both recorded today.': 'Beispiel: «Herbst-Service» mit 5 Arbeiten; Kette und Bremsbeläge abgehakt → beide heute eingetragen.',
   // «App verstehen» (Noah 26.10.2026)
   'Open Me › Understand the app.': 'Öffne Ich › App verstehen.',
   'Open a lesson, read it and do the exercise.': 'Öffne eine Lektion, lies sie und mach die Übung.',
@@ -1867,6 +1872,24 @@ export default {
     'Warnungen (Wetter, Glätte, Licht, Regen unterwegs, Essen) kommen weiter einzeln und pünktlich.',
   'Example: «Your morning» → «Appointment: 10:00 Dentist», «Testvelo: Chain reaches 1000 km soon», «and 1 more in the app».':
     'Beispiel: «Dein Morgen» → «Termin: 10:00 Zahnarzt», «Testvelo: Kette erreicht bald 1000 km», «und 1 weitere in der App».',
+  // «Bild bearbeiten» (Noah 28.10.2026)
+  'Take the screenshot on your phone as always, then open Me › Toolbox › Edit a picture.': 'Mach den Screenshot wie immer am Handy und öffne dann Ich › Werkzeugkasten › Bild bearbeiten.',
+  'Tap «Choose pictures»; per page turn, cut or draw (pen, highlighter, text, arrow).': 'Tippe «Bilder auswählen»; pro Seite drehen, zuschneiden oder zeichnen (Stift, Markierstift, Text, Pfeil).',
+  'Choose «One PDF» or «Single pictures», then «Save or share».': 'Wähle «Ein PDF» oder «Einzelne Bilder», dann «Speichern oder teilen».',
+  'Example: three screenshots of a booking → cut, the price highlighted → one PDF of 3 pages.': 'Beispiel: drei Screenshots einer Buchung → zugeschnitten, der Preis markiert → ein PDF mit 3 Seiten.',
+  // «Quick Links» (Noah 28.10.2026)
+  'Open Quick Links in the bar (on a computer: in the sidebar).': 'Öffne Quick Links in der Leiste (am Computer: in der Seitenleiste).',
+  'Tap «Add a pin», search a function and tap «Pin».': 'Tippe auf «Pin hinzufügen», suche eine Funktion und tippe auf «Anpinnen».',
+  'Tap «Edit»: rename, add a note, move with the arrows or drag, unpin.': 'Tippe auf «Bearbeiten»: umbenennen, Notiz dazu, mit Pfeilen oder Ziehen verschieben, entfernen.',
+  'Example: pin «Wear» into the group «Bike» with the note «after rain».': 'Beispiel: «Verschleiss» in die Gruppe «Velo» pinnen, mit der Notiz «nach Regen».',
+  'Open Quick Links in the bar.': 'Öffne Quick Links in der Leiste.',
+  'Tap «Add a pin» and pin a function.': 'Tippe auf «Pin hinzufügen» und pinne eine Funktion an.',
+  'Tap a pin: the app goes there.': 'Tippe auf einen Pin: die App geht dorthin.',
+  // Vorlagen mit Feldern (Noah 27.10.2026)
+  'Open Notes and tap «Choose templates».': 'Öffne Notizen und tippe «Vorlagen auswählen».',
+  'Tap «Use» on the templates you want; the pencil changes their fields.': 'Tippe bei den gewünschten Vorlagen auf «Verwenden»; der Stift ändert ihre Felder.',
+  'Tap a template above the note, fill in what you like, «Take over».': 'Tippe eine Vorlage über der Notiz an, füll aus, was du magst, «Übernehmen».',
+  'Example: «Tour report» with route, best moment, weather «rain» and 4 of 5.': 'Beispiel: «Tourenbericht» mit Strecke, schönstem Moment, Wetter «Regen» und 4 von 5.',
   // Idee A2 «Erinnerung zu deiner Zeit» (27.10.2026)
   'Nothing to switch on: it learns while you open the evening-before check.':
     'Nichts einzuschalten: die App lernt, während du den Abend-Check öffnest.',
@@ -1889,14 +1912,10 @@ export default {
     'Die Runde passt zu deinem eigenen Tempo; «Jetzt nicht» blendet das Fenster aus.',
   'Example: Thursday 17:00–19:00 free and dry → «A round of about 35 km?»':
     'Beispiel: Donnerstag 17:00–19:00 frei und trocken → «Eine Runde von etwa 35 km?»',
-  // «Analyse» (Noah 27.10.2026 «1a 2a 3a 4a 5b»)
-  'Shows the values the app has: Fitbit after connecting, Strava activities, your own entries and ticks.':
-    'Zeigt die Werte, die die App hat: Fitbit nach dem Verbinden, Strava-Aktivitäten, deine Einträge und Haken.',
-  'On Today tap «More» under «Active today», or open Analysis › Analyse.': 'Tippe auf Heute unter «Aktiv heute» auf «Mehr» oder öffne Auswerten › Analyse.',
-  'Switch sources on or off and choose 7 days, 30 days, 90 days or the year.': 'Schalte Quellen ein oder aus und wähle 7 Tage, 30 Tage, 90 Tage oder das Jahr.',
-  'Tap a value: its course opens (body values, a sport, or the ticks of an activity).': 'Tippe einen Wert an: sein Verlauf öffnet sich (Körperwerte, eine Sportart oder die Haken einer Aktivität).',
-  'Example: 30 days → resting pulse 51 on average, 12 sauna ticks, 412 km on the bike.': 'Beispiel: 30 Tage → Ruhepuls im Schnitt 51, 12 Haken bei Sauna, 412 km auf dem Velo.',
-  'On Today tap «More» under «Active today».': 'Tippe auf Heute unter «Aktiv heute» auf «Mehr».',
-  'Choose sources and a period.': 'Wähle Quellen und einen Zeitraum.',
-  'Tap a value to see its course.': 'Tippe einen Wert an, dann siehst du seinen Verlauf.',
+  // «Träume und Neuland» N5
+  'Counts from New ground: your routes, rides and own ticks.': 'Zählt aus Neuland: deine Routen, Fahrten und eigenen Haken.',
+  'Open Trips › Dreams › Challenges with an end.': 'Öffne Touren › Träume › Herausforderungen mit Ende.',
+  'Tap a ready one or «Own challenge»: collection, new ones or all, until when.': 'Tippe eine fertige an oder «Eigene Herausforderung»: Sammlung, neue oder alle, bis wann.',
+  'The bar fills by itself; tap the pencil to change or delete it.': 'Der Balken füllt sich von selbst; mit dem Stift änderst oder löschst du sie.',
+  'Example: «5 new municipalities this month» → 2 of 5 · 12 days left.': 'Beispiel: «5 neue Gemeinden diesen Monat» → 2 von 5 · noch 12 Tage.',
 };

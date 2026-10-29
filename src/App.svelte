@@ -323,6 +323,7 @@
   // «Computer-Breite» (Noah 26.10.2026 «4a»): the places whose content stays at most 1120 px wide (main.hub)
   const HUB_PAGES = ['trips', 'flow', 'auswerten', 'bikes', 'gear'];
   const PAGES = {
+    Quick: () => import('./pages/Quick.svelte'), // «Quick Links» (Noah 28.10.2026 «3a»)
     Gear: () => import('./pages/Gear.svelte'),
     Bikes: () => import('./pages/Bikes.svelte'),
     Pack: () => import('./pages/Pack.svelte'),
@@ -594,6 +595,9 @@
   {:else if page === 'auswerten'}
     <!-- «Aktiv neu» (Noah 22.10.2026 «2a»): the start of Auswerten, what you look at -->
     {#if hash.startsWith('#/auswerten/analyse')}<LazyPage load={PAGES.Analyse} />{:else}<LazyPage load={PAGES.Auswerten} />{/if}
+  {:else if page === 'quick'}
+    <!-- «Quick Links» (Noah 28.10.2026 «1a 2a 3a 4a 5a»): your pins -->
+    <LazyPage load={PAGES.Quick} />
   {:else if page === 'week'}
     <!-- «Woche planen» (WP1–WP3): the week, the Sunday planning, the holidays -->
     {#if hash.startsWith('#/week/plan')}<LazyPage load={PAGES.WochePlanen} />{:else if hash.startsWith('#/week/away')}<LazyPage load={PAGES.WocheFerien} />{:else}<LazyPage load={PAGES.Woche} />{/if}
