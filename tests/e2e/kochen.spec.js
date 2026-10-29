@@ -5,6 +5,7 @@ import { test, expect } from '@playwright/test';
 import DE from '../../src/lib/i18n/de/index.js';
 import { RECIPES, STD_GROUPS } from '../../src/lib/kochen/rezepte.js';
 import { shoppingLines } from '../../src/lib/kochen/kochen.js';
+import { nutritionOf } from '../../src/lib/kochen/naehrwerte.js';
 import { ready } from './settle.js';
 
 const T = (en, vars) => {
@@ -41,6 +42,7 @@ test('Alltag shows Cooking; the list filters by meal', async ({ page, context },
   await page.locator('[data-alltag-page="kochen"]').click();
   await expect(page.getByRole('heading', { level: 1, name: T('Cooking') })).toBeVisible();
   await expect(page.locator('[data-ko-recipe]')).toHaveCount(RECIPES.length);
+  await expect(page.locator(`[data-ko-recipe="${oats.id}"]`)).toContainText(`${nutritionOf(oats).kcal} kcal`);
   await shot(page, info, 'kochen-liste');
   await page.locator('[data-ko-filter="breakfast"]').click();
   await expect(page.locator('[data-ko-recipe]')).toHaveCount(RECIPES.filter((r) => r.meals.includes('breakfast')).length);
@@ -55,8 +57,14 @@ test('A recipe: two portions on the shopping list, all steps, hide and show agai
   await page.locator(`[data-ko-recipe="${oats.id}"]`).click();
   await expect(page.getByRole('heading', { level: 1, name: T(oats.title) })).toBeVisible();
   await expect(page.locator('[data-ko-step]')).toHaveCount(oats.steps.length);
+  // nutrition per portion (about), the same for 1 or 2 portions
+  const nut = nutritionOf(oats);
+  await expect(page.locator('[data-ko-kcal]')).toContainText(String(nut.kcal));
+  await expect(page.locator('[data-ko-protein]')).toContainText(String(nut.protein));
+  await shot(page, info, 'naehrwerte');
   await page.locator('[data-ko-more]').click();
   await expect(page.locator('[data-ko-portions]')).toHaveText(T('{n} portions', { n: 2 }));
+  await expect(page.locator('[data-ko-kcal]')).toContainText(String(nut.kcal));
   await shot(page, info, 'kochen-rezept');
   expect(await noScroll(page)).toBe(true);
   await page.locator('[data-ko-shop]').click();

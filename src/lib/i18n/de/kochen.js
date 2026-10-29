@@ -103,4 +103,12 @@ export default {
   Gluten: 'Gluten',
   Spicy: 'Scharf',
   Liked: 'Mag ich',
+  // nutrition per portion (Noah «4a»)
+  '{n} kcal': '{n} kcal',
+  'Per portion (about)': 'Pro Portion (ungefähr)',
+  kcal: 'kcal',
+  Carbohydrates: 'Kohlenhydrate',
+  Protein: 'Eiweiss',
+  Fat: 'Fett',
+  'Rounded typical values added up from the ingredients. They do not change with the portions you choose; they are for one portion.': 'Gerundete Richtwerte, aus den Zutaten zusammengezählt. Sie ändern sich nicht mit den gewählten Portionen; sie gelten für eine Portion.',
 };

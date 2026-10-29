@@ -13,6 +13,7 @@
   import CookMode from './CookMode.svelte';
   import KochTips from './KochTips.svelte';
   import { toggleLike } from '../kochen/tipps.js';
+  import { nutritionOf, nutritionById } from '../kochen/naehrwerte.js';
   import RenameSheet from '../ui/RenameSheet.svelte';
   import GroupDeleteSheet from '../ui/GroupDeleteSheet.svelte';
   import SortGrip from '../ui/SortGrip.svelte';
@@ -60,11 +61,12 @@
     portions = 1;
   });
   const rows = $derived(ingredientRows(recipe, portions, t));
+  const nutri = $derived(nutritionOf(recipe));
 
   const line = (x) =>
     x.own
       ? t('Your own recipe from Free time')
-      : [t('{n} min', { n: x.min }), tn(x.ingredients.length, '{n} ingredient', '{n} ingredients'), mealLabels(x).map((m) => t(m)).join(', ')].filter(Boolean).join(' · ');
+      : [t('{n} min', { n: x.min }), tn(x.ingredients.length, '{n} ingredient', '{n} ingredients'), t('{n} kcal', { n: nutritionById(x.id)?.kcal ?? 0 }), mealLabels(x).map((m) => t(m)).join(', ')].filter(Boolean).join(' · ');
 
   async function toShopping() {
     const lines = shoppingLines(recipe, portions, t);
@@ -136,6 +138,18 @@
       <h1 class="fz-h1" tabindex="-1" data-page-title>{recipe.own ? recipe.title : t(recipe.title)}</h1>
       {#if !recipe.own}
         <p class="fz-intro ko-facts"><Clock size={16} aria-hidden="true" />{line(recipe)}</p>
+      {/if}
+      {#if nutri}
+        <section class="fz-box" aria-labelledby="ko-nut-h" data-ko-nutrition>
+          <h2 class="fz-h2" id="ko-nut-h">{t('Per portion (about)')}</h2>
+          <dl class="ko-nut">
+            <div><dt>{t('Energy')}</dt><dd data-ko-kcal>{nutri.kcal}<small>{t('kcal')}</small></dd></div>
+            <div><dt>{t('Carbohydrates')}</dt><dd data-ko-carbs>{nutri.carbs}<small>g</small></dd></div>
+            <div><dt>{t('Protein')}</dt><dd data-ko-protein>{nutri.protein}<small>g</small></dd></div>
+            <div><dt>{t('Fat')}</dt><dd data-ko-fat>{nutri.fat}<small>g</small></dd></div>
+          </dl>
+          <p class="fz-note">{t('Rounded typical values added up from the ingredients. They do not change with the portions you choose; they are for one portion.')}</p>
+        </section>
       {/if}
       <div class="ko-two">
         <section class="fz-box ko-ing" aria-labelledby="ko-ing-h" data-ko-ingredients>
@@ -366,6 +380,32 @@
     place-items: center;
     font-weight: 700;
     font-size: var(--fs-small);
+  }
+  .ko-nut {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+    gap: 8px;
+    margin: 8px 0;
+  }
+  .ko-nut div {
+    background: var(--paper-2);
+    border-radius: 12px;
+    padding: 10px 12px;
+  }
+  .ko-nut dt {
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+  }
+  .ko-nut dd {
+    margin: 2px 0 0;
+    font-size: var(--fs-sub);
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+  }
+  .ko-nut small {
+    margin-left: 3px;
+    font-weight: 400;
+    color: var(--ink-2);
   }
   .ko-count {
     margin-left: 8px;

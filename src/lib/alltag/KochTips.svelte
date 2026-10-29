@@ -9,6 +9,7 @@
   import { MEALS } from '../kochen/rezepte.js';
   import { recipeHref, prefsOf } from '../kochen/kochen.js';
   import { TASTE_TAGS, MAX_MINUTES, ensureTips, pickMeal, toggleLike, toggleDislike, setMaxMin, markAsked, tipOf, fitCount } from '../kochen/tipps.js';
+  import { nutritionById } from '../kochen/naehrwerte.js';
   import { localDay } from '../localday.js';
   import { t, tn } from '../i18n.svelte.js';
 
@@ -31,7 +32,7 @@
   const taste = $derived(
     [prefs.maxMin ? t('at most {n} minutes', { n: prefs.maxMin }) : '', prefs.dislikes.length ? t('without {list}', { list: TASTE_TAGS.filter((x) => prefs.dislikes.includes(x.tag)).map((x) => t(x.label)).join(', ') }) : ''].filter(Boolean).join(' · ')
   );
-  const facts = (r) => [t('{n} min', { n: r.min }), tn(r.ingredients.length, '{n} ingredient', '{n} ingredients')].join(' · ');
+  const facts = (r) => [t('{n} min', { n: r.min }), tn(r.ingredients.length, '{n} ingredient', '{n} ingredients'), t('{n} kcal', { n: nutritionById(r.id)?.kcal ?? 0 })].join(' · ');
   const done = () => {
     editing = false;
     return save((p) => markAsked(p));
