@@ -2,10 +2,10 @@
 export default {
   title: 'Pins on the cards',
   lead: 'Pin a card where you see it.',
-  points: [{ text: 'A small pin at the top right of a card puts it into your Quick Links', href: '#/trips' }],
+  points: [{ text: 'A small pin at the top right of a card puts it into your Quick Links', href: '#/trips', go: 'f.pinmarks' }],
   small: [
-    { box: 'new', text: 'A second tap takes it out again; switch the pins off in Quick Links' },
-    { box: 'new', text: 'Short tour: Quick Links › «Tour of Quick Links»' },
+    { box: 'new', text: 'A second tap takes it out again; switch the pins off in Quick Links', go: 'f.pinmarks' },
+    { box: 'new', text: 'Short tour: Quick Links › «Tour of Quick Links»', go: 'f.pinmarks' },
   ],
   test: [
     'Open Trips and tap the small pin next to «Upload a ride» or another card.',

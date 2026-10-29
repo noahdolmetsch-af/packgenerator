@@ -1,6 +1,6 @@
 // «Quick Links» Schritt 2 (Noah 28.10.2026 «1a 2a», Idee 19): the pin on the cards, pinning into Quick Links
 // and back (the first note says what the pin does), the switch in Quick Links.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { openHome } from './home0460-fixture.js';
 
 test('pins on the cards: pin, unpin, switch off', async ({ page, context }, info) => {

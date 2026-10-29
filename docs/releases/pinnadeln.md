@@ -16,6 +16,7 @@ PR (Quick Links, Schritt 2 von 8) · 28.10.2026 · Auftrag: Noah «1a 2a», Idee
 - Die Pinnadel sitzt nur dort, wo sie nichts zum Tippen verdeckt (sonst am Ende des Titels, sonst keine). Darum haben nicht alle Karten eine.
 - Der Hinweis «Neu: die Pinnadel» aus dem Entwurf ist kein schwebendes Fenster, sondern steht in der ersten Meldung nach dem Anpinnen. Ein schwebendes Fenster hätte Knöpfe verdeckt.
 - Neue Pins kommen in die erste Gruppe, damit man sie in Quick Links gleich oben sieht.
+- Wo schon ein Knopf sitzt (zum Beispiel das «i» aus «Woher kommt das?»), rückt die Pinnadel weg, sie deckt nichts zu.
 - Auf der Seite Quick Links selbst gibt es keine Pinnadeln.
 - Die Pinnadeln laden erst nach dem Start (wie die Seiten).
 
