@@ -29,4 +29,16 @@ export default {
   'in all years': 'in allen Jahren',
   // T5 «Velo-Jahresziel und 7-Tage-km zählen dieselben Fahrten»
   'Counted: every bike ride from Strava, uploaded rides and your recordings, as on Today.': 'Gezählt: jede Velofahrt von Strava, hochgeladene Fahrten und deine Aufzeichnungen, wie auf Heute.',
+  // T7 «Gewichte gleich gerechnet»: bottle cages are weighed with the bike
+  '{n} bottle cage': '{n} Flaschenhalter',
+  '{n} bottle cages': '{n} Flaschenhalter',
+  'in the bike weight': 'im Velogewicht',
+  '{n} bottle cage in the bike weight': '{n} Flaschenhalter im Velogewicht',
+  '{n} bottle cages in the bike weight': '{n} Flaschenhalter im Velogewicht',
+  '{list} and {last}': '{list} und {last}',
+  'with food and water: {kg}': 'mit Essen und Wasser: {kg}',
+  'plus {list}': 'dazu {list}',
+  'on the bike|fixed': 'am Velo',
+  'The numbers at the figure count every layer.': 'Die Zahlen an der Figur zählen alle Schichten.',
+  '{n} sorted ({kg}), {m} still to sort': '{n} eingeordnet ({kg}), {m} noch offen',
 };
