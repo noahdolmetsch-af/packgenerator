@@ -1,6 +1,6 @@
 # Dein Moment auf Heute
 
-PR folgt · 29.10.2026 · Auftrag: Noah «1a 2a 3a» (Thread «Neue Struktur der App aus der Funktionsliste»), Schritt 4 von «Heute als Begleiter»
+PR #446 · 29.10.2026 · Auftrag: Noah «1a 2a 3a» (Thread «Neue Struktur der App aus der Funktionsliste»), Schritt 4 von «Heute als Begleiter»
 
 ## Was ist neu
 - Neue Karte «Dein Moment» auf Heute, direkt unter der Meditation. Sie nennt den erkannten Moment (packen, unterwegs, zurück, Velo-Pflege …), zeigt die fünf Schritte einer Tour und einen Knopf für den nächsten Schritt.
