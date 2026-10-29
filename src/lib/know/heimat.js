@@ -348,6 +348,7 @@ export const HOME = {
   'f.air': '#/wetter',
   'f.observations': '#/flow/review',
   'f.ridepage': '#/trips/rides',
+  'f.analyse': '#/auswerten/analyse',
   'f.tickreview': '#/auswerten',
   'backup': '#/me/data',
   'install': '#/me/data',
