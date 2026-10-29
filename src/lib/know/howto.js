@@ -46,7 +46,7 @@ export const HOWTO = {
   'f.dayblocks': ['Open Ride day.', 'The day stands in blocks of 3 hours.', 'Each block says dress, eat and light; the arrival at your pace.'],
   'f.evening': ['On a trip of several days, open Ride day.', 'In the evening the evening block comes.', 'Charge tonight, lay out for tomorrow.'],
   'f.ridenote': ['Open Ride day.', 'Tap «Note» and write.', 'The note lands in the debrief of the trip.'],
-  'f.finish': ['Open Ride day.', 'Under «…» choose «End the trip».', 'Undo is there; then the next step follows.'],
+  'f.finish': ['Open Ride day.', 'At the bottom of the page tap «End the trip …».', 'Undo is there; then the next step follows.'],
   debrief: ['Open Debriefs.', 'Choose the trip that waits.', 'Tap what you used; it takes a minute.'],
   learn: ['Write 3 debriefs.', 'Open Templates.', 'Take the suggestions to take out or add, or leave them.'],
   pace: ['Open Your pace.', 'Load a few GPX rides.', 'Riding times now use your own pace.'],
