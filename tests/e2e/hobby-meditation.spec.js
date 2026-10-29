@@ -235,7 +235,7 @@ test('Meditation einfach: the short page, a new template, a session from «Mehr 
   // Paket A (HT1–HT2 and «Mehr Inhalt», changed on purpose): the card «Was hier steht», the tip and «Das kann
   // die App hier» come on every page; the two screens are for Meditation's own content, measured without them
   // «Aktiv neu» (0.187.0, on purpose): the switch Aktiv | Auswerten on top of every Aktiv page is navigation, not Meditation's content; the path line (28.10.2026) too
-  const info0 = await page.addStyleTag({ content: 'main section.hint, main [data-hint-line], main .tipl, main details.can, [data-place-switch], [data-pathline] { display: none !important; }' });
+  const info0 = await page.addStyleTag({ content: 'main section.hint, main [data-hint-line], main .tipl, main details.can, [data-place-switch], [data-pathline], [data-pathrow] { display: none !important; }' });
   const height = await page.evaluate(() => document.documentElement.scrollHeight);
   await info0.evaluate((el) => el.remove());
   info.annotations.push({ type: 'height', description: `Meditation page ${page.viewportSize().width} px: ${height} px high` });

@@ -51,7 +51,7 @@
 </script>
 
 {#if showPath || tabInfo}
-  <div class="pathrow">
+  <div class="pathrow" data-pathrow>
     {#if showPath}
       <nav class="pathline" aria-label={t('Where you are')} data-pathline>
         {#each steps as s, n (n)}
