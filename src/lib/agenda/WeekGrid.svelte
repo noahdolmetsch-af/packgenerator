@@ -94,7 +94,7 @@
 
 <style>
   .wk {
-    --gw: 40px;
+    --gw: 48px;
     border: 1px solid var(--line);
     border-radius: var(--r-card, 12px);
     background: var(--paper);
@@ -107,7 +107,7 @@
     border-bottom: 1px solid var(--line);
   }
   .gut small {
-    font-size: 10px;
+    font-size: var(--fs-small);
     color: var(--ink-3);
   }
   .dh {
@@ -120,7 +120,7 @@
     border-left: 1px solid var(--line);
   }
   .dh b {
-    font-size: 1.2rem;
+    font-size: var(--fs-sub);
     line-height: 1.3;
     color: var(--ink);
     min-width: 2rem;
@@ -129,7 +129,7 @@
   }
   .dh.now b {
     background: var(--accent);
-    color: #fff;
+    color: var(--paper);
   }
   .all .cell {
     display: flex;
@@ -151,7 +151,7 @@
     cursor: pointer;
     padding: 1px 6px;
     border-radius: 6px;
-    font-size: 12px;
+    font-size: var(--fs-small);
     line-height: 1.5;
     background: color-mix(in srgb, var(--c) 35%, var(--paper));
     color: var(--ink);
@@ -176,7 +176,7 @@
     position: absolute;
     right: 4px;
     transform: translateY(-50%);
-    font-size: 10px;
+    font-size: var(--fs-small);
     color: var(--ink-3);
   }
   .col {
@@ -202,7 +202,7 @@
     border-left: 3px solid var(--c);
     background: color-mix(in srgb, var(--c) 35%, var(--paper));
     color: var(--ink);
-    font-size: 12px;
+    font-size: var(--fs-small);
     line-height: 1.3;
   }
   .ev b {
@@ -215,7 +215,7 @@
   .ev span {
     display: block;
     color: var(--ink-3);
-    font-size: 11px;
+    font-size: var(--fs-small);
   }
   .ev.free {
     background: color-mix(in srgb, var(--c) 12%, var(--paper));
@@ -232,7 +232,7 @@
     left: 0;
     right: 0;
     height: 0;
-    border-top: 2px solid var(--bad, #c0392b);
+    border-top: 2px solid var(--bad);
     pointer-events: none;
   }
 </style>
