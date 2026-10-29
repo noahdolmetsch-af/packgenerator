@@ -2,10 +2,10 @@
 export default {
   title: 'Sign-up list',
   lead: 'A ride or an evening with a number of places; who comes too late waits and moves up.',
-  points: [{ text: 'Me › Mini tools › Sign-up list: set the places, send the link', href: '#/me/mini' }],
+  points: [{ text: 'Me › Mini tools › Sign-up list: set the places, send the link', href: '#/me/mini', go: 'f.minilist' }],
   small: [
-    { box: 'new', text: 'People see their place or their place on the waiting list and can sign off' },
-    { box: 'new', text: 'You can take someone off the list, with Undo' },
+    { box: 'new', go: 'f.minilist', text: 'People see their place or their place on the waiting list and can sign off' },
+    { box: 'new', go: 'f.minilist', text: 'You can take someone off the list, with Undo' },
   ],
   test: [
     'Open Me › Mini tools › Sign-up list, write a title, set 2 places and tap «Make the link».',

@@ -2,7 +2,7 @@
 // three people sign up in their own browsers, the third waits; one signs off and the third moves up; the maker
 // sees who is in and who waits and takes someone off with Undo. The server (/api/sync?action=mini) is the real
 // handler over a small fake Redis; it keeps only sealed text. Fictional data only.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { openHome } from './home0460-fixture.js';
 import { makeMiniHandler } from '../../api/_lib/mini.js';
 import { fakeRedis } from '../fakeredis.js';
@@ -49,7 +49,7 @@ test('Sign-up list: two places, the third waits and moves up; the maker takes so
   expect(url).toMatch(/#\/mitmachen\/[A-Za-z0-9_-]{22}\/[A-Za-z0-9_-]{43}$/);
   await expect(page.locator('[data-lr-empty]')).toBeVisible();
   const kept = () => JSON.stringify([...redis.kv].map(([k, v]) => [k, v instanceof Map ? [...v] : v]));
-  expect(kept()).not.toMatch(/Werkstatt|Garage/);
+  expect(kept()).not.toMatch(/test_data_gtp_ (Werkstatt|Garage)/);
 
   // three people, each in their own browser
   const people = [];
@@ -70,7 +70,7 @@ test('Sign-up list: two places, the third waits and moves up; the maker takes so
   await expect(sara.f.locator('[data-la-place]')).toHaveAttribute('data-la-place', 'wait');
   await expect(sara.f.locator('[data-la-place]')).toContainText(T('You are on the waiting list, place {n}. If someone signs off, you move up by yourself.', { n: 1 }));
   await noSideways(sara.f, 'friend page');
-  expect(kept()).not.toMatch(/Mia|Luca|Sara/);
+  expect(kept()).not.toMatch(/test_data_gtp_ (Mia|Luca|Sara)/);
 
   // the maker sees two in, one waiting
   await tap(page.locator('[data-mt-refresh]'), info);
