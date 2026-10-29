@@ -101,7 +101,7 @@
   import { isEveningOn } from '../lib/dayclock.js';
   import { cfgQuery } from '../lib/freidb.js';
   import { todayImpulse } from '../lib/frei.js';
-  import { WALL_KEY, TILE, wallOf, wallRecord, addTile, removeTile, isNew, HELPER_TILES, hideTiles, keepHidden, tripUp, HEAD_0155 } from '../lib/home/tiles.js';
+  import { WALL_KEY, TILE, wallOf, wallRecord, addTile, removeTile, isNew, HELPER_TILES, VALUE_TILES, hideTiles, keepHidden, tripUp, HEAD_0155 } from '../lib/home/tiles.js';
   import { tourNear } from '../lib/home/heuteneu.js';
   import HabitCards from '../lib/home/HabitCards.svelte';
   import HabitsSheet from '../lib/home/HabitsSheet.svelte';
@@ -110,6 +110,9 @@
   import AktivTile from '../lib/home/AktivTile.svelte';
   import BodyTile from '../lib/home/BodyTile.svelte';
   import VitalsTile from '../lib/home/VitalsTile.svelte';
+  import Vo2Tile from '../lib/home/Vo2Tile.svelte';
+  import { vo2Of, VO2_DAYS } from '../lib/home/vo2.js';
+  import { addDays as addHealthDays } from '../lib/health.js';
   import WeighTile from '../lib/home/WeighTile.svelte';
   import { weight as weightStore } from '../lib/weight.svelte.js';
   import { WEIGH_KEY, weighDue } from '../lib/home/weighin.js';
@@ -515,7 +518,8 @@
   let wallAnyway = $state(false);
   const emptyDevice = $derived(showFirst && !steps.bike && !steps.gear && !steps.trip && !wallAnyway && !editing && !S[WALL_KEY]);
   // Rule 11: «Dein Körper heute» stays on top and what is due today never hides, also on an empty device
-  const EMPTY_KEEP = new Set(['body', 'important']);
+  // «VO2max auf Heute» (28.10.2026): it shows only with a value, so it stays like the body
+  const EMPTY_KEEP = new Set(['body', 'important', 'vo2max']);
 
   /* ---------- 3. the 16 functions (Noah 12a, 13a, 15a) ---------- */
   const usage = $derived(usageOf(S[USAGE_KEY]));
@@ -884,7 +888,10 @@
   const weighOn = $derived(weighedNow || (weightStore.loaded && weighDue(weightStore.entries, today, S[WEIGH_KEY] ?? null)));
   // P6 H1 (Noah 21.10.2026 «2b»): after an update «New» stands on top as a whole row for 14 days, unless the wall has the tile itself
   const newsRow = $derived(ready && !editing && newsDays > 0 && !onWall.has('news') && S[NEWS_OFF_KEY] !== WHATS_NEW[0].version);
-  const quiet = $derived([...(upEmpty && on('body') ? ['important'] : []), ...(weighOn ? [] : ['weighin'])]);
+  // «VO2max auf Heute» (Noah 28.10.2026 «2 a und b»): the tile only while there is a value of the last 90 days
+  const vo2Q = $derived(liveQuery(() => (db.healthDays ? db.healthDays.where('date').aboveOrEqual(addHealthDays(today, -VO2_DAYS)).toArray() : [])));
+  const vo2On = $derived(!!vo2Of($vo2Q ?? [], today));
+  const quiet = $derived([...(upEmpty && on('body') ? ['important'] : []), ...(weighOn ? [] : ['weighin']), ...(vo2On ? [] : VALUE_TILES)]);
   const shownWall = $derived(editing ? hideTiles(wall, hiddenTiles) : joinFlow(tripUp(hideTiles(wall, [...hiddenTiles, ...quiet]), !!near)));
   // Paket Q #74 (Noah 19.10.2026 «4a»): the wall follows the time of day; while editing the stored order shows
   const timeOn = $derived(S[WALL_TIME_KEY] !== false);
@@ -1212,6 +1219,7 @@
   {:else if x.id === 'routine'}<RoutineTile {today} isnew={newTile('routine')} />
   {:else if x.id === 'weighin'}<WeighTile {today} isnew={newTile('weighin')} onsaved={() => (weighedNow = true)} onstop={() => saveWall(removeTile(wall, 'weighin'))} />
   {:else if x.id === 'vitals'}<VitalsTile {today} isnew={newTile('vitals')} />
+  {:else if x.id === 'vo2max'}<Vo2Tile {today} isnew={newTile('vo2max')} />
   {:else if x.id === 'values'}<DataWidget idp="hdw" />
   {:else if x.id === 'week'}<WeekTile {today} rides={$ridesQ ?? []} isnew={newTile('week')} />
   {:else if x.id === 'month'}<MonthTile {today} rides={$ridesQ ?? []} isnew={newTile('month')} />
