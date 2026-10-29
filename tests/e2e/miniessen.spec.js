@@ -1,7 +1,7 @@
 // Mini-Tools «Essen und Unverträglichkeiten» (Noah 28.10.2026, idea 7): who eats what; a friend answers for two,
 // gluten-free with an allergy; the maker sees the counts, the allergy on top and a shopping list with swaps.
 // The server (/api/sync?action=mini) is the real handler over a small fake Redis. Fictional data only.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { openHome } from './home0460-fixture.js';
 import { makeMiniHandler } from '../../api/_lib/mini.js';
 import { fakeRedis } from '../fakeredis.js';

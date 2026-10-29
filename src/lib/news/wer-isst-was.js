@@ -2,10 +2,10 @@
 export default {
   title: 'Who eats what',
   lead: 'Ask the group about diets and allergies; the app makes the shopping list.',
-  points: [{ text: 'Me › Mini tools › Who eats what: send the link, pick a menu', href: '#/me/mini' }],
+  points: [{ text: 'Me › Mini tools › Who eats what: send the link, pick a menu', href: '#/me/mini', go: 'f.minifood' }],
   small: [
-    { box: 'new', text: 'Allergies stand on top, so nobody forgets them' },
-    { box: 'new', text: 'Shopping list for pasta evening, barbecue or breakfast with the right swaps' },
+    { box: 'new', go: 'f.minifood', text: 'Allergies stand on top, so nobody forgets them' },
+    { box: 'new', go: 'f.minifood', text: 'Shopping list for pasta evening, barbecue or breakfast with the right swaps' },
   ],
   test: [
     'Open Me › Mini tools › Who eats what, write «Hut evening» and tap «Make the link».',
