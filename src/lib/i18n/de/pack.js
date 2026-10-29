@@ -809,4 +809,6 @@ export default {
   'Like your last day ride': 'Wie deine letzte Tagestour',
   'Preset: {name}': 'Vorgabe: {name}',
   'Set by you': 'Von dir gesetzt',
+  // Auffälligkeiten 28.10.2026 (Noah «2a»): the name of a quick-start trip
+  'Ride {day}|quick': 'Ausfahrt {day}',
 };

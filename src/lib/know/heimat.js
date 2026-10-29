@@ -454,6 +454,20 @@ export const HOME = {
   'f.lightpush': '#/me/push',
   'f.wearpush': '#/me/push',
   'f.racepush': '#/me/push',
+  // Heute als Begleiter PR 3 (Noah 28.10.2026, Auffälligkeiten 10–12): Small apps, Calm and personal, the 7 pages of Free time, 4 ski tour pages
+  'f.miniapps': '#/me/apps',
+  'f.ruhig': '#/me/ruhig',
+  'f.freiabend': '#/me/frei/abend',
+  'f.freiwesentlich': '#/me/frei/wesentlich',
+  'f.freireise': '#/me/frei/reise',
+  'f.freinacht': '#/me/frei/nacht',
+  'f.freinaechstes': '#/me/frei/naechstes',
+  'f.freilust': '#/me/frei/lust',
+  'f.freisamml': '#/me/frei/sammlungen',
+  'f.skicheck': '#/ski/check',
+  'f.skistart': '#/ski/start',
+  'f.skicare': '#/ski/care',
+  'f.skiafter': '#/ski/after',
 };
 
 /** Not yet visible on the home page (feature id → why code). Only gets shorter. */

@@ -562,6 +562,20 @@ const OWN = [
   { id: 'f.lightpush', group: 'onway', title: 'Light alarm', text: 'The evening before, when the ride goes on after sunset: pack the light and the reflective vest.', href: '#/me/push', words: 'licht wecker erinnerung dunkel sonnenuntergang reflexweste lampe' },
   { id: 'f.wearpush', group: 'bike', title: 'Parts worn', text: 'When a part reaches its km, e.g. the chain. At 08:00.', href: '#/me/push', words: 'teile abgenutzt verschleiss erinnerung kette reifen beläge km' },
   { id: 'f.racepush', group: 'before', title: 'Race registration', text: '3 days and 1 day before the registration deadline, at 08:00.', href: '#/me/push', words: 'rennen anmeldung anmeldeschluss erinnerung frist' },
+  // Heute als Begleiter PR 3 (Noah 28.10.2026, Auffälligkeiten 10–12): Small apps, Calm and personal, the 7 pages of Free time, 4 ski tour pages
+  { id: 'f.miniapps', group: 'data', title: 'Small apps', text: 'Put one part of the app on the home screen as its own small app.', href: '#/me/apps', words: 'kleine apps startbildschirm verknüpfung einzelne app icon' },
+  { id: 'f.ruhig', group: 'data', title: 'Calm and personal', text: 'All calm functions on one page: less app, where values come from, letters to yourself, meaning.', href: '#/me/ruhig', words: 'ruhig persönlich weniger app briefe bedeutung herkunft' },
+  { id: 'f.freiabend', group: 'active', title: 'My evening', text: 'Your rituals, evening music and a question to arrive.', href: '#/me/frei/abend', words: 'abend ritual abendmusik ankommen frage feierabend' },
+  { id: 'f.freiwesentlich', group: 'active', title: 'What matters to me', text: 'What matters to you in this phase of your life, and your big maybe.', href: '#/me/frei/wesentlich', words: 'wesentlich wichtig lebensphase werte grosses vielleicht' },
+  { id: 'f.freireise', group: 'active', title: 'Travel wishes', text: 'What you long for, what you want to bring home, a day with room for surprises.', href: '#/me/frei/reise', words: 'reise wünsche sehnsucht heimbringen überraschung fernweh' },
+  { id: 'f.freinacht', group: 'before', title: 'First night', text: 'A first night outside: what you want to find out, route and bed, then a look back.', href: '#/me/frei/nacht', words: 'erste nacht draussen mikroabenteuer übernachtung biwak zelt' },
+  { id: 'f.freinaechstes', group: 'after', title: 'For next time', text: 'What you collect for the next packing list: proven, just came along, missing.', href: '#/me/frei/naechstes', words: 'nächstes mal sammeln packliste bewährt gefehlt mitgefahren' },
+  { id: 'f.freilust', group: 'active', title: 'What am I up for?', text: 'A few ideas to start, and a technique of the week to try.', href: '#/me/frei/lust', words: 'lust ideen technik der woche ausprobieren idee' },
+  { id: 'f.freisamml', group: 'active', title: 'My collections', text: 'Your own collections, e.g. fountains, passes or cafés, to fill bit by bit.', href: '#/me/frei/sammlungen', words: 'sammlungen sammeln brunnen pässe cafés eigene liste' },
+  { id: 'f.skicheck', group: 'before', title: 'Backpack check', text: 'The packing list of a ski tour in five groups; a tap means packed.', href: '#/ski/check', words: 'rucksack check skitour packliste lvs schaufel sonde' },
+  { id: 'f.skistart', group: 'onway', title: 'Start check', text: 'Five checks at the car park of a ski tour, and your turn-around time.', href: '#/ski/start', words: 'start check skitour parkplatz lvs umkehrzeit wetter' },
+  { id: 'f.skicare', group: 'bike', title: 'Season care', text: 'Care of the ski gear at season start, during the season and at season end.', href: '#/ski/care', words: 'saison pflege ski felle wachsen kanten skiausrüstung' },
+  { id: 'f.skiafter', group: 'after', title: 'After the tour', text: 'Summit, metres climbed, who was there and three questions; they become learnings.', href: '#/ski/after', words: 'nach der tour skitour gipfel höhenmeter erkenntnisse rückblick' },
 ];
 
 /** Every function: the tips (with their group) first, then the own entries, by group order. */
