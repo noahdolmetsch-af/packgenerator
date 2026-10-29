@@ -51,6 +51,7 @@
   }
   import TipButton from '../lib/know/TipButton.svelte';
   import WhatsNew from '../lib/know/WhatsNew.svelte';
+  import GestenListe from '../lib/know/GestenListe.svelte';
   import PlaySheet from '../lib/testdata/PlaySheet.svelte';
   import MoreActions from '../lib/ui/MoreActions.svelte';
   import Seg from '../lib/ui/Seg.svelte';
@@ -265,6 +266,8 @@
     {/each}
   </div>
   <p class="legend"><Info size={16} aria-hidden="true" /><span>{t('Used ones move down. Under «…»: how it works, and try it in the playground.')}</span></p>
+  <!-- «Heute als Begleiter» PR 12: gestures, keys, search commands and «…» actions, folded; the search above narrows it -->
+  <GestenListe {q} />
   <!-- the news of the last versions, folded at the end (Ich › Was ist neu has them all) -->
   <div class="fnews"><WhatsNew /></div>
 </div>
