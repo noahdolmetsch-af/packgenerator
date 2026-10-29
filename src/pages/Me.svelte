@@ -254,6 +254,14 @@
               <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
             </a>
           </li>
+          <li>
+            <!-- Mini-Tools (Noah 28.10.2026 «2a»): ask a group by link, the answers are counted -->
+            <a class="ich-row" href="#/me/mini" data-row="minitools">
+              <span class="ich-ib"><CalendarCheck size={18} aria-hidden="true" /></span>
+              <span class="ich-m"><b>{t('Mini tools')}</b><small>{t('Find a date with others')}</small></span>
+              <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
+            </a>
+          </li>
         </ul>
       </section>
 

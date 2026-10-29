@@ -556,3 +556,11 @@ Warum: Daten aus verschiedenen Bereichen sollen zusammenspielen, damit die App i
 - **Was (Noah «1a 2a 3a», «1a 2a 3a 4a», «ok freigabe»):** 8 Momente (Lust, Planen, Packen, Unterwegs, Zurück, dazu Velo und Material, Körper und Training, Alltag und Woche). Heute erkennt den Moment und zeigt eine Karte mit dem nächsten Schritt, dazu eine ruhige Funktion zum Entdecken mit «Später» und «Nicht für mich». «Was die App kann» bekommt die Ansicht «Nach Moment», jede Seite eine Zeile «Gehört dazu». Am Ende hat jede der 517 Funktionen einen Ort, einen Moment und einen sichtbaren Namen; der Wächter-Test hält das fest.
 - **Plan:** 13 kleine PRs. 1 Moment-Regeln, 2–3 die 117 fehlenden Katalog-Einträge, 4 Moment-Karte, 5 Entdecken-Karte, 6 «Nach Moment», 7–9 «Gehört dazu», 10 Versteckte sichtbar, 11 Namen, 12 Gesten erklären, 13 Wächter für alle. Skizzen: https://claude.ai/artifact/Hbqb7wZAPaxwvtMm7irumB.
 - **Stand:** PR 1 (Regeln in `src/lib/moment.js`, nichts sichtbar).
+
+## Mini-Tools (28.10.2026)
+
+Warum: mit anderen Leuten schneller abmachen, ohne langes Hin und Her im Chat (Ziele Touren und Alltag). Noah «1b 2a 3a, Ideen 1, 2, 4, 5, 7, 9, 10, 5a». Ideenseite mit Skizzen: https://claude.ai/artifact/HA5TAJLzAtuhUBAAHqJApH
+
+- Eigene Seite Ich › Mini-Tools. Die Gefragten antworten im Browser, ohne App und ohne Konto; die Antworten kommen verschlüsselt über einen kleinen Gratis-Speicher zurück, nur der Fragende kann sie lesen. Auszählen ohne KI.
+- Reihenfolge, je ein PR: 1 Termin finden (gebaut), 2 Mini-Umfrage, 4 Anmeldeliste mit Warteliste, 5 Spontan-Einladung «Fährst du morgen mit?», 7 Essen und Unverträglichkeiten, 9 Fair auslosen, 10 Wann muss ich losfahren?
+- Nicht gewählt: 3 Mitfahren und Velo-Plätze, 6 Rennen-Helferplan, 8 gemeinsame Bewertung nach der Tour.

@@ -1835,6 +1835,11 @@ export const HANDBOOK = {
     steps: ['Open Trips › Look back › Heatmap.', 'Choose clouds or lines; filter by year, sport, bike or tour and everyday.', 'Tap a coloured line: the rides there show below, each with its page.'],
     example: 'Example: 2026, bike only → your way to work glows dark red, the Jura tour is a thin orange line.',
   },
+  'f.analyse': {
+    on: 'Shows the values the app has: Fitbit after connecting, Strava activities, your own entries and ticks.',
+    steps: ['On Today tap «More» under «Active today», or open Analysis › Analyse.', 'Switch sources on or off and choose 7 days, 30 days, 90 days or the year.', 'Tap a value: its course opens (body values, a sport, or the ticks of an activity).'],
+    example: 'Example: 30 days → resting pulse 51 on average, 12 sauna ticks, 412 km on the bike.',
+  },
   'f.tickreview': {
     on: 'Works with what you tick off under «Heute abhaken» and with check questions that have a number.',
     steps: ['Open Active › Goals and tap «Evaluate».', 'Choose 30 days, 90 days or the year, and all activities or one.', 'Switch to «Your answers» for a check question; «…» on a card hides or moves it.'],
@@ -1912,6 +1917,12 @@ export const HANDBOOK = {
     on: null,
     steps: ['Open Me › Calm and personal › Less app for the moment.', 'Choose up to 8 functions for your plan.', '«Start the workspace»; the strip stays until you end it.'],
     example: 'Example: «Workshop Saturday» with bike inspection, spare parts and workshop due.',
+  },
+  // Mini-Tools (Noah 28.10.2026)
+  'f.minidate': {
+    on: null,
+    steps: ['Open Me › Mini tools › Find a date.', 'Write what it is about, pick 2 to 8 days and tap «Make the link».', 'Send the link; tap «Look for new answers» to see who can when.'],
+    example: 'Example: «Weekend trip Jura» with three Saturdays; four people answer, the 14th works for all.',
   },
   'f.friendask': {
     on: null,
