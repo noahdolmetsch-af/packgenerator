@@ -1323,6 +1323,11 @@ export const HANDBOOK = {
     steps: ['Open Me › Notes.', 'Write, dictate, add a photo, link or checklist; use #tags and pin up to 3.'],
     example: 'Example: note «#winter ride ideas» with a checklist of 4 routes.',
   },
+  'f.noteforms': {
+    on: null,
+    steps: ['Open Notes and tap «Choose templates».', 'Tap «Use» on the templates you want; the pencil changes their fields.', 'Tap a template above the note, fill in what you like, «Take over».'],
+    example: 'Example: «Tour report» with route, best moment, weather «rain» and 4 of 5.',
+  },
   'f.starters': {
     on: 'Needs at least two ridden trips of the same sport for «From your trips».',
     steps: ['Plan a new trip and tap «From your trips».', 'In Pack open «Suggestion list» and tick what you take; «Not needed» hides a line.'],

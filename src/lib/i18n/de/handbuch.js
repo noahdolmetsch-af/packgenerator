@@ -1885,6 +1885,11 @@ export default {
   'Open Quick Links in the bar.': 'Öffne Quick Links in der Leiste.',
   'Tap «Add a pin» and pin a function.': 'Tippe auf «Pin hinzufügen» und pinne eine Funktion an.',
   'Tap a pin: the app goes there.': 'Tippe auf einen Pin: die App geht dorthin.',
+  // Vorlagen mit Feldern (Noah 27.10.2026)
+  'Open Notes and tap «Choose templates».': 'Öffne Notizen und tippe «Vorlagen auswählen».',
+  'Tap «Use» on the templates you want; the pencil changes their fields.': 'Tippe bei den gewünschten Vorlagen auf «Verwenden»; der Stift ändert ihre Felder.',
+  'Tap a template above the note, fill in what you like, «Take over».': 'Tippe eine Vorlage über der Notiz an, füll aus, was du magst, «Übernehmen».',
+  'Example: «Tour report» with route, best moment, weather «rain» and 4 of 5.': 'Beispiel: «Tourenbericht» mit Strecke, schönstem Moment, Wetter «Regen» und 4 von 5.',
   // Idee A2 «Erinnerung zu deiner Zeit» (27.10.2026)
   'Nothing to switch on: it learns while you open the evening-before check.':
     'Nichts einzuschalten: die App lernt, während du den Abend-Check öffnest.',
