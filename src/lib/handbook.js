@@ -1939,6 +1939,11 @@ export const HANDBOOK = {
     steps: ['Open Me › Mini tools › Sign-up list.', 'Write what it is, set the places and tap «Make the link».', 'Send the link; tap «Look for new answers» to see who is in and who waits.'],
     example: 'Example: «Workshop evening» with 6 places; 8 sign up, 2 wait, one signs off and the first on the waiting list moves up.',
   },
+  'f.miniinvite': {
+    on: null,
+    steps: ['Open Me › Mini tools › Quick invite.', 'Pick the day, add the meeting point and tap «Make the link».', 'Send the link; tap «Look for new answers» to see who is in.'],
+    example: 'Example: «Are you riding with me?» tomorrow 17:30 at the fountain; three are in, one maybe.',
+  },
   'f.friendask': {
     on: null,
     steps: ['Open Me › With friends and choose what you ask, e.g. «Tell the trip together».', 'Choose the trip, check the lines, «Make the link» and send it to who you choose.', 'Your friend answers in the app and sends a link back; open it and tap «Keep it».'],
