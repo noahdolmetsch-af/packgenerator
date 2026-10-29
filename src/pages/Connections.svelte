@@ -16,6 +16,7 @@
   import TickSuggest from '../lib/strava/TickSuggest.svelte';
   import LakeCard from '../lib/lake/LakeCard.svelte';
   import FitbitImport from '../lib/fitbit/FitbitImport.svelte';
+  import AppleImport from '../lib/applehealth/AppleImport.svelte';
   import { db } from '../lib/db.js';
   import { strava, STRAVA_HASH, PREFS_KEY as STRAVA_KEY, prefsOf as stravaPrefsOf, savePrefs as saveStrava, readKey } from '../lib/strava/client.svelte.js';
   import { health, FITBIT_HASH } from '../lib/health/client.svelte.js';
@@ -281,6 +282,10 @@
       </section>
       <section class="ich-sec" data-section="fitbit-file">
         <FitbitImport />
+      </section>
+      <!-- Apple-Health-Export (Noah 27.10.2026 «4a»): an iPhone's values as days, like Fitbit -->
+      <section class="ich-sec" data-section="apple-file">
+        <AppleImport />
       </section>
     </div>
   </div>

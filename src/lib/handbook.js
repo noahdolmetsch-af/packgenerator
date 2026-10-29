@@ -749,6 +749,11 @@ export const HANDBOOK = {
     steps: ['Bikes › Care › a bike › «Wear» › «Pack the bike».', 'Tick each point; add, rename, move or delete points.', 'Take photos before packing, as proof if something breaks.'],
     example: 'Example: «Pedals off» ticked, photo of the frame from both sides.',
   },
+  'f.workshoprounds': {
+    on: null,
+    steps: ['Bikes › Care › a bike › «Workshop rounds».', 'Add a suggestion or your own round: jobs, tools, material.', '«Start the round», tick what you did, «Done»: the jobs with a part go into the part.'],
+    example: 'Example: «Autumn service» with 5 jobs; chain and brake pads ticked → both recorded today.',
+  },
   'f.sparestock': {
     on: null,
     steps: ['Bikes › Care › a bike › «Wear» › «Spare parts at home».', 'Add a row with a number, e.g. 2 chains.', 'You replace a chain yourself: one less; at 0 «Shopping list» adds it.'],
@@ -1232,10 +1237,20 @@ export const HANDBOOK = {
     steps: ['Open Trips › Dreams and write the name of a dream tour.', 'Tap it: change the kind of tour and the months it fits.', 'Tap «Plan the tour»: a trip draft on the first Saturday of the season.'],
     example: 'Example: «Over the Furka» → Alpine passes, July to September → trip on 3 July.',
   },
+  'f.quicklinks': {
+    on: null,
+    steps: ['Open Quick Links in the bar (on a computer: in the sidebar).', 'Tap «Add a pin», search a function and tap «Pin».', 'Tap «Edit»: rename, add a note, move with the arrows or drag, unpin.'],
+    example: 'Example: pin «Wear» into the group «Bike» with the note «after rain».',
+  },
   'f.whitespots': {
     on: 'Needs your home place.',
     steps: ['Open Trips › Dreams › White spots nearby.', 'Choose 10, 25 or 50 km.', 'Tap a place on the map or in the list: its name and distance.'],
     example: 'Example: 25 km around Zürich → 209 municipalities never visited, the nearest 5 km away.',
+  },
+  'f.nlgoals': {
+    on: 'Counts from New ground: your routes, rides and own ticks.',
+    steps: ['Open Trips › Dreams › Challenges with an end.', 'Tap a ready one or «Own challenge»: collection, new ones or all, until when.', 'The bar fills by itself; tap the pencil to change or delete it.'],
+    example: 'Example: «5 new municipalities this month» → 2 of 5 · 12 days left.',
   },
   'f.races': {
     on: 'Needs a race with a date in Inspiration, or a race in your Google calendar.',
@@ -1313,6 +1328,11 @@ export const HANDBOOK = {
     steps: ['Open Me › Notes.', 'Write, dictate, add a photo, link or checklist; use #tags and pin up to 3.'],
     example: 'Example: note «#winter ride ideas» with a checklist of 4 routes.',
   },
+  'f.noteforms': {
+    on: null,
+    steps: ['Open Notes and tap «Choose templates».', 'Tap «Use» on the templates you want; the pencil changes their fields.', 'Tap a template above the note, fill in what you like, «Take over».'],
+    example: 'Example: «Tour report» with route, best moment, weather «rain» and 4 of 5.',
+  },
   'f.starters': {
     on: 'Needs at least two ridden trips of the same sport for «From your trips».',
     steps: ['Plan a new trip and tap «From your trips».', 'In Pack open «Suggestion list» and tick what you take; «Not needed» hides a line.'],
@@ -1387,6 +1407,11 @@ export const HANDBOOK = {
     on: '«Cut out» loads a model once (about 45 MB); after that it works offline.',
     steps: ['Open Me › Toolbox › Photos and choose a photo.', 'Drag the frame to cut, choose the size; «Cut out» removes the background.', 'Tap «Make photo», then «Save or share».'],
     example: 'Example: bike photo 4.2 MB → Medium 1280 px, about 300 KB.',
+  },
+  'f.markup': {
+    on: null,
+    steps: ['Take the screenshot on your phone as always, then open Me › Toolbox › Edit a picture.', 'Tap «Choose pictures»; per page turn, cut or draw (pen, highlighter, text, arrow).', 'Choose «One PDF» or «Single pictures», then «Save or share».'],
+    example: 'Example: three screenshots of a booking → cut, the price highlighted → one PDF of 3 pages.',
   },
   'f.money': {
     on: 'The rates need the internet once a day; offline the last ones count.',
@@ -1815,6 +1840,11 @@ export const HANDBOOK = {
     steps: ['Open Trips › Look back › Heatmap.', 'Choose clouds or lines; filter by year, sport, bike or tour and everyday.', 'Tap a coloured line: the rides there show below, each with its page.'],
     example: 'Example: 2026, bike only → your way to work glows dark red, the Jura tour is a thin orange line.',
   },
+  'f.analyse': {
+    on: 'Shows the values the app has: Fitbit after connecting, Strava activities, your own entries and ticks.',
+    steps: ['On Today tap «More» under «Active today», or open Analysis › Analyse.', 'Switch sources on or off and choose 7 days, 30 days, 90 days or the year.', 'Tap a value: its course opens (body values, a sport, or the ticks of an activity).'],
+    example: 'Example: 30 days → resting pulse 51 on average, 12 sauna ticks, 412 km on the bike.',
+  },
   'f.tickreview': {
     on: 'Works with what you tick off under «Heute abhaken» and with check questions that have a number.',
     steps: ['Open Active › Goals and tap «Evaluate».', 'Choose 30 days, 90 days or the year, and all activities or one.', 'Switch to «Your answers» for a check question; «…» on a card hides or moves it.'],
@@ -1892,6 +1922,12 @@ export const HANDBOOK = {
     on: null,
     steps: ['Open Me › Calm and personal › Less app for the moment.', 'Choose up to 8 functions for your plan.', '«Start the workspace»; the strip stays until you end it.'],
     example: 'Example: «Workshop Saturday» with bike inspection, spare parts and workshop due.',
+  },
+  // Mini-Tools (Noah 28.10.2026)
+  'f.minidate': {
+    on: null,
+    steps: ['Open Me › Mini tools › Find a date.', 'Write what it is about, pick 2 to 8 days and tap «Make the link».', 'Send the link; tap «Look for new answers» to see who can when.'],
+    example: 'Example: «Weekend trip Jura» with three Saturdays; four people answer, the 14th works for all.',
   },
   'f.friendask': {
     on: null,

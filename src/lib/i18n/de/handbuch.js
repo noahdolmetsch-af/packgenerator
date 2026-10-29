@@ -1,9 +1,5 @@
 /** Benutzerhandbuch (Noah 14.10.2026): wie man jede Funktion aufschaltet und nutzt, mit Beispielen (handbook.js). */
 export default {
-  // «Kochen» (Noah 28.10.2026 «1b 2a 3a 4a 5a»)
-  'Open Plan › Everyday life › Cooking and choose a meal.': 'Öffne Planen › Alltag › Kochen und wähle eine Mahlzeit.',
-  'Tap a recipe: set the portions, put the ingredients on the shopping list and read all steps.': 'Tippe auf ein Rezept: Portionen wählen, Zutaten auf die Einkaufsliste setzen und alle Schritte lesen.',
-  'Example: «Pasta with tomatoes and tuna», 2 portions → 4 ingredients for two on your shopping list.': 'Beispiel: «Pasta mit Tomaten und Thon», 2 Portionen → 4 Zutaten für zwei auf deiner Einkaufsliste.',
   // Einzelideen Planen (996 Ideen 12, 13, 14)
   'Or below «Or after an event»: after the next trip or the next workshop visit.': 'Oder darunter «Oder nach einem Ereignis»: nach der nächsten Tour oder dem nächsten Werkstattbesuch.',
   '«Put back» brings it back with its photos, files and links; each row says what comes with it.': '«Zurückholen» holt sie mit Fotos, Dateien und Verbindungen zurück; jede Zeile sagt, was mitkommt.',
@@ -1763,6 +1759,11 @@ export default {
   'Example: say «note brake squeaks» → the note is in the Inbox. If the microphone stops, the words so far stay in the field.': 'Beispiel: Sag «Notiz Bremse quietscht» → die Notiz ist im Eingang. Stoppt das Mikrofon, bleiben die Wörter bisher im Feld.',
   'Example: IMG_0042.HEIC → IMG_0042.jpg for the online form; velo.jpg as JPG → velo-umgewandelt.jpg, the old one stays.': 'Beispiel: IMG_0042.HEIC → IMG_0042.jpg für das Online-Formular; velo.jpg als JPG → velo-umgewandelt.jpg, das alte bleibt.',
   'Example: «Wo sehe ich die Lawinengefahr?» → Alerts and news. «Kette» finds Material and a bike → «Do you mean Gear or Bikes?».': 'Beispiel: «Wo sehe ich die Lawinengefahr?» → Hinweise und News. «Kette» findet Material und ein Velo → «Meinst du Material oder Velos?».',
+  // Velo-Idee 76: Werkstatt-Runden
+  'Bikes › Care › a bike › «Workshop rounds».': 'Velos › Pflege › ein Velo › «Werkstatt-Runden».',
+  'Add a suggestion or your own round: jobs, tools, material.': 'Nimm einen Vorschlag oder mach deine eigene Runde: Arbeiten, Werkzeug, Material.',
+  '«Start the round», tick what you did, «Done»: the jobs with a part go into the part.': '«Runde starten», abhaken, was du gemacht hast, «Fertig»: Die Arbeiten mit Teil kommen ins Teil.',
+  'Example: «Autumn service» with 5 jobs; chain and brake pads ticked → both recorded today.': 'Beispiel: «Herbst-Service» mit 5 Arbeiten; Kette und Bremsbeläge abgehakt → beide heute eingetragen.',
   // «App verstehen» (Noah 26.10.2026)
   'Open Me › Understand the app.': 'Öffne Ich › App verstehen.',
   'Open a lesson, read it and do the exercise.': 'Öffne eine Lektion, lies sie und mach die Übung.',
@@ -1871,6 +1872,24 @@ export default {
     'Warnungen (Wetter, Glätte, Licht, Regen unterwegs, Essen) kommen weiter einzeln und pünktlich.',
   'Example: «Your morning» → «Appointment: 10:00 Dentist», «Testvelo: Chain reaches 1000 km soon», «and 1 more in the app».':
     'Beispiel: «Dein Morgen» → «Termin: 10:00 Zahnarzt», «Testvelo: Kette erreicht bald 1000 km», «und 1 weitere in der App».',
+  // «Bild bearbeiten» (Noah 28.10.2026)
+  'Take the screenshot on your phone as always, then open Me › Toolbox › Edit a picture.': 'Mach den Screenshot wie immer am Handy und öffne dann Ich › Werkzeugkasten › Bild bearbeiten.',
+  'Tap «Choose pictures»; per page turn, cut or draw (pen, highlighter, text, arrow).': 'Tippe «Bilder auswählen»; pro Seite drehen, zuschneiden oder zeichnen (Stift, Markierstift, Text, Pfeil).',
+  'Choose «One PDF» or «Single pictures», then «Save or share».': 'Wähle «Ein PDF» oder «Einzelne Bilder», dann «Speichern oder teilen».',
+  'Example: three screenshots of a booking → cut, the price highlighted → one PDF of 3 pages.': 'Beispiel: drei Screenshots einer Buchung → zugeschnitten, der Preis markiert → ein PDF mit 3 Seiten.',
+  // «Quick Links» (Noah 28.10.2026)
+  'Open Quick Links in the bar (on a computer: in the sidebar).': 'Öffne Quick Links in der Leiste (am Computer: in der Seitenleiste).',
+  'Tap «Add a pin», search a function and tap «Pin».': 'Tippe auf «Pin hinzufügen», suche eine Funktion und tippe auf «Anpinnen».',
+  'Tap «Edit»: rename, add a note, move with the arrows or drag, unpin.': 'Tippe auf «Bearbeiten»: umbenennen, Notiz dazu, mit Pfeilen oder Ziehen verschieben, entfernen.',
+  'Example: pin «Wear» into the group «Bike» with the note «after rain».': 'Beispiel: «Verschleiss» in die Gruppe «Velo» pinnen, mit der Notiz «nach Regen».',
+  'Open Quick Links in the bar.': 'Öffne Quick Links in der Leiste.',
+  'Tap «Add a pin» and pin a function.': 'Tippe auf «Pin hinzufügen» und pinne eine Funktion an.',
+  'Tap a pin: the app goes there.': 'Tippe auf einen Pin: die App geht dorthin.',
+  // Vorlagen mit Feldern (Noah 27.10.2026)
+  'Open Notes and tap «Choose templates».': 'Öffne Notizen und tippe «Vorlagen auswählen».',
+  'Tap «Use» on the templates you want; the pencil changes their fields.': 'Tippe bei den gewünschten Vorlagen auf «Verwenden»; der Stift ändert ihre Felder.',
+  'Tap a template above the note, fill in what you like, «Take over».': 'Tippe eine Vorlage über der Notiz an, füll aus, was du magst, «Übernehmen».',
+  'Example: «Tour report» with route, best moment, weather «rain» and 4 of 5.': 'Beispiel: «Tourenbericht» mit Strecke, schönstem Moment, Wetter «Regen» und 4 von 5.',
   // Idee A2 «Erinnerung zu deiner Zeit» (27.10.2026)
   'Nothing to switch on: it learns while you open the evening-before check.':
     'Nichts einzuschalten: die App lernt, während du den Abend-Check öffnest.',
@@ -1893,4 +1912,15 @@ export default {
     'Die Runde passt zu deinem eigenen Tempo; «Jetzt nicht» blendet das Fenster aus.',
   'Example: Thursday 17:00–19:00 free and dry → «A round of about 35 km?»':
     'Beispiel: Donnerstag 17:00–19:00 frei und trocken → «Eine Runde von etwa 35 km?»',
+  // «Träume und Neuland» N5
+  'Counts from New ground: your routes, rides and own ticks.': 'Zählt aus Neuland: deine Routen, Fahrten und eigenen Haken.',
+  'Open Trips › Dreams › Challenges with an end.': 'Öffne Touren › Träume › Herausforderungen mit Ende.',
+  'Tap a ready one or «Own challenge»: collection, new ones or all, until when.': 'Tippe eine fertige an oder «Eigene Herausforderung»: Sammlung, neue oder alle, bis wann.',
+  'The bar fills by itself; tap the pencil to change or delete it.': 'Der Balken füllt sich von selbst; mit dem Stift änderst oder löschst du sie.',
+  'Example: «5 new municipalities this month» → 2 of 5 · 12 days left.': 'Beispiel: «5 neue Gemeinden diesen Monat» → 2 von 5 · noch 12 Tage.',
+  // Mini-Tools (Noah 28.10.2026)
+  'Open Me › Mini tools › Find a date.': 'Öffne Ich › Mini-Tools › Termin finden.',
+  'Write what it is about, pick 2 to 8 days and tap «Make the link».': 'Schreib, worum es geht, wähle 2 bis 8 Tage und tipp «Link machen».',
+  'Send the link; tap «Look for new answers» to see who can when.': 'Schick den Link; mit «Neue Antworten holen» siehst du, wer wann kann.',
+  'Example: «Weekend trip Jura» with three Saturdays; four people answer, the 14th works for all.': 'Beispiel: «Wochenend-Tour Jura» mit drei Samstagen; vier Leute antworten, am 14. können alle.',
 };

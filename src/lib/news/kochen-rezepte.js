@@ -3,12 +3,12 @@ export default {
   title: 'Cooking',
   lead: 'Over 100 very simple recipes, each with all steps and a shopping list.',
   points: [
-    { text: 'Plan › Everyday life › Cooking: recipes for breakfast, lunch and dinner, at most 6 ingredients and 20 minutes', href: '#/me/alltag/kochen' },
-    { text: 'A recipe shows its ingredients for 1 to 8 portions and all steps at a glance', href: '#/me/alltag/kochen' },
+    { text: 'Plan › Everyday life › Cooking: recipes for breakfast, lunch and dinner, at most 6 ingredients and 20 minutes', href: '#/me/alltag/kochen', go: 'f.cook' },
+    { text: 'A recipe shows its ingredients for 1 to 8 portions and all steps at a glance', href: '#/me/alltag/kochen', go: 'f.cook' },
   ],
   small: [
-    { box: 'new', text: 'Groups like Meat, Shakes, Protein bombs or Sunday brunch: rename, sort, delete or add your own' },
-    { box: 'new', text: 'One tap puts the ingredients on your shopping list; your own recipes from Free time show there too' },
+    { box: 'new', text: 'Groups like Meat, Shakes, Protein bombs or Sunday brunch: rename, sort, delete or add your own', go: 'f.cook' },
+    { box: 'new', text: 'One tap puts the ingredients on your shopping list; your own recipes from Free time show there too', go: 'f.cook' },
   ],
   test: ['Open Planen › Alltag › Kochen and tap «Sonntags-Brunch» in the second row.', 'Tap «Fotzelschnitten», set 2 Portionen and tap «Auf die Einkaufsliste».', 'Open Planen › Alltag › Einkaufsliste: the five ingredients for two are on it.'],
   since: ['f.cook'],

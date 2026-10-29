@@ -64,4 +64,8 @@ export default {
   'The standard groups are back.': 'Die Standard-Gruppen sind zurück.',
   'Empty brings back the standard name.': 'Leer bringt den Standard-Namen zurück.',
   'They stay in «All» and in their meal.': 'Sie bleiben unter «Alle» und bei ihrer Mahlzeit.',
+  // handbook of f.cook (own file, not handbuch.js)
+  'Open Plan › Everyday life › Cooking and choose a meal.': 'Öffne Planen › Alltag › Kochen und wähle eine Mahlzeit.',
+  'Tap a recipe: set the portions, put the ingredients on the shopping list and read all steps.': 'Tippe auf ein Rezept: Portionen wählen, Zutaten auf die Einkaufsliste setzen und alle Schritte lesen.',
+  'Example: «Pasta with tomatoes and tuna», 2 portions → 4 ingredients for two on your shopping list.': 'Beispiel: «Pasta mit Tomaten und Thon», 2 Portionen → 4 Zutaten für zwei auf deiner Einkaufsliste.',
 };

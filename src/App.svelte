@@ -120,7 +120,7 @@
     return tab ? `${placeLabel(p)} › ${tabLabel(place, tab)}` : placeLabel(p);
   });
   // a page for someone without the app's data (a shared list, Paket S «Reise-Spur»: a tour's read link)
-  const guest = $derived(page === 'share' || page === 'spurlink' || page === 'gruppe' || page === 'card');
+  const guest = $derived(page === 'share' || page === 'spurlink' || page === 'gruppe' || page === 'card' || page === 'mitmachen');
   // v0.78.0 «Fünf Orte» 2 (Noah O2.2a): each place remembers the tab opened last (nav.js placeHref).
   const tab = $derived(place ? tabOf(place, hash) : null);
   $effect(() => {
@@ -323,6 +323,7 @@
   // «Computer-Breite» (Noah 26.10.2026 «4a»): the places whose content stays at most 1120 px wide (main.hub)
   const HUB_PAGES = ['trips', 'flow', 'auswerten', 'bikes', 'gear'];
   const PAGES = {
+    Quick: () => import('./pages/Quick.svelte'), // «Quick Links» (Noah 28.10.2026 «3a»)
     Gear: () => import('./pages/Gear.svelte'),
     Bikes: () => import('./pages/Bikes.svelte'),
     Pack: () => import('./pages/Pack.svelte'),
@@ -361,6 +362,8 @@
     Wardrobe: () => import('./pages/Wardrobe.svelte'),
     Flow: () => import('./pages/Flow.svelte'),
     Auswerten: () => import('./pages/AuswertenStart.svelte'),
+    // Analyse PR 1 (Noah 27.10.2026 «1a»): Auswerten › Analyse, every value as a tile
+    Analyse: () => import('./pages/Analyse.svelte'),
     Between: () => import('./pages/Between.svelte'),
     Me: () => import('./pages/Me.svelte'),
     Look: () => import('./pages/Look.svelte'),
@@ -404,6 +407,8 @@
     SpurLink: () => import('./pages/SpurLink.svelte'), // Paket S: the family's read link
     Gruppe: () => import('./pages/Gruppe.svelte'), // Gruppen-Live-Karte: a friend's view of the group ride
     GroupRide: () => import('./pages/GroupRide.svelte'), // Gruppenfahrt für Events: the page of your group ride
+    MiniTools: () => import('./pages/MiniTools.svelte'), // Mini-Tools (Noah 28.10.2026 «2a»): Ich › Mini-Tools
+    Mitmachen: () => import('./pages/Mitmachen.svelte'), // Mini-Tools: the page of the people asked, no app data
     Karte: () => import('./pages/Karte.svelte'), // Gruppenfahrt für Events: a contact card from a QR code
     Abfahrt: () => import('./pages/Abfahrt.svelte'), // Paket K #87 «Vor der Abfahrt»
     Mountain: () => import('./pages/Mountain.svelte'), // Paket J: Berg, Schnee und Notfall
@@ -591,7 +596,10 @@
     <LazyPage load={PAGES.Flow} sub={hash.split('/').slice(2).join('/')} />
   {:else if page === 'auswerten'}
     <!-- «Aktiv neu» (Noah 22.10.2026 «2a»): the start of Auswerten, what you look at -->
-    <LazyPage load={PAGES.Auswerten} />
+    {#if hash.startsWith('#/auswerten/analyse')}<LazyPage load={PAGES.Analyse} />{:else}<LazyPage load={PAGES.Auswerten} />{/if}
+  {:else if page === 'quick'}
+    <!-- «Quick Links» (Noah 28.10.2026 «1a 2a 3a 4a 5a»): your pins -->
+    <LazyPage load={PAGES.Quick} />
   {:else if page === 'week'}
     <!-- «Woche planen» (WP1–WP3): the week, the Sunday planning, the holidays -->
     {#if hash.startsWith('#/week/plan')}<LazyPage load={PAGES.WochePlanen} />{:else if hash.startsWith('#/week/away')}<LazyPage load={PAGES.WocheFerien} />{:else}<LazyPage load={PAGES.Woche} />{/if}
@@ -661,6 +669,12 @@
     <LazyPage load={PAGES.WasKommt} />
   {:else if page === 'album'}
     <LazyPage load={PAGES.Album} />
+  {:else if page === 'minitools'}
+    <!-- Mini-Tools (Noah 28.10.2026 «2a»): #/me/mini, #/me/mini/neu, #/me/mini/<id> -->
+    {#key hash}<LazyPage load={PAGES.MiniTools} {hash} />{/key}
+  {:else if page === 'mitmachen'}
+    <!-- Mini-Tools: a question shared by link, answered without the app -->
+    {#key hash}<LazyPage load={PAGES.Mitmachen} {hash} />{/key}
   {:else if page === 'freunde'}
     <!-- Paket D «Mit Freunden»: #/me/freunde, a message from a friend at #/me/freunde/in/<code> -->
     {#key hash.startsWith('#/me/freunde/in/') ? hash : ''}<LazyPage load={PAGES.Freunde} {hash} />{/key}
