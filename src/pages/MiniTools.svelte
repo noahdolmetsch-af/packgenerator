@@ -5,7 +5,7 @@
    * back by themselves (sealed, only this device can read them) and the app counts them (no AI, «3a»).
    * The first tool: «Find a date» (idea 1, like Doodle). #/me/mini/neu makes one, #/me/mini/<id> is one question.
    * The second: «Mini survey» (idea 2), #/me/mini/umfrage makes one (lib/mini/PollNew.svelte), its result is
-   * lib/mini/PollResult.svelte.
+   * lib/mini/PollResult.svelte. The third: «Sign-up list» (idea 4), #/me/mini/liste (ListNew, ListResult).
    * The others follow as their own small PRs on the same store (lib/mini/client.js, api/_lib/mini.js).
    */
   import { untrack } from 'svelte';
@@ -27,14 +27,18 @@
   import PollNew from '../lib/mini/PollNew.svelte';
   import PollResult from '../lib/mini/PollResult.svelte';
   import { KIND_POLL, pollQuestion, countPoll, summarize } from '../lib/mini/poll.js';
+  import ListNew from '../lib/mini/ListNew.svelte';
+  import ListResult from '../lib/mini/ListResult.svelte';
+  import { KIND_LIST, listQuestion } from '../lib/mini/liste.js';
   import { KIND_DATE, OPTS_MIN, OPTS_MAX, PICKS, dateQuestion, cleanOpts, optKey, tally, busyDays, nextDays, summaryLines, icsOf } from '../lib/mini/termin.js';
-  import { CalendarCheck, Plus, ChevronRight, Share2, Copy, QrCode as QrIcon, RefreshCw, CalendarPlus, Route, MessageCircle, Pencil, Trash2, CircleStop, Lock, ListChecks } from '@lucide/svelte';
+  import { CalendarCheck, Plus, ChevronRight, Share2, Copy, QrCode as QrIcon, RefreshCw, CalendarPlus, Route, MessageCircle, Pencil, Trash2, CircleStop, Lock, ListChecks, ClipboardList } from '@lucide/svelte';
 
   let { hash = '' } = $props();
   const sub = untrack(() => String(hash).replace(/^#\/me\/mini\/?/, '').split('?')[0]);
   const isNew = sub === 'neu';
   const isNewPoll = sub === 'umfrage';
-  const openId = !isNew && !isNewPoll && sub ? decodeURIComponent(sub) : '';
+  const isNewList = sub === 'liste';
+  const openId = !isNew && !isNewPoll && !isNewList && sub ? decodeURIComponent(sub) : '';
 
   const mineQ = liveQuery(() => db.settings.get(MINE_KEY));
   const mine = $derived(listOf($mineQ?.value));
@@ -96,6 +100,7 @@
   /* ---------- one question ---------- */
   const q = $derived(openId ? (mine.find((x) => x.id === openId) ?? null) : null);
   const isPoll = $derived(q?.kind === KIND_POLL);
+  const isList = $derived(q?.kind === KIND_LIST);
   const link = $derived(q?.srv ? joinLinkOf(q.srv.id, q.srv.key) : '');
   const isOpen = $derived(running(q));
   const rows = $derived(q ? [...(q.answers ?? []), ...(Object.keys(q.me?.picks ?? {}).length ? [{ name: t('You'), picks: q.me.picks, me: true }] : [])] : []);
@@ -116,6 +121,8 @@
       const keep = (a) =>
         q.kind === KIND_POLL
           ? { a: a.a, name: q.anon ? '' : String(a.name ?? '').slice(0, 40), r: a.r && typeof a.r === 'object' ? a.r : {}, at: a.at }
+          : q.kind === KIND_LIST
+          ? { a: a.a, name: String(a.name ?? '').slice(0, 40), note: String(a.note ?? '').slice(0, 120), at: a.at, t0: a.t0 ?? a.at }
           : { a: a.a, name: String(a.name ?? '').slice(0, 40), picks: a.picks ?? {}, note: String(a.note ?? '').slice(0, 200), at: a.at };
       await updateOne(db, q.id, (x) => ({ ...x, answers: d.answers.map(keep), read: new Date().toISOString() }));
     } catch (err) {
@@ -143,7 +150,7 @@
   }
 
   const shareText = $derived(
-    !q ? '' : isPoll ? t('{title}: a few short questions. Tap your answers, no app and no account needed.', { title: q.title }) : t('{title}: which day works for you? Tap your answer, no app and no account needed.', { title: q.title }),
+    !q ? '' : isList ? t('{title}: sign up here, no app and no account needed.', { title: q.title }) : isPoll ? t('{title}: a few short questions. Tap your answers, no app and no account needed.', { title: q.title }) : t('{title}: which day works for you? Tap your answer, no app and no account needed.', { title: q.title }),
   );
   async function share() {
     said = '';
@@ -206,7 +213,7 @@
     if (!v) return t('A title is needed.');
     if (isOpen) {
       try {
-        await editQuestion(q.srv, q.kind === KIND_POLL ? pollQuestion({ title: v, note: q.note, by: q.by, anon: q.anon, qs: q.qs }) : dateQuestion({ title: v, note: q.note, by: q.by, opts: q.opts }));
+        await editQuestion(q.srv, q.kind === KIND_LIST ? listQuestion({ ...q, title: v }) : q.kind === KIND_POLL ? pollQuestion({ title: v, note: q.note, by: q.by, anon: q.anon, qs: q.qs }) : dateQuestion({ title: v, note: q.note, by: q.by, opts: q.opts }));
       } catch (err) {
         return errText(err);
       }
@@ -295,6 +302,8 @@
     </form>
   {:else if isNewPoll}
     <PollNew />
+  {:else if isNewList}
+    <ListNew />
   {:else if openId}
     {#if !loaded}
       <p class="mt-help">…</p>
@@ -317,7 +326,12 @@
           </section>
         {/if}
 
-        {#if isPoll}
+        {#if isList}
+          <ListResult {q} open={isOpen} />
+          {#if isOpen}<div><button type="button" class="btn sm" onclick={refresh} disabled={busyRead} data-mt-refresh><RefreshCw size={16} aria-hidden="true" />{t('Look for new answers')}</button></div>{/if}
+          {#if readErr}<p class="mt-err" role="alert" data-mt-readerr>{readErr}</p>{/if}
+          {#if said}<p class="mt-help" role="status">{said}</p>{/if}
+        {:else if isPoll}
           <PollResult {q} waLink={(q.answers?.length ?? 0) ? waResult : ''} />
           {#if isOpen}<div><button type="button" class="btn sm" onclick={refresh} disabled={busyRead} data-mt-refresh><RefreshCw size={16} aria-hidden="true" />{t('Look for new answers')}</button></div>{/if}
           {#if readErr}<p class="mt-err" role="alert" data-mt-readerr>{readErr}</p>{/if}
@@ -383,7 +397,7 @@
           <button type="button" class="btn sm" onclick={remove} data-mt-delete><Trash2 size={16} aria-hidden="true" />{t('Delete')}</button>
         </div>
       </div>
-      {#if renaming}<RenameSheet kicker={isPoll ? t('Mini survey') : t('Find a date')} title={t('Rename')} value={q.title} max={80} onsave={rename} onclose={() => (renaming = false)} />{/if}
+      {#if renaming}<RenameSheet kicker={isList ? t('Sign-up list') : isPoll ? t('Mini survey') : t('Find a date')} title={t('Rename')} value={q.title} max={80} onsave={rename} onclose={() => (renaming = false)} />{/if}
     {/if}
   {:else}
     <VeloHead crumbs={[{ label: t('Me|place'), href: '#/me' }]} title={t('Mini tools')} sub={t('Ask a group by link and get the answers counted')} />
@@ -405,6 +419,13 @@
               <Plus class="ich-chev" size={18} aria-hidden="true" />
             </a>
           </li>
+          <li>
+            <a class="ich-row" href="#/me/mini/liste" data-mt-tool="list">
+              <span class="ich-ib"><ClipboardList size={18} aria-hidden="true" /></span>
+              <span class="ich-m"><b>{t('Sign-up list')}</b><small>{t('A number of places and a waiting list; who comes too late moves up.')}</small></span>
+              <Plus class="ich-chev" size={18} aria-hidden="true" />
+            </a>
+          </li>
         </ul>
         <p class="mt-help">{t('How it works: you make a question and send the link. People answer in the browser, without the app and without an account. Their answers come back by themselves, and the app counts them for you.')}</p>
       </section>
@@ -417,7 +438,7 @@
             {#each mine as x (x.id)}
               <li>
                 <a class="ich-row" href={`#/me/mini/${encodeURIComponent(x.id)}`} data-mt-item={x.id}>
-                  <span class="ich-ib">{#if x.kind === KIND_POLL}<ListChecks size={18} aria-hidden="true" />{:else}<CalendarCheck size={18} aria-hidden="true" />{/if}</span>
+                  <span class="ich-ib">{#if x.kind === KIND_POLL}<ListChecks size={18} aria-hidden="true" />{:else if x.kind === KIND_LIST}<ClipboardList size={18} aria-hidden="true" />{:else}<CalendarCheck size={18} aria-hidden="true" />{/if}</span>
                   <span class="ich-m"><b>{x.title}</b><small>{answersText(x.answers?.length ?? 0)} · {running(x) ? t('open until {day}', { day: endFmt(x.srv.end) }) : t('ended')}</small></span>
                   <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
                 </a>

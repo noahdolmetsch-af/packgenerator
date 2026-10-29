@@ -1,6 +1,6 @@
 /**
  * Mini-Tools (Noah 28.10.2026 «1b»): a question you share with people by link, and their answers come back
- * by themselves. The first tool is «Find a date» (like Doodle); a mini survey and more follow on the same store.
+ * by themselves. «Find a date» (like Doodle), «Mini survey» and «Sign-up list» (places and a waiting list) use it.
  *
  * Nothing on the server can be read:
  * - the question (title, days, the maker's public key) is sealed with a key that is only after the # of the link;
@@ -10,17 +10,22 @@
  * An answer keeps its own code, so the same person can change it. Redis deletes everything after `days`.
  *
  *   mini:<id>             HASH  '_' → JSON { e, d: sha256(owner code), end }
- *                               <aid> → JSON { e, d: sha256(answer code), at }
+ *                               <aid> → JSON { e, d: sha256(answer code), at, t0, out? }  (t0: when it came in first;
+                                      the sign-up list gives the places in this order; out: taken off by the maker)
  *   mini:rate:<ip>:<day>  STRING writes from one address today (at most MINI_WRITES_PER_DAY)
  *
  * In the sync function (/api/sync?action=mini), because the free plan allows only 12 functions:
- *   GET  ?action=mini&id=<id>                          → { ok, end, e }                 (anyone with the link)
+ *   GET  ?action=mini&id=<id>                          → { ok, end, e, n }              (anyone with the link; n answers)
  *   POST ?action=mini&step=new    { e, days? }         → { ok, id, del, end }
  *   POST ?action=mini&step=read   { id, del }          → { ok, end, e, answers: [{ a, e, at }] } (the maker)
  *   POST ?action=mini&step=edit   { id, del, e }       → { ok }                         (the maker: a changed question)
  *   POST ?action=mini&step=answer { id, e }            → { ok, aid, del, at }           (a new answer)
  *   POST ?action=mini&step=answer { id, aid, del, e }  → { ok, aid, at }                (the same answer, changed)
  *   POST ?action=mini&step=end    { id, del }          → { ok }                         (the maker: everything deleted)
+ *   POST ?action=mini&step=place  { id, aid, del }     → { ok, pos, n }                 (my place by t0, 1 = first)
+ *   POST ?action=mini&step=leave  { id, aid, del }     → { ok }                         (I take my answer back)
+ *   POST ?action=mini&step=drop   { id, del, aid, back? } → { ok }                      (the maker takes an answer off the list,
+ *                                                                                      back: true puts it on again; kept, so Undo works)
  */
 import { route, json, redisEnv, needStore, ApiError } from './core.js';
 import { jsonBody } from './oauth.js';
@@ -77,7 +82,8 @@ export function makeMiniHandler({ env = () => redisEnv(), doFetch = (...a) => fe
         const id = new URL(request.url).searchParams.get('id');
         const store = needStore(env(), doFetch);
         const m = await head(store, id);
-        return json(request, 200, { ok: true, end: m.end, e: m.e });
+        const n = [...pairs(await store.cmd('HGETALL', miniKey(id)))].filter(([k, v]) => k !== '_' && !readJson(v)?.out).length;
+        return json(request, 200, { ok: true, end: m.end, e: m.e, n });
       },
       POST: async (request) => {
         const step = new URL(request.url).searchParams.get('step');
@@ -100,8 +106,8 @@ export function makeMiniHandler({ env = () => redisEnv(), doFetch = (...a) => fe
           const answers = [...all]
             .filter(([k]) => k !== '_')
             .map(([k, v]) => [k, readJson(v)])
-            .filter(([, r]) => r)
-            .map(([k, r]) => ({ a: k, e: r.e, at: r.at ?? null }));
+            .filter(([, r]) => r && !r.out)
+            .map(([k, r]) => ({ a: k, e: r.e, at: r.at ?? null, t0: r.t0 ?? r.at ?? null }));
           return json(request, 200, { ok: true, end: m.end, e: m.e, answers });
         }
         if (step === 'edit') {
@@ -130,7 +136,7 @@ export function makeMiniHandler({ env = () => redisEnv(), doFetch = (...a) => fe
             const old = readJson(await store.cmd('HGET', k, body.aid));
             if (old && old.d !== sha(body.del)) throw new ApiError(403, 'forbidden', 'Only the device that sent this answer can change it.');
             if (old) {
-              await store.cmd('HSET', k, body.aid, JSON.stringify({ e: body.e, d: old.d, at }));
+              await store.cmd('HSET', k, body.aid, JSON.stringify({ e: body.e, d: old.d, at, t0: old.t0 ?? old.at ?? at, ...(old.out ? { out: true } : {}) }));
               return json(request, 200, { ok: true, aid: body.aid, at });
             }
             // deleted meanwhile: in again as a new answer
@@ -138,8 +144,36 @@ export function makeMiniHandler({ env = () => redisEnv(), doFetch = (...a) => fe
           if (Number(await store.cmd('HLEN', k)) - 1 >= ANSWERS_MAX) throw new ApiError(409, 'full', 'This question has enough answers.');
           const aid = newId();
           const del = newDel();
-          await store.cmd('HSET', k, aid, JSON.stringify({ e: body.e, d: sha(del), at }));
+          await store.cmd('HSET', k, aid, JSON.stringify({ e: body.e, d: sha(del), at, t0: at }));
           return json(request, 200, { ok: true, aid, del, at });
+        }
+        if (step === 'place' || step === 'leave') {
+          if (!isId(body.aid) || !isDel(body.del)) throw new ApiError(400, 'bad_request', 'The link or its code is wrong.');
+          await head(store, body.id);
+          const k = miniKey(body.id);
+          const all = [...pairs(await store.cmd('HGETALL', k))].filter(([key]) => key !== '_').map(([key, v]) => [key, readJson(v)]).filter(([, r]) => r);
+          const mine = all.find(([key]) => key === body.aid)?.[1];
+          if (!mine || (mine.out && step === 'place')) throw new ApiError(404, 'gone', 'This answer is not there any more.');
+          if (mine.d !== sha(body.del)) throw new ApiError(403, 'forbidden', 'Only the device that sent this answer can change it.');
+          if (step === 'leave') {
+            await limit(store, request);
+            await store.cmd('HDEL', k, body.aid);
+            return json(request, 200, { ok: true });
+          }
+          const t = (r) => r.t0 ?? r.at ?? '';
+          const order = all.filter(([, r]) => !r.out).sort(([ka, a], [kb, b]) => t(a).localeCompare(t(b)) || ka.localeCompare(kb)).map(([key]) => key);
+          return json(request, 200, { ok: true, pos: order.indexOf(body.aid) + 1, n: order.length });
+        }
+        if (step === 'drop') {
+          if (!isId(body.aid)) throw new ApiError(400, 'bad_request', 'The link or its code is wrong.');
+          await owner(store, body);
+          const k = miniKey(body.id);
+          const old = readJson(await store.cmd('HGET', k, body.aid));
+          if (old) {
+            const { out, ...rest } = old;
+            await store.cmd('HSET', k, body.aid, JSON.stringify(body.back ? rest : { ...rest, out: true }));
+          }
+          return json(request, 200, { ok: true });
         }
         throw new ApiError(400, 'bad_request', 'Unknown step.');
       },
