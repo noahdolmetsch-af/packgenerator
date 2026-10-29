@@ -221,8 +221,9 @@
       <input type="search" bind:value={q} placeholder={t('What do you want to do? e.g. «warranty»')} aria-label={t('Find a function')} autocomplete="off" />
     </label>
     <!-- Noah «1 a und b beides umstellbar»: by situation or by the page a function lives on -->
-    <div class="fby"><Seg full={false} label={t('Sort')} options={[{ key: 'situation', name: t('By situation') }, { key: 'page', name: t('By page') }]} value={by} onchange={(k) => (by = k)} /></div>
+    <div class="fby"><Seg full={false} label={t('Sort')} options={[{ key: 'situation', name: t('By situation') }, { key: 'page', name: t('By page') }, { key: 'moment', name: t('By moment') }]} value={by} onchange={(k) => (by = k)} /></div>
   </div>
+  {#if by === 'moment'}<p class="fsub" data-moment-hint>{t('By moment: the functions sorted by the situation in which you need them. Today shows the moment you are in.')}</p>{/if}
   <!-- SN6+ K6 «New since your last visit» (answers 1b and 5b), in place of «New for you» -->
   {#if d && !hits && fresh.rows.length}
     <section class="fblock" data-block="news" aria-labelledby="fsince-h">
