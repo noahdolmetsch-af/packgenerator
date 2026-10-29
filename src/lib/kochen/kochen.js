@@ -11,18 +11,40 @@ export const KOCHEN_HASH = '#/me/alltag/kochen';
 export const OWN = 'own:';
 
 /** The filters of the list, in this order. */
-export const FILTERS = [{ key: 'all', label: 'All' }, ...MEALS, { key: 'own', label: 'My recipes' }];
+export const FILTERS = [{ key: 'all', label: 'All' }, ...MEALS, { key: 'liked', label: 'Liked' }, { key: 'own', label: 'My recipes' }];
 
 /**
  * The saved choices: { hidden: [recipe ids], groups: null (the standard ones) | [{ id, std?, name? }],
- * member: { [recipe id]: [group ids] } (only recipes the person put in or out of a group) }.
+ * member: { [recipe id]: [group ids] } (only recipes the person put in or out of a group),
+ * liked: [recipe ids] («Like it»), dislikes: [ingredient tags] (what you don't eat), maxMin: longest cooking
+ * time in minutes (0 = no limit), asked: the short start was answered or skipped,
+ * tips: { day, pick: { meal: recipe id }, seen: { meal: [recipe ids already suggested] } } }.
  */
 export function prefsOf(v) {
   const strs = (a) => (Array.isArray(a) ? a.filter((x) => typeof x === 'string') : []);
   const groups = Array.isArray(v?.groups) ? v.groups.filter((g) => g && typeof g.id === 'string' && (g.std || String(g.name ?? '').trim())) : null;
   const member = {};
   for (const [k, ids] of Object.entries(v?.member && typeof v.member === 'object' ? v.member : {})) member[k] = strs(ids);
-  return { hidden: strs(v?.hidden), groups, member };
+  const t = v?.tips && typeof v.tips === 'object' ? v.tips : {};
+  const byMeal = (o) => Object.fromEntries(MEALS.map((m) => [m.key, o && typeof o === 'object' ? o[m.key] : undefined]));
+  const pick = {};
+  const seen = {};
+  for (const m of MEALS) {
+    const p = byMeal(t.pick)[m.key];
+    if (typeof p === 'string') pick[m.key] = p;
+    seen[m.key] = strs(byMeal(t.seen)[m.key]);
+  }
+  const max = Number(v?.maxMin);
+  return {
+    hidden: strs(v?.hidden),
+    groups,
+    member,
+    liked: strs(v?.liked),
+    dislikes: strs(v?.dislikes),
+    maxMin: Number.isFinite(max) && max > 0 ? Math.round(max) : 0,
+    asked: v?.asked === true,
+    tips: { day: typeof t.day === 'string' ? t.day : '', pick, seen },
+  };
 }
 
 /* ---------- groups (Noah 28.10.2026: «sinnvolle gruppen erstellen», Gruppen überall) ---------- */
@@ -136,6 +158,10 @@ export function listFor(filter = 'all', { hidden = [], own = [], prefs = null } 
   const off = new Set(hidden);
   const app = RECIPES.filter((x) => !off.has(x.id));
   if (filter === 'own') return own;
+  if (filter === 'liked') {
+    const liked = new Set(prefsOf(prefs).liked);
+    return [...app, ...own].filter((x) => liked.has(x.id));
+  }
   if (filter === 'all') return [...app, ...own];
   if (filter.startsWith(GROUP_FILTER)) {
     const ids = new Set(idsIn(prefs, filter.slice(GROUP_FILTER.length), own));
