@@ -1,6 +1,6 @@
 # Eine Vorhersage
 
-PR #? · 27.10.2026 · Auftrag: Noah 26.10.2026 20:31 «1a» alle B-Fehler aus dem UI-Test 0.205 (Thread «Testen komplette App mit Fehlerliste»)
+PR #431 · 27.10.2026 · Auftrag: Noah 26.10.2026 20:31 «1a» alle B-Fehler aus dem UI-Test 0.205 (Thread «Testen komplette App mit Fehlerliste»)
 
 ## Was ist neu
 - Am Tag einer Tour mit eigenem Wetter (`trip.wx`, steht auf Packen und Unterwegs) richten sich Hitze, Kälte und Regen der Tipps «Passt zu heute» nach diesem Wetter (`tripWxOn` in src/lib/pageinfo.js). Ein Tipp sagt so nie «Regen» unter «trocken».
