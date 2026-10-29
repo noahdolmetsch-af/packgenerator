@@ -201,7 +201,7 @@
     background: var(--paper);
     border: 1px solid var(--line);
     color: var(--ink-3);
-    box-shadow: 0 1px 3px rgb(0 0 0 / 0.08);
+    box-shadow: 0 1px 3px var(--shadow);
   }
   .pm:hover .pm-dot,
   .pm:focus-visible .pm-dot {
@@ -211,6 +211,6 @@
   .pm.on .pm-dot {
     background: var(--brand);
     border-color: var(--brand);
-    color: #fff;
+    color: var(--brand-ink);
   }
 </style>
