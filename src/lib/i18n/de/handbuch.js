@@ -1918,4 +1918,9 @@ export default {
   'Tap a ready one or «Own challenge»: collection, new ones or all, until when.': 'Tippe eine fertige an oder «Eigene Herausforderung»: Sammlung, neue oder alle, bis wann.',
   'The bar fills by itself; tap the pencil to change or delete it.': 'Der Balken füllt sich von selbst; mit dem Stift änderst oder löschst du sie.',
   'Example: «5 new municipalities this month» → 2 of 5 · 12 days left.': 'Beispiel: «5 neue Gemeinden diesen Monat» → 2 von 5 · noch 12 Tage.',
+  // Mini-Tools (Noah 28.10.2026)
+  'Open Me › Mini tools › Find a date.': 'Öffne Ich › Mini-Tools › Termin finden.',
+  'Write what it is about, pick 2 to 8 days and tap «Make the link».': 'Schreib, worum es geht, wähle 2 bis 8 Tage und tipp «Link machen».',
+  'Send the link; tap «Look for new answers» to see who can when.': 'Schick den Link; mit «Neue Antworten holen» siehst du, wer wann kann.',
+  'Example: «Weekend trip Jura» with three Saturdays; four people answer, the 14th works for all.': 'Beispiel: «Wochenend-Tour Jura» mit drei Samstagen; vier Leute antworten, am 14. können alle.',
 };

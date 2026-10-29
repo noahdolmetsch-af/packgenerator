@@ -1918,6 +1918,12 @@ export const HANDBOOK = {
     steps: ['Open Me › Calm and personal › Less app for the moment.', 'Choose up to 8 functions for your plan.', '«Start the workspace»; the strip stays until you end it.'],
     example: 'Example: «Workshop Saturday» with bike inspection, spare parts and workshop due.',
   },
+  // Mini-Tools (Noah 28.10.2026)
+  'f.minidate': {
+    on: null,
+    steps: ['Open Me › Mini tools › Find a date.', 'Write what it is about, pick 2 to 8 days and tap «Make the link».', 'Send the link; tap «Look for new answers» to see who can when.'],
+    example: 'Example: «Weekend trip Jura» with three Saturdays; four people answer, the 14th works for all.',
+  },
   'f.friendask': {
     on: null,
     steps: ['Open Me › With friends and choose what you ask, e.g. «Tell the trip together».', 'Choose the trip, check the lines, «Make the link» and send it to who you choose.', 'Your friend answers in the app and sends a link back; open it and tap «Keep it».'],
