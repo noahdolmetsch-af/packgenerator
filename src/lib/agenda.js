@@ -74,6 +74,52 @@ export function byDay(events, from, to) {
   return [...map].map(([day, list]) => ({ day, events: list }));
 }
 
+const minutesOf = (hhmm) => Number(hhmm.slice(0, 2)) * 60 + Number(hhmm.slice(3, 5));
+/** The shortest block the week grid draws (minutes), so a short appointment can still be tapped. */
+export const MIN_BLOCK = 30;
+
+/**
+ * The week grid (Google's «Week» view): for every day the all-day entries and the timed ones with their
+ * minute span on that day and a lane, so appointments at the same time stand side by side.
+ *   [{ day, allDay: [event], timed: [{ e, from, to, lane, lanes }] }]   (from/to in minutes since 00:00 Zurich)
+ */
+export function weekLayout(events, days) {
+  return byDay(events, days[0], days.at(-1))
+    .filter((d) => days.includes(d.day))
+    .map(({ day, events: list }) => {
+      const allDay = list.filter((e) => e.allDay);
+      const items = list
+        .filter((e) => !e.allDay && e.start)
+        .map((e) => {
+          const a = clockIn(e.start);
+          const b = clockIn(e.end || e.start);
+          const from = a.day < day ? 0 : minutesOf(a.time);
+          const to = b.day > day ? 1440 : minutesOf(b.time);
+          return { e, from, to: Math.min(1440, Math.max(to, from + MIN_BLOCK)) };
+        })
+        .sort((x, y) => x.from - y.from || y.to - x.to);
+      // lanes: a group is a run of appointments that touch each other; each gets the first free lane
+      const timed = [];
+      let group = [];
+      let end = 0;
+      const close = () => {
+        const lanes = Math.max(1, ...group.map((x) => x.lane + 1));
+        for (const x of group) timed.push({ ...x, lanes });
+        group = [];
+      };
+      for (const it of items) {
+        if (group.length && it.from >= end) close();
+        const used = new Set(group.filter((x) => x.to > it.from).map((x) => x.lane));
+        let lane = 0;
+        while (used.has(lane)) lane++;
+        group.push({ ...it, lane });
+        end = Math.max(end, it.to);
+      }
+      close();
+      return { day, allDay, timed };
+    });
+}
+
 const TASK_ORDER = ['late', 'today', 'soon', 'later', 'open', 'done'];
 /** Where a task stands: late, today, soon (next 7 days), later, open (no date) or done. */
 export function taskWhen(task, today) {
