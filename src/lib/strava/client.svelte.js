@@ -37,6 +37,8 @@ export const LAST_KEY = 'strava.last';
 /** db.meta (this device only, never exported): when this device last tried to fetch. */
 export const TRY_KEY = 'strava.try';
 export const STRAVA_HASH = '#/bikes?tab=care&view=strava';
+/** localStorage (this device only): an invite from a friend's link (#…&invite=…), until Strava is connected. */
+export const INVITE_LS = 'pg.strava.invite';
 export const CHECK_HASH = '#/bikes?tab=care&view=strava-check';
 const LAYOUT_KEY = 'homeLayout';
 
@@ -77,7 +79,24 @@ export function dropKey(ls = globalThis.localStorage) {
 }
 
 /** The live state for the pages. */
-export const strava = $state({ loaded: false, key: false, busy: false, error: '', justConnected: false, prefs: prefsOf(null), changes: [], last: null });
+export const strava = $state({ loaded: false, key: false, busy: false, error: '', justConnected: false, prefs: prefsOf(null), changes: [], last: null, invite: readInvite() });
+
+function readInvite(ls = globalThis.localStorage) {
+  try {
+    return ls?.getItem(INVITE_LS) || '';
+  } catch {
+    return '';
+  }
+}
+function writeInvite(code, ls = globalThis.localStorage) {
+  try {
+    if (code) ls?.setItem(INVITE_LS, code);
+    else ls?.removeItem(INVITE_LS);
+  } catch {
+    /* the invite stays only in memory */
+  }
+  strava.invite = code || '';
+}
 
 if (typeof window !== 'undefined' && typeof indexedDB !== 'undefined') {
   strava.key = !!readKey();
@@ -230,6 +249,19 @@ export function takeReturn(loc = globalThis.location, hist = globalThis.history,
   if (i < 0) return null;
   const q = new URLSearchParams(h.slice(i + 1));
   const s = q.get('strava');
+  // «Freund einladen»: the link carries an invite; it waits on this device until Strava is connected
+  const invite = q.get('invite');
+  if (invite && /^[\w-]{8,40}$/.test(invite) && !s) {
+    writeInvite(invite, ls);
+    q.delete('invite');
+    const rest = q.toString();
+    try {
+      hist?.replaceState(null, '', `${loc.pathname}${loc.search}${h.slice(0, i)}${rest ? `?${rest}` : ''}`);
+    } catch {
+      /* the address stays */
+    }
+    return { invited: true };
+  }
   if (!s) return null;
   const key = q.get('key');
   const error = q.get('error');
@@ -242,6 +274,7 @@ export function takeReturn(loc = globalThis.location, hist = globalThis.history,
   }
   if (s === 'connected' && key) {
     writeKey(key, ls);
+    writeInvite('', ls);
     strava.key = true;
     strava.justConnected = true;
     strava.error = '';
@@ -256,7 +289,7 @@ export async function connect({ c = call, loc = globalThis.location } = {}) {
   strava.error = '';
   try {
     const returnTo = `${loc.origin}${loc.pathname}${STRAVA_HASH}`;
-    const { url } = await c('start', { method: 'POST', body: { returnTo }, key: null });
+    const { url } = await c('start', { method: 'POST', body: { returnTo, ...(strava.invite ? { invite: strava.invite } : {}) }, key: null });
     loc.href = url;
     return url;
   } catch (err) {
@@ -462,3 +495,32 @@ export async function undoAutoAssign(db, put = [], bikes = []) {
     }
   });
 }
+
+/* ---------- Freunde (Noah 27.10.2026 «jederzeit umstellen»): only the owner's devices ---------- */
+
+/** The address a friend opens: the app's Strava page with the invite. */
+export const inviteLink = (code, loc = globalThis.location) => `${loc.origin}${loc.pathname}${STRAVA_HASH}&invite=${encodeURIComponent(code)}`;
+
+/** A new invite (7 days, once) → { code, until, link }. */
+export async function makeInvite({ c = call, loc = globalThis.location } = {}) {
+  const r = await c('invite', { method: 'POST', body: {} });
+  return { code: r.code, until: r.until, link: inviteLink(r.code, loc) };
+}
+
+/** The friends the owner let in → [{ id, name, since, connected, inVercel }], or null on a friend's device. */
+export async function loadFriends({ c = call } = {}) {
+  try {
+    return (await c('friends')).friends ?? [];
+  } catch (err) {
+    if (err?.code === 'unauthorized') return null;
+    throw err;
+  }
+}
+
+/** Takes a friend out: their Strava and Fitbit accesses and every device key of theirs go. */
+export async function removeFriend(id, { c = call } = {}) {
+  return c('friend-remove', { method: 'POST', body: { id } });
+}
+
+/** Forget the invite on this device (e.g. it was a wrong link). */
+export const dropInvite = () => writeInvite('');
