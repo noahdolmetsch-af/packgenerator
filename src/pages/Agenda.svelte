@@ -10,12 +10,12 @@
   import { askDelete } from '../lib/ui/ask.js';
   import DateInput from '../lib/ui/DateInput.svelte';
   import { agenda, connect, fetchNow, checkAllowed, saveTask, deleteTask, saveEvent, deleteEvent, chooseCals, hide } from '../lib/agenda/client.svelte.js';
-  import { byDay, taskGroups, timeOf, addDays, SHOW_DAYS } from '../lib/agenda.js';
+  import { byDay, taskGroups, timeOf, addDays, clockIn, ZONES, UNITS, remindRow, remindMinutes, SHOW_DAYS } from '../lib/agenda.js';
   import { readKey, STRAVA_HASH } from '../lib/strava/client.svelte.js';
   import { localDay } from '../lib/localday.js';
   import { mail, loadPrefs as loadMailPrefs } from '../lib/mail/client.svelte.js';
   import { eventQuery, MAIL_HASH } from '../lib/mail.js';
-  import { CalendarDays, ListChecks, Link, Lock, RefreshCw, Plus, Check, Circle, CircleCheck, Pencil, Trash2, ExternalLink, MapPin, Clock, EyeOff, Mail } from '@lucide/svelte';
+  import { CalendarDays, ListChecks, Link, Lock, RefreshCw, Plus, Check, Circle, CircleCheck, Pencil, Trash2, ExternalLink, MapPin, Clock, EyeOff, Mail, Copy, CopyPlus, X } from '@lucide/svelte';
   import '../lib/ich/ich.css';
   import { t, tn, locale } from '../lib/i18n.svelte.js';
 
@@ -92,17 +92,40 @@
     if (await deleteTask(x)) editTask = null;
   }
 
+  const ZONE_NAMES = { 'Europe/Zurich': 'Zurich', 'Europe/London': 'London', 'Europe/Lisbon': 'Lisbon', 'Europe/Athens': 'Athens', 'Europe/Istanbul': 'Istanbul', 'America/New_York': 'New York', 'America/Los_Angeles': 'Los Angeles', 'Asia/Tokyo': 'Tokyo', 'Australia/Sydney': 'Sydney', UTC: 'UTC' };
+  const zoneName = (z) => (ZONE_NAMES[z] ? t(ZONE_NAMES[z]) : z);
+  const zones = $derived(ev && !ZONES.includes(ev.tz) ? [ev.tz, ...ZONES] : ZONES);
+  const UNIT_NAMES = { minutes: 'minutes|unit', hours: 'hours|unit', days: 'days|unit', weeks: 'weeks|unit' };
+
   function newEvent() {
     openEv = null;
-    ev = { cal: writable.find((c) => c.primary)?.id ?? writable[0]?.id ?? 'primary', title: '', day: today, lastDay: '', allDay: false, from: '09:00', to: '10:00', where: '' };
+    ev = { cal: writable.find((c) => c.primary)?.id ?? writable[0]?.id ?? 'primary', title: '', day: today, lastDay: '', allDay: false, from: '09:00', to: '10:00', where: '', note: '', noteWas: '', remind: null, busy: true, visibility: 'default', tz: ZONES[0], repeat: false, copy: false };
   }
-  function changeEvent(e) {
-    ev = { cal: e.cal, gid: e.gid, title: e.title, day: e.day, lastDay: e.lastDay > e.day ? e.lastDay : '', allDay: e.allDay, from: timeOf(e) || '09:00', to: e.allDay ? '10:00' : timeOf({ start: e.end }), where: e.where, note: e.note };
+  // The form for an event of Google; the times are shown on the clock of the event's own time zone.
+  function formOf(e) {
+    const tz = e.tz || ZONES[0];
+    const from = e.allDay ? null : clockIn(e.start, tz);
+    const to = e.allDay ? null : clockIn(e.end, tz);
+    return { cal: e.cal, gid: e.gid, title: e.title, day: from?.day ?? e.day, lastDay: e.lastDay > e.day ? e.lastDay : '', allDay: e.allDay, from: from?.time ?? '09:00', to: to?.time ?? '10:00', where: e.where, note: e.note ?? '', noteWas: e.note ?? '', remind: e.remind ? e.remind.map(remindRow) : null, busy: e.busy !== false, visibility: e.visibility ?? 'default', tz, repeat: !!e.repeat, copy: false };
   }
+  const changeEvent = (e) => (ev = formOf(e));
+  // «Duplicate» and «Copy to another calendar» open the form filled in; nothing goes to Google until «Enter in Google».
+  function copyEvent(e, other = false) {
+    const home = writable.some((c) => c.id === e.cal) ? e.cal : (writable.find((c) => c.primary) ?? writable[0])?.id ?? 'primary';
+    const cal = other ? writable.find((c) => c.id !== e.cal)?.id ?? home : home;
+    ev = { ...formOf(e), gid: undefined, cal, repeat: false, copy: true };
+    openEv = null;
+  }
+  const canCopyTo = (e) => writable.some((c) => c.id !== e.cal);
+  const addRemind = () => (ev.remind = [...ev.remind, { n: 30, unit: 'minutes', method: 'popup' }]);
+  const dropRemind = (i) => (ev.remind = ev.remind.filter((_, j) => j !== i));
   async function keepEvent(e) {
     e.preventDefault();
     if (!ev.title.trim() || !ev.day) return;
-    const res = await saveEvent({ ...ev, title: ev.title.trim(), lastDay: ev.allDay && ev.lastDay ? ev.lastDay : undefined });
+    const { noteWas, copy, repeat, remind, ...v } = ev;
+    // the description is sent only when it was changed (Google keeps its formatting otherwise)
+    if (v.gid && v.note === noteWas) delete v.note;
+    const res = await saveEvent({ ...v, title: ev.title.trim(), lastDay: ev.allDay && ev.lastDay ? ev.lastDay : undefined, remind: remind === null ? null : remind.slice(0, 5).map(remindMinutes), tz: ev.allDay ? undefined : ev.tz });
     if (res) {
       msg = ev.gid ? t('Changed in your Google calendar.') : t('«{name}» is in your Google calendar.', { name: ev.title.trim() });
       ev = null;
@@ -169,7 +192,7 @@
             {#if !ev}<button type="button" class="btn sm" onclick={newEvent}><Plus size={15} aria-hidden="true" />{t('New appointment')}</button>{/if}
           </div>
           {#if ev}
-            <form class="card ich-body form" onsubmit={keepEvent} aria-label={ev.gid ? t('Change appointment') : t('New appointment')}>
+            <form class="card ich-body form" onsubmit={keepEvent} aria-label={ev.gid ? t('Change appointment') : ev.copy ? t('Copy appointment') : t('New appointment')}>
               <label>{t('Title')}<input type="text" bind:value={ev.title} maxlength="200" required placeholder={t('e.g. Bike service')} /></label>
               <div class="two">
                 <label>{t('Day')}<DateInput bind:value={ev.day} required /></label>
@@ -182,10 +205,36 @@
                   <label>{t('To|time')}<input type="time" bind:value={ev.to} /></label>
                 </div>
               {/if}
+              {#if !ev.allDay}
+                <label>{t('Time zone')}<select bind:value={ev.tz} data-ev-tz>{#each zones as z (z)}<option value={z}>{zoneName(z)}</option>{/each}</select></label>
+              {/if}
               <label>{t('Where (optional)')}<input type="text" bind:value={ev.where} maxlength="200" /></label>
+              <fieldset class="rem" data-ev-remind>
+                <legend>{t('Reminders')}</legend>
+                <label class="tg"><input type="checkbox" checked={ev.remind === null} onchange={(e) => (ev.remind = e.currentTarget.checked ? null : [{ n: 30, unit: 'minutes', method: 'popup' }])} /> {t('Google standard reminders')}</label>
+                {#if ev.remind}
+                  {#each ev.remind as r, i (i)}
+                    <div class="remrow">
+                      <select bind:value={r.method} aria-label={t('Kind of reminder')}><option value="popup">{t('Notification')}</option><option value="email">{t('E-mail')}</option></select>
+                      <input type="number" min="0" max="40320" bind:value={r.n} aria-label={t('How long before')} />
+                      <select bind:value={r.unit} aria-label={t('Unit|time')}>{#each Object.keys(UNITS) as u (u)}<option value={u}>{t(UNIT_NAMES[u])}</option>{/each}</select>
+                      <button type="button" class="ib" aria-label={t('Remove reminder')} onclick={() => dropRemind(i)}><X size={16} aria-hidden="true" /></button>
+                    </div>
+                  {:else}
+                    <p class="ich-help">{t('No reminder.')}</p>
+                  {/each}
+                  {#if ev.remind.length < 5}<button type="button" class="btn sm" onclick={addRemind}><Plus size={15} aria-hidden="true" />{t('Add reminder')}</button>{/if}
+                {/if}
+              </fieldset>
               {#if writable.length > 1 && !ev.gid}
                 <label>{t('Calendar')}<select bind:value={ev.cal}>{#each writable as c (c.id)}<option value={c.id}>{c.name}</option>{/each}</select></label>
               {/if}
+              <div class="two">
+                <label>{t('Show me as')}<select bind:value={ev.busy} data-ev-busy><option value={true}>{t('Busy|show')}</option><option value={false}>{t('Free|show')}</option></select></label>
+                <label>{t('Who sees it')}<select bind:value={ev.visibility}><option value="default">{t('Default|visibility')}</option><option value="public">{t('Public|view')}</option><option value="private">{t('Private|view')}</option></select></label>
+              </div>
+              <label>{t('Description (optional)')}<textarea bind:value={ev.note} rows="4" maxlength="4000" data-ev-note></textarea></label>
+              {#if ev.repeat}<p class="ich-help">{t('This appointment repeats. A change here counts only for this one.')}</p>{/if}
               <div class="go">
                 <button type="button" class="btn" onclick={() => (ev = null)}>{t('Cancel')}</button>
                 <button type="submit" class="btn hi"><Check size={16} aria-hidden="true" />{ev.gid ? t('Save') : t('Enter in Google')}</button>
@@ -211,6 +260,10 @@
                           <div class="btns">
                             {#if e.link}<a class="btn sm" href={e.link} target="_blank" rel="noopener"><ExternalLink size={15} aria-hidden="true" />{t('Open in Google')}</a>{/if}
                             {#if mail.prefs.allowed && eventQuery(e)}<a class="btn sm" href={`${MAIL_HASH}?${new URLSearchParams({ q: eventQuery(e), for: e.title })}`}><Mail size={15} aria-hidden="true" />{t('Mails to it')}</a>{/if}
+                            {#if writable.length}
+                              <button type="button" class="btn sm" data-ev-dup onclick={() => copyEvent(e)}><Copy size={15} aria-hidden="true" />{t('Duplicate')}</button>
+                              {#if canCopyTo(e)}<button type="button" class="btn sm" onclick={() => copyEvent(e, true)}><CopyPlus size={15} aria-hidden="true" />{t('Copy to another calendar')}</button>{/if}
+                            {/if}
                             {#if writable.some((c) => c.id === e.cal) || e.cal === 'primary'}
                               <button type="button" class="btn sm" onclick={() => changeEvent(e)}><Pencil size={15} aria-hidden="true" />{t('Change')}</button>
                               <button type="button" class="btn sm danger" onclick={() => dropEvent(e)}><Trash2 size={15} aria-hidden="true" />{t('Delete')}</button>
@@ -500,6 +553,38 @@
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
     gap: 12px;
+  }
+  .rem {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    min-width: 0;
+  }
+  .rem legend {
+    padding: 0;
+    margin-bottom: 4px;
+    font-size: var(--fs-small);
+    color: var(--ink-3);
+  }
+  .remrow {
+    display: grid;
+    grid-template-columns: minmax(0, 1.3fr) minmax(0, 0.7fr) minmax(0, 1fr) auto;
+    gap: 8px;
+    align-items: center;
+  }
+  .remrow input {
+    min-width: 0;
+  }
+  @media (max-width: 520px) {
+    .remrow {
+      grid-template-columns: minmax(0, 0.6fr) minmax(0, 1fr) auto;
+    }
+    .remrow select:first-child {
+      grid-column: 1 / -1;
+    }
   }
   .go {
     display: flex;

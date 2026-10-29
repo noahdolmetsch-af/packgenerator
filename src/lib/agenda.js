@@ -45,6 +45,24 @@ export const calsToFetch = (p) => (p.cals.length ? p.cals : [p.calendars.find((c
 /** «08:30» in Zurich for a timed event, '' for an all-day one. */
 export const timeOf = (e) => (e?.allDay || !e?.start ? '' : new Date(e.start).toLocaleTimeString('de-CH', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Zurich' }));
 
+/** The day and the time («2026-10-29», «18:30») of a moment as the clock shows it in a time zone. */
+export function clockIn(iso, tz = 'Europe/Zurich') {
+  const o = Object.fromEntries(new Intl.DateTimeFormat('en-CA', { timeZone: tz, year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).formatToParts(new Date(iso)).map((x) => [x.type, x.value]));
+  return { day: `${o.year}-${o.month}-${o.day}`, time: `${o.hour}:${o.minute}` };
+}
+
+/** The time zones the editor offers (Zurich first); an event's own zone is added when it is none of them. */
+export const ZONES = ['Europe/Zurich', 'Europe/London', 'Europe/Lisbon', 'Europe/Athens', 'Europe/Istanbul', 'America/New_York', 'America/Los_Angeles', 'Asia/Tokyo', 'Australia/Sydney', 'UTC'];
+
+/** Reminders ↔ the editor's rows: { minutes, method } ↔ { n, unit, method }, in the biggest whole unit. */
+export const UNITS = { minutes: 1, hours: 60, days: 1440, weeks: 10080 };
+export function remindRow(r) {
+  const m = r.minutes;
+  const unit = m && m % 10080 === 0 ? 'weeks' : m && m % 1440 === 0 ? 'days' : m && m % 60 === 0 ? 'hours' : 'minutes';
+  return { n: m / UNITS[unit], unit, method: r.method === 'email' ? 'email' : 'popup' };
+}
+export const remindMinutes = (row) => ({ minutes: Math.round(Number(row.n) * UNITS[row.unit]), method: row.method === 'email' ? 'email' : 'popup' });
+
 /** Events by day for the days from..to: an event over several days stands on each of them. */
 export function byDay(events, from, to) {
   const map = new Map(daysOf(from, to).map((d) => [d, []]));
