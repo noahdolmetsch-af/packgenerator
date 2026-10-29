@@ -444,6 +444,15 @@ export const HOME = {
   'f.photoalbum': '#/me/album',
   'f.sortround': '#/inbox',
   'f.goodday': '#/me/wohl',
+  // Heute als Begleiter PR 2 (Noah 28.10.2026 «ok freigabe»): 5 tools and 3 phone reminders that had no line in the catalogue
+  'f.calc': '#/me/tools',
+  'f.units': '#/me/tools',
+  'f.zones': '#/me/tools',
+  'f.compasstool': '#/me/tools',
+  'f.phrases': '#/me/tools',
+  'f.lightpush': '#/me/push',
+  'f.wearpush': '#/me/push',
+  'f.racepush': '#/me/push',
 };
 
 /** Not yet visible on the home page (feature id → why code). Only gets shorter. */

@@ -98,7 +98,7 @@ export const FEATURE_MOMENTS = {
     'f.komoot', 'f.tripcompare', 'f.snow', 'f.skiplan', 'f.swissmap', 'f.sosqr', 'f.scales', 'f.race',
     'f.racesample', 'f.racemap', 'f.climbs', 'f.mapoffline', 'f.sleeplists', 'f.nightswx', 'f.abroad',
     'f.mapmeasure', 'f.wxwatch', 'f.fuel', 'f.sleeporigin', 'f.devil', 'f.nogos', 'f.energy', 'f.gpxstops',
-    'f.weather', 'f.webcams', 'f.air',
+    'f.weather', 'f.webcams', 'f.air', 'f.racepush',
   ],
   // Packen
   packen: [
@@ -108,7 +108,7 @@ export const FEATURE_MOMENTS = {
     'f.laundry', 'f.morninglist', 'f.packtime', 'f.rwgps', 'f.starters', 'f.packside', 'f.ownrules',
     'f.forgotten', 'f.newpack', 'f.power', 'f.packphoto', 'f.tourhints', 'f.routepois', 'f.tripalert',
     'f.quiz', 'f.probe', 'f.blockeffect', 'f.needs', 'f.weightsure', 'f.sharepreview', 'bags', 'share',
-    'f.tripcheck', 'f.readytomorrow', 'f.readaloud', 'f.offlinesave', 'f.labels',
+    'f.tripcheck', 'f.readytomorrow', 'f.readaloud', 'f.offlinesave', 'f.labels', 'f.lightpush',
   ],
   // Unterwegs
   unterwegs: [
@@ -118,7 +118,7 @@ export const FEATURE_MOMENTS = {
     'f.arrived', 'f.goodnight', 'f.parked', 'f.sos', 'f.webcammap', 'f.reroute', 'f.live', 'f.livepause',
     'f.sensors', 'f.datapages', 'f.turns', 'f.laps', 'f.moreplaces', 'f.ovnear', 'f.groupmap', 'f.stopsnear',
     'f.sleeptonight', 'f.callhotels', 'f.powernap', 'f.here', 'f.record', 'f.money', 'f.light', 'f.rainsoon',
-    'f.arrival',
+    'f.arrival', 'f.zones', 'f.compasstool', 'f.phrases',
   ],
   // Zurück und lernen
   zurueck: [
@@ -138,7 +138,7 @@ export const FEATURE_MOMENTS = {
     'f.parttemplate', 'f.spick', 'f.partwear', 'f.wetchain', 'f.chainmeasure', 'f.bikeyear', 'f.bikeseason',
     'f.noises', 'f.carestreak', 'f.wearcal', 'f.wearphotos', 'f.sellbike', 'f.bikebox', 'f.sparestock', 'f.workshoprounds',
     'f.brandkm', 'f.springservice', 'f.chainrotation', 'f.velofaq', 'f.setupphotos', 'f.inspect', 'f.measure',
-    'f.gears', 'f.level', 'f.sitpos', 'f.pros', 'f.table', 'f.lend',
+    'f.gears', 'f.level', 'f.sitpos', 'f.pros', 'f.table', 'f.lend', 'f.wearpush',
   ],
   // Körper und Training
   koerper: [
@@ -159,7 +159,7 @@ export const FEATURE_MOMENTS = {
     'f.dictate', 'f.aiprojects', 'f.photoalbum', 'f.sortround', 'f.docs', 'f.tools', 'f.pdftools', 'f.markup',
     'f.phototools', 'f.ablage', 'f.weblinks', 'f.chains', 'f.convert', 'f.video', 'f.qr', 'f.docscan',
     'f.mailin', 'f.mail', 'f.agenda', 'f.trello', 'f.friendask', 'f.friendshelf', 'f.friendtemplate', 'f.minidate',
-    'f.inputbar', 'f.inputtemplates', 'f.noteforms', 'f.picturecard',
+    'f.inputbar', 'f.inputtemplates', 'f.noteforms', 'f.picturecard', 'f.calc', 'f.units',
   ],
   // App, Daten und Hilfe
   app: [
