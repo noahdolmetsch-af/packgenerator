@@ -33,7 +33,7 @@ test('notes: link one note with another, the link shows on both', async ({ page,
   const stats = page.locator('[data-note-stats]');
   await expect(stats).toContainText('#herbst');
 
-  await page.locator('li.ncard', { hasText: 'Jura' }).locator('button').click();
+  await page.locator('li.ncard', { hasText: 'Jura' }).locator('button').first().click();
   const sheet = page.locator('dialog.nsheet');
   await expect(sheet).toBeVisible();
   await expect(sheet.locator('[data-note-links]')).toContainText(T('Maybe related'));
