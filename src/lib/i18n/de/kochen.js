@@ -68,4 +68,16 @@ export default {
   'Open Plan › Everyday life › Cooking and choose a meal.': 'Öffne Planen › Alltag › Kochen und wähle eine Mahlzeit.',
   'Tap a recipe: set the portions, put the ingredients on the shopping list and read all steps.': 'Tippe auf ein Rezept: Portionen wählen, Zutaten auf die Einkaufsliste setzen und alle Schritte lesen.',
   'Example: «Pasta with tomatoes and tuna», 2 portions → 4 ingredients for two on your shopping list.': 'Beispiel: «Pasta mit Tomaten und Thon», 2 Portionen → 4 Zutaten für zwei auf deiner Einkaufsliste.',
+  // cooking mode (Noah «5a»)
+  'Next|cook': 'Weiter',
+  'All steps': 'Alle Schritte',
+  'Stop cooking': 'Beenden',
+  'you are here': 'du bist hier',
+  'Timer {n} min': 'Timer {n} Min.',
+  'Start cooking': 'Kochen starten',
+  'Enjoy your meal!': 'En Guete!',
+  'The timer of step {n} is done.': 'Der Timer von Schritt {n} ist fertig.',
+  'Timer back to the start': 'Timer zurück auf den Anfang',
+  'Cooking mode: one step per screen, a timer where needed, the screen stays on.': 'Kochmodus: ein Schritt pro Bildschirm, ein Timer wo nötig, der Bildschirm bleibt an.',
+  'Tip: a timer keeps running when you go on to the next step. The screen stays on while you cook.': 'Tipp: Ein Timer läuft weiter, auch wenn du schon zum nächsten Schritt gehst. Der Bildschirm bleibt an, solange du kochst.',
 };
