@@ -49,6 +49,7 @@
   import { pageOf, placeOf, redirectOf, tabOf, keepTab, ALL_PLACES, PLACE_TABS } from './lib/nav.js';
   import PlaceTabs from './lib/nav/PlaceTabs.svelte';
   import PlaceSwitch from './lib/nav/PlaceSwitch.svelte';
+  import Explorer from './lib/nav/Explorer.svelte';
   import PathLine from './lib/nav/PathLine.svelte'; // «Pfad auf jeder Seite» (Noah 28.10.2026 «1a»)
   import { ops } from './lib/bedienung.svelte.js';
   import ErrorPage from './lib/ui/ErrorPage.svelte';
@@ -478,6 +479,7 @@
 <div class="col">
 <DemoBar />
 <OfflineLine />
+{#if ops.explore && ops.path && !guest && !mini}<Explorer />{/if}
 <DbWaitLine />
 {#if !mini && !guest}<ComebackWindow care={$dueQ ?? 0} inbox={$inboxQ ?? 0} /><YearCheckWindow {hash} /><DiaryReminder {hash} />{/if}
 

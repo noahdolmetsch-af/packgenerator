@@ -47,6 +47,9 @@
   // Einzelideen Planen 13: notes that come back after a trip or a workshop visit show with the due reminders
   import { afterDue, AFTER } from '../lib/notes/context.js';
   import { Network } from '@lucide/svelte';
+  import SwipeRow from '../lib/ui/SwipeRow.svelte';
+  import { offerDone } from '../lib/ui/rename.svelte.js';
+  import { Pin, PinOff } from '@lucide/svelte';
   const tripsQ = liveQuery(() => db.trips.toArray());
   const visitsQ = liveQuery(() => db.visits.toArray());
 
@@ -181,6 +184,24 @@
   const remindDone = (n) => db.notes.update(n.id, { remind: { ...n.remind, done: true } });
   const dueAfter = $derived(afterDue(notes, { trips: $tripsQ ?? [], visits: $visitsQ ?? [], today: localDay() }));
   const afterDone = (n) => db.notes.update(n.id, { after: { ...n.after, done: true } });
+  // B13 «Wischen in Listen» (Noah 27.10.2026 «4a»): right = pin or done, left = into the trash; each with Undo
+  async function swipePin(n) {
+    const name = noteTitle(n) || t('Note');
+    if (!n.pinned && counts.pinned >= MAX_PINNED) return offerDone(t('At most {n} notes can be pinned. Unpin one first.', { n: MAX_PINNED }));
+    const pinnedNow = !n.pinned;
+    await db.notes.update(n.id, { pinned: pinnedNow, updatedAt: new Date().toISOString() });
+    offerDone(pinnedNow ? t('«{name}» is pinned.', { name }) : t('«{name}» is no longer pinned.', { name }), () => db.notes.update(n.id, { pinned: !pinnedNow }));
+  }
+  async function swipeTrash(n) {
+    const rows = await trashNotes(db, [n]);
+    offerDone(t('«{name}» is in the trash.', { name: noteTitle(n) || t('Note') }), () => untrash(db, rows));
+  }
+  const swipeDone = (n, key, done) => async () => {
+    const before = n[key];
+    await done(n);
+    offerDone(t('Reminder done. The note stays.'), () => db.notes.update(n.id, { [key]: before }));
+  };
+  const trashAct = (n) => ({ key: 'trash', label: t('Delete'), icon: Trash2, tone: 'bad', run: () => swipeTrash(n) });
   const afterShort = (k) => t(AFTER.find((a) => a.key === k)?.short ?? '');
   const rest = $derived(filter === 'all' && !query ? list.filter((n) => !n.pinned) : list);
 
@@ -300,6 +321,7 @@
     {@const p = progress(n)}
     {@const Kind = n.pinned ? Star : p.total && p.done === p.total ? Check : p.total ? ListChecks : n.link?.url ? Link2 : n.photo ? ImageIcon : NotebookPen}
     <li class="ncard" data-note-id={n.id}>
+      <SwipeRow id="note-{n.id}" right={[{ key: 'pin', label: n.pinned ? t('Unpin') : t('Pin'), icon: n.pinned ? PinOff : Pin, run: () => swipePin(n) }]} left={[trashAct(n)]}>
       <button type="button" class="ich-row open" onclick={() => (open = n.id)}>
         <span class="ich-ib"><Kind size={18} aria-hidden="true" /></span>
         <span class="ich-m">
@@ -308,6 +330,7 @@
         </span>
         <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
       </button>
+      </SwipeRow>
     </li>
   {/snippet}
 
@@ -336,14 +359,22 @@
           <ul class="card ich-list">
             {#each due as n (n.id)}
               <li class="ncard duerow" data-note-id={n.id}>
+                <SwipeRow id="remind-{n.id}" right={[{ key: 'done', label: t('Done'), icon: Check, run: swipeDone(n, 'remind', remindDone) }]}>
+                <div class="duein">
                 <button type="button" class="ich-row open" onclick={() => (open = n.id)}><span class="ich-ib"><Bell size={18} aria-hidden="true" /></span><span class="ich-m"><b>{noteTitle(n) || t('Note')}</b><small>{new Date(n.remind.at).toLocaleString(locale(), { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</small></span></button>
                 <button type="button" class="btn sm" onclick={() => remindDone(n)} data-remind-done>{t('Done')}</button>
+                </div>
+                </SwipeRow>
               </li>
             {/each}
             {#each dueAfter as x (x.note.id)}
               <li class="ncard duerow" data-note-id={x.note.id} data-after-due>
+                <SwipeRow id="after-{x.note.id}" right={[{ key: 'done', label: t('Done'), icon: Check, run: swipeDone(x.note, 'after', afterDone) }]}>
+                <div class="duein">
                 <button type="button" class="ich-row open" onclick={() => (open = x.note.id)}><span class="ich-ib"><Bell size={18} aria-hidden="true" /></span><span class="ich-m"><b>{noteTitle(x.note) || t('Note')}</b><small>{afterShort(x.hit.kind)}{x.hit.title ? ` · ${x.hit.title}` : ''}</small></span></button>
                 <button type="button" class="btn sm" onclick={() => afterDone(x.note)} data-after-done>{t('Done')}</button>
+                </div>
+                </SwipeRow>
               </li>
             {/each}
           </ul>
