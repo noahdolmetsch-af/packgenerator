@@ -134,7 +134,7 @@ export async function shrinkVideo(file, { onstep = () => {} } = {}) {
   const src = URL.createObjectURL(file);
   try {
     const len = await videoLength(src);
-    if (Number.isFinite(len) && len > VIDEO_MAX_S + 0.5) throw new Error(t('The video is longer than 1 minute. Shorten it on the phone first.'));
+    if (Number.isFinite(len) && len > VIDEO_MAX_S + 0.5) throw new Error(t('The video is longer than 1 minute. Shorten it on the phone first, or keep it there and add its link under «Link».'));
     const { recType, shrinkVideo: shrink } = await import('../tools/video.js');
     const canRecord = typeof MediaRecorder !== 'undefined' && typeof HTMLCanvasElement.prototype.captureStream === 'function' && !!recType();
     if (!canRecord || file.size < 3e6) return { data: await asDataUrl(file), mime: file.type || 'video/mp4', secs: len };
