@@ -217,7 +217,7 @@
                     <div class="remrow">
                       <select bind:value={r.method} aria-label={t('Kind of reminder')}><option value="popup">{t('Notification')}</option><option value="email">{t('E-mail')}</option></select>
                       <input type="number" min="0" max="40320" bind:value={r.n} aria-label={t('How long before')} />
-                      <select bind:value={r.unit} aria-label={t('Unit')}>{#each Object.keys(UNITS) as u (u)}<option value={u}>{t(UNIT_NAMES[u])}</option>{/each}</select>
+                      <select bind:value={r.unit} aria-label={t('Unit|time')}>{#each Object.keys(UNITS) as u (u)}<option value={u}>{t(UNIT_NAMES[u])}</option>{/each}</select>
                       <button type="button" class="ib" aria-label={t('Remove reminder')} onclick={() => dropRemind(i)}><X size={16} aria-hidden="true" /></button>
                     </div>
                   {:else}

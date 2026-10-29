@@ -116,7 +116,7 @@ test('Termine und Aufgaben: connect, see the next days, tick and add a task, ent
   await form.getByLabel(de('Description (optional)')).fill('Kette und Bremsen');
   await form.getByLabel(de('Google standard reminders')).uncheck();
   await form.getByLabel(de('How long before')).fill('1');
-  await form.getByLabel(de('Unit')).selectOption('days');
+  await form.getByLabel(de('Unit|time')).selectOption('days');
   await form.getByLabel(de('Show me as')).selectOption({ label: de('Free|show') });
   await shot(page, info, 'A3-termin');
   await form.getByRole('button', { name: de('Enter in Google') }).click();
