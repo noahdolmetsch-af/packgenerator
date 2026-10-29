@@ -3,13 +3,14 @@ export default {
   title: 'Your calendar as a week',
   lead: 'Appointments and tasks now has a week view like Google, with the hours down the side.',
   points: [
-    { text: 'Switch from «List» to «Week»: the days side by side, appointments as blocks in the colour of their calendar', go: { href: '#/me/agenda', steps: [{ sel: '[data-view="week"]' }] } },
-    { text: 'Tap an empty place in the week to start a new appointment at that time', go: { href: '#/me/agenda', steps: [{ sel: '[data-view="week"]' }, { sel: '[data-week-grid]' }] } },
+    { text: 'Switch from «List» to «Week»: the days side by side, appointments as blocks in the colour of their calendar', go: 'f.agenda' },
+    { text: 'Tap an empty place in the week to start a new appointment at that time', go: { href: '#/me/agenda', where: 'Shows once Google Calendar is connected: tap «Week», then an empty place in a day.' } },
   ],
   small: [{ box: 'new', text: 'On the phone the week shows three days; the arrows move on' }],
   test: ['Open Planen › Termine and tap «Week»: your appointments stand as blocks on the days.', 'Tap a block: it opens below with «Change», «Duplicate» and «Delete».', 'Tap an empty place in a day: the new appointment form opens with that day and time.'],
   since: [],
   de: {
+    'Shows once Google Calendar is connected: tap «Week», then an empty place in a day.': 'Erscheint, sobald Google Kalender verbunden ist: tippe auf «Woche», dann auf eine leere Stelle in einem Tag.',
     'Your calendar as a week': 'Dein Kalender als Woche',
     'Appointments and tasks now has a week view like Google, with the hours down the side.': 'Termine und Aufgaben hat jetzt eine Wochenansicht wie Google, mit den Stunden am Rand.',
     'Switch from «List» to «Week»: the days side by side, appointments as blocks in the colour of their calendar': 'Wechsle von «Liste» zu «Woche»: die Tage nebeneinander, Termine als Blöcke in der Farbe ihres Kalenders',
