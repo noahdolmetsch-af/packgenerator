@@ -2,8 +2,8 @@
 export default {
   title: 'Quick Links go to the spot',
   lead: 'A tap on a pin goes to the card and lights it up.',
-  points: [{ text: 'A tap on a pin in Quick Links goes to the card and lights it up', href: '#/quick' }],
-  small: [{ box: 'new', text: 'The pin at a page title keeps the view with its filter' }],
+  points: [{ text: 'A tap on a pin in Quick Links goes to the card and lights it up', href: '#/quick', go: 'f.quicklinks' }],
+  small: [{ box: 'new', text: 'The pin at a page title keeps the view with its filter', go: 'f.pinmarks' }],
   test: [
     'In Quick Links tap «Weather for a ride»: the weather page opens and the card lights up.',
     'Open Trips, filter the list, tap the pin next to the title: the view is in Quick Links and opens with the filter.',
