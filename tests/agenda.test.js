@@ -3,7 +3,7 @@
 import 'fake-indexeddb/auto';
 import { describe, it, expect } from 'vitest';
 import { createDb, DATA_TABLES } from '../src/lib/db.js';
-import { byDay, taskGroups, taskWhen, weekItems, undatedTasks, prefsOf, calsToFetch, timeOf, AGENDA_KEY } from '../src/lib/agenda.js';
+import { byDay, taskGroups, taskWhen, weekItems, undatedTasks, prefsOf, calsToFetch, timeOf, clockIn, remindRow, remindMinutes, AGENDA_KEY } from '../src/lib/agenda.js';
 import { fetchNow, saveTask, deleteTask, saveEvent, takeReturn, agenda } from '../src/lib/agenda/client.svelte.js';
 
 const ev = (id, over = {}) => ({ id: `primary|${id}`, gid: id, cal: 'primary', title: id, where: '', note: '', allDay: false, day: '2026-10-13', lastDay: '2026-10-13', start: '2026-10-13T08:30:00+02:00', end: '2026-10-13T09:00:00+02:00', link: null, busy: true, ...over });
@@ -92,5 +92,20 @@ describe('the app side', () => {
     const loc = (hash) => ({ hash, pathname: '/', search: '' });
     expect(takeReturn(loc('#/me/fitbit?google=connected'), null)).toBeNull();
     expect(takeReturn(loc('#/me/agenda?google=error&error=denied'), null)).toEqual({ error: 'denied' });
+  });
+});
+
+describe('the editor: clock of a time zone and reminder rows', () => {
+  it('shows a moment on the clock of its zone', () => {
+    expect(clockIn('2026-10-29T17:30:00Z', 'Europe/Zurich')).toEqual({ day: '2026-10-29', time: '18:30' });
+    expect(clockIn('2026-10-29T17:30:00Z', 'America/New_York')).toEqual({ day: '2026-10-29', time: '13:30' });
+    expect(clockIn('2026-10-29T23:30:00Z', 'Asia/Tokyo')).toEqual({ day: '2026-10-30', time: '08:30' });
+  });
+  it('turns reminders into rows in the biggest whole unit and back', () => {
+    expect(remindRow({ minutes: 1440, method: 'popup' })).toEqual({ n: 1, unit: 'days', method: 'popup' });
+    expect(remindRow({ minutes: 90, method: 'email' })).toEqual({ n: 90, unit: 'minutes', method: 'email' });
+    expect(remindRow({ minutes: 120, method: 'popup' })).toEqual({ n: 2, unit: 'hours', method: 'popup' });
+    expect(remindMinutes({ n: 2, unit: 'weeks', method: 'popup' })).toEqual({ minutes: 20160, method: 'popup' });
+    expect(remindMinutes(remindRow({ minutes: 0, method: 'popup' }))).toEqual({ minutes: 0, method: 'popup' });
   });
 });
