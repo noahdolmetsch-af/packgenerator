@@ -3,7 +3,7 @@
 export default {
   title: 'Your body at a glance',
   lead: 'On the phone «Your body today» opens a sheet from below.',
-  points: [{ text: 'A ring per value shows where today stands in your last 4 weeks', href: '#/', go: { href: '#/', where: 'On the phone, tap «Details» in «Your body today» on Today.' } }],
+  points: [{ text: 'A ring per value shows where today stands in your last 4 weeks', href: '#/me/insights', go: { href: '#/', where: 'On the phone, tap «Details» in «Your body today» on Today.' } }],
   small: [{ box: 'nicer', text: 'This week next to the week before, and «All body values» one tap away', go: { href: '#/', where: 'On the phone, tap «Details» in «Your body today» on Today.' } }],
   test: ['On the phone open Today and tap «Details» in «Your body today»: a sheet comes up from below with four rings.', 'Tap «All body values»: the page with all values opens.'],
   since: [],
