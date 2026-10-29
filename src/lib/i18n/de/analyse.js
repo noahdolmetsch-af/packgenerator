@@ -22,8 +22,6 @@ export default {
   'average|analyse': 'im Schnitt',
   'Switch on at least one source above, then your values show here.': 'Schalte oben mindestens eine Quelle ein, dann siehst du hier deine Werte.',
   'No values in this period yet. Connect Fitbit or Strava, or tick an activity in Aktiv.': 'In diesem Zeitraum gibt es noch keine Werte. Verbinde Fitbit oder Strava oder hake eine Aktivität in Aktiv ab.',
-  'A value without any day in this period is left out. Values come from your Fitbit (Google), Strava and what you enter or tick in the app.':
-    'Ein Wert ohne einen Tag in diesem Zeitraum fehlt hier. Die Werte kommen von deiner Fitbit (Google), von Strava und aus dem, was du in der App einträgst oder abhakst.',
   // the function in «Was die App kann», the handbook and «So geht's»
   'Every value of the app on one page: Fitbit, Strava, your body, «Wi gaht\'s?» and every activity of Aktiv, each with a small course. Choose sources and period; a tap opens its course.':
     'Jeder Wert der App auf einer Seite: Fitbit, Strava, dein Körper, «Wi gaht\'s?» und jede Aktivität aus Aktiv, jeder mit einem kleinen Verlauf. Quellen und Zeitraum wählen; ein Tipp öffnet den Verlauf.',
