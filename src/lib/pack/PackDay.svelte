@@ -680,6 +680,8 @@
   .mrow { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 64px; padding: 8px 16px; border: 0; background: none; color: var(--ink); font: 400 var(--fs-body) var(--font-body); text-align: left; cursor: pointer; }
   .blist { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(132px, 100%), 1fr)); gap: 10px; }
   @media (max-width: 479px) { .blist { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; } }
+  /* on the smallest phones (320 px) three tiles are too narrow for «Oberrohrtasche»: two per row */
+  @media (max-width: 359px) { .blist { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
   .brow { min-width: 0; border: 1px solid var(--line); border-radius: 14px; background: var(--paper); box-shadow: 0 1px 2px var(--shadow); transition: border-color 200ms var(--ease-out), box-shadow 200ms var(--ease-out); }
   .brow.open { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
   .brow .bagh, .brow .bsel { display: flex; flex-direction: column; align-items: center; gap: 6px; width: 100%; height: 100%; min-height: 44px; padding: 12px 6px 10px; border: 0; border-radius: inherit; background: none; color: var(--ink); font: 400 var(--fs-body) var(--font-body); text-align: center; cursor: pointer; }
