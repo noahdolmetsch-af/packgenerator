@@ -323,7 +323,7 @@
       <Crumbs crumbs={[{ label: t('Gear|place'), href: '#/gear' }]} here={t('Wardrobe')} />
       <h1 class="title">{t('Wardrobe')}</h1>
       <!-- Impeccable runde 2 (Kleider 2): the head line follows the switch (118 for cycling, as in «Velo 118») -->
-      <p class="page-sub">{use === 'velo' ? tn(w.n, '{n} piece of clothing for cycling', '{n} pieces of clothing for cycling') : use === 'everyday' ? tn(w.n, '{n} piece of clothing for everyday', '{n} pieces of clothing for everyday') : tn(w.n, '{n} piece of clothing', '{n} pieces of clothing')} · <span class="num">{kg(w.g)}</span> · {t('the onion from the inside out')}</p>
+      <p class="page-sub">{use === 'velo' ? tn(w.n, '{n} piece of clothing for cycling', '{n} pieces of clothing for cycling') : use === 'everyday' ? tn(w.n, '{n} piece of clothing for everyday', '{n} pieces of clothing for everyday') : tn(w.n, '{n} piece of clothing', '{n} pieces of clothing')} · <span class="num">{kg(w.g)}</span>{#if w.unsorted.length}{" · "}<span class="num" data-sorted-line>{t('{n} sorted ({kg}), {m} still to sort', { n: w.n - w.unsorted.length, kg: kg(w.layers.reduce((s, l) => s + (l.g || 0), 0)), m: w.unsorted.length })}</span>{/if} · {t('the onion from the inside out')}</p>
       <!-- 0.159.0 «UI-Regeln» Teil 1 (UI1 + UI8): the weight per layer as one thin bar -->
       <div class="wshare"><ShareBar label={t('Weight by layer')} parts={layerParts} fmt={kg} /></div>
       <!-- v0.45.0 (Noah, decision 8): what the debriefs taught, in words; hidden at 0. v0.47.0: a quiet chip. -->
@@ -382,6 +382,8 @@
               {/each}
             </div>
           </div>
+          <!-- UI-Test T7 (G4-04): the pins count a body zone over all layers, the tiles below one layer each -->
+          <p class="fig-note" data-fig-note>{t('The numbers at the figure count every layer.')}</p>
           <div class="ltiles" role="group" aria-label={t('Layer|filter')}>
             {#each LAYERS as l (l.key)}
               {@const L = layerOf(l.key)}
@@ -820,6 +822,11 @@
     font-weight: 400;
     font-size: var(--fs-small);
     color: var(--ink-3);
+  }
+  .fig-note {
+    margin: 4px 0 8px;
+    color: var(--ink-3);
+    font-size: var(--fs-small);
   }
   /* The onion figure and its zone pins (Noah 1a). */
   .fig-wrap {
