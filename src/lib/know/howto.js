@@ -116,6 +116,7 @@ export const HOWTO = {
   'f.ownviews': ['Open Gear and tap «Edit» next to «Own views».', 'Add a view, e.g. «Repair».', 'Open an item › «Name, brand, note» and tick its views.'],
   'f.aiprojects': ['Open Me › My AI projects.', 'Paste the address of a project or chat.', 'One tap opens it with your account.'],
   'f.notes': ['Open Notes.', 'Write, dictate, take a photo or add a link.', 'Add topics and #tags; pin up to 3.'],
+  'f.noteforms': ['Open Notes.', 'Tap «Choose templates» and «Use».', 'Tap a template, fill it in, «Take over».'],
   'f.starters': ['Tap «New» › «Plan a trip» and choose the sport.', 'At «Start from» tap «From your trips»: what you took most often comes along.', 'In Pack open «Suggestion list» and tick what you take.'],
   'f.supplies': ['Open Gear › Supplies.', 'Set the expiry date and how many you have at home.', 'What runs low is under «Buy again»; tap «Bought» after shopping.'],
   'f.table': ['On the computer open Gear and choose «Table», or «Edit as a table» in other lists.', 'Click a cell and type; it saves when you leave the cell.', 'Tick several rows, choose a field and «Set for all».'],

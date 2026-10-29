@@ -159,7 +159,7 @@ export const FEATURE_MOMENTS = {
     'f.dictate', 'f.aiprojects', 'f.photoalbum', 'f.sortround', 'f.docs', 'f.tools', 'f.pdftools', 'f.markup',
     'f.phototools', 'f.ablage', 'f.weblinks', 'f.chains', 'f.convert', 'f.video', 'f.qr', 'f.docscan',
     'f.mailin', 'f.mail', 'f.agenda', 'f.trello', 'f.friendask', 'f.friendshelf', 'f.friendtemplate', 'f.minidate',
-    'f.inputbar', 'f.inputtemplates', 'f.picturecard',
+    'f.inputbar', 'f.inputtemplates', 'f.noteforms', 'f.picturecard',
   ],
   // App, Daten und Hilfe
   app: [
