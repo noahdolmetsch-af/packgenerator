@@ -9,8 +9,10 @@
    * rename, sort (arrows and drag), delete (asks where its recipes go, Undo), add own ones, back to the standard;
    * a recipe page puts the recipe in or out of any group.
    */
-  import { ChevronRight, Clock, Play, Minus, Plus, ShoppingCart, EyeOff, Eye, Pencil, ChefHat, X, RotateCcw } from '@lucide/svelte';
+  import { ChevronRight, Clock, Heart, Play, Minus, Plus, ShoppingCart, EyeOff, Eye, Pencil, ChefHat, X, RotateCcw } from '@lucide/svelte';
   import CookMode from './CookMode.svelte';
+  import KochTips from './KochTips.svelte';
+  import { toggleLike } from '../kochen/tipps.js';
   import RenameSheet from '../ui/RenameSheet.svelte';
   import GroupDeleteSheet from '../ui/GroupDeleteSheet.svelte';
   import SortGrip from '../ui/SortGrip.svelte';
@@ -187,6 +189,7 @@
         {#if recipe.own}
           <a class="btn" href={collHref(recipe.coll)} data-ko-edit-own><Pencil size={16} aria-hidden="true" />{t('Change it in Free time')}</a>
         {:else}
+          <button type="button" class="btn" aria-pressed={prefs.liked.includes(recipe.id)} onclick={() => save((p) => toggleLike(p, recipe.id))} data-ko-like><Heart size={16} aria-hidden="true" fill={prefs.liked.includes(recipe.id) ? 'currentColor' : 'none'} />{t('Like it')}</button>
           <button type="button" class="btn" onclick={() => hide(recipe)} data-ko-hide><EyeOff size={16} aria-hidden="true" />{t("Don't show again")}</button>
         {/if}
       </div>
@@ -197,6 +200,8 @@
     <Crumb path={[{ href: '#/week', label: t('Plan|place') }, { href: ALLTAG_HASH, label: t('Everyday life') }]} here={t('Cooking')} />
     <h1 class="fz-h1" tabindex="-1" data-page-title>{t('Cooking')}</h1>
     <p class="fz-intro">{t('Very simple meals: at most 6 ingredients and 20 minutes. Tap a recipe for its ingredients and all steps.')}</p>
+    <KochTips {prefs} loaded={$prefsQ !== undefined} {save} onhide={hide} />
+    <h2 class="fz-h2">{t('All recipes')}</h2>
     <div class="fz-chips" role="group" aria-label={t('Which meal')}>
       {#each FILTERS as f (f.key)}
         <button type="button" class="fz-chip" aria-pressed={filter === f.key} onclick={() => (filter = f.key)} data-ko-filter={f.key}>{t(f.label)}</button>
@@ -211,7 +216,7 @@
     {/if}
     {#if !list.length}
       <p class="fz-empty" data-ko-empty>
-        {filter === 'own' ? t('No own recipe yet. Write one in Free time › My collections; it shows here too.') : filter.startsWith(GROUP_FILTER) ? t('No recipe in this group yet. Open a recipe and tap the group to put it in.') : t('All recipes of this meal are hidden. «Hidden» below brings them back.')}
+        {filter === 'liked' ? t('No recipe liked yet. Tap «Like it» on a recipe.') : filter === 'own' ? t('No own recipe yet. Write one in Free time › My collections; it shows here too.') : filter.startsWith(GROUP_FILTER) ? t('No recipe in this group yet. Open a recipe and tap the group to put it in.') : t('All recipes of this meal are hidden. «Hidden» below brings them back.')}
         {#if filter === 'own'}<a href={ownHref}>{t('Write a recipe')}</a>{/if}
       </p>
     {:else}
