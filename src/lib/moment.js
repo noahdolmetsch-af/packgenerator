@@ -158,7 +158,7 @@ export const FEATURE_MOMENTS = {
     'f.plantpass', 'f.doubleinbox', 'f.mailcase', 'f.memorycard', 'f.noteformats', 'f.next', 'f.notes',
     'f.dictate', 'f.aiprojects', 'f.photoalbum', 'f.sortround', 'f.docs', 'f.tools', 'f.pdftools', 'f.markup',
     'f.phototools', 'f.ablage', 'f.weblinks', 'f.chains', 'f.convert', 'f.video', 'f.qr', 'f.docscan',
-    'f.mailin', 'f.mail', 'f.agenda', 'f.trello', 'f.friendask', 'f.friendshelf', 'f.friendtemplate', 'f.minidate',
+    'f.mailin', 'f.mail', 'f.agenda', 'f.trello', 'f.friendask', 'f.friendshelf', 'f.friendtemplate', 'f.minidate', 'f.minipoll',
     'f.inputbar', 'f.inputtemplates', 'f.noteforms', 'f.picturecard', 'f.calc', 'f.units', 'f.freiabend',
   ],
   // App, Daten und Hilfe
