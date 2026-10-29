@@ -37,6 +37,7 @@
   import { phone } from '../media.svelte.js';
   import { localDay } from '../localday.js';
   import { swipeRight } from '../ui/swipe.js';
+  import PackBike from './PackBike.svelte';
   import '../trip/trip.css';
 
   let { trip, steps, itemsById, badges = {}, ready = [], wxGap = null, onwx = () => {}, ontoggle, onready, onpack = () => {}, onreadyall = () => {}, onnext, onundo = () => {}, canUndo = false, main = { kind: 'finish', label: 'Finish packing' }, onend = () => {}, bike = true, lessons = [], reminders = [], oncharge = null, pressure = '', stats = null, charge = null, top = null, fixed = false, onread = null, onmove = null, spare = [] } = $props();
@@ -545,6 +546,7 @@
       <section class="psec" aria-labelledby="bags-h">
         <h2 id="bags-h" class="sh">{t('Bags')}</h2>
         <p class="ssub"><span class="num packed-count">{t('{n} of {total} packed', { n: packed, total })}</span>{' · '}{t('tap a bag')}{#if !fixed}{@render photoTick()}{/if}{#if onread && !phone.matches}<button type="button" class="btn sm pd-read-w" onclick={onread}><Volume2 size={16} aria-hidden="true" /> {t('Read aloud')}</button>{/if}{@render sideSwitch()}</p>
+        <PackBike {steps} {cur} onpick={pick} />
         <ul class="blist">
           {#each steps as s (s.key)}{@render bagRow(s, iconOf(s.key), full(s), s.key === cur)}{/each}
           {#if ready.length}

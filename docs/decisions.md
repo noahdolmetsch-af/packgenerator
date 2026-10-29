@@ -2013,3 +2013,7 @@ Noah 19.10.2026: «1a 2a 3a 4 a oder b beides wählbar 5a», danach «a und b»,
 - 8 Momente, eine ruhige Funktion zum Entdecken pro Moment mit «Nicht für mich» (Noah «2a 3a»).
 - Die vier Knöpfe oben auf Heute wandern in die Moment-Karte, die Tourkarte «1/7» fällt weg, «Was die App kann» bekommt die Ansicht «Nach Moment», «Gehört dazu» Seite für Seite ab Packen (Noah «1a 2a 3a 4a»). 13 kleine PRs (Noah «ok freigabe», «ja»).
 - Jede Funktion in `features.js` hat genau einen Moment in `FEATURE_MOMENTS` (`src/lib/moment.js`); `tests/moment.test.js` prüft das.
+
+## 27.10.2026 Freunde jederzeit umstellen
+
+- Noah «ich möchte jetzt bauen, dass wir in zukunft jederzeit umstellen können», dann «ok 335» (★ 1a 2a 3a): Freunde lädt Noah in der App ein (Link, einmal, 7 Tage) und entfernt sie dort (fragt zuerst, dann «Rückgängig»); neben dem Link steht der Hinweis auf Stravas eigene Grenze (gratis Antrag). Die Vercel-Liste `STRAVA_ATHLETES` gilt weiter.

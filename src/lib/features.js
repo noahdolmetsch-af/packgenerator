@@ -168,7 +168,7 @@ const OWN = [
   // Bike
   { id: 'f.kmimport', group: 'bike', title: 'Import rides', text: 'A Strava export or Garmin files: km per bike, by sensor or your rules.', href: '#/bikes?tab=care&view=import', seen: 'imports', words: 'strava garmin fit import fahrten km' },
   // v0.116.0 «Strava-Verbindung» (E3)
-  { id: 'f.strava', group: 'bike', title: 'Connect Strava', text: 'Rides with their bike from Strava, fetched by themselves; a changed bike asks first.', href: '#/bikes?tab=care&view=strava', words: 'strava-verbindung strava verbinden fahrten holen automatisch velo km' },
+  { id: 'f.strava', group: 'bike', title: 'Connect Strava', text: 'Rides with their bike from Strava, fetched by themselves; a changed bike asks first.', href: '#/bikes?tab=care&view=strava', words: 'strava-verbindung strava verbinden fahrten holen automatisch velo km freund einladen freunde eigenes strava' },
   // v0.132.0 «Velo-Setup» (UC3-1 to UC3-3)
   { id: 'f.velosetup', group: 'bike', title: 'My setup', text: 'Your setup photos, the total weight, your race-rig links and races, and your bike compared.', href: '#/bikes?tab=rig', words: 'velo-setup und rennsetups setup race rig bikepacking fotos gewicht rennen vergleich links' },
   { id: 'f.standardbike', group: 'bike', title: 'Standard bike and order', text: 'The first bike is your standard bike (★); arrows set the order, and you choose what a new trip brings.', href: '#/bikes?tab=setup', words: 'standard velo stern reihenfolge pfeile neue tour zuletzt gefahren' },

@@ -103,6 +103,7 @@ export function dayTable({ health = [], acts = [], bikeRides = [] } = {}) {
     for (const k of ['spo2', 'breath', 'skinTemp']) if (fin(h[k]) != null) row[k] = h[k];
     // «Alle Werte» (27.10.2026): the whole Fitbit day for the further values (VO₂max, floors, hours …)
     row.fit = h;
+    if (fin(h.vo2max) > 0) row.vo2max = h.vo2max;
   }
   for (const row of map.values()) if (row.hrMax == null && row.actHrMax) row.hrMax = row.actHrMax;
   for (const row of map.values()) row.acts.sort((a, b) => String(a.start ?? a.time ?? '').localeCompare(String(b.start ?? b.time ?? '')));
