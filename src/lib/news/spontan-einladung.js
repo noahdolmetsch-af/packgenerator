@@ -2,10 +2,10 @@
 export default {
   title: 'Quick invite',
   lead: '«Are you riding with me tomorrow?» as one link with meeting point, route and weather.',
-  points: [{ text: 'Me › Mini tools › Quick invite: pick the day, add the meeting point, send the link', href: '#/me/mini' }],
+  points: [{ text: 'Me › Mini tools › Quick invite: pick the day, add the meeting point, send the link', href: '#/me/mini', go: 'f.miniinvite' }],
   small: [
-    { box: 'new', text: 'People tap «I am in», «Maybe» or «Not this time» in the browser' },
-    { box: 'new', text: 'The weather of your home place comes along by itself' },
+    { box: 'new', go: 'f.miniinvite', text: 'People tap «I am in», «Maybe» or «Not this time» in the browser' },
+    { box: 'new', go: 'f.miniinvite', text: 'The weather of your home place comes along by itself' },
   ],
   test: [
     'Open Me › Mini tools › Quick invite, tap «Tomorrow», write a meeting point and tap «Make the link».',

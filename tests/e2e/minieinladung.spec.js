@@ -1,7 +1,7 @@
 // Mini-Tools «Spontan-Einladung» (Noah 28.10.2026, idea 5): «Are you riding with me tomorrow?» with meeting point and
 // the weather of the home place; a friend taps «I am in», then changes to «Maybe»; the maker sees the columns.
 // The server (/api/sync?action=mini) is the real handler over a small fake Redis. Fictional data only.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { openHome } from './home0460-fixture.js';
 import { makeMiniHandler } from '../../api/_lib/mini.js';
 import { fakeRedis } from '../fakeredis.js';
