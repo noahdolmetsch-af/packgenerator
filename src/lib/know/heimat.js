@@ -364,6 +364,7 @@ export const HOME = {
   'f.shopping': '#/me/alltag',
   'f.contracts': '#/me/alltag',
   'f.people': '#/me/alltag',
+  'f.cook': '#/me/alltag',
   'f.search': '#/',
   'f.inbox': '#/inbox',
   'f.notelinks': '#/notes?open=:note',

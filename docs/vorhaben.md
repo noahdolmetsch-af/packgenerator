@@ -557,6 +557,12 @@ Warum: Daten aus verschiedenen Bereichen sollen zusammenspielen, damit die App i
 - **Plan:** 13 kleine PRs. 1 Moment-Regeln, 2–3 die 117 fehlenden Katalog-Einträge, 4 Moment-Karte, 5 Entdecken-Karte, 6 «Nach Moment», 7–9 «Gehört dazu», 10 Versteckte sichtbar, 11 Namen, 12 Gesten erklären, 13 Wächter für alle. Skizzen: https://claude.ai/artifact/Hbqb7wZAPaxwvtMm7irumB.
 - **Stand:** PR 1 (Regeln in `src/lib/moment.js`, nichts sichtbar).
 
+### 16. Kochen (Ziel 5 Alltag, Noah 28.10.2026 «1b 2a 3a 4a 5a»)
+
+**Warum:** Noah isst schlecht und möchte, dass die App ihm hilft, sehr einfache Dinge zu kochen. **Wo:** eigene Seite Planen › Alltag › Kochen, nichts auf Heute. **Rezepte:** eigene, sehr einfache Rezepte offline im Repo (höchstens 6 Zutaten, 20 Minuten), ohne Kosten und ohne fremde Texte; eigene Rezepte aus Freie Zeit kommen dazu.
+
+In vier kleinen Schritten: 1 Seite mit Rezepten, Gruppen (Fleisch, Shakes, Sonntags-Brunch …), Portionen und Einkaufsliste · 2 Kochmodus (ein Schritt pro Bildschirm, Timer, Bildschirm bleibt an, alle Schritte auf einen Blick) · 3 ein Tipp pro Mahlzeit und Tag, ohne Wiederholung, mit «Anderer Vorschlag», «Mag ich», «Nie mehr zeigen» und kurzem Start (was du nicht isst, wie lange) · 4 ungefähre Nährwerte pro Portion. Später: Bezug zum Training, Link zur Suche im Online-Shop.
+
 ## Mini-Tools (28.10.2026)
 
 Warum: mit anderen Leuten schneller abmachen, ohne langes Hin und Her im Chat (Ziele Touren und Alltag). Noah «1b 2a 3a, Ideen 1, 2, 4, 5, 7, 9, 10, 5a». Ideenseite mit Skizzen: https://claude.ai/artifact/HA5TAJLzAtuhUBAAHqJApH
