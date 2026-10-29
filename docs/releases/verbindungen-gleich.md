@@ -1,6 +1,6 @@
 # Verbindungen überall gleich
 
-PR #? · 27.10.2026 · Auftrag: Noah 26.10.2026 20:31 «1a» alle B-Fehler aus dem UI-Test 0.205 (Thread «Testen komplette App mit Fehlerliste»)
+PR #447 · 27.10.2026 · Auftrag: Noah 26.10.2026 20:31 «1a» alle B-Fehler aus dem UI-Test 0.205 (Thread «Testen komplette App mit Fehlerliste»)
 
 ## Was ist neu
 - Google (Termine, Mail), Trello und Fitbit nennen den Geräte-Schlüssel gleich: «Dieses Gerät braucht einmal den App-Schlüssel … Gerät freischalten (einmal)» statt «Zuerst Strava verbinden».
