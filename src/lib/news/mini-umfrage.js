@@ -2,10 +2,10 @@
 export default {
   title: 'Mini survey',
   lead: 'Ask a group a few short questions by link; the app counts the answers.',
-  points: [{ text: 'Me › Mini tools › Mini survey: pick a start, change the questions, send the link', href: '#/me/mini' }],
+  points: [{ text: 'Me › Mini tools › Mini survey: pick a start, change the questions, send the link', href: '#/me/mini', go: 'f.minipoll' }],
   small: [
-    { box: 'new', text: 'People answer one question at a time in the browser, also anonymously' },
-    { box: 'new', text: 'A summary in sentences on top, counted without AI' },
+    { box: 'new', go: 'f.minipoll', text: 'People answer one question at a time in the browser, also anonymously' },
+    { box: 'new', go: 'f.minipoll', text: 'A summary in sentences on top, counted without AI' },
   ],
   test: [
     'Open Me › Mini tools › Mini survey, tap «Where does the trip go?» and «Make the link».',

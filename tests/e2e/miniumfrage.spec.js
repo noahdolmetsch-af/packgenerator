@@ -2,7 +2,7 @@
 // make a link; a friend answers one question at a time in a second tab; the maker reads the summary and bars;
 // an anonymous survey asks no name. The server (/api/sync?action=mini) is the real handler over a small fake
 // Redis; it keeps only sealed text. Fictional data only.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { openHome } from './home0460-fixture.js';
 import { makeMiniHandler } from '../../api/_lib/mini.js';
 import { fakeRedis } from '../fakeredis.js';
@@ -65,7 +65,7 @@ test('Mini survey: from a template, a friend answers step by step, the summary i
   const url = await linkBox.inputValue();
   await expect(page.locator('[data-pr-summary]')).toContainText(T('No answers yet. Share the link, then look for new answers.'));
   const kept = () => JSON.stringify([...redis.kv].map(([k, v]) => [k, v instanceof Map ? [...v] : v]));
-  expect(kept()).not.toMatch(/Herbsttour|Jura/);
+  expect(kept()).not.toMatch(/test_data_gtp_ (Herbsttour|Jura)/);
 
   // a friend answers one question at a time
   const friend = await context.newPage();
@@ -90,7 +90,7 @@ test('Mini survey: from a template, a friend answers step by step, the summary i
   await expect(friend.locator('[data-pa-done]')).toHaveText(T('{done} of {n} questions answered.', { done: 4, n: 4 }));
   await tap(friend.locator('[data-pa-send]'), info);
   await expect(friend.locator('[data-pa-sent]')).toBeVisible();
-  expect(kept()).not.toMatch(/Freundin|Essen/);
+  expect(kept()).not.toMatch(/test_data_gtp_ (Freundin|gutes)/);
 
   // the maker reads the summary
   await tap(page.locator('[data-mt-refresh]'), info);

@@ -140,4 +140,8 @@ export default {
     'Ein paar kurze Fragen per Link: eine oder mehrere Antworten, eine Skala, Ja oder Nein oder ein kurzer Text. Die Leute antworten im Browser ohne Konto; die App zählt die Antworten und fasst sie zusammen, ohne KI.',
   'Pick a start, change the questions and tap «Make the link».': 'Wähle einen Start, ändere die Fragen und tipp «Link machen».',
   'Send it; the summary is on top.': 'Schick ihn; die Zusammenfassung steht oben.',
+  'Open Me › Mini tools › Mini survey.': 'Öffne Ich › Mini-Tools › Mini-Umfrage.',
+  'Start from a ready set or empty, change the questions and tap «Make the link».': 'Fang mit einer fertigen Vorlage oder leer an, ändere die Fragen und tipp «Link machen».',
+  'Send the link; tap «Look for new answers» to see the summary.': 'Schick den Link; mit «Neue Antworten holen» siehst du die Zusammenfassung.',
+  'Example: «Autumn trip» with three questions; five people answer, most chose the Jura.': 'Beispiel: «Herbsttour» mit drei Fragen; fünf Leute antworten, die meisten wählen den Jura.',
 };

@@ -1973,8 +1973,4 @@ export default {
   'Write what it is about, pick 2 to 8 days and tap «Make the link».': 'Schreib, worum es geht, wähle 2 bis 8 Tage und tipp «Link machen».',
   'Send the link; tap «Look for new answers» to see who can when.': 'Schick den Link; mit «Neue Antworten holen» siehst du, wer wann kann.',
   'Example: «Weekend trip Jura» with three Saturdays; four people answer, the 14th works for all.': 'Beispiel: «Wochenend-Tour Jura» mit drei Samstagen; vier Leute antworten, am 14. können alle.',
-  'Open Me › Mini tools › Mini survey.': 'Öffne Ich › Mini-Tools › Mini-Umfrage.',
-  'Start from a ready set or empty, change the questions and tap «Make the link».': 'Fang mit einer fertigen Vorlage oder leer an, ändere die Fragen und tipp «Link machen».',
-  'Send the link; tap «Look for new answers» to see the summary.': 'Schick den Link; mit «Neue Antworten holen» siehst du die Zusammenfassung.',
-  'Example: «Autumn trip» with three questions; five people answer, most chose the Jura.': 'Beispiel: «Herbsttour» mit drei Fragen; fünf Leute antworten, die meisten wählen den Jura.',
 };
