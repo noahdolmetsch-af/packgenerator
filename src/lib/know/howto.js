@@ -46,7 +46,7 @@ export const HOWTO = {
   'f.dayblocks': ['Open Ride day.', 'The day stands in blocks of 3 hours.', 'Each block says dress, eat and light; the arrival at your pace.'],
   'f.evening': ['On a trip of several days, open Ride day.', 'In the evening the evening block comes.', 'Charge tonight, lay out for tomorrow.'],
   'f.ridenote': ['Open Ride day.', 'Tap «Note» and write.', 'The note lands in the debrief of the trip.'],
-  'f.finish': ['Open Ride day.', 'Under «…» choose «End the trip».', 'Undo is there; then the next step follows.'],
+  'f.finish': ['Open Ride day.', 'At the bottom of the page tap «End the trip …».', 'Undo is there; then the next step follows.'],
   debrief: ['Open Debriefs.', 'Choose the trip that waits.', 'Tap what you used; it takes a minute.'],
   learn: ['Write 3 debriefs.', 'Open Templates.', 'Take the suggestions to take out or add, or leave them.'],
   pace: ['Open Your pace.', 'Load a few GPX rides.', 'Riding times now use your own pace.'],
@@ -443,6 +443,20 @@ export const HOWTO = {
   'f.lightpush': ['Open Me › Reminders on the phone.', 'Switch on «Light alarm».', 'Wait for the evening before a late ride.'],
   'f.wearpush': ['Open Me › Reminders on the phone.', 'Switch on «Parts worn».', 'A message comes when a part is due.'],
   'f.racepush': ['Give the race its registration deadline.', 'Switch on «Race registration».', 'A message comes 3 days and 1 day before.'],
+  // Heute als Begleiter PR 3 (Noah 28.10.2026, Auffälligkeiten 10–12): Small apps, Calm and personal, the 7 pages of Free time, 4 ski tour pages
+  'f.miniapps': ['Open Me › Small apps.', 'Choose a part.', 'Add it to the home screen.'],
+  'f.ruhig': ['Open Me › Calm and personal.', 'Choose a part.', 'Read its short explanation on top.'],
+  'f.freiabend': ['Open Free time › My evening.', 'Add a ritual or a song.', 'Answer the question, or leave it.'],
+  'f.freiwesentlich': ['Open Free time › What matters to me.', 'Write what matters now.', 'Add your big maybe.'],
+  'f.freireise': ['Open Free time › Travel wishes.', 'Write what you long for.', 'Plan a day with room for surprises.'],
+  'f.freinacht': ['Open Free time › First night.', 'Write what you want to find out.', 'Choose route and bed.'],
+  'f.freinaechstes': ['Open Free time › For next time.', 'Add a thing and mark it.', 'Use it when you pack next time.'],
+  'f.freilust': ['Open Free time › What am I up for?', 'Pick an idea.', 'Try the technique of the week.'],
+  'f.freisamml': ['Open Free time › My collections.', 'Start a collection.', 'Add a find.'],
+  'f.skicheck': ['Open Ski tours › Backpack check.', 'Go through the five groups.', 'Tap each thing when packed.'],
+  'f.skistart': ['Open Ski tours › Start check.', 'Go through the five checks.', 'Set your turn-around time.'],
+  'f.skicare': ['Open Ski tours › Season care.', 'Choose the phase.', 'Tap «Done» on a task.'],
+  'f.skiafter': ['Open Ski tours › After the tour.', 'Enter summit and metres.', 'Answer the three questions.'],
 };
 
 /** The steps of a function, or [] when it has none. */

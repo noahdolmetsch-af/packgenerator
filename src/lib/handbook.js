@@ -2136,6 +2136,72 @@ export const HANDBOOK = {
     steps: ['Give the race its registration deadline in Trips › Races.', 'Switch on «Race registration» in Me › Reminders on the phone.', 'A message comes 3 days and 1 day before, at 08:00.'],
     example: 'Example: «Jura Gravel 200: registration closes in 3 days.»',
   },
+  // Heute als Begleiter PR 3 (Noah 28.10.2026, Auffälligkeiten 10–12): Small apps, Calm and personal, the 7 pages of Free time, 4 ski tour pages
+  'f.miniapps': {
+    on: null,
+    steps: ['Open Me › Small apps.', 'Choose a part, e.g. the shopping list.', 'Add it to the home screen; it opens right there.'],
+    example: 'Example: the shopping list as its own icon next to the camera.',
+  },
+  'f.ruhig': {
+    on: null,
+    steps: ['Open Me › Calm and personal.', 'Choose a part, e.g. «Less app».', 'Each part explains itself on its page.'],
+    example: 'Example: «Letter for a moment» opens on the first night of your next trip.',
+  },
+  'f.freiabend': {
+    on: null,
+    steps: ['Open Plan › Free time › My evening.', 'Add your rituals and your evening music.', 'Answer the question to arrive, or leave it.'],
+    example: 'Example: tea, ten minutes of stretching, then one song.',
+  },
+  'f.freiwesentlich': {
+    on: null,
+    steps: ['Open Plan › Free time › What matters to me.', 'Write what matters to you now.', 'Add your big maybe; change it any time.'],
+    example: 'Example: «More nights outside, fewer kilometres.» Big maybe: the Transcontinental.',
+  },
+  'f.freireise': {
+    on: null,
+    steps: ['Open Plan › Free time › Travel wishes.', 'Write what you long for and what you want to bring home.', 'Plan one day with room for surprises.'],
+    example: 'Example: «The sea after a long climb»; bring home: a photo of every fountain.',
+  },
+  'f.freinacht': {
+    on: null,
+    steps: ['Open Plan › Free time › First night.', 'Write what you want to find out.', 'Choose route and bed; afterwards look back.'],
+    example: 'Example: «Is my sleeping bag warm enough at 5 °C?» 40 km to a hut, back the next morning.',
+  },
+  'f.freinaechstes': {
+    on: null,
+    steps: ['Open Plan › Free time › For next time.', 'Add a thing and mark it proven, came along or missing.', 'Take the list along when you pack next time.'],
+    example: 'Example: missing: a second buff; proven: the small stove.',
+  },
+  'f.freilust': {
+    on: null,
+    steps: ['Open Plan › Free time › What am I up for?', 'Pick one of the ideas to start.', 'Try the technique of the week.'],
+    example: 'Example: technique of the week: ride one climb only seated.',
+  },
+  'f.freisamml': {
+    on: null,
+    steps: ['Open Plan › Free time › My collections.', 'Start a collection and give it a name.', 'Add a find whenever you have one.'],
+    example: 'Example: «Jura fountains»: 12 found, the coldest one at the Chasseral.',
+  },
+  'f.skicheck': {
+    on: null,
+    steps: ['Open Trips › Ski tours › Backpack check.', 'Go through the five groups.', 'Tap each thing when it is in the backpack.'],
+    example: 'Example: transceiver, shovel and probe first, then the food.',
+  },
+  'f.skistart': {
+    on: null,
+    steps: ['Open Trips › Ski tours › Start check.', 'Go through the five checks at the car park.', 'Set your turn-around time.'],
+    example: 'Example: transceiver check done, turn back at 12:30 at the latest.',
+  },
+  'f.skicare': {
+    on: null,
+    steps: ['Open Trips › Ski tours › Season care.', 'Choose the phase: start, during, end.', 'Tap «Done»; the day and the metres climbed stay.'],
+    example: 'Example: skins glued again after 6000 m climbed.',
+  },
+  'f.skiafter': {
+    on: null,
+    steps: ['Open Trips › Ski tours › After the tour.', 'Enter summit, metres and who was there.', 'Answer the three questions.'],
+    example: 'Example: «Turned back 200 m below the summit: the wind was too strong.»',
+  },
 };
 
 /** The small apps: each opens right on its area, with its own icon, and shares the data of the whole app. */
