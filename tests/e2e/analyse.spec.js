@@ -109,11 +109,17 @@ test('Analyse: every value as a tile, sources and period, a tap opens its course
   await expect(page.locator('[data-src="strava"]')).toHaveAttribute('aria-pressed', 'false');
   await expect(page.getByRole('button', { name: T('{n} days|analyse').replace('{n}', '90') })).toHaveAttribute('aria-pressed', 'true');
 
-  // a tap opens the value's own page
+  // a tap opens the value's own page (M6); the older views stay one link away
   await page.locator('[data-value="act:sauna"]').click();
-  await expect(page).toHaveURL(/#\/flow\/auswertung\?act=sauna&p=90$/);
+  await expect(page).toHaveURL(/#\/auswerten\/analyse\/act%3Asauna$/);
+  await expect(page.locator('[data-detail="act:sauna"]')).toBeVisible();
+  await page.getByRole('link', { name: T('Also in «Ticks evaluated»|analyse') }).click();
+  await expect(page).toHaveURL(/#\/flow\/auswertung\?act=sauna&p=/);
+  await page.goBack();
   await page.goBack();
   await page.locator('[data-value="rhr"]').click();
+  await expect(page).toHaveURL(/#\/auswerten\/analyse\/rhr$/);
+  await page.getByRole('link', { name: T('Also in the older view|analyse') }).click();
   await expect(page).toHaveURL(/#\/flow\/stats\/hr$/);
   expect(errors).toEqual([]);
 });

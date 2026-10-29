@@ -8,28 +8,36 @@
    * («2a»: no second page for the same thing). Only to look at, nothing is rated. Rules in lib/analyse.js.
    * Loaded only when opened (App.svelte PAGES.Analyse).
    */
-  import { liveQuery } from 'dexie';
   import { ChevronRight } from '@lucide/svelte';
-  import { db } from '../lib/db.js';
   import Crumb from '../lib/flow/kit/Crumb.svelte';
   import PageHead from '../lib/ui/PageHead.svelte';
   import Seg from '../lib/ui/Seg.svelte';
   import Empty from '../lib/ui/Empty.svelte';
-  import { tableQuery } from '../lib/messwerte-data.js';
-  import { bodyOf, kindDay, BODY, KIND_ORDER, ownBodyKeys, ownBodyDays } from '../lib/uebersicht.js';
-  import { AB_KEY, configOf } from '../lib/abfragen.js';
-  import { bodyExtras } from '../lib/form-data.js';
-  import { kgOn } from '../lib/weight.js';
-  import { weight } from '../lib/weight.svelte.js';
-  import { BP_KEY, WATER_KEY, bpEntries, waterEntries, medByDay, bedText } from '../lib/koerper.js';
-  import { zones } from '../lib/strava/zones.svelte.js';
-  import { shown } from '../lib/messwerte.js';
-  import { normAct } from '../lib/flow.js';
-  import { actName } from '../lib/flow/ui.svelte.js';
-  import { sportName } from '../lib/flow/garmin/words.js';
-  import { PERIODS, DEFAULT_PERIOD, SOURCES, sourceOf, periodDays, tilesOf, ticksByDay, tickPeriod, sparkPath, hourProfile, activeHours, meanOfHours, sumOf } from '../lib/analyse.js';
+  import { valueText as fmtValue, unitText } from '../lib/analyse/format.js';
+  import { PERIODS, DEFAULT_PERIOD, SOURCES, periodDays, tilesOf, sparkPath } from '../lib/analyse.js';
+  import { analyseData } from '../lib/analyse/data.svelte.js';
+  import { analyseGroups } from '../lib/analyse/catalog.js';
   import { localDay } from '../lib/localday.js';
   import { t, num } from '../lib/i18n.svelte.js';
+  import AnalyseWert from './analyse/AnalyseWert.svelte';
+
+  // #/auswerten/analyse/<key>: the page of one value (M6)
+  const keyOf = (h) => {
+    const m = /^#\/auswerten\/analyse\/([^?#]+)/.exec(h ?? '');
+    if (!m) return null;
+    try {
+      return decodeURIComponent(m[1]);
+    } catch {
+      return m[1];
+    }
+  };
+  let hash = $state(location.hash);
+  $effect(() => {
+    const on = () => (hash = location.hash);
+    addEventListener('hashchange', on);
+    return () => removeEventListener('hashchange', on);
+  });
+  const detailKey = $derived(keyOf(hash));
 
   const today = localDay();
   const LS = 'pg.analyse';
@@ -53,162 +61,16 @@
   });
   const toggle = (s) => (on = on.includes(s) ? on.filter((x) => x !== s) : SOURCES.filter((x) => x === s || on.includes(x)));
 
-  const q = tableQuery();
-  const table = $derived($q ?? new Map());
-  const get = async (k) => (await db.settings.get(k))?.value ?? null;
-  const flowQ = liveQuery(async () => {
-    const [acts, log] = await Promise.all([db.flowActs.toArray(), db.flowLog.toArray()]);
-    return { acts: acts.map(normAct).sort((a, b) => a.order - b.order), log };
-  });
-  const checksQ = liveQuery(() => (db.flowChecks ? db.flowChecks.toArray() : []));
-  const abQ = liveQuery(() => db.settings.get(AB_KEY));
-  const ansQ = liveQuery(() => (db.abAnswers ? db.abAnswers.toArray() : []));
-  const bpQ = liveQuery(() => get(BP_KEY));
-  const waterQ = liveQuery(() => get(WATER_KEY));
-
+  const data = analyseData({ from: () => days[0] });
   const days = $derived(periodDays(today, period));
-  const ownKeys = $derived(ownBodyKeys(configOf($abQ?.value).own));
-  const weights = $derived(new Map(weight.entries.map((e) => [e.day, e.kg])));
-  const ctx = $derived({
-    ...bodyExtras({ table, checks: $checksQ ?? [], from: days[0], to: today }),
-    kgOn: (d) => kgOn(weight.entries, d),
-    bounds: zones.bounds,
-    med: medByDay($flowQ?.log ?? []),
-    water: new Map(waterEntries($waterQ).map((e) => [e.day, e.l])),
-    bp: new Map(bpEntries($bpQ).map((e) => [e.day, e])),
-    ab: ownBodyDays($ansQ ?? [], ownKeys),
-  });
-
-  // one value of uebersicht.js BODY: its name, unit, source and own page (Körperwerte)
-  const body = (key, extra = {}) => ({
-    key,
-    name: t(BODY[key].name),
-    unit: BODY[key].unit,
-    src: sourceOf(BODY[key].src),
-    sum: !!BODY[key].sum,
-    href: `#/flow/stats/${key}`,
-    get: (d) => bodyOf(table, d, key, weights, ctx, extra.part ?? null),
-    ...extra,
-  });
-  const PART = { sleep: 'Sleep|flow', energy: 'Energy', mood: 'Mood' };
-  // «Alle Werte»: the further Fitbit values of the day (healthDays via the day table's «fit»)
-  const fit = (d, k) => table.get(d)?.fit?.[k];
-  const fb = (key, name, unit, get, extra = {}) => ({ key, name, unit, src: 'fitbit', href: null, get, ...extra });
-  // values Google or Garmin do not give out: only a place holder until the app counts its own version
-  const later = (key, name, why) => ({ key, name, unit: '', src: 'fitbit', later: why });
-  const groups = $derived([
-    {
-      key: 'heart',
-      name: t('Heart|group'),
-      items: [
-        { key: 'rhr', name: t('Resting pulse'), unit: 'bpm', src: 'fitbit', href: '#/flow/stats/hr', get: (d) => table.get(d)?.rhr },
-        { key: 'hrMax', name: t('Highest pulse of the day'), unit: 'bpm', src: 'fitbit', href: '#/flow/stats/hr', get: (d) => table.get(d)?.hrMax },
-        body('hrv'),
-        body('spo2'),
-        body('breath'),
-        body('bp', { key: 'bp', part: 'sys', name: t('Blood pressure') }),
-        fb('hrMin', t('Lowest pulse of the day'), 'bpm', (d) => fit(d, 'hrMin')),
-        fb('hrAvg', t('Mean pulse of the day'), 'bpm', (d) => fit(d, 'hrAvg')),
-        fb('hrDay', t('Pulse over the day'), 'bpm', (d) => meanOfHours(fit(d, 'hrH')), { hours: true, profile: (ds) => hourProfile(ds, (d) => fit(d, 'hrH')) }),
-        fb('vo2max', t('VO₂max (cardio fitness)'), 'ml/kg/min', (d) => fit(d, 'vo2max'), { dec: 1 }),
-        fb('fitZones', t('Minutes in pulse zones (Fitbit)'), 'min', (d) => sumOf(fit(d, 'hrZones')), { sum: true }),
-        later('cardioLoad', t('Cardio load'), 'own'),
-        later('readiness', t('Daily readiness|fitbit'), 'own'),
-      ],
-    },
-    {
-      key: 'sleep',
-      name: t('Sleep|group'),
-      items: [body('sleep'), body('eff'), body('bed'), body('skin'), later('sleepScore', t('Sleep score'), 'own'), later('restless', t('Restlessness|sleep'), 'own')],
-    },
-    {
-      key: 'move',
-      name: t('Movement|analyse'),
-      items: [
-        body('azm'),
-        body('steps'),
-        body('kcal'),
-        body('zones'),
-        body('load'),
-        fb('distKm', t('Distance (watch)'), 'km', (d) => fit(d, 'distKm'), { sum: true, dec: 1 }),
-        fb('floors', t('Floors'), '', (d) => fit(d, 'floors'), { sum: true }),
-        fb('climbM', t('Climb (watch)'), 'm', (d) => fit(d, 'climbM'), { sum: true }),
-        fb('actHours', t('Hourly activity'), t('of 12|hours'), (d) => activeHours(fit(d, 'stepH')), { hours: true, bars: true, profile: (ds) => hourProfile(ds, (d) => fit(d, 'stepH')) }),
-        fb('activeMin', t('Active minutes'), 'min', (d) => sumOf(fit(d, 'levels'), ['light', 'mod', 'very']), { sum: true }),
-        fb('sedMin', t('Sitting time'), 'min', (d) => fit(d, 'levels')?.sed ?? null),
-        fb('workouts', t('Fitbit workouts'), 'min', (d) => sumOf(Object.fromEntries((fit(d, 'exercises') ?? []).map((e, i) => [i, e.min]))), { sum: true }),
-      ],
-    },
-    {
-      key: 'sports',
-      name: t('Sports and bike|analyse'),
-      items: [
-        ...KIND_ORDER.map((k) => ({ key: `km:${k}`, name: sportName(k), unit: 'km', src: 'strava', sum: true, href: `#/flow/stats/${k}`, get: (d) => kindDay(table.get(d), k).km || null })),
-        body('wkg'),
-        body('cad'),
-        body('spd'),
-      ],
-    },
-    {
-      key: 'body',
-      name: t('Body|group'),
-      items: [
-        body('weight'),
-        body('water'),
-        body('ready'),
-        fb('fitKg', t('Weight (Fitbit)'), 'kg', (d) => fit(d, 'fitKg'), { dec: 1 }),
-        fb('bodyFat', t('Body fat'), '%', (d) => fit(d, 'bodyFat'), { dec: 1 }),
-      ],
-    },
-    {
-      key: 'garmin',
-      name: t('Garmin|analyse'),
-      items: [
-        later('gTrain', t('Training status'), 'garmin'),
-        later('gEffect', t('Training effect'), 'garmin'),
-        later('gVo2', t('VO₂max (Garmin)'), 'garmin'),
-        later('gLactate', t('Lactate threshold'), 'garmin'),
-        later('gStress', t('HRV stress'), 'garmin'),
-        later('gCycling', t('Cycling ability'), 'garmin'),
-      ],
-    },
-    {
-      key: 'felt',
-      name: t("Wi gaht's?|analyse"),
-      items: [
-        ...Object.entries(PART).map(([p, n]) => body('felt', { key: `felt:${p}`, part: p, name: t(n) })),
-        // an own question keeps the name you typed (never through t())
-        ...ownKeys.map((k) => ({ key: k.key, name: k.name, unit: k.unit ?? '', src: 'check', href: `#/flow/stats/${k.key}`, get: (d) => bodyOf(table, d, k.key, weights, ctx) })),
-      ],
-    },
-    {
-      key: 'aktiv',
-      name: t('Your activities in Aktiv'),
-      items: ($flowQ?.acts ?? []).map((a) => {
-        const by = ticksByDay($flowQ.log, a.id);
-        return { key: `act:${a.id}`, name: actName(a), unit: '×', src: 'aktiv', sum: true, tick: true, href: `#/flow/auswertung?act=${encodeURIComponent(a.id)}&p=${tickPeriod(period)}`, get: (d) => by.get(d) ?? null };
-      }),
-    },
-  ]);
+  const groups = $derived(analyseGroups({ table: data.table, weights: data.weights, ctx: data.ctx, acts: data.acts, log: data.log, ownKeys: data.ownKeys, period }));
   const shownGroups = $derived(tilesOf(groups, days, on, { all }));
-  const loading = $derived($q === undefined || $flowQ === undefined);
+  const loading = $derived(data.loading);
 
   const SRC_NAMES = { aktiv: 'Aktiv', fitbit: 'Fitbit', strava: 'Strava', body: 'Body|group', check: "Wi gaht's?|analyse" };
   const periodOpts = $derived(PERIODS.map((p) => ({ key: String(p), name: p === 365 ? t('Year|analyse') : t('{n} days|analyse', { n: p }) })));
 
-  /** The big number of a tile, in the unit people know. */
-  function valueText(x) {
-    const v = x.value;
-    if (v == null) return '–';
-    if (x.key === 'sleep') return shown('sleep', v, num);
-    if (x.key === 'bed') return bedText(v);
-    if (x.key === 'skin') return `${v > 0 ? '+' : ''}${num(Math.round(v * 10) / 10)}`;
-    if (x.dec) return num(Math.round(v * 10) / 10);
-    if (x.key === 'actHours') return num(Math.round(v));
-    if (Math.abs(v) < 20 && !x.sum) return num(Math.round(v * 10) / 10);
-    return num(Math.round(v));
-  }
-  const unitText = (x) => (x.key === 'sleep' || x.key === 'bed' ? '' : x.unit);
+  const valueText = (x) => fmtValue(x, x.value, num);
   const howText = (x) =>
     x.later === 'garmin'
       ? t('Garmin does not give this out')
@@ -225,6 +87,9 @@
                 : t('average|analyse');
 </script>
 
+{#if detailKey}
+  {#key detailKey}<AnalyseWert key={detailKey} />{/key}
+{:else}
 <div class="an">
   <header>
     <Crumb path={[{ href: '#/auswerten', label: t('Analysis|place') }]} here={t('Analyse|page')} />
@@ -291,6 +156,7 @@
     <p class="hint">{#if all}{t('Dashed tiles have no data in this period yet. New Fitbit values come with the next fetch:')} <a href="#/me/fitbit">{t('Fitbit')}</a>{:else}{ t('A value without any day in this period is left out; «Also values without data» shows every value. Values come from your Fitbit (Google), Strava and what you enter or tick in the app.')}{/if}</p>
   {/if}
 </div>
+{/if}
 
 <style>
   .an {
