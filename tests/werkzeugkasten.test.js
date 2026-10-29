@@ -14,7 +14,7 @@ import { WHEELS, circumference, teethOf, gear, gearTable, rangePct } from '../sr
 import { haversine, lineLength, distText, gpxOf } from '../src/lib/tools/geo.js';
 import { cleanCode, checkDigitOk, itemsWithCode } from '../src/lib/tools/barcode.js';
 import { isHeic, convertedName, TARGETS } from '../src/lib/tools/convert.js';
-import { VIDEO_SIZES, videoPlan, videoGuess, recType, probeStart, PROBE_SECONDS } from '../src/lib/tools/video.js';
+import { VIDEO_SIZES, videoPlan, videoGuess, recType, stillSize, probeStart, PROBE_SECONDS } from '../src/lib/tools/video.js';
 import { SUGGESTED, WEB_GROUPS, cleanWeb, groupName, linkTrip, webLinks, linksIn, moveLink, deleteWebGroup, mapsUrl, calendarUrl } from '../src/lib/tools/weblinks.js';
 import { STEPS, DEFAULT_CHAINS, brokenStep, cleanChains, kindOfFiles, runChain, chainName } from '../src/lib/tools/chains.js';
 import { pageOf, placeOf } from '../src/lib/nav.js';
@@ -423,6 +423,12 @@ describe('picture format and video', () => {
     expect(probeStart(5)).toBe(0);
     expect(probeStart(3)).toBe(0);
     expect(probeStart(0)).toBe(0);
+  });
+  it('video still picture: the long side at most 1200, never bigger, never 0', () => {
+    expect(stillSize(1920, 1080)).toEqual({ w: 1200, h: 675 });
+    expect(stillSize(1080, 1920)).toEqual({ w: 675, h: 1200 });
+    expect(stillSize(640, 360)).toEqual({ w: 640, h: 360 });
+    expect(stillSize(0, 0)).toEqual({ w: 1, h: 1 });
   });
 });
 
