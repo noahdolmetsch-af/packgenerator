@@ -4,8 +4,11 @@
    * number or word at the right and the «neu» sign for the new tiles. id: the heading's id.
    */
   import { t } from '../i18n.svelte.js';
+  import InfoDot from '../nav/InfoDot.svelte';
+  import { INFO } from '../nav/spotinfo.js';
 
-  let { icon: Icon, title, id, side = '', isnew = false } = $props();
+  // info: a key of spotinfo.js (tile.week …): the small «i» with «Where does this come from?» («Pfad auf jeder Seite» 2)
+  let { icon: Icon, title, id, side = '', isnew = false, info = '' } = $props();
 </script>
 
 <div class="th">
@@ -13,6 +16,7 @@
   <h2 {id}>{title}</h2>
   {#if side}<span class="sd num">{side}</span>{/if}
   {#if isnew}<span class="nw">{t('new|tile')}</span>{/if}
+  {#if info && INFO[info]}<InfoDot info={INFO[info]} id={info} />{/if}
 </div>
 
 <style>
