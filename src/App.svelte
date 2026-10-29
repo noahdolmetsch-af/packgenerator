@@ -872,8 +872,6 @@
     min-width: 0;
   }
   /* v0.29.0: the trip steps use the same gutter as every page (16 px on a phone). */
-  /* «Pfad auf jeder Seite»: a page with its own path (PathHead, Crumbs, VeloHead) keeps it, no second line */
-  main:has(.pcrumbs, .crumbs, .crumb) :global([data-pathline]) { display: none; }
   main.calm { padding: var(--gut) var(--gut) 80px; max-width: none; }
   @media (max-width: 719px) { main.calm { padding: 12px var(--gut) calc(106px + env(safe-area-inset-bottom)); } }
 

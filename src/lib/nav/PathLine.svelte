@@ -1,9 +1,9 @@
 <script>
   /**
-   * «Pfad auf jeder Seite» (Noah 28.10.2026 «1a»): a quiet line above the page, «Plan › Notes › Title»,
+   * «Pfad auf jeder Seite» (Noah 28.10.2026 «1a»): a quiet line above the page, «Plan › Week › Title»,
    * built from the place and tab the app already knows (the same names as «Anpassen»), plus the page's own
-   * title once it is drawn. Pages that draw their own path (PathHead, Crumbs) keep it: the CSS in App.svelte
-   * hides this line when `main` holds one. Switch in Ich › Darstellung › Bedienung (ops.path).
+   * title once it is drawn. Pages that draw their own path (PathHead, Crumbs, VeloHead, a trip band) keep it:
+   * this line stays away when `main` holds one. Switch in Ich › Darstellung › Bedienung (ops.path).
    */
   import { ChevronRight } from '@lucide/svelte';
   import { t } from '../i18n.svelte.js';
@@ -23,14 +23,18 @@
 
   // the title the page draws itself (the pages load later, so watch until it is there)
   let title = $state('');
+  // a page that draws its own path (PathHead, Crumbs, VeloHead, a trip band) keeps it: no second line
+  let own = $state(false);
   $effect(() => {
     void hash;
     title = '';
+    own = false;
     const main = document.querySelector('main');
     if (!main) return;
     const read = () => {
       const h = main.querySelector('[data-page-title], h1');
       title = h?.textContent?.trim() ?? '';
+      own = !!main.querySelector('nav.pcrumbs, nav.crumbs, nav.crumb');
     };
     read();
     const mo = new MutationObserver(read);
@@ -41,8 +45,8 @@
   const last = $derived(title && title !== steps.at(-1)?.label ? title : '');
 </script>
 
-{#if steps.length && (steps.length > 1 || last)}
-  <nav class="pathline" aria-label={t('Path')} data-pathline data-page={page}>
+{#if !own && steps.length && (steps.length > 1 || last)}
+  <nav class="pathline" aria-label={t('Where you are')} data-pathline data-page={page}>
     {#each steps as s, n (n)}
       {#if n > 0}<ChevronRight class="sep" size={12} aria-hidden="true" />{/if}
       {#if n === steps.length - 1 && !last}<span aria-current="page">{s.label}</span>{:else}<a href={s.href}>{s.label}</a>{/if}

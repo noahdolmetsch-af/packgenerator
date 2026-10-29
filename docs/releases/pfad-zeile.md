@@ -3,7 +3,7 @@
 Auftrag: Noah «1a» (Thread «Pfad auf jeder Seite anzeigen»), Mockup https://claude.ai/artifact/AFK5fSomZLoyY83LszLG8s
 
 ## Was ist neu
-- Über dem Titel jeder Seite steht eine ruhige Zeile mit Ort, Reiter und Titel (z. B. «Planen › Notizen»). Die ersten Stufen sind Links.
+- Über dem Titel jeder Seite steht eine ruhige Zeile mit Ort, Reiter und Titel (z. B. «Planen › Woche»). Die ersten Stufen sind Links.
 - Schalter «Pfad auf jeder Seite zeigen» unter Ich › Darstellung › Bedienung, Standard an.
 
 ## Was fällt weg oder rutscht tiefer
@@ -20,6 +20,6 @@ Auftrag: Noah «1a» (Thread «Pfad auf jeder Seite anzeigen»), Mockup https://
 - Schritt 1 von 6 (Pfad-Zeile, «i» an Karten, Entdecker-Modus, Standard/von mir, Karte der App, Änderungsdatum).
 
 ## Prüfschritte (nach dem Merge auf der echten Seite)
-1. Planen › Notizen öffnen: über dem Titel «Planen › Notizen».
+1. Planen › Woche öffnen: über dem Titel «Planen › Woche».
 2. «Planen» antippen: Woche öffnet.
 3. Ich › Darstellung: Schalter «Pfad auf jeder Seite zeigen» aus, die Zeile ist weg.

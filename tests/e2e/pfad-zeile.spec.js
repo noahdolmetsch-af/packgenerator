@@ -11,8 +11,8 @@ async function open(page, context, hash) {
   await ready(page);
 }
 
-test('a page with a tab shows Place › Tab › Title and the first steps are links', async ({ page, context }) => {
-  await open(page, context, '#/notes');
+test('Planen › Woche shows Place › Tab › Title and the first steps are links', async ({ page, context }) => {
+  await open(page, context, '#/week');
   const line = page.locator('[data-pathline]');
   await expect(line).toBeVisible();
   await expect(line.locator('a').first()).toHaveAttribute('href', '#/week');
@@ -29,12 +29,12 @@ test('Heute has no path line; a page with its own path keeps only that one', asy
 });
 
 test('the switch in Darstellung removes the line and it stays off after a reload', async ({ page, context }) => {
-  await open(page, context, '#/notes');
+  await open(page, context, '#/week');
   await expect(page.locator('[data-pathline]')).toBeVisible();
   await page.goto('./#/me/look');
   await ready(page);
   await page.locator('[data-ops] input[data-op="path"]').uncheck();
-  await page.goto('./#/notes');
+  await page.goto('./#/week');
   await page.reload();
   await ready(page);
   await expect(page.locator('[data-pathline]')).toHaveCount(0);
