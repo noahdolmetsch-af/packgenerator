@@ -13,7 +13,7 @@ describe('Heute ruhiger: the double tiles (2a)', () => {
     // without «Dein Körper heute» Körperwerte is no double and stays
     expect(ids(withoutDoubles([{ id: 'vitals', size: 'long' }, { id: 'week', size: 'l' }]))).toEqual(['vitals', 'week']);
     // (and, as v < 14, the VO2max tile once after the body and Aktiv, Noah 28.10.2026)
-    expect(ids(wallOf({ v: 12, tiles: busy }))).toEqual(['meditation', 'body', 'acts', 'vo2max', 'balance', 'year', 'week']);
+    expect(ids(wallOf({ v: 12, tiles: busy }))).toEqual(['meditation', 'moment', 'body', 'acts', 'vo2max', 'balance', 'year', 'week']); // + PR 4: the moment card under the habits
     // added again later (the wall is v 13 then), they stay
     expect(ids(wallOf(wallRecord(busy)))).toEqual(ids(busy));
   });

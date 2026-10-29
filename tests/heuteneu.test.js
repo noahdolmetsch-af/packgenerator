@@ -82,7 +82,7 @@ describe('HN4: a wall stored before (v 4) gets the new order once, nothing lost'
     const w = wallOf(v4);
     expect(ids(w)).not.toContain('balance'); // the old wall had no balance (taken away)
     const v5 = wallRecord(w.filter((x) => x.id !== 'aktiv'));
-    expect(v5.v).toBe(14); // «VO2max auf Heute»: v 14; «Heute ruhiger»: v 13; P6: v 12; Körperwerte: v 11; «Heute neu» N2: v 10; A: v 9; v 6 Tages-Check «Deine 15 Fragen», v 7 Routine «Das tut mir gut», v 8 Paket P «Your values today» and Paket Q tip of the week
+    expect(v5.v).toBe(15); // «Heute als Begleiter» PR 4: v 15; «VO2max auf Heute»: v 14; «Heute ruhiger»: v 13; P6: v 12; Körperwerte: v 11; «Heute neu» N2: v 10; A: v 9; v 6 Tages-Check «Deine 15 Fragen», v 7 Routine «Das tut mir gut», v 8 Paket P «Your values today» and Paket Q tip of the week
     expect(ids(wallOf(v5))).toEqual(ids(w).filter((id) => id !== 'aktiv'));
     // moved by hand after that: stays moved
     const moved = wallRecord([w[4], ...w.filter((_, i) => i !== 4)]); // Im Flow (place 4 since the routine)
