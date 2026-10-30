@@ -3,7 +3,7 @@ export default {
   title: 'Standard or from me',
   lead: 'In Lists and types you can look at a list by who made its entries.',
   points: [
-    { text: 'As soon as you changed a list, buttons appear above it: All, Standard, Adapted by me, New from me, each with its number', go: { href: '#/me/lists?noteTopics', steps: [{ sel: '[data-list-filter]' }] } },
+    { text: 'As soon as you changed a list, buttons appear above it: All, Standard, Adapted by me, New from me, each with its number', go: { href: '#/me/lists?noteTopics', steps: [{ sel: 'main ul.rows' }] } },
     { text: 'A hidden Standard entry now counts as adapted by you', go: { href: '#/me/lists?noteTopics' } },
   ],
   small: [{ box: 'new', text: 'Reordering works in the view «All»; «Back to Standard» stays below the list' }],
