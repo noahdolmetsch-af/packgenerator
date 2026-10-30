@@ -231,8 +231,8 @@
               </ul>
               <button type="button" class="btn hi big wide" disabled={!services.length} onclick={() => connect(services)}><Link size={16} aria-hidden="true" />{t('Connect with Google')}</button>
             {:else}
-              <p class="ich-help">{t('First connect Strava on this device: it gives this device the key the Google connection uses too.')}</p>
-              <a class="btn hi big wide" href={STRAVA_HASH}>{t('Connect Strava first')}</a>
+              <p class="ich-help">{t('This device needs the app key once. It comes with the Strava login; after that Google and Trello work here too.')}</p>
+              <a class="btn hi big wide" href={STRAVA_HASH}>{t('Unlock this device (once)')}</a>
             {/if}
             <p class="note"><Lock size={14} aria-hidden="true" /><span><b>{t('Kept only on your devices; the server keeps nothing.')}</b> {t('The first time Google says «unverified app»: that is normal and free.')}</span></p>
           </div>

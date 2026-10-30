@@ -43,4 +43,16 @@ export default {
   '{n} sorted ({kg}), {m} still to sort': '{n} eingeordnet ({kg}), {m} noch offen',
   // T8 «Wetter und Tipps aus einer Vorhersage»
   'weather not loaded right now': 'Wetter gerade nicht geladen',
+  // T9 «Verbindungen zeigen überall denselben Zustand»
+  'This device needs the app key once. It comes with the Strava login; after that Google and Trello work here too.': 'Dieses Gerät braucht einmal den App-Schlüssel. Er kommt mit der Strava-Anmeldung; danach gehen hier auch Google und Trello.',
+  'Unlock this device (once)': 'Gerät freischalten (einmal)',
+  'To fetch, this device needs the app key once (the same server key as Strava).': 'Zum Holen braucht dieses Gerät einmal den App-Schlüssel (derselbe Server-Schlüssel wie bei Strava).',
+  'Unlock this device ›': 'Gerät freischalten ›',
+  'not connected on this device · last fetch {when}': 'auf diesem Gerät nicht verbunden · zuletzt geholt {when}',
+  'fetching needs the app key on this device': 'zum Holen fehlt auf diesem Gerät der App-Schlüssel',
+  'Applies once Strava is connected on this device.': 'Gilt, sobald Strava auf diesem Gerät verbunden ist.',
+  'Connect Google ›': 'Google verbinden ›',
+  'From your Google Calendar: {n} date this week.': 'Aus deinem Google Kalender: {n} Termin diese Woche.',
+  'From your Google Calendar: {n} dates this week.': 'Aus deinem Google Kalender: {n} Termine diese Woche.',
+  'From your Google Calendar: no dates this week.': 'Aus deinem Google Kalender: keine Termine diese Woche.',
 };
