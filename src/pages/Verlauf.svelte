@@ -116,10 +116,12 @@
     { key: 'fitbit', name: t('Fitbit') },
     { key: 'strava', name: t('Strava') },
   ]);
+  // «Heute-Check» step 3 (Noah 30.10.2026): inside the daily check (#/check/history) the page has the check's own head
+  let { embedded = false } = $props();
 </script>
 
 <div class="ich-page vpage">
-  <VeloHead crumbs={[{ label: t('Me|place'), href: '#/me' }, { label: t('Data'), href: '#/me/data' }]} title={t('History')} sub={t('All values in one place: your answers, Fitbit and Strava. Only to look at, stays on this device.')} />
+  {#if !embedded}<VeloHead crumbs={[{ label: t('Me|place'), href: '#/me' }, { label: t('Data'), href: '#/me/data' }]} title={t('History')} sub={t('All values in one place: your answers, Fitbit and Strava. Only to look at, stays on this device.')} />{/if}
 
   <div class="ich-cols">
     <div class="ich-main">
