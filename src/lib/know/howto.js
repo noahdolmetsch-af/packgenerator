@@ -93,6 +93,7 @@ export const HOWTO = {
   'f.notelinks': ['Open a note.', 'Tap «Link a note», choose one, and beside it its meaning.', 'The other note shows the link too, read the other way round.'],
   'f.dreams': ['Open Trips › Dreams.', 'Write a dream tour; the months come from its kind.', 'Tap it and «Plan the tour».'],
   'f.quicklinks': ['Open Quick Links in the bar.', 'Tap «Add a pin» and pin a function.', 'Tap a pin: the app goes there.'],
+  'f.pinmarks': ['Tap the small pin at the top right of a card.', 'Open Quick Links: the card is there.', 'Tap the pin again to take it out.'],
   'f.whitespots': ['Open Trips › Dreams.', 'Scroll to «White spots nearby».', 'Choose the radius and tap a place.'],
   'f.nlgoals': ['Open Trips › Dreams.', 'Scroll to «Challenges with an end».', 'Tap a ready one or «Own challenge», then «Start challenge».'],
   'f.races': ['Open Trips › Dreams.', 'Under «Races to plan» tap «Plan as a trip».', 'Add the registration deadline.'],
