@@ -5,10 +5,10 @@
 export default {
   title: 'Your own rule',
   lead: 'You decide how warm you dress.',
-  points: [{ text: 'Simple: «I get cold quickly», «normally» or «I get warm quickly»' }],
+  points: [{ text: 'Simple: «I get cold quickly», «normally» or «I get warm quickly»', go: 'f.wear' }],
   small: [
-    { box: 'new', text: 'More exact: from when each layer comes, with − and +' },
-    { box: 'nicer', text: 'Pack uses the same rule' },
+    { box: 'new', text: 'More exact: from when each layer comes, with − and +', go: 'f.wear' },
+    { box: 'nicer', text: 'Pack uses the same rule', go: null },
   ],
   test: ['On Today open «What do I wear?», then «Why so?»: under «Your rule» tap «I get cold quickly»; the line on top says «feels» 2 °C colder.', 'Open «More exact» and tap + at Feet twice: on a cool day the overshoes come.'],
   since: [],

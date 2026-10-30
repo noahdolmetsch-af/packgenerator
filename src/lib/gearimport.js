@@ -30,8 +30,7 @@ import { CATEGORIES, CATEGORY, nextId, PREFIX } from './gear.js';
 import { itemDomains, DOMAINS } from './domains.js';
 import { validateStep2 } from './importstep2.js';
 import { suggestBag } from './gear/importplus.js';
-import DE from './i18n/de/index.js';
-import GEAR_DE from './i18n/de/gear.js';
+import { deTexts, deGearTexts } from './i18n.svelte.js';
 
 export const KIND = 'gear-import';
 export const VERSION = 1;
@@ -75,22 +74,28 @@ export function mapAreas(areas) {
 
 /* ---------- the category ---------- */
 
-const CAT_WORDS = (() => {
+// The German texts load after the start, so the words are built at the first use after they are there.
+let catCache = null;
+const catWords = () => {
+  const de = deTexts();
+  const gde = deGearTexts();
+  if (catCache && catCache.de === de) return catCache.m;
   const m = {};
   for (const c of CATEGORIES) {
     m[fold(c.key)] = c.key;
     m[fold(c.name)] = c.key;
-    for (const de of [DE[c.name], GEAR_DE[c.name]]) if (de) m[fold(de)] = c.key;
+    for (const w of [de[c.name], gde[c.name]]) if (w) m[fold(w)] = c.key;
   }
   for (const [key, p] of Object.entries(PREFIX)) m[fold(p)] = key;
+  catCache = { de, m };
   return m;
-})();
+};
 
 /** The app category of the file's category: key, English or German name, or ID prefix ("KL"); else the text itself. */
 export function resolveCategory(cat) {
   const raw = String(cat ?? '').trim();
   if (!raw) return '';
-  return CAT_WORDS[fold(raw)] ?? raw;
+  return catWords()[fold(raw)] ?? raw;
 }
 
 /* ---------- names ---------- */

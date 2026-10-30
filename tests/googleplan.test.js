@@ -1,6 +1,6 @@
 // Google Kalender und Aufgaben (GA): the pure helpers of api/_lib/googleplan.js. Fictional entries only.
 import { describe, it, expect } from 'vitest';
-import { zurichOffset, dayStart, dayEnd, spanOf, eventRow, eventBody, taskRow, taskBody, isDay } from '../api/_lib/googleplan.js';
+import { zurichOffset, dayStart, dayEnd, spanOf, eventRow, eventBody, plainNote, remindOf, taskRow, taskBody, isDay } from '../api/_lib/googleplan.js';
 
 describe('days in Zurich', () => {
   it('knows summer and winter time', () => {
@@ -40,5 +40,25 @@ describe('tasks', () => {
     expect(taskBody({ done: false })).toEqual({ status: 'needsAction', completed: null });
     expect(taskBody({ due: null })).toEqual({ due: null });
     expect(() => taskBody({ title: '' })).toThrow('title');
+  });
+});
+
+describe('the appointment editor: description, reminders, availability, visibility, time zone', () => {
+  it('reads the description as plain text and the reminders as a list', () => {
+    expect(plainNote('Mit <b>Helm</b><br>und Licht &amp; Pumpe')).toBe('Mit Helm\nund Licht & Pumpe');
+    expect(remindOf({ useDefault: true })).toBeNull();
+    expect(remindOf({ useDefault: false, overrides: [{ method: 'popup', minutes: 1440 }, { method: 'sms', minutes: 5 }] })).toEqual([{ minutes: 1440, method: 'popup' }]);
+    const row = eventRow({ id: 'r', summary: 'Wiederholt', recurringEventId: 'x', visibility: 'private', start: { dateTime: '2026-10-29T18:30:00+01:00', timeZone: 'Europe/Zurich' }, end: { dateTime: '2026-10-29T19:30:00+01:00' }, reminders: { useDefault: false, overrides: [{ method: 'email', minutes: 60 }] } }, 'c');
+    expect(row).toMatchObject({ repeat: true, visibility: 'private', tz: 'Europe/Zurich', remind: [{ minutes: 60, method: 'email' }] });
+  });
+  it('writes what the editor sends, and refuses wrong values', () => {
+    const b = eventBody({ title: 'Lauf', day: '2026-10-20', allDay: false, from: '07:00', to: '08:00', tz: 'America/New_York', busy: false, visibility: 'private', note: 'Treffpunkt', remind: [{ minutes: 60, method: 'popup' }, 1440] });
+    expect(b).toMatchObject({ transparency: 'transparent', visibility: 'private', description: 'Treffpunkt', start: { dateTime: '2026-10-20T07:00:00', timeZone: 'America/New_York' }, reminders: { useDefault: false, overrides: [{ method: 'popup', minutes: 60 }, { method: 'popup', minutes: 1440 }] } });
+    expect(eventBody({ title: 'x', day: '2026-10-20', remind: null }).reminders).toEqual({ useDefault: true });
+    expect(eventBody({ title: 'x', day: '2026-10-20', remind: [] }).reminders).toEqual({ useDefault: false, overrides: [] });
+    expect(eventBody({ title: 'x', day: '2026-10-20' }).reminders).toBeUndefined();
+    expect(() => eventBody({ title: 'x', day: '2026-10-20', remind: [{ minutes: 99999 }] })).toThrow('remind');
+    expect(() => eventBody({ title: 'x', day: '2026-10-20', visibility: 'secret' })).toThrow('visibility');
+    expect(() => eventBody({ title: 'x', day: '2026-10-20', allDay: false, from: '07:00', tz: 'Mars/Base' })).toThrow('tz');
   });
 });

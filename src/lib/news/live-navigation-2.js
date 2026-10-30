@@ -3,9 +3,9 @@ export default {
   title: 'A big turn card',
   lead: 'While you ride to a goal, the next turn sits big at the top, with what comes after it.',
   points: [
-    { text: 'Big arrow with the distance and «then …» for the turn after', href: '#/live' },
+    { text: 'Big arrow with the distance and «then …» for the turn after', href: '#/live', go: 'f.turns' },
   ],
-  small: [{ box: 'nicer', text: 'GPX export moved into the ⋯ menu' }],
+  small: [{ box: 'nicer', text: 'GPX export moved into the ⋯ menu', go: 'f.live' }],
   test: ['Ride to a goal on the live map: the next turn shows big at the top with «Danach …».', 'Open ⋯: «GPX» is there.'],
   since: [],
   de: {

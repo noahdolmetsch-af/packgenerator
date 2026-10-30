@@ -19,12 +19,13 @@
   import { nextNumber } from '../notes.js';
   import { nextId } from '../gear.js';
   import { switchTrip } from '../nav.js';
+  import { isVideoLink } from '../inspiration.js';
   import { t, locale } from '../i18n.svelte.js';
   import SpeakButton from '../ui/SpeakButton.svelte';
   import InputBar from '../eingabe/InputBar.svelte';
   import { cleanInputs } from '../eingabe/inputs.js'; // «Eingaben überall» (Noah 26.10.2026): voice note, prompts, AI helper
   import { appendSpoken } from '../speak.js';
-  import { Pin, PinOff, X, Route, Heart, Wrench, Link2, Plus, Trash2, ChevronLeft, NotebookPen, Unlink } from '@lucide/svelte';
+  import { Pin, PinOff, X, Route, Heart, Wrench, Link2, Play, Plus, Trash2, ChevronLeft, NotebookPen, Unlink } from '@lucide/svelte';
   import { photosOf, linksOf, addPhoto, removePhoto, setPhotos, addLinkTo, removeLinkAt, placeFrom, placeLinks, placeText, mdToHtml, hasFormat, wrapSel, shareText, NOTE_TPL_KEY, templatesOf, addTemplate } from '../noteformats.js';
   import { linkFrom } from '../notebook.js';
   import { shrinkImage } from '../photo.js';
@@ -322,7 +323,7 @@
     <!-- FE10 (Noah 13.10.2026): speak instead of type, where the browser can -->
     <div class="spk"><SpeakButton answer onsaid={(w) => (draft.text = appendSpoken(draft.text ?? '', w))} /></div>
     {#each linksOf(draft) as l, i (i)}
-      <p class="lk" data-note-link><Link2 size={16} aria-hidden="true" /><span><b>{l.title}</b><a href={l.url} target="_blank" rel="noopener noreferrer">{l.url}</a></span><button type="button" class="rm" aria-label={t('Remove {name}', { name: l.title })} onclick={() => (draft = removeLinkAt($state.snapshot(draft), i))}><Trash2 size={16} aria-hidden="true" /></button></p>
+      <p class="lk" data-note-link data-link-kind={isVideoLink(l.url) ? 'video' : null}>{#if isVideoLink(l.url)}<Play size={16} aria-hidden="true" />{:else}<Link2 size={16} aria-hidden="true" />{/if}<span><b>{l.title}</b>{#if isVideoLink(l.url)}<small class="lk-video" data-link-video>{t('Video link: the video stays where it is')}</small>{/if}<a href={l.url} target="_blank" rel="noopener noreferrer">{l.url}</a></span><button type="button" class="rm" aria-label={t('Remove {name}', { name: l.title })} onclick={() => (draft = removeLinkAt($state.snapshot(draft), i))}><Trash2 size={16} aria-hidden="true" /></button></p>
     {/each}
     {#each photosOf(draft) as ph, i (i)}
       <div class="phw" data-note-photo><img class="ph" src={ph} alt={t('Photo of the note')} /><span class="pha"><DrawOn src={ph} list={photosOf(draft)} inks={draft.inks} icon cls="drawrm" onsave={drawn} data-note-draw /><button type="button" class="rm" aria-label={t('Remove photo')} onclick={() => (draft = removePhoto($state.snapshot(draft), i))}><Trash2 size={16} aria-hidden="true" /></button></span></div>
@@ -630,6 +631,10 @@
     display: grid;
     flex: 1 1 auto;
     min-width: 0;
+  }
+  .lk-video {
+    color: var(--ink-2);
+    font-size: var(--fs-small);
   }
   .lk a {
     color: var(--accent);

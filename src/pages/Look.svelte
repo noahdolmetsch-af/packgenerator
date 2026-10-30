@@ -11,7 +11,7 @@
    * shows only while a link is switched off (LinksOff).
    */
   import { t } from '../lib/i18n.svelte.js';
-  import { theme, FONTS, PALETTES, MODES, SCALE_MIN, SCALE_MAX, SCALE_STEP, DEFAULT_SCALE, setFont, setPalette, setScale, setDense, setMode } from '../lib/theme.svelte.js';
+  import { theme, FONTS, PALETTES, MODES, SCALE_MIN, SCALE_MAX, SCALE_STEP, DEFAULT_SCALE, setFont, setPalette, setScale, setDense, setMode, MOTIONS, setMotion } from '../lib/theme.svelte.js';
   import PageHead from '../lib/ui/PageHead.svelte';
   import QuickLinks from '../lib/ui/QuickLinks.svelte';
   import LinksOff from '../lib/sk/LinksOff.svelte'; // SK: switched-off outside links come back here
@@ -125,6 +125,11 @@
           <!-- Paket K #285 «Handschuh-Modus» (Noah 19.10.2026 «4a und kann manuell geändert werden») -->
           <p class="oplbl"><b id="look-glove">{t('Glove mode')}</b></p>
           <Seg labelledby="look-glove" value={glove.mode} options={GLOVE_MODES.map((g) => ({ key: g.key, name: t(g.name) }))} onchange={setGlove} />
+        </div>
+        <div class="startrow" data-motion-set>
+          <!-- E8 «Schalter Bewegung» (Noah 27.10.2026 «1a 2a 3a 4a 5a»): how much the app moves -->
+          <p class="oplbl"><b id="look-motion">{t('Motion')}</b><small>{t('Full: everything glides, big moments with confetti. Calm: small movements only. Off: nothing moves.')}</small></p>
+          <Seg labelledby="look-motion" value={theme.motion} options={MOTIONS.map((m) => ({ key: m.key, name: t(m.name) }))} onchange={setMotion} />
         </div>
         <ul class="ops">
           {#each OPS as o (o.key)}

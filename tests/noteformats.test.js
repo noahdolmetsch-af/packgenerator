@@ -46,7 +46,7 @@ describe('N10 templates', () => {
   const tr = (s) => `T:${s.replace(/\|[a-z]+$/, '')}`;
   it('Standard ones until you have your own; own ones as typed', () => {
     expect(templatesOf(null).map((x) => x.key)).toEqual(STD_TEMPLATES.map((x) => x.key));
-    expect(tplText(STD_TEMPLATES[3], tr).split('\n')[1]).toBe('- [ ] T:Tyre pressure');
+    expect(tplText(STD_TEMPLATES.find((x) => x.key === 'bikecheck'), tr).split('\n')[1]).toBe('- [ ] T:Tyre pressure');
     const mine = addTemplate(templatesOf(null), `${P} Packen`, '- Zelt', 'own');
     expect(tplText(mine.at(-1), tr)).toBe('- Zelt');
     const r = renameTemplate(mine, 'shopping', `${P} Migros`, tr);

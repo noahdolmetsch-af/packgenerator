@@ -40,6 +40,7 @@ export const SECTION_OF = {
   acts: 'body',
   weighin: 'now', // a question for this week: it stays in the first area, found on the phone without long scrolling
   vitals: 'body',
+  vo2max: 'body',
   values: 'body',
   du: 'body',
   aktiv: 'body',

@@ -3,9 +3,9 @@ export default {
   title: 'Your goal by name',
   lead: 'When you ride to a place, the map names it, and you go there first; the way back is asked at the goal.',
   points: [
-    { text: 'The goal has its name instead of «Other stop»', href: '#/live' },
+    { text: 'The goal has its name instead of «Other stop»', href: '#/live', go: 'f.live' },
   ],
-  small: [{ box: 'nicer', text: '«Only there» first; at the goal the app asks about the way back' }],
+  small: [{ box: 'nicer', text: '«Only there» first; at the goal the app asks about the way back', go: 'f.live' }],
   test: ['On the live map tap a place and «Go there»: its name is at the top and «Only there» is chosen.', 'Ride to the goal: the app asks whether you want the way back to the route.'],
   since: [],
   de: {

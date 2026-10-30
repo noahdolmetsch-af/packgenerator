@@ -146,7 +146,8 @@
     </div>
 
     <p class="hm-sum" data-testid="heat-sum">
-      {tn(stats.n, '{n} ride', '{n} rides')} · {num(stats.km)} km · {tn(stats.days, '{n} day', '{n} days')} · {tn(stats.cells, '{n} map square', '{n} map squares')}
+      <!-- UI-Test T6 (G2-04): the number names its years, so it reads beside the 12 months on Touren -->
+      {tn(stats.n, '{n} ride', '{n} rides')} {fx.year === 'all' ? t('in all years') : t('in {year}', { year: fx.year })} · {num(stats.km)} km · {tn(stats.days, '{n} day', '{n} days')} · {tn(stats.cells, '{n} map square', '{n} map squares')}
     </p>
 
     <div class="rv-box pad">

@@ -11,11 +11,14 @@
    * ontitle(s): offers «Suggest a title» in the AI helper; tags: suggestions [{ name }]; only: fewer tools.
    */
   import { liveQuery } from 'dexie';
-  import { Mic, Camera, Paperclip, MapPin, Tag, LayoutTemplate, Lightbulb, Sparkles, Plus, Settings2 } from '@lucide/svelte';
+  import { Mic, Camera, Paperclip, MapPin, Tag, LayoutTemplate, Lightbulb, Sparkles, Plus, Settings2, ClipboardList, SlidersHorizontal } from '@lucide/svelte';
   import PhotoPick from '../ui/PhotoPick.svelte';
   import VoiceRec from './VoiceRec.svelte';
   import InputsView from './InputsView.svelte';
   import TemplateSheet from './TemplateSheet.svelte';
+  import FormSheet from '../notes/FormSheet.svelte'; // Vorlagen mit Feldern (Noah 27.10.2026 «3b 4a»)
+  import FormGallery from '../notes/FormGallery.svelte';
+  import { FORMS_KEY, chosenForms, formName } from '../notes/forms.js';
   import { offerDone } from '../ui/rename.svelte.js';
   import { shrinkImage } from '../photo.js';
   import { localDay } from '../localday.js';
@@ -146,6 +149,16 @@
   const tplQ = liveQuery(async () => (await db.settings.get(TEMPLATES_KEY))?.value ?? {});
   const tpls = $derived(templatesFor(place, $tplQ));
   let managing = $state(false);
+  // the chosen templates with fields that fit this place (answer 4a)
+  const formsQ = liveQuery(async () => (await db.settings.get(FORMS_KEY))?.value ?? null);
+  const forms = $derived(chosenForms($formsQ ?? null, place));
+  let fillForm = $state(null);
+  let choosing = $state(false);
+  function useForm(r) {
+    ontext(withBlock(text, r.text));
+    open = '';
+    offerDone(t('«{name}» is under your text.', { name: r.record.name }));
+  }
   function useTpl(x) {
     ontext(withBlock(text, tplText(x, t)));
     open = '';
@@ -235,12 +248,13 @@
   {:else if open === 'template'}
     <div class="in-part" data-in-template-list>
       <p class="in-note">{t('A tap puts the template under your text. You can change it afterwards.')}</p>
-      {#if tpls.length}
-        <div class="in-chips">{#each tpls as x (x.key)}<button type="button" class="in-chip" onclick={() => useTpl(x)} data-in-template={x.key}>{tplName(x, t)}</button>{/each}</div>
+      {#if tpls.length || forms.length}
+        <div class="in-chips">{#each tpls as x (x.key)}<button type="button" class="in-chip" onclick={() => useTpl(x)} data-in-template={x.key}>{tplName(x, t)}</button>{/each}{#each forms as x (x.key)}<button type="button" class="in-chip" onclick={() => (fillForm = x)} data-in-form={x.key}><ClipboardList size={14} aria-hidden="true" />{formName(x, t)}</button>{/each}</div>
       {:else}
         <p class="in-note">{t('No templates here yet.')}</p>
       {/if}
       <button type="button" class="in-link" onclick={() => (managing = true)} data-in-template-manage><Settings2 size={14} aria-hidden="true" />{t('Change templates')}</button>
+      <button type="button" class="in-link" onclick={() => (choosing = true)} data-in-form-choose><SlidersHorizontal size={14} aria-hidden="true" />{t('Choose templates with fields')}</button>
     </div>
   {:else if open === 'prompt'}
     <div class="in-part" data-in-prompts>
@@ -275,6 +289,8 @@
 </div>
 
 {#if managing}<TemplateSheet {place} list={tpls} onclose={() => (managing = false)} />{/if}
+{#if fillForm}<FormSheet form={fillForm} onsave={useForm} onclose={() => (fillForm = null)} />{/if}
+{#if choosing}<FormGallery onclose={() => (choosing = false)} />{/if}
 
 <style>
   .inbar {
@@ -356,6 +372,10 @@
     font-size: var(--fs-small);
     text-align: left;
     cursor: pointer;
+  }
+  .in-chip :global(svg) {
+    margin-right: 4px;
+    vertical-align: -2px;
   }
   .in-link {
     display: inline-flex;

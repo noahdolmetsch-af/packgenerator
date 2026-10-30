@@ -149,3 +149,15 @@ describe('the pages', () => {
     for (const l of links) expect(l.href).toMatch(/^https:\/\//);
   });
 });
+
+// #1158 the wallet card: the filled lines in the order of the card, at most 8
+import { walletLines as wl } from '../src/lib/mountain/sos.js';
+describe('wallet card', () => {
+  it('takes the filled lines in order and stops at the limit', () => {
+    const lines = wl({ blood: '0+', contact: 'K', phone: '+41', notes: '' }, (k) => k.toUpperCase());
+    expect(lines.map((l) => l.key)).toEqual(['contact', 'phone', 'blood']);
+    expect(lines[0]).toEqual({ key: 'contact', label: 'EMERGENCY CONTACT', value: 'K' });
+    expect(wl({ name: 'a', contact: 'b', phone: 'c' }, undefined, 2).length).toBe(2);
+    expect(wl({})).toEqual([]);
+  });
+});

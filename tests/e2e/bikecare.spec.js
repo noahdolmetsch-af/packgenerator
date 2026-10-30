@@ -62,6 +62,15 @@ const stored = (page, id) =>
     id,
   );
 
+/** Velo-Idee 72 (changed on purpose): a reading 30 km or more above the ledger asks first; keep the new reading. */
+async function keepReading(page) {
+  const gap = page.getByTestId('km-gap');
+  await expect(gap).toBeVisible();
+  await gap.locator('[data-km-gap="reading"]').click();
+  await gap.locator('[data-km-gap-ok]').click();
+  await expect(gap).toBeHidden();
+}
+
 test('D1: km in Bike care save with Swiss and German separators, Enter, leaving the field and Save', async ({ page, context }, info) => {
   const errors = await start(page, context, info);
   await page.goto(`./#/bikes?tab=care&bike=${BIKE}&open=1`);
@@ -74,6 +83,7 @@ test('D1: km in Bike care save with Swiss and German separators, Enter, leaving 
   // Enter on the phone keyboard.
   await km.fill("3'287");
   await km.press('Enter');
+  await keepReading(page);
   await expect(care.getByRole('status')).toContainText('gespeichert');
   await expect.poll(async () => (await stored(page, BIKE)).km).toBe(3287);
   await expect(care.locator('.ah')).toContainText('3’287 km');
@@ -81,17 +91,20 @@ test('D1: km in Bike care save with Swiss and German separators, Enter, leaving 
   // Leaving the field (tap somewhere else).
   await km.fill('3 400');
   await page.locator('main h1').first().click(); // v0.38.0: the open bike has no h3 above the list any more
+  await keepReading(page);
   await expect.poll(async () => (await stored(page, BIKE)).km).toBe(3400);
 
   // German thousands dot, then the Save button.
   await km.fill('3.512');
   await care.getByRole('button', { name: 'km speichern' }).click();
+  await keepReading(page);
   await expect.poll(async () => (await stored(page, BIKE)).km).toBe(3512);
   await expect(care.getByRole('status')).toContainText('3’512 km');
 
   // A decimal comma is rounded, not multiplied by ten.
   await km.fill('3600,4');
   await km.press('Enter');
+  await keepReading(page);
   await expect.poll(async () => (await stored(page, BIKE)).km).toBe(3600);
   await expect(km).toHaveValue('3600');
   expect((await stored(page, BIKE)).kmDate).toBe(day(0));

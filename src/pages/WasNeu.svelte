@@ -32,13 +32,14 @@
   import { readUses, readUpdate, writeUpdate, readMute, writeMute, readTested, writeTested } from '../lib/know/wasneuStore.js';
   import { nextTrip } from '../lib/debrief.js';
   import { sortBikes } from '../lib/bikes.js';
-  import { openData } from '../lib/nav.js';
   import { localDay } from '../lib/localday.js';
   import { t, tn, num, locale } from '../lib/i18n.svelte.js';
   import { Check, ChevronRight, ChevronDown, ChevronUp, Compass, Backpack, BookOpen, Bike, Leaf, Save, Search, Star, Lightbulb, Activity, Route, ListOrdered, Tags, MapPin, ListFilter } from '@lucide/svelte';
   import VeloHead from '../lib/bikes/VeloHead.svelte';
   import TipButton from '../lib/know/TipButton.svelte';
   import VersionNews from '../lib/know/VersionNews.svelte';
+  import { tryOf, hrefOf } from '../lib/know/newsgo.js';
+  import { goNews } from '../lib/know/newsRun.js';
   import PlaySheet from '../lib/testdata/PlaySheet.svelte';
   import ListBar from '../lib/list/ListBar.svelte';
   import ListGroup from '../lib/list/ListGroup.svelte';
@@ -168,12 +169,9 @@
     opened = { ...opened, [id]: true };
     requestAnimationFrame(() => document.getElementById(`g-${id}`)?.scrollIntoView({ block: 'start', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' }));
   }
-  const tryP = (e) => e.points.find((p) => p.href || p.action) ?? null;
-  function tryIt(ev) {
-    if (tryP(newest)?.action !== 'data') return;
-    ev.preventDefault();
-    openData();
-  }
+  // «Ausprobieren» (Noah 27.10.2026 «1a»): the line with the exact place first (know/newsgo.js tryOf)
+  const tryRow = tryOf(newest);
+  const tryIt = (ev) => tryRow && goNews(tryRow.p, ev, { bikeId });
 </script>
 
 {#snippet usedCell(r)}
@@ -212,7 +210,7 @@
           <VersionNews e={newest} card top level={2} id="wn-top-h">
             {#snippet extra()}
               <div class="ich-acts wn-topacts">
-                <a class="btn k hi" href={tryP(newest)?.href ?? NEWS_HREF} onclick={tryIt}>{t('Try it')}<ChevronRight size={16} aria-hidden="true" /></a>
+                <a class="btn k hi" href={hrefOf(tryRow?.g) ?? NEWS_HREF} onclick={tryIt} data-news-try>{t('Try it')}<ChevronRight size={16} aria-hidden="true" /></a>
                 {#if newest.test?.length}<button type="button" class="btn k" onclick={showTest}>{t('How to test it')}</button>{/if}
               </div>
             {/snippet}

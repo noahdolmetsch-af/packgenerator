@@ -88,6 +88,21 @@ export async function entryText(blob, entry) {
 }
 
 /**
+ * One entry as a stream of bytes (stored or deflated), for an entry too big to hold as one text
+ * (Apple Health's export.xml can be over a gigabyte). Apple Health export (27.10.2026).
+ */
+export async function entryStream(blob, entry) {
+  const head = await bytesOf(blob, entry.offset, entry.offset + 30);
+  if (head.getUint32(0, true) !== LOC) throw new Error('bad_entry');
+  const start = entry.offset + 30 + head.getUint16(26, true) + head.getUint16(28, true);
+  const data = blob.slice(start, start + entry.csize);
+  if (entry.method === 0) return data.stream();
+  if (entry.method !== 8) throw new Error('unsupported_method');
+  if (typeof DecompressionStream !== 'function') throw new Error('no_decompression');
+  return data.stream().pipeThrough(new DecompressionStream('deflate-raw'));
+}
+
+/**
  * The wanted entries of a zip, one at a time: for await (const { name, text } of zipTexts(file, want)).
  * want(name) decides by the path inside the zip; folders are left out.
  */

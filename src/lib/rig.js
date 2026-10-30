@@ -234,7 +234,7 @@ const AREA_KIND = { drive: 'drive', wheels: 'tyres', cockpit: 'cockpit' };
 export const kindOfPart = (part) => AREA_KIND[PART[part]?.area] ?? 'other';
 
 /** A new log entry. source: { type: 'visit' | 'link' | 'own', id, label }. */
-export function newLogEntry({ date, kind = 'other', title, before = '', after = '', why = '', deltaG = null, source = null, part = null }, { id, now = new Date().toISOString() } = {}) {
+export function newLogEntry({ date, kind = 'other', title, before = '', after = '', why = '', deltaG = null, source = null, part = null, saved = null }, { id, now = new Date().toISOString() } = {}) {
   return {
     id,
     date,
@@ -246,6 +246,8 @@ export function newLogEntry({ date, kind = 'other', title, before = '', after = 
     deltaG: deltaG === '' || deltaG == null || Number.isNaN(Number(deltaG)) ? null : Math.round(Number(deltaG)),
     source: source ?? { type: 'own', id: null, label: '' },
     part,
+    // Velo-Idee 73: the measures and photos before the change (bikes/rueckbau.js), or null
+    ...(saved ? { saved } : {}),
     backAsked: false,
     at: now,
   };

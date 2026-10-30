@@ -112,10 +112,51 @@ test('Termine und Aufgaben: connect, see the next days, tick and add a task, ent
   await form.getByLabel(de('Title')).fill('Velo-Service');
   await form.getByLabel(de('From|time')).fill('17:30');
   await form.getByLabel(de('To|time'), { exact: true }).fill('18:00');
+  // the editor of Google: a reminder a day before, free, a description
+  await form.getByLabel(de('Description (optional)')).fill('Kette und Bremsen');
+  await form.getByLabel(de('Google standard reminders')).uncheck();
+  await form.getByLabel(de('How long before')).fill('1');
+  await form.getByLabel(de('Unit|time')).selectOption('days');
+  await form.getByLabel(de('Show me as')).selectOption({ label: de('Free|show') });
   await shot(page, info, 'A3-termin');
   await form.getByRole('button', { name: de('Enter in Google') }).click();
-  await expect.poll(() => log.find((x) => x.step === 'cal-save')?.body).toMatchObject({ cal: 'cal1', title: 'Velo-Service', day: day(0), allDay: false, from: '17:30', to: '18:00' });
+  await expect.poll(() => log.find((x) => x.step === 'cal-save')?.body).toMatchObject({ cal: 'cal1', title: 'Velo-Service', day: day(0), allDay: false, from: '17:30', to: '18:00', note: 'Kette und Bremsen', busy: false, visibility: 'default', tz: 'Europe/Zurich', remind: [{ minutes: 1440, method: 'popup' }] });
   await expect(page.getByText('Velo-Service').first()).toBeVisible();
+
+  // «Duplicate»: the form is filled in and nothing goes to Google before «Enter in Google»
+  const saves = log.filter((x) => x.step === 'cal-save').length;
+  const row = page.getByRole('button', { name: /Zahnarzt Muster/ });
+  const shown = (await row.locator('.time').innerText()).trim(); // the fixture says +02:00; Zurich is on winter time now
+  await row.click();
+  await page.getByRole('button', { name: de('Duplicate') }).click();
+  const copy = page.getByRole('form', { name: de('Copy appointment') });
+  await expect(copy.getByLabel(de('Title'))).toHaveValue('Zahnarzt Muster');
+  await expect(copy.getByLabel(de('From|time'))).toHaveValue(shown);
+  expect(log.filter((x) => x.step === 'cal-save').length).toBe(saves);
+  await copy.getByRole('button', { name: de('Enter in Google') }).click();
+  await expect.poll(() => log.filter((x) => x.step === 'cal-save').length).toBe(saves + 1);
+  const dup = log.filter((x) => x.step === 'cal-save').at(-1).body;
+  expect(dup).toMatchObject({ cal: 'cal1', title: 'Zahnarzt Muster', day: day(0), from: shown });
+  expect(dup.gid).toBeUndefined();
+
+  // the week grid (Noah 28.10.2026 «wie bei Google»): blocks, a tap opens one, a tap on an empty place starts a new one
+  await page.locator('[data-view="week"]').click();
+  const grid = page.locator('[data-week-grid]');
+  await expect(grid).toBeVisible();
+  await expect(grid.getByRole('button', { name: /Zahnarzt Muster/ }).first()).toBeVisible();
+  await expect(grid.getByRole('button', { name: /Tennis-Lektion/ })).toBeVisible();
+  await shot(page, info, 'A5-wochenraster');
+  await grid.getByRole('button', { name: /Tennis-Lektion/ }).click();
+  await expect(page.locator('.pk').getByRole('heading', { name: 'Tennis-Lektion' })).toBeVisible();
+  await expect(page.locator('.pk').getByRole('button', { name: de('Duplicate') })).toBeVisible();
+  const col = grid.locator('.col').first();
+  await col.click({ position: { x: 4, y: 44 * 15 + 4 } }); // about 15:00
+  const fresh = page.getByRole('form', { name: de('New appointment') });
+  await expect(fresh).toBeVisible();
+  await expect(fresh.getByLabel(de('From|time'))).toHaveValue('15:00');
+  await expect(fresh.getByLabel(de('To|time'), { exact: true })).toHaveValue('16:00');
+  await fresh.getByRole('button', { name: de('Cancel') }).click();
+  await page.locator('[data-view="list"]').click();
 
   // which calendars: the holidays too
   await page.getByRole('checkbox', { name: /Feiertage/ }).check();

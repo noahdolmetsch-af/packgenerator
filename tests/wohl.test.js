@@ -244,6 +244,11 @@ describe('the data widget', () => {
     expect(w).toMatchObject({ kmToday: 12.5, kmWeek: 42.5, weather: { min: 6, max: 15, rain: 'showers' }, sleepH: 6.5, sleepNormal: 7, hrv: 61, restingHr: 50, restingNormal: 52, day: T });
     expect(w.hrvNormal).toBeCloseTo(45, 0);
   });
+  it('UI-Test T5: with the counted rides the km come from them (files with a full time too), like «Diese Woche»', () => {
+    const rides = [{ date: `${T}T07:00:00.000Z`, km: 20 }, { date: addDays(T, -2), km: 15.5 }, { date: addDays(T, -8), km: 99 }];
+    const km = [{ date: T, km: 300, kind: 'ride' }];
+    expect(widgetValues({ km, rides, today: T })).toMatchObject({ kmToday: 20, kmWeek: 35.5 });
+  });
   it('without data: zeros and nulls, nothing invented', () => {
     expect(widgetValues({ today: T })).toMatchObject({ kmToday: 0, kmWeek: 0, weather: null, sleepH: null, hrv: null, day: null });
   });

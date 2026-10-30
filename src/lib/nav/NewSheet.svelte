@@ -19,7 +19,7 @@
   import { newTrip, addItem, quickRide, wantBike } from '../nav.js';
   import { t, num } from '../i18n.svelte.js';
   import { parseKm } from '../care.js';
-  import { setReading } from '../kmbookdb.js';
+  import { saveReadingAsked } from '../care/kmgapask.js'; // Velo-Idee 72
   import ProblemForm from './ProblemForm.svelte';
   import BikeQuickDialog from '../hubs/BikeQuickDialog.svelte';
   import { startBike } from '../problems.js';
@@ -91,7 +91,9 @@
     event.preventDefault();
     const n = parseKm(km); // v0.30.1 (D1): "2'287", "2.287", "2 287"
     if (!kmBike || n == null || Number.isNaN(n)) return (kmMsg = t('Type the km as a whole number, e.g. 12400.'));
-    await setReading(db, kmBike.id, n, { date: localDay() }); // v0.68.0: a new entry in the ride ledger, nothing overwritten
+    // v0.68.0: a new entry in the ride ledger, nothing overwritten; Velo-Idee 72: a jump asks first
+    const how = await saveReadingAsked(db, kmBike, n, { date: localDay() });
+    if (how === 'again') return (kmMsg = t('Nothing saved. Type the km again.'));
     kmMsg = t('{bike}: {km} km saved.', { bike: kmBike.name, km: num(n) });
     km = '';
     setTimeout(close, 900);

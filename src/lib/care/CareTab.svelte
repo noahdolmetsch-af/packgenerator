@@ -33,6 +33,7 @@
   import { partStart } from '../kmbook.js';
   import { setSpec } from '../bikespecs.js';
   import { setReading, addHand } from '../kmbookdb.js';
+  import { saveReadingAsked } from './kmgapask.js'; // Velo-Idee 72
   import { nextNumber } from '../notes.js';
   import { isMore, partName as nameOfPart } from '../care.js';
   import Fold from '../ui/Fold.svelte';
@@ -306,7 +307,12 @@
       kmMsg = { bikeId: bike.id, text: t('Type the km as a whole number, e.g. 12400.'), error: true };
       return null;
     }
-    await setReading(db, bike.id, n, { date: today }); // v0.68.0: an entry in the ride ledger
+    // v0.68.0: an entry in the ride ledger; Velo-Idee 72: a jump asks first (rides outside the app?)
+    const how = await saveReadingAsked(db, bike, n, { date: today });
+    if (how === 'again') {
+      kmMsg = { bikeId: bike.id, text: t('Nothing saved. Type the km again.'), error: true };
+      return null;
+    }
     kmMsg = { bikeId: bike.id, text: t('{km} km saved.', { km: num(n) }), error: false };
     return n;
   }

@@ -9,6 +9,7 @@
   import { Plus, ChevronDown, CalendarCheck, ChevronRight, Palmtree, Sun, CloudRain, CloudSun, Info, History } from '@lucide/svelte';
   import PageHead from '../lib/ui/PageHead.svelte';
   import AreaIntro from '../lib/intro/AreaIntro.svelte'; // «Einstieg» for the place «Woche» (key weekplan)
+  import FreeSlotCard from '../lib/freiezeit/FreeSlotCard.svelte'; // Idee A3: free time plus good weather
   import Seg from '../lib/ui/Seg.svelte';
   import Entry from '../lib/woche/Entry.svelte';
   import WeekPeople from '../lib/alltag/WeekPeople.svelte'; // «Alles finden»: people to see again this week
@@ -100,6 +101,7 @@
 <div class="wkp">
   <PageHead title={next ? t('Next week') : t('This week')} text={t('Week {n} · {range} · everything here is a suggestion and can be hidden', { n: isoWeek(monday), range })} />
   <AreaIntro place="weekplan" />
+  <FreeSlotCard />
 
   {#if week}
     <div class="top">

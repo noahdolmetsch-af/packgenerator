@@ -2,7 +2,7 @@
 export default {
   title: 'Easier to read on the tour page',
   lead: 'The total time reads in hours and minutes, and the jump bar shows where you are.',
-  points: [{ text: 'Total time and pauses read «2 h 02 min 18 s» instead of «00:02:02:18»' }],
+  points: [{ text: 'Total time and pauses read «2 h 02 min 18 s» instead of «00:02:02:18»', go: 'f.tourpage' }],
   small: [{ box: 'nicer', text: 'On a computer the jump bar marks the part you are reading, no longer «Gear» at the top' }],
   test: [
     'Open a finished ride under Touren › Fahrten: under «Werte» the elapsed time reads like «2 h 02 min 18 s».',

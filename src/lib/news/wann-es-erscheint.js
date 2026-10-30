@@ -2,8 +2,8 @@
 export default {
   title: 'When a function appears',
   lead: 'Some functions show only in the right moment. The catalogue now says when.',
-  points: [{ text: '17 entries in «What the app can do» have a line with a clock: when they appear', href: '#/features' }],
-  small: [{ box: 'nicer', text: 'The line is small and in italics, so each entry stays short' }],
+  points: [{ text: '17 entries in «What the app can do» have a line with a clock: when they appear', href: '#/features', go: { href: '#/features', where: 'Shows in «What the app can do».' } }],
+  small: [{ box: 'nicer', text: 'The line is small and in italics, so each entry stays short', go: null }],
   test: ['Open «What the app can do» and search «Ready for tomorrow».', 'Under the entry stands «Appears on the evening before a trip.» with a small clock.'],
   since: [],
   de: {

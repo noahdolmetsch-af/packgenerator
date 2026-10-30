@@ -31,6 +31,8 @@ export const TOOLS = [
   { key: 'sitpos', icon: 'person', title: 'Sitting position', sub: 'Knee and back angles from a photo or video' },
   // Paket B «QR an der Kiste» (Noah 24.10.2026 «2a»): labels for boxes and shelves at home
   { key: 'labels', icon: 'package', title: 'Box labels', sub: 'A QR code on each box: what is inside' },
+  // «Bild bearbeiten» (Noah 28.10.2026 «1a 2a 3a 4a 5a»): screenshots cut, drawn and written on, one PDF
+  { key: 'markup', icon: 'pen', title: 'Edit a picture', sub: 'Screenshot: cut, draw, write, one PDF' },
 ];
 
 /** The tools in the order the person set (unknown keys dropped, new tools at the end). */

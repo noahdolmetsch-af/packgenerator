@@ -51,6 +51,7 @@
   }
   import TipButton from '../lib/know/TipButton.svelte';
   import WhatsNew from '../lib/know/WhatsNew.svelte';
+  import GestenListe from '../lib/know/GestenListe.svelte';
   import PlaySheet from '../lib/testdata/PlaySheet.svelte';
   import MoreActions from '../lib/ui/MoreActions.svelte';
   import Seg from '../lib/ui/Seg.svelte';
@@ -221,8 +222,9 @@
       <input type="search" bind:value={q} placeholder={t('What do you want to do? e.g. «warranty»')} aria-label={t('Find a function')} autocomplete="off" />
     </label>
     <!-- Noah «1 a und b beides umstellbar»: by situation or by the page a function lives on -->
-    <div class="fby"><Seg full={false} label={t('Sort')} options={[{ key: 'situation', name: t('By situation') }, { key: 'page', name: t('By page') }]} value={by} onchange={(k) => (by = k)} /></div>
+    <div class="fby"><Seg full={false} label={t('Sort')} options={[{ key: 'situation', name: t('By situation') }, { key: 'page', name: t('By page') }, { key: 'moment', name: t('By moment') }]} value={by} onchange={(k) => (by = k)} /></div>
   </div>
+  {#if by === 'moment'}<p class="fsub" data-moment-hint>{t('By moment: the functions sorted by the situation in which you need them. Today shows the moment you are in.')}</p>{/if}
   <!-- SN6+ K6 «New since your last visit» (answers 1b and 5b), in place of «New for you» -->
   {#if d && !hits && fresh.rows.length}
     <section class="fblock" data-block="news" aria-labelledby="fsince-h">
@@ -265,6 +267,8 @@
     {/each}
   </div>
   <p class="legend"><Info size={16} aria-hidden="true" /><span>{t('Used ones move down. Under «…»: how it works, and try it in the playground.')}</span></p>
+  <!-- «Heute als Begleiter» PR 12: gestures, keys, search commands and «…» actions, folded; the search above narrows it -->
+  <GestenListe {q} />
   <!-- the news of the last versions, folded at the end (Ich › Was ist neu has them all) -->
   <div class="fnews"><WhatsNew /></div>
 </div>

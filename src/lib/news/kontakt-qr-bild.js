@@ -3,8 +3,8 @@ export default {
   title: 'Found?',
   lead: 'Your contact card as a lock-screen image and as a sticker for the bike.',
   points: [
-    { text: '«Lock screen»: an image for the phone, so a finder can reach you', href: '#/me/freunde?tab=card' },
-    { text: '«Sticker Found?»: to print for the bike, the helmet or a bag', href: '#/me/freunde?tab=card' },
+    { text: '«Lock screen»: an image for the phone, so a finder can reach you', href: '#/me/freunde?tab=card', go: { href: '#/me/freunde?tab=card', steps: [{ sel: '[data-contact-card]' }] } },
+    { text: '«Sticker Found?»: to print for the bike, the helmet or a bag', href: '#/me/freunde?tab=card', go: { href: '#/me/freunde?tab=card', steps: [{ sel: '[data-contact-card]' }] } },
   ],
   small: [],
   test: [

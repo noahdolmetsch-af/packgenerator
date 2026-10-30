@@ -37,6 +37,7 @@
   import { phone } from '../media.svelte.js';
   import { localDay } from '../localday.js';
   import { swipeRight } from '../ui/swipe.js';
+  import PackBike from './PackBike.svelte';
   import '../trip/trip.css';
 
   let { trip, steps, itemsById, badges = {}, ready = [], wxGap = null, onwx = () => {}, ontoggle, onready, onpack = () => {}, onreadyall = () => {}, onnext, onundo = () => {}, canUndo = false, main = { kind: 'finish', label: 'Finish packing' }, onend = () => {}, bike = true, lessons = [], reminders = [], oncharge = null, pressure = '', stats = null, charge = null, top = null, fixed = false, onread = null, onmove = null, spare = [] } = $props();
@@ -545,6 +546,7 @@
       <section class="psec" aria-labelledby="bags-h">
         <h2 id="bags-h" class="sh">{t('Bags')}</h2>
         <p class="ssub"><span class="num packed-count">{t('{n} of {total} packed', { n: packed, total })}</span>{' · '}{t('tap a bag')}{#if !fixed}{@render photoTick()}{/if}{#if onread && !phone.matches}<button type="button" class="btn sm pd-read-w" onclick={onread}><Volume2 size={16} aria-hidden="true" /> {t('Read aloud')}</button>{/if}{@render sideSwitch()}</p>
+        <PackBike {steps} {cur} onpick={pick} />
         <ul class="blist">
           {#each steps as s (s.key)}{@render bagRow(s, iconOf(s.key), full(s), s.key === cur)}{/each}
           {#if ready.length}
@@ -678,6 +680,8 @@
   .mrow { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 64px; padding: 8px 16px; border: 0; background: none; color: var(--ink); font: 400 var(--fs-body) var(--font-body); text-align: left; cursor: pointer; }
   .blist { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(132px, 100%), 1fr)); gap: 10px; }
   @media (max-width: 479px) { .blist { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; } }
+  /* on the smallest phones (320 px) three tiles are too narrow for «Oberrohrtasche»: two per row */
+  @media (max-width: 359px) { .blist { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
   .brow { min-width: 0; border: 1px solid var(--line); border-radius: 14px; background: var(--paper); box-shadow: 0 1px 2px var(--shadow); transition: border-color 200ms var(--ease-out), box-shadow 200ms var(--ease-out); }
   .brow.open { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
   .brow .bagh, .brow .bsel { display: flex; flex-direction: column; align-items: center; gap: 6px; width: 100%; height: 100%; min-height: 44px; padding: 12px 6px 10px; border: 0; border-radius: inherit; background: none; color: var(--ink); font: 400 var(--fs-body) var(--font-body); text-align: center; cursor: pointer; }

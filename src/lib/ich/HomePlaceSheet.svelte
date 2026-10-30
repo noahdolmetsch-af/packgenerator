@@ -48,7 +48,7 @@
     const p = picked;
     await db.settings.put({ key: HOME_PLACE, value: { name: p.detail ? `${p.name}, ${p.detail}` : p.name, lat: p.lat, lon: p.lon } });
     dialog.close();
-    await homeForecast(db);
+    await homeForecast(db, { fresh: true });
   }
   async function remove() {
     await db.settings.delete(HOME_PLACE);

@@ -350,4 +350,7 @@ export default {
   'Base check': 'Basischeck',
   'All with me': 'Alles dabei',
   Hide: 'Ausblenden',
+  // Auffälligkeiten 28.10.2026 (Noah «1a»): «Tour beenden …» at the bottom of On the way
+  'Earlier too. The app asks first, and you can undo it.': 'Auch früher. Die App fragt zuerst, und du kannst es rückgängig machen.',
+  'At the bottom of the page tap «End the trip …».': 'Tippe unten auf der Seite auf «Tour beenden …».',
 };

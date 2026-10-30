@@ -23,6 +23,7 @@
   import { strava, fetchNow, connect, disconnect, afterConnect, savePrefs, autoAssign, undoAutoAssign, autoText, CHECK_HASH } from './client.svelte.js';
   import { UNDO_MS } from '../ui/undo.js';
   import StravaChanges from './StravaChanges.svelte';
+  import StravaFriends from './StravaFriends.svelte';
   import Skeleton from '../ui/Skeleton.svelte';
   import { t, tn, num, dateOf, locale } from '../i18n.svelte.js';
   import { localDay } from '../localday.js';
@@ -168,6 +169,7 @@
           </ol>
         </section>
         <div class="card cn">
+          {#if strava.invite}<p class="invited" data-invited>{t('You were invited: connect your own Strava. Your rides stay yours, only on this device.')}</p>{/if}
           <button type="button" class="btn hi big" onclick={() => connect()}><Link2 size={18} aria-hidden="true" />{t('Connect with Strava')}</button>
           <p class="lock"><Lock size={14} aria-hidden="true" /><span><b>{t('Only your rides, read only. Disconnect at any time.')}</b> {t('The app writes nothing to Strava and sees no photos or contacts.')}</span></p>
           {@render err()}
@@ -308,6 +310,7 @@
             <div class="orow"><span class="ib"><Bell size={18} aria-hidden="true" /></span><span class="m"><b>{t('Always ask')}</b><small>{t('A notice on Today and at the bike: «Take over» or «Keep»')}</small></span></div>
           </div>
         </section>
+        <StravaFriends />
         <section class="vsec" aria-labelledby="s3x-h">
           <div class="vh"><div class="vh-t"><h2 id="s3x-h">{t('More')}</h2></div></div>
           <div class="card vlist">{@render fileRow()}</div>
@@ -356,6 +359,13 @@
   }
   .vsec {
     margin: 0;
+  }
+  .invited {
+    margin: 0 0 10px;
+    padding: 8px 12px;
+    border-radius: var(--r-ctl);
+    background: var(--hi-soft);
+    font-size: var(--fs-small);
   }
   .vh {
     margin: 0 2px 10px;

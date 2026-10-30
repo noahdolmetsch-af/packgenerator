@@ -3,8 +3,8 @@
 export default {
   title: 'A calmer top on Today',
   lead: 'Customising the start page now waits at the very bottom.',
-  points: [{ text: '«Customise the start page» is at the very bottom of Today, next to «All areas»' }],
-  small: [{ box: 'nicer', text: 'Weather and «What do I wear?» sit in the date line; your name is set under Me › Appearance' }],
+  points: [{ text: '«Customise the start page» is at the very bottom of Today, next to «All areas»', go: { href: '#/', steps: [{ sel: '[data-intro="custom"]' }] } }],
+  small: [{ box: 'nicer', text: 'Weather and «What do I wear?» sit in the date line; your name is set under Me › Appearance', go: { href: '#/', steps: [{ sel: '[data-wear-open]' }] } }],
   test: ['Scroll Heute to the very bottom: «Startseite anpassen» stands next to «Alle Bereiche».', 'Tap it: the tiles can be moved and removed as before.'],
   since: [],
   de: {

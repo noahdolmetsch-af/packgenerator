@@ -56,6 +56,8 @@
   const hasSample = $derived(!!($racesQ ?? {})[SAMPLE_ID] && ($tripsQ ?? []).some((x) => x.id === SAMPLE_ID));
   async function openSample(tour = false) {
     if (!hasSample) await makeSample({ db, newTrip, putRace, today, title: t('Sample race 1000'), tr: t });
+    // making the sample takes a moment: someone who went elsewhere meanwhile stays there
+    if (!location.hash.startsWith('#/race')) return;
     if (tour) return startTour('race');
     location.hash = raceHref(SAMPLE_ID);
   }

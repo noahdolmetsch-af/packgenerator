@@ -13,9 +13,10 @@
   import Crumb from '../../lib/flow/kit/Crumb.svelte';
   import Sec from '../../lib/flow/kit/Sec.svelte';
   import FormVerlauf from '../../lib/flow/form/FormVerlauf.svelte';
+  import FormTeile from '../../lib/flow/form/FormTeile.svelte';
   import { formQuery } from '../../lib/form-data.js';
   import { RAMP_MAX, FIT_DAYS, FAT_DAYS, shownForm } from '../../lib/form.js';
-  import { levelWord, levelLine, partText, tourText, PART_NAMES } from '../../lib/flow/form/words.js';
+  import { levelWord, levelLine, tourText } from '../../lib/flow/form/words.js';
   import { localDay } from '../../lib/localday.js';
   import { t, num, locale } from '../../lib/i18n.svelte.js';
   import { strava, STRAVA_HASH } from '../../lib/strava/client.svelte.js';
@@ -59,16 +60,8 @@
 
     {#if r}
       <Sec id="parts-h" title={t('What counts today')} sub={t('against your normal of the last 30 days · + helps, − holds back')}>
-        <ul class="card parts" data-form-parts>
-          {#each rows as p (p.key)}
-            {@const pts = p.points}
-            <li data-part={p.key}>
-              <b>{t(PART_NAMES[p.key])}</b>
-              <span>{partText(p)}</span>
-              {#if pts != null}<small class="pt num" class:up={pts > 0} class:down={pts < 0}>{pts > 0 ? '+' : pts < 0 ? '−' : '±'}{num(Math.abs(Math.round(pts)))}</small>{/if}
-            </li>
-          {/each}
-        </ul>
+        <!-- «Diagramme zum Antippen» K3 (Noah 27.10.2026 «1-5 a»): 7 days per row, a tap opens its days -->
+        <FormTeile {f} {rows} {today} />
         {#if f.alarm && suggest.on.performance}<p class="note" data-form-alarm>{t('Resting pulse up and HRV down two days in a row: an easy day may help.')}</p>{/if}
         {#if f.rampHigh && suggest.on.performance}<p class="note" data-form-ramp>{t('Your fitness rose by {n} in 7 days. More than {m} a week often leads to overload.', { n: num(r.ramp), m: RAMP_MAX })}</p>{/if}
       </Sec>
@@ -167,37 +160,6 @@
     display: grid;
     gap: 2px;
     min-width: 0;
-  }
-  .parts {
-    margin: 0;
-    padding: 0 16px;
-    list-style: none;
-  }
-  .parts li {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    gap: 2px 12px;
-    padding: 12px 0;
-    border-top: 1px solid var(--line);
-  }
-  .parts li:first-child {
-    border-top: 0;
-  }
-  .parts span {
-    grid-column: 1;
-    color: var(--ink-2);
-    font-size: var(--fs-small);
-  }
-  .pt {
-    grid-area: 1 / 2 / 3 / 3;
-    align-self: center;
-    font-weight: 700;
-  }
-  .pt.up {
-    color: var(--ok);
-  }
-  .pt.down {
-    color: var(--bad);
   }
   .note,
   .wait,

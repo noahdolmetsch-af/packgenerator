@@ -4,11 +4,11 @@ export default {
   title: 'Pauses with a reason',
   lead: 'And your look back can simply be spoken.',
   points: [
-    { text: 'Pauses with a reason, and the app notices a forgotten pause', href: '#/ride' },
-    { text: 'Speak your look back: the app sorts it into learned, missing and not needed', href: '#/debrief' },
-    { text: 'Add an old trip from memory, without GPS', href: '#/pack/past' },
+    { text: 'Pauses with a reason, and the app notices a forgotten pause', href: '#/ride', go: 'f.livepause' },
+    { text: 'Speak your look back: the app sorts it into learned, missing and not needed', href: '#/debrief', go: 'f.missing' },
+    { text: 'Add an old trip from memory, without GPS', href: '#/pack/past', go: 'f.past' },
   ],
-  small: [{ box: 'new', text: 'Split one recording into stages when you upload a ride', href: '#/debrief/ride' }],
+  small: [{ box: 'new', text: 'Split one recording into stages when you upload a ride', href: '#/debrief/ride', go: 'f.upload' }],
   test: ['On the way tap «Pause» and choose a reason: rest, repair or waiting.', 'In the look back tap «Speak your look back», say two sentences and accept the points you want.'],
   since: [],
   de: {

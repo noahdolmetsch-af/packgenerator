@@ -11,9 +11,9 @@
   import { Bike, Mountain, Timer, Leaf, Pencil } from '@lucide/svelte';
   import Sec from './kit/Sec.svelte';
   import { db } from '../db.js';
-  import { withStravaRides, bikeActs } from '../kmbook.js';
+  import { withStravaRides, bikeActs, waitingSince } from '../kmbook.js';
   import { GOALS, YEAR_GOALS_KEY, CO2_PER_KM, goalsOf, yearSums, goalRow, co2Saved, typedGoal } from './yeargoals.js';
-  import { t, num } from '../i18n.svelte.js';
+  import { t, tn, num } from '../i18n.svelte.js';
 
   let { today } = $props();
   const ICON = { km: Bike, hm: Mountain, azm: Timer };
@@ -24,6 +24,8 @@
   const actQ = liveQuery(() => bikeActs(db));
   const sums = $derived(yearSums(withStravaRides($ridesQ ?? [], $kmQ ?? [], $actQ ?? []), today));
   const year = $derived(today.slice(0, 4));
+  // UI-Test T5: the Strava rides of this year that still wait in «Zum Prüfen» are named, not quietly left out
+  const waiting = $derived(waitingSince($kmQ ?? [], `${year}-01-01`, today));
   const save = (key, change) => db.settings.put({ key: YEAR_GOALS_KEY, value: { ...goals, [key]: { ...goals[key], ...change } } });
   let editing = $state(null);
   function setOf(key, e) {
@@ -66,6 +68,8 @@
           {#if r}
             <span class="bar" role="img" aria-label="{Math.round(r.fill * 100)} %"><i style="width:{Math.max(2, Math.round(r.fill * 100))}%"></i><span class="mk" style="left:{Math.round(r.plan * 100)}%"></span></span>
             <small class="num">{r.ahead >= 0 ? t('{n} ahead of the plan', { n: unitText(g, r.ahead) }) : t('{n} behind the plan', { n: unitText(g, -r.ahead) })}</small>
+            {#if g.key === 'km'}<small class="src" data-goal-source>{t('Counted: every bike ride from Strava, uploaded rides and your recordings, as on Today.')}</small>
+              {#if waiting}<a class="wt" href="#/bikes?tab=care&view=strava-check" data-goal-waiting>{tn(waiting, '+ {n} Strava ride to check', '+ {n} Strava rides to check')}</a>{/if}{/if}
           {:else}
             <small class="soon">{t('Not counted for the year yet. Your minutes of this week are on Aktiv.')}</small>
           {/if}
@@ -98,6 +102,17 @@
   .yg li {
     display: grid;
     gap: 6px;
+  }
+  .wt {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    justify-self: start;
+    font-size: var(--fs-small);
+  }
+  .src {
+    color: var(--ink-3);
+    font-size: var(--fs-small);
   }
   .yg li.off .m b,
   .yg li.off .ofb {

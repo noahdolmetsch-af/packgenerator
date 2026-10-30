@@ -4,11 +4,11 @@ export default {
   title: 'Form chart you can tap',
   lead: 'Fitness, fatigue, form and resting pulse show exact numbers for every day.',
   points: [
-    { text: 'Point at a day: its four values stand above the chart', href: '#/flow/form' },
-    { text: 'Tap a day: its values, load and activities, with «Next day»' },
-    { text: 'Choose 4 weeks to 1 year, switch each line on or off' },
+    { text: 'Point at a day: its four values stand above the chart', href: '#/flow/form', go: 'f.form' },
+    { text: 'Tap a day: its values, load and activities, with «Next day»', go: 'f.form' },
+    { text: 'Choose 4 weeks to 1 year, switch each line on or off', go: 'f.form' },
   ],
-  small: [{ box: 'nicer', text: 'Each part has its own axis; the resting pulse shows your normal as a band' }],
+  small: [{ box: 'nicer', text: 'Each part has its own axis; the resting pulse shows your normal as a band', go: 'f.form' }],
   test: [
     'Open Auswerten › Form und Erholung and point at a day in «Verlauf»: the line above shows its four values.',
     'Tap the day: a window shows its values and activities; «Nächster Tag» walks on.',

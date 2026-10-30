@@ -162,6 +162,8 @@ export function containerWeight(container, itemsById) {
  */
 export const ON_BIKE_SLOTS = ['cage1', 'cage2'];
 export const addedWeight = (container, itemsById) => (ON_BIKE_SLOTS.includes(container.slot) ? 0 : containerWeight(container, itemsById));
+/** UI-Test T7 (G4-01): is this place a bottle cage, weighed with the bike? */
+export const onBikeSlot = (key) => ON_BIKE_SLOTS.includes(key);
 
 /** Bags on a bike: one row per slot the bike has, with the bag and its numbers. */
 export function bikeSetup(bike, containers, items) {
@@ -177,6 +179,8 @@ export function bikeSetup(bike, containers, items) {
   return {
     rows,
     bagCount: used.length,
+    // UI-Test T7 (G4-01): bottle cages are named apart («1 bag, 2 bottle cages»); they weigh 0 on top (in the bike)
+    cageCount: used.filter((r) => onBikeSlot(r.slot.key)).length,
     volumeL: used.reduce((t, r) => t + (r.bag.volumeL || 0), 0),
     bagsG: used.reduce((t, r) => t + (r.weightG || 0), 0),
     unweighed: used.filter((r) => r.weightG == null).length,
@@ -260,7 +264,7 @@ export function parseBikesHash(hash = '') {
   // «Velo-FAQ» (19.10.2026): &view=faq is the «Velo-FAQ» (questions on care, breakdowns, wear, myths).
   // «Verschleiss» (20.10.2026): &view=wear is the wear of each part, the counter and the service periods.
   // Paket VG «Das Velo im Griff»: &view=photos wear photos, sell the sale listing, bikepack pack the bike, stock spare parts.
-  if (tab === 'care' && ['import', 'strava', 'strava-check', 'spick', 'templates', 'inspect', 'faq', 'wear', 'photos', 'sell', 'bikepack', 'stock', 'year', 'season'].includes(q.get('view'))) out.view = q.get('view');
+  if (tab === 'care' && ['import', 'strava', 'strava-check', 'spick', 'templates', 'inspect', 'faq', 'wear', 'photos', 'sell', 'bikepack', 'stock', 'year', 'season', 'rounds'].includes(q.get('view'))) out.view = q.get('view');
   // «Velo-Inspektion» (19.10.2026): &view=inspect is a bike's inspections (history, checklist); &level=quick|monthly|full runs one.
   if (out.view === 'inspect' && ['quick', 'monthly', 'full'].includes(q.get('level'))) out.level = q.get('level');
   // v0.83.0 «Ausstattung»: tab=compare is the bike's equipment; &view=all is «Compare bikes».
@@ -317,7 +321,7 @@ export function bikesHash({ tab = 'setup', bike = null, open = false, trip = nul
     if (a) q.set('a', a);
     if (b) q.set('b', b);
   }
-  if (['import', 'strava', 'strava-check', 'spick', 'templates', 'inspect', 'faq', 'wear', 'photos', 'sell', 'bikepack', 'stock', 'year', 'season'].includes(view) && tab === 'care') q.set('view', view);
+  if (['import', 'strava', 'strava-check', 'spick', 'templates', 'inspect', 'faq', 'wear', 'photos', 'sell', 'bikepack', 'stock', 'year', 'season', 'rounds'].includes(view) && tab === 'care') q.set('view', view);
   if ((view === 'all' || view === 'enter') && tab === 'compare') q.set('view', view);
   if (bike) q.set('bike', bike);
   if (tab === 'care' && view === 'inspect' && ['quick', 'monthly', 'full'].includes(level)) q.set('level', level);

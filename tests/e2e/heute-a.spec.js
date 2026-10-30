@@ -41,7 +41,8 @@ test.describe('HA Heute neu A', () => {
     // «Heute ruhiger» (Noah 26.10.2026 «2a», changed on purpose): «Körperwerte» repeated the values of «Dein Körper heute»
     // and left the ready wall (it stays in the catalog); all values are one tap away under «Details»
     await expect(page.locator('[data-section="vitals"]')).toHaveCount(0);
-    await expect(body.getByRole('link', { name: new RegExp(T('Details|body')) })).toBeVisible();
+    // «Neuer Schwung» Blatt von unten (Noah 27.10.2026 «a», changed on purpose): on a phone «Details» opens a sheet
+    await expect(body.getByRole(info.project.name === 'phone' ? 'button' : 'link', { name: new RegExp(T('Details|body')) })).toBeVisible();
     // the countdown chip to the next trip (tomorrow), with the trip's own name
     const chip = page.locator('[data-goals] [data-goal-countdown]');
     await expect(chip).toContainText('Herbstrunde');

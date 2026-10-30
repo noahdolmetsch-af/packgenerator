@@ -19,6 +19,7 @@
   import PhotoPick from '../ui/PhotoPick.svelte';
   import DrawOn from '../draw/DrawOn.svelte'; // Paket NE 1146 (Noah 20.10.2026 «1b»): draw on a wear photo
   import GriffHead from './GriffHead.svelte';
+  import GhostCamera from './GhostCamera.svelte'; // Velo-Idee 75: the camera with the old photo on top
   import './griff.css';
 
   let { bikeId = null } = $props();
@@ -34,6 +35,7 @@
   let msg = $state('');
   let pick = $state({}); // { [key]: { a: id, b: id } } the two photos compared
   let cut = $state({}); // { [key]: 0–100 } the slider
+  let ghostFor = $state(null); // the part key whose camera with template is open
 
   async function add(key, file) {
     busy = key;
@@ -101,11 +103,19 @@
         {#if list.length}
           <ul class="list">{#each [...list].reverse() as p (p.id)}<li data-shot={p.id}><span class="grow">{label(p)}</span><DrawOn src={p.data} list={[p.data]} inks={p.inks} icon cls="ib" onsave={({ list: l, inks }) => db.photos.update(p.id, { data: l[0], inks })} data-shot-draw /><button type="button" class="ib" aria-label={t('Delete the photo of {date}', { date: dateOf(p.date) })} onclick={() => remove(p)}><Trash2 size={16} aria-hidden="true" /></button></li>{/each}</ul>
         {/if}
-        <div class="row"><PhotoPick onfile={(f) => add(key, f)} busy={busy === key} has={list.length > 0} camera="Take photo" again="New photo" /></div>
+        <div class="row">
+          {#if list.length}<button type="button" class="btn hi sm" onclick={() => (ghostFor = key)} data-shot-ghost={key}><Camera size={16} aria-hidden="true" />{t('Photo with template')}</button>{/if}
+          <PhotoPick onfile={(f) => add(key, f)} busy={busy === key} has={list.length > 0} camera="Take photo" again="New photo" />
+        </div>
       </section>
     {/each}
   {/if}
 </div>
+
+{#if ghostFor && bike}
+  {@const last = shotsOf(photos, bike.id, ghostFor).at(-1) ?? null}
+  <GhostCamera title={t('Photograph: {part}', { part: partName({ key: ghostFor }) })} ghost={last} onphoto={(f) => add(ghostFor, f)} onclose={() => (ghostFor = null)} />
+{/if}
 
 <style>
   .cmp {

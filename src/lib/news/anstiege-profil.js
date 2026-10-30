@@ -3,8 +3,8 @@
 export default {
   title: 'Climbs with the fine profile',
   lead: 'The race page «Anstiege» now has the fine profile you can zoom, like on the map.',
-  points: [{ text: 'Opening a climb zooms the profile to it', href: '#/race' }],
-  small: [{ box: 'nicer', text: 'A long press on the app icon now says «Ausfahrt starten» and «Neue Notiz»' }],
+  points: [{ text: 'Opening a climb zooms the profile to it', href: '#/race', go: 'f.climbs' }],
+  small: [{ box: 'nicer', text: 'A long press on the app icon now says «Ausfahrt starten» and «Neue Notiz»', go: null }],
   test: [
     'Touren › Rennen › an example race › «Anstiege»: under «Alle Anstiege kurz» is the elevation profile with + and −.',
     'Tap a climb in the list: the profile zooms to that climb.',

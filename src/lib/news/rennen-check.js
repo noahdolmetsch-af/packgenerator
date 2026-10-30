@@ -3,8 +3,8 @@
 export default {
   title: 'Plan races in detail',
   lead: 'Every coming race with its race check, five sheets to fill in.',
-  points: [{ text: 'Trips › «Plan races in detail»: tap a race and fill in its race check', href: '#/racecheck' }],
-  small: [{ box: 'new', text: '«Load answers» takes the answers of the fillable sheets page' }],
+  points: [{ text: 'Trips › «Plan races in detail»: tap a race and fill in its race check', href: '#/racecheck', go: 'f.racecheck' }],
+  small: [{ box: 'new', text: '«Load answers» takes the answers of the fillable sheets page', go: 'f.racecheck' }],
   test: ['Open Touren and tap «Rennen detailliert planen» in the row under the title: your races are listed.', 'Tap a race, write something on sheet 1, switch to sheet 3 and back: your text is still there.'],
   since: ['f.racecheck'],
   de: {

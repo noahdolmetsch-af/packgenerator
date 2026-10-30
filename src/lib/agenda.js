@@ -45,6 +45,24 @@ export const calsToFetch = (p) => (p.cals.length ? p.cals : [p.calendars.find((c
 /** «08:30» in Zurich for a timed event, '' for an all-day one. */
 export const timeOf = (e) => (e?.allDay || !e?.start ? '' : new Date(e.start).toLocaleTimeString('de-CH', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Zurich' }));
 
+/** The day and the time («2026-10-29», «18:30») of a moment as the clock shows it in a time zone. */
+export function clockIn(iso, tz = 'Europe/Zurich') {
+  const o = Object.fromEntries(new Intl.DateTimeFormat('en-CA', { timeZone: tz, year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).formatToParts(new Date(iso)).map((x) => [x.type, x.value]));
+  return { day: `${o.year}-${o.month}-${o.day}`, time: `${o.hour}:${o.minute}` };
+}
+
+/** The time zones the editor offers (Zurich first); an event's own zone is added when it is none of them. */
+export const ZONES = ['Europe/Zurich', 'Europe/London', 'Europe/Lisbon', 'Europe/Athens', 'Europe/Istanbul', 'America/New_York', 'America/Los_Angeles', 'Asia/Tokyo', 'Australia/Sydney', 'UTC'];
+
+/** Reminders ↔ the editor's rows: { minutes, method } ↔ { n, unit, method }, in the biggest whole unit. */
+export const UNITS = { minutes: 1, hours: 60, days: 1440, weeks: 10080 };
+export function remindRow(r) {
+  const m = r.minutes;
+  const unit = m && m % 10080 === 0 ? 'weeks' : m && m % 1440 === 0 ? 'days' : m && m % 60 === 0 ? 'hours' : 'minutes';
+  return { n: m / UNITS[unit], unit, method: r.method === 'email' ? 'email' : 'popup' };
+}
+export const remindMinutes = (row) => ({ minutes: Math.round(Number(row.n) * UNITS[row.unit]), method: row.method === 'email' ? 'email' : 'popup' });
+
 /** Events by day for the days from..to: an event over several days stands on each of them. */
 export function byDay(events, from, to) {
   const map = new Map(daysOf(from, to).map((d) => [d, []]));
@@ -54,6 +72,52 @@ export function byDay(events, from, to) {
   }
   for (const list of map.values()) list.sort((a, b) => Number(!a.allDay) - Number(!b.allDay) || String(a.start).localeCompare(String(b.start)) || a.title.localeCompare(b.title));
   return [...map].map(([day, list]) => ({ day, events: list }));
+}
+
+const minutesOf = (hhmm) => Number(hhmm.slice(0, 2)) * 60 + Number(hhmm.slice(3, 5));
+/** The shortest block the week grid draws (minutes), so a short appointment can still be tapped. */
+export const MIN_BLOCK = 30;
+
+/**
+ * The week grid (Google's «Week» view): for every day the all-day entries and the timed ones with their
+ * minute span on that day and a lane, so appointments at the same time stand side by side.
+ *   [{ day, allDay: [event], timed: [{ e, from, to, lane, lanes }] }]   (from/to in minutes since 00:00 Zurich)
+ */
+export function weekLayout(events, days) {
+  return byDay(events, days[0], days.at(-1))
+    .filter((d) => days.includes(d.day))
+    .map(({ day, events: list }) => {
+      const allDay = list.filter((e) => e.allDay);
+      const items = list
+        .filter((e) => !e.allDay && e.start)
+        .map((e) => {
+          const a = clockIn(e.start);
+          const b = clockIn(e.end || e.start);
+          const from = a.day < day ? 0 : minutesOf(a.time);
+          const to = b.day > day ? 1440 : minutesOf(b.time);
+          return { e, from, to: Math.min(1440, Math.max(to, from + MIN_BLOCK)) };
+        })
+        .sort((x, y) => x.from - y.from || y.to - x.to);
+      // lanes: a group is a run of appointments that touch each other; each gets the first free lane
+      const timed = [];
+      let group = [];
+      let end = 0;
+      const close = () => {
+        const lanes = Math.max(1, ...group.map((x) => x.lane + 1));
+        for (const x of group) timed.push({ ...x, lanes });
+        group = [];
+      };
+      for (const it of items) {
+        if (group.length && it.from >= end) close();
+        const used = new Set(group.filter((x) => x.to > it.from).map((x) => x.lane));
+        let lane = 0;
+        while (used.has(lane)) lane++;
+        group.push({ ...it, lane });
+        end = Math.max(end, it.to);
+      }
+      close();
+      return { day, allDay, timed };
+    });
 }
 
 const TASK_ORDER = ['late', 'today', 'soon', 'later', 'open', 'done'];

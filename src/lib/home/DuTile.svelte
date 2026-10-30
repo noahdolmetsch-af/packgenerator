@@ -13,6 +13,7 @@
   import { homeForecast } from '../home-weather.js';
   import { lastDays } from '../flow.js';
   import { widgetValues } from '../wohl.js';
+  import { countedRidesSince } from '../kmbook.js';
   import TileHead from './TileHead.svelte';
   import { t, locale } from '../i18n.svelte.js';
 
@@ -36,8 +37,9 @@
   const from = $derived(lastDays(today, 40)[0]);
   const vq = $derived(
     liveQuery(async () => {
-      const [km, health] = await Promise.all([db.kmBook.where('date').aboveOrEqual(from).toArray(), db.healthDays ? db.healthDays.where('date').aboveOrEqual(from).toArray() : []]);
-      return { km, health };
+      // UI-Test T5: the km of today and 7 days from the same rides as «Diese Woche» (Strava, files, recordings)
+      const [rides, health] = await Promise.all([countedRidesSince(db, from), db.healthDays ? db.healthDays.where('date').aboveOrEqual(from).toArray() : []]);
+      return { rides, health };
     }),
   );
   let forecast = $state(null);

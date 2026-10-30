@@ -123,6 +123,8 @@ const ROUTES = [
   ['#/ski/after', 'Nach der Tour'],
   // P3b «Daten sicher» (D3): Ich › Dokumente, strict like its file
   ['#/me/docs', 'Dokumente'],
+  // «Quick Links» (Noah 28.10.2026): the new place
+  ['#/quick', 'Quick Links'],
 ];
 const FAIL_RULES = ['hscroll', 'wordbreak', 'target', 'h1'];
 const REPORT_RULES = ['primary'];

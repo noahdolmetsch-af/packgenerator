@@ -2,7 +2,7 @@
 export default {
   title: 'Exact axes on the tour page',
   lead: 'The charts of a tour have round, labelled steps, so you can read every value off.',
-  points: [{ text: 'Speed profile, height profile and the resting heart rate dots: round steps with grid lines, the unit at the top' }],
+  points: [{ text: 'Speed profile, height profile and the resting heart rate dots: round steps with grid lines, the unit at the top', go: 'f.tourpage' }],
   small: [],
   test: [
     'Open a ride under Touren › Fahrten: the speed profile counts 0, 20, 40 km/h (or 0, 10, 20 …) with a line at each step.',

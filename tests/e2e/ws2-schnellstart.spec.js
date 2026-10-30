@@ -1,13 +1,15 @@
 // WS2 «Wieder sichtbar» (Noah 14.10.2026 «1a 2b 3a ws1-ws7 freigeben»): «Tagestour jetzt» in «Neu» and in
 // the search becomes «Schnellstart» and makes the trip by the rules of Today: today, 2.5 h, the bike
-// ridden last, the weather of the home forecast, the time stamp as its name. Pack opens it with
+// ridden last, the weather of the home forecast, «Ausfahrt Mi 28. Okt.» as its name. Pack opens it with
 // «Ändern» and «Rückgängig». Fictional data only (test_data_gtp_), the clock on D0 09:00 (Europe/Zurich),
 // Open-Meteo mocked. SHOTS=<folder> saves the screenshots (1440 and 390, light).
 import { test, expect } from './clock.js';
 import { mkdirSync } from 'node:fs';
 import { D0, openHome, homeFixture } from './home0460-fixture.js';
 
-const STAMP = `${D0.replaceAll('-', '')}0900`; // 09:00 on D0, local time
+// the trip's name «Ausfahrt Mi 28. Okt.» on D0 (Auffälligkeiten 28.10.2026, Noah «2a»; the time stamp before)
+const D0AT = new Date(`${D0}T09:00`);
+const STAMP = `Ausfahrt ${D0AT.toLocaleDateString('de-CH', { weekday: 'short' }).replace(/\.$/, '')} ${D0AT.toLocaleDateString('de-CH', { day: 'numeric', month: 'short' })}`;
 
 async function shot(page, info, name) {
   if (!process.env.SHOTS) return;

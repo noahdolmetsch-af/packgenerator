@@ -3,8 +3,8 @@
 export default {
   title: 'Rows lift when you sort',
   lead: 'Drag a row: it lifts, the others make room.',
-  points: [{ text: 'The row you hold lifts with a shadow above the others, in every list you can sort', href: '#/me/lists?categories' }],
-  small: [{ box: 'nicer', text: 'The other rows glide aside more softly; the phone buzzes briefly when the row lands' }],
+  points: [{ text: 'The row you hold lifts with a shadow above the others, in every list you can sort', href: '#/me/lists?categories', go: 'f.editall' }],
+  small: [{ box: 'nicer', text: 'The other rows glide aside more softly; the phone buzzes briefly when the row lands', go: null }],
   test: ['Open Ich › Listen und Typen › Kategorien and hold the handle ⠿ of a row.', 'The row lifts with a shadow; drag it down and let go: it stays at its new place.'],
   since: [],
   de: {
