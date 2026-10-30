@@ -40,6 +40,12 @@
     background: var(--paper);
     box-shadow: var(--card-shadow);
   }
+  /* a phone held sideways keeps its few lines for the page (landscape.spec: the band right under the top bar) */
+  @media (max-height: 500px) {
+    .gd {
+      display: none;
+    }
+  }
   h2 {
     margin: 0 0 6px;
     font: 600 var(--fs-small)/1.3 var(--font-body);
