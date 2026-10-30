@@ -15,7 +15,7 @@
     "@sveltejs/vite-plugin-svelte": "^7.3.1",
     "fake-indexeddb": "^6.2.6",
     "read-excel-file": "^9.3.12",
-    "svelte": "^5.57.2",
+    "svelte": "^5.57.3",
     "vite": "^8.3.5",
     "vite-plugin-pwa": "^2.0.0",
     "vitest": "^5.0.5"
