@@ -1,6 +1,6 @@
 # Gehört dazu auf Packen
 
-PR folgt · 30.10.2026 · Auftrag: Noah «1a 2a 3a» (Thread «Neue Struktur der App aus der Funktionsliste»), Schritt 7 von «Heute als Begleiter»
+PR #460 · 30.10.2026 · Auftrag: Noah «1a 2a 3a» (Thread «Neue Struktur der App aus der Funktionsliste»), Schritt 7 von «Heute als Begleiter»
 
 ## Was ist neu
 - Oben auf Packen steht eine Zeile «Gehört zu: Packen» mit bis zu fünf kleinen Sprunglinks zu Funktionen des Moments Packen, die man leicht übersieht (nie benutzte zuerst), und «alle n ›» für den Rest.
