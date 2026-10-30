@@ -205,3 +205,32 @@ test('Tips of the day: «Later» hides the short start for now and keeps the tip
   await expect(page.locator('[data-ko-tip-title]')).toHaveCount(3);
   expect(errors).toEqual([]);
 });
+
+test('After a ride: a card with the groups that fit opens the group; without a ride there is none', async ({ page, context }, info) => {
+  let errors = await open(page, context, './#/me/alltag/kochen');
+  await expect(page.locator('[data-ko-training]')).toHaveCount(0);
+  await page.evaluate(
+    () =>
+      new Promise((res, rej) => {
+        const r = indexedDB.open('pack-generator');
+        r.onsuccess = () => {
+          const tx = r.result.transaction('rides', 'readwrite');
+          tx.objectStore('rides').put({ id: 'test_ride_ko', date: '2026-10-28', km: 72, name: 'Testfahrt' });
+          tx.oncomplete = () => res();
+          tx.onerror = () => rej(tx.error);
+        };
+        r.onerror = () => rej(r.error);
+      }),
+  );
+  await page.reload();
+  await ready(page);
+  const card = page.locator('[data-ko-training]');
+  await expect(card).toContainText(T('You rode {km} km today', { km: 72 }));
+  await expect(card.locator('[data-ko-training-group]')).toHaveCount(2);
+  await shotTop(page, info, 'training');
+  await card.locator('[data-ko-training-group="protein"]').click();
+  await expect(page.locator('[data-ko-filter="g:protein"]')).toHaveAttribute('aria-pressed', 'true');
+  await card.locator('[data-ko-training-hide]').click();
+  await expect(card).toHaveCount(0);
+  expect(errors).toEqual([]);
+});

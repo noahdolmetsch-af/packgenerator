@@ -111,4 +111,9 @@ export default {
   Protein: 'Eiweiss',
   Fat: 'Fett',
   'Rounded typical values added up from the ingredients. They do not change with the portions you choose; they are for one portion.': 'Gerundete Richtwerte, aus den Zutaten zusammengezählt. Sie ändern sich nicht mit den gewählten Portionen; sie gelten für eine Portion.',
+  // after training (Noah «a»)
+  'You rode {km} km today': 'Du bist heute {km} km gefahren',
+  'You rode {km} km yesterday': 'Du bist gestern {km} km gefahren',
+  'After a ride, protein and carbs help. Just a suggestion:': 'Nach einer Fahrt helfen Eiweiss und Kohlenhydrate. Nur ein Vorschlag:',
+  'Hide for today': 'Heute ausblenden',
 };
