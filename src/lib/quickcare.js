@@ -12,8 +12,7 @@
  * - km: the bike's km and the day they were set (the same as "change km" in Bike care).
  */
 import { logPart, PART, partInfo, kmSince, lastValue, parseKm, wishFor } from './care.js';
-import { t as tr } from './i18n.svelte.js';
-import DE from './i18n/de/index.js';
+import { t as tr, deTexts } from './i18n.svelte.js';
 import { partStatus, yearSummary } from './care/last.js';
 import { timeDue, tyreSetup, costByYear } from './workshop.js';
 import { bikeCare } from './readiness.js';
@@ -131,7 +130,7 @@ export function chainWish(bike, items = [], { id, value, limit = null, today, pr
   const item = wishFor(part, bike, items, id, price);
   if (!item) return null;
   const why = tr('Chain wear {value} % on {date} (replace at {limit} %).', { value: v, date: today, limit: lim });
-  return { ...item, nameDe: `${DE.Chain ?? 'Kette'} (${bike.name})`, from: 'care', bikeId: bike.id, part: 'chain', note: `${item.note} ${why}` };
+  return { ...item, nameDe: `${deTexts().Chain ?? 'Kette'} (${bike.name})`, from: 'care', bikeId: bike.id, part: 'chain', note: `${item.note} ${why}` };
 }
 
 /**

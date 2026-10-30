@@ -37,6 +37,7 @@ import './app.css';
 // v0.72.0 (D3a): the invisible 44 px tap area of the small buttons on a touch screen
 import './lib/ui/touch.css';
 import App from './App.svelte';
+import { lang, loadDe } from './lib/i18n.svelte.js';
 import { db } from './lib/db.js';
 import { tidyData } from './lib/tidy.js';
 import { loadLists, watchLists } from './lib/lists.js';
@@ -127,6 +128,10 @@ takeTrelloReturn(); // Trello: back from Trello's permission page (#/calendar?tr
 noteAppOpen();
 
 // Svelte renders the App component into <div id="app"> in index.html.
+// Kern verkleinern (Noah 30.10.2026): the German texts are separate files; a German app has them before the first screen
+// (from the offline copy), an English app fetches them quietly afterwards (the bike shop sheet and the gear import use German words).
+if (lang.v === 'de') await loadDe();
+else loadDe().catch(() => {});
 mount(App, { target: document.getElementById('app') });
 
 // P8 «Automatischer Abgleich» (Noah 18.10.2026 «1b … 2b 3b»): while it is switched on, rounds run by
