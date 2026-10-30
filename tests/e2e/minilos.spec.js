@@ -1,7 +1,7 @@
 // Mini-Tools «Fair auslosen» (Noah 28.10.2026, idea 9): who cooks, drawn fairly on this device. Three people,
 // three draws: each comes once before anyone twice; one stays away; a person is removed and comes back with Undo;
 // tents in groups of two. Fictional data only.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { openHome } from './home0460-fixture.js';
 
 const phone = (info) => info.project.name === 'phone';

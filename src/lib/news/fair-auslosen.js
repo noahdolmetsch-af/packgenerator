@@ -2,10 +2,10 @@
 export default {
   title: 'Fair draw',
   lead: 'Who cooks, who rides in front, who sleeps where: drawn fairly, on this device.',
-  points: [{ text: 'Me › Mini tools › Fair draw: add the people, tap «Draw now»', href: '#/me/mini/los' }],
+  points: [{ text: 'Me › Mini tools › Fair draw: add the people, tap «Draw now»', href: '#/me/mini/los', go: 'f.minilos' }],
   small: [
-    { box: 'new', text: 'Whoever was drawn less often comes first' },
-    { box: 'new', text: 'Groups for tents or rooms that try not to repeat last time' },
+    { box: 'new', go: 'f.minilos', text: 'Whoever was drawn less often comes first' },
+    { box: 'new', go: 'f.minilos', text: 'Groups for tents or rooms that try not to repeat last time' },
   ],
   test: [
     'Open Me › Mini tools › Fair draw and tap «Who cooks?».',
