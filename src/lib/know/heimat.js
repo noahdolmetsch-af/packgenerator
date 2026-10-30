@@ -407,6 +407,7 @@ export const HOME = {
   'f.sync': '#/me/data',
   'f.autosync': '#/me/data',
   'f.account': '#/me/data',
+  'f.appmap': '#/me/karte',
   'f.verstehen': '#/me/verstehen',
   'f.privacy': '#/me/privacy',
   'f.camera': '#/bikes?tab=shop',

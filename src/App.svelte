@@ -385,6 +385,7 @@
     Compass: () => import('./pages/Compass.svelte'), // Paket N: Ich › Mein Kompass
     Phone: () => import('./pages/Phone.svelte'),
     Checks: () => import('./pages/Checks.svelte'),
+    AppMap: () => import('./pages/AppMap.svelte'), // «Karte der App» (Noah 28.10.2026): Ich › Karte der App
     Verstehen: () => import('./pages/Verstehen.svelte'), // «App verstehen» (Noah 26.10.2026): Ich › App verstehen
     Regeln: () => import('./pages/Regeln.svelte'), // P3 «Warum? und Regeln» (RG3): Ich › So entscheidet die App
     Push: () => import('./pages/Push.svelte'),
@@ -748,6 +749,9 @@
   {:else if page === 'inspiration'}
     <!-- «Inspiration» UC2-1, UC2-2, UC2-4: your own links; sidebar on a computer, Ich › Inspiration on a phone -->
     <LazyPage load={PAGES.Inspiration} />
+  {:else if page === 'karte'}
+    <!-- «Karte der App» (Pfad Schritt 5): every place and function with its path -->
+    <LazyPage load={PAGES.AppMap} />
   {:else if page === 'verstehen'}
     <!-- «App verstehen» (Noah 26.10.2026): seven lessons to keep the app going without a helper -->
     <LazyPage load={PAGES.Verstehen} />
