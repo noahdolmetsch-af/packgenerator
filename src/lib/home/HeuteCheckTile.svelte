@@ -21,7 +21,6 @@
 <section class="hc surf" aria-labelledby="hc-h" data-section="heutecheck">
   <div class="hd">
     <TileHead icon={ListChecks} id="hc-h" title={t("Today's check")} {isnew} />
-    <a class="go" {href} data-hc-open>{t('Open questionnaire')}<ChevronRight size={16} aria-hidden="true" /></a>
   </div>
   <p class="st" data-hc-state>
     {#if due}
@@ -31,6 +30,7 @@
     {/if}
   </p>
   <p class="was" data-hc-count>{n ? tn(n, '{n} answer today', '{n} answers today') : t('No answers yet today.')}</p>
+  <a class="btn hi open" {href} data-hc-open>{t('Open questionnaire')}<ChevronRight size={16} aria-hidden="true" /></a>
   <p class="lks"><a href="#/me/insights" data-hc-links>{t('What goes together')}</a><a href="#/me/history">{t('All answers')}</a></p>
 </section>
 
@@ -51,13 +51,11 @@
   .hd :global(.th) {
     flex: 1;
   }
-  .go {
+  .open {
+    align-self: flex-start;
     display: inline-flex;
     align-items: center;
-    min-height: 44px;
-    color: var(--hi);
-    font-weight: 600;
-    font-size: var(--fs-small);
+    gap: 4px;
     text-decoration: none;
   }
   .st,
