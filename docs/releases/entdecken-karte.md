@@ -1,6 +1,6 @@
 # Entdecken auf Heute
 
-PR folgt · 30.10.2026 · Auftrag: Noah «1a 2a 3a» (Thread «Neue Struktur der App aus der Funktionsliste»), Schritt 5 von «Heute als Begleiter»
+PR #458 · 30.10.2026 · Auftrag: Noah «1a 2a 3a» (Thread «Neue Struktur der App aus der Funktionsliste»), Schritt 5 von «Heute als Begleiter»
 
 ## Was ist neu
 - Neue Karte «Entdecken» auf Heute, unter «Dein Moment»: höchstens eine Funktion pro Tag, die du noch nie geöffnet hast und die zu deinem Moment passt.
