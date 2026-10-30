@@ -44,8 +44,13 @@ export default defineConfig({
         // Tempo «Seiten später laden» (19.10.2026): pages load on their first visit (App.svelte PAGES), the rest
         // is split automatically. Only the icons go into one file, else each icon would be its own small file.
         codeSplitting: { groups: [{ name: 'icons', test: /node_modules[\\/]@lucide/ },
-          // Kern verkleinern (30.10.2026): the German texts load as files of about 1 MB, only when the app is German (i18n.svelte.js loadDe)
-          { name: 'de-texts', test: /src[\\/]lib[\\/]i18n[\\/]de[\\/]/, maxSize: 1_000_000 }] },
+          // Kern verkleinern (30.10.2026): the German texts load as four files of about 0.7 MB (by first letter of the part's file),
+          // only when the app is German (i18n.svelte.js loadDe). Not by maxSize: that split made the chunks depend on each other
+          // and a text file could be missing when index.js merged them. vo2heute sits with its importer heuteruhiger; index.js and auto.gen.js (the merge) stay out, else the chunks import each other and a part can be missing.
+          { name: 'de-texts-1', includeDependenciesRecursively: false, test: /src[\\/]lib[\\/]i18n[\\/]de[\\/](?!auto\.gen\.)[a-g][^\\/]*\.js$/ },
+          { name: 'de-texts-2', includeDependenciesRecursively: false, test: /src[\\/]lib[\\/]i18n[\\/]de[\\/](?!index\.)(?:[h-o][^\\/]*|vo2heute)\.js$/ },
+          { name: 'de-texts-3', includeDependenciesRecursively: false, test: /src[\\/]lib[\\/]i18n[\\/]de[\\/][p-s][^\\/]*\.js$/ },
+          { name: 'de-texts-4', includeDependenciesRecursively: false, test: /src[\\/]lib[\\/]i18n[\\/]de[\\/](?!vo2heute\.)[t-z][^\\/]*\.js$/ }] },
       },
     },
   },

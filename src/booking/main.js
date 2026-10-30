@@ -5,8 +5,8 @@ import '@fontsource/inter/600.css';
 import '@fontsource/inter/700.css';
 import '../app.css';
 import { mount } from 'svelte';
-import Book from './Book.svelte';
 import { lang, loadDe } from '../lib/i18n.svelte.js';
 
 if (lang.v === 'de') await loadDe();
+const { default: Book } = await import('./Book.svelte');
 mount(Book, { target: document.getElementById('app') });
