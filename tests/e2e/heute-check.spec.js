@@ -16,6 +16,10 @@ test('Heute-Check: Kachel führt zum Fragebogen, die Analysen sind einen Tipp en
   await expect(page).toHaveURL(/#\/check\/morning$/);
   const tabs = page.locator('[data-check-tabs]');
   await expect(tabs).toBeVisible();
-  await tabs.locator('a[href="#/me/insights"]').click();
-  await expect(page).toHaveURL(/#\/me\/insights$/);
+  // step 2: «Was zusammenpasst» is a tab of the daily check itself, with the way back to the questionnaire
+  await tabs.locator('[data-tab-insights]').click();
+  await expect(page).toHaveURL(/#\/check\/insights$/);
+  await expect(page.locator('[data-check="insights"] [data-check-tabs]')).toBeVisible();
+  await page.locator('[data-check-tabs] a').first().click();
+  await expect(page).toHaveURL(/#\/check\/morning$/);
 });
