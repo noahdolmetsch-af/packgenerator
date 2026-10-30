@@ -1,6 +1,6 @@
 # Import auf ein neues Gerät
 
-PR #? · 27.10.2026 · Auftrag: Noah 26.10.2026 20:31 «1a» alle B-Fehler aus dem UI-Test 0.205 (Thread «Testen komplette App mit Fehlerliste»)
+PR #459 · 27.10.2026 · Auftrag: Noah 26.10.2026 20:31 «1a» alle B-Fehler aus dem UI-Test 0.205 (Thread «Testen komplette App mit Fehlerliste»)
 
 ## Was ist neu
 - «Import prüfen» zählt die Beispiele vom ersten Start nicht als eigene Daten (`onlyExamples` in src/lib/firststart.js). Ein Gerät mit nur Beispielen gilt als leer: der Vorschlag heisst «Dieses Gerät ist noch leer … Übernimm die Datei mit «Alle Daten ersetzen»», und dieser Knopf ist hervorgehoben. Vorher stand «Dieses Gerät ist neuer. Schick besser ein Backup von hier», weil die Beispiele eben erst entstanden waren.
