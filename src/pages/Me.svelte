@@ -374,6 +374,14 @@
             </a>
           </li>
           <li>
+            <!-- «Karte der App» (Noah 28.10.2026 «1a und c und d alle»): every place with its functions and their path -->
+            <a class="ich-row" href="#/me/karte" data-me-row="karte">
+              <span class="ich-ib"><ListTree size={18} aria-hidden="true" /></span>
+              <span class="ich-m"><b>{t('Map of the app')}</b><small>{t('Every place and what lives there')}</small></span>
+              <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
+            </a>
+          </li>
+          <li>
             <!-- «App verstehen» (Noah 26.10.2026 «unter ich - app verstehen»): seven lessons with links and exercises -->
             <a class="ich-row" href="#/me/verstehen" data-me-row="verstehen">
               <span class="ich-ib"><GraduationCap size={18} aria-hidden="true" /></span>

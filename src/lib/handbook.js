@@ -893,6 +893,12 @@ export const HANDBOOK = {
     steps: ['At the end of the evening review tap «Keep this day».', 'Write what made it good and save.', 'In What is good for me tap «Repeat on Saturday».'],
     example: 'Example: «quiet morning, outside in the afternoon» → on Saturday morning the check reminds you.',
   },
+  // «Karte der App» (Noah 28.10.2026)
+  'f.appmap': {
+    on: null,
+    steps: ['Open Me › Map of the app.', 'Open a place to see its functions with their path.', 'Type a word in the search, then tap a line to go there.'],
+    example: 'Example: you search «backup» and see on which page it lives and how you get there.',
+  },
   // «App verstehen» (Noah 26.10.2026)
   'f.verstehen': {
     on: null,

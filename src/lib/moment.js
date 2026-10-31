@@ -165,7 +165,7 @@ export const FEATURE_MOMENTS = {
   app: [
     'f.lists', 'f.editall', 'f.decides', 'f.pagetips', 'backup', 'install', 'lang', 'demo', 'f.namesde',
     'f.search', 'f.quicklinks', 'f.pinmarks', 'f.localai', 'f.askfurther', 'f.searchvoice', 'f.startfresh', 'f.sync', 'f.autosync',
-    'f.account', 'f.verstehen', 'f.privacy', 'f.camera', 'f.autobackup', 'f.tidy', 'f.tour', 'f.firststart',
+    'f.account', 'f.appmap', 'f.verstehen', 'f.privacy', 'f.camera', 'f.autobackup', 'f.tidy', 'f.tour', 'f.firststart',
     'f.playground', 'f.helper', 'f.shortcuts', 'f.ownvalues', 'f.ownreminders', 'f.listsmore', 'f.push',
     'f.theme', 'f.uisize', 'f.custompage', 'f.explain', 'f.connections', 'f.owncal', 'f.notestasks',
     'f.fitbitold', 'f.alerts', 'f.backuplock', 'f.yearcheck', 'f.suggestoff', 'f.tipweek', 'f.comeback',

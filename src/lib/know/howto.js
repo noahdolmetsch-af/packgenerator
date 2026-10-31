@@ -154,6 +154,7 @@ export const HOWTO = {
   'f.autosync': ['Me › Data and backup › «Switch on sync».', 'On the other device: scan the QR code, «Pair».', 'Both changed the same entry: choose which version counts.'],
   // Paket R
   'f.account': ['Me › Data and backup › «Sign in with Google».', 'Choose your Google account; the sync switches on.', 'On the other device: «Sign in with Google» too.'],
+  'f.appmap': ['Open Me › Map of the app.', 'Open a place, or type a word in the search.', 'Tap a line to go there.'],
   'f.verstehen': ['Open Me › Understand the app.', 'Open a lesson, read it and do the exercise.', 'Tick «Done» if you like.'],
   'f.privacy': ['Open Me › «Privacy and terms».', 'Read what stays on your device.', 'See what the server keeps and what it costs.'],
   'f.pros': ['Open Me › «Bike mechanic and guide».', '«Add contact» with mail or booking page.', '«Request» › «Write the mail».'],
