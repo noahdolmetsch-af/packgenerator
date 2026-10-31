@@ -2,8 +2,8 @@
 export default {
   title: 'Links to the race',
   lead: 'Handbook, rules, tracker and website of every race, one tap away.',
-  points: [{ text: 'Plan races in detail › a race: «Links to the race» above the check', href: '#/racecheck' }],
-  small: [{ box: 'new', text: 'One tap adds Handbook, Rules, Tracker or Website; any own link too' }],
+  points: [{ text: 'Plan races in detail › a race: «Links to the race» above the check', href: '#/racecheck', go: 'f.racecheck' }],
+  small: [{ box: 'new', text: 'One tap adds Handbook, Rules, Tracker or Website; any own link too', go: 'f.racecheck' }],
   test: ['Open Touren › «Rennen detailliert planen» › a race: on top stands «Links zum Rennen».', 'Tap «+ Handbuch», tap the new row, put in an address and save: the open button opens it.'],
   since: [],
   de: {

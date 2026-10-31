@@ -15,10 +15,11 @@
   import Empty from '../ui/Empty.svelte';
   import { liveQuery } from 'dexie';
   import { db } from '../db.js';
-  import { SLOTS, SLOT, sortBikes, bikeSetup, bagsFor, containerWeight, formatVolume, bikesHash, bikeWeightKind, placesOf } from '../bikes.js';
+  import { SLOTS, SLOT, sortBikes, bikeSetup, bagsFor, containerWeight, formatVolume, bikesHash, bikeWeightKind, placesOf, onBikeSlot } from '../bikes.js';
   import RenameSheet from '../ui/RenameSheet.svelte';
   import { offerRename } from '../ui/rename.svelte.js';
   import { formatWeight, parseGrams } from '../gear.js';
+  import { bagWords } from './bagwords.js';
   import { Bike as BikeIcon, Briefcase, Plus, ChevronRight, Scale, User, Wrench, MoreHorizontal, Package, Route, BookOpen, Image as ImageIcon, ArrowLeftRight, RefreshCw, Tag } from '@lucide/svelte';
   import SetupBand from './SetupBand.svelte';
   import SetupDrawing from './SetupDrawing.svelte';
@@ -436,7 +437,7 @@
           <div class="vh">
             <div class="vh-t">
               <h2 id="std-h">{editMounts ? t('Mounts') : t('Bags')}</h2>
-              <p class="vh-s">{editMounts ? t('{n} of {all} places', { n: bike.slots.filter((k) => MOUNTS.some((m) => m.key === k)).length, all: MOUNTS.length }) : [t('Standard for every new trip on this bike'), tn(setup.bagCount, '{n} bag', '{n} bags'), setup.bagCount && setup.unweighed < setup.bagCount ? formatWeight(setup.bagsG) : ''].filter(Boolean).join(' · ')}</p>
+              <p class="vh-s">{editMounts ? t('{n} of {all} places', { n: bike.slots.filter((k) => MOUNTS.some((m) => m.key === k)).length, all: MOUNTS.length }) : [t('Standard for every new trip on this bike'), bagWords(setup.bagCount, setup.cageCount), setup.bagCount && setup.unweighed < setup.bagCount ? formatWeight(setup.bagsG) : ''].filter(Boolean).join(' · ')}</p>
             </div>
             {#if !editMounts}<button type="button" class="vh-a" onclick={() => (dialog = { bag: null })}>{t('Add bag')}<ChevronRight size={16} aria-hidden="true" /></button>{/if}
           </div>
@@ -620,8 +621,8 @@
 {#snippet slotRow(s, bag, other)}
                   <button type="button" class="row" id="slot-{s.key}" onclick={() => pick(s.key)}>
                     <span class="ibox" class:empty={!bag}>{#if bag}<Briefcase size={18} aria-hidden="true" />{:else}<Plus size={18} aria-hidden="true" />{/if}</span>
-                    <span class="nm">{#if bag}<b>{bagName(bag.name)}</b>{:else}<b class="quiet">{t('empty · choose a bag')}</b>{/if}<small>{t(s.name)} · {t(s.where)}</small></span>
-                    {#if bag}<span class="w num">{[bag.volumeL ? formatVolume(bag.volumeL) : '', bagWeight(bag) != null ? formatWeight(bagWeight(bag)) : ''].filter(Boolean).join(' · ')}{#if bagWeight(bag) == null}<span class="nw" title={t('not weighed')}><Scale size={14} aria-hidden="true" /><span class="sr">{t('not weighed')}</span></span>{/if}</span>{/if}
+                    <span class="nm">{#if bag}<b>{bagName(bag.name)}</b>{:else}<b class="quiet">{t('empty · choose a bag')}</b>{/if}<small>{t(s.name)} · {t(s.where)}{#if bag && onBikeSlot(s.key)}{' · '}{t('in the bike weight')}{/if}</small></span>
+                    {#if bag}<span class="w num">{[bag.volumeL ? formatVolume(bag.volumeL) : '', onBikeSlot(s.key) ? '' : bagWeight(bag) != null ? formatWeight(bagWeight(bag)) : ''].filter(Boolean).join(' · ')}{#if !onBikeSlot(s.key) && bagWeight(bag) == null}<span class="nw" title={t('not weighed')}><Scale size={14} aria-hidden="true" /><span class="sr">{t('not weighed')}</span></span>{/if}</span>{/if}
                     <ChevronRight class="chev" size={18} aria-hidden="true" />
                   </button>
                   {#if other}

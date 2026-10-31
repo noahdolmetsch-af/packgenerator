@@ -3,8 +3,8 @@ export default {
   title: 'Rewards and the bakery in the morning',
   lead: 'For long nights in a race: a small reward every hour and the first open bakery after the night.',
   points: [
-    { text: 'Your list of rewards; race mode shows the next one with its full hour', href: '#/racecheck' },
-    { text: 'The bakery in the morning for every night in the plan, and in race mode after midnight', href: '#/race' },
+    { text: 'Your list of rewards; race mode shows the next one with its full hour', href: '#/racecheck', go: { href: '#/racecheck', where: 'Shows in the plan of a race, under «Belohnung jede Stunde».' } },
+    { text: 'The bakery in the morning for every night in the plan, and in race mode after midnight', href: '#/race', go: { href: '#/racecheck', where: 'Shows in the plan of a race, under «Bäckerei am Morgen».' } },
   ],
   small: [{ box: 'new', text: '«Ideen nehmen» starts the list with six small ideas' }],
   test: ['Open Touren › «Rennen detailliert planen» › a race: «Belohnung jede Stunde», tap «Ideen nehmen».', 'Open the race › Renn-Modus: on top stands «Nächste Belohnung» with the next full hour.'],
@@ -17,5 +17,7 @@ export default {
     '«Ideen nehmen» starts the list with six small ideas': '«Ideen nehmen» beginnt die Liste mit sechs kleinen Ideen',
     'Open Touren › «Rennen detailliert planen» › a race: «Belohnung jede Stunde», tap «Ideen nehmen».': 'Öffne Touren › «Rennen detailliert planen» › ein Rennen: «Belohnung jede Stunde», tippe «Ideen nehmen».',
     'Open the race › Renn-Modus: on top stands «Nächste Belohnung» with the next full hour.': 'Öffne das Rennen › Renn-Modus: oben steht «Nächste Belohnung» mit der nächsten vollen Stunde.',
+    'Shows in the plan of a race, under «Belohnung jede Stunde».': 'Zeigt sich im Plan eines Rennens, unter «Belohnung jede Stunde».',
+    'Shows in the plan of a race, under «Bäckerei am Morgen».': 'Zeigt sich im Plan eines Rennens, unter «Bäckerei am Morgen».',
   },
 };

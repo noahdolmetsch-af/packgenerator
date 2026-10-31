@@ -165,4 +165,5 @@ export default {
   "Note reminders": "Erinnerungen aus Notizen",
   "At the time you set in a note.": "Zur Zeit, die du in einer Notiz setzt.",
   "Note reminder": "Erinnerung aus einer Notiz",
+  "Trash · empty": "Papierkorb · leer",
 };

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { PAGES, TODAY_TIPS, contextOf, farOf, setKnowOn, infoOf, allTips, tipOfDay, tipPlace, canRows, setTipsOn, setTip, hideToday, addTip, removeTip, setCan, canShown, tipLink, examplesOf, exampleNote } from '../src/lib/pageinfo.js';
+import { PAGES, TODAY_TIPS, contextOf, tripWxOn, farOf, setKnowOn, infoOf, allTips, tipOfDay, tipPlace, canRows, setTipsOn, setTip, hideToday, addTip, removeTip, setCan, canShown, tipLink, examplesOf, exampleNote } from '../src/lib/pageinfo.js';
 import DE from '../src/lib/i18n/de/index.js';
 
 // «Inhalte Flow» IF1–IF3 (Noah 14.10.2026, mockups approved 04:32): tip of the day and fold; the tiles «Next» are SK (sk tests).
@@ -92,6 +92,21 @@ describe('«Wusstest du» WD1–WD3', () => {
     expect(contextOf({ trips: [{ startDate: '2026-07-19', route: { km: 140 } }] }, T).long).toBe(true);
     expect(contextOf({ trips: [{ startDate: '2026-07-19', route: { km: 60 } }] }, T).long).toBe(false);
     expect(contextOf({}, T)).toMatchObject({ heat: false, cold: false, foehn: false, sauna: false, long: false, max: null });
+  });
+  it('UI-Test T8: on a trip day the tips follow the weather of the trip, not the home forecast', () => {
+    const T = '2026-10-26';
+    const home = { min: 4, max: 11, rainMm: 3, rainPct: 70 };
+    const trip = (rain, extra = {}) => ({ startDate: T, days: 1, wx: { min: 7, max: 12, rain }, ...extra });
+    // the page shows «7–12 °C · trocken»: no rain tip although home says 70 %
+    expect(contextOf({ day: home, trips: [trip('none')] }, T)).toMatchObject({ rain: false, cold: false, max: 12 });
+    expect(contextOf({ day: home, trips: [trip('showers')] }, T).rain).toBe(true);
+    // a trip of 3 days counts on its last day, not the day after; a skipped trip or one without weather does not count
+    expect(contextOf({ day: home, trips: [trip('none', { startDate: '2026-10-24', days: 3 })] }, T).rain).toBe(false);
+    expect(contextOf({ day: home, trips: [trip('none', { startDate: '2026-10-23', days: 3 })] }, T).rain).toBe(true);
+    expect(contextOf({ day: home, trips: [trip('none', { skipped: true })] }, T).rain).toBe(true);
+    expect(contextOf({ day: home, trips: [{ startDate: T, days: 1 }] }, T).rain).toBe(true);
+    expect(tripWxOn([trip('rain')], T)).toEqual({ min: 7, max: 12, rain: 'rain' });
+    expect(tripWxOn([trip('rain')], '2026-10-27')).toBe(null);
   });
   it('around the Earth and up the Everest', () => {
     expect(farOf(8412, 96310)).toEqual({

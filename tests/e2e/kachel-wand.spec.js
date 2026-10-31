@@ -8,7 +8,7 @@
 import { test, expect } from './clock.js';
 import { D0, openHome, atHour, homeFixture } from './home0460-fixture.js';
 import { HN4, withWall } from './wall-fixture.js';
-import { READY, TILE, TILES, HELPER_TILES, isNew, tripUp } from '../../src/lib/home/tiles.js';
+import { READY, TILE, TILES, HELPER_TILES, VALUE_TILES, isNew, tripUp } from '../../src/lib/home/tiles.js';
 import { inAreas } from '../../src/lib/home/sections.js';
 
 // v0.155.0 «Heute neu geordnet» (4b, changed on purpose): the fixture's trip starts tomorrow, so its card stands
@@ -16,7 +16,7 @@ import { inAreas } from '../../src/lib/home/sections.js';
 // Paket Q #74 (Noah 19.10.2026 «4a»): at the fixture's 09:00 the morning tiles move up (byTime, changed on purpose)
 // «Heute ruhiger» (Noah 26.10.2026 «1a», changed on purpose): the small tiles are one list «Schnell öffnen» where the first stands
 // «Heute ruhiger» 3a (changed on purpose): Heute shows the tiles in areas, inside an area in wall order
-const SHOWN = inAreas(atHour(tripUp(READY.filter((x) => !HELPER_TILES.includes(x.id)), true), 9));
+const SHOWN = inAreas(atHour(tripUp(READY.filter((x) => !HELPER_TILES.includes(x.id) && !VALUE_TILES.includes(x.id)), true), 9));
 
 async function shot(page, info, name) {
   if (!process.env.SHOTS) return;

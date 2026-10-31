@@ -13,6 +13,7 @@
  * Pure (no database, no screen), tested in tests/features.test.js.
  */
 import { TIP, isUsed, tipState } from './tips.js';
+import { momentOfFeature } from './moment.js';
 
 /** The situations, in order (labels are English keys for t()). */
 export const FEATURE_GROUPS = [
@@ -34,6 +35,21 @@ export const PAGE_GROUPS = [
   { key: 'bikes', label: 'Bikes|place', icon: 'bike' },
   { key: 'flow', label: 'Active|place', icon: 'leaf' },
   { key: 'me', label: 'Me|place', icon: 'save' },
+];
+/**
+ * «Heute als Begleiter» PR 6 (Noah 28.10.2026 «1a 2a 3a»): the same functions by the moment they belong to
+ * (the map of moment.js, 9 groups: the trip loop, three that are always there, and the base «App»).
+ */
+export const MOMENT_GROUPS = [
+  { key: 'lust', label: 'Dreaming and ideas|moment', icon: 'compass' },
+  { key: 'planen', label: 'Planning a trip|moment', icon: 'compass' },
+  { key: 'packen', label: 'Packing|moment', icon: 'backpack' },
+  { key: 'unterwegs', label: 'On the way|moment', icon: 'backpack' },
+  { key: 'zurueck', label: 'Back home|moment', icon: 'book' },
+  { key: 'velo', label: 'Bike and gear|moment', icon: 'bike' },
+  { key: 'koerper', label: 'Body and training|moment', icon: 'leaf' },
+  { key: 'alltag', label: 'Everyday and week|moment', icon: 'book' },
+  { key: 'app', label: 'App and help|moment', icon: 'save' },
 ];
 const PAGE_OF = [
   [/^#\/(pack|ride|debrief|trips)/, 'trips'],
@@ -78,7 +94,7 @@ const OWN = [
   { id: 'f.tripstate', group: 'before', title: 'Trip states', text: 'Every trip shows its state: Planned, Completed or Rated, on Touren, in the trip header and on Today.', href: '#/trips', words: 'zustand geplant abgeschlossen bewertet status touren' },
   { id: 'f.wear', group: 'before', title: 'What do I wear?', text: 'Clothing for the coldest hour of a day ride, from your own wardrobe.', run: 'wear', words: 'anziehen kleider outfit' },
   { id: 'f.onion', group: 'before', title: 'Layer check', text: 'Checks every layer for the coldest riding hour and suggests the kit; for two pieces with the same task it asks what for.', href: '#/pack', play: 'pack', words: 'zwiebel schicht kit temperatur doppelt zweimal gleiche aufgabe ersatz zu viel wartezeit warten bahnsteig stillstehen' },
-  { id: 'f.shop', group: 'before', title: 'Shopping and charging list', text: 'What you buy and charge 2 days before the trip.', href: '#/pack?shop', play: 'pack', words: 'einkauf einkaufsliste laden ladeliste akku' },
+  { id: 'f.shop', group: 'before', title: 'Shopping and charging list', text: 'What you buy and charge 2 days before the trip.', href: '#/pack?shop', play: 'pack', words: 'einkauf einkaufsliste laden ladeliste akku erinnerung handy einkaufen vor einer tour' },
   { id: 'f.ballast', group: 'before', title: 'Ballast card', text: 'What came along and was not used: leave it at home or keep it.', href: '#/pack', words: 'ballast zu hause lassen leichter' },
   { id: 'f.tripbike', group: 'before', title: 'Compare bikes for a trip', text: 'Which bike is lighter for this trip; switch with one tap.', href: '#/pack', play: 'pack', words: 'velo wechseln vergleichen' },
   { id: 'f.switch', group: 'before', title: 'Switch to another trip', text: 'The small «more» button in the dark trip band lists every trip.', href: '#/pack', words: 'andere tour wechseln' },
@@ -168,7 +184,7 @@ const OWN = [
   // Bike
   { id: 'f.kmimport', group: 'bike', title: 'Import rides', text: 'A Strava export or Garmin files: km per bike, by sensor or your rules.', href: '#/bikes?tab=care&view=import', seen: 'imports', words: 'strava garmin fit import fahrten km' },
   // v0.116.0 «Strava-Verbindung» (E3)
-  { id: 'f.strava', group: 'bike', title: 'Connect Strava', text: 'Rides with their bike from Strava, fetched by themselves; a changed bike asks first.', href: '#/bikes?tab=care&view=strava', words: 'strava-verbindung strava verbinden fahrten holen automatisch velo km' },
+  { id: 'f.strava', group: 'bike', title: 'Connect Strava', text: 'Rides with their bike from Strava, fetched by themselves; a changed bike asks first.', href: '#/bikes?tab=care&view=strava', words: 'strava-verbindung strava verbinden fahrten holen automatisch velo km freund einladen freunde eigenes strava' },
   // v0.132.0 «Velo-Setup» (UC3-1 to UC3-3)
   { id: 'f.velosetup', group: 'bike', title: 'My setup', text: 'Your setup photos, the total weight, your race-rig links and races, and your bike compared.', href: '#/bikes?tab=rig', words: 'velo-setup und rennsetups setup race rig bikepacking fotos gewicht rennen vergleich links' },
   { id: 'f.standardbike', group: 'bike', title: 'Standard bike and order', text: 'The first bike is your standard bike (★); arrows set the order, and you choose what a new trip brings.', href: '#/bikes?tab=setup', words: 'standard velo stern reihenfolge pfeile neue tour zuletzt gefahren' },
@@ -294,6 +310,8 @@ const OWN = [
   { id: 'f.wearphotos', group: 'bike', title: 'Wear photos', text: 'Photos of chain, chainring and tyre with date and km; old next to new with a slider; they stay on the device.', href: '#/bikes?tab=care&view=photos', words: 'foto bild verschleiss kette kettenblatt reifen vergleich vorher nachher schieber' },
   { id: 'f.sellbike', group: 'bike', title: 'Bike sale listing', text: 'A text from km, services, parts and photos to copy or share; the price is your own field. Sold: a handover list with keys, papers, Strava and Garmin.', href: '#/bikes?tab=care&view=sell', words: 'übergabe verkauft schlüssel papiere verkaufen inserat anzeige verkauf text teilen kopieren preis' },
   { id: 'f.bikebox', group: 'bike', title: 'Pack the bike', text: 'For train or plane: a checklist to pack the bike, your own points, and photos before packing.', href: '#/bikes?tab=care&view=bikepack', words: 'velobox-checkliste velobox velokoffer flug zug verpacken checkliste transport fotos' },
+  // Velo-Idee 76 (Noah 26.10.2026 «4a 5a»)
+  { id: 'f.workshoprounds', group: 'bike', title: 'Workshop rounds', text: 'Your own routines for the work at home: jobs, tools and material in one round; ticked jobs go into the parts.', href: '#/bikes?tab=care&view=rounds', words: 'werkstatt-runde werkstattrunde wartung ablauf routine checkliste service zu hause werkzeug material' },
   { id: 'f.sparestock', group: 'bike', title: 'Spare parts at home', text: 'How many spare parts you have at home; each own change counts down; empty goes to the shopping list.', href: '#/bikes?tab=care&view=stock', words: 'ersatzteil-vorrat ersatzteile vorrat lager schlauch kette reifen bremsbeläge einkaufsliste' },
   { id: 'f.brandkm', group: 'bike', title: 'What lasts longest', text: 'How long chains, tyres and brake pads of each brand lasted on your bikes; shown when you need a new one.', href: '#/bikes?tab=care&view=wear', words: 'km pro marke marke hersteller km lebensdauer kette reifen bremsbeläge kaufen vergleich' },
   { id: 'f.springservice', group: 'bike', title: 'Spring service', text: 'A to-do in Merken in February with what is due on each bike; the month can change. After six weeks without a ride, «After the standstill» on «Wear» lists what changes while a bike stands.', href: '#/bikes?tab=care&view=wear', words: 'frühling frühjahr service saison erinnerung februar merken velo standzeit winterpause lagerende dichtmilch' },
@@ -316,6 +334,8 @@ const OWN = [
   { id: 'f.shopping', group: 'data', title: 'Shopping list', text: 'One list for every day, with groups; recipes add their ingredients; the food of the next trip can show on it too. A point can say what it is for; when that plan is off, its points go.', href: '#/me/alltag/einkauf', words: 'einkaufsliste für den alltag wofür plan fällt weg einkaufsliste einkauf alltag gruppen rezepte zutaten migros coop laden' },
   { id: 'f.contracts', group: 'data', title: 'Contracts and subscriptions', text: 'What runs, what it costs per month and year, the last day to cancel and a reminder before it. The cancellation in steps, and what you used it for with the cost per use.', href: '#/me/alltag/abos', words: 'nutzung genutzt kosten pro nutzung verträge abos abonnement kündigen kündigungsfrist versicherung handy streaming kosten erinnerung' },
   { id: 'f.people', group: 'data', title: 'Not seen for a while', text: 'People you want to see now and then, with a quiet reminder in Remember when it is time again, and ideas to do together that turn it into an invitation.', href: '#/me/alltag/menschen', words: 'lange nicht gesehen freunde menschen treffen kontakt melden erinnerung einladung einladen idee' },
+  // «Kochen» (Noah 28.10.2026 «1b 2a 3a 4a 5a»): Ich › Alltag › Kochen
+  { id: 'f.cook', group: 'data', title: 'Cooking', text: 'Over 100 very simple recipes for breakfast, lunch and dinner and in groups like Meat, Shakes or Sunday brunch, with portions and all steps; the ingredients go to your shopping list. Your own recipes and groups too.', href: '#/me/alltag/kochen', words: 'kochen rezepte rezept essen mahlzeit frühstück mittagessen abendessen zutaten portionen einfach schnell gruppen fleisch reis dessert shakes power food protein carbs veggies grill brunch fast food kochmodus schritt timer bildschirm tipp tipps tag vorschlag mag ich kalorien kcal nährwerte kohlenhydrate eiweiss fett' },
   { id: 'f.abroad', group: 'before', title: 'Abroad', text: 'At a trip abroad: the emergency numbers of the country, your travel insurance and the currency converter set to the country.', href: '#/trips', words: 'ausland notfall notruf 112 reiseversicherung währung umrechnen euro flug abendfenster' },
   { id: 'f.timer', group: 'active', title: 'Timer', text: 'Count up, countdown, interval, Pomodoro or until a time; five faces, a log with notes. It says what it runs for, also after a break.', href: '#/timer', seen: 'timerLog', words: 'timer countdown intervall pomodoro uhr log wofür zweck' },
   { id: 'f.medmore', group: 'active', title: 'More about meditation', text: 'Listen to the sounds; kinds, places, quotes and your own links.', href: '#/flow/act/meditation/mehr', words: 'meditation · mehr klänge zitate links' },
@@ -333,6 +353,7 @@ const OWN = [
   { id: 'f.dreams', group: 'before', title: 'Dream tours', text: 'Your dream tours with the months they fit; the year band shows what fits when, one tap makes a trip. A small taste close by can come first.', href: '#/trips/dreams', words: 'vorgeschmack probe träume traum wunschliste wunsch tour jahresplan saison monate abenteuer kompass' },
   // «Träume und Neuland» N1 (Noah 27.10.2026 «1-5 a»)
   { id: 'f.whitespots', group: 'before', title: 'White spots nearby', text: 'The municipalities around your home on a map: where you have been and where never; the nearest new ones as a list, within 10, 25 or 50 km.', href: '#/trips/dreams', words: 'weisse flecken gemeinden nähe umgebung neuland noch nie entdecken ausflug karte umkreis' },
+  { id: 'f.nlgoals', group: 'before', title: 'Challenges with an end', text: 'Your own New ground goal with an end day, e.g. 5 new municipalities this month or all lakes in your canton this year; the app counts by itself.', href: '#/trips/dreams', words: 'herausforderung ziel neuland enddatum gemeinden seen pässe hütten gipfel challenge zählen' },
   { id: 'f.races', group: 'before', title: 'Race as an event trip', text: 'A race from Inspiration or your Google calendar becomes a planned trip with the race block and the registration deadline.', href: '#/trips/dreams', words: 'rennen race event anmeldung anmeldeschluss kalender gran fondo marathon' },
   { id: 'f.compass', group: 'data', title: 'My compass', text: 'Goals become steps with dates; once a week «How is it going?»; boxes for resolutions, dreams, things to remember and ideas. A goal ends as reached, changed or let go.', href: '#/me/compass', words: 'erreicht verändert losgelassen aufgeben kompass ziele ziel schritte vorsätze träume nicht vergessen ideen ordnen planen hilf mir planen' },
   // Paket NE «Notizen wie Evernote» (Noah 20.10.2026)
@@ -350,6 +371,7 @@ const OWN = [
   { id: 'f.noteformats', group: 'data', title: 'Note formats', text: 'Several photos and links, a place, a sketch, a QR code, templates, formatting; share a note or take over Google Keep.', href: '#/notes', words: 'notiz foto fotos link ort standort karte skizze zeichnen qr vorlage vorlagen fett tabelle teilen keep google notizen takeout import' },
   { id: 'f.next', group: 'data', title: 'Project shelf', text: 'Everything about the app on one page: how many ideas are live, what waits for you, the way of the releases and the idea board.', href: '#/me/next', words: 'projekt ablage was kommt plan pakete projekt stand roadmap wünsche ideen brett weg releases werkzeugkiste' },
   { id: 'f.notes', group: 'data', title: 'Notes', text: 'Write, dictate, photo, link, checklist; topics, #tags, pin up to 3.', href: '#/notes', seen: 'notes', words: 'notizen checkliste tags' },
+  { id: 'f.noteforms', group: 'data', title: 'Choose templates', text: 'About twenty note templates with real fields (number, 1 to 5, choice, checklist, date): choose the ones you use, change their fields, add your own. They show in Notes and in the input bar where they fit.', href: '#/notes', words: 'vorlagen felder tourenbericht to-do vision strategie herausforderung training coole orte rennnotiz velo-zustand auswählen' },
   // «Diktat» and the AI links (Noah 19.10.2026 «1a 2a 3a 4 a oder b beides wählbar 5a», KI «a und b», «1a 2a»)
   { id: 'f.localai', group: 'data', title: 'AI on this device', text: 'A small AI (Qwen, Gemma or Llama) answers in the search and beside «Talk it through with Claude», also without internet; nothing leaves the device.', href: '#/me/look', words: 'ki offline lokal handy-ki llm sprachmodell qwen gemma llama ohne internet gerät on device local ai' },
   { id: 'f.dictate', group: 'data', title: 'Dictate', text: 'Speak into a note until you tap stop; «Punkt», «neue Zeile»; a question gets the app\'s answer, read aloud if you like.', href: '#/notes', words: 'diktat diktat diktieren sprechen mikrofon spracherkennung whisper vorlesen frage antwort' },
@@ -391,6 +413,7 @@ const OWN = [
   { id: 'f.tools', group: 'data', title: 'Toolbox', text: 'Calculator, units, currencies, maps, PDF, photos and more; «Fits right now» shows the tools for your next trip; «Last results» keeps the last five files a tool made.', href: '#/me/tools', words: 'werkzeugkasten werkzeug rechner umrechnen einheiten masse zeitzone kompass sätze übersetzen sprache' },
   { id: 'f.pdftools', group: 'data', title: 'PDF', text: 'Merge PDFs and photos into one PDF, make a PDF smaller, save or share it; nothing goes to a web page.', href: '#/me/tools/pdf', words: 'pdf-werkzeuge pdf zusammenfügen verkleinern komprimieren teilen' },
   { id: 'f.phototools', group: 'data', title: 'Photos', text: 'Make a photo smaller, cut it to a shape, cut out the background.', href: '#/me/tools/photo', words: 'foto-werkzeuge foto bild verkleinern zuschneiden freistellen hintergrund' },
+  { id: 'f.markup', group: 'data', title: 'Edit a picture', text: 'Choose screenshots or photos, turn and cut them, draw, highlight and write on them, put the pages in order and make one PDF or single pictures.', href: '#/me/tools/markup', words: 'screenshot bildschirmfoto bild bearbeiten zuschneiden croppen zeichnen stift markieren markierstift text beschriften pfeil pdf seiten' },
   { id: 'f.money', group: 'onway', title: 'Currencies', text: 'What an amount costs in Franken; the rates come once a day by themselves and work offline.', href: '#/me/tools/money', words: 'währung umrechnen kurs euro dollar franken ausland' },
   { id: 'f.tripcosts', group: 'after', title: 'Trip costs', text: 'Who paid what on a trip, all in Franken, who owes whom, and «Request by TWINT»; a receipt photo fills in amount and date.', href: '#/me/tools/costs', words: 'kosten teilen ausgaben abrechnung schulden twint beleg quittung franken tour' },
   { id: 'f.ablage', group: 'data', title: 'Links and files', text: 'Important links and small files in one place, also under Documents.', href: '#/me/tools/ablage', words: 'links ablage dateien datei lesezeichen webadresse' },
@@ -413,6 +436,8 @@ const OWN = [
   // Paket R «Andere Menschen und Geld» (Noah 19.10.2026 «1b 2a oder b 3a und b vorbereiten 4a 5 keine inhalte von anderen»)
   { id: 'f.account', group: 'data', title: 'Sign in with Google', text: 'For the sync you choose: with a code or an invite link, or with your Google account; then on the next device a Google sign-in is enough. Without either, everything stays on the device. Before Google opens, the app says what happens and which account you used last.', href: '#/me/data', words: 'anmelden google konto login einladung einladungslink abgleich gerät ohne konto' },
   // «App verstehen» (Noah 26.10.2026): the mini course to keep the app going without a helper
+  // «Karte der App» (Noah 28.10.2026): every place with its functions and their path, made from this catalogue
+  { id: 'f.appmap', group: 'data', title: 'Map of the app', text: 'Me › Map of the app: every place of the app with its functions, each with its path (place › function). A search narrows it; a tap goes there.', href: '#/me/karte', words: 'karte landkarte übersicht pfad wo ist was struktur aufbau' },
   { id: 'f.verstehen', group: 'data', title: 'Understand the app', text: 'Me › Understand the app: seven short lessons with links and one exercise each, so you can keep the app going without a helper: the four parts, backups, checks, merge and take back, change a word, the accounts, brief another helper.', href: '#/me/verstehen', words: 'verstehen lernen kurs lektion übung unabhängig notfall handbuch konten github vercel backup helfer architektur aufbau' },
   { id: 'f.privacy', group: 'data', title: 'Privacy and terms', text: 'What stays on your device, what the server keeps, what it costs (nothing) and the daily limit of the free server.', href: '#/me/privacy', words: 'datenschutz nutzungsbedingungen agb kosten gratis pro tagesgrenze server privat' },
   { id: 'f.pros', group: 'bike', title: 'Bike mechanic and guide', text: 'Your own list of bike shops and guides: a request by mail with your bike and the days that suit you, or their booking page.', href: '#/me/pros', words: 'velomech mechaniker werkstatt guide führer termin anfrage service mail buchen' },
@@ -454,6 +479,8 @@ const OWN = [
   { id: 'f.morningpush', group: 'before', title: 'One message in the morning', text: 'The reminders of 08:00 come together at 07:00 as one message, with your trip and the first appointments of the day. Warnings still come on their own.', href: '#/me/push', words: 'morgen morgennachricht push erinnerungen bündeln zusammen weniger meldungen 07:00 termin' },
   // Idee A2 (Noah 27.10.2026): the evening reminder moves to the time you really do the check
   { id: 'f.remindtime', group: 'before', title: 'Reminder at your time', text: 'The app notes when you open the evening-before check and offers to move the reminder there.', href: '#/me/push', words: 'erinnerung zeit uhrzeit abend vorabend check verschieben lernen gewohnheit meist' },
+  // Idee A3 (Noah 27.10.2026): a free and dry window from the calendar and the weather
+  { id: 'f.freeslot', group: 'before', title: 'Free time and good weather', text: 'In the week: the next free window in your calendar with dry weather at home, with a round that fits.', href: '#/week', words: 'freie zeit fenster kalender termin wetter trocken runde feierabend vorschlag fahren' },
   { id: 'f.tourhints', group: 'before', title: 'Hints for the tour', text: 'On the packing list: light and reflective vest when you ride after sunset, sunscreen with a high UV index, and which way round a loop gives the tailwind home.', href: '#/pack', words: 'licht dunkel sonnenuntergang reflexweste uv sonnencreme sonnenbrille gletscherbrille wind rückenwind runde richtung' },
   { id: 'f.rainsoon', group: 'onway', title: 'Rain on the way', text: 'While you ride, the phone tells you when rain comes in the next 15 to 45 minutes where you should be.', href: '#/me/push', words: 'regen unterwegs warnung radar regenjacke push meldung' },
   { id: 'f.air', group: 'active', title: 'Ozone and pollen', text: 'Today and tomorrow at your home place: much ozone or strong pollen of the kinds you choose; also in the message on the tour morning.', href: '#/flow', words: 'ozon pollen pollenflug allergie birke gräser luft luftqualität' },
@@ -492,6 +519,7 @@ const OWN = [
   { id: 'f.heatmap', group: 'after', title: 'Heatmap', text: 'All your rides on one map: the more often you were somewhere, the stronger the colour; filter by year, sport, bike and tour.', href: '#/heatmap', words: 'heatmap wärmekarte karte alle fahrten touren strecken linien wolken häufig oft gefahren strava laufen skitour jahr velo' },
   // «Auswertung wie Training» (Noah 20.10.2026)
   { id: 'f.tickreview', group: 'active', title: 'Ticks evaluated|tab', text: 'What you tick off and your answers to the check questions, evaluated like a ride: tiles, ticks per week, weekdays, time of day, course, best values and per month.', href: '#/flow/auswertung', words: 'haken und antworten auswerten auswerten auswertung haken abgehakt aktivitäten ziele serie woche wochentag tageszeit verlauf bestwerte monat antworten check fragen akku diagramm analyse' },
+  { id: 'f.analyse', group: 'active', title: 'Analyse|page', text: 'Every value of the app on one page: Fitbit, Strava, your body, «Wi gaht\'s?» and every activity of Aktiv, each with a small course. Choose sources and period; a tap opens its course.', href: '#/auswerten/analyse', words: 'analyse analysis auswertung alle werte diagramme verlauf fitbit strava schlaf puls ruhepuls hrv schritte aktivzonenminuten km velo gewicht sauna gym eishockey tennis yoga meditation haken mehr' },
   { id: 'f.eveningtour', group: 'after', title: 'Rate the trip in the evening', text: 'On a trip day the evening review asks how the trip was today, 1 to 10, while it is fresh; it goes into the debrief and the diary. At 5 or less you can also say what it was about: experience, plan or body.', href: '#/check/evening', words: 'abend bewerten tour heute abend-rückblick note frisch erlebnis plan körper aufteilen' },
   // Paket B «Touren ohne Überraschung» (Noah 24.10.2026, 996 Ideen «1b 2a»)
   { id: 'f.probe', group: 'before', title: 'Dress rehearsal', text: 'From a week before the start: try the trip at home once — route offline in flight mode, plan B, check-in times, power, a tube change, the emergency card, a fresh backup, the home for a week or weeks away. A gap becomes a to-do for the evening before.', href: '#/trips', words: 'haus wohnung abwesenheit post nachbar pflanzen generalprobe probe test vorher ausprobieren flugmodus offline plan b schlauch notfallkarte backup lücke to-do' },
@@ -503,6 +531,14 @@ const OWN = [
   { id: 'f.friendask', group: 'data', title: 'Ask friends', text: 'Friends add their part to a trip, a place, a photo, the difficulty, the costs, the flat handover, the packing or a workshop day, as their own entry with name and date; a voice note of up to a minute fits too.', href: '#/me/freunde', words: 'freunde fragen teilen gemeinsam begleiter beitrag tourenbuch gipfelbuch schlafplatz foto kommentar schwierigkeit kosten fairness wohnungshüter übergabe packen zu zweit werkstatttag sprachnotiz' },
   { id: 'f.friendshelf', group: 'data', title: 'Lending shelf for friends', text: 'Put things on a shelf to lend, swap or give away; friends ask, you say yes, and the handover goes into Lent out. Gear you own together, borrowed or rented shows who has it when.', href: '#/me/freunde?tab=shelf', words: 'leihregal leihen ausleihen tauschen kleidertausch verschenken materialbibliothek ersatzteile nachbarschaft gemeinsam besitzen gemietet geliehen verfügbar' },
   { id: 'f.friendtemplate', group: 'data', title: 'Share a template', text: 'Send a building block (names and amounts only) or the layout of your pages and menu (without your own names); the friend sees first what it changes.', href: '#/me/freunde?tab=tpl', words: 'vorlage teilen baustein set tauschbörse anordnung layout seiten menü anderes gerät freund' },
+  // Mini-Tools (Noah 28.10.2026 «1b 2a 3a»): ask a group by link, the answers come back sealed and are counted
+  { id: 'f.minidate', group: 'data', title: 'Find a date', text: 'Pick a few days and send a link; people tap «Works», «Maybe» or «Does not work» in the browser, without the app or an account. The best day is on top; plan a trip on it or add it to your calendar.', href: '#/me/mini', words: 'termin finden doodle abstimmen umfrage datum tag gruppe freunde wann passt verfügbar mini tools' },
+  { id: 'f.minipoll', group: 'data', title: 'Mini survey', text: 'A few short questions by link: one or several answers, a scale, yes or no, or a short text. People answer in the browser without an account; the app counts the answers and sums them up, without AI.', href: '#/me/mini', words: 'umfrage mini umfrage abstimmung fragen meinung gruppe freunde auswerten zusammenfassung anonym skala mini tools' },
+  { id: 'f.minilist', group: 'data', title: 'Sign-up list', text: 'A ride or an evening with a number of places by link: people sign up in the browser without an account; who comes too late is on the waiting list and moves up when someone signs off.', href: '#/me/mini', words: 'anmeldeliste anmelden warteliste plätze teilnehmer ausfahrt werkstatt abend gruppe freunde nachrücken abmelden mini tools' },
+  { id: 'f.miniinvite', group: 'data', title: 'Quick invite', text: 'One link with day, time, meeting point, route and weather; people tap «I am in», «Maybe» or «Not this time» in the browser, without an account. The link closes the day after the ride.', href: '#/me/mini', words: 'spontan einladung fährst du mit morgen ausfahrt treffpunkt route wetter dabei vielleicht gruppe freunde mini tools' },
+  { id: 'f.minifood', group: 'data', title: 'Who eats what', text: 'Before a group trip or a hut evening ask who eats what: diets, allergies, how hungry. The app counts it and makes a shopping list with the right swaps.', href: '#/me/mini', words: 'essen unverträglichkeiten allergien vegetarisch vegan glutenfrei laktosefrei einkaufsliste hüttenabend grill gruppe kochen mini tools' },
+  { id: 'f.minilos', group: 'data', title: 'Fair draw', text: 'Draw fairly who cooks, who rides in front or who sleeps in which tent; whoever was drawn less often comes first. Stays on this device.', href: '#/me/mini/los', words: 'auslosen los zufall fair kochen vorne fahren zelt gruppen reihenfolge wer ist dran mini tools' },
+  { id: 'f.miniabfahrt', group: 'data', title: 'When do I leave?', text: 'Work out when each person leaves from their start place, so all arrive together at the meeting point. Stays on this device.', href: '#/me/mini/abfahrt', words: 'abfahrt losfahren treffpunkt startort zeit tempo puffer gruppe zusammen ankommen gruppenfahrt mini tools' },
   // Paket C «Ruhig und persönlich» (Noah 24.10.2026, 996 Ideen «5a»): Ich › Ruhig und persönlich
   { id: 'f.workspace', group: 'data', title: 'Workspace for one plan', text: 'For one plan, a trip or a workshop Saturday: only the functions you choose, as a strip on top of every page. Ends by itself after the day you set.', href: '#/me/ruhig/weniger?open=space', words: 'arbeitsraum vorhaben fokus werkstatt nur diese funktionen leiste weniger app' },
   { id: 'f.calmview', group: 'data', title: 'Calm view', text: 'Write what you do now; until you tap «Done», the strip on top shows only that, and the app asks you nothing.', href: '#/me/ruhig/weniger?open=calm', words: 'ruhige ansicht ruhe rückzug nur eine sache ohne zahlen sterne vorschläge fokus' },
@@ -537,7 +573,33 @@ const OWN = [
   // «Eingaben überall» (Noah 26.10.2026 «1a 2b 3 nur Ton 4b 5a aber b möglich»): one input bar on ten pages
   { id: 'f.inputbar', group: 'data', title: 'Voice note', text: 'Under the text of the diary, notes, daily check, tour diary, ride note, journey trail, bike care, gear, dreams and quick note: a voice note up to one minute, photo, file, place, tags, templates, writing prompts and the AI helper.', href: '#/tagebuch?neu', words: 'eingabe sprachnotiz ton aufnahme datei anhängen ort schlagwort vorlage schreibanreiz ki helfer highlights titel' },
   { id: 'f.inputtemplates', group: 'data', title: 'Start with a template', text: 'Gratitude, small joys, 2 good things, favourite moment and more: each page has its own templates; add, change, sort and delete them.', href: '#/tagebuch?neu', words: 'vorlage dankbarkeit kleine erfreuer gute dinge lieblingsmoment eigene vorlage' },
+  // «Quick Links» (Noah 28.10.2026 «1a 2a 3a 4a 5a»): your pins, its own place
+  { id: 'f.quicklinks', group: 'data', title: 'Quick Links', text: 'Your shortcuts in their own place: pin the functions you use most, in your own groups; a tap takes you there. Phone and computer keep their own pins.', href: '#/quick', words: 'quick links pins anpinnen pinnadel abkürzung shortcut favoriten schnell lieblings verknüpfung' },
+  { id: 'f.pinmarks', group: 'data', title: 'Pins on the cards', text: 'A small pin at the top right of the cards of the app: one tap puts the card into your Quick Links, a second tap takes it out. Switch it off in Quick Links.', href: '#/quick', words: 'pinnadel pin anpinnen karte merken quick links markieren stecknadel' },
   { id: 'f.picturecard', group: 'data', title: 'Picture card', text: 'A diary entry as a picture to share: your own photo and a sentence, made on this device without AI.', href: '#/tagebuch', words: 'bildkarte bild teilen foto satz karte postkarte' },
+  // Heute als Begleiter PR 2 (Noah 28.10.2026 «ok freigabe»): 5 tools and 3 phone reminders that had no line in the catalogue
+  { id: 'f.calc', group: 'data', title: 'Calculator', text: 'Plus, minus, times, divided, percent', href: '#/me/tools/calc', words: 'rechner taschenrechner rechnen prozent plus minus' },
+  { id: 'f.units', group: 'data', title: 'Convert units', text: 'km, kg, °C, tyre pressure; works offline', href: '#/me/tools/units', words: 'einheiten umrechnen masse meilen pfund fahrenheit psi bar reifendruck' },
+  { id: 'f.zones', group: 'onway', title: 'Time zones', text: 'The time in other places', href: '#/me/tools/zones', words: 'zeitzonen uhrzeit zeit ausland reise flug' },
+  { id: 'f.compasstool', group: 'onway', title: 'Compass', text: 'North and your direction, from the phone', href: '#/me/tools/compass', words: 'kompass norden richtung himmelsrichtung orientierung' },
+  { id: 'f.phrases', group: 'onway', title: 'Phrases abroad', text: 'Important sentences, offline', href: '#/me/tools/phrases', words: 'sätze ausland sprache übersetzen französisch italienisch englisch' },
+  { id: 'f.lightpush', group: 'onway', title: 'Light alarm', text: 'The evening before, when the ride goes on after sunset: pack the light and the reflective vest.', href: '#/me/push', words: 'licht wecker erinnerung dunkel sonnenuntergang reflexweste lampe' },
+  { id: 'f.wearpush', group: 'bike', title: 'Parts worn', text: 'When a part reaches its km, e.g. the chain. At 08:00.', href: '#/me/push', words: 'teile abgenutzt verschleiss erinnerung kette reifen beläge km' },
+  { id: 'f.racepush', group: 'before', title: 'Race registration', text: '3 days and 1 day before the registration deadline, at 08:00.', href: '#/me/push', words: 'rennen anmeldung anmeldeschluss erinnerung frist' },
+  // Heute als Begleiter PR 3 (Noah 28.10.2026, Auffälligkeiten 10–12): Small apps, Calm and personal, the 7 pages of Free time, 4 ski tour pages
+  { id: 'f.miniapps', group: 'data', title: 'Small apps', text: 'Put one part of the app on the home screen as its own small app.', href: '#/me/apps', words: 'kleine apps startbildschirm verknüpfung einzelne app icon' },
+  { id: 'f.ruhig', group: 'data', title: 'Calm and personal', text: 'All calm functions on one page: less app, where values come from, letters to yourself, meaning.', href: '#/me/ruhig', words: 'ruhig persönlich weniger app briefe bedeutung herkunft' },
+  { id: 'f.freiabend', group: 'active', title: 'My evening', text: 'Your rituals, evening music and a question to arrive.', href: '#/me/frei/abend', words: 'abend ritual abendmusik ankommen frage feierabend' },
+  { id: 'f.freiwesentlich', group: 'active', title: 'What matters to me', text: 'What matters to you in this phase of your life, and your big maybe.', href: '#/me/frei/wesentlich', words: 'wesentlich wichtig lebensphase werte grosses vielleicht' },
+  { id: 'f.freireise', group: 'active', title: 'Travel wishes', text: 'What you long for, what you want to bring home, a day with room for surprises.', href: '#/me/frei/reise', words: 'reise wünsche sehnsucht heimbringen überraschung fernweh' },
+  { id: 'f.freinacht', group: 'before', title: 'First night', text: 'A first night outside: what you want to find out, route and bed, then a look back.', href: '#/me/frei/nacht', words: 'erste nacht draussen mikroabenteuer übernachtung biwak zelt' },
+  { id: 'f.freinaechstes', group: 'after', title: 'For next time', text: 'What you collect for the next packing list: proven, just came along, missing.', href: '#/me/frei/naechstes', words: 'nächstes mal sammeln packliste bewährt gefehlt mitgefahren' },
+  { id: 'f.freilust', group: 'active', title: 'What am I up for?', text: 'A few ideas to start, and a technique of the week to try.', href: '#/me/frei/lust', words: 'lust ideen technik der woche ausprobieren idee' },
+  { id: 'f.freisamml', group: 'active', title: 'My collections', text: 'Your own collections, e.g. fountains, passes or cafés, to fill bit by bit.', href: '#/me/frei/sammlungen', words: 'sammlungen sammeln brunnen pässe cafés eigene liste' },
+  { id: 'f.skicheck', group: 'before', title: 'Backpack check', text: 'The packing list of a ski tour in five groups; a tap means packed.', href: '#/ski/check', words: 'rucksack check skitour packliste lvs schaufel sonde' },
+  { id: 'f.skistart', group: 'onway', title: 'Start check', text: 'Five checks at the car park of a ski tour, and your turn-around time.', href: '#/ski/start', words: 'start check skitour parkplatz lvs umkehrzeit wetter' },
+  { id: 'f.skicare', group: 'bike', title: 'Season care', text: 'Care of the ski gear at season start, during the season and at season end.', href: '#/ski/care', words: 'saison pflege ski felle wachsen kanten skiausrüstung' },
+  { id: 'f.skiafter', group: 'after', title: 'After the tour', text: 'Summit, metres climbed, who was there and three questions; they become learnings.', href: '#/ski/after', words: 'nach der tour skitour gipfel höhenmeter erkenntnisse rückblick' },
 ];
 
 /** Every function: the tips (with their group) first, then the own entries, by group order. */
@@ -568,15 +630,15 @@ export function seenOf({ counts = {}, folder = false, play = false } = {}) {
  * The catalogue as the page shows it: [{ ...group, items: [{ ...feature, used }], used, total }],
  * in each group what you never used first (in catalogue order), then the used ones.
  * state: the settings record "tips" (taps count as used); used: tips used (usedTips) and own
- * entries seen (seenOf), one Set; by: 'situation' (FEATURE_GROUPS) or 'page' (PAGE_GROUPS);
+ * entries seen (seenOf), one Set; by: 'situation' (FEATURE_GROUPS), 'page' (PAGE_GROUPS) or 'moment' (MOMENT_GROUPS);
  * notForMe: { [id]: … } the functions marked «Not for me» (Paket C, lib/ruhig/weniger.js), last in their group.
  */
 export function catalogue(state, used = new Set(), by = 'situation', notForMe = {}) {
   const s = tipState(state);
-  const byPage = by === 'page';
   const no = notForMe ?? {};
-  const groups = (byPage ? PAGE_GROUPS : FEATURE_GROUPS).map((g) => {
-    const items = FEATURES.filter((x) => (byPage ? pageOf(x) : x.group) === g.key).map((x) => ({ ...x, used: isUsed(s, x.id, used), ...(no[x.id] ? { notForMe: true } : {}) }));
+  const place = by === 'page' ? pageOf : by === 'moment' ? (x) => momentOfFeature(x.id) : (x) => x.group;
+  const groups = (by === 'page' ? PAGE_GROUPS : by === 'moment' ? MOMENT_GROUPS : FEATURE_GROUPS).map((g) => {
+    const items = FEATURES.filter((x) => place(x) === g.key).map((x) => ({ ...x, used: isUsed(s, x.id, used), ...(no[x.id] ? { notForMe: true } : {}) }));
     // Paket C «Nicht für mich» (996 Ideen UC-217-I2): a function marked so is no longer «never used» on top; it stays, last
     const mine = items.filter((x) => !x.notForMe);
     const sorted = [...mine.filter((x) => !x.used), ...mine.filter((x) => x.used), ...items.filter((x) => x.notForMe)];

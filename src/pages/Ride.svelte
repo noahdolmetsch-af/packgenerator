@@ -510,10 +510,10 @@
     box?.scrollIntoView({ block: 'center' });
     box?.focus({ preventScroll: true });
   }
-  // UI-Test T2 (G2-15): before setting off «Losfahren» is the one button; «Tour beenden …» waits in «…»
+  // UI-Test T2 (G2-15): before setting off «Losfahren» is the one button; «Tour beenden …» is at the bottom of the
+  // page (Auffälligkeiten 28.10.2026, Noah «1a»; it was in «…» before)
   const moreActions = $derived([
     ...(main.kind !== null ? [{ name: t('Note|ride'), explain: t('A note for the debrief'), icon: Mic, run: startNote }] : []),
-    ...(main.kind === 'start' ? [{ name: t('End the trip …'), explain: t('Ends the trip without riding on'), icon: Flag, run: () => (endAsk = true) }] : []),
   ]);
   /* ---------- SN1: the weather of now in one sentence ---------- */
   // v0.144.0 RE: the one rain limit of the app (was 50 %)
@@ -919,6 +919,9 @@
       </section>
     </div>
   </div>
+  <!-- Auffälligkeiten 28.10.2026 (Noah «1a»): «Tour beenden …» is always a visible button at the bottom of the page,
+       before setting off too (it was only in «…» then); the last day has its own main button -->
+  {#if main.kind === 'start' || main.kind === null}<p class="rendfoot"><button type="button" class="btn rend" onclick={() => (endAsk = true)} data-ride-end-foot><Flag size={18} aria-hidden="true" />{t('End the trip …')}</button><small>{t('Earlier too. The app asks first, and you can undo it.')}</small></p>{/if}
   <!-- Gesamttest 20.10 Design / UI-Grundlagen (idea 1): the tip of the day under the content, not under the help box -->
   <TipLine page="ride" name={t('On the way')} />
   <PageMore page="ride" name={t('On the way')} />
@@ -959,6 +962,8 @@
   /* SN1: «…» of the trip at the end of the pill line */
   .rmore { margin-left: auto; }
   .rend, .rsos { display: inline-flex; align-items: center; gap: 6px; }
+  .rendfoot { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin: 24px 0 8px; }
+  .rendfoot small { color: var(--ink-2); font-size: var(--fs-small); }
   .rsos { border-color: var(--bad); color: var(--bad); font-weight: 700; }
   .days { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; margin: 0 0 20px; }
   .days .sum { flex-basis: 100%; }

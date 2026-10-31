@@ -71,7 +71,7 @@ test('Planen 1 + 2: the core line with jump marks under the step bar; overdue ta
   const main = page.locator('main');
   const core = main.locator('[data-core-line]');
   await expect(core).toBeVisible();
-  await expect(core).toContainText(/\d+ Teile in \d+ Taschen/);
+  await expect(core).toContainText(/\d+ Teile: \d+ Tasche/); // UI-Test T7: places counted like the bike head
   await expect(core).toContainText(T('{kg} with food and water', { kg: '' }).trim());
   await expect(core).toContainText(/\d+ Aufgaben offen/);
   // right under the step bar, before the notice box

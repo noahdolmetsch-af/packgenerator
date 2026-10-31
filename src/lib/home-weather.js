@@ -12,7 +12,16 @@ import { HOME_PLACE, HOME_FORECAST, needsFetch, usable } from './know.js';
  * (no home place, or nothing fresh enough). rain: 'none' | 'showers' | 'rain' (as the trip weather).
  * Fetches only when the saved one is 3 hours old or for another place, and only when online.
  */
-export async function homeForecast(db, { fetcher = fetch, now = Date.now(), online = typeof navigator === 'undefined' ? true : navigator.onLine } = {}) {
+// UI-Test T8 (G1-06): tiles that ask at the same time share one answer, so one tile never shows the
+// weather while the next says it has none
+const asking = new WeakMap();
+export function homeForecast(db, opts = {}) {
+  if (opts.fresh || opts.fetcher || opts.now != null) return readForecast(db, opts);
+  if (!asking.has(db)) asking.set(db, readForecast(db, opts).finally(() => asking.delete(db)));
+  return asking.get(db);
+}
+
+async function readForecast(db, { fetcher = fetch, now = Date.now(), online = typeof navigator === 'undefined' ? true : navigator.onLine } = {}) {
   const place = (await db.settings.get(HOME_PLACE))?.value ?? null;
   if (!place) return null;
   let saved = (await db.meta.get(HOME_FORECAST)) ?? null;

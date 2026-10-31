@@ -4,8 +4,10 @@
 // page's tour (or both have none) and its last point is recent, the ride goes on at once; the time
 // between is a gap in the travel track.
 
-/** How long after its last point an open ride is still picked up by itself. */
-export const RESUME_MIN = 20;
+/** How long after its last point an open ride is still picked up by itself.
+ * 28.10.2026 (Noah's phone test): 20 minutes was too short. A stop with the screen off brings no new point,
+ * so after a reload the ride waited behind «Fahrt von … weiterführen». Now 3 hours. */
+export const RESUME_MIN = 180;
 
 /** The open recording to pick up by itself, or null. */
 export function resumeOf(open, tripId = null, now = Date.now()) {

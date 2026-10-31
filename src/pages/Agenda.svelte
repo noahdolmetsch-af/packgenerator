@@ -10,12 +10,14 @@
   import { askDelete } from '../lib/ui/ask.js';
   import DateInput from '../lib/ui/DateInput.svelte';
   import { agenda, connect, fetchNow, checkAllowed, saveTask, deleteTask, saveEvent, deleteEvent, chooseCals, hide } from '../lib/agenda/client.svelte.js';
-  import { byDay, taskGroups, timeOf, addDays, SHOW_DAYS } from '../lib/agenda.js';
+  import WeekGrid from '../lib/agenda/WeekGrid.svelte';
+  import { mondayOf, isoWeek } from '../lib/training.js';
+  import { byDay, taskGroups, timeOf, addDays, clockIn, ZONES, UNITS, remindRow, remindMinutes, SHOW_DAYS } from '../lib/agenda.js';
   import { readKey, STRAVA_HASH } from '../lib/strava/client.svelte.js';
   import { localDay } from '../lib/localday.js';
   import { mail, loadPrefs as loadMailPrefs } from '../lib/mail/client.svelte.js';
   import { eventQuery, MAIL_HASH } from '../lib/mail.js';
-  import { CalendarDays, ListChecks, Link, Lock, RefreshCw, Plus, Check, Circle, CircleCheck, Pencil, Trash2, ExternalLink, MapPin, Clock, EyeOff, Mail } from '@lucide/svelte';
+  import { CalendarDays, ListChecks, Link, Lock, RefreshCw, Plus, Check, Circle, CircleCheck, Pencil, Trash2, ExternalLink, MapPin, Clock, EyeOff, Mail, Copy, CopyPlus, X, ChevronLeft, ChevronRight } from '@lucide/svelte';
   import '../lib/ich/ich.css';
   import { t, tn, locale } from '../lib/i18n.svelte.js';
 
@@ -31,6 +33,39 @@
   // the next 14 days; today always shows, other empty days stay out
   const days = $derived(byDay(agenda.events, today, addDays(today, SHOW_DAYS - 1)).filter((d) => d.events.length || d.day === today));
   let openEv = $state(null);
+
+  // «List» or «Week» (Noah 28.10.2026): remembered on this device only
+  const VIEW_KEY = 'pg.agenda.view';
+  let view = $state((() => { try { return localStorage.getItem(VIEW_KEY) === 'week' ? 'week' : 'list'; } catch { return 'list'; } })());
+  const setView = (v) => {
+    view = v;
+    try { localStorage.setItem(VIEW_KEY, v); } catch { /* the view just is not remembered */ }
+  };
+  let narrow = $state(false);
+  $effect(() => {
+    const mq = matchMedia('(max-width: 700px)');
+    const set = () => (narrow = mq.matches);
+    set();
+    mq.addEventListener('change', set);
+    return () => mq.removeEventListener('change', set);
+  });
+  // a week of 7 days on a wide screen, 3 days on a phone; «anchor» is the first day shown
+  let anchor = $state(today);
+  const count = $derived(narrow ? 3 : 7);
+  const first = $derived(narrow ? anchor : mondayOf(anchor));
+  const weekDays = $derived(Array.from({ length: count }, (_, i) => addDays(first, i)));
+  const step = (n) => (anchor = addDays(first, n * count));
+  const colors = $derived(Object.fromEntries(p.calendars.map((c) => [c.id, c.color]).filter(([, c]) => c)));
+  const range = $derived(`${new Date(`${weekDays[0]}T12:00:00Z`).toLocaleDateString(locale(), { timeZone: 'UTC', day: 'numeric', month: 'short' })} – ${new Date(`${weekDays.at(-1)}T12:00:00Z`).toLocaleDateString(locale(), { timeZone: 'UTC', day: 'numeric', month: 'short', year: 'numeric' })}`);
+  let pickedEv = $state(null);
+  const picked = $derived(pickedEv ? agenda.events.find((x) => x.id === pickedEv) ?? null : null);
+  function newAt(day, time) {
+    newEvent();
+    const [h, m] = time.split(':').map(Number);
+    ev.day = day;
+    ev.from = time;
+    ev.to = `${String(Math.min(23, h + 1)).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+  }
 
   let list = $state('');
   const groups = $derived(taskGroups(agenda.tasks.filter((x) => !x.parent || agenda.tasks.every((y) => y.id !== x.parent)), today, { list: list || null }));
@@ -92,17 +127,40 @@
     if (await deleteTask(x)) editTask = null;
   }
 
+  const ZONE_NAMES = { 'Europe/Zurich': 'Zurich', 'Europe/London': 'London', 'Europe/Lisbon': 'Lisbon', 'Europe/Athens': 'Athens', 'Europe/Istanbul': 'Istanbul', 'America/New_York': 'New York', 'America/Los_Angeles': 'Los Angeles', 'Asia/Tokyo': 'Tokyo', 'Australia/Sydney': 'Sydney', UTC: 'UTC' };
+  const zoneName = (z) => (ZONE_NAMES[z] ? t(ZONE_NAMES[z]) : z);
+  const zones = $derived(ev && !ZONES.includes(ev.tz) ? [ev.tz, ...ZONES] : ZONES);
+  const UNIT_NAMES = { minutes: 'minutes|unit', hours: 'hours|unit', days: 'days|unit', weeks: 'weeks|unit' };
+
   function newEvent() {
     openEv = null;
-    ev = { cal: writable.find((c) => c.primary)?.id ?? writable[0]?.id ?? 'primary', title: '', day: today, lastDay: '', allDay: false, from: '09:00', to: '10:00', where: '' };
+    ev = { cal: writable.find((c) => c.primary)?.id ?? writable[0]?.id ?? 'primary', title: '', day: today, lastDay: '', allDay: false, from: '09:00', to: '10:00', where: '', note: '', noteWas: '', remind: null, busy: true, visibility: 'default', tz: ZONES[0], repeat: false, copy: false };
   }
-  function changeEvent(e) {
-    ev = { cal: e.cal, gid: e.gid, title: e.title, day: e.day, lastDay: e.lastDay > e.day ? e.lastDay : '', allDay: e.allDay, from: timeOf(e) || '09:00', to: e.allDay ? '10:00' : timeOf({ start: e.end }), where: e.where, note: e.note };
+  // The form for an event of Google; the times are shown on the clock of the event's own time zone.
+  function formOf(e) {
+    const tz = e.tz || ZONES[0];
+    const from = e.allDay ? null : clockIn(e.start, tz);
+    const to = e.allDay ? null : clockIn(e.end, tz);
+    return { cal: e.cal, gid: e.gid, title: e.title, day: from?.day ?? e.day, lastDay: e.lastDay > e.day ? e.lastDay : '', allDay: e.allDay, from: from?.time ?? '09:00', to: to?.time ?? '10:00', where: e.where, note: e.note ?? '', noteWas: e.note ?? '', remind: e.remind ? e.remind.map(remindRow) : null, busy: e.busy !== false, visibility: e.visibility ?? 'default', tz, repeat: !!e.repeat, copy: false };
   }
+  const changeEvent = (e) => (ev = formOf(e));
+  // «Duplicate» and «Copy to another calendar» open the form filled in; nothing goes to Google until «Enter in Google».
+  function copyEvent(e, other = false) {
+    const home = writable.some((c) => c.id === e.cal) ? e.cal : (writable.find((c) => c.primary) ?? writable[0])?.id ?? 'primary';
+    const cal = other ? writable.find((c) => c.id !== e.cal)?.id ?? home : home;
+    ev = { ...formOf(e), gid: undefined, cal, repeat: false, copy: true };
+    openEv = null;
+  }
+  const canCopyTo = (e) => writable.some((c) => c.id !== e.cal);
+  const addRemind = () => (ev.remind = [...ev.remind, { n: 30, unit: 'minutes', method: 'popup' }]);
+  const dropRemind = (i) => (ev.remind = ev.remind.filter((_, j) => j !== i));
   async function keepEvent(e) {
     e.preventDefault();
     if (!ev.title.trim() || !ev.day) return;
-    const res = await saveEvent({ ...ev, title: ev.title.trim(), lastDay: ev.allDay && ev.lastDay ? ev.lastDay : undefined });
+    const { noteWas, copy, repeat, remind, ...v } = ev;
+    // the description is sent only when it was changed (Google keeps its formatting otherwise)
+    if (v.gid && v.note === noteWas) delete v.note;
+    const res = await saveEvent({ ...v, title: ev.title.trim(), lastDay: ev.allDay && ev.lastDay ? ev.lastDay : undefined, remind: remind === null ? null : remind.slice(0, 5).map(remindMinutes), tz: ev.allDay ? undefined : ev.tz });
     if (res) {
       msg = ev.gid ? t('Changed in your Google calendar.') : t('«{name}» is in your Google calendar.', { name: ev.title.trim() });
       ev = null;
@@ -110,7 +168,7 @@
   }
   async function dropEvent(e) {
     if ((await askDelete({ title: t('Delete «{name}» in your Google calendar too?', { name: e.title }) })) !== 'delete') return;
-    if (await deleteEvent(e)) openEv = null;
+    if (await deleteEvent(e)) openEv = pickedEv = null;
   }
 
   function toggleCal(id, yes) {
@@ -135,13 +193,32 @@
     })[code] ?? t('Google answered with an error. Try again later.');
 </script>
 
+{#snippet detail(e)}
+  <div class="more">
+    <p class="ich-help"><Clock size={14} aria-hidden="true" /> {span(e)}{#if e.where}{' · '}<MapPin size={14} aria-hidden="true" /> {e.where}{/if}</p>
+    {#if e.note}<p class="note-t">{e.note}</p>{/if}
+    <div class="btns">
+      {#if e.link}<a class="btn sm" href={e.link} target="_blank" rel="noopener"><ExternalLink size={15} aria-hidden="true" />{t('Open in Google')}</a>{/if}
+      {#if mail.prefs.allowed && eventQuery(e)}<a class="btn sm" href={`${MAIL_HASH}?${new URLSearchParams({ q: eventQuery(e), for: e.title })}`}><Mail size={15} aria-hidden="true" />{t('Mails to it')}</a>{/if}
+      {#if writable.length}
+        <button type="button" class="btn sm" data-ev-dup onclick={() => copyEvent(e)}><Copy size={15} aria-hidden="true" />{t('Duplicate')}</button>
+        {#if canCopyTo(e)}<button type="button" class="btn sm" onclick={() => copyEvent(e, true)}><CopyPlus size={15} aria-hidden="true" />{t('Copy to another calendar')}</button>{/if}
+      {/if}
+      {#if writable.some((c) => c.id === e.cal) || e.cal === 'primary'}
+        <button type="button" class="btn sm" onclick={() => changeEvent(e)}><Pencil size={15} aria-hidden="true" />{t('Change')}</button>
+        <button type="button" class="btn sm danger" onclick={() => dropEvent(e)}><Trash2 size={15} aria-hidden="true" />{t('Delete')}</button>
+      {/if}
+    </div>
+  </div>
+{/snippet}
+
 <div class="agendapage">
   <VeloHead crumbs={[{ label: t('Plan|place'), href: '#/week' }]} here={t('Appointments and tasks')} title={t('Appointments and tasks')} sub={t('Your Google calendar and Google Tasks in the app: see, tick, add. Also for «Plan the week». Voluntary, you can switch it off at any time.')} />
 
   {#if agenda.error}<p class="err" role="status">{errorText(agenda.error)}</p>{/if}
   {#if msg}<p class="msg" role="status">{msg}</p>{/if}
 
-  <div class="ich-cols">
+  <div class="ich-cols" class:wide={view === 'week' && p.calendar}>
     <div class="ich-main">
       {#if !on}
         <section class="ich-sec" aria-labelledby="con-h">
@@ -154,8 +231,8 @@
               </ul>
               <button type="button" class="btn hi big wide" disabled={!services.length} onclick={() => connect(services)}><Link size={16} aria-hidden="true" />{t('Connect with Google')}</button>
             {:else}
-              <p class="ich-help">{t('First connect Strava on this device: it gives this device the key the Google connection uses too.')}</p>
-              <a class="btn hi big wide" href={STRAVA_HASH}>{t('Connect Strava first')}</a>
+              <p class="ich-help">{t('This device needs the app key once. It comes with the Strava login; after that Google and Trello work here too.')}</p>
+              <a class="btn hi big wide" href={STRAVA_HASH}>{t('Unlock this device (once)')}</a>
             {/if}
             <p class="note"><Lock size={14} aria-hidden="true" /><span><b>{t('Kept only on your devices; the server keeps nothing.')}</b> {t('The first time Google says «unverified app»: that is normal and free.')}</span></p>
           </div>
@@ -164,12 +241,18 @@
 
       {#if p.calendar}
         <section class="ich-sec" aria-labelledby="ev-h">
-          <div class="ich-h">
-            <div><h2 id="ev-h">{t('Appointments')}</h2><p class="ich-hs">{t('the next 14 days')}</p></div>
-            {#if !ev}<button type="button" class="btn sm" onclick={newEvent}><Plus size={15} aria-hidden="true" />{t('New appointment')}</button>{/if}
+          <div class="ich-h evh">
+            <div><h2 id="ev-h">{t('Appointments')}</h2><p class="ich-hs">{view === 'week' ? t('Week {n}', { n: isoWeek(first) }) : t('the next 14 days')}</p></div>
+            <div class="vbtns">
+              <div class="chips" role="group" aria-label={t('View|calendar')}>
+                <button type="button" class="chip" aria-pressed={view === 'list'} data-view="list" onclick={() => setView('list')}>{t('List|view')}</button>
+                <button type="button" class="chip" aria-pressed={view === 'week'} data-view="week" onclick={() => setView('week')}>{t('Week|view')}</button>
+              </div>
+              {#if !ev}<button type="button" class="btn sm" onclick={newEvent}><Plus size={15} aria-hidden="true" />{t('New appointment')}</button>{/if}
+            </div>
           </div>
           {#if ev}
-            <form class="card ich-body form" onsubmit={keepEvent} aria-label={ev.gid ? t('Change appointment') : t('New appointment')}>
+            <form class="card ich-body form" onsubmit={keepEvent} aria-label={ev.gid ? t('Change appointment') : ev.copy ? t('Copy appointment') : t('New appointment')}>
               <label>{t('Title')}<input type="text" bind:value={ev.title} maxlength="200" required placeholder={t('e.g. Bike service')} /></label>
               <div class="two">
                 <label>{t('Day')}<DateInput bind:value={ev.day} required /></label>
@@ -182,16 +265,59 @@
                   <label>{t('To|time')}<input type="time" bind:value={ev.to} /></label>
                 </div>
               {/if}
+              {#if !ev.allDay}
+                <label>{t('Time zone')}<select bind:value={ev.tz} data-ev-tz>{#each zones as z (z)}<option value={z}>{zoneName(z)}</option>{/each}</select></label>
+              {/if}
               <label>{t('Where (optional)')}<input type="text" bind:value={ev.where} maxlength="200" /></label>
+              <fieldset class="rem" data-ev-remind>
+                <legend>{t('Reminders')}</legend>
+                <label class="tg"><input type="checkbox" checked={ev.remind === null} onchange={(e) => (ev.remind = e.currentTarget.checked ? null : [{ n: 30, unit: 'minutes', method: 'popup' }])} /> {t('Google standard reminders')}</label>
+                {#if ev.remind}
+                  {#each ev.remind as r, i (i)}
+                    <div class="remrow">
+                      <select bind:value={r.method} aria-label={t('Kind of reminder')}><option value="popup">{t('Notification')}</option><option value="email">{t('E-mail')}</option></select>
+                      <input type="number" min="0" max="40320" bind:value={r.n} aria-label={t('How long before')} />
+                      <select bind:value={r.unit} aria-label={t('Unit|time')}>{#each Object.keys(UNITS) as u (u)}<option value={u}>{t(UNIT_NAMES[u])}</option>{/each}</select>
+                      <button type="button" class="ib" aria-label={t('Remove reminder')} onclick={() => dropRemind(i)}><X size={16} aria-hidden="true" /></button>
+                    </div>
+                  {:else}
+                    <p class="ich-help">{t('No reminder.')}</p>
+                  {/each}
+                  {#if ev.remind.length < 5}<button type="button" class="btn sm" onclick={addRemind}><Plus size={15} aria-hidden="true" />{t('Add reminder')}</button>{/if}
+                {/if}
+              </fieldset>
               {#if writable.length > 1 && !ev.gid}
                 <label>{t('Calendar')}<select bind:value={ev.cal}>{#each writable as c (c.id)}<option value={c.id}>{c.name}</option>{/each}</select></label>
               {/if}
+              <div class="two">
+                <label>{t('Show me as')}<select bind:value={ev.busy} data-ev-busy><option value={true}>{t('Busy|show')}</option><option value={false}>{t('Free|show')}</option></select></label>
+                <label>{t('Who sees it')}<select bind:value={ev.visibility}><option value="default">{t('Default|visibility')}</option><option value="public">{t('Public|view')}</option><option value="private">{t('Private|view')}</option></select></label>
+              </div>
+              <label>{t('Description (optional)')}<textarea bind:value={ev.note} rows="4" maxlength="4000" data-ev-note></textarea></label>
+              {#if ev.repeat}<p class="ich-help">{t('This appointment repeats. A change here counts only for this one.')}</p>{/if}
               <div class="go">
                 <button type="button" class="btn" onclick={() => (ev = null)}>{t('Cancel')}</button>
                 <button type="submit" class="btn hi"><Check size={16} aria-hidden="true" />{ev.gid ? t('Save') : t('Enter in Google')}</button>
               </div>
             </form>
           {/if}
+          {#if view === 'week'}
+            <div class="wknav">
+              <button type="button" class="btn sm" onclick={() => (anchor = today)}>{t('Today')}</button>
+              <button type="button" class="btn sm" aria-label={t('Previous days|week')} onclick={() => step(-1)}><ChevronLeft size={16} aria-hidden="true" /></button>
+              <button type="button" class="btn sm" aria-label={t('Next days|week')} onclick={() => step(1)}><ChevronRight size={16} aria-hidden="true" /></button>
+              <span class="rng">{range}</span>
+            </div>
+            <WeekGrid events={agenda.events} days={weekDays} {today} {colors} picked={pickedEv} onpick={(e) => (pickedEv = pickedEv === e.id ? null : e.id)} onnew={newAt} />
+            {#if picked}
+              <div class="card ich-body pk">
+                <h3>{picked.title}</h3>
+                <p class="ich-help">{dayName(picked.day)}</p>
+                {@render detail(picked)}
+              </div>
+            {/if}
+            <p class="ich-help">{t('The copy on this device covers one week back and two months ahead.')}</p>
+          {:else}
           <ul class="card ich-list days">
             {#each days as d (d.day)}
               <li class="day">
@@ -205,18 +331,7 @@
                         <span class="ich-m"><b>{e.title}</b>{#if e.where || p.cals.length > 1}<small>{[e.where, p.cals.length > 1 ? calName(e.cal) : ''].filter(Boolean).join(' · ')}</small>{/if}</span>
                       </button>
                       {#if openEv === `${d.day}${e.id}`}
-                        <div class="more">
-                          <p class="ich-help"><Clock size={14} aria-hidden="true" /> {span(e)}{#if e.where}{' · '}<MapPin size={14} aria-hidden="true" /> {e.where}{/if}</p>
-                          {#if e.note}<p class="note-t">{e.note}</p>{/if}
-                          <div class="btns">
-                            {#if e.link}<a class="btn sm" href={e.link} target="_blank" rel="noopener"><ExternalLink size={15} aria-hidden="true" />{t('Open in Google')}</a>{/if}
-                            {#if mail.prefs.allowed && eventQuery(e)}<a class="btn sm" href={`${MAIL_HASH}?${new URLSearchParams({ q: eventQuery(e), for: e.title })}`}><Mail size={15} aria-hidden="true" />{t('Mails to it')}</a>{/if}
-                            {#if writable.some((c) => c.id === e.cal) || e.cal === 'primary'}
-                              <button type="button" class="btn sm" onclick={() => changeEvent(e)}><Pencil size={15} aria-hidden="true" />{t('Change')}</button>
-                              <button type="button" class="btn sm danger" onclick={() => dropEvent(e)}><Trash2 size={15} aria-hidden="true" />{t('Delete')}</button>
-                            {/if}
-                          </div>
-                        </div>
+                        {@render detail(e)}
                       {/if}
                     </li>
                   {/each}
@@ -224,6 +339,7 @@
               </li>
             {/each}
           </ul>
+          {/if}
         </section>
       {/if}
 
@@ -500,6 +616,70 @@
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
     gap: 12px;
+  }
+  .ich-cols.wide {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .evh {
+    flex-wrap: wrap;
+  }
+  .evh > div:first-child {
+    flex: 1 1 9rem;
+  }
+  .vbtns {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+  }
+  .wknav {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 10px;
+  }
+  .rng {
+    font-weight: 600;
+  }
+  .pk {
+    margin: 12px 0;
+  }
+  .pk h3 {
+    margin: 0 0 4px;
+    font-size: var(--fs-sub);
+  }
+  .rem {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    min-width: 0;
+  }
+  .rem legend {
+    padding: 0;
+    margin-bottom: 4px;
+    font-size: var(--fs-small);
+    color: var(--ink-3);
+  }
+  .remrow {
+    display: grid;
+    grid-template-columns: minmax(0, 1.3fr) minmax(0, 0.7fr) minmax(0, 1fr) auto;
+    gap: 8px;
+    align-items: center;
+  }
+  .remrow input {
+    min-width: 0;
+  }
+  @media (max-width: 520px) {
+    .remrow {
+      grid-template-columns: minmax(0, 0.6fr) minmax(0, 1fr) auto;
+    }
+    .remrow select:first-child {
+      grid-column: 1 / -1;
+    }
   }
   .go {
     display: flex;

@@ -15,10 +15,11 @@
   import { openPdf, renderPdfPage, readOffice, trackOf, bytesOf } from './attach.js';
   import { parseIcs } from '../icsio.js';
   import StaticMap from '../ui/StaticMap.svelte';
-  import { X, Download, CalendarPlus, UserPlus } from '@lucide/svelte';
+  import { X, Download, CalendarPlus, UserPlus, Camera } from '@lucide/svelte';
   import '../bikes/velo-dlg.css';
 
-  let { file, onclose, ontext = null } = $props();
+  let { file, onclose, ontext = null, onphoto = null } = $props();
+  let vid = $state();
 
   let dialog;
   let row = $state(null);
@@ -85,6 +86,21 @@
       pdfBox.append(c);
       await renderPdfPage(pdf, n, c, w);
     }
+  }
+
+  /** The picture on screen becomes a photo of the note (Noah 28.10.2026 «2a»: the video stays on the phone). */
+  async function keepStill() {
+    err = '';
+    info = '';
+    vid?.pause();
+    const { stillOf } = await import('../tools/video.js');
+    const src = stillOf(vid);
+    if (!src) {
+      err = t('There is no picture yet. Play the video a little first.');
+      return;
+    }
+    onphoto?.(src);
+    info = t('The picture is now one of the photos of the note.');
   }
 
   /** Open or save the file with the device (its own viewer, calendar or contacts). */
@@ -193,7 +209,11 @@
     {:else}<p class="q">{t('No contact found in this file.')}</p>{/if}
   {:else if view?.video}
     <!-- svelte-ignore a11y_media_has_caption -->
-    <video class="vid" src={view.video} controls playsinline data-file-video></video>
+    <video class="vid" src={view.video} controls playsinline bind:this={vid} data-file-video></video>
+    {#if onphoto}
+      <div class="vd-still"><button type="button" class="btn" onclick={keepStill} data-video-still><Camera size={16} aria-hidden="true" />{t('Keep this picture')}</button></div>
+      <p class="q">{t('Stop the video where you like the picture, then tap «Keep this picture». It goes to the photos of the note.')}</p>
+    {/if}
   {:else if view?.file}
     {#if row?.fmt === 'office'}
       <p class="q" data-file-oldoffice>{t('This is an old Office file (.doc, .xls or .ppt). The app keeps it with the note but cannot show it. Open it with your device, or save it there as .docx, .xlsx or .pptx; then the app shows it and searches its text.')}</p>
@@ -290,6 +310,9 @@
     flex-wrap: wrap;
     gap: 6px;
     margin: 0 0 8px;
+  }
+  .vd-still {
+    margin-top: 10px;
   }
   .vid {
     display: block;
