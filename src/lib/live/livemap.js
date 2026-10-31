@@ -15,12 +15,12 @@ export const MAX_TILES = 6;
 export const DEFAULT_TILES = ['done', 'left', 'arrive'];
 /** Every number of the band (label: English key for t(); unit shown small). `route`: needs a route. */
 export const LIVE_TILES = [
-  { key: 'done', label: 'km done', unit: 'km' },
+  { key: 'done', label: 'Distance', unit: 'km' },
   { key: 'left', label: 'km to go', unit: 'km', route: true },
   { key: 'arrive', label: 'Arrival', unit: '', route: true },
   { key: 'clock', label: 'Time', unit: '' },
   { key: 'moving', label: 'Riding time', unit: 'h' },
-  { key: 'speed', label: 'Speed (GPS)', unit: 'km/h' },
+  { key: 'speed', label: 'Speed', unit: 'km/h' },
   { key: 'avg', label: 'Average while moving', unit: 'km/h' },
   { key: 'height', label: 'Height', unit: 'm', route: true },
   { key: 'grade', label: 'Gradient here', unit: '%', route: true },
@@ -29,7 +29,7 @@ export const LIVE_TILES = [
   { key: 'light', label: 'Light left', unit: '' },
   { key: 'plan', label: 'Against the plan', unit: '', route: true },
   // Pausieren, Sensoren (Noah 20.10.2026): the whole time, the pulse, power and cadence, metres up, stops
-  { key: 'total', label: 'Total time', unit: 'h' },
+  { key: 'total', label: 'Time elapsed', unit: '' },
   { key: 'hr', label: 'Heart rate', unit: 'bpm' },
   { key: 'power', label: 'Power', unit: 'W' },
   { key: 'cadence', label: 'Cadence', unit: 'rpm' },
@@ -60,6 +60,14 @@ export function moveTile(list, from, to) {
 }
 
 const pad = (n) => String(n).padStart(2, '0');
+// Noah 28.10.2026: the distance ridden in metres, from 1 km with 2 decimals (from 100 km one is enough)
+const dist = (km) => (km < 1 ? { value: String(Math.round(Math.max(0, km) * 1000)), unit: 'm' } : { value: (Math.floor(km * (km >= 100 ? 10 : 100)) / (km >= 100 ? 10 : 100)).toFixed(km >= 100 ? 1 : 2), unit: 'km' });
+// Noah 28.10.2026 «a ★ Gesamtzeit seit Start»: a timer that grows from 0:05 to 12:34 to 1:02:03
+const hms = (sec) => {
+  const s = Math.max(0, Math.floor(sec));
+  const h = Math.floor(s / 3600);
+  return h ? `${h}:${pad(Math.floor((s % 3600) / 60))}:${pad(s % 60)}` : `${Math.floor(s / 60)}:${pad(s % 60)}`;
+};
 const r1 = (v) => (v >= 100 ? String(Math.round(v)) : (Math.round(v * 10) / 10).toFixed(1));
 /**
  * The value of each number now: ctx { now, km (on the route) | null, ridden (km recorded), left, eta (ms),
@@ -67,7 +75,6 @@ const r1 = (v) => (v >= 100 ? String(Math.round(v)) : (Math.round(v * 10) / 10).
  * stop ({ distKm }) | null, lightMin | null, dark, delta (min ahead + / behind −) | null, clock(ms) → 'HH:MM' }.
  * → { key: { value, sub? } }; '–' when unknown.
  */
-const hm = (sec) => `${Math.floor(sec / 3600)}:${pad(Math.floor((sec % 3600) / 60))}`;
 
 /**
  * Metres up from the GPS height (Noah: «Höhenmeter»), without the jitter: a climb counts only once the
@@ -83,11 +90,11 @@ export function gainStep(st = { base: null, gain: 0 }, alt, step = 4) {
 
 export function tileValues(c = {}) {
   const dash = { value: '–' };
-  const v = (value, sub = '') => ({ value: String(value), sub });
+  const v = (value, sub = '', unit = undefined) => ({ value: String(value), sub, ...(unit != null ? { unit } : {}) });
   const clock = c.clock ?? ((ms) => `${pad(new Date(ms).getHours())}:${pad(new Date(ms).getMinutes())}`);
   const done = c.km ?? c.ridden;
   return {
-    done: Number.isFinite(done) ? v(r1(done)) : dash,
+    done: Number.isFinite(done) ? v(dist(done).value, '', dist(done).unit) : dash,
     left: Number.isFinite(c.left) ? v(r1(Math.max(0, c.left))) : dash,
     arrive: Number.isFinite(c.eta) ? v(clock(c.eta)) : dash,
     clock: v(clock(c.now ?? Date.now())),
@@ -99,7 +106,7 @@ export function tileValues(c = {}) {
     top: c.top && Number.isFinite(c.top.distKm) ? v(r1(Math.max(0, c.top.distKm))) : dash,
     stop: c.stop && Number.isFinite(c.stop.distKm) ? v(r1(Math.max(0, c.stop.distKm))) : dash,
     light: c.dark ? v('0:00') : Number.isFinite(c.lightMin) ? v(`${Math.floor(c.lightMin / 60)}:${pad(Math.round(c.lightMin % 60))}`) : dash,
-    total: Number.isFinite(c.totalS) ? v(hm(c.totalS)) : dash,
+    total: Number.isFinite(c.totalS) ? v(hms(c.totalS)) : dash,
     hr: Number.isFinite(c.hr) ? v(Math.round(c.hr)) : dash,
     power: Number.isFinite(c.power) ? v(Math.round(c.power)) : dash,
     cadence: Number.isFinite(c.cadence) ? v(Math.round(c.cadence)) : dash,
