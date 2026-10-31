@@ -23,7 +23,8 @@
   import { take } from './nav.js';
   import { sync as autoSync, runSync } from './sync/auto.svelte.js';
   import { isDemoFile, startDemo, demoState } from './demo.js';
-  import { examplesLeft, exampleCount, removeExamples, undoExamples, addExamples } from './firststart.js';
+  import { examplesLeft, exampleCount, removeExamples, undoExamples, addExamples, onlyExamples } from './firststart.js';
+  import { MORE_KEY } from './blocksmore.js';
   import { offerDone } from './ui/rename.svelte.js';
   import { localDay } from './localday.js';
   import { askDelete, deleteWithUndo } from './ui/ask.js';
@@ -236,10 +237,11 @@
       // v0.34.0 (L10): newer or older than the data on this device, said before anything is replaced.
       const localAt = await lastChangeOf(db);
       // v0.137.0 (Durchklick DK7c): a device without trips and gear has nothing to lose: no «older» warning.
-      const fresh = !existing.trips?.length && !existing.items?.length;
+      // UI-Test T10 (G5-04): the examples of the first start do not count, they only look newer
+      const fresh = onlyExamples(existing, await examplesLeft(db), (await db.settings.get(MORE_KEY))?.value?.created ?? []);
       const state = fresh ? { kind: 'fresh' } : compareStates(data.lastChange ?? null, localAt, data.exportedAt ?? null);
       // P3b «Abgleich»: what changed since the last exchange, and what the app suggests
-      const sync = syncAdvice(data.lastChange ?? null, localAt, await db.meta.get(SYNC_KEY));
+      const sync = fresh ? { advice: 'fresh', hereChanged: false, thereChanged: true } : syncAdvice(data.lastChange ?? null, localAt, await db.meta.get(SYNC_KEY));
       const hasData = existing.items.length + existing.trips.length + existing.bikes.length > 0;
       pending = { data, name: file.name, counts: countRows(data), impact: importImpact(data, existing), state, sync, hasData, sure: false };
       message = '';
@@ -341,6 +343,7 @@
     same: () => t('The file has the same state as this device. Nothing to do.'),
     take: () => t('The file is newer, and nothing changed here since the last exchange: take it over with «Replace all data».'),
     keep: () => t('This device is newer. Better send a backup from here to the other device.'),
+    fresh: () => t('This device is still empty (at most the examples of the first start). Take the file over with «Replace all data».'),
     both: () => t('Both devices changed since the last exchange. «Merge» keeps both; where the same record changed, the file wins.'),
   };
   const syncQ = liveQuery(() => db.meta.get(SYNC_KEY));
@@ -363,6 +366,8 @@
         await markSync(db, { theirs: pending.data.lastChange ?? pending.data.exportedAt ?? null }); // P3b: the last exchange
       });
       message = (mode === 'replace' ? t('Imported {name} (replaced all data).', { name: pending.name }) : t('Imported {name} (merged).', { name: pending.name })) + (copied ? ` ${t('The state before is kept as a copy under «Before updates».')}` : '');
+      // UI-Test T10 (G1-08): after a merge the made-up examples sit between your own things: say how they go
+      if (mode === 'merge' && exampleCount(await examplesLeft(db))) message += ` ${t('The examples of the first start are still here: «Remove the examples» below takes them away, your own data stays.')}`;
       pending = null;
     } catch (err) {
       message = `${t('Import failed, nothing was changed.')} ${t(plainError(err))}`;
@@ -490,7 +495,7 @@
             </p>
             <!-- v0.34.0 (L10): is the file newer or older than this device? -->
             {#if pending.state.kind === 'fresh'}
-              <p class="state"><i class="badge">{t('New here')}</i> {t('This device has no trips and no gear yet, so nothing is lost.')}</p>
+              <p class="state"><i class="badge">{t('New here')}</i> {t('This device has nothing of your own yet (at most the examples of the first start), so nothing is lost.')}</p>
             {:else if pending.state.kind !== 'unknown'}
               <p class="state"><i class="badge {pending.state.kind}">{pending.state.kind === 'newer' ? t('Newer') : pending.state.kind === 'older' ? t('Older') : t('Same state')}</i>
                 {pending.state.kind === 'newer' ? t('This file is newer than the data on this device (file {file}, this device {local}).', { file: when(pending.state.file), local: when(pending.state.local) }) : pending.state.kind === 'older' ? t('This file is older than the data on this device (file {file}, this device {local}). Replace would put the older state here.', { file: when(pending.state.file), local: when(pending.state.local) }) : t('This file has the same state as this device ({file}).', { file: when(pending.state.file) })}</p>
@@ -519,7 +524,7 @@
               <div class="ich-acts end">
                 <button type="button" class="btn" class:hi={pending.sync.advice === 'keep' || pending.sync.advice === 'same'} onclick={() => (pending = null)}>{t('Cancel')}</button>
                 <button type="button" class="btn" class:hi={pending.sync.advice === 'both'} onclick={() => applyImport('merge')}>{t('Merge')}</button>
-                <button type="button" class="btn" class:hi={!pending.sync.advice || pending.sync.advice === 'take'} onclick={() => applyImport('replace')}>{t('Replace all data')}</button>
+                <button type="button" class="btn" class:hi={!pending.sync.advice || pending.sync.advice === 'take' || pending.sync.advice === 'fresh'} onclick={() => applyImport('replace')}>{t('Replace all data')}</button>
               </div>
             {/if}
             <p class="small">{t('Replace: the file becomes your data. Merge: records from the file are added or overwrite the same ID.')}{pending.hasData ? ` ${t('Before either, the app keeps a copy of the data now.')}` : ''}</p>
