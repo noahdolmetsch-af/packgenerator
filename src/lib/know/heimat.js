@@ -22,8 +22,10 @@
  * Measured 24.10.2026 on 0.181.4 with the Gesamttest data (phone 390 px).
  */
 
+import { FEATREG } from '../featreg/index.js';
+
 /** The home page of every function (feature id → hash route). */
-export const HOME = {
+const LISTED_HOME = {
   // Einzelideen Planen (996 Ideen 10, 11, 15, 16): page titles and card titles of the new pages
   'f.plantpass': '#/calendar/pflanzen',
   'f.doubleinbox': '#/inbox/vorgaenge',
@@ -477,8 +479,11 @@ export const HOME = {
   'f.skiafter': '#/ski/after',
 };
 
+/** The listed home pages plus those of src/lib/featreg/. */
+export const HOME = { ...LISTED_HOME, ...FEATREG.home };
+
 /** Not yet visible on the home page (feature id → why code). Only gets shorter. */
-export const GAPS = {
+const LISTED_GAPS = {
   'f.blockeffect': 'spot',
   'f.needs': 'spot',
   'f.homecoming': 'when',
@@ -525,6 +530,8 @@ export const GAPS = {
   'f.helpsearch': 'name',
   'f.tennistop': 'name',
 };
+
+export const GAPS = { ...LISTED_GAPS, ...FEATREG.gaps };
 
 /** The why codes, for the test messages. */
 export const WHY = { deep: 'only through a fold, «More», the search or 3+ taps', low: 'further down than 2.5 screens', folded: 'inside a closed fold', name: 'another name, a ••• menu or only in some situations', spot: 'inside a window, a fold or further down; the catalogue goes to the spot and lights it up (know/spot.js)', when: 'only in the right situation; the catalogue says when (know/wann.js)', gone: 'left out on purpose' };

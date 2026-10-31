@@ -7,11 +7,12 @@ import { test, expect } from './clock.js';
 import { openHome } from './home0460-fixture.js';
 import { readFileSync } from 'node:fs';
 import DE from '../../src/lib/i18n/de/index.js';
+import { FEATURE_SRC_ALL } from './featsrc.js';
 
 // the functions a word finds, read from the app source like findFeatures() does (title, text, words, in English
 // and German); features.js itself loads the language store, which needs the browser
 const norm = (s) => String(s ?? '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-const FEATURE_SRC = readFileSync(new URL('../../src/lib/features.js', import.meta.url), 'utf8');
+const FEATURE_SRC = FEATURE_SRC_ALL; // features.js and src/lib/featreg/
 const featuresFinding = (word) =>
   FEATURE_SRC.split(/\{ id: '/).slice(1).filter((c) => /^f\./.test(c)).map((c) => {
     const id = c.slice(0, c.indexOf("'"));

@@ -3,8 +3,9 @@
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { GO } from '../../src/lib/know/newsgo-map.js';
+import { FEATURE_SRC_ALL } from './featsrc.js';
 
-const src = readFileSync(fileURLToPath(new URL('../../src/lib/features.js', import.meta.url)), 'utf8');
+const src = FEATURE_SRC_ALL; // features.js and the files of src/lib/featreg/
 const FEAT_HREF = Object.fromEntries([...src.matchAll(/\{ id: '([^']+)'[^\n]*?href: '([^']+)'/g)].map((m) => [m[1], m[2]]));
 
 /** The target of a line: undefined (none given), null (no link), a function id or an object. */
