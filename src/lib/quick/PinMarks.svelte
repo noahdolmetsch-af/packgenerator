@@ -87,7 +87,7 @@
       if (!r.width || r.bottom < 0 || r.top > innerHeight) continue;
       const tr = f.title.getBoundingClientRect();
       const doc = (q) => ({ top: q.top + scrollY, right: q.right + scrollX, height: q.height });
-      const at = placePin(doc(r), doc(tr), w, free);
+      const at = placePin(doc(r), doc(tr), w, free, 44 * z); // the 44 px pin is 44 * z screen pixels wide while zoomed
       if (at) next.push({ id: f.id, view: f.view, viewTitle: f.viewTitle, x: at.x / z, y: at.y / z });
     }
     marks = next;
