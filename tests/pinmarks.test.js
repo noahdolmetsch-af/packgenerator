@@ -40,4 +40,8 @@ describe('pins on the cards', () => {
     expect(placePin(card, title, 390, () => false)).toBe(null);
     expect(placePin({ top: 0, right: 400, height: 10 }, title, 390).x).toBe(346);
   });
+  it('zoomed to 115 %, the pin is 50.6 screen pixels wide and still stays on the page (no sideways scroll)', () => {
+    const at = placePin({ top: 0, right: 400, height: 10 }, { top: 0, right: 200, height: 10 }, 390, () => true, 44 * 1.15);
+    expect(at.x + 44 * 1.15).toBeLessThanOrEqual(390);
+  });
 });
