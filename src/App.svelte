@@ -1,6 +1,8 @@
 <script>
   import Home from './pages/Home.svelte';
   import LazyPage from './lib/nav/LazyPage.svelte';
+  import GehoertDazu from './lib/know/GehoertDazu.svelte'; // «Heute als Begleiter» PR 7
+  import { PAGE_MOMENT } from './lib/know/gehoert.js';
   import { warmUp } from './lib/nav/lazy.js';
   import SkiTurn from './lib/ski/SkiTurn.svelte';
   import { parseBetween } from './lib/phase.js';
@@ -492,6 +494,8 @@
   {#if ops.path && place && page !== 'home' && !calm && !guest && !mini}<PathLine {place} {hash} />{/if}
   <!-- ER1/ER2: «Soll ich dich erinnern?» on top of the next page, in the page (never over its buttons) -->
   {#if !guest && page !== 'home'}<RemindCard /><RuhigLine {hash} />{/if}
+  <!-- «Heute als Begleiter» PR 7: «Belongs to …», the functions of the same moment, on top of the page -->
+  {#if !guest && !mini && PAGE_MOMENT[page]}<GehoertDazu {page} {hash} />{/if}
   <svelte:boundary onerror={onfail}>
   {#key `${switchN}-${listsReady.v}`}
   {#if page === 'gear'}

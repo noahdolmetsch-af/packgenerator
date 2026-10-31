@@ -90,3 +90,20 @@ describe('Quick Links', () => {
     expect(findForPin(all, '')).toEqual([]);
   });
 });
+
+describe('Quick Links step 3: views with their filter', () => {
+  it('pins a view once, keeps it through cleanQuick, shows its title, unpins it', async () => {
+    const { addView, isViewPinned, removeView } = await import('../src/lib/quick/quicklinks.js');
+    let s = starter();
+    s = addView(s, '#/trips?f=planned', 'Touren', s.groups[0].id);
+    expect(isViewPinned(s, '#/trips?f=planned')).toBe(true);
+    expect(addView(s, '#/trips?f=planned', 'Touren')).toBe(s);
+    expect(addView(s, 'https://example.com', 'x')).toBe(s); // only addresses of the app
+    const back = cleanQuick(JSON.parse(JSON.stringify(s)));
+    const v = back.pins.find((p) => p.href === '#/trips?f=planned');
+    expect(v).toMatchObject({ feature: '', title: 'Touren' });
+    expect(pinLabel(v)).toBe('Touren');
+    expect(isPinned(back, '')).toBe(false);
+    expect(isViewPinned(removeView(back, '#/trips?f=planned'), '#/trips?f=planned')).toBe(false);
+  });
+});

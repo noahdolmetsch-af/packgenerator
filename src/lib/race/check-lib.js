@@ -134,3 +134,24 @@ export function filled(check, sheet) {
   const done = keys.filter((k) => String(valueOf(check, k) ?? '').trim()).length;
   return { done, of: keys.length };
 }
+
+/** Fields that belong to one race only and are not taken over into the next (name, date, test ride …). */
+export const OWN_RACE_KEYS = ['ablauf.race', 'ablauf.racedate', 'ablauf.racekm', 'ablauf.racedays', 'ablauf.depotkm', 'ablauf.testdate', 'ablauf.testkm', 'ablauf.testbad'];
+
+/**
+ * Take over another race's check: its answers go into the fields that are still empty here (your own
+ * answers stay), except the fields of one race only. → { check, n } (n = fields filled) .
+ */
+export function takeOver(mine, other, now = new Date().toISOString()) {
+  const values = { ...(mine?.values ?? {}) };
+  let n = 0;
+  for (const [k, v] of Object.entries(other?.values ?? {})) {
+    if (!(k in KEYS) || OWN_RACE_KEYS.includes(k)) continue;
+    const empty = !(k in values) || (typeof KEYS[k] === 'string' && !String(values[k] ?? '').trim());
+    if (!empty) continue;
+    if (typeof KEYS[k] === 'string' && !String(v ?? '').trim()) continue;
+    values[k] = v;
+    n++;
+  }
+  return { check: { ...(mine ?? {}), values, at: now }, n };
+}
