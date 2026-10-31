@@ -1,6 +1,6 @@
 # Test heute-design: beide Knöpfe zusammen messen
 
-PR folgt · 31.10.2026 · Auftrag: Reparatur der roten «Volle Prüfung» auf main (Koordinator 31.10.)
+PR #486 · 31.10.2026 · Auftrag: Reparatur der roten «Volle Prüfung» auf main (Koordinator 31.10.)
 
 ## Was ist neu
 - Nichts in der App. Der Test `heute-design.spec.js` (Computer) maß «Startseite anpassen» und «Alle Bereiche» zu verschiedenen Zeiten. Kommt danach noch eine Kachel, rutschen beide nach unten, aber der Test verglich einen alten mit einem neuen Wert (Abstand 73 und 524 statt unter 8). Jetzt werden beide zusammen gemessen, bis die Seite ruhig ist.
