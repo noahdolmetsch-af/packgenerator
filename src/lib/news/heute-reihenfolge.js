@@ -2,7 +2,7 @@
 export default {
   title: 'Today: Discover sits lower',
   lead: 'The «Discover» card now comes after your trip and the weekly weight question.',
-  points: [{ text: 'On Today the «Discover» card sits under the trip card and «Weight this week?», so what matters today comes first', href: '#/', go: { href: '#/', steps: [{ sel: '[data-section="discover"]' }], where: 'Shows on Today.' } }],
+  points: [{ text: 'On Today the «Discover» card sits under the trip card and «Weight this week?», so what matters today comes first', go: { href: '#/', steps: [{ sel: '[data-section="discover"]' }], where: 'Shows on Today.' } }],
   small: [],
   test: ['Open Today: the moment card comes first, then your trip and the weight question.', '«Discover» follows right under them.'],
   since: [],
