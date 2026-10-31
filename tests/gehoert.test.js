@@ -28,6 +28,12 @@ describe('«Belongs to …» on top of a page (PR 7)', () => {
     expect(r.items.length).toBe(SHOWN);
     for (const f of r.items) expect(momentOfFeature(f.id)).toBe('planen');
   });
+  it('Me (Ich) is the third page', () => {
+    expect(PAGE_MOMENT.me).toBe('app');
+    const r = gehoertDazu({ moment: 'app', here: '#/me' });
+    expect(r.items.length).toBeGreaterThan(0);
+    for (const f of r.items) expect(momentOfFeature(f.id)).toBe('app');
+  });
   it('«all n ›» opens the catalogue by moment', () => {
     expect(allHref('packen')).toBe('#/features?by=moment&moment=packen');
   });
