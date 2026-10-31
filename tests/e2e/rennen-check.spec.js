@@ -204,3 +204,42 @@ test('The day before the start: sheet 6, plan and tick off', async ({ page, cont
   await noSideways(page);
   await sheet.screenshot({ path: info.outputPath('rennen-tag-vorher.png') });
 });
+
+test('After the race: questions under every sheet, shown on top in the next race', async ({ page, context }, info) => {
+  const data = homeFixture();
+  const T0 = data.tables;
+  const rigi = T0.trips.find((x) => x.id === 'test_data_gtp_Rigi');
+  const values = { 'liste.after.missing': 'A second pair of gloves', 'liste.after.much': 'The down jacket' };
+  T0.settings.push({ key: 'races', value: { races: { [rigi.id]: { createdAt: '2026-01-01T00:00:00.000Z', check: { values, at: '2026-04-12T10:00:00.000Z' } } } } });
+  const T = await openHome(page, context, info, { data });
+  // the past race: «After the race» is open on every sheet
+  await page.goto(`./#/racecheck/${rigi.id}`);
+  await page.locator('[data-check-tab="liste"]').click();
+  const after = page.locator('[data-check-after]');
+  await expect(after).toHaveAttribute('open', '');
+  await expect(page.locator('[data-check-field="liste.after.missing"]')).toHaveValue('A second pair of gloves');
+  await page.locator('[data-check-field="liste.after.change"]').fill('Pack the gloves in the frame bag');
+  await page.locator('[data-check-field="liste.after.change"]').blur();
+  await noSideways(page);
+  await after.screenshot({ path: info.outputPath('rennen-nachher-fragen.png') });
+  // the next race: on top of the same sheet
+  await page.goto('./#/race');
+  await page.locator('[data-race-sample-open]').click();
+  await expect(page).toHaveURL(/#\/race\/race-sample$/);
+  await page.goto('./#/racecheck/race-sample');
+  await page.locator('[data-check-tab="liste"]').click();
+  const box = page.locator('[data-check-earlier]');
+  await expect(box).toContainText(T('From your earlier races'));
+  await expect(box.locator('[data-check-earlier-row]')).toHaveCount(3);
+  await expect(box.locator('[data-check-earlier-row="change"]')).toContainText('Pack the gloves in the frame bag');
+  await expect(box).toContainText(rigi.title);
+  // not taken over as answers here
+  await expect(page.locator('[data-check-field="liste.after.missing"]')).toHaveValue('');
+  // another sheet has none
+  await page.locator('[data-check-tab="nacht"]').click();
+  await expect(page.locator('[data-check-earlier]')).toHaveCount(0);
+  await page.locator('[data-check-tab="liste"]').click();
+  await noSideways(page);
+  await box.screenshot({ path: info.outputPath('rennen-nachher-oben.png') });
+});
+

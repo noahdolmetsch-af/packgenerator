@@ -92,6 +92,17 @@ export const DAY_BEFORE = [
   { name: 'Sleep the night before', ph: 'e.g. in bed by 21:00, ear plugs, phone on silent' },
 ];
 
+/**
+ * «Fragen nach dem Rennen» (Noah 27.10.2026 «8a»): three questions under every sheet, answered after the
+ * race. They stay with that race and show on top of the same sheet in your other races.
+ */
+export const AFTER = [
+  { k: 'missing', label: 'What was missing?' },
+  { k: 'much', label: 'What was too much or never used?' },
+  { k: 'change', label: 'What do you change next time?' },
+];
+const afterKeys = () => SHEETS.flatMap((sh) => AFTER.map((q) => `${sh.id}.after.${q.k}`));
+
 /** Every key with its empty start value (text '' or a tick). */
 export function fieldKeys() {
   const out = {};
@@ -116,6 +127,7 @@ export function fieldKeys() {
     out[`vorher.${i}.done`] = false;
   });
   out['vorher.own'] = '';
+  for (const k of afterKeys()) out[k] = '';
   return out;
 }
 const KEYS = fieldKeys();
@@ -153,7 +165,7 @@ export function filled(check, sheet) {
 }
 
 /** Fields that belong to one race only and are not taken over into the next (name, date, test ride …). */
-export const OWN_RACE_KEYS = ['ablauf.race', 'ablauf.racedate', 'ablauf.racekm', 'ablauf.racedays', 'ablauf.depotkm', 'ablauf.testdate', 'ablauf.testkm', 'ablauf.testbad', ...DAY_BEFORE.map((_, i) => `vorher.${i}.done`)];
+export const OWN_RACE_KEYS = ['ablauf.race', 'ablauf.racedate', 'ablauf.racekm', 'ablauf.racedays', 'ablauf.depotkm', 'ablauf.testdate', 'ablauf.testkm', 'ablauf.testbad', ...DAY_BEFORE.map((_, i) => `vorher.${i}.done`), ...afterKeys()];
 
 /**
  * Take over another race's check: its answers go into the fields that are still empty here (your own
@@ -210,3 +222,22 @@ export function dayBeforeDone(check) {
   const done = DAY_BEFORE.filter((_, i) => valueOf(check, `vorher.${i}.done`) === true).length;
   return { done, of: DAY_BEFORE.length };
 }
+
+/**
+ * What you answered after other races for one sheet, for the top of that sheet here.
+ * others = [{ id, title, check }] → [{ id, title, k, label, text }], in the order of `others`.
+ */
+export function afterNotes(others, sheet, selfId) {
+  const out = [];
+  for (const o of others ?? []) {
+    if (o.id === selfId) continue;
+    for (const q of AFTER) {
+      const text = String(valueOf(o.check, `${sheet}.after.${q.k}`) ?? '').trim();
+      if (text) out.push({ id: o.id, title: o.title, k: q.k, label: q.label, text });
+    }
+  }
+  return out;
+}
+
+/** How many «after the race» answers one sheet has. */
+export const afterCount = (check, sheet) => AFTER.filter((q) => String(valueOf(check, `${sheet}.after.${q.k}`) ?? '').trim()).length;
