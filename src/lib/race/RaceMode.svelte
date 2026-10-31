@@ -18,6 +18,7 @@
   import { TIRED, BAD_WEATHER, checkpointRows, cutoffNeed, lastActual, miniGoals, hhmm, hm, localOf, dayOfMs } from './race.js';
   import { nextSupply, openAt, wxAt, uvAdvice, WX_CACHE, POI_KIND } from './outside.js';
   import { creamDue } from './more.js';
+  import { morningBakery, bakeryTime, rewardsOf, nextReward } from './night-lib.js';
   import { cacheQuery, putRace } from './store.js';
   import { etaFrom, ahead, nextCheckpoint, nextGoal, wxNear } from './ride-lib.js';
   import { offerDone } from '../ui/rename.svelte.js';
@@ -54,6 +55,9 @@
   const bed = $derived(ahead(ctx.pois, km + 0.05, ['sleep'])[0] ?? null);
   const goal = $derived(nextGoal(miniGoals(ctx.race, total), ctx.race.goalsDone, ctx.pois, km));
   const stateOf = (s) => (s.open === true ? (s.closes ? t('open, closes {time}', { time: s.closes }) : t('open')) : s.open === false ? (s.opens ? t('closed, opens {time}', { time: s.opens }) : t('closed')) : t('opening hours unknown'));
+  // Nacht-Ideen (Noah 28.10.2026 «2a 3a»): the next reward and, after midnight, the bakery in the morning
+  const reward = $derived(nextReward(rewardsOf(ctx.stored), now, plan?.start ?? null));
+  const bakery = $derived(bakeryTime(now) ? morningBakery(ctx.pois, km, eta) : null);
   const bufferH = $derived(plan ? (plan.etaOf(km) - now) / 36e5 : 0); // + = ahead of the plan
 
   async function tickGoal() {
@@ -132,6 +136,20 @@
   </section>
 
   <section class="rc-box rm-lines" data-race-box="ride-next" aria-label={t('What comes next|race')}>
+    {#if reward}
+      <div class="rm-line rm-reward" data-race-next="reward">
+        <small>{t('Next reward')}</small>
+        <b>{reward.text}</b>
+        <span>{t('at {time}', { time: hhmm(reward.at) })}</span>
+      </div>
+    {/if}
+    {#if bakery}
+      <div class="rm-line" data-race-next="bakery">
+        <small>{t('Bakery in the morning')}</small>
+        <b>{kindName(bakery.poi)} · {t('in {km} km', { km: num(bakery.km) })}</b>
+        <span>{bakery.at ? `${t('there around {time}', { time: when(bakery.at) })} · ` : ''}{stateOf(bakery.state)}</span>
+      </div>
+    {/if}
     {#if cp}
       <div class="rm-line" data-race-next="checkpoint">
         <small>{t('Next checkpoint')}</small>
@@ -164,7 +182,7 @@
         {#if bed.phone}<a href="tel:{bed.phone}">{bed.phone}</a>{/if}
       </div>
     {/if}
-    {#if !cp && !shop && !water && !bed}<p class="rc-empty">{t('No checkpoints or places yet. Add them under «Prepare» and «Along the route».')}</p>{/if}
+    {#if !cp && !shop && !water && !bed && !reward && !bakery}<p class="rc-empty">{t('No checkpoints or places yet. Add them under «Prepare» and «Along the route».')}</p>{/if}
     {#if goal}
       <div class="rm-goal" data-race-goal>
         <b>{t('To the next stop: {km} km', { km: num(Math.round((goal.km - km) * 10) / 10) })}</b>
@@ -286,6 +304,9 @@
     flex-direction: column;
     gap: 2px;
     overflow-wrap: break-word;
+  }
+  .rm-reward b {
+    color: var(--accent);
   }
   .rm-line small {
     color: var(--ink-3);

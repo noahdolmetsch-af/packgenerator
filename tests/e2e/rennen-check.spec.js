@@ -329,3 +329,56 @@ test('Night stop routine: tick off, next stop clears the ticks, own step', async
   await expect(box.locator('[data-stops-n]')).toHaveText(T('stop {n}', { n: 2 }));
   await expect(box.locator('[data-stops-list] li')).toHaveCount(STOP_STEPS.length + 1);
 });
+
+test('Night ideas: rewards every hour, the bakery in the morning in the plan and in race mode', async ({ page, context }, info) => {
+  const T = await openHome(page, context, info);
+  await page.goto('./#/race');
+  await page.locator('[data-race-sample-open]').click();
+  await expect(page).toHaveURL(/#\/race\/race-sample$/);
+  // rewards on the race check page: the ideas, then an own one
+  await page.goto('./#/racecheck/race-sample');
+  const rw = page.locator('[data-race-rewards]');
+  await expect(rw).toContainText(T('A reward every hour'));
+  await rw.locator('[data-rewards-ideas]').click();
+  await expect(rw).toContainText(T('Gummy bears'));
+  await rw.locator('[data-race-add="rewards"]').fill('Sample sweets, made up');
+  await rw.locator('[data-race-add="rewards"]').press('Enter');
+  await expect(rw).toContainText('Sample sweets, made up');
+  await expect(rw.locator('[data-rewards-empty]')).toHaveCount(0);
+  await page.reload(); // the list stays; the Undo note is gone for the picture
+  await expect(rw).toContainText('Sample sweets, made up');
+  await noSideways(page);
+  await rw.screenshot({ path: info.outputPath('nacht-belohnung.png') });
+  // two made-up bakeries on the sample route (written straight into the stored race, then reload)
+  await page.evaluate(() => new Promise((ok) => {
+    const r = indexedDB.open('pack-generator');
+    r.onsuccess = () => {
+      const st = r.result.transaction('settings', 'readwrite').objectStore('settings');
+      const g = st.get('races');
+      g.onsuccess = () => {
+        const v = g.result;
+        const race = v.value.races['race-sample'];
+        race.pois = [...race.pois, { id: 'smp-b1', kind: 'shop', sub: 'bakery', name: 'Bäckerei Muster', km: 186, lat: 47.2, lon: 9.1, hours: 'Mo-Su 05:00-20:00' }, { id: 'smp-b2', kind: 'shop', sub: 'bakery', name: 'Bäckerei Beispiel', km: 412, lat: 47.1, lon: 8.9, hours: 'Mo-Su 06:00-12:00' }].sort((a, b) => a.km - b.km);
+        st.put(v).onsuccess = () => { r.result.close(); ok(); };
+      };
+    };
+  }));
+  await page.goto('./#/race/race-sample');
+  await page.reload();
+  await page.locator('[data-race-tab="route"]').click();
+  const box = page.locator('[data-race-box="bakery"]');
+  await box.scrollIntoViewIfNeeded();
+  await expect(box).toContainText(T('Bakery in the morning'));
+  await expect(box.locator('[data-bakery-night]').first()).toBeVisible();
+  await noSideways(page);
+  await box.screenshot({ path: info.outputPath('nacht-baeckerei-plan.png') });
+  // race mode at 09:00 (morning): the next reward and the bakery ahead
+  await page.locator('[data-race-tab="ride"]').click();
+  await page.locator('[data-race-km]').fill('170');
+  await page.locator('[data-race-km]').press('Tab');
+  const lines = page.locator('[data-race-box="ride-next"]');
+  await expect(lines.locator('[data-race-next="reward"]')).toContainText(T('Next reward'));
+  await expect(lines.locator('[data-race-next="bakery"]')).toContainText('Bäckerei Muster');
+  await noSideways(page);
+  await lines.screenshot({ path: info.outputPath('nacht-renn-modus.png') });
+});
