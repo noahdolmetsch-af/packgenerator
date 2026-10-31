@@ -17,8 +17,9 @@
   import { offerDone } from '../lib/ui/rename.svelte.js';
   import { db } from '../lib/db.js';
   import { FEATURES, FEATURE, FEATURE_GROUPS } from '../lib/features.js';
-  import { goFeature } from '../lib/know/featureRun.js';
+  import { goFeature, runOf } from '../lib/know/featureRun.js';
   import { MARK_KEYS } from '../lib/quick/pinmarks.js';
+  import { glowFeature } from '../lib/quick/findcard.js';
   import { startTour } from '../lib/tour/run.js';
   import {
     QUICK_KEYS, deviceKind, otherKind, cleanQuick, groupLabel, pinLabel, pinsIn, isPinned, shownGroups,
@@ -72,9 +73,13 @@
     if (text) offerDone(text, () => save(before));
   }
 
+  // step 3 (Noah «5a»): go to the spot and light it up; a view opens with its filter (Noah «18a»)
   function go(p) {
+    if (!p.feature) return void (location.hash = p.href);
     const f = FEATURE[p.feature];
-    if (f) goFeature(f, { bikeId });
+    if (!f) return;
+    goFeature(f, { bikeId });
+    if (!runOf(f)) glowFeature(f.id); // an action (a window, a trip) has no card to light up
   }
   const pin = (f) => change(addPin(s, f.id, addTo), t('«{name}» pinned.', { name: t(f.title) }));
   const unpin = (p) => change(removePin(s, p.id), t('«{name}» unpinned.', { name: pinLabel(p, t) }));
@@ -184,10 +189,10 @@
           <ul class="card ich-list ql-list" use:sortable={{ onmove: (a, b) => move(gid, a, b), off: !editing, row: ':scope > li.ql-row' }}>
             {#each ps as p, i (p.id)}
               {@const f = FEATURE[p.feature]}
-              <li data-sort-id={p.id} data-quick-pin={p.feature} class="ql-row">
+              <li data-sort-id={p.id} data-quick-pin={p.feature || null} data-quick-view={p.feature ? null : p.href} class="ql-row">
                 {#if editing}<SortGrip name={pinLabel(p, t)} onstep={(d) => move(gid, i, i + d)} />{/if}
                 <button type="button" class="ql-a" onclick={() => go(p)}>
-                  <span class="ql-m"><b>{pinLabel(p, t)}</b>{#if p.note}<i data-quick-note>{p.note}</i>{/if}<small>{p.name ? t(f.title) : t(FEATURE_GROUPS.find((x) => x.key === f.group)?.label ?? '')}</small></span>
+                  <span class="ql-m"><b>{pinLabel(p, t)}</b>{#if p.note}<i data-quick-note>{p.note}</i>{/if}<small>{f ? (p.name ? t(f.title) : t(FEATURE_GROUPS.find((x) => x.key === f.group)?.label ?? '')) : p.name ? p.title : t('View with its filter')}</small></span>
                   {#if !editing}<ChevronRight size={18} aria-hidden="true" />{/if}
                 </button>
                 {#if editing}
@@ -199,7 +204,7 @@
               {#if editing && open === p.id}
                 <li class="ql-edit">
                   <form class="ql-form" onsubmit={(e) => saveText(p, e)} data-quick-edit>
-                    <label class="tool-field"><span>{t('Name')}</span><input class="tool-input" name="name" value={p.name} placeholder={t(f.title)} maxlength="60" autocomplete="off" /></label>
+                    <label class="tool-field"><span>{t('Name')}</span><input class="tool-input" name="name" value={p.name} placeholder={f ? t(f.title) : p.title} maxlength="60" autocomplete="off" /></label>
                     <label class="tool-field"><span>{t('Note')}</span><input class="tool-input" name="note" value={p.note} placeholder={t('e.g. before every ski tour')} maxlength="120" autocomplete="off" /></label>
                     <label class="tool-field"><span>{t('Group')}</span>
                       <select class="tool-input" value={gid} onchange={(e) => regroup(p, e.currentTarget.value)}>

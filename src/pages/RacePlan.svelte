@@ -11,6 +11,7 @@
   import Check from '../lib/race/Check.svelte';
   import RaceLinks from '../lib/race/RaceLinks.svelte';
   import Nonstop from '../lib/race/Nonstop.svelte';
+  import RaceLearnings from '../lib/race/RaceLearnings.svelte';
   import { db } from '../lib/db.js';
   import { racesQuery, saveRace } from '../lib/race/store.js';
   import { raceTrips, countdown } from '../lib/race/race.js';
@@ -28,7 +29,9 @@
   const list = $derived(raceTrips(homeTrips($tripsQ ?? []), $racesQ ?? {}, today));
   const trip = $derived(id ? ($tripsQ ?? []).find((x) => x.id === id) ?? null : null);
   const stored = $derived(($racesQ ?? {})[id] ?? {});
-  const ctx = $derived(trip ? { trip, stored, save: (patch) => saveRace(id, patch) } : null);
+  // the other races with their check, to take one over (idea 3)
+  const others = $derived([...list.coming, ...list.past].map((x) => ({ id: x.id, title: x.title, check: ($racesQ ?? {})[x.id]?.check ?? null })));
+  const ctx = $derived(trip ? { trip, stored, others, past: list.past, save: (patch) => saveRace(id, patch) } : null);
   let info = $state(false);
 
   const total = (check) => SHEETS.reduce((a, s) => ((f) => ({ done: a.done + f.done, of: a.of + f.of }))(filled(check, s.id)), { done: 0, of: 0 });
@@ -51,7 +54,7 @@
         {#if countdown(trip.startDate, today)?.days > 0}{' '}· {tn(countdown(trip.startDate, today).days, 'in {n} day', 'in {n} days')}{/if}
       </p>
       <p><a class="btn sm" href={raceHref(trip.id)} data-racecheck-race><Flag size={16} aria-hidden="true" />{t('Route, strategy and race mode')}</a></p>
-      {#if ctx}<RaceLinks {ctx} /><Nonstop {ctx} /><Check {ctx} />{/if}
+      {#if ctx}<RaceLearnings {ctx} /><RaceLinks {ctx} /><Nonstop {ctx} /><Check {ctx} />{/if}
     {/if}
   </div>
 {:else}
