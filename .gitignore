@@ -12,3 +12,5 @@ playwright-report
 # scripts/news.mjs writes it at every build and test (version numbers at merge time)
 src/lib/news/index.gen.js
 src/lib/i18n/de/auto.gen.js
+
+pw-report.json
