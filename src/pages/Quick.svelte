@@ -6,7 +6,7 @@
    * and the pins of the other device to take over (Noah «13»: phone and computer keep their own).
    * A tap on a pin goes to its function (goFeature: the page, the action, the spot). Model: lib/quick/quicklinks.js.
    */
-  import { Plus, Pencil, Check, ChevronRight, Search as SearchIcon, X, Trash2, ArrowRightLeft } from '@lucide/svelte';
+  import { Plus, Pencil, Check, ChevronRight, Search as SearchIcon, X, Trash2, ArrowRightLeft, Play } from '@lucide/svelte';
   import { liveQuery } from 'dexie';
   import VeloHead from '../lib/bikes/VeloHead.svelte';
   import GroupActions from '../lib/ui/GroupActions.svelte';
@@ -18,6 +18,8 @@
   import { db } from '../lib/db.js';
   import { FEATURES, FEATURE, FEATURE_GROUPS } from '../lib/features.js';
   import { goFeature } from '../lib/know/featureRun.js';
+  import { MARK_KEYS } from '../lib/quick/pinmarks.js';
+  import { startTour } from '../lib/tour/run.js';
   import {
     QUICK_KEYS, deviceKind, otherKind, cleanQuick, groupLabel, pinLabel, pinsIn, isPinned, shownGroups,
     addPin, removePin, editPin, movePin, addGroup, renameGroup, deleteGroup, moveGroup, findForPin,
@@ -41,10 +43,12 @@
   let newGroupOpen = $state(false);
   let groupText = $state('');
   let open = $state(null); // the pin whose name and note are being changed
+  let marksOn = $state(true); // step 2: the small pin on every card in the app
 
   $effect(() => {
-    const sub = liveQuery(() => db.settings.bulkGet([KEY, OTHER])).subscribe({
-      next: ([mine, theirs]) => {
+    const sub = liveQuery(() => db.settings.bulkGet([KEY, OTHER, MARK_KEYS.on])).subscribe({
+      next: ([mine, theirs, marks]) => {
+        marksOn = marks?.value !== false;
         s = cleanQuick(mine?.value);
         other = theirs?.value ? cleanQuick(theirs.value) : null;
       },
@@ -94,13 +98,17 @@
     groupText = '';
     newGroupOpen = false;
   }
+  function setMarks(v) {
+    db.settings.put({ key: MARK_KEYS.on, value: v });
+    offerDone(v ? t('Pins on the cards are on.') : t('Pins on the cards are off.'), () => db.settings.put({ key: MARK_KEYS.on, value: !v }));
+  }
   const takeOver = () => other && change(other, t('Pins of {device} taken over.', { device: there }));
 </script>
 
 <div class="ich-page ql-page" data-quick={kind}>
   <VeloHead title={t('Quick Links|place')} sub={t('Your shortcuts. Pin the functions you use most; a tap takes you straight there.')}>
     <button type="button" class="btn" aria-expanded={adding} onclick={() => ((adding = !adding), (q = ''), (addTo = s.groups[0]?.id ?? ''))}><Plus size={16} aria-hidden="true" />{t('Add a pin')}</button>
-    <button type="button" class="btn" aria-pressed={editing} onclick={() => ((editing = !editing), (open = null))}>
+    <button type="button" class="btn" data-quick-editbtn aria-pressed={editing} onclick={() => ((editing = !editing), (open = null))}>
       {#if editing}<Check size={16} aria-hidden="true" />{t('Done')}{:else}<Pencil size={16} aria-hidden="true" />{t('Edit|quick')}{/if}
     </button>
   </VeloHead>
@@ -224,6 +232,11 @@
   {/if}
 
   <div class="ql-foot">
+    <label class="ql-marks" data-quick-marks>
+      <span><b>{t('Pins on the cards')}</b><small>{t('A small pin at the top right of every card of a function in the app. A tap pins it here.')}</small></span>
+      <input type="checkbox" role="switch" checked={marksOn} onchange={(e) => setMarks(e.currentTarget.checked)} />
+    </label>
+    <button type="button" class="btn btn-link" data-quick-tour onclick={() => startTour('quick')}><Play size={15} aria-hidden="true" />{t('Tour of Quick Links')}</button>
     <a href="#/features">{t('All {n} functions of the app', { n: FEATURES.length })} ›</a>
     {#if other && other.pins.length}
       <button type="button" class="btn btn-link" data-quick-takeover onclick={takeOver}><ArrowRightLeft size={15} aria-hidden="true" />{tn(other.pins.length, 'Take over the pins of {device} ({n} pin)', 'Take over the pins of {device} ({n} pins)', { device: there })}</button>
@@ -368,6 +381,22 @@
     justify-items: start;
     gap: var(--sp-2);
     margin: var(--sp-4) 0;
+  }
+  .ql-marks {
+    justify-self: stretch;
+    display: flex;
+    align-items: center;
+    gap: var(--sp-3);
+    min-height: 44px;
+    max-width: 640px;
+  }
+  .ql-marks span {
+    display: grid;
+    flex: 1;
+    min-width: 0;
+  }
+  .ql-marks small {
+    color: var(--ink-3);
   }
   .ql-foot > a {
     display: inline-flex;
