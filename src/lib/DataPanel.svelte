@@ -413,9 +413,10 @@
         <div class="ich-acts">
           <button type="button" class="btn hi" onclick={exportFile} disabled={!!$demoQ} title={$demoQ ? t('Off while the demo runs') : undefined}>{t('Save backup')}</button>
           <button type="button" class="btn" onclick={sendFile} disabled={!!$demoQ || sending} title={$demoQ ? t('Off while the demo runs') : undefined}><Send size={16} aria-hidden="true" />{phone.matches ? t('Send to computer') : t('Send to phone')}</button>
-          <label class="btn">{t('Import backup')}<input bind:this={fileEl} type="file" accept="application/json,.json,text/plain,.txt" onchange={pickFile} hidden /></label>
+          <label class="btn">{t('Import backup')}<input bind:this={fileEl} type="file" onchange={pickFile} hidden data-backup-file /></label>
         </div>
         <p class="ich-help">{t('Send: the backup file goes to the share sheet (mail, chat, nearby), or is downloaded. On the other device: Import backup.')}</p>
+        <p class="ich-help">{t('Phone: a file from a mail first has to be saved (in Gmail the arrow at the attachment). Then choose it under «Downloads». The picker shows all files; the app checks itself whether it is a backup.')}</p>
 
         {#if $demoQ}<p class="small">{t('A demo is running: backups are off until you end it (yellow bar on top).')}</p>{/if}
 
