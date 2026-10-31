@@ -28,7 +28,9 @@
   const list = $derived(raceTrips(homeTrips($tripsQ ?? []), $racesQ ?? {}, today));
   const trip = $derived(id ? ($tripsQ ?? []).find((x) => x.id === id) ?? null : null);
   const stored = $derived(($racesQ ?? {})[id] ?? {});
-  const ctx = $derived(trip ? { trip, stored, save: (patch) => saveRace(id, patch) } : null);
+  // the other races with their check, to take one over (idea 3)
+  const others = $derived([...list.coming, ...list.past].map((x) => ({ id: x.id, title: x.title, check: ($racesQ ?? {})[x.id]?.check ?? null })));
+  const ctx = $derived(trip ? { trip, stored, others, save: (patch) => saveRace(id, patch) } : null);
   let info = $state(false);
 
   const total = (check) => SHEETS.reduce((a, s) => ((f) => ({ done: a.done + f.done, of: a.of + f.of }))(filled(check, s.id)), { done: 0, of: 0 });

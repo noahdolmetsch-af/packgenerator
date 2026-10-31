@@ -1,6 +1,6 @@
 // «Rennen-Check» (Noah 27.10.2026 «1b 2b»): the five sheets, their keys and loading answers. Made-up answers.
 import { describe, it, expect } from 'vitest';
-import { SHEETS, fieldKeys, valueOf, withValue, answersFrom, filled } from '../src/lib/race/check-lib.js';
+import { SHEETS, fieldKeys, valueOf, withValue, answersFrom, filled, takeOver } from '../src/lib/race/check-lib.js';
 
 describe('the race check', () => {
   it('has five sheets and every key belongs to one of them', () => {
@@ -25,5 +25,15 @@ describe('the race check', () => {
     expect(answersFrom({ data: { values: { 'nacht.0': 'Shop at 18:00' } } }).n).toBe(1);
     expect(answersFrom({ values: { other: 1 } })).toBeNull();
     expect(answersFrom(null)).toBeNull();
+  });
+  it('takes over another race into the empty fields, never the race own fields', () => {
+    const other = { values: { 'ablauf.race': 'Old race', 'ablauf.B': 'Gravel bike', 'liste.1.v': '1 rain jacket', 'ablauf.q.cook': true, 'nacht.0': '' } };
+    const mine = { values: { 'liste.1.v': 'Poncho' } };
+    const { check, n } = takeOver(mine, other);
+    expect(n).toBe(2);
+    expect(valueOf(check, 'ablauf.race')).toBe('');
+    expect(valueOf(check, 'ablauf.B')).toBe('Gravel bike');
+    expect(valueOf(check, 'liste.1.v')).toBe('Poncho');
+    expect(valueOf(check, 'ablauf.q.cook')).toBe(true);
   });
 });

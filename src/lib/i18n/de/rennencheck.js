@@ -161,8 +161,15 @@ export default {
   'Change the numbers': 'Zahlen ändern',
   'riding|nonstop': 'fahren',
   'stops|nonstop': 'Pausen',
+  'From another race': 'Aus einem anderen Rennen übernehmen',
   'Good day: 10 % faster and fewer stops. Hard day: 10 % slower and more stops. Only a guide.': 'Guter Tag: 10 % schneller und weniger Pausen. Harter Tag: 10 % langsamer und mehr Pausen. Nur ein Richtwert.',
   'Rule: km ÷ speed on the flat + metres up ÷ climbing rate, plus tiredness, then the stops on top.': 'Regel: km ÷ Tempo in der Ebene + Höhenmeter ÷ Steigrate, plus Müdigkeit, dann die Pausen obendrauf.',
+  // «Check übernehmen»
+  '{n} answer taken over from «{name}».': '{n} Antwort aus «{name}» übernommen.',
+  '{n} answers taken over from «{name}».': '{n} Antworten aus «{name}» übernommen.',
+  'Nothing to take over: your fields are filled already.': 'Nichts zu übernehmen: deine Felder sind schon ausgefüllt.',
+  'Race to take over from': 'Rennen, aus dem du übernimmst',
+  'Takes the answers of another race into the fields that are still empty here. Name, date and test ride stay yours.': 'Übernimmt die Antworten eines anderen Rennens in die Felder, die hier noch leer sind. Name, Datum und Probefahrt bleiben deine.',
   'Coming|races': 'Kommende',
   'Done|races': 'Vorbei',
 };
