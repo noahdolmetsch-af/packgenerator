@@ -44,6 +44,7 @@ export const HOME = {
   'f.miniinvite': '#/me/mini',
   'f.minifood': '#/me/mini',
   'f.minilos': '#/me/mini/los',
+  'f.miniabfahrt': '#/me/mini/abfahrt',
   'f.inputbar': '#/tagebuch',
   'f.inputtemplates': '#/tagebuch',
   'f.picturecard': '#/tagebuch/:entry',

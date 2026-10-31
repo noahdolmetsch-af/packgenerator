@@ -9,6 +9,7 @@
    * The fourth: «Quick invite» (idea 5), #/me/mini/einladung (InviteNew, InviteResult).
    * The fifth: «Who eats what» (idea 7), #/me/mini/essen (FoodNew, FoodResult).
    * The sixth: «Fair draw» (idea 9), #/me/mini/los and #/me/mini/los/<id> (LosPage), only on this device.
+   * The seventh: «When do I leave?» (idea 10), #/me/mini/abfahrt[/<id>] (AbfahrtPage), only on this device.
    * The others follow as their own small PRs on the same store (lib/mini/client.js, api/_lib/mini.js).
    */
   import { untrack } from 'svelte';
@@ -29,6 +30,7 @@
   import { MINE_KEY, listOf, readMine, saveMine, updateOne, running } from '../lib/mini/store.js';
   import PollNew from '../lib/mini/PollNew.svelte';
   import LosPage from '../lib/mini/LosPage.svelte';
+  import AbfahrtPage from '../lib/mini/AbfahrtPage.svelte';
   import PollResult from '../lib/mini/PollResult.svelte';
   import { KIND_POLL, pollQuestion, countPoll, summarize } from '../lib/mini/poll.js';
   import ListNew from '../lib/mini/ListNew.svelte';
@@ -41,7 +43,7 @@
   import FoodResult from '../lib/mini/FoodResult.svelte';
   import { KIND_FOOD, foodQuestion, cleanFoodAnswer } from '../lib/mini/essen.js';
   import { KIND_DATE, OPTS_MIN, OPTS_MAX, PICKS, dateQuestion, cleanOpts, optKey, tally, busyDays, nextDays, summaryLines, icsOf } from '../lib/mini/termin.js';
-  import { CalendarCheck, Plus, ChevronRight, Share2, Copy, QrCode as QrIcon, RefreshCw, CalendarPlus, Route, MessageCircle, Pencil, Trash2, CircleStop, Lock, ListChecks, ClipboardList, Bike, Utensils, Dices } from '@lucide/svelte';
+  import { CalendarCheck, Plus, ChevronRight, Share2, Copy, QrCode as QrIcon, RefreshCw, CalendarPlus, Route, MessageCircle, Pencil, Trash2, CircleStop, Lock, ListChecks, ClipboardList, Bike, Utensils, Dices, Clock } from '@lucide/svelte';
 
   let { hash = '' } = $props();
   const sub = untrack(() => String(hash).replace(/^#\/me\/mini\/?/, '').split('?')[0]);
@@ -52,7 +54,9 @@
   const isNewFood = sub === 'essen';
   const isLos = sub === 'los' || sub.startsWith('los/');
   const losId = isLos ? decodeURIComponent(sub.slice(4)) : '';
-  const openId = !isNew && !isNewPoll && !isNewList && !isNewInvite && !isNewFood && !isLos && sub ? decodeURIComponent(sub) : '';
+  const isAbfahrt = sub === 'abfahrt' || sub.startsWith('abfahrt/');
+  const abId = isAbfahrt ? decodeURIComponent(sub.slice(8)) : '';
+  const openId = !isNew && !isNewPoll && !isNewList && !isNewInvite && !isNewFood && !isLos && !isAbfahrt && sub ? decodeURIComponent(sub) : '';
 
   const mineQ = liveQuery(() => db.settings.get(MINE_KEY));
   const mine = $derived(listOf($mineQ?.value));
@@ -330,6 +334,8 @@
     <FoodNew />
   {:else if isLos}
     <LosPage id={losId} />
+  {:else if isAbfahrt}
+    <AbfahrtPage id={abId} />
   {:else if openId}
     {#if !loaded}
       <p class="mt-help">…</p>
@@ -480,6 +486,13 @@
             <a class="ich-row" href="#/me/mini/los" data-mt-tool="los">
               <span class="ich-ib"><Dices size={18} aria-hidden="true" /></span>
               <span class="ich-m"><b>{t('Fair draw')}</b><small>{t('Who cooks, who rides in front, who sleeps where: fair, without a link.')}</small></span>
+              <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
+            </a>
+          </li>
+          <li>
+            <a class="ich-row" href="#/me/mini/abfahrt" data-mt-tool="abfahrt">
+              <span class="ich-ib"><Clock size={18} aria-hidden="true" /></span>
+              <span class="ich-m"><b>{t('When do I leave?')}</b><small>{t('Each start place and speed; when everyone leaves to arrive together.')}</small></span>
               <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
             </a>
           </li>
