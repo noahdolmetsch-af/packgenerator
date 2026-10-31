@@ -169,8 +169,8 @@ export async function answer(id, take, db = appDb) {
 }
 
 /** The table changed (#191): activities that had no Aktiv activity yet are ticked with the new choice. */
-export async function setSport(key, actId, db = appDb) {
+export async function setSport(key, actId, db = appDb, { now = new Date() } = {}) {
   const cur = prefsOf((await db.settings.get(TICKS_KEY))?.value);
   await savePrefs({ map: { ...cur.map, [key]: actId ?? '' } }, db);
-  return applyTicks(db);
+  return applyTicks(db, { now });
 }
