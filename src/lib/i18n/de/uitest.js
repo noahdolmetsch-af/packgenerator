@@ -55,4 +55,8 @@ export default {
   'From your Google Calendar: {n} date this week.': 'Aus deinem Google Kalender: {n} Termin diese Woche.',
   'From your Google Calendar: {n} dates this week.': 'Aus deinem Google Kalender: {n} Termine diese Woche.',
   'From your Google Calendar: no dates this week.': 'Aus deinem Google Kalender: keine Termine diese Woche.',
+  // T10 «Import auf ein leeres Gerät»
+  'This device is still empty (at most the examples of the first start). Take the file over with «Replace all data».': 'Dieses Gerät ist noch leer (höchstens die Beispiele vom ersten Start). Übernimm die Datei mit «Alle Daten ersetzen».',
+  'The examples of the first start are still here: «Remove the examples» below takes them away, your own data stays.': 'Die Beispiele vom ersten Start sind noch da: «Beispiele entfernen» weiter unten nimmt sie weg, deine eigenen Daten bleiben.',
+  'This device has nothing of your own yet (at most the examples of the first start), so nothing is lost.': 'Auf diesem Gerät ist noch nichts von dir (höchstens die Beispiele vom ersten Start), es geht also nichts verloren.',
 };

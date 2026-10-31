@@ -65,10 +65,25 @@ test('Live map: plan a new way to a shop, see it, save it for the Garmin, remove
   expect(w).toBeLessThanOrEqual(1);
   await page.screenshot({ path: info.outputPath('umweg-card.png') });
 
-  // a reload keeps the detour; × removes it
+  // a reload keeps the detour; × only folds it to one line (Noah 28.10.2026), a tap opens it again
   await page.reload();
   await expect(page.locator('[data-live-detour]')).toBeVisible({ timeout: 15_000 });
   await tap(page.locator('[data-live-detour-off]'), info);
+  const small = page.locator('[data-live-detour-small]');
+  await expect(small).toBeVisible();
+  await expect(page.locator('[data-live-detour-end]')).toHaveCount(0);
+  await page.screenshot({ path: info.outputPath('umweg-klein.png') });
+  // folded stays folded after a reload
+  await page.reload();
+  await expect(page.locator('[data-live-detour-small]')).toBeVisible({ timeout: 15_000 });
+  await tap(page.locator('[data-live-detour-small]'), info);
+  await expect(page.locator('[data-live-detour-end]')).toBeVisible();
+  // «Navigation beenden» ends it, Undo brings it back
+  await tap(page.locator('[data-live-detour-end]'), info);
+  await expect(page.locator('[data-live-detour]')).toHaveCount(0);
+  await tap(page.locator('.undo'), info);
+  await expect(page.locator('[data-live-detour]')).toBeVisible();
+  await tap(page.locator('[data-live-detour-end]'), info);
   await expect(page.locator('[data-live-detour]')).toHaveCount(0);
 });
 

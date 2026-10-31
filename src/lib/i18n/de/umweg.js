@@ -30,7 +30,6 @@ export default {
   'back on the route at km {km}': 'zurück auf der Strecke bei km {km}',
   '{d} km more': '{d} km mehr',
   'GPX for Garmin': 'GPX für Garmin',
-  'Remove the detour': 'Umweg entfernen',
   // features.js, handbook.js, howto.js
   'Plan a new way': 'Umweg neu planen',
   'On the live map «Plan a new way to …» a shop, a bed, a station or any point: a free bike router plans the detour and back onto your route, also as GPX for the Garmin.': 'Auf der Live-Karte «Neu planen zu …» einem Laden, einem Bett, einem Bahnhof oder einem beliebigen Punkt: Ein freier Velo-Routenplaner plant den Umweg und zurück auf deine Strecke, auch als GPX für den Garmin.',
