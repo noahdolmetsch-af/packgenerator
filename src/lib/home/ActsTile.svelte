@@ -3,7 +3,8 @@
    * «Heute neu» N2 (Noah 20.10.2026 15:49 «5a»): the Aktiv tiles on Heute, right under «Dein Körper heute».
    * One tap ticks an activity (TickGrid, as on Aktiv), the long press or «•••» opens duration, place or the
    * stopwatch, a tap on Meditation opens its start sheet. Activities with a goal first, in their order;
-   * 4 on a phone, 8 on a computer, the rest under «Alle in Aktiv».
+   * 4 on a phone, 8 on a computer. Analyse PR 1 (Noah 27.10.2026 «umbenennen: mehr»): the link below is
+   * «Mehr» and opens Auswerten › Analyse, all your values and activities in charts.
    */
   import { Flame, ChevronRight } from '@lucide/svelte';
   import TickGrid from '../flow/TickGrid.svelte';
@@ -31,14 +32,14 @@
 
 <section class="ak surf" aria-labelledby="ak-h" data-section="acts">
   <div class="hd">
-    <TileHead icon={Flame} id="ak-h" title={t('Active today')} side={states.length ? t('{n} done today|acts', { n: done }) : ''} />
+    <TileHead icon={Flame} id="ak-h" title={t('Active today')} side={states.length ? t('{n} done today|acts', { n: done }) : ''} info="tile.acts" />
   </div>
   {#if shown.length}
     <TickGrid states={shown} {today} cols={phone.matches ? 2 : 4} onmed={(s) => (medFor = s.act.id)} />
   {:else if data}
     <p class="empty">{t('Add your activities in Aktiv, then you tick them off here in one tap.')}</p>
   {/if}
-  <a class="lk" href="#/flow" data-acts-all>{sorted.length > shown.length ? t('All {n} in Aktiv', { n: sorted.length }) : t('Open Aktiv')}<ChevronRight size={16} aria-hidden="true" /></a>
+  <a class="lk" href="#/auswerten/analyse" data-acts-all title={t('All your values and activities in charts')}>{t('More|acts tile')}<ChevronRight size={16} aria-hidden="true" /></a>
 </section>
 {#if medSt}<MedStartSheet st={medSt} {today} onclose={() => (medFor = null)} />{/if}
 

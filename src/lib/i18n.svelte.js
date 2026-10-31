@@ -9,8 +9,20 @@
  * Learnings, notes and names you typed stay as you wrote them. Gear items show their German
  * name (item.nameDe) when there is one: use nameOf(item).
  */
-import DE from './i18n/de/index.js';
 import { setNameLang } from './stravanames.js';
+
+// Kern verkleinern (Noah 30.10.2026 «1+2»): the German texts are about 3 MB, so they are a separate set of files
+// (vite.config.js «de-texts»), fetched by loadDe() before the first screen when the app is German. Until then DE is empty
+// and t() gives the English text, so nothing ever breaks.
+let DE = {};
+let GEAR_DE = {};
+let deLoad = null;
+/** Fetch the German texts once (also called by the start for English, so the shops' German words are there too). */
+export const loadDe = () => (deLoad ??= Promise.all([import('./i18n/de/index.js'), import('./i18n/de/gear.js')]).then(([m, g]) => { DE = m.default; GEAR_DE = g.default; }));
+/** The German texts as far as they are loaded (for places that always need German, like the bike shop sheet). */
+export const deTexts = () => DE;
+/** The gear file's own German words (a few differ from the shared ones: «Velobekleidung»); the gear import reads both. */
+export const deGearTexts = () => GEAR_DE;
 
 const KEY = 'lang';
 /** The browser's own language: German for de, de-CH, de-DE …, else English. */
@@ -31,7 +43,8 @@ export const lang = $state({ v: typeof window === 'undefined' ? 'en' : read() })
 // stravanames.js reads the language through this (it must stay loadable without runes, see there)
 setNameLang(() => lang.v);
 
-export function setLang(v) {
+export async function setLang(v) {
+  if (v === 'de') await loadDe();
   lang.v = v === 'de' ? 'de' : 'en';
   try {
     localStorage.setItem(KEY, lang.v);

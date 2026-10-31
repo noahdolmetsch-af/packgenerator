@@ -78,7 +78,12 @@ export function showBehind(w, live) {
   go.type = 'button';
   go.textContent = t('Load now|update');
   go.style.cssText = 'min-height:44px;padding:0 16px;border:0;border-radius:10px;background:#fff;color:#1f3a33;font:600 14px Inter,system-ui,sans-serif';
-  go.onclick = () => freshReload(w);
+  go.onclick = () => {
+    // the tap must always show something (Noah 30.10.2026: «Jetzt laden» seemed to do nothing)
+    go.disabled = true;
+    go.textContent = t('Loading…');
+    freshReload(w);
+  };
   const later = d.createElement('button');
   later.type = 'button';
   later.textContent = t('Later|update');

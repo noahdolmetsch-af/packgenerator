@@ -66,15 +66,27 @@
     position: relative;
     container-type: inline-size;
   }
-  /* KT (2a): the round «•••» at the top right; its tap area is 44 px (::after), the name keeps clear of it */
+  /* KT (2a): the round «•••» on the right; its tap area is 44 px (::after), the name keeps clear of it */
+  /* Analyse PR 1 (Noah 27.10.2026 «Der Text wird von den Symbolen abgeschnitten»): the «•••» has a fixed
+     size (--dots) that nothing outside may enlarge, sits in the middle of the right edge, and the tile keeps
+     exactly that room free (padding-right), so a name never runs under it */
+  li {
+    --dots: 26px;
+  }
   .more {
     position: absolute;
-    top: 5px;
-    right: 5px;
+    top: 50%;
+    right: 6px;
+    transform: translateY(-50%);
+    box-sizing: border-box;
     display: grid;
     place-items: center;
-    width: 26px;
-    height: 26px;
+    width: var(--dots);
+    height: var(--dots);
+    min-width: 0;
+    min-height: 0;
+    max-width: var(--dots);
+    max-height: var(--dots);
     padding: 0;
     border: 1px solid var(--line);
     border-radius: 50%;
@@ -131,7 +143,7 @@
     -webkit-user-select: none;
     -webkit-touch-callout: none;
     touch-action: manipulation;
-    padding-right: 38px; /* KT: room for «•••» */
+    padding-right: calc(var(--dots) + 12px); /* room for «•••» (its own column) */
   }
   .tile:hover {
     background: var(--paper-2);
@@ -187,20 +199,23 @@
     .tx b {
       font-size: var(--fs-label);
     }
-    /* KT: a smaller «•••» and symbol, so the name keeps its room and is never broken */
+    /* KT: a smaller «•••» and symbol, so the name keeps its room and is never broken. Set on the
+       tile and the «•••» (inside the li), since a container query cannot style the li itself */
+    .tile,
+    .more {
+      --dots: 22px;
+    }
     .tg:not(.big) .tile {
-      gap: 8px;
-      padding-right: 26px;
+      gap: 6px;
+      padding-left: 8px;
+      padding-right: calc(var(--dots) + 8px);
     }
     .tg:not(.big) .ic {
       width: 28px;
       height: 28px;
     }
     .tg:not(.big) .more {
-      top: 4px;
       right: 4px;
-      width: 22px;
-      height: 22px;
     }
     .tg:not(.big) .more::after {
       inset: -11px;
@@ -223,6 +238,12 @@
     background: var(--paper);
     box-shadow: var(--card-shadow);
     outline: 1px solid var(--card-line);
+  }
+  /* the big tiles keep the «•••» in the top corner, above the symbol row */
+  .big .more {
+    top: 8px;
+    right: 8px;
+    transform: none;
   }
   .big .tile:hover {
     background: var(--paper-2);
@@ -268,15 +289,11 @@
     width: 16px;
     height: 16px;
   }
-  .compact .more {
-    top: 50%;
-    transform: translateY(-50%);
-  }
   /* a small phone: the words need the room, the symbol goes (a done button keeps its tick) */
   @media (max-width: 359px) {
     .tile {
       gap: 7px;
-      padding-inline: 10px 36px;
+      padding-inline: 10px calc(var(--dots) + 10px);
     }
     .tg:not(.big) .tile:not(.done) .ic {
       display: none;

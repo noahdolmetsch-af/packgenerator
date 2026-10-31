@@ -89,7 +89,7 @@
         <button type="button" class="btn" aria-expanded={choosing} onclick={() => (choosing = !choosing)}>{t('Choose values')}</button>
         <button type="button" class="btn" onclick={() => (asking = !asking)}>{t('Disconnect|fitbit')}</button>
       </div>
-      {#if !readKey()}<p class="ich-help" data-fitbit-needs-strava>{t('Fitbit needs the Strava connection first.')} <a href={STRAVA_HASH}>{t('Connect Strava ›')}</a></p>{/if}
+      {#if !readKey()}<p class="ich-help" data-fitbit-needs-strava>{t('To fetch, this device needs the app key once (the same server key as Strava).')} <a href={STRAVA_HASH}>{t('Unlock this device ›')}</a></p>{/if}
       {#if choosing}
         <fieldset class="vals">
           <legend class="ich-help">{t('Only the chosen values are fetched and kept.')}</legend>

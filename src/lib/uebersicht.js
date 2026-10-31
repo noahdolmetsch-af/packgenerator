@@ -203,6 +203,8 @@ export const BODY_KEYS = [
   { key: 'load', name: 'Load|body', unit: '', src: 'strava', sum: true },
   { key: 'med', name: 'Meditation', unit: 'min', src: 'med', sum: true },
   { key: 'weight', name: 'Weight', unit: 'kg', line: true, src: 'own', entry: true },
+  // «Neue Werte sichtbar» (Noah 28.10.2026): VO₂max from Fitbit (Google Health) or Apple Health, healthDays.vo2max
+  { key: 'vo2max', name: 'VO2max', unit: 'ml/kg/min', line: true, src: 'health' },
   { key: 'water', name: 'Water|drink', unit: 'l', src: 'own', entry: true, sum: true },
   { key: 'felt', name: 'Felt|body', unit: '', line: true, src: 'check', fixed: [0, 10], parts: ['sleep', 'energy', 'mood'] },
   { key: 'ready', name: 'Readiness', unit: '', line: true, src: 'app', fixed: [0, 100] },
@@ -218,7 +220,7 @@ export const BODY_GROUPS = [
   { key: 'heart', name: 'Heart|group', tabs: ['hr', 'hrv', 'spo2', 'breath', 'bp'] },
   { key: 'sleep', name: 'Sleep|group', tabs: ['sleep', 'stages', 'eff', 'bed', 'skin'] },
   { key: 'act', name: 'Activity|group', tabs: ['azm', 'steps', 'kcal', 'zones', 'load', 'med'] },
-  { key: 'body', name: 'Body|group', tabs: ['weight', 'water', 'felt', 'ready'] },
+  { key: 'body', name: 'Body|group', tabs: ['weight', 'vo2max', 'water', 'felt', 'ready'] },
   { key: 'bike', name: 'Bike|group', tabs: ['wkg', 'cad', 'spd', 'year', 'temp'] },
 ];
 /** Every tab, in the order of the groups. */

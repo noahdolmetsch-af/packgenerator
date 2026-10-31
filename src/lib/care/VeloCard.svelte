@@ -8,7 +8,7 @@
    * - #327 one row to the «Werkstatt-Spick» (torque values, breakdowns), which works offline.
    * bike: the bike AS STORED; km: its km; oncare(patch): stores fields on the bike.
    */
-  import { Wrench, ChevronRight, ChevronDown, Check, Settings2, BookOpen, Shapes, Eye, EyeOff, MessageCircleQuestion } from '@lucide/svelte';
+  import { Wrench, ChevronRight, ChevronDown, Check, Settings2, BookOpen, Shapes, Eye, EyeOff, MessageCircleQuestion, ListChecks } from '@lucide/svelte';
   import { PARTS, partName, partOnBike, isBlank } from '../care.js';
   import { t, num, dateOf } from '../i18n.svelte.js';
   import { localDay } from '../localday.js';
@@ -121,6 +121,8 @@
 
   <nav class="links" aria-label={t('More for the bike')}>
     <a href={bikesHash({ tab: 'care', view: 'templates', bike: bike.id })} data-link-templates><Shapes size={16} aria-hidden="true" /><span>{t('Part template')}<small>{t('Which parts a {kind} gets', { kind: kindName(kind, t) })}</small></span><ChevronRight size={16} aria-hidden="true" /></a>
+    <!-- Velo-Idee 76 «Werkstatt-Runden» -->
+    <a href={bikesHash({ tab: 'care', view: 'rounds', bike: bike.id })} data-link-rounds><ListChecks size={16} aria-hidden="true" /><span>{t('Workshop rounds')}<small>{t('Your own routines: jobs, tools, material')}</small></span><ChevronRight size={16} aria-hidden="true" /></a>
     <a href={bikesHash({ tab: 'care', view: 'spick', bike: bike.id })} data-link-spick><BookOpen size={16} aria-hidden="true" /><span>{t('Workshop cheat sheet')}<small>{t('Torque values and breakdown help, also offline')}</small></span><ChevronRight size={16} aria-hidden="true" /></a>
     <!-- «Velo-FAQ» (Noah 19.10.2026) -->
     <a href={bikesHash({ tab: 'care', view: 'faq', bike: bike.id })} data-link-faq><MessageCircleQuestion size={16} aria-hidden="true" /><span>{t('Bike FAQ')}<small>{t('Care, breakdowns and myths, with a wink')}</small></span><ChevronRight size={16} aria-hidden="true" /></a>

@@ -18,19 +18,53 @@ export const HEALTH_KEY = 'health';
 /** The values a day can hold, in the order the app shows them. */
 export const VALUES = ['sleep', 'restingHr', 'hrvMs', 'steps', 'azm'];
 /**
+ * «Alle Werte» (Noah 27.10.2026 «alle holen, zumindest optional anzeigen»): numbers per day (VO₂max, the
+ * watch's distance in km, floors, climbed metres, weight and body fat from Fitbit, lowest and mean pulse).
+ */
+export const MORE_NUM = ['vo2max', 'distKm', 'floors', 'climbM', 'fitKg', 'bodyFat', 'hrMin', 'hrAvg'];
+/**
+ * …and values with a shape: minutes per activity level { sed, light, mod, very } and per pulse zone
+ * { light, mod, vig, peak }, the Fitbit workouts [{ type, name, start, end, min, kcal?, km?, hr?, azm? }],
+ * per hour the steps and the mean pulse (24 places, null = no value), the VO₂max level (text) and «estimated».
+ */
+export const MORE_SHAPED = ['levels', 'hrZones', 'exercises', 'stepH', 'hrH', 'vo2level', 'vo2est'];
+const finOrNull = (v) => (v === null || Number.isFinite(v) ? v : undefined);
+/** One shaped value checked, or undefined when it does not fit. */
+export function cleanShaped(k, v) {
+  if (k === 'levels' || k === 'hrZones') {
+    if (!v || typeof v !== 'object' || Array.isArray(v)) return undefined;
+    const out = Object.fromEntries(Object.entries(v).filter(([, x]) => Number.isFinite(x)));
+    return Object.keys(out).length ? out : undefined;
+  }
+  if (k === 'stepH' || k === 'hrH') {
+    if (!Array.isArray(v) || v.length !== 24) return undefined;
+    const out = v.map(finOrNull);
+    return out.some((x) => x === undefined) ? undefined : out;
+  }
+  if (k === 'exercises') {
+    if (!Array.isArray(v)) return undefined;
+    const out = v.filter((e) => e && typeof e === 'object' && Number.isFinite(e.min)).slice(0, 20).map((e) => ({ ...e }));
+    return out.length ? out : undefined;
+  }
+  if (k === 'vo2level') return typeof v === 'string' && v ? v.slice(0, 30) : undefined;
+  if (k === 'vo2est') return v === true ? true : undefined;
+  return undefined;
+}
+/**
  * Kept as well, without their own switch (Garmin-Übersicht 20.10.2026): calories of the day, active
  * calories, highest pulse; «Körperwerte»: oxygen saturation (%), breathing rate, skin temperature (°C
- * difference to your normal).
+ * difference to your normal). Apple Health export (27.10.2026): VO2max (ml/kg/min) and body weight (kg).
  */
-export const EXTRA = ['kcal', 'kcalActive', 'hrMax', 'spo2', 'breath', 'skinTemp'];
+export const EXTRA = ['kcal', 'kcalActive', 'hrMax', 'spo2', 'breath', 'skinTemp', ...MORE_NUM, ...MORE_SHAPED, 'weightKg'];
 export const FIRST_DAYS = 90;
 /**
  * Raised when the server reads new values (2: calories, highest pulse, oxygen, breathing, skin
  * temperature, 21.10.2026): the next fetch takes the last FILL_DAYS days again, once.
  */
 // 3 (22.10.2026): the nights since 12 Oct had no civil day; once again the last 30 days, so sleep fills in.
-export const FILL_V = 3;
-export const FILL_DAYS = 30;
+// 4 (27.10.2026 «Alle Werte»): VO₂max, distance, floors, workouts, hours …: once the whole 90 days again.
+export const FILL_V = 4;
+export const FILL_DAYS = 90;
 const minDay = (a, b) => (a < b ? a : b);
 export const AGAIN_DAYS = 3;
 
@@ -52,7 +86,12 @@ export function addDays(iso, n) {
 export function cleanDay(r) {
   if (!r || !/^\d{4}-\d{2}-\d{2}$/.test(r.date ?? '')) return null;
   const out = { date: r.date };
-  for (const k of ['restingHr', 'hrvMs', 'steps', 'azm', ...EXTRA]) if (Number.isFinite(r[k])) out[k] = r[k];
+  for (const k of ['restingHr', 'hrvMs', 'steps', 'azm', ...EXTRA]) {
+    if (MORE_SHAPED.includes(k)) {
+      const v = cleanShaped(k, r[k]);
+      if (v !== undefined) out[k] = v;
+    } else if (Number.isFinite(r[k])) out[k] = r[k];
+  }
   if (r.sleep && Number.isFinite(r.sleep.asleepMin)) out.sleep = { ...r.sleep };
   return out;
 }

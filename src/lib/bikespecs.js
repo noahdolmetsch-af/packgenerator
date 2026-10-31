@@ -13,7 +13,7 @@
  * Pure functions, easy to test.
  */
 import { PARTS, PART, AREAS, attrsOf, areaOf, partName, ensureParts, fits } from './care.js';
-import DE from './i18n/de/index.js';
+import { deTexts } from './i18n.svelte.js';
 
 export const SPECS_KIND = 'bikeSpecs';
 
@@ -168,7 +168,7 @@ export const FIELDS = [
 ];
 
 const low = (s) => String(s ?? '').trim().toLowerCase().replace(/\s+/g, ' ');
-const names = (en) => [en, DE[en]].filter(Boolean).map(low);
+const names = (en) => [en, deTexts()[en]].filter(Boolean).map(low);
 
 /** Extra words for the part names of the import (German spec sheet, short forms). */
 const PART_WORDS = {
