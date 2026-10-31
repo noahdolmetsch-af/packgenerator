@@ -273,7 +273,7 @@
             <div class="ax l" aria-hidden="true"><span style="color:{color}">{v(item, sc.hi)}</span><span style="color:{color}">{v(item, sc.lo)}</span></div>
             <!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_noninteractive_element_interactions -->
             <svg viewBox="0 0 {W} {H}" preserveAspectRatio="none" role="img" aria-label={t('Course of {name}|analyse', { name: item.name })} onclick={tap}>
-              {#each bands as b (b.from)}
+              {#each bands as b, bi (bi)}
                 <rect class="band" x={xOf(b.a, pts.length) - 4} width={Math.max(8, xOf(b.b, pts.length) - xOf(b.a, pts.length) + 8)} y="4" height={H - 20} />
               {/each}
               {#if typical}<rect class="typ" x="20" width={W - 40} y={yOf(typical[1], sc)} height={Math.max(1, yOf(typical[0], sc) - yOf(typical[1], sc))} />{/if}
@@ -295,7 +295,7 @@
               {/if}
             </svg>
             {#if layerItems[0]}<div class="ax r" aria-hidden="true"><span style="color:{LAYER_COLORS[0]}">{v(layerItems[0], lsc[0].hi)}</span><span style="color:{LAYER_COLORS[0]}">{v(layerItems[0], lsc[0].lo)}</span></div>{/if}
-            {#each bands as b (b.from)}{@const at = xOf(b.a, pts.length) / W}<span class="bn" class:end={at > 0.6} style="left:{at * 100}%">{b.name}</span>{/each}
+            {#each bands as b, bi (bi)}{@const at = xOf(b.a, pts.length) / W}<span class="bn" class:end={at > 0.6} style="left:{at * 100}%">{b.name}</span>{/each}
           </div>
           <div class="xl" aria-hidden="true">
             {#if hours}<span>0</span><span>6</span><span>12</span><span>18</span><span>24 h</span>{:else}<span>{dfmt(win.from, { day: 'numeric', month: 'short' })}</span><span>{dfmt(win.days[Math.floor(win.days.length / 2)], { day: 'numeric', month: 'short' })}</span><span>{dfmt(win.to, { day: 'numeric', month: 'short' })}</span>{/if}

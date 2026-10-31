@@ -176,3 +176,12 @@ test('Eigenes Diagramm: a filter for everything, one for a single value, marked 
   await expect(dg.locator('[data-dg-row="km:bike"] .ownf')).toBeVisible();
   expect(errors).toEqual([]);
 });
+
+test('Eigenes Diagramm: two trips starting the same day (or before the window) do not break the page', async ({ page, context }) => {
+  const errors = await open(page, context);
+  await put(page, { trips: [{ id: `${P}trip2`, name: 'Zweite Tour', domain: 'bike', status: 'done', startDate: addDays(TODAY, -30), days: 2 }] });
+  await go(page, '#/auswerten/analyse');
+  await expect(page.locator('[data-diagram]')).toBeVisible();
+  await expect(page.locator('[data-diagram] [data-dg-row="rhr"] rect.band')).toHaveCount(2);
+  expect(errors).toEqual([]);
+});
