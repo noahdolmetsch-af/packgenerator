@@ -6,6 +6,7 @@
    * a place shows its name and distance. Visits come from Neuland (routes, rides and your own ticks), even
    * when the collection «Municipalities» is switched off there. No home place: one button sets it.
    * The data (2134 municipalities) loads only here, as its own file.
+   * N2 «Neuland-Runde»: a picked place offers «Round through it» (SpotRoundSheet.svelte, runde.js).
    */
   import { liveQuery } from 'dexie';
   import { db } from '../db.js';
@@ -14,8 +15,9 @@
   import { pathOf } from './geo.js';
   import Seg from '../ui/Seg.svelte';
   import HomePlaceSheet from '../ich/HomePlaceSheet.svelte';
+  import SpotRoundSheet from './SpotRoundSheet.svelte'; // N2 «Neuland-Runde»
   import { t, tn, num } from '../i18n.svelte.js';
-  import { MapPin } from '@lucide/svelte';
+  import { MapPin, Route } from '@lucide/svelte';
 
   const rawQ = liveQuery(() => readRaw(db));
   const cfgQ = liveQuery(() => db.settings.get(SPOTS_KEY));
@@ -40,6 +42,7 @@
   const pick = $derived(spots?.near.find((x) => x.id === picked) ?? null);
   let showAll = $state(false);
   let placeOpen = $state(false);
+  let roundTo = $state(null); // N2: the place a round goes through
   const LIST = 5;
 
   // the map: a box around the near places, x = lon · cos(lat)
@@ -94,7 +97,10 @@
         <p class="ws-legend"><span><span class="ws-sw been"></span>{t('Been there')}</span><span><span class="ws-sw open"></span>{t('Never been')}</span><span><span class="ws-sw home"></span>{t('Home|spots')}</span></p>
       {/if}
       {#if pick}
-        <p class="ws-pick" role="status" data-ws-pick>{pick.name} · {kmText(pick)} · {pick.been ? t('been there') : t('never been')}</p>
+        <div class="ws-pickrow">
+          <p class="ws-pick" role="status" data-ws-pick>{pick.name} · {kmText(pick)} · {pick.been ? t('been there') : t('never been')}</p>
+          <button type="button" class="btn sm" onclick={() => (roundTo = pick)} data-ws-round><Route size={16} aria-hidden="true" />{t('Round through it')}</button>
+        </div>
       {/if}
       {#if spots.open.length}
         <h3 class="ws-lh">{t('Nearest never visited')}</h3>
@@ -113,6 +119,7 @@
   {/if}
 </section>
 {#if placeOpen}<HomePlaceSheet current={null} onclose={() => (placeOpen = false)} />{/if}
+{#if roundTo}<SpotRoundSheet {home} spot={roundTo} onclose={() => (roundTo = null)} />{/if}
 
 <style>
   .ws {
@@ -125,6 +132,18 @@
     gap: var(--sp-2) var(--sp-3);
     align-items: center;
     justify-content: space-between;
+  }
+  .ws-pickrow {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sp-2) var(--sp-3);
+    align-items: center;
+    justify-content: space-between;
+  }
+  .ws-pickrow .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
   }
   .ws-sum {
     margin: 0;
