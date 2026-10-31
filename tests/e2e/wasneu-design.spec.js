@@ -14,6 +14,7 @@ import { READY, HELPER_TILES, VALUE_TILES, tripUp } from '../../src/lib/home/til
 import { inAreas } from '../../src/lib/home/sections.js';
 import { openShort } from './kurz-open.js';
 import { NEWS } from '../../src/lib/news/index.gen.js';
+import { FEATURES_JS, FEATREG_SRC } from './featsrc.js';
 
 // v0.155.0 «Heute neu geordnet» (4b, changed on purpose): the fixture's trip starts tomorrow, so its card stands
 // right under the day card; the helper's tile rests while the AI helper is off
@@ -45,10 +46,10 @@ const LIST_ROWS = num('LIST_ROWS');
 const TILE_DAYS = num('TILE_DAYS');
 const USES_KEY = SRC.match(/export const USES_KEY = '([^']+)'/)[1];
 const FEATURE_N = (() => {
-  const f = readFileSync(new URL('../../src/lib/features.js', import.meta.url), 'utf8');
+  const f = FEATURES_JS;
   const tips = f.match(/const TIP_GROUP = \{([\s\S]*?)\n\};/)[1].match(/\w+: '/g).length;
-  const own = f.match(/const OWN = \[([\s\S]*?)\n\];/)[1].match(/\{ id: '/g).length;
-  return tips + own;
+  const own = f.match(/const OWN_LISTED = \[([\s\S]*?)\n\];/)[1].match(/\{ id: '/g).length;
+  return tips + own + (FEATREG_SRC.match(/\{ id: '/g) ?? []).length; // the files of src/lib/featreg/ too
 })();
 
 async function shot(page, info, name) {
