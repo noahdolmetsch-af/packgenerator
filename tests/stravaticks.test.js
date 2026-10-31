@@ -1,7 +1,7 @@
 // Package G #156/#191/#202: Strava ticks Aktiv activities by itself; indoor rides count for a chosen bike.
 // Fictional activities only.
 import 'fake-indexeddb/auto';
-import { describe, it, expect, vi, afterEach } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { createDb } from '../src/lib/db.js';
 import { seedActs } from '../src/lib/flow.js';
 import { planTicks, prefsOf, defaultAct, sportKey, seenSports, applyTicks, answer, setSport, TICKS_KEY, OPEN_KEY, HANDLED_KEY } from '../src/lib/stravaticks.js';
@@ -49,10 +49,7 @@ describe('planTicks', () => {
 });
 
 describe('in the database', () => {
-  afterEach(() => vi.useRealTimers());
   it('ticks, suggests, answers and maps', async () => {
-    // setSport() asks for «today» itself: pin the clock, else the 14-day window of the fixed activity days runs out
-    vi.useFakeTimers({ toFake: ['Date'], now: new Date('2026-10-19T10:00:00Z') });
     const db = createDb(`ticks-${Math.random()}`);
     await db.flowActs.bulkPut(acts);
     await db.activities.bulkPut([sa('1'), sa('2', { type: 'BackcountrySki', day: '2026-10-17' })]);

@@ -1,11 +1,10 @@
-# Tests: eine Datums-Falle beheben, Unit-Tests schneller
+# Tests: Unit-Tests schneller
 
 PR #… · 31.10.2026 · Auftrag: Noah «1a», «bitte umsetzen» (Thread «Merge-Stau abbauen und Tests stabilisieren»)
 
 Nichts davon ist in der App sichtbar, nur in den Tests.
 
 ## Was ist neu
-- `tests/stravaticks.test.js` schlug seit dem 31.10.2026 immer fehl (nicht zufällig): `setSport()` nimmt das echte heutige Datum, und die festen Tage im Test lagen ausserhalb der 14-Tage-Frist. Der Test fixiert jetzt die Uhr (nur `Date`) auf den 19.10.2026.
 - Die Unit-Tests luden für jede der 541 Dateien alle deutschen Texte (rund 60 % der Testzeit). Jetzt laden nur die 38 Dateien sie, die Deutsch brauchen, mit der ersten Zeile `import './setup/de.js';`. Lokal: 115 s statt 160 s.
 - Wer einen neuen Unit-Test schreibt, der deutsche Texte prüft, setzt diese Zeile an den Anfang (Hinweis steht in `tests/setup/de.js`).
 
@@ -13,7 +12,7 @@ Nichts davon ist in der App sichtbar, nur in den Tests.
 - nichts (kein App-Code geändert)
 
 ## Selbst entschieden
-- Beides in einem PR, weil beides nur Tests betrifft und ein Branch nur einmal gepusht wird.
+- Der Datums-Fehler in `stravaticks.test.js` wird in #472 behoben; hier nicht doppelt.
 - Pro Datei ein Import statt einer Erkennung per Dateitext: so ist sichtbar, welche Tests Deutsch brauchen.
 
 ## Entscheide (für decisions.md)
