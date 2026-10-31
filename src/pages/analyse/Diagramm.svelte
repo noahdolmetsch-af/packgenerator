@@ -16,6 +16,8 @@
   import ValuePicker from './ValuePicker.svelte';
   import DaySheet from './DaySheet.svelte';
   import FilterSheet from './FilterSheet.svelte';
+  import Zusammenhang from './Zusammenhang.svelte';
+  import { strongest, afterTicks, strengthOf } from '../../lib/analyse/links.js';
   import { actName } from '../../lib/flow/ui.svelte.js';
   import { valueText, unitText } from '../../lib/analyse/format.js';
   import { tripBands } from '../../lib/analyse/detail.js';
@@ -88,6 +90,28 @@
       .sort((a, b) => b.n - a.n),
   );
   const markIdx = $derived(mark ? new Set([...(ticks.get(mark) ?? [])].map((d) => idxOfDay.get(d)).filter((i) => i != null)) : new Set());
+  // «Was auffällt» (D1): the two strongest links among the values of the diagram (an activity may lead)
+  const notice = $derived.by(() => {
+    const items = [...shownKeys.map((k) => byKey.get(k)), ...actList.slice(0, 6).map((a) => byKey.get(`act:${a.id}`))].filter((it) => it?.get).map((it) => ({ ...it, group: it.group }));
+    const ys = new Set(shownKeys);
+    return strongest(items, win.days, { keep: keepAll, top: 8 })
+      .filter((l) => ys.has(l.y) && strengthOf(l.r) !== 'weak')
+      .slice(0, 2)
+      .map((l) => {
+        const x = byKey.get(l.x);
+        const y = byKey.get(l.y);
+        const when = t(OFF_NAMES[l.offset]);
+        if (x.tick) {
+          const a = afterTicks(win.days, ticks.get(l.x.slice(4)) ?? new Set(), y.get, l.offset, keepAll);
+          if (a) {
+            const diff = y.key === 'sleep' ? `${num(Math.round(Math.abs(a.diff)))} min` : `${valueText(y, Math.abs(a.diff), num)}${unitText(y) ? ` ${unitText(y)}` : ''}`;
+            return t(a.diff > 0 ? 'After {x} days {y} is {diff} higher {when} on average ({k} of {n}).|link' : 'After {x} days {y} is {diff} lower {when} on average ({k} of {n}).|link', { x: x.name, y: y.name, diff, when, k: a.diff > 0 ? a.above : a.n - a.above, n: a.n });
+          }
+        }
+        return t(l.r > 0 ? 'On days with more {x}, {y} is a little higher {when}.|link' : 'On days with more {x}, {y} is a little lower {when}.|link', { x: x.name, y: y.name, when });
+      });
+  });
+  const OFF_NAMES = { 0: 'the same day|link', 1: 'the day after (night after)|link', 2: 'two days later|link' };
   const rows = $derived(
     shownKeys.map((k) => {
       const it = byKey.get(k);
@@ -310,11 +334,14 @@
       {#if picked}<li><i class="lsw pk"></i>{dfmt(picked, { weekday: 'short', day: 'numeric', month: 'short' })} ({t('tapped|diagram')})</li>{/if}
     </ul>
     <p class="hint">{t('Tap a day: a line through every row and the day with all its values.|diagram')}</p>
+    {#if notice.length}<p class="notice" data-dg-notice><b>{t('What stands out|link')}</b> ({t('only an observation|link')}): {notice.join(' ')}</p>{/if}
     <div class="sr">
       {#each buckets as b, i (b.key)}{#if rows.some((r) => r.vals[i] != null)}<button type="button" onclick={() => open(b.days.at(-1))}>{short(b.days.at(-1))}</button>{/if}{/each}
     </div>
   {/if}
 </section>
+
+<Zusammenhang {groups} {byKey} days={win.days} keep={keepAll} {ticks} acts={actList} onday={open} />
 
 {#if picking}
   <ValuePicker {groups} keys={shownKeys} {recent} ontoggle={toggle} onclose={() => (picking = false)} />
@@ -672,6 +699,18 @@
     width: 0;
     height: 12px;
     border-left: 1.5px dashed var(--ink);
+  }
+  .notice {
+    margin: 0;
+    padding: 10px 12px;
+    border: 1px dashed var(--line);
+    border-radius: 10px;
+    background: var(--paper-2);
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+  }
+  .notice b {
+    color: var(--ink);
   }
   .hint {
     margin: 0;
