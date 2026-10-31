@@ -107,3 +107,29 @@ test('Finish time riding through: three answers that follow your numbers', async
   await noSideways(page);
   await box.screenshot({ path: info.outputPath('rennen-zielzeit.png') });
 });
+
+test('Take over the check of another race into the empty fields', async ({ page, context }, info) => {
+  await openHome(page, context, info);
+  await page.goto('./#/race');
+  await page.locator('[data-race-sample-open]').click();
+  await expect(page).toHaveURL(/#\/race\/race-sample$/);
+  await page.goto('./#/racecheck/race-sample');
+  await page.locator('[data-check-field="ablauf.race"]').fill('Sample race');
+  await page.locator('[data-check-field="ablauf.B"]').fill('Gravel bike, made up');
+  await page.locator('[data-check-field="ablauf.B"]').blur();
+  // a second race
+  await page.goto('./#/race');
+  await page.locator('[data-race-new]').click();
+  await page.locator('[data-race-title]').fill('Hill race 300');
+  await page.locator('[data-sheet-save]').click();
+  await expect(page).toHaveURL(/#\/race\/[^/]+$/);
+  const id = decodeURIComponent(page.url().split('#/race/')[1]);
+  await page.goto(`./#/racecheck/${encodeURIComponent(id)}`);
+  await expect(page.locator('[data-check-from]')).toBeVisible();
+  await expect(page.locator('[data-check-from]')).not.toHaveValue('');
+  await page.locator('section[aria-labelledby="ck-more"]').screenshot({ path: info.outputPath('rennen-uebernehmen.png') });
+  await page.locator('[data-check-copy]').click();
+  await expect(page.locator('[data-check-field="ablauf.B"]')).toHaveValue('Gravel bike, made up');
+  await expect(page.locator('[data-check-field="ablauf.race"]')).toHaveValue('');
+  await noSideways(page);
+});
