@@ -65,8 +65,8 @@ export const SECTION_OF = {
 };
 const AREA_OF = { today: 'now', flow: 'body', trips: 'away', bikes: 'away', gear: 'away', app: 'discover' };
 
-/** A tile that stands right after another one of its area: the weekly weight under the trip card (on a trip day the trip comes first). */
-const AFTER = { weighin: 'trip' };
+/** A tile that stands right after another one: the weekly weight under the trip card (on a trip day the trip comes first), «Discover» under the weight. */
+const AFTER = { weighin: 'trip', discover: 'weighin' }; // the day's questions and the trip come first, «Discover» after them (heimat.spec: every function within 2.5 screens)
 
 function after(list) {
   const out = [...list];
