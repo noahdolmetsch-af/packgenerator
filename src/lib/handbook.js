@@ -1242,6 +1242,11 @@ export const HANDBOOK = {
     steps: ['Open Quick Links in the bar (on a computer: in the sidebar).', 'Tap «Add a pin», search a function and tap «Pin».', 'Tap «Edit»: rename, add a note, move with the arrows or drag, unpin.'],
     example: 'Example: pin «Wear» into the group «Bike» with the note «after rain».',
   },
+  'f.pinmarks': {
+    on: 'On by itself; switch it off in Quick Links.',
+    steps: ['Open a page, for example Today or Trips.', 'Tap the small pin at the top right of a card.', 'Open Quick Links: the card is in your first group; a tap there brings you back.'],
+    example: 'Example: pin «Upload a ride» on Trips, then open it from Quick Links in one tap.',
+  },
   'f.whitespots': {
     on: 'Needs your home place.',
     steps: ['Open Trips › Dreams › White spots nearby.', 'Choose 10, 25 or 50 km.', 'Tap a place on the map or in the list: its name and distance.'],
@@ -1948,6 +1953,11 @@ export const HANDBOOK = {
     on: null,
     steps: ['Open Me › Mini tools › Who eats what.', 'Write what it is about, say what you eat and tap «Make the link».', 'Send the link; pick a menu and the shopping list is ready.'],
     example: 'Example: «Hut evening» for 7; two vegetarian, one gluten-free; the pasta list has 250 g gluten-free pasta.',
+  },
+  'f.minilos': {
+    on: null,
+    steps: ['Open Me › Mini tools › Fair draw and pick e.g. «Who cooks?».', 'Add the people; untick who is not there this time.', 'Tap «Draw now»; next time whoever was drawn less often comes first.'],
+    example: 'Example: four on a hut weekend; Lena cooked on Friday, so on Saturday one of the other three cooks.',
   },
   'f.friendask': {
     on: null,
