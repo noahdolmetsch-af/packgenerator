@@ -72,7 +72,7 @@ test('Eigenes Diagramm: the D1 values under each other, a tapped day with all va
   await expect(dg.locator('[data-dg-row="km:bike"] rect.bar').first()).toBeVisible();
   await shot(page, 'diagramm', info);
   // tap a day in the resting pulse row: a line through all rows and the day with every value
-  const svg = dg.locator('[data-dg-row="rhr"] svg');
+  const svg = dg.locator('[data-dg-row="rhr"] svg[role="img"]');
   const box = await svg.boundingBox();
   await svg.click({ position: { x: box.width - 2, y: box.height / 2 } });
   const sheet = page.locator('[data-day-sheet]');
@@ -130,5 +130,49 @@ test('Eigenes Diagramm: add with search up to 6, remove, reorder, on top of each
   await expect(dg.locator('[data-dg-row]').first()).toHaveAttribute('data-dg-row', 'rhr');
   await expect(dg.locator('[data-dg-row="azm"]')).toHaveCount(0);
   await expect(dg.getByRole('button', { name: T('Week|diagram'), exact: true })).toHaveAttribute('aria-pressed', 'true');
+  expect(errors).toEqual([]);
+});
+
+test('Eigenes Diagramm: a filter for everything, one for a single value, marked days; days left out stay gaps', async ({ page, context }, info) => {
+  const errors = await open(page, context);
+  await go(page, '#/auswerten/analyse');
+  const dg = page.locator('[data-diagram]');
+  const points = (k) => dg.locator(`[data-dg-row="${k}"] rect.bar`).count();
+  await expect(dg.locator('[data-dg-row="azm"] rect.bar').first()).toBeVisible();
+  const before = await points('azm');
+  await dg.locator('[data-dg-filter]').click();
+  const fs = page.locator('[data-filter-sheet="all"]');
+  // only Monday to Friday, without sauna, marked: gym
+  await fs.locator('[data-wd="5"]').click();
+  await fs.locator('[data-wd="6"]').click();
+  await fs.locator('[data-act-pick]').selectOption({ label: 'Sauna' });
+  await fs.locator('[data-act-without]').click();
+  await fs.locator('[data-mark]').selectOption({ label: 'Gym' });
+  await fs.evaluate((el) => Promise.all(el.getAnimations({ subtree: true }).map((a) => a.finished)));
+  if (process.env.ANALYSE_SHOTS) await page.screenshot({ path: `qa/analyse/diagramm-filter-${info.project.name}.png` });
+  await fs.locator('[data-apply]').click();
+  await expect(dg.locator('[data-dg-filter]')).toContainText('2');
+  await expect(dg.locator('[data-dg-part="wd"]')).toContainText(/Mo.Fr/);
+  await expect(dg.locator('[data-dg-part="act"]')).toContainText('Sauna');
+  await expect(dg.locator('[data-dg-kept]')).toContainText('90');
+  const after = await points('azm');
+  expect(after).toBeLessThan(before);
+  await expect(dg.locator('[data-dg-row="rhr"] circle.mk').first()).toBeVisible();
+  await shot(page, 'diagramm-gefiltert', info);
+  // a filter only for the bike km: only trip days
+  await dg.locator('[data-dg-row-filter="km:bike"]').click();
+  const one = page.locator('[data-filter-sheet="value"]');
+  await one.locator('[data-trip="only"]').click();
+  await one.locator('[data-apply]').click();
+  await expect(dg.locator('[data-dg-row="km:bike"] .ownf')).toBeVisible();
+  expect(await points('km:bike')).toBeLessThan(4);
+  expect(await points('azm')).toBe(after);
+  // × takes one part away; the filters stay after a reload
+  await dg.locator('[data-dg-part="act"] .x').click();
+  await page.reload();
+  await ready(page);
+  await expect(dg.locator('[data-dg-part="act"]')).toHaveCount(0);
+  await expect(dg.locator('[data-dg-part="wd"]')).toBeVisible();
+  await expect(dg.locator('[data-dg-row="km:bike"] .ownf')).toBeVisible();
   expect(errors).toEqual([]);
 });
