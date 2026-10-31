@@ -12,7 +12,9 @@ const T = (en, vars) => {
   const text = DE[en] ?? en.replace(/\|[a-z]+$/, '');
   return vars ? text.replace(/\{(\w+)\}/g, (m, k) => vars[k] ?? m) : text;
 };
-const noSideways = async (page) => expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(page.viewportSize().width);
+// Polls: right after a switch (compact, dark) the page is still settling, and on a slow runner it showed 393 px for a
+// moment (PR #479, main, 31.10.2026). The page must end up inside the screen; it is not enough that it did once.
+const noSideways = async (page) => expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth), { timeout: 5000 }).toBeLessThanOrEqual(page.viewportSize().width);
 const zoomOf = (page) => page.evaluate(() => parseFloat(getComputedStyle(document.documentElement).zoom));
 
 test.beforeEach(async ({ context }) => {
