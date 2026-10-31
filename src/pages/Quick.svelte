@@ -270,6 +270,18 @@
     <div class="tool-row"><button type="button" class="btn" onclick={() => (newGroupOpen = true)}><Plus size={16} aria-hidden="true" />{t('New group')}</button></div>
   {/if}
 
+  <div class="ql-foot">
+    <label class="ql-marks" data-quick-marks>
+      <span><b>{t('Pins on the cards')}</b><small>{t('A small pin at the top right of every card of a function in the app. A tap pins it here.')}</small></span>
+      <input type="checkbox" role="switch" checked={marksOn} onchange={(e) => setMarks(e.currentTarget.checked)} />
+    </label>
+    <button type="button" class="btn btn-link" data-quick-tour onclick={() => startTour('quick')}><Play size={15} aria-hidden="true" />{t('Tour of Quick Links')}</button>
+    <a href="#/features">{t('All {n} functions of the app', { n: FEATURES.length })} ›</a>
+    {#if other && other.pins.length}
+      <button type="button" class="btn btn-link" data-quick-takeover onclick={takeOver}><ArrowRightLeft size={15} aria-hidden="true" />{tn(other.pins.length, 'Take over the pins of {device} ({n} pin)', 'Take over the pins of {device} ({n} pins)', { device: there })}</button>
+    {/if}
+  </div>
+
   {#if recent.length && !editing}
     <section class="ich-sec" aria-labelledby="ql-recent-h" data-quick-recent>
       <div class="ich-h"><div><h2 id="ql-recent-h">{t('Opened lately')}</h2><p class="ich-hs">{t('On this device. A pin keeps one for good.')}</p></div></div>
@@ -284,18 +296,6 @@
       </ul>
     </section>
   {/if}
-
-  <div class="ql-foot">
-    <label class="ql-marks" data-quick-marks>
-      <span><b>{t('Pins on the cards')}</b><small>{t('A small pin at the top right of every card of a function in the app. A tap pins it here.')}</small></span>
-      <input type="checkbox" role="switch" checked={marksOn} onchange={(e) => setMarks(e.currentTarget.checked)} />
-    </label>
-    <button type="button" class="btn btn-link" data-quick-tour onclick={() => startTour('quick')}><Play size={15} aria-hidden="true" />{t('Tour of Quick Links')}</button>
-    <a href="#/features">{t('All {n} functions of the app', { n: FEATURES.length })} ›</a>
-    {#if other && other.pins.length}
-      <button type="button" class="btn btn-link" data-quick-takeover onclick={takeOver}><ArrowRightLeft size={15} aria-hidden="true" />{tn(other.pins.length, 'Take over the pins of {device} ({n} pin)', 'Take over the pins of {device} ({n} pins)', { device: there })}</button>
-    {/if}
-  </div>
 </div>
 
 {#if deleting}
