@@ -22,6 +22,12 @@ describe('«Belongs to …» on top of a page (PR 7)', () => {
     const all = gehoertDazu({ moment: 'packen', here: '#/nowhere' }).total;
     expect(gehoertDazu({ moment: 'packen', here: '#/pack' }).total).toBeLessThan(all);
   });
+  it('Trips (planning) is the second page', () => {
+    expect(PAGE_MOMENT.trips).toBe('planen');
+    const r = gehoertDazu({ moment: 'planen', here: '#/trips' });
+    expect(r.items.length).toBe(SHOWN);
+    for (const f of r.items) expect(momentOfFeature(f.id)).toBe('planen');
+  });
   it('«all n ›» opens the catalogue by moment', () => {
     expect(allHref('packen')).toBe('#/features?by=moment&moment=packen');
   });
