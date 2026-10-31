@@ -1005,8 +1005,8 @@ h1.title {
 }
 /* «Neuer Schwung» Stil S2 «Kacheln mit Tiefe» (Noah 26.10.2026 «1a», page by page): on these pages the cards lose their
    frame, get a soft shadow and rounder corners. Add a page here when it gets the style. */
-main[data-page='pack'],
-main[data-page='bikes'] {
+main[data-s2-page='pack'],
+main[data-s2-page='bikes'] {
   --card-line: transparent;
   --card-shadow: 0 1px 2px color-mix(in srgb, var(--shadow) 30%, transparent), 0 10px 24px -14px var(--shadow);
   --radius-card: 18px;

@@ -17,5 +17,5 @@ test('S2 pages: Velos and Packen cards with depth, Planen as before', async ({ p
     expect(st.s, h).not.toBe('none');
   }
   await page.goto('./#/plan');
-  await expect(page.locator('main[data-page]')).not.toHaveAttribute('data-page', /^(pack|bikes)$/);
+  await expect(page.locator('main[data-s2-page]')).not.toHaveAttribute('data-s2-page', /^(pack|bikes)$/);
 });

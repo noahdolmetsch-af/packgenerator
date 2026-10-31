@@ -4,7 +4,7 @@
 
 ## Was ist neu
 - Auf Velos und auf der Pack-Seite einer Tour haben die Karten keinen grauen Rahmen mehr, sondern einen weichen Schatten und runde Ecken (18 px), wie auf Heute.
-- Technisch: `main` trägt jetzt `data-page`; in `src/app.css` steht eine Liste der Seiten mit Stil S2. Eine weitere Seite kommt mit einer Zeile dazu.
+- Technisch: `main` trägt jetzt `data-s2-page`; in `src/app.css` steht eine Liste der Seiten mit Stil S2. Eine weitere Seite kommt mit einer Zeile dazu.
 
 ## Was fällt weg oder rutscht tiefer
 - nichts.
