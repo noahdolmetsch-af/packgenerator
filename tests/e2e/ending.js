@@ -5,8 +5,8 @@
 // without a fixed clock run at any hour, so the question may or may not come), then the interstitial
 // «Tour beendet» (#/trip/<id>/ended) leads to the debrief: «Weiter zum Rückblick», or for a day trip
 // «Rückblick ausführlich» (its main button «Alles gut» is the short debrief, Ü5a).
-// SN1 (Seiten neu, changed on purpose): before the last day «Tour beenden …» is an entry of the band's «…»
-// («Notiz» is the main button there); endMenu opens it.
+// SN1 (Seiten neu, changed on purpose): before the last day «Tour beenden …» is a quiet button (in the band
+// while riding, at the bottom of the page before «Losfahren», Noah 28.10.2026 «1a»); endMenu taps it.
 import { expect } from '@playwright/test';
 
 export async function endToDebrief(page, T) {
@@ -55,10 +55,10 @@ export async function endedPage(page, T) {
 export async function endMenu(page, T) {
   const band = page.locator('.trip-band');
   const btn = band.getByRole('button', { name: T('End the trip …') });
-  // UI-Test T2 (G2-15, changed on purpose): before «Losfahren» the entry waits in the band's «…»
-  const more = band.getByRole('button', { name: T('More for this trip') });
-  await expect(btn.or(more).first()).toBeVisible();
+  // UI-Test T2 (G2-15) and Auffälligkeiten 28.10.2026 (Noah «1a», changed on purpose): before «Losfahren» the
+  // button is at the bottom of the page (it was in the band's «…»)
+  const foot = page.locator('[data-ride-end-foot]');
+  await expect(btn.or(foot).first()).toBeVisible();
   if (await btn.count()) return btn.click();
-  await more.click();
-  await page.getByRole('menuitem', { name: new RegExp(`^${T('End the trip …').replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`) }).click();
+  await foot.click();
 }

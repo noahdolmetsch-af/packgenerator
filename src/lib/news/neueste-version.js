@@ -3,8 +3,8 @@
 export default {
   title: 'Which version is online?',
   lead: 'Ich shows the version on this device and the one online, with «Load newest».',
-  points: [{ text: 'Version on this device and online, in Ich › Help', href: '#/me' }],
-  small: [{ box: 'new', text: '«Load newest» loads the app fresh from the internet, your data stays' }],
+  points: [{ text: 'Version on this device and online, in Ich › Help', href: '#/me', go: { href: '#/me', steps: [{ sel: '[data-version-row]' }], where: 'Shows in Me under Help.' } }],
+  small: [{ box: 'new', text: '«Load newest» loads the app fresh from the internet, your data stays', go: { href: '#/me', steps: [{ sel: '[data-version-row]' }], where: 'Shows in Me under Help.' } }],
   test: ['Open Ich and scroll to «Help»: the row «Version … on this device» says which version is online.', 'Tap «Load newest»: the app loads anew and your data is still there.'],
   since: [],
   de: {

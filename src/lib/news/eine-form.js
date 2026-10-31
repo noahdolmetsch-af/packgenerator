@@ -2,8 +2,8 @@
 export default {
   title: 'One form',
   lead: 'Training and «Form and recovery» show the same form number.',
-  points: [{ text: 'Form = fitness − fatigue, written out under the chart', href: '#/flow/training' }],
-  small: [{ box: 'nicer', text: 'One word: «fatigue» everywhere' }],
+  points: [{ text: 'Form = fitness − fatigue, written out under the chart', href: '#/flow/training', go: 'f.form' }],
+  small: [{ box: 'nicer', text: 'One word: «fatigue» everywhere', go: 'f.form' }],
   test: ['Open Active › Training and scroll to «Fitness, fatigue and form»: under it the sum is written out.', 'Analyse › «Form and recovery» shows the same form number.'],
   since: [],
   de: {

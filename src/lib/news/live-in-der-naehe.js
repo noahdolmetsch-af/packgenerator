@@ -4,7 +4,7 @@ export default {
   title: 'Nearby, tidied up',
   lead: 'The window «Nearby» on the live map has one heading, and far off the route the app says km.',
   points: [
-    { text: 'One heading in «Nearby» instead of two', href: '#/live' },
+    { text: 'One heading in «Nearby» instead of two', href: '#/live', go: { href: '#/live', where: 'Shows on the live map during a ride: tap «Nearby».' } },
   ],
   small: [{ box: 'fixed', text: 'Off the route: from 1 km on in km (e.g. 27.4 km instead of 27400 m)' }],
   test: ['Open the live map, start a ride and open «Nearby»: there is only one heading at the top.', 'Ride more than 1 km away from the route: the red line says the distance in km.'],

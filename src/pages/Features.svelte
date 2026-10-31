@@ -51,6 +51,7 @@
   }
   import TipButton from '../lib/know/TipButton.svelte';
   import WhatsNew from '../lib/know/WhatsNew.svelte';
+  import GestenListe from '../lib/know/GestenListe.svelte';
   import PlaySheet from '../lib/testdata/PlaySheet.svelte';
   import MoreActions from '../lib/ui/MoreActions.svelte';
   import Seg from '../lib/ui/Seg.svelte';
@@ -63,7 +64,8 @@
   const dataQ = liveQuery(featureData);
   const d = $derived($dataQ);
   const used = $derived(usedOf(d));
-  let by = $state('situation');
+  // PR 7: #/features?by=moment opens the catalogue by moment («all n ›» of «Belongs to …»)
+  let by = $state(typeof location !== 'undefined' && /[?&]by=(situation|page|moment)\b/.test(location.hash) ? location.hash.match(/[?&]by=(\w+)/)[1] : 'situation');
   // Paket C «Nicht für mich»: marked functions stay, at the end of their group
   const notQ = liveQuery(async () => (await db.settings.get('ruhig.notForMe'))?.value ?? {});
   const all = $derived(d ? catalogue(d.tips, used, by, $notQ) : null);
@@ -74,7 +76,7 @@
   const wanted = typeof location !== 'undefined' ? (location.hash.match(/[?&]f=([^&]+)/)?.[1] ?? null) : null;
   const wantId = wanted ? decodeURIComponent(wanted) : null;
   let q = $state('');
-  let opened = $state({});
+  let opened = $state(typeof location !== 'undefined' && /[?&]moment=(\w+)/.test(location.hash) ? { [location.hash.match(/[?&]moment=(\w+)/)[1]]: true } : {}); // PR 7: the moment of «all n ›» is open
   let play = $state(null); // the day the playground starts on («Try it»)
   const hits = $derived(q.trim().length >= 2 ? new Set(findFeatures(q, t).map((x) => x.featureId)) : null);
   const groups = $derived(all ? all.groups.map((g) => ({ ...g, rows: hits ? g.items.filter((x) => hits.has(x.id)) : g.items })).filter((g) => g.rows.length) : []);
@@ -221,8 +223,9 @@
       <input type="search" bind:value={q} placeholder={t('What do you want to do? e.g. «warranty»')} aria-label={t('Find a function')} autocomplete="off" />
     </label>
     <!-- Noah «1 a und b beides umstellbar»: by situation or by the page a function lives on -->
-    <div class="fby"><Seg full={false} label={t('Sort')} options={[{ key: 'situation', name: t('By situation') }, { key: 'page', name: t('By page') }]} value={by} onchange={(k) => (by = k)} /></div>
+    <div class="fby"><Seg full={false} label={t('Sort')} options={[{ key: 'situation', name: t('By situation') }, { key: 'page', name: t('By page') }, { key: 'moment', name: t('By moment') }]} value={by} onchange={(k) => (by = k)} /></div>
   </div>
+  {#if by === 'moment'}<p class="fsub" data-moment-hint>{t('By moment: the functions sorted by the situation in which you need them. Today shows the moment you are in.')}</p>{/if}
   <!-- SN6+ K6 «New since your last visit» (answers 1b and 5b), in place of «New for you» -->
   {#if d && !hits && fresh.rows.length}
     <section class="fblock" data-block="news" aria-labelledby="fsince-h">
@@ -265,6 +268,8 @@
     {/each}
   </div>
   <p class="legend"><Info size={16} aria-hidden="true" /><span>{t('Used ones move down. Under «…»: how it works, and try it in the playground.')}</span></p>
+  <!-- «Heute als Begleiter» PR 12: gestures, keys, search commands and «…» actions, folded; the search above narrows it -->
+  <GestenListe {q} />
   <!-- the news of the last versions, folded at the end (Ich › Was ist neu has them all) -->
   <div class="fnews"><WhatsNew /></div>
 </div>

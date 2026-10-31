@@ -6,10 +6,11 @@
 // Fictional data only (home0460-fixture, test_data_gtp_ names), the clock on Friday 9 October 2026
 // (Europe/Zurich); SHOTS=<folder> saves screenshots.
 import { test, expect } from './clock.js';
+import { linkOf, tryLine } from './newsgo-lib.js';
 import { D0, openHome, tr, atHour } from './home0460-fixture.js';
 import { WHATS_NEW, shortVersion } from '../../src/lib/whatsnew.js';
 import { readFileSync } from 'node:fs';
-import { READY, HELPER_TILES, tripUp } from '../../src/lib/home/tiles.js';
+import { READY, HELPER_TILES, VALUE_TILES, tripUp } from '../../src/lib/home/tiles.js';
 import { inAreas } from '../../src/lib/home/sections.js';
 import { openShort } from './kurz-open.js';
 import { NEWS } from '../../src/lib/news/index.gen.js';
@@ -19,7 +20,7 @@ import { NEWS } from '../../src/lib/news/index.gen.js';
 // Paket Q #74 (Noah 19.10.2026 «4a»): at the fixture's 09:00 the morning tiles move up (byTime, changed on purpose)
 // «Heute ruhiger» (Noah 26.10.2026 «1a», changed on purpose): the small tiles are one list where the first stands
 // «Heute ruhiger» 3a (changed on purpose): Heute shows the tiles in areas, inside an area in wall order
-const SHOWN = inAreas(atHour(tripUp(READY.filter((x) => !HELPER_TILES.includes(x.id)), true), 9));
+const SHOWN = inAreas(atHour(tripUp(READY.filter((x) => !HELPER_TILES.includes(x.id) && !VALUE_TILES.includes(x.id)), true), 9));
 
 const NEWEST = WHATS_NEW[0];
 // the newest function (highest since-version) and whether the newest version brought it
@@ -99,7 +100,8 @@ test('I11: Ich, Was ist neu: the newest version, every function, all versions an
   await expect(top.getByText(T(NEWEST.lead))).toBeVisible();
   await expect(top.locator('.vn-pts li')).toHaveCount(NEWEST.points.length);
   await expect(top.locator('.vn-small li')).toHaveCount(NEWEST.small?.length ?? 0);
-  await expect(top.getByRole('link', { name: T('Try it') })).toHaveAttribute('href', NEWEST.points[0].href);
+  // «Ausprobieren» (Noah 27.10.2026 «1a», changed on purpose): the line with the exact place (newsgo-lib.js tryLine)
+  await expect(top.getByRole('link', { name: T('Try it'), exact: true })).toHaveAttribute('href', linkOf(tryLine(NEWEST)) ?? '#/me/news');
   await top.getByRole('button', { name: T('How to test it') }).click();
   await expect(page.locator('#wn-test')).toBeInViewport();
   await expect(page.locator('#wn-test li')).toHaveCount(NEWEST.test.length);
