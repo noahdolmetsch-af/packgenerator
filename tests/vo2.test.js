@@ -37,7 +37,7 @@ describe('the tile on the wall', () => {
     expect(ids(READY)).toContain('vo2max');
   });
   it('a wall of before (v 13) gets it once after the body and Aktiv; taken away it stays away', () => {
-    expect(ids(wallOf({ v: 13, tiles: [{ id: 'body', size: 'l' }, { id: 'acts', size: 'l' }, { id: 'week', size: 'l' }] }))).toEqual(['moment', 'body', 'acts', 'vo2max', 'week']); // + PR 4: the moment card once, on top without habits
+    expect(ids(wallOf({ v: 13, tiles: [{ id: 'body', size: 'l' }, { id: 'acts', size: 'l' }, { id: 'week', size: 'l' }] }))).toEqual(['moment', 'discover', 'body', 'acts', 'vo2max', 'week']); // + PR 4: the moment card once, on top without habits
     expect(ids(withVo2([{ id: 'week', size: 'l' }]))).toEqual(['week', 'vo2max']);
     expect(ids(wallOf(wallRecord([{ id: 'week', size: 'l' }])))).toEqual(['week']);
   });
