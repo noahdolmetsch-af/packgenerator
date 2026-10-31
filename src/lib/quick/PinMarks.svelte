@@ -7,13 +7,15 @@
    * The pins sit in their own layer above the page, so no page needs its own code: the functions whose home
    * is this page (heimat.js) are found by their title, as tests/e2e/heimat.spec.js does. A pin only sits
    * where it covers nothing to tap (else at the end of the title, else none). Switched off in Quick Links.
+   * Step 3 (Noah «18a»): the pin at the page title keeps the view, the page with its filter as it is now.
    */
   import { Pin } from '@lucide/svelte';
   import { liveQuery } from 'dexie';
   import { db } from '../db.js';
   import { FEATURE } from '../features.js';
-  import { QUICK_KEYS, deviceKind, cleanQuick, isPinned, addPin } from './quicklinks.js';
-  import { MARK_KEYS, featuresOn, textFits, placePin } from './pinmarks.js';
+  import { QUICK_KEYS, deviceKind, cleanQuick, isPinned, addPin, isViewPinned, addView, removeView } from './quicklinks.js';
+  import { MARK_KEYS, placePin } from './pinmarks.js';
+  import { findCards } from './findcard.js';
   import { offerDone } from '../ui/rename.svelte.js';
   import { t } from '../i18n.svelte.js';
 
@@ -39,31 +41,16 @@
     return () => sub.unsubscribe();
   });
 
-  const SEL = 'h1, h2, h3, h4, summary, button, a, label, [role=tab], th';
-  const CARD = 'section, article, details, li, [role=tab], table, .card, [class*="card"], [class*="tile"]';
   const TAP = 'button, a, input, select, textarea, summary, label, [role=button], [role=tab], [role=switch], [tabindex]';
 
-  /** Look for the cards of this page's functions (after the page changed). */
+  /** Look for the cards of this page's functions and its title (after the page changed). */
   function find() {
     const main = document.querySelector('main');
     if (!main || /^#\/quick(\/|\?|$)/.test(hash)) return (found = []);
-    // titles first (a card's heading), then folds, tabs and table heads, buttons and links last
-    const rank = (e) => (/^H[1-4]$/.test(e.tagName) ? 0 : /^(SUMMARY|TH|LABEL)$/.test(e.tagName) || e.getAttribute('role') === 'tab' ? 1 : 2);
-    const els = [...main.querySelectorAll(SEL)]
-      .filter((e) => e.getClientRects().length && !e.closest('dialog, [role=dialog]'))
-      .sort((a, b) => rank(a) - rank(b));
-    const used = new Set();
-    found = [];
-    for (const id of featuresOn(hash)) {
-      const name = t(FEATURE[id].title);
-      const title = els.find((e) => textFits(e.innerText || e.getAttribute('aria-label') || '', name));
-      if (!title) continue;
-      let card = title.closest(CARD);
-      if (!card || !main.contains(card) || card.getBoundingClientRect().height > innerHeight * 1.5) card = title;
-      if (used.has(card)) continue;
-      used.add(card);
-      found.push({ id, card, title });
-    }
+    found = findCards(hash);
+    // the page itself, with its filter (not on Today, which is always one tap away)
+    const h1 = main.querySelector('h1');
+    if (h1 && hash.replace(/^#\/?/, '') && !found.some((f) => f.title === h1 || f.card === h1)) found.push({ id: `view:${hash}`, view: hash, viewTitle: h1.innerText.trim(), card: h1, title: h1 });
   }
 
   /** Is a box (page coordinates) free of things to tap and of bars on top? */
@@ -101,7 +88,7 @@
       const tr = f.title.getBoundingClientRect();
       const doc = (q) => ({ top: q.top + scrollY, right: q.right + scrollX, height: q.height });
       const at = placePin(doc(r), doc(tr), w, free);
-      if (at) next.push({ id: f.id, x: at.x / z, y: at.y / z, hx: Math.max(8, Math.min(at.x - 200, w - 248)) / z });
+      if (at) next.push({ id: f.id, view: f.view, viewTitle: f.viewTitle, x: at.x / z, y: at.y / z });
     }
     marks = next;
   }
@@ -138,8 +125,19 @@
   });
 
   const save = (v) => db.settings.put({ key: KEY, value: JSON.parse(JSON.stringify(v)) });
-  async function toggle(id) {
+  async function toggle(m) {
     const before = $state.snapshot(s);
+    if (m.view) {
+      if (isViewPinned(s, m.view)) {
+        await save(removeView(s, m.view));
+        offerDone(t('«{name}» unpinned.', { name: m.viewTitle }), () => save(before));
+      } else {
+        await save(addView(s, m.view, m.viewTitle, s.groups[0]?.id ?? ''));
+        offerDone(t('This view of «{name}» is in your Quick Links, with its filter.', { name: m.viewTitle }), () => save(before));
+      }
+      return;
+    }
+    const id = m.id;
     const name = t(FEATURE[id].title);
     if (isPinned(s, id)) {
       await save({ ...s, pins: s.pins.filter((p) => p.feature !== id) });
@@ -157,7 +155,7 @@
 {#if marks.length}
   <div class="pm-layer" bind:this={layer} data-pinmarks>
     {#each marks as m (m.id)}
-      {@const pinned = isPinned(s, m.id)}
+      {@const pinned = m.view ? isViewPinned(s, m.view) : isPinned(s, m.id)}
       <button
         type="button"
         class="pm"
@@ -165,10 +163,11 @@
         style:left="{m.x}px"
         style:top="{m.y}px"
         aria-pressed={pinned}
-        aria-label={pinned ? t('Pinned in Quick Links') : t('Pin to Quick Links')}
-        title={t(FEATURE[m.id].title)}
-        data-pinmark={m.id}
-        onclick={() => toggle(m.id)}
+        aria-label={m.view ? (pinned ? t('This view is pinned in Quick Links') : t('Pin this view to Quick Links')) : pinned ? t('Pinned in Quick Links') : t('Pin to Quick Links')}
+        title={m.view ? m.viewTitle : t(FEATURE[m.id].title)}
+        data-pinmark={m.view ? null : m.id}
+        data-pinview={m.view ?? null}
+        onclick={() => toggle(m)}
       ><span class="pm-dot"><Pin size={15} aria-hidden="true" /></span></button>
     {/each}
   </div>

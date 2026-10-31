@@ -170,6 +170,9 @@ export default {
   'Nothing to take over: your fields are filled already.': 'Nichts zu übernehmen: deine Felder sind schon ausgefüllt.',
   'Race to take over from': 'Rennen, aus dem du übernimmst',
   'Takes the answers of another race into the fields that are still empty here. Name, date and test ride stay yours.': 'Übernimmt die Antworten eines anderen Rennens in die Felder, die hier noch leer sind. Name, Datum und Probefahrt bleiben deine.',
+  // «Learnings aus vergangenen Rennen»
+  'Learned in earlier races': 'Gelernt in früheren Rennen',
+  'No learnings from earlier races yet. They come from «After the race» and from your reviews.': 'Noch keine Learnings aus früheren Rennen. Sie entstehen unter «Nach dem Rennen» und in deinen Rückblicken.',
   'Coming|races': 'Kommende',
   'Done|races': 'Vorbei',
 };

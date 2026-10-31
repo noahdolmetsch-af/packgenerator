@@ -8,20 +8,23 @@
    * value. The order: arrows and drag. Your choice stays on this device. Only to look at, nothing is rated.
    * The filters (D4) and «Was hängt zusammen?» (D5) come in the next steps. Rules in lib/analyse/diagram.js.
    */
-  import { ChevronLeft, ChevronRight, X, Plus, ArrowUpDown } from '@lucide/svelte';
+  import { ChevronLeft, ChevronRight, X, Plus, ArrowUpDown, Filter, Check } from '@lucide/svelte';
   import Seg from '../../lib/ui/Seg.svelte';
   import SortArrows from '../../lib/ui/SortArrows.svelte';
   import SortGrip from '../../lib/ui/SortGrip.svelte';
   import { sortable } from '../../lib/ui/sortable.js';
   import ValuePicker from './ValuePicker.svelte';
   import DaySheet from './DaySheet.svelte';
+  import FilterSheet from './FilterSheet.svelte';
+  import { actName } from '../../lib/flow/ui.svelte.js';
   import { valueText, unitText } from '../../lib/analyse/format.js';
   import { tripBands } from '../../lib/analyse/detail.js';
-  import { DPERIODS, DEFAULT_DPERIOD, STEPS, MODES, DEFAULT_KEYS, SERIES_COLORS, MAX_VALUES, diagramWindow, stepBuckets, seriesOf, rolling7, rangeOf, fromMean, toggleKey, moveKey } from '../../lib/analyse/diagram.js';
+  import { DPERIODS, DEFAULT_DPERIOD, STEPS, MODES, DEFAULT_KEYS, SERIES_COLORS, MAX_VALUES, diagramWindow, stepBuckets, seriesOf, rolling7, rangeOf, fromMean, toggleKey, moveKey, cleanFilter, filterCount, keepOf, bothKeep, dropOutliers, tripDaySet, tickDays, FELT_HI, FELT_LO } from '../../lib/analyse/diagram.js';
   import { tripEnd } from '../../lib/tripstate.js';
+  import { addDays } from '../../lib/analyse.js';
   import { t, num, locale } from '../../lib/i18n.svelte.js';
 
-  let { groups = [], byKey = new Map(), trips = [], today } = $props();
+  let { groups = [], byKey = new Map(), trips = [], acts = [], log = [], today } = $props();
 
   const LS = 'pg.analyse.diagramm';
   const saved = (() => {
@@ -44,12 +47,18 @@
   let showDay = $state(false);
   let picking = $state(false);
   let sorting = $state(false);
+  // D4: one filter for everything, and on wish one more per value («3a und b»)
+  let filter = $state(cleanFilter(saved.filter));
+  let rowFilters = $state(Object.fromEntries(Object.entries(saved.rowFilters && typeof saved.rowFilters === 'object' ? saved.rowFilters : {}).map(([k, f]) => [k, cleanFilter(f)])));
+  let mark = $state(typeof saved.mark === 'string' ? saved.mark : null);
+  let band = $state(saved.band !== false);
+  let filtering = $state(null); // null, 'all' or a value key
 
   // a new diagram starts with sleep, resting pulse, active zone minutes, bike km and energy (the ones you have)
   const shownKeys = $derived((keys ?? DEFAULT_KEYS).filter((k) => byKey.has(k) && !byKey.get(k).later));
   $effect(() => {
     try {
-      localStorage.setItem(LS, JSON.stringify({ keys, period, step, mode, own, recent, colors }));
+      localStorage.setItem(LS, JSON.stringify({ keys, period, step, mode, own, recent, colors, filter, rowFilters, mark, band }));
     } catch {
       /* a private window: only for now */
     }
@@ -67,12 +76,27 @@
   $effect(() => {
     if (JSON.stringify(colorMap) !== JSON.stringify(colors)) colors = colorMap;
   });
+  // what the filters need: the ticked days, the trip days, «Wi gaht's?»
+  const ticks = $derived(tickDays(log));
+  const tripDays = $derived(tripDaySet(trips, tripEnd));
+  const fctx = $derived({ ticks, tripDays, felt: (part, d) => byKey.get(`felt:${part}`)?.get(d) ?? null });
+  const keepAll = $derived(keepOf(filter, fctx));
+  const keptDays = $derived(win.days.filter(keepAll).length);
+  const actList = $derived(
+    [...acts]
+      .map((a) => ({ id: a.id, name: actName(a), n: ticks.get(a.id)?.size ?? 0 }))
+      .sort((a, b) => b.n - a.n),
+  );
+  const markIdx = $derived(mark ? new Set([...(ticks.get(mark) ?? [])].map((d) => idxOfDay.get(d)).filter((i) => i != null)) : new Set());
   const rows = $derived(
     shownKeys.map((k) => {
       const it = byKey.get(k);
-      const vals = seriesOf(buckets, it.get, { sum: !!it.sum });
+      const own = rowFilters[k] && filterCount(rowFilters[k]) ? rowFilters[k] : null;
+      const keep = bothKeep(keepAll, own ? keepOf(own, fctx) : null);
+      let vals = seriesOf(buckets, it.get, { sum: !!it.sum, keep });
+      if (filter.outliers || own?.outliers) vals = dropOutliers(vals);
       const bars = !!(it.sum || it.bars);
-      return { it, color: colorMap[k], vals, bars, smooth: !bars && step === 'day' ? rolling7(vals) : null, sc: rangeOf(vals, bars), over: fromMean(vals) };
+      return { it, own, color: colorMap[k], vals, bars, smooth: !bars && step === 'day' ? rolling7(vals) : null, sc: rangeOf(vals, bars), over: fromMean(vals) };
     }),
   );
   const overSc = $derived.by(() => {
@@ -80,7 +104,7 @@
     const m = Math.max(10, ...all.map((v) => Math.abs(v)));
     return { lo: -m, hi: m };
   });
-  const bands = $derived(tripBands(trips, win.days, tripEnd).map((b) => ({ ...b, a: idxOfDay.get(b.from) ?? 0, b: idxOfDay.get(b.to) ?? 0 })));
+  const bands = $derived(!band ? [] : tripBands(trips, win.days, tripEnd).map((b) => ({ ...b, a: idxOfDay.get(b.from) ?? 0, b: idxOfDay.get(b.to) ?? 0 })));
   const pickIdx = $derived(picked ? (idxOfDay.get(picked) ?? -1) : -1);
 
   const W = 1000;
@@ -127,7 +151,7 @@
     { key: 'over', name: t('On top of each other|diagram') },
   ]);
   const SRC = { fitbit: 'Fitbit', strava: 'Strava', body: 'Body|group', check: "Wi gaht's?|analyse", aktiv: 'Aktiv' };
-  const ticks = $derived.by(() => {
+  const xticks = $derived.by(() => {
     const k = Math.min(4, buckets.length);
     if (!k) return [];
     return Array.from({ length: k }, (_, j) => Math.round((j * (buckets.length - 1)) / Math.max(k - 1, 1))).map((i) => ({ i, text: step === 'month' ? dfmt(`${buckets[i].key}-01`, { month: 'short', year: '2-digit' }) : short(buckets[i].key) }));
@@ -135,6 +159,31 @@
   const rangeText = $derived(`${short(win.from)} – ${dfmt(win.to, { day: 'numeric', month: 'short', year: 'numeric' })}`);
   const v = (it, val) => valueText(it, val, num);
   const tripOn = (d) => trips.find((tr) => tr.startDate && tr.startDate <= d && (tripEnd(tr) ?? tr.startDate) >= d);
+
+  // the set parts of a filter as chips: the text and what × sets back
+  const wdText = (wd) => {
+    const runs = [];
+    for (const d of wd) {
+      const last = runs.at(-1);
+      if (last && d === last[1] + 1) last[1] = d;
+      else runs.push([d, d]);
+    }
+    const name = (i) => dfmt(addDays('2026-10-05', i), { weekday: 'short' }).replace(/\.$/, '');
+    return runs.map(([a, b]) => (a === b ? name(a) : b === a + 1 ? `${name(a)}, ${name(b)}` : `${name(a)}–${name(b)}`)).join(', ');
+  };
+  function partsOf(f) {
+    const out = [];
+    const aname = (id) => actList.find((a) => a.id === id)?.name ?? '';
+    if (f.wd.length) out.push({ key: 'wd', text: t('only {days}|filter', { days: wdText(f.wd) }), off: { wd: [] } });
+    if (f.act) out.push({ key: 'act', text: f.act.mode === 'with' ? t('only with {name}|filter', { name: aname(f.act.id) }) : t('without {name}|filter', { name: aname(f.act.id) }), off: { act: null } });
+    if (f.trip !== 'all') out.push({ key: 'trip', text: f.trip === 'only' ? t('only trip days|filter') : t('without trip days|filter'), off: { trip: 'all' } });
+    if (f.felt) {
+      const what = f.felt.part === 'mood' ? 'Mood' : 'Energy';
+      out.push({ key: 'felt', text: f.felt.op === 'hi' ? t(`${what} ≥ {n}|filter`, { n: FELT_HI }) : t(`${what} ≤ {n}|filter`, { n: FELT_LO }), off: { felt: null } });
+    }
+    if (f.outliers) out.push({ key: 'out', text: t('without outliers|filter'), off: { outliers: false } });
+    return out;
+  }
 
   function toggle(k) {
     const before = keys ?? shownKeys;
@@ -180,6 +229,16 @@
     </div>
   </div>
 
+  <div class="chips" role="group" aria-label={t('Filter|filter')}>
+    <button type="button" class="chip fbtn" class:set={filterCount(filter)} data-dg-filter onclick={() => (filtering = 'all')}><Filter size={14} aria-hidden="true" />{t('Filter|filter')}{#if filterCount(filter)}&nbsp;· {filterCount(filter)}{/if}</button>
+    {#each partsOf(filter) as part (part.key)}
+      <span class="chip on" data-dg-part={part.key}>{part.text}<button type="button" class="x" aria-label={t('Remove {name}|analyse', { name: part.text })} onclick={() => (filter = { ...filter, ...part.off })}><X size={14} aria-hidden="true" /></button></span>
+    {/each}
+    {#if trips.length}<button type="button" class="chip" class:on={band} aria-pressed={band} data-dg-band onclick={() => (band = !band)}>{t('Trips as a band|filter')}{#if band}<Check size={14} aria-hidden="true" />{/if}</button>{/if}
+    {#if mark}<span class="chip on" data-dg-mark>{t('{name} days marked|filter', { name: actList.find((a) => a.id === mark)?.name ?? '' })}<button type="button" class="x" aria-label={t('Remove {name}|analyse', { name: t('Mark days|filter') })} onclick={() => (mark = null)}><X size={14} aria-hidden="true" /></button></span>{/if}
+  </div>
+  {#if filterCount(filter)}<p class="hint" data-dg-kept>{t('{n} of {all} days fit the filter. Days left out stay a gap, so the time stays true.|filter', { n: keptDays, all: win.days.length })}</p>{/if}
+
   <div class="chips" role="group" aria-label={t('Values in the diagram|diagram')}>
     {#each rows as r (r.it.key)}
       <span class="chip on" data-dg-value={r.it.key}><i class="dot" style="background:{r.color}"></i>{r.it.name}<small>{t(SRC[r.it.src] ?? SRC.body)}</small><button type="button" class="x" aria-label={t('Remove {name}|analyse', { name: r.it.name })} onclick={() => drop(r.it.key)}><X size={14} aria-hidden="true" /></button></span>
@@ -207,13 +266,14 @@
       {#if mode === 'rows'}
         {#each rows as r (r.it.key)}
           <div class="rowp" data-dg-row={r.it.key}>
-            <p class="rl"><b>{r.it.name}</b>{#if unitText(r.it)}&nbsp;{unitText(r.it)}{/if} · {t(SRC[r.it.src] ?? SRC.body)}{#if r.smooth}&nbsp;· {t('7-day mean|diagram')}{/if}</p>
+            <div class="rlw"><p class="rl"><b>{r.it.name}</b>{#if unitText(r.it)}&nbsp;{unitText(r.it)}{/if} · {t(SRC[r.it.src] ?? SRC.body)}{#if r.smooth}&nbsp;· {t('7-day mean|diagram')}{/if}{#if r.own}&nbsp;· <span class="ownf">{partsOf(r.own).map((p) => p.text).join(', ')}</span>{/if}</p><button type="button" class="rf" class:set={r.own} aria-label={t('Filter for {name}|filter', { name: r.it.name })} data-dg-row-filter={r.it.key} onclick={() => (filtering = r.it.key)}><Filter size={13} aria-hidden="true" /></button></div>
             <div class="pl2">
               <div class="ax" aria-hidden="true"><span>{v(r.it, r.sc.hi)}</span><span>{v(r.it, r.sc.lo)}</span></div>
               <!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_noninteractive_element_interactions -->
               <svg viewBox="0 0 {W} {RH}" preserveAspectRatio="none" role="img" aria-label={t('Course of {name}|analyse', { name: r.it.name })} onclick={tap}>
                 {#each bands as b (b.from)}<rect class="band" x={(b.a / n) * W} width={((b.b - b.a + 1) / n) * W} y="0" height={RH} />{/each}
                 <line class="base" x1="0" x2={W} y1={RH - 4} y2={RH - 4} vector-effect="non-scaling-stroke" />
+                {#each [...markIdx] as mi (mi)}<circle class="mk" cx={xOf(mi)} cy={RH - 2} r="2.4" />{/each}
                 {#if r.bars}
                   {#each r.vals as val, i (i)}{#if val != null}<rect x={xOf(i) - barW / 2} width={barW} y={yOf(val, r.sc, RH)} height={Math.max(0.5, RH - 4 - yOf(val, r.sc, RH))} style="fill:{r.color}" class="bar" />{/if}{/each}
                 {:else}
@@ -241,7 +301,7 @@
         </div>
       {/if}
       <div class="xl" aria-hidden="true">
-        {#each ticks as tk (tk.i)}<span style="left:calc(56px + (100% - 56px) * {xOf(tk.i) / W})">{tk.text}</span>{/each}
+        {#each xticks as tk (tk.i)}<span style="left:calc(56px + (100% - 56px) * {xOf(tk.i) / W})">{tk.text}</span>{/each}
       </div>
     </div>
     {#if mode === 'over'}<p class="hint">{t('Each line shows how far a value is above or below its own mean in this period; the numbers are in the rows view.|diagram')}</p>{/if}
@@ -258,6 +318,25 @@
 
 {#if picking}
   <ValuePicker {groups} keys={shownKeys} {recent} ontoggle={toggle} onclose={() => (picking = false)} />
+{/if}
+{#if filtering}
+  {@const one = filtering !== 'all' ? byKey.get(filtering) : null}
+  <FilterSheet
+    filter={one ? (rowFilters[filtering] ?? cleanFilter(null)) : filter}
+    acts={actList}
+    name={one?.name ?? ''}
+    extra={one ? null : { mark, band }}
+    count={(f) => win.days.filter(one ? bothKeep(keepAll, keepOf(f, fctx)) : keepOf(f, fctx)).length}
+    onapply={(f, x) => {
+      if (one) rowFilters = { ...rowFilters, [filtering]: cleanFilter(f) };
+      else {
+        filter = cleanFilter(f);
+        mark = x?.mark || null;
+        band = x?.band !== false;
+      }
+    }}
+    onclose={() => (filtering = null)}
+  />
 {/if}
 {#if showDay && picked}
   <DaySheet day={picked} {groups} {today} tripName={tripOn(picked)?.name ?? ''} onday={(d) => (picked = d)} onclose={() => (showDay = false)} />
@@ -364,6 +443,41 @@
     font-weight: 400;
     font-size: var(--fs-label);
   }
+  .fbtn.set {
+    border-color: var(--hi);
+    background: var(--hi);
+    color: var(--hi-ink);
+    font-weight: 600;
+  }
+  .rf {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    background: none;
+    color: var(--ink-3);
+    cursor: pointer;
+  }
+  .rf.set {
+    border-color: var(--hi);
+    color: var(--hi);
+  }
+  @media (pointer: coarse) {
+    .rf {
+      width: 40px;
+      height: 40px;
+    }
+  }
+  .ownf {
+    color: var(--hi);
+  }
+  .mk {
+    fill: var(--pz5);
+  }
   .chip.add {
     border-style: dashed;
   }
@@ -426,8 +540,16 @@
     display: flex;
     flex-direction: column;
   }
-  .rl {
+  .rlw {
+    display: flex;
+    align-items: center;
+    gap: 4px;
     margin: 4px 0 0 56px;
+  }
+  .rl {
+    flex: 1;
+    min-width: 0;
+    margin: 0;
     color: var(--ink-3);
     font-size: var(--fs-label);
   }
