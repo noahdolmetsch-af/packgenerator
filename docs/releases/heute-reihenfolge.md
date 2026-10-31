@@ -1,6 +1,6 @@
 # Heute: Entdecken nach Tour und Gewichtsfrage
 
-PR folgt · 31.10.2026 · Auftrag: Noah «1a 2a 3a» (Thread «Neue Struktur der App aus der Funktionsliste»); Reparatur nach #458
+PR #480 · 31.10.2026 · Auftrag: Noah «1a 2a 3a» (Thread «Neue Struktur der App aus der Funktionsliste»); Reparatur nach #458
 
 ## Was ist neu
 - Auf Heute steht die Karte «Entdecken» jetzt unter der Tour-Karte und «Gewicht diese Woche?» statt direkt unter «Dein Moment».
