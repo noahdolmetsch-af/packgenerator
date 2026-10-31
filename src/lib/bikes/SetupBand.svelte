@@ -183,9 +183,7 @@
     max-width: 100%;
     color: var(--ink-3);
     font-weight: 400;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    overflow-wrap: break-word;
   }
   .strip .bcard[aria-selected='true'] {
     border-color: var(--accent);
