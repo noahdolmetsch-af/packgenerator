@@ -2,10 +2,10 @@
 export default {
   title: 'When do I leave?',
   lead: 'Everybody starts somewhere else; the app says when each one leaves so you all arrive together.',
-  points: [{ text: 'Me › Mini tools › When do I leave?: meeting point, time, start places', href: '#/me/mini/abfahrt' }],
+  points: [{ text: 'Me › Mini tools › When do I leave?: meeting point, time, start places', href: '#/me/mini/abfahrt', go: 'f.miniabfahrt' }],
   small: [
-    { box: 'new', text: 'Each person with their own speed and buffer' },
-    { box: 'new', text: 'Send the plan to the group in one tap' },
+    { box: 'new', go: 'f.miniabfahrt', text: 'Each person with their own speed and buffer' },
+    { box: 'new', go: 'f.miniabfahrt', text: 'Send the plan to the group in one tap' },
   ],
   test: [
     'Open Me › Mini tools › When do I leave? and tap «New meeting».',

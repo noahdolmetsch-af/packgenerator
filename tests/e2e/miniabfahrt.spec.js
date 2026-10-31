@@ -2,7 +2,7 @@
 // different start places; the one further away leaves earlier; without a start place a person waits at the end;
 // remove has Undo; a new meeting takes the people of the last. The place search (Open-Meteo) is mocked with
 // fictional places. Fictional data only.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { openHome } from './home0460-fixture.js';
 
 const phone = (info) => info.project.name === 'phone';
