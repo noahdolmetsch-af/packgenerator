@@ -2026,6 +2026,7 @@
   }
   .lv-goalbar {
     display: block;
+    align-self: stretch;
     height: 8px;
     border-radius: 4px;
     background: var(--line);
