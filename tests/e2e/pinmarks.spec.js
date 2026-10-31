@@ -28,3 +28,22 @@ test('pins on the cards: pin, unpin, switch off', async ({ page, context }, info
   await page.waitForTimeout(800);
   await expect(page.locator('[data-pinmark]')).toHaveCount(0);
 });
+
+// «Quick Links» Schritt 3 (Noah «5a», «18a»): a pin goes to its card and lights it up; a view keeps its address
+test('Quick Links: a pin lights up its card; a view is pinned at the page title', async ({ page, context }, info) => {
+  await openHome(page, context, info);
+  await page.goto('./#/quick');
+  await page.locator('[data-quick-pin="f.weather"] .ql-a').click();
+  await expect(page).toHaveURL(/#\/wetter/);
+  await expect(page.locator('[data-spot-on="f.weather"]')).toBeVisible({ timeout: 8000 });
+
+  await page.goto('./#/trips');
+  const view = page.locator('[data-pinview]');
+  await expect(view).toBeVisible({ timeout: 10_000 });
+  const href = await view.getAttribute('data-pinview');
+  await view.click();
+  await expect(view).toHaveAttribute('aria-pressed', 'true');
+  await page.goto('./#/quick');
+  await page.locator(`[data-quick-view="${href}"] .ql-a`).click();
+  await expect(page).toHaveURL(new RegExp(href.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '$'));
+});
