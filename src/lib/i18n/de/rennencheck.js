@@ -173,6 +173,14 @@ export default {
   // «Learnings aus vergangenen Rennen»
   'Learned in earlier races': 'Gelernt in früheren Rennen',
   'No learnings from earlier races yet. They come from «After the race» and from your reviews.': 'Noch keine Learnings aus früheren Rennen. Sie entstehen unter «Nach dem Rennen» und in deinen Rückblicken.',
+  // «Gewichtsrechner»
+  'Weight of the setup': 'Gewicht des Setups',
+  'Packed (full)': 'Gepackt (voll)',
+  'Your target': 'Dein Ziel',
+  '{kg} over the target': '{kg} über dem Ziel',
+  '{kg} under the target': '{kg} unter dem Ziel',
+  'From the grams of {n} bags. A bag without «full» counts with its empty weight.': 'Aus den Gramm von {n} Taschen. Eine Tasche ohne «voll» zählt mit ihrem Leergewicht.',
+  'Write the grams of your bags above (e.g. «200» or «2× 100»), then the sum shows here.': 'Schreib oben die Gramm deiner Taschen (z. B. «200» oder «2× 100»), dann steht hier die Summe.',
   'Coming|races': 'Kommende',
   'Done|races': 'Vorbei',
 };

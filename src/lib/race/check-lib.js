@@ -155,3 +155,35 @@ export function takeOver(mine, other, now = new Date().toISOString()) {
   }
   return { check: { ...(mine ?? {}), values, at: now }, n };
 }
+
+/**
+ * Grams from what you wrote: «200», «2× 100», «1.2 kg», «150 g + 40». Every number counts; «N×» multiplies
+ * the number after it; «kg» turns kilos into grams. → grams or null when there is no number.
+ */
+export function gramsOf(text) {
+  const s = String(text ?? '').toLowerCase().replace(/(\d),(\d)/g, '$1.$2');
+  const re = /(?:(\d+(?:\.\d+)?)\s*[x×]\s*)?(\d+(?:\.\d+)?)\s*(kg|g)?/g;
+  let sum = 0;
+  let any = false;
+  for (const m of s.matchAll(re)) {
+    if (!m[2]) continue;
+    const times = m[1] ? Number(m[1]) : 1;
+    const n = Number(m[2]) * (m[3] === 'kg' ? 1000 : 1);
+    sum += times * n;
+    any = true;
+  }
+  return any ? Math.round(sum) : null;
+}
+
+/**
+ * The weight of the target setup (sheet 2): empty and full per bag added up, against your target.
+ * → { empty, full, target, over (full − target, + = too heavy), bags: [{ i, empty, full }], counted }
+ */
+export function setupWeight(check) {
+  const bags = BAGS.map((_, i) => ({ i, empty: gramsOf(valueOf(check, `setup.${i}.g`)), full: gramsOf(valueOf(check, `setup.${i}.full`)) }));
+  const empty = bags.reduce((a, b) => a + (b.empty ?? 0), 0);
+  const full = bags.reduce((a, b) => a + (b.full ?? b.empty ?? 0), 0);
+  const target = gramsOf(valueOf(check, 'setup.total'));
+  const counted = bags.filter((b) => b.empty != null || b.full != null).length;
+  return { empty, full, target, over: target != null && counted ? full - target : null, bags, counted };
+}

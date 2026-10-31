@@ -1,6 +1,6 @@
 // «Rennen-Check» (Noah 27.10.2026 «1b 2b»): the five sheets, their keys and loading answers. Made-up answers.
 import { describe, it, expect } from 'vitest';
-import { SHEETS, fieldKeys, valueOf, withValue, answersFrom, filled, takeOver } from '../src/lib/race/check-lib.js';
+import { SHEETS, fieldKeys, valueOf, withValue, answersFrom, filled, takeOver, gramsOf, setupWeight } from '../src/lib/race/check-lib.js';
 
 describe('the race check', () => {
   it('has five sheets and every key belongs to one of them', () => {
@@ -35,5 +35,23 @@ describe('the race check', () => {
     expect(valueOf(check, 'ablauf.B')).toBe('Gravel bike');
     expect(valueOf(check, 'liste.1.v')).toBe('Poncho');
     expect(valueOf(check, 'ablauf.q.cook')).toBe(true);
+  });
+  it('reads grams from what you wrote', () => {
+    expect(gramsOf('200')).toBe(200);
+    expect(gramsOf('2× 100')).toBe(200);
+    expect(gramsOf('1.2 kg')).toBe(1200);
+    expect(gramsOf('1,5 kg')).toBe(1500);
+    expect(gramsOf('150 g + 40')).toBe(190);
+    expect(gramsOf('')).toBeNull();
+    expect(gramsOf('light')).toBeNull();
+  });
+  it('adds up the target setup and compares it with the target', () => {
+    let c = withValue(null, 'setup.0.g', '300');
+    c = withValue(c, 'setup.0.full', '1.4 kg');
+    c = withValue(c, 'setup.1.g', '200');
+    c = withValue(c, 'setup.total', '1.5 kg');
+    const w = setupWeight(c);
+    expect(w).toMatchObject({ empty: 500, full: 1600, target: 1500, over: 100, counted: 2 });
+    expect(setupWeight(null)).toMatchObject({ empty: 0, full: 0, target: null, over: null, counted: 0 });
   });
 });
