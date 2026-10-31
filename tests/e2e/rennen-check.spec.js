@@ -1,7 +1,7 @@
 // «Rennen detailliert planen» + «Rennen-Check» (Noah 27.10.2026 «1b 2b»): the coming races with their check,
 // five sheets that save by themselves and answers loaded from a file. Fictional data (sample race, made-up answers).
 import { test, expect } from './clock.js';
-import { openHome } from './home0460-fixture.js';
+import { openHome, homeFixture } from './home0460-fixture.js';
 import { SHEETS } from '../../src/lib/race/check-lib.js';
 
 const noSideways = async (page) => {
@@ -106,4 +106,54 @@ test('Finish time riding through: three answers that follow your numbers', async
   await expect(plan).not.toHaveText(before ?? '');
   await noSideways(page);
   await box.screenshot({ path: info.outputPath('rennen-zielzeit.png') });
+});
+
+test('Take over the check of another race into the empty fields', async ({ page, context }, info) => {
+  await openHome(page, context, info);
+  await page.goto('./#/race');
+  await page.locator('[data-race-sample-open]').click();
+  await expect(page).toHaveURL(/#\/race\/race-sample$/);
+  await page.goto('./#/racecheck/race-sample');
+  await page.locator('[data-check-field="ablauf.race"]').fill('Sample race');
+  await page.locator('[data-check-field="ablauf.B"]').fill('Gravel bike, made up');
+  await page.locator('[data-check-field="ablauf.B"]').blur();
+  // a second race
+  await page.goto('./#/race');
+  await page.locator('[data-race-new]').click();
+  await page.locator('[data-race-title]').fill('Hill race 300');
+  await page.locator('[data-sheet-save]').click();
+  await expect(page).toHaveURL(/#\/race\/[^/]+$/);
+  const id = decodeURIComponent(page.url().split('#/race/')[1]);
+  await page.goto(`./#/racecheck/${encodeURIComponent(id)}`);
+  await expect(page.locator('[data-check-from]')).toBeVisible();
+  await expect(page.locator('[data-check-from]')).not.toHaveValue('');
+  await page.locator('section[aria-labelledby="ck-more"]').screenshot({ path: info.outputPath('rennen-uebernehmen.png') });
+  await page.locator('[data-check-copy]').click();
+  await expect(page.locator('[data-check-field="ablauf.B"]')).toHaveValue('Gravel bike, made up');
+  await expect(page.locator('[data-check-field="ablauf.race"]')).toHaveValue('');
+  await noSideways(page);
+});
+
+test('Learned in earlier races: the learnings of past races on top', async ({ page, context }, info) => {
+  const data = homeFixture();
+  const T0 = data.tables;
+  const rigi = T0.trips.find((x) => x.id === 'test_data_gtp_Rigi');
+  T0.settings.push({ key: 'races', value: { races: { test_data_gtp_Rigi: { createdAt: '2026-01-01T00:00:00.000Z' } } } });
+  T0.learnings = [
+    { id: 'test_data_gtp_l1', rule: 'test_data_gtp_ Buy food for the night before 18:00', action: 'Look at the shop hours at noon', topic: 'food', tripId: rigi.id, itemIds: [], appliesTo: ['all'], confirmed: 0, createdAt: '2026-04-10T10:00:00.000Z' },
+    { id: 'test_data_gtp_l2', rule: 'test_data_gtp_ A head torch for the bivy', action: '', topic: 'race', itemIds: [], appliesTo: ['all'], confirmed: 0, createdAt: '2026-04-11T10:00:00.000Z' },
+    { id: 'test_data_gtp_l3', rule: 'test_data_gtp_ Not about races', action: '', topic: 'clothes', itemIds: [], appliesTo: ['all'], confirmed: 0, createdAt: '2026-04-12T10:00:00.000Z' },
+  ];
+  const T = await openHome(page, context, info, { data });
+  await page.goto('./#/race');
+  await page.locator('[data-race-sample-open]').click();
+  await expect(page).toHaveURL(/#\/race\/race-sample$/);
+  await page.goto('./#/racecheck/race-sample');
+  const box = page.locator('[data-race-learnings]');
+  await expect(box).toContainText(T('Learned in earlier races'));
+  await expect(box.locator('[data-race-learning]')).toHaveCount(2);
+  await expect(box.locator('[data-race-learning="test_data_gtp_l1"]')).toContainText('Look at the shop hours at noon');
+  await expect(box).not.toContainText('Not about races');
+  await noSideways(page);
+  await box.screenshot({ path: info.outputPath('rennen-learnings.png') });
 });

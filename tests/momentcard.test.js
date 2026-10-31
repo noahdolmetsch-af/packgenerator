@@ -53,7 +53,7 @@ describe('the tile on the wall', () => {
     expect(DE[TILE.moment.pitch]).toBeTruthy();
   });
   it('a wall of before (v 14) gets it once under the habits (else on top); taken away it stays away', () => {
-    expect(ids(wallOf({ v: 14, tiles: [{ id: 'meditation', size: 'long' }, { id: 'week', size: 'l' }] }))).toEqual(['meditation', 'moment', 'week']);
+    expect(ids(wallOf({ v: 14, tiles: [{ id: 'meditation', size: 'long' }, { id: 'week', size: 'l' }] }))).toEqual(['meditation', 'moment', 'discover', 'week']); // + PR 5
     expect(ids(withMoment([{ id: 'week', size: 'l' }]))).toEqual(['moment', 'week']);
     expect(ids(wallOf(wallRecord([{ id: 'week', size: 'l' }])))).toEqual(['week']);
   });
