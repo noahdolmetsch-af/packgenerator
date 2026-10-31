@@ -1,4 +1,5 @@
 // v0.34.0 (L3): the shopping list of a trip. Fictional items only.
+import './setup/de.js'; // this test needs the German texts
 import { describe, it, expect, afterEach } from 'vitest';
 import { shopList, shopCount, toggleShop, shopText, shopLine } from '../src/lib/shop.js';
 import { lang } from '../src/lib/i18n.svelte.js';

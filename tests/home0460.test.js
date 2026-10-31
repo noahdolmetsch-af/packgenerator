@@ -1,4 +1,5 @@
 // v0.46.0 «Startseite neu»: the rules of the new Today page, the 16 functions and the command line.
+import './setup/de.js'; // this test needs the German texts
 import { describe, it, expect, afterEach } from 'vitest';
 import { lang } from '../src/lib/i18n.svelte.js';
 import { isTestTrip, homeTrips, testTrips, archiveChanges, greeting, dayPart, weatherLine, dayDry, countdown, soonTrips, weekOf, streakWeeks, monthBars, stepOf, milestoneLevels, milestoneStep, milestonesNow, milestoneText, layoutOf, moveSection, toggleSection, SECTIONS } from '../src/lib/home/heute.js';

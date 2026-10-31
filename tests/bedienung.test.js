@@ -1,6 +1,7 @@
 // Bedienung (Noah 13.10.2026 23:52 and 23:56, without mockups): the pure parts of the small helps.
 // FE8 night quiet, FE10 speak instead of type, FE7 short vibration, FE11/FE18 start place, FE17 search
 // can act, the switches and their defaults, German texts for every new English text.
+import './setup/de.js'; // this test needs the German texts
 import { describe, it, expect, afterEach } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { quietNow, QUIET_FROM, QUIET_TO } from '../src/lib/quiet.js';

@@ -1,3 +1,4 @@
+import './setup/de.js'; // this test needs the German texts
 import { describe, it, expect, afterEach } from 'vitest';
 import { readFileSync, readdirSync } from 'node:fs';
 import { WHATS_NEW, SHOWN, BEFORE, BOXES, compareVersions, splitNews, groupOlder, shortVersion, newsHint, newerThan, itemsOf, iconOf } from '../src/lib/whatsnew.js';

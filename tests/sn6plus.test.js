@@ -1,6 +1,7 @@
 // SN6+ «SN6 plus» (mockups SN6p, Noah 13.10.2026 «freigabe SN6p», answers 1b 2b 3b 4a 5b): the rules of
 // the progress bar, «Your top 5», «Fits right now», «New since your last visit», the order of the blocks
 // and «How it works» for every function. Fictional data only.
+import './setup/de.js'; // this test needs the German texts
 import { describe, it, expect, afterEach } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { FEATURES } from '../src/lib/features.js';

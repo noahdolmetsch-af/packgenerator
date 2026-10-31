@@ -1,3 +1,4 @@
+import './setup/de.js'; // this test needs the German texts
 import { describe, it, expect, afterEach } from 'vitest';
 import { SHEETS, shownSheets, isShown, chooseSheet, breakinAuto, firstServiceDone, NEW_KM } from '../src/lib/sheets.js';
 import {
