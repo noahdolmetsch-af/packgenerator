@@ -108,4 +108,8 @@ export default {
   '«Save anyway» keeps it in Trips all the same, for example to try the app.': '«Trotzdem speichern» legt sie trotzdem in Touren ab, zum Beispiel zum Ausprobieren.',
   // Navigation zum Ziel 2: the turn after the next one
   'Then: {text}': 'Danach: {text}',
+  // Noah 28.10.2026: X folds the box in, «End navigation» ends it
+  'Show the navigation': 'Navigation zeigen',
+  'End navigation': 'Navigation beenden',
+  'Navigation ended.': 'Navigation beendet.',
 };
