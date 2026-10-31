@@ -4,11 +4,11 @@ export default {
   title: 'Charts you can tap',
   lead: 'The charts of your ticks show exact numbers and open what is behind a bar.',
   points: [
-    { text: 'Point at a week or day: its exact numbers stand in the line above the chart', href: '#/flow/auswertung' },
-    { text: 'Tap a bar: a window shows its days and activities, with «Next week» inside' },
-    { text: '«As table» shows the same numbers as rows' },
+    { text: 'Point at a week or day: its exact numbers stand in the line above the chart', href: '#/flow/auswertung', go: 'f.tickreview' },
+    { text: 'Tap a bar: a window shows its days and activities, with «Next week» inside', go: 'f.tickreview' },
+    { text: '«As table» shows the same numbers as rows', go: 'f.tickreview' },
   ],
-  small: [{ box: 'nicer', text: 'Each chart has a value axis with round steps, starting at 0' }],
+  small: [{ box: 'nicer', text: 'Each chart has a value axis with round steps, starting at 0', go: 'f.tickreview' }],
   test: [
     'Open Auswerten › Haken ausgewertet and point at a bar of «Haken pro Woche»: the line above shows its numbers.',
     'Tap the bar: the window lists the seven days; «Nächste Woche» walks on, ✕ closes it.',

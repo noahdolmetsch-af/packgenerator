@@ -3,8 +3,8 @@ export default {
   title: 'Tap the dots on the tour page',
   lead: 'The resting heart rate dots show their exact numbers, and a tap opens that ride.',
   points: [
-    { text: 'A line over the dots names the day, the resting heart rate and the NP or Ø heart rate' },
-    { text: 'A tap opens a window with the numbers and «Diese Fahrt öffnen»; «Als Tabelle» shows all dots as rows' },
+    { text: 'A line over the dots names the day, the resting heart rate and the NP or Ø heart rate', go: 'f.tourpage' },
+    { text: 'A tap opens a window with the numbers and «Diese Fahrt öffnen»; «Als Tabelle» shows all dots as rows', go: 'f.tourpage' },
   ],
   small: [],
   test: [

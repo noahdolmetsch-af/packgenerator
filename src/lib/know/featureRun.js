@@ -13,7 +13,7 @@ import { quickRide, openNew, openNote, openData, openWear } from '../nav.js';
 import { localDay } from '../localday.js';
 import { t, lang, setLang } from '../i18n.svelte.js';
 import { countFeature } from './wasneuStore.js';
-import { SPOT, showSpot } from './spot.js';
+import { SPOT, showSpot, note } from './spot.js';
 
 /** Count the function as used. v0.110.0 Design-Refresh P10 (I11c): and once more for «Your top 10» on this device. */
 export const tapFeature = (id) => (countFeature(id), updateTips(db, (s) => tapTip(s, id, localDay())));
@@ -49,8 +49,11 @@ const RUN = {
   },
 };
 
-/** Go: the page (or the action) of a function. bikeId: the first bike, for the bike's sheets. */
-export async function goFeature(f, { bikeId = null } = {}) {
+/**
+ * Go: the page (or the action) of a function. bikeId: the first bike, for the bike's sheets. spot: what
+ * «Ausprobieren» of a news line adds (know/spot.js showSteps opts: note, miss, go).
+ */
+export async function goFeature(f, { bikeId = null, spot = {} } = {}) {
   tapFeature(f.id);
   const run = runOf(f);
   if (run && RUN[run]) return RUN[run]();
@@ -59,5 +62,6 @@ export async function goFeature(f, { bikeId = null } = {}) {
   if (location.hash === href) window.dispatchEvent(new HashChangeEvent('hashchange'));
   else location.hash = href;
   // «332 sichtbar» c (Noah 27.10.2026): a function inside a window or a fold: go to the spot and light it up
-  if (SPOT[f.id]) showSpot(f.id);
+  if (SPOT[f.id]) showSpot(f.id, spot);
+  else if (spot.note) note(spot.note, { go: spot.go });
 }

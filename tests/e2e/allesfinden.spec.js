@@ -49,8 +49,15 @@ test('Was die App kann: groups by situation, chips, find, Hinbringen, Ausprobier
   await page.getByRole('button', { name: T('By page'), exact: true }).click();
   await expect(groups).toHaveCount(5);
   await expect(groups.first().locator('h2')).toHaveText(T('Trips|place'));
+  // «Heute als Begleiter» PR 6: the third view, by moment (9 groups, a line explains it)
+  await page.getByRole('button', { name: T('By moment'), exact: true }).click();
+  await expect(groups).toHaveCount(9);
+  await expect(groups.first().locator('h2')).toHaveText(T('Dreaming and ideas|moment'));
+  await expect(page.locator('[data-moment-hint]')).toBeVisible();
+  await noSideScroll(page);
   await page.getByRole('button', { name: T('By situation'), exact: true }).click();
   await expect(groups).toHaveCount(6);
+  await expect(page.locator('[data-moment-hint]')).toHaveCount(0);
 
   // SN6 (changed on purpose): no situation chips; «Alle n» of a card shows all its rows
   const bike = page.locator('section[data-group="bike"]');

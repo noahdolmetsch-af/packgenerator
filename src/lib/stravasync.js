@@ -219,5 +219,6 @@ export const ERROR_TEXT = {
   scope: 'Strava did not allow reading the rides. Connect again and leave «View data about your activities» on.',
   other_athlete: 'This server belongs to another Strava account.',
   expired: 'The login took too long. Try again.',
+  invite_gone: 'This invite link is used up or older than 7 days. Ask for a new one.',
 };
 export const errorText = (code) => ERROR_TEXT[code] ?? 'Strava answered with an error. Try again later.';

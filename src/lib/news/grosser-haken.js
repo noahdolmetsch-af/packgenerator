@@ -3,8 +3,8 @@
 export default {
   title: 'The big tick draws itself',
   lead: 'Big moments get a small animation.',
-  points: [{ text: 'On «Packed» and «Trip ended» the tick draws itself in a green circle', href: '#/pack?day' }],
-  small: [{ box: 'nicer', text: 'The animation loads only at that moment and stays still with «reduce motion»' }],
+  points: [{ text: 'On «Packed» and «Trip ended» the tick draws itself in a green circle', href: '#/pack?day', go: { href: '#/pack?day', where: 'Shows when you tick «Packed» or «Trip ended».' } }],
+  small: [{ box: 'nicer', text: 'The animation loads only at that moment and stays still with «reduce motion»', go: null }],
   test: ['Pack a trip and tap «Everything is packed», then «Next»: the green circle grows and the tick draws itself.', 'With «reduce motion» on your phone the tick is simply there.'],
   since: [],
   de: {

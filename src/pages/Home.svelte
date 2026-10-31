@@ -101,7 +101,7 @@
   import { isEveningOn } from '../lib/dayclock.js';
   import { cfgQuery } from '../lib/freidb.js';
   import { todayImpulse } from '../lib/frei.js';
-  import { WALL_KEY, TILE, wallOf, wallRecord, addTile, removeTile, isNew, HELPER_TILES, hideTiles, keepHidden, tripUp, HEAD_0155 } from '../lib/home/tiles.js';
+  import { WALL_KEY, TILE, wallOf, wallRecord, addTile, removeTile, isNew, HELPER_TILES, VALUE_TILES, hideTiles, keepHidden, tripUp, HEAD_0155 } from '../lib/home/tiles.js';
   import { tourNear } from '../lib/home/heuteneu.js';
   import HabitCards from '../lib/home/HabitCards.svelte';
   import HabitsSheet from '../lib/home/HabitsSheet.svelte';
@@ -110,6 +110,10 @@
   import AktivTile from '../lib/home/AktivTile.svelte';
   import BodyTile from '../lib/home/BodyTile.svelte';
   import VitalsTile from '../lib/home/VitalsTile.svelte';
+  import Vo2Tile from '../lib/home/Vo2Tile.svelte';
+  import MomentTile from '../lib/home/MomentTile.svelte'; // «Heute als Begleiter» PR 4
+  import { vo2Of, VO2_DAYS } from '../lib/home/vo2.js';
+  import { addDays as addHealthDays } from '../lib/health.js';
   import WeighTile from '../lib/home/WeighTile.svelte';
   import { weight as weightStore } from '../lib/weight.svelte.js';
   import { WEIGH_KEY, weighDue } from '../lib/home/weighin.js';
@@ -515,7 +519,8 @@
   let wallAnyway = $state(false);
   const emptyDevice = $derived(showFirst && !steps.bike && !steps.gear && !steps.trip && !wallAnyway && !editing && !S[WALL_KEY]);
   // Rule 11: «Dein Körper heute» stays on top and what is due today never hides, also on an empty device
-  const EMPTY_KEEP = new Set(['body', 'important']);
+  // «VO2max auf Heute» (28.10.2026): it shows only with a value, so it stays like the body
+  const EMPTY_KEEP = new Set(['body', 'important', 'vo2max']);
 
   /* ---------- 3. the 16 functions (Noah 12a, 13a, 15a) ---------- */
   const usage = $derived(usageOf(S[USAGE_KEY]));
@@ -884,7 +889,10 @@
   const weighOn = $derived(weighedNow || (weightStore.loaded && weighDue(weightStore.entries, today, S[WEIGH_KEY] ?? null)));
   // P6 H1 (Noah 21.10.2026 «2b»): after an update «New» stands on top as a whole row for 14 days, unless the wall has the tile itself
   const newsRow = $derived(ready && !editing && newsDays > 0 && !onWall.has('news') && S[NEWS_OFF_KEY] !== WHATS_NEW[0].version);
-  const quiet = $derived([...(upEmpty && on('body') ? ['important'] : []), ...(weighOn ? [] : ['weighin'])]);
+  // «VO2max auf Heute» (Noah 28.10.2026 «2 a und b»): the tile only while there is a value of the last 90 days
+  const vo2Q = $derived(liveQuery(() => (db.healthDays ? db.healthDays.where('date').aboveOrEqual(addHealthDays(today, -VO2_DAYS)).toArray() : [])));
+  const vo2On = $derived(!!vo2Of($vo2Q ?? [], today));
+  const quiet = $derived([...(upEmpty && on('body') ? ['important'] : []), ...(weighOn ? [] : ['weighin']), ...(vo2On ? [] : VALUE_TILES)]);
   const shownWall = $derived(editing ? hideTiles(wall, hiddenTiles) : joinFlow(tripUp(hideTiles(wall, [...hiddenTiles, ...quiet]), !!near)));
   // Paket Q #74 (Noah 19.10.2026 «4a»): the wall follows the time of day; while editing the stored order shows
   const timeOn = $derived(S[WALL_TIME_KEY] !== false);
@@ -1099,6 +1107,8 @@
           <Profile points={prof} />
         </div>
       {/if}
+      <!-- «Neuer Schwung» Stil S2 (Noah 26.10.2026 «1a»): a drawn landscape with the dashed route at the foot of the trip card -->
+      <svg class="land" viewBox="0 0 400 44" preserveAspectRatio="none" aria-hidden="true" data-trip-land><path class="h1" d="M0 30 C60 14 110 18 160 26 S260 40 310 22 S380 12 400 18 V44 H0 Z" /><path class="h2" d="M0 38 C70 28 140 34 200 38 S330 30 400 34 V44 H0 Z" /><path class="rt" d="M8 40 C80 34 150 36 210 32 S320 18 392 16" /></svg>
     </section>
     {#if slim}
       <div class="srow" data-suggestion data-slim>
@@ -1210,6 +1220,8 @@
   {:else if x.id === 'routine'}<RoutineTile {today} isnew={newTile('routine')} />
   {:else if x.id === 'weighin'}<WeighTile {today} isnew={newTile('weighin')} onsaved={() => (weighedNow = true)} onstop={() => saveWall(removeTile(wall, 'weighin'))} />
   {:else if x.id === 'vitals'}<VitalsTile {today} isnew={newTile('vitals')} />
+  {:else if x.id === 'moment'}<MomentTile {today} hour={now.getHours()} weekday={now.getDay()} {trips} debriefDone={(tr) => debriefs.some((d) => d.tripId === tr.id && d.status === 'done')} careDue={due.points} inbox={notes.length} isnew={newTile('moment')} />
+  {:else if x.id === 'vo2max'}<Vo2Tile {today} isnew={newTile('vo2max')} />
   {:else if x.id === 'values'}<DataWidget idp="hdw" />
   {:else if x.id === 'week'}<WeekTile {today} rides={$ridesQ ?? []} isnew={newTile('week')} />
   {:else if x.id === 'month'}<MonthTile {today} rides={$ridesQ ?? []} isnew={newTile('month')} />
@@ -1459,6 +1471,43 @@
     gap: 24px;
     max-width: 1328px;
     margin: 0 auto;
+    /* «Neuer Schwung» Stil S2 «Kacheln mit Tiefe» (Noah 26.10.2026 «1a»): on Today the cards lose their frame, get a
+       soft shadow and rounder corners; the other pages keep the palette's cards */
+    --card-line: transparent;
+    --card-shadow: 0 1px 2px color-mix(in srgb, var(--shadow) 30%, transparent), 0 10px 24px -14px var(--shadow);
+    --radius-card: 18px;
+  }
+  .land {
+    grid-column: 1 / -1;
+    display: block;
+    width: 100%;
+    height: 44px;
+    margin-top: -4px;
+  }
+  .land .h1 {
+    fill: color-mix(in srgb, var(--accent) 14%, var(--paper));
+  }
+  .land .h2 {
+    fill: color-mix(in srgb, var(--accent) 24%, var(--paper));
+  }
+  .land .rt {
+    fill: none;
+    stroke: var(--accent);
+    stroke-width: 2;
+    stroke-dasharray: 6 6;
+    stroke-linecap: round;
+    vector-effect: non-scaling-stroke;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .land .rt {
+      animation: land-go 1200ms ease-out 200ms backwards;
+    }
+  }
+  @keyframes land-go {
+    from {
+      opacity: 0;
+      stroke-dashoffset: 120;
+    }
   }
   @media (max-width: 719px) {
     .home {

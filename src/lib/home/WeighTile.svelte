@@ -30,7 +30,7 @@
 </script>
 
 <section class="wg surf" aria-labelledby="wg-h" data-section="weighin">
-  <TileHead icon={Scale} id="wg-h" title={t('Weight this week?')} {isnew} />
+  <TileHead icon={Scale} id="wg-h" title={t('Weight this week?')} {isnew} info="tile.weigh" />
   {#if saved != null}
     <p class="ok" role="status" data-weigh-saved>{t('Saved: {kg} kg. Your weight is under Me › Weight.', { kg: num(saved) })}</p>
   {:else}

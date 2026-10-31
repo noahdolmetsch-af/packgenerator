@@ -68,7 +68,7 @@
   import LiveWebcam from '../lib/live/LiveWebcam.svelte';
   import { camsQuery, camsOnMap, camOfPoint } from '../lib/wetter/webcamsmap.js';
   import { db } from '../lib/db.js';
-  import { rec, startRecording, stopRecording, openRecording, pauseRecording, resumeRecording, addSensor, setGpsLow, lapRecording, setPauseWhy, addPastPause } from '../lib/spur/recorder.svelte.js';
+  import { rec, startRecording, stopRecording, takeTooShort, openRecording, pauseRecording, resumeRecording, addSensor, setGpsLow, lapRecording, setPauseWhy, addPastPause } from '../lib/spur/recorder.svelte.js';
   import PauseBar from '../lib/live/PauseBar.svelte';
   import ForgotPause from '../lib/tourenc/ForgotPause.svelte'; // Touren c 61
   import { forgotStep, whyOf } from '../lib/tourenc/pausewhy.js'; // Touren c 60/61
@@ -116,6 +116,7 @@
   import { offerDone } from '../lib/ui/rename.svelte.js';
   import { saveFailed } from '../lib/ui/ask.js';
   import EndRideSheet from '../lib/live/EndRideSheet.svelte';
+  import TooShortSheet from '../lib/live/TooShortSheet.svelte';
   import { pointDots } from '../lib/live/event.js';
   import { t, tn, locale, num } from '../lib/i18n.svelte.js';
   import SleepList from '../lib/race/ride/SleepList.svelte';
@@ -239,11 +240,31 @@
       }
     }
     after = { ride, saved };
+    // too short to keep: a window says so clearly; «Save anyway» keeps it all the same (Noah 28.10.2026)
+    if (!ride) {
+      const s = takeTooShort();
+      tooShort = { points: s?.pts?.length ?? 0, ride: s };
+    }
     // the group ride ends with the ride: every place of it is deleted (an event group of several days goes on)
     groupEnded = await endKeptGroup(db);
     groupRows = [];
     me = null;
     row = null;
+  }
+
+  let tooShort = $state.raw(null); // { points, ride } after a ride too short to keep
+  async function tooShortAnswer(a) {
+    const s = tooShort?.ride ?? null;
+    tooShort = null;
+    if (a !== 'save' || !s?.pts?.length) return;
+    try {
+      await db.tracks.put(s);
+      const saved = await saveLiveRide(db, s, { trip, name: rideName(s) });
+      after = { ride: s, saved };
+      offerDone(t('Saved in Trips as «Live Navigation».'));
+    } catch (x) {
+      err = saveFailed(x);
+    }
   }
 
   // the recording row, again whenever a point was kept
@@ -1107,6 +1128,7 @@
   {#if showRouteBox && !rec.on}
     <LiveRouteBox {trip} />
   {/if}
+  {#if tooShort}<TooShortSheet points={tooShort.points} ondone={tooShortAnswer} />{/if}
 
   {#if !rec.on && !after}
     <p class="rc-empty" data-live-empty>{t('Start the ride: then the map fills the screen and shows where you are, the numbers you choose and the stops ahead or around you.')}</p>
