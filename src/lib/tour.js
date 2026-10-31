@@ -60,6 +60,12 @@ export const TOURS = {
     { href: '#/race/race-sample/after', place: 'trips', target: ['[data-race-box="after-sections"]', 'main h1'], title: 'After the race', text: 'Plan against what happened, per sector, your stops, recovery and the report.' },
     { href: '#/race/race-sample', place: 'trips', end: true, target: ['[data-race-box="tasks"]'], title: 'Now you try', text: 'The tasks on top tick themselves. Reset makes the sample new again, Delete removes it.' },
   ],
+  // «Quick Links» (Noah 28.10.2026, idea 19): pin on a card, find it in Quick Links, make it yours
+  quick: [
+    { href: '#/', place: 'today', target: ['[data-pinmark]', 'main h1'], title: 'Pin what you like', text: 'The small pin at the top right of a card puts it into your Quick Links. A second tap takes it out again.' },
+    { href: '#/quick', place: 'quick', target: ['[data-quick-group]', 'main h1'], title: 'Your Quick Links', text: 'Everything you pinned, in groups. A tap goes straight to the spot in the app.' },
+    { href: '#/quick', place: 'quick', end: true, target: ['[data-quick-editbtn]', 'main h1'], title: 'Make it yours', text: '«Edit» renames, adds a note, moves and unpins. Phone and computer keep their own pins.' },
+  ],
   velos: [
     { href: '#/bikes', place: 'bikes', target: ['section.draw', '.setup', 'main h1'], title: 'Your bike|intro', text: 'The drawing shows where each bag sits on the bike. Tap a place to change it.' },
     { href: '#/bikes', place: 'bikes', target: ['section.std', '.setup'], title: 'Bags|tour', text: 'These bags come along on every new trip with this bike, with their weight.' },
@@ -69,7 +75,7 @@ export const TOURS = {
 };
 
 /** The tour's name for buttons and the Handbook. */
-export const TOUR_NAMES = { app: 'Tour of the app', aktiv: 'Tour of Active', touren: 'Tour of Trips', material: 'Tour of Gear', velos: 'Tour of Bikes', race: 'Tour of the sample race' };
+export const TOUR_NAMES = { app: 'Tour of the app', aktiv: 'Tour of Active', touren: 'Tour of Trips', material: 'Tour of Gear', velos: 'Tour of Bikes', race: 'Tour of the sample race', quick: 'Tour of Quick Links' };
 
 /** How many steps a tour shows with «Step n of m» (the end card does not count). */
 export const stepCount = (id) => (TOURS[id] ?? []).filter((s) => !s.end).length;

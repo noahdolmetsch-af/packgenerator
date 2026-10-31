@@ -68,6 +68,9 @@ const SHOP_HOSTS = /(^|\.)(bike24\.[a-z.]+|bike-components\.de|bike-discount\.de
 const RACE_HOSTS = /(^|\.)(themountainraces\.cc|silkroadmountainrace\.com|atlasmountainrace\.com|tourdivide\.org|transcontinental\.cc|highlandtrail550\.com|bikepackingsuisse\.ch|badlands\.cc|racearoundtheneth?erlands\.com)$/;
 const ARTICLE_HOSTS = /(^|\.)(bikepacking\.com|bikeradar\.com|cyclingtips\.com|cyclingweekly\.com|gravelcyclist\.com|outsideonline\.com|adventurecycling\.org|velonews\.com|road\.cc|medium\.com|substack\.com)$/;
 
+/** A link to a video on a video site (the video itself stays there; the app keeps only the link). */
+export const isVideoLink = (url) => detectType(url).type === 'video';
+
 /**
  * The kind of a link from its address alone, or null when the app cannot tell (then you choose).
  * Returns { type, domain, title }: title is a suggestion from the last part of the address.

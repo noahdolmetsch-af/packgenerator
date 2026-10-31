@@ -6,7 +6,7 @@ import { shortcutOf } from '../src/lib/nav/keys.js';
 
 describe('the pages under each place', () => {
   it('each place has at most 4, and only built pages (O2.1a: Neuland and Heft come later; v0.78.0 O2.5a: Einkauf shows the wishlist; v0.79.0: Aktivität is built; UC3 14.10.2026 «2a»: Velos gets «Setup» as a fifth; Paket 2: Aktiv gets «Meditation» (ME2, Noah 15.10.2026 «1a») and «Training» (TR2, Noah 13.10.2026 «1-5a» 1a) as its own tabs; Paket N: Touren gets «Träume» (Noah 19.10.2026 «1a») next to «Skitouren»)', () => {
-    const max = { bikes: 5, active: 4, analysis: 11, trips: 7, week: 12, gear: 6 }; // Alltag sichtbar (Noah 24.10.2026 «1a»): Planen + Merken // «Alles finden 2» (Noah 22.10.2026 «4a 5a»): Touren, Planen and Material got tabs; // «Aktiv neu» (Noah 22.10.2026): Aktiv has 4 tabs, «Auswerten» the looking pages // «Tagebuch» (Noah 20.10.2026): a tab of Planen next to Notizen // UI-Ziele #6 (Noah 20.10.2026 «freigabe» 4a): Ich keeps data, settings, help; the rest are tabs of Planen and Auswerten // N1 «Neue Leiste» (Noah 20.10.2026): Fahrten and Erkenntnisse go to Auswerten; Planen gets Termine and Notizen // Gesamttest 20.10.2026 B3 (Noah «3a»): Touren gets «Fahrten», the Strava activities // Paket T (Noah 19.10.2026 «1a und b»): Aktiv gets «Impulse» as a sixth tab
+    const max = { bikes: 5, active: 4, analysis: 12, trips: 7, week: 12, gear: 6 }; // Analyse (Noah 27.10.2026 «1a»): Auswerten gets «Analyse» as a tab // Alltag sichtbar (Noah 24.10.2026 «1a»): Planen + Merken // «Alles finden 2» (Noah 22.10.2026 «4a 5a»): Touren, Planen and Material got tabs; // «Aktiv neu» (Noah 22.10.2026): Aktiv has 4 tabs, «Auswerten» the looking pages // «Tagebuch» (Noah 20.10.2026): a tab of Planen next to Notizen // UI-Ziele #6 (Noah 20.10.2026 «freigabe» 4a): Ich keeps data, settings, help; the rest are tabs of Planen and Auswerten // N1 «Neue Leiste» (Noah 20.10.2026): Fahrten and Erkenntnisse go to Auswerten; Planen gets Termine and Notizen // Gesamttest 20.10.2026 B3 (Noah «3a»): Touren gets «Fahrten», the Strava activities // Paket T (Noah 19.10.2026 «1a und b»): Aktiv gets «Impulse» as a sixth tab
     for (const p of ALL_PLACES) expect((PLACE_TABS[p.key] ?? []).length, p.key).toBeLessThanOrEqual(max[p.key] ?? 4);
     const keys = Object.values(PLACE_TABS).flat().map((x) => x.key);
     for (const later of ['neuland', 'heft']) expect(keys).not.toContain(later);
@@ -65,7 +65,7 @@ describe('keyboard shortcuts', () => {
   it('g and a letter open a place', () => {
     expect(shortcutOf('g')).toEqual({ wait: true });
     expect(PLACES.map((p) => shortcutOf(p.letter, true))).toEqual(PLACES.map((p) => ({ go: p.href })));
-    expect(PLACES.map((p) => p.letter)).toEqual(['h', 'w', 't', 'a', 'v', 'm']); // «Woche planen» (Noah 15.10.2026 «1a»): g w; N1: the order of the new bar, letters unchanged
+    expect(PLACES.map((p) => p.letter)).toEqual(['h', 'w', 't', 'a', 'v', 'm', 'q']); // «Quick Links» (Noah 28.10.2026): g q // «Woche planen» (Noah 15.10.2026 «1a»): g w; N1: the order of the new bar, letters unchanged
   });
 
   it('a letter without g does nothing, except n, i, / and ?', () => {

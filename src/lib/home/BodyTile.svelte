@@ -13,6 +13,8 @@
   import TileHead from './TileHead.svelte';
   import { health } from '../health/client.svelte.js';
   import { fitbitEmpty } from '../health/emptyline.js';
+  import { phone } from '../media.svelte.js';
+  import BodySheet from './BodySheet.svelte';
   import { t, tn, locale } from '../i18n.svelte.js';
 
   let { today, due = 0, areas = [], evening = false, open = false, onstart = () => {} } = $props();
@@ -23,16 +25,23 @@
   const LABEL = { pulse: 'Resting pulse|body', sleep: 'Sleep|body', score: 'Sleep score|body', azm: 'Active zone minutes|body' };
   const fmt = (r, x) => (x == null ? '–' : r.key === 'sleep' ? `${n1(x)} h` : r.key === 'score' && r.kind === 'efficiency' ? `${x} %` : String(Math.round(x)));
   const label = (r) => (r.key === 'score' && r.kind === 'efficiency' ? t('Sleep efficiency|body') : t(LABEL[r.key]));
+  // «Neuer Schwung» Blatt von unten (Noah 27.10.2026 «a»): on a phone the tile opens a sheet, the computer keeps the link
+  let sheet = $state(false);
   const shortDay = (iso) => new Date(`${iso}T12:00:00Z`).toLocaleDateString(locale(), { day: 'numeric', month: 'short', timeZone: 'UTC' });
 </script>
 
 <section class="bd surf" aria-labelledby="bd-h" data-section="body">
   <div class="hd">
     <TileHead icon={Activity} id="bd-h" title={t('Your body today')} />
-    <a class="go" href="#/me/insights">{t('Details|body')}<ChevronRight size={16} aria-hidden="true" /></a>
+    {#if phone.matches}
+      <button type="button" class="go" aria-haspopup="dialog" onclick={() => (sheet = true)} data-body-open>{t('Details|body')}<ChevronRight size={16} aria-hidden="true" /></button>
+    {:else}
+      <a class="go" href="#/me/insights">{t('Details|body')}<ChevronRight size={16} aria-hidden="true" /></a>
+    {/if}
   </div>
   {#if body.any}
-    <dl class="vals">
+    <!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_noninteractive_element_interactions (the «Details» button does the same by keyboard) -->
+    <dl class="vals" class:tap={phone.matches} onclick={() => phone.matches && (sheet = true)}>
       {#each body.rows as r (r.key)}
         <div data-body={r.key}>
           <dt>{label(r)}</dt>
@@ -65,6 +74,7 @@
   </div>
   <p class="note">{t('Only to look at: the arrow compares with yesterday.')}</p>
 </section>
+{#if phone.matches}<BodySheet bind:open={sheet} {today} />{/if}
 
 <style>
   .bd {
@@ -84,6 +94,10 @@
     flex: 1;
   }
   .go {
+    border: 0;
+    background: transparent;
+    padding: 0;
+    cursor: pointer;
     display: inline-flex;
     align-items: center;
     min-height: 44px;
@@ -97,6 +111,9 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 10px 16px;
     margin: 0;
+  }
+  .vals.tap {
+    cursor: pointer;
   }
   .vals div {
     display: flex;

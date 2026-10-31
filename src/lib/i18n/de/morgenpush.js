@@ -24,4 +24,14 @@ export default {
   'Open the evening-before check on the evening before a trip, as usual.': 'Öffne den Abend-Check am Vorabend einer Tour wie immer.',
   'From the third evening the app knows your usual time.': 'Ab dem dritten Abend kennt die App deine übliche Zeit.',
   'Gepackt then offers to move the reminder; «No, thanks» keeps it.': '«Gepackt» schlägt dann vor, die Erinnerung zu verschieben; «Nein, danke» lässt sie.',
+  // Idee A3 «Freie Zeit plus gutes Wetter» (Noah 27.10.2026): here, so de/index.js needs no new line
+  '{day} {from}–{to} free and dry': '{day} {from}–{to} frei und trocken',
+  'A round of about {km} km? From your calendar and the weather at home, the next {n} days.': 'Eine Runde von etwa {km} km? Aus deinem Kalender und dem Wetter zu Hause, die nächsten {n} Tage.',
+  'Free time and good weather': 'Freie Zeit und gutes Wetter',
+  'In the week: the next free window in your calendar with dry weather at home, with a round that fits.': 'In der Woche: das nächste freie Fenster in deinem Kalender mit trockenem Wetter zu Hause, mit einer passenden Runde.',
+  'Switch on the calendar under Me › Appointments and tasks and set your home place.': 'Schalte den Kalender unter Ich › Termine und Aufgaben ein und setz deinen Wohnort.',
+  'Open Plan › Week: on top the next free and dry window.': 'Öffne Planen › Woche: oben das nächste freie, trockene Fenster.',
+  '«Not now» hides it; the next one comes.': '«Jetzt nicht» blendet es aus; das nächste kommt.',
+  'no free and dry window in the next {n} days yet.': 'in den nächsten {n} Tagen noch kein freies, trockenes Fenster.',
+  'with the calendar on and your home place set, the next free and dry window shows here.': 'mit eingeschaltetem Kalender und gesetztem Wohnort steht hier das nächste freie, trockene Fenster.',
 };

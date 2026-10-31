@@ -3,8 +3,8 @@ export default {
   title: 'Exact numbers in the tour profiles',
   lead: 'The speed and the height profile show their exact numbers in a line above, and both can be shown as a table.',
   points: [
-    { text: 'Speed profile: the line above names the time or the stretch with its exact km/h; «Als Tabelle» lists every round time step' },
-    { text: 'Height profile: the line above names the km and the height; «Als Tabelle» lists the height every few km' },
+    { text: 'Speed profile: the line above names the time or the stretch with its exact km/h; «Als Tabelle» lists every round time step', go: 'f.tourpage' },
+    { text: 'Height profile: the line above names the km and the height; «Als Tabelle» lists the height every few km', go: 'f.tourpage' },
   ],
   small: [],
   test: [

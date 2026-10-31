@@ -8,18 +8,17 @@
    */
   import { ChevronRight, Star } from '@lucide/svelte';
   import { t, locale } from '../i18n.svelte.js';
-  import { openData } from '../nav.js';
+  import { goOf, hrefOf } from './newsgo.js';
+  import { goNews } from './newsRun.js';
   import { splitNews, groupOlder, shortVersion } from '../whatsnew.js';
 
   const { recent, older } = splitNews();
   const groups = groupOlder(older);
   const opened = typeof location !== 'undefined' && /[?&]news\b/.test(location.hash);
   const day = (iso) => new Date(`${iso}T12:00:00`).toLocaleDateString(locale(), { day: 'numeric', month: 'long', year: 'numeric' });
-  function go(p, e) {
-    if (p.action !== 'data') return;
-    e.preventDefault();
-    openData();
-  }
+  // «Ausprobieren» (Noah 27.10.2026 «1a»): each line to its exact place (know/newsgo.js)
+  const go = (p, e) => goNews(p, e);
+  const linkOf = (p) => hrefOf(goOf(p)) ?? (goOf(p) ? '#/me/news' : null);
 </script>
 
 {#snippet version(e, prev)}
@@ -32,8 +31,8 @@
       {#each e.points as p (p.text)}
         <!-- v0.40.0 (design check R2): the whole row leads to the place, only a ›; no "Try it" on every row. -->
         <li>
-          {#if p.href}
-            <a class="try" href={p.href} onclick={(ev) => go(p, ev)}><span class="pt">{t(p.text)}</span><ChevronRight size={16} aria-hidden="true" /></a>
+          {#if linkOf(p)}
+            <a class="try" href={linkOf(p)} onclick={(ev) => go(p, ev)}><span class="pt">{t(p.text)}</span><ChevronRight size={16} aria-hidden="true" /></a>
           {:else}
             <span class="pt">{t(p.text)}</span>
           {/if}

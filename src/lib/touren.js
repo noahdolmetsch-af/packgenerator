@@ -60,12 +60,21 @@ export function daysTo(iso, today) {
 export function weightByPlace(stats, itemsById, eats = () => false) {
   const rows = [];
   let heaviest = null;
+  // UI-Test T7 (G2-08): the food and water of each place, so a bag can say «2.5 kg, 4.6 kg with food and water»
+  // like the drawing; and the worn places (Back, Hip) count on me, as in the drawing and «On me».
+  const foodByPlace = {};
+  const rowOf = (key) => rows.find((r) => r.key === key) ?? (rows.push({ key, g: 0, missing: 0 }), rows.at(-1));
   for (const z of stats?.zones ?? []) {
+    const key = z.worn ? 'body' : z.key;
     let g = 0;
     let missing = 0;
     for (const e of z.entries) {
       const it = itemsById[e.itemId];
-      if (!it || eats(it)) continue;
+      if (!it) continue;
+      if (eats(it)) {
+        if (it.weightG != null) foodByPlace[key] = (foodByPlace[key] ?? 0) + it.weightG * (e.qty || 1);
+        continue;
+      }
       if (it.weightG == null) {
         missing++;
         continue;
@@ -74,7 +83,11 @@ export function weightByPlace(stats, itemsById, eats = () => false) {
       g += w;
       if (!heaviest || it.weightG > heaviest.g) heaviest = { item: it, g: it.weightG };
     }
-    if (g > 0 || missing) rows.push({ key: z.key, g, missing });
+    if (g > 0 || missing) {
+      const r = rowOf(key);
+      r.g += g;
+      r.missing += missing;
+    }
   }
   rows.sort((a, b) => b.g - a.g);
   // v0.137.0 (Durchklick DK3, Noah 2a): worn bags count on me, food and water get their own row at
@@ -90,7 +103,7 @@ export function weightByPlace(stats, itemsById, eats = () => false) {
   const food = stats?.consumablesG ?? 0;
   const foodMissing = stats?.consumablesMissing ?? 0;
   if (food || foodMissing) rows.push({ key: 'food', g: food, missing: foodMissing });
-  return { rows, total: rows.reduce((s, r) => s + r.g, 0), missing: rows.reduce((s, r) => s + r.missing, 0), heaviest, food };
+  return { rows, total: rows.reduce((s, r) => s + r.g, 0), missing: rows.reduce((s, r) => s + r.missing, 0), heaviest, food, foodByPlace };
 }
 
 /** SN4g: where «Packmodus öffnen» goes (the packing day of the trip, today.js STEP.pack). */

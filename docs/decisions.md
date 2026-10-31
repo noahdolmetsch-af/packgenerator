@@ -1962,6 +1962,7 @@ Noah 19.10.2026: «1a 2a 3a 4 a oder b beides wählbar 5a», danach «a und b»,
 - Noah 27.10.2026 Suchvorschläge «1a 2a 3a 4a»: Situations-Knöpfe ganz oben bei «In der Nähe», neue Arten unter «Weitere Arten», Automaten aus OpenStreetMap, auf Live-Karte und Tour-Seite. Schlafplatz finden ohne Regel-Hinweis («ohne hinweis»). Umweg und zurück «1a 2b 3a»: nach dem Halt immer fragen (Renn-Modus: zurück an die Ausstiegsstelle vorgewählt), neben der Strecke sofort selbst neu berechnen, dazu Sport-/Outdoorgeschäft, Feuerstelle und Handy laden.
 - Noah 27.10.2026 01:15: Freigabe für alle Mockups (M8 neu, N1–N3, R1–R4); dazu «Gleichen Weg zurück» auf der eigenen Spur, wenn man von der Strecke abkommt.
 - 26.10.2026: **Neuer Schwung PR 1** (Noah «1a 2a 3a 4a 5a + 5b»: Stil S2 «Kacheln mit Tiefe», Handy-Bereiche zu ausser «Jetzt», «Startseite anpassen» als Zeile unten, Bewegung überall dezent, kleine Bausteine plus Lottie). PR 1 nur die Zeile unten; Aufklappen wartet auf «Heute ruhiger» Teil 3. Vorschläge: https://claude.ai/artifact/8qMe2aMYPgj93cpRHEQRXv
+- Noah 27.10.2026 «Eigenes Diagramm» (D1–D6) «1a 2a 3a und b möglich 4a 5a»: zuoberst auf Analyse, Werte untereinander als Start (übereinander umschaltbar), bis 6 Werte, ein Filter für das ganze Diagramm und zusätzlich pro Wert, «Was hängt zusammen?» mit Versatz und Liste. Dazu «alle Mockups 1:1 übernehmen»: jede Kachel öffnet eine eigene Seite pro Wert (M6); Körperwerte und «Haken ausgewertet» bleiben als Link.
 - Noah 27.10.2026 15:17 (Einzelideen Ich, Übersicht): «1a 2b 3a» = letzte Werkzeug-Ergebnisse bleiben nur auf dem Gerät; Vorschläge nach Art nur noch unter Ich › Ruhig und persönlich › Ausgeblendet und aus (Darstellung verlinkt dorthin); Dokumente-Test unabhängig von der Uhrzeit machen.
 
 ## 27.10.2026 Ultra-Rennen: Herausforderungen und Ziel 6
@@ -1998,11 +1999,16 @@ Noah 19.10.2026: «1a 2a 3a 4 a oder b beides wählbar 5a», danach «a und b»,
 ## 27.10.2026 Diagramme zeigen genaue Werte
 
 - Noah: «die Diagramme sollen für den Nutzer exakte Daten repräsentieren und nicht nur Schätzungen anhand ungenauer Skalen am Rand … und überall sonst auf der Webseite». Regel für jedes Diagramm: (1) eine Achse mit runden, beschrifteten Stufen und Einheit plus feinen Gitterlinien, nicht nur min/max am Rand; (2) beim Antippen oder Darüberfahren der genaue Wert mit Datum; (3) bei bis zu 12 Punkten steht die Zahl direkt am Punkt oder an der Säule. Gemeinsamer Baustein: `src/lib/charts/` (axis.js, GridLines.svelte, YTicks.svelte), keine eigene Achse pro Seite.
+- 27.10.2026: **Blatt von unten** (Noah «a», Thread «Klären interaktive Kacheln»): zuerst nur «Dein Körper heute», nur am Handy; Ringe für die letzten 4 Wochen, Woche neben Vorwoche, «Alle Körperwerte».
+- 28.10.2026: **Mini-Tools** (Noah «1b 2a 3a, 4: 1 2 4 5 7 9 10, 5a»): eigene Seite Ich › Mini-Tools; Antworten kommen über einen kleinen verschlüsselten Speicher zurück (`/api/sync?action=mini`, nur der Fragende kann sie lesen, gelöscht nach höchstens 60 Tagen); Auszählen ohne KI. Grund: «automatisch ausgewertet» geht nur, wenn die Antworten von selbst zurückkommen; die Texte der Freunde verlassen sonst nie die Geräte.
 
 
 ## 27.10.2026 Gewohnheiten oben auf Heute
 
 - Noah «1a 2a und b 3b»: die Karte oben auf Heute zeigt nicht mehr fest die Meditation, sondern bis zu drei gewählte Gewohnheiten (Aktivitäten aus Aktiv und Punkte aus «Das tut mir gut»); gewählt mit dem Stift auf der Karte und unter «Startseite anpassen». Ohne Wahl bleibt es die Meditation.
+
+## 28.10.2026 «Gut zu wissen» über die Suche ausblenden
+- «Gut zu wissen» = die Tipp-Zeile oben auf den Seiten (Velos, Packen, Aktiv …). Sie lässt sich über die Suche ausblenden («Gut zu wissen ausblenden», mit Rückgängig) und wieder einblenden («Tipps einblenden»). Gleicher Schalter wie Ich › Eigene Werte (Noah «b»).
 
 ## 28.10.2026: Heute als Begleiter
 
@@ -2010,3 +2016,10 @@ Noah 19.10.2026: «1a 2a 3a 4 a oder b beides wählbar 5a», danach «a und b»,
 - 8 Momente, eine ruhige Funktion zum Entdecken pro Moment mit «Nicht für mich» (Noah «2a 3a»).
 - Die vier Knöpfe oben auf Heute wandern in die Moment-Karte, die Tourkarte «1/7» fällt weg, «Was die App kann» bekommt die Ansicht «Nach Moment», «Gehört dazu» Seite für Seite ab Packen (Noah «1a 2a 3a 4a»). 13 kleine PRs (Noah «ok freigabe», «ja»).
 - Jede Funktion in `features.js` hat genau einen Moment in `FEATURE_MOMENTS` (`src/lib/moment.js`); `tests/moment.test.js` prüft das.
+
+## 27.10.2026 Freunde jederzeit umstellen
+
+- Noah «ich möchte jetzt bauen, dass wir in zukunft jederzeit umstellen können», dann «ok 335» (★ 1a 2a 3a): Freunde lädt Noah in der App ein (Link, einmal, 7 Tage) und entfernt sie dort (fragt zuerst, dann «Rückgängig»); neben dem Link steht der Hinweis auf Stravas eigene Grenze (gratis Antrag). Die Vercel-Liste `STRAVA_ATHLETES` gilt weiter.
+
+## 28.10.2026 VO2max auf Heute
+- Noah «2 a und b»: VO2max mit Verlauf in Analyse/Körperwerte und dazu als eigene Kachel auf Heute (Bereich «Dein Körper»). Nur anschauen, keine Wertung; ohne Wert in 90 Tagen bleibt die Kachel weg. Eine gespeicherte Startseite bekommt sie einmal (Wand v 14).
