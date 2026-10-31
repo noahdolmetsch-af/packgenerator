@@ -3,7 +3,7 @@
 export default {
   title: 'Short steps',
   lead: 'The step bar of a tour says Plan · Pack · Live · Review · Analyse.',
-  points: [{ text: 'Step bar with short names, on the phone and the computer', href: '#/trips' }],
+  points: [{ text: 'Step bar with short names, on the phone and the computer', href: '#/trips', go: { href: '#/pack', steps: [{ sel: 'nav.stepbar' }], where: 'Shows on top of a trip you plan or pack.' } }],
   small: [{ box: 'nicer', text: 'Buttons keep their words, for example «Continue to Pack»' }],
   test: ['Open a tour: the bar above says Plan · Pack · Live · Review · Analyse.', 'The buttons keep their words, for example «Continue to Pack».'],
   since: [],

@@ -33,7 +33,10 @@
   import { NOTE_TPL_KEY, templatesOf, tplName, tplText, renameTemplate, removeTemplate, qrToNote, isKeepNote, keepImport } from '../lib/noteformats.js';
   import { zipEntries } from '../lib/zipread.js';
   import { deleteWithUndo } from '../lib/ui/ask.js';
-  import { QrCode, FileInput, LayoutTemplate, Trash2 } from '@lucide/svelte';
+  import { QrCode, FileInput, LayoutTemplate, Trash2, ClipboardList, SlidersHorizontal } from '@lucide/svelte';
+  import FormSheet from '../lib/notes/FormSheet.svelte'; // Vorlagen mit Feldern (Noah 27.10.2026 «3b»)
+  import FormGallery from '../lib/notes/FormGallery.svelte';
+  import { FORMS_KEY, chosenForms, formsOf, formName } from '../lib/notes/forms.js';
   import OwnSpark from '../lib/clear/OwnSpark.svelte';
   import '../lib/ich/ich.css';
   import { onMount } from 'svelte';
@@ -44,6 +47,9 @@
   // Einzelideen Planen 13: notes that come back after a trip or a workshop visit show with the due reminders
   import { afterDue, AFTER } from '../lib/notes/context.js';
   import { Network } from '@lucide/svelte';
+  import SwipeRow from '../lib/ui/SwipeRow.svelte';
+  import { offerDone } from '../lib/ui/rename.svelte.js';
+  import { Pin, PinOff } from '@lucide/svelte';
   const tripsQ = liveQuery(() => db.trips.toArray());
   const visitsQ = liveQuery(() => db.visits.toArray());
 
@@ -77,6 +83,13 @@
     text = tplText(x, t);
     checkMode = /(^|\n)- /.test(text);
   }
+  // Vorlagen mit Feldern: the chosen ones as chips; filled in, they become the note's text (and note.form)
+  const formsQ = liveQuery(async () => (await db.settings.get(FORMS_KEY))?.value ?? null);
+  const forms = $derived(chosenForms($formsQ ?? null, 'notes'));
+  const formsAll = $derived(formsOf($formsQ ?? null).length);
+  let fillForm = $state(null);
+  let pendingForm = $state(null);
+  let galleryOpen = $state(false);
   let renaming = $state(null);
   let renameTo = $state('');
   async function dropTpl(x) {
@@ -171,6 +184,24 @@
   const remindDone = (n) => db.notes.update(n.id, { remind: { ...n.remind, done: true } });
   const dueAfter = $derived(afterDue(notes, { trips: $tripsQ ?? [], visits: $visitsQ ?? [], today: localDay() }));
   const afterDone = (n) => db.notes.update(n.id, { after: { ...n.after, done: true } });
+  // B13 «Wischen in Listen» (Noah 27.10.2026 «4a»): right = pin or done, left = into the trash; each with Undo
+  async function swipePin(n) {
+    const name = noteTitle(n) || t('Note');
+    if (!n.pinned && counts.pinned >= MAX_PINNED) return offerDone(t('At most {n} notes can be pinned. Unpin one first.', { n: MAX_PINNED }));
+    const pinnedNow = !n.pinned;
+    await db.notes.update(n.id, { pinned: pinnedNow, updatedAt: new Date().toISOString() });
+    offerDone(pinnedNow ? t('«{name}» is pinned.', { name }) : t('«{name}» is no longer pinned.', { name }), () => db.notes.update(n.id, { pinned: !pinnedNow }));
+  }
+  async function swipeTrash(n) {
+    const rows = await trashNotes(db, [n]);
+    offerDone(t('«{name}» is in the trash.', { name: noteTitle(n) || t('Note') }), () => untrash(db, rows));
+  }
+  const swipeDone = (n, key, done) => async () => {
+    const before = n[key];
+    await done(n);
+    offerDone(t('Reminder done. The note stays.'), () => db.notes.update(n.id, { [key]: before }));
+  };
+  const trashAct = (n) => ({ key: 'trash', label: t('Delete'), icon: Trash2, tone: 'bad', run: () => swipeTrash(n) });
   const afterShort = (k) => t(AFTER.find((a) => a.key === k)?.short ?? '');
   const rest = $derived(filter === 'all' && !query ? list.filter((n) => !n.pinned) : list);
 
@@ -216,7 +247,9 @@
     }
     if (!text.trim() && !photo && !link) return (msg = t('Write a few words, add a photo or a link.'));
     const n = newKeptNote({ text, photo, link, dictated }, { id: `note-${Date.now().toString(36)}` });
+    if (pendingForm) n.form = $state.snapshot(pendingForm);
     await db.notes.put(n);
+    pendingForm = null;
     text = '';
     photo = null;
     linkOpen = false;
@@ -277,7 +310,7 @@
     {/if}
     {#if photo}<p class="phrow"><img src={photo} alt={t('Photo of the note')} /><button type="button" class="btn btn-link" onclick={() => (photo = null)}>{t('Remove photo')}</button></p>{/if}
     {#if !text.trim()}
-      <p class="tpls" data-templates><span class="hint">{t('Start from')}</span>{#each tpls as x (x.key)}<button type="button" class="fchip" onclick={() => useTpl(x)}>{tplName(x, t)}</button>{/each}</p>
+      <p class="tpls" data-templates><span class="hint">{t('Start from')}</span>{#each tpls as x (x.key)}<button type="button" class="fchip" onclick={() => useTpl(x)}>{tplName(x, t)}</button>{/each}{#each forms as x (x.key)}<button type="button" class="fchip" onclick={() => (fillForm = x)} data-form-chip={x.key}><ClipboardList size={16} aria-hidden="true" />{formName(x, t)}</button>{/each}<button type="button" class="fchip more" onclick={() => (galleryOpen = true)} data-form-choose><SlidersHorizontal size={16} aria-hidden="true" />{t('Choose templates')}</button></p>
     {/if}
     <p class="tools hintrow"><span class="hint">{text.trim() ? t('Topic: {topic}', { topic: topicText(topicNow ?? '', t) }) : t('The topic follows the text')}</span></p>
     {#if msg}<p class="err" role="alert">{msg}</p>{/if}
@@ -288,6 +321,7 @@
     {@const p = progress(n)}
     {@const Kind = n.pinned ? Star : p.total && p.done === p.total ? Check : p.total ? ListChecks : n.link?.url ? Link2 : n.photo ? ImageIcon : NotebookPen}
     <li class="ncard" data-note-id={n.id}>
+      <SwipeRow id="note-{n.id}" right={[{ key: 'pin', label: n.pinned ? t('Unpin') : t('Pin'), icon: n.pinned ? PinOff : Pin, run: () => swipePin(n) }]} left={[trashAct(n)]}>
       <button type="button" class="ich-row open" onclick={() => (open = n.id)}>
         <span class="ich-ib"><Kind size={18} aria-hidden="true" /></span>
         <span class="ich-m">
@@ -296,6 +330,7 @@
         </span>
         <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
       </button>
+      </SwipeRow>
     </li>
   {/snippet}
 
@@ -309,7 +344,8 @@
           {:else}
             <Empty icon={NotebookPen} text={t('No notes yet. Write one above, or keep an entry from the Inbox with «Just keep».')}><OwnSpark place="notes" /></Empty>
           {/if}
-          {#if $trashQ}<p class="tblrow"><button type="button" class="btn btn-link" onclick={() => (trashOpen = true)} data-notes-trash-empty><Trash2 size={16} aria-hidden="true" />{tn($trashQ, '{n} note in the trash', '{n} notes in the trash')}</button></p>{/if}
+          <!-- Auffälligkeiten 28.10.2026 (Noah «3a»): the trash shows always, also when it is empty -->
+          <p class="tblrow"><button type="button" class="btn btn-link" onclick={() => (trashOpen = true)} data-notes-trash-empty><Trash2 size={16} aria-hidden="true" />{$trashQ ? tn($trashQ, '{n} note in the trash', '{n} notes in the trash') : t('Trash · empty')}</button></p>
         </div>
       {/if}
       <!-- Paket H «3a und b»: the notes as an editable table; tick several to change the topic or delete them -->
@@ -323,14 +359,22 @@
           <ul class="card ich-list">
             {#each due as n (n.id)}
               <li class="ncard duerow" data-note-id={n.id}>
+                <SwipeRow id="remind-{n.id}" right={[{ key: 'done', label: t('Done'), icon: Check, run: swipeDone(n, 'remind', remindDone) }]}>
+                <div class="duein">
                 <button type="button" class="ich-row open" onclick={() => (open = n.id)}><span class="ich-ib"><Bell size={18} aria-hidden="true" /></span><span class="ich-m"><b>{noteTitle(n) || t('Note')}</b><small>{new Date(n.remind.at).toLocaleString(locale(), { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</small></span></button>
                 <button type="button" class="btn sm" onclick={() => remindDone(n)} data-remind-done>{t('Done')}</button>
+                </div>
+                </SwipeRow>
               </li>
             {/each}
             {#each dueAfter as x (x.note.id)}
               <li class="ncard duerow" data-note-id={x.note.id} data-after-due>
+                <SwipeRow id="after-{x.note.id}" right={[{ key: 'done', label: t('Done'), icon: Check, run: swipeDone(x.note, 'after', afterDone) }]}>
+                <div class="duein">
                 <button type="button" class="ich-row open" onclick={() => (open = x.note.id)}><span class="ich-ib"><Bell size={18} aria-hidden="true" /></span><span class="ich-m"><b>{noteTitle(x.note) || t('Note')}</b><small>{afterShort(x.hit.kind)}{x.hit.title ? ` · ${x.hit.title}` : ''}</small></span></button>
                 <button type="button" class="btn sm" onclick={() => afterDone(x.note)} data-after-done>{t('Done')}</button>
+                </div>
+                </SwipeRow>
               </li>
             {/each}
           </ul>
@@ -414,6 +458,7 @@
           {/each}
         </ul>
         <p class="ich-help">{t('Your own: open a note and tap «Save as a template».')}</p>
+        <button type="button" class="btn sm" onclick={() => (galleryOpen = true)} data-form-choose-list><SlidersHorizontal size={16} aria-hidden="true" />{t('Templates with fields: choose ({n})', { n: formsAll })}</button>
       </details>
 
       <section class="ich-sec" aria-labelledby="nmore-h">
@@ -444,6 +489,9 @@
 {#if trashOpen}<NoteTrash onclose={() => (trashOpen = false)} />{/if}
 {#if made}<div class="toast" role="status"><Check size={18} aria-hidden="true" /><span>{made}</span></div>{/if}
 
+
+{#if fillForm}<FormSheet form={fillForm} onsave={(r) => ((text = r.text), (pendingForm = r.record), (checkMode = /(^|\n)- /.test(r.text)))} onclose={() => (fillForm = null)} />{/if}
+{#if galleryOpen}<FormGallery onclose={() => (galleryOpen = false)} />{/if}
 
 <style>
   /* «Tagebuch» (20.10.2026): the diary row under the notes */
@@ -633,6 +681,10 @@
     color: var(--ink);
     font: 500 var(--fs-small) / 1.25 var(--font-body);
     cursor: pointer;
+  }
+  .fchip.more {
+    border-style: dashed;
+    color: var(--ink-2);
   }
   .fchip[aria-pressed='true'] {
     border-color: var(--ink);

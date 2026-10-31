@@ -11,14 +11,14 @@
    * Everything comes from the part histories and the workshop visits (wear.js); nothing is counted twice.
    */
   import { liveQuery } from 'dexie';
-  import { Gauge, Pencil, RotateCcw, EyeOff, Plus, Trash2, ChevronRight } from '@lucide/svelte';
+  import { Gauge, Pencil, RotateCcw, EyeOff, Plus, Trash2, ChevronRight, TriangleAlert, Check } from '@lucide/svelte';
   import { db } from '../db.js';
   import { t, tn, num, dateOf, locale } from '../i18n.svelte.js';
   import { bikesHash, sortBikes } from '../bikes.js';
   import { localDay } from '../localday.js';
   import { withVisits } from '../workshop.js';
-  import { partName } from '../care.js';
-  import { wearRows, weeklyKm, lifeChange, addableParts, servicePeriods, serviceDropDay, WEEKS } from '../wear.js';
+  import { partName, ensureParts } from '../care.js';
+  import { FLAG_KINDS, flagChange, wearRows, weeklyKm, lifeChange, addableParts, servicePeriods, serviceDropDay, WEEKS } from '../wear.js';
   import { askDelete, deleteWithUndo } from '../ui/ask.js';
   import { offerDone } from '../ui/rename.svelte.js';
   import VeloHead from '../bikes/VeloHead.svelte';
@@ -55,7 +55,8 @@
   const STATE = { due: 'replace now', soon: 'soon', ok: 'fine|wear', unknown: 'km unknown' };
   const SOURCE = { own: 'your value', std: 'start value' };
   const srcText = (life) => (life.source === 'learned' ? tn(life.n, 'learned from {n} change', 'learned from {n} changes') : life.source ? t(SOURCE[life.source]) : '');
-  const whyText = (r) => (r.why === 'measured' ? t('your last measurement says so') : r.why === 'work' ? t('work needed') : '');
+  const flagName = (why) => t(FLAG_KINDS.find((k) => k.key === why)?.name ?? 'Something else');
+  const whyText = (r) => (r.why === 'flag' ? '' : r.why === 'measured' ? t('your last measurement says so') : r.why === 'work' ? t('work needed') : '');
 
   let editing = $state(null); // part key
   let lifeText = $state('');
@@ -94,6 +95,27 @@
     addLife = '';
     msg = '';
   }
+  // Velo-Idee 74: a crash or a noise marks a part «check»
+  let flagging = $state(null); // part key
+  let flagWhy = $state('crash');
+  let flagNote = $state('');
+  function openFlag(r) {
+    flagging = r.key;
+    flagWhy = 'crash';
+    flagNote = '';
+  }
+  async function storeFlag(r, flag, text) {
+    const b = await db.bikes.get(bike.id);
+    const before = b.parts ?? null;
+    await db.bikes.update(b.id, flagChange(ensureParts(b), r.key, flag));
+    offerDone(text, () => db.bikes.update(b.id, { parts: before ?? [] }));
+  }
+  async function saveFlag(e, r) {
+    e.preventDefault();
+    await storeFlag(r, { why: flagWhy, date: today, note: flagNote }, t('{part} is marked «check».', { part: r.name }));
+    flagging = null;
+  }
+  const clearFlag = (r) => storeFlag(r, null, t('{part}: checked, all fine.', { part: r.name }));
   async function dropPeriod(p) {
     if ((await askDelete({ title: t('Remove the service of {date}?', { date: dateOf(p.from) }), text: t('Only this point on the counter goes. The km stay.'), label: t('Remove') })) !== 'delete') return;
     await deleteWithUndo({
@@ -129,7 +151,7 @@
          Noah 26.10.2026 «1 3 7 8 12a»: chain checker, noises, year in review, winter and spring, calendar too -->
     <!-- «Velos sichtbar» (332 Use Cases, Noah 24.10.2026 «1a 2b»): chain rotation and «what lasts longest» stand
          4 screens down; two chips jump there (they show only while that part is on the page) -->
-    <QuickLinks label={t('More for the bike')} links={[...[['photos', 'Wear photos'], ['sell', 'Sale listing'], ['bikepack', 'Pack the bike'], ['stock', 'Spare parts at home']].map(([view, title]) => ({ key: view, href: bikesHash({ tab: 'care', view, bike: bike.id }), label: t(title) })), { key: 'rotation', jump: '[id^="rot-h-"]', label: t('Chain rotation') }, { key: 'brand', jump: '#gm-brand', label: t('What lasts longest') }, ...(rows.some((r) => r.key === 'chain') ? [{ key: 'measure', jump: '[data-wear="chain"]', label: t('Chain checker in the forecast') }] : []), { key: 'noises', jump: '[data-noises]', label: t('Noise notes') }, ...[['year', 'Year in review'], ['season', 'Winter and spring']].map(([view, title]) => ({ key: view, href: bikesHash({ tab: 'care', view, bike: bike.id }), label: t(title) })), { key: 'cal', href: '#/me/connections', label: t('Part changes in the calendar') }]} />
+    <QuickLinks label={t('More for the bike')} links={[...[['photos', 'Wear photos'], ['sell', 'Sale listing'], ['bikepack', 'Pack the bike'], ['stock', 'Spare parts at home'], ['rounds', 'Workshop rounds']].map(([view, title]) => ({ key: view, href: bikesHash({ tab: 'care', view, bike: bike.id }), label: t(title) })), { key: 'rotation', jump: '[id^="rot-h-"]', label: t('Chain rotation') }, { key: 'brand', jump: '#gm-brand', label: t('What lasts longest') }, ...(rows.some((r) => r.key === 'chain') ? [{ key: 'measure', jump: '[data-wear="chain"]', label: t('Chain checker in the forecast') }] : []), { key: 'noises', jump: '[data-noises]', label: t('Noise notes') }, ...[['year', 'Year in review'], ['season', 'Winter and spring']].map(([view, title]) => ({ key: view, href: bikesHash({ tab: 'care', view, bike: bike.id }), label: t(title) })), { key: 'cal', href: '#/me/connections', label: t('Part changes in the calendar') }]} />
     <WetChainHint {bike} />
     <StandCheck {bike} />
     <ChainPlan {bike} />
@@ -179,7 +201,7 @@
           <li class="row {r.state}" data-wear={r.key} data-wear-state={r.state}>
             <div class="top">
               <b>{r.name}</b>{#if r.model}<small class="model">{r.model}</small>{/if}
-              <span class="badge {r.state}">{t(STATE[r.state])}</span>
+              <span class="badge {r.state}">{r.why === 'flag' ? t('check|wear') : t(STATE[r.state])}</span>
             </div>
             {#if r.km != null && r.life.km}
               <div class="bar" role="img" aria-label={t('{km} of {life} km', { km: num(r.km), life: num(r.life.km) })}><span style:width="{Math.min(100, Math.round(r.frac * 100))}%"></span></div>
@@ -191,6 +213,13 @@
               <p class="quiet">{t('The app does not know when this part was mounted.')} <a class="lnk" href={bikesHash({ tab: 'care', bike: bike.id, open: true })}>{t('Set a start point in Bike care')}</a></p>
             {/if}
             {#if whyText(r)}<p class="quiet">{whyText(r)}</p>{/if}
+            {#if r.flag}
+              <div class="flag" data-wear-flagged={r.flag.why}>
+                <TriangleAlert size={16} aria-hidden="true" />
+                <span>{t('To check: {what} on {date}', { what: flagName(r.flag.why), date: dateOf(r.flag.date) })}{#if r.flag.note}{' · '}{r.flag.note}{/if}<small>{t('The km alone do not show this. Look at the part, then tap «Checked».')}</small></span>
+                <button type="button" class="btn sm" onclick={() => clearFlag(r)} data-wear-unflag><Check size={14} aria-hidden="true" />{t('Checked, all fine')}</button>
+              </div>
+            {/if}
             {#if r.meas}
               <p class="quiet num" data-wear-meas={r.byMeas ? 'counts' : 'fine'}>{t('Chain checker: {value} % at {km} km ({date})', { value: num(r.meas.value), km: num(r.meas.km), date: dateOf(r.meas.date) })}{' · '}{r.meas.left > 0 ? t('about {km} km to {limit} %', { km: num(r.meas.left), limit: num(r.meas.limit) }) : t('at the limit of {limit} %', { limit: num(r.meas.limit) })}{#if r.byMeas}{' · '}{t('the forecast follows your measurement')}{/if}</p>
             {:else if r.key === 'chain' && r.km != null}
@@ -205,7 +234,17 @@
                 <ul class="past">{#each r.past as p (p.from)}<li class="num">{dateOf(p.from)} → {dateOf(p.to)}: {t('{km} km', { km: num(p.km) })}{#if p.model}{' · '}{p.model}{/if}</li>{/each}</ul>
               </details>
             {/if}
-            {#if editing === r.key}
+            {#if flagging === r.key}
+              <form class="edit flagf" onsubmit={(e) => saveFlag(e, r)} data-wear-flag-form>
+                <fieldset>
+                  <legend class="lbl">{t('What happened?')}</legend>
+                  {#each FLAG_KINDS as k (k.key)}<label class="chip"><input type="radio" name="flag-{r.key}" value={k.key} bind:group={flagWhy} />{t(k.name)}</label>{/each}
+                </fieldset>
+                <label class="wide"><span class="lbl">{t('Note (optional)')}</span><input class="inp" bind:value={flagNote} placeholder={t('e.g. fell on the left side, creaks uphill')} data-wear-flag-note /></label>
+                <button type="submit" class="btn sm" data-wear-flag-save>{t('Mark «check»')}</button>
+                <button type="button" class="btn sm quiet" onclick={() => (flagging = null)}>{t('Cancel')}</button>
+              </form>
+            {:else if editing === r.key}
               <form class="edit" onsubmit={(e) => saveLife(e, r)}>
                 <label><span class="lbl">{t('Lasts how many km?')}</span><input class="inp num" type="text" inputmode="numeric" bind:value={lifeText} data-wear-life /></label>
                 <button type="submit" class="btn sm">{t('Save')}</button>
@@ -216,6 +255,7 @@
               <div class="acts">
                 <button type="button" class="lnk" onclick={() => edit(r)} data-wear-edit><Pencil size={14} aria-hidden="true" />{t('Change how long it lasts')}</button>
                 {#if r.life.source === 'own'}<button type="button" class="lnk" onclick={() => backToStd(r)} data-wear-std><RotateCcw size={14} aria-hidden="true" />{t('Back to the suggestion')}</button>{/if}
+                {#if !r.flag}<button type="button" class="lnk" onclick={() => openFlag(r)} data-wear-flag><TriangleAlert size={14} aria-hidden="true" />{t('Crash or noise?')}</button>{/if}
                 <button type="button" class="lnk" onclick={() => hide(r)} data-wear-hide><EyeOff size={14} aria-hidden="true" />{t('Take off this page')}</button>
               </div>
             {/if}
@@ -407,6 +447,57 @@
     background: none;
     color: var(--ink-2);
     cursor: pointer;
+  }
+  /* Velo-Idee 74: a part marked «check» */
+  .flag {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 8px;
+    margin: 6px 0;
+    padding: 10px 12px;
+    border-radius: 12px;
+    background: var(--warn-soft);
+    color: var(--ink);
+  }
+  .flag :global(svg) {
+    color: var(--warn);
+    margin-top: 3px;
+  }
+  .flag span {
+    flex: 1 1 200px;
+  }
+  .flag small {
+    display: block;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+  }
+  .flagf fieldset {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    flex: 1 0 100%;
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+  .flagf legend {
+    margin-bottom: 4px;
+  }
+  .flagf .chip {
+    flex-direction: row;
+    align-items: center;
+    gap: 6px;
+    min-height: 40px;
+    padding: 0 12px;
+    border: 1px solid var(--line);
+    border-radius: 99px;
+  }
+  .flagf .wide {
+    flex: 1 0 100%;
+  }
+  .flagf .wide .inp {
+    width: 100%;
   }
   .edit,
   .add {

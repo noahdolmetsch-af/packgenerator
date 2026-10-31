@@ -126,50 +126,20 @@ function videoLength(src) {
 }
 
 /**
- * A video up to 1 minute, played once into a smaller copy (480 px, WebM) when the browser can record;
- * otherwise kept as it is when it is small enough. onstep(share 0–1).
+ * A video up to 1 minute, made smaller on the device (480 p, no sound) with the same code as the tool
+ * «Video verkleinern» (tools/video.js); small files and browsers that cannot record keep the file as it is.
+ * onstep(share 0–1).
  */
-export async function shrinkVideo(file, { onstep = () => {}, maxSide = 480 } = {}) {
+export async function shrinkVideo(file, { onstep = () => {} } = {}) {
   const src = URL.createObjectURL(file);
   try {
     const len = await videoLength(src);
-    if (Number.isFinite(len) && len > VIDEO_MAX_S + 0.5) throw new Error(t('The video is longer than 1 minute. Shorten it on the phone first.'));
-    const canRecord = typeof MediaRecorder !== 'undefined' && typeof HTMLCanvasElement.prototype.captureStream === 'function';
+    if (Number.isFinite(len) && len > VIDEO_MAX_S + 0.5) throw new Error(t('The video is longer than 1 minute. Shorten it on the phone first, or keep it there and add its link under «Link».'));
+    const { recType, shrinkVideo: shrink } = await import('../tools/video.js');
+    const canRecord = typeof MediaRecorder !== 'undefined' && typeof HTMLCanvasElement.prototype.captureStream === 'function' && !!recType();
     if (!canRecord || file.size < 3e6) return { data: await asDataUrl(file), mime: file.type || 'video/mp4', secs: len };
-    const v = document.createElement('video');
-    v.src = src;
-    v.muted = true;
-    v.playsInline = true;
-    await v.play();
-    v.pause();
-    v.currentTime = 0;
-    const k = Math.min(1, maxSide / Math.max(v.videoWidth, v.videoHeight));
-    const c = document.createElement('canvas');
-    c.width = Math.round((v.videoWidth * k) / 2) * 2;
-    c.height = Math.round((v.videoHeight * k) / 2) * 2;
-    const g = c.getContext('2d');
-    const stream = c.captureStream(24);
-    const mime = MediaRecorder.isTypeSupported?.('video/webm;codecs=vp9') ? 'video/webm;codecs=vp9' : 'video/webm';
-    const rec = new MediaRecorder(stream, { mimeType: mime, videoBitsPerSecond: 700_000 });
-    const chunks = [];
-    rec.ondataavailable = (e) => e.data.size && chunks.push(e.data);
-    const done = new Promise((ok) => (rec.onstop = ok));
-    rec.start(500);
-    await v.play();
-    await new Promise((ok) => {
-      const step = () => {
-        g.drawImage(v, 0, 0, c.width, c.height);
-        onstep(Math.min(1, v.currentTime / (len || 1)));
-        if (v.ended || v.paused) return ok();
-        requestAnimationFrame(step);
-      };
-      v.onended = ok;
-      step();
-    });
-    rec.stop();
-    await done;
-    const blob = new Blob(chunks, { type: 'video/webm' });
-    return { data: await asDataUrl(blob), mime: 'video/webm', secs: len };
+    const blob = await shrink(file, { h: 480, bps: 700_000 }, { onprogress: onstep, audio: false });
+    return { data: await asDataUrl(blob), mime: blob.type || 'video/webm', secs: len };
   } finally {
     URL.revokeObjectURL(src);
   }

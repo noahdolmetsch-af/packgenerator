@@ -10,7 +10,19 @@
   let { label, parts = [], fmt = formatWeight } = $props();
   const shown = $derived(parts.filter((p) => p.g > 0));
   const total = $derived(shown.reduce((s, p) => s + p.g, 0));
-  const pct = (g) => Math.round((g / total) * 100);
+  // UI-Test T7 (G4-04): the shares add up to 100 % (largest remainder), never 101 %
+  const shares = $derived.by(() => {
+    const raw = shown.map((p) => (p.g / total) * 100);
+    const out = raw.map(Math.floor);
+    let left = 100 - out.reduce((s, n) => s + n, 0);
+    for (const i of raw.map((r, i) => [r - Math.floor(r), i]).sort((a, b) => b[0] - a[0]).map(([, i]) => i)) {
+      if (left <= 0) break;
+      out[i]++;
+      left--;
+    }
+    return Object.fromEntries(shown.map((p, i) => [p.key, out[i]]));
+  });
+  const pct = (p) => shares[p.key];
 </script>
 
 {#if total > 0}
@@ -23,7 +35,7 @@
     </div>
     <ul class="legend">
       {#each shown as p (p.key)}
-        <li><i class="dot" style:background={p.color} aria-hidden="true"></i><span class="nm">{p.label}</span> <b class="num">{fmt(p.g)}</b> <span class="pc num">{pct(p.g)} %</span></li>
+        <li><i class="dot" style:background={p.color} aria-hidden="true"></i><span class="nm">{p.label}</span> <b class="num">{fmt(p.g)}</b> <span class="pc num">{pct(p)} %</span></li>
       {/each}
     </ul>
   </figure>

@@ -1,7 +1,7 @@
 // v0.121.0 «Strava-Fahrten zählen mit» (SZ1–SZ2): withStravaRides adds the counted Strava rides to the
 // uploaded rides; a ride that is both a file and a Strava entry counts once. Fictional data.
 import { describe, it, expect } from 'vitest';
-import { withStravaRides, waitingThisMonth } from '../src/lib/kmbook.js';
+import { withStravaRides, waitingThisMonth, waitingSince } from '../src/lib/kmbook.js';
 
 const strava = (id, date, km, extra = {}) => ({ id, date, time: `${date}T06:00:00.000Z`, km, kind: 'ride', source: 'strava', state: 'counted', bikeId: 'b1', ...extra });
 
@@ -59,6 +59,8 @@ describe('waitingThisMonth (0.136.0)', () => {
     ];
     expect(waitingThisMonth(rows, '2026-10-09')).toBe(2);
     expect(waitingThisMonth([], '2026-10-09')).toBe(0);
+    // UI-Test T5: the year goal names the rides of the whole year that wait
+    expect(waitingSince(rows, '2026-01-01', '2026-10-09')).toBe(3);
   });
 });
 
@@ -72,6 +74,18 @@ describe('withStravaRides with the Training activities (0.136.0)', () => {
     const acts = [act('1', '2026-10-06', 80), act('2', '2026-10-07', 50), act('3', '2026-10-08', 30)];
     const book = [strava('e1', '2026-10-06', 80, { stravaId: '1' }), strava('e2', '2026-10-07', 50, { stravaId: '2', state: 'open' }), strava('e3', '2026-10-08', 30, { stravaId: '3', state: 'removed' })];
     expect(withStravaRides([], book, acts).map((r) => r.id)).toEqual(['e1']);
+  });
+  it('UI-Test T5: a ride inside a bike\'s start value was ridden, so it counts; «Zählt nicht» and a twin do not', async () => {
+    const { inStartKm } = await import('../src/lib/kmbook.js');
+    const acts = [act('1', '2026-10-06', 80), act('2', '2026-10-07', 50), act('3', '2026-10-08', 30)];
+    const book = [
+      strava('e1', '2026-10-06', 80, { stravaId: '1', state: 'removed', reason: { code: 'start', bike: 'b1' } }),
+      strava('e2', '2026-10-07', 50, { stravaId: '2', state: 'removed', reason: { code: 'twin', bike: 'b1' } }),
+      strava('e3', '2026-10-08', 30, { stravaId: '3', state: 'removed' }),
+    ];
+    expect(withStravaRides([], book, acts).map((r) => r.id)).toEqual(['e1']);
+    expect(inStartKm(book[0])).toBe(true);
+    expect(book.slice(1).some(inStartKm)).toBe(false);
   });
   it('leaves out runs, indoor rides without a bike and a ride also uploaded as a file', () => {
     const files = [{ id: 'f1', date: '2026-10-05', km: 40, startAt: '2026-10-05T06:10:00.000Z' }];

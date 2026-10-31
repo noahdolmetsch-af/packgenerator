@@ -19,8 +19,7 @@ function world(routes = {}) {
   const kv = {};
   const sets = {};
   const calls = [];
-  const doFetch = vi.fn(async (url, init = {}) => {
-    if (url === REDIS) {
+  const redis = async (url, init = {}) => {
       const [cmd, k, v] = JSON.parse(init.body);
       const r = (result) => Response.json({ result });
       if (cmd === 'GET') return r(kv[k] ?? null);
@@ -33,14 +32,18 @@ function world(routes = {}) {
       if (cmd === 'DEL') return delete kv[k], delete sets[k], r(1);
       if (cmd === 'SADD') return (sets[k] ??= new Set()).add(v), r(1);
       if (cmd === 'SISMEMBER') return r(sets[k]?.has(v) ? 1 : 0);
+      if (cmd === 'SMEMBERS') return r([...(sets[k] ?? [])]);
+      if (cmd === 'SREM') return r(sets[k]?.delete(v) ? 1 : 0);
       throw new Error(`redis ${cmd}`);
-    }
+  };
+  const doFetch = vi.fn(async (url, init = {}) => {
+    if (url === REDIS) return redis(url, init);
     calls.push({ url: String(url), init });
     const key = Object.keys(routes).find((p) => String(url).startsWith(p));
     if (!key) throw new Error(`unexpected fetch ${url}`);
     return routes[key](String(url), init);
   });
-  return { kv, sets, calls, doFetch };
+  return { kv, sets, calls, doFetch, redis };
 }
 const get = (path, { key, origin = ORIGIN } = {}) => new Request(`${BASE}${path}`, { headers: { origin, ...(key ? { authorization: `Bearer ${key}` } : {}) } });
 const post = (path, body = {}, { key, origin = ORIGIN } = {}) => new Request(`${BASE}${path}`, { method: 'POST', headers: { origin, 'content-type': 'application/json', ...(key ? { authorization: `Bearer ${key}` } : {}) }, body: JSON.stringify(body) });
@@ -171,6 +174,79 @@ describe('Strava pro Person vorbereiten (Noah 27.10.2026)', () => {
     const { stravaEnv } = await import('../api/strava.js');
     expect(stravaEnv({ STRAVA_ATHLETES: ' 7777, abc,8888 ' }).athletes).toEqual(['7777', '8888']);
     expect(stravaEnv({}).athletes).toEqual([]);
+  });
+});
+
+describe('Freunde jederzeit umstellen (Noah 27.10.2026)', () => {
+  const asFriend = () => stravaToken({ athlete: { id: 7777, firstname: 'Mia' }, access_token: 'acc-f', refresh_token: 'ref-f' });
+  async function ownerAndFriend() {
+    const routes = { [TOKEN_URL]: stravaToken(), [DEAUTH_URL]: () => Response.json({}) };
+    const w = world(routes);
+    const h = stravaHandler({ env: sEnv(), doFetch: w.doFetch, now: () => NOW });
+    const owner = fragment(await connect(h, w)).get('key');
+    return { w, h, owner, routes };
+  }
+  async function friendConnects(t, invite) {
+    const start = await (await t.h(post('/api/strava?step=start', { invite }))).json();
+    const state = new URL(start.url).searchParams.get('state');
+    return fragment(await t.h(get(`/api/strava?step=callback&code=code-f&scope=read,activity:read_all&state=${state}`)));
+  }
+  // from now on Strava answers as the friend
+  const asFriendNext = (t) => {
+    t.routes[TOKEN_URL] = asFriend();
+  };
+
+  it('only the owner can invite; an invite lets one friend in, once', async () => {
+    const t = await ownerAndFriend();
+    expect((await t.h(post('/api/strava?step=invite', {}))).status).toBe(401);
+    const inv = await (await t.h(post('/api/strava?step=invite', {}, { key: t.owner }))).json();
+    expect(inv.code).toMatch(/^[\w-]{8,40}$/);
+    expect(Date.parse(inv.until) - NOW).toBe(7 * 86400_000);
+    asFriendNext(t);
+    const f = await friendConnects(t, inv.code);
+    expect(f.get('strava')).toBe('connected');
+    expect(t.w.sets['strava:athletes'].has('7777')).toBe(true);
+    expect(JSON.parse(t.w.kv['strava:friend:7777']).name).toBe('Mia');
+    expect(JSON.parse(t.w.kv['strava:tokens']).refresh_token).toBe('ref-1');
+    // the same link a second time: gone
+    expect(t.w.kv[`strava:invite:${hash(inv.code)}`]).toBeUndefined();
+    const friendKey = f.get('key');
+    expect((await t.h(post('/api/strava?step=invite', {}, { key: friendKey }))).status).toBe(401);
+    expect((await t.h(get('/api/strava?step=friends', { key: friendKey }))).status).toBe(401);
+  });
+
+  it('without a valid invite a second athlete is refused and told the link is gone', async () => {
+    const t = await ownerAndFriend();
+    asFriendNext(t);
+    expect((await friendConnects(t, 'never-made-invite-1')).get('error')).toBe('invite_gone');
+    expect((await friendConnects(t, undefined)).get('error')).toBe('other_athlete');
+    expect(t.w.kv['strava:tokens:7777']).toBeUndefined();
+  });
+
+  it('the owner sees the friends and removes one: every device of theirs closes', async () => {
+    const t = await ownerAndFriend();
+    const inv = await (await t.h(post('/api/strava?step=invite', {}, { key: t.owner }))).json();
+    asFriendNext(t);
+    const friendKey = (await friendConnects(t, inv.code)).get('key');
+    t.w.kv['google:tokens:7777'] = '{}';
+    const list = await (await t.h(get('/api/strava?step=friends', { key: t.owner }))).json();
+    expect(list.friends).toEqual([{ id: '7777', name: 'Mia', since: '2026-10-12', connected: true, inVercel: false }]);
+    const res = await t.h(post('/api/strava?step=friend-remove', { id: '7777' }, { key: t.owner }));
+    expect(await res.json()).toEqual({ ok: true, inVercel: false });
+    for (const k of ['strava:tokens:7777', 'strava:friend:7777', 'google:tokens:7777', `strava:device:${hash(friendKey)}`]) expect(t.w.kv[k]).toBeUndefined();
+    expect(t.w.sets['strava:athletes'].has('7777')).toBe(false);
+    expect((await t.h(get('/api/strava?step=activities', { key: friendKey }))).status).toBe(401);
+    expect((await (await t.h(get('/api/strava?step=friends', { key: t.owner }))).json()).friends).toEqual([]);
+    expect(t.w.kv['strava:tokens']).toBeTruthy();
+  });
+
+  it('a friend in STRAVA_ATHLETES shows in the list, marked as set in Vercel', async () => {
+    const w = world({ [TOKEN_URL]: stravaToken() });
+    const h = stravaHandler({ env: sEnv({ athletes: ['8888'] }), doFetch: w.doFetch, now: () => NOW });
+    const owner = fragment(await connect(h, w)).get('key');
+    const list = await (await h(get('/api/strava?step=friends', { key: owner }))).json();
+    expect(list.friends).toEqual([{ id: '8888', name: '', since: null, connected: false, inVercel: true }]);
+    expect((await h(post('/api/strava?step=friend-remove', { id: 'x' }, { key: owner }))).status).toBe(400);
   });
 });
 
@@ -383,6 +459,24 @@ describe('Google Health', () => {
     expect(JSON.parse(rollCall.init.body)).toMatchObject({ windowSizeDays: 1, range: { start: { date: d(12) }, end: { date: d(14) } }, dataSourceFamily: 'users/me/dataSourceFamilies/google-wearables' });
     const rhrCall = t.w.calls.find((c) => c.url.includes('daily-resting-heart-rate'));
     expect(new URL(rhrCall.url).searchParams.get('filter')).toBe('daily_resting_heart_rate.date >= "2026-10-12" AND daily_resting_heart_rate.date < "2026-10-14"');
+  });
+
+  it('«Alle Werte»: brings VO2max, distance and the hourly steps too, and an unreachable extra stops nothing (fictional values)', async () => {
+    const d = (day) => ({ year: 2026, month: 10, day });
+    const t = await setup({
+      [`${G_API}/dataTypes/steps/dataPoints:dailyRollUp`]: () => Response.json({ rollupDataPoints: [{ civilStartTime: { date: d(13) }, steps: { countSum: '8123' } }] }),
+      [`${G_API}/dataTypes/active-zone-minutes/dataPoints:dailyRollUp`]: () => Response.json({ rollupDataPoints: [] }),
+      [`${G_API}/dataTypes/sleep/dataPoints`]: () => Response.json({ dataPoints: [] }),
+      [`${G_API}/dataTypes/daily-resting-heart-rate/dataPoints`]: () => Response.json({ dataPoints: [] }),
+      [`${G_API}/dataTypes/daily-heart-rate-variability/dataPoints`]: () => Response.json({ dataPoints: [] }),
+      [`${G_API}/dataTypes/daily-vo2-max/dataPoints`]: () => Response.json({ dataPoints: [{ dailyVo2Max: { date: d(13), vo2Max: 55.9 } }] }),
+      [`${G_API}/dataTypes/distance/dataPoints:dailyRollUp`]: () => Response.json({ rollupDataPoints: [{ civilStartTime: { date: d(13) }, distance: { millimetersSum: '6100000' } }] }),
+      [`${G_API}/dataTypes/steps/dataPoints:rollUp`]: () => Response.json({ rollupDataPoints: [{ startTime: '2026-10-13T08:00:00Z', steps: { countSum: '900' } }] }),
+    });
+    await connectGoogle(t);
+    const body = await (await t.main(get('/api/google?step=days&from=2026-10-12&to=2026-10-13', { key: t.key }))).json();
+    expect(body.days[0]).toMatchObject({ date: '2026-10-13', steps: 8123, vo2max: 55.9, distKm: 6.1 });
+    expect(body.days[0].stepH[10]).toBe(900);
   });
 
   it('refuses a days range that is wrong or longer than 90 days', async () => {
