@@ -119,6 +119,9 @@ export async function start(page, context, info, { lang = 'de', data = null } = 
     await settle(page);
     if (await page.evaluate(() => /^#?\/?(\?.*)?$/.test(location.hash))) break;
   }
+  // Today's «Im Flow» card then adds the playful names, the favourite tiles and the walk to the activities
+  // (setting flow.seed2). A snapshot taken before that lacks these fields and differs from the backup that follows.
+  await expect.poll(async () => (await table(page, 'settings')).some((s) => s.key === 'flow.seed2'), { timeout: 20_000 }).toBe(true);
   return errors;
 }
 
