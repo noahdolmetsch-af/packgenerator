@@ -30,6 +30,12 @@ export const BY = ['sensor', 'gear', 'profile', 'type', 'user'];
 
 const r1 = (n) => Math.round(n * 10) / 10;
 export const counts = (e) => e?.state === 'counted';
+/**
+ * UI-Test 26.10.2026 T5: a Strava ride left out of a bike's km only because they are already in its start
+ * value (reason «start»). It was ridden, so «Diese Woche», «Velo in diesem Monat», the year goal and the
+ * series count it; the bike's km do not (counts stays false).
+ */
+export const inStartKm = (e) => e?.state === 'removed' && e?.reason?.code === 'start';
 /** Entries newest first: by date, then by when they were written. */
 export const newestFirst = (a, b) => (b.date ?? '').localeCompare(a.date ?? '') || (b.at ?? '').localeCompare(a.at ?? '') || String(b.id).localeCompare(String(a.id));
 
@@ -930,13 +936,14 @@ export function heartOfRide(entries, ride) {
  * 0.136.0: acts (db.activities, «Training») adds the Strava rides that have no ledger entry at all: a ride
  * before a bike's start point (its km are in the start reading, so the bike's ledger leaves it out) was
  * still ridden this month. A ride with a ledger entry follows that entry (open: after «Passt»; removed:
- * never); an indoor ride without a bike is no ride (as stravasync toRides).
+ * never, except a ride inside a bike's start value: UI-Test T5, inStartKm); an indoor ride without a bike is no
+ * ride (as stravasync toRides).
  */
 const INDOOR = /virtual|indoor|trainer/i;
 export function withStravaRides(rides = [], entries = [], acts = []) {
   const files = rides ?? [];
   const extra = (entries ?? [])
-    .filter((e) => e.source === 'strava' && e.kind === 'ride' && counts(e) && !files.some((r) => sameFileRide(e, r)))
+    .filter((e) => e.source === 'strava' && e.kind === 'ride' && (counts(e) || inStartKm(e)) && !files.some((r) => sameFileRide(e, r)))
     .map((e) => ({ id: e.id, date: e.date, km: Number(e.km) || 0, gainM: Number.isFinite(e.hm) ? e.hm : null, bikeId: e.bikeId, source: 'strava' }));
   const known = new Set((entries ?? []).filter((e) => e.stravaId).map((e) => String(e.stravaId)));
   const more = (acts ?? [])
@@ -954,6 +961,11 @@ export async function bikeActs(db) {
   const [acts, prefs] = await Promise.all([db.activities.where('kind').equals('bike').toArray(), db.settings.get(STRAVA_PREFS)]);
   return notIgnored(acts, prefs?.value?.ignore);
 }
+/** UI-Test T5: the rides from `from` on as «Diese Woche» counts them (withStravaRides), read from the database. */
+export async function countedRidesSince(db, from) {
+  const [rides, book, acts] = await Promise.all([db.rides.where('date').aboveOrEqual(from).toArray(), db.kmBook.where('date').aboveOrEqual(from).toArray(), bikeActs(db)]);
+  return withStravaRides(rides, book, acts.filter((a) => a.day >= from));
+}
 /** The Strava prefs (strava/client.svelte.js PREFS_KEY); kept here so kmbook.js needs no Svelte module. */
 const STRAVA_PREFS = 'strava';
 /** 0.136.0 «2b»: the Strava activities without the ones on an ignored Strava bike (ignore: Strava gear ids). */
@@ -967,7 +979,10 @@ export function notIgnored(acts = [], ignore = []) {
  * count only after «Passt» (0.121.0), so «Velo in diesem Monat» names them instead of quietly showing less.
  */
 export function waitingThisMonth(entries = [], today) {
-  const from = `${String(today).slice(0, 7)}-01`;
+  return waitingSince(entries, `${String(today).slice(0, 7)}-01`, today);
+}
+/** UI-Test T5: the same for any span, e.g. the year of the year goal. */
+export function waitingSince(entries = [], from, today) {
   return (entries ?? []).filter((e) => waitsInStrava(e) && e.kind === 'ride' && e.date >= from && e.date <= today).length;
 }
 

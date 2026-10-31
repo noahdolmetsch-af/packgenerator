@@ -26,7 +26,8 @@
  *   STRAVA_CLIENT_ID, STRAVA_CLIENT_SECRET, optional ALLOWED_ATHLETE_ID, KV_REST_API_URL / KV_REST_API_TOKEN.
  * In the Strava API settings the «Authorization Callback Domain» must be packgen-three.vercel.app.
  *
- * Redis: strava:tokens (JSON, access + refresh token), strava:athlete (owner id), app:keys (device key hashes).
+ * Redis: strava:tokens (JSON, access + refresh token), strava:athlete (owner id), app:keys (device key hashes);
+ * friends: strava:athletes (set), strava:invite:<hash> (7 days, once), strava:friend:<id> (+ :devices).
  *
  * «Strava pro Person vorbereiten» (Noah 27.10.2026 «3: nur ich bleibe verbunden, aber vorbereiten»): a friend
  * may connect their own Strava once their athlete id is in STRAVA_ATHLETES (comma list, empty = nobody, so
@@ -64,6 +65,20 @@ export async function whoseTokens(request, store) {
   await needDevice(request, store);
   return OWNER_TOKENS;
 }
+
+/**
+ * Switch at any time (Noah 27.10.2026 «bauen, dass wir in zukunft jederzeit umstellen können»): the owner
+ * lets friends in from the app, without Vercel. «Freund einladen» gives a link that works once within
+ * 7 days; whoever connects Strava with it is kept in strava:athletes (next to STRAVA_ATHLETES).
+ */
+export const FRIENDS = 'strava:athletes';
+export const INVITE_DAYS = 7;
+export const inviteKey = (code) => `strava:invite:${hash(code)}`;
+/** A friend's name (Strava first name) and since when, for the owner's list. */
+export const friendInfo = (id) => `strava:friend:${id}`;
+/** The device key hashes of a friend, so «Entfernen» closes every device of theirs. */
+export const friendDevices = (id) => `strava:friend:${id}:devices`;
+const goodInvite = (v) => typeof v === 'string' && /^[\w-]{8,40}$/.test(v);
 
 export function stravaEnv(e = process.env) {
   return {
@@ -816,18 +831,36 @@ export function makeHandler({ env = () => stravaEnv(), doFetch = (...a) => fetch
           const athlete = String(tok.athlete?.id ?? '');
           const owner = cfg.allowedAthlete || (await store.get('strava:athlete'));
           const saved = JSON.stringify({ access_token: tok.access_token, refresh_token: tok.refresh_token, expires_at: tok.expires_at, scope: granted.join(',') });
-          if (athlete && owner && owner !== athlete && (cfg.athletes ?? []).includes(athlete)) {
+          const listed = (cfg.athletes ?? []).includes(athlete) || Number(await store.cmd('SISMEMBER', FRIENDS, athlete)) === 1;
+          // an invite counts once: it goes when a friend uses it
+          const invited = !listed && athlete && owner && owner !== athlete && goodInvite(st.invite) && !!(await store.cmd('GETDEL', inviteKey(st.invite)));
+          if (athlete && owner && owner !== athlete && (listed || invited)) {
             // a friend with their own Strava: own tokens, a device key that opens only their Strava
+            if (invited) await store.cmd('SADD', FRIENDS, athlete);
+            if (invited || !(await store.get(friendInfo(athlete)))) await store.set(friendInfo(athlete), JSON.stringify({ name: String(tok.athlete?.firstname ?? '').slice(0, 40), since: new Date(now()).toISOString().slice(0, 10) }));
             await store.set(friendTokens(athlete), saved);
             const key = randomKey();
             await store.set(friendDevice(hash(key)), athlete);
+            await store.cmd('SADD', friendDevices(athlete), hash(key));
             return backToApp(st.returnTo, { strava: 'connected', key });
           }
+          if (st.invite && athlete && owner && owner !== athlete) return backToApp(st.returnTo, { strava: 'error', error: 'invite_gone' });
           if (!athlete || (owner && owner !== athlete)) return backToApp(st.returnTo, { strava: 'error', error: 'other_athlete' });
           if (!owner) await store.set('strava:athlete', athlete);
           await store.set(OWNER_TOKENS, saved);
           const key = await newDevice(store);
           return backToApp(st.returnTo, { strava: 'connected', key });
+        }
+
+        if (step === 'friends') {
+          await needDevice(request, store);
+          const ids = [...new Set([...(cfg.athletes ?? []), ...(((await store.cmd('SMEMBERS', FRIENDS)) ?? []).map(String))])].filter((x) => /^\d{1,20}$/.test(x));
+          const friends = [];
+          for (const id of ids) {
+            const info = JSON.parse((await store.get(friendInfo(id))) || '{}');
+            friends.push({ id, name: typeof info.name === 'string' ? info.name : '', since: typeof info.since === 'string' ? info.since : null, connected: !!(await store.get(friendTokens(id))), inVercel: (cfg.athletes ?? []).includes(id) });
+          }
+          return json(request, 200, { ok: true, friends });
         }
 
         const tokKey = await whoseTokens(request, store);
@@ -900,9 +933,35 @@ export function makeHandler({ env = () => stravaEnv(), doFetch = (...a) => fetch
         if (step === 'start') {
           setUp(cfg);
           const body = await jsonBody(request);
-          const state = await saveState(store, 'strava', { returnTo: typeof body.returnTo === 'string' ? body.returnTo.slice(0, 500) : null });
+          const state = await saveState(store, 'strava', { returnTo: typeof body.returnTo === 'string' ? body.returnTo.slice(0, 500) : null, ...(goodInvite(body.invite) ? { invite: body.invite } : {}) });
           const q = new URLSearchParams({ client_id: cfg.clientId, redirect_uri: CALLBACK, response_type: 'code', approval_prompt: 'auto', scope: SCOPE, state });
           return json(request, 200, { ok: true, url: `${AUTHORIZE_URL}?${q}` });
+        }
+        if (step === 'invite') {
+          // only the owner's devices (app:keys) invite; a friend's key is not in that set
+          await needDevice(request, store);
+          const code = randomKey(15);
+          await store.set(inviteKey(code), JSON.stringify({ at: now() }), INVITE_DAYS * 86400);
+          return json(request, 200, { ok: true, code, until: new Date(now() + INVITE_DAYS * 86400_000).toISOString() });
+        }
+        if (step === 'friend-remove') {
+          await needDevice(request, store);
+          const body = await jsonBody(request);
+          const id = String(body.id ?? '');
+          if (!/^\d{1,20}$/.test(id)) throw new ApiError(400, 'bad_request', 'Bad id.');
+          if (await store.get(friendTokens(id))) {
+            try {
+              const token = await accessToken(cfg, store, friendTokens(id));
+              await doFetch(DEAUTH_URL, { method: 'POST', headers: { Authorization: `Bearer ${token}` } });
+            } catch {
+              // Strava unreachable or already withdrawn: the server forgets everything anyway.
+            }
+          }
+          for (const h of (await store.cmd('SMEMBERS', friendDevices(id))) ?? []) await store.del(friendDevice(h));
+          for (const k of [friendDevices(id), friendTokens(id), friendInfo(id), `google:tokens:${id}`, `google:tokens:health:${id}`]) await store.del(k);
+          await store.cmd('SREM', FRIENDS, id);
+          // a friend in STRAVA_ATHLETES (Vercel) may connect again until Noah takes them out there
+          return json(request, 200, { ok: true, inVercel: (cfg.athletes ?? []).includes(id) });
         }
         if (step === 'disconnect') {
           const tokKey = await whoseTokens(request, store);
@@ -918,7 +977,10 @@ export function makeHandler({ env = () => stravaEnv(), doFetch = (...a) => fetch
           // Device keys stay: they also open Google; a new Strava login reconnects.
           await store.del(tokKey);
           // a friend's device key opens nothing else: it goes with the Strava access
-          if (tokKey !== OWNER_TOKENS) await store.del(friendDevice(hash(bearer(request))));
+          if (tokKey !== OWNER_TOKENS) {
+            await store.del(friendDevice(hash(bearer(request))));
+            await store.cmd('SREM', friendDevices(tokKey.split(':').pop()), hash(bearer(request)));
+          }
           return json(request, 200, { ok: true });
         }
         throw new ApiError(400, 'bad_request', 'Unknown step.');

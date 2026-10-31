@@ -87,6 +87,7 @@
   const SRC_TEXT = {
     own: 'Your own entries, only on this device.',
     fitbit: 'From your Fitbit, observation only.',
+    health: 'From Fitbit or Apple Health (Me › Connections), observation only. It changes slowly, often only once a week.',
     app: 'Counted by the app from your activities, Fitbit and the morning check (see Form and recovery).',
     check: 'Your answers of the morning check, 1 to 10.',
     strava: 'From your Strava activities; watts per kg with your weight of that day.',
@@ -107,7 +108,7 @@
     if (isSleep) return shown('sleep', v, num);
     if (bkey === 'bed') return bedText(v);
     if (bkey === 'skin') return `${v > 0 ? '+' : ''}${num(Math.round(v * 10) / 10)}`;
-    if (['weight', 'hrv', 'wkg', 'spd', 'breath', 'water'].includes(bkey) || isOwnBody(bkey)) return num(Math.round(v * 10) / 10);
+    if (['weight', 'vo2max', 'hrv', 'wkg', 'spd', 'breath', 'water'].includes(bkey) || isOwnBody(bkey)) return num(Math.round(v * 10) / 10);
     return num(Math.round(v));
   };
   const bu = $derived(B?.unit && !isSleep ? B.unit : '');
@@ -369,7 +370,7 @@
           {/if}
         </div>
       {:else}
-        <p class="q">{B.entry ? t('No entry in this range yet. Enter one above.') : B.src === 'fitbit' ? t('No value in this range. It comes with Fitbit.') : t('No value in this range yet.')}</p>
+        <p class="q">{B.entry ? t('No entry in this range yet. Enter one above.') : B.src === 'fitbit' ? t('No value in this range. It comes with Fitbit.') : B.src === 'health' ? t('No value in this range. It comes with Fitbit or the Apple Health export (Me › Connections).') : t('No value in this range yet.')}</p>
       {/if}
     </section>
     <ul class="days">

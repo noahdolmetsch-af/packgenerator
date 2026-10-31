@@ -15,16 +15,28 @@
    * «Heute ruhiger» (Noah 26.10.2026 «1a 2a 3a 4a 5a», mockup H3): outside edit mode the tiles stand in areas with a
    * heading (sections.js; sections = false: without headings), every small tile in one calm list «Schnell öffnen»,
    * and a card is only as tall as its content (no tile stretched by its neighbour any more).
+   * «Neuer Schwung» Aufklappen (Noah 26.10.2026 «2a», 27.10.2026: alle Bereiche starten offen, gemerkt): on a phone
+   * a tap on an area's heading folds it to one line with its tiles' names; the device remembers which areas are
+   * folded (localStorage, homeFold.js). A computer always shows every area open.
    */
-  import { GripVertical, X, ChevronLeft, ChevronRight, Plus } from '@lucide/svelte';
+  import { GripVertical, X, ChevronLeft, ChevronRight, ChevronDown, Plus } from '@lucide/svelte';
   import { TILE, SIZE_NAME, stepTile, moveTile, removeTile, resizeTile } from './tiles.js';
   import { sectionsOf, fillers } from './sections.js';
   import { runsOf } from './quick.js';
   import { t } from '../i18n.svelte.js';
+  import { phone } from '../media.svelte.js';
+  import { readFolded, writeFolded, toggleFold } from './homeFold.js';
 
   let { tiles = [], body, editing = false, sections = true, areas = null, onedit, onchange, onadd } = $props();
 
   let picked = $state(null); // the tile whose ‹ › and sizes show
+  // Aufklappen: the areas folded on this phone (all open at the start)
+  let folded = $state(readFolded());
+  const fold = (key) => {
+    folded = toggleFold(folded, key);
+    writeFolded(folded);
+  };
+  const isFolded = (key) => phone.matches && folded.includes(key);
   $effect(() => {
     if (!editing) picked = null;
   });
@@ -130,8 +142,14 @@
   <div class="wall" class:secs={sections} bind:this={wallEl} role="list" aria-label={t('Your start page')}>
     {#if sections}
       {#each sectionsOf(shown, areas) as g (g.key)}
-        <div class="ti long sech" data-home-sec={g.key} role="listitem"><h2>{g.own ?? t(g.name)}</h2>{#if g.sub && !g.own}<p>{t(g.sub)}</p>{/if}</div>
-        {#if g.tiles.every((x) => x.size === 's')}{@render quickS(g.tiles)}
+        {@const title = g.own ?? t(g.name)}
+        <div class="ti long sech" class:folded={isFolded(g.key)} data-home-sec={g.key} role="listitem">
+          {#if phone.matches}
+            <h2><button type="button" class="sec-t" aria-expanded={!isFolded(g.key)} onclick={() => fold(g.key)} data-sec-toggle={g.key}><span>{title}</span><ChevronDown class="sec-chev" size={20} aria-hidden="true" /></button></h2>
+          {:else}<h2>{title}</h2>{/if}
+          {#if isFolded(g.key)}<p class="sec-sum" data-sec-sum>{g.tiles.map((x) => name(x.id)).join(' · ')}</p>{:else if g.sub && !g.own}<p>{t(g.sub)}</p>{/if}
+        </div>
+        {#if isFolded(g.key)}{:else if g.tiles.every((x) => x.size === 's')}{@render quickS(g.tiles)}
         {:else if g.key === 'discover' && !g.tiles.some((x) => x.size === 's')}
           <!-- 4a: «Neu», «Schon probiert?» and the tip side by side -->
           <div class="ti long disc" role="listitem"><div class="dgrid" role="list">{#each g.tiles as x (x.id)}{@render tileEl(x, 'di', undefined, seen.indexOf(x))}{/each}</div></div>
@@ -146,6 +164,10 @@
       {#each runsOf(shown) as r, i (r.key === 'quick' ? 'quick' : `${i}`)}
         {#if r.key === 'quick'}{@render quickS(r.tiles)}{:else}{#each r.tiles as x (x.id)}{@render tileEl(x, '', undefined, seen.indexOf(x))}{/each}{/if}
       {/each}
+    {/if}
+    {#if sections && phone.matches && folded.length}
+      <!-- Noah 27.10.2026 «ja»: one tap opens every folded area again -->
+      <div class="ti long unfold" role="listitem"><button type="button" class="unfold-b" onclick={() => ((folded = []), writeFolded(folded))} data-unfold-all><ChevronDown size={18} aria-hidden="true" />{t('Open all areas')}</button></div>
     {/if}
     <div class="ti long plusw quiet" role="listitem">
       <button type="button" class="plus" onclick={onadd} aria-haspopup="dialog"><Plus size={18} aria-hidden="true" /><span>{t('Add a tile')}</span></button>
@@ -242,6 +264,54 @@
     margin: 2px 0 0;
     color: var(--ink-3);
     font-size: var(--fs-small);
+  }
+  /* Aufklappen (phone): the heading is the button; folded, one quiet line with the tiles' names */
+  .sec-t {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    width: 100%;
+    min-height: 44px;
+    margin: -6px 0;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+  .sec-t :global(.sec-chev) {
+    flex: none;
+    color: var(--ink-3);
+    transition: rotate 200ms ease-out;
+  }
+  .sech.folded .sec-t :global(.sec-chev) {
+    rotate: -90deg;
+  }
+  .unfold-b {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 44px;
+    padding: 0 4px;
+    border: 0;
+    background: none;
+    color: var(--accent);
+    font: 500 var(--fs-small) var(--font-body);
+    text-decoration: underline;
+    cursor: pointer;
+  }
+  .sec-sum {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .sec-t :global(.sec-chev) {
+      transition: none;
+    }
   }
   /* 1a: the small tiles as one calm list, two columns on a phone, four on a computer */
   .qcard {

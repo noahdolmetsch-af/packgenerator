@@ -569,12 +569,14 @@ export function phaseRows(phases = [], data = []) {
 /**
  * The values of the widget, observation only, each with your normal (the 30 days before) where it has one.
  * km: kmBook rows; health: healthDays rows; forecast: homeForecast() or null; today: YYYY-MM-DD.
+ * rides (UI-Test T5): the rides as «Diese Woche» counts them (kmbook.js withStravaRides); when given, the km
+ * of today and of 7 days come from them, so the tiles «Du heute» and «Velo diesen Monat» agree.
  * → { kmToday, kmWeek, weather: { min, max, rain } | null, sleepH, sleepNormal, hrv, hrvNormal, restingHr, restingNormal, day }
  * day: the day of the last health values (sleep belongs to the night before it).
  */
-export function widgetValues({ km = [], health = [], forecast = null, today } = {}) {
+export function widgetValues({ km = [], rides: counted = null, health = [], forecast = null, today } = {}) {
   const week = lastDays(today, 7);
-  const rides = km.filter(isRide);
+  const rides = counted ? counted.filter((r) => typeof r?.date === 'string').map((r) => ({ date: r.date.slice(0, 10), km: Number(r.km) || 0 })) : km.filter(isRide);
   const sum = (list) => Math.round(list.reduce((s, e) => s + Number(e.km), 0) * 10) / 10;
   const byDay = Object.fromEntries(health.filter((h) => h?.date).map((h) => [h.date, h]));
   const last = Object.keys(byDay).filter((d) => d <= today).sort().at(-1) ?? null;

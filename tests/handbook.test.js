@@ -3,7 +3,7 @@ import { describe, it, expect } from 'vitest';
 import { FEATURES } from '../src/lib/features.js';
 import { MINI_APPS } from '../src/lib/miniapps.js';
 import { HANDBOOK, MINI_APPS_HANDBOOK, handbookOf } from '../src/lib/handbook.js';
-import HB from '../src/lib/i18n/de/handbuch.js';
+import HB from '../src/lib/i18n/de/index.js'; // all German texts, also the parts that load by themselves
 
 /** Every text of the handbook (English keys for t()). */
 const texts = () => [
