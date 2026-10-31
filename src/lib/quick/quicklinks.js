@@ -4,6 +4,7 @@
  * own groups (add, rename, delete, order), pins with an own name and a note.
  *
  * Every pin points at a function of the catalogue (features.js); a tap goes there (goFeature).
+ * Step 3 (Noah «18a»): a pin can also hold a view, a page with its filter (`href`, `title` as shown then).
  * Noah «13»: a phone and a computer keep their own pins (one settings record each, both in the backup
  * and synced, so a second phone shows the same pins as the first). «Take over from the other device»
  * copies the other record.
@@ -55,20 +56,28 @@ export function cleanQuick(raw) {
   const groups = raw.groups.filter((g) => g && typeof g.id === 'string' && g.id).map((g) => ({ id: g.id, std: str(g.std), name: str(g.name, 60) }));
   const ids = new Set(groups.map((g) => g.id));
   const pins = raw.pins
-    .filter((p) => p && typeof p.id === 'string' && FEATURE[p.feature])
-    .map((p) => ({ id: p.id, feature: p.feature, group: ids.has(p.group) ? p.group : '', name: str(p.name, 60), note: str(p.note, 120) }));
+    .filter((p) => p && typeof p.id === 'string' && (FEATURE[p.feature] || isView(p)))
+    .map((p) => ({
+      id: p.id,
+      ...(FEATURE[p.feature] ? { feature: p.feature } : { feature: '', href: p.href, title: str(p.title, 80) }),
+      group: ids.has(p.group) ? p.group : '',
+      name: str(p.name, 60),
+      note: str(p.note, 120),
+    }));
   return { groups, pins };
 }
 
 /** The shown name of a group (tr: t()); a typed name is never translated. '' is «Without a group». */
 export const groupLabel = (g, tr = (s) => s) => (g ? g.name || tr(g.std) : tr('Without a group|quick'));
-/** The shown name of a pin: your own name, else the function's. */
-export const pinLabel = (p, tr = (s) => s) => p.name || tr(FEATURE[p.feature]?.title ?? '');
+/** A pin of a view: an address of the app (no outside link). */
+const isView = (p) => typeof p.href === 'string' && /^#\/[^\s]{0,300}$/.test(p.href);
+/** The shown name of a pin: your own name, else the function's, else the view's title as shown then. */
+export const pinLabel = (p, tr = (s) => s) => p.name || (p.feature ? tr(FEATURE[p.feature]?.title ?? '') : p.title || p.href);
 
 /** The pins of a group, in their order ('' = without a group). */
 export const pinsIn = (s, gid) => s.pins.filter((p) => p.group === gid);
 /** Is a function pinned already? */
-export const isPinned = (s, feature) => s.pins.some((p) => p.feature === feature);
+export const isPinned = (s, feature) => !!feature && s.pins.some((p) => p.feature === feature);
 
 /** The groups as the page shows them: yours in order, «Without a group» last when it holds pins. */
 export function shownGroups(s) {
@@ -81,6 +90,15 @@ export function addPin(s, feature, gid = '') {
   const group = gid === '' || s.groups.some((g) => g.id === gid) ? gid : '';
   return { ...s, pins: [...s.pins, { id: newId('p'), feature, group, name: '', note: '' }] };
 }
+/** Is this view (address with its filter) pinned? */
+export const isViewPinned = (s, href) => s.pins.some((p) => !p.feature && p.href === href);
+/** Pin a view: the address with its filter and the title it shows. Already pinned: nothing changes. */
+export function addView(s, href, title, gid = '') {
+  if (!isView({ href }) || isViewPinned(s, href)) return s;
+  const group = gid === '' || s.groups.some((g) => g.id === gid) ? gid : '';
+  return { ...s, pins: [...s.pins, { id: newId('v'), feature: '', href, title: str(title, 80), group, name: '', note: '' }] };
+}
+export const removeView = (s, href) => ({ ...s, pins: s.pins.filter((p) => p.feature || p.href !== href) });
 export const removePin = (s, id) => ({ ...s, pins: s.pins.filter((p) => p.id !== id) });
 /** Change a pin: { name, note, group }; an empty name brings back the function's own name. */
 export function editPin(s, id, patch = {}) {
