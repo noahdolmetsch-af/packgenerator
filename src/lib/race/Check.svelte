@@ -5,8 +5,8 @@
    * (stored.check, in the backup). «Load answers» takes the file of the fillable sheets page.
    * Gets `ctx` from RaceDetail; the sheets live in check-lib.js.
    */
-  import { Upload, Eraser, ChevronLeft, ChevronRight, Copy, Scale } from '@lucide/svelte';
-  import { SHEETS, STATIONS, RACE_QUESTIONS, BAGS, LIST, SLEEP_COLS, SLEEP_ROWS, NIGHT, valueOf, withValue, answersFrom, filled, takeOver, setupWeight } from './check-lib.js';
+  import { Upload, Eraser, ChevronLeft, ChevronRight, Copy, Scale, Check as CheckIcon } from '@lucide/svelte';
+  import { SHEETS, STATIONS, RACE_QUESTIONS, BAGS, LIST, SLEEP_COLS, SLEEP_ROWS, NIGHT, DAY_BEFORE, dayBeforeDone, valueOf, withValue, answersFrom, filled, takeOver, setupWeight } from './check-lib.js';
   import { offerDone } from '../ui/rename.svelte.js';
   import { askDelete } from '../ui/ask.js';
   import { t, tn, num } from '../i18n.svelte.js';
@@ -121,7 +121,7 @@
 {/snippet}
 
 <div class="ck" data-race-part="check" data-race-check>
-  <p class="rc-note">{t('The paper check of the race, five sheets. Everything is a suggestion: write your own, leave out what does not fit.')}</p>
+  <p class="rc-note">{t('The paper check of the race, sheet by sheet. Everything is a suggestion: write your own, leave out what does not fit.')}</p>
   <div class="ck-tabs" role="tablist" aria-label={t('Sheets')}>
     {#each SHEETS as s (s.id)}
       {@const f = filled(check, s.id)}
@@ -224,6 +224,20 @@
         </div>
       {/each}
       <div class="ck-step">{@render area('nacht.help', t('What would have helped you most on the phone in this night?'), '', 3)}</div>
+    {:else if cur.id === 'vorher'}
+      {@const d = dayBeforeDone(check)}
+      <div class="ck-prog" class:ck-all={d.done === d.of}>
+        <p class="ck-progress" role="status" data-check-daybefore-done>{d.done === d.of ? t('All done. Sleep well!') : t('{done} of {of} done', d)}</p>
+        <span class="ck-pbar" aria-hidden="true"><span style:width="{Math.round((d.done / Math.max(d.of, 1)) * 100)}%"></span></span>
+      </div>
+      {#each DAY_BEFORE as r, i (r.name)}
+        <div class="ck-step ck-vstep" class:ck-ticked={v(`vorher.${i}.done`)}>
+          <h3 class="ck-h3"><span class="ck-vnum" aria-hidden="true">{#if v(`vorher.${i}.done`)}<CheckIcon size={14} />{:else}{i + 1}{/if}</span>{t(r.name)}</h3>
+          {@render area(`vorher.${i}.v`, t('Your plan'), t(r.ph))}
+          <div class="ck-ticks">{@render tick(`vorher.${i}.done`, t('done|ticked'))}</div>
+        </div>
+      {/each}
+      <div class="ck-step">{@render area('vorher.own', t('Anything else for the evening before?'), '', 3)}</div>
     {/if}
 
     <div class="ck-nav">
@@ -376,6 +390,52 @@
   }
   .ck-num {
     fill: var(--accent);
+  }
+  .ck-prog {
+    display: grid;
+    gap: 6px;
+    padding: 12px 14px;
+    border-radius: var(--radius-card);
+    background: var(--accent-soft);
+  }
+  .ck-progress {
+    margin: 0;
+    font-weight: 600;
+  }
+  .ck-all .ck-progress {
+    color: var(--accent);
+  }
+  .ck-pbar {
+    display: block;
+    height: 8px;
+    border-radius: 4px;
+    background: var(--paper);
+    overflow: hidden;
+  }
+  .ck-pbar span {
+    display: block;
+    height: 100%;
+    background: var(--accent);
+    transition: width 0.3s;
+  }
+  .ck-vnum {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: var(--accent-soft);
+    color: var(--accent);
+    font-size: var(--fs-small);
+    font-weight: 700;
+  }
+  .ck-ticked .ck-vnum {
+    background: var(--accent);
+    color: var(--paper);
+  }
+  .ck-ticked .ck-h3 {
+    color: var(--ink-2);
   }
   .ck-weight {
     display: grid;

@@ -1,15 +1,15 @@
 // «Rennen detailliert planen» + «Rennen-Check» (Noah 27.10.2026 «1b 2b»): the coming races with their check,
-// five sheets that save by themselves and answers loaded from a file. Fictional data (sample race, made-up answers).
+// the sheets that save by themselves and answers loaded from a file. Fictional data (sample race, made-up answers).
 import { test, expect } from './clock.js';
 import { openHome, homeFixture } from './home0460-fixture.js';
-import { SHEETS } from '../../src/lib/race/check-lib.js';
+import { SHEETS, DAY_BEFORE } from '../../src/lib/race/check-lib.js';
 
 const noSideways = async (page) => {
   const d = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
   expect(d).toBeLessThanOrEqual(1);
 };
 
-test('Race check: the races page, five sheets that keep what you write, answers from a file', async ({ page, context }, info) => {
+test('Race check: the races page, the sheets that keep what you write, answers from a file', async ({ page, context }, info) => {
   const T = await openHome(page, context, info);
   // a race to plan: the sample race
   await page.goto('./#/race');
@@ -179,4 +179,28 @@ test('Weight of the setup: the grams of sheet 2 added up against the target', as
   await expect(box.locator('[data-check-weight-over]')).toHaveText(T('{kg} over the target', { kg: '0.1 kg' }));
   await noSideways(page);
   await box.screenshot({ path: info.outputPath('rennen-gewicht.png') });
+});
+
+test('The day before the start: sheet 6, plan and tick off', async ({ page, context }, info) => {
+  const T = await openHome(page, context, info);
+  await page.goto('./#/race');
+  await page.locator('[data-race-sample-open]').click();
+  await expect(page).toHaveURL(/#\/race\/race-sample$/);
+  await page.goto('./#/racecheck/race-sample');
+  await page.locator('[data-check-tab="vorher"]').click();
+  const sheet = page.locator('[data-check-sheet="vorher"]');
+  await expect(sheet).toContainText(T('The day before the start'));
+  const done = page.locator('[data-check-daybefore-done]');
+  await expect(done).toHaveText(T('{done} of {of} done', { done: 0, of: DAY_BEFORE.length }));
+  await page.locator('[data-check-field="vorher.3.v"]').fill('Start 06:00, alarm 04:30');
+  await page.locator('[data-check-field="vorher.3.v"]').blur();
+  await page.locator('[data-check-field="vorher.0.done"]').check();
+  await expect(done).toHaveText(T('{done} of {of} done', { done: 1, of: DAY_BEFORE.length }));
+  await page.reload();
+  await expect(page.locator('[data-check-field="vorher.3.v"]')).toHaveValue('Start 06:00, alarm 04:30');
+  await expect(page.locator('[data-check-field="vorher.0.done"]')).toBeChecked();
+  for (let i = 1; i < DAY_BEFORE.length; i++) await page.locator(`[data-check-field="vorher.${i}.done"]`).check();
+  await expect(done).toHaveText(T('All done. Sleep well!'));
+  await noSideways(page);
+  await sheet.screenshot({ path: info.outputPath('rennen-tag-vorher.png') });
 });
