@@ -400,6 +400,7 @@ export const HOWTO = {
   'f.needs': ['Open Pack › Add material › «Pack by need».', 'Tap needs, set people, choose a variant.', 'Tap «Take it onto the list».'],
   'f.labels': ['Open Toolbox › Box labels.', 'Add a box and what is inside.', '«Print label» and stick it on.'],
   'f.minifood': ['Open Me › Mini tools › Who eats what.', 'Write what it is about, say what you eat and tap «Make the link».', 'Send it; pick a menu for the shopping list.'],
+  'f.minilos': ['Open Me › Mini tools › Fair draw.', 'Pick a draw and add the people.', 'Tap «Draw now» and send the result to the group.'],
   'f.miniinvite': ['Open Me › Mini tools › Quick invite.', 'Pick the day, add the meeting point and tap «Make the link».', 'Send it; who is in is on top.'],
   'f.minilist': ['Open Me › Mini tools › Sign-up list.', 'Set the places and tap «Make the link».', 'Send it; who is in and who waits is on top.'],
   'f.minipoll': ['Open Me › Mini tools › Mini survey.', 'Pick a start, change the questions and tap «Make the link».', 'Send it; the summary is on top.'],

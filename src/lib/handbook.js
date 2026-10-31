@@ -1954,6 +1954,11 @@ export const HANDBOOK = {
     steps: ['Open Me › Mini tools › Who eats what.', 'Write what it is about, say what you eat and tap «Make the link».', 'Send the link; pick a menu and the shopping list is ready.'],
     example: 'Example: «Hut evening» for 7; two vegetarian, one gluten-free; the pasta list has 250 g gluten-free pasta.',
   },
+  'f.minilos': {
+    on: null,
+    steps: ['Open Me › Mini tools › Fair draw and pick e.g. «Who cooks?».', 'Add the people; untick who is not there this time.', 'Tap «Draw now»; next time whoever was drawn less often comes first.'],
+    example: 'Example: four on a hut weekend; Lena cooked on Friday, so on Saturday one of the other three cooks.',
+  },
   'f.friendask': {
     on: null,
     steps: ['Open Me › With friends and choose what you ask, e.g. «Tell the trip together».', 'Choose the trip, check the lines, «Make the link» and send it to who you choose.', 'Your friend answers in the app and sends a link back; open it and tap «Keep it».'],
