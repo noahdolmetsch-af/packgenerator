@@ -152,9 +152,25 @@ export function writeDeAuto() {
   if (!existsSync(out) || readFileSync(out, 'utf8') !== text) writeFileSync(out, text);
 }
 
+/** Writes src/lib/featreg/index.gen.js: every file of src/lib/featreg/ (one per new function). Not in git. */
+export function writeFeatReg() {
+  const dir = join(ROOT, 'src/lib/featreg');
+  const files = readdirSync(dir).filter((f) => NAME.test(f) && f !== 'index.js').sort();
+  const id = (f) => `p_${f.slice(0, -3).replace(/-/g, '_')}`;
+  const text = [
+    '// Written by scripts/news.mjs (vite.config.js, playwright.config.js). Not in git, do not edit.',
+    ...files.map((f) => `import ${id(f)} from './${f}';`),
+    `export const PARTS = [${files.map(id).join(', ')}];`,
+    '',
+  ].join('\n');
+  const out = join(dir, 'index.gen.js');
+  if (!existsSync(out) || readFileSync(out, 'utf8') !== text) writeFileSync(out, text);
+}
+
 /** Writes src/lib/news/index.gen.js; returns what computeNews() found. */
 export function writeNewsIndex() {
   writeDeAuto();
+  writeFeatReg();
   const r = computeNews();
   const lines = [
     '// Written by scripts/news.mjs (vite.config.js, playwright.config.js). Not in git, do not edit.',
