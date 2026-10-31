@@ -49,6 +49,7 @@
   import { db } from '../lib/db.js';
   import { localDay } from '../lib/localday.js';
   import { LAST_BACKUP, LAST_IMPORT, backupDue, downloadBackup } from '../lib/backup.js';
+  import { folderBackupSupported, folderStatus, allowAgain } from '../lib/folderBackup.js';
   import { backupAfterTrip } from '../lib/todos.js';
   import { knownWeight, isInventory } from '../lib/gear.js';
   import { sortBikes, bikesHash } from '../lib/bikes.js';
@@ -586,6 +587,21 @@
     const b = backupDue($metaQ.last);
     return backupAfterTrip($metaQ.last, debriefs) ? { ...b, due: true, afterTrip: true } : b;
   });
+  // Backup-Ordner (Noah 31.10.2026 «1a»): the browser asks again for the right to write after a restart;
+  // until the click the folder backup writes nothing, so Today says it and offers the one tap
+  let folderNeedsOk = $state(false);
+  let folderName = $state('');
+  $effect(() => {
+    $metaQ; // re-check when the stored folder changes
+    if (!folderBackupSupported) return;
+    folderStatus(db).then((f) => {
+      folderNeedsOk = f.state === 'needs-ok';
+      folderName = f.name ?? '';
+    }).catch(() => {});
+  });
+  async function allowFolder() {
+    folderNeedsOk = !(await allowAgain(db));
+  }
   let backingUp = $state(false);
   async function backupNow() {
     backingUp = true;
@@ -710,6 +726,7 @@
     // TZ-2: the newest trip whose date passed without an end: «Datum vorbei. Bist du gefahren?» Ja · Nicht gefahren
     const askT = askTrips[0];
     if (askT) rows.push({ key: 'ride', tone: 'warn', st: 'done', text: hasBike(askT) ? t('{title} ({date}): date passed. Did you ride?', { title: askT.title, date: shortDay(askT.startDate) }) : t('{title} ({date}): date passed. Did you go?', { title: askT.title, date: shortDay(askT.startDate) }), act: { label: t('Yes|rode'), run: () => rideAnswer(askT, true) }, act2: { label: hasBike(askT) ? t('Not ridden|answer') : t('Did not happen'), run: () => rideAnswer(askT, false) } });
+    if (folderNeedsOk && !$demoQ) rows.push({ key: 'folderok', tone: 'warn', text: t('The backup folder «{name}» waits for your OK. One tap, the folder stays.', { name: folderName }) + ' ' + t('Tip: in Chrome choose «Allow on every visit» so it asks less often.'), act: { label: t('Allow backup'), run: allowFolder }, short: t('Backup folder needs OK') });
     if (backup.due) rows.push({ key: 'backup', tone: 'bad', text: `${t('Time for a backup')}: ${backup.days == null ? t('You have not saved a backup file yet.') : t('Your last backup is {n} days old.', { n: backup.days })}${$metaQ?.imp?.from ? ` ${t('Data from the backup of {date}. Newer state on the phone? Load its backup here.', { date: new Date($metaQ.imp.from).toLocaleDateString(locale(), { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) })}` : backup.afterTrip ? ` ${t('New debrief since the last backup: save one, then load it on the desktop.')}` : ''}`, act: { label: t('Download backup'), run: backupNow, busy: true }, short: t('Backup due') });
     rows.push(...careRows.filter((r) => r.tone === 'bad'));
     if (prep) rows.push({ key: 'prep', tone: prep.overdue ? 'bad' : 'warn', text: eventPrepLine(prep), act: { label: t('Tick off in the trip'), href: '#/pack', prep: next.id } });
