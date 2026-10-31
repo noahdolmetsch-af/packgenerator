@@ -4,7 +4,7 @@
 export default {
   title: 'Pairing tells what really happened',
   lead: 'Pairing two devices shows the result of its own first round.',
-  points: [{ text: 'Pairing during a running sync no longer says «Paired» too early', href: '#/me/data' }],
+  points: [{ text: 'Pairing during a running sync no longer says «Paired» too early', href: '#/me/data', go: null }],
   small: [],
   test: ['Open Ich › Daten und Backup › Handy und Computer and pair with a code while the phone has no network.', 'The panel says «Gerade kein Netz. Der Abgleich holt es später nach.» instead of «Gekoppelt».'],
   since: [],

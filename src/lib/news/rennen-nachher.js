@@ -2,11 +2,12 @@
 export default {
   title: 'Questions after the race',
   lead: 'Under every sheet of the Rennen-Check: what was missing, what was too much, what you change.',
-  points: [{ text: 'Your answers show on top of the same sheet in your next races', href: '#/racecheck' }],
+  points: [{ text: 'Your answers show on top of the same sheet in your next races', href: '#/racecheck', go: { href: '#/racecheck', where: 'Shows in the race check, on the last sheet «Afterwards».' } }],
   small: [{ box: 'new', text: 'In a past race «After the race» stands open on every sheet' }],
   test: ['Open Touren › «Rennen detailliert planen» › a past race › Rennen-Check › a sheet › «Nach dem Rennen»: write what was missing.', 'Open a coming race, same sheet: on top stands «Aus deinen früheren Rennen» with your answer.'],
   since: [],
   de: {
+    'Shows in the race check, on the last sheet «Afterwards».': 'Zeigt sich im Rennen-Check, auf dem letzten Blatt «Nachher».',
     'Questions after the race': 'Fragen nach dem Rennen',
     'Under every sheet of the Rennen-Check: what was missing, what was too much, what you change.': 'Unter jedem Blatt des Rennen-Checks: was gefehlt hat, was zu viel war, was du änderst.',
     'Your answers show on top of the same sheet in your next races': 'Deine Antworten stehen in deinen nächsten Rennen oben auf dem gleichen Blatt',

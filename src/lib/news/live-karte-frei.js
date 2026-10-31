@@ -4,9 +4,9 @@ export default {
   title: 'More map on the computer',
   lead: 'On the live map on a computer the numbers are a small box and «Everything» sits in a bar at the right.',
   points: [
-    { text: 'Your numbers float in a small box at the top left of the map', href: '#/live' },
+    { text: 'Your numbers float in a small box at the top left of the map', href: '#/live', go: { href: '#/live', where: 'Shows on the live map during a ride.' } },
   ],
-  small: [{ box: 'nicer', text: '«Everything» at the right: show and hide it with one tap; the app remembers your choice' }],
+  small: [{ box: 'nicer', text: '«Everything» at the right: show and hide it with one tap; the app remembers your choice', go: { href: '#/live', where: 'Shows on the live map during a ride.' } }],
   test: ['On a computer open the live map and start a ride: the numbers are a small box at the top left.', 'Tap «Hide everything»: the bar at the right goes away and the map fills the screen. Tap «Show everything» to bring it back.'],
   since: [],
   de: {

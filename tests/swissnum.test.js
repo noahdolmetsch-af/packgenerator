@@ -63,9 +63,9 @@ describe('Swiss numbers keep the typographic apostrophe', () => {
     expect(installSwissNumbers(g)).toBe(false);
   });
 
-  it('main.js installs it before anything else', async () => {
+  it('start.js (the app, started by main.js) installs it before anything else', async () => {
     const { readFileSync } = await import('node:fs');
-    const main = readFileSync(new URL('../src/main.js', import.meta.url), 'utf8');
+    const main = readFileSync(new URL('../src/start.js', import.meta.url), 'utf8');
     expect(main.indexOf("import './lib/swissnum.js';")).toBeGreaterThanOrEqual(0);
     expect(main.indexOf("import './lib/swissnum.js';")).toBeLessThan(main.indexOf("import '@fontsource"));
   });
