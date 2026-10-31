@@ -268,3 +268,33 @@ test('Bike countdown: steps weeks before the race, tick and own steps', async ({
   await box.screenshot({ path: info.outputPath('velo-countdown.png') });
 });
 
+test('Tools for this bike: suggestions from the bike, tick, own spare, suggestions again', async ({ page, context }, info) => {
+  const T = await openHome(page, context, info);
+  await page.goto('./#/race');
+  await page.locator('[data-race-sample-open]').click();
+  await expect(page).toHaveURL(/#\/race\/race-sample$/);
+  await page.goto('./#/racecheck/race-sample');
+  const box = page.locator('[data-race-tools]');
+  await expect(box).toContainText(T('Tools for this bike'));
+  await expect(box).toContainText(T('Multitool with chain tool'));
+  const n = await box.locator('[data-tools-list] li').count();
+  expect(n).toBeGreaterThan(5);
+  await box.locator('[data-tools-done="tl-multi"]').check();
+  await expect(box.locator('[data-tools-sum]')).toHaveText(T('{done} of {of} packed', { done: 1, of: n }));
+  await box.locator('[data-tools-edit]').click();
+  await box.locator('[data-race-add="tools"]').fill('Spoke key, made up');
+  await box.locator('[data-race-add="tools"]').press('Enter');
+  await expect(box.locator('[data-tools-list] li')).toHaveCount(n + 1);
+  await page.reload();
+  await expect(box.locator('[data-tools-done="tl-multi"]')).toBeChecked();
+  await expect(box).toContainText('Spoke key, made up');
+  // the suggestions again: the own row goes, the tick stays
+  await box.locator('[data-tools-edit]').click();
+  await box.locator('[data-tools-again]').click();
+  await expect(box.locator('[data-tools-list] li')).toHaveCount(n);
+  await expect(box.locator('[data-tools-done="tl-multi"]')).toBeChecked();
+  await box.locator('[data-tools-edit]').click();
+  await noSideways(page);
+  await box.screenshot({ path: info.outputPath('velo-werkzeug.png') });
+});
+
