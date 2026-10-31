@@ -35,7 +35,7 @@
     q = '';
     await db.settings.put({ key: HOME_PLACE, value: homePlace });
     onchosen(homePlace);
-    await homeForecast(db);
+    await homeForecast(db, { fresh: true });
   }
 </script>
 

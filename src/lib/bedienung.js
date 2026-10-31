@@ -7,6 +7,8 @@
  * - buzz: a short vibration when ticking off while packing (FE7), on by default
  * - quiet: night quiet on Today, 22–06 no tips (FE8), on by default
  * - search: the search offers go-to actions too (FE17), on by default
+ * - path: the path line above every page (Noah 28.10.2026 «1a»), on by default
+ * - explore: Explorer mode (Noah 28.10.2026 «1a»): a tap on a tile shows where it comes from instead of opening it, off by default
  * - contrast: high contrast for the sun outdoors (FE2), off by default
  * The pure part; bedienung.svelte.js holds the live state.
  */
@@ -16,6 +18,8 @@ export const OPS = [
   { key: 'buzz', name: 'Short vibration when ticking', text: 'A short buzz when you tick off an item while packing, where the phone can.', on: true },
   { key: 'quiet', name: 'Night quiet', text: 'From 22:00 to 06:00 Today shows no tips.', on: true },
   { key: 'search', name: 'Search can act', text: 'The search also offers backup, settings, a quick note or a bike.', on: true },
+  { key: 'path', name: 'Show the path on every page', text: 'A quiet line above the title, for example Plan › Week, so you see where you are. Pages with their own path keep it.', on: true },
+  { key: 'explore', name: 'Explorer mode', text: 'A tap on a tile with an «i» shows where it comes from instead of opening it. Switch it off in the bar at the top.', on: false },
   { key: 'contrast', name: 'High contrast (outdoors)', text: 'Darker text and stronger lines, easier to read in the sun.', on: false },
 ];
 export const OPS_KEY = 'ops.';

@@ -29,7 +29,7 @@ export const TIME_TILES = {
 };
 
 /** Tiles that stay on top when they lead the wall. */
-export const KEEP_TOP = ['weighin', 'body', 'acts', 'vitals', 'meditation', 'daycard', 'important', 'routine', 'trip', 'flow']; // HN4: its head stays as it is; N2: «Your body today» and the Aktiv tiles
+export const KEEP_TOP = ['weighin', 'body', 'acts', 'vitals', 'meditation', 'moment', 'discover', 'daycard', 'important', 'routine', 'trip', 'flow']; // HN4: its head stays as it is; N2: «Your body today» and the Aktiv tiles
 
 /** The wall for this hour: the fitting tiles that are on it move to the front, in this order. */
 export function byTime(tiles = [], hour = 12, on = true) {

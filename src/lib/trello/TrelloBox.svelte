@@ -42,8 +42,8 @@
         <button type="button" class="btn hi" onclick={() => connect()}><Link size={16} aria-hidden="true" />{t('Connect Trello')}</button>
         <p class="hint">{t('Needed once: a workspace «Packgenerator» in Trello. The app makes the board itself.')}</p>
       {:else}
-        <p class="hint">{t('First connect Strava on this device: it gives this device the key the Trello connection uses too.')}</p>
-        <a class="btn" href={STRAVA_HASH}>{t('Connect Strava first')}</a>
+        <p class="hint">{t('This device needs the app key once. It comes with the Strava login; after that Google and Trello work here too.')}</p>
+        <a class="btn" href={STRAVA_HASH}>{t('Unlock this device (once)')}</a>
       {/if}
     {:else}
       <p class="row">

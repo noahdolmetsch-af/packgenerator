@@ -92,6 +92,8 @@ test('metres climbed on Today, Aktiv, the year goals and per part; Strava card u
   const goals = page.locator('[data-section="year-goals"]');
   await expect(goals.locator('[data-goal]')).toHaveCount(3);
   await expect(goals.locator('[data-goal="km"] .bar')).toBeVisible();
+  // UI-Test T5: the km goal says which rides it counts
+  await expect(goals.locator('[data-goal="km"] [data-goal-source]')).toHaveText(T('Counted: every bike ride from Strava, uploaded rides and your recordings, as on Today.'));
   await expect(goals.locator('[data-goal="azm"]')).toContainText(T('Not counted for the year yet. Your minutes of this week are on Aktiv.'));
   await expect(page.locator('[data-section="footprint"]')).toContainText('CO₂');
   await shot(page, info, 'WU3-ziele', '[data-section="year-goals"]');

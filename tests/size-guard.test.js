@@ -68,3 +68,12 @@ describe('loadPage', () => {
     expect(reloads).toBe(1);
   });
 });
+
+describe('loadPage default reload', () => {
+  it('loads fresh (old offline copy removed), not a plain reload', async () => {
+    const { readFileSync } = await import('node:fs');
+    const src = readFileSync(new URL('../src/lib/nav/lazy.js', import.meta.url), 'utf8');
+    expect(src).toMatch(/reload = \(\) => freshReload\(\)/);
+    expect(src).not.toMatch(/location\.reload\(\)/);
+  });
+});

@@ -15,15 +15,19 @@
   import { titleOf, subOf, dayName, shortDate, hours, hintText, reviewLine } from '../lib/woche/words.js';
   import { ITEMS_KEY, NO_KEY, PLANNED_KEY, buildWeek, cleanItem, pruneItems, skipFor, planMonday, daysOf, awayOn, takeSuggestion } from '../lib/woche.js';
   import { homeForecast } from '../lib/home-weather.js';
+  import { prefsOf as agendaPrefs, weekItems } from '../lib/agenda.js';
   import { db } from '../lib/db.js';
   import { PLAN_KEY as TRAIN_KEY, KIND_NAMES as TRAIN_KINDS, shiftDay, copyWeek, cleanSession, prunePlan } from '../lib/training.js';
   import { actName } from '../lib/flow/ui.svelte.js';
   import { localDay } from '../lib/localday.js';
-  import { t } from '../lib/i18n.svelte.js';
+  import { t, tn } from '../lib/i18n.svelte.js';
 
   const today = localDay();
   const monday = planMonday(today);
   const week7 = daysOf(monday);
+  // UI-Test T9 (G1-10): the Google line says what is true: connected (with how many dates) or not yet
+  const calOn = $derived(!!agendaPrefs(src?.google?.prefs).calendar);
+  const calCount = $derived(calOn ? weekItems({ events: src?.google?.events ?? [], from: week7[0], to: week7.at(-1) }).length : 0);
   const q = weekQuery(today);
   const src = $derived($q);
   const actOf = $derived(new Map((src?.flowActs ?? []).map((a) => [a.id, a])));
@@ -141,7 +145,7 @@
             <a class="btn" href="#/week/away"><Palmtree size={16} aria-hidden="true" />{t('Enter holidays')}</a>
           </div>
         {/if}
-        <p class="why sm">{t('Dates from Google Calendar come here by themselves once it is connected.')}</p>
+        <p class="why sm" data-gcal-line={calOn ? 'on' : 'off'}>{#if !calOn}{t('Dates from Google Calendar come here by themselves once it is connected.')} <a href="#/me/agenda">{t('Connect Google ›')}</a>{:else if calCount}{tn(calCount, 'From your Google Calendar: {n} date this week.', 'From your Google Calendar: {n} dates this week.')}{:else}{t('From your Google Calendar: no dates this week.')}{/if}</p>
       {:else if step === 2}
         <h2 id="wpl-h">{t('Spread the training')}</h2>
         <p class="why">

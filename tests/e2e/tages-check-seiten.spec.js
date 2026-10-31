@@ -53,6 +53,9 @@ function rows({ todayCheck = null } = {}) {
   return { flowLog, flowChecks };
 }
 
+// A closed dialog takes its history entry away a moment later with history.back() (src/lib/ui/backclose.js).
+// A reload in that moment is cut off («page.reload: net::ERR_ABORTED»): wait until the entry is gone first.
+const dialogEntryGone = (page) => expect.poll(() => page.evaluate(() => history.state?.pgDialog ?? null)).toBeNull();
 const noScroll = (page) => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1);
 const row = (page) =>
   page.evaluate(
@@ -321,6 +324,7 @@ test('mask: the morning check comes as a window; Later brings it back after one 
   // «Später»: gone, also after a reload; back after one hour
   await mask.locator('[data-ab-later]').click();
   await expect(mask).toBeHidden();
+  await dialogEntryGone(page);
   await page.reload();
   await ready(page);
   await expect(mask).toBeHidden();
@@ -333,6 +337,7 @@ test('mask: the morning check comes as a window; Later brings it back after one 
   // check, which then comes as usual
   await mask.getByRole('button', { name: T('Not today|mask') }).first().click();
   await expect(mask).toHaveCount(0);
+  await dialogEntryGone(page);
   await page.reload();
   await ready(page);
   await expect(mask).toHaveCount(0);

@@ -3,7 +3,7 @@
 import 'fake-indexeddb/auto';
 import { describe, it, expect } from 'vitest';
 import { createDb, DATA_TABLES } from '../src/lib/db.js';
-import { byDay, taskGroups, taskWhen, weekItems, undatedTasks, prefsOf, calsToFetch, timeOf, AGENDA_KEY } from '../src/lib/agenda.js';
+import { byDay, taskGroups, taskWhen, weekItems, undatedTasks, prefsOf, calsToFetch, timeOf, clockIn, weekLayout, remindRow, remindMinutes, AGENDA_KEY } from '../src/lib/agenda.js';
 import { fetchNow, saveTask, deleteTask, saveEvent, takeReturn, agenda } from '../src/lib/agenda/client.svelte.js';
 
 const ev = (id, over = {}) => ({ id: `primary|${id}`, gid: id, cal: 'primary', title: id, where: '', note: '', allDay: false, day: '2026-10-13', lastDay: '2026-10-13', start: '2026-10-13T08:30:00+02:00', end: '2026-10-13T09:00:00+02:00', link: null, busy: true, ...over });
@@ -92,5 +92,43 @@ describe('the app side', () => {
     const loc = (hash) => ({ hash, pathname: '/', search: '' });
     expect(takeReturn(loc('#/me/fitbit?google=connected'), null)).toBeNull();
     expect(takeReturn(loc('#/me/agenda?google=error&error=denied'), null)).toEqual({ error: 'denied' });
+  });
+});
+
+describe('the editor: clock of a time zone and reminder rows', () => {
+  it('shows a moment on the clock of its zone', () => {
+    expect(clockIn('2026-10-29T17:30:00Z', 'Europe/Zurich')).toEqual({ day: '2026-10-29', time: '18:30' });
+    expect(clockIn('2026-10-29T17:30:00Z', 'America/New_York')).toEqual({ day: '2026-10-29', time: '13:30' });
+    expect(clockIn('2026-10-29T23:30:00Z', 'Asia/Tokyo')).toEqual({ day: '2026-10-30', time: '08:30' });
+  });
+  it('turns reminders into rows in the biggest whole unit and back', () => {
+    expect(remindRow({ minutes: 1440, method: 'popup' })).toEqual({ n: 1, unit: 'days', method: 'popup' });
+    expect(remindRow({ minutes: 90, method: 'email' })).toEqual({ n: 90, unit: 'minutes', method: 'email' });
+    expect(remindRow({ minutes: 120, method: 'popup' })).toEqual({ n: 2, unit: 'hours', method: 'popup' });
+    expect(remindMinutes({ n: 2, unit: 'weeks', method: 'popup' })).toEqual({ minutes: 20160, method: 'popup' });
+    expect(remindMinutes(remindRow({ minutes: 0, method: 'popup' }))).toEqual({ minutes: 0, method: 'popup' });
+  });
+});
+
+describe('the week grid layout', () => {
+  const at = (id, day, a, b, over = {}) => ev(id, { day, lastDay: day, start: `${day}T${a}:00+01:00`, end: `${day}T${b}:00+01:00`, ...over });
+  it('puts appointments at the same time side by side and a lone one alone', () => {
+    const w = weekLayout([at('a', '2026-11-02', '09:00', '10:30'), at('b', '2026-11-02', '10:00', '11:00'), at('c', '2026-11-02', '12:00', '13:00'), at('d', '2026-11-02', '09:30', '09:45')], ['2026-11-02', '2026-11-03']);
+    const mon = w[0].timed;
+    const by = (id) => mon.find((x) => x.e.id === `primary|${id}`);
+    expect([by('a').lane, by('b').lane, by('d').lane]).toEqual([0, 1, 1]);
+    expect(by('a').lanes).toBe(2);
+    expect([by('c').lane, by('c').lanes]).toEqual([0, 1]);
+    expect(by('a')).toMatchObject({ from: 540, to: 630 });
+    expect(by('d').to - by('d').from).toBe(30); // a short one stays tappable
+    expect(w[1].timed).toEqual([]);
+  });
+  it('keeps all-day entries apart and clips an overnight appointment to each day', () => {
+    const night = at('n', '2026-11-02', '22:00', '23:00', { end: '2026-11-03T02:00:00+01:00', lastDay: '2026-11-03' });
+    const w = weekLayout([night, ev('f', { day: '2026-11-02', lastDay: '2026-11-03', allDay: true, start: '2026-11-02', end: '2026-11-04' })], ['2026-11-02', '2026-11-03']);
+    expect(w[0].allDay.map((e) => e.gid)).toEqual(['f']);
+    expect(w[1].allDay.map((e) => e.gid)).toEqual(['f']);
+    expect(w[0].timed[0]).toMatchObject({ from: 1320, to: 1440 });
+    expect(w[1].timed[0]).toMatchObject({ from: 0, to: 120 });
   });
 });

@@ -48,9 +48,22 @@ export async function flowSeeded(page) {
           new Promise((res) => {
             const r = indexedDB.open('pack-generator');
             r.onsuccess = () => {
-              const c = r.result.transaction('flowActs').objectStore('flowActs').count();
-              c.onsuccess = () => res(c.result);
-              c.onerror = () => res(0);
+              const db = r.result;
+              // the app starts a moment after the load event: before it made its stores, this must not keep the database open
+              if (!db.objectStoreNames.contains('flowActs')) {
+                db.close();
+                res(0);
+                return;
+              }
+              const c = db.transaction('flowActs').objectStore('flowActs').count();
+              c.onsuccess = () => {
+                db.close();
+                res(c.result);
+              };
+              c.onerror = () => {
+                db.close();
+                res(0);
+              };
             };
             r.onerror = () => res(0);
           }),

@@ -3,8 +3,8 @@
 export default {
   title: 'The new version comes sooner',
   lead: 'If a newer version is online but not on this device, the app loads it by itself.',
-  points: [{ text: '30 seconds after the start the app loads a newer version fresh, once per version', href: '#/me' }],
-  small: [{ box: 'nicer', text: 'The bar «Version … is online» comes after 2 minutes instead of 15' }],
+  points: [{ text: '30 seconds after the start the app loads a newer version fresh, once per version', href: '#/me', go: null }],
+  small: [{ box: 'nicer', text: 'The bar «Version … is online» comes after 2 minutes instead of 15', go: null }],
   test: ['After the next «Online: …» open the app and wait half a minute: it loads anew by itself.', 'Ich › Help shows «this device is up to date».'],
   since: [],
   de: {

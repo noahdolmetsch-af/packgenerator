@@ -3,7 +3,7 @@
 export default {
   title: 'Finished, but not online yet',
   lead: 'Ich shows how many finished changes are still on their way online.',
-  points: [{ text: 'Ich › Help: «2 finished changes are not online yet»', href: '#/me' }],
+  points: [{ text: 'Ich › Help: «2 finished changes are not online yet»', href: '#/me', go: { href: '#/me', steps: [{ sel: '[data-version-row]' }], where: 'Shows in Me under Help.' } }],
   small: [],
   test: ['Right after a merge open Ich › Help: under the version a line says how many changes are not online yet.', 'A few minutes later the line is gone and the online version is the new one.'],
   since: [],

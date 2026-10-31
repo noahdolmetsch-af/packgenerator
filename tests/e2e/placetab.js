@@ -24,6 +24,8 @@ export async function viaTab(page, place, href) {
 
 /** Tap a tab by its name; on a phone it may sit under «Mehr». */
 export async function tapTab(page, name) {
+  // the German texts load before the first screen (i18n.svelte.js loadDe), so the app may appear a moment after the load event
+  await page.locator('nav.ptabs, .side .tabs').first().waitFor({ state: 'attached' });
   const tab = page.locator(TABS).getByRole('link', { name, exact: true });
   if ((await tab.count()) && (await tab.first().isVisible())) return tab.first().click();
   await page.locator('nav.ptabs .pmore').click();

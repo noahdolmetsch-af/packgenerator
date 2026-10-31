@@ -100,6 +100,16 @@ export default {
   'Only there': 'Nur hin',
   'There and back onto the route': 'Hin und zurück auf die Strecke',
   'Choose a place: the app plans a bike way there. At the place it asks how you go back onto your route.': 'Wähle einen Ort: Die App plant einen Veloweg dorthin. Dort fragt sie, wie du zurück auf deine Strecke kommst.',
+  // too short to keep (Noah 28.10.2026)
+  'Not saved': 'Nicht gespeichert',
+  'Too few GPS points ({n}).': 'Zu wenige GPS-Punkte ({n}).',
+  'A ride needs at least 2 GPS points. Tip: start outside and wait until the dot on the map is blue.': 'Eine Fahrt braucht mindestens 2 GPS-Punkte. Tipp: Draussen starten und warten, bis der Punkt auf der Karte blau ist.',
+  'Save anyway': 'Trotzdem speichern',
+  '«Save anyway» keeps it in Trips all the same, for example to try the app.': '«Trotzdem speichern» legt sie trotzdem in Touren ab, zum Beispiel zum Ausprobieren.',
   // Navigation zum Ziel 2: the turn after the next one
   'Then: {text}': 'Danach: {text}',
+  // Noah 28.10.2026: X folds the box in, «End navigation» ends it
+  'Show the navigation': 'Navigation zeigen',
+  'End navigation': 'Navigation beenden',
+  'Navigation ended.': 'Navigation beendet.',
 };
