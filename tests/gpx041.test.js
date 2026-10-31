@@ -1,5 +1,6 @@
 // v0.41.0 "GPX → Learning": pauses, planned vs real and the learnings from an uploaded ride.
 // The rides are synthetic (tests/test_data_gtp_gpx.js), nothing from a real ride.
+import './setup/de.js'; // this test needs the German texts
 import { describe, it, expect, afterEach } from 'vitest';
 import { analyseRide, ridePoints, findPauses, plannedFor, compareRide, rideLearnings, learningFrom, addToPace, dropFromPace, tripsOn, tripFromRide, speedOf, hm, PAUSE_MIN } from '../src/lib/gpx.js';
 import { lang } from '../src/lib/i18n.svelte.js';

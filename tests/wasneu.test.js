@@ -1,3 +1,4 @@
+import './setup/de.js'; // this test needs the German texts
 import { describe, it, expect, afterEach } from 'vitest';
 import { FEATURES, FEATURE_GROUPS, PAGE_GROUPS } from '../src/lib/features.js';
 import { WHATS_NEW, compareVersions } from '../src/lib/whatsnew.js';

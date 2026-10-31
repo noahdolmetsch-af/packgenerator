@@ -1,3 +1,4 @@
+import './setup/de.js'; // this test needs the German texts
 import 'fake-indexeddb/auto';
 import { describe, it, expect, afterEach } from 'vitest';
 import { createDb } from '../src/lib/db.js';

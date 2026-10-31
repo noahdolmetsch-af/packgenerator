@@ -1,5 +1,6 @@
 // v0.31.0 (Velopflege redesign): the last work per part, its state and the year on one bike.
 // Fictional data only.
+import './setup/de.js'; // this test needs the German texts
 import { describe, it, expect, afterEach } from 'vitest';
 import { shopSkip, lastWork, lastWorkByPart, lastLine, usualBy, partStatus, isDueState, yearSummary, groupOf, GROUPS, workWords, newestFirst, historyNewest } from '../src/lib/care/last.js';
 import { ensureParts, logPart, PARTS } from '../src/lib/care.js';

@@ -1,5 +1,6 @@
 // v0.25.1 (Noah 1a, 2a, 3a): a day ride in one tap, the prefilled New trip, weather from the forecast.
 // Fictional bikes, trips and items only (test_data_gtp_).
+import './setup/de.js'; // this test needs the German texts
 import { describe, it, expect, afterEach } from 'vitest';
 import { rideDate, rideName, bikeShort, shortDate, isDayRide, daySource, lastBikeId, freeTitle, presetFor, forecastPreset, dayRidePlan, buildBikeTrip, fetchHomeForecast, wxLabel, wxSource } from '../src/lib/dayride.js';
 import { lang } from '../src/lib/i18n.svelte.js';

@@ -1,5 +1,6 @@
 // v0.40.0 "Ruhige Nebenseiten": the chain on the wishlist when it is worn (quickcare.js chainWish)
 // and the one list of past trips with the debrief state (hubs.js pastTripList). Fictional data only.
+import './setup/de.js'; // this test needs the German texts
 import { describe, it, expect, afterEach } from 'vitest';
 import { defaultParts, PART } from '../src/lib/care.js';
 import { chainWish, quickLog } from '../src/lib/quickcare.js';

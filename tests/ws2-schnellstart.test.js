@@ -1,5 +1,6 @@
 // WS2 «Wieder sichtbar» (Noah 14.10.2026 «1a 2b 3a ws1-ws7 freigeben»): «Schnellstart» in Neu, the
 // search and «More» says the rule of Today (today, 2.5 h, the bike ridden last); German for every new text.
+import './setup/de.js'; // this test needs the German texts
 import { describe, it, expect, afterEach } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { commandActions } from '../src/lib/search.js';

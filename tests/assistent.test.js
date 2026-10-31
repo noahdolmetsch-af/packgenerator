@@ -1,5 +1,6 @@
 // «Frag die App» (Noah 15.10.2026 «1 beides 2a und b 3 a und b»): the free answers from own data.
 // Fictional data only.
+import './setup/de.js'; // this test needs the German texts
 import { describe, it, expect, afterEach } from 'vitest';
 import { lang } from '../src/lib/i18n.svelte.js';
 import de from '../src/lib/i18n/de/index.js';

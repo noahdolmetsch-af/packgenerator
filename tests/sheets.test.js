@@ -1,3 +1,4 @@
+import './setup/de.js'; // this test needs the German texts
 import { describe, it, expect, afterEach } from 'vitest';
 import {
   SHEETS, SHEET_KEYS, PASS, PLAN_PARTS, PICKUP_SAFE, PICKUP_VALUES, sheetsOf, shownSheets, bikePass, servicePlan, intervalText, orderPicked,

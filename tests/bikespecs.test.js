@@ -1,5 +1,6 @@
 // v0.48.0 «Teile pro Velo»: one part list (spec + care), the bikeSpecs import, the comparison table.
 // Fictional bike only (test_data_gtp_ «Bergziege»), never a real spec sheet.
+import './setup/de.js'; // this test needs the German texts
 import { describe, it, expect } from 'vitest';
 import { ensureParts, PART, PARTS, isMore } from '../src/lib/care.js';
 import { withVisits } from '../src/lib/workshop.js';

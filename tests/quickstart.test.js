@@ -1,5 +1,6 @@
 // v0.119.0 «Schnellstart» (mockups Q1–Q3, Noah 13.10.2026 «Q1–Q3 freigegeben»): one click on Today
 // makes a trip for today. Fictional bikes, trips and items only (test_data_gtp_).
+import './setup/de.js'; // this test needs the German texts
 import { describe, it, expect } from 'vitest';
 import { lang } from '../src/lib/i18n.svelte.js';
 import { stampName, quickPlan, quickStart, QUICK_HOURS, NO_WX } from '../src/lib/quickstart.js';
