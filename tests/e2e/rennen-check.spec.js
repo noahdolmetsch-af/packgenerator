@@ -4,6 +4,7 @@ import { test, expect } from './clock.js';
 import { openHome, homeFixture } from './home0460-fixture.js';
 import { SHEETS, DAY_BEFORE } from '../../src/lib/race/check-lib.js';
 import { STEPS } from '../../src/lib/race/countdown-lib.js';
+import { STOP_STEPS } from '../../src/lib/race/stop-lib.js';
 
 const noSideways = async (page) => {
   const d = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
@@ -298,3 +299,33 @@ test('Tools for this bike: suggestions from the bike, tick, own spare, suggestio
   await box.screenshot({ path: info.outputPath('velo-werkzeug.png') });
 });
 
+
+test('Night stop routine: tick off, next stop clears the ticks, own step', async ({ page, context }, info) => {
+  const T = await openHome(page, context, info);
+  await page.goto('./#/race');
+  await page.locator('[data-race-sample-open]').click();
+  await expect(page).toHaveURL(/#\/race\/race-sample$/);
+  await page.goto('./#/racecheck/race-sample');
+  const box = page.locator('[data-race-stops]');
+  await expect(box).toContainText(T('Night stop routine'));
+  await expect(box.locator('[data-stops-list] li')).toHaveCount(STOP_STEPS.length);
+  await expect(box).toContainText(T(STOP_STEPS[0].text));
+  await expect(box.locator('[data-stops-next]')).toBeDisabled();
+  await box.locator(`[data-stops-done="${STOP_STEPS[0].id}"]`).check();
+  await box.locator(`[data-stops-done="${STOP_STEPS[1].id}"]`).check();
+  await expect(box.locator('[data-stops-sum]')).toHaveText(T('{done} of {of} done', { done: 2, of: STOP_STEPS.length }));
+  await box.locator('[data-stops-edit]').click();
+  await box.locator('[data-race-add="stops"]').fill('Brush teeth, made up');
+  await box.locator('[data-race-add="stops"]').press('Enter');
+  await expect(box.locator('[data-stops-list] li')).toHaveCount(STOP_STEPS.length + 1);
+  await page.reload();
+  await expect(box.locator(`[data-stops-done="${STOP_STEPS[0].id}"]`)).toBeChecked();
+  await expect(box).toContainText('Brush teeth, made up');
+  await noSideways(page);
+  await box.screenshot({ path: info.outputPath('nacht-stopp.png') });
+  // next stop: all ticks off, the stop is counted
+  await box.locator('[data-stops-next]').click();
+  await expect(box.locator(`[data-stops-done="${STOP_STEPS[0].id}"]`)).not.toBeChecked();
+  await expect(box.locator('[data-stops-n]')).toHaveText(T('stop {n}', { n: 2 }));
+  await expect(box.locator('[data-stops-list] li')).toHaveCount(STOP_STEPS.length + 1);
+});

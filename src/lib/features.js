@@ -14,6 +14,7 @@
  */
 import { TIP, isUsed, tipState } from './tips.js';
 import { momentOfFeature } from './moment.js';
+import { FEATREG } from './featreg/index.js';
 
 /** The situations, in order (labels are English keys for t()). */
 export const FEATURE_GROUPS = [
@@ -84,7 +85,7 @@ const TIP_GROUP = {
 const TIP_PLAY = { bags: 'pack', share: 'pack', ride: 'ride', debrief: 'after' };
 
 /** The functions that are not a tip. */
-const OWN = [
+const OWN_LISTED = [
   // Before the trip
   // v0.119.0 «Schnellstart» (Q1–Q3): one click on Today plans a ride for today; «Take me there» opens Today
   { id: 'f.quickstart', group: 'before', title: 'Ride today', text: 'One click on Today plans a ride for today: 2.5 h, the bike you rode last, the standard items and the weather. «New» › «Surprise round» suggests a round from home on the side you know least.', run: 'quick', words: 'schnellstart quick start heute fahren tagestour sofort ein klick heute überraschung überraschungsrunde neue runde abenteuer' },
@@ -601,6 +602,8 @@ const OWN = [
   { id: 'f.skicare', group: 'bike', title: 'Season care', text: 'Care of the ski gear at season start, during the season and at season end.', href: '#/ski/care', words: 'saison pflege ski felle wachsen kanten skiausrüstung' },
   { id: 'f.skiafter', group: 'after', title: 'After the tour', text: 'Summit, metres climbed, who was there and three questions; they become learnings.', href: '#/ski/after', words: 'nach der tour skitour gipfel höhenmeter erkenntnisse rückblick' },
 ];
+/** The listed entries, then those from src/lib/featreg/ (one file per new function, see its README). */
+const OWN = [...OWN_LISTED, ...FEATREG.features];
 
 /** Every function: the tips (with their group) first, then the own entries, by group order. */
 export const FEATURES = FEATURE_GROUPS.flatMap((g) => [

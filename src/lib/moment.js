@@ -13,6 +13,7 @@
 import { tripPhase, packingDay, daysFrom, PACK_DAYS } from './phase.js';
 import { tripEnd } from './tripstate.js';
 import { DAY_CLOCK } from './dayclock.js';
+import { FEATREG } from './featreg/index.js';
 
 /** The eight moments, in the order of the trip loop, then the three that are always there. */
 export const MOMENTS = ['lust', 'planen', 'packen', 'unterwegs', 'zurueck', 'velo', 'koerper', 'alltag'];
@@ -86,7 +87,7 @@ export function loopOf(key) {
  * (/mnt/project-files/notes/landkarte/moments.json, checked by hand). A new function goes in the
  * list of its moment; tests/moment.test.js fails when one is missing or listed twice.
  */
-export const FEATURE_MOMENTS = {
+const LISTED_MOMENTS = {
   // Lust und Ideen
   lust: [
     'dayride', 'f.quickstart', 'f.inspiration', 'f.skiseason', 'f.dreams', 'f.whitespots', 'f.nlgoals', 'f.races',
@@ -173,6 +174,11 @@ export const FEATURE_MOMENTS = {
     'f.aicheck', 'f.hiddenall', 'f.miniapps', 'f.ruhig',
   ],
 };
+
+/** The listed ones, plus the functions of src/lib/featreg/ (their `moment`). */
+export const FEATURE_MOMENTS = Object.fromEntries(
+  [...new Set([...Object.keys(LISTED_MOMENTS), ...Object.keys(FEATREG.moments)])].map((k) => [k, [...(LISTED_MOMENTS[k] ?? []), ...(FEATREG.moments[k] ?? [])]]),
+);
 
 const OF = Object.fromEntries(Object.entries(FEATURE_MOMENTS).flatMap(([k, ids]) => ids.map((id) => [id, k])));
 /** The moment of a function id ('app' for the base, null for an unknown id). */
