@@ -59,6 +59,8 @@ import { takeReturn as takeMailReturn } from './lib/mail/client.svelte.js';
 import { takeReturn as takeAgendaReturn, watchAutoFetch as watchAgendaFetch } from './lib/agenda/client.svelte.js';
 import { takeReturn as takeTrelloReturn, watchAutoSync as watchTrelloSync } from './lib/trello/client.svelte.js';
 import { snapshotOnStart } from './lib/maintenance/snapshots.js';
+import { readMaint } from './lib/maintenance/settings.js';
+import { downloadBackup } from './lib/backup.js';
 import { markFirstStart, autoCheck } from './lib/maintenance/run.js';
 import { SEEN_KEY } from './lib/whatsnew.js';
 import { watchSync } from './lib/sync/auto.svelte.js';
@@ -157,7 +159,10 @@ const seenVersion = (() => {
   }
 })();
 settling(async () => {
-  await snapshotOnStart(db, { current: __APP_VERSION__, seen: seenVersion }).catch((err) => console.warn('snapshot', err?.name ?? err));
+  const madeCopy = await snapshotOnStart(db, { current: __APP_VERSION__, seen: seenVersion }).catch((err) => (console.warn('snapshot', err?.name ?? err), false));
+  // Noah 31.10.2026 «2a»: after an update the same state also goes into the downloads folder as a file
+  // (switch in Ich › App maintenance). The browser may ask once; if it refuses, nothing else happens.
+  if (madeCopy && (await readMaint(db).catch(() => ({ dl: false }))).dl && !(await db.table('meta').get('demo'))) downloadBackup(db).catch(() => {});
   await tidyData(db);
   await markFirstStart(db).catch(() => {}); // BF7: a first install checks a month later
 })
