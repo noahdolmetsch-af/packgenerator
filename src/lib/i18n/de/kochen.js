@@ -115,5 +115,4 @@ export default {
   'You rode {km} km today': 'Du bist heute {km} km gefahren',
   'You rode {km} km yesterday': 'Du bist gestern {km} km gefahren',
   'After a ride, protein and carbs help. Just a suggestion:': 'Nach einer Fahrt helfen Eiweiss und Kohlenhydrate. Nur ein Vorschlag:',
-  'Hide for today': 'Heute ausblenden',
 };
