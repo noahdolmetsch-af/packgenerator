@@ -69,6 +69,14 @@ const OFFSET = process.env.E2E_REAL_CLOCK ? 0 : midMonthNoon().getTime() - Date.
 // «today at noon» the gap was under a day and went unseen; with a mid-month day it is up to 30 days.
 shiftDate(OFFSET);
 
+/**
+ * For a context a spec makes itself (browser.newContext in beforeAll …): it does not get the fixture's page, so its
+ * pages would run on the real day while the data (built on the test day) is for another one.
+ */
+export async function shiftContext(context) {
+  if (OFFSET) await context.addInitScript(shiftDate, OFFSET);
+}
+
 /** Puts the real Date back (before Playwright's clock goes in, so its clock is the only one). */
 function unshift() {
   globalThis.__pgShift = 0;
@@ -97,6 +105,8 @@ export const test = base.extend({
       }
     }
     await use(page);
-    globalThis.__pgShift = 0;
+    // Back to the test day, not to 0: the next spec file in this worker builds its dates at the top of the file
+    // (day(1) …) while it loads, after this test, and must see the same day as the page it opens.
+    globalThis.__pgShift = process.env.E2E_REAL_CLOCK ? 0 : OFFSET;
   },
 });
