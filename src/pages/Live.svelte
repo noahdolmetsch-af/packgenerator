@@ -2324,6 +2324,30 @@
   .lvf-dragging {
     transition: none;
   }
+  /* Noah 28.10.2026 «a ★ Schlanker oben und unten»: pulled down, the sheet shows one line (the next stop);
+     the climb comes when it is pulled up. The page dots float as a small bar over the map. */
+  .lvf-sheet[data-live-sheet='peek'] [data-live-climb] {
+    display: none;
+  }
+  .lvf :global(.dps-top) {
+    position: absolute;
+    top: 8px;
+    left: 50%;
+    z-index: 4;
+    transform: translateX(-50%);
+    padding: 0 2px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    box-shadow: 0 1px 4px var(--shadow);
+  }
+  .lvf :global(.dps-top .dps-dots) {
+    flex-wrap: nowrap;
+  }
+  .lvf :global(.dps-top .dps-ar),
+  .lvf :global(.dps-top .dps-dot) {
+    width: 32px;
+    height: 36px;
+  }
   .lvf-handle {
     flex: none;
     display: grid;

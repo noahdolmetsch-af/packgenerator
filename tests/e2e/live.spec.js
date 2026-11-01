@@ -84,8 +84,11 @@ test('Live map on the sample race: km, stops ahead, climb, arrival, SOS, stop', 
   await context.setGeolocation(at(412));
   await expect(page.locator('[data-live-km]')).toContainText('412', { timeout: 10_000 });
   await expect(page.locator('[data-live-left]')).toContainText('592');
-  await expect(page.locator('[data-live-climb]')).toBeVisible();
   await expect(page.locator('[data-live-sheet]')).toHaveAttribute('data-live-sheet', 'peek');
+  // pulled down the sheet shows one line, the next stop; the climb comes when it is pulled up (Noah 28.10.2026)
+  await expect(page.locator('[data-live-next]')).toBeVisible();
+  if (phone(info)) await expect(page.locator('[data-live-climb]')).toBeHidden();
+  else await expect(page.locator('[data-live-climb]')).toBeAttached();
   await noSideways(page, 'riding, map');
   await page.waitForTimeout(800);
   await page.screenshot({ path: info.outputPath('live-map.png') });
@@ -102,6 +105,7 @@ test('Live map on the sample race: km, stops ahead, climb, arrival, SOS, stop', 
   // pull the sheet up (a tap on the handle: peek → half → full on the phone; on the computer «Alles» opens at the right)
   await tap(page.locator('[data-live-sheet-toggle]'), info);
   await expect(page.locator('[data-live-sheet]')).toHaveAttribute('data-live-sheet', info.project.name === 'phone' ? 'half' : 'full');
+  await expect(page.locator('[data-live-climb]')).toBeVisible();
   if (info.project.name === 'phone') await tap(page.locator('[data-live-sheet-toggle]'), info);
   await expect(page.locator('[data-live-sheet]')).toHaveAttribute('data-live-sheet', 'full');
   await expect(page.locator('[data-live-stop]')).toBeAttached();
