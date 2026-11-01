@@ -36,6 +36,11 @@
 {/if}
 
 <style>
+  .kt :global(.fz-chip) {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
   .kt h2 {
     display: flex;
     align-items: center;

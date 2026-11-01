@@ -227,7 +227,13 @@ test('After a ride: a card with the groups that fit opens the group; without a r
   const card = page.locator('[data-ko-training]');
   await expect(card).toContainText(T('You rode {km} km today', { km: 72 }));
   await expect(card.locator('[data-ko-training-group]')).toHaveCount(2);
-  await shotTop(page, info, 'training');
+  if (process.env.SHOTS) {
+    // the card with the tips above and the list below it
+    await page.locator('[data-ko-start-later]').click();
+    const box = await card.boundingBox();
+    const width = info.project.name === 'phone' ? 390 : 1440;
+    await page.screenshot({ path: `${process.env.SHOTS}/training-${width}.png`, fullPage: true, clip: { x: 0, y: Math.max(0, box.y - 260), width, height: 760 } });
+  }
   await card.locator('[data-ko-training-group="protein"]').click();
   await expect(page.locator('[data-ko-filter="g:protein"]')).toHaveAttribute('aria-pressed', 'true');
   await card.locator('[data-ko-training-hide]').click();
