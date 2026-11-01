@@ -2,6 +2,7 @@
 export default {
   'The Trello permission was cancelled. Nothing changed.': 'Die Trello-Erlaubnis wurde abgebrochen. Nichts hat sich geändert.',
   'That took too long. Try again.': 'Das hat zu lange gedauert. Versuche es noch einmal.',
+  'Only needed if you want to see your to-dos in Trello too, for example on the phone or with others. Without Trello everything works in the app as before.': 'Nur nötig, wenn du deine To-dos auch in Trello sehen willst, zum Beispiel am Handy oder mit anderen. Ohne Trello geht in der App alles wie bisher.',
   'Trello is not set up on the server yet.': 'Trello ist auf dem Server noch nicht eingerichtet.',
   'Trello is not connected (any more). Connect it again.': 'Trello ist nicht (mehr) verbunden. Verbinde es noch einmal.',
   'No connection. What is on this device stays; it syncs later.': 'Keine Verbindung. Was auf diesem Gerät ist, bleibt; der Abgleich kommt später.',
