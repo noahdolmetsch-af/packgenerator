@@ -1,7 +1,7 @@
 // v0.26.0 (Noah 1a, 2a/2b, 3a; AP10/AP11): building blocks (code: item sets) you can see and make,
 // assigning many items at once, "+ {block}" in Pack, and kits that become templates on start.
 // Fictional fixture plus test_data_gtp_ items; nothing outside the preview server.
-import { test, expect } from './clock.js';
+import { test, expect, zurichDay } from './clock.js';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';
@@ -41,7 +41,7 @@ function fixture(path, { block = false, kits = false } = {}) {
   if (block) data.tables.settings.push({ key: 'sets', value: [{ key: 'u-test-data-gtp-regen', name: 'test_data_gtp_ Regen', qty: { RG93: 2 } }] });
   const bike = data.tables.bikes[0];
   data.tables.trips.push({
-    id: 'trip-test_data_gtp_1', domain: 'bikepacking', title: 'test_data_gtp_ Tour', startDate: '2026-11-01', days: 1, bikeId: bike.id, bike: bike.name, setup: { ...bike.setup },
+    id: 'trip-test_data_gtp_1', domain: 'bikepacking', title: 'test_data_gtp_ Tour', startDate: zurichDay(5), days: 1, bikeId: bike.id, bike: bike.name, setup: { ...bike.setup },
     entries: [{ itemId: 'EL01', slot: 'mounted', qty: 1, packed: true }, { itemId: 'RG91', slot: 'seat', qty: 3, packed: true }],
     ready: [{ id: 'wallet', label: 'Phone, wallet, keys', done: false }], ride: null, hours: null, sets: {}, purpose: {}, status: 'planned', copiedFrom: null, createdAt: '2026-10-01T08:00:00.000Z',
   });

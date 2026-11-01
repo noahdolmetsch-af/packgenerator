@@ -13,6 +13,7 @@
   import { boundsOf } from './polyline.js';
   import { RASTER_GROUNDS, rasterGround, tileUrl } from '../map/sources.js';
   import { mapGround, chooseGround } from '../map/groundpref.svelte.js';
+  import TileNote from '../map/TileNote.svelte';
   import { cellBounds } from './neuland.js';
 
   /** lines: [{ id, pts, n, src }]; points: [{ id, pos, kind, photo, text, n, cls? }] (kind 'friend': text is the whole label); cells: squares to tint (Neuland); pick(point). */
@@ -67,6 +68,14 @@
     pickOpen = false;
   };
   const tiles = $derived(tilesFor(view, w, h, g.maxZoom));
+  // F07: count the tiles that did or did not load (TileNote says so when none does)
+  let tileBad = $state(0);
+  let tileOk = $state(0);
+  $effect(() => {
+    g.key;
+    tileBad = 0;
+    tileOk = 0;
+  });
   // day colours, calm and distinct, from the app's tokens
   const COLS = ['var(--l3)', 'var(--l2)', 'var(--l1)', 'var(--l4)', 'var(--z5)', 'var(--z2)'];
   const colOf = (n) => COLS[((n ?? 1) - 1) % COLS.length];
@@ -153,9 +162,10 @@
 <div class="tmap" style:height="{height}px" bind:this={box} role="application" aria-label={label || t('Tour map: drag to move, pinch or wheel to zoom')} tabindex="0" onpointerdown={down} onpointermove={move} onpointerup={up} onpointercancel={up} onwheel={wheel} onkeydown={key}>
   <div class="tiles" aria-hidden="true">
     {#each tiles as tl (tl.key + g.key)}
-      <img src={tileUrl(g, tl.z, tl.x, tl.y)} alt="" draggable="false" style:left="{tl.left}px" style:top="{tl.top}px" style:width="{tl.size + 0.5}px" style:height="{tl.size + 0.5}px" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" />
+      <img src={tileUrl(g, tl.z, tl.x, tl.y)} alt="" draggable="false" style:left="{tl.left}px" style:top="{tl.top}px" style:width="{tl.size + 0.5}px" style:height="{tl.size + 0.5}px" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" onerror={() => tileBad++} onload={() => tileOk++} />
     {/each}
   </div>
+  <TileNote bad={tileBad} ok={tileOk} />
   <svg class="over" width={w} height={h} aria-hidden="true">
     {#each squares as q (q.c)}<rect class="neu" x={q.x} y={q.y} width={q.w} height={q.h} />{/each}
     {#each paths as p (p.id)}

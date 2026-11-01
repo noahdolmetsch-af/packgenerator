@@ -22,6 +22,7 @@
   import Crumb from '../lib/flow/kit/Crumb.svelte';
   import AbendTour from '../lib/lernen/AbendTour.svelte'; // Paket M #223
   import Scale from '../lib/flow/check/Scale.svelte';
+  import CheckTabs from '../lib/flow/check/CheckTabs.svelte';
   import Chips from '../lib/flow/check/Chips.svelte';
   import PoolEditor from '../lib/flow/check/PoolEditor.svelte';
   import { db } from '../lib/db.js';
@@ -157,6 +158,8 @@
     {:else}
       <p class="sub">{phone.matches ? t('about 40 seconds · everything skippable') : t('Morning check · {date} · about 40 seconds · every question skippable. The line under a number shows yesterday.', { date: dateLong })}</p>
     {/if}
+    <!-- «Heute-Check» (Noah 30.10.2026 «1-5a»): the analyses are one tap away from the questionnaire -->
+    <CheckTabs here="today" {evening} />
   </header>
 
   {#if data && cur}

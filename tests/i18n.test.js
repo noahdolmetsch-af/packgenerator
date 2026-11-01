@@ -1,3 +1,4 @@
+import './setup/de.js'; // this test needs the German texts
 import { describe, it, expect, afterEach } from 'vitest';
 import { t, tn, num, nameOf, lang, locale, browserLang, pickLang } from '../src/lib/i18n.svelte.js';
 import DE from '../src/lib/i18n/de/index.js';

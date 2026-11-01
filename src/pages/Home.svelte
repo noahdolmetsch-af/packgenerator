@@ -49,6 +49,7 @@
   import { db } from '../lib/db.js';
   import { localDay } from '../lib/localday.js';
   import { LAST_BACKUP, LAST_IMPORT, backupDue, downloadBackup } from '../lib/backup.js';
+  import { folderBackupSupported, folderStatus, allowAgain } from '../lib/folderBackup.js';
   import { backupAfterTrip } from '../lib/todos.js';
   import { knownWeight, isInventory } from '../lib/gear.js';
   import { sortBikes, bikesHash } from '../lib/bikes.js';
@@ -65,8 +66,6 @@
   import { readRun } from '../lib/tour.js';
   import Continue from '../lib/home/Continue.svelte';
   import { stepOf, lastEvening, notBegun } from '../lib/phase.js';
-  import StartKarte from '../lib/home/StartKarte.svelte';
-  import { startCard, RIDE_SEEN_KEY } from '../lib/home/startkarten.js';
   import { quickDebrief, templateOffer, templateName, nextTrip, learningsFor } from '../lib/debrief.js';
   import TemplateOffer from '../lib/debrief/TemplateOffer.svelte';
   import { openNew, openNote, openTrip, openPrep, addItem, wantBike, take, dayRide, openData, openPlay } from '../lib/nav.js';
@@ -90,7 +89,7 @@
   import { explain } from '../lib/ui/explain.js';
   import { readyLight, quickHints, dueAll } from '../lib/quickcare.js';
   import { chargeList, chargeCount } from '../lib/charge.js';
-  import { TIPS, TIPS_KEY, tipPossible, usedTips, isUsed, tapTip, updateTips } from '../lib/tips.js';
+  import { TIPS_KEY, usedTips } from '../lib/tips.js';
   import { PACE_KEY, paceOf } from '../lib/pace.js';
   import { SETS_KEY } from '../lib/sets.js';
   import { TEMPLATES_KEY } from '../lib/templates.js';
@@ -111,7 +110,9 @@
   import BodyTile from '../lib/home/BodyTile.svelte';
   import VitalsTile from '../lib/home/VitalsTile.svelte';
   import Vo2Tile from '../lib/home/Vo2Tile.svelte';
+  import HeuteCheckTile from '../lib/home/HeuteCheckTile.svelte';
   import MomentTile from '../lib/home/MomentTile.svelte'; // «Heute als Begleiter» PR 4
+  import DiscoverTile from '../lib/home/DiscoverTile.svelte'; // PR 5
   import { vo2Of, VO2_DAYS } from '../lib/home/vo2.js';
   import { addDays as addHealthDays } from '../lib/health.js';
   import WeighTile from '../lib/home/WeighTile.svelte';
@@ -121,7 +122,7 @@
   import ActsTile from '../lib/home/ActsTile.svelte';
   import { SERIES_STEPS } from '../lib/home/series.js';
   import { readSeries, seriesTables } from '../lib/home/series-data.js';
-  import { FUNCTIONS, USAGE_KEY, usageOf, dataUsed, usedFunctions, levelOf, untried } from '../lib/home/functions.js';
+  import { FUNCTIONS, USAGE_KEY, usageOf, dataUsed, usedFunctions } from '../lib/home/functions.js';
   import { countUse } from '../lib/home/usage.js';
   import { recordCare, undoCare } from '../lib/home/care-tap.js';
   import { yearReview, tripDone } from '../lib/yearreview.js';
@@ -144,7 +145,6 @@
   import RoundTile from '../lib/home/RoundTile.svelte'; // WG: the round of «Wi gaht's?» (was the morning check)
   import SkiTile from '../lib/home/SkiTile.svelte';
   import { bookingNotes, bookingRow } from '../lib/booking/notice.js'; // Termine buchen (BU4, 9a)
-  import TryCard from '../lib/home/TryCard.svelte';
   import { suggest, watchSuggest } from '../lib/clear/suggest.svelte.js'; // Einzelidee 36: «Ideas to buy» can be off on every page
   import BikeCards from '../lib/home/BikeCards.svelte';
   import YearRow from '../lib/home/YearRow.svelte';
@@ -560,32 +560,27 @@
   const tipUsed = $derived(
     usedTips({ trips: allTrips, items, bikes: $bikesQ ?? [], visits, debriefs, templates, sets: S[SETS_KEY] ?? [], notesN: ($notesQ ?? []).length, homePlace: place, pace: paceOf(S[PACE_KEY]), lastBackup: $metaQ?.last ?? null, demo: $demoQ ?? null, langSet: (() => { try { return localStorage.getItem('lang') != null; } catch { return false; } })(), standalone: standalone() }),
   );
-  function runTip(x) {
-    updateTips(db, (s) => tapTip(s, x.id, today));
-    if (x.go.href) return (location.hash = x.go.href);
-    const what = x.go.run;
-    if (what === 'dayRide') dayRide();
-    else if (what === 'note') openNote('');
-    else if (what === 'receipt') openNote(t('Workshop receipt: '));
-    else if (what === 'km') openNew('km');
-    else if (what === 'data') openData();
-    else if (what === 'lang') setLang(lang.v === 'de' ? 'en' : 'de');
-    else if (what === 'homePlace') placeOpen = true;
-    else if (what === 'backup') downloadBackup(db);
-  }
-  const tryList = $derived.by(() => {
-    if (!ready) return [];
-    const fns = untried(used).map((f) => ({ id: f.id, text: t(f.pitch), button: t('Try it'), run: () => runFn(f) }));
-    const tips = hush ? [] : TIPS.filter((x) => x.go.run !== 'install' && tipPossible(x, { trips: allTrips, items, bikes: $bikesQ ?? [] }, today) && !isUsed(S[TIPS_KEY], x.id, tipUsed) && !fns.some((f) => f.id === x.id)).map((x) => ({ id: `tip-${x.id}`, text: t(x.text), button: x.id === 'lang' ? (lang.v === 'de' ? t('Switch to English') : t('Switch to German')) : t(x.button), run: () => runTip(x) }));
-    return [...fns, ...tips];
-  });
-
   /* ---------- 4a. Important today (Noah 26a, 27a, 32a, 10a, 21a) ---------- */
   const backup = $derived.by(() => {
     if (!$metaQ || !items.length || $demoQ) return { due: false, days: null };
     const b = backupDue($metaQ.last);
     return backupAfterTrip($metaQ.last, debriefs) ? { ...b, due: true, afterTrip: true } : b;
   });
+  // Backup-Ordner (Noah 31.10.2026 «1a»): the browser asks again for the right to write after a restart;
+  // until the click the folder backup writes nothing, so Today says it and offers the one tap
+  let folderNeedsOk = $state(false);
+  let folderName = $state('');
+  $effect(() => {
+    $metaQ; // re-check when the stored folder changes
+    if (!folderBackupSupported) return;
+    folderStatus(db).then((f) => {
+      folderNeedsOk = f.state === 'needs-ok';
+      folderName = f.name ?? '';
+    }).catch(() => {});
+  });
+  async function allowFolder() {
+    folderNeedsOk = !(await allowAgain(db));
+  }
   let backingUp = $state(false);
   async function backupNow() {
     backingUp = true;
@@ -710,6 +705,7 @@
     // TZ-2: the newest trip whose date passed without an end: «Datum vorbei. Bist du gefahren?» Ja · Nicht gefahren
     const askT = askTrips[0];
     if (askT) rows.push({ key: 'ride', tone: 'warn', st: 'done', text: hasBike(askT) ? t('{title} ({date}): date passed. Did you ride?', { title: askT.title, date: shortDay(askT.startDate) }) : t('{title} ({date}): date passed. Did you go?', { title: askT.title, date: shortDay(askT.startDate) }), act: { label: t('Yes|rode'), run: () => rideAnswer(askT, true) }, act2: { label: hasBike(askT) ? t('Not ridden|answer') : t('Did not happen'), run: () => rideAnswer(askT, false) } });
+    if (folderNeedsOk && !$demoQ) rows.push({ key: 'folderok', tone: 'warn', text: t('The backup folder «{name}» waits for your OK. One tap, the folder stays.', { name: folderName }) + ' ' + t('Tip: in Chrome choose «Allow on every visit» so it asks less often.'), act: { label: t('Allow backup'), run: allowFolder }, short: t('Backup folder needs OK') });
     if (backup.due) rows.push({ key: 'backup', tone: 'bad', text: `${t('Time for a backup')}: ${backup.days == null ? t('You have not saved a backup file yet.') : t('Your last backup is {n} days old.', { n: backup.days })}${$metaQ?.imp?.from ? ` ${t('Data from the backup of {date}. Newer state on the phone? Load its backup here.', { date: new Date($metaQ.imp.from).toLocaleDateString(locale(), { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) })}` : backup.afterTrip ? ` ${t('New debrief since the last backup: save one, then load it on the desktop.')}` : ''}`, act: { label: t('Download backup'), run: backupNow, busy: true }, short: t('Backup due') });
     rows.push(...careRows.filter((r) => r.tone === 'bad'));
     if (prep) rows.push({ key: 'prep', tone: prep.overdue ? 'bad' : 'warn', text: eventPrepLine(prep), act: { label: t('Tick off in the trip'), href: '#/pack', prep: next.id } });
@@ -967,20 +963,6 @@
   }
   const seriesParty = $derived(milestones.some((m) => m.key === 'series'));
 
-  // Ride day (answer 1a) and the last evening (v0.67.0 U22b): Start-Karten (Noah 14.10.2026, 2b/3b and
-  // ST1–ST2 «1a 2a 3b»): Today no longer jumps to On the way or «Tour beendet»; a card with the trip card
-  // says it (startkarten.js). Not on the day the trip was made (v0.29.2, Noah 6a); demo trips count like real ones (P3c H2b).
-  const madeToday = (tr) => !!tr?.createdAt && localDay(new Date(tr.createdAt)) === today;
-  const riding = $derived(next && hasBike(next) && !madeToday(next) ? onTripDay(next, today) : false);
-  const lastEve = $derived(loaded && $debriefsQ ? trips.find((x) => !madeToday(x) && lastEvening(x, today, now.getHours(), { debriefDone: debriefs.some((d) => d.tripId === x.id && d.status === 'done') })) ?? null : null);
-  const rideSeenNow = (() => {
-    try {
-      return localStorage.getItem(RIDE_SEEN_KEY);
-    } catch {
-      return null;
-    }
-  })();
-  const startKarte = $derived(startCard({ ride: riding && !lastEvening(next, today, now.getHours()) ? next : null, evening: lastEve, seen: rideSeenNow, today }));
   // v0.80.0 «Tests stabil»: <html data-today="n"> says Today has made its decisions (since 0.140.1 the start card) with n
   // trips loaded (after them, in the same run). Nothing in the app reads it; the browser tests wait for it.
   $effect(() => {
@@ -1185,7 +1167,7 @@
 {#snippet tileBody(x)}
   {#if x.id === 'trip'}
     <!-- Start-Karten ST1/ST2 (HN4): the card travels with the trip card, right before it -->
-    {#if focus || shown || (loaded && !showFirst)}<div class="stack">{#if startKarte}<StartKarte card={startKarte} />{/if}{@render tripS(x.size === 'l' && !phone.matches)}{#if ready && x.size !== 'l'}<KmCard {today} />{/if}</div>{/if}
+    {#if focus || shown || (loaded && !showFirst)}<div class="stack">{@render tripS(x.size === 'l' && !phone.matches)}{#if ready && x.size !== 'l'}<KmCard {today} />{/if}</div>{/if}
   {:else if x.id === 'important'}{@render todayS(x.size === 'long')}
   {:else if x.id === 'flow'}
     {#if x.join}
@@ -1204,7 +1186,6 @@
   {:else if x.id === 'meditation'}{#if x.size === 'long'}<HabitCards {today} cfg={S[HABITS_KEY] ?? null} onpick={() => (habitsOpen = true)} />{:else}<MedTile {today} size={x.size} isnew={newTile('meditation')} />{/if}
   {:else if x.id === 'play'}<SmallTile tile={TILE.play} size={x.size} isnew={newTile('play')} sub={$demoQ?.play ? t('The playground is running') : t('try without risk')} onclick={openPlay} />
   {:else if x.id === 'ski'}<SkiTile {today} size={x.size} isnew={newTile('ski')} />
-  {:else if x.id === 'try'}<TryCard list={tryList} used={used.size} total={FUNCTIONS.length} level={levelOf(used.size)} />
   {:else if x.id === 'bikes'}{#if ready}<div data-section="bikes"><BikeCards {bikes} {tasks} {visits} {next} {today} /></div>{/if}
   {:else if x.id === 'year'}<div data-section="year"><YearRow {today} /></div>
   {:else if x.id === 'milestones'}<SmallTile tile={TILE.milestones} size={x.size} href="#/flow/milestones" />
@@ -1220,7 +1201,9 @@
   {:else if x.id === 'routine'}<RoutineTile {today} isnew={newTile('routine')} />
   {:else if x.id === 'weighin'}<WeighTile {today} isnew={newTile('weighin')} onsaved={() => (weighedNow = true)} onstop={() => saveWall(removeTile(wall, 'weighin'))} />
   {:else if x.id === 'vitals'}<VitalsTile {today} isnew={newTile('vitals')} />
+  {:else if x.id === 'heutecheck'}<HeuteCheckTile {today} due={abDue} evening={abEvening} isnew={newTile('heutecheck')} />
   {:else if x.id === 'moment'}<MomentTile {today} hour={now.getHours()} weekday={now.getDay()} {trips} debriefDone={(tr) => debriefs.some((d) => d.tripId === tr.id && d.status === 'done')} careDue={due.points} inbox={notes.length} isnew={newTile('moment')} />
+  {:else if x.id === 'discover'}<DiscoverTile {today} hour={now.getHours()} weekday={now.getDay()} {trips} debriefDone={(tr) => debriefs.some((d) => d.tripId === tr.id && d.status === 'done')} careDue={due.points} inbox={notes.length} isnew={newTile('discover')} />
   {:else if x.id === 'vo2max'}<Vo2Tile {today} isnew={newTile('vo2max')} />
   {:else if x.id === 'values'}<DataWidget idp="hdw" />
   {:else if x.id === 'week'}<WeekTile {today} rides={$ridesQ ?? []} isnew={newTile('week')} />
@@ -1246,7 +1229,7 @@
   {#if !editing && ready}<PhotoGreeting />{/if}
   <!-- v0.67.0 «Übergänge 1» (U3, U007, U24b, Ü6a): «Weitermachen» and the evening reminders, on top
        (HG1 2a: right under the greeting). -->
-  {#if loaded && $debriefsQ}<Continue {trips} {debriefs} {today} hour={now.getHours()} cardId={on('trip') ? cardTrips[0]?.id ?? null : null} noLast={startKarte?.kind === 'evening' && on('trip')} />{/if}
+  {#if loaded && $debriefsQ}<Continue {trips} {debriefs} {today} hour={now.getHours()} cardId={on('trip') ? cardTrips[0]?.id ?? null : null} />{/if}
   <!-- «Sporttasche» (mockup AK3, 4a): the evening before a fixed date, «Morgen Yoga 07:00: Tasche packen» -->
   <!-- «Alltag sichtbar» (Noah 24.10.2026 «1a»): «Heute fällig», only what is really due today: to-dos, birthdays, plants, bike care.
        It stands right under «Dein Körper heute» (rule 11: the body check stays on top); here only when that tile is off. -->

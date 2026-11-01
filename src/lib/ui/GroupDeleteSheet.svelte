@@ -17,7 +17,7 @@
   import { X, Trash2 } from '@lucide/svelte';
   import '../bikes/velo-dlg.css';
 
-  let { title, count = 0, what = (n) => String(n), none = '', noneHint = '', targets = [], note = '', empty = '', action = '', onconfirm, onclose } = $props();
+  let { title, count = 0, what = (n) => String(n), none = '', noneHint = '', targets = [], note = '', empty = '', action = '', alt = null, onconfirm, onclose } = $props();
 
   let dialog;
   $effect(() => {
@@ -56,9 +56,12 @@
   {/if}
   {#if note}<p class="hint">{note}</p>{/if}
   <p class="hint">{t('You can undo this for a few seconds.')}</p>
+  <!-- alt: a gentler way out offered next to «Delete» (a bike: «Retire instead»), { label, hint, run } -->
+  {#if alt}<p class="hint" data-gds-alt>{alt.hint}</p>{/if}
 
   <div class="vd-foot">
     <button type="button" class="btn" onclick={() => dialog.close()}>{t('Cancel')}</button>
+    {#if alt}<button type="button" class="btn" onclick={() => { dialog.close(); alt.run(); }} data-gds-alt-run>{alt.label}</button>{/if}
     <button type="button" class="btn del" onclick={confirm}>{#if action}{action}{:else}<Trash2 size={16} aria-hidden="true" />{t('Delete')}{/if}</button>
   </div>
 </dialog>

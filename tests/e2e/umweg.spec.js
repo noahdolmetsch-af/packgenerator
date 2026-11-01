@@ -50,7 +50,19 @@ test('Live map: plan a new way to a shop, see it, save it for the Garmin, remove
   const card = page.locator('[data-live-detour]');
   await expect(card).toBeVisible();
   await expect(card).toContainText('test_data_gtp_ Beck');
-  await expect(card).toContainText(/2[.,]4 km/);
+  await expect(card).toContainText(/\d[.,]\d km/);
+  // Linie zum Ziel: the numbers on top count down to the goal, and the bar shows how far along you are
+  await expect(page.locator('[data-live-tile="left"]')).toContainText(/km (to the goal|bis zum Ziel)/);
+  await expect(page.locator('[data-live-goal-bar]')).toHaveCount(1);
+  // the map turns with you on the way to a goal; the button puts north up again and back
+  const north = page.locator('[data-live-north]');
+  await expect(north).toBeVisible();
+  await expect(north).toHaveAttribute('aria-pressed', 'false');
+  await tap(north, info);
+  await expect(north).toHaveAttribute('aria-pressed', 'true');
+  // «Whole route»: the whole way in view, the map stops following
+  await tap(page.locator('[data-live-whole]'), info);
+  await expect(page.locator('[data-live-follow]')).toHaveAttribute('aria-pressed', 'false');
   const dl = page.waitForEvent('download');
   // the GPX of the way lives in «⋯» (Navigation zum Ziel 2: the card on the map stays small)
   await tap(page.locator('[data-live-menu]'), info);
@@ -62,10 +74,25 @@ test('Live map: plan a new way to a shop, see it, save it for the Garmin, remove
   expect(w).toBeLessThanOrEqual(1);
   await page.screenshot({ path: info.outputPath('umweg-card.png') });
 
-  // a reload keeps the detour; × removes it
+  // a reload keeps the detour; × only folds it to one line (Noah 28.10.2026), a tap opens it again
   await page.reload();
   await expect(page.locator('[data-live-detour]')).toBeVisible({ timeout: 15_000 });
   await tap(page.locator('[data-live-detour-off]'), info);
+  const small = page.locator('[data-live-detour-small]');
+  await expect(small).toBeVisible();
+  await expect(page.locator('[data-live-detour-end]')).toHaveCount(0);
+  await page.screenshot({ path: info.outputPath('umweg-klein.png') });
+  // folded stays folded after a reload
+  await page.reload();
+  await expect(page.locator('[data-live-detour-small]')).toBeVisible({ timeout: 15_000 });
+  await tap(page.locator('[data-live-detour-small]'), info);
+  await expect(page.locator('[data-live-detour-end]')).toBeVisible();
+  // «Navigation beenden» ends it, Undo brings it back
+  await tap(page.locator('[data-live-detour-end]'), info);
+  await expect(page.locator('[data-live-detour]')).toHaveCount(0);
+  await tap(page.locator('.undo'), info);
+  await expect(page.locator('[data-live-detour]')).toBeVisible();
+  await tap(page.locator('[data-live-detour-end]'), info);
   await expect(page.locator('[data-live-detour]')).toHaveCount(0);
 });
 

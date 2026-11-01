@@ -1,5 +1,6 @@
 // Paket W «Von der Haustür bis zurück» (Noah 20.10.2026 «1a 2a 3a 4a»): plan B, check-in, «Gut angekommen», «Velo abgestellt».
 // Fictional data only.
+import './setup/de.js'; // this test needs the German texts
 import { describe, it, expect, afterEach } from 'vitest';
 import { t, lang } from '../src/lib/i18n.svelte.js';
 import DE from '../src/lib/i18n/de/index.js';

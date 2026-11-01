@@ -101,7 +101,7 @@
     <PageHead title={t('Analyse|page')} sub={t('All your values from Fitbit, Strava, your body, «Wi gaht\'s?» and Aktiv. Tap a value to see its course. Only to look at, nothing is rated.')} />
   </header>
 
-  {#if !loading}<Diagramm {groups} {byKey} trips={data.trips} {today} />{/if}
+  {#if !loading}<Diagramm {groups} {byKey} trips={data.trips} acts={data.acts} log={data.log} {today} />{/if}
 
   <section class="card pick" aria-label={t('Choose what you see')}>
     <div class="pr">

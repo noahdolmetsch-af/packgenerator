@@ -1,6 +1,6 @@
 // Google Kalender und Aufgaben (GA): the pure helpers of api/_lib/googleplan.js. Fictional entries only.
 import { describe, it, expect } from 'vitest';
-import { zurichOffset, dayStart, dayEnd, spanOf, eventRow, eventBody, plainNote, remindOf, taskRow, taskBody, isDay } from '../api/_lib/googleplan.js';
+import { zurichOffset, dayStart, dayEnd, spanOf, eventRow, eventBody, plainNote, remindOf, recurrenceOf, taskRow, taskBody, isDay } from '../api/_lib/googleplan.js';
 
 describe('days in Zurich', () => {
   it('knows summer and winter time', () => {
@@ -60,5 +60,30 @@ describe('the appointment editor: description, reminders, availability, visibili
     expect(() => eventBody({ title: 'x', day: '2026-10-20', remind: [{ minutes: 99999 }] })).toThrow('remind');
     expect(() => eventBody({ title: 'x', day: '2026-10-20', visibility: 'secret' })).toThrow('visibility');
     expect(() => eventBody({ title: 'x', day: '2026-10-20', allDay: false, from: '07:00', tz: 'Mars/Base' })).toThrow('tz');
+  });
+});
+
+describe('repeat and colour', () => {
+  it('turns the editor choice into Google rules', () => {
+    expect(recurrenceOf(null)).toBeNull();
+    expect(recurrenceOf({ freq: 'weekly' })).toEqual(['RRULE:FREQ=WEEKLY']);
+    expect(recurrenceOf({ freq: 'weekly', every: 2, days: ['WE', 'MO'], count: 6 })).toEqual(['RRULE:FREQ=WEEKLY;INTERVAL=2;BYDAY=MO,WE;COUNT=6']);
+    expect(recurrenceOf({ freq: 'daily', until: '2026-12-31' })).toEqual(['RRULE:FREQ=DAILY;UNTIL=20261231']);
+    expect(recurrenceOf({ freq: 'daily', until: '2026-12-31' }, true)).toEqual(['RRULE:FREQ=DAILY;UNTIL=20261231T225959Z']);
+  });
+  it('refuses a bad rule', () => {
+    expect(() => recurrenceOf({ freq: 'hourly' })).toThrow('repeat');
+    expect(() => recurrenceOf({ freq: 'weekly', every: 0 })).toThrow('repeat');
+    expect(() => recurrenceOf({ freq: 'weekly', days: ['XX'] })).toThrow('repeat');
+    expect(() => recurrenceOf({ freq: 'daily', until: 'soon' })).toThrow('repeat');
+  });
+  it('puts colour and repeat into the body, and reads the colour back', () => {
+    const b = eventBody({ title: 'Lauf', day: '2026-10-20', allDay: false, from: '07:00', color: '5', repeat: { freq: 'weekly' } });
+    expect(b.colorId).toBe('5');
+    expect(b.recurrence).toEqual(['RRULE:FREQ=WEEKLY']);
+    expect(eventBody({ title: 'x', day: '2026-10-20', color: '' }).colorId).toBeNull();
+    expect(() => eventBody({ title: 'x', day: '2026-10-20', color: '99' })).toThrow('color');
+    expect(eventRow({ id: 'a', summary: 'x', start: { date: '2026-10-20' }, colorId: '5' }, 'primary').color).toBe('5');
+    expect(eventRow({ id: 'a', summary: 'x', start: { date: '2026-10-20' }, colorId: '99' }, 'primary').color).toBe('');
   });
 });
