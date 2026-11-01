@@ -2,7 +2,7 @@
 export default {
   title: 'Retire a bike',
   lead: 'A bike you no longer ride can be retired. Nothing is lost, and you can bring it back.',
-  points: [{ text: 'In the bike’s «…» menu: «Retire bike», with a reason, a day and a note', go: { href: '#/bikes', steps: [{ aria: 'More' }, { text: 'Retire bike' }] } }],
+  points: [{ text: 'In the bike’s «…» menu: «Retire bike», with a reason, a day and a note', go: { href: '#/bikes', steps: [{ sel: '.bmenu button' }] } }],
   small: [
     { box: 'new', text: 'Retired bikes wait folded at the bottom of Bikes, with «Bring back»', go: null },
     { box: 'new', text: 'Their trips, km and services stay and still count in your reviews', go: null },
