@@ -111,8 +111,9 @@ export function cmpVersion(a = '0', b = '0') {
  * releases: WHATS_NEW ({ version, date, title }), newest first.
  */
 export function wayOf(releases = [], packages = [], appVersion = '0', { last = 3, next = 4 } = {}) {
-  const done = releases.filter((r) => cmpVersion(r.version, appVersion) < 0).slice(0, last).reverse().map((r) => ({ kind: 'done', version: r.version, date: r.date, title: r.title }));
-  const cur = releases.find((r) => cmpVersion(r.version, appVersion) === 0);
+  // «Now» is the release of this version; a build without its own news file (x.y.1) has none, so the newest older one stands in.
+  const cur = releases.find((r) => cmpVersion(r.version, appVersion) === 0) ?? releases.find((r) => cmpVersion(r.version, appVersion) < 0);
+  const done = releases.filter((r) => cur && cmpVersion(r.version, cur.version) < 0).slice(0, last).reverse().map((r) => ({ kind: 'done', version: r.version, date: r.date, title: r.title }));
   const now = cur ? [{ kind: 'now', version: cur.version, date: cur.date, title: cur.title }] : [];
   const ahead = packages.filter((p) => !(p.version && cmpVersion(p.version, appVersion) <= 0)).slice(0, next).map((p) => ({ kind: p.parked ? 'parked' : 'next', key: p.key, title: p.name, version: p.version }));
   return [...done, ...now, ...ahead];

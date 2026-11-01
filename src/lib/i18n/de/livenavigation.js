@@ -116,4 +116,13 @@ export default {
   'Saved in Trips': 'Gespeichert in Touren',
   'In Trips with the tour, under «Live Navigation».': 'In Touren bei der Tour, unter «Live Navigation».',
   'In Trips as its own entry «Live Navigation».': 'In Touren als eigener Eintrag «Live Navigation».',
+  // Schritt 5: Wege zur Auswahl
+  'Other place': 'Anderer Ort',
+  'Choose a way to {name}': 'Weg wählen zu {name}',
+  'Way {n}': 'Weg {n}',
+  'Shortest': 'Kürzester',
+  'Fastest': 'Schnellster',
+  'Flattest': 'Flachster',
+  'Take this way': 'Diesen Weg nehmen',
+  'The router suggests these ways. Pick one; you can plan again any time.': 'Der Router schlägt diese Wege vor. Wähle einen; du kannst jederzeit neu planen.',
 };

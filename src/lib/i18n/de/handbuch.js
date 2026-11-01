@@ -112,7 +112,7 @@ export default {
   'Example: send the list to a riding friend so you do not both pack a stove.': 'Beispiel: Liste an eine Mitfahrerin schicken, damit nicht beide einen Kocher packen.',
   'Needs a trip that starts today or has started.': 'Braucht eine Tour, die heute beginnt oder begonnen hat.',
   'Open the trip in Ride day.': 'Öffne die Tour in «Unterwegs».',
-  'The Now card shows the next stage, the weather and where each thing is.': 'Die Jetzt-Karte zeigt die nächste Etappe, das Wetter und wo jedes Teil ist.',
+  'The overview on the way shows the next stage, the weather and where each thing is.': 'Die Unterwegs-Übersicht zeigt die nächste Etappe, das Wetter und wo jedes Teil ist.',
   'Example: 14:00 → «Next: climb 600 m · rain at 16:00 · jacket in the saddle bag».': 'Beispiel: 14:00 → «Weiter: 600 Hm Anstieg · Regen um 16 Uhr · Jacke in der Satteltasche».',
   'Tap «New» › «Note + photo».': 'Tippe «Neu» › «Notiz + Foto».',
   'Write or take a photo; sort it later in the Inbox.': 'Schreib oder mach ein Foto; später im Eingang ablegen.',
@@ -2069,4 +2069,10 @@ export default {
   'Example: «Turned back 200 m below the summit: the wind was too strong.»': 'Beispiel: «200 m unter dem Gipfel umgekehrt: der Wind war zu stark.»',
   'Open Ski tours › After the tour.': 'Öffne Skitouren › Nach der Tour.',
   'Enter summit and metres.': 'Trag Gipfel und Höhenmeter ein.',
+  // «Träume und Neuland» N2
+  'Needs your home place and the internet for the bike router.': 'Braucht deinen Wohnort und Internet für den Velo-Router.',
+  'Open Trips › Dreams › White spots nearby and tap a place.': 'Öffne Touren › Träume › Weisse Flecken in der Nähe und tippe einen Ort an.',
+  'Tap «Round through it»: km, climb and time.': 'Tippe «Runde hindurch»: km, Höhenmeter und Zeit.',
+  '«Plan as a trip» makes a trip with this round; «Other side» goes the other way round.': '«Als Tour planen» macht eine Tour mit dieser Runde; «Andere Seite» fährt andersherum.',
+  'Example: Wallisellen, 6 km away → 24 km · 180 m up · about 1 h 30 min.': 'Beispiel: Wallisellen, 6 km entfernt → 24 km · 180 m hoch · etwa 1 h 30 min.',
 };

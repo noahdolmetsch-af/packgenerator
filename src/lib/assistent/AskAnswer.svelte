@@ -27,7 +27,7 @@
     const care = live.map((b) => bikeCare(withVisits(b, visits), { tasks, visits, today })).filter(Boolean);
     // Klick-Rundgang H25: the wear of each part (chain, cassette, pads, tyres) for «Wann muss ich die Kette wechseln?»
     const wear = live.map((b) => ({ bikeId: b.id, bikeName: b.name, rows: wearRows(withVisits(b, visits), { entries: book, today }) }));
-    return { today, book, trips, items, care, learnings, wear };
+    return { today, book, trips, items, care, learnings, wear, bikeCount: live.length };
   });
   const answer = $derived($src && q.trim().length >= 3 ? answerFor(q, $src) : null);
   const spoken = $derived(answer ? [answer.title, ...answer.lines].filter(Boolean).join('. ') : '');

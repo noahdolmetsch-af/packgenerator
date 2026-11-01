@@ -65,6 +65,14 @@ test('Woche: the days with their kinds, chips hide a kind, a to-do is ticked, a 
   await form.getByLabel(T('Time')).fill('18:00');
   await form.getByRole('button', { name: T('Save') }).click();
   await expect(page.locator(`[data-day="${day(1)}"] [data-kind="date"]`)).toContainText('test_data_gtp_ Tennis');
+  // «Planen als verbindende Mitte» 3a: «Add to plan» in a day opens the form with that day
+  const planBtn = page.locator(`[data-day-add="${day(2)}"]`);
+  if (await planBtn.count()) {
+    if (!(await planBtn.isVisible())) await page.locator(`[data-day="${day(2)}"] > summary`).click();
+    await planBtn.click();
+    await expect(form.getByLabel(T('Day'))).toHaveValue(day(2));
+    await form.getByRole('button', { name: T('Cancel') }).click();
+  }
   // take the suggestion: the to-do gets a day
   await page.locator('[data-sugg="todo:test_data_gtp_t2"]').getByRole('button', { name: T('Take') }).click();
   await expect(page.locator('[data-entry="test_data_gtp_t2"]')).toHaveCount(1);
@@ -97,6 +105,12 @@ test('Woche planen: four steps, last week as proposals, the bike before the trip
   await prop.getByRole('button', { name: T('Take {name}', { name: 'test_data_gtp_ Lauf' }) }).click();
   await expect(st.locator('[data-proposal]')).toHaveCount(0);
   await expect(st.locator('[data-session]')).toHaveCount(3);
+  // «Planen als verbindende Mitte» 1a: a session is added right here, in the flow
+  await st.locator('[data-add-training]').click();
+  await st.locator('[data-plan-training] input[type="text"]').fill('test_data_gtp_ Neue Einheit');
+  await st.locator('[data-plan-training] button[type="submit"]').click();
+  await expect(st.locator('[data-session]')).toHaveCount(4);
+  await expect(st).toContainText('test_data_gtp_ Neue Einheit');
   await page.locator('[data-next]').click();
   // 3 to-dos: the one without a day is taken
   const todo = page.locator('[data-step="3"] [data-sugg="todo:test_data_gtp_t2"]');
