@@ -84,6 +84,38 @@ export function remindOf(r) {
   return (r.overrides ?? []).filter((o) => Number.isFinite(o?.minutes) && (o.method === 'popup' || o.method === 'email')).map((o) => ({ minutes: o.minutes, method: o.method })).slice(0, MAX_REMIND);
 }
 
+/** Google's event colours 1–11 («colorId»); the app shows them on its own palette (src/lib/agenda.js). */
+export const COLOR_IDS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11'];
+const WEEKDAYS = ['MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU'];
+const FREQS = { daily: 'DAILY', weekly: 'WEEKLY', monthly: 'MONTHLY', yearly: 'YEARLY' };
+/**
+ * The repeat the app sends { freq: 'daily'|'weekly'|'monthly'|'yearly', every?: 1–99, days?: ['MO'…],
+ * until?: 'YYYY-MM-DD' | count?: 1–999 } → Google's recurrence list. Null (no repeat) → null. Throws 'repeat'.
+ */
+export function recurrenceOf(r, timed = false) {
+  if (r == null || r === false) return null;
+  const f = FREQS[r.freq];
+  if (!f) throw new Error('repeat');
+  const parts = [`FREQ=${f}`];
+  const every = r.every == null ? 1 : Math.round(Number(r.every));
+  if (!Number.isFinite(every) || every < 1 || every > 99) throw new Error('repeat');
+  if (every > 1) parts.push(`INTERVAL=${every}`);
+  if (r.days != null) {
+    if (!Array.isArray(r.days) || r.days.some((d) => !WEEKDAYS.includes(d))) throw new Error('repeat');
+    if (r.days.length && f === 'WEEKLY') parts.push(`BYDAY=${WEEKDAYS.filter((d) => r.days.includes(d)).join(',')}`);
+  }
+  if (r.until != null && r.until !== '') {
+    if (!isDay(r.until)) throw new Error('repeat');
+    // a timed appointment needs a moment in UTC: the end of that day in Zurich
+    parts.push(`UNTIL=${timed ? new Date(Date.parse(`${r.until}T23:59:59${zurichOffset(r.until, '12:00')}`)).toISOString().replace(/[-:]|\.\d{3}/g, '') : r.until.replace(/-/g, '')}`);
+  } else if (r.count != null) {
+    const n = Math.round(Number(r.count));
+    if (!Number.isFinite(n) || n < 1 || n > 999) throw new Error('repeat');
+    parts.push(`COUNT=${n}`);
+  }
+  return [`RRULE:${parts.join(';')}`];
+}
+
 /** One Google event → { id, cal, title, where, note, allDay, day, lastDay, start, end, link, busy, updated }. */
 export function eventRow(e, cal) {
   if (!e?.id || e.status === 'cancelled') return null;
@@ -111,7 +143,8 @@ export function eventRow(e, cal) {
     visibility: VISIBILITIES.includes(e.visibility) ? e.visibility : 'default',
     remind: remindOf(e.reminders),
     tz: allDay ? '' : goodZone(e.start?.timeZone) ? e.start.timeZone : '',
-    repeat: !!e.recurringEventId,
+    repeat: !!e.recurringEventId || (Array.isArray(e.recurrence) && e.recurrence.length > 0),
+    color: COLOR_IDS.includes(e.colorId) ? e.colorId : '',
     updated: e.updated ?? null,
   };
 }
@@ -137,6 +170,16 @@ export function eventBody(v) {
     const list = v.remind.slice(0, MAX_REMIND).map((r) => ({ method: r?.method === 'email' ? 'email' : 'popup', minutes: Math.round(Number(r?.minutes ?? r)) }));
     if (list.some((r) => !Number.isFinite(r.minutes) || r.minutes < 0 || r.minutes > MAX_REMIND_MIN)) throw new Error('remind');
     body.reminders = { useDefault: false, overrides: list };
+  }
+  // colour: '' or null = the calendar's own colour
+  if (v.color !== undefined) {
+    if (v.color !== null && v.color !== '' && !COLOR_IDS.includes(String(v.color))) throw new Error('color');
+    body.colorId = v.color ? String(v.color) : null;
+  }
+  // repeat: only for a new appointment (a change to a repeated one counts for that one)
+  if (v.repeat != null) {
+    const rec = recurrenceOf(v.repeat, !(v.allDay !== false || !/^\d{2}:\d{2}$/.test(v.from ?? '')));
+    if (rec) body.recurrence = rec;
   }
   if (v.tz != null && v.tz !== '' && !goodZone(v.tz)) throw new Error('tz');
   const zone = v.tz || TZ;
