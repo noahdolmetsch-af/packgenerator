@@ -152,6 +152,7 @@ const LISTED_HOME = {
   'f.pinmarks': '#/quick',
   'f.whitespots': '#/trips/dreams',
   'f.nlgoals': '#/trips/dreams',
+  'f.nlround': '#/trips/dreams',
   'f.races': '#/trips/dreams',
   'f.starters': '#/pack',
   'f.packside': '#/pack',

@@ -12,6 +12,7 @@
   import { ChevronRight, Clock, Heart, Play, Minus, Plus, ShoppingCart, EyeOff, Eye, Pencil, ChefHat, X, RotateCcw } from '@lucide/svelte';
   import CookMode from './CookMode.svelte';
   import KochTips from './KochTips.svelte';
+  import KochTraining from './KochTraining.svelte';
   import { toggleLike } from '../kochen/tipps.js';
   import { nutritionOf, nutritionById } from '../kochen/naehrwerte.js';
   import RenameSheet from '../ui/RenameSheet.svelte';
@@ -215,6 +216,7 @@
     <h1 class="fz-h1" tabindex="-1" data-page-title>{t('Cooking')}</h1>
     <p class="fz-intro">{t('Very simple meals: at most 6 ingredients and 20 minutes. Tap a recipe for its ingredients and all steps.')}</p>
     <KochTips {prefs} loaded={$prefsQ !== undefined} {save} onhide={hide} />
+    <KochTraining {groups} onpick={(g) => (filter = GROUP_FILTER + g.id)} />
     <h2 class="fz-h2">{t('All recipes')}</h2>
     <div class="fz-chips" role="group" aria-label={t('Which meal')}>
       {#each FILTERS as f (f.key)}

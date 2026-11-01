@@ -1,7 +1,7 @@
 // Paket P «Was mir gut tut» (Noah 19.10.2026): Ich › Was mir gut tut. With 30 fictional days of answers
 // the results show with «Wie kommt die App darauf?»; start an experiment, add Neuland, tick the season
 // switch, set a wished mix, rename a life phase. Fictional data only; nothing leaves the device.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { viaTab } from './placetab.js'; // UI-Ziele #6: the pages that were rows under Ich are tabs now
 import { ready } from './settle.js';
 import { day } from './leistung-data.js';
