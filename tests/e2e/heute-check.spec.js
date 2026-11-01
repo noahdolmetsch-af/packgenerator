@@ -20,6 +20,10 @@ test('Heute-Check: Kachel führt zum Fragebogen, die Analysen sind einen Tipp en
   await tabs.locator('[data-tab-insights]').click();
   await expect(page).toHaveURL(/#\/check\/insights$/);
   await expect(page.locator('[data-check="insights"] [data-check-tabs]')).toBeVisible();
+  // step 3: «Alle Antworten» is a tab of the daily check too
+  await page.locator('[data-check-tabs] a').nth(2).click();
+  await expect(page).toHaveURL(/#\/check\/history$/);
+  await expect(page.locator('[data-check="history"] [data-check-tabs]')).toBeVisible();
   await page.locator('[data-check-tabs] a').first().click();
   await expect(page).toHaveURL(/#\/check\/morning$/);
 });
