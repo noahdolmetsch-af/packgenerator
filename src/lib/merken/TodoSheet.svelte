@@ -1,4 +1,5 @@
 <script>
+  import { activeBikes } from '../bikeretire.js';
   /**
    * Merken (Kal1, mockup PL2, Noah «PL1-PL3 freigeben» 14.10.2026): a to-do or a reminder in one window.
    * Only «What?» is needed; date, reminder and repeat are suggestions, each one tap. A reminder is the
@@ -46,7 +47,7 @@
   let input;
 
   const bikesQ = liveQuery(() => db.bikes.toArray());
-  const bikes = $derived(sortBikes($bikesQ ?? []));
+  const bikes = $derived(sortBikes(activeBikes($bikesQ ?? [])));
   const bike = $derived(bikes.find((b) => b.id === bikeId) ?? bikes[0] ?? null);
 
   $effect(() => {

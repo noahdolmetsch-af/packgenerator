@@ -112,6 +112,7 @@
   import BodyTile from '../lib/home/BodyTile.svelte';
   import VitalsTile from '../lib/home/VitalsTile.svelte';
   import Vo2Tile from '../lib/home/Vo2Tile.svelte';
+  import HeuteCheckTile from '../lib/home/HeuteCheckTile.svelte';
   import MomentTile from '../lib/home/MomentTile.svelte'; // «Heute als Begleiter» PR 4
   import DiscoverTile from '../lib/home/DiscoverTile.svelte'; // PR 5
   import { vo2Of, VO2_DAYS } from '../lib/home/vo2.js';
@@ -1238,6 +1239,7 @@
   {:else if x.id === 'routine'}<RoutineTile {today} isnew={newTile('routine')} />
   {:else if x.id === 'weighin'}<WeighTile {today} isnew={newTile('weighin')} onsaved={() => (weighedNow = true)} onstop={() => saveWall(removeTile(wall, 'weighin'))} />
   {:else if x.id === 'vitals'}<VitalsTile {today} isnew={newTile('vitals')} />
+  {:else if x.id === 'heutecheck'}<HeuteCheckTile {today} due={abDue} evening={abEvening} isnew={newTile('heutecheck')} />
   {:else if x.id === 'moment'}<MomentTile {today} hour={now.getHours()} weekday={now.getDay()} {trips} debriefDone={(tr) => debriefs.some((d) => d.tripId === tr.id && d.status === 'done')} careDue={due.points} inbox={notes.length} isnew={newTile('moment')} />
   {:else if x.id === 'discover'}<DiscoverTile {today} hour={now.getHours()} weekday={now.getDay()} {trips} debriefDone={(tr) => debriefs.some((d) => d.tripId === tr.id && d.status === 'done')} careDue={due.points} inbox={notes.length} isnew={newTile('discover')} />
   {:else if x.id === 'vo2max'}<Vo2Tile {today} isnew={newTile('vo2max')} />
