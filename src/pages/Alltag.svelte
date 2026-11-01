@@ -4,7 +4,7 @@
    * list, contracts and subscriptions (also from Ich › Dokumente) and «Not seen for a while». Each page
    * loads on its first visit (LazyPage). Everything is a suggestion: switch it off, change or delete it.
    */
-  import { ChevronRight, ShoppingCart, FileText, Users } from '@lucide/svelte';
+  import { ChevronRight, ShoppingCart, FileText, Users, ChefHat } from '@lucide/svelte';
   import Crumb from '../lib/flow/kit/Crumb.svelte';
   import LazyPage from '../lib/nav/LazyPage.svelte';
   import { PARTS, alltagPart, ALLTAG_HASH } from '../lib/alltag.js';
@@ -17,8 +17,9 @@
     einkauf: () => import('../lib/alltag/Einkauf.svelte'),
     abos: () => import('../lib/alltag/Abos.svelte'),
     menschen: () => import('../lib/alltag/Menschen.svelte'),
+    kochen: () => import('../lib/alltag/Kochen.svelte'),
   };
-  const ICONS = { cart: ShoppingCart, file: FileText, people: Users };
+  const ICONS = { cart: ShoppingCart, file: FileText, people: Users, cook: ChefHat };
   const part = $derived(alltagPart(hash));
   // contracts roll on to their next term: the to-dos in Merken follow on each visit (no write when nothing changed)
   syncReminders().catch(() => {});

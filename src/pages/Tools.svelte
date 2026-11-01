@@ -6,7 +6,7 @@
    * (rule 13). The list can be searched and put in the own order (arrows and drag, rule 12).
    */
   import AreaIntro from '../lib/intro/AreaIntro.svelte'; // «Anleitungen überall»: the guide of this page (lib/guides.js)
-  import { Calculator, Ruler, Clock, Compass, Languages, FileText, Image, Paperclip, Coins, Wallet, ChevronRight, Workflow, Images, Film, QrCode, Route, Cog, Crosshair, ScanBarcode, Flashlight, Sparkles, ArrowUpDown, ScanEye, PersonStanding, Package } from '@lucide/svelte';
+  import { Calculator, Ruler, Clock, Compass, Languages, FileText, Image, Paperclip, Coins, Wallet, ChevronRight, Workflow, Images, Film, QrCode, Route, Cog, Crosshair, ScanBarcode, Flashlight, Sparkles, ArrowUpDown, ScanEye, PersonStanding, Package, PenLine } from '@lucide/svelte';
   import VeloHead from '../lib/bikes/VeloHead.svelte';
   import SortArrows from '../lib/ui/SortArrows.svelte';
   import SortGrip from '../lib/ui/SortGrip.svelte';
@@ -37,6 +37,7 @@
   import PackPhoto from '../lib/vision/PackPhoto.svelte';
   import SitPosition from '../lib/vision/SitPosition.svelte';
   import Labels from '../lib/tools/Labels.svelte';
+  import Markup from '../lib/tools/Markup.svelte';
   import { t } from '../lib/i18n.svelte.js';
   import ToolResults from '../lib/ichideen/ToolResults.svelte'; // Einzelidee 27: the last results of the tools
   import { suggest, watchSuggest } from '../lib/clear/suggest.svelte.js'; // Einzelidee 36: «Fitting tools» can be off
@@ -45,8 +46,8 @@
 
   let { tool = '' } = $props();
   watchSuggest();
-  const ICONS = { calculator: Calculator, ruler: Ruler, clock: Clock, compass: Compass, languages: Languages, file: FileText, image: Image, paperclip: Paperclip, coins: Coins, wallet: Wallet, workflow: Workflow, images: Images, film: Film, qr: QrCode, route: Route, cog: Cog, level: Crosshair, scan: ScanBarcode, flashlight: Flashlight, scaneye: ScanEye, person: PersonStanding, package: Package };
-  const VIEWS = { calc: Calc, units: Units, zones: Zones, compass: CompassTool, phrases: Phrases, pdf: PdfTool, photo: PhotoTool, ablage: Ablage, money: Money, costs: Costs, level: Level, gears: Gears, barcode: Barcode, qr: QrMake, light: Light, convert: Convert, video: Video, map: MapMeasure, chains: Chains, packphoto: PackPhoto, sitpos: SitPosition, labels: Labels };
+  const ICONS = { calculator: Calculator, ruler: Ruler, clock: Clock, compass: Compass, languages: Languages, file: FileText, image: Image, paperclip: Paperclip, coins: Coins, wallet: Wallet, workflow: Workflow, images: Images, film: Film, qr: QrCode, route: Route, cog: Cog, level: Crosshair, scan: ScanBarcode, flashlight: Flashlight, scaneye: ScanEye, person: PersonStanding, package: Package, pen: PenLine };
+  const VIEWS = { calc: Calc, units: Units, zones: Zones, compass: CompassTool, phrases: Phrases, pdf: PdfTool, photo: PhotoTool, ablage: Ablage, money: Money, costs: Costs, level: Level, gears: Gears, barcode: Barcode, qr: QrMake, light: Light, convert: Convert, video: Video, map: MapMeasure, chains: Chains, packphoto: PackPhoto, sitpos: SitPosition, labels: Labels, markup: Markup };
   const cur = $derived(toolOf(tool));
   const ORDER_KEY = 'tools.order';
 

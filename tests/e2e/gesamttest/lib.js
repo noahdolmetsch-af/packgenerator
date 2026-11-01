@@ -7,8 +7,10 @@ import { expect } from '@playwright/test';
 import { writeFileSync, mkdirSync, appendFileSync, readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import DE from '../../../src/lib/i18n/de/index.js';
+import { SUGGESTED as WEB_SUGGESTED } from '../../../src/lib/tools/weblinks.js';
 import { build, step1, step2, track, gpxText, P } from '../../fixtures/gesamttest/make.mjs';
 import { openData as openDataFold, settle } from '../settle.js';
+import { shiftContext } from '../clock.js';
 
 // v0.154.0 «Bausteine mehr»: the keys of gear.js SETS (that module needs Svelte, so it is read as text)
 const GEAR_SRC = readFileSync(fileURLToPath(new URL('../../../src/lib/gear.js', import.meta.url)), 'utf8');
@@ -45,6 +47,7 @@ export function meteo() {
 
 /** Mocks and listeners for one page: returns the list of console errors and page errors. */
 export async function prepare(page, context, lang = 'de') {
+  await shiftContext(context); // the page runs on the same test day as the data below
   await context.route(/^https?:\/\/(?!localhost[:/])/, (route) => route.abort());
   await page.route(/api\.open-meteo\.com\/v1\/forecast/, (route) => route.fulfill({ json: meteo() }));
   await page.route(/geocoding-api\.open-meteo\.com/, (route) => route.fulfill({ json: { results: [{ name: `${P} Delemont`, admin1: 'Jura', country: 'Switzerland', latitude: 47.36, longitude: 7.35 }] } }));
@@ -118,6 +121,9 @@ export async function start(page, context, info, { lang = 'de', data = null } = 
     await settle(page);
     if (await page.evaluate(() => /^#?\/?(\?.*)?$/.test(location.hash))) break;
   }
+  // Today's «Im Flow» card then adds the playful names, the favourite tiles and the walk to the activities
+  // (setting flow.seed2). A snapshot taken before that lacks these fields and differs from the backup that follows.
+  await expect.poll(async () => (await table(page, 'settings')).some((s) => s.key === 'flow.seed2'), { timeout: 20_000 }).toBe(true);
   return errors;
 }
 
@@ -263,10 +269,13 @@ const KEYS = new Map();
 // the German texts as a set, built once: Object.values(DE) inside the loops below copied ~29 000 texts
 // for every key and made loading this file take minutes
 const DE_TEXTS = new Set(Object.values(DE));
+// the names of the web services in «Links» (src/lib/tools/weblinks.js) stay as they are in every language
+const SERVICE_NAMES = new Set(WEB_SUGGESTED.map((s) => s.name));
 for (const [en, de] of Object.entries(DE)) {
   const plain = en.replace(/\|[a-z]+$/, '');
   if (plain === de || /\{\w+\}/.test(plain) || plain.length < 4 || !/[a-z]/.test(plain)) continue;
   if (DE_TEXTS.has(plain)) continue; // also a German word ("Tarp", "Buff", "Multitool")
+  if (SERVICE_NAMES.has(plain)) continue; // a service's own name ("Windy"), never translated
   KEYS.set(plain, de);
 }
 // short English words a German screen should not show (beyond the keys); names and numbers aside

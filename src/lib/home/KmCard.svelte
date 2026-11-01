@@ -1,4 +1,5 @@
 <script>
+  import { activeBikes } from '../bikeretire.js';
   /**
    * v0.68.0 «Q1 Jeder km zählt» (Q1.6 a, answer 4a): the weekly card on Today, right under the trip.
    * «Compare km: Strava says X, the app says Y», with «Take the Strava value», «Correction with a
@@ -23,7 +24,7 @@
   const bookQ = liveQuery(() => db.kmBook.toArray());
   const weekQ = liveQuery(() => db.meta.get(KM_WEEK));
   const monthQ = liveQuery(() => db.meta.get(KM_MONTH));
-  const bikes = $derived(sortBikes($bikesQ ?? []).filter((b) => b.q1 !== false));
+  const bikes = $derived(sortBikes(activeBikes($bikesQ ?? [])).filter((b) => b.q1 !== false));
   const entries = $derived($bookQ ?? []);
   const nameOf = (id) => ($bikesQ ?? []).find((b) => b.id === id)?.name ?? t('another bike');
   const week = $derived(isoWeek(today));

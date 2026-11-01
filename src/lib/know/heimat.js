@@ -22,8 +22,10 @@
  * Measured 24.10.2026 on 0.181.4 with the Gesamttest data (phone 390 px).
  */
 
+import { FEATREG } from '../featreg/index.js';
+
 /** The home page of every function (feature id → hash route). */
-export const HOME = {
+const LISTED_HOME = {
   // Einzelideen Planen (996 Ideen 10, 11, 15, 16): page titles and card titles of the new pages
   'f.plantpass': '#/calendar/pflanzen',
   'f.doubleinbox': '#/inbox/vorgaenge',
@@ -38,6 +40,13 @@ export const HOME = {
   'f.labels': '#/me/tools/labels',
   // Paket D «Mit Freunden»: the three tabs of Ich › Mit Freunden
   'f.friendask': '#/me/freunde',
+  'f.minidate': '#/me/mini', // Mini-Tools (Noah 28.10.2026)
+  'f.minipoll': '#/me/mini',
+  'f.minilist': '#/me/mini',
+  'f.miniinvite': '#/me/mini',
+  'f.minifood': '#/me/mini',
+  'f.minilos': '#/me/mini/los',
+  'f.miniabfahrt': '#/me/mini/abfahrt',
   'f.inputbar': '#/tagebuch',
   'f.inputtemplates': '#/tagebuch',
   'f.picturecard': '#/tagebuch/:entry',
@@ -139,7 +148,10 @@ export const HOME = {
   'f.nightswx': '#/race/:race/route',
   'f.abroad': '#/trips',
   'f.dreams': '#/trips/dreams',
+  'f.quicklinks': '#/quick',
+  'f.pinmarks': '#/quick',
   'f.whitespots': '#/trips/dreams',
+  'f.nlgoals': '#/trips/dreams',
   'f.races': '#/trips/dreams',
   'f.starters': '#/pack',
   'f.packside': '#/pack',
@@ -155,6 +167,7 @@ export const HOME = {
   'f.wxwatch': '#/me/push',
   'f.morningpush': '#/me/push',
   'f.remindtime': '#/me/push',
+  'f.freeslot': '#/week',
   'f.tourhints': '#/pack',
   'f.fuel': '#/trips',
   'f.routepois': '#/pack',
@@ -292,6 +305,7 @@ export const HOME = {
   'f.wearphotos': '#/bikes?tab=care&view=photos',
   'f.sellbike': '#/bikes?tab=care&view=sell',
   'f.bikebox': '#/bikes?tab=care&view=wear',
+  'f.workshoprounds': '#/bikes?tab=care&view=wear', // Velo-Idee 76: «Werkstatt-Runden» is a chip on «Verschleiss»
   'f.sparestock': '#/bikes?tab=care&view=wear',
   'f.brandkm': '#/bikes?tab=care&view=wear',
   'f.springservice': '#/bikes?tab=care&view=wear',
@@ -344,6 +358,7 @@ export const HOME = {
   'f.air': '#/wetter',
   'f.observations': '#/flow/review',
   'f.ridepage': '#/trips/rides',
+  'f.analyse': '#/auswerten/analyse',
   'f.tickreview': '#/auswerten',
   'backup': '#/me/data',
   'install': '#/me/data',
@@ -358,6 +373,7 @@ export const HOME = {
   'f.shopping': '#/me/alltag',
   'f.contracts': '#/me/alltag',
   'f.people': '#/me/alltag',
+  'f.cook': '#/me/alltag',
   'f.search': '#/',
   'f.inbox': '#/inbox',
   'f.notelinks': '#/notes?open=:note',
@@ -372,6 +388,7 @@ export const HOME = {
   'f.noteformats': '#/notes',
   'f.next': '#/me/next',
   'f.notes': '#/notes',
+  'f.noteforms': '#/notes',
   'f.localai': '#/me/look',
   'f.dictate': '#/notes',
   'f.askfurther': '#/assistent',
@@ -385,6 +402,7 @@ export const HOME = {
   'f.tools': '#/me/tools',
   'f.pdftools': '#/me/tools',
   'f.phototools': '#/me/tools',
+  'f.markup': '#/me/tools/markup',
   'f.ablage': '#/me/tools',
   'f.weblinks': '#/me/links',
   'f.chains': '#/me/tools',
@@ -394,6 +412,7 @@ export const HOME = {
   'f.sync': '#/me/data',
   'f.autosync': '#/me/data',
   'f.account': '#/me/data',
+  'f.appmap': '#/me/karte',
   'f.verstehen': '#/me/verstehen',
   'f.privacy': '#/me/privacy',
   'f.camera': '#/bikes?tab=shop',
@@ -435,10 +454,36 @@ export const HOME = {
   'f.photoalbum': '#/me/album',
   'f.sortround': '#/inbox',
   'f.goodday': '#/me/wohl',
+  // Heute als Begleiter PR 2 (Noah 28.10.2026 «ok freigabe»): 5 tools and 3 phone reminders that had no line in the catalogue
+  'f.calc': '#/me/tools',
+  'f.units': '#/me/tools',
+  'f.zones': '#/me/tools',
+  'f.compasstool': '#/me/tools',
+  'f.phrases': '#/me/tools',
+  'f.lightpush': '#/me/push',
+  'f.wearpush': '#/me/push',
+  'f.racepush': '#/me/push',
+  // Heute als Begleiter PR 3 (Noah 28.10.2026, Auffälligkeiten 10–12): Small apps, Calm and personal, the 7 pages of Free time, 4 ski tour pages
+  'f.miniapps': '#/me/apps',
+  'f.ruhig': '#/me/ruhig',
+  'f.freiabend': '#/me/frei/abend',
+  'f.freiwesentlich': '#/me/frei/wesentlich',
+  'f.freireise': '#/me/frei/reise',
+  'f.freinacht': '#/me/frei/nacht',
+  'f.freinaechstes': '#/me/frei/naechstes',
+  'f.freilust': '#/me/frei/lust',
+  'f.freisamml': '#/me/frei/sammlungen',
+  'f.skicheck': '#/ski/check',
+  'f.skistart': '#/ski/start',
+  'f.skicare': '#/ski/care',
+  'f.skiafter': '#/ski/after',
 };
 
+/** The listed home pages plus those of src/lib/featreg/. */
+export const HOME = { ...LISTED_HOME, ...FEATREG.home };
+
 /** Not yet visible on the home page (feature id → why code). Only gets shorter. */
-export const GAPS = {
+const LISTED_GAPS = {
   'f.blockeffect': 'spot',
   'f.needs': 'spot',
   'f.homecoming': 'when',
@@ -485,6 +530,8 @@ export const GAPS = {
   'f.helpsearch': 'name',
   'f.tennistop': 'name',
 };
+
+export const GAPS = { ...LISTED_GAPS, ...FEATREG.gaps };
 
 /** The why codes, for the test messages. */
 export const WHY = { deep: 'only through a fold, «More», the search or 3+ taps', low: 'further down than 2.5 screens', folded: 'inside a closed fold', name: 'another name, a ••• menu or only in some situations', spot: 'inside a window, a fold or further down; the catalogue goes to the spot and lights it up (know/spot.js)', when: 'only in the right situation; the catalogue says when (know/wann.js)', gone: 'left out on purpose' };

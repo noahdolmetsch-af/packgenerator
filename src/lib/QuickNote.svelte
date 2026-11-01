@@ -1,4 +1,5 @@
 <script>
+  import { activeBikes } from './bikeretire.js';
   import { backClose } from './ui/backclose.js';
   /**
    * Quick note (v0.19.3, Noah 4.10.2026, answers 1a-3a). Since v0.19.6 (answer 4a) it opens from
@@ -27,7 +28,7 @@
   const openQ = liveQuery(() => db.notes.where('status').equals('open').count());
   const tripsQ = liveQuery(() => db.trips.toArray());
   const bikesQ = liveQuery(() => db.bikes.toArray());
-  const bikes = $derived(sortBikes($bikesQ ?? []));
+  const bikes = $derived(sortBikes(activeBikes($bikesQ ?? [])));
   // v0.26.1 (AP20, Noah 19a): while a trip runs, the note belongs to that trip and its day (and
   // stays in the Inbox); the debrief shows it under "Notes on the way".
   const riding = $derived(rideContext($tripsQ ?? [], localDay()));

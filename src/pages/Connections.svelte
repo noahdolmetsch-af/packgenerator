@@ -16,6 +16,7 @@
   import TickSuggest from '../lib/strava/TickSuggest.svelte';
   import LakeCard from '../lib/lake/LakeCard.svelte';
   import FitbitImport from '../lib/fitbit/FitbitImport.svelte';
+  import AppleImport from '../lib/applehealth/AppleImport.svelte';
   import { db } from '../lib/db.js';
   import { strava, STRAVA_HASH, PREFS_KEY as STRAVA_KEY, prefsOf as stravaPrefsOf, savePrefs as saveStrava, readKey } from '../lib/strava/client.svelte.js';
   import { health, FITBIT_HASH } from '../lib/health/client.svelte.js';
@@ -52,8 +53,8 @@
   const when = (iso) => (iso ? new Date(iso).toLocaleString(locale(), { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : '');
   const lakeAt = $derived(d?.lake?.data?.now?.at ?? d?.lake?.fetchedAt ?? null);
   const rows = $derived([
-    { key: 'strava', Icon: Activity, name: 'Strava', on: !!hasKey && !!strava.prefs.lastSync, line: strava.prefs.lastSync ? t('last fetch {when}', { when: when(strava.prefs.lastSync) }) : t('Rides and activities, ticks Aktiv'), href: STRAVA_HASH },
-    { key: 'fitbit', Icon: HeartPulse, name: t('Fitbit via Google'), on: !!health.prefs.connected, line: health.prefs.connected ? (health.last?.date ? t('values up to {day}', { day: health.last.date }) : t('connected')) : t('Sleep, steps, heart rate as observation'), href: FITBIT_HASH },
+    { key: 'strava', Icon: Activity, name: 'Strava', on: !!hasKey && !!strava.prefs.lastSync, line: strava.prefs.lastSync ? (hasKey ? t('last fetch {when}', { when: when(strava.prefs.lastSync) }) : t('not connected on this device · last fetch {when}', { when: when(strava.prefs.lastSync) })) : t('Rides and activities, ticks Aktiv'), href: STRAVA_HASH },
+    { key: 'fitbit', Icon: HeartPulse, name: t('Fitbit via Google'), on: !!health.prefs.connected, line: health.prefs.connected ? [health.last?.date ? t('values up to {day}', { day: health.last.date }) : t('connected'), hasKey ? '' : t('fetching needs the app key on this device')].filter(Boolean).join(' · ') : t('Sleep, steps, heart rate as observation'), href: FITBIT_HASH },
     { key: 'agenda', Icon: CalendarDays, name: t('Google Calendar and Tasks'), on: agenda.prefs.calendar || agenda.prefs.tasks, line: agenda.prefs.lastSync ? t('last fetch {when}', { when: when(agenda.prefs.lastSync) }) : t('Appointments and tasks, the calendar «Packgenerator»'), href: AGENDA_HASH },
     { key: 'mail', Icon: Mail, name: t('Mail'), on: null, line: t('Your Gmail: read, search, answer, write'), href: '#/me/mail' },
     { key: 'lake', Icon: Waves, name: t('Lake temperature'), on: !!lakeAt, line: lakeAt ? t('last value {when} · City of Zurich and Eawag, no login', { when: when(lakeAt) }) : t('City of Zurich and Eawag, no login'), href: '#/flow' },
@@ -177,6 +178,7 @@
           <div class="ich-h"><div><h2 id="cn-tick-h">{t('Strava ticks Aktiv')}</h2><p class="ich-hs">{t('a hike, a run or a ski tour ticks the matching activity')}</p></div></div>
           <div class="card ich-body">
             <Seg options={MODES} value={d.ticks.mode} onchange={setMode} label={t('Strava ticks Aktiv')} chips />
+            {#if !hasKey && d.ticks.mode !== 'off'}<p class="ich-help" data-ticks-wait>{t('Applies once Strava is connected on this device.')}</p>{/if}
             <p class="ich-help">{d.ticks.mode === 'auto' ? t('Every new Strava activity ticks its activity by itself. A tick you delete does not come back.') : d.ticks.mode === 'suggest' ? t('New Strava activities wait on Aktiv for «Count» or «Do not count».') : t('Strava ticks nothing. Rides still count for your bikes.')}</p>
             <TickSuggest link={false} />
           </div>
@@ -224,7 +226,7 @@
             <div class="card ich-body">
               {#if !d.own.owncal}
                 <p class="ich-help">{t('Google has to allow the app once to make its own calendar. It sees and changes only that calendar.')}</p>
-                {#if hasKey}<button type="button" class="btn hi" onclick={() => run('allow', () => connectOwn())}>{t('Allow in Google')}</button>{:else}<a class="btn hi" href={STRAVA_HASH}>{t('Connect Strava first')}</a>{/if}
+                {#if hasKey}<button type="button" class="btn hi" onclick={() => run('allow', () => connectOwn())}>{t('Allow in Google')}</button>{:else}<a class="btn hi" href={STRAVA_HASH}>{t('Unlock this device (once)')}</a>{/if}
               {:else}
                 <button type="button" class="btn" disabled={busy === 'cal'} onclick={() => run('cal', async () => (await syncCal({ force: true }), t('The tours are in your calendar «Packgenerator».')))}><RefreshCw size={16} aria-hidden="true" />{t('Enter now')}</button>
               {/if}
@@ -281,6 +283,10 @@
       </section>
       <section class="ich-sec" data-section="fitbit-file">
         <FitbitImport />
+      </section>
+      <!-- Apple-Health-Export (Noah 27.10.2026 «4a»): an iPhone's values as days, like Fitbit -->
+      <section class="ich-sec" data-section="apple-file">
+        <AppleImport />
       </section>
     </div>
   </div>

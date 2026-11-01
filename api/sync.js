@@ -9,6 +9,7 @@
  *   POST ?step=forget { token }                     → { ok } (everything of this space is removed)
  *   ?action=spur …                                  → the read link of a tour (Paket S, api/_lib/spur.js)
  *   ?action=group …                                 → the group live map of a ride with friends (api/_lib/spur.js)
+ *   ?action=mini …                                  → Mini-Tools: a question shared by link, sealed answers (api/_lib/mini.js)
  *
  * Environment (names only; values only in the Vercel project «packgen»): KV_REST_API_URL and
  * KV_REST_API_TOKEN, set by the Upstash integration (the same store as the KI-Helfer and «Ich habe bezahlt»).
@@ -17,6 +18,7 @@ import { route, json, redisEnv, needStore, ApiError } from './_lib/core.js';
 import { jsonBody } from './_lib/oauth.js';
 import { makeSpurHandler, makeGroupHandler } from './_lib/spur.js';
 import { makeAccount } from './_lib/account.js';
+import { makeMiniHandler } from './_lib/mini.js';
 import { isToken, spaceOf, keysOf, readPush, readPushAnswer, readStored, PUSH_LUA, SPACE_TTL_S, PULL_MAX, PULL_BYTES, BODY_MAX } from './_lib/sync.js';
 
 export function makeHandler({ env = () => redisEnv(), doFetch = (...a) => fetch(...a) } = {}) {
@@ -84,10 +86,11 @@ export function makeHandler({ env = () => redisEnv(), doFetch = (...a) => fetch(
 
 /** The sync, or with ?action=spur the read link of a tour (one function for both: the free plan allows 12). */
 // Gruppen-Live-Karte (Noah 25.10.2026 «b»): ?action=group is the group map of a ride with friends
-export function makeDispatch({ sync = makeHandler(), spur = makeSpurHandler(), group = makeGroupHandler() } = {}) {
+// Mini-Tools (Noah 28.10.2026 «1b»): ?action=mini is a question shared by link with sealed answers
+export function makeDispatch({ sync = makeHandler(), spur = makeSpurHandler(), group = makeGroupHandler(), mini = makeMiniHandler() } = {}) {
   return (request) => {
     const a = new URL(request.url).searchParams.get('action');
-    return a === 'spur' ? spur(request) : a === 'group' ? group(request) : sync(request);
+    return a === 'spur' ? spur(request) : a === 'group' ? group(request) : a === 'mini' ? mini(request) : sync(request);
   };
 }
 

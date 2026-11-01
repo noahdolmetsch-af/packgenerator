@@ -1,15 +1,15 @@
 <script>
   /**
    * «Rennen-Check» (Ziel 6, Noah 27.10.2026 «1b 2b»): the paper check of a race on the page «Rennen
-   * detailliert planen» (#/racecheck/<tripId>). Five sheets as small tabs; every field saves by itself into the race
+   * detailliert planen» (#/racecheck/<tripId>). The sheets as small tabs; every field saves by itself into the race
    * (stored.check, in the backup). «Load answers» takes the file of the fillable sheets page.
    * Gets `ctx` from RaceDetail; the sheets live in check-lib.js.
    */
-  import { Upload, Eraser, ChevronLeft, ChevronRight } from '@lucide/svelte';
-  import { SHEETS, STATIONS, RACE_QUESTIONS, BAGS, LIST, SLEEP_COLS, SLEEP_ROWS, NIGHT, valueOf, withValue, answersFrom, filled } from './check-lib.js';
+  import { Upload, Eraser, ChevronLeft, ChevronRight, Copy, History, ClipboardCheck, Scale, Check as CheckIcon } from '@lucide/svelte';
+  import { SHEETS, STATIONS, RACE_QUESTIONS, BAGS, LIST, SLEEP_COLS, SLEEP_ROWS, NIGHT, DAY_BEFORE, dayBeforeDone, AFTER, afterNotes, afterCount, valueOf, withValue, answersFrom, filled, takeOver, setupWeight } from './check-lib.js';
   import { offerDone } from '../ui/rename.svelte.js';
   import { askDelete } from '../ui/ask.js';
-  import { t } from '../i18n.svelte.js';
+  import { t, tn, num } from '../i18n.svelte.js';
 
   let { ctx } = $props();
 
@@ -36,6 +36,13 @@
   const cur = $derived(SHEETS[at]);
   const check = $derived(ctx.stored.check ?? null);
   const v = (k) => valueOf(check, k);
+  // «Gewichtsrechner» (Noah 27.10.2026 «6a»): sheet 2 added up against your target
+  const weight = $derived(setupWeight(check));
+  const kg = (g) => `${num(Math.round(g / 10) / 100)} kg`;
+  // «Fragen nach dem Rennen» (Noah 27.10.2026 «8a»): asked under every sheet, shown on top in the other races
+  const isPast = $derived((ctx.past ?? []).some((x) => x.id === ctx.trip.id));
+  const earlier = $derived(afterNotes(ctx.others, sheet, ctx.trip.id));
+  const ASKED = { missing: 'Missing', much: 'Too much', change: 'Change' };
   const when = (x) => (/^\d/.test(x) ? x : t(x)); // «17:00» stays, «Sunday» is a word
 
   // typing saves after a short pause, leaving the field at once
@@ -75,6 +82,25 @@
     offerDone(t('{n} answers loaded.', { n: got.n }), () => ctx.save((s) => ({ ...s, check: before })));
   }
 
+  // «Check übernehmen» (Noah 27.10.2026, idea 3): another race's answers into the empty fields here
+  const others = $derived((ctx.others ?? []).filter((o) => o.id !== ctx.trip.id && Object.keys(o.check?.values ?? {}).length));
+  let fromId = $state('');
+  const fromSel = $derived(others.some((o) => o.id === fromId) ? fromId : (others[0]?.id ?? ''));
+  async function copyFrom() {
+    const o = others.find((x) => x.id === fromSel);
+    if (!o) return;
+    let before = null;
+    let n = 0;
+    await ctx.save((s) => {
+      before = s.check ?? null;
+      const r = takeOver(s.check, o.check);
+      n = r.n;
+      return { ...s, check: r.check };
+    });
+    note = '';
+    offerDone(n ? tn(n, '{n} answer taken over from «{name}».', '{n} answers taken over from «{name}».', { name: o.title }) : t('Nothing to take over: your fields are filled already.'), n ? () => ctx.save((s) => ({ ...s, check: before })) : null);
+  }
+
   async function clearSheet() {
     const ok = await askDelete({ title: t('Empty «{name}»?', { name: t(cur.title) }), text: t('Your answers on this sheet are removed. You can undo it right after.'), label: t('Empty') });
     if (!ok) return;
@@ -99,7 +125,7 @@
 {/snippet}
 
 <div class="ck" data-race-part="check" data-race-check>
-  <p class="rc-note">{t('The paper check of the race, five sheets. Everything is a suggestion: write your own, leave out what does not fit.')}</p>
+  <p class="rc-note">{t('The paper check of the race, sheet by sheet. Everything is a suggestion: write your own, leave out what does not fit.')}</p>
   <div class="ck-tabs" role="tablist" aria-label={t('Sheets')}>
     {#each SHEETS as s (s.id)}
       {@const f = filled(check, s.id)}
@@ -112,6 +138,16 @@
   <section class="rc-box" aria-labelledby="ck-h" data-check-sheet={cur.id}>
     <h2 id="ck-h" class="rc-h2">{t(cur.title)}</h2>
     <p class="rc-note">{t(cur.lead)}</p>
+    {#if earlier.length}
+      <div class="ck-earlier" data-check-earlier>
+        <h3 class="ck-h3"><History size={16} aria-hidden="true" /> {t('From your earlier races')}</h3>
+        <ul>
+          {#each earlier as e (e.id + e.k)}
+            <li class="ck-e ck-e-{e.k}" data-check-earlier-row={e.k}><span class="ck-etag">{t(ASKED[e.k])}</span><span class="ck-etxt">{e.text}<small>{e.title}</small></span></li>
+          {/each}
+        </ul>
+      </div>
+    {/if}
 
     {#if cur.id === 'ablauf'}
       {#each STATIONS as s (s.k)}
@@ -155,6 +191,23 @@
         {@render area('setup.gone', t('No longer along'))}
         {@render area('setup.newbags', t('New bags / changes'))}
       </div>
+      <div class="ck-weight" data-check-weight>
+        <h3 class="ck-h3"><Scale size={16} aria-hidden="true" /> {t('Weight of the setup')}</h3>
+        {#if weight.counted}
+          <div class="ck-wbig">
+            <span class="ck-wstat"><small>{t('Packed (full)')}</small><b class="num" data-check-weight-full>{kg(weight.full)}</b></span>
+            <span class="ck-wstat ck-wsmall"><small>{t('Bags empty')}</small><b class="num">{kg(weight.empty)}</b></span>
+            {#if weight.target != null}<span class="ck-wstat ck-wsmall"><small>{t('Your target')}</small><b class="num">{kg(weight.target)}</b></span>{/if}
+          </div>
+          {#if weight.target != null}
+            <span class="ck-wbar" class:ck-wbar-over={weight.over > 0} aria-hidden="true"><span style:width="{Math.min(100, Math.round((weight.full / Math.max(weight.target, 1)) * 100))}%"></span></span>
+            <p class="ck-wtag" class:ck-over={weight.over > 0} data-check-weight-over>{weight.over > 0 ? t('{kg} over the target', { kg: kg(weight.over) }) : t('{kg} under the target', { kg: kg(-weight.over) })}</p>
+          {/if}
+          <p class="rc-note">{t('From the grams of {n} bags. A bag without «full» counts with its empty weight.', { n: weight.counted })}</p>
+        {:else}
+          <p class="rc-note">{t('Write the grams of your bags above (e.g. «200» or «2× 100»), then the sum shows here.')}</p>
+        {/if}
+      </div>
     {:else if cur.id === 'liste'}
       {#each LIST as r, i (r.name)}
         <div class="ck-step">
@@ -185,7 +238,29 @@
         </div>
       {/each}
       <div class="ck-step">{@render area('nacht.help', t('What would have helped you most on the phone in this night?'), '', 3)}</div>
+    {:else if cur.id === 'vorher'}
+      {@const d = dayBeforeDone(check)}
+      <div class="ck-prog" class:ck-all={d.done === d.of}>
+        <p class="ck-progress" role="status" data-check-daybefore-done>{d.done === d.of ? t('All done. Sleep well!') : t('{done} of {of} done', d)}</p>
+        <span class="ck-pbar" aria-hidden="true"><span style:width="{Math.round((d.done / Math.max(d.of, 1)) * 100)}%"></span></span>
+      </div>
+      {#each DAY_BEFORE as r, i (r.name)}
+        <div class="ck-step ck-vstep" class:ck-ticked={v(`vorher.${i}.done`)}>
+          <h3 class="ck-h3"><span class="ck-vnum" aria-hidden="true">{#if v(`vorher.${i}.done`)}<CheckIcon size={14} />{:else}{i + 1}{/if}</span>{t(r.name)}</h3>
+          {@render area(`vorher.${i}.v`, t('Your plan'), t(r.ph))}
+          <div class="ck-ticks">{@render tick(`vorher.${i}.done`, t('done|ticked'))}</div>
+        </div>
+      {/each}
+      <div class="ck-step">{@render area('vorher.own', t('Anything else for the evening before?'), '', 3)}</div>
     {/if}
+
+    {#key cur.id}
+      <details class="ck-after" open={isPast || afterCount(check, cur.id) > 0} data-check-after>
+        <summary><ClipboardCheck size={18} aria-hidden="true" />{t('After the race|sheet')}{#if afterCount(check, cur.id)}<small class="ck-n">{afterCount(check, cur.id)}</small>{/if}</summary>
+        <p class="rc-note">{t('Answer after the race. Your answers show on top of this sheet in your next races.')}</p>
+        {#each AFTER as q (q.k)}{@render area(`${cur.id}.after.${q.k}`, t(q.label))}{/each}
+      </details>
+    {/key}
 
     <div class="ck-nav">
       {#if at > 0}<button type="button" class="btn" onclick={() => go(SHEETS[at - 1].id)} data-check-prev><ChevronLeft size={16} aria-hidden="true" />{t(SHEETS[at - 1].tab)}</button>{:else}<span></span>{/if}
@@ -200,12 +275,63 @@
       <button type="button" class="btn sm" onclick={() => fileEl?.click()} data-check-load><Upload size={16} aria-hidden="true" />{t('Load answers')}</button>
       <button type="button" class="btn sm" onclick={clearSheet} data-check-clear><Eraser size={16} aria-hidden="true" />{t('Empty this sheet')}</button>
     </div>
+    {#if others.length}
+      <div class="ck-copy" data-check-copy-card>
+        <span class="ck-copy-ic" aria-hidden="true"><Copy size={18} /></span>
+        <div class="ck-copy-txt">
+          <strong>{t('From another race')}</strong>
+          <small>{t('Takes the answers of another race into the fields that are still empty here. Name, date and test ride stay yours.')}</small>
+        </div>
+        <div class="ck-copy-row">
+          <select class="inp" value={fromSel} onchange={(e) => (fromId = e.currentTarget.value)} aria-label={t('Race to take over from')} data-check-from>
+            {#each others as o (o.id)}<option value={o.id}>{o.title}</option>{/each}
+          </select>
+          <button type="button" class="btn hi sm" onclick={copyFrom} data-check-copy><Copy size={16} aria-hidden="true" />{t('Take over')}</button>
+        </div>
+      </div>
+    {/if}
     <input bind:this={fileEl} type="file" accept=".json,application/json" hidden onchange={load} data-check-file />
     {#if note}<p class="rc-warn" role="status">{note}</p>{/if}
   </section>
 </div>
 
 <style>
+  .ck-copy {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 8px 12px;
+    margin-top: var(--sp-2);
+    padding: 12px 14px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-card);
+    background: var(--accent-soft);
+  }
+  .ck-copy-ic {
+    display: grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: var(--paper);
+    color: var(--accent);
+  }
+  .ck-copy-txt {
+    display: grid;
+    gap: 2px;
+  }
+  .ck-copy-txt small {
+    color: var(--ink-2);
+  }
+  .ck-copy-row {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .ck-copy-row select {
+    flex: 1 1 12rem;
+    min-width: 0;
+  }
   .ck {
     display: grid;
     grid-template-columns: minmax(0, 1fr);
@@ -286,6 +412,171 @@
   }
   .ck-num {
     fill: var(--accent);
+  }
+  .ck-earlier {
+    display: grid;
+    gap: 8px;
+    padding: 12px 14px;
+    border: 1px solid var(--line);
+    border-left: 4px solid var(--accent);
+    border-radius: var(--radius-card);
+    background: var(--paper);
+  }
+  .ck-earlier ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 8px;
+  }
+  .ck-e {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 10px;
+    align-items: start;
+  }
+  .ck-etag {
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: var(--accent-soft);
+    color: var(--accent);
+    font-size: var(--fs-small);
+    font-weight: 600;
+    white-space: nowrap;
+    min-width: 6.5em;
+    text-align: center;
+  }
+  .ck-e-missing .ck-etag,
+  .ck-e-much .ck-etag {
+    background: var(--warn-soft);
+    color: var(--warn);
+  }
+  .ck-etxt {
+    display: grid;
+  }
+  .ck-etxt small {
+    color: var(--ink-3);
+  }
+  .ck-after {
+    display: grid;
+    gap: 8px;
+    margin-top: 8px;
+    padding: 4px 14px 12px;
+    border-radius: var(--radius-card);
+    background: var(--accent-soft);
+  }
+  .ck-after summary {
+    cursor: pointer;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+  }
+  .ck-prog {
+    display: grid;
+    gap: 6px;
+    padding: 12px 14px;
+    border-radius: var(--radius-card);
+    background: var(--accent-soft);
+  }
+  .ck-progress {
+    margin: 0;
+    font-weight: 600;
+  }
+  .ck-all .ck-progress {
+    color: var(--accent);
+  }
+  .ck-pbar {
+    display: block;
+    height: 8px;
+    border-radius: 4px;
+    background: var(--paper);
+    overflow: hidden;
+  }
+  .ck-pbar span {
+    display: block;
+    height: 100%;
+    background: var(--accent);
+    transition: width 0.3s;
+  }
+  .ck-vnum {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: var(--accent-soft);
+    color: var(--accent);
+    font-size: var(--fs-small);
+    font-weight: 700;
+  }
+  .ck-ticked .ck-vnum {
+    background: var(--accent);
+    color: var(--paper);
+  }
+  .ck-ticked .ck-h3 {
+    color: var(--ink-2);
+  }
+  .ck-weight {
+    display: grid;
+    gap: 8px;
+    padding: 14px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-card);
+    background: var(--paper);
+  }
+  .ck-weight .ck-h3 {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .ck-wbig {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: end;
+    gap: 8px 20px;
+  }
+  .ck-wstat {
+    display: grid;
+  }
+  .ck-wstat small {
+    color: var(--ink-2);
+  }
+  .ck-wstat b {
+    font-size: var(--fs-display);
+    line-height: 1.1;
+  }
+  .ck-wsmall b {
+    font-size: var(--fs-section);
+  }
+  .ck-wbar {
+    display: block;
+    height: 8px;
+    border-radius: 4px;
+    background: var(--accent-soft);
+    overflow: hidden;
+  }
+  .ck-wbar span {
+    display: block;
+    height: 100%;
+    background: var(--accent);
+  }
+  .ck-wbar-over span {
+    background: var(--warn);
+  }
+  .ck-wtag {
+    justify-self: start;
+    margin: 0;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: var(--ok-soft);
+    font-weight: 600;
+  }
+  .ck-wtag.ck-over {
+    background: var(--warn-soft);
+    color: var(--warn);
   }
   .ck-cols {
     display: grid;

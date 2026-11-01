@@ -1,5 +1,8 @@
 // Suchvorschläge (Noah 27.10.2026): the situation buttons on top of «In der Nähe» (src/lib/map/situations.js).
+// Vorlagen mit Feldern (Noah 27.10.2026): its German texts are joined here, so de/index.js (one line everyone appends to) stays untouched.
+import vorlagenfelder from './vorlagenfelder.js';
 export default {
+  ...vorlagenfelder,
   'Hunger|situation': 'Hunger',
   'Thirst|situation': 'Durst',
   'Breakdown|situation': 'Panne',

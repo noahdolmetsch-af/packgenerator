@@ -72,10 +72,12 @@ test('Fitbit: connect with Google, first fetch, the card on «Daten und Backup»
   await shot(page, info, 'G1');
   await page.getByRole('button', { name: 'Mit Google verbinden' }).click();
 
-  // back from the login: the address is clean, the first fetch asked for 90 days with this device's key
+  // back from the login: the address is clean, the first fetch asked for 90 days (in windows of 30) with this device's key
   await expect(page.getByRole('heading', { name: 'Gesundheitsdaten' })).toBeVisible();
   expect(page.url()).not.toContain('google=');
-  await expect.poll(() => log.find((x) => x.step === 'days')).toMatchObject({ auth: `Bearer ${P}key`, from: day(-89), to: day(0) });
+  await expect.poll(() => log.find((x) => x.step === 'days')).toMatchObject({ auth: `Bearer ${P}key`, from: day(-89) });
+  await expect.poll(() => log.filter((x) => x.step === 'days').length).toBe(3);
+  expect(log.filter((x) => x.step === 'days').at(-1).to).toBe(day(0));
   expect(log.find((x) => x.step === 'start').auth).toBe(`Bearer ${P}key`);
   await expect.poll(async () => (await readTable(page, 'healthDays')).length).toBe(2);
   const card = page.locator('.hcard');
@@ -145,7 +147,8 @@ test('Fitbit: a failed fetch stays visible after a reload; a missing value is na
   await expect(card.locator('[data-health-relogin]')).toHaveText('Google neu verbinden');
 
   mode = 'nosleep';
-  await card.getByRole('button', { name: 'Jetzt holen' }).click();
+  // after a failed fetch the same button says «Nochmal versuchen»
+  await card.getByRole('button', { name: 'Nochmal versuchen' }).click();
   await expect(card.locator('[data-health-err]')).toHaveCount(0);
   await expect(card.locator('[data-health-relogin]')).toHaveCount(0);
   await expect(card.locator('[data-health-gone]')).toContainText('Schlaf');

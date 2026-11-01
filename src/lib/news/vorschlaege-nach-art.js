@@ -4,8 +4,8 @@
 export default {
   title: 'Suggestions by kind in one place',
   lead: 'The four kinds of suggestions now switch on one page only.',
-  points: [{ text: 'Suggestions by kind: under «Hidden and switched off»', href: '#/me/ruhig/aus' }],
-  small: [{ box: 'nicer', text: 'Appearance › Suggestions keeps the areas and links to the kinds' }],
+  points: [{ text: 'Suggestions by kind: under «Hidden and switched off»', href: '#/me/ruhig/aus', go: 'f.suggestoff' }],
+  small: [{ box: 'nicer', text: 'Appearance › Suggestions keeps the areas and links to the kinds', go: 'f.suggestoff' }],
   test: ['Open Ich › Darstellung › Vorschläge: only the areas are there, plus a link «Ich › Ruhig und persönlich › Ausgeblendet und aus».', 'Tap the link: «Vorschläge nach Art» shows Kaufideen, Leistungstipps, Ideen für freie Zeit and passende Werkzeuge.'],
   since: [],
   de: {

@@ -1,7 +1,7 @@
 // v0.119.0 «Schnellstart» (mockups Q1–Q3, Noah 13.10.2026 00:05 «Q1–Q3 freigegeben», answers «1-5a»):
 // Q1  Today's suggestion has the button «Schnellstart» (it replaces «Tagestour starten»).
 // Q2a One click makes a trip for today, 2.5 h, on the suggested bike, with the standard items only and
-//     the weather of the home forecast; it is called by the time stamp YYYYMMDDHHmm. Noah stays on
+//     the weather of the home forecast; it is called «Ausfahrt Mi 28. Okt.» (until 28.10.2026 the time stamp). Noah stays on
 //     Today; a green card says «Tour geplant: …» with «Öffnen» and «Rückgängig» (deletes the trip).
 // Q3  A trip name field marks its whole name when it gets the focus (Tab, click, tap); a second click
 //     into the field places the caret.
@@ -12,7 +12,9 @@ import { mkdirSync } from 'node:fs';
 import { D0, openHome } from './home0460-fixture.js';
 import { settle } from './settle.js';
 
-const STAMP = `${D0.replaceAll('-', '')}0900`; // 09:00 on D0, local time
+// the trip's name «Ausfahrt Mi 28. Okt.» on D0 (Auffälligkeiten 28.10.2026, Noah «2a»; the time stamp before)
+const D0AT = new Date(`${D0}T09:00`);
+const STAMP = `Ausfahrt ${D0AT.toLocaleDateString('de-CH', { weekday: 'short' }).replace(/\.$/, '')} ${D0AT.toLocaleDateString('de-CH', { day: 'numeric', month: 'short' })}`;
 /** A text with one unknown part (§) as a pattern. */
 const pattern = (text) => new RegExp(text.split('§').map((x) => x.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('.+'));
 

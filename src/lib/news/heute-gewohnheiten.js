@@ -4,10 +4,10 @@ export default {
   title: 'Your habits on top of Today',
   lead: 'Not only meditation.',
   points: [
-    { text: 'The pencil on the card on top of Today chooses up to three habits: activities of Aktiv or items of «What does me good»' },
-    { text: 'Each shows your last 7 days and ticks with one tap; meditation still starts its session' },
+    { text: 'The pencil on the card on top of Today chooses up to three habits: activities of Aktiv or items of «What does me good»', go: { href: '#/', where: 'Shows on top of Today once you choose habits.' } },
+    { text: 'Each shows your last 7 days and ticks with one tap; meditation still starts its session', go: { href: '#/', where: 'Shows on top of Today once you choose habits.' } },
   ],
-  small: [{ box: 'nicer', text: 'Move them with arrows or drag, also under «Customise the start page»; every change can be undone' }],
+  small: [{ box: 'nicer', text: 'Move them with arrows or drag, also under «Customise the start page»; every change can be undone', go: { href: '#/', where: 'Shows on top of Today once you choose habits.' } }],
   test: [
     'Open Today and tap the pencil on the meditation card: the window «Which habits on top of Today?» opens.',
     'Add an activity (e.g. stretching) and an item of «What does me good», then «Done»: Today shows three cards; tap «Tick off» on the new one.',

@@ -43,6 +43,8 @@ export default {
   // P3 Aktiv: a failed card is one quiet line
   "Ozone and pollen not reachable just now.": "Ozon und Pollen gerade nicht erreichbar.",
   "Try again|load": "Nochmals",
+  "Still not reachable. Try again later.": "Immer noch nicht erreichbar. Versuch es später nochmals.",
+  "The map picture is not loading right now. Your lines and places are still here.": "Das Kartenbild lädt gerade nicht. Deine Linien und Orte sind trotzdem da.",
 
   // P2 Touren: the short review
 

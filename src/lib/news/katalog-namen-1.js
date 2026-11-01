@@ -2,8 +2,8 @@
 export default {
   title: 'Catalogue names as on the page',
   lead: 'Four entries in «What the app can do» now carry the name you see on the page.',
-  points: [{ text: '«My sports», «All tips», «New note» and «Debrief» are named as on their page', href: '#/features' }],
-  small: [{ box: 'nicer', text: 'Catalogue and page now use the same words' }],
+  points: [{ text: '«My sports», «All tips», «New note» and «Debrief» are named as on their page', href: '#/features', go: null }],
+  small: [{ box: 'nicer', text: 'Catalogue and page now use the same words', go: null }],
   test: ['Open «What the app can do» and search «All tips».', 'Tap the entry: it opens Velos › Pflege; further down, the box «Good to know» has «All tips ›».'],
   since: [],
   de: {

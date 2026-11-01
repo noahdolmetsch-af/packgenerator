@@ -4,10 +4,10 @@ export default {
   title: 'Your own areas on Today',
   lead: 'Move, rename, hide.',
   points: [
-    { text: 'Customise the start page: move the areas of Today with the arrows or drag' },
-    { text: 'Give an area your own name or hide it; its tiles go to «Without area» or to another area' },
+    { text: 'Customise the start page: move the areas of Today with the arrows or drag', go: { href: '#/', steps: [{ sel: '[data-home-sec]' }] } },
+    { text: 'Give an area your own name or hide it; its tiles go to «Without area» or to another area', go: { href: '#/', steps: [{ sel: '[data-home-sec]' }] } },
   ],
-  small: [{ box: 'nicer', text: 'Every change can be undone, a hidden area comes back with «Show again»' }],
+  small: [{ box: 'nicer', text: 'Every change can be undone, a hidden area comes back with «Show again»', go: null }],
   test: [
     'Open Today, at the bottom «Customise the start page»: under «Areas of Today» move «Your body» up with the arrow.',
     'Tap the pencil at «Now», type a name, then tap the eye at «Your week» and «Hide»: Today shows the new order and name, the tiles of the week under «Without area».',

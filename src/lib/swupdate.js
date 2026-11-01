@@ -14,6 +14,7 @@
 import { warnIfBehind } from './behind.js';
 import { held as heldNow } from './holdreload.js';
 import { autoFresh, AFTER } from './autofresh.js';
+import { cleanFreshMarker } from './freshreload.js';
 
 const HOUR = 60 * 60 * 1000;
 
@@ -28,6 +29,7 @@ const typing = (d) => {
  * Returns { check, reloadPending } for the tests.
  */
 export function watchUpdates(w = globalThis, { every = HOUR, behind = warnIfBehind, held = heldNow, fresh = autoFresh } = {}) {
+  cleanFreshMarker(w);
   const sw = w.navigator?.serviceWorker;
   if (!sw) return null;
   const d = w.document;

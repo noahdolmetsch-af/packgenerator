@@ -4,11 +4,11 @@ export default {
   title: 'What counts today, day by day',
   lead: 'Every row of «What counts today» shows its last 7 days and opens them with a tap.',
   points: [
-    { text: 'Each row has a small line of the last 7 days', href: '#/flow/form' },
-    { text: 'Tap a row: 7 or 30 days, your normal, the points and why' },
-    { text: 'Compare with a second value, each with its own axis' },
+    { text: 'Each row has a small line of the last 7 days', href: '#/flow/form', go: 'f.form' },
+    { text: 'Tap a row: 7 or 30 days, your normal, the points and why', go: 'f.form' },
+    { text: 'Compare with a second value, each with its own axis', go: 'f.form' },
   ],
-  small: [{ box: 'nicer', text: 'With 7 days the number stands at every point; «As table» lists value, normal and points' }],
+  small: [{ box: 'nicer', text: 'With 7 days the number stands at every point; «As table» lists value, normal and points', go: 'f.form' }],
   test: [
     'Open Auswerten › Form und Erholung: each row of «Was heute zählt» has a small line of 7 days.',
     'Tap «Ruhepuls»: a window shows 7 days with a number at each point, your normal as a dashed line and why it gives points.',

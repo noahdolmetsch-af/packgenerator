@@ -26,6 +26,8 @@ export const PARTS = [
   { key: 'einkauf', icon: 'cart', title: 'Shopping list', sub: 'Everyday shopping with groups; recipes add to it' },
   { key: 'abos', icon: 'file', title: 'Contracts and subscriptions', sub: 'What runs, what it costs, when to cancel' },
   { key: 'menschen', icon: 'people', title: 'Not seen for a while', sub: 'A quiet reminder for people you choose' },
+  // «Kochen» (Noah 28.10.2026 «1b 2a 3a 4a 5a»): very simple recipes, step by step
+  { key: 'kochen', icon: 'cook', title: 'Cooking', sub: 'Very simple recipes with all steps' },
 ];
 /** The part of an address: «#/me/alltag/abos» → 'abos'; the overview → ''. */
 export function alltagPart(hash) {

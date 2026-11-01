@@ -7,16 +7,19 @@
    * - The QR code holds plain text: any phone camera shows it, without an app or the internet.
    * - «Save the lock-screen image»: a PNG for the phone's lock screen (share sheet on a phone, a
    *   download on a computer), with a short how-to.
+   * - #1158 «Print a wallet card» (Noah 28.10.2026 «a) bauen»): a card in credit-card size (85.6 × 54 mm) with
+   *   the lines and the QR code, printed by the browser; cut it out for the wallet, for when the phone is
+   *   empty or broken. Only the card is printed (body.print-wallet hides the rest).
    */
   import { liveQuery } from 'dexie';
-  import { ChevronLeft, FileUp, Download, Eraser } from '@lucide/svelte';
+  import { ChevronLeft, FileUp, Download, Eraser, Printer } from '@lucide/svelte';
   import { db } from '../../lib/db.js';
   import Form from '../../lib/ui/Form.svelte';
   import Field from '../../lib/ui/Field.svelte';
   import { askDelete, deleteWithUndo } from '../../lib/ui/ask.js';
   import { offerDone } from '../../lib/ui/rename.svelte.js';
   import { qrMatrix, modulesPath } from '../../lib/pay/qrmatrix.js';
-  import { CARD_KEY, CARD_FIELDS, cleanCard, hasCard, cardText, parseVcf } from '../../lib/mountain/sos.js';
+  import { CARD_KEY, CARD_FIELDS, cleanCard, hasCard, cardText, parseVcf, walletLines } from '../../lib/mountain/sos.js';
   import { t } from '../../lib/i18n.svelte.js';
 
   const cardQ = liveQuery(async () => (await db.settings.get(CARD_KEY)) ?? null);
@@ -84,6 +87,25 @@
     });
   }
 
+  // #1158: the wallet card; the browser prints only it (body.print-wallet), then the class goes again
+  const wallet = $derived(walletLines(saved, (k) => t(k)));
+  let walletEl = $state(null);
+  function printCard() {
+    if (!walletEl) return;
+    // a copy straight under <body>, so the page around it prints no empty sheets
+    const copy = walletEl.cloneNode(true);
+    copy.classList.add('wallet-print');
+    document.body.append(copy);
+    document.body.classList.add('print-wallet');
+    const done = () => {
+      document.body.classList.remove('print-wallet');
+      copy.remove();
+      window.removeEventListener('afterprint', done);
+    };
+    window.addEventListener('afterprint', done);
+    window.print();
+  }
+
   async function image() {
     busy = true;
     imgMsg = '';
@@ -147,6 +169,8 @@
           <pre class="txt" data-qr-text>{text}</pre>
           <button type="button" class="btn hi" onclick={image} disabled={busy} data-image><Download size={18} aria-hidden="true" />{busy ? t('Making the image…') : t('Save the lock-screen image')}</button>
           {#if imgMsg}<p class="sk-quiet" role="status">{imgMsg}</p>{/if}
+          <button type="button" class="btn" onclick={printCard} data-print-card><Printer size={18} aria-hidden="true" />{t('Print a wallet card')}</button>
+          <p class="sk-quiet">{t('A card in credit-card size with these lines and the code. Cut it out and keep it in your wallet, for when the phone is empty or broken.')}</p>
           <details class="how">
             <summary>{t('How to put it on the lock screen')}</summary>
             <ol>
@@ -161,6 +185,17 @@
       </section>
     </div>
   </div>
+
+  {#if code}
+    <!-- #1158: the wallet card, shown only when printing (85.6 × 54 mm, black on white) -->
+    <div class="wallet" aria-hidden="true" bind:this={walletEl} data-wallet-card>
+      <div class="w-text">
+        <b class="w-title">{title}</b>
+        {#each wallet as l (l.key)}<span class="w-line"><span class="w-lbl">{l.label}:</span> {l.value}</span>{/each}
+      </div>
+      <svg class="w-qr" viewBox="0 0 {code.n} {code.n}" shape-rendering="crispEdges"><rect width={code.n} height={code.n} fill="white" /><path d={code.d} fill="black" /></svg>
+    </div>
+  {/if}
 </div>
 
 <style>
@@ -206,6 +241,56 @@
   .how summary {
     cursor: pointer;
     min-height: 44px;
+  }
+  .wallet {
+    display: none;
+  }
+  /* #1158: when printing the wallet card, only its copy under <body> is shown */
+  @media print {
+    :global(body.print-wallet > :not(.wallet-print)) {
+      display: none !important;
+    }
+    :global(.wallet-print) {
+      display: grid !important;
+      grid-template-columns: minmax(0, 1fr) 24mm;
+      gap: 2mm;
+      align-items: center;
+      box-sizing: border-box;
+      width: 85.6mm;
+      height: 54mm;
+      margin: 10mm;
+      padding: 3mm;
+      border: 0.3mm dashed var(--print-ink);
+      border-radius: 3mm;
+      background: var(--print-paper);
+      color: var(--print-ink);
+      font-family: var(--font-body);
+      font-size: var(--fs-print);
+      line-height: 1.25;
+      overflow: hidden;
+      break-inside: avoid;
+    }
+  }
+  :global(.wallet-print .w-text) {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4mm;
+    min-width: 0;
+    overflow: hidden;
+  }
+  :global(.wallet-print .w-title) {
+    font-size: var(--fs-print-title);
+    margin-bottom: 0.8mm;
+  }
+  :global(.wallet-print .w-line) {
+    overflow-wrap: break-word;
+  }
+  :global(.wallet-print .w-lbl) {
+    font-weight: 600;
+  }
+  :global(.wallet-print .w-qr) {
+    width: 24mm;
+    height: 24mm;
   }
   .how ol {
     margin: 6px 0 0;

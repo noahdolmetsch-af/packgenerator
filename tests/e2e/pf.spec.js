@@ -1026,11 +1026,14 @@ test('PF16: ride and debrief note, GPX and weather, print/PDF, photo, share link
   // shows them (the export itself ends the backup reminder, so one more tip shows).
   const tipsOf = (rows) => rows.find((r) => r.key === 'tips')?.value ?? null;
   const exported = JSON.parse(readFileSync(file, 'utf8'));
+  // «Zuletzt geöffnet» of the Quick Links (setting quickLinks.used.*) notes every page opened, and this test opens
+  // Daten und Backup after the snapshot: it is a visit log like the tips memory, not a record that must come back
+  const volatile = (r) => r.key !== 'tips' && !String(r.key).startsWith('quickLinks.used');
   await rec.check('backup: every record comes back the same (items, trips, debriefs, notes, photos, bikes, bags, learnings, settings)', async () => {
     for (const name of Object.keys(snapshot)) {
       const now = await table(page, name);
       if (name !== 'settings') expect(now, name).toEqual(snapshot[name]);
-      else expect(now.filter((r) => r.key !== 'tips'), name).toEqual(snapshot[name].filter((r) => r.key !== 'tips'));
+      else expect(now.filter(volatile), name).toEqual(snapshot[name].filter(volatile));
     }
     // v0.45.1 (G015a): the tips memory is no longer in the file; the device keeps its own over "Replace all data"
     expect(tipsOf(exported.tables.settings)).toBeNull();
@@ -1223,6 +1226,11 @@ test('Scenario 4: gear care: log km, the due chain on Today and in Bike care, a 
   await rec.select(km.locator('select').first(), BIKE.spark);
   await rec.fill(km.getByLabel(T('km on the counter')), '5100');
   await rec.click(km.getByRole('button', { name: T('Save km') }));
+  // Velo-Idee 72 (changed on purpose): 100 km more than the ledger knows → the app asks where they come from
+  const gap = page.getByTestId('km-gap');
+  await expect(gap).toBeVisible();
+  await rec.click(gap.locator('[data-km-gap="reading"]'));
+  await rec.click(gap.locator('[data-km-gap-ok]'));
   await rec.check('km saved for the Spark', async () => expect.poll(async () => (await table(page, 'bikes')).find((b) => b.id === BIKE.spark).km, { timeout: 3000 }).toBe(5100));
   await expect(km).toBeHidden();
   const line = (await tile(page, 'bikes')).locator('li').filter({ hasText: bikeName }).first();

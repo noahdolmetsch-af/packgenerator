@@ -47,6 +47,75 @@ export const dayEnd = (day) => `${addDays(day, 1)}T00:00:00${zurichOffset(addDay
 const text = (v, max) => String(v ?? '').replace(/\s+/g, ' ').trim().slice(0, max);
 const note = (v, max = 2000) => String(v ?? '').replace(/\r/g, '').trim().slice(0, max);
 
+/** A description from Google as plain text: Google keeps it as small HTML (<br>, <b>, links). */
+export function plainNote(v, max = NOTE_MAX) {
+  const s = String(v ?? '')
+    .replace(/<br\s*\/?>|<\/(p|div|li)>/gi, '\n')
+    .replace(/<[^>]+>/g, '')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&amp;/g, '&');
+  return note(s.replace(/\n{3,}/g, '\n\n'), max);
+}
+
+/** The longest description the app keeps and sends. */
+export const NOTE_MAX = 4000;
+/** A reminder is at most four weeks before (Google's own limit), at most five per appointment. */
+export const MAX_REMIND_MIN = 40320;
+export const MAX_REMIND = 5;
+export const VISIBILITIES = ['default', 'public', 'private'];
+/** Is this a time zone name the server knows (e.g. «Europe/Zurich»)? */
+export function goodZone(v) {
+  if (typeof v !== 'string' || !/^[A-Za-z_]+(\/[A-Za-z0-9_+-]+){0,2}$|^UTC$/.test(v)) return false;
+  try {
+    new Intl.DateTimeFormat('en', { timeZone: v });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/** Google's reminders → null (Google's standard ones) or [{ minutes, method: 'popup' | 'email' }]. */
+export function remindOf(r) {
+  if (!r || r.useDefault) return null;
+  return (r.overrides ?? []).filter((o) => Number.isFinite(o?.minutes) && (o.method === 'popup' || o.method === 'email')).map((o) => ({ minutes: o.minutes, method: o.method })).slice(0, MAX_REMIND);
+}
+
+/** Google's event colours 1–11 («colorId»); the app shows them on its own palette (src/lib/agenda.js). */
+export const COLOR_IDS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11'];
+const WEEKDAYS = ['MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU'];
+const FREQS = { daily: 'DAILY', weekly: 'WEEKLY', monthly: 'MONTHLY', yearly: 'YEARLY' };
+/**
+ * The repeat the app sends { freq: 'daily'|'weekly'|'monthly'|'yearly', every?: 1–99, days?: ['MO'…],
+ * until?: 'YYYY-MM-DD' | count?: 1–999 } → Google's recurrence list. Null (no repeat) → null. Throws 'repeat'.
+ */
+export function recurrenceOf(r, timed = false) {
+  if (r == null || r === false) return null;
+  const f = FREQS[r.freq];
+  if (!f) throw new Error('repeat');
+  const parts = [`FREQ=${f}`];
+  const every = r.every == null ? 1 : Math.round(Number(r.every));
+  if (!Number.isFinite(every) || every < 1 || every > 99) throw new Error('repeat');
+  if (every > 1) parts.push(`INTERVAL=${every}`);
+  if (r.days != null) {
+    if (!Array.isArray(r.days) || r.days.some((d) => !WEEKDAYS.includes(d))) throw new Error('repeat');
+    if (r.days.length && f === 'WEEKLY') parts.push(`BYDAY=${WEEKDAYS.filter((d) => r.days.includes(d)).join(',')}`);
+  }
+  if (r.until != null && r.until !== '') {
+    if (!isDay(r.until)) throw new Error('repeat');
+    // a timed appointment needs a moment in UTC: the end of that day in Zurich
+    parts.push(`UNTIL=${timed ? new Date(Date.parse(`${r.until}T23:59:59${zurichOffset(r.until, '12:00')}`)).toISOString().replace(/[-:]|\.\d{3}/g, '') : r.until.replace(/-/g, '')}`);
+  } else if (r.count != null) {
+    const n = Math.round(Number(r.count));
+    if (!Number.isFinite(n) || n < 1 || n > 999) throw new Error('repeat');
+    parts.push(`COUNT=${n}`);
+  }
+  return [`RRULE:${parts.join(';')}`];
+}
+
 /** One Google event → { id, cal, title, where, note, allDay, day, lastDay, start, end, link, busy, updated }. */
 export function eventRow(e, cal) {
   if (!e?.id || e.status === 'cancelled') return null;
@@ -63,7 +132,7 @@ export function eventRow(e, cal) {
     cal,
     title: text(e.summary, 200) || '(ohne Titel)',
     where: text(e.location, 200),
-    note: note(e.description, 1000),
+    note: plainNote(e.description),
     allDay,
     day,
     lastDay: lastDay < day ? day : lastDay,
@@ -71,6 +140,11 @@ export function eventRow(e, cal) {
     end: end ?? start,
     link: typeof e.htmlLink === 'string' ? e.htmlLink : null,
     busy: e.transparency !== 'transparent',
+    visibility: VISIBILITIES.includes(e.visibility) ? e.visibility : 'default',
+    remind: remindOf(e.reminders),
+    tz: allDay ? '' : goodZone(e.start?.timeZone) ? e.start.timeZone : '',
+    repeat: !!e.recurringEventId || (Array.isArray(e.recurrence) && e.recurrence.length > 0),
+    color: COLOR_IDS.includes(e.colorId) ? e.colorId : '',
     updated: e.updated ?? null,
   };
 }
@@ -83,7 +157,32 @@ export function eventBody(v) {
   if (!isDay(day)) throw new Error('day');
   const body = { summary: title };
   if (v.where != null) body.location = text(v.where, 200);
-  if (v.note != null) body.description = note(v.note, 1000);
+  if (v.note != null) body.description = note(v.note, NOTE_MAX);
+  if (v.busy != null) body.transparency = v.busy === false ? 'transparent' : 'opaque';
+  if (v.visibility != null) {
+    if (!VISIBILITIES.includes(v.visibility)) throw new Error('visibility');
+    body.visibility = v.visibility;
+  }
+  // reminders: null = Google's standard ones, a list (maybe empty) = exactly these
+  if (v.remind === null) body.reminders = { useDefault: true };
+  else if (v.remind !== undefined) {
+    if (!Array.isArray(v.remind)) throw new Error('remind');
+    const list = v.remind.slice(0, MAX_REMIND).map((r) => ({ method: r?.method === 'email' ? 'email' : 'popup', minutes: Math.round(Number(r?.minutes ?? r)) }));
+    if (list.some((r) => !Number.isFinite(r.minutes) || r.minutes < 0 || r.minutes > MAX_REMIND_MIN)) throw new Error('remind');
+    body.reminders = { useDefault: false, overrides: list };
+  }
+  // colour: '' or null = the calendar's own colour
+  if (v.color !== undefined) {
+    if (v.color !== null && v.color !== '' && !COLOR_IDS.includes(String(v.color))) throw new Error('color');
+    body.colorId = v.color ? String(v.color) : null;
+  }
+  // repeat: only for a new appointment (a change to a repeated one counts for that one)
+  if (v.repeat != null) {
+    const rec = recurrenceOf(v.repeat, !(v.allDay !== false || !/^\d{2}:\d{2}$/.test(v.from ?? '')));
+    if (rec) body.recurrence = rec;
+  }
+  if (v.tz != null && v.tz !== '' && !goodZone(v.tz)) throw new Error('tz');
+  const zone = v.tz || TZ;
   const time = /^\d{2}:\d{2}$/;
   if (v.allDay !== false || !time.test(v.from ?? '')) {
     const last = isDay(v.lastDay) && v.lastDay >= day ? v.lastDay : day;
@@ -91,8 +190,8 @@ export function eventBody(v) {
     body.end = { date: addDays(last, 1) };
   } else {
     const to = time.test(v.to ?? '') && v.to > v.from ? v.to : `${String(Math.min(23, Number(v.from.slice(0, 2)) + 1)).padStart(2, '0')}${v.from.slice(2)}`;
-    body.start = { dateTime: `${day}T${v.from}:00`, timeZone: TZ };
-    body.end = { dateTime: `${day}T${to === v.from ? '23:59' : to}:00`, timeZone: TZ };
+    body.start = { dateTime: `${day}T${v.from}:00`, timeZone: zone };
+    body.end = { dateTime: `${day}T${to === v.from ? '23:59' : to}:00`, timeZone: zone };
   }
   return body;
 }

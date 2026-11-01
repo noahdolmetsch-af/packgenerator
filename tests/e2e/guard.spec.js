@@ -123,6 +123,8 @@ const ROUTES = [
   ['#/ski/after', 'Nach der Tour'],
   // P3b «Daten sicher» (D3): Ich › Dokumente, strict like its file
   ['#/me/docs', 'Dokumente'],
+  // «Quick Links» (Noah 28.10.2026): the new place
+  ['#/quick', 'Quick Links'],
 ];
 const FAIL_RULES = ['hscroll', 'wordbreak', 'target', 'h1'];
 const REPORT_RULES = ['primary'];
@@ -241,12 +243,12 @@ async function settle(page, phone) {
 }
 
 const widthsOf = (project) => (project === 'phone' ? [320, 390] : [1440]);
-// four groups per device so the routes run side by side
-const GROUPS = 4;
+// eight groups per device (the phone runs two widths per route), so each stays well under the timeout
+const GROUPS = 8;
 for (let g = 0; g < GROUPS; g++) {
   const routes = ROUTES.filter((_, i) => i % GROUPS === g);
   test(`guard layout group ${g + 1}`, async ({ page, context }, info) => {
-    test.setTimeout(120_000);
+    test.setTimeout(150_000);
     const phone = info.project.name === 'phone';
     page.on('dialog', (d) => d.dismiss());
     await openHome(page, context, info);

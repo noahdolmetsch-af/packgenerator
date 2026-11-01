@@ -99,7 +99,6 @@ export const NOTE_TPL_KEY = 'noteTemplates';
 export const STD_TEMPLATES = [
   { key: 'shopping', name: 'Shopping list|tpl', text: 'Shopping\n- \n- \n- ' },
   { key: 'diary', name: 'Diary|tpl', text: 'Today\nWhat was good:\nWhat I learned:\nTomorrow:' },
-  { key: 'ideas', name: 'Ideas|tpl', text: 'Idea\nWhat:\nWhy:\nNext step:' },
   { key: 'bikecheck', name: 'Bike check|tpl', text: 'Bike check\n- [ ] Tyre pressure\n- [ ] Chain oiled\n- [ ] Brakes\n- [ ] Lights\n- [ ] Bolts' },
 ];
 

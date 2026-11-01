@@ -169,6 +169,50 @@ test('Notfall-QR: fill in, take a contact from a .vcf, the QR code shows, delete
   await expect(page.locator('[data-card="contact"]')).toHaveValue('Erika Beispiel');
 });
 
+// #1158 (Noah 28.10.2026 «a) bauen»): «Portemonnaie-Karte drucken» prints only a card in credit-card size
+test('Notfall-QR: print a wallet card in credit-card size, only the card is printed', async ({ page, context }, info) => {
+  await open(page, context, info, '#/mountain/qr');
+  await page.locator('[data-card="contact"]').fill('test_data_gtp_ Kontakt');
+  await page.locator('[data-card="phone"]').fill('+41 79 000 00 00');
+  await page.locator('[data-card="blood"]').fill('0+');
+  await page.getByRole('button', { name: T('Save card') }).click();
+  await expect(page.locator('[data-qr]')).toBeVisible();
+  // the browser's print window is replaced: it notes that it was asked and keeps the card copy
+  await page.evaluate(() => {
+    window.__printed = 0;
+    window.print = () => {
+      window.__printed++;
+      window.__copy = document.querySelector('body > .wallet-print')?.outerHTML ?? '';
+      window.dispatchEvent(new Event('afterprint'));
+    };
+  });
+  await page.locator('[data-print-card]').click();
+  expect(await page.evaluate(() => window.__printed)).toBe(1);
+  const copy = await page.evaluate(() => window.__copy);
+  expect(copy).toContain('test_data_gtp_ Kontakt');
+  expect(copy).toContain('+41 79 000 00 00');
+  expect(copy).toContain('<svg');
+  // after printing the copy is gone again
+  await expect(page.locator('body > .wallet-print')).toHaveCount(0);
+  expect(await page.evaluate(() => document.body.classList.contains('print-wallet'))).toBe(false);
+  // how the printed sheet looks: only the card, 85.6 × 54 mm
+  await page.evaluate(() => {
+    const c = document.querySelector('[data-wallet-card]').cloneNode(true);
+    c.classList.add('wallet-print');
+    document.body.append(c);
+    document.body.classList.add('print-wallet');
+  });
+  await page.emulateMedia({ media: 'print' });
+  const card = page.locator('body > .wallet-print');
+  await expect(card).toBeVisible();
+  const box = await card.boundingBox();
+  expect(Math.abs(box.width - (85.6 / 25.4) * 96)).toBeLessThan(2);
+  expect(Math.abs(box.height - (54 / 25.4) * 96)).toBeLessThan(2);
+  await expect(page.locator('h1').first()).toBeHidden();
+  await card.screenshot({ path: info.outputPath('portemonnaie-karte.png') });
+  await page.emulateMedia({ media: 'screen' });
+});
+
 test('Karte: the swisstopo map opens at the tour place, layers switch and are remembered', async ({ page, context }, info) => {
   await open(page, context, info, `#/mountain/map?trip=${NEXT}`);
   await expect(page.locator('h1')).toHaveText(T('Map with steep slopes'));

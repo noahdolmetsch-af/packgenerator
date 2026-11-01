@@ -24,7 +24,7 @@ export default defineConfig({
   // APP_VERSION_OVERRIDE: only the update test (tests/e2e/live/update.spec.js) builds an «older» app with it.
   define: { __APP_VERSION__: JSON.stringify(process.env.APP_VERSION_OVERRIDE || pkg.version), __PREVIEW__: JSON.stringify(vercel) },
   // v0.21.0: Vitest runs the unit tests only; the browser test in tests/e2e runs with `npm run e2e`.
-  test: { include: ['tests/*.test.js'] },
+  test: { include: ['tests/*.test.js'], setupFiles: ['tests/setup/de.js'] },
   // «Grösse» (19.10.2026): vh and vw stay the screen size while the app is zoomed (scripts/viewport-zoom.mjs)
   css: { postcss: { plugins: [viewportZoom()] } },
   // Kleine Apps (Noah 14.10.2026): each small app is its own page …/apps/<key>/ with its own manifest
@@ -43,7 +43,14 @@ export default defineConfig({
       output: {
         // Tempo «Seiten später laden» (19.10.2026): pages load on their first visit (App.svelte PAGES), the rest
         // is split automatically. Only the icons go into one file, else each icon would be its own small file.
-        codeSplitting: { groups: [{ name: 'icons', test: /node_modules[\\/]@lucide/ }] },
+        codeSplitting: { groups: [{ name: 'icons', test: /node_modules[\\/]@lucide/ },
+          // Kern verkleinern (30.10.2026): the German texts load as four files of about 0.7 MB (by first letter of the part's file),
+          // only when the app is German (i18n.svelte.js loadDe). Not by maxSize: that split made the chunks depend on each other
+          // and a text file could be missing when index.js merged them. vo2heute sits with its importer heuteruhiger; index.js and auto.gen.js (the merge) stay out, else the chunks import each other and a part can be missing.
+          { name: 'de-texts-1', includeDependenciesRecursively: false, test: /src[\\/]lib[\\/]i18n[\\/]de[\\/](?!auto\.gen\.)[a-g][^\\/]*\.js$/ },
+          { name: 'de-texts-2', includeDependenciesRecursively: false, test: /src[\\/]lib[\\/]i18n[\\/]de[\\/](?!index\.)(?:[h-o][^\\/]*|vo2heute)\.js$/ },
+          { name: 'de-texts-3', includeDependenciesRecursively: false, test: /src[\\/]lib[\\/]i18n[\\/]de[\\/][p-s][^\\/]*\.js$/ },
+          { name: 'de-texts-4', includeDependenciesRecursively: false, test: /src[\\/]lib[\\/]i18n[\\/]de[\\/](?!vo2heute\.)[t-z][^\\/]*\.js$/ }] },
       },
     },
   },

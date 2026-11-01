@@ -1,7 +1,7 @@
 // Package G #156/#191/#202: Strava ticks Aktiv activities by itself; indoor rides count for a chosen bike.
 // Fictional activities only.
 import 'fake-indexeddb/auto';
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { createDb } from '../src/lib/db.js';
 import { seedActs } from '../src/lib/flow.js';
 import { planTicks, prefsOf, defaultAct, sportKey, seenSports, applyTicks, answer, setSport, TICKS_KEY, OPEN_KEY, HANDLED_KEY } from '../src/lib/stravaticks.js';
@@ -63,7 +63,8 @@ describe('in the database', () => {
     // a new act for ski touring, chosen in the table: the older activity is ticked now
     await db.flowActs.put({ id: 'act-st', name: 'Skitour', icon: 'heart', ring: 'move', goals: [], order: 30 });
     await db.settings.put({ key: TICKS_KEY, value: { mode: 'suggest' } });
-    await setSport('BackcountrySki', 'act-st', db);
+    vi.useFakeTimers({ toFake: ['Date'], now }); // setSport uses the real clock; keep «today» at the test day
+    try { await setSport('BackcountrySki', 'act-st', db); } finally { vi.useRealTimers(); }
     const open = (await db.settings.get(OPEN_KEY)).value;
     expect(open.map((o) => o.id)).toEqual(['2']);
     const e = await answer('2', true, db);

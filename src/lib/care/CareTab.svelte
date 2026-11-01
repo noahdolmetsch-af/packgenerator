@@ -1,4 +1,5 @@
 <script>
+  import { activeBikes } from '../bikeretire.js';
   import { backClose } from '../ui/backclose.js'; // Regeln der App (14.10.2026): back closes this window first
   import AreaIntro from '../intro/AreaIntro.svelte'; // «Einstieg» on top (Noah «4a»)
   import { offerCare } from '../remind/ask.svelte.js';
@@ -33,6 +34,7 @@
   import { partStart } from '../kmbook.js';
   import { setSpec } from '../bikespecs.js';
   import { setReading, addHand } from '../kmbookdb.js';
+  import { saveReadingAsked } from './kmgapask.js'; // Velo-Idee 72
   import { nextNumber } from '../notes.js';
   import { isMore, partName as nameOfPart } from '../care.js';
   import Fold from '../ui/Fold.svelte';
@@ -63,7 +65,7 @@
   const kmQ = liveQuery(() => db.kmBook.toArray()); // v0.68.0 «Q1 Jeder km zählt»: the ride ledger
 
   // What is stored (writes go here) and what is shown: the stored parts plus the jobs of the workshop visits.
-  const bikes = $derived(sortBikes($bikesQ ?? []).map((b) => ({ ...b, parts: ensureParts(b) })));
+  const bikes = $derived(sortBikes(activeBikes($bikesQ ?? [])).map((b) => ({ ...b, parts: ensureParts(b) })));
   const bikeById = $derived(Object.fromEntries(bikes.map((b) => [b.id, b])));
   const visits = $derived($visitsQ ?? []);
   const views = $derived(bikes.map((b) => withVisits(b, visits)));
@@ -306,7 +308,12 @@
       kmMsg = { bikeId: bike.id, text: t('Type the km as a whole number, e.g. 12400.'), error: true };
       return null;
     }
-    await setReading(db, bike.id, n, { date: today }); // v0.68.0: an entry in the ride ledger
+    // v0.68.0: an entry in the ride ledger; Velo-Idee 72: a jump asks first (rides outside the app?)
+    const how = await saveReadingAsked(db, bike, n, { date: today });
+    if (how === 'again') {
+      kmMsg = { bikeId: bike.id, text: t('Nothing saved. Type the km again.'), error: true };
+      return null;
+    }
     kmMsg = { bikeId: bike.id, text: t('{km} km saved.', { km: num(n) }), error: false };
     return n;
   }

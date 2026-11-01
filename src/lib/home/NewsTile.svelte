@@ -12,16 +12,19 @@
   import { Sparkles, ChevronRight } from '@lucide/svelte';
   import { WHATS_NEW, shortVersion } from '../whatsnew.js';
   import { NEWS_HREF } from '../know/wasneu.js';
-  import { openData } from '../nav.js';
   import { t, tn } from '../i18n.svelte.js';
 
   let { size = 'w', days = 0, onremove = null } = $props();
   const e = WHATS_NEW[0];
-  const first = e.points.find((p) => p.href || p.action) ?? null;
-  function tryIt(ev) {
-    if (first?.action !== 'data') return;
+  // «Ausprobieren» (Noah 27.10.2026 «1a»): the line with the exact place (know/newsgo.js tryOf); the jump and the
+  // catalogue load on the tap only, so Today stays light
+  const first = e.points.find((p) => p.go?.href || p.href) ?? null;
+  async function tryIt(ev) {
     ev.preventDefault();
-    openData();
+    const { goNews, tryOf } = await import('../know/newsRun.js');
+    const row = tryOf(e);
+    if (row) goNews(row.p);
+    else location.hash = NEWS_HREF;
   }
 </script>
 
@@ -38,7 +41,7 @@
       <h3 id="news-tile-h">{e.title ? t(e.title) : t('New in the app')}</h3>
       <p class="pt">{e.lead ? t(e.lead) : t(e.points[0].text)}</p>
       <div class="acts">
-        <a class="btn sm hi" href={first?.href ?? NEWS_HREF} onclick={tryIt}>{t('Try it')}<ChevronRight size={16} aria-hidden="true" /></a>
+        <a class="btn sm hi" href={first?.go?.href ?? first?.href ?? NEWS_HREF} onclick={tryIt} data-news-try>{t('Try it')}<ChevronRight size={16} aria-hidden="true" /></a>
         <a class="btn sm" href={NEWS_HREF}>{t('What is new')}</a>
         {#if onremove}<button type="button" class="btn sm" onclick={onremove}>{t('Take away|tile')}</button>{/if}
       </div>

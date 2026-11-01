@@ -7,12 +7,16 @@
    * «+ Velo» dashed, then the bike's name as the section title with its numbers below.
    * VS3 (Noah 14.10.2026 «1a»): the standard bike (first in the order) has a star; one quiet line
    * «Standard bike and order · Change» opens the order window.
+   * «Neuer Schwung» Velos (Noah 27.10.2026 «1a 2a 3a», style S2 «Kacheln mit Tiefe»): the bikes are small cards
+   * with a drawn bike, the name and «type · km»; the chosen one framed in the accent, its bike rolls in. The cards
+   * come in one after another (opacity only); nothing moves with «Reduce motion».
    */
   import { tick } from 'svelte';
-  import { Gauge, Weight, Briefcase, Pencil, Plus, Scale, Bike, Star } from '@lucide/svelte';
+  import { Gauge, Weight, Briefcase, Pencil, Plus, Scale, Star } from '@lucide/svelte';
   import { t, tn, num, locale } from '../i18n.svelte.js';
   import { formatVolume, bikeTypeName } from '../bikes.js';
   import { formatWeight } from '../gear.js';
+  import { bagWords } from './bagwords.js';
   import './standardvelo.css';
   import MoreActions from '../ui/MoreActions.svelte';
 
@@ -64,11 +68,15 @@
   {#if sub}<p class="page-sub vb-sub">{sub}</p>{/if}
   <div class="tabsrow" bind:this={row}>
     <div class="strip" bind:this={strip} role="tablist" aria-label={t('Bike')} tabindex="-1" onkeydown={keys}>
-      {#each bikes as b (b.id)}
-        <button type="button" role="tab" aria-selected={b.id === bike.id} tabindex={b.id === bike.id ? 0 : -1} title={b.name} onclick={() => onbike?.(b.id)}>{#if b.id === bike.id}<Bike size={16} aria-hidden="true" />{/if}<span class="bn">{b.name}</span>{#if b.id === bikes[0]?.id && bikes.length > 1}<Star size={13} class="sv-star" aria-hidden="true" />{/if}</button>
+      {#each bikes as b, i (b.id)}
+        <button type="button" role="tab" class="bcard" aria-selected={b.id === bike.id} tabindex={b.id === bike.id ? 0 : -1} title={b.name} style:--i={i} onclick={() => onbike?.(b.id)} data-bike-card>
+          <svg class="mini" viewBox="0 0 72 40" aria-hidden="true"><circle cx="15" cy="27" r="11" /><circle cx="57" cy="27" r="11" /><path d="M15 27 L32 27 L28 12 Z M28 12 L50 11 L57 27 M50 11 L52 6 M24 9 L33 9 M32 27 L50 11" /></svg>
+          <span class="bt"><span class="bn">{b.name}</span>{#if b.id === bikes[0]?.id && bikes.length > 1}<Star size={13} class="sv-star" aria-hidden="true" />{/if}</span>
+          <small class="bs num">{[b.type ? t(bikeTypeName(b.type)) : '', b.km != null ? `${num(b.km)} km` : ''].filter(Boolean).join(' · ') || ' '}</small>
+        </button>
       {/each}
     </div>
-    <button type="button" class="add" onclick={() => onadd?.()} aria-label={t('Add bike')} title={t('Add bike')}><Plus size={16} aria-hidden="true" /><span class="addt">{t('Bike')}</span></button>
+    <button type="button" class="add bcard" style:--i={bikes.length} onclick={() => onadd?.()} aria-label={t('Add bike')} title={t('Add bike')}><Plus size={18} aria-hidden="true" /><span class="addt">{t('Bike')}</span></button>
   </div>
   {#if onorder && bikes.length > 1}
     <p class="sv-line"><Star size={14} class="sv-star" aria-hidden="true" /><span>{t('Standard bike and order')}</span><button type="button" class="link" onclick={() => onorder()}>{t('Change')}</button></p>
@@ -83,7 +91,7 @@
     {#if kick}<span class="kick">{kick}</span>{/if}
     <span><Gauge size={15} aria-hidden="true" />{#if bike.km != null}<b>{num(bike.km)} km</b>{:else}{t('km not set')}{/if}</span>
     <span><Weight size={15} aria-hidden="true" />{#if kind === 'missing'}{t('bike not weighed')}{:else}<b>{kind === 'estimate' ? '~' : ''}{kg(bike.weightG)}</b> {kind === 'estimate' ? t('estimate') : t('measured')}{/if}</span>
-    <span><Briefcase size={15} aria-hidden="true" />{tn(setup.bagCount, '{n} bag', '{n} bags')} · {formatVolume(setup.volumeL)}{bagsG ? ` · ${bagsG}` : ''}{#if setup.unweighed}<i class="nw" title={tn(setup.unweighed, '{n} bag not weighed', '{n} bags not weighed')}><Scale size={13} aria-hidden="true" />{setup.unweighed}<span class="sr">{tn(setup.unweighed, '{n} bag not weighed', '{n} bags not weighed')}</span></i>{/if}</span>
+    <span data-bag-words><Briefcase size={15} aria-hidden="true" />{bagWords(setup.bagCount, setup.cageCount)} · {formatVolume(setup.volumeL)}{bagsG ? ` · ${bagsG}` : ''}{#if setup.unweighed}<i class="nw" title={tn(setup.unweighed, '{n} bag not weighed', '{n} bags not weighed')}><Scale size={13} aria-hidden="true" />{setup.unweighed}<span class="sr">{tn(setup.unweighed, '{n} bag not weighed', '{n} bags not weighed')}</span></i>{/if}</span>
     {#if cost}<span class="vb-cost" data-cost>{cost}</span>{/if}
     {#if link}<a class="vb-link" data-sk-link={link.kind} href={link.url} target="_blank" rel="noopener noreferrer">{link.name} ↗</a>{/if}
     {#if due}<a class="pill warn due" href={careHref}>{tn(due, 'Up now: {n} job · See', 'Up now: {n} jobs · See')}</a>{/if}
@@ -130,43 +138,92 @@
   .strip {
     display: contents;
   }
-  .tabsrow button {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    min-height: 40px;
+  .tabsrow .bcard {
+    display: inline-grid;
+    grid-template-columns: minmax(0, 1fr);
+    align-content: start;
+    justify-items: start;
+    gap: 2px;
+    width: 172px;
     max-width: 100%;
-    padding: 6px 14px;
+    min-height: 96px;
+    padding: 10px 12px;
     box-sizing: border-box;
     border: 1px solid var(--line);
-    border-radius: 999px;
+    border-radius: 14px;
     background: var(--paper);
+    box-shadow: 0 1px 2px var(--shadow), 0 4px 12px -8px var(--shadow);
     color: var(--ink);
     font: 500 var(--fs-small) / 1.25 var(--font-body);
+    text-align: left;
     cursor: pointer;
+  }
+  .mini {
+    width: 54px;
+    height: 30px;
+    margin: 0 0 4px;
+    fill: none;
+    stroke: var(--ink-3);
+    stroke-width: 2.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .bt {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    max-width: 100%;
+    font-weight: 600;
   }
   .strip .bn {
     min-width: 0;
     overflow-wrap: break-word;
   }
-  .strip button[aria-selected='true'] {
-    background: var(--ink);
-    border-color: var(--ink);
-    color: var(--paper);
+  .bs {
+    max-width: 100%;
+    color: var(--ink-3);
+    font-weight: 400;
+    overflow-wrap: break-word;
+  }
+  .strip .bcard[aria-selected='true'] {
+    border-color: var(--accent);
+    box-shadow: inset 0 0 0 1px var(--accent), 0 6px 16px -10px var(--shadow);
+    background: color-mix(in srgb, var(--accent) 7%, var(--paper));
+  }
+  .strip .bcard[aria-selected='true'] .mini {
+    stroke: var(--accent);
   }
   .tabsrow .add {
+    place-content: center;
+    justify-items: center;
+    width: 96px;
     border-style: dashed;
     border-color: var(--line-strong);
+    box-shadow: none;
     color: var(--ink-2);
   }
   @media (hover: hover) {
-    .tabsrow button:not([aria-selected='true']):hover {
+    .tabsrow .bcard:not([aria-selected='true']):hover {
       background: var(--paper-2);
     }
   }
-  @media (pointer: coarse) {
-    .tabsrow button {
-      min-height: 44px;
+  @media (prefers-reduced-motion: no-preference) {
+    .tabsrow .bcard {
+      animation: vb-in 320ms ease-out calc(min(var(--i, 0), 8) * 40ms) backwards;
+    }
+    .strip .bcard[aria-selected='true'] .mini {
+      animation: vb-roll 520ms ease-out;
+    }
+  }
+  @keyframes vb-in {
+    from {
+      opacity: 0;
+    }
+  }
+  @keyframes vb-roll {
+    from {
+      translate: -10px 0;
+      opacity: 0.4;
     }
   }
   .name {
@@ -324,16 +381,20 @@
     .tabsrow::-webkit-scrollbar {
       display: none;
     }
-    .tabsrow button {
+    .tabsrow .bcard {
       flex: none;
+      width: 150px;
       max-width: 80vw;
+    }
+    .tabsrow .add {
+      width: 84px;
     }
     .strip .bn {
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
     }
-    .strip button[aria-selected='true'] {
+    .strip .bcard[aria-selected='true'] {
       order: -1;
     }
   }

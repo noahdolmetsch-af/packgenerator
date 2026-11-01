@@ -30,6 +30,7 @@
   import DreamSheet from '../lib/dreams/DreamSheet.svelte';
   import PlanSheet from '../lib/dreams/PlanSheet.svelte';
   import WhiteSpots from '../lib/neuland/WhiteSpots.svelte'; // Träume und Neuland N1
+  import NeulandGoals from '../lib/neuland/NeulandGoals.svelte'; // Träume und Neuland N5
   import { t, tn, locale } from '../lib/i18n.svelte.js';
   import { Sparkles, Flag, ChevronRight, Plus, Check, CalendarClock, Route, Pencil, Compass, Flame } from '@lucide/svelte';
   import '../lib/ich/ich.css';
@@ -195,6 +196,7 @@
   </section>
 
   <WhiteSpots />
+  <NeulandGoals />
 
   <section class="ich-sec" aria-labelledby="dr-races" data-races>
     <div class="ich-h"><div><h2 id="dr-races">{t('Races to plan')}</h2><p class="ich-hs">{t('From Inspiration and from your Google calendar («Rennen», «Race» … in the title).')}</p></div></div>

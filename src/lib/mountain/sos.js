@@ -57,6 +57,17 @@ export function cardText(card, labels = (k) => k, title = 'EMERGENCY / ICE') {
   return lines.join('\n');
 }
 
+/**
+ * #1158: the lines of the wallet card, at most 8 so they fit 85.6 × 54 mm: [{ key, label, value }].
+ * The QR code beside them holds every line anyway.
+ */
+export function walletLines(card, labels = (k) => k, max = 8) {
+  const c = cleanCard(card);
+  return CARD_FIELDS.filter((f) => c[f.key])
+    .slice(0, max)
+    .map((f) => ({ key: f.key, label: labels(f.label), value: c[f.key] }));
+}
+
 /** Phone number for a tel: link (spaces and dashes out). */
 export const telOf = (n) => `tel:${String(n ?? '').replace(/[^\d+]/g, '')}`;
 

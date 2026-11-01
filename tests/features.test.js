@@ -1,6 +1,6 @@
 // v0.96.0 «F1 Alles finden» (Noah «1-5 a», mockups A/B): the catalogue of every function by situation.
 import { describe, it, expect, afterEach } from 'vitest';
-import { FEATURES, FEATURE, FEATURE_GROUPS, PAGE_GROUPS, pageOf, catalogue, seenOf, featureHref, findFeatures } from '../src/lib/features.js';
+import { FEATURES, FEATURE, FEATURE_GROUPS, PAGE_GROUPS, MOMENT_GROUPS, pageOf, catalogue, seenOf, featureHref, findFeatures } from '../src/lib/features.js';
 import { TIPS, TIP } from '../src/lib/tips.js';
 import { t, lang } from '../src/lib/i18n.svelte.js';
 import DE from '../src/lib/i18n/de/index.js';
@@ -97,5 +97,17 @@ describe('by page (Noah «1 a und b beides umstellbar»)', () => {
 
   it('every place has a German name', () => {
     expect(PAGE_GROUPS.map((g) => g.label).filter((k) => !(k in DE))).toEqual([]);
+  });
+});
+
+describe('by moment («Heute als Begleiter» PR 6)', () => {
+  it('puts every function in exactly one of the 9 moment groups, each group named in German', () => {
+    const { groups, total } = catalogue(null, new Set(), 'moment');
+    expect(groups.map((g) => g.key)).toEqual(MOMENT_GROUPS.map((g) => g.key));
+    expect(groups).toHaveLength(9);
+    expect(groups.reduce((n, g) => n + g.items.length, 0)).toBe(total);
+    const ids = groups.flatMap((g) => g.items.map((x) => x.id));
+    expect(new Set(ids).size).toBe(total);
+    for (const g of MOMENT_GROUPS) expect(DE[g.label], g.label).toBeTruthy();
   });
 });

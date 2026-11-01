@@ -24,7 +24,7 @@
 
 <section class="vt surf" aria-labelledby="vt-h" data-section="vitals">
   <div class="hd">
-    <TileHead icon={HeartPulse} id="vt-h" title={t('Body values')} {isnew} />
+    <TileHead icon={HeartPulse} id="vt-h" title={t('Body values')} {isnew} info="tile.vitals" />
     <a class="go" href="#/flow/stats/hr" data-vitals-all>{t('All body values')}<ChevronRight size={16} aria-hidden="true" /></a>
   </div>
   {#if vit.any}

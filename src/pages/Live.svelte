@@ -25,7 +25,7 @@
    */
   import { untrack, tick } from 'svelte';
   import { liveQuery } from 'dexie';
-  import { CloudRain, Route, Play, Square, Crosshair, MapPin, Navigation, Mountain, Clock, Settings, BatteryMedium, CloudLightning, TriangleAlert, RefreshCw, Utensils, Moon, Flag, LifeBuoy, Ellipsis, ChevronLeft, ChevronRight, Minimize2, Maximize2, SlidersHorizontal, Check, X, Layers, Camera, WifiOff } from '@lucide/svelte';
+  import { CloudRain, Route, Play, Square, Crosshair, MapPin, Navigation, Mountain, Clock, Settings, BatteryMedium, CloudLightning, TriangleAlert, RefreshCw, Utensils, ChevronDown, Moon, Flag, LifeBuoy, Ellipsis, ChevronLeft, ChevronRight, Minimize2, Maximize2, SlidersHorizontal, Check, X, Layers, Camera, WifiOff } from '@lucide/svelte';
   import KindIcon from '../lib/map/KindIcon.svelte';
   import { DURING_RIDE } from '../lib/live/during.js';
   import { FEATURES } from '../lib/features.js';
@@ -48,7 +48,7 @@
   import { stretch } from '../lib/map/maplib.js';
   import { fineOf, heightAt, gradeAt } from '../lib/map/fineprofile.js';
   import { zoomFactor } from '../lib/map/zoomfactor.js';
-  import { LIVE_TILES, TILE, MAX_TILES, tilesOf, toggleTile, moveTile, tileValues, gainStep, headingOf, aheadLine, gradeLines, sheetSnaps, nearestSnap } from '../lib/live/livemap.js';
+  import { navZoom, LIVE_TILES, TILE, MAX_TILES, tilesOf, toggleTile, moveTile, tileValues, gainStep, headingOf, aheadLine, gradeLines, sheetSnaps, nearestSnap } from '../lib/live/livemap.js';
   import Crumb from '../lib/flow/kit/Crumb.svelte';
   import MapView from '../lib/map/MapView.svelte';
   import ProfileStrip from '../lib/map/ProfileStrip.svelte';
@@ -68,7 +68,7 @@
   import LiveWebcam from '../lib/live/LiveWebcam.svelte';
   import { camsQuery, camsOnMap, camOfPoint } from '../lib/wetter/webcamsmap.js';
   import { db } from '../lib/db.js';
-  import { rec, startRecording, stopRecording, openRecording, pauseRecording, resumeRecording, addSensor, setGpsLow, lapRecording, setPauseWhy, addPastPause } from '../lib/spur/recorder.svelte.js';
+  import { rec, startRecording, stopRecording, takeTooShort, openRecording, pauseRecording, resumeRecording, addSensor, setGpsLow, lapRecording, setPauseWhy, addPastPause } from '../lib/spur/recorder.svelte.js';
   import PauseBar from '../lib/live/PauseBar.svelte';
   import ForgotPause from '../lib/tourenc/ForgotPause.svelte'; // Touren c 61
   import { forgotStep, whyOf } from '../lib/tourenc/pausewhy.js'; // Touren c 60/61
@@ -116,6 +116,7 @@
   import { offerDone } from '../lib/ui/rename.svelte.js';
   import { saveFailed } from '../lib/ui/ask.js';
   import EndRideSheet from '../lib/live/EndRideSheet.svelte';
+  import TooShortSheet from '../lib/live/TooShortSheet.svelte';
   import { pointDots } from '../lib/live/event.js';
   import { t, tn, locale, num } from '../lib/i18n.svelte.js';
   import SleepList from '../lib/race/ride/SleepList.svelte';
@@ -179,6 +180,8 @@
   let now = $state(Date.now());
   let row = $state(null); // the recording row (for the pauses)
   let follow = $state(true);
+  let northUp = $state(false); // Navigation zum Ziel: true = the map stays north up
+  let driveKey = '';
   let mapView = $state();
   let ground = $state('auto');
   let shown = $state({ stops: true, own: true, radar: false });
@@ -239,11 +242,31 @@
       }
     }
     after = { ride, saved };
+    // too short to keep: a window says so clearly; «Save anyway» keeps it all the same (Noah 28.10.2026)
+    if (!ride) {
+      const s = takeTooShort();
+      tooShort = { points: s?.pts?.length ?? 0, ride: s };
+    }
     // the group ride ends with the ride: every place of it is deleted (an event group of several days goes on)
     groupEnded = await endKeptGroup(db);
     groupRows = [];
     me = null;
     row = null;
+  }
+
+  let tooShort = $state.raw(null); // { points, ride } after a ride too short to keep
+  async function tooShortAnswer(a) {
+    const s = tooShort?.ride ?? null;
+    tooShort = null;
+    if (a !== 'save' || !s?.pts?.length) return;
+    try {
+      await db.tracks.put(s);
+      const saved = await saveLiveRide(db, s, { trip, name: rideName(s) });
+      after = { ride: s, saved };
+      offerDone(t('Saved in Trips as «Live Navigation».'));
+    } catch (x) {
+      err = saveFailed(x);
+    }
   }
 
   // the recording row, again whenever a point was kept
@@ -270,7 +293,9 @@
   // Pausieren (pause.js): the riding time runs every second and stands in a pause; the whole time and the pauses
   const breaks = $derived(rec.on ? rec.breaks : (row?.breaks ?? []));
   const movingLive = $derived(rec.on ? movingNow({ movingS: pz.movingS, lastAt: rec.lastAt, now, paused: rec.paused, breaks }) : pz.movingS);
-  const totalS = $derived(rec.on ? totalNow(rec.startAt, now) : 0);
+  // the time since the start counts every second while it is on show (not with the battery saver)
+  let secNow = $state(0);
+  const totalS = $derived(rec.on ? totalNow(rec.startAt, Math.max(now, secNow)) : 0);
   const pausedLive = $derived(pausedNow(breaks, now));
   const fallbackKmh = $derived(isRace ? Number(as?.flatKmh?.value) || 20 : 18);
   const kmh = $derived(paceOf({ km: rec.km, movingS: pz.movingS }, fallbackKmh));
@@ -293,6 +318,14 @@
   const detourKm = $derived(detourPts.length && me && onDetour(detour, me) ? (snapAhead(detourPts, me, 0)?.km ?? null) : null);
   const navTurns = $derived(detourKm != null ? detourTurns : turns);
   const navKm = $derived(detourKm != null ? detourKm : cfg.turns && at && at.offM < 100 ? (at.kmx ?? at.km) : null);
+  // the way to a goal, live: what is left, when you arrive, how far along you are
+  const goalOn = $derived(detourKm != null && detourPts.length > 1 && !detour?.back);
+  const goalTotal = $derived(detourPts.at(-1)?.km ?? 0);
+  const goalLeft = $derived(goalOn ? Math.max(0, goalTotal - detourKm) : null);
+  const goalEta = $derived(goalLeft != null && kmh > 0 ? now + (goalLeft / kmh) * 36e5 : null);
+  const goalFrac = $derived(goalOn && goalTotal > 0 ? Math.min(1, Math.max(0, detourKm / goalTotal)) : 0);
+  const wayDone = $derived(goalOn ? stretch(detourPts, 0, detourKm) : []);
+  const wayLine = $derived(detour?.line?.length > 1 ? detour.line.map(([a, b]) => [a, b]) : []);
   const turnNext = $derived(navKm != null ? nextTurn(navTurns, navKm) : null);
   // the turn after it, for «danach …» under the big arrow
   const turnThen = $derived(turnNext ? nextTurn(navTurns, turnNext.km + 0.06) : null);
@@ -535,7 +568,23 @@
     if (rec.on) rideStep();
     if (!rec.on || !me) return;
     // on a data page the map is not moved (Stromsparen 2a: no drawing while you do not see it)
-    if (follow && viewSet && dpIndex === 0) mapView?.keep?.(me.lat, me.lon, padB);
+    if (follow && viewSet && dpIndex === 0) {
+      // Navigation zum Ziel: the map turns so your direction points up and zooms before a turn; «North up» stops it
+      if (goalOn && !northUp && deg != null) {
+        const z = navZoom(turnNext?.distM ?? null);
+        const key = `${Math.round(deg / 5)}|${z}|${Math.round(me.lat * 5e4)}|${Math.round(me.lon * 5e4)}`;
+        if (key !== driveKey) {
+          driveKey = key;
+          mapView?.drive?.(me.lat, me.lon, deg, z, padB);
+        }
+      } else {
+        if (driveKey) {
+          driveKey = '';
+          mapView?.north?.();
+        }
+        mapView?.keep?.(me.lat, me.lon, padB);
+      }
+    }
     // the turn ahead (Abbiege-Hinweise): its voice first, before the stops and climbs
     const ts = cfg.turns && cfg.turnVoice && turnNext ? turnSay(turnNext, turnNext.distM, said) : null;
     if (ts) {
@@ -662,6 +711,15 @@
       mapView?.fitLine?.(d.line.map(([a, b]) => [a, b]), padB);
     }
   };
+  // Noah 28.10.2026 «a Einklappen, Beenden extra»: the X only folds the box to one line (tap opens it again);
+  // «End navigation» ends it, with Undo. While the app asks something (way back) the box stays open.
+  const detourSmall = $derived(!!detour?.small && !arrived && detour.back !== 'auto');
+  const detourTitle = $derived(!detour ? '' : detour.back === 'auto' ? t('New way back onto the route') : detour.back === 'same' ? t('The same way back') : detour.back ? t('Way back onto the route') : detour.oneWay ? t('To {name}', { name: detour.target.name || t('the point') }) : t('Detour to {name}', { name: detour.target.name || t('the point') }));
+  function endDetour() {
+    const old = detour;
+    setDetour(null, false);
+    offerDone(t('Navigation ended.'), () => setDetour(old, false));
+  }
   // back on the route past the rejoin point (or at the place): the detour has done its job
   $effect(() => {
     if (detour && detourDone(detour, { km, here: me, offM: at?.offM ?? null })) untrack(() => setDetour(null));
@@ -733,7 +791,6 @@
   const autoUndo = () => ((autoHold = 'undo'), setDetour(null));
   const autoFree = () => ((autoHold = 'free'), setDetour(null));
   const takeSame = () => sameBack && setDetour(backDetour(sameBack), false);
-  const detourLine = $derived(detour ? detour.line.map(([a, b]) => [a, b]) : []);
   async function detourToGarmin() {
     const name = `${t('Detour')} ${detour.target.name || ''}`.trim();
     const r = await saveGpx(detourGpx(detour, hasRoute ? pts : [], name), name);
@@ -745,6 +802,7 @@
   });
   const recenter = () => {
     follow = true;
+    driveKey = '';
     if (me) mapView?.centerOn?.(me.lat, me.lon, 14, padB);
   };
 
@@ -789,9 +847,9 @@
   });
 
   /* the numbers on top */
-  // a ride without a route starts with km ridden, riding time and the clock
-  const chosen = $derived(cfg.tiles || hasRoute ? tilesOf(cfg.tiles) : ['done', 'moving', 'clock']);
-  const tiles = $derived(chosen.filter((k) => hasRoute || !TILE[k].route));
+  // a ride without a route starts with the distance, the time since the start and the speed (Noah 28.10.2026)
+  const chosen = $derived(cfg.tiles || hasRoute || goalOn ? tilesOf(cfg.tiles) : ['done', 'total', 'speed']);
+  const tiles = $derived(chosen.filter((k) => hasRoute || goalOn || !TILE[k].route));
   const saveTiles = (list) => setOpt('tiles', list);
   const nextTop = $derived(climb && km != null ? { distKm: Math.max(0, climb.toKm - km) } : null);
   const vals = $derived(
@@ -799,8 +857,8 @@
       now,
       km,
       ridden: rec.km,
-      left: arr?.kmLeft,
-      eta: arr?.eta,
+      left: goalOn ? goalLeft : arr?.kmLeft,
+      eta: goalOn ? goalEta : arr?.eta,
       movingS: movingLive,
       totalS,
       hr: fresh('hr', now),
@@ -878,7 +936,12 @@
     nextWp: dash,
     upToTop: climb && km != null ? vv(gainBetween(profile, km, climb.toKm)) : dash,
   });
-  const tileLabel = (k) => (k === 'done' && !hasRoute ? t('km ridden') : t(TILE[k].label));
+  const tileLabel = (k) => (goalOn && k === 'left' ? t('km to the goal') : goalOn && k === 'arrive' ? t('Arrival at the goal') : t(TILE[k].label));
+  $effect(() => {
+    if (!rec.on || cfg.battery || !tiles.includes('total')) return;
+    const timer = setInterval(() => (secNow = Date.now()), 1000);
+    return () => clearInterval(timer);
+  });
 
   /* the bottom sheet: three heights, drag the handle or tap it */
   let stageH = $state(700);
@@ -1107,6 +1170,7 @@
   {#if showRouteBox && !rec.on}
     <LiveRouteBox {trip} />
   {/if}
+  {#if tooShort}<TooShortSheet points={tooShort.points} ondone={tooShortAnswer} />{/if}
 
   {#if !rec.on && !after}
     <p class="rc-empty" data-live-empty>{t('Start the ride: then the map fills the screen and shows where you are, the numbers you choose and the stops ahead or around you.')}</p>
@@ -1139,7 +1203,7 @@
       <ul class="lvf-tiles n{tiles.length}">
         {#each tiles as k (k)}
           <li data-live-tile={k} data-live-km={k === 'done' ? '' : undefined} data-live-left={k === 'left' ? '' : undefined}>
-            <b>{vals[k].value}{#if TILE[k].unit && vals[k].value !== '–'}<small>{TILE[k].unit}</small>{/if}</b>
+            <b>{vals[k].value}{#if (vals[k].unit ?? TILE[k].unit) && vals[k].value !== '–'}<small>{vals[k].unit ?? TILE[k].unit}</small>{/if}</b>
             <span>{tileLabel(k)}</span>
           </li>
         {/each}
@@ -1159,7 +1223,8 @@
             points={allPoints}
             me={meOnMap}
             {done}
-            grades={detour ? [...grades, { line: detourLine, colour: DETOUR_COLOUR }] : grades}
+            {grades}
+            way={detour ? { line: wayLine, done: wayDone, colour: DETOUR_COLOUR } : null}
             {overlays}
             fill
             bar={false}
@@ -1192,12 +1257,20 @@
         <LiveWetter {me} />
         <LiveEssen {me} />
         <LivePlaceNote {me} tripId={trip?.id ?? null} />
-        {#if detour}
+        {#if detour && detourSmall}
+          <button type="button" class="lvf-alert lv-detour lv-detour-small" onclick={() => setDetour({ ...detour, small: false }, false)} aria-expanded="false" aria-label={t('Show the navigation')} data-live-detour data-live-detour-small data-live-detour-back={detour.back ?? null}>
+            <Route size={18} aria-hidden="true" />
+            <b>{detourTitle}</b>
+            <small>{[t('{d} km', { d: fmtKm(detour.km) }), detour.oneWay && detour.min && !detour.reached ? hhmm(detour.at + detour.min * 60000) : ''].filter(Boolean).join(' · ')}</small>
+            <ChevronDown size={18} aria-hidden="true" />
+          </button>
+        {:else if detour}
           <div class="lvf-alert lv-detour" role="status" data-live-detour data-live-detour-back={detour.back ?? null}>
             <Route size={18} aria-hidden="true" />
             <span class="lv-detour-main">
-              <b>{detour.back === 'auto' ? t('New way back onto the route') : detour.back === 'same' ? t('The same way back') : detour.back ? t('Way back onto the route') : detour.oneWay ? t('To {name}', { name: detour.target.name || t('the point') }) : t('Detour to {name}', { name: detour.target.name || t('the point') })}</b>
-              <small>{[t('{d} km', { d: fmtKm(detour.km) }), detour.gainM ? `${num(detour.gainM)} m ↑` : '', detour.min ? t('about {min} min', { min: num(detour.min) }) : '', detour.oneWay && detour.min && !detour.reached ? t('there about {at}', { at: hhmm(detour.at + detour.min * 60000) }) : '', detour.rejoin ? t('back on the route at km {km}', { km: num(Math.round(detour.rejoin.km)) }) : '', detour.extraKm != null && detour.extraKm > 0 ? t('{d} km more', { d: fmtKm(detour.extraKm) }) : '', detour.skippedKm > 0 ? t('{d} km of the route left out', { d: fmtKm(detour.skippedKm) }) : ''].filter(Boolean).join(' · ')}</small>
+              <b>{detourTitle}</b>
+              <small>{[goalOn ? t('{d} km to go', { d: fmtKm(goalLeft) }) : t('{d} km', { d: fmtKm(detour.km) }), detour.gainM ? `${num(detour.gainM)} m ↑` : '', detour.min ? t('about {min} min', { min: num(detour.min) }) : '', detour.oneWay && detour.min && !detour.reached ? t('there about {at}', { at: hhmm(goalEta ?? detour.at + detour.min * 60000) }) : '', detour.rejoin ? t('back on the route at km {km}', { km: num(Math.round(detour.rejoin.km)) }) : '', detour.extraKm != null && detour.extraKm > 0 ? t('{d} km more', { d: fmtKm(detour.extraKm) }) : '', detour.skippedKm > 0 ? t('{d} km of the route left out', { d: fmtKm(detour.skippedKm) }) : ''].filter(Boolean).join(' · ')}</small>
+              {#if goalOn}<span class="lv-goalbar" aria-hidden="true" data-live-goal-bar><i style:width="{Math.round(goalFrac * 100)}%"></i></span>{/if}
               {#if detour.back === 'auto'}
                 <small>{t('You were off the route, so the app planned the shortest way back.')}</small>
                 <span class="lv-back-acts">
@@ -1219,8 +1292,9 @@
                 </span>
               {/if}
               {#if gpxMsg}<small data-live-detour-gpx>{gpxMsg}</small>{/if}
+              <button type="button" class="btn sm" onclick={endDetour} data-live-detour-end>{t('End navigation')}</button>
             </span>
-            <button type="button" class="lvf-ic lv-detour-x" onclick={() => setDetour(null)} aria-label={t('Remove the detour')} data-live-detour-off><X size={18} aria-hidden="true" /></button>
+            <button type="button" class="lvf-ic lv-detour-x" onclick={() => setDetour({ ...detour, small: true }, false)} aria-label={t('Fold up')} data-live-detour-off><X size={18} aria-hidden="true" /></button>
           </div>
         {/if}
         {#if offline}<p class="lvf-alert" role="status" data-live-offline><WifiOff size={18} aria-hidden="true" /><span>{t('Offline: the map shows what is stored, the ride goes on.')}</span></p>{/if}
@@ -1287,6 +1361,9 @@
         </div>
       {/if}
 
+      {#if goalOn}
+        <button type="button" class="lvf-ic lvf-north" class:lvf-hidden={snap === 'full' || dpIndex > 0} aria-pressed={northUp} onclick={() => (northUp = !northUp)} style:bottom="{padB + 66}px" aria-label={northUp ? t('Map turns with you') : t('North up')} title={northUp ? t('Map turns with you') : t('North up')} data-live-north><Navigation size={22} aria-hidden="true" /></button>
+      {/if}
       <button type="button" class="lvf-ic lvf-follow" class:lvf-hidden={snap === 'full' || dpIndex > 0} aria-pressed={follow} onclick={() => (follow ? (follow = false) : recenter())} style:bottom="{padB + 12}px" aria-label={follow ? t('Map follows you') : t('Follow me')} data-live-follow><Crosshair size={22} aria-hidden="true" /></button>
 
       <!-- the bottom sheet -->
@@ -1993,6 +2070,20 @@
     flex-wrap: nowrap;
     align-items: flex-start;
   }
+  .lv-goalbar {
+    display: block;
+    align-self: stretch;
+    height: 8px;
+    border-radius: 4px;
+    background: var(--line);
+    overflow: hidden;
+    margin-top: 6px;
+  }
+  .lv-goalbar i {
+    display: block;
+    height: 100%;
+    background: var(--l3);
+  }
   .lv-detour-main {
     display: flex;
     flex-direction: column;
@@ -2027,6 +2118,27 @@
   }
   .lv-detour .lv-back-err {
     color: var(--bad);
+  }
+  .lv-detour-small {
+    align-items: center;
+    gap: var(--sp-1);
+    width: 100%;
+    border-top: 0;
+    border-right: 0;
+    border-bottom: 0;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+  .lv-detour-small b {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-width: 0;
+  }
+  .lv-detour-small small {
+    flex: 1;
+    white-space: nowrap;
   }
   .lv-detour .lv-detour-x {
     width: 36px;
@@ -2129,6 +2241,17 @@
   }
   .lvf-fold[open] > summary::after {
     transform: rotate(90deg);
+  }
+  .lvf-north {
+    position: absolute;
+    right: 10px;
+    z-index: 2;
+    box-shadow: 0 1px 4px var(--shadow);
+    transition: bottom 0.15s var(--ease-out);
+  }
+  .lvf-north[aria-pressed='true'] {
+    background: var(--ink);
+    color: var(--paper);
   }
   .lvf-follow {
     position: absolute;

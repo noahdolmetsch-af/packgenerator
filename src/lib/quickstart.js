@@ -7,8 +7,8 @@
  *   - the bike ridden last (dayride.js lastBikeId), or the one Today suggests;
  *   - only the standard items (no copy of the last day ride, no template);
  *   - the weather from the home forecast for today; offline (or without a forecast) no weather;
- *   - the name is the local time stamp YYYYMMDDHHmm («202610130000»), a second one in the same
- *     minute gets « (2)» (dayride.js freeTitle).
+ *   - the name is «Ride Wed 28 Oct» («Ausfahrt Mi 28. Okt.»; until 28.10.2026 the time stamp
+ *     «202610130000», Auffälligkeiten Noah «2a»), a second one on the same day gets « (2)» (dayride.js freeTitle).
  * Everything stays a suggestion: the green card on Today has «Open» and «Undo» (deletes the trip).
  * The rules are pure functions (tests/quickstart.test.js); quickStart() writes the trip.
  */
@@ -16,14 +16,19 @@ import { buildBikeTrip, freeTitle, lastBikeId, forecastPreset, homeOf } from './
 import { ridesIntoDark } from './blockplan.js';
 import { rememberDomain, BIKEPACKING } from './domains.js';
 import { localDay } from './localday.js';
+import { t, locale } from './i18n.svelte.js';
 
 /** Riding hours of a quick start (Noah 1a). */
 export const QUICK_HOURS = 2.5;
 
-/** The trip name: the local time stamp YYYYMMDDHHmm, e.g. 202610130000 for 13.10.2026 00:00. */
-export function stampName(now = new Date()) {
-  const p = (n) => String(n).padStart(2, '0');
-  return `${now.getFullYear()}${p(now.getMonth() + 1)}${p(now.getDate())}${p(now.getHours())}${p(now.getMinutes())}`;
+/**
+ * The trip name (Auffälligkeiten 28.10.2026, Noah «2a»): «Ride Wed 28 Oct», in German «Ausfahrt Mi 28. Okt.».
+ * It was the time stamp YYYYMMDDHHmm before; old trips keep theirs (touren/titel.js still knows it).
+ */
+export function stampName(now = new Date(), loc = locale()) {
+  const wd = now.toLocaleDateString(loc, { weekday: 'short' }).replace(/\.$/, '');
+  const dm = now.toLocaleDateString(loc, { day: 'numeric', month: 'short' });
+  return t('Ride {day}|quick', { day: `${wd} ${dm}` });
 }
 
 /** «No weather»: no range, dry (the same as the «No weather» chip, dayride.js pickWxChip). */

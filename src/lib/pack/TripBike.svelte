@@ -10,7 +10,8 @@
    */
   import SetupDrawing from '../bikes/SetupDrawing.svelte';
   import Seg from '../ui/Seg.svelte';
-  import { SLOTS } from '../bikes.js';
+  import { SLOTS, onBikeSlot } from '../bikes.js';
+  import { bagWords } from '../bikes/bagwords.js';
   import { t, tn, locale, bagName } from '../i18n.svelte.js';
   import { UserRound, ChevronRight } from '@lucide/svelte';
   import SetupPick from './SetupPick.svelte';
@@ -34,7 +35,7 @@
     <div class="hd">
       <div>
         <h2 id="tb-h">{t('Bike and bags')}</h2>
-        <p class="sub">{[bike?.name ?? '', tn(places.length, '{n} bag', '{n} bags'), t('a tap opens the bag')].filter(Boolean).join(' · ')}</p>
+        <p class="sub">{[bike?.name ?? '', bagWords(places.length, places.filter((p) => onBikeSlot(p.key)).length), t('a tap opens the bag')].filter(Boolean).join(' · ')}</p>
       </div>
       {#if onbags}<button type="button" class="btn btn-link lk" onclick={onbags}>{t('Change bags')}<ChevronRight size={16} aria-hidden="true" /></button>{/if}
     </div>
