@@ -566,6 +566,8 @@ test('S8 demo clock +12 months', async ({ page, context }, info) => {
     const n = errors.length;
     await page.goto(`./${h}`);
     await page.reload();
+    // the German texts load first and the app after them (main.js): wait for the page, not for 700 ms
+    await page.locator('main').waitFor();
     await page.waitForTimeout(700);
     expect.soft(errors.slice(n), `${h} a year later: errors`).toEqual([]);
     const s = await sideways(page);
