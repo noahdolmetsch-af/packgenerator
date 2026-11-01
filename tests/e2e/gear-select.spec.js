@@ -2,7 +2,7 @@
 // (the IDs stay), clean up the test entries with search → Select → Select all → Delete (also
 // off the trip and the template), Undo brings everything back, and a 320 px phone never
 // scrolls sideways. Fictional fixture plus test_data_gtp_ items; nothing outside the preview server.
-import { test, expect } from './clock.js';
+import { test, expect, zurichDay } from './clock.js';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';
@@ -23,7 +23,7 @@ function fixture(path) {
   add('EL91', 'test_data_gtp_ Kabel', 'elec');
   const bike = data.tables.bikes[0];
   data.tables.trips.push({
-    id: 'trip-test_data_gtp_1', domain: 'bikepacking', title: 'test_data_gtp_ Tour', startDate: '2026-11-01', days: 1, bikeId: bike.id, bike: bike.name, setup: { ...bike.setup },
+    id: 'trip-test_data_gtp_1', domain: 'bikepacking', title: 'test_data_gtp_ Tour', startDate: zurichDay(5), days: 1, bikeId: bike.id, bike: bike.name, setup: { ...bike.setup },
     entries: [{ itemId: 'HY91', slot: 'top', qty: 1, packed: false }, { itemId: 'EL01', slot: 'top', qty: 1, packed: false }],
     ready: [{ id: 'wallet', label: 'Phone, wallet, keys', done: false }], ride: null, hours: null, sets: {}, purpose: {}, status: 'planned', copiedFrom: null, createdAt: '2026-10-01T08:00:00.000Z',
   });
