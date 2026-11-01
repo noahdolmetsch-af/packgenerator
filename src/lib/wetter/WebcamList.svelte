@@ -19,6 +19,7 @@
   import { askDelete, deleteWithUndo } from '../ui/ask.js';
   import { searchPlace } from '../weather.js';
   import { t } from '../i18n.svelte.js';
+  import '../race/race.css'; // rc-note, rc-empty, rc-warn: without it the notes on Wetter had the browser's default size
 
   const camsQ = liveQuery(() => db.settings.get(WEBCAMS_KEY));
   const cams = $derived(camsOf($camsQ?.value));

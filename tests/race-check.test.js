@@ -1,10 +1,10 @@
-// «Rennen-Check» (Noah 27.10.2026 «1b 2b»): the five sheets, their keys and loading answers. Made-up answers.
+// «Rennen-Check» (Noah 27.10.2026 «1b 2b»): the sheets, their keys and loading answers. Made-up answers.
 import { describe, it, expect } from 'vitest';
-import { SHEETS, fieldKeys, valueOf, withValue, answersFrom, filled, takeOver } from '../src/lib/race/check-lib.js';
+import { SHEETS, fieldKeys, valueOf, withValue, answersFrom, filled, takeOver, gramsOf, setupWeight, DAY_BEFORE, dayBeforeDone, afterNotes, afterCount } from '../src/lib/race/check-lib.js';
 
 describe('the race check', () => {
-  it('has five sheets and every key belongs to one of them', () => {
-    expect(SHEETS.map((s) => s.id)).toEqual(['ablauf', 'setup', 'liste', 'schlaf', 'nacht']);
+  it('has six sheets and every key belongs to one of them', () => {
+    expect(SHEETS.map((s) => s.id)).toEqual(['ablauf', 'setup', 'liste', 'schlaf', 'nacht', 'vorher']);
     for (const k of Object.keys(fieldKeys())) expect(SHEETS.some((s) => k.startsWith(`${s.id}.`)), k).toBe(true);
   });
   it('starts empty, the ticks with their suggestion', () => {
@@ -36,4 +36,43 @@ describe('the race check', () => {
     expect(valueOf(check, 'liste.1.v')).toBe('Poncho');
     expect(valueOf(check, 'ablauf.q.cook')).toBe(true);
   });
+  it('reads grams from what you wrote', () => {
+    expect(gramsOf('200')).toBe(200);
+    expect(gramsOf('2× 100')).toBe(200);
+    expect(gramsOf('1.2 kg')).toBe(1200);
+    expect(gramsOf('1,5 kg')).toBe(1500);
+    expect(gramsOf('150 g + 40')).toBe(190);
+    expect(gramsOf('')).toBeNull();
+    expect(gramsOf('light')).toBeNull();
+  });
+  it('adds up the target setup and compares it with the target', () => {
+    let c = withValue(null, 'setup.0.g', '300');
+    c = withValue(c, 'setup.0.full', '1.4 kg');
+    c = withValue(c, 'setup.1.g', '200');
+    c = withValue(c, 'setup.total', '1.5 kg');
+    const w = setupWeight(c);
+    expect(w).toMatchObject({ empty: 500, full: 1600, target: 1500, over: 100, counted: 2 });
+    expect(setupWeight(null)).toMatchObject({ empty: 0, full: 0, target: null, over: null, counted: 0 });
+  });
+  it('the day before: counts the ticked steps, the ticks start empty', () => {
+    expect(dayBeforeDone(null)).toEqual({ done: 0, of: DAY_BEFORE.length });
+    let c = withValue(null, 'vorher.0.done', true);
+    c = withValue(c, 'vorher.3.v', 'Start 06:00, alarm 04:30');
+    expect(dayBeforeDone(c).done).toBe(1);
+    expect(filled(c, 'vorher').done).toBe(1);
+    expect(answersFrom({ values: { 'vorher.1.done': true } }).values).toEqual({ 'vorher.1.done': true });
+    // taking over another race brings the plan, not the ticks
+    const got = takeOver(null, c).check.values;
+    expect(got['vorher.3.v']).toBe('Start 06:00, alarm 04:30');
+    expect('vorher.0.done' in got).toBe(false);
+  });
+  it('after the race: answers per sheet show in the other races, never taken over', () => {
+    const past = withValue(withValue(null, 'liste.after.missing', 'Second gloves'), 'liste.after.change', 'Gloves in the frame bag');
+    expect(afterCount(past, 'liste')).toBe(2);
+    const others = [{ id: 'a', title: 'Old race', check: past }, { id: 'me', title: 'This race', check: withValue(null, 'liste.after.much', 'mine') }];
+    expect(afterNotes(others, 'liste', 'me').map((x) => [x.title, x.k, x.text])).toEqual([['Old race', 'missing', 'Second gloves'], ['Old race', 'change', 'Gloves in the frame bag']]);
+    expect(afterNotes(others, 'nacht', 'me')).toEqual([]);
+    expect(takeOver(null, past).n).toBe(0);
+  });
 });
+

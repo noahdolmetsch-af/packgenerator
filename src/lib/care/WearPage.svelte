@@ -1,4 +1,5 @@
 <script>
+  import { activeBikes } from '../bikeretire.js';
   /**
    * «Verschleiss» (Noah 20.10.2026, answers «1 pro Teil, 2a+b, 3a, 4a+b, 5a»):
    * Bikes › Care › «Wear» (#/bikes?tab=care&view=wear&bike=<id>). Loaded only when opened (Bikes.svelte).
@@ -38,7 +39,7 @@
   const bikesQ = liveQuery(() => db.bikes.toArray());
   const visitsQ = liveQuery(() => db.visits.toArray());
   const kmQ = liveQuery(() => db.kmBook.toArray());
-  const bikes = $derived(sortBikes($bikesQ ?? []));
+  const bikes = $derived(sortBikes(activeBikes($bikesQ ?? [])));
   const bike = $derived(bikes.find((b) => b.id === bikeId) ?? bikes[0] ?? null);
   const view = $derived(bike ? withVisits(bike, $visitsQ ?? []) : null);
   const entries = $derived($kmQ ?? []);

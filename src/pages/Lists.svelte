@@ -15,7 +15,7 @@
   import { liveQuery } from 'dexie';
   import AreaIntro from '../lib/intro/AreaIntro.svelte'; // «Anleitungen überall»: the guide of this page (lib/guides.js)
   import { db } from '../lib/db.js';
-  import { OVERRIDES_KEY, STANDARD_LIST, listFor, isChanged, overrideOf, resetList } from '../lib/standard.js';
+  import { OVERRIDES_KEY, STANDARD_LIST, listFor, isChanged, overrideOf, resetList, changedAt } from '../lib/standard.js';
   import { saveList, resetToStandard, move, moveTo, toggleHidden, edit, addOwn, remove, applyLists } from '../lib/lists.js';
   import { catIcon, stdIconName } from '../lib/gear/caticon.js';
   import { domainName } from '../lib/domains.js';
@@ -27,7 +27,7 @@
   import { askDelete, deleteWithUndo } from '../lib/ui/ask.js';
   import UndoToast from '../lib/review/UndoToast.svelte';
   import VeloHead from '../lib/bikes/VeloHead.svelte';
-  import { t, tn } from '../lib/i18n.svelte.js';
+  import { t, tn, locale } from '../lib/i18n.svelte.js';
   import SortGrip from '../lib/ui/SortGrip.svelte';
   import { sortable } from '../lib/ui/sortable.js';
   import { ChevronRight, ChevronUp, ChevronDown, Eye, EyeOff, Pencil, Plus, Undo2, Lightbulb, Tag, ListChecks, Info, NotebookPen, SlidersHorizontal, Mountain, Briefcase, Wrench, MapPin, Bike, Palmtree, Feather, Smile, Flower2 } from '@lucide/svelte';
@@ -313,6 +313,9 @@
     <p class="ich-fine"><Info size={15} aria-hidden="true" /><span>{t('The questions of «Your questions» and of the daily check are changed on their own pages.')}</span></p>
   {:else}
     <VeloHead crumbs={[{ label: t('Lists and types'), href: '#/me/lists' }]} title={t(STANDARD_LIST[KEY].name)} sub={t(K.sub)} />
+    {#if changedAt(value)}
+      <p class="ich-fine" data-list-changed><Info size={15} aria-hidden="true" /><span>{t('Last changed by you: {date}', { date: new Date(changedAt(value)).toLocaleDateString(locale(), { day: 'numeric', month: 'long', year: 'numeric' }) })}</span></p>
+    {/if}
     {#if marked}
       <div class="fchips" role="group" aria-label={t('Show')} data-list-filter>
         {#each [['all', 'All|filter'], ['std', 'Standard'], ['mine', 'Adapted by me'], ['own', 'New from me']] as [k, label] (k)}
