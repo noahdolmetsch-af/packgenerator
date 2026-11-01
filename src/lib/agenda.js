@@ -63,6 +63,24 @@ export function remindRow(r) {
 }
 export const remindMinutes = (row) => ({ minutes: Math.round(Number(row.n) * UNITS[row.unit]), method: row.method === 'email' ? 'email' : 'popup' });
 
+/** Google's event colours (colorId → shade); '' is the calendar's own colour. */
+export const EVENT_COLORS = { 1: '#a4bdfc', 2: '#7ae7bf', 3: '#dbadff', 4: '#ff887c', 5: '#fbd75b', 6: '#ffb878', 7: '#46d6db', 8: '#e1e1e1', 9: '#5484ed', 10: '#51b749', 11: '#dc2127' };
+export const COLOR_NAMES = { 1: 'Lavender', 2: 'Sage', 3: 'Grape', 4: 'Flamingo', 5: 'Banana', 6: 'Tangerine', 7: 'Peacock', 8: 'Graphite', 9: 'Blueberry', 10: 'Basil', 11: 'Tomato' };
+
+/** The editor's «repeat» choice → what the server takes (null = does not repeat). */
+export const REPEATS = ['none', 'daily', 'weekdays', 'weekly', 'monthly', 'yearly', 'custom'];
+export const emptyRepeat = () => ({ mode: 'none', freq: 'weekly', every: 1, days: [], end: 'never', until: '', count: 10 });
+export function repeatRule(r) {
+  if (!r || r.mode === 'none') return null;
+  const base = { daily: { freq: 'daily' }, weekdays: { freq: 'weekly', days: ['MO', 'TU', 'WE', 'TH', 'FR'] }, weekly: { freq: 'weekly' }, monthly: { freq: 'monthly' }, yearly: { freq: 'yearly' }, custom: { freq: r.freq, every: Math.max(1, Math.round(Number(r.every) || 1)), days: r.freq === 'weekly' ? r.days : [] } }[r.mode];
+  if (!base) return null;
+  if (r.mode === 'custom') {
+    if (r.end === 'until' && r.until) base.until = r.until;
+    else if (r.end === 'count') base.count = Math.max(1, Math.round(Number(r.count) || 1));
+  }
+  return base;
+}
+
 /** Events by day for the days from..to: an event over several days stands on each of them. */
 export function byDay(events, from, to) {
   const map = new Map(daysOf(from, to).map((d) => [d, []]));

@@ -1,4 +1,5 @@
 <script>
+  import { activeBikes } from '../bikeretire.js';
   /**
    * Paket VG 1131 «Velo verpacken» (Noah 20.10.2026 «4»): Bikes › Care › «Pack the bike»
    * (#/bikes?tab=care&view=bikepack&bike=<id>). A checklist for the bike box or bag on the train or plane:
@@ -30,7 +31,7 @@
   const bikesQ = liveQuery(() => db.bikes.toArray());
   const packQ = liveQuery(() => db.settings.get(PACK_KEY));
   const photosQ = liveQuery(() => db.photos.filter((p) => !!p.pack).toArray());
-  const bikes = $derived(sortBikes($bikesQ ?? []));
+  const bikes = $derived(sortBikes(activeBikes($bikesQ ?? [])));
   const bike = $derived(bikes.find((b) => b.id === bikeId) ?? bikes[0] ?? null);
   const rec = $derived(packOf($packQ?.value));
   const ticks = $derived(bike ? ticksOf(rec, bike.id, today) : []);

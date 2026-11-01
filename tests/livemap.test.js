@@ -92,3 +92,12 @@ describe('the map symbols', () => {
     expect(svg).toContain('#3f7fbf');
   });
 });
+
+import { navZoom } from '../src/lib/live/livemap.js';
+describe('navZoom: closer before a turn', () => {
+  it('zooms in near a turn and out on a long straight', () => {
+    expect(navZoom(100)).toBeGreaterThan(navZoom(800));
+    expect(navZoom(800)).toBeGreaterThan(navZoom(3000));
+    expect(navZoom(null)).toBe(16);
+  });
+});
