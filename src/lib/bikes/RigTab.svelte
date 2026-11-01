@@ -155,6 +155,7 @@
     title={t('My setup|tab')}
     sub={t('{bike} · photos, weight, bags, changes', { bike: bike.name })}
   />
+  <p class="purpose" data-purpose="setup">{t('My setup: how this bike is set up for your rides, with bags, weight and changes.')}</p>
   {#if bikes.length > 1}<BikeChips {bikes} current={bike.id} onpick={(id) => onbike?.(id)} />{/if}
   <HintCard page="rig" />
 
@@ -329,6 +330,11 @@
 {/if}
 
 <style>
+  .purpose {
+    margin: 0 0 8px;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+  }
   .ifold {
     margin: 8px 0 0;
   }
