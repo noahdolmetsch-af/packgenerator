@@ -93,7 +93,7 @@
   const season = $derived(data ? seasonNow(data.acts, today) : null);
   // «Aktiv neu» (spec «Eine Zählweise»): the head and «Heute abhaken» name the same number as the ring «Bewegen»
   // (rolling 7 days), so «0 von 8» against «1 von 11» is gone
-  const moveLine = $derived(rings.move.of ? tn(rings.move.of, 'this week {k} of {n} move goal on track', 'this week {k} of {n} move goals on track', { k: rings.move.n }) : '');
+  const moveLine = $derived(rings.move.of ? tn(rings.move.of, 'Movement: {k} of {n} goal on track', 'Movement: {k} of {n} goals on track', { k: rings.move.n }) : '');
   const todayLine = $derived(
     [fmt(today, { weekday: 'long', day: 'numeric', month: 'short' }), moveLine, season ? (season.half === 'summer' ? t('Summer') : t('Winter')) : ''].filter(Boolean).join(' · '),
   );

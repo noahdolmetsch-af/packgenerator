@@ -75,10 +75,10 @@ test('A1 and A5: tick tiles, rings, the tab «Meine Sportarten» opens the sport
   await expect(main.locator('section[aria-labelledby="more-h"]')).toHaveCount(0);
   await expect(main.locator('#open-h')).toHaveCount(0);
   // the head line says how the move goals stand (the ring's count), not «Heute, …»
-  await expect(main.locator('[data-today-line]')).toContainText(new RegExp(T('this week {k} of {n} move goals on track', { k: '\\d+', n: '\\d+' })));
+  await expect(main.locator('[data-today-line]')).toContainText(new RegExp(T('Movement: {k} of {n} goals on track', { k: '\\d+', n: '\\d+' })));
   await expect(main.locator('[data-today-line]')).not.toContainText(T('Today, {date}', { date: '' }).trim());
   // «Eine Zählweise»: «Heute abhaken» names the same count as the ring «Bewegen»
-  await expect(main.locator('section[aria-labelledby="tick-h"] .sh p')).toHaveText(new RegExp(T('this week {k} of {n} move goals on track', { k: '\\d+', n: '\\d+' }), 'i'));
+  await expect(main.locator('section[aria-labelledby="tick-h"] .sh p')).toHaveText(new RegExp(T('Movement: {k} of {n} goals on track', { k: '\\d+', n: '\\d+' }), 'i'));
   await tapTab(page, T('My sports|tab'));
   await expect(page).toHaveURL(/#\/flow\/sports$/);
   const row = main.locator('li[data-row="meditation"]');

@@ -20,7 +20,8 @@
   });
   const sets = $derived($setQ ?? { fixed: [], plans: [] });
   const week = $derived(weekPlan({ acts, states, log, today, fixed: sets.fixed, plans: sets.plans, no: [], forecast: null }).days);
-  const open = $derived(weekGoals(states).filter((g) => !g.met).length);
+  const all = $derived(weekGoals(states));
+  const open = $derived(all.filter((g) => !g.met).length);
   const byId = $derived(new Map(acts.map((a) => [a.id, a])));
   const wd = (d) => new Date(`${d}T12:00:00Z`).toLocaleDateString(locale(), { weekday: 'short', timeZone: 'UTC' }).replace('.', '');
   const name = (id) => {
@@ -41,7 +42,8 @@
 
 <a class="card wg" href="#/flow/week" data-week-glance>
   <span class="top">
-    <span class="wgl">{open ? tn(open, '{n} goal open', '{n} goals open') : t('All goals on track this week')}</span>
+    <span class="wgl">{open ? tn(all.length, '{open} of {n} goal open', '{open} of {n} goals open', { open }) : t('All goals on track this week')}</span>
+    <span class="sub">{t('All areas · each goal counts in its own period')}</span>
     <span class="go">{t('Plan the week')}<ChevronRight size={16} aria-hidden="true" /></span>
   </span>
   <ol class="days">
@@ -82,6 +84,12 @@
   }
   .wgl {
     font-weight: 600;
+  }
+  .sub {
+    flex-basis: 100%;
+    color: var(--ink-3);
+    font-size: var(--fs-small);
+    order: 3;
   }
   .go {
     display: inline-flex;
