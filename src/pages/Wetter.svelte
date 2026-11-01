@@ -27,6 +27,7 @@
   import LakeChip from '../lib/lake/LakeChip.svelte';
   import LakeCard from '../lib/lake/LakeCard.svelte';
   import AirCard from '../lib/air/AirCard.svelte';
+  import NextHours from '../lib/wetter/NextHours.svelte'; // Ziel 6 «Die nächsten Stunden» (Noah 27.10.2026 «4a»)
   import HomePlaceSheet from '../lib/ich/HomePlaceSheet.svelte';
   import { t, num, locale } from '../lib/i18n.svelte.js';
 
@@ -214,6 +215,8 @@
         <a class="btn sm" href="#/me/hinweise">{t('Warnings, avalanches, passes')}</a>
       </div>
     </section>
+
+    <NextHours {place} />
 
     <!-- 1a: the best weather window -->
     <section class="card wx-sec" aria-labelledby="wx-best" data-wx-best>
