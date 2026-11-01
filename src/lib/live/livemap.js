@@ -185,7 +185,8 @@ export function gradeLines(pts = [], fine, fromKm = 0, toKm = Infinity, pieceKm 
 
 /** The bottom sheet: three heights (px) for a window of h px; the nearest one to a dragged height. */
 export function sheetSnaps(h) {
-  const peek = 148;
+  // one line pulled down (Noah 28.10.2026 «schlanker oben und unten»)
+  const peek = 96;
   return { peek, half: Math.max(peek + 80, Math.round(h * 0.5)), full: Math.max(peek + 160, Math.round(h * 0.88)) };
 }
 export function nearestSnap(px, snaps) {
