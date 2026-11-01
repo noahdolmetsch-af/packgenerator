@@ -83,6 +83,7 @@ jobs:
       # or none. Shared helpers and app code run everything (scripts/ci-scope.mjs).
       - id: scope
         run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE" # the job runs in a container as another user
           git fetch --no-tags origin ${{ github.base_ref }}
           node scripts/ci-scope.mjs ${{ github.base_ref }} | tee -a "$GITHUB_OUTPUT"
       - if: steps.scope.outputs.mode == 'all'
