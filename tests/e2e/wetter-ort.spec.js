@@ -31,5 +31,6 @@ for (const [name, extra, text] of CASES) {
     const loc = page.locator('[data-tour-wetter-place]');
     await expect(loc).toBeVisible({ timeout: 20_000 });
     await expect(loc).toContainText(text);
+    await page.locator('[data-tour-wetter]').screenshot({ path: info.outputPath(`wetter-ort-${info.project.name}.png`) });
   });
 }
