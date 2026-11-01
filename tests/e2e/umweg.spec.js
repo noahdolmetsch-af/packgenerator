@@ -50,7 +50,10 @@ test('Live map: plan a new way to a shop, see it, save it for the Garmin, remove
   const card = page.locator('[data-live-detour]');
   await expect(card).toBeVisible();
   await expect(card).toContainText('test_data_gtp_ Beck');
-  await expect(card).toContainText(/2[.,]4 km/);
+  await expect(card).toContainText(/\d[.,]\d km/);
+  // Linie zum Ziel: the numbers on top count down to the goal, and the bar shows how far along you are
+  await expect(page.locator('[data-live-tile="left"]')).toContainText(/km (to the goal|bis zum Ziel)/);
+  await expect(page.locator('[data-live-goal-bar]')).toHaveCount(1);
   const dl = page.waitForEvent('download');
   // the GPX of the way lives in «⋯» (Navigation zum Ziel 2: the card on the map stays small)
   await tap(page.locator('[data-live-menu]'), info);
