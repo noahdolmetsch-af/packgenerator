@@ -10,7 +10,9 @@
  * tests/handbook.test.js.
  */
 
-export const HANDBOOK = {
+import { FEATREG } from './featreg/index.js';
+
+const LISTED = {
   dayride: {
     on: 'Needs a trip that has started or ended.',
     steps: ['Tap «New» › «Quick start», or «Quick start» on Today.', 'Check the list; «Change» or «Undo» if it does not fit.'],
@@ -2244,6 +2246,9 @@ export const HANDBOOK = {
     example: 'Example: «Turned back 200 m below the summit: the wind was too strong.»',
   },
 };
+
+/** The listed entries plus those of src/lib/featreg/. */
+export const HANDBOOK = { ...LISTED, ...FEATREG.handbook };
 
 /** The small apps: each opens right on its area, with its own icon, and shares the data of the whole app. */
 export const MINI_APPS_HANDBOOK = {

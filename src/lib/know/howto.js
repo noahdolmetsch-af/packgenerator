@@ -4,8 +4,10 @@
  * can do». English keys for t(), German in i18n/de/sn6plus.js. Tested in tests/sn6plus.test.js.
  */
 
+import { FEATREG } from '../featreg/index.js';
+
 /** { featureId: [step 1, step 2, step 3] } */
-export const HOWTO = {
+const LISTED = {
   dayride: ['Open Today.', 'Tap «Quick start».', 'The ride comes like your last one, with the weather; change what you like.'],
   blocks: ['Open Gear › Building blocks.', 'Look at a block such as sleep, cook or rain.', 'In a new trip, tick the blocks: their items come along.'],
   templates: ['Open a good trip in Packen.', 'Under «…» choose «Save as template».', 'For the next trip start from this template.'],
@@ -466,6 +468,9 @@ export const HOWTO = {
   'f.skicare': ['Open Ski tours › Season care.', 'Choose the phase.', 'Tap «Done» on a task.'],
   'f.skiafter': ['Open Ski tours › After the tour.', 'Enter summit and metres.', 'Answer the three questions.'],
 };
+
+/** The listed steps plus those of src/lib/featreg/. */
+export const HOWTO = { ...LISTED, ...FEATREG.howto };
 
 /** The steps of a function, or [] when it has none. */
 export const howtoOf = (id) => HOWTO[id] ?? [];
