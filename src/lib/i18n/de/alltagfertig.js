@@ -31,7 +31,7 @@ export default {
   '{n} bike job open': '{n} Velo-Arbeit offen',
   '{n} bike jobs open': '{n} Velo-Arbeiten offen',
   'Dates from Google Calendar come here by themselves once it is connected.': 'Termine aus dem Google Kalender kommen hier von selbst dazu, sobald er verbunden ist.',
-  'No sessions planned yet. Last week you trained without a plan (see above); plan the new week in Aktiv › Training.': 'Noch keine Einheiten geplant. Letzte Woche hast du ohne Plan trainiert (siehe oben); plane die neue Woche in Aktiv › Training.',
+  'No sessions planned yet. Last week you trained without a plan (see above); add one below.': 'Noch keine Einheiten geplant. Letzte Woche hast du ohne Plan trainiert (siehe oben); füge unten welche hinzu.',
   // Morgen-Check: a question from an earlier day says so (H15)
   'question from {when}': 'Frage von {when}',
   // Tote Knöpfe (Klick-Rundgang 22.10.2026): every button shows an effect or a hint
