@@ -16,8 +16,11 @@
   import { liveQuery } from 'dexie';
   import { db } from '../db.js';
   import { SLOTS, SLOT, sortBikes, bikeSetup, bagsFor, containerWeight, formatVolume, bikesHash, bikeWeightKind, placesOf, onBikeSlot } from '../bikes.js';
+  import { activeBikes, retiredBikes, retireBike, restoreBike } from '../bikeretire.js';
+  import RetireSheet from './RetireSheet.svelte';
+  import RetiredList from './RetiredList.svelte';
   import RenameSheet from '../ui/RenameSheet.svelte';
-  import { offerRename } from '../ui/rename.svelte.js';
+  import { offerRename, offerDone } from '../ui/rename.svelte.js';
   import { formatWeight, parseGrams } from '../gear.js';
   import { bagWords } from './bagwords.js';
   import { Bike as BikeIcon, Briefcase, Plus, ChevronRight, Scale, User, Wrench, MoreHorizontal, Package, Route, BookOpen, Image as ImageIcon, ArrowLeftRight, RefreshCw, Tag } from '@lucide/svelte';
@@ -55,7 +58,7 @@
   import { setOwnLink, removeOwnLink, setLinkOff } from '../sk/store.js';
   import OwnLinkSheet from '../sk/OwnLinkSheet.svelte';
   import SkToast from '../sk/SkToast.svelte';
-  import { Pencil, EyeOff, ShieldCheck, Gauge } from '@lucide/svelte';
+  import { Archive, Pencil, EyeOff, ShieldCheck, Gauge } from '@lucide/svelte';
   import { wearRows, wearSummary } from '../wear.js';
   import { take } from '../nav.js';
   import { strava } from '../strava/client.svelte.js';
@@ -72,7 +75,9 @@
   const visitsQ = liveQuery(() => db.visits.toArray());
   const tasksQ = liveQuery(() => db.maintenance.toArray());
 
-  const bikes = $derived(sortBikes($bikesQ ?? []));
+  const allBikes = $derived(sortBikes($bikesQ ?? []));
+  const bikes = $derived(activeBikes(allBikes)); // «Velos ausmustern»: retired bikes wait at the bottom
+  const retired = $derived(retiredBikes(allBikes));
   const bags = $derived($bagsQ ?? []);
   const items = $derived($itemsQ ?? []);
   const itemsById = $derived(Object.fromEntries(items.map((i) => [i.id, i])));
@@ -165,6 +170,7 @@
                 { name: t('Don’t show «{name}» any more', { name: t(LINKS.x9.label) }), explain: t('Comes back under Me › Appearance'), icon: EyeOff, run: hideMaker },
               ]
             : []),
+          { name: t('Retire bike'), explain: t('Sold, given away or broken: hides it, keeps everything'), icon: Archive, run: () => (retireOpen = bike) },
           // Alles fertig (Versteckte Funktionen, Noah 22.10.2026 «1a»): the sale listing also in the bike's «…»
           { name: t('Sale listing'), explain: t('A text from km, services and parts'), icon: Tag, run: () => (location.hash = bikesHash({ tab: 'care', view: 'sell', bike: bike.id })) },
         ]
@@ -274,6 +280,16 @@
   let sheet = $state(null); // the place whose bag is being chosen
   let dialog = $state(null); // { bag } or { bag: null, slot }
   let bikeDialog = $state(null); // { bike } or { bike: null }
+  let retireOpen = $state(null); // the bike being retired
+  async function doRetire(info) {
+    const b = retireOpen;
+    const before = await retireBike(db, b.id, info);
+    offerDone(t('«{name}» retired.', { name: b.name }), () => restoreBike(db, b.id, before));
+  }
+  async function bringBack(b) {
+    await restoreBike(db, b.id);
+    offerDone(t('«{name}» is back.', { name: b.name }), () => retireBike(db, b.id, b.retired ?? {}));
+  }
   // VS3/VS4 (Noah 14.10.2026 «1a 2b 3a»): the order window, and after a new bike the question «New standard bike?»
   let standardOpen = $state(false);
   let newStd = $state(null); // { id, standard } of a bike just added while there were bikes before
@@ -597,6 +613,7 @@
     </div>
   {/if}
   {#if !bike}{@render settings()}{@render yourBags()}{/if}
+  <RetiredList bikes={retired} onrestore={bringBack} onedit={(b) => (bikeDialog = { bike: b })} />
 </div>
 
 {#if makerEdit && bike}
@@ -707,8 +724,11 @@
 {#if newBike && !bikeDialog}
   <NewStandardSheet bike={newBike} standard={newStd.standard} {bikes} onclose={() => (newStd = null)} />
 {/if}
+{#if retireOpen}
+  <RetireSheet bike={retireOpen} onsave={doRetire} onclose={() => (retireOpen = null)} />
+{/if}
 {#if bikeDialog}
-  <BikeDialog bike={bikeDialog.bike} {bikes} oncreated={(id) => { const others = bikes.filter((b) => b.id !== id); newStd = others.length ? { id, standard: others[0] } : null; firstNext = !others.length && inFirstSteps(); onbike?.(id); }} onsaved={(id) => onbike?.(id)} onclose={() => (bikeDialog = null)} />
+  <BikeDialog bike={bikeDialog.bike} bikes={allBikes} oncreated={(id) => { const others = bikes.filter((b) => b.id !== id); newStd = others.length ? { id, standard: others[0] } : null; firstNext = !others.length && inFirstSteps(); onbike?.(id); }} onsaved={(id) => onbike?.(id)} onclose={() => (bikeDialog = null)} />
 {/if}
 
 {#if photoRename}

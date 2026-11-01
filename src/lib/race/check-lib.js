@@ -1,7 +1,7 @@
 /**
- * «Rennen-Check» (Ziel 6, Noah 27.10.2026 «diesen Check 1:1 auf die App bringen», «1b 2b»): the five
- * sheets of the paper check for every race, on the page «Rennen detailliert planen» (#/racecheck/<tripId>). 1 the order A to Z, 2 the target setup per
- * bag, 3 the basic list, 4 sleep variants side by side, 5 one night played through.
+ * «Rennen-Check» (Ziel 6, Noah 27.10.2026 «diesen Check 1:1 auf die App bringen», «1b 2b»): the sheets
+ * of the paper check for every race, on the page «Rennen detailliert planen» (#/racecheck/<tripId>). 1 the order A to Z, 2 the target setup per
+ * bag, 3 the basic list, 4 sleep variants side by side, 5 one night played through, 6 the day before the start (Noah «7a»).
  *
  * The answers live in the race (stored.check = { values: { key: value }, at }), so they are in the backup.
  * The keys are the same as on the fillable sheets page, so its answers load 1:1 (answersFrom).
@@ -15,6 +15,7 @@ export const SHEETS = [
   { id: 'liste', tab: '3 Basic list', title: 'Race basic list', lead: '«Always» means: comes along every time. «Only if» needs a reason. Everything else stays at home.' },
   { id: 'schlaf', tab: '4 Sleep', title: 'Sleep: play the variants through', lead: 'Write for every variant what it means for you. Then pick one.' },
   { id: 'nacht', tab: '5 Night', title: 'Play one night through', lead: 'Take a real night from a past race or a planned one. Write for every time what you do and need.' },
+  { id: 'vorher', tab: '6 Day before', title: 'The day before the start', lead: 'The evening before the start: write your plan once, then tick off what is done. Change or delete what does not fit.' },
 ];
 
 /** Sheet 1: the steps. extra: 'race' = the race and the four questions, 'test' = the test ride. */
@@ -80,6 +81,28 @@ export const NIGHT = [
   ['Sunday', 'What do you do if tomorrow is Sunday and everything is closed?', ''],
 ];
 
+/** Sheet 6: the evening before the start (Noah «7a»: charging, food, clothes, start time). */
+export const DAY_BEFORE = [
+  { name: 'Charge', ph: 'e.g. bike computer, phone, power bank, lights, heart-rate strap' },
+  { name: 'Food', ph: 'e.g. a big pasta dinner at 18:00, breakfast 2 h before the start' },
+  { name: 'Clothes for the start', ph: 'e.g. lay out everything; look at the weather for the first night' },
+  { name: 'Start time and alarm', ph: 'e.g. start 06:00, alarm 04:30, 20 min to the start' },
+  { name: 'Bike ready', ph: 'e.g. tyres pumped, chain oiled, track on the bike computer' },
+  { name: 'Bottles and food on the bike', ph: 'e.g. 2 bottles filled, food for the first 4 h in the pouches' },
+  { name: 'Sleep the night before', ph: 'e.g. in bed by 21:00, ear plugs, phone on silent' },
+];
+
+/**
+ * «Fragen nach dem Rennen» (Noah 27.10.2026 «8a»): three questions under every sheet, answered after the
+ * race. They stay with that race and show on top of the same sheet in your other races.
+ */
+export const AFTER = [
+  { k: 'missing', label: 'What was missing?' },
+  { k: 'much', label: 'What was too much or never used?' },
+  { k: 'change', label: 'What do you change next time?' },
+];
+const afterKeys = () => SHEETS.flatMap((sh) => AFTER.map((q) => `${sh.id}.after.${q.k}`));
+
 /** Every key with its empty start value (text '' or a tick). */
 export function fieldKeys() {
   const out = {};
@@ -99,6 +122,12 @@ export function fieldKeys() {
   out['schlaf.rule'] = '';
   NIGHT.forEach((_, i) => (out[`nacht.${i}`] = ''));
   out['nacht.help'] = '';
+  DAY_BEFORE.forEach((_, i) => {
+    out[`vorher.${i}.v`] = '';
+    out[`vorher.${i}.done`] = false;
+  });
+  out['vorher.own'] = '';
+  for (const k of afterKeys()) out[k] = '';
   return out;
 }
 const KEYS = fieldKeys();
@@ -136,7 +165,7 @@ export function filled(check, sheet) {
 }
 
 /** Fields that belong to one race only and are not taken over into the next (name, date, test ride …). */
-export const OWN_RACE_KEYS = ['ablauf.race', 'ablauf.racedate', 'ablauf.racekm', 'ablauf.racedays', 'ablauf.depotkm', 'ablauf.testdate', 'ablauf.testkm', 'ablauf.testbad'];
+export const OWN_RACE_KEYS = ['ablauf.race', 'ablauf.racedate', 'ablauf.racekm', 'ablauf.racedays', 'ablauf.depotkm', 'ablauf.testdate', 'ablauf.testkm', 'ablauf.testbad', ...DAY_BEFORE.map((_, i) => `vorher.${i}.done`), ...afterKeys()];
 
 /**
  * Take over another race's check: its answers go into the fields that are still empty here (your own
@@ -155,3 +184,60 @@ export function takeOver(mine, other, now = new Date().toISOString()) {
   }
   return { check: { ...(mine ?? {}), values, at: now }, n };
 }
+
+/**
+ * Grams from what you wrote: «200», «2× 100», «1.2 kg», «150 g + 40». Every number counts; «N×» multiplies
+ * the number after it; «kg» turns kilos into grams. → grams or null when there is no number.
+ */
+export function gramsOf(text) {
+  const s = String(text ?? '').toLowerCase().replace(/(\d),(\d)/g, '$1.$2');
+  const re = /(?:(\d+(?:\.\d+)?)\s*[x×]\s*)?(\d+(?:\.\d+)?)\s*(kg|g)?/g;
+  let sum = 0;
+  let any = false;
+  for (const m of s.matchAll(re)) {
+    if (!m[2]) continue;
+    const times = m[1] ? Number(m[1]) : 1;
+    const n = Number(m[2]) * (m[3] === 'kg' ? 1000 : 1);
+    sum += times * n;
+    any = true;
+  }
+  return any ? Math.round(sum) : null;
+}
+
+/**
+ * The weight of the target setup (sheet 2): empty and full per bag added up, against your target.
+ * → { empty, full, target, over (full − target, + = too heavy), bags: [{ i, empty, full }], counted }
+ */
+export function setupWeight(check) {
+  const bags = BAGS.map((_, i) => ({ i, empty: gramsOf(valueOf(check, `setup.${i}.g`)), full: gramsOf(valueOf(check, `setup.${i}.full`)) }));
+  const empty = bags.reduce((a, b) => a + (b.empty ?? 0), 0);
+  const full = bags.reduce((a, b) => a + (b.full ?? b.empty ?? 0), 0);
+  const target = gramsOf(valueOf(check, 'setup.total'));
+  const counted = bags.filter((b) => b.empty != null || b.full != null).length;
+  return { empty, full, target, over: target != null && counted ? full - target : null, bags, counted };
+}
+
+/** Sheet 6: how many steps are ticked off. → { done, of } */
+export function dayBeforeDone(check) {
+  const done = DAY_BEFORE.filter((_, i) => valueOf(check, `vorher.${i}.done`) === true).length;
+  return { done, of: DAY_BEFORE.length };
+}
+
+/**
+ * What you answered after other races for one sheet, for the top of that sheet here.
+ * others = [{ id, title, check }] → [{ id, title, k, label, text }], in the order of `others`.
+ */
+export function afterNotes(others, sheet, selfId) {
+  const out = [];
+  for (const o of others ?? []) {
+    if (o.id === selfId) continue;
+    for (const q of AFTER) {
+      const text = String(valueOf(o.check, `${sheet}.after.${q.k}`) ?? '').trim();
+      if (text) out.push({ id: o.id, title: o.title, k: q.k, label: q.label, text });
+    }
+  }
+  return out;
+}
+
+/** How many «after the race» answers one sheet has. */
+export const afterCount = (check, sheet) => AFTER.filter((q) => String(valueOf(check, `${sheet}.after.${q.k}`) ?? '').trim()).length;

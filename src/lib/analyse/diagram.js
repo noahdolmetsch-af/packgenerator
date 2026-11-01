@@ -138,3 +138,92 @@ export function matches(name, q) {
   const want = norm(q).trim();
   return !want || norm(name).includes(want);
 }
+
+/*
+ * Filters (D4, Noah «3a und b möglich»): one filter for the whole diagram, and on wish one more for a single
+ * value. A day the filter does not keep stays a gap, so the time stays true.
+ * { wd: [0…6] the weekdays kept (empty = all), act: { id, mode: 'with'|'without' } | null,
+ *   trip: 'all'|'only'|'without', felt: { part: 'energy'|'mood', op: 'hi'|'lo' } | null, outliers: bool }
+ * Only for the whole diagram: mark (an activity whose days get a dot under every row), band (trips as a band).
+ */
+export const EMPTY_FILTER = { wd: [], act: null, trip: 'all', felt: null, outliers: false };
+export const FELT_HI = 7;
+export const FELT_LO = 4;
+
+/** A filter read from storage: unknown parts fall back to «all». */
+export function cleanFilter(f) {
+  const o = f && typeof f === 'object' ? f : {};
+  const wd = Array.isArray(o.wd) ? [...new Set(o.wd.filter((x) => Number.isInteger(x) && x >= 0 && x <= 6))].sort() : [];
+  const act = o.act && typeof o.act.id === 'string' && (o.act.mode === 'with' || o.act.mode === 'without') ? { id: o.act.id, mode: o.act.mode } : null;
+  const trip = ['only', 'without'].includes(o.trip) ? o.trip : 'all';
+  const felt = o.felt && ['energy', 'mood'].includes(o.felt.part) && ['hi', 'lo'].includes(o.felt.op) ? { part: o.felt.part, op: o.felt.op } : null;
+  return { wd: wd.length === 7 ? [] : wd, act, trip, felt, outliers: o.outliers === true };
+}
+
+/** How many parts of a filter are set (the number on the «Filter» button). */
+export const filterCount = (f) => (f.wd.length ? 1 : 0) + (f.act ? 1 : 0) + (f.trip !== 'all' ? 1 : 0) + (f.felt ? 1 : 0) + (f.outliers ? 1 : 0);
+
+const wdOf = (d) => (new Date(`${d}T12:00:00Z`).getUTCDay() + 6) % 7;
+
+/**
+ * keep(day) for a filter. ctx: { ticks: Map actId → Set of days, tripDays: Set of days,
+ * felt(part, day) → number|null }. A felt filter drops the days without an answer.
+ */
+export function keepOf(f, { ticks = new Map(), tripDays = new Set(), felt = () => null } = {}) {
+  return (d) => {
+    if (f.wd.length && !f.wd.includes(wdOf(d))) return false;
+    if (f.act) {
+      const has = ticks.get(f.act.id)?.has(d) ?? false;
+      if (f.act.mode === 'with' ? !has : has) return false;
+    }
+    if (f.trip === 'only' && !tripDays.has(d)) return false;
+    if (f.trip === 'without' && tripDays.has(d)) return false;
+    if (f.felt) {
+      const v = felt(f.felt.part, d);
+      if (v == null) return false;
+      if (f.felt.op === 'hi' ? v < FELT_HI : v > FELT_LO) return false;
+    }
+    return true;
+  };
+}
+
+/** Both filters together: a day counts when the whole-diagram filter and the value's own filter keep it. */
+export const bothKeep = (a, b) => (b ? (d) => a(d) && b(d) : a);
+
+/** The values outside 1.5 × the middle half (Tukey) become gaps; under 8 values nothing is dropped. */
+export function dropOutliers(values) {
+  const vals = values.filter((v) => v != null).sort((a, b) => a - b);
+  if (vals.length < 8) return values;
+  const q = (p) => {
+    const pos = (vals.length - 1) * p;
+    const a = Math.floor(pos);
+    return vals[a] + (vals[Math.ceil(pos)] - vals[a]) * (pos - a);
+  };
+  const lo = q(0.25);
+  const hi = q(0.75);
+  const pad = (hi - lo) * 1.5;
+  return values.map((v) => (v == null || v < lo - pad || v > hi + pad ? null : v));
+}
+
+/** All days of the trips as a set (trip end from endOf). */
+export function tripDaySet(trips = [], endOf) {
+  const out = new Set();
+  for (const tr of trips) {
+    const s = tr?.startDate;
+    const e = endOf?.(tr) ?? s;
+    if (!s || !e || e < s) continue;
+    for (let d = s, i = 0; d <= e && i < 400; d = addDays(d, 1), i++) out.add(d);
+  }
+  return out;
+}
+
+/** The ticked days of every activity: Map actId → Set of days. */
+export function tickDays(log = []) {
+  const out = new Map();
+  for (const e of log) {
+    if (!e?.actId || !e.day) continue;
+    if (!out.has(e.actId)) out.set(e.actId, new Set());
+    out.get(e.actId).add(e.day);
+  }
+  return out;
+}

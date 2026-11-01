@@ -45,6 +45,8 @@ export const TILES = [
   { id: 'body', area: 'flow', label: 'Your body today', icon: 'flow', sizes: ['l', 'long'], size: 'l', since: '0.169.0', pitch: 'Resting pulse, sleep, sleep score and active zone minutes next to yesterday, with the morning or evening check.' },
   // Noah 21.10.2026 06:49 «Körperwerte und countdown ok»: the Fitbit values of today, each into its tab of Körperwerte
   { id: 'vitals', area: 'flow', label: 'Body values', icon: 'heart', sizes: ['long'], size: 'long', pitch: 'Resting pulse, HRV, sleep, steps, active zone minutes and calories of today; a tap opens its chart.' },
+  // «Heute-Check» (Noah 30.10.2026 «1-5a», thread «Tagescheck optimieren»): the questionnaire is one tap away, also when answered
+  { id: 'heutecheck', area: 'flow', label: "Today's check", icon: 'list', sizes: ['w', 'l'], size: 'w', pitch: 'The questionnaire of today, also when you have answered it, and the analyses of your answers one tap away.' },
   // «VO2max auf Heute» (Noah 28.10.2026 «2 a und b»): the last VO2max from Fitbit or Apple Health; away while there is none
   // «Heute als Begleiter» PR 4 (Noah 28.10.2026 «1a 2a 3a»): the moment you are in, with one next step
   { id: 'moment', area: 'today', label: 'Your moment', icon: 'route', sizes: ['long'], size: 'long', pitch: 'The moment you are in (packing, on the way, back home …), the five steps of a trip and one next step.' },
@@ -134,6 +136,7 @@ export const READY = [
   ['weighin', 'long'],
   ['body', 'l'],
   ['acts', 'l'],
+  ['heutecheck', 'w'], // «Heute-Check» (Noah 30.10.2026 «1-5a»): always there, leads to the questionnaire
   ['week', 'l'],
   ['balance', 'l'],
   ['strava', 'l'],
@@ -217,7 +220,7 @@ export const REMOVED_0155 = ['morningcheck', 'fn:dayride', 'fn:trip', 'fn:wear',
 /** 0.155.0: the new pieces of HN4; a stored wall gets them once, in their place. */
 export const ADDED_0155 = ['meditation', 'daycard', 'aktiv'];
 /** «Heute neu» N2: the tiles on top of the wall; near a trip its card moves up right under them (tripUp). */
-export const HEAD_N2 = ['meditation', 'moment', 'discover', 'weighin', 'body', 'acts', 'vitals']; // PR 4: the moment card too
+export const HEAD_N2 = ['meditation', 'moment', 'weighin', 'discover', 'body', 'acts', 'vitals']; // PR 4: the moment card too
 /** The tiles that stand on top, in this order (the trip card may move up under the day card, tripUp). */
 export const HEAD_0155 = ['meditation', 'daycard', 'important'];
 
@@ -247,7 +250,9 @@ export function wallOf(value, legacy = null) {
     // «Heute als Begleiter» PR 4 (Noah 28.10.2026): a wall of before (v < 15) gets the moment card once
     const mo = (value.v ?? 1) < 15 ? withMoment(vo2) : vo2;
     // PR 5 (Noah 28.10.2026): a wall of before (v < 16) gets the card «Discover» once, under the moment card
-    return (value.v ?? 1) < 16 ? withDiscover(mo) : mo;
+    const di = (value.v ?? 1) < 16 ? withDiscover(mo) : mo;
+    // «Heute-Check» (Noah 30.10.2026 «1-5a»): a wall of before (v < 17) gets the tile once
+    return (value.v ?? 1) < 17 ? withHeuteCheck(di) : di;
   }
   const off = new Set((Array.isArray(legacy?.off) ? legacy.off : []).flatMap((k) => FROM_SECTION[k] ?? []));
   return READY.filter((x) => !off.has(x.id)).map((x) => ({ ...x }));
@@ -452,8 +457,19 @@ export function withDiscover(tiles = []) {
   out.splice(a >= 0 ? a + 1 : 0, 0, { id: 'discover', size: TILE.discover.size });
   return out;
 }
-/** The record to store (v 16: the card «Discover» came once; v 15: the moment card came once; v 14: the VO2max tile came once; v 13: «Heute ruhiger», the double tiles went once; v 12: P6 «Heute ergänzen» came once; v 11: «Körperwerte» came once; v 10: «Heute neu» N2; v 9: «Heute neu» A; v 5: the order of 0.155.0 HN4; v 6: «Deine 15 Fragen» is back; v 7: the routine came once; v 8: «Your values today» (P) and the tip of the week (Q) came once). */
-export const wallRecord = (tiles) => ({ v: 16, tiles: tiles.map((x) => ({ id: x.id, size: sizeFor(x.id, x.size) })) });
+/**
+ * «Heute-Check» (Noah 30.10.2026 «1-5a»): a wall stored before (v < 17) gets the tile once, right after «Dein Körper
+ * heute» and «Aktiv heute» (else at the end). Taken away after that, it stays away. → tiles
+ */
+export function withHeuteCheck(tiles = []) {
+  if (tiles.some((x) => x.id === 'heutecheck')) return tiles;
+  const out = [...tiles];
+  const a = Math.max(out.findIndex((x) => x.id === 'body'), out.findIndex((x) => x.id === 'acts'));
+  out.splice(a >= 0 ? a + 1 : out.length, 0, { id: 'heutecheck', size: TILE.heutecheck.size });
+  return out;
+}
+/** The record to store (v 17: the Heute-Check tile came once; v 16: the card «Discover» came once; v 15: the moment card came once; v 14: the VO2max tile came once; v 13: «Heute ruhiger», the double tiles went once; v 12: P6 «Heute ergänzen» came once; v 11: «Körperwerte» came once; v 10: «Heute neu» N2; v 9: «Heute neu» A; v 5: the order of 0.155.0 HN4; v 6: «Deine 15 Fragen» is back; v 7: the routine came once; v 8: «Your values today» (P) and the tip of the week (Q) came once). */
+export const wallRecord = (tiles) => ({ v: 17, tiles: tiles.map((x) => ({ id: x.id, size: sizeFor(x.id, x.size) })) });
 
 /** Move tile `id` to place `to` (0 … n − 1). */
 export function moveTile(tiles, id, to) {
