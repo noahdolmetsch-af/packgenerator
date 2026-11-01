@@ -267,6 +267,8 @@ test('extras: «Ich» shows a dot, the Inbox is newest first and a sorted note o
   // older months are folded: on the first days of a month the notes of last month sit in a folded month, so open them all
   for (const b of await page.locator('h3 > button[aria-expanded="false"]').all()) await b.click();
   const rows = page.locator('.frow');
+  // earlier months are folded (on the 1st of a month the older notes sit in a folded month): open them all
+  for (const b of await page.locator('h3 button[aria-expanded="false"]').all()) await b.click();
   await expect(rows).toHaveCount(3);
   await expect(rows.filter({ hasText: `${P} Neue Handschuhe` })).toHaveAttribute('href', `#/gear?item=${encodeURIComponent(`${P}KL13`)}`);
   await expect(page.locator('div.frow').filter({ hasText: `${P} Erledigt schon` })).toHaveCount(1);
