@@ -97,6 +97,8 @@ export const test = base.extend({
       }
     }
     await use(page);
-    globalThis.__pgShift = 0;
+    // Back to the test day, not to 0: the next spec file in this worker builds its dates at the top of the file
+    // (day(1) …) while it loads, after this test, and must see the same day as the page it opens.
+    globalThis.__pgShift = process.env.E2E_REAL_CLOCK ? 0 : OFFSET;
   },
 });
