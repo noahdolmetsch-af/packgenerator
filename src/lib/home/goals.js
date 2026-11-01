@@ -11,10 +11,10 @@ export const GOALS_KEY = 'homeGoals';
 export const GOALS = [
   // Noah 21.10.2026 06:49 «Körperwerte und countdown ok»: the countdown to the next trip, only when there is one with a date
   { key: 'count', label: 'Countdown to the next trip|goal', on: true, trip: true },
-  { key: 'ride', label: 'Ride today|goal', on: true },
-  { key: 'trip', label: 'Plan a trip|goal', on: true },
-  { key: 'care', label: 'Work on the bike|goal', on: true, href: '#/bikes?tab=care' },
-  { key: 'week', label: 'Plan the week|goal', on: true, href: '#/week' },
+  { key: 'ride', label: 'Ride today|goal', on: false },
+  { key: 'trip', label: 'Plan a trip|goal', on: false },
+  { key: 'care', label: 'Work on the bike|goal', on: false, href: '#/bikes?tab=care' },
+  { key: 'week', label: 'Plan the week|goal', on: false, href: '#/week' },
   { key: 'diary', label: 'Write in the diary|goal', on: false, href: '#/tagebuch?neu' },
 ];
 const BY = Object.fromEntries(GOALS.map((g) => [g.key, g]));
