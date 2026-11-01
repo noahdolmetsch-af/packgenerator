@@ -77,7 +77,13 @@
   const ACT_NAME = { replace: 'replaced', service: 'serviced', check: 'checked' };
   let morePart = $state('');
   let moreAct = $state('replace');
-  let wholeBike = $state(true);
+  let wholeBike = $state(false);
+  // Noah 1.11.2026 «2a»: what saving resets, in words, before it happens
+  const resetLines = $derived([
+    ...(wholeBike ? [t('The bike counter «since the last service» goes back to 0')] : []),
+    ...jobs.filter((j) => j.action === 'replace').map((j) => t('{part}: starts again at 0 km', { part: partLabel(j.part) })),
+    ...jobs.filter((j) => j.action === 'service').map((j) => t('{part}: «since the service» goes back to 0', { part: partLabel(j.part) })),
+  ]);
   const chipParts = new Set(VISIT_JOBS.map((j) => j.part));
   const extraJobs = $derived(jobs.filter((j) => !chipParts.has(j.part)));
   const partLabel = (key) => t(JOB_PARTS.find((p) => p.key === key)?.name ?? key);
@@ -221,6 +227,14 @@
         <button type="button" class="btn sm" disabled={!morePart} onclick={addMore} data-visit-add>{t('Add|part')}</button>
       </div>
       <label class="vd-whole"><input type="checkbox" bind:checked={wholeBike} data-visit-whole /> <span>{t('Service of the whole bike: set the counter to 0')}</span></label>
+      <div class="vd-reset" data-visit-reset aria-live="polite">
+        {#if resetLines.length}
+          <p class="lbl">{t('Saving resets these counters:')}</p>
+          <ul>{#each resetLines as l (l)}<li>{l}</li>{/each}</ul>
+        {:else}
+          <p class="hint">{t('Saving resets no counter. Tick a part as replaced or serviced, or the whole bike.')}</p>
+        {/if}
+      </div>
       <p class="hint">{t('Replaced parts start again at 0 km, serviced parts at 0 km since the service. The total km of the bike always stay.')}</p>
       <label class="field"><span class="lbl">{t('Cost CHF (optional)')}</span><input class="inp num cost" type="text" inputmode="decimal" bind:value={chf} placeholder={t('not known')} /></label>
     {:else}
@@ -284,6 +298,13 @@
     gap: 8px;
     margin: 12px 0 0;
     min-height: 44px;
+  }
+  .vd-reset {
+    margin: 8px 0 0;
+  }
+  .vd-reset ul {
+    margin: 4px 0 0;
+    padding-left: 20px;
   }
   .vd-whole input {
     margin-top: 3px;

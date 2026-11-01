@@ -117,7 +117,11 @@ test('workshop visit: a part replaced starts at 0 km, the whole bike counter to 
   await dlg.locator('[data-visit-act]').selectOption('replace');
   await dlg.locator('[data-visit-add]').click();
   await expect(dlg.locator('[data-visit-job="rotorF"]')).toContainText(T('replaced'));
-  await expect(dlg.locator('[data-visit-whole]')).toBeChecked();
+  // Noah 1.11.2026 «2a»: the whole-bike service is never preselected; the dialog says what saving resets
+  await expect(dlg.locator('[data-visit-whole]')).not.toBeChecked();
+  await expect(dlg.locator('[data-visit-reset]')).toContainText(T('{part}: starts again at 0 km', { part: T('Brake rotor front') }).split(':')[0]);
+  await dlg.locator('[data-visit-whole]').check();
+  await expect(dlg.locator('[data-visit-reset]')).toContainText(T('The bike counter «since the last service» goes back to 0'));
   await dlg.getByRole('button', { name: T('Save') }).click();
   await expect(dlg).toBeHidden();
 
