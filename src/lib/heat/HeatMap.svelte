@@ -13,6 +13,7 @@
   import { unmerc, fitView, zoomAt, panBy, tilesFor, pathOf, fromScreen, TILE } from '../spur/mapmath.js';
   import { RASTER_GROUNDS, rasterGround, tileUrl } from '../map/sources.js';
   import { mapGround, chooseGround } from '../map/groundpref.svelte.js';
+  import TileNote from '../map/TileNote.svelte';
   import { mercOf, boxOf, linesNear, rampOf, mainBounds } from './heat.js';
 
   /** lines: from heat.js heatLines; mode: 'lines' | 'clouds'; sel: lines to show in blue; onpick(lines). */
@@ -64,6 +65,14 @@
   const mid = $derived(unmerc({ x: view.x, y: view.y }));
   const g = $derived(rasterGround(mapGround.key, mid[0], mid[1]));
   let pickOpen = $state(false);
+  // F07: count the tiles that did or did not load (TileNote says so when none does)
+  let tileBad = $state(0);
+  let tileOk = $state(0);
+  $effect(() => {
+    g.key;
+    tileBad = 0;
+    tileOk = 0;
+  });
   const choose = (k) => {
     chooseGround(k);
     pickOpen = false;
@@ -232,9 +241,10 @@
 <div class="hmap" style:height="{height}px" bind:this={box} role="application" aria-label={label || t('Heatmap: drag to move, pinch or wheel to zoom, tap a line for its rides')} tabindex="0" onpointerdown={down} onpointermove={move} onpointerup={up} onpointercancel={up} onwheel={wheel} onkeydown={key} data-heatmap data-mode={mode} data-lines={lines.length}>
   <div class="tiles" aria-hidden="true">
     {#each tiles as tl (tl.key + g.key)}
-      <img src={tileUrl(g, tl.z, tl.x, tl.y)} alt="" draggable="false" style:left="{tl.left}px" style:top="{tl.top}px" style:width="{tl.size + 0.5}px" style:height="{tl.size + 0.5}px" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" />
+      <img src={tileUrl(g, tl.z, tl.x, tl.y)} alt="" draggable="false" style:left="{tl.left}px" style:top="{tl.top}px" style:width="{tl.size + 0.5}px" style:height="{tl.size + 0.5}px" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" onerror={() => tileBad++} onload={() => tileOk++} />
     {/each}
   </div>
+  <TileNote bad={tileBad} ok={tileOk} />
   <canvas class="heat" bind:this={canvas} style:width="{w}px" style:height="{h}px" aria-hidden="true"></canvas>
   {#if selPaths.length}
     <svg class="over" width={w} height={h} aria-hidden="true">

@@ -26,7 +26,7 @@
    *   fitButton=false, navAt (corner of the zoom buttons).
    * - onview({ west, south, east, north }): after you moved or zoomed the map yourself (debounced).
    * - onmove({ s, w, n, e }): after every move of the map (yours or the page's), for the place search.
-   * Methods (bind:this): fitRoute(), fitLine(line), show(lat, lon, zoom).
+   * Methods (bind:this): fitRoute(), fitLine(line), show(lat, lon, zoom), drive(lat, lon, bearing, zoom), north().
    */
   import { onMount, untrack } from 'svelte';
   import { Maximize2, Layers } from '@lucide/svelte';
@@ -124,6 +124,15 @@
     const h = Math.max(80, c.clientHeight - Math.max(0, bottomPx));
     const p = map.project([lon, lat]);
     if (p.x < w * 0.2 || p.x > w * 0.8 || p.y < h * 0.2 || p.y > h * 0.8) map.easeTo({ center: [lon, lat], offset: [0, -Math.max(0, bottomPx) / 2], duration: 600 });
+  }
+  /** Navigation: you in the lower part, the map turned so that your direction points up (bearing), at this zoom. */
+  export function drive(lat, lon, bearing = 0, zoom = 16, bottomPx = 0) {
+    if (!map || !Number.isFinite(lat) || !Number.isFinite(lon)) return;
+    map.easeTo({ center: [lon, lat], bearing: Number.isFinite(bearing) ? bearing : 0, zoom, offset: [0, 60 - Math.max(0, bottomPx) / 2], duration: 900 });
+  }
+  /** North up again (the map had been turned for navigation). */
+  export function north() {
+    if (map && Math.abs(map.getBearing()) > 0.5) map.easeTo({ bearing: 0, duration: 500 });
   }
   export function show(lat, lon, zoom = 13) {
     if (map && Number.isFinite(lat) && Number.isFinite(lon)) map.easeTo({ center: [lon, lat], zoom: Math.max(map.getZoom(), zoom) });
