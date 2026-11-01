@@ -111,6 +111,9 @@ export default {
   'Weather from Open-Meteo (free, open data). Avalanches: the SLF bulletin, shown as it is; the app never rates the danger itself.': 'Wetter von Open-Meteo (gratis, offene Daten). Lawinen: das SLF-Bulletin, so wie es ist; die App beurteilt die Gefahr nie selbst.',
   // planning and packing (TourWetter.svelte)
   'Weather for this tour': 'Wetter für diese Tour',
+  'Weather for': 'Wetter für',
+  'Home place|wx': 'Wohnort',
+  'Next tour: {name}': 'Nächste Tour: {name}',
   'Best start for {h} h riding: {from} (back about {to})': 'Beste Startzeit für {h} h Fahrt: {from} (zurück etwa {to})',
   'Best day in the next week: {day}, from {from}': 'Bester Tag in der nächsten Woche: {day}, ab {from}',
   'Snow line about {line} m; your route goes up to {top} m.': 'Schneefallgrenze etwa {line} m; deine Strecke geht bis {top} m.',
