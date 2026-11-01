@@ -1,6 +1,6 @@
 # Gehört dazu auf Ich
 
-PR folgt · 31.10.2026 · Auftrag: Noah «1a 2a 3a» (Thread «Neue Struktur der App aus der Funktionsliste»), Schritt 9 von «Heute als Begleiter»
+PR #506 · 31.10.2026 · Auftrag: Noah «1a 2a 3a» (Thread «Neue Struktur der App aus der Funktionsliste»), Schritt 9 von «Heute als Begleiter»
 
 ## Was ist neu
 - Oben auf Ich steht eine Zeile «Gehört zu: App und Hilfe» mit bis zu fünf kleinen Sprunglinks zu Funktionen, die man leicht übersieht (nie benutzte zuerst), und «alle n ›».
