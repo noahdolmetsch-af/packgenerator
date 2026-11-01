@@ -307,7 +307,7 @@ export default {
   // «Ein Link wird ein Traum» (Träume und Neuland N13, Noah 27.10.2026 «1-5 a»)
   'Reading the link…': 'Link wird gelesen …',
   'Read from the link': 'Aus dem Link lesen',
-  'Or paste a link from Ride with GPS, komoot or a report: name, km and climb come along.': 'Oder füge einen Link von Ride with GPS, komoot oder einem Bericht ein: Name, km und Höhenmeter kommen mit.',
+  '«A link becomes a dream»: paste a link from Ride with GPS, komoot or a report, and name, km and climb come along.': '«Ein Link wird ein Traum»: Füge einen Link von Ride with GPS, komoot oder einem Bericht ein, dann kommen Name, km und Höhenmeter mit.',
   '«{name}» added with its link. {why} The name can be changed in the dream.': '«{name}» mit seinem Link hinzugefügt. {why} Den Namen änderst du im Traum.',
   '«{name}» added from the link: {what}.': '«{name}» aus dem Link hinzugefügt: {what}.',
   '«{name}» added from the link. The page names no km; a GPX file adds the map.': '«{name}» aus dem Link hinzugefügt. Die Seite nennt keine km; eine GPX-Datei bringt die Karte.',

@@ -168,7 +168,7 @@
   <form class="card cap" onsubmit={add}>
     <label class="capt"><span class="sr">{t('New dream tour')}</span><input class="inp" type="text" bind:value={title} maxlength="80" placeholder={t('e.g. Over the Furka and Grimsel')} /></label>
     <button type="submit" class="btn hi" disabled={reading} data-dream-add><Plus size={16} aria-hidden="true" />{reading ? t('Reading the link…') : t('Add')}</button>
-    <p class="caph">{t('Or paste a link from Ride with GPS, komoot or a report: name, km and climb come along.')}</p>
+    <p class="caph">{t('«A link becomes a dream»: paste a link from Ride with GPS, komoot or a report, and name, km and climb come along.')}</p>
     {#if msg}<p class="err" role="alert">{msg}</p>{/if}
   </form>
   {#if done}<p class="ok" role="status"><Check size={16} aria-hidden="true" />{done}</p>{/if}
