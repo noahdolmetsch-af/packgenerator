@@ -2028,3 +2028,7 @@ Noah 19.10.2026: «1a 2a 3a 4 a oder b beides wählbar 5a», danach «a und b»,
 
 ## 28.10.2026 VO2max auf Heute
 - Noah «2 a und b»: VO2max mit Verlauf in Analyse/Körperwerte und dazu als eigene Kachel auf Heute (Bereich «Dein Körper»). Nur anschauen, keine Wertung; ohne Wert in 90 Tagen bleibt die Kachel weg. Eine gespeicherte Startseite bekommt sie einmal (Wand v 14).
+
+## 01.11.2026 Wegweiser statt Katalog
+- Noah «1a 2a 3a 4a 5a»: Jede Funktion braucht einen Absprung dort, wo das Bedürfnis entsteht; ein Test macht das zur Pflicht, auch für neue Funktionen. Form: ruhige Zeile «Passt hier» mit kleinen Knöpfen am Ende des Abschnitts. Nach einer Handlung «Als Nächstes» mit 1 bis 2 Knöpfen im Bestätigungs-Hinweis. Keine neue Finde-Hilfe mehr, die bestehenden bleiben. Start mit Unterwegs und Velo.
+- Noah «1-5a» (Inhalte): Jeder Wegweiser-PR bringt die Inhalte seiner Funktionen mit. Inhalt steht auf der Seite («Wozu» oben, Schritte und Beispiel im leeren Zustand, Wissen als ruhige Karte), nicht nur hinter «?». Claude schreibt Wissen in eigenen Worten, Noah sieht es pro PR als Bild. Leere Funktionen bieten «Beispiel übernehmen» (änderbar, löschbar). Ton kurz und sachlich mit etwas Bikepacking-Humor.

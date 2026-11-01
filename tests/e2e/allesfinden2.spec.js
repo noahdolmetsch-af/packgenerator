@@ -39,6 +39,8 @@ test('AF2-2 All n shows every page of Planen as a tile with one sentence', async
   await more.click();
   const tiles = page.locator('dialog.ptsheet [data-all-pages] a[data-page-tile]');
   await expect(tiles).toHaveCount(PLACE_TABS.week.length);
+  // «Planen als verbindende Mitte» 2a: the twelve pages stand in four groups
+  await expect(page.locator('dialog.ptsheet [data-pt-group]')).toHaveCount(4);
   await page.screenshot({ path: info.outputPath('af2-alle.png') });
   // sorting is one step away, with arrows
   await page.locator('dialog.ptsheet [data-sort-pages]').click();
