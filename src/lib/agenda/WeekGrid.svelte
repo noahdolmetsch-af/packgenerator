@@ -5,7 +5,7 @@
    * colour of their calendar, a line for «now». A tap on a block opens it, a tap on an empty place starts
    * a new appointment at that time. The rows come from db.gEvents (src/lib/agenda.js weekLayout).
    */
-  import { weekLayout, timeOf, clockIn } from '../agenda.js';
+  import { weekLayout, timeOf, clockIn, EVENT_COLORS } from '../agenda.js';
   import { t, locale } from '../i18n.svelte.js';
 
   let { events, days, today, colors = {}, picked = null, onpick, onnew } = $props();
@@ -15,7 +15,7 @@
   const hours = Array.from({ length: 24 }, (_, h) => h);
   const hh = (h) => `${String(h).padStart(2, '0')}:00`;
   const label = (day, opt) => new Date(`${day}T12:00:00Z`).toLocaleDateString(locale(), { timeZone: 'UTC', ...opt });
-  const colorOf = (e) => colors[e.cal] ?? 'var(--accent)';
+  const colorOf = (e) => EVENT_COLORS[e.color] ?? colors[e.cal] ?? 'var(--accent)';
   const clock = (e, from, to) => (e.allDay ? '' : `${timeOf(e)}–${timeOf({ start: e.end })}`);
 
   let scroller = $state(null);

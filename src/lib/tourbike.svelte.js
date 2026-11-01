@@ -9,6 +9,7 @@
  */
 import { liveQuery } from 'dexie';
 import { sortBikes } from './bikes.js';
+import { activeBikes } from './bikeretire.js';
 import { lastBikeId } from './dayride.js';
 import { localDay } from './localday.js';
 
@@ -36,7 +37,7 @@ export async function setTourBike(db, mode) {
 }
 
 /** The standard bike: the first one in the order, or null without bikes. */
-export const standardBike = (bikes = []) => sortBikes(bikes)[0] ?? null;
+export const standardBike = (bikes = []) => sortBikes(activeBikes(bikes))[0] ?? null;
 
 /** The bike a new tour brings: the standard bike, or with 'last' the bike of the last tour. */
 export function tourBikeId(trips = [], bikes = [], mode = tourBike.mode, today = localDay()) {

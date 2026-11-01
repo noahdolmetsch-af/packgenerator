@@ -18,6 +18,8 @@
   import { readList } from '../lib/mini/liste.js';
   import InviteAnswer from '../lib/mini/InviteAnswer.svelte';
   import { readInvite } from '../lib/mini/einladung.js';
+  import FoodAnswer from '../lib/mini/FoodAnswer.svelte';
+  import { readFood } from '../lib/mini/essen.js';
   import { readDateQuestion, cleanAnswer, cleanName, optKey, PICKS } from '../lib/mini/termin.js';
   import { CalendarCheck, Lock, Send } from '@lucide/svelte';
 
@@ -27,6 +29,7 @@
   let poll = $state.raw(null);
   let list = $state.raw(null);
   let invite = $state.raw(null);
+  let food = $state.raw(null);
   let count = $state(0);
   let end = $state('');
   let err = $state(link ? '' : t(MINI_ERRORS.broken));
@@ -50,8 +53,12 @@
         const p = readPoll(d.question);
         const l = p ? null : readList(d.question);
         const inv = p || l ? null : readInvite(d.question);
-        const read = p || l || inv ? null : readDateQuestion(d.question);
-        if (inv) {
+        const fd = p || l || inv ? null : readFood(d.question);
+        const read = p || l || inv || fd ? null : readDateQuestion(d.question);
+        if (fd) {
+          food = fd;
+          end = d.end;
+        } else if (inv) {
           invite = inv;
           end = d.end;
         } else if (l) {
@@ -115,6 +122,8 @@
     <Empty icon={CalendarCheck} title={t('Question not available')} text={err} />
   {:else if !loaded}
     <p class="mm-help">…</p>
+  {:else if food}
+    <FoodAnswer {food} id={link.id} {end} />
   {:else if invite}
     <InviteAnswer {invite} id={link.id} />
   {:else if list}

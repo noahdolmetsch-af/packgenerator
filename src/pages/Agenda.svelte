@@ -12,7 +12,7 @@
   import { agenda, connect, fetchNow, checkAllowed, saveTask, deleteTask, saveEvent, deleteEvent, chooseCals, hide } from '../lib/agenda/client.svelte.js';
   import WeekGrid from '../lib/agenda/WeekGrid.svelte';
   import { mondayOf, isoWeek } from '../lib/training.js';
-  import { byDay, taskGroups, timeOf, addDays, clockIn, ZONES, UNITS, remindRow, remindMinutes, SHOW_DAYS } from '../lib/agenda.js';
+  import { byDay, taskGroups, timeOf, addDays, clockIn, ZONES, UNITS, remindRow, remindMinutes, SHOW_DAYS, EVENT_COLORS, COLOR_NAMES, REPEATS, emptyRepeat, repeatRule } from '../lib/agenda.js';
   import { readKey, STRAVA_HASH } from '../lib/strava/client.svelte.js';
   import { localDay } from '../lib/localday.js';
   import { mail, loadPrefs as loadMailPrefs } from '../lib/mail/client.svelte.js';
@@ -130,25 +130,29 @@
   const ZONE_NAMES = { 'Europe/Zurich': 'Zurich', 'Europe/London': 'London', 'Europe/Lisbon': 'Lisbon', 'Europe/Athens': 'Athens', 'Europe/Istanbul': 'Istanbul', 'America/New_York': 'New York', 'America/Los_Angeles': 'Los Angeles', 'Asia/Tokyo': 'Tokyo', 'Australia/Sydney': 'Sydney', UTC: 'UTC' };
   const zoneName = (z) => (ZONE_NAMES[z] ? t(ZONE_NAMES[z]) : z);
   const zones = $derived(ev && !ZONES.includes(ev.tz) ? [ev.tz, ...ZONES] : ZONES);
+  const REPEAT_NAMES = { none: 'Does not repeat', daily: 'Every day', weekdays: 'Every weekday (Mon–Fri)', weekly: 'Every week', monthly: 'Every month', yearly: 'Every year', custom: 'Custom…' };
+  const FREQ_NAMES = { daily: 'days|repeat', weekly: 'weeks|repeat', monthly: 'months|repeat', yearly: 'years|repeat' };
+  const WEEKDAY_CODES = ['MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU'];
+  const WEEKDAY_NAMES = ['Mon|weekday', 'Tue|weekday', 'Wed|weekday', 'Thu|weekday', 'Fri|weekday', 'Sat|weekday', 'Sun|weekday'];
   const UNIT_NAMES = { minutes: 'minutes|unit', hours: 'hours|unit', days: 'days|unit', weeks: 'weeks|unit' };
 
   function newEvent() {
     openEv = null;
-    ev = { cal: writable.find((c) => c.primary)?.id ?? writable[0]?.id ?? 'primary', title: '', day: today, lastDay: '', allDay: false, from: '09:00', to: '10:00', where: '', note: '', noteWas: '', remind: null, busy: true, visibility: 'default', tz: ZONES[0], repeat: false, copy: false };
+    ev = { cal: writable.find((c) => c.primary)?.id ?? writable[0]?.id ?? 'primary', title: '', day: today, lastDay: '', allDay: false, from: '09:00', to: '10:00', where: '', note: '', noteWas: '', remind: null, busy: true, visibility: 'default', tz: ZONES[0], repeat: false, rep: emptyRepeat(), color: '', copy: false };
   }
   // The form for an event of Google; the times are shown on the clock of the event's own time zone.
   function formOf(e) {
     const tz = e.tz || ZONES[0];
     const from = e.allDay ? null : clockIn(e.start, tz);
     const to = e.allDay ? null : clockIn(e.end, tz);
-    return { cal: e.cal, gid: e.gid, title: e.title, day: from?.day ?? e.day, lastDay: e.lastDay > e.day ? e.lastDay : '', allDay: e.allDay, from: from?.time ?? '09:00', to: to?.time ?? '10:00', where: e.where, note: e.note ?? '', noteWas: e.note ?? '', remind: e.remind ? e.remind.map(remindRow) : null, busy: e.busy !== false, visibility: e.visibility ?? 'default', tz, repeat: !!e.repeat, copy: false };
+    return { cal: e.cal, gid: e.gid, title: e.title, day: from?.day ?? e.day, lastDay: e.lastDay > e.day ? e.lastDay : '', allDay: e.allDay, from: from?.time ?? '09:00', to: to?.time ?? '10:00', where: e.where, note: e.note ?? '', noteWas: e.note ?? '', remind: e.remind ? e.remind.map(remindRow) : null, busy: e.busy !== false, visibility: e.visibility ?? 'default', tz, repeat: !!e.repeat, rep: emptyRepeat(), color: e.color ?? '', copy: false };
   }
   const changeEvent = (e) => (ev = formOf(e));
   // «Duplicate» and «Copy to another calendar» open the form filled in; nothing goes to Google until «Enter in Google».
   function copyEvent(e, other = false) {
     const home = writable.some((c) => c.id === e.cal) ? e.cal : (writable.find((c) => c.primary) ?? writable[0])?.id ?? 'primary';
     const cal = other ? writable.find((c) => c.id !== e.cal)?.id ?? home : home;
-    ev = { ...formOf(e), gid: undefined, cal, repeat: false, copy: true };
+    ev = { ...formOf(e), gid: undefined, cal, repeat: false, rep: emptyRepeat(), copy: true };
     openEv = null;
   }
   const canCopyTo = (e) => writable.some((c) => c.id !== e.cal);
@@ -157,10 +161,10 @@
   async function keepEvent(e) {
     e.preventDefault();
     if (!ev.title.trim() || !ev.day) return;
-    const { noteWas, copy, repeat, remind, ...v } = ev;
+    const { noteWas, copy, repeat, rep, remind, ...v } = ev;
     // the description is sent only when it was changed (Google keeps its formatting otherwise)
     if (v.gid && v.note === noteWas) delete v.note;
-    const res = await saveEvent({ ...v, title: ev.title.trim(), lastDay: ev.allDay && ev.lastDay ? ev.lastDay : undefined, remind: remind === null ? null : remind.slice(0, 5).map(remindMinutes), tz: ev.allDay ? undefined : ev.tz });
+    const res = await saveEvent({ ...v, title: ev.title.trim(), lastDay: ev.allDay && ev.lastDay ? ev.lastDay : undefined, remind: remind === null ? null : remind.slice(0, 5).map(remindMinutes), tz: ev.allDay ? undefined : ev.tz, color: ev.color || (ev.gid ? '' : undefined), repeat: repeat ? undefined : repeatRule(rep) ?? undefined });
     if (res) {
       msg = ev.gid ? t('Changed in your Google calendar.') : t('«{name}» is in your Google calendar.', { name: ev.title.trim() });
       ev = null;
@@ -231,8 +235,8 @@
               </ul>
               <button type="button" class="btn hi big wide" disabled={!services.length} onclick={() => connect(services)}><Link size={16} aria-hidden="true" />{t('Connect with Google')}</button>
             {:else}
-              <p class="ich-help">{t('First connect Strava on this device: it gives this device the key the Google connection uses too.')}</p>
-              <a class="btn hi big wide" href={STRAVA_HASH}>{t('Connect Strava first')}</a>
+              <p class="ich-help">{t('This device needs the app key once. It comes with the Strava login; after that Google and Trello work here too.')}</p>
+              <a class="btn hi big wide" href={STRAVA_HASH}>{t('Unlock this device (once)')}</a>
             {/if}
             <p class="note"><Lock size={14} aria-hidden="true" /><span><b>{t('Kept only on your devices; the server keeps nothing.')}</b> {t('The first time Google says «unverified app»: that is normal and free.')}</span></p>
           </div>
@@ -268,6 +272,40 @@
               {#if !ev.allDay}
                 <label>{t('Time zone')}<select bind:value={ev.tz} data-ev-tz>{#each zones as z (z)}<option value={z}>{zoneName(z)}</option>{/each}</select></label>
               {/if}
+              {#if !ev.repeat}
+                <label>{t('Repeat|calendar')}
+                  <select bind:value={ev.rep.mode} data-ev-repeat>{#each REPEATS as m (m)}<option value={m}>{t(REPEAT_NAMES[m])}</option>{/each}</select>
+                </label>
+                {#if ev.rep.mode === 'custom'}
+                  <fieldset class="rem" data-ev-custom>
+                    <legend>{t('Custom repeat')}</legend>
+                    <div class="remrow">
+                      <span>{t('Every|repeat')}</span>
+                      <input type="number" min="1" max="99" bind:value={ev.rep.every} aria-label={t('Every|repeat')} />
+                      <select bind:value={ev.rep.freq} aria-label={t('Unit|repeat')}>{#each ['daily', 'weekly', 'monthly', 'yearly'] as f (f)}<option value={f}>{t(FREQ_NAMES[f])}</option>{/each}</select>
+                    </div>
+                    {#if ev.rep.freq === 'weekly'}
+                      <div class="wdays" role="group" aria-label={t('On these days')}>
+                        {#each WEEKDAY_CODES as d, i (d)}
+                          <label class="wd"><input type="checkbox" checked={ev.rep.days.includes(d)} onchange={(e) => (ev.rep.days = e.currentTarget.checked ? [...ev.rep.days, d] : ev.rep.days.filter((x) => x !== d))} />{t(WEEKDAY_NAMES[i])}</label>
+                        {/each}
+                      </div>
+                    {/if}
+                    <label>{t('Ends')}<select bind:value={ev.rep.end}><option value="never">{t('Never')}</option><option value="until">{t('On a day')}</option><option value="count">{t('After a number of times')}</option></select></label>
+                    {#if ev.rep.end === 'until'}<label>{t('Last day')}<DateInput bind:value={ev.rep.until} min={ev.day} /></label>{/if}
+                    {#if ev.rep.end === 'count'}<label>{t('Times')}<input type="number" min="1" max="999" bind:value={ev.rep.count} /></label>{/if}
+                  </fieldset>
+                {/if}
+              {/if}
+              <fieldset class="rem" data-ev-color>
+                <legend>{t('Colour')}</legend>
+                <div class="swatches">
+                  <label class="swatch own" title={t('Colour of the calendar')}><input type="radio" name="evcolor" value="" bind:group={ev.color} /><span>{t('Calendar')}</span></label>
+                  {#each Object.keys(EVENT_COLORS) as k (k)}
+                    <label class="swatch" style:--c={EVENT_COLORS[k]} title={t(COLOR_NAMES[k])}><input type="radio" name="evcolor" value={k} bind:group={ev.color} aria-label={t(COLOR_NAMES[k])} /><span aria-hidden="true"></span></label>
+                  {/each}
+                </div>
+              </fieldset>
               <label>{t('Where (optional)')}<input type="text" bind:value={ev.where} maxlength="200" /></label>
               <fieldset class="rem" data-ev-remind>
                 <legend>{t('Reminders')}</legend>
@@ -680,6 +718,63 @@
     .remrow select:first-child {
       grid-column: 1 / -1;
     }
+  }
+  .swatches {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+  }
+  .swatch {
+    position: relative;
+    display: inline-flex;
+    cursor: pointer;
+  }
+  .swatch input {
+    position: absolute;
+    opacity: 0;
+    inset: 0;
+    margin: 0;
+    cursor: pointer;
+  }
+  .swatch span:not(:empty),
+  .swatch span:empty {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 28px;
+    height: 28px;
+    border-radius: 99px;
+    box-sizing: border-box;
+  }
+  .swatch:not(.own) span {
+    background: var(--c);
+    border: 2px solid var(--paper);
+    box-shadow: 0 0 0 1px var(--line);
+  }
+  .swatch.own span {
+    padding: 0 10px;
+    font-size: var(--fs-small);
+    border: 1px solid var(--line);
+    color: var(--ink-2);
+  }
+  .swatch:has(input:checked) span {
+    box-shadow: 0 0 0 2px var(--ink);
+  }
+  .swatch:has(input:focus-visible) span {
+    outline: 2px solid var(--ink);
+    outline-offset: 2px;
+  }
+  .wdays {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .wd {
+    display: inline-flex;
+    gap: 4px;
+    align-items: center;
+    font-size: var(--fs-small);
   }
   .go {
     display: flex;

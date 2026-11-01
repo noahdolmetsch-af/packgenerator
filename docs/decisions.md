@@ -1962,6 +1962,7 @@ Noah 19.10.2026: «1a 2a 3a 4 a oder b beides wählbar 5a», danach «a und b»,
 - Noah 27.10.2026 Suchvorschläge «1a 2a 3a 4a»: Situations-Knöpfe ganz oben bei «In der Nähe», neue Arten unter «Weitere Arten», Automaten aus OpenStreetMap, auf Live-Karte und Tour-Seite. Schlafplatz finden ohne Regel-Hinweis («ohne hinweis»). Umweg und zurück «1a 2b 3a»: nach dem Halt immer fragen (Renn-Modus: zurück an die Ausstiegsstelle vorgewählt), neben der Strecke sofort selbst neu berechnen, dazu Sport-/Outdoorgeschäft, Feuerstelle und Handy laden.
 - Noah 27.10.2026 01:15: Freigabe für alle Mockups (M8 neu, N1–N3, R1–R4); dazu «Gleichen Weg zurück» auf der eigenen Spur, wenn man von der Strecke abkommt.
 - 26.10.2026: **Neuer Schwung PR 1** (Noah «1a 2a 3a 4a 5a + 5b»: Stil S2 «Kacheln mit Tiefe», Handy-Bereiche zu ausser «Jetzt», «Startseite anpassen» als Zeile unten, Bewegung überall dezent, kleine Bausteine plus Lottie). PR 1 nur die Zeile unten; Aufklappen wartet auf «Heute ruhiger» Teil 3. Vorschläge: https://claude.ai/artifact/8qMe2aMYPgj93cpRHEQRXv
+- Noah 27.10.2026 «Eigenes Diagramm» (D1–D6) «1a 2a 3a und b möglich 4a 5a»: zuoberst auf Analyse, Werte untereinander als Start (übereinander umschaltbar), bis 6 Werte, ein Filter für das ganze Diagramm und zusätzlich pro Wert, «Was hängt zusammen?» mit Versatz und Liste. Dazu «alle Mockups 1:1 übernehmen»: jede Kachel öffnet eine eigene Seite pro Wert (M6); Körperwerte und «Haken ausgewertet» bleiben als Link.
 - Noah 27.10.2026 15:17 (Einzelideen Ich, Übersicht): «1a 2b 3a» = letzte Werkzeug-Ergebnisse bleiben nur auf dem Gerät; Vorschläge nach Art nur noch unter Ich › Ruhig und persönlich › Ausgeblendet und aus (Darstellung verlinkt dorthin); Dokumente-Test unabhängig von der Uhrzeit machen.
 
 ## 27.10.2026 Ultra-Rennen: Herausforderungen und Ziel 6
@@ -2015,6 +2016,11 @@ Noah 19.10.2026: «1a 2a 3a 4 a oder b beides wählbar 5a», danach «a und b»,
 - 8 Momente, eine ruhige Funktion zum Entdecken pro Moment mit «Nicht für mich» (Noah «2a 3a»).
 - Die vier Knöpfe oben auf Heute wandern in die Moment-Karte, die Tourkarte «1/7» fällt weg, «Was die App kann» bekommt die Ansicht «Nach Moment», «Gehört dazu» Seite für Seite ab Packen (Noah «1a 2a 3a 4a»). 13 kleine PRs (Noah «ok freigabe», «ja»).
 - Jede Funktion in `features.js` hat genau einen Moment in `FEATURE_MOMENTS` (`src/lib/moment.js`); `tests/moment.test.js` prüft das.
+
+## 28.10.2026 Nacht-Ideen im Rennen
+- Nacht-Stopp-Ablauf als Liste zum Abhaken, «Nächster Stopp» nimmt die Haken weg (Noah «1a»).
+- Belohnung jede Stunde: eigene Liste, Renn-Modus zeigt die nächste mit voller Stunde (Noah «2a»).
+- Bäckerei am Morgen: im Plan pro Nacht und im Renn-Modus nach Mitternacht (Noah «3b und a»).
 
 ## 27.10.2026 Freunde jederzeit umstellen
 

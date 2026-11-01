@@ -91,7 +91,7 @@
           {#each ahead as w (w.key)}
             <li class="pa-tl pa-{w.kind}"><span class="pa-pt" aria-hidden="true"></span><small>{w.kind === 'parked' ? t('Parked: goes online after your OK') : t('Next|way')}</small><b>{w.title}</b></li>
           {/each}
-          {#each WHATS_NEW.slice(0, RELEASES) as r (r.version)}
+          {#each WHATS_NEW.slice(0, RELEASES) as r, i (`${r.version}-${i}`)}
             <li class="pa-tl pa-done" data-release={r.version}><span class="pa-pt" aria-hidden="true"></span><small class="num">{r.version} · {day(r.date)}</small><b>{t(r.title)}</b>{#if r.lead}<span>{t(r.lead)}</span>{/if}</li>
           {/each}
         </ol>

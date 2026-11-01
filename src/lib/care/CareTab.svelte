@@ -1,4 +1,5 @@
 <script>
+  import { activeBikes } from '../bikeretire.js';
   import { backClose } from '../ui/backclose.js'; // Regeln der App (14.10.2026): back closes this window first
   import AreaIntro from '../intro/AreaIntro.svelte'; // «Einstieg» on top (Noah «4a»)
   import { offerCare } from '../remind/ask.svelte.js';
@@ -64,7 +65,7 @@
   const kmQ = liveQuery(() => db.kmBook.toArray()); // v0.68.0 «Q1 Jeder km zählt»: the ride ledger
 
   // What is stored (writes go here) and what is shown: the stored parts plus the jobs of the workshop visits.
-  const bikes = $derived(sortBikes($bikesQ ?? []).map((b) => ({ ...b, parts: ensureParts(b) })));
+  const bikes = $derived(sortBikes(activeBikes($bikesQ ?? [])).map((b) => ({ ...b, parts: ensureParts(b) })));
   const bikeById = $derived(Object.fromEntries(bikes.map((b) => [b.id, b])));
   const visits = $derived($visitsQ ?? []);
   const views = $derived(bikes.map((b) => withVisits(b, visits)));

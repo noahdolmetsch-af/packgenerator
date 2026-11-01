@@ -30,7 +30,9 @@
   const lastQ = liveQuery(async () => (await db.activities.orderBy('day').reverse().limit(12).toArray()).sort(byNewest)[0] ?? null);
   const nameOf = (id) => ($bikesQ ?? []).find((b) => b.id === id)?.name ?? '–';
   const last = $derived(strava.last);
-  const act = $derived(strava.key ? $lastQ : null);
+  // UI-Test T9 (G1-07): rides already in the app show even when this device has no key yet; the tile
+  // then offers to unlock the device instead of «Connect» next to «3 to check»
+  const act = $derived($lastQ);
   const secs = $derived(act ? zoneSecs(act.hist, zones.bounds) : null);
   const mz = $derived(mainZone(secs));
   const gearName = (a) => strava.prefs.gear.find((g) => g.id === a.gearId)?.name ?? '';
@@ -62,7 +64,7 @@
     <div class="ft">
       <a class="go" href="#/flow/training?view=list">{t('All activities')}<ChevronRight size={16} aria-hidden="true" /></a>
       {#if waiting}<a class="go" href={CHECK_HASH}>{tn(waiting, '{n} to check', '{n} to check')} ›</a>{/if}
-      <a class="go" href={STRAVA_HASH} data-strava-page>Strava ›</a>
+      <a class="go" href={STRAVA_HASH} data-strava-page>{strava.key ? 'Strava' : t('Not connected on this device')} ›</a>
     </div>
   {:else}
   <a class="hd" href={STRAVA_HASH}><TileHead icon={RefreshCw} id="st-h" title="Strava" side={strava.key ? when : ''} {isnew} /></a>
