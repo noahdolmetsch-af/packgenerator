@@ -570,3 +570,10 @@ Warum: mit anderen Leuten schneller abmachen, ohne langes Hin und Her im Chat (Z
 - Eigene Seite Ich › Mini-Tools. Die Gefragten antworten im Browser, ohne App und ohne Konto; die Antworten kommen verschlüsselt über einen kleinen Gratis-Speicher zurück, nur der Fragende kann sie lesen. Auszählen ohne KI.
 - Reihenfolge, je ein PR: 1 Termin finden (gebaut), 2 Mini-Umfrage (gebaut), 4 Anmeldeliste mit Warteliste (gebaut), 5 Spontan-Einladung «Fährst du morgen mit?» (gebaut), 7 Essen und Unverträglichkeiten (gebaut), 9 Fair auslosen (gebaut), 10 Wann muss ich losfahren? (gebaut)
 - Nicht gewählt: 3 Mitfahren und Velo-Plätze, 6 Rennen-Helferplan, 8 gemeinsame Bewertung nach der Tour.
+
+### 17. Wegweiser statt Katalog (Noah 01.11.2026 «1a 2a 3a 4a 5a», Inhalte «1-5a»)
+
+- **Warum:** Fast jede Funktion hat nur einen Eingang, ihre eigene Seite. Die Finde-Hilfen (Suche, Katalog, Quick Links, Entdecken) helfen nur, wer schon sucht. 44 Funktionen hatten keinen Link von einer Seite der App. Und die Texte zu jeder Funktion (Wozu, Anleitung, Beispiel) stehen im Handbuch, nicht auf der Seite; Wissen fehlt oft. Ziele: alle sechs, vor allem «Eine App, die mich im Alltag unterstützt».
+- **Was:** Jede Funktion bekommt einen Absprung dort, wo man sie braucht (Zeile «Passt hier», «Als Nächstes» nach einer Handlung, leere Stellen führen weiter, «Gehört dazu» auf Velos, Aktiv und Material) und sechs Inhaltsteile auf ihrer Seite: Wozu, So geht's, Beispiel, Wissen, Startinhalt, Als Nächstes. Dazu gleiche Namen überall und «Erscheint, wenn …» für Funktionen, die nur in einer Lage erscheinen. Eine neue Funktion ist erst fertig mit Absprung und Inhalt.
+- **Plan:** kleine PRs, jeder mit Bildern vorher. 1 Test «Absprung» (`src/lib/know/absprung.js`, `tests/absprung.test.js`, Liste darf nur kürzer werden) und Inhalts-Prüfung aller Seiten · 2 Unterwegs · 3 Velo und Material · 4 Rückblick · 5 Packen, Planen, Teilen · 6 Träume · 7 Körper · 8 Alltag und Ruhiger · 9 «Gehört dazu» auf Velos, Aktiv, Material · 10 leere Stellen. Vorschlag mit Bildern: https://claude.ai/artifact/CdzicDw4wNusQm1iJiC7vd
+- **Stand:** PR 1 (Test, nichts sichtbar).
