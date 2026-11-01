@@ -86,7 +86,7 @@
         </li>
       {/each}
     </ul>
-    <p class="rh-help"><a href="#/me/look">{t('More switches by area under Me › Look')}</a></p>
+    <p class="rh-help aus-more"><a href="#/me/look">{t('More switches by area under Me › Look')}</a></p>
   </Card>
   <Card id="hidden" icon={Eye} title={t('Everything hidden')} lead={n ? tn(n, '{n} thing hidden or switched off', '{n} things hidden or switched off') : t('Nothing hidden right now')} bind:open={open.hidden}>
     <div data-aus="all">
@@ -111,6 +111,12 @@
 </ul>
 
 <style>
+  /* 44 px tap area for the stand-alone link, the picture stays the same */
+  .aus-more a {
+    display: inline-block;
+    padding-block: 13px;
+    margin-block: -13px;
+  }
   .aus-sw,
   .aus-list {
     list-style: none;
