@@ -47,24 +47,17 @@ const noSideScroll = async (page) => expect(await page.evaluate(() => document.d
 
 // v0.46.0 (Noah 16a, 34b): "Good to know" with its 6 tiles and "I know it" is gone from Today; the
 // dark card "Tried it yet?" shows one function or tip not used yet, with ONE button and "Next ›".
-test('Tried it yet? with one idea and Next; the overview with ticks and progress', async ({ page, context }, info) => {
+test('Tried it yet? is gone; the overview with ticks and progress', async ({ page, context }, info) => {
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
   if (info.project.name === 'phone') await page.setViewportSize({ width: 320, height: 720 });
   await start(page, context, info);
   await page.goto('./#/');
-  // v0.155.0 «Heute neu geordnet» (HN4 3a, changed on purpose): the card left the ready wall; it comes back through «+»
+  // 1.11.2026 (Noah «a», Doppelte entfernen): the card «Tried it yet?» is gone; «Entdecken» and «Gehört dazu» take its place
   await expect(page.getByRole('region', { name: T('Tried it yet?') })).toHaveCount(0);
   await page.getByRole('button', { name: T('Add a tile') }).click();
-  await page.getByRole('dialog', { name: T('Add a tile') }).locator('[data-add="try"]').click();
+  await expect(page.getByRole('dialog', { name: T('Add a tile') }).locator('[data-add="try"]')).toHaveCount(0);
   await page.keyboard.press('Escape');
-  const card = page.getByRole('region', { name: T('Tried it yet?') });
-  await expect(card.locator('.pitch')).not.toBeEmpty();
-  await expect(card.locator('.tryb')).toHaveCount(1);
-  for (const el of await card.locator('button').all()) expect((await el.boundingBox()).height).toBeGreaterThanOrEqual(44);
-  const first = await card.getAttribute('data-try');
-  await card.getByRole('button', { name: T('Next idea') }).click();
-  await expect(card).not.toHaveAttribute('data-try', first);
   await noSideScroll(page);
 
   // v0.96.0 «F1 Alles finden» (mockup A): the overview on #/features: every function in 6 groups by

@@ -61,7 +61,6 @@ export const SECTION_OF = {
   yearago: 'away',
   year: 'away',
   news: 'discover',
-  try: 'discover',
   tipweek: 'discover',
 };
 const AREA_OF = { today: 'now', flow: 'body', trips: 'away', bikes: 'away', gear: 'away', app: 'discover' };

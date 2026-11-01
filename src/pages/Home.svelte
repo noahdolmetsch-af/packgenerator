@@ -89,7 +89,7 @@
   import { explain } from '../lib/ui/explain.js';
   import { readyLight, quickHints, dueAll } from '../lib/quickcare.js';
   import { chargeList, chargeCount } from '../lib/charge.js';
-  import { TIPS, TIPS_KEY, tipPossible, usedTips, isUsed, tapTip, updateTips } from '../lib/tips.js';
+  import { TIPS_KEY, usedTips } from '../lib/tips.js';
   import { PACE_KEY, paceOf } from '../lib/pace.js';
   import { SETS_KEY } from '../lib/sets.js';
   import { TEMPLATES_KEY } from '../lib/templates.js';
@@ -122,7 +122,7 @@
   import ActsTile from '../lib/home/ActsTile.svelte';
   import { SERIES_STEPS } from '../lib/home/series.js';
   import { readSeries, seriesTables } from '../lib/home/series-data.js';
-  import { FUNCTIONS, USAGE_KEY, usageOf, dataUsed, usedFunctions, levelOf, untried } from '../lib/home/functions.js';
+  import { FUNCTIONS, USAGE_KEY, usageOf, dataUsed, usedFunctions } from '../lib/home/functions.js';
   import { countUse } from '../lib/home/usage.js';
   import { recordCare, undoCare } from '../lib/home/care-tap.js';
   import { yearReview, tripDone } from '../lib/yearreview.js';
@@ -145,7 +145,6 @@
   import RoundTile from '../lib/home/RoundTile.svelte'; // WG: the round of «Wi gaht's?» (was the morning check)
   import SkiTile from '../lib/home/SkiTile.svelte';
   import { bookingNotes, bookingRow } from '../lib/booking/notice.js'; // Termine buchen (BU4, 9a)
-  import TryCard from '../lib/home/TryCard.svelte';
   import { suggest, watchSuggest } from '../lib/clear/suggest.svelte.js'; // Einzelidee 36: «Ideas to buy» can be off on every page
   import BikeCards from '../lib/home/BikeCards.svelte';
   import YearRow from '../lib/home/YearRow.svelte';
@@ -561,26 +560,6 @@
   const tipUsed = $derived(
     usedTips({ trips: allTrips, items, bikes: $bikesQ ?? [], visits, debriefs, templates, sets: S[SETS_KEY] ?? [], notesN: ($notesQ ?? []).length, homePlace: place, pace: paceOf(S[PACE_KEY]), lastBackup: $metaQ?.last ?? null, demo: $demoQ ?? null, langSet: (() => { try { return localStorage.getItem('lang') != null; } catch { return false; } })(), standalone: standalone() }),
   );
-  function runTip(x) {
-    updateTips(db, (s) => tapTip(s, x.id, today));
-    if (x.go.href) return (location.hash = x.go.href);
-    const what = x.go.run;
-    if (what === 'dayRide') dayRide();
-    else if (what === 'note') openNote('');
-    else if (what === 'receipt') openNote(t('Workshop receipt: '));
-    else if (what === 'km') openNew('km');
-    else if (what === 'data') openData();
-    else if (what === 'lang') setLang(lang.v === 'de' ? 'en' : 'de');
-    else if (what === 'homePlace') placeOpen = true;
-    else if (what === 'backup') downloadBackup(db);
-  }
-  const tryList = $derived.by(() => {
-    if (!ready) return [];
-    const fns = untried(used).map((f) => ({ id: f.id, text: t(f.pitch), button: t('Try it'), run: () => runFn(f) }));
-    const tips = hush ? [] : TIPS.filter((x) => x.go.run !== 'install' && tipPossible(x, { trips: allTrips, items, bikes: $bikesQ ?? [] }, today) && !isUsed(S[TIPS_KEY], x.id, tipUsed) && !fns.some((f) => f.id === x.id)).map((x) => ({ id: `tip-${x.id}`, text: t(x.text), button: x.id === 'lang' ? (lang.v === 'de' ? t('Switch to English') : t('Switch to German')) : t(x.button), run: () => runTip(x) }));
-    return [...fns, ...tips];
-  });
-
   /* ---------- 4a. Important today (Noah 26a, 27a, 32a, 10a, 21a) ---------- */
   const backup = $derived.by(() => {
     if (!$metaQ || !items.length || $demoQ) return { due: false, days: null };
@@ -1207,7 +1186,6 @@
   {:else if x.id === 'meditation'}{#if x.size === 'long'}<HabitCards {today} cfg={S[HABITS_KEY] ?? null} onpick={() => (habitsOpen = true)} />{:else}<MedTile {today} size={x.size} isnew={newTile('meditation')} />{/if}
   {:else if x.id === 'play'}<SmallTile tile={TILE.play} size={x.size} isnew={newTile('play')} sub={$demoQ?.play ? t('The playground is running') : t('try without risk')} onclick={openPlay} />
   {:else if x.id === 'ski'}<SkiTile {today} size={x.size} isnew={newTile('ski')} />
-  {:else if x.id === 'try'}<TryCard list={tryList} used={used.size} total={FUNCTIONS.length} level={levelOf(used.size)} />
   {:else if x.id === 'bikes'}{#if ready}<div data-section="bikes"><BikeCards {bikes} {tasks} {visits} {next} {today} /></div>{/if}
   {:else if x.id === 'year'}<div data-section="year"><YearRow {today} /></div>
   {:else if x.id === 'milestones'}<SmallTile tile={TILE.milestones} size={x.size} href="#/flow/milestones" />
