@@ -10,6 +10,7 @@ import DE from '../../../src/lib/i18n/de/index.js';
 import { SUGGESTED as WEB_SUGGESTED } from '../../../src/lib/tools/weblinks.js';
 import { build, step1, step2, track, gpxText, P } from '../../fixtures/gesamttest/make.mjs';
 import { openData as openDataFold, settle } from '../settle.js';
+import { shiftContext } from '../clock.js';
 
 // v0.154.0 «Bausteine mehr»: the keys of gear.js SETS (that module needs Svelte, so it is read as text)
 const GEAR_SRC = readFileSync(fileURLToPath(new URL('../../../src/lib/gear.js', import.meta.url)), 'utf8');
@@ -46,6 +47,7 @@ export function meteo() {
 
 /** Mocks and listeners for one page: returns the list of console errors and page errors. */
 export async function prepare(page, context, lang = 'de') {
+  await shiftContext(context); // the page runs on the same test day as the data below
   await context.route(/^https?:\/\/(?!localhost[:/])/, (route) => route.abort());
   await page.route(/api\.open-meteo\.com\/v1\/forecast/, (route) => route.fulfill({ json: meteo() }));
   await page.route(/geocoding-api\.open-meteo\.com/, (route) => route.fulfill({ json: { results: [{ name: `${P} Delemont`, admin1: 'Jura', country: 'Switzerland', latitude: 47.36, longitude: 7.35 }] } }));
