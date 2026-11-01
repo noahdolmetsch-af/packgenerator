@@ -1,4 +1,5 @@
 <script>
+  import { activeBikes } from '../bikeretire.js';
   import { lastBikeChoice } from '../lastchoice.js';
   import { backClose } from '../ui/backclose.js';
   import { localDay } from '../localday.js';
@@ -68,7 +69,7 @@
   }
 
   const bikesQ = liveQuery(() => db.bikes.toArray());
-  const bikes = $derived(sortBikes($bikesQ ?? []));
+  const bikes = $derived(sortBikes(activeBikes($bikesQ ?? [])));
 
   let dialog = $state();
   $effect(() => {
