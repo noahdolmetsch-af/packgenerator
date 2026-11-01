@@ -10,6 +10,7 @@
   import RaceBox from './RaceBox.svelte';
   import SleepLists from './SleepLists.svelte';
   import NightsByWeather from './NightsByWeather.svelte';
+  import BakeryMornings from './BakeryMornings.svelte';
   import { db } from '../db.js';
   import { cacheSet, cacheQuery } from './store.js';
   import { POI_CACHE, WX_CACHE, POI_KIND, fetchPois, fetchRouteWx, nextSupply, dryStretches, sleepNear, exitStations, nextTrain, wxAt, lowBetween, wxAdvice, uvAdvice, compass } from './outside.js';
@@ -365,6 +366,9 @@
 
     <!-- U4 1144 · nights by the weather -->
     <NightsByWeather {ctx} {wx} />
+
+    <!-- «Bäckerei am Morgen» (Noah 28.10.2026 «3b») -->
+    <BakeryMornings {ctx} />
 
     <!-- 30 · Sun protection -->
     <RaceBox id="uv" title={t('Sun protection')} what="Shows the highest UV index on the route for each day of your plan, with the sun protection it needs." why="You pack enough sun cream and protect neck, ears and lips on long days in the sun." from="Open-Meteo UV forecast near the stretch of each day.">

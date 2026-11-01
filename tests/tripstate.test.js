@@ -1,5 +1,6 @@
 // v0.125.0 TZ-1 «Zustand sichtbar» (spec tour-zustaende, Noah 13.10.2026 «1-5 a»): one rule decides the
 // state of a trip: Geplant, Abgeschlossen, Bewertet. Fictional data only.
+import './setup/de.js'; // this test needs the German texts
 import { describe, it, expect, afterEach } from 'vitest';
 import { tripState, tripStateInfo, tripStates, stateCounts, happened, endedTooEarly, stateExtra, STATES, STATE_NAMES, STATE_HELP } from '../src/lib/tripstate.js';
 import { stateExtraText } from '../src/lib/tripstatetext.js';

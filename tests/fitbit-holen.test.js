@@ -388,6 +388,12 @@ describe("Fitbit: Heute without a value says why", () => {
         error: "network",
         lastTry: null,
       }).text,
+    ).toBe("Fitbit is connected, but there was no connection. The app tries again later.");
+    expect(
+      fitbitEmpty({ prefs: { connected: true }, lastTry: { ok: false, code: "timeout" } }).text,
+    ).toContain("took too long");
+    expect(
+      fitbitEmpty({ prefs: { connected: true }, lastTry: { ok: false, code: "weird" } }).text,
     ).toBe("Fitbit is connected, but the last fetch did not work.");
     expect(
       fitbitEmpty({

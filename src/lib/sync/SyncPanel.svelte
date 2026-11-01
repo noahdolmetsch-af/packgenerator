@@ -143,7 +143,7 @@
     try {
       if (await hasDataIn(db)) await takeSnapshot(db, snapDb(), { version: typeof __APP_VERSION__ === 'string' ? __APP_VERSION__ : null, kind: 'sync' });
       await startSync(db, code);
-      await runSync(db);
+      return await runSync(db);
     } finally {
       busy = false;
       pairing = false;
@@ -162,6 +162,14 @@
       message = errText(e?.code);
     }
   }
+  /** What a finished round says (Noah 1.11.2026: «im Frontend fehlt eine Erfolgsmeldung»). */
+  const doneText = (r) => (r?.taken || r?.sent ? t('Done: {taken} received, {sent} sent.', { taken: r.taken ?? 0, sent: r.sent ?? 0 }) : t('Done: both devices are up to date.'));
+  async function syncButton() {
+    message = '';
+    const r = await runSync(db);
+    const err = await lastError();
+    message = err ? errText(err) : r?.skipped ? '' : doneText(r);
+  }
   async function pairWith(code) {
     const c = readCode(code);
     if (!c) {
@@ -169,10 +177,10 @@
       return;
     }
     try {
-      await begin(c);
+      const r = await begin(c);
       const err = await lastError();
       view = '';
-      message = err ? errText(err) : t('Paired. From now on both devices keep the same data.');
+      message = err ? errText(err) : `${t('Paired. From now on both devices keep the same data.')} ${doneText(r)}`;
     } catch (e) {
       view = '';
       message = errText(e?.code);
@@ -335,7 +343,7 @@
       </div>
     {:else}
       <div class="ich-acts">
-        <button type="button" class="btn hi" disabled={sync.running || !!$demoQ} onclick={() => runSync(db)}><RefreshCw size={16} aria-hidden="true" />{t('Sync now')}</button>
+        <button type="button" class="btn hi" disabled={sync.running || !!$demoQ} onclick={syncButton}><RefreshCw size={16} aria-hidden="true" />{t('Sync now')}</button>
         <button type="button" class="btn" onclick={() => (view = 'pair')}>{t('Pair another device')}</button>
         <button type="button" class="btn" onclick={() => (view = 'off')}>{t('Switch off|sync')}</button>
       </div>

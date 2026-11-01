@@ -122,7 +122,7 @@ export function hintsFor(page, data = {}, today) {
   // the care of all bikes: how many have something due
   if (data.bikes) {
     const due = bikes.filter((b) => bikeCare(withVisits(b, data.visits ?? []), { tasks: data.maintenance ?? [], visits: data.visits ?? [], today })?.status === 'due').length;
-    h.velocare = due ? { text: tn(due, '{n} bike with something due', '{n} bikes with something due') } : { quiet: t('nothing due') };
+    h.velocare = due ? { text: tn(due, '{n} bike with something due', '{n} bikes with something due') } : { quiet: bikes.length ? t('nothing due') : t('no bikes yet') };
   }
   if (data.flowLog && page !== 'flow') {
     const n = data.flowLog.filter((x) => x.day === today).length;

@@ -32,9 +32,6 @@
     "src/lib/home/BikeCards.svelte": {
       "fontsize": 3
     },
-    "src/lib/home/TryCard.svelte": {
-      "fontsize": 4
-    },
     "src/lib/home/WearToday.svelte": {
       "global": 2
     },

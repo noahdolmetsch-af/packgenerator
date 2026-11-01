@@ -73,7 +73,7 @@ test('Abgleich: settings settle by themselves; a real setting waits in the quiet
   await page.goto(`./#/me/data?koppeln=${code}`);
   const box = page.locator('[data-sync-panel]');
   await box.getByRole('group', { name: T('Pair with this code?') }).getByRole('button', { name: T('Pair') }).click();
-  await expect(box.locator('.msg')).toHaveText(T('Paired. From now on both devices keep the same data.'));
+  await expect(box.locator('.msg')).toContainText(T('Paired. From now on both devices keep the same data.'));
   await expect(page.getByRole('dialog')).toHaveCount(0);
   // the weight: the computer's version counts, this one waits in the fold under its name
   const fold = box.locator('[data-sync-history]');
