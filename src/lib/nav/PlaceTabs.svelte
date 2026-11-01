@@ -7,7 +7,7 @@
    * The tab opened last is remembered per place (nav.js keepTab / placeHref). An old address that
    * leads here (#/care, #/review …) says so once, in a small note you can close.
    */
-  import { PLACES, tabOf, tabStep, shownTabs, phoneTabs, setTabOrder } from '../nav.js';
+  import { PLACES, tabOf, tabStep, shownTabs, phoneTabs, setTabOrder, groupTabs } from '../nav.js';
   import { anp, placeLabel, tabLabel } from '../anpassen.svelte.js'; // «Anpassen» 2a + 3a: hidden tabs and own names
   import { t } from '../i18n.svelte.js';
   import { phone, wide } from '../media.svelte.js';
@@ -30,6 +30,7 @@
   // and your own order are in «Mehr».
   const split = $derived((void order, void anp.v, phoneTabs(place, hash)));
   const all = $derived((void order, tabs));
+  const sections = $derived(groupTabs(place, all) ?? [{ label: '', items: all }]);
   let moreDlg = $state();
   // «Alles finden 2» (Noah 22.10.2026 «1a»): «Mehr» is «Alle n» now: every page of the place as a tile with an
   // icon and one sentence. Sorting is one tap further, behind «Reihenfolge ändern».
@@ -152,8 +153,10 @@
         <button type="button" class="pt-x" aria-label={t('Close')} onclick={() => moreDlg.close()}><X size={20} aria-hidden="true" /></button>
       </div>
       {#if !sorting}
+        {#each sections as sec (sec.label)}
+        {#if sec.label}<h3 class="pt-group" data-pt-group>{t(sec.label)}</h3>{/if}
         <ul class="pt-grid" data-all-pages={place}>
-          {#each all as x (x.key)}
+          {#each sec.items as x (x.key)}
             {@const info = tabInfo(place, x.key)}
             {@const Icon = ICON[info?.[0]] ?? Circle}
             <li>
@@ -165,6 +168,7 @@
             </li>
           {/each}
         </ul>
+        {/each}
         <p class="pt-foot"><button type="button" class="btn-link btn" onclick={() => (sorting = true)} data-sort-pages><ArrowUpDown size={16} aria-hidden="true" />{t('Change the order')}</button></p>
       {:else}
         <p class="pt-hint">{t('Drag the pages you use often to the top. The first four stand as tabs.')}</p>
@@ -304,6 +308,11 @@
   }
   .ptsheet {
     width: min(520px, calc(100vw - 24px));
+  }
+  .pt-group {
+    margin: 14px 0 4px;
+    font-size: var(--fs-label);
+    color: var(--ink-3);
   }
   .pt-grid {
     display: grid;
