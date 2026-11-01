@@ -148,4 +148,8 @@ export default {
   'Minutes|training': 'Minuten',
   'e.g. Easy ride': 'z. B. Lockere Runde',
   'It also shows in Aktiv › Training.': 'Die Einheit steht auch in Aktiv › Training.',
+  'Often used|group': 'Oft gebraucht',
+  'Write down|group': 'Aufschreiben',
+  'Find your way|group': 'Orientierung',
+  'Ideas and tools|group': 'Ideen und Werkzeuge',
 };
