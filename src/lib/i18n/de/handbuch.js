@@ -2069,4 +2069,10 @@ export default {
   'Example: «Turned back 200 m below the summit: the wind was too strong.»': 'Beispiel: «200 m unter dem Gipfel umgekehrt: der Wind war zu stark.»',
   'Open Ski tours › After the tour.': 'Öffne Skitouren › Nach der Tour.',
   'Enter summit and metres.': 'Trag Gipfel und Höhenmeter ein.',
+  // «Träume und Neuland» N2
+  'Needs your home place and the internet for the bike router.': 'Braucht deinen Wohnort und Internet für den Velo-Router.',
+  'Open Trips › Dreams › White spots nearby and tap a place.': 'Öffne Touren › Träume › Weisse Flecken in der Nähe und tippe einen Ort an.',
+  'Tap «Round through it»: km, climb and time.': 'Tippe «Runde hindurch»: km, Höhenmeter und Zeit.',
+  '«Plan as a trip» makes a trip with this round; «Other side» goes the other way round.': '«Als Tour planen» macht eine Tour mit dieser Runde; «Andere Seite» fährt andersherum.',
+  'Example: Wallisellen, 6 km away → 24 km · 180 m up · about 1 h 30 min.': 'Beispiel: Wallisellen, 6 km entfernt → 24 km · 180 m hoch · etwa 1 h 30 min.',
 };
