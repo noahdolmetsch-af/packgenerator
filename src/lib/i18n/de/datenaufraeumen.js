@@ -1,0 +1,21 @@
+// «Daten und Backup aufräumen» (Noah 01.11.2026 «1a 2a 3a 4a 5b»): Statuszeile, Faltstellen, die eine Frage,
+// Backup für die Datei, Abgleich für den Sync, nie vermischt.
+export default {
+  'Back up now': 'Jetzt sichern',
+  'Details|status': 'Einzelheiten',
+  'Hide details': 'Einzelheiten ausblenden',
+  'Do you need the app on two devices?': 'Brauchst du die App auf zwei Geräten?',
+  'Yes shows the sync between phone and computer. No folds it away; you can still open it any time.': 'Ja zeigt den Abgleich zwischen Handy und Computer. Nein klappt ihn zu; du kannst ihn jederzeit öffnen.',
+  'Yes, on two devices': 'Ja, auf zwei Geräten',
+  'No, only here': 'Nein, nur hier',
+  'Work on two devices': 'Auf zwei Geräten arbeiten',
+  'Phone and computer, sync': 'Handy und Computer, Abgleich',
+  'Ask me again': 'Nochmals fragen',
+  'Back up with a file': 'Mit einer Backup-Datei sichern',
+  'Save, send to the other device, open': 'Speichern, ans andere Gerät schicken, öffnen',
+  'Password, folder, copies before updates, other data, start fresh': 'Passwort, Ordner, Kopien vor Updates, andere Daten, neu beginnen',
+  'Fitbit and health': 'Fitbit und Gesundheit',
+  'Moved to its own page: Me › Fitbit': 'Eigene Seite: Ich › Fitbit',
+  'Backup saved. Now you can delete.': 'Backup gespeichert. Jetzt kannst du löschen.',
+  'First save a backup, then delete.': 'Speichere zuerst ein Backup, dann lösche.',
+};

@@ -62,8 +62,7 @@ test('Fitbit: connect with Google, first fetch, the card on «Daten und Backup»
 
   // «Daten und Backup»: not connected, grey, the way to the page «Fitbit»
   await page.goto('./#/me/data');
-  await expect(page.getByRole('heading', { name: 'Gesundheitsdaten' })).toBeVisible();
-  await page.getByRole('link', { name: 'Fitbit verbinden' }).click();
+  await page.getByRole('link', { name: 'Fitbit und Gesundheit' }).click(); // «Daten und Backup aufräumen»: Fitbit has its own page
 
   // G1
   await expect(page.getByRole('heading', { level: 1, name: 'Fitbit verbinden' })).toBeVisible();
@@ -86,7 +85,9 @@ test('Fitbit: connect with Google, first fetch, the card on «Daten und Backup»
 
   // G2 on «Daten und Backup»: the light and the card
   await page.goto('./#/me/data');
+  await page.locator('[data-status-details]').click(); // the lights are behind «Einzelheiten»
   await expect(page.locator('li.light').filter({ hasText: 'Fitbit' })).toContainText('verbunden');
+  await page.goto('./#/me/fitbit');
   await shot(page, info, 'G2');
 
   // «Werte wählen»: without steps the next fetch keeps no steps
@@ -97,6 +98,8 @@ test('Fitbit: connect with Google, first fetch, the card on «Daten und Backup»
   // «Trennen» keeps the values unless asked
   await page.locator('.hcard').getByRole('button', { name: 'Trennen' }).first().click();
   await page.getByRole('dialog', { name: 'Trennen' }).getByRole('button', { name: 'Trennen', exact: true }).click();
+  await page.goto('./#/me/data');
+  await page.locator('[data-status-details]').click();
   await expect(page.locator('li.light').filter({ hasText: 'Fitbit' })).toContainText('nicht verbunden');
   expect(log.some((x) => x.step === 'disconnect')).toBe(true);
   expect((await readTable(page, 'healthDays')).length).toBe(2);
