@@ -132,3 +132,14 @@ describe('the week grid layout', () => {
     expect(w[1].timed[0]).toMatchObject({ from: 0, to: 120 });
   });
 });
+
+import { repeatRule, emptyRepeat } from '../src/lib/agenda.js';
+describe('the editor repeat choice', () => {
+  it('maps the presets and the custom rhythm', () => {
+    expect(repeatRule(emptyRepeat())).toBeNull();
+    expect(repeatRule({ ...emptyRepeat(), mode: 'weekdays' })).toEqual({ freq: 'weekly', days: ['MO', 'TU', 'WE', 'TH', 'FR'] });
+    expect(repeatRule({ ...emptyRepeat(), mode: 'yearly' })).toEqual({ freq: 'yearly' });
+    expect(repeatRule({ ...emptyRepeat(), mode: 'custom', freq: 'weekly', every: 2, days: ['SA'], end: 'count', count: 4 })).toEqual({ freq: 'weekly', every: 2, days: ['SA'], count: 4 });
+    expect(repeatRule({ ...emptyRepeat(), mode: 'custom', freq: 'daily', end: 'until', until: '2026-12-01' })).toEqual({ freq: 'daily', every: 1, days: [], until: '2026-12-01' });
+  });
+});
