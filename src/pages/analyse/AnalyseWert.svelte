@@ -192,6 +192,11 @@
     const topAct = [...counts.entries()].sort((a, b) => b[1] - a[1])[0]?.[0];
     return ['sleep', topAct ? `act:${topAct}` : null, 'km:bike'].filter((k) => k && k !== key && byKey.has(k) && !layers.includes(k)).slice(0, 3);
   });
+  // F04 (robot test 1.11.2026): two suggestions can share a name (the activity «Velo» and the bike km): «(km)» tells them apart
+  const chipName = (k) => {
+    const it = byKey.get(k);
+    return suggest.some((o) => o !== k && byKey.get(o)?.name === it.name) && it.unit === 'km' ? `${it.name} (km)` : it.name;
+  };
   const addLayer = (k) => {
     if (!k || layers.includes(k) || k === key) return;
     layers = [...layers, k].slice(-2);
@@ -249,7 +254,7 @@
             {/each}
             {#if layers.length < 2}
               {#each suggest as k (k)}
-                <button type="button" class="chip" data-suggest={k} onclick={() => addLayer(k)}>+ {byKey.get(k).name}</button>
+                <button type="button" class="chip" data-suggest={k} onclick={() => addLayer(k)}>+ {chipName(k)}</button>
               {/each}
               <label class="chip sel">
                 <span class="sr">{t('Add another value|analyse')}</span>
@@ -620,6 +625,11 @@
     height: 10px;
     background: var(--pz4);
     opacity: 0.35;
+  }
+  .hint a {
+    display: inline-block;
+    padding-block: 13px; /* F03: a 44 px tap area, the layout stays (negative margin) */
+    margin-block: -13px;
   }
   .hint {
     margin: 8px 0 0;
