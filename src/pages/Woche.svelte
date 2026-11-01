@@ -406,7 +406,7 @@
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 12px;
+    gap: 12px 40px;
     margin: 0 0 12px;
   }
   .dc.today {
