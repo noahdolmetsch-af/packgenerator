@@ -208,4 +208,15 @@ export default {
   'Your own New ground goal with an end day, e.g. 5 new municipalities this month or all lakes in your canton this year; the app counts by itself.': 'Dein eigenes Neuland-Ziel mit Enddatum, z. B. 5 neue Gemeinden diesen Monat oder alle Seen in deinem Kanton dieses Jahr; die App zählt von selbst.',
   'Scroll to «Challenges with an end».': 'Scrolle zu «Herausforderungen mit Ende».',
   'Tap a ready one or «Own challenge», then «Start challenge».': 'Tippe eine fertige an oder «Eigene Herausforderung», dann «Herausforderung starten».',
+  // «Neuland-Runde» (Träume und Neuland N2)
+  'Round through it': 'Runde hindurch',
+  'New ground round: {name}': 'Neuland-Runde: {name}',
+  'A round from home through a place you have never been.': 'Eine Runde von zu Hause durch einen Ort, an dem du noch nie warst.',
+  'The bike router found no round there. Tap «Other side».': 'Der Velo-Router fand dort keine Runde. Tippe «Andere Seite».',
+  'Other side': 'Andere Seite',
+  'Round planned: {km} km. Undo deletes the trip.': 'Runde geplant: {km} km. Rückgängig löscht die Tour.',
+  'From home through {name} and back.': 'Von zu Hause durch {name} und zurück.',
+  'A round from home through a white spot: tap a place you have never been, the free bike router finds the way; plan it as a trip or take the GPX.': 'Eine Runde von zu Hause durch einen weissen Flecken: einen Ort antippen, an dem du nie warst, der freie Velo-Router findet den Weg; als Tour planen oder das GPX nehmen.',
+  'Tap a place you have never been, then «Round through it».': 'Tippe einen Ort an, an dem du nie warst, dann «Runde hindurch».',
+  'Tap «Plan as a trip» or «GPX for the Garmin».': 'Tippe «Als Tour planen» oder «GPX fürs Garmin».',
 };

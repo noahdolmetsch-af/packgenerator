@@ -12,7 +12,7 @@
 <nav class="ctabs" aria-label={t('Daily check')} data-check-tabs>
   <a href={evening ? '#/check/evening' : '#/check/morning'} aria-current={here === 'today' ? 'page' : undefined}>{t('Today|check tab')}</a>
   <a href="#/check/insights" aria-current={here === 'insights' ? 'page' : undefined} data-tab-insights>{t('What goes together')}</a>
-  <a href="#/me/history" aria-current={here === 'history' ? 'page' : undefined}>{t('All answers')}</a>
+  <a href="#/check/history" aria-current={here === 'history' ? 'page' : undefined}>{t('All answers')}</a>
 </nav>
 
 <style>

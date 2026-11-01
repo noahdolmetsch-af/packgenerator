@@ -17,7 +17,7 @@ export function spotsCfg(value) {
 
 /**
  * items: the municipalities ({ id, name, kt, c: [lon, lat], rings, bbox }); visited: Map id → visit (Neuland
- * visitedOf); home: { lat, lon }. → { near: [{ id, name, kt, km, been, rings, bbox }] nearest first,
+ * visitedOf); home: { lat, lon }. → { near: [{ id, name, kt, lat, lon, km, been, rings, bbox }] nearest first,
  * open: the ones never visited, been: how many visited } or null without a home place.
  */
 export function whiteSpots(items = [], visited = new Map(), home, radius = SPOT_RADIUS) {
@@ -29,7 +29,7 @@ export function whiteSpots(items = [], visited = new Map(), home, radius = SPOT_
     if (!it?.c) continue;
     const d = km([lat, lon], [it.c[1], it.c[0]]);
     if (d > radius) continue;
-    near.push({ id: it.id, name: it.name, kt: it.kt ?? null, km: Math.round(d * 10) / 10, been: visited.has(it.id), rings: it.rings, bbox: it.bbox });
+    near.push({ id: it.id, name: it.name, kt: it.kt ?? null, lat: it.c[1], lon: it.c[0], km: Math.round(d * 10) / 10, been: visited.has(it.id), rings: it.rings, bbox: it.bbox });
   }
   near.sort((a, b) => a.km - b.km || a.name.localeCompare(b.name));
   const open = near.filter((x) => !x.been);
