@@ -23,7 +23,7 @@ test('Live map: plan a new way to a shop, see it, save it for the Garmin, remove
   );
   const asked = [];
   await context.route(/brouter\.de\/brouter/, (route) => {
-    asked.push(route.request().url());
+    if (route.request().url().includes('alternativeidx=0')) asked.push(route.request().url()); // «Wege zur Auswahl» also asks for the other ways
     return route.fulfill({
       json: { type: 'FeatureCollection', features: [{ type: 'Feature', properties: { 'track-length': '2400', 'filtered ascend': '18', 'total-time': '480' }, geometry: { type: 'LineString', coordinates: [[7.45, 46.95, 540], [7.4505, 46.951, 545], [7.451, 46.952, 550]] } }] },
     });
