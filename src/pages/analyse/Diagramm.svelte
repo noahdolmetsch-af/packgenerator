@@ -271,7 +271,7 @@
               <div class="ax" aria-hidden="true"><span>{v(r.it, r.sc.hi)}</span><span>{v(r.it, r.sc.lo)}</span></div>
               <!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_noninteractive_element_interactions -->
               <svg viewBox="0 0 {W} {RH}" preserveAspectRatio="none" role="img" aria-label={t('Course of {name}|analyse', { name: r.it.name })} onclick={tap}>
-                {#each bands as b (b.from)}<rect class="band" x={(b.a / n) * W} width={((b.b - b.a + 1) / n) * W} y="0" height={RH} />{/each}
+                {#each bands as b, bi (bi)}<rect class="band" x={(b.a / n) * W} width={((b.b - b.a + 1) / n) * W} y="0" height={RH} />{/each}
                 <line class="base" x1="0" x2={W} y1={RH - 4} y2={RH - 4} vector-effect="non-scaling-stroke" />
                 {#each [...markIdx] as mi (mi)}<circle class="mk" cx={xOf(mi)} cy={RH - 2} r="2.4" />{/each}
                 {#if r.bars}
@@ -291,7 +291,7 @@
           <div class="ax" aria-hidden="true"><span>+{Math.round(overSc.hi)} %</span><span>{t('mean|diagram')}</span><span>−{Math.round(overSc.hi)} %</span></div>
           <!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_noninteractive_element_interactions -->
           <svg viewBox="0 0 {W} {OH}" preserveAspectRatio="none" role="img" aria-label={t('All values, measured from their own mean|diagram')} onclick={tap}>
-            {#each bands as b (b.from)}<rect class="band" x={(b.a / n) * W} width={((b.b - b.a + 1) / n) * W} y="0" height={OH} />{/each}
+            {#each bands as b, bi (bi)}<rect class="band" x={(b.a / n) * W} width={((b.b - b.a + 1) / n) * W} y="0" height={OH} />{/each}
             <line class="base" x1="0" x2={W} y1={yOf(0, overSc, OH)} y2={yOf(0, overSc, OH)} vector-effect="non-scaling-stroke" />
             {#each rows as r (r.it.key)}
               <path class="smooth" d={pathOf(step === 'day' ? rolling7(r.over) : r.over, overSc, OH)} style="stroke:{r.color}" vector-effect="non-scaling-stroke" />

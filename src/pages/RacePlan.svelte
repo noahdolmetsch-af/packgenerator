@@ -1,7 +1,7 @@
 <script>
   /**
    * «Rennen detailliert planen» (Ziel 6, Noah 27.10.2026 «1b 2b»): its own page with all coming races,
-   * each with its Rennen-Check (the five paper sheets: order A–Z, target setup, basic list, sleep, one
+   * each with its Rennen-Check (the paper sheets: order A–Z, target setup, basic list, sleep, one
    * night). #/racecheck = the races, #/racecheck/<tripId> = the check of one race. A race is a trip with
    * the race parts (race.js); the check lives in the race (stored.check), so it is in the backup.
    */
@@ -12,6 +12,9 @@
   import RaceLinks from '../lib/race/RaceLinks.svelte';
   import Nonstop from '../lib/race/Nonstop.svelte';
   import RaceLearnings from '../lib/race/RaceLearnings.svelte';
+  import BikeCountdown from '../lib/race/BikeCountdown.svelte';
+  import RaceTools from '../lib/race/RaceTools.svelte';
+  import StopRoutine from '../lib/race/StopRoutine.svelte';
   import { db } from '../lib/db.js';
   import { racesQuery, saveRace } from '../lib/race/store.js';
   import { raceTrips, countdown } from '../lib/race/race.js';
@@ -54,7 +57,7 @@
         {#if countdown(trip.startDate, today)?.days > 0}{' '}· {tn(countdown(trip.startDate, today).days, 'in {n} day', 'in {n} days')}{/if}
       </p>
       <p><a class="btn sm" href={raceHref(trip.id)} data-racecheck-race><Flag size={16} aria-hidden="true" />{t('Route, strategy and race mode')}</a></p>
-      {#if ctx}<RaceLearnings {ctx} /><RaceLinks {ctx} /><Nonstop {ctx} /><Check {ctx} />{/if}
+      {#if ctx}<RaceLearnings {ctx} /><RaceLinks {ctx} /><Nonstop {ctx} /><BikeCountdown {ctx} /><RaceTools {ctx} /><StopRoutine {ctx} /><Check {ctx} />{/if}
     {/if}
   </div>
 {:else}
