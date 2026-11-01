@@ -55,8 +55,6 @@ export const NO_JUMP = [
   'f.barcode', 'f.gears', 'f.level',
   // PR 4 Rückblick
   'f.tripcosts', 'f.meaning', 'f.gooddecisions', 'f.knowhow', 'f.freinaechstes', 'f.skillmap',
-  // PR 5 Packen, Planen, Teilen
-  'f.weightsure', 'f.sharepreview', 'f.skicheck', 'f.mapmeasure', 'f.sleeporigin',
   // PR 6 Träume
   'f.freinacht', 'f.ownbingo', 'f.freiwesentlich', 'f.freireise', 'f.freilust',
   // PR 7 Körper

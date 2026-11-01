@@ -6,6 +6,12 @@ describe('Fits here', () => {
   it('Unterwegs shows phrases, time zones, light and arrival, in this order', () => {
     expect(passtHier('ride').map((f) => f.id)).toEqual(['f.phrases', 'f.zones', 'f.light', 'f.arrival']);
   });
+  it('Packen, Planen, Teilen: weight, route, ski tour and places to sleep each lead to their functions', () => {
+    expect(passtHier('weight').map((f) => f.id)[0]).toBe('f.weightsure');
+    expect(passtHier('route').map((f) => f.id)[0]).toBe('f.mapmeasure');
+    expect(passtHier('ski').map((f) => f.id)[0]).toBe('f.skicheck');
+    expect(passtHier('sleeplists').map((f) => f.id)[0]).toBe('f.sleeporigin');
+  });
   it('leaves out what is marked «Not for me» and unknown places', () => {
     expect(passtHier('ride', { 'f.zones': true }).map((f) => f.id)).not.toContain('f.zones');
     expect(passtHier('nowhere')).toEqual([]);
