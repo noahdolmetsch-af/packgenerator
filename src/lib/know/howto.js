@@ -40,7 +40,7 @@ const LISTED = {
   'f.gearimport': ['Open Gear › Import.', 'Load your list.', 'Take the safe rows; check the others with one tap each.'],
   bags: ['Open Packen of your next trip.', 'Go bag by bag.', 'Tick each item as it goes in.'],
   share: ['Open a trip in Packen.', 'Tap «Print / PDF» or share it as a link.', 'Print it, or save it as PDF.'],
-  ride: ['On the day of the trip, open Ride day.', 'The Now card shows the next stage and the weather.', 'It also says where each thing is packed.'],
+  ride: ['On the day of the trip, open Ride day.', 'The overview on the way shows the next stage and the weather.', 'It also says where each thing is packed.'],
   note: ['Tap «Write a note», or «New» › Note.', 'Write a word or take a photo.', 'It waits in the Inbox; sort it later.'],
   event: ['Plan a trip with an event.', 'The preparation tasks come with their lead times.', 'Tick them off; they count down to the start.'],
   'f.tripcheck': ['Open Me › Checks.', 'Choose the trip type and the evening before or after.', 'Tick, sort or add; for one trip or all.'],
