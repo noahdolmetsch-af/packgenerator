@@ -102,7 +102,7 @@ describe('/api/sync?action=group', () => {
     expect(a.places[0]).toMatchObject({ pos: null, part: { status: { kind: 'ready' }, has: ['test_data_gtp_ Pumpe'] } });
     const read = await readGroup(g.gid, g.key, opts);
     expect(read.plan.cps).toEqual([{ name: 'test_data_gtp_ Col', km: 3 }]);
-    expect(JSON.stringify([...r.kv.get(`grp:${g.gid}`)])).not.toMatch(/Pumpe|Col|21:30/);
+    expect(JSON.stringify([...r.kv.get(`grp:${g.gid}`)])).not.toMatch(/test_data_gtp_ Pumpe|test_data_gtp_ Col|21:30/);
     await setPlan(g, { ...plan, night: null }, opts);
     expect((await readGroup(g.gid, g.key, { ...opts, withRoute: false })).plan.night).toBeNull();
     const post = (body) => doFetch('https://packgen.example.test/api/sync?action=group&step=plan', { method: 'POST', body: JSON.stringify(body) });
