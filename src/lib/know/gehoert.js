@@ -1,13 +1,13 @@
 /**
  * «Heute als Begleiter» PR 7 (Noah 28.10.2026 «1a 2a 3a»): «Belongs to …», a row of jump links on top of a page with the
- * functions of the same moment that are hard to find otherwise. Pack first, then Planen, then Ich (one small PR each).
+ * functions of the same moment that are hard to find otherwise. Pack, then Planen (Touren), then Ich (one small PR each).
  * Pure; the row (GehoertDazu.svelte) reads the data. Tested in tests/gehoert.test.js.
  */
 import { FEATURES, featureHref } from '../features.js';
 import { momentOfFeature } from '../moment.js';
 
 /** The pages that show the row: page name (App.svelte) → moment key. A new page comes with its own PR. */
-export const PAGE_MOMENT = { pack: 'packen' };
+export const PAGE_MOMENT = { pack: 'packen', trips: 'planen' };
 /** Chips shown before «all n ›». */
 export const SHOWN = 5;
 

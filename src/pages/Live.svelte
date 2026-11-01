@@ -314,6 +314,14 @@
   const detourKm = $derived(detourPts.length && me && onDetour(detour, me) ? (snapAhead(detourPts, me, 0)?.km ?? null) : null);
   const navTurns = $derived(detourKm != null ? detourTurns : turns);
   const navKm = $derived(detourKm != null ? detourKm : cfg.turns && at && at.offM < 100 ? (at.kmx ?? at.km) : null);
+  // the way to a goal, live: what is left, when you arrive, how far along you are
+  const goalOn = $derived(detourKm != null && detourPts.length > 1 && !detour?.back);
+  const goalTotal = $derived(detourPts.at(-1)?.km ?? 0);
+  const goalLeft = $derived(goalOn ? Math.max(0, goalTotal - detourKm) : null);
+  const goalEta = $derived(goalLeft != null && kmh > 0 ? now + (goalLeft / kmh) * 36e5 : null);
+  const goalFrac = $derived(goalOn && goalTotal > 0 ? Math.min(1, Math.max(0, detourKm / goalTotal)) : 0);
+  const wayDone = $derived(goalOn ? stretch(detourPts, 0, detourKm) : []);
+  const wayLine = $derived(detour?.line?.length > 1 ? detour.line.map(([a, b]) => [a, b]) : []);
   const turnNext = $derived(navKm != null ? nextTurn(navTurns, navKm) : null);
   // the turn after it, for «danach …» under the big arrow
   const turnThen = $derived(turnNext ? nextTurn(navTurns, turnNext.km + 0.06) : null);
@@ -763,7 +771,6 @@
   const autoUndo = () => ((autoHold = 'undo'), setDetour(null));
   const autoFree = () => ((autoHold = 'free'), setDetour(null));
   const takeSame = () => sameBack && setDetour(backDetour(sameBack), false);
-  const detourLine = $derived(detour ? detour.line.map(([a, b]) => [a, b]) : []);
   async function detourToGarmin() {
     const name = `${t('Detour')} ${detour.target.name || ''}`.trim();
     const r = await saveGpx(detourGpx(detour, hasRoute ? pts : [], name), name);
@@ -820,8 +827,8 @@
 
   /* the numbers on top */
   // a ride without a route starts with km ridden, riding time and the clock
-  const chosen = $derived(cfg.tiles || hasRoute ? tilesOf(cfg.tiles) : ['done', 'moving', 'clock']);
-  const tiles = $derived(chosen.filter((k) => hasRoute || !TILE[k].route));
+  const chosen = $derived(cfg.tiles || hasRoute || goalOn ? tilesOf(cfg.tiles) : ['done', 'moving', 'clock']);
+  const tiles = $derived(chosen.filter((k) => hasRoute || goalOn || !TILE[k].route));
   const saveTiles = (list) => setOpt('tiles', list);
   const nextTop = $derived(climb && km != null ? { distKm: Math.max(0, climb.toKm - km) } : null);
   const vals = $derived(
@@ -829,8 +836,8 @@
       now,
       km,
       ridden: rec.km,
-      left: arr?.kmLeft,
-      eta: arr?.eta,
+      left: goalOn ? goalLeft : arr?.kmLeft,
+      eta: goalOn ? goalEta : arr?.eta,
       movingS: movingLive,
       totalS,
       hr: fresh('hr', now),
@@ -908,7 +915,7 @@
     nextWp: dash,
     upToTop: climb && km != null ? vv(gainBetween(profile, km, climb.toKm)) : dash,
   });
-  const tileLabel = (k) => (k === 'done' && !hasRoute ? t('km ridden') : t(TILE[k].label));
+  const tileLabel = (k) => (k === 'done' && !hasRoute ? t('km ridden') : goalOn && k === 'left' ? t('km to the goal') : goalOn && k === 'arrive' ? t('Arrival at the goal') : t(TILE[k].label));
 
   /* the bottom sheet: three heights, drag the handle or tap it */
   let stageH = $state(700);
@@ -1190,7 +1197,8 @@
             points={allPoints}
             me={meOnMap}
             {done}
-            grades={detour ? [...grades, { line: detourLine, colour: DETOUR_COLOUR }] : grades}
+            {grades}
+            way={detour ? { line: wayLine, done: wayDone, colour: DETOUR_COLOUR } : null}
             {overlays}
             fill
             bar={false}
@@ -1235,7 +1243,8 @@
             <Route size={18} aria-hidden="true" />
             <span class="lv-detour-main">
               <b>{detourTitle}</b>
-              <small>{[t('{d} km', { d: fmtKm(detour.km) }), detour.gainM ? `${num(detour.gainM)} m ↑` : '', detour.min ? t('about {min} min', { min: num(detour.min) }) : '', detour.oneWay && detour.min && !detour.reached ? t('there about {at}', { at: hhmm(detour.at + detour.min * 60000) }) : '', detour.rejoin ? t('back on the route at km {km}', { km: num(Math.round(detour.rejoin.km)) }) : '', detour.extraKm != null && detour.extraKm > 0 ? t('{d} km more', { d: fmtKm(detour.extraKm) }) : '', detour.skippedKm > 0 ? t('{d} km of the route left out', { d: fmtKm(detour.skippedKm) }) : ''].filter(Boolean).join(' · ')}</small>
+              <small>{[goalOn ? t('{d} km to go', { d: fmtKm(goalLeft) }) : t('{d} km', { d: fmtKm(detour.km) }), detour.gainM ? `${num(detour.gainM)} m ↑` : '', detour.min ? t('about {min} min', { min: num(detour.min) }) : '', detour.oneWay && detour.min && !detour.reached ? t('there about {at}', { at: hhmm(goalEta ?? detour.at + detour.min * 60000) }) : '', detour.rejoin ? t('back on the route at km {km}', { km: num(Math.round(detour.rejoin.km)) }) : '', detour.extraKm != null && detour.extraKm > 0 ? t('{d} km more', { d: fmtKm(detour.extraKm) }) : '', detour.skippedKm > 0 ? t('{d} km of the route left out', { d: fmtKm(detour.skippedKm) }) : ''].filter(Boolean).join(' · ')}</small>
+              {#if goalOn}<span class="lv-goalbar" aria-hidden="true" data-live-goal-bar><i style:width="{Math.round(goalFrac * 100)}%"></i></span>{/if}
               {#if detour.back === 'auto'}
                 <small>{t('You were off the route, so the app planned the shortest way back.')}</small>
                 <span class="lv-back-acts">
@@ -2031,6 +2040,20 @@
     border-left: 4px solid var(--l3);
     flex-wrap: nowrap;
     align-items: flex-start;
+  }
+  .lv-goalbar {
+    display: block;
+    align-self: stretch;
+    height: 8px;
+    border-radius: 4px;
+    background: var(--line);
+    overflow: hidden;
+    margin-top: 6px;
+  }
+  .lv-goalbar i {
+    display: block;
+    height: 100%;
+    background: var(--l3);
   }
   .lv-detour-main {
     display: flex;
