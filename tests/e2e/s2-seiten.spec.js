@@ -5,9 +5,9 @@ import { openHome } from './home0460-fixture.js';
 
 const look = (loc) => loc.evaluate((el) => { const c = getComputedStyle(el); return { r: c.borderTopLeftRadius, b: c.borderTopColor, s: c.boxShadow }; });
 
-test('S2 pages: Velos and Packen cards with depth, Planen as before', async ({ page, context }, info) => {
+test('S2 pages: Velos, Packen and Planen cards with depth', async ({ page, context }, info) => {
   await openHome(page, context, info);
-  for (const h of ['./#/bikes', './#/pack?day']) {
+  for (const h of ['./#/bikes', './#/pack?day', './#/week']) {
     await page.goto(h);
     const card = page.locator('main .card').first();
     await expect(card).toBeVisible();
@@ -17,5 +17,5 @@ test('S2 pages: Velos and Packen cards with depth, Planen as before', async ({ p
     expect(st.s, h).not.toBe('none');
   }
   await page.goto('./#/plan');
-  await expect(page.locator('main[data-s2-page]')).not.toHaveAttribute('data-s2-page', /^(pack|bikes)$/);
+  await expect(page.locator('main[data-s2-page]')).not.toHaveAttribute('data-s2-page', /^(pack|bikes|week)$/);
 });

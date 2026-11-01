@@ -40,10 +40,10 @@ const fin = (v) => Number.isFinite(Number(v));
 const P = (p) => ({ lat: Number(p.lat), lon: Number(p.lon) });
 
 /** The router address for [{ lat, lon }] (start, places on the way, end). */
-export function brouterUrl(points, profile = PROFILE_STD) {
+export function brouterUrl(points, profile = PROFILE_STD, alt = 0) {
   const lonlats = points.map((p) => `${Number(p.lon).toFixed(5)},${Number(p.lat).toFixed(5)}`).join('|');
   const prof = PROFILES.some((x) => x.key === profile) ? profile : PROFILE_STD;
-  return `${BROUTER}?lonlats=${lonlats}&profile=${prof}&alternativeidx=0&format=geojson`;
+  return `${BROUTER}?lonlats=${lonlats}&profile=${prof}&alternativeidx=${Math.max(0, Math.min(3, Math.round(Number(alt)) || 0))}&format=geojson`;
 }
 
 /** BRouter GeoJSON → { line: [[lat, lon, ele]], km, gainM, min } or null. */
@@ -111,10 +111,10 @@ export function targetsOf({ pois = [], own = [], here = null, kinds = TARGET_KIN
 }
 
 /** One request to the router for the way [{ lat, lon }] → parseBrouter's answer. Throws 'busy', 'noroute' or 'failed'. */
-export async function askRouter(way, profile = PROFILE_STD, fetcher = fetch) {
+export async function askRouter(way, profile = PROFILE_STD, fetcher = fetch, alt = 0) {
   let res;
   try {
-    res = await fetcher(brouterUrl(way, profile));
+    res = await fetcher(brouterUrl(way, profile, alt));
   } catch {
     throw new Error('failed');
   }
@@ -136,13 +136,13 @@ export async function askRouter(way, profile = PROFILE_STD, fetcher = fetch) {
  * (optional). → the detour { line, km, gainM, min, target, rejoin, fromKm, extraKm, profile, at }.
  * Throws 'busy' (too many requests), 'noroute' (no way found) or 'failed'.
  */
-export async function planDetour({ here, target, pts = [], fromKm = null, profile = PROFILE_STD, oneWay = false, fetcher = fetch, now = Date.now() }) {
+export async function planDetour({ here, target, pts = [], fromKm = null, profile = PROFILE_STD, oneWay = false, fetcher = fetch, now = Date.now(), alt = 0 }) {
   if (!here || !target) throw new Error('failed');
   const hasRoute = pts.length > 1 && fin(fromKm);
   // «Nur hin» (Noah 27.10.2026 «2a»): only the way there; at the place the app asks how you go back
   const rejoin = hasRoute && !oneWay ? rejoinOf(pts, target, fromKm) : null;
   const way = [P(here), P(target), ...(rejoin ? [rejoin] : [])];
-  const r = await askRouter(way, profile, fetcher);
+  const r = await askRouter(way, profile, fetcher, alt);
   const along = rejoin ? Math.max(0, rejoin.km - fromKm) : 0;
   return {
     ...r,
@@ -154,6 +154,37 @@ export async function planDetour({ here, target, pts = [], fromKm = null, profil
     profile,
     at: now,
   };
+}
+
+/** The same way twice? (equal length, climb and middle point) */
+const sameWay = (a, b) => a.km === b.km && a.gainM === b.gainM && a.line.length === b.line.length && Math.abs(a.line[a.line.length >> 1][0] - b.line[b.line.length >> 1][0]) < 1e-4 && Math.abs(a.line[a.line.length >> 1][1] - b.line[b.line.length >> 1][1]) < 1e-4;
+
+/**
+ * Live-Navigation Schritt 5 (Noah 31.10.2026 «1-5 a»): up to `n` different ways to choose from. The router
+ * is asked one after the other (fair use of the free router); the first answer must work (else it throws like
+ * planDetour), later ones that fail end the search. → [detour] with `tags`: 'shortest', 'fastest', 'flattest'
+ * on the ways that are the best in that (only when the ways differ in it).
+ */
+export async function planAlternatives(opts = {}, n = 3) {
+  const out = [await planDetour({ ...opts, alt: 0 })];
+  for (let i = 1; i < n; i++) {
+    let d;
+    try {
+      d = await planDetour({ ...opts, alt: i });
+    } catch {
+      break;
+    }
+    if (!out.some((o) => sameWay(o, d))) out.push(d);
+  }
+  const best = (key, low = true) => {
+    const v = out.map((o) => o[key]).filter(fin);
+    if (v.length < 2 || new Set(v).size < 2) return null;
+    return low ? Math.min(...v) : Math.max(...v);
+  };
+  const kmB = best('km');
+  const minB = best('min');
+  const gainB = best('gainM');
+  return out.map((o) => ({ ...o, tags: [...(kmB != null && o.km === kmB ? ['shortest'] : []), ...(minB != null && o.min === minB ? ['fastest'] : []), ...(gainB != null && o.gainM === gainB ? ['flattest'] : [])] }));
 }
 
 /** Distance (m) from p to the nearest point of a line [[lat, lon]] (by its points; the line is dense). */
