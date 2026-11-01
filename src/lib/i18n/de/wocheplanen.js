@@ -152,4 +152,6 @@ export default {
   'Write down|group': 'Aufschreiben',
   'Find your way|group': 'Orientierung',
   'Ideas and tools|group': 'Ideen und Werkzeuge',
+  'Add to plan': 'Einplanen',
+  'Nothing planned yet. Plan the week or add a day yourself.': 'Noch nichts geplant. Plane die Woche oder füge selbst einen Tag hinzu.',
 };
