@@ -21,12 +21,11 @@ import { pressures, pressureLoss, chainState, WHEN } from './messen.js';
 import { withUnit } from './sheets.js';
 import { bikeBlocks, isOwn } from './sheetblocks.js';
 import { bikesHash } from './bikes.js';
-import { t, tn, num, dateOf } from './i18n.svelte.js';
-import DE from './i18n/de/index.js';
+import { t, tn, num, dateOf, deTexts } from './i18n.svelte.js';
 
 /** The German word of an English text (the bike shops speak German). */
 const de = (en, vars) => {
-  const s = DE[en] ?? String(en).replace(/\|[a-z]+$/, '');
+  const s = deTexts()[en] ?? String(en).replace(/\|[a-z]+$/, '');
   return vars ? s.replace(/\{(\w+)\}/g, (m, k) => vars[k] ?? m) : s;
 };
 const deNum = (n) => Number(n).toLocaleString('de-CH');

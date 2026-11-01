@@ -6,6 +6,7 @@
 // <LazyPage load={PAGES.Name} />. Only Heute (Home) is loaded at the start.
 
 import { held } from '../holdreload.js';
+import { freshReload } from '../freshreload.js';
 
 const done = new Map(); // loader → component, once loaded
 const RELOAD_KEY = 'lazy.reloadedAt';
@@ -15,9 +16,10 @@ export const loadedOf = (load) => done.get(load) ?? null;
 
 /**
  * Loads a page. After a new version went live, an open app may ask for a part whose old name is gone:
- * then the page reloads once to fetch the new version (at most once a minute, so it can never loop).
+ * then the page loads fresh once (freshreload.js: old offline copy removed, data stays; at most once a minute, so it can never loop).
+ * 30.10.2026 (Noah: «Touren» failed with a missing part): a plain reload() was answered by the old offline copy again.
  */
-export async function loadPage(load, { reload = () => location.reload(), store = globalThis.sessionStorage, now = Date.now() } = {}) {
+export async function loadPage(load, { reload = () => freshReload(), store = globalThis.sessionStorage, now = Date.now() } = {}) {
   if (done.has(load)) return done.get(load);
   try {
     const m = await load();

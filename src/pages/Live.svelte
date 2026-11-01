@@ -25,7 +25,7 @@
    */
   import { untrack, tick } from 'svelte';
   import { liveQuery } from 'dexie';
-  import { CloudRain, Route, Play, Square, Crosshair, MapPin, Navigation, Mountain, Clock, Settings, BatteryMedium, CloudLightning, TriangleAlert, RefreshCw, Utensils, Moon, Flag, LifeBuoy, Ellipsis, ChevronLeft, ChevronRight, Minimize2, Maximize2, SlidersHorizontal, Check, X, Layers, Camera, WifiOff } from '@lucide/svelte';
+  import { CloudRain, Route, Play, Square, Crosshair, MapPin, Navigation, Mountain, Clock, Settings, BatteryMedium, CloudLightning, TriangleAlert, RefreshCw, Utensils, ChevronDown, Moon, Flag, LifeBuoy, Ellipsis, ChevronLeft, ChevronRight, Minimize2, Maximize2, SlidersHorizontal, Check, X, Layers, Camera, WifiOff } from '@lucide/svelte';
   import KindIcon from '../lib/map/KindIcon.svelte';
   import { DURING_RIDE } from '../lib/live/during.js';
   import { FEATURES } from '../lib/features.js';
@@ -314,6 +314,14 @@
   const detourKm = $derived(detourPts.length && me && onDetour(detour, me) ? (snapAhead(detourPts, me, 0)?.km ?? null) : null);
   const navTurns = $derived(detourKm != null ? detourTurns : turns);
   const navKm = $derived(detourKm != null ? detourKm : cfg.turns && at && at.offM < 100 ? (at.kmx ?? at.km) : null);
+  // the way to a goal, live: what is left, when you arrive, how far along you are
+  const goalOn = $derived(detourKm != null && detourPts.length > 1 && !detour?.back);
+  const goalTotal = $derived(detourPts.at(-1)?.km ?? 0);
+  const goalLeft = $derived(goalOn ? Math.max(0, goalTotal - detourKm) : null);
+  const goalEta = $derived(goalLeft != null && kmh > 0 ? now + (goalLeft / kmh) * 36e5 : null);
+  const goalFrac = $derived(goalOn && goalTotal > 0 ? Math.min(1, Math.max(0, detourKm / goalTotal)) : 0);
+  const wayDone = $derived(goalOn ? stretch(detourPts, 0, detourKm) : []);
+  const wayLine = $derived(detour?.line?.length > 1 ? detour.line.map(([a, b]) => [a, b]) : []);
   const turnNext = $derived(navKm != null ? nextTurn(navTurns, navKm) : null);
   // the turn after it, for «danach …» under the big arrow
   const turnThen = $derived(turnNext ? nextTurn(navTurns, turnNext.km + 0.06) : null);
@@ -683,6 +691,15 @@
       mapView?.fitLine?.(d.line.map(([a, b]) => [a, b]), padB);
     }
   };
+  // Noah 28.10.2026 «a Einklappen, Beenden extra»: the X only folds the box to one line (tap opens it again);
+  // «End navigation» ends it, with Undo. While the app asks something (way back) the box stays open.
+  const detourSmall = $derived(!!detour?.small && !arrived && detour.back !== 'auto');
+  const detourTitle = $derived(!detour ? '' : detour.back === 'auto' ? t('New way back onto the route') : detour.back === 'same' ? t('The same way back') : detour.back ? t('Way back onto the route') : detour.oneWay ? t('To {name}', { name: detour.target.name || t('the point') }) : t('Detour to {name}', { name: detour.target.name || t('the point') }));
+  function endDetour() {
+    const old = detour;
+    setDetour(null, false);
+    offerDone(t('Navigation ended.'), () => setDetour(old, false));
+  }
   // back on the route past the rejoin point (or at the place): the detour has done its job
   $effect(() => {
     if (detour && detourDone(detour, { km, here: me, offM: at?.offM ?? null })) untrack(() => setDetour(null));
@@ -754,7 +771,6 @@
   const autoUndo = () => ((autoHold = 'undo'), setDetour(null));
   const autoFree = () => ((autoHold = 'free'), setDetour(null));
   const takeSame = () => sameBack && setDetour(backDetour(sameBack), false);
-  const detourLine = $derived(detour ? detour.line.map(([a, b]) => [a, b]) : []);
   async function detourToGarmin() {
     const name = `${t('Detour')} ${detour.target.name || ''}`.trim();
     const r = await saveGpx(detourGpx(detour, hasRoute ? pts : [], name), name);
@@ -811,8 +827,8 @@
 
   /* the numbers on top */
   // a ride without a route starts with km ridden, riding time and the clock
-  const chosen = $derived(cfg.tiles || hasRoute ? tilesOf(cfg.tiles) : ['done', 'moving', 'clock']);
-  const tiles = $derived(chosen.filter((k) => hasRoute || !TILE[k].route));
+  const chosen = $derived(cfg.tiles || hasRoute || goalOn ? tilesOf(cfg.tiles) : ['done', 'moving', 'clock']);
+  const tiles = $derived(chosen.filter((k) => hasRoute || goalOn || !TILE[k].route));
   const saveTiles = (list) => setOpt('tiles', list);
   const nextTop = $derived(climb && km != null ? { distKm: Math.max(0, climb.toKm - km) } : null);
   const vals = $derived(
@@ -820,8 +836,8 @@
       now,
       km,
       ridden: rec.km,
-      left: arr?.kmLeft,
-      eta: arr?.eta,
+      left: goalOn ? goalLeft : arr?.kmLeft,
+      eta: goalOn ? goalEta : arr?.eta,
       movingS: movingLive,
       totalS,
       hr: fresh('hr', now),
@@ -899,7 +915,7 @@
     nextWp: dash,
     upToTop: climb && km != null ? vv(gainBetween(profile, km, climb.toKm)) : dash,
   });
-  const tileLabel = (k) => (k === 'done' && !hasRoute ? t('km ridden') : t(TILE[k].label));
+  const tileLabel = (k) => (k === 'done' && !hasRoute ? t('km ridden') : goalOn && k === 'left' ? t('km to the goal') : goalOn && k === 'arrive' ? t('Arrival at the goal') : t(TILE[k].label));
 
   /* the bottom sheet: three heights, drag the handle or tap it */
   let stageH = $state(700);
@@ -1181,7 +1197,8 @@
             points={allPoints}
             me={meOnMap}
             {done}
-            grades={detour ? [...grades, { line: detourLine, colour: DETOUR_COLOUR }] : grades}
+            {grades}
+            way={detour ? { line: wayLine, done: wayDone, colour: DETOUR_COLOUR } : null}
             {overlays}
             fill
             bar={false}
@@ -1214,12 +1231,20 @@
         <LiveWetter {me} />
         <LiveEssen {me} />
         <LivePlaceNote {me} tripId={trip?.id ?? null} />
-        {#if detour}
+        {#if detour && detourSmall}
+          <button type="button" class="lvf-alert lv-detour lv-detour-small" onclick={() => setDetour({ ...detour, small: false }, false)} aria-expanded="false" aria-label={t('Show the navigation')} data-live-detour data-live-detour-small data-live-detour-back={detour.back ?? null}>
+            <Route size={18} aria-hidden="true" />
+            <b>{detourTitle}</b>
+            <small>{[t('{d} km', { d: fmtKm(detour.km) }), detour.oneWay && detour.min && !detour.reached ? hhmm(detour.at + detour.min * 60000) : ''].filter(Boolean).join(' · ')}</small>
+            <ChevronDown size={18} aria-hidden="true" />
+          </button>
+        {:else if detour}
           <div class="lvf-alert lv-detour" role="status" data-live-detour data-live-detour-back={detour.back ?? null}>
             <Route size={18} aria-hidden="true" />
             <span class="lv-detour-main">
-              <b>{detour.back === 'auto' ? t('New way back onto the route') : detour.back === 'same' ? t('The same way back') : detour.back ? t('Way back onto the route') : detour.oneWay ? t('To {name}', { name: detour.target.name || t('the point') }) : t('Detour to {name}', { name: detour.target.name || t('the point') })}</b>
-              <small>{[t('{d} km', { d: fmtKm(detour.km) }), detour.gainM ? `${num(detour.gainM)} m ↑` : '', detour.min ? t('about {min} min', { min: num(detour.min) }) : '', detour.oneWay && detour.min && !detour.reached ? t('there about {at}', { at: hhmm(detour.at + detour.min * 60000) }) : '', detour.rejoin ? t('back on the route at km {km}', { km: num(Math.round(detour.rejoin.km)) }) : '', detour.extraKm != null && detour.extraKm > 0 ? t('{d} km more', { d: fmtKm(detour.extraKm) }) : '', detour.skippedKm > 0 ? t('{d} km of the route left out', { d: fmtKm(detour.skippedKm) }) : ''].filter(Boolean).join(' · ')}</small>
+              <b>{detourTitle}</b>
+              <small>{[goalOn ? t('{d} km to go', { d: fmtKm(goalLeft) }) : t('{d} km', { d: fmtKm(detour.km) }), detour.gainM ? `${num(detour.gainM)} m ↑` : '', detour.min ? t('about {min} min', { min: num(detour.min) }) : '', detour.oneWay && detour.min && !detour.reached ? t('there about {at}', { at: hhmm(goalEta ?? detour.at + detour.min * 60000) }) : '', detour.rejoin ? t('back on the route at km {km}', { km: num(Math.round(detour.rejoin.km)) }) : '', detour.extraKm != null && detour.extraKm > 0 ? t('{d} km more', { d: fmtKm(detour.extraKm) }) : '', detour.skippedKm > 0 ? t('{d} km of the route left out', { d: fmtKm(detour.skippedKm) }) : ''].filter(Boolean).join(' · ')}</small>
+              {#if goalOn}<span class="lv-goalbar" aria-hidden="true" data-live-goal-bar><i style:width="{Math.round(goalFrac * 100)}%"></i></span>{/if}
               {#if detour.back === 'auto'}
                 <small>{t('You were off the route, so the app planned the shortest way back.')}</small>
                 <span class="lv-back-acts">
@@ -1241,8 +1266,9 @@
                 </span>
               {/if}
               {#if gpxMsg}<small data-live-detour-gpx>{gpxMsg}</small>{/if}
+              <button type="button" class="btn sm" onclick={endDetour} data-live-detour-end>{t('End navigation')}</button>
             </span>
-            <button type="button" class="lvf-ic lv-detour-x" onclick={() => setDetour(null)} aria-label={t('Remove the detour')} data-live-detour-off><X size={18} aria-hidden="true" /></button>
+            <button type="button" class="lvf-ic lv-detour-x" onclick={() => setDetour({ ...detour, small: true }, false)} aria-label={t('Fold up')} data-live-detour-off><X size={18} aria-hidden="true" /></button>
           </div>
         {/if}
         {#if offline}<p class="lvf-alert" role="status" data-live-offline><WifiOff size={18} aria-hidden="true" /><span>{t('Offline: the map shows what is stored, the ride goes on.')}</span></p>{/if}
@@ -2015,6 +2041,20 @@
     flex-wrap: nowrap;
     align-items: flex-start;
   }
+  .lv-goalbar {
+    display: block;
+    align-self: stretch;
+    height: 8px;
+    border-radius: 4px;
+    background: var(--line);
+    overflow: hidden;
+    margin-top: 6px;
+  }
+  .lv-goalbar i {
+    display: block;
+    height: 100%;
+    background: var(--l3);
+  }
   .lv-detour-main {
     display: flex;
     flex-direction: column;
@@ -2049,6 +2089,27 @@
   }
   .lv-detour .lv-back-err {
     color: var(--bad);
+  }
+  .lv-detour-small {
+    align-items: center;
+    gap: var(--sp-1);
+    width: 100%;
+    border-top: 0;
+    border-right: 0;
+    border-bottom: 0;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+  .lv-detour-small b {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-width: 0;
+  }
+  .lv-detour-small small {
+    flex: 1;
+    white-space: nowrap;
   }
   .lv-detour .lv-detour-x {
     width: 36px;

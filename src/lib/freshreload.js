@@ -9,22 +9,44 @@
 /** Caches of the app's own files (Workbox precache); offline maps and other runtime caches stay. */
 export const isAppCache = (name) => /^workbox-precache/.test(name);
 
+/** Waits for a step at most `ms`: a step that hangs (Android sometimes never answers) must not stop the reload. */
+const within = (p, ms = 3000) => Promise.race([Promise.resolve(p).catch(() => {}), new Promise((ok) => setTimeout(ok, ms))]);
+
+/** The address with a changing `?fresh=` in front of the #: a plain reload() may be answered by a stale copy at the edge (GitHub Pages keeps pages 10 minutes). */
+export function freshUrl(loc, now = Date.now()) {
+  return `${loc.origin}${loc.pathname}?fresh=${now}${loc.hash || ''}`;
+}
+
 export async function freshReload(w = globalThis) {
   if (w.navigator?.onLine !== false) {
-    try {
-      const regs = (await w.navigator?.serviceWorker?.getRegistrations?.()) ?? [];
-      await Promise.all(regs.map((r) => r.unregister()));
-    } catch {
-      /* nothing to remove */
-    }
-    try {
-      const names = (await w.caches?.keys?.()) ?? [];
-      await Promise.all(names.filter(isAppCache).map((n) => w.caches.delete(n)));
-    } catch {
-      /* nothing to remove */
-    }
+    await within(
+      (async () => {
+        const regs = (await w.navigator?.serviceWorker?.getRegistrations?.()) ?? [];
+        await Promise.all(regs.map((r) => r.unregister()));
+      })(),
+    );
+    await within(
+      (async () => {
+        const names = (await w.caches?.keys?.()) ?? [];
+        await Promise.all(names.filter(isAppCache).map((n) => w.caches.delete(n)));
+      })(),
+    );
+    // 30.10.2026 (Noah: «Jetzt laden» did nothing on the phone): a new address so the page is really fetched anew
+    if (w.location.replace && w.location.origin) return w.location.replace(freshUrl(w.location));
   }
   w.location.reload();
+}
+
+/** Takes the `?fresh=` marker off the address again after a fresh load (the data and the # place stay). */
+export function cleanFreshMarker(w = globalThis) {
+  try {
+    const u = new URL(w.location.href);
+    if (!u.searchParams.has('fresh')) return;
+    u.searchParams.delete('fresh');
+    w.history.replaceState(w.history.state, '', u.pathname + u.search + u.hash);
+  } catch {
+    /* the marker may stay */
+  }
 }
 
 /** Asks for a newer version right away (src/lib/swupdate.js reloads once it has taken over). */

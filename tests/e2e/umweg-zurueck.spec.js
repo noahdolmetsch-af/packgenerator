@@ -166,8 +166,8 @@ test('Live: off the route the app plans the way back by itself, with Undo, go on
   await tap(card.locator('[data-live-auto-same]'), info);
   await expect(card).toHaveAttribute('data-live-detour-back', 'same');
   expect(asked).toHaveLength(1);
-  // × and the app plans again a minute later; Undo then waits until you are back on the route
-  await tap(card.locator('[data-live-detour-off]'), info);
+  // «Navigation beenden» and the app plans again a minute later; Undo then waits until you are back on the route
+  await tap(card.locator('[data-live-detour-end]'), info);
   await goTo(off(pointAt(pts, 410.6), 0.0044), 61);
   await expect(card).toHaveAttribute('data-live-detour-back', 'auto', { timeout: 10_000 });
   expect(asked).toHaveLength(2);

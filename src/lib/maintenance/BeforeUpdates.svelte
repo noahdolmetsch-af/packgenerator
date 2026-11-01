@@ -83,6 +83,12 @@
         <input type="checkbox" role="switch" class="mt-sw" checked={$setQ?.snap ?? true} disabled={!$setQ} onchange={(e) => saveMaint(db, { snap: e.currentTarget.checked })} />
       </label>
     </li>
+    <li>
+      <label class="ich-row">
+        <span class="ich-m"><b>{t('Also save a backup file before every update')}</b><small>{t('Goes into your downloads folder. The browser may ask once.')}</small></span>
+        <input type="checkbox" role="switch" class="mt-sw" checked={$setQ?.dl ?? true} disabled={!$setQ} onchange={(e) => saveMaint(db, { dl: e.currentTarget.checked })} data-mt-dl />
+      </label>
+    </li>
   </ul>
   {#if message}<p class="ich-help" role="status">{message}</p>{/if}
 </section>

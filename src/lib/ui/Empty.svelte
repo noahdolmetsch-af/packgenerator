@@ -8,6 +8,9 @@
    * freigeben»): the one building block for every empty list and page. The first action is the main
    * button, `action2` a second one beside it, `children` a quiet line below (e.g. a link). `level` makes
    * the title a heading (h2–h4, `headId` its id), e.g. inside a section that names itself by it.
+   * «Neuer Schwung» Laden und leer (block B11, Noah 27.10.2026 «1a 2a 3a», «alle anderen Vorschläge umsetzen»):
+   * with an icon the block shows a small drawn picture (a soft card with two lines, the icon in a bubble on its
+   * corner) that rises in gently when the view opens; still with «Bewegung reduzieren».
    */
   let { text, title = '', level = 0, headId = undefined, action = null, action2 = null, icon = null, children = null } = $props();
 </script>
@@ -18,7 +21,12 @@
 {/snippet}
 
 <div class="empty" data-empty>
-  {#if icon}{@const Icon = icon}<span class="ring" aria-hidden="true"><Icon size={22} /></span>{/if}
+  {#if icon}{@const Icon = icon}
+    <span class="pic" aria-hidden="true" data-empty-pic>
+      <svg class="sheet" viewBox="0 0 120 84"><rect x="4" y="14" width="104" height="66" rx="12" /><rect class="clip" x="34" y="6" width="44" height="16" rx="8" /><path d="M24 44 H84 M24 58 H64" /></svg>
+      <span class="ring"><Icon size={20} /></span>
+    </span>
+  {/if}
   {#if title && level}<svelte:element this={`h${level}`} class="head" id={headId}>{title}</svelte:element>
   {:else if title}<b class="head">{title}</b>{/if}
   <p>{text}</p>
@@ -43,14 +51,72 @@
     color: var(--ink-2);
     text-align: center;
   }
+  .pic {
+    position: relative;
+    display: block;
+    width: 120px;
+    height: 84px;
+    margin-bottom: 4px;
+  }
+  .sheet {
+    width: 100%;
+    height: 100%;
+  }
+  .sheet rect {
+    fill: color-mix(in srgb, var(--hi) 12%, var(--paper));
+  }
+  .sheet .clip {
+    fill: var(--paper);
+    stroke: var(--hi);
+    stroke-width: 3;
+  }
+  .sheet path {
+    fill: none;
+    stroke: var(--hi);
+    stroke-width: 4;
+    stroke-linecap: round;
+  }
   .ring {
+    position: absolute;
+    right: -6px;
+    top: 4px;
     display: grid;
     place-items: center;
-    width: 52px;
-    height: 52px;
+    width: 36px;
+    height: 36px;
     border-radius: 50%;
-    background: var(--paper-2);
-    color: var(--ink-2);
+    background: var(--paper);
+    box-shadow: 0 1px 4px var(--shadow);
+    color: var(--hi);
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .pic {
+      animation: em-rise 480ms var(--ease-out) both;
+    }
+    .ring {
+      animation: em-pop 360ms var(--ease-out) 260ms both;
+    }
+    .sheet path {
+      stroke-dasharray: 60;
+      animation: em-draw 520ms var(--ease-out) 160ms both;
+    }
+  }
+  @keyframes em-rise {
+    from {
+      opacity: 0;
+      translate: 0 8px;
+    }
+  }
+  @keyframes em-pop {
+    from {
+      opacity: 0;
+      scale: 0.6;
+    }
+  }
+  @keyframes em-draw {
+    from {
+      stroke-dashoffset: 60;
+    }
   }
   .head {
     margin: 0;

@@ -6,7 +6,7 @@
    * and the pins of the other device to take over (Noah «13»: phone and computer keep their own).
    * A tap on a pin goes to its function (goFeature: the page, the action, the spot). Model: lib/quick/quicklinks.js.
    */
-  import { Plus, Pencil, Check, ChevronRight, Search as SearchIcon, X, Trash2, ArrowRightLeft } from '@lucide/svelte';
+  import { Plus, Pencil, Check, ChevronRight, Search as SearchIcon, X, Trash2, ArrowRightLeft, Play } from '@lucide/svelte';
   import { liveQuery } from 'dexie';
   import VeloHead from '../lib/bikes/VeloHead.svelte';
   import GroupActions from '../lib/ui/GroupActions.svelte';
@@ -17,9 +17,14 @@
   import { offerDone } from '../lib/ui/rename.svelte.js';
   import { db } from '../lib/db.js';
   import { FEATURES, FEATURE, FEATURE_GROUPS } from '../lib/features.js';
-  import { goFeature } from '../lib/know/featureRun.js';
+  import { goFeature, runOf } from '../lib/know/featureRun.js';
+  import { MARK_KEYS } from '../lib/quick/pinmarks.js';
+  import { glowFeature } from '../lib/quick/findcard.js';
+  import { USAGE_KEYS, cleanUsage, suggestions, stalePins, usePin, pathOf } from '../lib/quick/usage.js';
+  import { localDay } from '../lib/localday.js';
+  import { startTour } from '../lib/tour/run.js';
   import {
-    QUICK_KEYS, deviceKind, otherKind, cleanQuick, groupLabel, pinLabel, pinsIn, isPinned, shownGroups,
+    QUICK_KEYS, deviceKind, otherKind, cleanQuick, groupLabel, pinLabel, pinsIn, isPinned, shownGroups, addView, isViewPinned,
     addPin, removePin, editPin, movePin, addGroup, renameGroup, deleteGroup, moveGroup, findForPin,
   } from '../lib/quick/quicklinks.js';
   import { t, tn } from '../lib/i18n.svelte.js';
@@ -29,6 +34,8 @@
   const kind = deviceKind();
   const KEY = QUICK_KEYS[kind];
   const OTHER = QUICK_KEYS[otherKind(kind)];
+  const USED = USAGE_KEYS[kind];
+  const today = localDay();
 
   let s = $state(cleanQuick(null));
   let other = $state(null);
@@ -41,10 +48,14 @@
   let newGroupOpen = $state(false);
   let groupText = $state('');
   let open = $state(null); // the pin whose name and note are being changed
+  let marksOn = $state(true); // step 2: the small pin on every card in the app
+  let u = $state(cleanUsage(null)); // step 4: what this device opened lately
 
   $effect(() => {
-    const sub = liveQuery(() => db.settings.bulkGet([KEY, OTHER])).subscribe({
-      next: ([mine, theirs]) => {
+    const sub = liveQuery(() => db.settings.bulkGet([KEY, OTHER, MARK_KEYS.on, USED])).subscribe({
+      next: ([mine, theirs, marks, used]) => {
+        u = cleanUsage(used?.value);
+        marksOn = marks?.value !== false;
         s = cleanQuick(mine?.value);
         other = theirs?.value ? cleanQuick(theirs.value) : null;
       },
@@ -55,6 +66,14 @@
   db.bikes.toCollection().first().then((b) => (bikeId = b?.id ?? null)).catch(() => {});
 
   const groups = $derived(shownGroups(s));
+  // step 4 (Noah «6a 7a», «20»): recently opened, one suggestion to pin, one pin to tidy up
+  const recent = $derived(u.recent.slice(0, 5));
+  const suggest = $derived(suggestions(u, s, today)[0] ?? null);
+  const stale = $derived(s.pins.find((p) => p.id === stalePins(u, s, today)[0]) ?? null);
+  const saveUsage = (next) => db.settings.put({ key: USED, value: JSON.parse(JSON.stringify(next)) });
+  const pinView = (r) => change(addView(s, r.href, r.title, s.groups[0]?.id ?? '', today), t('«{name}» pinned.', { name: r.title }));
+  const noThanks = (r) => saveUsage({ ...u, no: { ...u.no, [pathOf(r.href)]: today } });
+  const keep = (p) => saveUsage({ ...u, keep: { ...u.keep, [p.id]: today } });
   const gName = (g) => groupLabel(g, t);
   const hits = $derived(findForPin(FEATURES, q, t).slice(0, 40));
   const here = $derived(kind === 'phone' ? t('this phone') : t('this computer'));
@@ -68,9 +87,14 @@
     if (text) offerDone(text, () => save(before));
   }
 
+  // step 3 (Noah «5a»): go to the spot and light it up; a view opens with its filter (Noah «18a»)
   function go(p) {
+    saveUsage(usePin(u, p.id, today));
+    if (!p.feature) return void (location.hash = p.href);
     const f = FEATURE[p.feature];
-    if (f) goFeature(f, { bikeId });
+    if (!f) return;
+    goFeature(f, { bikeId });
+    if (!runOf(f)) glowFeature(f.id); // an action (a window, a trip) has no card to light up
   }
   const pin = (f) => change(addPin(s, f.id, addTo), t('«{name}» pinned.', { name: t(f.title) }));
   const unpin = (p) => change(removePin(s, p.id), t('«{name}» unpinned.', { name: pinLabel(p, t) }));
@@ -94,13 +118,17 @@
     groupText = '';
     newGroupOpen = false;
   }
+  function setMarks(v) {
+    db.settings.put({ key: MARK_KEYS.on, value: v });
+    offerDone(v ? t('Pins on the cards are on.') : t('Pins on the cards are off.'), () => db.settings.put({ key: MARK_KEYS.on, value: !v }));
+  }
   const takeOver = () => other && change(other, t('Pins of {device} taken over.', { device: there }));
 </script>
 
 <div class="ich-page ql-page" data-quick={kind}>
   <VeloHead title={t('Quick Links|place')} sub={t('Your shortcuts. Pin the functions you use most; a tap takes you straight there.')}>
     <button type="button" class="btn" aria-expanded={adding} onclick={() => ((adding = !adding), (q = ''), (addTo = s.groups[0]?.id ?? ''))}><Plus size={16} aria-hidden="true" />{t('Add a pin')}</button>
-    <button type="button" class="btn" aria-pressed={editing} onclick={() => ((editing = !editing), (open = null))}>
+    <button type="button" class="btn" data-quick-editbtn aria-pressed={editing} onclick={() => ((editing = !editing), (open = null))}>
       {#if editing}<Check size={16} aria-hidden="true" />{t('Done')}{:else}<Pencil size={16} aria-hidden="true" />{t('Edit|quick')}{/if}
     </button>
   </VeloHead>
@@ -143,6 +171,25 @@
     </section>
   {/if}
 
+  {#if suggest}
+    <div class="ql-tip" role="status" data-quick-suggest={suggest.href}>
+      <p>{t('You often open «{name}». Pin it here?', { name: suggest.title })}</p>
+      <div class="tool-row">
+        <button type="button" class="btn sm hi" onclick={() => pinView(suggest)}><Plus size={15} aria-hidden="true" />{t('Pin|quick')}</button>
+        <button type="button" class="btn sm" onclick={() => noThanks(suggest)}>{t('No, thanks')}</button>
+      </div>
+    </div>
+  {/if}
+  {#if stale && !editing}
+    <div class="ql-tip" role="status" data-quick-stale={stale.id}>
+      <p>{t('You have not opened «{name}» for 30 days. Unpin it?', { name: pinLabel(stale, t) })}</p>
+      <div class="tool-row">
+        <button type="button" class="btn sm" onclick={() => unpin(stale)}><Trash2 size={15} aria-hidden="true" />{t('Unpin|quick')}</button>
+        <button type="button" class="btn sm" onclick={() => keep(stale)}>{t('Keep|quick')}</button>
+      </div>
+    </div>
+  {/if}
+
   {#if editing && s.groups.length > 1}
     <section class="ich-sec ql-order" aria-labelledby="ql-order-h">
       <div class="ich-h"><div><h2 id="ql-order-h">{t('Order of the groups')}</h2><p class="ich-hs">{t('Drag or use the arrows.')}</p></div></div>
@@ -176,10 +223,10 @@
           <ul class="card ich-list ql-list" use:sortable={{ onmove: (a, b) => move(gid, a, b), off: !editing, row: ':scope > li.ql-row' }}>
             {#each ps as p, i (p.id)}
               {@const f = FEATURE[p.feature]}
-              <li data-sort-id={p.id} data-quick-pin={p.feature} class="ql-row">
+              <li data-sort-id={p.id} data-quick-pin={p.feature || null} data-quick-view={p.feature ? null : p.href} class="ql-row">
                 {#if editing}<SortGrip name={pinLabel(p, t)} onstep={(d) => move(gid, i, i + d)} />{/if}
                 <button type="button" class="ql-a" onclick={() => go(p)}>
-                  <span class="ql-m"><b>{pinLabel(p, t)}</b>{#if p.note}<i data-quick-note>{p.note}</i>{/if}<small>{p.name ? t(f.title) : t(FEATURE_GROUPS.find((x) => x.key === f.group)?.label ?? '')}</small></span>
+                  <span class="ql-m"><b>{pinLabel(p, t)}</b>{#if p.note}<i data-quick-note>{p.note}</i>{/if}<small>{f ? (p.name ? t(f.title) : t(FEATURE_GROUPS.find((x) => x.key === f.group)?.label ?? '')) : p.name ? p.title : t('View with its filter')}</small></span>
                   {#if !editing}<ChevronRight size={18} aria-hidden="true" />{/if}
                 </button>
                 {#if editing}
@@ -191,7 +238,7 @@
               {#if editing && open === p.id}
                 <li class="ql-edit">
                   <form class="ql-form" onsubmit={(e) => saveText(p, e)} data-quick-edit>
-                    <label class="tool-field"><span>{t('Name')}</span><input class="tool-input" name="name" value={p.name} placeholder={t(f.title)} maxlength="60" autocomplete="off" /></label>
+                    <label class="tool-field"><span>{t('Name')}</span><input class="tool-input" name="name" value={p.name} placeholder={f ? t(f.title) : p.title} maxlength="60" autocomplete="off" /></label>
                     <label class="tool-field"><span>{t('Note')}</span><input class="tool-input" name="note" value={p.note} placeholder={t('e.g. before every ski tour')} maxlength="120" autocomplete="off" /></label>
                     <label class="tool-field"><span>{t('Group')}</span>
                       <select class="tool-input" value={gid} onchange={(e) => regroup(p, e.currentTarget.value)}>
@@ -224,11 +271,31 @@
   {/if}
 
   <div class="ql-foot">
+    <label class="ql-marks" data-quick-marks>
+      <span><b>{t('Pins on the cards')}</b><small>{t('A small pin at the top right of every card of a function in the app. A tap pins it here.')}</small></span>
+      <input type="checkbox" role="switch" checked={marksOn} onchange={(e) => setMarks(e.currentTarget.checked)} />
+    </label>
+    <button type="button" class="btn btn-link" data-quick-tour onclick={() => startTour('quick')}><Play size={15} aria-hidden="true" />{t('Tour of Quick Links')}</button>
     <a href="#/features">{t('All {n} functions of the app', { n: FEATURES.length })} ›</a>
     {#if other && other.pins.length}
       <button type="button" class="btn btn-link" data-quick-takeover onclick={takeOver}><ArrowRightLeft size={15} aria-hidden="true" />{tn(other.pins.length, 'Take over the pins of {device} ({n} pin)', 'Take over the pins of {device} ({n} pins)', { device: there })}</button>
     {/if}
   </div>
+
+  {#if recent.length && !editing}
+    <section class="ich-sec" aria-labelledby="ql-recent-h" data-quick-recent>
+      <div class="ich-h"><div><h2 id="ql-recent-h">{t('Opened lately')}</h2><p class="ich-hs">{t('On this device. A pin keeps one for good.')}</p></div></div>
+      <ul class="card ich-list ql-list">
+        {#each recent as r (r.href)}
+          <li class="ql-row">
+            <a class="ql-a" href={r.href}><span class="ql-m"><b>{r.title}</b><small>{r.href.includes('?') ? t('View with its filter') : t('Page|quick')}</small></span></a>
+            {#if isViewPinned(s, r.href)}<span class="ql-on"><Check size={15} aria-hidden="true" />{t('Pinned|quick')}</span>
+            {:else}<button type="button" class="btn sm" aria-label={t('Pin «{name}»', { name: r.title })} onclick={() => pinView(r)}><Plus size={15} aria-hidden="true" />{t('Pin|quick')}</button>{/if}
+          </li>
+        {/each}
+      </ul>
+    </section>
+  {/if}
 </div>
 
 {#if deleting}
@@ -368,6 +435,34 @@
     justify-items: start;
     gap: var(--sp-2);
     margin: var(--sp-4) 0;
+  }
+  .ql-tip {
+    display: grid;
+    gap: var(--sp-2);
+    padding: var(--sp-3) var(--sp-4);
+    margin: 0 0 var(--sp-4);
+    border-radius: var(--r-md, 12px);
+    background: var(--paper-2);
+    max-width: 640px;
+  }
+  .ql-tip p {
+    margin: 0;
+  }
+  .ql-marks {
+    justify-self: stretch;
+    display: flex;
+    align-items: center;
+    gap: var(--sp-3);
+    min-height: 44px;
+    max-width: 640px;
+  }
+  .ql-marks span {
+    display: grid;
+    flex: 1;
+    min-width: 0;
+  }
+  .ql-marks small {
+    color: var(--ink-3);
   }
   .ql-foot > a {
     display: inline-flex;

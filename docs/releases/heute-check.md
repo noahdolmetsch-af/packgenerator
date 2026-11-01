@@ -10,7 +10,7 @@ PR folgt · 30.10.2026 · Auftrag: Noah «1-5a» (Thread «Tagescheck optimieren
 - nichts. (Die Zeile «Morgen-Check: nichts offen» in «Dein Körper heute» bleibt vorerst; sie kann in einem späteren PR entfallen, wenn die Kachel sich bewährt.)
 
 ## Selbst entschieden
-- Kachel ist klein (Breite «w»), kann wie jede Kachel verschoben, vergrössert und weggenommen werden. Bestehende Wände bekommen sie einmal (Wand v 15).
+- Kachel ist klein (Breite «w»), kann wie jede Kachel verschoben, vergrössert und weggenommen werden. Bestehende Wände bekommen sie einmal (Wand v 17).
 - Schritt 1 von 3: die Reiter «Zusammenhänge» und «Verlauf» verweisen zuerst auf die bestehenden Seiten (Erkenntnisse, Verlauf). Schritt 2 und 3 holen deren Inhalt auf die Seite «Tagescheck».
 
 ## Entscheide (für decisions.md)

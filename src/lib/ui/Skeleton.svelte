@@ -4,6 +4,8 @@
    * freigeben»): while a page reads its data, calm grey bars in the shape of what comes, so nothing jumps
    * and no empty text flashes up. kind 'home': one big card and two small ones (Today); 'list': a card with
    * `rows` lines (lists). Screen readers hear «Loading …» once.
+   * «Neuer Schwung» Laden (block B8 «Schimmer», Noah 27.10.2026): a warm shimmer runs over the bars, the cards
+   * come in one after another; still with «Bewegung reduzieren».
    */
   import { t } from '../i18n.svelte.js';
 
@@ -45,7 +47,7 @@
     display: block;
     height: 12px;
     border-radius: 6px;
-    background: linear-gradient(90deg, var(--paper-2) 0%, color-mix(in srgb, var(--paper-2) 50%, var(--paper)) 50%, var(--paper-2) 100%);
+    background: linear-gradient(90deg, var(--paper-2) 0%, color-mix(in srgb, var(--warn) 10%, var(--paper)) 50%, var(--paper-2) 100%);
     background-size: 200% 100%;
     animation: sk 1.4s ease-in-out infinite;
   }
@@ -61,6 +63,22 @@
     }
     to {
       background-position: -100% 0;
+    }
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .sk-card {
+      animation: sk-in 400ms var(--ease-out) both;
+    }
+    .sk-two .sk-card:nth-child(1) {
+      animation-delay: 80ms;
+    }
+    .sk-two .sk-card:nth-child(2) {
+      animation-delay: 160ms;
+    }
+  }
+  @keyframes sk-in {
+    from {
+      opacity: 0;
     }
   }
   @media (prefers-reduced-motion: reduce) {
