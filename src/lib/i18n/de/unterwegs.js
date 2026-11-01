@@ -56,6 +56,8 @@ export default {
   'km so far': 'km gefahren',
   'km to go': 'km bis zum Ziel',
   'km to the goal': 'km bis zum Ziel',
+  'Map turns with you': 'Karte dreht mit dir',
+  'North up': 'Norden oben',
   'Arrival at the goal': 'Ankunft am Ziel',
   '{d} km to go': 'noch {d} km',
   'Metres up today': 'Höhenmeter heute',

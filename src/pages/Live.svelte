@@ -48,7 +48,7 @@
   import { stretch } from '../lib/map/maplib.js';
   import { fineOf, heightAt, gradeAt } from '../lib/map/fineprofile.js';
   import { zoomFactor } from '../lib/map/zoomfactor.js';
-  import { LIVE_TILES, TILE, MAX_TILES, tilesOf, toggleTile, moveTile, tileValues, gainStep, headingOf, aheadLine, gradeLines, sheetSnaps, nearestSnap } from '../lib/live/livemap.js';
+  import { navZoom, LIVE_TILES, TILE, MAX_TILES, tilesOf, toggleTile, moveTile, tileValues, gainStep, headingOf, aheadLine, gradeLines, sheetSnaps, nearestSnap } from '../lib/live/livemap.js';
   import Crumb from '../lib/flow/kit/Crumb.svelte';
   import MapView from '../lib/map/MapView.svelte';
   import ProfileStrip from '../lib/map/ProfileStrip.svelte';
@@ -180,6 +180,8 @@
   let now = $state(Date.now());
   let row = $state(null); // the recording row (for the pauses)
   let follow = $state(true);
+  let northUp = $state(false); // Navigation zum Ziel: true = the map stays north up
+  let driveKey = '';
   let mapView = $state();
   let ground = $state('auto');
   let shown = $state({ stops: true, own: true, radar: false });
@@ -566,7 +568,23 @@
     if (rec.on) rideStep();
     if (!rec.on || !me) return;
     // on a data page the map is not moved (Stromsparen 2a: no drawing while you do not see it)
-    if (follow && viewSet && dpIndex === 0) mapView?.keep?.(me.lat, me.lon, padB);
+    if (follow && viewSet && dpIndex === 0) {
+      // Navigation zum Ziel: the map turns so your direction points up and zooms before a turn; «North up» stops it
+      if (goalOn && !northUp && deg != null) {
+        const z = navZoom(turnNext?.distM ?? null);
+        const key = `${Math.round(deg / 5)}|${z}|${Math.round(me.lat * 5e4)}|${Math.round(me.lon * 5e4)}`;
+        if (key !== driveKey) {
+          driveKey = key;
+          mapView?.drive?.(me.lat, me.lon, deg, z, padB);
+        }
+      } else {
+        if (driveKey) {
+          driveKey = '';
+          mapView?.north?.();
+        }
+        mapView?.keep?.(me.lat, me.lon, padB);
+      }
+    }
     // the turn ahead (Abbiege-Hinweise): its voice first, before the stops and climbs
     const ts = cfg.turns && cfg.turnVoice && turnNext ? turnSay(turnNext, turnNext.distM, said) : null;
     if (ts) {
@@ -784,6 +802,7 @@
   });
   const recenter = () => {
     follow = true;
+    driveKey = '';
     if (me) mapView?.centerOn?.(me.lat, me.lon, 14, padB);
   };
 
@@ -1342,6 +1361,9 @@
         </div>
       {/if}
 
+      {#if goalOn}
+        <button type="button" class="lvf-ic lvf-north" class:lvf-hidden={snap === 'full' || dpIndex > 0} aria-pressed={northUp} onclick={() => (northUp = !northUp)} style:bottom="{padB + 66}px" aria-label={northUp ? t('Map turns with you') : t('North up')} title={northUp ? t('Map turns with you') : t('North up')} data-live-north><Navigation size={22} aria-hidden="true" /></button>
+      {/if}
       <button type="button" class="lvf-ic lvf-follow" class:lvf-hidden={snap === 'full' || dpIndex > 0} aria-pressed={follow} onclick={() => (follow ? (follow = false) : recenter())} style:bottom="{padB + 12}px" aria-label={follow ? t('Map follows you') : t('Follow me')} data-live-follow><Crosshair size={22} aria-hidden="true" /></button>
 
       <!-- the bottom sheet -->
@@ -2219,6 +2241,17 @@
   }
   .lvf-fold[open] > summary::after {
     transform: rotate(90deg);
+  }
+  .lvf-north {
+    position: absolute;
+    right: 10px;
+    z-index: 2;
+    box-shadow: 0 1px 4px var(--shadow);
+    transition: bottom 0.15s var(--ease-out);
+  }
+  .lvf-north[aria-pressed='true'] {
+    background: var(--ink);
+    color: var(--paper);
   }
   .lvf-follow {
     position: absolute;

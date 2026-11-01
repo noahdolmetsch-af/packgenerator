@@ -142,6 +142,15 @@ export function headingOf(fix, prev) {
   return null;
 }
 
+/** Navigation zoom: close to the turn, a little wider on a long straight (Noah 31.10.2026 «2a»: the map zooms before a turn). */
+export function navZoom(distM = null) {
+  if (!Number.isFinite(distM)) return 16;
+  if (distM <= 150) return 17.5;
+  if (distM <= 400) return 17;
+  if (distM <= 1000) return 16;
+  return 15.5;
+}
+
 /** The stretch of the start view: from km the next `ahead` km (a little behind too), as a line. */
 export function aheadLine(pts = [], km = 0, ahead = 20) {
   if (!(pts?.length > 1)) return [];
