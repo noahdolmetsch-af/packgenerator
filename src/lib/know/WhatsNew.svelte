@@ -44,7 +44,7 @@
 
 {#snippet list(entries)}
   <div class="vers">
-    {#each entries as e, i (e.version)}{@render version(e, entries[i - 1])}{/each}
+    {#each entries as e, i (`${e.version}-${i}`)}{@render version(e, entries[i - 1])}{/each}
   </div>
 {/snippet}
 

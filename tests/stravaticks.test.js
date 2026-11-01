@@ -63,13 +63,8 @@ describe('in the database', () => {
     // a new act for ski touring, chosen in the table: the older activity is ticked now
     await db.flowActs.put({ id: 'act-st', name: 'Skitour', icon: 'heart', ring: 'move', goals: [], order: 30 });
     await db.settings.put({ key: TICKS_KEY, value: { mode: 'suggest' } });
-    vi.useFakeTimers({ toFake: ['Date'] }); // setSport ticks with the real day; the fictional activities are from October 2026
-    vi.setSystemTime(now);
-    try {
-      await setSport('BackcountrySki', 'act-st', db);
-    } finally {
-      vi.useRealTimers();
-    }
+    vi.useFakeTimers({ toFake: ['Date'], now }); // setSport uses the real clock; keep «today» at the test day
+    try { await setSport('BackcountrySki', 'act-st', db); } finally { vi.useRealTimers(); }
     const open = (await db.settings.get(OPEN_KEY)).value;
     expect(open.map((o) => o.id)).toEqual(['2']);
     const e = await answer('2', true, db);

@@ -4,7 +4,8 @@
  * The app changes by the hour (Heute's evening block, «Gute Nacht» on Unterwegs, morning checks). A test
  * that ran green at midday could go red in the evening (#263 on 26.10.2026). So every spec that does not
  * set its own clock imports `test` from here: the page starts at 12:00 Europe/Zurich of the real day
- * (dates stay «today», so the fixtures keep working) and the time then runs on normally.
+ * on a fixed mid-month Wednesday of the real month (Noah 01.11.2026 «1a»: no test depends on the day of the month or
+ * on the weekday; before, the 1st of a month turned «two days ago» into last month and broke most PRs) and the time then runs on normally.
  * It does not fake the timers: it shifts Date by a fixed amount, in the page and in the test itself.
  * A spec (or a fixture helper) that tests a time of day calls page.clock.install / setFixedTime /
  * setSystemTime: then the shift switches off for that test and Playwright's clock alone counts.
@@ -44,8 +45,37 @@ export function shiftDate(offset) {
   globalThis.Date = Shifted;
 }
 
+/** The calendar day in Zurich, n days from the test day (calendar arithmetic, never now + n × 24 h). */
+export function zurichDay(n = 0) {
+  const d = new Date(`${new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Zurich' })}T12:00:00Z`);
+  d.setUTCDate(d.getUTCDate() + n);
+  return d.toISOString().slice(0, 10);
+}
+
+/**
+ * 12:00 in Zurich on the first Wednesday on or after the 15th of the Zurich month it is now: always in the middle of
+ * the month (days 15–21) and never a Sunday, a month start or an end of month.
+ */
+export function midMonthNoon(now = new Date(), timeZone = 'Europe/Zurich') {
+  const parts = Object.fromEntries(new Intl.DateTimeFormat('en-CA', { timeZone, year: 'numeric', month: '2-digit' }).formatToParts(now).map((p) => [p.type, p.value]));
+  const day15 = new Date(Date.UTC(Number(parts.year), Number(parts.month) - 1, 15, 12));
+  const ahead = (3 - day15.getUTCDay() + 7) % 7; // 3 = Wednesday
+  return noonToday(new Date(Date.UTC(Number(parts.year), Number(parts.month) - 1, 15 + ahead, 12)), timeZone);
+}
+
 // The test side too: fixtures that write «now» or «today» from here agree with the page.
-const OFFSET = process.env.E2E_REAL_CLOCK ? 0 : noonToday().getTime() - Date.now();
+const OFFSET = process.env.E2E_REAL_CLOCK ? 0 : midMonthNoon().getTime() - Date.now();
+// Already at import: dates a spec builds at the top of the file («day(-1)») must agree with the page too. With the old
+// «today at noon» the gap was under a day and went unseen; with a mid-month day it is up to 30 days.
+shiftDate(OFFSET);
+
+/**
+ * For a context a spec makes itself (browser.newContext in beforeAll …): it does not get the fixture's page, so its
+ * pages would run on the real day while the data (built on the test day) is for another one.
+ */
+export async function shiftContext(context) {
+  if (OFFSET) await context.addInitScript(shiftDate, OFFSET);
+}
 
 /** Puts the real Date back (before Playwright's clock goes in, so its clock is the only one). */
 function unshift() {
@@ -75,6 +105,8 @@ export const test = base.extend({
       }
     }
     await use(page);
-    globalThis.__pgShift = 0;
+    // Back to the test day, not to 0: the next spec file in this worker builds its dates at the top of the file
+    // (day(1) …) while it loads, after this test, and must see the same day as the page it opens.
+    globalThis.__pgShift = process.env.E2E_REAL_CLOCK ? 0 : OFFSET;
   },
 });

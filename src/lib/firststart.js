@@ -254,6 +254,19 @@ export async function examplesLeft(db) {
   return out;
 }
 
+/**
+ * UI-Test T10 (G5-04): does this device hold nothing of its own? existing: { table: [ids] } (as in «Check
+ * import»), left: examplesLeft(), parts: the item ids the app put in by itself (blocksMore created). Only
+ * trips, gear and bikes count; examples of the first start and the app's own example parts do not.
+ */
+export function onlyExamples(existing = {}, left = {}, parts = []) {
+  for (const name of ['trips', 'items', 'bikes']) {
+    const ex = new Set([...(left[name] ?? []).map((r) => r.id), ...(name === 'items' ? parts : [])]);
+    if ((existing[name] ?? []).some((id) => !ex.has(id))) return false;
+  }
+  return true;
+}
+
 /** How many example things are left (the activities count as one). */
 export const exampleCount = (left) => Object.entries(left).reduce((n, [k, rows]) => n + (k === 'flowActs' ? 1 : rows.length), 0);
 

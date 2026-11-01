@@ -64,7 +64,8 @@
   const dataQ = liveQuery(featureData);
   const d = $derived($dataQ);
   const used = $derived(usedOf(d));
-  let by = $state('situation');
+  // PR 7: #/features?by=moment opens the catalogue by moment («all n ›» of «Belongs to …»)
+  let by = $state(typeof location !== 'undefined' && /[?&]by=(situation|page|moment)\b/.test(location.hash) ? location.hash.match(/[?&]by=(\w+)/)[1] : 'situation');
   // Paket C «Nicht für mich»: marked functions stay, at the end of their group
   const notQ = liveQuery(async () => (await db.settings.get('ruhig.notForMe'))?.value ?? {});
   const all = $derived(d ? catalogue(d.tips, used, by, $notQ) : null);
@@ -75,7 +76,7 @@
   const wanted = typeof location !== 'undefined' ? (location.hash.match(/[?&]f=([^&]+)/)?.[1] ?? null) : null;
   const wantId = wanted ? decodeURIComponent(wanted) : null;
   let q = $state('');
-  let opened = $state({});
+  let opened = $state(typeof location !== 'undefined' && /[?&]moment=(\w+)/.test(location.hash) ? { [location.hash.match(/[?&]moment=(\w+)/)[1]]: true } : {}); // PR 7: the moment of «all n ›» is open
   let play = $state(null); // the day the playground starts on («Try it»)
   const hits = $derived(q.trim().length >= 2 ? new Set(findFeatures(q, t).map((x) => x.featureId)) : null);
   const groups = $derived(all ? all.groups.map((g) => ({ ...g, rows: hits ? g.items.filter((x) => hits.has(x.id)) : g.items })).filter((g) => g.rows.length) : []);

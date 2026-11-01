@@ -47,6 +47,9 @@
     overflow-wrap: break-word;
   }
   .linkq {
+    display: inline-block;
+    padding-block: 12px; /* F03: a 44 px tap area, the layout stays (negative margin) */
+    margin-block: -12px;
     color: var(--ink-2);
     font-size: var(--fs-small);
   }

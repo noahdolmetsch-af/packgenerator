@@ -5,7 +5,7 @@
 // - «Löschen» asks in the app's own window (never the browser's), «Archivieren» first for a used item;
 //   Escape keeps everything; «Löschen» takes it off the trip too; «Rückgängig» brings item and trip line back.
 // Fictional fixture plus test_data_gtp_ items; nothing leaves the preview server.
-import { test, expect } from './clock.js';
+import { test, expect, zurichDay } from './clock.js';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';
@@ -28,7 +28,7 @@ function fixture(path) {
   add('EL92', FREE);
   const bike = data.tables.bikes[0];
   data.tables.trips.push({
-    id: TRIP, domain: 'bikepacking', title: 'test_data_gtp_ Tour', startDate: '2026-11-01', days: 1, bikeId: bike.id, bike: bike.name, setup: { ...bike.setup },
+    id: TRIP, domain: 'bikepacking', title: 'test_data_gtp_ Tour', startDate: zurichDay(5), days: 1, bikeId: bike.id, bike: bike.name, setup: { ...bike.setup },
     entries: [{ itemId: 'EL91', slot: 'top', qty: 1, packed: false }], ready: [], ride: null, hours: null, sets: {}, purpose: {}, status: 'planned', copiedFrom: null, createdAt: '2026-10-01T08:00:00.000Z',
   });
   writeFileSync(path, JSON.stringify(data));
