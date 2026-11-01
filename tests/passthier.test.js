@@ -6,6 +6,9 @@ describe('Fits here', () => {
   it('Unterwegs shows phrases, time zones, light and arrival, in this order', () => {
     expect(passtHier('ride').map((f) => f.id)).toEqual(['f.phrases', 'f.zones', 'f.light', 'f.arrival']);
   });
+  it('Velos › Setup shows gear ratios and spirit level (PR 3)', () => {
+    expect(passtHier('rig').map((f) => f.id)).toEqual(['f.gears', 'f.level']);
+  });
   it('leaves out what is marked «Not for me» and unknown places', () => {
     expect(passtHier('ride', { 'f.zones': true }).map((f) => f.id)).not.toContain('f.zones');
     expect(passtHier('nowhere')).toEqual([]);
