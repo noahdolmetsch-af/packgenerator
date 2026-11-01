@@ -57,8 +57,6 @@ export const NO_JUMP = [
   'f.tripcosts', 'f.meaning', 'f.gooddecisions', 'f.knowhow', 'f.freinaechstes', 'f.skillmap',
   // PR 5 Packen, Planen, Teilen
   'f.weightsure', 'f.sharepreview', 'f.skicheck', 'f.mapmeasure', 'f.sleeporigin',
-  // PR 6 Träume
-  'f.freinacht', 'f.ownbingo', 'f.freiwesentlich', 'f.freireise', 'f.freilust',
   // PR 7 Körper
   'f.tennistop', 'f.experiment', 'f.specialdays', 'f.counterdays', 'f.freerewards', 'f.tworoles', 'f.scalemeaning', 'f.bodytalk',
   // PR 8 Alltag und Ruhiger

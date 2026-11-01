@@ -130,6 +130,7 @@
       name,
     });
   }
+  import PasstHier from '../lib/ui/PasstHier.svelte'; // «Wegweiser statt Katalog» PR 6
 </script>
 
 <div class="ich-page dreams" data-page="dreams">
@@ -193,6 +194,7 @@
         {/each}
       </ul>
     {/if}
+    <PasstHier place="dreams" />
   </section>
 
   <WhiteSpots />
