@@ -162,7 +162,7 @@ settling(async () => {
   const madeCopy = await snapshotOnStart(db, { current: __APP_VERSION__, seen: seenVersion }).catch((err) => (console.warn('snapshot', err?.name ?? err), false));
   // Noah 31.10.2026 «2a»: after an update the same state also goes into the downloads folder as a file
   // (switch in Ich › App maintenance). The browser may ask once; if it refuses, nothing else happens.
-  if (madeCopy && (await readMaint(db).catch(() => ({ dl: false }))).dl && !(await db.table('meta').get('demo'))) downloadBackup(db).catch(() => {});
+  if (madeCopy && (await readMaint(db).catch(() => ({ dl: false }))).dl && !(await db.table('meta').get('demo'))) setTimeout(() => downloadBackup(db).catch(() => {}), 10_000); // later, so the start of the app is never held up
   await tidyData(db);
   await markFirstStart(db).catch(() => {}); // BF7: a first install checks a month later
 })
