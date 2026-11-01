@@ -1,5 +1,8 @@
 /** German texts: v0.48.0 «Pflege-Übersicht, Teile pro Velo, Eingang und Notizen». Keys are the English texts. */
 export default {
+  'No bikes yet, so there is no care data either.': 'Noch keine Velos, also auch noch keine Pflegedaten.',
+  'No bikes yet, so there is no service data either.': 'Noch keine Velos, also auch noch keine Wartungsdaten.',
+  'no bikes yet': 'noch keine Velos',
   // care.js PARTS and AREAS (the one part list)
   Frame: 'Rahmen',
   'Seatpost clamp': 'Sattelstützklemme',

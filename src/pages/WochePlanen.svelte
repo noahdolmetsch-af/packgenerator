@@ -206,7 +206,7 @@
           {#each sugg('bike') as s (s.ref)}{@render suggRow(s)}{/each}
           {#each plannedOf('bike') as e (e.id)}<li><span class="d">{dayName(e.day)}</span><span class="tx k-bike"><b>{e.title}</b><small>{t('planned')}</small></span></li>{/each}
         </ul>
-        {#if !sugg('bike').length && !plannedOf('bike').length}<p class="none">{t('Nothing due at the bike.')}</p>{/if}
+        {#if !sugg('bike').length && !plannedOf('bike').length}<p class="none">{src?.bikeCount === 0 ? t('No bikes yet, so there is no service data either.') : t('Nothing due at the bike.')}</p>{/if}
       {/if}
 
       <div class="nav">
