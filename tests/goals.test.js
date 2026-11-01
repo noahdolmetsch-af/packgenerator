@@ -7,8 +7,8 @@ const keys = (l) => l.map((g) => g.key);
 const on = (l) => l.filter((g) => g.on).map((g) => g.key);
 
 describe('goal chips', () => {
-  it('the ready chips: only the countdown is on (1.11.2026, Noah «a»); the others are one switch away', () => {
-    expect(on(goalsOf(null))).toEqual(['count']);
+  it('the ready chips: the countdown and «Ride today» are on (the Wächter heimat wants every function on its home page); the other chips are one switch away', () => {
+    expect(on(goalsOf(null))).toEqual(['count', 'ride']);
     expect(keys(goalsOf(null))).toEqual(['count', 'ride', 'trip', 'care', 'week', 'diary']);
     expect(keys(goalsOf(undefined))).toEqual(keys(GOALS));
   });

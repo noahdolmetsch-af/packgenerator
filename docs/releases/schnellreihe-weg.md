@@ -1,14 +1,15 @@
-# Schnellknopf-Reihe aus
+# Schnellknopf-Reihe: drei aus, «Heute fahren» bleibt
 
 Auftrag: Noah 1.11.2026 «a» (Thread «Neue Struktur der App aus der Funktionsliste»), Doppelte entfernen, Teil 3 von 4
 
 ## Was ist neu
-- Nichts Neues. Die vier Knöpfe unter der Begrüssung sind standardmässig aus.
+- Nichts Neues. Drei der vier Knöpfe unter der Begrüssung sind standardmässig aus.
 
 ## Was fällt weg oder rutscht tiefer
-- Die Knöpfe «Heute fahren», «Tour planen», «Velo schrauben» und «Woche planen» unter der Begrüssung sind aus. Neu: «Dein Moment» mit dem nächsten Schritt; «Heute fahren» und «Tour planen» über «Neu» und die Suche, die Woche über Planen, die Velopflege über Velos. Wer die Reihe selbst angepasst hat, behält sie. Wieder einschalten: «Startseite anpassen», Schalter pro Knopf.
+- Die Knöpfe «Tour planen», «Velo schrauben» und «Woche planen» unter der Begrüssung sind aus. Neu: «Dein Moment» mit dem nächsten Schritt; «Tour planen» über «Neu» und die Suche, die Woche über Planen, die Velopflege über Velos. Wer die Reihe selbst angepasst hat, behält sie. Wieder einschalten: «Startseite anpassen», Schalter pro Knopf.
 
 ## Selbst entschieden
+- «Heute fahren» bleibt an: der Wächter heimat verlangt jede Funktion auf ihrer Startseite, und «Heute fahren» hat auf Heute sonst keinen Platz. Ich habe den Test nicht gelockert. Willst du den Knopf auch weg, brauche ich einen anderen Platz für die Funktion auf Heute; sag es mir.
 - Ich habe die Knöpfe nur ausgeschaltet, nicht gelöscht: Ändern und Zurückholen bleibt möglich (Regel «alles änderbar»). Der Countdown zur nächsten Tour bleibt an.
 
 ## Entscheide (für decisions.md)
