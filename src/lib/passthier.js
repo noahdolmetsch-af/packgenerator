@@ -12,6 +12,8 @@ import { FEATURE } from './features.js';
 export const PASST_HIER = {
   // Unterwegs › Helfer unterwegs: the small tools of the Toolbox for a day on the bike
   ride: ['f.phrases', 'f.zones', 'f.light', 'f.arrival'],
+  // Rückblick einer Tour (saved): looking back further than the packing list
+  debrief: ['f.knowhow', 'f.gooddecisions', 'f.meaning', 'f.skillmap'],
 };
 
 /** The functions of a place that exist and are not marked «Not for me». */

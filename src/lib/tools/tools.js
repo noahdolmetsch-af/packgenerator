@@ -10,7 +10,7 @@ export const TOOLS = [
   { key: 'calc', icon: 'calculator', title: 'Calculator', sub: 'Plus, minus, times, divided, percent' },
   { key: 'units', icon: 'ruler', title: 'Convert units', sub: 'km, kg, °C, tyre pressure; works offline' },
   { key: 'money', icon: 'coins', title: 'Currencies', sub: 'What it costs in Franken; rates once a day' },
-  { key: 'costs', icon: 'wallet', title: 'Trip costs', sub: 'Who paid what, who owes whom' },
+  { key: 'costs', icon: 'wallet', title: 'Trip costs', sub: 'Who paid what, who owes whom', know: 'Settle up while the trip is fresh: a week later nobody remembers who paid for the fondue. A photo of the receipt is enough, the amount and date fill in by themselves.' },
   { key: 'zones', icon: 'clock', title: 'Time zones', sub: 'The time in other places', know: 'By bike across a border the time rarely changes in Europe, but in border valleys the phone sometimes jumps to the wrong network. Check here before you set the alarm for the train.' },
   { key: 'compass', icon: 'compass', title: 'Compass', sub: 'North and your direction, from the phone' },
   { key: 'phrases', icon: 'languages', title: 'Phrases abroad', sub: 'Important sentences, offline', know: 'Cemeteries almost always have a water tap. Ask anyway: a friendly «Bonjour» first opens more doors than any sentence.' },
