@@ -110,8 +110,13 @@ export function overrideOf(value) {
       .map(([id, keys]) => [id, uniq(keys)])
       .filter(([, keys]) => keys.length),
   );
-  return { names: words(value?.names), hidden: uniq(value?.hidden), order: uniq(value?.order), own, deleted: uniq(value?.deleted), icons: words(value?.icons), areas };
+  // «Änderungsdatum» (Pfad Schritt 6): when the person last changed this list, kept as an ISO time inside the override
+  const at = typeof value?.at === 'string' && !Number.isNaN(Date.parse(value.at)) ? { at: value.at } : {};
+  return { names: words(value?.names), hidden: uniq(value?.hidden), order: uniq(value?.order), own, deleted: uniq(value?.deleted), icons: words(value?.icons), areas, ...at };
 }
+
+/** When the person last changed this list (ISO time), or null (never changed, or changed before the date was kept). */
+export const changedAt = (value) => overrideOf(value).at ?? null;
 
 /** Has the person changed anything in this list? */
 export const isChanged = (value) => {
