@@ -67,11 +67,17 @@
   </div>
 {:else}
   <p class="fz-hint" data-free-slot-hint>
-    <b>{t('Free time and good weather')}</b>: {calOn && place ? t('no free and dry window in the next {n} days yet.', { n: DAYS }) : t('with the calendar on and your home place set, the next free and dry window shows here.')}{#if !calOn} <a class="btn sm" href="#/me/agenda" data-fz-cal>{t('Connect calendar')}</a>{/if}{#if !place} <a class="btn sm" href="#/me" data-fz-place>{t('Set home place|week')}</a>{/if}
+    <b>{t('Free time and good weather')}</b>: {calOn && place ? t('no free and dry window in the next {n} days yet.', { n: DAYS }) : t('with the calendar on and your home place set, the next free and dry window shows here.')}<span class="fz-btns">{#if !calOn}<a class="btn sm" href="#/me/agenda" data-fz-cal>{t('Connect calendar')}</a>{/if}{#if !place}<a class="btn sm" href="#/me" data-fz-place>{t('Set home place|week')}</a>{/if}</span>
   </p>
 {/if}
 
 <style>
+  .fz-btns {
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-left: 8px;
+  }
   .fz {
     display: flex;
     flex-wrap: wrap;
