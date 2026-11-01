@@ -5,6 +5,7 @@
  * (tests/kochen.test.js).
  */
 import { RECIPES, MEALS, STD_GROUPS, scaled } from './rezepte.js';
+import { shopOf } from './shop.js';
 
 export const PREFS_KEY = 'kochen.prefs';
 export const KOCHEN_HASH = '#/me/alltag/kochen';
@@ -17,7 +18,7 @@ export const FILTERS = [{ key: 'all', label: 'All' }, ...MEALS, { key: 'liked', 
  * The saved choices: { hidden: [recipe ids], groups: null (the standard ones) | [{ id, std?, name? }],
  * member: { [recipe id]: [group ids] } (only recipes the person put in or out of a group),
  * liked: [recipe ids] («Like it»), dislikes: [ingredient tags] (what you don't eat), maxMin: longest cooking
- * time in minutes (0 = no limit), asked: the short start was answered or skipped,
+ * time in minutes (0 = no limit), shop: the online shop for the search links ('' = none), asked: the short start was answered or skipped,
  * tips: { day, pick: { meal: recipe id }, seen: { meal: [recipe ids already suggested] } } }.
  */
 export function prefsOf(v) {
@@ -42,6 +43,7 @@ export function prefsOf(v) {
     liked: strs(v?.liked),
     dislikes: strs(v?.dislikes),
     maxMin: Number.isFinite(max) && max > 0 ? Math.round(max) : 0,
+    shop: shopOf(v?.shop),
     asked: v?.asked === true,
     tips: { day: typeof t.day === 'string' ? t.day : '', pick, seen },
   };
