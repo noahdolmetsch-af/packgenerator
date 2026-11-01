@@ -69,9 +69,10 @@ export function watchLists(db) {
 }
 
 /** Stores one list's override (or none, when it is the Standard again) and puts it in place. */
-export async function saveList(db, key, value) {
+export async function saveList(db, key, value, now = new Date()) {
   const all = (await db.settings.get(OVERRIDES_KEY))?.value ?? {};
-  const next = isChanged(value) ? { ...all, [key]: value } : resetList(all, key);
+  // «Änderungsdatum» (Pfad Schritt 6): every save of a changed list notes when
+  const next = isChanged(value) ? { ...all, [key]: { ...value, at: now.toISOString() } } : resetList(all, key);
   await db.settings.put({ key: OVERRIDES_KEY, value: next });
   applyLists(next);
   return next;
