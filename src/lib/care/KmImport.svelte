@@ -1,4 +1,5 @@
 <script>
+  import { activeBikes } from '../bikeretire.js';
   /**
    * v0.68.0 «Q1 Jeder km zählt» (Q1.3 a, Q1.4 a, Q1.5 a): «Import rides» (Bikes › Care › Import rides).
    * Files: the Strava export activities.csv (with the bike column «Activity Gear») and Garmin FIT files
@@ -29,7 +30,7 @@
 
   const bikesQ = liveQuery(() => db.bikes.toArray());
   const bookQ = liveQuery(() => db.kmBook.toArray());
-  const bikes = $derived(sortBikes($bikesQ ?? []));
+  const bikes = $derived(sortBikes(activeBikes($bikesQ ?? [])));
   const entries = $derived($bookQ ?? []);
   const nameOf = (id) => bikes.find((b) => b.id === id)?.name ?? '–';
   const back = $derived(bikesHash({ tab: 'care', bike: bikeId, open: !!bikeId }));

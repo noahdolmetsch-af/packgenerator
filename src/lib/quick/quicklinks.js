@@ -61,6 +61,7 @@ export function cleanQuick(raw) {
       id: p.id,
       ...(FEATURE[p.feature] ? { feature: p.feature } : { feature: '', href: p.href, title: str(p.title, 80) }),
       group: ids.has(p.group) ? p.group : '',
+      ...(/^\d{4}-\d{2}-\d{2}$/.test(p.at) ? { at: p.at } : {}),
       name: str(p.name, 60),
       note: str(p.note, 120),
     }));
@@ -85,18 +86,18 @@ export function shownGroups(s) {
 }
 
 /** Pin a function into a group (at its end). Already pinned: nothing changes. */
-export function addPin(s, feature, gid = '') {
+export function addPin(s, feature, gid = '', at = null) {
   if (!FEATURE[feature] || isPinned(s, feature)) return s;
   const group = gid === '' || s.groups.some((g) => g.id === gid) ? gid : '';
-  return { ...s, pins: [...s.pins, { id: newId('p'), feature, group, name: '', note: '' }] };
+  return { ...s, pins: [...s.pins, { id: newId('p'), feature, group, name: '', note: '', ...(at ? { at } : {}) }] };
 }
 /** Is this view (address with its filter) pinned? */
 export const isViewPinned = (s, href) => s.pins.some((p) => !p.feature && p.href === href);
 /** Pin a view: the address with its filter and the title it shows. Already pinned: nothing changes. */
-export function addView(s, href, title, gid = '') {
+export function addView(s, href, title, gid = '', at = null) {
   if (!isView({ href }) || isViewPinned(s, href)) return s;
   const group = gid === '' || s.groups.some((g) => g.id === gid) ? gid : '';
-  return { ...s, pins: [...s.pins, { id: newId('v'), feature: '', href, title: str(title, 80), group, name: '', note: '' }] };
+  return { ...s, pins: [...s.pins, { id: newId('v'), feature: '', href, title: str(title, 80), group, name: '', note: '', ...(at ? { at } : {}) }] };
 }
 export const removeView = (s, href) => ({ ...s, pins: s.pins.filter((p) => p.feature || p.href !== href) });
 export const removePin = (s, id) => ({ ...s, pins: s.pins.filter((p) => p.id !== id) });

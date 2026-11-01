@@ -1,0 +1,20 @@
+// «Velos ausmustern» (Noah 1.11.2026 «1-5 a»): bikes/RetireSheet.svelte, RetiredList.svelte, SetupTab «…»-Menü.
+export default {
+  'Retire bike': 'Velo ausmustern',
+  'Sold, given away or broken: hides it, keeps everything': 'Verkauft, verschenkt oder defekt: blendet es aus, alles bleibt erhalten',
+  'Retire «{name}»': '«{name}» ausmustern',
+  'Nothing is deleted: trips, km, services and reviews stay. The bike leaves the lists where you choose a bike and waits under «Retired bikes». You can bring it back any time.': 'Nichts wird gelöscht: Touren, km, Services und Auswertungen bleiben. Das Velo verschwindet aus den Listen, in denen du ein Velo wählst, und wartet unter «Ausgemusterte Velos». Du kannst es jederzeit zurückholen.',
+  Why: 'Warum',
+  Sold: 'Verkauft',
+  'Given away': 'Verschenkt',
+  'Broken|reason': 'Defekt',
+  'Other reason': 'Anderer Grund',
+  Day: 'Tag',
+  'Note (optional)': 'Notiz (freiwillig)',
+  Archived: 'Archiviert',
+  '«{name}» retired.': '«{name}» ausgemustert.',
+  '«{name}» is back.': '«{name}» ist zurück.',
+  '{n} retired bike': '{n} ausgemustertes Velo',
+  '{n} retired bikes': '{n} ausgemusterte Velos',
+  'Their trips, km and services stay and still count in your reviews. They are not offered when you choose a bike.': 'Ihre Touren, km und Services bleiben und zählen weiter in deinen Auswertungen. Sie werden nicht angeboten, wenn du ein Velo wählst.',
+};
