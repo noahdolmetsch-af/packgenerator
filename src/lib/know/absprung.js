@@ -32,14 +32,15 @@ export function jumpPath(f) {
 const esc = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
 /**
- * The ids of the functions without a jump. features: the catalogue; sources: [[path relative to src/, text]].
+ * The ids of the functions without a jump. features: the catalogue; sources: [[path relative to src/, text]];
+ * linked: ids that have a jump in another way (the «Fits here» rows, src/lib/passthier.js).
  */
-export function withoutJump(features, sources) {
+export function withoutJump(features, sources, linked = new Set()) {
   const own = sources.filter(([p]) => !FINDER.some((re) => re.test(p))).map(([, s]) => s);
   const has = new Map();
   return features.filter((f) => {
     const p = jumpPath(f);
-    if (!p) return false;
+    if (!p || linked.has(f.id)) return false;
     if (!has.has(p)) {
       const re = new RegExp(`['"\`]${esc(p)}(?=['"\`?])`);
       has.set(p, own.some((s) => re.test(s)));
@@ -50,8 +51,6 @@ export function withoutJump(features, sources) {
 
 /** Functions without a jump yet (shrink only), by moment and the package that gives them one. */
 export const NO_JUMP = [
-  // PR 2 Unterwegs
-  'f.light', 'f.arrival', 'f.zones', 'f.phrases',
   // PR 3 Velo und Material
   'f.barcode', 'f.gears', 'f.level',
   // PR 4 Rückblick
