@@ -114,7 +114,7 @@ test('Eingang: day groups, filed today stays faint with its target; a receipt be
   // Impeccable (18.10.2026, changed on purpose): the button names the suggestion and opens its form straight away
   await rc.getByRole('button', { name: 'Als Beleg ablegen' }).click();
   const sheet = page.getByRole('dialog');
-  await expect(sheet.locator('.chosen')).toContainText('Rechnungsbeleg');
+  await expect(sheet.locator('.chosen')).toContainText('Beleg');
   await expect(sheet.locator('.targets')).toHaveCount(0);
   await sheet.getByRole('button', { name: 'Anderes Ziel wählen' }).click();
   await expect(sheet.locator('.targets li')).toHaveCount(TARGETS.length);
