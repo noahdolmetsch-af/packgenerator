@@ -181,7 +181,7 @@ const LISTED = {
   },
   ride: {
     on: 'Needs a trip that starts today or has started.',
-    steps: ['Open the trip in Ride day.', 'The Now card shows the next stage, the weather and where each thing is.'],
+    steps: ['Open the trip in Ride day.', 'The overview on the way shows the next stage, the weather and where each thing is.'],
     example: 'Example: 14:00 → «Next: climb 600 m · rain at 16:00 · jacket in the saddle bag».',
   },
   note: {

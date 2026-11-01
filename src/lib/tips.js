@@ -61,7 +61,7 @@ export const TIPS = [
   // Packing & on the way
   { id: 'bags', group: 'pack', icon: 'backpack', title: 'Pack bag by bag', text: 'Pack bag by bag and tick each item as it goes in.', button: 'Start packing|tips', go: { href: '#/pack?day' }, needs: 'trip' },
   { id: 'share', group: 'pack', icon: 'printer', title: 'Share or print a list (PDF)', text: 'Share a packing list as a link, or print it or save it as PDF.', button: 'Print / PDF', go: { href: '#/pack?print' }, needs: 'trip' },
-  { id: 'ride', group: 'pack', icon: 'navigation', title: 'The Now card on the way', text: 'On the way, the Now card shows the next stage, the weather and where each thing is.', button: 'Open Ride day', go: { href: '#/ride' }, needs: 'trip' },
+  { id: 'ride', group: 'pack', icon: 'navigation', title: 'The overview on the way', text: 'On the way, the overview shows the next stage, the weather and where each thing is.', button: 'Open Ride day', go: { href: '#/ride' }, needs: 'trip' },
   { id: 'note', group: 'pack', icon: 'note', title: 'New note', text: 'A quick note catches an idea or a photo in two taps; you sort it later.', button: 'Write a note', go: { run: 'note' } },
   { id: 'event', group: 'pack', icon: 'flag', title: 'Event preparation', text: 'For an event, preparation tasks count down to the start with their lead times.', button: 'Open Bike care', go: { href: '#/bikes?tab=care' }, needs: 'trip' },
   // Looking back

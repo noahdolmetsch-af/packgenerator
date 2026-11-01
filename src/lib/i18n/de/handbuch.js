@@ -112,7 +112,7 @@ export default {
   'Example: send the list to a riding friend so you do not both pack a stove.': 'Beispiel: Liste an eine Mitfahrerin schicken, damit nicht beide einen Kocher packen.',
   'Needs a trip that starts today or has started.': 'Braucht eine Tour, die heute beginnt oder begonnen hat.',
   'Open the trip in Ride day.': 'Öffne die Tour in «Unterwegs».',
-  'The Now card shows the next stage, the weather and where each thing is.': 'Die Jetzt-Karte zeigt die nächste Etappe, das Wetter und wo jedes Teil ist.',
+  'The overview on the way shows the next stage, the weather and where each thing is.': 'Die Unterwegs-Übersicht zeigt die nächste Etappe, das Wetter und wo jedes Teil ist.',
   'Example: 14:00 → «Next: climb 600 m · rain at 16:00 · jacket in the saddle bag».': 'Beispiel: 14:00 → «Weiter: 600 Hm Anstieg · Regen um 16 Uhr · Jacke in der Satteltasche».',
   'Tap «New» › «Note + photo».': 'Tippe «Neu» › «Notiz + Foto».',
   'Write or take a photo; sort it later in the Inbox.': 'Schreib oder mach ein Foto; später im Eingang ablegen.',
