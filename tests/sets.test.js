@@ -1,4 +1,5 @@
 // v0.26.0 (Noah 2a, AP10): own sets next to the built-in ones, delete plan, "+ Set" in Pack.
+import './setup/de.js'; // this test needs the German texts
 import { describe, it, expect, afterEach } from 'vitest';
 import { allSets, addSet, renameSet, deleteSetPlan, setQty, qtyOf, setView, addSetEntries, setAddable, setKey, setUse, isBuiltIn, entriesWeight, isBlockTip, startBlocks, templateBlocks, blocksLine, blockLabel, deletedBuiltIns, restoreSet } from '../src/lib/sets.js';
 import { lang } from '../src/lib/i18n.svelte.js';

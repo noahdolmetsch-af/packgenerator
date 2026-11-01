@@ -1,4 +1,5 @@
 // v0.36.0: "Import prüfen", the safe gear import. Every name here is fictional (test_data_gtp_).
+import './setup/de.js'; // this test needs the German texts
 import 'fake-indexeddb/auto';
 import { describe, it, expect, beforeEach } from 'vitest';
 import { createDb } from '../src/lib/db.js';

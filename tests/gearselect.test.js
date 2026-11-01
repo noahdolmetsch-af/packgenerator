@@ -1,6 +1,7 @@
 // v0.24.1 (Noah 5a): several gear items at once: change the category (IDs stay), move to the
 // wishlist or back, delete (also off every trip and template), and undo each of them.
 // All data here is fictional (test_data_gtp_…).
+import './setup/de.js'; // this test needs the German texts
 import 'fake-indexeddb/auto';
 import { describe, it, expect, afterEach } from 'vitest';
 import { createDb } from '../src/lib/db.js';

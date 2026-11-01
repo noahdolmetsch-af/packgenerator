@@ -1,5 +1,6 @@
 // SN3+ «Bausteine je nach Lage»: the seven rules, their edges, a switched-off block, the multi-day
 // temperatures, the rule on the block's record, the suggestion in Packen and the backup. Fictional data only.
+import './setup/de.js'; // this test needs the German texts
 import 'fake-indexeddb/auto';
 import { describe, it, expect, afterEach } from 'vitest';
 import { SITUATION_BLOCKS, DEFAULT_RULES, ruleOf, rulesOf, setRule, isDefaultRule, passes, tripFacts, ruleHit, situationHits, topOf, hoursOf } from '../src/lib/situation.js';
