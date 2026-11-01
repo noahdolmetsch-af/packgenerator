@@ -22,7 +22,7 @@ describe('the numbers on top', () => {
   it('the values: km, left, arrival, riding time, gradient, plan', () => {
     const now = new Date('2026-06-20T10:00:00').getTime();
     const v = L.tileValues({ now, km: 412.34, left: 591.7, eta: now + 3 * 36e5, movingS: 3 * 3600 + 5 * 60, kmh: 21.37, speed: 5, height: 1230.4, grade: 7.6, top: { distKm: 2.44 }, stop: null, lightMin: 95, delta: -75 });
-    expect(v.done.value).toBe('412');
+    expect(v.done.value).toBe('412.3');
     expect(v.left.value).toBe('592');
     expect(v.arrive.value).toBe('13:00');
     expect(v.moving.value).toBe('3:05');
@@ -34,7 +34,15 @@ describe('the numbers on top', () => {
     expect(v.stop.value).toBe('–');
     expect(v.light.value).toBe('1:35');
     expect(v.plan.value).toBe('−1:15');
-    expect(L.tileValues({ ridden: 3.21 }).done.value).toBe('3.2');
+    expect(L.tileValues({ ridden: 3.217 }).done).toMatchObject({ value: '3.21', unit: 'km' });
+  });
+  it('the distance in metres up to 1 km, then km with 2 decimals; the time since the start as a timer (Noah 28.10.2026)', () => {
+    expect(L.tileValues({ ridden: 0.4567 }).done).toMatchObject({ value: '457', unit: 'm' });
+    expect(L.tileValues({ ridden: 1 }).done).toMatchObject({ value: '1.00', unit: 'km' });
+    expect(L.tileValues({ ridden: 99.999 }).done.value).toBe('99.99');
+    expect(L.tileValues({ totalS: 5 }).total.value).toBe('0:05');
+    expect(L.tileValues({ totalS: 12 * 60 + 34 }).total.value).toBe('12:34');
+    expect(L.tileValues({ totalS: 3600 + 2 * 60 + 3 }).total.value).toBe('1:02:03');
   });
 });
 
