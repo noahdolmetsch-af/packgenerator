@@ -58,6 +58,9 @@ export function midMonthNoon(now = new Date(), timeZone = 'Europe/Zurich') {
 
 // The test side too: fixtures that write «now» or «today» from here agree with the page.
 const OFFSET = process.env.E2E_REAL_CLOCK ? 0 : midMonthNoon().getTime() - Date.now();
+// Already at import: dates a spec builds at the top of the file («day(-1)») must agree with the page too. With the old
+// «today at noon» the gap was under a day and went unseen; with a mid-month day it is up to 30 days.
+shiftDate(OFFSET);
 
 /** Puts the real Date back (before Playwright's clock goes in, so its clock is the only one). */
 function unshift() {
