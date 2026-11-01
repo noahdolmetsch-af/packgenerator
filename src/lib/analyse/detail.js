@@ -123,7 +123,7 @@ export function tripBands(trips = [], days = [], endOf) {
     if (!s || !e || e < first || s > last) continue;
     const from = s < first ? first : s;
     const to = e > last ? last : e;
-    out.push({ name: tr.name ?? '', from, to, a: days.indexOf(from), b: days.indexOf(to) });
+    out.push({ name: tr.title ?? tr.name ?? '', from, to, a: days.indexOf(from), b: days.indexOf(to) });
   }
   return out.filter((x) => x.a >= 0 && x.b >= 0);
 }

@@ -363,12 +363,14 @@
     flex: none;
   }
   .qi :global(.st .lb) {
-    display: block;
+    display: -webkit-box;
     flex: 1;
     min-width: 0;
     overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    line-height: 1.2;
     text-align: left;
     font-weight: 600;
   }

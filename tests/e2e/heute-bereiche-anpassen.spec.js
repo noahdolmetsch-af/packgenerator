@@ -29,8 +29,7 @@ test('the areas of Today: move, rename and hide with Undo; the tiles stay', asyn
 
   // 1a: «Dein Körper» one up
   await box.locator('[data-area-row="body"]').getByRole('button', { name: T('Move {name} up', { name: T('Your body|home') }) }).click();
-  await expect.poll(rows).toEqual(expect.arrayContaining(['body', 'now']));
-  expect((await rows()).slice(0, 2)).toEqual(['body', 'now']);
+  await expect.poll(async () => (await rows()).slice(0, 2)).toEqual(['body', 'now']);
 
   // 2a: rename «Jetzt»
   await box.locator('[data-area-row="now"] [data-area-rename]').click();

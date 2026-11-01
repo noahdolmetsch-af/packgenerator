@@ -1,4 +1,5 @@
 <script>
+  import { activeBikes } from '../bikeretire.js';
   /**
    * Noah 26.10.2026 «12a» «Velo einwintern»: Bikes › Care › «Winter and spring» (#/bikes?tab=care&view=season).
    * Two checklists: before the winter break and before the first ride in spring. The points are the person's
@@ -28,7 +29,7 @@
   const seasonYear = (kind) => String(kind === 'winter' && month <= 3 ? Number(today.slice(0, 4)) - 1 : Number(today.slice(0, 4)));
   const bikesQ = liveQuery(() => db.bikes.toArray());
   const seasonQ = liveQuery(() => db.settings.get(SEASON_KEY));
-  const bikes = $derived(sortBikes($bikesQ ?? []));
+  const bikes = $derived(sortBikes(activeBikes($bikesQ ?? [])));
   const bike = $derived(bikes.find((b) => b.id === bikeId) ?? bikes[0] ?? null);
   const all = $derived(seasonOf($seasonQ?.value));
   let kind = $state(month >= 10 || month === 1 ? 'winter' : 'spring');
