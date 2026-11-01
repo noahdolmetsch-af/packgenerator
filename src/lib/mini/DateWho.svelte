@@ -62,8 +62,8 @@
   .dw-chips li { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--line); border-radius: 999px; padding: 2px 4px 2px 10px; min-width: 0; overflow-wrap: break-word; }
   .dw-chips li.y { background: var(--paper-2); }
   .dw-chips li.w { border-style: dashed; }
-  .dw-chips small { color: var(--ink-3); }
+  .dw-chips small { color: var(--ink-3); white-space: nowrap; }
   .dw-x { display: inline-grid; place-items: center; min-width: 32px; min-height: 32px; border: 0; background: none; color: var(--ink-3); border-radius: 50%; cursor: pointer; }
   .dw-add { display: flex; gap: var(--sp-2); flex-wrap: wrap; }
-  .dw-add input { flex: 1 1 12rem; min-width: 0; }
+  .dw-add input { flex: 1 1 12rem; min-width: 0; min-height: 44px; padding: 0 var(--sp-3); border: 1px solid var(--line); border-radius: 10px; background: var(--paper); color: inherit; font: inherit; }
 </style>
