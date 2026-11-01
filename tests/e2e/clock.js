@@ -45,6 +45,13 @@ export function shiftDate(offset) {
   globalThis.Date = Shifted;
 }
 
+/** The calendar day in Zurich, n days from the test day (calendar arithmetic, never now + n × 24 h). */
+export function zurichDay(n = 0) {
+  const d = new Date(`${new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Zurich' })}T12:00:00Z`);
+  d.setUTCDate(d.getUTCDate() + n);
+  return d.toISOString().slice(0, 10);
+}
+
 /**
  * 12:00 in Zurich on the first Wednesday on or after the 15th of the Zurich month it is now: always in the middle of
  * the month (days 15–21) and never a Sunday, a month start or an end of month.
