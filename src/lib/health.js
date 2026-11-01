@@ -129,21 +129,52 @@ export function rangeToFetch(lastDay, today) {
   return { from: from < first ? first : from, to: today };
 }
 
-/** One call to the server. Throws HealthError with the server's code (network: no answer at all). */
-export async function call(step, { method = 'GET', body = null, params = {}, key = readKey(), doFetch = (...a) => fetch(...a) } = {}) {
+/** How long one call may take before the app stops waiting (Noah 1.11.2026: «Holt …» never ended). */
+export const CALL_TIMEOUT_MS = 40000;
+/** One call to the server. Throws HealthError with the server's code (network: no answer at all, timeout: too slow). */
+export async function call(step, { method = 'GET', body = null, params = {}, key = readKey(), doFetch = (...a) => fetch(...a), timeoutMs = CALL_TIMEOUT_MS } = {}) {
   if (!key) throw new HealthError('unauthorized');
   const headers = { Authorization: `Bearer ${key}` };
   if (body) headers['Content-Type'] = 'application/json';
-  let res;
+  const ctl = new AbortController();
+  let timedOut = false;
+  const timer = setTimeout(() => ((timedOut = true), ctl.abort()), timeoutMs);
   try {
-    res = await doFetch(`${GOOGLE_URL}?${new URLSearchParams({ step, ...params })}`, { method, headers, body: body ? JSON.stringify(body) : undefined });
-  } catch {
-    throw new HealthError('network');
+    let res;
+    try {
+      res = await doFetch(`${GOOGLE_URL}?${new URLSearchParams({ step, ...params })}`, { method, headers, body: body ? JSON.stringify(body) : undefined, signal: ctl.signal });
+    } catch {
+      throw new HealthError(timedOut ? 'timeout' : 'network');
+    }
+    return await readAnswer(res, () => timedOut);
+  } finally {
+    clearTimeout(timer);
   }
-  const data = await res.json().catch(() => null);
+}
+
+async function readAnswer(res, wasTimeout) {
+  let data;
+  try {
+    data = await res.json();
+  } catch {
+    if (wasTimeout()) throw new HealthError('timeout');
+    data = null;
+  }
   if (!res.ok || !data || data.ok === false) throw new HealthError(data?.code ?? data?.error ?? 'server_error');
   return data;
 }
+
+/** The days from..to cut into windows of at most `size` days, oldest first. */
+export function windows(from, to, size = WINDOW_DAYS) {
+  const out = [];
+  for (let a = from; a <= to; a = addDays(a, size)) {
+    const b = addDays(a, size - 1);
+    out.push({ from: a, to: b < to ? b : to });
+  }
+  return out;
+}
+/** One request asks for at most this many days: a long one took the server minutes and never ended. */
+export const WINDOW_DAYS = 30;
 
 /** Fetch the missing days and keep them. Returns { from, to, changed, missing (values Google did not give) }. */
 export async function syncHealth(db, { c = call, now = new Date() } = {}) {
@@ -153,13 +184,19 @@ export async function syncHealth(db, { c = call, now = new Date() } = {}) {
   // once after new values came to the server (calories, oxygen, …): the last FILL_DAYS days again
   const from = last && old.fill !== FILL_V ? minDay(range.from, addDays(localDay(now), -(FILL_DAYS - 1))) : range.from;
   const to = range.to;
-  const { days, missing } = await c('days', { params: { from, to } });
   const at = now.toISOString();
-  const changed = await saveDays(db, days ?? [], { src: 'google', at });
+  let changed = 0;
+  const missingAll = new Set();
+  // window by window: what has come is kept at once, so a failure later loses nothing
+  for (const w of windows(from, to)) {
+    const { days, missing } = await c('days', { params: { from: w.from, to: w.to } });
+    changed += await saveDays(db, days ?? [], { src: 'google', at });
+    for (const m of Array.isArray(missing) ? missing : []) missingAll.add(m);
+  }
   const prev = (await db.settings.get(HEALTH_KEY))?.value ?? {};
   const until = (await db.healthDays.orderBy('date').last())?.date ?? null;
   await db.settings.put({ key: HEALTH_KEY, value: { ...prev, lastSync: at, until, fill: FILL_V } });
-  return { from, to, changed, missing: Array.isArray(missing) ? missing : [] };
+  return { from, to, changed, missing: [...missingAll] };
 }
 
 /** The latest day (up to «today») that has value k, or null. */

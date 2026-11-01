@@ -59,6 +59,7 @@
       not_connected: t('Fitbit is not connected (any more).'),
       unauthorized: t('This device has no key yet: connect Strava on this device first.'),
       network: t('No connection. The app tries again later.'),
+      timeout: t('Google or the server took too long. Tap «Try again».'),
       google_busy: t('Google is busy. Try again later.'),
       daily_cap: t('The server has done enough for today. It works again tomorrow.'),
     })[code] ?? t('Google answered with an error. Try again later.');
@@ -85,7 +86,7 @@
       <div class="ich-acts">
         {#if relogin}<button type="button" class="btn hi" data-health-relogin onclick={() => connect()}>{t('Connect Google again')}</button>{/if}
         <!-- Impeccable P6: without the Strava key no grey button, the line below says what to do -->
-        {#if readKey()}<button type="button" class="btn" class:hi={!relogin} onclick={() => fetchNow()} disabled={health.busy}>{health.busy ? t('Fetching …') : t('Fetch now|fitbit')}</button>{/if}
+        {#if readKey()}<button type="button" class="btn" class:hi={!relogin} onclick={() => fetchNow()} disabled={health.busy}>{health.busy ? t('Fetching …') : failed ? t('Try again|fitbit') : t('Fetch now|fitbit')}</button>{/if}
         <button type="button" class="btn" aria-expanded={choosing} onclick={() => (choosing = !choosing)}>{t('Choose values')}</button>
         <button type="button" class="btn" onclick={() => (asking = !asking)}>{t('Disconnect|fitbit')}</button>
       </div>

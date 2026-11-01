@@ -192,6 +192,11 @@
     const topAct = [...counts.entries()].sort((a, b) => b[1] - a[1])[0]?.[0];
     return ['sleep', topAct ? `act:${topAct}` : null, 'km:bike'].filter((k) => k && k !== key && byKey.has(k) && !layers.includes(k)).slice(0, 3);
   });
+  // F04 (robot test 1.11.2026): two suggestions can share a name (the activity «Velo» and the bike km): «(km)» tells them apart
+  const chipName = (k) => {
+    const it = byKey.get(k);
+    return suggest.some((o) => o !== k && byKey.get(o)?.name === it.name) && it.unit === 'km' ? `${it.name} (km)` : it.name;
+  };
   const addLayer = (k) => {
     if (!k || layers.includes(k) || k === key) return;
     layers = [...layers, k].slice(-2);
@@ -230,7 +235,7 @@
           <div class="box" data-box="lo"><b class="num">{v(item, st?.lo?.v)}</b><span>{st?.lo ? t('lowest ({day})|analyse', { day: when(st.lo.day) }) : t('lowest|analyse')}</span></div>
           <div class="box" data-box="hi">
             <b class="num">{v(item, st?.hi?.v)}</b>
-            <span>{st?.hi ? (!hours && tripOn(st.hi.day) ? t('highest ({day})|analyse', { day: tripOn(st.hi.day).name }) : t('highest ({day})|analyse', { day: when(st.hi.day) })) : t('highest|analyse')}</span>
+            <span>{st?.hi ? (!hours && tripOn(st.hi.day) ? t('highest ({day})|analyse', { day: (tripOn(st.hi.day).title ?? tripOn(st.hi.day).name) }) : t('highest ({day})|analyse', { day: when(st.hi.day) })) : t('highest|analyse')}</span>
           </div>
           {#if typical}<div class="box" data-box="typ"><b class="num">{v(item, typical[0])}–{v(item, typical[1])}</b><span>{t('your typical range|analyse')}</span></div>{/if}
         </div>
@@ -249,7 +254,7 @@
             {/each}
             {#if layers.length < 2}
               {#each suggest as k (k)}
-                <button type="button" class="chip" data-suggest={k} onclick={() => addLayer(k)}>+ {byKey.get(k).name}</button>
+                <button type="button" class="chip" data-suggest={k} onclick={() => addLayer(k)}>+ {chipName(k)}</button>
               {/each}
               <label class="chip sel">
                 <span class="sr">{t('Add another value|analyse')}</span>
@@ -321,7 +326,7 @@
             <h2 id="wv-day">{dfmt(picked, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</h2>
             <button type="button" class="nav" aria-label={t('Close')} onclick={() => (picked = null)}><X size={18} aria-hidden="true" /></button>
           </div>
-          {#if tripOn(picked)}<p class="trip">{t('Trip|analyse')}: {tripOn(picked).name}</p>{/if}
+          {#if tripOn(picked)}<p class="trip">{t('Trip|analyse')}: {tripOn(picked).title ?? tripOn(picked).name}</p>{/if}
           {#each dayAll as g (g.key)}
             <h3>{g.name}</h3>
             <ul class="vals">
@@ -620,6 +625,11 @@
     height: 10px;
     background: var(--pz4);
     opacity: 0.35;
+  }
+  .hint a {
+    display: inline-block;
+    padding-block: 13px; /* F03: a 44 px tap area, the layout stays (negative margin) */
+    margin-block: -13px;
   }
   .hint {
     margin: 8px 0 0;

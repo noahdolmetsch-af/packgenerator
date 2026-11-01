@@ -1,4 +1,5 @@
 <script>
+  import { activeBikes } from '../bikeretire.js';
   /**
    * Paket VG 1132 «Ersatzteil-Vorrat» (Noah 20.10.2026 «5»): Bikes › Care › «Spare parts at home»
    * (#/bikes?tab=care&view=stock). What is at home (inner tubes, brake pads, chains …): name, the part it
@@ -26,7 +27,7 @@
   const bikesQ = liveQuery(() => db.bikes.toArray());
   const visitsQ = liveQuery(() => db.visits.toArray());
   const stockQ = liveQuery(() => db.settings.get(STOCK_KEY));
-  const bikes = $derived(sortBikes($bikesQ ?? []));
+  const bikes = $derived(sortBikes(activeBikes($bikesQ ?? [])));
   const bike = $derived(bikes.find((b) => b.id === bikeId) ?? bikes[0] ?? null);
   // the bikes with their workshop jobs: a job by the bike shop does not take from the stock at home (by: 'shop')
   const views = $derived(bikes.map((b) => withVisits(b, $visitsQ ?? [])));
