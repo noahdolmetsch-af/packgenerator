@@ -280,7 +280,7 @@ export default {
   "Log a service": "Service eintragen",
   "Open a bike, tap a part and enter what you did. Its km start again.": "Öffne ein Velo, tippe auf ein Teil und trag ein, was du gemacht hast. Seine Kilometer beginnen neu.",
   "Rides from Strava or a GPX file add the km to the right bike.": "Fahrten von Strava oder aus einer GPX-Datei zählen die Kilometer beim richtigen Velo dazu.",
-  "After a few weeks the app knows how many km each part has done and tells you before something wears out.": "Nach ein paar Wochen weiss die App, wie viele Kilometer jedes Teil gefahren ist, und sagt dir Bescheid, bevor etwas verschleisst.",
+  "After a few weeks the app knows how many km each part has done and reminds you by the km and time intervals you set.": "Nach ein paar Wochen weiss die App, wie viele Kilometer jedes Teil gefahren ist, und erinnert dich anhand der Kilometer- und Zeitintervalle, die du eingestellt hast.",
   "What waits for the bike shop, and every visit": "Was auf die Werkstatt wartet, und jeder Besuch",
   "For the workshop": "Für die Werkstatt",
   "Note what the bike shop should look at, so nothing is forgotten at the counter.": "Notiere, was die Werkstatt anschauen soll, damit am Tresen nichts vergessen geht.",
