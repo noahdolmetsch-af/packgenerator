@@ -728,7 +728,7 @@
   <RetireSheet bike={retireOpen} onsave={doRetire} onclose={() => (retireOpen = null)} />
 {/if}
 {#if bikeDialog}
-  <BikeDialog bike={bikeDialog.bike} bikes={allBikes} oncreated={(id) => { const others = bikes.filter((b) => b.id !== id); newStd = others.length ? { id, standard: others[0] } : null; firstNext = !others.length && inFirstSteps(); onbike?.(id); }} onsaved={(id) => onbike?.(id)} onclose={() => (bikeDialog = null)} />
+  <BikeDialog bike={bikeDialog.bike} bikes={allBikes} onretire={(b) => (retireOpen = b)} oncreated={(id) => { const others = bikes.filter((b) => b.id !== id); newStd = others.length ? { id, standard: others[0] } : null; firstNext = !others.length && inFirstSteps(); onbike?.(id); }} onsaved={(id) => onbike?.(id)} onclose={() => (bikeDialog = null)} />
 {/if}
 
 {#if photoRename}
