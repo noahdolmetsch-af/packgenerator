@@ -73,7 +73,7 @@
   import ForgotPause from '../lib/tourenc/ForgotPause.svelte'; // Touren c 61
   import { forgotStep, whyOf } from '../lib/tourenc/pausewhy.js'; // Touren c 60/61
   import TurnHint from '../lib/live/TurnHint.svelte';
-  import { turnsOf, nextTurn, turnSay } from '../lib/live/turns.js';
+  import { turnsOf, nextTurn, turnSay, turnListText } from '../lib/live/turns.js';
   import { lapNow, lapsOf, ghostOf, ghostDelta, lastRideOf, deltaText } from '../lib/live/laps.js';
   import DataPages from '../lib/live/DataPages.svelte';
   import LiveSmallMap from '../lib/live/LiveSmallMap.svelte';
@@ -798,6 +798,13 @@
   $effect(() => {
     if (km != null) profileKm = km;
   });
+  // «Whole route»: everything on one screen (the way to the goal, else the loaded route); the map stops following
+  const showWhole = () => {
+    follow = false;
+    mapView?.north?.();
+    driveKey = '';
+    mapView?.fitLine?.(goalOn || (detour && !hasRoute) ? wayLine : (route?.line ?? []), padB);
+  };
   const recenter = () => {
     follow = true;
     driveKey = '';
@@ -1264,6 +1271,17 @@
               <b>{detourTitle}</b>
               <small>{[goalOn ? t('{d} km to go', { d: fmtKm(goalLeft) }) : t('{d} km', { d: fmtKm(detour.km) }), detour.gainM ? `${num(detour.gainM)} m ↑` : '', detour.min ? t('about {min} min', { min: num(detour.min) }) : '', detour.oneWay && detour.min && !detour.reached ? t('there about {at}', { at: hhmm(goalEta ?? detour.at + detour.min * 60000) }) : '', detour.rejoin ? t('back on the route at km {km}', { km: num(Math.round(detour.rejoin.km)) }) : '', detour.extraKm != null && detour.extraKm > 0 ? t('{d} km more', { d: fmtKm(detour.extraKm) }) : '', detour.skippedKm > 0 ? t('{d} km of the route left out', { d: fmtKm(detour.skippedKm) }) : ''].filter(Boolean).join(' · ')}</small>
               {#if goalOn}<span class="lv-goalbar" aria-hidden="true" data-live-goal-bar><i style:width="{Math.round(goalFrac * 100)}%"></i></span>{/if}
+              {#if goalOn && detourTurns.length}
+                <details class="lv-steps" data-live-steps>
+                  <summary>{t('Step by step ({n})', { n: detourTurns.length })}</summary>
+                  <ol>
+                    {#each detourTurns as s (s.km)}
+                      {@const tt = turnListText(s)}
+                      <li class:lv-step-done={s.km < (detourKm ?? 0) - 0.02} data-live-step>{#if tt}{t(tt.key, tt.vars)}{/if}<small>{t('{d} km', { d: fmtKm(s.km) })}</small></li>
+                    {/each}
+                  </ol>
+                </details>
+              {/if}
               {#if detour.back === 'auto'}
                 <small>{t('You were off the route, so the app planned the shortest way back.')}</small>
                 <span class="lv-back-acts">
@@ -1354,8 +1372,11 @@
         </div>
       {/if}
 
+      {#if goalOn || hasRoute}
+        <button type="button" class="lvf-ic lvf-all-route" class:lvf-hidden={snap === 'full' || dpIndex > 0} onclick={showWhole} style:bottom="{padB + 294}px" aria-label={t('Whole route')} title={t('Whole route')} data-live-whole><Maximize2 size={22} aria-hidden="true" /></button>
+      {/if}
       {#if goalOn}
-        <button type="button" class="lvf-ic lvf-north" class:lvf-hidden={snap === 'full' || dpIndex > 0} aria-pressed={northUp} onclick={() => (northUp = !northUp)} style:bottom="{padB + 66}px" aria-label={northUp ? t('Map turns with you') : t('North up')} title={northUp ? t('Map turns with you') : t('North up')} data-live-north><Navigation size={22} aria-hidden="true" /></button>
+        <button type="button" class="lvf-ic lvf-north" class:lvf-hidden={snap === 'full' || dpIndex > 0} aria-pressed={northUp} onclick={() => (northUp = !northUp)} style:bottom="{padB + 350}px" aria-label={northUp ? t('Map turns with you') : t('North up')} title={northUp ? t('Map turns with you') : t('North up')} data-live-north><Navigation size={22} aria-hidden="true" /></button>
       {/if}
       <button type="button" class="lvf-ic lvf-follow" class:lvf-hidden={snap === 'full' || dpIndex > 0} aria-pressed={follow} onclick={() => (follow ? (follow = false) : recenter())} style:bottom="{padB + 12}px" aria-label={follow ? t('Map follows you') : t('Follow me')} data-live-follow><Crosshair size={22} aria-hidden="true" /></button>
 
@@ -2062,6 +2083,28 @@
     border-left: 4px solid var(--l3);
     flex-wrap: nowrap;
     align-items: flex-start;
+  }
+  .lv-steps ol {
+    margin: var(--sp-1) 0 0;
+    padding-left: 1.4em;
+    max-height: 30vh;
+    overflow-y: auto;
+  }
+  .lv-steps li {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--sp-2);
+  }
+  .lv-steps .lv-step-done {
+    color: var(--ink-3, var(--ink-2));
+    text-decoration: line-through;
+  }
+  .lvf-all-route {
+    position: absolute;
+    right: 10px;
+    z-index: 2;
+    box-shadow: 0 1px 4px var(--shadow);
+    transition: bottom 0.15s var(--ease-out);
   }
   .lv-goalbar {
     display: block;
