@@ -111,7 +111,7 @@
   import GroupPanel from '../lib/live/GroupPanel.svelte';
   import { endKeptGroup } from '../lib/live/group.js';
   import { saveLiveRide, bookBikeKm, saveLeftRides } from '../lib/live/saveride.js';
-  import LiveLabel from '../lib/live/LiveLabel.svelte';
+  import SavedCard from '../lib/live/SavedCard.svelte';
   import { deleteEntries } from '../lib/kmbookdb.js';
   import { offerDone } from '../lib/ui/rename.svelte.js';
   import { saveFailed } from '../lib/ui/ask.js';
@@ -1159,7 +1159,7 @@
       <h2 class="rc-h2">{t('Ride done')}</h2>
       {#if after.ride}
         <p class="rc-text">{t('{km} km recorded. The line is in the travel track of the day.', { km: num(after.ride.km ?? 0) })}</p>
-        {#if after.saved}<p class="rc-text" data-live-saved><LiveLabel /> {t('Saved as its own entry in Trips.')} <a href="#/trips" data-live-saved-link>{t('Open Trips')}</a></p>{/if}
+        {#if after.saved}<SavedCard saved={after.saved} {trip} />{/if}
         {#if loadAfter}
           {#await loadAfter() then m}
             <m.default ride={after.ride} {trip} />

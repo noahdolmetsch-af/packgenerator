@@ -112,4 +112,8 @@ export default {
   'Show the navigation': 'Navigation zeigen',
   'End navigation': 'Navigation beenden',
   'Navigation ended.': 'Navigation beendet.',
+  // Gespeichert in Touren (Noah 28.10.2026 Handy-Test, «b Automatisch, Umbenennen später»)
+  'Saved in Trips': 'Gespeichert in Touren',
+  'In Trips with the tour, under «Live Navigation».': 'In Touren bei der Tour, unter «Live Navigation».',
+  'In Trips as its own entry «Live Navigation».': 'In Touren als eigener Eintrag «Live Navigation».',
 };
