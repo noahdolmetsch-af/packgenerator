@@ -2,8 +2,8 @@
 export default {
   title: 'A link becomes a dream',
   lead: 'Paste the link of a tour: name, km and climb come along.',
-  points: [{ text: 'Trips › Dreams: paste a link from Ride with GPS, komoot or a report in the field at the top', href: '#/trips/dreams' }],
-  small: [{ box: 'new', text: 'In a dream: «Read from the link»; from Ride with GPS also the map' }],
+  points: [{ text: 'Trips › Dreams: paste a link from Ride with GPS, komoot or a report in the field at the top', href: '#/trips/dreams', go: 'f.dreamlink' }],
+  small: [{ box: 'new', text: 'In a dream: «Read from the link»; from Ride with GPS also the map', go: 'f.dreamlink' }],
   test: [
     'Open Trips › Dreams and paste a Ride with GPS link in the field at the top, then «Add».',
     'The new dream shows its name, km and climb; open it: the map is there.',
