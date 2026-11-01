@@ -230,7 +230,7 @@
           <div class="box" data-box="lo"><b class="num">{v(item, st?.lo?.v)}</b><span>{st?.lo ? t('lowest ({day})|analyse', { day: when(st.lo.day) }) : t('lowest|analyse')}</span></div>
           <div class="box" data-box="hi">
             <b class="num">{v(item, st?.hi?.v)}</b>
-            <span>{st?.hi ? (!hours && tripOn(st.hi.day) ? t('highest ({day})|analyse', { day: tripOn(st.hi.day).title }) : t('highest ({day})|analyse', { day: when(st.hi.day) })) : t('highest|analyse')}</span>
+            <span>{st?.hi ? (!hours && tripOn(st.hi.day) ? t('highest ({day})|analyse', { day: (tripOn(st.hi.day).title ?? tripOn(st.hi.day).name) }) : t('highest ({day})|analyse', { day: when(st.hi.day) })) : t('highest|analyse')}</span>
           </div>
           {#if typical}<div class="box" data-box="typ"><b class="num">{v(item, typical[0])}–{v(item, typical[1])}</b><span>{t('your typical range|analyse')}</span></div>{/if}
         </div>
@@ -321,7 +321,7 @@
             <h2 id="wv-day">{dfmt(picked, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</h2>
             <button type="button" class="nav" aria-label={t('Close')} onclick={() => (picked = null)}><X size={18} aria-hidden="true" /></button>
           </div>
-          {#if tripOn(picked)}<p class="trip">{t('Trip|analyse')}: {tripOn(picked).title}</p>{/if}
+          {#if tripOn(picked)}<p class="trip">{t('Trip|analyse')}: {tripOn(picked).title ?? tripOn(picked).name}</p>{/if}
           {#each dayAll as g (g.key)}
             <h3>{g.name}</h3>
             <ul class="vals">
