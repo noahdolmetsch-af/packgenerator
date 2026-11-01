@@ -13,3 +13,4 @@ playwright-report
 src/lib/news/index.gen.js
 src/lib/i18n/de/auto.gen.js
 src/lib/featreg/index.gen.js
+pw-report.json
