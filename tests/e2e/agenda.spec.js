@@ -155,7 +155,20 @@ test('Termine und Aufgaben: connect, see the next days, tick and add a task, ent
   await expect(fresh).toBeVisible();
   await expect(fresh.getByLabel(de('From|time'))).toHaveValue('15:00');
   await expect(fresh.getByLabel(de('To|time'), { exact: true })).toHaveValue('16:00');
-  await fresh.getByRole('button', { name: de('Cancel') }).click();
+  // repeat and colour (Noah 28.10.2026 «1a 2a 3b», step 3): every second week on Saturdays, five times, in «Banana»
+  await fresh.getByLabel(de('Title')).fill('Lange Ausfahrt');
+  await fresh.getByLabel(de('Repeat|calendar')).selectOption('custom');
+  await fresh.getByLabel(de('Unit|repeat')).selectOption('weekly');
+  await fresh.getByLabel(de('Every|repeat'), { exact: true }).fill('2');
+  await fresh.getByLabel(de('Sat|weekday'), { exact: true }).check();
+  await fresh.getByLabel(de('Ends')).selectOption('count');
+  await fresh.getByLabel(de('Times'), { exact: true }).fill('5');
+  await fresh.getByLabel(de('Banana'), { exact: true }).check();
+  await shot(page, info, 'A6-wiederholung-farbe');
+  const before = log.filter((x) => x.step === 'cal-save').length;
+  await fresh.getByRole('button', { name: de('Enter in Google') }).click();
+  await expect.poll(() => log.filter((x) => x.step === 'cal-save').length).toBe(before + 1);
+  expect(log.filter((x) => x.step === 'cal-save').at(-1).body).toMatchObject({ title: 'Lange Ausfahrt', color: '5', repeat: { freq: 'weekly', every: 2, days: ['SA'], count: 5 } });
   await page.locator('[data-view="list"]').click();
 
   // which calendars: the holidays too

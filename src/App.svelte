@@ -353,6 +353,7 @@
     PackCleanup: () => import('./pages/PackCleanup.svelte'), // «Packliste aufräumen» (Noah 21.10.2026 «5a»)
     Check: () => import('./pages/Check.svelte'),
     CheckQuestions: () => import('./pages/CheckQuestions.svelte'),
+    CheckInsights: () => import('./pages/CheckInsights.svelte'), // «Heute-Check» step 2: #/check/insights
     Routine: () => import('./pages/Routine.svelte'),
     Woche: () => import('./pages/Woche.svelte'),
     WochePlanen: () => import('./pages/WochePlanen.svelte'),
@@ -618,7 +619,7 @@
   {:else if page === 'check'}
     <!-- v0.127.0 «Tages-Check» 1 (back 18.10.2026, Noah «1 a und b»): #/check/morning (T1) and #/check/evening (T2), pages of Heute -->
     <!-- v0.127.0 «Tages-Check» 2: #/check/questions (T4), the 15 questions with a switch each -->
-    {#key hash}{#if checkPart(hash) === 'questions'}<LazyPage load={PAGES.CheckQuestions} />{:else}<LazyPage load={PAGES.Check} part={checkPart(hash)} />{/if}{/key}
+    {#key hash}{#if checkPart(hash) === 'questions'}<LazyPage load={PAGES.CheckQuestions} />{:else if checkPart(hash) === 'insights'}<LazyPage load={PAGES.CheckInsights} />{:else}<LazyPage load={PAGES.Check} part={checkPart(hash)} />{/if}{/key}
   {:else if page === 'frei' || page === 'impulse'}
     <!-- Paket T «Freie Zeit»: Ich › Freie Zeit (#/me/frei/…) and Aktiv › Impulse (#/flow/impulse); the page picks its part -->
     <LazyPage load={PAGES.Frei} {hash} />

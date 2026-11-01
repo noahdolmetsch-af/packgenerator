@@ -24,7 +24,7 @@ export default defineConfig({
   // APP_VERSION_OVERRIDE: only the update test (tests/e2e/live/update.spec.js) builds an «older» app with it.
   define: { __APP_VERSION__: JSON.stringify(process.env.APP_VERSION_OVERRIDE || pkg.version), __PREVIEW__: JSON.stringify(vercel) },
   // v0.21.0: Vitest runs the unit tests only; the browser test in tests/e2e runs with `npm run e2e`.
-  test: { include: ['tests/*.test.js'], setupFiles: ['tests/setup/de.js'] },
+  test: { include: ['tests/*.test.js'] },
   // «Grösse» (19.10.2026): vh and vw stay the screen size while the app is zoomed (scripts/viewport-zoom.mjs)
   css: { postcss: { plugins: [viewportZoom()] } },
   // Kleine Apps (Noah 14.10.2026): each small app is its own page …/apps/<key>/ with its own manifest

@@ -48,7 +48,7 @@
   import { stretch } from '../lib/map/maplib.js';
   import { fineOf, heightAt, gradeAt } from '../lib/map/fineprofile.js';
   import { zoomFactor } from '../lib/map/zoomfactor.js';
-  import { LIVE_TILES, TILE, MAX_TILES, tilesOf, toggleTile, moveTile, tileValues, gainStep, headingOf, aheadLine, gradeLines, sheetSnaps, nearestSnap } from '../lib/live/livemap.js';
+  import { navZoom, LIVE_TILES, TILE, MAX_TILES, tilesOf, toggleTile, moveTile, tileValues, gainStep, headingOf, aheadLine, gradeLines, sheetSnaps, nearestSnap } from '../lib/live/livemap.js';
   import Crumb from '../lib/flow/kit/Crumb.svelte';
   import MapView from '../lib/map/MapView.svelte';
   import ProfileStrip from '../lib/map/ProfileStrip.svelte';
@@ -73,7 +73,7 @@
   import ForgotPause from '../lib/tourenc/ForgotPause.svelte'; // Touren c 61
   import { forgotStep, whyOf } from '../lib/tourenc/pausewhy.js'; // Touren c 60/61
   import TurnHint from '../lib/live/TurnHint.svelte';
-  import { turnsOf, nextTurn, turnSay } from '../lib/live/turns.js';
+  import { turnsOf, nextTurn, turnSay, turnListText } from '../lib/live/turns.js';
   import { lapNow, lapsOf, ghostOf, ghostDelta, lastRideOf, deltaText } from '../lib/live/laps.js';
   import DataPages from '../lib/live/DataPages.svelte';
   import LiveSmallMap from '../lib/live/LiveSmallMap.svelte';
@@ -180,6 +180,8 @@
   let now = $state(Date.now());
   let row = $state(null); // the recording row (for the pauses)
   let follow = $state(true);
+  let northUp = $state(false); // Navigation zum Ziel: true = the map stays north up
+  let driveKey = '';
   let mapView = $state();
   let ground = $state('auto');
   let shown = $state({ stops: true, own: true, radar: false });
@@ -291,7 +293,9 @@
   // Pausieren (pause.js): the riding time runs every second and stands in a pause; the whole time and the pauses
   const breaks = $derived(rec.on ? rec.breaks : (row?.breaks ?? []));
   const movingLive = $derived(rec.on ? movingNow({ movingS: pz.movingS, lastAt: rec.lastAt, now, paused: rec.paused, breaks }) : pz.movingS);
-  const totalS = $derived(rec.on ? totalNow(rec.startAt, now) : 0);
+  // the time since the start counts every second while it is on show (not with the battery saver)
+  let secNow = $state(0);
+  const totalS = $derived(rec.on ? totalNow(rec.startAt, Math.max(now, secNow)) : 0);
   const pausedLive = $derived(pausedNow(breaks, now));
   const fallbackKmh = $derived(isRace ? Number(as?.flatKmh?.value) || 20 : 18);
   const kmh = $derived(paceOf({ km: rec.km, movingS: pz.movingS }, fallbackKmh));
@@ -564,7 +568,23 @@
     if (rec.on) rideStep();
     if (!rec.on || !me) return;
     // on a data page the map is not moved (Stromsparen 2a: no drawing while you do not see it)
-    if (follow && viewSet && dpIndex === 0) mapView?.keep?.(me.lat, me.lon, padB);
+    if (follow && viewSet && dpIndex === 0) {
+      // Navigation zum Ziel: the map turns so your direction points up and zooms before a turn; «North up» stops it
+      if (goalOn && !northUp && deg != null) {
+        const z = navZoom(turnNext?.distM ?? null);
+        const key = `${Math.round(deg / 5)}|${z}|${Math.round(me.lat * 5e4)}|${Math.round(me.lon * 5e4)}`;
+        if (key !== driveKey) {
+          driveKey = key;
+          mapView?.drive?.(me.lat, me.lon, deg, z, padB);
+        }
+      } else {
+        if (driveKey) {
+          driveKey = '';
+          mapView?.north?.();
+        }
+        mapView?.keep?.(me.lat, me.lon, padB);
+      }
+    }
     // the turn ahead (Abbiege-Hinweise): its voice first, before the stops and climbs
     const ts = cfg.turns && cfg.turnVoice && turnNext ? turnSay(turnNext, turnNext.distM, said) : null;
     if (ts) {
@@ -780,8 +800,16 @@
   $effect(() => {
     if (km != null) profileKm = km;
   });
+  // «Whole route»: everything on one screen (the way to the goal, else the loaded route); the map stops following
+  const showWhole = () => {
+    follow = false;
+    mapView?.north?.();
+    driveKey = '';
+    mapView?.fitLine?.(goalOn || (detour && !hasRoute) ? wayLine : (route?.line ?? []), padB);
+  };
   const recenter = () => {
     follow = true;
+    driveKey = '';
     if (me) mapView?.centerOn?.(me.lat, me.lon, 14, padB);
   };
 
@@ -826,8 +854,8 @@
   });
 
   /* the numbers on top */
-  // a ride without a route starts with km ridden, riding time and the clock
-  const chosen = $derived(cfg.tiles || hasRoute || goalOn ? tilesOf(cfg.tiles) : ['done', 'moving', 'clock']);
+  // a ride without a route starts with the distance, the time since the start and the speed (Noah 28.10.2026)
+  const chosen = $derived(cfg.tiles || hasRoute || goalOn ? tilesOf(cfg.tiles) : ['done', 'total', 'speed']);
   const tiles = $derived(chosen.filter((k) => hasRoute || goalOn || !TILE[k].route));
   const saveTiles = (list) => setOpt('tiles', list);
   const nextTop = $derived(climb && km != null ? { distKm: Math.max(0, climb.toKm - km) } : null);
@@ -915,7 +943,12 @@
     nextWp: dash,
     upToTop: climb && km != null ? vv(gainBetween(profile, km, climb.toKm)) : dash,
   });
-  const tileLabel = (k) => (k === 'done' && !hasRoute ? t('km ridden') : goalOn && k === 'left' ? t('km to the goal') : goalOn && k === 'arrive' ? t('Arrival at the goal') : t(TILE[k].label));
+  const tileLabel = (k) => (goalOn && k === 'left' ? t('km to the goal') : goalOn && k === 'arrive' ? t('Arrival at the goal') : t(TILE[k].label));
+  $effect(() => {
+    if (!rec.on || cfg.battery || !tiles.includes('total')) return;
+    const timer = setInterval(() => (secNow = Date.now()), 1000);
+    return () => clearInterval(timer);
+  });
 
   /* the bottom sheet: three heights, drag the handle or tap it */
   let stageH = $state(700);
@@ -1177,7 +1210,7 @@
       <ul class="lvf-tiles n{tiles.length}">
         {#each tiles as k (k)}
           <li data-live-tile={k} data-live-km={k === 'done' ? '' : undefined} data-live-left={k === 'left' ? '' : undefined}>
-            <b>{vals[k].value}{#if TILE[k].unit && vals[k].value !== '–'}<small>{TILE[k].unit}</small>{/if}</b>
+            <b>{vals[k].value}{#if (vals[k].unit ?? TILE[k].unit) && vals[k].value !== '–'}<small>{vals[k].unit ?? TILE[k].unit}</small>{/if}</b>
             <span>{tileLabel(k)}</span>
           </li>
         {/each}
@@ -1245,6 +1278,17 @@
               <b>{detourTitle}</b>
               <small>{[goalOn ? t('{d} km to go', { d: fmtKm(goalLeft) }) : t('{d} km', { d: fmtKm(detour.km) }), detour.gainM ? `${num(detour.gainM)} m ↑` : '', detour.min ? t('about {min} min', { min: num(detour.min) }) : '', detour.oneWay && detour.min && !detour.reached ? t('there about {at}', { at: hhmm(goalEta ?? detour.at + detour.min * 60000) }) : '', detour.rejoin ? t('back on the route at km {km}', { km: num(Math.round(detour.rejoin.km)) }) : '', detour.extraKm != null && detour.extraKm > 0 ? t('{d} km more', { d: fmtKm(detour.extraKm) }) : '', detour.skippedKm > 0 ? t('{d} km of the route left out', { d: fmtKm(detour.skippedKm) }) : ''].filter(Boolean).join(' · ')}</small>
               {#if goalOn}<span class="lv-goalbar" aria-hidden="true" data-live-goal-bar><i style:width="{Math.round(goalFrac * 100)}%"></i></span>{/if}
+              {#if goalOn && detourTurns.length}
+                <details class="lv-steps" data-live-steps>
+                  <summary>{t('Step by step ({n})', { n: detourTurns.length })}</summary>
+                  <ol>
+                    {#each detourTurns as s (s.km)}
+                      {@const tt = turnListText(s)}
+                      <li class:lv-step-done={s.km < (detourKm ?? 0) - 0.02} data-live-step>{#if tt}{t(tt.key, tt.vars)}{/if}<small>{t('{d} km', { d: fmtKm(s.km) })}</small></li>
+                    {/each}
+                  </ol>
+                </details>
+              {/if}
               {#if detour.back === 'auto'}
                 <small>{t('You were off the route, so the app planned the shortest way back.')}</small>
                 <span class="lv-back-acts">
@@ -1335,6 +1379,12 @@
         </div>
       {/if}
 
+      {#if goalOn || hasRoute}
+        <button type="button" class="lvf-ic lvf-all-route" class:lvf-hidden={snap === 'full' || dpIndex > 0} onclick={showWhole} style:bottom="{padB + 294}px" aria-label={t('Whole route')} title={t('Whole route')} data-live-whole><Maximize2 size={22} aria-hidden="true" /></button>
+      {/if}
+      {#if goalOn}
+        <button type="button" class="lvf-ic lvf-north" class:lvf-hidden={snap === 'full' || dpIndex > 0} aria-pressed={northUp} onclick={() => (northUp = !northUp)} style:bottom="{padB + 350}px" aria-label={northUp ? t('Map turns with you') : t('North up')} title={northUp ? t('Map turns with you') : t('North up')} data-live-north><Navigation size={22} aria-hidden="true" /></button>
+      {/if}
       <button type="button" class="lvf-ic lvf-follow" class:lvf-hidden={snap === 'full' || dpIndex > 0} aria-pressed={follow} onclick={() => (follow ? (follow = false) : recenter())} style:bottom="{padB + 12}px" aria-label={follow ? t('Map follows you') : t('Follow me')} data-live-follow><Crosshair size={22} aria-hidden="true" /></button>
 
       <!-- the bottom sheet -->
@@ -2041,6 +2091,28 @@
     flex-wrap: nowrap;
     align-items: flex-start;
   }
+  .lv-steps ol {
+    margin: var(--sp-1) 0 0;
+    padding-left: 1.4em;
+    max-height: 30vh;
+    overflow-y: auto;
+  }
+  .lv-steps li {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--sp-2);
+  }
+  .lv-steps .lv-step-done {
+    color: var(--ink-3, var(--ink-2));
+    text-decoration: line-through;
+  }
+  .lvf-all-route {
+    position: absolute;
+    right: 10px;
+    z-index: 2;
+    box-shadow: 0 1px 4px var(--shadow);
+    transition: bottom 0.15s var(--ease-out);
+  }
   .lv-goalbar {
     display: block;
     align-self: stretch;
@@ -2212,6 +2284,17 @@
   }
   .lvf-fold[open] > summary::after {
     transform: rotate(90deg);
+  }
+  .lvf-north {
+    position: absolute;
+    right: 10px;
+    z-index: 2;
+    box-shadow: 0 1px 4px var(--shadow);
+    transition: bottom 0.15s var(--ease-out);
+  }
+  .lvf-north[aria-pressed='true'] {
+    background: var(--ink);
+    color: var(--paper);
   }
   .lvf-follow {
     position: absolute;

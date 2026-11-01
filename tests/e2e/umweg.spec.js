@@ -54,6 +54,15 @@ test('Live map: plan a new way to a shop, see it, save it for the Garmin, remove
   // Linie zum Ziel: the numbers on top count down to the goal, and the bar shows how far along you are
   await expect(page.locator('[data-live-tile="left"]')).toContainText(/km (to the goal|bis zum Ziel)/);
   await expect(page.locator('[data-live-goal-bar]')).toHaveCount(1);
+  // the map turns with you on the way to a goal; the button puts north up again and back
+  const north = page.locator('[data-live-north]');
+  await expect(north).toBeVisible();
+  await expect(north).toHaveAttribute('aria-pressed', 'false');
+  await tap(north, info);
+  await expect(north).toHaveAttribute('aria-pressed', 'true');
+  // «Whole route»: the whole way in view, the map stops following
+  await tap(page.locator('[data-live-whole]'), info);
+  await expect(page.locator('[data-live-follow]')).toHaveAttribute('aria-pressed', 'false');
   const dl = page.waitForEvent('download');
   // the GPX of the way lives in «⋯» (Navigation zum Ziel 2: the card on the map stays small)
   await tap(page.locator('[data-live-menu]'), info);

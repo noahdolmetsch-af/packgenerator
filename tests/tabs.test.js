@@ -1,3 +1,4 @@
+import './setup/de.js'; // this test needs the German texts
 import { describe, it, expect, afterEach } from 'vitest';
 import { TAB_NAMES, tabsOf, tabHref, tabStatus } from '../src/lib/tabs.js';
 import { STEP } from '../src/lib/today.js';

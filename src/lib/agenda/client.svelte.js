@@ -206,6 +206,7 @@ async function change(step, body, after, { c = call } = {}) {
 /** A new or changed task. { list, id?, title?, notes?, due?, done? } */
 export const saveTask = (v, { db = appDb, c = call } = {}) => change('task-save', v, (res) => res.task && db.gTasks.put(res.task), { c });
 export const deleteTask = (x, { db = appDb, c = call } = {}) => change('task-delete', { list: x.list, id: x.id }, () => db.gTasks.delete(x.id), { c });
-/** A new or changed event. { cal, gid?, title, day, lastDay?, allDay, from?, to?, where?, note? } */
-export const saveEvent = (v, { db = appDb, c = call } = {}) => change('cal-save', v, (res) => res.event && db.gEvents.put(res.event), { c });
+/** A new or changed event. { cal, gid?, title, day, lastDay?, allDay, from?, to?, where?, note?, color?, repeat? } */
+// a repeated appointment comes back as its first one only: fetch the days again so every one shows
+export const saveEvent = (v, { db = appDb, c = call } = {}) => change('cal-save', v, (res) => (v.repeat ? fetchNow({ db }) : res.event && db.gEvents.put(res.event)), { c });
 export const deleteEvent = (e, { db = appDb, c = call } = {}) => change('cal-delete', { cal: e.cal, gid: e.gid }, () => db.gEvents.delete(e.id), { c });

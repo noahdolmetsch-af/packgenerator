@@ -874,6 +874,11 @@
     justify-items: end;
     font-weight: 600;
   }
+  .ownl a {
+    display: inline-block;
+    padding-block: 13px; /* F03: a 44 px tap area, the layout stays (negative margin) */
+    margin-block: -13px;
+  }
   .ownl {
     margin: 4px 0 0;
     font-size: var(--fs-small);

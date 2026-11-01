@@ -1,6 +1,7 @@
 // UI-Grundlagen (Noah 20.10.2026 «freigabe für alles was im dokument erarbeitet wurde»; catalogue
 // notes/ui-ziele-2026-10-20/ideenkatalog.md, answers 1a–5a by default): the design rules B in the tokens,
 // one action colour for every place, the type scale, and the care forecast in days.
+import './setup/de.js'; // this test needs the German texts
 import { describe, it, expect, afterEach } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { kmPerDay, daysAt } from '../src/lib/care/last.js';
