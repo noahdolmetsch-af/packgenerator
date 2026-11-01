@@ -79,6 +79,12 @@
   /* add a date or a to-do */
   let form = $state(null);
   const startAdd = (kind) => (form = { kind, title: '', day: kind === 'date' ? (today >= monday ? today : monday) : '', time: '' });
+  // «Planen als verbindende Mitte» 3a (Noah 1.11.2026): «+ Einplanen» in every day opens the add form with that day
+  const planDay = (day) => {
+    form = { kind: 'todo', title: '', day, time: '' };
+    queueMicrotask(() => document.getElementById('wk-add')?.scrollIntoView({ block: 'center' }));
+  };
+  const emptyWeek = $derived(!!week && week.days.every((d) => !d.entries.length));
   async function add(ev) {
     ev.preventDefault();
     const it = cleanItem(form);
@@ -131,8 +137,11 @@
       </div>
     {/if}
 
+    {#if emptyWeek}
+      <p class="emptytop" data-week-empty><a class="btn hi" href="#/week/plan" data-plan-week-top><CalendarCheck size={18} aria-hidden="true" />{due ? t('Plan the week (10 min)') : t('Plan the week again')}</a><span class="why">{t('Nothing planned yet. Plan the week or add a day yourself.')}</span></p>
+    {/if}
     <div class="lay">
-      <section class="days" aria-label={t('The days of the week')}>
+      <section class="days" class:slim={emptyWeek} aria-label={t('The days of the week')}>
         {#each week.days as d (d.day)}
           {#if phone.matches}
             <details class="dr" class:today={d.today} open={d.today || undefined} data-day={d.day}>
@@ -145,6 +154,7 @@
               </summary>
               <div class="ens">
                 {#each d.entries as e (e.id)}<Entry {e} ondone={toggleDone} onremove={remove} />{:else}<p class="none">{t('Nothing planned')}</p>{/each}
+                {#if !d.past}<button type="button" class="dayadd" onclick={() => planDay(d.day)} data-day-add={d.day}><Plus size={16} aria-hidden="true" />{t('Add to plan')}</button>{/if}
               </div>
             </details>
           {:else}
@@ -152,6 +162,7 @@
               <h3><span>{dayName(d.day).split(' ')[0]}</span> <b class="num">{dayName(d.day).split(' ').slice(1).join(' ')}</b></h3>
               {#if d.wx || d.holiday}<p class="dm">{#if d.wx}{@render wxMark(d.wx)}{/if}{#if d.holiday}<span class="hol" data-holiday={d.holiday}>{holidayName(d.holiday)}</span>{/if}</p>{/if}
               {#each d.entries as e (e.id)}<Entry {e} ondone={toggleDone} onremove={remove} />{/each}
+              {#if !d.past}<button type="button" class="dayadd" onclick={() => planDay(d.day)} data-day-add={d.day}><Plus size={16} aria-hidden="true" />{t('Add to plan')}</button>{/if}
             </div>
           {/if}
         {/each}
@@ -372,6 +383,31 @@
     border-radius: var(--radius-card);
     background: var(--paper);
     box-shadow: var(--card-shadow);
+  }
+  .days.slim .dc {
+    min-height: 120px;
+  }
+  .dayadd {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    min-height: 44px;
+    margin-top: auto;
+    border: 1px dashed var(--line-strong);
+    border-radius: 8px;
+    background: transparent;
+    color: var(--ink-2);
+    font: inherit;
+    font-size: var(--fs-small);
+    cursor: pointer;
+  }
+  .emptytop {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+    margin: 0 0 12px;
   }
   .dc.today {
     outline: 2px solid var(--pc);
