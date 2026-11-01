@@ -4,7 +4,8 @@
  * The app changes by the hour (Heute's evening block, «Gute Nacht» on Unterwegs, morning checks). A test
  * that ran green at midday could go red in the evening (#263 on 26.10.2026). So every spec that does not
  * set its own clock imports `test` from here: the page starts at 12:00 Europe/Zurich of the real day
- * (dates stay «today», so the fixtures keep working) and the time then runs on normally.
+ * on a fixed mid-month Wednesday of the real month (Noah 01.11.2026 «1a»: no test depends on the day of the month or
+ * on the weekday; before, the 1st of a month turned «two days ago» into last month and broke most PRs) and the time then runs on normally.
  * It does not fake the timers: it shifts Date by a fixed amount, in the page and in the test itself.
  * A spec (or a fixture helper) that tests a time of day calls page.clock.install / setFixedTime /
  * setSystemTime: then the shift switches off for that test and Playwright's clock alone counts.
@@ -44,8 +45,19 @@ export function shiftDate(offset) {
   globalThis.Date = Shifted;
 }
 
+/**
+ * 12:00 in Zurich on the first Wednesday on or after the 15th of the Zurich month it is now: always in the middle of
+ * the month (days 15–21) and never a Sunday, a month start or an end of month.
+ */
+export function midMonthNoon(now = new Date(), timeZone = 'Europe/Zurich') {
+  const parts = Object.fromEntries(new Intl.DateTimeFormat('en-CA', { timeZone, year: 'numeric', month: '2-digit' }).formatToParts(now).map((p) => [p.type, p.value]));
+  const day15 = new Date(Date.UTC(Number(parts.year), Number(parts.month) - 1, 15, 12));
+  const ahead = (3 - day15.getUTCDay() + 7) % 7; // 3 = Wednesday
+  return noonToday(new Date(Date.UTC(Number(parts.year), Number(parts.month) - 1, 15 + ahead, 12)), timeZone);
+}
+
 // The test side too: fixtures that write «now» or «today» from here agree with the page.
-const OFFSET = process.env.E2E_REAL_CLOCK ? 0 : noonToday().getTime() - Date.now();
+const OFFSET = process.env.E2E_REAL_CLOCK ? 0 : midMonthNoon().getTime() - Date.now();
 
 /** Puts the real Date back (before Playwright's clock goes in, so its clock is the only one). */
 function unshift() {
