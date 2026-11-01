@@ -14,6 +14,7 @@
  */
 import { TIP, isUsed, tipState } from './tips.js';
 import { momentOfFeature } from './moment.js';
+import { FEATREG } from './featreg/index.js';
 
 /** The situations, in order (labels are English keys for t()). */
 export const FEATURE_GROUPS = [
@@ -84,7 +85,7 @@ const TIP_GROUP = {
 const TIP_PLAY = { bags: 'pack', share: 'pack', ride: 'ride', debrief: 'after' };
 
 /** The functions that are not a tip. */
-const OWN = [
+const OWN_LISTED = [
   // Before the trip
   // v0.119.0 «Schnellstart» (Q1–Q3): one click on Today plans a ride for today; «Take me there» opens Today
   { id: 'f.quickstart', group: 'before', title: 'Ride today', text: 'One click on Today plans a ride for today: 2.5 h, the bike you rode last, the standard items and the weather. «New» › «Surprise round» suggests a round from home on the side you know least.', run: 'quick', words: 'schnellstart quick start heute fahren tagestour sofort ein klick heute überraschung überraschungsrunde neue runde abenteuer' },
@@ -437,6 +438,8 @@ const OWN = [
   // Paket R «Andere Menschen und Geld» (Noah 19.10.2026 «1b 2a oder b 3a und b vorbereiten 4a 5 keine inhalte von anderen»)
   { id: 'f.account', group: 'data', title: 'Sign in with Google', text: 'For the sync you choose: with a code or an invite link, or with your Google account; then on the next device a Google sign-in is enough. Without either, everything stays on the device. Before Google opens, the app says what happens and which account you used last.', href: '#/me/data', words: 'anmelden google konto login einladung einladungslink abgleich gerät ohne konto' },
   // «App verstehen» (Noah 26.10.2026): the mini course to keep the app going without a helper
+  // «Karte der App» (Noah 28.10.2026): every place with its functions and their path, made from this catalogue
+  { id: 'f.appmap', group: 'data', title: 'Map of the app', text: 'Me › Map of the app: every place of the app with its functions, each with its path (place › function). A search narrows it; a tap goes there.', href: '#/me/karte', words: 'karte landkarte übersicht pfad wo ist was struktur aufbau' },
   { id: 'f.verstehen', group: 'data', title: 'Understand the app', text: 'Me › Understand the app: seven short lessons with links and one exercise each, so you can keep the app going without a helper: the four parts, backups, checks, merge and take back, change a word, the accounts, brief another helper.', href: '#/me/verstehen', words: 'verstehen lernen kurs lektion übung unabhängig notfall handbuch konten github vercel backup helfer architektur aufbau' },
   { id: 'f.privacy', group: 'data', title: 'Privacy and terms', text: 'What stays on your device, what the server keeps, what it costs (nothing) and the daily limit of the free server.', href: '#/me/privacy', words: 'datenschutz nutzungsbedingungen agb kosten gratis pro tagesgrenze server privat' },
   { id: 'f.pros', group: 'bike', title: 'Bike mechanic and guide', text: 'Your own list of bike shops and guides: a request by mail with your bike and the days that suit you, or their booking page.', href: '#/me/pros', words: 'velomech mechaniker werkstatt guide führer termin anfrage service mail buchen' },
@@ -537,6 +540,7 @@ const OWN = [
   { id: 'f.miniinvite', group: 'data', title: 'Quick invite', text: 'One link with day, time, meeting point, route and weather; people tap «I am in», «Maybe» or «Not this time» in the browser, without an account. The link closes the day after the ride.', href: '#/me/mini', words: 'spontan einladung fährst du mit morgen ausfahrt treffpunkt route wetter dabei vielleicht gruppe freunde mini tools' },
   { id: 'f.minifood', group: 'data', title: 'Who eats what', text: 'Before a group trip or a hut evening ask who eats what: diets, allergies, how hungry. The app counts it and makes a shopping list with the right swaps.', href: '#/me/mini', words: 'essen unverträglichkeiten allergien vegetarisch vegan glutenfrei laktosefrei einkaufsliste hüttenabend grill gruppe kochen mini tools' },
   { id: 'f.minilos', group: 'data', title: 'Fair draw', text: 'Draw fairly who cooks, who rides in front or who sleeps in which tent; whoever was drawn less often comes first. Stays on this device.', href: '#/me/mini/los', words: 'auslosen los zufall fair kochen vorne fahren zelt gruppen reihenfolge wer ist dran mini tools' },
+  { id: 'f.miniabfahrt', group: 'data', title: 'When do I leave?', text: 'Work out when each person leaves from their start place, so all arrive together at the meeting point. Stays on this device.', href: '#/me/mini/abfahrt', words: 'abfahrt losfahren treffpunkt startort zeit tempo puffer gruppe zusammen ankommen gruppenfahrt mini tools' },
   // Paket C «Ruhig und persönlich» (Noah 24.10.2026, 996 Ideen «5a»): Ich › Ruhig und persönlich
   { id: 'f.workspace', group: 'data', title: 'Workspace for one plan', text: 'For one plan, a trip or a workshop Saturday: only the functions you choose, as a strip on top of every page. Ends by itself after the day you set.', href: '#/me/ruhig/weniger?open=space', words: 'arbeitsraum vorhaben fokus werkstatt nur diese funktionen leiste weniger app' },
   { id: 'f.calmview', group: 'data', title: 'Calm view', text: 'Write what you do now; until you tap «Done», the strip on top shows only that, and the app asks you nothing.', href: '#/me/ruhig/weniger?open=calm', words: 'ruhige ansicht ruhe rückzug nur eine sache ohne zahlen sterne vorschläge fokus' },
@@ -599,6 +603,8 @@ const OWN = [
   { id: 'f.skicare', group: 'bike', title: 'Season care', text: 'Care of the ski gear at season start, during the season and at season end.', href: '#/ski/care', words: 'saison pflege ski felle wachsen kanten skiausrüstung' },
   { id: 'f.skiafter', group: 'after', title: 'After the tour', text: 'Summit, metres climbed, who was there and three questions; they become learnings.', href: '#/ski/after', words: 'nach der tour skitour gipfel höhenmeter erkenntnisse rückblick' },
 ];
+/** The listed entries, then those from src/lib/featreg/ (one file per new function, see its README). */
+const OWN = [...OWN_LISTED, ...FEATREG.features];
 
 /** Every function: the tips (with their group) first, then the own entries, by group order. */
 export const FEATURES = FEATURE_GROUPS.flatMap((g) => [

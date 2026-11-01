@@ -20,6 +20,7 @@
    * - highlight: [[lat, lon]] a stretch drawn wide under the route (the zoomed part of the profile).
    * - done: [[lat, lon]] the part already ridden, drawn faded; grades: [{ line, colour }] the climbs ahead
    *   in the steepness colours (live map). me.deg: your direction → an arrow (north stays up).
+   * - way: { line, done, colour } the way to a goal: white edge, ridden part grey, part ahead in colour with arrows.
    * - Points are small symbols in light circles (symbols.js), names from zoom 13.
    * - Live map: fill (the map fills its box), bar=false (ground and layers live in the page's menu),
    *   fitButton=false, navAt (corner of the zoom buttons).
@@ -53,6 +54,7 @@
     highlight = [],
     done = [],
     grades = [],
+    way = null,
     fill = false,
     bar = true,
     fitButton = true,
@@ -128,7 +130,7 @@
   }
 
   /* ---------- our sources and layers (again after every change of ground) ---------- */
-  const SRC = ['ov', 'stretch', 'hl', 'route', 'seg', 'grade', 'done', 'pts', 'cursor', 'me'];
+  const SRC = ['ov', 'stretch', 'hl', 'route', 'seg', 'grade', 'done', 'way', 'way-done', 'pts', 'cursor', 'me'];
 
   /* ---------- the symbols (drawn once per page from SVG into pixels, added on every style) ---------- */
   let symImgs = null;
@@ -158,6 +160,7 @@
       await Promise.all([
         ...SYMBOL_KINDS.map((k) => one(symbolId(k), symbolSvg(k, kindColour(colours, k), colours['--paper'] ?? '#fbfbf8', 64))),
         one('me-arrow', arrowSvg()),
+        one('way-arrow', wayArrowSvg()),
       ]);
       symImgs = out;
       return out;
@@ -167,6 +170,9 @@
   // your arrow: a filled navigation arrow in the «you» colour with a light rim
   const arrowSvg = () =>
     `<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64"><circle cx="32" cy="32" r="28" fill="${colours['--paper'] ?? '#fbfbf8'}" opacity="0.9"/><path d="M32 8 L50 52 L32 42 L14 52 Z" fill="${colours['--l3'] ?? '#3f7fbf'}" stroke="${colours['--paper'] ?? '#fbfbf8'}" stroke-width="3" stroke-linejoin="round"/></svg>`;
+  // the small white chevron along the way still to ride (Navigation zum Ziel: Richtung der Linie)
+  const wayArrowSvg = () =>
+    `<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64"><path d="M22 16 L42 32 L22 48" fill="none" stroke="#fff" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
   function addSymbols() {
     if (!map || !symImgs) return;
     for (const [id, data] of Object.entries(symImgs)) if (!map.hasImage(id)) map.addImage(id, data, { pixelRatio: 2 });
@@ -204,6 +210,13 @@
     layer({ id: 'grade-line', type: 'line', source: 'grade', paint: { 'line-color': ['coalesce', ['get', 'colour'], colours['--ink']], 'line-width': 5 }, layout: { 'line-cap': 'round', 'line-join': 'round' } });
     src('done', empty);
     layer({ id: 'done-line', type: 'line', source: 'done', paint: { 'line-color': colours['--paper'], 'line-width': 6, 'line-opacity': 0.62 }, layout: { 'line-cap': 'round', 'line-join': 'round' } });
+    // the way to a goal: white edge, the ridden part grey, the part ahead in colour with arrows
+    src('way', empty);
+    src('way-done', empty);
+    layer({ id: 'way-casing', type: 'line', source: 'way', paint: { 'line-color': colours['--paper'], 'line-width': 10 }, layout: { 'line-cap': 'round', 'line-join': 'round' } });
+    layer({ id: 'way-open', type: 'line', source: 'way', paint: { 'line-color': ['coalesce', ['get', 'colour'], colours['--l3']], 'line-width': 6 }, layout: { 'line-cap': 'round', 'line-join': 'round' } });
+    layer({ id: 'way-done-line', type: 'line', source: 'way-done', paint: { 'line-color': colours['--ink'], 'line-width': 6, 'line-opacity': 0.4 }, layout: { 'line-cap': 'round', 'line-join': 'round' } });
+    layer({ id: 'way-arrows', type: 'symbol', source: 'way', layout: { 'symbol-placement': 'line', 'symbol-spacing': 70, 'icon-image': 'way-arrow', 'icon-size': 0.28, 'icon-allow-overlap': true, 'icon-ignore-placement': true } });
     src('pts', empty);
     src('cursor', empty);
     src('me', empty);
@@ -326,6 +339,16 @@
     const v = styleVer;
     const f = lineFeature(done);
     if (v && map) untrack(() => src('done', f ? { type: 'FeatureCollection', features: [f] } : empty));
+  });
+  $effect(() => {
+    const v = styleVer;
+    const open = lineFeature(way?.line, { colour: way?.colour ?? '' });
+    const gone = lineFeature(way?.done);
+    if (v && map)
+      untrack(() => {
+        src('way', open ? { type: 'FeatureCollection', features: [open] } : empty);
+        src('way-done', gone ? { type: 'FeatureCollection', features: [gone] } : empty);
+      });
   });
   $effect(() => {
     const v = styleVer;

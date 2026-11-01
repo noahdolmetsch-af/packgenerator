@@ -10,7 +10,9 @@
  * tests/handbook.test.js.
  */
 
-export const HANDBOOK = {
+import { FEATREG } from './featreg/index.js';
+
+const LISTED = {
   dayride: {
     on: 'Needs a trip that has started or ended.',
     steps: ['Tap «New» › «Quick start», or «Quick start» on Today.', 'Check the list; «Change» or «Undo» if it does not fit.'],
@@ -892,6 +894,12 @@ export const HANDBOOK = {
     on: null,
     steps: ['At the end of the evening review tap «Keep this day».', 'Write what made it good and save.', 'In What is good for me tap «Repeat on Saturday».'],
     example: 'Example: «quiet morning, outside in the afternoon» → on Saturday morning the check reminds you.',
+  },
+  // «Karte der App» (Noah 28.10.2026)
+  'f.appmap': {
+    on: null,
+    steps: ['Open Me › Map of the app.', 'Open a place to see its functions with their path.', 'Type a word in the search, then tap a line to go there.'],
+    example: 'Example: you search «backup» and see on which page it lives and how you get there.',
   },
   // «App verstehen» (Noah 26.10.2026)
   'f.verstehen': {
@@ -1964,6 +1972,11 @@ export const HANDBOOK = {
     steps: ['Open Me › Mini tools › Fair draw and pick e.g. «Who cooks?».', 'Add the people; untick who is not there this time.', 'Tap «Draw now»; next time whoever was drawn less often comes first.'],
     example: 'Example: four on a hut weekend; Lena cooked on Friday, so on Saturday one of the other three cooks.',
   },
+  'f.miniabfahrt': {
+    on: null,
+    steps: ['Open Me › Mini tools › When do I leave? and tap «New meeting».', 'Pick the meeting point and the time.', 'Add each person with their start place and speed; the plan shows who leaves when.'],
+    example: 'Example: meeting at 9:00 in Olten; Mia comes 25 km from the east and leaves at 7:55, Jon lives 3 km away and leaves at 8:45.',
+  },
   'f.friendask': {
     on: null,
     steps: ['Open Me › With friends and choose what you ask, e.g. «Tell the trip together».', 'Choose the trip, check the lines, «Make the link» and send it to who you choose.', 'Your friend answers in the app and sends a link back; open it and tap «Keep it».'],
@@ -2238,6 +2251,9 @@ export const HANDBOOK = {
     example: 'Example: «Turned back 200 m below the summit: the wind was too strong.»',
   },
 };
+
+/** The listed entries plus those of src/lib/featreg/. */
+export const HANDBOOK = { ...LISTED, ...FEATREG.handbook };
 
 /** The small apps: each opens right on its area, with its own icon, and shares the data of the whole app. */
 export const MINI_APPS_HANDBOOK = {
