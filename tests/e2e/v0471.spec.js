@@ -264,6 +264,8 @@ test('extras: «Ich» shows a dot, the Inbox is newest first and a sorted note o
   if (info.project.name === 'phone') expect((await repair.boundingBox()).height).toBeGreaterThanOrEqual(44);
   await expect(page.locator(`li[data-note-id="${P}n4"]`)).toHaveCount(0);
   await page.getByRole('group', { name: 'Anzeigen' }).getByRole('button', { name: /Abgelegt/ }).click();
+  // older months are folded: on the first days of a month the notes of last month sit in a folded month, so open them all
+  for (const b of await page.locator('h3 > button[aria-expanded="false"]').all()) await b.click();
   const rows = page.locator('.frow');
   await expect(rows).toHaveCount(3);
   await expect(rows.filter({ hasText: `${P} Neue Handschuhe` })).toHaveAttribute('href', `#/gear?item=${encodeURIComponent(`${P}KL13`)}`);
