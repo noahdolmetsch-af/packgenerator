@@ -16,12 +16,15 @@
   import { QUICK_KEYS, deviceKind, cleanQuick, isPinned, addPin, isViewPinned, addView, removeView } from './quicklinks.js';
   import { MARK_KEYS, placePin } from './pinmarks.js';
   import { findCards } from './findcard.js';
+  import { USAGE_KEYS, cleanUsage, recordVisit, usePin, pinsAt } from './usage.js';
+  import { localDay } from '../localday.js';
   import { offerDone } from '../ui/rename.svelte.js';
   import { t } from '../i18n.svelte.js';
 
   let { hash = '' } = $props();
 
   const KEY = QUICK_KEYS[deviceKind()];
+  const USED = USAGE_KEYS[deviceKind()];
   let s = $state(null);
   let on = $state(false);
   let hintSeen = $state(true);
@@ -43,13 +46,36 @@
 
   const TAP = 'button, a, input, select, textarea, summary, label, [role=button], [role=tab], [role=switch], [tabindex]';
 
+  // step 4 (Noah «6a», «20»): this device remembers the pages it opened and when a pin's page was open
+  let counted = null;
+  let pending = null;
+  async function count(h, title) {
+    if (counted === h || !title) return;
+    counted = h;
+    try {
+      const day = localDay();
+      const rec = await db.settings.get(USED);
+      let u = recordVisit(cleanUsage(rec?.value), h, title, day);
+      for (const id of s ? pinsAt(s, h) : []) u = usePin(u, id, day);
+      await db.settings.put({ key: USED, value: u });
+    } catch {
+      /* counting is a help, never in the way */
+    }
+  }
+
   /** Look for the cards of this page's functions and its title (after the page changed). */
   function find() {
     const main = document.querySelector('main');
+    const h1 = main?.querySelector('h1');
+    // the title counts once it stands still (a page that loads later first shows the old one)
+    const title = h1?.innerText.trim() ?? '';
+    if (title && counted !== hash) {
+      if (pending?.hash === hash && pending.title === title) count(hash, title);
+      else (pending = { hash, title }), setTimeout(refind, 900);
+    }
     if (!main || /^#\/quick(\/|\?|$)/.test(hash)) return (found = []);
     found = findCards(hash);
     // the page itself, with its filter (not on Today, which is always one tap away)
-    const h1 = main.querySelector('h1');
     if (h1 && hash.replace(/^#\/?/, '') && !found.some((f) => f.title === h1 || f.card === h1)) found.push({ id: `view:${hash}`, view: hash, viewTitle: h1.innerText.trim(), card: h1, title: h1 });
   }
 
@@ -132,7 +158,7 @@
         await save(removeView(s, m.view));
         offerDone(t('«{name}» unpinned.', { name: m.viewTitle }), () => save(before));
       } else {
-        await save(addView(s, m.view, m.viewTitle, s.groups[0]?.id ?? ''));
+        await save(addView(s, m.view, m.viewTitle, s.groups[0]?.id ?? '', localDay()));
         offerDone(t('This view of «{name}» is in your Quick Links, with its filter.', { name: m.viewTitle }), () => save(before));
       }
       return;
@@ -143,7 +169,7 @@
       await save({ ...s, pins: s.pins.filter((p) => p.feature !== id) });
       offerDone(t('«{name}» unpinned.', { name }), () => save(before));
     } else {
-      await save(addPin(s, id, s.groups[0]?.id ?? ''));
+      await save(addPin(s, id, s.groups[0]?.id ?? '', localDay()));
       // the first time the note says what the pin does (Noah «2a»: explain where users could get lost)
       const text = hintSeen ? t('«{name}» is in your Quick Links.', { name }) : t('«{name}» is in your Quick Links. A tap there brings you right back here.', { name });
       offerDone(text, () => save(before));

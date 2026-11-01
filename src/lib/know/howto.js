@@ -4,8 +4,10 @@
  * can do». English keys for t(), German in i18n/de/sn6plus.js. Tested in tests/sn6plus.test.js.
  */
 
+import { FEATREG } from '../featreg/index.js';
+
 /** { featureId: [step 1, step 2, step 3] } */
-export const HOWTO = {
+const LISTED = {
   dayride: ['Open Today.', 'Tap «Quick start».', 'The ride comes like your last one, with the weather; change what you like.'],
   blocks: ['Open Gear › Building blocks.', 'Look at a block such as sleep, cook or rain.', 'In a new trip, tick the blocks: their items come along.'],
   templates: ['Open a good trip in Packen.', 'Under «…» choose «Save as template».', 'For the next trip start from this template.'],
@@ -154,6 +156,7 @@ export const HOWTO = {
   'f.autosync': ['Me › Data and backup › «Switch on sync».', 'On the other device: scan the QR code, «Pair».', 'Both changed the same entry: choose which version counts.'],
   // Paket R
   'f.account': ['Me › Data and backup › «Sign in with Google».', 'Choose your Google account; the sync switches on.', 'On the other device: «Sign in with Google» too.'],
+  'f.appmap': ['Open Me › Map of the app.', 'Open a place, or type a word in the search.', 'Tap a line to go there.'],
   'f.verstehen': ['Open Me › Understand the app.', 'Open a lesson, read it and do the exercise.', 'Tick «Done» if you like.'],
   'f.privacy': ['Open Me › «Privacy and terms».', 'Read what stays on your device.', 'See what the server keeps and what it costs.'],
   'f.pros': ['Open Me › «Bike mechanic and guide».', '«Add contact» with mail or booking page.', '«Request» › «Write the mail».'],
@@ -265,7 +268,7 @@ export const HOWTO = {
   'f.powernap': ['Open a race › «Race mode».', 'Tap «20 min» under «Power nap».', 'Tap «I am awake» when it rings.'],
   'f.sleeplists': ['Open a race › «Along the route».', 'Under «Places to sleep from lists» choose a file or paste a link.', 'Look for them under «From a list» in race mode.'],
   'f.nightswx': ['Open a race › «Along the route».', 'Tap «Load the weather».', 'Read «Nights by the weather».'],
-  'f.racecheck': ['Open Trips › «Plan races in detail».', 'Tap a race.', 'Fill in the sheets 1 to 5; «Load answers» takes a file from the fillable sheets page.'],
+  'f.racecheck': ['Open Trips › «Plan races in detail».', 'Tap a race.', 'Fill in the sheets 1 to 6; «Load answers» takes a file from the fillable sheets page.'],
   'f.racesample': ['Open Trips › Races.', 'Tap «See the sample race».', 'Do the tasks in «Plan»; «Reset the sample» makes it new.'],
   'f.skiequipment': ['Open Velos › Ausrüstung.', 'Add a piece from Material and choose its sport.', 'Log a use or tick off its care when it is due.'],
   'f.gipfelbuch': ['Open Aktiv › Aktivität › «Summit book».', 'Confirm a top found in your rides or enter a place by hand.', 'Tap a place to see its visits and stars.'],
@@ -401,6 +404,7 @@ export const HOWTO = {
   'f.labels': ['Open Toolbox › Box labels.', 'Add a box and what is inside.', '«Print label» and stick it on.'],
   'f.minifood': ['Open Me › Mini tools › Who eats what.', 'Write what it is about, say what you eat and tap «Make the link».', 'Send it; pick a menu for the shopping list.'],
   'f.minilos': ['Open Me › Mini tools › Fair draw.', 'Pick a draw and add the people.', 'Tap «Draw now» and send the result to the group.'],
+  'f.miniabfahrt': ['Open Me › Mini tools › When do I leave?', 'Pick the meeting point and the time.', 'Add the people with their start place; send the plan to the group.'],
   'f.miniinvite': ['Open Me › Mini tools › Quick invite.', 'Pick the day, add the meeting point and tap «Make the link».', 'Send it; who is in is on top.'],
   'f.minilist': ['Open Me › Mini tools › Sign-up list.', 'Set the places and tap «Make the link».', 'Send it; who is in and who waits is on top.'],
   'f.minipoll': ['Open Me › Mini tools › Mini survey.', 'Pick a start, change the questions and tap «Make the link».', 'Send it; the summary is on top.'],
@@ -464,6 +468,9 @@ export const HOWTO = {
   'f.skicare': ['Open Ski tours › Season care.', 'Choose the phase.', 'Tap «Done» on a task.'],
   'f.skiafter': ['Open Ski tours › After the tour.', 'Enter summit and metres.', 'Answer the three questions.'],
 };
+
+/** The listed steps plus those of src/lib/featreg/. */
+export const HOWTO = { ...LISTED, ...FEATREG.howto };
 
 /** The steps of a function, or [] when it has none. */
 export const howtoOf = (id) => HOWTO[id] ?? [];

@@ -1,15 +1,17 @@
 // «Rennen detailliert planen» + «Rennen-Check» (Noah 27.10.2026 «1b 2b»): the coming races with their check,
-// five sheets that save by themselves and answers loaded from a file. Fictional data (sample race, made-up answers).
+// the sheets that save by themselves and answers loaded from a file. Fictional data (sample race, made-up answers).
 import { test, expect } from './clock.js';
 import { openHome, homeFixture } from './home0460-fixture.js';
-import { SHEETS } from '../../src/lib/race/check-lib.js';
+import { SHEETS, DAY_BEFORE } from '../../src/lib/race/check-lib.js';
+import { STEPS } from '../../src/lib/race/countdown-lib.js';
+import { STOP_STEPS } from '../../src/lib/race/stop-lib.js';
 
 const noSideways = async (page) => {
   const d = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
   expect(d).toBeLessThanOrEqual(1);
 };
 
-test('Race check: the races page, five sheets that keep what you write, answers from a file', async ({ page, context }, info) => {
+test('Race check: the races page, the sheets that keep what you write, answers from a file', async ({ page, context }, info) => {
   const T = await openHome(page, context, info);
   // a race to plan: the sample race
   await page.goto('./#/race');
@@ -156,4 +158,174 @@ test('Learned in earlier races: the learnings of past races on top', async ({ pa
   await expect(box).not.toContainText('Not about races');
   await noSideways(page);
   await box.screenshot({ path: info.outputPath('rennen-learnings.png') });
+});
+
+test('Weight of the setup: the grams of sheet 2 added up against the target', async ({ page, context }, info) => {
+  const T = await openHome(page, context, info);
+  await page.goto('./#/race');
+  await page.locator('[data-race-sample-open]').click();
+  await expect(page).toHaveURL(/#\/race\/race-sample$/);
+  await page.goto('./#/racecheck/race-sample');
+  await page.locator('[data-check-tab="setup"]').click();
+  const set = async (k, v) => {
+    await page.locator(`[data-check-field="${k}"]`).fill(v);
+    await page.locator(`[data-check-field="${k}"]`).blur();
+  };
+  await set('setup.0.g', '300');
+  await set('setup.0.full', '1.4 kg');
+  await set('setup.1.g', '2× 100');
+  await set('setup.total', '1.5 kg');
+  const box = page.locator('[data-check-weight]');
+  // 300 g + 1.4 kg full, 200 g → 1.6 kg packed, 0.1 kg over 1.5 kg (Swiss number format)
+  await expect(box.locator('[data-check-weight-full]')).toHaveText('1.6 kg');
+  await expect(box.locator('[data-check-weight-over]')).toHaveText(T('{kg} over the target', { kg: '0.1 kg' }));
+  await noSideways(page);
+  await box.screenshot({ path: info.outputPath('rennen-gewicht.png') });
+});
+
+test('The day before the start: sheet 6, plan and tick off', async ({ page, context }, info) => {
+  const T = await openHome(page, context, info);
+  await page.goto('./#/race');
+  await page.locator('[data-race-sample-open]').click();
+  await expect(page).toHaveURL(/#\/race\/race-sample$/);
+  await page.goto('./#/racecheck/race-sample');
+  await page.locator('[data-check-tab="vorher"]').click();
+  const sheet = page.locator('[data-check-sheet="vorher"]');
+  await expect(sheet).toContainText(T('The day before the start'));
+  const done = page.locator('[data-check-daybefore-done]');
+  await expect(done).toHaveText(T('{done} of {of} done', { done: 0, of: DAY_BEFORE.length }));
+  await page.locator('[data-check-field="vorher.3.v"]').fill('Start 06:00, alarm 04:30');
+  await page.locator('[data-check-field="vorher.3.v"]').blur();
+  await page.locator('[data-check-field="vorher.0.done"]').check();
+  await expect(done).toHaveText(T('{done} of {of} done', { done: 1, of: DAY_BEFORE.length }));
+  await page.reload();
+  await expect(page.locator('[data-check-field="vorher.3.v"]')).toHaveValue('Start 06:00, alarm 04:30');
+  await expect(page.locator('[data-check-field="vorher.0.done"]')).toBeChecked();
+  for (let i = 1; i < DAY_BEFORE.length; i++) await page.locator(`[data-check-field="vorher.${i}.done"]`).check();
+  await expect(done).toHaveText(T('All done. Sleep well!'));
+  await noSideways(page);
+  await sheet.screenshot({ path: info.outputPath('rennen-tag-vorher.png') });
+});
+
+test('After the race: questions under every sheet, shown on top in the next race', async ({ page, context }, info) => {
+  const data = homeFixture();
+  const T0 = data.tables;
+  const rigi = T0.trips.find((x) => x.id === 'test_data_gtp_Rigi');
+  const values = { 'liste.after.missing': 'A second pair of gloves', 'liste.after.much': 'The down jacket' };
+  T0.settings.push({ key: 'races', value: { races: { [rigi.id]: { createdAt: '2026-01-01T00:00:00.000Z', check: { values, at: '2026-04-12T10:00:00.000Z' } } } } });
+  const T = await openHome(page, context, info, { data });
+  // the past race: «After the race» is open on every sheet
+  await page.goto(`./#/racecheck/${rigi.id}`);
+  await page.locator('[data-check-tab="liste"]').click();
+  const after = page.locator('[data-check-after]');
+  await expect(after).toHaveAttribute('open', '');
+  await expect(page.locator('[data-check-field="liste.after.missing"]')).toHaveValue('A second pair of gloves');
+  await page.locator('[data-check-field="liste.after.change"]').fill('Pack the gloves in the frame bag');
+  await page.locator('[data-check-field="liste.after.change"]').blur();
+  await noSideways(page);
+  await after.screenshot({ path: info.outputPath('rennen-nachher-fragen.png') });
+  // the next race: on top of the same sheet
+  await page.goto('./#/race');
+  await page.locator('[data-race-sample-open]').click();
+  await expect(page).toHaveURL(/#\/race\/race-sample$/);
+  await page.goto('./#/racecheck/race-sample');
+  await page.locator('[data-check-tab="liste"]').click();
+  const box = page.locator('[data-check-earlier]');
+  await expect(box).toContainText(T('From your earlier races'));
+  await expect(box.locator('[data-check-earlier-row]')).toHaveCount(3);
+  await expect(box.locator('[data-check-earlier-row="change"]')).toContainText('Pack the gloves in the frame bag');
+  await expect(box).toContainText(rigi.title);
+  // not taken over as answers here
+  await expect(page.locator('[data-check-field="liste.after.missing"]')).toHaveValue('');
+  // another sheet has none
+  await page.locator('[data-check-tab="nacht"]').click();
+  await expect(page.locator('[data-check-earlier]')).toHaveCount(0);
+  await page.locator('[data-check-tab="liste"]').click();
+  await noSideways(page);
+  await box.screenshot({ path: info.outputPath('rennen-nachher-oben.png') });
+});
+
+test('Bike countdown: steps weeks before the race, tick and own steps', async ({ page, context }, info) => {
+  const T = await openHome(page, context, info);
+  await page.goto('./#/race');
+  await page.locator('[data-race-sample-open]').click();
+  await expect(page).toHaveURL(/#\/race\/race-sample$/);
+  await page.goto('./#/racecheck/race-sample');
+  const box = page.locator('[data-race-countdown]');
+  await expect(box).toContainText(T('Bike countdown'));
+  await expect(box.locator('[data-countdown-list] li')).toHaveCount(STEPS.length);
+  await expect(box).toContainText(T(STEPS[0].text));
+  await expect(box.locator('[data-countdown-sum]')).toContainText(T('{done} of {of} done', { done: 0, of: STEPS.length }));
+  await box.locator(`[data-countdown-done="${STEPS[0].id}"]`).check();
+  await expect(box.locator('[data-countdown-sum]')).toContainText(T('{done} of {of} done', { done: 1, of: STEPS.length }));
+  await box.locator('[data-countdown-edit]').click();
+  await box.locator('[data-race-add="countdown"]').fill('Fit the new saddle bag');
+  await box.locator('[data-race-add="countdown"]').press('Enter');
+  await expect(box.locator('[data-countdown-list] li')).toHaveCount(STEPS.length + 1);
+  await page.reload();
+  await expect(box.locator(`[data-countdown-done="${STEPS[0].id}"]`)).toBeChecked();
+  await expect(box).toContainText('Fit the new saddle bag');
+  await noSideways(page);
+  await box.screenshot({ path: info.outputPath('velo-countdown.png') });
+});
+
+test('Tools for this bike: suggestions from the bike, tick, own spare, suggestions again', async ({ page, context }, info) => {
+  const T = await openHome(page, context, info);
+  await page.goto('./#/race');
+  await page.locator('[data-race-sample-open]').click();
+  await expect(page).toHaveURL(/#\/race\/race-sample$/);
+  await page.goto('./#/racecheck/race-sample');
+  const box = page.locator('[data-race-tools]');
+  await expect(box).toContainText(T('Tools for this bike'));
+  await expect(box).toContainText(T('Multitool with chain tool'));
+  const n = await box.locator('[data-tools-list] li').count();
+  expect(n).toBeGreaterThan(5);
+  await box.locator('[data-tools-done="tl-multi"]').check();
+  await expect(box.locator('[data-tools-sum]')).toHaveText(T('{done} of {of} packed', { done: 1, of: n }));
+  await box.locator('[data-tools-edit]').click();
+  await box.locator('[data-race-add="tools"]').fill('Spoke key, made up');
+  await box.locator('[data-race-add="tools"]').press('Enter');
+  await expect(box.locator('[data-tools-list] li')).toHaveCount(n + 1);
+  await page.reload();
+  await expect(box.locator('[data-tools-done="tl-multi"]')).toBeChecked();
+  await expect(box).toContainText('Spoke key, made up');
+  // the suggestions again: the own row goes, the tick stays
+  await box.locator('[data-tools-edit]').click();
+  await box.locator('[data-tools-again]').click();
+  await expect(box.locator('[data-tools-list] li')).toHaveCount(n);
+  await expect(box.locator('[data-tools-done="tl-multi"]')).toBeChecked();
+  await box.locator('[data-tools-edit]').click();
+  await noSideways(page);
+  await box.screenshot({ path: info.outputPath('velo-werkzeug.png') });
+});
+
+
+test('Night stop routine: tick off, next stop clears the ticks, own step', async ({ page, context }, info) => {
+  const T = await openHome(page, context, info);
+  await page.goto('./#/race');
+  await page.locator('[data-race-sample-open]').click();
+  await expect(page).toHaveURL(/#\/race\/race-sample$/);
+  await page.goto('./#/racecheck/race-sample');
+  const box = page.locator('[data-race-stops]');
+  await expect(box).toContainText(T('Night stop routine'));
+  await expect(box.locator('[data-stops-list] li')).toHaveCount(STOP_STEPS.length);
+  await expect(box).toContainText(T(STOP_STEPS[0].text));
+  await expect(box.locator('[data-stops-next]')).toBeDisabled();
+  await box.locator(`[data-stops-done="${STOP_STEPS[0].id}"]`).check();
+  await box.locator(`[data-stops-done="${STOP_STEPS[1].id}"]`).check();
+  await expect(box.locator('[data-stops-sum]')).toHaveText(T('{done} of {of} done', { done: 2, of: STOP_STEPS.length }));
+  await box.locator('[data-stops-edit]').click();
+  await box.locator('[data-race-add="stops"]').fill('Brush teeth, made up');
+  await box.locator('[data-race-add="stops"]').press('Enter');
+  await expect(box.locator('[data-stops-list] li')).toHaveCount(STOP_STEPS.length + 1);
+  await page.reload();
+  await expect(box.locator(`[data-stops-done="${STOP_STEPS[0].id}"]`)).toBeChecked();
+  await expect(box).toContainText('Brush teeth, made up');
+  await noSideways(page);
+  await box.screenshot({ path: info.outputPath('nacht-stopp.png') });
+  // next stop: all ticks off, the stop is counted
+  await box.locator('[data-stops-next]').click();
+  await expect(box.locator(`[data-stops-done="${STOP_STEPS[0].id}"]`)).not.toBeChecked();
+  await expect(box.locator('[data-stops-n]')).toHaveText(T('stop {n}', { n: 2 }));
+  await expect(box.locator('[data-stops-list] li')).toHaveCount(STOP_STEPS.length + 1);
 });
