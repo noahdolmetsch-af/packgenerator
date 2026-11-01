@@ -1026,11 +1026,14 @@ test('PF16: ride and debrief note, GPX and weather, print/PDF, photo, share link
   // shows them (the export itself ends the backup reminder, so one more tip shows).
   const tipsOf = (rows) => rows.find((r) => r.key === 'tips')?.value ?? null;
   const exported = JSON.parse(readFileSync(file, 'utf8'));
+  // «Zuletzt geöffnet» of the Quick Links (setting quickLinks.used.*) notes every page opened, and this test opens
+  // Daten und Backup after the snapshot: it is a visit log like the tips memory, not a record that must come back
+  const volatile = (r) => r.key !== 'tips' && !String(r.key).startsWith('quickLinks.used');
   await rec.check('backup: every record comes back the same (items, trips, debriefs, notes, photos, bikes, bags, learnings, settings)', async () => {
     for (const name of Object.keys(snapshot)) {
       const now = await table(page, name);
       if (name !== 'settings') expect(now, name).toEqual(snapshot[name]);
-      else expect(now.filter((r) => r.key !== 'tips'), name).toEqual(snapshot[name].filter((r) => r.key !== 'tips'));
+      else expect(now.filter(volatile), name).toEqual(snapshot[name].filter(volatile));
     }
     // v0.45.1 (G015a): the tips memory is no longer in the file; the device keeps its own over "Replace all data"
     expect(tipsOf(exported.tables.settings)).toBeNull();
