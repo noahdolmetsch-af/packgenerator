@@ -58,7 +58,7 @@
   import { localDay as todayLocal } from '../lib/localday.js';
   import SosSheet from '../lib/live/SosSheet.svelte';
   import RerouteSheet from '../lib/live/RerouteSheet.svelte';
-  import { snapAhead, onDetour, detourDone, detourGpx, saveDetour, loadDetour, DETOUR_COLOUR, atPlace, returnDetour, backDetour, backtrackOf, planReturn, returnModeStd, shouldReroute, OFF_ROUTE_M } from '../lib/reroute.js';
+  import { snapAhead, onDetour, detourDone, detourGpx, saveDetour, loadDetour, DETOUR_COLOUR, atPlace, returnDetour, backDetour, backtrackOf, planReturn, returnModeStd, shouldReroute, OFF_ROUTE_M, offLineM, planDetour } from '../lib/reroute.js';
   import { saveGpx } from '../lib/gpxout.js';
   import { LANDI_RADAR } from '../lib/wetter/kern.js';
   import LiveWetter from '../lib/live/LiveWetter.svelte';
@@ -599,6 +599,8 @@
         say(t(s.key, s.vars), lang());
       }
     }
+    // off the way to a goal: a new way from here to the same goal
+    goalStep();
     // off-route
     if (cfg.offRoute && at) autoStep();
     if (cfg.offRoute && at && !onDetour(detour, me) && autoHold !== 'free') {
@@ -788,6 +790,43 @@
   }
   // 3a (Noah): «Gleichen Weg zurück»: your own track back to where you left the route, no router
   const sameBack = $derived(detour?.back === 'auto' && hasRoute ? backtrackOf(fixesOf(row), pts) : null);
+  // Live-Navigation Schritt 4: off the way to a goal the app plans a new way from here to the same goal,
+  // with Undo (the old way comes back). No answer or offline: it tries again in a minute.
+  let goalOffSince = null;
+  let goalAt = null;
+  let goalBusy = false;
+  const isGoalWay = (d) => !!d && !d.back && (d.oneWay || !d.rejoin) && d.line?.length > 1;
+  function goalStep() {
+    if (!isGoalWay(detour) || !me || arrived || atPlace(detour, me)) {
+      goalOffSince = null;
+      return;
+    }
+    const offM = offLineM(detour.line, me);
+    if (!(offM > OFF_ROUTE_M)) {
+      goalOffSince = null;
+      return;
+    }
+    goalOffSince ??= now;
+    if (goalBusy || !navigator.onLine) return;
+    if (shouldReroute({ offM, offSince: goalOffSince, lastAt: goalAt, now })) goalPlan();
+  }
+  async function goalPlan() {
+    const old = detour;
+    goalBusy = true;
+    goalAt = now;
+    try {
+      const d = await planDetour({ here: me, target: old.target, pts: hasRoute ? pts : [], fromKm: old.fromKm, profile: old.profile, oneWay: !!old.oneWay });
+      if (detour === old) {
+        setDetour({ ...d, ...(old.small ? { small: true } : {}) }, false);
+        goalOffSince = null;
+        offerDone(t('New way to the goal.'), () => setDetour(old, false));
+      }
+    } catch {
+      /* no answer: the next try in a minute */
+    } finally {
+      goalBusy = false;
+    }
+  }
   const autoUndo = () => ((autoHold = 'undo'), setDetour(null));
   const autoFree = () => ((autoHold = 'free'), setDetour(null));
   const takeSame = () => sameBack && setDetour(backDetour(sameBack), false);

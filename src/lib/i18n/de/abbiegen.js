@@ -25,5 +25,6 @@ export default {
   'Make a U-turn': 'Wenden',
   'Step by step ({n})': 'Schritt für Schritt ({n})',
   'The way step by step': 'Der Weg Schritt für Schritt',
+  'New way to the goal.': 'Neuer Weg zum Ziel von hier aus.',
   'Next turn|live': 'Nächste Abzweigung',
 };
