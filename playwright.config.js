@@ -39,7 +39,7 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 1 : 0,
-  reporter: process.env.CI ? [['list'], ['github']] : 'list',
+  reporter: process.env.CI ? [['list'], ['github'], ['json', { outputFile: 'pw-report.json' }]] : 'list', // the json file feeds scripts/test-summary.mjs
   use: {
     baseURL: `http://localhost:${PORT}/packgenerator/`,
     serviceWorkers: 'block', // the PWA worker would cache old builds between runs

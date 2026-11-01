@@ -22,6 +22,7 @@
   import Crumb from '../lib/flow/kit/Crumb.svelte';
   import AbendTour from '../lib/lernen/AbendTour.svelte'; // Paket M #223
   import Scale from '../lib/flow/check/Scale.svelte';
+  import CheckTabs from '../lib/flow/check/CheckTabs.svelte';
   import Chips from '../lib/flow/check/Chips.svelte';
   import PoolEditor from '../lib/flow/check/PoolEditor.svelte';
   import { db } from '../lib/db.js';
@@ -158,11 +159,7 @@
       <p class="sub">{phone.matches ? t('about 40 seconds · everything skippable') : t('Morning check · {date} · about 40 seconds · every question skippable. The line under a number shows yesterday.', { date: dateLong })}</p>
     {/if}
     <!-- «Heute-Check» (Noah 30.10.2026 «1-5a»): the analyses are one tap away from the questionnaire -->
-    <nav class="ctabs" aria-label={t('Daily check')} data-check-tabs>
-      <a href={evening ? '#/check/evening' : '#/check/morning'} aria-current="page">{t('Today|check tab')}</a>
-      <a href="#/me/insights">{t('What goes together')}</a>
-      <a href="#/me/history">{t('All answers')}</a>
-    </nav>
+    <CheckTabs here="today" {evening} />
   </header>
 
   {#if data && cur}
@@ -442,29 +439,6 @@
 {/snippet}
 
 <style>
-  .ctabs {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 4px 6px;
-    margin-top: var(--sp-2);
-  }
-  .ctabs a {
-    display: inline-flex;
-    align-items: center;
-    min-height: 44px;
-    padding: 0 var(--sp-3);
-    border: 1px solid var(--line-strong);
-    border-radius: var(--r-ctl);
-    color: var(--ink-2);
-    font-size: var(--fs-small);
-    font-weight: 600;
-    text-decoration: none;
-  }
-  .ctabs a[aria-current='page'] {
-    border-color: var(--hi);
-    background: var(--hi);
-    color: var(--hi-ink);
-  }
   .ck {
     display: flex;
     flex-direction: column;

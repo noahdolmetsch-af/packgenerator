@@ -60,6 +60,9 @@ test('Live map: plan a new way to a shop, see it, save it for the Garmin, remove
   await expect(north).toHaveAttribute('aria-pressed', 'false');
   await tap(north, info);
   await expect(north).toHaveAttribute('aria-pressed', 'true');
+  // «Whole route»: the whole way in view, the map stops following
+  await tap(page.locator('[data-live-whole]'), info);
+  await expect(page.locator('[data-live-follow]')).toHaveAttribute('aria-pressed', 'false');
   const dl = page.waitForEvent('download');
   // the GPX of the way lives in «⋯» (Navigation zum Ziel 2: the card on the map stays small)
   await tap(page.locator('[data-live-menu]'), info);

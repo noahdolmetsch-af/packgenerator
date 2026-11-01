@@ -65,4 +65,5 @@ export default {
   'The calendar is not allowed yet: connect it again.': 'Der Kalender ist noch nicht erlaubt: nochmals verbinden.',
   'Google Tasks is not allowed yet: connect it again.': 'Google Aufgaben ist noch nicht erlaubt: nochmals verbinden.',
   'It is no longer in Google.': 'Das ist nicht mehr in Google.',
+  'Done: appointments and tasks are up to date from Google.': 'Fertig: Termine und Aufgaben sind von Google auf dem neuesten Stand.',
 };

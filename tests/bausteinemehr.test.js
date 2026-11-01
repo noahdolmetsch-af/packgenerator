@@ -1,6 +1,7 @@
 // v0.154.0 «Bausteine mehr» (SN3h–SN3j, Noah 14.10.2026 «SN3h–SN3j freigegeben», answers 1a 2a 3a 4b 5a):
 // the nine new blocks and their rules, the stages (4b), the example parts (1a) and the new parts with
 // Rückgängig (2a), the groups of the page. Lists come from the app source. Fictional data only.
+import './setup/de.js'; // this test needs the German texts
 import 'fake-indexeddb/auto';
 import { describe, it, expect, afterEach } from 'vitest';
 import { SITUATION_BLOCKS, MORE_BLOCKS, STAGE_BLOCKS, STAGE_OF, stagesOf, BATHING_BLOCKS, RULE_BLOCKS, DEFAULT_RULES, NEED, ruleOf, rulesOf, tripFacts, ruleHit, situationHits, lossOf } from '../src/lib/situation.js';

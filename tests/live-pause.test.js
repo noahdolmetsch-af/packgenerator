@@ -130,7 +130,7 @@ describe('the new numbers on top', () => {
   });
   it('total time, pulse, power, cadence, metres up, top speed, stops', () => {
     const v = tileValues({ totalS: 2 * 3600 + 7 * 60, hr: 141.4, power: 212, cadence: 88, gain: 534.6, maxKmh: 61.24, stops: 3 });
-    expect([v.total.value, v.hr.value, v.power.value, v.cadence.value, v.gain.value, v.max.value, v.stops.value]).toEqual(['2:07', '141', '212', '88', '535', '61.2', '3']);
+    expect([v.total.value, v.hr.value, v.power.value, v.cadence.value, v.gain.value, v.max.value, v.stops.value]).toEqual(['2:07:00', '141', '212', '88', '535', '61.2', '3']);
     expect(tileValues({}).hr.value).toBe('–');
     for (const k of ['total', 'hr', 'power', 'cadence', 'gain', 'max', 'stops']) expect(LIVE_TILES.some((x) => x.key === k)).toBe(true);
   });

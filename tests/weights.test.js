@@ -3,6 +3,7 @@
  * known weights and says how many are missing; a weight of 0 g is known; several pieces count
  * once per piece; a fully weighed list shows the plain sum. All data here is made up.
  */
+import './setup/de.js'; // this test needs the German texts
 import { describe, it, expect, afterEach } from 'vitest';
 import { sumKnown, knownWeight, weightText, gearStats, formatWeight } from '../src/lib/gear.js';
 import { tripStats, axleLoad, axleSplit } from '../src/lib/trips.js';

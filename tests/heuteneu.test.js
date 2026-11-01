@@ -39,7 +39,8 @@ describe('HN4: the order of Heute', () => {
     const all = catalog().flatMap((a) => a.tiles.map((x) => x.id));
     for (const id of REMOVED_0155) {
       expect(ids(READY), id).not.toContain(id);
-      expect(all, id).toContain(id);
+      if (id !== 'try') expect(all, id).toContain(id); // «Tried it yet?» is gone for good (1.11.2026, Noah «a»)
+      else expect(all, id).not.toContain(id);
     }
     expect(REMOVED_0155).toEqual(expect.arrayContaining(['try', 'nextms', 'morningcheck', 'fn:dayride', 'fn:trip', 'fn:wear', 'fn:wardrobe', 'fn:review', 'fn:debriefs', 'fn:km', 'fn:care']));
     expect(REMOVED_0155.length).toBe(11);
