@@ -19,9 +19,10 @@
   import GroupDeleteSheet from '../ui/GroupDeleteSheet.svelte';
   import { bikeLinks, deleteBike, undoDeleteBike } from '../bikedelete.js'; // «Rückmeldungen» 19.10.2026
   import { offerDone } from '../ui/rename.svelte.js';
+  import { isRetired } from '../bikeretire.js';
 
   /** bike: the bike to edit, or null for "Add bike". */
-  let { bike, bikes, oncreated, onsaved = null, onclose } = $props();
+  let { bike, bikes, oncreated, onsaved = null, onretire = null, onclose } = $props();
 
   // svelte-ignore state_referenced_locally
   const isNew = !bike;
@@ -203,6 +204,7 @@
     noneHint={t('The trips stay, just without a bike and its bags.')}
     targets={asking.targets}
     empty={t('No trip uses it.')}
+    alt={onretire && !isRetired(bike) ? { label: t('Retire instead'), hint: t('Deleting cannot be undone after a few seconds. Retiring keeps all trips, km and services and only hides the bike.'), run: () => { dialog.close(); onretire(bike); } } : null}
     note={goesWith(asking.links) ? t('Goes with the bike: {what}.', { what: goesWith(asking.links) }) : ''}
     onconfirm={doDelete}
     onclose={() => (asking = null)}

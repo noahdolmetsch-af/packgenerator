@@ -95,6 +95,7 @@ export function answerFor(question, data = {}) {
   // what is due on the bikes
   if (has(q, DUE) && !has(q, PACK)) {
     const due = (data.care ?? []).filter((c) => c?.rows?.length);
+    if (data.bikeCount === 0) return { kind: 'care', title: t('No bikes yet, so there is no care data either.'), lines: [], link: { label: t('Add a bike'), href: '#/bikes' } };
     if (!due.length) return { kind: 'care', title: t('Nothing is due on your bikes.'), lines: [], link: { label: t('Open bike care'), href: '#/bikes?tab=care' } };
     const lines = due.flatMap((c) => c.rows.slice(0, 3).map((r) => `${c.bikeName}: ${r.name}${r.detail ? `, ${r.detail}` : ''}`));
     return { kind: 'care', title: tn(lines.length, '{n} thing is due on your bikes.', '{n} things are due on your bikes.'), lines: lines.slice(0, 6), link: { label: t('Open bike care'), href: due[0].href ?? '#/bikes?tab=care' } };

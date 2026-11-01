@@ -1,5 +1,6 @@
 // v0.97.0 Design-Refresh R1 «Darstellung» (G1 neu, Noah 11.10 23:10; 12.10 «1a 2a»): font, colour
 // world, text size and light or dark under Ich › Darstellung, only on this device.
+import './setup/de.js'; // this test needs the German texts
 import { describe, it, expect, afterEach } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { lang, t } from '../src/lib/i18n.svelte.js';

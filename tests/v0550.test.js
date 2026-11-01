@@ -1,6 +1,7 @@
 // v0.66.0 «Bausteine neu + Bausteine prüfen» (Noah, Trello 9.10.2026, 4a–10b): the one-time update of
 // the building blocks (blocksplit.js), the trip block logic (context.js, blockplan.js) and the pure
 // helpers of «Bausteine prüfen» (blockcheck.js). Fictional data only.
+import './setup/de.js'; // this test needs the German texts
 import 'fake-indexeddb/auto';
 import { describe, it, expect, afterEach } from 'vitest';
 import { createDb } from '../src/lib/db.js';

@@ -97,6 +97,12 @@ test('Woche planen: four steps, last week as proposals, the bike before the trip
   await prop.getByRole('button', { name: T('Take {name}', { name: 'test_data_gtp_ Lauf' }) }).click();
   await expect(st.locator('[data-proposal]')).toHaveCount(0);
   await expect(st.locator('[data-session]')).toHaveCount(3);
+  // «Planen als verbindende Mitte» 1a: a session is added right here, in the flow
+  await st.locator('[data-add-training]').click();
+  await st.locator('[data-plan-training] input[type="text"]').fill('test_data_gtp_ Neue Einheit');
+  await st.locator('[data-plan-training] button[type="submit"]').click();
+  await expect(st.locator('[data-session]')).toHaveCount(4);
+  await expect(st).toContainText('test_data_gtp_ Neue Einheit');
   await page.locator('[data-next]').click();
   // 3 to-dos: the one without a day is taken
   const todo = page.locator('[data-step="3"] [data-sugg="todo:test_data_gtp_t2"]');

@@ -66,8 +66,6 @@
   import { readRun } from '../lib/tour.js';
   import Continue from '../lib/home/Continue.svelte';
   import { stepOf, lastEvening, notBegun } from '../lib/phase.js';
-  import StartKarte from '../lib/home/StartKarte.svelte';
-  import { startCard, RIDE_SEEN_KEY } from '../lib/home/startkarten.js';
   import { quickDebrief, templateOffer, templateName, nextTrip, learningsFor } from '../lib/debrief.js';
   import TemplateOffer from '../lib/debrief/TemplateOffer.svelte';
   import { openNew, openNote, openTrip, openPrep, addItem, wantBike, take, dayRide, openData, openPlay } from '../lib/nav.js';
@@ -91,7 +89,7 @@
   import { explain } from '../lib/ui/explain.js';
   import { readyLight, quickHints, dueAll } from '../lib/quickcare.js';
   import { chargeList, chargeCount } from '../lib/charge.js';
-  import { TIPS, TIPS_KEY, tipPossible, usedTips, isUsed, tapTip, updateTips } from '../lib/tips.js';
+  import { TIPS_KEY, usedTips } from '../lib/tips.js';
   import { PACE_KEY, paceOf } from '../lib/pace.js';
   import { SETS_KEY } from '../lib/sets.js';
   import { TEMPLATES_KEY } from '../lib/templates.js';
@@ -124,7 +122,7 @@
   import ActsTile from '../lib/home/ActsTile.svelte';
   import { SERIES_STEPS } from '../lib/home/series.js';
   import { readSeries, seriesTables } from '../lib/home/series-data.js';
-  import { FUNCTIONS, USAGE_KEY, usageOf, dataUsed, usedFunctions, levelOf, untried } from '../lib/home/functions.js';
+  import { FUNCTIONS, USAGE_KEY, usageOf, dataUsed, usedFunctions } from '../lib/home/functions.js';
   import { countUse } from '../lib/home/usage.js';
   import { recordCare, undoCare } from '../lib/home/care-tap.js';
   import { yearReview, tripDone } from '../lib/yearreview.js';
@@ -147,7 +145,6 @@
   import RoundTile from '../lib/home/RoundTile.svelte'; // WG: the round of «Wi gaht's?» (was the morning check)
   import SkiTile from '../lib/home/SkiTile.svelte';
   import { bookingNotes, bookingRow } from '../lib/booking/notice.js'; // Termine buchen (BU4, 9a)
-  import TryCard from '../lib/home/TryCard.svelte';
   import { suggest, watchSuggest } from '../lib/clear/suggest.svelte.js'; // Einzelidee 36: «Ideas to buy» can be off on every page
   import BikeCards from '../lib/home/BikeCards.svelte';
   import YearRow from '../lib/home/YearRow.svelte';
@@ -563,26 +560,6 @@
   const tipUsed = $derived(
     usedTips({ trips: allTrips, items, bikes: $bikesQ ?? [], visits, debriefs, templates, sets: S[SETS_KEY] ?? [], notesN: ($notesQ ?? []).length, homePlace: place, pace: paceOf(S[PACE_KEY]), lastBackup: $metaQ?.last ?? null, demo: $demoQ ?? null, langSet: (() => { try { return localStorage.getItem('lang') != null; } catch { return false; } })(), standalone: standalone() }),
   );
-  function runTip(x) {
-    updateTips(db, (s) => tapTip(s, x.id, today));
-    if (x.go.href) return (location.hash = x.go.href);
-    const what = x.go.run;
-    if (what === 'dayRide') dayRide();
-    else if (what === 'note') openNote('');
-    else if (what === 'receipt') openNote(t('Workshop receipt: '));
-    else if (what === 'km') openNew('km');
-    else if (what === 'data') openData();
-    else if (what === 'lang') setLang(lang.v === 'de' ? 'en' : 'de');
-    else if (what === 'homePlace') placeOpen = true;
-    else if (what === 'backup') downloadBackup(db);
-  }
-  const tryList = $derived.by(() => {
-    if (!ready) return [];
-    const fns = untried(used).map((f) => ({ id: f.id, text: t(f.pitch), button: t('Try it'), run: () => runFn(f) }));
-    const tips = hush ? [] : TIPS.filter((x) => x.go.run !== 'install' && tipPossible(x, { trips: allTrips, items, bikes: $bikesQ ?? [] }, today) && !isUsed(S[TIPS_KEY], x.id, tipUsed) && !fns.some((f) => f.id === x.id)).map((x) => ({ id: `tip-${x.id}`, text: t(x.text), button: x.id === 'lang' ? (lang.v === 'de' ? t('Switch to English') : t('Switch to German')) : t(x.button), run: () => runTip(x) }));
-    return [...fns, ...tips];
-  });
-
   /* ---------- 4a. Important today (Noah 26a, 27a, 32a, 10a, 21a) ---------- */
   const backup = $derived.by(() => {
     if (!$metaQ || !items.length || $demoQ) return { due: false, days: null };
@@ -986,20 +963,6 @@
   }
   const seriesParty = $derived(milestones.some((m) => m.key === 'series'));
 
-  // Ride day (answer 1a) and the last evening (v0.67.0 U22b): Start-Karten (Noah 14.10.2026, 2b/3b and
-  // ST1–ST2 «1a 2a 3b»): Today no longer jumps to On the way or «Tour beendet»; a card with the trip card
-  // says it (startkarten.js). Not on the day the trip was made (v0.29.2, Noah 6a); demo trips count like real ones (P3c H2b).
-  const madeToday = (tr) => !!tr?.createdAt && localDay(new Date(tr.createdAt)) === today;
-  const riding = $derived(next && hasBike(next) && !madeToday(next) ? onTripDay(next, today) : false);
-  const lastEve = $derived(loaded && $debriefsQ ? trips.find((x) => !madeToday(x) && lastEvening(x, today, now.getHours(), { debriefDone: debriefs.some((d) => d.tripId === x.id && d.status === 'done') })) ?? null : null);
-  const rideSeenNow = (() => {
-    try {
-      return localStorage.getItem(RIDE_SEEN_KEY);
-    } catch {
-      return null;
-    }
-  })();
-  const startKarte = $derived(startCard({ ride: riding && !lastEvening(next, today, now.getHours()) ? next : null, evening: lastEve, seen: rideSeenNow, today }));
   // v0.80.0 «Tests stabil»: <html data-today="n"> says Today has made its decisions (since 0.140.1 the start card) with n
   // trips loaded (after them, in the same run). Nothing in the app reads it; the browser tests wait for it.
   $effect(() => {
@@ -1204,7 +1167,7 @@
 {#snippet tileBody(x)}
   {#if x.id === 'trip'}
     <!-- Start-Karten ST1/ST2 (HN4): the card travels with the trip card, right before it -->
-    {#if focus || shown || (loaded && !showFirst)}<div class="stack">{#if startKarte}<StartKarte card={startKarte} />{/if}{@render tripS(x.size === 'l' && !phone.matches)}{#if ready && x.size !== 'l'}<KmCard {today} />{/if}</div>{/if}
+    {#if focus || shown || (loaded && !showFirst)}<div class="stack">{@render tripS(x.size === 'l' && !phone.matches)}{#if ready && x.size !== 'l'}<KmCard {today} />{/if}</div>{/if}
   {:else if x.id === 'important'}{@render todayS(x.size === 'long')}
   {:else if x.id === 'flow'}
     {#if x.join}
@@ -1223,7 +1186,6 @@
   {:else if x.id === 'meditation'}{#if x.size === 'long'}<HabitCards {today} cfg={S[HABITS_KEY] ?? null} onpick={() => (habitsOpen = true)} />{:else}<MedTile {today} size={x.size} isnew={newTile('meditation')} />{/if}
   {:else if x.id === 'play'}<SmallTile tile={TILE.play} size={x.size} isnew={newTile('play')} sub={$demoQ?.play ? t('The playground is running') : t('try without risk')} onclick={openPlay} />
   {:else if x.id === 'ski'}<SkiTile {today} size={x.size} isnew={newTile('ski')} />
-  {:else if x.id === 'try'}<TryCard list={tryList} used={used.size} total={FUNCTIONS.length} level={levelOf(used.size)} />
   {:else if x.id === 'bikes'}{#if ready}<div data-section="bikes"><BikeCards {bikes} {tasks} {visits} {next} {today} /></div>{/if}
   {:else if x.id === 'year'}<div data-section="year"><YearRow {today} /></div>
   {:else if x.id === 'milestones'}<SmallTile tile={TILE.milestones} size={x.size} href="#/flow/milestones" />
@@ -1267,7 +1229,7 @@
   {#if !editing && ready}<PhotoGreeting />{/if}
   <!-- v0.67.0 «Übergänge 1» (U3, U007, U24b, Ü6a): «Weitermachen» and the evening reminders, on top
        (HG1 2a: right under the greeting). -->
-  {#if loaded && $debriefsQ}<Continue {trips} {debriefs} {today} hour={now.getHours()} cardId={on('trip') ? cardTrips[0]?.id ?? null : null} noLast={startKarte?.kind === 'evening' && on('trip')} />{/if}
+  {#if loaded && $debriefsQ}<Continue {trips} {debriefs} {today} hour={now.getHours()} cardId={on('trip') ? cardTrips[0]?.id ?? null : null} />{/if}
   <!-- «Sporttasche» (mockup AK3, 4a): the evening before a fixed date, «Morgen Yoga 07:00: Tasche packen» -->
   <!-- «Alltag sichtbar» (Noah 24.10.2026 «1a»): «Heute fällig», only what is really due today: to-dos, birthdays, plants, bike care.
        It stands right under «Dein Körper heute» (rule 11: the body check stays on top); here only when that tile is off. -->

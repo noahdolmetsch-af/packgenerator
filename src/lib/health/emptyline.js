@@ -10,8 +10,17 @@ export function fitbitEmpty(h) {
   if (!h?.prefs?.connected) return { why: 'off', text: null, href: '#/me/connections', link: 'Connections|body' };
   const code = h.error || (h.lastTry && !h.lastTry.ok ? h.lastTry.code : '');
   if (code) {
-    const login = ['google_login_needed', 'not_connected'].includes(code);
-    const text = login ? 'Fitbit is connected, but Google needs a new login.' : code === 'google_scope' ? 'Fitbit is connected, but Google refuses the values right now.' : 'Fitbit is connected, but the last fetch did not work.';
+    const TEXT = {
+      google_login_needed: 'Fitbit is connected, but Google needs a new login.',
+      not_connected: 'Fitbit is connected, but Google needs a new login.',
+      google_scope: 'Fitbit is connected, but Google refuses the values right now.',
+      timeout: 'Fitbit is connected, but Google or the server took too long. Open Fitbit and tap «Try again».',
+      network: 'Fitbit is connected, but there was no connection. The app tries again later.',
+      unauthorized: 'Fitbit is connected, but this device has no key yet.',
+      google_busy: 'Fitbit is connected, but Google is busy. Try again later.',
+      daily_cap: 'Fitbit is connected, but the server has done enough for today. It works again tomorrow.',
+    };
+    const text = TEXT[code] ?? 'Fitbit is connected, but the last fetch did not work.';
     return { why: 'failed', text, href: '#/me/fitbit', link: 'To Fitbit' };
   }
   return { why: 'none', text: h.last?.date ? 'No Fitbit values for today yet. The last ones are from {date}.' : 'No Fitbit values yet.', date: h.last?.date ?? null, href: '#/me/fitbit', link: 'To Fitbit' };

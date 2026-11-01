@@ -31,6 +31,8 @@ export default {
   'The backup file could not be made.': 'Die Backup-Datei konnte nicht erstellt werden.',
   'Send: the backup file goes to the share sheet (mail, chat, nearby), or is downloaded. On the other device: Import backup.':
     'Schicken: Die Backup-Datei geht ans Teilen-Menü (Mail, Chat, in der Nähe) oder wird heruntergeladen. Auf dem anderen Gerät: Backup importieren.',
+  'Phone: a file from a mail first has to be saved (in Gmail the arrow at the attachment). Then choose it under «Downloads». The picker shows all files; the app checks itself whether it is a backup.':
+    'Handy: Eine Datei aus einer Mail muss zuerst gespeichert werden (in Gmail der Pfeil beim Anhang). Dann wählst du sie unter «Downloads». Die Auswahl zeigt alle Dateien; die App prüft selbst, ob es ein Backup ist.',
   'Last change on this device: {when}.': 'Letzte Änderung auf diesem Gerät: {when}.',
   Newer: 'Neuer',
   Older: 'Älter',

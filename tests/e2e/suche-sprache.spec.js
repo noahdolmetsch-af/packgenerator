@@ -78,7 +78,7 @@ test('a spoken question: the app answers and «Ask further at» opens Claude wit
   await mic.click();
   const field = page.locator('input[type="search"]:visible').first();
   await expect(field).toHaveValue('was ist am Velo fällig');
-  await expect(page.locator('[data-aa="care"]:visible')).toContainText(T('Nothing is due on your bikes.'));
+  await expect(page.locator('[data-aa="care"]:visible')).toContainText(T('No bikes yet, so there is no care data either.'));
   const claude = page.locator('[data-ask-elsewhere]:visible [data-service="claude"]');
   await expect(claude).toHaveAttribute('href', /^https:\/\/claude\.ai\/new\?q=was%20ist%20am%20Velo%20f%C3%A4llig/);
   // a tap also copies the question and says so, in case the service loses it after its sign-in
