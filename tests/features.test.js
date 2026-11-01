@@ -1,4 +1,5 @@
 // v0.96.0 «F1 Alles finden» (Noah «1-5 a», mockups A/B): the catalogue of every function by situation.
+import './setup/de.js'; // this test needs the German texts
 import { describe, it, expect, afterEach } from 'vitest';
 import { FEATURES, FEATURE, FEATURE_GROUPS, PAGE_GROUPS, MOMENT_GROUPS, pageOf, catalogue, seenOf, featureHref, findFeatures } from '../src/lib/features.js';
 import { TIPS, TIP } from '../src/lib/tips.js';

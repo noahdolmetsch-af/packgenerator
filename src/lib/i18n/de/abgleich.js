@@ -144,4 +144,6 @@ export default {
   'Sports bags': 'Sporttaschen',
   'Sports bag packing': 'Sporttasche packen',
   'Rest days': 'Ruhetage',
+  'Done: {taken} received, {sent} sent.': 'Fertig: {taken} Einträge geholt, {sent} geschickt.',
+  'Done: both devices are up to date.': 'Fertig: beide Geräte sind auf demselben Stand.',
 };

@@ -88,4 +88,7 @@ export default {
   'No Fitbit values for today yet. The last ones are from {date}.': 'Noch keine Fitbit-Werte von heute. Die letzten sind vom {date}.',
   'No Fitbit values yet.': 'Noch keine Fitbit-Werte.',
   'To Fitbit': 'Zu Fitbit',
+  'Done: {n} day fetched.': 'Fertig: {n} Tag geholt.',
+  'Done: {n} days fetched.': 'Fertig: {n} Tage geholt.',
+  'Done: nothing new, you are up to date.': 'Fertig: nichts Neues, du bist auf dem neuesten Stand.',
 };

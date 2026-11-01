@@ -153,3 +153,12 @@
 
   <p class="fr-fine"><BookOpen size={14} aria-hidden="true" /> {t('Signing in with Google for friends comes later; all of this works already without it.')}</p>
 </div>
+
+<style>
+  /* 44 px tap area for the stand-alone link, the picture stays the same */
+  .fr-intro a[data-fr-mini] {
+    display: inline-block;
+    padding-block: 13px;
+    margin-block: -13px;
+  }
+</style>

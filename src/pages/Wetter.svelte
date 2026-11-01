@@ -16,6 +16,7 @@
   import Crumbs from '../lib/ui/Crumbs.svelte';
   import { db } from '../lib/db.js';
   import { HOME_PLACE } from '../lib/know.js';
+  import { localDay } from '../lib/localday.js';
   import { searchPlace } from '../lib/weather.js';
   import { compass } from '../lib/toursky.js';
   import { loadCore, hoursBetween, dayLine, warningsOf, bestWindows, foehnBise, trainInstead, outdoorOk, localDate, atLocal, costWord, COST_WORD, WARN_TEXT, LANDI_RADAR, METEOSWISS } from '../lib/wetter/kern.js';
@@ -27,6 +28,7 @@
   import LakeChip from '../lib/lake/LakeChip.svelte';
   import LakeCard from '../lib/lake/LakeCard.svelte';
   import AirCard from '../lib/air/AirCard.svelte';
+  import NextHours from '../lib/wetter/NextHours.svelte'; // Ziel 6 «Die nächsten Stunden» (Noah 27.10.2026 «4a»)
   import HomePlaceSheet from '../lib/ich/HomePlaceSheet.svelte';
   import { t, num, locale } from '../lib/i18n.svelte.js';
 
@@ -35,14 +37,24 @@
   const saidQ = liveQuery(() => db.meta.get(SAID_KEY));
 
   const params = $derived(new URLSearchParams(location.hash.split('?')[1] ?? ''));
-  const tripId = $derived(params.get('trip'));
+  // Noah 01.11.2026 «2a»: a choice at the top (home place or the next tour); null = what the address says
+  let sel = $state(null);
+  const tripId = $derived(sel === 'home' ? null : (sel ?? params.get('trip')));
   const trip = $derived(tripId ? ($tripsQ ?? []).find((x) => x.id === tripId) ?? null : null);
+  const tripPlace = (x) => x?.place ?? x?.route?.start ?? null;
+  const today0 = localDay();
+  // the next planned tour that has a place of its own or a route start
+  const nextTrip = $derived(
+    [...($tripsQ ?? [])]
+      .filter((x) => !x.skipped && !x.finished && x.status !== 'done' && (x.startDate ?? '') >= today0 && Number.isFinite(Number(tripPlace(x)?.lat)))
+      .sort((a, b) => a.startDate.localeCompare(b.startDate))[0] ?? null,
+  );
   let picked = $state(null); // a searched place
   let homeSheet = $state(false);
   const place = $derived.by(() => {
     if (picked) return picked;
-    const s = trip?.route?.start;
-    if (s && Number.isFinite(Number(s.lat))) return { lat: Number(s.lat), lon: Number(s.lon), name: trip.title ?? '' };
+    const s = tripPlace(trip);
+    if (s && Number.isFinite(Number(s.lat))) return { lat: Number(s.lat), lon: Number(s.lon), name: s.name || trip.title || '' };
     return $homeQ?.value ?? null;
   });
 
@@ -173,6 +185,12 @@
   <PageHead title={t('Weather')} text={t('The weather for riding: today, the best time for a ride, the rain radar and your webcams. Everything is a suggestion.')} />
 
   <div class="card wx-place">
+    {#if $homeQ?.value || nextTrip}
+      <div class="wx-chips" role="group" aria-label={t('Weather for')} data-wx-pick>
+        {#if $homeQ?.value}<button type="button" class="wx-chip" aria-pressed={!picked && !trip} onclick={() => ((picked = null), (found = []), (sel = 'home'))} data-wx-pick-home>{t('Home place|wx')}</button>{/if}
+        {#if nextTrip}<button type="button" class="wx-chip" aria-pressed={!picked && trip?.id === nextTrip.id} onclick={() => ((picked = null), (found = []), (sel = nextTrip.id))} data-wx-pick-next>{t('Next tour: {name}', { name: nextTrip.title })}</button>{/if}
+      </div>
+    {/if}
     <p class="wx-where"><b>{place?.name || t('No place yet')}</b>{#if asOf}<small>{t('As of {at}', { at: asOf })}{core?.old ? ` · ${t('older than 3 hours')}` : ''}</small>{/if}</p>
     <form class="wx-search" onsubmit={search}>
       <input class="inp" type="search" bind:value={q} oninput={() => (searchHint = '')} placeholder={t('Another place')} aria-label={t('Another place')} data-wx-q />
@@ -214,6 +232,8 @@
         <a class="btn sm" href="#/me/hinweise">{t('Warnings, avalanches, passes')}</a>
       </div>
     </section>
+
+    <NextHours {place} />
 
     <!-- 1a: the best weather window -->
     <section class="card wx-sec" aria-labelledby="wx-best" data-wx-best>

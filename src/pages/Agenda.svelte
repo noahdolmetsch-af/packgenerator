@@ -78,6 +78,12 @@
   let editTask = $state(null);
   let ev = $state(null); // the form for a new or changed appointment
   let msg = $state('');
+  // Noah 1.11.2026: after «Fetch now» a clear line says whether it worked
+  async function fetchButton() {
+    msg = '';
+    const ok = await fetchNow();
+    if (ok) msg = t('Done: appointments and tasks are up to date from Google.');
+  }
 
   const writable = $derived(p.calendars.filter((c) => c.write));
   const calName = (id) => p.calendars.find((c) => c.id === id)?.name ?? '';
@@ -423,7 +429,7 @@
         <section class="ich-sec" aria-labelledby="st-h">
           <div class="ich-h"><div><h2 id="st-h">{t('From Google')}</h2><p class="ich-hs">{p.lastSync ? t('fetched {when}', { when: ago(p.lastSync) }) : t('not fetched yet')}</p></div></div>
           <div class="card ich-body">
-            <button type="button" class="btn wide" disabled={agenda.busy} onclick={() => fetchNow()}><RefreshCw size={15} aria-hidden="true" />{agenda.busy ? t('Fetching…') : t('Fetch now')}</button>
+            <button type="button" class="btn wide" disabled={agenda.busy} onclick={fetchButton}><RefreshCw size={15} aria-hidden="true" />{agenda.busy ? t('Fetching…') : t('Fetch now')}</button>
             <p class="ich-help">{t('By itself when the app opens, at most every 15 minutes.')}</p>
           </div>
         </section>

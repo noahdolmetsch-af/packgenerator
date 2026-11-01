@@ -215,7 +215,7 @@ export const isEvening = (d = new Date()) => d.getHours() * 60 + d.getMinutes() 
 /** Where the check entry leads now: the morning check, from 20:30 the evening review. */
 export const checkHref = (d = new Date()) => (isEvening(d) ? '#/check/evening' : '#/check/morning');
 /** The part of the check an address shows ('morning' or 'evening'). */
-export const checkPart = (hash = '') => (/^#\/check\/evening\b/.test(hash) ? 'evening' : /^#\/check\/questions\b/.test(hash) ? 'questions' : /^#\/check\/insights\b/.test(hash) ? 'insights' : 'morning');
+export const checkPart = (hash = '') => (/^#\/check\/evening\b/.test(hash) ? 'evening' : /^#\/check\/questions\b/.test(hash) ? 'questions' : /^#\/check\/insights\b/.test(hash) ? 'insights' : /^#\/check\/history\b/.test(hash) ? 'history' : 'morning');
 /** How many of the evening questions are answered (for the entry on Heute). */
 export const eveningDone = (c) => checkOf(c).sat != null;
 

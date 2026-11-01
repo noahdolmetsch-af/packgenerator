@@ -1,5 +1,6 @@
 // «Frag die App» (Noah 15.10.2026 «1 beides 2a und b 3 a und b»): the free answers from own data.
 // Fictional data only.
+import './setup/de.js'; // this test needs the German texts
 import { describe, it, expect, afterEach } from 'vitest';
 import { lang } from '../src/lib/i18n.svelte.js';
 import de from '../src/lib/i18n/de/index.js';
@@ -54,6 +55,7 @@ describe('answerFor', () => {
     const a = answerFor('Was ist an meinen Velos fällig?', data);
     expect(a).toMatchObject({ kind: 'care', lines: [`${P} Grau: Chain, worn`], link: { href: '#/bikes?tab=care&bike=b1' } });
     expect(answerFor('was ist fällig', { ...data, care: [] }).title).toBe('Nothing is due on your bikes.');
+    expect(answerFor('was ist fällig', { ...data, care: [], bikeCount: 0 }).title).toBe('No bikes yet, so there is no care data either.');
   });
   it('what is still to pack for the next trip', () => {
     const a = answerFor('Was fehlt noch beim Packen?', data);

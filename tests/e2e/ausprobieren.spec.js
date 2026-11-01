@@ -26,9 +26,12 @@ test('every line of What is new goes to its exact place', async ({ page, context
   await start(page, context, info);
   expect(ROWS.length).toBeGreaterThan(0);
   // «Try it» on the newest update goes to its place and says «New here: …»
+  // (only when the newest update has a line with an exact place: a fix release with no place has nothing to go to)
   await page.goto('./#/me/news');
-  await page.locator('[data-news-try]').first().click();
-  await expect(page.locator('[data-spot-note]').first()).toContainText(T('New here: {what}').split('{')[0].trim());
+  if (ROWS.some(([version]) => version === NEWEST)) {
+    await page.locator('[data-news-try]').first().click();
+    await expect(page.locator('[data-spot-note]').first()).toContainText(T('New here: {what}').split('{')[0].trim());
+  }
   const missing = [];
   for (const [version, text, g] of ROWS) {
     await page.goto('./#/');

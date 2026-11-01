@@ -219,8 +219,18 @@ const NOW_KEY = {
   'u-turn': 'Make a U-turn now',
   bends: '{n} bends over {km} km',
 };
+const LIST_KEY = {
+  left: 'Turn left',
+  right: 'Turn right',
+  'slight-left': 'Bear left',
+  'slight-right': 'Bear right',
+  'sharp-left': 'Turn sharp left',
+  'sharp-right': 'Turn sharp right',
+  'u-turn': 'Make a U-turn',
+  bends: '{n} bends over {km} km',
+};
 /** Every text key of the hints (for the tests and the German check). */
-export const TURN_KEYS = [...Object.values(FAR_KEY), ...Object.values(NOW_KEY)];
+export const TURN_KEYS = [...Object.values(FAR_KEY), ...Object.values(NOW_KEY), ...Object.values(LIST_KEY)];
 
 const bendKm = (tn) => Math.max(0.1, Math.round((tn.toKm - tn.km) * 10) / 10);
 
@@ -230,6 +240,12 @@ export function turnText(turn, distM) {
   const extra = turn.dir === 'bends' ? { n: turn.n, km: bendKm(turn) } : {};
   if (distM <= NOW_M) return { key: NOW_KEY[turn.dir], vars: extra };
   return { key: FAR_KEY[turn.dir], vars: { m: roundM(distM), ...extra } };
+}
+
+/** The text of one step in the list of the way («Turn left»), no distance: { key, vars }. */
+export function turnListText(turn) {
+  if (!turn || !LIST_KEY[turn.dir]) return null;
+  return { key: LIST_KEY[turn.dir], vars: turn.dir === 'bends' ? { n: turn.n, km: bendKm(turn) } : {} };
 }
 
 /**

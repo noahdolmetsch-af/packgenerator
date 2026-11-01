@@ -1,6 +1,7 @@
 // v0.83.0 «Ausstattung» (Noah 11.10.2026, A1–A5 a): every part of a bike in groups with name, details,
 // weight and price; empty parts folded; totals and the top 3 by price; the price in the spec import;
 // the address of «Ausstattung» and «Compare bikes». Fictional bike, pure functions.
+import './setup/de.js'; // this test needs the German texts
 import { describe, it, expect } from 'vitest';
 import { equipmentGroups, equipmentTotals, setPartBasics, partDetails } from '../src/lib/equipment.js';
 import { planSpecs, applySpecs } from '../src/lib/bikespecs.js';

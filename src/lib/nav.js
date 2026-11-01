@@ -276,7 +276,7 @@ export function pageOf(hash = '', careTab = false) {
  * The pages of the daily check (v0.127.0). WG had sent them to «Wi gaht's?»; since 18.10.2026 (Noah «1 a und b»)
  * they are pages of Heute again, and their answers stay in «Wi gaht's?» (its history reads them).
  */
-export const CHECK_PAGES = ['#/check/morning', '#/check/evening', '#/check/questions', '#/check/insights'];
+export const CHECK_PAGES = ['#/check/morning', '#/check/evening', '#/check/questions', '#/check/insights', '#/check/history'];
 export function redirectOf(hash = '') {
   const [h, query = ''] = (hash || '').split('?');
   if (h === '#/review' || h.startsWith('#/review/')) return { hash: '#/debrief', spot: 'period', old: '#/review' };
@@ -453,6 +453,29 @@ export const PLACE_TABS = {
 /** «Aktiv neu»: the addresses of #/flow that belong to Auswerten. */
 const LOOK_FLOW = /^#\/flow\/(form|stats|auswertung|milestones|trophies|ideen)(\/|\?|$)/;
 
+
+/**
+ * «Planen als verbindende Mitte» 2a (Noah 1.11.2026): the twelve pages of Planen in «Alle n» stand in groups.
+ * A page that is in no group (a new one) lands in the last group. Places without groups show one plain list.
+ */
+export const TAB_GROUPS = {
+  week: [
+    { label: 'Often used|group', keys: ['week', 'remember', 'agenda', 'notes'] },
+    { label: 'Write down|group', keys: ['tagebuch', 'inbox', 'mail'] },
+    { label: 'Find your way|group', keys: ['compass', 'alltag', 'frei'] },
+    { label: 'Ideas and tools|group', keys: ['inspiration', 'links'] },
+  ],
+};
+
+/** The tabs split into the groups of a place ([{ label, items }]), keeping their order; null when the place has no groups. */
+export function groupTabs(place, tabs) {
+  const groups = TAB_GROUPS[place];
+  if (!groups) return null;
+  const out = groups.map((g) => ({ label: g.label, items: tabs.filter((x) => g.keys.includes(x.key)) }));
+  const rest = tabs.filter((x) => !groups.some((g) => g.keys.includes(x.key)));
+  out.at(-1).items.push(...rest);
+  return out.filter((g) => g.items.length);
+}
 
 /** The entry of PLACE_TABS an address belongs to (its key), or null. */
 export function tabOf(place, hash = '') {

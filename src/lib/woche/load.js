@@ -42,6 +42,7 @@ export function weekQuery(today) {
       .filter((b) => !b.archived && !b.sold)
       .flatMap((b) => (bikeCare(withVisits(b, visits), { tasks, visits, today })?.rows ?? []).map((r) => ({ bikeId: b.id, bikeName: b.name, key: r.key, part: r.part, name: r.name })));
     return {
+      bikeCount: bikes.filter((b) => !b.archived && !b.sold).length,
       items: itemsOf(s[ITEMS_KEY]),
       rawItems: Array.isArray(s[ITEMS_KEY]) ? s[ITEMS_KEY] : [],
       away: awayOf(s[AWAY_KEY]),
