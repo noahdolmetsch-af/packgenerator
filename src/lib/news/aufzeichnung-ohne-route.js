@@ -3,12 +3,11 @@ export default {
   title: 'Recording without a route works',
   lead: 'The screen stays on while you record, a GPS gap no longer counts as standing, and a ride without a route starts clean.',
   points: [
-    { text: 'The screen stays on during the recording; the app asks for the lock again if the phone takes it away', href: '#/live', go: 'f.live' },
     { text: 'A gap in the GPS is no longer counted as standing, so no false «stood for 25 min» question', href: '#/live', go: 'f.live' },
     { text: 'A ride started without a route forgets every old route, so the distance is only your own', href: '#/live', go: 'f.live' },
     { text: 'New «Ride log» on the live map: GPS points, gaps, restarts, with a button to send it', href: '#/live', go: 'f.live' },
   ],
-  small: [{ box: 'new', text: 'The log lists when the app was hidden and when the screen lock was lost', go: 'f.live' }],
+  small: [{ box: 'new', text: 'The screen stays on during the recording; the app asks for the lock again if the phone takes it away', go: 'f.live' }, { box: 'new', text: 'The log lists when the app was hidden and when the screen lock was lost', go: 'f.live' }],
   test: ['Start a ride on the live map without a route: only the distance, the time and the speed show, no old route.', 'Open «Ride log» in the panel: the points and gaps are listed; «Send the log» shares or copies the text.'],
   since: [],
   de: {
