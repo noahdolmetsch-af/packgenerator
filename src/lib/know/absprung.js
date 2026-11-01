@@ -54,7 +54,4 @@ export function withoutJump(features, sources, linked = new Set()) {
 export const NO_JUMP = [
   // PR 7 Körper
   'f.tennistop', 'f.experiment', 'f.specialdays', 'f.counterdays', 'f.freerewards', 'f.tworoles', 'f.scalemeaning', 'f.bodytalk',
-  // PR 8 Alltag und Ruhiger
-  'f.freiabend', 'f.people', 'f.markup', 'f.ablage', 'f.chains', 'f.convert', 'f.video', 'f.qr',
-  'f.workspace', 'f.calmview', 'f.pushbudget', 'f.notforme',
 ];

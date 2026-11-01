@@ -28,6 +28,14 @@ export const PASST_HIER = {
   rig: ['f.gears', 'f.level'],
   // Rückblick einer Tour (saved): looking back further than the packing list
   debrief: ['f.knowhow', 'f.gooddecisions', 'f.meaning', 'f.skillmap'],
+  // Eingang: the picture and file tools where photos and files land
+  inbox: ['f.markup', 'f.convert', 'f.video', 'f.chains'],
+  // Dokumente: links, small files and QR codes next to the documents
+  docs: ['f.ablage', 'f.qr'],
+  // Woche planen: fewer things at once, and the evening
+  woche: ['f.workspace', 'f.calmview', 'f.freiabend'],
+  // Erinnerungen aufs Handy: how many a day, and what the app no longer suggests
+  push: ['f.pushbudget', 'f.notforme'],
 };
 
 /** The functions of a place that exist and are not marked «Not for me». */

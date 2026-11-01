@@ -1,4 +1,5 @@
 <script>
+  import PasstHier from '../lib/ui/PasstHier.svelte'; // Wegweiser 8: «Fits here»
   /**
    * «Woche planen» WP1 (mockup, Noah 15.10.2026 21:11 «1a 2a 3b 4a 5a»): #/week, the place «Woche».
    * Monday to Sunday with sport and the training plan, dates, to-dos, holidays and bike service, each
@@ -250,6 +251,8 @@
       </aside>
     </div>
   {/if}
+  <!-- Wegweiser 8: fewer things at once while planning the week, and the evening -->
+  <PasstHier place="woche" />
 </div>
 
 {#snippet wxMark(wx)}

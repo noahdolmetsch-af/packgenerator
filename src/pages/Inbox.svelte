@@ -1,4 +1,5 @@
 <script>
+  import PasstHier from '../lib/ui/PasstHier.svelte'; // Wegweiser 8: «Fits here»
   import InputsView from '../lib/eingabe/InputsView.svelte'; // «Eingaben überall» (26.10.2026): voice notes, files, place of a quick note
   import { askDelete, deleteWithUndo } from '../lib/ui/ask.js'; // «Rückmeldungen» 19.10.2026: the app's own question, then 4 s «Undo»
   import { UNDO_MS } from '../lib/ui/undo.js';
@@ -433,6 +434,8 @@
     {/if}
     </div>
   {/if}
+  <!-- Wegweiser 8 (Noah 01.11.2026): the picture and file tools where photos and files land -->
+  <PasstHier place="inbox" />
 </div>
 
 {#if filing}
