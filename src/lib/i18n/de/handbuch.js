@@ -197,7 +197,7 @@ export default {
   'Tap «New» › «Workshop visit» and take a photo of the receipt.': 'Tippe «Neu» › «Werkstattbesuch» und fotografiere die Quittung.',
   'It waits in the Inbox; file it as a workshop visit later.': 'Sie wartet im Eingang; später als Werkstattbesuch ablegen.',
   'Example: receipt for 85 francs → later a visit with «new brake pads».': 'Beispiel: Quittung über 85 Franken → später ein Besuch mit «neue Bremsbeläge».',
-  'Tap «New» › «km for a bike».': 'Tippe «Neu» › «km für ein Velo».',
+  'Tap «New» › «Log km».': 'Tippe «Neu» › «km eintragen».',
   'Type what the counter says and save.': 'Tippe ein, was der Zähler zeigt, und speichere.',
   'Example: counter 12400 → Bike care knows the chain is due in 300 km.': 'Beispiel: Zähler 12400 → die Velopflege weiss, dass die Kette in 300 km fällig ist.',
   'Needs a Strava export (activities.csv) or Garmin FIT files.': 'Braucht einen Strava-Export (activities.csv) oder Garmin-FIT-Dateien.',
