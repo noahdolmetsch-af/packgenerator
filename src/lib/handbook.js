@@ -331,7 +331,7 @@ const LISTED = {
   },
   'f.weekreview': {
     on: null,
-    steps: ['Open Aktiv › Week and tap «Week in review», or Training › Look back.', 'Read the five numbers, the strip Monday to Sunday and the highlights; ‹ › shows other weeks.', 'With the AI helper switched on: «Copy for Claude» copies the week as text; nothing is sent by itself.'],
+    steps: ['Open Aktiv › Week and tap «Week in review», or Training › Look back.', 'Read the five numbers, body values, the strip and highlights, then write your own note and goal; ‹ › shows other weeks.', 'With the AI helper switched on: «Copy for Claude» copies the week as text; nothing is sent by itself.'],
     example: 'Example: 4:10 h, 96 km, 1’240 Hm, «+1:20» against the week before → «Keep your rhythm».',
   },
   'f.wohl': {
@@ -1260,6 +1260,16 @@ const LISTED = {
     steps: ['Open Trips › Dreams › White spots nearby.', 'Choose 10, 25 or 50 km.', 'Tap a place on the map or in the list: its name and distance.'],
     example: 'Example: 25 km around Zürich → 209 municipalities never visited, the nearest 5 km away.',
   },
+  'f.newkm': {
+    on: 'Needs rides with a line: Strava, a GPX file or your own recording.',
+    steps: ['Open Trips › Look back › New ground.', 'Scroll to «New kilometres»: each year with its new km and share.', 'Below: your latest rides that brought new km.'],
+    example: 'Example: 3210 km this year, of which 412 km new (13 %).',
+  },
+  'f.dreamsdone': {
+    on: 'Needs a dream planned as a trip, and the debrief of that trip.',
+    steps: ['Plan a dream as a trip (Trips › Dreams › the dream › «Plan the tour»).', 'After the trip, finish its debrief.', 'The dream shows under «Fulfilled dreams» and in the year card.'],
+    example: 'Example: «Over the Furka» ridden in July → «Fulfilled in July 2026», with its photo.',
+  },
   'f.newtoday': {
     on: 'Shows only on the day of a ride and the day after.',
     steps: ['Ride somewhere you have never been; the route or the ride counts.', 'Today shows «New since yesterday: …» under the greeting.', 'Tap it for New ground, or × to close it.'],
@@ -1841,7 +1851,7 @@ const LISTED = {
   },
   'f.observations': {
     on: 'Needs data: Strava rides, Fitbit days or «How are you?» answers; with too little data it says so.',
-    steps: ['Open Aktiv › Week › Week in review.', 'From Sunday the three observations of the week are at the top; they stay the same afterwards.', 'Hide a kind with «Do not show this kind any more»; earlier weeks are under «Older weeks».'],
+    steps: ['Open Aktiv › Week › Week in review.', 'From Sunday the three observations of the week are at the top; they are fixed after the day is over.', '«All numbers behind it» shows how it was worked out; «Do not show this kind any more» hides a kind; older weeks are folded.'],
     example: 'Example: «After a day on the bike you slept 35 min longer: 7:55 h against 7:20 h on the other nights.»',
   },
   'f.chronik': {

@@ -82,7 +82,7 @@ export default {
   'Dreams|tab': 'Träume',
   'Dreams|page': 'Träume',
   'Dream tours with their season, races as event tours': 'Traumtouren mit ihrer Saison, Rennen als Event-Tour',
-  'Write down tours you dream of. The app suggests when each one fits; you can change the months. One tap makes a trip from a dream. «New ground round» plans a round through a place you have never been.': 'Schreib Touren auf, von denen du träumst. Die App schlägt vor, wann jede passt; die Monate kannst du ändern. Ein Tipp macht aus einem Traum eine Tour. Die «Neuland-Runde» plant eine Runde durch einen Ort, an dem du noch nie warst.',
+  'Write down tours you dream of. The app suggests when each one fits; you can change the months. One tap makes a trip from a dream. «New ground round» plans a round through a place you have never been. Done ones move to «Fulfilled dreams».': 'Schreib Touren auf, von denen du träumst. Die App schlägt vor, wann jede passt; die Monate kannst du ändern. Ein Tipp macht aus einem Traum eine Tour. Die «Neuland-Runde» plant eine Runde durch einen Ort, an dem du noch nie warst. Erledigte wandern zu «Erfüllte Träume».',
   'Write the name of a dream tour.': 'Schreib den Namen einer Traumtour.',
   '«{name}» added under {kind}. Tap it to change the months.': '«{name}» unter {kind} eingetragen. Tippe darauf, um die Monate zu ändern.',
   'Planned as a trip': 'Als Tour geplant',
@@ -320,4 +320,14 @@ export default {
   'Paste a link of a tour and the dream gets its name, km and climb; from Ride with GPS also the map.': 'Füge den Link einer Tour ein, und der Traum bekommt Name, km und Höhenmeter; von Ride with GPS auch die Karte.',
   'Paste the link of a tour in the field at the top and tap «Add».': 'Füge oben ins Feld den Link einer Tour ein und tippe «Hinzufügen».',
   'In a dream: «Read from the link».': 'In einem Traum: «Aus dem Link lesen».',
+  // «Erfüllte Träume» (Träume und Neuland N17)
+  'Fulfilled in {when}': 'Erfüllt im {when}',
+  'Fulfilled dreams': 'Erfüllte Träume',
+  'Dreams you rode. They count once the debrief is done.': 'Träume, die du gefahren bist. Sie zählen, sobald der Rückblick fertig ist.',
+  'Fulfilled dream {year}: {n}': 'Erfüllter Traum {year}: {n}',
+  'Fulfilled dreams {year}: {n}': 'Erfüllte Träume {year}: {n}',
+  'A dream you rode counts as fulfilled once its debrief is done: on Dreams with its month and photo, and in the year card of the review.': 'Ein gefahrener Traum zählt als erfüllt, sobald sein Rückblick fertig ist: unter Träume mit Monat und Foto und in der Jahreskarte des Rückblicks.',
+  'Plan a dream as a trip, ride it and finish its debrief.': 'Plane einen Traum als Tour, fahr sie und schliess den Rückblick ab.',
+  'Trips › Dreams shows it under «Fulfilled dreams».': 'Touren › Träume zeigt ihn unter «Erfüllte Träume».',
+  'The year card of Past trips counts it too.': 'Die Jahreskarte von Vergangene Touren zählt ihn auch.',
 };

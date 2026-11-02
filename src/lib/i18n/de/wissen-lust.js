@@ -10,6 +10,7 @@ export default {
     'Starte nahe zu Hause, mit dem Zug zurück als Plan B. Die erste Nacht ist selten ruhig: Kühe, Glocken und die eigenen Gedanken.',
   'Small steps with a date get done far more often than big wishes. Letting a goal go is an ending too, not a failure.':
     'Kleine Schritte mit Datum werden viel öfter erledigt als grosse Wünsche. Ein Ziel loslassen ist auch ein Abschluss, kein Scheitern.',
+  'Finish the debrief of a ride and the dream counts as fulfilled. One photo and a line on how it felt make the year card worth reading.': 'Schliesse den Rückblick einer Fahrt ab, dann gilt der Traum als erfüllt. Ein Foto und eine Zeile, wie es sich anfühlte, machen die Jahreskarte lesenswert.',
   'Mark the months a tour fits: passes are often closed until June, and the south is lovely in October.':
     'Markier die Monate, in denen eine Tour passt: Pässe sind oft bis Juni zu, und der Süden ist im Oktober wunderbar.',
   'The nearest white spot is often only one valley away. Small roads you never took are the quickest new ground.':
@@ -24,4 +25,5 @@ export default {
     'Speichere den Link mit einem Satz, warum. In einem Jahr weisst du so wieder, was daran spannend war.',
   "A link from a friend's report is enough: km and climb come along, the dream still needs your one sentence why.":
     'Ein Link aus dem Bericht einer Freundin reicht: km und Höhenmeter kommen mit, der Traum braucht trotzdem deinen einen Satz, warum.',
+  "A dream that came true stays in your list of fulfilled dreams: look at it when the next big plan feels too far away.": "Ein erfüllter Traum bleibt in der Liste der erfüllten Träume: Schau ihn an, wenn dir der nächste grosse Plan zu weit weg vorkommt.",
 };

@@ -137,6 +137,7 @@ test('Own link: the maker sees a bar that leads to the answers', async ({ page, 
   await tap(page.locator('[data-mt-make]'), info);
   const url = await page.locator('[data-mt-link]').inputValue();
 
+
   await page.goto(url);
   await expect(page.locator('[data-mm-own]')).toContainText(T('This is your own question.'));
   await noSideways(page, 'own link');
@@ -144,4 +145,36 @@ test('Own link: the maker sees a bar that leads to the answers', async ({ page, 
   await tap(page.locator('[data-mm-own-link]'), info);
   await expect(page.locator('[data-mt-best]')).toBeVisible();
 
+});
+
+test('Mini tools list: «new» shows after an answer and goes after reading', async ({ page, context }, info) => {
+  const T = await openHome(page, context, info);
+  await miniServer(context);
+  await page.goto('./#/me/mini/neu');
+  await page.locator('[data-mt-title]').fill('test_data_gtp_ Neu Zahl');
+  for (const d of ['2026-10-17', '2026-10-18']) await tap(page.locator(`[data-mt-day="${d}"]`), info);
+  await tap(page.locator('[data-mt-make]'), info);
+  const url = await page.locator('[data-mt-link]').inputValue();
+
+
+  const friend = await context.newPage();
+  await friend.clock.setFixedTime(new Date('2026-10-09T10:00:00+02:00'));
+  await friend.goto(url);
+  await friend.locator('[data-mm-name]').fill('test_data_gtp_ Anna');
+  await tap(friend.locator('[data-mm-opt="2026-10-17"] [data-mm-pick="y"]'), info);
+  await tap(friend.locator('[data-mm-send]'), info);
+  await expect(friend.locator('[data-mm-sent]')).toBeVisible();
+
+  // the maker's copy still has no answer: the list says «1 new»
+  await page.goto('./#/me/mini');
+  await expect(page.locator('[data-mt-item] [data-mt-fresh]')).toHaveText(T('{n} new', { n: 1 }));
+  await noSideways(page, 'list');
+  await page.screenshot({ path: info.outputPath('liste-neu.png'), fullPage: true });
+
+  // open it (the answers are read), back: gone
+  await tap(page.locator('[data-mt-item]'), info);
+  await expect(page.locator('[data-mt-row]')).toHaveCount(1);
+  await page.goto('./#/me/mini');
+  await expect(page.locator('[data-mt-item]')).toBeVisible();
+  await expect(page.locator('[data-mt-fresh]')).toHaveCount(0);
 });

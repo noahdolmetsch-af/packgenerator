@@ -9,6 +9,7 @@
   import { db } from '../db.js';
   import { addDays } from '../health.js';
   import { vitalsToday } from './vitals.js';
+  import FitbitStand from '../health/FitbitStand.svelte';
   import TileHead from './TileHead.svelte';
   import { health } from '../health/client.svelte.js';
   import { fitbitEmpty } from '../health/emptyline.js';
@@ -43,6 +44,7 @@
     {@const e = fitbitEmpty(health)}
     <p class="empty" data-fitbit-empty={e.why}>{e.text ? t(e.text, { date: e.date ? shortDay(e.date) : '' }) : t('Connect Fitbit and your body values show here.')} <a href={e.href}>{t(e.link)}</a></p>
   {/if}
+  <FitbitStand />
 </section>
 
 <style>

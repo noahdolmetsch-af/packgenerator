@@ -1,6 +1,6 @@
 // «Wegweiser statt Katalog» PR 11: the card «What you can do here».
 import { describe, it, expect } from 'vitest';
-import { pageContent, pageKey, ON_PAGES, foldedOf } from '../src/lib/seiteninhalt.js';
+import { pageContent, pageKey, ON_PAGES, foldedOf, isFolded, FOLDED_FIRST } from '../src/lib/seiteninhalt.js';
 import { HOME } from '../src/lib/know/heimat.js';
 
 describe('What you can do here', () => {
@@ -27,5 +27,12 @@ describe('What you can do here', () => {
   it('keeps only folded pages from the stored setting', () => {
     expect(foldedOf({ '#/a': true, '#/b': false, '#/c': 1 })).toEqual({ '#/a': true });
     expect(foldedOf(null)).toEqual({});
+  });
+  it('starts folded on Unterwegs, keeps the choice everywhere', () => {
+    expect(FOLDED_FIRST).toContain('#/ride');
+    expect(isFolded({}, '#/ride')).toBe(true);
+    expect(isFolded({ '#/ride': false }, '#/ride')).toBe(false);
+    expect(isFolded({}, '#/trips/dreams')).toBe(false);
+    expect(isFolded({ '#/trips/dreams': true, '#/x': 1 }, '#/trips/dreams')).toBe(true);
   });
 });

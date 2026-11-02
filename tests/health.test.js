@@ -29,23 +29,31 @@ describe('health days', () => {
     const asked = [];
     const c = async (step, { params }) => (asked.push({ step, ...params }), { days: [{ date: '2026-10-13', azm: 30 }] });
     await syncHealth(db, { c, now: new Date('2026-10-14T08:00:00') });
-    // 90 days go in three windows of 30 days, oldest first
+    // 90 days go in three windows of 30 days, newest first
     expect(asked).toEqual([
-      { step: 'days', from: '2026-07-17', to: '2026-08-15' },
-      { step: 'days', from: '2026-08-16', to: '2026-09-14' },
       { step: 'days', from: '2026-09-15', to: '2026-10-14' },
+      { step: 'days', from: '2026-08-16', to: '2026-09-14' },
+      { step: 'days', from: '2026-07-17', to: '2026-08-15' },
     ]);
     expect((await db.settings.get(HEALTH_KEY)).value.until).toBe('2026-10-13');
   });
 
-  it('a window that fails keeps the ones before it and the fetch is not marked done', async () => {
+  it('when the newest window fails, the fetch fails', async () => {
+    const db = fresh();
+    const c = async () => {
+      throw new HealthError('timeout');
+    };
+    await expect(syncHealth(db, { c, now: new Date('2026-10-14T08:00:00') })).rejects.toMatchObject({ code: 'timeout' });
+  });
+
+  it('an older window that fails keeps the newer one, ends quietly and is not marked done', async () => {
     const db = fresh();
     let n = 0;
     const c = async (_s, { params }) => {
       if (++n === 2) throw new HealthError('timeout');
       return { days: [{ date: params.from, azm: 5 }] };
     };
-    await expect(syncHealth(db, { c, now: new Date('2026-10-14T08:00:00') })).rejects.toMatchObject({ code: 'timeout' });
+    await syncHealth(db, { c, now: new Date('2026-10-14T08:00:00') });
     expect(await db.healthDays.count()).toBe(1);
     expect((await db.settings.get(HEALTH_KEY))?.value?.fill).toBeUndefined();
   });
