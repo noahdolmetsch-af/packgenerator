@@ -136,6 +136,12 @@
     margin: 0 0 8px;
     color: var(--ink-2);
   }
+  /* A phone held sideways has no room above the trip band: the folded line waits until the phone is upright again. */
+  @media (orientation: landscape) and (max-height: 500px) {
+    .si-line {
+      display: none;
+    }
+  }
   .si-body {
     padding: 4px 0 2px;
     font-size: var(--fs-small);

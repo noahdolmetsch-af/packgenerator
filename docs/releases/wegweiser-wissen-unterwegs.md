@@ -11,6 +11,7 @@ PR #… · 02.11.2026 · Auftrag: Noah «1-5a» (Inhalte auf der Seite) und Plan
 
 ## Selbst entschieden
 - Auf Unterwegs startet die Karte zugeklappt (`FOLDED_FIRST` in `seiteninhalt.js`), ein Tipp öffnet sie; die Wahl wird wie × gemerkt. Empfehlung an Noah per Entscheidkarte.
+- Quer gehaltenes Handy (niedriger Bildschirm): die zugeklappte Zeile ist dort ausgeblendet, damit das Tour-Band wie bisher gleich unter der oberen Leiste steht (Test `landscape.spec`). Hochkant ist sie da.
 - Nicht auf der Live-Karte (Vollbild, eigener Thread) und nicht auf Heute.
 - Nicht auf dem Werkzeugkasten (`#/me/tools`): die Werkzeuge gehören zu mehreren Bereichen; Sätze im Ausland, Zeitzonen und Lupe zeigen ihr «Gut zu wissen» schon auf der Werkzeug-Seite. So steht kein Tipp doppelt.
 - Nicht auf Renn-Seiten mit Platzhalter (`#/race/:race/ride`), weil die Karte nur feste Seiten kennt.
