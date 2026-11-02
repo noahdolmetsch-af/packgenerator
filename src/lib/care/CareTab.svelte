@@ -7,6 +7,7 @@
   import PageMore from '../pageinfo/PageMore.svelte';
   import TipLine from '../pageinfo/TipLine.svelte';
   import { localDay } from '../localday.js';
+import { ringScore } from './overview.js';
   import Empty from '../ui/Empty.svelte';
   import { liveQuery } from 'dexie';
   import { db } from '../db.js';
@@ -390,6 +391,7 @@
   // V6: the overview page; V7: one bike's care page (the other bikes stay one row each below).
   const openC = $derived(openId ? checks.find((c) => c.bike.id === openId) ?? null : null);
   // v0.137.0 (DK1): the same count as Today and the menu: services, worn parts and the problems due (readiness.repairDue).
+  const allNoData = $derived(checks.length > 0 && checks.every((c) => ringScore(c.bike, c.time, today).score == null));
   const dueAll = $derived(checks.reduce((n, c) => n + c.care.rows.length, 0));
   const toggled = (id, isOpen) => {
     if (isOpen) openBike(id);
@@ -428,7 +430,7 @@
   {:else}
     <VeloHead
       title={t('Care|tab')}
-      sub={[tn(bikes.length, '{n} bike', '{n} bikes'), dueAll ? tn(dueAll, '{n} due', '{n} due') : t('nothing due')].join(' · ')}
+      sub={[tn(bikes.length, '{n} bike', '{n} bikes'), dueAll ? tn(dueAll, '{n} due', '{n} due') : allNoData ? t('no maintenance data yet') : t('nothing due')].join(' · ')}
     />
     <!-- v0.137.0 (DK1, Noah 14.10.2026 «1-5 freigeben»): what «due» means, the same number everywhere. -->
     {#if bikes.length}<p class="why-due">{t('Due means: a service is due, or a problem has to be fixed before the next ride. Today, Bikes and the menu show the same number.')}</p>{/if}

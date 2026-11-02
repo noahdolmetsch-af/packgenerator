@@ -28,6 +28,12 @@ export const PASST_HIER = {
   rig: ['f.gears', 'f.level'],
   // Rückblick einer Tour (saved): looking back further than the packing list
   debrief: ['f.knowhow', 'f.gooddecisions', 'f.meaning', 'f.skillmap'],
+  // Ich › Erkenntnisse: what belongs to an insight, the days that do not fit, a test with an end (PR 7)
+  insights: ['f.counterdays', 'f.specialdays', 'f.experiment'],
+  // Ich › Wi gaht's?: what an answer meant, a talk prepared from your own values (PR 7)
+  abfragen: ['f.scalemeaning', 'f.bodytalk'],
+  // Aktiv › Meine Sportarten: the tennis page, a ride with two roles, rewards without buying (PR 7)
+  sports: ['f.tennistop', 'f.tworoles', 'f.freerewards'],
 };
 
 /** The functions of a place that exist and are not marked «Not for me». */

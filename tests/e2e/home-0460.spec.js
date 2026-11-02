@@ -53,12 +53,10 @@ test('sections, greeting with the weather, the trip card, the 16 functions as sm
 
   // v0.94.0 «Kachel-Wand» (Noah 3a, mockup A): the functions are small tiles on the ready wall;
   // «Heute neu» A (0.165.0, Noah «4a», changed on purpose): 8 chosen shortcuts, the others back through «+»
-  const buttons = page.locator('.wall [data-fn]');
-  const fns = READY.filter((x) => x.id.startsWith('fn:'));
-  await expect(buttons).toHaveCount(fns.length);
-  await expect(buttons.first()).toHaveAttribute('data-fn', fns[0].id.slice(3));
-  // a number only where something waits: the open notes
-  await expect(page.locator('.wall [data-fn="note"] .bd')).toHaveText('2');
+  // «Schnell öffnen» (Noah 01.11.2026 «5a», changed on purpose): the 8 small tiles are one tile with the pins (tests/e2e/schnell-oeffnen.spec.js)
+  await expect(page.locator('.wall [data-fn]')).toHaveCount(0);
+  expect(READY.some((x) => x.id === 'pins')).toBe(true);
+  await expect(page.locator('.wall [data-pins-tile] [data-pin]').first()).toBeVisible();
 
   // Noah 2b: greeting and trip card without scrolling
   // «Neuer Schwung» (Noah 26.10.2026, changed on purpose): Heute no longer asks for the name (it is set in Ich › Darstellung)
@@ -127,7 +125,8 @@ test('lubed right on Today, with Undo; a function tile opens its page', async ({
 
   // v0.94.0 «Kachel-Wand»: every function is its own tile; the wall keeps the order the user set
   // «Heute neu» A (0.165.0): «Note» is one of the 8 shortcuts
-  await page.locator('.wall [data-fn="note"]').click();
+  // «Schnell öffnen» (Noah 01.11.2026 «5a»): a pin opens its page
+  await page.locator('.wall [data-pins-tile] [data-pin="f.heatmap"]').click();
   await expect(page).not.toHaveURL(/#\/?$/);
 });
 
@@ -262,7 +261,7 @@ test('the evening: review of the day and charging first; a phone swipes to the n
 test('customise the start page: the picked tile\'s name readable, not squeezed into a 10 px column', async ({ page, context }, info) => {
   const T = await openHome(page, context, info);
   await page.getByRole('button', { name: T('Customise the start page') }).click();
-  for (const id of ['important', 'fn:note', 'bikes']) {
+  for (const id of ['important', 'pins', 'bikes']) {
     const tile = page.locator(`.wall [data-tile="${id}"]`);
     await tile.locator('.pick').click();
     const name = page.locator(`[data-tools="${id}"] .tn`);

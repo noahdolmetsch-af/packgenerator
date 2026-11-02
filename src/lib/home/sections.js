@@ -60,6 +60,7 @@ export const SECTION_OF = {
   bikes: 'away',
   yearago: 'away',
   year: 'away',
+  pins: 'quick', // «Schnell öffnen»: the tile with your pins
   news: 'discover',
   tipweek: 'discover',
 };

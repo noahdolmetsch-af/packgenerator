@@ -65,6 +65,8 @@ export const TILES = [
   { id: 'meditation', area: 'flow', label: 'Meditation', icon: 'lotus', sizes: ['s', 'w', 'long'], size: 's', since: '0.94.0', pitch: 'Start a meditation like last time, in one tap.' },
   { id: 'play', area: 'app', label: 'Playground', icon: 'flask', sizes: ['s', 'w'], size: 's', since: '0.88.0', pitch: 'Try everything with made-up data; afterwards all is as before.' },
   ...FUNCTIONS.map((f) => ({ id: `fn:${f.id}`, fn: f.id, area: FN_AREA[f.id] ?? 'app', label: f.label, icon: f.icon, sizes: ['s', 'w'], size: 's', pitch: f.pitch })),
+  // «Schnell öffnen» (Noah 01.11.2026 «1a 2a 3b 4a 5a»): your Quick Links pins as one tile, changeable right on Heute
+  { id: 'pins', area: 'app', label: 'Open quickly', icon: 'zap', sizes: ['long'], size: 'long', pitch: 'Your own shortcuts to the functions of the app, changeable right here.' },
   { id: 'milestones', area: 'flow', label: 'Milestones', icon: 'star', sizes: ['s', 'w'], size: 's', pitch: 'All milestones of all areas on one page.' },
   { id: 'tipweek', area: 'app', label: 'Tip of the week', icon: 'bulb', sizes: ['w', 'l', 'long'], size: 'long', pitch: 'One thing the app can do, a new one every week, with one button.' },
   { id: 'bikes', area: 'bikes', label: 'Bikes|place', icon: 'bike', sizes: ['l', 'long'], size: 'long', pitch: 'Your bikes with their km and what is due.' },
@@ -143,14 +145,7 @@ export const READY = [
   ['trip', 'l'],
   ['important', 'l'],
   ['bikes', 'long'],
-  ['fn:trip', 's'],
-  ['fn:note', 's'],
-  ['fn:km', 's'],
-  ['fn:care', 's'],
-  ['fn:gear', 's'],
-  ['fn:wear', 's'],
-  ['fn:templates', 's'],
-  ['fn:favorites', 's'],
+  ['pins', 'long'], // «Schnell öffnen» (Noah 01.11.2026): your pins replace the 8 small tiles (they stay in the catalog)
 ].map(([id, size]) => ({ id, size }));
 /** The ready wall of «Heute neu» A «Ein Blick» (0.165.0–0.166.x, v 9), kept for the record and its tests. */
 export const READY_A = [
@@ -251,7 +246,9 @@ export function wallOf(value, legacy = null) {
     // PR 5 (Noah 28.10.2026): a wall of before (v < 16) gets the card «Discover» once, under the moment card
     const di = (value.v ?? 1) < 16 ? withDiscover(mo) : mo;
     // «Heute-Check» (Noah 30.10.2026 «1-5a»): a wall of before (v < 17) gets the tile once
-    return (value.v ?? 1) < 17 ? withHeuteCheck(di) : di;
+    const hc = (value.v ?? 1) < 17 ? withHeuteCheck(di) : di;
+    // «Schnell öffnen» (Noah 01.11.2026 «5a»): a wall of before (v < 18) swaps the 8 small tiles for the tile with your pins once
+    return (value.v ?? 1) < 18 ? withPins(hc) : hc;
   }
   const off = new Set((Array.isArray(legacy?.off) ? legacy.off : []).flatMap((k) => FROM_SECTION[k] ?? []));
   return READY.filter((x) => !off.has(x.id)).map((x) => ({ ...x }));
@@ -467,8 +464,20 @@ export function withHeuteCheck(tiles = []) {
   out.splice(a >= 0 ? a + 1 : out.length, 0, { id: 'heutecheck', size: TILE.heutecheck.size });
   return out;
 }
-/** The record to store (v 17: the Heute-Check tile came once; v 16: the card «Discover» came once; v 15: the moment card came once; v 14: the VO2max tile came once; v 13: «Heute ruhiger», the double tiles went once; v 12: P6 «Heute ergänzen» came once; v 11: «Körperwerte» came once; v 10: «Heute neu» N2; v 9: «Heute neu» A; v 5: the order of 0.155.0 HN4; v 6: «Deine 15 Fragen» is back; v 7: the routine came once; v 8: «Your values today» (P) and the tip of the week (Q) came once). */
-export const wallRecord = (tiles) => ({ v: 17, tiles: tiles.map((x) => ({ id: x.id, size: sizeFor(x.id, x.size) })) });
+
+/** The 8 small tiles that «Open quickly» used to show (the ready wall of before v 18). */
+export const OLD_QUICK = ['fn:trip', 'fn:note', 'fn:km', 'fn:care', 'fn:gear', 'fn:wear', 'fn:templates', 'fn:favorites'];
+/** «Schnell öffnen» (Noah 01.11.2026 «5a»): the 8 small tiles go, the tile with your pins stands where the first one stood. They stay in the catalog. */
+export function withPins(tiles = []) {
+  if (tiles.some((x) => x.id === 'pins')) return tiles;
+  const at = tiles.findIndex((x) => OLD_QUICK.includes(x.id));
+  if (at < 0) return tiles; // the person made the wall their own without them: nothing to swap
+  const out = tiles.filter((x) => !OLD_QUICK.includes(x.id));
+  out.splice(at, 0, { id: 'pins', size: TILE.pins.size });
+  return out;
+}
+/** The record to store (v 18: the 8 small tiles became the tile with your pins once; v 17: the Heute-Check tile came once; v 16: the card «Discover» came once; v 15: the moment card came once; v 14: the VO2max tile came once; v 13: «Heute ruhiger», the double tiles went once; v 12: P6 «Heute ergänzen» came once; v 11: «Körperwerte» came once; v 10: «Heute neu» N2; v 9: «Heute neu» A; v 5: the order of 0.155.0 HN4; v 6: «Deine 15 Fragen» is back; v 7: the routine came once; v 8: «Your values today» (P) and the tip of the week (Q) came once). */
+export const wallRecord = (tiles) => ({ v: 18, tiles: tiles.map((x) => ({ id: x.id, size: sizeFor(x.id, x.size) })) });
 
 /** Move tile `id` to place `to` (0 … n − 1). */
 export function moveTile(tiles, id, to) {
