@@ -2,7 +2,7 @@
 export default {
   title: 'Smoother scrolling',
   lead: 'Scrolling is lighter: the small pins wait until the page stands still.',
-  points: [{ text: 'The pins on cards appear a moment after you stop scrolling', go: { href: '#/', where: 'Scroll any page; the pins show up when you stop.' } }],
+  points: [{ text: 'The pins on cards appear a moment after you stop scrolling', go: null }],
   small: [],
   test: ['Scroll Today up and down with a finger.', 'Stop: the small pins appear on the cards after a moment.'],
   since: [],
@@ -10,7 +10,6 @@ export default {
     'Smoother scrolling': 'Ruhigeres Scrollen',
     'Scrolling is lighter: the small pins wait until the page stands still.': 'Scrollen ist leichter: Die kleinen Pins warten, bis die Seite still steht.',
     'The pins on cards appear a moment after you stop scrolling': 'Die Pins auf den Karten erscheinen einen Moment, nachdem du aufhörst zu scrollen',
-    'Scroll any page; the pins show up when you stop.': 'Scrolle eine beliebige Seite; die Pins zeigen sich, wenn du aufhörst.',
     'Scroll Today up and down with a finger.': 'Scrolle Heute mit dem Finger auf und ab.',
     'Stop: the small pins appear on the cards after a moment.': 'Halte an: Die kleinen Pins erscheinen nach einem Moment auf den Karten.',
   },
