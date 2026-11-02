@@ -94,6 +94,7 @@
   import { raceOf, schedule, lineKm, climbsOf, hhmm, dayOfMs } from '../lib/race/race.js';
   import { POI_CACHE, POI_KIND, WX_CACHE } from '../lib/race/outside.js';
   import { mergePois } from '../lib/race/more.js';
+  import { lastShopBeforeNight } from '../lib/live/lastshop.js';
   import { withSampleFine } from '../lib/race/sample.js';
   import { paceFromRides, loadedBy, assumptionsOf, compareWays, simPlan } from '../lib/race/strategy.js';
   import { ownQuery, ownOnMap } from '../lib/map/ownpoints.js';
@@ -351,6 +352,9 @@
   // Noah 24.10.2026 «5a»: with a route, the stops along it or around you (a switch)
   let stopsMode = $state('route');
   const alongMode = $derived(hasRoute && stopsMode === 'route');
+  // «Letzter offener Laden vor der Nacht» (Noah 02.11.2026): only along a route, from the loaded stops
+  const lastShop = $derived(hasRoute && km != null ? lastShopBeforeNight({ pois, km, now, pace, profile, light }) : null);
+  const shopsLoaded = $derived(pois.some((p) => p.kind === 'shop' || p.kind === 'fuel'));
   const stops = $derived(me ? stopsAhead({ pois: alongMode ? pois : around, pts: alongMode ? pts : [], here: me, km, kinds: KINDS, n: 5, now, pace, profile }) : []);
   const climb = $derived(km != null ? nextClimb(climbs, km) : null);
   // Abbiege-Hinweise (turns.js): the turns of the route, once; the next one while you are on the route
@@ -1558,6 +1562,40 @@
               {#if hasRoute}
                 <div data-live-stops-mode><Seg options={[{ key: 'route', name: t('Along the route|poi') }, { key: 'around', name: t('Around me|poi') }]} value={stopsMode} onchange={(k) => ((stopsMode = k), k === 'around' && !around.length && getAround())} label={t('Where to look for stops')} full={false} small /></div>
               {/if}
+              {#if hasRoute && km != null}
+                <div class="lv-lastshop" data-live-lastshop={lastShop?.state ?? 'load'}>
+                  <h3 class="lv-h3"><Moon size={16} aria-hidden="true" />{t('Last open shop before the night')}</h3>
+                  {#if !shopsLoaded || !lastShop}
+                    <p class="rc-note">{t('Load the stops along the route to see the last open shop before the night.')}</p>
+                  {:else}
+                    {@const r = lastShop.state === 'ok' ? lastShop.last : lastShop.next}
+                    {#if lastShop.state === 'dark'}<p class="rc-note">{t('It is dark. The nearest shop ahead:')}</p>
+                    {:else if lastShop.state === 'none'}<p class="rc-warn lv-line">{t('No open shop is left before the night. The nearest ahead:')}</p>{/if}
+                    {#if r}
+                      {@const l = navLinks({ lat: Number(r.poi.lat), lon: Number(r.poi.lon) })}
+                      <div class="rc-row lv-srow" data-live-lastshop-row>
+                        <KindIcon kind={r.poi.kind} size={18} />
+                        <span class="rc-row-main">
+                          <b>{r.poi.name || kindName(r.poi.kind)}</b>
+                          <small>{t('{d} km', { d: fmtKm(r.distKm) })} · {t('there about {at}', { at: when(r.eta) })} · {r.open ? (r.closes ? t('Open until {at}', { at: r.closes }) : t('Open|hours')) : t('Opening hours unknown')}</small>
+                          {#if lastShop.state === 'ok'}
+                            <small data-live-lastshop-left>{r.minToClose != null && r.minToClose <= 120 ? t('Closes {n} after you get there.', { n: minText(r.minToClose) }) : t('{n} before sunset.', { n: minText(Math.max(0, r.minToNight)) })}{#if !lastShop.sure} {t('Not sure: no opening hours known.')}{/if}</small>
+                          {/if}
+                        </span>
+                        <details class="lv-nav">
+                          <summary class="btn sm"><Navigation size={16} aria-hidden="true" />{t('Navigate')}</summary>
+                          <div class="lv-nav-menu">
+                            <a class="btn sm" href={l.google} target="_blank" rel="noopener noreferrer">{t('Google Maps')}</a>
+                            <a class="btn sm" href={l.osmand} target="_blank" rel="noopener noreferrer">{t('OsmAnd')}</a>
+                          </div>
+                        </details>
+                      </div>
+                    {:else}
+                      <p class="rc-empty">{t('No shop found ahead on the route.')}</p>
+                    {/if}
+                  {/if}
+                </div>
+              {/if}
               {#if stops.length}
                 <ul class="rc-list">
                   {#each stops as s (s.id)}
@@ -2544,6 +2582,20 @@
   .lv-h3 {
     margin: 0;
     font-size: var(--fs-body);
+  }
+  .lv-lastshop {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 12px;
+    padding: 10px 12px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+  }
+  .lv-lastshop .lv-h3 {
+    display: flex;
+    align-items: center;
+    gap: 6px;
   }
   .lvf-order {
     display: flex;
