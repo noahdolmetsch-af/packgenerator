@@ -71,14 +71,13 @@ test('Aktiv › Ziele: arrows next to the handle', async ({ page, context }) => 
   await expect(rows.first()).toBeVisible();
   const before = await ids(rows);
   expect(before.length).toBeGreaterThan(1);
-  // Impeccable runde 2: on a phone grip and arrows come after «Reihenfolge ändern» (a computer shows them always)
-  const order = page.locator('main').getByRole('button', { name: T('Change the order') });
-  if (page.viewportSize().width < 720) {
-    await expect(rows.first().locator('[data-grip]')).toHaveCount(0);
-    await order.click();
-    await expect(page.locator('main').getByRole('button', { name: T('Done|order') })).toHaveAttribute('aria-expanded', 'true');
-  } else await expect(order).toHaveCount(0);
-  await expect(page.locator('main')).toContainText(T('Drag the grip or use the arrows to move.')); // «Aktiv neu»: a tap opens the sport's page
+  // Noah 02.11.2026 «1a»: the grip is always there (computer and phone); the arrows come with «Sort»
+  const order = page.locator('main').getByRole('button', { name: T('Sort|order') });
+  await expect(rows.first().locator('[data-sort-grip]')).toBeVisible();
+  await expect(rows.first().locator('.sort-arrows')).toHaveCount(0);
+  await order.click();
+  await expect(page.locator('main').getByRole('button', { name: T('Done|order') })).toHaveAttribute('aria-expanded', 'true');
+  await expect(page.locator('main')).toContainText(T('Drag the grip or use the arrows to move.'));
   const first = rows.first();
   await expect(first.getByRole('button', { name: new RegExp(`${T('Move {name} up', { name: '' }).trim()}$`) })).toBeDisabled();
   await first.getByRole('button', { name: new RegExp(`${T('Move {name} down', { name: '' }).trim()}$`) }).click();
