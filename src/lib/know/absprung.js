@@ -52,8 +52,6 @@ export function withoutJump(features, sources, linked = new Set()) {
 
 /** Functions without a jump yet (shrink only), by moment and the package that gives them one. */
 export const NO_JUMP = [
-  // PR 5 Packen, Planen, Teilen
-  'f.weightsure', 'f.sharepreview', 'f.skicheck', 'f.mapmeasure', 'f.sleeporigin',
   // PR 6 Träume
   'f.freinacht', 'f.ownbingo', 'f.freiwesentlich', 'f.freireise', 'f.freilust',
   // PR 7 Körper

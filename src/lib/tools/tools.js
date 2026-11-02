@@ -21,7 +21,7 @@ export const TOOLS = [
   { key: 'convert', icon: 'images', title: 'Picture format', sub: 'HEIC, WebP, PNG → JPG' },
   { key: 'video', icon: 'film', title: 'Make video smaller', sub: 'For messages and e-mail' },
   { key: 'qr', icon: 'qr', title: 'Make a QR code', sub: 'Text, link or WLAN as a code' },
-  { key: 'map', icon: 'route', title: 'Measure a route', sub: 'Tap on the map, see the length, save as GPX' },
+  { key: 'map', icon: 'route', title: 'Measure a route', sub: 'Tap on the map, see the length, save as GPX', know: 'A point at every bend is enough for a good length; a point on every switchback is enough for a good mood. Save the line as GPX and add it to a trip under Pack › Route.' },
   { key: 'gears', icon: 'cog', title: 'Gear ratios', sub: 'Chainring and cassette: metres and speed', know: 'A smaller chainring helps more on a loaded bike than a bigger sprocket: compare both here before you buy. Under 2 metres per crank turn, steep gravel climbs stay rideable.' },
   { key: 'level', icon: 'level', title: 'Spirit level', sub: 'How crooked, in degrees and percent', know: 'Lay the phone flat on the saddle, bike on level ground. Measure before and after you change something, then write it in the setup log.' },
   { key: 'barcode', icon: 'scan', title: 'Bar code → gear', sub: 'Scan a product, find or add it in your gear' },
