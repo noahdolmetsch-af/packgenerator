@@ -23,7 +23,7 @@
   import { watchTourBike } from './lib/tourbike.svelte.js';
   import { watchVeloImGriff } from './lib/veloimgriff.svelte.js';
   import { watchInspect } from './lib/inspect/live.svelte.js';
-  import { wide } from './lib/media.svelte.js';
+  import { wide, narrow } from './lib/media.svelte.js';
   import { Plus, MessageCircle } from '@lucide/svelte';
   import { startPushSync } from './lib/push/client.js';
   import { linkFrom } from './lib/notebook.js';
@@ -40,7 +40,8 @@
   import ErscheintWenn from './lib/ui/ErscheintWenn.svelte'; // «Wegweiser» PR 23: «Appears when …»
   import PageFoot from './lib/anpassen/PageFoot.svelte'; // «Anpassen» (Noah 20.10.2026 «1a»)
   import { pageKeyOf } from './lib/anpassen.js';
-  import { placeLabel, tabLabel } from './lib/anpassen.svelte.js';
+  import { anp, placeLabel, tabLabel } from './lib/anpassen.svelte.js';
+  import PlaceIcon from './lib/nav/PlaceIcon.svelte';
   import Keys from './lib/nav/Keys.svelte';
   import { shortcutOf, typing, G_WAIT } from './lib/nav/keys.js';
   import { sortBikes } from './lib/bikes.js';
@@ -50,7 +51,7 @@
   import { OWN_KEY } from './lib/ownvalues.js';
   import { useOwn } from './lib/ownlive.svelte.js';
   import { checkPart } from './lib/flowcheck.js';
-  import { pageOf, placeOf, redirectOf, tabOf, keepTab, ALL_PLACES, PLACE_TABS } from './lib/nav.js';
+  import { pageOf, placeOf, redirectOf, tabOf, keepTab, ALL_PLACES, PLACE_TABS, QUICK_PLACE, quickShown } from './lib/nav.js';
   import PlaceTabs from './lib/nav/PlaceTabs.svelte';
   import PlaceSwitch from './lib/nav/PlaceSwitch.svelte';
   import Explorer from './lib/nav/Explorer.svelte';
@@ -478,6 +479,8 @@
       <a class="asst-ic" href="#/assistent" aria-label={t('Assistant')}><MessageCircle size={22} aria-hidden="true" /></a>
       {#if !mini}<HelpButton />{/if}<!-- «Alles finden 2» (Noah 22.10.2026 «3a»): the help of this page -->
       <Search compact />
+      <!-- Menü-Analyse Punkt 4 (Noah 2.11.2026): «Quick Links» left the bottom bar; its button stands next to the search (below 360 px it stays in the bar) -->
+      {#if !mini && !guest && !narrow.matches && (void anp.v, quickShown())}<a class="qk-ic" href="#/quick" data-quick-open aria-current={place === 'quick' ? 'page' : undefined} aria-label={placeLabel(QUICK_PLACE)}><PlaceIcon place="quick" size={22} /></a>{/if}
       {#if !guest}<button type="button" class="plus" aria-label={t('New')} aria-haspopup="dialog" aria-keyshortcuts="n" onclick={() => (newMode = 'all')}><Plus size={22} strokeWidth={2.4} aria-hidden="true" /></button>{/if}
       <MeButton inbox={$inboxQ ?? 0} current={place === 'me'} />
     </div>
@@ -947,6 +950,20 @@
   }
   .plus:hover {
     background: var(--hi-hover);
+  }
+  .qk-ic {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    color: var(--ink);
+  }
+  .qk-ic[aria-current='page'] {
+    background: var(--hi-soft);
+    color: var(--hi);
   }
   .asst-ic {
     display: inline-flex;

@@ -9,7 +9,8 @@
    * search; the chosen place is a soft pill behind the icon, the label in bold.
    * «Woche planen» (Noah 15.10.2026 «1a»): Heute, Woche, Touren, Velos, Aktiv; Material under Ich.
    */
-  import { menuBar, placeHref, barPlace } from '../nav.js';
+  import { menuBar, placeHref, barPlace, quickShown } from '../nav.js';
+  import { narrow } from '../media.svelte.js'; // below 360 px «Quick Links» stays in the bar (no room in the top bar)
   import { anp, placeLabel } from '../anpassen.svelte.js'; // «Anpassen» 2a + 3a: your menu, your names
   import { t } from '../i18n.svelte.js';
   import PlaceIcon from './PlaceIcon.svelte';
@@ -17,7 +18,7 @@
   let { place = null, hash = '#/', due = 0 } = $props();
   // AU1 «1b»: Velos and Ausrüstung share one slot; the switch on top of both pages changes between them
   const slot = $derived(barPlace(place));
-  const places = $derived((void anp.v, menuBar()));
+  const places = $derived((void anp.v, [...menuBar(), ...(narrow.matches && quickShown() ? [quickShown()] : [])]));
 </script>
 
 <nav class="bottom" aria-label={t('Sections')}>

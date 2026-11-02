@@ -29,3 +29,11 @@ colsQuery?.addEventListener('change', (e) => (cols.matches = e.matches));
 const cols12Query = typeof window !== 'undefined' ? window.matchMedia('(min-width: 1200px)') : null;
 export const cols12 = $state({ matches: cols12Query?.matches ?? false });
 cols12Query?.addEventListener('change', (e) => (cols12.matches = e.matches));
+
+/**
+ * Menü-Analyse Punkt 4 (Noah 2.11.2026): below 360 px the top bar has no room for a sixth round button, so
+ * «Quick Links» stays in the bottom bar there. `narrow.matches` is true on such a screen.
+ */
+const narrowQuery = typeof window !== 'undefined' ? window.matchMedia('(max-width: 359px)') : null;
+export const narrow = $state({ matches: narrowQuery?.matches ?? false });
+narrowQuery?.addEventListener('change', (e) => (narrow.matches = e.matches));

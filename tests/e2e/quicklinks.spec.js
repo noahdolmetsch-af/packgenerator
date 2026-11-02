@@ -15,8 +15,9 @@ test('Quick Links: place, suggestions, go there, add, edit, groups', async ({ pa
   const T = await openHome(page, context, info);
   const phone = info.project.name === 'phone';
 
-  // the place: in the bar (phone) or the sidebar (computer)
-  const nav = phone ? page.locator('nav.bottom') : page.locator('aside.side nav.places');
+  // the place: a button in the top bar (phone, Menü-Punkt 4, Noah 2.11.2026) or the sidebar (computer)
+  if (phone) await expect(page.locator('nav.bottom a[href="#/quick"]')).toHaveCount(0);
+  const nav = phone ? page.locator('header.top') : page.locator('aside.side nav.places');
   await nav.locator('a[href="#/quick"]').click();
   await expect(page).toHaveURL(/#\/quick$/);
   await expect(page.getByRole('heading', { level: 1, name: T('Quick Links|place') })).toBeVisible();

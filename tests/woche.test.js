@@ -109,7 +109,7 @@ describe('the place «Woche» (Noah 1a)', () => {
   it('is a place next to Heute; the phone bar keeps five, without Material', () => {
     // N1 «Neue Leiste» (Noah 20.10.2026 «2a»): Heute · Planen · Touren · Auswerten · Velos; Material shares the slot of Velos
     expect(PLACES.map((p) => p.key)).toEqual(['today', 'week', 'trips', 'active', 'bikes', 'gear', 'quick']); // «Quick Links» (Noah 28.10.2026 «3a»): a sixth place
-    expect(BAR_PLACES.map((p) => p.key)).toEqual(['today', 'week', 'trips', 'active', 'bikes', 'quick']);
+    expect(BAR_PLACES.map((p) => p.key)).toEqual(['today', 'week', 'trips', 'active', 'bikes']); // Menü-Punkt 4 (Noah 2.11.2026): Quick Links is a button in the top bar, five places again
     expect(pageOf('#/week')).toBe('week');
     expect(pageOf('#/week/plan')).toBe('week');
     expect(placeOf('week')).toBe('week');

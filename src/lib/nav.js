@@ -354,7 +354,15 @@ export const barPlace = (place) => (SHARES_BIKES.includes(place) ? 'bikes' : pla
  * The places in the bottom bar of a phone: five (Noah 15.10.2026 «1a»: «Woche» takes the place of «Material»
  * there; Material stays in the sidebar, under Ich › Material and with g m). Ausrüstung shares the slot of Velos.
  */
-export const BAR_PLACES = PLACES.filter((p) => p.key !== 'gear');
+export const BAR_PLACES = PLACES.filter((p) => p.key !== 'gear' && p.key !== 'quick');
+/**
+ * Menü-Analyse Punkt 4 (Noah 2.11.2026 «1 → 2 → 4»): «Quick Links» left the bottom bar (five places again, bigger tap
+ * areas) and is a round button in the top bar next to the search. Same address (#/quick), same place key, so
+ * your pins, «Anpassen» (hide, name, order) and the sidebar stay as they were.
+ */
+export const QUICK_PLACE = PLACES.find((p) => p.key === 'quick');
+/** The place «Quick Links» as the menu shows it (your hiding counts), or null when you hid it. */
+export const quickShown = () => menuPlaces(readCfg(), [QUICK_PLACE])[0] ?? null;
 
 /** Gesamttest 20.10.2026 B3: Touren › Fahrten, the Strava activities (the page Trips.svelte shows them on their own). */
 export const RIDES_HREF = '#/trips/rides';
