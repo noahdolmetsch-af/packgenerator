@@ -20,6 +20,7 @@ export const FINDER = [
   /^lib\/handbook\.js$/, /^lib\/tips\.js$/, /^lib\/moment\.js$/, /^lib\/appmap/, /^lib\/home\/discover\.js$/,
   /^lib\/home\/functions\.js$/, /^lib\/home\/fnlist\.js$/, /^lib\/home\/quick\.js$/, /^lib\/quick/i,
   /^lib\/nav\/(menu|tabinfo|spotinfo|Search|Explorer)/, /^pages\/(Features|Quick|AppMap|Handbook|WasNeu)\.svelte$/,
+  /^lib\/seiteninhalt\.js$/, // the pages that show «What you can do here», not a jump
 ];
 
 /** The page path of a function to check, or null (action, start page, placeholder). */
