@@ -6,7 +6,7 @@
    * (rule 13). The list can be searched and put in the own order (arrows and drag, rule 12).
    */
   import AreaIntro from '../lib/intro/AreaIntro.svelte'; // «Anleitungen überall»: the guide of this page (lib/guides.js)
-  import { Calculator, Ruler, Clock, Compass, Languages, FileText, Image, Paperclip, Coins, Wallet, ChevronRight, Workflow, Images, Film, QrCode, Route, Cog, Crosshair, ScanBarcode, Flashlight, Sparkles, ArrowUpDown, ScanEye, PersonStanding, Package, PenLine } from '@lucide/svelte';
+  import { Calculator, Ruler, Clock, Compass, Languages, FileText, Image, Paperclip, Coins, Wallet, ChevronRight, Workflow, Images, Film, QrCode, Route, Cog, Crosshair, ScanBarcode, Flashlight, Sparkles, ArrowUpDown, ScanEye, PersonStanding, Package, PenLine, Lightbulb } from '@lucide/svelte';
   import VeloHead from '../lib/bikes/VeloHead.svelte';
   import SortArrows from '../lib/ui/SortArrows.svelte';
   import SortGrip from '../lib/ui/SortGrip.svelte';
@@ -72,6 +72,8 @@
   {#if cur}
     {@const View = VIEWS[cur.key]}
     <VeloHead crumbs={[{ label: t('Trips|place'), href: '#/trips' }, { label: t('Toolbox'), href: TOOLS_HASH }]} title={t(cur.title)} sub={t(cur.sub)} />
+    <!-- «Wegweiser statt Katalog» (Noah 01.11.2026 «1-5a»): what is good to know, on the page itself -->
+    {#if cur.know}<p class="card tools-know" data-tool-know={cur.key}><Lightbulb size={16} aria-hidden="true" /><span><b>{t('Good to know')}</b> {t(cur.know)}</span></p>{/if}
     <div class="tools-view" data-tool={cur.key}><View /></div>
   {:else}
     <VeloHead crumbs={[{ label: t('Trips|place'), href: '#/trips' }]} title={t('Toolbox')} sub={t('Small helpers for every day and on the way, all on this device')} />
@@ -130,6 +132,23 @@
 </div>
 
 <style>
+  .tools-know {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    margin: 0 0 12px;
+    padding: 10px 14px;
+    font-size: var(--fs-small);
+    color: var(--ink-2);
+  }
+  .tools-know :global(svg) {
+    flex: none;
+    margin-top: 2px;
+    color: var(--hi);
+  }
+  .tools-know b {
+    color: var(--ink);
+  }
   .tools-view {
     display: grid;
     gap: var(--sp-4);

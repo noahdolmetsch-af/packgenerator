@@ -57,7 +57,7 @@ async function startRace(page, context, info, asked) {
   // the router: a short made-up way from the first to the last point it was asked for
   await context.route(/brouter\.de\/brouter/, (route) => {
     const url = route.request().url();
-    asked.push(url);
+    if (url.includes('alternativeidx=0')) asked.push(url); // «Wege zur Auswahl» also asks for the other ways
     const ll = decodeURIComponent(new URL(url).searchParams.get('lonlats') ?? '')
       .split('|')
       .map((s) => s.split(',').map(Number));
@@ -200,7 +200,7 @@ test('Live: a goal tapped on the map is only the way there, the way back is aske
   // the router answers with an L: 600 m north, then a right turn east to the goal (Navigation 2: the turn shows)
   await context.route(/brouter\.de\/brouter/, (route) => {
     const url = route.request().url();
-    asked.push(url);
+    if (url.includes('alternativeidx=0')) asked.push(url); // «Wege zur Auswahl» also asks for the other ways
     const ll = decodeURIComponent(new URL(url).searchParams.get('lonlats') ?? '').split('|').map((x) => x.split(',').map(Number));
     const [a, b] = [ll[0], ll.at(-1)];
     const corner = [a[0], b[1]];
