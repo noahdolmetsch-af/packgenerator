@@ -14,6 +14,8 @@ PR #… · 02.11.2026 · Auftrag: Noah «1-5a» (Inhalte auf der Seite) und Plan
 - Gesundheit nur als Beobachtung: keine Diagnose, kein Rat, keine Versprechen (z. B. «Schlaf und Puls schwanken. Schau auf die Woche, nicht auf eine Nacht.»).
 - Die Ruhiger-Seiten mit Körper-Funktionen (Versuche, Zahlen, Herkunft) gehen mit dem Bereich Alltag; Ich (`#/me`) und Verbindungen bleiben ohne Karte, weil dort Funktionen aus vielen Bereichen wohnen.
 
+- Training und Auswerten starten als eine Zeile (ein Tipp öffnet die Karte): sonst rutschen «Wochenrückblick» und «Haken ausgewertet» aus den 2,5 Bildschirmen (heimat.spec).
+
 ## Entscheide (für decisions.md)
 - keine neuen
 

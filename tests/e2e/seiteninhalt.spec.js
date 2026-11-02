@@ -152,6 +152,8 @@ test('Aktiv and Training show good to know in the card', async ({ page, context 
   await openHome(page, context, info);
   for (const hash of ['#/flow', '#/flow/training']) {
     await page.goto('./' + hash);
+    // Training starts as one line (heimat.spec); a tap opens it
+    if (hash === '#/flow/training') await (info.project.name === 'phone' ? page.locator('[data-seiteninhalt-line]').tap() : page.locator('[data-seiteninhalt-line]').click());
     const card = page.locator('[data-seiteninhalt]');
     await expect(card).toContainText(T('What you can do here'));
     await expect(card.locator('[data-seiteninhalt-know]').first()).toContainText(T('Good to know'));
