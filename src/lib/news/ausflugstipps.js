@@ -2,8 +2,8 @@
 export default {
   title: 'Fits today: trip tips',
   lead: 'Dreams starts with three places you have never been that fit your free time.',
-  points: [{ text: 'Trips › Dreams: «Fits today» with three new places (pass, lake, village) in different directions, the weather and «Round through it»', href: '#/trips/dreams' }],
-  small: [{ box: 'new', text: 'The hours come from your Google calendar when it is connected, else 3 h; you can change them' }],
+  points: [{ text: 'Trips › Dreams: «Fits today» with three new places (pass, lake, village) in different directions, the weather and «Round through it»', href: '#/trips/dreams', go: 'f.triptips' }],
+  small: [{ box: 'new', text: 'The hours come from your Google calendar when it is connected, else 3 h; you can change them', go: 'f.triptips' }],
   test: [
     'Open Trips › Dreams: «Fits today: trip tips» is at the top.',
     'Choose 2 h and then 6 h: the places come closer or go further.',

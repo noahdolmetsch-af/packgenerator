@@ -90,7 +90,7 @@ export function loopOf(key) {
 const LISTED_MOMENTS = {
   // Lust und Ideen
   lust: [
-    'dayride', 'f.quickstart', 'f.inspiration', 'f.skiseason', 'f.dreams', 'f.dreamlink', 'f.dreamsdone', 'f.whitespots', 'f.nlgoals', 'f.nlround', 'f.races',
+    'dayride', 'f.quickstart', 'f.inspiration', 'f.skiseason', 'f.dreams', 'f.dreamlink', 'f.dreamsdone', 'f.triptips', 'f.whitespots', 'f.nlgoals', 'f.nlround', 'f.races',
     'f.ownbingo', 'f.impulse', 'f.compass', 'f.freeslot', 'f.freiwesentlich', 'f.freireise', 'f.freinacht', 'f.freilust', 'f.freisamml',
   ],
   // Tour planen

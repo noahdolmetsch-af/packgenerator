@@ -1,7 +1,7 @@
 // «Heute passt: Ausflugstipps» (Träume und Neuland N3, Noah 27.10.2026 «1-5 a»): at the top of Touren › Träume,
 // three places never visited that fit the free time (from a fictional calendar entry), with the (faked) weather;
 // the hours can be changed, «Round through it» asks the (faked) bike router. No real network.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { mkdirSync } from 'node:fs';
 import DE from '../../src/lib/i18n/de/index.js';
 import { ready } from './settle.js';
