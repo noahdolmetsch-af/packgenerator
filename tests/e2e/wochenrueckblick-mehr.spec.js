@@ -125,6 +125,20 @@ test('Wochenrückblick: Aktiv minutes count, observations live on Sunday, the nu
   await expect(page.locator('[data-wd-head]')).toContainText('79.6 kg');
   await page.locator('[data-wd-how] a', { hasText: T('Back to the week in review') }).click();
 
+  // older weeks: the five numbers of the 8 weeks before, a week opens, the course of the hours
+  const older = main.locator('[data-wr="older"]');
+  await expect(older.locator('[data-older]')).toHaveCount(8);
+  await expect(older.locator('[data-older="2026-10-19"]')).toContainText('3:45');
+  await older.locator('[data-older="2026-10-19"] [data-older-open]').click();
+  await expect(page).toHaveURL(/#\/flow\/review\?w=2026-10-19$/);
+  await page.goBack();
+  await expect(main.locator('[data-wr="older"]')).toBeVisible();
+  await older.locator('[data-older-course]').click();
+  await expect(page).toHaveURL(/#\/flow\/review\/tile\?k=hours&w=2026-10-26$/);
+  await expect(page.locator('[data-wd-week]')).toHaveCount(8);
+  await page.goBack();
+  await expect(main.locator('[data-wr="older"]')).toBeVisible();
+
   // the course behind a tile: eight weeks, every value written out, each week opens that week
   await body.locator('[data-tile-detail="restingHr"]').click();
   await expect(page).toHaveURL(/#\/flow\/review\/tile\?k=restingHr&w=2026-10-26$/);

@@ -1,7 +1,7 @@
 // «Wochenrückblick» W1–W6 (Noah 15.10.2026 «1-5 a»): the pure rules of lib/weekreview.js.
 // Fictional data only (test_data_gtp_); calendar days, never «now + n × 24 h».
 import { describe, it, expect } from 'vitest';
-import { defaultMonday, weekParam, weekHref, weekSums, weekFive, weekStrip, weekNotes, weekHighs, weekAhead, diffText, dayValues, trainStreak, baseShare, hasAnything, summaryText, SLEEP_Q, MOOD_Q, MAX_NOTES } from '../src/lib/weekreview.js';
+import { olderWeeks, defaultMonday, weekParam, weekHref, weekSums, weekFive, weekStrip, weekNotes, weekHighs, weekAhead, diffText, dayValues, trainStreak, baseShare, hasAnything, summaryText, SLEEP_Q, MOOD_Q, MAX_NOTES } from '../src/lib/weekreview.js';
 import { DEFAULT_BOUNDS, shiftDay } from '../src/lib/training.js';
 import { normAct } from '../src/lib/flow.js';
 
@@ -187,5 +187,22 @@ describe('W6 the text for Claude', () => {
   it('hasAnything: an activity, an Aktiv entry or an answer', () => {
     expect(hasAnything({ acts: [], log: [], answers: [], checks: [] }, MON)).toBe(false);
     expect(hasAnything({ acts: [], log: [entry('yoga', '2026-10-14')] }, MON)).toBe(true);
+  });
+});
+
+describe('older weeks (Noah 02.11.2026 «3a»)', () => {
+  it('lists the 8 weeks before the shown one, newest first, each whole, empty ones marked', () => {
+    const MON = '2026-10-26';
+    const acts = [
+      { id: 'a', day: '2026-10-20', movingS: 3600, km: 20, hm: 100 },
+      { id: 'b', day: '2026-10-21', movingS: 1800, km: 10, hm: 50 },
+      { id: 'c', day: '2026-10-05', movingS: 600, km: 5, hm: 0 },
+    ];
+    const rows = olderWeeks({ acts }, MON, '2026-11-01');
+    expect(rows).toHaveLength(8);
+    expect(rows[0]).toMatchObject({ monday: '2026-10-19', secs: 5400, km: 30, hm: 150, n: 2, empty: false });
+    expect(rows[1]).toMatchObject({ monday: '2026-10-12', empty: true });
+    expect(rows[2]).toMatchObject({ monday: '2026-10-05', n: 1, empty: false });
+    expect(rows[7].monday).toBe('2026-08-31');
   });
 });
