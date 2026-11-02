@@ -12,7 +12,7 @@
    */
   import { liveQuery } from 'dexie';
   import AreaIntro from '../lib/intro/AreaIntro.svelte'; // «Anleitungen überall»: the guide of this page (lib/guides.js)
-  import { Plus, Repeat2, Bell, ChevronDown, ChevronRight, Settings2, Cake, Sprout, Droplet, Gift, ListChecks, Pin } from '@lucide/svelte';
+  import { Plus, Repeat2, Bell, ChevronDown, ChevronRight, Settings2, Cake, Sprout, Droplet, Gift, ListChecks, Pin, Users } from '@lucide/svelte';
   import { db } from '../lib/db.js';
   import { t, tn, locale } from '../lib/i18n.svelte.js';
   import { localDay } from '../lib/localday.js';
@@ -136,7 +136,9 @@
   <AreaIntro place="merken" />
   <p class="set"><a href="#/me/reminders"><Settings2 size={16} aria-hidden="true" />{t('Reminders')}</a>
     <!-- «332 sichtbar»: Trello stands at the end of the page; one tap brings you there -->
-    <button type="button" class="tlk" onclick={toTrello} data-merken-trello><ListChecks size={16} aria-hidden="true" />{t('Trello')}</button></p>
+    <button type="button" class="tlk" onclick={toTrello} data-merken-trello><ListChecks size={16} aria-hidden="true" />{t('Trello')}</button>
+    <!-- Wegweiser 8 (Noah 01.11.2026): people you want to see again remind you here -->
+    <a href="#/me/alltag/menschen" data-merken-people><Users size={16} aria-hidden="true" />{t('Not seen for a while')}</a></p>
 
   <div class="card list">
     <button type="button" class="add" onclick={() => (sheet = {})}><Plus size={18} aria-hidden="true" />{t('Add a to-do')}</button>
@@ -207,7 +209,7 @@
       </ul>
     {/if}
 
-    <h2 class="gh app">{t('From the app, smaller')}</h2>
+    <h2 class="gh app">{t('Ideas from the app, for when you have time')}</h2>
     {#if fromApp.length}
       <ul>
         {#each fromApp as r (r.key)}

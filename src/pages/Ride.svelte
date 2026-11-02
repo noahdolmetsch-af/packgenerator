@@ -1,4 +1,5 @@
 <script>
+  import PasstHier from '../lib/ui/PasstHier.svelte'; // «Wegweiser statt Katalog» PR 2
   import SpeakButton from '../lib/ui/SpeakButton.svelte'; // «Diktat» (Noah 19.10.2026 «5a»)
   import InputBar from '../lib/eingabe/InputBar.svelte'; // «Eingaben überall» (Noah 26.10.2026): voice note, photo, place, templates
   import InputsView from '../lib/eingabe/InputsView.svelte';
@@ -602,7 +603,7 @@
 <div class="ride trip-page">
   <TripBand {trip} tab="ride" {kicker} compact action={main.kind ? go : noteMain ? noteBtn : null} aside={main.kind ? pen : noteMain ? dayAside : null} extra={endLink} stateMore={running ? dayOf : ''} stepText={noteMain ? dayOf : ''} hint={main.kind === 'start' && openRide ? t('A recording of this trip is running since {time}. The blocks and the arrival count from then.', { time: nowStart }) : main.kind === 'start' ? t('Tap when you set off: the blocks and the arrival then count from now.') : main.kind === 'last' ? t('End the trip when you are back home.') : noteMain ? nextLine : ''} />
   <!-- «Unterwegs sichtbar» (332 Use Cases, Noah 24.10.2026 «2b»): parts far down the page as jump chips right under the band -->
-  <QuickLinks label={t('On this page')} links={[{ key: 'eat', jump: '#eat-h', label: t('Eat reminder') }, { key: 'here', jump: '#spur-h', label: t('I am here') }, { key: 'water', jump: '[data-fold="water"]', label: t('Water and food') }, { key: 'sky', jump: '[data-fold="sky"]', label: t('Sun, moon and places') }, { key: 'convert', jump: '[data-fold="convert"]', label: t('Route for other devices') }, { key: 'now', jump: '#now-h', label: t('The Now card on the way') }, { key: 'record', jump: '.btn.rec', label: t('Record the route') }, { key: 'komoot', jump: '[data-komoot-row]', label: t('komoot tour on On the way') }, { key: 'night', jump: '[data-uw-night]', label: t('Good night') }, { key: 'parked', jump: '[data-uw-parked]', label: t('Bike parked') }, { key: 'later', jump: '[data-note-later]', label: t('Check later') }]} />
+  <QuickLinks label={t('On this page')} links={[{ key: 'eat', jump: '#eat-h', label: t('Eat reminder') }, { key: 'here', jump: '#spur-h', label: t('I am here') }, { key: 'water', jump: '[data-fold="water"]', label: t('Water and food') }, { key: 'sky', jump: '[data-fold="sky"]', label: t('Sun, moon and places') }, { key: 'convert', jump: '[data-fold="convert"]', label: t('Route for other devices') }, { key: 'now', jump: '#now-h', label: t('The overview on the way') }, { key: 'record', jump: '.btn.rec', label: t('Record the route') }, { key: 'komoot', jump: '[data-komoot-row]', label: t('komoot tour on On the way') }, { key: 'night', jump: '[data-uw-night]', label: t('Good night') }, { key: 'parked', jump: '[data-uw-parked]', label: t('Bike parked') }, { key: 'later', jump: '[data-note-later]', label: t('Check later') }]} />
   {#if ahead}
     <!-- v0.67.0 (U002, Ü4a): before the start On the way is a calm waiting state, not a loop back to Pack. -->
     {@const n = daysFrom(today, trip.startDate)}
@@ -717,6 +718,7 @@
           <a class="btn uw-bigbtn" href="#/ride/abfahrt" data-uw-sheet><FileText size={22} aria-hidden="true" /><span>{t('Before you leave|sheet')}<small>{t('offline and as PDF')}</small></span></a>
           <div class="uw-glove"><span class="gl"><Hand size={18} aria-hidden="true" /> {t('Glove mode')}{#if glove.mode === 'auto' && glove.auto.on}<small> · {glove.auto.why === 'ski' ? t('on: ski tour') : t('on: below 5 °C')}</small>{/if}</span><Seg full={false} label={t('Glove mode')} options={GLOVE_MODES.map((g) => ({ key: g.key, name: t(g.name) }))} value={glove.mode} onchange={setGlove} /></div>
         </div>
+        <PasstHier place="ride" />
       </section>
       <!-- Answer 3a: the weather hour by hour, start and finish. Answer 5a: saved for offline. -->
       <section class="wxs" aria-labelledby="wx-h">

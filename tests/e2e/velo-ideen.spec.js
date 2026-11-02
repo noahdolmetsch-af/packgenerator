@@ -74,8 +74,8 @@ test('72 km jump: rides outside the app, a smaller number is a typo first', asyn
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
   await page.goto('./#/');
-  await page.locator('.wall [data-fn="km"]').click();
-  const km = page.getByRole('dialog', { name: T('km for a bike') });
+  await page.locator('.wall [data-pins-tile] [data-pin="km"]').click();
+  const km = page.getByRole('dialog', { name: T('Log km') });
   const pick = km.locator('select').first();
   if (await pick.count()) await pick.selectOption(BIKE.id);
   await km.getByLabel(T('km on the counter')).fill('2800');
@@ -93,7 +93,7 @@ test('72 km jump: rides outside the app, a smaller number is a typo first', asyn
 
   // fewer km: «Tippfehler» is chosen first, nothing is saved, the km window stays open to type again
   await expect(km).toBeHidden();
-  await page.locator('.wall [data-fn="km"]').click();
+  await page.locator('.wall [data-pins-tile] [data-pin="km"]').click();
   if (await pick.count()) await pick.selectOption(BIKE.id);
   await km.getByLabel(T('km on the counter')).fill('280');
   await km.getByRole('button', { name: T('Save km') }).click();

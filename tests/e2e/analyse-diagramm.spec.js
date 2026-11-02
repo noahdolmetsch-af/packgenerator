@@ -23,7 +23,7 @@ function rows() {
     const date = addDays(TODAY, -i);
     const azm = (k) => Math.round(20 + 50 * rnd(k, 1));
     const sleep = Math.round(380 + 40 * rnd(i, 2) + (i % 4 === 0 ? 25 : 0) + 0.4 * azm(i + 1));
-    healthDays.push({ date, azm: azm(i), restingHr: 48 + Math.round(4 * rnd(i, 3)) + (i >= 26 && i <= 31 ? 3 : 0), hrvMs: 45 + Math.round(15 * rnd(i, 4)), steps: 5000 + Math.round(6000 * rnd(i, 5)), sleep: { asleepMin: sleep, deepMin: 70, remMin: 85, lightMin: 220, awakeMin: 20, start: '23:20', end: '06:50', efficiency: 88 + Math.round(6 * rnd(i, 6)) }, spo2: 95 + Math.round(2 * rnd(i, 7)), breath: 14, kcal: 2100 + Math.round(500 * rnd(i, 8)), kcalActive: 550, hrMax: 135 + Math.round(30 * rnd(i, 9)), src: 'google', at: `${date}T08:00:00Z` });
+    healthDays.push({ date, azm: azm(i), restingHr: 48 + Math.round(4 * rnd(i, 3)) + (i >= 26 && i <= 31 ? 3 : 0), hrvMs: 45 + Math.round(15 * rnd(i, 4)), steps: 5000 + Math.round(6000 * rnd(i, 5)), sleep: { asleepMin: sleep, deepMin: 70, remMin: 85, lightMin: 220, awakeMin: 20, start: '23:20', end: '06:50', efficiency: 88 + Math.round(6 * rnd(i, 6)) }, spo2: 95 + Math.round(2 * rnd(i, 7)), breath: 14, kcal: 2100 + Math.round(500 * rnd(i, 8)), kcalActive: 550, hrMax: 135 + Math.round(30 * rnd(i, 9)), src: 'google', at: `${date}T08:00:00Z`, ...(i < 3 ? { hrH: Array.from({ length: 24 }, (_, h) => (h < 7 ? 50 : 62 + (h % 5) * 3)), stepH: Array.from({ length: 24 }, (_, h) => (h < 7 ? 0 : 200 + (h % 4) * 400)) } : {}) });
   }
   const act = (id, day, km) => ({
     id: `${P}${id}`, day, time: '17:10', start: `${day}T15:10:00Z`, name: `${P}${id}`, type: 'Ride', kind: 'bike', km, hm: 300, movingS: 4800, elapsedS: 5100, gearId: null,
@@ -43,7 +43,14 @@ function rows() {
   const flowChecks = [];
   for (let i = 0; i < 90; i++) flowChecks.push({ day: addDays(TODAY, -i), sleep: 5 + Math.round(4 * rnd(i, 10)), energy: 4 + Math.round(5 * rnd(i, 11)), mood: 5 + Math.round(4 * rnd(i, 12)) });
   const trips = [{ id: `${P}trip`, name: 'Probefahrt Jura', domain: 'bike', status: 'done', startDate: addDays(TODAY, -30), days: 4 }];
-  return { healthDays, activities, flowLog, flowChecks, trips };
+  // two fictional bikes with a km book and a chain that is soon worn
+  const bikes = [
+    { id: `${P}bk1`, name: 'Testvelo Gravel', km: 5200, parts: [{ key: 'chain', model: '', history: [{ action: 'replace', date: addDays(TODAY, -200), km: 2700 }] }, { key: 'tyres', model: '', history: [{ action: 'replace', date: addDays(TODAY, -100), km: 4200 }] }] },
+    { id: `${P}bk2`, name: 'Testvelo Stadt', km: 900, parts: [] },
+  ];
+  const kmBook = [];
+  for (let i = 1; i < 84; i += 2) kmBook.push({ id: `${P}kb${i}`, bikeId: i % 6 === 1 ? `${P}bk2` : `${P}bk1`, date: addDays(TODAY, -i), km: 20 + (i % 5) * 7, kind: 'ride', state: 'counted', at: `${addDays(TODAY, -i)}T18:00:00Z` });
+  return { healthDays, activities, flowLog, flowChecks, trips, bikes, kmBook };
 }
 
 async function open(page, context) {
@@ -115,7 +122,12 @@ test('Eigenes Diagramm: add with search up to 6, remove, reorder, on top of each
   // remove one, reorder with the arrows
   await dg.locator('[data-dg-value="azm"] .x').click();
   await expect(dg.locator('[data-dg-row]')).toHaveCount(5);
-  const dot = () => dg.locator('[data-dg-value="rhr"] .dot').evaluate((el) => getComputedStyle(el).backgroundColor);
+  // read the colour with the pointer away (a hovered chip is darker) and once nothing moves any more
+  const dot = async () => {
+    await page.mouse.move(0, 0);
+    await dg.evaluate((el) => Promise.all(el.getAnimations({ subtree: true }).map((a) => a.finished.catch(() => {}))));
+    return dg.locator('[data-dg-value="rhr"] .dot').evaluate((el) => getComputedStyle(el).backgroundColor);
+  };
   const before = await dot();
   await dg.locator('[data-dg-sort]').click();
   await dg.locator('[data-dg-order] li').first().locator('.sort-ar').nth(1).click();
@@ -223,5 +235,185 @@ test('Eigenes Diagramm: two trips starting the same day (or before the window) d
   await go(page, '#/auswerten/analyse');
   await expect(page.locator('[data-diagram]')).toBeVisible();
   await expect(page.locator('[data-diagram] [data-dg-row="rhr"] rect.band')).toHaveCount(2);
+  expect(errors).toEqual([]);
+});
+
+test('Überblick (M2): the numbers of the period, every day a field, ranking, ticks per week', async ({ page, context }, info) => {
+  const errors = await open(page, context);
+  await go(page, '#/auswerten/analyse');
+  await page.getByRole('button', { name: T('{n} days|analyse').replace('{n}', '90') }).click();
+  const ov = page.locator('[data-overview]');
+  for (const k of ['ticks', 'km:bike', 'sleep', 'azm', 'rhr', 'run']) await expect(ov.locator(`[data-ov-box="${k}"]`), k).toBeVisible();
+  await expect(ov.locator('[data-ov-box="ticks"]')).toContainText(T('ticks in {n} days|overview').replace('{n}', '90'));
+  const heat = page.locator('[data-heat]');
+  await expect(heat.locator('button.cell')).toHaveCount(90);
+  await expect(heat.locator('button.cell.l4').first()).toBeVisible();
+  const rank = page.locator('[data-ranking] li');
+  await expect(rank.first()).toHaveAttribute('data-rank', /meditation/);
+  expect(await page.locator('[data-weekly] rect.wb').count()).toBeGreaterThanOrEqual(13);
+  await expect(page.locator('[data-weekly] path.m4')).toBeVisible();
+  await heat.scrollIntoViewIfNeeded();
+  await shot(page, 'ueberblick', info);
+  // a field opens its day
+  await heat.locator(`button.cell[data-day="${TODAY}"]`).click();
+  await expect(page.locator('[data-day-sheet]')).toHaveAttribute('data-day-sheet', TODAY);
+  await page.keyboard.press('Escape');
+  // without Aktiv: no calendar and no ranking
+  await page.locator('[data-src="aktiv"]').click();
+  await expect(page.locator('[data-heat]')).toHaveCount(0);
+  await expect(ov.locator('[data-ov-box="ticks"]')).toHaveCount(0);
+  expect(errors).toEqual([]);
+});
+
+test('Vergleichen (M3): period against period, activity against activity, before and after a trip', async ({ page, context }, info) => {
+  const errors = await open(page, context);
+  await go(page, '#/auswerten/analyse');
+  const per = page.locator('[data-compare-period]');
+  await expect(per.locator('[data-cmp-value]').first()).toHaveAttribute('data-cmp-value', 'km:bike');
+  await expect(per.locator('[data-cmp-now]')).toBeVisible();
+  await expect(per.locator('[data-cmp-prev]')).toBeVisible();
+  await expect(per.locator('[data-cmp-say]')).toBeVisible();
+  // sleep: the mean so far against the month before
+  await per.locator('[data-cmp-value="sleep"]').click();
+  await expect(per.locator('[data-cmp-value="sleep"]')).toHaveAttribute('aria-pressed', 'true');
+  await per.getByRole('button', { name: T('Week|compare') }).click();
+  await expect(per.locator('[data-cmp-now]')).toBeVisible();
+  // activity against activity: the two most ticked first, one more added, one removed
+  const aa = page.locator('[data-compare-acts]');
+  await expect(aa.locator('[data-cmp-act]')).toHaveCount(2);
+  await expect(aa.locator('[data-cmp-act]').first()).toHaveAttribute('data-cmp-act', /meditation/);
+  await aa.locator('[data-cmp-add]').selectOption({ index: 1 });
+  await expect(aa.locator('[data-cmp-act]')).toHaveCount(3);
+  await expect(aa.locator('path[data-cmp-line]')).toHaveCount(3);
+  await aa.locator('[data-cmp-act]').nth(2).getByRole('button').click();
+  await expect(aa.locator('[data-cmp-act]')).toHaveCount(2);
+  // before and after the trip
+  const tr = page.locator('[data-compare-trip]');
+  await expect(tr.locator('[data-cmp-trip]')).toHaveValue(`${P}trip`);
+  await expect(tr.locator('[data-cmp-row="sleep"]')).toBeVisible();
+  await expect(tr.locator('[data-cmp-row="rhr"] td').nth(2)).not.toHaveText('');
+  await per.scrollIntoViewIfNeeded();
+  await shot(page, 'vergleiche', info);
+  // the choice stays
+  await go(page, '#/auswerten/analyse');
+  await expect(page.locator('[data-compare-period] [data-cmp-value="sleep"]')).toHaveAttribute('aria-pressed', 'true');
+  expect(errors).toEqual([]);
+});
+
+test('Muster und Rekorde (M4): week pattern, year against year, records, runs and gaps', async ({ page, context }, info) => {
+  const errors = await open(page, context);
+  await go(page, '#/auswerten/analyse');
+  const wp = page.locator('[data-week-pattern]');
+  await expect(wp.locator('[data-pat-cell]')).toHaveCount(28);
+  await expect(wp.locator('[data-pat-say]')).toContainText(T('Evening|patterns'));
+  await wp.locator('[data-pat-act]').selectOption({ label: 'Sauna' });
+  await expect(wp.locator('[data-pat-say]')).toBeVisible();
+  const yy = page.locator('[data-year-year]');
+  await expect(yy.locator('[data-yy-value]')).toHaveValue('km:bike');
+  await expect(yy.locator('rect[data-yy-now]')).toHaveCount(12);
+  await yy.getByRole('button', { name: T('Seasons|patterns') }).click();
+  await expect(yy.locator('rect[data-yy-now]')).toHaveCount(4);
+  const rec = page.locator('[data-records]');
+  for (const k of ['run', 'bikeMonth', 'rhr', 'steps', 'sleep']) await expect(rec.locator(`[data-record="${k}"]`), k).toBeVisible();
+  await expect(rec.locator('[data-record^="week:"]').first()).toBeVisible();
+  const runs = page.locator('[data-runs] [data-run]');
+  expect(await runs.count()).toBeGreaterThanOrEqual(5);
+  await expect(page.locator(`[data-runs] [data-run="meditation"] td`).first()).toHaveText('1');
+  await wp.scrollIntoViewIfNeeded();
+  await shot(page, 'muster', info);
+  // the choice stays
+  await go(page, '#/auswerten/analyse');
+  await expect(page.locator('[data-year-year] rect[data-yy-now]')).toHaveCount(4);
+  expect(errors).toEqual([]);
+});
+
+test('Eigene Rechnungen: Schlafindex and Unruhe as labelled own calculations', async ({ page, context }) => {
+  const errors = await open(page, context);
+  await go(page, '#/auswerten/analyse');
+  const tile = page.locator('[data-value="sleepScore"]');
+  await expect(tile).toBeVisible();
+  await expect(tile).toContainText(T('own calculation|own'));
+  await expect(page.locator('[data-value="restless"]')).toContainText(T('own calculation|own'));
+  await tile.click();
+  await expect(page.locator('[data-detail="sleepScore"]')).toBeVisible();
+  await expect(page.locator('[data-detail="sleepScore"] > header')).toContainText(T('Own calculation, 0–100: duration (half, full at 8 h), deep and REM sleep (a quarter), calm (a quarter).|own'));
+  expect(errors).toEqual([]);
+});
+
+test('Ansichten: a starter brings its values, a new view keeps what you see, rename, move, delete with undo', async ({ page, context }, info) => {
+  const errors = await open(page, context);
+  await go(page, '#/auswerten/analyse');
+  const vw = page.locator('[data-views]');
+  const dg = page.locator('[data-diagram]');
+  await expect(vw.locator('[data-view="start-all"]')).toHaveAttribute('aria-pressed', 'true');
+  // the starter «Schlaf und Training» brings its values
+  await vw.locator('[data-view="start-sleep"]').click();
+  await expect(dg.locator('[data-dg-row="sleepScore"]')).toBeVisible();
+  await expect(vw.locator('[data-view="start-sleep"]')).toHaveAttribute('aria-pressed', 'true');
+  // a new view of what you see now, after a change
+  await page.getByRole('button', { name: T('{n} days|analyse').replace('{n}', '30') }).click();
+  await vw.locator('[data-view-add]').click();
+  await page.locator('[data-view-form] input').fill('Winterzeit');
+  await page.locator('[data-view-form] button[type=submit]').click();
+  const mine = vw.locator('[data-view]').last();
+  await expect(mine).toHaveText('Winterzeit');
+  await expect(mine).toHaveAttribute('aria-pressed', 'true');
+  await vw.locator('[data-view="start-all"]').click();
+  await expect(dg.locator('[data-dg-row="sleepScore"]')).toHaveCount(0);
+  await mine.click();
+  await expect(dg.locator('[data-dg-row="sleepScore"]')).toBeVisible();
+  // edit: rename, move up, delete with undo
+  await vw.locator('[data-view-edit]').click();
+  const list = page.locator('[data-view-list]');
+  await list.locator('[data-view-rename]').last().click();
+  await list.locator('[data-view-name]').fill('Ski');
+  await list.locator('[data-view-name]').press('Enter');
+  await expect(vw.locator('[data-view]').last()).toHaveText('Ski');
+  await list.locator('li').last().locator('.sort-ar').first().click();
+  await expect(vw.locator('[data-view]').nth(1)).toHaveText('Ski');
+  await shot(page, 'ansichten', info);
+  await list.locator('[data-view-del]').first().click();
+  await page.getByRole('button', { name: T('Delete') }).last().click();
+  await expect(vw.locator('[data-view]')).toHaveCount(2);
+  await page.getByRole('button', { name: T('Undo') }).click();
+  await expect(vw.locator('[data-view]')).toHaveCount(3);
+  // it stays
+  await go(page, '#/auswerten/analyse');
+  await expect(page.locator('[data-views] [data-view]').nth(1)).toHaveText('Ski');
+  expect(errors).toEqual([]);
+});
+
+test('Velos: km per bike and the most worn parts', async ({ page, context }, info) => {
+  const errors = await open(page, context);
+  await go(page, '#/auswerten/analyse');
+  const vk = page.locator('[data-bike-km]');
+  await expect(vk.locator('[data-bike-total]')).toHaveCount(2);
+  await expect(vk.locator('[data-bike-total]').first()).toHaveAttribute('data-bike-total', `${P}bk1`);
+  await expect(vk.locator('path[data-bike-line]')).toHaveCount(2);
+  const wear = vk.locator(`[data-bike-wear="${P}bk1"]`);
+  await expect(wear.locator('[data-wear-part="chain"]')).toHaveClass(/soon/);
+  await expect(wear.locator('[data-wear-part="chain"]')).toContainText(T('{km} km left|bikesan').replace('{km}', '500'));
+  await vk.scrollIntoViewIfNeeded();
+  await shot(page, 'velokm', info);
+  await wear.locator('a').click();
+  await expect(page).toHaveURL(/tab=care/);
+  expect(errors).toEqual([]);
+});
+
+test('Tagesbild: a tapped day shows its 24 hours with sleep, steps, pulse, ride and ticks', async ({ page, context }, info) => {
+  const errors = await open(page, context);
+  await go(page, '#/auswerten/analyse');
+  const day = addDays(TODAY, -1);
+  await page.locator(`[data-heat] button.cell[data-day="${day}"]`).click();
+  const pic = page.locator('[data-day-sheet] [data-day-picture]');
+  await expect(pic).toBeVisible();
+  await expect(pic.locator('[data-pic-sleep]')).toHaveCount(1);
+  await expect(pic.locator('[data-pic-hr]')).toBeVisible();
+  expect(await pic.locator('[data-pic-steps]').count()).toBeGreaterThan(10);
+  await expect(pic.locator('[data-pic-ride]')).toHaveCount(1);
+  await expect(pic.locator('[data-pic-tick]').first()).toBeVisible();
+  await expect(pic).toContainText('Sauna');
+  await page.locator('[data-day-sheet]').evaluate((el) => Promise.all(el.getAnimations({ subtree: true }).map((a) => a.finished)));
+  if (process.env.ANALYSE_SHOTS) await page.screenshot({ path: `qa/analyse/tagesbild-${info.project.name}.png` });
   expect(errors).toEqual([]);
 });

@@ -1,4 +1,5 @@
 <script>
+  import PasstHier from '../lib/ui/PasstHier.svelte'; // Wegweiser 8: «Fits here»
   /**
    * «Woche planen» WP1 (mockup, Noah 15.10.2026 21:11 «1a 2a 3b 4a 5a»): #/week, the place «Woche».
    * Monday to Sunday with sport and the training plan, dates, to-dos, holidays and bike service, each
@@ -24,7 +25,7 @@
   import { localDay } from '../lib/localday.js';
   import { phone } from '../lib/media.svelte.js';
   import { PHONE_ROWS } from '../lib/touren/kurz.js';
-  import { t, tn } from '../lib/i18n.svelte.js';
+  import { t, tn, locale } from '../lib/i18n.svelte.js';
   import { offerDone } from '../lib/ui/rename.svelte.js';
 
   const today = localDay();
@@ -41,6 +42,8 @@
       .catch(() => (forecast = null));
   });
   const week = $derived(src ? buildWeek({ ...src, forecast, monday, today, goalHours: src.goal?.hours ?? null, actName: (id) => actName(actOf.get(id)) || id }) : null);
+  // «Planen als verbindende Mitte» 5a: «For 2.–8. Nov.» instead of a bare number range
+  const rangeLong = $derived(`${new Date(`${monday}T12:00:00Z`).getUTCDate()}.–${new Date(`${shiftDay(monday, 6)}T12:00:00Z`).toLocaleDateString(locale(), { timeZone: 'UTC', day: 'numeric', month: 'short' })}`);
   const range = $derived(`${shortDate(monday)}–${shortDate(shiftDay(monday, 6))}`);
   const due = $derived(src && src.planned !== planMonday(today));
 
@@ -78,7 +81,25 @@
 
   /* add a date or a to-do */
   let form = $state(null);
-  const startAdd = (kind) => (form = { kind, title: '', day: kind === 'date' ? (today >= monday ? today : monday) : '', time: '' });
+  const startAdd = (kind) => (form = { kind, title: '', day: kind === 'date' ? (today >= monday ? today : monday) : '', time: '', mins: '' });
+  // «Planen als verbindende Mitte» 3a (Noah 1.11.2026): «+ Einplanen» in every day opens the add form with that day
+  const planDay = (day) => {
+    form = { kind: 'todo', title: '', day, time: '', mins: '' };
+    queueMicrotask(() => document.getElementById('wk-add')?.scrollIntoView({ block: 'center' }));
+  };
+  // «Planen als verbindende Mitte» 5a (Noah 1.11.2026): close the week - open to-dos of past days: move, drop or keep without a day
+  let closeLater = $state(false);
+  const openOld = $derived(
+    next || closeLater ? [] : items().filter((x) => x.kind === 'todo' && !x.done && x.day && x.day < today && x.day >= shiftDay(today, -21)),
+  );
+  async function closeOne(x, how) {
+    const before = items();
+    const list = how === 'drop' ? before.filter((y) => y.id !== x.id) : before.map((y) => (y.id === x.id ? { ...y, day: how === 'move' ? today : null } : y));
+    await saveItems(list);
+    const msg = how === 'drop' ? t('«{name}» dropped.', { name: x.title }) : how === 'move' ? t('«{name}» moved to today.', { name: x.title }) : t('«{name}» kept without a day.', { name: x.title });
+    offerDone(msg, () => saveItems(before));
+  }
+  const emptyWeek = $derived(!!week && week.days.every((d) => !d.entries.length));
   async function add(ev) {
     ev.preventDefault();
     const it = cleanItem(form);
@@ -99,7 +120,7 @@
 </script>
 
 <div class="wkp">
-  <PageHead title={next ? t('Next week') : t('This week')} text={t('Week {n} · {range} · everything here is a suggestion and can be hidden', { n: isoWeek(monday), range })} />
+  <PageHead title={next ? t('Next week') : t('This week')} text={t('For {range} · week {n}. Your dates and planned tasks. You accept new suggestions yourself.', { n: isoWeek(monday), range: rangeLong })} />
   <AreaIntro place="weekplan" />
   <FreeSlotCard />
 
@@ -131,8 +152,26 @@
       </div>
     {/if}
 
+    {#if openOld.length}
+      <section class="wclose" data-week-close aria-label={t('Close the week')}>
+        <h2>{t('Close the week')}</h2>
+        <p class="why">{t('Still open from earlier days ({n}). You decide on each one.', { n: openOld.length })}</p>
+        {#each openOld as x (x.id)}
+          <div class="wc-row" data-close-row>
+            <span class="wc-t">{x.title}<small>{dayName(x.day)}</small></span>
+            <span class="wc-b">
+              <button type="button" class="btn" data-close-move onclick={() => closeOne(x, 'move')}>{t('Move to today')}</button><button type="button" class="btn" data-close-drop onclick={() => closeOne(x, 'drop')}>{t('Drop|week')}</button><button type="button" class="btn" data-close-keep onclick={() => closeOne(x, 'keep')}>{t('Keep without a day')}</button>
+            </span>
+          </div>
+        {/each}
+        <button type="button" class="btn" data-close-later onclick={() => (closeLater = true)}>{t('Later')}</button>
+      </section>
+    {/if}
+    {#if emptyWeek}
+      <p class="emptytop" data-week-empty><a class="btn hi" href="#/week/plan" data-plan-week-top><CalendarCheck size={18} aria-hidden="true" />{due ? t('Plan the week (10 min)') : t('Plan the week again')}</a><span class="why">{t('Nothing planned yet. Plan the week or add a day yourself.')}</span></p>
+    {/if}
     <div class="lay">
-      <section class="days" aria-label={t('The days of the week')}>
+      <section class="days" class:slim={emptyWeek} aria-label={t('The days of the week')}>
         {#each week.days as d (d.day)}
           {#if phone.matches}
             <details class="dr" class:today={d.today} open={d.today || undefined} data-day={d.day}>
@@ -145,6 +184,7 @@
               </summary>
               <div class="ens">
                 {#each d.entries as e (e.id)}<Entry {e} ondone={toggleDone} onremove={remove} />{:else}<p class="none">{t('Nothing planned')}</p>{/each}
+                {#if !d.past}<button type="button" class="dayadd" onclick={() => planDay(d.day)} data-day-add={d.day}><Plus size={16} aria-hidden="true" />{t('Add to plan')}</button>{/if}
               </div>
             </details>
           {:else}
@@ -152,6 +192,7 @@
               <h3><span>{dayName(d.day).split(' ')[0]}</span> <b class="num">{dayName(d.day).split(' ').slice(1).join(' ')}</b></h3>
               {#if d.wx || d.holiday}<p class="dm">{#if d.wx}{@render wxMark(d.wx)}{/if}{#if d.holiday}<span class="hol" data-holiday={d.holiday}>{holidayName(d.holiday)}</span>{/if}</p>{/if}
               {#each d.entries as e (e.id)}<Entry {e} ondone={toggleDone} onremove={remove} />{/each}
+              {#if !d.past}<button type="button" class="dayadd" onclick={() => planDay(d.day)} data-day-add={d.day}><Plus size={16} aria-hidden="true" />{t('Add to plan')}</button>{/if}
             </div>
           {/if}
         {/each}
@@ -196,6 +237,7 @@
                 {#if form.kind === 'date'}<label>{t('Time')}<input type="time" bind:value={form.time} /></label>{/if}
               </div>
               {#if form.kind === 'date'}<BufferPick bind:before={buf.before} bind:after={buf.after} />{/if}
+              {#if form.kind === 'todo'}<label>{t('Time needed (minutes, optional)')}<input type="number" min="5" max="480" step="5" bind:value={form.mins} placeholder="30" data-todo-mins /></label>{/if}
               {#if form.kind === 'todo'}<p class="why">{t('Without a day it waits under «Still to plan».')}</p>{/if}
               <div class="fb"><button type="submit" class="btn">{t('Save')}</button><button type="button" class="btn" onclick={() => (form = null)}>{t('Cancel')}</button></div>
             </form>
@@ -211,6 +253,8 @@
       </aside>
     </div>
   {/if}
+  <!-- Wegweiser 8: fewer things at once while planning the week, and the evening -->
+  <PasstHier place="woche" />
 </div>
 
 {#snippet wxMark(wx)}
@@ -372,6 +416,31 @@
     border-radius: var(--radius-card);
     background: var(--paper);
     box-shadow: var(--card-shadow);
+  }
+  .days.slim .dc {
+    min-height: 120px;
+  }
+  .dayadd {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    min-height: 44px;
+    margin-top: auto;
+    border: 1px dashed var(--line-strong);
+    border-radius: 8px;
+    background: transparent;
+    color: var(--ink-2);
+    font: inherit;
+    font-size: var(--fs-small);
+    cursor: pointer;
+  }
+  .emptytop {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px 40px;
+    margin: 0 0 12px;
   }
   .dc.today {
     outline: 2px solid var(--pc);
@@ -563,4 +632,9 @@
     text-align: left;
     cursor: pointer;
   }
+  .wclose{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:14px;margin:10px 0}
+  .wclose h2{font-size:var(--fs-sub);margin:0 0 4px}
+  .wc-row{display:flex;gap:8px;align-items:center;justify-content:space-between;flex-wrap:wrap;border:1px solid var(--line);border-radius:10px;padding:10px;margin:6px 0}
+  .wc-t{display:flex;flex-direction:column;font-weight:600}.wc-t small{font-weight:400;color:var(--muted)}
+  .wc-b{display:flex;gap:6px;flex-wrap:wrap}
 </style>

@@ -2,7 +2,8 @@
   import Home from './pages/Home.svelte';
   import LazyPage from './lib/nav/LazyPage.svelte';
   import GehoertDazu from './lib/know/GehoertDazu.svelte'; // «Heute als Begleiter» PR 7
-  import { PAGE_MOMENT } from './lib/know/gehoert.js';
+  import SeitenInhalt from './lib/ui/SeitenInhalt.svelte'; // «Wegweiser statt Katalog» PR 11
+  import { showsRow } from './lib/know/gehoert.js';
   import { warmUp } from './lib/nav/lazy.js';
   import SkiTurn from './lib/ski/SkiTurn.svelte';
   import { parseBetween } from './lib/phase.js';
@@ -36,6 +37,7 @@
   import PlaceBar from './lib/nav/PlaceBar.svelte';
   import MeButton from './lib/nav/MeButton.svelte';
   import HelpButton from './lib/nav/HelpButton.svelte';
+  import ErscheintWenn from './lib/ui/ErscheintWenn.svelte'; // «Wegweiser» PR 23: «Appears when …»
   import PageFoot from './lib/anpassen/PageFoot.svelte'; // «Anpassen» (Noah 20.10.2026 «1a»)
   import { pageKeyOf } from './lib/anpassen.js';
   import { placeLabel, tabLabel } from './lib/anpassen.svelte.js';
@@ -353,6 +355,7 @@
     PackCleanup: () => import('./pages/PackCleanup.svelte'), // «Packliste aufräumen» (Noah 21.10.2026 «5a»)
     Check: () => import('./pages/Check.svelte'),
     CheckQuestions: () => import('./pages/CheckQuestions.svelte'),
+    CheckHistory: () => import('./pages/CheckHistory.svelte'), // «Heute-Check» step 3: #/check/history
     CheckInsights: () => import('./pages/CheckInsights.svelte'), // «Heute-Check» step 2: #/check/insights
     Routine: () => import('./pages/Routine.svelte'),
     Woche: () => import('./pages/Woche.svelte'),
@@ -496,7 +499,9 @@
   <!-- ER1/ER2: «Soll ich dich erinnern?» on top of the next page, in the page (never over its buttons) -->
   {#if !guest && page !== 'home'}<RemindCard /><RuhigLine {hash} />{/if}
   <!-- «Heute als Begleiter» PR 7: «Belongs to …», the functions of the same moment, on top of the page -->
-  {#if !guest && !mini && PAGE_MOMENT[page]}<GehoertDazu {page} {hash} />{/if}
+  {#if !guest && !mini && showsRow(page, hash)}<GehoertDazu {page} {hash} />{/if}
+  <!-- «Wegweiser statt Katalog» PR 11: what you can do on this page, with what for and how it works (switched on page by page) -->
+  {#if !guest && !mini && page !== 'home'}<SeitenInhalt {hash} />{/if}
   <svelte:boundary onerror={onfail}>
   {#key `${switchN}-${listsReady.v}`}
   {#if page === 'gear'}
@@ -619,7 +624,7 @@
   {:else if page === 'check'}
     <!-- v0.127.0 «Tages-Check» 1 (back 18.10.2026, Noah «1 a und b»): #/check/morning (T1) and #/check/evening (T2), pages of Heute -->
     <!-- v0.127.0 «Tages-Check» 2: #/check/questions (T4), the 15 questions with a switch each -->
-    {#key hash}{#if checkPart(hash) === 'questions'}<LazyPage load={PAGES.CheckQuestions} />{:else if checkPart(hash) === 'insights'}<LazyPage load={PAGES.CheckInsights} />{:else}<LazyPage load={PAGES.Check} part={checkPart(hash)} />{/if}{/key}
+    {#key hash}{#if checkPart(hash) === 'questions'}<LazyPage load={PAGES.CheckQuestions} />{:else if checkPart(hash) === 'history'}<LazyPage load={PAGES.CheckHistory} />{:else if checkPart(hash) === 'insights'}<LazyPage load={PAGES.CheckInsights} />{:else}<LazyPage load={PAGES.Check} part={checkPart(hash)} />{/if}{/key}
   {:else if page === 'frei' || page === 'impulse'}
     <!-- Paket T «Freie Zeit»: Ich › Freie Zeit (#/me/frei/…) and Aktiv › Impulse (#/flow/impulse); the page picks its part -->
     <LazyPage load={PAGES.Frei} {hash} />
@@ -844,6 +849,7 @@
   </svelte:boundary>
   <!-- «Anpassen» (Noah 20.10.2026 «1a»): «Diese Seite anpassen» at the end of every page; not on Heute, where
        «Startseite anpassen» does it (Neuer Schwung, Noah 26.10.2026 «warum haben wir startseite anpassen und diese seite anpassen?») -->
+  {#if !guest && !mini && page !== 'home'}<ErscheintWenn {hash} />{/if}
   {#if !guest && !mini && page !== 'home'}<PageFoot page={pageKeyOf(page, place ? tabOf(place, hash) : null)} {place} fallback={anpTitle} />{/if}
 </main>
 

@@ -21,8 +21,19 @@
   import { t, num } from '../lib/i18n.svelte.js';
   import AnalyseWert from './analyse/AnalyseWert.svelte';
   import Diagramm from './analyse/Diagramm.svelte';
+  import Ueberblick from './analyse/Ueberblick.svelte';
+  import Vergleiche from './analyse/Vergleiche.svelte';
+  import Muster from './analyse/Muster.svelte';
+  import Ansichten from './analyse/Ansichten.svelte';
+  import VeloKm from './analyse/VeloKm.svelte';
+  import { liveQuery } from 'dexie';
+  import { fromStore } from 'svelte/store';
+  import { db } from '../lib/db.js';
+  import { VIEWS_KEY, cleanViews, applyDiagram } from '../lib/analyse/views.js';
+  import DaySheet from './analyse/DaySheet.svelte';
   import { itemsByKey } from '../lib/analyse/catalog.js';
   import { addDays } from '../lib/analyse.js';
+  import { tripEnd } from '../lib/tripstate.js';
 
   // #/auswerten/analyse/<key>: the page of one value (M6)
   const keyOf = (h) => {
@@ -35,6 +46,7 @@
     }
   };
   let hash = $state(location.hash);
+  let dayOpen = $state(null); // a day tapped in «Jeder Tag ein Feld»
   $effect(() => {
     const on = () => (hash = location.hash);
     addEventListener('hashchange', on);
@@ -62,6 +74,25 @@
       /* a private window: the choice is only for now */
     }
   });
+  // saved views (Ansichten): the diagram reports its state; a view starts the diagram anew with its own
+  const viewsQ = fromStore({
+    subscribe(run) {
+      const sub = liveQuery(() => db.settings.get(VIEWS_KEY)).subscribe({ next: run, error: () => {} });
+      return () => sub.unsubscribe();
+    },
+  });
+  const views = $derived(cleanViews(viewsQ.current?.value));
+  let dgState = $state({});
+  let dgStart = $state(null);
+  let dgRun = $state(0);
+  const nowShown = () => ({ diagram: dgState, tiles: { period, on, all } });
+  function applyView(v) {
+    dgStart = applyDiagram(dgState, v);
+    dgRun += 1;
+    if (v.tiles.period != null && PERIODS.includes(v.tiles.period)) period = v.tiles.period;
+    if (Array.isArray(v.tiles.on)) on = SOURCES.filter((s) => v.tiles.on.includes(s));
+    if (typeof v.tiles.all === 'boolean') all = v.tiles.all;
+  }
   const toggle = (s) => (on = on.includes(s) ? on.filter((x) => x !== s) : SOURCES.filter((x) => x === s || on.includes(x)));
 
   // a year back, so «Eigenes Diagramm» has its counted values (readiness, load) too
@@ -76,7 +107,8 @@
   const periodOpts = $derived(PERIODS.map((p) => ({ key: String(p), name: p === 365 ? t('Year|analyse') : t('{n} days|analyse', { n: p }) })));
 
   const valueText = (x) => fmtValue(x, x.value, num);
-  const howText = (x) =>
+  const howText = (x) => (x.own && !x.empty ? `${t('own calculation|own')} · ${baseHow(x)}` : baseHow(x));
+  const baseHow = (x) =>
     x.later === 'garmin'
       ? t('Garmin does not give this out')
       : x.later
@@ -101,7 +133,13 @@
     <PageHead title={t('Analyse|page')} sub={t('All your values from Fitbit, Strava, your body, «Wi gaht\'s?» and Aktiv. Tap a value to see its course. Only to look at, nothing is rated.')} />
   </header>
 
-  {#if !loading}<Diagramm {groups} {byKey} trips={data.trips} acts={data.acts} log={data.log} {today} />{/if}
+  {#if !loading}
+    <section class="card vw" aria-label={t('Views|views')}><Ansichten {views} now={nowShown} onapply={applyView} /></section>
+    {#key dgRun}<Diagramm {groups} {byKey} rowOf={(d) => data.table.get(d)} trips={data.trips} acts={data.acts} log={data.log} {today} start={dgStart} onstate={(st) => (dgState = st)} />{/key}
+  {/if}
+  {#if !loading}<Vergleiche {byKey} acts={data.acts} log={data.log} trips={data.trips} {today} />{/if}
+  {#if !loading}<Muster {days} {byKey} acts={data.acts} log={data.log} {today} />{/if}
+  {#if !loading}<VeloKm {days} {today} />{/if}
 
   <section class="card pick" aria-label={t('Choose what you see')}>
     <div class="pr">
@@ -121,6 +159,8 @@
       <button type="button" class="chip" class:on={all} aria-pressed={all} data-all onclick={() => (all = !all)} aria-labelledby="an-all">{t('Also values without data')}</button>
     </div>
   </section>
+
+  {#if !loading && on.length}<Ueberblick {days} {byKey} acts={data.acts} log={data.log} {on} onday={(d) => (dayOpen = d)} />{/if}
 
   {#if loading}
     <p class="hint" role="status">{t('Loading …')}</p>
@@ -163,6 +203,9 @@
     <p class="hint">{#if all}{t('Dashed tiles have no data in this period yet. New Fitbit values come with the next fetch:')} <a href="#/me/fitbit">{t('Fitbit')}</a>{:else}{ t('A value without any day in this period is left out; «Also values without data» shows every value. Values come from your Fitbit (Google), Strava and what you enter or tick in the app.')}{/if}</p>
   {/if}
 </div>
+{#if dayOpen}
+  <DaySheet day={dayOpen} {groups} {today} rowOf={(d) => data.table.get(d)} log={data.log} acts={data.acts} tripName={data.trips.find((tr) => tr.startDate && tr.startDate <= dayOpen && (tripEnd(tr) ?? tr.startDate) >= dayOpen)?.name ?? ''} onday={(d) => (dayOpen = d)} onclose={() => (dayOpen = null)} />
+{/if}
 {/if}
 
 <style>
@@ -176,6 +219,11 @@
     flex-wrap: wrap;
     gap: 12px 28px;
     align-items: flex-start;
+  }
+  .vw {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
   }
   .pr {
     display: flex;

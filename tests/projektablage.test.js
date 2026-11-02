@@ -83,6 +83,11 @@ describe('Projekt-Ablage: the list of plans', () => {
     expect(w.map((x) => `${x.kind}:${x.title}`)).toEqual(['done:Z', 'done:A', 'now:B', 'parked:Eingang', 'next:Projekt-Ablage']);
     expect(wayOf(rel, r.packages, '0.184.0').map((x) => x.kind)).toEqual(['done', 'done', 'done', 'now', 'next']);
   });
+  it('the way: a version without its own release (x.y.1) shows the newest older release as now', () => {
+    const rel = [{ version: '0.184.0', title: 'D' }, { version: '0.183.0', title: 'C' }, { version: '0.182.0', title: 'B' }];
+    expect(wayOf(rel, [], '0.184.1').map((x) => `${x.kind}:${x.title}`)).toEqual(['done:B', 'done:C', 'now:D']);
+    expect(wayOf([], [], '0.1.0')).toEqual([]);
+  });
   it('«Für dich jetzt»: parked packages first, then your points', () => {
     const own = [{ id: 'a', text: 'Fragen beantworten' }, { id: 'b', text: '  ' }];
     const f = forYou(r.packages, own, '0.182.0');

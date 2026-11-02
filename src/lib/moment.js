@@ -90,7 +90,7 @@ export function loopOf(key) {
 const LISTED_MOMENTS = {
   // Lust und Ideen
   lust: [
-    'dayride', 'f.quickstart', 'f.inspiration', 'f.skiseason', 'f.dreams', 'f.whitespots', 'f.nlgoals', 'f.races',
+    'dayride', 'f.quickstart', 'f.inspiration', 'f.skiseason', 'f.dreams', 'f.dreamlink', 'f.dreamsdone', 'f.whitespots', 'f.nlgoals', 'f.nlround', 'f.races',
     'f.ownbingo', 'f.impulse', 'f.compass', 'f.freeslot', 'f.freiwesentlich', 'f.freireise', 'f.freinacht', 'f.freilust', 'f.freisamml',
   ],
   // Tour planen
@@ -126,7 +126,7 @@ const LISTED_MOMENTS = {
     'debrief', 'learn', 'pace', 'trend', 'f.breakdown', 'f.daylisten', 'f.usedbook', 'f.sleepspots',
     'f.postcard', 'f.unneeded', 'f.missing', 'f.upload', 'f.past', 'f.logbook', 'f.learnings', 'f.best',
     'f.spurmap', 'f.spurlink', 'f.travelbook', 'f.tripcosts', 'f.tourpage', 'f.diary', 'f.extraq',
-    'f.notetodo', 'f.future', 'f.chronik', 'f.gelernt', 'f.jahr', 'f.neuland', 'f.heatmap', 'f.eveningtour',
+    'f.notetodo', 'f.future', 'f.chronik', 'f.gelernt', 'f.jahr', 'f.neuland', 'f.newkm', 'f.newtoday', 'f.heatmap', 'f.eveningtour',
     'f.homecoming', 'f.letters', 'f.letterreply', 'f.meaning', 'f.gooddecisions', 'f.knowhow', 'f.skillmap', 'f.freinaechstes', 'f.skiafter',
   ],
   // Velo und Material

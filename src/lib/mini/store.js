@@ -1,7 +1,7 @@
 /**
  * Mini-Tools: what this device keeps (db.settings, no new table, so the backup has it as it is).
  *
- *   'mini-tools'   [{ id, kind, title, note, opts, made, srv: { id, key, del, end, pub, priv } | null,
+ *   'mini-tools'   [{ id, kind, title, note, opts, invited: [name], made, srv: { id, key, del, end, pub, priv } | null,
  *                     answers: [{ a, name, picks, note, at }], me: { picks }, read, closed }]
  *                  (the questions I made; answers are a copy of the last read)
  *   'mini-joined'  { [server id]: { aid, del, name, picks, note, at } }  (my answers to other people's questions)
@@ -35,3 +35,7 @@ export async function saveJoined(db, sid, entry) {
 
 /** Is the question still open on the server? */
 export const running = (q, now = Date.now()) => !!q?.srv?.id && !q.closed && Date.parse(q.srv.end) > now;
+
+/** How many answers came in since the maker last read them (Noah 1.11.2026 «5b», without a server change):
+ *  the number the server reports (anyone with the link may ask it) against the copy kept on this device. */
+export const newAnswers = (q, serverN) => (Number.isFinite(serverN) ? Math.max(0, serverN - (q?.answers?.length ?? 0)) : 0);

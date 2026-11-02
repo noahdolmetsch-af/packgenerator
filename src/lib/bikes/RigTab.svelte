@@ -1,5 +1,6 @@
 <script>
   import CameraButton from '../ui/CameraButton.svelte'; // P3b Teil 3: the camera wherever a photo is added
+  import ExampleCard from './ExampleCard.svelte';
   /**
    * Velos › Setup (UC3-1, Noah 14.10.2026 «1-5a», «UC3-1-UC3-3 freigeben»): one page per bike.
    * Your setup photos first (only on this device), then the total weight and a small bag plan,
@@ -40,6 +41,7 @@
   import VeloHead from './VeloHead.svelte';
   import BikeChips from './BikeChips.svelte';
   import Fold from '../ui/Fold.svelte';
+  import PasstHier from '../ui/PasstHier.svelte';
 
   let { bikeId = null, view = null, setupId = null, a = null, b = null, onbike } = $props();
 
@@ -139,6 +141,7 @@
 {#if !bikes.length && $bikesQ}
   <h1 class="title">{t('My setup|tab')}</h1>
   <Empty icon={Bike} title={t('No bikes yet')} text={t('Add your bike, or bring your data along with a backup.')} action={{ label: t('Add bike'), href: '#/bikes', onclick: wantBike }}>{t('Or bring your data along from a backup:')} <a href="#/me/data">{t('Me › Data and backup')}</a>.</Empty>
+  <ExampleCard title={t('Example: Weekend')} rows={[[t('Bags'), '3'], [t('Total weight'), '11.4 kg'], [t('Last change'), t('New tyres, 12 Oct')]]} />
 {:else if bike && view === 'bags'}
   <RigPlan {bike} />
 {:else if bike && view === 'log'}
@@ -154,6 +157,7 @@
     title={t('My setup|tab')}
     sub={t('{bike} · photos, weight, bags, changes', { bike: bike.name })}
   />
+  <p class="purpose" data-purpose="setup">{t('My setup: how this bike is set up for your rides, with bags, weight and changes.')}</p>
   {#if bikes.length > 1}<BikeChips {bikes} current={bike.id} onpick={(id) => onbike?.(id)} />{/if}
   <HintCard page="rig" />
 
@@ -228,6 +232,7 @@
       <p class="hint">{t('No change written down yet. A new chainring, other tyres, another bag: write it down and see later how it felt.')}</p>
     {/each}
     <a class="more" href={bikesHash({ tab: 'rig', view: 'log', bike: bike.id })}>{t('Whole log')}<ChevronRight size={16} aria-hidden="true" /></a>
+    <PasstHier place="rig" />
   </section>
 
   <!-- Setup 3: «Your bike compared», «Your races» and «Ideas from others» in one fold at the end -->
@@ -327,6 +332,11 @@
 {/if}
 
 <style>
+  .purpose {
+    margin: 0 0 8px;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+  }
   .ifold {
     margin: 8px 0 0;
   }

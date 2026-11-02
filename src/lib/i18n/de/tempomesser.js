@@ -1,0 +1,21 @@
+// «Tempo-Messer» (Noah 02.11.2026 «a»): Schalter unter Ich › Daten, misst nur auf diesem Gerät
+export default {
+  'Speed meter': 'Tempo-Messer',
+  'Measure how fast the app feels': 'Messen, wie schnell sich die App anfühlt',
+  'Only on this device. Nothing is sent. Switch it on, use the app for a while (scroll Today), come back here.': 'Nur auf diesem Gerät. Nichts wird gesendet. Schalte ihn ein, benutze die App eine Weile (scrolle Heute) und komm dann hierher zurück.',
+  'Nothing measured yet. Scroll a page for a moment.': 'Noch nichts gemessen. Scrolle kurz eine Seite.',
+  'Copy the line': 'Zeile kopieren',
+  'Copied.': 'Kopiert.',
+  'Copying did not work. Select the line and copy it by hand.': 'Kopieren hat nicht geklappt. Markiere die Zeile und kopiere sie von Hand.',
+  Start: 'Start',
+  'Held up at start': 'Gebremst beim Start',
+  Scrolling: 'Scrollen',
+  frames: 'Bilder',
+  'over 50 ms': 'über 50 ms',
+  worst: 'schlimmstes',
+  'Most time': 'Meiste Zeit',
+  Pages: 'Seiten',
+  Data: 'Daten',
+  Device: 'Gerät',
+  cores: 'Kerne',
+};

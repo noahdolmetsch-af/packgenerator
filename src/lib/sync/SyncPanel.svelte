@@ -1,4 +1,14 @@
 <script>
+  // «Daten und Backup aufräumen» (Noah 01.11.2026 «1a»): the Google sign-in is hidden, the code and the QR couple the
+  // devices. A device that is already signed in still shows its account and «Sign out». The code stays for later.
+  // A hidden way back: localStorage pg.showGoogle = '1' shows it again (the tests of the Google code use it).
+  const SHOW_GOOGLE = (() => {
+    try {
+      return localStorage.getItem('pg.showGoogle') === '1';
+    } catch {
+      return false;
+    }
+  })();
   /**
    * P8 «Automatischer Abgleich» (Noah 18.10.2026 «1b … 2b 3b»): the switch under Ich › Daten und
    * Backup › Handy und Computer. Off: «Switch on» makes a pairing code; «I have a code» pairs with the
@@ -277,10 +287,12 @@
         <button type="button" class="btn hi" disabled={busy || !!$demoQ} onclick={switchOn}>{t('Switch on sync')}</button>
         <button type="button" class="btn" disabled={busy || !!$demoQ} onclick={() => (view = 'enter')}>{t('I have a code')}</button>
       </div>
+      {#if SHOW_GOOGLE}
       <p class="way" data-sync-way="google"><b>{t('Or with your Google account')}</b> {t('Google keeps the code for you: on the next device, simply sign in.')}</p>
       <div class="ich-acts">
         <button type="button" class="btn" disabled={busy || !!$demoQ} onclick={google} data-sync-google>{t('Sign in with Google')}</button>
       </div>
+      {/if}
       <p class="small">{t('Without sync everything stays on this device.')} <a href="#/me/privacy">{t('Privacy and terms')}</a></p>
       {#if $demoQ}<p class="small">{t('Off while the demo runs')}</p>{/if}
     {/if}
@@ -355,13 +367,14 @@
           <button type="button" class="btn sm" disabled={busy} onclick={() => leaveAccount(true)}>{t('Remove the Google sign-in')}</button>
         </div>
       {:else}
+        {#if SHOW_GOOGLE}
         <p class="small">{t('Sign in with Google too, then the next device needs no code.')} <button type="button" class="linkbtn" disabled={busy || !!$demoQ} onclick={google} data-sync-google>{t('Sign in with Google')}</button></p>
+        {/if}
       {/if}
     {/if}
   {/if}
   {#if pairing && !(sync.running && $cfgQ?.on && view !== 'link')}<p class="busyline" role="status" data-sync-busy>{t('Syncing …')}</p>{/if}
   {#if message}<p class="msg" role="status">{message}</p>{/if}
-  <h3 class="sh file">{t('Or with a backup file')}</h3>
 </div>
 
 <style>
@@ -390,11 +403,6 @@
     font: inherit;
     text-decoration: underline;
     cursor: pointer;
-  }
-  .sh.file {
-    margin-top: 18px;
-    padding-top: 14px;
-    border-top: 1px solid var(--line);
   }
   .state {
     display: flex;

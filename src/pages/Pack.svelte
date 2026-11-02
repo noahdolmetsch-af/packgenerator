@@ -60,6 +60,7 @@
   import ItemDialog from '../lib/gear/ItemDialog.svelte';
   import TripRoute from '../lib/pack/TripRoute.svelte';
   import SkiSeasonStart from '../lib/pack/SkiSeasonStart.svelte';
+  import PasstHier from '../lib/ui/PasstHier.svelte'; // Wegweiser 5: a ski tour → its backpack check
   import TourSky from '../lib/pack/TourSky.svelte';
   import BikeChoice from '../lib/pack/BikeChoice.svelte';
   import { bikeChoice } from '../lib/choice.js';
@@ -95,6 +96,7 @@
   import { targetPressure, pressureText } from '../lib/bikespecs.js';
   import { comesOf } from '../lib/gear/comes.js';
   import { inStandard, isWorn, leaveHome, blockKeys } from '../lib/blocks2026.js';
+  import AlsNaechstes from '../lib/ui/AlsNaechstes.svelte';
   import { hasBike, domainOf, domainName, inDomain, itemDomains, readyKey, READY_BY_DOMAIN, rememberDomain, BIKEPACKING } from '../lib/domains.js';
 
   const tripsQ = liveQuery(() => db.trips.toArray());
@@ -310,7 +312,7 @@
     if (to) return void (location.hash = to);
     packedNote = cur.id;
     clearTimeout(packedTimer);
-    packedTimer = setTimeout(() => (packedNote = null), 8000);
+    packedTimer = setTimeout(() => (packedNote = null), 12000); // Wegweiser 9: 12 s, the line «As next» needs a moment
   }
   const debriefDone = $derived(!!trip && ($debriefsQ ?? []).some((d) => d.tripId === trip.id && d.status === 'done'));
   const phaseOpts = $derived({ debriefDone });
@@ -1073,7 +1075,7 @@
         <button type="button" class="x" aria-label={t('Close')} onclick={() => (dayMade = null)}>×</button>
       </div>
     </div>
-  {/if}{#if domain === 'ski'}<SkiSeasonStart />{/if}{/snippet}
+  {/if}{#if domain === 'ski'}<SkiSeasonStart /><PasstHier place="ski" />{/if}{/snippet}
   {#snippet blocksCard()}<ForgotCard {trip} trips={$tripsQ ?? []} debriefs={$debriefsQ ?? []} {items} onadd={helperAdd} /><RulesOver /><ItemStories {trip} {itemsById} hint /><UsedHint {trip} trips={$tripsQ ?? []} {itemsById} />{#if packRows}<PackBlocks rows={packRows} rules={rulesOf($setsQ?.value)} {itemsById} ontoggle={packToggle} onslim={() => (slimOpen = true)} {slimN} note={packUndo?.tripId === trip.id ? packNote : ''} onundo={canUndo ? packUndoNow : null} />{/if}{/snippet}
   <!-- «Mehr Inhalt» (Noah 15.10.2026, 1a–5a): the tip line sits under the trip band (CalmPack, PackDay); at the end the fold and the example -->
   <!-- Paket H «4a und b»: read the packing list aloud (the window loads only when it opens) -->
@@ -1186,7 +1188,7 @@
     <div class="onion-toast" role="status"><span>{onionAdd.label}</span>{#if canUndo}<button type="button" class="btn sm" onclick={onionUndo}><Undo2 size={16} aria-hidden="true" />{t('Undo')}</button>{/if}</div>
   {/if}
   {#if packedNote && packedNote === trip?.id}
-    <div class="onion-toast packed-toast" role="status"><span>{t('All packed. Have a good trip!')}</span><a class="btn sm" href="#/">{t('To Today')}</a></div>
+    <div class="onion-toast packed-toast" role="status"><span>{t('All packed. Have a good trip!')}</span><a class="btn sm" href="#/">{t('To Today')}</a><AlsNaechstes moment="packed" ontap={() => (packedNote = null)} /></div>
   {/if}
   {#if tplNote}<p role="status">{tplNote}</p>{/if}{#if shareNote}<p role="status">{shareNote}</p>{/if}
   {#if chargeOpen}<ChargeSheet {trip} {items} onclose={() => (chargeOpen = false)} />{/if}
@@ -1220,6 +1222,7 @@
   .print { display: none; }
   /* v0.42.0 (Noah 3, 4): what the onion added, with Undo, above the bottom bar. */
   .onion-toast { position: fixed; left: 50%; bottom: calc(96px + env(safe-area-inset-bottom)); transform: translateX(-50%); z-index: 50; display: flex; align-items: center; gap: 12px; width: max-content; max-width: calc(100vw - 32px); padding: 6px 8px 6px 16px; border-radius: 10px; background: var(--ink); color: var(--paper); box-shadow: 0 8px 24px var(--shadow); font-weight: 600; overflow-wrap: break-word; }
+  .packed-toast { flex-wrap: wrap; padding-bottom: 8px; }
   .onion-toast .btn { display: inline-flex; align-items: center; flex: none; min-height: 44px; background: none; border-color: transparent; color: var(--paper); text-decoration: underline; }
   @media (max-width: 719px) { .onion-toast { bottom: calc(150px + env(safe-area-inset-bottom)); } }
   /* v0.30.2 (L5): event preparation ticked off in the trip; the button a full 44 px target. */

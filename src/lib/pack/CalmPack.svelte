@@ -452,7 +452,7 @@
                 {#if !fixed}<button onclick={menu(() => show('purposes'))}>{t('Name your bags')}</button>{/if}
                 {#if hasPhoto}<button onclick={menu(actions.photo)}>{t('Setup photo')}</button>{/if}
                 <a href="#/pack/templates">{t('Templates')}</a>
-                <button onclick={() => window.print()}>{t('Print / PDF')}</button><button onclick={actions.share}>{t('Share link')}</button>
+                <button onclick={() => window.print()}>{t('Print / PDF')}</button><button onclick={actions.share}>{t('Share link')}</button><a href="#/me/ruhig/teilen?open=preview" data-share-preview>{t('Preview as the receiver sees it')}</a>
                 {#if !fixed}<button onclick={menu(() => show('ready'))}>{t('Ready check')} {readyCount}/{readyTotal}</button>
                 <!-- Paket L2 «Packliste per Foto»: tick the list from one photo of the laid-out gear -->
                 <a href={`#/me/tools/packphoto?trip=${encodeURIComponent(trip.id)}`} data-pack-photo>{t('Tick off by photo')}</a>

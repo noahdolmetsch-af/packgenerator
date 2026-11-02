@@ -549,8 +549,9 @@ test('PF08: star an item, open the favourites on Today, reload: one tap, kept, r
   await page.goto('./#/');
   // v0.46.0: the Gear tile with its favourites count left Today; "Favourites" is one of the 16
   // functions (the favourites page), and Gear's ★ filter is reached at #/gear?fav=1. v0.94.0: a small tile.
-  await rec.click(page.locator('.wall [data-fn="favorites"]'));
-  await rec.check('Today: the Favourites tile opens the favourites', () => expect(page).toHaveURL(/#\/favorites/, { timeout: 2000 }));
+  // «Schnell öffnen» (Noah 01.11.2026 «5a»): the Favourites tile left Today (back through «+»); the page itself is unchanged
+  await page.goto('./#/favorites');
+  await rec.check('The favourites page opens', () => expect(page).toHaveURL(/#\/favorites/, { timeout: 2000 }));
   await page.goto('./#/gear?fav=1');
   const check = async (when) => {
     // v0.47.2: the favourites are the view "Favourite things"; its button carries the number
@@ -1221,8 +1222,8 @@ test('Scenario 4: gear care: log km, the due chain on Today and in Bike care, a 
   // v0.46.0: "Log km" is one of the 16 functions; v0.94.0 «Kachel-Wand»: a small tile on the wall.
   // v0.155.0 (HN4 3a, changed on purpose): «Log km» lives in the day card's evening (one tap on the clock by day)
   // «Heute neu» A (0.165.0, Noah «4a», changed on purpose): «Log km» is one of the 8 shortcuts again
-  await rec.click(page.locator('.wall [data-fn="km"]'));
-  const km = page.getByRole('dialog', { name: T('km for a bike') });
+  await rec.click(page.locator('.wall [data-pins-tile] [data-pin="km"]'));
+  const km = page.getByRole('dialog', { name: T('Log km') });
   await rec.select(km.locator('select').first(), BIKE.spark);
   await rec.fill(km.getByLabel(T('km on the counter')), '5100');
   await rec.click(km.getByRole('button', { name: T('Save km') }));

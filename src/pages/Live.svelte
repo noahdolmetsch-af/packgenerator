@@ -25,7 +25,7 @@
    */
   import { untrack, tick } from 'svelte';
   import { liveQuery } from 'dexie';
-  import { CloudRain, Route, Play, Square, Crosshair, MapPin, Navigation, Mountain, Clock, Settings, BatteryMedium, CloudLightning, TriangleAlert, RefreshCw, Utensils, ChevronDown, Moon, Flag, LifeBuoy, Ellipsis, ChevronLeft, ChevronRight, Minimize2, Maximize2, SlidersHorizontal, Check, X, Layers, Camera, WifiOff } from '@lucide/svelte';
+  import { CloudRain, Route, Play, Square, Crosshair, MapPin, Navigation, Mountain, Clock, Settings, BatteryMedium, CloudLightning, TriangleAlert, RefreshCw, Utensils, ChevronDown, Moon, Flag, LifeBuoy, Ellipsis, ChevronLeft, ChevronRight, Minimize2, Maximize2, SlidersHorizontal, Check, X, Layers, Camera, WifiOff, ClipboardList, Send } from '@lucide/svelte';
   import KindIcon from '../lib/map/KindIcon.svelte';
   import { DURING_RIDE } from '../lib/live/during.js';
   import { FEATURES } from '../lib/features.js';
@@ -37,7 +37,8 @@
   import PoiDetail from '../lib/map/PoiDetail.svelte';
   import WxTimeline from '../lib/map/WxTimeline.svelte';
   import LiveRouteBox from '../lib/live/LiveRouteBox.svelte';
-  import { liveRouteQuery, liveRouteFor } from '../lib/live/liveroute.js';
+  import { rideLog, rideLogText, GAP_S } from '../lib/live/ridelog.js';
+  import { liveRouteQuery, liveRouteFor, clearLiveRoute } from '../lib/live/liveroute.js';
   import OfflineBox from '../lib/map/OfflineBox.svelte';
   import { reserveOf } from '../lib/map/offline.js';
   import SortArrows from '../lib/ui/SortArrows.svelte';
@@ -58,7 +59,7 @@
   import { localDay as todayLocal } from '../lib/localday.js';
   import SosSheet from '../lib/live/SosSheet.svelte';
   import RerouteSheet from '../lib/live/RerouteSheet.svelte';
-  import { snapAhead, onDetour, detourDone, detourGpx, saveDetour, loadDetour, DETOUR_COLOUR, atPlace, returnDetour, backDetour, backtrackOf, planReturn, returnModeStd, shouldReroute, OFF_ROUTE_M } from '../lib/reroute.js';
+  import { snapAhead, onDetour, detourDone, detourGpx, saveDetour, loadDetour, DETOUR_COLOUR, atPlace, returnDetour, backDetour, backtrackOf, planReturn, returnModeStd, shouldReroute, OFF_ROUTE_M, offLineM, planDetour } from '../lib/reroute.js';
   import { saveGpx } from '../lib/gpxout.js';
   import { LANDI_RADAR } from '../lib/wetter/kern.js';
   import LiveWetter from '../lib/live/LiveWetter.svelte';
@@ -111,7 +112,7 @@
   import GroupPanel from '../lib/live/GroupPanel.svelte';
   import { endKeptGroup } from '../lib/live/group.js';
   import { saveLiveRide, bookBikeKm, saveLeftRides } from '../lib/live/saveride.js';
-  import LiveLabel from '../lib/live/LiveLabel.svelte';
+  import SavedCard from '../lib/live/SavedCard.svelte';
   import { deleteEntries } from '../lib/kmbookdb.js';
   import { offerDone } from '../lib/ui/rename.svelte.js';
   import { saveFailed } from '../lib/ui/ask.js';
@@ -199,6 +200,17 @@
     } catch (x) {
       err = saveFailed(x);
     }
+    // Noah 01.11.2026 «3a»: a ride started without a route forgets every old route: the GPX kept on this device and an old way to a goal (older than 2 h), also after a reload
+    // (a free ride has no id of its own: a GPX loaded more than 12 h ago is an old one, not this ride's)
+    const oldFree = !tid && !!liveRoute && !(Date.parse(liveRoute.loadedAt) > Date.now() - 12 * 36e5);
+    if (!cont && (!hasRoute || oldFree)) {
+      try {
+        await clearLiveRoute(db.settings);
+        if (detour && !(detour.at > Date.now() - 2 * 36e5)) setDetour(null, false); // a way planned a moment ago stays
+      } catch (x) {
+        console.error(x);
+      }
+    }
     const e = await startRecording(trip, { cont, saver: cfg.battery });
     if (e) return (err = t(e));
     eatFromKm = null;
@@ -269,9 +281,40 @@
     }
   }
 
+  // Fahrt-Protokoll (Noah 01.11.2026 «4a»): GPS points, gaps, restarts, hidden app, screen lock — with a button to send it
+  const logFacts = $derived(row ? rideLog(row) : null);
+  const logText = $derived(
+    logFacts
+      ? rideLogText(logFacts, {
+          points: t('GPS points'),
+          km: t('Distance (km)'),
+          first: t('First point'),
+          last: t('Last point'),
+          gaps: t('Gaps over a minute'),
+          restarts: t('Restarts'),
+          hidden: t('App hidden'),
+          lockLost: t('Screen lock lost'),
+          pauses: t('Pauses'),
+          codes: { s: t('Start'), c: t('Continued after a reload'), h: t('App hidden'), v: t('App visible again'), L1: t('Screen lock held'), L0: t('Screen lock lost'), Lx: t('Screen lock refused') },
+        })
+      : '',
+  );
+  async function sendLog() {
+    try {
+      if (navigator.share) await navigator.share({ title: t('Ride log'), text: logText });
+      else {
+        await navigator.clipboard.writeText(logText);
+        offerDone(t('Copied.'));
+      }
+    } catch {
+      /* closed */
+    }
+  }
+
   // the recording row, again whenever a point was kept
   $effect(() => {
     void rec.pts;
+    void rec.logN; // the log changes without a new point (screen lock, hidden app, restart)
     const rid = rec.id;
     if (!rid) return;
     db.tracks.get(rid).then((r) => (row = r ?? null));
@@ -511,9 +554,10 @@
         if (Number.isFinite(v) && v < 120 && (h.acc == null || h.acc <= 30) && v > maxKmh) maxKmh = Math.round(v * 10) / 10;
       }
     }
-    // the speed now; no new fix for 15 s counts as standing
+    // the speed now. No new fix for 15 s is NO speed (Noah 01.11.2026 «2a»): a GPS gap is not standing; only
+    // the GPS points themselves tell that you stand (a locked screen once counted as 25 min standing)
     let kmhNow = fixNow ? speedKmh(fixNow, fixPrev) : null;
-    if (fixNow && now - fixSeenAt > 15_000) kmhNow = 0;
+    if (fixNow && now - fixSeenAt > 15_000) kmhNow = null;
     if (cfg.autoPause && rec.on) {
       const r = autoPauseStep(autoSt, { kmh: kmhNow, now, limit: autoKmh, paused: rec.paused, auto: rec.auto });
       autoSt = r.st;
@@ -599,6 +643,8 @@
         say(t(s.key, s.vars), lang());
       }
     }
+    // off the way to a goal: a new way from here to the same goal
+    goalStep();
     // off-route
     if (cfg.offRoute && at) autoStep();
     if (cfg.offRoute && at && !onDetour(detour, me) && autoHold !== 'free') {
@@ -788,6 +834,43 @@
   }
   // 3a (Noah): «Gleichen Weg zurück»: your own track back to where you left the route, no router
   const sameBack = $derived(detour?.back === 'auto' && hasRoute ? backtrackOf(fixesOf(row), pts) : null);
+  // Live-Navigation Schritt 4: off the way to a goal the app plans a new way from here to the same goal,
+  // with Undo (the old way comes back). No answer or offline: it tries again in a minute.
+  let goalOffSince = null;
+  let goalAt = null;
+  let goalBusy = false;
+  const isGoalWay = (d) => !!d && !d.back && (d.oneWay || !d.rejoin) && d.line?.length > 1;
+  function goalStep() {
+    if (!isGoalWay(detour) || !me || arrived || atPlace(detour, me)) {
+      goalOffSince = null;
+      return;
+    }
+    const offM = offLineM(detour.line, me);
+    if (!(offM > OFF_ROUTE_M)) {
+      goalOffSince = null;
+      return;
+    }
+    goalOffSince ??= now;
+    if (goalBusy || !navigator.onLine) return;
+    if (shouldReroute({ offM, offSince: goalOffSince, lastAt: goalAt, now })) goalPlan();
+  }
+  async function goalPlan() {
+    const old = detour;
+    goalBusy = true;
+    goalAt = now;
+    try {
+      const d = await planDetour({ here: me, target: old.target, pts: hasRoute ? pts : [], fromKm: old.fromKm, profile: old.profile, oneWay: !!old.oneWay });
+      if (detour === old) {
+        setDetour({ ...d, ...(old.small ? { small: true } : {}) }, false);
+        goalOffSince = null;
+        offerDone(t('New way to the goal.'), () => setDetour(old, false));
+      }
+    } catch {
+      /* no answer: the next try in a minute */
+    } finally {
+      goalBusy = false;
+    }
+  }
   const autoUndo = () => ((autoHold = 'undo'), setDetour(null));
   const autoFree = () => ((autoHold = 'free'), setDetour(null));
   const takeSame = () => sameBack && setDetour(backDetour(sameBack), false);
@@ -1159,7 +1242,7 @@
       <h2 class="rc-h2">{t('Ride done')}</h2>
       {#if after.ride}
         <p class="rc-text">{t('{km} km recorded. The line is in the travel track of the day.', { km: num(after.ride.km ?? 0) })}</p>
-        {#if after.saved}<p class="rc-text" data-live-saved><LiveLabel /> {t('Saved as its own entry in Trips.')} <a href="#/trips" data-live-saved-link>{t('Open Trips')}</a></p>{/if}
+        {#if after.saved}<SavedCard saved={after.saved} {trip} />{/if}
         {#if loadAfter}
           {#await loadAfter() then m}
             <m.default ride={after.ride} {trip} />
@@ -1572,6 +1655,15 @@
                 </div>
                 <p class="rc-note">{t('A stop is 2 minutes or more within 40 m.')}</p>
               </div>
+            {/if}
+
+            {#if logFacts && (rec.on || logFacts.points > 0)}
+              <details class="lvf-part lvf-fold" data-live-log>
+                <summary><ClipboardList size={18} aria-hidden="true" />{t('Ride log')}</summary>
+                <p class="rc-note">{t('What the recording saw: GPS points, gaps of {n} s or more, restarts. Send it when a time or distance looks wrong.', { n: GAP_S })}</p>
+                <pre class="lvf-log" data-live-log-text>{logText}</pre>
+                <button type="button" class="btn sm" onclick={sendLog} data-live-log-send><Send size={16} aria-hidden="true" />{t('Send the log')}</button>
+              </details>
             {/if}
 
             <!-- «Datenseiten wie am Garmin»: pages, fields, grids, charts, zones -->
@@ -2267,6 +2359,18 @@
   .lvf-chip:disabled {
     opacity: 0.5;
     cursor: default;
+  }
+  .lvf-log {
+    margin: 0 0 var(--sp-2);
+    max-height: 220px;
+    overflow: auto;
+    padding: var(--sp-2);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--paper);
+    font: var(--fs-small) / 1.45 ui-monospace, monospace;
+    white-space: pre-wrap;
+    word-break: break-word;
   }
   .lvf-fold > summary {
     display: flex;

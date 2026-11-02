@@ -8,7 +8,7 @@
    * Packen: what to wear and take from the riding hours (packHints). RouteCard mounts it with one line; «Hide» folds it.
    */
   import { liveQuery } from 'dexie';
-  import { CloudRain, Wind, TriangleAlert, Target, Mountain, Moon, ExternalLink, ChevronRight, Shirt, Flame } from '@lucide/svelte';
+  import { CloudRain, Wind, TriangleAlert, Target, Mountain, Moon, ExternalLink, ChevronRight, Shirt, Flame, MapPin } from '@lucide/svelte';
   import { db } from '../db.js';
   import { HOME_PLACE } from '../know.js';
   import { ridingHours } from '../route.js';
@@ -28,9 +28,12 @@
   const kgQ = liveQuery(() => db.settings.get(RIDER_KEY));
   const place = $derived.by(() => {
     const p = trip?.place ?? trip?.route?.start ?? null;
-    if (p && Number.isFinite(Number(p.lat))) return { lat: Number(p.lat), lon: Number(p.lon), name: p.name ?? '' };
-    return $homeQ?.value ?? null;
+    if (p && Number.isFinite(Number(p.lat))) return { lat: Number(p.lat), lon: Number(p.lon), name: p.name ?? '', from: trip?.place ? 'trip' : 'route' };
+    const h = $homeQ?.value ?? null;
+    return h ? { ...h, from: 'home' } : null;
   });
+  // Noah 01.11.2026 «1a»: say which place the weather is for (the trip's own place, the route start or home)
+  const placeLabel = $derived(!place ? '' : place.name ? t('Weather for {place}', { place: place.name }) : t('Weather for the start of the route'));
   let open = $state(true);
   let core = $state(null);
   let key = '';
@@ -71,6 +74,7 @@
       <button type="button" class="tw-x" aria-expanded={open} onclick={() => (open = !open)}>{open ? t('Hide') : t('Show')}</button>
     </div>
     {#if open}
+      {#if placeLabel}<p class="tw-note" data-tour-wetter-place><MapPin size={16} aria-hidden="true" />{placeLabel}{place.from === 'home' ? ` · ${t('your home place')}` : ''}</p>{/if}
       {#if line}
         <p class="tw-line">
           <span><b>{num(line.tmin)}–{num(line.tmax)} °C</b></span>

@@ -1,4 +1,4 @@
-// «Quick Links» (Noah 28.10.2026 «1a 2a 3a 4a 5a», Schritt 1): the place in the bar, 20 suggested pins,
+// «Quick Links» (Noah 28.10.2026 «1a 2a 3a 4a 5a», Schritt 1): the place in the bar, the suggested pins,
 // a tap goes to the function, add a pin, edit (order, note, unpin with Undo), own groups.
 import { test, expect } from './clock.js';
 import { openHome } from './home0460-fixture.js';
@@ -22,14 +22,14 @@ test('Quick Links: place, suggestions, go there, add, edit, groups', async ({ pa
   await expect(page.getByRole('heading', { level: 1, name: T('Quick Links|place') })).toBeVisible();
   await expect(page.locator('[data-quick]')).toHaveAttribute('data-quick', phone ? 'phone' : 'computer');
 
-  // the 20 suggestions in five groups
+  // the suggestions in five groups
   await expect(page.locator('[data-quick-pin]')).toHaveCount(PINS.length);
   await expect(page.locator('[data-quick-group]')).toHaveCount(STARTER.length);
   await expect(page.locator('[data-quick-group="s1"] h2')).toHaveText(T(STARTER[0].std));
 
   // a tap goes to the function
-  await page.locator('[data-quick-pin="f.weather"] .ql-a').click();
-  await expect(page).toHaveURL(/#\/wetter/);
+  await page.locator('[data-quick-pin="f.heatmap"] .ql-a').click();
+  await expect(page).toHaveURL(/#\/heatmap/);
   await page.goto('./#/quick');
 
   // add a pin from the search
