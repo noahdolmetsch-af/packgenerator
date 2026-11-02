@@ -122,6 +122,8 @@
     await putWeek(SG_OFF_KEY, on ? before.filter((x) => x !== k) : [...before, k]);
     offerDone(on ? t('«{name}» is suggested again.', { name: t(SOURCE_NAMES[k]) }) : t('«{name}» is no longer suggested.', { name: t(SOURCE_NAMES[k]) }), () => putWeek(SG_OFF_KEY, before));
   }
+  // the source fold keeps its own state: a reload of the week data must not close what was opened
+  let srcOpen = $state(false);
   const toggleSg = () => putWeek(SG_OPEN_KEY, !sgOpen);
   const hidden = (k) => src?.hide.includes(k);
   import BufferPick from '../lib/stand/BufferPick.svelte'; // Paket A part 3: buffer before and after a date
@@ -217,7 +219,7 @@
           {#if sgOpen}
           <div id="wk-sg-body">
           <p class="why">{t('The app suggests, you decide. Take puts it on the day shown.')}</p>
-          <details class="srcs" data-sg-sources open={src.sgOff.length > 0}>
+          <details class="srcs" data-sg-sources open={srcOpen || src.sgOff.length > 0} ontoggle={(e) => (srcOpen = e.currentTarget.open)}>
             <summary>{src.sgOff.length ? tn(src.sgOff.length, 'Sources · {n} off', 'Sources · {n} off|pl') : t('Where do the suggestions come from?')}</summary>
             <ul class="srclist">
               {#each SUGG_SOURCES as k (k)}
