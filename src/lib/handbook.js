@@ -1260,6 +1260,11 @@ const LISTED = {
     steps: ['Open Trips › Dreams › White spots nearby.', 'Choose 10, 25 or 50 km.', 'Tap a place on the map or in the list: its name and distance.'],
     example: 'Example: 25 km around Zürich → 209 municipalities never visited, the nearest 5 km away.',
   },
+  'f.triptips': {
+    on: 'Needs your home place. The calendar counts when Google calendar is connected.',
+    steps: ['Open Trips › Dreams: «Fits today» is at the top.', 'Change the hours if you have more or less time.', 'Tap «Round through it» at a place: the app plans the round.'],
+    example: 'Example: free 14:00–18:00 → 4 h → a pass, a lake and a village 30–45 km away.',
+  },
   'f.newkm': {
     on: 'Needs rides with a line: Strava, a GPX file or your own recording.',
     steps: ['Open Trips › Look back › New ground.', 'Scroll to «New kilometres»: each year with its new km and share.', 'Below: your latest rides that brought new km.'],
