@@ -77,6 +77,7 @@
   import Empty from '../lib/ui/Empty.svelte';
   import { stageCount } from '../lib/ride.js';
   import { forecastForTrip, toWx } from '../lib/weather.js';
+  import { wxDiff } from '../lib/wxdiff.js'; // idea C2: what the turned weather changes on the list
   import { take } from '../lib/nav.js';
   import { mainStep, afterPacking, endNeedsAsk, packedAll, goDayOf } from '../lib/phase.js';
   import { endTrip as endTripNow } from '../lib/trip/ending.js';
@@ -286,6 +287,7 @@
     const wetter = (fcWx.rain !== 'none') !== ((have.rain ?? 'none') !== 'none') || (fcWx.rain === 'rain' && have.rain !== 'rain');
     return colder || wetter ? { fc: fcWx, have } : null;
   });
+  const wxd = $derived(wxGap && trip ? wxDiff(wxGap, allSets($setsQ?.value), items, trip.entries, offset + chill) : null);
   function useForecast() {
     changeContext((t) => ({ wx: { ...(t.wx ?? {}), ...fcWx, ...pctOf(t) }, wxFrom: 'forecast' }));
     location.hash = '#/pack';
@@ -1091,7 +1093,7 @@
   <!-- H04: before setting off only once everything is packed; under way (set off or day 2+) always -->
   {#if todayTrip([trip], today) && trip.entries?.length && (packedAll(trip) || trip.goDays?.[0] || goDayOf(trip, today) > 0)}<LiveStart {trip} />{/if}
   {#if packTab}
-    <PackDay top={fixed ? null : blocksCard} onread={!fixed && trip.entries.some((e) => !e.packed) ? () => (reading = true) : null} {trip} {fixed} bike={bikeTrip} pressure={pressureText(targetPressure(bike), num)} wxGap={bikeTrip && !fixed ? wxGap : null} onwx={() => { useForecast(); review = true; }} steps={daySteps} {itemsById} {badges} {ready} onmove={moveTo} spare={spareSteps} ontoggle={toggleIn} onready={toggleReady} onpack={packIn} onreadyall={tickAllReady} onnext={finishPacking} onend={endTrip} main={mainStep(trip, today, 'pack', phaseOpts)} onundo={undoLast} {canUndo} lessons={learningsFor(trip, $learnQ ?? [], 2)} {reminders} oncharge={charge.length ? () => (chargeOpen = true) : null} {stats} charge={charge.length ? { ...charged, names: charge.map((r) => r.name) } : null} />
+    <PackDay top={fixed ? null : blocksCard} onread={!fixed && trip.entries.some((e) => !e.packed) ? () => (reading = true) : null} {trip} {fixed} bike={bikeTrip} pressure={pressureText(targetPressure(bike), num)} wxGap={bikeTrip && !fixed ? wxGap : null} wxd={bikeTrip && !fixed ? wxd : null} onwx={() => { useForecast(); review = true; }} steps={daySteps} {itemsById} {badges} {ready} onmove={moveTo} spare={spareSteps} ontoggle={toggleIn} onready={toggleReady} onpack={packIn} onreadyall={tickAllReady} onnext={finishPacking} onend={endTrip} main={mainStep(trip, today, 'pack', phaseOpts)} onundo={undoLast} {canUndo} lessons={learningsFor(trip, $learnQ ?? [], 2)} {reminders} oncharge={charge.length ? () => (chargeOpen = true) : null} {stats} charge={charge.length ? { ...charged, names: charge.map((r) => r.name) } : null} />
   {:else}
   <CalmPack {trip} {stats} {carry} {bike} {bikeTrip} domainLabel={t(domainName(domain))} {items} {itemsById} {trips} {candidates} {targets} {templates} hasPhoto={!!shot} photo={shot?.src ?? null} {openLayers} {canUndo} {changeNote} ctxChanged={!!ctxDiff} {ctxRows} {reasons} {notice} edit={locked ? null : factEdit} {fixed} {readyCount} {readyTotal} {over} {phaseOpts} made={!!(dayMade && dayMade.id === trip.id)} swapMemory={$swapQ?.value ?? {}} onroute={changeContext} onstages={(fn) => change(fn)} onlist={(fn) => change(fn)} prep={before} onprep={before ? openBefore : null} lessons={learningsFor(trip, $learnQ ?? [], 3)} {reminders} power={charge.length > 0 && !over} bind:q bind:zoneKey bind:review
     actions={{
