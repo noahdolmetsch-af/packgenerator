@@ -39,6 +39,10 @@ export const ON_PAGES = [
   '#/flow', '#/flow/sports', '#/flow/sport/act%3Agym', '#/flow/sport/act%3Atennis', '#/flow/training', '#/flow/form', '#/flow/review',
   '#/flow/stats/hr', '#/flow/act/meditation', '#/flow/act/meditation/log', '#/flow/act/meditation/mehr', '#/auswerten',
   '#/auswerten/analyse', '#/me/abfragen', '#/me/insights', '#/me/weight', '#/me/wohl', '#/me/fitbit', '#/trips/rides',
+  // PR 20, area «App»: the app itself (lists, privacy, rules, own values, search, assistant, helper, mini apps).
+  // Not Data and backup, Appearance, Connections: with many functions the card pushes them below 2.5 phone screens (heimat.spec.js).
+  '#/me/lists', '#/me/privacy', '#/me/regeln', '#/me/verstehen', '#/me/werte', '#/me/hinweise',
+  '#/me/suche', '#/assistent', '#/helper', '#/me/apps',
 ];
 /** Rows shown before «Show all n». */
 export const SHOWN = 4;
