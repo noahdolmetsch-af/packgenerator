@@ -33,9 +33,9 @@ test('pins on the cards: pin, unpin, switch off', async ({ page, context }, info
 test('Quick Links: a pin lights up its card; a view is pinned at the page title', async ({ page, context }, info) => {
   await openHome(page, context, info);
   await page.goto('./#/quick');
-  await page.locator('[data-quick-pin="f.weather"] .ql-a').click();
-  await expect(page).toHaveURL(/#\/wetter/);
-  await expect(page.locator('[data-spot-on="f.weather"]')).toBeVisible({ timeout: 8000 });
+  await page.locator('[data-quick-pin="f.heatmap"] .ql-a').click();
+  await expect(page).toHaveURL(/#\/heatmap/);
+  await expect(page.locator('[data-spot-on="f.heatmap"]')).toBeVisible({ timeout: 8000 });
 
   await page.goto('./#/trips');
   const view = page.locator('[data-pinview]');

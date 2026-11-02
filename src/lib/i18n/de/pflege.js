@@ -1,5 +1,7 @@
 /** German texts: v0.48.0 «Pflege-Übersicht, Teile pro Velo, Eingang und Notizen». Keys are the English texts. */
 export default {
+  'No maintenance data yet, so nothing can be due. Set the intervals of a part to start.': 'Noch keine Wartungsdaten, also kann auch nichts fällig sein. Lege bei einem Teil das Intervall fest, um zu starten.',
+  'no maintenance data yet': 'noch keine Wartungsdaten',
   'Add a bike first. Then this can be saved for it.': 'Erfasse zuerst ein Velo. Danach lässt sich das dafür speichern.',
   'No bikes yet, so there is no care data either.': 'Noch keine Velos, also auch noch keine Pflegedaten.',
   'No bikes yet, so there is no service data either.': 'Noch keine Velos, also auch noch keine Wartungsdaten.',

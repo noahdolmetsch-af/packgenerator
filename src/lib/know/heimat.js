@@ -156,6 +156,7 @@ const LISTED_HOME = {
   'f.dreamlink': '#/trips/dreams',
   'f.newtoday': '#/neuland',
   'f.dreamsdone': '#/trips/dreams',
+  'f.newkm': '#/neuland',
   'f.races': '#/trips/dreams',
   'f.starters': '#/pack',
   'f.packside': '#/pack',
