@@ -196,6 +196,10 @@
 </div>
 
 <style>
+  /* Menü-Punkt 2: the live map in full screen has its own top line (distance, arrival); the tabs of Touren never lie over it */
+  :global(body:has([data-live-full]:not(.lvf-hidden))) .ptwrap {
+    display: none;
+  }
   .ptabs {
     display: flex;
     gap: var(--sp-1);
