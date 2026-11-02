@@ -74,6 +74,12 @@ test('Woche: the days with their kinds, chips hide a kind, a to-do is ticked, a 
   await expect(page.locator('[data-sugg="todo:test_data_gtp_t2"]')).toHaveCount(0);
   await page.getByRole('button', { name: T('Undo') }).first().click();
   await expect(page.locator('[data-sugg="todo:test_data_gtp_t2"]')).toBeVisible();
+  // «Never suggest» (Noah 2.11.2026 «b»): away for good, back with «Show again»
+  await page.locator('[data-sugg="todo:test_data_gtp_t2"] [data-sg-never]').click();
+  await expect(page.locator('[data-sugg="todo:test_data_gtp_t2"]')).toHaveCount(0);
+  await page.locator('[data-sg-never-list] > summary').click();
+  await page.locator('[data-sg-again="todo:test_data_gtp_t2"]').click();
+  await expect(page.locator('[data-sugg="todo:test_data_gtp_t2"]')).toBeVisible();
   // tick the to-do
   const todo = fri.locator('[data-entry="test_data_gtp_t1"]');
   await todo.getByRole('button', { name: T('Done: {title}', { title: 'test_data_gtp_ Schlauch bestellen' }) }).click();

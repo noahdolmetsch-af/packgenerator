@@ -180,4 +180,9 @@ export default {
   '«{name}» is suggested again.': '«{name}» wird wieder vorgeschlagen.',
   '«{name}» is no longer suggested.': '«{name}» wird nicht mehr vorgeschlagen.',
   'Switch off what you do not want to see. Your own to-dos and Google stay as they are.': 'Schalte aus, was du nicht sehen willst. Deine eigenen To-dos und Google bleiben unverändert.',
+  'Never suggest': 'Nie mehr vorschlagen',
+  'Put away · {n}': 'Ausgeblendet · {n}',
+  'Put away · {n}|pl': 'Ausgeblendet · {n}',
+  'Show again': 'Wieder zeigen',
+  'The app does not suggest these any more.': 'Diese schlägt dir die App nicht mehr vor.',
 };

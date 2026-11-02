@@ -17,7 +17,7 @@
   import WeekDreams from '../lib/dreams/WeekDreams.svelte'; // Paket N idea 5: dreams and race deadlines of the week
   import { weekQuery, putWeek } from '../lib/woche/load.js';
   import { titleOf, subOf, dayName, shortDate, hours, holidayName, wxWords, reviewLine, hintText } from '../lib/woche/words.js';
-  import { ITEMS_KEY, HIDE_KEY, NO_KEY, SG_OPEN_KEY, SG_OFF_KEY, SUGG_SOURCES, TRAIN_NOTE, KINDS, KIND_NAMES, buildWeek, cleanItem, pruneItems, skipFor, planMonday, dotsOf, takeSuggestion } from '../lib/woche.js';
+  import { ITEMS_KEY, HIDE_KEY, NO_KEY, SG_OPEN_KEY, SG_OFF_KEY, SG_NEVER_KEY, SUGG_SOURCES, TRAIN_NOTE, KINDS, KIND_NAMES, buildWeek, cleanItem, pruneItems, skipFor, planMonday, dotsOf, takeSuggestion } from '../lib/woche.js';
   import { homeForecast } from '../lib/home-weather.js';
   import { db } from '../lib/db.js';
   import { PLAN_KEY as TRAIN_KEY, mondayOf, shiftDay, isoWeek, prunePlan } from '../lib/training.js';
@@ -124,6 +124,15 @@
   }
   // the source fold keeps its own state: a reload of the week data must not close what was opened
   let srcOpen = $state(false);
+  let neverOpen = $state(false);
+  // «Never suggest again» (Noah 2.11.2026 «b»): one suggestion away for good; the list «Put away» brings it back
+  async function never(s) {
+    const before = src.sgNever;
+    const name = titleOf(s);
+    await putWeek(SG_NEVER_KEY, [...before.filter((x) => x.ref !== s.ref), { ref: s.ref, title: name }]);
+    offerDone(t('«{name}» is no longer suggested.', { name }), () => putWeek(SG_NEVER_KEY, before));
+  }
+  const showAgain = (n) => putWeek(SG_NEVER_KEY, src.sgNever.filter((x) => x.ref !== n.ref));
   const toggleSg = () => putWeek(SG_OPEN_KEY, !sgOpen);
   const hidden = (k) => src?.hide.includes(k);
   import BufferPick from '../lib/stand/BufferPick.svelte'; // Paket A part 3: buffer before and after a date
@@ -238,12 +247,24 @@
                   {:else if s.act === 'move'}<button type="button" class="btn sm" onclick={() => take(s)}>{t('Move|week')}</button>
                   {:else if s.day}<button type="button" class="btn sm" onclick={() => take(s)}>{t('Take')}</button>{/if}
                   <button type="button" class="btn sm" onclick={() => skip(s)}>{t('Not this week')}</button>
+                  <button type="button" class="btn sm" data-sg-never onclick={() => never(s)}>{t('Never suggest')}</button>
                 </span>
               </li>
             {:else}
               <li class="none">{t('Nothing left to plan.')}</li>
             {/each}
           </ul>
+          {#if src.sgNever.length}
+            <details class="srcs" data-sg-never-list open={neverOpen} ontoggle={(e) => (neverOpen = e.currentTarget.open)}>
+              <summary>{tn(src.sgNever.length, 'Put away · {n}', 'Put away · {n}|pl')}</summary>
+              <ul class="srclist">
+                {#each src.sgNever as n (n.ref)}
+                  <li class="nv"><span>{n.title || n.ref}</span><button type="button" class="btn sm" data-sg-again={n.ref} onclick={() => showAgain(n)}>{t('Show again')}</button></li>
+                {/each}
+              </ul>
+              <p class="why">{t('The app does not suggest these any more.')}</p>
+            </details>
+          {/if}
           {#if sgMore > 0}
             <button type="button" class="phone-more" onclick={() => (sgAll = true)} data-sugg-more><ChevronDown size={16} aria-hidden="true" />{tn(sgMore, 'Show {n} more suggestion', 'Show {n} more suggestions')}</button>
           {/if}
@@ -542,6 +563,14 @@
     width: 20px;
     height: 20px;
     margin: 0;
+  }
+  .sg .srclist li.nv {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 4px 0;
   }
   .srclist span {
     flex: 1;
