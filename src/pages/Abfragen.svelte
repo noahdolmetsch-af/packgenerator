@@ -160,6 +160,7 @@
   };
   const ICON_SRC = { hand: Hand, later: Watch, fitbit: Watch, open: CircleDashed, only: Hand, app: Smartphone };
   const exOf = (list) => list.find((q) => settingOf(cfg, q).on) ?? list[0];
+  import PasstHier from '../lib/ui/PasstHier.svelte'; // «Wegweiser statt Katalog» PR 7
 </script>
 
 <div class="ich-page abpage">
@@ -308,6 +309,7 @@
           </ul>
           <a class="btn" href="#/me/history">{t('See the history')}<ChevronRight size={16} aria-hidden="true" /></a>
         </div>
+        <PasstHier place="abfragen" />
       </section>
       <!-- Impeccable Runde 2: the two explaining blocks in one fold -->
       <details class="ich-sec howfold" data-how>

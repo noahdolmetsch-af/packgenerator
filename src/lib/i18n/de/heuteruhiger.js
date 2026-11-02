@@ -5,11 +5,14 @@ import gewohnheiten from './gewohnheiten.js';
 import gutzuwissen from './gutzuwissen.js';
 // «VO2max auf Heute» (Noah 28.10.2026 «2 a und b»), same reason
 import vo2heute from './vo2heute.js';
+// «Schnell öffnen» mit Pins (Noah 01.11.2026 «1a 2a 3b 4a 5a»), same reason
+import schnelloeffnen from './schnelloeffnen.js';
 
 export default {
   ...gewohnheiten,
   ...gutzuwissen,
   ...vo2heute,
+  ...schnelloeffnen,
   'Now|home': 'Jetzt',
   'What is up today': 'Was heute ansteht',
   'Your body|home': 'Dein Körper',
