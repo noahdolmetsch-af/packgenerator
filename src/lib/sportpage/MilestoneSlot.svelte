@@ -14,6 +14,7 @@
   import { Star, Trophy, Plus, Trash2 } from '@lucide/svelte';
   import ChallengeSheet from '../ui/ChallengeSheet.svelte';
   import MsHow from '../flow/hobby/MsHow.svelte';
+  import NudgeSetting from './NudgeSetting.svelte';
   import { db } from '../db.js';
   import { normAct } from '../flow.js';
   import { msContext, newStars, TUNE_KEY } from '../flowms.js';
@@ -111,6 +112,7 @@
     {#if nextStar}<p class="small num" data-ms-next>{t('Your next star: {name} · {left} to go', { name: msName(nextStar.r.m), left: val(nextStar.left, nextStar.r.m.unit) })}</p>{/if}
 
     <MsHow sport={sportWord} start={false} />
+    <NudgeSetting {act} />
 
     <ul class="cnt">
       {#each counters as r (r.id)}
