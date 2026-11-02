@@ -17,6 +17,6 @@ export default {
   'On top: a rule of thumb from your debriefs, if there is a clear pattern.': 'Oben: eine Faustregel aus deinen Rückblicken, wenn ein klares Muster da ist.',
   '«Make it a rule» saves it on the block; Undo takes it back.': '«Als Regel übernehmen» speichert sie am Baustein; mit Rückgängig ist sie weg.',
   'Make a rule only when your debriefs agree: if the jacket stayed in the bag twice, trust that over a guess.': 'Mach nur eine Regel, wenn deine Rückblicke übereinstimmen: blieb die Jacke zweimal im Sack, glaub das mehr als einer Vermutung.',
-  '{n} items in this block': '{n} Teile in diesem Baustein',
-  'If you make it a rule: Packen puts all {n} items on the list when {rule}, and leaves them out otherwise. You can untick any item on a trip and change the rule any time on Blocks.': 'Wenn du es zur Regel machst: Packen setzt alle {n} Teile auf die Liste, wenn {rule}, sonst lässt es sie weg. Du kannst jedes Teil auf einer Tour abwählen und die Regel jederzeit unter Bausteine ändern.',
+  '{n} items in this block': 'Teile in diesem Baustein ({n})',
+  'If you make it a rule: Packen puts all {n} items on the list when {rule}, and leaves them out otherwise. You can untick any item on a trip and change the rule any time on Blocks.': 'Wenn du es zur Regel machst: Packen setzt alle Teile des Bausteins auf die Liste, wenn {rule}, sonst lässt es sie weg. Du kannst jedes Teil auf einer Tour abwählen und die Regel jederzeit unter Bausteine ändern.',
 };
