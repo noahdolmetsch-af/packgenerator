@@ -2,8 +2,8 @@
 export default {
   title: 'Ready for the dream?',
   lead: 'A dream shows what you already have and what is still missing.',
-  points: [{ text: 'Trips › Dreams › a dream: «Ready for it?» with your longest ride, most climb, days in a row and sleeping gear', href: '#/trips/dreams' }],
-  small: [{ box: 'new', text: 'Against what the dream asks per day; only a hint from your rides of the last 12 months' }],
+  points: [{ text: 'Trips › Dreams › a dream: «Ready for it?» with your longest ride, most climb, days in a row and sleeping gear', href: '#/trips/dreams', go: 'f.dreamready' }],
+  small: [{ box: 'new', text: 'Against what the dream asks per day; only a hint from your rides of the last 12 months', go: 'f.dreamready' }],
   test: [
     'Open a dream with km (a GPX file or a link) in Trips › Dreams.',
     'Scroll to «Ready for it?»: four lines with filled or empty rings.',

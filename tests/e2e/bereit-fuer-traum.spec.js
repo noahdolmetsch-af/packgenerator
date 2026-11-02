@@ -1,7 +1,7 @@
 // «Bereit für den Traum?» (Träume und Neuland N16, Noah 27.10.2026 «1-5 a»): in a dream's window, what your
 // (fictional) rides already show and what is still missing; with sleeping gear the ring fills; one day hides
 // the lines for several days. Fictional data only, no real network.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { readFileSync, mkdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';
