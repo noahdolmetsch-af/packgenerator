@@ -13,7 +13,8 @@
  */
 import { byOrder, partKey } from '../anpassen.js';
 
-const SKIP = 'dialog, [inert], [aria-hidden="true"], nav, .top, .anp-foot, .pagehead';
+// The «Was du hier tun kannst» card is no part of the page: it folds with its own ×, so Anpassen leaves it out.
+const SKIP = 'dialog, [inert], [aria-hidden="true"], nav, .top, .anp-foot, .pagehead, [data-seiteninhalt]';
 
 /** The headings that name parts: visible (or hidden by us), not in a window, a menu or the page head. */
 function headings(root, tag) {

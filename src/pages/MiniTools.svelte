@@ -129,6 +129,23 @@
   const rows = $derived(q ? [...merged, ...(Object.keys(q.me?.picks ?? {}).length ? [{ name: t('You'), picks: q.me.picks, me: true }] : [])] : []);
   const result = $derived(q ? tally(q.opts, rows) : { list: [], best: null });
   const bestOpt = $derived(result.best ? q.opts.find((o) => optKey(o) === result.best.key) : null);
+  /* the date the maker fixed (Noah 1.11.2026 «3a»): it wins over the best day for the calendar, the trip and the message */
+  const chosenOpt = $derived(q?.chosen ? (q.opts?.find((o) => optKey(o) === q.chosen) ?? null) : null);
+  const dayOpt = $derived(chosenOpt ?? bestOpt);
+  const chosenText = $derived(chosenOpt ? t('{title}: we meet on {day}. See you there!', { title: q.title, day: optFmt(chosenOpt) }) : '');
+  const waChosen = $derived(`https://wa.me/?text=${encodeURIComponent(chosenText)}`);
+  async function fix(o) {
+    const a = await askDelete({ title: t('Fix {day}?', { day: optFmt(o) }), text: t('The question ends and the link stops working. The date stays here, and you can send it to the group.'), label: t('Fix this date') });
+    if (a !== 'delete') return;
+    try {
+      if (isOpen) await endQuestion(q.srv);
+    } catch {
+      /* offline: the server deletes it by itself on its last day */
+    }
+    await updateOne(db, q.id, (x) => ({ ...x, chosen: optKey(o), closed: true }));
+    offerDone(t('«{day}» is fixed.', { day: optFmt(o) }), () => updateOne(db, q.id, (x) => ({ ...x, chosen: '' })));
+  }
+  const unfix = () => updateOne(db, q.id, (x) => ({ ...x, chosen: '' }));
   let busyRead = $state(false);
   let readErr = $state('');
   let said = $state('');
@@ -221,7 +238,7 @@
   }
   function toCalendar() {
     const stamp = new Date().toISOString().replace(/[-:]/g, '').replace(/\.\d+Z$/, 'Z');
-    download(`${q.title.replace(/[^\p{L}\d _-]/gu, '').trim() || 'termin'}.ics`, icsOf(q.title, bestOpt, stamp, q.id), 'text/calendar');
+    download(`${q.title.replace(/[^\p{L}\d _-]/gu, '').trim() || 'termin'}.ics`, icsOf(q.title, dayOpt, stamp, q.id), 'text/calendar');
     said = t('Calendar file saved. Open it to add the day to your calendar.');
   }
   let tripErr = $state('');
@@ -229,7 +246,7 @@
     tripErr = '';
     const bikes = await db.bikes.toArray();
     if (!bikes.length) return (tripErr = t('Add a bike first (Velos), then the trip can be planned.'));
-    const trip = { ...newTrip({ title: q.title, startDate: bestOpt.d, days: 1, bike: bikes[0] }, await db.trips.toArray(), await db.items.toArray()), idea: true, fromMini: q.id };
+    const trip = { ...newTrip({ title: q.title, startDate: dayOpt.d, days: 1, bike: bikes[0] }, await db.trips.toArray(), await db.items.toArray()), idea: true, fromMini: q.id };
     await db.trips.put(trip);
     openTrip(trip.id);
     location.hash = '#/pack';
@@ -415,6 +432,18 @@
           {#if readErr}<p class="mt-err" role="alert" data-mt-readerr>{readErr}</p>{/if}
           {#if said}<p class="mt-help" role="status">{said}</p>{/if}
         {:else}
+        {#if chosenOpt}
+          <section class="card mt-box mt-fixed" aria-labelledby="mt-fixed-h" data-mt-fixed>
+            <h2 id="mt-fixed-h"><CalendarCheck size={18} aria-hidden="true" /> {t('The date is fixed: {day}', { day: optFmt(chosenOpt) })}</h2>
+            <p class="mt-help">{t('The question has ended. Send the date to the group.')}</p>
+            <div class="mt-acts">
+              <a class="btn hi" href={waChosen} target="_blank" rel="noopener" data-mt-fixed-wa><MessageCircle size={16} aria-hidden="true" />{t('Send the date to the group')}</a>
+              <button type="button" class="btn" onclick={toCalendar} data-mt-fixed-ics><CalendarPlus size={16} aria-hidden="true" />{t('Add to calendar')}</button>
+              <button type="button" class="btn" onclick={planTrip}><Route size={16} aria-hidden="true" />{t('Plan a trip on this day')}</button>
+              <button type="button" class="btn sm" onclick={unfix} data-mt-unfix>{t('Withdraw the date')}</button>
+            </div>
+          </section>
+        {/if}
         <DateWho invited={q.invited ?? []} answers={merged} title={q.title} {link} open={isOpen} onchange={(list) => updateOne(db, q.id, (x) => ({ ...x, invited: list }))} />
         <section class="card mt-box mt-best" aria-labelledby="mt-best-h" data-mt-best>
           <h2 id="mt-best-h">{bestOpt ? t('Best day: {day}', { day: optFmt(bestOpt) }) : t('No answers yet')}</h2>
@@ -429,7 +458,10 @@
               </li>
             {/each}
           </ul>
-          {#if bestOpt}
+          {#if bestOpt && !chosenOpt}
+            <div class="mt-acts"><button type="button" class="btn hi" onclick={() => fix(bestOpt)} data-mt-fix><CalendarCheck size={16} aria-hidden="true" />{t('Fix this date')}</button></div>
+          {/if}
+          {#if dayOpt && !chosenOpt}
             <div class="mt-acts">
               <button type="button" class="btn hi" onclick={planTrip} data-mt-trip><Route size={16} aria-hidden="true" />{t('Plan a trip on this day')}</button>
               <button type="button" class="btn" onclick={toCalendar} data-mt-ics><CalendarPlus size={16} aria-hidden="true" />{t('Add to calendar')}</button>
@@ -575,6 +607,9 @@
     display: grid;
     gap: var(--sp-3);
     min-width: 0;
+  }
+  .mt-fixed {
+    border-top: 3px solid var(--accent);
   }
   .mt-box h2 {
     margin: 0;

@@ -74,7 +74,29 @@ export async function openData(page) {
   const panel = page.locator('.datapanel');
   await expect(panel).toBeVisible();
   await expect(panel.locator('input[type="file"]').first()).toBeAttached();
+  await openFolds(page);
   return panel;
+}
+
+/**
+ * «Daten und Backup aufräumen» (Noah 01.11.2026): the page shows the sync question and keeps the rare things in two
+ * folds. Tests that work with everything on the page answer «Yes» and open the folds (the page itself tests the
+ * closed state in daten-aufgeraeumt.spec.js).
+ */
+export async function openFolds(page) {
+  const panel = page.locator('.datapanel');
+  // the page may build itself a second time while it settles (a reload, an import): open, wait a moment, check, again
+  for (let round = 0; round < 3; round++) {
+    const yes = panel.locator('[data-two="yes"]');
+    if (await yes.count()) await yes.click();
+    for (const id of ['backup-file', 'more']) {
+      const fold = panel.locator(`details[data-morefold="${id}"]`);
+      if ((await fold.count()) && !(await fold.evaluate((d) => d.open))) await fold.locator('summary').click();
+    }
+    await page.waitForTimeout(500);
+    const shut = await panel.locator('details[data-morefold]').evaluateAll((ds) => ds.filter((d) => !d.open && d.dataset.morefold !== 'sync').length);
+    if (!shut) return;
+  }
 }
 
 /**

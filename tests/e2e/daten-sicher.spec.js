@@ -9,7 +9,7 @@
 import { test, expect } from './clock.js';
 import DE from '../../src/lib/i18n/de/index.js';
 import { v048File } from './v048-fixture.js';
-import { openData, settle } from './settle.js';
+import { openData, settle, openFolds } from './settle.js';
 
 const T = (en, vars) => {
   const text = DE[en] ?? en.replace(/\|[a-z]+$/, '');
@@ -44,12 +44,14 @@ async function start(page, context, info) {
 test('Data and backup: kept by the browser, phone and computer, the second question and the copy', async ({ page, context }, info) => {
   const { errors } = await start(page, context, info);
   await page.goto('./#/me/data');
+  await openFolds(page);
   const main = page.locator('main');
+  await main.locator('[data-status-details]').click(); // the dots are behind «Einzelheiten»
   await expect(main.getByText(T('Kept by the browser'))).toBeVisible();
   const sync = main.locator('[data-section="sync"]');
   await expect(sync.getByRole('heading', { name: T('Phone and computer') })).toBeVisible();
   await expect(sync.getByText(/Letzter Austausch per Datei auf diesem Gerät/)).toBeVisible(); // the first import was an exchange
-  await expect(sync.getByRole('button', { name: T('Open backup') })).toBeVisible();
+  await expect(main.locator('[data-morefold="backup-file"]').getByText(T('Import backup'), { exact: true })).toBeVisible(); // the file way is one place now
 
   // the same file again: now there is data here
   await main.getByLabel(T('Import backup')).setInputFiles(v048File(info));

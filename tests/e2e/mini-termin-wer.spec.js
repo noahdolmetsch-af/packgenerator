@@ -105,3 +105,43 @@ test('Find a date: type in, change and delete an answer by hand', async ({ page,
   await tap(page.getByRole('button', { name: T('Undo') }), info);
   await expect(page.locator('[data-mt-row]')).toHaveCount(1);
 });
+
+test('Find a date: fix the date, send it to the group, take it back', async ({ page, context }, info) => {
+  const T = await openHome(page, context, info);
+  await miniServer(context);
+  await page.goto('./#/me/mini/neu');
+  await page.locator('[data-mt-title]').fill('test_data_gtp_ Festlegen');
+  for (const d of ['2026-10-17', '2026-10-18']) await tap(page.locator(`[data-mt-day="${d}"]`), info);
+  await tap(page.locator('[data-mt-make]'), info);
+  await expect(page.locator('[data-mt-fix]')).toHaveCount(0);
+  await tap(page.locator('[data-mt-mine="2026-10-18"]'), info);
+  await tap(page.locator('[data-mt-fix]'), info);
+  await tap(page.getByRole('dialog').getByRole('button', { name: T('Fix this date') }), info);
+  await expect(page.locator('[data-mt-fixed]')).toBeVisible();
+  await expect(page.locator('[data-mt-fixed] h2')).toContainText('18.10');
+  await expect(page.locator('[data-mt-share]')).toHaveCount(0);
+  await expect(page.locator('[data-mt-fixed-wa]')).toHaveAttribute('href', /wa\.me\/\?text=.*Festlegen/);
+  await expect(page.locator('[data-mt-fix]')).toHaveCount(0);
+  await noSideways(page, 'fixed');
+  await page.screenshot({ path: info.outputPath('termin-festlegen.png'), fullPage: true });
+  await tap(page.locator('[data-mt-unfix]'), info);
+  await expect(page.locator('[data-mt-fixed]')).toHaveCount(0);
+});
+
+test('Own link: the maker sees a bar that leads to the answers', async ({ page, context }, info) => {
+  const T = await openHome(page, context, info);
+  await miniServer(context);
+  await page.goto('./#/me/mini/neu');
+  await page.locator('[data-mt-title]').fill('test_data_gtp_ Eigener Link');
+  for (const d of ['2026-10-17', '2026-10-18']) await tap(page.locator(`[data-mt-day="${d}"]`), info);
+  await tap(page.locator('[data-mt-make]'), info);
+  const url = await page.locator('[data-mt-link]').inputValue();
+
+  await page.goto(url);
+  await expect(page.locator('[data-mm-own]')).toContainText(T('This is your own question.'));
+  await noSideways(page, 'own link');
+  await page.screenshot({ path: info.outputPath('eigener-link.png'), fullPage: true });
+  await tap(page.locator('[data-mm-own-link]'), info);
+  await expect(page.locator('[data-mt-best]')).toBeVisible();
+
+});
