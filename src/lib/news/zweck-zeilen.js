@@ -2,7 +2,7 @@
 export default {
   title: 'What each bike page is for',
   lead: '«Parts» and «My setup» now start with one line that says what they are for.',
-  points: [{ text: '«Parts» is for the components on a bike, «My setup» for how it is set up for your rides', go: { href: '#/bikes?tab=rig', where: 'Bikes › My setup and Bikes › Parts, right under the title.' } }],
+  points: [{ text: '«Parts» is for the components on a bike, «My setup» for how it is set up for your rides', go: { href: '#/bikes?tab=rig', steps: [{ sel: '[data-purpose="setup"]' }], where: 'Bikes › My setup and Bikes › Parts, right under the title.' } }],
   small: [],
   test: ['Open Bikes › My setup: a line under the title says what the page is for.', 'Open Bikes › Parts: the same, for the components of the bike.'],
   since: [],
