@@ -28,6 +28,8 @@ test('the week shows the next free and dry window; «Not now» shows the next on
   d.tables.settings = [
     { key: 'homePlace', value: { name: 'Heimort', lat: 47.37, lon: 8.54 } },
     { key: 'agenda', value: { calendar: true } },
+    // «Planen als verbindende Mitte» 4a: a to-do without a day, 30 minutes
+    { key: 'week.items', value: [{ id: 'test_data_gtp_fz1', kind: 'todo', title: 'test_data_gtp_ Belege ordnen', day: null, time: '', done: false, mins: 30 }] },
   ];
   await importAndSettle(page, { name: 'frei.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(d)) });
   // a busy morning in the calendar (the copy on this device is not in backups, so it is written here)
@@ -45,6 +47,11 @@ test('the week shows the next free and dry window; «Not now» shows the next on
   const card = page.locator('[data-free-slot]');
   await expect(card).toContainText('12:00–14:00');
   await expect(card).toContainText(T('{day} {from}–{to} free and dry').replace('{day} {from}–{to} ', '').trim());
+  await expect(card.locator('[data-fz-basis]')).toBeVisible();
+  // the to-do fits into the window (2 h minus the 30 min buffer): one tap puts it on that day, at the window's start
+  await card.locator('[data-fz-put]').click();
+  await expect(card.locator('[data-fz-put]')).toHaveCount(0);
+  await expect(page.locator(`[data-day="${DAY0}"] [data-entry="test_data_gtp_fz1"]`)).toContainText('12:00');
   await card.getByRole('button', { name: T('Not now') }).click();
   await expect(card).not.toContainText('12:00–14:00');
 });

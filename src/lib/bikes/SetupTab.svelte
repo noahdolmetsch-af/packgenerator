@@ -295,9 +295,20 @@
   let newStd = $state(null); // { id, standard } of a bike just added while there were bikes before
   const newBike = $derived(newStd && bikes.find((b) => b.id === newStd.id));
   // v0.23.0 (AP07): Today's "Add a bike" opens the dialog right away.
-  if (take('bikes.add')) bikeDialog = { bike: null };
+  let backTo = null; // the hash of the tab where «Add bike» was tapped (nav.js wantBike)
+  const openAdd = () => {
+    if (!take('bikes.add')) return false;
+    backTo = take('bikes.add.back');
+    bikeDialog = { bike: null };
+    return true;
+  };
+  const goBack = () => {
+    if (backTo) location.hash = backTo;
+    backTo = null;
+  };
+  openAdd();
   $effect(() => {
-    const add = () => take('bikes.add') && (bikeDialog = { bike: null });
+    const add = () => openAdd();
     window.addEventListener('pg:addbike', add);
     return () => window.removeEventListener('pg:addbike', add);
   });
@@ -728,7 +739,7 @@
   <RetireSheet bike={retireOpen} onsave={doRetire} onclose={() => (retireOpen = null)} />
 {/if}
 {#if bikeDialog}
-  <BikeDialog bike={bikeDialog.bike} bikes={allBikes} onretire={(b) => (retireOpen = b)} oncreated={(id) => { const others = bikes.filter((b) => b.id !== id); newStd = others.length ? { id, standard: others[0] } : null; firstNext = !others.length && inFirstSteps(); onbike?.(id); }} onsaved={(id) => onbike?.(id)} onclose={() => (bikeDialog = null)} />
+  <BikeDialog bike={bikeDialog.bike} bikes={allBikes} onretire={(b) => (retireOpen = b)} oncreated={(id) => { const others = bikes.filter((b) => b.id !== id); newStd = others.length ? { id, standard: others[0] } : null; firstNext = !others.length && inFirstSteps(); if (backTo) goBack(); else onbike?.(id); }} onsaved={(id) => onbike?.(id)} onclose={() => ((bikeDialog = null), goBack())} />
 {/if}
 
 {#if photoRename}

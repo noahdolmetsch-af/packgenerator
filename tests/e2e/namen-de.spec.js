@@ -4,7 +4,7 @@
 // Fictional data only; nothing leaves the preview server.
 import { test, expect } from './clock.js';
 import DE from '../../src/lib/i18n/de/index.js';
-import { ready } from './settle.js';
+import { ready, openFolds } from './settle.js';
 
 const T = (en, vars) => {
   const text = DE[en] ?? en.replace(/\|[a-z]+$/, '');
@@ -55,6 +55,7 @@ test('English names: suggestion, take over, undo, «Do not suggest» remembered'
   await seed(page, [item('food', 'Food pouch left'), item('de', 'Rahmentasche'), ...twelve.map((n, k) => item(`x${k}`, n))]);
   await page.reload();
   await ready(page);
+  await openFolds(page);
 
   const sec = page.locator('[data-section="names"]');
   await expect(sec.getByRole('heading', { level: 2 })).toHaveText(T('English names'));
@@ -86,6 +87,7 @@ test('English names: suggestion, take over, undo, «Do not suggest» remembered'
   expect((await read(page, 'settings', 'namesde.skip')).value).toEqual([`${P}x0`]);
   await page.reload();
   await ready(page);
+  await openFolds(page); // the folds close with a reload
   await sec.locator('[data-names-more]').click();
   await expect(sec.locator('[data-name-row]')).toHaveCount(12);
   await expect(sec.locator(`[data-name-row="${P}x0"]`)).toHaveCount(0);

@@ -24,6 +24,7 @@
   import { msName, starLine, val, countsLine } from '../flow/hobby/words.js';
   import { dayShort } from '../flow/words.js';
   import { actName } from '../flow/ui.svelte.js';
+  import { nextOf } from '../home/nextstars.js';
   import { t, tn, num } from '../i18n.svelte.js';
 
   let { act: given, today } = $props();
@@ -60,6 +61,8 @@
   const done = $derived(mine.filter((c) => actCount(c, data.log) >= c.times));
   const presets = $derived(act ? presetsFor(act, today) : []);
   const sportWord = $derived(act ? actName(act) : '');
+  // «Meilensteine aktiver machen» PR 1: the closest star of this sport, in one line
+  const nextStar = $derived(nextOf(list));
 
   /* the challenge window: a preset, an own one or a running one to change */
   let sheet = $state(false);
@@ -105,6 +108,7 @@
 {#if act}
   <div class="msl" data-milestone-slot={act.id}>
     <p class="small num" data-ms-stars>{tn(starCount, '{n} star', '{n} stars')}</p>
+    {#if nextStar}<p class="small num" data-ms-next>{t('Your next star: {name} · {left} to go', { name: msName(nextStar.r.m), left: val(nextStar.left, nextStar.r.m.unit) })}</p>{/if}
 
     <MsHow sport={sportWord} start={false} />
 

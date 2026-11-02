@@ -9,6 +9,7 @@
    */
   import { Upload, Link, Trash2 } from '@lucide/svelte';
   import RaceBox from './RaceBox.svelte';
+  import PasstHier from '../ui/PasstHier.svelte'; // Wegweiser 5: known or only imported?
   import { ownQuery, saveOwn, srcOf, sourcesOf, removeSource, renameSource } from '../map/ownpoints.js';
   import { placesFromFile, importPoints, kmzText, fileKind, MAX_FILE_MB } from '../map/placefiles.js';
   import { parseRwgpsLink, fetchRwgpsGpx } from '../sources/rwgps.js';
@@ -129,6 +130,7 @@
     <p class="rc-note">{t('Single places of a list: on the map under «My own places».')}</p>
   {/if}
   <p class="rc-note" data-sleep-mine>{t('Your own places to sleep near this route: {n}', { n: num(mine) })}</p>
+  <PasstHier place="sleeplists" />
 </RaceBox>
 
 <style>

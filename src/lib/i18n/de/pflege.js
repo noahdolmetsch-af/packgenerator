@@ -1,5 +1,6 @@
 /** German texts: v0.48.0 «Pflege-Übersicht, Teile pro Velo, Eingang und Notizen». Keys are the English texts. */
 export default {
+  'Add a bike first. Then this can be saved for it.': 'Erfasse zuerst ein Velo. Danach lässt sich das dafür speichern.',
   'No bikes yet, so there is no care data either.': 'Noch keine Velos, also auch noch keine Pflegedaten.',
   'No bikes yet, so there is no service data either.': 'Noch keine Velos, also auch noch keine Wartungsdaten.',
   'no bikes yet': 'noch keine Velos',
@@ -247,7 +248,7 @@ export default {
   '{n} filed today': '{n} heute abgelegt',
   'This week': 'Diese Woche',
   Earlier: 'Früher',
-  'Receipt|target': 'Rechnungsbeleg',
+  'Receipt|target': 'Beleg',
   'Receipt|chip': 'Beleg',
   'Problem on a bike': 'Problem am Velo',
   'Gear|target': 'Material',
@@ -296,7 +297,7 @@ export default {
   '{year}: CHF {chf}': '{year}: CHF {chf}',
   'Nothing waits for the bike shop. A problem marked «bike shop» in Care shows here.': 'Nichts wartet auf den Velomech. Ein Problem mit «Velomech» in der Pflege erscheint hier.',
   'Visits and receipts': 'Besuche und Belege',
-  'No visit yet. A photo of a receipt in the Inbox becomes one with «File as … Receipt».': 'Noch kein Besuch. Ein Foto einer Rechnung im Eingang wird mit «Ablegen als … Rechnungsbeleg» zu einem.',
+  'No visit yet. A photo of a receipt in the Inbox becomes one with «File as … Receipt».': 'Noch kein Besuch. Ein Foto einer Rechnung im Eingang wird mit «Ablegen als … Beleg» zu einem.',
   // Notizen
   'Bike|topic': 'Velo',
   'Trip ideas': 'Touren-Ideen',

@@ -128,3 +128,61 @@ export function icsOf(title, o, stamp = '20260101T000000Z', uid = 'mini') {
   lines.push(`SUMMARY:${icsText(title)}`, 'END:VEVENT', 'END:VCALENDAR');
   return `${lines.join('\r\n')}\r\n`;
 }
+
+/** Names of the people asked (Noah 1.11.2026 «1a»): trimmed, no empty, no double (same name in any case), at most 40. */
+export function cleanInvited(list) {
+  const seen = new Set();
+  const out = [];
+  for (const n of Array.isArray(list) ? list : []) {
+    const name = cleanName(n);
+    const k = name.toLowerCase();
+    if (!name || seen.has(k)) continue;
+    seen.add(k);
+    out.push(name);
+    if (out.length >= 40) break;
+  }
+  return out;
+}
+
+/**
+ * Who answered and who is missing. invited: the names the maker typed; answers: [{ name, picks }].
+ * A name counts as answered when an answer has the same name (any case). An answer counts only with at
+ * least one pick. → { answered: [name], missing: [name], others: [name] } (others: answered, not on the list).
+ */
+export function whoAnswered(invited, answers) {
+  const names = (answers ?? []).filter((a) => Object.keys(a?.picks ?? {}).length).map((a) => cleanName(a.name));
+  const have = new Set(names.map((n) => n.toLowerCase()));
+  const list = cleanInvited(invited);
+  const listKeys = new Set(list.map((n) => n.toLowerCase()));
+  return {
+    answered: list.filter((n) => have.has(n.toLowerCase())),
+    missing: list.filter((n) => !have.has(n.toLowerCase())),
+    others: names.filter((n) => n && !listKeys.has(n.toLowerCase())),
+    count: names.length,
+  };
+}
+
+/** The message to the people who have not answered yet (for the group chat). */
+export function reminderText(title, missing, link, T) {
+  return `${T('{title}: still missing an answer from {names}. Tap your answer here: {link}', { title, names: missing.join(', '), link })}`;
+}
+
+/**
+ * The answers as the maker sees them (Noah 1.11.2026 «2a»): what came in from the server, plus the ones the maker
+ * typed in by hand («manual», kept on this device only), minus the ones he changed or deleted («hide»).
+ * server: [{ a, name, picks, note }]; manual: [{ id, name, picks, note, over?: server answer id }]; hide: [server answer id].
+ * → [{ key, name, picks, note, manual, a? }]: «s:<a>» for a server answer, «m:<id>» for a typed one.
+ */
+export function mergeAnswers(server = [], manual = [], hide = []) {
+  const gone = new Set([...(hide ?? []), ...(manual ?? []).map((m) => m.over).filter(Boolean)]);
+  return [
+    ...(server ?? []).filter((r) => !gone.has(r.a)).map((r) => ({ key: `s:${r.a}`, a: r.a, name: r.name ?? '', picks: r.picks ?? {}, note: r.note ?? '', manual: false })),
+    ...(manual ?? []).map((m) => ({ key: `m:${m.id}`, id: m.id, name: m.name ?? '', picks: m.picks ?? {}, note: m.note ?? '', manual: true })),
+  ];
+}
+
+/** An answer typed in by the maker → clean { name, picks, note }, or null when it has no name or no pick. */
+export function cleanManual({ name, picks, note = '' }, opts) {
+  const a = cleanAnswer({ name, picks, note }, opts);
+  return a.name && Object.keys(a.picks).length ? a : null;
+}

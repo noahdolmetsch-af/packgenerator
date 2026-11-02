@@ -12,6 +12,7 @@
   import { db } from '../lib/db.js';
   import { readRaw, computeFrom, saveState } from '../lib/neuland/store.js';
   import { loadBase } from '../lib/neuland/load.js';
+  import { newSince, dayBefore } from '../lib/neuland/neuheute.js'; // N11 «Neu heute» here too (Noah 28.10.2026 «1 a und b»)
   import {
     stateOf, collectionsOf, collectionName, setOn, moveCollection, moveCollectionTo, addCustom, renameCollection, deleteCustom,
     addItem, editItem, hideItem, removeItem, restoreItem, tick, untick, clearNope, newIn, bingoCard, bingoLines, cantonsInYear,
@@ -104,6 +105,8 @@
   const reached = $derived(cur ? cur.items.filter((i) => cur.visited.has(i.id)).length : 0);
   const newYear = $derived(cur ? newIn(cur.visited, year).length : 0);
   const summary = $derived(result ? neulandSummary(result, year).text : '');
+  // «Neu seit gestern» (N11): the same line as on Heute, here with one chip per collection that opens it
+  const fresh = $derived(result ? newSince(result, dayBefore(today)) : null);
   const nothingYet = $derived(!!result && !result.tracks.length && on.every((c) => !c.visited.size));
 
   // the list: reached first (newest first), then the open ones A–Z; «dieses Jahr» shows only what was new this year
@@ -223,10 +226,11 @@
   }
   const counts = $derived(Object.fromEntries(state.custom.map((c) => [c.id, c.items.length])));
   const targets = (c) => state.custom.filter((x) => x.id !== c.id).map((x) => ({ id: x.id, name: x.name }));
+  import PasstHier from '../lib/ui/PasstHier.svelte'; // «Wegweiser statt Katalog» PR 6
 </script>
 
 <div class="rv-page nl">
-  <PathHead crumbs={[{ label: t('Trips|place'), href: '#/trips' }, { label: t('Look back|page'), href: '#/debrief' }]} title={t('New ground')} sub={t('What you experienced for the first time. The app finds it from your routes and rides; you can tick everything yourself.')}>
+  <PathHead crumbs={[{ label: t('Trips|place'), href: '#/trips' }, { label: t('Look back|page'), href: '#/debrief' }]} title={t('New ground')} sub={t('What you experienced for the first time. The app finds it from your routes and rides; you can tick everything yourself. After a ride, «New since yesterday» shows what is new.')}>
     <button type="button" class="btn" aria-haspopup="dialog" onclick={() => (colsOpen = true)}><SlidersHorizontal size={16} aria-hidden="true" />{t('Choose collections')}</button>
     <!-- «Heatmap» (Noah 20.10.2026 «1a und b»): all rides on one map, its own page -->
     <a class="btn" href="#/heatmap" data-neuland-heatmap><Flame size={16} aria-hidden="true" />{t('Heatmap')}</a>
@@ -241,6 +245,16 @@
     <Empty icon={Compass} title={t('No collection switched on')} text={t('Switch on what you want to collect: cantons, passes, huts, peaks, lakes or your own.')} action={{ label: t('Choose collections'), onclick: () => (colsOpen = true) }} />
   {:else}
     {#if summary}<p class="nl-sum">{summary}</p>{/if}
+    {#if fresh?.n}
+      <div class="nl-fresh" data-nl-fresh>
+        <b>{fresh.text}</b>
+        <span class="nl-fresh-c">
+          {#each fresh.parts as p (p.cid)}
+            <button type="button" class="chip" aria-pressed={cur?.id === p.cid} onclick={() => choose(p.cid)} data-nl-fresh-c={p.cid}>{p.text}</button>
+          {/each}
+        </span>
+      </div>
+    {/if}
     {#if nothingYet}
       <p class="nl-hint card"><Info size={18} aria-hidden="true" /><span>{t('Nothing found yet. Upload a ride or give a trip a GPX route: the app then colours in where you were. You can also tick by hand.')} <a href="#/debrief/ride">{t('Upload a ride')}</a></span></p>
     {/if}
@@ -323,6 +337,7 @@
       </section>
     {/if}
   {/if}
+  <PasstHier place="neuland" />
 
   {#if openIt}
     {@const c = openItem}
@@ -397,6 +412,41 @@
 </div>
 
 <style>
+  .nl-fresh {
+    display: grid;
+    gap: 8px;
+    margin: 0 0 14px;
+    padding: 10px 14px;
+    border: 1px solid var(--hi-soft);
+    border-radius: var(--radius-card);
+    background: var(--hi-soft);
+  }
+  .nl-fresh b {
+    font-size: var(--fs-body);
+    font-weight: 600;
+  }
+  .nl-fresh-c {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .nl-fresh .chip {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0 14px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: var(--paper);
+    color: var(--ink);
+    font: 500 var(--fs-small) var(--font-body);
+    cursor: pointer;
+  }
+  .nl-fresh .chip[aria-pressed='true'] {
+    border-color: var(--ink);
+    background: var(--ink);
+    color: var(--paper);
+  }
   .nl-sum {
     margin: 0 0 12px;
     font-weight: 600;

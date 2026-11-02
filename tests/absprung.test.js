@@ -5,9 +5,12 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { FEATURES } from '../src/lib/features.js';
 import { NO_JUMP, withoutJump, jumpPath } from '../src/lib/know/absprung.js';
+import { PASST_HIER } from '../src/lib/passthier.js';
 
 // 44 on 01.11.2026. Lower it with every package that gives functions a jump; never raise it.
-const MAX_NO_JUMP = 44;
+// 40 after «Unterwegs» (Wegweiser PR 2).
+// 25 after «Rückblick» (Wegweiser PR 4), 20 after «Träume» (PR 6).
+const MAX_NO_JUMP = 20;
 
 const SRC = path.resolve(__dirname, '../src');
 function sources() {
@@ -23,7 +26,16 @@ function sources() {
 }
 
 describe('every function has a jump from a page (Wegweiser)', () => {
-  const missing = withoutJump(FEATURES, sources());
+  const src = sources();
+  const missing = withoutJump(FEATURES, src, new Set(Object.values(PASST_HIER).flat()));
+
+  it('every «Fits here» place names existing functions and is shown on a page', () => {
+    const ids = new Set(FEATURES.map((f) => f.id));
+    for (const [place, list] of Object.entries(PASST_HIER)) {
+      expect(list.filter((id) => !ids.has(id)), place).toEqual([]);
+      expect(src.some(([, s]) => s.includes(`<PasstHier place="${place}"`)), `<PasstHier place="${place}" /> on a page`).toBe(true);
+    }
+  });
 
   it('a function without a jump is listed in NO_JUMP (a new function comes with its jump)', () => {
     expect(missing.filter((id) => !NO_JUMP.includes(id)), 'give these a link from the page where you need them').toEqual([]);
