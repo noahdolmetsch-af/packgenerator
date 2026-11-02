@@ -2,8 +2,8 @@
 export default {
   title: 'All dreams on one map',
   lead: 'See which dream brings the most new: all dreams with a map on one map.',
-  points: [{ text: 'Trips › Dreams: «All dreams on one map», numbered, with new municipalities, passes and lakes per dream, most new first', href: '#/trips/dreams' }],
-  small: [{ box: 'new', text: 'Counts from New ground: what you have been to does not count; a tap opens the dream' }],
+  points: [{ text: 'Trips › Dreams: «All dreams on one map», numbered, with new municipalities, passes and lakes per dream, most new first', href: '#/trips/dreams', go: 'f.dreamsmap' }],
+  small: [{ box: 'new', text: 'Counts from New ground: what you have been to does not count; a tap opens the dream', go: 'f.dreamsmap' }],
   test: [
     'Give two dreams a map (GPX file or Ride with GPS link).',
     'Trips › Dreams: «All dreams on one map» shows both, numbered.',

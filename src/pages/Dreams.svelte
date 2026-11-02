@@ -183,7 +183,7 @@
 
 <div class="ich-page dreams" data-page="dreams">
   <VeloHead crumbs={[{ label: t('Trips|place'), href: '#/trips' }]} title={t('Dreams|page')} sub={t('Dream tours with their season, races as event tours')} />
-  <p class="dr-intro">{t('Write down tours you dream of. The app suggests when each one fits; you can change the months. One tap makes a trip from a dream. «New ground round» plans a round through a place you have never been. Done ones move to «Fulfilled dreams». A dream shows «Ready for the dream?». A dream that fits now shows a «Weather window for dreams».')}</p>
+  <p class="dr-intro">{t('Write down tours you dream of. The app suggests when each one fits; you can change the months. One tap makes a trip from a dream. «New ground round» plans a round through a place you have never been. Done ones move to «Fulfilled dreams». A dream shows «Ready for the dream?». A dream that fits now shows a «Weather window for dreams». «All dreams on one map» shows which dream brings the most new.')}</p>
   <AreaIntro place="dreams" />
 
   <form class="card cap" onsubmit={add}>

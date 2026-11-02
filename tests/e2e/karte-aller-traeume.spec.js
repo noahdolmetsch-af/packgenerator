@@ -1,6 +1,6 @@
 // «Karte aller Träume» (Träume und Neuland N14, Noah 27.10.2026 «1-5 a»): fictional dreams with a map on one map,
 // numbered, each with what it would bring new; a tap opens the dream. Map tiles are blocked (no real network).
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { mkdirSync } from 'node:fs';
 import DE from '../../src/lib/i18n/de/index.js';
 import { ready } from './settle.js';
