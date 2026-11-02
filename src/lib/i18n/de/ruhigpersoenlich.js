@@ -283,6 +283,7 @@ export default {
   'After your first trip you can note here what knowledge was missing.': 'Nach deiner ersten Tour kannst du hier festhalten, welches Wissen fehlte.',
   'You are doing': 'Du machst gerade',
   'Done|calm': 'Fertig',
+  'Clear the history': 'Verlauf leeren',
   'Workspace': 'Arbeitsraum',
   'End the workspace': 'Arbeitsraum beenden',
   'A letter of yours is waiting for this moment': 'Ein Brief von dir wartet auf diesen Moment',

@@ -6,6 +6,7 @@
    * trips and the ride ledger only while a closed letter waits. Features load only for a workspace.
    */
   import { liveQuery } from 'dexie';
+  import { endCalm } from './store.js';
   import { Moon, Briefcase, Mail, X } from '@lucide/svelte';
   import { db } from '../db.js';
   import { t } from '../i18n.svelte.js';
@@ -49,7 +50,7 @@
     <Moon size={16} aria-hidden="true" />
     <span class="rhl-t">{t('You are doing')}: <b>{$q.calm.what}</b></span>
     {#if $q.calm.href && $q.calm.href !== hash}<a class="rhl-a" href={$q.calm.href}>{t('Open')}</a>{/if}
-    <button type="button" class="rhl-x" onclick={() => db.settings.put({ key: CALM_KEY, value: null })} aria-label={t('Done|calm')}>{t('Done|calm')}</button>
+    <button type="button" class="rhl-x" onclick={() => endCalm($q.calm)} aria-label={t('Done|calm')}>{t('Done|calm')}</button>
   </div>
 {:else if space}
   <div class="rhl" data-ruhig-line="space">
