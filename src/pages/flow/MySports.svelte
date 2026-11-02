@@ -123,6 +123,7 @@
     const r = s.goals.find((x) => !x.met);
     return r ? { key: 'left', cls: '', text: t('{n}× more in {d} days', { n: r.goal.count - r.done, d: r.goal.days }) } : { key: 'none', cls: '', text: t('no goal|sport') };
   }
+  import PasstHier from '../../lib/ui/PasstHier.svelte'; // «Wegweiser statt Katalog» PR 7
 </script>
 
 <div class="flow ms">
@@ -224,6 +225,7 @@
       </details>
     {/if}
   {/if}
+  <PasstHier place="sports" />
 </div>
 
 <style>

@@ -21,7 +21,9 @@ describe('the tiles', () => {
       expect(catalog().flatMap((a) => a.tiles).some((x) => x.id === `fn:${f.id}`)).toBe(true);
       expect(READY_0155.some((x) => x.id === `fn:${f.id}`)).toBe(!REMOVED_0155.includes(`fn:${f.id}`));
     }
-    expect(READY.filter((x) => x.size === 's').length).toBe(8);
+    // «Schnell öffnen» (Noah 01.11.2026 «5a», changed on purpose): the ready wall has the tile with your pins; the 8 small tiles stay in the catalog
+    expect(READY.filter((x) => x.size === 's').length).toBe(0);
+    expect(READY.some((x) => x.id === 'pins')).toBe(true);
   });
   it('the ready wall uses sizes its tiles can take', () => {
     for (const x of READY) expect(TILE[x.id].sizes, x.id).toContain(x.size);
@@ -50,7 +52,7 @@ describe('the stored wall', () => {
     const w = wallOf({ v: 17, tiles: [{ id: 'play', size: 'long' }, { id: 'nope', size: 's' }, { id: 'play', size: 'w' }, null, { id: 'year', size: 'long' }] });
     expect(w).toEqual([{ id: 'play', size: 's' }, { id: 'year', size: 'long' }]);
     expect(wallOf({ v: 17, tiles: [{ id: 'news', size: 'long' }] })).toEqual([{ id: 'news', size: 'long' }]);
-    expect(wallRecord(w)).toEqual({ v: 17, tiles: w });
+    expect(wallRecord(w)).toEqual({ v: 18, tiles: w });
     expect(wallOf({ v: 17, tiles: [] })).toEqual([]);
     expect(wallOf({ v: 9, tiles: [{ id: 'news', size: 'long' }] })).toEqual(READY);
     expect(wallOf({ v: 8, tiles: [{ id: 'news', size: 'long' }] })).toEqual(READY);
