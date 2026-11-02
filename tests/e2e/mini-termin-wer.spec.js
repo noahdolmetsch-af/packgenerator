@@ -127,3 +127,21 @@ test('Find a date: fix the date, send it to the group, take it back', async ({ p
   await tap(page.locator('[data-mt-unfix]'), info);
   await expect(page.locator('[data-mt-fixed]')).toHaveCount(0);
 });
+
+test('Own link: the maker sees a bar that leads to the answers', async ({ page, context }, info) => {
+  const T = await openHome(page, context, info);
+  await miniServer(context);
+  await page.goto('./#/me/mini/neu');
+  await page.locator('[data-mt-title]').fill('test_data_gtp_ Eigener Link');
+  for (const d of ['2026-10-17', '2026-10-18']) await tap(page.locator(`[data-mt-day="${d}"]`), info);
+  await tap(page.locator('[data-mt-make]'), info);
+  const url = await page.locator('[data-mt-link]').inputValue();
+
+  await page.goto(url);
+  await expect(page.locator('[data-mm-own]')).toContainText(T('This is your own question.'));
+  await noSideways(page, 'own link');
+  await page.screenshot({ path: info.outputPath('eigener-link.png'), fullPage: true });
+  await tap(page.locator('[data-mm-own-link]'), info);
+  await expect(page.locator('[data-mt-best]')).toBeVisible();
+
+});
