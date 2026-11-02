@@ -234,6 +234,7 @@ const LISTED = {
   'f.sellbike': ['Bikes › Care › a bike › «Wear» › «Sale listing».', 'Type a price and more if you like; the text updates.', '«Copy» or «Share» it to the marketplace.'],
   'f.bikebox': ['Bikes › Care › a bike › «Wear» › «Pack the bike».', 'Tick each point; add, rename, move or delete points.', 'Take photos before packing, as proof if something breaks.'],
   'f.workshoprounds': ['Bikes › Care › a bike › «Workshop rounds».', 'Add a suggestion or your own round: jobs, tools, material.', '«Start the round», tick what you did, «Done»: the jobs with a part go into the part.'],
+  'f.wearcosts': ['Bikes › Care › a bike › «Wear» › «What the next months cost».', 'Pick 3, 6 or 12 months.', '«All on the shopping list» adds the parts; Undo takes them off again.'],
   'f.sparestock': ['Bikes › Care › a bike › «Wear» › «Spare parts at home».', 'Add a row with a number, e.g. 2 chains.', 'You replace a chain yourself: one less; at 0 «Shopping list» adds it.'],
   'f.brandkm': ['Bikes › Care › a bike › «Wear» › «What lasts longest».', 'Each brand with its average km, from your used-up parts.', 'A part that runs out shows the brand that lasted longest.'],
   'f.springservice': ['Bikes › Care › a bike › «Wear» › «Reminders» › «Spring service».', 'Pick the month or «off».', 'The to-do in Kalender › Merken lists what is due on each bike.'],
