@@ -16,7 +16,7 @@ export const ON_PAGES = [
   '#/me/frei/lust', '#/me/frei/reise', '#/me/frei/wesentlich', '#/me/frei/nacht', '#/me/compass', '#/trips/dreams', '#/inspiration',
   // PR 15, area «Unterwegs»: On the way, before you leave, mountain, weather, ski start (not Live, not Heute)
   '#/ride', '#/ride/abfahrt', '#/mountain', '#/wetter', '#/ski/start',
-  // PR 14, area «Zurück» (after a trip). '#/debrief/:trip' is not listed: ON_PAGES matches whole paths, not placeholders
+  // PR 14, area «Zurück» (after a trip). '#/debrief/:trip' comes with PR 21
   '#/debrief', '#/debrief/pace', '#/debrief/logbook', '#/debrief/learnings', '#/pack/past', '#/check/evening', '#/me/ruhig/spaeter',
   '#/me/ruhig/bedeutung', '#/me/ruhig/koennen', '#/me/frei/naechstes', '#/ski/after',
   // PR 17, area «Alltag»: documents and links, calm, reminders, friends and mini tools (not Reminders on the phone and
@@ -43,7 +43,13 @@ export const ON_PAGES = [
   // Not Data and backup, Appearance, Connections: with many functions the card pushes them below 2.5 phone screens (heimat.spec.js).
   '#/me/lists', '#/me/privacy', '#/me/regeln', '#/me/verstehen', '#/me/werte', '#/me/hinweise',
   '#/me/suche', '#/assistent', '#/helper', '#/me/apps',
+  // PR 21, pages of one thing (a placeholder ':name' stands for one id): one trip's debrief, a race and its parts, one diary
+  // entry. Not the race mode (#/race/:race/ride): while racing the first screen belongs to the ride, like Unterwegs. Not one
+  // note (#/notes?open=:note): the note opens as a window over Notes, so the card would only sit hidden behind it.
+  '#/debrief/:trip', '#/race/:race', '#/race/:race/route', '#/race/:race/map', '#/tagebuch/:entry',
 ];
+/** Words that are fixed sub-pages, never the id of a placeholder (#/debrief/logbook is not a trip). */
+export const RESERVED = ['learnings', 'pace', 'compare', 'logbook', 'play', 'ride', 'brief', 'new', 'shared'];
 /** Rows shown before «Show all n». */
 export const SHOWN = 4;
 export const FOLD_KEY = 'seiteninhalt.folded';
@@ -52,7 +58,7 @@ export const FOLD_KEY = 'seiteninhalt.folded';
  * must stay on the first screen; on Pack the packing list comes first. A tap opens it, and the choice is kept like ×.
  */
 // Wegweiser 18: Training and Auswerten start as one line too (heimat.spec: their functions must stay within 2.5 screens)
-export const FOLDED_FIRST = ['#/ride', '#/pack', '#/bikes', '#/gear', '#/flow/training', '#/auswerten'];
+export const FOLDED_FIRST = ['#/ride', '#/pack', '#/bikes', '#/gear', '#/flow/training', '#/auswerten', '#/debrief/:trip'];
 
 /** The page of a hash, as HOME writes it: path plus «tab=…» or «view=…» when they choose the page. */
 export function pageKey(hash = '') {
@@ -61,13 +67,38 @@ export function pageKey(hash = '') {
   return keep ? `${path}?${keep}` : path;
 }
 
+const esc = (x) => x.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+/** Whether a page key fits a page of ON_PAGES: equal, or ':name' parts stand for one id that is not a RESERVED word. */
+export function fits(here, page) {
+  if (here === page) return true;
+  if (!page.includes(':')) return false;
+  const re = new RegExp(`^${page.split(/(:\w+)/).map((x) => (x.startsWith(':') ? '([^/?&]+)' : esc(x))).join('')}$`);
+  const m = here.match(re);
+  return !!m && m.slice(1).every((v) => !RESERVED.includes(decodeURIComponent(v)));
+}
+
+/** A made-up id for each placeholder name; the page of that id is then a "real" page for pagePattern (Wegweiser 24 reads ON_PAGES). */
+export const SAMPLE_IDS = { trip: 'sample-trip', race: 'race-sample', entry: 'sample-entry' };
+/** A page of ON_PAGES with every ':name' replaced by an id (ids[name], else SAMPLE_IDS[name]), so it can be opened or matched. */
+export function samplePage(page, ids = {}) {
+  return page.replace(/:(\w+)/g, (_, n) => ids[n] ?? SAMPLE_IDS[n] ?? n);
+}
+
+/** The switched-on page (as written in ON_PAGES, with its placeholders) a hash belongs to, or '' (a fixed page wins). */
+export function pagePattern(hash, on = ON_PAGES) {
+  const here = pageKey(hash);
+  if (!here || here === '#/') return '';
+  return on.includes(here) ? here : (on.find((p) => fits(here, p)) ?? '');
+}
+
 /**
  * The rows for a page: [{ id, title, text, steps, example, know }] (English keys for t()), only on switched-on pages.
- * on: the pages switched on (default ON_PAGES).
+ * on: the pages switched on (default ON_PAGES). A page of one thing (#/debrief/<trip>) shows the functions HOME writes
+ * for its pattern (#/debrief/:trip).
  */
 export function pageContent(hash, on = ON_PAGES) {
-  const here = pageKey(hash);
-  if (!here || here === '#/' || !on.includes(here)) return [];
+  const here = pagePattern(hash, on);
+  if (!here) return [];
   return FEATURES.filter((f) => HOME[f.id] && pageKey(HOME[f.id]) === here).map((f) => {
     const h = HANDBOOK[f.id] ?? {};
     return { id: f.id, title: f.title, text: f.text, steps: h.steps ?? [], example: h.example ?? '', know: WISSEN[f.id] ?? '' };
