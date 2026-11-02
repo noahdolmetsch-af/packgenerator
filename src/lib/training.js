@@ -261,6 +261,8 @@ export function cleanSession(s) {
   const out = { id: String(s.id || `s${Math.random().toString(36).slice(2, 9)}`), day: s.day, kind: KIND_KEYS.includes(s.kind) ? s.kind : 'bike', name: String(s.name ?? '').trim().slice(0, 60), mins, zone: zone >= 1 && zone <= 5 ? zone : null };
   // «Trainingspläne»: a session written by a sample plan keeps the plan's id, so the plan can be taken out again
   if (typeof s.src === 'string' && s.src) out.src = s.src.slice(0, 40);
+  // «Training verbessern» 1: a session of one of the user's own sports (id of an activity in Aktiv); ticked by its entries there
+  if (typeof s.sport === 'string' && s.sport) out.sport = s.sport.slice(0, 60);
   // Klick-Rundgang A04: ticked by hand («Gemacht»), for a session without a Strava activity
   if (s.done === true) out.done = true;
   return out;

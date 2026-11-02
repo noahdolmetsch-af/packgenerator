@@ -7,7 +7,9 @@
    * days: the chosen period; byKey; acts; log; today.
    */
   import Seg from '../../lib/ui/Seg.svelte';
-  import { valueText, unitText } from '../../lib/analyse/format.js';
+  import { valueText, unitText, axisOf } from '../../lib/analyse/format.js';
+  import GridLines from '../../lib/charts/GridLines.svelte';
+  import YTicks from '../../lib/charts/YTicks.svelte';
   import { SLOTS, SEASONS, weekPattern, monthsOf, seasonsOf, tickDaysOf, runsAndGaps, bestWeek, extremeOf, bestMonth, isNew } from '../../lib/analyse/patterns.js';
   import { ticksPerDay } from '../../lib/analyse/overview.js';
   import { addDays } from '../../lib/analyse.js';
@@ -68,11 +70,19 @@
     }
     return MONTHS.map((m, i) => ({ key: String(i), label: m, now: yv.now[i], prev: yv.prev[i] }));
   });
-  const barTop = $derived(Math.max(1e-9, ...bars.flatMap((b) => [b.now ?? 0, b.prev ?? 0])));
+  // round, labelled steps (Noah «genaue Werte»)
+  const yax = $derived(axisOf(yv?.it, bars.flatMap((b) => [b.now ?? 0, b.prev ?? 0]), num, { zero: true, count: 3 }));
+  let pickSlot = $state(null); // a tapped month or season
+  const si = $derived(pickSlot != null && pickSlot < bars.length ? pickSlot : null);
+  function tapSlot(e) {
+    const r = e.currentTarget.getBoundingClientRect();
+    pickSlot = Math.max(0, Math.min(bars.length - 1, Math.floor(((e.clientX - r.left) / r.width) * bars.length)));
+  }
   const W = 600;
   const H = 170;
   const BASE = H - 6;
-  const bh = (v) => ((v ?? 0) / barTop) * (BASE - 10);
+  const yy = (v) => BASE - (((v ?? 0) - yax.sc.lo) / (yax.sc.hi - yax.sc.lo || 1)) * (BASE - 10);
+  const bh = (v) => BASE - yy(v);
   const yOpts = [
     { key: 'month', name: '' },
     { key: 'season', name: '' },
@@ -162,16 +172,21 @@
         </label>
         <Seg options={byOpts} value={byWhat} onchange={(v) => (byWhat = v)} label={t('Group by|patterns')} full={false} />
       </div>
-      <svg viewBox="0 0 {W} {H}" role="img" aria-label="{yv.it.name}: {year} {t('against|compare')} {year - 1}">
-        <line class="base" x1="0" x2={W} y1={BASE} y2={BASE} />
+      <p class="pv" data-yy-pick aria-live="polite">{#if si != null}<b>{bars[si].label}</b>: {year} <b class="num">{bars[si].now != null ? vText(yv.it, bars[si].now) : '–'}</b> · {year - 1} <b class="num">{bars[si].prev != null ? vText(yv.it, bars[si].prev) : '–'}</b>{:else}{t('Tap a month for its exact values.|patterns')}{/if}</p>
+      <div class="plot">
+      <YTicks ticks={yax.sc.ticks} y={yy} h={H} text={yax.text} unit={unitText(yv.it)} width={56} />
+      <!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_noninteractive_element_interactions -->
+      <svg viewBox="0 0 {W} {H}" role="img" aria-label="{yv.it.name}: {year} {t('against|compare')} {year - 1}" onclick={tapSlot}>
+        <GridLines ticks={yax.sc.ticks} y={yy} x1={0} x2={W} />
         {#each bars as b, i (b.key)}
-          {@const slot = W / bars.length}
-          {@const bw = Math.max(3, slot / 2 - 4)}
-          <rect class="prev" x={i * slot + slot / 2 - bw - 1} width={bw} y={BASE - bh(b.prev)} height={bh(b.prev)} data-yy-prev={b.key}><title>{b.label} {year - 1}: {vText(yv.it, b.prev)}</title></rect>
-          <rect class="now" x={i * slot + slot / 2 + 1} width={bw} y={BASE - bh(b.now)} height={bh(b.now)} data-yy-now={b.key}><title>{b.label} {year}: {vText(yv.it, b.now)}</title></rect>
+          {@const sw = W / bars.length}
+          {@const bw = Math.max(3, sw / 2 - 4)}
+          <rect class="prev" x={i * sw + sw / 2 - bw - 1} width={bw} y={BASE - bh(b.prev)} height={bh(b.prev)} data-yy-prev={b.key}><title>{b.label} {year - 1}: {vText(yv.it, b.prev)}</title></rect>
+          <rect class="now" x={i * sw + sw / 2 + 1} width={bw} y={BASE - bh(b.now)} height={bh(b.now)} data-yy-now={b.key}><title>{b.label} {year}: {vText(yv.it, b.now)}</title></rect>
         {/each}
       </svg>
-      <div class="xl" style="--n: {bars.length}" aria-hidden="true">{#each bars as b (b.key)}<span>{b.label}</span>{/each}</div>
+      </div>
+      <div class="xl" style="--n: {bars.length}; margin-left:62px" aria-hidden="true">{#each bars as b (b.key)}<span><b class="lg">{b.label}</b><b class="sm">{bars.length === 12 ? b.label.slice(0, 1) : b.label}</b></span>{/each}</div>
       <ul class="legend"><li><i class="lsw now"></i>{year}</li><li><i class="lsw prev"></i>{year - 1}</li></ul>
       <p class="hint">{yv.it.sum ? t('Total per month or season.|patterns') : t('Mean per month or season.|patterns')}</p>
     {:else}
@@ -307,12 +322,21 @@
     background: var(--l1);
     color: var(--paper);
   }
+  .plot {
+    display: flex;
+    gap: 6px;
+    min-width: 0;
+  }
   svg {
+    flex: 1;
+    min-width: 0;
     width: 100%;
     height: auto;
+    cursor: crosshair;
   }
-  .base {
-    stroke: var(--line);
+  .pv {
+    margin: 0;
+    font-size: var(--fs-small);
   }
   rect.now {
     fill: var(--l1);
@@ -327,9 +351,27 @@
     font-size: var(--fs-label);
     text-align: center;
   }
+  .xl {
+    container-type: inline-size;
+    gap: 2px;
+  }
   .xl span {
     overflow: hidden;
     white-space: nowrap;
+  }
+  .xl b {
+    font-weight: 400;
+  }
+  .xl .sm {
+    display: none;
+  }
+  @container (max-width: 420px) {
+    .xl .lg {
+      display: none;
+    }
+    .xl .sm {
+      display: inline;
+    }
   }
   .legend {
     display: flex;

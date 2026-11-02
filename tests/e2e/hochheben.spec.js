@@ -19,6 +19,8 @@ test('the held row lifts with a shadow and lands at its new place', async ({ pag
   await page.goto('./#/me/lists?categories');
   const rows = page.locator('main li[data-sort-id]');
   await expect(rows.nth(2)).toBeVisible();
+  // the «Was du hier tun kannst» card sits above the list now: bring the rows to the top of the screen first
+  await rows.nth(0).evaluate((el) => el.scrollIntoView({ block: 'start' }));
   const first = await rows.nth(0).getAttribute('data-sort-id');
 
   const a = await rows.nth(0).locator('[data-sort-grip]').boundingBox();

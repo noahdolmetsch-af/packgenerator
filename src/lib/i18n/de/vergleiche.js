@@ -37,4 +37,5 @@ export default {
   'Change|compare': 'Änderung',
   'Only an observation: a trip is never the only thing that changes.|compare': 'Nur eine Beobachtung: Eine Tour ist nie das Einzige, was sich ändert.',
   'No values around this trip.|compare': 'Rund um diese Tour gibt es keine Werte.',
+  'Day {n}|compare': 'Tag {n}',
 };

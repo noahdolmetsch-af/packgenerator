@@ -14,5 +14,7 @@ import unterwegs from './unterwegs.js';
 import velo from './velo.js';
 import zurueck from './zurueck.js';
 import alltag from './alltag.js';
+import app from './app.js';
+import offen from './offen.js';
 
-export const WISSEN = { ...koerper, ...lust, ...packen, ...planen, ...unterwegs, ...velo, ...zurueck, ...alltag };
+export const WISSEN = { ...koerper, ...lust, ...packen, ...planen, ...unterwegs, ...velo, ...zurueck, ...alltag, ...app, ...offen };

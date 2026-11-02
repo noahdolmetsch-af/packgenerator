@@ -180,6 +180,61 @@ test('Aktiv and Training show good to know in the card', async ({ page, context 
   expect(errors).toEqual([]);
 });
 
+
+// PR 21: pages of one thing (a placeholder ':trip', ':race' in ON_PAGES) show the card too; the fold choice holds for the pattern,
+// so folding it on one trip's debrief folds it on every trip's debrief. Fictional trips and notes (test_data_gtp_).
+test('One trip debrief shows the card, the fold holds for every trip, a race shows it too', async ({ page, context }, info) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await openHome(page, context, info);
+  await page.goto('./#/debrief/test_data_gtp_Napf');
+  const card = page.locator('[data-seiteninhalt]');
+  // starts as one line on a trip's debrief (FOLDED_FIRST), a tap opens it
+  await expect(page.locator('[data-seiteninhalt-line]')).toBeVisible();
+  await tap(page.locator('[data-seiteninhalt-line]'), info);
+  await expect(card).toContainText(T('What you can do here'));
+  await expect(page.locator('[data-seiteninhalt-know="f.breakdown"]')).toContainText(T('Good to know'));
+  expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBe(0);
+  await tap(card.locator('[data-seiteninhalt-fold]'), info);
+  await expect(page.locator('[data-seiteninhalt-line]')).toBeVisible();
+  await page.goto('./#/debrief/test_data_gtp_Jura');
+  await expect(page.locator('[data-seiteninhalt-line]')).toBeVisible();
+  await expect(page.locator('[data-seiteninhalt]')).toHaveCount(0);
+  // a fixed page under the same path is not «one trip»
+  await page.goto('./#/debrief/logbook');
+  await expect(page.locator('[data-seiteninhalt-item="f.breakdown"]')).toHaveCount(0);
+  // the sample race (made up, in the app source) shows its own functions; race mode stays free for riding
+  await page.goto('./#/race');
+  await tap(page.locator('[data-race-sample-open]'), info);
+  await expect(page).toHaveURL(/#\/race\/race-sample$/);
+  await expect(page.locator('[data-seiteninhalt-know="f.racemap"]')).toContainText(T('Good to know'));
+  await page.goto('./#/race/race-sample/ride');
+  await expect(page.locator('[data-seiteninhalt], [data-seiteninhalt-line]')).toHaveCount(0);
+  expect(errors).toEqual([]);
+});
+
+// PR 20, area App: Lists and types and Privacy show the card with good to know
+test('Lists and types and Privacy show good to know in the card', async ({ page, context }, info) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await openHome(page, context, info);
+  await page.goto('./#/me/lists');
+  const card = page.locator('[data-seiteninhalt]');
+  await expect(card).toContainText(T('What you can do here'));
+  await expect(card.locator('[data-seiteninhalt-know]').first()).toContainText(T('Good to know'));
+  expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBe(0);
+  // «Diese Seite anpassen» lists the page's own parts, not the card (it folds with its own ×)
+  await page.locator('[data-anp-open]').click();
+  const rows = page.locator('dialog[data-anp-sheet] li[data-anp-row]');
+  await expect(rows.first()).toBeVisible();
+  await expect(rows.filter({ hasText: T('What you can do here') })).toHaveCount(0);
+  await page.locator('dialog[data-anp-sheet]').getByRole('button', { name: T('Close') }).click();
+  await page.goto('./#/me/privacy');
+  await expect(page.locator('[data-seiteninhalt-know="f.privacy"]')).toContainText(T('Good to know'));
+  expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBe(0);
+  expect(errors).toEqual([]);
+});
+
 // Wegweiser 26b: pages without content on 02.11.2026 get the card; Touren starts as one line
 test('Touren, Ski and Ruhiger pages show the card with good to know', async ({ page, context }, info) => {
   const errors = [];

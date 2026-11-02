@@ -15,6 +15,9 @@
   import { dayPicture } from '../../lib/analyse/daypicture.js';
   import { actName } from '../../lib/flow/ui.svelte.js';
   import { t, num, locale } from '../../lib/i18n.svelte.js';
+  import { niceScale, tickText } from '../../lib/charts/axis.js';
+  import GridLines from '../../lib/charts/GridLines.svelte';
+  import YTicks from '../../lib/charts/YTicks.svelte';
 
   let { day, groups = [], tripName = '', today, onday, onclose, rowOf = null, log = [], acts = [] } = $props();
   let dialog;
@@ -49,12 +52,20 @@
       : { any: false },
   );
   const PW = 480;
-  const PH = 96;
+  const PH = 150;
+  const TOP = 10; // the value area: from TOP down to the base line at PH - 18
+  const BOT = PH - 18;
   const px = (h) => (h / 24) * PW;
-  const stepTop = $derived(pic.steps ? Math.max(1, ...pic.steps.map((v) => v ?? 0)) : 1);
-  const hrLo = $derived(pic.hr ? Math.min(...pic.hr.filter((v) => v != null)) : 0);
-  const hrHi = $derived(pic.hr ? Math.max(...pic.hr.filter((v) => v != null)) : 1);
-  const hrY = (v) => 8 + (1 - (v - hrLo) / Math.max(1, hrHi - hrLo)) * (PH - 40);
+  // round, labelled steps (Noah «genaue Werte»): pulse on the left, steps on the right
+  const ssc = $derived(niceScale(pic.steps ?? [], { zero: true, count: 3 }));
+  const hsc = $derived(niceScale(pic.hr ?? [], { count: 3 }));
+  const stY = (v) => BOT - ((v - ssc.lo) / (ssc.hi - ssc.lo || 1)) * (BOT - TOP);
+  const hrY = (v) => BOT - ((v - hsc.lo) / (hsc.hi - hsc.lo || 1)) * (BOT - TOP);
+  let hour = $state(null); // a tapped hour
+  function tapHour(e) {
+    const r = e.currentTarget.getBoundingClientRect();
+    hour = Math.max(0, Math.min(23, Math.floor(((e.clientX - r.left) / r.width) * 24)));
+  }
   const hrPath = $derived.by(() => {
     if (!pic.hr) return '';
     let d = '';
@@ -79,15 +90,23 @@
   {#if pic.any}
     <section class="pic" aria-labelledby="ds-pic" data-day-picture>
       <h3 id="ds-pic">{t('Picture of the day|daypic')}</h3>
-      <svg viewBox="0 0 {PW} {PH}" role="img" aria-label={t('The 24 hours of the day|daypic')}>
+      {#if hour != null}<p class="hv" data-pic-hour aria-live="polite"><b>{clock(hour)}–{clock(hour + 1)}</b>{#if pic.steps}&nbsp;· {num(pic.steps[hour] ?? 0)} {t('steps|daypic')}{/if}{#if pic.hr?.[hour] != null}&nbsp;· {t('pulse|daypic')} {num(Math.round(pic.hr[hour]))} bpm{/if}{#if pic.sleep.some((sl) => sl.from < hour + 1 && sl.to > hour)}&nbsp;· {t('Sleep|flow')}{/if}</p>{/if}
+      <div class="pp">
+      {#if pic.hr}<YTicks ticks={hsc.ticks} y={hrY} h={PH} text={(v) => tickText(v, hsc.step, num)} unit="bpm" color="var(--pz6)" width={56} />{/if}
+      <!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_noninteractive_element_interactions -->
+      <svg viewBox="0 0 {PW} {PH}" role="img" aria-label={t('The 24 hours of the day|daypic')} onclick={tapHour}>
+        {#if pic.steps}<GridLines ticks={ssc.ticks} y={stY} x1={0} x2={PW} />{:else if pic.hr}<GridLines ticks={hsc.ticks} y={hrY} x1={0} x2={PW} />{/if}
         {#each pic.sleep as sl, i (i)}<rect class="sl" x={px(sl.from)} width={Math.max(1, px(sl.to) - px(sl.from))} y="0" height={PH - 18} data-pic-sleep><title>{t('Sleep|flow')} {clock(sl.from)}–{clock(sl.to)}</title></rect>{/each}
-        {#if pic.steps}{#each pic.steps as v, i (i)}{#if v}<rect class="st" x={px(i) + 2} width={PW / 24 - 4} y={PH - 18 - (v / stepTop) * (PH - 40)} height={(v / stepTop) * (PH - 40)} data-pic-steps><title>{clock(i)}: {num(v)} {t('steps|daypic')}</title></rect>{/if}{/each}{/if}
+        {#if pic.steps}{#each pic.steps as v, i (i)}{#if v}<rect class="st" x={px(i) + 2} width={PW / 24 - 4} y={stY(v)} height={BOT - stY(v)} data-pic-steps><title>{clock(i)}: {num(v)} {t('steps|daypic')}</title></rect>{/if}{/each}{/if}
         {#each pic.rides as r, i (i)}<rect class="rd" x={px(r.from)} width={Math.max(3, px(r.to) - px(r.from))} y={PH - 30} height="8" rx="3" data-pic-ride><title>{clock(r.from)} {r.name}</title></rect>{/each}
         {#if hrPath}<path class="hr" d={hrPath} data-pic-hr />{/if}
         {#each pic.ticks as k, i (i)}<circle class="tk" cx={px(k.h)} cy={PH - 12} r="4" data-pic-tick><title>{clock(k.h)} {k.name}</title></circle>{/each}
-        <line class="base" x1="0" x2={PW} y1={PH - 18} y2={PH - 18} />
+        <line class="base" x1="0" x2={PW} y1={BOT} y2={BOT} />
+        {#if hour != null}<rect class="hh" x={px(hour)} width={PW / 24} y="0" height={BOT} />{/if}
       </svg>
-      <div class="hx" aria-hidden="true"><span>0</span><span>6</span><span>12</span><span>18</span><span>24</span></div>
+      {#if pic.steps}<YTicks ticks={ssc.ticks} y={stY} h={PH} text={(v) => tickText(v, ssc.step, num)} side="right" width={56} />{/if}
+      </div>
+      <div class="hx" aria-hidden="true" style="margin-inline:{pic.hr ? 62 : 0}px {pic.steps ? 62 : 0}px"><span>0</span><span>6</span><span>12</span><span>18</span><span>24</span></div>
       <ul class="legend">
         {#if pic.sleep.length}<li><i class="lg sl"></i>{t('Sleep|flow')}</li>{/if}
         {#if pic.steps}<li><i class="lg st"></i>{t('steps per hour|daypic')}</li>{/if}
@@ -95,6 +114,7 @@
         {#if pic.rides.length}<li><i class="lg rd"></i>{t('rides|daypic')}</li>{/if}
         {#if pic.ticks.length}<li><i class="lg tk"></i>{t('ticks|daypic')}: {pic.ticks.map((k) => `${clock(k.h)} ${k.name}`).join(', ')}</li>{/if}
       </ul>
+      <p class="hint">{t('Tap an hour for its exact values.|daypic')}</p>
     </section>
   {/if}
   {#if items.length || ticked.length}
@@ -138,9 +158,25 @@
     margin: 0;
     font-size: var(--fs-body);
   }
+  .pp {
+    display: flex;
+    gap: 6px;
+    min-width: 0;
+  }
   .pic svg {
+    flex: 1;
+    min-width: 0;
     width: 100%;
     height: auto;
+    cursor: crosshair;
+  }
+  .hh {
+    fill: var(--ink);
+    fill-opacity: 0.06;
+  }
+  .hv {
+    margin: 0;
+    font-size: var(--fs-small);
   }
   .pic .base {
     stroke: var(--line);
