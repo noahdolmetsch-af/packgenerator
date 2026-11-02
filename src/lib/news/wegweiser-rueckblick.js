@@ -3,6 +3,7 @@ export default {
   title: 'After the debrief, the next step',
   lead: 'A finished debrief now shows what usually comes next.',
   points: [
+    { text: 'Trip costs has a line «Good to know»', go: 'f.tripcosts' },
     {
       text: 'Debrief finished: «Next» with «For next time» and trip costs',
       go: { href: '#/debrief', where: 'Shows right after «Done» on the debrief of a trip of several days.', play: 'after' },
@@ -12,7 +13,6 @@ export default {
       go: { href: '#/debrief', where: 'Shows at the end of a saved debrief.', play: 'after' },
     },
   ],
-  small: [{ box: 'new', text: 'Trip costs has a line «Good to know»', go: 'f.tripcosts' }],
   test: [
     'Finish the debrief of a trip of several days: under «Learned» is «Next» with «For next time» and «Trip costs».',
     'Open the saved debrief again: at the end of the answers is «Fits here» with four small buttons.',
