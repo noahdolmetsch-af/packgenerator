@@ -46,4 +46,16 @@ export default {
     'Koch vor einem langen Tag die doppelte Menge: eine für heute Abend, eine in der Box für morgen in die Tasche.',
   'Note what broke right when it happens: «left cleat squeaks» is gone from your head by the evening.':
     'Notier gleich, was kaputt ist: «linke Schuhplatte quietscht» ist am Abend aus dem Kopf.',
+  'Set the note a few km before the spot, not on it: at 25 km/h you are past the bakery before you have read the message.':
+    'Setz die Notiz ein paar km vor die Stelle, nicht drauf: mit 25 km/h bist du an der Bäckerei vorbei, bevor du die Nachricht gelesen hast.',
+  'One #tag per topic is enough; a link with a meaning like «counter-argument» tells you later why two notes belong together.':
+    'Ein #Tag pro Thema reicht; ein Link mit Bedeutung wie «Gegenargument» sagt dir später, warum zwei Notizen zusammengehören.',
+  'An arrow on the photo explains more than three sentences: «this bolt» is clear to the workshop at first sight.':
+    'Ein Pfeil auf dem Foto erklärt mehr als drei Sätze: «diese Schraube» versteht die Werkstatt auf den ersten Blick.',
+  'Use ticks for things to do and headings for days; a packing list as a note stays readable on the phone.':
+    'Nimm Häkchen für Dinge zum Erledigen und Titel für Tage; eine Packliste als Notiz bleibt auf dem Handy lesbar.',
+  'Keep the web page of the campsite offline before you leave: the valley without signal is exactly where you need the opening hours.':
+    'Speicher die Webseite des Campingplatzes offline, bevor du losfährst: im Tal ohne Empfang brauchst du genau die Öffnungszeiten.',
+  'Remind after the next trip, not on a date: «new brake pads» comes back exactly when the bike is dirty anyway.':
+    'Erinnere nach der nächsten Tour statt an einem Datum: «neue Bremsbeläge» kommt genau dann, wenn das Velo sowieso dreckig ist.',
 };

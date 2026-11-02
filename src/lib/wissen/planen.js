@@ -23,4 +23,11 @@ export default {
   'f.contracts': 'Most subscriptions renew a month before the end. Set the reminder six weeks ahead and decide calmly.',
   'f.people': 'An invitation with a plan works better than «we should meet»: a coffee ride on Saturday is easy to say yes to.',
   'f.cook': 'Cook a double portion before a long day: one for tonight, one in a box for the bag tomorrow.',
+  // Wegweiser 26c: the functions of an open note, shown in the card on Notes
+  'f.placenote': 'Set the note a few km before the spot, not on it: at 25 km/h you are past the bakery before you have read the message.',
+  'f.notelinks': 'One #tag per topic is enough; a link with a meaning like «counter-argument» tells you later why two notes belong together.',
+  'f.drawphoto': 'An arrow on the photo explains more than three sentences: «this bolt» is clear to the workshop at first sight.',
+  'f.richtext': 'Use ticks for things to do and headings for days; a packing list as a note stays readable on the phone.',
+  'f.noteattach': 'Keep the web page of the campsite offline before you leave: the valley without signal is exactly where you need the opening hours.',
+  'f.noteremind': 'Remind after the next trip, not on a date: «new brake pads» comes back exactly when the bike is dirty anyway.',
 };
