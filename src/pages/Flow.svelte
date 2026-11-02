@@ -14,6 +14,7 @@
    *   #/flow/plans       «Trainingspläne»: sample plans for ultracycling, …/<id> one plan (pages/flow/TrainingPlans.svelte, lazy)
    *   #/flow/rest        «Erholung» (mockup AK2): the recovery ring, a pause hint, ticks (pages/flow/Rest.svelte)
    *   #/flow/week        v0.130.0 «Woche» (mockup AK1): the week with fixed dates and suggestions (pages/flow/Week.svelte)
+   *   #/flow/review/obs  «Alle Zahlen dahinter» of one observation (?kind=&w=)
    *   #/flow/review      «Wochenrückblick» (W1–W6, Noah 15.10.2026 «1-5 a»), ?w=<Monday> (pages/flow/WeekReview.svelte)
    *   #/flow/bags        «Sporttasche» (mockup AK3): a packing list per sport (pages/flow/Bags.svelte)
    *   #/flow/gipfelbuch  v0.165.0 «Gipfelbuch für alle»: passes, summits, trails and places of every sport (pages/flow/Gipfelbuch.svelte)
@@ -143,6 +144,9 @@
   <Gipfelbuch {params} />
 {:else if route[0] === 'week'}
   <Week />
+{:else if route[0] === 'review' && route[1] === 'obs'}
+  <!-- «Alle Zahlen dahinter» (Noah 01.11.2026 «2a»): one observation of a week; loaded only when opened -->
+  {#await import('../lib/lernen/ObsDetail.svelte') then m}{#key sub}<m.default {params} />{/key}{:catch}<p class="hint" role="alert">{t('This page could not load. Please check the connection and try again.')}</p>{/await}
 {:else if route[0] === 'review'}
   <WeekReview {params} />
 {:else if route[0] === 'bags'}

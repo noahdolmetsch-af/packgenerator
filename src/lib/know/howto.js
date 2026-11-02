@@ -322,7 +322,7 @@ const LISTED = {
   'f.komoot': ['Open New tour or On the way.', 'Tap «Tour from komoot»: komoot shows suggestions near you.', 'Share a tour from komoot to the app: it becomes a planned trip.'],
   // v0.147.0 Paket B «Leistung und Analysen»
   'f.analyses': ['Open Aktiv › Training and tap a ride.', 'Power, load and the analyses stand on its page.', 'Tap «…» on an analysis to hide or move it.'],
-  'f.weekreview': ['Open Aktiv › Week and tap «Week in review».', 'Read the five numbers, the strip and the highlights.', 'Step to other weeks with ‹ ›.'],
+  'f.weekreview': ['Open Aktiv › Week and tap «Week in review».', 'Read the five numbers, the body values, the strip and the highlights.', 'Write your note and a goal for next week; step to other weeks with ‹ ›.'],
   'f.wohl': ['Open Me › What is good for me.', 'Tap «Try it» for a 7-day experiment or start your own.', 'Under each result «How does the app know?» shows where it comes from.'],
   'f.weight': ['Open Me › Weight.', 'Tap «Enter weight», type it and save.', 'The curve and watts per kg follow by themselves.'],
   'f.weighin': ['Open Heute.', 'Type your weight in «Weight this week?» and save.', 'The weight is under Me › Weight.'],
@@ -382,7 +382,7 @@ const LISTED = {
   'f.notetodo': ['Open the debrief of a trip.', 'Choose under «To-dos go to» where they go.', 'Tap «As to-do» beside a note.'],
   'f.future': ['Open the debrief of a trip.', 'Write a sentence under «A message to your future self».', 'On the way of your next trip, open the letter.'],
   'f.quiz': ['Open the quiz from «Packed» the evening before, or search «Quiz».', 'Tap an answer, then «Next».', 'Add your own questions under «Your questions».'],
-  'f.observations': ['Open Aktiv › Week › Week in review.', 'On Sunday the 3 observations are at the top.', '«Do not show this kind any more» hides one kind.'],
+  'f.observations': ['Open Aktiv › Week › Week in review.', 'On Sunday the 3 observations are at the top.', '«All numbers behind it» opens the numbers and how they were worked out.'],
   'f.chronik': ['Open Trips › Look back › Chronicle.', 'Choose a filter, then a month.', 'Tap an entry to open it.'],
   'f.gelernt': ['Open Trips › Look back › What the app learned.', 'Choose «Month» or «Year» and use the arrows.', 'In «Year»: «Print» or «Share» the letter.'],
   'f.jahr': ['Open Trips › Look back › Your year as pictures.', 'Tap right to go on, left to go back; or swipe.', 'Escape or × closes; the last picture leads to the year letter.'],

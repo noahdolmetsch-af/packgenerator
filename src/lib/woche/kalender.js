@@ -67,7 +67,7 @@ export function lastSunday(year, month) {
 
 export const SEASON_TITLES = {
   lights: 'Clocks go back on Sunday: check the bike lights',
-  winter: 'Get the bike ready for winter: clean the chain, fit mudguards',
+  winter: 'Seasonal idea: get the bike ready for winter (clean the chain, fit mudguards)',
   ski: 'Ski touring season: check the skins and the avalanche transceiver',
   spring: 'Service the bike before the season',
 };

@@ -1,8 +1,45 @@
 # Projektstand und Plan
 
-Stand: **27. Oktober 2026, 13:35 UTC**. Auf `main` steht **Version 0.234.0** (zuletzt 0.217.0 bis 0.234.0 am 27.10.2026 zusammengeführt). **Seit 26.10.2026 abends gelten neue Regeln** (kleine PRs, Screenshots und Testlink, Noah gibt frei, Claude merged; siehe [CLAUDE.md](../CLAUDE.md) und [Arbeitsweise](arbeitsweise.md)). Dieser PR bringt 0.231.1 «Da, wo du schaust» (4 weitere versteckte Funktionen).
+Stand: **2. November 2026, 09:30 UTC**. Die Versionsnummer steht hier nicht mehr (Regel 13: sie entsteht beim Merge, siehe Ich › Was ist neu oder `node scripts/news.mjs`). **Seit 26.10.2026 abends gelten neue Regeln** (kleine PRs, Bilder, Noah gibt frei, Claude merged; siehe [CLAUDE.md](../CLAUDE.md) und [Arbeitsweise](arbeitsweise.md)). Der neue Abschnitt «Stand 02.11.2026» gleich darunter ist der aktuelle; alles weiter unten ist Verlauf.
 
 Ältere Abschnitte weiter unten («Kurzstand 19.10.», Abschnitte 1 bis 5) sind der damalige Stand und bleiben als Verlauf stehen. Was unten anders steht, gilt nicht mehr, wo dieser Abschnitt etwas Neueres sagt.
+
+## Stand 02.11.2026
+
+**Seit dem 27.10.2026 sind rund 120 PRs zusammengeführt** (Nummern etwa #279 bis #596). Ein PR = eine Änderung, ein Release; die Dateien dazu liegen in `docs/releases/` (rund 250).
+
+### Was seitdem online ist (nach Thema)
+
+- **Live-Navigation / Live-Karte** (Ziel 1 bis 6 der Reihe, #474 bis #550): Weg zum Ziel als Linie mit Restzahlen, neuer Weg bei Abkommen, Karte dreht mit, «Ganze Strecke» und «Schritt für Schritt», klare Zahlen oben, mehr Karte beim Fahren, Fahrt läuft nach dem Neuladen 3 Stunden weiter, Karte «Gespeichert in Touren», Aufzeichnung ohne Route.
+- **Analyse** (#430, #444, #461, #548): eine Seite für jeden Wert, Eigenes Diagramm mit Filter, Überblick mit Zahlen, Kalender und Rangliste. Offen: «Was hängt zusammen?» und «Vergleichen».
+- **Heute** (#296 bis #569): Bereiche mit Überschrift und zuklappbar, «Dein Moment», «Entdecken», «Deine nächsten Sterne», Heute-Check als Seiten, Start-Karte und «Schon probiert?» entfallen, drei Schnellknöpfe standardmässig aus.
+- **Planen / Woche** (#547, #562, #570, #587): Stil «Neuer Schwung», «Einplanen» in jedem Tag, Zeitbedarf und Puffer, Woche abschliessen, Planen-Seiten in vier Gruppen.
+- **Termine und Gruppen** (#421 bis #592): Mini-Umfrage, Termin finden (Antworten, Termin festlegen), Anmeldeliste mit Warteliste, Spontan-Einladung, Wer isst was, Fair auslosen, Kalender wie bei Google (Wochenraster, Wiederholung, Farbe).
+- **Kochen** (#404 bis #546): 104 Rezepte, Kochmodus mit Timer, Nährwerte, Karte nach dem Training.
+- **Velos und Pflege** (#509, #519, #551, #559, #567): ausmustern, klarere Warnung beim Löschen, Pflegetext nach deinen Intervallen, Werkstattbesuch ohne Velo.
+- **Träume und Neuland** (N1 bis N13): Weisse Flecken, Neuland-Runde, Herausforderungen mit Ende, «Ein Link wird ein Traum», «Neu seit gestern».
+- **Daten und Sicherheit** (#471, #505, #568, #572): Backup vor jedem Update ist standardmässig aus, Backup-Ordner-Hinweis, Aufräumen mit drei Dingen zuerst, Abgleich sagt, wann er fertig ist.
+- **Fitbit / Gesundheit** (#503, #544, #535): Abruf hängt nicht mehr, Heute nennt den Grund bei Fehlern, Fertig-Zeilen.
+- **Wegweiser statt Katalog** (Vorhaben 17): Test «Absprung» (#560), «Passt hier» auf Unterwegs (#565), Velo-Werkzeuge (#576), Rückblick (#579), Packen, Planen, Teilen (#580), Träume und Neuland (#577), Bereich Lust (#575, #584), «Erscheint, wenn …» (#588).
+- **Tempo und Tests** (#475, #511, #522, #561 u. a.): Kern unter 3 MB, deutsche Texte in eigenen Dateien, Unit-Tests schneller, Test-Uhr fest, CI führt bei Doku-, News- und Test-PRs nur die eigenen Tests aus, Fehlerliste mit Namen.
+
+### Was offen ist (wartet auf Noahs «ok» oder auf CI)
+
+#479 Was hängt zusammen? · #581 Analyse Vergleichen · #582 Schnell öffnen mit Pins · #585 «Noch keine Wartungsdaten» · #589 Wegweiser 22 (gleiche Namen) · #590 Erfüllte Träume · #595 Planen Texte · #599 Wegweiser 7 (Körper) · #600 «Schon lange nicht» · #601 ruhigeres Scrollen · #602 Wegweiser 8 (Alltag) · #603 Wochenrückblick mehr · #604 Mini-Tools «1 neu». Der Merge-Bündler führt Freigegebene und Grüne nacheinander zusammen.
+
+### Laufende Vorhaben
+
+- **Wegweiser** (`vorhaben.md` Nr. 17, 26 PRs): Teil A (Absprünge) 1 bis 6 online, 7 und 8 offen, 9 und 10 folgen; Teil B (Inhalte pro Bereich) Lust ist online, Planen, Zurück, Unterwegs, Packen, Alltag, Körper, Velo, App folgen, höchstens drei gleichzeitig; Teil C: 22 offen, 23 online, 24 bis 26 danach.
+- **Analyse** (13 Schritte): Schritt 1 bis 5 online, 6 (Vergleichen) und D5 offen.
+- **Planen**: Texte klären (#595), Zeitbedarf und Puffer sind online.
+- **Umfrage / Termin finden**: Antworten online, weitere Schritte folgen.
+- **Meilensteine / «Schon lange nicht»**: Schritt 2 von 6 offen (#600).
+- **Tempo / Start-Grenze**: Teil 1 (#601) offen, danach Texte beim Start und Tempo-Test.
+- **Fitbit-Anzeige**: Fehlergrund und Fertig-Zeilen online.
+
+### Regeln in einem Satz
+
+Alles dient dem Ziel «Eine App, die mich im Alltag unterstützt». Kleine PRs, Bilder zuerst, Noah gibt frei (ein «ok NNN» oder «Freigeben»), der Bündler merged, dann kommt eine Zeile «Online: …». Kleine sichere PRs (nur Text oder Ansicht, grün, nichts mit Daten, Backup, Sync oder `api/`) gelten seit 31.10. als pauschal freigegeben. Jeder PR nennt «Was fällt weg oder rutscht tiefer». Alles ist ein Vorschlag, änderbar und mit Rückgängig. Kosten null, private Daten nur ausserhalb des Repos.
 
 ## Stand 26.10.2026 auf einen Blick
 

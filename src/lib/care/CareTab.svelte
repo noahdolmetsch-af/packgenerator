@@ -52,6 +52,7 @@ import { ringScore } from './overview.js';
   import { hoursOn } from '../bikehours.js';
   import { vig } from '../veloimgriff.svelte.js';
   import { offerDone } from '../ui/rename.svelte.js';
+  import AlsNaechstes from '../ui/AlsNaechstes.svelte';
 
   // v0.21.0 (answer 7a): Bike care is the Care tab of Bikes. bikeId: the bike chosen on the page;
   // open: open that bike's section (a link "Bike care for the …").
@@ -270,10 +271,11 @@ import { ringScore } from './overview.js';
   /* ---------- what was just saved (v0.30.1, D1 + D2: Noah did not see that it worked) ---------- */
   let notice = $state(null); // { id, text }
   let noticeTimer;
-  function say(text, undo = null) {
+  // Wegweiser 9: next (a job done) adds the line «As next» and keeps the notice 12 s
+  function say(text, undo = null, next = false) {
     clearTimeout(noticeTimer);
-    notice = { id: Date.now(), text, undo };
-    noticeTimer = setTimeout(() => (notice = null), undo ? 8000 : 6000);
+    notice = { id: Date.now(), text, undo, next };
+    noticeTimer = setTimeout(() => (notice = null), next ? 12000 : undo ? 8000 : 6000);
   }
   const WHAT = (entry, key) =>
     entry.result === 'needed' ? t('work needed') : entry.action === 'check' ? t('checked, OK') : entry.action === 'service' ? t('serviced') : PART[key]?.unit ? t('replaced') : t('done');
@@ -286,7 +288,7 @@ import { ringScore } from './overview.js';
     const timed = keys.length === 1 && entry.result === 'done' && entry.action !== 'check' ? checks.find((c) => c.bike.id === view.id)?.time.find((s) => s.key === keys[0]) : null;
     if (timed) text += ` ${t('Next time {date}.', { date: dateOf(new Date(Date.parse(`${entry.date}T00:00:00Z`) + timed.every * 864e5).toISOString().slice(0, 10)) })}`;
     if (undo?.itemId) text += ` ${t('The chain is on the wishlist.')}`;
-    say(text, undo);
+    say(text, undo, entry.result === 'done' && entry.action !== 'check');
   }
   // v0.117.0 «Knöpfe neu» (N2, answer 2a): «Done» and «All checked» can be taken back like a saved
   // flow (the same undo: the parts as they were before).
@@ -573,7 +575,7 @@ import { ringScore } from './overview.js';
 </div>
 
 {#if notice}
-  {#key notice.id}<p class="notice" role="status"><CheckIcon size={16} aria-hidden="true" /><span class="nt">{notice.text}</span>{#if notice.undo}<button type="button" class="undo" data-explain={explain('Undo')} onclick={undoSave}>{t('Undo')}</button>{/if}</p>{/key}
+  {#key notice.id}<p class="notice" role="status"><CheckIcon size={16} aria-hidden="true" /><span class="nt">{notice.text}</span>{#if notice.undo}<button type="button" class="undo" data-explain={explain('Undo')} onclick={undoSave}>{t('Undo')}</button>{/if}{#if notice.next}<AlsNaechstes moment="care" ontap={() => (notice = null)} />{/if}</p>{/key}
 {/if}
 
 {#if partOpen}
@@ -657,6 +659,7 @@ import { ringScore } from './overview.js';
     bottom: calc(16px + env(safe-area-inset-bottom));
     z-index: 30;
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     gap: 10px;
     width: max-content;

@@ -14,10 +14,20 @@ import { WISSEN } from './wissen/index.js';
 export const ON_PAGES = [
   // PR 11, area «Lust» (the thinnest in the content check of 01.11.2026)
   '#/me/frei/lust', '#/me/frei/reise', '#/me/frei/wesentlich', '#/me/frei/nacht', '#/me/compass', '#/trips/dreams', '#/inspiration',
+  // PR 15, area «Unterwegs»: On the way, before you leave, mountain, weather, ski start (not Live, not Heute)
+  '#/ride', '#/ride/abfahrt', '#/mountain', '#/wetter', '#/ski/start',
+  // PR 14, area «Zurück» (after a trip). '#/debrief/:trip' is not listed: ON_PAGES matches whole paths, not placeholders
+  '#/debrief', '#/debrief/pace', '#/debrief/logbook', '#/debrief/learnings', '#/pack/past', '#/check/evening', '#/me/ruhig/spaeter',
+  '#/me/ruhig/bedeutung', '#/me/ruhig/koennen', '#/me/frei/naechstes', '#/ski/after',
 ];
 /** Rows shown before «Show all n». */
 export const SHOWN = 4;
 export const FOLD_KEY = 'seiteninhalt.folded';
+/**
+ * Pages where the card starts as one line (Noah 02.11.2026): on the way the helpers, «End trip» and the emergency button
+ * must stay on the first screen. A tap opens it, and the choice is kept like ×.
+ */
+export const FOLDED_FIRST = ['#/ride'];
 
 /** The page of a hash, as HOME writes it: path plus «tab=…» or «view=…» when they choose the page. */
 export function pageKey(hash = '') {
@@ -41,3 +51,12 @@ export function pageContent(hash, on = ON_PAGES) {
 
 /** The folded pages ({ [page key]: true }) from the stored setting. */
 export const foldedOf = (v) => (v && typeof v === 'object' && !Array.isArray(v) ? Object.fromEntries(Object.entries(v).filter(([, x]) => x === true)) : {});
+
+/** The stored choices ({ [page key]: true folded | false opened }), other values left out. */
+export const foldMapOf = (v) => (v && typeof v === 'object' && !Array.isArray(v) ? Object.fromEntries(Object.entries(v).filter(([, x]) => typeof x === 'boolean')) : {});
+
+/** Whether the card of a page shows as one line: the stored choice, else folded on FOLDED_FIRST pages. */
+export function isFolded(map, key, first = FOLDED_FIRST) {
+  const m = foldMapOf(map);
+  return key in m ? m[key] : first.includes(key);
+}
