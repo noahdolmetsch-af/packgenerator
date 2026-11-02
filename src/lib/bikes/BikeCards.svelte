@@ -31,7 +31,7 @@
 {#if cards.length}
   <section class="cards" data-bike-cards aria-label={t('Your bikes at a glance')}>
     {#each cards as c (c.bike.id)}
-      <article class="card" class:sel={c.bike.id === bikeId} data-bike-card={c.bike.id}>
+      <article class="card" class:sel={c.bike.id === bikeId} data-velo-card={c.bike.id}>
         <b class="nm">{c.bike.name}</b>
         <small class="km num">{c.bike.km != null ? `${num(c.bike.km)} km` : t('km not set')}</small>
         <span class="pill {c.status}">{c.w.tag}</span>

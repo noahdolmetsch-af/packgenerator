@@ -10,7 +10,7 @@ test('Bikes: one card per bike with a status and a link to its care', async ({ p
   await page.goto('./');
   await importAndSettle(page, fixture);
   await page.goto('./#/bikes');
-  const cards = page.locator('[data-bike-card]');
+  const cards = page.locator('[data-velo-card]');
   await expect(cards.first()).toBeVisible();
   await expect(cards.first().locator('.pill')).not.toBeEmpty();
   await cards.first().locator('a.btn').click();
