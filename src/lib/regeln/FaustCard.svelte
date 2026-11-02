@@ -53,7 +53,7 @@
             <summary>{t('{n} items in this block', { n: s.parts.length })}</summary>
             <ul>{#each s.parts as name}<li>{name}</li>{/each}</ul>
           </details>
-          <p class="then" data-faust-then>{t('If you make it a rule: Packen puts all {n} items on the list when {rule}, and leaves them out otherwise. You can untick any item on a trip and change the rule any time on Blocks.', { n: s.parts.length, rule: `${t(METRICS[s.rule.metric].name)} ${ruleLine(s.key, s.rule)}` })}</p>
+          <p class="then" data-faust-then>{t('If you make it a rule: Packen puts all items of the block on the list when {rule}, and leaves them out otherwise. You can untick any item on a trip and change the rule any time on Blocks.', { rule: `${t(METRICS[s.rule.metric].name)} ${ruleLine(s.key, s.rule)}` })}</p>
           <span class="acts">
             <button type="button" class="btn sm" onclick={() => accept(s)} data-faust-yes><Check size={14} aria-hidden="true" />{t('Make it a rule')}</button>
             <button type="button" class="btn sm quiet" onclick={() => dismiss(s)} data-faust-no><X size={14} aria-hidden="true" />{t('Not this one')}</button>
