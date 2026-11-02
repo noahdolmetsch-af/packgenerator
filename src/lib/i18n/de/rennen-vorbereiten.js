@@ -243,4 +243,18 @@ export default {
   'Everything you set for this race.': 'Alles, was du für dieses Rennen eingestellt hast.',
   'Open the briefing sheet': 'Briefing-Blatt öffnen',
   'Make a training plan counted back from the race day': 'Trainingsplan rückwärts vom Renntag erstellen',
+  // Drei Ziel-Stufen (Noah 02.11.2026 «2a»)
+  'Three goals': 'Drei Ziele',
+  'Three sentences: your dream, a good result and the least you still accept.': 'Drei Sätze: dein Traum, ein gutes Ergebnis und das Mindeste, womit du noch zufrieden bist.',
+  'When you want to give up at night, you see what you are still riding for.': 'Wenn du nachts aufgeben willst, siehst du, wofür du noch fährst.',
+  'What you write here. The night sheet on the live map shows it.': 'Was du hier schreibst. Das Nacht-Blatt auf der Live-Karte zeigt es.',
+  'Vision|goal': 'Vision',
+  'Super|goal': 'Super',
+  'At least|goal': 'Mindestens',
+  'The dream day, everything goes right.': 'Der Traumtag, alles läuft.',
+  'A very good result.': 'Ein sehr gutes Ergebnis.',
+  'The least you still accept.': 'Das Mindeste, womit du zufrieden bist.',
+  'e.g. Finish in 6 days and enjoy the last night': 'z. B. In 6 Tagen ankommen und die letzte Nacht geniessen',
+  'e.g. Finish within the time limit': 'z. B. Innerhalb der Zeit ankommen',
+  'e.g. Ride to the second checkpoint': 'z. B. Bis zum zweiten Checkpoint fahren',
 };

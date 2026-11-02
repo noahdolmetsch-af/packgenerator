@@ -15,6 +15,17 @@
   import { t, num, locale } from '../../i18n.svelte.js';
 
   let { ctx } = $props();
+  // two fields in a row must not overwrite each other: the newest texts are kept here until the save is through
+  let tierNow = null;
+  const setTier = (key, v) => {
+    tierNow = { ...(tierNow ?? ctx.race.tiers), [key]: v.trim() };
+    return ctx.save({ tiers: tierNow });
+  };
+  const TIERS = [
+    { key: 'vision', name: 'Vision|goal', hint: 'The dream day, everything goes right.', example: 'e.g. Finish in 6 days and enjoy the last night' },
+    { key: 'super', name: 'Super|goal', hint: 'A very good result.', example: 'e.g. Finish within the time limit' },
+    { key: 'least', name: 'At least|goal', hint: 'The least you still accept.', example: 'e.g. Ride to the second checkpoint' },
+  ];
   const start = $derived(ctx.trip.startDate ?? '');
   const tr = (s) => t(s);
 
@@ -109,6 +120,22 @@
 >
   <EditList rows={ctx.race.why} onchange={(list) => ctx.save({ why: list })} label={t('Sentence')} addLabel={t('Add')} placeholder={t('e.g. I want to see the sunrise on the pass.')} name={t('Sentence')} testid="why" />
   <label class="rc-inline"><input type="checkbox" checked={whyOn} onchange={(e) => ctx.save({ whyOn: e.currentTarget.checked })} data-race-why-on />{t('Show it in race mode at a long night stop')}</label>
+</RaceBox>
+
+<RaceBox
+  id="prep-tiers"
+  title={t('Three goals')}
+  what="Three sentences: your dream, a good result and the least you still accept."
+  why="When you want to give up at night, you see what you are still riding for."
+  from="What you write here. The night sheet on the live map shows it."
+>
+  <div class="rc-tiers" data-race-tiers>
+    {#each TIERS as k (k.key)}
+      <label class="rc-lab">{t(k.name)}<small class="rc-note">{t(k.hint)}</small>
+        <input class="inp" maxlength="160" value={ctx.race.tiers[k.key]} placeholder={t(k.example)} onchange={(e) => setTier(k.key, e.currentTarget.value)} data-race-tier={k.key} />
+      </label>
+    {/each}
+  </div>
 </RaceBox>
 
 <RaceBox
