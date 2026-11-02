@@ -33,7 +33,7 @@ describe('ruleSuggestions', () => {
   it('suggests a rule for an own block', () => {
     const s = ruleSuggestions({ trips, debriefs, items, setsValue: sets });
     expect(s).toHaveLength(1);
-    expect(s[0]).toMatchObject({ key: 'u-warmup', rule: { metric: 'minC', cmp: 'lt' }, used: 2, unused: 2 });
+    expect(s[0]).toMatchObject({ key: 'u-warmup', rule: { metric: 'minC', cmp: 'lt' }, used: 2, unused: 2, parts: ['Jacke'] });
   });
   it('leaves out a dismissed one and a block that has a rule', () => {
     expect(ruleSuggestions({ trips, debriefs, items, setsValue: sets, dismissed: ['u-warmup:minC'] })).toEqual([]);

@@ -49,6 +49,11 @@
       {#each list as s (s.key)}
         <li data-faust-row={s.key}>
           <span><b>{s.name}</b><small>{t('Used on {used} of {n} trips.', { used: s.used, n: s.n })} {t(METRICS[s.rule.metric].name)} {ruleLine(s.key, s.rule)}</small></span>
+          <details class="parts" data-faust-parts>
+            <summary>{t('{n} items in this block', { n: s.parts.length })}</summary>
+            <ul>{#each s.parts as name}<li>{name}</li>{/each}</ul>
+          </details>
+          <p class="then" data-faust-then>{t('If you make it a rule: Packen puts all {n} items on the list when {rule}, and leaves them out otherwise. You can untick any item on a trip and change the rule any time on Blocks.', { n: s.parts.length, rule: `${t(METRICS[s.rule.metric].name)} ${ruleLine(s.key, s.rule)}` })}</p>
           <span class="acts">
             <button type="button" class="btn sm" onclick={() => accept(s)} data-faust-yes><Check size={14} aria-hidden="true" />{t('Make it a rule')}</button>
             <button type="button" class="btn sm quiet" onclick={() => dismiss(s)} data-faust-no><X size={14} aria-hidden="true" />{t('Not this one')}</button>
@@ -92,6 +97,46 @@
   small {
     display: block;
     color: var(--ink-2);
+  }
+  .parts summary {
+    cursor: pointer;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+  }
+  .parts ul {
+    margin: 6px 0 0;
+    padding-left: 18px;
+    list-style: disc;
+  }
+  .parts li {
+    display: list-item;
+    padding: 2px 0;
+    border: 0;
+  }
+  .then {
+    margin: 0;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+  }
+  .parts summary {
+    cursor: pointer;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+  }
+  .parts ul {
+    margin: 6px 0 0;
+    padding-left: 18px;
+    list-style: disc;
+  }
+  .parts li {
+    display: list-item;
+    padding: 2px 0;
+    border: 0;
+  }
+  .then {
+    margin: 0;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
   }
   .acts {
     display: flex;

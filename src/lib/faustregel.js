@@ -50,14 +50,15 @@ export function ruleFor(rows) {
 /**
  * The suggestions: own blocks without a rule (not temperature kits, not built in), each with the rule the
  * debriefs show. dismissed: «setKey:metric» pairs the person said no to.
- * → [{ key, name, rule: { metric, cmp, limit }, used, unused, n }]
+ * → [{ key, name, rule: { metric, cmp, limit }, used, unused, n, parts }] (parts: the names of the items in the block)
  */
 export function ruleSuggestions({ trips = [], debriefs = [], items = [], setsValue = [], dismissed = [] } = {}) {
   const finished = debriefedTrips(trips, debriefs);
   const out = [];
   for (const s of allSets(setsValue)) {
     if (s.builtIn || s.rule || typeof s.minC === 'number' || typeof s.maxC === 'number') continue;
-    const ids = new Set(items.filter((i) => isInventory(i) && i.sets?.includes(s.key)).map((i) => i.id));
+    const own = items.filter((i) => isInventory(i) && i.sets?.includes(s.key));
+    const ids = new Set(own.map((i) => i.id));
     if (!ids.size) continue;
     const rows = [];
     for (const { d, t } of finished) {
@@ -66,7 +67,7 @@ export function ruleSuggestions({ trips = [], debriefs = [], items = [], setsVal
       rows.push({ facts: tripFacts(t), used: taken.some((e) => d.items?.[e.itemId] !== 'unused') });
     }
     const r = ruleFor(rows);
-    if (r && !dismissed.includes(`${s.key}:${r.metric}`)) out.push({ key: s.key, name: s.name, rule: { metric: r.metric, cmp: r.cmp, limit: r.limit }, used: r.used, unused: r.unused, n: r.n });
+    if (r && !dismissed.includes(`${s.key}:${r.metric}`)) out.push({ key: s.key, name: s.name, rule: { metric: r.metric, cmp: r.cmp, limit: r.limit }, used: r.used, unused: r.unused, n: r.n, parts: own.map((i) => i.name).filter(Boolean).sort((a, b) => a.localeCompare(b)) });
   }
   return out;
 }

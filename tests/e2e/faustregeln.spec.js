@@ -48,6 +48,10 @@ test('the card suggests a rule from four debriefs and Undo takes it back', async
   const card = page.locator('[data-faust-row="u-warm"]');
   await expect(card).toBeVisible();
   await expect(card).toContainText(T('Used on {used} of {n} trips.', { used: '2', n: '4' }));
+  // the person sees which items the block holds and what the app does with the rule
+  await card.locator('[data-faust-parts] summary').click();
+  await expect(card.locator('[data-faust-parts]')).toContainText('Wärmejacke');
+  await expect(card.locator('[data-faust-then]')).toContainText(T('If you make it a rule: Packen puts all {n} items on the list when {rule}, and leaves them out otherwise. You can untick any item on a trip and change the rule any time on Blocks.').split('{')[0].trim());
   expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBe(0);
   await card.locator('[data-faust-yes]').click();
   const rule = async () => ((await table(page, 'settings')).find((s) => s.key === 'sets')?.value ?? []).find((s) => s.key === 'u-warm')?.rule;
