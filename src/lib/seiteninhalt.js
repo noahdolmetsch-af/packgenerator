@@ -24,15 +24,19 @@ export const ON_PAGES = [
   '#/me/docs', '#/me/links', '#/me/tools/markup', '#/me/ruhig', '#/me/ruhig/aus', '#/me/ruhig/belege', '#/me/ruhig/weniger',
   '#/me/reminders', '#/calendar/pflanzen', '#/inbox/vorgaenge', '#/me/album', '#/me/freunde',
   '#/me/ki-projekte', '#/me/mini', '#/me/mini/abfahrt', '#/me/mini/los', '#/me/next', '#/me/frei/abend', '#/notes/zusammenhang',
+  // PR 16, area «Packen»
+  '#/pack', '#/pack/templates', '#/blocks', '#/blocks/aufraeumen', '#/blocks/check', '#/ski/check', '#/me/tools/labels', '#/me/checks',
+  // PR 13, area «Planen»: Woche, Merken, Termine, Notizen, Tagebuch, Eingang, Mail, Alltag
+  '#/week', '#/calendar', '#/me/agenda', '#/notes', '#/tagebuch', '#/inbox', '#/me/mail', '#/me/alltag',
 ];
 /** Rows shown before «Show all n». */
 export const SHOWN = 4;
 export const FOLD_KEY = 'seiteninhalt.folded';
 /**
  * Pages where the card starts as one line (Noah 02.11.2026): on the way the helpers, «End trip» and the emergency button
- * must stay on the first screen. A tap opens it, and the choice is kept like ×.
+ * must stay on the first screen; on Pack the packing list comes first. A tap opens it, and the choice is kept like ×.
  */
-export const FOLDED_FIRST = ['#/ride'];
+export const FOLDED_FIRST = ['#/ride', '#/pack'];
 
 /** The page of a hash, as HOME writes it: path plus «tab=…» or «view=…» when they choose the page. */
 export function pageKey(hash = '') {

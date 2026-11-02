@@ -106,6 +106,34 @@ test('Alltag pages Documents and Reminders show the card with good to know', asy
     // more than 4 functions: «Show all n» opens the rest
     if (await card.locator('.si-all').count()) await tap(card.locator('.si-all'), info);
     await expect(page.locator(`[data-seiteninhalt-know="${id}"]`)).toContainText(T('Good to know'));
+
+// PR 16: the card on Pack, with good to know; it starts as one line so the packing list keeps its space (a tap opens it)
+test('Pack shows what you can do here with good to know, starting as one line', async ({ page, context }, info) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await openHome(page, context, info);
+  await page.goto('./#/pack');
+  const line = page.locator('[data-seiteninhalt-line]');
+  await expect(line).toContainText(T('What you can do here'));
+  await (info.project.name === 'phone' ? line.tap() : line.click());
+  const card = page.locator('[data-seiteninhalt]');
+  await expect(card).toContainText(T('What you can do here'));
+  await expect(card.locator('[data-seiteninhalt-know]').first()).toContainText(T('Good to know'));
+  expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBe(0);
+  await page.goto('./#/pack/templates');
+  await expect(page.locator('[data-seiteninhalt-know="templates"]')).toContainText(T('Good to know'));
+  expect(errors).toEqual([]);
+});
+
+test('Planen Notes and Week show the card with good to know', async ({ page, context }, info) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await openHome(page, context, info);
+  for (const hash of ['#/notes', '#/week', '#/inbox']) {
+    await page.goto(`./${hash}`);
+    const card = page.locator('[data-seiteninhalt]');
+    await expect(card).toContainText(T('What you can do here'));
+    await expect(card.locator('[data-seiteninhalt-know]').first()).toContainText(T('Good to know'));
     expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBe(0);
   }
   expect(errors).toEqual([]);

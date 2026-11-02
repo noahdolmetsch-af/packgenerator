@@ -21,7 +21,7 @@ describe('What you can do here', () => {
   });
   it('shows nothing on pages not switched on, nor on Today', () => {
     expect(pageContent('#/')).toEqual([]);
-    expect(pageContent('#/pack')).toEqual([]);
+    expect(pageContent('#/pack', [])).toEqual([]); // a page that is not in the list shows nothing
     expect(pageContent('#/pack', ['#/pack']).length).toBeGreaterThan(0);
   });
   it('keeps only folded pages from the stored setting', () => {

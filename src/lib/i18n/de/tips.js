@@ -92,7 +92,6 @@ export default {
   'Add the app to your home screen: it opens like an app and works offline.': 'Leg die App auf den Startbildschirm: sie öffnet wie eine App und läuft offline.',
   'Add to home screen': 'Zum Startbildschirm',
   'Your browser has no install button here: in its menu choose "Add to Home screen" (Safari: Share, then "Add to Home Screen").': 'Dein Browser bietet hier keinen Knopf an: wähle in seinem Menü «Zum Startbildschirm» (Safari: Teilen, dann «Zum Home-Bildschirm»).',
-  'Deutsch / English': 'Deutsch / English',
   'The app speaks German and English; switch whenever you like.': 'Die App spricht Deutsch und Englisch; wechsle, wann du willst.',
   'Switch language': 'Sprache wechseln',
   'Switch to English': 'Auf Englisch wechseln',

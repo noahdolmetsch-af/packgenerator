@@ -367,7 +367,7 @@ const LISTED_HOME = {
   'f.tickreview': '#/auswerten',
   'backup': '#/me/data',
   'install': '#/me/data',
-  'lang': '#/me/look',
+  'lang': '#/me',
   'demo': '#/me/data',
   'f.weight': '#/me/weight',
   'f.namesde': '#/me/data?names',
@@ -511,7 +511,6 @@ const LISTED_GAPS = {
   'f.evening': 'when',
   'f.readytomorrow': 'when',
   'learn': 'when',
-  'trend': 'name',
   'f.notetodo': 'name',
   'km': 'name',
   'f.prep': 'when',
@@ -519,7 +518,7 @@ const LISTED_GAPS = {
   'f.sportextras': 'name',
   'f.feel': 'when',
   'install': 'name',
-  'lang': 'name',
+  'lang': 'low',
   'f.namesde': 'spot',
   'f.account': 'gone', // Noah 01.11.2026 «1a»: the Google button is hidden (code and QR stay); pg.showGoogle=1 shows it again
   'f.search': 'name',
@@ -534,7 +533,6 @@ const LISTED_GAPS = {
   'f.tipweek': 'when',
   'f.comeback': 'when',
   'f.helpsearch': 'name',
-  'f.tennistop': 'name',
 };
 
 export const GAPS = { ...LISTED_GAPS, ...FEATREG.gaps };

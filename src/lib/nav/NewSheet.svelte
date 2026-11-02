@@ -104,7 +104,7 @@
 <dialog class="sheet new" bind:this={dialog} use:backClose onclose={() => ((mode = null), (kmMsg = ''))} aria-labelledby="new-h">
   <div class="top">
     <div>
-      <h2 id="new-h" class="title">{mode === 'km' ? t('km for a bike') : mode === 'problem' ? t('Problem with a bike') : t('New')}</h2>
+      <h2 id="new-h" class="title">{mode === 'km' ? t('Log km') : mode === 'problem' ? t('Problem with a bike') : t('New')}</h2>
       {#if mode !== 'km' && mode !== 'problem'}<p class="lead">{t('What would you like to add?')}</p>{/if}
     </div>
     <button type="button" class="x" onclick={close} aria-label={t('Close')}><X size={20} aria-hidden="true" /></button>
@@ -171,7 +171,7 @@
       {#if bikes.length}<li><button type="button" class="opt" onclick={() => run(() => (visitOpen = true))}><span class="ic" aria-hidden="true"><Receipt size={20} /></span><span class="tx"><b>{t('Workshop visit')}</b><span>{t('Opens the visit, km already filled in')}</span></span></button></li>{/if}
       <!-- v0.45.2 (Noah on the bike): several problems with one bike at once, into Bike care -->
       {#if bikes.length}<li><button type="button" class="opt" onclick={() => (mode = 'problem')}><span class="ic" aria-hidden="true"><TriangleAlert size={20} /></span><span class="tx"><b>{t('Problem with a bike')}</b><span>{t('Air, saddle, battery: one per line')}</span></span></button></li>{/if}
-      <li><button type="button" class="opt" onclick={() => (mode = 'km')}><span class="ic" aria-hidden="true"><Plus size={20} /></span><span class="tx"><b>{t('km for a bike')}</b><span>{t('What the counter says')}</span></span></button></li>
+      <li><button type="button" class="opt" onclick={() => (mode = 'km')}><span class="ic" aria-hidden="true"><Plus size={20} /></span><span class="tx"><b>{t('Log km')}</b><span>{t('What the counter says')}</span></span></button></li>
       <!-- Klick-Rundgang H19 (Noah «1a»): a new bike from the + menu too -->
       <li><button type="button" class="opt" onclick={() => run(() => (wantBike(), (location.hash = '#/bikes')))} data-new-bike><span class="ic" aria-hidden="true"><Bike size={20} /></span><span class="tx"><b>{t('Add bike')}</b><span>{t('Name, kind and km')}</span></span></button></li>
     </ul>
