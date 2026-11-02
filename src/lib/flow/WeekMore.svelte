@@ -52,6 +52,7 @@
             {/each}
           </ol>
           <span class="s">{t(NOTE[b.how])} · {t('{n} days with a value', { n: b.n })}</span>
+          <a class="tp-link more" href="#/flow/review/tile?k={b.key}&w={monday}" data-tile-detail={b.key}>{t('Course and all numbers')}</a>
         </li>
       {/each}
     </ul>
@@ -70,6 +71,7 @@
           {/each}
         </ul>
         <p class="cap">{t('From the activities of the week that have a heart rate. Your zones: Aktiv › Training.')}</p>
+        <a class="tp-link more" href="#/flow/review/tile?k=zones&w={monday}" data-tile-detail="zones">{t('Course and all numbers')}</a>
       </section>
     {/if}
     {#if bikes.length}
@@ -81,6 +83,7 @@
           {/each}
         </ul>
         <p class="cap">{t('The bike Strava noted on each ride.')}</p>
+        <a class="tp-link more" href="#/flow/review/tile?k=bikes&w={monday}" data-tile-detail="bikes">{t('Course and all numbers')}</a>
       </section>
     {/if}
   </div>
@@ -101,6 +104,9 @@
       {/each}
     </ol>
     <p class="cap">{t('Per day, top to bottom: high, rain, hours of sun, appointments. Weather of your home place, kept on this device; today and days still to come have none yet.')}</p>
+    <p class="links">
+      {#if out.hasWeather}<a class="tp-link more" href="#/flow/review/tile?k=tmax&w={monday}" data-tile-detail="tmax">{t('Course of the daily high')}</a><a class="tp-link more" href="#/flow/review/tile?k=rain&w={monday}" data-tile-detail="rain">{t('Course of the rain')}</a>{/if}
+    </p>
   </section>
 {/if}
 
@@ -264,6 +270,16 @@
     font-size: var(--fs-small);
   }
   .tp-link {
+    display: inline-flex;
+    align-items: center;
+    align-self: flex-start;
     min-height: 44px;
+    font-size: var(--fs-small);
+  }
+  .links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 16px;
+    margin: 0;
   }
 </style>

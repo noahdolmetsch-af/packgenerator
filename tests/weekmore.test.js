@@ -1,7 +1,7 @@
 // «Wochenrückblick mit mehr Daten» (Noah 01.11.2026 «3c 5c»): the pure rules of lib/weekmore.js.
 // Fictional data only (test_data_gtp_); calendar days, never «now + n × 24 h».
 import { describe, it, expect } from 'vitest';
-import { bodyTiles, zonesWeek, bikesWeek, outdoorWeek, noteOf, putNote, notesOf, BODY } from '../src/lib/weekmore.js';
+import { bodyTiles, zonesWeek, bikesWeek, outdoorWeek, noteOf, putNote, notesOf, weekCourse, COURSE, COURSE_WEEKS, BODY } from '../src/lib/weekmore.js';
 import { DEFAULT_BOUNDS, shiftDay } from '../src/lib/training.js';
 
 const P = 'test_data_gtp_';
@@ -66,5 +66,37 @@ describe('note and goal of a week', () => {
   it('a broken record is cleaned, never trusted', () => {
     expect(notesOf({ weeks: { kaputt: { note: 'x' }, '2026-W42': 5, '2026-W43': { note: 7, goal: 'ok' } } }).weeks).toEqual({ '2026-W43': { note: '', goal: 'ok', goalDone: false } });
     expect(notesOf(null)).toEqual({ weeks: {} });
+  });
+});
+
+describe('the course over eight weeks (Noah 02.11.2026 «1a 3a»)', () => {
+  const act = (id, d, f = {}) => ({ id: `${P}${id}`, day: d, kind: 'bike', km: 30, movingS: 3600, hist: { 100: 600 }, ...f });
+  const data = () => ({
+    acts: [act('a', shiftDay(MON, -7)), act('b', shiftDay(MON, -14), { km: 50 }), act('c', MON, { km: 20 })],
+    health: Array.from({ length: 70 }, (_, i) => ({ date: shiftDay(MON, i - 63), restingHr: i < 63 ? 50 : 56 })),
+    weather: { [MON]: { tmax: 10, rainMm: 2 }, [shiftDay(MON, 1)]: { tmax: 14, rainMm: 0 } },
+    log: [],
+    flowActs: [],
+  });
+  it('eight points, the shown week last and highlighted, each counted for the same days', () => {
+    const c = weekCourse('restingHr', data(), MON, shiftDay(MON, 2), DEFAULT_BOUNDS);
+    expect(c.points).toHaveLength(COURSE_WEEKS);
+    expect(c.points.at(-1)).toMatchObject({ monday: MON, hi: true, value: 56 });
+    expect(c.points[0].monday).toBe(shiftDay(MON, -49));
+    expect(c.usual).toBe(50);
+    expect(c.unit).toBe('bpm');
+  });
+  it('km per week, hours, weather: weeks without a value stay null, never 0', () => {
+    const km = weekCourse('bikes', data(), MON, SUN, DEFAULT_BOUNDS);
+    expect(km.points.map((p) => p.value).slice(-3)).toEqual([50, 30, 20]);
+    expect(km.points[0].value).toBeNull();
+    expect(weekCourse('hours', data(), MON, SUN, DEFAULT_BOUNDS).now).toBe(1);
+    const tmax = weekCourse('tmax', data(), MON, SUN, DEFAULT_BOUNDS);
+    expect(tmax.now).toBe(12);
+    expect(weekCourse('rain', data(), MON, SUN, DEFAULT_BOUNDS).now).toBe(2);
+  });
+  it('an unknown key is nothing; every key has a unit', () => {
+    expect(weekCourse('kaputt', data(), MON, SUN, DEFAULT_BOUNDS)).toBeNull();
+    for (const k of Object.keys(COURSE)) expect(weekCourse(k, data(), MON, SUN, DEFAULT_BOUNDS).points).toHaveLength(8);
   });
 });

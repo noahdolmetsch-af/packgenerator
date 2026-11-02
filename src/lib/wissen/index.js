@@ -11,6 +11,7 @@ import lust from './lust.js';
 import packen from './packen.js';
 import planen from './planen.js';
 import unterwegs from './unterwegs.js';
+import velo from './velo.js';
 import zurueck from './zurueck.js';
 
-export const WISSEN = { ...koerper, ...lust, ...packen, ...planen, ...unterwegs, ...zurueck };
+export const WISSEN = { ...koerper, ...lust, ...packen, ...planen, ...unterwegs, ...velo, ...zurueck };
