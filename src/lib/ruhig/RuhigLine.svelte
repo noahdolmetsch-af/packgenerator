@@ -41,6 +41,22 @@
     if (on) document.documentElement.dataset.ruhe = '1';
     else delete document.documentElement.dataset.ruhe;
   });
+  // the calm view opens its page: the function you chose, else the best match of the words you wrote
+  let guess = $state('');
+  $effect(() => {
+    const c = $q?.calm;
+    guess = '';
+    if (!c || c.href) return;
+    const what = c.what;
+    import('../features.js').then(({ FEATURE, findFeatures, featureHref }) => {
+      // the whole phrase first, then each word (longest first): «Kette prüfen» still finds the chain page
+      const tries = [what, ...what.split(/\s+/).filter((w) => w.length > 2).sort((x, y) => y.length - x.length)];
+      let hit = null;
+      for (const q of tries) if (!hit) hit = findFeatures(q, t).find((h) => featureHref(FEATURE[h.featureId]));
+      if ($q?.calm?.what === what && hit) guess = featureHref(FEATURE[hit.featureId]);
+    });
+  });
+  const target = $derived($q?.calm?.href || guess);
   const endSpace = () => db.settings.put({ key: SPACE_KEY, value: JSON.parse(JSON.stringify({ ...space, on: false })) });
 </script>
 
@@ -48,7 +64,7 @@
   <div class="rhl calm" role="status" data-ruhig-line="calm">
     <Moon size={16} aria-hidden="true" />
     <span class="rhl-t">{t('You are doing')}: <b>{$q.calm.what}</b></span>
-    {#if $q.calm.href && $q.calm.href !== hash}<a class="rhl-a" href={$q.calm.href}>{t('Open')}</a>{/if}
+    {#if target && target !== hash}<a class="rhl-a" href={target} data-calm-open>{t('Open')}</a>{/if}
     <button type="button" class="rhl-x" onclick={() => db.settings.put({ key: CALM_KEY, value: null })} aria-label={t('Done|calm')}>{t('Done|calm')}</button>
   </div>
 {:else if space}

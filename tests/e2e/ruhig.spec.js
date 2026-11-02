@@ -56,6 +56,20 @@ test('Calm view: the strip shows only what you do, not on Heute, until «Fertig�
   expect(errors).toEqual([]);
 });
 
+test('Calm view: the words you wrote lead to the matching page', async ({ page, context }) => {
+  const errors = await blank(page, context);
+  await page.goto('./#/me/ruhig/weniger?open=calm');
+  await settle(page);
+  await page.locator('[data-calm-what]').fill('Kette prüfen');
+  await page.locator('[data-calm-what]').press('Enter');
+  await page.goto('./#/gear');
+  const open = page.locator('[data-ruhig-line="calm"] [data-calm-open]');
+  await expect(open).toHaveAttribute('href', /^#\//);
+  await open.click();
+  await expect(page.locator('[data-ruhig-line="calm"]')).toContainText('Kette prüfen'); // the strip stays
+  expect(errors).toEqual([]);
+});
+
 test('A letter for a date stays closed until its day', async ({ page, context }) => {
   const errors = await blank(page, context);
   await page.goto('./#/me/ruhig/spaeter');
