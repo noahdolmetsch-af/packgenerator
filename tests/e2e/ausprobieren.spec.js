@@ -30,7 +30,10 @@ test('every line of What is new goes to its exact place', async ({ page, context
   await page.goto('./#/me/news');
   if (ROWS.some(([version]) => version === NEWEST)) {
     await page.locator('[data-news-try]').first().click();
-    await expect(page.locator('[data-spot-note]').first()).toContainText(T('New here: {what}').split('{')[0].trim());
+    // a line with only `where` has no spot to light: the note then is its own text, not «New here: …»
+    const first = ROWS.find(([version]) => version === NEWEST)[2];
+    const only = typeof first === 'object' && first.where && !first.steps?.length;
+    await expect(page.locator('[data-spot-note]').first()).toContainText(only ? T(first.where) : T('New here: {what}').split('{')[0].trim());
   }
   const missing = [];
   for (const [version, text, g] of ROWS) {
