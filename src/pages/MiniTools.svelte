@@ -602,7 +602,7 @@
               <li>
                 <a class="ich-row" href={`#/me/mini/${encodeURIComponent(x.id)}`} data-mt-item={x.id}>
                   <span class="ich-ib">{#if x.kind === KIND_POLL}<ListChecks size={18} aria-hidden="true" />{:else if x.kind === KIND_LIST}<ClipboardList size={18} aria-hidden="true" />{:else if x.kind === KIND_INVITE}<Bike size={18} aria-hidden="true" />{:else if x.kind === KIND_FOOD}<Utensils size={18} aria-hidden="true" />{:else}<CalendarCheck size={18} aria-hidden="true" />{/if}</span>
-                  <span class="ich-m"><b>{x.title}</b><small>{answersText(x.answers?.length ?? 0)}{#if newAnswers(x, serverN[x.id]) > 0} · <span class="mt-new" data-mt-fresh>{t('{n} new', { n: newAnswers(x, serverN[x.id]) })}</span>{/if} · {running(x) ? t('open until {day}', { day: endFmt(x.srv.end) }) : t('ended')}</small></span>
+                  <span class="ich-m"><b>{x.title}</b><small>{answersText(x.answers?.length ?? 0)}{#if newAnswers(x, serverN[x.id]) > 0}{' · '}<span class="mt-new" data-mt-fresh>{t('{n} new', { n: newAnswers(x, serverN[x.id]) })}</span>{/if} · {running(x) ? t('open until {day}', { day: endFmt(x.srv.end) }) : t('ended')}</small></span>
                   <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
                 </a>
               </li>
