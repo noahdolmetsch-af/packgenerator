@@ -26,4 +26,5 @@ export default {
   'f.skillmap': 'Add an example with a day for each level. «Fixed a chain in the rain» says more than «good».',
   'f.freinaechstes': 'Write it right after the trip. «Spork came along, never used» saves weight next time.',
   'f.skiafter': 'Write the snow and the time of day too. Next season it tells you when that slope was good.',
+  'f.dreamsdone': 'Mark the dream as ridden only once its debrief is done. The photo and the month you add there are what you will look at in a year.',
 };

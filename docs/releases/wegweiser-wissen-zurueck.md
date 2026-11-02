@@ -4,7 +4,7 @@ PR #… · 02.11.2026 · Auftrag: Noah «1-5a» (Inhalte, Claude schreibt das Wi
 
 ## Was ist neu
 - Die Karte «Was du hier tun kannst» mit «Gut zu wissen» ist neu auf 11 Seiten nach einer Tour: Rückblick, Tempo, Logbuch, Gelerntes, Vergangene Touren, Abend-Check, Briefe für später, Bedeutung, Können, Fürs nächste Mal, Nach der Skitour.
-- 26 neue Tipps in `src/lib/wissen/zurueck.js`, Deutsch in `src/lib/i18n/de/wissen-zurueck.js`.
+- 27 neue Tipps in `src/lib/wissen/zurueck.js`, Deutsch in `src/lib/i18n/de/wissen-zurueck.js`.
 
 ## Was fällt weg oder rutscht tiefer
 - nichts. Der Inhalt dieser 11 Seiten rutscht um die Höhe der Karte tiefer, bis man sie mit × zuklappt.

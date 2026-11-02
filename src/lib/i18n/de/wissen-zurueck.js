@@ -52,4 +52,6 @@ export default {
     "Schreib es gleich nach der Tour auf. «Spork dabei, nie gebraucht» spart nächstes Mal Gewicht.",
   "Write the snow and the time of day too. Next season it tells you when that slope was good.":
     "Schreib auch den Schnee und die Tageszeit auf. Nächste Saison weisst du, wann dieser Hang gut war.",
+  "Mark the dream as ridden only once its debrief is done. The photo and the month you add there are what you will look at in a year.":
+    "Hake den Traum erst ab, wenn der Rückblick fertig ist. Foto und Monat, die du dort ergänzt, schaust du in einem Jahr gern wieder an.",
 };
