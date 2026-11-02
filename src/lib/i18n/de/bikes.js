@@ -1,5 +1,7 @@
 /** German texts: bikes. Keys are the English texts. */
 export default {
+  'Used for tyre pressure suggestions and the energy of a ride.': 'Wird für den Reifendruck-Vorschlag und die Energie einer Fahrt verwendet.',
+  'When more than this share of your luggage sits over the rear wheel, packing shows a hint to move weight forward. Empty means 60 %.': 'Wenn mehr als dieser Anteil deines Gepäcks über dem Hinterrad sitzt, zeigt das Packen einen Hinweis, Gewicht nach vorne zu legen. Leer heisst 60 %.',
   'Parts: the components mounted on this bike, with weight and price.': 'Teile: die Bauteile, die an diesem Velo montiert sind, mit Gewicht und Preis.',
   'My setup: how this bike is set up for your rides, with bags, weight and changes.': 'Mein Setup: wie dieses Velo für deine Fahrten eingerichtet ist, mit Taschen, Gewicht und Änderungen.',
   // Places on the bike (bikes.js SLOTS, FIXED_ZONES; also shown in Pack)
