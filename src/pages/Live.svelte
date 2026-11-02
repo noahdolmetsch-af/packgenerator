@@ -1579,7 +1579,7 @@
                           <b>{r.poi.name || kindName(r.poi.kind)}</b>
                           <small>{t('{d} km', { d: fmtKm(r.distKm) })} · {t('there about {at}', { at: when(r.eta) })} · {r.open ? (r.closes ? t('Open until {at}', { at: r.closes }) : t('Open|hours')) : t('Opening hours unknown')}</small>
                           {#if lastShop.state === 'ok'}
-                            <small data-live-lastshop-left>{r.minToClose != null && r.minToClose <= 120 ? t('Closes {n} after you get there.', { n: minText(r.minToClose) }) : t('{n} before sunset.', { n: minText(Math.max(0, r.minToNight)) })}{#if !lastShop.sure} {t('Not sure: no opening hours known.')}{/if}</small>
+                            <small data-live-lastshop-left>{r.minToClose != null && r.minToClose <= 120 ? t('Closes {n} after you get there.', { n: minText(r.minToClose) }) : t('{n} before sunset.', { n: minText(Math.max(0, r.minToNight)) })}{#if !lastShop.sure}{' '}{t('Not sure: no opening hours known.')}{/if}</small>
                           {/if}
                         </span>
                         <details class="lv-nav">
