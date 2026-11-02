@@ -88,7 +88,7 @@
     flex-wrap: wrap;
     align-items: baseline;
     gap: 4px 10px;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
   }
   b {
     color: var(--ink);
