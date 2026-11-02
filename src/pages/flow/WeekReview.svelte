@@ -25,6 +25,7 @@
   import { localDay } from '../../lib/localday.js';
   import WeekForm from '../../lib/flow/form/WeekForm.svelte';
   import WeekMore from '../../lib/flow/WeekMore.svelte';
+  import WeekOlder from '../../lib/flow/WeekOlder.svelte';
   import WeekNote from '../../lib/flow/WeekNote.svelte';
   import GoalCheck from '../../lib/compass/GoalCheck.svelte'; // Paket N #1047: «Wie läuft's?» for your goals, this week only
   import { t, tn, num, locale } from '../../lib/i18n.svelte.js';
@@ -184,6 +185,8 @@
         {#if hasMood}<span><Smile size={14} aria-hidden="true" />{hasSleep ? t('second line: mood 1–10') : t('line: mood 1–10')}</span>{/if}
       </p>
     </section>
+
+    <WeekOlder {data} {monday} {today} />
 
     <WeekNote {monday} />
 

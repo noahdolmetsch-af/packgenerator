@@ -109,6 +109,22 @@ export function weekFive(data, monday, today) {
   return out;
 }
 
+/** Weeks listed under «Older weeks». */
+export const OLDER_WEEKS = 8;
+/**
+ * «Ältere Wochen» (Noah 02.11.2026 «3a»): the five numbers of each of the weeks before the shown one, newest first.
+ * A finished week counts whole; a week that still runs counts up to today (it can only be the shown week, so this is
+ * for a past shown week). → [{ monday, secs, km, hm, n, goals: { met, of } | null, empty }]; empty = nothing recorded.
+ */
+export function olderWeeks(data, monday, today, count = OLDER_WEEKS) {
+  return Array.from({ length: count }, (_, i) => {
+    const m = shiftDay(monday, -7 * (i + 1));
+    const sums = weekSums(data, m, weekEnd(m, today));
+    const g = weekGoalsMet(data, m, today);
+    return { monday: m, secs: sums.secs, km: sums.km, hm: sums.hm, n: sums.n, goals: g ? { met: g.met, of: g.of } : null, empty: !hasAnything(data, m) };
+  });
+}
+
 /** True when the week has anything to show at all (an activity, an Aktiv entry or an answer). */
 export const hasAnything = (data, monday) =>
   (data.acts ?? []).some((a) => inWeek(a.day, monday)) || (data.log ?? []).some((e) => inWeek(e.day, monday)) || (data.answers ?? []).some((r) => inWeek(r.day, monday)) || (data.checks ?? []).some((c) => inWeek(c.day, monday));
