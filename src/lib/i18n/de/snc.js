@@ -48,7 +48,7 @@ export default {
   'archive one by one, if you like': 'einzeln archivieren, wenn du willst',
   Look: 'Ansehen',
   'New is chosen, unsure asks one by one.': 'Neues ist gewählt, Unsicheres fragt einzeln.',
-  'A backup is made first.': 'Zuerst wird eine Sicherung gemacht.',
+  'A backup is made first.': 'Zuerst wird ein Backup gemacht.',
   'until the next import, with one tap.': 'bis zum nächsten Import, mit einem Tipp.',
   // SN5 Favoriten
   'your favourite things per kind of trip': 'deine Lieblingsteile pro Art von Tour',

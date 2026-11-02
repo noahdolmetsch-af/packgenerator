@@ -6,7 +6,7 @@ import { test, expect } from './clock.js';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';
-import { importAndSettle, settle } from './settle.js';
+import { importAndSettle, settle, openFolds } from './settle.js';
 import { makeHandler } from '../../api/sync.js';
 import { fakeRedis } from '../fakeredis.js';
 import { keysOf, recName, seal } from '../../src/lib/sync/code.js';
@@ -51,6 +51,7 @@ test('Switch on on one device, pair the other with the link: both have the same 
   await a.page.goto('./');
   await importAndSettle(a.page, fixture);
   await a.page.goto('./#/me/data');
+  await openFolds(a.page);
   const box = syncBox(a.page);
   await expect(box.getByRole('heading', { name: T('Sync automatically') })).toBeVisible();
   await box.scrollIntoViewIfNeeded();
@@ -148,6 +149,7 @@ test('Changed on both devices: nothing asks, anywhere; the newer change counts; 
   await expect(a.page.getByText(/beiden Geräten geändert|changed on both devices/i)).toHaveCount(0);
   // «Bring back»: the phone's version is in place again, and the one it replaced waits in the fold
   await a.page.goto('./#/me/data');
+  await openFolds(a.page);
   await syncBox(a.page).locator('[data-sync-history] summary').click();
   await syncBox(a.page).locator('[data-sync-history] li').filter({ hasText: theirs.name }).getByRole('button', { name: T('Bring back') }).click();
   await expect(syncBox(a.page).locator('.msg')).toHaveText(T('Brought back. The other device gets it with the next sync.'));

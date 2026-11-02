@@ -158,6 +158,7 @@
   import MonthTile from '../lib/home/MonthTile.svelte';
   import NextMsTile from '../lib/home/NextMsTile.svelte';
   import ChronikKarte from '../lib/lernen/ChronikKarte.svelte'; // Paket M #1027: replaces YearAgoTile (Noah «1b»)
+  import NeuHeute from '../lib/neuland/NeuHeute.svelte'; // Träume und Neuland N11 «Neu heute»: one line after a ride, no tile
   import WearToday from '../lib/home/WearToday.svelte';
   import FlowCard from '../lib/home/FlowCard.svelte';
   import AbCard from '../lib/abfragen/AbCard.svelte';
@@ -1237,6 +1238,7 @@
        It stands right under «Dein Körper heute» (rule 11: the body check stays on top); here only when that tile is off. -->
   {#if ready && !editing && !on('body')}<DueToday todos={S[MERKEN_KEY] ?? []} {today} care={due.points} />{/if}
   {#if loaded}<BagReminder {today} now={now.getTime()} />{/if}
+  {#if loaded && !editing}<NeuHeute {today} />{/if}
   <!-- v0.30.2 (L9): a new user: three steps, each ticked once it has data. -->
   {#if showFirst}
     <section class="card first" aria-labelledby="first-h">

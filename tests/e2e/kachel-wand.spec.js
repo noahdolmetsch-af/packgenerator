@@ -8,6 +8,7 @@
 import { test, expect } from './clock.js';
 import { D0, openHome, atHour, homeFixture } from './home0460-fixture.js';
 import { HN4, withWall } from './wall-fixture.js';
+import { openFolds } from './settle.js';
 import { READY, TILE, TILES, HELPER_TILES, VALUE_TILES, isNew, tripUp } from '../../src/lib/home/tiles.js';
 import { inAreas } from '../../src/lib/home/sections.js';
 
@@ -220,5 +221,6 @@ test('Data and backup lives under Me; the playground tile opens the playground t
   await page.getByRole('link', { name: new RegExp(T('Data and backup')) }).click();
   await expect(page).toHaveURL(/#\/me\/data$/);
   const data = page.locator('.datapanel');
+  await openFolds(page); // «Daten und Backup aufräumen»: the file way sits in a fold
   await expect(data.getByText(T('Import backup'), { exact: true })).toBeVisible();
 });

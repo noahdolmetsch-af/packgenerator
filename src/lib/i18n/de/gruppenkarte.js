@@ -187,7 +187,7 @@ export default {
   'Kept. You find the person under Me › With friends › Contact card.': 'Gemerkt. Du findest die Person unter Ich › Mit Freunden › Kontaktkarte.',
   'Met at (event)': 'Kennengelernt an (Event)',
   'e.g. Jura event': 'z. B. Jura-Event',
-  'Only with you: on your devices and in your backup, never in a group.': 'Nur bei dir: auf deinen Geräten und in deiner Sicherung, nie in einer Gruppe.',
+  'Only with you: on your devices and in your backup, never in a group.': 'Nur bei dir: auf deinen Geräten und in deinem Backup, nie in einer Gruppe.',
   'This browser cannot read QR codes. Scan the code with the phone camera instead; the link opens the card.': 'Dieser Browser kann keine QR-Codes lesen. Scanne den Code mit der Handykamera; der Link öffnet die Karte.',
   'No contact card found in this picture.': 'Auf diesem Bild ist keine Kontaktkarte.',
   'Write a name.': 'Schreib einen Namen.',
@@ -206,7 +206,7 @@ export default {
   'Instagram of {name}': 'Instagram von {name}',
   'Your events': 'Deine Events',
   'Nobody kept yet. Scan the card of someone you met, or add a person by hand.': 'Noch niemand gemerkt. Scanne die Karte von jemandem, den du getroffen hast, oder füge eine Person von Hand hinzu.',
-  'Only with you: on your devices and in your backup, never in a group. Rename, sort and delete like everywhere.': 'Nur bei dir: auf deinen Geräten und in deiner Sicherung, nie in einer Gruppe. Umbenennen, sortieren und löschen geht wie überall.',
+  'Only with you: on your devices and in your backup, never in a group. Rename, sort and delete like everywhere.': 'Nur bei dir: auf deinen Geräten und in deinem Backup, nie in einer Gruppe. Umbenennen, sortieren und löschen geht wie überall.',
   'They stay and show under «Without an event».': 'Sie bleiben und stehen unter «Ohne Event».',
   'needs help': 'braucht Hilfe',
   // Nachprüfung 27.10.2026: «Neue Leute merken» nach dem Event

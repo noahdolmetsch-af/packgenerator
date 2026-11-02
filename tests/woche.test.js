@@ -20,6 +20,11 @@ describe('items and holidays', () => {
   it('cleans own items: a date needs a day, a to-do may wait without one', () => {
     expect(cleanItem({ title: '  ' })).toBeNull();
     expect(cleanItem({ kind: 'todo', title: 'Order a tube' }).day).toBeNull();
+    // «Planen als verbindende Mitte» 4a: the time needed of a to-do (5–480 min); nothing for other kinds or silly values
+    expect(cleanItem({ kind: 'todo', title: 'Sort receipts', mins: '30' }).mins).toBe(30);
+    expect(cleanItem({ kind: 'todo', title: 'Sort receipts', mins: 2 }).mins).toBeUndefined();
+    expect(cleanItem({ kind: 'todo', title: 'Sort receipts', mins: 9999 }).mins).toBeUndefined();
+    expect(cleanItem({ kind: 'date', title: 'Dentist', day: '2026-10-20', mins: 30 }).mins).toBeUndefined();
     expect(itemsOf([{ kind: 'date', title: 'Dentist' }, { kind: 'date', title: 'Tennis', day: MON, time: '18:00' }])).toHaveLength(1);
   });
   it('a holiday defaults its follow-ups by type (Noah 4a: all suggested, all deselectable)', () => {

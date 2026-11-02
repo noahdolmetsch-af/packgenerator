@@ -20,6 +20,7 @@ export const FINDER = [
   /^lib\/handbook\.js$/, /^lib\/tips\.js$/, /^lib\/moment\.js$/, /^lib\/appmap/, /^lib\/home\/discover\.js$/,
   /^lib\/home\/functions\.js$/, /^lib\/home\/fnlist\.js$/, /^lib\/home\/quick\.js$/, /^lib\/quick/i,
   /^lib\/nav\/(menu|tabinfo|spotinfo|Search|Explorer)/, /^pages\/(Features|Quick|AppMap|Handbook|WasNeu)\.svelte$/,
+  /^lib\/seiteninhalt\.js$/, // the pages that show «What you can do here», not a jump
 ];
 
 /** The page path of a function to check, or null (action, start page, placeholder). */
@@ -51,17 +52,9 @@ export function withoutJump(features, sources, linked = new Set()) {
 
 /** Functions without a jump yet (shrink only), by moment and the package that gives them one. */
 export const NO_JUMP = [
-  // PR 3 Velo und Material
-  'f.barcode', 'f.gears', 'f.level',
-  // PR 4 Rückblick
-  'f.tripcosts', 'f.meaning', 'f.gooddecisions', 'f.knowhow', 'f.freinaechstes', 'f.skillmap',
-  // PR 5 Packen, Planen, Teilen
-  'f.weightsure', 'f.sharepreview', 'f.skicheck', 'f.mapmeasure', 'f.sleeporigin',
-  // PR 6 Träume
-  'f.freinacht', 'f.ownbingo', 'f.freiwesentlich', 'f.freireise', 'f.freilust',
   // PR 7 Körper
   'f.tennistop', 'f.experiment', 'f.specialdays', 'f.counterdays', 'f.freerewards', 'f.tworoles', 'f.scalemeaning', 'f.bodytalk',
   // PR 8 Alltag und Ruhiger
-  'f.freiabend', 'f.people', 'f.markup', 'f.ablage', 'f.chains', 'f.convert', 'f.video', 'f.qr', 'f.units',
+  'f.freiabend', 'f.people', 'f.markup', 'f.ablage', 'f.chains', 'f.convert', 'f.video', 'f.qr',
   'f.workspace', 'f.calmview', 'f.pushbudget', 'f.notforme',
 ];
