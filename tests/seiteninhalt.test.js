@@ -29,7 +29,7 @@ describe('What you can do here', () => {
     expect(foldedOf(null)).toEqual({});
   });
   it('starts folded on Unterwegs, keeps the choice everywhere', () => {
-    expect(FOLDED_FIRST).toContain('#/ride');
+    expect(FOLDED_FIRST).toEqual(expect.arrayContaining(['#/ride', '#/bikes', '#/gear']));
     expect(isFolded({}, '#/ride')).toBe(true);
     expect(isFolded({ '#/ride': false }, '#/ride')).toBe(false);
     expect(isFolded({}, '#/trips/dreams')).toBe(false);

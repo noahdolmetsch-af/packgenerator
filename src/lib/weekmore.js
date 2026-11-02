@@ -10,7 +10,8 @@
  *   noteOf, putNote   the week's own note, its goal and whether the goal was reached (db.settings 'weeknotes')
  * Health data is observation only: what was, never what is good.
  */
-import { shiftDay, zoneSecs } from './training.js';
+import { shiftDay, zoneSecs, isoWeek } from './training.js';
+import { weekSums, weekEnd, dayValues, baseShare, trainStreak, SLEEP_Q } from './weekreview.js';
 import { isoWeek as weekKey } from './kmbook.js';
 
 export const NOTES_KEY = 'weeknotes';
@@ -47,6 +48,67 @@ export function bodyTiles(health = [], monday, upto) {
     out.push({ key: b.key, unit: b.unit, how: b.how, value, prev, diff: prev == null ? null : r1(value - prev), n: vs.length, days: now });
   }
   return out;
+}
+
+/**
+ * «Wochenrückblick: mehr Daten» (Noah 02.11.2026 «2b»): body weight, meditation minutes, trips and sleep phases of a week.
+ * Each is null when the week has no value, never 0.
+ */
+const okKg = (v) => Number.isFinite(v) && v >= 30 && v <= 250;
+/** The last weight of the days {day, kg}: from the weight entries of Ich › Gewicht (entries: [{ day, kg }]) and Fitbit/Apple days (weightKg, fitKg). */
+export function weightWeek(entries = [], health = [], monday, upto) {
+  const byDay = new Map();
+  for (const h of health) {
+    const kg = Number.isFinite(h?.weightKg) ? h.weightKg : h?.fitKg;
+    if (h?.date && okKg(kg)) byDay.set(h.date, kg);
+  }
+  for (const e of entries) if (e?.day && okKg(e.kg)) byDay.set(e.day, e.kg); // an entry of your own wins over the watch
+  const last = (m, to) => {
+    const ds = days(m, to).filter((d) => byDay.has(d));
+    return ds.length ? { day: ds.at(-1), kg: byDay.get(ds.at(-1)), n: ds.length } : null;
+  };
+  const now = last(monday, upto);
+  if (!now) return null;
+  const before = last(shiftDay(monday, -7), shiftDay(upto, -7));
+  return { kg: r1(now.kg), day: now.day, n: now.n, prev: before ? r1(before.kg) : null, diff: before ? r1(now.kg - before.kg) : null };
+}
+
+/** Minutes and sessions of meditation (Aktiv ticks) in the days, against the same days of the week before. */
+export function meditationWeek(log = [], monday, upto) {
+  const sum = (m, to) => {
+    const hits = log.filter((l) => l?.actId === 'meditation' && l.day >= m && l.day <= to && Number.isFinite(l.min) && l.min > 0);
+    return { min: hits.reduce((s, l) => s + l.min, 0), n: hits.length };
+  };
+  const now = sum(monday, upto);
+  if (!now.n) return null;
+  const before = sum(shiftDay(monday, -7), shiftDay(upto, -7));
+  return { ...now, prev: before.n ? before.min : null, diff: before.n ? now.min - before.min : null };
+}
+
+/** Trips (your own plans) that touch the days: [{ id, title, start, end, days }], oldest first; skipped trips are left out. */
+export function tripsWeek(trips = [], monday, upto) {
+  const out = [];
+  for (const tr of trips) {
+    if (!tr?.startDate || tr.skipped) continue;
+    const start = String(tr.startDate).slice(0, 10);
+    const n = Math.max(1, Number(tr.days) || 1);
+    const end = shiftDay(start, n - 1);
+    if (end < monday || start > upto) continue;
+    out.push({ id: tr.id, title: tr.title || '', start, end, days: n });
+  }
+  return out.sort((a, b) => a.start.localeCompare(b.start));
+}
+
+/** Mean minutes per night in deep, REM and light sleep (and awake) over the nights with phases; null when no night has them. */
+export function sleepPhasesWeek(health = [], monday, upto) {
+  const by = new Map(health.filter((h) => h?.date).map((h) => [h.date, h.sleep]));
+  const nights = days(monday, upto).map((d) => by.get(d)).filter((s) => s && [s.deepMin, s.remMin, s.lightMin].some((x) => Number.isFinite(x) && x > 0));
+  if (!nights.length) return null;
+  const m = (k) => {
+    const v = nights.map((s) => s[k]).filter((x) => Number.isFinite(x) && x > 0);
+    return v.length ? Math.round(mean(v)) : null;
+  };
+  return { deep: m('deepMin'), rem: m('remMin'), light: m('lightMin'), awake: m('awakeMin'), n: nights.length };
 }
 
 /** Seconds per heart rate zone Z1–Z5 over the activities of the days → { secs: [5], total } or null without heart rate data. */
@@ -111,4 +173,74 @@ export function putNote(value, monday, change) {
   else delete weeks[k];
   const keep = Object.keys(weeks).sort().slice(-KEEP_NOTE_WEEKS);
   return { weeks: Object.fromEntries(keep.map((x) => [x, weeks[x]])) };
+}
+
+/* ---------------------------------------------------------------- the course over several weeks (Noah 02.11.2026 «1a 3a») */
+
+/** Weeks in a course. */
+export const COURSE_WEEKS = 8;
+/** The values a course can show: key → unit. A detail page is opened with ?k=<key>. */
+export const COURSE = {
+  restingHr: 'bpm',
+  hrvMs: 'ms',
+  sleep: 'min',
+  steps: 'steps',
+  azm: 'min',
+  zones: 'pct',
+  bikes: 'km',
+  tmax: 'deg',
+  rain: 'mm',
+  hours: 'hours',
+  sleepFelt: 'pt',
+  streak: 'days',
+  weight: 'kg',
+  meditation: 'min',
+  deep: 'min',
+  rem: 'min',
+};
+
+/**
+ * One value over the last COURSE_WEEKS weeks, each counted for the same days as the shown week (the running
+ * week meets the same days of the weeks before). data: { acts, health, log, flowActs, answers, checks, weather }.
+ * → { key, unit, points: [{ monday, kw, value | null, hi }], usual (mean of the weeks before, or null), now } or null for an unknown key.
+ */
+export function weekCourse(key, data, monday, today, bounds) {
+  if (!COURSE[key]) return null;
+  const upto = weekEnd(monday, today);
+  const mean = (xs) => (xs.length ? xs.reduce((s, x) => s + x, 0) / xs.length : null);
+  const points = Array.from({ length: COURSE_WEEKS }, (_, i) => {
+    const m = shiftDay(monday, -7 * (COURSE_WEEKS - 1 - i));
+    const to = shiftDay(upto, -7 * (COURSE_WEEKS - 1 - i));
+    const dayList = days(m, to);
+    let value = null;
+    if (['restingHr', 'hrvMs', 'sleep', 'steps', 'azm'].includes(key)) value = bodyTiles(data.health ?? [], m, to).find((t) => t.key === key)?.value ?? null;
+    else if (key === 'zones') value = baseShare(data.acts ?? [], m, shiftDay(to, 1), bounds);
+    else if (key === 'bikes') {
+      const km = (data.acts ?? []).filter((a) => a.kind === 'bike' && a.day >= m && a.day <= to).reduce((s, a) => s + (Number(a.km) || 0), 0);
+      value = km > 0 ? r1(km) : null;
+    } else if (key === 'tmax') {
+      const v = dayList.map((d) => data.weather?.[d]?.tmax).filter(Number.isFinite);
+      value = v.length ? r1(mean(v)) : null;
+    } else if (key === 'rain') {
+      const v = dayList.map((d) => data.weather?.[d]?.rainMm).filter(Number.isFinite);
+      value = v.length ? r1(v.reduce((s, x) => s + x, 0)) : null;
+    } else if (key === 'hours') {
+      const secs = weekSums(data, m, to).secs;
+      value = secs > 0 ? r1(secs / 3600) : null;
+    } else if (key === 'sleepFelt') {
+      const sv = dayValues(data, SLEEP_Q);
+      const v = dayList.map((d) => sv.get(d)).filter(Number.isFinite);
+      value = v.length ? r1(mean(v)) : null;
+    } else if (key === 'weight') value = weightWeek(data.weightEntries ?? [], data.health ?? [], m, to)?.kg ?? null;
+    else if (key === 'meditation') value = meditationWeek(data.log ?? [], m, to)?.min ?? null;
+    else if (key === 'deep' || key === 'rem') value = sleepPhasesWeek(data.health ?? [], m, to)?.[key] ?? null;
+    else if (key === 'streak') {
+      const n = trainStreak(data, m, to);
+      value = n > 0 ? n : null;
+    }
+    return { monday: m, kw: isoWeek(m), value, hi: m === monday };
+  });
+  const before = points.slice(0, -1).map((p) => p.value).filter((v) => v != null);
+  const usual = before.length ? r1(mean(before)) : null;
+  return { key, unit: COURSE[key], points, usual, now: points.at(-1).value };
 }

@@ -14,7 +14,9 @@ const tr = (lang) => (en, vars) => {
   return vars ? text.replace(/\{(\w+)\}/g, (m, k) => vars[k] ?? m) : text;
 };
 const base = JSON.parse(readFileSync(fileURLToPath(new URL('./fixture.json', import.meta.url)), 'utf8'));
-const today = () => new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Zurich' });
+// the real day: another spec file in this worker may have shifted Date (clock.js), the page of this spec runs on the real clock
+const RealDate = () => globalThis.__realDate || Date;
+const today = () => new (RealDate())().toLocaleDateString('sv-SE', { timeZone: 'Europe/Zurich' });
 
 function fixture(path) {
   const data = structuredClone(base);
