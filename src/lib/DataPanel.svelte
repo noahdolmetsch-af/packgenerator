@@ -150,7 +150,7 @@
   const anyWarn = $derived(lights.some((l) => l.state === 'warn'));
   let lightsOpen = $state(false);
   let fileOpen = $state(false);
-  let moreOpen = $state(/[?&](at=before-updates|names)\b/.test(typeof location !== 'undefined' ? location.hash : '')); // the news banner («Back to the state before the update») and the link «English names» land in «More»
+  let moreOpen = $state(/[?&](at=before-updates|names|mehr)\b/.test(typeof location !== 'undefined' ? location.hash : '')); // the news banner («Back to the state before the update») and the link «English names» land in «More»
   let syncOpen = $state(false);
   // «Do you need the app on two devices?»: asked once per device (null = not asked yet). Not in the data, so it never syncs.
   const TWO_KEY = 'pg.twoDevices';
