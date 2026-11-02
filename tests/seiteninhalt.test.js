@@ -69,6 +69,8 @@ describe('What you can do here', () => {
     const inNote = Object.keys(HOME).filter((id) => HOME[id] === '#/notes?open=:note');
     expect(inNote.length).toBeGreaterThan(0);
     for (const id of inNote) expect(ids, id).toContain(id);
+    // the page's own functions come first
+    expect(HOME[ids[0]]).toBe('#/notes');
     expect(pageContent('#/notes?open=abc')).toEqual([]);
   });
 });
