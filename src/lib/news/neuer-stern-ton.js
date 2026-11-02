@@ -3,7 +3,7 @@ export default {
   title: 'A livelier new star',
   lead: 'The star window now has a saying, a stage name that fits your sport and the next star. The tone is yours: Off, Calm or Funny',
   points: [
-    { text: 'The «New star» window shows a saying, a stage name that fits the sport and how far the next star is', go: { href: '#/flow/sports', where: 'Appears after a tick that reaches a new star.' } },
+    { text: 'The «New star» window shows a saying, a stage name that fits the sport and how far the next star is', go: { href: '#/', steps: [{ sel: '[data-section="acts"]' }], where: 'Appears after a tick that reaches a new star.' } },
     { text: 'The tone switch «Off · Calm · Funny» is in the star window and on every sport page; it also sets the words of «Not for a while»', go: { href: '#/flow/sports', where: 'Open a sport under Active › My sports: «Tone of the app».' } },
   ],
   test: ['Open a sport under Active › My sports: «Tone of the app» shows Off, Calm and Funny.', 'Pick «Calm» and then «Off» and see the choice stay.'],
