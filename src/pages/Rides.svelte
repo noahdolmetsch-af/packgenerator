@@ -37,6 +37,7 @@
   import { Upload, ChevronLeft, ChevronRight, Check, Route, Plus, Gauge, Coffee, Lightbulb, BookOpen, TriangleAlert, X, CircleCheck, Map, Pencil } from '@lucide/svelte';
   import RenameSheet from '../lib/ui/RenameSheet.svelte';
   import { offerRename } from '../lib/ui/rename.svelte.js';
+  import AlsNaechstes from '../lib/ui/AlsNaechstes.svelte';
 
   let { sub = '' } = $props();
 
@@ -611,6 +612,7 @@
             <a class="btn" class:hi={!openLearn} href="#/debrief/ride" onclick={closeCard}>{t('Upload next ride')}</a>
             <a class="link" href="#/debrief/pace" onclick={closeCard}>{t('To your pace')}</a>
           </p>
+          <AlsNaechstes moment="ride" ontap={closeCard} />
         </section>
       {/if}
 

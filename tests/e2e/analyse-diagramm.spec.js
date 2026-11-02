@@ -247,3 +247,30 @@ test('Vergleichen (M3): period against period, activity against activity, before
   await expect(page.locator('[data-compare-period] [data-cmp-value="sleep"]')).toHaveAttribute('aria-pressed', 'true');
   expect(errors).toEqual([]);
 });
+
+test('Muster und Rekorde (M4): week pattern, year against year, records, runs and gaps', async ({ page, context }, info) => {
+  const errors = await open(page, context);
+  await go(page, '#/auswerten/analyse');
+  const wp = page.locator('[data-week-pattern]');
+  await expect(wp.locator('[data-pat-cell]')).toHaveCount(28);
+  await expect(wp.locator('[data-pat-say]')).toContainText(T('Evening|patterns'));
+  await wp.locator('[data-pat-act]').selectOption({ label: 'Sauna' });
+  await expect(wp.locator('[data-pat-say]')).toBeVisible();
+  const yy = page.locator('[data-year-year]');
+  await expect(yy.locator('[data-yy-value]')).toHaveValue('km:bike');
+  await expect(yy.locator('rect[data-yy-now]')).toHaveCount(12);
+  await yy.getByRole('button', { name: T('Seasons|patterns') }).click();
+  await expect(yy.locator('rect[data-yy-now]')).toHaveCount(4);
+  const rec = page.locator('[data-records]');
+  for (const k of ['run', 'bikeMonth', 'rhr', 'steps', 'sleep']) await expect(rec.locator(`[data-record="${k}"]`), k).toBeVisible();
+  await expect(rec.locator('[data-record^="week:"]').first()).toBeVisible();
+  const runs = page.locator('[data-runs] [data-run]');
+  expect(await runs.count()).toBeGreaterThanOrEqual(5);
+  await expect(page.locator(`[data-runs] [data-run="meditation"] td`).first()).toHaveText('1');
+  await wp.scrollIntoViewIfNeeded();
+  await shot(page, 'muster', info);
+  // the choice stays
+  await go(page, '#/auswerten/analyse');
+  await expect(page.locator('[data-year-year] rect[data-yy-now]')).toHaveCount(4);
+  expect(errors).toEqual([]);
+});
