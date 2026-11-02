@@ -184,14 +184,14 @@
   <section class="card mu" aria-labelledby="rec-h" data-records>
     <div class="ch"><h2 id="rec-h">{t('Records|patterns')}</h2><small>{t('your best values · 2 years|patterns')}</small></div>
     {#if records.length}
-      <table>
+      <div class="tw"><table>
         <thead><tr><th scope="col">{t('Value|compare')}</th><th scope="col">{t('Best|patterns')}</th><th scope="col">{t('When|patterns')}</th></tr></thead>
         <tbody>
           {#each records as r (r.key)}
             <tr data-record={r.key}><th scope="row">{r.name}{#if isNew(r.day, today)}&nbsp;<span class="new">{t('new|patterns')}</span>{/if}</th><td class="num"><b>{r.best}</b></td><td>{r.when}</td></tr>
           {/each}
         </tbody>
-      </table>
+      </table></div>
     {:else}
       <p class="hint">{t('No records yet.|patterns')}</p>
     {/if}
@@ -200,14 +200,14 @@
   <section class="card mu" aria-labelledby="rg-h" data-runs>
     <div class="ch"><h2 id="rg-h">{t('Runs and gaps|patterns')}</h2><small>{t('per activity · days in a row|patterns')}</small></div>
     {#if runs.length}
-      <table>
+      <div class="tw"><table>
         <thead><tr><th scope="col">{t('Activity|patterns')}</th><th scope="col">{t('Now|patterns')}</th><th scope="col">{t('Longest|patterns')}</th><th scope="col">{t('Longest gap|patterns')}</th><th scope="col">{t('Last|patterns')}</th></tr></thead>
         <tbody>
           {#each runs as x (x.a.id)}
             <tr data-run={x.a.id}><th scope="row">{actName(x.a)}</th><td class="num">{x.r.current || '–'}</td><td class="num">{x.r.longest}</td><td class="num">{x.r.gap}</td><td>{sinceText(x.r.since)}</td></tr>
           {/each}
         </tbody>
-      </table>
+      </table></div>
       <p class="hint">{t('Numbers are days. «Now» counts while you ticked today or yesterday.|patterns')}</p>
     {:else}
       <p class="hint">{t('No ticks yet.|patterns')}</p>
@@ -256,7 +256,8 @@
   .asel .sel {
     max-width: 100%;
   }
-  .wpw {
+  .wpw,
+  .tw {
     overflow-x: auto;
   }
   .wp {
