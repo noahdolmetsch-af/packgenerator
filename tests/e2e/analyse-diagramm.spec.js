@@ -16,7 +16,7 @@ function rows() {
   const healthDays = [];
   for (let i = 0; i < 95; i++) {
     const date = addDays(TODAY, -i);
-    healthDays.push({ date, azm: 15 + (i % 6) * 8, restingHr: 49 + (i % 4), hrvMs: 50 + (i % 7), steps: 6000 + (i % 5) * 1500, sleep: { asleepMin: 380 + (i % 7) * 15, deepMin: 70, remMin: 85, lightMin: 220, awakeMin: 20, start: '23:20', end: '06:50', efficiency: 90 + (i % 5) }, spo2: 95 + (i % 3), breath: 14, kcal: 2200 + (i % 9) * 40, kcalActive: 550, hrMax: 140 + (i % 9), src: 'google', at: `${date}T08:00:00Z` });
+    healthDays.push({ date, azm: 15 + (i % 6) * 8, restingHr: 49 + (i % 4), hrvMs: 50 + (i % 7), steps: 6000 + (i % 5) * 1500, sleep: { asleepMin: 380 + (i % 7) * 15, deepMin: 70, remMin: 85, lightMin: 220, awakeMin: 20, start: '23:20', end: '06:50', efficiency: 90 + (i % 5) }, spo2: 95 + (i % 3), breath: 14, kcal: 2200 + (i % 9) * 40, kcalActive: 550, hrMax: 140 + (i % 9), src: 'google', at: `${date}T08:00:00Z`, ...(i < 3 ? { hrH: Array.from({ length: 24 }, (_, h) => (h < 7 ? 50 : 62 + (h % 5) * 3)), stepH: Array.from({ length: 24 }, (_, h) => (h < 7 ? 0 : 200 + (h % 4) * 400)) } : {}) });
   }
   const act = (id, day, km) => ({
     id: `${P}${id}`, day, time: '17:10', start: `${day}T15:10:00Z`, name: `${P}${id}`, type: 'Ride', kind: 'bike', km, hm: 300, movingS: 4800, elapsedS: 5100, gearId: null,
@@ -357,5 +357,23 @@ test('Velos: km per bike and the most worn parts', async ({ page, context }, inf
   await shot(page, 'velokm', info);
   await wear.locator('a').click();
   await expect(page).toHaveURL(/tab=care/);
+  expect(errors).toEqual([]);
+});
+
+test('Tagesbild: a tapped day shows its 24 hours with sleep, steps, pulse, ride and ticks', async ({ page, context }, info) => {
+  const errors = await open(page, context);
+  await go(page, '#/auswerten/analyse');
+  const day = addDays(TODAY, -1);
+  await page.locator(`[data-heat] button.cell[data-day="${day}"]`).click();
+  const pic = page.locator('[data-day-sheet] [data-day-picture]');
+  await expect(pic).toBeVisible();
+  await expect(pic.locator('[data-pic-sleep]')).toHaveCount(1);
+  await expect(pic.locator('[data-pic-hr]')).toBeVisible();
+  expect(await pic.locator('[data-pic-steps]').count()).toBeGreaterThan(10);
+  await expect(pic.locator('[data-pic-ride]')).toHaveCount(1);
+  await expect(pic.locator('[data-pic-tick]').first()).toBeVisible();
+  await expect(pic).toContainText('Sauna');
+  await page.locator('[data-day-sheet]').evaluate((el) => Promise.all(el.getAnimations({ subtree: true }).map((a) => a.finished)));
+  if (process.env.ANALYSE_SHOTS) await page.screenshot({ path: `qa/analyse/tagesbild-${info.project.name}.png` });
   expect(errors).toEqual([]);
 });

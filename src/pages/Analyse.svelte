@@ -135,7 +135,7 @@
 
   {#if !loading}
     <section class="card vw" aria-label={t('Views|views')}><Ansichten {views} now={nowShown} onapply={applyView} /></section>
-    {#key dgRun}<Diagramm {groups} {byKey} trips={data.trips} acts={data.acts} log={data.log} {today} start={dgStart} onstate={(st) => (dgState = st)} />{/key}
+    {#key dgRun}<Diagramm {groups} {byKey} rowOf={(d) => data.table.get(d)} trips={data.trips} acts={data.acts} log={data.log} {today} start={dgStart} onstate={(st) => (dgState = st)} />{/key}
   {/if}
   {#if !loading}<Vergleiche {byKey} acts={data.acts} log={data.log} trips={data.trips} {today} />{/if}
   {#if !loading}<Muster {days} {byKey} acts={data.acts} log={data.log} {today} />{/if}
@@ -204,7 +204,7 @@
   {/if}
 </div>
 {#if dayOpen}
-  <DaySheet day={dayOpen} {groups} {today} tripName={data.trips.find((tr) => tr.startDate && tr.startDate <= dayOpen && (tripEnd(tr) ?? tr.startDate) >= dayOpen)?.name ?? ''} onday={(d) => (dayOpen = d)} onclose={() => (dayOpen = null)} />
+  <DaySheet day={dayOpen} {groups} {today} rowOf={(d) => data.table.get(d)} log={data.log} acts={data.acts} tripName={data.trips.find((tr) => tr.startDate && tr.startDate <= dayOpen && (tripEnd(tr) ?? tr.startDate) >= dayOpen)?.name ?? ''} onday={(d) => (dayOpen = d)} onclose={() => (dayOpen = null)} />
 {/if}
 {/if}
 

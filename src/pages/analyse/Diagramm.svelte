@@ -25,7 +25,7 @@
   import { t, num, locale } from '../../lib/i18n.svelte.js';
 
   // start: a saved view to begin with instead of the last state (Ansichten); onstate(state): every change
-  let { groups = [], byKey = new Map(), trips = [], acts = [], log = [], today, start = null, onstate } = $props();
+  let { groups = [], byKey = new Map(), trips = [], acts = [], log = [], today, start = null, onstate, rowOf = null } = $props();
 
   const LS = 'pg.analyse.diagramm';
   const saved = (() => {
@@ -343,7 +343,7 @@
   />
 {/if}
 {#if showDay && picked}
-  <DaySheet day={picked} {groups} {today} tripName={tripOn(picked)?.name ?? ''} onday={(d) => (picked = d)} onclose={() => (showDay = false)} />
+  <DaySheet day={picked} {groups} {today} {rowOf} {log} {acts} tripName={tripOn(picked)?.name ?? ''} onday={(d) => (picked = d)} onclose={() => (showDay = false)} />
 {/if}
 
 <style>
