@@ -605,6 +605,7 @@ import meilensteinebelohnung from './meilensteinebelohnung.js';
 import nextsterne from './nextsterne.js';
 import sterntexte from './sterntexte.js';
 import belohnungalle from './belohnungalle.js';
+import wochensterne from './wochensterne.js';
 import fastgeschafft from './fastgeschafft.js';
 // «Alles fertig» (Noah 24.10.2026): leftovers of the older threads; spread last
 import allesfertig from './allesfertig.js';
@@ -999,6 +1000,7 @@ const ORDERED = [
   nextsterne,
   sterntexte,
   belohnungalle,
+  wochensterne,
   fastgeschafft,
   allesfertig,
   generalprobe,
