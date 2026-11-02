@@ -4,6 +4,7 @@
  */
 import { shown } from '../messwerte.js';
 import { bedText } from '../koerper.js';
+import { niceScale, tickText, minuteText, MINUTE_STEPS } from '../charts/axis.js';
 
 export function valueText(x, v, num) {
   if (v == null || !Number.isFinite(v)) return '–';
@@ -18,3 +19,15 @@ export function valueText(x, v, num) {
 
 /** The unit after the number (sleep and bedtime carry it in the number). */
 export const unitText = (x) => (x.key === 'sleep' || x.key === 'bed' ? '' : (x.unit ?? ''));
+
+/**
+ * The value axis of an item (Noah 27.10.2026 «genaue Werte»): round, labelled steps from charts/axis.js.
+ * Sleep in hours («7 h 30»), bedtime in half hours, everything else in round numbers. zero: start at 0 (sums).
+ * → { sc: { lo, hi, step, ticks }, text(v) }
+ */
+export function axisOf(x, values, num, { zero = false, count = 4 } = {}) {
+  if (x?.key === 'sleep') return { sc: niceScale(values, { zero, count, steps: MINUTE_STEPS }), text: minuteText };
+  if (x?.key === 'bed') return { sc: niceScale(values, { zero: false, count, steps: [15, 30, 60, 120] }), text: (v) => bedText(v) };
+  const sc = niceScale(values, { zero, count });
+  return { sc, text: (v) => tickText(v, sc.step, num) };
+}

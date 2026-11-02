@@ -2032,6 +2032,7 @@ Noah 19.10.2026: «1a 2a 3a 4 a oder b beides wählbar 5a», danach «a und b»,
 ## 01.11.2026 Wegweiser statt Katalog
 - Noah «1a 2a 3a 4a 5a»: Jede Funktion braucht einen Absprung dort, wo das Bedürfnis entsteht; ein Test macht das zur Pflicht, auch für neue Funktionen. Form: ruhige Zeile «Passt hier» mit kleinen Knöpfen am Ende des Abschnitts. Nach einer Handlung «Als Nächstes» mit 1 bis 2 Knöpfen im Bestätigungs-Hinweis. Keine neue Finde-Hilfe mehr, die bestehenden bleiben. Start mit Unterwegs und Velo.
 - Noah «1-5a» (Inhalte): Jeder Wegweiser-PR bringt die Inhalte seiner Funktionen mit. Inhalt steht auf der Seite («Wozu» oben, Schritte und Beispiel im leeren Zustand, Wissen als ruhige Karte), nicht nur hinter «?». Claude schreibt Wissen in eigenen Worten, Noah sieht es pro PR als Bild. Leere Funktionen bieten «Beispiel übernehmen» (änderbar, löschbar). Ton kurz und sachlich mit etwas Bikepacking-Humor.
+- Wegweiser Schritt 25 «Fertig-Regel» (Noah «freigabe» für Schritte 1–26): Eine neue Funktion ist erst fertig mit Seite, Absprung, Inhalt («Gut zu wissen»), leerem Zustand und nächstem Schritt. Steht in CLAUDE.md («Every PR») und in `arbeitsweise.md` Punkt 13, damit alle Threads es gleich machen.
 
 ## 01.11.2026 Aufzeichnung ohne Route (Fix-Release)
 - Noah «1a 2a 3a 4a 5a» zur Fragerunde vom 1.11.2026, sofort als eigener Fix vor allem anderen.
