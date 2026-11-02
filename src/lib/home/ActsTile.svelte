@@ -13,6 +13,7 @@
   import { flowStates } from '../flow.js';
   import { phone } from '../media.svelte.js';
   import TileHead from './TileHead.svelte';
+  import NextStars from './NextStars.svelte';
   import { t } from '../i18n.svelte.js';
 
   let { today } = $props();
@@ -39,6 +40,7 @@
   {:else if data}
     <p class="empty">{t('Add your activities in Aktiv, then you tick them off here in one tap.')}</p>
   {/if}
+  <NextStars {today} />
   <a class="lk" href="#/auswerten/analyse" data-acts-all title={t('All your values and activities in charts')}>{t('More|acts tile')}<ChevronRight size={16} aria-hidden="true" /></a>
 </section>
 {#if medSt}<MedStartSheet st={medSt} {today} onclose={() => (medFor = null)} />{/if}
