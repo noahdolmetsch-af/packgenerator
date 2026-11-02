@@ -43,7 +43,8 @@
   import FoodResult from '../lib/mini/FoodResult.svelte';
   import { KIND_FOOD, foodQuestion, cleanFoodAnswer } from '../lib/mini/essen.js';
   import DateWho from '../lib/mini/DateWho.svelte';
-  import { KIND_DATE, OPTS_MIN, OPTS_MAX, PICKS, dateQuestion, cleanOpts, optKey, tally, busyDays, nextDays, summaryLines, icsOf } from '../lib/mini/termin.js';
+  import DateEdit from '../lib/mini/DateEdit.svelte';
+  import { KIND_DATE, OPTS_MIN, OPTS_MAX, PICKS, dateQuestion, cleanOpts, optKey, tally, mergeAnswers, whoAnswered, busyDays, nextDays, summaryLines, icsOf } from '../lib/mini/termin.js';
   import { CalendarCheck, Plus, ChevronRight, Share2, Copy, QrCode as QrIcon, RefreshCw, CalendarPlus, Route, MessageCircle, Pencil, Trash2, CircleStop, Lock, ListChecks, ClipboardList, Bike, Utensils, Dices, Clock } from '@lucide/svelte';
 
   let { hash = '' } = $props();
@@ -124,7 +125,8 @@
   const isFood = $derived(q?.kind === KIND_FOOD);
   const link = $derived(q?.srv ? joinLinkOf(q.srv.id, q.srv.key) : '');
   const isOpen = $derived(running(q));
-  const rows = $derived(q ? [...(q.answers ?? []), ...(Object.keys(q.me?.picks ?? {}).length ? [{ name: t('You'), picks: q.me.picks, me: true }] : [])] : []);
+  const merged = $derived(q ? mergeAnswers(q.answers, q.manual, q.hide) : []);
+  const rows = $derived(q ? [...merged, ...(Object.keys(q.me?.picks ?? {}).length ? [{ name: t('You'), picks: q.me.picks, me: true }] : [])] : []);
   const result = $derived(q ? tally(q.opts, rows) : { list: [], best: null });
   const bestOpt = $derived(result.best ? q.opts.find((o) => optKey(o) === result.best.key) : null);
   let busyRead = $state(false);
@@ -279,6 +281,39 @@
       location.hash = '#/me/mini';
     }
   }
+  /* ---------- type in or change an answer by hand (Noah 1.11.2026 «2a»; stays on this device) ---------- */
+  let editing = $state(null); // { row } (row null: a new one)
+  const unnamed = $derived(whoAnswered(q?.invited ?? [], merged).missing);
+  async function saveEdit(a) {
+    const row = editing.row;
+    await updateOne(db, q.id, (x) => {
+      const manual = [...(x.manual ?? [])];
+      if (row?.manual) {
+        const i = manual.findIndex((m) => m.id === row.id);
+        if (i >= 0) manual[i] = { ...manual[i], ...a };
+      } else manual.push({ id: crypto.randomUUID().slice(0, 8), ...a, ...(row?.a ? { over: row.a } : {}) });
+      return { ...x, manual };
+    });
+    editing = null;
+    offerDone(t('Saved on this device.'));
+  }
+  async function deleteEdit() {
+    const row = editing.row;
+    const a = await askDelete({ title: t('Delete the answer of {name}?', { name: row.name || t('Without a name') }), text: t('The answer goes from your list. The person does not get a message.') });
+    if (a !== 'delete') return;
+    const before = { manual: q.manual ?? [], hide: q.hide ?? [] };
+    const ok = await deleteWithUndo({
+      name: row.name,
+      text: t('Answer of «{name}» deleted.', { name: row.name || t('Without a name') }),
+      run: async () => {
+        await updateOne(db, q.id, (x) => (row.manual ? { ...x, manual: (x.manual ?? []).filter((m) => m.id !== row.id) } : { ...x, hide: [...(x.hide ?? []), row.a] }));
+      },
+      undo: async () => {
+        await updateOne(db, q.id, (x) => ({ ...x, manual: before.manual, hide: before.hide }));
+      },
+    });
+    if (ok) editing = null;
+  }
   function answersText(n) {
     return n === 1 ? t('1 answer') : t('{n} answers', { n });
   }
@@ -380,10 +415,10 @@
           {#if readErr}<p class="mt-err" role="alert" data-mt-readerr>{readErr}</p>{/if}
           {#if said}<p class="mt-help" role="status">{said}</p>{/if}
         {:else}
-        <DateWho invited={q.invited ?? []} answers={q.answers ?? []} title={q.title} {link} open={isOpen} onchange={(list) => updateOne(db, q.id, (x) => ({ ...x, invited: list }))} />
+        <DateWho invited={q.invited ?? []} answers={merged} title={q.title} {link} open={isOpen} onchange={(list) => updateOne(db, q.id, (x) => ({ ...x, invited: list }))} />
         <section class="card mt-box mt-best" aria-labelledby="mt-best-h" data-mt-best>
           <h2 id="mt-best-h">{bestOpt ? t('Best day: {day}', { day: optFmt(bestOpt) }) : t('No answers yet')}</h2>
-          <p class="mt-help" data-mt-answers>{answersText(q.answers?.length ?? 0)}{q.read ? ` · ${t('read {time}', { time: new Date(q.read).toLocaleTimeString(locale(), { hour: '2-digit', minute: '2-digit' }) })}` : ''}</p>
+          <p class="mt-help" data-mt-answers>{answersText(merged.length)}{q.read ? ` · ${t('read {time}', { time: new Date(q.read).toLocaleTimeString(locale(), { hour: '2-digit', minute: '2-digit' }) })}` : ''}</p>
           <ul class="mt-bars">
             {#each result.list as c (c.key)}
               {@const total = Math.max(1, rows.length)}
@@ -411,12 +446,13 @@
           <h2 id="mt-who-h">{t('Who can when')}</h2>
           <div class="mt-tablewrap">
             <table class="mt-table" data-mt-table>
-              <thead><tr><th scope="col">{t('Name')}</th>{#each q.opts as o (optKey(o))}<th scope="col">{optFmt(o)}</th>{/each}</tr></thead>
+              <thead><tr><th scope="col">{t('Name')}</th>{#each q.opts as o (optKey(o))}<th scope="col">{optFmt(o)}</th>{/each}<th scope="col" aria-label={t('Change')}></th></tr></thead>
               <tbody>
-                {#each q.answers ?? [] as r (r.a)}
+                {#each merged as r (r.key)}
                   <tr data-mt-row>
                     <th scope="row">{r.name || t('Without a name')}{#if r.note}<small>{r.note}</small>{/if}</th>
                     {#each q.opts as o (optKey(o))}{@const v = cell(r, o)}<td class={`p-${v || 'o'}`} title={pickLabel(v)}><span aria-hidden="true">{v === 'y' ? '✓' : v === 'm' ? '?' : v === 'n' ? '✗' : '–'}</span><span class="sr">{pickLabel(v)}</span></td>{/each}
+                    <td class="mt-edit"><button type="button" class="btn sm" onclick={() => (editing = { row: r })} aria-label={t('Change the answer of {name}', { name: r.name || t('Without a name') })} data-mt-edit><Pencil size={14} aria-hidden="true" /></button></td>
                   </tr>
                 {/each}
                 <tr class="mt-me" data-mt-me>
@@ -432,7 +468,11 @@
             </table>
           </div>
           <p class="mt-help">{t('Your own row stays on this device. Tap again to change it: ✓ works, ? maybe, ✗ does not work.')}</p>
+          {#if !editing}<div><button type="button" class="btn" onclick={() => (editing = { row: null })} data-mt-typein><Plus size={16} aria-hidden="true" />{t('Type in an answer')}</button></div>{/if}
         </section>
+        {#if editing}
+          <DateEdit opts={q.opts} row={editing.row} names={unnamed} fmt={optFmt} onsave={saveEdit} ondelete={editing.row ? deleteEdit : null} oncancel={() => (editing = null)} />
+        {/if}
         {/if}
 
         <div class="mt-acts">
