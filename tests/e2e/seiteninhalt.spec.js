@@ -16,6 +16,8 @@ test('Dreams shows what you can do here, opens how it works and folds to one lin
   await expect(card).toContainText(T('What you can do here'));
   const first = card.locator('[data-seiteninhalt-item]').first();
   await expect(first.locator('.si-what')).not.toBeEmpty();
+  // PR 12: each function brings «Good to know»
+  await expect(first.locator('[data-seiteninhalt-know]')).toContainText(T('Good to know'));
   await tap(first.getByRole('button', { name: T('How it works') }), info);
   await expect(card.locator('[data-seiteninhalt-how]').first()).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBe(0);
@@ -27,5 +29,17 @@ test('Dreams shows what you can do here, opens how it works and folds to one lin
   // never on Today
   await page.goto('./#/');
   await expect(page.locator('[data-seiteninhalt], [data-seiteninhalt-line]')).toHaveCount(0);
+  expect(errors).toEqual([]);
+});
+
+test('Free time What am I up for shows good to know in the card', async ({ page, context }, info) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await openHome(page, context, info);
+  await page.goto('./#/me/frei/lust');
+  const know = page.locator('[data-seiteninhalt-know="f.freilust"]');
+  await expect(know).toContainText(T('Good to know'));
+  expect((await know.innerText()).length).toBeGreaterThan(20);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBe(0);
   expect(errors).toEqual([]);
 });
