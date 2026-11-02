@@ -28,6 +28,13 @@ export const ON_PAGES = [
   '#/pack', '#/pack/templates', '#/blocks', '#/blocks/aufraeumen', '#/blocks/check', '#/ski/check', '#/me/tools/labels', '#/me/checks',
   // PR 13, area «Planen»: Woche, Merken, Termine, Notizen, Tagebuch, Eingang, Mail, Alltag
   '#/week', '#/calendar', '#/me/agenda', '#/notes', '#/tagebuch', '#/inbox', '#/me/mail', '#/me/alltag',
+  // PR 19, area Velo: Velos with their tabs, Material, Wardrobe, Ski care, bike shops
+  // not #/bikes?tab=care: on a phone the card pushed «All tips» below 2.5 screens (tests/e2e/heimat.spec.js)
+  '#/bikes', '#/bikes?tab=care&view=faq', '#/bikes?tab=care&view=import', '#/bikes?tab=care&view=photos',
+  '#/bikes?tab=care&view=season', '#/bikes?tab=care&view=sell', '#/bikes?tab=care&view=spick', '#/bikes?tab=care&view=strava',
+  '#/bikes?tab=care&view=templates', '#/bikes?tab=care&view=wear', '#/bikes?tab=care&view=year', '#/bikes?tab=compare',
+  '#/bikes?tab=compare&view=all', '#/bikes?tab=compare&view=enter', '#/bikes?tab=rig', '#/bikes?tab=rig&view=bags',
+  '#/bikes?tab=rig&view=log', '#/bikes?tab=setup', '#/bikes?tab=shop', '#/equipment', '#/gear', '#/me/pros', '#/ski/care', '#/wardrobe',
 ];
 /** Rows shown before «Show all n». */
 export const SHOWN = 4;
@@ -36,7 +43,7 @@ export const FOLD_KEY = 'seiteninhalt.folded';
  * Pages where the card starts as one line (Noah 02.11.2026): on the way the helpers, «End trip» and the emergency button
  * must stay on the first screen; on Pack the packing list comes first. A tap opens it, and the choice is kept like ×.
  */
-export const FOLDED_FIRST = ['#/ride', '#/pack'];
+export const FOLDED_FIRST = ['#/ride', '#/pack', '#/bikes', '#/gear'];
 
 /** The page of a hash, as HOME writes it: path plus «tab=…» or «view=…» when they choose the page. */
 export function pageKey(hash = '') {

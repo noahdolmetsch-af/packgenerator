@@ -3,7 +3,7 @@
   import LazyPage from './lib/nav/LazyPage.svelte';
   import GehoertDazu from './lib/know/GehoertDazu.svelte'; // «Heute als Begleiter» PR 7
   import SeitenInhalt from './lib/ui/SeitenInhalt.svelte'; // «Wegweiser statt Katalog» PR 11
-  import { PAGE_MOMENT } from './lib/know/gehoert.js';
+  import { showsRow } from './lib/know/gehoert.js';
   import { warmUp } from './lib/nav/lazy.js';
   import SkiTurn from './lib/ski/SkiTurn.svelte';
   import { parseBetween } from './lib/phase.js';
@@ -499,7 +499,7 @@
   <!-- ER1/ER2: «Soll ich dich erinnern?» on top of the next page, in the page (never over its buttons) -->
   {#if !guest && page !== 'home'}<RemindCard /><RuhigLine {hash} />{/if}
   <!-- «Heute als Begleiter» PR 7: «Belongs to …», the functions of the same moment, on top of the page -->
-  {#if !guest && !mini && PAGE_MOMENT[page]}<GehoertDazu {page} {hash} />{/if}
+  {#if !guest && !mini && showsRow(page, hash)}<GehoertDazu {page} {hash} />{/if}
   <!-- «Wegweiser statt Katalog» PR 11: what you can do on this page, with what for and how it works (switched on page by page) -->
   {#if !guest && !mini && page !== 'home'}<SeitenInhalt {hash} />{/if}
   <svelte:boundary onerror={onfail}>

@@ -110,6 +110,16 @@ test('Wochenrückblick: Aktiv minutes count, observations live on Sunday, the nu
     await expect(main.locator('[data-wr="bikes"]')).toContainText('Gravel (Beispiel)');
   }
 
+  // the course behind a tile: eight weeks, every value written out, each week opens that week
+  await body.locator('[data-tile-detail="restingHr"]').click();
+  await expect(page).toHaveURL(/#\/flow\/review\/tile\?k=restingHr&w=2026-10-26$/);
+  await expect(page.locator('[data-wd-week]')).toHaveCount(8);
+  await expect(page.locator(`[data-wd-week="${MON}"]`)).toContainText('55 bpm');
+  await expect(page.locator('[data-wd-head]')).toContainText('55 bpm');
+  await expect(page.locator('[data-wd-table] tbody tr')).toHaveCount(8);
+  await page.locator('[data-wd-how] a', { hasText: T('Back to the week in review') }).click();
+  await expect(page).toHaveURL(/#\/flow\/review\?w=2026-10-26$/);
+
   // the numbers behind an observation
   await main.locator('[data-obs-detail]').first().click();
   await expect(page).toHaveURL(/#\/flow\/review\/obs\?kind=\w+&w=2026-10-26$/);
