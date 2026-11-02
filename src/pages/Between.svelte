@@ -32,7 +32,7 @@
   import { typeIcon } from '../lib/trip/checkicons.js';
   import Celebrate from '../lib/ui/Celebrate.svelte';
   import Empty from '../lib/ui/Empty.svelte';
-  import { Bell, X, Minus, Plus, Route, Check, Undo2, Zap, ChevronRight, Briefcase, NotebookPen, Wrench, Save, BookOpen } from '@lucide/svelte';
+  import { Bell, X, Minus, Plus, Route, Check, Undo2, Zap, ChevronRight, Briefcase, NotebookPen, Wrench, Save, BookOpen, ListChecks, Wallet } from '@lucide/svelte';
   import StepBar from '../lib/ui/StepBar.svelte';
   import PageHead from '../lib/ui/PageHead.svelte';
   import MainBar from '../lib/ui/MainBar.svelte';
@@ -282,6 +282,14 @@
       {#if learned.length}
         <ul class="rows">{#each learned as l (l.key)}{@const Icon = l.icon}<li><Icon size={16} aria-hidden="true" /><span class="nm">{l.text}</span></li>{/each}</ul>
       {:else}<p class="tp-muted">{t('Everything was as planned: every item was used.')}</p>{/if}
+    </section>
+    <!-- «Wegweiser statt Katalog» PR 4 (Noah 3a): after the debrief, «Next» with the two steps that follow it -->
+    <section class="until" aria-labelledby="next-h" data-als-naechstes>
+      <h2 id="next-h" class="sh">{t('Next')}</h2>
+      <ul class="card rows">
+        <li><a class="row" href="#/me/frei/naechstes" data-row="naechstes"><span class="ic" aria-hidden="true"><ListChecks size={18} /></span><span class="bt"><b>{t('For next time')}</b><small>{t('Collect what proved itself and what was missing')}</small></span><ChevronRight size={18} aria-hidden="true" /></a></li>
+        <li><a class="row" href="#/me/tools/costs" data-row="costs"><span class="ic" aria-hidden="true"><Wallet size={18} /></span><span class="bt"><b>{t('Trip costs')}</b><small>{t('Who paid what, who owes whom')}</small></span><ChevronRight size={18} aria-hidden="true" /></a></li>
+      </ul>
     </section>
     <!-- Paket Q #77/#78: back home, the next small steps (bike, backup, logbook) -->
     <section class="until" aria-labelledby="home-h" data-section="back-home">

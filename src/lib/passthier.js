@@ -26,6 +26,8 @@ export const PASST_HIER = {
   sleeplists: ['f.sleeporigin', 'f.sleepspots'],
   // Velos › Setup › Setup log: the tools you need when you change something on the bike
   rig: ['f.gears', 'f.level'],
+  // Rückblick einer Tour (saved): looking back further than the packing list
+  debrief: ['f.knowhow', 'f.gooddecisions', 'f.meaning', 'f.skillmap'],
 };
 
 /** The functions of a place that exist and are not marked «Not for me». */
