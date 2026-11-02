@@ -92,6 +92,9 @@
     return '';
   }
 
+  /* the course behind a sentence (Noah 02.11.2026 «1a») */
+  const NOTE_COURSE = (k) => (k.startsWith('sleep') ? 'sleepFelt' : k === 'streak' ? 'streak' : k.startsWith('hours') ? 'hours' : k.startsWith('base') ? 'zones' : null);
+
   /* W4 */
   const actName = (a) => stravaName(a.name) || t(typeKey(a.type));
   const BEST = { km: 'Longest distance', hm: 'Most climbing', time: 'Longest time', w20: 'Best 20 minutes' };
@@ -189,7 +192,7 @@
         <section class="card wcard" data-wr="notes" aria-labelledby="wr-notes">
           <h2 id="wr-notes">{t('Went well · missing')}</h2>
           <ul class="notes">
-            {#each notes as n (n.key)}<li data-note={n.key}>{noteText(n)}</li>{/each}
+            {#each notes as n (n.key)}<li data-note={n.key}>{noteText(n)}{#if NOTE_COURSE(n.key)}{' '}<a class="tp-link" href="#/flow/review/tile?k={NOTE_COURSE(n.key)}&w={monday}" data-note-detail={n.key}>{t('Course and all numbers')}</a>{/if}</li>{/each}
           </ul>
         </section>
       {/if}
