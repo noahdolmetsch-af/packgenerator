@@ -28,7 +28,7 @@ export default {
   'Remove: {title}': 'Entfernen: {title}',
   // the week
   'Next week': 'Nächste Woche',
-  'Week {n} · {range} · everything here is a suggestion and can be hidden': 'KW {n} · {range} · alles hier ist ein Vorschlag und abwählbar',
+  'For {range} · week {n}. Your dates and planned tasks. You accept new suggestions yourself.': 'Für {range} · KW {n}. Deine Termine und geplanten Aufgaben. Neue Vorschläge übernimmst du selbst.',
   'Which week': 'Welche Woche',
   'Show in the week': 'In der Woche zeigen',
   '{n} session|week': '{n} Einheit',
@@ -124,7 +124,7 @@ export default {
   'Christmas Day': 'Weihnachten',
   "St Stephen's Day": 'Stephanstag',
   'Clocks go back on Sunday: check the bike lights': 'Am Sonntag wird die Uhr zurückgestellt: Velolicht prüfen',
-  'Get the bike ready for winter: clean the chain, fit mudguards': 'Velo winterfest machen: Kette reinigen, Schutzbleche montieren',
+  'Seasonal idea: get the bike ready for winter (clean the chain, fit mudguards)': 'Saisonidee: Velo winterfest machen (Kette reinigen, Schutzbleche montieren)',
   'Ski touring season: check the skins and the avalanche transceiver': 'Skitouren-Saison: Felle und LVS prüfen',
   'Service the bike before the season': 'Velo-Service vor der Saison',
   'Packing list: {trip}': 'Packliste: {trip}',
