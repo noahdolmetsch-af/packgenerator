@@ -13,6 +13,7 @@ export const goOf = (p) => (Object.hasOwn(p, 'go') ? p.go : Object.hasOwn(GO, p.
 
 /** The address a line's link shows, or null when the line is no link. */
 export function linkOf(p) {
+  if (!p) return null; // a newest update whose lines have no link (tryLine gives null)
   const g = goOf(p);
   if (g === undefined) return p.href || p.action ? (p.href ?? null) : null;
   if (g === null) return null;
