@@ -1,5 +1,6 @@
 /** German texts: bikes. Keys are the English texts. */
 export default {
+  'Choose the receipt photo': 'Beleg-Foto wählen',
   'Example, not your data': 'Beispiel, nicht deine Daten',
   'Example': 'Beispiel',
   'Made-up values. Your own show here once you add a bike.': 'Erfundene Werte. Deine eigenen erscheinen hier, sobald du ein Velo anlegst.',

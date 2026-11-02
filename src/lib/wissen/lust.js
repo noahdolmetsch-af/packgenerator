@@ -7,6 +7,7 @@ export default {
   'f.compass': 'Small steps with a date get done far more often than big wishes. Letting a goal go is an ending too, not a failure.',
   'f.dreams': 'Mark the months a tour fits: passes are often closed until June, and the south is lovely in October.',
   'f.dreamsdone': 'Finish the debrief of a ride and the dream counts as fulfilled. One photo and a line on how it felt make the year card worth reading.',
+  'f.triptips': 'Pick the hours you really have: a round that fits in two hours is ridden more often than a perfect one you never start.',
   'f.whitespots': 'The nearest white spot is often only one valley away. Small roads you never took are the quickest new ground.',
   'f.nlgoals': 'Choose an end you can reach: five new villages in a month beats a hundred «some time».',
   'f.nlround': 'The router prefers small roads; check gravel and steep parts on the map before you leave.',
