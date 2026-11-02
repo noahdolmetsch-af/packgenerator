@@ -47,6 +47,8 @@ test('Calm view: the strip shows only what you do, not on Heute, until «Fertig�
   await page.goto('./#/gear');
   const line = page.locator('[data-ruhig-line="calm"]');
   await expect(line).toContainText('Velo putzen');
+  await expect(page.locator('html')).toHaveAttribute('data-ruhe', '1'); // suggestions, stars, «Neu» rest
+  await expect(page.locator('.ph, .an, .stars, .sv-star')).toBeHidden();
   await page.goto('./#/');
   await page.locator('main').waitFor();
   await expect(page.locator('[data-ruhig-line]')).toHaveCount(0); // Heute stays as it is (rule 11)
@@ -66,6 +68,20 @@ test('Calm view: «Done» keeps a line, the week shows it', async ({ page, conte
   await expect(page.locator('[data-calm-week]')).toContainText('1× Velo putzen');
   await page.locator('[data-calm-log-clear]').click();
   await expect(page.locator('[data-calm-week]')).toHaveCount(0);
+  expect(errors).toEqual([]);
+});
+
+test('Calm view: the words you wrote lead to the matching page', async ({ page, context }) => {
+  const errors = await blank(page, context);
+  await page.goto('./#/me/ruhig/weniger?open=calm');
+  await settle(page);
+  await page.locator('[data-calm-what]').fill('Kette prüfen');
+  await page.locator('[data-calm-what]').press('Enter');
+  await page.goto('./#/gear');
+  const open = page.locator('[data-ruhig-line="calm"] [data-calm-open]');
+  await expect(open).toHaveAttribute('href', /^#\//);
+  await open.click();
+  await expect(page.locator('[data-ruhig-line="calm"]')).toContainText('Kette prüfen'); // the strip stays
   expect(errors).toEqual([]);
 });
 

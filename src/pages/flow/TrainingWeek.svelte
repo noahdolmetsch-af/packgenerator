@@ -17,7 +17,7 @@
   import { zones } from '../../lib/strava/zones.svelte.js';
   import { rideTimeS } from '../../lib/review/fmt.js';
   import { PLAN_KEY, GOAL_KEY, planOf, goalOf, cleanSession, prunePlan, copyWeek, doneBy, weekNumbers, weeksTo, isoWeek, mondayOf, weekOf, shiftDay, zoneSecs, mainZone, hmm, KIND_NAMES, ZONE_NAMES, typeKey } from '../../lib/training.js';
-  import { t, tn, num, locale } from '../../lib/i18n.svelte.js';
+  import { t, tn, num, locale, lang } from '../../lib/i18n.svelte.js';
   import { offerDone } from '../../lib/ui/rename.svelte.js';
   import { stravaName } from '../../lib/stravanames.js';
   import { localDay } from '../../lib/localday.js';
@@ -25,6 +25,8 @@
   import AnaSheet from '../../lib/training/AnaSheet.svelte';
   import FeelAsk from '../../lib/training/plans/FeelAsk.svelte'; // «Trainingspläne»: «How hard was it?» after each ride
   import { strava, STRAVA_HASH } from '../../lib/strava/client.svelte.js';
+  import { saveAct } from '../../lib/flowdb.js';
+  import { blankAct } from '../../lib/flow.js';
   import { racesQuery } from '../../lib/race/store.js';
   import { raceTrips, daysBetween } from '../../lib/race/race.js';
   import { raceHref } from '../../lib/race/parts.js';
@@ -40,6 +42,28 @@
   const tripsQ = liveQuery(() => db.trips.toArray());
   const racesQ = racesQuery();
   const nextRace = $derived(raceTrips($tripsQ ?? [], $racesQ ?? {}, today).coming.find((r) => r.startDate && r.startDate >= today) ?? null);
+
+  // «Training verbessern» 1: the sessions can be of any sport of Aktiv (yoga, climbing, gym …); ticked there, they tick here
+  const actsQ = liveQuery(() => db.flowActs.toArray());
+  const logQ = liveQuery(() => db.flowLog.where('day').between(shiftDay(today, -60), shiftDay(today, 60), true, true).toArray());
+  const sports = $derived(($actsQ ?? []).filter((a) => !a.paused).sort((a, b) => (a.order ?? 0) - (b.order ?? 0)));
+  const sportName = (a) => (a ? (lang.v === 'de' && a.nameDe ? a.nameDe : a.name) || t('Activity') : '');
+  const sportById = (id) => ($actsQ ?? []).find((a) => a.id === id);
+  const sportDone = (s) => !!s.sport && ($logQ ?? []).some((e) => e.actId === s.sport && e.day === s.day);
+  const doneOf = (s, day) => (s.sport ? (sportDone(s) ? { day: s.day, kind: s.kind, byHand: true } : s.done ? { day: s.day, kind: s.kind, byHand: true } : null) : doneBy(s, day));
+  const planName = (s) => s.name || (s.sport ? sportName(sportById(s.sport)) : '') || t(KIND_NAMES[s.kind]);
+  let newSport = $state(null); // the name of a sport being added, or null
+  async function addSport() {
+    const name = (newSport ?? '').trim().slice(0, 40);
+    if (!name) return;
+    const act = blankAct(($actsQ ?? []).length);
+    act.id = `act-${Date.now().toString(36)}`;
+    act.name = name;
+    act.goals = [];
+    await saveAct(db, act);
+    form.sport = act.id;
+    newSport = null;
+  }
 
   let monday = $state(mondayOf(today));
   const days = $derived(weekOf(monday));
@@ -58,11 +82,11 @@
   // one session in the form: a new one on a day, or a planned one
   let form = $state(null);
   const KINDS = ['bike', 'run', 'hike', 'other'];
-  const add = (day) => (form = { id: '', day, kind: 'bike', name: '', mins: 60, zone: 2 });
-  const edit = (s) => (form = { ...s, zone: s.zone ?? 0 });
+  const add = (day) => ((newSport = null), (form = { id: '', day, kind: 'bike', name: '', mins: 60, zone: 2, sport: '' }));
+  const edit = (s) => ((newSport = null), (form = { ...s, zone: s.zone ?? 0, sport: s.sport ?? '' }));
   async function keep(e) {
     e.preventDefault();
-    const s = cleanSession(form);
+    const s = cleanSession({ ...form, sport: form.kind === 'other' ? form.sport : '' });
     if (!s) return;
     await savePlan([...plan.filter((x) => x.id !== s.id), s]);
     form = null;
@@ -174,14 +198,31 @@
                   <a class="ch done" href="#/flow/training/a/{encodeURIComponent(a.id)}" data-done={a.id}><KindIcon kind={a.kind} size={14} /><span class="cn">{stravaName(a.name) || t(typeKey(a.type))}</span><span class="num">· {rideTimeS(a.movingS)}</span>{#if z != null}<i class="zt z{z + 1}">Z{z + 1}</i>{/if}<Check size={14} aria-hidden="true" /></a>
                 {/each}
                 {#each planned as s (s.id)}
-                  {@const by = doneBy(s, done)}
-                  <button type="button" class="ch plan" class:ok={by} onclick={() => edit(s)} data-planned={s.id}><KindIcon kind={s.kind} size={14} /><span class="cn">{s.name || t(KIND_NAMES[s.kind])}</span><span class="num">· {hours(s.mins)}</span>{#if s.zone}<i class="zt z{s.zone}">Z{s.zone}</i>{/if}{#if by}<span class="sr">{t('done')}</span><Check size={14} aria-hidden="true" />{/if}</button>
+                  {@const by = doneOf(s, done)}
+                  <button type="button" class="ch plan" class:ok={by} onclick={() => edit(s)} data-planned={s.id}><KindIcon kind={s.kind} size={14} /><span class="cn">{planName(s)}</span><span class="num">· {hours(s.mins)}</span>{#if s.zone}<i class="zt z{s.zone}">Z{s.zone}</i>{/if}{#if by}<span class="sr">{t('done')}</span><Check size={14} aria-hidden="true" />{/if}</button>
                 {/each}
                 <button type="button" class="ch add" aria-label={t('Plan a session on {day}', { day: fmt(d, { weekday: 'long' }) })} onclick={() => add(d)} data-add={d}><Plus size={14} aria-hidden="true" /></button>
               </span>
               {#if form?.day === d}
                 <form class="sf" onsubmit={keep} data-session-form>
                   <Seg small chips full={false} label={t('Kind')} value={form.kind} onchange={(k) => (form.kind = k)} options={KINDS.map((k) => ({ key: k, name: t(KIND_NAMES[k]) }))} />
+                  {#if form.kind === 'other'}
+                    <div class="sfl">
+                      <label>{t('Sport')}
+                        <select class="sel" bind:value={form.sport} data-session-sport>
+                          <option value="">{t('Other (no sport)')}</option>
+                          {#each sports as a (a.id)}<option value={a.id}>{sportName(a)}</option>{/each}
+                        </select>
+                      </label>
+                      {#if newSport == null}
+                        <button type="button" class="btn btn-link sm" onclick={() => (newSport = '')} data-sport-new>{t('Add a sport')}</button>
+                      {:else}
+                        <label>{t('Name of the new sport')}<input class="inp" bind:value={newSport} maxlength="40" data-sport-name /></label>
+                        <span class="row"><button type="button" class="btn sm" onclick={addSport} data-sport-save>{t('Add')}</button><button type="button" class="btn btn-link sm" onclick={() => (newSport = null)}>{t('Cancel')}</button></span>
+                      {/if}
+                    </div>
+                    <p class="hint">{t('Your sports are the ones from «Meine Sportarten». Done is ticked as soon as you tick the sport in Aktiv.')}</p>
+                  {/if}
                   <div class="sfl">
                     <label>{t('Name (optional)')}<input class="inp" bind:value={form.name} placeholder={t('e.g. Intervals 4 × 6 min')} data-session-name /></label>
                     <label>{t('Minutes')}<input class="inp num" type="number" min="5" max="1440" step="5" bind:value={form.mins} data-session-mins /></label>

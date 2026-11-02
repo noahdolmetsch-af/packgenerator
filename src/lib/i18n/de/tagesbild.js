@@ -7,4 +7,6 @@ export default {
   'pulse per hour|daypic': 'Puls pro Stunde',
   'rides|daypic': 'Fahrten',
   'ticks|daypic': 'Haken',
+  'pulse|daypic': 'Puls',
+  'Tap an hour for its exact values.|daypic': 'Tippe auf eine Stunde für die genauen Werte.',
 };

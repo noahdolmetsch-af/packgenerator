@@ -127,7 +127,7 @@
         </div>
       </div>
     {:else}
-      <p class="rh-help">{t('Write what you do now. Until you tap «Done», the strip on top shows only that, and the app asks you nothing.')}</p>
+      <p class="rh-help">{t('Write what you do now. Until you tap «Done», suggestions, the «New» tile, stars and count badges rest on all pages except Today, and the strip on top shows what you do. Nothing is deleted.')}</p>
       <form class="rh-row" onsubmit={calmStart}>
         <input class="inp" bind:value={calmWhat} placeholder={t('e.g. clean the bike, pack calmly')} aria-label={t('What are you doing now?')} data-calm-what />
         {#if space.ids.length}

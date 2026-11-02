@@ -6,6 +6,13 @@ import { openHome, homeFixture, day } from './home0460-fixture.js';
 import { BAR_PLACES } from '../../src/lib/nav.js';
 import { KINDS } from '../../src/lib/woche/kinds.js';
 
+/** «Still to plan» is folded at first (Noah 2.11.2026): open it, it stays open. */
+const openSg = async (page) => {
+  const b = page.locator('[data-sg-toggle]');
+  if ((await b.getAttribute('aria-expanded')) !== 'true') await b.click();
+  await expect(b).toHaveAttribute('aria-expanded', 'true');
+};
+
 /** The fixture with a week: training sessions (one today, one last Tuesday as «like last week»), a date, two to-dos. */
 function weekFixture() {
   const data = homeFixture();
@@ -46,6 +53,14 @@ test('Woche: the days with their kinds, chips hide a kind, a to-do is ticked, a 
   await expect(page.locator('[data-filter]')).toHaveCount(KINDS.length);
   // the filter chips sit in a fold (Impeccable P5)
   await page.locator('[data-week-filters] > summary').click();
+  // «Still to plan» is folded with its count; a tap opens it and the phone remembers it
+  await expect(page.locator('[data-sg-toggle]')).toHaveAttribute('aria-expanded', 'false');
+  await expect(page.locator('[data-sugg]')).toHaveCount(0);
+  await expect(page.locator('[data-sg-toggle]')).toContainText(/\d/);
+  await openSg(page);
+  await page.reload();
+  await expect(page.locator('[data-sg-toggle]')).toHaveAttribute('aria-expanded', 'true');
+  await page.locator('[data-week-filters] > summary').click(); // the reload closed the filter fold again
   // the to-do without a day waits under «Still to plan»
   await expect(page.locator('[data-sugg="todo:test_data_gtp_t2"]')).toBeVisible();
   // hide the to-dos, show them again
@@ -142,6 +157,7 @@ test('Ferien: entered once, the training plan pauses and the packing list comes 
   await form.getByRole('button', { name: T('Save') }).click();
   await expect(page.locator('[data-away]')).toContainText('test_data_gtp_ Jura');
   await page.goto('./#/week');
+  await openSg(page);
   // Sunday's long ride falls on the holidays: no entry, a suggestion to leave it out
   await expect(page.locator('[data-entry="tr:test_data_gtp_s3"]')).toHaveCount(0);
   await expect(page.locator('[data-sugg="drop:test_data_gtp_s3"]')).toBeVisible();
@@ -167,6 +183,7 @@ test('Content: weather per day, the rainy long ride moves, last week, load hints
   await expect(page.locator('[data-review]')).toContainText(T('Last week: {list}', { list: '' }).trim());
   await expect(page.locator('[data-load-hint="twoHard"]')).toBeVisible();
   // 5a the trip tomorrow: packing list, weather and bike check today
+  await openSg(page);
   // «Handy kürzer» (Noah 20.10.2026 «4b»): a phone shows five suggestions first; open the rest
   if (await page.locator('[data-sugg-more]').count()) await page.locator('[data-sugg-more]').click();
   for (const what of ['pack', 'wx', 'bike']) await expect(page.locator(`[data-sugg="tour:test_data_gtp_Herbstrunde:${what}"]`)).toBeVisible();
