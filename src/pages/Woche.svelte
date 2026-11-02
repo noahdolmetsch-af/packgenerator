@@ -525,12 +525,26 @@
     border-top: 0;
     padding: 2px 0;
   }
-  .srclist label {
+  .sg .srclist label {
     display: flex;
+    flex-direction: row;
     align-items: center;
+    justify-content: flex-start;
     gap: 10px;
     min-height: 44px;
     width: 100%;
+    text-align: left;
+  }
+  .sg .srclist input {
+    flex: none;
+    width: 20px;
+    height: 20px;
+    margin: 0;
+  }
+  .srclist span {
+    flex: 1;
+    min-width: 0;
+    text-align: left;
   }
   .srclist small {
     display: block;
