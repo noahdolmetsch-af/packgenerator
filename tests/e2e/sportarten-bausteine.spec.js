@@ -42,6 +42,7 @@ test('«Meine Sportarten» lists every sport, the mosaic folded, and the order o
   await expect(page.locator('[data-mosaic]')).toBeVisible();
   const list = page.locator('[data-trip-sports] > li');
   await expect(list.first()).toBeVisible();
+  await page.getByRole('button', { name: T('Sort|order') }).click(); // Noah 02.11.2026 «1a»: the arrows come with «Sort»
   const first = await list.nth(0).getAttribute('data-sport');
   const second = await list.nth(1).getAttribute('data-sport');
   const name = (await list.nth(0).locator('a > span:not(.aic)').innerText()).trim();
