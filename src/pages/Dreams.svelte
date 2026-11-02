@@ -32,6 +32,7 @@
   import WhiteSpots from '../lib/neuland/WhiteSpots.svelte'; // Träume und Neuland N1
   import NeulandGoals from '../lib/neuland/NeulandGoals.svelte'; // Träume und Neuland N5
   import { linkIn, readLink, withLink, distText } from '../lib/dreams/fromlink.js'; // N13 «Ein Link wird ein Traum»
+  import { fulfilledDreams } from '../lib/dreams/erfuellt.js'; // N17 «Erfüllte Träume»
   import { t, tn, num, locale } from '../lib/i18n.svelte.js';
   import { Sparkles, Flag, ChevronRight, Plus, Check, CalendarClock, Route, Pencil, Compass, Flame } from '@lucide/svelte';
   import '../lib/ich/ich.css';
@@ -42,6 +43,7 @@
   const eventsQ = liveQuery(() => db.gEvents.where('day').aboveOrEqual(today).toArray().catch(() => []));
   const tripsQ = liveQuery(() => db.trips.toArray());
   const bikesQ = liveQuery(() => db.bikes.toArray());
+  const debriefsQ = liveQuery(() => db.debriefs.toArray()); // N17: a dream counts as fulfilled once its trip has its debrief
   const weekHideQ = liveQuery(() => db.settings.get(WEEK_HIDE_KEY));
   const weekHidden = $derived($weekHideQ?.value === true);
 
@@ -53,6 +55,8 @@
   const bikes = $derived(sortBikes($bikesQ ?? []));
   const races = $derived(plannableRaces({ links: $linksQ?.value ?? [], events: $eventsQ ?? [], trips }, today));
   const due = $derived(deadlines(trips, today));
+  const fulfilled = $derived(fulfilledDreams(store.dreams, trips, $debriefsQ ?? [], today));
+  const doneDay = $derived(new Map(fulfilled.map((f) => [f.dream.id, f.day])));
   const nowMonth = Number(today.slice(5, 7));
 
   let month = $state(0); // 0: all months
@@ -111,6 +115,7 @@
   const ymText = (ym) => new Date(`${ym}-15T12:00:00Z`).toLocaleDateString(locale(), { month: 'long', year: 'numeric' });
   const monthsText = (d) => seasonText(monthsOf(d, kinds), (m) => t(MONTHS[m - 1]));
   function windowText(d) {
+    if (doneDay.has(d.id)) return t('Fulfilled in {when}', { when: ymText(doneDay.get(d.id).slice(0, 7)) });
     if (d.tripId) return t('Planned as a trip');
     const w = nextWindow(d, today, kinds);
     return !w ? '' : w.now ? t('Fits now') : t('Next: {when}', { when: ymText(w.ym) });
@@ -163,7 +168,7 @@
 
 <div class="ich-page dreams" data-page="dreams">
   <VeloHead crumbs={[{ label: t('Trips|place'), href: '#/trips' }]} title={t('Dreams|page')} sub={t('Dream tours with their season, races as event tours')} />
-  <p class="dr-intro">{t('Write down tours you dream of. The app suggests when each one fits; you can change the months. One tap makes a trip from a dream. «New ground round» plans a round through a place you have never been.')}</p>
+  <p class="dr-intro">{t('Write down tours you dream of. The app suggests when each one fits; you can change the months. One tap makes a trip from a dream. «New ground round» plans a round through a place you have never been. Done ones move to «Fulfilled dreams».')}</p>
   <AreaIntro place="dreams" />
 
   <form class="card cap" onsubmit={add}>
@@ -224,6 +229,24 @@
       </ul>
     {/if}
   </section>
+
+  {#if fulfilled.length}
+    <!-- N17 «Erfüllte Träume»: the dreams you rode, once the debrief is done; a tap opens the debrief -->
+    <section class="ich-sec" aria-labelledby="dr-done" data-dreams-done>
+      <div class="ich-h"><div><h2 id="dr-done">{t('Fulfilled dreams')} <small class="n num">{fulfilled.length}</small></h2><p class="ich-hs">{t('Dreams you rode. They count once the debrief is done.')}</p></div></div>
+      <ul class="card ich-list">
+        {#each fulfilled as f (f.dream.id)}
+          <li>
+            <a class="ich-row done-row" href="#/debrief/{encodeURIComponent(f.trip.id)}" data-dream-done={f.dream.id}>
+              {#if f.dream.photo}<img class="thumb" src={f.dream.photo} alt="" />{:else}<span class="ich-ib"><Check size={18} aria-hidden="true" /></span>{/if}
+              <span class="ich-m"><b>{f.dream.title}</b><small>{[t('Fulfilled in {when}', { when: ymText(f.day.slice(0, 7)) }), distText(f.dream, num)].filter(Boolean).join(' · ')}</small></span>
+              <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
+            </a>
+          </li>
+        {/each}
+      </ul>
+    </section>
+  {/if}
 
   <WhiteSpots />
   <NeulandGoals />
@@ -433,6 +456,10 @@
     gap: 6px;
     align-items: center;
     color: var(--ok);
+  }
+  .done-row {
+    color: inherit;
+    text-decoration: none;
   }
   .thumb {
     width: 36px;
