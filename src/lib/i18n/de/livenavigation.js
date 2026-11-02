@@ -149,4 +149,12 @@ export default {
   '{n} before sunset.': '{n} vor Sonnenuntergang.',
   'Not sure: no opening hours known.': 'Nicht sicher: keine Öffnungszeiten bekannt.',
   'No shop found ahead on the route.': 'Kein Laden vor dir auf der Strecke gefunden.',
+  // Nacht-Blatt (Noah 02.11.2026 «1b»)
+  'Night sheet': 'Nacht-Blatt',
+  'A calm look at the night. It only shows; you decide.': 'Ein ruhiger Blick auf die Nacht. Es zeigt nur; du entscheidest.',
+  'Bed|night': 'Bett',
+  'No bed found ahead yet. Load the stops along the route.': 'Noch kein Bett vor dir gefunden. Lade die Stopps entlang der Strecke.',
+  'Today so far': 'Heute bisher',
+  'Riding {a}, stopped {b}': 'Gefahren {a}, gestanden {b}',
+  'You have not written your goals yet. Race › Prepare › Three goals.': 'Du hast deine Ziele noch nicht geschrieben. Rennen › Vorbereiten › Drei Ziele.',
 };
