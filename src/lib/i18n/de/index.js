@@ -604,6 +604,7 @@ import neuemenu from './neuemenu.js';
 import meilensteinebelohnung from './meilensteinebelohnung.js';
 import nextsterne from './nextsterne.js';
 import sterntexte from './sterntexte.js';
+import belohnungalle from './belohnungalle.js';
 // «Alles fertig» (Noah 24.10.2026): leftovers of the older threads; spread last
 import allesfertig from './allesfertig.js';
 // Paket B «Touren ohne Überraschung» (996 Ideen): Generalprobe, Gut ankommen, Kisten-Etiketten; spread last
@@ -996,6 +997,7 @@ const ORDERED = [
   meilensteinebelohnung,
   nextsterne,
   sterntexte,
+  belohnungalle,
   allesfertig,
   generalprobe,
   alltagsichtbar,
