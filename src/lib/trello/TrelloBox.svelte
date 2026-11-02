@@ -35,6 +35,7 @@
 <section class="tb" aria-labelledby="tb-h">
   <div class="lh"><h2 id="tb-h">{t('Trello')}</h2></div>
   <div class="card body">
+    <p class="hint" data-trello-why>{t('Only needed if you want to see your to-dos in Trello too, for example on the phone or with others. Without Trello everything works in the app as before.')}</p>
     {#if trello.error}<p class="err" role="status">{errorText(trello.error)}</p>{/if}
     {#if !p.on}
       <p>{t('Your to-dos and lists you choose also in Trello, on your own board «Packgenerator». A tick in Trello is a tick here, and back. Your other boards stay untouched.')}</p>

@@ -1,7 +1,7 @@
 /**
  * Mini-Tools: what this device keeps (db.settings, no new table, so the backup has it as it is).
  *
- *   'mini-tools'   [{ id, kind, title, note, opts, made, srv: { id, key, del, end, pub, priv } | null,
+ *   'mini-tools'   [{ id, kind, title, note, opts, invited: [name], made, srv: { id, key, del, end, pub, priv } | null,
  *                     answers: [{ a, name, picks, note, at }], me: { picks }, read, closed }]
  *                  (the questions I made; answers are a copy of the last read)
  *   'mini-joined'  { [server id]: { aid, del, name, picks, note, at } }  (my answers to other people's questions)

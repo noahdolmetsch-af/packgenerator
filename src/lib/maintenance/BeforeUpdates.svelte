@@ -86,7 +86,7 @@
     <li>
       <label class="ich-row">
         <span class="ich-m"><b>{t('Also save a backup file before every update')}</b><small>{t('Goes into your downloads folder. The browser may ask once.')}</small></span>
-        <input type="checkbox" role="switch" class="mt-sw" checked={$setQ?.dl ?? true} disabled={!$setQ} onchange={(e) => saveMaint(db, { dl: e.currentTarget.checked })} data-mt-dl />
+        <input type="checkbox" role="switch" class="mt-sw" checked={$setQ?.dl ?? false} disabled={!$setQ} onchange={(e) => saveMaint(db, { dl: e.currentTarget.checked })} data-mt-dl />
       </label>
     </li>
   </ul>

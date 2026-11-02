@@ -2075,4 +2075,10 @@ export default {
   'Tap «Round through it»: km, climb and time.': 'Tippe «Runde hindurch»: km, Höhenmeter und Zeit.',
   '«Plan as a trip» makes a trip with this round; «Other side» goes the other way round.': '«Als Tour planen» macht eine Tour mit dieser Runde; «Andere Seite» fährt andersherum.',
   'Example: Wallisellen, 6 km away → 24 km · 180 m up · about 1 h 30 min.': 'Beispiel: Wallisellen, 6 km entfernt → 24 km · 180 m hoch · etwa 1 h 30 min.',
+  // «Träume und Neuland» N13
+  'Needs the internet; komoot gives no map without an account (then a GPX file).': 'Braucht Internet; komoot gibt ohne Konto keine Karte (dann eine GPX-Datei).',
+  'Open Trips › Dreams and paste the link of a tour in the field at the top.': 'Öffne Touren › Träume und füge oben ins Feld den Link einer Tour ein.',
+  'Tap «Add»: name, km and climb come from the link.': 'Tippe «Hinzufügen»: Name, km und Höhenmeter kommen aus dem Link.',
+  'In an existing dream with a link: «Read from the link».': 'In einem Traum mit Link: «Aus dem Link lesen».',
+  'Example: ridewithgps.com/routes/12345 → «Jura crossing» · 84 km · 1250 m up, with a map.': 'Beispiel: ridewithgps.com/routes/12345 → «Jura-Querung» · 84 km · 1250 m hoch, mit Karte.',
 };

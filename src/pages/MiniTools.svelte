@@ -42,6 +42,7 @@
   import FoodNew from '../lib/mini/FoodNew.svelte';
   import FoodResult from '../lib/mini/FoodResult.svelte';
   import { KIND_FOOD, foodQuestion, cleanFoodAnswer } from '../lib/mini/essen.js';
+  import DateWho from '../lib/mini/DateWho.svelte';
   import { KIND_DATE, OPTS_MIN, OPTS_MAX, PICKS, dateQuestion, cleanOpts, optKey, tally, busyDays, nextDays, summaryLines, icsOf } from '../lib/mini/termin.js';
   import { CalendarCheck, Plus, ChevronRight, Share2, Copy, QrCode as QrIcon, RefreshCw, CalendarPlus, Route, MessageCircle, Pencil, Trash2, CircleStop, Lock, ListChecks, ClipboardList, Bike, Utensils, Dices, Clock } from '@lucide/svelte';
 
@@ -379,6 +380,7 @@
           {#if readErr}<p class="mt-err" role="alert" data-mt-readerr>{readErr}</p>{/if}
           {#if said}<p class="mt-help" role="status">{said}</p>{/if}
         {:else}
+        <DateWho invited={q.invited ?? []} answers={q.answers ?? []} title={q.title} {link} open={isOpen} onchange={(list) => updateOne(db, q.id, (x) => ({ ...x, invited: list }))} />
         <section class="card mt-box mt-best" aria-labelledby="mt-best-h" data-mt-best>
           <h2 id="mt-best-h">{bestOpt ? t('Best day: {day}', { day: optFmt(bestOpt) }) : t('No answers yet')}</h2>
           <p class="mt-help" data-mt-answers>{answersText(q.answers?.length ?? 0)}{q.read ? ` · ${t('read {time}', { time: new Date(q.read).toLocaleTimeString(locale(), { hour: '2-digit', minute: '2-digit' }) })}` : ''}</p>
