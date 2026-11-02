@@ -1260,6 +1260,11 @@ const LISTED = {
     steps: ['Open Trips › Dreams › White spots nearby.', 'Choose 10, 25 or 50 km.', 'Tap a place on the map or in the list: its name and distance.'],
     example: 'Example: 25 km around Zürich → 209 municipalities never visited, the nearest 5 km away.',
   },
+  'f.dreamlink': {
+    on: 'Needs the internet; komoot gives no map without an account (then a GPX file).',
+    steps: ['Open Trips › Dreams and paste the link of a tour in the field at the top.', 'Tap «Add»: name, km and climb come from the link.', 'In an existing dream with a link: «Read from the link».'],
+    example: 'Example: ridewithgps.com/routes/12345 → «Jura crossing» · 84 km · 1250 m up, with a map.',
+  },
   'f.nlround': {
     on: 'Needs your home place and the internet for the bike router.',
     steps: ['Open Trips › Dreams › White spots nearby and tap a place.', 'Tap «Round through it»: km, climb and time.', '«Plan as a trip» makes a trip with this round; «Other side» goes the other way round.'],

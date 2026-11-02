@@ -14,8 +14,9 @@
   import { appendSpoken } from '../speak.js';
   import InputBar from '../eingabe/InputBar.svelte'; // «Eingaben überall» (Noah 26.10.2026): dictation, voice note, place, tags, templates, prompts
   import { cleanInputs } from '../eingabe/inputs.js';
-  import { t } from '../i18n.svelte.js';
-  import { X, Route, RotateCcw, Image as ImageIcon, Map as MapIcon, Trash2, ExternalLink } from '@lucide/svelte';
+  import { readLink, withLink, distText } from './fromlink.js'; // N13 «Ein Link wird ein Traum»
+  import { t, num } from '../i18n.svelte.js';
+  import { X, Route, RotateCcw, Image as ImageIcon, Map as MapIcon, Trash2, ExternalLink, Download } from '@lucide/svelte';
   import '../bikes/velo-dlg.css';
 
   let { dream, kinds = [], onchange, onremove, onplan, onclose } = $props();
@@ -60,6 +61,25 @@
     msg = '';
     d.route = r;
   }
+  // N13: the link tells name, km and climb (Ride with GPS also the map); the own title stays
+  let reading = $state(false);
+  let read = $state('');
+  async function fromLink() {
+    if (!d.url?.trim() || reading) return;
+    reading = true;
+    msg = '';
+    read = '';
+    try {
+      const info = await readLink(d.url.trim());
+      d = withLink(d, info);
+      const what = distText(d, num);
+      read = what ? t('From the link: {what}.', { what }) : t('The page names no km. A GPX file adds the map.');
+    } catch (err) {
+      msg = err.message;
+    } finally {
+      reading = false;
+    }
+  }
   async function plan() {
     await closeIt();
     onplan?.($state.snapshot(d));
@@ -96,7 +116,14 @@
     <label class="fld"><span class="lbl">{t('Days')}</span><input class="inp num" type="number" min="1" max="60" bind:value={d.days} /></label>
     <label class="fld"><span class="lbl">{t('Link')} <small class="q">· {t('optional')}</small></span><input class="inp" type="url" bind:value={d.url} placeholder="https://…" /></label>
   </div>
-  {#if d.url && linkKind(d.url)}<p class="lnk"><a href={d.url} target="_blank" rel="noopener noreferrer"><ExternalLink size={14} aria-hidden="true" />{t('Open in {where}', { where: linkKind(d.url) })}</a></p>{/if}
+  {#if d.url && linkKind(d.url)}
+    <p class="lnk">
+      <a href={d.url} target="_blank" rel="noopener noreferrer"><ExternalLink size={14} aria-hidden="true" />{t('Open in {where}', { where: linkKind(d.url) })}</a>
+      <button type="button" class="btn sm" disabled={reading} onclick={fromLink} data-dream-read><Download size={16} aria-hidden="true" />{reading ? t('Reading the link…') : t('Read from the link')}</button>
+    </p>
+  {/if}
+  {#if read}<p class="q hint" role="status" data-dream-read-ok>{read}</p>{/if}
+  {#if !d.route && !read && distText(d, num)}<p class="q hint" data-dream-facts>{distText(d, num)}</p>{/if}
 
   <p class="lbl">{t('Picture and map')} <small class="q">· {t('optional')}</small></p>
   {#if d.photo}
@@ -105,7 +132,7 @@
   {#if d.route}
     <div class="mapw" data-dream-map>
       <StaticMap line={d.route.line} marks={[{ ...pt(d.route.line[0]), kind: 'start' }, { ...pt(d.route.line.at(-1)), kind: 'end' }]} label={d.route.name || d.title} h={220} />
-      <p class="rmeta"><span>{d.route.name ? `${d.route.name} · ` : ''}{t('{km} km', { km: d.route.km })}</span><button type="button" class="rm" aria-label={t('Remove the map')} onclick={() => (d.route = null)}><Trash2 size={16} aria-hidden="true" /></button></p>
+      <p class="rmeta"><span>{d.route.name ? `${d.route.name} · ` : ''}{distText(d, num)}</span><button type="button" class="rm" aria-label={t('Remove the map')} onclick={() => (d.route = null)}><Trash2 size={16} aria-hidden="true" /></button></p>
     </div>
   {/if}
   <div class="adds" role="group" aria-label={t('Picture and map')}>
@@ -161,6 +188,17 @@
   }
   .lnk {
     margin: -4px 0 12px;
+  }
+  .lnk {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 12px;
+  }
+  .lnk .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
   }
   .lnk a {
     display: inline-flex;

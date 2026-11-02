@@ -747,6 +747,9 @@
             <button type="button" class="gq" onclick={() => setSelecting(true)} data-gear-quick-item="several">{t('Change several')}</button>
             <button type="button" class="gq" aria-pressed={finds === 'light'} onclick={() => (finds = finds === 'light' ? null : 'light')} data-gear-quick-item="lighter">{t('Lighter alternatives')}</button>
             <button type="button" class="gq" aria-pressed={finds === 'power'} onclick={() => (finds = finds === 'power' ? null : 'power')} data-gear-quick-item="power">{t('Power values of a device')}</button>
+            <!-- Wegweiser 3 (Noah 01.11.2026): two tools of the Toolbox that belong to gear -->
+            <a class="gq" href="#/me/tools/barcode" data-gear-quick-item="barcode">{t('Bar code → gear')}</a>
+            <a class="gq" href="#/me/tools/units" data-gear-quick-item="units">{t('Convert units')}</a>
           </nav>
           {#if finds}<GearFinds kind={finds} {items} onopen={(item) => (dialog = { item })} onclose={() => (finds = null)} />{/if}
         {/if}

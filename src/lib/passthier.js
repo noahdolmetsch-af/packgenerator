@@ -12,6 +12,8 @@ import { FEATURE } from './features.js';
 export const PASST_HIER = {
   // Unterwegs › Helfer unterwegs: the small tools of the Toolbox for a day on the bike
   ride: ['f.phrases', 'f.zones', 'f.light', 'f.arrival'],
+  // Velos › Setup › Setup log: the tools you need when you change something on the bike
+  rig: ['f.gears', 'f.level'],
   // Rückblick einer Tour (saved): looking back further than the packing list
   debrief: ['f.knowhow', 'f.gooddecisions', 'f.meaning', 'f.skillmap'],
 };

@@ -21,7 +21,10 @@ const PREFS_KEY = GRIFF.match(/export const PREFS_KEY = '([^']+)'/)[1];
 const STOCK_KEY = GRIFF.match(/export const STOCK_KEY = '([^']+)'/)[1];
 const base = JSON.parse(readFileSync(fileURLToPath(new URL('./fixture.json', import.meta.url)), 'utf8'));
 const BIKE = base.tables.bikes[0];
-const today = () => new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Zurich' });
+// This spec runs on the real clock (no clock.js): in a worker that ran a spec with the test clock before, the global Date is
+// shifted, but this page is not. So the real Date is used for every date here (the spec's own page.clock calls stay as they are).
+const RealDate = globalThis.__realDate ?? Date;
+const today = () => new RealDate().toLocaleDateString('sv-SE', { timeZone: 'Europe/Zurich' });
 // calendar days in Europe/Zurich
 const day = (n) => ((d) => (d.setUTCDate(d.getUTCDate() + n), d.toISOString().slice(0, 10)))(new Date(`${today()}T12:00:00Z`));
 // the thousands mark as the browser writes it (Node on GitHub writes ' where Chrome writes ’)
@@ -165,7 +168,7 @@ test('chain after rain: a hint on the wear page, not on Today; done writes the c
       };
     }), [store, row]);
   await put('kmBook', { id: 'kb-wet-test', bikeId: BIKE.id, date: today(), km: 42, kind: 'ride', source: 'manual', state: 'counted' });
-  await put('meta', { key: 'inspectRain', at: new Date().toISOString(), lat: 0, lon: 0, days: { [today()]: 9 } });
+  await put('meta', { key: 'inspectRain', at: new RealDate().toISOString(), lat: 0, lon: 0, days: { [today()]: 9 } });
 
   // Today in the evening: no chain window
   await page.clock.setFixedTime(new Date(`${today()}T18:30:00Z`));
@@ -197,7 +200,7 @@ test('chain after rain: «Not today» rests the hint and leaves a to-do in Merke
       };
     }), [store, row]);
   await put('kmBook', { id: 'kb-wet-later', bikeId: BIKE.id, date: today(), km: 30, kind: 'ride', source: 'manual', state: 'counted' });
-  await put('meta', { key: 'inspectRain', at: new Date().toISOString(), lat: 0, lon: 0, days: { [today()]: 9 } });
+  await put('meta', { key: 'inspectRain', at: new RealDate().toISOString(), lat: 0, lon: 0, days: { [today()]: 9 } });
   await page.goto(`./#/bikes?tab=care&view=wear&bike=${BIKE.id}`);
   const hint = page.locator('[data-wet-chain]');
   await expect(hint).toBeVisible();

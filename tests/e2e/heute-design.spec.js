@@ -28,8 +28,13 @@ test('Heute in the new look: header, trip card, light tiles, new tiles, New by a
     const [b, w] = [await adapt.boundingBox(), await page.locator('.wall').first().boundingBox()];
     return b.y - (w.y + w.height);
   }).toBeGreaterThan(-1);
-  const all = await page.locator('[data-all-areas]').boundingBox();
-  if (!phone) expect(Math.abs(all.y - a.y)).toBeLessThan(8); // one line on a computer
+  // both buttons measured together again: a tile that arrives after the first measure moves both down, not only one
+  if (!phone) {
+    await expect.poll(async () => {
+      const [x, y] = [await page.locator('[data-all-areas]').boundingBox(), await adapt.boundingBox()];
+      return Math.abs(x.y - y.y);
+    }).toBeLessThan(8); // one line on a computer
+  }
 
   // the trip card: number fields, the packing bar, one strong button, no photo
   const card = page.locator('section.trip');
