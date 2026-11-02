@@ -104,7 +104,7 @@ test('Setup: photos, weight, bag plan, log, compare, races and own links on one 
   await page.getByLabel('Was', { exact: true }).fill('Dynamo');
   await page.getByLabel('Dein Velo', { exact: true }).fill('nein');
   await page.getByLabel('Bei Rigs gesehen', { exact: true }).fill('oft');
-  await page.getByRole('button', { name: 'Speichern' }).click();
+  await page.getByRole('button', { name: 'Speichern', exact: true }).click();
   await expect(page.getByText('Du: nein')).toBeVisible();
   await page.getByRole('button', { name: '→ Notiz' }).click();
   await expect(page.getByRole('button', { name: 'Im Eingang' })).toBeDisabled();
