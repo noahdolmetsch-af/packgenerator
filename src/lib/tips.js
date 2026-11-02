@@ -68,7 +68,7 @@ export const TIPS = [
   { id: 'debrief', group: 'back', icon: 'message', title: 'Debrief', text: 'A debrief takes a minute and tells the app what you really used.', button: 'Open debriefs', go: { href: '#/debrief' }, needs: 'trip' },
   { id: 'learn', group: 'back', icon: 'sparkles', title: 'Templates that learn (after 3 debriefs)', text: 'After 3 debriefs your templates suggest what to take out or add.', button: 'Open templates', go: { href: '#/pack/templates' }, needs: 'trip' },
   { id: 'pace', group: 'back', icon: 'gauge', title: 'Your pace', text: 'Load a few GPX rides and riding times use your own pace.', button: 'Show your pace', go: { href: '#/debrief/pace' } },
-  { id: 'trend', group: 'back', icon: 'trend', title: 'Weight trend', text: 'Compare trips and see how your base weight changes trip by trip.', button: 'Compare trips', go: { href: '#/debrief' }, needs: 'trip' },
+  { id: 'trend', group: 'back', icon: 'trend', title: 'Trips compared', text: 'Compare trips and see how your base weight changes trip by trip.', button: 'Compare trips', go: { href: '#/debrief' }, needs: 'trip' },
   // Gear
   { id: 'weigh', group: 'gear', icon: 'scale', title: 'Weigh items', text: 'Weigh your items one after the other: then every total is exact. Bottles, gas and food boxes: weigh them empty, the content goes apart.', button: 'Start weighing', go: { href: '#/gear?tab=weigh' }, needs: 'items' },
   { id: 'fav', group: 'gear', icon: 'star', title: 'Favourites ★', text: 'Mark your favourite things with ★ and say why in a word (comfortable, reliable, within reach); the reason shows again when you swap or replace it.', button: 'Show favourites', go: { href: '#/favorites' }, needs: 'items' },
@@ -83,7 +83,7 @@ export const TIPS = [
   // Your data
   { id: 'backup', group: 'data', icon: 'save', title: 'Backup', text: 'A backup file keeps your data safe and moves it to another device.', button: 'Download backup', go: { run: 'backup' }, needs: 'any' },
   { id: 'install', group: 'data', icon: 'phone', title: 'Use it offline (home screen)', text: 'Add the app to your home screen: it opens like an app and works offline.', button: 'Add to home screen', go: { run: 'install' } },
-  { id: 'lang', group: 'data', icon: 'languages', title: 'Deutsch / English', text: 'The app speaks German and English; switch whenever you like.', button: 'Switch language', go: { run: 'lang' } },
+  { id: 'lang', group: 'data', icon: 'languages', title: 'Language', text: 'The app speaks German and English; switch whenever you like.', button: 'Switch language', go: { run: 'lang' } },
   { id: 'demo', group: 'data', icon: 'play', title: 'Demo from a file', text: 'Try a demo file: your own data waits aside until you end it.', button: 'Open your data', go: { run: 'data' } },
 ];
 export const TIP = Object.fromEntries(TIPS.map((x) => [x.id, x]));

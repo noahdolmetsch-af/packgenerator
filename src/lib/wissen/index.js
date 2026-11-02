@@ -7,8 +7,10 @@
  * has a text, every id exists, each text is at most 220 characters and has German.
  */
 import lust from './lust.js';
+import packen from './packen.js';
+import planen from './planen.js';
 import unterwegs from './unterwegs.js';
 import velo from './velo.js';
 import zurueck from './zurueck.js';
 
-export const WISSEN = { ...lust, ...unterwegs, ...velo, ...zurueck };
+export const WISSEN = { ...lust, ...packen, ...planen, ...unterwegs, ...velo, ...zurueck };

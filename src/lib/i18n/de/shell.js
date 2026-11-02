@@ -203,7 +203,6 @@ export default {
   'km from your debriefs of this year': 'km aus deinen Rückblicken dieses Jahres',
   'No km in this year’s debriefs yet': 'Noch keine km in den Rückblicken dieses Jahres',
   'Show bikes': 'Velos zeigen',
-  'Weight trend': 'Gewichtstrend',
   '{sign}{w} since {month}': '{sign}{w} seit {month}',
   'Base weight of the last {n} trip': 'Basisgewicht der letzten {n} Tour',
   'Base weight of the last {n} trips': 'Basisgewicht der letzten {n} Touren',
@@ -351,7 +350,6 @@ export default {
   /* ---------- New ---------- */
   'Type the km as a whole number, e.g. 12400.': 'Gib die km als ganze Zahl ein, z. B. 12400.',
   '{bike}: {km} km saved.': '{bike}: {km} km gespeichert.',
-  'km for a bike': 'km für ein Velo',
   'From template': 'Aus Vorlage',
   'Start from a template': 'Aus Vorlage starten',
   'Copy the last trip': 'Letzte Tour kopieren',

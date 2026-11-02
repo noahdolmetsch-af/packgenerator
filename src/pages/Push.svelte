@@ -1,4 +1,5 @@
 <script>
+  import PasstHier from '../lib/ui/PasstHier.svelte'; // Wegweiser 8: «Fits here»
   /**
    * Erinnerungen aufs Handy (Web-Push; Noah 15.10.2026 «1a 2b 3a 4b 5a»): Ich › Erinnerungen aufs Handy
    * (#/me/push). 5a: one main switch and one switch per kind; 2b: everything off until switched on one by
@@ -188,6 +189,8 @@
   </section>
 
   <p class="ps-note"><Info size={16} aria-hidden="true" /><span>{t('The reminders come through our free server, on the minute. It only gets the words of the reminders you switched on and forgets them once they are sent.')}</span></p>
+  <!-- Wegweiser 8: how many reminders a day, and what the app no longer suggests -->
+  <PasstHier place="push" />
 </div>
 
 <style>

@@ -663,10 +663,12 @@
     <label class="rider">
       <span class="lbl">{t('Rider weight (kg)')}</span>
       <input class="inp num" type="text" inputmode="decimal" value={$riderQ?.value ? $riderQ.value / 1000 : ''} onchange={saveRider} placeholder={t('e.g. 64')} />
+      <small class="why">{t('Used for tyre pressure suggestions and the energy of a ride.')}</small>
     </label>
     <label class="rider">
       <span class="lbl">{t('Hint when rear is over (%)')}</span>
       <input class="inp num" type="text" inputmode="numeric" value={$rearQ?.value ?? ''} onchange={saveRear} placeholder="60" />
+      <small class="why">{t('When more than this share of your luggage sits over the rear wheel, packing shows a hint to move weight forward. Empty means 60 %.')}</small>
     </label>
   </div>
   {#if message}<p class="msg" role="status">{message}</p>{/if}
@@ -1352,6 +1354,12 @@
     display: flex;
     flex-wrap: wrap;
     gap: 12px 24px;
+  }
+  .rider .why {
+    display: block;
+    margin-top: 4px;
+    color: var(--ink-3);
+    font-size: var(--fs-small);
   }
   .rider .inp {
     width: 110px;

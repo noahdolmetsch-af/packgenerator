@@ -93,6 +93,16 @@ test('On the way shows good to know in the card during a trip', async ({ page, c
   expect(errors).toEqual([]);
 });
 
+// PR 16: the card on Pack, with good to know; it starts as one line so the packing list keeps its space (a tap opens it)
+test('Pack shows what you can do here with good to know, starting as one line', async ({ page, context }, info) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await openHome(page, context, info);
+  await page.goto('./#/pack');
+  const line = page.locator('[data-seiteninhalt-line]');
+  await expect(line).toContainText(T('What you can do here'));
+  await (info.project.name === 'phone' ? line.tap() : line.click());
+
 // PR 19, area Velo: Wear and Gear show the card with good to know
 test('Bikes wear and Gear show good to know in the card', async ({ page, context }, info) => {
   const errors = [];
@@ -103,6 +113,23 @@ test('Bikes wear and Gear show good to know in the card', async ({ page, context
   await expect(card).toContainText(T('What you can do here'));
   await expect(card.locator('[data-seiteninhalt-know]').first()).toContainText(T('Good to know'));
   expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBe(0);
+  await page.goto('./#/pack/templates');
+  await expect(page.locator('[data-seiteninhalt-know="templates"]')).toContainText(T('Good to know'));
+  expect(errors).toEqual([]);
+});
+
+test('Planen Notes and Week show the card with good to know', async ({ page, context }, info) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await openHome(page, context, info);
+  for (const hash of ['#/notes', '#/week', '#/inbox']) {
+    await page.goto(`./${hash}`);
+    const card = page.locator('[data-seiteninhalt]');
+    await expect(card).toContainText(T('What you can do here'));
+    await expect(card.locator('[data-seiteninhalt-know]').first()).toContainText(T('Good to know'));
+    expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBe(0);
+  }
+
   await page.goto('./#/gear');
   // Velos and Material start as one line, so the main buttons stay on the first screen; a tap opens the card
   const line = page.locator('[data-seiteninhalt-line]');
