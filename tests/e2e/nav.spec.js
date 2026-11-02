@@ -174,7 +174,8 @@ test('Today folds nothing; First steps and the 16 functions on the wall', async 
   // 0.188.0 H32 (Noah 24.10.2026 «1a», changed on purpose): an empty device shows the first steps; the wall after «Jetzt alles zeigen»
   await page.locator('[data-empty-wall]').getByRole('button', { name: T('Show everything now') }).click();
   // v0.155.0 «Heute neu geordnet» (HN4 3a, changed on purpose): nine functions left the wall (back through «+»)
-  await expect(page.locator('.wall [data-fn]')).toHaveCount(16 - REMOVED_0155.filter((id) => id.startsWith('fn:')).length);
+  // «Schnell öffnen» (Noah 01.11.2026 «5a», changed on purpose): the 8 small tiles became one tile with the pins
+  await expect(page.locator('.wall [data-fn]')).toHaveCount(0);
   const sw = await page.evaluate(() => document.documentElement.scrollWidth);
   expect(sw).toBeLessThanOrEqual(page.viewportSize().width);
 });

@@ -62,8 +62,10 @@ test.describe('HA Heute neu A', () => {
     expect(order.indexOf('week')).toBeLessThan(order.indexOf('bikes'));
     expect(order.indexOf('balance')).toBeLessThan(order.indexOf('bikes'));
     // «Heute ruhiger» 1a (changed on purpose): the 8 shortcuts are one list «Schnell öffnen»
-    await expect(page.locator('.wall [data-quick] [data-tile^="fn:"]')).toHaveCount(8);
-    expect(READY.filter((x) => x.size === 's').length).toBe(8);
+    // «Schnell öffnen» (Noah 01.11.2026 «5a», changed on purpose): one tile with the pins instead of the 8 small tiles
+    await expect(page.locator('.wall [data-tile^="fn:"]')).toHaveCount(0);
+    await expect(page.locator('.wall [data-pins-tile]')).toBeVisible();
+    expect(READY.filter((x) => x.size === 's').length).toBe(0);
     // the top of the wall in the first screen; 0.180.0 P6 (Noah 21.10.2026 «2b», changed on purpose): that is the
     // meditation card now, the body follows under it (with the name question open it can be below the first screen)
     await page.evaluate(() => window.scrollTo(0, 0));
