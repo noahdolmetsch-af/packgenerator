@@ -14,6 +14,8 @@ import { WISSEN } from './wissen/index.js';
 export const ON_PAGES = [
   // PR 11, area «Lust» (the thinnest in the content check of 01.11.2026)
   '#/me/frei/lust', '#/me/frei/reise', '#/me/frei/wesentlich', '#/me/frei/nacht', '#/me/compass', '#/trips/dreams', '#/inspiration',
+  // PR 15, area «Unterwegs»: On the way, before you leave, mountain, weather, ski start (not Live, not Heute)
+  '#/ride', '#/ride/abfahrt', '#/mountain', '#/wetter', '#/ski/start',
 ];
 /** Rows shown before «Show all n». */
 export const SHOWN = 4;
