@@ -54,6 +54,7 @@ test('Fulfilled dreams: on Dreams with its month, in the year card of Past trips
   await page.reload();
   await ready(page);
 
+  await page.locator('[data-dreams-fold] summary').click(); // fulfilled dreams are one closed line at the bottom
   const sec = page.locator('[data-dreams-done]');
   await expect(sec).toContainText(`${P}Über die Furka`);
   await expect(sec).toContainText(T('Fulfilled in {when}', { when: '' }).trim());
