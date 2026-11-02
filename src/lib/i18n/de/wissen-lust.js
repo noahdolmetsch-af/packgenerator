@@ -24,4 +24,5 @@ export default {
     'Speichere den Link mit einem Satz, warum. In einem Jahr weisst du so wieder, was daran spannend war.',
   "A link from a friend's report is enough: km and climb come along, the dream still needs your one sentence why.":
     'Ein Link aus dem Bericht einer Freundin reicht: km und Höhenmeter kommen mit, der Traum braucht trotzdem deinen einen Satz, warum.',
+  "A dream that came true stays in your list of fulfilled dreams: look at it when the next big plan feels too far away.": "Ein erfüllter Traum bleibt in der Liste der erfüllten Träume: Schau ihn an, wenn dir der nächste grosse Plan zu weit weg vorkommt.",
 };
