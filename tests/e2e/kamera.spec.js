@@ -48,7 +48,7 @@ test('Bikes › Workshop: the visit dialog offers the camera for the receipt', a
   } else {
     await expect(dlg.getByText(T('Photograph the receipt'))).toHaveCount(0);
     await dlg
-      .locator('label', { hasText: T('Choose photo') })
+      .locator('label', { hasText: T('Choose the receipt photo') })
       .locator('input')
       .setInputFiles(PNG);
   }
@@ -80,7 +80,7 @@ test('New › Workshop visit: the visit opens with the camera for the receipt; a
   if (phone) {
     await expect(visit.locator('label', { hasText: T('Photograph the receipt') }).locator('input')).toHaveAttribute('capture', 'environment');
     await expect(visit.getByText(T('Gallery'))).toBeVisible();
-  } else await expect(visit.getByText(T('Choose photo'))).toBeVisible();
+  } else await expect(visit.getByText(T('Choose the receipt photo'))).toBeVisible();
   await shot(page, `K3-neu-werkstattbesuch-${phone ? 390 : 1440}`);
   await closeDialog(page);
   // a receipt note (New › Note + photo, «Werkstatt-Quittung: …»): the camera says «Beleg fotografieren»

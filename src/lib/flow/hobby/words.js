@@ -24,6 +24,9 @@ export const areaWord = (key) => (AREA_WORDS[key] ? t(AREA_WORDS[key]) : '');
 /** «4th star · Depth» */
 export const stageName = (k) => t(STAGES[Math.max(0, Math.min(6, k - 1))]);
 export const starLine = (k) => t('Star {k} · {stage}', { k, stage: stageName(k) });
+/** PR 4 «Fast geschafft»: under the tick message, «Noch 1× bis Stern 5 · Mal gemacht». */
+export const almostLine = ({ m, k, left }) =>
+  m?.unit ? t('Almost there: {n} to star {k} · {name}', { n: val(left, m.unit), k, name: msName(m) }) : t('Only {n}× to star {k} · {name}', { n: num(left), k, name: msName(m) });
 /** A value with its unit: «212 h», «45 min», «4'610». */
 export function val(v, unit = '') {
   const n = Number(v) || 0;

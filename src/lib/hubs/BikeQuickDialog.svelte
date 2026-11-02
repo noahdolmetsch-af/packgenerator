@@ -199,7 +199,7 @@
       <!-- P3b Teil 3 «Kamera überall» (Noah 15.10.2026 «1-5 a»): the receipt first, a big green «Beleg
            fotografieren» (from Neu › Werkstattbesuch the camera opens at once), then «Weitere Seite» -->
       <div class="row shots">
-        <PhotoPick onfile={addPhoto} busy={reading} has={shots.length > 0} camera="Photograph the receipt" big pages first={cameraFirst} />
+        <PhotoPick onfile={addPhoto} busy={reading} has={shots.length > 0} camera="Photograph the receipt" choose="Choose the receipt photo" big pages first={cameraFirst} />
         {#each shots as src, i (i)}<span class="shot"><img class="th" {src} alt={t('Receipt, page {n}', { n: i + 1 })} /><button type="button" class="link" onclick={() => (shots = shots.filter((_, k) => k !== i))}>{t('Remove photo')}</button></span>{/each}
       </div>
       {#if shots.length}<p class="hint">{t('{n} page(s) of the receipt. More pages: «Another page».', { n: shots.length })}</p>{/if}

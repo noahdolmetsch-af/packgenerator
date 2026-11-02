@@ -8,6 +8,7 @@ import DE from '../../src/lib/i18n/de/index.js';
 import { D0, TODAY, addDays, put } from './aktiv-fixture.js';
 import { ready } from './settle.js';
 import { DEFAULT_KEYS } from '../../src/lib/analyse/diagram.js';
+import { valueHref, dayHref } from '../../src/lib/analyse/jump.js';
 
 const T = (en) => DE[en] ?? en.replace(/\|[a-z ]+$/, '');
 const P = 'test_data_dg_';
@@ -415,5 +416,18 @@ test('Tagesbild: a tapped day shows its 24 hours with sleep, steps, pulse, ride 
   await expect(pic).toContainText('Sauna');
   await page.locator('[data-day-sheet]').evaluate((el) => Promise.all(el.getAnimations({ subtree: true }).map((a) => a.finished)));
   if (process.env.ANALYSE_SHOTS) await page.screenshot({ path: `qa/analyse/tagesbild-${info.project.name}.png` });
+  expect(errors).toEqual([]);
+});
+
+test('Jump targets: a link opens the sheet of a day or the page of a value with its period', async ({ page, context }) => {
+  const errors = await open(page, context);
+  await go(page, dayHref(addDays(TODAY, -2)));
+  const sheet = page.locator('[data-day-sheet]');
+  await expect(sheet).toHaveAttribute('data-day-sheet', addDays(TODAY, -2));
+  await page.keyboard.press('Escape');
+  await expect(sheet).toHaveCount(0);
+  await expect.poll(() => page.evaluate(() => location.hash)).toBe('#/auswerten/analyse');
+  await go(page, valueHref('sleep', 'w'));
+  await expect(page.locator('button[data-key="w"]')).toHaveAttribute('aria-pressed', 'true');
   expect(errors).toEqual([]);
 });
