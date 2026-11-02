@@ -6,6 +6,7 @@
    * everything back. Only this device's own settings (language, tips) stay.
    */
   import { db } from '../db.js';
+  import { downloadBackup } from '../backup.js';
   import { snapDb, resetAll, undoReset } from './snapshots.js';
   import { tidyData } from '../tidy.js';
   import { settling } from '../settled.js';
@@ -17,6 +18,16 @@
   let asking = $state(false);
   let busy = $state(false);
   let message = $state('');
+  let saved = $state(false);
+  // «Daten und Backup aufräumen» (Noah 01.11.2026): «Delete everything» asks for a backup first and offers it right here
+  async function saveFirst() {
+    try {
+      await downloadBackup(db);
+      saved = true;
+    } catch (err) {
+      message = `${t('Nothing was changed.')} ${err?.message ?? ''}`.trim();
+    }
+  }
   const current = typeof __APP_VERSION__ === 'string' ? __APP_VERSION__ : null;
 
   async function startFresh() {
@@ -30,6 +41,7 @@
         await tidyData(db);
       });
       asking = false;
+      saved = false;
       offerDone(t('Everything is deleted. A copy stays under «Before updates».'), async () => {
         await settling(async () => {
           await undoReset(db, sdb, id);
@@ -52,8 +64,10 @@
       <div class="sf-ask" role="dialog" aria-labelledby="sf-q">
         <p id="sf-q"><b>{t('Really delete all data?')}</b></p>
         <p>{t('Gear, trips, bikes, notes, lists and settings on this device are deleted. A copy stays under «Before updates», so you can go back. With automatic sync on, the other device starts fresh too.')}</p>
+        <p class="sf-first" data-sf-backup>{saved ? t('Backup saved. Now you can delete.') : t('First save a backup, then delete.')}</p>
+        {#if !saved}<div class="ich-acts"><button type="button" class="btn hi" onclick={saveFirst} disabled={busy} data-sf-save>{t('Save backup')}</button></div>{/if}
         <div class="ich-acts end">
-          <button type="button" class="btn" onclick={() => (asking = false)} disabled={busy}>{t('Cancel')}</button>
+          <button type="button" class="btn" onclick={() => { asking = false; saved = false; }} disabled={busy}>{t('Cancel')}</button>
           <button type="button" class="btn del" onclick={startFresh} disabled={busy}>{busy ? t('Deleting …') : t('Delete everything')}</button>
         </div>
       </div>

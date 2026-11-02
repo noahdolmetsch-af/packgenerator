@@ -159,4 +159,13 @@ export default {
   'Put «{title}» here ({min})': '«{title}» hier einplanen ({min})',
   'Connect calendar': 'Kalender verbinden',
   'Set home place|week': 'Wohnort festlegen',
+  'Close the week': 'Woche abschliessen',
+  'Still open from earlier days ({n}). You decide on each one.': 'Noch offen von früheren Tagen ({n}). Du entscheidest bei jedem Punkt.',
+  '«{name}» dropped.': '«{name}» fallen gelassen.',
+  '«{name}» moved to today.': '«{name}» auf heute verschoben.',
+  '«{name}» kept without a day.': '«{name}» ohne Tag behalten.',
+  'Move to today': 'Auf heute verschieben',
+  'Drop|week': 'Fallen lassen',
+  'Keep without a day': 'Ohne Tag behalten',
+  'Later': 'Später',
 };

@@ -45,8 +45,24 @@ test('End the ride: asks once, saves the ride in Touren with its label', async (
   const saved = page.locator('[data-live-saved]');
   await expect(saved).toBeVisible();
   await expect(saved.locator('[data-live-label]')).toHaveText('Live Navigation');
+  await expect(saved.locator('[data-live-saved-name]')).not.toBeEmpty();
   await saved.scrollIntoViewIfNeeded();
   await page.screenshot({ path: info.outputPath('live-saved.png') });
+  // Noah 28.10.2026 «b Automatisch, Umbenennen später»: rename in place, Undo brings the old name back
+  const oldName = await saved.locator('[data-live-saved-name]').textContent();
+  await tap(saved.locator('[data-live-saved-rename]'), info);
+  await saved.locator('[data-live-saved-input]').fill('Abendrunde Testweg');
+  await tap(saved.locator('[data-live-saved-keep]'), info);
+  await expect(saved.locator('[data-live-saved-name]')).toHaveText('«Abendrunde Testweg»');
+  const undo = page.locator('[role=status]', { hasText: 'Abendrunde Testweg' }).locator('button.undo');
+  await expect(undo).toBeVisible();
+  await tap(undo, info);
+  await expect(saved.locator('[data-live-saved-name]')).toHaveText(oldName);
+  await tap(saved.locator('[data-live-saved-rename]'), info);
+  await saved.locator('[data-live-saved-input]').fill('Abendrunde Testweg');
+  await tap(saved.locator('[data-live-saved-keep]'), info);
+  await expect(saved.locator('[data-live-saved-name]')).toHaveText('«Abendrunde Testweg»');
+  await expect(saved.locator('[data-live-saved-open]')).toHaveAttribute('href', /#\/debrief\/ride\//);
   // Touren: the ride is its own entry with the label
   // the GPS gives real times while the page clock stands on the fixture day: Touren must see the ride as past
   await page.clock.setFixedTime(new Date(Date.now() + 864e5));

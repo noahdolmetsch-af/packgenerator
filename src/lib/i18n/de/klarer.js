@@ -1,4 +1,4 @@
-// Paket Q «App klarer» (Noah 19.10.2026): Offline-Zeile, Wiedereinstieg, Vorschläge an/aus, Sicherung mit Passwort, Leer-Texte, Fehler
+// Paket Q «App klarer» (Noah 19.10.2026): Offline-Zeile, Wiedereinstieg, Vorschläge an/aus, Backup mit Passwort, Leer-Texte, Fehler
 export default {
   // #126 Offline-Zeile
   'Offline. Weather, Strava, Google and the exchange come back when you are online; everything else works.': 'Offline. Wetter, Strava, Google und der Abgleich kommen zurück, sobald du online bist; alles andere geht.',
@@ -18,8 +18,8 @@ export default {
   'Next trip «{title}» in {n} days': 'Nächste Tour «{title}» in {n} Tagen',
   '1 note waits in the Inbox': '1 Notiz wartet im Eingang',
   '{n} notes wait in the Inbox': '{n} Notizen warten im Eingang',
-  'There is no backup yet': 'Es gibt noch keine Sicherung',
-  'Your last backup is {n} days old': 'Deine letzte Sicherung ist {n} Tage alt',
+  'There is no backup yet': 'Es gibt noch kein Backup',
+  'Your last backup is {n} days old': 'Dein letztes Backup ist {n} Tage alt',
   'New since your last visit: 1 version': 'Neu seit deinem letzten Besuch: 1 Version',
   'New since your last visit: {n} versions': 'Neu seit deinem letzten Besuch: {n} Versionen',
   // #361 Vorschläge an/aus
@@ -35,7 +35,7 @@ export default {
   // #127 Fehler in Alltagssprache
   'No internet just now. Try again when you are online.': 'Gerade kein Internet. Versuch es nochmals, sobald du online bist.',
   "This device's storage is full. Delete old photos or rides, then try again.": 'Der Speicher dieses Geräts ist voll. Lösche alte Fotos oder Fahrten und versuch es dann nochmals.',
-  'The file could not be read. Pick the file again; a backup ends in .json.': 'Die Datei liess sich nicht lesen. Wähle sie nochmals; eine Sicherung endet auf .json.',
+  'The file could not be read. Pick the file again; a backup ends in .json.': 'Die Datei liess sich nicht lesen. Wähle sie nochmals; ein Backup endet auf .json.',
   'Try again. If it fails again, reload the page; your data is safe.': 'Versuch es nochmals. Klappt es wieder nicht, lade die Seite neu; deine Daten sind sicher.',
   // #216 / #340 Leer-Texte und eigene Inhalte
   'Nothing filed yet. Every note you file comes in here, by month.': 'Noch nichts abgelegt. Jede Notiz, die du ablegst, kommt hierher, nach Monat.',
@@ -45,23 +45,23 @@ export default {
   'Start a timer': 'Timer starten',
   'From your trips:': 'Aus deinen Touren:',
   'From your inspiration:': 'Aus deiner Inspiration:',
-  // #135 Sicherung mit Passwort
-  'Backup with a password': 'Sicherung mit Passwort',
-  'Optional. Locks your backup files, e.g. in Google Drive.': 'Freiwillig. Schützt deine Sicherungsdateien, z. B. im Google Drive.',
-  'Lock backups with a password': 'Sicherungen mit Passwort schützen',
-  'On: export, send and the folder backup are locked.': 'An: Exportieren, Senden und die Ordner-Sicherung sind geschützt.',
-  'Off: backup files are readable without a password.': 'Aus: Sicherungsdateien sind ohne Passwort lesbar.',
-  'Important: if you forget the password, nobody can open these backups, not even the app.': 'Wichtig: Vergisst du das Passwort, kann niemand diese Sicherungen öffnen, auch die App nicht.',
+  // #135 Backup mit Passwort
+  'Backup with a password': 'Backup mit Passwort',
+  'Optional. Locks your backup files, e.g. in Google Drive.': 'Freiwillig. Schützt deine Backup-Dateien, z. B. im Google Drive.',
+  'Lock backups with a password': 'Backups mit Passwort schützen',
+  'On: export, send and the folder backup are locked.': 'An: Exportieren, Senden und die Ordner-Backup sind geschützt.',
+  'Off: backup files are readable without a password.': 'Aus: Backup-Dateien sind ohne Passwort lesbar.',
+  'Important: if you forget the password, nobody can open these backups, not even the app.': 'Wichtig: Vergisst du das Passwort, kann niemand diese Backups öffnen, auch die App nicht.',
   Password: 'Passwort',
   'Password again': 'Passwort nochmals',
   'Save password': 'Passwort speichern',
   'Change password': 'Passwort ändern',
   'At least {n} characters, please.': 'Bitte mindestens {n} Zeichen.',
   'The two passwords are not the same.': 'Die beiden Passwörter sind nicht gleich.',
-  'Saved. From now on every backup file is locked with this password.': 'Gespeichert. Ab jetzt ist jede Sicherungsdatei mit diesem Passwort geschützt.',
-  'Backups are saved without a password again.': 'Sicherungen werden wieder ohne Passwort gespeichert.',
-  'Password for the backup': 'Passwort für die Sicherung',
-  'this backup is locked with a password.': 'diese Sicherung ist mit einem Passwort geschützt.',
+  'Saved. From now on every backup file is locked with this password.': 'Gespeichert. Ab jetzt ist jede Backup-Datei mit diesem Passwort geschützt.',
+  'Backups are saved without a password again.': 'Backups werden wieder ohne Passwort gespeichert.',
+  'Password for the backup': 'Passwort für das Backup',
+  'this backup is locked with a password.': 'dieses Backup ist mit einem Passwort geschützt.',
   'Wrong password. Try again; nothing was changed.': 'Falsches Passwort. Versuch es nochmals; nichts wurde geändert.',
   // #148 Hinweise und News
   "Alerts and news": "Hinweise und News",
@@ -139,7 +139,7 @@ export default {
   "Order the tiles by time of day (morning tiles in the morning, evening tiles in the evening)": "Kacheln nach Tageszeit ordnen (Morgen-Kacheln am Morgen, Abend-Kacheln am Abend)",
   // Paket Q: features and «So geht's»
   "Weather warnings for your region, avalanche danger in winter, your passes and news from your own sources; important things as one line on Today.": "Wetterwarnungen für deine Region, Lawinengefahr im Winter, deine Pässe und News aus deinen eigenen Quellen; Wichtiges als eine Zeile auf Heute.",
-  "Switch it on and every backup file is locked with your password, e.g. in Google Drive.": "Schalte es ein, und jede Sicherungsdatei ist mit deinem Passwort geschützt, z. B. im Google Drive.",
+  "Switch it on and every backup file is locked with your password, e.g. in Google Drive.": "Schalte es ein, und jede Backup-Datei ist mit deinem Passwort geschützt, z. B. im Google Drive.",
   "Once a year one window asks whether weight, home place, name and papers are still right.": "Einmal im Jahr fragt ein Fenster, ob Gewicht, Wohnort, Name und Papiere noch stimmen.",
   "Suggestions on or off": "Vorschläge an oder aus",
   "Switch off what the app suggests by itself, area by area: clothing for the weather, inspiration rules, ideas in Active.": "Schalte aus, was die App von selbst vorschlägt, Bereich für Bereich: Kleidung fürs Wetter, Regeln aus der Inspiration, Ideen in Aktiv.",
@@ -148,7 +148,7 @@ export default {
   "Open Me › Alerts and news.": "Öffne Ich › Hinweise und News.",
   "Type your region and tick your passes.": "Tippe deine Region ein und hake deine Pässe an.",
   "Add, change or delete your news sources.": "Füge News-Quellen hinzu, ändere oder lösche sie.",
-  "Switch on «Lock backups with a password».": "Schalte «Sicherungen mit Passwort schützen» ein.",
+  "Switch on «Lock backups with a password».": "Schalte «Backups mit Passwort schützen» ein.",
   "Type the password twice and save it.": "Tippe das Passwort zweimal ein und speichere es.",
   "Tap «Still right?».": "Tippe auf «Stimmt das noch?».",
   "Tick what is right, change the rest.": "Hake ab, was stimmt, ändere den Rest.",

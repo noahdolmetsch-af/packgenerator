@@ -35,7 +35,7 @@
   import { TEMPLATES_KEY, upsert } from './templates.js';
   import { folderBackupSupported, folderStatus, chooseFolder, allowAgain, forgetFolder, onFolderWritten, tryAgain, FOLDER_FIX, FOLDER_ERROR } from './folderBackup.js';
   import { t, tn, locale } from './i18n.svelte.js';
-  import HealthCard from './health/HealthCard.svelte';
+  import MoreFold from './ui/MoreFold.svelte';
   import { health } from './health/client.svelte.js';
 
   // liveQuery re-runs the query whenever the database changes, so the counts stay current.
@@ -61,6 +61,8 @@
   // Noah 19.10.2026 «1a»: Ich › «Switch on» opens this page at «Phone and computer»
   $effect(() => {
     if (take(SYNC_WISH) !== '1') return;
+    if (twoDev === 'no') syncOpen = true; // «Switch on» from Me: the folded sync opens
+    else if (twoDev === null) answerTwo('yes');
     requestAnimationFrame(() => document.querySelector('[data-section="sync"]')?.scrollIntoView({ block: 'start' }));
   });
 
@@ -143,6 +145,36 @@
     return `${warns.map((l) => WARN[l.key]?.() ?? `${t(l.name)}: ${l.line}`).join(' ')}${rest}`;
   });
   let fileEl = $state();
+
+  // «Daten und Backup aufräumen» (Noah 01.11.2026): the status line, the folds, the one question
+  const anyWarn = $derived(lights.some((l) => l.state === 'warn'));
+  let lightsOpen = $state(false);
+  let fileOpen = $state(false);
+  let moreOpen = $state(/[?&](at=before-updates|names|mehr)\b/.test(typeof location !== 'undefined' ? location.hash : '')); // the news banner («Back to the state before the update») and the link «English names» land in «More»
+  let syncOpen = $state(false);
+  // «Do you need the app on two devices?»: asked once per device (null = not asked yet). Not in the data, so it never syncs.
+  const TWO_KEY = 'pg.twoDevices';
+  const readTwo = () => {
+    try {
+      return localStorage.getItem(TWO_KEY);
+    } catch {
+      return null;
+    }
+  };
+  let twoDev = $state(/[?&](koppeln|konto)=/.test(typeof location !== 'undefined' ? location.hash : '') ? 'yes' : readTwo()); // an invite link always shows the sync
+  function answerTwo(v) {
+    twoDev = v;
+    try {
+      v ? localStorage.setItem(TWO_KEY, v) : localStorage.removeItem(TWO_KEY);
+    } catch {
+      /* private window: the answer only lasts until the page closes */
+    }
+    syncOpen = v === 'yes';
+  }
+  // what needs you opens its fold by itself: a picked file waiting, a locked file, a message about the file
+  $effect(() => {
+    if (pending || locked || message) fileOpen = true;
+  });
   const when = (iso) => new Date(iso).toLocaleString(locale(), { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
 
   async function pickFile(event) {
@@ -392,11 +424,32 @@
      phone, a bike spec sheet, favourites, a demo file: all through the one import), and the promise.
      v0.40.0 (design check R1): one summary line "48 items · 8 trips · 3 bikes"; the other counts
      folded, without the zeros; the explanations behind "?". -->
+{#snippet syncBlock()}
+    <section class="ich-sec" aria-labelledby="sync-h" data-section="sync">
+      <div class="ich-h"><div class="dhead"><h2 id="sync-h">{t('Phone and computer')}</h2><Help label={t('Phone and computer')}><p>{t('Each device keeps its own data. A backup file brings one device up to date with the other, free and without an account. Nothing goes to a server.')}</p><p>{t('The automatic sync goes through a small free server; every entry is sealed on the device with your code before it leaves, so the server cannot read it.')}</p></Help></div></div>
+      <div class="card ich-body">
+        <!-- P8 «Automatischer Abgleich» (Noah 18.10.2026 «1b … 2b 3b»): on top; the file way stays below -->
+        <SyncPanel />
+        <p class="ich-hs synced">{$syncQ?.at ? t('Last exchange on this device: {when}.', { when: when($syncQ.at) }) : t('No exchange on this device yet.')}</p>
+      </div>
+    </section>
+{/snippet}
+
 <div class="datapanel ich-cols">
   <div class="ich-main">
-    <section class="ich-sec" aria-labelledby="lights-h">
-      <div class="ich-h"><div><h2 id="lights-h">{t('Everything in order?')}</h2><p class="ich-hs" data-head-line>{headLine}</p></div></div>
-      <ul class="card ich-list">
+    <!-- «Daten und Backup aufräumen» (Noah 01.11.2026 «1a 2a 3a 4a 5b»): one status line instead of six dots; the dots
+         stay behind «Details». Orange with its button when a backup is due. -->
+    <section class="ich-sec" aria-labelledby="lights-h" data-section="status">
+      <div class="ich-h"><div><h2 id="lights-h">{t('Everything in order?')}</h2></div></div>
+      <div class="card ich-body status" class:bad={anyWarn} data-status={anyWarn ? 'warn' : 'ok'}>
+        <p class="stline"><span class="dot {anyWarn ? 'warn' : 'ok'}" aria-hidden="true"></span><span data-head-line>{headLine}</span></p>
+        <p class="ich-help">{lastIso ? t('Last backup: {when}', { when: when(lastIso) }) : t('Last backup: never')}{#if $changeQ?.at}{' · '}{t('last change {when}', { when: when($changeQ.at) })}{/if}</p>
+        <div class="ich-acts">
+          {#if due.due}<button type="button" class="btn hi" onclick={exportFile} disabled={!!$demoQ} data-status-save>{t('Back up now')}</button>{/if}
+          <button type="button" class="btn" aria-expanded={lightsOpen} aria-controls="status-details" onclick={() => (lightsOpen = !lightsOpen)} data-status-details>{lightsOpen ? t('Hide details') : t('Details|status')}</button>
+        </div>
+        {#if lightsOpen}
+          <ul class="ich-list" id="status-details">
         {#each lights as l (l.key)}
           <li class="ich-row ich-wrap light">
             <span class="dot {l.state}" aria-hidden="true"></span>
@@ -409,10 +462,34 @@
             {:else if l.state === 'warn' && l.key === 'sync'}<button type="button" class="btn sm" onclick={() => runSync()}>{t('Now|do')}</button>{/if}
           </li>
         {/each}
-      </ul>
+          </ul>
+        {/if}
+      </div>
     </section>
+    <!-- Idea 1 (Noah 01.11.2026): one question, once. Yes shows the sync, No folds it. Per device, not in the data. -->
+    {#if twoDev === null && !autoSync.on}
+      <section class="ich-sec" aria-labelledby="two-h" data-section="two-devices">
+        <div class="ich-h"><div><h2 id="two-h">{t('Do you need the app on two devices?')}</h2><p class="ich-hs">{t('Yes shows the sync between phone and computer. No folds it away; you can still open it any time.')}</p></div></div>
+        <div class="card ich-body"><div class="ich-acts">
+          <button type="button" class="btn hi" onclick={() => answerTwo('yes')} data-two="yes">{t('Yes, on two devices')}</button>
+          <button type="button" class="btn" onclick={() => answerTwo('no')} data-two="no">{t('No, only here')}</button>
+        </div></div>
+      </section>
+    {:else if twoDev === 'no' && !autoSync.on}
+      <MoreFold id="sync" title={t('Work on two devices')} sub={t('Phone and computer, sync')} bind:open={syncOpen}>
+        {@render syncBlock()}
+        <div class="ich-acts"><button type="button" class="btn sm" onclick={() => answerTwo(null)}>{t('Ask me again')}</button></div>
+      </MoreFold>
+    {:else}
+      {@render syncBlock()}
+    {/if}
+    <!-- Idea 4a: Fitbit has its own page (Ich › Fitbit) -->
+    <a class="card ich-row fitrow" href="#/me/fitbit" data-row="fitbit-page"><span class="ich-m"><b>{t('Fitbit and health')}</b><small>{t('Moved to its own page: Me › Fitbit')}</small></span><ChevronRight class="ich-chev" size={18} aria-hidden="true" /></a>
+  </div>
 
-    <section class="ich-sec" aria-labelledby="data-title">
+  <div class="ich-side">
+    <MoreFold id="backup-file" title={t('Back up with a file')} sub={t('Save, send to the other device, open')} bind:open={fileOpen}>
+    <section class="ich-sec" aria-labelledby="data-title" data-section="backup-file">
       <div class="ich-h"><div><h2 id="data-title">{t('Backup')}</h2><p class="ich-hs">{lastIso ? t('Last backup: {when}', { when: when(lastIso) }) : t('Last backup: never')}{#if $changeQ?.at}{' · '}{t('last change {when}', { when: when($changeQ.at) })}{/if}</p></div></div>
       <div class="card ich-body">
         <div class="ich-acts">
@@ -535,32 +612,10 @@
         {#if message}<p class="msg" role="status">{message}</p>{/if}
       </div>
     </section>
-
+    </MoreFold>
+    <MoreFold id="more" title={t('More')} sub={t('Password, folder, copies before updates, other data, start fresh')} bind:open={moreOpen}>
     <BackupLock />
-
-    <!-- P3b «Abgleich Handy–Computer» (Noah 15.10.2026 «1a»): free, no server. The newer device sends its
-         backup file, the other one opens it; the app says which is newer and suggests what to do. -->
-    <section class="ich-sec" aria-labelledby="sync-h" data-section="sync">
-      <div class="ich-h"><div class="dhead"><h2 id="sync-h">{t('Phone and computer')}</h2><Help label={t('Phone and computer')}><p>{t('Each device keeps its own data. A backup file brings one device up to date with the other, free and without an account. Nothing goes to a server.')}</p><p>{t('The automatic sync goes through a small free server; every entry is sealed on the device with your code before it leaves, so the server cannot read it.')}</p></Help></div></div>
-      <div class="card ich-body">
-        <!-- P8 «Automatischer Abgleich» (Noah 18.10.2026 «1b … 2b 3b»): on top; the file way stays below -->
-        <SyncPanel />
-        <p class="ich-hs synced">{$syncQ?.at ? t('Last exchange on this device: {when}.', { when: when($syncQ.at) }) : t('No exchange on this device yet.')}</p>
-        <ol class="steps">
-          <li>{t('On the device with the newer state: «{send}».', { send: phone.matches ? t('Send to computer') : t('Send to phone') })}</li>
-          <li>{t('On the other device: tap the file › Share › Pack Generator, or «Open backup» here.')}</li>
-          <li>{t('The app says which state is newer and suggests what to do. A copy of the data before is always kept.')}</li>
-        </ol>
-        <div class="ich-acts">
-          <button type="button" class="btn" onclick={() => fileEl?.click()}><FolderOpen size={16} aria-hidden="true" />{t('Open backup')}</button>
-        </div>
-        {#if folderBackupSupported}<p class="ich-help">{t('Tip: with «Auto-backup to a folder» in a Drive folder, the newest file is always there (pack-generator-latest.json); open it on the phone.')}</p>{/if}
-      </div>
-    </section>
-
-    <!-- «App-Wartung» BF4 (Noah 13.10.2026): the copies made before the last updates -->
     <BeforeUpdates />
-
     {#if folderBackupSupported}
       <section class="ich-sec" aria-labelledby="fold-h">
         <div class="ich-h"><div class="dhead"><h2 id="fold-h">{t('Auto-backup to a folder')}</h2>{#if folder.state === 'off'}<Help label={t('Auto-backup to a folder')}><p>{t('Pick a folder (for example one that syncs to the cloud). After every change the app writes the newest backup there, plus one file per day.')}</p></Help>{/if}</div></div>
@@ -596,11 +651,23 @@
         </div>
       </section>
     {/if}
-  </div>
-
-  <div class="ich-side">
-    <!-- Fitbit über Google (mockup G2): how current each value is, fetch, choose values, disconnect -->
-    <HealthCard />
+    <section class="ich-sec" aria-labelledby="od-h">
+      <div class="ich-h"><div><h2 id="od-h">{t('Other data')}</h2></div></div>
+      <ul class="card ich-list">
+        <li><a class="ich-row" href="#/me/phone"><span class="ich-ib"><QrCode size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t('To the phone')}</b><small>{t('Open the app on the phone with a code')}</small></span><ChevronRight class="ich-chev" size={18} aria-hidden="true" /></a></li>
+        <!-- the same import as «Import backup»: the app knows the kind of file by its content -->
+        <!-- Paket Q #137: «Stimmt das noch?» any time (it also comes by itself once a year) -->
+        <li><a class="ich-row" href="#/me/data?yearcheck" data-row="yearcheck"><span class="ich-ib"><ListChecks size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t('Still right?')}</b><small>{t('Weight, home place, name and papers: check once a year')}</small></span><ChevronRight class="ich-chev" size={18} aria-hidden="true" /></a></li>
+        <li><button type="button" class="ich-row" onclick={() => fileEl?.click()}><span class="ich-ib"><Bike size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t('Bike spec sheet')}</b><small>{t('Fit and geometry from a file')}</small></span><ChevronRight class="ich-chev" size={18} aria-hidden="true" /></button></li>
+        <li><button type="button" class="ich-row" onclick={() => fileEl?.click()}><span class="ich-ib"><Star size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t('Favourites from a list')}</b><small>{t('Stars and a template from a list')}</small></span><ChevronRight class="ich-chev" size={18} aria-hidden="true" /></button></li>
+        <li><button type="button" class="ich-row" onclick={() => fileEl?.click()} data-row="demo-file"><span class="ich-ib"><CirclePlay size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t('Demo from a file')}</b><small>{t('The yellow bar on top brings your data back')}</small></span><ChevronRight class="ich-chev" size={18} aria-hidden="true" /></button></li>
+        {#if exampleN}<li><button type="button" class="ich-row" onclick={dropExamples} data-row="examples"><span class="ich-ib"><Sparkles size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t('Remove the examples')}</b><small>{t('The made-up trips, bike and gear from the first start')}</small></span><ChevronRight class="ich-chev" size={18} aria-hidden="true" /></button></li>
+        {:else if $examplesQ}<li><button type="button" class="ich-row" onclick={getExamples} disabled={getting || !!$demoQ} data-row="get-examples"><span class="ich-ib"><Sparkles size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t('Get the examples')}</b><small>{t('Two made-up trips, a bike and gear to try things out; your own data stays')}</small></span><ChevronRight class="ich-chev" size={18} aria-hidden="true" /></button></li>{/if}
+      </ul>
+    </section>
+    <NamesDe />
+    <StartFresh />
+    </MoreFold>
     <section class="ich-sec" aria-labelledby="yd-h">
       <div class="ich-h"><div class="dhead"><h2 id="yd-h">{t('Your data')}</h2><Help label={t('Your data')}><p>{t('Everything is stored in this browser on this device. Use a backup file to move it to your other device.')}</p></Help></div></div>
       {#if $counts}
@@ -617,26 +684,6 @@
         </div>
       {/if}
     </section>
-
-    <section class="ich-sec" aria-labelledby="od-h">
-      <div class="ich-h"><div><h2 id="od-h">{t('Other data')}</h2></div></div>
-      <ul class="card ich-list">
-        <li><a class="ich-row" href="#/me/phone"><span class="ich-ib"><QrCode size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t('To the phone')}</b><small>{t('Open the app on the phone with a code')}</small></span><ChevronRight class="ich-chev" size={18} aria-hidden="true" /></a></li>
-        <!-- the same import as «Import backup»: the app knows the kind of file by its content -->
-        <!-- Paket Q #137: «Stimmt das noch?» any time (it also comes by itself once a year) -->
-        <li><a class="ich-row" href="#/me/data?yearcheck" data-row="yearcheck"><span class="ich-ib"><ListChecks size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t('Still right?')}</b><small>{t('Weight, home place, name and papers: check once a year')}</small></span><ChevronRight class="ich-chev" size={18} aria-hidden="true" /></a></li>
-        <li><button type="button" class="ich-row" onclick={() => fileEl?.click()}><span class="ich-ib"><Bike size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t('Bike spec sheet')}</b><small>{t('Fit and geometry from a file')}</small></span><ChevronRight class="ich-chev" size={18} aria-hidden="true" /></button></li>
-        <li><button type="button" class="ich-row" onclick={() => fileEl?.click()}><span class="ich-ib"><Star size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t('Favourites from a list')}</b><small>{t('Stars and a template from a list')}</small></span><ChevronRight class="ich-chev" size={18} aria-hidden="true" /></button></li>
-        <li><button type="button" class="ich-row" onclick={() => fileEl?.click()} data-row="demo-file"><span class="ich-ib"><CirclePlay size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t('Demo from a file')}</b><small>{t('The yellow bar on top brings your data back')}</small></span><ChevronRight class="ich-chev" size={18} aria-hidden="true" /></button></li>
-        {#if exampleN}<li><button type="button" class="ich-row" onclick={dropExamples} data-row="examples"><span class="ich-ib"><Sparkles size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t('Remove the examples')}</b><small>{t('The made-up trips, bike and gear from the first start')}</small></span><ChevronRight class="ich-chev" size={18} aria-hidden="true" /></button></li>
-        {:else if $examplesQ}<li><button type="button" class="ich-row" onclick={getExamples} disabled={getting || !!$demoQ} data-row="get-examples"><span class="ich-ib"><Sparkles size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t('Get the examples')}</b><small>{t('Two made-up trips, a bike and gear to try things out; your own data stays')}</small></span><ChevronRight class="ich-chev" size={18} aria-hidden="true" /></button></li>{/if}
-      </ul>
-    </section>
-    <!-- «Englische Namen auf Deutsch» (Noah 21.10.2026 «1a»): only while there are English names to suggest -->
-    <NamesDe />
-    <!-- Paket H (Noah 19.10.2026 «1a … auf null setzen und so frisch beginnen»): delete all and start from zero.
-         Impeccable P6: its own last section «Delete everything», away from the backup buttons -->
-    <StartFresh />
     <p class="ich-fine"><Check size={16} aria-hidden="true" /><span>{t('Nothing leaves the device unless you send a backup yourself.')}</span></p>
   </div>
 </div>
@@ -822,18 +869,26 @@
   .synced {
     margin: 0 0 8px;
   }
-  .steps {
-    margin: 0 0 12px;
-    padding-left: 20px;
-    color: var(--ink-2);
-    font-size: var(--fs-small);
-  }
-  .steps li + li {
-    margin-top: 4px;
-  }
   .msg {
     margin: 12px 0 0;
     font-weight: 600;
     color: var(--ink);
+  }
+  /* «Daten und Backup aufräumen»: the one status line; orange while something is due */
+  .stline {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0 0 6px;
+    font-weight: 600;
+  }
+  .status.bad {
+    border-color: var(--warn);
+  }
+  .fitrow {
+    margin: 0 0 var(--gap, 14px);
+    min-height: 56px;
+    text-decoration: none;
+    color: inherit;
   }
 </style>
