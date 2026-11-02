@@ -14,6 +14,7 @@
   import { loadDayData } from '../daydata.js';
   import { SLEEP_Q, MOOD_Q, weekParam } from '../weekreview.js';
   import { weekCourse, COURSE, COURSE_WEEKS } from '../weekmore.js';
+  import { WEIGHT_KEY, entriesOf } from '../weight.js';
   import { normAct } from '../flow.js';
   import { isoWeek, hmm } from '../training.js';
   import { localDay } from '../localday.js';
@@ -26,8 +27,8 @@
   const key = $derived(Object.hasOwn(COURSE, params.get('k') ?? '') ? params.get('k') : null);
 
   const q = liveQuery(async () => {
-    const [acts, health, log, flowActs, answers, checks, day] = await Promise.all([db.activities.toArray(), db.healthDays.toArray(), db.flowLog.toArray(), db.flowActs.toArray(), db.abAnswers.where('qid').anyOf([SLEEP_Q, MOOD_Q]).toArray(), db.flowChecks.toArray(), loadDayData(db)]);
-    return { acts, health, log, flowActs: flowActs.map(normAct), answers, checks, weather: day.weather };
+    const [acts, health, log, flowActs, answers, checks, day, wt] = await Promise.all([db.activities.toArray(), db.healthDays.toArray(), db.flowLog.toArray(), db.flowActs.toArray(), db.abAnswers.where('qid').anyOf([SLEEP_Q, MOOD_Q]).toArray(), db.flowChecks.toArray(), loadDayData(db), db.settings.get(WEIGHT_KEY)]);
+    return { acts, health, log, flowActs: flowActs.map(normAct), answers, checks, weather: day.weather, weightEntries: entriesOf(wt?.value) };
   });
   const course = $derived($q && key ? weekCourse(key, $q, monday, today, zones.bounds) : null);
 
@@ -44,6 +45,10 @@
     hours: 'Hours|five',
     sleepFelt: 'Sleep (your rating)',
     streak: 'Days of training in a row',
+    weight: 'Weight',
+    meditation: 'Meditation',
+    deep: 'Deep sleep',
+    rem: 'REM sleep',
   };
   const HOW = {
     restingHr: 'Mean resting heart rate of the days with a value (Fitbit).',
@@ -58,6 +63,10 @@
     hours: 'Strava moving time plus the minutes you noted in Aktiv.',
     sleepFelt: 'Mean of your own sleep rating 1–10 on the days you answered.',
     streak: 'The longest run of days with training that ends in the week.',
+    weight: 'The last weight of the days: your own entry, else the watch (Fitbit).',
+    meditation: 'Minutes of meditation you ticked in Aktiv, summed over the days.',
+    deep: 'Mean deep sleep per night of the nights with sleep phases (Fitbit).',
+    rem: 'Mean REM sleep per night of the nights with sleep phases (Fitbit).',
   };
   const fmt = (v, unit) => {
     if (v == null) return '–';
@@ -71,6 +80,7 @@
     if (unit === 'deg') return `${num(v)}°`;
     if (unit === 'mm') return `${num(v)} mm`;
     if (unit === 'hours') return `${num(v)} h`;
+    if (unit === 'kg') return `${num(v)} kg`;
     if (unit === 'pt') return `${num(v)}`;
     return num(v);
   };

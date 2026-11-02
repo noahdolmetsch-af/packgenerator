@@ -1,7 +1,7 @@
 // «Wochenrückblick mit mehr Daten» (Noah 01.11.2026 «3c 5c»): the pure rules of lib/weekmore.js.
 // Fictional data only (test_data_gtp_); calendar days, never «now + n × 24 h».
 import { describe, it, expect } from 'vitest';
-import { bodyTiles, zonesWeek, bikesWeek, outdoorWeek, noteOf, putNote, notesOf, weekCourse, COURSE, COURSE_WEEKS, BODY } from '../src/lib/weekmore.js';
+import { bodyTiles, zonesWeek, bikesWeek, outdoorWeek, weightWeek, meditationWeek, tripsWeek, sleepPhasesWeek, noteOf, putNote, notesOf, weekCourse, COURSE, COURSE_WEEKS, BODY } from '../src/lib/weekmore.js';
 import { DEFAULT_BOUNDS, shiftDay } from '../src/lib/training.js';
 
 const P = 'test_data_gtp_';
@@ -98,5 +98,46 @@ describe('the course over eight weeks (Noah 02.11.2026 «1a 3a»)', () => {
   it('an unknown key is nothing; every key has a unit', () => {
     expect(weekCourse('kaputt', data(), MON, SUN, DEFAULT_BOUNDS)).toBeNull();
     for (const k of Object.keys(COURSE)) expect(weekCourse(k, data(), MON, SUN, DEFAULT_BOUNDS).points).toHaveLength(8);
+  });
+});
+
+describe('weight, meditation, trips and sleep phases (Noah 02.11.2026 «2b»)', () => {
+  const MON = '2026-10-26';
+  it('takes the last weight of the week against the week before; an own entry wins over the watch', () => {
+    const health = [{ date: '2026-10-19', weightKg: 80.4 }, { date: '2026-10-27', weightKg: 80 }, { date: '2026-10-30', fitKg: 79.6 }];
+    expect(weightWeek([], health, MON, '2026-11-01')).toMatchObject({ kg: 79.6, prev: 80.4, diff: -0.8, n: 2 });
+    expect(weightWeek([{ day: '2026-10-30', kg: 79 }], health, MON, '2026-11-01').kg).toBe(79);
+    expect(weightWeek([], [], MON, '2026-11-01')).toBeNull();
+    expect(weightWeek([{ day: '2026-10-28', kg: 5 }], [], MON, '2026-11-01')).toBeNull();
+  });
+  it('adds up meditation minutes and sessions, same days of the week before', () => {
+    const log = [
+      { actId: 'meditation', day: '2026-10-27', min: 10 },
+      { actId: 'meditation', day: '2026-10-29', min: 15 },
+      { actId: 'yoga', day: '2026-10-29', min: 45 },
+      { actId: 'meditation', day: '2026-10-20', min: 20 },
+      { actId: 'meditation', day: '2026-10-18', min: 99 },
+    ];
+    expect(meditationWeek(log, MON, '2026-11-01')).toEqual({ min: 25, n: 2, prev: 20, diff: 5 });
+    expect(meditationWeek(log, MON, '2026-10-26')).toBeNull();
+  });
+  it('lists the trips that touch the week, without skipped ones', () => {
+    const trips = [
+      { id: 'a', title: 'Seenrunde', startDate: '2026-10-24', days: 3 },
+      { id: 'b', title: 'Ausgelassen', startDate: '2026-10-27', days: 1, skipped: true },
+      { id: 'c', title: 'Später', startDate: '2026-11-07', days: 1 },
+      { id: 'd', title: 'Pass', startDate: '2026-10-31T08:00', days: 2 },
+    ];
+    expect(tripsWeek(trips, MON, '2026-11-01').map((x) => [x.id, x.start, x.end, x.days])).toEqual([['a', '2026-10-24', '2026-10-26', 3], ['d', '2026-10-31', '2026-11-01', 2]]);
+    expect(tripsWeek(trips, MON, '2026-10-30').map((x) => x.id)).toEqual(['a']);
+  });
+  it('averages the sleep phases over the nights that have them', () => {
+    const health = [
+      { date: '2026-10-27', sleep: { asleepMin: 420, deepMin: 80, remMin: 90, lightMin: 250, awakeMin: 30 } },
+      { date: '2026-10-28', sleep: { asleepMin: 400, deepMin: 60, remMin: 100, lightMin: 240 } },
+      { date: '2026-10-29', sleep: { asleepMin: 400 } },
+    ];
+    expect(sleepPhasesWeek(health, MON, '2026-11-01')).toEqual({ deep: 70, rem: 95, light: 245, awake: 30, n: 2 });
+    expect(sleepPhasesWeek([{ date: '2026-10-29', sleep: { asleepMin: 400 } }], MON, '2026-11-01')).toBeNull();
   });
 });
