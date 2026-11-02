@@ -21,8 +21,11 @@
   import { t, num } from '../lib/i18n.svelte.js';
   import AnalyseWert from './analyse/AnalyseWert.svelte';
   import Diagramm from './analyse/Diagramm.svelte';
+  import Ueberblick from './analyse/Ueberblick.svelte';
+  import DaySheet from './analyse/DaySheet.svelte';
   import { itemsByKey } from '../lib/analyse/catalog.js';
   import { addDays } from '../lib/analyse.js';
+  import { tripEnd } from '../lib/tripstate.js';
 
   // #/auswerten/analyse/<key>: the page of one value (M6)
   const keyOf = (h) => {
@@ -35,6 +38,7 @@
     }
   };
   let hash = $state(location.hash);
+  let dayOpen = $state(null); // a day tapped in «Jeder Tag ein Feld»
   $effect(() => {
     const on = () => (hash = location.hash);
     addEventListener('hashchange', on);
@@ -122,6 +126,8 @@
     </div>
   </section>
 
+  {#if !loading && on.length}<Ueberblick {days} {byKey} acts={data.acts} log={data.log} {on} onday={(d) => (dayOpen = d)} />{/if}
+
   {#if loading}
     <p class="hint" role="status">{t('Loading …')}</p>
   {:else if !on.length}
@@ -163,6 +169,9 @@
     <p class="hint">{#if all}{t('Dashed tiles have no data in this period yet. New Fitbit values come with the next fetch:')} <a href="#/me/fitbit">{t('Fitbit')}</a>{:else}{ t('A value without any day in this period is left out; «Also values without data» shows every value. Values come from your Fitbit (Google), Strava and what you enter or tick in the app.')}{/if}</p>
   {/if}
 </div>
+{#if dayOpen}
+  <DaySheet day={dayOpen} {groups} {today} tripName={data.trips.find((tr) => tr.startDate && tr.startDate <= dayOpen && (tripEnd(tr) ?? tr.startDate) >= dayOpen)?.name ?? ''} onday={(d) => (dayOpen = d)} onclose={() => (dayOpen = null)} />
+{/if}
 {/if}
 
 <style>
