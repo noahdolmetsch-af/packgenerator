@@ -8,6 +8,7 @@
  */
 import lust from './lust.js';
 import unterwegs from './unterwegs.js';
+import velo from './velo.js';
 import zurueck from './zurueck.js';
 
-export const WISSEN = { ...lust, ...unterwegs, ...zurueck };
+export const WISSEN = { ...lust, ...unterwegs, ...velo, ...zurueck };

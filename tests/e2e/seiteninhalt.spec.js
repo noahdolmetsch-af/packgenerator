@@ -92,3 +92,23 @@ test('On the way shows good to know in the card during a trip', async ({ page, c
   await expect(page.locator('[data-seiteninhalt-know="f.departsheet"]')).toContainText(T('Good to know'));
   expect(errors).toEqual([]);
 });
+
+// PR 19, area Velo: Wear and Gear show the card with good to know
+test('Bikes wear and Gear show good to know in the card', async ({ page, context }, info) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await openHome(page, context, info);
+  await page.goto('./#/bikes?tab=care&view=wear');
+  const card = page.locator('[data-seiteninhalt]');
+  await expect(card).toContainText(T('What you can do here'));
+  await expect(card.locator('[data-seiteninhalt-know]').first()).toContainText(T('Good to know'));
+  expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBe(0);
+  await page.goto('./#/gear');
+  // Velos and Material start as one line, so the main buttons stay on the first screen; a tap opens the card
+  const line = page.locator('[data-seiteninhalt-line]');
+  await expect(line).toContainText(T('What you can do here'));
+  await (info.project.name === 'phone' ? line.tap() : line.click());
+  await expect(page.locator('[data-seiteninhalt-know="weigh"]')).toContainText(T('Good to know'));
+  expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBe(0);
+  expect(errors).toEqual([]);
+});
