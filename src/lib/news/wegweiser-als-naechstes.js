@@ -5,7 +5,7 @@ export default {
   points: [
     {
       text: 'Ride saved: «As next» with wear of the parts and the logbook',
-      go: { href: '#/debrief/ride', where: 'Shows in the card «Ride saved» right after you upload a ride.' },
+      go: 'f.upload',
     },
     {
       text: '«All packed» and a care job done: «As next» with weather, the tour day sheet, setup log and spare parts',
@@ -22,7 +22,6 @@ export default {
     'What comes next, right after': 'Was als Nächstes passt, gleich danach',
     'After a saved ride, «All packed» and a care job, one line shows what fits next.': 'Nach einer gespeicherten Fahrt, nach «Alles gepackt» und nach einer Pflege zeigt eine Zeile, was als Nächstes passt.',
     'Ride saved: «As next» with wear of the parts and the logbook': 'Fahrt gespeichert: «Als Nächstes» mit Verschleiss der Teile und dem Logbuch',
-    'Shows in the card «Ride saved» right after you upload a ride.': 'Erscheint in der Karte «Fahrt gespeichert», gleich nachdem du eine Fahrt hochgeladen hast.',
     '«All packed» and a care job done: «As next» with weather, the tour day sheet, setup log and spare parts': '«Alles gepackt» und Pflege erledigt: «Als Nächstes» mit Wetter, Tourtag-Blatt, Setup-Logbuch und Ersatzteilen',
     'Shows in the message after «All packed» and after a care job is saved as done.': 'Erscheint in der Meldung nach «Alles gepackt» und nachdem eine Pflege als erledigt gespeichert ist.',
     'Upload a ride (GPX): the card «Ride saved» has the line «As next» with Wear and Logbook.': 'Lade eine Fahrt hoch (GPX): die Karte «Fahrt gespeichert» hat die Zeile «Als Nächstes» mit Verschleiss und Logbuch.',
