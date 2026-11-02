@@ -19,6 +19,10 @@ export const ON_PAGES = [
   // PR 14, area «Zurück» (after a trip). '#/debrief/:trip' is not listed: ON_PAGES matches whole paths, not placeholders
   '#/debrief', '#/debrief/pace', '#/debrief/logbook', '#/debrief/learnings', '#/pack/past', '#/check/evening', '#/me/ruhig/spaeter',
   '#/me/ruhig/bedeutung', '#/me/ruhig/koennen', '#/me/frei/naechstes', '#/ski/after',
+  // PR 18, area Körper (Aktiv, sports, training, meditation, body values; the Ruhiger pages go with Alltag)
+  '#/flow', '#/flow/sports', '#/flow/sport/act%3Agym', '#/flow/sport/act%3Atennis', '#/flow/training', '#/flow/form', '#/flow/review',
+  '#/flow/stats/hr', '#/flow/act/meditation', '#/flow/act/meditation/log', '#/flow/act/meditation/mehr', '#/auswerten',
+  '#/auswerten/analyse', '#/me/abfragen', '#/me/insights', '#/me/weight', '#/me/wohl', '#/me/fitbit', '#/trips/rides',
 ];
 /** Rows shown before «Show all n». */
 export const SHOWN = 4;
