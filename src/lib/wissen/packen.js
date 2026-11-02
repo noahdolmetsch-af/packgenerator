@@ -46,4 +46,6 @@ export default {
   "f.skicheck": "Avalanche gear is checked at home, not at the car park: transceiver battery above 50 %, probe and shovel in the pack.",
   "f.labels": "A label with a QR code on the box beats a good memory: in spring you find the bivy bag without opening five boxes.",
   "f.tripcheck": "The check after the trip matters as much as the one before: wet tent out of the bag, chain wiped, power banks charged.",
+  // Wegweiser 26b: pages that had no card yet
+  'f.weightsure': 'Weigh the three heaviest estimated things first: they move the total more than twenty small ones.',
 };

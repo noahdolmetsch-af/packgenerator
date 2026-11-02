@@ -5,7 +5,7 @@
    * sport. Hide it with «Ausblenden» (a setting, any time «Nächste Sterne zeigen» brings it back).
    */
   import { liveQuery } from 'dexie';
-  import { Star } from '@lucide/svelte';
+  import { Star, Gift } from '@lucide/svelte';
   import { db } from '../db.js';
   import { putSetting } from '../flowdb.js';
   import { nextStars, readNextStars, HIDE_KEY } from './nextstars.js';
@@ -31,7 +31,7 @@
       {#each rows as x (x.actId)}
         <li>
           <a href="#/flow/sport/{encodeURIComponent(`act:${x.actId}`)}">
-            <span class="l"><b>{actName(x.act)} · {msName(x.r.m)}</b><span class="num">{leftWord(x)}</span></span>
+            <span class="l"><b>{actName(x.act)} · {msName(x.r.m)}{#if d.reward && d.reward.msId === x.r.id && d.reward.star === x.r.next}<span class="gf" data-next-reward title={t('A reward hangs on this star')}><Gift size={14} aria-label={t('A reward hangs on this star')} /></span>{/if}</b><span class="num">{leftWord(x)}</span></span>
             <span class="bar" aria-hidden="true"><span style:width="{Math.round(x.r.progress * 100)}%"></span></span>
           </a>
         </li>
@@ -88,6 +88,12 @@
     font-weight: 600;
     min-width: 0;
     overflow-wrap: break-word;
+  }
+  .gf {
+    display: inline-flex;
+    margin-left: 6px;
+    vertical-align: -2px;
+    color: var(--warn);
   }
   .l .num {
     color: var(--ink-3);

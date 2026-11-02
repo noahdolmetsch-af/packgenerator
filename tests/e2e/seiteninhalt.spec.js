@@ -235,6 +235,24 @@ test('Lists and types and Privacy show good to know in the card', async ({ page,
   expect(errors).toEqual([]);
 });
 
+// Wegweiser 26b: pages without content on 02.11.2026 get the card; Touren starts as one line
+test('Touren, Ski and Ruhiger pages show the card with good to know', async ({ page, context }, info) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await openHome(page, context, info);
+  await page.goto('./#/trips');
+  const line = page.locator('[data-seiteninhalt-line]');
+  await expect(line).toBeVisible();
+  await (info.project.name === 'phone' ? line.tap() : line.click());
+  await expect(page.locator('[data-seiteninhalt-know="f.plan"]')).toContainText(T('Good to know'));
+  for (const hash of ['#/me/ruhig/zahlen', '#/neuland', '#/me/frei/sammlungen']) {
+    await page.goto('./' + hash);
+    const card = page.locator('[data-seiteninhalt]');
+    await expect(card).toContainText(T('What you can do here'));
+    await expect(card.locator('[data-seiteninhalt-know]').first()).toContainText(T('Good to know'));
+    expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBe(0);
+  }
+
 // Wegweiser 26c: an open note is a window over Notes, so its functions show in the card on Notes
 test('Notes shows the functions of an open note with good to know', async ({ page, context }, info) => {
   const errors = [];

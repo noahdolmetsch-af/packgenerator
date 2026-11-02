@@ -35,4 +35,6 @@ export default {
   'f.next': 'Look here when you wonder what is coming; it saves asking the same question twice.',
   'f.freiabend': 'An evening ritual works best when it is small: one song, one question, the same every day.',
   'f.memorycard': 'A sound brings a place back faster than a photo: ten seconds of the stream beside the tent are enough.',
+  // Wegweiser 26b: pages that had no card yet
+  'f.frei': 'Free time needs no goal. Pick one page that fits the mood, not the one with the most to do.',
 };

@@ -46,6 +46,34 @@ export default {
     'Koch vor einem langen Tag die doppelte Menge: eine für heute Abend, eine in der Box für morgen in die Tasche.',
   'Note what broke right when it happens: «left cleat squeaks» is gone from your head by the evening.':
     'Notier gleich, was kaputt ist: «linke Schuhplatte quietscht» ist am Abend aus dem Kopf.',
+  'Start with when and how long, not with the list: the packing list follows the weather and the days, so it gets shorter on its own.':
+    'Fang mit wann und wie lange an, nicht mit der Liste: die Packliste folgt Wetter und Tagen und wird so von selbst kürzer.',
+  'Rate a trip within a week: what you would leave at home next time is gone from your head after the second laundry.':
+    'Bewerte eine Tour innerhalb einer Woche: was du nächstes Mal zuhause lässt, ist nach der zweiten Wäsche vergessen.',
+  'Gravel and bikepacking can share a bike but rarely a packing list. One standard bike per sport saves a tap every time.':
+    'Gravel und Bikepacking teilen sich oft ein Velo, selten eine Packliste. Ein Standard-Velo pro Sportart spart jedes Mal einen Tipp.',
+  'Book the bed with free cancellation first and the train later: the weather decides the day, not the booking site.':
+    'Buch zuerst das Bett mit Gratis-Storno und den Zug später: das Wetter bestimmt den Tag, nicht die Buchungsseite.',
+  'A shared komoot tour comes with its route; check where the last shop before the climb is before you fall in love with the line.':
+    'Eine geteilte komoot-Tour bringt ihre Route mit; schau, wo der letzte Laden vor dem Anstieg ist, bevor du dich in die Linie verliebst.',
+  'Save the emergency number of the country before you leave; in a valley without signal you will not want to search for it.':
+    'Speicher die Notrufnummer des Landes vor der Abfahrt; im Tal ohne Empfang willst du sie nicht suchen.',
+  'Sunday afternoon closes more shops than any pass. Check the long gaps first, then the grams per hour.':
+    'Der Sonntagnachmittag schliesst mehr Läden als jeder Pass. Schau zuerst auf die langen Lücken, dann auf die Gramm pro Stunde.',
+  'Wind decides more than rain: start against the wind while your legs are fresh and let it push you home.':
+    'Wind entscheidet mehr als Regen: fahr frisch gegen den Wind los und lass dich von ihm heimschieben.',
+  'Eat before you are hungry: a bite every 30 to 45 minutes beats one big stop when the legs are already empty.':
+    'Iss, bevor du Hunger hast: alle 30 bis 45 Minuten ein Bissen schlägt die grosse Pause, wenn die Beine schon leer sind.',
+  'Stops as waypoints show on the bike computer even without signal; a fountain on the screen is worth more than one in the app.':
+    'Halte als Wegpunkte zeigt der Velocomputer auch ohne Empfang; ein Brunnen auf dem Display ist mehr wert als einer in der App.',
+  'Fresh snow on a warm day after a cold night: wait for the second sunny day, the slopes settle overnight.':
+    'Neuschnee, dann ein warmer Tag nach kalter Nacht: warte auf den zweiten Sonnentag, die Hänge setzen sich über Nacht.',
+  'Plan the way back first: the last train and the turnaround time decide the tour, not the summit.':
+    'Plan zuerst den Rückweg: der letzte Zug und die Umkehrzeit entscheiden die Tour, nicht der Gipfel.',
+  'Play the first night through at home, with the real bags: what you cannot find in the dark at the kitchen table, you will not find on the race either.':
+    'Spiel die erste Nacht zuhause mit den echten Taschen durch: was du am Küchentisch im Dunkeln nicht findest, findest du im Rennen auch nicht.',
+  'A place you slept at yourself beats three descriptions. Mark it right after the night, while you still know the corner.':
+    'Ein Platz, an dem du selbst geschlafen hast, schlägt drei Beschreibungen. Markier ihn gleich nach der Nacht, solange du die Ecke noch weisst.',
   'Set the note a few km before the spot, not on it: at 25 km/h you are past the bakery before you have read the message.':
     'Setz die Notiz ein paar km vor die Stelle, nicht drauf: mit 25 km/h bist du an der Bäckerei vorbei, bevor du die Nachricht gelesen hast.',
   'One #tag per topic is enough; a link with a meaning like «counter-argument» tells you later why two notes belong together.':
