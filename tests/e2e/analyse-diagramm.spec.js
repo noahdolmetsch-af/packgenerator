@@ -185,3 +185,30 @@ test('Eigenes Diagramm: two trips starting the same day (or before the window) d
   await expect(page.locator('[data-diagram] [data-dg-row="rhr"] rect.band')).toHaveCount(2);
   expect(errors).toEqual([]);
 });
+
+test('Überblick (M2): the numbers of the period, every day a field, ranking, ticks per week', async ({ page, context }, info) => {
+  const errors = await open(page, context);
+  await go(page, '#/auswerten/analyse');
+  await page.getByRole('button', { name: T('{n} days|analyse').replace('{n}', '90') }).click();
+  const ov = page.locator('[data-overview]');
+  for (const k of ['ticks', 'km:bike', 'sleep', 'azm', 'rhr', 'run']) await expect(ov.locator(`[data-ov-box="${k}"]`), k).toBeVisible();
+  await expect(ov.locator('[data-ov-box="ticks"]')).toContainText(T('ticks in {n} days|overview').replace('{n}', '90'));
+  const heat = page.locator('[data-heat]');
+  await expect(heat.locator('button.cell')).toHaveCount(90);
+  await expect(heat.locator('button.cell.l4').first()).toBeVisible();
+  const rank = page.locator('[data-ranking] li');
+  await expect(rank.first()).toHaveAttribute('data-rank', /meditation/);
+  expect(await page.locator('[data-weekly] rect.wb').count()).toBeGreaterThanOrEqual(13);
+  await expect(page.locator('[data-weekly] path.m4')).toBeVisible();
+  await heat.scrollIntoViewIfNeeded();
+  await shot(page, 'ueberblick', info);
+  // a field opens its day
+  await heat.locator(`button.cell[data-day="${TODAY}"]`).click();
+  await expect(page.locator('[data-day-sheet]')).toHaveAttribute('data-day-sheet', TODAY);
+  await page.keyboard.press('Escape');
+  // without Aktiv: no calendar and no ranking
+  await page.locator('[data-src="aktiv"]').click();
+  await expect(page.locator('[data-heat]')).toHaveCount(0);
+  await expect(ov.locator('[data-ov-box="ticks"]')).toHaveCount(0);
+  expect(errors).toEqual([]);
+});

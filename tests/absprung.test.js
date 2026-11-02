@@ -9,7 +9,8 @@ import { PASST_HIER } from '../src/lib/passthier.js';
 
 // 44 on 01.11.2026. Lower it with every package that gives functions a jump; never raise it.
 // 40 after «Unterwegs» (Wegweiser PR 2).
-const MAX_NO_JUMP = 35;
+// 36 after «Velo und Material» (Wegweiser PR 3), 31 after «Packen, Planen, Teilen» (PR 5).
+const MAX_NO_JUMP = 31;
 
 const SRC = path.resolve(__dirname, '../src');
 function sources() {

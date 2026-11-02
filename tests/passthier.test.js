@@ -12,6 +12,9 @@ describe('Fits here', () => {
     expect(passtHier('ski').map((f) => f.id)[0]).toBe('f.skicheck');
     expect(passtHier('sleeplists').map((f) => f.id)[0]).toBe('f.sleeporigin');
   });
+  it('Velos › Setup shows gear ratios and spirit level (PR 3)', () => {
+    expect(passtHier('rig').map((f) => f.id)).toEqual(['f.gears', 'f.level']);
+  });
   it('leaves out what is marked «Not for me» and unknown places', () => {
     expect(passtHier('ride', { 'f.zones': true }).map((f) => f.id)).not.toContain('f.zones');
     expect(passtHier('nowhere')).toEqual([]);

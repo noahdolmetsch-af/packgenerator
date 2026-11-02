@@ -20,6 +20,8 @@ export const PASST_HIER = {
   ski: ['f.skicheck', 'f.skiplan', 'f.skistart'],
   // Rennen › Places to sleep from lists: which places you know yourself and which are only imported; rate your own
   sleeplists: ['f.sleeporigin', 'f.sleepspots'],
+  // Velos › Setup › Setup log: the tools you need when you change something on the bike
+  rig: ['f.gears', 'f.level'],
 };
 
 /** The functions of a place that exist and are not marked «Not for me». */
