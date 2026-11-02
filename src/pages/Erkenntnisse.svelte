@@ -7,12 +7,14 @@
   import Insights from '../lib/erkenntnisse/Insights.svelte';
   import { t } from '../lib/i18n.svelte.js';
   import '../lib/ich/ich.css';
+  import PasstHier from '../lib/ui/PasstHier.svelte'; // «Wegweiser statt Katalog» PR 7
 </script>
 
 <div class="ich-page ekpage">
   <VeloHead crumbs={[{ label: t('Me|place'), href: '#/me' }, { label: t('Data'), href: '#/me/data' }]} here={t('Insights')} title={t('Insights')} sub={t('Your answers, Fitbit, Strava, meditation, weather and calendar side by side: what goes together, in one sentence each.')} />
   <Insights idp="ekp" />
   <p class="lks"><a class="btn" href="#/me/analysis">{t('How it is analysed')}</a> <a class="btn" href="#/me/history">{t('History')}</a></p>
+  <PasstHier place="insights" />
 </div>
 
 <style>
