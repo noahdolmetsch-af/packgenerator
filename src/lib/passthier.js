@@ -12,6 +12,14 @@ import { FEATURE } from './features.js';
 export const PASST_HIER = {
   // Unterwegs › Helfer unterwegs: the small tools of the Toolbox for a day on the bike
   ride: ['f.phrases', 'f.zones', 'f.light', 'f.arrival'],
+  // Packen › Gewicht (bike trips): how sure the total is, lighter things from your own gear, the weight per bag
+  weight: ['f.weightsure', 'f.lighter', 'f.bagplan'],
+  // Packen › Route without a GPX yet: draw the line on the map and save it as GPX, or take a komoot tour
+  route: ['f.mapmeasure', 'f.komoot'],
+  // Packen of a ski tour: the same list as a backpack check in the five ski groups, the plan, the car park check
+  ski: ['f.skicheck', 'f.skiplan', 'f.skistart'],
+  // Rennen › Places to sleep from lists: which places you know yourself and which are only imported; rate your own
+  sleeplists: ['f.sleeporigin', 'f.sleepspots'],
   // Velos › Setup › Setup log: the tools you need when you change something on the bike
   rig: ['f.gears', 'f.level'],
 };
