@@ -36,7 +36,7 @@ export default {
 
   // the page
   'New ground': 'Neuland',
-  'What you experienced for the first time. The app finds it from your routes and rides; you can tick everything yourself.': 'Was du zum ersten Mal erlebt hast. Die App findet es aus deinen Routen und Fahrten; du kannst alles selbst abhaken.',
+  'What you experienced for the first time. The app finds it from your routes and rides; you can tick everything yourself. After a ride, «New since yesterday» shows what is new.': 'Was du zum ersten Mal erlebt hast. Die App findet es aus deinen Routen und Fahrten; du kannst alles selbst abhaken. Nach einer Fahrt zeigt «Neu seit gestern», was neu ist.',
   'Choose collections': 'Sammlungen wählen',
   "The maps couldn't be loaded. Reload the page; your ticks are safe.": 'Die Karten liessen sich nicht laden. Lade die Seite neu; deine Häkchen bleiben.',
   'No collection switched on': 'Keine Sammlung eingeschaltet',

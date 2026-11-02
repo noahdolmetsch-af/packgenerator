@@ -229,7 +229,7 @@
 </script>
 
 <div class="rv-page nl">
-  <PathHead crumbs={[{ label: t('Trips|place'), href: '#/trips' }, { label: t('Look back|page'), href: '#/debrief' }]} title={t('New ground')} sub={t('What you experienced for the first time. The app finds it from your routes and rides; you can tick everything yourself.')}>
+  <PathHead crumbs={[{ label: t('Trips|place'), href: '#/trips' }, { label: t('Look back|page'), href: '#/debrief' }]} title={t('New ground')} sub={t('What you experienced for the first time. The app finds it from your routes and rides; you can tick everything yourself. After a ride, «New since yesterday» shows what is new.')}>
     <button type="button" class="btn" aria-haspopup="dialog" onclick={() => (colsOpen = true)}><SlidersHorizontal size={16} aria-hidden="true" />{t('Choose collections')}</button>
     <!-- «Heatmap» (Noah 20.10.2026 «1a und b»): all rides on one map, its own page -->
     <a class="btn" href="#/heatmap" data-neuland-heatmap><Flame size={16} aria-hidden="true" />{t('Heatmap')}</a>
