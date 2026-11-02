@@ -74,9 +74,9 @@ test('Fitbit: connect with Google, first fetch, the card on «Daten und Backup»
   // back from the login: the address is clean, the first fetch asked for 90 days (in windows of 30) with this device's key
   await expect(page.getByRole('heading', { name: 'Gesundheitsdaten' })).toBeVisible();
   expect(page.url()).not.toContain('google=');
-  await expect.poll(() => log.find((x) => x.step === 'days')).toMatchObject({ auth: `Bearer ${P}key`, from: day(-89) });
+  await expect.poll(() => log.filter((x) => x.step === 'days').at(-1)).toMatchObject({ auth: `Bearer ${P}key`, from: day(-89) }); // newest window first, the oldest last
   await expect.poll(() => log.filter((x) => x.step === 'days').length).toBe(3);
-  expect(log.filter((x) => x.step === 'days').at(-1).to).toBe(day(0));
+  expect(log.find((x) => x.step === 'days').to).toBe(day(0));
   expect(log.find((x) => x.step === 'start').auth).toBe(`Bearer ${P}key`);
   await expect.poll(async () => (await readTable(page, 'healthDays')).length).toBe(2);
   const card = page.locator('.hcard');
