@@ -9,5 +9,6 @@
 import lust from './lust.js';
 import unterwegs from './unterwegs.js';
 import zurueck from './zurueck.js';
+import planen from './planen.js';
 
-export const WISSEN = { ...lust, ...unterwegs, ...zurueck };
+export const WISSEN = { ...lust, ...unterwegs, ...zurueck, ...planen };

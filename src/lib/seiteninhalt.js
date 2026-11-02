@@ -19,6 +19,8 @@ export const ON_PAGES = [
   // PR 14, area «Zurück» (after a trip). '#/debrief/:trip' is not listed: ON_PAGES matches whole paths, not placeholders
   '#/debrief', '#/debrief/pace', '#/debrief/logbook', '#/debrief/learnings', '#/pack/past', '#/check/evening', '#/me/ruhig/spaeter',
   '#/me/ruhig/bedeutung', '#/me/ruhig/koennen', '#/me/frei/naechstes', '#/ski/after',
+  // PR 13, area «Planen»: Woche, Merken, Termine, Notizen, Tagebuch, Eingang, Mail, Alltag
+  '#/week', '#/calendar', '#/me/agenda', '#/notes', '#/tagebuch', '#/inbox', '#/me/mail', '#/me/alltag',
 ];
 /** Rows shown before «Show all n». */
 export const SHOWN = 4;
