@@ -43,3 +43,17 @@ test('Free time What am I up for shows good to know in the card', async ({ page,
   expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBe(0);
   expect(errors).toEqual([]);
 });
+
+test('Customise this page does not list the card as a page part', async ({ page, context }, info) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await openHome(page, context, info);
+  await page.goto('./#/trips/dreams');
+  await expect(page.locator('[data-seiteninhalt]')).toBeVisible();
+  await tap(page.locator('[data-anp-open]'), info);
+  const rows = page.locator('dialog[data-anp-sheet] li[data-anp-row]');
+  await expect(rows.first()).toBeVisible();
+  await expect(rows.filter({ hasText: T('What you can do here') })).toHaveCount(0);
+  await tap(page.locator('dialog[data-anp-sheet]').getByRole('button', { name: T('Close') }), info);
+  expect(errors).toEqual([]);
+});

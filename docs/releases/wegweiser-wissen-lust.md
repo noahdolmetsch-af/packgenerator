@@ -12,6 +12,7 @@ PR #… · 02.11.2026 · Auftrag: Noah «1-5a» (Inhalte, Claude schreibt das Wi
 - nichts. Die Karte wird pro Funktion eine Zeile länger; der Seiteninhalt rutscht entsprechend tiefer, bis man die Karte mit × zuklappt.
 
 ## Selbst entschieden
+- Fehler aus PR 11 behoben: «Diese Seite anpassen» zählte die Karte «Was du hier tun kannst» als Teil der Seite (auf Träume, Kompass usw.). Die Karte hat ihr eigenes ×, darum lässt Anpassen sie jetzt weg (`src/lib/anpassen/parts.js`).
 - «Gut zu wissen» steht sichtbar unter dem Satz «wozu», nicht erst hinter «So geht's»: das Wissen ist der Teil, den man sonst nirgends findet.
 - Gleicher Name und gleiches Glühbirnen-Zeichen wie «Gut zu wissen» im Werkzeugkasten.
 
