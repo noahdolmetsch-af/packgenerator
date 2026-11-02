@@ -27,4 +27,10 @@ export default {
   'f.freinaechstes': 'Write it right after the trip. «Spork came along, never used» saves weight next time.',
   'f.skiafter': 'Write the snow and the time of day too. Next season it tells you when that slope was good.',
   'f.dreamsdone': 'Mark the dream as ridden only once its debrief is done. The photo and the month you add there are what you will look at in a year.',
+  // Wegweiser 26b: pages that had no card yet
+  'f.upload': 'Upload the ride the same evening: the three learnings are freshest while the legs still remember the last climb.',
+  'f.best': 'Records are nice, but the longest day says little alone. Look at how you felt the day after.',
+  'f.homecoming': 'Empty the bags on the first evening, even when tired: wet tent and damp shorts do not get better until Saturday.',
+  'f.newtoday': 'A small detour is often enough for something new: one unknown road home turns a routine ride into a little discovery.',
+  'f.newkm': 'New kilometres are rarely far away: the next valley is often more unknown than a country on the other side of Europe.',
 };
