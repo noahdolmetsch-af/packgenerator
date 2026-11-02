@@ -1260,6 +1260,16 @@ const LISTED = {
     steps: ['Open Trips › Dreams › White spots nearby.', 'Choose 10, 25 or 50 km.', 'Tap a place on the map or in the list: its name and distance.'],
     example: 'Example: 25 km around Zürich → 209 municipalities never visited, the nearest 5 km away.',
   },
+  'f.newkm': {
+    on: 'Needs rides with a line: Strava, a GPX file or your own recording.',
+    steps: ['Open Trips › Look back › New ground.', 'Scroll to «New kilometres»: each year with its new km and share.', 'Below: your latest rides that brought new km.'],
+    example: 'Example: 3210 km this year, of which 412 km new (13 %).',
+  },
+  'f.dreamsdone': {
+    on: 'Needs a dream planned as a trip, and the debrief of that trip.',
+    steps: ['Plan a dream as a trip (Trips › Dreams › the dream › «Plan the tour»).', 'After the trip, finish its debrief.', 'The dream shows under «Fulfilled dreams» and in the year card.'],
+    example: 'Example: «Over the Furka» ridden in July → «Fulfilled in July 2026», with its photo.',
+  },
   'f.newtoday': {
     on: 'Shows only on the day of a ride and the day after.',
     steps: ['Ride somewhere you have never been; the route or the ride counts.', 'Today shows «New since yesterday: …» under the greeting.', 'Tap it for New ground, or × to close it.'],

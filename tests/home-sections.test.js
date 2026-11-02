@@ -20,7 +20,7 @@ describe('Heute ruhiger: areas (3a)', () => {
     expect(g.map((s) => s.key)).toEqual(['now', 'body', 'week', 'away', 'quick']);
     expect(ids(g[0].tiles)).toEqual(['meditation', 'moment', 'heutecheck', 'trip', 'weighin', 'discover', 'important']); // «Heute-Check» (Noah 30.10.2026) in «Jetzt»; // «Entdecken» after the day's questions, so «Weight this week?» stays within 2.5 screens
     expect(ids(g[1].tiles)).toEqual(['body', 'acts', 'vo2max']); // VO2max (Noah 28.10.2026) in «Dein Körper»
-    expect(g.at(-1).tiles).toHaveLength(8);
+    expect(ids(g.at(-1).tiles)).toEqual(['pins']); // «Schnell öffnen» (Noah 01.11.2026): the tile with your pins
     // nothing lost, nothing twice
     expect(g.flatMap((s) => ids(s.tiles)).sort()).toEqual(ids(READY).sort());
   });

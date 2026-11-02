@@ -2,22 +2,31 @@
 import { describe, it, expect } from 'vitest';
 import { FEATURE } from '../src/lib/features.js';
 import {
-  STARTER, QUICK_KEYS, starter, cleanQuick, deviceKind, otherKind, groupLabel, pinLabel, pinsIn, isPinned, shownGroups,
+  STARTER, QUICK_KEYS, flatPins, moveFlat, starter, cleanQuick, deviceKind, otherKind, groupLabel, pinLabel, pinsIn, isPinned, shownGroups,
   addPin, removePin, editPin, movePin, addGroup, renameGroup, deleteGroup, moveGroup, findForPin,
 } from '../src/lib/quick/quicklinks.js';
 
 describe('Quick Links', () => {
-  it('starts with 20 suggestions in five groups, each a function of the catalogue', () => {
+  it('Heute (Noah 01.11.2026): one flat list in the order of the groups; a move keeps all pins and their order inside each group', () => {
+    const s = starter();
+    const flat = flatPins(s);
+    expect(flat).toHaveLength(13);
+    const m = moveFlat(s, 0, 5);
+    expect(flatPins(m).map((p) => p.id).sort()).toEqual(flat.map((p) => p.id).sort());
+    expect(flatPins(m)[5].id).toBe(flat[0].id);
+    expect(moveFlat(s, 0, 99)).toBe(s);
+  });
+  it('starts with 12 suggestions in five groups, each a function of the catalogue', () => {
     const s = starter();
     expect(s.groups).toHaveLength(5);
-    expect(s.pins).toHaveLength(20);
+    expect(s.pins).toHaveLength(13);
     expect(STARTER.flatMap((g) => g.pins).every((f) => FEATURE[f])).toBe(true);
-    expect(new Set(s.pins.map((p) => p.id)).size).toBe(20);
+    expect(new Set(s.pins.map((p) => p.id)).size).toBe(13);
   });
 
   it('nothing stored: the suggestions; a broken record too; unknown functions are left out', () => {
-    expect(cleanQuick(null).pins).toHaveLength(20);
-    expect(cleanQuick({ groups: 'x' }).pins).toHaveLength(20);
+    expect(cleanQuick(null).pins).toHaveLength(13);
+    expect(cleanQuick({ groups: 'x' }).pins).toHaveLength(13);
     const s = cleanQuick({ groups: [{ id: 'g1', name: 'Mine' }], pins: [{ id: 'a', feature: 'f.live', group: 'g1' }, { id: 'b', feature: 'f.gone', group: 'g1' }, { id: 'c', feature: 'f.sos', group: 'nope' }] });
     expect(s.pins.map((p) => p.id)).toEqual(['a', 'c']);
     expect(s.pins[1].group).toBe(''); // a group that no longer exists: «Without a group»

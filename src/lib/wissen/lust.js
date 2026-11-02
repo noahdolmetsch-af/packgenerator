@@ -6,10 +6,12 @@ export default {
   'f.freinacht': 'Start close to home with a train back as plan B. The first night is rarely quiet: cows, bells and your own thoughts.',
   'f.compass': 'Small steps with a date get done far more often than big wishes. Letting a goal go is an ending too, not a failure.',
   'f.dreams': 'Mark the months a tour fits: passes are often closed until June, and the south is lovely in October.',
+  'f.dreamsdone': 'Finish the debrief of a ride and the dream counts as fulfilled. One photo and a line on how it felt make the year card worth reading.',
   'f.whitespots': 'The nearest white spot is often only one valley away. Small roads you never took are the quickest new ground.',
   'f.nlgoals': 'Choose an end you can reach: five new villages in a month beats a hundred «some time».',
   'f.nlround': 'The router prefers small roads; check gravel and steep parts on the map before you leave.',
   'f.races': 'Registration often closes weeks before the start, and cheap places go first. Put the deadline in the calendar.',
   'f.dreamlink': 'A link from a friend\'s report is enough: km and climb come along, the dream still needs your one sentence why.',
+  'f.dreamsdone': 'A dream that came true stays in your list of fulfilled dreams: look at it when the next big plan feels too far away.',
   'f.inspiration': 'Save the link with one sentence on why. In a year you will know again what made it interesting.',
 };

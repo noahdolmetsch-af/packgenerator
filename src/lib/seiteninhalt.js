@@ -14,6 +14,9 @@ import { WISSEN } from './wissen/index.js';
 export const ON_PAGES = [
   // PR 11, area «Lust» (the thinnest in the content check of 01.11.2026)
   '#/me/frei/lust', '#/me/frei/reise', '#/me/frei/wesentlich', '#/me/frei/nacht', '#/me/compass', '#/trips/dreams', '#/inspiration',
+  // PR 14, area «Zurück» (after a trip). '#/debrief/:trip' is not listed: ON_PAGES matches whole paths, not placeholders
+  '#/debrief', '#/debrief/pace', '#/debrief/logbook', '#/debrief/learnings', '#/pack/past', '#/check/evening', '#/me/ruhig/spaeter',
+  '#/me/ruhig/bedeutung', '#/me/ruhig/koennen', '#/me/frei/naechstes', '#/ski/after',
 ];
 /** Rows shown before «Show all n». */
 export const SHOWN = 4;

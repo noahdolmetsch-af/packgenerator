@@ -22,6 +22,7 @@
   import AnalyseWert from './analyse/AnalyseWert.svelte';
   import Diagramm from './analyse/Diagramm.svelte';
   import Ueberblick from './analyse/Ueberblick.svelte';
+  import Vergleiche from './analyse/Vergleiche.svelte';
   import DaySheet from './analyse/DaySheet.svelte';
   import { itemsByKey } from '../lib/analyse/catalog.js';
   import { addDays } from '../lib/analyse.js';
@@ -106,6 +107,7 @@
   </header>
 
   {#if !loading}<Diagramm {groups} {byKey} trips={data.trips} acts={data.acts} log={data.log} {today} />{/if}
+  {#if !loading}<Vergleiche {byKey} acts={data.acts} log={data.log} trips={data.trips} {today} />{/if}
 
   <section class="card pick" aria-label={t('Choose what you see')}>
     <div class="pr">
