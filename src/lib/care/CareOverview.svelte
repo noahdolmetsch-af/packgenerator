@@ -38,6 +38,8 @@
 
   const bikes = $derived(checks.map((c) => c.bike));
   const rings = $derived(checks.map((c) => ({ c, ring: ringScore(c.bike, c.time, today), km: kmSinceService(c.bike) })));
+  // Noah 1.11.2026 «1a»: «nothing due» only where something was checked; no bike has data → say so
+  const noData = $derived(rings.length > 0 && rings.every((r) => r.ring.score == null));
   // Gesamttest 20.10.2026 B6: every due row (was 3 and «n more due»: the bar said 5, the page 3)
   const due = $derived(dueCards(checks, Infinity));
   // «Handy kürzer» (Noah 20.10.2026 «4b»): on a phone «Due now» shows PHONE_ROWS rows, then «Show n more»
@@ -162,7 +164,7 @@
           <!-- Regeln der App (14.10.2026): the line says «open the bike», so a tap opens the bike of the next due card -->
           {#if due.total > due.cards.length}<p class="more">{#if due.next}<button type="button" class="linkbtn" onclick={() => onopen(due.next.id)}>{tn(due.total - due.cards.length, '{n} more due: open the bike', '{n} more due: open the bike')}</button>{:else}{tn(due.total - due.cards.length, '{n} more due: open the bike', '{n} more due: open the bike')}{/if}</p>{/if}
         {:else}
-          <p class="card quiet">{t('Nothing due now on any bike.')}</p>
+          <p class="card quiet" data-care-nodata={noData || undefined}>{noData ? t('No maintenance data yet, so nothing can be due. Set the intervals of a part to start.') : t('Nothing due now on any bike.')}</p>
         {/if}
       </section>
       <!-- Impeccable 20.10.2026 P5: the two things you do most come right under «Due now» (they were at the end under «More») -->
