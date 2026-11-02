@@ -1,6 +1,6 @@
 // «Neue Kilometer» (Träume und Neuland N4, Noah 27.10.2026 «1-5 a»): on Neuland, each year with its km on roads
 // ridden for the first time, and the latest rides with new km. Fictional Strava rides only, no real network.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { mkdirSync } from 'node:fs';
 import DE from '../../src/lib/i18n/de/index.js';
 import { encodePolyline } from '../../src/lib/spur/polyline.js';

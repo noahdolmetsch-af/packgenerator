@@ -2,7 +2,7 @@
 export default {
   title: 'New kilometres',
   lead: 'New ground counts how many km ran on roads you rode for the first time.',
-  points: [{ text: 'New ground › «New kilometres»: each year with its new km and share, and the latest rides that brought new km', href: '#/neuland' }],
+  points: [{ text: 'New ground › «New kilometres»: each year with its new km and share, and the latest rides that brought new km', href: '#/neuland', go: 'f.newkm' }],
   small: [{ box: 'new', text: 'Strava lines, GPX files and own recordings count; a road within 60 m of an earlier ride stays known' }],
   test: [
     'Open Trips › Look back › New ground and scroll down to «New kilometres».',
