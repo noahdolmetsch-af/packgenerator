@@ -5,11 +5,11 @@ export default {
   points: [
     {
       text: 'Ride saved: «As next» with wear of the parts and the logbook',
-      go: { href: '#/debrief/ride', steps: [{ sel: '[data-als-naechstes="ride"]' }], where: 'Shows in the card «Ride saved» right after you upload a ride.' },
+      go: { href: '#/debrief/ride', where: 'Shows in the card «Ride saved» right after you upload a ride.' },
     },
     {
       text: '«All packed» and a care job done: «As next» with weather, the tour day sheet, setup log and spare parts',
-      go: { href: '#/pack', steps: [{ sel: '[data-als-naechstes="packed"]' }], where: 'Shows in the message after «All packed» and after a care job is saved as done.' },
+      go: { href: '#/pack', where: 'Shows in the message after «All packed» and after a care job is saved as done.' },
     },
   ],
   small: [],
