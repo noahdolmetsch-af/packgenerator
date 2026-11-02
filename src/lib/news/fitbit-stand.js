@@ -3,7 +3,7 @@ export default {
   title: 'Fitbit values stay current',
   lead: 'Heute shows when the Fitbit values were fetched and keeps the last ones when nothing new has come.',
   points: [
-    { text: '«As of 07:42» under the Fitbit tiles, with «Try again now» after a failed fetch', href: '#/me/fitbit', go: { href: '#/', steps: [{ sel: '[data-fitbit-stand]' }] } },
+    { text: '«As of 07:42» under the Fitbit tiles, with «Try again now» after a failed fetch', href: '#/me/fitbit', go: { href: '#/', steps: [{ sel: '[data-section="body"]' }] } },
     { text: 'No new values yet: the last ones show, marked «from yesterday»', href: '#/me/fitbit', go: { href: '#/', steps: [{ sel: '[data-section="body"]' }] } },
   ],
   small: [{ box: 'new', text: 'The app checks again every 15 minutes while it is open, after a lost connection already after 2', go: null }],
