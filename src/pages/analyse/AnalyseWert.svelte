@@ -24,7 +24,7 @@
   import { actName } from '../../lib/flow/ui.svelte.js';
   import { t, num, locale } from '../../lib/i18n.svelte.js';
 
-  let { key } = $props();
+  let { key, range: asked = null } = $props(); // asked: a period from a link (valueHref), wins once
 
   const LS = 'pg.analyse.wert';
   const saved = (() => {
@@ -36,7 +36,8 @@
   })();
   // svelte-ignore state_referenced_locally
   const mine = saved[key] ?? {};
-  let range = $state(RANGES.some((r) => r.key === mine.range) ? mine.range : DEFAULT_RANGE);
+  // svelte-ignore state_referenced_locally
+  let range = $state(asked ?? (RANGES.some((r) => r.key === mine.range) ? mine.range : DEFAULT_RANGE));
   let back = $state(0);
   let layers = $state(Array.isArray(mine.layers) ? mine.layers.slice(0, 2) : []);
   let prevYear = $state(mine.prevYear === true);
