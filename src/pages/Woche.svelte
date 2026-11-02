@@ -627,9 +627,9 @@
     text-align: left;
     cursor: pointer;
   }
-  .wclose{background:var(--paper,#fff);border:1px solid var(--line);border-radius:14px;padding:14px;margin:10px 0}
-  .wclose h2{font-size:1.1rem;margin:0 0 4px}
+  .wclose{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:14px;margin:10px 0}
+  .wclose h2{font-size:var(--fs-sub);margin:0 0 4px}
   .wc-row{display:flex;gap:8px;align-items:center;justify-content:space-between;flex-wrap:wrap;border:1px solid var(--line);border-radius:10px;padding:10px;margin:6px 0}
-  .wc-t{display:flex;flex-direction:column;font-weight:600}.wc-t small{font-weight:400;color:var(--mut,#566a5f)}
+  .wc-t{display:flex;flex-direction:column;font-weight:600}.wc-t small{font-weight:400;color:var(--muted)}
   .wc-b{display:flex;gap:6px;flex-wrap:wrap}
 </style>
