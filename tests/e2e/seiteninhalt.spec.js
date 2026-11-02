@@ -110,3 +110,17 @@ test('Pack shows what you can do here with good to know, starting as one line', 
   await expect(page.locator('[data-seiteninhalt-know="templates"]')).toContainText(T('Good to know'));
   expect(errors).toEqual([]);
 });
+
+test('Planen Notes and Week show the card with good to know', async ({ page, context }, info) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await openHome(page, context, info);
+  for (const hash of ['#/notes', '#/week', '#/inbox']) {
+    await page.goto(`./${hash}`);
+    const card = page.locator('[data-seiteninhalt]');
+    await expect(card).toContainText(T('What you can do here'));
+    await expect(card.locator('[data-seiteninhalt-know]').first()).toContainText(T('Good to know'));
+    expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBe(0);
+  }
+  expect(errors).toEqual([]);
+});

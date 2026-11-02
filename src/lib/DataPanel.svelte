@@ -18,6 +18,7 @@
   import BeforeUpdates from './maintenance/BeforeUpdates.svelte';
   import StartFresh from './maintenance/StartFresh.svelte';
   import NamesDe from './clear/NamesDe.svelte';
+  import TempoMesser from './tempo/TempoMesser.svelte';
   import SyncPanel from './sync/SyncPanel.svelte';
   import { SYNC_WISH } from './sync/nudge.js';
   import { take } from './nav.js';
@@ -684,6 +685,7 @@
         </div>
       {/if}
     </section>
+    <TempoMesser />
     <p class="ich-fine"><Check size={16} aria-hidden="true" /><span>{t('Nothing leaves the device unless you send a backup yourself.')}</span></p>
   </div>
 </div>

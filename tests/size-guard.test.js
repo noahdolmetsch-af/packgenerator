@@ -2,7 +2,7 @@
 import { describe, it, expect } from 'vitest';
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
-import { oversize, heavyStatic, MAX_JS_BYTES, HEAVY } from '../scripts/size-guard.mjs';
+import { oversize, heavyStatic, startBytes, MAX_START_JS_BYTES, MAX_JS_BYTES, HEAVY } from '../scripts/size-guard.mjs';
 import { loadPage, loadedOf } from '../src/lib/nav/lazy.js';
 
 const walk = (dir) => readdirSync(dir).flatMap((n) => (statSync(join(dir, n)).isDirectory() ? walk(join(dir, n)) : [join(dir, n)]));
@@ -16,6 +16,17 @@ describe('size guard', () => {
       { name: 'assets/style.css', bytes: 4_000_000 },
     ];
     expect(oversize(files).map((f) => f.name)).toEqual(['assets/big-b.js']);
+  });
+  it('counts only the start files for the start budget', () => {
+    const files = [
+      { name: 'assets/main-a.js', bytes: 10 },
+      { name: 'assets/start-b.js', bytes: 600 },
+      { name: 'assets/de-texts-2-c.js', bytes: 700 },
+      { name: 'assets/Pack-d.js', bytes: 450 },
+      { name: 'assets/style.css', bytes: 999 },
+    ];
+    expect(startBytes(files)).toBe(1310);
+    expect(MAX_START_JS_BYTES).toBe(4_500_000);
   });
   it('tells a static import of a big tool from a dynamic one', () => {
     expect(heavyStatic("import { PDFDocument } from 'pdf-lib';")).toEqual(['pdf-lib']);

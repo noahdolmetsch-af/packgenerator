@@ -24,10 +24,12 @@
   import { addDays } from '../../lib/analyse.js';
   import { t, num, locale } from '../../lib/i18n.svelte.js';
 
-  let { groups = [], byKey = new Map(), trips = [], acts = [], log = [], today } = $props();
+  // start: a saved view to begin with instead of the last state (Ansichten); onstate(state): every change
+  let { groups = [], byKey = new Map(), trips = [], acts = [], log = [], today, start = null, onstate } = $props();
 
   const LS = 'pg.analyse.diagramm';
   const saved = (() => {
+    if (start) return start;
     try {
       return JSON.parse(localStorage.getItem(LS) ?? '{}') ?? {};
     } catch {
@@ -57,8 +59,10 @@
   // a new diagram starts with sleep, resting pulse, active zone minutes, bike km and energy (the ones you have)
   const shownKeys = $derived((keys ?? DEFAULT_KEYS).filter((k) => byKey.has(k) && !byKey.get(k).later));
   $effect(() => {
+    const state = { keys, period, step, mode, own, recent, colors, filter, rowFilters, mark, band };
+    onstate?.(JSON.parse(JSON.stringify({ ...state, keys: keys ?? DEFAULT_KEYS })));
     try {
-      localStorage.setItem(LS, JSON.stringify({ keys, period, step, mode, own, recent, colors, filter, rowFilters, mark, band }));
+      localStorage.setItem(LS, JSON.stringify(state));
     } catch {
       /* a private window: only for now */
     }
