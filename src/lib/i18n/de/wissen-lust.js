@@ -32,4 +32,5 @@ export default {
     'Eine Sammlung wächst auf Fahrten von selbst: notier den Brunnen, wenn du daraus trinkst, nicht später zuhause.',
   'Practise with the transceiver at the start of the season, not on the first tour. Ten minutes in the park are enough.':
     'Üb mit dem LVS zu Beginn der Saison, nicht auf der ersten Tour. Zehn Minuten im Park reichen.',
+  "Two dry days in a row are enough for most day tours; look again the evening before, because a forecast three days out still moves.": "Zwei trockene Tage am Stück reichen für die meisten Tagestouren; schau am Vorabend nochmals nach, denn eine Vorhersage drei Tage voraus ändert sich noch.",
 };

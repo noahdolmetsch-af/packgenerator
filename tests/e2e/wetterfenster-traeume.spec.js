@@ -1,6 +1,6 @@
 // «Wetterfenster für Träume» (Träume und Neuland N15, Noah 27.10.2026 «1-5 a»): a dream that fits now gets «dry …»
 // on Träume and on Touren › Übersicht when the (faked) forecast has dry days in a row. Fictional data, no real network.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { mkdirSync } from 'node:fs';
 import DE from '../../src/lib/i18n/de/index.js';
 import { ready } from './settle.js';

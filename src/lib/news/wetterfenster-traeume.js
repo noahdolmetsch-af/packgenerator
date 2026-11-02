@@ -2,8 +2,8 @@
 export default {
   title: 'Weather window for dreams',
   lead: 'A dream that fits now tells you when two or three dry days come.',
-  points: [{ text: 'Trips › Dreams: «Fits now, dry Thu–Sat» at the dream; the trips overview adds «dry Thu–Sat»', href: '#/trips/dreams' }],
-  small: [{ box: 'new', text: 'Weather at the start of the dream\'s map, else at home; checked at most every 3 hours, only when you open the page' }],
+  points: [{ text: 'Trips › Dreams: «Fits now, dry Thu–Sat» at the dream; the trips overview adds «dry Thu–Sat»', href: '#/trips/dreams', go: 'f.dreamwx' }],
+  small: [{ box: 'new', text: 'Weather at the start of the dream\'s map, else at home; checked at most every 3 hours, only when you open the page', go: 'f.dreamwx' }],
   test: [
     'Give a dream a month that is now, or open one that fits now.',
     'Open Trips › Dreams: with dry days ahead the dream says «Fits now, dry …».',
