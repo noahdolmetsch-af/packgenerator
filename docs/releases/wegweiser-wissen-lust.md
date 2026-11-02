@@ -4,7 +4,7 @@ PR #… · 02.11.2026 · Auftrag: Noah «1-5a» (Inhalte, Claude schreibt das Wi
 
 ## Was ist neu
 - Die Karte «Was du hier tun kannst» zeigt unter jeder Funktion eine Zeile «Gut zu wissen»: ein Tipp aus der Erfahrung, keine Wiederholung des Namens.
-- Zuerst für die 11 Funktionen des Bereichs Lust (Träume, Kompass, Freie Zeit, Inspiration).
+- Zuerst für die 12 Funktionen des Bereichs Lust (Träume, Kompass, Freie Zeit, Inspiration).
 - Baustein für die nächsten Bereiche: `src/lib/wissen/` (eine Datei pro Bereich, `index.js` führt sie zusammen), Deutsch in `src/lib/i18n/de/wissen-<bereich>.js`.
 - Test `tests/wissen.test.js`: jede Funktion auf einer Seite mit Karte hat ihr Wissen, jeder Text hat Deutsch und ist höchstens 220 Zeichen lang.
 

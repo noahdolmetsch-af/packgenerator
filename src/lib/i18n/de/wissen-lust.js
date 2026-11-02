@@ -22,4 +22,6 @@ export default {
     'Die Anmeldung schliesst oft Wochen vor dem Start, und günstige Plätze sind zuerst weg. Trag die Frist in den Kalender ein.',
   'Save the link with one sentence on why. In a year you will know again what made it interesting.':
     'Speichere den Link mit einem Satz, warum. In einem Jahr weisst du so wieder, was daran spannend war.',
+  "A link from a friend's report is enough: km and climb come along, the dream still needs your one sentence why.":
+    'Ein Link aus dem Bericht einer Freundin reicht: km und Höhenmeter kommen mit, der Traum braucht trotzdem deinen einen Satz, warum.',
 };

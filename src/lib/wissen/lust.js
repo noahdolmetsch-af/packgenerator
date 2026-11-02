@@ -10,5 +10,6 @@ export default {
   'f.nlgoals': 'Choose an end you can reach: five new villages in a month beats a hundred «some time».',
   'f.nlround': 'The router prefers small roads; check gravel and steep parts on the map before you leave.',
   'f.races': 'Registration often closes weeks before the start, and cheap places go first. Put the deadline in the calendar.',
+  'f.dreamlink': 'A link from a friend\'s report is enough: km and climb come along, the dream still needs your one sentence why.',
   'f.inspiration': 'Save the link with one sentence on why. In a year you will know again what made it interesting.',
 };
