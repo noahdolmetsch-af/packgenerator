@@ -84,7 +84,7 @@ export default {
   'Done: {name}': 'Erledigt: {name}',
   '{name} · done, comes again': '{name} · erledigt, kommt wieder',
   '{name} · done': '{name} · erledigt',
-  'From the app, smaller': 'Aus der App, kleiner',
+  'Ideas from the app, for when you have time': 'Ideen der App, wenn du Zeit hast',
   'Trip · 2 days before': 'Tour · 2 Tage vorher',
   'Nothing from the app in the next 6 months.': 'Nichts aus der App in den nächsten 6 Monaten.',
   Sources: 'Quellen',

@@ -7,6 +7,7 @@
   import PageMore from '../pageinfo/PageMore.svelte';
   import TipLine from '../pageinfo/TipLine.svelte';
   import { localDay } from '../localday.js';
+import { ringScore } from './overview.js';
   import Empty from '../ui/Empty.svelte';
   import { liveQuery } from 'dexie';
   import { db } from '../db.js';
@@ -51,6 +52,7 @@
   import { hoursOn } from '../bikehours.js';
   import { vig } from '../veloimgriff.svelte.js';
   import { offerDone } from '../ui/rename.svelte.js';
+  import AlsNaechstes from '../ui/AlsNaechstes.svelte';
 
   // v0.21.0 (answer 7a): Bike care is the Care tab of Bikes. bikeId: the bike chosen on the page;
   // open: open that bike's section (a link "Bike care for the …").
@@ -269,10 +271,11 @@
   /* ---------- what was just saved (v0.30.1, D1 + D2: Noah did not see that it worked) ---------- */
   let notice = $state(null); // { id, text }
   let noticeTimer;
-  function say(text, undo = null) {
+  // Wegweiser 9: next (a job done) adds the line «As next» and keeps the notice 12 s
+  function say(text, undo = null, next = false) {
     clearTimeout(noticeTimer);
-    notice = { id: Date.now(), text, undo };
-    noticeTimer = setTimeout(() => (notice = null), undo ? 8000 : 6000);
+    notice = { id: Date.now(), text, undo, next };
+    noticeTimer = setTimeout(() => (notice = null), next ? 12000 : undo ? 8000 : 6000);
   }
   const WHAT = (entry, key) =>
     entry.result === 'needed' ? t('work needed') : entry.action === 'check' ? t('checked, OK') : entry.action === 'service' ? t('serviced') : PART[key]?.unit ? t('replaced') : t('done');
@@ -285,7 +288,7 @@
     const timed = keys.length === 1 && entry.result === 'done' && entry.action !== 'check' ? checks.find((c) => c.bike.id === view.id)?.time.find((s) => s.key === keys[0]) : null;
     if (timed) text += ` ${t('Next time {date}.', { date: dateOf(new Date(Date.parse(`${entry.date}T00:00:00Z`) + timed.every * 864e5).toISOString().slice(0, 10)) })}`;
     if (undo?.itemId) text += ` ${t('The chain is on the wishlist.')}`;
-    say(text, undo);
+    say(text, undo, entry.result === 'done' && entry.action !== 'check');
   }
   // v0.117.0 «Knöpfe neu» (N2, answer 2a): «Done» and «All checked» can be taken back like a saved
   // flow (the same undo: the parts as they were before).
@@ -390,6 +393,7 @@
   // V6: the overview page; V7: one bike's care page (the other bikes stay one row each below).
   const openC = $derived(openId ? checks.find((c) => c.bike.id === openId) ?? null : null);
   // v0.137.0 (DK1): the same count as Today and the menu: services, worn parts and the problems due (readiness.repairDue).
+  const allNoData = $derived(checks.length > 0 && checks.every((c) => ringScore(c.bike, c.time, today).score == null));
   const dueAll = $derived(checks.reduce((n, c) => n + c.care.rows.length, 0));
   const toggled = (id, isOpen) => {
     if (isOpen) openBike(id);
@@ -428,7 +432,7 @@
   {:else}
     <VeloHead
       title={t('Care|tab')}
-      sub={[tn(bikes.length, '{n} bike', '{n} bikes'), dueAll ? tn(dueAll, '{n} due', '{n} due') : t('nothing due')].join(' · ')}
+      sub={[tn(bikes.length, '{n} bike', '{n} bikes'), dueAll ? tn(dueAll, '{n} due', '{n} due') : allNoData ? t('no maintenance data yet') : t('nothing due')].join(' · ')}
     />
     <!-- v0.137.0 (DK1, Noah 14.10.2026 «1-5 freigeben»): what «due» means, the same number everywhere. -->
     {#if bikes.length}<p class="why-due">{t('Due means: a service is due, or a problem has to be fixed before the next ride. Today, Bikes and the menu show the same number.')}</p>{/if}
@@ -571,7 +575,7 @@
 </div>
 
 {#if notice}
-  {#key notice.id}<p class="notice" role="status"><CheckIcon size={16} aria-hidden="true" /><span class="nt">{notice.text}</span>{#if notice.undo}<button type="button" class="undo" data-explain={explain('Undo')} onclick={undoSave}>{t('Undo')}</button>{/if}</p>{/key}
+  {#key notice.id}<p class="notice" role="status"><CheckIcon size={16} aria-hidden="true" /><span class="nt">{notice.text}</span>{#if notice.undo}<button type="button" class="undo" data-explain={explain('Undo')} onclick={undoSave}>{t('Undo')}</button>{/if}{#if notice.next}<AlsNaechstes moment="care" ontap={() => (notice = null)} />{/if}</p>{/key}
 {/if}
 
 {#if partOpen}
@@ -655,6 +659,7 @@
     bottom: calc(16px + env(safe-area-inset-bottom));
     z-index: 30;
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     gap: 10px;
     width: max-content;

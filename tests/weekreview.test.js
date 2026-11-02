@@ -38,7 +38,18 @@ describe('W1 five numbers', () => {
     tripDays: [],
   };
   it('sums hours, km, Hm; a ticked ride on a Strava day counts once, yoga counts as a session', () => {
-    expect(weekSums(data, MON)).toEqual({ secs: 12600, km: 95.5, hm: 1400, n: 3 });
+    expect(weekSums(data, MON)).toMatchObject({ secs: 12600, km: 95.5, hm: 1400, n: 3 });
+  });
+  it('Aktiv minutes count as time; a session without minutes is told, not counted as 0 h silently (Noah 01.11.2026 «1a»)', () => {
+    const d = { acts: [], log: [entry('yoga', MON, { min: 45 }), entry('yoga', '2026-10-14')], flowActs: ACTS };
+    expect(weekSums(d, MON)).toMatchObject({ secs: 2700, extraSecs: 2700, noTime: 1, n: 2 });
+  });
+  it('up to a day: the running week and the week before are compared on the same days', () => {
+    const d = { acts: [act('a', MON), act('b', '2026-10-16'), act('c', '2026-10-05'), act('d', '2026-10-09')], log: [], flowActs: [] };
+    expect(weekSums(d, MON, '2026-10-14').n).toBe(1);
+    expect(weekSums(d, '2026-10-05', '2026-10-07').n).toBe(1);
+    const f = weekFive(d, MON, '2026-10-14');
+    expect(f.find((x) => x.key === 'n')).toMatchObject({ value: 1, prev: 1, diff: 0 });
   });
   it('each number with its change against the week before, goals from Aktiv', () => {
     const five = weekFive(data, MON, TODAY);
@@ -145,6 +156,9 @@ describe('W5 next week', () => {
     const back = weekAhead(weeks([7200, 7200, 7200, 1800]), [], MON);
     expect(back).toMatchObject({ key: 'back', usualSecs: 7200 });
     expect(weekAhead(weeks([7200, 5400, 7200, 6000]), [], MON).key).toBe('keep');
+    // the shown week still runs: no «quiet week lies behind you», only what is usual (Noah 01.11.2026)
+    expect(weekAhead(weeks([7200, 7200, 7200, 0]), [], MON, '2026-10-14').key).toBe('running');
+    expect(weekAhead(weeks([7200, 7200, 7200, 1800]), [], MON, '2026-10-19').key).toBe('back');
   });
   it('the load comes first (Relative Effort), and the plan of the week after', () => {
     const acts = weeks([7200, 7200, 7200, 7200]).map((a, i) => ({ ...a, effort: [40, 60, 80, 100][i] }));

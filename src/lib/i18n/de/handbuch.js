@@ -2087,4 +2087,16 @@ export default {
   'Today shows «New since yesterday: …» under the greeting.': 'Heute zeigt «Neu seit gestern: …» unter dem Gruss.',
   'Tap it for New ground, or × to close it.': 'Tippe es an für Neuland, oder × zum Schliessen.',
   'Example: a ride round the lake → «New since yesterday: 3 municipalities, 1 lake».': 'Beispiel: eine Fahrt um den See → «Neu seit gestern: 3 Gemeinden, 1 See».',
+  // «Träume und Neuland» N17
+  'Needs a dream planned as a trip, and the debrief of that trip.': 'Braucht einen als Tour geplanten Traum und den Rückblick dieser Tour.',
+  'Plan a dream as a trip (Trips › Dreams › the dream › «Plan the tour»).': 'Plane einen Traum als Tour (Touren › Träume › der Traum › «Tour planen»).',
+  'After the trip, finish its debrief.': 'Schliess nach der Tour ihren Rückblick ab.',
+  // «Träume und Neuland» N4
+  'Needs rides with a line: Strava, a GPX file or your own recording.': 'Braucht Fahrten mit Linie: Strava, eine GPX-Datei oder eine eigene Aufzeichnung.',
+  'Open Trips › Look back › New ground.': 'Öffne Touren › Rückblick › Neuland.',
+  'Scroll to «New kilometres»: each year with its new km and share.': 'Scrolle zu «Neue Kilometer»: jedes Jahr mit seinen neuen km und dem Anteil.',
+  'Below: your latest rides that brought new km.': 'Darunter: deine letzten Fahrten mit neuen km.',
+  'Example: 3210 km this year, of which 412 km new (13 %).': 'Beispiel: 3210 km dieses Jahr, davon 412 km neu (13 %).',
+  'The dream shows under «Fulfilled dreams» and in the year card.': 'Der Traum steht unter «Erfüllte Träume» und in der Jahreskarte.',
+  'Example: «Over the Furka» ridden in July → «Fulfilled in July 2026», with its photo.': 'Beispiel: «Über die Furka» im Juli gefahren → «Erfüllt im Juli 2026», mit Foto.',
 };

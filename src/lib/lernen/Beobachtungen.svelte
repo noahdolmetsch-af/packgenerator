@@ -12,8 +12,11 @@
   import Fold from '../ui/Fold.svelte';
   import { SLEEP_Q, MOOD_Q } from '../weekreview.js';
   import { normAct } from '../flow.js';
+  import { loadDayData } from '../daydata.js';
   import { OBS_KEY, KIND_NAMES, obsOf, weekView, setKind, olderWeeks } from './beobachtungen.js';
-  import { t, num, locale } from '../i18n.svelte.js';
+  import { t } from '../i18n.svelte.js';
+  import { sentence, label, value, chartText } from './obswords.js';
+  import { shiftDay } from '../training.js';
   import '../trip/trip.css';
 
   let { monday, today } = $props();
@@ -30,7 +33,8 @@
       db.flowActs.toArray(),
       db.settings.get(OBS_KEY),
     ]);
-    return { data: { acts, rides, trips, health, answers, checks, log, flowActs: flowActs.map(normAct) }, value: rec?.value ?? null };
+    const { weather } = await loadDayData(db);
+    return { data: { acts, rides, trips, health, answers, checks, log, flowActs: flowActs.map(normAct), weather }, value: rec?.value ?? null };
   });
   const view = $derived($q ? weekView($q.value, $q.data, monday, today) : null);
   const cfg = $derived(obsOf($q?.value));
@@ -40,57 +44,6 @@
     if (view?.state === 'new' && view.store) db.settings.put({ key: OBS_KEY, value: $state.snapshot(view.store) });
   });
   const save = (value) => db.settings.put({ key: OBS_KEY, value: $state.snapshot(value) });
-
-  /* words */
-  const REF_MON = '2026-10-12';
-  const wd = (i, weekday = 'short') => {
-    const d = new Date(`${REF_MON}T12:00:00Z`);
-    d.setUTCDate(d.getUTCDate() + i);
-    return d.toLocaleDateString(locale(), { timeZone: 'UTC', weekday });
-  };
-  const hm = (min) => `${Math.floor(min / 60)}:${String(Math.round(min % 60)).padStart(2, '0')} h`;
-  const PART = { morning: 'Most of your rides start in the morning: {p} % of {n}.', midday: 'Most of your rides start around midday: {p} % of {n}.', afternoon: 'Most of your rides start in the afternoon: {p} % of {n}.', evening: 'Most of your rides start in the evening: {p} % of {n}.' };
-  function sentence(o) {
-    const v = o.vars ?? {};
-    const a = num(v.a);
-    const b = num(v.b);
-    switch (o.key) {
-      case 'week-hours-more': return t('This week {a} h on the move, {p} % more than your usual {b} h.', { a, b, p: v.p });
-      case 'week-hours-less': return t('This week {a} h on the move, {p} % less than your usual {b} h.', { a, b, p: v.p });
-      case 'week-km-more': return t('This week {a} km, {p} % more than your usual {b} km.', { a, b, p: v.p });
-      case 'week-km-less': return t('This week {a} km, {p} % less than your usual {b} km.', { a, b, p: v.p });
-      case 'week-days-more': return t('This week active on {a} days, usually on {b}.', { a, b });
-      case 'week-days-less': return t('This week active on {a} days, usually on {b}.', { a, b });
-      case 'sleep-min-more': return t('After a day on the bike you slept {d} min longer: {a} against {b} on the other nights.', { d: num(Math.round(v.diff)), a: hm(v.a), b: hm(v.b) });
-      case 'sleep-min-less': return t('After a day on the bike you slept {d} min less: {a} against {b} on the other nights.', { d: num(Math.round(v.diff)), a: hm(v.a), b: hm(v.b) });
-      case 'sleep-felt-more':
-      case 'sleep-felt-less': return t('After a day on the bike you rated your sleep {a}, on the other nights {b} (1–10).', { a, b });
-      case 'after-rhr-more':
-      case 'after-rhr-less': return t('In the 1–3 days after a long tour your resting heart rate was {a}, on normal days {b} bpm ({n} long tours).', { a: num(Math.round(v.a)), b: num(Math.round(v.b)), n: v.n });
-      case 'after-sleep-more':
-      case 'after-sleep-less': return t('In the 1–3 days after a long tour you slept {a}, on normal days {b} ({n} long tours).', { a: hm(v.a), b: hm(v.b), n: v.n });
-      case 'after-mood-more':
-      case 'after-mood-less': return t('In the 1–3 days after a long tour your mood was {a}, on normal days {b} (1–10, {n} long tours).', { a, b, n: v.n });
-      case 'time-day': return t('You ride most on {day}: {p} % of {n} rides.', { day: wd(v.i, 'long'), p: v.p, n: v.n });
-      case 'time-part': return t(PART[v.part] ?? PART.morning, { p: v.p, n: v.n });
-      case 'streak-run': return t('{n} active days in a row.', { n: v.n });
-      case 'streak-gap': return t('{n} days in a row without activity; usually you are active on {u} days a week.', { n: v.n, u: num(v.u) });
-      case 'mind-more':
-      case 'mind-less': return t('On days with meditation your mood was {a}, without {b} (1–10).', { a, b });
-      default: return '';
-    }
-  }
-  const label = (l) => (l?.day != null ? wd(l.day) : l?.kw != null ? t('Wk {n}', { n: l.kw }) : l?.en ? t(l.en, l.vars) : '');
-  function value(v, unit) {
-    if (v == null) return '–';
-    if (unit === 'min') return hm(v);
-    if (unit === 'hours') return `${num(v)} h`;
-    if (unit === 'km') return `${num(v)} km`;
-    if (unit === 'bpm') return `${num(Math.round(v))}`;
-    if (unit === 'minutes') return v > 1 ? `${num(v)} min` : v ? '✓' : '–';
-    return num(v);
-  }
-  const chartText = (c) => (c.type === 'two' ? [c.a, c.b] : c.bars).map((x) => `${label(x.l)}: ${value(x.v, c.unit)}`).join(', ');
 
   /* the chart: bars (up to 7) or two groups */
   const W = 280;
@@ -124,6 +77,7 @@
   {:else if view.state === 'thin' || !view.list.length}
     <p class="quiet" data-obs-state="thin">{t('Still too little data for an observation. With Strava, Fitbit and «How are you?» more comes in over the weeks.')}</p>
   {:else}
+    {#if view.state === 'live'}<p class="cap" data-obs-live>{t('Worked out from today\'s data; it stays fixed from Monday on.')}</p>{/if}
     <ul class="cards" data-obs-state={view.state}>
       {#each view.list as o (o.kind)}
         {@const c = o.chart}
@@ -134,10 +88,11 @@
             <svg class="ch" viewBox="0 0 {W} {H}" role="img" aria-label={chartText(c)}>
               {#each bars(c) as b, i (i)}
                 <rect x={b.x} y={b.y} width={b.w} height={b.h} rx="3" class:hi={b.hi} />
-                {#if b.hi && b.v != null && c.unit !== 'minutes'}<text x={b.x + b.w / 2} y={b.y - 4} text-anchor="middle" class="val">{value(b.v, c.unit)}</text>{/if}
+                {#if b.v != null && c.unit !== 'minutes'}<text x={b.x + b.w / 2} y={b.y - 4} text-anchor="middle" class="val">{value(b.v, c.unit)}</text>{/if}
                 <text x={b.x + b.w / 2} y={H - 4} text-anchor="middle" class="lab">{b.text}</text>
               {/each}
             </svg>
+            {#if c.upto}<p class="cap small" data-obs-upto>{t('Every week counted for its first {n} days, like this week so far.', { n: c.upto })}</p>{/if}
           {:else if c?.type === 'two'}
             {@const max = Math.max(1, c.a.v ?? 0, c.b.v ?? 0)}
             <div class="two" role="img" aria-label={chartText(c)}>
@@ -150,6 +105,7 @@
               {/each}
             </div>
           {/if}
+          <a class="tp-link detail" href="#/flow/review/obs?kind={o.kind}&w={monday}" data-obs-detail={o.kind}>{t('All numbers behind it')}</a>
           <button type="button" class="tp-link hide" onclick={() => save(setKind(cfg, o.kind, false))} data-obs-hide={o.kind}><EyeOff size={14} aria-hidden="true" />{t('Do not show this kind any more')}</button>
         </li>
       {/each}
@@ -293,12 +249,16 @@
     font-weight: 600;
     font-size: var(--fs-small);
   }
-  .hide {
+  .hide,
+  .detail {
     display: inline-flex;
     align-items: center;
     align-self: flex-start;
     gap: 4px;
     min-height: 44px;
+    font-size: var(--fs-small);
+  }
+  .small {
     font-size: var(--fs-small);
   }
   .hidden .tp-link {
