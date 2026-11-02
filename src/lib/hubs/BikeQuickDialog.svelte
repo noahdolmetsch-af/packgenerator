@@ -16,6 +16,7 @@
   import DateInput from '../ui/DateInput.svelte';
   import { db } from '../db.js';
   import '../bikes/velo-dlg.css';
+  import { wantBike } from '../nav.js';
   import { newNote, sortNote, nextNumber } from '../notes.js';
   import { addIdea, newVisit, parseChf } from '../hubs.js';
   import { shrinkImage } from '../photo.js';
@@ -94,6 +95,11 @@
   }
 
   const TITLE = { problem: 'Log a problem', idea: 'Idea for a bike', visit: 'Log a workshop visit' };
+  function addFirstBike() {
+    dialog.close();
+    wantBike();
+    location.hash = '#/bikes';
+  }
   const bikeName = (id) => bikes.find((b) => b.id === id)?.name ?? '';
 
   $effect(() => {
@@ -174,12 +180,20 @@
   <form onsubmit={save} use:weiter>
     <h2 id="bq-h" class="title">{t(TITLE[kind])}</h2>
     {#if kind === 'idea'}<p class="hint">{t('What would be great: your own list of ideas for this bike, not the Gear wishlist.')}</p>{/if}
-    <label class="field">
-      <span class="lbl">{t('Bike')}</span>
-      <select class="sel" bind:value={bike}>
-        {#each bikes as b (b.id)}<option value={b.id}>{b.name}</option>{/each}
-      </select>
-    </label>
+    {#if bikes.length}
+      <label class="field">
+        <span class="lbl">{t('Bike')}</span>
+        <select class="sel" bind:value={bike}>
+          {#each bikes as b (b.id)}<option value={b.id}>{b.name}</option>{/each}
+        </select>
+      </label>
+    {:else}
+      <!-- Noah 1.11.2026: without a bike there is nothing to save to; say so and lead to the bike form -->
+      <div class="nobike" data-bq-nobike>
+        <p class="hint">{t('Add a bike first. Then this can be saved for it.')}</p>
+        <Btn kind="hi" label={t('Add bike')} onclick={addFirstBike} />
+      </div>
+    {/if}
 
     {#if kind === 'visit'}
       <!-- P3b Teil 3 «Kamera überall» (Noah 15.10.2026 «1-5 a»): the receipt first, a big green «Beleg
@@ -254,7 +268,7 @@
     {#if kind === 'problem'}<p class="hint">{t('Lands in Bike care as an open repair.')}</p>{/if}
     {#if msg}<p class="err" role="alert">{msg}</p>{/if}
     <div class="foot daumen-foot">
-      <Btn type="submit" kind="hi" label={t('Save')} explain={explain('Save')} disabled={busy || reading} />
+      <Btn type="submit" kind="hi" label={t('Save')} explain={explain('Save')} disabled={busy || reading || !bikes.length} />
       <Btn kind="quiet" label={t('Cancel')} explain={explain('Cancel')} onclick={() => dialog.close()} />
     </div>
   </form>

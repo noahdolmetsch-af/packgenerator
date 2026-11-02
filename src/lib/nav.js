@@ -108,6 +108,13 @@ export const openNote = (prefill = '', bikeId = null) => window.dispatchEvent(ne
 /** New bike (v0.23.0, AP07): Bikes opens with the "Add bike" dialog (Today's "Add a bike" link). */
 export function wantBike() {
   keep('bikes.add', '1');
+  // Noah 1.11.2026 «Velo hinzufügen»: from another tab of Bikes (e.g. Care) the app comes back there after adding
+  try {
+    const h = location.hash;
+    if (/^#\/bikes\?.*tab=(?!setup)/.test(h)) keep('bikes.add.back', h);
+  } catch {
+    /* no location: nothing to come back to */
+  }
   window.dispatchEvent(new Event('pg:addbike'));
 }
 
