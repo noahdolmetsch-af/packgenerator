@@ -25,3 +25,15 @@ export function fitbitEmpty(h) {
   }
   return { why: 'none', text: h.last?.date ? 'No Fitbit values for today yet. The last ones are from {date}.' : 'No Fitbit values yet.', date: h.last?.date ?? null, href: '#/me/fitbit', link: 'To Fitbit' };
 }
+
+/**
+ * Noah 2.11.2026 «3a»: «Stand 07:42» under the Fitbit tiles of Heute. The time of the last fetch that worked
+ * (the last try when it worked, else the stored lastSync). → { at: ISO string | null, failed: bool, code }
+ */
+export function fitbitStand(h) {
+  if (!h?.prefs?.connected) return null;
+  const t = h.lastTry;
+  const failed = Boolean(h.error || (t && t.ok === false));
+  const at = t && t.ok ? t.at : h.prefs.lastSync ?? null;
+  return { at, failed, code: h.error || (t && !t.ok ? t.code : '') };
+}
