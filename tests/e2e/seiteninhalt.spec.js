@@ -117,6 +117,13 @@ test('Planen Notes and Week show the card with good to know', async ({ page, con
   await openHome(page, context, info);
   for (const hash of ['#/notes', '#/week', '#/inbox']) {
     await page.goto(`./${hash}`);
+    const card = page.locator('[data-seiteninhalt]');
+    await expect(card).toContainText(T('What you can do here'));
+    await expect(card.locator('[data-seiteninhalt-know]').first()).toContainText(T('Good to know'));
+    expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBe(0);
+  }
+  expect(errors).toEqual([]);
+});
 
 // PR 18, area Körper: Aktiv and Training show the card with good to know
 test('Aktiv and Training show good to know in the card', async ({ page, context }, info) => {
