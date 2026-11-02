@@ -25,7 +25,7 @@
    */
   import { untrack, tick } from 'svelte';
   import { liveQuery } from 'dexie';
-  import { CloudRain, Route, Play, Square, Crosshair, MapPin, Navigation, Mountain, Clock, Settings, BatteryMedium, CloudLightning, TriangleAlert, RefreshCw, Utensils, ChevronDown, Moon, Flag, LifeBuoy, Ellipsis, ChevronLeft, ChevronRight, Minimize2, Maximize2, SlidersHorizontal, Check, X, Layers, Camera, WifiOff } from '@lucide/svelte';
+  import { CloudRain, Route, Play, Square, Crosshair, MapPin, Navigation, Mountain, Clock, Settings, BatteryMedium, CloudLightning, TriangleAlert, RefreshCw, Utensils, ChevronDown, Moon, Flag, LifeBuoy, Ellipsis, ChevronLeft, ChevronRight, Minimize2, Maximize2, SlidersHorizontal, Check, X, Layers, Camera, WifiOff, ClipboardList, Send } from '@lucide/svelte';
   import KindIcon from '../lib/map/KindIcon.svelte';
   import { DURING_RIDE } from '../lib/live/during.js';
   import { FEATURES } from '../lib/features.js';
@@ -37,7 +37,8 @@
   import PoiDetail from '../lib/map/PoiDetail.svelte';
   import WxTimeline from '../lib/map/WxTimeline.svelte';
   import LiveRouteBox from '../lib/live/LiveRouteBox.svelte';
-  import { liveRouteQuery, liveRouteFor } from '../lib/live/liveroute.js';
+  import { rideLog, rideLogText, GAP_S } from '../lib/live/ridelog.js';
+  import { liveRouteQuery, liveRouteFor, clearLiveRoute } from '../lib/live/liveroute.js';
   import OfflineBox from '../lib/map/OfflineBox.svelte';
   import { reserveOf } from '../lib/map/offline.js';
   import SortArrows from '../lib/ui/SortArrows.svelte';
@@ -199,6 +200,17 @@
     } catch (x) {
       err = saveFailed(x);
     }
+    // Noah 01.11.2026 «3a»: a ride started without a route forgets every old route: the GPX kept on this device and an old way to a goal (older than 2 h), also after a reload
+    // (a free ride has no id of its own: a GPX loaded more than 12 h ago is an old one, not this ride's)
+    const oldFree = !tid && !!liveRoute && !(Date.parse(liveRoute.loadedAt) > Date.now() - 12 * 36e5);
+    if (!cont && (!hasRoute || oldFree)) {
+      try {
+        await clearLiveRoute(db.settings);
+        if (detour && !(detour.at > Date.now() - 2 * 36e5)) setDetour(null, false); // a way planned a moment ago stays
+      } catch (x) {
+        console.error(x);
+      }
+    }
     const e = await startRecording(trip, { cont, saver: cfg.battery });
     if (e) return (err = t(e));
     eatFromKm = null;
@@ -269,9 +281,40 @@
     }
   }
 
+  // Fahrt-Protokoll (Noah 01.11.2026 «4a»): GPS points, gaps, restarts, hidden app, screen lock — with a button to send it
+  const logFacts = $derived(row ? rideLog(row) : null);
+  const logText = $derived(
+    logFacts
+      ? rideLogText(logFacts, {
+          points: t('GPS points'),
+          km: t('Distance (km)'),
+          first: t('First point'),
+          last: t('Last point'),
+          gaps: t('Gaps over a minute'),
+          restarts: t('Restarts'),
+          hidden: t('App hidden'),
+          lockLost: t('Screen lock lost'),
+          pauses: t('Pauses'),
+          codes: { s: t('Start'), c: t('Continued after a reload'), h: t('App hidden'), v: t('App visible again'), L1: t('Screen lock held'), L0: t('Screen lock lost'), Lx: t('Screen lock refused') },
+        })
+      : '',
+  );
+  async function sendLog() {
+    try {
+      if (navigator.share) await navigator.share({ title: t('Ride log'), text: logText });
+      else {
+        await navigator.clipboard.writeText(logText);
+        offerDone(t('Copied.'));
+      }
+    } catch {
+      /* closed */
+    }
+  }
+
   // the recording row, again whenever a point was kept
   $effect(() => {
     void rec.pts;
+    void rec.logN; // the log changes without a new point (screen lock, hidden app, restart)
     const rid = rec.id;
     if (!rid) return;
     db.tracks.get(rid).then((r) => (row = r ?? null));
@@ -511,9 +554,10 @@
         if (Number.isFinite(v) && v < 120 && (h.acc == null || h.acc <= 30) && v > maxKmh) maxKmh = Math.round(v * 10) / 10;
       }
     }
-    // the speed now; no new fix for 15 s counts as standing
+    // the speed now. No new fix for 15 s is NO speed (Noah 01.11.2026 «2a»): a GPS gap is not standing; only
+    // the GPS points themselves tell that you stand (a locked screen once counted as 25 min standing)
     let kmhNow = fixNow ? speedKmh(fixNow, fixPrev) : null;
-    if (fixNow && now - fixSeenAt > 15_000) kmhNow = 0;
+    if (fixNow && now - fixSeenAt > 15_000) kmhNow = null;
     if (cfg.autoPause && rec.on) {
       const r = autoPauseStep(autoSt, { kmh: kmhNow, now, limit: autoKmh, paused: rec.paused, auto: rec.auto });
       autoSt = r.st;
@@ -1613,6 +1657,15 @@
               </div>
             {/if}
 
+            {#if logFacts && (rec.on || logFacts.points > 0)}
+              <details class="lvf-part lvf-fold" data-live-log>
+                <summary><ClipboardList size={18} aria-hidden="true" />{t('Ride log')}</summary>
+                <p class="rc-note">{t('What the recording saw: GPS points, gaps of {n} s or more, restarts. Send it when a time or distance looks wrong.', { n: GAP_S })}</p>
+                <pre class="lvf-log" data-live-log-text>{logText}</pre>
+                <button type="button" class="btn sm" onclick={sendLog} data-live-log-send><Send size={16} aria-hidden="true" />{t('Send the log')}</button>
+              </details>
+            {/if}
+
             <!-- «Datenseiten wie am Garmin»: pages, fields, grids, charts, zones -->
             <details class="lvf-part lvf-fold" bind:open={dpOpen} data-live-datapages>
               <summary><SlidersHorizontal size={18} aria-hidden="true" />{t('Data pages')}</summary>
@@ -2306,6 +2359,18 @@
   .lvf-chip:disabled {
     opacity: 0.5;
     cursor: default;
+  }
+  .lvf-log {
+    margin: 0 0 var(--sp-2);
+    max-height: 220px;
+    overflow: auto;
+    padding: var(--sp-2);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--paper);
+    font: var(--fs-small) / 1.45 ui-monospace, monospace;
+    white-space: pre-wrap;
+    word-break: break-word;
   }
   .lvf-fold > summary {
     display: flex;

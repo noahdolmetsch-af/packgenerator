@@ -82,10 +82,12 @@ test('Auto-pause with your own limit, the sensors box, the data pages', async ({
   if (can) await expect(box.locator('[data-live-sensor-add]')).toHaveCount(3);
   else await expect(box.locator('[data-live-sensors-none]')).toBeVisible();
 
-  // standing still (no new fix for 15 s, then 10 s below the limit): the auto-pause comes by itself
+  // standing still (the GPS keeps sending the same place; 10 s below the limit): the auto-pause comes by itself.
+  // «Aufzeichnung ohne Route» (Noah 01.11.2026 «2a»): no fix at all is a GPS gap, never standing.
   const t0 = await page.evaluate(() => Date.now());
   for (const s of [5, 10, 17, 20, 24, 28, 32, 36, 40]) {
     await page.clock.setFixedTime(new Date(t0 + s * 1000));
+    await context.setGeolocation({ latitude: 46.95, longitude: 7.45, accuracy: 8 });
     await page.waitForTimeout(2200); // one tick of the live map
   }
   await expect(page.locator('[data-live-paused="auto"]')).toBeVisible({ timeout: 10_000 });
