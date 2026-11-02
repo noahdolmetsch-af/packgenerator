@@ -8,13 +8,13 @@ PR #… · 02.11.2026 · Auftrag: Plan «freigabe» Schritt 24 von 26 (Thread «
 - Test `tests/inhalt.test.js`: eine neue Lücke macht den Test rot («ergänzen oder auf die Liste»), eine behobene muss von der Liste. Die Listen `NO_STEPS` und `NO_EXAMPLE` dürfen nur kürzer werden.
 - Roboter `tests/e2e/inhalt.spec.js` öffnet jede Seite mit «Was du hier tun kannst» (Handy und Computer): die Karte hat Zeilen, jede mit «Gut zu wissen», nichts scrollt seitwärts.
 
-## Gemessen am 02.11.2026 (442 Funktionen)
+## Gemessen am 02.11.2026 abends (445 Funktionen, 101 Seiten mit Karte)
 | Teil | fehlt bei |
 |---|---|
 | Wozu | 0 |
 | mindestens 2 Schritte | 2 (Gut angekommen, Gute Nacht) |
 | Beispiel | 0 |
-| Gut zu wissen | 430 (nur gezählt; kommt Bereich für Bereich) |
+| Gut zu wissen | 164 (nur gezählt; auf den 101 Seiten mit Karte fehlt keines) |
 
 ## Was fällt weg oder rutscht tiefer
 - nichts.

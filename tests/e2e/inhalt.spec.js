@@ -7,7 +7,7 @@ import { fileURLToPath } from 'node:url';
 
 // seiteninhalt.js needs Svelte (through features.js), so ON_PAGES is read as text
 const SRC = readFileSync(fileURLToPath(new URL('../../src/lib/seiteninhalt.js', import.meta.url)), 'utf8');
-const PAGES = SRC.match(/export const ON_PAGES = \[([\s\S]*?)\];/)[1].replace(/\/\/.*$/gm, '').match(/'#\/[^']*'/g).map((s) => s.slice(1, -1));
+const PAGES = SRC.match(/export const ON_PAGES = \[([\s\S]*?)\];/)[1].replace(/\/\/.*$/gm, '').match(/'#\/[^']*'/g).map((s) => s.slice(1, -1)).filter((p) => !/\/:[a-z]/i.test(p)); // patterns like #/debrief/:trip (Wegweiser 21) need a real id: not opened here
 
 const T = tr('de');
 
@@ -19,6 +19,10 @@ test(`every page with the card shows its functions with good to know (${PAGES.le
   for (const p of PAGES) {
     await page.goto(`./${p}`);
     const card = page.locator(`[data-seiteninhalt="${p}"]`);
+    // some pages start with the card folded to one line (FOLDED_FIRST): open it
+    const line = page.locator('[data-seiteninhalt-line]');
+    await expect(card.or(line).first(), p).toBeVisible();
+    if (await line.count()) await line.click();
     await expect(card, p).toContainText(T('What you can do here'));
     const rows = card.locator('[data-seiteninhalt-item]');
     await expect(rows.first(), p).toBeVisible();
