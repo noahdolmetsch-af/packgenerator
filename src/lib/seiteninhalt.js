@@ -8,6 +8,7 @@
 import { FEATURES } from './features.js';
 import { HANDBOOK } from './handbook.js';
 import { HOME } from './know/heimat.js';
+import { WISSEN } from './wissen/index.js';
 
 /** The pages that show the card (page keys as pageKey writes them); one PR per area adds its pages. */
 export const ON_PAGES = [
@@ -26,7 +27,7 @@ export function pageKey(hash = '') {
 }
 
 /**
- * The rows for a page: [{ id, title, text, steps, example }] (English keys for t()), only on switched-on pages.
+ * The rows for a page: [{ id, title, text, steps, example, know }] (English keys for t()), only on switched-on pages.
  * on: the pages switched on (default ON_PAGES).
  */
 export function pageContent(hash, on = ON_PAGES) {
@@ -34,7 +35,7 @@ export function pageContent(hash, on = ON_PAGES) {
   if (!here || here === '#/' || !on.includes(here)) return [];
   return FEATURES.filter((f) => HOME[f.id] && pageKey(HOME[f.id]) === here).map((f) => {
     const h = HANDBOOK[f.id] ?? {};
-    return { id: f.id, title: f.title, text: f.text, steps: h.steps ?? [], example: h.example ?? '' };
+    return { id: f.id, title: f.title, text: f.text, steps: h.steps ?? [], example: h.example ?? '', know: WISSEN[f.id] ?? '' };
   });
 }
 

@@ -9,7 +9,7 @@
 import { test, expect } from './clock.js';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';
-import { importAndSettle } from './settle.js';
+import { importAndSettle, openFolds } from './settle.js';
 import { makeHandler } from '../../api/sync.js';
 import { fakeRedis } from '../fakeredis.js';
 
@@ -51,8 +51,10 @@ test.beforeEach(async ({ page }) => {
 test('Sign in with Google switches on the sync and shows the account', async ({ page, context }) => {
   const steps = await fakeServer(context);
   await page.goto('./');
+  await page.evaluate(() => localStorage.setItem('pg.showGoogle', '1')); // hidden since 01.11.2026; this key shows it
   await importAndSettle(page, fixture);
   await page.goto('./#/me/data');
+  await openFolds(page); // answers the question «two devices» if it is still open
   const box = page.locator('[data-sync-panel]');
   await expect(box.getByText(T('Without an account'))).toBeVisible();
   await expect(box.getByText(T('Or with your Google account'))).toBeVisible();

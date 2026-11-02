@@ -84,6 +84,18 @@
     form = { kind: 'todo', title: '', day, time: '', mins: '' };
     queueMicrotask(() => document.getElementById('wk-add')?.scrollIntoView({ block: 'center' }));
   };
+  // «Planen als verbindende Mitte» 5a (Noah 1.11.2026): close the week - open to-dos of past days: move, drop or keep without a day
+  let closeLater = $state(false);
+  const openOld = $derived(
+    next || closeLater ? [] : items().filter((x) => x.kind === 'todo' && !x.done && x.day && x.day < today && x.day >= shiftDay(today, -21)),
+  );
+  async function closeOne(x, how) {
+    const before = items();
+    const list = how === 'drop' ? before.filter((y) => y.id !== x.id) : before.map((y) => (y.id === x.id ? { ...y, day: how === 'move' ? today : null } : y));
+    await saveItems(list);
+    const msg = how === 'drop' ? t('«{name}» dropped.', { name: x.title }) : how === 'move' ? t('«{name}» moved to today.', { name: x.title }) : t('«{name}» kept without a day.', { name: x.title });
+    offerDone(msg, () => saveItems(before));
+  }
   const emptyWeek = $derived(!!week && week.days.every((d) => !d.entries.length));
   async function add(ev) {
     ev.preventDefault();
@@ -137,6 +149,21 @@
       </div>
     {/if}
 
+    {#if openOld.length}
+      <section class="wclose" data-week-close aria-label={t('Close the week')}>
+        <h2>{t('Close the week')}</h2>
+        <p class="why">{t('Still open from earlier days ({n}). You decide on each one.', { n: openOld.length })}</p>
+        {#each openOld as x (x.id)}
+          <div class="wc-row" data-close-row>
+            <span class="wc-t">{x.title}<small>{dayName(x.day)}</small></span>
+            <span class="wc-b">
+              <button type="button" class="btn" data-close-move onclick={() => closeOne(x, 'move')}>{t('Move to today')}</button><button type="button" class="btn" data-close-drop onclick={() => closeOne(x, 'drop')}>{t('Drop|week')}</button><button type="button" class="btn" data-close-keep onclick={() => closeOne(x, 'keep')}>{t('Keep without a day')}</button>
+            </span>
+          </div>
+        {/each}
+        <button type="button" class="btn" data-close-later onclick={() => (closeLater = true)}>{t('Later')}</button>
+      </section>
+    {/if}
     {#if emptyWeek}
       <p class="emptytop" data-week-empty><a class="btn hi" href="#/week/plan" data-plan-week-top><CalendarCheck size={18} aria-hidden="true" />{due ? t('Plan the week (10 min)') : t('Plan the week again')}</a><span class="why">{t('Nothing planned yet. Plan the week or add a day yourself.')}</span></p>
     {/if}
@@ -600,4 +627,9 @@
     text-align: left;
     cursor: pointer;
   }
+  .wclose{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:14px;margin:10px 0}
+  .wclose h2{font-size:var(--fs-sub);margin:0 0 4px}
+  .wc-row{display:flex;gap:8px;align-items:center;justify-content:space-between;flex-wrap:wrap;border:1px solid var(--line);border-radius:10px;padding:10px;margin:6px 0}
+  .wc-t{display:flex;flex-direction:column;font-weight:600}.wc-t small{font-weight:400;color:var(--muted)}
+  .wc-b{display:flex;gap:6px;flex-wrap:wrap}
 </style>

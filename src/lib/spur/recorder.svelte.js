@@ -16,7 +16,7 @@ import { hold } from '../holdreload.js';
 import { keepSample } from '../live/ble.js';
 import { setWhy, addBreak } from '../tourenc/pausewhy.js';
 
-export const rec = $state({ on: false, id: null, tripId: null, startAt: 0, pts: 0, km: 0, acc: null, lastAt: 0, error: '', lock: false, here: null, paused: false, auto: false, breaks: [], laps: [], whys: {} });
+export const rec = $state({ on: false, id: null, tripId: null, startAt: 0, pts: 0, km: 0, acc: null, lastAt: 0, error: '', lock: false, logN: 0, here: null, paused: false, auto: false, breaks: [], laps: [], whys: {} });
 
 let watch = null;
 let lock = null;
@@ -36,7 +36,7 @@ let jump = false; // after a pause: the way from the last point to the first new
 const saveRow = (db) => {
   if (!row) return saving;
   const sensors = row.sensors ? Object.fromEntries(Object.entries(row.sensors).map(([k, v]) => [k, v.slice()])) : undefined;
-  const snap = { ...row, pts: row.pts.slice(), breaks: (row.breaks ?? []).map((b) => b.slice()), ...(row.laps ? { laps: row.laps.map((x) => ({ ...x })) } : {}), ...(sensors ? { sensors } : {}) };
+  const snap = { ...row, pts: row.pts.slice(), ...(row.log ? { log: row.log.map((x) => x.slice()) } : {}), breaks: (row.breaks ?? []).map((b) => b.slice()), ...(row.laps ? { laps: row.laps.map((x) => ({ ...x })) } : {}), ...(sensors ? { sensors } : {}) };
   saving = saving.then(() => db.tracks.put(snap)).catch(() => {});
   return saving;
 };
@@ -120,14 +120,43 @@ export async function resumeRecording({ db = appDb, now = Date.now() } = {}) {
 
 const r6 = (v) => Math.round(v * 1e6) / 1e6;
 
+/**
+ * Fahrt-Protokoll (Noah 01.11.2026 «4a»): what happened on the phone, kept with the recording as
+ * row.log = [[ms, code]] (live/ridelog.js names the codes): 's' start, 'c' continued after a reload, 'h' app
+ * hidden, 'v' visible again, 'L1' screen lock held, 'L0' screen lock lost, 'Lx' screen lock refused.
+ */
+export function logEvent(code, db = watchDb) {
+  if (!row) return;
+  (row.log ??= []).push([Date.now(), code]);
+  rec.logN++; // the live map reads the log again
+  if (row.log.length > 400) row.log.splice(0, row.log.length - 400);
+  return saveRow(db);
+}
+
+// Noah 01.11.2026 «1a»: the screen stays on while recording; a lock the phone took away (hidden app, low
+// battery) is asked for again when the app is visible, and every 20 s if it was refused
+let lockTimer = null;
 async function getLock() {
+  clearTimeout(lockTimer);
+  lockTimer = null;
+  if (!rec.on || document.visibilityState !== 'visible' || lock) return;
   try {
-    lock = (await navigator.wakeLock?.request('screen')) ?? null;
-    rec.lock = !!lock;
-    lock?.addEventListener?.('release', () => (rec.lock = false));
+    const mine = (await navigator.wakeLock?.request('screen')) ?? null;
+    lock = mine;
+    rec.lock = !!mine;
+    if (mine) logEvent('L1');
+    mine?.addEventListener?.('release', () => {
+      if (lock !== mine) return; // released by us at the end
+      lock = null;
+      rec.lock = false;
+      if (rec.on) logEvent('L0');
+    });
   } catch {
+    lock = null;
     rec.lock = false;
+    logEvent('Lx');
   }
+  if (rec.on && !lock) lockTimer = setTimeout(getLock, 20_000);
 }
 
 /** The open recording of this device, if one was left running (reload, app closed). */
@@ -189,7 +218,12 @@ export async function startRecording(trip, { db = appDb, cont = null, now = Date
   Object.assign(rec, { on: true, id: row.id, tripId: row.tripId, startAt: row.startAt, pts: row.pts.length, km: row.km ?? 0, acc: null, lastAt: row.endAt, paused, auto: false, breaks: (row.breaks ?? []).map((x) => x.slice()), laps: (row.laps ?? []).map((x) => ({ ...x })), whys: { ...(row.whys ?? {}) } });
   release = hold('recording');
   await getLock();
-  onVis = () => document.visibilityState === 'visible' && rec.on && getLock();
+  logEvent(cont ? 'c' : 's', db);
+  onVis = () => {
+    if (!rec.on) return;
+    logEvent(document.visibilityState === 'visible' ? 'v' : 'h');
+    if (document.visibilityState === 'visible') getLock();
+  };
   document.addEventListener('visibilitychange', onVis);
   watchDb = db;
   gpsSaver = saver;
@@ -242,12 +276,15 @@ export async function stopRecording(db = appDb) {
   if (watch != null) navigator.geolocation?.clearWatch(watch);
   watch = null;
   gpsLow = false;
+  const held = lock;
+  lock = null;
   try {
-    await lock?.release?.();
+    await held?.release?.();
   } catch {
     /* already released */
   }
-  lock = null;
+  clearTimeout(lockTimer);
+  lockTimer = null;
   if (onVis) document.removeEventListener('visibilitychange', onVis);
   onVis = null;
   release?.();

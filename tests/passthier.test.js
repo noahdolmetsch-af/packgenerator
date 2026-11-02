@@ -6,6 +6,12 @@ describe('Fits here', () => {
   it('Unterwegs shows phrases, time zones, light and arrival, in this order', () => {
     expect(passtHier('ride').map((f) => f.id)).toEqual(['f.phrases', 'f.zones', 'f.light', 'f.arrival']);
   });
+  it('Packen, Planen, Teilen: weight, route, ski tour and places to sleep each lead to their functions', () => {
+    expect(passtHier('weight').map((f) => f.id)[0]).toBe('f.weightsure');
+    expect(passtHier('route').map((f) => f.id)[0]).toBe('f.mapmeasure');
+    expect(passtHier('ski').map((f) => f.id)[0]).toBe('f.skicheck');
+    expect(passtHier('sleeplists').map((f) => f.id)[0]).toBe('f.sleeporigin');
+  });
   it('Velos › Setup shows gear ratios and spirit level (PR 3)', () => {
     expect(passtHier('rig').map((f) => f.id)).toEqual(['f.gears', 'f.level']);
   });

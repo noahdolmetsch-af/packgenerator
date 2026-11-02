@@ -12,8 +12,22 @@ import { FEATURE } from './features.js';
 export const PASST_HIER = {
   // Unterwegs › Helfer unterwegs: the small tools of the Toolbox for a day on the bike
   ride: ['f.phrases', 'f.zones', 'f.light', 'f.arrival'],
+  // Touren › Träume › Your dreams: what you long for, what you are up for, what matters (PR 6)
+  dreams: ['f.freireise', 'f.freilust', 'f.freiwesentlich'],
+  // Neuland: a first night outside, a bingo of your own fields (PR 6)
+  neuland: ['f.freinacht', 'f.ownbingo'],
+  // Packen › Gewicht (bike trips): how sure the total is, lighter things from your own gear, the weight per bag
+  weight: ['f.weightsure', 'f.lighter', 'f.bagplan'],
+  // Packen › Route without a GPX yet: draw the line on the map and save it as GPX, or take a komoot tour
+  route: ['f.mapmeasure', 'f.komoot'],
+  // Packen of a ski tour: the same list as a backpack check in the five ski groups, the plan, the car park check
+  ski: ['f.skicheck', 'f.skiplan', 'f.skistart'],
+  // Rennen › Places to sleep from lists: which places you know yourself and which are only imported; rate your own
+  sleeplists: ['f.sleeporigin', 'f.sleepspots'],
   // Velos › Setup › Setup log: the tools you need when you change something on the bike
   rig: ['f.gears', 'f.level'],
+  // Rückblick einer Tour (saved): looking back further than the packing list
+  debrief: ['f.knowhow', 'f.gooddecisions', 'f.meaning', 'f.skillmap'],
 };
 
 /** The functions of a place that exist and are not marked «Not for me». */

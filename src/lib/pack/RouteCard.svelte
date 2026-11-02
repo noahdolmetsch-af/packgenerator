@@ -10,6 +10,7 @@
    * (route/RouteClimbs.svelte).
    */
   import { readRouteFile, routeFromGpx, splitRoute } from '../route/fromgpx.js'; // «Neue Quellen» 20.10.2026: with the GPX waypoints
+  import PasstHier from '../ui/PasstHier.svelte';
   import RouteCheck from '../route/RouteCheck.svelte';
   import RwgpsLink from '../sources/RwgpsLink.svelte';
   import { stagePlan, hasStages } from '../stages.js';
@@ -91,6 +92,8 @@
       {@render climbs()}
     {:else}
       <p class="none"><Upload size={18} aria-hidden="true" /><span>{t('From Komoot, Garmin or Strava: distance, climbing and a guess of the riding hours.')}</span></p>
+      <!-- Wegweiser 5: no GPX yet → draw the line on the map and save it as GPX -->
+      <PasstHier place="route" />
     {/if}
     {#if onchange}<RwgpsLink onload={fromLink} label={route ? t('Other route from Ride with GPS') : ''} />{/if}
     {#if pending}<RouteCheck check={pending.check} name={pending.route.name} onuse={usePending} oncancel={() => (pending = null)} />{/if}
