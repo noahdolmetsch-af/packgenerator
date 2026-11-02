@@ -6,7 +6,6 @@
 import { msContext, TUNE_KEY } from '../flowms.js';
 import { actList } from '../flow/starcheck.js';
 import { CHALLENGES_KEY, challengesOf } from '../challenge.js';
-import { WEEK_KEY } from './weekstars.js';
 
 export const HIDE_KEY = 'homeNextStars';
 /** How many rows Heute shows. */
@@ -41,11 +40,11 @@ export async function readNextStars(db, today) {
     db.flowLog.toArray(),
     db.flowSessions.toArray(),
     db.flowStars.toArray(),
-    db.settings.where('key').anyOf([TUNE_KEY, CHALLENGES_KEY, HIDE_KEY, WEEK_KEY]).toArray(),
+    db.settings.where('key').anyOf([TUNE_KEY, CHALLENGES_KEY, HIDE_KEY]).toArray(),
   ]);
   const set = Object.fromEntries(sets.map((s) => [s.key, s.value]));
   const live = acts;
   const ctx = msContext({ acts: live, log, sessions, today, challenges: challengesOf(set[CHALLENGES_KEY]) });
   const stored = new Map(rows.map((s) => [s.id, s.day]));
-  return { acts: live, ctx, stored, tune: set[TUNE_KEY] ?? {}, hidden: !!set[HIDE_KEY]?.off, weekDone: set[WEEK_KEY]?.done ?? null };
+  return { acts: live, ctx, stored, tune: set[TUNE_KEY] ?? {}, hidden: !!set[HIDE_KEY]?.off };
 }
