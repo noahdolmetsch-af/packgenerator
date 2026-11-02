@@ -51,4 +51,19 @@ test('Live map: the night sheet opens from the menu and shows verdict, bed, shop
   await expect(sheet.locator('[data-night-shop]')).toBeVisible();
   await expect(sheet.locator('[data-night-pauses]')).toBeVisible();
   await expect(sheet.locator('[data-night-goals]')).toContainText('test_data_gtp_ Traumtag');
+  // «Wie müde bist du?» is answered right here
+  await tap(sheet.locator('[data-night-tired="4"]'), info);
+  await expect(sheet.locator('[data-night-tired="4"]')).toHaveAttribute('aria-pressed', 'true');
+  // «Warum dieser Vorschlag?» explains the colour
+  await tap(sheet.locator('[data-night-why]'), info);
+  await expect(sheet.locator('[data-night-why-text]')).toBeVisible();
+  // the goals are changed with the pencil
+  await sheet.locator('[data-night-goals-edit]').scrollIntoViewIfNeeded();
+  await tap(sheet.locator('[data-night-goals-edit]'), info);
+  const tier = sheet.locator('[data-night-tier="super"]');
+  await tier.fill('test_data_gtp_ Gut');
+  await tier.press('Tab');
+  await tap(sheet.locator('[data-night-goals-edit]'), info);
+  await expect(sheet.locator('[data-night-goals]')).toContainText('test_data_gtp_ Gut');
+  await expect(sheet.locator('[data-night-goals]')).toContainText('test_data_gtp_ Traumtag');
 });

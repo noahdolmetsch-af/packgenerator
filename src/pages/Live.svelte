@@ -92,7 +92,7 @@
   import { autoKmhOf, autoPauseStep, speedKmh, movingNow, totalNow, pausedNow, HINT_S, AUTO_MIN_KMH, AUTO_MAX_KMH } from '../lib/live/pause.js';
   import { resumeOf } from '../lib/live/resume.js';
   import { zurichTime } from '../lib/spur/spur.js';
-  import { racesQuery, cacheQuery, cacheGet, cacheSet } from '../lib/race/store.js';
+  import { racesQuery, cacheQuery, cacheGet, cacheSet, saveRace } from '../lib/race/store.js';
   import { raceOf, schedule, lineKm, climbsOf, hhmm, dayOfMs } from '../lib/race/race.js';
   import { POI_CACHE, POI_KIND, WX_CACHE } from '../lib/race/outside.js';
   import { mergePois } from '../lib/race/more.js';
@@ -1807,7 +1807,7 @@
   <PoiPanel bind:this={poiPanel} title={false} canTap ongo={goTo} ontapmode={(v) => ((poiTapping = v), v && (closeNear(), (snap = 'peek')))} center={me ? { lat: me.lat, lon: me.lon } : null} bounds={mapBounds} line={route?.line ?? null} profile={route?.profile ?? null} tripId={trip?.id ?? null} onpoints={(l) => (poiPoints = l ?? [])} />
 </dialog>
 {#if reroute}<RerouteSheet here={me} pts={hasRoute ? pts : []} {km} {pois} {own} {picked} onplan={setDetour} onclose={() => ((reroute = false), (picked = null))} />{/if}
-{#if night}<NightSheet race={isRace ? race : null} awake={isRace ? awakeH(stored?.sleepLog ?? [], plan?.start, now) : 0} {now} {km} {pace} {bed} shop={lastShop} movingS={movingLive} pausedS={pausedLive} onclose={() => (night = false)} />{/if}
+{#if night}<NightSheet race={isRace ? race : null} ctx={isRace && trip ? { trip, race, stored, plan, save: (patch) => saveRace(tid, patch) } : null} awake={isRace ? awakeH(stored?.sleepLog ?? [], plan?.start, now) : 0} {now} {km} {pace} {bed} shop={lastShop} movingS={movingLive} pausedS={pausedLive} onclose={() => (night = false)} />{/if}
 {#if sos}<SosSheet here={me} {km} {routeName} {pois} onclose={() => (sos = false)} />{/if}
 {#if place}<PlaceSheet {trip} onclose={() => (place = false)} />{/if}
 

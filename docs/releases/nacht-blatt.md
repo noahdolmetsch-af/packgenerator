@@ -4,7 +4,8 @@ PR (diese Änderung) · 02.11.2026 · Noah «4a» der Liste «Ursprünglich gepl
 
 ## Was ist neu
 - Im «⋯»-Menü der Live-Karte neu «Nacht-Blatt» (`NightSheet.svelte`): eine ruhige Seite, die nur zeigt.
-- Inhalt: Weiterfahren oder schlafen (nur im Rennen, aus Müdigkeit, Stunden wach und nächstem Bett, mit den Gründen wie im Rennmodus), das Bett vor dir, der letzte offene Laden (Rechnung aus «Letzter offener Laden»), «Heute bisher» (Fahrzeit und Stillstand) und die drei Ziele.
+- Inhalt: Weiterfahren oder schlafen (nur im Rennen) als Ampel (grün, gelb, rot) mit einem Satz in einfachen Worten, den Gründen, «Wie müde bist du?» in fünf Stufen, «Warum dieser Vorschlag?» und dem Nickerchen-Timer des Rennmodus, das Bett vor dir, der letzte offene Laden (Rechnung aus «Letzter offener Laden»), «Heute bisher» (Fahrzeit und Stillstand) und die drei Ziele, die man mit dem Stift gleich im Blatt ändert (auch unter Vorbereiten).
+- Noah 02.11. 20:50: «Entscheid für Nutzer unverständlich, Ziele pflegen» → Ampel mit Satz, Müdigkeit im Blatt, Stift für die Ziele (Mockup freigegeben mit «a»). Hotel ändern und Hinnavigieren folgen als eigener PR.
 - Ohne Rennen zeigt es Bett, Laden und heute; ohne geschriebene Ziele steht, wo man sie schreibt.
 
 ## Was fällt weg oder rutscht tiefer
