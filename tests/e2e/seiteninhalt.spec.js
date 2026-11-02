@@ -179,3 +179,23 @@ test('Aktiv and Training show good to know in the card', async ({ page, context 
   }
   expect(errors).toEqual([]);
 });
+
+// Wegweiser 26b: pages without content on 02.11.2026 get the card; Touren starts as one line
+test('Touren, Ski and Ruhiger pages show the card with good to know', async ({ page, context }, info) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await openHome(page, context, info);
+  await page.goto('./#/trips');
+  const line = page.locator('[data-seiteninhalt-line]');
+  await expect(line).toBeVisible();
+  await (info.project.name === 'phone' ? line.tap() : line.click());
+  await expect(page.locator('[data-seiteninhalt-know="f.plan"]')).toContainText(T('Good to know'));
+  for (const hash of ['#/me/ruhig/zahlen', '#/neuland', '#/me/frei/sammlungen']) {
+    await page.goto('./' + hash);
+    const card = page.locator('[data-seiteninhalt]');
+    await expect(card).toContainText(T('What you can do here'));
+    await expect(card.locator('[data-seiteninhalt-know]').first()).toContainText(T('Good to know'));
+    expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBe(0);
+  }
+  expect(errors).toEqual([]);
+});

@@ -76,4 +76,14 @@ export default {
     "Halte den guten Tag fest, solange er frisch ist, mit einem kleinen Detail. Das Detail macht ihn wiederholbar.",
   "The first fetch can take a while; after that it runs by itself. The values are observation, the watch is not a doctor.":
     "Der erste Abruf kann dauern, danach läuft es von selbst. Die Werte sind Beobachtung, die Uhr ist kein Arzt.",
+  'Mark a busy day the same evening; in two weeks a missing ride looks like laziness, not like a long work day.':
+    'Markier einen vollen Tag am selben Abend; in zwei Wochen sieht eine fehlende Fahrt sonst nach Faulheit aus statt nach langem Arbeitstag.',
+  'The days against an insight are the honest part. Three of them are a hint that it is less clear than it looks.':
+    'Die Tage gegen eine Erkenntnis sind der ehrliche Teil. Drei davon zeigen, dass sie weniger klar ist, als sie aussieht.',
+  'A ride to work can be training too. Give it both roles and count it once in the total.':
+    'Eine Fahrt zur Arbeit kann auch Training sein. Gib ihr beide Rollen und zähl sie im Total einmal.',
+  'Write what a 1 and a 10 mean in your own words; in a year your old 7 still says the same.':
+    'Schreib in eigenen Worten, was 1 und 10 bedeuten; in einem Jahr sagt deine alte 7 noch dasselbe.',
+  'Bring your questions, not your conclusions: the page is for the talk, the app makes no diagnosis.':
+    'Bring deine Fragen mit, nicht deine Schlüsse: die Seite ist fürs Gespräch, die App stellt keine Diagnose.',
 };

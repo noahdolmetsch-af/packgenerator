@@ -15,4 +15,7 @@ export default {
   'f.dreamlink': 'A link from a friend\'s report is enough: km and climb come along, the dream still needs your one sentence why.',
   'f.dreamsdone': 'A dream that came true stays in your list of fulfilled dreams: look at it when the next big plan feels too far away.',
   'f.inspiration': 'Save the link with one sentence on why. In a year you will know again what made it interesting.',
+  // Wegweiser 26b: pages that had no card yet
+  'f.freisamml': 'A collection grows by itself on rides: note the fountain when you drink from it, not later at home.',
+  'f.skiseason': 'Practise with the transceiver at the start of the season, not on the first tour. Ten minutes in the park are enough.',
 };
