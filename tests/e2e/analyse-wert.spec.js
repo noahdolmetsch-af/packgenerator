@@ -54,7 +54,7 @@ test('A tile opens the page of its value: ranges, boxes, course, layers, weekday
   // a layer: sleep, with its own axis on the right
   await wv.locator('[data-suggest="sleep"]').click();
   await expect(wv.locator('[data-layer="sleep"]')).toBeVisible();
-  await expect(wv.locator('.ax.r')).toBeVisible();
+  await expect(wv.locator('[data-yticks].right')).toContainText('h');
   if (process.env.ANALYSE_SHOTS) await page.screenshot({ path: `qa/analyse/wert-${info.project.name}.png`, fullPage: true });
   // a day in the table shows every value of that day
   await wv.locator('.days tbody button').first().click();

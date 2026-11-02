@@ -8,6 +8,7 @@ import DE from '../../src/lib/i18n/de/index.js';
 import { D0, TODAY, addDays, put } from './aktiv-fixture.js';
 import { ready } from './settle.js';
 import { DEFAULT_KEYS } from '../../src/lib/analyse/diagram.js';
+import { valueHref, dayHref } from '../../src/lib/analyse/jump.js';
 
 const T = (en) => DE[en] ?? en.replace(/\|[a-z ]+$/, '');
 const P = 'test_data_dg_';
@@ -415,5 +416,71 @@ test('Tagesbild: a tapped day shows its 24 hours with sleep, steps, pulse, ride 
   await expect(pic).toContainText('Sauna');
   await page.locator('[data-day-sheet]').evaluate((el) => Promise.all(el.getAnimations({ subtree: true }).map((a) => a.finished)));
   if (process.env.ANALYSE_SHOTS) await page.screenshot({ path: `qa/analyse/tagesbild-${info.project.name}.png` });
+  expect(errors).toEqual([]);
+});
+
+test('Genaue Werte: every Analyse chart has round labelled steps, and a tap shows the exact value', async ({ page, context }, info) => {
+  const errors = await open(page, context);
+  await go(page, '#/auswerten/analyse');
+  const tapAt = async (loc, x, y) => {
+    // x, y: parts of the width and height (0–1), so phone and computer hit the same spot
+    await loc.evaluate((el) => el.scrollIntoView({ block: 'center' }));
+    const b = await loc.boundingBox();
+    await loc.click({ position: { x: b.width * x, y: b.height * y } });
+  };
+  const steps = async (sel) => {
+    const labels = page.locator(`${sel} [data-yticks]`).first().locator('span');
+    expect(await labels.count(), sel).toBeGreaterThanOrEqual(3);
+    for (const s of await labels.allTextContents()) expect(s.trim(), sel).toMatch(/\d/);
+  };
+  for (const sel of ['[data-diagram]', '[data-weekly]', '[data-compare-period]', '[data-compare-acts]', '[data-year-year]', '[data-bike-km]', '[data-links]']) {
+    await page.locator(sel).scrollIntoViewIfNeeded();
+    await steps(sel);
+    await expect(page.locator(`${sel} [data-grid] line`).first()).toBeAttached();
+  }
+  // Velo-km: the newest week is shown, a tapped week gives its exact km
+  const bk = page.locator('[data-bike-km]');
+  await expect(bk.locator('[data-bike-week]')).toContainText('km');
+  await tapAt(bk.locator('svg[role="img"]'), 0.02, 0.4);
+  await expect(bk.locator('[data-bike-week]')).toContainText(T('Week of {day}|bikesan').replace(' {day}', ''));
+  await shot(page, 'genau-velokm', info, '[data-bike-km]');
+  // Muster: a tapped month gives both years
+  const yy = page.locator('[data-year-year]');
+  await tapAt(yy.locator('svg[role="img"]'), 0.65, 0.6);
+  await expect(yy.locator('[data-yy-pick] b').first()).toBeVisible();
+  await shot(page, 'genau-muster', info, '[data-year-year]');
+  await shot(page, 'genau-diagramm', info, '[data-diagram]');
+  await shot(page, 'genau-ueberblick', info, '[data-weekly]');
+  await shot(page, 'genau-vergleiche', info, '[data-compare-period], [data-compare-acts]');
+  await shot(page, 'genau-zusammenhang', info, '[data-links]');
+  // Tagesbild: pulse on the left, steps on the right, a tapped hour gives its values
+  await page.locator(`[data-heat] button.cell[data-day="${addDays(TODAY, -1)}"]`).click();
+  const pic = page.locator('[data-day-sheet] [data-day-picture]');
+  await expect(pic).toBeVisible();
+  expect(await pic.locator('[data-yticks]').count()).toBeGreaterThanOrEqual(1);
+  await tapAt(pic.locator('svg[role="img"]'), 0.4, 0.3);
+  await expect(pic.locator('[data-pic-hour]')).toContainText(':00');
+  await page.locator('[data-day-sheet]').evaluate((el) => Promise.all(el.getAnimations({ subtree: true }).map((a) => a.finished)));
+  if (process.env.ANALYSE_SHOTS) await page.screenshot({ path: `qa/analyse/genau-tagesbild-${info.project.name}.png` });
+  await page.keyboard.press('Escape');
+  // the page of one value: steps with the unit, a tapped day gives its exact value
+  await go(page, '#/auswerten/analyse/rhr');
+  await expect(page.locator('[data-yticks]').first()).toContainText('bpm');
+  await tapAt(page.locator('.plot svg[role="img"]').first(), 0.6, 0.4);
+  await expect(page.locator('[data-picked-value]')).toContainText('bpm');
+  await shot(page, 'genau-wert', info, 'section.chart');
+  expect(errors).toEqual([]);
+});
+
+test('Jump targets: a link opens the sheet of a day or the page of a value with its period', async ({ page, context }) => {
+  const errors = await open(page, context);
+  await go(page, dayHref(addDays(TODAY, -2)));
+  const sheet = page.locator('[data-day-sheet]');
+  await expect(sheet).toHaveAttribute('data-day-sheet', addDays(TODAY, -2));
+  await page.keyboard.press('Escape');
+  await expect(sheet).toHaveCount(0);
+  await expect.poll(() => page.evaluate(() => location.hash)).toBe('#/auswerten/analyse');
+  await go(page, valueHref('sleep', 'w'));
+  await expect(page.locator('button[data-key="w"]')).toHaveAttribute('aria-pressed', 'true');
   expect(errors).toEqual([]);
 });

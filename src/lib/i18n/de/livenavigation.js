@@ -140,4 +140,13 @@ export default {
   'App visible again': 'App wieder sichtbar',
   'Screen lock held': 'Bildschirm bleibt an',
   'Screen lock refused': 'Bildschirm-An abgelehnt',
+  // Letzter offener Laden vor der Nacht (Noah 02.11.2026)
+  'Last open shop before the night': 'Letzter offener Laden vor der Nacht',
+  'Load the stops along the route to see the last open shop before the night.': 'Lade die Stopps entlang der Strecke, dann siehst du den letzten offenen Laden vor der Nacht.',
+  'It is dark. The nearest shop ahead:': 'Es ist dunkel. Der nächste Laden vor dir:',
+  'No open shop is left before the night. The nearest ahead:': 'Vor der Nacht ist kein offener Laden mehr da. Der nächste vor dir:',
+  'Closes {n} after you get there.': 'Schliesst {n} nach deiner Ankunft.',
+  '{n} before sunset.': '{n} vor Sonnenuntergang.',
+  'Not sure: no opening hours known.': 'Nicht sicher: keine Öffnungszeiten bekannt.',
+  'No shop found ahead on the route.': 'Kein Laden vor dir auf der Strecke gefunden.',
 };

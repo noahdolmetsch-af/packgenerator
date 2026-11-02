@@ -31,6 +31,7 @@
   import { db } from '../lib/db.js';
   import { VIEWS_KEY, cleanViews, applyDiagram } from '../lib/analyse/views.js';
   import DaySheet from './analyse/DaySheet.svelte';
+  import { dayOfHash, rangeOfHash } from '../lib/analyse/jump.js';
   import { itemsByKey } from '../lib/analyse/catalog.js';
   import { addDays } from '../lib/analyse.js';
   import { tripEnd } from '../lib/tripstate.js';
@@ -53,6 +54,19 @@
     return () => removeEventListener('hashchange', on);
   });
   const detailKey = $derived(keyOf(hash));
+  const askedRange = $derived(rangeOfHash(hash));
+  // a link from another page (dayHref) opens the sheet of that day
+  $effect(() => {
+    const d = dayOfHash(hash);
+    if (d) dayOpen = d;
+  });
+  function closeDay() {
+    dayOpen = null;
+    if (dayOfHash(location.hash)) {
+      history.replaceState(history.state, '', location.hash.replace(/[?&]tag=[^&]*/, '').replace(/\?$/, ''));
+      hash = location.hash;
+    }
+  }
 
   const today = localDay();
   const LS = 'pg.analyse';
@@ -125,7 +139,7 @@
 </script>
 
 {#if detailKey}
-  {#key detailKey}<AnalyseWert key={detailKey} />{/key}
+  {#key detailKey}<AnalyseWert key={detailKey} range={askedRange} />{/key}
 {:else}
 <div class="an">
   <header>
@@ -204,7 +218,7 @@
   {/if}
 </div>
 {#if dayOpen}
-  <DaySheet day={dayOpen} {groups} {today} rowOf={(d) => data.table.get(d)} log={data.log} acts={data.acts} tripName={data.trips.find((tr) => tr.startDate && tr.startDate <= dayOpen && (tripEnd(tr) ?? tr.startDate) >= dayOpen)?.name ?? ''} onday={(d) => (dayOpen = d)} onclose={() => (dayOpen = null)} />
+  <DaySheet day={dayOpen} {groups} {today} rowOf={(d) => data.table.get(d)} log={data.log} acts={data.acts} tripName={data.trips.find((tr) => tr.startDate && tr.startDate <= dayOpen && (tripEnd(tr) ?? tr.startDate) >= dayOpen)?.name ?? ''} onday={(d) => (dayOpen = d)} onclose={closeDay} />
 {/if}
 {/if}
 

@@ -156,7 +156,9 @@ const LISTED_HOME = {
   'f.dreamlink': '#/trips/dreams',
   'f.newtoday': '#/neuland',
   'f.dreamsdone': '#/trips/dreams',
+  'f.dreamready': '#/trips/dreams',
   'f.newkm': '#/neuland',
+  'f.triptips': '#/trips/dreams',
   'f.races': '#/trips/dreams',
   'f.starters': '#/pack',
   'f.packside': '#/pack',
@@ -311,6 +313,7 @@ const LISTED_HOME = {
   'f.sellbike': '#/bikes?tab=care&view=sell',
   'f.bikebox': '#/bikes?tab=care&view=wear',
   'f.workshoprounds': '#/bikes?tab=care&view=wear', // Velo-Idee 76: «Werkstatt-Runden» is a chip on «Verschleiss»
+  'f.wearcosts': '#/bikes?tab=care&view=wear',
   'f.sparestock': '#/bikes?tab=care&view=wear',
   'f.brandkm': '#/bikes?tab=care&view=wear',
   'f.springservice': '#/bikes?tab=care&view=wear',
