@@ -4,11 +4,11 @@ export default {
   lead: 'The numbers now match your week, and there is more to see.',
   points: [
     { text: 'Hours count your Aktiv minutes too, and a running week is compared with the same days of the weeks before', go: { href: '#/flow/review', steps: [{ sel: '[data-wr="five"]' }] } },
-    { text: 'Every observation opens «All numbers behind it»', go: { href: '#/flow/review', steps: [{ text: 'All numbers behind it' }] } },
-    { text: 'New tiles: body values, heart rate zones, km per bike, weather and appointments', go: { href: '#/flow/review', steps: [{ sel: '[data-wr="body"]' }] } },
+    { text: 'Every observation opens «All numbers behind it»', go: { href: '#/flow/review', steps: [{ sel: '[data-wr="obs"]' }] } },
+    { text: 'My note and a goal for next week', go: { href: '#/flow/review', steps: [{ sel: '[data-wr="note"]' }] } },
   ],
   small: [
-    { box: 'new', text: 'My note and a goal for next week', go: { href: '#/flow/review', steps: [{ sel: '[data-wr="note"]' }] } },
+    { box: 'new', text: 'New tiles: body values, heart rate zones, km per bike, weather and appointments' },
     { box: 'new', text: 'Two new kinds of observations: body values, weather and moving', go: { href: '#/flow/review', steps: [{ sel: '[data-wr="obs"]' }] } },
     { box: 'nicer', text: 'The observations are fixed only after Sunday, so a late ride still counts' },
   ],
