@@ -20,6 +20,11 @@ export const ON_PAGES = [
 /** Rows shown before «Show all n». */
 export const SHOWN = 4;
 export const FOLD_KEY = 'seiteninhalt.folded';
+/**
+ * Pages where the card starts as one line (Noah 02.11.2026): on the way the helpers, «End trip» and the emergency button
+ * must stay on the first screen. A tap opens it, and the choice is kept like ×.
+ */
+export const FOLDED_FIRST = ['#/ride'];
 
 /** The page of a hash, as HOME writes it: path plus «tab=…» or «view=…» when they choose the page. */
 export function pageKey(hash = '') {
@@ -43,3 +48,12 @@ export function pageContent(hash, on = ON_PAGES) {
 
 /** The folded pages ({ [page key]: true }) from the stored setting. */
 export const foldedOf = (v) => (v && typeof v === 'object' && !Array.isArray(v) ? Object.fromEntries(Object.entries(v).filter(([, x]) => x === true)) : {});
+
+/** The stored choices ({ [page key]: true folded | false opened }), other values left out. */
+export const foldMapOf = (v) => (v && typeof v === 'object' && !Array.isArray(v) ? Object.fromEntries(Object.entries(v).filter(([, x]) => typeof x === 'boolean')) : {});
+
+/** Whether the card of a page shows as one line: the stored choice, else folded on FOLDED_FIRST pages. */
+export function isFolded(map, key, first = FOLDED_FIRST) {
+  const m = foldMapOf(map);
+  return key in m ? m[key] : first.includes(key);
+}

@@ -67,6 +67,10 @@ test('On the way shows good to know in the card during a trip', async ({ page, c
   await context.addInitScript((id) => localStorage.setItem('pack.currentTrip', id), 'test_data_gtp_Jura-Wochenende');
   await openHome(page, context, info, { data: d });
   await page.goto('./#/ride');
+  // on the way the card starts as one line, so the helpers and the emergency button stay on top; a tap opens it
+  const line = page.locator('[data-seiteninhalt-line]');
+  await expect(line).toContainText(T('What you can do here'));
+  await (info.project.name === 'phone' ? line.tap() : line.click());
   const card = page.locator('[data-seiteninhalt]');
   await expect(card).toContainText(T('What you can do here'));
   await expect(card.locator('[data-seiteninhalt-know]').first()).toContainText(T('Good to know'));
