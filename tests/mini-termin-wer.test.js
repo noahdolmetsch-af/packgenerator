@@ -17,3 +17,20 @@ describe('Termin finden: wer hat geantwortet', () => {
     expect(reminderText('Tour', ['Berta', 'Carlo'], 'https://x', T)).toBe('Tour: still missing an answer from Berta, Carlo. Tap your answer here: https://x');
   });
 });
+
+import { mergeAnswers, cleanManual } from '../src/lib/mini/termin.js';
+const OPTS = [{ d: '2026-11-14', t: '' }, { d: '2026-11-15', t: '' }];
+describe('Termin finden: von Hand eintragen', () => {
+  it('merges server answers, typed ones, changed and deleted', () => {
+    const server = [{ a: 'a1', name: 'Anna', picks: { '2026-11-14': 'y' } }, { a: 'a2', name: 'Berta', picks: { '2026-11-14': 'n' } }, { a: 'a3', name: 'Carlo', picks: {} }];
+    const manual = [{ id: 'm1', name: 'Anna', picks: { '2026-11-14': 'm' }, over: 'a1' }, { id: 'm2', name: 'Dora', picks: { '2026-11-15': 'y' } }];
+    const rows = mergeAnswers(server, manual, ['a3']);
+    expect(rows.map((r) => r.key)).toEqual(['s:a2', 'm:m1', 'm:m2']);
+    expect(rows.find((r) => r.key === 'm:m1').picks['2026-11-14']).toBe('m');
+  });
+  it('needs a name and one answer for a typed answer', () => {
+    expect(cleanManual({ name: '', picks: { '2026-11-14': 'y' } }, OPTS)).toBeNull();
+    expect(cleanManual({ name: 'Dora', picks: {} }, OPTS)).toBeNull();
+    expect(cleanManual({ name: 'Dora', picks: { '2026-11-14': 'y', '2030-01-01': 'y' } }, OPTS)).toEqual({ name: 'Dora', picks: { '2026-11-14': 'y' }, note: '' });
+  });
+});

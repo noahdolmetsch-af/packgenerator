@@ -69,6 +69,8 @@ export function cleanItem(x = {}) {
     day: kind === 'date' && !day ? null : day,
     time: isTime(x.time) ? x.time : '',
     done: !!x.done,
+    // «Planen als verbindende Mitte» 4a: how long it takes, in minutes (5–480), for a to-do; optional
+    ...(kind === 'todo' && Math.round(Number(x.mins)) >= 5 && Math.round(Number(x.mins)) <= 480 ? { mins: Math.round(Number(x.mins)) } : {}),
     ...(x.bikeId ? { bikeId: String(x.bikeId) } : {}),
     ...(x.part ? { part: String(x.part) } : {}),
     ...(x.ref ? { ref: String(x.ref) } : {}),
@@ -220,7 +222,7 @@ export function buildWeek(src) {
   // own items: dates, to-dos and bike service with a day in the week
   for (const x of items) {
     if (!x.day) continue;
-    at(x.day)?.entries.push({ id: x.id, kind: x.kind, title: x.title, sub: null, time: x.time, done: x.done, own: true });
+    at(x.day)?.entries.push({ id: x.id, kind: x.kind, title: x.title, sub: x.mins ? { mins: x.mins } : null, time: x.time, done: x.done, own: true });
   }
   const order = { away: 0, date: 1, sport: 2, bike: 3, todo: 4 };
   for (const d of days) d.entries.sort((a, b) => (a.time || '99').localeCompare(b.time || '99') || order[a.kind] - order[b.kind]);
@@ -229,7 +231,7 @@ export function buildWeek(src) {
   const from = monday > today ? monday : today;
   const nextAway = away.find((a) => a.to >= from && a.from < end) ?? null;
   const suggestions = [];
-  for (const x of items) if (x.kind === 'todo' && !x.day && !x.done && !skipped.has(`todo:${x.id}`)) suggestions.push({ ref: `todo:${x.id}`, kind: 'todo', title: x.title, sub: null, day: freeDay(days, from, away), act: 'take', id: x.id });
+  for (const x of items) if (x.kind === 'todo' && !x.day && !x.done && !skipped.has(`todo:${x.id}`)) suggestions.push({ ref: `todo:${x.id}`, kind: 'todo', title: x.title, sub: x.mins ? { mins: x.mins } : null, day: freeDay(days, from, away), act: 'take', id: x.id });
   // open Google tasks without a date (Paket B): taking one makes an own to-do of that day (ref gtask:…)
   const takenRefs = new Set(items.filter((x) => x.ref).map((x) => x.ref));
   for (const x of g.open) {

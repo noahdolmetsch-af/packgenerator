@@ -2075,4 +2075,16 @@ export default {
   'Tap «Round through it»: km, climb and time.': 'Tippe «Runde hindurch»: km, Höhenmeter und Zeit.',
   '«Plan as a trip» makes a trip with this round; «Other side» goes the other way round.': '«Als Tour planen» macht eine Tour mit dieser Runde; «Andere Seite» fährt andersherum.',
   'Example: Wallisellen, 6 km away → 24 km · 180 m up · about 1 h 30 min.': 'Beispiel: Wallisellen, 6 km entfernt → 24 km · 180 m hoch · etwa 1 h 30 min.',
+  // «Träume und Neuland» N13
+  'Needs the internet; komoot gives no map without an account (then a GPX file).': 'Braucht Internet; komoot gibt ohne Konto keine Karte (dann eine GPX-Datei).',
+  'Open Trips › Dreams and paste the link of a tour in the field at the top.': 'Öffne Touren › Träume und füge oben ins Feld den Link einer Tour ein.',
+  'Tap «Add»: name, km and climb come from the link.': 'Tippe «Hinzufügen»: Name, km und Höhenmeter kommen aus dem Link.',
+  'In an existing dream with a link: «Read from the link».': 'In einem Traum mit Link: «Aus dem Link lesen».',
+  'Example: ridewithgps.com/routes/12345 → «Jura crossing» · 84 km · 1250 m up, with a map.': 'Beispiel: ridewithgps.com/routes/12345 → «Jura-Querung» · 84 km · 1250 m hoch, mit Karte.',
+  // «Träume und Neuland» N11
+  'Shows only on the day of a ride and the day after.': 'Erscheint nur am Tag einer Fahrt und am Tag danach.',
+  'Ride somewhere you have never been; the route or the ride counts.': 'Fahr irgendwohin, wo du noch nie warst; die Route oder die Fahrt zählt.',
+  'Today shows «New since yesterday: …» under the greeting.': 'Heute zeigt «Neu seit gestern: …» unter dem Gruss.',
+  'Tap it for New ground, or × to close it.': 'Tippe es an für Neuland, oder × zum Schliessen.',
+  'Example: a ride round the lake → «New since yesterday: 3 municipalities, 1 lake».': 'Beispiel: eine Fahrt um den See → «Neu seit gestern: 3 Gemeinden, 1 See».',
 };

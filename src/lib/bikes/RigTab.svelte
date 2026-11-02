@@ -40,6 +40,7 @@
   import VeloHead from './VeloHead.svelte';
   import BikeChips from './BikeChips.svelte';
   import Fold from '../ui/Fold.svelte';
+  import PasstHier from '../ui/PasstHier.svelte';
 
   let { bikeId = null, view = null, setupId = null, a = null, b = null, onbike } = $props();
 
@@ -228,6 +229,7 @@
       <p class="hint">{t('No change written down yet. A new chainring, other tyres, another bag: write it down and see later how it felt.')}</p>
     {/each}
     <a class="more" href={bikesHash({ tab: 'rig', view: 'log', bike: bike.id })}>{t('Whole log')}<ChevronRight size={16} aria-hidden="true" /></a>
+    <PasstHier place="rig" />
   </section>
 
   <!-- Setup 3: «Your bike compared», «Your races» and «Ideas from others» in one fold at the end -->

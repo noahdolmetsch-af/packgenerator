@@ -6,7 +6,7 @@ PR #… · 01.11.2026 · Auftrag: Noah «1a 2a 3a 4a 5a» und Plan «1-26» frei
 - Touren › Träume: unter den Neuland-Zielen die Zeile «Passt hier» mit Reise-Wünsche, Worauf hab ich Lust? und Was mir wesentlich ist.
 - Touren › Rückblick › Neuland: am Ende die Zeile «Passt hier» mit Erste Nacht und Dein eigenes Entdeckerbingo.
 - Ein Tipp öffnet die Seite und lässt die Funktion kurz leuchten (wie im Katalog).
-- Test «Absprung»: diese 5 Funktionen haben jetzt einen Absprung, die Liste sinkt von 40 auf 35.
+- Test «Absprung»: diese 5 Funktionen haben jetzt einen Absprung, die Liste sinkt um 5.
 
 ## Was fällt weg oder rutscht tiefer
 - nichts. Die Seiten bleiben auch unter Ich › Freie Zeit und Ich › Ruhig und persönlich.

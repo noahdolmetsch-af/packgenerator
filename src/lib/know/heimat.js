@@ -153,6 +153,8 @@ const LISTED_HOME = {
   'f.whitespots': '#/trips/dreams',
   'f.nlgoals': '#/trips/dreams',
   'f.nlround': '#/trips/dreams',
+  'f.dreamlink': '#/trips/dreams',
+  'f.newtoday': '#/neuland',
   'f.races': '#/trips/dreams',
   'f.starters': '#/pack',
   'f.packside': '#/pack',

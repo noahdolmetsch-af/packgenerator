@@ -78,10 +78,10 @@
 
   /* add a date or a to-do */
   let form = $state(null);
-  const startAdd = (kind) => (form = { kind, title: '', day: kind === 'date' ? (today >= monday ? today : monday) : '', time: '' });
+  const startAdd = (kind) => (form = { kind, title: '', day: kind === 'date' ? (today >= monday ? today : monday) : '', time: '', mins: '' });
   // «Planen als verbindende Mitte» 3a (Noah 1.11.2026): «+ Einplanen» in every day opens the add form with that day
   const planDay = (day) => {
-    form = { kind: 'todo', title: '', day, time: '' };
+    form = { kind: 'todo', title: '', day, time: '', mins: '' };
     queueMicrotask(() => document.getElementById('wk-add')?.scrollIntoView({ block: 'center' }));
   };
   const emptyWeek = $derived(!!week && week.days.every((d) => !d.entries.length));
@@ -207,6 +207,7 @@
                 {#if form.kind === 'date'}<label>{t('Time')}<input type="time" bind:value={form.time} /></label>{/if}
               </div>
               {#if form.kind === 'date'}<BufferPick bind:before={buf.before} bind:after={buf.after} />{/if}
+              {#if form.kind === 'todo'}<label>{t('Time needed (minutes, optional)')}<input type="number" min="5" max="480" step="5" bind:value={form.mins} placeholder="30" data-todo-mins /></label>{/if}
               {#if form.kind === 'todo'}<p class="why">{t('Without a day it waits under «Still to plan».')}</p>{/if}
               <div class="fb"><button type="submit" class="btn">{t('Save')}</button><button type="button" class="btn" onclick={() => (form = null)}>{t('Cancel')}</button></div>
             </form>
