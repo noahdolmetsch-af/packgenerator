@@ -8,12 +8,13 @@ import { fileURLToPath } from 'node:url';
 import { HOME, GAPS } from '../../src/lib/know/heimat.js';
 import { start, tr } from './gesamttest/lib.js';
 import { settle } from './settle.js';
+import { FEATURE_SRC_ALL } from './featsrc.js'; // features.js plus the files of src/lib/featreg/
 
 const T = tr('de');
 const SCREENS = 2.5;
-// features.js and tips.js need Svelte (through i18n), so their titles are read as text: { id → English title }
+// features.js (and src/lib/featreg/) and tips.js need Svelte (through i18n), so their titles are read as text: { id → English title }
 const src = (f) => readFileSync(fileURLToPath(new URL(`../../src/lib/${f}`, import.meta.url)), 'utf8');
-const TITLE = Object.fromEntries([...(src('tips.js') + src('features.js')).matchAll(/\{ id: '([^']+)'[^\n]*?title: (?:'((?:[^'\\]|\\.)*)'|"([^"]*)")/g)].map((m) => [m[1], (m[2] ?? m[3]).replace(/\\'/g, "'")]));
+const TITLE = Object.fromEntries([...(src('tips.js') + FEATURE_SRC_ALL).matchAll(/\{ id: '([^']+)'[^\n]*?title: (?:'((?:[^'\\]|\\.)*)'|"([^"]*)")/g)].map((m) => [m[1], (m[2] ?? m[3]).replace(/\\'/g, "'")]));
 /** The German name of a function as «What the app can do» shows it, without brackets and stars. */
 const nameOf = (id) => T(TITLE[id]).replace(/\s*\(.*?\)\s*/g, ' ').replace(/[«»★]/g, '').trim();
 
