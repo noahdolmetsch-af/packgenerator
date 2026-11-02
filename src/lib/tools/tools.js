@@ -22,8 +22,8 @@ export const TOOLS = [
   { key: 'video', icon: 'film', title: 'Make video smaller', sub: 'For messages and e-mail' },
   { key: 'qr', icon: 'qr', title: 'Make a QR code', sub: 'Text, link or WLAN as a code' },
   { key: 'map', icon: 'route', title: 'Measure a route', sub: 'Tap on the map, see the length, save as GPX' },
-  { key: 'gears', icon: 'cog', title: 'Gear ratios', sub: 'Chainring and cassette: metres and speed' },
-  { key: 'level', icon: 'level', title: 'Spirit level', sub: 'How crooked, in degrees and percent' },
+  { key: 'gears', icon: 'cog', title: 'Gear ratios', sub: 'Chainring and cassette: metres and speed', know: 'A smaller chainring helps more on a loaded bike than a bigger sprocket: compare both here before you buy. Under 2 metres per crank turn, steep gravel climbs stay rideable.' },
+  { key: 'level', icon: 'level', title: 'Spirit level', sub: 'How crooked, in degrees and percent', know: 'Lay the phone flat on the saddle, bike on level ground. Measure before and after you change something, then write it in the setup log.' },
   { key: 'barcode', icon: 'scan', title: 'Bar code → gear', sub: 'Scan a product, find or add it in your gear' },
   { key: 'light', icon: 'flashlight', title: 'Magnifier and light', sub: 'Read small print, light up', know: 'The tyre wall shows the allowed pressure in small print, for example «35–65 psi». The magnifier reads it at dusk too. The light uses battery, so switch it off when you are done.' },
   // Paket L2 «Bilderkennung» (Noah 19.10.2026): a photo ticks the packing list or adds gear; the sitting position from a photo or video
