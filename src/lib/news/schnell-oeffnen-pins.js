@@ -5,7 +5,7 @@ export default {
   points: [{ text: 'Open quickly: your pins on Today, with about 12 suggestions to start; the pencil changes them right there', go: { href: '#/', steps: [{ sel: '[data-pins-tile]' }] } }],
   small: [
     { box: 'new', text: 'Add any function, rename, unpin with Undo, order with arrows or drag, back to the suggestions', go: 'f.quicklinks' },
-    { box: 'moved', text: 'The 8 small tiles of Today are replaced by this tile; they stay in «Add a tile»', go: 'f.quicklinks' },
+    { box: 'nicer', text: 'The 8 small tiles of Today are replaced by this tile; they stay in «Add a tile»', go: 'f.quicklinks' },
   ],
   test: [
     'On Today scroll to «Open quickly»: your shortcuts stand there; tap «Weather» or «Quick start» to open it.',
