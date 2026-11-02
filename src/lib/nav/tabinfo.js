@@ -19,6 +19,7 @@ export const TAB_INFO = {
   'week:inspiration': ['lightbulb', 'Your own links, key words and ideas'],
   'week:links': ['link', 'SBB, Maps, komoot and your own links'],
   'trips:overview': ['map', 'All tours, planned and ridden'],
+  'trips:underway': ['route', 'Live map, races and race plan, for when you are on the way'],
   'trips:templates': ['copy', 'Packing lists to start a new tour from'],
   'trips:lookback': ['history', 'Look back: heatmap, new ground, your year'],
   'trips:dreams': ['star', 'Dream tours and races with their season'],

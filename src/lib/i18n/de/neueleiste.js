@@ -5,6 +5,8 @@ export default {
   'Appointments|tab': 'Termine',
   'Notes|tab': 'Notizen',
   'Insights|tab': 'Erkenntnisse',
+  'Underway|tab': 'Unterwegs',
+  'Live map, races and race plan, for when you are on the way': 'Live-Karte, Rennen und Rennplan, für unterwegs',
   // UI-Ziele #6 (Noah 20.10.2026 «freigabe»): Ich keeps data, settings and help; the rest moved to Planen and Auswerten
   'Week|tab': 'Woche',
   'Inbox|tab': 'Eingang',

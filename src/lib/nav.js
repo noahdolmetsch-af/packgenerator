@@ -395,6 +395,9 @@ export const PLACE_TABS = {
     // Paket N (Noah 19.10.2026 «1a»): dream tours with their season, races as event tours.
     // «Träume und Neuland» (Noah 27.10.2026 «1-5 a»): Träume stands second, right after the overview
     { key: 'dreams', label: 'Dreams|tab', href: '#/trips/dreams', match: (h) => h.startsWith('#/trips/dreams') },
+    // Menü-Analyse Punkt 2 (Noah 2.11.2026 «1 → 2 → 4»): the live map, the race plan and the races had no tab. One tab
+    // «Underway» leads to the live map; #/race and #/racecheck light it too. The addresses stay as they were.
+    { key: 'underway', label: 'Underway|tab', href: '#/live', match: (h) => /^#\/(live|race|racecheck)(\/|\?|$)/.test(h) },
     { key: 'templates', label: 'Templates', href: '#/pack/templates', match: (h) => h.startsWith('#/pack/templates') },
     { key: 'lookback', label: 'Look back|page', href: '#/debrief', match: (h) => h.startsWith('#/debrief') || h.startsWith('#/pack/past') || h.startsWith('#/neuland') || h.startsWith('#/heatmap') },
     // v0.97.0 «Skitouren» (Noah 11.10.2026, 1: Touren › Skitouren): next tour, backpack check, start check, care
