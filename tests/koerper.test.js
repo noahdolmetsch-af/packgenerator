@@ -173,8 +173,8 @@ describe('Körperwerte: new values reach the older days once', () => {
     const asked = [];
     const c = async (_s, o) => (asked.push(o.params), { days: [] });
     await syncHealth(db, { c, now });
-    expect(asked[0].from).toBe('2026-07-12'); // 90 days, in windows of 30
-    expect(asked.at(-1).to).toBe(TODAY);
+    expect(asked.at(-1).from).toBe('2026-07-12'); // 90 days, in windows of 30
+    expect(asked[0].to).toBe(TODAY);
     expect((await db.settings.get(HEALTH_KEY)).value.fill).toBe(FILL_V);
     await syncHealth(db, { c, now });
     expect(asked.at(-1)).toEqual({ from: '2026-10-05', to: TODAY });
