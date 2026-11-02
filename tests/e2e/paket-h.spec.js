@@ -5,6 +5,7 @@
 //    #348: a new item «Stirnlampe» gets usual values with «Übernehmen».
 // 3. Computer: Material as «Tabelle», two rows ticked, one field «Für alle setzen», «Rückgängig» takes it back.
 // 4. Packen (the Packen step): «Vorlesen» with «Nur Knopf»; the big button ticks the item off.
+import { openFolds } from './settle.js';
 import { test, expect } from './clock.js';
 import { openHome, homeFixture, day } from './home0460-fixture.js';
 
@@ -127,6 +128,7 @@ test('Paket H: own rule for a block, start fresh with Undo', async ({ page, cont
 
   // «Neu beginnen»: everything goes, Undo brings it back
   await page.goto('./#/me/data');
+  await openFolds(page);
   const fresh = main.locator('#start-fresh');
   await fresh.getByRole('button', { name: T('Start fresh …') }).click();
   await expect(fresh.getByText(T('Really delete all data?'))).toBeVisible();
