@@ -2,8 +2,8 @@
 export default {
   title: 'Fulfilled dreams',
   lead: 'A dream you rode counts as fulfilled once its debrief is done.',
-  points: [{ text: 'Trips › Dreams: «Fulfilled dreams» with month and photo; a tap opens the debrief', href: '#/trips/dreams' }],
-  small: [{ box: 'new', text: 'The year card of Past trips counts your fulfilled dreams', href: '#/pack/past' }],
+  points: [{ text: 'Trips › Dreams: «Fulfilled dreams» with month and photo; a tap opens the debrief', href: '#/trips/dreams', go: 'f.dreamsdone' }],
+  small: [{ box: 'new', text: 'The year card of Past trips counts your fulfilled dreams', href: '#/pack/past', go: 'f.dreamsdone' }],
   test: [
     'Plan a dream as a trip, ride it and finish its debrief.',
     'Open Trips › Dreams: the dream shows under «Fulfilled dreams» with its month.',
