@@ -467,9 +467,11 @@ const LOOK_FLOW = /^#\/flow\/(form|stats|auswertung|milestones|trophies|ideen)(\
  */
 export const TAB_GROUPS = {
   week: [
-    { label: 'Often used|group', keys: ['week', 'remember', 'agenda', 'notes'] },
-    { label: 'Write down|group', keys: ['tagebuch', 'inbox', 'mail'] },
-    { label: 'Find your way|group', keys: ['compass', 'alltag', 'frei'] },
+    // Menü-Analyse Punkt 1 (Noah 2.11.2026 «1 → 2 → 4»): three clear parts, Inspiration and Links one step further down.
+    // Only the groups in «Alle n» change; the keys, addresses and the order of the tabs stay as they were.
+    { label: 'Week and dates|group', keys: ['week', 'remember', 'agenda'] },
+    { label: 'Write down|group', keys: ['notes', 'tagebuch', 'inbox', 'mail'] },
+    { label: 'Everyday|group', keys: ['alltag', 'frei', 'compass'] },
     { label: 'Ideas and tools|group', keys: ['inspiration', 'links'] },
   ],
 };
