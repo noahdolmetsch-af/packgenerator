@@ -17,6 +17,7 @@
   import { remainingSec, isDone, clock } from '../flowtimer.js';
   import { localDay } from '../localday.js';
   import { t } from '../i18n.svelte.js';
+  import { almostLine } from './hobby/words.js';
 
   let { page = 'home' } = $props();
   let today = $state(localDay());
@@ -62,7 +63,7 @@
   {#key ui.toast.id}
     <div class="ftoast" role="status">
       <Check size={18} aria-hidden="true" />
-      <span>{ui.toast.text}</span>
+      <span>{ui.toast.text}{#if ui.toast.hint}<small class="fth" data-toast-hint>{almostLine(ui.toast.hint)}</small>{/if}</span>
       {#if ui.toast.undo}<button type="button" class="undo" onclick={runUndo}>{t('Undo')}</button>{/if}
       {#if ui.toast.link}
         <a class="undo lk" href={ui.toast.link.href} onclick={closeToast} data-toast-link>{ui.toast.link.text}<ChevronRight size={16} aria-hidden="true" /></a>
@@ -169,6 +170,11 @@
     flex: 1;
     min-width: 0;
     font-weight: 500;
+  }
+  .fth {
+    display: block;
+    font-weight: 400;
+    opacity: 0.85;
   }
   .undo {
     min-height: 44px;
