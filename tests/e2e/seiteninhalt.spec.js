@@ -179,3 +179,36 @@ test('Aktiv and Training show good to know in the card', async ({ page, context 
   }
   expect(errors).toEqual([]);
 });
+
+
+// PR 21: pages of one thing (a placeholder ':trip', ':race' in ON_PAGES) show the card too; the fold choice holds for the pattern,
+// so folding it on one trip's debrief folds it on every trip's debrief. Fictional trips and notes (test_data_gtp_).
+test('One trip debrief shows the card, the fold holds for every trip, a race shows it too', async ({ page, context }, info) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await openHome(page, context, info);
+  await page.goto('./#/debrief/test_data_gtp_Napf');
+  const card = page.locator('[data-seiteninhalt]');
+  // starts as one line on a trip's debrief (FOLDED_FIRST), a tap opens it
+  await expect(page.locator('[data-seiteninhalt-line]')).toBeVisible();
+  await tap(page.locator('[data-seiteninhalt-line]'), info);
+  await expect(card).toContainText(T('What you can do here'));
+  await expect(page.locator('[data-seiteninhalt-know="f.breakdown"]')).toContainText(T('Good to know'));
+  expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBe(0);
+  await tap(card.locator('[data-seiteninhalt-fold]'), info);
+  await expect(page.locator('[data-seiteninhalt-line]')).toBeVisible();
+  await page.goto('./#/debrief/test_data_gtp_Jura');
+  await expect(page.locator('[data-seiteninhalt-line]')).toBeVisible();
+  await expect(page.locator('[data-seiteninhalt]')).toHaveCount(0);
+  // a fixed page under the same path is not «one trip»
+  await page.goto('./#/debrief/logbook');
+  await expect(page.locator('[data-seiteninhalt-item="f.breakdown"]')).toHaveCount(0);
+  // the sample race (made up, in the app source) shows its own functions; race mode stays free for riding
+  await page.goto('./#/race');
+  await tap(page.locator('[data-race-sample-open]'), info);
+  await expect(page).toHaveURL(/#\/race\/race-sample$/);
+  await expect(page.locator('[data-seiteninhalt-know="f.racemap"]')).toContainText(T('Good to know'));
+  await page.goto('./#/race/race-sample/ride');
+  await expect(page.locator('[data-seiteninhalt], [data-seiteninhalt-line]')).toHaveCount(0);
+  expect(errors).toEqual([]);
+});
