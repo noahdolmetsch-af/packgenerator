@@ -16,7 +16,7 @@ export function actList(ctx, act, stored, tune = {}) {
 }
 
 /**
- * → { fresh: [{ id, msId, star, day, r }] reached today and new, saved: the flowStars rows written }.
+ * → { fresh: [{ id, msId, star, day, r }] reached today and new, saved: the flowStars rows written, list: the evaluated milestones }.
  * Older stars that were never kept (pages not opened for a while) are kept too, but not shown as new.
  */
 export async function starsAfterTick(db, act, today) {
@@ -34,5 +34,5 @@ export async function starsAfterTick(db, act, today) {
   await saveStars(db, saved);
   const byId = new Map(list.map((r) => [r.id, r]));
   const fresh = saved.filter((s) => s.day === today).map((s) => ({ ...s, r: byId.get(s.msId) }));
-  return { fresh, saved };
+  return { fresh, saved, list };
 }
