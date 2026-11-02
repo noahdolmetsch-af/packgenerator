@@ -216,7 +216,7 @@ test('Training › Woche: an optional goal, plan the week, «Wie letzte Woche»,
   await plan.locator('[data-planned]').click();
   await plan.locator('[data-session-form]').getByRole('button', { name: 'Entfernen' }).click();
   await expect(plan.locator('[data-planned]')).toHaveCount(0);
-  await plan.getByRole('button', { name: 'Diese Woche' }).click();
+  await plan.getByRole('button', { name: 'Diese Woche', exact: true }).click();
   await expect(plan.locator('[data-planned]')).toHaveCount(1);
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(page.viewportSize().width);
   expect(errors).toEqual([]);
@@ -261,5 +261,28 @@ test('Training › Woche: plan a sport of Aktiv, add a new one, tick it', async 
   // a write outside Dexie is not seen by the open page: reload
   await page.reload();
   await expect(plan.locator('[data-planned]').filter({ hasText: `${P}Rudern` })).toHaveClass(/ok/);
+  expect(errors).toEqual([]);
+});
+
+// «Training verbessern» 2 (Noah 2.11.2026): a suggestion for the week with its reasons; another layout; take over; Undo
+test('Training › Woche: a suggestion for the week, another one, take over, undo', async ({ page, context, baseURL }) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await start(page, context, { log: [], app: baseURL });
+  await page.goto('./#/flow/training');
+  const plan = page.locator('[data-section="week-plan"]');
+  await expect(plan.locator('[data-planned]')).toHaveCount(0);
+  await plan.locator('[data-suggest-open]').click();
+  const sug = plan.locator('[data-suggest]');
+  await expect(sug).toContainText('Etwa');
+  await expect(sug).toContainText('in Z1–Z2');
+  const first = await sug.locator('.sugw-list').innerText();
+  await sug.locator('[data-suggest-more]').click();
+  expect(await sug.locator('.sugw-list').innerText()).not.toBe(first);
+  await sug.locator('[data-suggest-take]').click();
+  await expect(sug).toHaveCount(0);
+  expect(await plan.locator('[data-planned]').count()).toBeGreaterThan(0);
+  await page.getByRole('button', { name: 'Rückgängig' }).first().click();
+  await expect(plan.locator('[data-planned]')).toHaveCount(0);
   expect(errors).toEqual([]);
 });
