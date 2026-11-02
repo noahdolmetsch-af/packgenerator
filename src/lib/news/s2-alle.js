@@ -3,12 +3,11 @@
 export default {
   title: 'Soft cards everywhere',
   lead: 'Planen, Touren, Auswerten and Aktiv now have the soft cards of Today.',
-  points: [{ text: 'On Planen, Touren, Auswerten and Aktiv the cards have a soft shadow and round corners instead of a frame', href: '#/week', go: { href: '#/week', where: 'Planen: the cards have a soft shadow instead of a grey frame.' } }],
+  points: [{ text: 'On Planen, Touren, Auswerten and Aktiv the cards have a soft shadow and round corners instead of a frame', href: '#/week', go: { href: '#/week', steps: [{ sel: 'main .card' }] } }],
   small: [],
   test: ['Open Planen, Touren, Auswerten and Aktiv one after the other: the cards have no grey frame, they lie on a soft shadow.', 'Everything is where it was; only the look of the cards changed.'],
   since: [],
   de: {
-    'Planen: the cards have a soft shadow instead of a grey frame.': 'Planen: die Karten haben einen weichen Schatten statt eines grauen Rahmens.',
     'Soft cards everywhere': 'Weiche Karten überall',
     'Planen, Touren, Auswerten and Aktiv now have the soft cards of Today.': 'Planen, Touren, Auswerten und Aktiv haben jetzt die weichen Karten von Heute.',
     'On Planen, Touren, Auswerten and Aktiv the cards have a soft shadow and round corners instead of a frame': 'Auf Planen, Touren, Auswerten und Aktiv haben die Karten einen weichen Schatten und runde Ecken statt eines Rahmens',
