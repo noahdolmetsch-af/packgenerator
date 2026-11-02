@@ -36,7 +36,14 @@ function rows() {
   const flowChecks = [];
   for (let i = 0; i < 90; i++) flowChecks.push({ day: addDays(TODAY, -i), sleep: 6 + (i % 4), energy: 5 + (i % 5), mood: 6 + (i % 3) });
   const trips = [{ id: `${P}trip`, name: 'Probefahrt Jura', domain: 'bike', status: 'done', startDate: addDays(TODAY, -30), days: 4 }];
-  return { healthDays, activities, flowLog, flowChecks, trips };
+  // two fictional bikes with a km book and a chain that is soon worn
+  const bikes = [
+    { id: `${P}bk1`, name: 'Testvelo Gravel', km: 5200, parts: [{ key: 'chain', model: '', history: [{ action: 'replace', date: addDays(TODAY, -200), km: 2700 }] }, { key: 'tyres', model: '', history: [{ action: 'replace', date: addDays(TODAY, -100), km: 4200 }] }] },
+    { id: `${P}bk2`, name: 'Testvelo Stadt', km: 900, parts: [] },
+  ];
+  const kmBook = [];
+  for (let i = 1; i < 84; i += 2) kmBook.push({ id: `${P}kb${i}`, bikeId: i % 6 === 1 ? `${P}bk2` : `${P}bk1`, date: addDays(TODAY, -i), km: 20 + (i % 5) * 7, kind: 'ride', state: 'counted', at: `${addDays(TODAY, -i)}T18:00:00Z` });
+  return { healthDays, activities, flowLog, flowChecks, trips, bikes, kmBook };
 }
 
 async function open(page, context) {
@@ -333,5 +340,22 @@ test('Ansichten: a starter brings its values, a new view keeps what you see, ren
   // it stays
   await go(page, '#/auswerten/analyse');
   await expect(page.locator('[data-views] [data-view]').nth(1)).toHaveText('Ski');
+  expect(errors).toEqual([]);
+});
+
+test('Velos: km per bike and the most worn parts', async ({ page, context }, info) => {
+  const errors = await open(page, context);
+  await go(page, '#/auswerten/analyse');
+  const vk = page.locator('[data-bike-km]');
+  await expect(vk.locator('[data-bike-total]')).toHaveCount(2);
+  await expect(vk.locator('[data-bike-total]').first()).toHaveAttribute('data-bike-total', `${P}bk1`);
+  await expect(vk.locator('path[data-bike-line]')).toHaveCount(2);
+  const wear = vk.locator(`[data-bike-wear="${P}bk1"]`);
+  await expect(wear.locator('[data-wear-part="chain"]')).toHaveClass(/soon/);
+  await expect(wear.locator('[data-wear-part="chain"]')).toContainText(T('{km} km left|bikesan').replace('{km}', '500'));
+  await vk.scrollIntoViewIfNeeded();
+  await shot(page, 'velokm', info);
+  await wear.locator('a').click();
+  await expect(page).toHaveURL(/tab=care/);
   expect(errors).toEqual([]);
 });

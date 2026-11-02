@@ -25,6 +25,7 @@
   import Vergleiche from './analyse/Vergleiche.svelte';
   import Muster from './analyse/Muster.svelte';
   import Ansichten from './analyse/Ansichten.svelte';
+  import VeloKm from './analyse/VeloKm.svelte';
   import { liveQuery } from 'dexie';
   import { fromStore } from 'svelte/store';
   import { db } from '../lib/db.js';
@@ -138,6 +139,7 @@
   {/if}
   {#if !loading}<Vergleiche {byKey} acts={data.acts} log={data.log} trips={data.trips} {today} />{/if}
   {#if !loading}<Muster {days} {byKey} acts={data.acts} log={data.log} {today} />{/if}
+  {#if !loading}<VeloKm {days} {today} />{/if}
 
   <section class="card pick" aria-label={t('Choose what you see')}>
     <div class="pr">
