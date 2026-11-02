@@ -301,7 +301,7 @@ const LISTED = {
   },
   km: {
     on: 'Needs a bike first: Bikes › «Add bike».',
-    steps: ['Tap «New» › «km for a bike».', 'Type what the counter says and save.'],
+    steps: ['Tap «New» › «Log km».', 'Type what the counter says and save.'],
     example: 'Example: counter 12400 → Bike care knows the chain is due in 300 km.',
   },
   'f.kmimport': {
