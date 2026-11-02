@@ -11,6 +11,7 @@ export default {
   ],
   since: [],
   de: {
+    'A calmer Dreams page': 'Eine ruhigere Träume-Seite',
     'Dreams is shorter: one sentence, your list in the centre, map and year as views.': 'Träume ist kürzer: ein Satz, deine Liste in der Mitte, Karte und Jahr als Ansichten.',
     'Trips › Dreams: choose «List», «Map» or «Year» instead of scrolling past every block; «Fulfilled dreams» is one line at the bottom': 'Touren › Träume: wähle «Liste», «Karte» oder «Jahr», statt an jedem Block vorbeizuscrollen; «Erfüllte Träume» ist unten eine Zeile',
     'A dream shows its state as a small tag: «Fits now, dry Thu–Sat», «Fulfilled in October», «Planned as a trip»': 'Ein Traum zeigt seinen Stand als kleines Schild: «Passt jetzt, trocken Do–Sa», «Erfüllt im Oktober», «Als Tour geplant»',
