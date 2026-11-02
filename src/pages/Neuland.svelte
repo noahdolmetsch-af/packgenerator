@@ -226,6 +226,7 @@
   }
   const counts = $derived(Object.fromEntries(state.custom.map((c) => [c.id, c.items.length])));
   const targets = (c) => state.custom.filter((x) => x.id !== c.id).map((x) => ({ id: x.id, name: x.name }));
+  import PasstHier from '../lib/ui/PasstHier.svelte'; // «Wegweiser statt Katalog» PR 6
 </script>
 
 <div class="rv-page nl">
@@ -336,6 +337,7 @@
       </section>
     {/if}
   {/if}
+  <PasstHier place="neuland" />
 
   {#if openIt}
     {@const c = openItem}

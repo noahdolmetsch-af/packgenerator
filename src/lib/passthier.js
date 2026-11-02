@@ -12,6 +12,10 @@ import { FEATURE } from './features.js';
 export const PASST_HIER = {
   // Unterwegs › Helfer unterwegs: the small tools of the Toolbox for a day on the bike
   ride: ['f.phrases', 'f.zones', 'f.light', 'f.arrival'],
+  // Touren › Träume › Your dreams: what you long for, what you are up for, what matters (PR 6)
+  dreams: ['f.freireise', 'f.freilust', 'f.freiwesentlich'],
+  // Neuland: a first night outside, a bingo of your own fields (PR 6)
+  neuland: ['f.freinacht', 'f.ownbingo'],
   // Packen › Gewicht (bike trips): how sure the total is, lighter things from your own gear, the weight per bag
   weight: ['f.weightsure', 'f.lighter', 'f.bagplan'],
   // Packen › Route without a GPX yet: draw the line on the map and save it as GPX, or take a komoot tour
