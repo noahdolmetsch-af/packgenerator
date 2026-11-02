@@ -9,6 +9,7 @@
   import { localDay } from '../localday.js';
 import { ringScore } from './overview.js';
   import Empty from '../ui/Empty.svelte';
+  import ExampleCard from '../bikes/ExampleCard.svelte';
   import { liveQuery } from 'dexie';
   import { db } from '../db.js';
   import { sortBikes, bikesHash } from '../bikes.js';
@@ -432,7 +433,7 @@ import { ringScore } from './overview.js';
   {:else}
     <VeloHead
       title={t('Care|tab')}
-      sub={[tn(bikes.length, '{n} bike', '{n} bikes'), dueAll ? tn(dueAll, '{n} due', '{n} due') : allNoData ? t('no maintenance data yet') : t('nothing due')].join(' · ')}
+      sub={[tn(bikes.length, '{n} bike', '{n} bikes'), bikes.length ? (dueAll ? tn(dueAll, '{n} due', '{n} due') : allNoData ? t('no maintenance data yet') : t('nothing due')) : ''].filter(Boolean).join(' · ')}
     />
     <!-- v0.137.0 (DK1, Noah 14.10.2026 «1-5 freigeben»): what «due» means, the same number everywhere. -->
     {#if bikes.length}<p class="why-due">{t('Due means: a service is due, or a problem has to be fixed before the next ride. Today, Bikes and the menu show the same number.')}</p>{/if}
@@ -443,6 +444,7 @@ import { ringScore } from './overview.js';
   {#if !bikes.length && $bikesQ}
     <!-- v0.127.0 A-U2: the one empty building block -->
     <Empty icon={BikeIcon} title={t('No bikes yet')} text={t('Add your bike, or bring your data along with a backup.')} action={{ label: t('Add bike'), href: '#/bikes', onclick: wantBike }}>{t('Or bring your data along from a backup:')} <a href="#/me/data">{t('Me › Data and backup')}</a>.</Empty>
+    <ExampleCard title={t('Example: Gravel bike')} rows={[[t('Check chain'), t('due now')], [t('Service fork'), t('in 120 km')], [t('Brake pads'), t('in 600 km')]]} />
   {:else}
     {#if next && nextSoon}{@render trip(next, soonDays)}{/if}
     {#if !openC}

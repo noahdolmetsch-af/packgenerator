@@ -1,5 +1,6 @@
 <script>
   import CameraButton from '../ui/CameraButton.svelte'; // P3b Teil 3: the camera wherever a photo is added
+  import ExampleCard from './ExampleCard.svelte';
   /**
    * Velos › Setup (UC3-1, Noah 14.10.2026 «1-5a», «UC3-1-UC3-3 freigeben»): one page per bike.
    * Your setup photos first (only on this device), then the total weight and a small bag plan,
@@ -140,6 +141,7 @@
 {#if !bikes.length && $bikesQ}
   <h1 class="title">{t('My setup|tab')}</h1>
   <Empty icon={Bike} title={t('No bikes yet')} text={t('Add your bike, or bring your data along with a backup.')} action={{ label: t('Add bike'), href: '#/bikes', onclick: wantBike }}>{t('Or bring your data along from a backup:')} <a href="#/me/data">{t('Me › Data and backup')}</a>.</Empty>
+  <ExampleCard title={t('Example: Weekend')} rows={[[t('Bags'), '3'], [t('Total weight'), '11.4 kg'], [t('Last change'), t('New tyres, 12 Oct')]]} />
 {:else if bike && view === 'bags'}
   <RigPlan {bike} />
 {:else if bike && view === 'log'}
