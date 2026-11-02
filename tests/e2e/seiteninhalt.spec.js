@@ -92,3 +92,21 @@ test('On the way shows good to know in the card during a trip', async ({ page, c
   await expect(page.locator('[data-seiteninhalt-know="f.departsheet"]')).toContainText(T('Good to know'));
   expect(errors).toEqual([]);
 });
+
+// PR 17, area Alltag: the card on Documents and Reminders, with good to know
+test('Alltag pages Documents and Reminders show the card with good to know', async ({ page, context }, info) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await openHome(page, context, info);
+  for (const [hash, id] of [['./#/me/docs', 'f.docs'], ['./#/me/reminders', 'f.birthdays']]) {
+    await page.goto(hash);
+    const card = page.locator('[data-seiteninhalt]');
+    await expect(card).toContainText(T('What you can do here'));
+    await expect(card.locator('[data-seiteninhalt-item]').first()).toBeVisible();
+    // more than 4 functions: «Show all n» opens the rest
+    if (await card.locator('.si-all').count()) await tap(card.locator('.si-all'), info);
+    await expect(page.locator(`[data-seiteninhalt-know="${id}"]`)).toContainText(T('Good to know'));
+    expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBe(0);
+  }
+  expect(errors).toEqual([]);
+});

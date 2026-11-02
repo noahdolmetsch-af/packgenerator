@@ -19,6 +19,11 @@ export const ON_PAGES = [
   // PR 14, area «Zurück» (after a trip). '#/debrief/:trip' is not listed: ON_PAGES matches whole paths, not placeholders
   '#/debrief', '#/debrief/pace', '#/debrief/logbook', '#/debrief/learnings', '#/pack/past', '#/check/evening', '#/me/ruhig/spaeter',
   '#/me/ruhig/bedeutung', '#/me/ruhig/koennen', '#/me/frei/naechstes', '#/ski/after',
+  // PR 17, area «Alltag»: documents and links, calm, reminders, friends and mini tools (not Reminders on the phone and
+  // Data and backup: their many functions would slip below 2.5 screens, tests/e2e/heimat.spec.js)
+  '#/me/docs', '#/me/links', '#/me/tools/markup', '#/me/ruhig', '#/me/ruhig/aus', '#/me/ruhig/belege', '#/me/ruhig/weniger',
+  '#/me/reminders', '#/calendar/pflanzen', '#/inbox/vorgaenge', '#/me/album', '#/me/freunde',
+  '#/me/ki-projekte', '#/me/mini', '#/me/mini/abfahrt', '#/me/mini/los', '#/me/next', '#/me/frei/abend', '#/notes/zusammenhang',
 ];
 /** Rows shown before «Show all n». */
 export const SHOWN = 4;
