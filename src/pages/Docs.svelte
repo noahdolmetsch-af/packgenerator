@@ -1,4 +1,5 @@
 <script>
+  import PasstHier from '../lib/ui/PasstHier.svelte'; // Wegweiser 8: «Fits here»
   import { askDelete } from '../lib/ui/ask.js'; // «Rückmeldungen» 19.10.2026: the app's own question
   import AreaIntro from '../lib/intro/AreaIntro.svelte'; // «Anleitungen überall»: the guide of this page (lib/guides.js)
   /**
@@ -476,6 +477,8 @@
       </div>
     </div>
   {/if}
+  <!-- Wegweiser 8: links, files and QR codes next to the documents -->
+  <PasstHier place="docs" />
 </div>
 
 {#if deleting}

@@ -603,6 +603,7 @@ import neuemenu from './neuemenu.js';
 // «Meilensteine als Belohnung» (Noah 22.10.2026 «1a–5a»)
 import meilensteinebelohnung from './meilensteinebelohnung.js';
 import nextsterne from './nextsterne.js';
+import sterntexte from './sterntexte.js';
 // «Alles fertig» (Noah 24.10.2026): leftovers of the older threads; spread last
 import allesfertig from './allesfertig.js';
 // Paket B «Touren ohne Überraschung» (996 Ideen): Generalprobe, Gut ankommen, Kisten-Etiketten; spread last
@@ -994,6 +995,7 @@ const ORDERED = [
   stopps,
   meilensteinebelohnung,
   nextsterne,
+  sterntexte,
   allesfertig,
   generalprobe,
   alltagsichtbar,

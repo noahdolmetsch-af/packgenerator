@@ -75,7 +75,7 @@ test('72 km jump: rides outside the app, a smaller number is a typo first', asyn
   page.on('pageerror', (e) => errors.push(e.message));
   await page.goto('./#/');
   await page.locator('.wall [data-pins-tile] [data-pin="km"]').click();
-  const km = page.getByRole('dialog', { name: T('km for a bike') });
+  const km = page.getByRole('dialog', { name: T('Log km') });
   const pick = km.locator('select').first();
   if (await pick.count()) await pick.selectOption(BIKE.id);
   await km.getByLabel(T('km on the counter')).fill('2800');
