@@ -6,6 +6,7 @@
  * `import <area> from './<area>.js';` and `...<area>` here. tests/wissen.test.js checks: every function on a switched-on page
  * has a text, every id exists, each text is at most 220 characters and has German.
  */
+import koerper from './koerper.js';
 import lust from './lust.js';
 import packen from './packen.js';
 import planen from './planen.js';
@@ -14,4 +15,4 @@ import velo from './velo.js';
 import zurueck from './zurueck.js';
 import alltag from './alltag.js';
 
-export const WISSEN = { ...lust, ...packen, ...planen, ...unterwegs, ...velo, ...zurueck, ...alltag };
+export const WISSEN = { ...koerper, ...lust, ...packen, ...planen, ...unterwegs, ...velo, ...zurueck, ...alltag };

@@ -162,3 +162,20 @@ test('Bikes wear and Gear show good to know in the card', async ({ page, context
   expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBe(0);
   expect(errors).toEqual([]);
 });
+
+// PR 18, area Körper: Aktiv and Training show the card with good to know
+test('Aktiv and Training show good to know in the card', async ({ page, context }, info) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await openHome(page, context, info);
+  for (const hash of ['#/flow', '#/flow/training']) {
+    await page.goto('./' + hash);
+    // Training starts as one line (heimat.spec); a tap opens it
+    if (hash === '#/flow/training') await (info.project.name === 'phone' ? page.locator('[data-seiteninhalt-line]').tap() : page.locator('[data-seiteninhalt-line]').click());
+    const card = page.locator('[data-seiteninhalt]');
+    await expect(card).toContainText(T('What you can do here'));
+    await expect(card.locator('[data-seiteninhalt-know]').first()).toContainText(T('Good to know'));
+    expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBe(0);
+  }
+  expect(errors).toEqual([]);
+});
