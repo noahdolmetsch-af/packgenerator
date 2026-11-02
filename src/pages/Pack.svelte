@@ -60,6 +60,7 @@
   import ItemDialog from '../lib/gear/ItemDialog.svelte';
   import TripRoute from '../lib/pack/TripRoute.svelte';
   import SkiSeasonStart from '../lib/pack/SkiSeasonStart.svelte';
+  import PasstHier from '../lib/ui/PasstHier.svelte'; // Wegweiser 5: a ski tour → its backpack check
   import TourSky from '../lib/pack/TourSky.svelte';
   import BikeChoice from '../lib/pack/BikeChoice.svelte';
   import { bikeChoice } from '../lib/choice.js';
@@ -1073,7 +1074,7 @@
         <button type="button" class="x" aria-label={t('Close')} onclick={() => (dayMade = null)}>×</button>
       </div>
     </div>
-  {/if}{#if domain === 'ski'}<SkiSeasonStart />{/if}{/snippet}
+  {/if}{#if domain === 'ski'}<SkiSeasonStart /><PasstHier place="ski" />{/if}{/snippet}
   {#snippet blocksCard()}<ForgotCard {trip} trips={$tripsQ ?? []} debriefs={$debriefsQ ?? []} {items} onadd={helperAdd} /><RulesOver /><ItemStories {trip} {itemsById} hint /><UsedHint {trip} trips={$tripsQ ?? []} {itemsById} />{#if packRows}<PackBlocks rows={packRows} rules={rulesOf($setsQ?.value)} {itemsById} ontoggle={packToggle} onslim={() => (slimOpen = true)} {slimN} note={packUndo?.tripId === trip.id ? packNote : ''} onundo={canUndo ? packUndoNow : null} />{/if}{/snippet}
   <!-- «Mehr Inhalt» (Noah 15.10.2026, 1a–5a): the tip line sits under the trip band (CalmPack, PackDay); at the end the fold and the example -->
   <!-- Paket H «4a und b»: read the packing list aloud (the window loads only when it opens) -->

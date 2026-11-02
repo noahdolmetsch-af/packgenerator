@@ -133,6 +133,7 @@
   import InProgress from '../lib/trip/InProgress.svelte';
   import Wall from '../lib/home/Wall.svelte';
   import TileCatalog from '../lib/home/TileCatalog.svelte';
+  import PinsTile from '../lib/home/PinsTile.svelte';
   import SmallTile from '../lib/home/SmallTile.svelte';
   import IntroKT from '../lib/home/IntroKT.svelte';
   import RaceLine from '../lib/race/RaceLine.svelte'; // Paket U «3b»: «Race in X days»
@@ -157,6 +158,7 @@
   import MonthTile from '../lib/home/MonthTile.svelte';
   import NextMsTile from '../lib/home/NextMsTile.svelte';
   import ChronikKarte from '../lib/lernen/ChronikKarte.svelte'; // Paket M #1027: replaces YearAgoTile (Noah «1b»)
+  import NeuHeute from '../lib/neuland/NeuHeute.svelte'; // Träume und Neuland N11 «Neu heute»: one line after a ride, no tile
   import WearToday from '../lib/home/WearToday.svelte';
   import FlowCard from '../lib/home/FlowCard.svelte';
   import AbCard from '../lib/abfragen/AbCard.svelte';
@@ -1215,6 +1217,7 @@
   {:else if x.id === 'morningcheck'}<RoundTile {today} size={x.size} isnew={newTile('morningcheck')} />
   <!-- Paket M #1027 (Noah «1b»): the Chronik-Karte «Früher um diese Zeit» replaces «Vor einem Jahr»; the tile id stays -->
   {:else if x.id === 'yearago'}<ChronikKarte trips={homeTrips(allTrips)} {debriefs} {today} rides={$ridesQ ?? null} size={x.size} isnew={newTile('yearago')} />
+  {:else if x.id === 'pins'}<PinsTile />
   {:else if TILE[x.id]?.fn}
     {@const f = FUNCTIONS.find((y) => y.id === TILE[x.id].fn)}
     <SmallTile tile={TILE[x.id]} size={x.size} fn={f.id} badge={badges[f.id] ?? 0} sub={fnSub(f.id)} onclick={() => runFn(f)} />
@@ -1235,6 +1238,7 @@
        It stands right under «Dein Körper heute» (rule 11: the body check stays on top); here only when that tile is off. -->
   {#if ready && !editing && !on('body')}<DueToday todos={S[MERKEN_KEY] ?? []} {today} care={due.points} />{/if}
   {#if loaded}<BagReminder {today} now={now.getTime()} />{/if}
+  {#if loaded && !editing}<NeuHeute {today} />{/if}
   <!-- v0.30.2 (L9): a new user: three steps, each ticked once it has data. -->
   {#if showFirst}
     <section class="card first" aria-labelledby="first-h">

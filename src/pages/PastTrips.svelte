@@ -21,6 +21,7 @@
    */
   import MemoryTripSheet from '../lib/tourenc/MemoryTripSheet.svelte'; // Touren c 67
   import NeulandLine from '../lib/wohl/NeulandLine.svelte'; // Paket P #253 «Neuland im Jahresheft»
+  import DreamsDoneLine from '../lib/dreams/DreamsDoneLine.svelte'; // Träume und Neuland N17 «Erfüllte Träume»
   import HintCard from '../lib/pageinfo/HintCard.svelte';
   import { homeTrips } from '../lib/home/heute.js';
   import { liveQuery } from 'dexie';
@@ -215,6 +216,7 @@
           <b id="yr-h">{t('Your {year}: {trips}, {km} km, {rain}', { year, trips: tn(yearNum('trips') ?? 0, '{n} trip', '{n} trips'), km: n0(yearNum('km')), rain: t('{n} with rain', { n: num(yearNum('rain') ?? 0) }) })}</b>
           <small>{t('Best values, the months and what you learned')}</small>
           <NeulandLine {year} />
+          <DreamsDoneLine {year} />
         </span>
         <span class="rowacts"><a class="btn k" href="#/debrief" onclick={() => keepPeriod('year')}><span class="kl">{t('View|review')}</span><ChevronRight size={17} aria-hidden="true" /></a></span>
       </section>

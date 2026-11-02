@@ -5,7 +5,7 @@
    * line for this page (kept in settings, so in the backup); the line opens it again. Data: src/lib/seiteninhalt.js.
    */
   import { liveQuery } from 'dexie';
-  import { ChevronDown, ChevronRight, X } from '@lucide/svelte';
+  import { ChevronDown, ChevronRight, X, Lightbulb } from '@lucide/svelte';
   import { t } from '../i18n.svelte.js';
   import { db } from '../db.js';
   import { pageContent, pageKey, SHOWN, FOLD_KEY, foldedOf } from '../seiteninhalt.js';
@@ -41,6 +41,7 @@
           <li data-seiteninhalt-item={r.id}>
             <b>{t(r.title)}</b>
             <span class="si-what">{t(r.text)}</span>
+            {#if r.know}<span class="si-know" data-seiteninhalt-know={r.id}><Lightbulb size={14} aria-hidden="true" /><span><b>{t('Good to know')}</b> {t(r.know)}</span></span>{/if}
             {#if r.steps.length || r.example}
               <button type="button" class="si-how" aria-expanded={!!open[r.id]} onclick={() => (open = { ...open, [r.id]: !open[r.id] })}>
                 {#if open[r.id]}<ChevronDown size={16} aria-hidden="true" />{:else}<ChevronRight size={16} aria-hidden="true" />{/if}{t('How it works')}
@@ -94,6 +95,23 @@
     display: block;
     color: var(--ink-2);
     font-size: var(--fs-small);
+  }
+  .si-know {
+    display: flex;
+    gap: 6px;
+    align-items: flex-start;
+    margin-top: 4px;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+  }
+  .si-know :global(svg) {
+    flex: none;
+    margin-top: 3px;
+    color: var(--hi);
+  }
+  .si-know b {
+    display: inline;
+    font-weight: 600;
   }
   .si-how,
   .si-all,

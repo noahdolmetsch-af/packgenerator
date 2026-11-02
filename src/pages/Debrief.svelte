@@ -59,6 +59,7 @@
   import IntentAsks from '../lib/tourenb/IntentAsks.svelte'; // Idee 52 (Touren b): die Fragen der Absicht
   import DayListen from '../lib/tourenb/DayListen.svelte'; // Idee 56 (Touren b): Dein Tag zum Hören
   import DebriefLernen from '../lib/lernen/DebriefLernen.svelte'; // Paket M «Aus Touren lernen»
+  import PasstHier from '../lib/ui/PasstHier.svelte';
   import TodoButton from '../lib/lernen/TodoButton.svelte';
   import TodoPlace from '../lib/lernen/TodoPlace.svelte';
   import { domainOf, domainName, hasBike } from '../lib/domains.js';
@@ -540,6 +541,8 @@
         {#if heldNote}<UndoToast text={heldNote.text} onundo={undoHeld} />{/if}
         <!-- Paket M: Tour-Tagebuch, Was war neu, Zusatzfragen, Nachricht an dich -->
         <DebriefLernen {trip} {d} {persist} notes={wayNotes} rides={tripRides} />
+        <!-- «Wegweiser statt Katalog» PR 4: looking back further than the packing list, where the need comes up -->
+        <PasstHier place="debrief" />
         <!-- Paket Z «Aus jeder Tour lernen»: breakdown, where you slept, the tour postcard (below the answers, so the chips stay first) -->
         <LearnCard {trip} {bike} />
         <IntentAsks {trip} />

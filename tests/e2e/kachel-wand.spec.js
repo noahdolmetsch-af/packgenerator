@@ -8,6 +8,7 @@
 import { test, expect } from './clock.js';
 import { D0, openHome, atHour, homeFixture } from './home0460-fixture.js';
 import { HN4, withWall } from './wall-fixture.js';
+import { openFolds } from './settle.js';
 import { READY, TILE, TILES, HELPER_TILES, VALUE_TILES, isNew, tripUp } from '../../src/lib/home/tiles.js';
 import { inAreas } from '../../src/lib/home/sections.js';
 
@@ -51,14 +52,11 @@ test('the ready wall: every tile in its place and size, 8 columns on a computer,
   for (const [i, x] of SHOWN.entries()) await expect(page.locator(`.wall [data-tile="${x.id}"]`)).toHaveAttribute('data-size', joined(x, i) ? 'long' : x.size);
   // the functions are small buttons, the numbers where something waits (0.155.0: the bike care is a line in
   // Important today now, the two open notes stay a number)
-  await expect(page.locator('.wall [data-fn="note"] .bd')).toHaveText('2');
+  // «Schnell öffnen» (Noah 01.11.2026 «5a», changed on purpose): the 8 small tiles are one tile with the pins
+  await expect(page.locator('.wall [data-fn]')).toHaveCount(0);
   // «Heute ruhiger» 1a (changed on purpose): the small tiles are rows of one list, a quarter (computer) or a half (phone) of it
-  const list = await page.locator('.wall [data-quick] .qgrid').boundingBox();
-  // «Heute neu» A (0.165.0): «Weigh» left the ready wall; «Note» is one of its 8 shortcuts
-  const small = await page.locator('.wall [data-quick] [data-tile="fn:note"]').boundingBox();
-  const cols = phone ? 2 : 4;
-  expect(Math.abs(small.width - (list.width - (cols - 1) * (phone ? 12 : 20)) / cols)).toBeLessThan(2);
-  expect(small.height).toBeLessThan(60); // one calm row, no tall empty box
+  // (the pins tile has no small rows any more; a small tile added from the catalog still stands in the list «Open quickly», see the test of «+» below)
+  await expect(page.locator('.wall [data-tile="pins"]')).toBeVisible();
   // the last field is «+»
   await expect(page.locator('.wall .plusw')).toBeVisible();
   await expect(page.locator('.wall > div').last()).toHaveClass(/plusw/);
@@ -138,8 +136,8 @@ test('drag a tile by its handle onto another place', async ({ page, context }, i
 test('a long press on a tile opens customising on a phone', async ({ page, context }, info) => {
   test.skip(info.project.name !== 'phone', 'a long press is a finger thing');
   const T = await openHome(page, context, info);
-  // «Heute neu» A (0.165.0): «Note» is one of the 8 shortcuts of the ready wall
-  const tile = page.locator('.wall [data-tile="fn:note"] .st');
+  // «Schnell öffnen» (Noah 01.11.2026 «5a»): the pins tile is the one that stays on the ready wall near the end
+  const tile = page.locator('.wall [data-tile="pins"] .pt-n');
   await tile.scrollIntoViewIfNeeded();
   const b = await tile.boundingBox();
   await tile.dispatchEvent('pointerdown', { pointerType: 'touch', clientX: b.x + 10, clientY: b.y + 10, isPrimary: true, button: 0 });
@@ -223,5 +221,6 @@ test('Data and backup lives under Me; the playground tile opens the playground t
   await page.getByRole('link', { name: new RegExp(T('Data and backup')) }).click();
   await expect(page).toHaveURL(/#\/me\/data$/);
   const data = page.locator('.datapanel');
+  await openFolds(page); // «Daten und Backup aufräumen»: the file way sits in a fold
   await expect(data.getByText(T('Import backup'), { exact: true })).toBeVisible();
 });

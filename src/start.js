@@ -37,6 +37,7 @@ import './app.css';
 // v0.72.0 (D3a): the invisible 44 px tap area of the small buttons on a touch screen
 import './lib/ui/touch.css';
 import App from './App.svelte';
+import { watchWhitePage } from './lib/ui/whitepage.js';
 import { lang, loadDe } from './lib/i18n.svelte.js';
 import { db } from './lib/db.js';
 import { tidyData } from './lib/tidy.js';
@@ -134,6 +135,7 @@ noteAppOpen();
 // (the bike shop sheet and the gear import use German words); a German app has them already (main.js).
 if (lang.v !== 'de') loadDe().catch(() => {});
 mount(App, { target: document.getElementById('app') });
+watchWhitePage();
 
 // P8 «Automatischer Abgleich» (Noah 18.10.2026 «1b … 2b 3b»): while it is switched on, rounds run by
 // themselves (sync/auto.svelte.js); when both devices changed the same entry, the newer change wins quietly (Noah 24.10.2026).

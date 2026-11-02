@@ -6,7 +6,7 @@
 import { test, expect } from './clock.js';
 import DE from '../../src/lib/i18n/de/index.js';
 import { v048File, P } from './v048-fixture.js';
-import { openData, settle } from './settle.js';
+import { openData, settle, openFolds } from './settle.js';
 
 const T = (en, vars) => {
   const text = DE[en] ?? en.replace(/\|[a-z]+$/, '');
@@ -64,6 +64,8 @@ test('I2 and B20: the status lights, the backup buttons and Other data', async (
   await onePage(page, T('Data and backup'));
   const panel = page.locator('.datapanel');
   await expect(panel.getByRole('heading', { name: T('Everything in order?') })).toBeVisible();
+  await panel.locator('[data-status-details]').click(); // the lights are behind «Einzelheiten» (Noah 01.11.2026)
+  await openFolds(page); // the backup buttons and Other data sit in folds
   // one light each for the backup, the folder, the storage, «Kept by the browser» (P3b «Daten sicher») and
   // Fitbit (mockup G2, Paket B, changed on purpose); each says its state in words too
   await expect(panel.locator('li.light')).toHaveCount(5);

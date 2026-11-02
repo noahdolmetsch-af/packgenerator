@@ -218,6 +218,8 @@ test('English: the window and the switch read in English too', async ({ page, co
   await expect(page.getByRole('heading', { level: 1, name: 'AI helper' })).toBeVisible();
   await expect(page.getByRole('switch', { name: /Show the AI helper in the app/ })).not.toBeChecked();
   await page.goto('./#/me/news');
-  await expect(page.locator('.vn-kt').first()).toHaveText(/^(New|Nicer|Fixed|Faster)$/);
+  // the small things (and their box labels) exist only when the newest version has some; its buttons always read English
+  await expect(page.locator('[data-news-try]').first()).toHaveText(T('Try it'));
+  if (WHATS_NEW[0].small?.length) await expect(page.locator('.vn-kt').first()).toHaveText(/^(New|Nicer|Fixed|Faster)$/);
   expect(T("Let's go|news")).toBe("Let's go");
 });

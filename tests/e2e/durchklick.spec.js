@@ -48,6 +48,7 @@ test('DK7c: importing on an empty device says Neu hier, no older warning; the li
   await expect(page.getByText(T('New here'), { exact: true })).toBeVisible();
   await expect(page.getByText(T('Older'), { exact: true })).toHaveCount(0);
   await page.goto('./#/me/data');
+  await page.locator('[data-status-details]').click(); // the lights are behind «Einzelheiten» (Noah 01.11.2026)
   // Impeccable «Daten und Backup» (18.10.2026): the head says in words what is not in order instead of
   // «n von 3 grün»; every row still has its light, and a yellow row makes the head name it.
   const line = page.locator('[data-head-line]');

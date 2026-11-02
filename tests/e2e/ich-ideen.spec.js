@@ -96,6 +96,9 @@ test('35: Connections names what depends on each connection', async ({ page }) =
 
 test('28: before Google opens, the app says what happens; «Cancel» goes back', async ({ page }) => {
   await page.goto('./#/me/data');
+  await page.evaluate(() => localStorage.setItem('pg.showGoogle', '1')); // the Google button is hidden since 01.11.2026; this key shows it
+  await page.reload();
+  await page.locator('[data-two="yes"]').click();
   await page.locator('[data-sync-google]').first().click();
   const box = page.locator('[data-sync-before]');
   await expect(box).toBeVisible();

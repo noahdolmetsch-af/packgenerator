@@ -166,3 +166,23 @@ export function whoAnswered(invited, answers) {
 export function reminderText(title, missing, link, T) {
   return `${T('{title}: still missing an answer from {names}. Tap your answer here: {link}', { title, names: missing.join(', '), link })}`;
 }
+
+/**
+ * The answers as the maker sees them (Noah 1.11.2026 «2a»): what came in from the server, plus the ones the maker
+ * typed in by hand («manual», kept on this device only), minus the ones he changed or deleted («hide»).
+ * server: [{ a, name, picks, note }]; manual: [{ id, name, picks, note, over?: server answer id }]; hide: [server answer id].
+ * → [{ key, name, picks, note, manual, a? }]: «s:<a>» for a server answer, «m:<id>» for a typed one.
+ */
+export function mergeAnswers(server = [], manual = [], hide = []) {
+  const gone = new Set([...(hide ?? []), ...(manual ?? []).map((m) => m.over).filter(Boolean)]);
+  return [
+    ...(server ?? []).filter((r) => !gone.has(r.a)).map((r) => ({ key: `s:${r.a}`, a: r.a, name: r.name ?? '', picks: r.picks ?? {}, note: r.note ?? '', manual: false })),
+    ...(manual ?? []).map((m) => ({ key: `m:${m.id}`, id: m.id, name: m.name ?? '', picks: m.picks ?? {}, note: m.note ?? '', manual: true })),
+  ];
+}
+
+/** An answer typed in by the maker → clean { name, picks, note }, or null when it has no name or no pick. */
+export function cleanManual({ name, picks, note = '' }, opts) {
+  const a = cleanAnswer({ name, picks, note }, opts);
+  return a.name && Object.keys(a.picks).length ? a : null;
+}
