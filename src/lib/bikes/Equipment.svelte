@@ -92,6 +92,8 @@
       <a class="btn hi cmplink" href={bikesHash({ tab: 'compare', view: 'enter', bike: bike.id })}><PencilLine size={16} aria-hidden="true" />{t('Enter values')}</a>
       <a class="btn cmplink" href={bikesHash({ tab: 'compare', view: 'all' })}><Columns3 size={16} aria-hidden="true" />{t('Compare bikes')}</a>
     </VeloHead>
+    <!-- Noah 1.11.2026 «3a»: one line saying what this page is for (it was hard to tell from Setup, Equipment and Gear) -->
+    <p class="purpose" data-purpose="parts">{t('Parts: the components mounted on this bike, with weight and price.')}</p>
     <!-- Noah 19.10 «2a»: one card per page; the Einstieg «Ausstattung» lives in the card «Was hier steht» -->
     <HintCard page="equipment" intro="ausstattung" />
     {#if bikes.length > 1}<BikeChips {bikes} current={bike.id} onpick={(id) => onbike?.(id)} />{/if}
@@ -217,6 +219,11 @@
 {/if}
 
 <style>
+  .purpose {
+    margin: 0 0 8px;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+  }
   .cmplink {
     gap: 6px;
     text-decoration: none;

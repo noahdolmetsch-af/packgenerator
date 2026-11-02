@@ -34,3 +34,14 @@ describe('Termin finden: von Hand eintragen', () => {
     expect(cleanManual({ name: 'Dora', picks: { '2026-11-14': 'y', '2030-01-01': 'y' } }, OPTS)).toEqual({ name: 'Dora', picks: { '2026-11-14': 'y' }, note: '' });
   });
 });
+
+import { newAnswers } from '../src/lib/mini/store.js';
+describe('Mini-Tools: neue Antworten', () => {
+  it('counts what the server has beyond the copy on this device', () => {
+    expect(newAnswers({ answers: [{}, {}] }, 3)).toBe(1);
+    expect(newAnswers({ answers: [{}] }, 1)).toBe(0);
+    expect(newAnswers({}, 2)).toBe(2);
+    expect(newAnswers({ answers: [{}] }, undefined)).toBe(0);
+    expect(newAnswers({ answers: [{}, {}] }, 1)).toBe(0);
+  });
+});
