@@ -11,20 +11,36 @@
   import { zones } from '../strava/zones.svelte.js';
   import { loadDayData } from '../daydata.js';
   import { shiftDay, hmm } from '../training.js';
-  import { bodyTiles, zonesWeek, bikesWeek, outdoorWeek } from '../weekmore.js';
+  import { bodyTiles, zonesWeek, bikesWeek, outdoorWeek, weightWeek, meditationWeek, tripsWeek, sleepPhasesWeek } from '../weekmore.js';
+  import { WEIGHT_KEY, entriesOf } from '../weight.js';
+  import { homeTrips } from '../home/heute.js';
+  import { tourHref } from '../touren/tour.js';
   import { t, tn, num, locale } from '../i18n.svelte.js';
 
   let { monday, upto, today } = $props();
 
   const q = liveQuery(async () => {
-    const [acts, health, prefs, day] = await Promise.all([db.activities.toArray(), db.healthDays.toArray(), db.settings.get(PREFS_KEY), loadDayData(db)]);
-    return { acts, health, gear: prefs?.value?.gear ?? [], weather: day.weather, events: day.events };
+    const [acts, health, prefs, day, wt, log, trips] = await Promise.all([db.activities.toArray(), db.healthDays.toArray(), db.settings.get(PREFS_KEY), loadDayData(db), db.settings.get(WEIGHT_KEY), db.flowLog.toArray(), db.trips.toArray()]);
+    return { acts, health, gear: prefs?.value?.gear ?? [], weather: day.weather, events: day.events, weights: entriesOf(wt?.value), log, trips: homeTrips(trips) };
   });
   const body = $derived($q ? bodyTiles($q.health, monday, upto) : []);
   const zn = $derived($q ? zonesWeek($q.acts, monday, upto, zones.bounds) : null);
   const bikes = $derived($q ? bikesWeek($q.acts, monday, upto, $q.gear) : []);
   const out = $derived($q ? outdoorWeek($q.weather, $q.events, monday, upto) : { days: [], hasWeather: false, hasEvents: false });
 
+  const weight = $derived($q ? weightWeek($q.weights, $q.health, monday, upto) : null);
+  const med = $derived($q ? meditationWeek($q.log, monday, upto) : null);
+  const tours = $derived($q ? tripsWeek($q.trips, monday, upto) : []);
+  const phases = $derived($q ? sleepPhasesWeek($q.health, monday, upto) : null);
+  const signed = (x, unit) => (x === 0 ? '±0' : `${x > 0 ? '+' : '−'}${num(Math.abs(x))} ${unit}`);
+  const range = (a, b) => (a === b ? fmtDay(a) : `${fmtDay(a)}–${fmtDay(b)}`);
+  const fmtDay = (d) => new Date(`${d}T12:00:00Z`).toLocaleDateString(locale(), { timeZone: 'UTC', day: 'numeric', month: 'short' });
+  const PH = [
+    { k: 'deep', l: 'Deep sleep' },
+    { k: 'rem', l: 'REM sleep' },
+    { k: 'light', l: 'Light sleep' },
+    { k: 'awake', l: 'Awake' },
+  ];
   const NAME = { restingHr: 'Resting heart rate', hrvMs: 'HRV', sleep: 'Sleep', steps: 'Steps', azm: 'Active zone minutes' };
   const NOTE = { mean: 'Mean per day', sum: 'Sum of the week' };
   const val = (b, v) => (v == null ? '–' : b.unit === 'min' && b.key === 'sleep' ? `${hmm(v * 60)} h` : b.unit === 'steps' ? num(Math.round(v)) : b.unit === 'bpm' ? `${num(Math.round(v))} bpm` : b.unit === 'ms' ? `${num(Math.round(v))} ms` : `${num(Math.round(v))} min`);
@@ -57,6 +73,61 @@
       {/each}
     </ul>
     <p class="cap">{t('Fitbit, from the same days of the week before. Only what was, nothing is rated.')} <a class="tp-link" href="#/auswerten/analyse">{t('All values in Analyse')}</a></p>
+  </section>
+{/if}
+
+{#if weight || med || tours.length}
+  <section class="card wm" data-wr="mine" aria-labelledby="wr-mine">
+    <h2 id="wr-mine">{t('Weight, meditation and tours')}</h2>
+    <ul class="tiles">
+      {#if weight}
+        <li data-mine="weight">
+          <span class="l">{t('Weight')}</span>
+          <b class="v num">{num(weight.kg)} kg</b>
+          <span class="d num">{weight.diff == null ? t('no week before') : signed(weight.diff, 'kg')}</span>
+          <span class="s">{t('Last value of the week, {day}', { day: fmtDay(weight.day) })}</span>
+          <a class="tp-link more" href="#/flow/review/tile?k=weight&w={monday}" data-tile-detail="weight">{t('Course and all numbers')}</a>
+        </li>
+      {/if}
+      {#if med}
+        <li data-mine="meditation">
+          <span class="l">{t('Meditation')}</span>
+          <b class="v num">{num(med.min)} min</b>
+          <span class="d num">{med.diff == null ? t('no week before') : signed(med.diff, 'min')}</span>
+          <span class="s">{tn(med.n, '{n} session', '{n} sessions', { n: med.n })}</span>
+          <a class="tp-link more" href="#/flow/review/tile?k=meditation&w={monday}" data-tile-detail="meditation">{t('Course and all numbers')}</a>
+        </li>
+      {/if}
+      {#if tours.length}
+        <li data-mine="tours">
+          <span class="l">{t('Tours')}</span>
+          <b class="v num">{tn(tours.length, '{n} tour', '{n} tours', { n: tours.length })}</b>
+          <ul class="tl">
+            {#each tours as x (x.id)}
+              <li><a href={tourHref(`t:${x.id}`)}>{x.title || t('Tour')}</a> <span class="s num">{range(x.start, x.end)}</span></li>
+            {/each}
+          </ul>
+        </li>
+      {/if}
+    </ul>
+    <p class="cap">{t('Weight: your own entry, else the watch. Meditation: the minutes you ticked in Aktiv. Tours: your plans that touch the week. Only what was, nothing is rated.')}</p>
+  </section>
+{/if}
+
+{#if phases}
+  <section class="card wm" data-wr="phases" aria-labelledby="wr-phases">
+    <h2 id="wr-phases">{t('Sleep phases')}</h2>
+    <ul class="zl">
+      {#each PH as p (p.k)}
+        {#if phases[p.k] != null}
+          <li data-phase={p.k}><span class="l bn">{t(p.l)}</span><b class="num">{hmm(phases[p.k] * 60)} h</b></li>
+        {/if}
+      {/each}
+    </ul>
+    <p class="cap">{t('Mean per night, over {n} nights with phases (Fitbit). Only what was, nothing is rated.', { n: phases.n })}</p>
+    <p class="links">
+      <a class="tp-link more" href="#/flow/review/tile?k=deep&w={monday}" data-tile-detail="deep">{t('Course of the deep sleep')}</a><a class="tp-link more" href="#/flow/review/tile?k=rem&w={monday}" data-tile-detail="rem">{t('Course of the REM sleep')}</a>
+    </p>
   </section>
 {/if}
 
@@ -194,6 +265,13 @@
   }
   .mini i.none {
     background: var(--line);
+  }
+  .tl {
+    display: grid;
+    gap: 2px;
+    margin: 4px 0 0;
+    padding: 0;
+    list-style: none;
   }
   .pair {
     display: grid;

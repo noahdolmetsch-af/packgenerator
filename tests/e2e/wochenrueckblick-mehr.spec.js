@@ -28,11 +28,11 @@ function rows() {
   }
   if (process.env.SCENARIO === 'full') activities.push(ride('w1', addDays(MON, 0), { km: 38.4, hm: 420, movingS: 4800 }), ride('w2', addDays(MON, 2), { km: 55, movingS: 7000 }));
   const log = (id, actId, day, f = {}) => ({ id: `${P}${id}`, actId, day, at: `${day}T10:00:00.000Z`, n: 1, ...f });
-  const flowLog = [log('l1', 'yoga', addDays(MON, 2), { min: 45 }), log('l2', 'stretch', addDays(MON, 5), { min: 20 }), log('l3', 'sauna', addDays(MON, 4)), log('l4', 'sauna', addDays(MON, 5))];
+  const flowLog = [log('m1', 'meditation', addDays(MON, 1), { min: 10 }), log('m2', 'meditation', addDays(MON, 3), { min: 15 }), log('m0', 'meditation', addDays(MON, -5), { min: 20 }), log('l1', 'yoga', addDays(MON, 2), { min: 45 }), log('l2', 'stretch', addDays(MON, 5), { min: 20 }), log('l3', 'sauna', addDays(MON, 4)), log('l4', 'sauna', addDays(MON, 5))];
   const healthDays = [];
   for (let i = -35; i <= 6; i++) {
     const date = addDays(MON, i);
-    healthDays.push({ date, restingHr: i >= 0 ? 55 : 51, hrvMs: 62, sleep: { asleepMin: 410 + (i % 3) * 10 }, steps: 7000 + i * 20, azm: i >= 0 ? 8 : 14, src: 'test', at: NOW });
+    healthDays.push({ date, restingHr: i >= 0 ? 55 : 51, hrvMs: 62, sleep: { asleepMin: 410 + (i % 3) * 10, deepMin: i >= 0 ? 70 : 60, remMin: 95, lightMin: 245, awakeMin: 30 }, weightKg: i >= 0 ? 79.6 : 80.4, steps: 7000 + i * 20, azm: i >= 0 ? 8 : 14, src: 'test', at: NOW });
   }
   const days = {};
   for (let i = -30; i <= 5; i++) days[addDays(MON, i)] = { tmax: 12 + (i % 5), rainMm: i % 3 === 0 ? 4.2 : 0, sunH: i % 3 === 0 ? 1.5 : 5.5, lightH: 9.5 };
@@ -41,6 +41,7 @@ function rows() {
   return {
     activities,
     flowLog,
+    trips: [{ id: `${P}tour1`, title: 'Seenrunde (Beispiel)', startDate: addDays(MON, 5), days: 2, status: 'planned' }],
     healthDays,
     settings: [{ key: 'strava', value: { gear: [{ id: 'g1', name: 'Gravel (Beispiel)', km: 100, primary: true, retired: false }] } }],
     meta: [{ key: 'dayWeather', fetchedDay: TODAY, place: { lat: 47, lon: 8 }, days }, { key: 'dayEvents', days: events }],
@@ -109,6 +110,20 @@ test('Wochenrückblick: Aktiv minutes count, observations live on Sunday, the nu
     await expect(main.locator('[data-wr="zones"] [data-zone]')).toHaveCount(5);
     await expect(main.locator('[data-wr="bikes"]')).toContainText('Gravel (Beispiel)');
   }
+
+  // weight, meditation, tours and sleep phases
+  const mine = main.locator('[data-wr="mine"]');
+  await expect(mine.locator('[data-mine="weight"]')).toContainText('79.6');
+  await expect(mine.locator('[data-mine="weight"]')).toContainText('0.8');
+  await expect(mine.locator('[data-mine="meditation"]')).toContainText('25 min');
+  await expect(mine.locator('[data-mine="tours"]')).toContainText('Seenrunde');
+  const phases = main.locator('[data-wr="phases"]');
+  await expect(phases.locator('[data-phase="deep"]')).toContainText('1:10');
+  await expect(phases.locator('[data-phase="rem"]')).toBeVisible();
+  await mine.locator('[data-tile-detail="weight"]').click();
+  await expect(page.locator('[data-wd-week]')).toHaveCount(8);
+  await expect(page.locator('[data-wd-head]')).toContainText('79.6 kg');
+  await page.locator('[data-wd-how] a', { hasText: T('Back to the week in review') }).click();
 
   // the course behind a tile: eight weeks, every value written out, each week opens that week
   await body.locator('[data-tile-detail="restingHr"]').click();
