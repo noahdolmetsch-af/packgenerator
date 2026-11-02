@@ -2,8 +2,8 @@
 export default {
   title: 'New since yesterday',
   lead: 'After a ride, Today says what you reached for the first time.',
-  points: [{ text: 'Today: one quiet line «New since yesterday: 3 municipalities, 1 lake»; a tap opens New ground', href: '#/neuland' }, { text: 'New ground shows the same line on top, with one button per collection', href: '#/neuland' }],
-  small: [{ box: 'new', text: 'Only on the day of a ride and the day after; × closes it until something new comes' }],
+  points: [{ text: 'Today: one quiet line «New since yesterday: 3 municipalities, 1 lake»; a tap opens New ground', href: '#/neuland', go: 'f.newtoday' }, { text: 'New ground shows the same line on top, with one button per collection', href: '#/neuland', go: 'f.newtoday' }],
+  small: [{ box: 'new', text: 'Only on the day of a ride and the day after; × closes it until something new comes', go: 'f.newtoday' }],
   test: [
     'Ride somewhere you have never been (or tick a place in New ground).',
     'Today shows «New since yesterday: …»; tap it: New ground opens.',

@@ -1,6 +1,6 @@
 // «Neu heute» (Träume und Neuland N11, Noah 27.10.2026 «1-5 a»): after a fictional ride today, Heute shows one quiet
 // line «Neu seit gestern: …», a tap opens Neuland, × closes it and it stays closed. Fictional data only.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { mkdirSync } from 'node:fs';
 import DE from '../../src/lib/i18n/de/index.js';
 import { ready } from './settle.js';
