@@ -194,11 +194,12 @@
         {/each}
       </ul>
     {/if}
-    <PasstHier place="dreams" />
   </section>
 
   <WhiteSpots />
   <NeulandGoals />
+  <!-- below the heimat measure of the functions above (2.5 screens): the row must not push «Herausforderungen mit Ende» out of it -->
+  <PasstHier place="dreams" />
 
   <section class="ich-sec" aria-labelledby="dr-races" data-races>
     <div class="ich-h"><div><h2 id="dr-races">{t('Races to plan')}</h2><p class="ich-hs">{t('From Inspiration and from your Google calendar («Rennen», «Race» … in the title).')}</p></div></div>
