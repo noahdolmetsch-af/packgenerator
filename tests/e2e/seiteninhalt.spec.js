@@ -44,6 +44,19 @@ test('Free time What am I up for shows good to know in the card', async ({ page,
   expect(errors).toEqual([]);
 });
 
+test('Debriefs and logbook show what you can do here with good to know (area Zurueck)', async ({ page, context }, info) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await openHome(page, context, info);
+  await page.goto('./#/debrief');
+  await expect(page.locator('[data-seiteninhalt]')).toContainText(T('What you can do here'));
+  await expect(page.locator('[data-seiteninhalt-know]').first()).toContainText(T('Good to know'));
+  expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBe(0);
+  await page.goto('./#/debrief/logbook');
+  await expect(page.locator('[data-seiteninhalt-know="f.logbook"]')).toContainText(T('Good to know'));
+  expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBe(0);
+  expect(errors).toEqual([]);
+});
 test('Customise this page does not list the card as a page part', async ({ page, context }, info) => {
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
