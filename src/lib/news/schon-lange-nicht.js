@@ -2,7 +2,7 @@
 export default {
   title: 'Not for a while',
   lead: 'A friendly card on Today when you have not done a sport for longer than your rhythm',
-  points: [{ text: 'A card under «Active today» when a sport waits too long, with «Do it today», «Later» and «Pause»', go: { href: '#/', where: 'Shows under «Active today» when a sport has not been ticked for longer than its rhythm.' } }],
+  points: [{ text: 'A card under «Active today» when a sport waits too long, with «Do it today», «Later» and «Pause»', go: { href: '#/', steps: [{ sel: '[data-section="acts"]' }], where: 'Shows under «Active today» when a sport has not been ticked for longer than its rhythm.' } }],
   small: [{ box: 'new', text: 'On a sport page you set after how many days it shows, or switch it off', go: { href: '#/flow/sports', where: 'Open a sport under Active › My sports: «Reminder when it has been a while».' } }],
   test: ['Open a sport under Active › My sports: «Reminder when it has been a while» shows the days.', 'Change the days with + and −, or switch it off.'],
   since: [],
