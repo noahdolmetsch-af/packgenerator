@@ -71,9 +71,9 @@
   }
   .tm-out p {
     margin: 0 0 8px;
-    font-size: 0.9rem;
+    font-size: var(--fs-small);
     line-height: 1.4;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
   }
   .tm-copy {
     min-height: 44px;
