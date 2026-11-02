@@ -172,6 +172,9 @@ describe('TR4: the week plan', () => {
     expect(mondayOf('2026-10-18')).toBe('2026-10-12');
     expect(weekOf('2026-10-12')).toEqual(['2026-10-12', '2026-10-13', '2026-10-14', '2026-10-15', '2026-10-16', '2026-10-17', '2026-10-18']);
     expect(cleanSession({ id: 'a', day: '2026-10-14', kind: 'swim', name: ' Locker ', mins: '30', zone: 9 })).toEqual({ id: 'a', day: '2026-10-14', kind: 'bike', name: 'Locker', mins: 30, zone: null });
+    // «Training verbessern» 1: a session of an own sport keeps its sport id
+    expect(cleanSession({ id: 'b', day: '2026-10-14', kind: 'other', sport: 'yoga', mins: 30 })).toMatchObject({ kind: 'other', sport: 'yoga' });
+    expect(cleanSession({ id: 'c', day: '2026-10-14', mins: 30 }).sport).toBeUndefined();
     expect(cleanSession({ day: 'x', mins: 30 })).toBe(null);
     expect(cleanSession({ day: '2026-10-14', mins: 0 })).toBe(null);
     expect(planOf({ sessions: [{ id: 'a', day: '2026-10-14', mins: 30, zone: 2 }, { day: 'nope' }] }).length).toBe(1);
