@@ -212,3 +212,25 @@ test('One trip debrief shows the card, the fold holds for every trip, a race sho
   await expect(page.locator('[data-seiteninhalt], [data-seiteninhalt-line]')).toHaveCount(0);
   expect(errors).toEqual([]);
 });
+
+// PR 20, area App: Lists and types and Privacy show the card with good to know
+test('Lists and types and Privacy show good to know in the card', async ({ page, context }, info) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await openHome(page, context, info);
+  await page.goto('./#/me/lists');
+  const card = page.locator('[data-seiteninhalt]');
+  await expect(card).toContainText(T('What you can do here'));
+  await expect(card.locator('[data-seiteninhalt-know]').first()).toContainText(T('Good to know'));
+  expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBe(0);
+  // «Diese Seite anpassen» lists the page's own parts, not the card (it folds with its own ×)
+  await page.locator('[data-anp-open]').click();
+  const rows = page.locator('dialog[data-anp-sheet] li[data-anp-row]');
+  await expect(rows.first()).toBeVisible();
+  await expect(rows.filter({ hasText: T('What you can do here') })).toHaveCount(0);
+  await page.locator('dialog[data-anp-sheet]').getByRole('button', { name: T('Close') }).click();
+  await page.goto('./#/me/privacy');
+  await expect(page.locator('[data-seiteninhalt-know="f.privacy"]')).toContainText(T('Good to know'));
+  expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBe(0);
+  expect(errors).toEqual([]);
+});

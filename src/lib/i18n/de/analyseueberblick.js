@@ -18,4 +18,6 @@ export default {
   'ticks per week|overview': 'Haken pro Woche',
   'Ticks per week|overview': 'Haken pro Woche',
   'mean of 4 weeks|overview': 'Mittel aus 4 Wochen',
+  'Week of {day}|overview': 'Woche ab {day}',
+  '{n} ticks|overview': '{n} Haken',
 };

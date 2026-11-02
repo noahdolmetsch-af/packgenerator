@@ -756,6 +756,11 @@ const LISTED = {
     steps: ['Bikes › Care › a bike › «Workshop rounds».', 'Add a suggestion or your own round: jobs, tools, material.', '«Start the round», tick what you did, «Done»: the jobs with a part go into the part.'],
     example: 'Example: «Autumn service» with 5 jobs; chain and brake pads ticked → both recorded today.',
   },
+  'f.wearcosts': {
+    on: null,
+    steps: ['Bikes › Care › a bike › «Wear» › «What the next months cost».', 'Pick 3, 6 or 12 months: the parts that run out, each with what the last change cost.', '«All on the shopping list» adds them; Undo takes them off again.'],
+    example: 'Example: chain CHF 40 in December, pads CHF 25 in March → about CHF 65.',
+  },
   'f.sparestock': {
     on: null,
     steps: ['Bikes › Care › a bike › «Wear» › «Spare parts at home».', 'Add a row with a number, e.g. 2 chains.', 'You replace a chain yourself: one less; at 0 «Shopping list» adds it.'],
@@ -1269,6 +1274,11 @@ const LISTED = {
     on: 'Needs rides with a line: Strava, a GPX file or your own recording.',
     steps: ['Open Trips › Look back › New ground.', 'Scroll to «New kilometres»: each year with its new km and share.', 'Below: your latest rides that brought new km.'],
     example: 'Example: 3210 km this year, of which 412 km new (13 %).',
+  },
+  'f.dreamready': {
+    on: 'Needs km, climb or days in the dream (a GPX file or a link brings them), and rides with km.',
+    steps: ['Open a dream in Trips › Dreams.', 'Scroll to «Ready for it?».', 'A ring that is not filled shows what is still missing.'],
+    example: 'Example: 3 days, 360 km → «needs about 120 km a day»; longest ride 110 km → ready.',
   },
   'f.dreamsdone': {
     on: 'Needs a dream planned as a trip, and the debrief of that trip.',

@@ -144,7 +144,9 @@
     border-color: transparent;
     background: none;
   }
-  :global(html[data-ruhe] .rmc) {
-    display: none;
+  /* the calm view: one rule for everywhere. What only suggests, counts or asks rests until «Done»;
+     nothing is deleted, it is all back when the calm view ends. */
+  :global(html[data-ruhe] :is(.rmc, .ph, .an, .ew, .news, .stars, .sv-star, .tp-badge.num, .badge.num, .nbadge.num)) {
+    display: none !important;
   }
 </style>

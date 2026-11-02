@@ -14,7 +14,10 @@
   import Empty from '../../lib/ui/Empty.svelte';
   import { analyseData } from '../../lib/analyse/data.svelte.js';
   import { analyseGroups, itemsByKey, detailHref } from '../../lib/analyse/catalog.js';
-  import { valueText, unitText } from '../../lib/analyse/format.js';
+  import { valueText, unitText, axisOf } from '../../lib/analyse/format.js';
+  import { LABEL_MAX } from '../../lib/charts/axis.js';
+  import GridLines from '../../lib/charts/GridLines.svelte';
+  import YTicks from '../../lib/charts/YTicks.svelte';
   import { RANGES, DEFAULT_RANGE, windowOf, bucketsOf, statsOf, typicalOf, mean7, weekdays, weekdayExtremes, tripBands, yearBefore, firstDay } from '../../lib/analyse/detail.js';
   import { addDays } from '../../lib/analyse.js';
   import { tripEnd } from '../../lib/tripstate.js';
@@ -84,21 +87,12 @@
   const bands = $derived(hours ? [] : tripBands(data.trips, win.days, tripEnd).map((b) => ({ ...b, a: Math.floor(b.a / (pts.length < win.days.length ? 7 : 1)), b: Math.floor(b.b / (pts.length < win.days.length ? 7 : 1)) })));
   const bars = $derived(!!item?.sum || !!item?.bars);
 
-  // the scales: bars from 0, lines near their lowest value; a layer has its own scale (right)
-  function scaleOf(list, fromZero) {
-    const vals = list.filter((v) => v != null && Number.isFinite(v));
-    if (!vals.length) return { lo: 0, hi: 1 };
-    let lo = fromZero ? 0 : Math.min(...vals);
-    let hi = Math.max(...vals);
-    if (hi === lo) {
-      hi += 1;
-      lo = fromZero ? 0 : lo - 1;
-    }
-    const pad = fromZero ? 0 : (hi - lo) * 0.1;
-    return { lo: lo - pad, hi: hi + pad * 0.5 };
-  }
-  const sc = $derived(scaleOf([...pts.map((p) => p.v), ...prevPts.map((p) => p.v), ...(typical ?? [])], bars));
-  const lsc = $derived(layerPts.map((lp, i) => scaleOf(lp.map((p) => p.v), !!layerItems[i]?.sum)));
+  // the scales (Noah «genaue Werte»): round, labelled steps; bars from 0, lines near their values; a layer
+  // has its own axis on the right
+  const axis = $derived(axisOf(item, [...pts.map((p) => p.v), ...prevPts.map((p) => p.v), ...(typical ?? [])], num, { zero: bars }));
+  const sc = $derived(axis.sc);
+  const laxes = $derived(layerPts.map((lp, i) => axisOf(layerItems[i], lp.map((p) => p.v), num, { zero: !!layerItems[i]?.sum })));
+  const lsc = $derived(laxes.map((a) => a.sc));
   const W = 1000;
   const H = 260;
   const xOf = (i, n) => (n > 1 ? 20 + (i / (n - 1)) * (W - 40) : W / 2);
@@ -276,12 +270,13 @@
           <p class="hint" role="status">{isDay && !item.hoursOf ? t('One value per day: see the week or month for its course.|analyse') : t('No value in this range.|analyse')}</p>
         {:else}
           <div class="plot">
-            <div class="ax l" aria-hidden="true"><span style="color:{color}">{v(item, sc.hi)}</span><span style="color:{color}">{v(item, sc.lo)}</span></div>
+            <YTicks ticks={sc.ticks} y={(t) => yOf(t, sc)} h={H} text={axis.text} unit={unitText(item)} width={56} />
             <!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_noninteractive_element_interactions -->
             <svg viewBox="0 0 {W} {H}" preserveAspectRatio="none" role="img" aria-label={t('Course of {name}|analyse', { name: item.name })} onclick={tap}>
               {#each bands as b, bi (bi)}
                 <rect class="band" x={xOf(b.a, pts.length) - 4} width={Math.max(8, xOf(b.b, pts.length) - xOf(b.a, pts.length) + 8)} y="4" height={H - 20} />
               {/each}
+              <GridLines ticks={sc.ticks} y={(x) => yOf(x, sc)} x1={0} x2={W} />
               {#if typical}<rect class="typ" x="20" width={W - 40} y={yOf(typical[1], sc)} height={Math.max(1, yOf(typical[0], sc) - yOf(typical[1], sc))} />{/if}
               {#if prevPts.length}<path class="prev" d={path(prevPts, sc)} vector-effect="non-scaling-stroke" />{/if}
               {#if bars}
@@ -300,8 +295,15 @@
                 {#if i >= 0}<line class="pick" x1={xOf(i, pts.length)} x2={xOf(i, pts.length)} y1="4" y2={H - 16} vector-effect="non-scaling-stroke" />{/if}
               {/if}
             </svg>
-            {#if layerItems[0]}<div class="ax r" aria-hidden="true"><span style="color:{LAYER_COLORS[0]}">{v(layerItems[0], lsc[0].hi)}</span><span style="color:{LAYER_COLORS[0]}">{v(layerItems[0], lsc[0].lo)}</span></div>{/if}
-            {#each bands as b, bi (bi)}{@const at = xOf(b.a, pts.length) / W}<span class="bn" class:end={at > 0.6} style="left:{at * 100}%">{b.name}</span>{/each}
+            {#if !layerItems.length && pts.filter((p) => p.v != null).length <= LABEL_MAX}
+              {#each pts as p, i (p.key)}{#if p.v != null}<span class="vl num" style="left:calc(62px + (100% - 62px) * {xOf(i, pts.length) / W}); top:{(yOf(p.v, sc) / H) * 100}%" data-point-label>{v(item, p.v)}</span>{/if}{/each}
+            {/if}
+            {#if picked}
+              {@const i = pts.findIndex((p) => p.days.includes(picked))}
+              {#if i >= 0 && pts[i].v != null}<span class="pv num" class:end={xOf(i, pts.length) / W > 0.7} style="left:calc(62px + (100% - 62px) * {xOf(i, pts.length) / W})" data-picked-value>{dayText(picked)}: <b>{v(item, pts[i].v)}{#if unitText(item)}&nbsp;{unitText(item)}{/if}</b></span>{/if}
+            {/if}
+            {#if layerItems[0] && laxes[0]}<YTicks ticks={lsc[0].ticks} y={(t) => yOf(t, lsc[0])} h={H} text={laxes[0].text} unit={unitText(layerItems[0])} side="right" color={LAYER_COLORS[0]} width={56} />{/if}
+            {#each bands as b, bi (bi)}{@const at = xOf(b.a, pts.length) / W}<span class="bn" class:end={at > 0.6} style="left:calc(62px + (100% - 62px - {layerItems[0] ? 62 : 0}px) * {at})">{b.name}</span>{/each}
           </div>
           <div class="xl" aria-hidden="true">
             {#if hours}<span>0</span><span>6</span><span>12</span><span>18</span><span>24 h</span>{:else}<span>{dfmt(win.from, { day: 'numeric', month: 'short' })}</span><span>{dfmt(win.days[Math.floor(win.days.length / 2)], { day: 'numeric', month: 'short' })}</span><span>{dfmt(win.to, { day: 'numeric', month: 'short' })}</span>{/if}
@@ -517,27 +519,39 @@
     height: 240px;
     cursor: crosshair;
   }
-  .ax {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    padding: 4px 0 16px;
+  .vl {
+    position: absolute;
+    transform: translate(-50%, -140%);
+    color: var(--ink-2);
     font-size: var(--fs-label);
-    min-width: 28px;
+    white-space: nowrap;
+    pointer-events: none;
   }
-  .ax.r {
-    text-align: right;
+  .pv {
+    position: absolute;
+    top: 0;
+    transform: translateX(6px);
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    font-size: var(--fs-small);
+    white-space: nowrap;
+    pointer-events: none;
+  }
+  .pv.end {
+    transform: translateX(calc(-100% - 6px));
   }
   .bn {
     position: absolute;
     top: 2px;
-    transform: translateX(32px);
+    transform: translateX(4px);
     color: var(--ink-2);
     font-size: var(--fs-label);
     white-space: nowrap;
   }
   .bn.end {
-    transform: translateX(calc(32px - 100% - 6px));
+    transform: translateX(calc(-100% - 4px));
   }
   .band {
     fill: var(--pz4);
@@ -584,7 +598,7 @@
   .xl {
     display: flex;
     justify-content: space-between;
-    padding: 0 34px;
+    padding: 0 0 0 62px;
     color: var(--ink-3);
     font-size: var(--fs-label);
   }

@@ -9,4 +9,6 @@ export default {
   'km per week, {n} weeks|bikesan': 'km pro Woche, {n} Wochen',
   'No counted rides in this period.|bikesan': 'In diesem Zeitraum keine gezählten Fahrten.',
   '{km} km left|bikesan': 'noch {km} km',
+  'Week of {day}|bikesan': 'Woche ab {day}',
+  'Tap a week for its exact km.|bikesan': 'Tippe auf eine Woche für die genauen km.',
 };

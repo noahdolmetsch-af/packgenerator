@@ -47,6 +47,8 @@ test('Calm view: the strip shows only what you do, not on Heute, until «Fertig�
   await page.goto('./#/gear');
   const line = page.locator('[data-ruhig-line="calm"]');
   await expect(line).toContainText('Velo putzen');
+  await expect(page.locator('html')).toHaveAttribute('data-ruhe', '1'); // suggestions, stars, «Neu» rest
+  await expect(page.locator('.ph, .an, .stars, .sv-star')).toBeHidden();
   await page.goto('./#/');
   await page.locator('main').waitFor();
   await expect(page.locator('[data-ruhig-line]')).toHaveCount(0); // Heute stays as it is (rule 11)
