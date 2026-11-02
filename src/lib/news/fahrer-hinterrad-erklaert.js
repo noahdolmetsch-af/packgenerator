@@ -2,7 +2,7 @@
 export default {
   title: 'Rider weight and rear hint explained',
   lead: 'The two settings under «Profile and settings» now say what they are used for.',
-  points: [{ text: 'Rider weight and «Hint when rear is over» each have a line that says what they do', go: { href: '#/bikes?tab=setup', steps: [{ text: 'Profile and settings' }, { sel: '.set-in .why' }], where: 'Bikes › Overview › Profile and settings.' } }],
+  points: [{ text: 'Rider weight and «Hint when rear is over» each have a line that says what they do', go: { href: '#/bikes', steps: [{ text: 'Profile and settings' }, { sel: '.set-in .why' }], where: 'Bikes › Overview › Profile and settings.' } }],
   small: [],
   test: ['Open Bikes › Overview › Profile and settings: under «Rider weight» a line says what it is for.', 'Under «Hint when rear is over» a line says when packing shows the hint.'],
   since: [],
