@@ -8,21 +8,20 @@
   import { ChevronDown, ChevronRight, X, Lightbulb } from '@lucide/svelte';
   import { t } from '../i18n.svelte.js';
   import { db } from '../db.js';
-  import { pageContent, pageKey, SHOWN, FOLD_KEY, foldedOf } from '../seiteninhalt.js';
+  import { pageContent, pageKey, SHOWN, FOLD_KEY, foldMapOf, isFolded } from '../seiteninhalt.js';
 
   let { hash = '' } = $props();
   const rows = $derived(pageContent(hash));
   const key = $derived(pageKey(hash));
-  const foldQ = liveQuery(async () => foldedOf((await db.settings.get(FOLD_KEY))?.value));
-  const folded = $derived(!!$foldQ?.[key]);
+  const foldQ = liveQuery(async () => foldMapOf((await db.settings.get(FOLD_KEY))?.value));
+  const folded = $derived(isFolded($foldQ, key));
   let all = $state(false);
   let open = $state({});
   const shown = $derived(all ? rows : rows.slice(0, SHOWN));
 
   async function setFold(on) {
-    const cur = foldedOf((await db.settings.get(FOLD_KEY))?.value);
-    if (on) cur[key] = true;
-    else delete cur[key];
+    const cur = foldMapOf((await db.settings.get(FOLD_KEY))?.value);
+    cur[key] = on;
     await db.settings.put({ key: FOLD_KEY, value: cur });
   }
 </script>
@@ -136,6 +135,12 @@
   .si-line {
     margin: 0 0 8px;
     color: var(--ink-2);
+  }
+  /* A phone held sideways has no room above the trip band: the folded line waits until the phone is upright again. */
+  @media (orientation: landscape) and (max-height: 500px) {
+    .si-line {
+      display: none;
+    }
   }
   .si-body {
     padding: 4px 0 2px;

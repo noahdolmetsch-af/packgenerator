@@ -209,7 +209,7 @@
       </ul>
     {/if}
 
-    <h2 class="gh app">{t('From the app, smaller')}</h2>
+    <h2 class="gh app">{t('Ideas from the app, for when you have time')}</h2>
     {#if fromApp.length}
       <ul>
         {#each fromApp as r (r.key)}

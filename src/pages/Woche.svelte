@@ -25,7 +25,7 @@
   import { localDay } from '../lib/localday.js';
   import { phone } from '../lib/media.svelte.js';
   import { PHONE_ROWS } from '../lib/touren/kurz.js';
-  import { t, tn } from '../lib/i18n.svelte.js';
+  import { t, tn, locale } from '../lib/i18n.svelte.js';
   import { offerDone } from '../lib/ui/rename.svelte.js';
 
   const today = localDay();
@@ -42,6 +42,8 @@
       .catch(() => (forecast = null));
   });
   const week = $derived(src ? buildWeek({ ...src, forecast, monday, today, goalHours: src.goal?.hours ?? null, actName: (id) => actName(actOf.get(id)) || id }) : null);
+  // «Planen als verbindende Mitte» 5a: «For 2.–8. Nov.» instead of a bare number range
+  const rangeLong = $derived(`${new Date(`${monday}T12:00:00Z`).getUTCDate()}.–${new Date(`${shiftDay(monday, 6)}T12:00:00Z`).toLocaleDateString(locale(), { timeZone: 'UTC', day: 'numeric', month: 'short' })}`);
   const range = $derived(`${shortDate(monday)}–${shortDate(shiftDay(monday, 6))}`);
   const due = $derived(src && src.planned !== planMonday(today));
 
@@ -118,7 +120,7 @@
 </script>
 
 <div class="wkp">
-  <PageHead title={next ? t('Next week') : t('This week')} text={t('Week {n} · {range} · everything here is a suggestion and can be hidden', { n: isoWeek(monday), range })} />
+  <PageHead title={next ? t('Next week') : t('This week')} text={t('For {range} · week {n}. Your dates and planned tasks. You accept new suggestions yourself.', { n: isoWeek(monday), range: rangeLong })} />
   <AreaIntro place="weekplan" />
   <FreeSlotCard />
 

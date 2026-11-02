@@ -37,6 +37,7 @@
   import PlaceBar from './lib/nav/PlaceBar.svelte';
   import MeButton from './lib/nav/MeButton.svelte';
   import HelpButton from './lib/nav/HelpButton.svelte';
+  import ErscheintWenn from './lib/ui/ErscheintWenn.svelte'; // «Wegweiser» PR 23: «Appears when …»
   import PageFoot from './lib/anpassen/PageFoot.svelte'; // «Anpassen» (Noah 20.10.2026 «1a»)
   import { pageKeyOf } from './lib/anpassen.js';
   import { placeLabel, tabLabel } from './lib/anpassen.svelte.js';
@@ -848,6 +849,7 @@
   </svelte:boundary>
   <!-- «Anpassen» (Noah 20.10.2026 «1a»): «Diese Seite anpassen» at the end of every page; not on Heute, where
        «Startseite anpassen» does it (Neuer Schwung, Noah 26.10.2026 «warum haben wir startseite anpassen und diese seite anpassen?») -->
+  {#if !guest && !mini && page !== 'home'}<ErscheintWenn {hash} />{/if}
   {#if !guest && !mini && page !== 'home'}<PageFoot page={pageKeyOf(page, place ? tabOf(place, hash) : null)} {place} fallback={anpTitle} />{/if}
 </main>
 

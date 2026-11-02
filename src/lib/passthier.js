@@ -36,6 +36,12 @@ export const PASST_HIER = {
   woche: ['f.workspace', 'f.calmview', 'f.freiabend'],
   // Erinnerungen aufs Handy: how many a day, and what the app no longer suggests
   push: ['f.pushbudget', 'f.notforme'],
+  // Ich › Erkenntnisse: what belongs to an insight, the days that do not fit, a test with an end (PR 7)
+  insights: ['f.counterdays', 'f.specialdays', 'f.experiment'],
+  // Ich › Wi gaht's?: what an answer meant, a talk prepared from your own values (PR 7)
+  abfragen: ['f.scalemeaning', 'f.bodytalk'],
+  // Aktiv › Meine Sportarten: the tennis page, a ride with two roles, rewards without buying (PR 7)
+  sports: ['f.tennistop', 'f.tworoles', 'f.freerewards'],
 };
 
 /** The functions of a place that exist and are not marked «Not for me». */

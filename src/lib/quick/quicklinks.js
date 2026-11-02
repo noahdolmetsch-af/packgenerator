@@ -18,13 +18,13 @@ import { FEATURE } from '../features.js';
 /** The record of each kind of device in the settings table. */
 export const QUICK_KEYS = { phone: 'quickLinks.phone', computer: 'quickLinks.computer' };
 
-/** Noah «4a»: 20 suggestions from the 400 functions, by situation (English keys of the group names). */
+/** Noah «4a»; «Schnell öffnen» on Heute (Noah 01.11.2026 «4a»): about a dozen favourites from the 400 functions, by situation (English keys of the group names). */
 export const STARTER = [
-  { std: 'Before the trip', pins: ['f.quickstart', 'f.plan', 'f.wear', 'f.weather', 'f.dreams'] },
-  { std: 'On the way|quick', pins: ['f.live', 'ride', 'note', 'f.sos'] },
-  { std: 'After the trip', pins: ['debrief', 'f.upload', 'f.heatmap'] },
+  { std: 'Before the trip', pins: ['f.quickstart', 'f.wear', 'f.dreams'] },
+  { std: 'On the way|quick', pins: ['f.live', 'note', 'f.sos'] },
+  { std: 'After the trip', pins: ['f.upload', 'f.heatmap'] },
   { std: 'Bike|quick', pins: ['care', 'km', 'f.partwear', 'f.problem'] },
-  { std: 'Active and everyday', pins: ['f.tick', 'f.form', 'f.abfragen', 'f.notes'] },
+  { std: 'Active and everyday', pins: ['f.tick'] },
 ];
 
 /** The kind of this device: a finger (phone, tablet) or a mouse (computer). */
@@ -41,7 +41,7 @@ let seq = 0;
 /** A new id (time + counter, so two made in the same millisecond differ). */
 export const newId = (p = 'q') => `${p}${Date.now().toString(36)}${(seq++).toString(36)}`;
 
-/** The 20 suggestions as a fresh record. */
+/** The suggestions as a fresh record. */
 export function starter() {
   const groups = STARTER.map((g, i) => ({ id: `s${i + 1}`, std: g.std, name: '' }));
   const pins = STARTER.flatMap((g, i) => g.pins.filter((f) => FEATURE[f]).map((f) => ({ id: `p-${f}`, feature: f, group: `s${i + 1}`, name: '', note: '' })));
@@ -160,4 +160,22 @@ export function findForPin(all, q, tr = (s) => s) {
     const hay = [f.title, tr(f.title), f.text, tr(f.text), f.words].join(' ').toLowerCase();
     return words.every((w) => hay.includes(w));
   });
+}
+
+/** All pins in the order the person sees them: the groups in order, then the pins without a group (tile «Open quickly» on Heute). */
+export const flatPins = (s) => [...s.groups.flatMap((g) => pinsIn(s, g.id)), ...pinsIn(s, '')];
+
+/** Move a pin to the place `to` of the flat list (the tile on Heute shows one list; the pin keeps or takes the group of its new neighbour). */
+export function moveFlat(s, from, to) {
+  const flat = flatPins(s);
+  if (from === to || from < 0 || to < 0 || from >= flat.length || to >= flat.length) return s;
+  const order = [...flat];
+  const [x] = order.splice(from, 1);
+  order.splice(to, 0, x);
+  const nb = order[to + 1] ?? order[to - 1];
+  const group = nb ? nb.group : x.group;
+  order[to] = { ...x, group };
+  // the pins in the new order, each group keeping its pins together in that order
+  const keys = [...s.groups.map((g) => g.id), ''];
+  return { ...s, pins: keys.flatMap((k) => order.filter((p) => p.group === k)) };
 }

@@ -26,8 +26,8 @@
   import { ME_KEY } from '../lib/freunde/freunde.js';
   import { newTrip } from '../lib/trips.js';
   import { openTrip } from '../lib/nav.js';
-  import { createQuestion, editQuestion, readAnswers, endQuestion, joinLinkOf, MINI_ERRORS } from '../lib/mini/client.js';
-  import { MINE_KEY, listOf, readMine, saveMine, updateOne, running } from '../lib/mini/store.js';
+  import { createQuestion, editQuestion, readAnswers, openQuestion, endQuestion, joinLinkOf, MINI_ERRORS } from '../lib/mini/client.js';
+  import { MINE_KEY, listOf, readMine, saveMine, updateOne, running, newAnswers } from '../lib/mini/store.js';
   import PollNew from '../lib/mini/PollNew.svelte';
   import LosPage from '../lib/mini/LosPage.svelte';
   import AbfahrtPage from '../lib/mini/AbfahrtPage.svelte';
@@ -151,6 +151,25 @@
   let said = $state('');
   let qr = $state(false);
   let renaming = $state(false);
+
+  /* the list: ask the server how many answers each open question has (Noah 1.11.2026 «5b»); nothing is stored */
+  let serverN = $state({});
+  let listChecked = false;
+  $effect(() => {
+    if (sub || !loaded || listChecked) return;
+    listChecked = true;
+    const open = untrack(() => mine.filter((x) => running(x) && x.srv?.key).slice(0, 12));
+    untrack(async () => {
+      for (const x of open) {
+        try {
+          const d = await openQuestion(x.srv.id, x.srv.key);
+          serverN = { ...serverN, [x.id]: d.n };
+        } catch {
+          /* offline or ended: no number */
+        }
+      }
+    });
+  });
 
   async function refresh() {
     if (!q?.srv || !isOpen) return;
@@ -583,7 +602,7 @@
               <li>
                 <a class="ich-row" href={`#/me/mini/${encodeURIComponent(x.id)}`} data-mt-item={x.id}>
                   <span class="ich-ib">{#if x.kind === KIND_POLL}<ListChecks size={18} aria-hidden="true" />{:else if x.kind === KIND_LIST}<ClipboardList size={18} aria-hidden="true" />{:else if x.kind === KIND_INVITE}<Bike size={18} aria-hidden="true" />{:else if x.kind === KIND_FOOD}<Utensils size={18} aria-hidden="true" />{:else}<CalendarCheck size={18} aria-hidden="true" />{/if}</span>
-                  <span class="ich-m"><b>{x.title}</b><small>{answersText(x.answers?.length ?? 0)} · {running(x) ? t('open until {day}', { day: endFmt(x.srv.end) }) : t('ended')}</small></span>
+                  <span class="ich-m"><b>{x.title}</b><small>{answersText(x.answers?.length ?? 0)}{#if newAnswers(x, serverN[x.id]) > 0}{' · '}<span class="mt-new" data-mt-fresh>{t('{n} new', { n: newAnswers(x, serverN[x.id]) })}</span>{/if} · {running(x) ? t('open until {day}', { day: endFmt(x.srv.end) }) : t('ended')}</small></span>
                   <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
                 </a>
               </li>
@@ -607,6 +626,10 @@
     display: grid;
     gap: var(--sp-3);
     min-width: 0;
+  }
+  .mt-new {
+    font-weight: 700;
+    color: var(--accent);
   }
   .mt-fixed {
     border-top: 3px solid var(--accent);

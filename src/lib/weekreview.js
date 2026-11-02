@@ -60,16 +60,25 @@ const ICON_KIND = { bike: 'bike', run: 'run', walk: 'hike' };
 
 /* ---------------------------------------------------------------- W1 the week in five numbers */
 
-/** Hours, km, Hm and sessions of one week. Sessions: Strava activities plus Aktiv entries of the move ring that are not already one of them. */
-export function weekSums({ acts = [], log = [], flowActs = [] }, monday) {
-  const list = acts.filter((a) => inWeek(a.day, monday));
+/**
+ * Hours, km, Hm and sessions of one week, up to a day (default: Sunday; the running week is compared with the
+ * same days of the weeks before). Time: Strava moving time plus the minutes of Aktiv entries (`min`) that are not
+ * already a Strava activity; km and Hm come from Strava only. Sessions: Strava activities plus Aktiv entries of
+ * the move ring that are not already one of them. `noTime`: Aktiv sessions without minutes (time unknown).
+ */
+export function weekSums({ acts = [], log = [], flowActs = [] }, monday, upto = shiftDay(monday, 6)) {
+  const within = (d) => inWeek(d, monday) && d <= upto;
+  const list = acts.filter((a) => within(a.day));
   const ring = ringsOf(flowActs);
   const icon = new Map(flowActs.map((a) => [a.id, a.icon]));
   const daily = new Set(flowActs.filter((a) => (a.goals ?? []).length && a.goals.every((q) => q.days === 1)).map((a) => a.id));
   const stravaOn = new Set(list.map((a) => `${a.day}|${a.kind}`));
-  const extra = log.filter((e) => inWeek(e.day, monday) && ring.get(e.actId) === 'move' && !daily.has(e.actId) && e.via !== 'trip' && !stravaOn.has(`${e.day}|${ICON_KIND[icon.get(e.actId)] ?? '-'}`));
+  const extra = log.filter((e) => within(e.day) && ring.get(e.actId) === 'move' && !daily.has(e.actId) && e.via !== 'trip' && !stravaOn.has(`${e.day}|${ICON_KIND[icon.get(e.actId)] ?? '-'}`));
+  const extraSecs = extra.reduce((s, e) => s + (Number(e.min) > 0 ? Number(e.min) * 60 : 0), 0);
   return {
-    secs: list.reduce((s, a) => s + (Number(a.movingS) || 0), 0),
+    secs: list.reduce((s, a) => s + (Number(a.movingS) || 0), 0) + extraSecs,
+    extraSecs,
+    noTime: extra.filter((e) => !(Number(e.min) > 0)).length,
     km: round1(list.reduce((s, a) => s + (Number(a.km) || 0), 0)),
     hm: Math.round(list.reduce((s, a) => s + (Number(a.hm) || 0), 0)),
     n: list.length + extra.length,
@@ -89,8 +98,9 @@ export function weekGoalsMet({ flowActs = [], log = [], tripDays = [] }, monday,
  * → [{ key: 'hours' | 'km' | 'hm' | 'n' | 'goals', value, prev, diff }] (goals: value = met, of).
  */
 export function weekFive(data, monday, today) {
-  const now = weekSums(data, monday);
-  const before = weekSums(data, shiftDay(monday, -7));
+  const upto = weekEnd(monday, today); // the running week counts up to today …
+  const now = weekSums(data, monday, upto);
+  const before = weekSums(data, shiftDay(monday, -7), shiftDay(upto, -7)); // … and meets the same days of the week before
   const g = weekGoalsMet(data, monday, today);
   const gb = weekGoalsMet(data, shiftDay(monday, -7), today);
   const row = (key, value, prev) => ({ key, value, prev, diff: key === 'km' ? round1(value - prev) : value - prev });
@@ -218,8 +228,9 @@ export function weekNotes(data, monday, today, bounds) {
   const streak = trainStreak(data, monday, today);
   if (streak >= 5) out.push({ key: 'streak', kind: 'note', vars: { n: streak } });
   // hours against the usual
-  const secs = weekSums(data, monday).secs;
-  const usual = mean(Array.from({ length: USUAL_WEEKS }, (_, i) => weekSums(data, shiftDay(monday, -7 * (i + 1))).secs));
+  const upto = weekEnd(monday, today);
+  const secs = weekSums(data, monday, upto).secs;
+  const usual = mean(Array.from({ length: USUAL_WEEKS }, (_, i) => weekSums(data, shiftDay(monday, -7 * (i + 1)), shiftDay(upto, -7 * (i + 1))).secs));
   if (usual > 0 && secs > 0 && Math.abs(secs - usual) >= usual * 0.2) out.push({ key: secs > usual ? 'hours-more' : 'hours-less', kind: secs > usual ? 'good' : 'note', vars: { a: secs, b: Math.round(usual) } });
   else if (usual > 0 && !secs && monday < mondayOf(today)) out.push({ key: 'hours-none', kind: 'note', vars: { b: Math.round(usual) } });
   // Z1–Z2
@@ -270,9 +281,10 @@ export function weekHighs(acts = [], monday) {
  *   calmer   the load rose three weeks in a row → «a calmer week»
  *   back     the shown week had less than half the usual → «your usual rhythm again»
  *   keep     otherwise → «keep your rhythm», about as many hours as the shown week
+ *   running  the shown week is not over: only what is usual, no «quiet week»
  * plan: the sessions already planned for the week after. → { key, hours, plan: { n, mins } } or null without any activity.
  */
-export function weekAhead(acts = [], sessions = [], monday) {
+export function weekAhead(acts = [], sessions = [], monday, today = null) {
   const ms = Array.from({ length: USUAL_WEEKS }, (_, i) => shiftDay(monday, (i - USUAL_WEEKS + 1) * 7));
   const loads = loadsOf(acts);
   const sum = (m, f) => acts.filter((a) => inWeek(a.day, m)).reduce((s, a) => s + f(a), 0);
@@ -286,6 +298,8 @@ export function weekAhead(acts = [], sessions = [], monday) {
   const [, a, b, c] = series;
   const usual = mean(series.slice(0, -1));
   let key = 'keep';
+  // the week is still running: nothing «lies behind you» yet, say what is usual instead
+  if (today && monday === mondayOf(today)) return { key: 'running', secs: bySecs.at(-1), usualSecs: Math.round(mean(bySecs.slice(0, -1)) ?? 0), plan, next, kw: isoWeek(next) };
   if (a > 0 && b > a && c > b) key = 'calmer';
   else if (usual > 0 && c < usual * 0.5) key = 'back';
   return { key, secs: bySecs.at(-1), usualSecs: Math.round(mean(bySecs.slice(0, -1)) ?? 0), plan, next, kw: isoWeek(next) };
