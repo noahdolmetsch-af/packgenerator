@@ -25,6 +25,7 @@
   import VeloHead from '../bikes/VeloHead.svelte';
   import QuickLinks from '../ui/QuickLinks.svelte';
   import ChainRotation from './ChainRotation.svelte';
+  import WearCosts from './WearCosts.svelte'; // idea C1 (02.11.2026)
   import GriffMore from './GriffMore.svelte';
   import WetChainHint from './WetChainHint.svelte';
   import NoiseCard from './NoiseCard.svelte';
@@ -281,6 +282,7 @@
     </section>
     <!-- Paket VG «Das Velo im Griff»: chain rotation (1135), what lasts longest (1133), the pages and the reminders -->
     <div class="gp">
+      <WearCosts {rows} bike={view} />
       <ChainRotation {bike} />
       <NoiseCard {bike} {view} />
       <GriffMore {bike} {stats} />

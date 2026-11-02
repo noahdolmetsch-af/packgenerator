@@ -756,6 +756,11 @@ const LISTED = {
     steps: ['Bikes › Care › a bike › «Workshop rounds».', 'Add a suggestion or your own round: jobs, tools, material.', '«Start the round», tick what you did, «Done»: the jobs with a part go into the part.'],
     example: 'Example: «Autumn service» with 5 jobs; chain and brake pads ticked → both recorded today.',
   },
+  'f.wearcosts': {
+    on: null,
+    steps: ['Bikes › Care › a bike › «Wear» › «What the next months cost».', 'Pick 3, 6 or 12 months: the parts that run out, each with what the last change cost.', '«All on the shopping list» adds them; Undo takes them off again.'],
+    example: 'Example: chain CHF 40 in December, pads CHF 25 in March → about CHF 65.',
+  },
   'f.sparestock': {
     on: null,
     steps: ['Bikes › Care › a bike › «Wear» › «Spare parts at home».', 'Add a row with a number, e.g. 2 chains.', 'You replace a chain yourself: one less; at 0 «Shopping list» adds it.'],

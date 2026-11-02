@@ -32,6 +32,7 @@ export default {
   "f.wearcal": "A part change in the calendar is a good reason to order the part a week early, not on the day.",
   "f.bikebox": "Mark the saddle height with tape before you take the seatpost out. At the other end you will thank yourself.",
   "f.workshoprounds": "One round per job you do often, like «chain and brakes». A good round fits on one screen.",
+  "f.wearcosts": "Look at the sum once in autumn: then a new chain in spring is no surprise.",
   "f.sparestock": "One chain and one set of pads in the cellar spare you a trip to the shop on a Saturday evening.",
   "f.brandkm": "Your own km beat any test: what lasted long on your roads will likely do it again.",
   "f.springservice": "February is the quiet month in the workshop. Book then, and you ride in March while others wait.",

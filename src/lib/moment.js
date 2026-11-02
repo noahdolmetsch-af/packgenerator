@@ -137,7 +137,7 @@ const LISTED_MOMENTS = {
     'f.garmin', 'f.problem', 'f.workshop', 'f.equipment', 'f.bikecompare', 'f.folder', 'f.breakin',
     'f.repairkit', 'f.warranty', 'f.theft', 'f.partstart', 'f.prep', 'f.skiequipment', 'f.bikeservice',
     'f.parttemplate', 'f.spick', 'f.partwear', 'f.wetchain', 'f.chainmeasure', 'f.bikeyear', 'f.bikeseason',
-    'f.noises', 'f.carestreak', 'f.wearcal', 'f.wearphotos', 'f.sellbike', 'f.bikebox', 'f.sparestock', 'f.workshoprounds',
+    'f.noises', 'f.carestreak', 'f.wearcal', 'f.wearphotos', 'f.sellbike', 'f.bikebox', 'f.sparestock', 'f.wearcosts', 'f.workshoprounds',
     'f.brandkm', 'f.springservice', 'f.chainrotation', 'f.velofaq', 'f.setupphotos', 'f.inspect', 'f.measure',
     'f.gears', 'f.level', 'f.sitpos', 'f.pros', 'f.table', 'f.lend', 'f.wearpush', 'f.skicare',
   ],
