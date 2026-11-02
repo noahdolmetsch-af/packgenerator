@@ -2091,6 +2091,12 @@ export default {
   'Needs a dream planned as a trip, and the debrief of that trip.': 'Braucht einen als Tour geplanten Traum und den Rückblick dieser Tour.',
   'Plan a dream as a trip (Trips › Dreams › the dream › «Plan the tour»).': 'Plane einen Traum als Tour (Touren › Träume › der Traum › «Tour planen»).',
   'After the trip, finish its debrief.': 'Schliess nach der Tour ihren Rückblick ab.',
+  // «Träume und Neuland» N16
+  'Needs km, climb or days in the dream (a GPX file or a link brings them), and rides with km.': 'Braucht km, Höhenmeter oder Tage im Traum (eine GPX-Datei oder ein Link bringt sie) und Fahrten mit km.',
+  'Open a dream in Trips › Dreams.': 'Öffne einen Traum in Touren › Träume.',
+  'Scroll to «Ready for it?».': 'Scrolle zu «Bereit dafür?».',
+  'A ring that is not filled shows what is still missing.': 'Ein nicht gefüllter Ring zeigt, was noch fehlt.',
+  'Example: 3 days, 360 km → «needs about 120 km a day»; longest ride 110 km → ready.': 'Beispiel: 3 Tage, 360 km → «braucht etwa 120 km pro Tag»; längste Fahrt 110 km → bereit.',
   // «Träume und Neuland» N3
   'Needs your home place. The calendar counts when Google calendar is connected.': 'Braucht deinen Wohnort. Der Kalender zählt, wenn Google Kalender verbunden ist.',
   'Open Trips › Dreams: «Fits today» is at the top.': 'Öffne Touren › Träume: «Heute passt» steht oben.',

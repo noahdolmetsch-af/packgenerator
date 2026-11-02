@@ -221,3 +221,45 @@ test('Training › Woche: an optional goal, plan the week, «Wie letzte Woche»,
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(page.viewportSize().width);
   expect(errors).toEqual([]);
 });
+
+// «Training verbessern» 1 (Noah 2.11.2026): a session of an own sport; a new sport can be added; ticking it in Aktiv ticks the plan
+test('Training › Woche: plan a sport of Aktiv, add a new one, tick it', async ({ page, context, baseURL }) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await start(page, context, { log: [], app: baseURL });
+  await page.goto('./#/flow/training');
+  const plan = page.locator('[data-section="week-plan"]');
+  await plan.locator(`[data-add="${day(0)}"]`).click();
+  const form = plan.locator('[data-session-form]');
+  await form.getByRole('button', { name: 'Andere', exact: true }).click();
+  await form.locator('[data-sport-new]').click();
+  await form.locator('[data-sport-name]').fill(`${P}Rudern`);
+  await form.locator('[data-sport-save]').click();
+  await expect(form.locator('[data-session-sport] option:checked')).toHaveText(`${P}Rudern`);
+  await form.locator('[data-session-mins]').fill('45');
+  await form.getByRole('button', { name: 'Speichern' }).click();
+  const chip = plan.locator('[data-planned]').filter({ hasText: `${P}Rudern` });
+  await expect(chip).toContainText('0:45');
+  await expect(chip).not.toHaveClass(/ok/);
+  // ticked in Aktiv: the same day turns the planned session green
+  await page.evaluate(
+    ([d, name]) => new Promise((ok) => {
+      const r = indexedDB.open('pack-generator');
+      r.onsuccess = () => {
+        const db = r.result;
+        const rows = db.transaction('flowActs').objectStore('flowActs').getAll();
+        rows.onsuccess = () => {
+          const a = rows.result.find((x) => x.name === name);
+          const tx = db.transaction('flowLog', 'readwrite');
+          tx.objectStore('flowLog').put({ id: 'test-e1', actId: a.id, day: d, at: `${d}T08:00:00Z`, n: 1 });
+          tx.oncomplete = () => ok();
+        };
+      };
+    }),
+    [day(0), `${P}Rudern`],
+  );
+  // a write outside Dexie is not seen by the open page: reload
+  await page.reload();
+  await expect(plan.locator('[data-planned]').filter({ hasText: `${P}Rudern` })).toHaveClass(/ok/);
+  expect(errors).toEqual([]);
+});

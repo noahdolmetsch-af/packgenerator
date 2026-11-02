@@ -8,7 +8,10 @@
    */
   import { X } from '@lucide/svelte';
   import Seg from '../../lib/ui/Seg.svelte';
-  import { valueText, unitText } from '../../lib/analyse/format.js';
+  import { valueText, unitText, axisOf } from '../../lib/analyse/format.js';
+  import { niceScale, tickText } from '../../lib/charts/axis.js';
+  import GridLines from '../../lib/charts/GridLines.svelte';
+  import YTicks from '../../lib/charts/YTicks.svelte';
   import { UNITS, MAX_ACTS, AROUND, compareWindows, running, sameDay, weeklyCounts, meanPerWeek, aroundTrip, pastTrips } from '../../lib/analyse/compare.js';
   import { ticksPerDay } from '../../lib/analyse/overview.js';
   import { SERIES_COLORS } from '../../lib/analyse/diagram.js';
@@ -55,13 +58,15 @@
   const H = 180;
   const PAD = 8;
   const len = $derived(Math.max(win.now.days.length, win.prev.days.length, 2));
-  const lo = $derived(value?.sum ? 0 : Math.min(...[...lineNow, ...linePrev].filter((v) => v != null), Infinity));
-  const hi = $derived(Math.max(...[...lineNow, ...linePrev].filter((v) => v != null), -Infinity));
-  const yOf = (v) => {
-    const a = Number.isFinite(lo) ? lo : 0;
-    const b = Number.isFinite(hi) && hi > a ? hi : a + 1;
-    return H - PAD - ((v - a) / (b - a)) * (H - 2 * PAD);
-  };
+  // round, labelled steps (Noah «genaue Werte»)
+  const pax = $derived(value ? axisOf(value, [...lineNow, ...linePrev], num, { zero: !!value.sum, count: 3 }) : null);
+  const yOf = (v) => H - PAD - ((v - (pax?.sc.lo ?? 0)) / ((pax?.sc.hi ?? 1) - (pax?.sc.lo ?? 0) || 1)) * (H - 2 * PAD);
+  let pday = $state(null); // a tapped day of the period
+  const pi = $derived(pday != null && pday < len ? pday : Math.max(0, lineNow.length - 1));
+  function tapDay(e) {
+    const r = e.currentTarget.getBoundingClientRect();
+    pday = Math.max(0, Math.min(len - 1, Math.round(((e.clientX - r.left) / r.width) * (len - 1))));
+  }
   const xOf = (i) => (i / (len - 1)) * W;
   const pathOf = (line) => {
     let d = '';
@@ -98,10 +103,16 @@
   const chosen = $derived((actIds ?? busiest.slice(0, 2).map((x) => x.id)).filter((id) => acts.some((a) => a.id === id)).slice(0, MAX_ACTS));
   const actOf = (id) => acts.find((a) => a.id === id);
   const others = $derived(acts.filter((a) => !chosen.includes(a.id)));
-  const weekTop = $derived(Math.max(1, ...allWeeks.flatMap((w) => chosen.map((id) => w.n[id] ?? 0))));
+  const asc = $derived(niceScale(allWeeks.flatMap((w) => chosen.map((id) => w.n[id] ?? 0)), { zero: true, count: 3 }));
+  let aweek = $state(null);
+  const awi = $derived(aweek ?? WEEKS - 1);
+  function tapWeek(e) {
+    const r = e.currentTarget.getBoundingClientRect();
+    aweek = Math.max(0, Math.min(WEEKS - 1, Math.round(((e.clientX - r.left) / r.width) * (WEEKS - 1))));
+  }
   const AH = 150;
   const ax = (i) => (i / Math.max(1, WEEKS - 1)) * W;
-  const ay = (n) => AH - PAD - (n / weekTop) * (AH - 2 * PAD);
+  const ay = (n) => AH - PAD - ((n - asc.lo) / (asc.hi - asc.lo || 1)) * (AH - 2 * PAD);
   const addAct = (id) => {
     if (!id) return;
     actIds = [...chosen, id].slice(0, MAX_ACTS);
@@ -142,12 +153,18 @@
           <button type="button" class="chip" class:on={value?.key === v.key} aria-pressed={value?.key === v.key} data-cmp-value={v.key} onclick={() => (valueKey = v.key)}>{v.name}</button>
         {/each}
       </div>
-      <svg viewBox="0 0 {W} {H}" role="img" aria-label={`${value.name}: ${nameOf(win.now)} ${t('against|compare')} ${nameOf(win.prev)}`}>
-        <line class="base" x1="0" x2={W} y1={H - PAD} y2={H - PAD} />
-        <path class="prev" d={pathOf(linePrev)} data-cmp-prev />
-        <path class="now" d={pathOf(lineNow)} data-cmp-now />
-        {#if lineNow.at(-1) != null}<circle class="dot" cx={xOf(lineNow.length - 1)} cy={yOf(lineNow.at(-1))} r="4" />{/if}
-      </svg>
+      <p class="pv" data-cmp-day aria-live="polite"><b>{t('Day {n}|compare', { n: pi + 1 })}</b>: {nameOf(win.now)} <b class="num">{lineNow[pi] != null ? valueText(value, lineNow[pi], num) : '–'}</b> · {nameOf(win.prev)} <b class="num">{linePrev[pi] != null ? valueText(value, linePrev[pi], num) : '–'}</b>{#if unitText(value)}&nbsp;{unitText(value)}{/if}</p>
+      <div class="plot">
+        <YTicks ticks={pax.sc.ticks} y={yOf} h={H} text={pax.text} unit={unitText(value)} width={56} />
+        <!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_noninteractive_element_interactions -->
+        <svg viewBox="0 0 {W} {H}" role="img" aria-label={`${value.name}: ${nameOf(win.now)} ${t('against|compare')} ${nameOf(win.prev)}`} onclick={tapDay}>
+          <GridLines ticks={pax.sc.ticks} y={yOf} x1={0} x2={W} />
+          <line class="cur" x1={xOf(pi)} x2={xOf(pi)} y1={PAD} y2={H - PAD} />
+          <path class="prev" d={pathOf(linePrev)} data-cmp-prev />
+          <path class="now" d={pathOf(lineNow)} data-cmp-now />
+          {#if lineNow[pi] != null}<circle class="dot" cx={xOf(pi)} cy={yOf(lineNow[pi])} r="4" />{/if}
+        </svg>
+      </div>
       <ul class="legend"><li><i class="lsw now"></i>{nameOf(win.now)}</li><li><i class="lsw prev"></i>{nameOf(win.prev)}</li></ul>
       {#if sentence}<p class="say" data-cmp-say>{sentence}</p>{/if}
       <p class="hint">{value.sum ? t('Summed up day by day.|compare') : t('The mean so far, day by day.|compare')}</p>
@@ -174,14 +191,20 @@
         {/if}
       </div>
       {#if chosen.length}
-        <svg viewBox="0 0 {W} {AH}" role="img" aria-label={t('How often per week|compare')}>
-          <line class="base" x1="0" x2={W} y1={AH - PAD} y2={AH - PAD} />
-          {#each chosen as id, i (id)}
-            <path class="al" style="stroke:{SERIES_COLORS[i]}" d={allWeeks.map((w, j) => `${j ? 'L' : 'M'}${ax(j).toFixed(1)} ${ay(w.n[id] ?? 0).toFixed(1)}`).join('')} data-cmp-line={id} />
-            <circle cx={ax(WEEKS - 1)} cy={ay(allWeeks.at(-1)?.n[id] ?? 0)} r="4" style="fill:{SERIES_COLORS[i]}" />
-          {/each}
-        </svg>
-        <div class="xl" aria-hidden="true"><span>{dfmt(allWeeks[0].key, { day: 'numeric', month: 'short' })}</span><span>{dfmt(allWeeks.at(-1).key, { day: 'numeric', month: 'short' })}</span></div>
+        <p class="pv" data-cmp-week aria-live="polite"><b>{t('Week of {day}|compare', { day: dfmt(allWeeks[awi].key, { day: 'numeric', month: 'short' }) })}</b>{#each chosen as id, i (id)}&nbsp;· <i class="dot" style="background:{SERIES_COLORS[i]}"></i>{actName(actOf(id))} <b class="num">{num(allWeeks[awi].n[id] ?? 0)}×</b>{/each}</p>
+        <div class="plot">
+          <YTicks ticks={asc.ticks} y={ay} h={AH} text={(n) => tickText(n, asc.step, num)} unit="×" width={56} />
+          <!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_noninteractive_element_interactions -->
+          <svg viewBox="0 0 {W} {AH}" role="img" aria-label={t('How often per week|compare')} onclick={tapWeek}>
+            <GridLines ticks={asc.ticks} y={ay} x1={0} x2={W} />
+            <line class="cur" x1={ax(awi)} x2={ax(awi)} y1={PAD} y2={AH - PAD} />
+            {#each chosen as id, i (id)}
+              <path class="al" style="stroke:{SERIES_COLORS[i]}" d={allWeeks.map((w, j) => `${j ? 'L' : 'M'}${ax(j).toFixed(1)} ${ay(w.n[id] ?? 0).toFixed(1)}`).join('')} data-cmp-line={id} />
+              <circle cx={ax(awi)} cy={ay(allWeeks[awi]?.n[id] ?? 0)} r="4" style="fill:{SERIES_COLORS[i]}" />
+            {/each}
+          </svg>
+        </div>
+        <div class="xl" aria-hidden="true" style="margin-left:62px"><span>{dfmt(allWeeks[0].key, { day: 'numeric', month: 'short' })}</span><span>{dfmt(allWeeks.at(-1).key, { day: 'numeric', month: 'short' })}</span></div>
         <ul class="legend">
           {#each chosen as id, i (id)}<li><i class="lsw ln" style="background:{SERIES_COLORS[i]}"></i>{actName(actOf(id))}: {t('{n} a week|compare', { n: num(Math.round(meanPerWeek(allWeeks, id) * 10) / 10) })}</li>{/each}
         </ul>
@@ -316,12 +339,28 @@
     text-transform: uppercase;
     letter-spacing: 0.04em;
   }
+  .plot {
+    display: flex;
+    gap: 6px;
+    min-width: 0;
+  }
   svg {
+    flex: 1;
+    min-width: 0;
     width: 100%;
     height: auto;
+    cursor: crosshair;
   }
-  .base {
-    stroke: var(--line);
+  .cur {
+    stroke: var(--ink-3);
+    stroke-dasharray: 3 3;
+  }
+  .pv {
+    margin: 0;
+    font-size: var(--fs-small);
+  }
+  .pv .dot {
+    margin-right: 4px;
   }
   .now,
   .al {

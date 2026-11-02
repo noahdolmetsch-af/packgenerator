@@ -47,6 +47,8 @@ test('Kategorien: drag a row with the handle, the arrows still work', async ({ p
   expect(before.length).toBeGreaterThan(3);
   await expect(rows.first().locator('[data-sort-grip]')).toBeVisible();
 
+  // the «Was du hier tun kannst» card sits above the list: bring the rows to the top of the screen first
+  await rows.nth(0).evaluate((el) => el.scrollIntoView({ block: 'start' }));
   await drag(page, rows, 0, 2);
   const want = [...before];
   want.splice(2, 0, ...want.splice(0, 1));

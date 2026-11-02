@@ -15,6 +15,7 @@
   import InputBar from '../eingabe/InputBar.svelte'; // «Eingaben überall» (Noah 26.10.2026): dictation, voice note, place, tags, templates, prompts
   import { cleanInputs } from '../eingabe/inputs.js';
   import { readLink, withLink, distText } from './fromlink.js'; // N13 «Ein Link wird ein Traum»
+  import DreamReady from './DreamReady.svelte'; // N16 «Bereit für den Traum?»
   import { t, num } from '../i18n.svelte.js';
   import { X, Route, RotateCcw, Image as ImageIcon, Map as MapIcon, Trash2, ExternalLink, Download } from '@lucide/svelte';
   import '../bikes/velo-dlg.css';
@@ -142,6 +143,8 @@
   </div>
   {#if msg}<p class="err" role="alert">{msg}</p>{/if}
   <p class="q hint">{t('The map: export the route as a GPX file in komoot (or elsewhere) and load it here.')}</p>
+
+  <DreamReady dream={d} />
 
   <label class="fld"><span class="lbl">{t('Note')} <small class="q">· {t('optional')}</small></span><textarea class="inp" rows="2" bind:value={d.note}></textarea></label>
   <SpeakButton wrap onsaid={(w) => (d.note = appendSpoken(d.note ?? '', w))} />

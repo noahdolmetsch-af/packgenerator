@@ -20,6 +20,8 @@ Diese Regeln ersetzen alle Abschnitte weiter unten (sie sind nur noch Geschichte
 
 12. **Versionsnummer beim Merge** (Noah, 27.10.2026, «1a»): ein PR vergibt keine Versionsnummer mehr. Er legt eine eigene Datei `src/lib/news/<name>.js` («Was ist neu») und eine eigene Datei `docs/releases/<name>.md` (Doku) an. Die Nummer entsteht beim Merge aus der Reihenfolge auf `main` (`scripts/news.mjs`): mit «Was ist neu» 0.233.0, ohne 0.233.1. So geraten offene PRs nicht mehr wegen Nummer, «Was ist neu» oder Doku-Kopfzeilen in Konflikt, und die Tests laufen nur einmal. Noah prüft nach dem Merge auf der echten Seite statt auf einem Vercel-Testlink; Bilder und Prüfschritte kommen vorher wie bisher; «zurück» heisst Revert. Punkt 11 gilt weiter, aber in der eigenen Release-Datei statt in den Kopfzeilen von `projektstand.md` und `status.md`.
 
+13. **Fertig-Regel** (Wegweiser Schritt 25, Noah 01.11.2026 «freigabe»): eine neue Funktion ist erst fertig, wenn sie alle fünf Teile hat: eine **Seite** (Katalog mit Anleitung und Beispiel), einen **Absprung** dort, wo man sie braucht (nicht nur aus Suche oder Katalog; Test `absprung`), **Inhalt** auf der Seite («Gut zu wissen» in der Karte «Was du hier tun kannst»; Test `wissen`), einen **leeren Zustand**, der erklärt und weiterführt, und einen **nächsten Schritt** nach der Haupthandlung. Fehlt ein Teil, steht im PR unter «Selbst entschieden», warum.
+
 Die Regeln stehen nur noch an einem Ort (CLAUDE.md). Die Projektanweisung in Claude verweist nur darauf, das Projekt-Gedächtnis hält den Stand fest, nicht die Regeln.
 
 ## Stand 26.10.2026 (morgens, Geschichte): was sich seit dem 18.10.2026 geändert hat

@@ -32,6 +32,8 @@ export const ITEMS_KEY = 'week.items';
 export const AWAY_KEY = 'week.away';
 export const HIDE_KEY = 'week.hide';
 export const NO_KEY = 'week.no';
+/** «Still to plan» folded or open (Noah 2.11.2026): true = open; nothing saved = folded. */
+export const SG_OPEN_KEY = 'week.sgopen';
 export const PLANNED_KEY = 'week.planned';
 /** The door for an outside calendar (Google Teil 2): a list of dates, read here, written there. */
 export const CAL_KEY = 'week.calendar';

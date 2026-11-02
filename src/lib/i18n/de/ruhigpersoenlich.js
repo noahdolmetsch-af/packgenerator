@@ -371,7 +371,7 @@ export default {
   'Ends by itself after (optional)': 'Endet von selbst nach (freiwillig)',
   'Start the workspace': 'Arbeitsraum starten',
   'Only what you are doing now; numbers, stars and suggestions rest': 'Nur, was du jetzt tust; Zahlen, Sterne und Vorschläge ruhen',
-  'Write what you do now. Until you tap «Done», the strip on top shows only that, and the app asks you nothing.': 'Schreib, was du jetzt tust. Bis du «Fertig» tippst, zeigt die Leiste oben nur das, und die App fragt dich nichts.',
+  'Write what you do now. Until you tap «Done», suggestions, the «New» tile, stars and count badges rest on all pages except Today, and the strip on top shows what you do. Nothing is deleted.': 'Schreib, was du jetzt tust. Bis du «Fertig» tippst, ruhen Vorschläge, die «Neu»-Kachel, Sterne und Zahlenpunkte auf allen Seiten ausser Heute, und die Leiste oben zeigt, was du tust. Nichts wird gelöscht.',
   'e.g. clean the bike, pack calmly': 'z. B. Velo putzen, in Ruhe packen',
   'What are you doing now?': 'Was machst du gerade?',
   'With a function (optional)': 'Mit einer Funktion (freiwillig)',
