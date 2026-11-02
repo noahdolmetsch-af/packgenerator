@@ -15,6 +15,7 @@
   import ChallengeSheet from '../ui/ChallengeSheet.svelte';
   import MsHow from '../flow/hobby/MsHow.svelte';
   import NudgeSetting from './NudgeSetting.svelte';
+  import ToneSetting from '../flow/ToneSetting.svelte';
   import { db } from '../db.js';
   import { normAct } from '../flow.js';
   import { msContext, newStars, TUNE_KEY } from '../flowms.js';
@@ -113,6 +114,7 @@
 
     <MsHow sport={sportWord} start={false} />
     <NudgeSetting {act} />
+    <ToneSetting />
 
     <ul class="cnt">
       {#each counters as r (r.id)}

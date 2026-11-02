@@ -53,14 +53,14 @@ test('Analyse shows the new Fitbit values and, on wish, every value without data
   await expect(tile('vo2max').locator('.v b')).toHaveText(/^55[.,]\d$/);
   await expect(tile('actHours').locator('.v small')).toHaveText(T('of 12|hours'));
   // the place holders only with «Also values without data»
-  await expect(tile('sleepScore')).toHaveCount(0);
+  await expect(tile('gTrain')).toHaveCount(0);
   if (process.env.ANALYSE_SHOTS) await page.screenshot({ path: `qa/analyse/alle-${info.project.name}.png`, fullPage: true });
   await page.locator('[data-all]').click();
   await expect(page.locator('[data-all]')).toHaveAttribute('aria-pressed', 'true');
-  await expect(tile('sleepScore')).toHaveClass(/empty/);
+  await expect(tile('gTrain')).toHaveClass(/empty/);
   await expect(tile('gTrain').locator('.how')).toHaveText(T('Garmin does not give this out'));
   // an empty tile is no link
-  expect(await tile('sleepScore').evaluate((el) => el.tagName)).toBe('DIV');
+  expect(await tile('gTrain').evaluate((el) => el.tagName)).toBe('DIV');
   if (process.env.ANALYSE_SHOTS) await page.screenshot({ path: `qa/analyse/alle-leer-${info.project.name}.png`, fullPage: true });
   // the choice stays after a reload
   await page.reload();

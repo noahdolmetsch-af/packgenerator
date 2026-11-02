@@ -13,12 +13,13 @@
   import { toast, actName } from '../flow/ui.svelte.js';
   import { lapsed, snooze, NUDGE_KEY, nudgesOf } from './nudge.js';
   import { t, tn } from '../i18n.svelte.js';
+  import { TONE_KEY, toneOf, NUDGES, pick } from '../flow/tone.js';
 
   let { today } = $props();
   const q = $derived(
     liveQuery(async () => {
-      const [acts, log, set] = await Promise.all([db.flowActs.toArray(), db.flowLog.toArray(), db.settings.get(NUDGE_KEY)]);
-      return { acts: acts.map(normAct), log, nudges: nudgesOf(set?.value) };
+      const [acts, log, set, tn_] = await Promise.all([db.flowActs.toArray(), db.flowLog.toArray(), db.settings.get(NUDGE_KEY), db.settings.get(TONE_KEY)]);
+      return { acts: acts.map(normAct), log, nudges: nudgesOf(set?.value), tone: toneOf(tn_?.value) };
     }),
   );
   const d = $derived($q);
@@ -37,7 +38,7 @@
     {#each rows as x (x.act.id)}
       <div class="nc" data-nudge={x.act.id}>
         <p><b>{actName(x.act)}</b> · {tn(x.days, 'one day ago', '{n} days ago')}</p>
-        <p class="sub">{t('Ten easy minutes are enough for a tick.')}</p>
+        {#if d.tone !== 'off'}<p class="sub" data-nudge-saying>{t(pick(NUDGES, d.tone, `${x.act.id}${today}`), { sport: actName(x.act) })}</p>{/if}
         <div class="btns">
           <a class="nb p" href="#/flow/sport/{encodeURIComponent(`act:${x.act.id}`)}" data-nudge-go>{t('Do it today')}</a>
           <button type="button" class="nb" data-nudge-later onclick={() => later(x)}>{t('Later|nudge')}</button>

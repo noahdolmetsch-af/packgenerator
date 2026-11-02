@@ -213,7 +213,7 @@
   <div class="wv" style="--c: {color}" data-detail={key}>
     <header>
       <Crumb path={[{ href: '#/auswerten', label: t('Analysis|place') }, { href: '#/auswerten/analyse', label: t('Analyse|page') }]} here={item.name} />
-      <PageHead title={item.name} sub={`${t(SRC_TEXT[item.src] ?? SRC_TEXT.body)} ${t('Only to look at.|analyse')}`} />
+      <PageHead title={item.name} sub={`${item.how ?? t(SRC_TEXT[item.src] ?? SRC_TEXT.body)} ${t('Only to look at.|analyse')}`} />
     </header>
 
     {#if item.later}

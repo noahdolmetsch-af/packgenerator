@@ -39,6 +39,12 @@ import './lib/ui/touch.css';
 import App from './App.svelte';
 import { watchWhitePage } from './lib/ui/whitepage.js';
 import { lang, loadDe } from './lib/i18n.svelte.js';
+// Tempo-Messer (Noah 02.11.2026): only when the person switched it on (Ich › Daten); loads on demand, never at the start otherwise
+try {
+  if (localStorage.getItem('tempoMesser') === '1') import('./lib/tempo/messer.js').then((m) => m.begin());
+} catch {
+  /* private mode */
+}
 import { db } from './lib/db.js';
 import { tidyData } from './lib/tidy.js';
 import { loadLists, watchLists } from './lib/lists.js';

@@ -108,7 +108,12 @@ test('Eigenes Diagramm: add with search up to 6, remove, reorder, on top of each
   // remove one, reorder with the arrows
   await dg.locator('[data-dg-value="azm"] .x').click();
   await expect(dg.locator('[data-dg-row]')).toHaveCount(5);
-  const dot = () => dg.locator('[data-dg-value="rhr"] .dot').evaluate((el) => getComputedStyle(el).backgroundColor);
+  // read the colour with the pointer away (a hovered chip is darker) and once nothing moves any more
+  const dot = async () => {
+    await page.mouse.move(0, 0);
+    await dg.evaluate((el) => Promise.all(el.getAnimations({ subtree: true }).map((a) => a.finished.catch(() => {}))));
+    return dg.locator('[data-dg-value="rhr"] .dot').evaluate((el) => getComputedStyle(el).backgroundColor);
+  };
   const before = await dot();
   await dg.locator('[data-dg-sort]').click();
   await dg.locator('[data-dg-order] li').first().locator('.sort-ar').nth(1).click();
@@ -272,5 +277,61 @@ test('Muster und Rekorde (M4): week pattern, year against year, records, runs an
   // the choice stays
   await go(page, '#/auswerten/analyse');
   await expect(page.locator('[data-year-year] rect[data-yy-now]')).toHaveCount(4);
+  expect(errors).toEqual([]);
+});
+
+test('Eigene Rechnungen: Schlafindex and Unruhe as labelled own calculations', async ({ page, context }) => {
+  const errors = await open(page, context);
+  await go(page, '#/auswerten/analyse');
+  const tile = page.locator('[data-value="sleepScore"]');
+  await expect(tile).toBeVisible();
+  await expect(tile).toContainText(T('own calculation|own'));
+  await expect(page.locator('[data-value="restless"]')).toContainText(T('own calculation|own'));
+  await tile.click();
+  await expect(page.locator('[data-detail="sleepScore"]')).toBeVisible();
+  await expect(page.locator('[data-detail="sleepScore"] > header')).toContainText(T('Own calculation, 0–100: duration (half, full at 8 h), deep and REM sleep (a quarter), calm (a quarter).|own'));
+  expect(errors).toEqual([]);
+});
+
+test('Ansichten: a starter brings its values, a new view keeps what you see, rename, move, delete with undo', async ({ page, context }, info) => {
+  const errors = await open(page, context);
+  await go(page, '#/auswerten/analyse');
+  const vw = page.locator('[data-views]');
+  const dg = page.locator('[data-diagram]');
+  await expect(vw.locator('[data-view="start-all"]')).toHaveAttribute('aria-pressed', 'true');
+  // the starter «Schlaf und Training» brings its values
+  await vw.locator('[data-view="start-sleep"]').click();
+  await expect(dg.locator('[data-dg-row="sleepScore"]')).toBeVisible();
+  await expect(vw.locator('[data-view="start-sleep"]')).toHaveAttribute('aria-pressed', 'true');
+  // a new view of what you see now, after a change
+  await page.getByRole('button', { name: T('{n} days|analyse').replace('{n}', '30') }).click();
+  await vw.locator('[data-view-add]').click();
+  await page.locator('[data-view-form] input').fill('Winterzeit');
+  await page.locator('[data-view-form] button[type=submit]').click();
+  const mine = vw.locator('[data-view]').last();
+  await expect(mine).toHaveText('Winterzeit');
+  await expect(mine).toHaveAttribute('aria-pressed', 'true');
+  await vw.locator('[data-view="start-all"]').click();
+  await expect(dg.locator('[data-dg-row="sleepScore"]')).toHaveCount(0);
+  await mine.click();
+  await expect(dg.locator('[data-dg-row="sleepScore"]')).toBeVisible();
+  // edit: rename, move up, delete with undo
+  await vw.locator('[data-view-edit]').click();
+  const list = page.locator('[data-view-list]');
+  await list.locator('[data-view-rename]').last().click();
+  await list.locator('[data-view-name]').fill('Ski');
+  await list.locator('[data-view-name]').press('Enter');
+  await expect(vw.locator('[data-view]').last()).toHaveText('Ski');
+  await list.locator('li').last().locator('.sort-ar').first().click();
+  await expect(vw.locator('[data-view]').nth(1)).toHaveText('Ski');
+  await shot(page, 'ansichten', info);
+  await list.locator('[data-view-del]').first().click();
+  await page.getByRole('button', { name: T('Delete') }).last().click();
+  await expect(vw.locator('[data-view]')).toHaveCount(2);
+  await page.getByRole('button', { name: T('Undo') }).click();
+  await expect(vw.locator('[data-view]')).toHaveCount(3);
+  // it stays
+  await go(page, '#/auswerten/analyse');
+  await expect(page.locator('[data-views] [data-view]').nth(1)).toHaveText('Ski');
   expect(errors).toEqual([]);
 });

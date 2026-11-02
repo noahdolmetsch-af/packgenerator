@@ -95,7 +95,7 @@ export async function tickWith(a, opts) {
     if (won.length) await db.flowStars.bulkDelete(won.map((s) => s.id));
     if (ui.star?.entryId === e.id) ui.star = null;
   });
-  if (won.length) ui.star = { entryId: e.id, actId: a.id, act: actName(a), stars: won.map((s) => ({ id: s.id, msId: s.msId, star: s.star, m: s.r?.m ?? null, value: s.r?.value ?? null, target: s.r?.steps?.[s.star - 1] ?? null })) };
+  if (won.length) ui.star = { entryId: e.id, actId: a.id, act: actName(a), icon: a.icon, stars: won.map((s) => ({ id: s.id, msId: s.msId, star: s.star, m: s.r?.m ?? null, value: s.r?.value ?? null, target: s.r?.steps?.[s.star - 1] ?? null, next: s.r?.next ?? null, nextTarget: s.r?.next ? (s.r.steps?.[s.r.next - 1] ?? null) : null, left: s.r?.next && s.r.steps?.[s.r.next - 1] != null ? Math.max(0, Math.round((s.r.steps[s.r.next - 1] - s.r.value) * 10) / 10) : null })) };
   // ER1 (Noah 14.10.2026 «er1-er3 freigabe»): once per activity «Soll ich dich in Zukunft erinnern?»
   if (opts.via !== 'commute') offerActivity(a, actName(a));
   return e;
