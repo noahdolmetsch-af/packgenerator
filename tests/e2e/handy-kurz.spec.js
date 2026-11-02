@@ -41,6 +41,7 @@ test.describe('Handy kurz', () => {
       ['#/bikes?tab=shop', '[data-visit-id]', '[data-visits-more]'],
     ]) {
       await open(page, hash);
+      if (hash === '#/week') await page.locator('[data-sg-toggle]').click(); // folded at first
       await expect(page.locator(row), hash).toHaveCount(PHONE_ROWS);
       await page.locator(more).click();
       expect(await page.locator(row).count(), hash).toBeGreaterThan(PHONE_ROWS);

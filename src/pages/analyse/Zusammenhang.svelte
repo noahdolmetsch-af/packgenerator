@@ -9,7 +9,9 @@
    * acts: [{ id, name }] most ticked first; onday(day): opens the day.
    */
   import Seg from '../../lib/ui/Seg.svelte';
-  import { valueText, unitText } from '../../lib/analyse/format.js';
+  import { valueText, unitText, axisOf } from '../../lib/analyse/format.js';
+  import GridLines from '../../lib/charts/GridLines.svelte';
+  import YTicks from '../../lib/charts/YTicks.svelte';
   import { OFFSETS, pairsOf, fitOf, strengthOf, niceStep, strongest } from '../../lib/analyse/links.js';
   import { t, num } from '../../lib/i18n.svelte.js';
 
@@ -56,14 +58,11 @@
   const W = 600;
   const H = 320;
   const PAD = 14;
-  const box = (vals) => {
-    if (!vals.length) return { lo: 0, hi: 1 };
-    const lo = Math.min(...vals);
-    const hi = Math.max(...vals);
-    return hi === lo ? { lo: lo - 1, hi: hi + 1 } : { lo, hi };
-  };
-  const bx = $derived(box(pairs.map((p) => p.x)));
-  const by = $derived(box(pairs.map((p) => p.y)));
+  // round, labelled steps on both axes (Noah «genaue Werte»)
+  const xax = $derived(axisOf(xIt, pairs.map((p) => p.x), num));
+  const yax = $derived(axisOf(yIt, pairs.map((p) => p.y), num));
+  const bx = $derived(xax.sc);
+  const by = $derived(yax.sc);
   const px = (x) => PAD + ((x - bx.lo) / (bx.hi - bx.lo)) * (W - 2 * PAD);
   const py = (y) => H - PAD - ((y - by.lo) / (by.hi - by.lo)) * (H - 2 * PAD);
 
@@ -138,17 +137,19 @@
       </div>
       {#if pairs.length}
         <div class="plot">
-          <div class="ya" aria-hidden="true"><span>{v(yIt, by.hi)}</span><span>{v(yIt, by.lo)}</span></div>
+          <YTicks ticks={by.ticks} y={py} h={H} text={yax.text} unit={unitText(yIt)} width={56} />
           <svg viewBox="0 0 {W} {H}" role="img" aria-label={t('{x} against {y}|link', { x: xIt.name, y: yIt.name })}>
-            {#each [0.25, 0.5, 0.75] as g (g)}<line class="grid" x1={PAD} x2={W - PAD} y1={PAD + g * (H - 2 * PAD)} y2={PAD + g * (H - 2 * PAD)} />{/each}
+            <GridLines ticks={by.ticks} y={py} x1={PAD} x2={W - PAD} />
+            {#each bx.ticks as g (g)}<line class="grid" x1={px(g)} x2={px(g)} y1={PAD} y2={H - PAD} />{/each}
             {#each pairs as p (p.d)}
               <!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions -->
-              <circle class="pt" class:on={colored.has(p.d)} cx={px(p.x)} cy={py(p.y)} r={colored.has(p.d) ? 6 : 4.5} onclick={() => onday?.(p.d)}><title>{p.d}</title></circle>
+              <circle class="pt" class:on={colored.has(p.d)} cx={px(p.x)} cy={py(p.y)} r={colored.has(p.d) ? 6 : 4.5} onclick={() => onday?.(p.d)}><title>{p.d}: {v(xIt, p.x)}{#if unitText(xIt)}&nbsp;{unitText(xIt)}{/if} · {v(yIt, p.y)}{#if unitText(yIt)}&nbsp;{unitText(yIt)}{/if}</title></circle>
             {/each}
             {#if fit}<line class="fit" x1={px(bx.lo)} y1={py(fit.a + fit.b * bx.lo)} x2={px(bx.hi)} y2={py(fit.a + fit.b * bx.hi)} />{/if}
           </svg>
         </div>
-        <div class="xa" aria-hidden="true"><span>{v(xIt, bx.lo)}</span><span>{xIt.name}{#if unitText(xIt)}&nbsp;({unitText(xIt)}){/if}</span><span>{v(xIt, bx.hi)}</span></div>
+        <div class="xt" aria-hidden="true" data-x-ticks>{#each bx.ticks as g (g)}<span style="left:{(px(g) / W) * 100}%">{xax.text(g)}</span>{/each}</div>
+        <p class="xa" aria-hidden="true">{xIt.name}{#if unitText(xIt)}&nbsp;({unitText(xIt)}){/if}</p>
         <p class="hint">{t('The filter of the diagram counts here too. Tap a point for its day.|link')}</p>
       {:else}
         <p class="hint" role="status">{t('No day has both values yet.|link')}</p>
@@ -260,18 +261,6 @@
     display: flex;
     margin-top: 10px;
   }
-  .ya {
-    flex: none;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    width: 52px;
-    padding-right: 4px;
-    color: var(--ink-3);
-    font-size: var(--fs-label);
-    text-align: right;
-    white-space: nowrap;
-  }
   svg {
     flex: 1;
     min-width: 0;
@@ -295,11 +284,22 @@
     stroke-width: 1.5;
     stroke-dasharray: 5 4;
   }
-  .xa {
-    display: flex;
-    justify-content: space-between;
-    gap: 8px;
+  .xt {
+    position: relative;
+    height: 1.4em;
     margin-left: 56px;
+    color: var(--ink-2);
+    font-size: var(--fs-label);
+    font-variant-numeric: tabular-nums;
+  }
+  .xt span {
+    position: absolute;
+    transform: translateX(-50%);
+    white-space: nowrap;
+  }
+  .xa {
+    margin: 0 0 0 56px;
+    text-align: center;
     color: var(--ink-3);
     font-size: var(--fs-label);
   }

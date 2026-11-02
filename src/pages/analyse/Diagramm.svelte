@@ -19,10 +19,13 @@
   import Zusammenhang from './Zusammenhang.svelte';
   import { strongest, afterTicks, strengthOf } from '../../lib/analyse/links.js';
   import { actName } from '../../lib/flow/ui.svelte.js';
-  import { valueText, unitText } from '../../lib/analyse/format.js';
+  import { valueText, unitText, axisOf } from '../../lib/analyse/format.js';
   import { tripBands } from '../../lib/analyse/detail.js';
-  import { DPERIODS, DEFAULT_DPERIOD, STEPS, MODES, DEFAULT_KEYS, SERIES_COLORS, MAX_VALUES, diagramWindow, stepBuckets, seriesOf, rolling7, rangeOf, fromMean, toggleKey, moveKey, cleanFilter, filterCount, keepOf, bothKeep, dropOutliers, tripDaySet, tickDays, FELT_HI, FELT_LO } from '../../lib/analyse/diagram.js';
+  import { DPERIODS, DEFAULT_DPERIOD, STEPS, MODES, DEFAULT_KEYS, SERIES_COLORS, MAX_VALUES, diagramWindow, stepBuckets, seriesOf, rolling7, fromMean, toggleKey, moveKey, cleanFilter, filterCount, keepOf, bothKeep, dropOutliers, tripDaySet, tickDays, FELT_HI, FELT_LO } from '../../lib/analyse/diagram.js';
   import { tripEnd } from '../../lib/tripstate.js';
+  import { niceScale } from '../../lib/charts/axis.js';
+  import GridLines from '../../lib/charts/GridLines.svelte';
+  import YTicks from '../../lib/charts/YTicks.svelte';
   import { addDays } from '../../lib/analyse.js';
   import { t, num, locale } from '../../lib/i18n.svelte.js';
 
@@ -124,13 +127,16 @@
       let vals = seriesOf(buckets, it.get, { sum: !!it.sum, keep });
       if (filter.outliers || own?.outliers) vals = dropOutliers(vals);
       const bars = !!(it.sum || it.bars);
-      return { it, own, color: colorMap[k], vals, bars, smooth: !bars && step === 'day' ? rolling7(vals) : null, sc: rangeOf(vals, bars), over: fromMean(vals) };
+      const ax = axisOf(it, vals, num, { zero: bars, count: 2 });
+      return { it, own, color: colorMap[k], vals, bars, smooth: !bars && step === 'day' ? rolling7(vals) : null, sc: ax.sc, tick: ax.text, over: fromMean(vals) };
     }),
   );
   const overSc = $derived.by(() => {
     const all = rows.flatMap((r) => r.over).filter((v) => v != null);
     const m = Math.max(10, ...all.map((v) => Math.abs(v)));
-    return { lo: -m, hi: m };
+    const sc = niceScale([-m, m], { count: 4 });
+    const top = Math.max(Math.abs(sc.lo), sc.hi);
+    return { lo: -top, hi: top, step: sc.step, ticks: niceScale([-top, top], { count: 4 }).ticks };
   });
   const bands = $derived(!band ? [] : tripBands(trips, win.days, tripEnd).map((b) => ({ ...b, a: idxOfDay.get(b.from) ?? 0, b: idxOfDay.get(b.to) ?? 0 })));
   const pickIdx = $derived(picked ? (idxOfDay.get(picked) ?? -1) : -1);
@@ -296,11 +302,11 @@
           <div class="rowp" data-dg-row={r.it.key}>
             <div class="rlw"><p class="rl"><b>{r.it.name}</b>{#if unitText(r.it)}&nbsp;{unitText(r.it)}{/if} · {t(SRC[r.it.src] ?? SRC.body)}{#if r.smooth}&nbsp;· {t('7-day mean|diagram')}{/if}{#if r.own}&nbsp;· <span class="ownf">{partsOf(r.own).map((p) => p.text).join(', ')}</span>{/if}</p><button type="button" class="rf" class:set={r.own} aria-label={t('Filter for {name}|filter', { name: r.it.name })} data-dg-row-filter={r.it.key} onclick={() => (filtering = r.it.key)}><Filter size={13} aria-hidden="true" /></button></div>
             <div class="pl2">
-              <div class="ax" aria-hidden="true"><span>{v(r.it, r.sc.hi)}</span><span>{v(r.it, r.sc.lo)}</span></div>
+              <YTicks ticks={r.sc.ticks} y={(x) => yOf(x, r.sc, RH)} h={RH} text={r.tick} width={56} />
               <!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_noninteractive_element_interactions -->
               <svg viewBox="0 0 {W} {RH}" preserveAspectRatio="none" role="img" aria-label={t('Course of {name}|analyse', { name: r.it.name })} onclick={tap}>
                 {#each bands as b, bi (bi)}<rect class="band" x={(b.a / n) * W} width={((b.b - b.a + 1) / n) * W} y="0" height={RH} />{/each}
-                <line class="base" x1="0" x2={W} y1={RH - 4} y2={RH - 4} vector-effect="non-scaling-stroke" />
+                <GridLines ticks={r.sc.ticks} y={(x) => yOf(x, r.sc, RH)} x1={0} x2={W} />
                 {#each [...markIdx] as mi (mi)}<circle class="mk" cx={xOf(mi)} cy={RH - 2} r="2.4" />{/each}
                 {#if r.bars}
                   {#each r.vals as val, i (i)}{#if val != null}<rect x={xOf(i) - barW / 2} width={barW} y={yOf(val, r.sc, RH)} height={Math.max(0.5, RH - 4 - yOf(val, r.sc, RH))} style="fill:{r.color}" class="bar" />{/if}{/each}
@@ -316,10 +322,11 @@
         {/each}
       {:else}
         <div class="pl2 over">
-          <div class="ax" aria-hidden="true"><span>+{Math.round(overSc.hi)} %</span><span>{t('mean|diagram')}</span><span>−{Math.round(overSc.hi)} %</span></div>
+          <YTicks ticks={overSc.ticks} y={(x) => yOf(x, overSc, OH)} h={OH} text={(x) => (x === 0 ? t('mean|diagram') : `${x > 0 ? '+' : '−'}${num(Math.abs(x))} %`)} width={56} />
           <!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_noninteractive_element_interactions -->
           <svg viewBox="0 0 {W} {OH}" preserveAspectRatio="none" role="img" aria-label={t('All values, measured from their own mean|diagram')} onclick={tap}>
             {#each bands as b, bi (bi)}<rect class="band" x={(b.a / n) * W} width={((b.b - b.a + 1) / n) * W} y="0" height={OH} />{/each}
+            <GridLines ticks={overSc.ticks} y={(x) => yOf(x, overSc, OH)} x1={0} x2={W} />
             <line class="base" x1="0" x2={W} y1={yOf(0, overSc, OH)} y2={yOf(0, overSc, OH)} vector-effect="non-scaling-stroke" />
             {#each rows as r (r.it.key)}
               <path class="smooth" d={pathOf(step === 'day' ? rolling7(r.over) : r.over, overSc, OH)} style="stroke:{r.color}" vector-effect="non-scaling-stroke" />
@@ -592,19 +599,6 @@
     position: relative;
     display: flex;
     align-items: stretch;
-  }
-  .ax {
-    flex: none;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    width: 52px;
-    padding-right: 4px;
-    white-space: nowrap;
-    color: var(--ink-3);
-    font-size: var(--fs-label);
-    text-align: right;
-    font-variant-numeric: tabular-nums;
   }
   svg {
     flex: 1;

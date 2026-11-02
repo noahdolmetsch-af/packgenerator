@@ -7,7 +7,7 @@
    * the button «Plan the week» and a small form to add a date or a to-do. On a phone the days fold to
    * one line each (Noah «2a»), today open. Rules: lib/woche.js; data: lib/woche/load.js.
    */
-  import { Plus, ChevronDown, CalendarCheck, ChevronRight, Palmtree, Sun, CloudRain, CloudSun, Info, History } from '@lucide/svelte';
+  import { Plus, ChevronDown, ChevronUp, CalendarCheck, ChevronRight, Palmtree, Sun, CloudRain, CloudSun, Info, History } from '@lucide/svelte';
   import PageHead from '../lib/ui/PageHead.svelte';
   import AreaIntro from '../lib/intro/AreaIntro.svelte'; // «Einstieg» for the place «Woche» (key weekplan)
   import FreeSlotCard from '../lib/freiezeit/FreeSlotCard.svelte'; // Idee A3: free time plus good weather
@@ -17,7 +17,7 @@
   import WeekDreams from '../lib/dreams/WeekDreams.svelte'; // Paket N idea 5: dreams and race deadlines of the week
   import { weekQuery, putWeek } from '../lib/woche/load.js';
   import { titleOf, subOf, dayName, shortDate, hours, holidayName, wxWords, reviewLine, hintText } from '../lib/woche/words.js';
-  import { ITEMS_KEY, HIDE_KEY, NO_KEY, TRAIN_NOTE, KINDS, KIND_NAMES, buildWeek, cleanItem, pruneItems, skipFor, planMonday, dotsOf, takeSuggestion } from '../lib/woche.js';
+  import { ITEMS_KEY, HIDE_KEY, NO_KEY, SG_OPEN_KEY, TRAIN_NOTE, KINDS, KIND_NAMES, buildWeek, cleanItem, pruneItems, skipFor, planMonday, dotsOf, takeSuggestion } from '../lib/woche.js';
   import { homeForecast } from '../lib/home-weather.js';
   import { db } from '../lib/db.js';
   import { PLAN_KEY as TRAIN_KEY, mondayOf, shiftDay, isoWeek, prunePlan } from '../lib/training.js';
@@ -113,6 +113,8 @@
   let sgAll = $state(false);
   const sgShown = $derived(week ? (phone.matches && !sgAll ? week.suggestions.slice(0, PHONE_ROWS) : week.suggestions) : []);
   const sgMore = $derived(week ? week.suggestions.length - sgShown.length : 0);
+  const sgOpen = $derived(!!src?.sgOpen);
+  const toggleSg = () => putWeek(SG_OPEN_KEY, !sgOpen);
   const hidden = (k) => src?.hide.includes(k);
   import BufferPick from '../lib/stand/BufferPick.svelte'; // Paket A part 3: buffer before and after a date
   import { bufferItems } from '../lib/stand/stand.js';
@@ -200,7 +202,12 @@
 
       <aside class="side">
         <section class="card wc sg" aria-labelledby="wk-sg">
-          <h2 id="wk-sg">{t('Still to plan')}</h2>
+          <h2 id="wk-sg"><button type="button" class="sgh" aria-expanded={sgOpen} aria-controls="wk-sg-body" data-sg-toggle onclick={toggleSg}>
+            <span>{t('Still to plan')}<small>{tn(week.suggestions.length, '{n} suggestion', '{n} suggestions')}</small></span>
+            {#if sgOpen}<ChevronUp size={18} aria-hidden="true" />{:else}<ChevronDown size={18} aria-hidden="true" />{/if}
+          </button></h2>
+          {#if sgOpen}
+          <div id="wk-sg-body">
           <p class="why">{t('The app suggests, you decide. Take puts it on the day shown.')}</p>
           <ul>
             {#each sgShown as s (s.ref)}
@@ -220,6 +227,8 @@
           </ul>
           {#if sgMore > 0}
             <button type="button" class="phone-more" onclick={() => (sgAll = true)} data-sugg-more><ChevronDown size={16} aria-hidden="true" />{tn(sgMore, 'Show {n} more suggestion', 'Show {n} more suggestions')}</button>
+          {/if}
+          </div>
           {/if}
           <a class="btn hi" href="#/week/plan" data-plan-week><CalendarCheck size={18} aria-hidden="true" />{due ? t('Plan the week (10 min)') : t('Plan the week again')}</a>
         </section>
@@ -486,6 +495,27 @@
     margin: 0 0 8px;
     color: var(--ink-2);
     font-size: var(--fs-small);
+  }
+  .sgh {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    min-height: 44px;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+  .sgh small {
+    display: block;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+    font-weight: 400;
   }
   .sg ul {
     margin: 0 0 14px;

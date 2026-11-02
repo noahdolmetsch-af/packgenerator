@@ -26,4 +26,6 @@ export default {
   "A link from a friend's report is enough: km and climb come along, the dream still needs your one sentence why.":
     'Ein Link aus dem Bericht einer Freundin reicht: km und Höhenmeter kommen mit, der Traum braucht trotzdem deinen einen Satz, warum.',
   "A dream that came true stays in your list of fulfilled dreams: look at it when the next big plan feels too far away.": "Ein erfüllter Traum bleibt in der Liste der erfüllten Träume: Schau ihn an, wenn dir der nächste grosse Plan zu weit weg vorkommt.",
+  "Pick the hours you really have: a round that fits in two hours is ridden more often than a perfect one you never start.": "Wähle die Stunden, die du wirklich hast: Eine Runde, die in zwei Stunden passt, wird öfter gefahren als eine perfekte, die du nie beginnst.",
+  "Compare with your own rides: if the longest ride is far below one day of the dream, add a few training rides first.": "Vergleiche mit deinen eigenen Fahrten: Liegt die längste Fahrt weit unter einem Tag des Traums, plane zuerst ein paar Trainingsfahrten ein.",
 };
