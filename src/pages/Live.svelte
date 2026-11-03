@@ -58,6 +58,8 @@
   import { dayIndex } from '../lib/ride.js'; // Idee 57: the ride day for the planned stops
   import { localDay as todayLocal } from '../lib/localday.js';
   import SosSheet from '../lib/live/SosSheet.svelte';
+  import NightSheet from '../lib/live/NightSheet.svelte';
+  import { awakeH } from '../lib/race/ride-lib.js';
   import RerouteSheet from '../lib/live/RerouteSheet.svelte';
   import { snapAhead, onDetour, detourDone, detourGpx, saveDetour, loadDetour, DETOUR_COLOUR, atPlace, returnDetour, backDetour, backtrackOf, planReturn, returnModeStd, shouldReroute, OFF_ROUTE_M, offLineM, planDetour } from '../lib/reroute.js';
   import { saveGpx } from '../lib/gpxout.js';
@@ -90,7 +92,7 @@
   import { autoKmhOf, autoPauseStep, speedKmh, movingNow, totalNow, pausedNow, HINT_S, AUTO_MIN_KMH, AUTO_MAX_KMH } from '../lib/live/pause.js';
   import { resumeOf } from '../lib/live/resume.js';
   import { zurichTime } from '../lib/spur/spur.js';
-  import { racesQuery, cacheQuery, cacheGet, cacheSet } from '../lib/race/store.js';
+  import { racesQuery, cacheQuery, cacheGet, cacheSet, saveRace } from '../lib/race/store.js';
   import { raceOf, schedule, lineKm, climbsOf, hhmm, dayOfMs } from '../lib/race/race.js';
   import { POI_CACHE, POI_KIND, WX_CACHE } from '../lib/race/outside.js';
   import { mergePois } from '../lib/race/more.js';
@@ -744,6 +746,7 @@
 
   /* ---------- sheets ---------- */
   let sos = $state(false);
+  let night = $state(false); // «Nacht-Blatt» (Noah 02.11.2026 «1b»): only when you open it
   let place = $state(false);
 
   /* ---------- «Neu planen zu …» (Paket X, reroute.js) ---------- */
@@ -1427,6 +1430,7 @@
           </div>
           <button type="button" class="btn lvf-sos" onclick={() => ((menu = false), (sos = true))} data-live-sos><LifeBuoy size={20} aria-hidden="true" />{t('Emergency')} · SOS</button>
           <a class="btn" href={LANDI_RADAR} target="_blank" rel="noopener noreferrer" data-landi><CloudRain size={18} aria-hidden="true" />{t('Landi rain radar')}</a>
+          <button type="button" class="btn" onclick={() => ((menu = false), (night = true))} data-live-night><Moon size={18} aria-hidden="true" />{t('Night sheet')}</button>
           <button type="button" class="btn" onclick={() => ((menu = false), (picked = null), (reroute = true))} data-live-reroute><Route size={18} aria-hidden="true" />{t('Plan a new way to …')}</button>
           <!-- Navigation zum Ziel 2: the card on the map stays small, the GPX of the way lives here -->
           {#if detour && detour.back !== 'auto'}<button type="button" class="btn" onclick={() => ((menu = false), detourToGarmin())} data-live-detour-garmin><Route size={18} aria-hidden="true" />{t('GPX for Garmin')}</button>{/if}
@@ -1803,6 +1807,7 @@
   <PoiPanel bind:this={poiPanel} title={false} canTap ongo={goTo} ontapmode={(v) => ((poiTapping = v), v && (closeNear(), (snap = 'peek')))} center={me ? { lat: me.lat, lon: me.lon } : null} bounds={mapBounds} line={route?.line ?? null} profile={route?.profile ?? null} tripId={trip?.id ?? null} onpoints={(l) => (poiPoints = l ?? [])} />
 </dialog>
 {#if reroute}<RerouteSheet here={me} pts={hasRoute ? pts : []} {km} {pois} {own} {picked} onplan={setDetour} onclose={() => ((reroute = false), (picked = null))} />{/if}
+{#if night}<NightSheet race={isRace ? race : null} ctx={isRace && trip ? { trip, race, stored, plan, save: (patch) => saveRace(tid, patch) } : null} awake={isRace ? awakeH(stored?.sleepLog ?? [], plan?.start, now) : 0} {now} {km} {pace} {bed} shop={lastShop} movingS={movingLive} pausedS={pausedLive} sleep={hasRoute ? { pois, own, pts, km, now, kmh: pace.kmh, wx: $wxQ?.data ?? null, bagC: race?.bagC ?? 5 } : null} ongo={(p) => ((night = false), goTo(p))} onmap={() => ((night = false), (picked = null), (goalTapping = true), (snap = 'peek'))} onclose={() => (night = false)} />{/if}
 {#if sos}<SosSheet here={me} {km} {routeName} {pois} onclose={() => (sos = false)} />{/if}
 {#if place}<PlaceSheet {trip} onclose={() => (place = false)} />{/if}
 

@@ -92,4 +92,6 @@ export default {
     "Ein Etikett mit QR-Code auf der Kiste schlägt jedes gute Gedächtnis: im Frühling findest du den Biwaksack, ohne fünf Kisten zu öffnen.",
   "The check after the trip matters as much as the one before: wet tent out of the bag, chain wiped, power banks charged.":
     "Der Check nach der Tour ist so wichtig wie der davor: nasses Zelt aus der Tasche, Kette abgewischt, Powerbanks geladen.",
+  'Weigh the three heaviest estimated things first: they move the total more than twenty small ones.':
+    'Wäg zuerst die drei schwersten geschätzten Dinge: sie verschieben die Summe mehr als zwanzig kleine.',
 };

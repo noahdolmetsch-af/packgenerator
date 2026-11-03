@@ -68,6 +68,40 @@ test('Woche: the days with their kinds, chips hide a kind, a to-do is ticked, a 
   await expect(fri.locator('[data-kind="todo"]')).toHaveCount(0);
   await expect(page.locator('[data-sugg="todo:test_data_gtp_t2"]')).toHaveCount(0);
   await page.locator('[data-filter="todo"]').click();
+  // «Where do the suggestions come from?» (Noah 2.11.2026 «a»): a source off, its suggestion goes; Undo brings it back
+  await page.locator('[data-sg-sources] > summary').click();
+  await page.locator('[data-sg-source="todo"]').uncheck();
+  await expect(page.locator('[data-sugg="todo:test_data_gtp_t2"]')).toHaveCount(0);
+  await page.getByRole('button', { name: T('Undo') }).first().click();
+  await expect(page.locator('[data-sugg="todo:test_data_gtp_t2"]')).toBeVisible();
+  // «Never suggest» (Noah 2.11.2026 «b»): away for good, back with «Show again»
+  await page.locator('[data-sugg="todo:test_data_gtp_t2"] [data-sg-never]').click();
+  await expect(page.locator('[data-sugg="todo:test_data_gtp_t2"]')).toHaveCount(0);
+  await page.locator('[data-sg-never-list] > summary').click();
+  await page.locator('[data-sg-again="todo:test_data_gtp_t2"]').click();
+  await expect(page.locator('[data-sugg="todo:test_data_gtp_t2"]')).toBeVisible();
+  // «Change season ideas» (Noah 2.11.2026 «c»): add an own idea for October; it shows as a suggestion; delete asks and has Undo
+  await page.locator('[data-sg-ideas] > summary').click();
+  await page.locator('[data-season-add]').click();
+  await page.locator('[data-season-form] input[type="text"]').fill('test_data_gtp_ Zelt prüfen');
+  const sel = page.locator('[data-season-form] select');
+  await sel.nth(0).selectOption('10');
+  await sel.nth(1).selectOption('10');
+  await page.locator('[data-season-form]').getByRole('button', { name: T('Save') }).click();
+  await expect(page.locator('[data-season-row^="own"]')).toHaveCount(1);
+  await expect.poll(async () => { // a phone shows five suggestions first
+    if (await page.locator('[data-sugg-more]').count()) await page.locator('[data-sugg-more]').click();
+    return page.locator('[data-sugg^="season:own"]').count();
+  }).toBe(1);
+  await expect(page.locator('[data-sugg^="season:own"]')).toContainText('test_data_gtp_ Zelt prüfen');
+  await page.locator('[data-season-row^="own"] [data-season-del]').click();
+  await page.getByTestId('ask-delete').getByRole('button', { name: T('Delete'), exact: true }).click();
+  await expect(page.locator('[data-sugg^="season:own"]')).toHaveCount(0);
+  await page.getByRole('button', { name: T('Undo') }).first().click();
+  await expect.poll(async () => {
+    if (await page.locator('[data-sugg-more]').count()) await page.locator('[data-sugg-more]').click();
+    return page.locator('[data-sugg^="season:own"]').count();
+  }).toBe(1);
   // tick the to-do
   const todo = fri.locator('[data-entry="test_data_gtp_t1"]');
   await todo.getByRole('button', { name: T('Done: {title}', { title: 'test_data_gtp_ Schlauch bestellen' }) }).click();
