@@ -18,6 +18,10 @@
   import { explain } from '../ui/explain.js';
   import { Eye, PenLine } from '@lucide/svelte';
   import { bikesHash } from '../bikes.js';
+  import { liveQuery } from 'dexie';
+  import { db } from '../db.js';
+  import { withVisits } from '../workshop.js';
+  import { STOCK_KEY, stockOf, stockRow, stockHint } from '../griff.js';
   import { openNew } from '../nav.js';
   import { t, tn, num, dateOf } from '../i18n.svelte.js';
   import { chfText } from '../money.js';
@@ -64,6 +68,14 @@
   let diaryOpen = $state(false);
 
   const short = (name) => String(name ?? '');
+  // «Velos-Pflege einbauen» (Noah 03.11.2026 «4a»): what is at home for a due part (reads only; the stock page changes it)
+  const stockQ = liveQuery(() => db.settings.get(STOCK_KEY));
+  const stockRows = $derived(stockOf($stockQ?.value).map((r) => stockRow(r, bikes.map((b) => withVisits(b, visits)))));
+  const stockOn = (d) => stockHint(stockRows, d.row.part);
+  const stockLine = (d) => {
+    const h = stockOn(d);
+    return h.length ? t('At home: {list}', { list: h.map((x) => (x.left > 0 ? `${x.name} (${x.left})` : t('{name} used up', { name: x.name }))).join(' · ') }) : '';
+  };
   const LOG_ICON = { replace: ArrowLeftRight, service: Droplet, check: Check, wash: Droplet, repair: Wrench, milestone: Trophy };
   /**
    * v0.117.0 «Knöpfe neu» (N1/N2, answer 3a): the actions of a «Due now» row, the main one first.
@@ -125,7 +137,8 @@
           { name: t('Don’t show «{name}» any more', { name: t(LINKS.x5.label) }), explain: t('Comes back under Me › Appearance'), icon: EyeOff, run: () => hideLink('x5') },
         ]
       : [];
-    return [...book, ...guide];
+    const stock = stockOn(d).length ? [{ name: t('Spare parts at home'), explain: t('What is in stock, what is missing'), icon: Package, run: () => (location.hash = bikesHash({ tab: 'care', view: 'stock', bike: d.bike.id })) }] : [];
+    return [...stock, ...book, ...guide];
   }
   const when = (r) => (r.kind === 'part' ? t('now|due') : r.detail?.match(/overdue|überfällig/i) ? t('overdue|part') : t('due|part'));
 </script>
@@ -146,7 +159,7 @@
               {@const acts = [...rowActs(d), ...linkActs(d)]}
               <li class="dcard {d.row.kind === 'part' ? 'bad' : 'warn'}">
                 <span class="udot" class:warn={d.row.kind !== 'part'} aria-hidden="true"></span>
-                <span class="m"><b class="dn">{d.row.name}</b><small class="dd">{[short(d.bike.name), d.row.detail].filter(Boolean).join(' · ')}</small></span>
+                <span class="m"><b class="dn">{d.row.name}</b><small class="dd">{[short(d.bike.name), d.row.detail, stockLine(d)].filter(Boolean).join(' · ')}</small></span>
                 <span class="sr">{when(d.row)}</span>
                 <!-- v0.117.0 «Knöpfe neu» (N1/N2): one main button, the rest behind «…», each with its explanation. -->
                 <span class="rowacts">
