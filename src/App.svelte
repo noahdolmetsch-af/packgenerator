@@ -9,6 +9,7 @@
   import { parseBetween } from './lib/phase.js';
   import FlowLayer from './lib/flow/FlowLayer.svelte';
   import DemoBar from './lib/DemoBar.svelte';
+  import LogoRide from './lib/logo/LogoRide.svelte'; // «Geheimnis im Logo» (Idee 29)
   import TourHost from './lib/tour/TourHost.svelte';
   import TourStart from './lib/tour/TourStart.svelte';
   import QuickNote from './lib/QuickNote.svelte';
@@ -487,6 +488,7 @@
 {/if}
 <div class="col">
 <DemoBar />
+<LogoRide />
 <OfflineLine />
 {#if ops.explore && ops.path && !guest && !mini}<Explorer />{/if}
 <DbWaitLine />

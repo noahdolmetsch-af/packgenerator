@@ -264,6 +264,18 @@ Aus den 30 Ideen (`notes/ideen-bewegung-2026-11-03/README.md`). Jede Idee ein ei
 | 24 | Pässe sammeln | gewählt |
 | 18 | Tourenpass mit Stempel | gewählt |
 
+### Schmunzel-Ideen, Paket F (Noah 03.11.2026 «E und F», aus den 30 Ideen in `notes/ideen-bewegung-2026-11-03/`)
+
+Ziel 5 Alltag. Jede Idee ein eigener kleiner PR mit Bildern. Bewegung aus bei «Bewegung reduzieren».
+
+| # | Idee | Stand |
+|---|---|---|
+| 29 | Geheimnis im Logo: fünfmal auf «PG» tippen, ein kleines Velo fährt quer über den Bildschirm | in Arbeit (PR) |
+| 30 | Die App zieht sich der Jahreszeit an: Schneeflocken, Blatt, Blüte im Seitenkopf | gewählt |
+| 26 | Nussgipfel-Rechner: die Energie einer Fahrt in Nussgipfeln | gewählt |
+| 27 | Wetter-Sprüche auf Mundart unter dem Gruss auf Heute | gewählt |
+| 28 | Murmeltier als Begleiter auf leeren Seiten und bei Tipps | gewählt |
+
 ## Bewusst nicht
 
 Foto-KI für Material · Live-Sync über Drive · Keine fremden Einbettungen, nur Links · Privat-Zone beim Teilen um dein Zuhause · Inhalte von anderen Nutzern · KI: aus einem Satz wird ein Eintrag · KI: Wochen-Rückblick am Sonntag · Einkauf, Lebenslauf, Werkstatt (D2) · Computer als Werkzeug (D4) · Rückkehr-Melder für Notfall-Person · Aussortieren und weitergeben · Leiste mit 7 Orten · Keine native App, die Web-App bleibt · App zieht nicht auf Vercel um · Ton-Aufnahmen (nur wenn klein)
