@@ -2,12 +2,13 @@
 // Fictional data (home0460-fixture), nothing leaves the preview.
 import { test, expect } from './clock.js';
 import { openHome } from './home0460-fixture.js';
+import { fixChance } from './logo-helpers.js';
 
 const mark = (page, info) => (info.project.name === 'phone' ? page.locator('header.top .brand .mark') : page.locator('.logo .mark'));
 
 test('five quick taps on PG: the bike rides, fewer do not', async ({ page, context }, info) => {
   const T = await openHome(page, context, info);
-  await page.evaluate(() => (Math.random = () => 0)); // the surprise is picked by chance: the first one is the bike
+  await fixChance(page, 'bike'); // the surprise is picked by chance: this test wants the bike
   const m = mark(page, info);
   for (let i = 0; i < 4; i++) await m.click();
   await expect(page.locator('[data-logo-ride]')).toHaveCount(0);
@@ -20,7 +21,7 @@ test('five quick taps on PG: the bike rides, fewer do not', async ({ page, conte
 test('with reduce motion the bike stands still in the middle', async ({ page, context }, info) => {
   await openHome(page, context, info);
   await page.emulateMedia({ reducedMotion: 'reduce' }); // after the import: the CSS answers at once
-  await page.evaluate(() => (Math.random = () => 0)); // the bike
+  await fixChance(page, 'bike');
   const m = mark(page, info);
   for (let i = 0; i < 5; i++) await m.click();
   const ride = page.locator('[data-logo-ride]');

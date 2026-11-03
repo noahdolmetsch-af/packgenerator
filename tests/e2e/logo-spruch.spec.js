@@ -2,6 +2,7 @@
 // Fictional data (home0460-fixture), nothing leaves the preview.
 import { test, expect } from './clock.js';
 import { openHome } from './home0460-fixture.js';
+import { fixChance } from './logo-helpers.js';
 
 const mark = (page, info) => (info.project.name === 'phone' ? page.locator('header.top .brand .mark') : page.locator('.logo .mark'));
 const five = async (m) => {
@@ -10,13 +11,14 @@ const five = async (m) => {
 
 test('a saying appears, goes away; the next five taps give the bike (never the same twice)', async ({ page, context }, info) => {
   await openHome(page, context, info);
-  await page.evaluate(() => (Math.random = () => 0.99)); // the last of the two: the saying
+  await fixChance(page, 'saying');
   const m = mark(page, info);
   await five(m);
   const bubble = page.locator('[data-logo-saying]');
   await expect(bubble).toBeVisible();
   await expect(bubble).toContainText('«');
   await expect(bubble).toHaveCount(0, { timeout: 8000 }); // gone by itself
+  await fixChance(page, 'bike', 'saying'); // the saying was just there: the choice has no saying in it
   await five(m);
   await expect(page.locator('[data-logo-ride]')).toBeVisible();
   await expect(bubble).toHaveCount(0);
@@ -25,7 +27,7 @@ test('a saying appears, goes away; the next five taps give the bike (never the s
 test('with reduce motion the saying stays readable and inside the screen', async ({ page, context }, info) => {
   await openHome(page, context, info);
   await page.emulateMedia({ reducedMotion: 'reduce' });
-  await page.evaluate(() => (Math.random = () => 0.99));
+  await fixChance(page, 'saying');
   await five(mark(page, info));
   const bubble = page.locator('[data-logo-saying]');
   await expect(bubble).toBeVisible();
