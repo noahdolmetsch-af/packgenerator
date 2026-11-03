@@ -54,4 +54,14 @@ export default {
     "Schreib auch den Schnee und die Tageszeit auf. Nächste Saison weisst du, wann dieser Hang gut war.",
   "Mark the dream as ridden only once its debrief is done. The photo and the month you add there are what you will look at in a year.":
     "Hake den Traum erst ab, wenn der Rückblick fertig ist. Foto und Monat, die du dort ergänzt, schaust du in einem Jahr gern wieder an.",
+  'Upload the ride the same evening: the three learnings are freshest while the legs still remember the last climb.':
+    'Lade die Fahrt am selben Abend hoch: die drei Erkenntnisse sind frisch, solange die Beine den letzten Anstieg noch spüren.',
+  'Records are nice, but the longest day says little alone. Look at how you felt the day after.':
+    'Rekorde sind schön, aber der längste Tag sagt allein wenig. Schau, wie es dir am Tag danach ging.',
+  'Empty the bags on the first evening, even when tired: wet tent and damp shorts do not get better until Saturday.':
+    'Leer die Taschen am ersten Abend, auch wenn du müde bist: nasses Zelt und feuchte Hose werden bis Samstag nicht besser.',
+  'A small detour is often enough for something new: one unknown road home turns a routine ride into a little discovery.':
+    'Oft reicht ein kleiner Umweg für etwas Neues: eine unbekannte Strasse heim macht aus der Routine eine kleine Entdeckung.',
+  'New kilometres are rarely far away: the next valley is often more unknown than a country on the other side of Europe.':
+    'Neue Kilometer liegen selten weit weg: das Nachbartal ist oft unbekannter als ein Land am anderen Ende Europas.',
 };

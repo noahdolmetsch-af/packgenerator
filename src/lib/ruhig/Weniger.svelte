@@ -12,10 +12,11 @@
   import { t, tn } from '../i18n.svelte.js';
   import { localDay } from '../localday.js';
   import { FEATURE, findFeatures, featureHref } from '../features.js';
-  import { settingQ, saveSetting } from './store.js';
+  import { settingQ, saveSetting, endCalm } from './store.js';
   import { openFromHash } from './open.js';
   import { move } from './base.js';
-  import { SPACE_KEY, CALM_KEY, BUDGET_KEY, NOT_KEY, SPACE_MAX, SPACE_STARTS, BUDGET_GROUPS, spaceOf, spaceActive, spaceAdd, spaceDrop, spaceMove, calmOf, budgetOf, applyBudget, notForMeOf, setNotForMe, unsetNotForMe, NOT_WHY } from './weniger.js';
+  import { CALM_LOG_KEY, logOf, logDrop, weekSummary, hm as hoursMin } from './calmlog.js';
+  import { SPACE_KEY, CALM_KEY, BUDGET_KEY, NOT_KEY, SPACE_MAX, SPACE_STARTS, BUDGET_GROUPS, spaceOf, spaceActive, spaceAdd, spaceDrop, spaceMove, calmOf, CALM_MINUTES, calmUntil, calmLeft, budgetOf, applyBudget, notForMeOf, setNotForMe, unsetNotForMe, NOT_WHY } from './weniger.js';
 
   const today = localDay();
   const first = openFromHash();
@@ -25,6 +26,10 @@
   const calmQ = settingQ(CALM_KEY);
   const budgetQ = settingQ(BUDGET_KEY);
   const notQ = settingQ(NOT_KEY);
+  const logQ = settingQ(CALM_LOG_KEY);
+  const log = $derived(logOf($logQ));
+  const week = $derived(weekSummary(log, today));
+  const durText = (min) => { const d = hoursMin(min); return d.h ? (d.m ? t('{h} h {m} min', d) : t('{h} h|duration', d)) : t('{m} min', d); };
   const space = $derived(spaceOf($spaceQ));
   const calm = $derived(calmOf($calmQ));
   const budget = $derived(budgetOf($budgetQ));
@@ -42,10 +47,11 @@
   /* Ruhige Ansicht */
   let calmWhat = $state('');
   let calmHref = $state('');
+  let calmMins = $state(30);
   function calmStart(e) {
     e.preventDefault();
     if (!calmWhat.trim()) return;
-    saveSetting(CALM_KEY, { what: calmWhat.trim(), href: calmHref, since: new Date().toISOString() });
+    saveSetting(CALM_KEY, { what: calmWhat.trim(), href: calmHref, since: new Date().toISOString(), until: calmUntil(calmMins) });
     calmWhat = '';
   }
 
@@ -116,9 +122,10 @@
       <div class="rh-calm" data-calm-on>
         <p class="rh-calm-l">{t('You are doing')}</p>
         <p class="rh-calm-w">{calm.what}</p>
+        {#if calm.until}<p class="rh-help" data-calm-left>{calmLeft(calm) ? t('{n} min left', { n: calmLeft(calm) }) : t('Time is up')}</p>{/if}
         <div class="rh-row">
           {#if calm.href}<a class="btn" href={calm.href}>{t('Open')}</a>{/if}
-          <button type="button" class="btn hi" onclick={() => saveSetting(CALM_KEY, null)} data-calm-done>{t('Done|calm')}</button>
+          <button type="button" class="btn hi" onclick={() => endCalm(calm)} data-calm-done>{t('Done|calm')}</button>
         </div>
       </div>
     {:else}
@@ -131,8 +138,20 @@
             {#each space.ids as id (id)}<option value={featureHref(FEATURE[id]) ?? ''}>{fname(id)}</option>{/each}
           </select>
         {/if}
+        <select class="inp" bind:value={calmMins} aria-label={t('For how long?')} data-calm-mins>
+          {#each CALM_MINUTES as m (m)}<option value={m}>{m ? t('{n} min', { n: m }) : t('Until I tap «Done»')}</option>{/each}
+        </select>
         <button type="submit" class="btn hi" disabled={!calmWhat.trim()}>{t('Calm view')}</button>
       </form>
+    {/if}
+    {#if week.length}
+      <div class="rh-calm-week" data-calm-week>
+        <p class="rh-calm-l">{t('This week')}</p>
+        <ul class="rh-list">
+          {#each week as w (w.what)}<li><span class="rh-grow">{w.times}× {w.what}</span><span>{durText(w.minutes)}</span></li>{/each}
+        </ul>
+        <button type="button" class="btn" onclick={() => saveSetting(CALM_LOG_KEY, [])} data-calm-log-clear>{t('Clear the history')}</button>
+      </div>
     {/if}
   </Card>
 

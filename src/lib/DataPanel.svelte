@@ -2,12 +2,13 @@
   import { tidyData } from './tidy.js';
   import { plainError } from './clear/errors.js'; // Paket Q #127: plain words instead of technical text
   import { isLocked, unlockBackup, lockPassword } from './backupcrypt.js';
+  import { checkBackup, offsiteState } from './backupcheck.js';
   import BackupLock from './clear/BackupLock.svelte';
   import { settling } from './settled.js';
   import { blocksAfterImport } from './updates.js';
   import { liveQuery } from 'dexie';
   import { db, DATA_TABLES } from './db.js';
-  import { restoreBackup, validateBackup, countRows, downloadBackup, importImpact, shareBackup, lastChangeOf, markImported, compareStates, LAST_CHANGE, LAST_BACKUP, backupDue, syncAdvice, markSync, SYNC_KEY } from './backup.js';
+  import { restoreBackup, validateBackup, countRows, downloadBackup, importImpact, shareBackup, lastChangeOf, markImported, compareStates, LAST_CHANGE, LAST_BACKUP, OFFSITE_KEY, backupDue, syncAdvice, markSync, SYNC_KEY } from './backup.js';
   import { keepState, askKeep } from './storagekeep.js';
   import { snapDb, takeSnapshot } from './maintenance/snapshots.js';
   import { SHARE_BACKUP_CACHE, SHARE_BACKUP_KEY } from './sharebackup.js';
@@ -201,6 +202,41 @@
       }
     })();
   });
+
+  // «Sicherung prüfen» (Noah 02.11.2026 «1a»): a dry run. The file is only looked at: nothing is imported or changed.
+  let checked = $state.raw(null);
+  // The file picker is made on tap (no second file field on the page: the import tests find theirs by type)
+  function pickCheck() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.onchange = () => checkFile(input.files[0]);
+    input.click();
+  }
+  async function checkFile(file) {
+    if (!file) return;
+    checked = null;
+    try {
+      let data = JSON.parse(await file.text());
+      if (isLocked(data)) {
+        const mine = await lockPassword(db);
+        const open = mine ? await unlockBackup(data, mine) : null;
+        if (!open) {
+          checked = { name: file.name, lockedFile: true };
+          return;
+        }
+        data = open;
+      }
+      checked = { name: file.name, ...checkBackup(data) };
+    } catch {
+      checked = { name: file.name, ok: false, problems: [file.size ? t('This file could not be read.') : t('This file is empty.')], counts: {}, total: 0 };
+    }
+  }
+  // Second copy outside this device (a hint, never a must)
+  const offsiteQ = liveQuery(() => db.meta.get(OFFSITE_KEY));
+  const offsite = $derived(offsiteState($offsiteQ));
+  async function markOffsite() {
+    await db.meta.put({ key: OFFSITE_KEY, at: new Date().toISOString(), how: 'self' });
+  }
 
   // Paket Q #135: a locked backup asks for its password first (the one of this device is tried by itself)
   let locked = $state(null);
@@ -448,7 +484,30 @@
         <div class="ich-acts">
           {#if due.due}<button type="button" class="btn hi" onclick={exportFile} disabled={!!$demoQ} data-status-save>{t('Back up now')}</button>{/if}
           <button type="button" class="btn" aria-expanded={lightsOpen} aria-controls="status-details" onclick={() => (lightsOpen = !lightsOpen)} data-status-details>{lightsOpen ? t('Hide details') : t('Details|status')}</button>
+          <button type="button" class="btn" onclick={pickCheck} data-check-file>{t('Check backup')}</button>
         </div>
+        <p class="ich-help">{t('Check backup: looks into a backup file and tells you if it is whole. Nothing is imported or changed.')}</p>
+        {#if checked}
+          <div class="confirm" role="status" data-check-result data-check-ok={checked.ok ? '1' : '0'}>
+            {#if checked.lockedFile}
+              <p><strong>{checked.name}</strong>: {t('this backup is locked with a password.')} {t('To check it, switch on the password under «Backup with a password» first, or import it.')}</p>
+            {:else if checked.ok}
+              <p><strong>{checked.name}</strong>: {t('This backup is good.')} {t('{items}, {trips}, {bikes}.', { items: tn(checked.counts.items ?? 0, '{n} gear item', '{n} gear items'), trips: tn(checked.counts.trips ?? 0, '{n} trip', '{n} trips'), bikes: tn(checked.counts.bikes ?? 0, '{n} bike', '{n} bikes') })} {t('{n} records in all.', { n: checked.total })}</p>
+              {#if checked.lastChange || checked.exportedAt}<p class="small">{t('Saved {when}.', { when: when(checked.lastChange ?? checked.exportedAt) })}</p>{/if}
+            {:else}
+              <p><strong>{checked.name}</strong>: {t('This backup has problems:')}</p>
+              <ul class="impact">{#each checked.problems as p (p)}<li>{p}</li>{/each}</ul>
+            {/if}
+            <p class="small">{t('Nothing was changed.')}</p>
+            <div class="ich-acts end"><button type="button" class="btn" onclick={() => (checked = null)}>{t('Close|check')}</button></div>
+          </div>
+        {/if}
+        <!-- Second copy outside this device: a phone that is lost takes a backup on it along -->
+        <p class="ich-help" data-offsite={offsite.kind}>
+          {#if offsite.kind === 'ok'}{t('Second copy outside this device: {n} days ago.', { n: offsite.days })}{:else}{offsite.kind === 'old' ? t('Your second copy outside this device is {n} days old.', { n: offsite.days }) : t('No second copy outside this device yet.')}{/if}
+          {t('Send the backup file to yourself by mail, or save it in a cloud folder. Then a lost or broken phone loses nothing.')}
+          <button type="button" class="btn sm" onclick={markOffsite} data-offsite-done>{t('I did it just now')}</button>
+        </p>
         {#if lightsOpen}
           <ul class="ich-list" id="status-details">
         {#each lights as l (l.key)}

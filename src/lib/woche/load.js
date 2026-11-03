@@ -6,7 +6,7 @@
  */
 import { liveQuery } from 'dexie';
 import { db } from '../db.js';
-import { ITEMS_KEY, AWAY_KEY, HIDE_KEY, NO_KEY, SG_OPEN_KEY, PLANNED_KEY, CAL_KEY, itemsOf, awayOf, calEntries } from '../woche.js';
+import { ITEMS_KEY, AWAY_KEY, HIDE_KEY, NO_KEY, SG_OPEN_KEY, SG_OFF_KEY, SG_NEVER_KEY, SEASON_KEY, neverOf, PLANNED_KEY, CAL_KEY, itemsOf, awayOf, calEntries } from '../woche.js';
 import { PLAN_KEY as TRAIN_KEY, GOAL_KEY, planOf, goalOf } from '../training.js';
 import { FIXED_KEY, PLAN_KEY as FLOW_PLAN_KEY, fixedList } from '../flowweek.js';
 import { sortBikes } from '../bikes.js';
@@ -16,7 +16,7 @@ import { AGENDA_KEY } from '../agenda.js';
 
 const shiftBack = (day, n) => new Date(Date.parse(`${day}T00:00:00Z`) - n * 864e5).toISOString().slice(0, 10);
 
-const KEYS = [AGENDA_KEY, ITEMS_KEY, AWAY_KEY, HIDE_KEY, NO_KEY, SG_OPEN_KEY, PLANNED_KEY, CAL_KEY, TRAIN_KEY, GOAL_KEY, FIXED_KEY, FLOW_PLAN_KEY];
+const KEYS = [AGENDA_KEY, ITEMS_KEY, AWAY_KEY, HIDE_KEY, NO_KEY, SG_OPEN_KEY, SG_OFF_KEY, SG_NEVER_KEY, SEASON_KEY, PLANNED_KEY, CAL_KEY, TRAIN_KEY, GOAL_KEY, FIXED_KEY, FLOW_PLAN_KEY];
 
 /** The raw sources of the week (a liveQuery); today: YYYY-MM-DD for the bike care. */
 export function weekQuery(today) {
@@ -48,6 +48,9 @@ export function weekQuery(today) {
       away: awayOf(s[AWAY_KEY]),
       hide: Array.isArray(s[HIDE_KEY]) ? s[HIDE_KEY] : [],
       sgOpen: s[SG_OPEN_KEY] === true,
+      seasons: s[SEASON_KEY] ?? null,
+      sgNever: neverOf(s[SG_NEVER_KEY]),
+      sgOff: Array.isArray(s[SG_OFF_KEY]) ? s[SG_OFF_KEY] : [],
       no: Array.isArray(s[NO_KEY]) ? s[NO_KEY] : [],
       planned: typeof s[PLANNED_KEY] === 'string' ? s[PLANNED_KEY] : null,
       cal: calEntries(s[CAL_KEY]),
