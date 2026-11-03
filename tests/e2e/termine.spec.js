@@ -186,7 +186,7 @@ test('the invoice form is filled from a booking draft and keeps the booking', as
   await ready(page);
   await page.evaluate(() => {
     localStorage.setItem('pg.pay.account', JSON.stringify({ iban: 'CH44 3199 9123 0008 8901 2', name: 'Beispiel Tennis', street: '', house: '', zip: '8000', town: 'Zürich', twint: '079 000 00 00' }));
-    sessionStorage.setItem('pg.invoice.prefill', JSON.stringify({ name: 'Mia Muster', email: 'mia@example.test', amount: '60', purpose: 'Tennis-Lektion, Einzel, Mo, 23.11.', booking: { offer: 'tennis-abc123', b: 'bk1' } }));
+    sessionStorage.setItem('pg.invoice.prefill', JSON.stringify({ name: 'Mia Muster', email: 'mia@example.test', amount: '60', purpose: 'Tennis-Lektion, Einzel, Mo, 23.11.', bookings: [{ offer: 'tennis-abc123', b: 'bk1' }] }));
   });
   await page.goto('./#/me/pay/invoices/new');
   await expect(page.getByLabel(T('For whom?'))).toHaveValue('Mia Muster');

@@ -1,5 +1,7 @@
 # Projektstand und Plan
 
+> **Verlauf und Plan.** Was die App heute kann und wo es steht, steht in [App-Stand](app-stand.md); sie gilt vor älteren Angaben hier.
+
 Stand: **2. November 2026, 09:30 UTC**. Die Versionsnummer steht hier nicht mehr (Regel 13: sie entsteht beim Merge, siehe Ich › Was ist neu oder `node scripts/news.mjs`). **Seit 26.10.2026 abends gelten neue Regeln** (kleine PRs, Bilder, Noah gibt frei, Claude merged; siehe [CLAUDE.md](../CLAUDE.md) und [Arbeitsweise](arbeitsweise.md)). Der neue Abschnitt «Stand 02.11.2026» gleich darunter ist der aktuelle; alles weiter unten ist Verlauf.
 
 Ältere Abschnitte weiter unten («Kurzstand 19.10.», Abschnitte 1 bis 5) sind der damalige Stand und bleiben als Verlauf stehen. Was unten anders steht, gilt nicht mehr, wo dieser Abschnitt etwas Neueres sagt.
