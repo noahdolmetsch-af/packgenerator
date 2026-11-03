@@ -24,6 +24,11 @@ export const RHR_ABOVE = 5;
 /** The days before today that make the «usual», and the least days with a value needed. */
 export const BASE_DAYS = 30;
 export const MIN_BASE = 7;
+/** Sleep: less than this many minutes asleep in the night counts as short. */
+export const SHORT_SLEEP_MIN = 360;
+/** Mood: this many days in a row, each this far below your usual. */
+export const MOOD_DAYS = 3;
+export const MOOD_BELOW = 1;
 
 const chip = (key, label) => ({ key, label: `${label}|data` });
 
@@ -47,6 +52,36 @@ export const DATA_QUESTIONS = {
     data: true,
     rule: 'ruhepuls',
   },
+  'daten.schlaf': {
+    id: 'daten.schlaf',
+    area: 'erholung',
+    text: 'What kept you awake last night?',
+    form: {
+      kind: 'chips',
+      multi: true,
+      note: true,
+      options: [chip('thoughts', 'Thoughts'), chip('late', 'Went to bed late'), chip('noise', 'Noise or light'), chip('caffeine', 'Coffee or tea late'), chip('body', 'Body'), chip('nothing', 'Nothing special')],
+    },
+    every: { kind: 'daily', time: '07:00' },
+    src: ['fitbit'],
+    data: true,
+    rule: 'schlaf',
+  },
+  'daten.stimmung': {
+    id: 'daten.stimmung',
+    area: 'spass',
+    text: 'What would do you good today?',
+    form: {
+      kind: 'chips',
+      multi: true,
+      note: true,
+      options: [chip('walk', 'A walk'), chip('ride', 'A ride'), chip('people', 'Meet someone'), chip('quiet', 'Quiet time'), chip('early', 'Early to bed'), chip('nothing', 'Nothing special')],
+    },
+    every: { kind: 'daily', time: '07:00' },
+    src: ['hand'],
+    data: true,
+    rule: 'stimmung',
+  },
 };
 
 /** The rules, in order. title/about are English keys for t() (about has {n}). */
@@ -56,6 +91,21 @@ export const RULES = [
     qid: 'daten.ruhepuls',
     title: 'Resting pulse above your usual',
     about: 'Asks when your resting pulse today is at least {n} above your usual of the last 30 days.',
+    vars: { n: RHR_ABOVE },
+  },
+  {
+    id: 'schlaf',
+    qid: 'daten.schlaf',
+    title: 'Short night',
+    about: 'Asks when you slept less than {n} hours last night.',
+    vars: { n: SHORT_SLEEP_MIN / 60 },
+  },
+  {
+    id: 'stimmung',
+    qid: 'daten.stimmung',
+    title: 'Low mood for days',
+    about: 'Asks when your mood was clearly below your usual {n} days in a row.',
+    vars: { n: MOOD_DAYS },
   },
 ];
 
@@ -101,16 +151,60 @@ export function ruhepulsHit(health = [], today) {
   return v >= normal + RHR_ABOVE ? { v: Math.round(v), normal: Math.round(normal) } : null;
 }
 
-const WHY = { ruhepuls: 'Your resting pulse today is {v}, your usual of the last 30 days is {normal}.' };
-const HITS = { ruhepuls: ({ health, today }) => ruhepulsHit(health, today) };
+/** The night ending today: { h, m } when it was shorter than SHORT_SLEEP_MIN, else null (no value: null). */
+export function schlafHit(health = [], today) {
+  const row = health.find((r) => r?.date === today);
+  const min = fin(row?.sleep?.asleepMin);
+  if (min == null || min <= 0 || min >= SHORT_SLEEP_MIN) return null;
+  return { h: Math.floor(min / 60), m: Math.round(min % 60) };
+}
+
+/** The mood of every day from the answers to «How is your mood?» (spass.stimmung) and the old daily check, 1–10. */
+export function moodByDay(answers = [], checks = []) {
+  const all = {};
+  const put = (day, v) => {
+    if (day && typeof v === 'number' && v >= 1 && v <= 10) (all[day] ??= []).push(v);
+  };
+  for (const a of answers) if (a?.qid === 'spass.stimmung') put(a.day, a.value);
+  for (const c of checks) put(c?.day, c?.mood);
+  return Object.fromEntries(Object.entries(all).map(([d, l]) => [d, l.reduce((x, y) => x + y, 0) / l.length]));
+}
+/** Mood below the usual (mean of the 30 days before) by MOOD_BELOW or more on each of the last MOOD_DAYS days: { days: [values], usual } or null. */
+export function stimmungHit(answers = [], checks = [], today) {
+  const by = moodByDay(answers, checks);
+  const recent = Array.from({ length: MOOD_DAYS }, (_, i) => addDays(today, i - MOOD_DAYS + 1));
+  if (recent.some((d) => by[d] == null)) return null;
+  const base = [];
+  for (let i = MOOD_DAYS; i < MOOD_DAYS + BASE_DAYS; i++) {
+    const x = by[addDays(today, -i)];
+    if (x != null) base.push(x);
+  }
+  if (base.length < MIN_BASE) return null;
+  const usual = base.reduce((x, y) => x + y, 0) / base.length;
+  const vals = recent.map((d) => by[d]);
+  if (!vals.every((v) => v <= usual - MOOD_BELOW)) return null;
+  const r1 = (x) => Math.round(x * 10) / 10;
+  return { a: r1(vals[0]), b: r1(vals[1]), c: r1(vals[2]), usual: r1(usual) };
+}
+
+const WHY = {
+  ruhepuls: 'Your resting pulse today is {v}, your usual of the last 30 days is {normal}.',
+  schlaf: 'You slept {h} h {m} min last night.',
+  stimmung: 'Your mood was {a}, {b} and {c} on the last three days, your usual is {usual}.',
+};
+const HITS = {
+  ruhepuls: ({ health, today }) => ruhepulsHit(health, today),
+  schlaf: ({ health, today }) => schlafHit(health, today),
+  stimmung: ({ answers, checks, today }) => stimmungHit(answers, checks, today),
+};
 
 /**
  * The questions from data that are due today: [{ q, slot, last, why: { text, vars }, data: true }].
- * health: healthDays rows; answers: rows { qid, day }; snooze: { [qid]: stamp }; cfg: the DATA_KEY value;
+ * health: healthDays rows; answers: rows { qid, day, value }; checks: the old daily checks { day, mood }; snooze: { [qid]: stamp }; cfg: the DATA_KEY value;
  * slot: the stamp they show under (the morning round). A question put away today (skip, «Heute nicht», folded
  * under «Show more») stays away until tomorrow.
  */
-export function dataDue({ health = [], answers = [], snooze = {}, cfg = null, today, slot = `${today}T07:00` } = {}) {
+export function dataDue({ health = [], answers = [], checks = [], snooze = {}, cfg = null, today, slot = `${today}T07:00` } = {}) {
   if (!today) return [];
   const off = new Set(dataOf(cfg).off);
   const doneToday = new Set(answers.filter((a) => String(a?.qid ?? '').startsWith('daten.') && a.day === today).map((a) => a.qid)).size;
@@ -124,7 +218,7 @@ export function dataDue({ health = [], answers = [], snooze = {}, cfg = null, to
     if (answers.some((a) => a?.qid === q.id && a.day >= since)) continue;
     const put = snooze?.[q.id];
     if (put && dayOf(put) >= today) continue;
-    const hit = HITS[rule.id]({ health, today });
+    const hit = HITS[rule.id]({ health, answers, checks, today });
     if (!hit) continue;
     out.push({ q, slot, last: slot, why: { text: WHY[rule.id], vars: hit }, data: true });
   }
