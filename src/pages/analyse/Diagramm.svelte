@@ -345,7 +345,12 @@
       {#if picked}<li><i class="lsw pk"></i>{dfmt(picked, { weekday: 'short', day: 'numeric', month: 'short' })} ({t('tapped|diagram')})</li>{/if}
     </ul>
     <p class="hint">{t('Tap a day: a line through every row and the day with all its values.|diagram')}</p>
-    {#if notice.length}<p class="notice" data-dg-notice><b>{t('What stands out|link')}</b> ({t('only an observation|link')}): {notice.join(' ')}</p>{/if}
+    {#if notice.length}
+      <details class="notice" data-dg-notice>
+        <summary><b>{t('What stands out|link')}</b> ({notice.length}) · {t('only an observation|link')}</summary>
+        <ul>{#each notice as line, i (i)}<li>{line}</li>{/each}</ul>
+      </details>
+    {/if}
     <div class="sr">
       {#each buckets as b, i (b.key)}{#if rows.some((r) => r.vals[i] != null)}<button type="button" onclick={() => open(b.days.at(-1))}>{short(b.days.at(-1))}</button>{/if}{/each}
     </div>
@@ -709,6 +714,14 @@
   }
   .notice b {
     color: var(--ink);
+  }
+  .notice summary {
+    min-height: 32px;
+    cursor: pointer;
+  }
+  .notice ul {
+    margin: 6px 0 0;
+    padding-left: 18px;
   }
   .hint {
     margin: 0;
