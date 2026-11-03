@@ -169,6 +169,13 @@ test('Wusstest du: «Passt zu heute» on a hot day, the switch for knowledge, Ea
   const earth = main.locator('[data-far="earth"]');
   await expect(earth).toContainText(T('{n} % around the Earth', { n: far.earth.pct }));
   await expect(main.locator('[data-far="everest"]')).toContainText(T('{x}× Everest', { x: '10.8' }));
+  // Paket E, Idee 25: the metres in a Swiss mountain; it fits by itself and the choice is kept
+  const mountain = main.locator('[data-far="mountain"]');
+  await expect(mountain).toContainText(T('{x}× {name}', { x: '20.7', name: 'Dufourspitze' }));
+  await mountain.locator('[data-mountain-pick]').selectOption('saentis');
+  await expect(mountain).toContainText(T('{x}× {name}', { x: '38.4', name: 'Säntis' }));
+  await page.reload();
+  await expect(main.locator('[data-far="mountain"]')).toContainText('Säntis');
   await fits(page, 'Vergangene Touren');
   await page.screenshot({ path: `qa/pageinfo-far-${test.info().project.name}.png`, fullPage: true });
   expect(errors).toEqual([]);

@@ -163,6 +163,7 @@ import runden from './runden.js';
 import kacheln from './kacheln.js';
 // «Inhalte Flow» IF1–IF3: tip line, fold «Das kann die App hier», tiles «Weiter»
 import pageinfo from './pageinfo.js';
+import berge from './berge.js';
 
 // Kamera-Knopf: one tap opens the camera, always for receipts
 import kamera from './kamera.js';
@@ -805,6 +806,7 @@ const ORDERED = [
   timer,
   meditationzentral,
   pageinfo,
+  berge,
   durchklick,
   training,
   rechnungen,
