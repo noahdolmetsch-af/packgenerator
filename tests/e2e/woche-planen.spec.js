@@ -68,6 +68,12 @@ test('Woche: the days with their kinds, chips hide a kind, a to-do is ticked, a 
   await expect(fri.locator('[data-kind="todo"]')).toHaveCount(0);
   await expect(page.locator('[data-sugg="todo:test_data_gtp_t2"]')).toHaveCount(0);
   await page.locator('[data-filter="todo"]').click();
+  // «Where do the suggestions come from?» (Noah 2.11.2026 «a»): a source off, its suggestion goes; Undo brings it back
+  await page.locator('[data-sg-sources] > summary').click();
+  await page.locator('[data-sg-source="todo"]').uncheck();
+  await expect(page.locator('[data-sugg="todo:test_data_gtp_t2"]')).toHaveCount(0);
+  await page.getByRole('button', { name: T('Undo') }).first().click();
+  await expect(page.locator('[data-sugg="todo:test_data_gtp_t2"]')).toBeVisible();
   // tick the to-do
   const todo = fri.locator('[data-entry="test_data_gtp_t1"]');
   await todo.getByRole('button', { name: T('Done: {title}', { title: 'test_data_gtp_ Schlauch bestellen' }) }).click();

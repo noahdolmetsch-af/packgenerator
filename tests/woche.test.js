@@ -85,6 +85,15 @@ describe('buildWeek', () => {
     expect(bike.day < '2026-10-23').toBe(true);
     expect(bike.sub).toMatchObject({ bike: 'Gravel', before: 'Jura weekend' });
   });
+  it('a source switched off gives no suggestions, and the count stays for the switch (Noah 2.11.2026 «a»)', () => {
+    const all = buildWeek({ ...base, items, care });
+    expect(all.sources.todo).toBeGreaterThan(0);
+    expect(all.sources.bike).toBeGreaterThan(0);
+    const off = buildWeek({ ...base, items, care, sgOff: ['bike'] });
+    expect(off.suggestions.some((s) => s.source === 'bike')).toBe(false);
+    expect(off.suggestions.some((s) => s.source === 'todo')).toBe(true);
+    expect(off.sources.bike).toBe(all.sources.bike);
+  });
   it('a planned bike job is no suggestion any more; a skipped suggestion waits a week', () => {
     const planned = itemsOf([...items, { kind: 'bike', title: 'Measure the chain', day: '2026-10-21', bikeId: 'b1', part: 'km:chain' }]);
     expect(buildWeek({ ...base, items: planned, care }).suggestions.some((s) => s.kind === 'bike')).toBe(false);
