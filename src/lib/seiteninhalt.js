@@ -100,10 +100,19 @@ export function pagePattern(hash, on = ON_PAGES) {
  * on: the pages switched on (default ON_PAGES). A page of one thing (#/debrief/<trip>) shows the functions HOME writes
  * for its pattern (#/debrief/:trip).
  */
+/**
+ * Wegweiser 26c: functions whose page opens as a window over another page show in that page's card. An open note is a
+ * window over Notes, so a card there would sit hidden behind it; the six note functions show on Notes instead.
+ */
+export const SHOWS_TOO = { '#/notes': ['#/notes?open=:note'] };
+
 export function pageContent(hash, on = ON_PAGES) {
   const here = pagePattern(hash, on);
   if (!here) return [];
-  return FEATURES.filter((f) => HOME[f.id] && pageKey(HOME[f.id]) === here).map((f) => {
+  // the page's own functions first, then those of the windows it opens (SHOWS_TOO)
+  const homes = [here, ...(SHOWS_TOO[here] ?? [])];
+  const rank = (f) => homes.indexOf(pageKey(HOME[f.id]));
+  return FEATURES.filter((f) => HOME[f.id] && rank(f) >= 0).sort((a, b) => rank(a) - rank(b)).map((f) => {
     const h = HANDBOOK[f.id] ?? {};
     return { id: f.id, title: f.title, text: f.text, steps: h.steps ?? [], example: h.example ?? '', know: WISSEN[f.id] ?? '' };
   });

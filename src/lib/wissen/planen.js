@@ -38,4 +38,11 @@ export default {
   'f.skiplan': 'Plan the way back first: the last train and the turnaround time decide the tour, not the summit.',
   'f.racecheck': 'Play the first night through at home, with the real bags: what you cannot find in the dark at the kitchen table, you will not find on the race either.',
   'f.sleeporigin': 'A place you slept at yourself beats three descriptions. Mark it right after the night, while you still know the corner.',
+  // Wegweiser 26c: the functions of an open note, shown in the card on Notes
+  'f.placenote': 'Set the note a few km before the spot, not on it: at 25 km/h you are past the bakery before you have read the message.',
+  'f.notelinks': 'One #tag per topic is enough; a link with a meaning like «counter-argument» tells you later why two notes belong together.',
+  'f.drawphoto': 'An arrow on the photo explains more than three sentences: «this bolt» is clear to the workshop at first sight.',
+  'f.richtext': 'Use ticks for things to do and headings for days; a packing list as a note stays readable on the phone.',
+  'f.noteattach': 'Keep the web page of the campsite offline before you leave: the valley without signal is exactly where you need the opening hours.',
+  'f.noteremind': 'Remind after the next trip, not on a date: «new brake pads» comes back exactly when the bike is dirty anyway.',
 };

@@ -1,6 +1,6 @@
 // «Wegweiser statt Katalog» PR 11: the card «What you can do here».
 import { describe, it, expect } from 'vitest';
-import { pageContent, pageKey, pagePattern, fits, samplePage, RESERVED, ON_PAGES, foldedOf, isFolded, FOLDED_FIRST } from '../src/lib/seiteninhalt.js';
+import { pageContent, pageKey, pagePattern, fits, samplePage, RESERVED, ON_PAGES, foldedOf, isFolded, FOLDED_FIRST, SHOWS_TOO } from '../src/lib/seiteninhalt.js';
 import { HOME } from '../src/lib/know/heimat.js';
 
 describe('What you can do here', () => {
@@ -15,7 +15,8 @@ describe('What you can do here', () => {
       for (const r of rows) {
         expect(r.text, r.id).toBeTruthy();
         expect(r.steps.length + (r.example ? 1 : 0), r.id).toBeGreaterThan(0);
-        expect(pageKey(HOME[r.id])).toBe(p);
+        // Wegweiser 26c: a page also lists the functions of the windows it opens (SHOWS_TOO)
+        expect([p, ...(SHOWS_TOO[p] ?? [])], r.id).toContain(pageKey(HOME[r.id]));
       }
     }
   });
@@ -62,5 +63,14 @@ describe('What you can do here', () => {
       expect(pageContent(real).length, p).toBeGreaterThan(0);
     }
     expect(samplePage('#/debrief/:trip', { trip: 'abc' })).toBe('#/debrief/abc');
+  });
+  it('Notes also shows the functions of an open note, which opens as a window over it (Wegweiser 26c)', () => {
+    const ids = pageContent('#/notes').map((r) => r.id);
+    const inNote = Object.keys(HOME).filter((id) => HOME[id] === '#/notes?open=:note');
+    expect(inNote.length).toBeGreaterThan(0);
+    for (const id of inNote) expect(ids, id).toContain(id);
+    // the page's own functions come first
+    expect(HOME[ids[0]]).toBe('#/notes');
+    expect(pageContent('#/notes?open=abc')).toEqual([]);
   });
 });

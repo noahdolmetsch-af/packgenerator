@@ -254,3 +254,19 @@ test('Touren, Ski and Ruhiger pages show the card with good to know', async ({ p
   }
   expect(errors).toEqual([]);
 });
+
+// Wegweiser 26c: an open note is a window over Notes, so its functions show in the card on Notes
+test('Notes shows the functions of an open note with good to know', async ({ page, context }, info) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await openHome(page, context, info);
+  await page.goto('./#/notes');
+  const card = page.locator('[data-seiteninhalt]');
+  await expect(card).toContainText(T('What you can do here'));
+  const all = card.locator('.si-all');
+  if (await all.count()) await (info.project.name === 'phone' ? all.tap() : all.click());
+  await expect(card.locator('[data-seiteninhalt-know="f.noteremind"]')).toContainText(T('Good to know'));
+  await expect(card.locator('[data-seiteninhalt-know="f.placenote"]')).toContainText(T('Good to know'));
+  expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBe(0);
+  expect(errors).toEqual([]);
+});
