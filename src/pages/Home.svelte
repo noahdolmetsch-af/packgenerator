@@ -177,7 +177,8 @@
   import HomePlaceForm from '../lib/know/HomePlaceForm.svelte';
   import { tripToday } from '../lib/home/ruhig.js';
   import { todayTrip, liveHref } from '../lib/live/start.js'; // Paket U3: the tile «Start a ride»
-  import { quietHome } from '../lib/bedienung.svelte.js';
+  import { quietHome, ops } from '../lib/bedienung.svelte.js';
+  import { mundartFor } from '../lib/home/mundart.js'; // «Wetter-Sprüche auf Mundart» (Idee 27)
   import { PartyPopper, Sun, RotateCcw, Route, ChevronRight, SlidersHorizontal, Hand, X, ClipboardList, Flower2, Bike as BikeIcon, LayoutGrid } from '@lucide/svelte';
   import DuTile from '../lib/home/DuTile.svelte'; // «Heute neu» A (Noah 20.10.2026 «3a»): «You today»
   import MedStartSheet from '../lib/flow/MedStartSheet.svelte';
@@ -303,6 +304,7 @@
   const night = $derived(helloPart(now.getHours()) === 'night');
   // HG1b: no name yet: one quiet row under the greeting, asked only once
   const wx = $derived(fc ? weatherLine(fc, now) : null);
+  const mundart = $derived(ops.mundart && wx && !night ? mundartFor(wx, today) : null); // «Wetter-Sprüche auf Mundart» (Idee 27)
   const shortDate = $derived(now.toLocaleDateString(locale(), { weekday: 'short', day: 'numeric', month: 'short' }));
   const dateLine = $derived([now.toLocaleDateString(locale(), { weekday: 'long', day: 'numeric', month: 'long' }), place?.name?.split(',')[0]].filter(Boolean).join(' · '));
   let placeOpen = $state(false);
@@ -1007,6 +1009,7 @@
         <!-- UI-Ziele #15 (Noah 20.10.2026 «freigabe»): the short greeting is the button itself, no «antippen» line -->
         {#if night}<h1 id="hello-h" class="hello">{hello}</h1>{:else}<HelloSheet name={S.userName ?? ''} label={hello} />{/if}
         <p class="dl">{phone.matches ? shortDate : dateLine}{#if wx}<span aria-hidden="true">{'\u00a0· '}</span><a class="wxa" href="#/wetter" title={t('Weather at your home place')} data-weather-home><span class="sr">{t('Weather at your home place')}: </span><span class="wx" data-weather>{wx.text}</span>{#if wx.hi != null}{' '}<span class="wxr" data-weather-range>{t('↑{hi}° ↓{lo}°', { hi: wx.hi, lo: wx.lo })}</span>{/if}{'\u00a0›'}</a>{:else if ready}<span aria-hidden="true">{'\u00a0· '}</span><a class="wxa" href="#/wetter" data-weather-home>{t('Weather at your home place')}{'\u00a0›'}</a>{/if}{#if ready}<span aria-hidden="true">{'\u00a0· '}</span><button type="button" class="wearq" onclick={() => (wearOpen = true)} data-wear-open>{t('What do I wear?')}</button>{/if}{#if strava.changes.length}<span aria-hidden="true">{'\u00a0· '}</span><span data-strava-questions>{tn(strava.changes.length, '{n} question from Strava', '{n} questions from Strava')}</span>{/if}</p>
+        {#if mundart}<p class="mundart" data-mundart lang="gsw">{mundart}</p>{/if}
         {#if loaded}<RaceLine {today} />{/if}
         <!-- UI-Ziele #17 (Noah 20.10.2026 «freigabe»): «Was häsch vor?» as chips; while customising a list to sort -->
         <!-- «Alltag sichtbar» (Noah 24.10.2026 «1a»): the quick start «Heute fahren» stays visible at night too -->
@@ -1600,6 +1603,13 @@
     line-height: 1.15;
     letter-spacing: -0.01em;
     overflow-wrap: break-word;
+  }
+  /* «Wetter-Sprüche auf Mundart» (Idee 27): one quiet line under the date and weather */
+  .mundart {
+    margin: 2px 0 0;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+    font-style: italic;
   }
   .dl {
     margin: 0;
