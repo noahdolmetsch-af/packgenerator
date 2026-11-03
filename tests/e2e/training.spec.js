@@ -241,6 +241,11 @@ test('Training › Woche: plan a sport of Aktiv, add a new one, tick it', async 
   const chip = plan.locator('[data-planned]').filter({ hasText: `${P}Rudern` });
   await expect(chip).toContainText('0:45');
   await expect(chip).not.toHaveClass(/ok/);
+  // several sports on one day (Noah 3.11.2026): a second session on the same day
+  await plan.locator(`[data-add="${day(0)}"]`).click();
+  await plan.locator('[data-session-form]').locator('[data-session-mins]').fill('30');
+  await plan.locator('[data-session-form]').getByRole('button', { name: 'Speichern' }).click();
+  await expect(plan.locator(`[data-day="${day(0)}"] [data-planned]`)).toHaveCount(2);
   // ticked in Aktiv: the same day turns the planned session green
   await page.evaluate(
     ([d, name]) => new Promise((ok) => {
