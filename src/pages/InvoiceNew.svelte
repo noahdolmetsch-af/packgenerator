@@ -37,13 +37,13 @@
   let viewId = $state(idInHash());
   let saved = $state(null); // the invoice once made (or opened)
   let form = $state({ name: '', email: '', amount: '', purpose: '', qr: true, twint: true });
-  let bookingRef = $state(null); // the booking this invoice is for ({ offer, b }), when it comes from Ich › Angebote
+  let bookingRef = $state(null); // the bookings this invoice is for ([{ offer, b }]), when it comes from Ich › Angebote
   {
     // A draft from Ich › Angebote (name, e-mail, amount and what it is for are filled in; nothing is sent).
     const d = idInHash() ? null : takePrefill();
     if (d) {
       form = { ...form, name: String(d.name ?? ''), email: String(d.email ?? ''), amount: String(d.amount ?? ''), purpose: String(d.purpose ?? '') };
-      bookingRef = d.booking ?? null;
+      bookingRef = Array.isArray(d.bookings) ? d.bookings : null;
     }
   }
   let formErrors = $state({});
@@ -131,7 +131,7 @@
     }
     busy = true;
     try {
-      saved = await createInvoice({ name: form.name, email: form.email, amount, purpose: form.purpose, ways, booking: bookingRef }, account);
+      saved = await createInvoice({ name: form.name, email: form.email, amount, purpose: form.purpose, ways, bookings: bookingRef }, account);
       history.replaceState(null, '', `#/me/pay/invoices/${encodeURIComponent(saved.id)}`);
       return saved;
     } finally {
