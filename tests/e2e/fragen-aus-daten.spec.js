@@ -13,7 +13,7 @@ const shot = async (page, info, name) => {
   await page.screenshot({ path: `${SHOTS}/${name}-${info.project.name === 'phone' ? 390 : 1440}.png`, fullPage: true });
 };
 
-function data(todayHr, { sleepMin = null, moods = null } = {}) {
+function data(todayHr, { sleepMin = null, moods = null, acts = null } = {}) {
   const d = homeFixture();
   const q = Object.fromEntries(QUESTIONS.filter((x) => ON_AT_START.has(x.id) && x.id !== 'erholung.akku').map((x) => [x.id, { on: false }]));
   d.tables.settings.push({ key: 'abfragen', value: { since: `${day(-1)}T19:00`, q, own: [] } });
@@ -21,6 +21,7 @@ function data(todayHr, { sleepMin = null, moods = null } = {}) {
     ...Array.from({ length: 20 }, (_, i) => ({ date: day(-(i + 1)), restingHr: 51 + (i % 3) })),
     { date: day(0), restingHr: todayHr, ...(sleepMin != null ? { sleep: { asleepMin: sleepMin } } : {}) },
   ];
+  if (acts) d.tables.activities = acts.map(([n, movingS, km], i) => ({ id: `fad-a${i}`, day: day(n), time: '08:00', name: 'Test', type: 'Ride', kind: 'bike', km, movingS, commute: false }));
   if (moods) {
     const row = (n, v) => ({ id: `fad-m${n}`, qid: 'spass.stimmung', area: 'spass', day: day(n), at: `${day(n)}T20:40`, slot: `${day(n)}T20:30`, kind: 'scale', value: v, note: null, unit: null, src: 'hand' });
     d.tables.abAnswers = [...Array.from({ length: 20 }, (_, i) => row(-(i + 3), 8)), ...moods.map((v, i) => row(i - 2, v))];
@@ -101,6 +102,48 @@ test.describe('Fragen aus deinen Daten', () => {
     await q.getByRole('button', { name: T('A walk|data'), exact: true }).click();
     await card.locator('[data-ab-save]').click();
     await expect(card.locator('[data-q="daten.stimmung"]')).toHaveCount(0);
+  });
+
+  test('a long day out yesterday asks about the legs, with the hours as the reason', async ({ page, context }, info) => {
+    const T = await openHome(page, context, info, { data: data(52, { acts: [[-1, 4 * 3600 + 600, 96]] }) });
+    const card = page.locator('[data-section="abfragen"]');
+    const q = card.locator('[data-q="daten.fahrt"]');
+    await expect(q).toBeVisible();
+    await expect(q.getByText(T('How do your legs feel after yesterday?'))).toBeVisible();
+    await expect(q.locator('[data-why]')).toContainText('4 Std. 10 Min.');
+    await expect(q.locator('[data-why]')).toContainText('96 km');
+    await card.screenshot({ path: `${SHOTS}/fad4-fahrt-${info.project.name === 'phone' ? 390 : 1440}.png` });
+    await q.getByRole('button', { name: T('Heavy|data'), exact: true }).click();
+    await card.locator('[data-ab-save]').click();
+    await expect(card.locator('[data-q="daten.fahrt"]')).toHaveCount(0);
+  });
+
+  test('six days without training ask what kept you from it', async ({ page, context }, info) => {
+    const T = await openHome(page, context, info, { data: data(52, { acts: [[-8, 7200, 40], [-6, 3600, 20]] }) });
+    const card = page.locator('[data-section="abfragen"]');
+    const q = card.locator('[data-q="daten.pause"]');
+    await expect(q).toBeVisible();
+    await expect(q.getByText(T('What kept you from training lately?'))).toBeVisible();
+    await expect(q.locator('[data-why]')).toContainText('vor 6 Tagen');
+    await card.screenshot({ path: `${SHOTS}/fad4-pause-${info.project.name === 'phone' ? 390 : 1440}.png` });
+    await q.getByRole('button', { name: T('Tired|data'), exact: true }).click();
+    await card.locator('[data-ab-save]').click();
+    await expect(card.locator('[data-q="daten.pause"]')).toHaveCount(0);
+  });
+
+  test('training from last night is quiet; without activities the page says why', async ({ page, context }, info) => {
+    await openHome(page, context, info, { data: data(52, { acts: [[-1, 3600, 20], [0, 1800, 10]] }) });
+    await expect(page.locator('[data-section="abfragen"] [data-q^="daten."]')).toHaveCount(0);
+    await page.goto('./#/me/abfragen');
+    for (const id of ['fahrt', 'pause']) await expect(page.locator(`[data-rule="${id}"]`).getByRole('switch')).toBeChecked();
+    await expect(page.locator('[data-data-empty-training]')).toHaveCount(0);
+  });
+
+  test('no activities yet: the box says why the training rules are quiet', async ({ page, context }, info) => {
+    await openHome(page, context, info, { data: data(52) });
+    await page.goto('./#/me/abfragen');
+    await expect(page.locator('[data-data-empty-training]')).toBeVisible();
+    await page.locator('[data-datenfragen]').screenshot({ path: `${SHOTS}/fad4-regeln-${info.project.name === 'phone' ? 390 : 1440}.png` });
   });
 
   test('normal sleep and mood ask nothing; all three rules have their switch', async ({ page, context }, info) => {

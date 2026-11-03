@@ -6,7 +6,7 @@
  */
 import { liveQuery } from 'dexie';
 import { db } from './db.js';
-import { DATA_KEY } from './datenfragen.js';
+import { DATA_KEY, ACT_DAYS } from './datenfragen.js';
 import { AB_KEY, AB_SNOOZE_KEY, MIRROR, configOf, mergeHistory, stampOf } from './abfragen.js';
 import { QUESTIONS_KEY, poolOf, checkOf } from './flowcheck.js';
 import { WEIGHT_KEY } from './review/actdata.js';
@@ -22,7 +22,9 @@ export function abQuery(today) {
     from.setUTCDate(from.getUTCDate() - 40);
     const near = new Date(`${today}T00:00:00Z`);
     near.setUTCDate(near.getUTCDate() - 31); // 03.11.2026: the 30 days before today give the usual resting pulse (datenfragen.js)
-    const [cfg, snooze, answers, weight, checks, health, dataCfg] = await Promise.all([
+    const actFrom = new Date(`${today}T00:00:00Z`);
+    actFrom.setUTCDate(actFrom.getUTCDate() - ACT_DAYS);
+    const [cfg, snooze, answers, weight, checks, health, dataCfg, acts, sport] = await Promise.all([
       db.settings.get(AB_KEY),
       db.settings.get(AB_SNOOZE_KEY),
       db.abAnswers.where('day').aboveOrEqual(from.toISOString().slice(0, 10)).toArray(),
@@ -31,8 +33,11 @@ export function abQuery(today) {
       // 0.171: the Fitbit days of the last days, so the window fills in what Fitbit measured (fitbitFill)
       db.healthDays ? db.healthDays.where('date').aboveOrEqual(near.toISOString().slice(0, 10)).toArray().catch(() => []) : [],
       db.settings.get(DATA_KEY),
+      // 03.11.2026 «Fragen aus deinen Daten», Training: the Strava activities and the tennis entries of the last 40 days
+      db.activities ? db.activities.where('day').aboveOrEqual(actFrom.toISOString().slice(0, 10)).toArray().catch(() => []) : [],
+      db.sportItems ? db.sportItems.where('day').aboveOrEqual(actFrom.toISOString().slice(0, 10)).toArray().catch(() => []) : [],
     ]);
-    return { cfg: cfg?.value ?? null, stored: !!cfg, snooze: snooze?.value ?? {}, answers, weightG: weight?.value ?? null, checks, health, dataCfg: dataCfg?.value ?? null };
+    return { cfg: cfg?.value ?? null, stored: !!cfg, snooze: snooze?.value ?? {}, answers, weightG: weight?.value ?? null, checks, health, dataCfg: dataCfg?.value ?? null, acts, sport };
   });
 }
 
