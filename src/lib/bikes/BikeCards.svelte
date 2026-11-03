@@ -12,6 +12,7 @@
   import { dueCards } from '../care/overview.js';
   import { localDay } from '../localday.js';
   import BikeQuickDialog from '../hubs/BikeQuickDialog.svelte';
+  import { phone } from '../media.svelte.js';
   import { t, tn, num } from '../i18n.svelte.js';
   let { bikeId = null, onbike } = $props();
   const bikesQ = liveQuery(() => db.bikes.toArray());
@@ -39,7 +40,7 @@
     }),
   );
   // step 3: «Next up», the open work over all bikes, the most urgent first (the same rows as the care overview)
-  const upNext = $derived(dueCards(cards.map((c) => ({ bike: c.bike, care: c.care })), 5));
+  const upNext = $derived(dueCards(cards.map((c) => ({ bike: c.bike, care: c.care })), phone.matches ? 3 : 5));
 </script>
 
 {#if cards.length}
@@ -88,6 +89,19 @@
     grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr));
     gap: var(--sp-3);
     margin-bottom: var(--sp-3);
+  }
+  /* a phone: one swipeable row, so many bikes do not push the rest of the page far down */
+  @media (max-width: 719px) {
+    .cards {
+      display: flex;
+      overflow-x: auto;
+      scroll-snap-type: x proximity;
+      padding-bottom: 4px;
+    }
+    .cards .vcard {
+      flex: 0 0 82%;
+      scroll-snap-align: start;
+    }
   }
   .vcard {
     display: grid;
