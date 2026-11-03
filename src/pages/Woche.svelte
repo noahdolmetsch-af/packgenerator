@@ -135,10 +135,7 @@
   const showAgain = (n) => putWeek(SG_NEVER_KEY, src.sgNever.filter((x) => x.ref !== n.ref));
   const seasonSettings = $derived(seasonCfg(src?.seasons));
   const saveSeasons = (cfg) => putWeek(SEASON_KEY, cfg);
-  // the folds under «Still to plan» keep their own state: a reload of the week data must not close what was opened
-  let srcOpen = $state(false);
   let ideasOpen = $state(false);
-  let neverOpen = $state(false);
   const toggleSg = () => putWeek(SG_OPEN_KEY, !sgOpen);
   const hidden = (k) => src?.hide.includes(k);
   import SeasonIdeas from '../lib/woche/SeasonIdeas.svelte'; // Noah 2.11.2026 «c»
