@@ -207,6 +207,9 @@
           </li>
         {/each}
       </ul>
+    {:else}
+      <!-- «Versteckte Funktionen» (Noah 03.11.2026 «4b»): the plant passport had no way in without a plant -->
+      <p class="passl" data-plant-pass-empty><a href="#/calendar/pflanzen" data-plant-pass-open>{t('Plant passport')}</a> · {t('no plant yet: tap «Plant» above to add one')}</p>
     {/if}
 
     <h2 class="gh app">{t('Ideas from the app, for when you have time')}</h2>
