@@ -39,6 +39,7 @@ async function open(page, context) {
   await page.goto('./#/auswerten/analyse');
   await page.reload();
   await ready(page);
+  await page.locator('[data-tab="werte"]').click(); // the tiles sit in the tab «Alle Werte»
   return errors;
 }
 

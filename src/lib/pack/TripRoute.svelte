@@ -105,9 +105,9 @@
     try {
       found = await searchPlace(q);
       if (!found.length) placeMsg = t('No place found. Try another spelling.');
-    } catch {
+    } catch (err) {
       // v0.27.0 (Noah 1a, AP22): offline and "service down" are told apart.
-      placeMsg = navigator.onLine ? t('The place search is not answering. Try again later.') : t('No connection. Place search needs the internet.');
+      placeMsg = err?.outage ? err.message : navigator.onLine ? t('The place search is not answering. Try again later.') : t('No connection. Place search needs the internet.');
     } finally {
       searching = false;
     }
