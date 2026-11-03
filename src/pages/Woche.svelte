@@ -17,7 +17,7 @@
   import WeekDreams from '../lib/dreams/WeekDreams.svelte'; // Paket N idea 5: dreams and race deadlines of the week
   import { weekQuery, putWeek } from '../lib/woche/load.js';
   import { titleOf, subOf, dayName, shortDate, hours, holidayName, wxWords, reviewLine, hintText } from '../lib/woche/words.js';
-  import { ITEMS_KEY, HIDE_KEY, NO_KEY, SG_OPEN_KEY, SG_OFF_KEY, SG_NEVER_KEY, SUGG_SOURCES, TRAIN_NOTE, KINDS, KIND_NAMES, buildWeek, cleanItem, pruneItems, skipFor, planMonday, dotsOf, takeSuggestion } from '../lib/woche.js';
+  import { ITEMS_KEY, HIDE_KEY, NO_KEY, SG_OPEN_KEY, SG_OFF_KEY, SG_NEVER_KEY, SEASON_KEY, SUGG_SOURCES, TRAIN_NOTE, KINDS, KIND_NAMES, buildWeek, cleanItem, pruneItems, skipFor, planMonday, dotsOf, takeSuggestion } from '../lib/woche.js';
   import { homeForecast } from '../lib/home-weather.js';
   import { db } from '../lib/db.js';
   import { PLAN_KEY as TRAIN_KEY, mondayOf, shiftDay, isoWeek, prunePlan } from '../lib/training.js';
@@ -133,8 +133,13 @@
     offerDone(t('«{name}» is no longer suggested.', { name }), () => putWeek(SG_NEVER_KEY, before));
   }
   const showAgain = (n) => putWeek(SG_NEVER_KEY, src.sgNever.filter((x) => x.ref !== n.ref));
+  const seasonSettings = $derived(seasonCfg(src?.seasons));
+  const saveSeasons = (cfg) => putWeek(SEASON_KEY, cfg);
+  let ideasOpen = $state(false);
   const toggleSg = () => putWeek(SG_OPEN_KEY, !sgOpen);
   const hidden = (k) => src?.hide.includes(k);
+  import SeasonIdeas from '../lib/woche/SeasonIdeas.svelte'; // Noah 2.11.2026 «c»
+  import { seasonCfg } from '../lib/woche/kalender.js';
   import BufferPick from '../lib/stand/BufferPick.svelte'; // Paket A part 3: buffer before and after a date
   import { bufferItems } from '../lib/stand/stand.js';
   let buf = $state({ before: 0, after: 0 });
@@ -236,6 +241,10 @@
               {/each}
             </ul>
             <p class="why">{t('Switch off what you do not want to see. Your own to-dos and Google stay as they are.')}</p>
+            <details class="srcs" data-sg-ideas open={ideasOpen} ontoggle={(e) => (ideasOpen = e.currentTarget.open)}>
+              <summary>{t('Change season ideas')}</summary>
+              <SeasonIdeas cfg={seasonSettings} onsave={saveSeasons} />
+            </details>
           </details>
           <ul>
             {#each sgShown as s (s.ref)}
