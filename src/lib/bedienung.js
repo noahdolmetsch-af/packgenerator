@@ -13,6 +13,7 @@
  * - murmeltier: the little marmot on empty pages and beside tips (Noah 03.11.2026, Idee 28), on by default
  * - mundart: a short Swiss German weather saying under the weather line on Today (Noah 03.11.2026, Idee 27), on by default
  * - kuhglocke: the cow bells of the logo surprise ring out loud (Noah 03.11.2026, H1 aus dem Geheimmenü), off by default: the only sound that is never on by itself
+ * - heutebild: the drawn landscape with the next trip on top of Today (Noah 03.11.2026, Paket G), on by default
  * - contrast: high contrast for the sun outdoors (FE2), off by default
  * The pure part; bedienung.svelte.js holds the live state.
  */
@@ -28,6 +29,7 @@ export const OPS = [
   { key: 'murmeltier', name: 'The marmot', text: 'A little drawn marmot on empty pages and beside tips; it sleeps at night.', on: true },
   { key: 'mundart', name: 'Weather sayings in dialect', text: 'A short Swiss German line about the weather under the weather on Today.', on: true },
   { key: 'kuhglocke', name: 'Cow bells', text: 'Sound for the bell surprise behind the logo («PG», tapped five times). Off: only the picture, no sound.', on: false },
+  { key: 'heutebild', name: 'Picture on top of Today', text: 'A drawn landscape with your next trip and the days to go; the sky follows the time of day and the weather.', on: true },
   { key: 'contrast', name: 'High contrast (outdoors)', text: 'Darker text and stronger lines, easier to read in the sun.', on: false },
 ];
 export const OPS_KEY = 'ops.';

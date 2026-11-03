@@ -180,6 +180,8 @@
   import { todayTrip, liveHref } from '../lib/live/start.js'; // Paket U3: the tile «Start a ride»
   import { quietHome, ops } from '../lib/bedienung.svelte.js';
   import { mundartFor } from '../lib/home/mundart.js'; // «Wetter-Sprüche auf Mundart» (Idee 27)
+  import HeuteBild from '../lib/home/HeuteBild.svelte'; // «Paket G»: the drawn landscape on top
+  import { bildOf, moodOf } from '../lib/home/heutebild.js';
   import { PartyPopper, Sun, RotateCcw, Route, ChevronRight, SlidersHorizontal, Hand, X, ClipboardList, Flower2, Bike as BikeIcon, LayoutGrid } from '@lucide/svelte';
   import DuTile from '../lib/home/DuTile.svelte'; // «Heute neu» A (Noah 20.10.2026 «3a»): «You today»
   import MedStartSheet from '../lib/flow/MedStartSheet.svelte';
@@ -309,6 +311,9 @@
   // HG1b: no name yet: one quiet row under the greeting, asked only once
   const wx = $derived(fc ? weatherLine(fc, now) : null);
   const mundart = $derived(ops.mundart && wx && !night ? mundartFor(wx, today) : null); // «Wetter-Sprüche auf Mundart» (Idee 27)
+  // «Paket G» (Noah 03.11.2026 «a»): the picture on top shows the next trip still to come and its countdown
+  const bildTrip = $derived(loaded ? soonTrips(trips, today)[0] ?? null : null);
+  const bild = $derived(bildTrip ? bildOf(bildTrip, today) : null);
   const shortDate = $derived(now.toLocaleDateString(locale(), { weekday: 'short', day: 'numeric', month: 'short' }));
   const dateLine = $derived([now.toLocaleDateString(locale(), { weekday: 'long', day: 'numeric', month: 'long' }), place?.name?.split(',')[0]].filter(Boolean).join(' · '));
   let placeOpen = $state(false);
@@ -1261,6 +1266,8 @@
 
 <div class="home">
   <PullRefresh />
+  <!-- «Paket G» (Noah 03.11.2026 «a»): the drawn landscape with the next trip and its countdown, on top; a switch in Ich › Darstellung › Bedienung takes it away -->
+  {#if ops.heutebild && !editing && bild}<HeuteBild trip={bildTrip} line={bild} mood={moodOf(now.getHours(), wx?.dry === false)} weather={wx?.text ?? ''} href={stepHere(bildTrip).href} onopen={() => openTrip(bildTrip.id)} />{/if}
   <!-- «Heute neu» A (Noah «5b»): «New in …», the tip of the week and «Connect Strava» live under Ich only -->
   <!-- HG1 2a: the greeting always first on Today, the evening before a trip too; the Vorabend line follows -->
   {@render greetingS()}
