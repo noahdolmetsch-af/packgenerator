@@ -4,14 +4,14 @@ PR (diese Änderung) · 02.11.2026 · Auftrag: Noah «für den nutzer unverstän
 
 ## Was ist neu
 - Touren › Träume: ein ruhiger Satz statt des langen Einleitungstextes (`src/pages/Dreams.svelte`).
-- Umschalter «Liste / Karte / Jahr / Erfüllt» (Noah «5b»): die Liste ist die Hauptsache; «Alle Träume auf einer Karte» und «Dein Jahr» sind Ansichten statt Blöcke untereinander.
+- Umschalter «Liste / Karte / Jahr» (Noah «5a»): die Liste ist die Hauptsache; «Alle Träume auf einer Karte» und «Dein Jahr» sind Ansichten statt Blöcke untereinander.
 - Der Stand eines Traums (passt jetzt, trocken Do–Sa, erfüllt, als Tour geplant) steht als kleines Schild; «Nächstes Mal: …» bleibt in der grauen Zeile.
 - Ein Satz unter dem Eingabefeld nennt, wo «Bereit für den Traum?», «Wetterfenster für Träume», «Alle Träume auf einer Karte» und «Erfüllte Träume» zu finden sind.
 
 ## Was fällt weg oder rutscht tiefer
 - Der lange Einleitungstext: ersetzt durch einen Satz.
 - «Dein Jahr» und «Alle Träume auf einer Karte»: nicht mehr sichtbar untereinander, sondern hinter «Jahr» und «Karte».
-- «Erfüllte Träume»: die vierte Ansicht «Erfüllt» statt eines offenen Blocks unten.
+- «Erfüllte Träume»: eine zugeklappte Zeile am Ende der Liste statt eines offenen Blocks (Noah «5a»).
 
 ## Selbst entschieden
 - Die Karte «Was du hier tun kannst» bleibt, wie sie ist (sie gibt es seit dem Wegweiser). Ein kurzer Satz unter dem Eingabefeld nennt die vier Funktionen zusätzlich, weil der Test «Funktion sichtbar auf ihrer Seite» ihre Namen sehen will.
@@ -27,5 +27,5 @@ PR (diese Änderung) · 02.11.2026 · Auftrag: Noah «für den nutzer unverstän
 
 ## Prüfschritte (nach dem Merge auf der echten Seite)
 1. Touren › Träume öffnen: kurzer Satz, Eingabefeld, «Heute passt».
-2. «Karte», «Jahr» und «Erfüllt» antippen: die Ansicht wechselt.
-3. «Erfüllt» antippen: die erfüllten Träume erscheinen; «Liste» bringt die Träume zurück.
+2. «Karte» und «Jahr» antippen: die Ansicht wechselt.
+3. Ganz unten in der Liste «Erfüllte Träume» antippen: die Zeile klappt auf und zeigt die erfüllten Träume.

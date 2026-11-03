@@ -73,7 +73,7 @@
     refreshDreamWx(db, ds, home).catch(() => {});
   });
 
-  let view = $state('list'); // «list», «map», «year» or «done»
+  let view = $state('list'); // «list», «map» or «year»
   let month = $state(0); // 0: all months
   const shown = $derived(month ? list.filter((d) => !d.tripId && monthsOf(d, kinds).includes(month)) : list);
 
@@ -197,7 +197,7 @@
   </form>
   {#if done}<p class="ok" role="status"><Check size={16} aria-hidden="true" />{done}</p>{/if}
 
-  {#if view === 'list'}<p class="ich-help dr-more" data-dreams-more>{t('Open a dream for «Ready for the dream?». A dream that fits now gets a «Weather window for dreams». «All dreams on one map» is the view Map; «Fulfilled dreams» is the view Fulfilled.')}</p>{/if}
+  {#if view === 'list'}<p class="ich-help dr-more" data-dreams-more>{t('Open a dream for «Ready for the dream?». A dream that fits now gets a «Weather window for dreams». «All dreams on one map» is the view Map; «Fulfilled dreams» is the closed row at the end of the list.')}</p>{/if}
 
   <TripTips />
 
@@ -221,7 +221,6 @@
     <button type="button" aria-pressed={view === 'list'} data-view="list" onclick={() => (view = 'list')}>{t('List|view')}</button>
     <button type="button" aria-pressed={view === 'map'} data-view="map" onclick={() => (view = 'map')}>{t('Map|view')}</button>
     <button type="button" aria-pressed={view === 'year'} data-view="year" onclick={() => (view = 'year')}>{t('Year|view')}</button>
-    <button type="button" aria-pressed={view === 'done'} data-view="done" onclick={() => (view = 'done')}>{t('Fulfilled|view')}{#if fulfilled.length}<small class="num dr-cnt">{fulfilled.length}</small>{/if}</button>
   </div>
 
   {#if view === 'year'}
@@ -265,14 +264,11 @@
 
   {/if}
 
-  {#if view === 'map'}
-  <DreamsMap dreams={list.filter((d) => !doneDay.has(d.id))} onopen={(id) => (open = id)} />
-  {/if}
-
-  {#if view === 'done'}
-    <!-- N17 «Erfüllte Träume»: the dreams you rode, once the debrief is done; a tap opens the debrief (a view, Noah 02.11.2026 «5b») -->
-    <section class="ich-sec" aria-labelledby="dr-done" data-dreams-done>
-      <div class="ich-h"><div><p class="ich-hs" id="dr-done">{t('Dreams you rode. They count once the debrief is done.')}</p></div></div>
+  {#if view === 'list'}
+    <!-- N17 «Erfüllte Träume»: the dreams you rode, once the debrief is done; a closed row at the bottom of the list (Noah 03.11.2026 «5a»); a tap opens the debrief -->
+    <details class="dr-done" data-dreams-done>
+      <summary><Check size={16} aria-hidden="true" />{t('Fulfilled dreams')}<small class="num dr-cnt">{fulfilled.length}</small></summary>
+      <p class="ich-hs" id="dr-done">{t('Dreams you rode. They count once the debrief is done.')}</p>
       {#if !fulfilled.length}
         <Empty icon={Check} text={t('No fulfilled dream yet. A dream counts once its trip has the debrief.')} />
       {:else}
@@ -288,7 +284,11 @@
         {/each}
       </ul>
       {/if}
-    </section>
+    </details>
+  {/if}
+
+  {#if view === 'map'}
+  <DreamsMap dreams={list.filter((d) => !doneDay.has(d.id))} onopen={(id) => (open = id)} />
   {/if}
 
   <WhiteSpots />
@@ -377,6 +377,8 @@
   .dr-seg button[aria-pressed='true'] { background: var(--card); color: var(--ink); box-shadow: 0 0 0 1px var(--line); }
   .dr-more { margin: var(--sp-3) 0; }
   .dr-cnt { margin-left: var(--sp-2); }
+  .dr-done { margin-top: var(--sp-3); }
+  .dr-done > summary { display: flex; align-items: center; gap: var(--sp-2); cursor: pointer; padding: var(--sp-3) 0; }
   .dr-chips { display: block; margin-top: 2px; }
   .dr-chip { display: inline-block; white-space: nowrap; font-size: var(--fs-small); font-weight: 600; border-radius: 99px; padding: 1px var(--sp-2); background: var(--accent-soft); color: var(--accent-ink); }
   .dr-intro {

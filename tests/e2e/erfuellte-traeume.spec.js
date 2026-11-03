@@ -54,15 +54,15 @@ test('Fulfilled dreams: on Dreams with its month, in the year card of Past trips
   await page.reload();
   await ready(page);
 
-  await page.locator('[data-view="done"]').click(); // fulfilled dreams are a view of the page
-  const sec = page.locator('[data-dreams-done]');
+  const sec = page.locator('[data-dreams-done]'); // closed row at the end of the list (Noah «5a»)
+  await expect(sec).not.toHaveAttribute('open', '');
+  await sec.locator('summary').click();
   await expect(sec).toContainText(`${P}Über die Furka`);
   await expect(sec).toContainText(T('Fulfilled in {when}', { when: '' }).trim());
   await expect(sec).toContainText('84 km');
   await expect(sec.locator('[data-dream-done]')).toHaveCount(1);
   await shot(page, info, 'ET1-traeume', sec);
   await expect(sec.locator('a')).toHaveAttribute('href', `#/debrief/${P}t1`);
-  await page.locator('[data-view="list"]').click();
   await expect(page.locator(`[data-dream="${P}d1"]`)).toContainText(T('Fulfilled in {when}', { when: '' }).trim());
 
   // the year card of Past trips
