@@ -146,6 +146,8 @@ export default {
   'Rest days': 'Ruhetage',
   'Done: {taken} received, {sent} sent.': 'Fertig: {taken} Einträge geholt, {sent} geschickt.',
   'Done: both devices are up to date.': 'Fertig: beide Geräte sind auf demselben Stand.',
+  'This device has no space left to save the data. Free some space; the sync tries again.': 'Auf diesem Gerät ist kein Platz mehr, um die Daten zu speichern. Schaffe Platz; der Abgleich versucht es wieder.',
+  'This device could not save an entry. The sync tries again.': 'Dieses Gerät konnte einen Eintrag nicht speichern. Der Abgleich versucht es wieder.',
   'Compare with the server': 'Mit dem Server vergleichen',
   'Filled in: {got} taken here, {sent} sent.': 'Ergänzt: {got} hier übernommen, {sent} geschickt.',
   'On the server: {a} entries. On this device: {b}.': 'Auf dem Server: {a} Einträge. Auf diesem Gerät: {b}.',
