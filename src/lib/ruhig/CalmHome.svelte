@@ -75,9 +75,9 @@
   }
   .chm-w {
     margin: 0;
-    font-size: 1.5rem;
+    font-size: var(--fs-section);
     font-weight: 700;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
   }
   .chm-t {
     margin: 0;
