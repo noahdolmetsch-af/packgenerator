@@ -175,7 +175,7 @@
   }
   // what needs you opens its fold by itself: a picked file waiting, a locked file, a message about the file
   $effect(() => {
-    if (pending || locked || message || checked) fileOpen = true;
+    if (pending || locked || message) fileOpen = true;
   });
   const when = (iso) => new Date(iso).toLocaleString(locale(), { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
 
@@ -205,9 +205,14 @@
 
   // «Sicherung prüfen» (Noah 02.11.2026 «1a»): a dry run. The file is only looked at: nothing is imported or changed.
   let checked = $state.raw(null);
-  async function checkFile(event) {
-    const file = event.target.files[0];
-    event.target.value = '';
+  // The file picker is made on tap (no second file field on the page: the import tests find theirs by type)
+  function pickCheck() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.onchange = () => checkFile(input.files[0]);
+    input.click();
+  }
+  async function checkFile(file) {
     if (!file) return;
     checked = null;
     try {
@@ -479,7 +484,30 @@
         <div class="ich-acts">
           {#if due.due}<button type="button" class="btn hi" onclick={exportFile} disabled={!!$demoQ} data-status-save>{t('Back up now')}</button>{/if}
           <button type="button" class="btn" aria-expanded={lightsOpen} aria-controls="status-details" onclick={() => (lightsOpen = !lightsOpen)} data-status-details>{lightsOpen ? t('Hide details') : t('Details|status')}</button>
+          <button type="button" class="btn" onclick={pickCheck} data-check-file>{t('Check backup')}</button>
         </div>
+        <p class="ich-help">{t('Check backup: looks into a backup file and tells you if it is whole. Nothing is imported or changed.')}</p>
+        {#if checked}
+          <div class="confirm" role="status" data-check-result data-check-ok={checked.ok ? '1' : '0'}>
+            {#if checked.lockedFile}
+              <p><strong>{checked.name}</strong>: {t('this backup is locked with a password.')} {t('To check it, switch on the password under «Backup with a password» first, or import it.')}</p>
+            {:else if checked.ok}
+              <p><strong>{checked.name}</strong>: {t('This backup is good.')} {t('{items}, {trips}, {bikes}.', { items: tn(checked.counts.items ?? 0, '{n} gear item', '{n} gear items'), trips: tn(checked.counts.trips ?? 0, '{n} trip', '{n} trips'), bikes: tn(checked.counts.bikes ?? 0, '{n} bike', '{n} bikes') })} {t('{n} records in all.', { n: checked.total })}</p>
+              {#if checked.lastChange || checked.exportedAt}<p class="small">{t('Saved {when}.', { when: when(checked.lastChange ?? checked.exportedAt) })}</p>{/if}
+            {:else}
+              <p><strong>{checked.name}</strong>: {t('This backup has problems:')}</p>
+              <ul class="impact">{#each checked.problems as p (p)}<li>{p}</li>{/each}</ul>
+            {/if}
+            <p class="small">{t('Nothing was changed.')}</p>
+            <div class="ich-acts end"><button type="button" class="btn" onclick={() => (checked = null)}>{t('Close|check')}</button></div>
+          </div>
+        {/if}
+        <!-- Second copy outside this device: a phone that is lost takes a backup on it along -->
+        <p class="ich-help" data-offsite={offsite.kind}>
+          {#if offsite.kind === 'ok'}{t('Second copy outside this device: {n} days ago.', { n: offsite.days })}{:else}{offsite.kind === 'old' ? t('Your second copy outside this device is {n} days old.', { n: offsite.days }) : t('No second copy outside this device yet.')}{/if}
+          {t('Send the backup file to yourself by mail, or save it in a cloud folder. Then a lost or broken phone loses nothing.')}
+          <button type="button" class="btn sm" onclick={markOffsite} data-offsite-done>{t('I did it just now')}</button>
+        </p>
         {#if lightsOpen}
           <ul class="ich-list" id="status-details">
         {#each lights as l (l.key)}
@@ -528,30 +556,7 @@
           <button type="button" class="btn hi" onclick={exportFile} disabled={!!$demoQ} title={$demoQ ? t('Off while the demo runs') : undefined}>{t('Save backup')}</button>
           <button type="button" class="btn" onclick={sendFile} disabled={!!$demoQ || sending} title={$demoQ ? t('Off while the demo runs') : undefined}><Send size={16} aria-hidden="true" />{phone.matches ? t('Send to computer') : t('Send to phone')}</button>
           <label class="btn">{t('Import backup')}<input bind:this={fileEl} type="file" onchange={pickFile} hidden data-backup-file /></label>
-          <label class="btn">{t('Check backup')}<input type="file" onchange={checkFile} hidden data-check-file /></label>
         </div>
-        <p class="ich-help">{t('Check backup: looks into a backup file and tells you if it is whole. Nothing is imported or changed.')}</p>
-        {#if checked}
-          <div class="confirm" role="status" data-check-result data-check-ok={checked.ok ? '1' : '0'}>
-            {#if checked.lockedFile}
-              <p><strong>{checked.name}</strong>: {t('this backup is locked with a password.')} {t('To check it, switch on the password under «Backup with a password» first, or import it.')}</p>
-            {:else if checked.ok}
-              <p><strong>{checked.name}</strong>: {t('This backup is good.')} {t('{items}, {trips}, {bikes}.', { items: tn(checked.counts.items ?? 0, '{n} gear item', '{n} gear items'), trips: tn(checked.counts.trips ?? 0, '{n} trip', '{n} trips'), bikes: tn(checked.counts.bikes ?? 0, '{n} bike', '{n} bikes') })} {t('{n} records in all.', { n: checked.total })}</p>
-              {#if checked.lastChange || checked.exportedAt}<p class="small">{t('Saved {when}.', { when: when(checked.lastChange ?? checked.exportedAt) })}</p>{/if}
-            {:else}
-              <p><strong>{checked.name}</strong>: {t('This backup has problems:')}</p>
-              <ul class="impact">{#each checked.problems as p (p)}<li>{p}</li>{/each}</ul>
-            {/if}
-            <p class="small">{t('Nothing was changed.')}</p>
-            <div class="ich-acts end"><button type="button" class="btn" onclick={() => (checked = null)}>{t('Close|check')}</button></div>
-          </div>
-        {/if}
-        <!-- Second copy outside this device: a phone that is lost takes a backup on it along -->
-        <p class="ich-help" data-offsite={offsite.kind}>
-          {#if offsite.kind === 'ok'}{t('Second copy outside this device: {n} days ago.', { n: offsite.days })}{:else}{offsite.kind === 'old' ? t('Your second copy outside this device is {n} days old.', { n: offsite.days }) : t('No second copy outside this device yet.')}{/if}
-          {t('Send the backup file to yourself by mail, or save it in a cloud folder. Then a lost or broken phone loses nothing.')}
-          <button type="button" class="btn sm" onclick={markOffsite} data-offsite-done>{t('I did it just now')}</button>
-        </p>
         <p class="ich-help">{t('Send: the backup file goes to the share sheet (mail, chat, nearby), or is downloaded. On the other device: Import backup.')}</p>
         <p class="ich-help">{t('Phone: a file from a mail first has to be saved (in Gmail the arrow at the attachment). Then choose it under «Downloads». The picker shows all files; the app checks itself whether it is a backup.')}</p>
 
