@@ -2142,6 +2142,11 @@ const LISTED = {
     steps: ['Open Me › Calm and personal › Numbers that stay clear.', 'Tap the roles of a ride.', 'The sums show each role and every ride once.'],
     example: 'Example: the ride to work → commuting and training; total counted once.',
   },
+  'f.datenfragen': {
+    on: null,
+    steps: ['Open Me › Your questions: «Questions from your data» is at the top.', 'Switch a rule off, change its threshold or write the question in your own words.', 'When a value stands out, the check shows the question first, with «Why am I asking this?».'],
+    example: 'Example: resting pulse 61, usual 52 → «What did you do yesterday that throws you off so much today?»',
+  },
   'f.scalemeaning': {
     on: null,
     steps: ['Open Me › Calm and personal › Numbers that stay clear › What a scale meant.', 'Write what 1 and what 10 mean for you.', 'A new meaning counts from today; old answers keep theirs.'],
