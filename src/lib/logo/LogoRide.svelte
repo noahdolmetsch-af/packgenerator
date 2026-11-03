@@ -3,21 +3,35 @@
    * «Geheimnis im Logo» (Noah 03.11.2026, Idee 29): five quick taps on the «PG» mark (top bar on a phone, side
    * bar on a computer) and a small bike rides across the screen with «Have a good ride!». The tap still opens the
    * start page as before. With «reduce motion» the bike does not ride: it stands in the middle for a moment.
+   * «Geheimmenü» (Noah 03.11.2026): more surprises share the five taps. The host picks one by chance, never the same
+   * one twice in a row (`surprises.js`); each surprise is its own block below.
    */
   import { onMount } from 'svelte';
   import { t } from '../i18n.svelte.js';
   import { makeTapCounter } from './taps.js';
+  import { SURPRISES, pickSurprise } from './surprises.js';
+  import { pickSaying, sayingText, sayingsOffered } from './sayings.js';
+  import LogoSaying from './LogoSaying.svelte';
 
-  let riding = $state(false);
+  let kind = $state(null); // the surprise on screen: 'bike' | 'saying' | null
+  let saying = $state(''); // the text of the saying on screen
+  let last = null; // the one before, so it never repeats
+  let lastSaying = null; // the saying before, so it never repeats either
   let timer;
   const counter = makeTapCounter();
 
   function onClick(e) {
-    if (riding || !e.target?.closest?.('.brand .mark, .logo .mark')) return;
+    if (kind || !e.target?.closest?.('.brand .mark, .logo .mark')) return;
     if (!counter(performance.now())) return;
-    riding = true;
+    // the sayings only count while at least one is left (the person may have hidden them all in «Listen und Typen»)
+    const id = pickSaying(sayingsOffered(), lastSaying);
+    kind = last = pickSurprise(id ? SURPRISES : SURPRISES.filter((s) => s !== 'saying'), last);
+    if (kind === 'saying') {
+      lastSaying = id;
+      saying = sayingText(id, t);
+    }
     clearTimeout(timer);
-    timer = setTimeout(() => (riding = false), 3200);
+    timer = setTimeout(() => (kind = null), kind === 'saying' ? 4600 : 3200);
   }
 
   onMount(() => {
@@ -29,7 +43,9 @@
   });
 </script>
 
-{#if riding}
+{#if kind === 'saying'}
+  <LogoSaying text={saying} />
+{:else if kind === 'bike'}
   <div class="pg-ride" role="status" data-logo-ride>
     <svg viewBox="0 0 84 52" width="84" height="52" aria-hidden="true">
       <g class="wheel" style="--cx:16px;--cy:36px">
