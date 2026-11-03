@@ -15,6 +15,7 @@ PR (noch offen) · 03.11.2026 · Auftrag: Noah «E und F» (Paket E, Idee 23, Th
 - Reine Zierde, deshalb für Screenreader versteckt; Name und Zahlen daneben sagen dasselbe.
 - Kein neuer Eintrag in `features.js`: es ist eine Ansicht der bestehenden Tourenliste, kein neues Werkzeug.
 - Kein Schema, kein Backup-Format.
+- Test `ausprobieren.spec.js` («Neuigkeiten gehen zum Ort»): das feste Zeitlimit von 10 Minuten war mit 563 Zeilen schon fast aufgebraucht (9,9 Min auf main); es wächst jetzt mit der Zahl der Zeilen (mindestens 10 Minuten, sonst 2 s je Zeile). Geprüft wird dasselbe wie vorher, nichts gelockert.
 
 ## Entscheide (für decisions.md)
 - nichts

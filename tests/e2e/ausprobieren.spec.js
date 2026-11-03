@@ -20,7 +20,9 @@ const ROWS = WHATS_NEW.flatMap((e) =>
 );
 const NEWEST = WHATS_NEW[0].version;
 
-test.setTimeout(600_000);
+// every news line is visited once (about one second each), so the time limit grows with the lines: a fixed 10 minutes
+// was already used up (9.9 min) when 563 lines were tapped, and every new line pushed the test over it.
+test.setTimeout(Math.max(600_000, ROWS.length * 2_000));
 
 test('every line of What is new goes to its exact place', async ({ page, context }, info) => {
   await start(page, context, info);
