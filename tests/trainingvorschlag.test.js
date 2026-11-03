@@ -1,6 +1,6 @@
 // «Training verbessern» 2 (Noah 2.11.2026): the suggestion for the training week. Fictional only.
 import { describe, it, expect } from 'vitest';
-import { suggestWeek, weeklySports, VARIANTS } from '../src/lib/training/suggest.js';
+import { suggestWeek, weeklySports, VARIANTS, FOCUS } from '../src/lib/training/suggest.js';
 
 const MON = '2026-11-02';
 const base = { monday: MON, today: MON, goal: { hours: 8, base: 80 } };
@@ -47,6 +47,28 @@ describe('suggestWeek', () => {
   it('without goal uses the recent weeks, else 6 hours', () => {
     expect(suggestWeek({ monday: MON, today: MON, recentMins: 300 }).why[0].key).toMatch(/last weeks/);
     expect(suggestWeek({ monday: MON, today: MON }).why[0].key).toMatch(/Set a goal/);
+  });
+});
+
+describe('harder, easier, focus', () => {
+  const full = suggestWeek(base);
+  it('harder is more time and more effort, easier less', () => {
+    expect(suggestWeek({ ...base, push: 1 }).mins).toBeGreaterThan(full.mins);
+    expect(suggestWeek({ ...base, push: -1 }).mins).toBeLessThan(full.mins);
+    expect(Math.max(...suggestWeek({ ...base, push: 1 }).sessions.map((s) => s.zone ?? 0))).toBeGreaterThan(Math.max(...full.sessions.map((s) => s.zone ?? 0)));
+    expect(suggestWeek({ ...base, push: -1 }).sessions.every((s) => !s.zone || s.zone <= 2)).toBe(true);
+  });
+  it('intervals: two hard sessions; strength: two strength sessions; recovery: shorter and calm', () => {
+    expect(suggestWeek({ ...base, focus: 'hit' }).sessions.filter((s) => s.zone === 4)).toHaveLength(2);
+    const k = suggestWeek({ ...base, focus: 'kraft', strengthSport: 'gym' });
+    expect(k.sessions.filter((s) => s.sport === 'gym')).toHaveLength(2);
+    const r = suggestWeek({ ...base, focus: 'ruhe' });
+    expect(r.mins).toBeLessThan(full.mins * 0.7);
+    expect(r.sessions.every((s) => !s.zone || s.zone <= 2)).toBe(true);
+  });
+  it('knows four focuses and falls back to endurance', () => {
+    expect(FOCUS).toHaveLength(4);
+    expect(suggestWeek({ ...base, focus: 'x' }).mins).toBe(full.mins);
   });
 });
 

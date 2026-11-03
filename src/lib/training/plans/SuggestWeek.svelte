@@ -6,13 +6,16 @@
    */
   import { Sparkles, Pencil, X, Plus, Minus } from '@lucide/svelte';
   import { t, num, lang } from '../../i18n.svelte.js';
-  import { suggestWeek, weeklySports, VARIANTS, SRC } from '../suggest.js';
+  import { suggestWeek, weeklySports, VARIANTS, SRC, FOCUS } from '../suggest.js';
   import { KIND_NAMES, ZONE_NAMES, shiftDay, weekOf } from '../../training.js';
 
   let { acts = [], flowActs = [], plan = [], goal = null, monday, today, level = null, daysToRace = null, onapply } = $props();
 
   let open = $state(false);
   let variant = $state(0);
+  let push = $state(0); // −1 easier, 0, +1 harder
+  let focus = $state('cardio');
+  const FOCUS_NAMES = { cardio: 'Endurance', hit: 'Intervals', kraft: 'Strength', ruhe: 'Recovery' };
   let hoursSet = $state(null); // hours per week set with + / −, or null = from the goal
 
   const sportName = (s) => (lang.v === 'de' && s.nameDe ? s.nameDe : s.name) || t('Activity');
@@ -29,7 +32,9 @@
     const top = Object.entries(n).sort((a, b) => b[1] - a[1])[0];
     return top[1] ? top[0] : 'bike';
   });
-  const sug = $derived(suggestWeek({ monday, today, goal, daysToRace, level, recentMins: recent, mainKind, sports, variant, nameOf: sportName, hoursSet }));
+  // a strength sport of Aktiv, when the person has one (gym, strength …)
+  const strengthSport = $derived(flowActs.find((a) => !a.paused && /^(gym|strength|kraft)/i.test(a.id) || /strength|kraft|gym/i.test(a.name))?.id ?? null);
+  const sug = $derived(suggestWeek({ monday, today, goal, daysToRace, level, recentMins: recent, mainKind, sports, variant, nameOf: sportName, hoursSet, push, focus, strengthSport }));
   // «Training verbessern» 2 (Noah 3.11.2026): every day of the suggestion can be changed here, before it is taken over:
   // swap the session for another sport, change minutes and zone, remove it, move it, add more sessions on a day
   let edits = $state(null); // the changed list, or null while the suggestion is untouched
@@ -65,6 +70,8 @@
   }
   const dropOne = (id) => ((edits = list.filter((x) => x.id !== id)), (form = null));
   const stepHours = (d) => ((hoursSet = Math.min(40, Math.max(1, (hoursSet ?? sug.hours) + d))), (edits = null), (form = null));
+  const setPush = (n) => ((push = n), (edits = null), (form = null));
+  const setFocus = (f) => ((focus = f), (edits = null), (form = null));
   const reset = () => ((edits = null), (form = null));
   const label = (s) => (s.sport ? sportName(flowActs.find((a) => a.id === s.sport) ?? { name: '' }) : s.name ? t(s.name) : t(KIND_NAMES[s.kind]));
   const fmt = (d) => new Date(`${d}T12:00:00Z`).toLocaleDateString(lang.v, { timeZone: 'UTC', weekday: 'short' });
@@ -107,7 +114,7 @@
 {/snippet}
 
 {#if !open}
-  <button type="button" class="btn sm sugw-open" onclick={() => ((open = true), (variant = 0), (hoursSet = null), reset())} data-suggest-open><Sparkles size={16} aria-hidden="true" />{t('Suggestion for this week')}</button>
+  <button type="button" class="btn sm sugw-open" onclick={() => ((open = true), (variant = 0), (hoursSet = null), (push = 0), (focus = 'cardio'), reset())} data-suggest-open><Sparkles size={16} aria-hidden="true" />{t('Suggestion for this week')}</button>
 {:else}
   <div class="sugw" data-suggest>
     <h3 class="sugw-h">{t('Suggestion for this week')}</h3>
@@ -117,6 +124,16 @@
         <button type="button" class="ib" aria-label={t('Fewer hours')} onclick={() => stepHours(-0.5)} data-sug-minus><Minus size={16} aria-hidden="true" /></button>
         <b class="num">{num(hoursSet ?? sug.hours)}</b>
         <button type="button" class="ib" aria-label={t('More hours')} onclick={() => stepHours(0.5)} data-sug-plus><Plus size={16} aria-hidden="true" /></button>
+      </div>
+      <div class="sugw-pick" role="group" aria-label={t('Harder or easier')} data-sug-push>
+        {#each [[-1, 'Easier'], [0, 'As is'], [1, 'Harder']] as [n, name] (n)}
+          <button type="button" class="chip" aria-pressed={push === n} onclick={() => setPush(n)} data-sug-push-btn={n}>{t(name)}</button>
+        {/each}
+      </div>
+      <div class="sugw-pick" role="group" aria-label={t('Focus')} data-sug-focus>
+        {#each FOCUS as f (f)}
+          <button type="button" class="chip" aria-pressed={focus === f} onclick={() => setFocus(f)} data-sug-focus-btn={f}>{t(FOCUS_NAMES[f])}</button>
+        {/each}
       </div>
       <ul class="sugw-why">{#each sug.why as w (w.key)}<li>{t(w.key, w.vars)}</li>{/each}</ul>
       <ul class="sugw-list">
@@ -201,6 +218,26 @@
   }
   .sugw-hours span {
     flex: 1;
+  }
+  .sugw-pick {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+  .chip {
+    min-height: 36px;
+    padding: 0 0.8rem;
+    border-radius: 999px;
+    border: 1px solid var(--line-strong);
+    background: var(--paper);
+    color: var(--ink);
+    font: inherit;
+    font-size: var(--fs-small);
+  }
+  .chip[aria-pressed='true'] {
+    background: var(--brand);
+    color: var(--brand-ink);
+    border-color: var(--brand);
   }
   .sugw-ic {
     display: flex;
