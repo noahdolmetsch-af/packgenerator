@@ -146,4 +146,12 @@ export default {
   'Rest days': 'Ruhetage',
   'Done: {taken} received, {sent} sent.': 'Fertig: {taken} Einträge geholt, {sent} geschickt.',
   'Done: both devices are up to date.': 'Fertig: beide Geräte sind auf demselben Stand.',
+  'The server did not answer in time. The app tries again.': 'Der Server hat nicht rechtzeitig geantwortet. Die App versucht es wieder.',
+  'Last successful sync: {when}.': 'Zuletzt erfolgreich abgeglichen: {when}.',
+  'Not synced successfully yet.': 'Noch nie erfolgreich abgeglichen.',
+  '{n} s|sync': '{n} s',
+  '{n} min|sync': '{n} min',
+  '{n} received so far.': 'Bisher {n} geholt.',
+  '{n} sent so far.': 'Bisher {n} geschickt.',
+  'This takes unusually long. If it stays like this, close the app and open it again.': 'Das dauert ungewöhnlich lang. Bleibt es so, schliesse die App und öffne sie neu.',
 };

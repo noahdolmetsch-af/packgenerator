@@ -19,9 +19,12 @@
 import { DATA_TABLES, syncLocal } from '../db.js';
 import { keysOf, recName, seal, unseal } from './code.js';
 import { NOTE, noteKey, stable, same } from './track.js';
+import { callWithTimeout } from '../ui/connstatus.js';
 
 export { stable, same };
 
+/** One call to the server gives up after this long (ms). */
+export const CALL_TIMEOUT_MS = 90_000;
 export const SYNC_URL = 'https://packgen-three.vercel.app/api/sync';
 export const CFG = 'syncCfg';
 export const ASK = 'synccf|';
@@ -42,15 +45,11 @@ const known = new Set(DATA_TABLES);
 const deviceOnly = syncLocal;
 
 /** The server over HTTPS: call(step, body) → JSON; errors carry .code (e.g. 'offline', 'storage_not_set_up'). */
-export function httpApi(url = SYNC_URL, doFetch = (...a) => fetch(...a)) {
+export function httpApi(url = SYNC_URL, doFetch = (...a) => fetch(...a), { timeoutMs = CALL_TIMEOUT_MS } = {}) {
   return {
     async call(step, body) {
-      let res;
-      try {
-        res = await doFetch(`${url}?step=${step}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
-      } catch {
-        throw Object.assign(new Error('offline'), { code: 'offline' });
-      }
+      // Noah 03.11.2026: «Gleicht ab …» hing lange. A call without an answer ends after timeoutMs (ui/connstatus.js).
+      const res = await callWithTimeout(doFetch, `${url}?step=${step}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }, timeoutMs);
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw Object.assign(new Error(data.message || 'server'), { code: data.code || (res.status === 404 ? 'not_ready' : 'server_error') });
       return data;
@@ -305,7 +304,7 @@ async function applyRemote(db, p, s) {
  * One full round. dev: 'phone' or 'computer' (shown to the other device in a question).
  * Returns { taken, sent, asks, big } or { skipped } when the sync is off or a demo runs.
  */
-export async function syncNow(db, { api = httpApi(), dev = 'computer', demo = async () => !!(await db.meta.get('demo')), now = () => new Date().toISOString() } = {}) {
+export async function syncNow(db, { api = httpApi(), dev = 'computer', demo = async () => !!(await db.meta.get('demo')), now = () => new Date().toISOString(), onProgress = () => {} } = {}) {
   const cfg = await readCfg(db);
   if (!cfg?.on || !cfg.code) return { skipped: 'off' };
   if (await demo()) return { skipped: 'demo' };
@@ -321,6 +320,7 @@ export async function syncNow(db, { api = httpApi(), dev = 'computer', demo = as
           if (!p) continue; // sealed with another code: not ours to read
           const r = await applyRemote(db, p, it.s);
           if (r === 'taken') out.taken++;
+          onProgress({ phase: 'pull', n: out.taken });
         }
         since = Math.max(since, Number(res.next ?? since));
         await writeCfg(db, { since });
@@ -349,6 +349,7 @@ export async function syncNow(db, { api = httpApi(), dev = 'computer', demo = as
           // changed again while it travelled: stays dirty, with the new base
           await db.meta.put({ ...(note ?? b.note), base: d.s, dirty: note && note.at !== b.note.at ? 1 : 0 });
           out.sent++;
+          onProgress({ phase: 'push', n: out.sent });
         }
       });
       if (res.conflicts?.length) raced = true;
