@@ -4,16 +4,19 @@
    * on the live map. Ride on or sleep (races: from your tiredness, the hours awake and the next bed), the bed
    * ahead, the last open shop, the stops of today and your three goals. Nothing here changes your ride.
    */
-  import { Moon, Store, Clock, Flag, X, Pencil, Check } from '@lucide/svelte';
+  import { Moon, Store, Clock, Flag, X, Pencil, Check, Navigation, MapPin, Siren } from '@lucide/svelte';
   import KindIcon from '../map/KindIcon.svelte';
   import { backClose } from '../ui/backclose.js';
   import { rideOrSleep, hhmm, hm, TIRED } from '../race/race.js';
   import NapTimer from '../race/ride/NapTimer.svelte';
+  import SleepList from '../race/ride/SleepList.svelte';
+  import { putRace } from '../race/store.js';
+  import { offerDone } from '../ui/rename.svelte.js';
   import { minText } from '../unterwegs/heimweg.js';
   import { t } from '../i18n.svelte.js';
 
   // ctx: { trip, race, stored, plan, save } of the race (null on a ride without a race); the sheet writes only the tiredness, the nap and the three goals
-  let { race = null, ctx = null, awake = 0, now = Date.now(), km = null, pace = {}, bed = null, shop = null, movingS = 0, pausedS = 0, onclose } = $props();
+  let { race = null, ctx = null, awake = 0, now = Date.now(), km = null, pace = {}, bed = null, shop = null, movingS = 0, pausedS = 0, sleep = null, ongo = null, onmap = null, onclose } = $props();
   let dialog = $state();
   $effect(() => {
     if (dialog && !dialog.open) dialog.showModal();
@@ -31,6 +34,19 @@
   const tiredNow = $derived(race?.tired.at(-1)?.v ?? 0);
   const setTired = (v) => ctx?.save({ tired: [...(race?.tired ?? []), { at: new Date().toISOString(), v }] });
   let why = $state(false);
+  // the bed: yours (chosen here), else the one the plan or the stops suggest; one more is kept as an emergency bed
+  let choosing = $state(false);
+  let kinds = $state(null);
+  const mine = $derived(ctx?.stored?.bedChoice ?? null);
+  const emergency = $derived(ctx?.stored?.emergencyBed ?? null);
+  const place = (p) => ({ id: String(p.id ?? ''), name: p.name || '', lat: Number(p.lat), lon: Number(p.lon), km: Number(p.km), spot: p.spot ?? '' });
+  async function keep(field, p, text) {
+    if (!ctx) return;
+    const before = await ctx.save({ [field]: p ? place(p) : null });
+    offerDone(text, () => putRace(ctx.trip.id, before));
+  }
+  const goHere = (p) => ongo?.({ lat: Number(p.lat), lon: Number(p.lon), name: p.name || '', kind: 'sleep' });
+  const toKm = (p) => (Number.isFinite(p?.km) && Number.isFinite(km) ? Math.round((p.km - km) * 10) / 10 : null);
   // the three goals: the pencil opens the lines; two edits in a row must not overwrite each other
   let editing = $state(false);
   let tierNow = null;
@@ -72,13 +88,42 @@
 
   <section class="lv-night-part" data-night-bed>
     <h3 class="lv-night-h3">{t('Bed|night')}</h3>
-    {#if bed?.planned}
-      <p class="lv-line"><Moon size={18} aria-hidden="true" /><span>{t('Bed of the plan: km {km}', { km: Math.round(bed.planned.km) })}{#if bed.planned.name}{' '}· {bed.planned.name}{/if}</span></p>
+    {#if mine}
+      <p class="lv-line" data-night-bed-mine><KindIcon kind="sleep" size={18} /><span><b>{mine.name || t('Place to sleep')}</b>{#if toKm(mine) != null}{' '}·{' '}{t('{d} km', { d: toKm(mine) })}{/if} · {t('My bed')}</span></p>
+    {:else}
+      {#if bed?.planned}
+        <p class="lv-line"><Moon size={18} aria-hidden="true" /><span>{t('Bed of the plan: km {km}', { km: Math.round(bed.planned.km) })}{#if bed.planned.name}{' '}· {bed.planned.name}{/if}</span></p>
+      {/if}
+      {#if bedAhead}
+        <p class="lv-line"><KindIcon kind="sleep" size={18} /><span>{bedAhead.name || t('Place to sleep')} · {t('{d} km', { d: Math.round(bedAhead.distKm * 10) / 10 })} · {t('there about {at}', { at: hhmm(bedAhead.eta) })}</span></p>
+      {:else if !bed?.planned}
+        <p class="rc-empty">{t('No bed found ahead yet. Load the stops along the route.')}</p>
+      {/if}
     {/if}
-    {#if bedAhead}
-      <p class="lv-line"><KindIcon kind="sleep" size={18} /><span>{bedAhead.name || t('Place to sleep')} · {t('{d} km', { d: Math.round(bedAhead.distKm * 10) / 10 })} · {t('there about {at}', { at: hhmm(bedAhead.eta) })}</span></p>
-    {:else if !bed?.planned}
-      <p class="rc-empty">{t('No bed found ahead yet. Load the stops along the route.')}</p>
+    <div class="lv-night-acts">
+      {#if mine}<button type="button" class="btn sm" onclick={() => goHere(mine)} data-night-bed-go><Navigation size={16} aria-hidden="true" />{t('Navigate there')}</button>{/if}
+      {#if sleep}<button type="button" class="btn sm" aria-expanded={choosing} onclick={() => (choosing = !choosing)} data-night-bed-change>{t('Change')}</button>{/if}
+      {#if onmap}<button type="button" class="btn sm" onclick={() => onmap()} data-night-bed-map><MapPin size={16} aria-hidden="true" />{t('Choose on the map')}</button>{/if}
+      {#if mine && ctx}<button type="button" class="btn sm" onclick={() => keep('bedChoice', null, t('Bed choice removed.'))} data-night-bed-clear>{t('Use the suggestion again')}</button>{/if}
+    </div>
+    {#if choosing && sleep}
+      <div data-night-bed-list>
+        <p class="rc-note">{t('Other places to sleep nearby. Roofs come first when it rains, beds when it is cold.')}</p>
+        <SleepList {...sleep} {kinds} onkinds={(k) => (kinds = k)}>
+          {#snippet actions(p)}
+            {#if ctx}<button type="button" class="btn sm" onclick={() => keep('bedChoice', p, t('Bed chosen.'))} data-night-bed-pick>{t('Choose')}</button>{/if}
+            <button type="button" class="btn sm" onclick={() => goHere(p)} data-night-bed-nav><Navigation size={16} aria-hidden="true" />{t('Navigate there')}</button>
+            {#if ctx}<button type="button" class="btn sm" onclick={() => keep('emergencyBed', p, t('Emergency bed kept.'))} data-night-bed-emergency><Siren size={16} aria-hidden="true" />{t('Keep as emergency bed')}</button>{/if}
+          {/snippet}
+        </SleepList>
+      </div>
+    {/if}
+    {#if emergency}
+      <p class="lv-line" data-night-emergency><Siren size={18} aria-hidden="true" /><span><b>{t('Emergency bed')}</b>: {emergency.name || t('Place to sleep')}{#if toKm(emergency) != null}{' '}·{' '}{t('{d} km', { d: toKm(emergency) })}{/if}</span></p>
+      <div class="lv-night-acts">
+        <button type="button" class="btn sm" onclick={() => goHere(emergency)} data-night-emergency-go><Navigation size={16} aria-hidden="true" />{t('Navigate there')}</button>
+        <button type="button" class="btn sm" onclick={() => keep('emergencyBed', null, t('Emergency bed removed.'))} data-night-emergency-clear>{t('Remove')}</button>
+      </div>
     {/if}
   </section>
 
@@ -154,6 +199,11 @@
     gap: 6px;
     margin: 0;
     font-size: var(--fs-body);
+  }
+  .lv-night-acts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
   }
   .lv-night-say {
     display: flex;
