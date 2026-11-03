@@ -1,5 +1,10 @@
 // «Verschleiss» (Noah 20.10.2026, «1 pro Teil, 2a+b, 3a, 4a+b, 5a»): km per part, life, forecast, counter
 export default {
+  'The bike counter «since the last service» goes back to 0': 'Der Velo-Zähler «seit dem letzten Service» geht zurück auf 0',
+  '{part}: starts again at 0 km': '{part}: startet wieder bei 0 km',
+  '{part}: «since the service» goes back to 0': '{part}: «seit dem Service» geht zurück auf 0',
+  'Saving resets these counters:': 'Beim Speichern werden diese Zähler zurückgesetzt:',
+  'Saving resets no counter. Tick a part as replaced or serviced, or the whole bike.': 'Beim Speichern wird kein Zähler zurückgesetzt. Wähle ein Teil als ersetzt oder gewartet, oder das ganze Velo.',
   'Wear|page': 'Verschleiss',
   'replace now': 'jetzt ersetzen',
   'fine|wear': 'gut',

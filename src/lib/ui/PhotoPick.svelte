@@ -13,7 +13,7 @@
   import { t } from '../i18n.svelte.js';
 
   /** onfile(file): the chosen or taken photo; busy: reading; has: a photo is already there. */
-  let { onfile, busy = false, has = false, camera = 'Take photo', again = 'Other photo', big = false, pages = false, first = false } = $props();
+  let { onfile, busy = false, has = false, camera = 'Take photo', again = 'Other photo', big = false, pages = false, first = false, choose = 'Choose photo' } = $props();
   let camEl = $state(null);
 
   // a phone or tablet: a coarse pointer; a computer with a mouse gets only the file dialog
@@ -38,8 +38,13 @@
     <label class="btn hi cam" class:sm={!big}><Camera size={big ? 22 : 18} aria-hidden="true" />{camText}<input bind:this={camEl} type="file" accept="image/*" capture="environment" onchange={pick} hidden /></label>
     <label class="btn sm"><ImageIcon size={18} aria-hidden="true" />{t('Gallery')}<input type="file" accept="image/*" onchange={pick} hidden /></label>
   </span>
+{:else if big}
+  <!-- «Beleg direkt fotografieren» (Noah 1.11.2026): on a computer the main photo button is as big and green as on the phone -->
+  <span class="pp big" data-photo-big>
+    <label class="btn hi cam"><ImageIcon size={22} aria-hidden="true" />{has ? t(pages ? 'Another page' : again) : t(choose)}<input type="file" accept="image/*" onchange={pick} hidden /></label>
+  </span>
 {:else}
-  <label class="btn sm"><ImageIcon size={18} aria-hidden="true" />{has ? t(pages ? 'Another page' : again) : t('Choose photo')}<input type="file" accept="image/*" onchange={pick} hidden /></label>
+  <label class="btn sm"><ImageIcon size={18} aria-hidden="true" />{has ? t(pages ? 'Another page' : again) : t(choose)}<input type="file" accept="image/*" onchange={pick} hidden /></label>
 {/if}
 
 <style>

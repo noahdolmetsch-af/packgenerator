@@ -97,6 +97,13 @@ describe('the invoice list', () => {
     expect(row.value).toHaveLength(2);
     expect(JSON.stringify(backup)).not.toContain('CH4431999123000889012');
   });
+  it('remembers the booking an invoice was made for', async () => {
+    const db = await freshDb();
+    const a = await createInvoice({ name: 'Mia Beispiel', amount: 6000, purpose: 'Tennis-Lektion', booking: { offer: 'tennis-abc123', b: 'bk1' } }, ACCOUNT, db);
+    const b = await createInvoice({ name: 'Leo Muster', amount: 500, purpose: 'Packliste' }, ACCOUNT, db);
+    expect(a.booking).toEqual({ offer: 'tennis-abc123', b: 'bk1' });
+    expect(b.booking).toBeUndefined();
+  });
   it('TWINT stays off without a number on the account', async () => {
     const db = await freshDb();
     const inv = await createInvoice({ name: 'Sara Test', amount: 100, purpose: 'Test' }, { ...ACCOUNT, twint: '' }, db);

@@ -1,6 +1,6 @@
 // Termine buchen (BU1–BU5): the shared rules of the app pages and the booking page.
 import { describe, it, expect } from 'vitest';
-import { KINDS, newOffer, newSlots, mondayOf, weekDays, weekNo, slotsOn, bookedBySlot, slotState, chf, unseen, icsOf, contactHref, shareUrl } from '../src/lib/booking/model.js';
+import { KINDS, newOffer, newSlots, mondayOf, weekDays, weekNo, slotsOn, bookedBySlot, slotState, chf, unseen, icsOf, contactHref, shareUrl, invoiceDraft, toInvoice } from '../src/lib/booking/model.js';
 import { cleanOffer } from '../api/_lib/booking.js';
 import { pageOf, placeOf } from '../src/lib/nav.js';
 
@@ -50,5 +50,26 @@ describe('the offers', () => {
     expect(pageOf('#/me/offers')).toBe('offers');
     expect(pageOf('#/me/offers/tennis-abc123')).toBe('offers');
     expect(placeOf('offers')).toBe('me');
+  });
+});
+
+describe('the invoice of a booking', () => {
+  const offer = { id: 'tennis-abc123', title: 'Tennis-Lektion', types: [{ key: 'one', label: 'Einzel', places: 1, price: 6000 }, { key: 'group', label: 'Gruppe', places: 4, price: 2550 }] };
+  it('fills name, e-mail, the price of the kind and what it is for', () => {
+    const d = invoiceDraft(offer, { type: 'group' }, { id: 'b1', name: 'Mia Muster', contact: 'mia@example.test' }, 'Mo, 23.11.');
+    expect(d).toEqual({ name: 'Mia Muster', email: 'mia@example.test', amount: '25.50', purpose: 'Tennis-Lektion, Gruppe, Mo, 23.11.', booking: { offer: 'tennis-abc123', b: 'b1' } });
+  });
+  it('leaves the e-mail empty for a phone number', () => {
+    expect(invoiceDraft(offer, { type: 'one' }, { id: 'b2', name: 'Ben', contact: '079 000 00 00' }, 'Sa').email).toBe('');
+  });
+  it('lists only held lessons that are over and not yet invoiced', () => {
+    const bookings = [
+      { id: 'a', at: '2026-11-01T10:00' },
+      { id: 'b', at: '2026-11-02T10:00', status: 'requested' },
+      { id: 'c', at: '2026-11-02T11:00', status: 'declined' },
+      { id: 'd', at: '2026-11-02T12:00', status: 'confirmed' },
+      { id: 'e', at: '2026-11-09T10:00' },
+    ];
+    expect(toInvoice(bookings, [{ booking: { b: 'a' } }], '2026-11-05T09:00').map((x) => x.id)).toEqual(['d']);
   });
 });

@@ -25,7 +25,7 @@
    */
   import { untrack, tick } from 'svelte';
   import { liveQuery } from 'dexie';
-  import { CloudRain, Route, Play, Square, Crosshair, MapPin, Navigation, Mountain, Clock, Settings, BatteryMedium, CloudLightning, TriangleAlert, RefreshCw, Utensils, ChevronDown, Moon, Flag, LifeBuoy, Ellipsis, ChevronLeft, ChevronRight, Minimize2, Maximize2, SlidersHorizontal, Check, X, Layers, Camera, WifiOff } from '@lucide/svelte';
+  import { CloudRain, Route, Play, Square, Crosshair, MapPin, Navigation, Mountain, Clock, Settings, BatteryMedium, CloudLightning, TriangleAlert, RefreshCw, Utensils, ChevronDown, Moon, Flag, LifeBuoy, Ellipsis, ChevronLeft, ChevronRight, Minimize2, Maximize2, SlidersHorizontal, Check, X, Layers, Camera, WifiOff, ClipboardList, Send, Droplet } from '@lucide/svelte';
   import KindIcon from '../lib/map/KindIcon.svelte';
   import { DURING_RIDE } from '../lib/live/during.js';
   import { FEATURES } from '../lib/features.js';
@@ -37,7 +37,8 @@
   import PoiDetail from '../lib/map/PoiDetail.svelte';
   import WxTimeline from '../lib/map/WxTimeline.svelte';
   import LiveRouteBox from '../lib/live/LiveRouteBox.svelte';
-  import { liveRouteQuery, liveRouteFor } from '../lib/live/liveroute.js';
+  import { rideLog, rideLogText, GAP_S } from '../lib/live/ridelog.js';
+  import { liveRouteQuery, liveRouteFor, clearLiveRoute } from '../lib/live/liveroute.js';
   import OfflineBox from '../lib/map/OfflineBox.svelte';
   import { reserveOf } from '../lib/map/offline.js';
   import SortArrows from '../lib/ui/SortArrows.svelte';
@@ -57,8 +58,10 @@
   import { dayIndex } from '../lib/ride.js'; // Idee 57: the ride day for the planned stops
   import { localDay as todayLocal } from '../lib/localday.js';
   import SosSheet from '../lib/live/SosSheet.svelte';
+  import NightSheet from '../lib/live/NightSheet.svelte';
+  import { awakeH } from '../lib/race/ride-lib.js';
   import RerouteSheet from '../lib/live/RerouteSheet.svelte';
-  import { snapAhead, onDetour, detourDone, detourGpx, saveDetour, loadDetour, DETOUR_COLOUR, atPlace, returnDetour, backDetour, backtrackOf, planReturn, returnModeStd, shouldReroute, OFF_ROUTE_M } from '../lib/reroute.js';
+  import { snapAhead, onDetour, detourDone, detourGpx, saveDetour, loadDetour, DETOUR_COLOUR, atPlace, returnDetour, backDetour, backtrackOf, planReturn, returnModeStd, shouldReroute, OFF_ROUTE_M, offLineM, planDetour } from '../lib/reroute.js';
   import { saveGpx } from '../lib/gpxout.js';
   import { LANDI_RADAR } from '../lib/wetter/kern.js';
   import LiveWetter from '../lib/live/LiveWetter.svelte';
@@ -89,10 +92,12 @@
   import { autoKmhOf, autoPauseStep, speedKmh, movingNow, totalNow, pausedNow, HINT_S, AUTO_MIN_KMH, AUTO_MAX_KMH } from '../lib/live/pause.js';
   import { resumeOf } from '../lib/live/resume.js';
   import { zurichTime } from '../lib/spur/spur.js';
-  import { racesQuery, cacheQuery, cacheGet, cacheSet } from '../lib/race/store.js';
+  import { racesQuery, cacheQuery, cacheGet, cacheSet, saveRace } from '../lib/race/store.js';
   import { raceOf, schedule, lineKm, climbsOf, hhmm, dayOfMs } from '../lib/race/race.js';
   import { POI_CACHE, POI_KIND, WX_CACHE } from '../lib/race/outside.js';
   import { mergePois } from '../lib/race/more.js';
+  import { lastShopBeforeNight } from '../lib/live/lastshop.js';
+  import { nextWater, drinkPerH, BOTTLE_ML, DRINK_ML_H } from '../lib/live/water.js';
   import { withSampleFine } from '../lib/race/sample.js';
   import { paceFromRides, loadedBy, assumptionsOf, compareWays, simPlan } from '../lib/race/strategy.js';
   import { ownQuery, ownOnMap } from '../lib/map/ownpoints.js';
@@ -111,7 +116,7 @@
   import GroupPanel from '../lib/live/GroupPanel.svelte';
   import { endKeptGroup } from '../lib/live/group.js';
   import { saveLiveRide, bookBikeKm, saveLeftRides } from '../lib/live/saveride.js';
-  import LiveLabel from '../lib/live/LiveLabel.svelte';
+  import SavedCard from '../lib/live/SavedCard.svelte';
   import { deleteEntries } from '../lib/kmbookdb.js';
   import { offerDone } from '../lib/ui/rename.svelte.js';
   import { saveFailed } from '../lib/ui/ask.js';
@@ -199,6 +204,17 @@
     } catch (x) {
       err = saveFailed(x);
     }
+    // Noah 01.11.2026 «3a»: a ride started without a route forgets every old route: the GPX kept on this device and an old way to a goal (older than 2 h), also after a reload
+    // (a free ride has no id of its own: a GPX loaded more than 12 h ago is an old one, not this ride's)
+    const oldFree = !tid && !!liveRoute && !(Date.parse(liveRoute.loadedAt) > Date.now() - 12 * 36e5);
+    if (!cont && (!hasRoute || oldFree)) {
+      try {
+        await clearLiveRoute(db.settings);
+        if (detour && !(detour.at > Date.now() - 2 * 36e5)) setDetour(null, false); // a way planned a moment ago stays
+      } catch (x) {
+        console.error(x);
+      }
+    }
     const e = await startRecording(trip, { cont, saver: cfg.battery });
     if (e) return (err = t(e));
     eatFromKm = null;
@@ -269,9 +285,40 @@
     }
   }
 
+  // Fahrt-Protokoll (Noah 01.11.2026 «4a»): GPS points, gaps, restarts, hidden app, screen lock — with a button to send it
+  const logFacts = $derived(row ? rideLog(row) : null);
+  const logText = $derived(
+    logFacts
+      ? rideLogText(logFacts, {
+          points: t('GPS points'),
+          km: t('Distance (km)'),
+          first: t('First point'),
+          last: t('Last point'),
+          gaps: t('Gaps over a minute'),
+          restarts: t('Restarts'),
+          hidden: t('App hidden'),
+          lockLost: t('Screen lock lost'),
+          pauses: t('Pauses'),
+          codes: { s: t('Start'), c: t('Continued after a reload'), h: t('App hidden'), v: t('App visible again'), L1: t('Screen lock held'), L0: t('Screen lock lost'), Lx: t('Screen lock refused') },
+        })
+      : '',
+  );
+  async function sendLog() {
+    try {
+      if (navigator.share) await navigator.share({ title: t('Ride log'), text: logText });
+      else {
+        await navigator.clipboard.writeText(logText);
+        offerDone(t('Copied.'));
+      }
+    } catch {
+      /* closed */
+    }
+  }
+
   // the recording row, again whenever a point was kept
   $effect(() => {
     void rec.pts;
+    void rec.logN; // the log changes without a new point (screen lock, hidden app, restart)
     const rid = rec.id;
     if (!rid) return;
     db.tracks.get(rid).then((r) => (row = r ?? null));
@@ -308,6 +355,34 @@
   // Noah 24.10.2026 «5a»: with a route, the stops along it or around you (a switch)
   let stopsMode = $state('route');
   const alongMode = $derived(hasRoute && stopsMode === 'route');
+  // «Letzter offener Laden vor der Nacht» (Noah 02.11.2026): only along a route, from the loaded stops
+  const lastShop = $derived(hasRoute && km != null ? lastShopBeforeNight({ pois, km, now, pace, profile, light }) : null);
+  const shopsLoaded = $derived(pois.some((p) => p.kind === 'shop' || p.kind === 'fuel'));
+  // «Nächstes Wasser» (Noah 02.11.2026, Vorschlag 2): the nearest place to fill up and whether the bottle lasts there.
+  // The bottle (size, what is left) and what you drink per hour are yours to change; they are kept in this browser.
+  const WATER_KEY = 'pg-live-water';
+  const waterOwn = (() => {
+    try {
+      const o = JSON.parse(localStorage.getItem(WATER_KEY) || '{}');
+      return { cap: Number(o.cap) > 0 ? Number(o.cap) : BOTTLE_ML, left: ['full', 'half', 'low'].includes(o.left) ? o.left : 'full', rate: Number(o.rate) > 0 ? Number(o.rate) : 0 };
+    } catch {
+      return { cap: BOTTLE_ML, left: 'full', rate: 0 };
+    }
+  })();
+  let waterCap = $state(waterOwn.cap);
+  let waterLeft = $state(waterOwn.left);
+  let waterRate = $state(waterOwn.rate); // 0 = automatic (warmer: more)
+  const keepWater = () => {
+    try {
+      localStorage.setItem(WATER_KEY, JSON.stringify({ cap: waterCap, left: waterLeft, rate: waterRate }));
+    } catch {}
+  };
+  const WATER_FRAC = { full: 1, half: 0.5, low: 0.15 };
+  const waterHave = $derived(Math.round(waterCap * WATER_FRAC[waterLeft]));
+  const waterRateNow = $derived(waterRate > 0 ? waterRate : drinkPerH(null, DRINK_ML_H));
+  const water = $derived(hasRoute && km != null ? nextWater({ pois, km, now, pace, profile, haveMl: waterHave, rateMlH: waterRateNow }) : null);
+  const waterLoaded = $derived(pois.some((p) => p.kind === 'water' || p.kind === 'shop' || p.kind === 'fuel'));
+  const ml = (v) => (v >= 1000 ? `${num(Math.round(v / 100) / 10)} l` : `${num(Math.round(v / 10) * 10)} ml`);
   const stops = $derived(me ? stopsAhead({ pois: alongMode ? pois : around, pts: alongMode ? pts : [], here: me, km, kinds: KINDS, n: 5, now, pace, profile }) : []);
   const climb = $derived(km != null ? nextClimb(climbs, km) : null);
   // Abbiege-Hinweise (turns.js): the turns of the route, once; the next one while you are on the route
@@ -511,9 +586,10 @@
         if (Number.isFinite(v) && v < 120 && (h.acc == null || h.acc <= 30) && v > maxKmh) maxKmh = Math.round(v * 10) / 10;
       }
     }
-    // the speed now; no new fix for 15 s counts as standing
+    // the speed now. No new fix for 15 s is NO speed (Noah 01.11.2026 «2a»): a GPS gap is not standing; only
+    // the GPS points themselves tell that you stand (a locked screen once counted as 25 min standing)
     let kmhNow = fixNow ? speedKmh(fixNow, fixPrev) : null;
-    if (fixNow && now - fixSeenAt > 15_000) kmhNow = 0;
+    if (fixNow && now - fixSeenAt > 15_000) kmhNow = null;
     if (cfg.autoPause && rec.on) {
       const r = autoPauseStep(autoSt, { kmh: kmhNow, now, limit: autoKmh, paused: rec.paused, auto: rec.auto });
       autoSt = r.st;
@@ -599,6 +675,8 @@
         say(t(s.key, s.vars), lang());
       }
     }
+    // off the way to a goal: a new way from here to the same goal
+    goalStep();
     // off-route
     if (cfg.offRoute && at) autoStep();
     if (cfg.offRoute && at && !onDetour(detour, me) && autoHold !== 'free') {
@@ -694,6 +772,7 @@
 
   /* ---------- sheets ---------- */
   let sos = $state(false);
+  let night = $state(false); // «Nacht-Blatt» (Noah 02.11.2026 «1b»): only when you open it
   let place = $state(false);
 
   /* ---------- «Neu planen zu …» (Paket X, reroute.js) ---------- */
@@ -788,6 +867,43 @@
   }
   // 3a (Noah): «Gleichen Weg zurück»: your own track back to where you left the route, no router
   const sameBack = $derived(detour?.back === 'auto' && hasRoute ? backtrackOf(fixesOf(row), pts) : null);
+  // Live-Navigation Schritt 4: off the way to a goal the app plans a new way from here to the same goal,
+  // with Undo (the old way comes back). No answer or offline: it tries again in a minute.
+  let goalOffSince = null;
+  let goalAt = null;
+  let goalBusy = false;
+  const isGoalWay = (d) => !!d && !d.back && (d.oneWay || !d.rejoin) && d.line?.length > 1;
+  function goalStep() {
+    if (!isGoalWay(detour) || !me || arrived || atPlace(detour, me)) {
+      goalOffSince = null;
+      return;
+    }
+    const offM = offLineM(detour.line, me);
+    if (!(offM > OFF_ROUTE_M)) {
+      goalOffSince = null;
+      return;
+    }
+    goalOffSince ??= now;
+    if (goalBusy || !navigator.onLine) return;
+    if (shouldReroute({ offM, offSince: goalOffSince, lastAt: goalAt, now })) goalPlan();
+  }
+  async function goalPlan() {
+    const old = detour;
+    goalBusy = true;
+    goalAt = now;
+    try {
+      const d = await planDetour({ here: me, target: old.target, pts: hasRoute ? pts : [], fromKm: old.fromKm, profile: old.profile, oneWay: !!old.oneWay });
+      if (detour === old) {
+        setDetour({ ...d, ...(old.small ? { small: true } : {}) }, false);
+        goalOffSince = null;
+        offerDone(t('New way to the goal.'), () => setDetour(old, false));
+      }
+    } catch {
+      /* no answer: the next try in a minute */
+    } finally {
+      goalBusy = false;
+    }
+  }
   const autoUndo = () => ((autoHold = 'undo'), setDetour(null));
   const autoFree = () => ((autoHold = 'free'), setDetour(null));
   const takeSame = () => sameBack && setDetour(backDetour(sameBack), false);
@@ -1159,7 +1275,7 @@
       <h2 class="rc-h2">{t('Ride done')}</h2>
       {#if after.ride}
         <p class="rc-text">{t('{km} km recorded. The line is in the travel track of the day.', { km: num(after.ride.km ?? 0) })}</p>
-        {#if after.saved}<p class="rc-text" data-live-saved><LiveLabel /> {t('Saved as its own entry in Trips.')} <a href="#/trips" data-live-saved-link>{t('Open Trips')}</a></p>{/if}
+        {#if after.saved}<SavedCard saved={after.saved} {trip} />{/if}
         {#if loadAfter}
           {#await loadAfter() then m}
             <m.default ride={after.ride} {trip} />
@@ -1340,6 +1456,7 @@
           </div>
           <button type="button" class="btn lvf-sos" onclick={() => ((menu = false), (sos = true))} data-live-sos><LifeBuoy size={20} aria-hidden="true" />{t('Emergency')} · SOS</button>
           <a class="btn" href={LANDI_RADAR} target="_blank" rel="noopener noreferrer" data-landi><CloudRain size={18} aria-hidden="true" />{t('Landi rain radar')}</a>
+          <button type="button" class="btn" onclick={() => ((menu = false), (night = true))} data-live-night><Moon size={18} aria-hidden="true" />{t('Night sheet')}</button>
           <button type="button" class="btn" onclick={() => ((menu = false), (picked = null), (reroute = true))} data-live-reroute><Route size={18} aria-hidden="true" />{t('Plan a new way to …')}</button>
           <!-- Navigation zum Ziel 2: the card on the map stays small, the GPX of the way lives here -->
           {#if detour && detour.back !== 'auto'}<button type="button" class="btn" onclick={() => ((menu = false), detourToGarmin())} data-live-detour-garmin><Route size={18} aria-hidden="true" />{t('GPX for Garmin')}</button>{/if}
@@ -1475,6 +1592,82 @@
               {#if hasRoute}
                 <div data-live-stops-mode><Seg options={[{ key: 'route', name: t('Along the route|poi') }, { key: 'around', name: t('Around me|poi') }]} value={stopsMode} onchange={(k) => ((stopsMode = k), k === 'around' && !around.length && getAround())} label={t('Where to look for stops')} full={false} small /></div>
               {/if}
+              {#if hasRoute && km != null}
+                <div class="lv-lastshop" data-live-lastshop={lastShop?.state ?? 'load'}>
+                  <h3 class="lv-h3"><Moon size={16} aria-hidden="true" />{t('Last open shop before the night')}</h3>
+                  {#if !shopsLoaded || !lastShop}
+                    <p class="rc-note">{t('Load the stops along the route to see the last open shop before the night.')}</p>
+                  {:else}
+                    {@const r = lastShop.state === 'ok' ? lastShop.last : lastShop.next}
+                    {#if lastShop.state === 'dark'}<p class="rc-note">{t('It is dark. The nearest shop ahead:')}</p>
+                    {:else if lastShop.state === 'none'}<p class="rc-warn lv-line">{t('No open shop is left before the night. The nearest ahead:')}</p>{/if}
+                    {#if r}
+                      {@const l = navLinks({ lat: Number(r.poi.lat), lon: Number(r.poi.lon) })}
+                      <div class="rc-row lv-srow" data-live-lastshop-row>
+                        <KindIcon kind={r.poi.kind} size={18} />
+                        <span class="rc-row-main">
+                          <b>{r.poi.name || kindName(r.poi.kind)}</b>
+                          <small>{t('{d} km', { d: fmtKm(r.distKm) })} · {t('there about {at}', { at: when(r.eta) })} · {r.open ? (r.closes ? t('Open until {at}', { at: r.closes }) : t('Open|hours')) : t('Opening hours unknown')}</small>
+                          {#if lastShop.state === 'ok'}
+                            <small data-live-lastshop-left>{r.minToClose != null && r.minToClose <= 120 ? t('Closes {n} after you get there.', { n: minText(r.minToClose) }) : t('{n} before sunset.', { n: minText(Math.max(0, r.minToNight)) })}{#if !lastShop.sure}{' '}{t('Not sure: no opening hours known.')}{/if}</small>
+                          {/if}
+                        </span>
+                        <details class="lv-nav">
+                          <summary class="btn sm"><Navigation size={16} aria-hidden="true" />{t('Navigate')}</summary>
+                          <div class="lv-nav-menu">
+                            <a class="btn sm" href={l.google} target="_blank" rel="noopener noreferrer">{t('Google Maps')}</a>
+                            <a class="btn sm" href={l.osmand} target="_blank" rel="noopener noreferrer">{t('OsmAnd')}</a>
+                          </div>
+                        </details>
+                      </div>
+                    {:else}
+                      <p class="rc-empty">{t('No shop found ahead on the route.')}</p>
+                    {/if}
+                  {/if}
+                </div>
+              {/if}
+              {#if hasRoute && km != null}
+                <div class="lv-lastshop" data-live-water={water?.state ?? 'load'}>
+                  <h3 class="lv-h3"><Droplet size={16} aria-hidden="true" />{t('Next water')}</h3>
+                  {#if !waterLoaded || !water}
+                    <p class="rc-note">{t('Load the stops along the route to see the next water.')}</p>
+                  {:else}
+                    {@const r = water.next}
+                    {#if r}
+                      {@const l = navLinks({ lat: Number(r.poi.lat), lon: Number(r.poi.lon) })}
+                      <div class="rc-row lv-srow" data-live-water-row>
+                        <KindIcon kind={r.poi.kind} size={18} />
+                        <span class="rc-row-main">
+                          <b>{r.poi.name || kindName(r.poi.kind)}</b>
+                          <small>{kindName(r.poi.kind)} · {t('{d} km', { d: fmtKm(r.distKm) })} · {t('there about {at}', { at: when(r.eta) })}</small>
+                          {#if !r.sure}<small>{t('Not sure: no opening hours known.')}</small>{/if}
+                        </span>
+                        <details class="lv-nav">
+                          <summary class="btn sm"><Navigation size={16} aria-hidden="true" />{t('Navigate')}</summary>
+                          <div class="lv-nav-menu">
+                            <a class="btn sm" href={l.google} target="_blank" rel="noopener noreferrer">{t('Google Maps')}</a>
+                            <a class="btn sm" href={l.osmand} target="_blank" rel="noopener noreferrer">{t('OsmAnd')}</a>
+                          </div>
+                        </details>
+                      </div>
+                      {#if water.state === 'short'}<p class="rc-warn lv-line" data-live-water-say><TriangleAlert size={18} aria-hidden="true" /><span>{t('Your bottle will not last: about {need} needed, {have} left. Drink in small sips or fill up sooner.', { need: ml(water.needMl), have: ml(water.haveMl) })}</span></p>
+                      {:else if water.state === 'tight'}<p class="rc-note" data-live-water-say>{t('Your bottle just lasts: about {need} needed, {have} left.', { need: ml(water.needMl), have: ml(water.haveMl) })}</p>
+                      {:else}<p class="rc-note" data-live-water-say>{t('Your bottle lasts until there: about {need} needed, {have} left.', { need: ml(water.needMl), have: ml(water.haveMl) })}</p>{/if}
+                    {:else}
+                      <p class="rc-warn lv-line" data-live-water-say><TriangleAlert size={18} aria-hidden="true" /><span>{t('No water or open shop found ahead on the route. Your bottle lasts about {d} km.', { d: fmtKm(water.lastsKm) })}</span></p>
+                    {/if}
+                  {/if}
+                  <div role="group" aria-label={t('What is left in your bottle?')}>
+                    <span class="rc-note">{t('What is left in your bottle?')}</span>
+                    <Seg small options={[{ key: 'full', name: t('Full|bottle') }, { key: 'half', name: t('Half|bottle') }, { key: 'low', name: t('Almost empty') }]} value={waterLeft} onchange={(k) => ((waterLeft = k), keepWater())} />
+                  </div>
+                  <details class="lv-water-set" data-live-water-set>
+                    <summary>{t('Change bottle and drinking')}</summary>
+                    <label class="lv-water-f">{t('Bottle size (ml)')}<input class="inp" type="number" inputmode="numeric" min="100" max="6000" step="50" value={waterCap} onchange={(e) => ((waterCap = Math.max(100, Math.min(6000, Number(e.currentTarget.value) || BOTTLE_ML))), keepWater())} data-live-water-cap /></label>
+                    <label class="lv-water-f">{t('You drink (ml per hour, 0 = automatic)')}<input class="inp" type="number" inputmode="numeric" min="0" max="2000" step="50" value={waterRate} onchange={(e) => ((waterRate = Math.max(0, Math.min(2000, Number(e.currentTarget.value) || 0))), keepWater())} data-live-water-rate /></label>
+                  </details>
+                </div>
+              {/if}
               {#if stops.length}
                 <ul class="rc-list">
                   {#each stops as s (s.id)}
@@ -1572,6 +1765,15 @@
                 </div>
                 <p class="rc-note">{t('A stop is 2 minutes or more within 40 m.')}</p>
               </div>
+            {/if}
+
+            {#if logFacts && (rec.on || logFacts.points > 0)}
+              <details class="lvf-part lvf-fold" data-live-log>
+                <summary><ClipboardList size={18} aria-hidden="true" />{t('Ride log')}</summary>
+                <p class="rc-note">{t('What the recording saw: GPS points, gaps of {n} s or more, restarts. Send it when a time or distance looks wrong.', { n: GAP_S })}</p>
+                <pre class="lvf-log" data-live-log-text>{logText}</pre>
+                <button type="button" class="btn sm" onclick={sendLog} data-live-log-send><Send size={16} aria-hidden="true" />{t('Send the log')}</button>
+              </details>
             {/if}
 
             <!-- «Datenseiten wie am Garmin»: pages, fields, grids, charts, zones -->
@@ -1673,6 +1875,7 @@
   <PoiPanel bind:this={poiPanel} title={false} canTap ongo={goTo} ontapmode={(v) => ((poiTapping = v), v && (closeNear(), (snap = 'peek')))} center={me ? { lat: me.lat, lon: me.lon } : null} bounds={mapBounds} line={route?.line ?? null} profile={route?.profile ?? null} tripId={trip?.id ?? null} onpoints={(l) => (poiPoints = l ?? [])} />
 </dialog>
 {#if reroute}<RerouteSheet here={me} pts={hasRoute ? pts : []} {km} {pois} {own} {picked} onplan={setDetour} onclose={() => ((reroute = false), (picked = null))} />{/if}
+{#if night}<NightSheet race={isRace ? race : null} ctx={isRace && trip ? { trip, race, stored, plan, save: (patch) => saveRace(tid, patch) } : null} awake={isRace ? awakeH(stored?.sleepLog ?? [], plan?.start, now) : 0} {now} {km} {pace} {bed} shop={lastShop} movingS={movingLive} pausedS={pausedLive} sleep={hasRoute ? { pois, own, pts, km, now, kmh: pace.kmh, wx: $wxQ?.data ?? null, bagC: race?.bagC ?? 5 } : null} ongo={(p) => ((night = false), goTo(p))} onmap={() => ((night = false), (picked = null), (goalTapping = true), (snap = 'peek'))} onclose={() => (night = false)} />{/if}
 {#if sos}<SosSheet here={me} {km} {routeName} {pois} onclose={() => (sos = false)} />{/if}
 {#if place}<PlaceSheet {trip} onclose={() => (place = false)} />{/if}
 
@@ -2268,6 +2471,18 @@
     opacity: 0.5;
     cursor: default;
   }
+  .lvf-log {
+    margin: 0 0 var(--sp-2);
+    max-height: 220px;
+    overflow: auto;
+    padding: var(--sp-2);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--paper);
+    font: var(--fs-small) / 1.45 ui-monospace, monospace;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
   .lvf-fold > summary {
     display: flex;
     align-items: center;
@@ -2440,6 +2655,36 @@
   .lv-h3 {
     margin: 0;
     font-size: var(--fs-body);
+  }
+  .lv-lastshop {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 12px;
+    padding: 10px 12px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+  }
+  .lv-water-set {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .lv-water-set summary {
+    cursor: pointer;
+    font-size: var(--fs-small);
+    color: var(--ink-2);
+  }
+  .lv-water-f {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    font-size: var(--fs-small);
+  }
+  .lv-lastshop .lv-h3 {
+    display: flex;
+    align-items: center;
+    gap: 6px;
   }
   .lvf-order {
     display: flex;

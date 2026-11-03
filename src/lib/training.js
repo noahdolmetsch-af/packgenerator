@@ -234,6 +234,13 @@ export function subOf(a, { bikeName = null } = {}) {
 }
 
 /* ---------- TR4: the week plan and the look back (Noah «1-5a» 4a: sessions with duration and zone per day) ---------- */
+export const DAYS_KEY = 'training.days'; // { [weekday 0 = Monday]: max minutes, 0 = keep the day free }
+/** Day limits as stored: only weekdays 0–6 with minutes 0–600. */
+export function cleanDayLimits(v) {
+  const out = {};
+  if (v && typeof v === 'object') for (const [k, m] of Object.entries(v)) if (/^[0-6]$/.test(k) && Number.isFinite(+m) && +m >= 0 && +m <= 600) out[k] = Math.round(+m);
+  return out;
+}
 export const PLAN_KEY = 'training.plan'; // { sessions: [{ id, day, kind, name, mins, zone }] }
 export const GOAL_KEY = 'training.goal'; // { name, hours, base, until } or null
 export const PLAN_KEEP_DAYS = 120;
@@ -261,6 +268,8 @@ export function cleanSession(s) {
   const out = { id: String(s.id || `s${Math.random().toString(36).slice(2, 9)}`), day: s.day, kind: KIND_KEYS.includes(s.kind) ? s.kind : 'bike', name: String(s.name ?? '').trim().slice(0, 60), mins, zone: zone >= 1 && zone <= 5 ? zone : null };
   // «Trainingspläne»: a session written by a sample plan keeps the plan's id, so the plan can be taken out again
   if (typeof s.src === 'string' && s.src) out.src = s.src.slice(0, 40);
+  // «Training verbessern» 1: a session of one of the user's own sports (id of an activity in Aktiv); ticked by its entries there
+  if (typeof s.sport === 'string' && s.sport) out.sport = s.sport.slice(0, 60);
   // Klick-Rundgang A04: ticked by hand («Gemacht»), for a session without a Strava activity
   if (s.done === true) out.done = true;
   return out;

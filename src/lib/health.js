@@ -11,6 +11,7 @@
  */
 import { localDay } from './localday.js';
 import { readKey } from './strava/client.svelte.js';
+import { FETCH_LIMIT_MS } from './ui/connstatus.js';
 
 export const GOOGLE_URL = 'https://packgen-three.vercel.app/api/google';
 /** db.settings: { lastSync, until, fetch } (in backups). */
@@ -130,7 +131,7 @@ export function rangeToFetch(lastDay, today) {
 }
 
 /** How long one call may take before the app stops waiting (Noah 1.11.2026: «Holt …» never ended). */
-export const CALL_TIMEOUT_MS = 40000;
+export const CALL_TIMEOUT_MS = 60000;
 /** One call to the server. Throws HealthError with the server's code (network: no answer at all, timeout: too slow). */
 export async function call(step, { method = 'GET', body = null, params = {}, key = readKey(), doFetch = (...a) => fetch(...a), timeoutMs = CALL_TIMEOUT_MS } = {}) {
   if (!key) throw new HealthError('unauthorized');
@@ -177,7 +178,8 @@ export function windows(from, to, size = WINDOW_DAYS) {
 export const WINDOW_DAYS = 30;
 
 /** Fetch the missing days and keep them. Returns { from, to, changed, missing (values Google did not give) }. */
-export async function syncHealth(db, { c = call, now = new Date() } = {}) {
+export async function syncHealth(db, { c = call, now = new Date(), onProgress = null, limitMs = FETCH_LIMIT_MS, clock = () => Date.now() } = {}) {
+  const startedAt = clock();
   const last = await db.healthDays.orderBy('date').last();
   const old = (await db.settings.get(HEALTH_KEY))?.value ?? {};
   const range = rangeToFetch(last?.date ?? null, localDay(now));
@@ -187,15 +189,40 @@ export async function syncHealth(db, { c = call, now = new Date() } = {}) {
   const at = now.toISOString();
   let changed = 0;
   const missingAll = new Set();
-  // window by window: what has come is kept at once, so a failure later loses nothing
-  for (const w of windows(from, to)) {
-    const { days, missing } = await c('days', { params: { from: w.from, to: w.to } });
+  // window by window, the newest first (Noah 2.11.2026: the old order needed three slow calls before today's
+  // days came, and a stop in between started again at the oldest). What has come is kept at once. When an older
+  // window fails after a newer one came, the fetch ends quietly and tries the older days again next time.
+  let incomplete = false;
+  let got = 0;
+  const wins = windows(from, to).reverse();
+  const daysOf = (w) => Math.round((Date.parse(`${w.to}T12:00:00Z`) - Date.parse(`${w.from}T12:00:00Z`)) / 864e5) + 1;
+  const total = wins.reduce((n, w) => n + daysOf(w), 0);
+  let doneDays = 0;
+  onProgress?.({ done: 0, total });
+  for (const w of wins) {
+    // Noah 03.11.2026 «1a»: a whole fetch ends after 2 minutes; what came is kept, the older days follow next time
+    if (got && clock() - startedAt > limitMs) {
+      incomplete = true;
+      break;
+    }
+    let r;
+    try {
+      r = await c('days', { params: { from: w.from, to: w.to } });
+    } catch (err) {
+      if (!got) throw err;
+      incomplete = true;
+      break;
+    }
+    got++;
+    doneDays += daysOf(w);
+    onProgress?.({ done: doneDays, total });
+    const { days, missing } = r;
     changed += await saveDays(db, days ?? [], { src: 'google', at });
     for (const m of Array.isArray(missing) ? missing : []) missingAll.add(m);
   }
   const prev = (await db.settings.get(HEALTH_KEY))?.value ?? {};
   const until = (await db.healthDays.orderBy('date').last())?.date ?? null;
-  await db.settings.put({ key: HEALTH_KEY, value: { ...prev, lastSync: at, until, fill: FILL_V } });
+  await db.settings.put({ key: HEALTH_KEY, value: { ...prev, lastSync: at, until, ...(incomplete ? {} : { fill: FILL_V }) } });
   return { from, to, changed, missing: [...missingAll] };
 }
 

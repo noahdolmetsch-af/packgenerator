@@ -5,17 +5,21 @@ import { openHome } from './home0460-fixture.js';
 
 const look = (loc) => loc.evaluate((el) => { const c = getComputedStyle(el); return { r: c.borderTopLeftRadius, b: c.borderTopColor, s: c.boxShadow }; });
 
-test('S2 pages: Velos and Packen cards with depth, Planen as before', async ({ page, context }, info) => {
+test('S2 pages: Velos, Packen, Planen, Touren, Auswerten and Aktiv cards with depth', async ({ page, context }, info) => {
   await openHome(page, context, info);
-  for (const h of ['./#/bikes', './#/pack?day']) {
+  // the style is the card tokens on <main>, so every card of the page takes it (some pages have no card to look at)
+  for (const h of ['./#/bikes', './#/pack?day', './#/week', './#/notes', './#/trips', './#/auswerten', './#/flow/sports']) {
     await page.goto(h);
-    const card = page.locator('main .card').first();
-    await expect(card).toBeVisible();
-    const st = await look(card);
-    expect(st.r, h).toBe('18px');
-    expect(st.b, h).toBe('rgba(0, 0, 0, 0)');
-    expect(st.s, h).not.toBe('none');
+    const main = page.locator('main');
+    await expect(main, h).toBeVisible();
+    const tok = await main.evaluate((el) => { const c = getComputedStyle(el); return { r: c.getPropertyValue('--radius-card').trim(), l: c.getPropertyValue('--card-line').trim() }; });
+    expect(tok, h).toEqual({ r: '18px', l: 'transparent' });
   }
-  await page.goto('./#/plan');
-  await expect(page.locator('main[data-s2-page]')).not.toHaveAttribute('data-s2-page', /^(pack|bikes)$/);
+  const card = page.locator('main .card').first();
+  await page.goto('./#/week');
+  await expect(card).toBeVisible();
+  const st = await look(card);
+  expect(st.r).toBe('18px');
+  expect(st.b).toBe('rgba(0, 0, 0, 0)');
+  expect(st.s).not.toBe('none');
 });

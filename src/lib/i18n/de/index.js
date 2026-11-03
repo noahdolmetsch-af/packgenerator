@@ -235,6 +235,8 @@ import dokumente from './dokumente.js';
 import bedienregeln from './bedienregeln.js';
 // P8 «Automatischer Abgleich»
 import abgleich from './abgleich.js';
+import verbindungenStatus from './verbindungen-status.js';
+import datenaufraeumen from './datenaufraeumen.js';
 
 // «Mehr Inhalt in der App» (Noah 15.10.2026, 1a–5a): tips, rows and examples on ten more places
 import pagetexts from './pagetexts.js';
@@ -601,6 +603,11 @@ import allesfinden2 from './allesfinden2.js';
 import neuemenu from './neuemenu.js';
 // «Meilensteine als Belohnung» (Noah 22.10.2026 «1a–5a»)
 import meilensteinebelohnung from './meilensteinebelohnung.js';
+import nextsterne from './nextsterne.js';
+import sterntexte from './sterntexte.js';
+import belohnungalle from './belohnungalle.js';
+import wochensterne from './wochensterne.js';
+import fastgeschafft from './fastgeschafft.js';
 // «Alles fertig» (Noah 24.10.2026): leftovers of the older threads; spread last
 import allesfertig from './allesfertig.js';
 // Paket B «Touren ohne Überraschung» (996 Ideen): Generalprobe, Gut ankommen, Kisten-Etiketten; spread last
@@ -856,6 +863,8 @@ const ORDERED = [
   assistent,
   termine,
   abgleich,
+  verbindungenStatus,
+  datenaufraeumen,
   push,
   mail,
   gruppen,
@@ -990,6 +999,11 @@ const ORDERED = [
   aktivbereich,
   stopps,
   meilensteinebelohnung,
+  nextsterne,
+  sterntexte,
+  belohnungalle,
+  wochensterne,
+  fastgeschafft,
   allesfertig,
   generalprobe,
   alltagsichtbar,

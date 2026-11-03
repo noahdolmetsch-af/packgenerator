@@ -13,6 +13,8 @@
  *   time    the weekday or time of day you ride most
  *   streak  active days in a row this week, or a long gap while you are usually active
  *   mind    mood on days with meditation against days without
+ *   body    resting heart rate, HRV or steps of the week against the same days of the four weeks before (Fitbit)
+ *   weather days you were active when it was dry against rainy days (the weather kept on this device)
  * A candidate needs enough data (MIN_DAYS per group, at least two long efforts, …); without it the kind is
  * listed as «noch zu wenig Daten», never guessed. score = effect (0–1) × enough data (0–1).
  *
@@ -28,9 +30,9 @@ import { isoWeek as isoWeekKey } from '../kmbook.js';
 import { isTestTrip, isArchived } from '../testname.js';
 
 export const OBS_KEY = 'beobachtungen';
-export const KINDS = ['week', 'sleep', 'after', 'time', 'streak', 'mind'];
+export const KINDS = ['week', 'sleep', 'after', 'time', 'streak', 'mind', 'body', 'weather'];
 /** The words of the kinds (for «Diese Art nicht mehr zeigen» and the switches). */
-export const KIND_NAMES = { week: 'Week against your usual|obs', sleep: 'Sleep after riding|obs', after: 'Days after a long tour|obs', time: 'When you ride|obs', streak: 'Streaks and gaps|obs', mind: 'Mood and meditation|obs' };
+export const KIND_NAMES = { week: 'Week against your usual|obs', sleep: 'Sleep after riding|obs', after: 'Days after a long tour|obs', time: 'When you ride|obs', streak: 'Streaks and gaps|obs', mind: 'Mood and meditation|obs', body: 'Body values|obs', weather: 'Weather and moving|obs' };
 /** Three a week. */
 export const PER_WEEK = 3;
 /** At least this many days in each group before a comparison counts. */
@@ -44,6 +46,8 @@ export const LONG_KM = 80;
 export const AFTER_DAYS = 3;
 /** Weeks kept in the record. */
 export const KEEP_WEEKS = 52;
+/** A week stored before its last day was over (older versions froze on Sunday morning) is worked out again for this many days. */
+export const REDO_DAYS = 8;
 
 const r1 = (x) => Math.round(x * 10) / 10;
 const mean = (xs) => (xs.length ? xs.reduce((s, x) => s + x, 0) / xs.length : null);
@@ -75,7 +79,7 @@ export function obsOf(value) {
   const v = value && typeof value === 'object' ? value : {};
   const weeks = {};
   for (const [k, list] of Object.entries(v.weeks ?? {})) if (/^\d{4}-W\d{2}$/.test(k) && Array.isArray(list)) weeks[k] = list.filter((o) => o && KINDS.includes(o.kind) && o.key);
-  return { on: v.on !== false, weeks, offKinds: (Array.isArray(v.offKinds) ? v.offKinds : []).filter((k) => KINDS.includes(k)) };
+  return { on: v.on !== false, weeks, done: (Array.isArray(v.done) ? v.done : []).filter((k) => /^\d{4}-W\d{2}$/.test(k)), offKinds: (Array.isArray(v.offKinds) ? v.offKinds : []).filter((k) => KINDS.includes(k)) };
 }
 
 /** The record with a week frozen (only the newest KEEP_WEEKS weeks stay). */
@@ -83,7 +87,7 @@ export function freeze(value, monday, list) {
   const c = obsOf(value);
   const weeks = { ...c.weeks, [weekKey(monday)]: list };
   const keep = Object.keys(weeks).sort().slice(-KEEP_WEEKS);
-  return { ...c, weeks: Object.fromEntries(keep.map((k) => [k, weeks[k]])) };
+  return { ...c, weeks: Object.fromEntries(keep.map((k) => [k, weeks[k]])), done: [...new Set([...c.done, weekKey(monday)])].filter((k) => keep.includes(k)) };
 }
 
 /** Hide a kind or show it again. */
@@ -155,7 +159,7 @@ export function daysOf(data = {}) {
     const h = new Date(r.startAt);
     if (!Number.isNaN(h.getTime())) times.push({ day: String(r.date).slice(0, 10), hour: h.getHours() });
   }
-  return { active, ride, long, minutes, mind, sleepMin, sleepFelt: dayValues(vals, SLEEP_Q), rhr, mood: dayValues(vals, MOOD_Q), times };
+  return { active, ride, long, minutes, mind, health: data.health ?? [], weather: data.weather ?? {}, sleepMin, sleepFelt: dayValues(vals, SLEEP_Q), rhr, mood: dayValues(vals, MOOD_Q), times };
 }
 
 /** The days from `from` to `to` (both included). */
@@ -182,10 +186,12 @@ const enough = (n, full) => clamp01(n / full);
 /** week: this week against the mean of the four weeks before (the measure that moved most). */
 function weekObs(data, days, monday, asOf) {
   const prev = Array.from({ length: USUAL_WEEKS }, (_, i) => shiftDay(monday, -7 * (i + 1)));
+  // the running week meets the same days (Monday to today) of the weeks before, never a whole week (Noah 01.11.2026 «4a»)
+  const off = Math.max(0, Math.min(6, Math.round((Date.parse(`${asOf}T12:00:00Z`) - Date.parse(`${monday}T12:00:00Z`)) / 864e5)));
   const sums = (m) => {
-    const s = weekSums({ acts: data.acts ?? [] }, m);
-    const end = m === monday ? asOf : shiftDay(m, 6);
-    const n = span(m, end).filter((d) => days.active.has(d)).length;
+    const upto = shiftDay(m, off);
+    const s = weekSums({ acts: data.acts ?? [], log: data.log ?? [], flowActs: data.flowActs ?? [] }, m, upto);
+    const n = span(m, upto).filter((d) => days.active.has(d)).length;
     return { hours: s.secs / 3600, km: s.km, days: n };
   };
   const before = prev.map(sums);
@@ -196,6 +202,8 @@ function weekObs(data, days, monday, asOf) {
   for (const k of ['hours', 'km', 'days']) {
     const usual = mean(before.map((w) => w[k]));
     if (!usual) continue;
+    // days were active but nothing measured (e.g. Aktiv ticks without minutes): no «100 % less»
+    if (k !== 'days' && !now[k] && now.days > 0) continue;
     const rel = (now[k] - usual) / usual;
     if (k === 'days' ? Math.abs(now[k] - usual) < 1 : Math.abs(rel) < 0.2) continue;
     best.push({ k, rel, usual, value: now[k] });
@@ -208,9 +216,9 @@ function weekObs(data, days, monday, asOf) {
   return {
     kind: 'week',
     key: `week-${top.k}-${top.rel > 0 ? 'more' : 'less'}`,
-    vars: { a: round(top.value), b: round(top.usual), p: Math.round(Math.abs(top.rel) * 100) },
+    vars: { a: round(top.value), b: round(top.usual), p: Math.round(Math.abs(top.rel) * 100), upto: off < 6 ? asOf : null },
     score: clamp01(Math.abs(top.rel)) * enough(withData, USUAL_WEEKS),
-    chart: { type: 'bars', unit: top.k, bars: weeks.map((m, i) => ({ l: { kw: isoWeek(m) }, v: round(vals[i][top.k]), hi: m === monday })) },
+    chart: { type: 'bars', unit: top.k, upto: off < 6 ? off + 1 : null, bars: weeks.map((m, i) => ({ l: { kw: isoWeek(m) }, v: round(vals[i][top.k]), hi: m === monday })) },
   };
 }
 
@@ -373,6 +381,65 @@ function mindObs(days, from, to) {
   };
 }
 
+/** body: resting heart rate, HRV or steps of this week against the same days of the four weeks before; the value that moved most. */
+const BODY_RULES = [
+  { m: 'rhr', unit: 'bpm', get: (h) => h.restingHr, min: (usual, now) => Math.abs(now - usual) >= 2 },
+  { m: 'hrv', unit: 'ms', get: (h) => h.hrvMs, min: (usual, now) => Math.abs(now - usual) >= usual * 0.15 },
+  { m: 'steps', unit: 'steps', get: (h) => h.steps, min: (usual, now) => Math.abs(now - usual) >= usual * 0.2 },
+];
+function bodyObs(days, monday, asOf) {
+  const off = Math.max(0, Math.min(6, Math.round((Date.parse(`${asOf}T12:00:00Z`) - Date.parse(`${monday}T12:00:00Z`)) / 864e5)));
+  const by = new Map(days.health.filter((h) => h?.date).map((h) => [h.date, h]));
+  const weeks = [...Array.from({ length: USUAL_WEEKS }, (_, i) => shiftDay(monday, -7 * (USUAL_WEEKS - i))), monday];
+  let best = null;
+  let any = false;
+  for (const r of BODY_RULES) {
+    const means = weeks.map((m) => {
+      const xs = span(m, shiftDay(m, off)).map((d) => r.get(by.get(d) ?? {})).filter((v) => Number.isFinite(v) && v > 0);
+      return xs.length >= 2 ? mean(xs) : null;
+    });
+    const before = means.slice(0, -1).filter((x) => x != null);
+    const now = means.at(-1);
+    if (before.length < 3 || now == null) continue;
+    any = true;
+    const usual = mean(before);
+    if (!r.min(usual, now)) continue;
+    const rel = Math.abs(now - usual) / usual;
+    if (!best || rel > best.rel) best = { r, rel, now, usual, means };
+  }
+  if (!any) return { kind: 'body', few: true };
+  if (!best) return null;
+  const round = (x) => (best.r.unit === 'steps' ? Math.round(x) : r1(x));
+  return {
+    kind: 'body',
+    key: `body-${best.r.m}-${best.now > best.usual ? 'more' : 'less'}`,
+    vars: { a: round(best.now), b: round(best.usual) },
+    score: clamp01(best.rel * 2) * enough(weeks.length - 1, USUAL_WEEKS),
+    chart: { type: 'bars', unit: best.r.unit, upto: off < 6 ? off + 1 : null, bars: weeks.map((m, i) => ({ l: { kw: isoWeek(m) }, v: best.means[i] == null ? null : round(best.means[i]), hi: m === monday })) },
+  };
+}
+
+/** weather: the share of days you were active on dry days against rainy days (rain from 1 mm), twelve weeks. */
+function weatherObs(days, from, to) {
+  const dry = [];
+  const wet = [];
+  for (const d of span(from, to)) {
+    const w = days.weather[d];
+    if (!w || !Number.isFinite(w.rainMm)) continue;
+    (w.rainMm >= 1 ? wet : dry).push(days.active.has(d) ? 100 : 0);
+  }
+  const c = compare(dry, wet);
+  if (!c.ok) return { kind: 'weather', few: true };
+  if (Math.abs(c.diff) < 20 || Math.abs(c.d) < 0.3) return null;
+  return {
+    kind: 'weather',
+    key: `weather-${c.diff > 0 ? 'dry' : 'wet'}`,
+    vars: { a: Math.round(c.a), b: Math.round(c.b), na: c.na, nb: c.nb },
+    score: clamp01(Math.abs(c.d)) * enough(Math.min(c.na, c.nb), 10),
+    chart: { type: 'two', unit: 'pct', a: { l: { en: 'Dry days|obs' }, v: Math.round(c.a), n: c.na }, b: { l: { en: 'Rainy days|obs' }, v: Math.round(c.b), n: c.nb } },
+  };
+}
+
 /**
  * Every candidate of a week (Monday), with the data up to asOf (its Sunday, or today when earlier):
  * → { list: [obs, sorted by score], few: [kind …] (not enough data yet) }. offKinds are left out.
@@ -381,7 +448,7 @@ export function candidates(data, monday, asOf, { offKinds = [] } = {}) {
   const end = asOf < shiftDay(monday, 6) ? asOf : shiftDay(monday, 6);
   const from = shiftDay(end, -(WINDOW_DAYS - 1));
   const days = daysOf(data);
-  const all = [weekObs(data, days, monday, end), sleepObs(days, from, end), afterObs(days, from, end), timeObs(days, from, end), streakObs(days, monday, end), mindObs(days, from, end)].filter(Boolean).filter((o) => !offKinds.includes(o.kind));
+  const all = [weekObs(data, days, monday, end), sleepObs(days, from, end), afterObs(days, from, end), timeObs(days, from, end), streakObs(days, monday, end), mindObs(days, from, end), bodyObs(days, monday, end), weatherObs(days, from, end)].filter(Boolean).filter((o) => !offKinds.includes(o.kind));
   return { list: all.filter((o) => !o.few && o.score > 0).sort((a, b) => b.score - a.score), few: all.filter((o) => o.few).map((o) => o.kind) };
 }
 
@@ -399,15 +466,20 @@ export function pickThree(data, monday, asOf, opts = {}) {
  *   'frozen'   the week's three, as stored (hidden kinds left out)
  *   'new'      worked out now; `store` is the record to save (frozen from now on)
  *   'thin'     ready, but not one observation has enough data yet (nothing is stored, so it can come later)
+ *   'live'     Sunday itself: worked out from today's data, stored only after the day is over
  *   'waiting'  the running week before its Sunday
  */
 export function weekView(value, data, monday, today) {
   const c = obsOf(value);
   if (!c.on) return { state: 'off', list: [], few: [] };
-  const stored = c.weeks[weekKey(monday)];
-  if (stored) return { state: 'frozen', list: stored.filter((o) => !c.offKinds.includes(o.kind)), few: [] };
   if (!isReady(monday, today)) return { state: 'waiting', list: [], few: [] };
-  const { list, few } = pickThree(data, monday, today < shiftDay(monday, 6) ? today : shiftDay(monday, 6), { offKinds: c.offKinds });
+  const sunday = shiftDay(monday, 6);
+  const over = today > sunday; // frozen only when the last day is over, so a ride synced later still counts
+  const stored = c.weeks[weekKey(monday)];
+  const redo = stored && !c.done.includes(weekKey(monday)) && sunday >= shiftDay(today, -REDO_DAYS); // a week frozen too early by an older version
+  if (stored && over && !redo) return { state: 'frozen', list: stored.filter((o) => !c.offKinds.includes(o.kind)), few: [] };
+  const { list, few } = pickThree(data, monday, over ? sunday : today, { offKinds: c.offKinds });
   if (!list.length) return { state: 'thin', list, few };
-  return { state: 'new', list, few, store: freeze(c, monday, list) };
+  // on Sunday itself the three are shown from today's data and not stored yet
+  return over ? { state: 'new', list, few, store: freeze(c, monday, list) } : { state: 'live', list, few };
 }

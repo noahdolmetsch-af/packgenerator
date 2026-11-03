@@ -19,7 +19,7 @@ export default {
   '{n} entry is missing or wrong. It is marked in red.': '{n} Angabe fehlt oder stimmt nicht. Sie ist rot markiert.',
   '{n} entries are missing or wrong. They are marked in red.': '{n} Angaben fehlen oder stimmen nicht. Sie sind rot markiert.',
   "Saving didn't work. What you typed stays here. Try again. If it fails again: Me › Data and backup › Save backup, then reload the page.":
-    'Speichern hat nicht geklappt. Dein Getipptes bleibt hier. Versuch es nochmal. Klappt es wieder nicht: Ich › Daten und Backup › Backup speichern, dann die Seite neu laden.',
+    'Speichern hat nicht geklappt. Dein Getipptes bleibt hier. Versuch es nochmal. Klappt es wieder nicht: Ich › Daten und Backup › Backup herunterladen, dann die Seite neu laden.',
   "This device's storage is full. Delete old photos or rides, or free up space in the browser. What you typed stays here.":
     'Der Speicher auf diesem Gerät ist voll. Lösche alte Fotos oder Fahrten oder gib im Browser Platz frei. Dein Getipptes bleibt hier.',
   // the first form: «Aus Notiz wird …» (Tour-Idee, Wunsch, Problem)

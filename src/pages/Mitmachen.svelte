@@ -11,7 +11,7 @@
   import { t, locale } from '../lib/i18n.svelte.js';
   import Empty from '../lib/ui/Empty.svelte';
   import { parseJoinLink, openQuestion, sendAnswer, MINI_ERRORS } from '../lib/mini/client.js';
-  import { readJoined, saveJoined } from '../lib/mini/store.js';
+  import { readJoined, saveJoined, readMine } from '../lib/mini/store.js';
   import PollAnswer from '../lib/mini/PollAnswer.svelte';
   import { readPoll } from '../lib/mini/poll.js';
   import ListAnswer from '../lib/mini/ListAnswer.svelte';
@@ -41,6 +41,19 @@
   let sending = $state(false);
   let sent = $state('');
   let sendErr = $state('');
+
+  /* the maker opened his own link (Noah 1.11.2026 «4a»): a bar leads to his answers */
+  let ownId = $state('');
+  $effect(() => {
+    if (!link) return;
+    untrack(async () => {
+      try {
+        ownId = (await readMine(db)).find((x) => x.srv?.id === link.id)?.id ?? '';
+      } catch {
+        ownId = '';
+      }
+    });
+  });
 
   const dayFmt = (o) => `${new Date(`${o.d}T12:00:00`).toLocaleDateString(locale(), { weekday: 'long', day: 'numeric', month: 'long' })}${o.t ? `, ${o.t}` : ''}`;
   const endFmt = (iso) => new Date(iso).toLocaleDateString(locale(), { weekday: 'short', day: 'numeric', month: 'numeric', timeZone: 'Europe/Zurich' });
@@ -118,6 +131,9 @@
 </script>
 
 <div class="mm-page" data-mitmachen>
+  {#if ownId}
+    <p class="mm-own" data-mm-own>{t('This is your own question.')} <a href={`#/me/mini/${encodeURIComponent(ownId)}`} data-mm-own-link>{t('To the answers')}</a></p>
+  {/if}
   {#if err}
     <Empty icon={CalendarCheck} title={t('Question not available')} text={err} />
   {:else if !loaded}
@@ -162,6 +178,13 @@
 </div>
 
 <style>
+  .mm-own {
+    margin: 0;
+    padding: var(--sp-2) var(--sp-3);
+    border-radius: 10px;
+    background: var(--paper-2);
+    border: 1px solid var(--line);
+  }
   .mm-page {
     display: grid;
     gap: var(--sp-4);

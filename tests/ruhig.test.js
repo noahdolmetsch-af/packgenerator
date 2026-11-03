@@ -247,3 +247,82 @@ describe('the page and its catalogue', () => {
     for (const s of SUBS) for (const k of [s.title, s.sub]) expect(DE[k], k).toBeTruthy();
   });
 });
+
+describe('Ruhige Ansicht: little history', () => {
+  it('keeps one line per ended calm view and sums the week', async () => {
+    const { logOf, lineFor, logAdd, logDrop, weekSummary, minutesOf, LOG_MAX } = await import('../src/lib/ruhig/calmlog.js');
+    const at = (h, m = 0) => new Date(2026, 10, 2, h, m).getTime(); // 2 Nov 2026, local
+    const calm = { what: 'Velo putzen', since: new Date(at(9)).toISOString(), until: 0 };
+    const a = lineFor(calm, at(9, 45));
+    expect(minutesOf(a)).toBe(45);
+    // an end by time counts to that end, not to the late tap
+    const timed = lineFor({ ...calm, until: at(10) }, at(14));
+    expect(minutesOf(timed)).toBe(60);
+    expect(lineFor({ what: '' }, 1)).toBe(null);
+    const b = { ...lineFor({ what: 'velo putzen', since: new Date(at(11)).toISOString(), until: 0 }, at(12)), id: 'c-b' };
+    let log = logAdd(logAdd([], a), b);
+    expect(log).toHaveLength(2);
+    const w = weekSummary(logOf(log), '2026-11-02');
+    expect(w).toEqual([{ what: 'velo putzen', times: 2, minutes: 105 }].map((x) => ({ ...x, what: w[0].what })));
+    expect(weekSummary(logOf(log), '2026-11-20')).toEqual([]); // too old
+    expect(logDrop(log, 'c-b')).toHaveLength(1);
+    let big = [];
+    for (let i = 0; i < LOG_MAX + 5; i++) big = logAdd(big, { ...a, id: `x${i}` });
+    expect(big).toHaveLength(LOG_MAX);
+  });
+});
+
+describe('Ruhige Ansicht: time and soft end', () => {
+  it('keeps a valid end and an open end as 0', async () => {
+    const { calmOf, calmUntil, calmOver, calmLeft } = await import('../src/lib/ruhig/weniger.js');
+    expect(calmOf({ what: 'Velo putzen' }).until).toBe(0);
+    expect(calmOf({ what: 'Velo putzen', until: 'x' }).until).toBe(0);
+    expect(calmUntil(0, 1000)).toBe(0);
+    expect(calmUntil(30, 1000)).toBe(1000 + 30 * 60000);
+    const c = calmOf({ what: 'a', until: 1000 + 15 * 60000 });
+    expect(calmOver(c, 1000)).toBe(false);
+    expect(calmLeft(c, 1000)).toBe(15);
+    expect(calmLeft(c, 1000 + 14 * 60000 + 1)).toBe(1);
+    expect(calmOver(c, 1000 + 15 * 60000)).toBe(true);
+    expect(calmLeft(c, 1000 + 15 * 60000)).toBe(0);
+    expect(calmOver(calmOf({ what: 'a' }), 9e15)).toBe(false);
+  });
+});
+
+describe('Ruhige Ansicht: quick starts', () => {
+  it('has three ready-made starts, which can be added, renamed and deleted like every kind', async () => {
+    const { startsOf, STD_STARTS } = await import('../src/lib/ruhig/calmstarts.js');
+    const { addKind, renameKind, dropKind, kindName } = await import('../src/lib/ruhig/kinds.js');
+    expect(startsOf(null).map((k) => k.std)).toEqual(['Clean the bike', 'Pack calmly', 'Analysis|calm']);
+    let s = addKind(startsOf(null), 'Schreibtisch aufräumen', 'k1');
+    s = renameKind(s, 'clean', 'Velo waschen');
+    expect(s.map((k) => kindName(k))).toEqual(['Velo waschen', '', '', 'Schreibtisch aufräumen'].map((x, i) => (i && i < 3 ? kindName(STD_STARTS[i]) : x)));
+    expect(dropKind(s, 'pack').map((k) => k.id)).toEqual(['clean', 'analysis', 'k1']);
+    expect(startsOf([{ id: 'x', name: 'Eigener' }])).toEqual([{ id: 'x', name: 'Eigener' }]);
+  });
+});
+
+describe('Ruhige Ansicht: phone reminders rest', () => {
+  it('moves reminders inside the time to just after its end, safety stays', async () => {
+    const { applyCalm, calmHeld } = await import('../src/lib/ruhig/weniger.js');
+    const now = 1_000_000;
+    const end = now + 30 * 60000;
+    const calm = { what: 'Velo putzen', until: end };
+    const items = [
+      { key: 'bday:1', at: now + 5 * 60000, title: 'a' },
+      { key: 'ice:x', at: now + 10 * 60000, title: 'safety' },
+      { key: 'plant:2', at: now + 20 * 60000, title: 'b' },
+      { key: 'wear:3', at: end + 60 * 60000, title: 'later' },
+    ];
+    const out = applyCalm(items, calm, now);
+    expect(out.find((i) => i.title === 'safety').at).toBe(now + 10 * 60000);
+    expect(out.find((i) => i.title === 'later').at).toBe(end + 60 * 60000);
+    expect(out.find((i) => i.title === 'a').at).toBe(end + 60000);
+    expect(out.find((i) => i.title === 'b').at).toBe(end + 120000);
+    expect(out).toHaveLength(4); // nothing is lost
+    expect(calmHeld(items, calm, now)).toBe(2);
+    expect(applyCalm(items, { what: 'x', until: 0 }, now)).toBe(items); // no time: nothing held
+    expect(applyCalm(items, calm, end + 1)).toBe(items); // over
+    expect(applyCalm(items, null, now)).toBe(items);
+  });
+});

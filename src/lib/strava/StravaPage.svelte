@@ -25,6 +25,8 @@
   import StravaChanges from './StravaChanges.svelte';
   import StravaFriends from './StravaFriends.svelte';
   import Skeleton from '../ui/Skeleton.svelte';
+  import ConnStatus from '../ui/ConnStatus.svelte';
+  import { lastOkFetchLine } from '../ui/connstatus.js';
   import { t, tn, num, dateOf, locale } from '../i18n.svelte.js';
   import { localDay } from '../localday.js';
 
@@ -150,7 +152,7 @@
 {/snippet}
 
 {#snippet err()}
-  {#if strava.error}<p class="serr" role="alert">{t(errorText(strava.error))}</p>{/if}
+  {#if strava.error}<p class="serr" role="alert">{t(errorText(strava.error))}{#if strava.error !== 'unauthorized'}{' '}{lastOkFetchLine(t, { lastOkAt: prefs.lastSync, when: timeOf })}{/if}</p>{/if}
 {/snippet}
 
 <div class="sp">
@@ -250,6 +252,7 @@
             <small class="num">{prefs.athlete ? `${t('as «{name}»', { name: prefs.athlete })} · ` : ''}{tn(withId, '{n} ride', '{n} rides')}</small>
           </span>
           <button type="button" class="btn hi" disabled={strava.busy} onclick={now}><RefreshCw size={16} aria-hidden="true" />{strava.busy ? t('Fetching …') : t('Fetch now')}</button>
+          <ConnStatus name="Strava" busy={strava.busy} since={strava.since} done={strava.got} unit="rides" />
           {#if fetched}
             <p class="got" role="status">{fetched.n ? tn(fetched.n, '{n} new ride fetched', '{n} new rides fetched') : t('No new rides')}{#if fetched.km}{' · '}+{num(Math.round(fetched.km))} km{/if}{#if fetched.check}{' · '}{tn(fetched.check, '{n} to check', '{n} to check')}{/if}</p>
           {/if}

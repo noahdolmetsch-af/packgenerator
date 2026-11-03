@@ -29,7 +29,7 @@ export default {
   'all in order': 'alles in Ordnung',
 
   // Daten und Backup: one clear main button, the head in words
-  'Save backup': 'Backup speichern',
+  'Save backup': 'Backup herunterladen',
   'Last backup: never': 'Letztes Backup: noch nie',
   'Last backup: {when}': 'Letztes Backup: {when}',
   'last change {when}': 'letzte Änderung {when}',

@@ -13,7 +13,7 @@ import { syncNow, readCfg, settleAsks } from './engine.js';
 export const AFTER_CHANGE_MS = 20_000;
 export const EVERY_MS = 5 * 60_000;
 
-export const sync = $state({ running: false, last: null, error: null, on: false, big: 0 });
+export const sync = $state({ running: false, last: null, error: null, on: false, big: 0, since: 0, phase: '', n: 0 });
 
 const device = () => (globalThis.matchMedia?.('(pointer: coarse)').matches ? 'phone' : 'computer');
 
@@ -37,8 +37,11 @@ export function runSync(db = dbRef) {
   }
   running = (async () => {
     sync.running = true;
+    sync.since = Date.now();
+    sync.phase = '';
+    sync.n = 0;
     try {
-      const r = await syncNow(db, { dev: device() });
+      const r = await syncNow(db, { dev: device(), onProgress: (p) => { sync.phase = p.phase; sync.n = p.n; } });
       // Einzelidee 34: a reminder ticked off on the other device no longer comes to this phone
       import('../push/client.js').then((p) => p.afterSync()).catch(() => {});
       return r;
@@ -46,6 +49,7 @@ export function runSync(db = dbRef) {
       return null; // the error is in syncCfg, the panel shows it
     } finally {
       sync.running = false;
+      sync.phase = '';
       running = null;
     }
   })();

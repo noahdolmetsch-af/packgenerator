@@ -47,12 +47,75 @@ test('Calm view: the strip shows only what you do, not on Heute, until «Fertig�
   await page.goto('./#/gear');
   const line = page.locator('[data-ruhig-line="calm"]');
   await expect(line).toContainText('Velo putzen');
+  await expect(page.locator('html')).toHaveAttribute('data-ruhe', '1'); // suggestions, stars, «Neu» rest
+  await expect(page.locator('.ph, .an, .stars, .sv-star')).toBeHidden();
   await page.goto('./#/');
   await page.locator('main').waitFor();
   await expect(page.locator('[data-ruhig-line]')).toHaveCount(0); // Heute stays as it is (rule 11)
   await page.goto('./#/gear');
   await line.getByRole('button', { name: T('Done|calm') }).click();
   await expect(page.locator('[data-ruhig-line]')).toHaveCount(0);
+  expect(errors).toEqual([]);
+});
+
+test('Calm view: «Done» keeps a line, the week shows it', async ({ page, context }) => {
+  const errors = await blank(page, context);
+  await page.goto('./#/me/ruhig/weniger?open=calm');
+  await settle(page);
+  await page.locator('[data-calm-what]').fill('Velo putzen');
+  await page.locator('[data-calm-what]').press('Enter');
+  await page.locator('[data-calm-done]').click();
+  await expect(page.locator('[data-calm-week]')).toContainText('1× Velo putzen');
+  await page.locator('[data-calm-log-clear]').click();
+  await expect(page.locator('[data-calm-week]')).toHaveCount(0);
+  expect(errors).toEqual([]);
+});
+
+test('Calm view: the words you wrote lead to the matching page', async ({ page, context }) => {
+  const errors = await blank(page, context);
+  await page.goto('./#/me/ruhig/weniger?open=calm');
+  await settle(page);
+  await page.locator('[data-calm-what]').fill('Kette prüfen');
+  await page.locator('[data-calm-what]').press('Enter');
+  await page.goto('./#/gear');
+  const open = page.locator('[data-ruhig-line="calm"] [data-calm-open]');
+  await expect(open).toHaveAttribute('href', /^#\//);
+  await open.click();
+  await expect(page.locator('[data-ruhig-line="calm"]')).toContainText('Kette prüfen'); // the strip stays
+  expect(errors).toEqual([]);
+});
+
+test('Calm view quick starts: one tap starts it, an own start can be added', async ({ page, context }) => {
+  const errors = await blank(page, context);
+  await page.goto('./#/me/ruhig/weniger?open=calm');
+  await settle(page);
+  await page.locator('[data-calm-starts-edit]').click();
+  await page.locator('[data-kind-new]').fill('Schreibtisch aufräumen');
+  await page.locator('[data-kind-new]').press('Enter');
+  await expect(page.locator('[data-calm-starts]')).toContainText('Schreibtisch aufräumen');
+  await page.locator('[data-calm-start]').filter({ hasText: 'Schreibtisch aufräumen' }).click();
+  await expect(page.locator('[data-calm-on]')).toContainText('Schreibtisch aufräumen');
+  await expect(page.locator('[data-ruhig-line="calm"]')).toContainText('Schreibtisch aufräumen');
+  expect(errors).toEqual([]);
+});
+
+test('Calm view on Today: only the one thing, «Show Today anyway», «Done» brings Today back', async ({ page, context }) => {
+  const errors = await blank(page, context);
+  await page.goto('./#/me/ruhig/weniger?open=calm');
+  await settle(page);
+  await page.locator('[data-calm-what]').fill('Kette prüfen');
+  await page.locator('[data-calm-what]').press('Enter');
+  await page.goto('./#/');
+  const home = page.locator('[data-calm-home]');
+  await expect(home).toContainText('Kette prüfen');
+  await expect(page.locator('[data-calm-home-open]')).toHaveAttribute('href', /^#\//);
+  await page.locator('[data-calm-home-all]').click();
+  await expect(home).toHaveCount(0); // the normal Today for this visit
+  await page.goto('./#/gear');
+  await page.goto('./#/');
+  await expect(page.locator('[data-calm-home]')).toHaveCount(1);
+  await page.locator('[data-calm-home-done]').click();
+  await expect(page.locator('[data-calm-home]')).toHaveCount(0);
   expect(errors).toEqual([]);
 });
 

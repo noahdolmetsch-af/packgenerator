@@ -116,7 +116,7 @@ export default {
   'Tap «Print / PDF» or share it as a link.': 'Tippe auf «Drucken / PDF» oder teile sie als Link.',
   'Print it, or save it as PDF.': 'Drucke sie oder speichere sie als PDF.',
   'On the day of the trip, open Ride day.': 'Öffne am Tourtag «Unterwegs».',
-  'The Now card shows the next stage and the weather.': 'Die Jetzt-Karte zeigt die nächste Etappe und das Wetter.',
+  'The overview on the way shows the next stage and the weather.': 'Die Unterwegs-Übersicht zeigt die nächste Etappe und das Wetter.',
   'It also says where each thing is packed.': 'Sie sagt auch, wo jedes Ding gepackt ist.',
   'Tap «Write a note», or «New» › Note.': 'Tippe auf «Notiz schreiben» oder «Neu» › Notiz.',
   'Write a word or take a photo.': 'Schreib ein Wort oder mach ein Foto.',

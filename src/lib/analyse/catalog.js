@@ -5,7 +5,8 @@
  *
  * analyseGroups(d): d = { table, weights, ctx, acts, log, ownKeys, period } (analyse/data.svelte.js).
  * An item: { key, name, unit, src, sum?, dec?, get(day) → number|null, hoursOf?(day) → 24 values,
- * profile?(days), later?, tick?, old? (the older page of the value) }. Every item opens
+ * profile?(days), later?, tick?, old? (the older page of the value), own? + how (an own calculation and how it
+ * is counted) }. «Tagesform» is the app's own «Bereitschaft» (body group). Every item opens
  * #/auswerten/analyse/<key>.
  */
 import { bodyOf, kindDay, BODY, KIND_ORDER } from '../uebersicht.js';
@@ -13,8 +14,10 @@ import { sportName } from '../flow/garmin/words.js';
 import { actName } from '../flow/ui.svelte.js';
 import { sourceOf, ticksByDay, tickPeriod, hourProfile, activeHours, meanOfHours, sumOf } from '../analyse.js';
 import { t } from '../i18n.svelte.js';
+import { sleepScoreOf, restlessOf, cardioLoadOf } from './own.js';
+import { valueHref } from './jump.js';
 
-export const detailHref = (key) => `#/auswerten/analyse/${encodeURIComponent(key)}`;
+export const detailHref = (key) => valueHref(key);
 
 export function analyseGroups({ table = new Map(), weights = new Map(), ctx = {}, acts = [], log = [], ownKeys = [], period = 30 } = {}) {
   const at = (it) => ({ href: detailHref(it.key), ...it });
@@ -49,14 +52,13 @@ export function analyseGroups({ table = new Map(), weights = new Map(), ctx = {}
         fb('hrDay', t('Pulse over the day'), 'bpm', (d) => meanOfHours(fit(d, 'hrH')), { hours: true, hoursOf: (d) => fit(d, 'hrH'), profile: (ds) => hourProfile(ds, (d) => fit(d, 'hrH')) }),
         fb('vo2max', t('VO₂max (cardio fitness)'), 'ml/kg/min', (d) => fit(d, 'vo2max'), { dec: 1 }),
         fb('fitZones', t('Minutes in pulse zones (Fitbit)'), 'min', (d) => sumOf(fit(d, 'hrZones')), { sum: true }),
-        later('cardioLoad', t('Cardio load'), 'own'),
-        later('readiness', t('Daily readiness|fitbit'), 'own'),
+        at({ key: 'cardioLoad', name: t('Cardio load'), unit: t('points|own'), src: 'fitbit', sum: true, own: true, how: t('Own calculation: minutes per pulse zone, light ×1, moderate ×2, hard ×3, peak ×4.|own'), get: (d) => cardioLoadOf(fit(d, 'hrZones')) }),
       ],
     },
     {
       key: 'sleep',
       name: t('Sleep|group'),
-      items: [body('sleep'), body('eff'), body('bed'), body('skin'), later('sleepScore', t('Sleep score'), 'own'), later('restless', t('Restlessness|sleep'), 'own')],
+      items: [body('sleep'), body('eff'), body('bed'), body('skin'), at({ key: 'sleepScore', name: t('Sleep score'), unit: '', src: 'fitbit', own: true, how: t('Own calculation, 0–100: duration (half, full at 8 h), deep and REM sleep (a quarter), calm (a quarter).|own'), get: (d) => sleepScoreOf(table.get(d)?.night) }), at({ key: 'restless', name: t('Restlessness|sleep'), unit: t('min/h|own'), src: 'fitbit', dec: 1, own: true, how: t('Own calculation: minutes awake per hour of sleep.|own'), get: (d) => restlessOf(table.get(d)?.night) })],
     },
     {
       key: 'move',

@@ -12,6 +12,7 @@
   import { keepTyped } from '../ui/keeptyped.js';
   import { liveQuery } from 'dexie';
   import Empty from '../ui/Empty.svelte';
+  import ExampleCard from './ExampleCard.svelte';
   import { db } from '../db.js';
   import { sortBikes, bikesHash, bikeTypeName } from '../bikes.js';
   import { equipmentGroups, equipmentTotals, setPartBasics } from '../equipment.js';
@@ -82,6 +83,7 @@
     <h1 class="title">{t('Equipment|tab')}</h1>
     <!-- v0.127.0 A-U2: the one empty building block -->
     <Empty icon={BikeIcon} title={t('No bikes yet')} text={t('Add your bike, or bring your data along with a backup.')} action={{ label: t('Add bike'), href: '#/bikes', onclick: wantBike }}>{t('Or bring your data along from a backup:')} <a href="#/me/data">{t('Me › Data and backup')}</a>.</Empty>
+    <ExampleCard title={t('Example: Gravel bike')} rows={[[t('Chain'), '1 020 km'], [t('Tyres'), '2 × 40 mm'], [t('Weight'), '9.4 kg']]} />
   {:else if bike}
     <!-- Design-Refresh P7 (V14, Noah 12.10.2026 «v11-v14 freigegeben»): «‹ Velo › Gravel Blau › Ausstattung»,
          «Ausstattung Gravel Blau», the counts below, «Compare bikes» as a button; the other bikes as chips. -->
@@ -92,6 +94,8 @@
       <a class="btn hi cmplink" href={bikesHash({ tab: 'compare', view: 'enter', bike: bike.id })}><PencilLine size={16} aria-hidden="true" />{t('Enter values')}</a>
       <a class="btn cmplink" href={bikesHash({ tab: 'compare', view: 'all' })}><Columns3 size={16} aria-hidden="true" />{t('Compare bikes')}</a>
     </VeloHead>
+    <!-- Noah 1.11.2026 «3a»: one line saying what this page is for (it was hard to tell from Setup, Equipment and Gear) -->
+    <p class="purpose" data-purpose="parts">{t('Parts: the components mounted on this bike, with weight and price.')}</p>
     <!-- Noah 19.10 «2a»: one card per page; the Einstieg «Ausstattung» lives in the card «Was hier steht» -->
     <HintCard page="equipment" intro="ausstattung" />
     {#if bikes.length > 1}<BikeChips {bikes} current={bike.id} onpick={(id) => onbike?.(id)} />{/if}
@@ -217,6 +221,11 @@
 {/if}
 
 <style>
+  .purpose {
+    margin: 0 0 8px;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+  }
   .cmplink {
     gap: 6px;
     text-decoration: none;

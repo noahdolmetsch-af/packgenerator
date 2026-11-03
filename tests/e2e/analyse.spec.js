@@ -85,6 +85,8 @@ test('Aktiv heute: the dots never cover a name, More opens Analyse', async ({ pa
 test('Analyse: every value as a tile, sources and period, a tap opens its course', async ({ page, context }, info) => {
   const errors = await open(page, context);
   await go(page, '#/auswerten/analyse');
+  await page.locator('[data-tab="werte"]').click();
+  await page.locator('[data-groups-toggle]').click(); // the groups are closed until opened
   await expect(page.getByRole('heading', { level: 1, name: T('Analyse|page') })).toBeVisible();
   for (const g of ['heart', 'sleep', 'move', 'sports', 'felt', 'aktiv']) await expect(page.locator(`[data-group="${g}"]`), g).toBeVisible();
   await expect(page.locator('[data-value="rhr"]')).toContainText(T('Resting pulse'));

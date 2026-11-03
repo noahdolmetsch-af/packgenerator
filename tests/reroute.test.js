@@ -1,6 +1,6 @@
 // Paket X «Umweg neu planen» (Noah 20.10.2026): reroute.js and the GPX writer gpxout.js, with made-up places.
 import { describe, it, expect } from 'vitest';
-import { brouterUrl, parseBrouter, rejoinOf, snapAhead, targetsOf, planDetour, onDetour, detourDone, detourGpx, saveDetour, loadDetour, DETOUR_KEY, PROFILE_STD } from '../src/lib/reroute.js';
+import { brouterUrl, parseBrouter, rejoinOf, snapAhead, targetsOf, planDetour, planAlternatives, onDetour, detourDone, detourGpx, saveDetour, loadDetour, DETOUR_KEY, PROFILE_STD } from '../src/lib/reroute.js';
 import { gpxString, wptName, gpxFileName, WPT_NAME_MAX } from '../src/lib/gpxout.js';
 
 // a straight made-up route east along 47° N, about 0.76 km per 0.01°
@@ -252,5 +252,44 @@ describe('at the place and the way back as a detour', () => {
     const d = backDetour(b, 9);
     expect(d).toMatchObject({ back: 'same', gainM: 0, min: null, fromKm: 8.3, rejoin: { km: 8.3 } });
     expect(d.line).toEqual(b.line);
+  });
+});
+
+describe('Wege zur Auswahl', () => {
+  const here = { lat: 47, lon: 8 };
+  const target = { lat: 47.01, lon: 8.02, name: 'test_data_gtp_ Quelle' };
+  const way = (n, mid, props) => geo([[8, 47, 400], [mid, 47.005, 410], [8.02, 47.01, 420]], props);
+  const answers = [
+    way(1, 8.01, { 'track-length': '3000', 'filtered ascend': '60', 'total-time': '600' }),
+    way(2, 8.012, { 'track-length': '3400', 'filtered ascend': '20', 'total-time': '720' }),
+    way(3, 8.008, { 'track-length': '3100', 'filtered ascend': '45', 'total-time': '540' }),
+  ];
+  const fetcherOf = (list) => {
+    const asked = [];
+    const fetcher = async (url) => {
+      asked.push(url);
+      const i = Number(new URL(url).searchParams.get('alternativeidx'));
+      return list[i] ? { ok: true, status: 200, json: async () => list[i] } : { ok: false, status: 500, json: async () => ({}) };
+    };
+    return { fetcher, asked };
+  };
+  it('asks the router one after the other and tags the best way in each point', async () => {
+    const { fetcher, asked } = fetcherOf(answers);
+    const ways = await planAlternatives({ here, target, fetcher }, 3);
+    expect(asked.map((u) => new URL(u).searchParams.get('alternativeidx'))).toEqual(['0', '1', '2']);
+    expect(ways).toHaveLength(3);
+    expect(ways[0].tags).toEqual(['shortest']);
+    expect(ways[1].tags).toEqual(['flattest']);
+    expect(ways[2].tags).toEqual(['fastest']);
+  });
+  it('drops a way that is the same and ends when the router has no more', async () => {
+    const { fetcher } = fetcherOf([answers[0], answers[0]]);
+    const ways = await planAlternatives({ here, target, fetcher }, 3);
+    expect(ways).toHaveLength(1);
+    expect(ways[0].tags).toEqual([]);
+  });
+  it('fails like planDetour when the first answer fails', async () => {
+    const { fetcher } = fetcherOf([]);
+    await expect(planAlternatives({ here, target, fetcher }, 3)).rejects.toThrow('noroute');
   });
 });

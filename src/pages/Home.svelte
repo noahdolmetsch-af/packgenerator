@@ -51,6 +51,9 @@
   import { LAST_BACKUP, LAST_IMPORT, backupDue, downloadBackup } from '../lib/backup.js';
   import { folderBackupSupported, folderStatus, allowAgain } from '../lib/folderBackup.js';
   import { backupAfterTrip } from '../lib/todos.js';
+  import { zustandRows } from '../lib/home/zustand.js';
+  import { keepState, askKeep } from '../lib/storagekeep.js';
+  import { sync as autoSync, runSync } from '../lib/sync/auto.svelte.js';
   import { knownWeight, isInventory } from '../lib/gear.js';
   import { sortBikes, bikesHash } from '../lib/bikes.js';
   import { sheetReminders, laterChanges } from '../lib/sheets2.js';
@@ -133,6 +136,7 @@
   import InProgress from '../lib/trip/InProgress.svelte';
   import Wall from '../lib/home/Wall.svelte';
   import TileCatalog from '../lib/home/TileCatalog.svelte';
+  import PinsTile from '../lib/home/PinsTile.svelte';
   import SmallTile from '../lib/home/SmallTile.svelte';
   import IntroKT from '../lib/home/IntroKT.svelte';
   import RaceLine from '../lib/race/RaceLine.svelte'; // Paket U «3b»: «Race in X days»
@@ -157,6 +161,7 @@
   import MonthTile from '../lib/home/MonthTile.svelte';
   import NextMsTile from '../lib/home/NextMsTile.svelte';
   import ChronikKarte from '../lib/lernen/ChronikKarte.svelte'; // Paket M #1027: replaces YearAgoTile (Noah «1b»)
+  import NeuHeute from '../lib/neuland/NeuHeute.svelte'; // Träume und Neuland N11 «Neu heute»: one line after a ride, no tile
   import WearToday from '../lib/home/WearToday.svelte';
   import FlowCard from '../lib/home/FlowCard.svelte';
   import AbCard from '../lib/abfragen/AbCard.svelte';
@@ -578,6 +583,14 @@
       folderName = f.name ?? '';
     }).catch(() => {});
   });
+  // «Ist alles in Ordnung?» (Noah 02.11.2026): space, «browser keeps the data» and the sync show here only when not right
+  let space = $state(null);
+  let keep = $state('unknown');
+  $effect(() => {
+    navigator.storage?.estimate?.().then((e) => (space = e?.quota ? { used: e.usage ?? 0, quota: e.quota } : null), () => {});
+    keepState().then((k) => (keep = k));
+  });
+  const zustand = $derived(zustandRows({ storage: space, keep, sync: autoSync, hasData: items.length + allTrips.length > 0 && !$demoQ }, { keepNow: async () => (keep = await askKeep()), syncNow: () => runSync() }));
   async function allowFolder() {
     folderNeedsOk = !(await allowAgain(db));
   }
@@ -706,6 +719,7 @@
     const askT = askTrips[0];
     if (askT) rows.push({ key: 'ride', tone: 'warn', st: 'done', text: hasBike(askT) ? t('{title} ({date}): date passed. Did you ride?', { title: askT.title, date: shortDay(askT.startDate) }) : t('{title} ({date}): date passed. Did you go?', { title: askT.title, date: shortDay(askT.startDate) }), act: { label: t('Yes|rode'), run: () => rideAnswer(askT, true) }, act2: { label: hasBike(askT) ? t('Not ridden|answer') : t('Did not happen'), run: () => rideAnswer(askT, false) } });
     if (folderNeedsOk && !$demoQ) rows.push({ key: 'folderok', tone: 'warn', text: t('The backup folder «{name}» waits for your OK. One tap, the folder stays.', { name: folderName }) + ' ' + t('Tip: in Chrome choose «Allow on every visit» so it asks less often.'), act: { label: t('Allow backup'), run: allowFolder }, short: t('Backup folder needs OK') });
+    rows.push(...zustand);
     if (backup.due) rows.push({ key: 'backup', tone: 'bad', text: `${t('Time for a backup')}: ${backup.days == null ? t('You have not saved a backup file yet.') : t('Your last backup is {n} days old.', { n: backup.days })}${$metaQ?.imp?.from ? ` ${t('Data from the backup of {date}. Newer state on the phone? Load its backup here.', { date: new Date($metaQ.imp.from).toLocaleDateString(locale(), { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) })}` : backup.afterTrip ? ` ${t('New debrief since the last backup: save one, then load it on the desktop.')}` : ''}`, act: { label: t('Download backup'), run: backupNow, busy: true }, short: t('Backup due') });
     rows.push(...careRows.filter((r) => r.tone === 'bad'));
     if (prep) rows.push({ key: 'prep', tone: prep.overdue ? 'bad' : 'warn', text: eventPrepLine(prep), act: { label: t('Tick off in the trip'), href: '#/pack', prep: next.id } });
@@ -1215,6 +1229,7 @@
   {:else if x.id === 'morningcheck'}<RoundTile {today} size={x.size} isnew={newTile('morningcheck')} />
   <!-- Paket M #1027 (Noah «1b»): the Chronik-Karte «Früher um diese Zeit» replaces «Vor einem Jahr»; the tile id stays -->
   {:else if x.id === 'yearago'}<ChronikKarte trips={homeTrips(allTrips)} {debriefs} {today} rides={$ridesQ ?? null} size={x.size} isnew={newTile('yearago')} />
+  {:else if x.id === 'pins'}<PinsTile />
   {:else if TILE[x.id]?.fn}
     {@const f = FUNCTIONS.find((y) => y.id === TILE[x.id].fn)}
     <SmallTile tile={TILE[x.id]} size={x.size} fn={f.id} badge={badges[f.id] ?? 0} sub={fnSub(f.id)} onclick={() => runFn(f)} />
@@ -1235,6 +1250,7 @@
        It stands right under «Dein Körper heute» (rule 11: the body check stays on top); here only when that tile is off. -->
   {#if ready && !editing && !on('body')}<DueToday todos={S[MERKEN_KEY] ?? []} {today} care={due.points} />{/if}
   {#if loaded}<BagReminder {today} now={now.getTime()} />{/if}
+  {#if loaded && !editing}<NeuHeute {today} />{/if}
   <!-- v0.30.2 (L9): a new user: three steps, each ticked once it has data. -->
   {#if showFirst}
     <section class="card first" aria-labelledby="first-h">

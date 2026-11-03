@@ -10,13 +10,13 @@
   import { goFeature } from './featureRun.js';
   import { momentName } from '../home/momentcard.js';
   import { NOT_KEY, notForMeOf } from '../ruhig/weniger.js';
-  import { PAGE_MOMENT, gehoertDazu, allHref } from './gehoert.js';
+  import { PAGE_MOMENT, HUB_ONLY, gehoertDazu, allHref } from './gehoert.js';
 
   let { page = '', hash = '' } = $props();
   const moment = $derived(PAGE_MOMENT[page] ?? null);
   const dataQ = liveQuery(featureData);
   const notQ = liveQuery(async () => notForMeOf((await db.settings.get(NOT_KEY))?.value));
-  const row = $derived(moment && $dataQ && $notQ ? gehoertDazu({ moment, here: `#/${page}`, used: usedOf($dataQ), notForMe: $notQ }) : null);
+  const row = $derived(moment && $dataQ && $notQ ? gehoertDazu({ moment, here: `#/${page}`, used: usedOf($dataQ), notForMe: $notQ, under: HUB_ONLY.includes(page) }) : null);
 </script>
 
 {#if row && row.items.length}

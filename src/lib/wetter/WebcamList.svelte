@@ -76,9 +76,9 @@
     try {
       pfound = await searchPlace(pq);
       if (!pfound.length) pmsg = t('No place found.');
-    } catch {
+    } catch (err) {
       pfound = [];
-      pmsg = t('The place search did not answer. Try again later.');
+      pmsg = err?.outage ? err.message : t('The place search did not answer. Try again later.');
     }
   }
   async function pick(c, p) {

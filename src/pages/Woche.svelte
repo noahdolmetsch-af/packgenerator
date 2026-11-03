@@ -1,4 +1,5 @@
 <script>
+  import PasstHier from '../lib/ui/PasstHier.svelte'; // Wegweiser 8: «Fits here»
   /**
    * «Woche planen» WP1 (mockup, Noah 15.10.2026 21:11 «1a 2a 3b 4a 5a»): #/week, the place «Woche».
    * Monday to Sunday with sport and the training plan, dates, to-dos, holidays and bike service, each
@@ -6,7 +7,7 @@
    * the button «Plan the week» and a small form to add a date or a to-do. On a phone the days fold to
    * one line each (Noah «2a»), today open. Rules: lib/woche.js; data: lib/woche/load.js.
    */
-  import { Plus, ChevronDown, CalendarCheck, ChevronRight, Palmtree, Sun, CloudRain, CloudSun, Info, History } from '@lucide/svelte';
+  import { Plus, ChevronDown, ChevronUp, CalendarCheck, ChevronRight, Palmtree, Sun, CloudRain, CloudSun, Info, History } from '@lucide/svelte';
   import PageHead from '../lib/ui/PageHead.svelte';
   import AreaIntro from '../lib/intro/AreaIntro.svelte'; // «Einstieg» for the place «Woche» (key weekplan)
   import FreeSlotCard from '../lib/freiezeit/FreeSlotCard.svelte'; // Idee A3: free time plus good weather
@@ -16,7 +17,7 @@
   import WeekDreams from '../lib/dreams/WeekDreams.svelte'; // Paket N idea 5: dreams and race deadlines of the week
   import { weekQuery, putWeek } from '../lib/woche/load.js';
   import { titleOf, subOf, dayName, shortDate, hours, holidayName, wxWords, reviewLine, hintText } from '../lib/woche/words.js';
-  import { ITEMS_KEY, HIDE_KEY, NO_KEY, TRAIN_NOTE, KINDS, KIND_NAMES, buildWeek, cleanItem, pruneItems, skipFor, planMonday, dotsOf, takeSuggestion } from '../lib/woche.js';
+  import { ITEMS_KEY, HIDE_KEY, NO_KEY, SG_OPEN_KEY, SG_OFF_KEY, SG_NEVER_KEY, SEASON_KEY, SUGG_SOURCES, TRAIN_NOTE, KINDS, KIND_NAMES, buildWeek, cleanItem, pruneItems, skipFor, planMonday, dotsOf, takeSuggestion } from '../lib/woche.js';
   import { homeForecast } from '../lib/home-weather.js';
   import { db } from '../lib/db.js';
   import { PLAN_KEY as TRAIN_KEY, mondayOf, shiftDay, isoWeek, prunePlan } from '../lib/training.js';
@@ -24,7 +25,7 @@
   import { localDay } from '../lib/localday.js';
   import { phone } from '../lib/media.svelte.js';
   import { PHONE_ROWS } from '../lib/touren/kurz.js';
-  import { t, tn } from '../lib/i18n.svelte.js';
+  import { t, tn, locale } from '../lib/i18n.svelte.js';
   import { offerDone } from '../lib/ui/rename.svelte.js';
 
   const today = localDay();
@@ -41,6 +42,8 @@
       .catch(() => (forecast = null));
   });
   const week = $derived(src ? buildWeek({ ...src, forecast, monday, today, goalHours: src.goal?.hours ?? null, actName: (id) => actName(actOf.get(id)) || id }) : null);
+  // «Planen als verbindende Mitte» 5a: «For 2.–8. Nov.» instead of a bare number range
+  const rangeLong = $derived(`${new Date(`${monday}T12:00:00Z`).getUTCDate()}.–${new Date(`${shiftDay(monday, 6)}T12:00:00Z`).toLocaleDateString(locale(), { timeZone: 'UTC', day: 'numeric', month: 'short' })}`);
   const range = $derived(`${shortDate(monday)}–${shortDate(shiftDay(monday, 6))}`);
   const due = $derived(src && src.planned !== planMonday(today));
 
@@ -78,7 +81,25 @@
 
   /* add a date or a to-do */
   let form = $state(null);
-  const startAdd = (kind) => (form = { kind, title: '', day: kind === 'date' ? (today >= monday ? today : monday) : '', time: '' });
+  const startAdd = (kind) => (form = { kind, title: '', day: kind === 'date' ? (today >= monday ? today : monday) : '', time: '', mins: '' });
+  // «Planen als verbindende Mitte» 3a (Noah 1.11.2026): «+ Einplanen» in every day opens the add form with that day
+  const planDay = (day) => {
+    form = { kind: 'todo', title: '', day, time: '', mins: '' };
+    queueMicrotask(() => document.getElementById('wk-add')?.scrollIntoView({ block: 'center' }));
+  };
+  // «Planen als verbindende Mitte» 5a (Noah 1.11.2026): close the week - open to-dos of past days: move, drop or keep without a day
+  let closeLater = $state(false);
+  const openOld = $derived(
+    next || closeLater ? [] : items().filter((x) => x.kind === 'todo' && !x.done && x.day && x.day < today && x.day >= shiftDay(today, -21)),
+  );
+  async function closeOne(x, how) {
+    const before = items();
+    const list = how === 'drop' ? before.filter((y) => y.id !== x.id) : before.map((y) => (y.id === x.id ? { ...y, day: how === 'move' ? today : null } : y));
+    await saveItems(list);
+    const msg = how === 'drop' ? t('«{name}» dropped.', { name: x.title }) : how === 'move' ? t('«{name}» moved to today.', { name: x.title }) : t('«{name}» kept without a day.', { name: x.title });
+    offerDone(msg, () => saveItems(before));
+  }
+  const emptyWeek = $derived(!!week && week.days.every((d) => !d.entries.length));
   async function add(ev) {
     ev.preventDefault();
     const it = cleanItem(form);
@@ -92,14 +113,40 @@
   let sgAll = $state(false);
   const sgShown = $derived(week ? (phone.matches && !sgAll ? week.suggestions.slice(0, PHONE_ROWS) : week.suggestions) : []);
   const sgMore = $derived(week ? week.suggestions.length - sgShown.length : 0);
+  const sgOpen = $derived(!!src?.sgOpen);
+  // «Where do the suggestions come from?» (Noah 2.11.2026 «a»): each source on or off; Undo
+  const SOURCE_NAMES = { todo: 'Own to-dos without a day', google: 'Google tasks', bike: 'Bike care', tour: 'Before a trip: packing list, weather, bike check', season: 'Season ideas', sport: 'Sport: rainy days and holidays' };
+  async function toggleSource(k) {
+    const before = src.sgOff;
+    const on = before.includes(k);
+    await putWeek(SG_OFF_KEY, on ? before.filter((x) => x !== k) : [...before, k]);
+    offerDone(on ? t('«{name}» is suggested again.', { name: t(SOURCE_NAMES[k]) }) : t('«{name}» is no longer suggested.', { name: t(SOURCE_NAMES[k]) }), () => putWeek(SG_OFF_KEY, before));
+  }
+  // the source fold keeps its own state: a reload of the week data must not close what was opened
+  let srcOpen = $state(false);
+  let neverOpen = $state(false);
+  // «Never suggest again» (Noah 2.11.2026 «b»): one suggestion away for good; the list «Put away» brings it back
+  async function never(s) {
+    const before = src.sgNever;
+    const name = titleOf(s);
+    await putWeek(SG_NEVER_KEY, [...before.filter((x) => x.ref !== s.ref), { ref: s.ref, title: name }]);
+    offerDone(t('«{name}» is no longer suggested.', { name }), () => putWeek(SG_NEVER_KEY, before));
+  }
+  const showAgain = (n) => putWeek(SG_NEVER_KEY, src.sgNever.filter((x) => x.ref !== n.ref));
+  const seasonSettings = $derived(seasonCfg(src?.seasons));
+  const saveSeasons = (cfg) => putWeek(SEASON_KEY, cfg);
+  let ideasOpen = $state(false);
+  const toggleSg = () => putWeek(SG_OPEN_KEY, !sgOpen);
   const hidden = (k) => src?.hide.includes(k);
+  import SeasonIdeas from '../lib/woche/SeasonIdeas.svelte'; // Noah 2.11.2026 «c»
+  import { seasonCfg } from '../lib/woche/kalender.js';
   import BufferPick from '../lib/stand/BufferPick.svelte'; // Paket A part 3: buffer before and after a date
   import { bufferItems } from '../lib/stand/stand.js';
   let buf = $state({ before: 0, after: 0 });
 </script>
 
 <div class="wkp">
-  <PageHead title={next ? t('Next week') : t('This week')} text={t('Week {n} · {range} · everything here is a suggestion and can be hidden', { n: isoWeek(monday), range })} />
+  <PageHead title={next ? t('Next week') : t('This week')} text={t('For {range} · week {n}. Your dates and planned tasks. You accept new suggestions yourself.', { n: isoWeek(monday), range: rangeLong })} />
   <AreaIntro place="weekplan" />
   <FreeSlotCard />
 
@@ -131,8 +178,26 @@
       </div>
     {/if}
 
+    {#if openOld.length}
+      <section class="wclose" data-week-close aria-label={t('Close the week')}>
+        <h2>{t('Close the week')}</h2>
+        <p class="why">{t('Still open from earlier days ({n}). You decide on each one.', { n: openOld.length })}</p>
+        {#each openOld as x (x.id)}
+          <div class="wc-row" data-close-row>
+            <span class="wc-t">{x.title}<small>{dayName(x.day)}</small></span>
+            <span class="wc-b">
+              <button type="button" class="btn" data-close-move onclick={() => closeOne(x, 'move')}>{t('Move to today')}</button><button type="button" class="btn" data-close-drop onclick={() => closeOne(x, 'drop')}>{t('Drop|week')}</button><button type="button" class="btn" data-close-keep onclick={() => closeOne(x, 'keep')}>{t('Keep without a day')}</button>
+            </span>
+          </div>
+        {/each}
+        <button type="button" class="btn" data-close-later onclick={() => (closeLater = true)}>{t('Later')}</button>
+      </section>
+    {/if}
+    {#if emptyWeek}
+      <p class="emptytop" data-week-empty><a class="btn hi" href="#/week/plan" data-plan-week-top><CalendarCheck size={18} aria-hidden="true" />{due ? t('Plan the week (10 min)') : t('Plan the week again')}</a><span class="why">{t('Nothing planned yet. Plan the week or add a day yourself.')}</span></p>
+    {/if}
     <div class="lay">
-      <section class="days" aria-label={t('The days of the week')}>
+      <section class="days" class:slim={emptyWeek} aria-label={t('The days of the week')}>
         {#each week.days as d (d.day)}
           {#if phone.matches}
             <details class="dr" class:today={d.today} open={d.today || undefined} data-day={d.day}>
@@ -145,6 +210,7 @@
               </summary>
               <div class="ens">
                 {#each d.entries as e (e.id)}<Entry {e} ondone={toggleDone} onremove={remove} />{:else}<p class="none">{t('Nothing planned')}</p>{/each}
+                {#if !d.past}<button type="button" class="dayadd" onclick={() => planDay(d.day)} data-day-add={d.day}><Plus size={16} aria-hidden="true" />{t('Add to plan')}</button>{/if}
               </div>
             </details>
           {:else}
@@ -152,6 +218,7 @@
               <h3><span>{dayName(d.day).split(' ')[0]}</span> <b class="num">{dayName(d.day).split(' ').slice(1).join(' ')}</b></h3>
               {#if d.wx || d.holiday}<p class="dm">{#if d.wx}{@render wxMark(d.wx)}{/if}{#if d.holiday}<span class="hol" data-holiday={d.holiday}>{holidayName(d.holiday)}</span>{/if}</p>{/if}
               {#each d.entries as e (e.id)}<Entry {e} ondone={toggleDone} onremove={remove} />{/each}
+              {#if !d.past}<button type="button" class="dayadd" onclick={() => planDay(d.day)} data-day-add={d.day}><Plus size={16} aria-hidden="true" />{t('Add to plan')}</button>{/if}
             </div>
           {/if}
         {/each}
@@ -159,8 +226,26 @@
 
       <aside class="side">
         <section class="card wc sg" aria-labelledby="wk-sg">
-          <h2 id="wk-sg">{t('Still to plan')}</h2>
+          <h2 id="wk-sg"><button type="button" class="sgh" aria-expanded={sgOpen} aria-controls="wk-sg-body" data-sg-toggle onclick={toggleSg}>
+            <span>{t('Still to plan')}<small>{tn(week.suggestions.length, '{n} suggestion', '{n} suggestions')}</small></span>
+            {#if sgOpen}<ChevronUp size={18} aria-hidden="true" />{:else}<ChevronDown size={18} aria-hidden="true" />{/if}
+          </button></h2>
+          {#if sgOpen}
+          <div id="wk-sg-body">
           <p class="why">{t('The app suggests, you decide. Take puts it on the day shown.')}</p>
+          <details class="srcs" data-sg-sources open={srcOpen || src.sgOff.length > 0} ontoggle={(e) => (srcOpen = e.currentTarget.open)}>
+            <summary>{src.sgOff.length ? tn(src.sgOff.length, 'Sources · {n} off', 'Sources · {n} off|pl') : t('Where do the suggestions come from?')}</summary>
+            <ul class="srclist">
+              {#each SUGG_SOURCES as k (k)}
+                <li><label><input type="checkbox" checked={!src.sgOff.includes(k)} data-sg-source={k} onchange={() => toggleSource(k)} /><span>{t(SOURCE_NAMES[k])}<small>{tn(week.sources[k], '{n} suggestion', '{n} suggestions')}</small></span></label></li>
+              {/each}
+            </ul>
+            <p class="why">{t('Switch off what you do not want to see. Your own to-dos and Google stay as they are.')}</p>
+            <details class="srcs" data-sg-ideas open={ideasOpen} ontoggle={(e) => (ideasOpen = e.currentTarget.open)}>
+              <summary>{t('Change season ideas')}</summary>
+              <SeasonIdeas cfg={seasonSettings} onsave={saveSeasons} />
+            </details>
+          </details>
           <ul>
             {#each sgShown as s (s.ref)}
               <li class="k-{s.kind}" data-sugg={s.ref}>
@@ -171,14 +256,28 @@
                   {:else if s.act === 'move'}<button type="button" class="btn sm" onclick={() => take(s)}>{t('Move|week')}</button>
                   {:else if s.day}<button type="button" class="btn sm" onclick={() => take(s)}>{t('Take')}</button>{/if}
                   <button type="button" class="btn sm" onclick={() => skip(s)}>{t('Not this week')}</button>
+                  <button type="button" class="btn sm" data-sg-never onclick={() => never(s)}>{t('Never suggest')}</button>
                 </span>
               </li>
             {:else}
               <li class="none">{t('Nothing left to plan.')}</li>
             {/each}
           </ul>
+          {#if src.sgNever.length}
+            <details class="srcs" data-sg-never-list open={neverOpen} ontoggle={(e) => (neverOpen = e.currentTarget.open)}>
+              <summary>{tn(src.sgNever.length, 'Put away · {n}', 'Put away · {n}|pl')}</summary>
+              <ul class="srclist">
+                {#each src.sgNever as n (n.ref)}
+                  <li class="nv"><span>{n.title || n.ref}</span><button type="button" class="btn sm" data-sg-again={n.ref} onclick={() => showAgain(n)}>{t('Show again')}</button></li>
+                {/each}
+              </ul>
+              <p class="why">{t('The app does not suggest these any more.')}</p>
+            </details>
+          {/if}
           {#if sgMore > 0}
             <button type="button" class="phone-more" onclick={() => (sgAll = true)} data-sugg-more><ChevronDown size={16} aria-hidden="true" />{tn(sgMore, 'Show {n} more suggestion', 'Show {n} more suggestions')}</button>
+          {/if}
+          </div>
           {/if}
           <a class="btn hi" href="#/week/plan" data-plan-week><CalendarCheck size={18} aria-hidden="true" />{due ? t('Plan the week (10 min)') : t('Plan the week again')}</a>
         </section>
@@ -196,6 +295,7 @@
                 {#if form.kind === 'date'}<label>{t('Time')}<input type="time" bind:value={form.time} /></label>{/if}
               </div>
               {#if form.kind === 'date'}<BufferPick bind:before={buf.before} bind:after={buf.after} />{/if}
+              {#if form.kind === 'todo'}<label>{t('Time needed (minutes, optional)')}<input type="number" min="5" max="480" step="5" bind:value={form.mins} placeholder="30" data-todo-mins /></label>{/if}
               {#if form.kind === 'todo'}<p class="why">{t('Without a day it waits under «Still to plan».')}</p>{/if}
               <div class="fb"><button type="submit" class="btn">{t('Save')}</button><button type="button" class="btn" onclick={() => (form = null)}>{t('Cancel')}</button></div>
             </form>
@@ -211,6 +311,8 @@
       </aside>
     </div>
   {/if}
+  <!-- Wegweiser 8: fewer things at once while planning the week, and the evening -->
+  <PasstHier place="woche" />
 </div>
 
 {#snippet wxMark(wx)}
@@ -373,6 +475,31 @@
     background: var(--paper);
     box-shadow: var(--card-shadow);
   }
+  .days.slim .dc {
+    min-height: 120px;
+  }
+  .dayadd {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    min-height: 44px;
+    margin-top: auto;
+    border: 1px dashed var(--line-strong);
+    border-radius: 8px;
+    background: transparent;
+    color: var(--ink-2);
+    font: inherit;
+    font-size: var(--fs-small);
+    cursor: pointer;
+  }
+  .emptytop {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px 40px;
+    margin: 0 0 12px;
+  }
   .dc.today {
     outline: 2px solid var(--pc);
     outline-offset: 1px;
@@ -417,6 +544,73 @@
     margin: 0 0 8px;
     color: var(--ink-2);
     font-size: var(--fs-small);
+  }
+  .srcs > summary {
+    cursor: pointer;
+    color: var(--muted);
+    font-size: var(--fs-small);
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+  }
+  .sg .srclist li {
+    border-top: 0;
+    padding: 2px 0;
+  }
+  .sg .srclist label {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 10px;
+    min-height: 44px;
+    width: 100%;
+    text-align: left;
+  }
+  .sg .srclist input {
+    flex: none;
+    width: 20px;
+    height: 20px;
+    margin: 0;
+  }
+  .sg .srclist li.nv {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 4px 0;
+  }
+  .srclist span {
+    flex: 1;
+    min-width: 0;
+    text-align: left;
+  }
+  .srclist small {
+    display: block;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+  }
+  .sgh {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    min-height: 44px;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+  .sgh small {
+    display: block;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+    font-weight: 400;
   }
   .sg ul {
     margin: 0 0 14px;
@@ -563,4 +757,9 @@
     text-align: left;
     cursor: pointer;
   }
+  .wclose{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:14px;margin:10px 0}
+  .wclose h2{font-size:var(--fs-sub);margin:0 0 4px}
+  .wc-row{display:flex;gap:8px;align-items:center;justify-content:space-between;flex-wrap:wrap;border:1px solid var(--line);border-radius:10px;padding:10px;margin:6px 0}
+  .wc-t{display:flex;flex-direction:column;font-weight:600}.wc-t small{font-weight:400;color:var(--muted)}
+  .wc-b{display:flex;gap:6px;flex-wrap:wrap}
 </style>

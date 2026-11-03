@@ -5,6 +5,7 @@
 import { test, expect } from './clock.js';
 import { ready } from './settle.js';
 import { DETAIL_V } from '../../src/lib/training.js';
+import { localDay } from '../../src/lib/localday.js';
 
 const P = 'test_data_gtp_';
 const shot = async (page, info, name) => {
@@ -216,8 +217,164 @@ test('Training › Woche: an optional goal, plan the week, «Wie letzte Woche»,
   await plan.locator('[data-planned]').click();
   await plan.locator('[data-session-form]').getByRole('button', { name: 'Entfernen' }).click();
   await expect(plan.locator('[data-planned]')).toHaveCount(0);
-  await plan.getByRole('button', { name: 'Diese Woche' }).click();
+  await plan.getByRole('button', { name: 'Diese Woche', exact: true }).click();
   await expect(plan.locator('[data-planned]')).toHaveCount(1);
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(page.viewportSize().width);
+  expect(errors).toEqual([]);
+});
+
+// «Training verbessern» 1 (Noah 2.11.2026): a session of an own sport; a new sport can be added; ticking it in Aktiv ticks the plan
+test('Training › Woche: plan a sport of Aktiv, add a new one, tick it', async ({ page, context, baseURL }) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await start(page, context, { log: [], app: baseURL });
+  await page.goto('./#/flow/training');
+  const plan = page.locator('[data-section="week-plan"]');
+  await plan.locator(`[data-add="${day(0)}"]`).click();
+  const form = plan.locator('[data-session-form]');
+  await form.getByRole('button', { name: 'Andere', exact: true }).click();
+  await form.locator('[data-sport-new]').click();
+  await form.locator('[data-sport-name]').fill(`${P}Rudern`);
+  await form.locator('[data-sport-save]').click();
+  await expect(form.locator('[data-session-sport] option:checked')).toHaveText(`${P}Rudern`);
+  await form.locator('[data-session-mins]').fill('45');
+  await form.getByRole('button', { name: 'Speichern' }).click();
+  const chip = plan.locator('[data-planned]').filter({ hasText: `${P}Rudern` });
+  await expect(chip).toContainText('0:45');
+  await expect(chip).not.toHaveClass(/ok/);
+  // several sports on one day (Noah 3.11.2026): a second session on the same day
+  await plan.locator(`[data-add="${day(0)}"]`).click();
+  await plan.locator('[data-session-form]').locator('[data-session-mins]').fill('30');
+  await plan.locator('[data-session-form]').getByRole('button', { name: 'Speichern' }).click();
+  await expect(plan.locator(`[data-day="${day(0)}"] [data-planned]`)).toHaveCount(2);
+  // ticked in Aktiv: the same day turns the planned session green
+  await page.evaluate(
+    ([d, name]) => new Promise((ok) => {
+      const r = indexedDB.open('pack-generator');
+      r.onsuccess = () => {
+        const db = r.result;
+        const rows = db.transaction('flowActs').objectStore('flowActs').getAll();
+        rows.onsuccess = () => {
+          const a = rows.result.find((x) => x.name === name);
+          const tx = db.transaction('flowLog', 'readwrite');
+          tx.objectStore('flowLog').put({ id: 'test-e1', actId: a.id, day: d, at: `${d}T08:00:00Z`, n: 1 });
+          tx.oncomplete = () => ok();
+        };
+      };
+    }),
+    [day(0), `${P}Rudern`],
+  );
+  // a write outside Dexie is not seen by the open page: reload
+  await page.reload();
+  await expect(plan.locator('[data-planned]').filter({ hasText: `${P}Rudern` })).toHaveClass(/ok/);
+  expect(errors).toEqual([]);
+});
+
+// «Training verbessern» 2 (Noah 2.11.2026): a suggestion for the week with its reasons; another layout; take over; Undo
+test('Training › Woche: a suggestion for the week, another one, take over, undo', async ({ page, context, baseURL }) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await start(page, context, { log: [], app: baseURL });
+  await page.goto('./#/flow/training');
+  const plan = page.locator('[data-section="week-plan"]');
+  await expect(plan.locator('[data-planned]')).toHaveCount(0);
+  await plan.locator('[data-suggest-open]').click();
+  const sug = plan.locator('[data-suggest]');
+  await expect(sug).toContainText('Etwa');
+  await expect(sug).toContainText('in Z1–Z2');
+  const first = await sug.locator('.sugw-list').innerText();
+  await sug.locator('[data-suggest-more]').click();
+  expect(await sug.locator('.sugw-list').innerText()).not.toBe(first);
+  // the hours per week can be set with + and −; the hint about sports and passed days is gone
+  const hrs = sug.locator('[data-sug-hours] b');
+  const h0 = Number((await hrs.innerText()).replace(',', '.'));
+  await sug.locator('[data-sug-plus]').click();
+  expect(Number((await hrs.innerText()).replace(',', '.'))).toBe(h0 + 0.5);
+  await expect(sug).not.toContainText('Deine Sportarten');
+  await expect(sug).not.toContainText('Vergangene Tage');
+  // harder / easier and a focus: the week recalculates
+  await sug.locator('[data-sug-push-btn="1"]').click();
+  await expect(sug.locator('[data-sug-push-btn="1"]')).toHaveAttribute('aria-pressed', 'true');
+  await sug.locator('[data-sug-focus-btn="hit"]').click();
+  await expect(sug.locator('[data-sug-row]').filter({ hasText: 'Intervall-Einheit' })).toHaveCount(2);
+  await sug.locator('[data-sug-focus-btn="ruhe"]').click();
+  await expect(sug.locator('[data-sug-row]').filter({ hasText: 'Intervall-Einheit' })).toHaveCount(0);
+  // every row can be changed here: swap the session for another sport, change minutes, add a second session on a day, remove one
+  const rows = sug.locator('[data-sug-row]');
+  const n0 = await rows.count();
+  await rows.first().locator('[data-sug-edit]').click();
+  await sug.locator('[data-sug-act]').selectOption('kind:run');
+  await sug.locator('[data-sug-mins]').fill('35');
+  await sug.locator('[data-sug-save]').click();
+  await expect(rows.first()).toContainText('0:35');
+  await sug.locator('[data-sug-add]').click();
+  await sug.locator('[data-sug-save]').click();
+  await expect(rows).toHaveCount(n0 + 1);
+  await rows.last().locator('[data-sug-drop]').click();
+  await expect(rows).toHaveCount(n0);
+  await sug.locator('[data-suggest-take]').click();
+  await expect(sug).toHaveCount(0);
+  expect(await plan.locator('[data-planned]').count()).toBeGreaterThan(0);
+  await page.getByRole('button', { name: 'Rückgängig' }).first().click();
+  await expect(plan.locator('[data-planned]')).toHaveCount(0);
+  expect(errors).toEqual([]);
+});
+
+test('Training › Woche: free days and time per day in the suggestion are remembered', async ({ page, context, baseURL }) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await start(page, context, { log: [], app: baseURL });
+  await page.goto('./#/flow/training');
+  const plan = page.locator('[data-section="week-plan"]');
+  await plan.locator('[data-suggest-open]').click();
+  const sug = plan.locator('[data-suggest]');
+  const day = (i) => sug.locator(`[data-sug-day-btn="${i}"]`);
+  await expect(day(6)).toContainText('offen');
+  await day(6).click();
+  await expect(day(6)).toContainText('≤1h');
+  await day(6).click();
+  await expect(day(6)).toContainText('≤30m');
+  await day(6).click();
+  await expect(day(6)).toContainText('frei');
+  // all days free: no session is left, the buttons stay to undo it
+  for (let i = 0; i < 6; i++) for (let k = 0; k < 3; k++) await day(i).click();
+  await expect(sug.locator('[data-sug-row]')).toHaveCount(0);
+  await expect(day(0)).toContainText('frei');
+  // remembered after a reload
+  await page.reload();
+  await plan.locator('[data-suggest-open]').click();
+  await expect(sug.locator('[data-sug-day-btn="6"]')).toContainText('frei');
+  await sug.locator('[data-sug-day-btn="6"]').click();
+  await expect(sug.locator('[data-sug-day-btn="6"]')).toContainText('offen');
+  expect(errors).toEqual([]);
+});
+
+test('Training › Woche: rain from the home place weather shows an indoor hint in the suggestion', async ({ page, context, baseURL }) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await start(page, context, { log: [], app: baseURL });
+  // twenty days of rain around today (calendar-day arithmetic in Europe/Zurich)
+  const time = Array.from({ length: 20 }, (_, n) => localDay(new Date(Date.now() + (n - 3) * 86400000 + 3600000)));
+  const fill = (v) => time.map(() => v);
+  await context.route(/api\.open-meteo\.com/, (r) =>
+    r.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ daily: { time, temperature_2m_min: fill(8), temperature_2m_max: fill(14), precipitation_sum: fill(12), precipitation_probability_max: fill(90) } }) }),
+  );
+  await page.goto('./#/flow/training');
+  await ready(page);
+  await page.evaluate(() => new Promise((ok) => {
+    const r = indexedDB.open('pack-generator');
+    r.onsuccess = () => {
+      const tx = r.result.transaction('settings', 'readwrite');
+      tx.objectStore('settings').put({ key: 'homePlace', value: { name: 'test_data_gtp_ Heimort', lat: 47.39, lon: 8.04 } });
+      tx.oncomplete = () => (r.result.close(), ok());
+    };
+  }));
+  await page.reload();
+  await ready(page);
+  const plan = page.locator('[data-section="week-plan"]');
+  await plan.locator('[data-suggest-open]').click();
+  const sug = plan.locator('[data-suggest]');
+  await expect(sug.locator('[data-sug-rain]').first()).toContainText('Regen: drinnen?');
+  await expect(sug).toContainText('kein trockenerer Tag');
   expect(errors).toEqual([]);
 });

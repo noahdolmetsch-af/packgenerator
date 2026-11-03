@@ -6,22 +6,33 @@
 import { FEATURES, featureHref } from '../features.js';
 import { momentOfFeature } from '../moment.js';
 
-/** The pages that show the row: page name (App.svelte) → moment key. A new page comes with its own PR. */
-export const PAGE_MOMENT = { pack: 'packen', trips: 'planen', me: 'app' };
+/** The pages that show the row: page name (App.svelte) → moment key. A new page comes with its own PR.
+ * «Wegweiser statt Katalog» PR 10 (Noah 01.11.2026 «1a 2a 3a 4a 5a»): Velos, Material and Aktiv too.
+ * Idea D4 «App denkt mit» (Noah 02.11.2026 «3b»): Rückblick (hub only), Neuland and Wetter too. */
+export const PAGE_MOMENT = { pack: 'packen', trips: 'planen', me: 'app', bikes: 'velo', gear: 'velo', flow: 'koerper', debrief: 'zurueck', neuland: 'lust', wetter: 'planen' };
+/** Pages whose row shows only on the page itself, not on its sub-pages (a form like #/flow/edit/… stays quiet). */
+export const HUB_ONLY = ['bikes', 'gear', 'flow', 'debrief'];
 /** Chips shown before «all n ›». */
 export const SHOWN = 5;
 
 const pathOf = (href) => (href ?? '').split('?')[0];
 
+/** Whether the row shows for this page and hash: a page of PAGE_MOMENT, and for HUB_ONLY only on '#/page' itself. */
+export function showsRow(page, hash = '') {
+  if (!PAGE_MOMENT[page]) return false;
+  return !HUB_ONLY.includes(page) || pathOf(hash).replace(/\/$/, '') === `#/${page}`;
+}
+
 /**
  * The row for a page: { items: [feature] (at most SHOWN), total }. The functions of the moment that lead somewhere other
  * than this page, never used first (in catalogue order), then the used ones; «Not for me» ones stay out.
  * here: the hash of the page ('#/pack'), used: ids of used functions, notForMe: { [id]: … }.
+ * under: also leave out the page's own sub-pages ('#/flow/sports' on '#/flow'), which the page already leads to (PR 10).
  */
-export function gehoertDazu({ moment, here = '', used = new Set(), notForMe = {} } = {}) {
+export function gehoertDazu({ moment, here = '', used = new Set(), notForMe = {}, under = false } = {}) {
   const all = FEATURES.filter((f) => momentOfFeature(f.id) === moment && !notForMe[f.id]).filter((f) => {
     const p = pathOf(featureHref(f));
-    return !p || p !== pathOf(here);
+    return !p || (p !== pathOf(here) && !(under && p.startsWith(`${pathOf(here)}/`)));
   });
   const sorted = [...all.filter((f) => !used.has(f.id)), ...all.filter((f) => used.has(f.id))];
   return { items: sorted.slice(0, SHOWN), total: all.length };

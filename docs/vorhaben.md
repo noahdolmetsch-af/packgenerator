@@ -563,6 +563,16 @@ Warum: Daten aus verschiedenen Bereichen sollen zusammenspielen, damit die App i
 
 In vier kleinen Schritten: 1 Seite mit Rezepten, Gruppen (Fleisch, Shakes, Sonntags-Brunch …), Portionen und Einkaufsliste · 2 Kochmodus (ein Schritt pro Bildschirm, Timer, Bildschirm bleibt an, alle Schritte auf einen Blick) · 3 ein Tipp pro Mahlzeit und Tag, ohne Wiederholung, mit «Anderer Vorschlag», «Mag ich», «Nie mehr zeigen» und kurzem Start (was du nicht isst, wie lange) · 4 ungefähre Nährwerte pro Portion. Später: Bezug zum Training, Link zur Suche im Online-Shop.
 
+## Fragen aus deinen Daten (03.11.2026)
+
+Warum: Der Tagescheck soll aus Noahs Daten klug fragen (Ziel 5 «Alltag», dazu Ziel 4 «Aus jeder Tour lernen»). Noah «1b 2a 3a 4a 5a» und «alle anderen Vorschläge fest einplanen». Ideenseite: https://claude.ai/artifact/FLtTe4HQSHzor8MN1RxsEu.
+
+- **Regeln:** Auffälliges löst eine offene Frage mit «Warum frage ich das?» aus, im normalen Morgen- oder Abendfenster, bis zu 3 pro Tag, ruhig und neugierig im Ton. Alles wird auf dem Gerät gerechnet, Gesundheit nur als Beobachtung.
+- **Stufe 1:** Regel-Motor mit Ruhepuls-Regel (gebaut), Schlaf-kurz- und Stimmung-tief-Regel, Seite «Fragen aus deinen Daten» (Schalter, Schwelle, Text, eigene Antworten).
+- **Stufe 2:** Regeln aus Training, Strava, Tennis und Wetter, Wiederholungsschutz, eine Zufallsfrage pro Tag aus den ausgeschalteten Musterfragen («Nie mehr»), Vermutungen testen aus «Was zusammenpasst».
+- **Stufe 3:** Kalender, To-Dos, Wunschtouren, Gewicht, Achtsamkeit, eigene Regeln selbst bauen, die zwei Fragensysteme (15 Fragen und «Wi gaht's?») zusammenführen, Tonwahl.
+- **Je ein kleiner PR**, in dieser Reihenfolge.
+
 ## Mini-Tools (28.10.2026)
 
 Warum: mit anderen Leuten schneller abmachen, ohne langes Hin und Her im Chat (Ziele Touren und Alltag). Noah «1b 2a 3a, Ideen 1, 2, 4, 5, 7, 9, 10, 5a». Ideenseite mit Skizzen: https://claude.ai/artifact/HA5TAJLzAtuhUBAAHqJApH
@@ -570,3 +580,13 @@ Warum: mit anderen Leuten schneller abmachen, ohne langes Hin und Her im Chat (Z
 - Eigene Seite Ich › Mini-Tools. Die Gefragten antworten im Browser, ohne App und ohne Konto; die Antworten kommen verschlüsselt über einen kleinen Gratis-Speicher zurück, nur der Fragende kann sie lesen. Auszählen ohne KI.
 - Reihenfolge, je ein PR: 1 Termin finden (gebaut), 2 Mini-Umfrage (gebaut), 4 Anmeldeliste mit Warteliste (gebaut), 5 Spontan-Einladung «Fährst du morgen mit?» (gebaut), 7 Essen und Unverträglichkeiten (gebaut), 9 Fair auslosen (gebaut), 10 Wann muss ich losfahren? (gebaut)
 - Nicht gewählt: 3 Mitfahren und Velo-Plätze, 6 Rennen-Helferplan, 8 gemeinsame Bewertung nach der Tour.
+
+### 17. Wegweiser statt Katalog (Noah 01.11.2026 «1a 2a 3a 4a 5a», Inhalte «1-5a»)
+
+- **Warum:** Fast jede Funktion hat nur einen Eingang, ihre eigene Seite. Die Finde-Hilfen (Suche, Katalog, Quick Links, Entdecken) helfen nur, wer schon sucht. 44 Funktionen hatten keinen Link von einer Seite der App. Und die Texte zu jeder Funktion (Wozu, Anleitung, Beispiel) stehen im Handbuch, nicht auf der Seite; Wissen fehlt oft. Ziele: alle sechs, vor allem «Eine App, die mich im Alltag unterstützt».
+- **Was:** Jede Funktion bekommt einen Absprung dort, wo man sie braucht (Zeile «Passt hier», «Als Nächstes» nach einer Handlung, leere Stellen führen weiter, «Gehört dazu» auf Velos, Aktiv und Material) und sechs Inhaltsteile auf ihrer Seite: Wozu, So geht's, Beispiel, Wissen, Startinhalt, Als Nächstes. Dazu gleiche Namen überall und «Erscheint, wenn …» für Funktionen, die nur in einer Lage erscheinen. Eine neue Funktion ist erst fertig mit Absprung und Inhalt.
+- **Plan (Noah 01.11.2026 «freigabe», alle 26 umsetzen):** je Schritt ein kleiner PR, jeder zuerst mit Bildern und Noahs ok. Fahrplan: https://claude.ai/artifact/6GxVTLqb64LBXkFXHadV5T, Vorschlag: https://claude.ai/artifact/CdzicDw4wNusQm1iJiC7vd, Inhalts-Prüfung: https://claude.ai/artifact/GBuk6VWpEuwWs1wsuSyUnL
+  - A Wegweiser: 1 Test «Absprung» (`src/lib/know/absprung.js`, Liste darf nur kürzer werden) · 2 Unterwegs («Passt hier») · 3 Velo und Material · 4 Rückblick mit «Als Nächstes» · 5 Packen, Planen, Teilen · 6 Träume · 7 Körper · 8 Alltag und Ruhiger · 9 «Als Nächstes» nach Fahrt gespeichert, Alles gepackt, Pflege erledigt · 10 «Gehört dazu» auf Velos, Aktiv, Material.
+  - B Inhalte: 11 Baustein «Wozu und So geht's» für alle Seiten (Texte aus Katalog und Handbuch, «Beispiel übernehmen» im leeren Zustand) · 12–20 Inhalte pro Bereich mit Wissen, dünnste zuerst: Lust, Planen, Zurück, Unterwegs, Packen, Alltag, Körper, Velo, App · 21 Inhalts-Prüfung der 29 Funktionen in offener Tour, Rennen, Notiz.
+  - C Sichern: 22 gleiche Namen überall (17) · 23 «Erscheint, wenn …» (17) · 24 Test «Inhalt» (Roboter, Lückenliste nur kürzer) · 25 «Fertig»-Regel für neue Funktionen in den Arbeitsregeln · 26 leere Stellen und Schlussmessung.
+- **Stand:** 1 offen (#560), 2 gebaut.

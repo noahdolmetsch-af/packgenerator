@@ -172,6 +172,9 @@ describe('TR4: the week plan', () => {
     expect(mondayOf('2026-10-18')).toBe('2026-10-12');
     expect(weekOf('2026-10-12')).toEqual(['2026-10-12', '2026-10-13', '2026-10-14', '2026-10-15', '2026-10-16', '2026-10-17', '2026-10-18']);
     expect(cleanSession({ id: 'a', day: '2026-10-14', kind: 'swim', name: ' Locker ', mins: '30', zone: 9 })).toEqual({ id: 'a', day: '2026-10-14', kind: 'bike', name: 'Locker', mins: 30, zone: null });
+    // «Training verbessern» 1: a session of an own sport keeps its sport id
+    expect(cleanSession({ id: 'b', day: '2026-10-14', kind: 'other', sport: 'yoga', mins: 30 })).toMatchObject({ kind: 'other', sport: 'yoga' });
+    expect(cleanSession({ id: 'c', day: '2026-10-14', mins: 30 }).sport).toBeUndefined();
     expect(cleanSession({ day: 'x', mins: 30 })).toBe(null);
     expect(cleanSession({ day: '2026-10-14', mins: 0 })).toBe(null);
     expect(planOf({ sessions: [{ id: 'a', day: '2026-10-14', mins: 30, zone: 2 }, { day: 'nope' }] }).length).toBe(1);
@@ -236,5 +239,13 @@ describe('power: FTP, zones, load, W/kg (Noah 13.10.2026 «a und b», «a»)', (
     expect(powerLoad({ wNorm: null, movingS: 7200 }, 250)).toBe(null);
     expect(wkg(238, 72)).toBe(3.3);
     expect(wkg(238, null)).toBe(null);
+  });
+});
+
+import { cleanDayLimits } from '../src/lib/training.js';
+describe('cleanDayLimits', () => {
+  it('keeps weekdays 0–6 with 0–600 minutes only', () => {
+    expect(cleanDayLimits({ 0: 0, 5: 30, 7: 10, x: 5, 2: -1, 3: 'a', 4: 900 })).toEqual({ 0: 0, 5: 30 });
+    expect(cleanDayLimits(null)).toEqual({});
   });
 });

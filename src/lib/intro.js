@@ -216,7 +216,7 @@ export const INTROS = {
       { icon: 'check', title: 'Log a service', text: 'Open a bike, tap a part and enter what you did. Its km start again.' },
       { icon: 'list', title: 'Import rides', text: 'Rides from Strava or a GPX file add the km to the right bike.', href: '#/bikes?tab=care&view=import' },
     ],
-    expect: 'After a few weeks the app knows how many km each part has done and tells you before something wears out.',
+    expect: 'After a few weeks the app knows how many km each part has done and reminds you by the km and time intervals you set.',
     // what is due comes first (a to-do list, like Material «list first»): one line until you open it
     folded: true,
   },

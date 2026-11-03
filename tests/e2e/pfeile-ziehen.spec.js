@@ -47,6 +47,8 @@ test('Kategorien: drag a row with the handle, the arrows still work', async ({ p
   expect(before.length).toBeGreaterThan(3);
   await expect(rows.first().locator('[data-sort-grip]')).toBeVisible();
 
+  // the «Was du hier tun kannst» card sits above the list: bring the rows to the top of the screen first
+  await rows.nth(0).evaluate((el) => el.scrollIntoView({ block: 'start' }));
   await drag(page, rows, 0, 2);
   const want = [...before];
   want.splice(2, 0, ...want.splice(0, 1));
@@ -71,14 +73,13 @@ test('Aktiv › Ziele: arrows next to the handle', async ({ page, context }) => 
   await expect(rows.first()).toBeVisible();
   const before = await ids(rows);
   expect(before.length).toBeGreaterThan(1);
-  // Impeccable runde 2: on a phone grip and arrows come after «Reihenfolge ändern» (a computer shows them always)
-  const order = page.locator('main').getByRole('button', { name: T('Change the order') });
-  if (page.viewportSize().width < 720) {
-    await expect(rows.first().locator('[data-grip]')).toHaveCount(0);
-    await order.click();
-    await expect(page.locator('main').getByRole('button', { name: T('Done|order') })).toHaveAttribute('aria-expanded', 'true');
-  } else await expect(order).toHaveCount(0);
-  await expect(page.locator('main')).toContainText(T('Drag the grip or use the arrows to move.')); // «Aktiv neu»: a tap opens the sport's page
+  // Noah 02.11.2026 «1a»: the grip is always there (computer and phone); the arrows come with «Sort»
+  const order = page.locator('main').getByRole('button', { name: T('Sort|order') });
+  await expect(rows.first().locator('[data-sort-grip]')).toBeVisible();
+  await expect(rows.first().locator('.sort-arrows')).toHaveCount(0);
+  await order.click();
+  await expect(page.locator('main').getByRole('button', { name: T('Done|order') })).toHaveAttribute('aria-expanded', 'true');
+  await expect(page.locator('main')).toContainText(T('Drag the grip or use the arrows to move.'));
   const first = rows.first();
   await expect(first.getByRole('button', { name: new RegExp(`${T('Move {name} up', { name: '' }).trim()}$`) })).toBeDisabled();
   await first.getByRole('button', { name: new RegExp(`${T('Move {name} down', { name: '' }).trim()}$`) }).click();

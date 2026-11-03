@@ -1,7 +1,7 @@
 // Paket P4 «Aktiv» (Noah 21.10.2026, mockups TN1–TN5, ME4, E4, E5): Tennis-Seite, Yoga-Karte, Tag merken, Gewünscht und erlebt.
 export default {
   // Funktionen (features.js)
-  'Tennis page': 'Tennis-Seite',
+  Tennis: 'Tennis',
   'A cover photo, «Played» like last time in one tap, a lesson given, the next booked time with «Book a court» and «Played?» afterwards, and the history.': 'Ein Titelbild, «Gespielt» wie letztes Mal mit einem Tipp, eine gegebene Lektion, die nächste gebuchte Zeit mit «Platz buchen» und danach «Gespielt?», und der Verlauf.',
   'Yoga classes': 'Yogastunden',
   'On the Meditation page: your regular yoga classes, the studio timetable in one tap and «Was there» after the class; it counts as yoga, apart from meditation.': 'Auf der Meditations-Seite: deine Yoga-Stammstunden, der Stundenplan des Studios mit einem Tipp und nach der Stunde «War dort»; es zählt als Yoga, getrennt von der Meditation.',

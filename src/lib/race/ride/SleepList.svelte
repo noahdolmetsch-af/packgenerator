@@ -11,7 +11,7 @@
   import { hhmm, dayOfMs } from '../race.js';
   import { t, num, locale } from '../../i18n.svelte.js';
 
-  let { pois = [], own = [], pts = [], km = 0, now = Date.now(), eta = null, kmh = 18, wx = null, bagC = 5, kinds = null, onkinds = null, compact = false } = $props();
+  let { pois = [], own = [], pts = [], km = 0, now = Date.now(), eta = null, kmh = 18, wx = null, bagC = 5, kinds = null, onkinds = null, compact = false, actions = null } = $props();
 
   const res = $derived(sleepOptions({ pois, own, pts, km, now, eta, kmh, wx, bagC, kinds, n: compact ? 3 : 8 }));
   const when = (ms) => (dayOfMs(ms) === dayOfMs(now) ? hhmm(ms) : `${new Date(ms).toLocaleDateString(locale(), { weekday: 'short' })} ${hhmm(ms)}`);
@@ -53,6 +53,7 @@
             </span>
             {#if p.src}<small>{t('From the list «{name}»', { name: p.src })}</small>{/if}
           </span>
+          {#if actions}<span class="sl-acts">{@render actions(p)}</span>{/if}
           {#if p.phone}<a class="rc-icon" href="tel:{telOf(p.phone)}" aria-label={t('Call {name}', { name: nameOf(p) })}><Phone size={18} aria-hidden="true" /></a>{/if}
         </li>
       {/each}
@@ -72,6 +73,13 @@
   }
   .sl-row {
     align-items: flex-start;
+    flex-wrap: wrap;
+  }
+  .sl-acts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    flex-basis: 100%;
   }
   .sl-signs {
     display: flex;

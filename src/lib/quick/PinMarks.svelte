@@ -124,6 +124,13 @@
   const later = () => {
     if (!frame) frame = requestAnimationFrame(() => ((frame = 0), place()));
   };
+  // Tempo (Noah 02.11.2026): the layer sits in page coordinates and scrolls with the page, so while the finger
+  // moves nothing needs measuring. place() (boxes + elementsFromPoint) runs once the scroll has stood still.
+  let scrollTimer = null;
+  const afterScroll = () => {
+    clearTimeout(scrollTimer);
+    scrollTimer = setTimeout(later, 140);
+  };
   // at most every 300 ms, also while the page keeps changing (a clock, a timer)
   const refind = () => {
     if (!findTimer) findTimer = setTimeout(() => ((findTimer = null), find(), place()), 300);
@@ -135,17 +142,18 @@
     refind();
     const main = document.querySelector('main');
     const mo = main ? new MutationObserver(refind) : null;
-    mo?.observe(main, { childList: true, subtree: true, characterData: true });
+    mo?.observe(main, { childList: true, subtree: true }); // no characterData: a ticking clock must not start a new search
     const ro = main ? new ResizeObserver(later) : null;
     ro?.observe(main);
-    addEventListener('scroll', later, { passive: true, capture: true });
+    addEventListener('scroll', afterScroll, { passive: true, capture: true });
     addEventListener('resize', later);
     return () => {
       mo?.disconnect();
       ro?.disconnect();
       clearTimeout(findTimer);
+      clearTimeout(scrollTimer);
       findTimer = null;
-      removeEventListener('scroll', later, { capture: true });
+      removeEventListener('scroll', afterScroll, { capture: true });
       removeEventListener('resize', later);
     };
   });

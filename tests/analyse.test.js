@@ -42,6 +42,16 @@ describe('Analyse', () => {
     expect(tilesOf(groups, days, ['aktiv']).map((g) => g.key)).toEqual(['b']);
     expect(tilesOf(groups, days, [])).toEqual([]);
   });
+  it('gives each tile the value of the same length just before, to say «more» or «less» (no grade)', () => {
+    const days = ['2026-10-26', '2026-10-27'];
+    const before = ['2026-10-24', '2026-10-25'];
+    const get = (d) => ({ '2026-10-24': 40, '2026-10-25': 60, '2026-10-26': 50, '2026-10-27': 70 })[d] ?? null;
+    const [g] = tilesOf([{ key: 'a', name: 'A', items: [{ key: 'x', src: 'fitbit', get }, { key: 's', src: 'fitbit', sum: true, get }] }], days, SOURCES, { prevDays: before });
+    expect(g.tiles[0].prev).toBe(50);
+    expect(g.tiles[0].value).toBe(60);
+    expect(g.tiles[1].prev).toBe(100);
+    expect(tilesOf([{ key: 'a', name: 'A', items: [{ key: 'x', src: 'fitbit', get }] }], days)[0].tiles[0].prev).toBeNull();
+  });
   it('counts the ticks of one activity per day and picks the period of «Haken ausgewertet»', () => {
     const log = [{ actId: 'sauna', day: '2026-10-26' }, { actId: 'sauna', day: '2026-10-26' }, { actId: 'gym', day: '2026-10-26' }, { actId: 'sauna', day: '2026-10-27' }];
     const by = ticksByDay(log, 'sauna');
