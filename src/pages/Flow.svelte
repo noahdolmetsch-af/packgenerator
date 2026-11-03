@@ -177,7 +177,7 @@
 {:else if route[0] === 'act'}
   {#key route[1]}<Meditation actId={decodeURIComponent(route[1] ?? 'meditation')} />{/key}
 {:else if editId}
-  {#if data}<ActEditor id={editId} acts={data.acts} log={data.log} {today} tripDays={data.tripDays} back={editBack} />{/if}
+  {#if data}<ActEditor id={editId} acts={data.acts} log={data.log} {today} tripDays={data.tripDays} back={editBack} group={params.get('group') ?? ''} />{/if}
 {:else}
   <div class="flow">
     <header class="ph">

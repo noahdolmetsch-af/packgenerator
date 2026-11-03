@@ -18,11 +18,13 @@
   import { askDelete, deleteWithUndo } from '../ui/ask.js';
   import { normAct, blankAct, actState, toggleMonth, halfOf, WINDOWS, SUMMER } from '../flow.js';
   import { actName, goalName } from './ui.svelte.js';
+  import { liveQuery } from 'dexie';
+  import { GROUPS_KEY } from './sportgroups.js';
   import { actGoalText, goalsText, oneGoal } from './words.js';
   import { t, locale, lang } from '../i18n.svelte.js';
 
   // back: where «Save» and the back link lead («Aktiv neu»: the sport's page when opened there, else «Meine Sportarten»)
-  let { id, acts = [], log = [], today, tripDays = [], back = '' } = $props();
+  let { id, acts = [], log = [], today, tripDays = [], back = '', group = '' } = $props();
   const isNew = $derived(id === 'new');
   const orig = $derived(isNew ? null : (acts.find((a) => a.id === id) ?? null));
   let a = $state(null);
@@ -31,11 +33,18 @@
     if (loadedFor === id) return;
     if (!isNew && !orig) return;
     loadedFor = id;
-    a = structuredClone($state.snapshot(isNew ? blankAct(acts.length) : normAct(orig)));
+    a = structuredClone($state.snapshot(isNew ? { ...blankAct(acts.length), ...(group ? { group } : {}) } : normAct(orig)));
     name = isNew ? '' : actName(orig);
     half = a.season ? (halfOf(a, today) ?? 'summer') : 'summer';
     minOwn = [0, 15, 30].includes(a.minMin) ? '' : String(a.minMin);
   });
+  /* «Meine Sportarten» 4b: the group of the sport (own groups of the page «Meine Sportarten»), chosen here too */
+  const grpQ = liveQuery(() => db.settings.get(GROUPS_KEY));
+  const groups = $derived($grpQ?.value ?? []);
+  const setGroup = (k) => {
+    if (k === 'none') delete a.group;
+    else a.group = k;
+  };
   let name = $state('');
   let half = $state('summer');
   let minOwn = $state('');
@@ -171,6 +180,11 @@
       </div>
       <p class="lbl" id="ed-ring">{t('Category · ring')}</p>
       <Seg chips full={false} labelledby="ed-ring" value={a.ring} onchange={(k) => (a.ring = k)} options={RING_OPTS} />
+
+      {#if groups.length}
+        <p class="lbl" id="ed-group">{t('Group')}</p>
+        <Seg chips full={false} labelledby="ed-group" value={a.group && groups.some((g) => g.id === a.group) ? a.group : 'none'} onchange={setGroup} options={[{ key: 'none', name: t('No group') }, ...groups.map((g) => ({ key: g.id, name: g.name }))]} />
+      {/if}
 
       <p class="lbl" id="ed-goal">{t('Goal')} <span class="quiet">· {t('rolling')}</span></p>
       {#if a.season}

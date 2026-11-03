@@ -48,4 +48,6 @@ export default {
   "f.tripcheck": "The check after the trip matters as much as the one before: wet tent out of the bag, chain wiped, power banks charged.",
   // Wegweiser 26b: pages that had no card yet
   'f.weightsure': 'Weigh the three heaviest estimated things first: they move the total more than twenty small ones.',
+  'f.wxturn': 'Look at the forecast again the evening before: it is the last day it is still reliable.',
+  'f.bikefit': 'A hint is not an order: you know the road. If the bike with the tight bags is the one you love, take a bag more.',
 };

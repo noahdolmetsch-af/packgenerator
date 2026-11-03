@@ -291,6 +291,13 @@ test('Training › Woche: a suggestion for the week, another one, take over, und
   expect(Number((await hrs.innerText()).replace(',', '.'))).toBe(h0 + 0.5);
   await expect(sug).not.toContainText('Deine Sportarten');
   await expect(sug).not.toContainText('Vergangene Tage');
+  // harder / easier and a focus: the week recalculates
+  await sug.locator('[data-sug-push-btn="1"]').click();
+  await expect(sug.locator('[data-sug-push-btn="1"]')).toHaveAttribute('aria-pressed', 'true');
+  await sug.locator('[data-sug-focus-btn="hit"]').click();
+  await expect(sug.locator('[data-sug-row]').filter({ hasText: 'Intervall-Einheit' })).toHaveCount(2);
+  await sug.locator('[data-sug-focus-btn="ruhe"]').click();
+  await expect(sug.locator('[data-sug-row]').filter({ hasText: 'Intervall-Einheit' })).toHaveCount(0);
   // every row can be changed here: swap the session for another sport, change minutes, add a second session on a day, remove one
   const rows = sug.locator('[data-sug-row]');
   const n0 = await rows.count();

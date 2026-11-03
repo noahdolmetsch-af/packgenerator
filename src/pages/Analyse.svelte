@@ -81,13 +81,16 @@
   const TABS = ['ueberblick', 'diagramm', 'vergleiche', 'rekorde', 'velos', 'werte'];
   const TAB_NAMES = { ueberblick: 'Overview|tab', diagramm: 'Own diagram|tab', vergleiche: 'Comparisons|tab', rekorde: 'Records and runs|tab', velos: 'Bikes|tab', werte: 'All values|tab' };
   let tab = $state(TABS.includes(saved.tab) ? saved.tab : 'ueberblick');
+  // Groups are closed (Noah 03.11.2026 «4a»); the open ones are remembered
+  let openG = $state(Array.isArray(saved.openG) ? saved.openG : []);
+  const toggleG = (k, isOpen) => (openG = isOpen ? (openG.includes(k) ? openG : [...openG, k]) : openG.filter((x) => x !== k));
   let period = $state(PERIODS.includes(saved.period) ? saved.period : DEFAULT_PERIOD);
   let on = $state(Array.isArray(saved.on) ? SOURCES.filter((s) => saved.on.includes(s)) : [...SOURCES]);
   // «Alle Werte» (Noah 27.10.2026 «zumindest optional»): also the values without any day, as dashed tiles
   let all = $state(saved.all === true);
   $effect(() => {
     try {
-      localStorage.setItem(LS, JSON.stringify({ period, on, all, tab }));
+      localStorage.setItem(LS, JSON.stringify({ period, on, all, tab, openG }));
     } catch {
       /* a private window: the choice is only for now */
     }
@@ -118,7 +121,17 @@
   const days = $derived(periodDays(today, period));
   const groups = $derived(analyseGroups({ table: data.table, weights: data.weights, ctx: data.ctx, acts: data.acts, log: data.log, ownKeys: data.ownKeys, period }));
   const byKey = $derived(itemsByKey(groups));
-  const shownGroups = $derived(tilesOf(groups, days, on, { all }));
+  const prevDays = $derived(periodDays(addDays(today, -period), period));
+  const shownGroups = $derived(tilesOf(groups, days, on, { all, prevDays }));
+  const allOpen = $derived(shownGroups.length > 0 && shownGroups.every((g) => openG.includes(g.key)));
+  // «more / less than before»: only to look at, nothing is rated
+  const deltaOf = (x) => {
+    if (x.prev == null || x.value == null || x.empty) return null;
+    const d = x.value - x.prev;
+    const txt = fmtValue(x, Math.abs(d), num);
+    if (!d) return null;
+    return { up: d > 0, text: `${txt}${unitText(x) ? ' ' + unitText(x) : ''}` };
+  };
   const loading = $derived(data.loading);
 
   const SRC_NAMES = { aktiv: 'Aktiv', fitbit: 'Fitbit', strava: 'Strava', body: 'Body|group', check: "Wi gaht's?|analyse" };
@@ -195,12 +208,13 @@
       {:else if !shownGroups.length}
         <Empty text={t('No values in this period yet. Connect Fitbit or Strava, or tick an activity in Aktiv.')} action={{ label: t('Open Aktiv'), href: '#/flow' }} />
       {:else}
+        <p class="gall"><button type="button" class="chip" data-groups-toggle onclick={() => (openG = allOpen ? [] : shownGroups.map((g) => g.key))}>{allOpen ? t('Close all groups|analyse') : t('Open all groups|analyse')}</button></p>
         {#each shownGroups as g (g.key)}
-          <section class="grp" data-group={g.key} aria-labelledby="an-g-{g.key}">
-            <div class="gh">
+          <details class="grp" data-group={g.key} open={openG.includes(g.key)} ontoggle={(e) => toggleG(g.key, e.currentTarget.open)}>
+            <summary class="gh">
               <h2 id="an-g-{g.key}">{g.name}</h2>
               <small>{t('{n} values|analyse', { n: g.tiles.length })}</small>
-            </div>
+            </summary>
             <ul class="tiles">
               {#each g.tiles as x (x.key)}
                 <li>
@@ -208,6 +222,7 @@
                     <span class="nm"><span class="tx">{x.name}</span>{#if x.href && !x.empty}<ChevronRight size={14} aria-hidden="true" />{/if}</span>
                     <span class="v num"><b>{valueText(x)}</b>{#if unitText(x) && !x.empty}<small>{unitText(x)}</small>{/if}</span>
                     <span class="how">{howText(x)}</span>
+                {#if deltaOf(x)}{@const dl = deltaOf(x)}<span class="dl" data-delta={dl.up ? 'up' : 'down'}>{dl.up ? '▲' : '▼'} {dl.text} {dl.up ? t('more than before|analyse') : t('less than before|analyse')}</span>{/if}
                     <svg class="sp" class:bars={x.sum} viewBox="0 0 100 28" preserveAspectRatio="none" aria-hidden="true">
                       {#if x.empty}
                         <line x1="0" y1="14" x2="100" y2="14" class="none" vector-effect="non-scaling-stroke" />
@@ -224,7 +239,7 @@
                 </li>
               {/each}
             </ul>
-          </section>
+          </details>
         {/each}
         <p class="hint">{#if all}{t('Dashed tiles have no data in this period yet. New Fitbit values come with the next fetch:')} <a href="#/me/fitbit">{t('Fitbit')}</a>{:else}{ t('A value without any day in this period is left out; «Also values without data» shows every value. Values come from your Fitbit (Google), Strava and what you enter or tick in the app.')}{/if}</p>
       {/if}
@@ -350,6 +365,33 @@
     justify-content: space-between;
     align-items: baseline;
     gap: 8px;
+    min-height: 44px;
+    cursor: pointer;
+    list-style: none;
+  }
+  .gh::-webkit-details-marker {
+    display: none;
+  }
+  .gh::before {
+    content: '▸';
+    color: var(--ink-3);
+    margin-right: 6px;
+  }
+  .grp[open] > .gh::before {
+    content: '▾';
+  }
+  .gh h2 {
+    flex: 1;
+  }
+  .grp[open] > .gh {
+    margin-bottom: 8px;
+  }
+  .gall {
+    margin: 0;
+  }
+  .dl {
+    color: var(--ink-2, var(--ink-3));
+    font-size: var(--fs-label);
   }
   .gh h2 {
     margin: 0;
@@ -430,7 +472,7 @@
   }
   .sp {
     width: 100%;
-    height: 28px;
+    height: 44px;
     margin-top: 4px;
   }
   .sp path {

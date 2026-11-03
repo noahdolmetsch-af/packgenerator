@@ -66,7 +66,7 @@ export function sparkOf(values = [], sum = false, max = 30) {
  * the period is left out, so is a group without a tile.
  * → [{ key, name, tiles: [{ ...item, value, n, spark }] }]
  */
-export function tilesOf(groups = [], days = [], on = SOURCES, { all = false } = {}) {
+export function tilesOf(groups = [], days = [], on = SOURCES, { all = false, prevDays = null } = {}) {
   const out = [];
   for (const g of groups) {
     const tiles = [];
@@ -84,7 +84,10 @@ export function tilesOf(groups = [], days = [], on = SOURCES, { all = false } = 
         continue;
       }
       const spark = typeof it.profile === 'function' ? it.profile(days) : sparkOf(values, !!it.sum);
-      tiles.push({ ...it, value: s.value, n: s.n, spark });
+      // the same length just before (Noah 03.11.2026 «4a»): so a tile can say «more» or «less» than before; no grade
+      let prev = null;
+      if (prevDays?.length && typeof it.profile !== 'function') prev = summaryOf(prevDays.map((d) => fin(it.get?.(d))), !!it.sum).value;
+      tiles.push({ ...it, value: s.value, n: s.n, spark, prev });
     }
     if (tiles.length) out.push({ key: g.key, name: g.name, tiles });
   }

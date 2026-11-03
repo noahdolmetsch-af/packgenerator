@@ -28,6 +28,7 @@
   import { t, tn, locale } from '../i18n.svelte.js';
   import QrCode from '../ich/QrCode.svelte';
   import { newCode, readCode } from './code.js';
+  import { compareSync, fixMissing } from './compare.js';
   import { startSync, stopSync, readCfg, lostVersions, bringBack, dropLost } from './engine.js';
   import { sync, runSync } from './auto.svelte.js';
   import { kindOf, titleOf } from './show.js';
@@ -181,6 +182,34 @@
     const r = await runSync(db);
     const err = await lastError();
     message = err ? errText(err) : r?.skipped ? '' : doneText(r);
+  }
+  // «Abgleich vergleichen» (Noah 03.11.2026 «a»): what the server holds and this device lacks, and the other way round
+  let cmp = $state(null);
+  async function compare() {
+    busy = true;
+    message = '';
+    cmp = null;
+    try {
+      cmp = await compareSync(db);
+    } catch (e) {
+      message = errText(e?.code);
+    } finally {
+      busy = false;
+    }
+  }
+  const names = (rows) => rows.slice(0, 8).map((r) => `${kindOf(r.t)} ${titleOf(r.v, r.id, r.t)}`).join(', ') + (rows.length > 8 ? ` … (+${rows.length - 8})` : '');
+  async function fill() {
+    busy = true;
+    try {
+      const r = await fixMissing(db, cmp);
+      cmp = null;
+      await runSync(db);
+      message = t('Filled in: {got} taken here, {sent} sent.', r);
+    } catch (e) {
+      message = errText(e?.code);
+    } finally {
+      busy = false;
+    }
   }
   async function pairWith(code) {
     const c = readCode(code);
@@ -359,8 +388,25 @@
       <div class="ich-acts">
         <button type="button" class="btn hi" disabled={sync.running || !!$demoQ} onclick={syncButton}><RefreshCw size={16} aria-hidden="true" />{t('Sync now')}</button>
         <button type="button" class="btn" onclick={() => (view = 'pair')}>{t('Pair another device')}</button>
+        <button type="button" class="btn" disabled={busy || sync.running || !!$demoQ} onclick={compare} data-sync-compare>{t('Compare with the server')}</button>
         <button type="button" class="btn" onclick={() => (view = 'off')}>{t('Switch off|sync')}</button>
       </div>
+      {#if cmp && !cmp.off}
+        <div class="confirm" role="group" aria-label={t('Compare with the server')} data-sync-cmp>
+          <p><b>{t('On the server: {a} entries. On this device: {b}.', { a: cmp.onServer, b: cmp.here })}</b></p>
+          {#if cmp.missingHere.length}<p class="small">{t('Missing here ({n}): {names}', { n: cmp.missingHere.length, names: names(cmp.missingHere) })}</p>{/if}
+          {#if cmp.missingThere.length}<p class="small">{t('Missing on the server ({n}): {names}', { n: cmp.missingThere.length, names: names(cmp.missingThere) })}</p>{/if}
+          {#if cmp.deletedThere.length}<p class="small">{t('Deleted on the other device ({n}), left as they are: {names}', { n: cmp.deletedThere.length, names: names(cmp.deletedThere) })}</p>{/if}
+          {#if cmp.unreadable}<p class="small">{t('{n} entries on the server belong to another code and are ignored.', { n: cmp.unreadable })}</p>{/if}
+          {#if cmp.missingHere.length || cmp.missingThere.length}
+            <p class="small">{t('Filling in only adds. Nothing is deleted or overwritten.')}</p>
+            <div class="ich-acts"><button type="button" class="btn hi" disabled={busy} onclick={fill}>{t('Fill in what is missing')}</button><button type="button" class="btn" onclick={() => (cmp = null)}>{t('Close')}</button></div>
+          {:else}
+            <p class="small">{t('Nothing is missing on either side.')}</p>
+            <div class="ich-acts"><button type="button" class="btn" onclick={() => (cmp = null)}>{t('Close')}</button></div>
+          {/if}
+        </div>
+      {/if}
       <!-- Paket R: the Google sign-in of this device -->
       {#if $acctQ}
         <p class="way" data-sync-account>{t('Signed in with Google: {email}', { email: $acctQ.email || '…' })}</p>
