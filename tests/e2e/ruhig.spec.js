@@ -58,6 +58,19 @@ test('Calm view: the strip shows only what you do, not on Heute, until «Fertig�
   expect(errors).toEqual([]);
 });
 
+test('Calm view: «Done» keeps a line, the week shows it', async ({ page, context }) => {
+  const errors = await blank(page, context);
+  await page.goto('./#/me/ruhig/weniger?open=calm');
+  await settle(page);
+  await page.locator('[data-calm-what]').fill('Velo putzen');
+  await page.locator('[data-calm-what]').press('Enter');
+  await page.locator('[data-calm-done]').click();
+  await expect(page.locator('[data-calm-week]')).toContainText('1× Velo putzen');
+  await page.locator('[data-calm-log-clear]').click();
+  await expect(page.locator('[data-calm-week]')).toHaveCount(0);
+  expect(errors).toEqual([]);
+});
+
 test('Calm view: the words you wrote lead to the matching page', async ({ page, context }) => {
   const errors = await blank(page, context);
   await page.goto('./#/me/ruhig/weniger?open=calm');

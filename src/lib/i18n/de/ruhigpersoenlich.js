@@ -283,6 +283,7 @@ export default {
   'After your first trip you can note here what knowledge was missing.': 'Nach deiner ersten Tour kannst du hier festhalten, welches Wissen fehlte.',
   'You are doing': 'Du machst gerade',
   'Done|calm': 'Fertig',
+  'Clear the history': 'Verlauf leeren',
   '{n} min left': 'Noch {n} Min.',
   'Time is up': 'Die Zeit ist um',
   'Time is up for': 'Zeit ist um für',

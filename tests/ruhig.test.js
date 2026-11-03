@@ -248,6 +248,30 @@ describe('the page and its catalogue', () => {
   });
 });
 
+describe('Ruhige Ansicht: little history', () => {
+  it('keeps one line per ended calm view and sums the week', async () => {
+    const { logOf, lineFor, logAdd, logDrop, weekSummary, minutesOf, LOG_MAX } = await import('../src/lib/ruhig/calmlog.js');
+    const at = (h, m = 0) => new Date(2026, 10, 2, h, m).getTime(); // 2 Nov 2026, local
+    const calm = { what: 'Velo putzen', since: new Date(at(9)).toISOString(), until: 0 };
+    const a = lineFor(calm, at(9, 45));
+    expect(minutesOf(a)).toBe(45);
+    // an end by time counts to that end, not to the late tap
+    const timed = lineFor({ ...calm, until: at(10) }, at(14));
+    expect(minutesOf(timed)).toBe(60);
+    expect(lineFor({ what: '' }, 1)).toBe(null);
+    const b = { ...lineFor({ what: 'velo putzen', since: new Date(at(11)).toISOString(), until: 0 }, at(12)), id: 'c-b' };
+    let log = logAdd(logAdd([], a), b);
+    expect(log).toHaveLength(2);
+    const w = weekSummary(logOf(log), '2026-11-02');
+    expect(w).toEqual([{ what: 'velo putzen', times: 2, minutes: 105 }].map((x) => ({ ...x, what: w[0].what })));
+    expect(weekSummary(logOf(log), '2026-11-20')).toEqual([]); // too old
+    expect(logDrop(log, 'c-b')).toHaveLength(1);
+    let big = [];
+    for (let i = 0; i < LOG_MAX + 5; i++) big = logAdd(big, { ...a, id: `x${i}` });
+    expect(big).toHaveLength(LOG_MAX);
+  });
+});
+
 describe('Ruhige Ansicht: time and soft end', () => {
   it('keeps a valid end and an open end as 0', async () => {
     const { calmOf, calmUntil, calmOver, calmLeft } = await import('../src/lib/ruhig/weniger.js');
