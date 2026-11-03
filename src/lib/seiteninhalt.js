@@ -50,6 +50,8 @@ export const ON_PAGES = [
   // Wegweiser 26b: pages without any content in the check of 02.11.2026 (Touren and Ski start as one line, FOLDED_FIRST)
   '#/trips', '#/trips/fuel', '#/neuland', '#/me/frei', '#/me/frei/sammlungen', '#/me/ruhig/herkunft', '#/me/ruhig/zahlen',
   '#/ski', '#/racecheck',
+  // Wegweiser 26a: pages with many functions that were left out for the 2.5-screen rule; the card starts as one line there
+  '#/me/data', '#/me/look', '#/me/connections', '#/me/push', '#/bikes?tab=care', '#/timer',
 ];
 /** Words that are fixed sub-pages, never the id of a placeholder (#/debrief/logbook is not a trip). */
 export const RESERVED = ['learnings', 'pace', 'compare', 'logbook', 'play', 'ride', 'brief', 'new', 'shared'];
@@ -62,7 +64,9 @@ export const FOLD_KEY = 'seiteninhalt.folded';
  */
 // Wegweiser 18: Training and Auswerten start as one line too (heimat.spec: their functions must stay within 2.5 screens)
 // Wegweiser 26b: Touren and Ski tours are main pages with their own list first
-export const FOLDED_FIRST = ['#/ride', '#/pack', '#/bikes', '#/gear', '#/flow/training', '#/auswerten', '#/debrief/:trip', '#/trips', '#/ski'];
+export const FOLDED_FIRST = ['#/ride', '#/pack', '#/bikes', '#/gear', '#/flow/training', '#/auswerten', '#/debrief/:trip', '#/trips', '#/ski',
+  // Wegweiser 26a: settings-like pages and the care tab keep their own controls on the first screen
+  '#/me/data', '#/me/look', '#/me/connections', '#/me/push', '#/bikes?tab=care', '#/timer'];
 
 /** The page of a hash, as HOME writes it: path plus «tab=…» or «view=…» when they choose the page. */
 export function pageKey(hash = '') {
