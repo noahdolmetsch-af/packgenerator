@@ -1,6 +1,6 @@
 # Tour-Bereitschaft als ein Diagramm
 
-PR #? · 28.10.2026 · Auftrag: Noah «1-5 a» (Thread «Diagramme klickbar machen»), PR 4 von 8 (K4, Antwort 4a)
+PR #762 · 28.10.2026 · Auftrag: Noah «1-5 a» (Thread «Diagramme klickbar machen»), PR 4 von 8 (K4, Antwort 4a)
 
 ## Was ist neu
 - «Form und Erholung» › Tour-Bereitschaft (`src/lib/flow/form/FormTour.svelte`, `tourtage.js`): ein Diagramm von 7 Tagen vor der Tour bis zum letzten Tourtag. Achse mit runden Stufen, dein Normal als Streifen, «Start» bei Tag 1, die Tourtage hell hinterlegt.
