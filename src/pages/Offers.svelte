@@ -18,6 +18,7 @@
   import { KINDS, kindOf, newOffer, shareUrl, mondayOf, weekDays, weekNo, addDays, slotsOn, newSlots, bookedBySlot, slotState, chf, dayOf, timeOf, contactHref, holdsPlace, isOpenRequest, invoiceDraft, invoiceDraftMany, toInvoice } from '../lib/booking/model.js';
   import { OFFERS_KEY, SEEN_KEY, createOffer, saveOffer, ownerBookings, ownerCancel, answerBooking, cancelSlot, errorText } from '../lib/booking/client.js';
   import { Volleyball, Tent, Wrench, CalendarDays, Link2, Copy, MessageCircle, ChevronLeft, ChevronRight, Clock, Users, Repeat, CreditCard, Bell, X, Plus, MapPin } from '@lucide/svelte';
+  import { rememberCustomer, listCustomers, rateOf } from '../lib/booking/customers.js';
   import { listInvoices, setPrefill, bookingIdsOf } from '../lib/pay/invoices.js';
   import '../lib/ich/ich.css';
 
@@ -93,15 +94,16 @@
   let picked = $state([]); // booking ids ticked for one invoice
   const pickedLessons = $derived(lessonsOver.filter((b) => picked.includes(b.id)));
   const toggle = (b) => (picked = picked.includes(b.id) ? picked.filter((x) => x !== b.id) : [...picked, b.id]);
-  function writeOne(items) {
+  async function writeOne(items) {
     const o = { ...mine.offer, id: mine.id };
-    if (!setPrefill(invoiceDraftMany(o, [...items].sort((x, y) => String(x.at).localeCompare(String(y.at))).map((b) => ({ slot: o.slots.find((x) => x.id === b.slot), booking: b })), (b) => fmtAt(b.at)))) return;
+    const clist = await listCustomers();
+    if (!setPrefill(invoiceDraftMany(o, [...items].sort((x, y) => String(x.at).localeCompare(String(y.at))).map((b) => ({ slot: o.slots.find((x) => x.id === b.slot), booking: b })), (b) => fmtAt(b.at), (name) => rateOf(clist, name)))) return;
     picked = [];
     location.hash = '#/me/pay/invoices/new';
   }
-  function writeInvoice(b) {
+  async function writeInvoice(b) {
     const s = mine.offer.slots.find((x) => x.id === b.slot);
-    if (!setPrefill(invoiceDraft({ ...mine.offer, id: mine.id }, s, b, fmtAt(b.at)))) return;
+    if (!setPrefill(invoiceDraft({ ...mine.offer, id: mine.id }, s, b, fmtAt(b.at), rateOf(await listCustomers(), b.name)))) return;
     location.hash = '#/me/pay/invoices/new';
   }
 
@@ -178,6 +180,7 @@
     busy = false;
     if (!r.ok) return (error = t(errorText(r.code)));
     replied = { b, decision };
+    if (decision === 'confirm') await rememberCustomer(b);
     await loadBookings();
   }
   const tellText = (s) => t('{title} on {when} is cancelled. Sorry! You can book another time with the same link.', { title: mine?.offer.title ?? '', when: fmtAt(s.at) });
@@ -229,6 +232,7 @@
     <VeloHead crumbs={[{ label: t('Me|place'), href: '#/me' }]} title={t('Your offers')} sub={t('One pattern for everything: open free times, share the link, people book themselves.')} />
     <p class="of-band" role="note"><span class="pill warn">{t('Test|offers')}</span> {t('Online payment runs in test mode only; no real money moves.')}</p>
     {#if error}<p class="err" role="alert">{error}</p>{/if}
+    <p class="of-cust"><a class="btn" href="#/me/offers/customers" data-customers-link><Users size={18} aria-hidden="true" />{t('Customers')}</a></p>
     {#if offers?.length}
       <ul class="of-kinds">
         {#each offers as o (o.id)}
@@ -810,4 +814,5 @@
   .of-ask-n { color: var(--accent, inherit); font-weight: 600; }
 .of-pick { display: flex; gap: 10px; align-items: center; min-width: 0; }
   .of-pick input { width: 22px; height: 22px; flex: none; }
+.of-cust { margin: 0 0 16px; }
 </style>
