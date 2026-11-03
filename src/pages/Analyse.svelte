@@ -77,13 +77,17 @@
       return {};
     }
   })();
+  // Parts of the page as tabs (Noah 03.11.2026 «1a»): one part at a time instead of one very long page
+  const TABS = ['ueberblick', 'diagramm', 'vergleiche', 'rekorde', 'velos', 'werte'];
+  const TAB_NAMES = { ueberblick: 'Overview|tab', diagramm: 'Own diagram|tab', vergleiche: 'Comparisons|tab', rekorde: 'Records and runs|tab', velos: 'Bikes|tab', werte: 'All values|tab' };
+  let tab = $state(TABS.includes(saved.tab) ? saved.tab : 'ueberblick');
   let period = $state(PERIODS.includes(saved.period) ? saved.period : DEFAULT_PERIOD);
   let on = $state(Array.isArray(saved.on) ? SOURCES.filter((s) => saved.on.includes(s)) : [...SOURCES]);
   // «Alle Werte» (Noah 27.10.2026 «zumindest optional»): also the values without any day, as dashed tiles
   let all = $state(saved.all === true);
   $effect(() => {
     try {
-      localStorage.setItem(LS, JSON.stringify({ period, on, all }));
+      localStorage.setItem(LS, JSON.stringify({ period, on, all, tab }));
     } catch {
       /* a private window: the choice is only for now */
     }
@@ -147,14 +151,6 @@
     <PageHead title={t('Analyse|page')} sub={t('All your values from Fitbit, Strava, your body, «Wi gaht\'s?» and Aktiv. Tap a value to see its course. Only to look at, nothing is rated.')} />
   </header>
 
-  {#if !loading}
-    <section class="card vw" aria-label={t('Views|views')}><Ansichten {views} now={nowShown} onapply={applyView} /></section>
-    {#key dgRun}<Diagramm {groups} {byKey} rowOf={(d) => data.table.get(d)} trips={data.trips} acts={data.acts} log={data.log} {today} start={dgStart} onstate={(st) => (dgState = st)} />{/key}
-  {/if}
-  {#if !loading}<Vergleiche {byKey} acts={data.acts} log={data.log} trips={data.trips} {today} />{/if}
-  {#if !loading}<Muster {days} {byKey} acts={data.acts} log={data.log} {today} />{/if}
-  {#if !loading}<VeloKm {days} {today} />{/if}
-
   <section class="card pick" aria-label={t('Choose what you see')}>
     <div class="pr">
       <span class="pl" id="an-src">{t('Data from|analyse')}</span>
@@ -174,47 +170,64 @@
     </div>
   </section>
 
-  {#if !loading && on.length}<Ueberblick {days} {byKey} acts={data.acts} log={data.log} {on} onday={(d) => (dayOpen = d)} />{/if}
+  <div class="tabs" role="tablist" aria-label={t('Parts of the analysis|analyse')}>
+    {#each TABS as k (k)}
+      <button type="button" role="tab" class="tab" class:on={tab === k} aria-selected={tab === k} data-tab={k} onclick={() => (tab = k)}>{t(TAB_NAMES[k])}</button>
+    {/each}
+  </div>
 
   {#if loading}
     <p class="hint" role="status">{t('Loading …')}</p>
-  {:else if !on.length}
-    <Empty text={t('Switch on at least one source above, then your values show here.')} />
-  {:else if !shownGroups.length}
-    <Empty text={t('No values in this period yet. Connect Fitbit or Strava, or tick an activity in Aktiv.')} action={{ label: t('Open Aktiv'), href: '#/flow' }} />
+  {:else if tab === 'ueberblick'}
+    {#if on.length}<Ueberblick {days} {byKey} acts={data.acts} log={data.log} {on} onday={(d) => (dayOpen = d)} />{/if}
+  {:else if tab === 'diagramm'}
+    <section class="card vw" aria-label={t('Views|views')}><Ansichten {views} now={nowShown} onapply={applyView} /></section>
+    {#key dgRun}<Diagramm {groups} {byKey} rowOf={(d) => data.table.get(d)} trips={data.trips} acts={data.acts} log={data.log} {today} start={dgStart} onstate={(st) => (dgState = st)} />{/key}
+  {:else if tab === 'vergleiche'}
+    <Vergleiche {byKey} acts={data.acts} log={data.log} trips={data.trips} {today} />
+  {:else if tab === 'rekorde'}
+    <Muster {days} {byKey} acts={data.acts} log={data.log} {today} />
+  {:else if tab === 'velos'}
+    <VeloKm {days} {today} />
   {:else}
-    {#each shownGroups as g (g.key)}
-      <section class="grp" data-group={g.key} aria-labelledby="an-g-{g.key}">
-        <div class="gh">
-          <h2 id="an-g-{g.key}">{g.name}</h2>
-          <small>{t('{n} values|analyse', { n: g.tiles.length })}</small>
-        </div>
-        <ul class="tiles">
-          {#each g.tiles as x (x.key)}
-            <li>
-              <svelte:element this={x.href && !x.empty ? 'a' : 'div'} class="tile" class:empty={x.empty} href={x.href && !x.empty ? x.href : undefined} data-value={x.key}>
-                <span class="nm"><span class="tx">{x.name}</span>{#if x.href && !x.empty}<ChevronRight size={14} aria-hidden="true" />{/if}</span>
-                <span class="v num"><b>{valueText(x)}</b>{#if unitText(x) && !x.empty}<small>{unitText(x)}</small>{/if}</span>
-                <span class="how">{howText(x)}</span>
-                <svg class="sp" class:bars={x.sum} viewBox="0 0 100 28" preserveAspectRatio="none" aria-hidden="true">
-                  {#if x.empty}
-                    <line x1="0" y1="14" x2="100" y2="14" class="none" vector-effect="non-scaling-stroke" />
-                  {:else if x.sum || x.bars}
-                    {@const top = Math.max(...x.spark.map((v) => v ?? 0), 1)}
-                    {#each x.spark as v, i (i)}
-                      {#if v}<rect x={(i * 100) / x.spark.length + 0.6} width={Math.max(100 / x.spark.length - 1.2, 0.8)} y={28 - (v / top) * 26} height={(v / top) * 26} rx="0.8" />{/if}
-                    {/each}
-                  {:else}
-                    <path d={sparkPath(x.spark)} vector-effect="non-scaling-stroke" />
-                  {/if}
-                </svg>
-              </svelte:element>
-            </li>
-          {/each}
-        </ul>
-      </section>
-    {/each}
-    <p class="hint">{#if all}{t('Dashed tiles have no data in this period yet. New Fitbit values come with the next fetch:')} <a href="#/me/fitbit">{t('Fitbit')}</a>{:else}{ t('A value without any day in this period is left out; «Also values without data» shows every value. Values come from your Fitbit (Google), Strava and what you enter or tick in the app.')}{/if}</p>
+      {#if !on.length}
+        <Empty text={t('Switch on at least one source above, then your values show here.')} />
+      {:else if !shownGroups.length}
+        <Empty text={t('No values in this period yet. Connect Fitbit or Strava, or tick an activity in Aktiv.')} action={{ label: t('Open Aktiv'), href: '#/flow' }} />
+      {:else}
+        {#each shownGroups as g (g.key)}
+          <section class="grp" data-group={g.key} aria-labelledby="an-g-{g.key}">
+            <div class="gh">
+              <h2 id="an-g-{g.key}">{g.name}</h2>
+              <small>{t('{n} values|analyse', { n: g.tiles.length })}</small>
+            </div>
+            <ul class="tiles">
+              {#each g.tiles as x (x.key)}
+                <li>
+                  <svelte:element this={x.href && !x.empty ? 'a' : 'div'} class="tile" class:empty={x.empty} href={x.href && !x.empty ? x.href : undefined} data-value={x.key}>
+                    <span class="nm"><span class="tx">{x.name}</span>{#if x.href && !x.empty}<ChevronRight size={14} aria-hidden="true" />{/if}</span>
+                    <span class="v num"><b>{valueText(x)}</b>{#if unitText(x) && !x.empty}<small>{unitText(x)}</small>{/if}</span>
+                    <span class="how">{howText(x)}</span>
+                    <svg class="sp" class:bars={x.sum} viewBox="0 0 100 28" preserveAspectRatio="none" aria-hidden="true">
+                      {#if x.empty}
+                        <line x1="0" y1="14" x2="100" y2="14" class="none" vector-effect="non-scaling-stroke" />
+                      {:else if x.sum || x.bars}
+                        {@const top = Math.max(...x.spark.map((v) => v ?? 0), 1)}
+                        {#each x.spark as v, i (i)}
+                          {#if v}<rect x={(i * 100) / x.spark.length + 0.6} width={Math.max(100 / x.spark.length - 1.2, 0.8)} y={28 - (v / top) * 26} height={(v / top) * 26} rx="0.8" />{/if}
+                        {/each}
+                      {:else}
+                        <path d={sparkPath(x.spark)} vector-effect="non-scaling-stroke" />
+                      {/if}
+                    </svg>
+                  </svelte:element>
+                </li>
+              {/each}
+            </ul>
+          </section>
+        {/each}
+        <p class="hint">{#if all}{t('Dashed tiles have no data in this period yet. New Fitbit values come with the next fetch:')} <a href="#/me/fitbit">{t('Fitbit')}</a>{:else}{ t('A value without any day in this period is left out; «Also values without data» shows every value. Values come from your Fitbit (Google), Strava and what you enter or tick in the app.')}{/if}</p>
+      {/if}
   {/if}
 </div>
 {#if dayOpen}
@@ -233,6 +246,28 @@
     flex-wrap: wrap;
     gap: 12px 28px;
     align-items: flex-start;
+  }
+  .tabs {
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+    padding-bottom: 2px;
+  }
+  .tab {
+    flex: none;
+    min-height: 44px;
+    padding: 0 14px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: var(--card);
+    color: var(--ink);
+    font: inherit;
+    cursor: pointer;
+  }
+  .tab.on {
+    border-color: var(--hi);
+    background: var(--hi-soft);
+    font-weight: 600;
   }
   .vw {
     display: flex;

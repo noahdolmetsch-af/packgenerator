@@ -73,14 +73,18 @@ async function go(page, hash) {
 }
 const shot = (page, name, info) => process.env.ANALYSE_SHOTS && page.screenshot({ path: `qa/analyse/${name}-${info.project.name}.png`, fullPage: true });
 
+// the Analyse page shows one tab at a time (Noah 03.11.2026 «1a»); the choice is remembered
+const tab = (page, k) => page.locator(`[data-tab="${k}"]`).click();
+
 test('Eigenes Diagramm: the D1 values under each other, a tapped day with all values', async ({ page, context }, info) => {
   const errors = await open(page, context);
   await go(page, '#/auswerten/analyse');
+  await tab(page, 'diagramm');
   const dg = page.locator('[data-diagram]');
   await expect(dg).toBeVisible();
-  // at the top: before the tiles' choice
-  const [yd, yp] = await Promise.all([dg.boundingBox(), page.locator('.pick').boundingBox()]);
-  expect(yd.y).toBeLessThan(yp.y);
+  // «Data from» and «Period» sit at the very top (Noah 03.11.2026 «3a»), the tabs under them
+  const [yp, yd] = await Promise.all([page.locator('.pick').boundingBox(), dg.boundingBox()]);
+  expect(yp.y).toBeLessThan(yd.y);
   await expect(dg.locator('[data-dg-row]')).toHaveCount(DEFAULT_KEYS.length);
   for (const k of DEFAULT_KEYS) await expect(dg.locator(`[data-dg-row="${k}"]`), k).toBeVisible();
   await expect(dg.locator('[data-dg-row="rhr"] rect.band')).toHaveCount(1);
@@ -107,6 +111,7 @@ test('Eigenes Diagramm: the D1 values under each other, a tapped day with all va
 test('Eigenes Diagramm: add with search up to 6, remove, reorder, on top of each other, weeks; it stays', async ({ page, context }, info) => {
   const errors = await open(page, context);
   await go(page, '#/auswerten/analyse');
+  await tab(page, 'diagramm');
   const dg = page.locator('[data-diagram]');
   await dg.locator('[data-dg-add]').click();
   const vp = page.locator('[data-value-picker]');
@@ -156,6 +161,7 @@ test('Eigenes Diagramm: add with search up to 6, remove, reorder, on top of each
 test('Eigenes Diagramm: a filter for everything, one for a single value, marked days; days left out stay gaps', async ({ page, context }, info) => {
   const errors = await open(page, context);
   await go(page, '#/auswerten/analyse');
+  await tab(page, 'diagramm');
   const dg = page.locator('[data-diagram]');
   const points = (k) => dg.locator(`[data-dg-row="${k}"] rect.bar`).count();
   await expect(dg.locator('[data-dg-row="azm"] rect.bar').first()).toBeVisible();
@@ -200,6 +206,7 @@ test('Eigenes Diagramm: a filter for everything, one for a single value, marked 
 test('Was hängt zusammen?: one value against another with an offset, in words, the strongest links as a list', async ({ page, context }, info) => {
   const errors = await open(page, context);
   await go(page, '#/auswerten/analyse');
+  await tab(page, 'diagramm');
   const zh = page.locator('[data-links]');
   await expect(zh).toBeVisible();
   // under the diagram
@@ -234,6 +241,7 @@ test('Eigenes Diagramm: two trips starting the same day (or before the window) d
   const errors = await open(page, context);
   await put(page, { trips: [{ id: `${P}trip2`, name: 'Zweite Tour', domain: 'bike', status: 'done', startDate: addDays(TODAY, -30), days: 2 }] });
   await go(page, '#/auswerten/analyse');
+  await tab(page, 'diagramm');
   await expect(page.locator('[data-diagram]')).toBeVisible();
   await expect(page.locator('[data-diagram] [data-dg-row="rhr"] rect.band')).toHaveCount(2);
   expect(errors).toEqual([]);
@@ -242,6 +250,7 @@ test('Eigenes Diagramm: two trips starting the same day (or before the window) d
 test('Überblick (M2): the numbers of the period, every day a field, ranking, ticks per week', async ({ page, context }, info) => {
   const errors = await open(page, context);
   await go(page, '#/auswerten/analyse');
+  await tab(page, 'ueberblick');
   await page.getByRole('button', { name: T('{n} days|analyse').replace('{n}', '90') }).click();
   const ov = page.locator('[data-overview]');
   for (const k of ['ticks', 'km:bike', 'sleep', 'azm', 'rhr', 'run']) await expect(ov.locator(`[data-ov-box="${k}"]`), k).toBeVisible();
@@ -269,6 +278,7 @@ test('Überblick (M2): the numbers of the period, every day a field, ranking, ti
 test('Vergleichen (M3): period against period, activity against activity, before and after a trip', async ({ page, context }, info) => {
   const errors = await open(page, context);
   await go(page, '#/auswerten/analyse');
+  await tab(page, 'vergleiche');
   const per = page.locator('[data-compare-period]');
   await expect(per.locator('[data-cmp-value]').first()).toHaveAttribute('data-cmp-value', 'km:bike');
   await expect(per.locator('[data-cmp-now]')).toBeVisible();
@@ -304,6 +314,7 @@ test('Vergleichen (M3): period against period, activity against activity, before
 test('Muster und Rekorde (M4): week pattern, year against year, records, runs and gaps', async ({ page, context }, info) => {
   const errors = await open(page, context);
   await go(page, '#/auswerten/analyse');
+  await tab(page, 'rekorde');
   const wp = page.locator('[data-week-pattern]');
   await expect(wp.locator('[data-pat-cell]')).toHaveCount(28);
   await expect(wp.locator('[data-pat-say]')).toContainText(T('Evening|patterns'));
@@ -331,6 +342,7 @@ test('Muster und Rekorde (M4): week pattern, year against year, records, runs an
 test('Eigene Rechnungen: Schlafindex and Unruhe as labelled own calculations', async ({ page, context }) => {
   const errors = await open(page, context);
   await go(page, '#/auswerten/analyse');
+  await tab(page, 'werte');
   const tile = page.locator('[data-value="sleepScore"]');
   await expect(tile).toBeVisible();
   await expect(tile).toContainText(T('own calculation|own'));
@@ -344,6 +356,7 @@ test('Eigene Rechnungen: Schlafindex and Unruhe as labelled own calculations', a
 test('Ansichten: a starter brings its values, a new view keeps what you see, rename, move, delete with undo', async ({ page, context }, info) => {
   const errors = await open(page, context);
   await go(page, '#/auswerten/analyse');
+  await tab(page, 'diagramm');
   const vw = page.locator('[data-views]');
   const dg = page.locator('[data-diagram]');
   await expect(vw.locator('[data-view="start-all"]')).toHaveAttribute('aria-pressed', 'true');
@@ -387,6 +400,7 @@ test('Ansichten: a starter brings its values, a new view keeps what you see, ren
 test('Velos: km per bike and the most worn parts', async ({ page, context }, info) => {
   const errors = await open(page, context);
   await go(page, '#/auswerten/analyse');
+  await tab(page, 'velos');
   const vk = page.locator('[data-bike-km]');
   await expect(vk.locator('[data-bike-total]')).toHaveCount(2);
   await expect(vk.locator('[data-bike-total]').first()).toHaveAttribute('data-bike-total', `${P}bk1`);
@@ -404,6 +418,7 @@ test('Velos: km per bike and the most worn parts', async ({ page, context }, inf
 test('Tagesbild: a tapped day shows its 24 hours with sleep, steps, pulse, ride and ticks', async ({ page, context }, info) => {
   const errors = await open(page, context);
   await go(page, '#/auswerten/analyse');
+  await tab(page, 'ueberblick');
   const day = addDays(TODAY, -1);
   await page.locator(`[data-heat] button.cell[data-day="${day}"]`).click();
   const pic = page.locator('[data-day-sheet] [data-day-picture]');
@@ -433,26 +448,33 @@ test('Genaue Werte: every Analyse chart has round labelled steps, and a tap show
     expect(await labels.count(), sel).toBeGreaterThanOrEqual(3);
     for (const s of await labels.allTextContents()) expect(s.trim(), sel).toMatch(/\d/);
   };
-  for (const sel of ['[data-diagram]', '[data-weekly]', '[data-compare-period]', '[data-compare-acts]', '[data-year-year]', '[data-bike-km]', '[data-links]']) {
+  const TAB_OF = { '[data-diagram]': 'diagramm', '[data-weekly]': 'ueberblick', '[data-compare-period]': 'vergleiche', '[data-compare-acts]': 'vergleiche', '[data-year-year]': 'rekorde', '[data-bike-km]': 'velos', '[data-links]': 'diagramm' };
+  for (const sel of Object.keys(TAB_OF)) {
+    await tab(page, TAB_OF[sel]);
     await page.locator(sel).scrollIntoViewIfNeeded();
     await steps(sel);
     await expect(page.locator(`${sel} [data-grid] line`).first()).toBeAttached();
   }
   // Velo-km: the newest week is shown, a tapped week gives its exact km
+  await tab(page, 'velos');
   const bk = page.locator('[data-bike-km]');
   await expect(bk.locator('[data-bike-week]')).toContainText('km');
   await tapAt(bk.locator('svg[role="img"]'), 0.02, 0.4);
   await expect(bk.locator('[data-bike-week]')).toContainText(T('Week of {day}|bikesan').replace(' {day}', ''));
   await shot(page, 'genau-velokm', info, '[data-bike-km]');
   // Muster: a tapped month gives both years
+  await tab(page, 'rekorde');
   const yy = page.locator('[data-year-year]');
   await tapAt(yy.locator('svg[role="img"]'), 0.65, 0.6);
   await expect(yy.locator('[data-yy-pick] b').first()).toBeVisible();
   await shot(page, 'genau-muster', info, '[data-year-year]');
+  await tab(page, 'diagramm');
   await shot(page, 'genau-diagramm', info, '[data-diagram]');
-  await shot(page, 'genau-ueberblick', info, '[data-weekly]');
-  await shot(page, 'genau-vergleiche', info, '[data-compare-period], [data-compare-acts]');
   await shot(page, 'genau-zusammenhang', info, '[data-links]');
+  await tab(page, 'vergleiche');
+  await shot(page, 'genau-vergleiche', info, '[data-compare-period], [data-compare-acts]');
+  await tab(page, 'ueberblick');
+  await shot(page, 'genau-ueberblick', info, '[data-weekly]');
   // Tagesbild: pulse on the left, steps on the right, a tapped hour gives its values
   await page.locator(`[data-heat] button.cell[data-day="${addDays(TODAY, -1)}"]`).click();
   const pic = page.locator('[data-day-sheet] [data-day-picture]');
