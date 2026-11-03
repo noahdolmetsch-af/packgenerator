@@ -23,6 +23,7 @@
   import { actName } from '../../lib/flow/ui.svelte.js';
   import { actGoalText, goalsText, dayShort } from '../../lib/flow/words.js';
   import { seasonNow } from '../../lib/flow/aktiv.js';
+  import { similarNames } from '../../lib/flow/similar.js';
   import { isMedAct } from '../../lib/flow/hobby/medstart.js';
   import ActIcon from '../../lib/flow/ActIcon.svelte';
   import GoneActs from '../../lib/flow/GoneActs.svelte';
@@ -96,8 +97,25 @@
     await saveOrder(db, moveAct(all, id, to));
     offerDone(t('«{name}» moved to place {n}.', { name: actName(a), n: Math.max(1, Math.min(all.length, to + 1)) }), () => saveOrder(db, before));
   }
-  const dragged = (from, to) => move(all[from].id, to);
-  const step = (a, dir) => move(a.id, all.findIndex((x) => x.id === a.id) + dir);
+  // paused and resting sports wait in their own folded block (Noah 02.11.2026 «4a»); the order below counts them in
+  const isOff = (a) => !!a.paused || !!stateOf.get(a.id)?.resting;
+  const active = $derived(all.filter((a) => !isOff(a)));
+  const off = $derived(all.filter(isOff));
+  // a place among the shown sports → the place in the whole list
+  const moveShown = (a, to) => {
+    const k = Math.max(0, Math.min(active.length - 1, to));
+    return move(a.id, all.findIndex((x) => x.id === active[k].id));
+  };
+  const dragged = (from, to) => moveShown(active[from], to);
+  const step = (a, dir) => moveShown(a, active.findIndex((x) => x.id === a.id) + dir);
+  /* sports with the same name (Noah 02.11.2026 «4a»): a hint, nothing is changed by itself */
+  const SIMILAR_KEY = 'flow.similarOk';
+  const okQ = liveQuery(() => db.settings.get(SIMILAR_KEY));
+  const similar = $derived(similarNames(all.map((a) => ({ id: a.id, name: actName(a) })), $okQ?.value ?? []));
+  async function similarOk(key) {
+    const now = (await db.settings.get(SIMILAR_KEY))?.value ?? [];
+    await db.settings.put({ key: SIMILAR_KEY, value: [...new Set([...now, key])] });
+  }
   let reorder = $state(false);
 
   /* the menu «⋯» of a row (Noah 02.11.2026 «2a»): rename, pause, move, delete with Undo, without opening the sport's page */
@@ -193,13 +211,20 @@
     ];
   }
   function menuOf(a, i) {
+    if (isOff(a)) {
+      return [
+        { key: 'rename', label: t('Rename'), icon: Pencil, onclick: () => (renaming = a) },
+        ...(a.paused ? [{ key: 'pause', label: t('Resume'), icon: Play, onclick: () => togglePause(a) }] : []),
+        { key: 'delete', label: t('Delete …'), icon: Trash, danger: true, sep: true, onclick: () => removeRow(a) },
+      ];
+    }
     return [
       { key: 'rename', label: t('Rename'), icon: Pencil, onclick: () => (renaming = a) },
       { key: 'pause', label: a.paused ? t('Resume') : t('Pause'), icon: a.paused ? Play : Pause, onclick: () => togglePause(a) },
-      { key: 'up', label: t('Move up'), icon: ChevronUp, disabled: i === 0, sep: true, onclick: () => move(a.id, i - 1) },
-      { key: 'down', label: t('Move down'), icon: ChevronDown, disabled: i >= all.length - 1, onclick: () => move(a.id, i + 1) },
-      { key: 'top', label: t('To the top'), icon: ArrowUpToLine, disabled: i === 0, onclick: () => move(a.id, 0) },
-      { key: 'bottom', label: t('To the bottom'), icon: ArrowDownToLine, disabled: i >= all.length - 1, onclick: () => move(a.id, all.length - 1) },
+      { key: 'up', label: t('Move up'), icon: ChevronUp, disabled: i === 0, sep: true, onclick: () => moveShown(a, i - 1) },
+      { key: 'down', label: t('Move down'), icon: ChevronDown, disabled: i >= active.length - 1, onclick: () => moveShown(a, i + 1) },
+      { key: 'top', label: t('To the top'), icon: ArrowUpToLine, disabled: i === 0, onclick: () => moveShown(a, 0) },
+      { key: 'bottom', label: t('To the bottom'), icon: ArrowDownToLine, disabled: i >= active.length - 1, onclick: () => moveShown(a, active.length - 1) },
       { key: 'delete', label: t('Delete …'), icon: Trash, danger: true, sep: true, onclick: () => removeRow(a) },
     ];
   }
@@ -218,6 +243,29 @@
   }
   import PasstHier from '../../lib/ui/PasstHier.svelte'; // «Wegweiser statt Katalog» PR 7
 </script>
+
+{#snippet actRow(a, i, shown)}
+  {@const s = stateOf.get(a.id)}
+  <li data-id={a.id} data-row={a.id} data-sort-id={a.id}>
+    <a class="ar" href={sportHref(a)} data-sport-row={a.id}>
+      <span class="aico"><ActIcon icon={a.icon} ring={a.ring} dim={a.paused || s?.resting} /></span>
+      <span class="m"><b>{actName(a)}</b><small>{a.paused ? t('paused') : s?.resting ? t('rests until {date}', { date: dayShort(s.restUntil) }) : actGoalText(a, today)}{#if isMedAct(a)}{' · '}{t('with timer')}{/if}</small></span>
+      {#if s && !s.resting}
+        <span class="d7" aria-hidden="true">{#each gridRow(s, data.log, week, today, data.tripDays) as c, k (k)}<i class={c}></i>{/each}</span>
+        <span class="st num">{s.stand.n} / {s.stand.of}</span>
+        {@const p = goalPill(s)}
+        <span class="bdw"><span class="pill {p.cls}" data-pill={p.key}>{p.text}</span></span>
+      {:else}
+        <span class="d7 rest" aria-hidden="true">{#each week as d (d)}<i></i>{/each}</span>
+        <span class="st num">–</span>
+        <span class="bdw"><span class="pill">{a.paused ? t('paused') : t('rests')}</span></span>
+      {/if}
+    </a>
+    {#if shown}<SortGrip name={actName(a)} onstep={(d) => step(a, d)} />{/if}
+    {#if shown && reorder}<SortArrows name={actName(a)} {i} n={active.length} onstep={(dir) => step(a, dir)} />{/if}
+    <RowMenu name={actName(a)} items={menuOf(a, i)} />
+  </li>
+{/snippet}
 
 <div class="flow ms">
   <header class="ph">
@@ -243,30 +291,24 @@
       <div class="col">
         <Sec id="ms-h" title={t('Your sports, last 7 days')} sub={t('Dots = last 7 days · today on the right · a tap opens the sport')} more={{ label: reorder ? t('Done|order') : t('Sort|order'), onclick: () => (reorder = !reorder), expanded: reorder }}>
           {#if reorder}<p class="note ronote" data-reorder-note><Lightbulb size={16} aria-hidden="true" /><span>{t('The order here is the order of «Tick off today».')} {t('Drag the grip or use the arrows to move.')}</span></p>{/if}
+          {#each similar as g (g.key)}
+            <p class="note simnote" data-similar={g.key}><Lightbulb size={16} aria-hidden="true" /><span>{t('«{name}» appears {n} times. Rename one (for example «{name} winter») or pause it.', { name: g.name, n: g.ids.length })} <button type="button" class="btn btn-link" onclick={() => similarOk(g.key)}>{t('Leave it')}</button></span></p>
+          {/each}
           <ul class="acts card" class:sorting={reorder} use:sortable={{ onmove: dragged }} data-my-sports>
-            {#each all as a, i (a.id)}
-              {@const s = stateOf.get(a.id)}
-              <li data-id={a.id} data-row={a.id} data-sort-id={a.id}>
-                <a class="ar" href={sportHref(a)} data-sport-row={a.id}>
-                  <span class="aico"><ActIcon icon={a.icon} ring={a.ring} dim={a.paused || s?.resting} /></span>
-                  <span class="m"><b>{actName(a)}</b><small>{a.paused ? t('paused') : s?.resting ? t('rests until {date}', { date: dayShort(s.restUntil) }) : actGoalText(a, today)}{#if isMedAct(a)}{' · '}{t('with timer')}{/if}</small></span>
-                  {#if s && !s.resting}
-                    <span class="d7" aria-hidden="true">{#each gridRow(s, data.log, week, today, data.tripDays) as c, k (k)}<i class={c}></i>{/each}</span>
-                    <span class="st num">{s.stand.n} / {s.stand.of}</span>
-                    {@const p = goalPill(s)}
-                    <span class="bdw"><span class="pill {p.cls}" data-pill={p.key}>{p.text}</span></span>
-                  {:else}
-                    <span class="d7 rest" aria-hidden="true">{#each week as d (d)}<i></i>{/each}</span>
-                    <span class="st num">–</span>
-                    <span class="bdw"><span class="pill">{a.paused ? t('paused') : t('rests')}</span></span>
-                  {/if}
-                </a>
-                <SortGrip name={actName(a)} onstep={(d) => step(a, d)} />
-                {#if reorder}<SortArrows name={actName(a)} {i} n={all.length} onstep={(dir) => step(a, dir)} />{/if}
-                <RowMenu name={actName(a)} items={menuOf(a, i)} />
-              </li>
+            {#each active as a, i (a.id)}
+              {@render actRow(a, i, true)}
             {/each}
           </ul>
+          {#if off.length}
+            <details class="card fold off" data-paused-block>
+              <summary><span>{t('Paused and resting')}</span><small>{off.length}</small></summary>
+              <ul class="acts offl">
+                {#each off as a, i (a.id)}
+                  {@render actRow(a, i, false)}
+                {/each}
+              </ul>
+            </details>
+          {/if}
           <p class="note"><Lightbulb size={16} aria-hidden="true" /><span>{t('Rename, pause or delete a sport with «⋯». Symbol, goal and season are on its page under «Edit».')}</span></p>
         </Sec>
 
@@ -454,6 +496,17 @@
   }
   .ronote {
     margin: 0 2px var(--sp-2);
+  }
+  .simnote {
+    margin: 0 2px var(--sp-2);
+  }
+  .off {
+    margin-top: var(--sp-3);
+  }
+  .offl {
+    margin: 0;
+    padding: 0;
+    list-style: none;
   }
   .fold {
     padding: var(--sp-3) var(--sp-4);
