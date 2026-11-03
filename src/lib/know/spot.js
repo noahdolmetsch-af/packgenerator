@@ -150,12 +150,16 @@ export const showSpot = (id, opts = {}) => (SPOT[id] ? showSteps(SPOT[id], id, o
  * opts.note: a line shown with the light; opts.miss: the line shown instead when a step is missing (e.g. where it
  * shows up); opts.go: a button on that line. Without opts nothing else shows (the catalogue).
  */
+let current = 0; // the newest run: an older one that is still waiting for its element stops (it would light a spot of the page the user has left)
 export async function showSteps(steps, id = '', { note: said = '', miss = '', go = null } = {}) {
+  const run = ++current;
   // the new page first: the page the tap came from may show the same words
   await new Promise((ok) => setTimeout(ok, 300));
   for (let i = 0; i < steps.length; i++) {
+    if (run !== current) return false;
     if (steps[i].unless && find({ sel: steps[i].unless })) continue;
     const el = await wait(steps[i]);
+    if (run !== current) return false;
     if (!el) {
       if (miss) note(miss, { go });
       return false;
