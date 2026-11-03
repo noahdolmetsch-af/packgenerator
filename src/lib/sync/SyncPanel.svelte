@@ -327,7 +327,6 @@
         {#if lost.length > 50}<p class="small">{t('{n} more, the newest are shown.', { n: lost.length - 50 })}</p>{/if}
       </details>
     {/if}
-    {#if $cfgQ.failedN}<p class="small" data-sync-failed>{tn($cfgQ.failedN, '{n} entry could not be saved on this device and is tried again later: {names}', '{n} entries could not be saved on this device and are tried again later: {names}', { names: ($cfgQ.failed ?? []).slice(0, 5).map((f) => f.label).join(', ') })}</p>{/if}
     {#if $cfgQ.big}<p class="small">{tn($cfgQ.big, '{n} very large entry stays only on this device.', '{n} very large entries stay only on this device.')}</p>{/if}
 
     {#if view === 'pair'}

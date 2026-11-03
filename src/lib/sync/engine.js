@@ -37,10 +37,6 @@ export const BATCH_CHARS = 2_500_000;
 /** A single record bigger than this stays on this device (a very big document); the panel says so. */
 export const RECORD_MAX = 3_900_000;
 const BATCH_MAX = 200;
-/** A record this device cannot store is tried again after this long (ms), by a round that pulls from it on. */
-export const RETRY_MS = 30 * 60_000;
-/** At most this many unstorable records are remembered by name. */
-const FAILED_MAX = 50;
 
 /** The code of an error from this device: a full phone says so instead of «server». */
 export const errCode = (err) => err?.code || (err?.name === 'QuotaExceededError' ? 'storage_full' : 'local_error');
@@ -89,7 +85,7 @@ export async function startSync(db, code, now = new Date().toISOString()) {
       if (fresh.length) await db.meta.bulkPut(fresh);
     }
     await db.meta.where('key').startsWith(ASK).delete();
-    await db.meta.put({ key: CFG, code, since: 0, on: true, startedAt: now, lastAt: null, error: null, big: 0, failed: [], failedN: 0, retryAt: null });
+    await db.meta.put({ key: CFG, code, since: 0, on: true, startedAt: now, lastAt: null, error: null, big: 0 });
   });
 }
 
@@ -317,32 +313,20 @@ export async function syncNow(db, { api = httpApi(), dev = 'computer', demo = as
   if (!cfg?.on || !cfg.code) return { skipped: 'off' };
   if (await demo()) return { skipped: 'demo' };
   const keys = await keysOf(cfg.code);
-  const out = { taken: 0, sent: 0, asks: 0, big: 0, failed: [] };
+  const out = { taken: 0, sent: 0, asks: 0, big: 0 };
   try {
     let since = cfg.since ?? 0;
-    // Records this device could not store the last time (Noah 03.11.2026: one such record stopped the whole
-    // round, everything behind it never arrived): after RETRY_MS a round pulls again from the first of them.
-    const failed = new Map((cfg.failed ?? []).map((f) => [`${f.t}|${JSON.stringify(f.id)}`, f]));
-    const retrying = failed.size > 0 && (!cfg.retryAt || Date.parse(now()) - Date.parse(cfg.retryAt) >= RETRY_MS);
-    if (retrying) since = Math.min(since, Math.min(...[...failed.values()].map((f) => f.s)) - 1);
-    // not asked again yet: they stay on the list until the next try
-    const stillFailed = new Map(retrying ? [] : failed);
     const pull = async () => {
       for (let round = 0; round < 1000; round++) {
         const res = await api.call('pull', { token: keys.token, since });
         for (const it of res.items ?? []) {
           const p = await unseal(keys, it.e);
           if (!p) continue; // sealed with another code: not ours to read
-          try {
-            const r = await applyRemote(db, p, it.s);
-            if (r === 'taken') out.taken++;
-          } catch (err) {
-            // this one cannot be stored here (e.g. no space): note it and go on with the others
-            stillFailed.set(`${p.t}|${JSON.stringify(p.id)}`, { t: p.t, id: p.id, s: it.s, name: err?.name ?? 'Error', label: String(p.v?.name ?? p.v?.title ?? p.id).slice(0, 60) });
-          }
+          const r = await applyRemote(db, p, it.s);
+          if (r === 'taken') out.taken++;
         }
         since = Math.max(since, Number(res.next ?? since));
-        await writeCfg(db, { since: Math.max(since, cfg.since ?? 0) });
+        await writeCfg(db, { since });
         if (!res.more) break;
       }
     };
@@ -390,11 +374,10 @@ export async function syncNow(db, { api = httpApi(), dev = 'computer', demo = as
     if (raced) await pull();
     out.asks = await db.meta.where('key').startsWith(ASK).count();
     await pruneLost(db);
-    out.failed = [...stillFailed.values()].slice(0, FAILED_MAX);
-    await writeCfg(db, { lastAt: now(), error: null, big: out.big, failed: out.failed, failedN: stillFailed.size, retryAt: stillFailed.size ? (retrying || !cfg.retryAt ? now() : cfg.retryAt) : null });
+    await writeCfg(db, { lastAt: now(), error: null, big: out.big });
     return out;
   } catch (err) {
-    await writeCfg(db, { error: errCode(err), errorAt: now() });
+    await writeCfg(db, { error: errCode(err), errorAt: now(), errorName: err?.name ?? null });
     throw err;
   }
 }
