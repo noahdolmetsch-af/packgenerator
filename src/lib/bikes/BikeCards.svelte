@@ -10,6 +10,7 @@
   import { withVisits } from '../workshop.js';
   import { bikeCare, bikeCareWords } from '../readiness.js';
   import { localDay } from '../localday.js';
+  import BikeQuickDialog from '../hubs/BikeQuickDialog.svelte';
   import { t, num } from '../i18n.svelte.js';
   let { bikeId = null, onbike } = $props();
   const bikesQ = liveQuery(() => db.bikes.toArray());
@@ -19,6 +20,16 @@
   const visits = $derived($visitsQ ?? []);
   const tasks = $derived($tasksQ ?? []);
   const today = localDay();
+  // step 2: «Log a workshop visit» and «Log a problem» straight from the card (the Today dialogs, one bike chosen)
+  let dialog = $state(null); // { kind, bikeId }
+  let saved = $state(null);
+  let savedTimer;
+  function done(s) {
+    clearTimeout(savedTimer);
+    saved = s;
+    savedTimer = setTimeout(() => (saved = null), 6000);
+  }
+  $effect(() => () => clearTimeout(savedTimer));
   const cards = $derived(
     bikes.map((b) => {
       const care = bikeCare(withVisits(b, visits), { tasks, visits, today });
@@ -38,11 +49,19 @@
         {#if c.w.text}<p class="next">{c.w.text}</p>{/if}
         <div class="acts">
           <a class="btn sm" href={bikesHash({ tab: 'care', bike: c.bike.id, open: true })}>{t('Open care')}</a>
+          <button type="button" class="btn sm hi" onclick={() => (dialog = { kind: 'visit', bikeId: c.bike.id })} data-card-visit>{t('Log a workshop visit')}</button>
+          <button type="button" class="btn sm" onclick={() => (dialog = { kind: 'problem', bikeId: c.bike.id })} data-card-problem>{t('Log a problem')}</button>
           <button type="button" class="btn sm" onclick={() => onbike?.(c.bike.id)}>{t('Show details')}</button>
         </div>
       </article>
     {/each}
   </section>
+  {#if saved}
+    <p class="saved" role="status" data-card-saved>{saved.kind === 'visit' ? t('Workshop visit saved.') : t('Saved in Bike care.')} <a href={bikesHash({ tab: 'care', bike: saved.bikeId, open: true })}>{t('Open')}</a></p>
+  {/if}
+  {#if dialog}
+    <BikeQuickDialog kind={dialog.kind} {bikes} bikeId={dialog.bikeId} onsaved={done} onclose={() => (dialog = null)} />
+  {/if}
 {/if}
 
 <style>
@@ -90,6 +109,11 @@
   .next {
     margin: 0;
     font-size: var(--fs-small);
+  }
+  .saved {
+    margin: 0 0 var(--sp-3);
+    font-size: var(--fs-small);
+    color: var(--ink-2);
   }
   .acts {
     display: flex;
