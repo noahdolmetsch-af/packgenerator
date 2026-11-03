@@ -94,9 +94,9 @@
     try {
       found = (await searchPlace(q)).map((p, i) => ({ ...p, id: `s${i}`, kind: 'target' }));
       if (!found.length) err = t('No place found with this name.');
-    } catch {
+    } catch (e) {
       found = [];
-      err = t('The place search did not answer. Check the internet and try again.');
+      err = e?.outage ? e.message : t('The place search did not answer. Check the internet and try again.');
     } finally {
       searching = false;
     }

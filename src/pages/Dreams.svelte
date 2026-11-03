@@ -34,6 +34,7 @@
   import TripTips from '../lib/neuland/TripTips.svelte'; // N3 «Heute passt: Ausflugstipps»
   import { linkIn, readLink, withLink, distText } from '../lib/dreams/fromlink.js'; // N13 «Ein Link wird ein Traum»
   import { fulfilledDreams } from '../lib/dreams/erfuellt.js'; // N17 «Erfüllte Träume»
+  import { refreshDreamWx, windowsOf, dayRange, DREAM_WX } from '../lib/dreams/wetterfenster.js'; // N15 «Wetterfenster»
   import { t, tn, num, locale } from '../lib/i18n.svelte.js';
   import { Sparkles, Flag, ChevronRight, Plus, Check, CalendarClock, Route, Pencil, Compass, Flame } from '@lucide/svelte';
   import '../lib/ich/ich.css';
@@ -59,6 +60,17 @@
   const fulfilled = $derived(fulfilledDreams(store.dreams, trips, $debriefsQ ?? [], today));
   const doneDay = $derived(new Map(fulfilled.map((f) => [f.dream.id, f.day])));
   const nowMonth = Number(today.slice(5, 7));
+  // N15 «Wetterfenster»: dry days in a row for the dreams that fit now (forecast kept on this device)
+  const homeQ = liveQuery(async () => (await db.settings.get('homePlace'))?.value ?? null);
+  const wxQ = liveQuery(async () => (await db.meta.get(DREAM_WX)) ?? null);
+  const nowDreams = $derived(list.filter((d) => !d.tripId && nextWindow(d, today, kinds)?.now));
+  const wxWin = $derived(windowsOf(nowDreams, $homeQ, $wxQ, today));
+  $effect(() => {
+    const ds = $state.snapshot(nowDreams);
+    const home = $homeQ;
+    if ($homeQ === undefined || !ds.length) return;
+    refreshDreamWx(db, ds, home).catch(() => {});
+  });
 
   let month = $state(0); // 0: all months
   const shown = $derived(month ? list.filter((d) => !d.tripId && monthsOf(d, kinds).includes(month)) : list);
@@ -119,6 +131,7 @@
     if (doneDay.has(d.id)) return t('Fulfilled in {when}', { when: ymText(doneDay.get(d.id).slice(0, 7)) });
     if (d.tripId) return t('Planned as a trip');
     const w = nextWindow(d, today, kinds);
+    if (w?.now && wxWin.has(d.id)) return t('Fits now, dry {days}', { days: dayRange(wxWin.get(d.id), locale()) });
     return !w ? '' : w.now ? t('Fits now') : t('Next: {when}', { when: ymText(w.ym) });
   }
   const dayText = (day) => new Date(`${day}T12:00:00Z`).toLocaleDateString(locale(), { day: 'numeric', month: 'short', year: 'numeric' });
@@ -169,7 +182,7 @@
 
 <div class="ich-page dreams" data-page="dreams">
   <VeloHead crumbs={[{ label: t('Trips|place'), href: '#/trips' }]} title={t('Dreams|page')} sub={t('Dream tours with their season, races as event tours')} />
-  <p class="dr-intro">{t('Write down tours you dream of. The app suggests when each one fits; you can change the months. One tap makes a trip from a dream. «New ground round» plans a round through a place you have never been. Done ones move to «Fulfilled dreams». A dream shows «Ready for the dream?».')}</p>
+  <p class="dr-intro">{t('Write down tours you dream of. The app suggests when each one fits; you can change the months. One tap makes a trip from a dream. «New ground round» plans a round through a place you have never been. Done ones move to «Fulfilled dreams». A dream shows «Ready for the dream?». A dream that fits now shows a «Weather window for dreams».')}</p>
   <AreaIntro place="dreams" />
 
   <form class="card cap" onsubmit={add}>

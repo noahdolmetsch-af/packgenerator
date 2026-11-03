@@ -7,10 +7,11 @@ import { FEATURES, featureHref } from '../features.js';
 import { momentOfFeature } from '../moment.js';
 
 /** The pages that show the row: page name (App.svelte) → moment key. A new page comes with its own PR.
- * «Wegweiser statt Katalog» PR 10 (Noah 01.11.2026 «1a 2a 3a 4a 5a»): Velos, Material and Aktiv too. */
-export const PAGE_MOMENT = { pack: 'packen', trips: 'planen', me: 'app', bikes: 'velo', gear: 'velo', flow: 'koerper' };
+ * «Wegweiser statt Katalog» PR 10 (Noah 01.11.2026 «1a 2a 3a 4a 5a»): Velos, Material and Aktiv too.
+ * Idea D4 «App denkt mit» (Noah 02.11.2026 «3b»): Rückblick (hub only), Neuland and Wetter too. */
+export const PAGE_MOMENT = { pack: 'packen', trips: 'planen', me: 'app', bikes: 'velo', gear: 'velo', flow: 'koerper', debrief: 'zurueck', neuland: 'lust', wetter: 'planen' };
 /** Pages whose row shows only on the page itself, not on its sub-pages (a form like #/flow/edit/… stays quiet). */
-export const HUB_ONLY = ['bikes', 'gear', 'flow'];
+export const HUB_ONLY = ['bikes', 'gear', 'flow', 'debrief'];
 /** Chips shown before «all n ›». */
 export const SHOWN = 5;
 

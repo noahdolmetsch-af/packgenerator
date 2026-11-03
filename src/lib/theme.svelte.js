@@ -25,6 +25,8 @@ export const DEFAULT_SCALE = 100;
 export const SCALE_MIN = 80;
 export const SCALE_MAX = 130;
 export const SCALE_STEP = 5;
+/** Three quick sizes (Noah 03.11.2026 «Drei Knöpfe dazu»): small, normal, large. The slider stays for fine steps. */
+export const SIZE_PRESETS = [{ key: 'small', n: 90 }, { key: 'normal', n: 100 }, { key: 'large', n: 115 }];
 
 /**
  * The colour worlds: the five of the mockup first (Salbei ★), then the two older ones (Noah 2a).
