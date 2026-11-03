@@ -14,3 +14,11 @@ src/lib/news/index.gen.js
 src/lib/i18n/de/auto.gen.js
 src/lib/featreg/index.gen.js
 pw-report.json
+# Wächter gegen private Daten (tests/private-data.test.js): tracks, Garmin files, photos, Excel never go in
+*.gpx
+*.fit
+*.tcx
+*.heic
+*.jpg
+*.jpeg
+*.xls

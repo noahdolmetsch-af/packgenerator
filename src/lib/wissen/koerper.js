@@ -38,4 +38,10 @@ export default {
   'f.weight': "Weigh at the same time, for example in the morning; day-to-day jumps are mostly water.",
   'f.goodday': "Keep the good day while it is fresh, with one small detail; the detail is what makes it repeatable.",
   'f.fitbit': "The first fetch can take a while; after that it runs by itself. The values are observation, the watch is not a doctor.",
+  // Wegweiser 26b: pages that had no card yet
+  'f.specialdays': 'Mark a busy day the same evening; in two weeks a missing ride looks like laziness, not like a long work day.',
+  'f.counterdays': 'The days against an insight are the honest part. Three of them are a hint that it is less clear than it looks.',
+  'f.tworoles': 'A ride to work can be training too. Give it both roles and count it once in the total.',
+  'f.scalemeaning': 'Write what a 1 and a 10 mean in your own words; in a year your old 7 still says the same.',
+  'f.bodytalk': 'Bring your questions, not your conclusions: the page is for the talk, the app makes no diagnosis.',
 };

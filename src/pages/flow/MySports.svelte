@@ -9,7 +9,7 @@
    * goals and the mosaic of all sports (was the top of #/flow/sports). Addresses #/flow/sports, …/goals and
    * …/activity all show this page.
    */
-  import { Plus, GripVertical, Lightbulb, ChevronRight, Pencil } from '@lucide/svelte';
+  import { Plus, Lightbulb, ChevronRight, Pencil } from '@lucide/svelte';
   import { db } from '../../lib/db.js';
   import { flowQuery, seedIfNeeded } from '../../lib/flow/data.svelte.js';
   import { flowStates, lastDays, halfOf, halfEnds, halfSince, moveAct, gridRow, activeGoals } from '../../lib/flow.js';
@@ -39,7 +39,7 @@
   import { sportName } from '../../lib/sportpage/words.js';
   import { sportHref } from '../../lib/flow/mysports.js';
   import { localDay } from '../../lib/localday.js';
-  import { phone } from '../../lib/media.svelte.js';
+  import { offerDone } from '../../lib/ui/rename.svelte.js';
   import { t, tn } from '../../lib/i18n.svelte.js';
   import QuickLinks from '../../lib/ui/QuickLinks.svelte';
   import NextGoalRow from '../../lib/flow/NextGoalRow.svelte';
@@ -81,35 +81,16 @@
       : [],
   );
 
-  /* the order: arrows and drag (rule «Pfeile und Ziehen»); the same order as «Heute abhaken» */
-  let dragId = $state(null);
+  /* the order: one grip to drag (always there), arrows only in «Sort» mode (Noah 02.11.2026 «1a»); the same order as «Heute abhaken» */
   async function move(id, to) {
+    const before = moveAct(all, id, all.findIndex((x) => x.id === id)); // the order as it is now, to undo
+    const a = all.find((x) => x.id === id);
     await saveOrder(db, moveAct(all, id, to));
+    offerDone(t('«{name}» moved to place {n}.', { name: actName(a), n: Math.max(1, Math.min(all.length, to + 1)) }), () => saveOrder(db, before));
   }
-  function gripKey(e, a, i) {
-    if (e.key === 'ArrowUp' && i > 0) (e.preventDefault(), move(a.id, i - 1).then(() => focusGrip(a.id)));
-    if (e.key === 'ArrowDown' && i < all.length - 1) (e.preventDefault(), move(a.id, i + 1).then(() => focusGrip(a.id)));
-  }
-  const focusGrip = (id) => requestAnimationFrame(() => document.querySelector(`[data-grip="${id}"]`)?.focus());
-  let listEl = $state();
-  function gripDown(e, a) {
-    dragId = a.id;
-    e.currentTarget.setPointerCapture?.(e.pointerId);
-  }
-  function gripMove(e) {
-    if (!dragId || !listEl) return;
-    const rowsEl = [...listEl.querySelectorAll('li[data-id]')];
-    const i = rowsEl.findIndex((r) => {
-      const b = r.getBoundingClientRect();
-      return e.clientY >= b.top && e.clientY < b.bottom;
-    });
-    const from = all.findIndex((x) => x.id === dragId);
-    if (i >= 0 && i !== from) move(dragId, i);
-  }
-  const gripUp = () => (dragId = null);
-  // reading is daily, moving is rare: on a phone the grip and the arrows wait for «Reihenfolge ändern»
+  const dragged = (from, to) => move(all[from].id, to);
+  const step = (a, dir) => move(a.id, all.findIndex((x) => x.id === a.id) + dir);
   let reorder = $state(false);
-  const sorting = $derived(!phone.matches || reorder);
 
   /* three calm states (Impeccable runde 2): «heute offen», «noch 1× in 10 Tagen», «bis morgen» or «im Soll» */
   function goalPill(s) {
@@ -148,12 +129,12 @@
   {:else if data}
     <div class="lay">
       <div class="col">
-        <Sec id="ms-h" title={t('Your sports, last 7 days')} sub={t('Dots = last 7 days · today on the right · a tap opens the sport')} more={phone.matches ? { label: reorder ? t('Done|order') : t('Change the order'), onclick: () => (reorder = !reorder), expanded: reorder } : null}>
-          {#if phone.matches && reorder}<p class="note ronote" data-reorder-note><Lightbulb size={16} aria-hidden="true" /><span>{t('The order here is the order of «Tick off today».')} {t('Drag the grip or use the arrows to move.')}</span></p>{/if}
-          <ul class="acts card" class:sorting bind:this={listEl} data-my-sports>
+        <Sec id="ms-h" title={t('Your sports, last 7 days')} sub={t('Dots = last 7 days · today on the right · a tap opens the sport')} more={{ label: reorder ? t('Done|order') : t('Sort|order'), onclick: () => (reorder = !reorder), expanded: reorder }}>
+          {#if reorder}<p class="note ronote" data-reorder-note><Lightbulb size={16} aria-hidden="true" /><span>{t('The order here is the order of «Tick off today».')} {t('Drag the grip or use the arrows to move.')}</span></p>{/if}
+          <ul class="acts card" class:sorting={reorder} use:sortable={{ onmove: dragged }} data-my-sports>
             {#each all as a, i (a.id)}
               {@const s = stateOf.get(a.id)}
-              <li data-id={a.id} data-row={a.id} class:drag={dragId === a.id}>
+              <li data-id={a.id} data-row={a.id} data-sort-id={a.id}>
                 <a class="ar" href={sportHref(a)} data-sport-row={a.id}>
                   <span class="aico"><ActIcon icon={a.icon} ring={a.ring} dim={a.paused || s?.resting} /></span>
                   <span class="m"><b>{actName(a)}</b><small>{a.paused ? t('paused') : s?.resting ? t('rests until {date}', { date: dayShort(s.restUntil) }) : actGoalText(a, today)}{#if isMedAct(a)}{' · '}{t('with timer')}{/if}</small></span>
@@ -168,14 +149,12 @@
                     <span class="bdw"><span class="pill">{a.paused ? t('paused') : t('rests')}</span></span>
                   {/if}
                 </a>
-                {#if sorting}
-                  <button type="button" class="grip noswipe" data-grip={a.id} aria-label={t('Move {name}: arrow keys', { name: actName(a) })} onkeydown={(e) => gripKey(e, a, i)} onpointerdown={(e) => gripDown(e, a)} onpointermove={gripMove} onpointerup={gripUp} onpointercancel={gripUp}><GripVertical size={18} aria-hidden="true" /></button>
-                  <SortArrows name={actName(a)} {i} n={all.length} onstep={(dir) => move(a.id, i + dir)} />
-                {/if}
+                <SortGrip name={actName(a)} onstep={(d) => step(a, d)} />
+                {#if reorder}<SortArrows name={actName(a)} {i} n={all.length} onstep={(dir) => step(a, dir)} />{/if}
               </li>
             {/each}
           </ul>
-          {#if !phone.matches}<p class="note"><Lightbulb size={16} aria-hidden="true" /><span>{t('The order here is the order of «Tick off today».')} {t('Drag the grip or use the arrows to move.')} {t('Rename, pause or delete a sport on its page under «Edit».')}</span></p>{/if}
+          <p class="note"><Lightbulb size={16} aria-hidden="true" /><span>{t('Rename, pause or delete a sport on its page under «Edit».')}</span></p>
         </Sec>
 
         {#if seasonal.length}
@@ -204,7 +183,7 @@
                 <li data-sort-id={s.id} data-sport={s.id}>
                   <SortGrip name={sportName(s)} onstep={(d) => tripStep(s, d)} />
                   <a href="#/flow/sport/{encodeURIComponent(s.id)}"><ActIcon icon={s.icon} ring={s.ring} /><span>{sportName(s)}</span><ChevronRight size={16} aria-hidden="true" /></a>
-                  <SortArrows name={sportName(s)} {i} n={tripSports.length} onstep={(d) => tripStep(s, d)} />
+                  {#if reorder}<SortArrows name={sportName(s)} {i} n={tripSports.length} onstep={(d) => tripStep(s, d)} />{/if}
                 </li>
               {/each}
             </ul>
@@ -278,12 +257,6 @@
   .acts li:first-child {
     border-top: 0;
   }
-  .acts li.drag {
-    background: var(--paper-2);
-  }
-  .acts:not(.sorting) {
-    padding-right: var(--sp-4);
-  }
   .ar {
     flex: 1;
     min-width: 0;
@@ -335,18 +308,6 @@
     display: flex;
     justify-content: flex-end;
     min-width: 92px;
-  }
-  .grip {
-    flex: none;
-    display: grid;
-    place-items: center;
-    width: 44px;
-    height: 44px;
-    border: 0;
-    background: none;
-    color: var(--ink-3);
-    cursor: grab;
-    touch-action: none;
   }
   @media (max-width: 719px) {
     .d7 {

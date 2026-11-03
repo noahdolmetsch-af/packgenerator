@@ -85,6 +85,31 @@ describe('buildWeek', () => {
     expect(bike.day < '2026-10-23').toBe(true);
     expect(bike.sub).toMatchObject({ bike: 'Gravel', before: 'Jura weekend' });
   });
+  it('a source switched off gives no suggestions, and the count stays for the switch (Noah 2.11.2026 «a»)', () => {
+    const all = buildWeek({ ...base, items, care });
+    expect(all.sources.todo).toBeGreaterThan(0);
+    expect(all.sources.bike).toBeGreaterThan(0);
+    const off = buildWeek({ ...base, items, care, sgOff: ['bike'] });
+    expect(off.suggestions.some((s) => s.source === 'bike')).toBe(false);
+    expect(off.suggestions.some((s) => s.source === 'todo')).toBe(true);
+    expect(off.sources.bike).toBe(all.sources.bike);
+  });
+  it('a suggestion put away for good stays away in every week (Noah 2.11.2026 «b»)', () => {
+    const sgNever = [{ ref: 'todo:t2', title: 'x' }];
+    expect(buildWeek({ ...base, items, sgNever }).suggestions.some((s) => s.ref === 'todo:t2')).toBe(false);
+    expect(buildWeek({ ...base, monday: '2026-10-26', items, sgNever }).suggestions.some((s) => s.ref === 'todo:t2')).toBe(false);
+  });
+  it('season ideas: renamed, deleted and own ones with months (also over the new year) (Noah 2.11.2026 «c»)', () => {
+    const cfg = { std: { winter: { title: 'Wax the chain' }, ski: { hidden: true } }, own: [{ id: 'o1', title: 'Check the tent', from: 11, to: 2 }, { id: 'bad', title: '', from: 1, to: 2 }] };
+    const nov = seasonOf('2026-11-23', cfg);
+    expect(nov.find((x) => x.key === 'winter').title).toBe('Wax the chain');
+    expect(nov.some((x) => x.key === 'ski')).toBe(false);
+    expect(nov.find((x) => x.key === 'o1')).toMatchObject({ title: 'Check the tent', ref: 'season:o1:2026' });
+    expect(nov.some((x) => x.key === 'bad')).toBe(false);
+    expect(seasonOf('2026-01-12', cfg).some((x) => x.key === 'o1')).toBe(true);
+    expect(seasonOf('2026-06-15', cfg).some((x) => x.key === 'o1')).toBe(false);
+    expect(seasonOf('2026-11-23').find((x) => x.key === 'winter').title).toBeNull();
+  });
   it('a planned bike job is no suggestion any more; a skipped suggestion waits a week', () => {
     const planned = itemsOf([...items, { kind: 'bike', title: 'Measure the chain', day: '2026-10-21', bikeId: 'b1', part: 'km:chain' }]);
     expect(buildWeek({ ...base, items: planned, care }).suggestions.some((s) => s.kind === 'bike')).toBe(false);
