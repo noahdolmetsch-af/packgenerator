@@ -6,7 +6,7 @@
    * trips and the ride ledger only while a closed letter waits. Features load only for a workspace.
    */
   import { liveQuery } from 'dexie';
-  import { endCalm } from './store.js';
+  import { endCalm, resyncPhone } from './store.js';
   import { Moon, Briefcase, Mail, X } from '@lucide/svelte';
   import { db } from '../db.js';
   import { t } from '../i18n.svelte.js';
@@ -36,7 +36,7 @@
     return () => clearInterval(id);
   });
   const over = $derived(calmOver($q?.calm, now));
-  const more = () => db.settings.put({ key: CALM_KEY, value: { ...$q.calm, until: calmUntil(15) } });
+  const more = () => db.settings.put({ key: CALM_KEY, value: { ...$q.calm, until: calmUntil(15) } }).then(resyncPhone);
   const here = $derived(hash.startsWith('#/me/ruhig'));
   const space = $derived($q && spaceActive($q.space, today) ? $q.space : null);
   let names = $state({});

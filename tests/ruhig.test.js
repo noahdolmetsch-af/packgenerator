@@ -301,3 +301,28 @@ describe('Ruhige Ansicht: quick starts', () => {
     expect(startsOf([{ id: 'x', name: 'Eigener' }])).toEqual([{ id: 'x', name: 'Eigener' }]);
   });
 });
+
+describe('Ruhige Ansicht: phone reminders rest', () => {
+  it('moves reminders inside the time to just after its end, safety stays', async () => {
+    const { applyCalm, calmHeld } = await import('../src/lib/ruhig/weniger.js');
+    const now = 1_000_000;
+    const end = now + 30 * 60000;
+    const calm = { what: 'Velo putzen', until: end };
+    const items = [
+      { key: 'bday:1', at: now + 5 * 60000, title: 'a' },
+      { key: 'ice:x', at: now + 10 * 60000, title: 'safety' },
+      { key: 'plant:2', at: now + 20 * 60000, title: 'b' },
+      { key: 'wear:3', at: end + 60 * 60000, title: 'later' },
+    ];
+    const out = applyCalm(items, calm, now);
+    expect(out.find((i) => i.title === 'safety').at).toBe(now + 10 * 60000);
+    expect(out.find((i) => i.title === 'later').at).toBe(end + 60 * 60000);
+    expect(out.find((i) => i.title === 'a').at).toBe(end + 60000);
+    expect(out.find((i) => i.title === 'b').at).toBe(end + 120000);
+    expect(out).toHaveLength(4); // nothing is lost
+    expect(calmHeld(items, calm, now)).toBe(2);
+    expect(applyCalm(items, { what: 'x', until: 0 }, now)).toBe(items); // no time: nothing held
+    expect(applyCalm(items, calm, end + 1)).toBe(items); // over
+    expect(applyCalm(items, null, now)).toBe(items);
+  });
+});

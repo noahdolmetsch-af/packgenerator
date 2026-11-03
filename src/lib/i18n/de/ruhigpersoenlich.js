@@ -290,6 +290,7 @@ export default {
   'Without a start': 'Ohne Schnellstart',
   'Nothing else changes.': 'Sonst ändert sich nichts.',
   'New start, e.g. Tidy the desk': 'Neuer Start, z. B. Schreibtisch aufräumen',
+  'Phone reminders wait until the end; warnings for weather, ice, light and eating come on time.': 'Handy-Erinnerungen warten bis zum Ende; Warnungen für Wetter, Eis, Licht und Essen kommen pünktlich.',
   'Clear the history': 'Verlauf leeren',
   'Show Today anyway': 'Heute trotzdem zeigen',
   '{n} min left': 'Noch {n} Min.',
