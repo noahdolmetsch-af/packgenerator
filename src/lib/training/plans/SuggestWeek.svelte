@@ -9,7 +9,7 @@
   import { suggestWeek, weeklySports, VARIANTS, SRC, FOCUS } from '../suggest.js';
   import { KIND_NAMES, ZONE_NAMES, shiftDay, weekOf } from '../../training.js';
 
-  let { acts = [], flowActs = [], plan = [], goal = null, monday, today, level = null, daysToRace = null, onapply } = $props();
+  let { acts = [], flowActs = [], plan = [], goal = null, monday, today, level = null, daysToRace = null, dayLimits = {}, onlimits, onapply } = $props();
 
   let open = $state(false);
   let variant = $state(0);
@@ -34,7 +34,7 @@
   });
   // a strength sport of Aktiv, when the person has one (gym, strength …)
   const strengthSport = $derived(flowActs.find((a) => !a.paused && /^(gym|strength|kraft)/i.test(a.id) || /strength|kraft|gym/i.test(a.name))?.id ?? null);
-  const sug = $derived(suggestWeek({ monday, today, goal, daysToRace, level, recentMins: recent, mainKind, sports, variant, nameOf: sportName, hoursSet, push, focus, strengthSport }));
+  const sug = $derived(suggestWeek({ monday, today, goal, daysToRace, level, recentMins: recent, mainKind, sports, variant, nameOf: sportName, hoursSet, push, focus, strengthSport, dayLimits }));
   // «Training verbessern» 2 (Noah 3.11.2026): every day of the suggestion can be changed here, before it is taken over:
   // swap the session for another sport, change minutes and zone, remove it, move it, add more sessions on a day
   let edits = $state(null); // the changed list, or null while the suggestion is untouched
@@ -72,6 +72,20 @@
   const stepHours = (d) => ((hoursSet = Math.min(40, Math.max(1, (hoursSet ?? sug.hours) + d))), (edits = null), (form = null));
   const setPush = (n) => ((push = n), (edits = null), (form = null));
   const setFocus = (f) => ((focus = f), (edits = null), (form = null));
+  // «Tage sperren / Zeit pro Tag»: tap a weekday to cycle open → 1 h → 30 min → free; it is remembered
+  const CYCLE = [null, 60, 30, 0];
+  const allDays = $derived(weekOf(monday));
+  const limitName = (n) => (n === 0 ? t('free') : n === 30 ? t('≤30 min') : n === 60 ? t('≤1 h') : t('open'));
+  function cycleDay(i) {
+    const cur = dayLimits[i] ?? null;
+    const nxt = CYCLE[(CYCLE.indexOf(cur) + 1) % CYCLE.length];
+    const out = { ...dayLimits };
+    if (nxt == null) delete out[i];
+    else out[i] = nxt;
+    onlimits?.(out);
+    edits = null;
+    form = null;
+  }
   const reset = () => ((edits = null), (form = null));
   const label = (s) => (s.sport ? sportName(flowActs.find((a) => a.id === s.sport) ?? { name: '' }) : s.name ? t(s.name) : t(KIND_NAMES[s.kind]));
   const fmt = (d) => new Date(`${d}T12:00:00Z`).toLocaleDateString(lang.v, { timeZone: 'UTC', weekday: 'short' });
@@ -118,6 +132,14 @@
 {:else}
   <div class="sugw" data-suggest>
     <h3 class="sugw-h">{t('Suggestion for this week')}</h3>
+    <div class="sugw-days" role="group" aria-label={t('Days and time')} data-sug-days>
+      {#each allDays as d, i (d)}
+        <button type="button" class="chip sugw-day" aria-pressed={(dayLimits[i] ?? null) !== null} onclick={() => cycleDay(i)} data-sug-day-btn={i}>
+          <b>{fmt(d)}</b><small>{limitName(dayLimits[i] ?? null)}</small>
+        </button>
+      {/each}
+    </div>
+    <p class="sugw-note">{t('Tap a day: 1 h at most, 30 min at most, or free. Free days get no session.')}</p>
     {#if sug.sessions.length || edits}
       <div class="sugw-hours" data-sug-hours>
         <span>{t('Hours per week')}</span>
@@ -238,6 +260,30 @@
     background: var(--brand);
     color: var(--brand-ink);
     border-color: var(--brand);
+  }
+  .sugw-days {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 0.25rem;
+  }
+  .sugw-day {
+    display: grid;
+    padding: 0.2rem 0;
+    min-width: 0;
+    min-height: 44px;
+    border-radius: 0.6rem;
+    text-align: center;
+    line-height: 1.15;
+  }
+  .sugw-day small {
+    white-space: nowrap;
+    font-size: var(--fs-small);
+    opacity: 0.8;
+  }
+  .sugw-note {
+    margin: 0;
+    font-size: var(--fs-small);
+    color: var(--ink-2);
   }
   .sugw-ic {
     display: flex;
