@@ -34,7 +34,8 @@
 
   // «Höhenprofil wird abgefahren» (Paket E, Idee 13): a dot rides the line once when the tour opens
   const ride = createRide(true);
-  onMount(() => ride.start());
+  let figure = $state();
+  onMount(() => ride.whenSeen(figure));
   const CLIP = `tprof-clip-${Math.random().toString(36).slice(2, 8)}`;
   const rideKm = $derived(ride.p * end);
 
@@ -70,7 +71,7 @@
 </script>
 
 {#if points.length > 1}
-  <figure class="tprof" data-tour-profile bind:clientWidth={box}>
+  <figure class="tprof" data-tour-profile bind:clientWidth={box} bind:this={figure}>
     <div class="vw"><Seg small full={false} label={t('Show as')} value={view} onchange={(v) => (view = v)} options={[{ key: 'chart', name: t('Chart|table') }, { key: 'table', name: t('As table') }]} /></div>
     {#if view === 'table'}
     <DataTable head={table.head} rows={table.rows} limit={24} />

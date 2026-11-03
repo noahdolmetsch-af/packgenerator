@@ -49,7 +49,8 @@
 
   // «Höhenprofil wird abgefahren» (Paket E, Idee 13): with `ride`, a dot rides the whole profile once when it appears
   const ride = createRide(rideOnOpen);
-  onMount(() => ride.start());
+  let root = $state();
+  onMount(() => ride.whenSeen(root));
   const W = 1000;
   const H = 200;
   const TOP = 6;
@@ -228,7 +229,7 @@
 </script>
 
 {#if f && pts.length > 1}
-  <div class="ps" data-profile data-profile-fine={f.coarse ? undefined : ''}>
+  <div class="ps" bind:this={root} data-profile data-profile-fine={f.coarse ? undefined : ''}>
     <div class="ps-tools" role="toolbar" aria-label={t('Zoom the profile')}>
       <button type="button" class="ps-btn" onclick={() => zoomBy(2)} disabled={!v} aria-label={t('Zoom out')} data-profile-zoomout><Minus size={18} aria-hidden="true" /></button>
       <button type="button" class="ps-btn" onclick={() => zoomBy(0.5)} disabled={span <= least + 1e-6} aria-label={t('Zoom in')} data-profile-zoomin><Plus size={18} aria-hidden="true" /></button>
