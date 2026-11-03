@@ -20,15 +20,24 @@ const ROWS = WHATS_NEW.flatMap((e) =>
 );
 const NEWEST = WHATS_NEW[0].version;
 
-test.setTimeout(600_000);
+// The lines are tapped in parts of PART lines each, so that a part finishes well inside its time limit (one test over
+// all ~500 lines ran into the 10-minute limit). Every line is still tapped once; the parts are counted from the source.
+const PART = 40;
+const PARTS = Math.max(1, Math.ceil(ROWS.length / PART));
+test.setTimeout(300_000);
 
-test('every line of What is new goes to its exact place', async ({ page, context }, info) => {
-  await start(page, context, info);
+test('there are lines with an exact place', () => {
   expect(ROWS.length).toBeGreaterThan(0);
+});
+
+for (let part = 0; part < PARTS; part++) {
+test(`every line of What is new goes to its exact place, part ${part + 1}`, async ({ page, context }, info) => {
+  await start(page, context, info);
+  const rows = ROWS.slice(part * PART, (part + 1) * PART);
   // «Try it» on the newest update goes to its place and says «New here: …»
   // (only when the newest update has a line with an exact place: a fix release with no place has nothing to go to)
   await page.goto('./#/me/news');
-  if (ROWS.some(([version]) => version === NEWEST)) {
+  if (part === 0 && ROWS.some(([version]) => version === NEWEST)) {
     await page.locator('[data-news-try]').first().click();
     // a line with only `where` has no spot to light: the note then is its own text, not «New here: …»
     const first = ROWS.find(([version]) => version === NEWEST)[2];
@@ -36,7 +45,7 @@ test('every line of What is new goes to its exact place', async ({ page, context
     await expect(page.locator('[data-spot-note]').first()).toContainText(only ? T(first.where) : T('New here: {what}').split('{')[0].trim());
   }
   const missing = [];
-  for (const [version, text, g] of ROWS) {
+  for (const [version, text, g] of rows) {
     await page.goto('./#/');
     await page.goto('./#/me/news');
     await page.locator('main h1').first().waitFor({ timeout: 8000 }).catch(() => {});
@@ -73,4 +82,4 @@ test('every line of What is new goes to its exact place', async ({ page, context
   }
   expect(missing).toEqual([]);
 });
-
+}

@@ -30,6 +30,8 @@ const out = [
   '',
   '# Pack Generator · Benutzerhandbuch',
   '',
+  'Der feste Überblick, was die App kann und wo es steht, ist der [App-Stand](app-stand.md). Hier folgt die ausführliche Anleitung pro Funktion.',
+  '',
   'Der Pack Generator hilft dir, Touren zu planen, zu packen, unterwegs den Überblick zu behalten, danach zurückzublicken und deine Velos zu pflegen. Er läuft im Browser, auch offline, und speichert alles nur auf deinem Gerät.',
   '',
   'Die App hat fünf Orte: **Heute** (was jetzt wichtig ist), **Touren** (planen, packen, Rückblick), **Material** (Teile, Kleider, Bausteine, Einkauf), **Velos** (Übersicht, Pflege, Werkstatt, Ausstattung) und **Aktiv** (Aktivitäten, Ziele, Meditation). Dazu kommt **Ich** mit Daten, Eingang, Notizen und Einstellungen.',

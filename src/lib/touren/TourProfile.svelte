@@ -11,6 +11,9 @@
   import Readout from '../charts/Readout.svelte';
   import DataTable from '../charts/DataTable.svelte';
   import Seg from '../ui/Seg.svelte';
+  import { onMount } from 'svelte';
+  import { createRide } from './abfahren.svelte.js';
+  import { heightAtKm } from './abfahren.js';
 
   let { points = [], onpoint = null } = $props();
 
@@ -28,6 +31,13 @@
   const y = (m) => PAD.t + (1 - (m - lo) / (hi - lo)) * (H - PAD.t - PAD.b);
   const area = $derived(points.length < 2 ? '' : `M${x(points[0][0])},${y(lo)} ` + points.map(([km, m]) => `L${x(km).toFixed(1)},${y(m).toFixed(1)}`).join(' ') + ` L${x(end)},${y(lo)} Z`);
   const top = $derived(Math.max(...points.map((p) => p[1])));
+
+  // «Höhenprofil wird abgefahren» (Paket E, Idee 13): a dot rides the line once when the tour opens
+  const ride = createRide(true);
+  let figure = $state();
+  onMount(() => ride.whenSeen(figure));
+  const CLIP = `tprof-clip-${Math.random().toString(36).slice(2, 8)}`;
+  const rideKm = $derived(ride.p * end);
 
   let at = $state(null); // km under the finger
   const eleAt = (km) => points.reduce((b, p) => (Math.abs(p[0] - km) < Math.abs(b[0] - km) ? p : b), points[0])[1];
@@ -61,18 +71,20 @@
 </script>
 
 {#if points.length > 1}
-  <figure class="tprof" data-tour-profile bind:clientWidth={box}>
+  <figure class="tprof" data-tour-profile bind:clientWidth={box} bind:this={figure}>
     <div class="vw"><Seg small full={false} label={t('Show as')} value={view} onchange={(v) => (view = v)} options={[{ key: 'chart', name: t('Chart|table') }, { key: 'table', name: t('As table') }]} /></div>
     {#if view === 'table'}
     <DataTable head={table.head} rows={table.rows} limit={24} />
     {:else}
     <div data-profile-at><Readout title={readout.title} items={readout.items} /></div>
     <!-- svelte-ignore a11y_no_noninteractive_tabindex, a11y_no_noninteractive_element_interactions -->
-    <svg viewBox="0 0 {W} {H}" role="img" aria-label={t('Elevation profile: move along it to see the spot on the map')} tabindex="0" onpointermove={move} onpointerdown={move} onpointerleave={() => setKm(null)} onkeydown={key} onblur={() => setKm(null)}>
+    <svg viewBox="0 0 {W} {H}" role="img" aria-label={t('Elevation profile: move along it to see the spot on the map')} tabindex="0" onpointermove={move} onpointerdown={(e) => (ride.stop(), move(e))} onpointerleave={() => setKm(null)} onkeydown={key} onblur={() => setKm(null)}>
       <GridLines ticks={mSc.ticks} {y} x1={PAD.l} x2={W - PAD.r} />
       {#each mSc.ticks as m, i (m)}<text x={PAD.l - 6} y={y(m) + 4} class="ax" text-anchor="end" data-profile-tick>{num(m)}{i === mSc.ticks.length - 1 ? ' m' : ''}</text>{/each}
       {#each kmTicks as k, i (k)}<text x={x(k)} y={H - 4} class="ax" text-anchor={i === 0 ? 'start' : x(k) > W - PAD.r - 30 ? 'end' : 'middle'}>{num(k)}{i === kmTicks.length - 1 ? ' km' : ''}</text>{/each}
-      <path d={area} class="area" />
+      {#if ride.running}<clipPath id={CLIP}><rect x="0" y="0" width={x(rideKm)} height={H} /></clipPath>{/if}
+      <path d={area} class="area" clip-path={ride.running ? `url(#${CLIP})` : null} />
+      {#if ride.running}<circle cx={x(rideKm)} cy={y(heightAtKm(points, rideKm) ?? lo)} r="5" class="dot" data-ride-dot />{/if}
       {#if at != null}
         <line x1={x(at)} x2={x(at)} y1={PAD.t} y2={H - PAD.b} class="cur" />
         <circle cx={x(at)} cy={y(eleAt(at))} r="5" class="dot" />

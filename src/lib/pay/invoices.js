@@ -36,6 +36,10 @@ export function writeAccount(a) {
   }
 }
 
+/** The bookings an invoice was made for: [{ offer, b }] (one invoice can cover several lessons). */
+const bookingList = (v) => (Array.isArray(v) ? v : []).filter((x) => x?.b).slice(0, 60).map((x) => ({ offer: String(x.offer ?? ''), b: String(x.b) }));
+export const bookingIdsOf = (inv) => [...(inv?.bookings ?? []), ...(inv?.booking ? [inv.booking] : [])].map((x) => x.b);
+
 /** A draft for the invoice form, handed over from another page (this tab only, read once). */
 export const PREFILL_KEY = 'pg.invoice.prefill';
 export function setPrefill(draft) {
@@ -96,7 +100,7 @@ export async function createInvoice(input, account, db = appDb) {
       status: 'open',
       ...(input.ref ? { from: 'ebanking' } : {}),
       // made from a booking (Ich › Angebote): { offer, b }, so the offer knows which lessons are invoiced
-      ...(input.booking?.b ? { booking: { offer: String(input.booking.offer ?? ''), b: String(input.booking.b) } } : {}),
+      ...(bookingList(input.bookings).length ? { bookings: bookingList(input.bookings) } : {}),
     };
     const list = await listInvoices(db);
     await saveAll(db, [inv, ...list]);

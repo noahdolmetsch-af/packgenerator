@@ -111,4 +111,50 @@ test.describe('Fragen aus deinen Daten', () => {
     await page.goto('./#/me/abfragen');
     for (const id of ['ruhepuls', 'schlaf', 'stimmung']) await expect(page.locator(`[data-rule="${id}"]`).getByRole('switch')).toBeChecked();
   });
+
+  // leaving Heute with the window open counts as «Heute nicht» (quiet until the evening), so each way is its own test
+  test('a higher threshold keeps the rule quiet', async ({ page, context }) => {
+    await openHome(page, context, test.info(), { data: data(61) });
+    await page.goto('./#/me/abfragen');
+    const rule = page.locator('[data-rule="ruhepuls"]');
+    await expect(rule.locator('[data-rule-reset]')).toHaveCount(0);
+    // 61 against 52 is 9 above: a threshold of 12 keeps the rule quiet
+    await rule.locator('[data-rule-val]').fill('12');
+    await rule.locator('[data-rule-val]').blur();
+    await expect(rule.locator('[data-rule-reset]')).toBeVisible();
+    await page.goto('./#/');
+    await expect(page.locator('[data-section="abfragen"] [data-q="erholung.akku"]')).toBeVisible();
+    await expect(page.locator('[data-q="daten.ruhepuls"]')).toHaveCount(0);
+  });
+
+  test('own wording and threshold: it asks in your words, links to the rule, goes back to standard', async ({ page, context }, info) => {
+    await openHome(page, context, info, { data: data(61) });
+    await page.goto('./#/me/abfragen');
+    const rule = page.locator('[data-rule="ruhepuls"]');
+    await rule.locator('[data-rule-val]').fill('6');
+    await rule.locator('[data-rule-val]').blur();
+    await rule.locator('[data-rule-text]').fill('Was war gestern anders?');
+    await rule.locator('[data-rule-text]').blur();
+    await expect(rule.locator('[data-rule-reset]')).toBeVisible();
+    await page.goto('./#/');
+    const q = page.locator('[data-q="daten.ruhepuls"]');
+    await expect(q.getByText('Was war gestern anders?')).toBeVisible();
+    await q.locator('[data-why-adjust]').click();
+    await expect(page).toHaveURL(/#\/me\/abfragen/);
+    mkdirSync(SHOTS, { recursive: true });
+    await page.locator('[data-datenfragen]').screenshot({ path: `${SHOTS}/fad3-regeln-${info.project.name === 'phone' ? 390 : 1440}.png` });
+    await rule.locator('[data-rule-reset]').click();
+    await expect(rule.locator('[data-rule-reset]')).toHaveCount(0);
+    await expect(rule.locator('[data-rule-text]')).toHaveValue('');
+    await expect(rule.locator('[data-rule-val]')).toHaveValue('5');
+  });
+
+  test('without Fitbit values the page says why the pulse and sleep rules are quiet', async ({ page, context }, info) => {
+    const d = data(61);
+    d.tables.healthDays = [];
+    await openHome(page, context, info, { data: d });
+    await page.goto('./#/me/abfragen');
+    await expect(page.locator('[data-data-empty]')).toBeVisible();
+    await expect(page.locator('[data-data-next]')).toHaveAttribute('href', '#/me/insights');
+  });
 });

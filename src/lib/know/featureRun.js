@@ -56,7 +56,12 @@ const RUN = {
 export async function goFeature(f, { bikeId = null, spot = {} } = {}) {
   tapFeature(f.id);
   const run = runOf(f);
-  if (run && RUN[run]) return RUN[run]();
+  if (run && RUN[run]) {
+    // an action (like «What do I wear?»): it starts, and a tap from «What is new» still says «New here: …»
+    const done = RUN[run]();
+    if (spot.note) note(spot.note, { go: spot.go });
+    return done;
+  }
   const href = run ? `#/features?f=${encodeURIComponent(f.id)}` : featureHref(f, { bikeId });
   if (!href) return;
   if (location.hash === href) window.dispatchEvent(new HashChangeEvent('hashchange'));
