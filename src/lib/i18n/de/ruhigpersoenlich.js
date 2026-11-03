@@ -284,6 +284,7 @@ export default {
   'You are doing': 'Du machst gerade',
   'Done|calm': 'Fertig',
   'Clear the history': 'Verlauf leeren',
+  'Show Today anyway': 'Heute trotzdem zeigen',
   '{n} min left': 'Noch {n} Min.',
   'Time is up': 'Die Zeit ist um',
   'Time is up for': 'Zeit ist um für',
