@@ -4,12 +4,12 @@
    * week from the goal, the race, today's readiness and the sports of Aktiv, says why, and takes it over only on a tap
    * (with Undo). «Another suggestion» shows the next layout. Everything is a suggestion.
    */
-  import { Sparkles, Pencil, X, Plus, Minus } from '@lucide/svelte';
+  import { Sparkles, Pencil, X, Plus, Minus, CloudRain } from '@lucide/svelte';
   import { t, num, lang } from '../../i18n.svelte.js';
   import { suggestWeek, weeklySports, VARIANTS, SRC, FOCUS } from '../suggest.js';
   import { KIND_NAMES, ZONE_NAMES, shiftDay, weekOf } from '../../training.js';
 
-  let { acts = [], flowActs = [], plan = [], goal = null, monday, today, level = null, daysToRace = null, dayLimits = {}, onlimits, onapply } = $props();
+  let { acts = [], flowActs = [], plan = [], goal = null, monday, today, level = null, daysToRace = null, dayLimits = {}, forecast = null, onlimits, onapply } = $props();
 
   let open = $state(false);
   let variant = $state(0);
@@ -34,7 +34,9 @@
   });
   // a strength sport of Aktiv, when the person has one (gym, strength …)
   const strengthSport = $derived(flowActs.find((a) => !a.paused && /^(gym|strength|kraft)/i.test(a.id) || /strength|kraft|gym/i.test(a.name))?.id ?? null);
-  const sug = $derived(suggestWeek({ monday, today, goal, daysToRace, level, recentMins: recent, mainKind, sports, variant, nameOf: sportName, hoursSet, push, focus, strengthSport, dayLimits }));
+  // the forecast of the home place (rain per day), when there is one: the long session avoids a rainy day
+  const wx = $derived(Object.fromEntries((forecast?.days ?? []).filter((d) => d.rain).map((d) => [d.date, d.rain])));
+  const sug = $derived(suggestWeek({ monday, today, goal, daysToRace, level, recentMins: recent, mainKind, sports, variant, nameOf: sportName, hoursSet, push, focus, strengthSport, dayLimits, wx }));
   // «Training verbessern» 2 (Noah 3.11.2026): every day of the suggestion can be changed here, before it is taken over:
   // swap the session for another sport, change minutes and zone, remove it, move it, add more sessions on a day
   let edits = $state(null); // the changed list, or null while the suggestion is untouched
@@ -87,6 +89,8 @@
     form = null;
   }
   const reset = () => ((edits = null), (form = null));
+  const OUTDOOR = ['bike', 'run', 'hike'];
+  const rainy = (s) => OUTDOOR.includes(s.kind) && !s.sport && wx[s.day] === 'rain';
   const label = (s) => (s.sport ? sportName(flowActs.find((a) => a.id === s.sport) ?? { name: '' }) : s.name ? t(s.name) : t(KIND_NAMES[s.kind]));
   const fmt = (d) => new Date(`${d}T12:00:00Z`).toLocaleDateString(lang.v, { timeZone: 'UTC', weekday: 'short' });
   const hm = (m) => `${Math.floor(m / 60)}:${String(m % 60).padStart(2, '0')}`;
@@ -162,7 +166,7 @@
         {#each list as s (s.id)}
           <li data-sug-row={s.id}>
             <b>{fmt(s.day)}</b>
-            <span>{label(s)}</span>
+            <span>{label(s)}{#if rainy(s)}<small class="sugw-rain" data-sug-rain><CloudRain size={13} aria-hidden="true" />{t('Rain: indoors?')}</small>{/if}</span>
             <span class="num">{hm(s.mins)}{#if s.zone}{' · '}Z{s.zone}{/if}</span>
             <span class="sugw-ic">
               <button type="button" class="ib" aria-label={t('Change this session')} onclick={() => startEdit(s)} data-sug-edit><Pencil size={15} aria-hidden="true" /></button>
@@ -284,6 +288,11 @@
     margin: 0;
     font-size: var(--fs-small);
     color: var(--ink-2);
+  }
+  .sugw-rain {
+    display: block;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
   }
   .sugw-ic {
     display: flex;

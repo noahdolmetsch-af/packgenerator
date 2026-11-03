@@ -5,6 +5,7 @@
 import { test, expect } from './clock.js';
 import { ready } from './settle.js';
 import { DETAIL_V } from '../../src/lib/training.js';
+import { localDay } from '../../src/lib/localday.js';
 
 const P = 'test_data_gtp_';
 const shot = async (page, info, name) => {
@@ -345,5 +346,35 @@ test('Training › Woche: free days and time per day in the suggestion are remem
   await expect(sug.locator('[data-sug-day-btn="6"]')).toContainText('frei');
   await sug.locator('[data-sug-day-btn="6"]').click();
   await expect(sug.locator('[data-sug-day-btn="6"]')).toContainText('offen');
+  expect(errors).toEqual([]);
+});
+
+test('Training › Woche: rain from the home place weather shows an indoor hint in the suggestion', async ({ page, context, baseURL }) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await start(page, context, { log: [], app: baseURL });
+  // twenty days of rain around today (calendar-day arithmetic in Europe/Zurich)
+  const time = Array.from({ length: 20 }, (_, n) => localDay(new Date(Date.now() + (n - 3) * 86400000 + 3600000)));
+  const fill = (v) => time.map(() => v);
+  await context.route(/api\.open-meteo\.com/, (r) =>
+    r.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ daily: { time, temperature_2m_min: fill(8), temperature_2m_max: fill(14), precipitation_sum: fill(12), precipitation_probability_max: fill(90) } }) }),
+  );
+  await page.goto('./#/flow/training');
+  await ready(page);
+  await page.evaluate(() => new Promise((ok) => {
+    const r = indexedDB.open('pack-generator');
+    r.onsuccess = () => {
+      const tx = r.result.transaction('settings', 'readwrite');
+      tx.objectStore('settings').put({ key: 'homePlace', value: { name: 'test_data_gtp_ Heimort', lat: 47.39, lon: 8.04 } });
+      tx.oncomplete = () => (r.result.close(), ok());
+    };
+  }));
+  await page.reload();
+  await ready(page);
+  const plan = page.locator('[data-section="week-plan"]');
+  await plan.locator('[data-suggest-open]').click();
+  const sug = plan.locator('[data-suggest]');
+  await expect(sug.locator('[data-sug-rain]').first()).toContainText('Regen: drinnen?');
+  await expect(sug).toContainText('kein trockenerer Tag');
   expect(errors).toEqual([]);
 });
