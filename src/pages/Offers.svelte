@@ -95,7 +95,7 @@
   const toggle = (b) => (picked = picked.includes(b.id) ? picked.filter((x) => x !== b.id) : [...picked, b.id]);
   function writeOne(items) {
     const o = { ...mine.offer, id: mine.id };
-    if (!setPrefill(invoiceDraftMany(o, items.map((b) => ({ slot: o.slots.find((x) => x.id === b.slot), booking: b })), (b) => fmtAt(b.at)))) return;
+    if (!setPrefill(invoiceDraftMany(o, [...items].sort((x, y) => String(x.at).localeCompare(String(y.at))).map((b) => ({ slot: o.slots.find((x) => x.id === b.slot), booking: b })), (b) => fmtAt(b.at)))) return;
     picked = [];
     location.hash = '#/me/pay/invoices/new';
   }
