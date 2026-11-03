@@ -13,6 +13,7 @@
   import Crumb from '../../lib/flow/kit/Crumb.svelte';
   import Sec from '../../lib/flow/kit/Sec.svelte';
   import FormVerlauf from '../../lib/flow/form/FormVerlauf.svelte';
+  import FormLandschaft from '../../lib/flow/form/FormLandschaft.svelte';
   import FormTeile from '../../lib/flow/form/FormTeile.svelte';
   import { formQuery } from '../../lib/form-data.js';
   import { RAMP_MAX, FIT_DAYS, FAT_DAYS, shownForm } from '../../lib/form.js';
@@ -79,6 +80,13 @@
           <!-- Klick-Rundgang A07: the empty text shows the way -->
           {#if !strava.key}<a class="btn sm" href={STRAVA_HASH} data-form-strava>{t('Connect Strava')}</a>{/if}
         {/if}
+      </div>
+    </Sec>
+
+    <!-- «Belastungslandschaft» (Noah 03.11.2026, Cockpit-Idee 1): the past days and the planned sessions as hills, or as curves -->
+    <Sec id="land-h" title={t('Load landscape')} sub={t('past days and planned sessions · hills or curves')}>
+      <div class="card chart" data-form-landscape>
+        <FormLandschaft {f} {today} />
       </div>
     </Sec>
 
