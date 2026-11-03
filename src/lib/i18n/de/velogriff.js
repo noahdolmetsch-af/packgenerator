@@ -134,4 +134,7 @@ export default {
   'Chain after rain': 'Kette nach Regen',
   '{bike} was out in the rain today. Dry and oil the chain.': '{bike} war heute im Regen unterwegs. Kette trocknen und ölen.',
   'At 19:00 on a day you rode in the rain: dry and oil the chain.': 'Um 19:00 an einem Tag, an dem du im Regen gefahren bist: Kette trocknen und ölen.',
+  // «Velos-Pflege einbauen» (Noah 03.11.2026 «3a»): the bike pack list from a trip by train
+  'Pack the bike for the train': 'Velo für den Zug verpacken',
+  'Checklist and photos before packing': 'Checkliste und Fotos vor dem Packen',
 };
