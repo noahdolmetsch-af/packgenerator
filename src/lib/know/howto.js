@@ -445,6 +445,7 @@ const LISTED = {
   'f.sharepreview': ['Open Me › Calm and personal › Share with a preview.', 'Choose the trip and what goes in.', 'Check the preview, confirm, then share the link.'],
   'f.arrival': ['Open Me › Calm and personal › Share with a preview › Arrival.', 'Choose how much place, e.g. a rough region.', '«Send» opens the phone\'s share window.'],
   'f.tworoles': ['Open Me › Calm and personal › Numbers that stay clear.', 'Tap the roles of a ride.', 'The sums show each role and every ride once.'],
+  'f.datenfragen': ['Open Me › Your questions: «Questions from your data» is at the top.', 'Switch a rule off, change its threshold or write the question in your own words.', 'When a value stands out, the check shows the question first, with «Why am I asking this?».'],
   'f.scalemeaning': ['Open Me › Calm and personal › Numbers that stay clear › What a scale meant.', 'Write what 1 and what 10 mean for you.', 'A new meaning counts from today; old answers keep theirs.'],
   'f.bodytalk': ['Open Me › Calm and personal › Numbers that stay clear › Prepare a talk.', 'Add what you noticed and your open questions.', '«Copy» or «Print» and take it along.'],
   'f.sources': ['Open Me › Calm and personal › Assistant with sources.', 'Ask your question.', 'Tap a source to open it; «Ask Gemini» cites them as [1].'],
