@@ -11,6 +11,8 @@
   import { readKey } from '../strava/client.svelte.js';
   import { health, fetchNow, disconnect, savePrefs, connect, VALUE_OF, FITBIT_HASH, STRAVA_HASH } from './client.svelte.js';
   import { t, tn, locale } from '../i18n.svelte.js';
+  import ConnStatus from '../ui/ConnStatus.svelte';
+  import { lastOkFetchLine } from '../ui/connstatus.js';
 
   let { heading = true } = $props();
 
@@ -75,6 +77,7 @@
   // device (LAST_KEY), so its reason stays visible after a reload, until a fetch works again.
   const failed = $derived(health.error || (health.lastTry && !health.lastTry.ok ? health.lastTry.code : ''));
   const relogin = $derived(['google_login_needed', 'not_connected'].includes(failed));
+  const whenAt = (iso) => (localDay(new Date(iso)) === localDay() ? t('today {time}|fitbit', { time: clock(iso) }) : short(localDay(new Date(iso))));
   const triedAt = $derived(health.lastTry?.at ? (localDay(new Date(health.lastTry.at)) === localDay() ? t('today {time}|fitbit', { time: clock(health.lastTry.at) }) : short(localDay(new Date(health.lastTry.at)))) : '');
   const gone = $derived(health.lastTry?.ok && !health.error ? (health.lastTry.missing ?? []).map((m) => LABEL[VALUE_OF[m]]).filter(Boolean) : []);
 </script>
@@ -89,7 +92,8 @@
         {/each}
         {#if $fileQ}<li><span class="dot ok" aria-hidden="true"></span><span class="ich-m"><b>{t('The past|fitbit')}</b><small>{t('from the Fitbit file: {from} to {to}', { from: monthYear($fileQ.from), to: short($fileQ.to) })}</small></span></li>{/if}
       </ul>
-      {#if failed}<p class="err" role="status" data-health-err={failed}>{errorText(failed)}{#if triedAt}{' '}{t('Last try: {when}|fitbit', { when: triedAt })}{/if}</p>{/if}
+      {#if failed}<p class="err" role="status" data-health-err={failed}>{errorText(failed)}{#if triedAt}{' '}{t('Last try: {when}|fitbit', { when: triedAt })}{/if} {lastOkFetchLine(t, { lastOkAt: health.prefs.lastSync, when: whenAt })}</p>{/if}
+      <ConnStatus name="Fitbit" busy={health.busy} since={health.since} done={health.done} total={health.total} />
       {#if done && !failed && !health.busy}<p class="got" role="status" data-health-done>{done}</p>{/if}
       {#if gone.length}<p class="err" role="status" data-health-gone>{t('Google did not give these values this time: {list}', { list: gone.map((g) => t(g)).join(', ') })}</p>{/if}
       <div class="ich-acts">

@@ -1,0 +1,41 @@
+// «Status aller Verbindungen» (Noah 03.11.2026 «1a»): the shared fetch line and the 2-minute limit of a Fitbit fetch. Fictional data.
+import 'fake-indexeddb/auto';
+import { describe, it, expect } from 'vitest';
+import { createDb } from '../src/lib/db.js';
+import { fetchingLine, lastOkFetchLine } from '../src/lib/ui/connstatus.js';
+import { syncHealth } from '../src/lib/health.js';
+
+const t = (k, p = {}) => k.replace(/\{(\w+)\}/g, (_, x) => p[x]);
+
+describe('fetchingLine', () => {
+  it('says name, seconds and progress', () => {
+    expect(fetchingLine(t, { name: 'Fitbit', since: 0, now: 12_000, done: 30, total: 90 })).toBe('Fitbit: fetching … 12 s|sync. 30 of 90 days fetched so far.');
+  });
+  it('adds the hint when it takes long', () => {
+    expect(fetchingLine(t, { name: 'Fitbit', since: 0, now: 100_000 })).toContain('stops by itself after 2 minutes');
+  });
+});
+
+describe('lastOkFetchLine', () => {
+  it('names the last success or says never', () => {
+    expect(lastOkFetchLine(t, { lastOkAt: 'x', when: () => 'today 07:42' })).toBe('Last successful fetch: today 07:42.');
+    expect(lastOkFetchLine(t, { lastOkAt: null, when: () => '' })).toBe('Not fetched successfully yet.');
+  });
+});
+
+describe('syncHealth limit', () => {
+  it('stops after the limit, keeps what came and reports progress', async () => {
+    const db = createDb(`cs-${Math.random()}`);
+    let ticks = 0;
+    const clock = () => ticks * 130_000; // every window costs more than the limit
+    const calls = [];
+    const progress = [];
+    const c = async (_s, { params }) => ((ticks++, calls.push(params.from)), { days: [{ date: params.to, steps: 1 }], missing: [] });
+    const now = new Date('2026-11-03T08:00:00Z');
+    await syncHealth(db, { c, now, clock, onProgress: (p) => progress.push(p) });
+    expect(calls.length).toBe(1);
+    expect(progress[0].done).toBe(0);
+    expect(progress.at(-1).done).toBeGreaterThan(0);
+    expect(progress.at(-1).total).toBeGreaterThanOrEqual(progress.at(-1).done);
+  });
+});

@@ -235,6 +235,7 @@ import dokumente from './dokumente.js';
 import bedienregeln from './bedienregeln.js';
 // P8 «Automatischer Abgleich»
 import abgleich from './abgleich.js';
+import verbindungenStatus from './verbindungen-status.js';
 import datenaufraeumen from './datenaufraeumen.js';
 
 // «Mehr Inhalt in der App» (Noah 15.10.2026, 1a–5a): tips, rows and examples on ten more places
@@ -862,6 +863,7 @@ const ORDERED = [
   assistent,
   termine,
   abgleich,
+  verbindungenStatus,
   datenaufraeumen,
   push,
   mail,
