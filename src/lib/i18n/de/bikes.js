@@ -1,5 +1,8 @@
 /** German texts: bikes. Keys are the English texts. */
 export default {
+  'Your bikes at a glance': 'Deine Velos auf einen Blick',
+  'Open care': 'Pflege öffnen',
+  'Show details': 'Details zeigen',
   'Choose the receipt photo': 'Beleg-Foto wählen',
   'Example, not your data': 'Beispiel, nicht deine Daten',
   'Example': 'Beispiel',
