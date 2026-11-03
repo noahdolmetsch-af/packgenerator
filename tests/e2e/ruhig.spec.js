@@ -85,6 +85,26 @@ test('Calm view: the words you wrote lead to the matching page', async ({ page, 
   expect(errors).toEqual([]);
 });
 
+test('Calm view on Today: only the one thing, «Show Today anyway», «Done» brings Today back', async ({ page, context }) => {
+  const errors = await blank(page, context);
+  await page.goto('./#/me/ruhig/weniger?open=calm');
+  await settle(page);
+  await page.locator('[data-calm-what]').fill('Kette prüfen');
+  await page.locator('[data-calm-what]').press('Enter');
+  await page.goto('./#/');
+  const home = page.locator('[data-calm-home]');
+  await expect(home).toContainText('Kette prüfen');
+  await expect(page.locator('[data-calm-home-open]')).toHaveAttribute('href', /^#\//);
+  await page.locator('[data-calm-home-all]').click();
+  await expect(home).toHaveCount(0); // the normal Today for this visit
+  await page.goto('./#/gear');
+  await page.goto('./#/');
+  await expect(page.locator('[data-calm-home]')).toHaveCount(1);
+  await page.locator('[data-calm-home-done]').click();
+  await expect(page.locator('[data-calm-home]')).toHaveCount(0);
+  expect(errors).toEqual([]);
+});
+
 test('A letter for a date stays closed until its day', async ({ page, context }) => {
   const errors = await blank(page, context);
   await page.goto('./#/me/ruhig/spaeter');
