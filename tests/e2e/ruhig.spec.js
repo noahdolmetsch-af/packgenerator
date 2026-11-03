@@ -85,6 +85,20 @@ test('Calm view: the words you wrote lead to the matching page', async ({ page, 
   expect(errors).toEqual([]);
 });
 
+test('Calm view quick starts: one tap starts it, an own start can be added', async ({ page, context }) => {
+  const errors = await blank(page, context);
+  await page.goto('./#/me/ruhig/weniger?open=calm');
+  await settle(page);
+  await page.locator('[data-calm-starts-edit]').click();
+  await page.locator('[data-kind-new]').fill('Schreibtisch aufräumen');
+  await page.locator('[data-kind-new]').press('Enter');
+  await expect(page.locator('[data-calm-starts]')).toContainText('Schreibtisch aufräumen');
+  await page.locator('[data-calm-start]').filter({ hasText: 'Schreibtisch aufräumen' }).click();
+  await expect(page.locator('[data-calm-on]')).toContainText('Schreibtisch aufräumen');
+  await expect(page.locator('[data-ruhig-line="calm"]')).toContainText('Schreibtisch aufräumen');
+  expect(errors).toEqual([]);
+});
+
 test('Calm view on Today: only the one thing, «Show Today anyway», «Done» brings Today back', async ({ page, context }) => {
   const errors = await blank(page, context);
   await page.goto('./#/me/ruhig/weniger?open=calm');

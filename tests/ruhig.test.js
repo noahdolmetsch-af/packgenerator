@@ -289,6 +289,19 @@ describe('Ruhige Ansicht: time and soft end', () => {
   });
 });
 
+describe('Ruhige Ansicht: quick starts', () => {
+  it('has three ready-made starts, which can be added, renamed and deleted like every kind', async () => {
+    const { startsOf, STD_STARTS } = await import('../src/lib/ruhig/calmstarts.js');
+    const { addKind, renameKind, dropKind, kindName } = await import('../src/lib/ruhig/kinds.js');
+    expect(startsOf(null).map((k) => k.std)).toEqual(['Clean the bike', 'Pack calmly', 'Analysis|calm']);
+    let s = addKind(startsOf(null), 'Schreibtisch aufräumen', 'k1');
+    s = renameKind(s, 'clean', 'Velo waschen');
+    expect(s.map((k) => kindName(k))).toEqual(['Velo waschen', '', '', 'Schreibtisch aufräumen'].map((x, i) => (i && i < 3 ? kindName(STD_STARTS[i]) : x)));
+    expect(dropKind(s, 'pack').map((k) => k.id)).toEqual(['clean', 'analysis', 'k1']);
+    expect(startsOf([{ id: 'x', name: 'Eigener' }])).toEqual([{ id: 'x', name: 'Eigener' }]);
+  });
+});
+
 describe('Ruhige Ansicht: phone reminders rest', () => {
   it('moves reminders inside the time to just after its end, safety stays', async () => {
     const { applyCalm, calmHeld } = await import('../src/lib/ruhig/weniger.js');
