@@ -51,7 +51,7 @@ test('Data and backup: kept by the browser, phone and computer, the second quest
   const sync = main.locator('[data-section="sync"]');
   await expect(sync.getByRole('heading', { name: T('Phone and computer') })).toBeVisible();
   await expect(sync.getByText(/Letzter Austausch per Datei auf diesem Gerät/)).toBeVisible(); // the first import was an exchange
-  await expect(main.locator('[data-morefold="backup-file"]').getByText(T('Import backup'), { exact: true })).toBeVisible(); // the file way is one place now
+  await expect(main.locator('[data-section="backup-file"]').getByText(T('Import backup'), { exact: true })).toBeVisible(); // the file way is one place now
 
   // the same file again: now there is data here
   await main.getByLabel(T('Import backup')).setInputFiles(v048File(info));

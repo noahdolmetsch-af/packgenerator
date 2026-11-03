@@ -85,3 +85,53 @@ describe('weeklySports', () => {
     expect(weeklySports(acts, MON).map((s) => s.id)).toEqual(['yoga']);
   });
 });
+
+describe('free days and time per day (3a)', () => {
+  it('leaves a free day empty and moves its session to an open day', () => {
+    const r = suggestWeek({ ...base, dayLimits: { 5: 0 } }); // Saturday free
+    expect(r.sessions.some((s) => s.day === '2026-11-07')).toBe(false);
+    expect(r.sessions.length).toBeGreaterThanOrEqual(3);
+    const days = r.sessions.map((s) => s.day);
+    expect(new Set(days).size).toBe(days.length);
+    expect(r.why.some((w) => /free days stay free/.test(w.key))).toBe(true);
+  });
+  it('shortens sessions on a day with little time', () => {
+    const open = suggestWeek(base).sessions.find((s) => s.day === '2026-11-07');
+    const capped = suggestWeek({ ...base, dayLimits: { 5: 30 } }).sessions.find((s) => s.day === '2026-11-07');
+    expect(open.mins).toBeGreaterThan(30);
+    expect(capped.mins).toBe(30);
+  });
+  it('leaves nothing on all-free weeks', () => {
+    const r = suggestWeek({ ...base, dayLimits: { 0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0 } });
+    expect(r.sessions).toEqual([]);
+  });
+});
+
+describe('weather in the suggestion (3b)', () => {
+  const dry = (except) => Object.fromEntries(['2026-11-02', '2026-11-03', '2026-11-04', '2026-11-05', '2026-11-06', '2026-11-07', '2026-11-08'].map((d) => [d, except.includes(d) ? 'rain' : 'none']));
+  const longDay = (r) => r.sessions.find((s) => /Long session/.test(s.name)).day;
+  it('moves the long session off a rainy day to a drier one', () => {
+    const plain = longDay(suggestWeek(base));
+    const wet = suggestWeek({ ...base, wx: dry([plain]) });
+    expect(longDay(wet)).not.toBe(plain);
+    expect(wet.why.some((w) => /drier day/.test(w.key))).toBe(true);
+    const days = wet.sessions.map((s) => s.day);
+    expect(new Set(days).size).toBe(days.length);
+  });
+  it('swaps with a dry core session when every day is taken', () => {
+    const full = { ...base, sports: [yoga, { ...yoga, id: 'plank', name: 'Plank' }, { ...yoga, id: 'rope', name: 'Rope' }] };
+    const plain = suggestWeek(full);
+    const ld = longDay(plain);
+    const wet = suggestWeek({ ...full, wx: dry([ld]) });
+    expect(longDay(wet)).not.toBe(ld);
+    expect(wet.sessions.length).toBe(plain.sessions.length);
+  });
+  it('keeps it and says so when no day is drier', () => {
+    const all = dry(Object.keys(dry([])));
+    const r = suggestWeek({ ...base, wx: all });
+    expect(r.why.some((w) => /no drier day/.test(w.key))).toBe(true);
+  });
+  it('changes nothing without a forecast', () => {
+    expect(suggestWeek({ ...base, wx: {} })).toEqual(suggestWeek(base));
+  });
+});

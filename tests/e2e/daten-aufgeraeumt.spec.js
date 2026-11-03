@@ -42,11 +42,10 @@ test('Daten aufräumen: status, question, folds, backup first', async ({ page, c
   await page.reload();
   await expect(main.locator('[data-section="two-devices"]')).toHaveCount(0);
 
-  // folds: file way and More
-  const file = main.locator('[data-morefold="backup-file"]');
-  await expect(file.getByRole('button', { name: T('Save backup') })).toBeHidden();
-  await file.locator('summary').click();
+  // the file way is open on the page (no fold), «More» is folded
+  const file = main.locator('[data-section="backup-file"]');
   await expect(file.getByRole('button', { name: T('Save backup') })).toBeVisible();
+  await expect(file.locator('[data-backup-steps]')).toBeVisible();
   const more = main.locator('[data-morefold="more"]');
   await more.locator('summary').click();
   await expect(more.getByRole('button', { name: T('Start fresh …') })).toBeVisible();
