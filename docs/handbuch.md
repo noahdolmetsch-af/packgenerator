@@ -2,13 +2,15 @@
 
 # Pack Generator · Benutzerhandbuch
 
+Der feste Überblick, was die App kann und wo es steht, ist der [App-Stand](app-stand.md). Hier folgt die ausführliche Anleitung pro Funktion.
+
 Der Pack Generator hilft dir, Touren zu planen, zu packen, unterwegs den Überblick zu behalten, danach zurückzublicken und deine Velos zu pflegen. Er läuft im Browser, auch offline, und speichert alles nur auf deinem Gerät.
 
 Die App hat fünf Orte: **Heute** (was jetzt wichtig ist), **Touren** (planen, packen, Rückblick), **Material** (Teile, Kleider, Bausteine, Einkauf), **Velos** (Übersicht, Pflege, Werkstatt, Ausstattung) und **Aktiv** (Aktivitäten, Ziele, Meditation). Dazu kommt **Ich** mit Daten, Eingang, Notizen und Einstellungen.
 
 Alles in der App ist ein Vorschlag: nichts ist Pflicht, alles lässt sich ändern, abwählen oder ausschalten.
 
-Pro Funktion steht hier: was sie tut, wie du sie aufschaltest, die Schritte und ein Beispiel. Alle 193 Funktionen findest du auch in der App unter Ich › Was die App alles kann.
+Pro Funktion steht hier: was sie tut, wie du sie aufschaltest, die Schritte und ein Beispiel. Alle 455 Funktionen findest du auch in der App unter Ich › Was die App alles kann.
 
 ## Kleine Apps
 
@@ -44,7 +46,7 @@ Vier Teile der App öffnen auch als kleine App mit eigenem Symbol auf dem Startb
 
 ## Vor der Tour
 
-### Schnellstart in 1 Tipp
+### Heute fahren
 
 Ein Tipp plant eine Tour für heute: 2,5 Std., zuletzt gefahrenes Velo, mit dem Wetter.
 
@@ -55,7 +57,7 @@ Ein Tipp plant eine Tour für heute: 2,5 Std., zuletzt gefahrenes Velo, mit dem 
 
 **Beispiel:** Sonntag nach der 3-h-Runde letzte Woche → gleiches Velo und Liste, mit Sonntagswetter.
 
-### Neue Tour mit Bausteinen
+### Bausteine
 
 Bausteine wie Schlafen, Kochen oder Regen bringen ihre Teile in eine neue Tour.
 
@@ -77,7 +79,7 @@ Speichere eine gute Tour als Vorlage und starte die nächste daraus.
 
 **Beispiel:** Vorlage «Wochenend-Bikepacking» startet jede 2-Tages-Tour mit Zelt und Kocher.
 
-### Route laden (GPX)
+### GPX-Route hinzufügen
 
 Lade eine GPX-Route in eine Tour: km, Höhenmeter und Fahrzeit kommen daraus.
 
@@ -85,6 +87,7 @@ Lade eine GPX-Route in eine Tour: km, Höhenmeter und Fahrzeit kommen daraus.
 
 1. Öffne die Tour in Packen und tippe «GPX-Route hinzufügen».
 2. Datei wählen; km, Höhenmeter und Fahrzeit füllen sich.
+3. Unter der Karte: das Profil nach Steigung gefärbt und jeder Anstieg; tippe auf einen Anstieg, und das Profil zoomt hin.
 
 **Beispiel:** Eine Route mit 92 km und 1400 Hm → etwa 5 h Fahrzeit.
 
@@ -99,7 +102,7 @@ Setze deinen Wohnort und sieh hier, was das Wochenende zum Fahren bringt.
 
 **Beispiel:** Heimat 8000 → «Beste Tage: Samstag und Sonntag · trocken».
 
-### Wettervorschläge
+### Ans Wetter angepasst
 
 Die Wettervorschläge einer Tour fügen die Kleider-Schichten zur Prognose hinzu.
 
@@ -112,34 +115,37 @@ Die Wettervorschläge einer Tour fügen die Kleider-Schichten zur Prognose hinzu
 
 ### Teile wiegen
 
-Wiege deine Teile eins nach dem anderen: dann stimmt jedes Total.
+Wiege deine Teile eins nach dem anderen: dann stimmt jedes Total. Flaschen, Gas und Essensdosen: leer wiegen, der Inhalt kommt separat.
 
 **Aufschalten:** Braucht zuerst ein paar Teile unter Material.
 
 1. Öffne Material und das Wägen («Wägen starten»).
 2. Jedes Teil auf die Waage legen und die Gramm eintippen.
+3. Flasche, Gaskartusche oder Essensdose: leer wiegen, dann in der Zeile «Gewicht» «Inhalt, wenn voll» eintragen.
 
 **Beispiel:** Der Schlafsack wiegt 812 g statt der geschätzten 900 g.
 
 ### Favoriten ★
 
-Markiere deine Lieblingsteile mit ★ und finde alle auf einer Seite.
+Markiere deine Lieblingssachen mit ★ und sag mit einem Wort warum (bequem, zuverlässig, griffbereit); der Grund erscheint wieder, wenn du sie tauschst oder ersetzt.
 
 **Aufschalten:** Braucht zuerst ein paar Teile unter Material.
 
 1. Öffne ein Teil und tippe auf den ★.
-2. Alle Favoriten stehen unter Material auf einer Seite.
+2. Tippe unter «Warum es ein Favorit ist» einen kurzen Grund an oder schreib einen.
+3. Alle Favoriten stehen auf einer Seite unter Material; der Grund erscheint wieder, wenn du beim Packen tauschst oder ein Wunsch ihn ersetzt.
 
 **Beispiel:** ★ auf deine beste Stirnlampe und die leichteste Jacke.
 
-### Wunschliste & bestes Upgrade
+### Wunschliste
 
-Die Wunschliste zeigt, welcher Kauf am meisten Gramm pro Franken spart.
+Die Wunschliste zeigt, welcher Kauf am meisten Gramm pro Franken spart. Ein Wunsch zählt auch für den Ärger, den er löst, etwa trocken bleiben. Ein Wunsch kann 30 Tage warten; dann fragt die App, ob du ihn noch brauchst.
 
 **Aufschalten:** Braucht zuerst ein paar Teile unter Material.
 
 1. Öffne Material › Einkauf und trage ein, was du kaufen willst, mit Preis und Gewicht.
-2. Die Liste zeigt, welcher Kauf am meisten Gramm pro Franken spart.
+2. Kreuze im Wunsch unter «Name, Marke, Notiz» an, welchen Ärger er löst, z. B. «Bleibt trocken».
+3. Die Liste zeigt, welcher Kauf am meisten hilft: Gramm pro Franken oder gelöster Ärger.
 
 **Beispiel:** Ein 300 g leichteres Zelt für 250 Franken schlägt eine 40 g leichtere Tasse für 30.
 
@@ -154,18 +160,19 @@ Sieh, welche Teile seit 12 Monaten auf keiner Tour waren.
 
 **Beispiel:** Die zweite Pumpe war 12 Monate auf keiner Tour → archivieren.
 
-### Schnellstart
+### Heute fahren
 
-Ein Klick auf Heute plant eine Tour für heute: 2,5 Std., das zuletzt gefahrene Velo, die Standardteile und das Wetter.
+Ein Klick auf Heute plant eine Tour für heute: 2,5 Std., das zuletzt gefahrene Velo, die Standardteile und das Wetter. «Neu» › «Überraschungsrunde» schlägt eine Runde ab zu Hause vor, auf der Seite, die du am wenigsten kennst.
 
 **Aufschalten:** Immer da, nichts zu tun.
 
 1. Tippe auf Heute auf «Schnellstart».
 2. Die Fahrt für heute ist geplant; «Öffnen» oder «Rückgängig».
+3. Oder «Neu» › «Überraschungsrunde»: Abenteuer und Zeit wählen; die App schlägt eine Runde ab zu Hause vor.
 
 **Beispiel:** Ein Klick → heute 2.5 h auf dem letzten Velo, Standardteile, 14 °C und trocken.
 
-### Tour planen
+### Neue Tour
 
 Ein Fenster «Neue Tour»: Sportart, wann, wie lang, Wetter aus deiner PLZ, Event und die Packliste in Gruppen.
 
@@ -177,7 +184,7 @@ Ein Fenster «Neue Tour»: Sportart, wann, wie lang, Wetter aus deiner PLZ, Even
 
 **Beispiel:** Gravel, Samstag, 2 Tage, Start 3000 → Liste mit Zelt, Kocher und Regensachen.
 
-### Bausteine beim Packen
+### Bausteine ändern
 
 Grosse Knöpfe in Packen: Ein Tipp nimmt einen ganzen Baustein dazu oder weg; Reparatur schlank mit höchstens 8 Teilen für unterwegs.
 
@@ -212,12 +219,13 @@ Kleidung für die kälteste Stunde einer Tagestour, aus deinem Kleiderschrank.
 
 ### Zwiebel-Check
 
-Prüft jede Schicht für die kälteste Fahrstunde und schlägt das Kit vor.
+Prüft jede Schicht für die kälteste Fahrstunde und schlägt das Kit vor; bei zwei Teilen mit derselben Aufgabe fragt er, wofür.
 
 **Aufschalten:** Braucht zuerst eine Tour: «Neu» › «Tour planen».
 
 1. Öffne die Tour in Packen.
 2. Der Schichten-Check zeigt jede Schicht für die kälteste Stunde; nimm das vorgeschlagene Kit.
+3. Zwei Teile mit derselben Aufgabe: wähle «Beide mit Absicht» oder welches zu Hause bleibt.
 
 **Beispiel:** 4 °C auf dem Pass → Unterhemd, Trikot, Windweste und Jacke.
 
@@ -289,7 +297,7 @@ Ein paar Wörter werden ein Vorschlag für die Packliste (nur mit Helfer-Code).
 
 ### Kleider
 
-Kleidung nach Schicht und Zone; Lücken kommen auf die Wunschliste.
+Kleidung nach Schicht und Zone; Lücken kommen auf die Wunschliste. Ein abgenutztes Stück bekommt Reparaturaufträge, statt aussortiert zu werden.
 
 **Aufschalten:** Immer da, nichts zu tun.
 
@@ -320,7 +328,7 @@ Ein Teil öffnen, dann das Gewicht: Leichteres aus deinem eigenen Material.
 
 **Beispiel:** Die 450-g-Jacke → deine 210-g-Windjacke würde reichen.
 
-### Deine eigenen Kategorien
+### Kategorien
 
 Ich › Listen und Typen: Kategorien umbenennen, eigene dazunehmen, ausblenden, löschen, Reihenfolge ändern.
 
@@ -331,7 +339,7 @@ Ich › Listen und Typen: Kategorien umbenennen, eigene dazunehmen, ausblenden, 
 
 **Beispiel:** «Werkzeug & Reparatur» heisst neu «Werkstatt», dazu «Foto» mit Kamera-Symbol.
 
-### Alles selbst ändern
+### Listen und Typen
 
 Velos, Probleme, Learnings, Fahrten, Ideen, Logbuch-Einträge und die Listen (Sportarten, Plätze am Velo, Pflege-Teile): selbst hinzufügen, umbenennen und löschen. Löschen fragt zuerst und lässt sich rückgängig machen.
 
@@ -343,7 +351,7 @@ Velos, Probleme, Learnings, Fahrten, Ideen, Logbuch-Einträge und die Listen (Sp
 
 **Beispiel:** Du hast ein Velo verkauft → «Velo löschen», seine Touren gehen an dein neues Velo; 4 Sekunden lang «Rückgängig».
 
-### Viele Teile auswählen
+### Auswählen
 
 Kategorie, Tasche, Archiv oder Baustein für viele Teile auf einmal.
 
@@ -353,6 +361,18 @@ Kategorie, Tasche, Archiv oder Baustein für viele Teile auf einmal.
 2. Setze Kategorie, Tasche, Baustein oder archiviere sie auf einmal.
 
 **Beispiel:** 6 Werkzeuge auf einmal in die Tasche «Rahmentasche».
+
+### Eigene Ansichten
+
+Eigene Ansichten im Material wie Reparatur, Winter oder Immer dabei; ein Teil erscheint in mehreren davon, ohne Kopie. Ansichten hinzufügen, umbenennen, sortieren oder löschen.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne Material: Unter dem Titel stehen deine eigenen Ansichten; «Bearbeiten» fügt hinzu, benennt um, sortiert oder löscht.
+2. Öffne ein Teil › «Name, Marke, Notiz» und kreuze die Ansichten an, zu denen es gehört.
+3. Ein Tipp auf eine Ansicht zeigt nur ihre Teile; ein Teil kann in mehreren sein, ohne Kopie.
+
+**Beispiel:** Die Pumpe ist in «Reparatur» und «Immer dabei»; «Winter» löschen behält alle seine Teile.
 
 ### Doppelte zusammenlegen
 
@@ -375,6 +395,18 @@ Ein Baustein nach dem anderen: behalten, raus oder woanders.
 2. Für jedes Teil: behalten, raus oder anderswo.
 
 **Beispiel:** Der Kocher in «Reparatur» → nach «Kochen» verschieben.
+
+### Packliste aufräumen
+
+Weniger, das von selbst mitkommt: «Immer dabei» in deiner Reihenfolge, Reparatur auf Tagestouren als Knopf, Licht früh und spät, Kälte in drei Stufen.
+
+**Aufschalten:** Braucht zuerst ein paar Teile unter Material.
+
+1. Öffne Material › Bausteine › «Aufräumen».
+2. Prüfe den Vorschlag: Immer dabei, Reparatur auf Tagestouren, Licht, Kälte.
+3. Tippe «Übernehmen»; gleich danach kommt «Rückgängig».
+
+**Beispiel:** 32 Teile auf jeder Tagestour → 9 immer dabei, Reparatur als Knopf.
 
 ### Eine Material-Liste importieren
 
@@ -411,6 +443,18 @@ Fahrrad, Gravel, Cross Country, Downhill, Bikepacking, Skitouren oder Wandern: J
 
 **Beispiel:** Gravel → das Gravel-Velo ist vorgewählt; 2 Tage mit Hotel → der Hinweis «Zu Bikepacking».
 
+### Reise-Links
+
+Booking.com, Airbnb, Hostelworld, Flightradar24, Google Flights, mit dem Auto, Rome2rio und mehr, mit Ort und Tagen der Tour schon eingefüllt. Optionen vergleichen mit Preis, Gratis-Storno und warum du eine gewählt hast.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne eine Tour, «Planen», «Anreise und Unterkunft»: die Links, die zur Tour passen, erscheinen mit Ort und Tagen eingefüllt.
+2. Tippe deine Flugnummer ein: «Flightradar24» verfolgt den Flug live.
+3. Alle Links ohne Tour: Touren › Reise-Links (Suche «Reise-Links»).
+
+**Beispiel:** Ein Wochenende in Lissabon mit Hotel-Nacht → Booking.com für Samstag bis Sonntag, Google Flights, Rome2rio.
+
 ### Tour aus komoot
 
 komoot öffnet sich mit Vorschlägen in deiner Nähe; eine aus komoot geteilte Tour wird eine geplante Tour.
@@ -422,6 +466,151 @@ komoot öffnet sich mit Vorschlägen in deiner Nähe; eine aus komoot geteilte T
 
 **Beispiel:** Eine aus komoot geteilte Gravel-Runde → eine geplante Tour für morgen mit der Packliste deiner letzten Tour.
 
+### Plan B bei schlechtem Wetter
+
+Pro Tour eine kürzere Variante oder der Zug nach Hause; bei Starkregen oder Sturm in der Prognose kommt ein Hinweis in der Tour und im Abendfenster.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. In Planen eine kürzere GPX oder «Zug nach Hause» festlegen.
+2. Bei Starkregen oder Sturm unterwegs «Plan B nehmen» tippen; Rückgängig bringt die geplante Route zurück.
+
+**Beispiel:** Samstag 14 mm Regen → die 60-km-Variante statt 110 km.
+
+### Touren nebeneinander
+
+Wähle zwei Touren: wo sich die Tage überschneiden, welches Material du für beide zu wenig hast und was noch offen ist.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne Touren › «Touren nebeneinander» und tippe zwei Touren an.
+2. Lies die gleichen Tage, das geteilte Material und die offenen Aufgaben.
+
+**Beispiel:** Zwei Touren teilen 2 Tage und ein Zelt → zweites Zelt mitnehmen oder ein Datum verschieben.
+
+### Sportart pro Tag
+
+Markiere bei einer Tour über mehrere Tage jeden Tag als Velo, Wandern oder Ruhetag. Es bleibt eine Packliste; wo die Sportart wechselt, zeigt die App, woran du denken sollst.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Tippe in Planen › «Tour vorbereiten» die Sportart jedes Tages an.
+2. Lies «Beim Wechsel»: Velo abstellen, umpacken, wieder prüfen.
+
+**Beispiel:** 3 Tage Velo, dann 2 Tage Wandern → Velo abstellen, Rucksack statt Taschen.
+
+### Unklare Stellen
+
+Notiere mit dem km, was du zur Strecke noch herausfinden willst; «Geklärt» hakt es ab.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Gib in Planen › «Tour vorbereiten» › «Unklare Stellen» den km und die Frage ein.
+2. Hake «Geklärt» ab, sobald du die Antwort weisst.
+
+**Beispiel:** Km 42 «Ist die Brücke offen?» → am Telefon geklärt.
+
+### Grenzübertritt
+
+Pro Land deine eigenen Punkte zu Dokumenten, Handynetz und Versicherung, mit Quelle und dem Tag, an dem du es geprüft hast.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Füge in Planen › «Tour vorbereiten» › «Grenzübertritt» ein Land hinzu.
+2. Füge pro Bereich deine Punkte mit Quelle hinzu; hake sie nach dem Prüfen ab.
+
+**Beispiel:** Frankreich › Handynetz «Roaming eingeschaltet» › Quelle: dein Handyvertrag.
+
+### Regel mit Ende
+
+Eine Regel eines Bausteins gilt immer, nur für eine Tour oder bis zu einem Tag; danach fragt die App, ob sie bleibt.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne Material › Bausteine und einen Baustein mit Regel.
+2. Unter «Gilt» immer, nur für eine Tour oder bis zu einem Tag wählen.
+3. Ist sie vorbei, fragt eine Karte: immer behalten oder nicht mehr vorschlagen.
+
+**Beispiel:** «Regen» nur für die Jura-Tour → nach der Tour fragt die Karte, ob sie bleibt.
+
+### Kleine Geschichten beim Packen
+
+Eine Sprachnotiz an einem Teil spielt am Packtag ab, zum Beispiel warum es mitkommt.
+
+**Aufschalten:** Braucht zuerst eine Sprachnotiz an einem Teil.
+
+1. Öffne ein Teil und nimm eine kurze Sprachnotiz auf.
+2. Am Packtag spielt sie die Karte «Kleine Geschichten» ab.
+
+**Beispiel:** Die Pumpe sagt «sie hat die Napf-Tour gerettet».
+
+### Tour aus einer Absicht
+
+Starte eine neue Tour mit dem, was du vorhast: Natur sehen, jemanden besuchen, Übernachten testen, Training oder einfach fahren. Wenige Fragen, ein Vorschlag, und der Rückblick stellt danach die passenden Fragen.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Tippe auf «Neu» › «Tour planen».
+2. Unter «Was hast du vor?» eine Absicht wählen und die vorgewählten Antworten anpassen.
+3. «Tour anlegen» legt die Tour an; ihre Fragen kommen im Rückblick wieder.
+
+**Beispiel:** «Übernachten testen», Zelt, Kochen → eine Testnacht über 2 Tage, und danach «Hat das Kochen geklappt?».
+
+### Check-in-Zeit der Unterkunft
+
+Bis wann du einchecken kannst, pro Nacht; die App warnt, wenn deine geplante Ankunft zu spät ist, und sagt das nötige Tempo. «Melden bis» erinnert dich, bevor das Netz weg ist.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. In Planen pro Nacht eintragen, bis wann du einchecken kannst.
+2. Lies die Warnung; ruf mit der Nummer der Unterkunft vorher an.
+
+**Beispiel:** Check-in bis 20:00, Ankunft 20:40 → du bräuchtest 24 statt 19 km/h.
+
+### Zu zweit packen
+
+Wer trägt was, mit dem Gewicht pro Person; die Begleitung ist nur ein Name, den du tippst.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. In Planen «Zu zweit packen» aufklappen und einen Namen tippen.
+2. Tippe an, was die andere Person trägt; oben steht das Gewicht pro Person.
+
+**Beispiel:** Zelt und Kocher bei Lea → du 6,2 kg, Lea 4,8 kg.
+
+### Kleider in der Wäsche
+
+Kleider markieren, die noch in der Wäsche sind; zwei Tage vor der Tour kommt eine Erinnerung in Merken.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. In Planen «In der Wäsche» aufklappen und die Kleider antippen, die noch in der Wäsche sind.
+2. Zwei Tage vor der Tour wartet eine Erinnerung in Merken.
+
+**Beispiel:** Die Regenjacke am Dienstag in der Wäsche → am Donnerstag erinnert Merken für die Samstagstour.
+
+### Morgen-Liste
+
+Was du erst am Abfahrtsmorgen einpackst, kommt als kurze Liste auf Unterwegs, mit einem letzten Blick an der Tür: Handy, Schlüssel, Brille, Portemonnaie.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. In Planen «Erst am Morgen» aufklappen und Handy, Essen oder Flaschen antippen.
+2. Am Morgen der Abfahrt zeigt Unterwegs sie als kurze Liste.
+
+**Beispiel:** Handy, Sandwich aus dem Kühlschrank und zwei gefüllte Flaschen am Abfahrtsmorgen.
+
+### Packzeit
+
+Wie lange das Packen dauerte, mit dem Verlauf gegenüber der letzten Tour; ausblendbar.
+
+**Aufschalten:** Lässt sich in der Karte «Schneller packen» ausblenden.
+
+1. In Planen «Packzeit» aufklappen und «Packen starten» tippen.
+2. Tippe «Fertig gepackt»; die nächste Tour zeigt den Verlauf.
+
+**Beispiel:** 42 min für die erste Wochenendtour, 28 min für die nächste.
+
 ### Nullgradgrenze und Neuschnee
 
 Bei jeder Skitour und Bergtour: die Nullgradgrenze pro Tag und der Neuschnee davor, auch auf der Seite Skitouren.
@@ -432,6 +621,30 @@ Bei jeder Skitour und Bergtour: die Nullgradgrenze pro Tag und der Neuschnee dav
 2. Die Seite Skitouren zeigt die Zeile für die nächste Tour; «Ausblenden» nimmt das Feld bei einer Tour weg.
 
 **Beispiel:** 0° auf 2400 m, 15 cm Neuschnee in den 3 Tagen davor → das Lawinenbulletin mit diesem Wissen lesen.
+
+### Tour planen
+
+Die Gefahrenstufe aus dem Bulletin, dein Morgen vom Aufstehen bis zum letzten Zug, die Verhältnisse und der Plan in Zahlen; nach der Tour Plan und echt nebeneinander.
+
+**Aufschalten:** Braucht eine geplante Skitour.
+
+1. Öffne Skitouren und tippe bei der nächsten Tour auf «Tour planen».
+2. Tippe die Gefahrenstufe aus dem Bulletin an und fülle aus, was hilft: deinen Morgen, Verhältnisse, Höhenmeter und Zeit.
+3. Nach der Tour zeigt «Nach der Tour» Plan und echt nebeneinander.
+
+**Beispiel:** Stufe 3+, auf um 05:40, Gipfel geplant 11:30 → erreicht 11:50, 20 Minuten später.
+
+### Saison
+
+Ein Saison-Ziel, Wunschtouren, Skitage der letzten 8 Wochen, LVS-Übungen, Kurse mit Auffrisch-Hinweis und die Höhenmeter pro Ski.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne Skitouren › Saison.
+2. Setz ein Ziel, wenn du willst, und füge Wunschtouren, Übungen und Kurse hinzu.
+3. Wähle den Ski in «Nach der Tour»: Seine Höhenmeter zählen hier zusammen.
+
+**Beispiel:** Lawinenkurs vor zwei Jahren → daneben steht «Auffrischen».
 
 ### Karte mit steilen Hängen
 
@@ -466,9 +679,119 @@ Die Farben der Schweizer Wegweiser und die SAC-Skalen für Wandern und Skitouren
 
 **Beispiel:** Weiss-blau-weiss → Alpinwanderweg, T4 bis T6.
 
+### Rennen
+
+Touren › Rennen: ein Bikepacking-Rennen oder eine Ultra-Fahrt durchgespielt: Tagesplan bis zu den Betten, Hotel, Misch oder Zelt, jede Annahme deine, Stopps, Unterwegs und der Bericht.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne Touren › Rennen und tippe «Neues Rennen», oder mach eine deiner Touren zum Rennen.
+2. Unter «Vorbereiten» lädst du die Strecken-Dateien und Stopps; «Plan» und «Strategie» spielen das Rennen mit deinen Annahmen durch.
+
+**Beispiel:** Steigleistung 650 → 550 Hm/h mit Gepäck → der Plan wächst von 10 auf 12 Tage, die Betten wandern mit.
+
+### Rennen detailliert planen
+
+Alle kommenden Rennen auf einer Seite, jedes mit seinem Rennen-Check: Packen von A bis Z, Soll-Setup pro Tasche, Grundliste, Schlaf-Varianten und eine Nacht durchgespielt.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne Touren › «Rennen detailliert planen» und tippe ein Rennen an.
+2. Füll die fünf Blätter nacheinander aus; alles speichert von selbst.
+
+**Beispiel:** Blatt 2 «Soll-Setup»: in der Rahmentasche sind Regenjacke und Stirnlampe, leer 150 g.
+
+### Muster-Rennen
+
+Ein erfundenes 1000-km-Rennen zum Ausprobieren: ein Rundgang Schritt für Schritt und kleine Aufgaben, die sich selbst abhaken; jederzeit zurücksetzen oder löschen.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne Touren › Rennen › «Muster-Rennen ansehen».
+2. Tippe «Rundgang starten», dann mach die kleinen Aufgaben im «Plan».
+
+**Beispiel:** Zelt wählen → 2.2 kg mehr, und die Risiken ändern sich sofort.
+
+### Rennkarte
+
+Die Rennstrecke auf der Karte: Sektoren in Farbe, Stopps je nach Zoom, deine eigenen Punkte für jede Tour, das Höhenprofil darunter, Regen, Wind und Schnee.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne ein Rennen und tippe «Karte».
+2. Tippe ins Profil, um die Stelle auf der Karte zu sehen; drück lange auf die Karte, um einen eigenen Punkt zu setzen.
+
+**Beispiel:** Die Schnee-Schicht zeigt den Pass bei km 670 über der Schneefallgrenze.
+
+### Anstiege
+
+Jeder Anstieg eines Rennens oder einer geplanten Tour einzeln: Länge, Höhe, Steigung pro 100 m, wie schwer er ist und im Rennen, wann du dort bist.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne ein Rennen und tippe «Anstiege».
+2. Tippe auf einen Anstieg: seine Steigung pro 100 m, die Zahlen und wann du dort bist.
+
+**Beispiel:** Die steilsten 100 m mit 12 % kommen gleich nach einem Brunnen.
+
+### Karte offline
+
+Einen Streifen der Karte entlang der Strecke aufs Handy holen: swisstopo in der Schweiz, die freie Karte überall, mit der Grösse vorher.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne ein Rennen › «Karte» › «Karte offline».
+2. Wähle Karte und Breite, prüfe die Grösse und tippe «Für offline speichern».
+
+**Beispiel:** Ein 1 km breiter Streifen der freien Karte über 1000 km braucht etwa 30 MB.
+
+### Link von Ride with GPS
+
+Füge bei «Route» einer Tour einen Ride-with-GPS-Link ein: Die Route kommt mit km, Höhe und ihren Wegpunkten; eine GPX-Datei von dort geht auch.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne eine Tour › «Route», tippe auf «Link von Ride with GPS» und füge den Link ein.
+2. Tippe auf «Laden»: Die Route und ihre Wegpunkte kommen herein.
+
+**Beispiel:** Ein öffentlicher Routen-Link → 86 km, 1200 Höhenmeter und 5 Wegpunkte auf der Karte.
+
+### Schlafplätze aus Listen
+
+Lade die Liste mit Schlafplätzen vom Veranstalter oder von anderen Fahrern (GPX, KML, KMZ oder CSV; als Datei oder Link). Sie erscheint als eigene Art bei «Wo schlafe ich heute?», zusammen mit deinen Plätzen früherer Rennen. Bleibt auf diesem Gerät.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne ein Rennen › «Entlang der Strecke» › «Schlafplätze aus Listen».
+2. Wähle eine Datei oder füge einen Link ein und tippe auf «Laden».
+
+**Beispiel:** Ein GPX vom Veranstalter mit 40 Biwakplätzen → 12 davon nahe deiner Strecke.
+
+### Nächte nach Wetter
+
+Für jede geplante Nacht Regen und Kälte am geplanten Ort, und ein trockenerer oder wärmerer Ort bis 40 km davor oder danach. Nur ein Vorschlag: dein Plan bleibt, wie er ist.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne ein Rennen › «Entlang der Strecke» und tippe auf «Wetter laden».
+2. Schau bei «Nächte nach Wetter»; verschiebe eine Nacht selbst unter «Strategie».
+
+**Beispiel:** Nacht 2 bei km 310 mit 80 % Regen → 30 km weiter nur 20 %.
+
+### Ausland
+
+Bei einer Tour im Ausland: die Notfallnummern des Landes, deine Reiseversicherung und der Währungsrechner, auf das Land eingestellt.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Gib der Tour ein Land unter Planen › Pass, Land, Anreise.
+2. Darunter: die Notfallnummern (je Land änderbar), deine Reiseversicherung und «umrechnen» in die Währung des Landes.
+
+**Beispiel:** Land Frankreich → 112 und 15, deine Versicherung mit ihrer Nummer, «EUR umrechnen».
+
 ### Traumtouren
 
-Deine Traumtouren mit den Monaten, in denen sie passen; das Jahresband zeigt, was wann passt, ein Tipp macht eine Tour.
+Deine Traumtouren mit den Monaten, in denen sie passen; das Jahresband zeigt, was wann passt, ein Tipp macht eine Tour. Ein kleiner Vorgeschmack in der Nähe kann zuerst kommen.
 
 **Aufschalten:** Immer da, nichts zu tun.
 
@@ -477,6 +800,102 @@ Deine Traumtouren mit den Monaten, in denen sie passen; das Jahresband zeigt, wa
 3. Tippe «Tour planen»: ein Tourentwurf am ersten Samstag der Saison.
 
 **Beispiel:** «Über die Furka» → Alpenpässe, Juli bis September → Tour am 3. Juli.
+
+### Weisse Flecken in der Nähe
+
+Die Gemeinden um deinen Wohnort auf einer Karte: wo du schon warst und wo noch nie; die nächsten neuen als Liste, bis 10, 25 oder 50 km.
+
+**Aufschalten:** Braucht deinen Wohnort.
+
+1. Öffne Touren › Träume › Weisse Flecken in der Nähe.
+2. Wähle 10, 25 oder 50 km.
+3. Tippe einen Ort auf der Karte oder in der Liste an: Name und Entfernung.
+
+**Beispiel:** 25 km um Zürich → 209 Gemeinden noch nie besucht, die nächste 5 km entfernt.
+
+### Herausforderungen mit Ende
+
+Dein eigenes Neuland-Ziel mit Enddatum, z. B. 5 neue Gemeinden diesen Monat oder alle Seen in deinem Kanton dieses Jahr; die App zählt von selbst.
+
+**Aufschalten:** Zählt aus Neuland: deine Routen, Fahrten und eigenen Haken.
+
+1. Öffne Touren › Träume › Herausforderungen mit Ende.
+2. Tippe eine fertige an oder «Eigene Herausforderung»: Sammlung, neue oder alle, bis wann.
+3. Der Balken füllt sich von selbst; mit dem Stift änderst oder löschst du sie.
+
+**Beispiel:** «5 neue Gemeinden diesen Monat» → 2 von 5 · noch 12 Tage.
+
+### Neuland-Runde
+
+Eine Runde von zu Hause durch einen weissen Flecken: einen Ort antippen, an dem du nie warst, der freie Velo-Router findet den Weg; als Tour planen oder das GPX nehmen.
+
+**Aufschalten:** Braucht deinen Wohnort und Internet für den Velo-Router.
+
+1. Öffne Touren › Träume › Weisse Flecken in der Nähe und tippe einen Ort an.
+2. Tippe «Runde hindurch»: km, Höhenmeter und Zeit.
+3. «Als Tour planen» macht eine Tour mit dieser Runde; «Andere Seite» fährt andersherum.
+
+**Beispiel:** Wallisellen, 6 km entfernt → 24 km · 180 m hoch · etwa 1 h 30 min.
+
+### Ein Link wird ein Traum
+
+Füge den Link einer Tour ein, und der Traum bekommt Name, km und Höhenmeter; von Ride with GPS auch die Karte.
+
+**Aufschalten:** Braucht Internet; komoot gibt ohne Konto keine Karte (dann eine GPX-Datei).
+
+1. Öffne Touren › Träume und füge oben ins Feld den Link einer Tour ein.
+2. Tippe «Hinzufügen»: Name, km und Höhenmeter kommen aus dem Link.
+3. In einem Traum mit Link: «Aus dem Link lesen».
+
+**Beispiel:** Ridewithgps.com/routes/12345 → «Jura-Querung» · 84 km · 1250 m hoch, mit Karte.
+
+### Heute passt: Ausflugstipps
+
+Drei Orte, an denen du nie warst, passend zu deiner freien Zeit, mit dem Wetter; «Runde hindurch» plant die Fahrt.
+
+**Aufschalten:** Braucht deinen Wohnort. Der Kalender zählt, wenn Google Kalender verbunden ist.
+
+1. Öffne Touren › Träume: «Heute passt» steht oben.
+2. Ändere die Stunden, wenn du mehr oder weniger Zeit hast.
+3. Tippe bei einem Ort «Runde hindurch»: die App plant die Runde.
+
+**Beispiel:** Frei 14:00–18:00 → 4 h → ein Pass, ein See und ein Dorf 30–45 km entfernt.
+
+### Alle Träume auf einer Karte
+
+Alle Träume mit Karte auf einer Karte, mit wie vielen Gemeinden, Pässen und Seen jeder zum ersten Mal bringen würde.
+
+**Aufschalten:** Braucht Träume mit Karte (eine GPX-Datei oder ein Ride-with-GPS-Link).
+
+1. Gib zwei oder mehr Träumen eine Karte.
+2. Öffne Touren › Träume und scrolle zu «Alle Träume auf einer Karte».
+3. Die Liste zeigt, was jeder Neues bringt; ein Tipp öffnet den Traum.
+
+**Beispiel:** «Über die Furka» → 6 neue Gemeinden · 2 neue Pässe.
+
+### Wetterfenster für Träume
+
+Wenn ein Traum, der jetzt passt, zwei oder drei trockene Tage am Stück bekommt, sagen es Träume und die Touren-Übersicht leise.
+
+**Aufschalten:** Braucht ab und zu Internet (freier Wetterdienst) und einen Wohnort oder einen Traum mit Karte.
+
+1. Gib einem Traum seine Monate; in einem davon passt er jetzt.
+2. Öffne Touren › Träume: die App schaut das Wetter der nächsten 16 Tage an.
+3. Trockene Tage am Stück stehen beim Traum: «Passt jetzt, trocken Do–Sa».
+
+**Beispiel:** «Über die Furka», 2 Tage → «Passt jetzt, trocken Do–Sa».
+
+### Bereit für den Traum?
+
+In einem Traum: deine längste Fahrt, die meisten Höhenmeter, Tage am Stück und Schlafsachen gegenüber dem, was der Traum pro Tag verlangt.
+
+**Aufschalten:** Braucht km, Höhenmeter oder Tage im Traum (eine GPX-Datei oder ein Link bringt sie) und Fahrten mit km.
+
+1. Öffne einen Traum in Touren › Träume.
+2. Scrolle zu «Bereit dafür?».
+3. Ein nicht gefüllter Ring zeigt, was noch fehlt.
+
+**Beispiel:** 3 Tage, 360 km → «braucht etwa 120 km pro Tag»; längste Fahrt 110 km → bereit.
 
 ### Rennen als Event-Tour
 
@@ -501,7 +920,19 @@ Eine neue Tour kann mit deinen früheren Touren der gleichen Sportart starten; e
 
 **Beispiel:** Drei Skitouren → die neue Skitour startet mit Fellen, LVS-Set und Thermosflasche.
 
-### Eigene Regeln für Bausteine
+### Alle Taschen nebeneinander
+
+Am grossen Bildschirm steht jede Tasche als eigene Spalte neben den anderen; du hakst in jeder Tasche ab, ohne sie zu öffnen, und ziehst ein Teil in eine andere Tasche.
+
+**Aufschalten:** Nur am grossen Bildschirm (ab etwa 1100 px Breite).
+
+1. Öffne eine Tour in Packen.
+2. Tippe über den Taschen auf «Alle Taschen nebeneinander».
+3. Hake in jeder Spalte ab; «Eine Tasche nach der anderen» geht zurück.
+
+**Beispiel:** Rahmentasche, Satteltasche und Lenkertasche in drei Spalten, der Bereit-Check als vierte.
+
+### Neuer Baustein
 
 Gib deinem eigenen Baustein eine Regel, z. B. «kommt mit bei Anreise mit dem Zug» oder «unter 5 °C»: dann wird er in Packen vorgeschlagen, wenn die Tour passt.
 
@@ -511,6 +942,54 @@ Gib deinem eigenen Baustein eine Regel, z. B. «kommt mit bei Anreise mit dem Zu
 2. Wähle den Wert, z. B. «Anreise mit dem Zug», und speichere.
 
 **Beispiel:** Baustein «Zug-Sachen» mit dem Velobillett → bei jeder Tour mit dem Zug vorgeschlagen.
+
+### So entscheidet die App
+
+Ich › So entscheidet die App: jede Regel, nach der die App packt, mit ihrer Grenze, woher der Wert kommt und wo du sie änderst; «Warum?» neben einer Zeile in Planen zeigt die Regel dahinter.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne Ich › So entscheidet die App.
+2. Suche eine Regel oder schalte eine Baustein-Regel an oder aus.
+3. Tippe in Planen neben einer Zeile auf «Warum?», um ihre Regel zu sehen.
+
+**Beispiel:** «Regensachen: ab 30 % Regen in den Fahrstunden» → «Bei Bausteine ändern».
+
+### Meist vergessen
+
+Zuoberst beim Packen: die drei Dinge, die dir auf Touren dieser Reiseart am häufigsten gefehlt haben, aus deinen Rückblicken; auf die Liste oder in den Vorabend-Check, anheften oder herausnehmen.
+
+**Aufschalten:** Nur wenn ein Rückblick dieser Reiseart etwas als fehlend notiert hat.
+
+1. Öffne Packen einer Tour.
+2. Zuoberst: «Meist vergessen».
+3. Tippe auf «Auf die Liste» oder «Zum Vorabend»; anheften oder × zum Herausnehmen.
+
+**Beispiel:** Sonnencreme zweimal gefehlt → vor der nächsten Tour zuoberst.
+
+### Neues Teil beim Packen
+
+Ein Knopf unter den Bausteinen: Neues Teil erfassen, und es liegt gleich in der gewählten Tasche.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne Packen einer Tour und «Material ergänzen».
+2. Tippe unter den Bausteinen auf «Neues Teil erfassen und einpacken».
+3. Gib den Namen ein und speichere: Das Teil liegt in der gewählten Tasche.
+
+**Beispiel:** Eine neue Regenhülle → in einem Schritt erfasst und eingepackt.
+
+### Strom-Werte eines Geräts
+
+Akku, Leucht- und Ladezeit, halb und viertel gerechnet, Leuchtstufen und die Ladezeit einmal mit der Stoppuhr gemessen; jeder Wert sagt, woher er kommt.
+
+**Aufschalten:** Nur bei Teilen in Elektronik oder Licht.
+
+1. Öffne ein Teil und die Zeile «Strom».
+2. Gib Akku, Leucht- und Ladezeit ein und wähle, woher jeder Wert kommt.
+3. Oder starte beim Einstecken die Stoppuhr und tippe auf «Voll · stoppen».
+
+**Beispiel:** Lädt voll 3 h → halb etwa 1:12 h, viertel etwa 36 min.
 
 ### Strombudget
 
@@ -571,6 +1050,42 @@ Vor einer geplanten Tour meldet sich das Handy von selbst, wenn ein gutes Wetter
 
 **Beispiel:** Tour am Samstag, am Donnerstag ist Regen vorhergesagt → «Das Wetter für Testtour kippt. Ab So 25.10. sieht es besser aus.»
 
+### Eine Nachricht am Morgen
+
+Die Erinnerungen von 08:00 kommen zusammen um 07:00 als eine Nachricht, mit deiner Tour und den ersten Terminen des Tages. Warnungen kommen weiter einzeln.
+
+**Aufschalten:** Von selbst an, sobald Erinnerungen aufs Handy an sind; ausschalten unter Ich › Erinnerungen aufs Handy › Am Morgen.
+
+1. Jede Erinnerung um 08:00 (Verschleiss, Kette, Vorräte, Ausgeliehenes, Einkauf, Rennanmeldung) wartet auf die Morgen-Nachricht.
+2. Um 07:00 kommt eine Nachricht: zuerst eine Tour, die startet, und bis zu zwei Termine des Tages, dann die Erinnerungen.
+3. Warnungen (Wetter, Glätte, Licht, Regen unterwegs, Essen) kommen weiter einzeln und pünktlich.
+
+**Beispiel:** «Dein Morgen» → «Termin: 10:00 Zahnarzt», «Testvelo: Kette erreicht bald 1000 km», «und 1 weitere in der App».
+
+### Erinnerung zu deiner Zeit
+
+Die App merkt sich, wann du den Abend-Check öffnest, und schlägt vor, die Erinnerung dorthin zu legen.
+
+**Aufschalten:** Nichts einzuschalten: die App lernt, während du den Abend-Check öffnest.
+
+1. Die App merkt sich, um welche Zeit du den Check am Vorabend einer Tour öffnest (ab 16:00).
+2. Ab 3 Abenden nimmt sie deine übliche Zeit und schlägt eine Erinnerung 15 Minuten früher vor.
+3. «Verschieben» ändert die Zeit in Eigene Werte, mit Rückgängig; «Nein, danke» lässt die alte Zeit.
+
+**Beispiel:** Check um 21:20, 21:40 und 21:30 geöffnet → «Erinnerung auf 21:15 verschieben?»
+
+### Freie Zeit und gutes Wetter
+
+In der Woche: das nächste freie Fenster in deinem Kalender mit trockenem Wetter zu Hause, mit einer passenden Runde.
+
+**Aufschalten:** Schalte den Google-Kalender ein (Ich › Termine und Aufgaben) und setz deinen Wohnort.
+
+1. Die App sucht in den nächsten 3 Tagen von 07:00 bis 21:00 nach 2 Stunden ohne Termin.
+2. Jede Stunde muss trocken und ohne Gewitter sein, das Wetter am Wohnort «gut».
+3. Die Runde passt zu deinem eigenen Tempo; «Jetzt nicht» blendet das Fenster aus.
+
+**Beispiel:** Donnerstag 17:00–19:00 frei und trocken → «Eine Runde von etwa 35 km?»
+
 ### Hinweise für die Tour
 
 Auf der Packliste: Licht und Reflexweste, wenn du nach Sonnenuntergang fährst, Sonnencreme bei hohem UV-Index, und in welcher Richtung eine Runde den Rückenwind heimwärts bringt.
@@ -582,6 +1097,18 @@ Auf der Packliste: Licht und Reflexweste, wenn du nach Sonnenuntergang fährst, 
 3. Bei einer Runde mit Wind sagt sie, in welcher Richtung der Rückenwind heimwärts kommt.
 
 **Beispiel:** Runde von 60 km, Wind aus Westen mit 20 km/h → «Fahr die Runde andersrum».
+
+### Verpflegungsplan
+
+Wie viele Kohlenhydrate und wie viel Wasser du auf jedem Teil der Strecke brauchst, was du mitnimmst, und Warnungen bei langen Lücken und geschlossenen Läden. Eigene Zahlen können nur für eine Reise gelten.
+
+**Aufschalten:** Am besten mit einer GPX-Strecke an der Tour; die Orte an der Strecke kommen aus der Streckensuche.
+
+1. Öffne Touren › Verpflegung und wähle die Tour.
+2. Suche einmal die Orte an der Strecke; Gramm pro Stunde, Wasser und Flaschen änderst du unter «Deine Werte».
+3. Wechsle zu «Meine Produkte», dann siehst du, wie viele Riegel und Gels du mitnimmst.
+
+**Beispiel:** 120 km mit Läden bei km 55 und 110 → drei Abschnitte, jeder mit den Gramm und Litern zum Mitnehmen.
 
 ### Brunnen und Velo-Werkstätten an der Strecke
 
@@ -607,7 +1134,7 @@ Eine Wetterwarnung für die Tage und den Ort einer geplanten Tour oder hohe Lawi
 
 **Beispiel:** Gewitterwarnung für deine Region am Samstag → eine Zeile in der Samstagstour.
 
-### Quiz am Vorabend
+### Quiz
 
 Drei Fragen zu Material und Route am Vorabend einer Tour, mit Serie; eigene Fragen dazu.
 
@@ -618,6 +1145,162 @@ Drei Fragen zu Material und Route am Vorabend einer Tour, mit Serie; eigene Frag
 3. Eigene Fragen hinzufügen, ordnen, ausschalten oder löschen; Arten von Vorschlägen ausblenden; das Quiz oben ausschalten.
 
 **Beispiel:** «In welcher Tasche ist der Kocher?» → Rahmentasche. 2 von 3 richtig · Serie: 4 Touren.
+
+### Generalprobe
+
+Ab einer Woche vor dem Start: die Tour einmal zu Hause ausprobieren — Route offline im Flugmodus, Plan B, Check-in-Zeiten, Strom, ein Schlauchwechsel, die Notfallkarte, ein frisches Backup, die Wohnung für eine oder mehrere Wochen weg. Eine Lücke wird ein To-do für den Vorabend.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Ab einer Woche vor dem Start: Öffne die Tour in Packen oder «Gepackt» › «Generalprobe».
+2. Probier jeden Schritt zu Hause aus und tippe «Klappt», «Lücke» oder «Nicht nötig».
+3. Bei einer Lücke tippe «Als To-do merken»: Es wartet im Merken auf den Vorabend.
+
+**Beispiel:** Route im Flugmodus geöffnet → «Klappt»; Schlauchwechsel dauerte 25 Minuten → «Lücke», To-do «Schlauchwechsel üben».
+
+### Folgen vorher sehen
+
+Bevor ein Baustein auf die Tour kommt: wie viele Teile und Gramm, in welche Taschen, eine Tasche, die an diesem Velo fehlt, eine gepackte Tasche zum Nachprüfen, und was frühere Touren dazu sagen.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne Packen › Material hinzufügen.
+2. Tippe unter den Bausteinen «Vorher ansehen, was sich ändert».
+3. Lies Teile, Gramm, Taschen und frühere Touren; «… hinzufügen» übernimmt es, Rückgängig beim Packen.
+
+**Beispiel:** Regen → 3 Teile, +430 g, Satteltasche; «Schon gepackt, nochmals prüfen»; auf 4 früheren Touren fehlte 1× die Regenhose.
+
+### Nach Bedürfnis packen
+
+Sag, was du brauchst (warm schlafen, selbst kochen, trocken bleiben …): Die App füllt es aus deinem Material, mit Mengen für Tage und Personen, und drei Varianten — leicht, bequem, wenig Aufwand — mit ihren Gramm.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne Packen › Material hinzufügen › «Nach Bedürfnis packen».
+2. Tippe deine Bedürfnisse an und setze die Personen; vergleiche leicht, bequem, wenig Aufwand.
+3. «Auf die Liste nehmen»; was schon dort ist, bleibt, Rückgängig beim Packen.
+
+**Beispiel:** Warm schlafen + kochen, 3 Tage, 2 Personen → ein Kocher, zwei Schlafsäcke; leicht 2.1 kg, bequem +0.8 kg.
+
+### Schlafplätze: bekannt oder vermutet
+
+Jeder Schlafplatz deiner eigenen Orte sagt, ob du selbst dort geschlafen hast, jemand ihn beschrieben hat oder er nur importiert ist.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne Ich › Ruhig und persönlich › Woher ein Wert kommt › Schlafplätze.
+2. Jeder Platz zeigt, woher er kommt.
+3. Ändere es im Feld neben dem Platz.
+
+**Beispiel:** Ein Biwak aus einer Datei → «Nur importiert», bis du dort geschlafen hast.
+
+### Wie sicher das Gewicht ist
+
+Die Summe einer Packliste aufgeteilt in selbst gewogen, aus einer Liste oder vom Hersteller, und unbekannt; mit den Dingen, die du zuerst wiegen solltest.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne Ich › Ruhig und persönlich › Woher ein Wert kommt › Wie sicher das Gewicht ist.
+2. Wähle die Tour.
+3. Wiege die schwersten geschätzten Dinge zuerst.
+
+**Beispiel:** 8.4 kg, 62 % gewogen; das Zelt zählt am meisten.
+
+### Vorschau, wie der Empfänger sie sieht
+
+Bevor eine Packliste als Link weggeht: genau das, was die andere Person lesen kann, mit deiner Wahl von Titel, Datum, Velo und Gewichten.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne Ich › Ruhig und persönlich › Teilen mit Vorschau.
+2. Wähle die Tour und was hineinkommt.
+3. Prüfe die Vorschau, bestätige, dann teile den Link.
+
+**Beispiel:** Ohne Datum und Gewichte → die Vorschau zeigt nur die Liste.
+
+### Meinen Plan hinterfragen
+
+Der Assistent hinterfragt deine nächste Tour freundlich: was noch offen oder nur angenommen ist, und auf Wunsch die stärksten Gegenargumente.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne Ich › Ruhig und persönlich › Assistent mit Belegen › Meinen Plan hinterfragen.
+2. Lies, was noch offen ist.
+3. «Die stärksten Gegenargumente sammeln» fragt Gemini.
+
+**Beispiel:** Noch kein Plan B, Zelt nicht gewogen.
+
+### Meine eigenen No-Gos
+
+Dinge, die du nicht mitnehmen oder kaufen willst; Gemini bekommt sie mit jeder Frage, und eine Liste, die eines enthält, zeigt einen Hinweis.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne Ich › Ruhig und persönlich › Assistent mit Belegen › Meine eigenen No-Gos.
+2. Füge ein No-Go und seine Art hinzu.
+3. Eine Pack- oder Wunschliste, die eines enthält, zeigt es hier.
+
+**Beispiel:** «Einwegbatterien» → nicht kaufen.
+
+### Anmeldung zum Rennen
+
+3 Tage und 1 Tag vor dem Anmeldeschluss, um 08:00.
+
+**Aufschalten:** Braucht eingeschaltete Mitteilungen und einen Anmeldeschluss beim Rennen.
+
+1. Gib dem Rennen in Touren › Rennen seinen Anmeldeschluss.
+2. Schalte in Ich › Erinnerungen aufs Handy «Anmeldung zum Rennen» ein.
+3. 3 Tage und 1 Tag vorher kommt um 08:00 eine Nachricht.
+
+**Beispiel:** «Jura Gravel 200: Anmeldeschluss in 3 Tagen.»
+
+### Erste Nacht
+
+Eine erste Nacht draussen: was du herausfinden willst, Route und Bett, danach zurückschauen.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne Planen › Freie Zeit › Erste Nacht.
+2. Schreib, was du herausfinden willst.
+3. Wähle Route und Bett; danach schau zurück.
+
+**Beispiel:** «Ist mein Schlafsack bei 5 °C warm genug?» 40 km zu einer Hütte, am Morgen zurück.
+
+### Rucksack-Check
+
+Die Packliste einer Skitour in fünf Gruppen; Tippen heisst eingepackt.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne Touren › Skitouren › Rucksack-Check.
+2. Geh die fünf Gruppen durch.
+3. Tippe jedes Ding an, wenn es im Rucksack ist.
+
+**Beispiel:** Zuerst LVS, Schaufel und Sonde, dann das Essen.
+
+### Wetter gedreht: was ändert sich
+
+Sagt die Prognose etwas anderes, als wofür die Liste gepackt ist, sagt der Hinweis in Packen, was dazukommt und was zuhause bleiben kann.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Pack eine Tour in Planen mit dem Wetter des Tages.
+2. Dreht die Prognose, zeigt Packen «Die Vorhersage: …» mit einer Zeile «Neu auf der Liste» und «Kann zuhause bleiben».
+3. «Wetter zuerst» packt für die Prognose; vorher ändert sich nichts.
+
+**Beispiel:** Aus 15 °C wurden 4 °C → Handschuhe und Jacke neu auf der Liste, die kurze Hose kann zuhause bleiben.
+
+### Welches Velo passt zur Tour
+
+Der Velo-Vergleich nennt das Velo, das am besten zur Tour passt: Taschen mit Platz, keine Pflege vor dem Start fällig, das leichteste bei viel Steigung.
+
+**Aufschalten:** Braucht eine Tour und mindestens zwei Velos.
+
+1. Öffne die Tour in Packen und sieh den Velo-Vergleich.
+2. Oben nennt eine Zeile das Velo, das am besten zur Tour passt, und warum.
+3. Wechsle das Velo mit einem Tipp, oder bleib bei deinem.
+
+**Beispiel:** Das Reiserad hat zu kleine Taschen für 24 L Material → «Passt am besten zur Tour: Gravelbike».
 
 ## Packen und unterwegs
 
@@ -643,18 +1326,18 @@ Teile eine Packliste als Link, oder drucke sie oder speichere sie als PDF.
 
 **Beispiel:** Liste an eine Mitfahrerin schicken, damit nicht beide einen Kocher packen.
 
-### Jetzt-Karte unterwegs
+### Unterwegs-Übersicht
 
-Unterwegs zeigt die Jetzt-Karte die nächste Etappe, das Wetter und wo jedes Teil ist.
+Unterwegs zeigt die Unterwegs-Übersicht die nächste Etappe, das Wetter und wo jedes Teil ist.
 
 **Aufschalten:** Braucht eine Tour, die heute beginnt oder begonnen hat.
 
 1. Öffne die Tour in «Unterwegs».
-2. Die Jetzt-Karte zeigt die nächste Etappe, das Wetter und wo jedes Teil ist.
+2. Die Unterwegs-Übersicht zeigt die nächste Etappe, das Wetter und wo jedes Teil ist.
 
 **Beispiel:** 14:00 → «Weiter: 600 Hm Anstieg · Regen um 16 Uhr · Jacke in der Satteltasche».
 
-### Schnellnotiz
+### Neue Notiz
 
 Eine Schnellnotiz hält eine Idee oder ein Foto in zwei Tipps fest; einordnen kannst du später.
 
@@ -676,18 +1359,18 @@ Für einen Event zählen die Vorbereitungs-Aufgaben mit ihrer Vorlaufzeit bis zu
 
 **Beispiel:** Ein Rennen in 21 Tagen → «neue Reifen 14 Tage vorher», «Service 10 Tage vorher».
 
-### Checks davor und danach
+### Checks pro Tourart
 
-Am Vorabend und nach der Tour: eine Liste pro Reiseart, abhaken, sortieren, ergänzen, für eine Tour oder alle.
+Am Vorabend und nach der Tour: eine Liste pro Tourart, abhaken, sortieren, ergänzen, für eine Tour oder alle.
 
 **Aufschalten:** Immer da, nichts zu tun.
 
-1. Öffne Ich › Checks pro Reiseart.
+1. Öffne Ich › Checks pro Tourart.
 2. Zeilen abhaken, sortieren oder ergänzen, für eine Tour oder alle.
 
 **Beispiel:** Skitour am Vorabend: Lawinenbulletin lesen, Felle trocknen.
 
-### Basischeck vor jeder Fahrt
+### Basischeck
 
 Schloss, Flasche, Brille, Helm, Akkus, Reifendruck, Handy, Schlüssel.
 
@@ -698,7 +1381,7 @@ Schloss, Flasche, Brille, Helm, Akkus, Reifendruck, Handy, Schlüssel.
 
 **Beispiel:** Schloss ✓, Flasche ✓, Helm ✓, Reifen 2.5 bar ✓, Schlüssel ✓.
 
-### Der Tag in Blöcken
+### Alle Blöcke des Tages
 
 Alle 3 Stunden: anziehen, essen, Licht, und deine Ankunft nach deinem Tempo.
 
@@ -720,7 +1403,7 @@ Auf einer Tour mit mehreren Tagen: heute Abend laden, für morgen bereitlegen.
 
 **Beispiel:** Abend Tag 1 → GPS und Handy laden, warme Schicht für 6 Uhr bereitlegen.
 
-### Notiz unterwegs
+### Notiz für den Rückblick
 
 Eine Notiz zur Tour und zum Tag; sie landet im Rückblick.
 
@@ -742,7 +1425,7 @@ Beendet die Tour, auch früher, mit Rückgängig; dann der nächste Schritt.
 
 **Beispiel:** Regen an Tag 2 von 3 → Tour früher beenden, dann der Rückblick.
 
-### Nach Hause: Züge und Maps
+### Nach Hause
 
 Auf Unterwegs: die nächsten 3 Züge von dort, wo du bist, zu deinem Wohnort, und Auto, Velo oder ÖV in Google Maps.
 
@@ -777,14 +1460,38 @@ Grosse Knöpfe und grössere Schrift für Handschuhe; von selbst unter 5 °C ode
 
 ### Ess-Erinnerung
 
-Alle 30, 45 oder 60 Minuten beim Fahren: Ton und Vibration, bei geschlossener App eine Mitteilung.
+Alle 30, 45 oder 60 Minuten oder in deinem eigenen Abstand beim Fahren: Ton und Vibration, bei geschlossener App eine Mitteilung. Pro Tour im Planen ein oder aus, oder ausgeblendet.
 
 **Aufschalten:** Immer da, nichts zu tun.
 
 1. Auf Unterwegs 30, 45 oder 60 min wählen und «Ess-Erinnerung starten».
 2. «Gegessen» startet das nächste Intervall; «Stopp» beendet sie.
+3. Mit geplanten Stopps in der Verpflegung «Bei Stopps» wählen: Es klingelt bei jedem Stopp und nach 60 Min ohne Stopp.
 
 **Beispiel:** Start um 08:00 → 08:45 ein Summen → «Gegessen» → nächste um 09:30.
+
+### Später prüfen
+
+Unterwegs merkt ein Tipp ein Teil zum späteren Prüfen vor; es wartet mit dem Tag im Eingang.
+
+**Aufschalten:** Braucht eine Tour, die unterwegs ist.
+
+1. Auf Unterwegs unter der Notiz «Später prüfen» antippen.
+2. Das Teil wählen; die Notiz wartet mit dem Tag im Eingang.
+
+**Beispiel:** Die Bremse quietscht → «Später prüfen: Bremse» im Eingang.
+
+### Erinnern an einem Ort der Strecke
+
+Eine Notiz kommt bei einem km der Strecke statt zu einer Uhrzeit: auf der Live-Karte, mit Ton und Vibration.
+
+**Aufschalten:** Braucht eine Tour mit Strecke.
+
+1. Öffne eine Notiz › «Erinnern» › «An einem Ort der Strecke».
+2. Tour und km wählen, oder einen geplanten Stopp.
+3. Auf der Live-Karte kommt sie 500 m vorher, mit Ton und Vibration.
+
+**Beispiel:** Km 48 «Am Brunnen Flaschen füllen».
 
 ### Vor der Abfahrt
 
@@ -841,7 +1548,7 @@ Ein ruhiger Hinweis aus deiner Nacht und den letzten Fahrten, z. B. eine kürzer
 
 **Beispiel:** 5,2 h Schlaf und HRV tiefer als sonst → «heute eher eine kürzere Runde?».
 
-### Hör-Tipp pro Tourart
+### Hör-Tipp
 
 Dein Podcast oder deine Playlist pro Tourart, ein Tipp vor der Fahrt.
 
@@ -863,7 +1570,71 @@ Sonnenauf- und -untergang, wann es dunkel ist, der Mond der Nacht und kurze Text
 
 **Beispiel:** Dunkel ab 18:52, Vollmond am Freitag und ein paar Zeilen zur Burg am Weg.
 
-### Notfall-Knopf
+### Haus-Check
+
+Deine eigene Checkliste für die Wohnung vor der Abfahrt: Herd, Fenster, Abfall; pro Tour abgehakt.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Auf Unterwegs «Vor der Abfahrt» antippen; der Haus-Check steht unter dem Heimweg.
+2. «Liste bearbeiten», um Zeilen umzubenennen, zu löschen, hinzuzufügen oder zu verschieben.
+
+**Beispiel:** Herd aus, Fenster zu, Abfall raus und deine eigene Zeile «Storen runter».
+
+### Liste für die Wohnungs-Hüter
+
+Was die Person tun soll, die zu deiner Wohnung schaut, geteilt als Link oder QR-Code.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Auf dem Blatt «Vor der Abfahrt» schreiben, was die Hüter tun sollen, und eine Notiz.
+2. «Link teilen» oder «QR-Code»; die Liste ist nur im Link gespeichert.
+
+**Beispiel:** Am Mittwoch Pflanzen giessen, Briefkasten leeren, der Schlüssel ist bei den Nachbarn.
+
+### Gut angekommen
+
+Pro Tour wählen, wer es wissen soll; unterwegs öffnet ein Tipp das Teilen deines Handys mit fertigem Text. Nichts geht über einen Server.
+
+**Aufschalten:** Wähle deine Notfallkontakte einmal unter Vor der Abfahrt.
+
+1. Öffne Unterwegs, tippe «Gut angekommen», dann «Teilen».
+
+**Beispiel:** Auf dem Zeltplatz im Jura → «Gut angekommen» → «Hallo Anna und Ben, ich bin gut in Saignelégier angekommen, um 18:10.»
+
+### Gute Nacht
+
+Bei einer mehrtägigen Tour: ein Tipp teilt, wo du schläfst und wann man dich anrufen soll, wenn nichts kommt; am Morgen sagt «Weiterfahren», dass du los bist.
+
+**Aufschalten:** Wähle deine Notfallkontakte einmal unter Vor der Abfahrt.
+
+1. Öffne Unterwegs, tippe «Gute Nacht», stell die Zeit ein, dann «Teilen».
+
+**Beispiel:** Im Jura → «Gute Nacht» → «Hallo Anna, ich schlafe heute in Saignelégier. Gute Nacht!»
+
+### Velo abgestellt
+
+Foto, Ort, Schloss und Schlüssel des abgestellten Velos und was du abgenommen hast; nur auf diesem Gerät; später führt ein Kartenlink zurück.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Unterwegs «Velo abgestellt» tippen: Foto, Schloss, speichern.
+2. Später nochmals tippen: das Foto, das Schloss und «Weg zum Velo».
+
+**Beispiel:** Am Bahnhof einer grossen Stadt → nach dem Museum mit dem Kartenlink zurück.
+
+### Bereit für morgen?
+
+Am Vorabend einer Tour: Hinweise aus Wetter, Packliste und fälligen Teilen; der KI-Helfer kann welche ergänzen.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Am Vorabend einer Tour die Tour in Packen öffnen.
+2. Die Hinweise in «Bereit für morgen?» lesen; ist der KI-Helfer an, ihn auch fragen.
+
+**Beispiel:** 3 °C am Morgen → Handschuhe zuoberst; noch 4 Sachen einpacken; Lichter laden.
+
+### Notfall: meinen Standort zeigen
 
 Dein Standort gross, in Grad und Schweizer Koordinaten, und ein Tipp ruft die Rega 1414 oder 112 an. Geht auch offline.
 
@@ -873,6 +1644,231 @@ Dein Standort gross, in Grad und Schweizer Koordinaten, und ein Tipp ruft die Re
 2. Ruf mit einem Tipp die Rega 1414 oder 112 an und lies den gross gezeigten Standort vor.
 
 **Beispiel:** LV95 2’600’000 / 1’200’000 auf 1850 m → du sagst der Rega genau, wo du bist.
+
+### Energie für eine Fahrt
+
+Eine Regel dafür, was eine Fahrt verbraucht und was du isst und trinkst: aus Gewicht, Zeit, km, Höhenmetern und der Temperatur vom Wetter. Bei der Tour, beim Rennen, in der Verpflegung, auf der Live-Karte und im Rückblick.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Trag dein Gewicht unter Auswerten › Gewicht ein und deine Werte unter Touren › Verpflegung.
+2. Plane eine Tour mit Route: Tour, Rennen und Live-Karte zeigen, was du verbrauchst, isst und trinkst.
+
+**Beispiel:** 4 h, 72 km, 1000 Hm, 75 kg → etwa 2600 kcal verbraucht, 240 g Kohlenhydrate essen.
+
+### Stopps als Wegpunkte
+
+Speichere die Route mit Läden, Wasser, Essen und Betten als ein GPX für den Garmin oder den Wahoo: bei der Route, unter Verpflegung und auf der Rennkarte.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Suche die Orte entlang der Strecke bei der Route, unter Verpflegung oder auf der Rennkarte.
+2. Tippe «GPX mit … Stopps» und kopiere die Datei auf den Garmin oder importiere sie in der Wahoo-App.
+
+**Beispiel:** 3 Läden und 5 Brunnen auf 120 km → auf dem Edge 8 Stecknadeln entlang der Strecke.
+
+### Wetter für eine Fahrt
+
+Eine Wetterseite aus freien, offenen Daten: bester Tag und beste Startzeit, Warnungen vor Sturm, Gewitter, Glätte und Hitze, Föhn und Bise, Orte vergleichen, das übliche Wetter weit voraus, das Landi-Regenradar und was du über Kleidung gelernt hast. Zu Hause notierst du, wie sich Wind und Sonne an deinem Platz angefühlt haben; nach ein paar Notizen kommen deine eigenen Hinweise.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Tippe die Wetterzeile auf Heute, unter Aktiv oder bei einer Tour.
+2. Wähle, wie lange du fährst: Die App zeigt den besten Start; «Landi-Regenradar» zeigt den Regen.
+3. Zu Hause: «Zu Hause: wie war es wirklich?» notiert Wind und Sonne an deinem Platz; nach ein paar Notizen kommen eigene Hinweise.
+
+**Beispiel:** 4 h Fahrt, Gewitter ab 15:00 → bester Start 08:00, zurück etwa 12:00.
+
+### Webcams auf der Live-Karte
+
+Gib einer Webcam ihren Ort: Sie zeigt sich als Punkt auf der Live-Karte unter «Meine Punkte», ein Tipp zeigt unterwegs ihr Live-Bild.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne die Wetterseite › «Meine Webcams» und tippe bei einer Webcam «Ort auf der Karte».
+2. Such den Ort und wähle ihn. Auf der Live-Karte tippst du den Webcam-Punkt.
+
+**Beispiel:** Die Webcam auf dem Pass vor dir → ein Tipp auf der Karte zeigt, ob Schnee liegt.
+
+### Glätte am Morgen
+
+Von Oktober bis April um 06:30 eine Nachricht, wenn die Strassen zu Hause glatt sein können: um 0 °C mit Regen oder Schnee. Auch am Tourtag.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Setze deinen Wohnort auf der Wetterseite.
+2. Unter Ich › Erinnerungen aufs Handy «Glätte am Morgen» einschalten.
+
+**Beispiel:** −2 °C und Schnee in der Nacht → um 06:30 «Heute Morgen kann es glatt sein».
+
+### Meine Webcams
+
+Deine eigenen Webcams und Pass-Links in einer Liste, dazu bergfex für mehr, jede mit dem, wofür du sie anschaust. Eine kann deine Heim-Webcam sein: Sie zeigt sich klein auf Heute. Webcams, die du lange nicht geöffnet hast, schlägt die App zum Aufräumen vor. Die Liste bleibt nur auf diesem Gerät.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne die Wetterseite › «Meine Webcams».
+2. Füge die Adresse des Bildes ein und tippe «Webcam hinzufügen»; «Als Heim-Webcam» zeigt sie klein auf Heute.
+
+**Beispiel:** Die Webcam eines Passes → ein Tipp zeigt, ob die Strasse weiss ist.
+
+### Umweg neu planen
+
+Auf der Live-Karte «Neu planen zu …» einem Laden, einem Bett, einem Bahnhof oder einem beliebigen Punkt: Ein freier Velo-Routenplaner plant den Umweg und zurück auf deine Strecke, auch als GPX für den Garmin.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Tippe auf der Live-Karte «⋯» › «Neu planen zu …» oder drücke lange auf die Karte.
+2. Wähle einen Laden, ein Bett, einen Bahnhof oder deinen Punkt, oder suche einen Ort; tippe «Planen». «GPX für Garmin» speichert ihn.
+
+**Beispiel:** Bei km 52 zur Bäckerei 1,2 km neben der Strecke → 2,6 km Umweg, zurück auf der Strecke bei km 54.
+
+### Live-Karte
+
+Für jede Fahrt: wo du bist, km gefahren und bis zum Ziel, Ankunft und Licht, die nächsten Stopps mit Distanz und Öffnungszeit, der nächste Anstieg und ein SOS-Knopf.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Tippe «Ausfahrt starten» auf Aktiv, Unterwegs oder bei einer Tour.
+2. Erlaube den Standort; lass die Seite offen, das Handy am Lenker.
+
+**Beispiel:** Km 412 → der nächste Laden in 2 km, offen bis 19:00.
+
+### Pause und Auto-Pause
+
+Pausiere die Fahrt mit einem Tipp: Die Fahrzeit steht und ein Band zeigt «Pausiert». Die Auto-Pause hält unter deinem eigenen Tempo an, z. B. 4 km/h, und läuft von selbst weiter.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Starte eine Fahrt auf der Live-Karte und tippe unten links auf den Pause-Knopf.
+2. Für die Auto-Pause: Öffne das Blatt › «Einstellungen», schalte «Auto-Pause» ein und gib dein Tempo ein.
+
+**Beispiel:** Grenze 4 km/h → an der Ampel steht die Uhr nach 10 s und läuft weiter, sobald du fährst.
+
+### Bluetooth-Sensoren
+
+Puls, Leistung und Trittfrequenz live von deinen Bluetooth-Sensoren auf dem Handy, auch wenn der Garmin sie gleichzeitig nutzt; nach der Fahrt als Kurven.
+
+**Aufschalten:** Braucht einen Browser mit Bluetooth, z. B. Chrome auf Android oder am Computer.
+
+1. Öffne das Blatt der Live-Karte › «Sensoren» und tippe bei Puls, Leistung oder Trittfrequenz auf «Verbinden».
+2. Wähle deinen Sensor; seine Werte siehst du live und nach der Fahrt als Kurve.
+
+**Beispiel:** Brustgurt verbunden → 142 bpm live, nach der Fahrt Ø 138 bpm mit der Kurve.
+
+### Datenseiten
+
+Wie am Garmin: Wische von der Karte zu deinen eigenen Seiten mit Zahlen und Diagrammen. Drei fertige Seiten (Fahrt, Leistung, Steigung), 1 bis 10 Felder oder frei, auf jeder Seite eine kleine Karte; alles änderbar.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Wische auf der Live-Karte am Streifen am rechten Rand nach links oder tippe oben auf die Pfeile.
+2. Unter Blatt › «Datenseiten» fügst du Seiten und Felder hinzu, benennst sie um, sortierst oder löschst sie.
+
+**Beispiel:** Seite «Steigung» → Höhenmeter bis zum Gipfel, Steigung und das Profil vor dir.
+
+### Abbiege-Hinweise
+
+Ein Pfeil und eine Stimme vor jeder Abzweigung deiner Route: «In 200 m links abbiegen». Nur mit Route; die Stimme lässt sich ausschalten.
+
+**Aufschalten:** Braucht eine Tour oder ein Rennen mit Route (GPX).
+
+1. Starte eine Fahrt auf einer Tour mit Route: Der Pfeil kommt ab 1 km vor einer Abzweigung.
+2. Pfeil oder Stimme schaltest du im Blatt › «Einstellungen» aus.
+
+**Beispiel:** «In 200 m links abbiegen», dann «Jetzt links».
+
+### Runden und gegen dich selbst
+
+Der Runden-Knopf startet eine neue Runde wie am Garmin, mit einer Liste der Runden. Auf einer Route, die du schon gefahren bist, zeigt die App, wie weit du vor oder hinter deiner letzten Fahrt liegst, in Fahrzeit.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Tippe auf der Live-Karte auf den Fahnen-Knopf für eine neue Runde; die Runden stehen im Blatt.
+2. Fahre die Route einer Tour ein zweites Mal: Im Blatt erscheint «Gegen deine letzte Fahrt».
+
+**Beispiel:** «−0:42» → beim selben km 42 s schneller als letztes Mal.
+
+### Mehr Orte und eigene Orte
+
+Die Ortssuche mit eigenem Umkreis (1 bis 50 km), mehr Arten, eigenen Arten mit OpenStreetMap-Tags und eigenen Orten: von Hand, per Tipp auf die Karte oder aus einer GPX-, KML- oder CSV-Datei.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne die Ortssuche auf der Live-Karte oder einer Rennkarte und gib deinen Umkreis ein.
+2. Unter «Meine eigenen Orte» fügst du einen Ort hier, per Tipp auf die Karte oder aus einer Datei hinzu.
+
+**Beispiel:** Eine CSV mit den Kontrollpunkten des Rennens → alle als eigene Orte auf der Karte.
+
+### ÖV in deiner Nähe
+
+Auf der Live-Karte: die Haltestellen in deiner Nähe, die nächste zuerst, und mit einem Tipp ihre nächsten Abfahrten mit Gleis und Verspätung. Nur auf Tipp.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne das Blatt der Live-Karte › «ÖV in der Nähe» und tippe auf «Haltestellen suchen».
+2. Tippe auf eine Haltestelle für ihre nächsten Abfahrten.
+
+**Beispiel:** Bahnhof 140 m → S1 in 7 min ab Gleis 2.
+
+### Gruppenfahrt
+
+Mit Freunden oder an einem Event auf einer Karte fahren: Schick einen Link per WhatsApp oder SMS; sie öffnen ihn im Browser ohne App. Wer teilt, ist auf der Karte mit Name, km und wann zuletzt gesehen. Eine Event-Gruppe läuft bis 7 Tage mit Nachtpause und hat eine eigene Seite: Hilfe mit Ton, Startklar und Checkpoints im Rennen, Treffpunkte, Wer hat was, Kosten teilen und Gewitter-Warnung. Am Ende werden alle Standorte gelöscht.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne die Live-Karte und tippe «Gruppe einladen» (schreib zuerst deinen Namen).
+2. Schick den Link per WhatsApp oder SMS; Freunde öffnen ihn und tippen «Meinen Standort teilen».
+3. Alle sehen alle, die teilen. An einem Event wähle 3 oder 7 Tage, dann «Gruppenfahrt öffnen»: Hilfe, Startklar, Treffpunkte, Sachen, Kosten.
+
+**Beispiel:** Vier Freunde auf der Jura-Runde → Lea ist bei km 42 der Strecke, vor 2 Min. gesehen.
+
+### Stopps in der Nähe
+
+Brunnen, Tankstellen, Restaurants, Läden, WC, Bancomat, Apotheke, Pumpe, Veloläden, Bahnhöfe und Betten: um dich herum oder entlang der Strecke einer Tour, mit Distanz, Öffnungszeiten und dem Weg dorthin. Von Heute, jeder Tour-Seite und der Live-Karte aus.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Tippe auf Heute auf «Stopps in der Nähe» (oder auf einer Tour-Seite, oder in der Live-Karte › «Stopps»).
+2. Wähle «Um mich» oder «Entlang der Strecke» und die Arten, die du willst.
+3. Tippe auf «Google Maps» oder «OsmAnd», um hinzufahren.
+
+**Beispiel:** Durst auf der Fahrt → «Um mich», nur «Wasser» → der nächste Brunnen ist 0,8 km entfernt.
+
+### Wo schlafe ich heute?
+
+Im Renn-Modus und auf der Live-Karte: die nächsten Schlafplätze vor dir, auch Bushaltestellen mit Dach, Hütten, Wartesäle, Biwakschachteln und Orte, die die ganze Nacht offen sind, mit Ankunft, Dach, Wasser, WC und dem Wetter in der Nacht. Bei Regen Dächer zuerst, bei Kälte Betten.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne ein Rennen › «Renn-Modus» (lade zuerst die Orte unter «Entlang der Strecke»).
+2. Schau bei «Wo schlafe ich heute?» und schalte Arten ein oder aus.
+3. Auf der Live-Karte steht es im Blatt unten.
+
+**Beispiel:** Heute Nacht Regen → die Bushaltestelle mit Dach in 6 km kommt vor dem Camping in 4 km.
+
+### Hotels für heute Nacht
+
+Am Nachmittag die Hotels dort, wo du am Abend bist, mit Telefon, Mail und den Zeiten der Rezeption bei deiner Ankunft, und ein fertiger Satz auf Deutsch, Französisch, Italienisch oder Englisch zum Anrufen oder Schreiben. Sie merkt sich, wen du gefragt hast und was die Antwort war.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne ein Rennen › «Renn-Modus» › «Hotels für heute Nacht» (ab 12 Uhr, oder tippe auf «Jetzt zeigen»).
+2. Ruf an oder schreib mit dem fertigen Satz; kopiere ihn mit einem Tipp.
+
+**Beispiel:** Ankunft 22:15 in Lausanne → der Satz auf Französisch, «Bonjour, je voyage à vélo …».
+
+### Powernap
+
+Ein Timer für 10, 20 oder 30 Minuten Schlaf mit Wecker, die Stunden, die du wach bist, und ein Vorschlag, wann ein Nickerchen hilft. Der Wecker klingelt nur, solange die App offen ist; stell auch den Wecker im Handy.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne ein Rennen › «Renn-Modus» › «Powernap» und tippe auf 10, 20 oder 30 Min.
+2. Lass die App offen und den Bildschirm an; stell auch den Wecker im Handy.
+3. Tippe auf «Ich bin wach»: der Schlaf kommt in dein Schlaf-Protokoll.
+
+**Beispiel:** 19 Stunden wach → «ein Powernap von 20 Minuten hilft».
 
 ### Hier bin ich
 
@@ -907,7 +1903,7 @@ Essen und Verbrauchsmaterial mit Ablaufdatum und Bestand; eine Erinnerung zwei W
 
 **Beispiel:** 2 von mindestens 6 Energie-Gels → «Nachkaufen: 4 Energie-Gels».
 
-### Liste vorlesen
+### Vorlesen
 
 Die App liest das nächste Teil vor, das noch nicht eingepackt ist; sag «ok» zum Abhaken oder nimm den grossen Knopf.
 
@@ -966,9 +1962,81 @@ Ab drei Tagen vor einer Tour legt ein Knopf Wetter, Hinweise und News aufs Gerä
 
 **Beispiel:** Am Abend vor einer Bergtour einmal tippen; oben ist das Wetter trotzdem da.
 
+### Ankunft ohne genauen Ort
+
+«Ich bin angekommen» mit so viel Ort, wie zur Person passt: nur angekommen, eine grobe Region oder die genaue Position.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne Ich › Ruhig und persönlich › Teilen mit Vorschau › Ankunft.
+2. Wähle, wie viel Ort, z. B. eine grobe Region.
+3. «Senden» öffnet das Teilen-Fenster des Handys.
+
+**Beispiel:** An den Verein «Im Seeland», an Mama die genaue Position.
+
+### Zeitzonen
+
+Die Uhrzeit an anderen Orten
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne Ich › Werkzeugkasten › Zeitzonen.
+2. Füge einen Ort oder eine Zone hinzu.
+3. Sieh die Uhrzeit dort und den Unterschied zu hier.
+
+**Beispiel:** Reykjavik ist 1 Stunde zurück, Tokio 8 Stunden voraus.
+
+### Kompass
+
+Norden und deine Richtung, vom Handy
+
+**Aufschalten:** Braucht den Bewegungssensor des Handys; ein Computer hat keinen Kompass.
+
+1. Öffne Ich › Werkzeugkasten › Kompass.
+2. Erlaube einmal den Bewegungssensor.
+3. Halte das Handy flach und lies deine Richtung.
+
+**Beispiel:** Du fährst nach Südwesten, der Wind kommt von Westen.
+
+### Sätze im Ausland
+
+Wichtige Sätze, offline
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne Ich › Werkzeugkasten › Sätze im Ausland.
+2. Wähle die Sprache.
+3. Zeig der Person den Satz.
+
+**Beispiel:** «Est-ce que je peux remplir ma gourde ?»
+
+### Licht-Wecker
+
+Am Vorabend, wenn die Fahrt nach Sonnenuntergang weitergeht: Licht und Reflexweste einpacken.
+
+**Aufschalten:** Braucht eingeschaltete Mitteilungen für die App auf diesem Handy.
+
+1. Öffne Ich › Erinnerungen aufs Handy.
+2. Schalte «Licht-Wecker» ein.
+3. Am Vorabend einer späten Fahrt kommt die Nachricht von selbst.
+
+**Beispiel:** «Jura-Runde: Du fährst nach Sonnenuntergang (21:10). Licht und Reflexweste einpacken.»
+
+### Start-Check
+
+Fünf Checks am Parkplatz einer Skitour und deine Umkehrzeit.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne Touren › Skitouren › Start-Check.
+2. Geh am Parkplatz die fünf Checks durch.
+3. Setze deine Umkehrzeit.
+
+**Beispiel:** LVS-Check gemacht, spätestens um 12:30 umkehren.
+
 ## Nach der Tour
 
-### Rückblick in 1 Minute
+### Rückblick
 
 Ein Rückblick dauert eine Minute und sagt der App, was du wirklich gebraucht hast.
 
@@ -1001,7 +2069,7 @@ Lade ein paar GPX-Fahrten, dann rechnen die Fahrzeiten mit deinem eigenen Tempo.
 
 **Beispiel:** Dein Tempo ist 19 km/h auf Gravel → eine 76-km-Route zeigt etwa 4 h.
 
-### Gewichtstrend
+### Touren im Vergleich
 
 Vergleiche Touren und sieh, wie sich dein Basisgewicht von Tour zu Tour ändert.
 
@@ -1011,6 +2079,64 @@ Vergleiche Touren und sieh, wie sich dein Basisgewicht von Tour zu Tour ändert.
 2. Sieh, wie sich das Basisgewicht von Tour zu Tour ändert.
 
 **Beispiel:** Basisgewicht 9.2 kg im Mai, 7.8 kg im September.
+
+### Panne notieren
+
+Platten oder Kettenriss im Rückblick notieren: daraus wird eine Velopflege-Aufgabe, und nächstes Mal wird beim Packen das Ersatzteil vorgeschlagen.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Im Rückblick unter «Fürs nächste Mal» «Panne notieren» tippen.
+2. Wähle, was kaputt ging; mit dem Häkchen wartet eine Aufgabe in der Velopflege.
+3. «Ein Check fürs nächste Mal» ankreuzen: Er kommt am Vorabend jeder nächsten Tour dieser Art.
+
+**Beispiel:** Ein Platten nach dem Pass → eine Aufgabe «Reifen und Schlauch prüfen» und nächstes Mal «Ersatzschlauch» als Vorschlag.
+
+### Dein Tag zum Hören
+
+Die Sprachnotizen eines Tourentags im Rückblick, nach Zeit und km: Ein Tipp spielt alle ab, die Reihenfolge bestimmst du, «Als Text» macht auf diesem Gerät Wörter daraus.
+
+**Aufschalten:** Braucht Sprachnotizen von einer Tour.
+
+1. Öffne den Rückblick einer Tour.
+2. «Dein Tag zum Hören» spielt alle Sprachnotizen des Tages ab; Pfeile oder Ziehen ändern die Reihenfolge.
+3. «Als Text» macht auf diesem Gerät Wörter daraus.
+
+**Beispiel:** Fünf Notizen vom Jura-Tag, 2 Min am Stück.
+
+### Verbrauch buchen
+
+Zähle, was die Tour verbraucht hat, und buche es: Der Vorrat sinkt, die Einkaufsliste füllt sich, die Kosten gehen zur Tour und die nächste Packliste erinnert sich.
+
+**Aufschalten:** Braucht Essen oder andere Dinge mit Vorrat auf der Liste.
+
+1. Öffne den Rückblick einer Tour.
+2. Mit + und − zählen, was verbraucht wurde; unterwegs Gekauftes ergänzen.
+3. «Buchen» senkt den Vorrat, füllt die Einkaufsliste und schreibt die Kosten; Rückgängig nimmt es zurück.
+
+**Beispiel:** 4 von 6 Gels verbraucht → Vorrat 2, Gels auf der Einkaufsliste.
+
+### Schlafplatz bewerten
+
+Bewerte mit 1–5 Sternen und einer Notiz, wo du geschlafen hast; planst du in der Nähe, erscheinen sie wieder.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Im Rückblick «Schlafplatz bewerten» tippen: Sterne, Notiz, die Nacht.
+2. Plane eine Tour in der Nähe: Planen zeigt «Deine Schlafplätze hier».
+
+**Beispiel:** Ein ruhiger Zeltplatz am See mit 5 Sternen → er erscheint bei der nächsten Tour in der Gegend wieder.
+
+### Tourbild
+
+Ein Bild einer Tour oder einer Fahrt mit deinem Foto, der Linie und den Zahlen, auf dem Gerät gemacht und vom Handy geteilt: im Rückblick einer Tour und nach einer Fahrt auf der Live-Karte.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Tippe im Rückblick auf «Tourbild» und füge auf Wunsch ein Foto hinzu; nach einer Fahrt auf der Live-Karte kommt es unter «Deine Fahrt».
+2. «Teilen» öffnet das Teilen-Menü; am Computer lädt «Speichern» das Bild herunter.
+
+**Beispiel:** Ein Foto vom Pass, die Linie der Tour und 212 km, 3100 Höhenmeter, 2 Tage auf einem Bild.
 
 ### Was hast du nicht gebraucht?
 
@@ -1079,7 +2205,7 @@ Alle Erkenntnisse nach Thema, mit Suche.
 
 **Beispiel:** Suche «Essen» → «bei langen Anstiegen alle 45 Minuten essen».
 
-### Bestwerte
+### In Zahlen
 
 Längste Tour, weitester Tag, meiste Höhenmeter, aus deinen GPX.
 
@@ -1090,7 +2216,7 @@ Längste Tour, weitester Tag, meiste Höhenmeter, aus deinen GPX.
 
 **Beispiel:** Längster Tag 148 km, meiste Höhenmeter 2600 Hm.
 
-### Tour-Karte und Tage
+### Reise-Spur
 
 Eine zoombare Karte der Tour mit der Linie jedes Tages, Orten, Notizen und Fotos; die Tage einzeln und dein Neuland.
 
@@ -1112,7 +2238,7 @@ Ein Lese-Link zu einer Tour, ohne Konto: Linie, km und Orte; verschlüsselt, und
 
 **Beispiel:** Die Familie verfolgt die Tour ohne Konto; Fotos bleiben auf deinem Handy.
 
-### Reisebuch als PDF
+### Reisebuch
 
 Die Tour als PDF: die ganze Linie, dann eine Seite pro Tag mit Orten, Notizen und Fotos.
 
@@ -1122,6 +2248,42 @@ Die Tour als PDF: die ganze Linie, dann eine Seite pro Tag mit Orten, Notizen un
 2. PDF speichern oder drucken.
 
 **Beispiel:** Ein Titelblatt mit der ganzen Linie, dann eine Seite pro Tag mit ihren Fotos.
+
+### Neu seit gestern
+
+Nach einer Fahrt eine ruhige Zeile auf Heute: was du zum ersten Mal erreicht hast; ein Tipp öffnet Neuland.
+
+**Aufschalten:** Erscheint nur am Tag einer Fahrt und am Tag danach.
+
+1. Fahr irgendwohin, wo du noch nie warst; die Route oder die Fahrt zählt.
+2. Heute zeigt «Neu seit gestern: …» unter dem Gruss.
+3. Tippe es an für Neuland, oder × zum Schliessen.
+
+**Beispiel:** Eine Fahrt um den See → «Neu seit gestern: 3 Gemeinden, 1 See».
+
+### Neue Kilometer
+
+Pro Jahr und pro Fahrt: wie viele km auf Strassen, die du zum ersten Mal gefahren bist, in Neuland.
+
+**Aufschalten:** Braucht Fahrten mit Linie: Strava, eine GPX-Datei oder eine eigene Aufzeichnung.
+
+1. Öffne Touren › Rückblick › Neuland.
+2. Scrolle zu «Neue Kilometer»: jedes Jahr mit seinen neuen km und dem Anteil.
+3. Darunter: deine letzten Fahrten mit neuen km.
+
+**Beispiel:** 3210 km dieses Jahr, davon 412 km neu (13 %).
+
+### Erfüllte Träume
+
+Ein gefahrener Traum zählt als erfüllt, sobald sein Rückblick fertig ist: unter Träume mit Monat und Foto und in der Jahreskarte des Rückblicks.
+
+**Aufschalten:** Braucht einen als Tour geplanten Traum und den Rückblick dieser Tour.
+
+1. Plane einen Traum als Tour (Touren › Träume › der Traum › «Tour planen»).
+2. Schliess nach der Tour ihren Rückblick ab.
+3. Der Traum steht unter «Erfüllte Träume» und in der Jahreskarte.
+
+**Beispiel:** «Über die Furka» im Juli gefahren → «Erfüllt im Juli 2026», mit Foto.
 
 ### Tour-Kosten
 
@@ -1135,6 +2297,18 @@ Wer auf einer Tour was bezahlt hat, alles in Franken, wer wem schuldet, und «Pe
 
 **Beispiel:** Du hast das Hotel für drei bezahlt, 180 CHF → Anna und Ben zahlen dir je 60 CHF.
 
+### Tour-Seite
+
+Karte, Profil, Kennzahlen, Tagebuch und Fotos einer abgeschlossenen Tour, die Werte wie auf dem Garmin (NP, Bestwerte 1 bis 20 Minuten, Stopps) und der Ruhepuls von Fitbit; Strava-Werte korrigieren, umbenennen, ausblenden oder löschen; Fahrten zu einer Tour verbinden.
+
+**Aufschalten:** Gilt für Strava-Fahrten, verbundene Touren und Touren mit Packliste.
+
+1. Öffne Touren › Fahrten und tippe auf eine abgeschlossene Tour.
+2. Unter «Werte» zeigt «Wie auf dem Garmin» die NP, die Bestwerte und deinen Ruhepuls an diesem Tag.
+3. Unter «Mehrere wählen» Fahrten auswählen und zu einer Tour verbinden.
+
+**Beispiel:** Zwei Strava-Fahrten eines Wochenendes → verbinden, die Tour umbenennen, Fotos dazu.
+
 ### Tour-Tagebuch
 
 Öffnest du den Rückblick, steht ein Entwurf fürs Tagebuch da: Strava-Fahrten, Wetter, Notizen und was neu war; Fotos dieser Tage bleiben auf dem Gerät.
@@ -1147,7 +2321,7 @@ Wer auf einer Tour was bezahlt hat, alles in Franken, wer wem schuldet, und «Pe
 
 **Beispiel:** «Tag 1 · Samstag: 84 km, 1’240 m hoch in 4 h 10 min. Wetter: 14 bis 24 °C, trocken.»
 
-### Mehr Fragen im Rückblick
+### Mehr lernen
 
 10 freiwillige Fragen; die 2 passendsten stehen offen da; ändern, ausschalten oder eigene dazu.
 
@@ -1163,7 +2337,7 @@ Wer auf einer Tour was bezahlt hat, alles in Franken, wer wem schuldet, und «Pe
 
 Eine Notiz von unterwegs wird mit einem Tipp zum To-do: in einer Checkliste, einer deiner Notizen oder Google Aufgaben.
 
-**Aufschalten:** Google Aufgaben erscheint als Ort, sobald es unter Ich › Kalender und Aufgaben eingeschaltet ist.
+**Aufschalten:** Google Aufgaben erscheint als Ort, sobald es unter Planen › Termine und Aufgaben eingeschaltet ist.
 
 1. Öffne den Rückblick einer Tour; die Notizen von unterwegs stehen da.
 2. Wähle unter «To-dos kommen nach»: eine neue Checkliste, eine deiner Notizen oder eine Liste in Google Aufgaben.
@@ -1195,7 +2369,7 @@ Alles auf einer Zeitachse, eine Seite pro Monat: Touren, Fahrten, Pflege, Medita
 
 **Beispiel:** 19. Oktober: «Jurahöhen» 2025, 132 km, «Zu viel Werkzeug dabei».
 
-### Was die App gelernt hat
+### Gelernt
 
 Eine Monatskarte und ein Jahresbrief: neue Learnings, angepasste Vorlagen, dein Tempo, die Kleidergrenze, km und Touren.
 
@@ -1231,21 +2405,153 @@ Neuland: Kantone, Gemeinden, Länder, Pässe, Hütten, Gipfel und Seen, die du z
 
 **Beispiel:** Eine Tagestour über den Klausenpass → Uri und Glarus neu, der Klausenpass abgehakt, zwei Bingo-Reihen näher.
 
+### Heatmap
+
+Alle deine Fahrten auf einer Karte: je öfter du irgendwo warst, desto kräftiger die Farbe; Filter nach Jahr, Sportart, Velo und Tour.
+
+**Aufschalten:** Geht mit Strava-Fahrten, hochgeladenen GPX-Fahrten und in der App aufgezeichneten Strecken.
+
+1. Öffne Touren › Rückblick › Heatmap.
+2. Wähle Wolken oder Linien; filtere nach Jahr, Sportart, Velo oder Tour und Alltag.
+3. Tippe auf eine farbige Linie: Die Fahrten dort stehen darunter, jede mit ihrer Seite.
+
+**Beispiel:** 2026, nur Velo → dein Arbeitsweg leuchtet dunkelrot, die Jura-Tour ist eine feine orange Linie.
+
 ### Tour am Abend bewerten
 
-An einem Tourtag fragt der Abend-Rückblick, wie die Tour heute war, 1 bis 10, solange alles frisch ist; das kommt in den Rückblick und ins Tagebuch.
+An einem Tourtag fragt der Abend-Rückblick, wie die Tour heute war, 1 bis 10, solange alles frisch ist; das kommt in den Rückblick und ins Tagebuch. Bei 5 oder weniger kannst du auch sagen, woran es lag: Erlebnis, Plan oder Körper.
 
 **Aufschalten:** Erscheint nur an den Tagen einer Tour.
 
 1. Öffne an einem Tourtag den Abend-Rückblick auf Heute.
-2. Tippe bei «Wie war die Tour heute?» eine Zahl an; ein zweites Tippen nimmt sie zurück.
+2. Tippe bei «Wie war die Tour heute?» eine Zahl an; bei 5 oder weniger auch Erlebnis, Plan und Körper bewerten.
 3. Die Zahl kommt in den Rückblick; der Tagebuch-Entwurf nennt sie für diesen Tag.
 
 **Beispiel:** Tag 2 der Jura-Runde → 8 von 10; im Tagebuch steht «Am Abend bewertet: 8 von 10».
 
+### Gut ankommen
+
+Wieder zu Hause nach einer Tour: Nasses, Wäsche, Zurückgeben, Belege, das Velo zurück in den Alltag, «Bin zu Hause», Rückblick; früher beendet: was noch gebucht ist. Was wartet, wird ein To-do für morgen.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Tippe nach «Tour beendet» auf «Gut ankommen».
+2. Hake ab, was erledigt ist; «Später» für das, was wartet.
+3. «Als To-do merken» legt es für morgen ins Merken.
+
+**Beispiel:** Zelt aufgehängt, Wäsche drin → «Erledigt»; geliehener Kocher → «Später», To-do für morgen.
+
+### Brief für einen Moment
+
+Ein Brief an dich selbst, der sich in einem Moment öffnet, den du wählst: die erste Nacht der nächsten Tour, ihr Start, der Tag danach, nach einer Pause oder an einem Datum.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne Ich › Ruhig und persönlich › Dein späteres Ich.
+2. Wähle den Moment und schreib deinen Brief.
+3. Wenn der Moment kommt, sagt eine Zeile oben, dass ein Brief wartet.
+
+**Beispiel:** «Für die erste Nacht: Es ist immer laut. Der Schlaf kommt.»
+
+### Deinen alten Briefen antworten
+
+Dein späteres Ich antwortet auf einen geöffneten Brief; die Antwort kann den nächsten Brief beginnen, so werden die Briefe eine Geschichte über mehrere Touren.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne einen geöffneten Brief unter «Deinen alten Briefen antworten».
+2. Schreib deine Antwort und behalte sie.
+3. «Den nächsten Brief schreiben» erzählt die Geschichte weiter.
+
+**Beispiel:** «Es war laut, und ich habe trotzdem geschlafen» → der nächste Brief für die nächste Tour.
+
+### Touren nach Bedeutung
+
+Deine eigenen Marken für eine Tour, wie «Mit Freunden» oder «Erste Nacht draussen», und die Touren, die du damit findest, jenseits von km und Höhenmetern.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne Ich › Ruhig und persönlich › Bedeutung neben Zahlen.
+2. Tippe die Marken einer Tour an.
+3. Tippe oben auf eine Marke, um ihre Touren zu sehen.
+
+**Beispiel:** «Mit Freunden» → die vier Touren mit Freunden, die neuste zuerst.
+
+### Gute Entscheidungen
+
+Eine private Sammlung guter Entscheidungen: bewusst umgekehrt, Hilfe angenommen, einen Tag frei genommen. Keine Rangliste.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne Ich › Ruhig und persönlich › Bedeutung neben Zahlen › Gute Entscheidungen.
+2. Tippe einen Anfang an oder schreib deinen eigenen.
+3. «Behalten»; Abend-Antworten «umgeplant, gut» zeigen sich auch.
+
+**Beispiel:** «Unter dem Pass umgekehrt, das Gewitter kam eine Stunde später».
+
+### Dein eigenes Entdeckerbingo
+
+Ein Bingo mit deinen eigenen Feldern, wie ein guter Brunnen oder ein Ort mit Geschichte; ein Fund pro Feld, keine öffentliche Rangliste.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne Ich › Ruhig und persönlich › Bedeutung neben Zahlen › Dein eigenes Entdeckerbingo.
+2. Tippe ein Feld an und schreib, wo du es gefunden hast.
+3. Ändere die Felder unter «Felder ändern».
+
+**Beispiel:** «Ein guter Brunnen» → Brunnen in Twann, noch 3 Felder bis zum ersten Bingo.
+
+### War es Wissen, nicht Material?
+
+Nach einer Tour: Wenn eine Anleitung, die Planung oder eine Fertigkeit fehlte, wird daraus eine «Zu lernen»-Karte statt eines Kaufwunsches.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne Ich › Ruhig und persönlich › Was du kannst › War es Wissen, nicht Material?
+2. Wähle die Tour und was fehlte.
+3. Schreib, was du lernen willst; es landet auf deiner Fähigkeiten-Karte.
+
+**Beispiel:** Kocher ging im Wind nicht an → «zu lernen», kein neuer Kocher.
+
+### Fürs nächste Mal
+
+Was du für die nächste Packliste sammelst: bewährt, nur mitgefahren, gefehlt.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne Planen › Freie Zeit › Fürs nächste Mal.
+2. Füge ein Ding hinzu und markiere es: bewährt, mitgefahren oder gefehlt.
+3. Nimm die Liste mit, wenn du das nächste Mal packst.
+
+**Beispiel:** Gefehlt: ein zweites Buff; bewährt: der kleine Kocher.
+
+### Nach der Tour
+
+Gipfel, Höhenmeter, wer dabei war und drei Fragen; daraus werden Erkenntnisse.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne Touren › Skitouren › Nach der Tour.
+2. Trag Gipfel, Höhenmeter und wer dabei war ein.
+3. Beantworte die drei Fragen.
+
+**Beispiel:** «200 m unter dem Gipfel umgekehrt: der Wind war zu stark.»
+
+### Faustregeln aus deinen Rückblicken
+
+Zeigen deine beendeten Touren ein Muster für einen eigenen Baustein, z. B. nur unter 8 °C gebraucht, schlägt die App diese Regel vor; du entscheidest.
+
+**Aufschalten:** Braucht einen eigenen Baustein und mindestens 4 beendete Touren damit.
+
+1. Öffne Ich › So entscheidet die App.
+2. Oben steht eine Faustregel, die die App in deinen Rückblicken gefunden hat.
+3. «Als Regel übernehmen» speichert sie am Baustein; «Diese nicht» beendet den Vorschlag.
+
+**Beispiel:** Baustein «Warmes» auf 2 Touren unter 6 °C gebraucht, auf 2 Touren über 12 °C nicht → Regel «unter 9 °C».
+
 ## Velo
 
-### Velo-Setup
+### Taschen-Plan
 
 Das Velo-Setup zeigt, welche Tasche wo sitzt, mit ihrem Gewicht.
 
@@ -1256,7 +2562,7 @@ Das Velo-Setup zeigt, welche Tasche wo sitzt, mit ihrem Gewicht.
 
 **Beispiel:** Satteltasche 1.4 kg, Rahmentasche 0.9 kg, Lenkerrolle 1.1 kg.
 
-### Velopflege
+### Pflege
 
 Die Velopflege sagt dir, wann Kette, Beläge und Reifen fällig sind.
 
@@ -1267,7 +2573,7 @@ Die Velopflege sagt dir, wann Kette, Beläge und Reifen fällig sind.
 
 **Beispiel:** Kette bei 2900 von 3000 km → «Kette bald fällig».
 
-### Werkstattauftrag
+### Auftrag für den Velomech
 
 Ein Werkstattauftrag listet, was die Werkstatt machen soll, bereit zum Drucken.
 
@@ -1278,7 +2584,7 @@ Ein Werkstattauftrag listet, was die Werkstatt machen soll, bereit zum Drucken.
 
 **Beispiel:** «Kette wechseln, Bremsen entlüften, Radlager prüfen» auf einer Seite.
 
-### Quittung fotografieren
+### Belege
 
 Fotografiere die Werkstatt-Quittung; sie wartet im Eingang.
 
@@ -1295,7 +2601,7 @@ Tipp die km vom Zähler ein, dann weiss die Velopflege, was fällig ist.
 
 **Aufschalten:** Braucht zuerst ein Velo: Velos › «Velo hinzufügen».
 
-1. Tippe «Neu» › «km für ein Velo».
+1. Tippe «Neu» › «km eintragen».
 2. Tippe ein, was der Zähler zeigt, und speichere.
 
 **Beispiel:** Zähler 12400 → die Velopflege weiss, dass die Kette in 300 km fällig ist.
@@ -1311,7 +2617,7 @@ Ein Strava-Export oder Garmin-Dateien: km pro Velo, nach Sensor oder deinen Rege
 
 **Beispiel:** 40 Fahrten aus dem Export → 1850 km zum Gravelbike.
 
-### Strava-Verbindung
+### Strava verbinden
 
 Fahrten mit ihrem Velo aus Strava, von selbst geholt; ein geändertes Velo fragt zuerst.
 
@@ -1322,7 +2628,7 @@ Fahrten mit ihrem Velo aus Strava, von selbst geholt; ein geändertes Velo fragt
 
 **Beispiel:** Die Samstagsfahrt auf Strava → ihre 64 km landen von selbst beim richtigen Velo.
 
-### Velo-Setup und Race-Rigs
+### Mein Setup
 
 Deine Setup-Fotos, das Gesamtgewicht, deine Race-Rig-Links und Rennen, und dein Velo im Vergleich.
 
@@ -1355,7 +2661,7 @@ Welche Tasche wo sitzt, Gewicht vorne, Mitte und hinten, Hinweise zum Umpacken.
 
 **Beispiel:** Hinweis «Hinten ist schwer» → den Kocher in die Rahmentasche verschieben.
 
-### Taschen-Setups pro Velo
+### Taschen-Setups
 
 Mehrere Taschen-Setups pro Velo: welche Taschen und was wohin kommt, Gewichte, zwei oder alle vergleichen, beim Planen eins wählen.
 
@@ -1390,9 +2696,9 @@ Muster-Datenseiten für den Edge 1040 und 850 pro Velo, mit dem Grund für jeden
 
 **Beispiel:** «Leistungspedale» anhaken → die Seite «Leistung im Detail» erscheint, mit 8 Feldern auf dem Edge 1040 und dem Edge 850.
 
-### Problem am Velo
+### Problem erfassen
 
-Ein Problem pro Zeile mit Priorität und Frist; die App sortiert, wer es behebt.
+Ein Problem pro Zeile mit Priorität und Frist; die App sortiert, wer es behebt. Ein Problem wie ein früheres zeigt, was damals gemacht wurde.
 
 **Aufschalten:** Braucht zuerst ein Velo: Velos › «Velo hinzufügen».
 
@@ -1401,9 +2707,9 @@ Ein Problem pro Zeile mit Priorität und Frist; die App sortiert, wer es behebt.
 
 **Beispiel:** «Hinterbremse schleift», hoch, bis Freitag → für die Werkstatt sortiert.
 
-### Werkstatt und Belege
+### Besuche und Belege
 
-Besuche mit Betrag, Arbeiten und Belegfoto; Kosten pro Jahr und pro 1000 km.
+Besuche mit Betrag, Arbeiten und Belegfoto; Kosten pro Jahr und pro 1000 km; eine Rückerstattung getrennt von dem, was du bezahlt hast; der Auftrag mit Kostendach und «vorher anrufen».
 
 **Aufschalten:** Braucht zuerst ein Velo: Velos › «Velo hinzufügen».
 
@@ -1412,13 +2718,13 @@ Besuche mit Betrag, Arbeiten und Belegfoto; Kosten pro Jahr und pro 1000 km.
 
 **Beispiel:** 3 Besuche dieses Jahr, 420 Franken → 14 Franken pro 1000 km.
 
-### Ausstattung
+### Teile
 
 Jedes Teil wie ein Hersteller-Datenblatt: Name, Details, Gewicht, Preis.
 
 **Aufschalten:** Braucht zuerst ein Velo: Velos › «Velo hinzufügen».
 
-1. Öffne Velos › Ausstattung.
+1. Öffne Velos › Teile.
 2. Fülle jedes Teil wie ein Datenblatt: Name, Details, Gewicht, Preis.
 
 **Beispiel:** «Kurbel · 40 Z · 680 g · 190 Franken».
@@ -1429,7 +2735,7 @@ Nur Zeilen mit Wert; am Handy zwei Velos nebeneinander.
 
 **Aufschalten:** Braucht mindestens zwei Velos.
 
-1. Öffne Velos › Ausstattung › alle Velos.
+1. Öffne Velos › Teile › alle Velos.
 2. Nur Zeilen mit Wert erscheinen; auf dem Handy zwei Velos nebeneinander.
 
 **Beispiel:** Gravelbike 9.4 kg gegen Rennvelo 7.9 kg.
@@ -1469,7 +2775,7 @@ Passend zu den Teilen deines Velos; Fehlendes kommt ins Material.
 
 ### Garantie und Belege
 
-Erinnert 30 Tage vor dem Ende einer Garantie; auch als Kalender-Datei.
+Erinnert 30 Tage bevor eine Garantie endet; auch als Kalenderdatei. Ein sauberer Entwurf für eine Reklamation, den du prüfst und selbst schickst.
 
 **Aufschalten:** Braucht ein Velo oder Teil mit Kaufdatum.
 
@@ -1489,7 +2795,7 @@ Rahmennummer, Fotos und Versicherung, bereit für die Polizei.
 
 **Beispiel:** Rahmennummer WTU123X45 und 3 Fotos, bereit zum Drucken für die Polizei.
 
-### Startpunkt eines Teils
+### Startpunkt in der Velopflege setzen
 
 Wann und bei welchen km ein Teil montiert wurde, auch vom anderen Velo.
 
@@ -1522,7 +2828,7 @@ Ski, Felle, LVS und mehr für jede Sportart: ein Zähler der Einsätze und die P
 
 **Beispiel:** Tourenski alle 10 Einsätze wachsen → nach dem 10. Einsatz ist «Belag wachsen» fällig.
 
-### Velo-Service nach km, Stunden oder Tagen
+### Velo-Service
 
 Der Service fürs ganze Velo und die Gabel nach km, Fahrstunden oder Tagen, was zuerst kommt.
 
@@ -1534,7 +2840,7 @@ Der Service fürs ganze Velo und die Gabel nach km, Fahrstunden oder Tagen, was 
 
 **Beispiel:** Mountainbike, 1400 km seit dem Service bei 14 km/h ≈ 100 h → fällig.
 
-### Teilevorlage pro Velo-Art
+### Teilevorlage
 
 Rennvelo, Gravel oder Mountainbike: welche Teile ein Velo bekommt; auch eigene Teile.
 
@@ -1558,6 +2864,234 @@ Rennvelo, Gravel oder Mountainbike: welche Teile ein Velo bekommt; auch eigene T
 
 **Beispiel:** Steckachse 12–15 Nm; dein Vorbau sagt 5 Nm → als eigene Zeile eintragen.
 
+### Verschleiss
+
+Jedes Verschleissteil mit km, Lebensdauer, km übrig und etwa wann; wie lange die Teile davor hielten; der Zähler seit dem letzten Service.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Velos › Pflege › ein Velo › «Verschleiss» (auch auf der Velo-Seite).
+2. Jedes Teil: ein Balken, km übrig und etwa wann, aus deinen km der letzten 8 Wochen.
+3. Ein Werkstattbesuch mit «ersetzt» startet das Teil bei 0 km; «Service am ganzen Velo» setzt den Velo-Zähler auf 0.
+
+**Beispiel:** Kette 2600 von 3000 km → «noch 400 km · etwa im Dezember».
+
+### Kette nach Regen
+
+Nach einer Fahrt im Regen ein Hinweis auf der Seite «Verschleiss» und eine Handy-Erinnerung, die Kette zu trocknen und zu ölen; erledigt zählt als Pflege. Mehrere nasse Fahrten nacheinander ergeben eine Aufgabe «Kette pflegen» und eine Erinnerung, nicht eine pro Fahrt.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Regenfahrt: «Verschleiss» zeigt «Kette trocknen und ölen», das Handy erinnert um 19 Uhr.
+2. «Erledigt: Kette geölt» schreibt einen Pflege-Eintrag für die Kette, und der Hinweis geht.
+3. Ausschalten: Velos › Pflege › ein Velo › «Verschleiss» › «Erinnerungen».
+
+**Beispiel:** Drei kurze Fahrten im Regen → eine Aufgabe «Kette pflegen».
+
+### Kettenlehre in der Prognose
+
+Eine mit der Kettenlehre gemessene Kette korrigiert die Prognose auf der Seite «Verschleiss».
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Miss die Kette in der Velopflege mit der Kettenlehre, z. B. 0.3 %.
+2. «Verschleiss» zeigt den Wert und die km bis 0.5 %.
+3. Nutzt sie sich schneller ab, als die km sagen, folgt die Prognose der Messung.
+
+**Beispiel:** 0.3 % nach 1000 km → noch etwa 650 km bis 0.5 %.
+
+### Jahresrückblick
+
+Pro Velo und Jahr: km, Fahrten, gewechselte Teile, Services, Kosten und was am längsten hielt.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Velos › Pflege › ein Velo › «Verschleiss» › «Jahresrückblick».
+2. Wähle ein Jahr; oben alle Velos, dann jedes Velo.
+3. Jeder Wechsel sagt, wie lange das alte Teil hielt.
+
+**Beispiel:** 2026: 4200 km, Kette und Reifen gewechselt, CHF 160.
+
+### Winter und Frühling
+
+Eine Checkliste, um das Velo einzuwintern, und eine, um es im Frühling bereit zu machen.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Velos › Pflege › ein Velo › «Verschleiss» › «Winter und Frühling».
+2. Hake die Punkte ab; hinzufügen, umbenennen, verschieben oder löschen.
+3. Die Häkchen gelten pro Velo und Saison.
+
+**Beispiel:** «Reifen auf den oberen Druck pumpen» im November abgehakt.
+
+### Geräusch-Notizen
+
+Notiere ein Geräusch mit Tag und km; Tipps aus der Velo-FAQ; nach dem nächsten Wechsel fragt die App, ob es weg ist.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Velos › Pflege › ein Velo › «Verschleiss» › «Geräusche»: beschreib es.
+2. Darunter stehen Tipps aus der Velo-FAQ.
+3. Nach einem Wechsel fragt die App «Ist das Geräusch weg?».
+
+**Beispiel:** «knackt beim Treten» → Tipp «Etwas knackt. Wo?».
+
+### Pflege-Serie nach Regen
+
+Wie oft in Folge du die Kette nach einer Regenfahrt gepflegt hast.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Velos › Pflege › ein Velo › «Verschleiss»: die Zeile unter dem Regen-Hinweis.
+2. Pflege am selben oder am nächsten Tag zählt.
+3. Ein Regentag ohne Pflege startet eine neue Serie.
+
+**Beispiel:** «Kette nach Regen gepflegt: 5 Mal in Folge».
+
+### Teilewechsel im Kalender
+
+Die kommenden Teilewechsel deiner Velos in deinem Google-Kalender «Packgenerator»; der Tag wandert mit deinen km.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Ich › Verbindungen › Kalender «Packgenerator».
+2. Schalte «Teilewechsel deiner Velos» ein.
+3. Am Abend vorher um 18 Uhr erinnert dich das Handy.
+
+**Beispiel:** «Testvelo: Kette ersetzen» am 1. Dezember.
+
+### Verschleiss-Fotos
+
+Fotos von Kette, Kettenblatt und Reifen mit Datum und km; alt neben neu mit Schieber; sie bleiben auf dem Gerät.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Velos › Pflege › ein Velo › «Verschleiss» › «Verschleiss-Fotos».
+2. Pro Teil ein Foto machen; Datum und km kommen dazu.
+3. Zwei Fotos: Schieber ziehen, um alt und neu zu vergleichen.
+
+**Beispiel:** Reifen bei 500 km neben dem Reifen bei 2500 km.
+
+### Verkaufsinserat
+
+Ein Text aus km, Services, Teilen und Fotos zum Kopieren oder Teilen; der Preis ist dein eigenes Feld. Verkauft: eine Übergabeliste mit Schlüsseln, Papieren, Strava und Garmin.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Velos › Pflege › ein Velo › «Verschleiss» › «Verkaufsinserat».
+2. Gib einen Preis und mehr ein, wenn du willst; der Text passt sich an.
+3. «Kopieren» oder «Teilen» zum Marktplatz.
+
+**Beispiel:** «Gravelbike, 4200 km, Kette neu bei 3900 km, letzter Service im Mai».
+
+### Velo verpacken
+
+Für Zug oder Flug: eine Checkliste zum Verpacken des Velos, eigene Punkte und Fotos vor dem Verpacken.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Velos › Pflege › ein Velo › «Verschleiss» › «Velo verpacken».
+2. Hake jeden Punkt ab; Punkte hinzufügen, umbenennen, verschieben oder löschen.
+3. Mach Fotos vor dem Verpacken, als Beweis, falls etwas kaputtgeht.
+
+**Beispiel:** «Pedale ab» abgehakt, Foto vom Rahmen von beiden Seiten.
+
+### Werkstatt-Runden
+
+Deine eigenen Abläufe für die Arbeit zu Hause: Arbeiten, Werkzeug und Material in einer Runde; abgehakte Arbeiten kommen ins Teil.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Velos › Pflege › ein Velo › «Werkstatt-Runden».
+2. Nimm einen Vorschlag oder mach deine eigene Runde: Arbeiten, Werkzeug, Material.
+3. «Runde starten», abhaken, was du gemacht hast, «Fertig»: Die Arbeiten mit Teil kommen ins Teil.
+
+**Beispiel:** «Herbst-Service» mit 5 Arbeiten; Kette und Bremsbeläge abgehakt → beide heute eingetragen.
+
+### Was die nächsten Monate kosten
+
+Die Teile, die in 3, 6 oder 12 Monaten zu Ende gehen, was der letzte Wechsel jedes Teils gekostet hat, die Summe und ein Tipp, um alle auf die Einkaufsliste zu setzen.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Velos › Pflege › ein Velo › «Verschleiss» › «Was die nächsten Monate kosten».
+2. Wähle 3, 6 oder 12 Monate: die Teile, die zu Ende gehen, je mit dem Preis des letzten Wechsels.
+3. «Alle auf die Einkaufsliste» setzt sie dazu; mit Rückgängig sind sie wieder weg.
+
+**Beispiel:** Kette CHF 40 im Dezember, Beläge CHF 25 im März → etwa CHF 65.
+
+### Ersatzteile zu Hause
+
+Wie viele Ersatzteile du zu Hause hast; jeder eigene Wechsel zählt runter; leer kommt auf die Einkaufsliste.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Velos › Pflege › ein Velo › «Verschleiss» › «Ersatzteile zu Hause».
+2. Füge eine Zeile mit Anzahl hinzu, z. B. 2 Ketten.
+3. Du wechselst selbst eine Kette: eine weniger; bei 0 setzt «Einkaufsliste» sie darauf.
+
+**Beispiel:** 2 Ketten, ein Wechsel → «noch 1».
+
+### Was hält am längsten
+
+Wie lange Ketten, Reifen und Bremsbeläge jeder Marke an deinen Velos hielten; gezeigt, wenn du ein neues brauchst.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Velos › Pflege › ein Velo › «Verschleiss» › «Was hält am längsten».
+2. Jede Marke mit ihren km im Schnitt, aus deinen verbrauchten Teilen.
+3. Ein Teil, das bald fällig ist, zeigt die Marke, die am längsten hielt.
+
+**Beispiel:** Ketten Marke A 3400 km, Marke B 2600 km.
+
+### Frühlingsservice
+
+Ein To-do in Merken im Februar mit dem, was an jedem Velo fällig ist; der Monat lässt sich ändern. Nach sechs Wochen ohne Fahrt listet «Nach der Standzeit» auf «Verschleiss», was sich im Stehen verändert.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Velos › Pflege › ein Velo › «Verschleiss» › «Erinnerungen» › «Frühlings-Service».
+2. Wähle den Monat oder «aus».
+3. Das To-do in Planen › Merken listet, was an jedem Velo fällig ist.
+
+**Beispiel:** Das Gravel stand 8 Wochen → «Nach der Standzeit»: Reifen, Dichtmilch, Kette, Bremsen, eine Probefahrt.
+
+### Ketten-Rotation
+
+Mehrere Ketten an einem Velo im Wechsel: km pro Kette und ein Hinweis, wann tauschen.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Velos › Pflege › ein Velo › «Verschleiss» › «Ketten-Rotation» › «Kette hinzufügen».
+2. Tippe «Montieren» bei der Kette, die am Velo ist.
+3. Nach den eingestellten km sagt die App, dass es Zeit zum Tauschen ist.
+
+**Beispiel:** Kette A 480 km, Kette B 450 km; alle 500 km ein Wechsel.
+
+### Velo-FAQ
+
+Fragen zu Pflege, Pannen, Verschleiss, Bikepacking und Mythen, mit Augenzwinkern; eine Frage des Tages und deine eigenen Fragen.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Velos › Pflege › «Velo-FAQ» (auch auf der Karte jedes Velos).
+2. Oben die Frage des Tages; «Andere Frage» zeigt die nächste.
+3. Such oder öffne ein Thema; «Deine eigenen Fragen» behält, was du gelernt hast.
+
+**Beispiel:** Such «quietschen» → warum Scheibenbremsen quietschen und was hilft.
+
+### Velo-Fotos
+
+Setup-Fotos nach Datum; Problem-Fotos zuschneiden oder als PDF.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Velos › Pflege › ein Velo: «Setup-Fotos» oben rechts öffnet den Zeitstrahl; «+ Foto» legt ein Setup von heute an.
+2. «…» bei einem Foto: Datum ändern, umbenennen, hinter dem Velo zeigen, entfernen.
+3. Melde ein Problem mit mehreren Fotos; schneide die Ränder zu oder lege alle als ein PDF unter Ich › Dokumente ab.
+
+**Beispiel:** Foto vom neuen Taschen-Setup → es steht blass oben in der Velopflege und reiht sich unter diesem Monat ein.
+
 ### Velo-Inspektion
 
 Kurzcheck, Monatscheck und grosse Inspektion Punkt für Punkt, mit Werkzeug, Schritten, Drehmoment, Links und wann die Werkstatt besser ist. Regen- und Trail-Fahrten machen sie früher fällig.
@@ -1570,7 +3104,7 @@ Kurzcheck, Monatscheck und grosse Inspektion Punkt für Punkt, mit Werkzeug, Sch
 
 **Beispiel:** Drei Regenfahrten → der Monatscheck kommt früher; Kette bei 0,35 % → etwa so viele km bleiben.
 
-### Druck und Kette messen
+### Werte erfassen
 
 Heute hält den Reifendruck fest und misst die Kette; «Werte erfassen» schlägt einen Solldruck vor, der Abhol-Check prüft beides.
 
@@ -1629,6 +3163,30 @@ Deine eigene Liste von Veloläden und Guides: eine Anfrage per Mail mit deinem V
 
 **Beispiel:** Dein Veloladen → «Anfragen» → Velo «Gravel» → «Di oder Do Vormittag» → «Mail schreiben».
 
+### Teile abgenutzt
+
+Wenn ein Teil seine km erreicht, z. B. die Kette. Um 08:00.
+
+**Aufschalten:** Braucht eingeschaltete Mitteilungen für die App auf diesem Handy.
+
+1. Öffne Ich › Erinnerungen aufs Handy.
+2. Schalte «Teile abgenutzt» ein.
+3. Erreicht ein Teil seine km, kommt um 08:00 eine Nachricht.
+
+**Beispiel:** «Gravel: Die Kette erreicht bald 3000 km (noch 150 km).»
+
+### Saison-Pflege
+
+Pflege der Skiausrüstung zum Saisonstart, während der Saison und zum Saisonende.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne Touren › Skitouren › Saison-Pflege.
+2. Wähle die Phase: Start, während, Ende.
+3. Tippe «Erledigt»; Tag und Höhenmeter bleiben.
+
+**Beispiel:** Felle nach 6000 Höhenmetern neu geleimt.
+
 ## Aktiv
 
 ### Heute abhaken
@@ -1642,7 +3200,7 @@ Ein Tipp pro Aktivität, mit Rückgängig, auch auf Heute.
 
 **Beispiel:** Tipp auf «Dehnen» → für heute abgehakt.
 
-### Ringe und Tagescheck
+### Ringe
 
 Bewegen, Achtsam und Erholung über 7 Tage; Schlaf, Energie und Stimmung.
 
@@ -1653,7 +3211,7 @@ Bewegen, Achtsam und Erholung über 7 Tage; Schlaf, Energie und Stimmung.
 
 **Beispiel:** Schlaf gut, Energie mittel → der Erholungsring füllt sich etwas.
 
-### Stoppuhr mit Klangschale
+### Stoppuhr
 
 Lange auf eine Aktivität drücken; sie läuft auf jeder Seite weiter.
 
@@ -1664,7 +3222,7 @@ Lange auf eine Aktivität drücken; sie läuft auf jeder Seite weiter.
 
 **Beispiel:** 15 Min Countdown für Yoga → am Ende klingt die Klangschale.
 
-### Eine Seite pro Sportart
+### Meine Sportarten
 
 Dieselben Bausteine für jede Sportart: Ausrüstung, Packliste, Verlauf und Fortschritt, Ziele, Pflege, Wetter und «Fürs nächste Mal»; ausschalten, umbenennen, verschieben oder eigene dazunehmen.
 
@@ -1712,7 +3270,7 @@ Trainingspläne fürs Gym, Tennis-Lektionen und Spiele, Pendel-km und Runden ab 
 
 **Beispiel:** Gravel › «Wasser und Schotter auf der Route» zeigt Brunnen und den Schotteranteil einer Route.
 
-### Ziele und Tage
+### Meine Sportarten
 
 Rollende Fenster: täglich, 7, 10 oder 30 Tage, mit Saison.
 
@@ -1723,7 +3281,7 @@ Rollende Fenster: täglich, 7, 10 oder 30 Tage, mit Saison.
 
 **Beispiel:** «3-mal Kraft in 7 Tagen», nur von Oktober bis März.
 
-### Jahresziele und Fussabdruck
+### Jahresziele
 
 Je ein Jahresziel für km, Höhenmeter und Minuten, jedes abwählbar; das CO₂, das deine Fahrten gespart haben.
 
@@ -1734,30 +3292,19 @@ Je ein Jahresziel für km, Höhenmeter und Minuten, jedes abwählbar; das CO₂,
 
 **Beispiel:** Jahresziel 4000 km und 40 000 Höhenmeter; Minuten ausgeschaltet.
 
-### Angebote
-
-Gib freie Zeiten für Tennis, eine geführte Tour oder einen Velo-Service frei; die Leute buchen über einen Link, ohne App.
-
-**Aufschalten:** Braucht den Buchungs-Server; online bezahlen nur im Testmodus.
-
-1. Öffne Ich › Angebote und starte «Tennis-Lektion», eine Tour, einen Velo-Service oder ein eigenes Angebot.
-2. Tippe + an einem Tag, um eine freie Zeit freizugeben, und schick dann den Link per WhatsApp.
-3. Neue Buchungen erscheinen auf Heute; tippe eine Zeit an, um zu sehen, wer kommt, oder um sie abzusagen.
-
-**Beispiel:** Montags 18:00 Gruppenlektion jede Woche → eine Schülerin bucht über den Link, Heute zeigt «Neue Buchung».
-
 ### Wi gaht's?
 
-Verspielte Fragen mit eigenem Rhythmus, eine Morgen- und eine Abend-Runde, ein Verlauf und eine Auswertung.
+Verspielte Fragen mit eigenem Rhythmus, eine Morgen- und eine Abendrunde, ein Verlauf und eine Auswertung. Fragen und Bereiche selbst ändern, löschen, hinzufügen und sortieren; einzelne Fragen überspringen.
 
 **Aufschalten:** Immer da, nichts zu tun.
 
 1. Öffne Ich › «Wi gaht's?»: Schalte Fragen ein oder aus, ändere ihren Rhythmus oder lege eigene an.
-2. Ab 07:00 und 20:30 stellt sie die Karte auf Heute; Ich › Daten › Verlauf zeigt alle Antworten.
+2. Tippe «Fragen und Bereiche bearbeiten»: Fragen und Bereiche ändern, löschen, sortieren und hinzufügen.
+3. Ab 07:00 und 20:30 stellt sie die Karte auf Heute; «Überspringen» legt eine weg. Ich › Daten › Verlauf zeigt alle Antworten.
 
 **Beispiel:** «Wie voll ist dein Akku?» dreimal am Tag → die Kachel «Morgen-Runde» zeigt Schlaf, Energie und Stimmung.
 
-### Tipps und «Wusstest du»
+### Alle Tipps
 
 Ein Tipp pro Tag an zwölf Orten, was die App dort kann und Beispiele, die du als Notiz behältst; Erde und Everest in Vergangene Touren.
 
@@ -1765,7 +3312,7 @@ Ein Tipp pro Tag an zwölf Orten, was die App dort kann und Beispiele, die du al
 
 1. Öffne Packen, Unterwegs oder einen anderen Ort: Unter dem Titel steht der Tipp des Tages; «Alle Tipps ›» zeigt alle, jeden mit Schalter.
 2. Am Seitenende: «Das kann die App hier»; jede Zeile öffnet ihren Ort.
-3. Manche Orte zeigen ein Beispiel: «Als Notiz speichern» legt es unter Ich › Notizen ab.
+3. Manche Orte zeigen ein Beispiel: «Als Notiz speichern» legt es unter Planen › Notizen ab.
 
 **Beispiel:** An einem Regentag sagt Packen zuerst, die Regenjacke nach oben zu legen; «Nur nützliche Tipps» hält die «Wusstest du»-Sätze fern.
 
@@ -1783,13 +3330,13 @@ Eine Wanderung, ein Lauf oder eine Skitour auf Strava hakt die passende Aktivit�
 
 ### Seetemperatur
 
-Die Wassertemperatur des Zürichsees beim Mythenquai, die letzten 30 Tage und eine Vorschau der nächsten Tage von der Eawag.
+Die Wassertemperatur im Zürisee beim Mythenquai mit einer Skala zum Kaltbaden, «Sauna und See heute?», deine Bäder mit ihrer Wassertemperatur, die letzten 30 Tage und eine Vorschau der Eawag.
 
 **Aufschalten:** Nichts einzuschalten; die Karte auf Aktiv holt den Wert.
 
-1. Öffne Aktiv.
-2. Die Karte «Zürichsee» zeigt das Wasser jetzt, die letzten 30 Tage und die Eawag-Vorschau.
-3. Unter «Hinweis zum Schwimmen» stellst du ein, ab wie vielen Grad es dir warm genug ist.
+1. Öffne Aktiv: die Karte «Zürisee» zeigt das Wasser mit der Skala angenehm, frisch, kalt, eisig.
+2. «Sauna und See heute?»: ein Tipp hakt die Sauna oder das Bad ab; jedes Bad merkt sich seine Wassertemperatur, mit deinem kältesten.
+3. Unter «Skala zum Kaltbaden» stellst du die Grenzen ein, die zu dir passen.
 
 **Beispiel:** 21,4 °C beim Mythenquai, Vorschau 22 °C am Samstag → ein Schwumm nach der Fahrt.
 
@@ -1805,7 +3352,7 @@ Velo-km aus Strava, Fitbit-Werte als Beobachtung, der Tages-Check, nichts verges
 
 **Beispiel:** 1000 km Velo in diesem Jahr → der zweite Velo-Stern.
 
-### Training mit Pulszonen
+### Dein Training nach Pulszonen
 
 Jede Aktivität aus Strava mit den Minuten in jeder Zone; Woche planen und Rückblick.
 
@@ -1816,6 +3363,51 @@ Jede Aktivität aus Strava mit den Minuten in jeder Zone; Woche planen und Rück
 3. Tippe «Aktivitäten» und eine Aktivität: die Minuten in jeder Pulszone.
 
 **Beispiel:** Dienstag 60 Min in Z2 geplant → nach dem Lauf auf Strava steht sie als erledigt da.
+
+### Form und Erholung
+
+Jeden Morgen eine Bereitschaft von 0 bis 100 und was heute passt, aus all deinen Aktivitäten, Fitbit und dem Morgen-Check; 12 Wochen Fitness und Form und die Tour-Bereitschaft.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne Aktiv: Die Karte oben zeigt deine Bereitschaft von 0 bis 100 und was heute passt.
+2. Tipp sie an für die Seite «Form und Erholung»: was heute zählt, 12 Wochen Fitness und Form und die Tour-Bereitschaft.
+
+**Beispiel:** Ruhepuls 6 über deinem Normal und eine kurze Nacht → 38, «Heute passt eine lockere Fahrt».
+
+### Überblick
+
+Die Aktivitäten von heute, die letzten 7 Tage jeder Sportart zum Wischen, Puls, Aktivzonen-Minuten, Kalorien und Schlaf, eine Seite pro Sportart und «Körperwerte»: Herz, Schlaf, Aktivität, Körper und Velo, mit Blutdruck und Trinkmenge zum Eintragen.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne Aktiv und scroll zu «Im Fokus» und «Überblick».
+2. Tipp eine Sportart an für ihre Seite oder die Puls-Kachel für «Körperwerte» in fünf Gruppen; Blutdruck und Trinkmenge trägst du dort ein.
+
+**Beispiel:** «Im Fokus» Velo zeigt 100.7 km und 5:54:01 in den letzten 7 Tagen, ein Balken pro Tag.
+
+### Trainingspläne
+
+Vier Musterpläne fürs Ultracycling: rückwärts ab Renntag oder ab einem Tag, Stunden pro Woche einstellbar; sie kommen in deinen Wochenplan.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne Aktiv › Training › Trainingspläne und wähl einen der vier Pläne.
+2. Stell den Beginn (rückwärts ab Renntag oder ab einem Tag) und die Stunden pro Woche ein, dann «Ausprobieren».
+3. Eine Einheit verpasst? Der laufende Plan schlägt einen freien Tag dieser Woche vor.
+
+**Beispiel:** «Mehrtagesrennen», Renntag 12. Juni, 8 Std. → 12 Wochen ab 22. März, lange Wochenenden ab Mai.
+
+### Wie anstrengend war es?
+
+Nach jeder Fahrt fragt die App nach deiner gefühlten Anstrengung von 1 bis 10; ohne Puls zählt sie für den Plan.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Nach jeder Fahrt fragt Aktiv › Training «Wie anstrengend war deine Fahrt?» (1 bis 10).
+2. Ohne Puls steht die Antwort für die Zone in «Plan erfüllt?»; ohne Antwort zählt nichts.
+
+**Beispiel:** Eine Fahrt ohne Pulsgurt fühlte sich wie 4 an → sie zählt als Zone 2.
 
 ### Leistung und Analysen
 
@@ -1831,19 +3423,19 @@ Mit Leistungsmesser: Leistung, Belastung und Leistungskurve auf jeder Fahrt; Ana
 
 ### Wochenrückblick
 
-Deine Woche in fünf Zahlen, ein Streifen Montag bis Sonntag, Höhepunkte und ein Vorschlag für die nächste Woche; nur beobachten.
+Deine Woche in fünf Zahlen, Körperwerte, Pulszonen, km pro Velo, Wetter und Termine, ein Streifen von Montag bis Sonntag, Höhepunkte, deine eigene Notiz und dein Ziel und ein Vorschlag für die nächste Woche; nur beobachten.
 
 **Aufschalten:** Immer da, nichts zu tun.
 
 1. Öffne Aktiv › Woche und tippe «Wochenrückblick», oder Training › Rückblick.
-2. Lies die fünf Zahlen, den Streifen Montag bis Sonntag und die Höhepunkte; ‹ › zeigt andere Wochen.
+2. Lies die fünf Zahlen, Körperwerte, Streifen und Höhepunkte, schreibe dann deine Notiz und dein Ziel; mit ‹ › wechselst du die Woche.
 3. Mit eingeschaltetem KI-Helfer: «Kopieren für Claude» kopiert die Woche als Text; nichts wird von selbst gesendet.
 
 **Beispiel:** 4:10 Std., 96 km, 1’240 Hm, «+1:20» gegenüber der Woche davor → «Behalte deinen Rhythmus».
 
 ### Woche planen
 
-Sport, Termine, To-dos, Ferien und Velo-Service in einer Woche; am Sonntag schlägt die App vor, du entscheidest.
+Sport, Termine, To-dos, Ferien und Velo-Service in einer Woche; am Sonntag schlägt die App vor, du entscheidest. Zeit vor und nach einem Termin wird ein eigener Eintrag.
 
 **Aufschalten:** Immer da, nichts zu tun.
 
@@ -1855,14 +3447,15 @@ Sport, Termine, To-dos, Ferien und Velo-Service in einer Woche; am Sonntag schl�
 
 ### Meilensteine
 
-Nur der nächste Stern, und eine Belohnung von der Wunschliste.
+Jedes Abhaken zählt: jede Sportart hat ihre Zähler, fertige Herausforderungen und ein «Neuer Stern» gleich nach dem Abhaken.
 
-**Aufschalten:** Braucht ein Ziel unter Aktiv › Ziele.
+**Aufschalten:** Immer da, nichts zu tun.
 
-1. Öffne Aktiv › Aktivität › Meilensteine.
-2. Sieh den nächsten Stern; wähle eine Belohnung von der Wunschliste.
+1. Hak eine Sportart auf Heute oder in Aktiv ab: jedes Abhaken zählt 1 in ihren Zählern (Mal gemacht, Wochen in Folge, dieses Jahr, Stunden).
+2. Ein neuer Stern erscheint gleich nach dem Abhaken in einem kleinen Fenster.
+3. Auf der Seite der Sportart: wähl eine fertige Herausforderung oder setz deine eigene; geschafft, ist sie ein Stern in der Vitrine.
 
-**Beispiel:** Nächster Stern bei 20 Einheiten → Belohnung «neue Flasche».
+**Beispiel:** Das 5. Yoga-Abhaken → «Neuer Stern: Mal gemacht, Stern 1»; «12× in den nächsten 6 Wochen» zählt von selbst.
 
 ### Meditation
 
@@ -1886,7 +3479,7 @@ Jede Sitzung, ein Wärmebild der Serie, die beste Tageszeit.
 
 **Beispiel:** 12 Tage in Folge, am häufigsten um 7 Uhr.
 
-### Meditation Rückblick
+### Rückblick
 
 Woche, Monat oder Jahr: Tage, Minuten, der Kalender und was dir hilft.
 
@@ -1908,13 +3501,13 @@ Pässe, Gipfel, Trails und Hallen, die du erreicht hast, für jede Sportart; die
 
 **Beispiel:** Eine Fahrt über einen Pass auf 2100 m → «Erster Pass über 2000 m» in der Vitrine.
 
-### Das tut mir gut
+### Was mir gut tut
 
 Eine kurze Liste für jeden Tag auf Heute: abhaken, Tage in Folge sehen; Meditation hakt sich selbst ab.
 
 **Aufschalten:** Immer da, nichts zu tun.
 
-1. Tippe auf Heute eine Zeile von «Das tut mir gut», um sie abzuhaken; ein zweites Tippen nimmt es zurück.
+1. Tippe auf Heute eine Zeile von «Was mir gut tut», um sie abzuhaken; ein zweites Tippen nimmt es zurück.
 2. «Liste ändern» fügt Vorsätze hinzu, benennt, ordnet oder löscht sie, mit Tagen und Zeit.
 
 **Beispiel:** «Spaziergang» 12 Tage in Folge abgehakt → die Kachel zeigt die Flamme mit 12 Tagen.
@@ -1925,7 +3518,7 @@ Was in deinen Daten zusammenhängt: Schlaf, Akku, Stimmung, Fahrten, Meditation,
 
 **Aufschalten:** Immer da, nichts zu tun.
 
-1. Öffne Ich › Erkenntnisse: jedes Paar mit mindestens 14 Tagen mit beiden Werten sagt in einem Satz, was zusammenhängt.
+1. Öffne Auswerten › Erkenntnisse: jedes Paar mit mindestens 14 Tagen mit beiden Werten sagt in einem Satz, was zusammenhängt.
 2. Ich › Wi gaht's? › Auswertung zeigt die stärksten drei und führt zu allen.
 3. Auch Wetter, Kalendertermine und eigene Zahlen-Fragen werden verglichen; jede eigene Frage lässt sich ausschalten.
 
@@ -1937,25 +3530,36 @@ Sammlungen, «Worauf hab ich Lust?», dein Abend, was dir wesentlich ist, Reise-
 
 **Aufschalten:** Immer da, nichts zu tun.
 
-1. Öffne Ich › Freie Zeit und wähl eine der acht Seiten.
+1. Öffne Planen › Freie Zeit und wähl eine der acht Seiten.
 2. Alles ist ein Vorschlag: ändern, sortieren, ausblenden oder löschen, und Eigenes dazu.
 
 **Beispiel:** Ein Rezept in «Meine Sammlungen» → «Zutaten auf die Einkaufsliste» setzt die fehlenden auf deine Liste.
 
-### Impulse
+### Tagebuch
 
-30 kleine Ideen in zehn Bereichen, auch auf Heute, wenn es keine Velo-Idee gibt; ausblenden, ändern oder Eigene dazu.
+Einen Eintrag schreiben oder sprechen, mit Fotos, Ort, Wetter und Stichwörtern; eine Frage für jeden Tag, Kalender, Fotos, «An diesem Tag», Sperre und Herunterladen.
 
 **Aufschalten:** Immer da, nichts zu tun.
 
-1. Öffne Aktiv › Impulse oder Ich › Freie Zeit › Impulse.
+1. Öffne Planen › Tagebuch und tipp «Neuer Eintrag», oder «Eintrag diktieren» zum Sprechen.
+2. Füg Fotos, Stichwörter, Ort und Wetter hinzu; «Aus der App» bringt die Fahrten, den Schlaf und die Notizen dieses Tages.
+
+**Beispiel:** Die Frage des Tages «Was hat dich heute zum Lächeln gebracht?» → «Sprechend antworten» → drei Sätze in einer Minute.
+
+### Impulse
+
+30 kleine Ideen in zehn Bereichen, jede mit ihrem kleinsten Anfang, auch auf Heute, wenn keine Fahrt-Idee da ist; ausblenden, ändern oder eigene dazu.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne Aktiv › Impulse oder Planen › Freie Zeit › Impulse.
 2. Tipp «Ausprobieren» oder «Gemacht»; die Bereiche lassen sich umbenennen, sortieren und löschen.
 
 **Beispiel:** «Sonnenaufgang mit Zmorge» zeigt den Sonnenaufgang von morgen an deinem Wohnort und eine kurze Checkliste.
 
 ### Timer
 
-Hochzählen, Countdown, Intervall, Pomodoro oder bis zu einer Uhrzeit; fünf Ziffernblätter, ein Log mit Notizen.
+Hochzählen, Countdown, Intervall, Pomodoro oder bis zu einer Uhrzeit; fünf Zifferblätter, ein Log mit Notizen. Er sagt, wofür er läuft, auch nach einer Pause.
 
 **Aufschalten:** Immer da, nichts zu tun.
 
@@ -1964,7 +3568,7 @@ Hochzählen, Countdown, Intervall, Pomodoro oder bis zu einer Uhrzeit; fünf Zif
 
 **Beispiel:** Pomodoro 25/5 viermal → das Log zeigt «Heute 4× · 1 h 40 Min».
 
-### Meditation · Mehr
+### Mehr zur Meditation
 
 Klänge anhören; Arten, Orte, Zitate und eigene Links.
 
@@ -1974,6 +3578,54 @@ Klänge anhören; Arten, Orte, Zitate und eigene Links.
 2. Hör die Klänge an; setz Arten, Orte, Zitate und eigene Links.
 
 **Beispiel:** Ort «Balkon» hinzufügen und einen Link zu deiner liebsten geführten Sitzung.
+
+### Bikepark-Tage
+
+Jeder Tag im Bikepark als eigener Eintrag: der Park, die Abfahrten und ob der Schutz-Check gemacht war; oben die Tage und Abfahrten des Jahres.
+
+**Aufschalten:** Downhill hat ihn von Anfang an; jede andere Sportart nimmt ihn unter «Bausteine anpassen» dazu.
+
+1. Öffne Downhill unter Sportarten.
+2. Tippe in «Bikepark-Tage» auf «Neuer Bikepark-Tag».
+3. Park und Abfahrten (+ und −) eintragen, Schutz-Check markieren, speichern.
+
+**Beispiel:** «Talpark · 12 Abfahrten · Schutz geprüft»; oben «3 Tage dieses Jahr · 25 Abfahrten».
+
+### Tennis
+
+Ein Titelbild, «Gespielt» wie letztes Mal mit einem Tipp, eine gegebene Lektion, die nächste gebuchte Zeit mit «Platz buchen» und danach «Gespielt?», und der Verlauf.
+
+**Aufschalten:** Nur auf der Seite der Aktivität Tennis.
+
+1. Öffne Aktiv › Sportarten › Tennis.
+2. Tippe auf «Gespielt» oder «Wie letztes Mal».
+3. Einen Platz gebucht? «Zeit eintragen»: danach fragt die App «Gespielt?».
+
+**Beispiel:** Donnerstag 18:00 gebucht → am Donnerstagabend «Gespielt?» mit «Ja, gespielt».
+
+### Stammstunden und Studio
+
+Auf der Meditations-Seite: deine Yoga-Stammstunden, der Stundenplan des Studios mit einem Tipp und nach der Stunde «War dort»; es zählt als Yoga, getrennt von der Meditation.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne Aktiv › Meditation.
+2. Tippe in der Karte Yoga auf «Stunde hinzufügen».
+3. Tippe nach der Stunde auf «War dort» oder «Ausgelassen».
+
+**Beispiel:** Donnerstag 18:30 Hatha jede Woche → «Nächste Stammstunde Do 18:30».
+
+### Eigene Körperwerte
+
+Eine eigene Frage mit Zahl oder Skala in «Wi gaht's?» ist ein eigener Körperwert, mit Kurve, unter Körperwerte › Eigene.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne Ich › Wi gaht's? und lege eine eigene Frage an.
+2. Wähle «Zahl» mit Einheit oder die Skala 1 bis 10.
+3. Körperwerte › Eigene zeigt sie mit Kurve.
+
+**Beispiel:** «Rückenschmerz» 0 bis 10 jeden Abend.
 
 ### Ozon und Pollen
 
@@ -1987,15 +3639,15 @@ Heute und morgen an deinem Wohnort: viel Ozon oder starker Pollenflug der Arten,
 
 **Beispiel:** Gräser morgen stark → «Starker Pollenflug: Gräser.» auf der Karte und in der Morgenmeldung.
 
-### 3 Beobachtungen pro Woche
+### 3 Beobachtungen
 
-Jeden Sonntag drei Beobachtungen aus deinen Daten im Wochenrückblick, z. B. Schlaf nach dem Velofahren oder die Tage nach einer langen Tour, je mit kleinem Diagramm.
+Jeden Sonntag drei Beobachtungen aus deinen Daten im Wochenrückblick, z. B. Schlaf nach dem Fahren, die Tage nach einer langen Tour, Körperwerte oder das Wetter, je mit einem kleinen Diagramm und allen Zahlen dahinter.
 
 **Aufschalten:** Braucht Daten: Strava-Fahrten, Fitbit-Tage oder «Wi gaht's?»-Antworten; bei zu wenig Daten steht das so da.
 
 1. Öffne Aktiv › Woche › Wochenrückblick.
-2. Ab Sonntag stehen die drei Beobachtungen der Woche zuoberst; danach bleiben sie gleich.
-3. Eine Art mit «Diese Art nicht mehr zeigen» ausblenden; frühere Wochen unter «Ältere Wochen».
+2. Ab Sonntag stehen oben die drei Beobachtungen der Woche; nach Ende des Tages bleiben sie fest.
+3. «Alle Zahlen dahinter» zeigt, wie gerechnet wurde; «Diese Art nicht mehr zeigen» blendet eine Art aus; ältere Wochen sind eingeklappt.
 
 **Beispiel:** «Nach einem Velotag hast du 35 min länger geschlafen: 7:55 h gegen 7:20 h in den anderen Nächten.»
 
@@ -2011,6 +3663,210 @@ Jede Liste mit einer Strava-Aktivität öffnet ihre Seite: Runden, Zeiten pro km
 
 **Beispiel:** Samstagsfahrt → 3 Runden mit der Rundentaste, km 12 der langsamste, 2 neue Bestzeiten.
 
+### Haken ausgewertet
+
+Was du abhakst und deine Antworten auf die Check-Fragen, ausgewertet wie eine Fahrt: Kacheln, Haken pro Woche, Wochentage, Tageszeit, Verlauf, Bestwerte und pro Monat.
+
+**Aufschalten:** Geht mit allem, was du unter «Heute abhaken» abhakst, und mit Check-Fragen, die eine Zahl haben.
+
+1. Öffne Aktiv › Ziele und tippe «Auswerten».
+2. Wähle 30 Tage, 90 Tage oder das Jahr, und alle Aktivitäten oder eine.
+3. Wechsle zu «Deine Antworten» für eine Check-Frage; «…» auf einer Karte blendet sie aus oder verschiebt sie.
+
+**Beispiel:** Meditation, 90 Tage → am häufigsten am Dienstag, meist vor 9 Uhr, 8 Tage am Stück als beste Serie.
+
+### Analyse
+
+Jeder Wert der App auf einer Seite: Fitbit, Strava, dein Körper, «Wi gaht's?» und jede Aktivität aus Aktiv, jeder mit einem kleinen Verlauf. Quellen und Zeitraum wählen; ein Tipp öffnet den Verlauf.
+
+**Aufschalten:** Zeigt die Werte, die die App hat: Fitbit nach dem Verbinden, Strava-Aktivitäten, deine Einträge und Haken.
+
+1. Tippe auf Heute unter «Aktiv heute» auf «Mehr» oder öffne Auswerten › Analyse.
+2. Schalte Quellen ein oder aus und wähle 7 Tage, 30 Tage, 90 Tage oder das Jahr.
+3. Tippe einen Wert an: sein Verlauf öffnet sich (Körperwerte, eine Sportart oder die Haken einer Aktivität).
+
+**Beispiel:** 30 Tage → Ruhepuls im Schnitt 51, 12 Haken bei Sauna, 412 km auf dem Velo.
+
+### Experiment mit Ende
+
+Eine Frage, was du änderst, wie viele Tage; jeden Tag abhaken, dann ein kurzer Rückblick: behalten, anpassen oder lassen. Es läuft nie als Routine weiter.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne Ich › Ruhig und persönlich › Kleine Experimente.
+2. Schreib deine Frage und was du änderst, wähle die Tage.
+3. Hake jeden Tag ja oder nein ab; am Ende schreibst du, was du gelernt hast.
+
+**Beispiel:** «Schlafe ich besser ohne Bildschirm nach 21 Uhr?», 14 Tage.
+
+### Besondere Tage
+
+Markiere einen Tag mit viel Arbeit, Reise oder Krankheit; ein Tag ohne Sportdaten wird dann durch den Tag erklärt, nicht nur durch fehlende Daten.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne Ich › Ruhig und persönlich › Woher ein Wert kommt.
+2. Wähle den Tag und tippe seine Art an, z. B. viel Arbeit.
+3. Die letzten 14 Tage zeigen, was einen Tag erklärt.
+
+**Beispiel:** Dienstag «Unterwegs» → kein Sport an dem Tag, und das ist erklärt.
+
+### Gegenbeispiele
+
+Jede Erkenntnis auch mit den Tagen, die nicht passen; so zeigt sich die Unsicherheit als Tage, nicht versteckt in einer Zahl.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne Ich › Ruhig und persönlich › Woher ein Wert kommt › Gegenbeispiele.
+2. Wähle eine Erkenntnis.
+3. Sieh die Tage, die zusammenpassten, und die Tage dagegen.
+
+**Beispiel:** Mehr Schlaf, mehr Batterie: 21 Tage passen, 6 Tage nicht.
+
+### Später anders gesehen
+
+Neben deiner damaligen Bewertung eines Tages eine spätere Sicht; die Antwort von jenem Abend bleibt, wie sie war.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne Ich › Ruhig und persönlich › Dein späteres Ich › Später anders gesehen.
+2. Wähle einen Tag, den du bewertet hast.
+3. Schreib, wie du ihn heute siehst, wenn du willst mit einem neuen Wert.
+
+**Beispiel:** Damals 4 von 10, später: «ein harter Tag, und der Anfang von etwas Gutem».
+
+### Klangbriefe
+
+Sprich einen Gedanken von bis zu 1 Minute, zum Beispiel nach einer Meditation, und hör ihn später an; keine Zahlen, keine Sterne.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne Ich › Ruhig und persönlich › Dein späteres Ich › Klangbriefe.
+2. Tippe «Aufnehmen» und sprich bis zu 1 Minute.
+3. Hör ihn später an, benenne ihn um oder lösche ihn.
+
+**Beispiel:** Nach der Abendmeditation 40 Sekunden über den Tag.
+
+### Belohnungen ohne Kauf
+
+Freie Zeit, etwas zusammen, ein Tag Nichtstun: Belohnungen mit gleichem Wert, festgehalten mit dem Tag, an dem du eine genommen hast.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne Ich › Ruhig und persönlich › Bedeutung neben Zahlen › Belohnungen ohne Kauf.
+2. Schreib, wofür, und tippe dann eine Belohnung an.
+3. Ändere die Liste unter «Belohnungen ändern».
+
+**Beispiel:** Erste Fahrt über 100 km → «Ein langes Frühstück».
+
+### Fähigkeiten-Karte
+
+Was du kannst, neben den Zahlen: Fähigkeiten pro Sportart mit deiner eigenen Stufe und Beispielen mit Tag.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne Ich › Ruhig und persönlich › Was du kannst.
+2. Füge eine Fähigkeit und ihre Sportart hinzu.
+3. Setze die Stufe und füge ein Beispiel mit dem Tag hinzu.
+
+**Beispiel:** «Schlauch wechseln» → sicher; Beispiel: zum ersten Mal unterwegs, 12.9.
+
+### Eine Fahrt, zwei Rollen
+
+Eine Strava-Fahrt kann zugleich Pendeln und Training sein; jede Rolle zählt sie, die Summe zählt sie einmal.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne Ich › Ruhig und persönlich › Zahlen, die klar bleiben.
+2. Tippe die Rollen einer Fahrt an.
+3. Die Summen zeigen jede Rolle und jede Fahrt einmal.
+
+**Beispiel:** Die Fahrt zur Arbeit → Pendeln und Training; in der Summe einmal gezählt.
+
+### Was eine Skala bedeutete
+
+Für jede Skalen-Frage deine Bedeutung von 1 und 10, festgehalten mit dem Tag, damit eine alte 7 lesbar bleibt.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne Ich › Ruhig und persönlich › Zahlen, die klar bleiben › Was eine Skala bedeutete.
+2. Schreib, was 1 und was 10 für dich bedeuten.
+3. Eine neue Bedeutung zählt ab heute; alte Antworten behalten ihre.
+
+**Beispiel:** Batterie 1 = kam nicht aus dem Bett, 10 = der beste Tag des Jahres.
+
+### Ein Gespräch über Körperwerte vorbereiten
+
+Deine eigenen gemessenen Werte, Notizen und offenen Fragen auf einer Seite für eine Fachperson; die App schlägt keine Diagnose vor.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne Ich › Ruhig und persönlich › Zahlen, die klar bleiben › Ein Gespräch vorbereiten.
+2. Füge hinzu, was dir aufgefallen ist, und deine offenen Fragen.
+3. «Kopieren» oder «Drucken» und mitnehmen.
+
+**Beispiel:** 30 Tage Ruhepuls und Schlaf, zwei Fragen.
+
+### Mein Abend
+
+Deine Rituale, Abendmusik und eine Frage zum Ankommen.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne Planen › Freie Zeit › Mein Abend.
+2. Füge deine Rituale und deine Abendmusik hinzu.
+3. Beantworte die Frage zum Ankommen, oder lass sie.
+
+**Beispiel:** Tee, zehn Minuten Dehnen, dann ein Lied.
+
+### Was mir wesentlich ist
+
+Was dir in dieser Lebensphase wichtig ist, und dein grosses Vielleicht.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne Planen › Freie Zeit › Was mir wesentlich ist.
+2. Schreib, was dir jetzt wichtig ist.
+3. Füge dein grosses Vielleicht hinzu; du kannst es jederzeit ändern.
+
+**Beispiel:** «Mehr Nächte draussen, weniger Kilometer.» Grosses Vielleicht: das Transcontinental.
+
+### Reise-Wünsche
+
+Wonach du dich sehnst, was du heimbringen willst, ein Tag mit Platz für Überraschungen.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne Planen › Freie Zeit › Reise-Wünsche.
+2. Schreib, wonach du dich sehnst und was du heimbringen willst.
+3. Plane einen Tag mit Platz für Überraschungen.
+
+**Beispiel:** «Das Meer nach einem langen Anstieg»; heimbringen: ein Foto von jedem Brunnen.
+
+### Worauf hab ich Lust?
+
+Ein paar Ideen zum Start und eine Technik der Woche zum Ausprobieren.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne Planen › Freie Zeit › Worauf hab ich Lust?
+2. Nimm eine der Ideen zum Start.
+3. Probier die Technik der Woche aus.
+
+**Beispiel:** Technik der Woche: einen Anstieg nur sitzend fahren.
+
+### Meine Sammlungen
+
+Deine eigenen Sammlungen, zum Beispiel Brunnen, Pässe oder Cafés, nach und nach gefüllt.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne Planen › Freie Zeit › Meine Sammlungen.
+2. Beginne eine Sammlung und gib ihr einen Namen.
+3. Füge einen Fund hinzu, wann immer du einen hast.
+
+**Beispiel:** «Jura-Brunnen»: 12 gefunden, der kälteste am Chasseral.
+
 ## Daten und App
 
 ### Backup
@@ -2020,7 +3876,7 @@ Eine Backup-Datei sichert deine Daten und bringt sie auf ein anderes Gerät.
 **Aufschalten:** Immer da, nichts zu tun.
 
 1. Öffne Ich › Daten und Backup.
-2. Tippe «Backup herunterladen»; Datei sicher aufbewahren oder auf einem anderen Gerät öffnen.
+2. Tippe «Backup speichern»; Datei sicher aufbewahren oder auf einem anderen Gerät öffnen.
 
 **Beispiel:** Einmal pro Woche eine Backup-Datei, in einem Schritt aufs neue Handy.
 
@@ -2035,7 +3891,7 @@ Leg die App auf den Startbildschirm: sie öffnet wie eine App und läuft offline
 
 **Beispiel:** Das Symbol auf dem Handy öffnet die Packliste in den Bergen ohne Empfang.
 
-### Deutsch / English
+### Sprache
 
 Die App spricht Deutsch und Englisch; wechsle, wann du willst.
 
@@ -2046,7 +3902,7 @@ Die App spricht Deutsch und Englisch; wechsle, wann du willst.
 
 **Beispiel:** Auf English wechseln, um die App einer Freundin zu zeigen.
 
-### Demo ausprobieren
+### Demo aus einer Datei
 
 Probier eine Demo-Datei aus: deine eigenen Daten warten beiseite, bis du sie beendest.
 
@@ -2057,28 +3913,27 @@ Probier eine Demo-Datei aus: deine eigenen Daten warten beiseite, bis du sie bee
 
 **Beispiel:** Eine Demo mit 3 erfundenen Touren; danach ist alles wie vorher.
 
-### Shop ohne Gebühren
-
-Verkaufe Downloads, Codes oder Dinge zum Verschicken: ein Shop-Link, ohne App und ohne Konto; bezahlt wird mit TWINT oder QR-Rechnung, du siehst die Bestellungen.
-
-**Aufschalten:** Nichts einzuschalten; die Bestellungen warten auf dem Server, bis die App sie abholt.
-
-1. Öffne Ich › Bezahlen › Shop und erfasse ein Produkt: einen Download, einen Code oder etwas zum Verschicken mit Porto und Vorrat.
-2. Kopiere den Shop-Link und schick ihn; gekauft wird ohne App und ohne Konto.
-3. Unter «Bestellungen» markierst du «Bezahlt», druckst die Etikette und dann «Versendet» mit der Sendungsnummer.
-
-**Beispiel:** Eine Packliste als Download für CHF 5 → eine Bestellung mit TWINT-Mitteilung → «Bezahlt» → der Käufer bekommt den Link per Mail.
-
 ### Gewicht
 
 Freiwillig, nur auf diesem Gerät: dein Gewicht mit Verlauf, für Watt pro kg.
 
 **Aufschalten:** Nichts einzuschalten; es ist freiwillig.
 
-1. Öffne Ich › Gewicht und tippe «Gewicht eintragen».
+1. Öffne Auswerten › Gewicht und tippe «Gewicht eintragen».
 2. Gib dein Gewicht ein und speichere; der Verlauf erscheint ab dem zweiten Eintrag.
 
 **Beispiel:** 72 kg eingetragen → die Fahrt zeigt 2.6 W/kg.
+
+### Englische Namen auf Deutsch
+
+Namen aus deinem Import, die englisch sind, bekommen einen deutschen Vorschlag; übernimm ihn oder lass ihn, der Originalname bleibt.
+
+**Aufschalten:** Braucht Teile aus einem Import mit englischen Namen.
+
+1. Öffne Ich › Daten und Backup › Englische Namen.
+2. Tippe bei einem Vorschlag auf «Übernehmen» oder «Nicht vorschlagen».
+
+**Beispiel:** «Food pouch left» → «Verpflegungstasche links».
 
 ### Was mir gut tut
 
@@ -2086,19 +3941,19 @@ Was deine guten Tage gemeinsam haben, kleine Experimente, dein Wohlfühlbereich,
 
 **Aufschalten:** Nichts einzuschalten; Ergebnisse erscheinen nach etwa 10 Tagen mit Tagesbewertung.
 
-1. Öffne Ich › Was mir gut tut.
+1. Öffne Auswerten › Was mir gut tut.
 2. Lies dein Rezept, was dir gut tut und die guten Kombinationen; «Wie kommt die App darauf?» zeigt die Tage hinter jeder Zeile.
 3. Starte ein kleines Experiment, leg deine Wunsch-Mischung fest, füge Neuland, Phasen oder Saisonpunkte hinzu.
 
 **Beispiel:** «Tage mit mind. 30 Min draussen: 8 statt 6».
 
-### Merken und eigene Listen
+### Merken
 
-Kalender › Merken: deine To-dos, Listen wie «Meine Ideen» und woran dich die App erinnert, an einem Ort.
+Planen › Merken: deine To-dos, Listen wie «Meine Ideen» und woran dich die App erinnert, an einem Ort. Ein To-do kann auf etwas warten; eine Liste kann enden.
 
 **Aufschalten:** Immer da, nichts zu tun.
 
-1. Öffne Kalender › Merken und tippe ein To-do; «Neue Liste» macht eine eigene Liste wie «Meine Ideen».
+1. Öffne Planen › Merken und tippe ein To-do; «Neue Liste» macht eine eigene Liste wie «Meine Ideen».
 2. Hake ein To-do ab; «Rückgängig» holt es zurück.
 
 **Beispiel:** «Neue Bremsbeläge bestellen» → nach dem Werkstattbesuch abgehakt.
@@ -2116,14 +3971,58 @@ Ich › Erinnerungen: nach einer Fahrt, vor einer Tour oder nach der Velopflege 
 
 ### Geburtstage und Pflanzen
 
-Geburtstage und Pflanzen zum Giessen in Ich › Erinnerungen, in Kalender › Merken, wenn es Zeit ist.
+Geburtstage und Pflanzen zum Giessen in Ich › Erinnerungen, in Planen › Merken, wenn es Zeit ist. Ein Geburtstag kann kleine Schritte fürs Jahr tragen (Geschenk, etwas zusammen, dich melden), zum Abhaken.
 
 **Aufschalten:** Immer da, nichts zu tun.
 
 1. Öffne Ich › Erinnerungen und füge einen Geburtstag oder eine Pflanze mit ihren Giesstagen hinzu.
-2. Wenn es Zeit ist, steht es in Kalender › Merken.
+2. Wenn es Zeit ist, steht es in Planen › Merken.
 
 **Beispiel:** Ein Farn alle 5 Tage → «Farn giessen» in Merken.
+
+### Einkaufsliste
+
+Eine Liste für jeden Tag, mit Gruppen; Rezepte fügen ihre Zutaten hinzu; das Essen der nächsten Tour kann auch darauf stehen. Ein Punkt kann sagen, wofür er ist; fällt der Plan weg, gehen seine Punkte.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne Planen › Alltag › Einkaufsliste und schreib, was du brauchst.
+2. Hak ab, was im Korb ist; Gruppen ordnen die Liste wie im Laden und lassen sich umbenennen, sortieren und löschen.
+
+**Beispiel:** Schalt «Zusammen mit dem Tour-Einkauf» ein: die Gels und Riegel deiner nächsten Tour stehen unter deinen Alltags-Punkten.
+
+### Verträge und Abos
+
+Was läuft, was es pro Monat und Jahr kostet, der letzte Tag zum Kündigen und eine Erinnerung davor. Die Kündigung in Schritten, und wofür du es genutzt hast, mit den Kosten pro Nutzung.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne Ich › Dokumente › Verträge und Abos oder Planen › Alltag.
+2. Trag die Kosten, das Ende der Laufzeit und die Kündigungsfrist ein: die App zeigt den letzten Tag zum Kündigen und erinnert dich in Merken.
+
+**Beispiel:** Handy-Abo endet am 31. März, 2 Monate Frist → letzter Tag 31. Januar, Erinnerung 14 Tage vorher.
+
+### Lange nicht gesehen
+
+Menschen, die du ab und zu sehen willst, mit einer leisen Erinnerung in Merken, wenn es wieder Zeit ist, und Ideen für etwas zusammen, die daraus eine Einladung machen.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne Planen › Alltag › Lange nicht gesehen und trag eine Person mit «alle 2 Monate» ein.
+2. Nach dem Treffen tippst du «Heute gesehen»; die leise Erinnerung in Merken beginnt von vorn.
+
+**Beispiel:** Alex, alle 6 Wochen, zuletzt gesehen am 1. September → eine Aufgabe in Merken am 13. Oktober, ohne Alarm.
+
+### Kochen
+
+Über 100 sehr einfache Rezepte für Frühstück, Mittag- und Abendessen und in Gruppen wie Fleisch, Shakes oder Sonntags-Brunch, mit Portionen und allen Schritten; die Zutaten kommen auf deine Einkaufsliste. Eigene Rezepte und Gruppen auch.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne Planen › Alltag › Kochen und wähle eine Mahlzeit.
+2. Tippe auf ein Rezept: Portionen wählen, Zutaten auf die Einkaufsliste setzen und alle Schritte lesen.
+
+**Beispiel:** «Pasta mit Tomaten und Thon», 2 Portionen → 4 Zutaten für zwei auf deiner Einkaufsliste.
 
 ### Such-Befehle
 
@@ -2138,37 +4037,158 @@ Geburtstage und Pflanzen zum Giessen in Ich › Erinnerungen, in Kalender › Me
 
 ### Eingang
 
-Notizen nach Tag; «Ablegen als …» mit 7 Zielen; ein Beleg wird ein Werkstattbesuch.
+Notizen, Mails und Webseiten nach Tag; «Ablegen als …» mit 13 Zielen und eigenen Ablagen; ein Beleg wird ein Werkstattbesuch.
 
 **Aufschalten:** Immer da, nichts zu tun.
 
-1. Öffne Ich › Eingang.
-2. Tippe «Ablegen als …» und wähle eines der 7 Ziele.
+1. Öffne Planen › Eingang.
+2. Tippe «Ablegen als …» und wähle ein Ziel oder mach eine neue Ablage.
 
 **Beispiel:** Ein Quittungsfoto → «Ablegen als Werkstattbesuch».
 
 ### Verknüpfte Notizen
 
-Notizen miteinander verknüpfen; auf einen Blick sehen, was in deinen Notizen steht, ein #Stichwort findet alle.
+Notizen miteinander verknüpfen, auf Wunsch mit Bedeutung: Quelle, Gegenargument oder Folgefrage; auf einen Blick sehen, was in deinen Notizen steht, ein #Stichwort findet alle.
 
 **Aufschalten:** Braucht mindestens zwei Notizen.
 
 1. Öffne eine Notiz und tippe «Notiz verknüpfen» oder nimm eine aus «Passt vielleicht dazu».
-2. Auf der Seite Notizen zeigt «Auf einen Blick» Stichworte und offene Punkte; ein #Stichwort sucht.
+2. Neben der Verbindung die Bedeutung wählen: Quelle, Gegenargument oder Folgefrage.
+3. Auf der Seite Notizen zeigt «Auf einen Blick» Stichworte und offene Punkte; ein #Stichwort sucht.
 
 **Beispiel:** Notiz «Jura-Wochenende» mit «Packliste Herbst» verknüpft → ein Tipp öffnet die andere.
 
 ### Mein Kompass
 
-Ziele werden zu Schritten mit Daten; einmal pro Woche «Wie läuft's?»; Ablagen für Vorsätze, Träume, Nicht vergessen und Ideen.
+Ziele werden zu Schritten mit Daten; einmal pro Woche «Wie läuft's?»; Ablagen für Vorsätze, Träume, Nicht vergessen und Ideen. Ein Ziel endet erreicht, verändert oder losgelassen.
 
 **Aufschalten:** Immer da, nichts zu tun.
 
-1. Öffne Ich › Mein Kompass und leg ein Ziel mit Datum an.
+1. Öffne Planen › Kompass und leg ein Ziel mit Datum an.
 2. Tippe die Schritte, einer pro Zeile: die App verteilt die Daten.
 3. Einmal pro Woche «Wie läuft's?» beantworten; Ablagen halten Ideen und Vorsätze.
 
 **Beispiel:** «Alpenbrevet fahren» bis 1. Juli → 5 Schritte, alle paar Wochen einer.
+
+### Skizze
+
+Auf jedem Foto der App zeichnen oder auf einem Block mit Seiten (leer, kariert, liniert): Stift, Textmarker, Pfeile, Formen und Text; jede Linie bleibt änderbar. Jetzt auch auf Setup-, Problem-, Pack-, Tagebuch- und Verschleiss-Fotos.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne ein Foto gross oder eine Notiz und tippe «Zeichnen».
+2. Wähle Stift, Textmarker, Pfeil, Form oder Text, eine Farbe und eine Dicke.
+3. Tippe «Fertig»: Das Foto zeigt die Zeichnung, und die Linien bleiben änderbar.
+
+**Beispiel:** Ein Foto der Bremse → ein roter Kreis um den abgenutzten Belag und das Wort «neu».
+
+### Formatieren
+
+Fett, kursiv, Überschriften, Listen, Abhaken und Tabellen mit Knöpfen, wie in Word, ohne Zeichen.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne eine Notiz und schreibe ins Textfeld.
+2. Die Knöpfe darüber machen fett, eine Überschrift, eine Liste, Abhaken oder eine Tabelle.
+3. «Mit Zeichen schreiben» zeigt den Text stattdessen mit ** und #.
+
+**Beispiel:** «Packliste» als Überschrift, dann Abhaken für Zelt, Kocher und Gas.
+
+### Datei
+
+PDF, Word, Excel, PowerPoint (auch LibreOffice und RTF), GPX, Kalender, Kontakt und kurze Videos in einer Notiz, in der App gelesen; in eine Notiz scannen; eine Webseite zum Offline-Lesen behalten.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne eine Notiz und tippe «Datei» oder «Scannen».
+2. Tippe auf eine Datei: Die App zeigt sie, auch LibreOffice und RTF; ein GPX als kleine Karte, eine Kalenderdatei mit «In meinen Kalender».
+3. Unter einem Link speichert «… offline lesbar speichern» die Seite als Text mit ihren Bildern.
+
+**Beispiel:** Die Rechnung vom Velo-Service als PDF und die Strecke als GPX in der Notiz «Jura».
+
+### Text in Bildern finden
+
+Die App liest den Text in Fotos und gescannten PDFs einer Notiz auf dem Gerät; die Suche findet ihn dann.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne eine Notiz mit Fotos oder einem gescannten PDF.
+2. Tippe «Text in Bildern durchsuchbar machen».
+3. Suche in Notizen nach einem Wort aus dem Bild.
+
+**Beispiel:** Ein Foto einer Quittung → die Suche «Bremsbelag» findet die Notiz.
+
+### Erinnern
+
+Ein Tag und eine Zeit an einer Notiz: Sie kommt als Nachricht aufs Handy und steht oben in Notizen bis «Fertig». Oder nach einem Ereignis: Die Notiz kommt nach der nächsten Tour oder dem nächsten Werkstattbesuch wieder.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne eine Notiz und tippe «Erinnern».
+2. Wähle Tag und Zeit, dann «Erinnerung setzen».
+3. Oder darunter «Oder nach einem Ereignis»: nach der nächsten Tour oder dem nächsten Werkstattbesuch.
+
+**Beispiel:** «Ersatzschlauch kaufen» für Freitag 17:00.
+
+### Papierkorb
+
+Eine gelöschte Notiz wartet 30 Tage im Papierkorb und kommt mit ihren Fotos, Dateien und Verbindungen zurück; der Papierkorb sagt, wenn eine verbundene Notiz fehlt. Jede Notiz behält ihre früheren Fassungen, ein Tipp holt eine zurück.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Eine gelöschte Notiz kommt in Notizen › Mehr › Papierkorb und wartet dort 30 Tage.
+2. «Zurückholen» holt sie mit Fotos, Dateien und Verbindungen zurück; jede Zeile sagt, was mitkommt.
+3. In einer Notiz zeigt «Frühere Fassungen» den Text von vorher; «Diese Fassung zurückholen» übernimmt ihn.
+
+**Beispiel:** Die Packliste wurde aus Versehen gekürzt → «Frühere Fassungen» → gestern Abend → zurückholen.
+
+### Pflanzenpass
+
+Jede Pflanze mit ihrem echten Standort: deine Beobachtungen zu Sonne, Wind und Erde, Fotos und jeder Umzug im Verlauf; ein kurzer Hinweis sagt, was der Standort bedeutet.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Planen › Merken › Pflanzenpass, oder im Fenster einer Pflanze «Pflanzenpass».
+2. «Beobachtung»: Sonne, Wind, Erde und ein Foto vom Platz; der Hinweis sagt, was das bedeutet.
+3. «Umgezogen»: der neue Platz; der alte bleibt im Verlauf.
+
+**Beispiel:** Der Olivenbaum trocknet auf der Terrasse schnell aus → «etwas öfter giessen?».
+
+### Doppelter Eingang
+
+Eine Mail, ein Foto und eine Notiz zur gleichen Sache (gleiche Nummer, gleicher Betrag oder gleiche Wörter) erscheinen als Paar; «Zusammenführen» legt beide in einen Vorgang, nichts geht verloren.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Eingang › Vorgänge: «Doppelter Eingang» zeigt Paare zur gleichen Sache.
+2. «Zusammenführen» legt beide in einen Vorgang; beide Einträge bleiben, Rückgängig ist möglich.
+3. «Nicht dasselbe»: Das Paar kommt nie wieder.
+
+**Beispiel:** Die Hotel-Mail und das Foto der Quittung mit derselben Buchungsnummer.
+
+### Mail als Vorgang
+
+Bestätigung, Rückfrage und später die Rechnung kommen in denselben Vorgang, mit Fotos und Notizen dazu; die App schlägt ihn nach Absender, Betreff, Nummer oder Betrag vor, du entscheidest. Vorgänge kannst du umbenennen, sortieren und löschen.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Eingang › Vorgänge › «Mail als Vorgang»: Die App schlägt den passenden Vorgang vor.
+2. «In …» übernimmt ihn; «Neuer Vorgang» beginnt einen aus einer Mail.
+3. Unten einen Vorgang umbenennen, sortieren oder löschen; seine Einträge bleiben im Eingang.
+
+**Beispiel:** Buchung, Rückfrage und Rechnung vom Veloservice in einem Vorgang.
+
+### Erinnerungskarten
+
+Eine Notiz wird zur kleinen Szene: ihr Text, ein Bild, der Ort und ein Ton bis eine Minute; alle Karten zusammen unter Notizen › Notizen im Zusammenhang.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Notiz öffnen › «Erinnerungskarte machen».
+2. Bild wählen und einen Ton bis eine Minute aufnehmen; Text und Ort kommen aus der Notiz.
+3. Alle Karten: Notizen › Notizen im Zusammenhang › Erinnerungskarten.
+
+**Beispiel:** Abend am See mit dem Rauschen der Wellen.
 
 ### Notiz-Formate
 
@@ -2182,16 +4202,17 @@ Mehrere Fotos und Links, Ort, Skizze, QR-Code, Vorlagen, Formatierung; Notiz tei
 
 **Beispiel:** Ein Rastplatz mit Ort, zwei Fotos und einer Skizze der Route; an Keep geteilt.
 
-### Was kommt
+### Projekt-Ablage
 
-Der Plan der App, Paket für Paket: live, in Arbeit, später.
+Alles zur App auf einer Seite: wie viele Ideen live sind, was auf dich wartet, der Weg der Releases und das Ideen-Brett.
 
 **Aufschalten:** Immer da, nichts zu tun.
 
-1. Öffne Ich › Was kommt.
-2. Sieh, was live ist, was gebaut wird und was später kommt.
+1. Öffne Ich › Projekt-Ablage.
+2. Lies «Für dich jetzt» und «Der Weg».
+3. Öffne «Ideen» unter «Nachschlagen» und tippe auf ein Ziel.
 
-**Beispiel:** «Pläne und Träume» unter «Wird gerade gebaut» → ein Testlink folgt.
+**Beispiel:** «Eingang ist gebaut und geparkt» → es geht nach deinem OK online.
 
 ### Notizen
 
@@ -2199,12 +4220,84 @@ Schreiben, diktieren, Foto, Link, Checkliste; Themen, #Tags, bis 3 anheften.
 
 **Aufschalten:** Immer da, nichts zu tun.
 
-1. Öffne Ich › Notizen.
+1. Öffne Planen › Notizen.
 2. Schreib, diktier, füg Foto, Link oder Checkliste an; nutze #Tags und pinne bis zu 3.
 
 **Beispiel:** Notiz «#winter Tourenideen» mit einer Checkliste von 4 Routen.
 
-### Tabelle und mehrere ändern
+### Vorlagen auswählen
+
+Rund zwanzig Notizvorlagen mit echten Feldern (Zahl, 1 bis 5, Auswahl, Checkliste, Datum): Wähle die, die du brauchst, ändere ihre Felder, füge eigene hinzu. Sie erscheinen in Notizen und in der Leiste «Hinzufügen», wo sie passen.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne Notizen und tippe «Vorlagen auswählen».
+2. Tippe bei den gewünschten Vorlagen auf «Verwenden»; der Stift ändert ihre Felder.
+3. Tippe eine Vorlage über der Notiz an, füll aus, was du magst, «Übernehmen».
+
+**Beispiel:** «Tourenbericht» mit Strecke, schönstem Moment, Wetter «Regen» und 4 von 5.
+
+### KI im Gerät
+
+Eine kleine KI (Qwen, Gemma oder Llama) antwortet in der Suche und neben «Mit Claude besprechen», auch ohne Internet; nichts verlässt das Gerät.
+
+**Aufschalten:** Einmal ein Modell laden: Ich › Darstellung › Bedienung › «KI im Gerät». Mit Internet antwortet der KI-Helfer, falls eingerichtet.
+
+1. Wähl ein Modell (klein und schnell, oder etwas klüger) und tipp «Auf dieses Gerät laden».
+2. Tipp «Tempo prüfen»: So siehst du, wie schnell dieses Gerät ist.
+3. Stell eine Frage in der Suche oder tipp «KI im Gerät fragen» bei Packliste, Velo-Pflege oder Rückblick.
+
+**Beispiel:** Kein Netz auf dem Pass, «Was fehlt bei Regen?» → die KI im Handy antwortet aus deiner Liste.
+
+### Diktieren
+
+In eine Notiz sprechen, bis du Stopp tippst; «Punkt», «neue Zeile»; auf eine Frage antwortet die App, auf Wunsch vorgelesen.
+
+**Aufschalten:** Von Anfang an an: Ich › Darstellung › Bedienung › «Sprechen statt tippen»; darunter «Diktat und Fragen».
+
+1. Tippe im Notizfeld aufs Mikrofon und sprich; tippe Stopp, wenn du fertig bist.
+2. Sag «Punkt», «Komma» oder «neue Zeile» für die Zeichen.
+3. Stelle in der Notiz eine Frage: Darunter antwortet die App aus deinen Daten.
+
+**Beispiel:** «Kette quietscht. Was ist am Gravel fällig?» → die fälligen Teile.
+
+### Weiter fragen
+
+Unter einer Antwort: Claude, ChatGPT, Perplexity, Google und mehr mit der Frage öffnen oder Gemini in der App fragen, gratis.
+
+**Aufschalten:** Immer unter einer Antwort; welche Dienste erscheinen: Ich › Darstellung › Bedienung.
+
+1. Frag die App oder diktiere eine Frage.
+2. Tippe unter der Antwort auf einen Dienst: Er öffnet sich mit deiner Frage.
+3. Setze auf Wunsch das Häkchen «Meine passende Ausrüstung und Erkenntnisse mitschicken».
+
+**Beispiel:** «Welche Jacke bei 5 °C?» → Perplexity öffnet sich mit der Frage.
+
+### In die Suche sprechen
+
+Tippe auf das Mikrofon in der Suche und sag es: Ein Befehl läuft sofort mit Rückgängig, eine Frage bekommt die Antwort der App, von Gemini oder «Weiter fragen bei». Unter Ich › Suche stellst du ein, wer antwortet. Fällt das Mikrofon aus, bleibt das bisher Gesagte als Text.
+
+**Aufschalten:** Das Mikrofon ist immer in der Suche; unter Ich › Suche blendest du es aus und schaltest jede Antwort ein oder aus.
+
+1. Tippe auf das Mikrofon neben der Lupe und sag, was du willst.
+2. Ein passender Befehl läuft sofort; «Rückgängig» nimmt ihn zurück.
+3. Eine Frage bekommt die Antwort der App; weiss die App nichts, antwortet Gemini oder du fragst bei Claude oder ChatGPT weiter.
+
+**Beispiel:** Sag «Notiz Bremse quietscht» → die Notiz ist im Eingang. Stoppt das Mikrofon, bleiben die Wörter bisher im Feld.
+
+### Meine KI-Projekte
+
+Deine eigenen Links zu KI-Projekten, Threads und Chats; ein Tipp öffnet sie mit deinem Konto.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne Ich › Meine KI-Projekte.
+2. Füge die Adresse eines Projekts oder Chats ein und gib ihr einen Namen.
+3. Umbenennen, löschen oder mit den Pfeilen oder durch Ziehen umsortieren.
+
+**Beispiel:** «Pack Generator» → dein Projekt auf claude.ai.
+
+### Mehrere ändern
 
 Am Computer eine Liste als Tabelle direkt in den Zellen bearbeiten; mehrere Zeilen ankreuzen und ein Feld für alle auf einmal ändern, oder sie löschen, mit Rückgängig.
 
@@ -2237,6 +4330,54 @@ Sachen an einen Gast ausleihen: die Liste als Link oder PDF schicken, am Rückga
 
 **Beispiel:** Zelt und Matte an Sam, zurück am Sonntag → eine Erinnerung am Sonntagmorgen.
 
+### Gewicht diese Woche?
+
+Wenn eine Woche kein Gewicht eingetragen ist, fragt Heute einmal: eintippen, «Heute nicht» oder «Nicht mehr fragen». Dasselbe Gewicht wie unter Ich › Gewicht.
+
+**Aufschalten:** Nur wenn in den letzten 7 Tagen kein Gewicht eingetragen ist.
+
+1. Öffne Heute: Die Karte «Gewicht diese Woche?» steht unter dem Gruss.
+2. Tippe das Gewicht ein und dann «Speichern», oder «Heute nicht».
+3. «Nicht mehr fragen» nimmt die Karte weg; «Kachel hinzufügen» holt sie zurück.
+
+**Beispiel:** Letztes Gewicht vor 8 Tagen → die Karte fragt; gespeichert ist sie bis nächste Woche weg.
+
+### Fotoalbum
+
+Alle Fotos der App nach Monat oder nach Ort: deine Albumfotos, Velofotos und die Fotos von Notizen auf Touren. Mehrere auf einmal hinzufügen, einen Ort geben, wählen, welche dich auf Heute begrüssen.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne Ich › Fotoalbum.
+2. Tippe auf «Fotos hinzufügen» und wähle mehrere.
+3. Tippe auf ein Foto: gib ihm einen Ort oder schalte «Auf Heute zeigen» aus.
+
+**Beispiel:** Drei Fotos einer Pause → Ort «über dem See», unter «Nach Ort» beisammen.
+
+### Ablegen-Runde
+
+Im Eingang: die offenen Notizen eine nach der anderen, jede mit Vorschlag und Grund. Ablegen, behalten, löschen oder überspringen; am Schluss siehst du, was passiert ist.
+
+**Aufschalten:** Nur wenn mindestens zwei Notizen im Eingang warten.
+
+1. Öffne Planen › Eingang.
+2. Tippe auf «Ablegen-Runde starten».
+3. Tippe bei jeder Notiz auf «Ablegen», einen Chip, «Behalten», «Löschen» oder «Überspringen».
+
+**Beispiel:** «Bremse hinten quietscht» → Vorschlag «Problem am Velo», weil «Bremse» vorkommt.
+
+### Gemerkte schöne Tage
+
+Am Ende des Abendrückblicks einen schönen Tag als Rezept merken; am Samstag wiederholen oder in einer kurzen Version. «Gewünscht und erlebt» zeigt jeden Bereich gegen deinen Wunsch.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Tippe am Ende des Abendrückblicks auf «Diesen Tag merken».
+2. Schreib, was ihn schön gemacht hat, und speichere.
+3. Tippe in Was mir gut tut auf «Am Samstag wiederholen».
+
+**Beispiel:** «morgens Ruhe, nachmittags raus» → am Samstagmorgen erinnert dich der Check.
+
 ### Dokumente
 
 Pass, Versicherung und Notfallblatt als PDF oder Foto; eine Erinnerung, bevor sie ablaufen, und «ID und Cash dabei?» in der Packliste.
@@ -2251,17 +4392,17 @@ Pass, Versicherung und Notfallblatt als PDF oder Foto; eine Erinnerung, bevor si
 
 ### Werkzeugkasten
 
-Rechner, Masse, Währungen, Karte, PDF, Fotos und mehr; «Passt gerade» zeigt die Werkzeuge für deine nächste Tour.
+Rechner, Einheiten, Währungen, Karten, PDF, Fotos und mehr; «Passt gerade» zeigt die Werkzeuge für deine nächste Tour; «Letzte Ergebnisse» behält die letzten fünf Dateien, die ein Werkzeug gemacht hat.
 
 **Aufschalten:** Immer da, nichts zu tun.
 
 1. Öffne Ich › Werkzeugkasten oder die Kachel Werkzeugkasten auf Heute.
 2. Wähle ein Werkzeug; «Passt gerade» zeigt die für deine nächste Tour.
-3. Alles geht ohne Internet.
+3. Alles geht ohne Internet; «Letzte Ergebnisse» holt zurück, was ein Werkzeug gemacht hat.
 
 **Beispiel:** 3,2 bar → 46,4 psi für die Pumpe im Ausland.
 
-### PDF-Werkzeuge
+### PDF
 
 PDFs und Fotos zu einem PDF zusammenfügen, ein PDF verkleinern, speichern oder teilen; nichts geht auf eine fremde Webseite.
 
@@ -2273,7 +4414,7 @@ PDFs und Fotos zu einem PDF zusammenfügen, ein PDF verkleinern, speichern oder 
 
 **Beispiel:** Drei Fotos von Belegen → ein PDF mit 3 Seiten für die Versicherung.
 
-### Foto-Werkzeuge
+### Fotos
 
 Ein Foto verkleinern, auf eine Form zuschneiden, den Hintergrund entfernen.
 
@@ -2284,6 +4425,18 @@ Ein Foto verkleinern, auf eine Form zuschneiden, den Hintergrund entfernen.
 3. Tippe «Foto machen», dann «Speichern oder teilen».
 
 **Beispiel:** Velofoto 4,2 MB → Mittel 1280 px, etwa 300 KB.
+
+### Bild bearbeiten
+
+Screenshots oder Fotos wählen, drehen und zuschneiden, bemalen, markieren und beschriften, die Seiten ordnen und ein PDF oder einzelne Bilder machen.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Mach den Screenshot wie immer am Handy und öffne dann Ich › Werkzeugkasten › Bild bearbeiten.
+2. Tippe «Bilder auswählen»; pro Seite drehen, zuschneiden oder zeichnen (Stift, Markierstift, Text, Pfeil).
+3. Wähle «Ein PDF» oder «Einzelne Bilder», dann «Speichern oder teilen».
+
+**Beispiel:** Drei Screenshots einer Buchung → zugeschnitten, der Preis markiert → ein PDF mit 3 Seiten.
 
 ### Links und Dateien
 
@@ -2323,7 +4476,7 @@ Schritte wie «Fotos verkleinern → ein PDF → verkleinern → teilen» speich
 
 ### Bildformat umwandeln
 
-HEIC-, WebP- oder PNG-Bilder in JPG oder PNG umwandeln, auf dem Gerät.
+HEIC-, WebP- oder PNG-Bilder in JPG oder PNG umwandeln, auf dem Gerät; die neuen Bilder behalten ihre Namen und überschreiben nie die alten.
 
 **Aufschalten:** HEIC braucht einmal Internet; danach geht es offline.
 
@@ -2331,7 +4484,7 @@ HEIC-, WebP- oder PNG-Bilder in JPG oder PNG umwandeln, auf dem Gerät.
 2. Wähle JPG oder PNG, dann die Bilder.
 3. Tippe bei jedem «Speichern» oder «Alle speichern».
 
-**Beispiel:** IMG_0042.HEIC → IMG_0042.jpg für das Online-Formular.
+**Beispiel:** IMG_0042.HEIC → IMG_0042.jpg für das Online-Formular; velo.jpg als JPG → velo-umgewandelt.jpg, das alte bleibt.
 
 ### Video verkleinern
 
@@ -2369,21 +4522,21 @@ Schick die Backup-Datei an das andere Gerät; es sagt, was neuer ist, und schlä
 
 **Beispiel:** Abends am Computer geplant → ans Handy geschickt → «Alle Daten ersetzen» → auf dem Handy packen.
 
-### Automatischer Abgleich
+### Automatisch abgleichen
 
-Handy und Computer haben von selbst dieselben Daten, verschlüsselt mit einem Code; wurde derselbe Eintrag auf beiden geändert, fragt die App, welche Version gilt.
+Handy und Computer haben von selbst dieselben Daten, verschlüsselt mit einem Code; wurde derselbe Eintrag auf beiden geändert, gilt die neuere Änderung, und die andere lässt sich zurückholen.
 
 **Aufschalten:** Braucht ab und zu Internet; es ist gratis, und der Server kann deine Daten nicht lesen.
 
 1. Am Computer: Ich › Daten und Backup › «Abgleich einschalten»; ein QR-Code und ein Code erscheinen.
 2. Am Handy: Kamera auf den QR-Code halten und «Koppeln» tippen (oder «Ich habe einen Code» und eintippen).
-3. Danach gleichen beide von selbst ab; wurde derselbe Eintrag auf beiden geändert, fragt ein Fenster, welche Version gilt.
+3. Danach gleichen beide von selbst ab, ohne Fragen; wurde derselbe Eintrag auf beiden geändert, gilt die neuere Änderung.
 
-**Beispiel:** Gewicht am Handy und Name am Computer geändert → «Auf beiden Geräten geändert» → «Diese behalten» oder «Diese nehmen».
+**Beispiel:** Gewicht am Handy, später der Name am Computer → die neuere gilt → die andere unter «Von selbst abgeglichen».
 
 ### Mit Google anmelden
 
-Beim Abgleich wählst du: mit Code oder Einladungs-Link, oder mit deinem Google-Konto; dann reicht auf dem nächsten Gerät die Google-Anmeldung. Ohne beides bleibt alles auf dem Gerät.
+Für den Abgleich wählst du: mit einem Code oder einem Einladungslink, oder mit deinem Google-Konto; dann genügt auf dem nächsten Gerät eine Google-Anmeldung. Ohne beides bleibt alles auf dem Gerät. Bevor Google aufgeht, sagt die App, was passiert und welches Konto du zuletzt benutzt hast.
 
 **Aufschalten:** Braucht Internet für die Anmeldung. Der Server behält keine Mail-Adresse und keinen Namen.
 
@@ -2392,6 +4545,30 @@ Beim Abgleich wählst du: mit Code oder Einladungs-Link, oder mit deinem Google-
 3. Auf dem anderen Gerät dasselbe: «Mit Google anmelden». Beide haben dann dieselben Daten.
 
 **Beispiel:** Neues Handy → App öffnen → «Mit Google anmelden» → dein Material und deine Touren kommen.
+
+### Karte der App
+
+Ich › Karte der App: jeder Bereich der App mit seinen Funktionen, jede mit ihrem Pfad (Bereich › Funktion). Eine Suche grenzt ein; ein Tipp führt hin.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne Ich › Karte der App.
+2. Öffne einen Bereich, um seine Funktionen mit ihrem Pfad zu sehen.
+3. Tippe ein Wort in die Suche, dann auf eine Zeile, um dorthin zu gehen.
+
+**Beispiel:** Du suchst «Backup» und siehst, auf welcher Seite es wohnt und wie du hinkommst.
+
+### App verstehen
+
+Ich › App verstehen: sieben kurze Lektionen mit Links und je einer Übung, damit du die App ohne Helfer am Leben hältst: die vier Teile, Backups, Haken, mergen und zurücknehmen, ein Wort ändern, die Konten, einen anderen Helfer einweisen.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne Ich › App verstehen.
+2. Öffne eine Lektion, lies sie und mach die Übung.
+3. Hake «Erledigt» ab, wenn du magst.
+
+**Beispiel:** Lektion 2 «Backup machen und zurückspielen» → ein Backup exportieren und in einem Test-Link einlesen.
 
 ### Datenschutz und Nutzung
 
@@ -2416,7 +4593,7 @@ Am Handy öffnet die Kamera mit einem Tipp: für Notiz, Material, Velo, Setup un
 
 **Beispiel:** Eine zweiseitige Werkstattrechnung → «Beleg fotografieren» → «Weitere Seite» → Werkstatt und Kosten → Speichern.
 
-### Dokumente als PDF
+### Dokument fotografieren
 
 Dokument fotografieren oder Fotos aus der Galerie wählen: Die App richtet die Seiten gerade, erkennt den Text und legt ein PDF ab, auch in deinem Google Drive.
 
@@ -2428,25 +4605,37 @@ Dokument fotografieren oder Fotos aus der Galerie wählen: Die App richtet die S
 
 **Beispiel:** Eine Werkstatt-Quittung → schwarzweisses PDF «Quittung Veloladen Muster» in «Importierte PDF» und in Drive.
 
-### Mail aus Gmail
+### Von aussen
+
+Eine Mail mit Anhängen in den Eingang: mit einem Tipp, per Gmail-Label oder +pack-Adresse; Tipps für Rechnungen, Buchungen und Fristen.
+
+**Aufschalten:** Gmail unter Planen › Mail verbunden. Fürs Label: ein Gmail-Filter, einmal eingerichtet (die Klicks stehen unter Planen › Mail).
+
+1. Öffne eine Mail unter Planen › Mail und tippe «In die App übernehmen»; oder gib ihr das Gmail-Label «Packgenerator».
+2. Öffne den Eingang: Die Mail steht dort mit Anhängen und einem Tipp.
+3. Tippe den Knopf eines Anhangs (Dokumente, Termin, Tour, Rechnung) oder «Ablegen als …».
+
+**Beispiel:** Eine Hotelbestätigung mit PDF → «Sieht aus wie eine Buchung · für die Tour «Jura»» → das PDF in Dokumente, die Mail an die Tour.
+
+### Mail
 
 Dein Gmail-Posteingang in der App: lesen, suchen, antworten und schreiben; die Mails zu einem Termin mit einem Tipp.
 
-**Aufschalten:** Einmal verbinden unter Ich › Mail (braucht Strava auf diesem Gerät).
+**Aufschalten:** Einmal verbinden unter Planen › Mail (braucht Strava auf diesem Gerät).
 
-1. Öffne Ich › Mail und tippe «Mit Google verbinden».
+1. Öffne Planen › Mail und tippe «Mit Google verbinden».
 2. Tippe eine Mail an, um sie zu lesen; «Antworten» oder «Neue Mail» schreibt eine.
 3. Unter einem Termin findet «Mails dazu» die Mails dazu.
 
 **Beispiel:** Termin «Velo-Service» → «Mails dazu» zeigt die Bestätigung der Werkstatt.
 
-### Google Kalender und Aufgaben
+### Termine und Aufgaben
 
 Dein Google Kalender und Google Aufgaben in der App: die nächsten 14 Tage sehen, Termine eintragen, Aufgaben abhaken und neu eintragen.
 
-**Aufschalten:** Einmal verbinden unter Ich › Termine und Aufgaben (braucht Strava auf diesem Gerät).
+**Aufschalten:** Einmal verbinden unter Planen › Termine (braucht Strava auf diesem Gerät).
 
-1. Öffne Ich › Termine und Aufgaben, hake Kalender und Aufgaben an und tippe «Mit Google verbinden».
+1. Öffne Planen › Termine, hake Kalender und Aufgaben an und tippe «Mit Google verbinden».
 2. Die nächsten 14 Tage und deine offenen Aufgaben erscheinen; hake eine Aufgabe ab oder trag eine neue ein, das ändert sich auch in Google.
 3. «Termin eintragen» trägt ihn in deinen Google Kalender ein.
 
@@ -2456,9 +4645,9 @@ Dein Google Kalender und Google Aufgaben in der App: die nächsten 14 Tage sehen
 
 Deine To-dos und die Listen, die du wählst, auch auf deinem Trello-Board «Packgenerator»: ein Häkchen dort ist auch hier ein Häkchen, und umgekehrt.
 
-**Aufschalten:** Einmal verbinden unter Kalender › Merken › Trello (braucht Strava auf diesem Gerät und einen Arbeitsbereich «Packgenerator» in Trello).
+**Aufschalten:** Einmal verbinden unter Planen › Merken › Trello (braucht Strava auf diesem Gerät und einen Arbeitsbereich «Packgenerator» in Trello).
 
-1. Öffne Kalender › Merken und tippe auf «Trello verbinden»; erlaube es auf der Seite von Trello.
+1. Öffne Planen › Merken und tippe auf «Trello verbinden»; erlaube es auf der Seite von Trello.
 2. Deine To-dos kommen in die Liste «To-dos» auf dem Board «Packgenerator»; dort kannst du das auch ausschalten.
 3. In den Einstellungen einer Liste wählst du «Auch in Trello»: Die Liste und ihre Punkte erscheinen auf dem Board.
 
@@ -2477,38 +4666,15 @@ Schlaf, Ruhepuls, HRV, Schritte und Aktivzonen-Minuten von deiner Uhr, von selbs
 
 ### Auto-Backup in einen Ordner
 
-Schreibt nach jeder Änderung in einen Ordner deiner Wahl (nur Computer).
+Schreibt nach jeder Änderung in einen Ordner deiner Wahl (nur Computer). Fehlt der Ordner, ist er voll oder nicht mehr erlaubt, sagt eine klare Meldung, wie du es löst.
 
 **Aufschalten:** Nur am Computer: einen Ordner wählen unter Ich › Daten und Backup.
 
 1. Tippe unter «Auto-Backup in einen Ordner» auf «Ordner wählen».
 2. Nach jeder Änderung landet dort das neuste Backup, dazu eines pro Tag.
+3. Ordner weg, voll oder nicht erlaubt: die Meldung sagt, was zu tun ist; «Nochmals» oder «Neuen Ordner wählen».
 
 **Beispiel:** Ein Ordner, der in die Cloud synchronisiert → immer ein frisches Backup.
-
-### Rechnungen mit QR-Rechnung und TWINT
-
-Eine Schweizer QR-Rechnung aus deinem Konto mit TWINT; sieh, wer bezahlt hat: von Hand, über den Betrag, aus dem Kontoauszug oder über den Zahl-Link.
-
-**Aufschalten:** Gib einmal dein Konto ein (IBAN, Name, Ort; TWINT-Nummer wenn du willst). Es bleibt nur auf diesem Gerät.
-
-1. Öffne Ich › Bezahlen › Rechnungen und tippe «Neue QR-Rechnung».
-2. Gib ein, für wen, den Betrag und wofür; schick sie per Mail, als PDF oder kopiere den Zahl-Link.
-3. Wenn Geld kommt: «Bezahlt», «Geld erhalten» oder den Kontoauszug hochladen.
-
-**Beispiel:** Tennisstunde 80.00 CHF an Mia → sie zahlt mit TWINT, Mitteilung R-0001 → «Bezahlt».
-
-### Rechnungen zu zahlen
-
-Fotografiere eine Rechnung, die du bekommen hast: Die App liest sie, erinnert dich vor der Fälligkeit und behält das Foto.
-
-**Aufschalten:** Nichts einzuschalten.
-
-1. Öffne Ich › Bezahlen › Rechnungen › Tab «Zu zahlen».
-2. Fotografiere die Rechnung oder erfasse sie von Hand; prüfe die Fälligkeit.
-3. Bezahl im E-Banking mit «Zahlteil», dann tippe «Bezahlt».
-
-**Beispiel:** Werkstattrechnung 189.50 CHF, fällig am 17. → eine Erinnerung am 14.
 
 ### Testdaten aufräumen
 
@@ -2523,14 +4689,26 @@ Alles mit «test» im Namen: archivieren, mit Rückgängig.
 
 ### Rundgang durch die App
 
-Sechs kurze Schritte zeigen die Orte der App; dazu ein kleiner Rundgang pro Ort.
+Sechs kurze Schritte zeigen die Orte der App; dazu ein kleiner Rundgang pro Ort. Ein abgebrochener Rundgang geht beim nächsten Mal beim richtigen Schritt weiter.
 
 **Aufschalten:** Immer da, nichts zu tun.
 
 1. Tippe in «Erste Schritte» auf Heute auf «Neu hier? Rundgang ansehen» oder öffne Ich › Handbuch › Rundgang.
 2. Wähle die Beispieltour (Spielwiese) oder deine eigenen Daten und tippe dich mit «Weiter» durch die Schritte.
+3. Früher beendet? Beim nächsten Mal beginnt «Weiter bei Schritt n» dort, wo du aufgehört hast.
 
 **Beispiel:** Oben in Aktiv zeigt «Rundgang durch Aktiv (4 Schritte)» Abhaken, die Woche, Ziele und mehr.
+
+### Beispiele holen
+
+Eine neue App fragt einmal: mit erfundenen Touren, Velo und Ausrüstung (nur, was dich interessiert: Übernachtung, Tagesfahrten, Aktiv) oder leer; danach bietet sie den kurzen Rundgang an. Ich › Daten und Backup holt oder entfernt die Beispiele später.
+
+**Aufschalten:** Nur bei einer neuen, leeren App: Sie fragt einmal beim ersten Öffnen.
+
+1. Wähle die Sprache, «Mit Beispielen starten» und was dich interessiert, oder «Leer starten»; danach, wenn du magst, den kurzen Rundgang.
+2. Ich › Daten und Backup › «Beispiele entfernen» nimmt sie weg («Rückgängig» holt sie zurück); «Beispiele holen» bringt sie später.
+
+**Beispiel:** Ein Freund öffnet den Link und sieht sofort die erfundene «Jura-Runde» mit Packliste.
 
 ### Spielwiese
 
@@ -2557,40 +4735,65 @@ Der Code bleibt auf diesem Gerät, mit Monatslimit; du siehst, was an Claude geh
 
 ### Tastenkürzel
 
-g h, g t … wechselt den Ort, n = Neu, / = Suche, ? = die Liste.
+g h, g t … wechseln die Orte, n = Neu, / = Suche, ? = die Liste. Nach ein paar Mausklicks zeigt die App einmal das passende Kürzel.
 
 **Aufschalten:** Computer mit Tastatur.
 
 1. Drück ?, um die Liste zu sehen.
 2. g und ein Buchstabe wechseln den Ort; n ist Neu, / ist Suche.
+3. Einen Ort oft mit der Maus angeklickt? Ein kleiner Tipp zeigt einmal sein Kürzel; «Keine Kürzel-Tipps mehr» stellt sie ab.
 
 **Beispiel:** G t → Touren, dann n → neue Tour planen.
 
-### Eigene Zahlen einstellen
+### Eigene Werte
 
-Ich › Eigene Werte: der Packen-Schritt, die Backup-Erinnerung, der Velo-Check, Kette wachsen, Dichtmilch, Gabel-Service, der Werkstatt-Vorlauf und «kalt».
+Ich › Eigene Werte: der Packschritt, die Backup-Erinnerung, der Velo-Check, Kette wachsen, Dichtmilch, Gabelservice, der Werkstatt-Vorlauf und «kalt»; umbenennen, löschen und ordnen.
 
 **Aufschalten:** Immer da, nichts zu tun.
 
 1. Öffne Ich › Eigene Werte.
-2. Ändere eine Zahl mit − und + oder tippe sie ein.
-3. «Auf Standard zurück» holt die Zahl der App zurück.
+2. Ändere eine Zahl mit − und + oder tippe sie ein; der Stift benennt sie um oder löscht sie.
+3. «Auf Standard zurück» holt die Zahl zurück, «Gelöschte Werte» einen gelöschten Wert.
 
 **Beispiel:** Packen beginnt 3 Tage vor der Tour, die Backup-Erinnerung nach 7 Tagen.
 
+### Eigene Erinnerungen
+
+Ich › Eigene Werte › Eigene Erinnerungen: «alle N km» oder «alle N Tage», für alle Velos oder eines; sie stehen unter Velos › Pflege, mit «Erledigt».
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne Ich › Eigene Werte › «+ Eigene Erinnerung».
+2. Name, «alle N km» oder «alle N Tage», alle Velos oder eines.
+3. Velos › Pflege zeigt sie auf der Seite des Velos; «Erledigt» startet sie neu.
+
+**Beispiel:** «Reifendruck prüfen» alle 14 Tage für jedes Velo.
+
+### Listen und Typen
+
+Ich › Listen und Typen: die Arten der Kartenpunkte, der Velos und der Ferien, die Fragen und Stimmungen im Tagebuch und die Stimmungen nach dem Meditieren; umbenennen, dazufügen, ausblenden, löschen, ordnen.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne Ich › Listen und Typen.
+2. Wähle eine Liste, z. B. Velo-Arten.
+3. Der Stift benennt um, blendet aus oder löscht; «+ Eigene» fügt dazu; Pfeile und Griff ordnen.
+
+**Beispiel:** Eine eigene Velo-Art «Stadtvelo» oder eine eigene Tagebuchfrage.
+
 ### Erinnerungen aufs Handy
 
-Geburtstage, Pflanzen, Vorabend, Tourwetter, Werkstatt und Backup als Nachricht aufs Handy; jede einzeln eingeschaltet.
+Geburtstage, Pflanzen, der Vorabend, das Tourwetter, die Werkstatt und das Backup als Nachricht aufs Handy; jede einzeln einschaltbar. Auf einem Gerät erledigt: die Nachricht kommt nicht mehr.
 
 **Aufschalten:** Braucht Chrome auf dem Handy. Einmal: auf dieser Seite «Adresse für cron-job.org kopieren» und in cron-job.org einfügen.
 
 1. Öffne Ich › Erinnerungen aufs Handy.
 2. Schalte «Aufs Handy» ein und erlaube Benachrichtigungen.
-3. Schalte die gewünschten Erinnerungen einzeln ein.
+3. Schalte die Erinnerungen ein, die du willst; was du auf einem anderen Gerät abhakst, kommt nicht mehr.
 
 **Beispiel:** Am Vorabend um 19:00 «Morgen: Alpenrunde. Der Vorabend-Check wartet.»
 
-### Hell, dunkel und Farben
+### Farbwelt
 
 Schrift, Farbwelt, Schriftgrösse und hell oder dunkel, unter Ich › Darstellung.
 
@@ -2600,6 +4803,30 @@ Schrift, Farbwelt, Schriftgrösse und hell oder dunkel, unter Ich › Darstellun
 2. Wähle Schrift, Farbwelt, Textgrösse und hell oder dunkel.
 
 **Beispiel:** Dunkel mit grösserer Schrift für den Abend.
+
+### Grösse und Licht
+
+Ein Schieber macht Schrift, Kacheln und Knöpfe überall kleiner oder grösser (80 bis 130 %); «Kompakt» nimmt Abstand weg. Jedes Gerät merkt sich seine eigene Grösse.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne Ich › Darstellung › Grösse und Licht.
+2. Schieb den Regler oder tippe − und +; die App ändert sich, wenn du loslässt.
+3. Schalte «Kompakt» ein für weniger Abstand.
+
+**Beispiel:** 115 % am Handy für unterwegs, 100 % am Computer.
+
+### Seite anpassen
+
+Am Ende jeder Seite: ihre Teile und Reiter zeigen, verstecken, umbenennen und sortieren, den Start-Reiter wählen und das Menü ändern. Jedes Gerät behält seine Wahl; «Wie am Anfang» stellt sie zurück.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Tippe am Ende einer Seite auf «Diese Seite anpassen».
+2. Schalte einen Teil aus, um ihn zu verstecken, tippe auf den Stift zum Umbenennen und sortiere mit den Pfeilen oder durch Ziehen.
+3. Reiter: Wähle «Öffnet mit»; Menü: Bereiche verstecken oder sortieren. «Wie am Anfang» stellt die Seite zurück.
+
+**Beispiel:** Auf Darstellung «Vorschläge» verstecken und «Farbwelt» nach oben nehmen.
 
 ### Knöpfe erklären sich
 
@@ -2614,7 +4841,7 @@ Maus darauf oder lange drücken: Der Knopf sagt, was er tut; «…» zeigt den R
 
 ### Verbindungen
 
-Strava, Fitbit, Google und der See an einem Ort: ihr Stand, die letzten Daten und jeder Schalter.
+Strava, Fitbit, Google und der See an einem Ort: ihr Stand, die letzten Daten und jeder Schalter; «Was davon abhängt» nennt die Seiten, die jede Verbindung nutzen.
 
 **Aufschalten:** Nichts einzuschalten: Ich › Verbindungen zeigt, was verbunden ist.
 
@@ -2648,7 +4875,7 @@ Deine offenen Notizen als Liste «Packgenerator Notizen» in Google Aufgaben; do
 
 **Beispiel:** Die Notiz «Kettenöl kaufen» → auf dem Handy in Google Aufgaben abgehakt → in der App erledigt.
 
-### Frühere Fitbit-Daten
+### Alte Fitbit-Daten
 
 Trainings und Achtsamkeits-Sitzungen aus deiner Fitbit-Exportdatei werden dein Aktiv- und Meditations-Verlauf.
 
@@ -2672,38 +4899,39 @@ Wetterwarnungen für deine Region, Lawinengefahr im Winter, deine Pässe und New
 
 **Beispiel:** Region «Testtal» → eine orange Sturmwarnung steht als eine Zeile auf Heute.
 
-### Sicherung mit Passwort
+### Backup mit Passwort
 
-Schalte es ein, und jede Sicherungsdatei ist mit deinem Passwort geschützt, z. B. im Google Drive.
+Schalte es ein, und jede Backup-Datei ist mit deinem Passwort geschützt, z. B. im Google Drive.
 
-**Aufschalten:** Zu Beginn aus; vergisst du das Passwort, kann niemand diese Sicherungen öffnen.
+**Aufschalten:** Zu Beginn aus; vergisst du das Passwort, kann niemand diese Backups öffnen.
 
-1. Öffne Ich › Daten und Backup › «Sicherung mit Passwort».
+1. Öffne Ich › Daten und Backup › «Backup mit Passwort».
 2. Schalte es ein und tippe das Passwort zweimal ein.
-3. Exportieren, Senden und die Ordner-Sicherung sind geschützt; beim Öffnen fragt die App nach dem Passwort.
+3. Exportieren, Senden und die Ordner-Backup sind geschützt; beim Öffnen fragt die App nach dem Passwort.
 
-**Beispiel:** Sicherung im Google Drive geschützt → am Handy fragt «Backup importieren» nach dem Passwort.
+**Beispiel:** Backup im Google Drive geschützt → am Handy fragt «Backup importieren» nach dem Passwort.
 
 ### Stimmt das noch?
 
-Einmal im Jahr fragt ein Fenster, ob Gewicht, Wohnort, Name und Papiere noch stimmen.
+Einmal im Jahr fragt ein Fenster, ob Gewicht, Wohnort, Name und Papiere noch stimmen. «Hat sich etwas geändert?» (umgezogen, neue Sportart) listet nur, was davon betroffen ist.
 
 **Aufschalten:** Immer da, nichts zu tun.
 
 1. Einmal im Jahr kommt das Fenster «Stimmt das noch?» von selbst.
 2. Tippe bei jedem Wert auf «Stimmt» oder «Ändern».
-3. Jederzeit: Ich › Daten und Backup › «Stimmt das noch?».
+3. Umgezogen oder neue Sportart? «Hat sich etwas geändert?» listet nur, was betroffen ist. Jederzeit: Ich › Daten und Backup.
 
 **Beispiel:** Gewicht 72 kg vom letzten Jahr → «Ändern» → Velos › Setup.
 
 ### Vorschläge an oder aus
 
-Schalte aus, was die App von selbst vorschlägt, Bereich für Bereich: Kleidung fürs Wetter, Regeln aus der Inspiration, Ideen in Aktiv.
+Schalte aus, was die App von selbst vorschlägt, Bereich für Bereich: Kleider fürs Wetter, Inspirationsregeln, Ideen in Aktiv. Nach Art auf jeder Seite (Kaufideen, Leistungstipps, Ideen für freie Zeit, passende Werkzeuge) unter Ich › Ruhig und persönlich › Ausgeblendet und aus.
 
 **Aufschalten:** Immer da, nichts zu tun.
 
 1. Öffne Ich › Darstellung › Vorschläge.
 2. Schalte einen Bereich aus, den du nicht willst.
+3. Eine Art (Kaufideen, Leistungstipps, Ideen für freie Zeit, passende Werkzeuge): Ich › Ruhig und persönlich › Ausgeblendet und aus.
 
 **Beispiel:** «Ideen in Aktiv» aus → Aktiv zeigt keine vorgeschlagenen Aktionen.
 
@@ -2732,7 +4960,7 @@ Nach drei Wochen Pause zeigt ein Fenster zuerst, was fällig und was neu ist.
 
 ### Fragen in eigenen Worten
 
-Tippe eine Frage in eigenen Worten in die Suche; sie zeigt die Funktionen, die sie beantworten, mit dem ersten Schritt.
+Tippe eine Frage in eigenen Worten in die Suche; sie zeigt die Funktionen, die sie beantworten, mit dem ersten Schritt. Hat ein Wort zwei Bedeutungen, fragt sie, welche.
 
 **Aufschalten:** Immer da, nichts zu tun.
 
@@ -2740,7 +4968,7 @@ Tippe eine Frage in eigenen Worten in die Suche; sie zeigt die Funktionen, die s
 2. Tippe eine ganze Frage, z. B. «Wo stelle ich das Backup-Passwort ein?».
 3. «Passt zu deiner Frage» zeigt bis zu drei Funktionen mit ihrem ersten Schritt; ein Tipp öffnet sie.
 
-**Beispiel:** «Wo sehe ich die Lawinengefahr?» → Hinweise und News.
+**Beispiel:** «Wo sehe ich die Lawinengefahr?» → Hinweise und News. «Kette» findet Material und ein Velo → «Meinst du Material oder Velos?».
 
 ### Was ist neu
 
@@ -2752,6 +4980,354 @@ Die neueste Version, jede Funktion einzeln und alle Versionen nach Monat.
 2. Sieh die neuste Version, jede Funktion und alle Versionen nach Monat.
 
 **Beispiel:** Nach einem Update die 3 Neuerungen in einer Minute lesen.
+
+### Kisten-Etiketten
+
+Ein QR-Etikett für jede Kiste, jedes Regal und jede Tasche zu Hause mit dem Inhalt; scannen, und die App zeigt, was drin ist. Mehrere auf einer Seite drucken.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne Werkzeugkasten › Kisten-Etiketten und lege eine Kiste mit ihrem Ort an.
+2. Tipp ein, was hineinkommt: dein Material oder sonst etwas.
+3. «Etikett drucken», aufkleben; der Code öffnet die Kiste in der App.
+
+**Beispiel:** «Winterkiste, Keller» mit Stirnlampe, Handschuhen und der Lichterkette.
+
+### Freunde fragen
+
+Freunde ergänzen ihren Teil zu einer Tour, einem Ort, einem Foto, der Schwierigkeit, den Kosten, der Wohnungsübergabe, dem Packen oder einem Werkstatttag, als eigenen Beitrag mit Name und Datum; auch eine Sprachnotiz bis eine Minute passt.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne Ich › Mit Freunden und wähle, was du fragst, z. B. «Tour gemeinsam erzählen».
+2. Wähle die Tour, prüfe die Zeilen, «Link machen» und schick ihn, wem du willst.
+3. Dein Freund antwortet in der App und schickt einen Link zurück; öffne ihn und tippe «Behalten».
+
+**Beispiel:** Nach der Seerunde ergänzt ein Freund seine Sicht und eine Sprachnotiz; dein eigener Eintrag bleibt, wie er ist.
+
+### Leihregal für Freunde
+
+Sachen ins Regal stellen zum Ausleihen, Tauschen oder Verschenken; Freunde fragen an, du sagst zu, und die Übergabe kommt in «Ausgeliehen». Gemeinsames, geliehenes oder gemietetes Material zeigt, wer es wann hat.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne Ich › Mit Freunden › Leihregal für Freunde und stell Sachen ins Regal.
+2. «Regal schicken»: Freunde wählen, was sie möchten, und schicken eine Anfrage.
+3. Öffne die Anfrage: «Anfrage behalten», «Zusagen», «Übergeben»; «Ausgeliehen» merkt es sich.
+
+**Beispiel:** Das zweite Zelt kommt «zum Ausleihen» ins Regal; ein Freund fragt fürs nächste Wochenende an.
+
+### Vorlage teilen
+
+Einen Baustein (nur Namen und Mengen) oder die Anordnung deiner Seiten und des Menüs (ohne deine eigenen Namen) schicken; dein Freund sieht zuerst, was sich ändert.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne Ich › Mit Freunden › Vorlage teilen.
+2. Wähle einen Baustein oder deine Anordnung und schick sie.
+3. Dein Freund sieht, was sich ändert, ordnet die Zeilen den eigenen Sachen zu und übernimmt sie.
+
+**Beispiel:** Dein Baustein «Regen» geht an einen Freund, der ihn seiner eigenen Jacke und den Handschuhen zuordnet.
+
+### Termin finden
+
+Wähle ein paar Tage und schick einen Link; die Leute tippen im Browser «Geht», «Vielleicht» oder «Geht nicht», ohne App und ohne Konto. Der beste Tag steht oben; plane eine Tour daran oder nimm ihn in den Kalender.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne Ich › Mini-Tools › Termin finden.
+2. Schreib, worum es geht, wähle 2 bis 8 Tage und tipp «Link machen».
+3. Schick den Link; mit «Neue Antworten holen» siehst du, wer wann kann.
+
+**Beispiel:** «Wochenend-Tour Jura» mit drei Samstagen; vier Leute antworten, am 14. können alle.
+
+### Mini-Umfrage
+
+Ein paar kurze Fragen per Link: eine oder mehrere Antworten, eine Skala, Ja oder Nein oder ein kurzer Text. Die Leute antworten im Browser ohne Konto; die App zählt die Antworten und fasst sie zusammen, ohne KI.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne Ich › Mini-Tools › Mini-Umfrage.
+2. Fang mit einer fertigen Vorlage oder leer an, ändere die Fragen und tipp «Link machen».
+3. Schick den Link; mit «Neue Antworten holen» siehst du die Zusammenfassung.
+
+**Beispiel:** «Herbsttour» mit drei Fragen; fünf Leute antworten, die meisten wählen den Jura.
+
+### Anmeldeliste
+
+Eine Ausfahrt oder ein Abend mit fester Anzahl Plätze per Link: die Leute melden sich im Browser ohne Konto an; wer zu spät ist, kommt auf die Warteliste und rückt nach, wenn jemand absagt.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne Ich › Mini-Tools › Anmeldeliste.
+2. Schreib, worum es geht, stell die Plätze ein und tipp «Link machen».
+3. Schick den Link; mit «Neue Antworten holen» siehst du, wer dabei ist und wer wartet.
+
+**Beispiel:** «Werkstatt-Abend» mit 6 Plätzen; 8 melden sich an, 2 warten, eine Person sagt ab und die erste auf der Warteliste rückt nach.
+
+### Spontan-Einladung
+
+Ein Link mit Tag, Zeit, Treffpunkt, Route und Wetter; die Leute tippen im Browser «Ich bin dabei», «Vielleicht» oder «Diesmal nicht», ohne Konto. Der Link schliesst sich am Tag nach der Fahrt.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne Ich › Mini-Tools › Spontan-Einladung.
+2. Tag wählen, Treffpunkt dazu und «Link machen» tippen.
+3. Schick den Link; mit «Neue Antworten holen» siehst du, wer dabei ist.
+
+**Beispiel:** «Fährst du mit?» morgen 17:30 beim Brunnen; drei sind dabei, eine Person vielleicht.
+
+### Wer isst was
+
+Vor einer Gruppentour oder einem Hüttenabend fragen, wer was isst: Ernährung, Allergien, wie hungrig. Die App zählt es und macht eine Einkaufsliste mit passendem Ersatz.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne Ich › Mini-Tools › Wer isst was.
+2. Schreib, worum es geht, sag, was du isst, und tipp «Link machen».
+3. Schick den Link; wähle ein Menü, und die Einkaufsliste steht.
+
+**Beispiel:** «Hüttenabend» für 7; zwei vegetarisch, eine Person glutenfrei; auf der Pasta-Liste stehen 250 g glutenfreie Pasta.
+
+### Fair auslosen
+
+Fair auslosen, wer kocht, wer vorne fährt oder wer in welchem Zelt schläft; wer seltener dran war, kommt zuerst. Bleibt auf diesem Gerät.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne Ich › Mini-Tools › Fair auslosen und wähle z. B. «Wer kocht?».
+2. Füge die Personen hinzu; nimm das Häkchen weg bei allen, die diesmal nicht dabei sind.
+3. Tipp «Jetzt auslosen»; beim nächsten Mal kommt zuerst dran, wer seltener dran war.
+
+**Beispiel:** Vier an einem Hüttenwochenende; Lena hat am Freitag gekocht, also kocht am Samstag eine der anderen drei.
+
+### Wann muss ich losfahren?
+
+Ausrechnen, wann jede Person an ihrem Startort losfährt, damit alle zusammen am Treffpunkt ankommen. Bleibt auf diesem Gerät.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne Ich › Mini-Tools › Wann muss ich losfahren? und tipp «Neues Treffen».
+2. Wähle Treffpunkt und Zeit.
+3. Füge jede Person mit Startort und Tempo hinzu; der Plan zeigt, wer wann losfährt.
+
+**Beispiel:** Treffen um 9:00 in Olten; Mia kommt 25 km von Osten und fährt um 7:55 los, Jon wohnt 3 km entfernt und fährt um 8:45 los.
+
+### Arbeitsraum für ein Vorhaben
+
+Für ein Vorhaben, eine Tour oder einen Werkstatt-Samstag: nur die Funktionen, die du wählst, als Leiste oben auf jeder Seite. Endet von selbst nach dem Tag, den du setzt.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne Ich › Ruhig und persönlich › Weniger App für den Moment.
+2. Wähle bis zu 8 Funktionen für dein Vorhaben.
+3. «Arbeitsraum starten»; die Leiste bleibt, bis du ihn beendest.
+
+**Beispiel:** «Werkstatt-Samstag» mit Velo-Inspektion, Ersatzteilen und Werkstatt fällig.
+
+### Ruhige Ansicht
+
+Schreib, was du jetzt tust; bis du «Fertig» tippst, zeigt die Leiste oben nur das, und die App fragt dich nichts.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne Ich › Ruhig und persönlich › Weniger App für den Moment › Ruhige Ansicht.
+2. Schreib, was du jetzt tust, z. B. Velo putzen.
+3. Tippe «Fertig», wenn du fertig bist.
+
+**Beispiel:** «In Ruhe packen» → die Leiste zeigt nur das, bis «Fertig».
+
+### Erinnerungs-Budget
+
+Höchstens ein paar Erinnerungen am Tag aufs Handy; wenn mehr kämen, entscheidet deine Reihenfolge der Gruppen. Wetter-, Glätte- und Licht-Warnungen kommen immer.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne Ich › Ruhig und persönlich › Weniger App für den Moment › Erinnerungs-Budget.
+2. Schalte «Budget nutzen» ein und wähle, wie viele am Tag.
+3. Sortiere die Gruppen mit den Pfeilen oder durch Ziehen.
+
+**Beispiel:** 2 am Tag, «Touren» zuerst → Geburtstage warten an einem Tourentag.
+
+### Nicht für mich
+
+Eine Funktion, die du nicht brauchst, kommt nicht mehr als «neu für dich» nach oben; sie bleibt im Katalog und in der Suche, am Ende ihrer Gruppe.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne Ich › Ruhig und persönlich › Weniger App für den Moment › Nicht für mich.
+2. Such die Funktion und tippe «Nicht für mich».
+3. «Wieder vorschlagen» holt sie zurück nach oben.
+
+**Beispiel:** «Rennen» → nicht für mich; es rutscht ans Ende seiner Gruppe.
+
+### Antwort mit Belegen
+
+Eine Antwort nennt die eigenen Einträge, die sie genutzt hat; jeder öffnet sich mit einem Tipp. Gemini bekommt sie nummeriert und zitiert sie.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne Ich › Ruhig und persönlich › Assistent mit Belegen.
+2. Stell deine Frage.
+3. Tippe einen Beleg an, um ihn zu öffnen; «Gemini fragen» zitiert sie als [1].
+
+**Beispiel:** «Was habe ich über den Jura gelernt?» → 3 Einträge als Belege.
+
+### KI-Vorschläge zuerst prüfen
+
+Jede KI-Antwort wartet mit ihrer Herkunft und «noch zu prüfen», bis du sie als To-do übernimmst oder verwirfst; nichts ändert sich von selbst.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Frag Gemini auf der Seite «Assistent mit Belegen».
+2. Die Antwort wartet unter «KI-Vorschläge zuerst prüfen».
+3. «Übernehmen» macht ein To-do, «Verwerfen» legt sie weg.
+
+**Beispiel:** Gemini schlägt einen leichteren Kocher vor → «Übernehmen» → ein To-do, ihn zu prüfen.
+
+### Ausgeblendet und aus
+
+Alles, was du ausgeblendet oder ausgeschaltet hast, in einer Liste nach Bereich, jedes mit «Wieder zeigen»; Ausblenden löscht nie etwas.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne Ich › Ruhig und persönlich › Ausgeblendet und aus.
+2. Jeder Bereich zeigt, was du ausgeblendet hast, und was dahinter bleibt.
+3. «Wieder zeigen» holt es zurück, mit Rückgängig.
+
+**Beispiel:** Ein ausgeblendeter Reiter «Rennen» → «Wieder zeigen» → er ist wieder in der Leiste.
+
+### Sprachnotiz
+
+Unter dem Text von Tagebuch, Notizen, Tages-Check, Tour-Tagebuch, Fahrt-Notiz, Reise-Spur, Velopflege, Material, Träumen und Schnellnotiz: eine Sprachnotiz bis eine Minute, Foto, Datei, Ort, Schlagworte, Vorlagen, Schreibanreize und der KI-Helfer.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne einen Text, z. B. einen neuen Tagebuch-Eintrag, eine Notiz oder das Tour-Tagebuch.
+2. Tippe unter dem Text «Sprachnotiz», «Foto», «Datei», «Ort», «Schlagwort», «Vorlage» oder ein anderes Werkzeug; jede Seite zeigt, was passt.
+3. Speichere wie immer. Eine Sprachnotiz wird mit «Als Text» zu Wörtern, auf diesem Gerät.
+
+**Beispiel:** Auf der Fahrt «Sprachnotiz» → 40 Sekunden über das knarzende Tretlager, dann «Als Text».
+
+### Mit Vorlage starten
+
+Dankbarkeit, kleine Erfreuer, 2 gute Dinge, Lieblingsmoment und mehr: jede Seite hat eigene Vorlagen; hinzufügen, ändern, ordnen und löschen.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne einen Text und tippe darunter «Vorlage».
+2. Tippe eine Vorlage an: ihr Text kommt unter deinen.
+3. «Vorlagen ändern»: hinzufügen, ändern, ordnen oder löschen; jede Seite hat eigene.
+
+**Beispiel:** Im Tagebuch «2 gute Dinge» → «Zwei gute Dinge, die heute passiert sind: 1. 2.».
+
+### Quick Links
+
+Deine Abkürzungen an einem eigenen Ort: Pinne die Funktionen, die du am meisten brauchst, in eigene Gruppen; ein Tipp bringt dich hin. Handy und Computer haben je eigene Pins.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne Quick Links in der Leiste (am Computer: in der Seitenleiste).
+2. Tippe auf «Pin hinzufügen», suche eine Funktion und tippe auf «Anpinnen».
+3. Tippe auf «Bearbeiten»: umbenennen, Notiz dazu, mit Pfeilen oder Ziehen verschieben, entfernen.
+
+**Beispiel:** «Verschleiss» in die Gruppe «Velo» pinnen, mit der Notiz «nach Regen».
+
+### Pinnadeln auf den Karten
+
+Eine kleine Pinnadel oben rechts auf den Karten der App: ein Tipp legt die Karte in deine Quick Links, ein zweiter nimmt sie heraus. Ausschalten in Quick Links.
+
+**Aufschalten:** Von selbst an; ausschalten in Quick Links.
+
+1. Öffne eine Seite, zum Beispiel Heute oder Touren.
+2. Tippe auf die kleine Pinnadel oben rechts auf einer Karte.
+3. Öffne Quick Links: die Karte steht in deiner ersten Gruppe; ein Tipp dort bringt dich zurück.
+
+**Beispiel:** «Fahrt hochladen» unter Touren anpinnen und dann aus Quick Links mit einem Tipp öffnen.
+
+### Bildkarte
+
+Ein Tagebuch-Eintrag als Bild zum Teilen: dein eigenes Foto und ein Satz, auf diesem Gerät gemacht, ohne KI.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne einen Tagebuch-Eintrag und tippe «Bildkarte».
+2. Wähle das Foto und ändere den Satz.
+3. «Teilen» öffnet das Teilen-Menü des Handys, «Herunterladen» behält das Bild.
+
+**Beispiel:** Das Foto vom Pass und «Der beste Kaffee des Jahres auf 2000 m» als Karte für die Familie.
+
+### Rechner
+
+Plus, minus, mal, geteilt, Prozent
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne Ich › Werkzeugkasten › Rechner.
+2. Tippe die Zahlen ein oder nimm die Tasten.
+3. Tippe auf eine der letzten zehn Zeilen, um sie wieder zu nutzen.
+
+**Beispiel:** 68 × 3 ÷ 2 = 102 für die Hütte, zu zweit geteilt.
+
+### Masse umrechnen
+
+km, kg, °C, Reifendruck; auch offline
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne Ich › Werkzeugkasten › Masse umrechnen.
+2. Wähle die Art, zum Beispiel Druck.
+3. Tippe den Wert ein und wähle die zwei Einheiten.
+
+**Beispiel:** 2,1 bar → 30,5 psi für die Pumpe im Ausland.
+
+### Kleine Apps
+
+Einen Teil der App als eigene kleine App auf den Startbildschirm legen.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne Ich › Kleine Apps.
+2. Wähle einen Teil, zum Beispiel die Einkaufsliste.
+3. Lege ihn auf den Startbildschirm; er öffnet sich direkt dort.
+
+**Beispiel:** Die Einkaufsliste als eigenes Symbol neben der Kamera.
+
+### Ruhig und persönlich
+
+Alle ruhigen Funktionen auf einer Seite: weniger App, Herkunft der Werte, Briefe an dich, Bedeutung.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne Ich › Ruhig und persönlich.
+2. Wähle einen Teil, zum Beispiel «Weniger App».
+3. Jeder Teil erklärt sich auf seiner Seite.
+
+**Beispiel:** «Brief für einen Moment» öffnet sich in der ersten Nacht deiner nächsten Tour.
+
+### Sicherung prüfen
+
+Eine Sicherungsdatei prüfen, ohne etwas zu ändern, und eine zweite Kopie ausser Haus halten.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne Ich › Daten und Backup, oben «Alles in Ordnung?».
+2. Tippe «Sicherung prüfen» und wähle eine Datei: Es steht, ob sie gut ist, oder was nicht stimmt.
+3. Schick dir eine Sicherung selbst, dann tippe «Habe ich gerade gemacht».
+
+**Beispiel:** Datei vom letzten Monat → «Diese Sicherung ist gut. 5 Touren, 2 Velos».
+
+### Was die App noch wissen sollte
+
+Eine kurze Liste, was die App noch nicht weiss, wofür es gut ist und wo du es einträgst: Wohnort, Velogewicht, Startpunkte von Verschleissteilen, Gewichte des Materials.
+
+**Aufschalten:** Immer da, nichts zu tun.
+
+1. Öffne Ich › Hinweise und News.
+2. Oben: was die App noch wissen sollte, je mit dem Wofür.
+3. Tipp eines an, um es einzutragen; es verschwindet aus der Liste, sobald es ausgefüllt ist.
+
+**Beispiel:** 2 Velos ohne Gewicht → «Dann kann der Velo-Vergleich sagen, welches Velo für eine Tour leichter ist.»
 
 ## Bezahlen
 

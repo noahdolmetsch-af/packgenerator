@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { dataDue, ruhepulsHit, schlafHit, stimmungHit, moodByDay, dataOf, setRule, ruleOn, MAX_PER_DAY, GAP_DAYS, DATA_QUESTIONS, RULES } from '../src/lib/datenfragen.js';
+import { setVal, setText, ruleVal, ruleText, resetRule, ruleChanged, dataDue, ruhepulsHit, schlafHit, stimmungHit, moodByDay, dataOf, setRule, ruleOn, MAX_PER_DAY, GAP_DAYS, DATA_QUESTIONS, RULES } from '../src/lib/datenfragen.js';
 import { QUESTION, QUESTIONS, answerRow } from '../src/lib/abfragen.js';
 
 const TODAY = '2026-11-03';
@@ -50,8 +50,8 @@ describe('Fragen aus deinen Daten', () => {
     expect(dataDue({ health: health(52, 61), today: TODAY }).length).toBeLessThanOrEqual(MAX_PER_DAY);
   });
   it('keeps the switches safe', () => {
-    expect(dataOf(null)).toEqual({ off: [] });
-    expect(dataOf({ off: ['ruhepuls', 'ruhepuls', 'nope', 3] })).toEqual({ off: ['ruhepuls'] });
+    expect(dataOf(null)).toEqual({ off: [], vals: {}, texts: {} });
+    expect(dataOf({ off: ['ruhepuls', 'ruhepuls', 'nope', 3] }).off).toEqual(['ruhepuls']);
     expect(ruleOn(setRule(null, 'ruhepuls', false), 'ruhepuls')).toBe(false);
     expect(ruleOn(setRule({ off: ['ruhepuls'] }, 'ruhepuls', true), 'ruhepuls')).toBe(true);
   });
@@ -101,5 +101,38 @@ describe('Fragen aus deinen Daten', () => {
     expect(all.map((x) => x.q.id)).toEqual(['daten.ruhepuls', 'daten.schlaf', 'daten.stimmung']);
     const left = dataDue({ health: sleep, answers: [...moods(7, [4, 5, 4]), { qid: 'daten.ruhepuls', day: TODAY }, { qid: 'daten.schlaf', day: TODAY }], today: TODAY });
     expect(left.map((x) => x.q.id)).toEqual(['daten.stimmung']);
+  });
+
+  it('thresholds and texts: set, kept inside their limits, back to standard', () => {
+    let c = setVal(null, 'ruhepuls', 8);
+    expect(ruleVal(c, 'ruhepuls')).toBe(8);
+    expect(ruleChanged(c, 'ruhepuls')).toBe(true);
+    expect(ruleVal(setVal(c, 'ruhepuls', 99), 'ruhepuls')).toBe(5); // outside its limits: the default counts
+    expect(ruleVal(setVal(c, 'ruhepuls', ''), 'ruhepuls')).toBe(5);
+    expect(ruleVal(setVal(c, 'ruhepuls', 5), 'ruhepuls')).toBe(5);
+    expect(ruleVal(setVal(null, 'schlaf', 6.5), 'schlaf')).toBe(6.5);
+    c = setText(c, 'ruhepuls', '  Was war gestern los?  ');
+    expect(ruleText(c, 'ruhepuls')).toBe('Was war gestern los?');
+    expect(ruleText(setText(c, 'ruhepuls', '   '), 'ruhepuls')).toBeNull();
+    expect(ruleText(setText(c, 'ruhepuls', DATA_QUESTIONS['daten.ruhepuls'].text), 'ruhepuls')).toBeNull();
+    const off = setRule(c, 'ruhepuls', false);
+    expect(dataOf(off).vals.ruhepuls).toBe(8); // the switch keeps the settings
+    const back = resetRule(off, 'ruhepuls');
+    expect(ruleChanged(back, 'ruhepuls')).toBe(false);
+    expect(dataOf(back).off).toEqual(['ruhepuls']); // reset does not switch it back on
+  });
+  it('the engine uses the threshold and the wording of the person', () => {
+    expect(dataDue({ health: health(52, 56), today: TODAY })).toEqual([]);
+    const c = setText(setVal(null, 'ruhepuls', 3), 'ruhepuls', 'Was war gestern anders?');
+    const [d] = dataDue({ health: health(52, 56), today: TODAY, cfg: c });
+    expect(d.q.text).toBe('Was war gestern anders?');
+    expect(d.q.edited).toBe(true);
+    expect(d.q.id).toBe('daten.ruhepuls');
+    expect(schlafHit([{ date: TODAY, sleep: { asleepMin: 380 } }], TODAY)).toBeNull();
+    expect(schlafHit([{ date: TODAY, sleep: { asleepMin: 380 } }], TODAY, 7)).toEqual({ h: 6, m: 20 });
+    const four = [...Array.from({ length: 20 }, (_, i) => ({ qid: 'spass.stimmung', day: add(TODAY, -(i + 4)), value: 7 })), ...[5, 5, 5, 5].map((v, i) => ({ qid: 'spass.stimmung', day: add(TODAY, i - 3), value: v }))];
+    expect(stimmungHit(four, [], TODAY, 4)).toMatchObject({ days: 4, usual: 7 });
+    const two = [...Array.from({ length: 20 }, (_, i) => ({ qid: 'spass.stimmung', day: add(TODAY, -(i + 2)), value: 7 })), ...[5, 5].map((v, i) => ({ qid: 'spass.stimmung', day: add(TODAY, i - 1), value: v }))];
+    expect(stimmungHit(two, [], TODAY, 2)).toMatchObject({ days: 2 });
   });
 });
