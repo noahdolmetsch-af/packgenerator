@@ -7,13 +7,14 @@
   import { db } from '../db.js';
   import { activeBikes } from '../bikeretire.js';
   import { sortBikes, bikesHash } from '../bikes.js';
-  import { withVisits } from '../workshop.js';
+  import { withVisits, visitTotal } from '../workshop.js';
+  import { chfText } from '../money.js';
   import { bikeCare, bikeCareWords } from '../readiness.js';
   import { dueCards } from '../care/overview.js';
   import { localDay } from '../localday.js';
   import BikeQuickDialog from '../hubs/BikeQuickDialog.svelte';
   import { phone } from '../media.svelte.js';
-  import { t, tn, num } from '../i18n.svelte.js';
+  import { t, tn, num, dateOf } from '../i18n.svelte.js';
   let { bikeId = null, onbike } = $props();
   const bikesQ = liveQuery(() => db.bikes.toArray());
   const visitsQ = liveQuery(() => db.visits.toArray());
@@ -22,6 +23,14 @@
   const visits = $derived($visitsQ ?? []);
   const tasks = $derived($tasksQ ?? []);
   const today = localDay();
+  // step 4: «Workshop and history», the three newest workshop visits over all bikes, with cost and receipt
+  const names = $derived(Object.fromEntries(bikes.map((b) => [b.id, b.name])));
+  const recent = $derived(
+    visits
+      .filter((v) => names[v.bikeId])
+      .sort((a, b) => (b.date ?? '').localeCompare(a.date ?? ''))
+      .slice(0, 3),
+  );
   // step 2: «Log a workshop visit» and «Log a problem» straight from the card (the Today dialogs, one bike chosen)
   let dialog = $state(null); // { kind, bikeId }
   let saved = $state(null);
@@ -75,6 +84,23 @@
       {/if}
     </section>
   {/if}
+  <section class="vcard hist" data-visit-history aria-label={t('Workshop and history')}>
+    <b>{t('Workshop and history')} <small>{t('latest')}</small></b>
+    {#if recent.length}
+      <ul>
+        {#each recent as v (v.id)}
+          <li>
+            <a href={bikesHash({ tab: 'shop', bike: v.bikeId, visit: v.id })}>
+              <span>{v.shop || t('Workshop')} · {names[v.bikeId]}</span>
+              <small class="num">{[dateOf(v.date), visitTotal(v) != null ? chfText(visitTotal(v)) : '', v.photos?.length ? t('receipt') : ''].filter(Boolean).join(' · ')}</small>
+            </a>
+          </li>
+        {/each}
+      </ul>
+    {:else}
+      <p class="next" data-visit-none>{t('No workshop visit yet.')} <a href={bikesHash({ tab: 'shop' })}>{t('Open the workshop')}</a></p>
+    {/if}
+  </section>
   {#if saved}
     <p class="saved" role="status" data-card-saved>{saved.kind === 'visit' ? t('Workshop visit saved.') : t('Saved in Bike care.')} <a href={bikesHash({ tab: 'care', bike: saved.bikeId, open: true })}>{t('Open')}</a></p>
   {/if}
@@ -142,18 +168,22 @@
     margin: 0;
     font-size: var(--fs-small);
   }
-  .next-up {
+  .next-up,
+  .hist {
     margin-bottom: var(--sp-3);
   }
-  .next-up ul {
+  .next-up ul,
+  .hist ul {
     list-style: none;
     margin: 0;
     padding: 0;
   }
-  .next-up li + li {
+  .next-up li + li,
+  .hist li + li {
     border-top: 1px solid var(--line);
   }
-  .next-up li a {
+  .next-up li a,
+  .hist li a {
     display: flex;
     justify-content: space-between;
     gap: 10px;
@@ -161,7 +191,8 @@
     color: var(--ink);
     text-decoration: none;
   }
-  .next-up small {
+  .next-up small,
+  .hist small {
     color: var(--ink-2);
   }
   .saved {

@@ -1,5 +1,9 @@
 /** German texts: bikes. Keys are the English texts. */
 export default {
+  'Workshop and history': 'Werkstatt und Verlauf',
+  'latest': 'zuletzt',
+  'receipt': 'Beleg',
+  'Open the workshop': 'Zur Werkstatt',
   'Your bikes at a glance': 'Deine Velos auf einen Blick',
   'Open care': 'Pflege öffnen',
   'Show details': 'Details zeigen',

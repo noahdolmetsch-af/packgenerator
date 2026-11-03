@@ -20,6 +20,8 @@
   import { actName, goalName } from './ui.svelte.js';
   import { liveQuery } from 'dexie';
   import { GROUPS_KEY } from './sportgroups.js';
+  import { SPORT_TEMPLATES, applyTemplate } from './sporttemplates.js';
+  import { goalHint } from './goalhint.js';
   import { actGoalText, goalsText, oneGoal } from './words.js';
   import { t, locale, lang } from '../i18n.svelte.js';
 
@@ -95,6 +97,28 @@
   const st = $derived(a && !isNew ? actState(normAct({ ...a }), log, today, tripDays) : null);
   const minKey = $derived(a ? ([0, 15, 30].includes(a.minMin) && !minOwn ? a.minMin : 'own') : 0);
 
+  /* «Meine Sportarten» 5a: a template fills the empty form (name, symbol, ring, goal); the person changes everything */
+  let tplKey = $state('');
+  function pickTemplate(tpl) {
+    const prev = SPORT_TEMPLATES.find((x) => x.key === tplKey);
+    const keep = name.trim() && (!prev || name.trim() !== t(prev.name));
+    a = structuredClone(applyTemplate($state.snapshot(a), tpl, name.trim() && keep ? name.trim() : t(tpl.name)));
+    if (!keep) name = t(tpl.name);
+    minOwn = [0, 15, 30].includes(a.minMin) ? '' : String(a.minMin);
+    half = 'summer';
+    tplKey = tpl.key;
+    err = '';
+  }
+
+  /* «Meine Sportarten» 5a: a goal suggestion from the own last 4 weeks, never by itself, can be switched off */
+  const HINT_OFF = 'flow.goalHintOff';
+  const offQ = liveQuery(() => db.settings.get(HINT_OFF));
+  const hintOff = $derived($offQ?.value === true);
+  const hint = $derived(a && !isNew && !hintOff ? goalHint(normAct($state.snapshot(orig ?? a)), log, today, tripDays) : null);
+  const hintOpen = $derived(!!hint && a?.goals?.length === 1 && a.goals[0].count === hint.now && a.goals[0].days === 7);
+  const takeHint = () => (a.goals = [{ ...a.goals[0], count: hint.count }]);
+  const hintNever = () => db.settings.put({ key: HINT_OFF, value: true });
+
   async function save() {
     const nm = name.trim();
     if (!nm) {
@@ -168,6 +192,13 @@
 
     <section class="card cp" aria-label={t('Name and symbol')}>
       {#if isNew}
+        <p class="lbl" id="ed-tpl">{t('Start from a template')} <span class="quiet">· {t('optional')}</span></p>
+        <div class="chips tpl" role="group" aria-labelledby="ed-tpl" data-templates>
+          {#each SPORT_TEMPLATES as tp (tp.key)}
+            <button type="button" class="chip" aria-pressed={tplKey === tp.key} data-template={tp.key} onclick={() => pickTemplate(tp)}><ActIcon icon={tp.icon} ring={tp.ring} box={false} size={16} />{t(tp.name)}</button>
+          {/each}
+        </div>
+        <p class="hint top">{t('A template only fills the form. Name, symbol and goal stay yours to change.')}</p>
         <label class="lbl" for="ed-name">{t('Name')}</label>
         <input id="ed-name" class="inp big" type="text" bind:value={name} maxlength="40" autocomplete="off" enterkeyhint="done" oninput={() => (err = '')} />
       {/if}
@@ -206,6 +237,9 @@
       {/each}
       {#if !goals.length}<p class="hint">{t('No goal in this season: the activity rests.')}</p>{/if}
       <button type="button" class="lk" onclick={addSub}><Plus size={16} aria-hidden="true" />{goals.length ? t('Sub-goal') : t('Goal')}</button>
+      {#if hintOpen}
+        <p class="note goalhint" data-goal-hint><span>{t('In the last 4 weeks you did this {n}× ({m}× a week on average). Your goal is {k}×.', { n: hint.total, m: hint.count, k: hint.now })}</span> <button type="button" class="btn sm" onclick={takeHint} data-goal-hint-take>{t('Take {n}× a week', { n: hint.count })}</button> <button type="button" class="btn btn-link" onclick={hintNever} data-goal-hint-off>{t('Do not show again')}</button></p>
+      {/if}
       <p class="hint">{t('Always counts the last {n} days, whatever the weekday.', { n: goals[0]?.days ?? 7 })}</p>
       <p class="lbl" id="ed-min">{t('Minimum duration')}</p>
       <Seg chips full={false} labelledby="ed-min" value={minKey} onchange={(k) => (k === 'own' ? (minOwn = String(a.minMin || 20)) : ((minOwn = ''), (a.minMin = k)))} options={[{ key: 0, name: t('none|duration') }, { key: 15, name: t('{n} min', { n: 15 }) }, { key: 30, name: t('{n} min', { n: 30 }) }, { key: 'own', name: t('own|duration') }]} />

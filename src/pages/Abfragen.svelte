@@ -26,7 +26,8 @@
   import IntervalSheet from '../lib/abfragen/IntervalSheet.svelte';
   import OwnSheet from '../lib/abfragen/OwnSheet.svelte';
   import Auswertung from '../lib/abfragen/Auswertung.svelte';
-  import { abQuery, ensureConfig, saveConfig } from '../lib/abdb.js';
+  import { abQuery, ensureConfig, saveConfig, saveDataCfg } from '../lib/abdb.js';
+  import { RULES, MAX_PER_DAY, RHR_ABOVE, ruleOn, setRule } from '../lib/datenfragen.js'; // 03.11.2026 «Fragen aus deinen Daten»
   import { OWN_AREA, configOf, settingOf, setOn, setEvery, putOwn, newOwn, counts, stampOf, setRounds, timeOf, perDay, BUSY_DAY, areasOf, questionsIn, renameQuestion, moveToArea, deleteQuestion, restoreQuestion, goneQuestions, moveQuestion, renameArea, addArea, deleteArea, moveArea, listChanged, resetList } from '../lib/abfragen.js';
   import { qText, areaName, everyText, kindLabel, kindExtra, srcText } from '../lib/abfragen/words.js';
   import { localDay } from '../lib/localday.js';
@@ -296,6 +297,19 @@
               <label><span>{t('Evening round')}</span><input class="inp num" type="time" value={cfg.rounds.evening} onchange={(e) => setTime('evening', e.currentTarget.value)} data-round="evening" /></label>
             </div>
           {/if}
+        </div>
+      </section>
+      <!-- 03.11.2026 «Fragen aus deinen Daten» (Noah «2a»): a suggestion, each rule has its switch -->
+      <section class="ich-sec" aria-labelledby="ab-data-h" data-datenfragen>
+        <div class="ich-h"><div><h2 id="ab-data-h">{t('Questions from your data')}</h2><p class="ich-hs">{t('a suggestion, can be switched off')}</p></div></div>
+        <div class="card side">
+          <p class="p">{t('When a value stands out, the window asks one open question about it and says why. It is worked out on this device only. Up to {n} a day.', { n: MAX_PER_DAY })}</p>
+          {#each RULES as r (r.id)}
+            <div class="rsw" data-rule={r.id}>
+              <span class="rm"><b>{t(r.title)}</b><small>{t(r.about, { n: RHR_ABOVE })}</small></span>
+              <label class="ab-sw"><span class="sr">{t(r.title)}</span><input type="checkbox" role="switch" checked={ruleOn(data?.dataCfg, r.id)} onchange={(e) => saveDataCfg(setRule(data?.dataCfg, r.id, e.currentTarget.checked))} /></label>
+            </div>
+          {/each}
         </div>
       </section>
       <section class="ich-sec" aria-labelledby="ab-where-h">

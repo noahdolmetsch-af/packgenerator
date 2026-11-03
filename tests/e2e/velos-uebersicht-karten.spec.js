@@ -36,3 +36,12 @@ test('Bikes: «Next up» names the open work over all bikes or says nothing is d
   const none = page.locator('[data-next-none]');
   await expect(up.or(none).first()).toBeVisible();
 });
+
+test('Bikes: «Workshop and history» shows the latest visits or says there is none', async ({ page, context }) => {
+  await context.route(/^https?:\/\/(?!localhost[:/])/, (route) => route.abort());
+  await page.goto('./');
+  await importAndSettle(page, fixture);
+  await page.goto('./#/bikes');
+  await expect(page.locator('[data-visit-history]')).toBeVisible();
+  await expect(page.locator('[data-visit-history] li, [data-visit-none]').first()).toBeVisible();
+});
