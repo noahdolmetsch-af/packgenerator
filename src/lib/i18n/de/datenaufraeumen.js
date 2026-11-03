@@ -1,6 +1,14 @@
 // «Daten und Backup aufräumen» (Noah 01.11.2026 «1a 2a 3a 4a 5b»): Statuszeile, Faltstellen, die eine Frage,
 // Backup für die Datei, Abgleich für den Sync, nie vermischt.
 export default {
+  'Backup file': 'Backup-Datei',
+  'On the device with the newest data: tap «Save backup». The file lands in «Downloads».': 'Auf dem Gerät mit den neuesten Daten: tippe «Backup herunterladen». Die Datei landet in «Downloads».',
+  'Send the file to yourself (mail, chat, cloud folder).': 'Schick dir die Datei selbst (Mail, Chat, Cloud-Ordner).',
+  'On the other device: save the file, then tap «Import backup» and choose it.': 'Auf dem anderen Gerät: speichere die Datei, tippe dann «Backup importieren» und wähle sie aus.',
+  'Read what is added and what is replaced. «Merge» keeps everything on this device and adds the rest; you can undo it.': 'Lies, was dazukommt und was ersetzt wird. «Zusammenführen» behält alles auf diesem Gerät und fügt den Rest hinzu; du kannst es rückgängig machen.',
+  'Undo import': 'Import rückgängig',
+  'Import undone: the data is back as it was before.': 'Import rückgängig gemacht: Die Daten sind wieder wie vorher.',
+  'Undo failed, nothing was changed.': 'Rückgängig hat nicht geklappt, nichts wurde geändert.',
   'Back up now': 'Jetzt sichern',
   'Details|status': 'Einzelheiten',
   'Hide details': 'Einzelheiten ausblenden',

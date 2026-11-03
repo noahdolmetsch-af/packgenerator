@@ -2,7 +2,7 @@
 export default {
   title: 'Pick a backup file on the phone',
   lead: 'The backup picker no longer greys out files, and says how to save one from a mail.',
-  points: [{ text: 'Import backup shows every file and explains Gmail attachments', go: { href: '#/me/data', steps: [{ text: 'Back up with a file' }, { text: 'Import backup' }] } }],
+  points: [{ text: 'Import backup shows every file and explains Gmail attachments', go: { href: '#/me/data', steps: [{ text: 'Import backup' }] } }],
   small: [],
   test: ['Ich › Daten: under the backup buttons a line explains how to save a file from a mail.', 'Tap «Import backup»: the picker shows all files, also a .json from Downloads.'],
   since: [],
