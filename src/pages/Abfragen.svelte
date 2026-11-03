@@ -27,7 +27,7 @@
   import OwnSheet from '../lib/abfragen/OwnSheet.svelte';
   import Auswertung from '../lib/abfragen/Auswertung.svelte';
   import { abQuery, ensureConfig, saveConfig, saveDataCfg } from '../lib/abdb.js';
-  import { RULES, MAX_PER_DAY, RHR_ABOVE, ruleOn, setRule } from '../lib/datenfragen.js'; // 03.11.2026 «Fragen aus deinen Daten»
+  import { RULES, MAX_PER_DAY, ruleOn, setRule } from '../lib/datenfragen.js'; // 03.11.2026 «Fragen aus deinen Daten»
   import { OWN_AREA, configOf, settingOf, setOn, setEvery, putOwn, newOwn, counts, stampOf, setRounds, timeOf, perDay, BUSY_DAY, areasOf, questionsIn, renameQuestion, moveToArea, deleteQuestion, restoreQuestion, goneQuestions, moveQuestion, renameArea, addArea, deleteArea, moveArea, listChanged, resetList } from '../lib/abfragen.js';
   import { qText, areaName, everyText, kindLabel, kindExtra, srcText } from '../lib/abfragen/words.js';
   import { localDay } from '../lib/localday.js';
@@ -306,7 +306,7 @@
           <p class="p">{t('When a value stands out, the window asks one open question about it and says why. It is worked out on this device only. Up to {n} a day.', { n: MAX_PER_DAY })}</p>
           {#each RULES as r (r.id)}
             <div class="rsw" data-rule={r.id}>
-              <span class="rm"><b>{t(r.title)}</b><small>{t(r.about, { n: RHR_ABOVE })}</small></span>
+              <span class="rm"><b>{t(r.title)}</b><small>{t(r.about, r.vars)}</small></span>
               <label class="ab-sw"><span class="sr">{t(r.title)}</span><input type="checkbox" role="switch" checked={ruleOn(data?.dataCfg, r.id)} onchange={(e) => saveDataCfg(setRule(data?.dataCfg, r.id, e.currentTarget.checked))} /></label>
             </div>
           {/each}
