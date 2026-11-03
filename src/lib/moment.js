@@ -144,7 +144,7 @@ const LISTED_MOMENTS = {
   // Körper und Training
   koerper: [
     'f.tick', 'f.check', 'f.stopwatch', 'f.sportpage', 'f.progress', 'f.mosaic', 'f.sportextras', 'f.goals',
-    'f.yeargoals', 'f.abfragen', 'f.stravaticks', 'f.lake', 'f.datastars', 'f.training', 'f.form',
+    'f.yeargoals', 'f.abfragen', 'f.datenfragen', 'f.stravaticks', 'f.lake', 'f.datastars', 'f.training', 'f.form',
     'f.overview', 'f.trainplans', 'f.feel', 'f.analyses', 'f.analyse', 'f.weekreview', 'f.milestones', 'f.meditation',
     'f.medlog', 'f.medreview', 'f.gipfelbuch', 'f.routine', 'f.insights', 'f.timer', 'f.medmore',
     'f.parkdays', 'f.tennistop', 'f.yogaclasses', 'f.ownbody', 'f.observations', 'f.ridepage', 'f.tickreview',
