@@ -154,6 +154,8 @@ export default {
   '{n} received so far.': 'Bisher {n} geholt.',
   '{n} sent so far.': 'Bisher {n} geschickt.',
   'This takes unusually long. If it stays like this, close the app and open it again.': 'Das dauert ungewöhnlich lang. Bleibt es so, schliesse die App und öffne sie neu.',
+  'This device has no space left to save the data. Free some space; the sync tries again.': 'Auf diesem Gerät ist kein Platz mehr, um die Daten zu speichern. Schaffe Platz; der Abgleich versucht es wieder.',
+  'This device could not save an entry. The sync tries again.': 'Dieses Gerät konnte einen Eintrag nicht speichern. Der Abgleich versucht es wieder.',
   'Compare with the server': 'Mit dem Server vergleichen',
   'Filled in: {got} taken here, {sent} sent.': 'Ergänzt: {got} hier übernommen, {sent} geschickt.',
   'On the server: {a} entries. On this device: {b}.': 'Auf dem Server: {a} Einträge. Auf diesem Gerät: {b}.',

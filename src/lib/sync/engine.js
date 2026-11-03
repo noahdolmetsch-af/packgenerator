@@ -41,6 +41,9 @@ export const BATCH_CHARS = 2_500_000;
 export const RECORD_MAX = 3_900_000;
 const BATCH_MAX = 200;
 
+/** The code of an error from this device: a full phone says so instead of «server». */
+export const errCode = (err) => err?.code || (err?.name === 'QuotaExceededError' ? 'storage_full' : 'local_error');
+
 const known = new Set(DATA_TABLES);
 const deviceOnly = syncLocal;
 
@@ -375,7 +378,7 @@ export async function syncNow(db, { api = httpApi(), dev = 'computer', demo = as
     await writeCfg(db, { lastAt: now(), error: null, big: out.big });
     return out;
   } catch (err) {
-    await writeCfg(db, { error: err.code || 'server_error', errorAt: now() });
+    await writeCfg(db, { error: errCode(err), errorAt: now(), errorName: err?.name ?? null });
     throw err;
   }
 }

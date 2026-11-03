@@ -318,3 +318,32 @@ test('Training › Woche: a suggestion for the week, another one, take over, und
   await expect(plan.locator('[data-planned]')).toHaveCount(0);
   expect(errors).toEqual([]);
 });
+
+test('Training › Woche: free days and time per day in the suggestion are remembered', async ({ page, context, baseURL }) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await start(page, context, { log: [], app: baseURL });
+  await page.goto('./#/flow/training');
+  const plan = page.locator('[data-section="week-plan"]');
+  await plan.locator('[data-suggest-open]').click();
+  const sug = plan.locator('[data-suggest]');
+  const day = (i) => sug.locator(`[data-sug-day-btn="${i}"]`);
+  await expect(day(6)).toContainText('offen');
+  await day(6).click();
+  await expect(day(6)).toContainText('≤1h');
+  await day(6).click();
+  await expect(day(6)).toContainText('≤30m');
+  await day(6).click();
+  await expect(day(6)).toContainText('frei');
+  // all days free: no session is left, the buttons stay to undo it
+  for (let i = 0; i < 6; i++) for (let k = 0; k < 3; k++) await day(i).click();
+  await expect(sug.locator('[data-sug-row]')).toHaveCount(0);
+  await expect(day(0)).toContainText('frei');
+  // remembered after a reload
+  await page.reload();
+  await plan.locator('[data-suggest-open]').click();
+  await expect(sug.locator('[data-sug-day-btn="6"]')).toContainText('frei');
+  await sug.locator('[data-sug-day-btn="6"]').click();
+  await expect(sug.locator('[data-sug-day-btn="6"]')).toContainText('offen');
+  expect(errors).toEqual([]);
+});

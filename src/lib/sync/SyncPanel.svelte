@@ -57,6 +57,8 @@
   const ERR = {
     offline: () => t('No network right now. The sync catches up later.'),
     timeout: () => t('The server did not answer in time. The app tries again.'),
+    storage_full: () => t('This device has no space left to save the data. Free some space; the sync tries again.'),
+    local_error: () => t('This device could not save an entry. The sync tries again.'),
     not_ready: () => t('The sync is not ready on the server yet.'),
     storage_not_set_up: () => t('The sync is not ready on the server yet.'),
     not_set_up: () => t('Signing in with Google is not ready on the server yet. The code or the invite link works.'),

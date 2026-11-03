@@ -234,6 +234,13 @@ export function subOf(a, { bikeName = null } = {}) {
 }
 
 /* ---------- TR4: the week plan and the look back (Noah «1-5a» 4a: sessions with duration and zone per day) ---------- */
+export const DAYS_KEY = 'training.days'; // { [weekday 0 = Monday]: max minutes, 0 = keep the day free }
+/** Day limits as stored: only weekdays 0–6 with minutes 0–600. */
+export function cleanDayLimits(v) {
+  const out = {};
+  if (v && typeof v === 'object') for (const [k, m] of Object.entries(v)) if (/^[0-6]$/.test(k) && Number.isFinite(+m) && +m >= 0 && +m <= 600) out[k] = Math.round(+m);
+  return out;
+}
 export const PLAN_KEY = 'training.plan'; // { sessions: [{ id, day, kind, name, mins, zone }] }
 export const GOAL_KEY = 'training.goal'; // { name, hours, base, until } or null
 export const PLAN_KEEP_DAYS = 120;

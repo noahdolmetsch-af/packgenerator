@@ -241,3 +241,11 @@ describe('power: FTP, zones, load, W/kg (Noah 13.10.2026 «a und b», «a»)', (
     expect(wkg(238, null)).toBe(null);
   });
 });
+
+import { cleanDayLimits } from '../src/lib/training.js';
+describe('cleanDayLimits', () => {
+  it('keeps weekdays 0–6 with 0–600 minutes only', () => {
+    expect(cleanDayLimits({ 0: 0, 5: 30, 7: 10, x: 5, 2: -1, 3: 'a', 4: 900 })).toEqual({ 0: 0, 5: 30 });
+    expect(cleanDayLimits(null)).toEqual({});
+  });
+});

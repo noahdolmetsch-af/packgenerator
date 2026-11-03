@@ -26,3 +26,13 @@ test('Bikes: «Log a problem» on a card opens the window for that bike', async 
   await card.locator('[data-card-problem]').click();
   await expect(page.getByRole('dialog')).toBeVisible();
 });
+
+test('Bikes: «Next up» names the open work over all bikes or says nothing is due', async ({ page, context }) => {
+  await context.route(/^https?:\/\/(?!localhost[:/])/, (route) => route.abort());
+  await page.goto('./');
+  await importAndSettle(page, fixture);
+  await page.goto('./#/bikes');
+  const up = page.locator('[data-next-up]');
+  const none = page.locator('[data-next-none]');
+  await expect(up.or(none).first()).toBeVisible();
+});
