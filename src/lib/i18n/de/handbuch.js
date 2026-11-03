@@ -2091,6 +2091,12 @@ export default {
   'Needs a dream planned as a trip, and the debrief of that trip.': 'Braucht einen als Tour geplanten Traum und den Rückblick dieser Tour.',
   'Plan a dream as a trip (Trips › Dreams › the dream › «Plan the tour»).': 'Plane einen Traum als Tour (Touren › Träume › der Traum › «Tour planen»).',
   'After the trip, finish its debrief.': 'Schliess nach der Tour ihren Rückblick ab.',
+  // «Träume und Neuland» N14
+  'Needs dreams with a map (a GPX file or a Ride with GPS link).': 'Braucht Träume mit Karte (eine GPX-Datei oder ein Ride-with-GPS-Link).',
+  'Give two or more dreams a map.': 'Gib zwei oder mehr Träumen eine Karte.',
+  'Open Trips › Dreams and scroll to «All dreams on one map».': 'Öffne Touren › Träume und scrolle zu «Alle Träume auf einer Karte».',
+  'The list shows what each brings new; a tap opens the dream.': 'Die Liste zeigt, was jeder Neues bringt; ein Tipp öffnet den Traum.',
+  'Example: «Over the Furka» → 6 new municipalities · 2 new passes.': 'Beispiel: «Über die Furka» → 6 neue Gemeinden · 2 neue Pässe.',
   // «Träume und Neuland» N15
   'Needs the internet now and then (free weather service) and a home place or a dream with a map.': 'Braucht ab und zu Internet (freier Wetterdienst) und einen Wohnort oder einen Traum mit Karte.',
   'Give a dream its months; it fits now in one of them.': 'Gib einem Traum seine Monate; in einem davon passt er jetzt.',

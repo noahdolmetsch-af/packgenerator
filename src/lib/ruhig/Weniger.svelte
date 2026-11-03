@@ -4,15 +4,18 @@
    * UC-217-I2): Arbeitsraum für ein Vorhaben, Ruhige Ansicht, Erinnerungs-Budget, Nicht für mich.
    * Logic: weniger.js. The strip on top of every page: RuhigLine.svelte.
    */
-  import { Briefcase, Moon, BellRing, EyeOff, Plus, X, Play, Square } from '@lucide/svelte';
+  import { Briefcase, Moon, BellRing, EyeOff, Plus, X, Play, Square, Settings2 } from '@lucide/svelte';
   import Card from './Card.svelte';
+  import KindsEdit from './KindsEdit.svelte';
+  import { STARTS_KEY, startsOf } from './calmstarts.js';
+  import { kindName } from './kinds.js';
   import SortGrip from '../ui/SortGrip.svelte';
   import SortArrows from '../ui/SortArrows.svelte';
   import { sortable } from '../ui/sortable.js';
   import { t, tn } from '../i18n.svelte.js';
   import { localDay } from '../localday.js';
   import { FEATURE, findFeatures, featureHref } from '../features.js';
-  import { settingQ, saveSetting, endCalm } from './store.js';
+  import { settingQ, saveSetting, endCalm, resyncPhone } from './store.js';
   import { openFromHash } from './open.js';
   import { move } from './base.js';
   import { CALM_LOG_KEY, logOf, logDrop, weekSummary, hm as hoursMin } from './calmlog.js';
@@ -48,10 +51,14 @@
   let calmWhat = $state('');
   let calmHref = $state('');
   let calmMins = $state(30);
+  const startsQ = settingQ(STARTS_KEY);
+  const starts = $derived(startsOf($startsQ));
+  let editStarts = $state(false);
+  const startNow = (what) => saveSetting(CALM_KEY, { what, href: '', since: new Date().toISOString(), until: calmUntil(calmMins) });
   function calmStart(e) {
     e.preventDefault();
     if (!calmWhat.trim()) return;
-    saveSetting(CALM_KEY, { what: calmWhat.trim(), href: calmHref, since: new Date().toISOString(), until: calmUntil(calmMins) });
+    saveSetting(CALM_KEY, { what: calmWhat.trim(), href: calmHref, since: new Date().toISOString(), until: calmUntil(calmMins) }).then(resyncPhone);
     calmWhat = '';
   }
 
@@ -122,6 +129,7 @@
       <div class="rh-calm" data-calm-on>
         <p class="rh-calm-l">{t('You are doing')}</p>
         <p class="rh-calm-w">{calm.what}</p>
+        {#if calm.until}<p class="rh-help" data-calm-held>{t('Phone reminders wait until the end; warnings for weather, ice, light and eating come on time.')}</p>{/if}
         {#if calm.until}<p class="rh-help" data-calm-left>{calmLeft(calm) ? t('{n} min left', { n: calmLeft(calm) }) : t('Time is up')}</p>{/if}
         <div class="rh-row">
           {#if calm.href}<a class="btn" href={calm.href}>{t('Open')}</a>{/if}
@@ -130,6 +138,14 @@
       </div>
     {:else}
       <p class="rh-help">{t('Write what you do now. Until you tap «Done», suggestions, the «New» tile, stars and count badges rest on all pages except Today, and the strip on top shows what you do. Nothing is deleted.')}</p>
+      <div class="rh-chips" aria-label={t('Quick start')} data-calm-starts>
+        {#each starts as k (k.id)}<button type="button" class="rh-chip" onclick={() => startNow(kindName(k, t))} data-calm-start>{kindName(k, t)}</button>{/each}
+        <button type="button" class="rh-chip" onclick={() => (editStarts = !editStarts)} aria-expanded={editStarts} data-calm-starts-edit><Settings2 size={14} aria-hidden="true" /> {t('Change the quick starts')}</button>
+      </div>
+      {#if editStarts}
+        <KindsEdit kinds={starts} what={() => ''} none={t('Without a start')} noneHint={t('Nothing else changes.')} label={t('New start, e.g. Tidy the desk')}
+          onsave={(kinds) => saveSetting(STARTS_KEY, kinds)} ondelete={async (id) => { const snap = starts; await saveSetting(STARTS_KEY, starts.filter((k) => k.id !== id)); return snap; }} onundo={(snap) => saveSetting(STARTS_KEY, snap)} />
+      {/if}
       <form class="rh-row" onsubmit={calmStart}>
         <input class="inp" bind:value={calmWhat} placeholder={t('e.g. clean the bike, pack calmly')} aria-label={t('What are you doing now?')} data-calm-what />
         {#if space.ids.length}
