@@ -13,6 +13,7 @@
   import { ringScore, ringTone, dueCards, kmSinceService, calmWeeks, diary, costYear } from './overview.js';
   import { whoYear } from '../bikes/who.js';
   import ProblemList from './ProblemList.svelte';
+  import SeasonNow from './SeasonNow.svelte'; // «Velos-Pflege einbauen» 2a
   import Btn from '../ui/Btn.svelte';
   import MoreActions from '../ui/MoreActions.svelte';
   import { explain } from '../ui/explain.js';
@@ -172,6 +173,7 @@
         <button type="button" class="btn" onclick={() => openNew('problem')}><TriangleAlert size={18} aria-hidden="true" />{t('Report a problem')}</button>
         <button type="button" class="btn" onclick={onwork}><Wrench size={18} aria-hidden="true" />{t('Record work')}</button>
       </div>
+      <SeasonNow {today} />
       <!-- Gesamttest 20.10.2026: the tip of the day right under «Due now» -->
       {@render afterDue?.()}
 
