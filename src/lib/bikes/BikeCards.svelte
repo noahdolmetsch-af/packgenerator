@@ -9,9 +9,10 @@
   import { sortBikes, bikesHash } from '../bikes.js';
   import { withVisits } from '../workshop.js';
   import { bikeCare, bikeCareWords } from '../readiness.js';
+  import { dueCards } from '../care/overview.js';
   import { localDay } from '../localday.js';
   import BikeQuickDialog from '../hubs/BikeQuickDialog.svelte';
-  import { t, num } from '../i18n.svelte.js';
+  import { t, tn, num } from '../i18n.svelte.js';
   let { bikeId = null, onbike } = $props();
   const bikesQ = liveQuery(() => db.bikes.toArray());
   const visitsQ = liveQuery(() => db.visits.toArray());
@@ -34,9 +35,11 @@
     bikes.map((b) => {
       const care = bikeCare(withVisits(b, visits), { tasks, visits, today });
       const w = bikeCareWords(care);
-      return { bike: b, w, status: care?.status ?? 'nodata' };
+      return { bike: b, w, status: care?.status ?? 'nodata', care };
     }),
   );
+  // step 3: «Next up», the open work over all bikes, the most urgent first (the same rows as the care overview)
+  const upNext = $derived(dueCards(cards.map((c) => ({ bike: c.bike, care: c.care })), 5));
 </script>
 
 {#if cards.length}
@@ -56,6 +59,21 @@
       </article>
     {/each}
   </section>
+  {#if cards.length}
+    <section class="vcard next-up" data-next-up aria-label={t('Next up')}>
+      <b>{t('Next up')} <small>{t('all bikes')}</small></b>
+      {#if upNext.cards.length}
+        <ul>
+          {#each upNext.cards as x (x.bike.id + x.row.key)}
+            <li><a href={bikesHash({ tab: 'care', bike: x.bike.id, open: true })}><span>{x.row.name} · {x.bike.name}</span><small>{x.row.detail || t('due now')}</small></a></li>
+          {/each}
+        </ul>
+        {#if upNext.total > upNext.cards.length}<small class="more">{tn(upNext.total - upNext.cards.length, '{n} more due: open the bike', '{n} more due: open the bike')}</small>{/if}
+      {:else}
+        <p class="next" data-next-none>{t('Nothing due now on any bike.')}</p>
+      {/if}
+    </section>
+  {/if}
   {#if saved}
     <p class="saved" role="status" data-card-saved>{saved.kind === 'visit' ? t('Workshop visit saved.') : t('Saved in Bike care.')} <a href={bikesHash({ tab: 'care', bike: saved.bikeId, open: true })}>{t('Open')}</a></p>
   {/if}
@@ -109,6 +127,28 @@
   .next {
     margin: 0;
     font-size: var(--fs-small);
+  }
+  .next-up {
+    margin-bottom: var(--sp-3);
+  }
+  .next-up ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .next-up li + li {
+    border-top: 1px solid var(--line);
+  }
+  .next-up li a {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 8px 0;
+    color: var(--ink);
+    text-decoration: none;
+  }
+  .next-up small {
+    color: var(--ink-2);
   }
   .saved {
     margin: 0 0 var(--sp-3);
