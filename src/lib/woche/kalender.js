@@ -78,12 +78,34 @@ const WINDOWS = [
   { key: 'spring', from: '03-01', to: '04-15' },
 ];
 
-/** The season hints of a week: [{ key, ref }]; ref `season:<key>:<year>` is taken once a year. */
-export function seasonOf(monday) {
+export const SEASON_STD = ['lights', 'winter', 'ski', 'spring'];
+const MD = (m) => String(m).padStart(2, '0');
+/** The ideas of «Seasonal ideas» (Noah 2.11.2026 «c»): raw → { std: { key: { title?, hidden? } }, own: [{ id, title, from, to (months 1–12) }] }. */
+export function seasonCfg(raw) {
+  const std = {};
+  for (const k of SEASON_STD) {
+    const x = raw?.std?.[k];
+    if (x && typeof x === 'object') std[k] = { ...(typeof x.title === 'string' && x.title.trim() ? { title: x.title.trim().slice(0, 120) } : {}), ...(x.hidden ? { hidden: true } : {}) };
+  }
+  const own = (Array.isArray(raw?.own) ? raw.own : [])
+    .map((x) => ({ id: String(x?.id ?? ''), title: String(x?.title ?? '').trim().slice(0, 120), from: Math.round(Number(x?.from)), to: Math.round(Number(x?.to)) }))
+    .filter((x) => x.id && x.title && x.from >= 1 && x.from <= 12 && x.to >= 1 && x.to <= 12);
+  return { std, own };
+}
+/** The season hints of a week: [{ key, ref, title }]; ref `season:<key>:<year>` is taken once a year. title: a typed or renamed name, else null (the built-in text). */
+export function seasonOf(monday, raw = null) {
+  const cfg = seasonCfg(raw);
   const days = Array.from({ length: 7 }, (_, i) => shiftDay(monday, i));
   const year = Number(days[6].slice(0, 4));
   const out = [];
   if (days.includes(lastSunday(year, 10))) out.push('lights');
   for (const w of WINDOWS) if (days.some((d) => d.slice(5) >= w.from && d.slice(5) <= w.to)) out.push(w.key);
-  return out.map((key) => ({ key, ref: `season:${key}:${year}` }));
+  const list = out.filter((key) => !cfg.std[key]?.hidden).map((key) => ({ key, ref: `season:${key}:${year}`, title: cfg.std[key]?.title ?? null }));
+  for (const o of cfg.own) {
+    const a = `${MD(o.from)}-01`;
+    const b = `${MD(o.to)}-31`;
+    const inside = (d) => (a <= b ? d >= a && d <= b : d >= a || d <= b);
+    if (days.some((d) => inside(d.slice(5)))) list.push({ key: o.id, ref: `season:${o.id}:${year}`, title: o.title });
+  }
+  return list;
 }
