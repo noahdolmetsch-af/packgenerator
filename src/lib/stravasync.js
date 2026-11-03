@@ -215,6 +215,7 @@ export const ERROR_TEXT = {
   unauthorized: 'This device is not connected any more. Connect again.',
   not_set_up: 'The Strava connection is not set up on the server yet.',
   network: '«Strava» cannot be reached right now. You can keep working.',
+  timeout: 'Strava did not answer in time. Nothing was changed. Try again.',
   server_error: '«Strava» cannot be reached right now. You can keep working.',
   denied: 'The Strava login was cancelled.',
   scope: 'Strava did not allow reading the rides. Connect again and leave «View data about your activities» on.',
