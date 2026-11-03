@@ -15,6 +15,7 @@
  *   POST ?step=save { id, offer }                 → { offer }
  *   GET  ?step=bookings&id=…                      → { bookings } with names and contacts
  *   POST ?step=cancel { id, b }                   → { ok } any time
+ *   POST ?step=answer { id, b, decision }         → { booking } decision «confirm» or «decline» (requests only)
  *   POST ?step=cancelSlot { id, slot }            → { bookings } (the ones that were cancelled)
  *
  * Storage keys: bk:o:<id> the offer (with the owner key's hash), bk:n:<id>:<slot> booked places,
@@ -26,7 +27,7 @@
 import { route, json, redisEnv, needStore, ApiError } from './_lib/core.js';
 import { jsonBody, safeReturn, hash, randomKey, bearer } from './_lib/oauth.js';
 import { payEnv, isTestKey, CURRENCY } from './_lib/pay.js';
-import { cleanOffer, publicOffer, cleanPerson, slotOf, typeOf, canCancel, bookable, stale, bookingForm, zurichMs, ID, MAX_BOOKINGS } from './_lib/booking.js';
+import { cleanOffer, publicOffer, holdsPlace, ANSWER_HOURS, cleanPerson, slotOf, typeOf, canCancel, bookable, stale, bookingForm, zurichMs, ID, MAX_BOOKINGS } from './_lib/booking.js';
 
 export const STRIPE = 'https://api.stripe.com/v1';
 const CREATE_PER_DAY = 30;
@@ -72,16 +73,17 @@ export function makeHandler({ env = () => ({ ...payEnv(), ...redisEnv() }), doFe
       throw new ApiError(409, 'slot_full', 'This time is fully booked.');
     }
   }
-  async function writeBooking(s, offer, slot, person, paid) {
+  async function writeBooking(s, offer, slot, person, paid, status = null) {
     const key = newKey(18);
-    const b = { id: newKey(9).replace(/[^A-Za-z0-9]/g, 'x'), slot: slot.id, slotMs: zurichMs(slot.at), name: person.name, contact: person.contact, pay: offer.pay, paid, made: now(), keyHash: hash(key) };
+    const b = { id: newKey(9).replace(/[^A-Za-z0-9]/g, 'x'), slot: slot.id, slotMs: zurichMs(slot.at), name: person.name, contact: person.contact, note: person.note ?? '', ...(status ? { status } : {}), pay: offer.pay, paid, made: now(), keyHash: hash(key) };
     await s.cmd('HSET', `bk:b:${offer.id}`, b.id, JSON.stringify(b));
     return { b, key };
   }
-  const own = (offer, slot, b, key) => ({ id: b.id, key, offer: offer.id, slot: slot.id, at: slot.at, type: typeOf(offer, slot)?.label ?? '', price: typeOf(offer, slot)?.price ?? 0, name: b.name, pay: b.pay, paid: b.paid });
-  const forOwner = (offer, b) => ({ id: b.id, slot: b.slot, at: slotOf(offer, b.slot)?.at ?? null, name: b.name, contact: b.contact, pay: b.pay, paid: !!b.paid, made: b.made });
+  const own = (offer, slot, b, key) => ({ id: b.id, key, offer: offer.id, slot: slot.id, at: slot.at, type: typeOf(offer, slot)?.label ?? '', price: typeOf(offer, slot)?.price ?? 0, name: b.name, note: b.note ?? '', venue: slot.venue ?? '', status: b.status ?? 'confirmed', answerBy: b.made + ANSWER_HOURS * 3600_000, pay: b.pay, paid: b.paid });
+  const forOwner = (offer, b) => ({ id: b.id, slot: b.slot, at: slotOf(offer, b.slot)?.at ?? null, name: b.name, contact: b.contact, note: b.note ?? '', venue: slotOf(offer, b.slot)?.venue ?? '', status: b.status ?? 'confirmed', answerBy: b.made + ANSWER_HOURS * 3600_000, pay: b.pay, paid: !!b.paid, made: b.made });
   async function drop(s, offer, b) {
     await s.cmd('HDEL', `bk:b:${offer.id}`, b.id);
+    if (!holdsPlace(b)) return;
     const left = Number(await s.cmd('DECRBY', `bk:n:${offer.id}:${b.slot}`, 1));
     if (left < 0) await s.cmd('SET', `bk:n:${offer.id}:${b.slot}`, 0);
   }
@@ -201,6 +203,13 @@ export function makeHandler({ env = () => ({ ...payEnv(), ...redisEnv() }), doFe
           if (person.error) throw new ApiError(400, person.error, 'Please enter your name and a phone number or e-mail.');
           if (Number(await s.cmd('HLEN', `bk:b:${offer.id}`)) >= MAX_BOOKINGS) throw new ApiError(409, 'too_many', 'This offer has too many bookings.');
           const type = typeOf(offer, slot);
+          if (offer.mode === 'request') {
+            // A request holds no place; the owner answers (confirm takes the place).
+            const n = await booked(s, offer);
+            if ((n[slot.id] ?? 0) >= type.places) throw new ApiError(409, 'slot_full', 'This time is fully booked.');
+            const { b, key } = await writeBooking(s, offer, slot, person, false, 'requested');
+            return json(request, 200, { booking: own(offer, slot, b, key) });
+          }
           if (offer.pay === 'online' && type.price > 0) {
             needStripe(cfg);
             const n = await booked(s, offer);
@@ -233,6 +242,25 @@ export function makeHandler({ env = () => ({ ...payEnv(), ...redisEnv() }), doFe
           }
           await drop(s, offer, b);
           return json(request, 200, { ok: true });
+        }
+
+        if (step === 'answer') {
+          const offer = await load(s, body.id);
+          owns(request, offer);
+          const raw = await s.cmd('HGET', `bk:b:${offer.id}`, String(body.b ?? ''));
+          const b = raw ? JSON.parse(raw) : null;
+          if (!b) throw new ApiError(404, 'not_found', 'This booking does not exist (any more).');
+          if (b.status !== 'requested') throw new ApiError(409, 'already_answered', 'This request is already answered.');
+          const slot = slotOf(offer, b.slot);
+          if (!slot) throw new ApiError(404, 'not_found', 'This time does not exist (any more).');
+          if (body.decision === 'confirm') {
+            await takePlace(s, offer, slot);
+            b.status = 'confirmed';
+          } else if (body.decision === 'decline') b.status = 'declined';
+          else throw new ApiError(400, 'bad_request', 'Unknown answer.');
+          b.answered = now();
+          await s.cmd('HSET', `bk:b:${offer.id}`, b.id, JSON.stringify(b));
+          return json(request, 200, { booking: forOwner(offer, b) });
         }
 
         if (step === 'cancelSlot') {
