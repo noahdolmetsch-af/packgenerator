@@ -9,14 +9,21 @@
    * goals and the mosaic of all sports (was the top of #/flow/sports). Addresses #/flow/sports, …/goals and
    * …/activity all show this page.
    */
-  import { Plus, Lightbulb, ChevronRight, Pencil } from '@lucide/svelte';
+  import { Plus, Lightbulb, ChevronRight, Pencil, EyeOff, Pause, Play, Trash, ChevronUp, ChevronDown, ArrowUpToLine, ArrowDownToLine } from '@lucide/svelte';
+  import { liveQuery } from 'dexie';
   import { db } from '../../lib/db.js';
   import { flowQuery, seedIfNeeded } from '../../lib/flow/data.svelte.js';
   import { flowStates, lastDays, halfOf, halfEnds, halfSince, moveAct, gridRow, activeGoals } from '../../lib/flow.js';
-  import { saveOrder } from '../../lib/flowdb.js';
+  import { saveOrder, saveAct, removeAct, undoAct } from '../../lib/flowdb.js';
+  import { askDelete, deleteWithUndo } from '../../lib/ui/ask.js';
+  import RenameSheet from '../../lib/ui/RenameSheet.svelte';
+  import { OVERRIDES_KEY, listFor } from '../../lib/standard.js';
+  import { saveList, edit, addOwn, remove, toggleHidden } from '../../lib/lists.js';
+  import RowMenu from '../../lib/ui/RowMenu.svelte';
   import { actName } from '../../lib/flow/ui.svelte.js';
   import { actGoalText, goalsText, dayShort } from '../../lib/flow/words.js';
   import { seasonNow } from '../../lib/flow/aktiv.js';
+  import { similarNames } from '../../lib/flow/similar.js';
   import { isMedAct } from '../../lib/flow/hobby/medstart.js';
   import ActIcon from '../../lib/flow/ActIcon.svelte';
   import GoneActs from '../../lib/flow/GoneActs.svelte';
@@ -39,7 +46,7 @@
   import { sportName } from '../../lib/sportpage/words.js';
   import { sportHref } from '../../lib/flow/mysports.js';
   import { localDay } from '../../lib/localday.js';
-  import { offerDone } from '../../lib/ui/rename.svelte.js';
+  import { offerDone, offerRename } from '../../lib/ui/rename.svelte.js';
   import { t, tn } from '../../lib/i18n.svelte.js';
   import QuickLinks from '../../lib/ui/QuickLinks.svelte';
   import NextGoalRow from '../../lib/flow/NextGoalRow.svelte';
@@ -62,7 +69,9 @@
   const sq = sportsQuery();
   const sdata = $derived($sq);
   const cfg = $derived(sdata?.cfg ?? {});
-  const sports = $derived(sdata ? orderedSports(allSports({ domains: DOMAINS, acts: sdata.acts }), cfg) : []);
+  // the lists of Ich › Listen (names, hidden, own sports) change DOMAINS; a change of the setting redraws the sports
+  const ovQ = liveQuery(() => db.settings.get(OVERRIDES_KEY));
+  const sports = $derived(sdata && ($ovQ, true) ? orderedSports(allSports({ domains: DOMAINS, acts: sdata.acts }), cfg) : []);
   const tripSports = $derived(sports.filter((s) => s.kind === 'trip'));
   // the sports of trips keep their own order (arrows and drag), as on the old page «Sportarten»
   async function moveTrip(id, to) {
@@ -88,9 +97,137 @@
     await saveOrder(db, moveAct(all, id, to));
     offerDone(t('«{name}» moved to place {n}.', { name: actName(a), n: Math.max(1, Math.min(all.length, to + 1)) }), () => saveOrder(db, before));
   }
-  const dragged = (from, to) => move(all[from].id, to);
-  const step = (a, dir) => move(a.id, all.findIndex((x) => x.id === a.id) + dir);
+  // paused and resting sports wait in their own folded block (Noah 02.11.2026 «4a»); the order below counts them in
+  const isOff = (a) => !!a.paused || !!stateOf.get(a.id)?.resting;
+  const active = $derived(all.filter((a) => !isOff(a)));
+  const off = $derived(all.filter(isOff));
+  // a place among the shown sports → the place in the whole list
+  const moveShown = (a, to) => {
+    const k = Math.max(0, Math.min(active.length - 1, to));
+    return move(a.id, all.findIndex((x) => x.id === active[k].id));
+  };
+  const dragged = (from, to) => moveShown(active[from], to);
+  const step = (a, dir) => moveShown(a, active.findIndex((x) => x.id === a.id) + dir);
+  /* sports with the same name (Noah 02.11.2026 «4a»): a hint, nothing is changed by itself */
+  const SIMILAR_KEY = 'flow.similarOk';
+  const okQ = liveQuery(() => db.settings.get(SIMILAR_KEY));
+  const similar = $derived(similarNames(all.map((a) => ({ id: a.id, name: actName(a) })), $okQ?.value ?? []));
+  async function similarOk(key) {
+    const now = (await db.settings.get(SIMILAR_KEY))?.value ?? [];
+    await db.settings.put({ key: SIMILAR_KEY, value: [...new Set([...now, key])] });
+  }
   let reorder = $state(false);
+
+  /* the menu «⋯» of a row (Noah 02.11.2026 «2a»): rename, pause, move, delete with Undo, without opening the sport's page */
+  let renaming = $state(null); // the act being renamed
+  async function renameAct(a, nm) {
+    const before = { name: a.name, nameDe: a.nameDe };
+    const next = { ...$state.snapshot(a), name: nm };
+    delete next.nameDe;
+    await saveAct(db, next);
+    offerRename(nm, async () => {
+      const back = { ...next, name: before.name };
+      if (before.nameDe) back.nameDe = before.nameDe;
+      await saveAct(db, back);
+    });
+  }
+  async function togglePause(a) {
+    const was = !!a.paused;
+    await saveAct(db, { ...$state.snapshot(a), paused: !was });
+    offerDone(was ? t('«{name}» is active again.', { name: actName(a) }) : t('«{name}» paused.', { name: actName(a) }), () => saveAct(db, { ...$state.snapshot(a), paused: was }));
+  }
+  async function removeRow(a) {
+    const nm = actName(a);
+    const answer = await askDelete({
+      title: t('Delete «{name}»?', { name: nm }),
+      text: t('Keep the history: the tile goes, your ticks stay and it can come back under «Deleted». Delete with history: the ticks go too.'),
+      archive: t('Keep the history'),
+      label: t('Delete with history'),
+    });
+    if (!answer) return;
+    await deleteWithUndo({ run: () => removeAct(db, a.id, { keep: answer === 'archive' }), undo: (saved) => undoAct(db, saved), text: t('«{name}» deleted.', { name: nm }), name: nm });
+  }
+  /* the sports of trips (Noah 02.11.2026 «2a»): rename, hide, delete and add own ones in the list, as under Ich › Listen */
+  let renamingTrip = $state(null); // the trip sport being renamed
+  let addingTrip = $state(false);
+  const overrides = async () => (await db.settings.get(OVERRIDES_KEY))?.value ?? {};
+  const entryOf = (all, s) => listFor('domains', all).find((e) => e.id === s.key);
+  async function renameTrip(s, nm) {
+    const all = await overrides();
+    const e = entryOf(all, s);
+    if (!e) return;
+    await saveList(db, 'domains', edit(all.domains, e, { name: nm }));
+    offerRename(nm, () => saveList(db, 'domains', all.domains ?? {}));
+  }
+  async function addTrip(nm) {
+    const all = await overrides();
+    const { value } = addOwn(all.domains, { name: nm });
+    await saveList(db, 'domains', value);
+    offerDone(t('«{name}» added.', { name: nm }), () => saveList(db, 'domains', all.domains ?? {}));
+  }
+  async function hideTrip(s) {
+    const all = await overrides();
+    const e = entryOf(all, s);
+    if (!e) return;
+    await saveList(db, 'domains', toggleHidden(all.domains, e.id));
+    offerDone(t('«{name}» hidden.', { name: sportName(s) }), () => saveList(db, 'domains', all.domains ?? {}));
+  }
+  async function removeTrip(s) {
+    const all = await overrides();
+    const e = entryOf(all, s);
+    if (!e) return;
+    const nm = sportName(s);
+    const answer = await askDelete({
+      title: t('Delete sport «{name}»?', { name: nm }),
+      text: e.own ? t('Its trips and items move to Bikepacking.') : t('Trips and items keep it; it is no longer offered for a new trip. «Back to Standard» brings it back.'),
+    });
+    if (answer !== 'delete') return;
+    const savedTrips = e.own ? (await db.trips.toArray()).filter((x) => x.domain === e.id) : [];
+    const savedItems = e.own ? (await db.items.toArray()).filter((i) => i.domains?.includes(e.id)) : [];
+    await deleteWithUndo({
+      run: async () => {
+        if (e.own) {
+          await db.trips.bulkPut(savedTrips.map((x) => ({ ...x, domain: 'bikepacking' })));
+          await db.items.bulkPut(savedItems.map((i) => ({ ...i, domains: [...new Set(i.domains.map((d) => (d === e.id ? 'bikepacking' : d)))] })));
+        }
+        await saveList(db, 'domains', remove(all.domains, e));
+      },
+      undo: async () => {
+        await saveList(db, 'domains', all.domains ?? {});
+        if (savedTrips.length) await db.trips.bulkPut(savedTrips);
+        if (savedItems.length) await db.items.bulkPut(savedItems);
+      },
+      text: t('«{name}» deleted.', { name: nm }),
+      name: nm,
+    });
+  }
+  function tripMenu(s, i) {
+    return [
+      { key: 'rename', label: t('Rename'), icon: Pencil, onclick: () => (renamingTrip = s) },
+      { key: 'hide', label: t('Hide'), icon: EyeOff, onclick: () => hideTrip(s) },
+      { key: 'up', label: t('Move up'), icon: ChevronUp, disabled: i === 0, sep: true, onclick: () => tripStep(s, -1) },
+      { key: 'down', label: t('Move down'), icon: ChevronDown, disabled: i >= tripSports.length - 1, onclick: () => tripStep(s, 1) },
+      { key: 'delete', label: t('Delete …'), icon: Trash, danger: true, sep: true, onclick: () => removeTrip(s) },
+    ];
+  }
+  function menuOf(a, i) {
+    if (isOff(a)) {
+      return [
+        { key: 'rename', label: t('Rename'), icon: Pencil, onclick: () => (renaming = a) },
+        ...(a.paused ? [{ key: 'pause', label: t('Resume'), icon: Play, onclick: () => togglePause(a) }] : []),
+        { key: 'delete', label: t('Delete …'), icon: Trash, danger: true, sep: true, onclick: () => removeRow(a) },
+      ];
+    }
+    return [
+      { key: 'rename', label: t('Rename'), icon: Pencil, onclick: () => (renaming = a) },
+      { key: 'pause', label: a.paused ? t('Resume') : t('Pause'), icon: a.paused ? Play : Pause, onclick: () => togglePause(a) },
+      { key: 'up', label: t('Move up'), icon: ChevronUp, disabled: i === 0, sep: true, onclick: () => moveShown(a, i - 1) },
+      { key: 'down', label: t('Move down'), icon: ChevronDown, disabled: i >= active.length - 1, onclick: () => moveShown(a, i + 1) },
+      { key: 'top', label: t('To the top'), icon: ArrowUpToLine, disabled: i === 0, onclick: () => moveShown(a, 0) },
+      { key: 'bottom', label: t('To the bottom'), icon: ArrowDownToLine, disabled: i >= active.length - 1, onclick: () => moveShown(a, active.length - 1) },
+      { key: 'delete', label: t('Delete …'), icon: Trash, danger: true, sep: true, onclick: () => removeRow(a) },
+    ];
+  }
 
   /* three calm states (Impeccable runde 2): «heute offen», «noch 1× in 10 Tagen», «bis morgen» or «im Soll» */
   function goalPill(s) {
@@ -106,6 +243,29 @@
   }
   import PasstHier from '../../lib/ui/PasstHier.svelte'; // «Wegweiser statt Katalog» PR 7
 </script>
+
+{#snippet actRow(a, i, shown)}
+  {@const s = stateOf.get(a.id)}
+  <li data-id={a.id} data-row={a.id} data-sort-id={a.id}>
+    <a class="ar" href={sportHref(a)} data-sport-row={a.id}>
+      <span class="aico"><ActIcon icon={a.icon} ring={a.ring} dim={a.paused || s?.resting} /></span>
+      <span class="m"><b>{actName(a)}</b><small>{a.paused ? t('paused') : s?.resting ? t('rests until {date}', { date: dayShort(s.restUntil) }) : actGoalText(a, today)}{#if isMedAct(a)}{' · '}{t('with timer')}{/if}</small></span>
+      {#if s && !s.resting}
+        <span class="d7" aria-hidden="true">{#each gridRow(s, data.log, week, today, data.tripDays) as c, k (k)}<i class={c}></i>{/each}</span>
+        <span class="st num">{s.stand.n} / {s.stand.of}</span>
+        {@const p = goalPill(s)}
+        <span class="bdw"><span class="pill {p.cls}" data-pill={p.key}>{p.text}</span></span>
+      {:else}
+        <span class="d7 rest" aria-hidden="true">{#each week as d (d)}<i></i>{/each}</span>
+        <span class="st num">–</span>
+        <span class="bdw"><span class="pill">{a.paused ? t('paused') : t('rests')}</span></span>
+      {/if}
+    </a>
+    {#if shown}<SortGrip name={actName(a)} onstep={(d) => step(a, d)} />{/if}
+    {#if shown && reorder}<SortArrows name={actName(a)} {i} n={active.length} onstep={(dir) => step(a, dir)} />{/if}
+    <RowMenu name={actName(a)} items={menuOf(a, i)} />
+  </li>
+{/snippet}
 
 <div class="flow ms">
   <header class="ph">
@@ -131,30 +291,25 @@
       <div class="col">
         <Sec id="ms-h" title={t('Your sports, last 7 days')} sub={t('Dots = last 7 days · today on the right · a tap opens the sport')} more={{ label: reorder ? t('Done|order') : t('Sort|order'), onclick: () => (reorder = !reorder), expanded: reorder }}>
           {#if reorder}<p class="note ronote" data-reorder-note><Lightbulb size={16} aria-hidden="true" /><span>{t('The order here is the order of «Tick off today».')} {t('Drag the grip or use the arrows to move.')}</span></p>{/if}
+          {#each similar as g (g.key)}
+            <p class="note simnote" data-similar={g.key}><Lightbulb size={16} aria-hidden="true" /><span>{t('«{name}» appears {n} times. Rename one (for example «{name} winter») or pause it.', { name: g.name, n: g.ids.length })} <button type="button" class="btn btn-link" onclick={() => similarOk(g.key)}>{t('Keep as is|sport')}</button></span></p>
+          {/each}
           <ul class="acts card" class:sorting={reorder} use:sortable={{ onmove: dragged }} data-my-sports>
-            {#each all as a, i (a.id)}
-              {@const s = stateOf.get(a.id)}
-              <li data-id={a.id} data-row={a.id} data-sort-id={a.id}>
-                <a class="ar" href={sportHref(a)} data-sport-row={a.id}>
-                  <span class="aico"><ActIcon icon={a.icon} ring={a.ring} dim={a.paused || s?.resting} /></span>
-                  <span class="m"><b>{actName(a)}</b><small>{a.paused ? t('paused') : s?.resting ? t('rests until {date}', { date: dayShort(s.restUntil) }) : actGoalText(a, today)}{#if isMedAct(a)}{' · '}{t('with timer')}{/if}</small></span>
-                  {#if s && !s.resting}
-                    <span class="d7" aria-hidden="true">{#each gridRow(s, data.log, week, today, data.tripDays) as c, k (k)}<i class={c}></i>{/each}</span>
-                    <span class="st num">{s.stand.n} / {s.stand.of}</span>
-                    {@const p = goalPill(s)}
-                    <span class="bdw"><span class="pill {p.cls}" data-pill={p.key}>{p.text}</span></span>
-                  {:else}
-                    <span class="d7 rest" aria-hidden="true">{#each week as d (d)}<i></i>{/each}</span>
-                    <span class="st num">–</span>
-                    <span class="bdw"><span class="pill">{a.paused ? t('paused') : t('rests')}</span></span>
-                  {/if}
-                </a>
-                <SortGrip name={actName(a)} onstep={(d) => step(a, d)} />
-                {#if reorder}<SortArrows name={actName(a)} {i} n={all.length} onstep={(dir) => step(a, dir)} />{/if}
-              </li>
+            {#each active as a, i (a.id)}
+              {@render actRow(a, i, true)}
             {/each}
           </ul>
-          <p class="note"><Lightbulb size={16} aria-hidden="true" /><span>{t('Rename, pause or delete a sport on its page under «Edit».')}</span></p>
+          {#if off.length}
+            <details class="card fold off" data-paused-block>
+              <summary><span>{t('Paused and resting')}</span><small>{off.length}</small></summary>
+              <ul class="acts offl">
+                {#each off as a, i (a.id)}
+                  {@render actRow(a, i, false)}
+                {/each}
+              </ul>
+            </details>
+          {/if}
+          <p class="note"><Lightbulb size={16} aria-hidden="true" /><span>{t('Rename, pause or delete a sport with «⋯». Symbol, goal and season are on its page under «Edit».')}</span></p>
         </Sec>
 
         {#if seasonal.length}
@@ -184,10 +339,11 @@
                   <SortGrip name={sportName(s)} onstep={(d) => tripStep(s, d)} />
                   <a href="#/flow/sport/{encodeURIComponent(s.id)}"><ActIcon icon={s.icon} ring={s.ring} /><span>{sportName(s)}</span><ChevronRight size={16} aria-hidden="true" /></a>
                   {#if reorder}<SortArrows name={sportName(s)} {i} n={tripSports.length} onstep={(d) => tripStep(s, d)} />{/if}
+                  <RowMenu name={sportName(s)} items={tripMenu(s, i)} />
                 </li>
               {/each}
             </ul>
-            <p class="small edit"><Pencil size={14} aria-hidden="true" /> <a href="#/me/lists?domains">{t('Add, rename or hide sports of trips')}</a></p>
+            <p class="small edit"><button type="button" class="btn" data-add-trip-sport onclick={() => (addingTrip = true)}><Plus size={16} aria-hidden="true" />{t('Sport of trips')}</button> <a href="#/me/lists?domains">{t('Add, rename or hide sports of trips')}</a></p>
           </Sec>
         {/if}
         <!-- Noah 20.10.2026 «3a»: activities deleted with «Keep the history», to restore -->
@@ -206,6 +362,16 @@
   {/if}
   <PasstHier place="sports" />
 </div>
+
+{#if renamingTrip}
+  <RenameSheet kicker={t('Sport|kicker')} title={t('Rename sport')} value={sportName(renamingTrip)} max={40} onsave={(nm) => renameTrip(renamingTrip, nm)} onclose={() => (renamingTrip = null)} />
+{/if}
+{#if addingTrip}
+  <RenameSheet kicker={t('Sport|kicker')} title={t('New sport of trips')} value="" empty="" max={40} hint={t('It appears when you plan a trip and here.')} onsave={addTrip} onclose={() => (addingTrip = false)} />
+{/if}
+{#if renaming}
+  <RenameSheet kicker={t('In the flow')} title={t('Rename activity')} value={actName(renaming)} max={40} hint={t('Symbol, ring and goal stay as they are.')} onsave={(nm) => renameAct(renaming, nm)} onclose={() => (renaming = null)} />
+{/if}
 
 <style>
   .flow {
@@ -330,6 +496,17 @@
   }
   .ronote {
     margin: 0 2px var(--sp-2);
+  }
+  .simnote {
+    margin: 0 2px var(--sp-2);
+  }
+  .off {
+    margin-top: var(--sp-3);
+  }
+  .offl {
+    margin: 0;
+    padding: 0;
+    list-style: none;
   }
   .fold {
     padding: var(--sp-3) var(--sp-4);

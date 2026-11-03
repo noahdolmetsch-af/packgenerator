@@ -22,8 +22,8 @@
     try {
       found = await searchPlace(q);
       if (!found.length) msg = t('No place found. Try another spelling.');
-    } catch {
-      msg = t('No connection. Place search needs the internet.');
+    } catch (err) {
+      msg = err?.outage ? err.message : t('No connection. Place search needs the internet.');
     } finally {
       busy = false;
     }

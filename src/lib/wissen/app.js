@@ -14,4 +14,6 @@ export default {
   'f.ask': 'Give the helper the facts that change the list: nights, cold or not, train or not. «3 nights, Jura, maybe rain» beats «a trip».',
   'f.helper': 'The monthly limit protects your costs. If it is used up, everything else in the app still works; only the extra help waits for next month.',
   'f.miniapps': 'One small app for what you open daily, like the packing list or the weather, saves the detour through the menu, especially with gloves.',
+  'f.faustregel': 'Make a rule only when your debriefs agree: if the jacket stayed in the bag twice, trust that over a guess.',
+  'f.needsknow': 'Answer what is missing one thing at a time: each answer makes the next suggestion more accurate.',
 };

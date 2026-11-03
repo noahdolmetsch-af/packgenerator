@@ -44,9 +44,9 @@ describe('GPX file from the picker (AP22)', () => {
 describe('weather service down (AP22)', () => {
   const bern = { name: 'Bern', lat: 46.948, lon: 7.447 };
   it('HTTP 500 and a network error both throw (the caller shows a message, the list stays)', async () => {
-    await expect(fetchForecast(bern, async () => ({ ok: false, status: 500 }))).rejects.toThrow('Forecast failed (500)');
+    await expect(fetchForecast(bern, async () => ({ ok: false, status: 500 }))).rejects.toThrow(/keep working/);
     await expect(fetchForecast(bern, async () => { throw new TypeError('Failed to fetch'); })).rejects.toThrow();
-    await expect(searchPlace('Bern', async () => ({ ok: false, status: 503 }))).rejects.toThrow('Place search failed (503)');
+    await expect(searchPlace('Bern', async () => ({ ok: false, status: 503 }))).rejects.toThrow(/keep working/);
   });
 });
 

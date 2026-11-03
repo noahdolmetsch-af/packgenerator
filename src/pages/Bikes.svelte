@@ -5,6 +5,7 @@
    * the back button and a reload come back to the same place. The old #/care lands on Care.
    * v0.78.0 «Fünf Orte» 2: the tabs are the place's tabs on top (nav/PlaceTabs), with Masse.
    */
+  import BikeCards from '../lib/bikes/BikeCards.svelte';
   import PinnedLists from '../lib/merken/PinnedLists.svelte';
   import { parseBikesHash, bikesHash } from '../lib/bikes.js';
   import AreaIntro from '../lib/intro/AreaIntro.svelte'; // «Einstieg» on top (Noah «4a»)
@@ -144,6 +145,7 @@
     <CareTab bikeId={route.bike} open={route.open} tripId={route.trip ?? null} onbike={pickBike} onopened={opened} />
   {:else}
     <AreaIntro place="velos" />
+    <BikeCards bikeId={shownBike} onbike={pickBike} />
     <SetupTab bikeId={shownBike} more={route.open} onbike={pickBike} onopened={opened} />
     <PinnedLists place="bikes" />
     <PageTiles page="bikes" extrasHint />

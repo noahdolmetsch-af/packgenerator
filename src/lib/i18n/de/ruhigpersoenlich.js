@@ -291,6 +291,7 @@ export default {
   'Nothing else changes.': 'Sonst ändert sich nichts.',
   'New start, e.g. Tidy the desk': 'Neuer Start, z. B. Schreibtisch aufräumen',
   'Clear the history': 'Verlauf leeren',
+  'Show Today anyway': 'Heute trotzdem zeigen',
   '{n} min left': 'Noch {n} Min.',
   'Time is up': 'Die Zeit ist um',
   'Time is up for': 'Zeit ist um für',

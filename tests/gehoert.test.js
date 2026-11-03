@@ -45,6 +45,14 @@ describe('«Belongs to …» on top of a page (PR 7)', () => {
       for (const f of r.items) expect(momentOfFeature(f.id)).toBe(PAGE_MOMENT[page]);
     }
   });
+  it('Rückblick, Neuland and Wetter show their moment (idea D4)', () => {
+    expect(PAGE_MOMENT.debrief).toBe('zurueck');
+    expect(PAGE_MOMENT.neuland).toBe('lust');
+    expect(PAGE_MOMENT.wetter).toBe('planen');
+    expect(showsRow('debrief', '#/debrief')).toBe(true);
+    expect(showsRow('debrief', '#/debrief/logbook')).toBe(false);
+    expect(showsRow('wetter', '#/wetter')).toBe(true);
+  });
   it('on a hub page only on the page itself, and its own sub-pages are left out', () => {
     expect(showsRow('flow', '#/flow')).toBe(true);
     expect(showsRow('flow', '#/flow/edit/x')).toBe(false);
