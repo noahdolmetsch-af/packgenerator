@@ -563,6 +563,16 @@ Warum: Daten aus verschiedenen Bereichen sollen zusammenspielen, damit die App i
 
 In vier kleinen Schritten: 1 Seite mit Rezepten, Gruppen (Fleisch, Shakes, Sonntags-Brunch …), Portionen und Einkaufsliste · 2 Kochmodus (ein Schritt pro Bildschirm, Timer, Bildschirm bleibt an, alle Schritte auf einen Blick) · 3 ein Tipp pro Mahlzeit und Tag, ohne Wiederholung, mit «Anderer Vorschlag», «Mag ich», «Nie mehr zeigen» und kurzem Start (was du nicht isst, wie lange) · 4 ungefähre Nährwerte pro Portion. Später: Bezug zum Training, Link zur Suche im Online-Shop.
 
+## Fragen aus deinen Daten (03.11.2026)
+
+Warum: Der Tagescheck soll aus Noahs Daten klug fragen (Ziel 5 «Alltag», dazu Ziel 4 «Aus jeder Tour lernen»). Noah «1b 2a 3a 4a 5a» und «alle anderen Vorschläge fest einplanen». Ideenseite: https://claude.ai/artifact/FLtTe4HQSHzor8MN1RxsEu.
+
+- **Regeln:** Auffälliges löst eine offene Frage mit «Warum frage ich das?» aus, im normalen Morgen- oder Abendfenster, bis zu 3 pro Tag, ruhig und neugierig im Ton. Alles wird auf dem Gerät gerechnet, Gesundheit nur als Beobachtung.
+- **Stufe 1:** Regel-Motor mit Ruhepuls-Regel (gebaut), Schlaf-kurz- und Stimmung-tief-Regel, Seite «Fragen aus deinen Daten» (Schalter, Schwelle, Text, eigene Antworten).
+- **Stufe 2:** Regeln aus Training, Strava, Tennis und Wetter, Wiederholungsschutz, eine Zufallsfrage pro Tag aus den ausgeschalteten Musterfragen («Nie mehr»), Vermutungen testen aus «Was zusammenpasst».
+- **Stufe 3:** Kalender, To-Dos, Wunschtouren, Gewicht, Achtsamkeit, eigene Regeln selbst bauen, die zwei Fragensysteme (15 Fragen und «Wi gaht's?») zusammenführen, Tonwahl.
+- **Je ein kleiner PR**, in dieser Reihenfolge.
+
 ## Mini-Tools (28.10.2026)
 
 Warum: mit anderen Leuten schneller abmachen, ohne langes Hin und Her im Chat (Ziele Touren und Alltag). Noah «1b 2a 3a, Ideen 1, 2, 4, 5, 7, 9, 10, 5a». Ideenseite mit Skizzen: https://claude.ai/artifact/HA5TAJLzAtuhUBAAHqJApH

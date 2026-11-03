@@ -17,8 +17,12 @@ async function open(page, context, info) {
   const d = homeFixture();
   d.tables.healthDays = days();
   const T = await openHome(page, context, info, { data: d });
+  // 03.11.2026 «Fragen aus deinen Daten» (changed on purpose): today's pulse 56 stands out against the usual 50, so the
+  // morning check opens with the pulse question; wait for it, then put it away with «Später» (it would block the page)
   const ab = page.locator('[data-section="abfragen"]');
-  if (await ab.isVisible().catch(() => false)) await ab.locator('[data-ab-later]').click();
+  await expect(ab.locator('[data-q="daten.ruhepuls"]')).toBeVisible();
+  await ab.locator('[data-ab-later]').click();
+  await expect(ab).toBeHidden();
   return T;
 }
 

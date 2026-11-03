@@ -6,6 +6,7 @@
  */
 import { liveQuery } from 'dexie';
 import { db } from './db.js';
+import { DATA_KEY } from './datenfragen.js';
 import { AB_KEY, AB_SNOOZE_KEY, MIRROR, configOf, mergeHistory, stampOf } from './abfragen.js';
 import { QUESTIONS_KEY, poolOf, checkOf } from './flowcheck.js';
 import { WEIGHT_KEY } from './review/actdata.js';
@@ -20,8 +21,8 @@ export function abQuery(today) {
     const from = new Date(`${today}T00:00:00Z`);
     from.setUTCDate(from.getUTCDate() - 40);
     const near = new Date(`${today}T00:00:00Z`);
-    near.setUTCDate(near.getUTCDate() - 3);
-    const [cfg, snooze, answers, weight, checks, health] = await Promise.all([
+    near.setUTCDate(near.getUTCDate() - 31); // 03.11.2026: the 30 days before today give the usual resting pulse (datenfragen.js)
+    const [cfg, snooze, answers, weight, checks, health, dataCfg] = await Promise.all([
       db.settings.get(AB_KEY),
       db.settings.get(AB_SNOOZE_KEY),
       db.abAnswers.where('day').aboveOrEqual(from.toISOString().slice(0, 10)).toArray(),
@@ -29,8 +30,9 @@ export function abQuery(today) {
       db.flowChecks.where('day').aboveOrEqual(from.toISOString().slice(0, 10)).toArray(),
       // 0.171: the Fitbit days of the last days, so the window fills in what Fitbit measured (fitbitFill)
       db.healthDays ? db.healthDays.where('date').aboveOrEqual(near.toISOString().slice(0, 10)).toArray().catch(() => []) : [],
+      db.settings.get(DATA_KEY),
     ]);
-    return { cfg: cfg?.value ?? null, stored: !!cfg, snooze: snooze?.value ?? {}, answers, weightG: weight?.value ?? null, checks, health };
+    return { cfg: cfg?.value ?? null, stored: !!cfg, snooze: snooze?.value ?? {}, answers, weightG: weight?.value ?? null, checks, health, dataCfg: dataCfg?.value ?? null };
   });
 }
 
@@ -45,6 +47,7 @@ export async function ensureConfig(now = stampOf()) {
   });
 }
 export const saveConfig = (cfg) => db.settings.put({ key: AB_KEY, value: plain(configOf(cfg)) });
+export const saveDataCfg = (value) => db.settings.put({ key: DATA_KEY, value: plain(value ?? {}) });
 export const saveSnooze = (snooze) => db.settings.put({ key: AB_SNOOZE_KEY, value: plain(snooze ?? {}) });
 
 /**
