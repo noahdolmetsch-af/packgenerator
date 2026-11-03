@@ -76,6 +76,8 @@
   import ForgotPause from '../lib/tourenc/ForgotPause.svelte'; // Touren c 61
   import { forgotStep, whyOf } from '../lib/tourenc/pausewhy.js'; // Touren c 60/61
   import TurnHint from '../lib/live/TurnHint.svelte';
+  import NightLight from '../lib/live/NightLight.svelte'; // «Licht in der Nacht» (Paket D, Idee 20)
+  import { nightStrength, nightLightOn, beamDeg } from '../lib/live/nightlight.js';
   import { turnsOf, nextTurn, turnSay, turnListText } from '../lib/live/turns.js';
   import { lapNow, lapsOf, ghostOf, ghostDelta, lastRideOf, deltaText } from '../lib/live/laps.js';
   import DataPages from '../lib/live/DataPages.svelte';
@@ -173,7 +175,7 @@
   const climbs = $derived(profile.length > 1 ? climbsOf(profile, 100) : []);
 
   /* ---------- options (settings 'live') ---------- */
-  const OPTS = { voice: false, offRoute: false, battery: false, eatHm: false, storm: false, autoPause: false, autoKmh: 4, hrMax: 0, powerMax: 0, dim: false, autoData: false, turns: true, turnVoice: true };
+  const OPTS = { voice: false, offRoute: false, battery: false, eatHm: false, storm: false, autoPause: false, autoKmh: 4, hrMax: 0, powerMax: 0, dim: false, autoData: false, turns: true, turnVoice: true, nightLight: true };
   const cfg = $derived({ ...OPTS, ...($cfgQ?.value ?? {}) });
   const setOpt = (k, v) => db.settings.put({ key: 'live', value: { ...cfg, [k]: v } });
 
@@ -1212,6 +1214,9 @@
   let touchedAt = $state(Date.now());
   const warning = $derived(offWarn || !!storm || !!limitMsg || rec.paused || standing);
   const dimmed = $derived(cfg.dim && full && !warning && now - touchedAt > 120_000);
+  // «Licht in der Nacht» (Paket D, Idee 20): after sunset the edge of the map darkens and a cone of light lies ahead
+  const nightS = $derived(nightStrength(light, now));
+  const nightOn = $derived(nightLightOn({ strength: nightS, enabled: cfg.nightLight, battery: cfg.battery }));
   // Stromsparen 2a: after 2 min without a touch the first data page instead of the map; a warning brings the map back
   let autoSwitched = false;
   $effect(() => {
@@ -1366,6 +1371,8 @@
           <LiveSmallMap me={meOnMap} line={route?.line ?? []} {done} />
         {/snippet}
       </DataPages>
+
+      {#if nightOn && dpIndex === 0}<NightLight strength={nightS} deg={beamDeg({ rotated: goalOn && !northUp, deg })} />{/if}
 
       <!-- warnings over the map -->
       <div class="lvf-alerts">
@@ -1852,6 +1859,9 @@
       </li>
       <li class="rc-row">
         <label class="lv-opt"><input type="checkbox" checked={cfg.dim} onchange={(e) => setOpt('dim', e.currentTarget.checked)} data-live-opt="dim" /><span><b>{t('Save the screen')}</b><small>{t('After 2 minutes without a touch the map gets darker (less battery on most phones). A touch or a warning makes it bright again.')}</small></span></label>
+      </li>
+      <li class="rc-row">
+        <label class="lv-opt"><input type="checkbox" checked={cfg.nightLight} onchange={(e) => setOpt('nightLight', e.currentTarget.checked)} data-live-opt="nightLight" /><span><b>{t('Night light')}</b><small>{t('After sunset the edge of the map gets darker and a warm cone of light lies ahead of you, like from a front lamp. Not with the battery saver.')}</small></span></label>
       </li>
       <li class="rc-row">
         <label class="lv-opt"><input type="checkbox" checked={cfg.sleepSpots ?? isRace} onchange={(e) => setOpt('sleepSpots', e.currentTarget.checked)} disabled={!hasRoute} data-live-opt="sleepSpots" /><span><b>{t('Places to sleep ahead')}</b><small>{hasRoute ? t('The next three places to sleep on the route in the panel: hotels, roofs, places open at night and your own spots. On by default in a race.') : t('Needs a route.')}</small></span></label>
