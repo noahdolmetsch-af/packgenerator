@@ -4,6 +4,7 @@ Stand: 26. Oktober 2026 (live v0.208.0; 0.208.1 bis 0.212.0 offen). **Einstieg: 
 
 | Frage | Dokument | Verantwortung |
 |---|---|---|
+| Was kann die App, wo steht es, wie hängt es zusammen? | [App-Stand](app-stand.md) | **Zuerst lesen, vor jeder Abfrage** (Noah, 03.11.2026). Alle Funktionsbereiche mit Link, Orte, Daten, Verbindungen; ein Test hält es wahr |
 | Wo stehen wir heute, was kommt als Nächstes? | [Projektstand und Plan](projektstand.md) | Einstieg, Stand 26.10.2026; wird bei jedem Paket nachgeführt und gilt vor älteren Angaben |
 | Wie ist das Projekt gewachsen? | [Geschichte](geschichte.md) | Abschnitte von 0.1.0 bis heute, mit den Wendepunkten und dem, was wir gelernt haben |
 | Was wurde seit 0.96 besprochen, entschieden, gebaut und spezifiziert? | [Zwischenstand 14.10.2026](zwischenstand/README.md) | Datierter Schnappschuss für Aussenstehende, sechs Dokumente |
