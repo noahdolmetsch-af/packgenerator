@@ -15,9 +15,11 @@ describe('Heute ruhiger: areas (3a)', () => {
     expect(sectionOf({ id: 'meditation', size: 's' })).toBe('quick');
     expect(sectionOf({ id: 'meditation', size: 'long' })).toBe('now');
   });
-  it('the ready wall: Jetzt, Dein Körper, Deine Woche, Unterwegs, Schnell öffnen; inside an area the order of the wall', () => {
+  it('the ready wall: Jetzt, Dein Körper, Unterwegs und Velos, Deine Woche, Schnell öffnen; inside an area the order of the wall', () => {
     const g = sectionsOf(READY);
-    expect(g.map((s) => s.key)).toEqual(['now', 'body', 'week', 'away', 'quick']);
+    // «Velos-Pflege einbauen» (Noah 03.11.2026 «5a», changed on purpose): the last activity, then the bikes, stand over «Deine Woche»
+    expect(g.map((s) => s.key)).toEqual(['now', 'body', 'away', 'week', 'quick']);
+    expect(ids(g[2].tiles)).toEqual(['strava', 'bikes']);
     expect(ids(g[0].tiles)).toEqual(['meditation', 'moment', 'heutecheck', 'trip', 'weighin', 'discover', 'important']); // «Heute-Check» (Noah 30.10.2026) in «Jetzt»; // «Entdecken» after the day's questions, so «Weight this week?» stays within 2.5 screens
     expect(ids(g[1].tiles)).toEqual(['body', 'acts', 'vo2max']); // VO2max (Noah 28.10.2026) in «Dein Körper»
     expect(ids(g.at(-1).tiles)).toEqual(['pins']); // «Schnell öffnen» (Noah 01.11.2026): the tile with your pins

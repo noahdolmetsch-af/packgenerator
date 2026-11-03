@@ -59,8 +59,10 @@ test.describe('HA Heute neu A', () => {
     const bodyArea = order.filter((id) => ['weighin', 'body', 'acts'].includes(id));
     expect(bodyArea).toEqual(HEAD_N2.filter((id) => ['weighin', 'body', 'acts'].includes(id) && order.includes(id)));
     for (const id of ['week', 'balance', 'bikes']) expect(order, id).toContain(id);
-    expect(order.indexOf('week')).toBeLessThan(order.indexOf('bikes'));
-    expect(order.indexOf('balance')).toBeLessThan(order.indexOf('bikes'));
+    // «Velos-Pflege einbauen» (Noah 03.11.2026 «5a», changed on purpose): the last activity, then the bikes, stand over «This week»
+    expect(order.indexOf('strava')).toBeLessThan(order.indexOf('bikes'));
+    expect(order.indexOf('bikes')).toBeLessThan(order.indexOf('week'));
+    expect(order.indexOf('bikes')).toBeLessThan(order.indexOf('balance'));
     // «Heute ruhiger» 1a (changed on purpose): the 8 shortcuts are one list «Schnell öffnen»
     // «Schnell öffnen» (Noah 01.11.2026 «5a», changed on purpose): one tile with the pins instead of the 8 small tiles
     await expect(page.locator('.wall [data-tile^="fn:"]')).toHaveCount(0);

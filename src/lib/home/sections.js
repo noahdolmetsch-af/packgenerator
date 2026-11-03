@@ -23,8 +23,8 @@ const NONE_AREA = { key: NONE, name: 'Without area', sub: '' };
 export const SECTIONS = [
   { key: 'now', name: 'Now|home', sub: 'What is up today' },
   { key: 'body', name: 'Your body|home', sub: 'Only to look at, no rating' },
+  { key: 'away', name: 'On the road and bikes', sub: '' }, // «Velos-Pflege einbauen» (Noah 03.11.2026 «5a»): the last activity and the bikes stand over «Your week»
   { key: 'week', name: 'Your week|home', sub: '' },
-  { key: 'away', name: 'On the road and bikes', sub: '' },
   { key: 'quick', name: 'Open quickly', sub: '' },
   { key: 'discover', name: 'Discover|home', sub: 'New in the app and a tip each week' },
 ];
