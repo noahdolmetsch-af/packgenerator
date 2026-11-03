@@ -94,6 +94,11 @@ describe('buildWeek', () => {
     expect(off.suggestions.some((s) => s.source === 'todo')).toBe(true);
     expect(off.sources.bike).toBe(all.sources.bike);
   });
+  it('a suggestion put away for good stays away in every week (Noah 2.11.2026 «b»)', () => {
+    const sgNever = [{ ref: 'todo:t2', title: 'x' }];
+    expect(buildWeek({ ...base, items, sgNever }).suggestions.some((s) => s.ref === 'todo:t2')).toBe(false);
+    expect(buildWeek({ ...base, monday: '2026-10-26', items, sgNever }).suggestions.some((s) => s.ref === 'todo:t2')).toBe(false);
+  });
   it('a planned bike job is no suggestion any more; a skipped suggestion waits a week', () => {
     const planned = itemsOf([...items, { kind: 'bike', title: 'Measure the chain', day: '2026-10-21', bikeId: 'b1', part: 'km:chain' }]);
     expect(buildWeek({ ...base, items: planned, care }).suggestions.some((s) => s.kind === 'bike')).toBe(false);

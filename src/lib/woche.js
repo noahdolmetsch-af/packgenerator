@@ -36,6 +36,9 @@ export const NO_KEY = 'week.no';
 export const SG_OPEN_KEY = 'week.sgopen';
 /** The sources of «Still to plan» the person switched off (Noah 2.11.2026 «a»): keys of SUGG_SOURCES. */
 export const SG_OFF_KEY = 'week.sgoff';
+/** Single suggestions put away for good (Noah 2.11.2026 «b»): [{ ref, title }]. */
+export const SG_NEVER_KEY = 'week.sgnever';
+export const neverOf = (v) => (Array.isArray(v) ? v.filter((x) => x && typeof x.ref === 'string').map((x) => ({ ref: x.ref, title: String(x.title ?? '').slice(0, 120) })) : []);
 export const SUGG_SOURCES = ['todo', 'google', 'bike', 'tour', 'season', 'sport'];
 export const PLANNED_KEY = 'week.planned';
 /** The door for an outside calendar (Google Teil 2): a list of dates, read here, written there. */
@@ -169,7 +172,7 @@ export function freeDay(days, from, away = []) {
  * suggestions: { ref, kind, title, sub, day (proposed), act 'take'|'drop' }
  */
 export function buildWeek(src) {
-  const { monday, today, items = [], away = [], hide = [], no = [], cal = [], trips = [], sessions = [], acts = [], fixed = [], plans = [], actName = (id) => id, care = [], goalHours = null, forecast = null, google = null, flowLog = [], book = [], sgOff = [] } = src;
+  const { monday, today, items = [], away = [], hide = [], no = [], cal = [], trips = [], sessions = [], acts = [], fixed = [], plans = [], actName = (id) => id, care = [], goalHours = null, forecast = null, google = null, flowLog = [], book = [], sgOff = [], sgNever = [] } = src;
   const week = daysOf(monday);
   const end = shiftDay(monday, 7);
   const skipped = new Set(no.filter((k) => k.endsWith(`|${monday}`)).map((k) => k.slice(0, k.lastIndexOf('|'))));
@@ -305,7 +308,7 @@ export function buildWeek(src) {
     sums,
     // «Still to plan»: what each source offers (before switching off), and the suggestions of the sources left on
     sources: Object.fromEntries(SUGG_SOURCES.map((k) => [k, suggestions.filter((s) => s.source === k && shown(s.kind)).length])),
-    suggestions: suggestions.filter((s) => shown(s.kind) && !sgOff.includes(s.source)),
+    suggestions: suggestions.filter((s) => shown(s.kind) && !sgOff.includes(s.source) && !sgNever.some((n) => n.ref === s.ref)),
     paused,
     review,
     hints: loadHints(days, sums.mins, review),
