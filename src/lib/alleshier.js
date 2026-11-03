@@ -24,13 +24,13 @@ export function tileOf(id) {
   return { id, title: f.title, href: f.href };
 }
 
-/** The tiles of an area as the user arranged them: { shown, hidden }. Unknown ids are left out, new ones go last. */
+/** The tiles of an area as the user arranged them: { all (ids, hidden ones at their place), shown, hidden }. Unknown ids are left out, new ones go last. */
 export function arrange(area, state = null) {
   const ids = (ALL_HERE[area] ?? []).filter((id) => tileOf(id));
   const order = (state?.order ?? []).filter((id) => ids.includes(id));
   const all = [...order, ...ids.filter((id) => !order.includes(id))];
   const hidden = new Set((state?.hidden ?? []).filter((id) => ids.includes(id)));
-  return { shown: all.filter((id) => !hidden.has(id)).map(tileOf), hidden: all.filter((id) => hidden.has(id)).map(tileOf) };
+  return { all, shown: all.filter((id) => !hidden.has(id)).map(tileOf), hidden: all.filter((id) => hidden.has(id)).map(tileOf) };
 }
 
 /** The state after moving a shown tile one place up (-1) or down (+1). */
@@ -56,8 +56,7 @@ export function moveTo(area, state, from, to) {
 
 /** The state after hiding (true) or showing (false) a tile. */
 export function setHidden(area, state, id, hide) {
-  const { shown, hidden } = arrange(area, state);
-  const order = [...shown, ...hidden].map((x) => x.id);
+  const { all: order, hidden } = arrange(area, state);
   const h = new Set(hidden.map((x) => x.id));
   if (hide) h.add(id);
   else h.delete(id);
