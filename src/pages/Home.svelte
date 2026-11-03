@@ -135,6 +135,7 @@
   import TripState from '../lib/ui/TripState.svelte';
   import InProgress from '../lib/trip/InProgress.svelte';
   import Wall from '../lib/home/Wall.svelte';
+  import PullRefresh from '../lib/home/PullRefresh.svelte'; // «Ziehen zum Aktualisieren mit Velorad» (Paket D, Idee 10)
   import TileCatalog from '../lib/home/TileCatalog.svelte';
   import PinsTile from '../lib/home/PinsTile.svelte';
   import SmallTile from '../lib/home/SmallTile.svelte';
@@ -1240,6 +1241,7 @@
 {/snippet}
 
 <div class="home">
+  <PullRefresh />
   <!-- «Heute neu» A (Noah «5b»): «New in …», the tip of the week and «Connect Strava» live under Ich only -->
   <!-- HG1 2a: the greeting always first on Today, the evening before a trip too; the Vorabend line follows -->
   {@render greetingS()}
