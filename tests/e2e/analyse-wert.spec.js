@@ -38,6 +38,7 @@ async function open(page, context) {
   await page.reload();
   await ready(page);
   await page.locator('[data-tab="werte"]').click(); // the tiles sit in the tab «Alle Werte»
+  await page.locator('[data-groups-toggle]').click(); // the groups are closed until opened
   return errors;
 }
 

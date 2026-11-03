@@ -343,6 +343,7 @@ test('Eigene Rechnungen: Schlafindex and Unruhe as labelled own calculations', a
   const errors = await open(page, context);
   await go(page, '#/auswerten/analyse');
   await tab(page, 'werte');
+  await page.locator('[data-groups-toggle]').click(); // the groups are closed until opened
   const tile = page.locator('[data-value="sleepScore"]');
   await expect(tile).toBeVisible();
   await expect(tile).toContainText(T('own calculation|own'));
