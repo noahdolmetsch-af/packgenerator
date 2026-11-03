@@ -51,6 +51,9 @@
   import { LAST_BACKUP, LAST_IMPORT, backupDue, downloadBackup } from '../lib/backup.js';
   import { folderBackupSupported, folderStatus, allowAgain } from '../lib/folderBackup.js';
   import { backupAfterTrip } from '../lib/todos.js';
+  import { zustandRows } from '../lib/home/zustand.js';
+  import { keepState, askKeep } from '../lib/storagekeep.js';
+  import { sync as autoSync, runSync } from '../lib/sync/auto.svelte.js';
   import { knownWeight, isInventory } from '../lib/gear.js';
   import { sortBikes, bikesHash } from '../lib/bikes.js';
   import { sheetReminders, laterChanges } from '../lib/sheets2.js';
@@ -580,6 +583,14 @@
       folderName = f.name ?? '';
     }).catch(() => {});
   });
+  // «Ist alles in Ordnung?» (Noah 02.11.2026): space, «browser keeps the data» and the sync show here only when not right
+  let space = $state(null);
+  let keep = $state('unknown');
+  $effect(() => {
+    navigator.storage?.estimate?.().then((e) => (space = e?.quota ? { used: e.usage ?? 0, quota: e.quota } : null), () => {});
+    keepState().then((k) => (keep = k));
+  });
+  const zustand = $derived(zustandRows({ storage: space, keep, sync: autoSync, hasData: items.length + allTrips.length > 0 && !$demoQ }, { keepNow: async () => (keep = await askKeep()), syncNow: () => runSync() }));
   async function allowFolder() {
     folderNeedsOk = !(await allowAgain(db));
   }
@@ -708,6 +719,7 @@
     const askT = askTrips[0];
     if (askT) rows.push({ key: 'ride', tone: 'warn', st: 'done', text: hasBike(askT) ? t('{title} ({date}): date passed. Did you ride?', { title: askT.title, date: shortDay(askT.startDate) }) : t('{title} ({date}): date passed. Did you go?', { title: askT.title, date: shortDay(askT.startDate) }), act: { label: t('Yes|rode'), run: () => rideAnswer(askT, true) }, act2: { label: hasBike(askT) ? t('Not ridden|answer') : t('Did not happen'), run: () => rideAnswer(askT, false) } });
     if (folderNeedsOk && !$demoQ) rows.push({ key: 'folderok', tone: 'warn', text: t('The backup folder «{name}» waits for your OK. One tap, the folder stays.', { name: folderName }) + ' ' + t('Tip: in Chrome choose «Allow on every visit» so it asks less often.'), act: { label: t('Allow backup'), run: allowFolder }, short: t('Backup folder needs OK') });
+    rows.push(...zustand);
     if (backup.due) rows.push({ key: 'backup', tone: 'bad', text: `${t('Time for a backup')}: ${backup.days == null ? t('You have not saved a backup file yet.') : t('Your last backup is {n} days old.', { n: backup.days })}${$metaQ?.imp?.from ? ` ${t('Data from the backup of {date}. Newer state on the phone? Load its backup here.', { date: new Date($metaQ.imp.from).toLocaleDateString(locale(), { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) })}` : backup.afterTrip ? ` ${t('New debrief since the last backup: save one, then load it on the desktop.')}` : ''}`, act: { label: t('Download backup'), run: backupNow, busy: true }, short: t('Backup due') });
     rows.push(...careRows.filter((r) => r.tone === 'bad'));
     if (prep) rows.push({ key: 'prep', tone: prep.overdue ? 'bad' : 'warn', text: eventPrepLine(prep), act: { label: t('Tick off in the trip'), href: '#/pack', prep: next.id } });
