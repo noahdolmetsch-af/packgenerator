@@ -9,7 +9,7 @@
    * goals and the mosaic of all sports (was the top of #/flow/sports). Addresses #/flow/sports, …/goals and
    * …/activity all show this page.
    */
-  import { Plus, Lightbulb, ChevronRight, Pencil, EyeOff, Pause, Play, Trash, ChevronUp, ChevronDown, ArrowUpToLine, ArrowDownToLine } from '@lucide/svelte';
+  import { Search, Plus, Lightbulb, ChevronRight, Pencil, EyeOff, Pause, Play, Trash, ChevronUp, ChevronDown, ArrowUpToLine, ArrowDownToLine } from '@lucide/svelte';
   import { liveQuery } from 'dexie';
   import { db } from '../../lib/db.js';
   import { flowQuery, seedIfNeeded } from '../../lib/flow/data.svelte.js';
@@ -24,6 +24,8 @@
   import { actGoalText, goalsText, dayShort } from '../../lib/flow/words.js';
   import { seasonNow } from '../../lib/flow/aktiv.js';
   import { similarNames } from '../../lib/flow/similar.js';
+  import { GROUPS_KEY, addGroup, renameGroup, toggleCollapsed, moveGroup, removeGroup, sections, filterActs } from '../../lib/flow/sportgroups.js';
+  import GroupDeleteSheet from '../../lib/ui/GroupDeleteSheet.svelte';
   import { isMedAct } from '../../lib/flow/hobby/medstart.js';
   import ActIcon from '../../lib/flow/ActIcon.svelte';
   import GoneActs from '../../lib/flow/GoneActs.svelte';
@@ -101,13 +103,65 @@
   const isOff = (a) => !!a.paused || !!stateOf.get(a.id)?.resting;
   const active = $derived(all.filter((a) => !isOff(a)));
   const off = $derived(all.filter(isOff));
-  // a place among the shown sports → the place in the whole list
-  const moveShown = (a, to) => {
-    const k = Math.max(0, Math.min(active.length - 1, to));
-    return move(a.id, all.findIndex((x) => x.id === active[k].id));
+  // a place among the shown sports of one section → the place in the whole list
+  const moveIn = (list, a, to) => {
+    const k = Math.max(0, Math.min(list.length - 1, to));
+    return move(a.id, all.findIndex((x) => x.id === list[k].id));
   };
-  const dragged = (from, to) => moveShown(active[from], to);
-  const step = (a, dir) => moveShown(a, active.findIndex((x) => x.id === a.id) + dir);
+  const stepIn = (list, a, dir) => moveIn(list, a, list.findIndex((x) => x.id === a.id) + dir);
+
+  /* groups, search and filter (Noah 02.11.2026 «3a»): own groups of sports, folded or open; the order of «Tick off today» stays one list */
+  const grpQ = liveQuery(() => db.settings.get(GROUPS_KEY));
+  const groups = $derived($grpQ?.value ?? []);
+  let find = $state('');
+  let openOnly = $state(false);
+  const filtering = $derived(!!find.trim() || openOnly);
+  const shownActive = $derived(filterActs(active, { q: find, open: openOnly }, actName, (id) => {
+    const st = stateOf.get(id);
+    return st ? { open: goalPill(st).key === 'today' } : null;
+  }));
+  const secs = $derived(sections(shownActive, groups).filter((x) => !filtering || x.acts.length));
+  const saveGroups = (next) => db.settings.put({ key: GROUPS_KEY, value: JSON.parse(JSON.stringify(next)) });
+  let groupSheet = $state(null); // { mode: 'new' | 'rename', group? }
+  let groupDeleting = $state(null);
+  async function groupSaved(nm) {
+    const before = groups;
+    if (groupSheet?.mode === 'rename') {
+      await saveGroups(renameGroup(groups, groupSheet.group.id, nm));
+      offerRename(nm, () => saveGroups(before));
+    } else {
+      await saveGroups(addGroup(groups, nm));
+      offerDone(t('Group «{name}» added.', { name: nm }), () => saveGroups(before));
+    }
+  }
+  async function setGroup(a, id) {
+    const before = a.group ?? null;
+    const put = (g) => saveAct(db, (({ group: _g, ...rest }) => (g ? { ...rest, group: g } : rest))($state.snapshot(a)));
+    await put(id);
+    offerDone(t('«{name}» moved to «{group}».', { name: actName(a), group: id ? groups.find((g) => g.id === id)?.name : t('No group') }), () => put(before));
+  }
+  /* a sport dragged onto the title of a group (or of «No group») goes there */
+  function dropInto(a, gid) {
+    const to = gid === 'none' ? null : gid;
+    if (a && (a.group ?? null) !== to) setGroup(a, to);
+  }
+  async function deleteGroup(g, to) {
+    const before = groups;
+    const members = all.filter((a) => a.group === g.id);
+    const put = (a, id) => saveAct(db, (({ group: _g, ...rest }) => (id ? { ...rest, group: id } : rest))($state.snapshot(a)));
+    for (const a of members) await put(a, to);
+    await saveGroups(removeGroup(groups, g.id));
+    offerDone(t('Group «{name}» deleted.', { name: g.name }), async () => {
+      await saveGroups(before);
+      for (const a of members) await put(a, g.id);
+    });
+  }
+  const groupMenu = (g, i) => [
+    { key: 'rename', label: t('Rename'), icon: Pencil, onclick: () => (groupSheet = { mode: 'rename', group: g }) },
+    { key: 'up', label: t('Move up'), icon: ChevronUp, disabled: i === 0, sep: true, onclick: () => saveGroups(moveGroup(groups, g.id, -1)) },
+    { key: 'down', label: t('Move down'), icon: ChevronDown, disabled: i >= groups.length - 1, onclick: () => saveGroups(moveGroup(groups, g.id, 1)) },
+    { key: 'delete', label: t('Delete …'), icon: Trash, danger: true, sep: true, onclick: () => (groupDeleting = g) },
+  ];
   /* sports with the same name (Noah 02.11.2026 «4a»): a hint, nothing is changed by itself */
   const SIMILAR_KEY = 'flow.similarOk';
   const okQ = liveQuery(() => db.settings.get(SIMILAR_KEY));
@@ -210,7 +264,7 @@
       { key: 'delete', label: t('Delete …'), icon: Trash, danger: true, sep: true, onclick: () => removeTrip(s) },
     ];
   }
-  function menuOf(a, i) {
+  function menuOf(a, i, list) {
     if (isOff(a)) {
       return [
         { key: 'rename', label: t('Rename'), icon: Pencil, onclick: () => (renaming = a) },
@@ -221,11 +275,20 @@
     return [
       { key: 'rename', label: t('Rename'), icon: Pencil, onclick: () => (renaming = a) },
       { key: 'pause', label: a.paused ? t('Resume') : t('Pause'), icon: a.paused ? Play : Pause, onclick: () => togglePause(a) },
-      { key: 'up', label: t('Move up'), icon: ChevronUp, disabled: i === 0, sep: true, onclick: () => moveShown(a, i - 1) },
-      { key: 'down', label: t('Move down'), icon: ChevronDown, disabled: i >= active.length - 1, onclick: () => moveShown(a, i + 1) },
-      { key: 'top', label: t('To the top'), icon: ArrowUpToLine, disabled: i === 0, onclick: () => moveShown(a, 0) },
-      { key: 'bottom', label: t('To the bottom'), icon: ArrowDownToLine, disabled: i >= active.length - 1, onclick: () => moveShown(a, active.length - 1) },
+      { key: 'up', label: t('Move up'), icon: ChevronUp, disabled: i === 0, sep: true, onclick: () => moveIn(list, a, i - 1) },
+      { key: 'down', label: t('Move down'), icon: ChevronDown, disabled: i >= list.length - 1, onclick: () => moveIn(list, a, i + 1) },
+      { key: 'top', label: t('To the top'), icon: ArrowUpToLine, disabled: i === 0, onclick: () => moveIn(list, a, 0) },
+      { key: 'bottom', label: t('To the bottom'), icon: ArrowDownToLine, disabled: i >= list.length - 1, onclick: () => moveIn(list, a, list.length - 1) },
+      ...groupItems(a),
       { key: 'delete', label: t('Delete …'), icon: Trash, danger: true, sep: true, onclick: () => removeRow(a) },
+    ];
+  }
+  // «In a group»: the groups as items of the menu (only when there are groups) and «New group …»
+  function groupItems(a) {
+    return [
+      ...groups.map((g, k) => ({ key: `group-${g.id}`, label: `${a.group === g.id ? '✓ ' : ''}${g.name}`, sep: k === 0, onclick: () => setGroup(a, g.id) })),
+      ...(groups.length && a.group ? [{ key: 'group-none', label: t('No group'), onclick: () => setGroup(a, null) }] : []),
+      { key: 'group-new', label: t('New group …'), sep: !groups.length, onclick: () => (groupSheet = { mode: 'new' }) },
     ];
   }
 
@@ -244,7 +307,7 @@
   import PasstHier from '../../lib/ui/PasstHier.svelte'; // «Wegweiser statt Katalog» PR 7
 </script>
 
-{#snippet actRow(a, i, shown)}
+{#snippet actRow(a, i, shown, list)}
   {@const s = stateOf.get(a.id)}
   <li data-id={a.id} data-row={a.id} data-sort-id={a.id}>
     <a class="ar" href={sportHref(a)} data-sport-row={a.id}>
@@ -261,9 +324,9 @@
         <span class="bdw"><span class="pill">{a.paused ? t('paused') : t('rests')}</span></span>
       {/if}
     </a>
-    {#if shown}<SortGrip name={actName(a)} onstep={(d) => step(a, d)} />{/if}
-    {#if shown && reorder}<SortArrows name={actName(a)} {i} n={active.length} onstep={(dir) => step(a, dir)} />{/if}
-    <RowMenu name={actName(a)} items={menuOf(a, i)} />
+    {#if shown}<SortGrip name={actName(a)} onstep={(d) => stepIn(list, a, d)} />{/if}
+    {#if shown && reorder}<SortArrows name={actName(a)} {i} n={list.length} onstep={(dir) => stepIn(list, a, dir)} />{/if}
+    <RowMenu name={actName(a)} items={menuOf(a, i, list)} />
   </li>
 {/snippet}
 
@@ -294,17 +357,42 @@
           {#each similar as g (g.key)}
             <p class="note simnote" data-similar={g.key}><Lightbulb size={16} aria-hidden="true" /><span>{t('«{name}» appears {n} times. Rename one (for example «{name} winter») or pause it.', { name: g.name, n: g.ids.length })} <button type="button" class="btn btn-link" onclick={() => similarOk(g.key)}>{t('Keep as is|sport')}</button></span></p>
           {/each}
-          <ul class="acts card" class:sorting={reorder} use:sortable={{ onmove: dragged }} data-my-sports>
-            {#each active as a, i (a.id)}
-              {@render actRow(a, i, true)}
-            {/each}
-          </ul>
+          <div class="flt" data-filter>
+            <label class="srch"><Search size={16} aria-hidden="true" /><input type="search" bind:value={find} placeholder={t('Find a sport')} aria-label={t('Find a sport')} data-find-sport /></label>
+            <button type="button" class="chip" class:on={openOnly} aria-pressed={openOnly} onclick={() => (openOnly = !openOnly)} data-filter-open>{t('Open today')}</button>
+            <button type="button" class="chip" onclick={() => (groupSheet = { mode: 'new' })} data-new-group><Plus size={14} aria-hidden="true" />{t('Group')}</button>
+          </div>
+          {#if groups.length && !filtering}<p class="small ghint" data-group-hint>{t('Drag a sport by its grip onto a group title to move it there.')}</p>{/if}
+          {#each secs as sec, si (sec.group?.id ?? 'none')}
+            {#if groups.length}
+              <div class="gh" data-group={sec.group?.id ?? 'none'} data-group-drop={sec.group?.id ?? 'none'}>
+                {#if sec.group}
+                  <button type="button" class="gt" aria-expanded={!sec.group.collapsed} onclick={() => saveGroups(toggleCollapsed(groups, sec.group.id))} data-group-toggle>{#if sec.group.collapsed}<ChevronRight size={16} aria-hidden="true" />{:else}<ChevronDown size={16} aria-hidden="true" />{/if}<b>{sec.group.name}</b><small>{sec.acts.length}</small></button>
+                  <RowMenu name={sec.group.name} items={groupMenu(sec.group, groups.findIndex((g) => g.id === sec.group.id))} />
+                {:else}
+                  <span class="gt none"><b>{t('No group')}</b><small>{sec.acts.length}</small></span>
+                {/if}
+              </div>
+            {/if}
+            {#if !sec.group?.collapsed || filtering}
+              {#if sec.acts.length}
+                <ul class="acts card" class:sorting={reorder} use:sortable={{ onmove: (from, to) => moveIn(sec.acts, sec.acts[from], to), onto: (from, gid) => dropInto(sec.acts[from], gid), off: filtering }} data-my-sports>
+                  {#each sec.acts as a, i (a.id)}
+                    {@render actRow(a, i, true, sec.acts)}
+                  {/each}
+                </ul>
+              {:else}
+                <p class="note gempty"><Lightbulb size={16} aria-hidden="true" /><span>{t('This group is empty. Put a sport in it with «⋯» at the sport, or drag one onto the title.')} {#if sec.group}<a class="btn sm" href="#/flow/new?group={encodeURIComponent(sec.group.id)}" data-group-add>{t('New sport here')}</a>{/if}</span></p>
+              {/if}
+            {/if}
+          {/each}
+          {#if filtering && !secs.length}<p class="note"><Lightbulb size={16} aria-hidden="true" /><span>{t('No sport found. Clear the search or the filter.')}</span></p>{/if}
           {#if off.length}
             <details class="card fold off" data-paused-block>
               <summary><span>{t('Paused and resting')}</span><small>{off.length}</small></summary>
               <ul class="acts offl">
                 {#each off as a, i (a.id)}
-                  {@render actRow(a, i, false)}
+                  {@render actRow(a, i, false, off)}
                 {/each}
               </ul>
             </details>
@@ -363,6 +451,22 @@
   <PasstHier place="sports" />
 </div>
 
+{#if groupSheet}
+  <RenameSheet kicker={t('Group')} title={groupSheet.mode === 'rename' ? t('Rename group') : t('New group')} value={groupSheet.mode === 'rename' ? groupSheet.group.name : ''} max={40} hint={t('For example «Strength» or «Recovery». A sport can stay without a group.')} onsave={groupSaved} onclose={() => (groupSheet = null)} />
+{/if}
+{#if groupDeleting}
+  {@const g = groupDeleting}
+  <GroupDeleteSheet
+    title={t('Delete group «{name}»?', { name: g.name })}
+    count={all.filter((a) => a.group === g.id).length}
+    what={(n) => tn(n, '{n} sport', '{n} sports')}
+    none={t('No group')}
+    noneHint={t('The sports stay, only without a group.')}
+    targets={groups.filter((x) => x.id !== g.id).map((x) => ({ id: x.id, name: x.name }))}
+    onconfirm={(to) => deleteGroup(g, to)}
+    onclose={() => (groupDeleting = null)}
+  />
+{/if}
 {#if renamingTrip}
   <RenameSheet kicker={t('Sport|kicker')} title={t('Rename sport')} value={sportName(renamingTrip)} max={40} onsave={(nm) => renameTrip(renamingTrip, nm)} onclose={() => (renamingTrip = null)} />
 {/if}
@@ -495,6 +599,90 @@
     margin-top: 2px;
   }
   .ronote {
+    margin: 0 2px var(--sp-2);
+  }
+  .flt {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--sp-2);
+    margin: 0 2px var(--sp-3);
+  }
+  .srch {
+    flex: 1 1 180px;
+    display: flex;
+    align-items: center;
+    gap: var(--sp-2);
+    min-height: 44px;
+    padding: 0 var(--sp-3);
+    border: 1px solid var(--line);
+    border-radius: 99px;
+    background: var(--paper);
+    color: var(--ink-3);
+  }
+  .srch input {
+    flex: 1;
+    min-width: 0;
+    border: 0;
+    background: none;
+    color: var(--ink);
+    font: inherit;
+    outline: none;
+  }
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    min-height: 44px;
+    padding: 0 var(--sp-3);
+    border: 1px solid var(--line);
+    border-radius: 99px;
+    background: var(--paper);
+    color: var(--ink);
+    font: inherit;
+    cursor: pointer;
+  }
+  .chip.on {
+    background: var(--hi);
+    border-color: var(--hi);
+    color: var(--paper);
+  }
+  .gh {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: var(--sp-3) 2px var(--sp-1);
+  }
+  .ghint {
+    margin: 0 2px var(--sp-1);
+    color: var(--ink-3);
+  }
+  .gh:global(.drop-on) {
+    border-radius: 10px;
+    outline: 2px dashed var(--hi);
+    outline-offset: 2px;
+    background: var(--paper-2);
+  }
+  .gt {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-2);
+    min-height: 44px;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--ink);
+    font: inherit;
+    cursor: pointer;
+  }
+  .gt.none {
+    cursor: default;
+    color: var(--ink-2);
+  }
+  .gt small {
+    color: var(--ink-3);
+  }
+  .gempty {
     margin: 0 2px var(--sp-2);
   }
   .simnote {

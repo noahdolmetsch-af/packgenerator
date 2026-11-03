@@ -192,4 +192,46 @@ describe('/api/booking', () => {
     for (let i = 0; i < 30; i++) await made(w);
     expect((await w.handler()(post('create', { offer: OFFER }))).status).toBe(429);
   });
+
+  it('holds no place for a request until the owner confirms (mode request)', async () => {
+    const w = world();
+    const { id, owner } = await made(w, { ...OFFER, mode: 'request', venues: ['Platz am See', 'Halle'], slots: [{ id: 'a1b2', at: '2026-10-21T17:00', type: 'one', venue: 'Halle' }] });
+    const h = w.handler();
+    const pub = await (await h(get(`step=offer&id=${id}`))).json();
+    expect(pub.offer).toMatchObject({ mode: 'request', venues: ['Platz am See', 'Halle'] });
+    expect(pub.offer.slots[0]).toMatchObject({ venue: 'Halle', free: 1 });
+
+    const sent = await (await h(post('book', { id, slot: 'a1b2', name: 'Mia Muster', contact: 'mia@example.test', note: 'Anfängerin' }))).json();
+    expect(sent.booking).toMatchObject({ status: 'requested', note: 'Anfängerin', venue: 'Halle', price: 6000 });
+    expect(sent.booking.answerBy - NOW).toBe(24 * 3600_000);
+    // still free: a request holds nothing
+    expect((await (await h(get(`step=offer&id=${id}`))).json()).offer.slots[0].free).toBe(1);
+
+    expect((await h(post('answer', { id, b: sent.booking.id, decision: 'confirm' }))).status).toBe(401);
+    const ok = await (await h(post('answer', { id, b: sent.booking.id, decision: 'confirm' }, owner))).json();
+    expect(ok.booking).toMatchObject({ status: 'confirmed', note: 'Anfängerin' });
+    expect((await (await h(get(`step=offer&id=${id}`))).json()).offer.slots[0].free).toBe(0);
+    // answered once
+    const again = await h(post('answer', { id, b: sent.booking.id, decision: 'decline' }, owner));
+    expect(again.status).toBe(409);
+    // the place is taken, a new request is refused
+    expect((await h(post('book', { id, slot: 'a1b2', name: 'Lea Beispiel', contact: 'lea@example.test' }))).status).toBe(409);
+    // cancelling a confirmed request frees the place
+    expect((await h(post('cancel', { id, b: sent.booking.id }, owner))).status).toBe(200);
+    expect((await (await h(get(`step=offer&id=${id}`))).json()).offer.slots[0].free).toBe(1);
+  });
+
+  it('declining a request frees nothing and holds nothing', async () => {
+    const w = world();
+    const { id, owner } = await made(w, { ...OFFER, mode: 'request' });
+    const h = w.handler();
+    const sent = await (await h(post('book', { id, slot: 'a1b2', name: 'Mia Muster', contact: 'mia@example.test' }))).json();
+    const no = await (await h(post('answer', { id, b: sent.booking.id, decision: 'decline' }, owner))).json();
+    expect(no.booking.status).toBe('declined');
+    const mine = await (await h(get(`step=mine&id=${id}&b=${sent.booking.id}&key=${sent.booking.key}`))).json();
+    expect(mine.booking.status).toBe('declined');
+    expect((await (await h(get(`step=offer&id=${id}`))).json()).offer.slots[0].free).toBe(1);
+    expect((await h(post('cancel', { id, b: sent.booking.id, key: sent.booking.key }))).status).toBe(200);
+    expect((await (await h(get(`step=offer&id=${id}`))).json()).offer.slots[0].free).toBe(1);
+  });
 });

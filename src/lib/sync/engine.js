@@ -98,7 +98,7 @@ export async function stopSync(db, { forget = false, api = httpApi() } = {}) {
 }
 
 /** Put the other device's version in place (inside a transaction over the table and meta). */
-async function takeTheirs(db, t, id, { s, v, del, at }) {
+export async function takeTheirs(db, t, id, { s, v, del, at }) {
   const table = db.table(t);
   if (del) await table.delete(id);
   else await table.put(v);
