@@ -288,3 +288,41 @@ describe('Ruhige Ansicht: time and soft end', () => {
     expect(calmOver(calmOf({ what: 'a' }), 9e15)).toBe(false);
   });
 });
+
+describe('Ruhige Ansicht: quick starts', () => {
+  it('has three ready-made starts, which can be added, renamed and deleted like every kind', async () => {
+    const { startsOf, STD_STARTS } = await import('../src/lib/ruhig/calmstarts.js');
+    const { addKind, renameKind, dropKind, kindName } = await import('../src/lib/ruhig/kinds.js');
+    expect(startsOf(null).map((k) => k.std)).toEqual(['Clean the bike', 'Pack calmly', 'Analysis|calm']);
+    let s = addKind(startsOf(null), 'Schreibtisch aufräumen', 'k1');
+    s = renameKind(s, 'clean', 'Velo waschen');
+    expect(s.map((k) => kindName(k))).toEqual(['Velo waschen', '', '', 'Schreibtisch aufräumen'].map((x, i) => (i && i < 3 ? kindName(STD_STARTS[i]) : x)));
+    expect(dropKind(s, 'pack').map((k) => k.id)).toEqual(['clean', 'analysis', 'k1']);
+    expect(startsOf([{ id: 'x', name: 'Eigener' }])).toEqual([{ id: 'x', name: 'Eigener' }]);
+  });
+});
+
+describe('Ruhige Ansicht: phone reminders rest', () => {
+  it('moves reminders inside the time to just after its end, safety stays', async () => {
+    const { applyCalm, calmHeld } = await import('../src/lib/ruhig/weniger.js');
+    const now = 1_000_000;
+    const end = now + 30 * 60000;
+    const calm = { what: 'Velo putzen', until: end };
+    const items = [
+      { key: 'bday:1', at: now + 5 * 60000, title: 'a' },
+      { key: 'ice:x', at: now + 10 * 60000, title: 'safety' },
+      { key: 'plant:2', at: now + 20 * 60000, title: 'b' },
+      { key: 'wear:3', at: end + 60 * 60000, title: 'later' },
+    ];
+    const out = applyCalm(items, calm, now);
+    expect(out.find((i) => i.title === 'safety').at).toBe(now + 10 * 60000);
+    expect(out.find((i) => i.title === 'later').at).toBe(end + 60 * 60000);
+    expect(out.find((i) => i.title === 'a').at).toBe(end + 60000);
+    expect(out.find((i) => i.title === 'b').at).toBe(end + 120000);
+    expect(out).toHaveLength(4); // nothing is lost
+    expect(calmHeld(items, calm, now)).toBe(2);
+    expect(applyCalm(items, { what: 'x', until: 0 }, now)).toBe(items); // no time: nothing held
+    expect(applyCalm(items, calm, end + 1)).toBe(items); // over
+    expect(applyCalm(items, null, now)).toBe(items);
+  });
+});

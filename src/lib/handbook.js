@@ -1275,6 +1275,11 @@ const LISTED = {
     steps: ['Open Trips › Look back › New ground.', 'Scroll to «New kilometres»: each year with its new km and share.', 'Below: your latest rides that brought new km.'],
     example: 'Example: 3210 km this year, of which 412 km new (13 %).',
   },
+  'f.dreamsmap': {
+    on: 'Needs dreams with a map (a GPX file or a Ride with GPS link).',
+    steps: ['Give two or more dreams a map.', 'Open Trips › Dreams and scroll to «All dreams on one map».', 'The list shows what each brings new; a tap opens the dream.'],
+    example: 'Example: «Over the Furka» → 6 new municipalities · 2 new passes.',
+  },
   'f.dreamwx': {
     on: 'Needs the internet now and then (free weather service) and a home place or a dream with a map.',
     steps: ['Give a dream its months; it fits now in one of them.', 'Open Trips › Dreams: the app checks the weather of the next 16 days.', 'Dry days in a row show at the dream: «Fits now, dry Thu–Sat».'],

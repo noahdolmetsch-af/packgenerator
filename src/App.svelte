@@ -32,6 +32,7 @@
   import TimerFloat from './lib/timer/TimerFloat.svelte';
   import CreditNotice from './lib/helper/CreditNotice.svelte';
   import RemindCard from './lib/remind/RemindCard.svelte';
+  import CalmHome from './lib/ruhig/CalmHome.svelte'; // Paket C: on Today the calm view shows only its one thing
   import RuhigLine from './lib/ruhig/RuhigLine.svelte'; // Paket C: workspace, calm view or a due letter
   import SideBar from './lib/nav/SideBar.svelte';
   import PlaceBar from './lib/nav/PlaceBar.svelte';
@@ -842,7 +843,7 @@
     <!-- «Heatmap» (Noah 20.10.2026): all rides on one map, stronger where they overlap -->
     <LazyPage load={PAGES.Heatmap} />
   {:else}
-    <Home />
+    <CalmHome><Home /></CalmHome>
   {/if}
   {/key}
   {#snippet failed(error, reset)}<ErrorPage {error} name={failName} onreset={() => ((failReset = null), reset())} />{/snippet}

@@ -19,4 +19,7 @@ export async function endCalm(calm) {
     await saveSetting(CALM_LOG_KEY, logAdd(log, lineFor(calm)));
     await saveSetting('ruhig.calm', null);
   });
+  resyncPhone();
 }
+/** Held reminders go back to their own time (or are held anew): the phone list is sent again; quietly, only when phone reminders are on. */
+export const resyncPhone = () => import('../push/client.js').then((m) => m.syncNow({ force: true })).catch(() => {});

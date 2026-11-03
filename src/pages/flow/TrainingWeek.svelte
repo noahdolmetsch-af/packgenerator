@@ -27,6 +27,8 @@
   import { strava, STRAVA_HASH } from '../../lib/strava/client.svelte.js';
   import { saveAct } from '../../lib/flowdb.js';
   import { blankAct } from '../../lib/flow.js';
+  import SuggestWeek from '../../lib/training/plans/SuggestWeek.svelte'; // «Training verbessern» 2
+  import { formQuery } from '../../lib/form-data.js';
   import { racesQuery } from '../../lib/race/store.js';
   import { raceTrips, daysBetween } from '../../lib/race/race.js';
   import { raceHref } from '../../lib/race/parts.js';
@@ -63,6 +65,15 @@
     await saveAct(db, act);
     form.sport = act.id;
     newSport = null;
+  }
+
+  const formQ = formQuery(today);
+  // «Training verbessern» 2: the suggestion replaces the planned days from today on; Undo puts the old plan back
+  async function applySuggestion(list) {
+    const before = plan;
+    const end = shiftDay(monday, 7);
+    await savePlan([...plan.filter((s) => !(s.day >= monday && s.day < end && s.day >= today)), ...list]);
+    offerDone(t('Suggestion for the week taken over.'), () => savePlan(before));
   }
 
   let monday = $state(mondayOf(today));
@@ -246,6 +257,7 @@
         </ul>
         {#if !sessions.length && lastHad}<button type="button" class="btn sm like" onclick={likeLast}><Copy size={16} aria-hidden="true" />{tn(lastHad, 'Like last week (1 session)', 'Like last week ({n} sessions)')}</button>{/if}
         {#if sessions.length}<p class="hint">{t('Tap a planned one to change it.')}</p>{/if}
+        <SuggestWeek {acts} flowActs={$actsQ ?? []} {plan} {goal} {monday} {today} level={$formQ?.ready?.level ?? null} daysToRace={nextRace?.startDate ? daysBetween(today, nextRace.startDate) : null} onapply={applySuggestion} />
       </div>
     </Sec>
 
