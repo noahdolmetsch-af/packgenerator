@@ -2,7 +2,7 @@
 export default {
   title: 'Shorter text under the own diagram',
   lead: 'The long text under «Own diagram» is now a line you can open.',
-  points: [{ text: '«What stands out» is one line with the number of notes; tap it to read them as a list', go: { href: '#/auswerten/analyse', steps: [{ sel: '[data-tab="diagramm"]' }, { sel: '[data-dg-notice]' }], where: 'Auswerten › Analyse › Own diagram, under the diagram.' } }],
+  points: [{ text: '«What stands out» is one line with the number of notes; tap it to read them as a list', go: { href: '#/auswerten/analyse', steps: [{ sel: '[data-tab="diagramm"]' }], where: 'Auswerten › Analyse › Own diagram, under the diagram.' } }],
   small: [],
   test: ['Open Auswerten › Analyse › Own diagram: under the diagram is one line «What stands out (n)».', 'Tap the line: the notes show as a list.'],
   since: [],
