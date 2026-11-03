@@ -36,7 +36,7 @@
 </script>
 
 {#if ALL_HERE[area]}
-  <section class="allhere" aria-labelledby="ah-h-{area}" data-all-here={area}>
+  <section class="allhere" aria-labelledby="ah-h-{area}" data-all-here={area} data-no-pin>
     <div class="ah-head">
       <h2 id="ah-h-{area}">{t('All here')}</h2>
       <span class="ah-n">{tn(tiles.shown.length, '{n} function', '{n} functions')}</span>
