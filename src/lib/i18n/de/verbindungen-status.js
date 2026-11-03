@@ -7,4 +7,5 @@ export default {
   'Not fetched successfully yet.': 'Noch nie erfolgreich geholt.',
   '{n} rides received so far.': '{n} Fahrten bisher erhalten.',
   'Strava did not answer in time. Nothing was changed. Try again.': 'Strava hat nicht rechtzeitig geantwortet. Es wurde nichts verändert. Versuch es nochmals.',
+  'Google did not answer in time. What is on this device stays; try again.': 'Google hat nicht rechtzeitig geantwortet. Was auf diesem Gerät ist, bleibt; versuch es nochmals.',
 };

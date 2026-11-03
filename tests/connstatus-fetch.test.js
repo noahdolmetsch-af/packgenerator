@@ -65,3 +65,18 @@ describe('Strava', () => {
     expect(await db.settings.get('strava')).toBeUndefined();
   });
 });
+
+describe('Google Kalender und Aufgaben', () => {
+  it('a fetch over the limit ends with timeout and keeps the old copy', async () => {
+    const { fetchNow, agenda } = await import('../src/lib/agenda/client.svelte.js');
+    const db = createDb(`ag-${Math.random()}`);
+    await db.settings.put({ key: 'agenda', value: { calendar: true, tasks: true } });
+    await db.gEvents.put({ id: 'old', title: 'Alt', day: '2026-11-03' });
+    let tick = 0;
+    const c = async (step) => (step === 'cal-list' ? { calendars: [{ id: 'primary', primary: true }] } : { events: [], tasks: [], lists: [] });
+    const ok = await fetchNow({ db, c, today: '2026-11-03', clock: () => tick++ * 130_000 });
+    expect(ok).toBe(false);
+    expect(agenda.error).toBe('timeout');
+    expect((await db.gEvents.toArray()).map((e) => e.id)).toEqual(['old']);
+  });
+});
