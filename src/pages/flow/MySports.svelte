@@ -657,7 +657,7 @@
     margin: 0 2px var(--sp-1);
     color: var(--ink-3);
   }
-  .gh.drop-on {
+  .gh:global(.drop-on) {
     border-radius: 10px;
     outline: 2px dashed var(--hi);
     outline-offset: 2px;

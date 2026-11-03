@@ -35,7 +35,8 @@ export function shiftOf(i, from, to) {
  */
 const LIFT_CSS = `.sort-moving{position:relative;z-index:5;background:var(--paper);border-radius:12px;box-shadow:0 12px 28px var(--shadow),0 2px 6px var(--shadow)}
 @media (prefers-reduced-motion:no-preference){.sort-moving{scale:1.02}}
-.sort-active{user-select:none;-webkit-user-select:none}`;
+.sort-active{user-select:none;-webkit-user-select:none}
+.sort-dragging,.sort-dragging *{user-select:none;-webkit-user-select:none}`;
 function liftStyle() {
   if (typeof document === 'undefined' || document.getElementById('sort-lift')) return;
   const el = document.createElement('style');
@@ -58,6 +59,7 @@ export function sortable(node, opts = {}) {
       r.classList.remove('sort-moving');
     }
     node.classList.remove('sort-active');
+    document.documentElement.classList.remove('sort-dragging');
     if (st.raf) cancelAnimationFrame(st.raf);
     st = null;
   }
@@ -74,6 +76,7 @@ export function sortable(node, opts = {}) {
     st = { rows, row, from, to: from, y0: e.clientY, y: e.clientY, sy0: window.scrollY, raf: 0, h: boxes[from].height, z: uiZoom(), mids: boxes.map((b) => b.top + b.height / 2) };
     row.classList.add('sort-moving');
     node.classList.add('sort-active');
+    document.documentElement.classList.add('sort-dragging'); // the text of the page is not selected while the row is dragged out of the list
   }
   /* a long list: near the top or bottom edge of the window the page scrolls along (Noah 02.11.2026 «1a») */
   function scrollTick() {
