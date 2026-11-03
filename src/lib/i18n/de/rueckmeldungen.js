@@ -43,7 +43,7 @@ export default {
   '"{name}" discarded.': '«{name}» verworfen.',
   'Changes to "{name}" discarded.': 'Änderungen an «{name}» verworfen.',
   "Saving didn't work. What you typed stays here. Try again. If it fails again: Me › Data and backup › Save backup, then reload the page.":
-    'Speichern hat nicht geklappt. Dein Getipptes bleibt hier. Versuch es nochmal. Klappt es wieder nicht: Ich › Daten und Backup › Backup speichern, dann die Seite neu laden.',
+    'Speichern hat nicht geklappt. Dein Getipptes bleibt hier. Versuch es nochmal. Klappt es wieder nicht: Ich › Daten und Backup › Backup herunterladen, dann die Seite neu laden.',
   "This device's storage is full. Delete old photos or rides, or free up space in the browser. What you typed stays here.":
     'Der Speicher auf diesem Gerät ist voll. Lösche alte Fotos oder Fahrten oder gib im Browser Platz frei. Dein Getipptes bleibt hier.',
 };

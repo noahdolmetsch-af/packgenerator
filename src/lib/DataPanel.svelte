@@ -10,7 +10,7 @@
   import { db, DATA_TABLES } from './db.js';
   import { restoreBackup, validateBackup, countRows, downloadBackup, importImpact, shareBackup, lastChangeOf, markImported, compareStates, LAST_CHANGE, LAST_BACKUP, OFFSITE_KEY, backupDue, syncAdvice, markSync, SYNC_KEY } from './backup.js';
   import { keepState, askKeep } from './storagekeep.js';
-  import { snapDb, takeSnapshot } from './maintenance/snapshots.js';
+  import { snapDb, takeSnapshot, undoReset } from './maintenance/snapshots.js';
   import { SHARE_BACKUP_CACHE, SHARE_BACKUP_KEY } from './sharebackup.js';
   import { phone } from './media.svelte.js';
   import { Send, ChevronRight, Bike, Star, CirclePlay, QrCode, Check, FolderOpen, ListChecks, Sparkles } from '@lucide/svelte';
@@ -48,6 +48,7 @@
   });
 
   let message = $state('');
+  let undoId = $state(null); // the copy made right before the last import: «Undo import»
   // A parsed backup file waiting for "Replace" or "Merge". $state.raw keeps it a plain object:
   // the database can only store plain data, not Svelte's reactive wrappers.
   let pending = $state.raw(null);
@@ -151,7 +152,6 @@
   // «Daten und Backup aufräumen» (Noah 01.11.2026): the status line, the folds, the one question
   const anyWarn = $derived(lights.some((l) => l.state === 'warn'));
   let lightsOpen = $state(false);
-  let fileOpen = $state(false);
   let moreOpen = $state(/[?&](at=before-updates|names|mehr)\b/.test(typeof location !== 'undefined' ? location.hash : '')); // the news banner («Back to the state before the update») and the link «English names» land in «More»
   let syncOpen = $state(false);
   // «Do you need the app on two devices?»: asked once per device (null = not asked yet). Not in the data, so it never syncs.
@@ -174,9 +174,6 @@
     syncOpen = v === 'yes';
   }
   // what needs you opens its fold by itself: a picked file waiting, a locked file, a message about the file
-  $effect(() => {
-    if (pending || locked || message) fileOpen = true;
-  });
   const when = (iso) => new Date(iso).toLocaleString(locale(), { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
 
   async function pickFile(event) {
@@ -397,6 +394,7 @@
         }
       });
       message = tn(n, 'Spec sheet imported: {n} value.', 'Spec sheet imported: {n} values.');
+      undoId = copied || null;
       pending = null;
     } catch (err) {
       message = `${t('Import failed, nothing was changed.')} ${t(plainError(err))}`;
@@ -417,6 +415,18 @@
   };
   const syncQ = liveQuery(() => db.meta.get(SYNC_KEY));
   const current = typeof __APP_VERSION__ === 'string' ? __APP_VERSION__ : null;
+  async function undoImport() {
+    try {
+      await settling(async () => {
+        await undoReset(db, snapDb(), undoId);
+        await tidyData(db);
+      });
+      message = t('Import undone: the data is back as it was before.');
+    } catch (err) {
+      message = `${t('Undo failed, nothing was changed.')} ${t(plainError(err))}`;
+    }
+    undoId = null;
+  }
   async function applyImport(mode) {
     // P3b «Daten sicher» (Noah 15.10.2026, rule 5a): «Replace all data» asks a second time when there is
     // data on this device (an empty device has nothing to lose).
@@ -526,39 +536,25 @@
         {/if}
       </div>
     </section>
-    <!-- Idea 1 (Noah 01.11.2026): one question, once. Yes shows the sync, No folds it. Per device, not in the data. -->
-    {#if twoDev === null && !autoSync.on}
-      <section class="ich-sec" aria-labelledby="two-h" data-section="two-devices">
-        <div class="ich-h"><div><h2 id="two-h">{t('Do you need the app on two devices?')}</h2><p class="ich-hs">{t('Yes shows the sync between phone and computer. No folds it away; you can still open it any time.')}</p></div></div>
-        <div class="card ich-body"><div class="ich-acts">
-          <button type="button" class="btn hi" onclick={() => answerTwo('yes')} data-two="yes">{t('Yes, on two devices')}</button>
-          <button type="button" class="btn" onclick={() => answerTwo('no')} data-two="no">{t('No, only here')}</button>
-        </div></div>
-      </section>
-    {:else if twoDev === 'no' && !autoSync.on}
-      <MoreFold id="sync" title={t('Work on two devices')} sub={t('Phone and computer, sync')} bind:open={syncOpen}>
-        {@render syncBlock()}
-        <div class="ich-acts"><button type="button" class="btn sm" onclick={() => answerTwo(null)}>{t('Ask me again')}</button></div>
-      </MoreFold>
-    {:else}
-      {@render syncBlock()}
-    {/if}
-    <!-- Idea 4a: Fitbit has its own page (Ich › Fitbit) -->
-    <a class="card ich-row fitrow" href="#/me/fitbit" data-row="fitbit-page"><span class="ich-m"><b>{t('Fitbit and health')}</b><small>{t('Moved to its own page: Me › Fitbit')}</small></span><ChevronRight class="ich-chev" size={18} aria-hidden="true" /></a>
-  </div>
-
-  <div class="ich-side">
-    <MoreFold id="backup-file" title={t('Back up with a file')} sub={t('Save, send to the other device, open')} bind:open={fileOpen}>
     <section class="ich-sec" aria-labelledby="data-title" data-section="backup-file">
-      <div class="ich-h"><div><h2 id="data-title">{t('Backup')}</h2><p class="ich-hs">{lastIso ? t('Last backup: {when}', { when: when(lastIso) }) : t('Last backup: never')}{#if $changeQ?.at}{' · '}{t('last change {when}', { when: when($changeQ.at) })}{/if}</p></div></div>
+      <div class="ich-h"><div><h2 id="data-title">{t('Backup file')}</h2><p class="ich-hs">{lastIso ? t('Last backup: {when}', { when: when(lastIso) }) : t('Last backup: never')}{#if $changeQ?.at}{' · '}{t('last change {when}', { when: when($changeQ.at) })}{/if}</p></div></div>
       <div class="card ich-body">
         <div class="ich-acts">
           <button type="button" class="btn hi" onclick={exportFile} disabled={!!$demoQ} title={$demoQ ? t('Off while the demo runs') : undefined}>{t('Save backup')}</button>
           <button type="button" class="btn" onclick={sendFile} disabled={!!$demoQ || sending} title={$demoQ ? t('Off while the demo runs') : undefined}><Send size={16} aria-hidden="true" />{phone.matches ? t('Send to computer') : t('Send to phone')}</button>
           <label class="btn">{t('Import backup')}<input bind:this={fileEl} type="file" onchange={pickFile} hidden data-backup-file /></label>
         </div>
+        <details class="howfold" data-backup-steps>
+        <summary>{t('How it works, computer and phone')}</summary>
+        <ol class="ich-help steps">
+          <li>{t('On the device with the newest data: tap «Save backup». The file lands in «Downloads».')}</li>
+          <li>{t('Send the file to yourself (mail, chat, cloud folder).')}</li>
+          <li>{t('On the other device: save the file, then tap «Import backup» and choose it.')}</li>
+          <li>{t('Read what is added and what is replaced. «Merge» keeps everything on this device and adds the rest; you can undo it.')}</li>
+        </ol>
         <p class="ich-help">{t('Send: the backup file goes to the share sheet (mail, chat, nearby), or is downloaded. On the other device: Import backup.')}</p>
         <p class="ich-help">{t('Phone: a file from a mail first has to be saved (in Gmail the arrow at the attachment). Then choose it under «Downloads». The picker shows all files; the app checks itself whether it is a backup.')}</p>
+        </details>
 
         {#if $demoQ}<p class="small">{t('A demo is running: backups are off until you end it (yellow bar on top).')}</p>{/if}
 
@@ -661,8 +657,8 @@
             {:else}
               <div class="ich-acts end">
                 <button type="button" class="btn" class:hi={pending.sync.advice === 'keep' || pending.sync.advice === 'same'} onclick={() => (pending = null)}>{t('Cancel')}</button>
-                <button type="button" class="btn" class:hi={pending.sync.advice === 'both'} onclick={() => applyImport('merge')}>{t('Merge')}</button>
-                <button type="button" class="btn" class:hi={!pending.sync.advice || pending.sync.advice === 'take' || pending.sync.advice === 'fresh'} onclick={() => applyImport('replace')}>{t('Replace all data')}</button>
+                <button type="button" class="btn" class:hi={pending.sync.advice === 'both' || (pending.hasData && !pending.sync.advice)} onclick={() => applyImport('merge')}>{t('Merge')}</button>
+                <button type="button" class="btn" class:hi={(!pending.sync.advice && !pending.hasData) || pending.sync.advice === 'take' || pending.sync.advice === 'fresh'} onclick={() => applyImport('replace')}>{t('Replace all data')}</button>
               </div>
             {/if}
             <p class="small">{t('Replace: the file becomes your data. Merge: records from the file are added or overwrite the same ID.')}{pending.hasData ? ` ${t('Before either, the app keeps a copy of the data now.')}` : ''}</p>
@@ -670,9 +666,9 @@
         {/if}
 
         {#if message}<p class="msg" role="status">{message}</p>{/if}
+        {#if undoId}<div class="ich-acts"><button type="button" class="btn" onclick={undoImport} data-undo-import>{t('Undo import')}</button></div>{/if}
       </div>
     </section>
-    </MoreFold>
     <MoreFold id="more" title={t('More')} sub={t('Password, folder, copies before updates, other data, start fresh')} bind:open={moreOpen}>
     <BackupLock />
     <BeforeUpdates />
@@ -728,6 +724,28 @@
     <NamesDe />
     <StartFresh />
     </MoreFold>
+    <!-- Idea 1 (Noah 01.11.2026): one question, once. Yes shows the sync, No folds it. Per device, not in the data. -->
+    {#if twoDev === null && !autoSync.on}
+      <section class="ich-sec" aria-labelledby="two-h" data-section="two-devices">
+        <div class="ich-h"><div><h2 id="two-h">{t('Do you need the app on two devices?')}</h2><p class="ich-hs">{t('Yes shows the sync between phone and computer. No folds it away; you can still open it any time.')}</p></div></div>
+        <div class="card ich-body"><div class="ich-acts">
+          <button type="button" class="btn hi" onclick={() => answerTwo('yes')} data-two="yes">{t('Yes, on two devices')}</button>
+          <button type="button" class="btn" onclick={() => answerTwo('no')} data-two="no">{t('No, only here')}</button>
+        </div></div>
+      </section>
+    {:else if twoDev === 'no' && !autoSync.on}
+      <MoreFold id="sync" title={t('Work on two devices')} sub={t('Phone and computer, sync')} bind:open={syncOpen}>
+        {@render syncBlock()}
+        <div class="ich-acts"><button type="button" class="btn sm" onclick={() => answerTwo(null)}>{t('Ask me again')}</button></div>
+      </MoreFold>
+    {:else}
+      {@render syncBlock()}
+    {/if}
+    <!-- Idea 4a: Fitbit has its own page (Ich › Fitbit) -->
+    <a class="card ich-row fitrow" href="#/me/fitbit" data-row="fitbit-page"><span class="ich-m"><b>{t('Fitbit and health')}</b><small>{t('Moved to its own page: Me › Fitbit')}</small></span><ChevronRight class="ich-chev" size={18} aria-hidden="true" /></a>
+  </div>
+
+  <div class="ich-side">
     <section class="ich-sec" aria-labelledby="yd-h">
       <div class="ich-h"><div class="dhead"><h2 id="yd-h">{t('Your data')}</h2><Help label={t('Your data')}><p>{t('Everything is stored in this browser on this device. Use a backup file to move it to your other device.')}</p></Help></div></div>
       {#if $counts}
@@ -750,6 +768,13 @@
 </div>
 
 <style>
+  .howfold summary {
+    cursor: pointer;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    font-weight: 600;
+  }
   .light {
     min-height: 56px;
   }
