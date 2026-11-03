@@ -1,19 +1,26 @@
-# Velos-Übersicht Schritt 1: eine Karte pro Velo
+# Deine Velos als Karten
 
-Auftrag: Noah «bitte alles umsetzen» (Thread «Verbessern: Velos und Material verständlicher»), Mockup «Velos-Übersicht» (Artifact), Ziel: auf einen Blick sehen, welches Velo Aufmerksamkeit braucht.
+29.10.2026 · Auftrag: Noah «1a 2a 3a» und «danach alle anderen Vorschläge umsetzen» (Thread «Neuer Schwung»)
 
 ## Was ist neu
-- Oben auf «Velos» steht pro Velo eine Karte: Name, Kilometer, Status («n fällig», «nichts fällig» oder «keine Daten») und die nächste Arbeit. Die Wörter sind dieselben wie in der Pflege (`bikeCareWords`).
-- Zwei Knöpfe pro Karte: «Pflege öffnen» und «Details zeigen» (wählt das Velo für die Seite darunter).
-- Neue Datei `src/lib/bikes/BikeCards.svelte`, eingebaut in `src/pages/Bikes.svelte`.
+- Auf Velos ist jedes Velo oben eine kleine Karte (Stil S2 «Kacheln mit Tiefe»): gezeichnetes Velo, Name, «Typ · km».
+- Das gewählte Velo hat einen grünen Rahmen, seine Zeichnung rollt beim Wählen kurz herein. Die Karten erscheinen nacheinander.
+- Am Handy bleibt es eine Reihe zum Wischen, das gewählte Velo zuerst. «+ Velo» ist eine gestrichelte Karte am Ende.
+- Bei «Bewegung reduzieren» steht alles still.
 
 ## Was fällt weg oder rutscht tiefer
-- nichts. Die Seite darunter (Band, Zeichnung, Karten) bleibt wie sie war und rutscht um die Kartenreihe nach unten.
+- nichts. Die Karten sind höher als die alten Knöpfe (etwa 56 px), der Rest der Seite rutscht um so viel nach unten.
 
 ## Selbst entschieden
-- Die Karten erscheinen schon ab einem Velo (so ist die Übersicht auch bei einem Velo sichtbar).
-- Die Knöpfe «Pflege eintragen» und «Problem notieren», «Als Nächstes» und «Werkstatt und Verlauf» kommen als Schritte 2 bis 4.
+- Eine Zeichnung für alle Velos (kein Bild pro Velo), in Grau, beim gewählten in Salbei.
+- Verschleiss bleibt beim eigenen Thread, die Karte zeigt nur Typ und km.
+
+## Entscheide (für decisions.md)
+- keine neuen
+
+## Stand im Plan (roadmap.md / vorhaben.md)
+- Neuer Schwung, Schritt 8 «Velo»: Velo-Liste gebaut; Verschleiss als Ringe beim Velo-Thread.
 
 ## Prüfschritte (nach dem Merge auf der echten Seite)
-1. Velos öffnen: oben je Velo eine Karte mit Kilometern und Status.
-2. «Pflege öffnen»: du landest in der Pflege dieses Velos.
+1. Velos öffnen: oben ist jedes Velo eine Karte mit Zeichnung, Typ und km.
+2. Ein anderes Velo antippen: seine Karte bekommt den grünen Rahmen, die Seite zeigt dieses Velo.

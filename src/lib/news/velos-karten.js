@@ -1,16 +1,20 @@
-// «Velos-Übersicht» Schritt 1 (Noah 1.11.2026): one card per bike with km, status and the next work
+// «Neuer Schwung» Velos (Noah 27.10.2026 «1a 2a 3a», style S2 «Kacheln mit Tiefe»): the bikes on Velos as small
+// cards with a drawn bike, name and «type · km»; the chosen one framed, its bike rolls in. Off with «Reduce motion».
 export default {
-  title: 'Bikes at a glance',
-  lead: 'On Bikes, every bike now has its own card with kilometres, an honest status and the next work.',
-  points: [{ text: 'Each bike has a card on top of Bikes: kilometres, «nothing due» or «n due», and the next work', go: { href: '#/bikes', steps: [{ sel: '[data-bike-cards]' }] } }],
-  small: [],
-  test: ['Open Bikes: on top a card per bike shows its kilometres and its status.', 'Tap «Open care» on a card: you land in the care page of that bike.'],
+  title: 'Your bikes as cards',
+  lead: 'On Velos each bike is now a small card with a drawing and its km.',
+  points: [{ text: 'Velos shows each bike as a card with type and km; the chosen one is framed in green', href: '#/bikes', go: { href: '#/bikes', where: 'On Velos: the bikes at the top are small cards.' } }],
+  small: [{ box: 'nicer', text: 'Choosing a bike lets its little drawing roll in', go: { href: '#/bikes', where: 'On Velos: tap another bike card.' } }],
+  test: ['Open Velos: at the top each bike is a card with a small drawing, type and km.', 'Tap another bike: its card gets the green frame and the page shows that bike.'],
   since: [],
   de: {
-    'Bikes at a glance': 'Velos auf einen Blick',
-    'On Bikes, every bike now has its own card with kilometres, an honest status and the next work.': 'Bei Velos hat jedes Velo jetzt eine eigene Karte mit Kilometern, einem ehrlichen Status und der nächsten Arbeit.',
-    'Each bike has a card on top of Bikes: kilometres, «nothing due» or «n due», and the next work': 'Jedes Velo hat oben bei Velos eine Karte: Kilometer, «nichts fällig» oder «n fällig» und die nächste Arbeit',
-    'Open Bikes: on top a card per bike shows its kilometres and its status.': 'Öffne Velos: oben zeigt eine Karte pro Velo die Kilometer und den Status.',
-    'Tap «Open care» on a card: you land in the care page of that bike.': 'Tippe auf einer Karte «Pflege öffnen»: du landest auf der Pflege-Seite dieses Velos.',
+    'On Velos: the bikes at the top are small cards.': 'Auf Velos: die Velos oben sind kleine Karten.',
+    'On Velos: tap another bike card.': 'Auf Velos: tippe eine andere Velo-Karte an.',
+    'Your bikes as cards': 'Deine Velos als Karten',
+    'On Velos each bike is now a small card with a drawing and its km.': 'Auf Velos ist jedes Velo jetzt eine kleine Karte mit Zeichnung und km.',
+    'Velos shows each bike as a card with type and km; the chosen one is framed in green': 'Velos zeigt jedes Velo als Karte mit Typ und km; das gewählte hat einen grünen Rahmen',
+    'Choosing a bike lets its little drawing roll in': 'Wählst du ein Velo, rollt seine kleine Zeichnung herein',
+    'Open Velos: at the top each bike is a card with a small drawing, type and km.': 'Öffne Velos: oben ist jedes Velo eine Karte mit kleiner Zeichnung, Typ und km.',
+    'Tap another bike: its card gets the green frame and the page shows that bike.': 'Tippe ein anderes Velo an: seine Karte bekommt den grünen Rahmen, die Seite zeigt dieses Velo.',
   },
 };
