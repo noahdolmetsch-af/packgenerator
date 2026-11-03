@@ -15,7 +15,7 @@
   import { settingQ, saveSetting } from './store.js';
   import { openFromHash } from './open.js';
   import { move } from './base.js';
-  import { SPACE_KEY, CALM_KEY, BUDGET_KEY, NOT_KEY, SPACE_MAX, SPACE_STARTS, BUDGET_GROUPS, spaceOf, spaceActive, spaceAdd, spaceDrop, spaceMove, calmOf, budgetOf, applyBudget, notForMeOf, setNotForMe, unsetNotForMe, NOT_WHY } from './weniger.js';
+  import { SPACE_KEY, CALM_KEY, BUDGET_KEY, NOT_KEY, SPACE_MAX, SPACE_STARTS, BUDGET_GROUPS, spaceOf, spaceActive, spaceAdd, spaceDrop, spaceMove, calmOf, CALM_MINUTES, calmUntil, calmLeft, budgetOf, applyBudget, notForMeOf, setNotForMe, unsetNotForMe, NOT_WHY } from './weniger.js';
 
   const today = localDay();
   const first = openFromHash();
@@ -42,10 +42,11 @@
   /* Ruhige Ansicht */
   let calmWhat = $state('');
   let calmHref = $state('');
+  let calmMins = $state(30);
   function calmStart(e) {
     e.preventDefault();
     if (!calmWhat.trim()) return;
-    saveSetting(CALM_KEY, { what: calmWhat.trim(), href: calmHref, since: new Date().toISOString() });
+    saveSetting(CALM_KEY, { what: calmWhat.trim(), href: calmHref, since: new Date().toISOString(), until: calmUntil(calmMins) });
     calmWhat = '';
   }
 
@@ -116,6 +117,7 @@
       <div class="rh-calm" data-calm-on>
         <p class="rh-calm-l">{t('You are doing')}</p>
         <p class="rh-calm-w">{calm.what}</p>
+        {#if calm.until}<p class="rh-help" data-calm-left>{calmLeft(calm) ? t('{n} min left', { n: calmLeft(calm) }) : t('Time is up')}</p>{/if}
         <div class="rh-row">
           {#if calm.href}<a class="btn" href={calm.href}>{t('Open')}</a>{/if}
           <button type="button" class="btn hi" onclick={() => saveSetting(CALM_KEY, null)} data-calm-done>{t('Done|calm')}</button>
@@ -131,6 +133,9 @@
             {#each space.ids as id (id)}<option value={featureHref(FEATURE[id]) ?? ''}>{fname(id)}</option>{/each}
           </select>
         {/if}
+        <select class="inp" bind:value={calmMins} aria-label={t('For how long?')} data-calm-mins>
+          {#each CALM_MINUTES as m (m)}<option value={m}>{m ? t('{n} min', { n: m }) : t('Until I tap «Done»')}</option>{/each}
+        </select>
         <button type="submit" class="btn hi" disabled={!calmWhat.trim()}>{t('Calm view')}</button>
       </form>
     {/if}
