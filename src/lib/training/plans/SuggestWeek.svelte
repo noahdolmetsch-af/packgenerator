@@ -49,7 +49,7 @@
       <ul class="sugw-why">{#each sug.why as w (w.key)}<li>{t(w.key, w.vars)}</li>{/each}</ul>
       <ul class="sugw-list">
         {#each sug.sessions as s (s.id)}
-          <li><b>{fmt(s.day)}</b><span>{label(s)}</span><span class="num">{hm(s.mins)}{#if s.zone} · Z{s.zone}{/if}</span></li>
+          <li><b>{fmt(s.day)}</b><span>{label(s)}</span><span class="num">{hm(s.mins)}{#if s.zone}{' · '}Z{s.zone}{/if}</span></li>
         {/each}
       </ul>
       <p class="sugw-sum num">{t('{n} h in total', { n: num(Math.round(sug.mins / 6) / 10) })}</p>
@@ -75,11 +75,11 @@
     gap: 0.5rem;
     padding: 0.8rem;
     border-radius: 0.7rem;
-    background: var(--hi-soft, #e9f1ec);
+    background: var(--paper-2);
   }
   .sugw-h {
     margin: 0;
-    font-size: 1rem;
+    font-size: var(--fs-body);
   }
   ul {
     margin: 0;
@@ -89,20 +89,20 @@
   .sugw-why {
     display: grid;
     gap: 0.2rem;
-    font-size: 0.9rem;
-    color: var(--l2);
+    font-size: var(--fs-small);
+    color: var(--ink-2);
   }
   .sugw-list li {
     display: grid;
     grid-template-columns: 2.6rem 1fr auto;
     gap: 0.5rem;
     padding: 0.35rem 0;
-    border-top: 1px solid var(--line, rgba(0, 0, 0, 0.1));
+    border-top: 1px solid var(--line);
   }
   .sugw-sum,
   .none {
     margin: 0;
-    font-size: 0.9rem;
+    font-size: var(--fs-small);
   }
   .sugw-row {
     display: flex;
