@@ -279,6 +279,26 @@ test('Training › Woche: a suggestion for the week, another one, take over, und
   const first = await sug.locator('.sugw-list').innerText();
   await sug.locator('[data-suggest-more]').click();
   expect(await sug.locator('.sugw-list').innerText()).not.toBe(first);
+  // the hours per week can be set with + and −; the hint about sports and passed days is gone
+  const hrs = sug.locator('[data-sug-hours] b');
+  const h0 = Number((await hrs.innerText()).replace(',', '.'));
+  await sug.locator('[data-sug-plus]').click();
+  expect(Number((await hrs.innerText()).replace(',', '.'))).toBe(h0 + 0.5);
+  await expect(sug).not.toContainText('Deine Sportarten');
+  await expect(sug).not.toContainText('Vergangene Tage');
+  // every row can be changed here: swap the session for another sport, change minutes, add a second session on a day, remove one
+  const rows = sug.locator('[data-sug-row]');
+  const n0 = await rows.count();
+  await rows.first().locator('[data-sug-edit]').click();
+  await sug.locator('[data-sug-act]').selectOption('kind:run');
+  await sug.locator('[data-sug-mins]').fill('35');
+  await sug.locator('[data-sug-save]').click();
+  await expect(rows.first()).toContainText('0:35');
+  await sug.locator('[data-sug-add]').click();
+  await sug.locator('[data-sug-save]').click();
+  await expect(rows).toHaveCount(n0 + 1);
+  await rows.last().locator('[data-sug-drop]').click();
+  await expect(rows).toHaveCount(n0);
   await sug.locator('[data-suggest-take]').click();
   await expect(sug).toHaveCount(0);
   expect(await plan.locator('[data-planned]').count()).toBeGreaterThan(0);

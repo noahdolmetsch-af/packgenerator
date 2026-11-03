@@ -39,14 +39,16 @@ const round5 = (x) => Math.max(5, Math.round(x / 5) * 5);
 /**
  * The suggestion for the week starting on monday. Input: { monday, today, goal, daysToRace (null without a race),
  * level ('rest' | 'easy' | 'normal' | 'hard' | null, today's readiness), recentMins (minutes per week of the last
- * weeks, or null), mainKind ('bike' …), sports (weeklySports), variant (0–2), nameOf (a sport's name in the language shown) }.
+ * weeks, or null), mainKind ('bike' …), sports (weeklySports), variant (0–2), nameOf (a sport's name in the language shown), hoursSet (hours per week the person chose, else null) }.
  * Output: { sessions, why: [{ key, vars }], mins } (why: English keys for t()).
  */
-export function suggestWeek({ monday, today, goal = null, daysToRace = null, level = null, recentMins = null, mainKind = 'bike', sports = [], variant = 0, nameOf = (s) => s.name } = {}) {
+export function suggestWeek({ monday, today, goal = null, daysToRace = null, level = null, recentMins = null, mainKind = 'bike', sports = [], variant = 0, nameOf = (s) => s.name, hoursSet = null } = {}) {
   const v = ((variant % VARIANTS) + VARIANTS) % VARIANTS;
   const why = [];
   let hours;
-  if (goal?.hours) {
+  if (hoursSet) {
+    hours = hoursSet; // set by the person with + / −
+  } else if (goal?.hours) {
     hours = goal.hours;
     why.push({ key: 'About {n} h this week, from your goal.', vars: { n: hours } });
   } else if (recentMins) {
@@ -74,7 +76,6 @@ export function suggestWeek({ monday, today, goal = null, daysToRace = null, lev
   // sports take at most a third of the time
   let sportMin = sportSessions.reduce((a, s) => a + s.mins, 0);
   while (sportSessions.length && sportMin > total / 3) sportMin -= sportSessions.pop().mins;
-  if (sportSessions.length) why.push({ key: 'Your sports: {names}.', vars: { names: [...new Set(sportSessions.map((s) => nameOf(s.sport)))].join(', ') } });
 
   const core = Math.max(30, total - sportMin);
   const base = goal?.base ?? 80;
@@ -91,7 +92,6 @@ export function suggestWeek({ monday, today, goal = null, daysToRace = null, lev
     .sort((a, b) => a.day.localeCompare(b.day))
     .filter((s) => s.day >= today)
     .map((s, i) => ({ ...s, id: `${SRC}-${s.day}-${i}`, src: SRC }));
-  if (sessions.length < rows.length + sportSessions.length) why.push({ key: 'Days that have passed are left out.', vars: {} });
   why.push({ key: 'About {n} % in Z1–Z2 (your goal: {goal} %).', vars: { n: low(), goal: base } });
-  return { sessions, why, mins: sessions.reduce((a, s) => a + s.mins, 0), shiftTo: shiftDay(monday, 7) };
+  return { sessions, why, hours, mins: sessions.reduce((a, s) => a + s.mins, 0), shiftTo: shiftDay(monday, 7) };
 }

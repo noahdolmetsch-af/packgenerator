@@ -5,6 +5,7 @@ PR folgt · 02.11.2026 · Auftrag: Noah «2 … oder kannst weitere Vorschläge 
 ## Was ist neu
 - Aktiv › Training › Woche: Knopf «Vorschlag für diese Woche». Er baut eine Woche aus deinem Stundenziel und Z1–Z2-Anteil, dem nächsten Rennen, der heutigen Erholung und den Sportarten aus Aktiv.
 - Er nennt die Gründe, zeigt Tage, Dauer und Zone und lässt dich «Übernehmen» oder «Anderer Vorschlag» (3 Aufteilungen) wählen.
+- Jeder Tag im Vorschlag ist einzeln bearbeitbar (Noah 03.11.): Einheit gegen eine andere Sportart tauschen, Tag, Minuten und Zone ändern, entfernen, und mehrere Einheiten pro Tag hinzufügen, alles vor dem Übernehmen.
 - Übernehmen ersetzt nur die geplanten Tage ab heute und ist mit «Rückgängig» sofort zurückgenommen.
 
 ## Was fällt weg oder rutscht tiefer

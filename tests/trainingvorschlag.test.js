@@ -29,12 +29,16 @@ describe('suggestWeek', () => {
     const r = suggestWeek({ ...base, sports: [yoga] });
     const s = r.sessions.find((x) => x.sport === 'yoga');
     expect(s).toMatchObject({ kind: 'other', mins: 30 });
-    expect(r.why.some((w) => w.key.startsWith('Your sports'))).toBe(true);
   });
   it('leaves out days that have passed', () => {
     const r = suggestWeek({ ...base, today: '2026-11-06' });
     expect(r.sessions.every((s) => s.day >= '2026-11-06')).toBe(true);
-    expect(r.why.some((w) => /passed/.test(w.key))).toBe(true);
+  });
+  it('takes the hours the person set, not the goal', () => {
+    const r = suggestWeek({ ...base, hoursSet: 4 });
+    expect(r.hours).toBe(4);
+    expect(r.mins).toBeLessThan(4 * 60 * 1.1);
+    expect(r.why.some((w) => /from your goal/.test(w.key))).toBe(false);
   });
   it('has different layouts', () => {
     const l = Array.from({ length: VARIANTS }, (_, v) => suggestWeek({ ...base, variant: v }).sessions.map((s) => s.day).join());
