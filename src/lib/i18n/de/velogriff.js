@@ -1,5 +1,9 @@
 // Paket VG «Das Velo im Griff» (Noah 20.10.2026 «1a 2a 3a», «4-6 alle», «7-8 beide»)
 export default {
+  // «Velos-Pflege einbauen» (Noah 03.11.2026 «3a»): a photo of the chain in the window «Measure the chain»
+  'Photo of the chain': 'Foto der Kette',
+  'Old next to new: take it from the same side each time. It goes to «Wear photos».': 'Alt neben neu: immer von derselben Seite fotografieren. Es kommt zu «Verschleiss-Fotos».',
+  'See the wear photos': 'Verschleiss-Fotos ansehen',
   // 1129 Verschleiss-Fotos
   'Photo saved: {part}, {date}.': 'Foto gespeichert: {part}, {date}.',
   'Delete the photo of {date}?': 'Foto vom {date} löschen?',
@@ -134,8 +138,4 @@ export default {
   'Chain after rain': 'Kette nach Regen',
   '{bike} was out in the rain today. Dry and oil the chain.': '{bike} war heute im Regen unterwegs. Kette trocknen und ölen.',
   'At 19:00 on a day you rode in the rain: dry and oil the chain.': 'Um 19:00 an einem Tag, an dem du im Regen gefahren bist: Kette trocknen und ölen.',
-  // «Velos-Pflege einbauen» (Noah 03.11.2026 «3a»): a photo of the chain in the window «Measure the chain»
-  'Photo of the chain': 'Foto der Kette',
-  'Old next to new: take it from the same side each time. It goes to «Wear photos».': 'Alt neben neu: immer von derselben Seite fotografieren. Es kommt zu «Verschleiss-Fotos».',
-  'See the wear photos': 'Verschleiss-Fotos ansehen',
 };
