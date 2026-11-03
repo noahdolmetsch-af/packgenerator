@@ -184,4 +184,8 @@ export default {
   '{n} lessons': '{n} Stunden',
   'The invoice is prepared with name, amount and lesson. You check it and send it yourself.': 'Die Rechnung ist mit Name, Betrag und Stunde vorbereitet. Du prüfst sie und sendest sie selbst.',
   'Prepare invoice': 'Rechnung vorbereiten',
+  'Add to one invoice: {name}, {when}': 'Auf eine Rechnung setzen: {name}, {when}',
+  'Tick several lessons to put them on one invoice, for example at the end of the month.': 'Hake mehrere Stunden an, um sie auf eine Rechnung zu setzen, zum Beispiel am Monatsende.',
+  'One invoice for {n} lesson': 'Eine Rechnung für {n} Stunde',
+  'One invoice for {n} lessons': 'Eine Rechnung für {n} Stunden',
 };
