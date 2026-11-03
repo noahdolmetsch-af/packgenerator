@@ -36,6 +36,26 @@ export function writeAccount(a) {
   }
 }
 
+/** A draft for the invoice form, handed over from another page (this tab only, read once). */
+export const PREFILL_KEY = 'pg.invoice.prefill';
+export function setPrefill(draft) {
+  try {
+    sessionStorage.setItem(PREFILL_KEY, JSON.stringify(draft));
+    return true;
+  } catch {
+    return false;
+  }
+}
+export function takePrefill() {
+  try {
+    const d = JSON.parse(sessionStorage.getItem(PREFILL_KEY) ?? 'null');
+    sessionStorage.removeItem(PREFILL_KEY);
+    return d && typeof d === 'object' ? d : null;
+  } catch {
+    return null;
+  }
+}
+
 /** All invoices, newest first. */
 export async function listInvoices(db = appDb) {
   const row = await db.settings.get(INVOICES_KEY);
@@ -75,6 +95,8 @@ export async function createInvoice(input, account, db = appDb) {
       createdAt: localDay(),
       status: 'open',
       ...(input.ref ? { from: 'ebanking' } : {}),
+      // made from a booking (Ich › Angebote): { offer, b }, so the offer knows which lessons are invoiced
+      ...(input.booking?.b ? { booking: { offer: String(input.booking.offer ?? ''), b: String(input.booking.b) } } : {}),
     };
     const list = await listInvoices(db);
     await saveAll(db, [inv, ...list]);
