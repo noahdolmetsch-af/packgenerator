@@ -28,6 +28,7 @@
   import { t, tn, locale } from '../i18n.svelte.js';
   import QrCode from '../ich/QrCode.svelte';
   import { newCode, readCode } from './code.js';
+  import { runningLine, failedLine } from '../ui/connstatus.js';
   import { compareSync, fixMissing } from './compare.js';
   import { startSync, stopSync, readCfg, lostVersions, bringBack, dropLost } from './engine.js';
   import { sync, runSync } from './auto.svelte.js';
@@ -55,6 +56,7 @@
   const linkOf = (code) => `${location.origin}${location.pathname}#/me/data?koppeln=${code}`;
   const ERR = {
     offline: () => t('No network right now. The sync catches up later.'),
+    timeout: () => t('The server did not answer in time. The app tries again.'),
     storage_full: () => t('This device has no space left to save the data. Free some space; the sync tries again.'),
     local_error: () => t('This device could not save an entry. The sync tries again.'),
     not_ready: () => t('The sync is not ready on the server yet.'),
@@ -183,6 +185,15 @@
     const err = await lastError();
     message = err ? errText(err) : r?.skipped ? '' : doneText(r);
   }
+  // Noah 03.11.2026: «Gleicht ab …» hung and nothing said how long, how far, or when it last worked
+  let now = $state(Date.now());
+  $effect(() => {
+    if (!sync.running) return;
+    now = Date.now();
+    const id = setInterval(() => (now = Date.now()), 1000);
+    return () => clearInterval(id);
+  });
+  const runLine = (at) => runningLine(t, { since: sync.since, now: at, progress: { phase: sync.phase, n: sync.n } });
   // «Abgleich vergleichen» (Noah 03.11.2026 «a»): what the server holds and this device lacks, and the other way round
   let cmp = $state(null);
   async function compare() {
@@ -331,8 +342,8 @@
     <p class="state" data-sync-state={sync.running ? 'running' : $cfgQ.error ? 'error' : 'ok'}>
       <span class="dot {$demoQ ? 'off' : $cfgQ.error ? 'warn' : 'ok'}" aria-hidden="true"></span>
       <span class="st">{#if $demoQ}{t('Paused while the demo runs.')}
-      {:else if sync.running}{t('Syncing …')}
-      {:else if $cfgQ.error}{errText($cfgQ.error)}
+      {:else if sync.running}{runLine(now)}
+      {:else if $cfgQ.error}{failedLine(t, { reason: errText($cfgQ.error), lastOkAt: $cfgQ.lastAt, when })}
       {:else if $cfgQ.lastAt}{t('On · last synced {when}.', { when: when($cfgQ.lastAt) })}
       {:else}{t('On · not synced yet.')}{/if}</span>
     </p>
