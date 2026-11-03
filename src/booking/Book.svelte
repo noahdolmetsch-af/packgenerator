@@ -26,6 +26,8 @@
   let slotId = $state('');
   let name = $state('');
   let contact = $state('');
+  let note = $state('');
+  let venue = $state('');
   let busy = $state(false);
   let done = $state(null); // the own booking (BU3)
   let cancelled = $state(false);
@@ -34,9 +36,13 @@
 
   const fmtDay = (d, opts = { weekday: 'short', day: 'numeric', month: 'numeric' }) => new Date(`${d}T12:00:00`).toLocaleDateString(locale(), opts);
   const fmtAt = (at) => `${fmtDay(dayOf(at))} · ${timeOf(at)}`;
-  const days = $derived(offer ? [...new Set(offer.slots.map((s) => dayOf(s.at)))] : []);
-  const freeOn = (d) => offer.slots.some((s) => dayOf(s.at) === d && s.free > 0);
-  const times = $derived(offer ? offer.slots.filter((s) => dayOf(s.at) === day) : []);
+  const request = $derived(offer?.mode === 'request');
+  const venues = $derived(offer?.venues ?? []);
+  const shown = $derived(offer ? offer.slots.filter((s) => venues.length < 2 || !s.venue || s.venue === venue) : []);
+  const days = $derived([...new Set(shown.map((s) => dayOf(s.at)))]);
+  const freeOn = (d) => shown.some((s) => dayOf(s.at) === d && s.free > 0);
+  const times = $derived(shown.filter((s) => dayOf(s.at) === day));
+  const answerWord = (b) => new Date(b.answerBy).toLocaleString(locale(), { weekday: 'long', hour: '2-digit', minute: '2-digit' });
   const slot = $derived(offer?.slots.find((s) => s.id === slotId) ?? null);
   const typeOf = (s) => offer.types.find((x) => x.key === s.type) ?? offer.types[0];
   const lengthWord = (o) => (o.minutes >= 1440 && o.minutes % 1440 === 0 ? tn(o.minutes / 1440, '{n} day', '{n} days') : t('{n} min', { n: o.minutes }));
@@ -88,17 +94,22 @@
       return;
     }
     offer = r.offer;
-    const firstFree = days.find(freeOn) ?? days[0] ?? '';
-    day = firstFree;
-    slotId = offer.slots.find((s) => dayOf(s.at) === day && s.free > 0)?.id ?? '';
+    venue = offer.venues?.[0] ?? '';
+    day = days.find(freeOn) ?? days[0] ?? '';
+    slotId = shown.find((s) => dayOf(s.at) === day && s.free > 0)?.id ?? '';
     if (params.get('pay') === 'cancel') error = t('The payment was cancelled. Nothing is booked.');
     if (done) document.title = t('Booked');
   }
   start();
 
+  function pickVenue(v) {
+    venue = v;
+    day = days.find(freeOn) ?? days[0] ?? '';
+    slotId = shown.find((s) => dayOf(s.at) === day && s.free > 0)?.id ?? '';
+  }
   function pickDay(d) {
     day = d;
-    slotId = offer.slots.find((s) => dayOf(s.at) === d && s.free > 0)?.id ?? '';
+    slotId = shown.find((s) => dayOf(s.at) === d && s.free > 0)?.id ?? '';
   }
 
   async function submit(e) {
@@ -107,7 +118,7 @@
     error = '';
     if (name.trim().length < 2 || contact.trim().length < 3) return (error = t(errorText('bad_person')));
     busy = true;
-    const r = await book({ id: offerId, slot: slot.id, name, contact, returnTo: `${BOOK_PAGE}#${offerId}` });
+    const r = await book({ id: offerId, slot: slot.id, name, contact, note, returnTo: `${BOOK_PAGE}#${offerId}` });
     busy = false;
     if (!r.ok) {
       error = t(errorText(r.code));
@@ -166,7 +177,7 @@
         <span class="av2"><Icon size={26} aria-hidden="true" /></span>
         <div>
           <h1>{offer?.title ?? t('Booking')}</h1>
-          {#if offer}<p>{[offer.place, offer.types.map((x) => x.label).join(t(' or ')), lengthWord(offer)].filter(Boolean).join(' · ')}</p>{/if}
+          {#if offer}<p>{[offer.venues?.length ? offer.venues.join(' / ') : offer.place, offer.types.map((x) => x.label).join(t(' or ')), lengthWord(offer)].filter(Boolean).join(' · ')}</p>{/if}
         </div>
       </div>
     {/if}
@@ -185,11 +196,13 @@
       <!-- BU3 -->
       <section class="card conf" aria-labelledby="conf-h">
         <span class="big-ok" aria-hidden="true"><Check size={36} /></span>
-        <h2 id="conf-h">{t('Booked')}</h2>
-        <p class="muted">{fmtAt(done.at)} · {done.type}{offer?.place ? ` · ${offer.place}` : ''}</p>
+        <h2 id="conf-h">{done.status === 'requested' ? t('Request sent') : done.status === 'declined' ? t('Not possible') : t('Booked')}</h2>
+        <p class="muted">{fmtAt(done.at)} · {done.type}{done.venue || offer?.place ? ` · ${done.venue || offer.place}` : ''}</p>
+        {#if done.status === 'requested'}<p class="wait" role="status">{t('Not booked yet. The answer comes by {when}.', { when: answerWord(done) })}</p>{:else if done.status === 'declined'}<p class="wait" role="status">{t('This time does not work. Please pick another time.')}</p>{/if}
         <dl class="sum">
           <dt>{t('Who')}</dt><dd>{done.name}</dd>
-          <dt>{t('Price')}</dt><dd>{chf(done.price)} CHF · {done.pay === 'online' ? (done.paid ? t('paid (test mode)') : t('not paid yet')) : t('pay on site')}</dd>
+          <dt>{t('Price')}</dt><dd>{chf(done.price)} CHF · {done.status === 'requested' ? t('pay after the lesson') : done.pay === 'online' ? (done.paid ? t('paid (test mode)') : t('not paid yet')) : t('pay on site')}</dd>
+          {#if done.note}<dt>{t('Your note')}</dt><dd>{done.note}</dd>{/if}
         </dl>
         <p class="keep">{t('Keep this link: with it you can see or cancel your booking.')}</p>
         <p class="lnk"><span>{ownLink(done)}</span><button type="button" class="ibtn" aria-label={t('Copy link')} onclick={() => copy(ownLink(done))}><Copy size={18} aria-hidden="true" /></button></p>
@@ -199,7 +212,7 @@
           <div class="two"><button type="button" class="btn bad" disabled={busy} onclick={cancel}>{t('Yes, cancel')}</button><button type="button" class="btn" onclick={() => (ask = false)}>{t('Keep it')}</button></div>
         {:else}
           <div class="two">
-            <button type="button" class="btn" onclick={calendar}><CalendarDays size={18} aria-hidden="true" />{t('Add to calendar')}</button>
+            {#if done.status !== 'requested' && done.status !== 'declined'}<button type="button" class="btn" onclick={calendar}><CalendarDays size={18} aria-hidden="true" />{t('Add to calendar')}</button>{/if}
             {#if done.canCancel !== false}<button type="button" class="btn" onclick={() => (ask = true)}><X size={18} aria-hidden="true" />{t('Cancel|booking')}</button>{/if}
           </div>
           {#if done.canCancel === false}<p class="muted">{t('It is too late to cancel online. Please get in touch directly.')}</p>{/if}
@@ -215,13 +228,21 @@
         <div class="pgrid">
           <!-- BU2 -->
           <section class="card" aria-labelledby="pick-h">
-            <h2 id="pick-h">{t('1. Choose a day')}</h2>
+            {#if venues.length > 1}
+              <h2 id="pick-h">{t('1. Choose a place')}</h2>
+              <div class="days" role="group" aria-label={t('Place')}>
+                {#each venues as v (v)}<button type="button" class="dy" aria-pressed={v === venue} onclick={() => pickVenue(v)}><b>{v}</b></button>{/each}
+              </div>
+              <h3 class="lb">{t('2. Choose a day')}</h3>
+            {:else}
+              <h2 id="pick-h">{t('1. Choose a day')}</h2>
+            {/if}
             <div class="days" role="group" aria-label={t('Day')}>
               {#each days as d (d)}
                 <button type="button" class="dy" aria-pressed={d === day} disabled={!freeOn(d)} onclick={() => pickDay(d)}>{fmtDay(d, { weekday: 'short' })}<b>{fmtDay(d, { day: 'numeric', month: 'numeric' })}</b></button>
               {/each}
             </div>
-            <h3 class="lb">{t('2. Choose a time')}</h3>
+            <h3 class="lb">{venues.length > 1 ? t('3. Choose a time') : t('2. Choose a time')}</h3>
             <div class="times" role="group" aria-label={t('Time')}>
               {#each times as s (s.id)}
                 {@const ty = typeOf(s)}
@@ -236,16 +257,19 @@
             {@const ty = typeOf(slot)}
             <form class="card" onsubmit={submit} aria-labelledby="form-h" novalidate>
               <h2 id="form-h">{fmtAt(slot.at)}</h2>
-              <p class="muted">{[ty.label, lengthWord(offer), offer.place].filter(Boolean).join(' · ')}</p>
+              <p class="muted">{[ty.label, lengthWord(offer), slot.venue || offer.place].filter(Boolean).join(' · ')}</p>
               <label class="lbl" for="bk-name">{t('Your name')}</label>
               <input id="bk-name" class="inp" bind:value={name} autocomplete="name" maxlength="60" placeholder={t('First and last name')} />
               <label class="lbl" for="bk-contact">{t('Phone or e-mail')}</label>
               <input id="bk-contact" class="inp" bind:value={contact} autocomplete="tel" maxlength="80" placeholder={t('so you can be reached')} />
+              <label class="lbl" for="bk-note">{t('Note (optional)')}</label>
+              <textarea id="bk-note" class="inp" rows="3" maxlength="300" bind:value={note} placeholder={t('e.g. level, wishes, questions')}></textarea>
               <dl class="sum">
                 <dt>{t('Price')}</dt><dd>{chf(ty.price)} CHF</dd>
-                <dt>{t('Payment')}</dt><dd>{#if offer.pay === 'online' && ty.price > 0}<CreditCard size={16} aria-hidden="true" /> {t('online')} <span class="pill warn">{t('Test mode')}</span>{:else}{t('on site, cash or TWINT')}{/if}</dd>
+                <dt>{t('Payment')}</dt><dd>{#if request}{t('after the lesson, you get an invoice')}{:else if offer.pay === 'online' && ty.price > 0}<CreditCard size={16} aria-hidden="true" /> {t('online')} <span class="pill warn">{t('Test mode')}</span>{:else}{t('on site, cash or TWINT')}{/if}</dd>
               </dl>
-              <button type="submit" class="btn hi go" disabled={busy}><Check size={20} aria-hidden="true" />{t('Book the time')}</button>
+              <button type="submit" class="btn hi go" disabled={busy}><Check size={20} aria-hidden="true" />{request ? t('Send request') : t('Book the time')}</button>
+              {#if request}<p class="muted fine">{t('Nothing is booked yet. You get an answer within 24 hours.')}</p>{/if}
               <p class="muted fine">{t('Cancel up to {n} h before with the link you get.', { n: offer.cancelHours })}</p>
             </form>
           {/if}
@@ -446,6 +470,12 @@
   .muted {
     margin: 0;
     color: var(--ink-2);
+  }
+  .wait {
+    background: var(--warn-soft);
+    border-radius: 8px;
+    padding: 8px 10px;
+    margin: 0;
   }
   .fine {
     margin-top: 6px;
