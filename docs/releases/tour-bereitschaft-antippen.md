@@ -14,6 +14,7 @@ PR #762 · 28.10.2026 · Auftrag: Noah «1-5 a» (Thread «Diagramme klickbar ma
 
 ## Selbst entschieden
 - Ohne Wahl zeigt die Zeile über dem Diagramm heute (vor der Tour) oder den heutigen Tourtag.
+- Der Test «Ausprobieren» (`tests/e2e/ausprobieren.spec.js`) lief mit 566 Zeilen an seiner festen 10-Minuten-Grenze (auf GitHub 10,6 Min.) und brach ab; seine Zeit wächst jetzt mit den Zeilen (60 s + 3 s je Zeile). Geprüft wird nichts weniger.
 - Die Seite «Form» ist damit aus der Liste der offenen Diagramme.
 
 ## Entscheide (für decisions.md)

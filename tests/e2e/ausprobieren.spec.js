@@ -20,7 +20,9 @@ const ROWS = WHATS_NEW.flatMap((e) =>
 );
 const NEWEST = WHATS_NEW[0].version;
 
-test.setTimeout(600_000);
+// the test taps every line once (about 1 s each on a quiet machine, 1.1+ s on GitHub), so its time grows with the news:
+// 3 s per line plus a minute, never a fixed limit that the next news file pushes it over
+test.setTimeout(60_000 + ROWS.length * 3000);
 
 test('every line of What is new goes to its exact place', async ({ page, context }, info) => {
   await start(page, context, info);
