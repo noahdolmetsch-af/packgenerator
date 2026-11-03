@@ -76,6 +76,7 @@ const LISTED_HOME = {
   'f.arrival': '#/me/ruhig/teilen',
   'f.tworoles': '#/me/ruhig/zahlen',
   'f.scalemeaning': '#/me/ruhig/zahlen',
+  'f.datenfragen': '#/me/abfragen',
   'f.bodytalk': '#/me/ruhig/zahlen',
   'f.sources': '#/me/ruhig/belege',
   'f.devil': '#/me/ruhig/belege',

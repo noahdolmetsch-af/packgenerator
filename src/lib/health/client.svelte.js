@@ -41,7 +41,7 @@ export const prefsOf = (v) => ({
   until: typeof v?.until === 'string' ? v.until : null,
 });
 
-export const health = $state({ loaded: false, busy: false, error: '', justConnected: false, prefs: prefsOf(null), first: null, last: null, lastTry: null });
+export const health = $state({ loaded: false, busy: false, error: '', justConnected: false, prefs: prefsOf(null), first: null, last: null, lastTry: null, since: 0, done: 0, total: 0 });
 
 if (typeof window !== 'undefined' && typeof indexedDB !== 'undefined') {
   liveQuery(async () => [await appDb.settings.get(HEALTH_KEY), await appDb.healthDays.orderBy('date').first(), await appDb.healthDays.orderBy('date').last(), await appDb.meta.get(LAST_KEY)]).subscribe({
@@ -75,12 +75,16 @@ export function fetchNow({ db = appDb, c = call, now = new Date() } = {}) {
   running = (async () => {
     health.busy = true;
     health.error = '';
+    health.since = now.getTime();
+    health.done = 0;
+    health.total = 0;
     try {
       await db.meta.put({ key: TRY_KEY, at: now.toISOString() });
       const prefs = prefsOf((await db.settings.get(HEALTH_KEY))?.value);
       const keep = chosen(prefs.values);
       const res = await syncHealth(db, {
         now,
+        onProgress: ({ done, total }) => ((health.done = done), (health.total = total)),
         c: async (step, o) => {
           const r = await c(step, o);
           return { ...r, days: keep(r.days ?? []), missing: (r.missing ?? []).filter((m) => prefs.values.includes(VALUE_OF[m])) };

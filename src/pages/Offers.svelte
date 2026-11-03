@@ -15,9 +15,10 @@
   import { backClose } from '../lib/ui/backclose.js';
   import { t, tn, locale } from '../lib/i18n.svelte.js';
   import { localDay } from '../lib/localday.js';
-  import { KINDS, kindOf, newOffer, shareUrl, mondayOf, weekDays, weekNo, addDays, slotsOn, newSlots, bookedBySlot, slotState, chf, dayOf, timeOf, contactHref, holdsPlace, isOpenRequest } from '../lib/booking/model.js';
+  import { KINDS, kindOf, newOffer, shareUrl, mondayOf, weekDays, weekNo, addDays, slotsOn, newSlots, bookedBySlot, slotState, chf, dayOf, timeOf, contactHref, holdsPlace, isOpenRequest, invoiceDraft, invoiceDraftMany, toInvoice } from '../lib/booking/model.js';
   import { OFFERS_KEY, SEEN_KEY, createOffer, saveOffer, ownerBookings, ownerCancel, answerBooking, cancelSlot, errorText } from '../lib/booking/client.js';
   import { Volleyball, Tent, Wrench, CalendarDays, Link2, Copy, MessageCircle, ChevronLeft, ChevronRight, Clock, Users, Repeat, CreditCard, Bell, X, Plus, MapPin } from '@lucide/svelte';
+  import { listInvoices, setPrefill, bookingIdsOf } from '../lib/pay/invoices.js';
   import '../lib/ich/ich.css';
 
   let { id = '' } = $props();
@@ -79,6 +80,30 @@
   });
   const booked = $derived(bookedBySlot(bookings ?? []));
   const upcoming = $derived((bookings ?? []).filter((b) => b.at && dayOf(b.at) >= today));
+
+  /* lessons that are over: the invoice is prepared from the booking (Noah 03.11.2026 «3b»; nothing is sent here) */
+  const invoicesQ = liveQuery(() => listInvoices());
+  const invoices = $derived($invoicesQ ?? []);
+  const nowAt = () => {
+    const d = new Date();
+    return `${localDay()}T${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+  };
+  const lessonsOver = $derived(toInvoice(bookings ?? [], invoices, nowAt()).sort((a, b) => String(b.at).localeCompare(String(a.at))));
+  const invoiceOf = (b) => invoices.find((x) => bookingIdsOf(x).includes(b.id)) ?? null;
+  let picked = $state([]); // booking ids ticked for one invoice
+  const pickedLessons = $derived(lessonsOver.filter((b) => picked.includes(b.id)));
+  const toggle = (b) => (picked = picked.includes(b.id) ? picked.filter((x) => x !== b.id) : [...picked, b.id]);
+  function writeOne(items) {
+    const o = { ...mine.offer, id: mine.id };
+    if (!setPrefill(invoiceDraftMany(o, [...items].sort((x, y) => String(x.at).localeCompare(String(y.at))).map((b) => ({ slot: o.slots.find((x) => x.id === b.slot), booking: b })), (b) => fmtAt(b.at)))) return;
+    picked = [];
+    location.hash = '#/me/pay/invoices/new';
+  }
+  function writeInvoice(b) {
+    const s = mine.offer.slots.find((x) => x.id === b.slot);
+    if (!setPrefill(invoiceDraft({ ...mine.offer, id: mine.id }, s, b, fmtAt(b.at)))) return;
+    location.hash = '#/me/pay/invoices/new';
+  }
 
   let monday = $state(mondayOf(localDay()));
   const days = $derived(weekDays(monday));
@@ -277,6 +302,22 @@
           <p class="of-legend"><span><i class="free"></i>{t('free')}</span> <span><i class="part"></i>{t('partly booked')}</span> <span><i class="full"></i>{t('booked')}</span> <span>{t('+ opens a time')}</span></p>
         </section>
 
+        {#if lessonsOver.length}
+          <section class="card" aria-labelledby="of-inv-h" data-lessons-over>
+            <div class="of-wh"><h2 id="of-inv-h">{t('Lesson done? Write the invoice')}</h2><small class="muted">{tn(lessonsOver.length, '{n} lesson', '{n} lessons')}</small></div>
+            <p class="muted">{t('The invoice is prepared with name, amount and lesson. You check it and send it yourself.')}</p>
+            <ul class="of-list">
+              {#each lessonsOver as b (b.id)}
+                <li class="of-pp"><label class="of-pick"><input type="checkbox" checked={picked.includes(b.id)} onchange={() => toggle(b)} aria-label={t('Add to one invoice: {name}, {when}', { name: b.name, when: fmtAt(b.at) })} /><span>{b.name}<small>{fmtAt(b.at)}</small></span></label><button type="button" class="btn hi sm" onclick={() => writeInvoice(b)}>{t('Prepare invoice')}</button></li>
+              {/each}
+            </ul>
+            {#if lessonsOver.length > 1}
+              <p class="muted">{t('Tick several lessons to put them on one invoice, for example at the end of the month.')}</p>
+              {#if pickedLessons.length > 1}<button type="button" class="btn hi" data-one-invoice onclick={() => writeOne(pickedLessons)}>{tn(pickedLessons.length, 'One invoice for {n} lesson', 'One invoice for {n} lessons')}</button>{/if}
+            {/if}
+          </section>
+        {/if}
+
         <section class="card" aria-labelledby="of-bk-h">
           <div class="of-wh"><h2 id="of-bk-h">{t('Booked')}</h2>{#if bookings}<small class="muted">{tn(upcoming.length, '{n} ahead', '{n} ahead')}</small>{/if}</div>
           {#if loadErr}<p class="err" role="alert">{loadErr}</p>
@@ -374,6 +415,7 @@
             <li class="of-pp">
               <span>{b.name}<small>{b.contact} · {b.pay === 'online' ? (b.paid ? t('paid (test)') : t('not paid')) : t('pays on site')}</small>{#if b.note}<small class="of-note">{b.note}</small>{/if}</span>
               {#if href}<a class="btn sm" {href}>{t('Write')}</a>{/if}
+              {#if invoiceOf(b)}<a class="lkb" href={`#/me/pay/invoices/${invoiceOf(b).id}`}>{t('Invoice {no}', { no: invoiceOf(b).no })}</a>{:else if b.at < nowAt()}<button type="button" class="lkb" onclick={() => writeInvoice(b)}>{t('Prepare invoice')}</button>{/if}
               <button type="button" class="lkb" onclick={() => dropOne(b)}>{t('Cancel|booking')}</button>
             </li>
           {/each}
@@ -766,4 +808,6 @@
   .of-rq { margin: 8px 0 0; }
   .of-rqrow { flex-wrap: wrap; }
   .of-ask-n { color: var(--accent, inherit); font-weight: 600; }
+.of-pick { display: flex; gap: 10px; align-items: center; min-width: 0; }
+  .of-pick input { width: 22px; height: 22px; flex: none; }
 </style>

@@ -166,7 +166,7 @@
     try {
       const err = await (kind === 'problem' ? saveProblem() : kind === 'idea' ? saveIdea() : saveVisit());
       if (err) return (msg = err);
-      onsaved?.({ kind, bikeId: bike, id: savedId });
+      onsaved?.({ kind, bikeId: bike, id: savedId, ...(kind === 'visit' ? { resets: [...resetLines] } : {}) });
       dialog.close();
     } catch (err) {
       msg = err.message || t('This could not be saved.');

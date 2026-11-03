@@ -27,7 +27,7 @@
   import OwnSheet from '../lib/abfragen/OwnSheet.svelte';
   import Auswertung from '../lib/abfragen/Auswertung.svelte';
   import { abQuery, ensureConfig, saveConfig, saveDataCfg } from '../lib/abdb.js';
-  import { RULES, MAX_PER_DAY, RHR_ABOVE, ruleOn, setRule } from '../lib/datenfragen.js'; // 03.11.2026 «Fragen aus deinen Daten»
+  import { RULES, MAX_PER_DAY, DATA_QUESTIONS, ruleOn, setRule, ruleVal, setVal, ruleText, setText, resetRule, ruleChanged } from '../lib/datenfragen.js'; // 03.11.2026 «Fragen aus deinen Daten»
   import { OWN_AREA, configOf, settingOf, setOn, setEvery, putOwn, newOwn, counts, stampOf, setRounds, timeOf, perDay, BUSY_DAY, areasOf, questionsIn, renameQuestion, moveToArea, deleteQuestion, restoreQuestion, goneQuestions, moveQuestion, renameArea, addArea, deleteArea, moveArea, listChanged, resetList } from '../lib/abfragen.js';
   import { qText, areaName, everyText, kindLabel, kindExtra, srcText } from '../lib/abfragen/words.js';
   import { localDay } from '../lib/localday.js';
@@ -75,6 +75,10 @@
   let areaMsg = $state('');
   const gone = $derived(goneQuestions(cfg));
   const fresh = () => configOf(data?.cfg);
+  // 03.11.2026 «Fragen aus deinen Daten»: the rules with their switch, threshold and own question text
+  const dcfg = $derived(data?.dataCfg ?? null);
+  const saveD = (next) => (data ? saveDataCfg(next) : undefined);
+  const hasFitbit = $derived((data?.health ?? []).length > 0);
   async function removeQuestion(q) {
     const name = qText(q);
     const answer = await askDelete({ title: t('Delete «{q}»?', { q: name }), text: q.own ? t('Your own question goes. Its answers stay in the history.') : t('The question no longer asks. Its answers stay in the history. «Deleted questions» brings it back.') });
@@ -173,6 +177,28 @@
   <div class="ich-cols">
     <div class="ich-main">
       <div class="top"><span class="num">{t('{areas} areas · {all} questions · {on} on', { areas: areas.length, all: n.all, on: n.on })}</span>{#if !editing}<button type="button" class="ab-lnk lk" onclick={toggleAll}>{allOpen ? t('Collapse all') : t('Expand all')}</button>{/if}</div>
+      <!-- 03.11.2026 «Fragen aus deinen Daten» (Noah «2a»): a suggestion; each rule has its switch, threshold and own question -->
+      <section class="card dfr" aria-labelledby="ab-data-h" data-datenfragen>
+        <h2 id="ab-data-h">{t('Questions from your data')}</h2>
+        <p class="eh">{t('When a value stands out, the window asks one open question about it and says why. It is worked out on this device only. Up to {n} a day.', { n: MAX_PER_DAY })}</p>
+        {#if !hasFitbit}<p class="eh" data-data-empty>{t('No Fitbit values yet. The rules for pulse and sleep wait until Fitbit brings them (Me › Fitbit); the mood rule needs your answers.')}</p>{/if}
+        {#each RULES as r (r.id)}
+          <div class="dr" data-rule={r.id}>
+            <div class="rsw">
+              <span class="rm"><b>{t(r.title)}</b><small>{t(r.about, { n: ruleVal(dcfg, r.id) })}</small></span>
+              <label class="ab-sw"><span class="sr">{t(r.title)}</span><input type="checkbox" role="switch" checked={ruleOn(dcfg, r.id)} onchange={(e) => saveD(setRule(dcfg, r.id, e.currentTarget.checked))} /></label>
+            </div>
+            {#if ruleOn(dcfg, r.id)}
+              <div class="dset">
+                <label><span>{t(r.param.label)}</span><input class="inp num" type="number" min={r.param.min} max={r.param.max} step={r.param.step} value={ruleVal(dcfg, r.id)} onchange={(e) => saveD(setVal(dcfg, r.id, e.currentTarget.value))} data-rule-val={r.id} /></label>
+                <label class="wide"><span>{t('The question|data')}</span><input class="inp" type="text" maxlength="140" value={ruleText(dcfg, r.id) ?? ''} placeholder={t(DATA_QUESTIONS[r.qid].text)} onchange={(e) => saveD(setText(dcfg, r.id, e.currentTarget.value))} data-rule-text={r.id} /></label>
+                {#if ruleChanged(dcfg, r.id)}<button type="button" class="btn" onclick={() => saveD(resetRule(dcfg, r.id))} data-rule-reset={r.id}><RotateCcw size={16} aria-hidden="true" />{t('Back to standard')}</button>{/if}
+              </div>
+            {/if}
+          </div>
+        {/each}
+        <a class="ab-lnk" href="#/me/insights" data-data-next>{t('See what goes together')}<ChevronRight size={14} aria-hidden="true" /></a>
+      </section>
       {#if editing}
         <!-- the groups: drag or arrows to sort, pencil to rename, bin to delete (the questions go where you choose) -->
         <section class="card edg" aria-labelledby="ab-groups-h" data-ab-groups>
@@ -297,19 +323,6 @@
               <label><span>{t('Evening round')}</span><input class="inp num" type="time" value={cfg.rounds.evening} onchange={(e) => setTime('evening', e.currentTarget.value)} data-round="evening" /></label>
             </div>
           {/if}
-        </div>
-      </section>
-      <!-- 03.11.2026 «Fragen aus deinen Daten» (Noah «2a»): a suggestion, each rule has its switch -->
-      <section class="ich-sec" aria-labelledby="ab-data-h" data-datenfragen>
-        <div class="ich-h"><div><h2 id="ab-data-h">{t('Questions from your data')}</h2><p class="ich-hs">{t('a suggestion, can be switched off')}</p></div></div>
-        <div class="card side">
-          <p class="p">{t('When a value stands out, the window asks one open question about it and says why. It is worked out on this device only. Up to {n} a day.', { n: MAX_PER_DAY })}</p>
-          {#each RULES as r (r.id)}
-            <div class="rsw" data-rule={r.id}>
-              <span class="rm"><b>{t(r.title)}</b><small>{t(r.about, { n: RHR_ABOVE })}</small></span>
-              <label class="ab-sw"><span class="sr">{t(r.title)}</span><input type="checkbox" role="switch" checked={ruleOn(data?.dataCfg, r.id)} onchange={(e) => saveDataCfg(setRule(data?.dataCfg, r.id, e.currentTarget.checked))} /></label>
-            </div>
-          {/each}
         </div>
       </section>
       <section class="ich-sec" aria-labelledby="ab-where-h">
@@ -673,6 +686,41 @@
     grid-column: 2;
   }
   /* WG: «Feste Runden» */
+  .dfr {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .dfr h2 {
+    margin: 0;
+  }
+  .dfr .dr {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding-top: 12px;
+    border-top: 1px solid var(--line);
+  }
+  .dset {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 8px 14px;
+  }
+  .dset label {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-size: var(--fs-small);
+    color: var(--ink-3);
+  }
+  .dset label.wide {
+    flex: 1 1 280px;
+    min-width: 0;
+  }
+  .dset input.num {
+    width: 96px;
+  }
   .rsw {
     display: flex;
     align-items: center;

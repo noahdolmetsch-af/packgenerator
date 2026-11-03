@@ -12,6 +12,7 @@ export default {
   'f.parkdays': "Do the protection check before the first run, not after the third: the first runs are when you are still warming up.",
   'f.progress': "Write the value right after the set; the quick entry fills in the last one, so you only change what moved.",
   'f.abfragen': "Fewer questions get answered longer. Three good ones beat twelve you skip after a week.",
+  'f.datenfragen': "Answer «Nothing special» when nothing comes to mind: that is an answer too, and it shows which days really are different.",
   'f.training': "Most of the time in the easy zones is normal for long rides; the hard minutes are the spice, not the meal.",
   'f.trainplans': "A plan is a suggestion: move a session when life gets in the way, the week still counts.",
   'f.feel': "Answer within an hour of the ride; later, every ride feels either heroic or easy.",

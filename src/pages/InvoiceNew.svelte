@@ -16,7 +16,7 @@
   import { t, tn } from '../lib/i18n.svelte.js';
   import { Landmark, Mail, Share2, Pencil, Link } from '@lucide/svelte';
   import { readKey, boxOf, payLink } from '../lib/pay/report.js';
-  import { readAccount, writeAccount, createInvoice, listInvoices, formatTwint, invoiceMail, mailtoHref } from '../lib/pay/invoices.js';
+  import { readAccount, writeAccount, createInvoice, listInvoices, formatTwint, invoiceMail, mailtoHref, takePrefill } from '../lib/pay/invoices.js';
   import { accountProblems, cleanIban, formatIban, parseAmount, referenceFor } from '../lib/pay/qrbill.js';
   import { invoicePdf } from '../lib/pay/billpdf.js';
   import { localDay } from '../lib/localday.js';
@@ -37,6 +37,15 @@
   let viewId = $state(idInHash());
   let saved = $state(null); // the invoice once made (or opened)
   let form = $state({ name: '', email: '', amount: '', purpose: '', qr: true, twint: true });
+  let bookingRef = $state(null); // the bookings this invoice is for ([{ offer, b }]), when it comes from Ich › Angebote
+  {
+    // A draft from Ich › Angebote (name, e-mail, amount and what it is for are filled in; nothing is sent).
+    const d = idInHash() ? null : takePrefill();
+    if (d) {
+      form = { ...form, name: String(d.name ?? ''), email: String(d.email ?? ''), amount: String(d.amount ?? ''), purpose: String(d.purpose ?? '') };
+      bookingRef = Array.isArray(d.bookings) ? d.bookings : null;
+    }
+  }
   let formErrors = $state({});
   let busy = $state(false);
   let note = $state('');
@@ -122,7 +131,7 @@
     }
     busy = true;
     try {
-      saved = await createInvoice({ name: form.name, email: form.email, amount, purpose: form.purpose, ways }, account);
+      saved = await createInvoice({ name: form.name, email: form.email, amount, purpose: form.purpose, ways, bookings: bookingRef }, account);
       history.replaceState(null, '', `#/me/pay/invoices/${encodeURIComponent(saved.id)}`);
       return saved;
     } finally {

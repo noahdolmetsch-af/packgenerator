@@ -46,7 +46,7 @@
   const answered = $derived(data ? [...data.answers, ...fromChecks(data.checks).map((r) => ({ qid: r.qid, at: `${r.day}T00:00` }))] : []);
   // Klick-Rundgang H15: in the evening a missed evening question asks about today (fitNow)
   // 03.11.2026 «Fragen aus deinen Daten» (Noah «2a»): a question about a value that stands out sits first in the same window, with its reason
-  const fromData = $derived(data?.stored ? dataDue({ health: data.health, answers: data.answers, snooze: data.snooze, cfg: data.dataCfg, today, slot: `${today}T${configOf(data.cfg).rounds.morning}` }) : []);
+  const fromData = $derived(data?.stored ? dataDue({ health: data.health, answers: data.answers, checks: data.checks, snooze: data.snooze, cfg: data.dataCfg, today, slot: `${today}T${configOf(data.cfg).rounds.morning}` }) : []);
   const shown = $derived(data?.stored ? [...fromData, ...fitNow(dueList(data.cfg, answered, now, data.snooze), now, configOf(data.cfg).rounds)] : []);
 
   let draft = $state({});
@@ -181,7 +181,7 @@
             <button type="button" class="skip" onclick={() => skip(d)} aria-label={t('Skip «{q}»', { q: qText(d.q) })} data-ab-skip>{t('Skip|question')}</button>
           </span>
         </div>
-        {#if d.why}<small class="last why" data-why><b>{t('Why am I asking this?')}</b> {t(d.why.text, d.why.vars)}</small>{/if}
+        {#if d.why}<small class="last why" data-why><b>{t('Why am I asking this?')}</b> {t(d.why.text, d.why.vars)} <a class="ab-lnk" href="#/me/abfragen" data-why-adjust>{t('Change this rule')}</a></small>{/if}
         <AnswerInput q={d.q} bind:value={draft[d.q.id]} bind:note={notes[d.q.id]} id="{qid}-in" label={qText(d.q)} quick last={yesterdayOf(d.q.id)} onanswer={() => next(i)} />
         {#if fit}<small class="last fit num" data-fitbit={fit.hint.key}><span class="ab-src fitbit">Fitbit</span> {fitText(fit.hint)}{fit.value != null ? ` · ${t('filled in, changeable')}` : ''}</small>{/if}
         {#if d.q.id === 'koerper.waage' && lastKg}

@@ -45,3 +45,16 @@ test('Bikes: «Workshop and history» shows the latest visits or says there is n
   await expect(page.locator('[data-visit-history]')).toBeVisible();
   await expect(page.locator('[data-visit-history] li, [data-visit-none]').first()).toBeVisible();
 });
+
+test('Bikes: a visit saved from a card names what it changed', async ({ page, context }) => {
+  await context.route(/^https?:\/\/(?!localhost[:/])/, (route) => route.abort());
+  await page.goto('./');
+  await importAndSettle(page, fixture);
+  await page.goto('./#/bikes');
+  await page.locator('[data-velo-card]').first().locator('[data-card-visit]').click();
+  const dlg = page.getByRole('dialog');
+  await dlg.locator('.vd-chip', { hasText: 'Chain replaced' }).click();
+  await dlg.getByPlaceholder('Name of the shop').fill('test_data_gtp_ Werkstatt');
+  await dlg.getByRole('button', { name: 'Save', exact: true }).click();
+  await expect(page.locator('[data-saved-resets]')).toContainText('Chain');
+});

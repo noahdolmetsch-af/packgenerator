@@ -36,6 +36,30 @@ export function writeAccount(a) {
   }
 }
 
+/** The bookings an invoice was made for: [{ offer, b }] (one invoice can cover several lessons). */
+const bookingList = (v) => (Array.isArray(v) ? v : []).filter((x) => x?.b).slice(0, 60).map((x) => ({ offer: String(x.offer ?? ''), b: String(x.b) }));
+export const bookingIdsOf = (inv) => [...(inv?.bookings ?? []), ...(inv?.booking ? [inv.booking] : [])].map((x) => x.b);
+
+/** A draft for the invoice form, handed over from another page (this tab only, read once). */
+export const PREFILL_KEY = 'pg.invoice.prefill';
+export function setPrefill(draft) {
+  try {
+    sessionStorage.setItem(PREFILL_KEY, JSON.stringify(draft));
+    return true;
+  } catch {
+    return false;
+  }
+}
+export function takePrefill() {
+  try {
+    const d = JSON.parse(sessionStorage.getItem(PREFILL_KEY) ?? 'null');
+    sessionStorage.removeItem(PREFILL_KEY);
+    return d && typeof d === 'object' ? d : null;
+  } catch {
+    return null;
+  }
+}
+
 /** All invoices, newest first. */
 export async function listInvoices(db = appDb) {
   const row = await db.settings.get(INVOICES_KEY);
@@ -75,6 +99,8 @@ export async function createInvoice(input, account, db = appDb) {
       createdAt: localDay(),
       status: 'open',
       ...(input.ref ? { from: 'ebanking' } : {}),
+      // made from a booking (Ich › Angebote): { offer, b }, so the offer knows which lessons are invoiced
+      ...(bookingList(input.bookings).length ? { bookings: bookingList(input.bookings) } : {}),
     };
     const list = await listInvoices(db);
     await saveAll(db, [inv, ...list]);

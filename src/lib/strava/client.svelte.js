@@ -20,6 +20,7 @@ import { applyTicks } from '../stravaticks.js';
 import { t, tn } from '../i18n.svelte.js';
 import { loadRules, applyImport, updateEntry, deleteEntries, restoreEntries, syncBikes } from '../kmbookdb.js';
 import { rematchOpen, inStart, ledgerStart } from '../kmbook.js';
+import { callWithTimeout, FETCH_LIMIT_MS } from '../ui/connstatus.js';
 import { planSync, suggestBike, mergeChanges, recheckFrom, FETCH_MODES, NO_BIKE_MODES, AUTO_EVERY_MS, RECHECK_DAYS } from '../stravasync.js';
 import { WALL_KEY, wallOf, wallRecord } from '../home/tiles.js';
 import { actRecord, KEEP, needDetail, ZONES_KEY, DETAIL_V } from '../training.js';
@@ -79,7 +80,7 @@ export function dropKey(ls = globalThis.localStorage) {
 }
 
 /** The live state for the pages. */
-export const strava = $state({ loaded: false, key: false, busy: false, error: '', justConnected: false, prefs: prefsOf(null), changes: [], last: null, invite: readInvite() });
+export const strava = $state({ since: 0, got: 0, loaded: false, key: false, busy: false, error: '', justConnected: false, prefs: prefsOf(null), changes: [], last: null, invite: readInvite() });
 
 function readInvite(ls = globalThis.localStorage) {
   try {
@@ -126,9 +127,10 @@ export async function call(step, { method = 'GET', body = null, params = {}, key
   if (body) headers['Content-Type'] = 'application/json';
   let res;
   try {
-    res = await doFetch(`${STRAVA_URL}?${q}`, { method, headers, body: body ? JSON.stringify(body) : undefined });
-  } catch {
-    throw new StravaError('network');
+    // Noah 03.11.2026 «1a»: a call without an answer ends after 60 s (a whole fetch after 2 minutes, see runSync)
+    res = await callWithTimeout(doFetch, `${STRAVA_URL}?${q}`, { method, headers, body: body ? JSON.stringify(body) : undefined }, 60_000);
+  } catch (err) {
+    throw new StravaError(err?.code === 'timeout' ? 'timeout' : 'network');
   }
   const data = await res.json().catch(() => null);
   // BF8 «Gratis-Grenzen»: the server passes Strava's request numbers along; the latest stay on this device
@@ -146,7 +148,8 @@ export async function savePrefs(db, patch) {
  * One fetch: the bikes, every page of rides, the plan, the writes. Returns the summary (LAST_KEY).
  * db: the app's database (tests: their own); c: the server call (tests: a fake).
  */
-export async function runSync(db, { call: c = call, now = new Date() } = {}) {
+export async function runSync(db, { call: c = call, now = new Date(), onProgress = null, limitMs = FETCH_LIMIT_MS, clock = () => Date.now() } = {}) {
+  const startedAt = clock();
   const prefs = prefsOf((await db.settings.get(PREFS_KEY))?.value);
   const first = !prefs.lastSync;
   const gearRes = await c('gear');
@@ -163,7 +166,10 @@ export async function runSync(db, { call: c = call, now = new Date() } = {}) {
   for (let page = 1; page <= 100; page++) {
     const res = await c('activities', { params: { page: String(page), ...(after != null ? { after: String(Math.max(0, after)) } : {}) } });
     activities.push(...(res.activities ?? []));
+    onProgress?.({ got: activities.length });
     if (!res.more) break;
+    // Noah 03.11.2026 «1a»: after 2 minutes the fetch ends before anything is written, so no ride is lost; the next try starts again
+    if (clock() - startedAt > limitMs) throw new StravaError('timeout');
   }
   const bikes = await db.bikes.toArray();
   const rules = await loadRules(db);
@@ -204,7 +210,9 @@ async function fetchOnce({ db = appDb, c = call, now = new Date() } = {}) {
   strava.error = '';
   try {
     await db.meta.put({ key: TRY_KEY, at: now.toISOString() });
-    return await runSync(db, { call: c, now });
+    strava.since = now.getTime();
+    strava.got = 0;
+    return await runSync(db, { call: c, now, onProgress: ({ got }) => (strava.got = got) });
   } catch (err) {
     const code = err?.code ?? 'network';
     strava.error = code;

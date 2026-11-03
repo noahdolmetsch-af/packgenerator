@@ -13,14 +13,18 @@ const shot = async (page, info, name) => {
   await page.screenshot({ path: `${SHOTS}/${name}-${info.project.name === 'phone' ? 390 : 1440}.png`, fullPage: true });
 };
 
-function data(todayHr) {
+function data(todayHr, { sleepMin = null, moods = null } = {}) {
   const d = homeFixture();
   const q = Object.fromEntries(QUESTIONS.filter((x) => ON_AT_START.has(x.id) && x.id !== 'erholung.akku').map((x) => [x.id, { on: false }]));
   d.tables.settings.push({ key: 'abfragen', value: { since: `${day(-1)}T19:00`, q, own: [] } });
   d.tables.healthDays = [
     ...Array.from({ length: 20 }, (_, i) => ({ date: day(-(i + 1)), restingHr: 51 + (i % 3) })),
-    { date: day(0), restingHr: todayHr },
+    { date: day(0), restingHr: todayHr, ...(sleepMin != null ? { sleep: { asleepMin: sleepMin } } : {}) },
   ];
+  if (moods) {
+    const row = (n, v) => ({ id: `fad-m${n}`, qid: 'spass.stimmung', area: 'spass', day: day(n), at: `${day(n)}T20:40`, slot: `${day(n)}T20:30`, kind: 'scale', value: v, note: null, unit: null, src: 'hand' });
+    d.tables.abAnswers = [...Array.from({ length: 20 }, (_, i) => row(-(i + 3), 8)), ...moods.map((v, i) => row(i - 2, v))];
+  }
   return d;
 }
 
@@ -70,5 +74,87 @@ test.describe('Fragen aus deinen Daten', () => {
     await expect(page.locator('[data-q="daten.ruhepuls"]')).toHaveCount(0);
     await page.goto('./#/me/abfragen');
     await expect(page.locator('[data-rule="ruhepuls"]').getByRole('switch')).not.toBeChecked();
+  });
+
+  test('a short night asks what kept you awake, with the hours as the reason', async ({ page, context }, info) => {
+    const T = await openHome(page, context, info, { data: data(52, { sleepMin: 295 }) });
+    const card = page.locator('[data-section="abfragen"]');
+    const q = card.locator('[data-q="daten.schlaf"]');
+    await expect(q).toBeVisible();
+    await expect(q.getByText(T('What kept you awake last night?'))).toBeVisible();
+    await expect(q.locator('[data-why]')).toContainText('4 Std. 55 Min.');
+    await expect(card.locator('[data-q="daten.ruhepuls"]')).toHaveCount(0);
+    await q.getByRole('button', { name: T('Thoughts|data'), exact: true }).click();
+    await card.locator('[data-ab-save]').click();
+    await expect(card.locator('[data-q="daten.schlaf"]')).toHaveCount(0);
+  });
+
+  test('three low mood days ask what would do you good', async ({ page, context }, info) => {
+    const T = await openHome(page, context, info, { data: data(52, { moods: [4, 5, 4] }) });
+    const card = page.locator('[data-section="abfragen"]');
+    const q = card.locator('[data-q="daten.stimmung"]');
+    await expect(q).toBeVisible();
+    await expect(q.getByText(T('What would do you good today?'))).toBeVisible();
+    await expect(q.locator('[data-why]')).toContainText('8');
+    await mkdirSync(SHOTS, { recursive: true });
+    await card.screenshot({ path: `${SHOTS}/fad2-stimmung-${info.project.name === 'phone' ? 390 : 1440}.png` });
+    await q.getByRole('button', { name: T('A walk|data'), exact: true }).click();
+    await card.locator('[data-ab-save]').click();
+    await expect(card.locator('[data-q="daten.stimmung"]')).toHaveCount(0);
+  });
+
+  test('normal sleep and mood ask nothing; all three rules have their switch', async ({ page, context }, info) => {
+    await openHome(page, context, info, { data: data(52, { sleepMin: 450, moods: [7, 8, 7] }) });
+    const card = page.locator('[data-section="abfragen"]');
+    await expect(card.locator('[data-q="erholung.akku"]')).toBeVisible();
+    await expect(card.locator('[data-q^="daten."]')).toHaveCount(0);
+    await page.goto('./#/me/abfragen');
+    for (const id of ['ruhepuls', 'schlaf', 'stimmung']) await expect(page.locator(`[data-rule="${id}"]`).getByRole('switch')).toBeChecked();
+  });
+
+  // leaving Heute with the window open counts as «Heute nicht» (quiet until the evening), so each way is its own test
+  test('a higher threshold keeps the rule quiet', async ({ page, context }) => {
+    await openHome(page, context, test.info(), { data: data(61) });
+    await page.goto('./#/me/abfragen');
+    const rule = page.locator('[data-rule="ruhepuls"]');
+    await expect(rule.locator('[data-rule-reset]')).toHaveCount(0);
+    // 61 against 52 is 9 above: a threshold of 12 keeps the rule quiet
+    await rule.locator('[data-rule-val]').fill('12');
+    await rule.locator('[data-rule-val]').blur();
+    await expect(rule.locator('[data-rule-reset]')).toBeVisible();
+    await page.goto('./#/');
+    await expect(page.locator('[data-section="abfragen"] [data-q="erholung.akku"]')).toBeVisible();
+    await expect(page.locator('[data-q="daten.ruhepuls"]')).toHaveCount(0);
+  });
+
+  test('own wording and threshold: it asks in your words, links to the rule, goes back to standard', async ({ page, context }, info) => {
+    await openHome(page, context, info, { data: data(61) });
+    await page.goto('./#/me/abfragen');
+    const rule = page.locator('[data-rule="ruhepuls"]');
+    await rule.locator('[data-rule-val]').fill('6');
+    await rule.locator('[data-rule-val]').blur();
+    await rule.locator('[data-rule-text]').fill('Was war gestern anders?');
+    await rule.locator('[data-rule-text]').blur();
+    await expect(rule.locator('[data-rule-reset]')).toBeVisible();
+    await page.goto('./#/');
+    const q = page.locator('[data-q="daten.ruhepuls"]');
+    await expect(q.getByText('Was war gestern anders?')).toBeVisible();
+    await q.locator('[data-why-adjust]').click();
+    await expect(page).toHaveURL(/#\/me\/abfragen/);
+    mkdirSync(SHOTS, { recursive: true });
+    await page.locator('[data-datenfragen]').screenshot({ path: `${SHOTS}/fad3-regeln-${info.project.name === 'phone' ? 390 : 1440}.png` });
+    await rule.locator('[data-rule-reset]').click();
+    await expect(rule.locator('[data-rule-reset]')).toHaveCount(0);
+    await expect(rule.locator('[data-rule-text]')).toHaveValue('');
+    await expect(rule.locator('[data-rule-val]')).toHaveValue('5');
+  });
+
+  test('without Fitbit values the page says why the pulse and sleep rules are quiet', async ({ page, context }, info) => {
+    const d = data(61);
+    d.tables.healthDays = [];
+    await openHome(page, context, info, { data: d });
+    await page.goto('./#/me/abfragen');
+    await expect(page.locator('[data-data-empty]')).toBeVisible();
+    await expect(page.locator('[data-data-next]')).toHaveAttribute('href', '#/me/insights');
   });
 });

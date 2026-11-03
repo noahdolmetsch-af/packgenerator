@@ -20,19 +20,20 @@ const ROWS = WHATS_NEW.flatMap((e) =>
 );
 const NEWEST = WHATS_NEW[0].version;
 
-test.setTimeout(600_000);
+// The lines are tapped in parts of PART lines each, so that a part finishes well inside its time limit (one test over
+// all ~500 lines ran into the 10-minute limit). Every line is still tapped once; the parts are counted from the source.
+const PART = 40;
+const PARTS = Math.max(1, Math.ceil(ROWS.length / PART));
+test.setTimeout(300_000);
 
-// The lines are checked in parts of PART lines, each its own test with its own time limit: with every release the
-// list grows, and one test for all of them ran into the 10-minute limit on a busy phone runner (03.11.2026, 555 updates).
-const PART = 120;
-const PARTS = Array.from({ length: Math.ceil(ROWS.length / PART) }, (_, i) => ROWS.slice(i * PART, (i + 1) * PART));
-
-test('What is new has lines with an exact place', () => {
+test('there are lines with an exact place', () => {
   expect(ROWS.length).toBeGreaterThan(0);
 });
 
-PARTS.forEach((rows, part) => test(`every line of What is new goes to its exact place, part ${part + 1} of ${PARTS.length}`, async ({ page, context }, info) => {
+for (let part = 0; part < PARTS; part++) {
+test(`every line of What is new goes to its exact place, part ${part + 1}`, async ({ page, context }, info) => {
   await start(page, context, info);
+  const rows = ROWS.slice(part * PART, (part + 1) * PART);
   // «Try it» on the newest update goes to its place and says «New here: …»
   // (only when the newest update has a line with an exact place: a fix release with no place has nothing to go to)
   await page.goto('./#/me/news');
@@ -80,5 +81,5 @@ PARTS.forEach((rows, part) => test(`every line of What is new goes to its exact 
     await expect(page.locator('[data-spot-on]')).toHaveCount(0, { timeout: 6000 }).catch(() => {});
   }
   expect(missing).toEqual([]);
-}));
-
+});
+}

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { dataDue, ruhepulsHit, dataOf, setRule, ruleOn, MAX_PER_DAY, GAP_DAYS, DATA_QUESTIONS, RULES } from '../src/lib/datenfragen.js';
+import { setVal, setText, ruleVal, ruleText, resetRule, ruleChanged, dataDue, ruhepulsHit, schlafHit, stimmungHit, moodByDay, dataOf, setRule, ruleOn, MAX_PER_DAY, GAP_DAYS, DATA_QUESTIONS, RULES } from '../src/lib/datenfragen.js';
 import { QUESTION, QUESTIONS, answerRow } from '../src/lib/abfragen.js';
 
 const TODAY = '2026-11-03';
@@ -10,6 +10,12 @@ const add = (day, n) => {
 };
 /** n days before today with the same resting pulse, then today's. */
 const health = (usual, today, n = 20) => [...Array.from({ length: n }, (_, i) => ({ date: add(TODAY, -(i + 1)), restingHr: usual })), ...(today == null ? [] : [{ date: TODAY, restingHr: today }])];
+
+/** n days of mood answers before today (the same value), then the last three. */
+const moods = (usual, last, n = 20) => [
+  ...Array.from({ length: n }, (_, i) => ({ qid: 'spass.stimmung', day: add(TODAY, -(i + 3)), value: usual })),
+  ...last.map((v, i) => ({ qid: 'spass.stimmung', day: add(TODAY, i - 2), value: v })),
+];
 
 describe('Fragen aus deinen Daten', () => {
   it('asks when the resting pulse is 5 or more above the usual', () => {
@@ -44,8 +50,8 @@ describe('Fragen aus deinen Daten', () => {
     expect(dataDue({ health: health(52, 61), today: TODAY }).length).toBeLessThanOrEqual(MAX_PER_DAY);
   });
   it('keeps the switches safe', () => {
-    expect(dataOf(null)).toEqual({ off: [] });
-    expect(dataOf({ off: ['ruhepuls', 'ruhepuls', 'nope', 3] })).toEqual({ off: ['ruhepuls'] });
+    expect(dataOf(null)).toEqual({ off: [], vals: {}, texts: {} });
+    expect(dataOf({ off: ['ruhepuls', 'ruhepuls', 'nope', 3] }).off).toEqual(['ruhepuls']);
     expect(ruleOn(setRule(null, 'ruhepuls', false), 'ruhepuls')).toBe(false);
     expect(ruleOn(setRule({ off: ['ruhepuls'] }, 'ruhepuls', true), 'ruhepuls')).toBe(true);
   });
@@ -60,5 +66,73 @@ describe('Fragen aus deinen Daten', () => {
     const row = answerRow(q, ['alcohol', 'stress'], { at: `${TODAY}T07:10`, slot: `${TODAY}T07:00` });
     expect(row).toMatchObject({ qid: 'daten.ruhepuls', day: TODAY, value: ['alcohol', 'stress'], kind: 'chips' });
     expect(answerRow(q, null, { at: `${TODAY}T07:10`, note: 'Spätes Training' }).note).toBe('Spätes Training');
+  });
+
+  it('short night: asks under 6 hours asleep, nothing without a value', () => {
+    const night = (asleepMin) => [{ date: TODAY, sleep: asleepMin == null ? undefined : { asleepMin } }];
+    expect(schlafHit(night(300), TODAY)).toEqual({ h: 5, m: 0 });
+    expect(schlafHit(night(345), TODAY)).toEqual({ h: 5, m: 45 });
+    expect(schlafHit(night(360), TODAY)).toBeNull();
+    expect(schlafHit(night(null), TODAY)).toBeNull();
+    expect(schlafHit([], TODAY)).toBeNull();
+    const [d] = dataDue({ health: night(300), today: TODAY });
+    expect(d.q.id).toBe('daten.schlaf');
+    expect(d.why.vars).toEqual({ h: 5, m: 0 });
+  });
+  it('low mood: three days in a row clearly below the usual', () => {
+    expect(stimmungHit(moods(7, [5, 5, 5]), [], TODAY)).toEqual({ a: 5, b: 5, c: 5, usual: 7 });
+    expect(stimmungHit(moods(7, [5, 8, 5]), [], TODAY)).toBeNull(); // a good day in between
+    expect(stimmungHit(moods(7, [6.5, 6, 6]), [], TODAY)).toBeNull(); // not clearly below
+    expect(stimmungHit(moods(7, [5, 5]), [], TODAY)).toBeNull(); // only two days answered
+    expect(stimmungHit(moods(7, [5, 5, 5], 6), [], TODAY)).toBeNull(); // too few days for a usual
+    const [d] = dataDue({ answers: moods(7, [4, 5, 4]), today: TODAY });
+    expect(d.q.id).toBe('daten.stimmung');
+    expect(d.why.vars.usual).toBe(7);
+  });
+  it('the mood also reads the old daily check, averaged with an answer of the same day', () => {
+    const checks = [{ day: TODAY, mood: 4 }];
+    expect(moodByDay([{ qid: 'spass.stimmung', day: TODAY, value: 6 }], checks)[TODAY]).toBe(5);
+    expect(moodByDay([{ qid: 'koerper.waage', day: TODAY, value: 72 }], [])[TODAY]).toBeUndefined();
+  });
+  it('the day allows 3, and an answered one counts', () => {
+    const hr = health(52, 61);
+    const sleep = [{ date: TODAY, restingHr: 61, sleep: { asleepMin: 300 } }, ...hr.slice(0, -1)];
+    const all = dataDue({ health: sleep, answers: moods(7, [4, 5, 4]), today: TODAY });
+    expect(all.map((x) => x.q.id)).toEqual(['daten.ruhepuls', 'daten.schlaf', 'daten.stimmung']);
+    const left = dataDue({ health: sleep, answers: [...moods(7, [4, 5, 4]), { qid: 'daten.ruhepuls', day: TODAY }, { qid: 'daten.schlaf', day: TODAY }], today: TODAY });
+    expect(left.map((x) => x.q.id)).toEqual(['daten.stimmung']);
+  });
+
+  it('thresholds and texts: set, kept inside their limits, back to standard', () => {
+    let c = setVal(null, 'ruhepuls', 8);
+    expect(ruleVal(c, 'ruhepuls')).toBe(8);
+    expect(ruleChanged(c, 'ruhepuls')).toBe(true);
+    expect(ruleVal(setVal(c, 'ruhepuls', 99), 'ruhepuls')).toBe(5); // outside its limits: the default counts
+    expect(ruleVal(setVal(c, 'ruhepuls', ''), 'ruhepuls')).toBe(5);
+    expect(ruleVal(setVal(c, 'ruhepuls', 5), 'ruhepuls')).toBe(5);
+    expect(ruleVal(setVal(null, 'schlaf', 6.5), 'schlaf')).toBe(6.5);
+    c = setText(c, 'ruhepuls', '  Was war gestern los?  ');
+    expect(ruleText(c, 'ruhepuls')).toBe('Was war gestern los?');
+    expect(ruleText(setText(c, 'ruhepuls', '   '), 'ruhepuls')).toBeNull();
+    expect(ruleText(setText(c, 'ruhepuls', DATA_QUESTIONS['daten.ruhepuls'].text), 'ruhepuls')).toBeNull();
+    const off = setRule(c, 'ruhepuls', false);
+    expect(dataOf(off).vals.ruhepuls).toBe(8); // the switch keeps the settings
+    const back = resetRule(off, 'ruhepuls');
+    expect(ruleChanged(back, 'ruhepuls')).toBe(false);
+    expect(dataOf(back).off).toEqual(['ruhepuls']); // reset does not switch it back on
+  });
+  it('the engine uses the threshold and the wording of the person', () => {
+    expect(dataDue({ health: health(52, 56), today: TODAY })).toEqual([]);
+    const c = setText(setVal(null, 'ruhepuls', 3), 'ruhepuls', 'Was war gestern anders?');
+    const [d] = dataDue({ health: health(52, 56), today: TODAY, cfg: c });
+    expect(d.q.text).toBe('Was war gestern anders?');
+    expect(d.q.edited).toBe(true);
+    expect(d.q.id).toBe('daten.ruhepuls');
+    expect(schlafHit([{ date: TODAY, sleep: { asleepMin: 380 } }], TODAY)).toBeNull();
+    expect(schlafHit([{ date: TODAY, sleep: { asleepMin: 380 } }], TODAY, 7)).toEqual({ h: 6, m: 20 });
+    const four = [...Array.from({ length: 20 }, (_, i) => ({ qid: 'spass.stimmung', day: add(TODAY, -(i + 4)), value: 7 })), ...[5, 5, 5, 5].map((v, i) => ({ qid: 'spass.stimmung', day: add(TODAY, i - 3), value: v }))];
+    expect(stimmungHit(four, [], TODAY, 4)).toMatchObject({ days: 4, usual: 7 });
+    const two = [...Array.from({ length: 20 }, (_, i) => ({ qid: 'spass.stimmung', day: add(TODAY, -(i + 2)), value: 7 })), ...[5, 5].map((v, i) => ({ qid: 'spass.stimmung', day: add(TODAY, i - 1), value: v }))];
+    expect(stimmungHit(two, [], TODAY, 2)).toMatchObject({ days: 2 });
   });
 });
