@@ -4,11 +4,11 @@ export default {
   title: 'Tour readiness as one chart',
   lead: 'Your resting pulse before and during a tour, day by day, next to your earlier tours.',
   points: [
-    { text: 'One chart from 7 days before to the last tour day, your normal as a band', href: '#/flow/form' },
-    { text: 'Your last tours lie over the same days; tap a day for all of them' },
-    { text: 'In «Verlauf», tours show as light bands' },
+    { text: 'One chart from 7 days before to the last tour day, your normal as a band', href: '#/flow/form', go: 'f.form' },
+    { text: 'Your last tours lie over the same days; tap a day for all of them', go: 'f.form' },
+    { text: 'In «Verlauf», tours show as light bands', go: 'f.form' },
   ],
-  small: [{ box: 'nicer', text: 'Days still to come stay open circles, never a fall to 0' }],
+  small: [{ box: 'nicer', text: 'Days still to come stay open circles, never a fall to 0', go: 'f.form' }],
   test: [
     'Open Auswerten › Form und Erholung › Tour-Bereitschaft: one chart with «Start» at day 1 and the days before marked −7 to −1.',
     'Tap a day: a window shows the resting pulse of that day for this tour and your earlier ones.',
