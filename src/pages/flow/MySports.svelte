@@ -292,7 +292,7 @@
         <Sec id="ms-h" title={t('Your sports, last 7 days')} sub={t('Dots = last 7 days · today on the right · a tap opens the sport')} more={{ label: reorder ? t('Done|order') : t('Sort|order'), onclick: () => (reorder = !reorder), expanded: reorder }}>
           {#if reorder}<p class="note ronote" data-reorder-note><Lightbulb size={16} aria-hidden="true" /><span>{t('The order here is the order of «Tick off today».')} {t('Drag the grip or use the arrows to move.')}</span></p>{/if}
           {#each similar as g (g.key)}
-            <p class="note simnote" data-similar={g.key}><Lightbulb size={16} aria-hidden="true" /><span>{t('«{name}» appears {n} times. Rename one (for example «{name} winter») or pause it.', { name: g.name, n: g.ids.length })} <button type="button" class="btn btn-link" onclick={() => similarOk(g.key)}>{t('Leave it')}</button></span></p>
+            <p class="note simnote" data-similar={g.key}><Lightbulb size={16} aria-hidden="true" /><span>{t('«{name}» appears {n} times. Rename one (for example «{name} winter») or pause it.', { name: g.name, n: g.ids.length })} <button type="button" class="btn btn-link" onclick={() => similarOk(g.key)}>{t('Keep as is|sport')}</button></span></p>
           {/each}
           <ul class="acts card" class:sorting={reorder} use:sortable={{ onmove: dragged }} data-my-sports>
             {#each active as a, i (a.id)}

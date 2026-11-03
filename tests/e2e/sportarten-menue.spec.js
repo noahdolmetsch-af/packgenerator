@@ -75,7 +75,7 @@ test('Meine Sportarten: two sports with one name get a hint that can be left', a
   }
   const hint = page.locator('[data-similar="doppelsport"]');
   await expect(hint).toBeVisible();
-  await hint.getByRole('button', { name: T('Leave it') }).click();
+  await hint.getByRole('button', { name: T('Keep as is|sport') }).click();
   await expect(hint).toHaveCount(0);
 });
 
