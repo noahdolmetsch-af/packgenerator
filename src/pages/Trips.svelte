@@ -51,6 +51,8 @@
   import { stateExtraText } from '../lib/tripstatetext.js';
   import TripState from '../lib/ui/TripState.svelte';
   import Profile from '../lib/ui/Profile.svelte'; // HP4
+  import RouteShape from '../lib/touren/RouteShape.svelte'; // Paket E 23: the shape of the route
+  import { shapeOf } from '../lib/touren/streckenform.js';
   import StateChips from '../lib/ui/StateChips.svelte';
   import Btn from '../lib/ui/Btn.svelte';
   import Seg from '../lib/ui/Seg.svelte';
@@ -580,7 +582,12 @@
                 <p class="ps">{r.kind === 'replan' ? `${day(r.date)} · ${t(r.state.label, r.state)}` : planLine(r)}</p>
                 <!-- v0.151.0 HP4 (Noah «2a»): a planned trip with a route shows its small profile -->
                 {#if rt?.profile?.length > 1}
-                  <div class="mprof" data-plan-profile><Profile points={rt.profile} small label="Elevation of the route" /><p class="ms num">{[rt.km != null ? `${num(Math.round(rt.km))} km` : '', rt.gainM != null ? `↑ ${num(Math.round(rt.gainM))} Hm` : '', t('highest point {m} m', { m: num(Math.max(...rt.profile.map((x) => x[1]))) })].filter(Boolean).join(' · ')}</p></div>
+                  <div class="pmid">
+                    {#if r.kind === 'trip'}<RouteShape d={shapeOf({ trip: byId[r.tripId] })} />{/if}
+                    <div class="mprof" data-plan-profile><Profile points={rt.profile} small label="Elevation of the route" /><p class="ms num">{[rt.km != null ? `${num(Math.round(rt.km))} km` : '', rt.gainM != null ? `↑ ${num(Math.round(rt.gainM))} Hm` : '', t('highest point {m} m', { m: num(Math.max(...rt.profile.map((x) => x[1]))) })].filter(Boolean).join(' · ')}</p></div>
+                  </div>
+                {:else if r.kind === 'trip' && rt?.line?.length > 1}
+                  <div class="pmid"><RouteShape d={shapeOf({ trip: byId[r.tripId] })} /></div>
                 {/if}
                 <KomootSign trip={byId[r.tripId]} small />
                 {#if r.kind === 'replan'}
@@ -660,7 +667,7 @@
                       <p class="rs">{[dates(r.start, r.end), what(r), bike].filter(Boolean).join(' · ')}</p>
                       {#if !hasLine(r) && !phone.matches}<p class="nr"><Info size={14} aria-hidden="true" />{t('without a route')}</p>{/if}
                     </div>
-                    <div class="rk num"><span><b>{n0(kv.km)}</b><small>km</small></span><span><b>{n0(kv.gainM)}</b><small>{t('Hm|col')}</small></span></div>
+                    <div class="rk num"><RouteShape d={shapeOf(r, (vals[r.id]?.acts ?? []))} /><span><b>{n0(kv.km)}</b><small>km</small></span><span><b>{n0(kv.gainM)}</b><small>{t('Hm|col')}</small></span></div>
                     {#if s?.state === 'done'}
                       <div class="rr"><Btn label={r.kind === 'ride' ? t('Rate briefly') : t('Rate|debrief')} href={rateHref(r)} onclick={() => openRow(r)} aria="{r.kind === 'ride' ? t('Rate briefly') : t('Rate|debrief')}: {r.title}" data-rate={r.id} /></div>
                     {/if}
@@ -1407,6 +1414,20 @@
   }
   .mprof {
     margin: 2px 0 8px;
+  }
+  .pmid {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 2px 0 8px;
+  }
+  .pmid .mprof {
+    flex: 1;
+    min-width: 0;
+    margin: 0;
+  }
+  .rk {
+    align-items: center;
   }
   .mprof .ms {
     margin: 4px 0 0;
