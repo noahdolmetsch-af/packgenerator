@@ -252,6 +252,8 @@ test('Touren, Ski and Ruhiger pages show the card with good to know', async ({ p
     await expect(card.locator('[data-seiteninhalt-know]').first()).toContainText(T('Good to know'));
     expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBe(0);
   }
+  expect(errors).toEqual([]);
+});
 
 // Wegweiser 26c: an open note is a window over Notes, so its functions show in the card on Notes
 test('Notes shows the functions of an open note with good to know', async ({ page, context }, info) => {
