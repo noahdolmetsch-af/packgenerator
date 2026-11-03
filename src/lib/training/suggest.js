@@ -40,10 +40,10 @@ const round5 = (x) => Math.max(5, Math.round(x / 5) * 5);
 /**
  * The suggestion for the week starting on monday. Input: { monday, today, goal, daysToRace (null without a race),
  * level ('rest' | 'easy' | 'normal' | 'hard' | null, today's readiness), recentMins (minutes per week of the last
- * weeks, or null), mainKind ('bike' …), sports (weeklySports), variant (0–2), nameOf (a sport's name in the language shown), hoursSet (hours per week the person chose, else null), push (−1 easier, 0, +1 harder), focus (one of FOCUS), strengthSport (id of a strength sport of Aktiv, or null), dayLimits ({ [dow 0 = Monday]: max minutes, 0 = keep the day free }) }.
+ * weeks, or null), mainKind ('bike' …), sports (weeklySports), variant (0–2), nameOf (a sport's name in the language shown), hoursSet (hours per week the person chose, else null), push (−1 easier, 0, +1 harder), focus (one of FOCUS), strengthSport (id of a strength sport of Aktiv, or null), dayLimits ({ [dow 0 = Monday]: max minutes, 0 = keep the day free }), wx ({ [YYYY-MM-DD]: 'none' | 'showers' | 'rain' }, the forecast of the home place) }.
  * Output: { sessions, why: [{ key, vars }], mins } (why: English keys for t()).
  */
-export function suggestWeek({ monday, today, goal = null, daysToRace = null, level = null, recentMins = null, mainKind = 'bike', sports = [], variant = 0, nameOf = (s) => s.name, hoursSet = null, push = 0, focus = 'cardio', strengthSport = null, dayLimits = {} } = {}) {
+export function suggestWeek({ monday, today, goal = null, daysToRace = null, level = null, recentMins = null, mainKind = 'bike', sports = [], variant = 0, nameOf = (s) => s.name, hoursSet = null, push = 0, focus = 'cardio', strengthSport = null, dayLimits = {}, wx = {} } = {}) {
   const v = ((variant % VARIANTS) + VARIANTS) % VARIANTS;
   const why = [];
   let hours;
@@ -114,6 +114,20 @@ export function suggestWeek({ monday, today, goal = null, daysToRace = null, lev
     });
     why.push({ key: 'Your free days stay free.', vars: {} });
     if (lost) why.push({ key: 'No day was left for {n} session(s): they are left out.', vars: { n: lost } });
+  }
+  // rain on the long session: it moves to the nearest drier day that is open and unused; without one it stays
+  const wet = (dow) => wx[days[dow]] === 'rain';
+  const longRow = rows.find((r) => r.role === 'long');
+  if (longRow && wet(longRow.dow)) {
+    const used = new Set([...rows.map((r) => r.dow), ...sportSessions.map((x) => x.dow), ...strength.map((x) => x.dow)]);
+    const to = [0, 1, 2, 3, 4, 5, 6]
+      .filter((d) => !used.has(d) && !isOff(d) && days[d] >= today && wx[days[d]] !== 'rain' && wx[days[d]] != null)
+      .sort((a, b) => Math.abs(a - longRow.dow) - Math.abs(b - longRow.dow) || a - b)[0];
+    // no free day: swap with the nearest core session that sits on a dry day (the shorter session takes the wet day)
+    const swap = to != null ? null : rows.filter((r) => r !== longRow && wx[days[r.dow]] != null && !wet(r.dow) && days[r.dow] >= today && !isOff(r.dow)).sort((a, b) => Math.abs(a.dow - longRow.dow) - Math.abs(b.dow - longRow.dow) || a.dow - b.dow)[0];
+    if (to != null) (longRow.dow = to), why.push({ key: 'Rain on the long day: it moves to a drier day.', vars: {} });
+    else if (swap) ([longRow.dow, swap.dow] = [swap.dow, longRow.dow]), why.push({ key: 'Rain on the long day: it moves to a drier day.', vars: {} });
+    else why.push({ key: 'Rain on the long day and no drier day: ride indoors or take it as it comes.', vars: {} });
   }
   const capped = Object.keys(dayLimits).some((d) => limit(+d) > 0 && limit(+d) < Infinity);
   if (capped) why.push({ key: 'On days with little time the sessions are shorter.', vars: {} });
