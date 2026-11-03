@@ -3,7 +3,7 @@ export default {
   title: 'A shorter list of sports',
   lead: 'Paused sports wait in their own block, and the same name twice gets a hint.',
   points: [
-    { text: 'Paused and resting sports sit in the folded block «Paused and resting»', go: { href: '#/flow/sports', where: 'Shows under the list as soon as a sport is paused.', steps: [{ sel: '[data-paused-block] summary' }] } },
+    { text: 'Paused and resting sports sit in the folded block «Paused and resting»', go: { href: '#/flow/sports', where: 'Shows under the list as soon as a sport is paused.' } },
     { text: 'A sport that appears twice gets a hint: rename one, pause it or leave it', go: null },
   ],
   small: [],
