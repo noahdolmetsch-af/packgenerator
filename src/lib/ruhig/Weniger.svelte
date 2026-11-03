@@ -12,7 +12,7 @@
   import { t, tn } from '../i18n.svelte.js';
   import { localDay } from '../localday.js';
   import { FEATURE, findFeatures, featureHref } from '../features.js';
-  import { settingQ, saveSetting, endCalm } from './store.js';
+  import { settingQ, saveSetting, endCalm, resyncPhone } from './store.js';
   import { openFromHash } from './open.js';
   import { move } from './base.js';
   import { CALM_LOG_KEY, logOf, logDrop, weekSummary, hm as hoursMin } from './calmlog.js';
@@ -51,7 +51,7 @@
   function calmStart(e) {
     e.preventDefault();
     if (!calmWhat.trim()) return;
-    saveSetting(CALM_KEY, { what: calmWhat.trim(), href: calmHref, since: new Date().toISOString(), until: calmUntil(calmMins) });
+    saveSetting(CALM_KEY, { what: calmWhat.trim(), href: calmHref, since: new Date().toISOString(), until: calmUntil(calmMins) }).then(resyncPhone);
     calmWhat = '';
   }
 
@@ -122,6 +122,7 @@
       <div class="rh-calm" data-calm-on>
         <p class="rh-calm-l">{t('You are doing')}</p>
         <p class="rh-calm-w">{calm.what}</p>
+        {#if calm.until}<p class="rh-help" data-calm-held>{t('Phone reminders wait until the end; warnings for weather, ice, light and eating come on time.')}</p>{/if}
         {#if calm.until}<p class="rh-help" data-calm-left>{calmLeft(calm) ? t('{n} min left', { n: calmLeft(calm) }) : t('Time is up')}</p>{/if}
         <div class="rh-row">
           {#if calm.href}<a class="btn" href={calm.href}>{t('Open')}</a>{/if}

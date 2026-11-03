@@ -62,6 +62,24 @@ export const calmOver = (calm, now = Date.now()) => !!calm?.until && now >= calm
 /** Minutes left, rounded up (0 = open end or over). */
 export const calmLeft = (calm, now = Date.now()) => (calm?.until && now < calm.until ? Math.ceil((calm.until - now) / 60000) : 0);
 
+/* ---------- Ruhige Ansicht › reminders rest (step 6) ---------- */
+
+/**
+ * While a calm view with a time runs, the phone reminders that would come inside it wait: they move to just after
+ * its end (one minute apart, same order). Nothing is lost. Safety warnings (SAFETY_PREFIXES) always come on time.
+ * A calm view without a time holds nothing (there is no end to wait for). → the new list of items.
+ */
+export function applyCalm(items = [], calm, nowMs = Date.now()) {
+  const c = calmOf(calm);
+  if (!c || !c.until || c.until <= nowMs) return items;
+  let n = 0;
+  return items
+    .map((it) => (it.at >= nowMs && it.at < c.until && groupOfKey(it.key) !== 'safety' ? { ...it, at: c.until + 60000 * ++n, held: true } : it))
+    .sort((a, b) => a.at - b.at);
+}
+/** How many reminders the calm view holds right now (for the card). */
+export const calmHeld = (items = [], calm, nowMs = Date.now()) => applyCalm(items, calm, nowMs).filter((it) => it.held).length;
+
 /* ---------- Erinnerungs-Budget ---------- */
 
 /** The groups of phone reminders, by the start of their key (push/schedule.js). Safety is never limited. */

@@ -283,6 +283,7 @@ export default {
   'After your first trip you can note here what knowledge was missing.': 'Nach deiner ersten Tour kannst du hier festhalten, welches Wissen fehlte.',
   'You are doing': 'Du machst gerade',
   'Done|calm': 'Fertig',
+  'Phone reminders wait until the end; warnings for weather, ice, light and eating come on time.': 'Handy-Erinnerungen warten bis zum Ende; Warnungen für Wetter, Eis, Licht und Essen kommen pünktlich.',
   'Clear the history': 'Verlauf leeren',
   'Show Today anyway': 'Heute trotzdem zeigen',
   '{n} min left': 'Noch {n} Min.',
