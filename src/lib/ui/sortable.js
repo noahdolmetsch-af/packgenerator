@@ -86,9 +86,21 @@ export function sortable(node, opts = {}) {
     }
     st.raf = requestAnimationFrame(scrollTick);
   }
+  /* a row dropped on an element with data-group-drop (a group's title) goes to that group: o.onto(from, id) */
+  function dropTarget(e) {
+    if (!o.onto) return null;
+    const el = document.elementsFromPoint(e.clientX, e.clientY).map((x) => x.closest?.('[data-group-drop]')).find(Boolean);
+    return el && !node.contains(el) ? el : null;
+  }
   function move(e) {
     if (!st) return;
     st.y = e.clientY;
+    const tg = dropTarget(e);
+    if (tg !== st.tg) {
+      st.tg?.classList.remove('drop-on');
+      tg?.classList.add('drop-on');
+      st.tg = tg;
+    }
     if (!st.raf) st.raf = requestAnimationFrame(scrollTick);
     place();
   }
@@ -105,9 +117,13 @@ export function sortable(node, opts = {}) {
   }
   function up() {
     if (!st) return;
-    const { from, to } = st;
+    const { from, to, tg } = st;
+    tg?.classList.remove('drop-on');
     reset();
-    if (to !== from) {
+    if (tg) {
+      navigator.vibrate?.(10);
+      o.onto(from, tg.dataset.groupDrop);
+    } else if (to !== from) {
       navigator.vibrate?.(10);
       o.onmove?.(from, to);
     }

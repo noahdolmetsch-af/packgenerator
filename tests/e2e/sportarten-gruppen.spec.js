@@ -81,3 +81,45 @@ test('Meine Sportarten: search and the filter «Heute offen» narrow the list', 
   await expect(page.locator('[data-filter-open]')).toHaveAttribute('aria-pressed', 'true');
   expect(await rows.count()).toBeLessThanOrEqual(total);
 });
+
+async function newGroup(page, name) {
+  await page.locator('[data-new-group]').click();
+  const input = page.getByRole('dialog').locator('input').first();
+  await input.fill(name);
+  await input.press('Enter');
+}
+
+test('Meine Sportarten: a sport dragged onto a group title goes into that group', async ({ page, context }) => {
+  await start(page, context);
+  await page.goto('./#/flow/sports');
+  const rows = page.locator('[data-my-sports] > li[data-id]');
+  await expect(rows.first()).toBeVisible();
+  await newGroup(page, 'Kraft');
+  const head = page.locator('[data-group]:not([data-group="none"])');
+  await expect(head).toContainText('Kraft');
+  await expect(head.locator('.gt small')).toHaveText('0');
+  await expect(page.locator('[data-group-add]')).toBeVisible(); // the empty group offers «Neue Sportart hier»
+  await head.evaluate((el) => window.scrollBy(0, el.getBoundingClientRect().top - 220)); // away from the edge that scrolls while dragging
+  const grip = page.locator('[data-my-sports]').last().locator('> li[data-id]').first().locator('[data-sort-grip]');
+  const g = await grip.boundingBox();
+  const h = await head.boundingBox();
+  await page.mouse.move(g.x + g.width / 2, g.y + g.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(h.x + 40, h.y + h.height / 2, { steps: 8 });
+  await page.mouse.up();
+  await expect(head.locator('.gt small')).toHaveText('1');
+});
+
+test('Neue Sportart: the group is chosen in the form, and «Neue Sportart hier» comes with the group', async ({ page, context }) => {
+  await start(page, context);
+  await page.goto('./#/flow/sports');
+  await expect(page.locator('[data-new-group]')).toBeVisible();
+  await newGroup(page, 'Erholung');
+  await page.locator('[data-group-add]').click();
+  await expect(page).toHaveURL(/#\/flow\/new\?group=/);
+  await page.locator('#ed-name').fill('Testdehnen');
+  await expect(page.locator('[aria-labelledby="ed-group"] [aria-pressed="true"]')).toContainText('Erholung');
+  await page.getByRole('button', { name: T('Save') }).click();
+  const head = page.locator('[data-group]:not([data-group="none"])');
+  await expect(head.locator('.gt small')).toHaveText('1');
+});

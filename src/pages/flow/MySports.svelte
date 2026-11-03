@@ -140,6 +140,11 @@
     await put(id);
     offerDone(t('«{name}» moved to «{group}».', { name: actName(a), group: id ? groups.find((g) => g.id === id)?.name : t('No group') }), () => put(before));
   }
+  /* a sport dragged onto the title of a group (or of «No group») goes there */
+  function dropInto(a, gid) {
+    const to = gid === 'none' ? null : gid;
+    if (a && (a.group ?? null) !== to) setGroup(a, to);
+  }
   async function deleteGroup(g, to) {
     const before = groups;
     const members = all.filter((a) => a.group === g.id);
@@ -357,9 +362,10 @@
             <button type="button" class="chip" class:on={openOnly} aria-pressed={openOnly} onclick={() => (openOnly = !openOnly)} data-filter-open>{t('Open today')}</button>
             <button type="button" class="chip" onclick={() => (groupSheet = { mode: 'new' })} data-new-group><Plus size={14} aria-hidden="true" />{t('Group')}</button>
           </div>
+          {#if groups.length && !filtering}<p class="small ghint" data-group-hint>{t('Drag a sport by its grip onto a group title to move it there.')}</p>{/if}
           {#each secs as sec, si (sec.group?.id ?? 'none')}
             {#if groups.length}
-              <div class="gh" data-group={sec.group?.id ?? 'none'}>
+              <div class="gh" data-group={sec.group?.id ?? 'none'} data-group-drop={sec.group?.id ?? 'none'}>
                 {#if sec.group}
                   <button type="button" class="gt" aria-expanded={!sec.group.collapsed} onclick={() => saveGroups(toggleCollapsed(groups, sec.group.id))} data-group-toggle>{#if sec.group.collapsed}<ChevronRight size={16} aria-hidden="true" />{:else}<ChevronDown size={16} aria-hidden="true" />{/if}<b>{sec.group.name}</b><small>{sec.acts.length}</small></button>
                   <RowMenu name={sec.group.name} items={groupMenu(sec.group, groups.findIndex((g) => g.id === sec.group.id))} />
@@ -370,13 +376,13 @@
             {/if}
             {#if !sec.group?.collapsed || filtering}
               {#if sec.acts.length}
-                <ul class="acts card" class:sorting={reorder} use:sortable={{ onmove: (from, to) => moveIn(sec.acts, sec.acts[from], to), off: filtering }} data-my-sports>
+                <ul class="acts card" class:sorting={reorder} use:sortable={{ onmove: (from, to) => moveIn(sec.acts, sec.acts[from], to), onto: (from, gid) => dropInto(sec.acts[from], gid), off: filtering }} data-my-sports>
                   {#each sec.acts as a, i (a.id)}
                     {@render actRow(a, i, true, sec.acts)}
                   {/each}
                 </ul>
               {:else}
-                <p class="note gempty"><Lightbulb size={16} aria-hidden="true" /><span>{t('This group is empty. Put a sport in it with «⋯» at the sport.')}</span></p>
+                <p class="note gempty"><Lightbulb size={16} aria-hidden="true" /><span>{t('This group is empty. Put a sport in it with «⋯» at the sport, or drag one onto the title.')} {#if sec.group}<a class="btn sm" href="#/flow/new?group={encodeURIComponent(sec.group.id)}" data-group-add>{t('New sport here')}</a>{/if}</span></p>
               {/if}
             {/if}
           {/each}
@@ -646,6 +652,16 @@
     align-items: center;
     justify-content: space-between;
     margin: var(--sp-3) 2px var(--sp-1);
+  }
+  .ghint {
+    margin: 0 2px var(--sp-1);
+    color: var(--ink-3);
+  }
+  .gh.drop-on {
+    border-radius: 10px;
+    outline: 2px dashed var(--hi);
+    outline-offset: 2px;
+    background: var(--paper-2);
   }
   .gt {
     display: flex;
