@@ -8,6 +8,7 @@
 // Fictional fixture plus test_data_gtp_ trips; nothing leaves the preview server.
 // V035_SHOTS=<folder> saves screenshots there.
 import { test, expect } from './clock.js';
+import { linkOf } from './newsgo-lib.js';
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';
@@ -252,11 +253,12 @@ test('Neu in den letzten Updates on #/features; Today says it once after an upda
   await older.locator('> summary').click();
   // A point goes to the exact place.
   // v0.80.0: the newest point can have no place (a change behind the scenes): the first point with one.
-  const firstPlace = WHATS_NEW.flatMap((e) => e.points).find((p) => p.href);
+  // «Ausprobieren» (Noah 27.10.2026 «1a», changed on purpose): a line goes to its own place (newsgo-lib.js linkOf)
+  const firstPlace = WHATS_NEW.flatMap((e) => e.points).find((p) => linkOf(p));
   await news.locator('.vers').first().locator('a.try').first().click();
   // v0.36.0: the first point of the newest version (was #/pack in 0.35.0).
   // v0.186.1: a point with action 'data' opens «Data and backup» (#/me/data) instead of its href
-  const placeHref = firstPlace.action === 'data' ? '#/me/data' : firstPlace.href;
+  const placeHref = firstPlace.action === 'data' ? '#/me/data' : linkOf(firstPlace);
   await expect(page).toHaveURL(new RegExp(`${placeHref.replace(/[.*+?^${}()|[\]\\/]/g, '\\$&')}$`));
 
   // Today: an update from 0.34 says it once.

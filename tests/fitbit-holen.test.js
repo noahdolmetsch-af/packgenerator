@@ -5,12 +5,15 @@ import { describe, it, expect, vi } from "vitest";
 import { createDb } from "../src/lib/db.js";
 import {
   fetchNow,
+  waitAfter,
+  AUTO_EVERY_MS,
+  RETRY_AFTER_FAIL_MS,
   LAST_KEY,
   VALUE_OF,
 } from "../src/lib/health/client.svelte.js";
 import { HEALTH_KEY, VALUES } from "../src/lib/health.js";
 import { autoPick } from "../src/lib/sync/engine.js";
-import { fitbitEmpty } from "../src/lib/health/emptyline.js";
+import { fitbitEmpty, fitbitStand } from "../src/lib/health/emptyline.js";
 import { SCOPES } from "../api/_lib/google.js";
 import { MAIL_SCOPES } from "../api/_lib/googlemail.js";
 import {
@@ -388,6 +391,12 @@ describe("Fitbit: Heute without a value says why", () => {
         error: "network",
         lastTry: null,
       }).text,
+    ).toBe("Fitbit is connected, but there was no connection. The app tries again later.");
+    expect(
+      fitbitEmpty({ prefs: { connected: true }, lastTry: { ok: false, code: "timeout" } }).text,
+    ).toContain("took too long");
+    expect(
+      fitbitEmpty({ prefs: { connected: true }, lastTry: { ok: false, code: "weird" } }).text,
     ).toBe("Fitbit is connected, but the last fetch did not work.");
     expect(
       fitbitEmpty({
@@ -396,5 +405,20 @@ describe("Fitbit: Heute without a value says why", () => {
         last: { date: "2026-10-19" },
       }),
     ).toMatchObject({ why: "none", date: "2026-10-19" });
+  });
+});
+
+describe("Fitbit: Stand and the second try (Noah 2.11.2026 1a-5a)", () => {
+  it("waits 2 minutes after a failed try that may mend itself, else 15", () => {
+    expect(waitAfter(null)).toBe(AUTO_EVERY_MS);
+    expect(waitAfter({ ok: true })).toBe(AUTO_EVERY_MS);
+    expect(waitAfter({ ok: false, code: "network" })).toBe(RETRY_AFTER_FAIL_MS);
+    expect(waitAfter({ ok: false, code: "timeout" })).toBe(RETRY_AFTER_FAIL_MS);
+    expect(waitAfter({ ok: false, code: "google_login_needed" })).toBe(AUTO_EVERY_MS);
+  });
+  it("Stand: the last good fetch, failed flag, nothing when not connected", () => {
+    expect(fitbitStand({ prefs: { connected: false } })).toBe(null);
+    expect(fitbitStand({ prefs: { connected: true, lastSync: "2026-11-02T06:42:00Z" }, lastTry: { ok: true, at: "2026-11-02T07:00:00Z" } })).toEqual({ at: "2026-11-02T07:00:00Z", failed: false, code: "" });
+    expect(fitbitStand({ prefs: { connected: true, lastSync: "2026-11-01T20:10:00Z" }, lastTry: { ok: false, code: "network", at: "2026-11-02T07:00:00Z" } })).toEqual({ at: "2026-11-01T20:10:00Z", failed: true, code: "network" });
   });
 });

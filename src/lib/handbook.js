@@ -10,7 +10,9 @@
  * tests/handbook.test.js.
  */
 
-export const HANDBOOK = {
+import { FEATREG } from './featreg/index.js';
+
+const LISTED = {
   dayride: {
     on: 'Needs a trip that has started or ended.',
     steps: ['Tap «New» › «Quick start», or «Quick start» on Today.', 'Check the list; «Change» or «Undo» if it does not fit.'],
@@ -179,7 +181,7 @@ export const HANDBOOK = {
   },
   ride: {
     on: 'Needs a trip that starts today or has started.',
-    steps: ['Open the trip in Ride day.', 'The Now card shows the next stage, the weather and where each thing is.'],
+    steps: ['Open the trip in Ride day.', 'The overview on the way shows the next stage, the weather and where each thing is.'],
     example: 'Example: 14:00 → «Next: climb 600 m · rain at 16:00 · jacket in the saddle bag».',
   },
   note: {
@@ -299,7 +301,7 @@ export const HANDBOOK = {
   },
   km: {
     on: 'Needs a bike first: Bikes › «Add bike».',
-    steps: ['Tap «New» › «km for a bike».', 'Type what the counter says and save.'],
+    steps: ['Tap «New» › «Log km».', 'Type what the counter says and save.'],
     example: 'Example: counter 12400 → Bike care knows the chain is due in 300 km.',
   },
   'f.kmimport': {
@@ -329,7 +331,7 @@ export const HANDBOOK = {
   },
   'f.weekreview': {
     on: null,
-    steps: ['Open Aktiv › Week and tap «Week in review», or Training › Look back.', 'Read the five numbers, the strip Monday to Sunday and the highlights; ‹ › shows other weeks.', 'With the AI helper switched on: «Copy for Claude» copies the week as text; nothing is sent by itself.'],
+    steps: ['Open Aktiv › Week and tap «Week in review», or Training › Look back.', 'Read the five numbers, body values, the strip and highlights, then write your own note and goal; ‹ › shows other weeks.', 'With the AI helper switched on: «Copy for Claude» copies the week as text; nothing is sent by itself.'],
     example: 'Example: 4:10 h, 96 km, 1’240 Hm, «+1:20» against the week before → «Keep your rhythm».',
   },
   'f.wohl': {
@@ -749,6 +751,16 @@ export const HANDBOOK = {
     steps: ['Bikes › Care › a bike › «Wear» › «Pack the bike».', 'Tick each point; add, rename, move or delete points.', 'Take photos before packing, as proof if something breaks.'],
     example: 'Example: «Pedals off» ticked, photo of the frame from both sides.',
   },
+  'f.workshoprounds': {
+    on: null,
+    steps: ['Bikes › Care › a bike › «Workshop rounds».', 'Add a suggestion or your own round: jobs, tools, material.', '«Start the round», tick what you did, «Done»: the jobs with a part go into the part.'],
+    example: 'Example: «Autumn service» with 5 jobs; chain and brake pads ticked → both recorded today.',
+  },
+  'f.wearcosts': {
+    on: null,
+    steps: ['Bikes › Care › a bike › «Wear» › «What the next months cost».', 'Pick 3, 6 or 12 months: the parts that run out, each with what the last change cost.', '«All on the shopping list» adds them; Undo takes them off again.'],
+    example: 'Example: chain CHF 40 in December, pads CHF 25 in March → about CHF 65.',
+  },
   'f.sparestock': {
     on: null,
     steps: ['Bikes › Care › a bike › «Wear» › «Spare parts at home».', 'Add a row with a number, e.g. 2 chains.', 'You replace a chain yourself: one less; at 0 «Shopping list» adds it.'],
@@ -887,6 +899,12 @@ export const HANDBOOK = {
     on: null,
     steps: ['At the end of the evening review tap «Keep this day».', 'Write what made it good and save.', 'In What is good for me tap «Repeat on Saturday».'],
     example: 'Example: «quiet morning, outside in the afternoon» → on Saturday morning the check reminds you.',
+  },
+  // «Karte der App» (Noah 28.10.2026)
+  'f.appmap': {
+    on: null,
+    steps: ['Open Me › Map of the app.', 'Open a place to see its functions with their path.', 'Type a word in the search, then tap a line to go there.'],
+    example: 'Example: you search «backup» and see on which page it lives and how you get there.',
   },
   // «App verstehen» (Noah 26.10.2026)
   'f.verstehen': {
@@ -1141,6 +1159,11 @@ export const HANDBOOK = {
     steps: ['Open Me › Everyday life › Shopping list and type what you need.', 'Tick what is in the basket; groups sort the list like the shop and can be renamed, sorted and deleted.'],
     example: 'Example: switch on «Together with the trip shopping»: the gels and bars of your next trip stand below your everyday points.',
   },
+  'f.cook': {
+    on: null,
+    steps: ['Open Plan › Everyday life › Cooking and choose a meal.', 'Tap a recipe: set the portions, put the ingredients on the shopping list and read all steps.'],
+    example: 'Example: «Pasta with tomatoes and tuna», 2 portions → 4 ingredients for two on your shopping list.',
+  },
   'f.contracts': {
     on: null,
     steps: ['Open Me › Documents › Contracts and subscriptions, or Me › Everyday life.', 'Enter the cost, the end of the term and the notice period: the app shows the last day to cancel and reminds you in Remember.'],
@@ -1227,10 +1250,70 @@ export const HANDBOOK = {
     steps: ['Open Trips › Dreams and write the name of a dream tour.', 'Tap it: change the kind of tour and the months it fits.', 'Tap «Plan the tour»: a trip draft on the first Saturday of the season.'],
     example: 'Example: «Over the Furka» → Alpine passes, July to September → trip on 3 July.',
   },
+  'f.quicklinks': {
+    on: null,
+    steps: ['Open Quick Links in the bar (on a computer: in the sidebar).', 'Tap «Add a pin», search a function and tap «Pin».', 'Tap «Edit»: rename, add a note, move with the arrows or drag, unpin.'],
+    example: 'Example: pin «Wear» into the group «Bike» with the note «after rain».',
+  },
+  'f.pinmarks': {
+    on: 'On by itself; switch it off in Quick Links.',
+    steps: ['Open a page, for example Today or Trips.', 'Tap the small pin at the top right of a card.', 'Open Quick Links: the card is in your first group; a tap there brings you back.'],
+    example: 'Example: pin «Upload a ride» on Trips, then open it from Quick Links in one tap.',
+  },
   'f.whitespots': {
     on: 'Needs your home place.',
     steps: ['Open Trips › Dreams › White spots nearby.', 'Choose 10, 25 or 50 km.', 'Tap a place on the map or in the list: its name and distance.'],
     example: 'Example: 25 km around Zürich → 209 municipalities never visited, the nearest 5 km away.',
+  },
+  'f.triptips': {
+    on: 'Needs your home place. The calendar counts when Google calendar is connected.',
+    steps: ['Open Trips › Dreams: «Fits today» is at the top.', 'Change the hours if you have more or less time.', 'Tap «Round through it» at a place: the app plans the round.'],
+    example: 'Example: free 14:00–18:00 → 4 h → a pass, a lake and a village 30–45 km away.',
+  },
+  'f.newkm': {
+    on: 'Needs rides with a line: Strava, a GPX file or your own recording.',
+    steps: ['Open Trips › Look back › New ground.', 'Scroll to «New kilometres»: each year with its new km and share.', 'Below: your latest rides that brought new km.'],
+    example: 'Example: 3210 km this year, of which 412 km new (13 %).',
+  },
+  'f.dreamsmap': {
+    on: 'Needs dreams with a map (a GPX file or a Ride with GPS link).',
+    steps: ['Give two or more dreams a map.', 'Open Trips › Dreams and scroll to «All dreams on one map».', 'The list shows what each brings new; a tap opens the dream.'],
+    example: 'Example: «Over the Furka» → 6 new municipalities · 2 new passes.',
+  },
+  'f.dreamwx': {
+    on: 'Needs the internet now and then (free weather service) and a home place or a dream with a map.',
+    steps: ['Give a dream its months; it fits now in one of them.', 'Open Trips › Dreams: the app checks the weather of the next 16 days.', 'Dry days in a row show at the dream: «Fits now, dry Thu–Sat».'],
+    example: 'Example: «Over the Furka», 2 days → «Fits now, dry Thu–Sat».',
+  },
+  'f.dreamready': {
+    on: 'Needs km, climb or days in the dream (a GPX file or a link brings them), and rides with km.',
+    steps: ['Open a dream in Trips › Dreams.', 'Scroll to «Ready for it?».', 'A ring that is not filled shows what is still missing.'],
+    example: 'Example: 3 days, 360 km → «needs about 120 km a day»; longest ride 110 km → ready.',
+  },
+  'f.dreamsdone': {
+    on: 'Needs a dream planned as a trip, and the debrief of that trip.',
+    steps: ['Plan a dream as a trip (Trips › Dreams › the dream › «Plan the tour»).', 'After the trip, finish its debrief.', 'The dream shows under «Fulfilled dreams» and in the year card.'],
+    example: 'Example: «Over the Furka» ridden in July → «Fulfilled in July 2026», with its photo.',
+  },
+  'f.newtoday': {
+    on: 'Shows only on the day of a ride and the day after.',
+    steps: ['Ride somewhere you have never been; the route or the ride counts.', 'Today shows «New since yesterday: …» under the greeting.', 'Tap it for New ground, or × to close it.'],
+    example: 'Example: a ride round the lake → «New since yesterday: 3 municipalities, 1 lake».',
+  },
+  'f.dreamlink': {
+    on: 'Needs the internet; komoot gives no map without an account (then a GPX file).',
+    steps: ['Open Trips › Dreams and paste the link of a tour in the field at the top.', 'Tap «Add»: name, km and climb come from the link.', 'In an existing dream with a link: «Read from the link».'],
+    example: 'Example: ridewithgps.com/routes/12345 → «Jura crossing» · 84 km · 1250 m up, with a map.',
+  },
+  'f.nlround': {
+    on: 'Needs your home place and the internet for the bike router.',
+    steps: ['Open Trips › Dreams › White spots nearby and tap a place.', 'Tap «Round through it»: km, climb and time.', '«Plan as a trip» makes a trip with this round; «Other side» goes the other way round.'],
+    example: 'Example: Wallisellen, 6 km away → 24 km · 180 m up · about 1 h 30 min.',
+  },
+  'f.nlgoals': {
+    on: 'Counts from New ground: your routes, rides and own ticks.',
+    steps: ['Open Trips › Dreams › Challenges with an end.', 'Tap a ready one or «Own challenge»: collection, new ones or all, until when.', 'The bar fills by itself; tap the pencil to change or delete it.'],
+    example: 'Example: «5 new municipalities this month» → 2 of 5 · 12 days left.',
   },
   'f.races': {
     on: 'Needs a race with a date in Inspiration, or a race in your Google calendar.',
@@ -1308,6 +1391,11 @@ export const HANDBOOK = {
     steps: ['Open Me › Notes.', 'Write, dictate, add a photo, link or checklist; use #tags and pin up to 3.'],
     example: 'Example: note «#winter ride ideas» with a checklist of 4 routes.',
   },
+  'f.noteforms': {
+    on: null,
+    steps: ['Open Notes and tap «Choose templates».', 'Tap «Use» on the templates you want; the pencil changes their fields.', 'Tap a template above the note, fill in what you like, «Take over».'],
+    example: 'Example: «Tour report» with route, best moment, weather «rain» and 4 of 5.',
+  },
   'f.starters': {
     on: 'Needs at least two ridden trips of the same sport for «From your trips».',
     steps: ['Plan a new trip and tap «From your trips».', 'In Pack open «Suggestion list» and tick what you take; «Not needed» hides a line.'],
@@ -1382,6 +1470,11 @@ export const HANDBOOK = {
     on: '«Cut out» loads a model once (about 45 MB); after that it works offline.',
     steps: ['Open Me › Toolbox › Photos and choose a photo.', 'Drag the frame to cut, choose the size; «Cut out» removes the background.', 'Tap «Make photo», then «Save or share».'],
     example: 'Example: bike photo 4.2 MB → Medium 1280 px, about 300 KB.',
+  },
+  'f.markup': {
+    on: null,
+    steps: ['Take the screenshot on your phone as always, then open Me › Toolbox › Edit a picture.', 'Tap «Choose pictures»; per page turn, cut or draw (pen, highlighter, text, arrow).', 'Choose «One PDF» or «Single pictures», then «Save or share».'],
+    example: 'Example: three screenshots of a booking → cut, the price highlighted → one PDF of 3 pages.',
   },
   'f.money': {
     on: 'The rates need the internet once a day; offline the last ones count.',
@@ -1573,6 +1666,11 @@ export const HANDBOOK = {
     on: 'Nothing to switch on: it learns while you open the evening-before check.',
     steps: ['The app notes the time you open the check on each evening before a trip (from 16:00).', 'From 3 evenings it takes your usual time and offers a reminder 15 minutes earlier.', '«Move it» changes the time in Own values, with Undo; «No, thanks» keeps the old time.'],
     example: 'Example: check opened at 21:20, 21:40 and 21:30 → «Move the reminder to 21:15?»',
+  },
+  'f.freeslot': {
+    on: 'Switch on the Google calendar (Me › Appointments and tasks) and set your home place.',
+    steps: ['The app looks at the next 3 days from 07:00 to 21:00 for 2 hours without a busy appointment.', 'Every hour must be dry and without thunder, the weather «good» at your home place.', 'The round fits your own speed; «Not now» hides that window.'],
+    example: 'Example: Thursday 17:00–19:00 free and dry → «A round of about 35 km?»',
   },
   'f.tourhints': {
     on: 'Nothing to switch on; the hints come from the route, the start time and the forecast.',
@@ -1778,7 +1876,7 @@ export const HANDBOOK = {
   },
   'f.observations': {
     on: 'Needs data: Strava rides, Fitbit days or «How are you?» answers; with too little data it says so.',
-    steps: ['Open Aktiv › Week › Week in review.', 'From Sunday the three observations of the week are at the top; they stay the same afterwards.', 'Hide a kind with «Do not show this kind any more»; earlier weeks are under «Older weeks».'],
+    steps: ['Open Aktiv › Week › Week in review.', 'From Sunday the three observations of the week are at the top; they are fixed after the day is over.', '«All numbers behind it» shows how it was worked out; «Do not show this kind any more» hides a kind; older weeks are folded.'],
     example: 'Example: «After a day on the bike you slept 35 min longer: 7:55 h against 7:20 h on the other nights.»',
   },
   'f.chronik': {
@@ -1804,6 +1902,11 @@ export const HANDBOOK = {
     on: 'Works with Strava rides, uploaded GPX rides and routes recorded in the app.',
     steps: ['Open Trips › Look back › Heatmap.', 'Choose clouds or lines; filter by year, sport, bike or tour and everyday.', 'Tap a coloured line: the rides there show below, each with its page.'],
     example: 'Example: 2026, bike only → your way to work glows dark red, the Jura tour is a thin orange line.',
+  },
+  'f.analyse': {
+    on: 'Shows the values the app has: Fitbit after connecting, Strava activities, your own entries and ticks.',
+    steps: ['On Today tap «More» under «Active today», or open Analysis › Analyse.', 'Switch sources on or off and choose 7 days, 30 days, 90 days or the year.', 'Tap a value: its course opens (body values, a sport, or the ticks of an activity).'],
+    example: 'Example: 30 days → resting pulse 51 on average, 12 sauna ticks, 412 km on the bike.',
   },
   'f.tickreview': {
     on: 'Works with what you tick off under «Heute abhaken» and with check questions that have a number.',
@@ -1882,6 +1985,42 @@ export const HANDBOOK = {
     on: null,
     steps: ['Open Me › Calm and personal › Less app for the moment.', 'Choose up to 8 functions for your plan.', '«Start the workspace»; the strip stays until you end it.'],
     example: 'Example: «Workshop Saturday» with bike inspection, spare parts and workshop due.',
+  },
+  // Mini-Tools (Noah 28.10.2026)
+  'f.minidate': {
+    on: null,
+    steps: ['Open Me › Mini tools › Find a date.', 'Write what it is about, pick 2 to 8 days and tap «Make the link».', 'Send the link; tap «Look for new answers» to see who can when.'],
+    example: 'Example: «Weekend trip Jura» with three Saturdays; four people answer, the 14th works for all.',
+  },
+  'f.minipoll': {
+    on: null,
+    steps: ['Open Me › Mini tools › Mini survey.', 'Start from a ready set or empty, change the questions and tap «Make the link».', 'Send the link; tap «Look for new answers» to see the summary.'],
+    example: 'Example: «Autumn trip» with three questions; five people answer, most chose the Jura.',
+  },
+  'f.minilist': {
+    on: null,
+    steps: ['Open Me › Mini tools › Sign-up list.', 'Write what it is, set the places and tap «Make the link».', 'Send the link; tap «Look for new answers» to see who is in and who waits.'],
+    example: 'Example: «Workshop evening» with 6 places; 8 sign up, 2 wait, one signs off and the first on the waiting list moves up.',
+  },
+  'f.miniinvite': {
+    on: null,
+    steps: ['Open Me › Mini tools › Quick invite.', 'Pick the day, add the meeting point and tap «Make the link».', 'Send the link; tap «Look for new answers» to see who is in.'],
+    example: 'Example: «Are you riding with me?» tomorrow 17:30 at the fountain; three are in, one maybe.',
+  },
+  'f.minifood': {
+    on: null,
+    steps: ['Open Me › Mini tools › Who eats what.', 'Write what it is about, say what you eat and tap «Make the link».', 'Send the link; pick a menu and the shopping list is ready.'],
+    example: 'Example: «Hut evening» for 7; two vegetarian, one gluten-free; the pasta list has 250 g gluten-free pasta.',
+  },
+  'f.minilos': {
+    on: null,
+    steps: ['Open Me › Mini tools › Fair draw and pick e.g. «Who cooks?».', 'Add the people; untick who is not there this time.', 'Tap «Draw now»; next time whoever was drawn less often comes first.'],
+    example: 'Example: four on a hut weekend; Lena cooked on Friday, so on Saturday one of the other three cooks.',
+  },
+  'f.miniabfahrt': {
+    on: null,
+    steps: ['Open Me › Mini tools › When do I leave? and tap «New meeting».', 'Pick the meeting point and the time.', 'Add each person with their start place and speed; the plan shows who leaves when.'],
+    example: 'Example: meeting at 9:00 in Olten; Mia comes 25 km from the east and leaves at 7:55, Jon lives 3 km away and leaves at 8:45.',
   },
   'f.friendask': {
     on: null,
@@ -2049,7 +2188,117 @@ export const HANDBOOK = {
     example: 'Example: the photo of the pass and «The best coffee of the year at 2000 m» as a card for the family.',
   },
 
+  // Heute als Begleiter PR 2 (Noah 28.10.2026 «ok freigabe»): 5 tools and 3 phone reminders that had no line in the catalogue
+  'f.calc': {
+    on: null,
+    steps: ['Open Me › Toolbox › Calculator.', 'Type the numbers or tap the keys.', 'Tap one of the last ten lines to use it again.'],
+    example: 'Example: 68 × 3 ÷ 2 = 102 for the hut, shared by two.',
+  },
+  'f.units': {
+    on: null,
+    steps: ['Open Me › Toolbox › Convert units.', 'Choose the kind, e.g. pressure.', 'Type the value and pick the two units.'],
+    example: 'Example: 2.1 bar → 30.5 psi for the pump abroad.',
+  },
+  'f.zones': {
+    on: null,
+    steps: ['Open Me › Toolbox › Time zones.', 'Add a place or a zone.', 'See its time and the difference to here.'],
+    example: 'Example: Reykjavik is 1 hour behind, Tokyo 8 hours ahead.',
+  },
+  'f.compasstool': {
+    on: 'Needs the motion sensor of the phone; a computer has no compass.',
+    steps: ['Open Me › Toolbox › Compass.', 'Allow the motion sensor once.', 'Hold the phone flat and read your direction.'],
+    example: 'Example: you head south-west, the wind comes from the west.',
+  },
+  'f.phrases': {
+    on: null,
+    steps: ['Open Me › Toolbox › Phrases abroad.', 'Choose the language.', 'Show the sentence to the person.'],
+    example: 'Example: «Est-ce que je peux remplir ma gourde ?»',
+  },
+  'f.lightpush': {
+    on: 'Needs messages switched on for the app on this phone.',
+    steps: ['Open Me › Reminders on the phone.', 'Switch on «Light alarm».', 'The evening before a late ride, the message comes by itself.'],
+    example: 'Example: «Jura round: you ride after sunset (21:10). Pack the light and the reflective vest.»',
+  },
+  'f.wearpush': {
+    on: 'Needs messages switched on for the app on this phone.',
+    steps: ['Open Me › Reminders on the phone.', 'Switch on «Parts worn».', 'When a part reaches its km, a message comes at 08:00.'],
+    example: 'Example: «Gravel: the chain reaches 3000 km soon (150 km left).»',
+  },
+  'f.racepush': {
+    on: 'Needs messages switched on and a registration deadline on the race.',
+    steps: ['Give the race its registration deadline in Trips › Races.', 'Switch on «Race registration» in Me › Reminders on the phone.', 'A message comes 3 days and 1 day before, at 08:00.'],
+    example: 'Example: «Jura Gravel 200: registration closes in 3 days.»',
+  },
+  // Heute als Begleiter PR 3 (Noah 28.10.2026, Auffälligkeiten 10–12): Small apps, Calm and personal, the 7 pages of Free time, 4 ski tour pages
+  'f.miniapps': {
+    on: null,
+    steps: ['Open Me › Small apps.', 'Choose a part, e.g. the shopping list.', 'Add it to the home screen; it opens right there.'],
+    example: 'Example: the shopping list as its own icon next to the camera.',
+  },
+  'f.ruhig': {
+    on: null,
+    steps: ['Open Me › Calm and personal.', 'Choose a part, e.g. «Less app».', 'Each part explains itself on its page.'],
+    example: 'Example: «Letter for a moment» opens on the first night of your next trip.',
+  },
+  'f.freiabend': {
+    on: null,
+    steps: ['Open Plan › Free time › My evening.', 'Add your rituals and your evening music.', 'Answer the question to arrive, or leave it.'],
+    example: 'Example: tea, ten minutes of stretching, then one song.',
+  },
+  'f.freiwesentlich': {
+    on: null,
+    steps: ['Open Plan › Free time › What matters to me.', 'Write what matters to you now.', 'Add your big maybe; change it any time.'],
+    example: 'Example: «More nights outside, fewer kilometres.» Big maybe: the Transcontinental.',
+  },
+  'f.freireise': {
+    on: null,
+    steps: ['Open Plan › Free time › Travel wishes.', 'Write what you long for and what you want to bring home.', 'Plan one day with room for surprises.'],
+    example: 'Example: «The sea after a long climb»; bring home: a photo of every fountain.',
+  },
+  'f.freinacht': {
+    on: null,
+    steps: ['Open Plan › Free time › First night.', 'Write what you want to find out.', 'Choose route and bed; afterwards look back.'],
+    example: 'Example: «Is my sleeping bag warm enough at 5 °C?» 40 km to a hut, back the next morning.',
+  },
+  'f.freinaechstes': {
+    on: null,
+    steps: ['Open Plan › Free time › For next time.', 'Add a thing and mark it proven, came along or missing.', 'Take the list along when you pack next time.'],
+    example: 'Example: missing: a second buff; proven: the small stove.',
+  },
+  'f.freilust': {
+    on: null,
+    steps: ['Open Plan › Free time › What am I up for?', 'Pick one of the ideas to start.', 'Try the technique of the week.'],
+    example: 'Example: technique of the week: ride one climb only seated.',
+  },
+  'f.freisamml': {
+    on: null,
+    steps: ['Open Plan › Free time › My collections.', 'Start a collection and give it a name.', 'Add a find whenever you have one.'],
+    example: 'Example: «Jura fountains»: 12 found, the coldest one at the Chasseral.',
+  },
+  'f.skicheck': {
+    on: null,
+    steps: ['Open Trips › Ski tours › Backpack check.', 'Go through the five groups.', 'Tap each thing when it is in the backpack.'],
+    example: 'Example: transceiver, shovel and probe first, then the food.',
+  },
+  'f.skistart': {
+    on: null,
+    steps: ['Open Trips › Ski tours › Start check.', 'Go through the five checks at the car park.', 'Set your turn-around time.'],
+    example: 'Example: transceiver check done, turn back at 12:30 at the latest.',
+  },
+  'f.skicare': {
+    on: null,
+    steps: ['Open Trips › Ski tours › Season care.', 'Choose the phase: start, during, end.', 'Tap «Done»; the day and the metres climbed stay.'],
+    example: 'Example: skins glued again after 6000 m climbed.',
+  },
+  'f.skiafter': {
+    on: null,
+    steps: ['Open Trips › Ski tours › After the tour.', 'Enter summit, metres and who was there.', 'Answer the three questions.'],
+    example: 'Example: «Turned back 200 m below the summit: the wind was too strong.»',
+  },
 };
+
+/** The listed entries plus those of src/lib/featreg/. */
+export const HANDBOOK = { ...LISTED, ...FEATREG.handbook };
 
 /** The small apps: each opens right on its area, with its own icon, and shares the data of the whole app. */
 export const MINI_APPS_HANDBOOK = {

@@ -1,4 +1,5 @@
 // v0.44.0 "Rueckblick 12 Monate": the rolling review of the last 12 months (yearreview.js).
+import './setup/de.js'; // this test needs the German texts
 import { describe, it, expect, afterEach } from 'vitest';
 import { addMonths, reviewWindow, tripDone, deltas, kmByMonth, yearReview, cardNumbers, highlight, learnedOn } from '../src/lib/yearreview.js';
 import { itemRecord, bulkOwnership } from '../src/lib/gear.js';

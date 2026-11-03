@@ -4,8 +4,8 @@
 export default {
   title: 'Scan me',
   lead: 'Your contact card now carries every way to reach you that you tick.',
-  points: [{ text: 'Phone, WhatsApp, e-mail, Instagram, Strava, Komoot, web and address on one card', href: '#/me/freunde?tab=card' }],
-  small: [{ box: 'new', text: 'Whoever scans it saves you to their contacts with one tap' }],
+  points: [{ text: 'Phone, WhatsApp, e-mail, Instagram, Strava, Komoot, web and address on one card', href: '#/me/freunde?tab=card', go: { href: '#/me/freunde?tab=card', steps: [{ sel: '[data-contact-card]' }] } }],
+  small: [{ box: 'new', text: 'Whoever scans it saves you to their contacts with one tap', go: { href: '#/me/freunde?tab=card', steps: [{ sel: '.cc-qr' }] } }],
   test: [
     'Open Me › With friends › Contact card, fill in e-mail and Strava, then tick the address on: the text under the QR code lists what is on the card.',
     'Scan the QR code with a second phone: the page shows a row for each way to reach you and «Save to contacts».',

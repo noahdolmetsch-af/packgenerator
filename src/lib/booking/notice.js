@@ -20,7 +20,7 @@ export const bookingNotes = readable([], (set) => {
     const today = localDay();
     set(all.flatMap((o) => {
       const fresh = unseen(o.bookings, seen, today);
-      return fresh.length ? [{ id: o.id, title: o.title, n: fresh.length, name: fresh[0].name, at: fresh[0].at }] : [];
+      return fresh.length ? [{ id: o.id, title: o.title, n: fresh.length, name: fresh[0].name, at: fresh[0].at, ask: fresh.every((b) => b.status === 'requested') }] : [];
     }));
   };
   const sub = liveQuery(async () => ({ offers: (await db.settings.get(OFFERS_KEY))?.value ?? [], seen: (await db.settings.get(SEEN_KEY))?.value ?? [] })).subscribe((q) => {
@@ -36,6 +36,8 @@ export const bookingNotes = readable([], (set) => {
 
 export function bookingRow(n) {
   const when = `${new Date(`${dayOf(n.at)}T12:00:00`).toLocaleDateString(locale(), { weekday: 'short', day: 'numeric', month: 'numeric' })} ${timeOf(n.at)}`;
-  const text = n.n === 1 ? t('New booking: {name} · {title} · {when}', { name: n.name, title: n.title, when }) : t('{n} new bookings: {title}', { n: n.n, title: n.title });
+  const text = n.ask
+    ? n.n === 1 ? t('New request: {name} · {title} · {when}', { name: n.name, title: n.title, when }) : t('{n} new requests: {title}', { n: n.n, title: n.title })
+    : n.n === 1 ? t('New booking: {name} · {title} · {when}', { name: n.name, title: n.title, when }) : t('{n} new bookings: {title}', { n: n.n, title: n.title });
   return { key: `book:${n.id}`, tone: 'info', text, act: { label: t('Look'), href: `#/me/offers/${n.id}` } };
 }

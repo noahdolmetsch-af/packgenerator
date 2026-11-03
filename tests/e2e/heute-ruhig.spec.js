@@ -75,7 +75,9 @@ test('a trip today: no photo although the bike has one, the 8 buttons in the fir
   await page.evaluate(() => window.scrollTo(0, 0));
   // «Heute neu» A (0.165.0, Noah «1A 4a», changed on purpose): «Up now» and the trip card come first; 8 chosen
   // shortcuts (the other functions back through «+»)
-  await expect(page.locator('.wall [data-fn]')).toHaveCount(READY.filter((x) => x.id.startsWith('fn:')).length);
+  // «Schnell öffnen» (Noah 01.11.2026 «5a», changed on purpose): the 8 shortcuts are one tile with the pins
+  await expect(page.locator('.wall [data-fn]')).toHaveCount(0);
+  await expect(page.locator('.wall [data-pins-tile]')).toBeVisible();
   expect(await firstScreen(page.locator('#hello-h'))).toBe(true);
   // «Heute neu» N2 (0.169.0, Noah «5a», changed on purpose): the body and the Aktiv tiles first; on a trip day the
   // trip card right under them; 0.175.0 (Noah 21.10.2026 06:49 «Körperwerte und countdown ok», changed on purpose):
@@ -83,7 +85,7 @@ test('a trip today: no photo although the bike has one, the 8 buttons in the fir
   // 0.180.0 P6 (Noah «2b», changed on purpose): meditation and the weekly weight before the body; the trip still right after the head
   // «Heute ruhiger» (Noah 26.10.2026 «3a», changed on purpose): areas with a heading; on a trip day the trip card stands in
   // «Jetzt» right under the meditation card, the weekly weight under the trip, then «Dein Körper» with the body and Aktiv
-  await expect.poll(() => page.locator('.wall [data-tile]').evaluateAll((els) => els.map((e) => e.dataset.tile)).then((o) => o.slice(0, 2))).toEqual(['meditation', 'trip']);
+  await expect.poll(() => page.locator('.wall [data-tile]').evaluateAll((els) => els.map((e) => e.dataset.tile)).then((o) => o.slice(0, 3))).toEqual(['meditation', 'moment', 'trip']); // «Dein Moment» sits right under the meditation card; «Entdecken» comes after the trip and the weight
   const o = await page.locator('.wall [data-tile]').evaluateAll((els) => els.map((e) => e.dataset.tile));
   expect(o.filter((id) => HEAD.includes(id) && id !== 'meditation')).toEqual(HEAD.filter((id) => id !== 'meditation' && o.includes(id)));
   await shot(page, info, 'heute-mit-tour');

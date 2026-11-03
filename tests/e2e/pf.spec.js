@@ -549,8 +549,9 @@ test('PF08: star an item, open the favourites on Today, reload: one tap, kept, r
   await page.goto('./#/');
   // v0.46.0: the Gear tile with its favourites count left Today; "Favourites" is one of the 16
   // functions (the favourites page), and Gear's ★ filter is reached at #/gear?fav=1. v0.94.0: a small tile.
-  await rec.click(page.locator('.wall [data-fn="favorites"]'));
-  await rec.check('Today: the Favourites tile opens the favourites', () => expect(page).toHaveURL(/#\/favorites/, { timeout: 2000 }));
+  // «Schnell öffnen» (Noah 01.11.2026 «5a»): the Favourites tile left Today (back through «+»); the page itself is unchanged
+  await page.goto('./#/favorites');
+  await rec.check('The favourites page opens', () => expect(page).toHaveURL(/#\/favorites/, { timeout: 2000 }));
   await page.goto('./#/gear?fav=1');
   const check = async (when) => {
     // v0.47.2: the favourites are the view "Favourite things"; its button carries the number
@@ -1026,11 +1027,14 @@ test('PF16: ride and debrief note, GPX and weather, print/PDF, photo, share link
   // shows them (the export itself ends the backup reminder, so one more tip shows).
   const tipsOf = (rows) => rows.find((r) => r.key === 'tips')?.value ?? null;
   const exported = JSON.parse(readFileSync(file, 'utf8'));
+  // «Zuletzt geöffnet» of the Quick Links (setting quickLinks.used.*) notes every page opened, and this test opens
+  // Daten und Backup after the snapshot: it is a visit log like the tips memory, not a record that must come back
+  const volatile = (r) => r.key !== 'tips' && !String(r.key).startsWith('quickLinks.used');
   await rec.check('backup: every record comes back the same (items, trips, debriefs, notes, photos, bikes, bags, learnings, settings)', async () => {
     for (const name of Object.keys(snapshot)) {
       const now = await table(page, name);
       if (name !== 'settings') expect(now, name).toEqual(snapshot[name]);
-      else expect(now.filter((r) => r.key !== 'tips'), name).toEqual(snapshot[name].filter((r) => r.key !== 'tips'));
+      else expect(now.filter(volatile), name).toEqual(snapshot[name].filter(volatile));
     }
     // v0.45.1 (G015a): the tips memory is no longer in the file; the device keeps its own over "Replace all data"
     expect(tipsOf(exported.tables.settings)).toBeNull();
@@ -1218,11 +1222,16 @@ test('Scenario 4: gear care: log km, the due chain on Today and in Bike care, a 
   // v0.46.0: "Log km" is one of the 16 functions; v0.94.0 «Kachel-Wand»: a small tile on the wall.
   // v0.155.0 (HN4 3a, changed on purpose): «Log km» lives in the day card's evening (one tap on the clock by day)
   // «Heute neu» A (0.165.0, Noah «4a», changed on purpose): «Log km» is one of the 8 shortcuts again
-  await rec.click(page.locator('.wall [data-fn="km"]'));
-  const km = page.getByRole('dialog', { name: T('km for a bike') });
+  await rec.click(page.locator('.wall [data-pins-tile] [data-pin="km"]'));
+  const km = page.getByRole('dialog', { name: T('Log km') });
   await rec.select(km.locator('select').first(), BIKE.spark);
   await rec.fill(km.getByLabel(T('km on the counter')), '5100');
   await rec.click(km.getByRole('button', { name: T('Save km') }));
+  // Velo-Idee 72 (changed on purpose): 100 km more than the ledger knows → the app asks where they come from
+  const gap = page.getByTestId('km-gap');
+  await expect(gap).toBeVisible();
+  await rec.click(gap.locator('[data-km-gap="reading"]'));
+  await rec.click(gap.locator('[data-km-gap-ok]'));
   await rec.check('km saved for the Spark', async () => expect.poll(async () => (await table(page, 'bikes')).find((b) => b.id === BIKE.spark).km, { timeout: 3000 }).toBe(5100));
   await expect(km).toBeHidden();
   const line = (await tile(page, 'bikes')).locator('li').filter({ hasText: bikeName }).first();

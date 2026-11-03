@@ -36,8 +36,8 @@
       found = await searchPlace(q);
       picked = found[0] ?? null;
       if (!found.length) msg = t('No place found. Try another spelling.');
-    } catch {
-      msg = t('No connection. Place search needs the internet.');
+    } catch (err) {
+      msg = err?.outage ? err.message : t('No connection. Place search needs the internet.');
     } finally {
       searching = false;
     }
@@ -48,7 +48,7 @@
     const p = picked;
     await db.settings.put({ key: HOME_PLACE, value: { name: p.detail ? `${p.name}, ${p.detail}` : p.name, lat: p.lat, lon: p.lon } });
     dialog.close();
-    await homeForecast(db);
+    await homeForecast(db, { fresh: true });
   }
   async function remove() {
     await db.settings.delete(HOME_PLACE);

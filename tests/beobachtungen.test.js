@@ -51,7 +51,7 @@ describe('weeks', () => {
 
 describe('the record', () => {
   it('defaults, freeze, hide a kind, older weeks', () => {
-    expect(obsOf(null)).toEqual({ on: true, weeks: {}, offKinds: [] });
+    expect(obsOf(null)).toEqual({ on: true, weeks: {}, done: [], offKinds: [] });
     let v = freeze(null, '2026-10-05', [{ kind: 'week', key: 'week-km-more', vars: {} }]);
     v = freeze(v, MON, [{ kind: 'sleep', key: 'sleep-min-more', vars: {} }]);
     expect(Object.keys(v.weeks)).toEqual(['2026-W41', '2026-W42']);
@@ -130,20 +130,71 @@ describe('the three of a week', () => {
 });
 
 describe('what the week review shows', () => {
-  it('waiting before Sunday, new on Sunday (to store), frozen afterwards', () => {
+  it('waiting before Sunday, live on Sunday (not stored), new on Monday (to store), frozen afterwards', () => {
     expect(weekView(null, sample(), MON, '2026-10-17').state).toBe('waiting');
-    const v = weekView(null, sample(), MON, SUN);
+    // Sunday: shown from today's data, nothing stored yet, so a ride synced later still counts (Noah 01.11.2026)
+    const live = weekView(null, sample(), MON, SUN);
+    expect(live.state).toBe('live');
+    expect(live.store).toBeUndefined();
+    expect(live.list).toHaveLength(3);
+    const v = weekView(null, sample(), MON, '2026-10-19');
     expect(v.state).toBe('new');
     expect(v.store.weeks['2026-W42']).toHaveLength(3);
+    expect(v.store.done).toEqual(['2026-W42']);
     // more data later does not change a frozen week
     const later = weekView(v.store, { ...sample(), health: [] }, MON, '2026-10-21');
     expect(later.state).toBe('frozen');
     expect(later.list.map((o) => o.key)).toEqual(v.list.map((o) => o.key));
+  });
+  it('a week an older version froze on its Sunday is worked out again once; older weeks stay as they are', () => {
+    const old = { on: true, offKinds: [], weeks: { '2026-W42': [{ kind: 'week', key: 'week-hours-less', vars: {} }] } };
+    expect(weekView(old, sample(), MON, '2026-10-19').state).toBe('new');
+    expect(weekView(old, sample(), MON, '2026-11-30').state).toBe('frozen');
+  });
+  it('the running week meets the same days of the weeks before, never a whole week', () => {
+    // Wednesday: this week has 3 rides in 3 days, the weeks before one ride in their first 3 days
+    const r = candidates(sample(), MON, '2026-10-14');
+    const week = r.list.find((o) => o.kind === 'week');
+    expect(week?.chart.upto).toBe(3);
+    expect(week?.vars.upto).toBe('2026-10-14');
+  });
+  it('days were active but nothing measured: no «100 % less»', () => {
+    const base = sample();
+    const data = { ...base, acts: base.acts.filter((a) => a.day < MON), log: [{ id: `${P}l`, actId: 'yoga', day: MON, at: `${MON}T07:00:00.000Z`, n: 1 }], flowActs: [{ id: 'yoga', ring: 'move', icon: 'yoga', goals: [] }] };
+    const c = candidates(data, MON, '2026-10-14');
+    expect(c.list.find((o) => o.kind === 'week' && /hours|km/.test(o.key))).toBeUndefined();
   });
   it('off, and thin when nothing has enough data (nothing stored)', () => {
     expect(weekView({ on: false }, sample(), MON, SUN).state).toBe('off');
     const thin = weekView(null, {}, MON, SUN);
     expect(thin.state).toBe('thin');
     expect(thin.store).toBeUndefined();
+  });
+});
+
+describe('body and weather observations (Noah 01.11.2026 «5c»)', () => {
+  it('body: resting heart rate of the week against the same days of the four weeks before; none without Fitbit weeks', () => {
+    const health = [];
+    for (let d = shiftDay(SUN, -40); d <= SUN; d = shiftDay(d, 1)) health.push({ date: d, restingHr: d >= MON ? 60 : 52, steps: 8000 });
+    const o = candidates({ ...sample(), health }, MON, SUN).list.find((x) => x.kind === 'body');
+    expect(o?.key).toBe('body-rhr-more');
+    expect(o.vars).toMatchObject({ a: 60, b: 52 });
+    expect(o.chart.bars).toHaveLength(5);
+    expect(candidates({ ...sample(), health: [] }, MON, SUN).few).toContain('body');
+  });
+  it('weather: active share on dry against rainy days; needs enough days of both', () => {
+    const weather = {};
+    const acts = [];
+    for (let i = 0; i < 40; i++) {
+      const d = shiftDay(MON, -i);
+      const wet = i % 2 === 0;
+      weather[d] = { rainMm: wet ? 6 : 0 };
+      if (!wet) acts.push(act(`dry${i}`, d));
+    }
+    const r = candidates({ acts, weather }, MON, SUN);
+    const o = r.list.find((x) => x.kind === 'weather');
+    expect(o?.key).toBe('weather-dry');
+    expect(o.vars).toMatchObject({ a: 100, b: 0 });
+    expect(candidates({ acts, weather: {} }, MON, SUN).few).toContain('weather');
   });
 });

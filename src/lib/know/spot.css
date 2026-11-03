@@ -1,0 +1,52 @@
+/* «Ausprobieren» (Noah 27.10.2026 «2a»): the line at the bottom while a spot glows (know/spot.js note) */
+.spot-note {
+  position: fixed;
+  left: 50%;
+  bottom: calc(84px + env(safe-area-inset-bottom, 0px));
+  transform: translateX(-50%);
+  z-index: 2147483000;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: max-content;
+  max-width: calc(100vw - 32px);
+  padding: 8px 8px 8px 16px;
+  border-radius: 14px;
+  background: var(--ink);
+  color: var(--paper);
+  font-size: var(--fs-small);
+  line-height: 1.35;
+  box-shadow: 0 6px 20px var(--shadow);
+}
+.spot-note > span {
+  min-width: 0;
+  overflow-wrap: break-word;
+}
+.spot-note button {
+  flex: none;
+  min-height: 44px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+.spot-note .spot-x {
+  min-width: 44px;
+}
+.spot-note .spot-go {
+  padding: 0 12px;
+  background: color-mix(in srgb, var(--paper) 18%, transparent);
+}
+/* the lit spot sits low on the screen: the line goes to the top */
+.spot-note.top {
+  top: calc(16px + env(safe-area-inset-top, 0px));
+  bottom: auto;
+}
+@media (min-width: 900px) {
+  .spot-note:not(.top) {
+    bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+  }
+}

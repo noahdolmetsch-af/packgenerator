@@ -13,7 +13,7 @@
   import { liveQuery } from 'dexie';
   import AreaIntro from '../lib/intro/AreaIntro.svelte'; // «Anleitungen überall»: the guide of this page (lib/guides.js)
   import { db } from '../lib/db.js';
-  import { DREAMS_KEY, MONTHS, storeOf, newDream, dreamList, moveDream, monthsOf, seasonText, yearBand, nextWindow, suggestStart, kindName, addKind, renameKind, deleteKind, plannableRaces, raceDays, raceEvent, deadlines, daysUntil, WEEK_HIDE_KEY } from '../lib/dreams.js';
+  import { DREAMS_KEY, MONTHS, linkKind, storeOf, newDream, dreamList, moveDream, monthsOf, seasonText, yearBand, nextWindow, suggestStart, kindName, addKind, renameKind, deleteKind, plannableRaces, raceDays, raceEvent, deadlines, daysUntil, WEEK_HIDE_KEY } from '../lib/dreams.js';
   import { RIG_KEY } from '../lib/inspiration.js';
   import { newTrip, toggleSet } from '../lib/trips.js';
   import { sortBikes } from '../lib/bikes.js';
@@ -30,7 +30,13 @@
   import DreamSheet from '../lib/dreams/DreamSheet.svelte';
   import PlanSheet from '../lib/dreams/PlanSheet.svelte';
   import WhiteSpots from '../lib/neuland/WhiteSpots.svelte'; // Träume und Neuland N1
-  import { t, tn, locale } from '../lib/i18n.svelte.js';
+  import NeulandGoals from '../lib/neuland/NeulandGoals.svelte'; // Träume und Neuland N5
+  import TripTips from '../lib/neuland/TripTips.svelte'; // N3 «Heute passt: Ausflugstipps»
+  import DreamsMap from '../lib/dreams/DreamsMap.svelte'; // N14 «Karte aller Träume»
+  import { linkIn, readLink, withLink, distText } from '../lib/dreams/fromlink.js'; // N13 «Ein Link wird ein Traum»
+  import { fulfilledDreams } from '../lib/dreams/erfuellt.js'; // N17 «Erfüllte Träume»
+  import { refreshDreamWx, windowsOf, dayRange, DREAM_WX } from '../lib/dreams/wetterfenster.js'; // N15 «Wetterfenster»
+  import { t, tn, num, locale } from '../lib/i18n.svelte.js';
   import { Sparkles, Flag, ChevronRight, Plus, Check, CalendarClock, Route, Pencil, Compass, Flame } from '@lucide/svelte';
   import '../lib/ich/ich.css';
 
@@ -40,6 +46,7 @@
   const eventsQ = liveQuery(() => db.gEvents.where('day').aboveOrEqual(today).toArray().catch(() => []));
   const tripsQ = liveQuery(() => db.trips.toArray());
   const bikesQ = liveQuery(() => db.bikes.toArray());
+  const debriefsQ = liveQuery(() => db.debriefs.toArray()); // N17: a dream counts as fulfilled once its trip has its debrief
   const weekHideQ = liveQuery(() => db.settings.get(WEEK_HIDE_KEY));
   const weekHidden = $derived($weekHideQ?.value === true);
 
@@ -51,7 +58,20 @@
   const bikes = $derived(sortBikes($bikesQ ?? []));
   const races = $derived(plannableRaces({ links: $linksQ?.value ?? [], events: $eventsQ ?? [], trips }, today));
   const due = $derived(deadlines(trips, today));
+  const fulfilled = $derived(fulfilledDreams(store.dreams, trips, $debriefsQ ?? [], today));
+  const doneDay = $derived(new Map(fulfilled.map((f) => [f.dream.id, f.day])));
   const nowMonth = Number(today.slice(5, 7));
+  // N15 «Wetterfenster»: dry days in a row for the dreams that fit now (forecast kept on this device)
+  const homeQ = liveQuery(async () => (await db.settings.get('homePlace'))?.value ?? null);
+  const wxQ = liveQuery(async () => (await db.meta.get(DREAM_WX)) ?? null);
+  const nowDreams = $derived(list.filter((d) => !d.tripId && nextWindow(d, today, kinds)?.now));
+  const wxWin = $derived(windowsOf(nowDreams, $homeQ, $wxQ, today));
+  $effect(() => {
+    const ds = $state.snapshot(nowDreams);
+    const home = $homeQ;
+    if ($homeQ === undefined || !ds.length) return;
+    refreshDreamWx(db, ds, home).catch(() => {});
+  });
 
   let month = $state(0); // 0: all months
   const shown = $derived(month ? list.filter((d) => !d.tripId && monthsOf(d, kinds).includes(month)) : list);
@@ -64,14 +84,41 @@
 
   let title = $state('');
   let msg = $state('');
+  let reading = $state(false);
   async function add(e) {
     e.preventDefault();
     if (!title.trim()) return (msg = t('Write the name of a dream tour.'));
     msg = '';
+    // N13: a pasted link (Ride with GPS, komoot, a report) reads the name, km and climb
+    const url = linkIn(title);
+    if (url) return addFromLink(url, title.replace(url, '').replace(/^https?:\/\//, '').trim());
     const d = newDream({ title }, { id: `dream-${Date.now().toString(36)}`, kinds });
     await save({ dreams: [d, ...store.dreams] });
     title = '';
     done = t('«{name}» added under {kind}. Tap it to change the months.', { name: d.title, kind: kindName(kinds, d.kind, t) });
+  }
+  async function addFromLink(url, own) {
+    reading = true;
+    done = '';
+    let info = null;
+    let fail = '';
+    try {
+      info = await readLink(url);
+    } catch (err) {
+      fail = err.message;
+    }
+    reading = false;
+    const name = own || info?.title || linkKind(url) || url;
+    const base = newDream({ title: name, url }, { id: `dream-${Date.now().toString(36)}`, kinds });
+    const d = info ? withLink(base, info, { keepTitle: !!own }) : base;
+    await save({ dreams: [d, ...store.dreams] });
+    title = '';
+    const what = distText(d, num);
+    done = fail
+      ? t('«{name}» added with its link. {why} The name can be changed in the dream.', { name: d.title, why: fail })
+      : what
+        ? t('«{name}» added from the link: {what}.', { name: d.title, what })
+        : t('«{name}» added from the link. The page names no km; a GPX file adds the map.', { name: d.title });
   }
 
   let open = $state(null);
@@ -82,8 +129,10 @@
   const ymText = (ym) => new Date(`${ym}-15T12:00:00Z`).toLocaleDateString(locale(), { month: 'long', year: 'numeric' });
   const monthsText = (d) => seasonText(monthsOf(d, kinds), (m) => t(MONTHS[m - 1]));
   function windowText(d) {
+    if (doneDay.has(d.id)) return t('Fulfilled in {when}', { when: ymText(doneDay.get(d.id).slice(0, 7)) });
     if (d.tripId) return t('Planned as a trip');
     const w = nextWindow(d, today, kinds);
+    if (w?.now && wxWin.has(d.id)) return t('Fits now, dry {days}', { days: dayRange(wxWin.get(d.id), locale()) });
     return !w ? '' : w.now ? t('Fits now') : t('Next: {when}', { when: ymText(w.ym) });
   }
   const dayText = (day) => new Date(`${day}T12:00:00Z`).toLocaleDateString(locale(), { day: 'numeric', month: 'short', year: 'numeric' });
@@ -129,19 +178,23 @@
       name,
     });
   }
+  import PasstHier from '../lib/ui/PasstHier.svelte'; // «Wegweiser statt Katalog» PR 6
 </script>
 
 <div class="ich-page dreams" data-page="dreams">
   <VeloHead crumbs={[{ label: t('Trips|place'), href: '#/trips' }]} title={t('Dreams|page')} sub={t('Dream tours with their season, races as event tours')} />
-  <p class="dr-intro">{t('Write down tours you dream of. The app suggests when each one fits; you can change the months. One tap makes a trip from a dream.')}</p>
+  <p class="dr-intro">{t('Write down tours you dream of. The app suggests when each one fits; you can change the months. One tap makes a trip from a dream. «New ground round» plans a round through a place you have never been. Done ones move to «Fulfilled dreams». A dream shows «Ready for the dream?». A dream that fits now shows a «Weather window for dreams». «All dreams on one map» shows which dream brings the most new.')}</p>
   <AreaIntro place="dreams" />
 
   <form class="card cap" onsubmit={add}>
     <label class="capt"><span class="sr">{t('New dream tour')}</span><input class="inp" type="text" bind:value={title} maxlength="80" placeholder={t('e.g. Over the Furka and Grimsel')} /></label>
-    <button type="submit" class="btn hi"><Plus size={16} aria-hidden="true" />{t('Add')}</button>
+    <button type="submit" class="btn hi" disabled={reading} data-dream-add><Plus size={16} aria-hidden="true" />{reading ? t('Reading the link…') : t('Add')}</button>
+    <p class="caph">{t('«A link becomes a dream»: paste a link from Ride with GPS, komoot or a report, and name, km and climb come along.')}</p>
     {#if msg}<p class="err" role="alert">{msg}</p>{/if}
   </form>
   {#if done}<p class="ok" role="status"><Check size={16} aria-hidden="true" />{done}</p>{/if}
+
+  <TripTips />
 
   {#if due.length}
     <section class="ich-sec" aria-labelledby="dr-due" data-deadlines>
@@ -183,7 +236,7 @@
               {#if !month}<SortGrip name={d.title} onstep={(dir) => save({ dreams: moveDream(store.dreams, i, i + dir) })} />{/if}
               <button type="button" class="open" onclick={() => (open = d.id)}>
                 {#if d.photo}<img class="thumb" src={d.photo} alt="" />{:else}<span class="ich-ib">{#if d.tripId}<Route size={18} aria-hidden="true" />{:else}<Sparkles size={18} aria-hidden="true" />{/if}</span>{/if}
-                <span class="ich-m"><b>{d.title}</b><small>{[kindName(kinds, d.kind, t), monthsText(d), windowText(d), d.route ? t('{km} km', { km: d.route.km }) : ''].filter(Boolean).join(' · ')}</small></span>
+                <span class="ich-m"><b>{d.title}</b><small>{[kindName(kinds, d.kind, t), monthsText(d), windowText(d), distText(d, num)].filter(Boolean).join(' · ')}</small></span>
               </button>
               {#if !month}<SortArrows name={d.title} {i} n={shown.length} onstep={(dir) => save({ dreams: moveDream(store.dreams, i, i + dir) })} />{/if}
               <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
@@ -194,7 +247,30 @@
     {/if}
   </section>
 
+  <DreamsMap dreams={list.filter((d) => !doneDay.has(d.id))} onopen={(id) => (open = id)} />
+
+  {#if fulfilled.length}
+    <!-- N17 «Erfüllte Träume»: the dreams you rode, once the debrief is done; a tap opens the debrief -->
+    <section class="ich-sec" aria-labelledby="dr-done" data-dreams-done>
+      <div class="ich-h"><div><h2 id="dr-done">{t('Fulfilled dreams')} <small class="n num">{fulfilled.length}</small></h2><p class="ich-hs">{t('Dreams you rode. They count once the debrief is done.')}</p></div></div>
+      <ul class="card ich-list">
+        {#each fulfilled as f (f.dream.id)}
+          <li>
+            <a class="ich-row done-row" href="#/debrief/{encodeURIComponent(f.trip.id)}" data-dream-done={f.dream.id}>
+              {#if f.dream.photo}<img class="thumb" src={f.dream.photo} alt="" />{:else}<span class="ich-ib"><Check size={18} aria-hidden="true" /></span>{/if}
+              <span class="ich-m"><b>{f.dream.title}</b><small>{[t('Fulfilled in {when}', { when: ymText(f.day.slice(0, 7)) }), distText(f.dream, num)].filter(Boolean).join(' · ')}</small></span>
+              <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
+            </a>
+          </li>
+        {/each}
+      </ul>
+    </section>
+  {/if}
+
   <WhiteSpots />
+  <NeulandGoals />
+  <!-- below the heimat measure of the functions above (2.5 screens): the row must not push «Herausforderungen mit Ende» out of it -->
+  <div class="dr-passt"><PasstHier place="dreams" /></div>
 
   <section class="ich-sec" aria-labelledby="dr-races" data-races>
     <div class="ich-h"><div><h2 id="dr-races">{t('Races to plan')}</h2><p class="ich-hs">{t('From Inspiration and from your Google calendar («Rennen», «Race» … in the title).')}</p></div></div>
@@ -266,6 +342,9 @@
 {/if}
 
 <style>
+  .dr-passt {
+    margin-bottom: 20px;
+  }
   .dreams {
     max-width: 900px;
   }
@@ -280,6 +359,12 @@
     gap: 8px;
     margin: 0 0 var(--sp-3);
     padding: 10px 12px;
+  }
+  .caph {
+    flex: 1 0 100%;
+    margin: 0;
+    color: var(--ink-3);
+    font-size: var(--fs-small);
   }
   .capt {
     flex: 1 1 14em;
@@ -390,6 +475,10 @@
     gap: 6px;
     align-items: center;
     color: var(--ok);
+  }
+  .done-row {
+    color: inherit;
+    text-decoration: none;
   }
   .thumb {
     width: 36px;

@@ -21,7 +21,9 @@ describe('the tiles', () => {
       expect(catalog().flatMap((a) => a.tiles).some((x) => x.id === `fn:${f.id}`)).toBe(true);
       expect(READY_0155.some((x) => x.id === `fn:${f.id}`)).toBe(!REMOVED_0155.includes(`fn:${f.id}`));
     }
-    expect(READY.filter((x) => x.size === 's').length).toBe(8);
+    // «Schnell öffnen» (Noah 01.11.2026 «5a», changed on purpose): the ready wall has the tile with your pins; the 8 small tiles stay in the catalog
+    expect(READY.filter((x) => x.size === 's').length).toBe(0);
+    expect(READY.some((x) => x.id === 'pins')).toBe(true);
   });
   it('the ready wall uses sizes its tiles can take', () => {
     for (const x of READY) expect(TILE[x.id].sizes, x.id).toContain(x.size);
@@ -45,11 +47,13 @@ describe('the stored wall', () => {
     // «Heute neu» N2: v 10; a wall of before (v < 10) becomes the ready wall once
     // Körperwerte (Noah 21.10.2026 «ok»): v 11; a v 10 wall gets «Körperwerte» once (tests/heute-a.test.js)
     // P6 «Heute ergänzen» (Noah 21.10.2026 «2b»): v 12; a wall of before gets meditation, the weekly weight and the last activity once (tests/heute-a.test.js)
-    const w = wallOf({ v: 12, tiles: [{ id: 'play', size: 'long' }, { id: 'nope', size: 's' }, { id: 'play', size: 'w' }, null, { id: 'year', size: 'long' }] });
+    // «VO2max auf Heute» (Noah 28.10.2026): v 14; a wall of before gets the VO2max tile once (tests/vo2.test.js), so these walls are v 14
+    // «Heute als Begleiter» PR 4 (Noah 28.10.2026): v 15; a wall of before gets the moment card once (tests/momentcard.test.js), so these walls are v 15
+    const w = wallOf({ v: 17, tiles: [{ id: 'play', size: 'long' }, { id: 'nope', size: 's' }, { id: 'play', size: 'w' }, null, { id: 'year', size: 'long' }] });
     expect(w).toEqual([{ id: 'play', size: 's' }, { id: 'year', size: 'long' }]);
-    expect(wallOf({ v: 12, tiles: [{ id: 'news', size: 'long' }] })).toEqual([{ id: 'news', size: 'long' }]);
-    expect(wallRecord(w)).toEqual({ v: 13, tiles: w });
-    expect(wallOf({ v: 12, tiles: [] })).toEqual([]);
+    expect(wallOf({ v: 17, tiles: [{ id: 'news', size: 'long' }] })).toEqual([{ id: 'news', size: 'long' }]);
+    expect(wallRecord(w)).toEqual({ v: 18, tiles: w });
+    expect(wallOf({ v: 17, tiles: [] })).toEqual([]);
     expect(wallOf({ v: 9, tiles: [{ id: 'news', size: 'long' }] })).toEqual(READY);
     expect(wallOf({ v: 8, tiles: [{ id: 'news', size: 'long' }] })).toEqual(READY);
     expect(wallOf8({ v: 8, tiles: [{ id: 'news', size: 'long' }] })).toEqual([{ id: 'news', size: 'long' }]);

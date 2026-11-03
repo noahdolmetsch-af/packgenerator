@@ -141,6 +141,8 @@ export function backupFileName(date = new Date()) {
 
 /* ---------- backup reminder (Noah, 4.10.2026, answer 10a) ---------- */
 
+/** Key in the "meta" table: when a copy of the backup last went outside this device ({ at, how: 'share' | 'self' }). Never exported. */
+export const OFFSITE_KEY = 'offsiteCopy';
 /** Key in the "meta" table: when the last backup file was downloaded. Never exported. */
 export const LAST_BACKUP = 'lastBackup';
 /** Home reminds you when the last backup is older than this (the standard; «Eigene Werte» backupDays changes it). */
@@ -188,6 +190,7 @@ export async function shareBackup(db, nav = globalThis.navigator) {
     try {
       await nav.share({ files: [file], title: file.name });
       await db.table('meta').put({ key: LAST_BACKUP, at: new Date().toISOString() });
+      await db.table('meta').put({ key: OFFSITE_KEY, at: new Date().toISOString(), how: 'share' }); // sent away: a second copy outside this device
       await markSync(db);
       return 'shared';
     } catch (err) {

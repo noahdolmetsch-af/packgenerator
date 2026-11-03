@@ -1,6 +1,9 @@
 <script>
   import Home from './pages/Home.svelte';
   import LazyPage from './lib/nav/LazyPage.svelte';
+  import GehoertDazu from './lib/know/GehoertDazu.svelte'; // «Heute als Begleiter» PR 7
+  import SeitenInhalt from './lib/ui/SeitenInhalt.svelte'; // «Wegweiser statt Katalog» PR 11
+  import { showsRow } from './lib/know/gehoert.js';
   import { warmUp } from './lib/nav/lazy.js';
   import SkiTurn from './lib/ski/SkiTurn.svelte';
   import { parseBetween } from './lib/phase.js';
@@ -29,17 +32,18 @@
   import TimerFloat from './lib/timer/TimerFloat.svelte';
   import CreditNotice from './lib/helper/CreditNotice.svelte';
   import RemindCard from './lib/remind/RemindCard.svelte';
+  import CalmHome from './lib/ruhig/CalmHome.svelte'; // Paket C: on Today the calm view shows only its one thing
   import RuhigLine from './lib/ruhig/RuhigLine.svelte'; // Paket C: workspace, calm view or a due letter
   import SideBar from './lib/nav/SideBar.svelte';
   import PlaceBar from './lib/nav/PlaceBar.svelte';
   import MeButton from './lib/nav/MeButton.svelte';
   import HelpButton from './lib/nav/HelpButton.svelte';
+  import ErscheintWenn from './lib/ui/ErscheintWenn.svelte'; // «Wegweiser» PR 23: «Appears when …»
   import PageFoot from './lib/anpassen/PageFoot.svelte'; // «Anpassen» (Noah 20.10.2026 «1a»)
   import { pageKeyOf } from './lib/anpassen.js';
   import { placeLabel, tabLabel } from './lib/anpassen.svelte.js';
   import Keys from './lib/nav/Keys.svelte';
   import { shortcutOf, typing, G_WAIT } from './lib/nav/keys.js';
-  import { ops } from './lib/bedienung.svelte.js';
   import { sortBikes } from './lib/bikes.js';
   import { withVisits } from './lib/workshop.js';
   import { bikeCare } from './lib/readiness.js';
@@ -50,6 +54,9 @@
   import { pageOf, placeOf, redirectOf, tabOf, keepTab, ALL_PLACES, PLACE_TABS } from './lib/nav.js';
   import PlaceTabs from './lib/nav/PlaceTabs.svelte';
   import PlaceSwitch from './lib/nav/PlaceSwitch.svelte';
+  import Explorer from './lib/nav/Explorer.svelte';
+  import PathLine from './lib/nav/PathLine.svelte'; // «Pfad auf jeder Seite» (Noah 28.10.2026 «1a»)
+  import { ops } from './lib/bedienung.svelte.js';
   import ErrorPage from './lib/ui/ErrorPage.svelte';
   import OfflineLine from './lib/clear/OfflineLine.svelte';
   import DbWaitLine from './lib/clear/DbWaitLine.svelte';
@@ -120,7 +127,7 @@
     return tab ? `${placeLabel(p)} › ${tabLabel(place, tab)}` : placeLabel(p);
   });
   // a page for someone without the app's data (a shared list, Paket S «Reise-Spur»: a tour's read link)
-  const guest = $derived(page === 'share' || page === 'spurlink' || page === 'gruppe' || page === 'card');
+  const guest = $derived(page === 'share' || page === 'spurlink' || page === 'gruppe' || page === 'card' || page === 'mitmachen');
   // v0.78.0 «Fünf Orte» 2 (Noah O2.2a): each place remembers the tab opened last (nav.js placeHref).
   const tab = $derived(place ? tabOf(place, hash) : null);
   $effect(() => {
@@ -323,6 +330,7 @@
   // «Computer-Breite» (Noah 26.10.2026 «4a»): the places whose content stays at most 1120 px wide (main.hub)
   const HUB_PAGES = ['trips', 'flow', 'auswerten', 'bikes', 'gear'];
   const PAGES = {
+    Quick: () => import('./pages/Quick.svelte'), // «Quick Links» (Noah 28.10.2026 «3a»)
     Gear: () => import('./pages/Gear.svelte'),
     Bikes: () => import('./pages/Bikes.svelte'),
     Pack: () => import('./pages/Pack.svelte'),
@@ -348,6 +356,8 @@
     PackCleanup: () => import('./pages/PackCleanup.svelte'), // «Packliste aufräumen» (Noah 21.10.2026 «5a»)
     Check: () => import('./pages/Check.svelte'),
     CheckQuestions: () => import('./pages/CheckQuestions.svelte'),
+    CheckHistory: () => import('./pages/CheckHistory.svelte'), // «Heute-Check» step 3: #/check/history
+    CheckInsights: () => import('./pages/CheckInsights.svelte'), // «Heute-Check» step 2: #/check/insights
     Routine: () => import('./pages/Routine.svelte'),
     Woche: () => import('./pages/Woche.svelte'),
     WochePlanen: () => import('./pages/WochePlanen.svelte'),
@@ -361,6 +371,8 @@
     Wardrobe: () => import('./pages/Wardrobe.svelte'),
     Flow: () => import('./pages/Flow.svelte'),
     Auswerten: () => import('./pages/AuswertenStart.svelte'),
+    // Analyse PR 1 (Noah 27.10.2026 «1a»): Auswerten › Analyse, every value as a tile
+    Analyse: () => import('./pages/Analyse.svelte'),
     Between: () => import('./pages/Between.svelte'),
     Me: () => import('./pages/Me.svelte'),
     Look: () => import('./pages/Look.svelte'),
@@ -380,6 +392,7 @@
     Compass: () => import('./pages/Compass.svelte'), // Paket N: Ich › Mein Kompass
     Phone: () => import('./pages/Phone.svelte'),
     Checks: () => import('./pages/Checks.svelte'),
+    AppMap: () => import('./pages/AppMap.svelte'), // «Karte der App» (Noah 28.10.2026): Ich › Karte der App
     Verstehen: () => import('./pages/Verstehen.svelte'), // «App verstehen» (Noah 26.10.2026): Ich › App verstehen
     Regeln: () => import('./pages/Regeln.svelte'), // P3 «Warum? und Regeln» (RG3): Ich › So entscheidet die App
     Push: () => import('./pages/Push.svelte'),
@@ -404,6 +417,8 @@
     SpurLink: () => import('./pages/SpurLink.svelte'), // Paket S: the family's read link
     Gruppe: () => import('./pages/Gruppe.svelte'), // Gruppen-Live-Karte: a friend's view of the group ride
     GroupRide: () => import('./pages/GroupRide.svelte'), // Gruppenfahrt für Events: the page of your group ride
+    MiniTools: () => import('./pages/MiniTools.svelte'), // Mini-Tools (Noah 28.10.2026 «2a»): Ich › Mini-Tools
+    Mitmachen: () => import('./pages/Mitmachen.svelte'), // Mini-Tools: the page of the people asked, no app data
     Karte: () => import('./pages/Karte.svelte'), // Gruppenfahrt für Events: a contact card from a QR code
     Abfahrt: () => import('./pages/Abfahrt.svelte'), // Paket K #87 «Vor der Abfahrt»
     Mountain: () => import('./pages/Mountain.svelte'), // Paket J: Berg, Schnee und Notfall
@@ -472,16 +487,22 @@
 <div class="col">
 <DemoBar />
 <OfflineLine />
+{#if ops.explore && ops.path && !guest && !mini}<Explorer />{/if}
 <DbWaitLine />
 {#if !mini && !guest}<ComebackWindow care={$dueQ ?? 0} inbox={$inboxQ ?? 0} /><YearCheckWindow {hash} /><DiaryReminder {hash} />{/if}
 
-<main class:calm class:wide={page === 'pack' || page === 'ride' || page === 'debrief' || page === 'rides' || page === 'stravarides' || page === 'past' || page === 'templates' || page === 'gear' || page === 'supplies' || page === 'power' || page === 'fuel' || page === 'compare' || page === 'tour' || page === 'lend' || page === 'blocks' || page === 'blockcheck' || page === 'packcleanup' || page === 'home' || page === 'features' || page === 'wardrobe' || page === 'flow' || page === 'auswerten' || page === 'timer' || page === 'check' || page === 'routine' || page === 'week' || page === 'neuland' || page === 'heatmap' || page === 'dreams'} class:hub={HUB_PAGES.includes(page)} class:bar={!wide.matches || !!mini}>
+<main data-s2-page={page} data-s2-place={place} class:calm class:wide={page === 'pack' || page === 'ride' || page === 'debrief' || page === 'rides' || page === 'stravarides' || page === 'past' || page === 'templates' || page === 'gear' || page === 'supplies' || page === 'power' || page === 'fuel' || page === 'compare' || page === 'tour' || page === 'lend' || page === 'blocks' || page === 'blockcheck' || page === 'packcleanup' || page === 'home' || page === 'features' || page === 'wardrobe' || page === 'flow' || page === 'auswerten' || page === 'timer' || page === 'check' || page === 'routine' || page === 'week' || page === 'neuland' || page === 'heatmap' || page === 'dreams'} class:hub={HUB_PAGES.includes(page)} class:bar={!wide.matches || !!mini}>
   {#if !calm && !guest && !mini}<PlaceTabs {place} {hash} {moved} onclosemoved={() => (moved = null)} />{/if}
   <!-- AU1 «1b»: on a phone Velos and Ausrüstung share a slot. Gesamttest 20.10.2026 B7: the switch stands only
        on Ausrüstung (the way back); Velos already has its tabs and path, Ausrüstung is one row on Velos › Übersicht -->
   {#if (place === 'equipment' || place === 'gear' || place === 'active' || place === 'analysis') && !mini}<PlaceSwitch {place} {hash} />{/if}
+  {#if ops.path && place && page !== 'home' && !calm && !guest && !mini}<PathLine {place} {hash} />{/if}
   <!-- ER1/ER2: «Soll ich dich erinnern?» on top of the next page, in the page (never over its buttons) -->
   {#if !guest && page !== 'home'}<RemindCard /><RuhigLine {hash} />{/if}
+  <!-- «Heute als Begleiter» PR 7: «Belongs to …», the functions of the same moment, on top of the page -->
+  {#if !guest && !mini && showsRow(page, hash)}<GehoertDazu {page} {hash} />{/if}
+  <!-- «Wegweiser statt Katalog» PR 11: what you can do on this page, with what for and how it works (switched on page by page) -->
+  {#if !guest && !mini && page !== 'home'}<SeitenInhalt {hash} />{/if}
   <svelte:boundary onerror={onfail}>
   {#key `${switchN}-${listsReady.v}`}
   {#if page === 'gear'}
@@ -591,7 +612,10 @@
     <LazyPage load={PAGES.Flow} sub={hash.split('/').slice(2).join('/')} />
   {:else if page === 'auswerten'}
     <!-- «Aktiv neu» (Noah 22.10.2026 «2a»): the start of Auswerten, what you look at -->
-    <LazyPage load={PAGES.Auswerten} />
+    {#if hash.startsWith('#/auswerten/analyse')}<LazyPage load={PAGES.Analyse} />{:else}<LazyPage load={PAGES.Auswerten} />{/if}
+  {:else if page === 'quick'}
+    <!-- «Quick Links» (Noah 28.10.2026 «1a 2a 3a 4a 5a»): your pins -->
+    <LazyPage load={PAGES.Quick} />
   {:else if page === 'week'}
     <!-- «Woche planen» (WP1–WP3): the week, the Sunday planning, the holidays -->
     {#if hash.startsWith('#/week/plan')}<LazyPage load={PAGES.WochePlanen} />{:else if hash.startsWith('#/week/away')}<LazyPage load={PAGES.WocheFerien} />{:else}<LazyPage load={PAGES.Woche} />{/if}
@@ -601,7 +625,7 @@
   {:else if page === 'check'}
     <!-- v0.127.0 «Tages-Check» 1 (back 18.10.2026, Noah «1 a und b»): #/check/morning (T1) and #/check/evening (T2), pages of Heute -->
     <!-- v0.127.0 «Tages-Check» 2: #/check/questions (T4), the 15 questions with a switch each -->
-    {#key hash}{#if checkPart(hash) === 'questions'}<LazyPage load={PAGES.CheckQuestions} />{:else}<LazyPage load={PAGES.Check} part={checkPart(hash)} />{/if}{/key}
+    {#key hash}{#if checkPart(hash) === 'questions'}<LazyPage load={PAGES.CheckQuestions} />{:else if checkPart(hash) === 'history'}<LazyPage load={PAGES.CheckHistory} />{:else if checkPart(hash) === 'insights'}<LazyPage load={PAGES.CheckInsights} />{:else}<LazyPage load={PAGES.Check} part={checkPart(hash)} />{/if}{/key}
   {:else if page === 'frei' || page === 'impulse'}
     <!-- Paket T «Freie Zeit»: Ich › Freie Zeit (#/me/frei/…) and Aktiv › Impulse (#/flow/impulse); the page picks its part -->
     <LazyPage load={PAGES.Frei} {hash} />
@@ -661,6 +685,12 @@
     <LazyPage load={PAGES.WasKommt} />
   {:else if page === 'album'}
     <LazyPage load={PAGES.Album} />
+  {:else if page === 'minitools'}
+    <!-- Mini-Tools (Noah 28.10.2026 «2a»): #/me/mini, #/me/mini/neu, #/me/mini/<id> -->
+    {#key hash}<LazyPage load={PAGES.MiniTools} {hash} />{/key}
+  {:else if page === 'mitmachen'}
+    <!-- Mini-Tools: a question shared by link, answered without the app -->
+    {#key hash}<LazyPage load={PAGES.Mitmachen} {hash} />{/key}
   {:else if page === 'freunde'}
     <!-- Paket D «Mit Freunden»: #/me/freunde, a message from a friend at #/me/freunde/in/<code> -->
     {#key hash.startsWith('#/me/freunde/in/') ? hash : ''}<LazyPage load={PAGES.Freunde} {hash} />{/key}
@@ -730,6 +760,9 @@
   {:else if page === 'inspiration'}
     <!-- «Inspiration» UC2-1, UC2-2, UC2-4: your own links; sidebar on a computer, Ich › Inspiration on a phone -->
     <LazyPage load={PAGES.Inspiration} />
+  {:else if page === 'karte'}
+    <!-- «Karte der App» (Pfad Schritt 5): every place and function with its path -->
+    <LazyPage load={PAGES.AppMap} />
   {:else if page === 'verstehen'}
     <!-- «App verstehen» (Noah 26.10.2026): seven lessons to keep the app going without a helper -->
     <LazyPage load={PAGES.Verstehen} />
@@ -810,13 +843,14 @@
     <!-- «Heatmap» (Noah 20.10.2026): all rides on one map, stronger where they overlap -->
     <LazyPage load={PAGES.Heatmap} />
   {:else}
-    <Home />
+    <CalmHome><Home /></CalmHome>
   {/if}
   {/key}
   {#snippet failed(error, reset)}<ErrorPage {error} name={failName} onreset={() => ((failReset = null), reset())} />{/snippet}
   </svelte:boundary>
   <!-- «Anpassen» (Noah 20.10.2026 «1a»): «Diese Seite anpassen» at the end of every page; not on Heute, where
        «Startseite anpassen» does it (Neuer Schwung, Noah 26.10.2026 «warum haben wir startseite anpassen und diese seite anpassen?») -->
+  {#if !guest && !mini && page !== 'home'}<ErscheintWenn {hash} />{/if}
   {#if !guest && !mini && page !== 'home'}<PageFoot page={pageKeyOf(page, place ? tabOf(place, hash) : null)} {place} fallback={anpTitle} />{/if}
 </main>
 
@@ -834,6 +868,8 @@
 <Keys bind:open={keysOpen} />
 <!-- «Rundgang» (Noah 15.10.2026 «1a … 5a»): the choice «example trip or own data» and the running tour -->
 {#if !guest}<TourStart /><TourHost />{/if}
+<!-- «Quick Links» step 2 (Noah 28.10.2026 «1a 2a»): the small pin on every card of a function; loads later -->
+{#if !guest && !mini}{#await import('./lib/quick/PinMarks.svelte') then M}<M.default {hash} />{/await}{/if}
 {#if komootOpen}<KomootSheet onclose={() => (komootOpen = false)} />{/if}
 {#if mini}
   <!-- Kleine Apps: only the tabs of the small app and «Whole app» -->

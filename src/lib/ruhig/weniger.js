@@ -50,8 +50,35 @@ export const SPACE_STARTS = [
 export function calmOf(value) {
   const v = value && typeof value === 'object' ? value : null;
   const what = clean(v?.what, 80);
-  return what ? { what, href: typeof v.href === 'string' && v.href.startsWith('#/') ? v.href : '', since: typeof v.since === 'string' ? v.since : '' } : null;
+  const until = Number(v?.until);
+  return what ? { what, href: typeof v.href === 'string' && v.href.startsWith('#/') ? v.href : '', since: typeof v.since === 'string' ? v.since : '', until: Number.isFinite(until) && until > 0 ? until : 0 } : null;
 }
+/** How long the calm view may run: minutes (0 = until you tap «Done»). */
+export const CALM_MINUTES = [15, 30, 60, 0];
+/** The end of the time as ms (0 = open end). */
+export const calmUntil = (mins, now = Date.now()) => (Number(mins) > 0 ? now + Math.round(Number(mins)) * 60000 : 0);
+/** The time is up (a soft end: the view stays, but stops hiding things and asks what next). */
+export const calmOver = (calm, now = Date.now()) => !!calm?.until && now >= calm.until;
+/** Minutes left, rounded up (0 = open end or over). */
+export const calmLeft = (calm, now = Date.now()) => (calm?.until && now < calm.until ? Math.ceil((calm.until - now) / 60000) : 0);
+
+/* ---------- Ruhige Ansicht › reminders rest (step 6) ---------- */
+
+/**
+ * While a calm view with a time runs, the phone reminders that would come inside it wait: they move to just after
+ * its end (one minute apart, same order). Nothing is lost. Safety warnings (SAFETY_PREFIXES) always come on time.
+ * A calm view without a time holds nothing (there is no end to wait for). → the new list of items.
+ */
+export function applyCalm(items = [], calm, nowMs = Date.now()) {
+  const c = calmOf(calm);
+  if (!c || !c.until || c.until <= nowMs) return items;
+  let n = 0;
+  return items
+    .map((it) => (it.at >= nowMs && it.at < c.until && groupOfKey(it.key) !== 'safety' ? { ...it, at: c.until + 60000 * ++n, held: true } : it))
+    .sort((a, b) => a.at - b.at);
+}
+/** How many reminders the calm view holds right now (for the card). */
+export const calmHeld = (items = [], calm, nowMs = Date.now()) => applyCalm(items, calm, nowMs).filter((it) => it.held).length;
 
 /* ---------- Erinnerungs-Budget ---------- */
 

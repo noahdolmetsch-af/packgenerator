@@ -90,14 +90,16 @@ describe('BF4 copies before an update', () => {
 
 describe('settings', () => {
   it('defaults: both switches on, no key with an end date', async () => {
-    expect(maintOf(null)).toEqual({ snap: true, hint: true, keys: DEFAULT_KEYS });
+    expect(maintOf(null)).toEqual({ snap: true, dl: false, hint: true, keys: DEFAULT_KEYS });
+    // Noah 31.10.2026 «2a»: the backup file before an update can be switched off
+    expect(maintOf({ dl: false }).dl).toBe(false);
     expect(DEFAULT_KEYS).toEqual([]);
     // Noah 20.10.2026: the old assumed «AI helper key» until 10 Nov. goes; a changed one or another key stays
     const old = { id: 'ai-helper', name: 'AI helper key', until: '2026-11-10' };
     expect(maintOf({ keys: [old, { id: 'k', name: 'Test key', until: '2027-01-01' }] }).keys).toEqual([{ id: 'k', name: 'Test key', until: '2027-01-01' }]);
     expect(maintOf({ keys: [{ ...old, until: '2027-03-01' }] }).keys).toEqual([{ ...old, until: '2027-03-01' }]);
     await saveMaint(db, { hint: false, keys: [{ id: 'k', name: 'Test key', until: '2027-01-01' }, { name: '', until: 'x' }] });
-    expect(await readMaint(db)).toEqual({ snap: true, hint: false, keys: [{ id: 'k', name: 'Test key', until: '2027-01-01' }] });
+    expect(await readMaint(db)).toEqual({ snap: true, dl: false, hint: false, keys: [{ id: 'k', name: 'Test key', until: '2027-01-01' }] });
     expect((await db.settings.get(MAINT_KEY)).value.keys).toHaveLength(1);
   });
 });

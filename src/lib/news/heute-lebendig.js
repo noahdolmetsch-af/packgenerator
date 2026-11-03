@@ -3,8 +3,8 @@
 export default {
   title: 'Today comes alive',
   lead: 'When you open Today, it moves softly for a moment.',
-  points: [{ text: 'The tiles appear one after another, numbers rise in, bars fill and rings draw themselves' }],
-  small: [{ box: 'nicer', text: 'With «reduce motion» on your device nothing moves' }],
+  points: [{ text: 'The tiles appear one after another, numbers rise in, bars fill and rings draw themselves', go: { href: '#/', where: 'Shows each time Today opens.' } }],
+  small: [{ box: 'nicer', text: 'With «reduce motion» on your device nothing moves', go: null }],
   test: ['Open Heute: the tiles appear one after another within half a second.', 'Switch on «reduce motion» on your phone and open Heute again: everything is there at once.'],
   since: [],
   de: {

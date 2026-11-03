@@ -33,7 +33,7 @@ test('notes: link one note with another, the link shows on both', async ({ page,
   const stats = page.locator('[data-note-stats]');
   await expect(stats).toContainText('#herbst');
 
-  await page.locator('li.ncard', { hasText: 'Jura' }).locator('button').click();
+  await page.locator('li.ncard', { hasText: 'Jura' }).locator('button').first().click();
   const sheet = page.locator('dialog.nsheet');
   await expect(sheet).toBeVisible();
   await expect(sheet.locator('[data-note-links]')).toContainText(T('Maybe related'));
@@ -143,8 +143,11 @@ test('notes: start from a template, read the format, add a sketch and a link', a
   await page.goto('./#/notes');
   await ready(page);
   const tpls = page.locator('[data-templates]');
-  await expect(tpls.locator('button')).toHaveCount(4);
-  await tpls.locator('button').nth(3).click();
+  // the text templates (the templates with fields have their own test: vorlagen-felder.spec.js)
+  const plain = tpls.locator('button:not([data-form-chip]):not([data-form-choose])');
+  // (noteformats.js is not imported here: it pulls in modules with runes)
+  await expect(plain.first()).toBeVisible();
+  await plain.last().click();
   await expect(page.locator('form.cap textarea')).not.toHaveValue('');
   await page.locator('form.cap textarea').fill('test_data_gtp_ Format\n## Kopf\n**fett**');
   await page.locator('form.cap button[type="submit"]').click();

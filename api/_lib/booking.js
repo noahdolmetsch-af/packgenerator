@@ -13,6 +13,11 @@
 
 export const KINDS = ['tennis', 'tour', 'service', 'own'];
 export const PAYS = ['site', 'online'];
+/** instant: booked at once. request: the owner answers within ANSWER_HOURS (confirm or decline); a request holds no place until it is confirmed. */
+export const MODES = ['instant', 'request'];
+export const ANSWER_HOURS = 24;
+export const MAX_VENUES = 4;
+export const NOTE_MAX = 300;
 export const MAX_TYPES = 4;
 export const MAX_SLOTS = 200;
 export const MAX_BOOKINGS = 500;
@@ -38,6 +43,8 @@ export function cleanOffer(input) {
   const kind = KINDS.includes(o.kind) ? o.kind : null;
   const title = TEXT(o.title, 60);
   const pay = PAYS.includes(o.pay) ? o.pay : null;
+  const mode = MODES.includes(o.mode) ? o.mode : 'instant';
+  const venues = [...new Set((Array.isArray(o.venues) ? o.venues : []).map((v) => TEXT(v, 60)).filter(Boolean))].slice(0, MAX_VENUES);
   const minutes = INT(o.minutes, 0, 60 * 24 * 14);
   const cancelHours = INT(o.cancelHours ?? 24, 0, 24 * 14);
   if (!kind || !title || !pay || minutes == null || cancelHours == null) return { error: 'bad_offer' };
@@ -57,11 +64,12 @@ export function cleanOffer(input) {
     const at = typeof s?.at === 'string' && validAt(s.at) ? s.at : null;
     const type = types.find((y) => y.key === s?.type)?.key ?? null;
     if (!id || !at || !type || slots.some((y) => y.id === id)) return { error: 'bad_offer' };
-    slots.push({ id, at, type });
+    const venue = TEXT(s?.venue, 60);
+    slots.push(venue ? { id, at, type, venue } : { id, at, type });
   }
   if (slots.length > MAX_SLOTS) return { error: 'too_many_slots' };
   slots.sort((a, b) => a.at.localeCompare(b.at));
-  return { offer: { kind, title, place: TEXT(o.place, 60), minutes, pay, cancelHours, types, slots } };
+  return { offer: { kind, title, place: TEXT(o.place, 60), minutes, pay, mode, venues, cancelHours, types, slots } };
 }
 
 export function validAt(at) {
@@ -103,13 +111,15 @@ export function publicOffer(offer, booked = {}, now = Date.now()) {
     place: offer.place,
     minutes: offer.minutes,
     pay: offer.pay,
+    mode: offer.mode ?? 'instant',
+    venues: offer.venues ?? [],
     cancelHours: offer.cancelHours,
     types: offer.types.map((t) => ({ key: t.key, label: t.label, places: t.places, price: t.price })),
     slots: offer.slots
       .filter((s) => zurichMs(s.at) > now)
       .map((s) => {
         const places = typeOf(offer, s)?.places ?? 0;
-        return { id: s.id, at: s.at, type: s.type, places, free: Math.max(0, places - (Number(booked[s.id]) || 0)) };
+        return { id: s.id, at: s.at, type: s.type, venue: s.venue ?? '', places, free: Math.max(0, places - (Number(booked[s.id]) || 0)) };
       }),
   };
 }
@@ -119,8 +129,11 @@ export function cleanPerson(input) {
   const name = TEXT(input?.name, 60);
   const contact = TEXT(input?.contact, 80);
   if (name.length < 2 || contact.length < 3) return { error: 'bad_person' };
-  return { name, contact };
+  return { name, contact, note: TEXT(input?.note, NOTE_MAX) };
 }
+
+/** A booking that holds a place: instant bookings (no status) and confirmed requests. */
+export const holdsPlace = (b) => b.status !== 'requested' && b.status !== 'declined';
 
 /** May the person who booked still cancel? (up to cancelHours before the start) */
 export const canCancel = (offer, slot, now = Date.now()) => !!slot && zurichMs(slot.at) - offer.cancelHours * 3600_000 > now;

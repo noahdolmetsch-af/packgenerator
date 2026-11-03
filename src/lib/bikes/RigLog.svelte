@@ -15,6 +15,9 @@
   import { Plus, Lightbulb, X, ArrowRight, Route, Scale, Wrench, Pencil, MessageSquare } from '@lucide/svelte';
   import VeloHead from './VeloHead.svelte';
   import RigLogDialog from './RigLogDialog.svelte';
+  import { savedCount, savedDiff, restoreChanges } from './rueckbau.js'; // Velo-Idee 73 «Setup zurückbauen»
+  import { offerDone } from '../ui/rename.svelte.js';
+  import Lightbox from '../ui/Lightbox.svelte';
   import { t, tn, num, dateOf } from '../i18n.svelte.js';
 
   let { bike } = $props();
@@ -52,6 +55,18 @@
   }
   const fromVisit = (o) => ({ date: o.date, kind: o.kind, title: [partName(o.part), o.model].filter(Boolean).join(' '), after: o.model, source: { type: 'visit', id: o.visitId, label: t('Workshop job of {date}', { date: dateOf(o.date) }) }, part: o.part });
   const skipVisit = (o) => db.bikes.update(bike.id, { logSkipped: [...new Set([...(bike.logSkipped ?? []), `${o.visitId}:${o.part}`])] });
+  // Velo-Idee 73: back to the measures kept with an entry; Undo brings the measures of now back
+  let pics = $state(null); // { list, start }
+  const unitOf = (u) => (u ? ` ${u}` : '');
+  const valueText = (v, u) => (v == null || v === '' ? '–' : `${typeof v === 'number' ? num(v) : v}${unitOf(u)}`);
+  async function restore(e) {
+    const b = await db.bikes.get(bike.id);
+    const patch = restoreChanges(b, e.saved.fit);
+    if (!Object.keys(patch).length) return;
+    const before = Object.fromEntries(Object.keys(patch).map((k) => [k, b[k] ?? null]));
+    await db.bikes.update(b.id, patch);
+    offerDone(t('Back to the measures of {date}.', { date: dateOf(e.saved.at ?? e.date) }), () => db.bikes.update(b.id, before));
+  }
   const sourceText = (e) => (e.source?.type === 'visit' ? e.source.label || t('Workshop job') : e.source?.label || '');
 </script>
 
@@ -84,6 +99,21 @@
           {#if e.deltaG != null}<span><Scale size={14} aria-hidden="true" />{t('Weight {g}', { g: grams(e.deltaG) })}</span>{/if}
           {#if sourceText(e)}<span><Wrench size={14} aria-hidden="true" />{sourceText(e)}</span>{/if}
         </div>
+        {#if e.saved}
+          {@const diff = savedDiff(bike, e.saved.fit)}
+          <details class="saved" data-riglog-saved={e.id}>
+            <summary>{tn(savedCount(e.saved.fit), '{n} measure kept from before', '{n} measures kept from before')}{e.saved.photos?.length ? ` · ${tn(e.saved.photos.length, '{n} photo', '{n} photos')}` : ''}</summary>
+            {#if e.saved.photos?.length}
+              <div class="spics">{#each e.saved.photos as src, n (n)}<button type="button" onclick={() => (pics = { list: e.saved.photos, start: n })} aria-label={t('Open photo {n}', { n: n + 1 })}><img {src} alt="" loading="lazy" /></button>{/each}</div>
+            {/if}
+            {#if diff.length}
+              <ul class="sdiff">{#each diff as r (r.key)}<li><span>{t(r.name)}</span><span class="num">{valueText(r.now, r.unit)} → <b>{valueText(r.then, r.unit)}</b></span></li>{/each}</ul>
+              <button type="button" class="btn sm" onclick={() => restore(e)} data-riglog-restore>{tn(diff.length, 'Back to these measures ({n} value)', 'Back to these measures ({n} values)')}</button>
+            {:else if savedCount(e.saved.fit)}
+              <p class="hint">{t('The bike has these measures now.')}</p>
+            {/if}
+          </details>
+        {/if}
         {#if e.firstTrip}
           <p class="feel"><MessageSquare size={16} aria-hidden="true" /><span>{t('First trip after it: {trip}', { trip: e.firstTrip.title })}{#if e.feel}<br />{t('Debrief: «{text}»', { text: e.feel })}{/if}</span></p>
         {/if}
@@ -134,10 +164,54 @@
 </div>
 
 {#if dialog}
-  <RigLogDialog entry={dialog.entry} onsave={save} ondelete={remove} onclose={() => (dialog = null)} />
+  <RigLogDialog entry={dialog.entry} {bike} onsave={save} ondelete={remove} onclose={() => (dialog = null)} />
+{/if}
+
+{#if pics}
+  <Lightbox list={pics.list.map((src, n) => ({ src, name: t('Photo {n}', { n: n + 1 }) }))} start={pics.start} onclose={() => (pics = null)} />
 {/if}
 
 <style>
+  .saved summary {
+    cursor: pointer;
+    min-height: 40px;
+    display: flex;
+    align-items: center;
+    color: var(--accent);
+    font-size: var(--fs-small);
+  }
+  .sdiff {
+    list-style: none;
+    margin: 4px 0 8px;
+    padding: 0;
+  }
+  .sdiff li {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 4px 0;
+    border-top: 1px solid var(--line);
+    font-size: var(--fs-small);
+  }
+  .spics {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin: 4px 0 8px;
+  }
+  .spics button {
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: pointer;
+  }
+  .spics img {
+    width: 72px;
+    height: 72px;
+    object-fit: cover;
+    border-radius: 8px;
+    display: block;
+  }
   .hint {
     margin: 0;
     font-size: var(--fs-small);

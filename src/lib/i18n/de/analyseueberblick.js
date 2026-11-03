@@ -1,0 +1,23 @@
+// «Analyse» M2 «Überblick» (Noah 27.10.2026 «alle Mockups 1:1»): numbers, calendar, ranking, ticks per week
+export default {
+  'Overview|overview': 'Überblick',
+  'ticks in {n} days|overview': 'Haken in {n} Tagen',
+  'Bike, Strava|overview': 'Velo, Strava',
+  'sleep on average|overview': 'Schlaf im Schnitt',
+  'active zone minutes a day|overview': 'Aktivzonen pro Tag',
+  'resting pulse|overview': 'Ruhepuls',
+  '{n} days|overview': '{n} Tage',
+  'longest run|overview': 'längste Serie',
+  'Every day a field|overview': 'Jeder Tag ein Feld',
+  'calendar · all ticks|overview': 'Kalender · alle Haken',
+  '{day}: {n} ticked|overview': '{day}: {n} abgehakt',
+  'Darker = more ticked. Tap a field to see the day.|overview': 'Dunkler = mehr abgehakt. Tippe ein Feld, dann siehst du den Tag.',
+  'Ranking|overview': 'Rangliste',
+  'how often · {n} days · against before|overview': 'Wie oft · {n} Tage · gegen davor',
+  'Nothing ticked in this period yet.|overview': 'In diesem Zeitraum noch nichts abgehakt.',
+  'ticks per week|overview': 'Haken pro Woche',
+  'Ticks per week|overview': 'Haken pro Woche',
+  'mean of 4 weeks|overview': 'Mittel aus 4 Wochen',
+  'Week of {day}|overview': 'Woche ab {day}',
+  '{n} ticks|overview': '{n} Haken',
+};

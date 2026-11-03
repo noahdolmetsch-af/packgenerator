@@ -131,7 +131,7 @@
 </div>
 {#if busy}<p class="q" role="status">{busy}</p>{/if}
 {#if msg}<p class="q" role="status" data-files-msg>{msg}</p>{/if}
-{#if open}<FileView file={open} onclose={() => (open = null)} ontext={(s) => onchange?.({ ...note, text: `${note.text ?? ''}${note.text ? '\n\n' : ''}${s}` })} />{/if}
+{#if open}<FileView file={open} onclose={() => (open = null)} onphoto={onphoto} ontext={(s) => onchange?.({ ...note, text: `${note.text ?? ''}${note.text ? '\n\n' : ''}${s}` })} />{/if}
 
 <style>
   .fl {

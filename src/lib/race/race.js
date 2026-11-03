@@ -41,6 +41,8 @@ export function raceOf(stored, trip) {
     rules: Array.isArray(r.rules) ? r.rules : [],
     dropBags: Array.isArray(r.dropBags) ? r.dropBags : [],
     why: Array.isArray(r.why) ? r.why : [],
+    // «Drei Ziel-Stufen» (Noah 02.11.2026 «2a»): the dream, the good result and the least you accept
+    tiers: { vision: String(r.tiers?.vision ?? ''), super: String(r.tiers?.super ?? ''), least: String(r.tiers?.least ?? '') },
     stomach: Array.isArray(r.stomach) ? r.stomach : [],
     goalEvery: Number(r.goalEvery) > 0 ? Number(r.goalEvery) : 50,
     goalsDone: Array.isArray(r.goalsDone) ? r.goalsDone : [],

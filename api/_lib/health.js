@@ -29,7 +29,7 @@
  *
  * The answer is kept 10 minutes (health:last), so calling it often costs nothing and asks nobody.
  * A check that throws counts as fail with code 'error', never with the error's text; one that takes longer
- * than CHECK_TIMEOUT_MS counts as fail with code 'timeout'. The checks run at the same time.
+ * than CHECK_TIMEOUT_MS counts as fail with code 'timeout' (gemini: ok with code 'busy'). The checks run at the same time.
  */
 import { pick, redis, redisEnv, REDIS_ENV } from './core.js';
 import * as helperLib from './helper.js';
@@ -236,6 +236,8 @@ export function makeChecks({ cfg, store, doFetch, now }) {
 /** One check may take this long. Before 26.10.2026 a hanging outside service held the whole answer until
  * Vercel stopped it after 300 s, so the Wächter saw «no answer» (issues #239, #249) and never which check hung. */
 export const CHECK_TIMEOUT_MS = 15_000;
+/** Checks whose slow answer counts as «busy» (ok), not as a fail: the free Gemini tier is often slow. */
+export const SLOW_IS_BUSY = new Set(['gemini']);
 
 /** Run every check at the same time, each on its own: one failing or hanging never stops the others. */
 export async function runHealth({ cfg, store, doFetch, now, checkTimeoutMs = CHECK_TIMEOUT_MS }) {
@@ -243,7 +245,12 @@ export async function runHealth({ cfg, store, doFetch, now, checkTimeoutMs = CHE
   const out = await Promise.all(Object.entries(checks).map(async ([id, fn]) => {
     let timer;
     const late = new Promise((resolve) => {
-      timer = setTimeout(() => resolve(fail(id, 'timeout', `Keine Antwort innerhalb ${Math.round(checkTimeoutMs / 1000)} Sekunden.`)), checkTimeoutMs);
+      const secs = Math.round(checkTimeoutMs / 1000);
+      // Gemini (free tier) is often slow: like «busy», a slow answer is no alarm (Noah 28.10.2026 «2a»)
+      const slow = SLOW_IS_BUSY.has(id)
+        ? ok(id, `Gemini ist gerade langsam (keine Antwort innerhalb ${secs} Sekunden).`, 'busy')
+        : fail(id, 'timeout', `Keine Antwort innerhalb ${secs} Sekunden.`);
+      timer = setTimeout(() => resolve(slow), checkTimeoutMs);
     });
     try {
       return await Promise.race([fn(), late]);

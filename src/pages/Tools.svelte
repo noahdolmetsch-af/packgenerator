@@ -6,7 +6,7 @@
    * (rule 13). The list can be searched and put in the own order (arrows and drag, rule 12).
    */
   import AreaIntro from '../lib/intro/AreaIntro.svelte'; // «Anleitungen überall»: the guide of this page (lib/guides.js)
-  import { Calculator, Ruler, Clock, Compass, Languages, FileText, Image, Paperclip, Coins, Wallet, ChevronRight, Workflow, Images, Film, QrCode, Route, Cog, Crosshair, ScanBarcode, Flashlight, Sparkles, ArrowUpDown, ScanEye, PersonStanding, Package } from '@lucide/svelte';
+  import { Calculator, Ruler, Clock, Compass, Languages, FileText, Image, Paperclip, Coins, Wallet, ChevronRight, Workflow, Images, Film, QrCode, Route, Cog, Crosshair, ScanBarcode, Flashlight, Sparkles, ArrowUpDown, ScanEye, PersonStanding, Package, PenLine, Lightbulb } from '@lucide/svelte';
   import VeloHead from '../lib/bikes/VeloHead.svelte';
   import SortArrows from '../lib/ui/SortArrows.svelte';
   import SortGrip from '../lib/ui/SortGrip.svelte';
@@ -37,6 +37,7 @@
   import PackPhoto from '../lib/vision/PackPhoto.svelte';
   import SitPosition from '../lib/vision/SitPosition.svelte';
   import Labels from '../lib/tools/Labels.svelte';
+  import Markup from '../lib/tools/Markup.svelte';
   import { t } from '../lib/i18n.svelte.js';
   import ToolResults from '../lib/ichideen/ToolResults.svelte'; // Einzelidee 27: the last results of the tools
   import { suggest, watchSuggest } from '../lib/clear/suggest.svelte.js'; // Einzelidee 36: «Fitting tools» can be off
@@ -45,8 +46,8 @@
 
   let { tool = '' } = $props();
   watchSuggest();
-  const ICONS = { calculator: Calculator, ruler: Ruler, clock: Clock, compass: Compass, languages: Languages, file: FileText, image: Image, paperclip: Paperclip, coins: Coins, wallet: Wallet, workflow: Workflow, images: Images, film: Film, qr: QrCode, route: Route, cog: Cog, level: Crosshair, scan: ScanBarcode, flashlight: Flashlight, scaneye: ScanEye, person: PersonStanding, package: Package };
-  const VIEWS = { calc: Calc, units: Units, zones: Zones, compass: CompassTool, phrases: Phrases, pdf: PdfTool, photo: PhotoTool, ablage: Ablage, money: Money, costs: Costs, level: Level, gears: Gears, barcode: Barcode, qr: QrMake, light: Light, convert: Convert, video: Video, map: MapMeasure, chains: Chains, packphoto: PackPhoto, sitpos: SitPosition, labels: Labels };
+  const ICONS = { calculator: Calculator, ruler: Ruler, clock: Clock, compass: Compass, languages: Languages, file: FileText, image: Image, paperclip: Paperclip, coins: Coins, wallet: Wallet, workflow: Workflow, images: Images, film: Film, qr: QrCode, route: Route, cog: Cog, level: Crosshair, scan: ScanBarcode, flashlight: Flashlight, scaneye: ScanEye, person: PersonStanding, package: Package, pen: PenLine };
+  const VIEWS = { calc: Calc, units: Units, zones: Zones, compass: CompassTool, phrases: Phrases, pdf: PdfTool, photo: PhotoTool, ablage: Ablage, money: Money, costs: Costs, level: Level, gears: Gears, barcode: Barcode, qr: QrMake, light: Light, convert: Convert, video: Video, map: MapMeasure, chains: Chains, packphoto: PackPhoto, sitpos: SitPosition, labels: Labels, markup: Markup };
   const cur = $derived(toolOf(tool));
   const ORDER_KEY = 'tools.order';
 
@@ -71,6 +72,8 @@
   {#if cur}
     {@const View = VIEWS[cur.key]}
     <VeloHead crumbs={[{ label: t('Trips|place'), href: '#/trips' }, { label: t('Toolbox'), href: TOOLS_HASH }]} title={t(cur.title)} sub={t(cur.sub)} />
+    <!-- «Wegweiser statt Katalog» (Noah 01.11.2026 «1-5a»): what is good to know, on the page itself -->
+    {#if cur.know}<p class="card tools-know" data-tool-know={cur.key}><Lightbulb size={16} aria-hidden="true" /><span><b>{t('Good to know')}</b> {t(cur.know)}</span></p>{/if}
     <div class="tools-view" data-tool={cur.key}><View /></div>
   {:else}
     <VeloHead crumbs={[{ label: t('Trips|place'), href: '#/trips' }]} title={t('Toolbox')} sub={t('Small helpers for every day and on the way, all on this device')} />
@@ -129,6 +132,23 @@
 </div>
 
 <style>
+  .tools-know {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    margin: 0 0 12px;
+    padding: 10px 14px;
+    font-size: var(--fs-small);
+    color: var(--ink-2);
+  }
+  .tools-know :global(svg) {
+    flex: none;
+    margin-top: 2px;
+    color: var(--hi);
+  }
+  .tools-know b {
+    color: var(--ink);
+  }
   .tools-view {
     display: grid;
     gap: var(--sp-4);

@@ -4,6 +4,7 @@
  * setting). Everything is a suggestion: both switches can be turned off, every key can be changed or
  * removed.
  *   snap: a copy of the data before every update (snapshots.js), default on
+ *   dl: also a backup file in the downloads folder before an update (Noah 31.10.2026 «2a»), default off (Noah 1.11.2026 «1a»: the 60 MB file and the browser question on the phone)
  *   hint: the calm line on Today when something is due (check.js), default on
  *   keys: keys that end on a date, e.g. the AI helper key: [{ id, name, until: 'YYYY-MM-DD' }]
  */
@@ -24,6 +25,7 @@ const validKey = (k) => k && typeof k === 'object' && typeof k.name === 'string'
 export function maintOf(v) {
   return {
     snap: v?.snap !== false,
+    dl: v?.dl === true,
     hint: v?.hint !== false,
     keys: Array.isArray(v?.keys) ? v.keys.filter((k) => validKey(k) && !OLD_DEFAULT(k)).map((k, i) => ({ id: String(k.id ?? `key-${i}`), name: k.name.trim(), until: k.until })) : DEFAULT_KEYS.map((k) => ({ ...k })),
   };

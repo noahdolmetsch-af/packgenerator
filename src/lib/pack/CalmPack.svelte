@@ -22,6 +22,7 @@
   import { wornClothes, tripRange, tripRain } from '../swap.js';
   import TripBike from './TripBike.svelte';
   import RouteCard from './RouteCard.svelte';
+  import { placeWords } from '../bikes/bagwords.js';
   import WeightCard from './WeightCard.svelte';
   import StagesCard from './StagesCard.svelte';
   import DoorCard from '../haustuer/DoorCard.svelte';
@@ -217,7 +218,8 @@
   const coreN = $derived(bagSteps.reduce((n, s) => n + s.entries.length, 0));
   const tasksOpen = $derived(prep?.prep?.open ?? 0);
   const coreLine = $derived([
-    coreN ? `${tn(coreN, '{n} item', '{n} items')} ${tn(bagSteps.length, 'in {n} bag', 'in {n} bags')}` : t('The list is still empty.'),
+    // UI-Test T7 (G2-08): the places counted like the bike's head («2 bags on the bike, plus Back, on you»)
+    coreN ? `${tn(coreN, '{n} item', '{n} items')}: ${placeWords(stats?.zones ?? [], { bike: bikeTrip })}` : t('The list is still empty.'),
     stats?.packG ? t('{kg} with food and water', { kg: `${stats.packMissing ? '~' : ''}${kg(stats.packG)}` }) : '',
     tasksOpen ? tn(tasksOpen, '{n} task open', '{n} tasks open') : '',
   ].filter(Boolean).join(' · '));
@@ -450,7 +452,7 @@
                 {#if !fixed}<button onclick={menu(() => show('purposes'))}>{t('Name your bags')}</button>{/if}
                 {#if hasPhoto}<button onclick={menu(actions.photo)}>{t('Setup photo')}</button>{/if}
                 <a href="#/pack/templates">{t('Templates')}</a>
-                <button onclick={() => window.print()}>{t('Print / PDF')}</button><button onclick={actions.share}>{t('Share link')}</button>
+                <button onclick={() => window.print()}>{t('Print / PDF')}</button><button onclick={actions.share}>{t('Share link')}</button><a href="#/me/ruhig/teilen?open=preview" data-share-preview>{t('Preview as the receiver sees it')}</a>
                 {#if !fixed}<button onclick={menu(() => show('ready'))}>{t('Ready check')} {readyCount}/{readyTotal}</button>
                 <!-- Paket L2 «Packliste per Foto»: tick the list from one photo of the laid-out gear -->
                 <a href={`#/me/tools/packphoto?trip=${encodeURIComponent(trip.id)}`} data-pack-photo>{t('Tick off by photo')}</a>
@@ -470,7 +472,7 @@
           </section>
         {/if}
         <div class="bag-groups blist" class:cols={!phone.matches}>
-          {#if worn.n}<WornCard {worn} {itemsById} {reasons} range={swapRange} {wardrobeHref} onswap={(entry, item) => (swapping = { entry, item })} />{/if}
+          {#if worn.n}<WornCard {worn} {itemsById} {reasons} totalG={stats?.onMeG ?? null} range={swapRange} {wardrobeHref} onswap={(entry, item) => (swapping = { entry, item })} />{/if}
           {#each groups as group (group.key)}
             {@const Icon = icon(group)}
             {@const full = litresOver(group)}

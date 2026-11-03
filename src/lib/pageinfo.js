@@ -295,6 +295,17 @@ export function infoOf(v) {
 }
 
 const list = (x) => (Array.isArray(x) ? x : []);
+
+/** The weather of the trip that runs on `today` ({ min, max, rain } from trip.wx), or null. */
+export function tripWxOn(trips = [], today) {
+  for (const tr of list(trips)) {
+    if (!tr?.startDate || tr.skipped || tr.wx?.min == null || tr.wx?.max == null) continue;
+    const end = new Date(`${tr.startDate}T00:00:00Z`);
+    end.setUTCDate(end.getUTCDate() + Math.max(1, Number(tr.days) || 1) - 1);
+    if (today >= tr.startDate && today <= end.toISOString().slice(0, 10)) return tr.wx;
+  }
+  return null;
+}
 /** The page's own tips (the user's). */
 export const ownTips = (info, page) => list(infoOf(info).own[page]).filter((x) => x && typeof x.text === 'string' && x.text.trim());
 
@@ -356,8 +367,11 @@ export function factOfDay(info, page, today, skip = null) {
  * 1 mm), the wind mostly from the south (140–230°) and gusts of 45 km/h or more. Rain (4a): 2 mm or a 60 % chance; wind: gusts from 50 km/h.
  */
 export function contextOf({ day = null, log = [], trips = [] } = {}, today) {
-  const max = typeof day?.max === 'number' ? day.max : null;
-  const min = typeof day?.min === 'number' ? day.min : null;
+  // UI-Test T8 (G2-06): on the day of a trip with its own weather (trip.wx, shown on Packen and Unterwegs),
+  // heat, cold and rain follow that weather, so a tip never says «Regen» under «trocken»
+  const wx = tripWxOn(trips, today);
+  const max = typeof wx?.max === 'number' ? wx.max : typeof day?.max === 'number' ? day.max : null;
+  const min = typeof wx?.min === 'number' ? wx.min : typeof day?.min === 'number' ? day.min : null;
   const dir = day?.windDir;
   const tomorrow = new Date(`${today}T00:00:00Z`);
   tomorrow.setUTCDate(tomorrow.getUTCDate() + 1);
@@ -370,7 +384,7 @@ export function contextOf({ day = null, log = [], trips = [] } = {}, today) {
     foehn: typeof dir === 'number' && dir >= 140 && dir <= 230 && (day?.gust ?? 0) >= 45 && (day?.rainMm ?? 0) < 1,
     sauna: list(log).some((x) => x?.day === today && /sauna/i.test(String(x.actId ?? ''))),
     long: list(trips).some((x) => soon.includes(x?.startDate) && Number(x?.route?.km) > LONG_KM),
-    rain: (day?.rainMm ?? 0) >= RAIN_MM || (day?.rainPct ?? 0) >= RAIN_PCT,
+    rain: wx ? wx.rain === 'rain' || wx.rain === 'showers' : (day?.rainMm ?? 0) >= RAIN_MM || (day?.rainPct ?? 0) >= RAIN_PCT,
     wind: (day?.gust ?? 0) >= WIND_KMH,
   };
 }

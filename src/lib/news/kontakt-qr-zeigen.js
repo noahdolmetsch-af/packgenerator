@@ -4,10 +4,10 @@ export default {
   title: 'Big and on time',
   lead: 'Show your contact card big, and decide how long it shows.',
   points: [
-    { text: '«Show big»: the QR code alone on a bright screen', href: '#/me/freunde?tab=card' },
-    { text: 'The card shows today only, a week, a month or always', href: '#/me/freunde?tab=card' },
+    { text: '«Show big»: the QR code alone on a bright screen', href: '#/me/freunde?tab=card', go: { href: '#/me/freunde?tab=card', steps: [{ sel: '.cc-qr' }] } },
+    { text: 'The card shows today only, a week, a month or always', href: '#/me/freunde?tab=card', go: { href: '#/me/freunde?tab=card', steps: [{ sel: '[data-contact-card]' }] } },
   ],
-  small: [{ box: 'new', text: '«Straight to contacts»: the phone saves you right away, also without internet' }],
+  small: [{ box: 'new', text: '«Straight to contacts»: the phone saves you right away, also without internet', go: null }],
   test: [
     'Open Me › With friends › Contact card and tap «1 week»: below it says until which day the card shows.',
     'Tap «Show big»: the code fills the screen; close it with ×.',

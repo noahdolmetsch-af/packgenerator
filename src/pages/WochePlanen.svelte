@@ -15,15 +15,19 @@
   import { titleOf, subOf, dayName, shortDate, hours, hintText, reviewLine } from '../lib/woche/words.js';
   import { ITEMS_KEY, NO_KEY, PLANNED_KEY, buildWeek, cleanItem, pruneItems, skipFor, planMonday, daysOf, awayOn, takeSuggestion } from '../lib/woche.js';
   import { homeForecast } from '../lib/home-weather.js';
+  import { prefsOf as agendaPrefs, weekItems } from '../lib/agenda.js';
   import { db } from '../lib/db.js';
   import { PLAN_KEY as TRAIN_KEY, KIND_NAMES as TRAIN_KINDS, shiftDay, copyWeek, cleanSession, prunePlan } from '../lib/training.js';
   import { actName } from '../lib/flow/ui.svelte.js';
   import { localDay } from '../lib/localday.js';
-  import { t } from '../lib/i18n.svelte.js';
+  import { t, tn } from '../lib/i18n.svelte.js';
 
   const today = localDay();
   const monday = planMonday(today);
   const week7 = daysOf(monday);
+  // UI-Test T9 (G1-10): the Google line says what is true: connected (with how many dates) or not yet
+  const calOn = $derived(!!agendaPrefs(src?.google?.prefs).calendar);
+  const calCount = $derived(calOn ? weekItems({ events: src?.google?.events ?? [], from: week7[0], to: week7.at(-1) }).length : 0);
   const q = weekQuery(today);
   const src = $derived($q);
   const actOf = $derived(new Map((src?.flowActs ?? []).map((a) => [a.id, a])));
@@ -78,6 +82,15 @@
   const takeAll = () => saveTrain([...(src?.sessions ?? []), ...proposals.filter((s) => !pausedOn(s.day)).map((s) => cleanSession({ ...s, id: '' }))]);
   const moveSession = (s) => saveTrain((src?.sessions ?? []).map((x) => (x.id === s.id ? { ...x, day: nextDay(x.day) } : x)));
   const removeSession = (s) => saveTrain((src?.sessions ?? []).filter((x) => x.id !== s.id));
+  // «Planen als verbindende Mitte» (Noah 1.11.2026 «1a»): add a session right here, in the flow; it lands in the same training plan as Aktiv › Training
+  let tform = $state(null);
+  async function addSession(ev) {
+    ev.preventDefault();
+    const s = cleanSession({ day: tform.day, kind: tform.kind, mins: Number(tform.mins), name: tform.name });
+    if (!s) return;
+    await saveTrain([...(src?.sessions ?? []), s]);
+    tform = null;
+  }
   const sessName = (s) => s.name || t(TRAIN_KINDS[s.kind] ?? 'Other|kind');
 
   /* steps 3 and 4: to-dos and bike service from the suggestions */
@@ -141,7 +154,7 @@
             <a class="btn" href="#/week/away"><Palmtree size={16} aria-hidden="true" />{t('Enter holidays')}</a>
           </div>
         {/if}
-        <p class="why sm">{t('Dates from Google Calendar come here by themselves once it is connected.')}</p>
+        <p class="why sm" data-gcal-line={calOn ? 'on' : 'off'}>{#if !calOn}{t('Dates from Google Calendar come here by themselves once it is connected.')} <a href="#/me/agenda">{t('Connect Google ›')}</a>{:else if calCount}{tn(calCount, 'From your Google Calendar: {n} date this week.', 'From your Google Calendar: {n} dates this week.')}{:else}{t('From your Google Calendar: no dates this week.')}{/if}</p>
       {:else if step === 2}
         <h2 id="wpl-h">{t('Spread the training')}</h2>
         <p class="why">
@@ -178,11 +191,22 @@
         {#each week.hints as h (h.key + (h.day ?? ''))}<p class="why hint" data-load-hint={h.key}><Info size={15} aria-hidden="true" /><span>{hintText(h)}</span></p>{/each}
         {#if reviewLine(week.review)}<p class="why sm" data-review>{reviewLine(week.review)}</p>{/if}
         <!-- Klick-Rundgang 22.10.2026: «none last week» meant the plan; rides and ticks of last week are not «none» -->
-        {#if !sessions.length && !proposals.length}<p class="none" data-train-none>{week.review?.rides ? t('No sessions planned yet. Last week you trained without a plan (see above); plan the new week in Aktiv › Training.') : t('No sessions planned and none last week. Plan them in Aktiv › Training.')}</p>{/if}
+        {#if !sessions.length && !proposals.length}<p class="none" data-train-none>{week.review?.rides ? t('No sessions planned yet. Last week you trained without a plan (see above); add one below.') : t('No sessions planned and none last week. Add one below.')}</p>{/if}
         <div class="fb">
           {#if proposals.length}<button type="button" class="btn" onclick={takeAll} data-take-all>{t('Take all')}</button>{/if}
+          {#if !tform}<button type="button" class="btn" onclick={() => (tform = { kind: 'bike', day: week7.find((d) => d >= today) ?? monday, mins: 60, name: '' })} data-add-training><Plus size={16} aria-hidden="true" />{t('Add training')}</button>{/if}
           <a class="btn" href="#/flow/training">{t('Open the training plan')}</a>
         </div>
+        {#if tform}
+          <form class="fx" onsubmit={addSession} data-plan-training>
+            <label>{t('Kind|training')}<select bind:value={tform.kind}>{#each Object.entries(TRAIN_KINDS) as [k, n] (k)}<option value={k}>{t(n)}</option>{/each}</select></label>
+            <label>{t('Day')}<select bind:value={tform.day}>{#each week7 as d (d)}<option value={d}>{dayName(d, true)}</option>{/each}</select></label>
+            <label>{t('Minutes|training')}<input type="number" min="5" max="1440" step="5" bind:value={tform.mins} required /></label>
+            <label>{t('Name (optional)')}<input type="text" bind:value={tform.name} maxlength="60" placeholder={t('e.g. Easy ride')} /></label>
+            <div class="fb"><button type="submit" class="btn">{t('Save')}</button><button type="button" class="btn" onclick={() => (tform = null)}>{t('Cancel')}</button></div>
+            <p class="why sm">{t('It also shows in Aktiv › Training.')}</p>
+          </form>
+        {/if}
       {:else if step === 3}
         <h2 id="wpl-h">{t('Spread the to-dos')}</h2>
         <p class="why">{t('To-dos without a day get a day with room.')}</p>
@@ -202,7 +226,7 @@
           {#each sugg('bike') as s (s.ref)}{@render suggRow(s)}{/each}
           {#each plannedOf('bike') as e (e.id)}<li><span class="d">{dayName(e.day)}</span><span class="tx k-bike"><b>{e.title}</b><small>{t('planned')}</small></span></li>{/each}
         </ul>
-        {#if !sugg('bike').length && !plannedOf('bike').length}<p class="none">{t('Nothing due at the bike.')}</p>{/if}
+        {#if !sugg('bike').length && !plannedOf('bike').length}<p class="none">{src?.bikeCount === 0 ? t('No bikes yet, so there is no service data either.') : t('Nothing due at the bike.')}</p>{/if}
       {/if}
 
       <div class="nav">

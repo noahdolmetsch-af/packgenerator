@@ -1,7 +1,7 @@
 // «Heute neu» A «Ein Blick» (Noah 20.10.2026 10:14 «1A 2 … 3a 4a 5b»): the ready wall of Heute, the move of a
 // stored wall and the German words. Lists come from the app source. Fictional data only.
 import { describe, it, expect } from 'vitest';
-import { READY, READY_A, READY_0155, TILE, wallOf, wallRecord, catalog, tripUp } from '../src/lib/home/tiles.js';
+import { READY, READY_A, READY_0155, TILE, wallOf, wallRecord, catalog, tripUp, OLD_QUICK, withPins } from '../src/lib/home/tiles.js';
 import { byTime } from '../src/lib/clear/tipweek.js';
 import DE from '../src/lib/i18n/de/index.js';
 
@@ -12,18 +12,20 @@ describe('«Heute neu» N2: the ready wall (Noah 20.10.2026 «5a»)', () => {
     // Noah 21.10.2026 «Körperwerte und countdown ok»: «Körperwerte» as a whole row under the two tiles on top
     // P6 «Heute ergänzen» (Noah 21.10.2026 «2b»): ME1 meditation on top, SN2l the weekly weight, TR1 the last activity
     // «Heute ruhiger» (Noah 26.10.2026 «2a», changed on purpose): «Körperwerte» left the ready wall, its values are in «Dein Körper heute»
-    const order = ['meditation', 'weighin', 'body', 'acts', 'week', 'balance', 'strava', 'trip', 'important', 'bikes'];
+    // «VO2max auf Heute» (Noah 28.10.2026 «2 a und b», changed on purpose): the VO2max tile after the last activity
+    // «Heute als Begleiter» PR 4 (Noah 28.10.2026, changed on purpose): the moment card right under the habits
+    const order = ['meditation', 'moment', 'discover', 'weighin', 'body', 'acts', 'heutecheck', 'week', 'balance', 'strava', 'vo2max', 'trip', 'important', 'bikes'];
     expect(ids(READY).slice(0, order.length)).toEqual(order);
     expect(READY.filter((x) => ['body', 'acts', 'week', 'balance', 'strava', 'trip', 'important'].includes(x.id)).every((x) => x.size === 'l')).toBe(true);
-    const small = READY.filter((x) => x.size === 's');
-    expect(small.length).toBe(8); // 4a: 8 shortcuts
-    expect(ids(READY).slice(order.length)).toEqual(ids(small));
+    // «Schnell öffnen» (Noah 01.11.2026 «5a», changed on purpose): the tile with your pins replaces the 8 shortcuts
+    expect(READY.filter((x) => x.size === 's').length).toBe(0);
+    expect(ids(READY).slice(order.length)).toEqual(['pins']);
     for (const x of READY) expect(TILE[x.id].sizes, x.id).toContain(x.size);
-    // the 8 shortcuts of A stay
-    expect(ids(READY.filter((x) => x.size === 's'))).toEqual(ids(READY_A.filter((x) => x.size === 's')));
+    // the 8 shortcuts of A are the ones the pins tile replaces
+    expect(ids(READY_A.filter((x) => x.size === 's'))).toEqual(OLD_QUICK);
   });
   it('near a trip its card moves up right under the head (meditation, weight, body, Aktiv, Körperwerte)', () => {
-    expect(ids(tripUp(READY, true)).slice(0, 5)).toEqual(['meditation', 'weighin', 'body', 'acts', 'trip']);
+    expect(ids(tripUp(READY, true)).slice(0, 5)).toEqual(['meditation', 'moment', 'discover', 'weighin', 'body']);
     expect(tripUp(READY, false)).toBe(READY);
   });
   it('3a: the cards that left Heute stay in the catalog («Add a tile»)', () => {
@@ -37,23 +39,25 @@ describe('«Heute neu» N2: the ready wall (Noah 20.10.2026 «5a»)', () => {
     expect(wallOf(old)).toEqual(READY);
     expect(wallOf({ v: 9, tiles: READY_A })).toEqual(READY);
     const mine = wallRecord([{ id: 'week', size: 'l' }, { id: 'important', size: 'l' }, { id: 'strava', size: 'w' }]);
-    expect(mine.v).toBe(13);
+    expect(mine.v).toBe(18);
     expect(ids(wallOf(mine))).toEqual(['week', 'important', 'strava']);
     // a wall of N2 (v 10) gets «Körperwerte» once, after «Aktiv heute» (else after the body, else on top); taken away it stays away
     // (and, as v < 12, the P6 tiles once: meditation and the weight on top, the last activity after the balance or the week)
-    const p6 = ['meditation', 'weighin'];
+    // «Heute als Begleiter» PR 4 (v < 15, Noah 28.10.2026): the moment card once right under the habits
+    const p6 = ['meditation', 'moment', 'discover', 'weighin']; // PR 5: «Discover» too (v < 16)
+    // «VO2max auf Heute» (v < 14, Noah 28.10.2026): the VO2max tile once after the body and Aktiv, else at the end
     // «Heute ruhiger» (v < 13, Noah 26.10.2026 «2a»): beside «Dein Körper heute» «Körperwerte» is a double and goes again
-    expect(ids(wallOf({ v: 10, tiles: [{ id: 'body', size: 'l' }, { id: 'acts', size: 'l' }, { id: 'week', size: 'l' }] }))).toEqual([...p6, 'body', 'acts', 'week', 'strava']);
-    expect(ids(wallOf({ v: 10, tiles: [{ id: 'body', size: 'l' }, { id: 'week', size: 'l' }] }))).toEqual([...p6, 'body', 'week', 'strava']);
-    expect(ids(wallOf({ v: 10, tiles: [{ id: 'week', size: 'l' }] }))).toEqual([...p6, 'vitals', 'week', 'strava']);
+    expect(ids(wallOf({ v: 10, tiles: [{ id: 'body', size: 'l' }, { id: 'acts', size: 'l' }, { id: 'week', size: 'l' }] }))).toEqual([...p6, 'body', 'acts', 'heutecheck', 'vo2max', 'week', 'strava']);
+    expect(ids(wallOf({ v: 10, tiles: [{ id: 'body', size: 'l' }, { id: 'week', size: 'l' }] }))).toEqual([...p6, 'body', 'heutecheck', 'vo2max', 'week', 'strava']);
+    expect(ids(wallOf({ v: 10, tiles: [{ id: 'week', size: 'l' }] }))).toEqual([...p6, 'vitals', 'week', 'strava', 'vo2max', 'heutecheck']);
     expect(ids(wallOf(wallRecord([{ id: 'week', size: 'l' }])))).toEqual(['week']);
     // P6 on a wall of 0.170–0.179 (v 11): a small meditation tile becomes the card on top; a last activity there stays where it is
     const v11 = { v: 11, tiles: [{ id: 'body', size: 'l' }, { id: 'balance', size: 'l' }, { id: 'meditation', size: 's' }, { id: 'bikes', size: 'long' }] };
-    expect(wallOf(v11)).toEqual([{ id: 'meditation', size: 'long' }, { id: 'weighin', size: 'long' }, { id: 'body', size: 'l' }, { id: 'balance', size: 'l' }, { id: 'strava', size: 'l' }, { id: 'bikes', size: 'long' }]);
-    expect(ids(wallOf({ v: 11, tiles: [{ id: 'strava', size: 'w' }, { id: 'body', size: 'l' }] }))).toEqual([...p6, 'strava', 'body']);
+    expect(wallOf(v11)).toEqual([{ id: 'meditation', size: 'long' }, { id: 'moment', size: 'long' }, { id: 'discover', size: 'long' }, { id: 'weighin', size: 'long' }, { id: 'body', size: 'l' }, { id: 'heutecheck', size: 'w' }, { id: 'vo2max', size: 'w' }, { id: 'balance', size: 'l' }, { id: 'strava', size: 'l' }, { id: 'bikes', size: 'long' }]);
+    expect(ids(wallOf({ v: 11, tiles: [{ id: 'strava', size: 'w' }, { id: 'body', size: 'l' }] }))).toEqual([...p6, 'strava', 'body', 'heutecheck', 'vo2max']);
   });
   it('the time of day keeps the head on top (meditation, weight, body, Aktiv)', () => {
-    for (const h of [7, 13, 19, 23]) expect(ids(byTime(READY, h)).slice(0, 4)).toEqual(['meditation', 'weighin', 'body', 'acts']);
+    for (const h of [7, 13, 19, 23]) expect(ids(byTime(READY, h)).slice(0, 6)).toEqual(['meditation', 'moment', 'discover', 'weighin', 'body', 'acts']);
   });
 });
 
@@ -64,5 +68,14 @@ describe('«Heute neu» A: German words', () => {
     expect(DE['You today']).toBe('Du heute');
     expect(DE['Your body today']).toBe('Dein Körper heute');
     for (const k of ['Active today', 'Resting pulse|body', 'Sleep score|body', 'Active zone minutes|body', 'yesterday {v}', 'Morning check: nothing open', 'Evening check: nothing open']) expect(DE[k], k).toBeTruthy();
+  });
+  it('«Schnell öffnen» (Noah 01.11.2026 «5a»): a wall of before (v < 18) swaps the 8 shortcuts for the pins tile once, where the first stood', () => {
+    const old = { v: 17, tiles: [{ id: 'week', size: 'l' }, ...OLD_QUICK.map((id) => ({ id, size: 's' })), { id: 'bikes', size: 'long' }] };
+    expect(ids(wallOf(old))).toEqual(['week', 'pins', 'bikes']);
+    // stored as v 18: left as it is, also when the person put the 8 back by hand
+    expect(ids(wallOf({ v: 18, tiles: old.tiles }))).toEqual(ids(old.tiles));
+    // a wall without any of them (made their own): nothing is added
+    expect(ids(wallOf({ v: 17, tiles: [{ id: 'week', size: 'l' }] }))).toEqual(['week']);
+    expect(withPins([{ id: 'pins', size: 'long' }, { id: 'fn:note', size: 's' }]).length).toBe(2);
   });
 });

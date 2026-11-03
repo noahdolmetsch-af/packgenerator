@@ -12,10 +12,12 @@
   import { visitTotal } from '../workshop.js';
   import Lightbox from '../ui/Lightbox.svelte';
   import { drawnOn } from '../draw/ink.js';
-  import { t } from '../i18n.svelte.js';
+  import { t, tn } from '../i18n.svelte.js';
   import { X } from '@lucide/svelte';
   import '../bikes/velo-dlg.css';
   import RefundBox from '../werkstatt/RefundBox.svelte'; // Paket B part 3: a refund on the visit
+  import ReceiptSplit from '../werkstatt/ReceiptSplit.svelte'; // Velo-Idee 71: split the receipt into jobs
+  import { assigned } from '../werkstatt/split.js';
 
   let { visit, bike, onclose } = $props();
   let dialog;
@@ -28,6 +30,8 @@
     await db.visits.update(visit.id, { photos: pics.list, inks: pics.inks });
   }
   let kmMsg = $state('');
+  let splitting = $state(false);
+  const open = $derived((visit.parts ?? []).filter((l) => !assigned(l)).length);
 
   $effect(() => {
     dialog.showModal();
@@ -93,6 +97,10 @@
       </li>
     {/each}
   </ul>
+  <p class="splitrow">
+    <button type="button" class="btn sm" onclick={() => (splitting = true)} data-visit-split>{t('Split the receipt')}</button>
+    <small>{open ? tn(open, '{n} line without a part', '{n} lines without a part') : t('Part, job and order per line')}</small>
+  </p>
   <RefundBox {visit} total={visitTotal(visit)} />
 
   <div class="foot vd-foot">
@@ -101,11 +109,26 @@
   </div>
 </dialog>
 
+{#if splitting}
+  <ReceiptSplit {visit} {bike} onclose={() => (splitting = false)} />
+{/if}
+
 {#if page != null}
   <Lightbox ondraw={drawOnPage} list={pics.list.map((src, n) => ({ src, inks: pics.inks, name: `${visit.invoice ?? visit.shop} · ${t('page {n}', { n: n + 1 })}`, sub: visit.date }))} start={page} onclose={() => (page = null)} />
 {/if}
 
 <style>
+  .splitrow {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 12px;
+    margin: 10px 0 0;
+  }
+  .splitrow small {
+    color: var(--ink-3);
+    font-size: var(--fs-small);
+  }
   h2 {
     font-size: var(--fs-section);
     margin: 4px 0 4px;

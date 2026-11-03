@@ -84,8 +84,11 @@ test('Live map on the sample race: km, stops ahead, climb, arrival, SOS, stop', 
   await context.setGeolocation(at(412));
   await expect(page.locator('[data-live-km]')).toContainText('412', { timeout: 10_000 });
   await expect(page.locator('[data-live-left]')).toContainText('592');
-  await expect(page.locator('[data-live-climb]')).toBeVisible();
   await expect(page.locator('[data-live-sheet]')).toHaveAttribute('data-live-sheet', 'peek');
+  // pulled down the sheet shows one line, the next stop; the climb comes when it is pulled up (Noah 28.10.2026)
+  await expect(page.locator('[data-live-next]')).toBeVisible();
+  if (phone(info)) await expect(page.locator('[data-live-climb]')).toBeHidden();
+  else await expect(page.locator('[data-live-climb]')).toBeAttached();
   await noSideways(page, 'riding, map');
   await page.waitForTimeout(800);
   await page.screenshot({ path: info.outputPath('live-map.png') });
@@ -102,6 +105,7 @@ test('Live map on the sample race: km, stops ahead, climb, arrival, SOS, stop', 
   // pull the sheet up (a tap on the handle: peek → half → full on the phone; on the computer «Alles» opens at the right)
   await tap(page.locator('[data-live-sheet-toggle]'), info);
   await expect(page.locator('[data-live-sheet]')).toHaveAttribute('data-live-sheet', info.project.name === 'phone' ? 'half' : 'full');
+  await expect(page.locator('[data-live-climb]')).toBeVisible();
   if (info.project.name === 'phone') await tap(page.locator('[data-live-sheet-toggle]'), info);
   await expect(page.locator('[data-live-sheet]')).toHaveAttribute('data-live-sheet', 'full');
   await expect(page.locator('[data-live-stop]')).toBeAttached();
@@ -195,6 +199,10 @@ test('Live map without a tour: the stops around you', async ({ page, context }, 
   await tap(page.locator('[data-live-start]'), info);
   await expect(page.locator('[data-live-next]')).toBeVisible();
   await expect(page.locator('[data-live-tile]')).toHaveCount(3);
+  // Noah 28.10.2026: distance (m, then km with 2 decimals), time since the start as a timer, speed
+  await expect(page.locator('[data-live-tile="done"]')).toContainText(/\d+\s*m\b/);
+  await expect(page.locator('[data-live-tile="total"] b')).toHaveText(/^\d+:\d\d$/);
+  await expect(page.locator('[data-live-tile="speed"]')).toBeVisible();
   await page.waitForTimeout(1500);
   await page.screenshot({ path: info.outputPath('live-free.png') });
   await tap(page.locator('[data-live-sheet-toggle]'), info);
@@ -282,4 +290,40 @@ test('Live map: a trip without a route starts without the old GPX, which is only
   await page.goto('./#/live');
   await expect(page.locator('[data-live-route] [data-live-route-last]')).toBeVisible();
   await expect(page.locator('[data-live-route] [data-live-route-rename]')).toHaveCount(0);
+});
+
+// Noah 28.10.2026 «nicht speichern, klar melden, kann zu testzwecken umgangen werden (trotzdem speichern)»:
+// a ride with fewer than 2 GPS points is not kept; a window says so, and «Trotzdem speichern» keeps it.
+test('Live map: a ride too short to keep says so in a window, and can be saved anyway', async ({ page, context }, info) => {
+  await openHome(page, context, info);
+  await context.route(/overpass/, (route) => route.fulfill({ json: { elements: [] } }));
+  await context.grantPermissions(['geolocation']);
+  await context.setGeolocation({ latitude: 46.95, longitude: 7.45, accuracy: 10 });
+  await page.goto('./#/live');
+  await tap(page.locator('[data-live-start]'), info);
+  // the first fix is kept: one point, then end at once
+  await page.waitForTimeout(1500);
+  await page.locator('[data-live-stop]').scrollIntoViewIfNeeded();
+  await tap(page.locator('[data-live-stop]'), info);
+  await tap(page.locator('[data-live-end-yes]'), info);
+  const ask = page.locator('[data-live-too-short-ask]');
+  await expect(ask).toBeVisible();
+  await expect(ask).toContainText(/\(1\)/);
+  await page.screenshot({ path: info.outputPath('too-short.png') });
+  await tap(ask.locator('[data-live-too-short-save]'), info);
+  await expect(ask).toBeHidden();
+  await expect(page.locator('[data-live-saved]')).toBeVisible();
+  const rides = await page.evaluate(
+    () =>
+      new Promise((resolve, reject) => {
+        const req = indexedDB.open('pack-generator');
+        req.onerror = () => reject(req.error);
+        req.onsuccess = () => {
+          const g = req.result.transaction('rides').objectStore('rides').getAll();
+          g.onsuccess = () => resolve(g.result.filter((r) => r.source === 'live').length);
+          g.onerror = () => reject(g.error);
+        };
+      }),
+  );
+  expect(rides).toBe(1);
 });

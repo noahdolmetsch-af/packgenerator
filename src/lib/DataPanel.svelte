@@ -2,14 +2,15 @@
   import { tidyData } from './tidy.js';
   import { plainError } from './clear/errors.js'; // Paket Q #127: plain words instead of technical text
   import { isLocked, unlockBackup, lockPassword } from './backupcrypt.js';
+  import { checkBackup, offsiteState } from './backupcheck.js';
   import BackupLock from './clear/BackupLock.svelte';
   import { settling } from './settled.js';
   import { blocksAfterImport } from './updates.js';
   import { liveQuery } from 'dexie';
   import { db, DATA_TABLES } from './db.js';
-  import { restoreBackup, validateBackup, countRows, downloadBackup, importImpact, shareBackup, lastChangeOf, markImported, compareStates, LAST_CHANGE, LAST_BACKUP, backupDue, syncAdvice, markSync, SYNC_KEY } from './backup.js';
+  import { restoreBackup, validateBackup, countRows, downloadBackup, importImpact, shareBackup, lastChangeOf, markImported, compareStates, LAST_CHANGE, LAST_BACKUP, OFFSITE_KEY, backupDue, syncAdvice, markSync, SYNC_KEY } from './backup.js';
   import { keepState, askKeep } from './storagekeep.js';
-  import { snapDb, takeSnapshot } from './maintenance/snapshots.js';
+  import { snapDb, takeSnapshot, undoReset } from './maintenance/snapshots.js';
   import { SHARE_BACKUP_CACHE, SHARE_BACKUP_KEY } from './sharebackup.js';
   import { phone } from './media.svelte.js';
   import { Send, ChevronRight, Bike, Star, CirclePlay, QrCode, Check, FolderOpen, ListChecks, Sparkles } from '@lucide/svelte';
@@ -18,12 +19,14 @@
   import BeforeUpdates from './maintenance/BeforeUpdates.svelte';
   import StartFresh from './maintenance/StartFresh.svelte';
   import NamesDe from './clear/NamesDe.svelte';
+  import TempoMesser from './tempo/TempoMesser.svelte';
   import SyncPanel from './sync/SyncPanel.svelte';
   import { SYNC_WISH } from './sync/nudge.js';
   import { take } from './nav.js';
   import { sync as autoSync, runSync } from './sync/auto.svelte.js';
   import { isDemoFile, startDemo, demoState } from './demo.js';
-  import { examplesLeft, exampleCount, removeExamples, undoExamples, addExamples } from './firststart.js';
+  import { examplesLeft, exampleCount, removeExamples, undoExamples, addExamples, onlyExamples } from './firststart.js';
+  import { MORE_KEY } from './blocksmore.js';
   import { offerDone } from './ui/rename.svelte.js';
   import { localDay } from './localday.js';
   import { askDelete, deleteWithUndo } from './ui/ask.js';
@@ -34,7 +37,7 @@
   import { TEMPLATES_KEY, upsert } from './templates.js';
   import { folderBackupSupported, folderStatus, chooseFolder, allowAgain, forgetFolder, onFolderWritten, tryAgain, FOLDER_FIX, FOLDER_ERROR } from './folderBackup.js';
   import { t, tn, locale } from './i18n.svelte.js';
-  import HealthCard from './health/HealthCard.svelte';
+  import MoreFold from './ui/MoreFold.svelte';
   import { health } from './health/client.svelte.js';
 
   // liveQuery re-runs the query whenever the database changes, so the counts stay current.
@@ -45,6 +48,7 @@
   });
 
   let message = $state('');
+  let undoId = $state(null); // the copy made right before the last import: «Undo import»
   // A parsed backup file waiting for "Replace" or "Merge". $state.raw keeps it a plain object:
   // the database can only store plain data, not Svelte's reactive wrappers.
   let pending = $state.raw(null);
@@ -60,6 +64,8 @@
   // Noah 19.10.2026 «1a»: Ich › «Switch on» opens this page at «Phone and computer»
   $effect(() => {
     if (take(SYNC_WISH) !== '1') return;
+    if (twoDev === 'no') syncOpen = true; // «Switch on» from Me: the folded sync opens
+    else if (twoDev === null) answerTwo('yes');
     requestAnimationFrame(() => document.querySelector('[data-section="sync"]')?.scrollIntoView({ block: 'start' }));
   });
 
@@ -142,6 +148,32 @@
     return `${warns.map((l) => WARN[l.key]?.() ?? `${t(l.name)}: ${l.line}`).join(' ')}${rest}`;
   });
   let fileEl = $state();
+
+  // «Daten und Backup aufräumen» (Noah 01.11.2026): the status line, the folds, the one question
+  const anyWarn = $derived(lights.some((l) => l.state === 'warn'));
+  let lightsOpen = $state(false);
+  let moreOpen = $state(/[?&](at=before-updates|names|mehr)\b/.test(typeof location !== 'undefined' ? location.hash : '')); // the news banner («Back to the state before the update») and the link «English names» land in «More»
+  let syncOpen = $state(false);
+  // «Do you need the app on two devices?»: asked once per device (null = not asked yet). Not in the data, so it never syncs.
+  const TWO_KEY = 'pg.twoDevices';
+  const readTwo = () => {
+    try {
+      return localStorage.getItem(TWO_KEY);
+    } catch {
+      return null;
+    }
+  };
+  let twoDev = $state(/[?&](koppeln|konto)=/.test(typeof location !== 'undefined' ? location.hash : '') ? 'yes' : readTwo()); // an invite link always shows the sync
+  function answerTwo(v) {
+    twoDev = v;
+    try {
+      v ? localStorage.setItem(TWO_KEY, v) : localStorage.removeItem(TWO_KEY);
+    } catch {
+      /* private window: the answer only lasts until the page closes */
+    }
+    syncOpen = v === 'yes';
+  }
+  // what needs you opens its fold by itself: a picked file waiting, a locked file, a message about the file
   const when = (iso) => new Date(iso).toLocaleString(locale(), { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
 
   async function pickFile(event) {
@@ -167,6 +199,41 @@
       }
     })();
   });
+
+  // «Sicherung prüfen» (Noah 02.11.2026 «1a»): a dry run. The file is only looked at: nothing is imported or changed.
+  let checked = $state.raw(null);
+  // The file picker is made on tap (no second file field on the page: the import tests find theirs by type)
+  function pickCheck() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.onchange = () => checkFile(input.files[0]);
+    input.click();
+  }
+  async function checkFile(file) {
+    if (!file) return;
+    checked = null;
+    try {
+      let data = JSON.parse(await file.text());
+      if (isLocked(data)) {
+        const mine = await lockPassword(db);
+        const open = mine ? await unlockBackup(data, mine) : null;
+        if (!open) {
+          checked = { name: file.name, lockedFile: true };
+          return;
+        }
+        data = open;
+      }
+      checked = { name: file.name, ...checkBackup(data) };
+    } catch {
+      checked = { name: file.name, ok: false, problems: [file.size ? t('This file could not be read.') : t('This file is empty.')], counts: {}, total: 0 };
+    }
+  }
+  // Second copy outside this device (a hint, never a must)
+  const offsiteQ = liveQuery(() => db.meta.get(OFFSITE_KEY));
+  const offsite = $derived(offsiteState($offsiteQ));
+  async function markOffsite() {
+    await db.meta.put({ key: OFFSITE_KEY, at: new Date().toISOString(), how: 'self' });
+  }
 
   // Paket Q #135: a locked backup asks for its password first (the one of this device is tried by itself)
   let locked = $state(null);
@@ -236,10 +303,11 @@
       // v0.34.0 (L10): newer or older than the data on this device, said before anything is replaced.
       const localAt = await lastChangeOf(db);
       // v0.137.0 (Durchklick DK7c): a device without trips and gear has nothing to lose: no «older» warning.
-      const fresh = !existing.trips?.length && !existing.items?.length;
+      // UI-Test T10 (G5-04): the examples of the first start do not count, they only look newer
+      const fresh = onlyExamples(existing, await examplesLeft(db), (await db.settings.get(MORE_KEY))?.value?.created ?? []);
       const state = fresh ? { kind: 'fresh' } : compareStates(data.lastChange ?? null, localAt, data.exportedAt ?? null);
       // P3b «Abgleich»: what changed since the last exchange, and what the app suggests
-      const sync = syncAdvice(data.lastChange ?? null, localAt, await db.meta.get(SYNC_KEY));
+      const sync = fresh ? { advice: 'fresh', hereChanged: false, thereChanged: true } : syncAdvice(data.lastChange ?? null, localAt, await db.meta.get(SYNC_KEY));
       const hasData = existing.items.length + existing.trips.length + existing.bikes.length > 0;
       pending = { data, name: file.name, counts: countRows(data), impact: importImpact(data, existing), state, sync, hasData, sure: false };
       message = '';
@@ -326,6 +394,7 @@
         }
       });
       message = tn(n, 'Spec sheet imported: {n} value.', 'Spec sheet imported: {n} values.');
+      undoId = copied || null;
       pending = null;
     } catch (err) {
       message = `${t('Import failed, nothing was changed.')} ${t(plainError(err))}`;
@@ -341,10 +410,23 @@
     same: () => t('The file has the same state as this device. Nothing to do.'),
     take: () => t('The file is newer, and nothing changed here since the last exchange: take it over with «Replace all data».'),
     keep: () => t('This device is newer. Better send a backup from here to the other device.'),
+    fresh: () => t('This device is still empty (at most the examples of the first start). Take the file over with «Replace all data».'),
     both: () => t('Both devices changed since the last exchange. «Merge» keeps both; where the same record changed, the file wins.'),
   };
   const syncQ = liveQuery(() => db.meta.get(SYNC_KEY));
   const current = typeof __APP_VERSION__ === 'string' ? __APP_VERSION__ : null;
+  async function undoImport() {
+    try {
+      await settling(async () => {
+        await undoReset(db, snapDb(), undoId);
+        await tidyData(db);
+      });
+      message = t('Import undone: the data is back as it was before.');
+    } catch (err) {
+      message = `${t('Undo failed, nothing was changed.')} ${t(plainError(err))}`;
+    }
+    undoId = null;
+  }
   async function applyImport(mode) {
     // P3b «Daten sicher» (Noah 15.10.2026, rule 5a): «Replace all data» asks a second time when there is
     // data on this device (an empty device has nothing to lose).
@@ -363,6 +445,8 @@
         await markSync(db, { theirs: pending.data.lastChange ?? pending.data.exportedAt ?? null }); // P3b: the last exchange
       });
       message = (mode === 'replace' ? t('Imported {name} (replaced all data).', { name: pending.name }) : t('Imported {name} (merged).', { name: pending.name })) + (copied ? ` ${t('The state before is kept as a copy under «Before updates».')}` : '');
+      // UI-Test T10 (G1-08): after a merge the made-up examples sit between your own things: say how they go
+      if (mode === 'merge' && exampleCount(await examplesLeft(db))) message += ` ${t('The examples of the first start are still here: «Remove the examples» below takes them away, your own data stays.')}`;
       pending = null;
     } catch (err) {
       message = `${t('Import failed, nothing was changed.')} ${t(plainError(err))}`;
@@ -387,11 +471,55 @@
      phone, a bike spec sheet, favourites, a demo file: all through the one import), and the promise.
      v0.40.0 (design check R1): one summary line "48 items · 8 trips · 3 bikes"; the other counts
      folded, without the zeros; the explanations behind "?". -->
+{#snippet syncBlock()}
+    <section class="ich-sec" aria-labelledby="sync-h" data-section="sync">
+      <div class="ich-h"><div class="dhead"><h2 id="sync-h">{t('Phone and computer')}</h2><Help label={t('Phone and computer')}><p>{t('Each device keeps its own data. A backup file brings one device up to date with the other, free and without an account. Nothing goes to a server.')}</p><p>{t('The automatic sync goes through a small free server; every entry is sealed on the device with your code before it leaves, so the server cannot read it.')}</p></Help></div></div>
+      <div class="card ich-body">
+        <!-- P8 «Automatischer Abgleich» (Noah 18.10.2026 «1b … 2b 3b»): on top; the file way stays below -->
+        <SyncPanel />
+        <p class="ich-hs synced">{$syncQ?.at ? t('Last exchange on this device: {when}.', { when: when($syncQ.at) }) : t('No exchange on this device yet.')}</p>
+      </div>
+    </section>
+{/snippet}
+
 <div class="datapanel ich-cols">
   <div class="ich-main">
-    <section class="ich-sec" aria-labelledby="lights-h">
-      <div class="ich-h"><div><h2 id="lights-h">{t('Everything in order?')}</h2><p class="ich-hs" data-head-line>{headLine}</p></div></div>
-      <ul class="card ich-list">
+    <!-- «Daten und Backup aufräumen» (Noah 01.11.2026 «1a 2a 3a 4a 5b»): one status line instead of six dots; the dots
+         stay behind «Details». Orange with its button when a backup is due. -->
+    <section class="ich-sec" aria-labelledby="lights-h" data-section="status">
+      <div class="ich-h"><div><h2 id="lights-h">{t('Everything in order?')}</h2></div></div>
+      <div class="card ich-body status" class:bad={anyWarn} data-status={anyWarn ? 'warn' : 'ok'}>
+        <p class="stline"><span class="dot {anyWarn ? 'warn' : 'ok'}" aria-hidden="true"></span><span data-head-line>{headLine}</span></p>
+        <p class="ich-help">{lastIso ? t('Last backup: {when}', { when: when(lastIso) }) : t('Last backup: never')}{#if $changeQ?.at}{' · '}{t('last change {when}', { when: when($changeQ.at) })}{/if}</p>
+        <div class="ich-acts">
+          {#if due.due}<button type="button" class="btn hi" onclick={exportFile} disabled={!!$demoQ} data-status-save>{t('Back up now')}</button>{/if}
+          <button type="button" class="btn" aria-expanded={lightsOpen} aria-controls="status-details" onclick={() => (lightsOpen = !lightsOpen)} data-status-details>{lightsOpen ? t('Hide details') : t('Details|status')}</button>
+          <button type="button" class="btn" onclick={pickCheck} data-check-file>{t('Check backup')}</button>
+        </div>
+        <p class="ich-help">{t('Check backup: looks into a backup file and tells you if it is whole. Nothing is imported or changed.')}</p>
+        {#if checked}
+          <div class="confirm" role="status" data-check-result data-check-ok={checked.ok ? '1' : '0'}>
+            {#if checked.lockedFile}
+              <p><strong>{checked.name}</strong>: {t('this backup is locked with a password.')} {t('To check it, switch on the password under «Backup with a password» first, or import it.')}</p>
+            {:else if checked.ok}
+              <p><strong>{checked.name}</strong>: {t('This backup is good.')} {t('{items}, {trips}, {bikes}.', { items: tn(checked.counts.items ?? 0, '{n} gear item', '{n} gear items'), trips: tn(checked.counts.trips ?? 0, '{n} trip', '{n} trips'), bikes: tn(checked.counts.bikes ?? 0, '{n} bike', '{n} bikes') })} {t('{n} records in all.', { n: checked.total })}</p>
+              {#if checked.lastChange || checked.exportedAt}<p class="small">{t('Saved {when}.', { when: when(checked.lastChange ?? checked.exportedAt) })}</p>{/if}
+            {:else}
+              <p><strong>{checked.name}</strong>: {t('This backup has problems:')}</p>
+              <ul class="impact">{#each checked.problems as p (p)}<li>{p}</li>{/each}</ul>
+            {/if}
+            <p class="small">{t('Nothing was changed.')}</p>
+            <div class="ich-acts end"><button type="button" class="btn" onclick={() => (checked = null)}>{t('Close|check')}</button></div>
+          </div>
+        {/if}
+        <!-- Second copy outside this device: a phone that is lost takes a backup on it along -->
+        <p class="ich-help" data-offsite={offsite.kind}>
+          {#if offsite.kind === 'ok'}{t('Second copy outside this device: {n} days ago.', { n: offsite.days })}{:else}{offsite.kind === 'old' ? t('Your second copy outside this device is {n} days old.', { n: offsite.days }) : t('No second copy outside this device yet.')}{/if}
+          {t('Send the backup file to yourself by mail, or save it in a cloud folder. Then a lost or broken phone loses nothing.')}
+          <button type="button" class="btn sm" onclick={markOffsite} data-offsite-done>{t('I did it just now')}</button>
+        </p>
+        {#if lightsOpen}
+          <ul class="ich-list" id="status-details">
         {#each lights as l (l.key)}
           <li class="ich-row ich-wrap light">
             <span class="dot {l.state}" aria-hidden="true"></span>
@@ -404,18 +532,29 @@
             {:else if l.state === 'warn' && l.key === 'sync'}<button type="button" class="btn sm" onclick={() => runSync()}>{t('Now|do')}</button>{/if}
           </li>
         {/each}
-      </ul>
+          </ul>
+        {/if}
+      </div>
     </section>
-
-    <section class="ich-sec" aria-labelledby="data-title">
-      <div class="ich-h"><div><h2 id="data-title">{t('Backup')}</h2><p class="ich-hs">{lastIso ? t('Last backup: {when}', { when: when(lastIso) }) : t('Last backup: never')}{#if $changeQ?.at}{' · '}{t('last change {when}', { when: when($changeQ.at) })}{/if}</p></div></div>
+    <section class="ich-sec" aria-labelledby="data-title" data-section="backup-file">
+      <div class="ich-h"><div><h2 id="data-title">{t('Backup file')}</h2><p class="ich-hs">{lastIso ? t('Last backup: {when}', { when: when(lastIso) }) : t('Last backup: never')}{#if $changeQ?.at}{' · '}{t('last change {when}', { when: when($changeQ.at) })}{/if}</p></div></div>
       <div class="card ich-body">
         <div class="ich-acts">
           <button type="button" class="btn hi" onclick={exportFile} disabled={!!$demoQ} title={$demoQ ? t('Off while the demo runs') : undefined}>{t('Save backup')}</button>
           <button type="button" class="btn" onclick={sendFile} disabled={!!$demoQ || sending} title={$demoQ ? t('Off while the demo runs') : undefined}><Send size={16} aria-hidden="true" />{phone.matches ? t('Send to computer') : t('Send to phone')}</button>
-          <label class="btn">{t('Import backup')}<input bind:this={fileEl} type="file" accept="application/json,.json,text/plain,.txt" onchange={pickFile} hidden /></label>
+          <label class="btn">{t('Import backup')}<input bind:this={fileEl} type="file" onchange={pickFile} hidden data-backup-file /></label>
         </div>
+        <details class="howfold" data-backup-steps>
+        <summary>{t('How it works, computer and phone')}</summary>
+        <ol class="ich-help steps">
+          <li>{t('On the device with the newest data: tap «Save backup». The file lands in «Downloads».')}</li>
+          <li>{t('Send the file to yourself (mail, chat, cloud folder).')}</li>
+          <li>{t('On the other device: save the file, then tap «Import backup» and choose it.')}</li>
+          <li>{t('Read what is added and what is replaced. «Merge» keeps everything on this device and adds the rest; you can undo it.')}</li>
+        </ol>
         <p class="ich-help">{t('Send: the backup file goes to the share sheet (mail, chat, nearby), or is downloaded. On the other device: Import backup.')}</p>
+        <p class="ich-help">{t('Phone: a file from a mail first has to be saved (in Gmail the arrow at the attachment). Then choose it under «Downloads». The picker shows all files; the app checks itself whether it is a backup.')}</p>
+        </details>
 
         {#if $demoQ}<p class="small">{t('A demo is running: backups are off until you end it (yellow bar on top).')}</p>{/if}
 
@@ -490,7 +629,7 @@
             </p>
             <!-- v0.34.0 (L10): is the file newer or older than this device? -->
             {#if pending.state.kind === 'fresh'}
-              <p class="state"><i class="badge">{t('New here')}</i> {t('This device has no trips and no gear yet, so nothing is lost.')}</p>
+              <p class="state"><i class="badge">{t('New here')}</i> {t('This device has nothing of your own yet (at most the examples of the first start), so nothing is lost.')}</p>
             {:else if pending.state.kind !== 'unknown'}
               <p class="state"><i class="badge {pending.state.kind}">{pending.state.kind === 'newer' ? t('Newer') : pending.state.kind === 'older' ? t('Older') : t('Same state')}</i>
                 {pending.state.kind === 'newer' ? t('This file is newer than the data on this device (file {file}, this device {local}).', { file: when(pending.state.file), local: when(pending.state.local) }) : pending.state.kind === 'older' ? t('This file is older than the data on this device (file {file}, this device {local}). Replace would put the older state here.', { file: when(pending.state.file), local: when(pending.state.local) }) : t('This file has the same state as this device ({file}).', { file: when(pending.state.file) })}</p>
@@ -518,8 +657,8 @@
             {:else}
               <div class="ich-acts end">
                 <button type="button" class="btn" class:hi={pending.sync.advice === 'keep' || pending.sync.advice === 'same'} onclick={() => (pending = null)}>{t('Cancel')}</button>
-                <button type="button" class="btn" class:hi={pending.sync.advice === 'both'} onclick={() => applyImport('merge')}>{t('Merge')}</button>
-                <button type="button" class="btn" class:hi={!pending.sync.advice || pending.sync.advice === 'take'} onclick={() => applyImport('replace')}>{t('Replace all data')}</button>
+                <button type="button" class="btn" class:hi={pending.sync.advice === 'both' || (pending.hasData && !pending.sync.advice)} onclick={() => applyImport('merge')}>{t('Merge')}</button>
+                <button type="button" class="btn" class:hi={(!pending.sync.advice && !pending.hasData) || pending.sync.advice === 'take' || pending.sync.advice === 'fresh'} onclick={() => applyImport('replace')}>{t('Replace all data')}</button>
               </div>
             {/if}
             <p class="small">{t('Replace: the file becomes your data. Merge: records from the file are added or overwrite the same ID.')}{pending.hasData ? ` ${t('Before either, the app keeps a copy of the data now.')}` : ''}</p>
@@ -527,34 +666,12 @@
         {/if}
 
         {#if message}<p class="msg" role="status">{message}</p>{/if}
+        {#if undoId}<div class="ich-acts"><button type="button" class="btn" onclick={undoImport} data-undo-import>{t('Undo import')}</button></div>{/if}
       </div>
     </section>
-
+    <MoreFold id="more" title={t('More')} sub={t('Password, folder, copies before updates, other data, start fresh')} bind:open={moreOpen}>
     <BackupLock />
-
-    <!-- P3b «Abgleich Handy–Computer» (Noah 15.10.2026 «1a»): free, no server. The newer device sends its
-         backup file, the other one opens it; the app says which is newer and suggests what to do. -->
-    <section class="ich-sec" aria-labelledby="sync-h" data-section="sync">
-      <div class="ich-h"><div class="dhead"><h2 id="sync-h">{t('Phone and computer')}</h2><Help label={t('Phone and computer')}><p>{t('Each device keeps its own data. A backup file brings one device up to date with the other, free and without an account. Nothing goes to a server.')}</p><p>{t('The automatic sync goes through a small free server; every entry is sealed on the device with your code before it leaves, so the server cannot read it.')}</p></Help></div></div>
-      <div class="card ich-body">
-        <!-- P8 «Automatischer Abgleich» (Noah 18.10.2026 «1b … 2b 3b»): on top; the file way stays below -->
-        <SyncPanel />
-        <p class="ich-hs synced">{$syncQ?.at ? t('Last exchange on this device: {when}.', { when: when($syncQ.at) }) : t('No exchange on this device yet.')}</p>
-        <ol class="steps">
-          <li>{t('On the device with the newer state: «{send}».', { send: phone.matches ? t('Send to computer') : t('Send to phone') })}</li>
-          <li>{t('On the other device: tap the file › Share › Pack Generator, or «Open backup» here.')}</li>
-          <li>{t('The app says which state is newer and suggests what to do. A copy of the data before is always kept.')}</li>
-        </ol>
-        <div class="ich-acts">
-          <button type="button" class="btn" onclick={() => fileEl?.click()}><FolderOpen size={16} aria-hidden="true" />{t('Open backup')}</button>
-        </div>
-        {#if folderBackupSupported}<p class="ich-help">{t('Tip: with «Auto-backup to a folder» in a Drive folder, the newest file is always there (pack-generator-latest.json); open it on the phone.')}</p>{/if}
-      </div>
-    </section>
-
-    <!-- «App-Wartung» BF4 (Noah 13.10.2026): the copies made before the last updates -->
     <BeforeUpdates />
-
     {#if folderBackupSupported}
       <section class="ich-sec" aria-labelledby="fold-h">
         <div class="ich-h"><div class="dhead"><h2 id="fold-h">{t('Auto-backup to a folder')}</h2>{#if folder.state === 'off'}<Help label={t('Auto-backup to a folder')}><p>{t('Pick a folder (for example one that syncs to the cloud). After every change the app writes the newest backup there, plus one file per day.')}</p></Help>{/if}</div></div>
@@ -590,11 +707,45 @@
         </div>
       </section>
     {/if}
+    <section class="ich-sec" aria-labelledby="od-h">
+      <div class="ich-h"><div><h2 id="od-h">{t('Other data')}</h2></div></div>
+      <ul class="card ich-list">
+        <li><a class="ich-row" href="#/me/phone"><span class="ich-ib"><QrCode size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t('To the phone')}</b><small>{t('Open the app on the phone with a code')}</small></span><ChevronRight class="ich-chev" size={18} aria-hidden="true" /></a></li>
+        <!-- the same import as «Import backup»: the app knows the kind of file by its content -->
+        <!-- Paket Q #137: «Stimmt das noch?» any time (it also comes by itself once a year) -->
+        <li><a class="ich-row" href="#/me/data?yearcheck" data-row="yearcheck"><span class="ich-ib"><ListChecks size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t('Still right?')}</b><small>{t('Weight, home place, name and papers: check once a year')}</small></span><ChevronRight class="ich-chev" size={18} aria-hidden="true" /></a></li>
+        <li><button type="button" class="ich-row" onclick={() => fileEl?.click()}><span class="ich-ib"><Bike size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t('Bike spec sheet')}</b><small>{t('Fit and geometry from a file')}</small></span><ChevronRight class="ich-chev" size={18} aria-hidden="true" /></button></li>
+        <li><button type="button" class="ich-row" onclick={() => fileEl?.click()}><span class="ich-ib"><Star size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t('Favourites from a list')}</b><small>{t('Stars and a template from a list')}</small></span><ChevronRight class="ich-chev" size={18} aria-hidden="true" /></button></li>
+        <li><button type="button" class="ich-row" onclick={() => fileEl?.click()} data-row="demo-file"><span class="ich-ib"><CirclePlay size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t('Demo from a file')}</b><small>{t('The yellow bar on top brings your data back')}</small></span><ChevronRight class="ich-chev" size={18} aria-hidden="true" /></button></li>
+        {#if exampleN}<li><button type="button" class="ich-row" onclick={dropExamples} data-row="examples"><span class="ich-ib"><Sparkles size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t('Remove the examples')}</b><small>{t('The made-up trips, bike and gear from the first start')}</small></span><ChevronRight class="ich-chev" size={18} aria-hidden="true" /></button></li>
+        {:else if $examplesQ}<li><button type="button" class="ich-row" onclick={getExamples} disabled={getting || !!$demoQ} data-row="get-examples"><span class="ich-ib"><Sparkles size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t('Get the examples')}</b><small>{t('Two made-up trips, a bike and gear to try things out; your own data stays')}</small></span><ChevronRight class="ich-chev" size={18} aria-hidden="true" /></button></li>{/if}
+      </ul>
+    </section>
+    <NamesDe />
+    <StartFresh />
+    </MoreFold>
+    <!-- Idea 1 (Noah 01.11.2026): one question, once. Yes shows the sync, No folds it. Per device, not in the data. -->
+    {#if twoDev === null && !autoSync.on}
+      <section class="ich-sec" aria-labelledby="two-h" data-section="two-devices">
+        <div class="ich-h"><div><h2 id="two-h">{t('Do you need the app on two devices?')}</h2><p class="ich-hs">{t('Yes shows the sync between phone and computer. No folds it away; you can still open it any time.')}</p></div></div>
+        <div class="card ich-body"><div class="ich-acts">
+          <button type="button" class="btn hi" onclick={() => answerTwo('yes')} data-two="yes">{t('Yes, on two devices')}</button>
+          <button type="button" class="btn" onclick={() => answerTwo('no')} data-two="no">{t('No, only here')}</button>
+        </div></div>
+      </section>
+    {:else if twoDev === 'no' && !autoSync.on}
+      <MoreFold id="sync" title={t('Work on two devices')} sub={t('Phone and computer, sync')} bind:open={syncOpen}>
+        {@render syncBlock()}
+        <div class="ich-acts"><button type="button" class="btn sm" onclick={() => answerTwo(null)}>{t('Ask me again')}</button></div>
+      </MoreFold>
+    {:else}
+      {@render syncBlock()}
+    {/if}
+    <!-- Idea 4a: Fitbit has its own page (Ich › Fitbit) -->
+    <a class="card ich-row fitrow" href="#/me/fitbit" data-row="fitbit-page"><span class="ich-m"><b>{t('Fitbit and health')}</b><small>{t('Moved to its own page: Me › Fitbit')}</small></span><ChevronRight class="ich-chev" size={18} aria-hidden="true" /></a>
   </div>
 
   <div class="ich-side">
-    <!-- Fitbit über Google (mockup G2): how current each value is, fetch, choose values, disconnect -->
-    <HealthCard />
     <section class="ich-sec" aria-labelledby="yd-h">
       <div class="ich-h"><div class="dhead"><h2 id="yd-h">{t('Your data')}</h2><Help label={t('Your data')}><p>{t('Everything is stored in this browser on this device. Use a backup file to move it to your other device.')}</p></Help></div></div>
       {#if $counts}
@@ -611,31 +762,19 @@
         </div>
       {/if}
     </section>
-
-    <section class="ich-sec" aria-labelledby="od-h">
-      <div class="ich-h"><div><h2 id="od-h">{t('Other data')}</h2></div></div>
-      <ul class="card ich-list">
-        <li><a class="ich-row" href="#/me/phone"><span class="ich-ib"><QrCode size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t('To the phone')}</b><small>{t('Open the app on the phone with a code')}</small></span><ChevronRight class="ich-chev" size={18} aria-hidden="true" /></a></li>
-        <!-- the same import as «Import backup»: the app knows the kind of file by its content -->
-        <!-- Paket Q #137: «Stimmt das noch?» any time (it also comes by itself once a year) -->
-        <li><a class="ich-row" href="#/me/data?yearcheck" data-row="yearcheck"><span class="ich-ib"><ListChecks size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t('Still right?')}</b><small>{t('Weight, home place, name and papers: check once a year')}</small></span><ChevronRight class="ich-chev" size={18} aria-hidden="true" /></a></li>
-        <li><button type="button" class="ich-row" onclick={() => fileEl?.click()}><span class="ich-ib"><Bike size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t('Bike spec sheet')}</b><small>{t('Fit and geometry from a file')}</small></span><ChevronRight class="ich-chev" size={18} aria-hidden="true" /></button></li>
-        <li><button type="button" class="ich-row" onclick={() => fileEl?.click()}><span class="ich-ib"><Star size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t('Favourites from a list')}</b><small>{t('Stars and a template from a list')}</small></span><ChevronRight class="ich-chev" size={18} aria-hidden="true" /></button></li>
-        <li><button type="button" class="ich-row" onclick={() => fileEl?.click()} data-row="demo-file"><span class="ich-ib"><CirclePlay size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t('Demo from a file')}</b><small>{t('The yellow bar on top brings your data back')}</small></span><ChevronRight class="ich-chev" size={18} aria-hidden="true" /></button></li>
-        {#if exampleN}<li><button type="button" class="ich-row" onclick={dropExamples} data-row="examples"><span class="ich-ib"><Sparkles size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t('Remove the examples')}</b><small>{t('The made-up trips, bike and gear from the first start')}</small></span><ChevronRight class="ich-chev" size={18} aria-hidden="true" /></button></li>
-        {:else if $examplesQ}<li><button type="button" class="ich-row" onclick={getExamples} disabled={getting || !!$demoQ} data-row="get-examples"><span class="ich-ib"><Sparkles size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t('Get the examples')}</b><small>{t('Two made-up trips, a bike and gear to try things out; your own data stays')}</small></span><ChevronRight class="ich-chev" size={18} aria-hidden="true" /></button></li>{/if}
-      </ul>
-    </section>
-    <!-- «Englische Namen auf Deutsch» (Noah 21.10.2026 «1a»): only while there are English names to suggest -->
-    <NamesDe />
-    <!-- Paket H (Noah 19.10.2026 «1a … auf null setzen und so frisch beginnen»): delete all and start from zero.
-         Impeccable P6: its own last section «Delete everything», away from the backup buttons -->
-    <StartFresh />
+    <TempoMesser />
     <p class="ich-fine"><Check size={16} aria-hidden="true" /><span>{t('Nothing leaves the device unless you send a backup yourself.')}</span></p>
   </div>
 </div>
 
 <style>
+  .howfold summary {
+    cursor: pointer;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    font-weight: 600;
+  }
   .light {
     min-height: 56px;
   }
@@ -816,18 +955,26 @@
   .synced {
     margin: 0 0 8px;
   }
-  .steps {
-    margin: 0 0 12px;
-    padding-left: 20px;
-    color: var(--ink-2);
-    font-size: var(--fs-small);
-  }
-  .steps li + li {
-    margin-top: 4px;
-  }
   .msg {
     margin: 12px 0 0;
     font-weight: 600;
     color: var(--ink);
+  }
+  /* «Daten und Backup aufräumen»: the one status line; orange while something is due */
+  .stline {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0 0 6px;
+    font-weight: 600;
+  }
+  .status.bad {
+    border-color: var(--warn);
+  }
+  .fitrow {
+    margin: 0 0 var(--gap, 14px);
+    min-height: 56px;
+    text-decoration: none;
+    color: inherit;
   }
 </style>

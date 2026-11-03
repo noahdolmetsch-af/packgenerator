@@ -11,7 +11,7 @@
    * shows only while a link is switched off (LinksOff).
    */
   import { t } from '../lib/i18n.svelte.js';
-  import { theme, FONTS, PALETTES, MODES, SCALE_MIN, SCALE_MAX, SCALE_STEP, DEFAULT_SCALE, setFont, setPalette, setScale, setDense, setMode } from '../lib/theme.svelte.js';
+  import { theme, FONTS, PALETTES, MODES, SCALE_MIN, SCALE_MAX, SCALE_STEP, SIZE_PRESETS, DEFAULT_SCALE, setFont, setPalette, setScale, setDense, setMode, MOTIONS, setMotion } from '../lib/theme.svelte.js';
   import PageHead from '../lib/ui/PageHead.svelte';
   import QuickLinks from '../lib/ui/QuickLinks.svelte';
   import LinksOff from '../lib/sk/LinksOff.svelte'; // SK: switched-off outside links come back here
@@ -92,6 +92,11 @@
         <p class="note">{t('Text, tiles and buttons together, everywhere in the app. Each device keeps its own size.')}</p>
         <div class="scale">
           <p class="oplbl"><b id="look-scale">{t('Size|scale')}</b><output for="look-scale-in" data-scale-shown>{shown} %</output></p>
+          <div class="presets" role="group" aria-label={t('Quick sizes')} data-size-presets>
+            {#each SIZE_PRESETS as p (p.key)}
+              <button type="button" class="pre" aria-pressed={theme.scale === p.n} data-size={p.key} onclick={() => commit(p.n)}>{p.key === 'small' ? t('Small|size') : p.key === 'normal' ? t('Normal|size') : t('Large|size')}</button>
+            {/each}
+          </div>
           <div class="scrow">
             <button type="button" class="scb" aria-label={t('Smaller')} disabled={theme.scale <= SCALE_MIN} onclick={() => commit(theme.scale - SCALE_STEP)}><Minus size={18} aria-hidden="true" /></button>
             <input id="look-scale-in" type="range" aria-labelledby="look-scale" aria-valuetext="{shown} %" min={SCALE_MIN} max={SCALE_MAX} step={SCALE_STEP} value={shown} oninput={(e) => (draft = +e.currentTarget.value)} onchange={(e) => commit(+e.currentTarget.value)} />
@@ -125,6 +130,11 @@
           <!-- Paket K #285 «Handschuh-Modus» (Noah 19.10.2026 «4a und kann manuell geändert werden») -->
           <p class="oplbl"><b id="look-glove">{t('Glove mode')}</b></p>
           <Seg labelledby="look-glove" value={glove.mode} options={GLOVE_MODES.map((g) => ({ key: g.key, name: t(g.name) }))} onchange={setGlove} />
+        </div>
+        <div class="startrow" data-motion-set>
+          <!-- E8 «Schalter Bewegung» (Noah 27.10.2026 «1a 2a 3a 4a 5a»): how much the app moves -->
+          <p class="oplbl"><b id="look-motion">{t('Motion')}</b><small>{t('Full: everything glides, big moments with confetti. Calm: small movements only. Off: nothing moves.')}</small></p>
+          <Seg labelledby="look-motion" value={theme.motion} options={MOTIONS.map((m) => ({ key: m.key, name: t(m.name) }))} onchange={setMotion} />
         </div>
         <ul class="ops">
           {#each OPS as o (o.key)}
@@ -303,6 +313,25 @@
   .scale output {
     font-weight: 600;
     font-variant-numeric: tabular-nums;
+  }
+  .presets {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--sp-2);
+  }
+  .pre {
+    min-height: 44px;
+    border: 1px solid var(--card-line);
+    border-radius: var(--r-md, 12px);
+    background: var(--card);
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+  }
+  .pre[aria-pressed='true'] {
+    border-color: var(--brand);
+    background: color-mix(in srgb, var(--brand) 12%, var(--card));
+    font-weight: 600;
   }
   .scrow {
     display: flex;

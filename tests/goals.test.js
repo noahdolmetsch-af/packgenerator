@@ -7,12 +7,13 @@ const keys = (l) => l.map((g) => g.key);
 const on = (l) => l.filter((g) => g.on).map((g) => g.key);
 
 describe('goal chips', () => {
-  it('the ready chips: the countdown, ride today, plan a trip, work on the bike, plan the week', () => {
-    expect(on(goalsOf(null))).toEqual(['count', 'ride', 'trip', 'care', 'week']);
+  it('the ready chips: the countdown and «Ride today» are on (the Wächter heimat wants every function on its home page); the other chips are one switch away', () => {
+    expect(on(goalsOf(null))).toEqual(['count', 'ride']);
+    expect(keys(goalsOf(null))).toEqual(['count', 'ride', 'trip', 'care', 'week', 'diary']);
     expect(keys(goalsOf(undefined))).toEqual(keys(GOALS));
   });
   it('moved and switched off they stay so; unknown keys go, a later chip starts as it comes, in its ready place', () => {
-    let l = goalsOf(null);
+    let l = goalsOf(null).map((g) => ({ ...g, on: g.key !== 'diary' }));
     l = moveGoal(l, 4, 1);
     l = toggleGoal(l, 'trip');
     l = toggleGoal(l, 'diary');

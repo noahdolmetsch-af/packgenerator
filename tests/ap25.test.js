@@ -1,5 +1,6 @@
 // v0.28.0 (AP25): templates learn from experience, traceably; first aid (v0.72.0: on every trip, small or full); tools always.
 // Fictional data only.
+import './setup/de.js'; // this test needs the German texts
 import 'fake-indexeddb/auto';
 import { describe, it, expect, afterEach } from 'vitest';
 import { buildBikeTrip } from '../src/lib/dayride.js';

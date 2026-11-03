@@ -21,9 +21,12 @@
   import { homeTrips } from '../../lib/home/heute.js';
   import { rideTimeS } from '../../lib/review/fmt.js';
   import { PLAN_KEY, planOf, mondayOf, shiftDay, isoWeek, hmm, typeKey } from '../../lib/training.js';
-  import { SLEEP_Q, MOOD_Q, weekParam, weekHref, weekFive, weekStrip, weekNotes, weekHighs, weekAhead, diffText, hasAnything, summaryText } from '../../lib/weekreview.js';
+  import { SLEEP_Q, MOOD_Q, weekParam, weekHref, weekSums, weekEnd, weekFive, weekStrip, weekNotes, weekHighs, weekAhead, diffText, hasAnything, summaryText } from '../../lib/weekreview.js';
   import { localDay } from '../../lib/localday.js';
   import WeekForm from '../../lib/flow/form/WeekForm.svelte';
+  import WeekMore from '../../lib/flow/WeekMore.svelte';
+  import WeekOlder from '../../lib/flow/WeekOlder.svelte';
+  import WeekNote from '../../lib/flow/WeekNote.svelte';
   import GoalCheck from '../../lib/compass/GoalCheck.svelte'; // Paket N #1047: «Wie läuft's?» for your goals, this week only
   import { t, tn, num, locale } from '../../lib/i18n.svelte.js';
   import { stravaName } from '../../lib/stravanames.js';
@@ -56,10 +59,11 @@
 
   const any = $derived(data ? hasAnything(data, monday) : false);
   const five = $derived(data ? weekFive(data, monday, today) : []);
+  const sums = $derived(data ? weekSums(data, monday, weekEnd(monday, today)) : { noTime: 0 });
   const strip = $derived(data ? weekStrip(data, monday, today) : []);
   const notes = $derived(data ? weekNotes(data, monday, today, zones.bounds) : []);
   const highs = $derived(data ? weekHighs(data.acts, monday) : null);
-  const ahead = $derived(data ? weekAhead(data.acts, data.sessions, monday) : null);
+  const ahead = $derived(data ? weekAhead(data.acts, data.sessions, monday, today) : null);
   const hasSleep = $derived(strip.some((d) => d.sleep != null));
   const hasMood = $derived(strip.some((d) => d.mood != null));
 
@@ -89,6 +93,9 @@
     return '';
   }
 
+  /* the course behind a sentence (Noah 02.11.2026 «1a») */
+  const NOTE_COURSE = (k) => (k.startsWith('sleep') ? 'sleepFelt' : k === 'streak' ? 'streak' : k.startsWith('hours') ? 'hours' : k.startsWith('base') ? 'zones' : null);
+
   /* W4 */
   const actName = (a) => stravaName(a.name) || t(typeKey(a.type));
   const BEST = { km: 'Longest distance', hm: 'Most climbing', time: 'Longest time', w20: 'Best 20 minutes' };
@@ -97,7 +104,7 @@
 
   /* W5 */
   const aheadText = $derived(
-    !ahead ? '' : ahead.key === 'calmer' ? t('The load rose three weeks in a row. Next week could be a calmer one.') : ahead.key === 'back' ? t('A quieter week lies behind you. Next week can bring your usual rhythm again, about {h} h.', { h: hmm(ahead.usualSecs) }) : t('Keep your rhythm: about {h} h, like this week.', { h: hmm(ahead.secs) }),
+    !ahead ? '' : ahead.key === 'calmer' ? t('The load rose three weeks in a row. Next week could be a calmer one.') : ahead.key === 'running' ? t('This week is still running. Your usual week has about {h} h.', { h: hmm(ahead.usualSecs) }) : ahead.key === 'back' ? t('A quieter week lies behind you. Next week can bring your usual rhythm again, about {h} h.', { h: hmm(ahead.usualSecs) }) : t('Keep your rhythm: about {h} h, like this week.', { h: hmm(ahead.secs) }),
   );
 
   /* W6: only with the KI-Helfer switched on; shown first, copied only on a tap, never sent by itself */
@@ -147,11 +154,14 @@
           </li>
         {/each}
       </ul>
-      <p class="cap">{t('Change against the week before. Hours, km and Hm from Strava.')}</p>
+      <p class="cap">{t('Change against the same days of the week before. Hours: Strava plus the minutes you noted in Aktiv; km and Hm from Strava.')}{#if sums.noTime}{' '}{t('{n} Aktiv sessions have no minutes noted.', { n: sums.noTime })}{/if}</p>
     </section>
 
     <!-- «Form und Erholung» (Noah 20.10.2026): fitness and form at the end of the week -->
     <WeekForm end={running ? today : sunday} />
+
+    <!-- «Mehr Daten» (Noah 01.11.2026 «3c»): body, zones, bikes, weather and appointments of the week -->
+    <WeekMore {monday} upto={running ? today : sunday} {today} />
 
     <section class="card wcard" data-wr="strip" aria-labelledby="wr-strip">
       <h2 id="wr-strip">{t('Week strip')}</h2>
@@ -160,8 +170,8 @@
           <li class:fut={d.future} class:now={d.day === today} data-strip-day={d.day} aria-label={dayLabel(d)}>
             <span class="sd">{fmt(d.day, { weekday: 'short' }).replace('.', '')}</span>
             <span class="cell" aria-hidden="true">{#each d.kinds as k (k)}<i class="k-{k}"></i>{/each}</span>
-            {#if hasSleep}<span class="sv num" aria-hidden="true">{d.sleep != null ? num(d.sleep) : '·'}</span>{/if}
-            {#if hasMood}<span class="sv num" aria-hidden="true">{d.mood != null ? num(d.mood) : '·'}</span>{/if}
+            {#if hasSleep}<span class="sv num" aria-hidden="true">{d.sleep != null ? num(d.sleep) : '–'}</span>{/if}
+            {#if hasMood}<span class="sv num" aria-hidden="true">{d.mood != null ? num(d.mood) : '–'}</span>{/if}
           </li>
         {/each}
       </ol>
@@ -171,16 +181,21 @@
         <span><i class="dot k-mind"></i>{t('Meditation')}</span>
         <span><i class="dot k-none"></i>{t('nothing|strip')}</span>
         {#if hasSleep}<span><Moon size={14} aria-hidden="true" />{t('first line: sleep 1–10')}</span>{/if}
+        {#if hasSleep || hasMood}<span>{t('– = no answer that day')}</span>{/if}
         {#if hasMood}<span><Smile size={14} aria-hidden="true" />{hasSleep ? t('second line: mood 1–10') : t('line: mood 1–10')}</span>{/if}
       </p>
     </section>
+
+    <WeekOlder {data} {monday} {today} />
+
+    <WeekNote {monday} />
 
     <div class="two">
       {#if notes.length}
         <section class="card wcard" data-wr="notes" aria-labelledby="wr-notes">
           <h2 id="wr-notes">{t('Went well · missing')}</h2>
           <ul class="notes">
-            {#each notes as n (n.key)}<li data-note={n.key}>{noteText(n)}</li>{/each}
+            {#each notes as n (n.key)}<li data-note={n.key}>{noteText(n)}{#if NOTE_COURSE(n.key)}{' '}<a class="tp-link" href="#/flow/review/tile?k={NOTE_COURSE(n.key)}&w={monday}" data-note-detail={n.key}>{t('Course and all numbers')}</a>{/if}</li>{/each}
           </ul>
         </section>
       {/if}

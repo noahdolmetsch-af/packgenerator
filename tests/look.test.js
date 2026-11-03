@@ -1,5 +1,6 @@
 // v0.97.0 Design-Refresh R1 «Darstellung» (G1 neu, Noah 11.10 23:10; 12.10 «1a 2a»): font, colour
 // world, text size and light or dark under Ich › Darstellung, only on this device.
+import './setup/de.js'; // this test needs the German texts
 import { describe, it, expect, afterEach } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { lang, t } from '../src/lib/i18n.svelte.js';
@@ -13,7 +14,7 @@ afterEach(() => {
 });
 
 const css = readFileSync(new URL('../src/app.css', import.meta.url), 'utf8');
-const main = readFileSync(new URL('../src/main.js', import.meta.url), 'utf8');
+const main = readFileSync(new URL('../src/start.js', import.meta.url), 'utf8');
 
 describe('the choices', () => {
   it('Salbei, Inter and 100 % by default; an unknown stored value gives the default', () => {

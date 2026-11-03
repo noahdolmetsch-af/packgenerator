@@ -80,15 +80,15 @@ test('E5, E6: the day ride takes the bike of the last trip; every day ride is li
   expect(made).toHaveLength(1);
   expect(made[0].bikeId).toBe(BIKE_B.id);
   const title = made[0].title;
-  expect(title).toMatch(/^\d{12}$/); // WS2: the time stamp, as the Quick start on Today
+  expect(title).toMatch(/^Ausfahrt \S+ \d{1,2}\. \S+$/); // as the Quick start on Today: «Ausfahrt Mi 28. Okt.» (Noah 28.10.2026 «2a»)
 
   // A second day ride: a trip of its own, with a name of its own.
   await dayRideFromToday(page);
   made = (await table(page, 'trips')).filter((x) => !x.id.startsWith('gtp-'));
   expect(made).toHaveLength(2);
-  // the same minute gives « (2)», the next minute a stamp of its own: two names either way
+  // the same day gives « (2)»
   const second = made.map((x) => x.title).find((x) => x !== title);
-  expect(second).toMatch(/^\d{12}( \(2\))?$/);
+  expect(second).toBe(`${title} (2)`);
 
   // Today lists both: v0.46.0 the trip card with its "+N more trips" list (In progress).
   await page.goto('./#/');

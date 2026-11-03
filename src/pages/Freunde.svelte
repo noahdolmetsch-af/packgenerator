@@ -111,6 +111,9 @@
 
   <p class="fr-intro">{t('Friends add their part as their own entry, with their name and the day; nothing of yours is changed. Everything goes as a link or a small file that you send yourself, only to whom you choose.')}</p>
 
+  <!-- Mini-Tools (Noah 28.10.2026 «2a»): their own page, reached from here too -->
+  <p class="fr-intro"><a href="#/me/mini" data-fr-mini>{t('Find a date with others: Mini tools')} ›</a></p>
+
   <nav class="fr-tabs" aria-label={t('With friends')}>
     {#each TABS as x (x.key)}
       {@const Icon = x.icon}
@@ -150,3 +153,12 @@
 
   <p class="fr-fine"><BookOpen size={14} aria-hidden="true" /> {t('Signing in with Google for friends comes later; all of this works already without it.')}</p>
 </div>
+
+<style>
+  /* 44 px tap area for the stand-alone link, the picture stays the same */
+  .fr-intro a[data-fr-mini] {
+    display: inline-block;
+    padding-block: 13px;
+    margin-block: -13px;
+  }
+</style>

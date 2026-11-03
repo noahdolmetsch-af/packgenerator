@@ -25,7 +25,7 @@
    */
   import { untrack, tick } from 'svelte';
   import { liveQuery } from 'dexie';
-  import { CloudRain, Route, Play, Square, Crosshair, MapPin, Navigation, Mountain, Clock, Settings, BatteryMedium, CloudLightning, TriangleAlert, RefreshCw, Utensils, Moon, Flag, LifeBuoy, Ellipsis, ChevronLeft, ChevronRight, Minimize2, Maximize2, SlidersHorizontal, Check, X, Layers, Camera, WifiOff } from '@lucide/svelte';
+  import { CloudRain, Route, Play, Square, Crosshair, MapPin, Navigation, Mountain, Clock, Settings, BatteryMedium, CloudLightning, TriangleAlert, RefreshCw, Utensils, ChevronDown, Moon, Flag, LifeBuoy, Ellipsis, ChevronLeft, ChevronRight, Minimize2, Maximize2, SlidersHorizontal, Check, X, Layers, Camera, WifiOff, ClipboardList, Send, Droplet } from '@lucide/svelte';
   import KindIcon from '../lib/map/KindIcon.svelte';
   import { DURING_RIDE } from '../lib/live/during.js';
   import { FEATURES } from '../lib/features.js';
@@ -37,7 +37,8 @@
   import PoiDetail from '../lib/map/PoiDetail.svelte';
   import WxTimeline from '../lib/map/WxTimeline.svelte';
   import LiveRouteBox from '../lib/live/LiveRouteBox.svelte';
-  import { liveRouteQuery, liveRouteFor } from '../lib/live/liveroute.js';
+  import { rideLog, rideLogText, GAP_S } from '../lib/live/ridelog.js';
+  import { liveRouteQuery, liveRouteFor, clearLiveRoute } from '../lib/live/liveroute.js';
   import OfflineBox from '../lib/map/OfflineBox.svelte';
   import { reserveOf } from '../lib/map/offline.js';
   import SortArrows from '../lib/ui/SortArrows.svelte';
@@ -48,7 +49,7 @@
   import { stretch } from '../lib/map/maplib.js';
   import { fineOf, heightAt, gradeAt } from '../lib/map/fineprofile.js';
   import { zoomFactor } from '../lib/map/zoomfactor.js';
-  import { LIVE_TILES, TILE, MAX_TILES, tilesOf, toggleTile, moveTile, tileValues, gainStep, headingOf, aheadLine, gradeLines, sheetSnaps, nearestSnap } from '../lib/live/livemap.js';
+  import { navZoom, LIVE_TILES, TILE, MAX_TILES, tilesOf, toggleTile, moveTile, tileValues, gainStep, headingOf, aheadLine, gradeLines, sheetSnaps, nearestSnap } from '../lib/live/livemap.js';
   import Crumb from '../lib/flow/kit/Crumb.svelte';
   import MapView from '../lib/map/MapView.svelte';
   import ProfileStrip from '../lib/map/ProfileStrip.svelte';
@@ -57,8 +58,10 @@
   import { dayIndex } from '../lib/ride.js'; // Idee 57: the ride day for the planned stops
   import { localDay as todayLocal } from '../lib/localday.js';
   import SosSheet from '../lib/live/SosSheet.svelte';
+  import NightSheet from '../lib/live/NightSheet.svelte';
+  import { awakeH } from '../lib/race/ride-lib.js';
   import RerouteSheet from '../lib/live/RerouteSheet.svelte';
-  import { snapAhead, onDetour, detourDone, detourGpx, saveDetour, loadDetour, DETOUR_COLOUR, atPlace, returnDetour, backDetour, backtrackOf, planReturn, returnModeStd, shouldReroute, OFF_ROUTE_M } from '../lib/reroute.js';
+  import { snapAhead, onDetour, detourDone, detourGpx, saveDetour, loadDetour, DETOUR_COLOUR, atPlace, returnDetour, backDetour, backtrackOf, planReturn, returnModeStd, shouldReroute, OFF_ROUTE_M, offLineM, planDetour } from '../lib/reroute.js';
   import { saveGpx } from '../lib/gpxout.js';
   import { LANDI_RADAR } from '../lib/wetter/kern.js';
   import LiveWetter from '../lib/live/LiveWetter.svelte';
@@ -68,12 +71,12 @@
   import LiveWebcam from '../lib/live/LiveWebcam.svelte';
   import { camsQuery, camsOnMap, camOfPoint } from '../lib/wetter/webcamsmap.js';
   import { db } from '../lib/db.js';
-  import { rec, startRecording, stopRecording, openRecording, pauseRecording, resumeRecording, addSensor, setGpsLow, lapRecording, setPauseWhy, addPastPause } from '../lib/spur/recorder.svelte.js';
+  import { rec, startRecording, stopRecording, takeTooShort, openRecording, pauseRecording, resumeRecording, addSensor, setGpsLow, lapRecording, setPauseWhy, addPastPause } from '../lib/spur/recorder.svelte.js';
   import PauseBar from '../lib/live/PauseBar.svelte';
   import ForgotPause from '../lib/tourenc/ForgotPause.svelte'; // Touren c 61
   import { forgotStep, whyOf } from '../lib/tourenc/pausewhy.js'; // Touren c 60/61
   import TurnHint from '../lib/live/TurnHint.svelte';
-  import { turnsOf, nextTurn, turnSay } from '../lib/live/turns.js';
+  import { turnsOf, nextTurn, turnSay, turnListText } from '../lib/live/turns.js';
   import { lapNow, lapsOf, ghostOf, ghostDelta, lastRideOf, deltaText } from '../lib/live/laps.js';
   import DataPages from '../lib/live/DataPages.svelte';
   import LiveSmallMap from '../lib/live/LiveSmallMap.svelte';
@@ -89,10 +92,12 @@
   import { autoKmhOf, autoPauseStep, speedKmh, movingNow, totalNow, pausedNow, HINT_S, AUTO_MIN_KMH, AUTO_MAX_KMH } from '../lib/live/pause.js';
   import { resumeOf } from '../lib/live/resume.js';
   import { zurichTime } from '../lib/spur/spur.js';
-  import { racesQuery, cacheQuery, cacheGet, cacheSet } from '../lib/race/store.js';
+  import { racesQuery, cacheQuery, cacheGet, cacheSet, saveRace } from '../lib/race/store.js';
   import { raceOf, schedule, lineKm, climbsOf, hhmm, dayOfMs } from '../lib/race/race.js';
   import { POI_CACHE, POI_KIND, WX_CACHE } from '../lib/race/outside.js';
   import { mergePois } from '../lib/race/more.js';
+  import { lastShopBeforeNight } from '../lib/live/lastshop.js';
+  import { nextWater, drinkPerH, BOTTLE_ML, DRINK_ML_H } from '../lib/live/water.js';
   import { withSampleFine } from '../lib/race/sample.js';
   import { paceFromRides, loadedBy, assumptionsOf, compareWays, simPlan } from '../lib/race/strategy.js';
   import { ownQuery, ownOnMap } from '../lib/map/ownpoints.js';
@@ -111,11 +116,12 @@
   import GroupPanel from '../lib/live/GroupPanel.svelte';
   import { endKeptGroup } from '../lib/live/group.js';
   import { saveLiveRide, bookBikeKm, saveLeftRides } from '../lib/live/saveride.js';
-  import LiveLabel from '../lib/live/LiveLabel.svelte';
+  import SavedCard from '../lib/live/SavedCard.svelte';
   import { deleteEntries } from '../lib/kmbookdb.js';
   import { offerDone } from '../lib/ui/rename.svelte.js';
   import { saveFailed } from '../lib/ui/ask.js';
   import EndRideSheet from '../lib/live/EndRideSheet.svelte';
+  import TooShortSheet from '../lib/live/TooShortSheet.svelte';
   import { pointDots } from '../lib/live/event.js';
   import { t, tn, locale, num } from '../lib/i18n.svelte.js';
   import SleepList from '../lib/race/ride/SleepList.svelte';
@@ -179,6 +185,8 @@
   let now = $state(Date.now());
   let row = $state(null); // the recording row (for the pauses)
   let follow = $state(true);
+  let northUp = $state(false); // Navigation zum Ziel: true = the map stays north up
+  let driveKey = '';
   let mapView = $state();
   let ground = $state('auto');
   let shown = $state({ stops: true, own: true, radar: false });
@@ -195,6 +203,17 @@
       if (kept.length) offerDone(t('The ride before was not ended. It is in Trips now too.'));
     } catch (x) {
       err = saveFailed(x);
+    }
+    // Noah 01.11.2026 «3a»: a ride started without a route forgets every old route: the GPX kept on this device and an old way to a goal (older than 2 h), also after a reload
+    // (a free ride has no id of its own: a GPX loaded more than 12 h ago is an old one, not this ride's)
+    const oldFree = !tid && !!liveRoute && !(Date.parse(liveRoute.loadedAt) > Date.now() - 12 * 36e5);
+    if (!cont && (!hasRoute || oldFree)) {
+      try {
+        await clearLiveRoute(db.settings);
+        if (detour && !(detour.at > Date.now() - 2 * 36e5)) setDetour(null, false); // a way planned a moment ago stays
+      } catch (x) {
+        console.error(x);
+      }
     }
     const e = await startRecording(trip, { cont, saver: cfg.battery });
     if (e) return (err = t(e));
@@ -239,6 +258,11 @@
       }
     }
     after = { ride, saved };
+    // too short to keep: a window says so clearly; «Save anyway» keeps it all the same (Noah 28.10.2026)
+    if (!ride) {
+      const s = takeTooShort();
+      tooShort = { points: s?.pts?.length ?? 0, ride: s };
+    }
     // the group ride ends with the ride: every place of it is deleted (an event group of several days goes on)
     groupEnded = await endKeptGroup(db);
     groupRows = [];
@@ -246,9 +270,55 @@
     row = null;
   }
 
+  let tooShort = $state.raw(null); // { points, ride } after a ride too short to keep
+  async function tooShortAnswer(a) {
+    const s = tooShort?.ride ?? null;
+    tooShort = null;
+    if (a !== 'save' || !s?.pts?.length) return;
+    try {
+      await db.tracks.put(s);
+      const saved = await saveLiveRide(db, s, { trip, name: rideName(s) });
+      after = { ride: s, saved };
+      offerDone(t('Saved in Trips as «Live Navigation».'));
+    } catch (x) {
+      err = saveFailed(x);
+    }
+  }
+
+  // Fahrt-Protokoll (Noah 01.11.2026 «4a»): GPS points, gaps, restarts, hidden app, screen lock — with a button to send it
+  const logFacts = $derived(row ? rideLog(row) : null);
+  const logText = $derived(
+    logFacts
+      ? rideLogText(logFacts, {
+          points: t('GPS points'),
+          km: t('Distance (km)'),
+          first: t('First point'),
+          last: t('Last point'),
+          gaps: t('Gaps over a minute'),
+          restarts: t('Restarts'),
+          hidden: t('App hidden'),
+          lockLost: t('Screen lock lost'),
+          pauses: t('Pauses'),
+          codes: { s: t('Start'), c: t('Continued after a reload'), h: t('App hidden'), v: t('App visible again'), L1: t('Screen lock held'), L0: t('Screen lock lost'), Lx: t('Screen lock refused') },
+        })
+      : '',
+  );
+  async function sendLog() {
+    try {
+      if (navigator.share) await navigator.share({ title: t('Ride log'), text: logText });
+      else {
+        await navigator.clipboard.writeText(logText);
+        offerDone(t('Copied.'));
+      }
+    } catch {
+      /* closed */
+    }
+  }
+
   // the recording row, again whenever a point was kept
   $effect(() => {
     void rec.pts;
+    void rec.logN; // the log changes without a new point (screen lock, hidden app, restart)
     const rid = rec.id;
     if (!rid) return;
     db.tracks.get(rid).then((r) => (row = r ?? null));
@@ -270,7 +340,9 @@
   // Pausieren (pause.js): the riding time runs every second and stands in a pause; the whole time and the pauses
   const breaks = $derived(rec.on ? rec.breaks : (row?.breaks ?? []));
   const movingLive = $derived(rec.on ? movingNow({ movingS: pz.movingS, lastAt: rec.lastAt, now, paused: rec.paused, breaks }) : pz.movingS);
-  const totalS = $derived(rec.on ? totalNow(rec.startAt, now) : 0);
+  // the time since the start counts every second while it is on show (not with the battery saver)
+  let secNow = $state(0);
+  const totalS = $derived(rec.on ? totalNow(rec.startAt, Math.max(now, secNow)) : 0);
   const pausedLive = $derived(pausedNow(breaks, now));
   const fallbackKmh = $derived(isRace ? Number(as?.flatKmh?.value) || 20 : 18);
   const kmh = $derived(paceOf({ km: rec.km, movingS: pz.movingS }, fallbackKmh));
@@ -283,6 +355,34 @@
   // Noah 24.10.2026 «5a»: with a route, the stops along it or around you (a switch)
   let stopsMode = $state('route');
   const alongMode = $derived(hasRoute && stopsMode === 'route');
+  // «Letzter offener Laden vor der Nacht» (Noah 02.11.2026): only along a route, from the loaded stops
+  const lastShop = $derived(hasRoute && km != null ? lastShopBeforeNight({ pois, km, now, pace, profile, light }) : null);
+  const shopsLoaded = $derived(pois.some((p) => p.kind === 'shop' || p.kind === 'fuel'));
+  // «Nächstes Wasser» (Noah 02.11.2026, Vorschlag 2): the nearest place to fill up and whether the bottle lasts there.
+  // The bottle (size, what is left) and what you drink per hour are yours to change; they are kept in this browser.
+  const WATER_KEY = 'pg-live-water';
+  const waterOwn = (() => {
+    try {
+      const o = JSON.parse(localStorage.getItem(WATER_KEY) || '{}');
+      return { cap: Number(o.cap) > 0 ? Number(o.cap) : BOTTLE_ML, left: ['full', 'half', 'low'].includes(o.left) ? o.left : 'full', rate: Number(o.rate) > 0 ? Number(o.rate) : 0 };
+    } catch {
+      return { cap: BOTTLE_ML, left: 'full', rate: 0 };
+    }
+  })();
+  let waterCap = $state(waterOwn.cap);
+  let waterLeft = $state(waterOwn.left);
+  let waterRate = $state(waterOwn.rate); // 0 = automatic (warmer: more)
+  const keepWater = () => {
+    try {
+      localStorage.setItem(WATER_KEY, JSON.stringify({ cap: waterCap, left: waterLeft, rate: waterRate }));
+    } catch {}
+  };
+  const WATER_FRAC = { full: 1, half: 0.5, low: 0.15 };
+  const waterHave = $derived(Math.round(waterCap * WATER_FRAC[waterLeft]));
+  const waterRateNow = $derived(waterRate > 0 ? waterRate : drinkPerH(null, DRINK_ML_H));
+  const water = $derived(hasRoute && km != null ? nextWater({ pois, km, now, pace, profile, haveMl: waterHave, rateMlH: waterRateNow }) : null);
+  const waterLoaded = $derived(pois.some((p) => p.kind === 'water' || p.kind === 'shop' || p.kind === 'fuel'));
+  const ml = (v) => (v >= 1000 ? `${num(Math.round(v / 100) / 10)} l` : `${num(Math.round(v / 10) * 10)} ml`);
   const stops = $derived(me ? stopsAhead({ pois: alongMode ? pois : around, pts: alongMode ? pts : [], here: me, km, kinds: KINDS, n: 5, now, pace, profile }) : []);
   const climb = $derived(km != null ? nextClimb(climbs, km) : null);
   // Abbiege-Hinweise (turns.js): the turns of the route, once; the next one while you are on the route
@@ -293,6 +393,14 @@
   const detourKm = $derived(detourPts.length && me && onDetour(detour, me) ? (snapAhead(detourPts, me, 0)?.km ?? null) : null);
   const navTurns = $derived(detourKm != null ? detourTurns : turns);
   const navKm = $derived(detourKm != null ? detourKm : cfg.turns && at && at.offM < 100 ? (at.kmx ?? at.km) : null);
+  // the way to a goal, live: what is left, when you arrive, how far along you are
+  const goalOn = $derived(detourKm != null && detourPts.length > 1 && !detour?.back);
+  const goalTotal = $derived(detourPts.at(-1)?.km ?? 0);
+  const goalLeft = $derived(goalOn ? Math.max(0, goalTotal - detourKm) : null);
+  const goalEta = $derived(goalLeft != null && kmh > 0 ? now + (goalLeft / kmh) * 36e5 : null);
+  const goalFrac = $derived(goalOn && goalTotal > 0 ? Math.min(1, Math.max(0, detourKm / goalTotal)) : 0);
+  const wayDone = $derived(goalOn ? stretch(detourPts, 0, detourKm) : []);
+  const wayLine = $derived(detour?.line?.length > 1 ? detour.line.map(([a, b]) => [a, b]) : []);
   const turnNext = $derived(navKm != null ? nextTurn(navTurns, navKm) : null);
   // the turn after it, for «danach …» under the big arrow
   const turnThen = $derived(turnNext ? nextTurn(navTurns, turnNext.km + 0.06) : null);
@@ -478,9 +586,10 @@
         if (Number.isFinite(v) && v < 120 && (h.acc == null || h.acc <= 30) && v > maxKmh) maxKmh = Math.round(v * 10) / 10;
       }
     }
-    // the speed now; no new fix for 15 s counts as standing
+    // the speed now. No new fix for 15 s is NO speed (Noah 01.11.2026 «2a»): a GPS gap is not standing; only
+    // the GPS points themselves tell that you stand (a locked screen once counted as 25 min standing)
     let kmhNow = fixNow ? speedKmh(fixNow, fixPrev) : null;
-    if (fixNow && now - fixSeenAt > 15_000) kmhNow = 0;
+    if (fixNow && now - fixSeenAt > 15_000) kmhNow = null;
     if (cfg.autoPause && rec.on) {
       const r = autoPauseStep(autoSt, { kmh: kmhNow, now, limit: autoKmh, paused: rec.paused, auto: rec.auto });
       autoSt = r.st;
@@ -535,7 +644,23 @@
     if (rec.on) rideStep();
     if (!rec.on || !me) return;
     // on a data page the map is not moved (Stromsparen 2a: no drawing while you do not see it)
-    if (follow && viewSet && dpIndex === 0) mapView?.keep?.(me.lat, me.lon, padB);
+    if (follow && viewSet && dpIndex === 0) {
+      // Navigation zum Ziel: the map turns so your direction points up and zooms before a turn; «North up» stops it
+      if (goalOn && !northUp && deg != null) {
+        const z = navZoom(turnNext?.distM ?? null);
+        const key = `${Math.round(deg / 5)}|${z}|${Math.round(me.lat * 5e4)}|${Math.round(me.lon * 5e4)}`;
+        if (key !== driveKey) {
+          driveKey = key;
+          mapView?.drive?.(me.lat, me.lon, deg, z, padB);
+        }
+      } else {
+        if (driveKey) {
+          driveKey = '';
+          mapView?.north?.();
+        }
+        mapView?.keep?.(me.lat, me.lon, padB);
+      }
+    }
     // the turn ahead (Abbiege-Hinweise): its voice first, before the stops and climbs
     const ts = cfg.turns && cfg.turnVoice && turnNext ? turnSay(turnNext, turnNext.distM, said) : null;
     if (ts) {
@@ -550,6 +675,8 @@
         say(t(s.key, s.vars), lang());
       }
     }
+    // off the way to a goal: a new way from here to the same goal
+    goalStep();
     // off-route
     if (cfg.offRoute && at) autoStep();
     if (cfg.offRoute && at && !onDetour(detour, me) && autoHold !== 'free') {
@@ -645,6 +772,7 @@
 
   /* ---------- sheets ---------- */
   let sos = $state(false);
+  let night = $state(false); // «Nacht-Blatt» (Noah 02.11.2026 «1b»): only when you open it
   let place = $state(false);
 
   /* ---------- «Neu planen zu …» (Paket X, reroute.js) ---------- */
@@ -662,6 +790,15 @@
       mapView?.fitLine?.(d.line.map(([a, b]) => [a, b]), padB);
     }
   };
+  // Noah 28.10.2026 «a Einklappen, Beenden extra»: the X only folds the box to one line (tap opens it again);
+  // «End navigation» ends it, with Undo. While the app asks something (way back) the box stays open.
+  const detourSmall = $derived(!!detour?.small && !arrived && detour.back !== 'auto');
+  const detourTitle = $derived(!detour ? '' : detour.back === 'auto' ? t('New way back onto the route') : detour.back === 'same' ? t('The same way back') : detour.back ? t('Way back onto the route') : detour.oneWay ? t('To {name}', { name: detour.target.name || t('the point') }) : t('Detour to {name}', { name: detour.target.name || t('the point') }));
+  function endDetour() {
+    const old = detour;
+    setDetour(null, false);
+    offerDone(t('Navigation ended.'), () => setDetour(old, false));
+  }
   // back on the route past the rejoin point (or at the place): the detour has done its job
   $effect(() => {
     if (detour && detourDone(detour, { km, here: me, offM: at?.offM ?? null })) untrack(() => setDetour(null));
@@ -730,10 +867,46 @@
   }
   // 3a (Noah): «Gleichen Weg zurück»: your own track back to where you left the route, no router
   const sameBack = $derived(detour?.back === 'auto' && hasRoute ? backtrackOf(fixesOf(row), pts) : null);
+  // Live-Navigation Schritt 4: off the way to a goal the app plans a new way from here to the same goal,
+  // with Undo (the old way comes back). No answer or offline: it tries again in a minute.
+  let goalOffSince = null;
+  let goalAt = null;
+  let goalBusy = false;
+  const isGoalWay = (d) => !!d && !d.back && (d.oneWay || !d.rejoin) && d.line?.length > 1;
+  function goalStep() {
+    if (!isGoalWay(detour) || !me || arrived || atPlace(detour, me)) {
+      goalOffSince = null;
+      return;
+    }
+    const offM = offLineM(detour.line, me);
+    if (!(offM > OFF_ROUTE_M)) {
+      goalOffSince = null;
+      return;
+    }
+    goalOffSince ??= now;
+    if (goalBusy || !navigator.onLine) return;
+    if (shouldReroute({ offM, offSince: goalOffSince, lastAt: goalAt, now })) goalPlan();
+  }
+  async function goalPlan() {
+    const old = detour;
+    goalBusy = true;
+    goalAt = now;
+    try {
+      const d = await planDetour({ here: me, target: old.target, pts: hasRoute ? pts : [], fromKm: old.fromKm, profile: old.profile, oneWay: !!old.oneWay });
+      if (detour === old) {
+        setDetour({ ...d, ...(old.small ? { small: true } : {}) }, false);
+        goalOffSince = null;
+        offerDone(t('New way to the goal.'), () => setDetour(old, false));
+      }
+    } catch {
+      /* no answer: the next try in a minute */
+    } finally {
+      goalBusy = false;
+    }
+  }
   const autoUndo = () => ((autoHold = 'undo'), setDetour(null));
   const autoFree = () => ((autoHold = 'free'), setDetour(null));
   const takeSame = () => sameBack && setDetour(backDetour(sameBack), false);
-  const detourLine = $derived(detour ? detour.line.map(([a, b]) => [a, b]) : []);
   async function detourToGarmin() {
     const name = `${t('Detour')} ${detour.target.name || ''}`.trim();
     const r = await saveGpx(detourGpx(detour, hasRoute ? pts : [], name), name);
@@ -743,8 +916,16 @@
   $effect(() => {
     if (km != null) profileKm = km;
   });
+  // «Whole route»: everything on one screen (the way to the goal, else the loaded route); the map stops following
+  const showWhole = () => {
+    follow = false;
+    mapView?.north?.();
+    driveKey = '';
+    mapView?.fitLine?.(goalOn || (detour && !hasRoute) ? wayLine : (route?.line ?? []), padB);
+  };
   const recenter = () => {
     follow = true;
+    driveKey = '';
     if (me) mapView?.centerOn?.(me.lat, me.lon, 14, padB);
   };
 
@@ -789,9 +970,9 @@
   });
 
   /* the numbers on top */
-  // a ride without a route starts with km ridden, riding time and the clock
-  const chosen = $derived(cfg.tiles || hasRoute ? tilesOf(cfg.tiles) : ['done', 'moving', 'clock']);
-  const tiles = $derived(chosen.filter((k) => hasRoute || !TILE[k].route));
+  // a ride without a route starts with the distance, the time since the start and the speed (Noah 28.10.2026)
+  const chosen = $derived(cfg.tiles || hasRoute || goalOn ? tilesOf(cfg.tiles) : ['done', 'total', 'speed']);
+  const tiles = $derived(chosen.filter((k) => hasRoute || goalOn || !TILE[k].route));
   const saveTiles = (list) => setOpt('tiles', list);
   const nextTop = $derived(climb && km != null ? { distKm: Math.max(0, climb.toKm - km) } : null);
   const vals = $derived(
@@ -799,8 +980,8 @@
       now,
       km,
       ridden: rec.km,
-      left: arr?.kmLeft,
-      eta: arr?.eta,
+      left: goalOn ? goalLeft : arr?.kmLeft,
+      eta: goalOn ? goalEta : arr?.eta,
       movingS: movingLive,
       totalS,
       hr: fresh('hr', now),
@@ -878,7 +1059,12 @@
     nextWp: dash,
     upToTop: climb && km != null ? vv(gainBetween(profile, km, climb.toKm)) : dash,
   });
-  const tileLabel = (k) => (k === 'done' && !hasRoute ? t('km ridden') : t(TILE[k].label));
+  const tileLabel = (k) => (goalOn && k === 'left' ? t('km to the goal') : goalOn && k === 'arrive' ? t('Arrival at the goal') : t(TILE[k].label));
+  $effect(() => {
+    if (!rec.on || cfg.battery || !tiles.includes('total')) return;
+    const timer = setInterval(() => (secNow = Date.now()), 1000);
+    return () => clearInterval(timer);
+  });
 
   /* the bottom sheet: three heights, drag the handle or tap it */
   let stageH = $state(700);
@@ -1089,7 +1275,7 @@
       <h2 class="rc-h2">{t('Ride done')}</h2>
       {#if after.ride}
         <p class="rc-text">{t('{km} km recorded. The line is in the travel track of the day.', { km: num(after.ride.km ?? 0) })}</p>
-        {#if after.saved}<p class="rc-text" data-live-saved><LiveLabel /> {t('Saved as its own entry in Trips.')} <a href="#/trips" data-live-saved-link>{t('Open Trips')}</a></p>{/if}
+        {#if after.saved}<SavedCard saved={after.saved} {trip} />{/if}
         {#if loadAfter}
           {#await loadAfter() then m}
             <m.default ride={after.ride} {trip} />
@@ -1107,6 +1293,7 @@
   {#if showRouteBox && !rec.on}
     <LiveRouteBox {trip} />
   {/if}
+  {#if tooShort}<TooShortSheet points={tooShort.points} ondone={tooShortAnswer} />{/if}
 
   {#if !rec.on && !after}
     <p class="rc-empty" data-live-empty>{t('Start the ride: then the map fills the screen and shows where you are, the numbers you choose and the stops ahead or around you.')}</p>
@@ -1139,7 +1326,7 @@
       <ul class="lvf-tiles n{tiles.length}">
         {#each tiles as k (k)}
           <li data-live-tile={k} data-live-km={k === 'done' ? '' : undefined} data-live-left={k === 'left' ? '' : undefined}>
-            <b>{vals[k].value}{#if TILE[k].unit && vals[k].value !== '–'}<small>{TILE[k].unit}</small>{/if}</b>
+            <b>{vals[k].value}{#if (vals[k].unit ?? TILE[k].unit) && vals[k].value !== '–'}<small>{vals[k].unit ?? TILE[k].unit}</small>{/if}</b>
             <span>{tileLabel(k)}</span>
           </li>
         {/each}
@@ -1159,7 +1346,8 @@
             points={allPoints}
             me={meOnMap}
             {done}
-            grades={detour ? [...grades, { line: detourLine, colour: DETOUR_COLOUR }] : grades}
+            {grades}
+            way={detour ? { line: wayLine, done: wayDone, colour: DETOUR_COLOUR } : null}
             {overlays}
             fill
             bar={false}
@@ -1192,12 +1380,31 @@
         <LiveWetter {me} />
         <LiveEssen {me} />
         <LivePlaceNote {me} tripId={trip?.id ?? null} />
-        {#if detour}
+        {#if detour && detourSmall}
+          <button type="button" class="lvf-alert lv-detour lv-detour-small" onclick={() => setDetour({ ...detour, small: false }, false)} aria-expanded="false" aria-label={t('Show the navigation')} data-live-detour data-live-detour-small data-live-detour-back={detour.back ?? null}>
+            <Route size={18} aria-hidden="true" />
+            <b>{detourTitle}</b>
+            <small>{[t('{d} km', { d: fmtKm(detour.km) }), detour.oneWay && detour.min && !detour.reached ? hhmm(detour.at + detour.min * 60000) : ''].filter(Boolean).join(' · ')}</small>
+            <ChevronDown size={18} aria-hidden="true" />
+          </button>
+        {:else if detour}
           <div class="lvf-alert lv-detour" role="status" data-live-detour data-live-detour-back={detour.back ?? null}>
             <Route size={18} aria-hidden="true" />
             <span class="lv-detour-main">
-              <b>{detour.back === 'auto' ? t('New way back onto the route') : detour.back === 'same' ? t('The same way back') : detour.back ? t('Way back onto the route') : detour.oneWay ? t('To {name}', { name: detour.target.name || t('the point') }) : t('Detour to {name}', { name: detour.target.name || t('the point') })}</b>
-              <small>{[t('{d} km', { d: fmtKm(detour.km) }), detour.gainM ? `${num(detour.gainM)} m ↑` : '', detour.min ? t('about {min} min', { min: num(detour.min) }) : '', detour.oneWay && detour.min && !detour.reached ? t('there about {at}', { at: hhmm(detour.at + detour.min * 60000) }) : '', detour.rejoin ? t('back on the route at km {km}', { km: num(Math.round(detour.rejoin.km)) }) : '', detour.extraKm != null && detour.extraKm > 0 ? t('{d} km more', { d: fmtKm(detour.extraKm) }) : '', detour.skippedKm > 0 ? t('{d} km of the route left out', { d: fmtKm(detour.skippedKm) }) : ''].filter(Boolean).join(' · ')}</small>
+              <b>{detourTitle}</b>
+              <small>{[goalOn ? t('{d} km to go', { d: fmtKm(goalLeft) }) : t('{d} km', { d: fmtKm(detour.km) }), detour.gainM ? `${num(detour.gainM)} m ↑` : '', detour.min ? t('about {min} min', { min: num(detour.min) }) : '', detour.oneWay && detour.min && !detour.reached ? t('there about {at}', { at: hhmm(goalEta ?? detour.at + detour.min * 60000) }) : '', detour.rejoin ? t('back on the route at km {km}', { km: num(Math.round(detour.rejoin.km)) }) : '', detour.extraKm != null && detour.extraKm > 0 ? t('{d} km more', { d: fmtKm(detour.extraKm) }) : '', detour.skippedKm > 0 ? t('{d} km of the route left out', { d: fmtKm(detour.skippedKm) }) : ''].filter(Boolean).join(' · ')}</small>
+              {#if goalOn}<span class="lv-goalbar" aria-hidden="true" data-live-goal-bar><i style:width="{Math.round(goalFrac * 100)}%"></i></span>{/if}
+              {#if goalOn && detourTurns.length}
+                <details class="lv-steps" data-live-steps>
+                  <summary>{t('Step by step ({n})', { n: detourTurns.length })}</summary>
+                  <ol>
+                    {#each detourTurns as s (s.km)}
+                      {@const tt = turnListText(s)}
+                      <li class:lv-step-done={s.km < (detourKm ?? 0) - 0.02} data-live-step>{#if tt}{t(tt.key, tt.vars)}{/if}<small>{t('{d} km', { d: fmtKm(s.km) })}</small></li>
+                    {/each}
+                  </ol>
+                </details>
+              {/if}
               {#if detour.back === 'auto'}
                 <small>{t('You were off the route, so the app planned the shortest way back.')}</small>
                 <span class="lv-back-acts">
@@ -1219,8 +1426,9 @@
                 </span>
               {/if}
               {#if gpxMsg}<small data-live-detour-gpx>{gpxMsg}</small>{/if}
+              <button type="button" class="btn sm" onclick={endDetour} data-live-detour-end>{t('End navigation')}</button>
             </span>
-            <button type="button" class="lvf-ic lv-detour-x" onclick={() => setDetour(null)} aria-label={t('Remove the detour')} data-live-detour-off><X size={18} aria-hidden="true" /></button>
+            <button type="button" class="lvf-ic lv-detour-x" onclick={() => setDetour({ ...detour, small: true }, false)} aria-label={t('Fold up')} data-live-detour-off><X size={18} aria-hidden="true" /></button>
           </div>
         {/if}
         {#if offline}<p class="lvf-alert" role="status" data-live-offline><WifiOff size={18} aria-hidden="true" /><span>{t('Offline: the map shows what is stored, the ride goes on.')}</span></p>{/if}
@@ -1248,6 +1456,7 @@
           </div>
           <button type="button" class="btn lvf-sos" onclick={() => ((menu = false), (sos = true))} data-live-sos><LifeBuoy size={20} aria-hidden="true" />{t('Emergency')} · SOS</button>
           <a class="btn" href={LANDI_RADAR} target="_blank" rel="noopener noreferrer" data-landi><CloudRain size={18} aria-hidden="true" />{t('Landi rain radar')}</a>
+          <button type="button" class="btn" onclick={() => ((menu = false), (night = true))} data-live-night><Moon size={18} aria-hidden="true" />{t('Night sheet')}</button>
           <button type="button" class="btn" onclick={() => ((menu = false), (picked = null), (reroute = true))} data-live-reroute><Route size={18} aria-hidden="true" />{t('Plan a new way to …')}</button>
           <!-- Navigation zum Ziel 2: the card on the map stays small, the GPX of the way lives here -->
           {#if detour && detour.back !== 'auto'}<button type="button" class="btn" onclick={() => ((menu = false), detourToGarmin())} data-live-detour-garmin><Route size={18} aria-hidden="true" />{t('GPX for Garmin')}</button>{/if}
@@ -1287,6 +1496,12 @@
         </div>
       {/if}
 
+      {#if goalOn || hasRoute}
+        <button type="button" class="lvf-ic lvf-all-route" class:lvf-hidden={snap === 'full' || dpIndex > 0} onclick={showWhole} style:bottom="{padB + 294}px" aria-label={t('Whole route')} title={t('Whole route')} data-live-whole><Maximize2 size={22} aria-hidden="true" /></button>
+      {/if}
+      {#if goalOn}
+        <button type="button" class="lvf-ic lvf-north" class:lvf-hidden={snap === 'full' || dpIndex > 0} aria-pressed={northUp} onclick={() => (northUp = !northUp)} style:bottom="{padB + 350}px" aria-label={northUp ? t('Map turns with you') : t('North up')} title={northUp ? t('Map turns with you') : t('North up')} data-live-north><Navigation size={22} aria-hidden="true" /></button>
+      {/if}
       <button type="button" class="lvf-ic lvf-follow" class:lvf-hidden={snap === 'full' || dpIndex > 0} aria-pressed={follow} onclick={() => (follow ? (follow = false) : recenter())} style:bottom="{padB + 12}px" aria-label={follow ? t('Map follows you') : t('Follow me')} data-live-follow><Crosshair size={22} aria-hidden="true" /></button>
 
       <!-- the bottom sheet -->
@@ -1376,6 +1591,82 @@
               <h2 class="lvf-h">{t('Stops')}</h2>
               {#if hasRoute}
                 <div data-live-stops-mode><Seg options={[{ key: 'route', name: t('Along the route|poi') }, { key: 'around', name: t('Around me|poi') }]} value={stopsMode} onchange={(k) => ((stopsMode = k), k === 'around' && !around.length && getAround())} label={t('Where to look for stops')} full={false} small /></div>
+              {/if}
+              {#if hasRoute && km != null}
+                <div class="lv-lastshop" data-live-lastshop={lastShop?.state ?? 'load'}>
+                  <h3 class="lv-h3"><Moon size={16} aria-hidden="true" />{t('Last open shop before the night')}</h3>
+                  {#if !shopsLoaded || !lastShop}
+                    <p class="rc-note">{t('Load the stops along the route to see the last open shop before the night.')}</p>
+                  {:else}
+                    {@const r = lastShop.state === 'ok' ? lastShop.last : lastShop.next}
+                    {#if lastShop.state === 'dark'}<p class="rc-note">{t('It is dark. The nearest shop ahead:')}</p>
+                    {:else if lastShop.state === 'none'}<p class="rc-warn lv-line">{t('No open shop is left before the night. The nearest ahead:')}</p>{/if}
+                    {#if r}
+                      {@const l = navLinks({ lat: Number(r.poi.lat), lon: Number(r.poi.lon) })}
+                      <div class="rc-row lv-srow" data-live-lastshop-row>
+                        <KindIcon kind={r.poi.kind} size={18} />
+                        <span class="rc-row-main">
+                          <b>{r.poi.name || kindName(r.poi.kind)}</b>
+                          <small>{t('{d} km', { d: fmtKm(r.distKm) })} · {t('there about {at}', { at: when(r.eta) })} · {r.open ? (r.closes ? t('Open until {at}', { at: r.closes }) : t('Open|hours')) : t('Opening hours unknown')}</small>
+                          {#if lastShop.state === 'ok'}
+                            <small data-live-lastshop-left>{r.minToClose != null && r.minToClose <= 120 ? t('Closes {n} after you get there.', { n: minText(r.minToClose) }) : t('{n} before sunset.', { n: minText(Math.max(0, r.minToNight)) })}{#if !lastShop.sure}{' '}{t('Not sure: no opening hours known.')}{/if}</small>
+                          {/if}
+                        </span>
+                        <details class="lv-nav">
+                          <summary class="btn sm"><Navigation size={16} aria-hidden="true" />{t('Navigate')}</summary>
+                          <div class="lv-nav-menu">
+                            <a class="btn sm" href={l.google} target="_blank" rel="noopener noreferrer">{t('Google Maps')}</a>
+                            <a class="btn sm" href={l.osmand} target="_blank" rel="noopener noreferrer">{t('OsmAnd')}</a>
+                          </div>
+                        </details>
+                      </div>
+                    {:else}
+                      <p class="rc-empty">{t('No shop found ahead on the route.')}</p>
+                    {/if}
+                  {/if}
+                </div>
+              {/if}
+              {#if hasRoute && km != null}
+                <div class="lv-lastshop" data-live-water={water?.state ?? 'load'}>
+                  <h3 class="lv-h3"><Droplet size={16} aria-hidden="true" />{t('Next water')}</h3>
+                  {#if !waterLoaded || !water}
+                    <p class="rc-note">{t('Load the stops along the route to see the next water.')}</p>
+                  {:else}
+                    {@const r = water.next}
+                    {#if r}
+                      {@const l = navLinks({ lat: Number(r.poi.lat), lon: Number(r.poi.lon) })}
+                      <div class="rc-row lv-srow" data-live-water-row>
+                        <KindIcon kind={r.poi.kind} size={18} />
+                        <span class="rc-row-main">
+                          <b>{r.poi.name || kindName(r.poi.kind)}</b>
+                          <small>{kindName(r.poi.kind)} · {t('{d} km', { d: fmtKm(r.distKm) })} · {t('there about {at}', { at: when(r.eta) })}</small>
+                          {#if !r.sure}<small>{t('Not sure: no opening hours known.')}</small>{/if}
+                        </span>
+                        <details class="lv-nav">
+                          <summary class="btn sm"><Navigation size={16} aria-hidden="true" />{t('Navigate')}</summary>
+                          <div class="lv-nav-menu">
+                            <a class="btn sm" href={l.google} target="_blank" rel="noopener noreferrer">{t('Google Maps')}</a>
+                            <a class="btn sm" href={l.osmand} target="_blank" rel="noopener noreferrer">{t('OsmAnd')}</a>
+                          </div>
+                        </details>
+                      </div>
+                      {#if water.state === 'short'}<p class="rc-warn lv-line" data-live-water-say><TriangleAlert size={18} aria-hidden="true" /><span>{t('Your bottle will not last: about {need} needed, {have} left. Drink in small sips or fill up sooner.', { need: ml(water.needMl), have: ml(water.haveMl) })}</span></p>
+                      {:else if water.state === 'tight'}<p class="rc-note" data-live-water-say>{t('Your bottle just lasts: about {need} needed, {have} left.', { need: ml(water.needMl), have: ml(water.haveMl) })}</p>
+                      {:else}<p class="rc-note" data-live-water-say>{t('Your bottle lasts until there: about {need} needed, {have} left.', { need: ml(water.needMl), have: ml(water.haveMl) })}</p>{/if}
+                    {:else}
+                      <p class="rc-warn lv-line" data-live-water-say><TriangleAlert size={18} aria-hidden="true" /><span>{t('No water or open shop found ahead on the route. Your bottle lasts about {d} km.', { d: fmtKm(water.lastsKm) })}</span></p>
+                    {/if}
+                  {/if}
+                  <div role="group" aria-label={t('What is left in your bottle?')}>
+                    <span class="rc-note">{t('What is left in your bottle?')}</span>
+                    <Seg small options={[{ key: 'full', name: t('Full|bottle') }, { key: 'half', name: t('Half|bottle') }, { key: 'low', name: t('Almost empty') }]} value={waterLeft} onchange={(k) => ((waterLeft = k), keepWater())} />
+                  </div>
+                  <details class="lv-water-set" data-live-water-set>
+                    <summary>{t('Change bottle and drinking')}</summary>
+                    <label class="lv-water-f">{t('Bottle size (ml)')}<input class="inp" type="number" inputmode="numeric" min="100" max="6000" step="50" value={waterCap} onchange={(e) => ((waterCap = Math.max(100, Math.min(6000, Number(e.currentTarget.value) || BOTTLE_ML))), keepWater())} data-live-water-cap /></label>
+                    <label class="lv-water-f">{t('You drink (ml per hour, 0 = automatic)')}<input class="inp" type="number" inputmode="numeric" min="0" max="2000" step="50" value={waterRate} onchange={(e) => ((waterRate = Math.max(0, Math.min(2000, Number(e.currentTarget.value) || 0))), keepWater())} data-live-water-rate /></label>
+                  </details>
+                </div>
               {/if}
               {#if stops.length}
                 <ul class="rc-list">
@@ -1474,6 +1765,15 @@
                 </div>
                 <p class="rc-note">{t('A stop is 2 minutes or more within 40 m.')}</p>
               </div>
+            {/if}
+
+            {#if logFacts && (rec.on || logFacts.points > 0)}
+              <details class="lvf-part lvf-fold" data-live-log>
+                <summary><ClipboardList size={18} aria-hidden="true" />{t('Ride log')}</summary>
+                <p class="rc-note">{t('What the recording saw: GPS points, gaps of {n} s or more, restarts. Send it when a time or distance looks wrong.', { n: GAP_S })}</p>
+                <pre class="lvf-log" data-live-log-text>{logText}</pre>
+                <button type="button" class="btn sm" onclick={sendLog} data-live-log-send><Send size={16} aria-hidden="true" />{t('Send the log')}</button>
+              </details>
             {/if}
 
             <!-- «Datenseiten wie am Garmin»: pages, fields, grids, charts, zones -->
@@ -1575,6 +1875,7 @@
   <PoiPanel bind:this={poiPanel} title={false} canTap ongo={goTo} ontapmode={(v) => ((poiTapping = v), v && (closeNear(), (snap = 'peek')))} center={me ? { lat: me.lat, lon: me.lon } : null} bounds={mapBounds} line={route?.line ?? null} profile={route?.profile ?? null} tripId={trip?.id ?? null} onpoints={(l) => (poiPoints = l ?? [])} />
 </dialog>
 {#if reroute}<RerouteSheet here={me} pts={hasRoute ? pts : []} {km} {pois} {own} {picked} onplan={setDetour} onclose={() => ((reroute = false), (picked = null))} />{/if}
+{#if night}<NightSheet race={isRace ? race : null} ctx={isRace && trip ? { trip, race, stored, plan, save: (patch) => saveRace(tid, patch) } : null} awake={isRace ? awakeH(stored?.sleepLog ?? [], plan?.start, now) : 0} {now} {km} {pace} {bed} shop={lastShop} movingS={movingLive} pausedS={pausedLive} sleep={hasRoute ? { pois, own, pts, km, now, kmh: pace.kmh, wx: $wxQ?.data ?? null, bagC: race?.bagC ?? 5 } : null} ongo={(p) => ((night = false), goTo(p))} onmap={() => ((night = false), (picked = null), (goalTapping = true), (snap = 'peek'))} onclose={() => (night = false)} />{/if}
 {#if sos}<SosSheet here={me} {km} {routeName} {pois} onclose={() => (sos = false)} />{/if}
 {#if place}<PlaceSheet {trip} onclose={() => (place = false)} />{/if}
 
@@ -1993,6 +2294,42 @@
     flex-wrap: nowrap;
     align-items: flex-start;
   }
+  .lv-steps ol {
+    margin: var(--sp-1) 0 0;
+    padding-left: 1.4em;
+    max-height: 30vh;
+    overflow-y: auto;
+  }
+  .lv-steps li {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--sp-2);
+  }
+  .lv-steps .lv-step-done {
+    color: var(--ink-3, var(--ink-2));
+    text-decoration: line-through;
+  }
+  .lvf-all-route {
+    position: absolute;
+    right: 10px;
+    z-index: 2;
+    box-shadow: 0 1px 4px var(--shadow);
+    transition: bottom 0.15s var(--ease-out);
+  }
+  .lv-goalbar {
+    display: block;
+    align-self: stretch;
+    height: 8px;
+    border-radius: 4px;
+    background: var(--line);
+    overflow: hidden;
+    margin-top: 6px;
+  }
+  .lv-goalbar i {
+    display: block;
+    height: 100%;
+    background: var(--l3);
+  }
   .lv-detour-main {
     display: flex;
     flex-direction: column;
@@ -2027,6 +2364,27 @@
   }
   .lv-detour .lv-back-err {
     color: var(--bad);
+  }
+  .lv-detour-small {
+    align-items: center;
+    gap: var(--sp-1);
+    width: 100%;
+    border-top: 0;
+    border-right: 0;
+    border-bottom: 0;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+  .lv-detour-small b {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-width: 0;
+  }
+  .lv-detour-small small {
+    flex: 1;
+    white-space: nowrap;
   }
   .lv-detour .lv-detour-x {
     width: 36px;
@@ -2113,6 +2471,18 @@
     opacity: 0.5;
     cursor: default;
   }
+  .lvf-log {
+    margin: 0 0 var(--sp-2);
+    max-height: 220px;
+    overflow: auto;
+    padding: var(--sp-2);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--paper);
+    font: var(--fs-small) / 1.45 ui-monospace, monospace;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
   .lvf-fold > summary {
     display: flex;
     align-items: center;
@@ -2129,6 +2499,17 @@
   }
   .lvf-fold[open] > summary::after {
     transform: rotate(90deg);
+  }
+  .lvf-north {
+    position: absolute;
+    right: 10px;
+    z-index: 2;
+    box-shadow: 0 1px 4px var(--shadow);
+    transition: bottom 0.15s var(--ease-out);
+  }
+  .lvf-north[aria-pressed='true'] {
+    background: var(--ink);
+    color: var(--paper);
   }
   .lvf-follow {
     position: absolute;
@@ -2157,6 +2538,30 @@
   }
   .lvf-dragging {
     transition: none;
+  }
+  /* Noah 28.10.2026 «a ★ Schlanker oben und unten»: pulled down, the sheet shows one line (the next stop);
+     the climb comes when it is pulled up. The page dots float as a small bar over the map. */
+  .lvf-sheet[data-live-sheet='peek'] [data-live-climb] {
+    display: none;
+  }
+  .lvf :global(.dps-top) {
+    position: absolute;
+    top: 8px;
+    left: 50%;
+    z-index: 4;
+    transform: translateX(-50%);
+    padding: 0 2px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    box-shadow: 0 1px 4px var(--shadow);
+  }
+  .lvf :global(.dps-top .dps-dots) {
+    flex-wrap: nowrap;
+  }
+  .lvf :global(.dps-top .dps-ar),
+  .lvf :global(.dps-top .dps-dot) {
+    width: 32px;
+    height: 36px;
   }
   .lvf-handle {
     flex: none;
@@ -2250,6 +2655,36 @@
   .lv-h3 {
     margin: 0;
     font-size: var(--fs-body);
+  }
+  .lv-lastshop {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 12px;
+    padding: 10px 12px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+  }
+  .lv-water-set {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .lv-water-set summary {
+    cursor: pointer;
+    font-size: var(--fs-small);
+    color: var(--ink-2);
+  }
+  .lv-water-f {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    font-size: var(--fs-small);
+  }
+  .lv-lastshop .lv-h3 {
+    display: flex;
+    align-items: center;
+    gap: 6px;
   }
   .lvf-order {
     display: flex;

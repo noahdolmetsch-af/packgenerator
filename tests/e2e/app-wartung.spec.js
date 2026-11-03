@@ -95,6 +95,8 @@ test('a copy before an update, the line in the news banner, and back to the stat
   await expect(sec.locator('[data-snapshot="restore"]')).toHaveCount(1);
   // the switch is on by default
   await expect(sec.getByRole('switch', { name: T('Backup before every update') })).toBeChecked();
+  // Noah 1.11.2026 «1a» (changed on purpose): the backup file in the downloads folder is off by default
+  await expect(sec.getByRole('switch', { name: T('Also save a backup file before every update') })).not.toBeChecked();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1)).toBe(true);
   expect(errors).toEqual([]);
 });

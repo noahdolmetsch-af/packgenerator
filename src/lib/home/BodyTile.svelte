@@ -9,30 +9,42 @@
   import { Activity, ArrowUp, ArrowDown, ArrowRight, ClipboardList, Check, ChevronRight } from '@lucide/svelte';
   import { db } from '../db.js';
   import { addDays } from '../health.js';
-  import { bodyToday } from './body.js';
+  import { bodyToday, bodyWeek } from './body.js';
+  import FitbitStand from '../health/FitbitStand.svelte';
   import TileHead from './TileHead.svelte';
   import { health } from '../health/client.svelte.js';
   import { fitbitEmpty } from '../health/emptyline.js';
+  import { phone } from '../media.svelte.js';
+  import BodySheet from './BodySheet.svelte';
   import { t, tn, locale } from '../i18n.svelte.js';
 
   let { today, due = 0, areas = [], evening = false, open = false, onstart = () => {} } = $props();
 
-  const hq = $derived(liveQuery(() => (db.healthDays ? db.healthDays.where('date').aboveOrEqual(addDays(today, -1)).toArray() : [])));
+  const hq = $derived(liveQuery(() => (db.healthDays ? db.healthDays.where('date').aboveOrEqual(addDays(today, -7)).toArray() : [])));
   const body = $derived(bodyToday($hq ?? [], today));
+  // Noah 2.11.2026 «1a»: nothing new from Fitbit yet → the last values of the last 7 days, each marked with its day
+  const lastVals = $derived(body.rows.some((r) => r.now != null) ? null : bodyWeek($hq ?? [], today));
   const n1 = (x) => Number(x).toLocaleString(locale(), { maximumFractionDigits: 1 });
   const LABEL = { pulse: 'Resting pulse|body', sleep: 'Sleep|body', score: 'Sleep score|body', azm: 'Active zone minutes|body' };
   const fmt = (r, x) => (x == null ? '–' : r.key === 'sleep' ? `${n1(x)} h` : r.key === 'score' && r.kind === 'efficiency' ? `${x} %` : String(Math.round(x)));
   const label = (r) => (r.key === 'score' && r.kind === 'efficiency' ? t('Sleep efficiency|body') : t(LABEL[r.key]));
+  // «Neuer Schwung» Blatt von unten (Noah 27.10.2026 «a»): on a phone the tile opens a sheet, the computer keeps the link
+  let sheet = $state(false);
   const shortDay = (iso) => new Date(`${iso}T12:00:00Z`).toLocaleDateString(locale(), { day: 'numeric', month: 'short', timeZone: 'UTC' });
 </script>
 
 <section class="bd surf" aria-labelledby="bd-h" data-section="body">
   <div class="hd">
     <TileHead icon={Activity} id="bd-h" title={t('Your body today')} />
-    <a class="go" href="#/me/insights">{t('Details|body')}<ChevronRight size={16} aria-hidden="true" /></a>
+    {#if phone.matches}
+      <button type="button" class="go" aria-haspopup="dialog" onclick={() => (sheet = true)} data-body-open>{t('Details|body')}<ChevronRight size={16} aria-hidden="true" /></button>
+    {:else}
+      <a class="go" href="#/me/insights">{t('Details|body')}<ChevronRight size={16} aria-hidden="true" /></a>
+    {/if}
   </div>
-  {#if body.any}
-    <dl class="vals">
+  {#if body.rows.some((r) => r.now != null)}
+    <!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_noninteractive_element_interactions (the «Details» button does the same by keyboard) -->
+    <dl class="vals" class:tap={phone.matches} onclick={() => phone.matches && (sheet = true)}>
       {#each body.rows as r (r.key)}
         <div data-body={r.key}>
           <dt>{label(r)}</dt>
@@ -48,10 +60,20 @@
         </div>
       {/each}
     </dl>
+  {:else if lastVals?.any}
+    <dl class="vals" data-body-last>
+      {#each lastVals.rows.filter((r) => r.now != null) as r (r.key)}
+        <div data-body={r.key}>
+          <dt>{label(r)}</dt>
+          <dd><b class="num">{fmt(r, r.now)}</b><span class="yd"><span class="num">{r.day === addDays(today, -1) ? t('from yesterday') : shortDay(r.day)}</span></span></dd>
+        </div>
+      {/each}
+    </dl>
   {:else}
     {@const e = fitbitEmpty(health)}
     <p class="empty" data-fitbit-empty={e.why}>{e.text ? t(e.text, { date: e.date ? shortDay(e.date) : '' }) : t('Connect Fitbit and your resting pulse, sleep and active zone minutes show here.')} <a href={e.href}>{t(e.link)}</a></p>
   {/if}
+  <FitbitStand />
   <!-- the check of the moment: Morgen-Check, from the evening round time the Abend-Check -->
   <div class="ck" class:done={!due} data-body-check={evening ? 'evening' : 'morning'}>
     <span class="ci" aria-hidden="true">{#if due}<ClipboardList size={18} />{:else}<Check size={18} strokeWidth={2.6} />{/if}</span>
@@ -65,6 +87,7 @@
   </div>
   <p class="note">{t('Only to look at: the arrow compares with yesterday.')}</p>
 </section>
+{#if phone.matches}<BodySheet bind:open={sheet} {today} />{/if}
 
 <style>
   .bd {
@@ -84,6 +107,10 @@
     flex: 1;
   }
   .go {
+    border: 0;
+    background: transparent;
+    padding: 0;
+    cursor: pointer;
     display: inline-flex;
     align-items: center;
     min-height: 44px;
@@ -97,6 +124,9 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 10px 16px;
     margin: 0;
+  }
+  .vals.tap {
+    cursor: pointer;
   }
   .vals div {
     display: flex;

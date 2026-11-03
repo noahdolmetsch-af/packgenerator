@@ -11,9 +11,12 @@
    *
    * onnav(p, ev) runs before a line's link opens (the window closes itself; a line for «Data and backup»
    * opens that window instead of an address).
+   * «Ausprobieren» (Noah 27.10.2026 «1a»): every line leads to its exact place (know/newsgo.js, newsRun.js):
+   * the page, then the window or fold, and the spot glows.
    */
   import { shortVersion, iconOf, boxLabel } from '../whatsnew.js';
-  import { openData } from '../nav.js';
+  import { goOf, hrefOf } from './newsgo.js';
+  import { goNews } from './newsRun.js';
   import { t, locale } from '../i18n.svelte.js';
   import { ChevronRight, Star, Check, Save, Palette, Sparkles, User, Inbox, StickyNote, Wrench, Bike, Shirt, Package, Activity, BookOpen, Blocks, Copy, Backpack, Route, Compass, Sun } from '@lucide/svelte';
 
@@ -23,10 +26,10 @@
   const when = $derived(top ? t('New · {date}', { date: day(e.date, { day: 'numeric', month: 'short', year: 'numeric' }) }) : day(e.date, { day: 'numeric', month: 'short' }));
   function go(p, ev) {
     onnav?.(p, ev);
-    if (p.action !== 'data') return;
-    ev.preventDefault();
-    openData();
+    goNews(p, ev);
   }
+  // a line with only «where it shows up» still is a link (its tap shows the line)
+  const linkOf = (p) => hrefOf(goOf(p)) ?? (goOf(p) ? '#/me/news' : null);
 </script>
 
 <article class="vn" class:card data-version={e.version} aria-labelledby={id}>
@@ -37,8 +40,8 @@
     {#each e.points as p (p.text)}
       {@const Icon = ICON[iconOf(p)] ?? Sparkles}
       <li>
-        {#if p.href}
-          <a class="vn-row" href={p.href} onclick={(ev) => go(p, ev)}><span class="vn-ib" aria-hidden="true"><Icon size={16} /></span><span class="vn-x">{t(p.text)}</span><ChevronRight class="vn-chev" size={16} aria-hidden="true" /></a>
+        {#if linkOf(p)}
+          <a class="vn-row" href={linkOf(p)} onclick={(ev) => go(p, ev)}><span class="vn-ib" aria-hidden="true"><Icon size={16} /></span><span class="vn-x">{t(p.text)}</span><ChevronRight class="vn-chev" size={16} aria-hidden="true" /></a>
         {:else}
           <div class="vn-row"><span class="vn-ib" aria-hidden="true"><Icon size={16} /></span><span class="vn-x">{t(p.text)}</span></div>
         {/if}
@@ -50,7 +53,7 @@
       {#each e.small as s (s.text)}
         <li data-box={s.box}>
           <span class="vn-kt" class:fix={s.box === 'fixed'}>{t(boxLabel(s.box))}</span>
-          {#if s.href}<a href={s.href} onclick={(ev) => go(s, ev)}>{t(s.text)}</a>{:else}<span>{t(s.text)}</span>{/if}
+          {#if linkOf(s)}<a href={linkOf(s)} onclick={(ev) => go(s, ev)}>{t(s.text)}</a>{:else}<span>{t(s.text)}</span>{/if}
         </li>
       {/each}
     </ul>

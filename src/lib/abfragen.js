@@ -18,6 +18,7 @@
 import { addDays } from './flow.js';
 import { HELLO_QUESTIONS } from './home/hallo.js'; // HG1 2b: the two questions behind the greeting on Today
 import { clockOf } from './dayclock.js';
+import { DATA_QUESTIONS } from './datenfragen.js'; // 03.11.2026 «Fragen aus deinen Daten»
 /** v0.144.0 RE: the day starts at 11:00, the evening at 18:00 (the one day clock). */
 const DAY_FROM = clockOf('day');
 const EVENING_FROM = clockOf('evening');
@@ -201,7 +202,8 @@ export const SAMPLE_QUESTIONS = [
 ];
 export const QUESTIONS = [...BASE_QUESTIONS, ...SAMPLE_QUESTIONS];
 // HG1 2b: the answers to the greeting on Today land in the same history, so the lookup knows their questions too
-export const QUESTION = Object.fromEntries([...QUESTIONS, ...HELLO_QUESTIONS].map((x) => [x.id, x]));
+// 03.11.2026 «Fragen aus deinen Daten»: their answers land in the same history, so the lookup knows them too (not in the list)
+export const QUESTION = Object.fromEntries([...QUESTIONS, ...HELLO_QUESTIONS, ...Object.values(DATA_QUESTIONS)].map((x) => [x.id, x]));
 
 /** Noah 14.10.2026 00:06:33: 31 of the 50 are on at the start, as drawn in AB5 (per area 4·4·3·3·2·3·2·3·4·3); Paket P adds its 4 evening questions, on: 35. */
 export const ON_AT_START = new Set([

@@ -20,6 +20,7 @@ import { applyTicks } from '../stravaticks.js';
 import { t, tn } from '../i18n.svelte.js';
 import { loadRules, applyImport, updateEntry, deleteEntries, restoreEntries, syncBikes } from '../kmbookdb.js';
 import { rematchOpen, inStart, ledgerStart } from '../kmbook.js';
+import { callWithTimeout, FETCH_LIMIT_MS } from '../ui/connstatus.js';
 import { planSync, suggestBike, mergeChanges, recheckFrom, FETCH_MODES, NO_BIKE_MODES, AUTO_EVERY_MS, RECHECK_DAYS } from '../stravasync.js';
 import { WALL_KEY, wallOf, wallRecord } from '../home/tiles.js';
 import { actRecord, KEEP, needDetail, ZONES_KEY, DETAIL_V } from '../training.js';
@@ -37,6 +38,8 @@ export const LAST_KEY = 'strava.last';
 /** db.meta (this device only, never exported): when this device last tried to fetch. */
 export const TRY_KEY = 'strava.try';
 export const STRAVA_HASH = '#/bikes?tab=care&view=strava';
+/** localStorage (this device only): an invite from a friend's link (#…&invite=…), until Strava is connected. */
+export const INVITE_LS = 'pg.strava.invite';
 export const CHECK_HASH = '#/bikes?tab=care&view=strava-check';
 const LAYOUT_KEY = 'homeLayout';
 
@@ -77,7 +80,24 @@ export function dropKey(ls = globalThis.localStorage) {
 }
 
 /** The live state for the pages. */
-export const strava = $state({ loaded: false, key: false, busy: false, error: '', justConnected: false, prefs: prefsOf(null), changes: [], last: null });
+export const strava = $state({ since: 0, got: 0, loaded: false, key: false, busy: false, error: '', justConnected: false, prefs: prefsOf(null), changes: [], last: null, invite: readInvite() });
+
+function readInvite(ls = globalThis.localStorage) {
+  try {
+    return ls?.getItem(INVITE_LS) || '';
+  } catch {
+    return '';
+  }
+}
+function writeInvite(code, ls = globalThis.localStorage) {
+  try {
+    if (code) ls?.setItem(INVITE_LS, code);
+    else ls?.removeItem(INVITE_LS);
+  } catch {
+    /* the invite stays only in memory */
+  }
+  strava.invite = code || '';
+}
 
 if (typeof window !== 'undefined' && typeof indexedDB !== 'undefined') {
   strava.key = !!readKey();
@@ -107,9 +127,10 @@ export async function call(step, { method = 'GET', body = null, params = {}, key
   if (body) headers['Content-Type'] = 'application/json';
   let res;
   try {
-    res = await doFetch(`${STRAVA_URL}?${q}`, { method, headers, body: body ? JSON.stringify(body) : undefined });
-  } catch {
-    throw new StravaError('network');
+    // Noah 03.11.2026 «1a»: a call without an answer ends after 60 s (a whole fetch after 2 minutes, see runSync)
+    res = await callWithTimeout(doFetch, `${STRAVA_URL}?${q}`, { method, headers, body: body ? JSON.stringify(body) : undefined }, 60_000);
+  } catch (err) {
+    throw new StravaError(err?.code === 'timeout' ? 'timeout' : 'network');
   }
   const data = await res.json().catch(() => null);
   // BF8 «Gratis-Grenzen»: the server passes Strava's request numbers along; the latest stay on this device
@@ -127,7 +148,8 @@ export async function savePrefs(db, patch) {
  * One fetch: the bikes, every page of rides, the plan, the writes. Returns the summary (LAST_KEY).
  * db: the app's database (tests: their own); c: the server call (tests: a fake).
  */
-export async function runSync(db, { call: c = call, now = new Date() } = {}) {
+export async function runSync(db, { call: c = call, now = new Date(), onProgress = null, limitMs = FETCH_LIMIT_MS, clock = () => Date.now() } = {}) {
+  const startedAt = clock();
   const prefs = prefsOf((await db.settings.get(PREFS_KEY))?.value);
   const first = !prefs.lastSync;
   const gearRes = await c('gear');
@@ -144,7 +166,10 @@ export async function runSync(db, { call: c = call, now = new Date() } = {}) {
   for (let page = 1; page <= 100; page++) {
     const res = await c('activities', { params: { page: String(page), ...(after != null ? { after: String(Math.max(0, after)) } : {}) } });
     activities.push(...(res.activities ?? []));
+    onProgress?.({ got: activities.length });
     if (!res.more) break;
+    // Noah 03.11.2026 «1a»: after 2 minutes the fetch ends before anything is written, so no ride is lost; the next try starts again
+    if (clock() - startedAt > limitMs) throw new StravaError('timeout');
   }
   const bikes = await db.bikes.toArray();
   const rules = await loadRules(db);
@@ -185,7 +210,9 @@ async function fetchOnce({ db = appDb, c = call, now = new Date() } = {}) {
   strava.error = '';
   try {
     await db.meta.put({ key: TRY_KEY, at: now.toISOString() });
-    return await runSync(db, { call: c, now });
+    strava.since = now.getTime();
+    strava.got = 0;
+    return await runSync(db, { call: c, now, onProgress: ({ got }) => (strava.got = got) });
   } catch (err) {
     const code = err?.code ?? 'network';
     strava.error = code;
@@ -230,6 +257,19 @@ export function takeReturn(loc = globalThis.location, hist = globalThis.history,
   if (i < 0) return null;
   const q = new URLSearchParams(h.slice(i + 1));
   const s = q.get('strava');
+  // «Freund einladen»: the link carries an invite; it waits on this device until Strava is connected
+  const invite = q.get('invite');
+  if (invite && /^[\w-]{8,40}$/.test(invite) && !s) {
+    writeInvite(invite, ls);
+    q.delete('invite');
+    const rest = q.toString();
+    try {
+      hist?.replaceState(null, '', `${loc.pathname}${loc.search}${h.slice(0, i)}${rest ? `?${rest}` : ''}`);
+    } catch {
+      /* the address stays */
+    }
+    return { invited: true };
+  }
   if (!s) return null;
   const key = q.get('key');
   const error = q.get('error');
@@ -242,6 +282,7 @@ export function takeReturn(loc = globalThis.location, hist = globalThis.history,
   }
   if (s === 'connected' && key) {
     writeKey(key, ls);
+    writeInvite('', ls);
     strava.key = true;
     strava.justConnected = true;
     strava.error = '';
@@ -256,7 +297,7 @@ export async function connect({ c = call, loc = globalThis.location } = {}) {
   strava.error = '';
   try {
     const returnTo = `${loc.origin}${loc.pathname}${STRAVA_HASH}`;
-    const { url } = await c('start', { method: 'POST', body: { returnTo }, key: null });
+    const { url } = await c('start', { method: 'POST', body: { returnTo, ...(strava.invite ? { invite: strava.invite } : {}) }, key: null });
     loc.href = url;
     return url;
   } catch (err) {
@@ -462,3 +503,32 @@ export async function undoAutoAssign(db, put = [], bikes = []) {
     }
   });
 }
+
+/* ---------- Freunde (Noah 27.10.2026 «jederzeit umstellen»): only the owner's devices ---------- */
+
+/** The address a friend opens: the app's Strava page with the invite. */
+export const inviteLink = (code, loc = globalThis.location) => `${loc.origin}${loc.pathname}${STRAVA_HASH}&invite=${encodeURIComponent(code)}`;
+
+/** A new invite (7 days, once) → { code, until, link }. */
+export async function makeInvite({ c = call, loc = globalThis.location } = {}) {
+  const r = await c('invite', { method: 'POST', body: {} });
+  return { code: r.code, until: r.until, link: inviteLink(r.code, loc) };
+}
+
+/** The friends the owner let in → [{ id, name, since, connected, inVercel }], or null on a friend's device. */
+export async function loadFriends({ c = call } = {}) {
+  try {
+    return (await c('friends')).friends ?? [];
+  } catch (err) {
+    if (err?.code === 'unauthorized') return null;
+    throw err;
+  }
+}
+
+/** Takes a friend out: their Strava and Fitbit accesses and every device key of theirs go. */
+export async function removeFriend(id, { c = call } = {}) {
+  return c('friend-remove', { method: 'POST', body: { id } });
+}
+
+/** Forget the invite on this device (e.g. it was a wrong link). */
+export const dropInvite = () => writeInvite('');

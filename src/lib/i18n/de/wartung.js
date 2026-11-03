@@ -1,5 +1,5 @@
 /**
- * «App-Wartung» (Noah 13.10.2026, BF4 BF7 BF8): Sicherung vor jedem Update, Gratis-Grenzen (Strava) und
+ * «App-Wartung» (Noah 13.10.2026, BF4 BF7 BF8): Kopie vor jedem Update, Gratis-Grenzen (Strava) und
  * der monatliche Wartungs-Check. Keys are the English texts. Swiss spelling (ss).
  */
 export default {
@@ -15,7 +15,7 @@ export default {
   'Go back': 'Zurückgehen',
   'Done: your data is back at the state of {when}. The state before is kept as a copy here.': 'Erledigt: deine Daten sind wieder auf dem Stand vom {when}. Der Stand davor ist hier als Kopie behalten.',
   'No copy yet: the first one is made before the next update.': 'Noch keine Kopie: die erste entsteht vor dem nächsten Update.',
-  'Backup before every update': 'Sicherung vor jedem Update',
+  'Backup before every update': 'Kopie vor jedem Update',
   'Not in exports and backup files': 'Nicht in Exporten und Backup-Dateien',
   'Your data was backed up before the update. Something wrong?': 'Deine Daten wurden vor dem Update gesichert. Stimmt etwas nicht?',
   'Back to the state before the update': 'Zurück zum Stand vor dem Update',

@@ -5,6 +5,7 @@
    * the back button and a reload come back to the same place. The old #/care lands on Care.
    * v0.78.0 «Fünf Orte» 2: the tabs are the place's tabs on top (nav/PlaceTabs), with Masse.
    */
+  import BikeCards from '../lib/bikes/BikeCards.svelte';
   import PinnedLists from '../lib/merken/PinnedLists.svelte';
   import { parseBikesHash, bikesHash } from '../lib/bikes.js';
   import AreaIntro from '../lib/intro/AreaIntro.svelte'; // «Einstieg» on top (Noah «4a»)
@@ -122,6 +123,9 @@
   {:else if route.tab === 'care' && route.view === 'stock'}
     <!-- Paket VG «Das Velo im Griff» (Noah 20.10.2026); loaded only when opened -->
     {#await import('../lib/care/StockPage.svelte') then m}<m.default bikeId={route.bike} />{:catch}<p class="quiet">{t('This page could not load. Please check the connection and try again.')}</p>{/await}
+  {:else if route.tab === 'care' && route.view === 'rounds'}
+    <!-- Velo-Idee 76 «Werkstatt-Runden» (Noah 26.10.2026 «4a 5a»); loaded only when opened -->
+    {#await import('../lib/werkstatt/RoundsPage.svelte') then m}<m.default bikeId={route.bike} />{:catch}<p class="quiet">{t('This page could not load. Please check the connection and try again.')}</p>{/await}
   {:else if route.tab === 'care' && route.view === 'year'}
     <!-- Velo-Jahresrückblick (Noah 26.10.2026 «3a»); loaded only when opened -->
     {#await import('../lib/care/YearPage.svelte') then m}<m.default bikeId={route.bike} />{:catch}<p class="quiet">{t('This page could not load. Please check the connection and try again.')}</p>{/await}
@@ -141,6 +145,7 @@
     <CareTab bikeId={route.bike} open={route.open} tripId={route.trip ?? null} onbike={pickBike} onopened={opened} />
   {:else}
     <AreaIntro place="velos" />
+    <BikeCards bikeId={shownBike} onbike={pickBike} />
     <SetupTab bikeId={shownBike} more={route.open} onbike={pickBike} onopened={opened} />
     <PinnedLists place="bikes" />
     <PageTiles page="bikes" extrasHint />

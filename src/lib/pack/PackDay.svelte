@@ -37,9 +37,10 @@
   import { phone } from '../media.svelte.js';
   import { localDay } from '../localday.js';
   import { swipeRight } from '../ui/swipe.js';
+  import PackBike from './PackBike.svelte';
   import '../trip/trip.css';
 
-  let { trip, steps, itemsById, badges = {}, ready = [], wxGap = null, onwx = () => {}, ontoggle, onready, onpack = () => {}, onreadyall = () => {}, onnext, onundo = () => {}, canUndo = false, main = { kind: 'finish', label: 'Finish packing' }, onend = () => {}, bike = true, lessons = [], reminders = [], oncharge = null, pressure = '', stats = null, charge = null, top = null, fixed = false, onread = null, onmove = null, spare = [] } = $props();
+  let { trip, steps, itemsById, badges = {}, ready = [], wxGap = null, wxd = null, onwx = () => {}, ontoggle, onready, onpack = () => {}, onreadyall = () => {}, onnext, onundo = () => {}, canUndo = false, main = { kind: 'finish', label: 'Finish packing' }, onend = () => {}, bike = true, lessons = [], reminders = [], oncharge = null, pressure = '', stats = null, charge = null, top = null, fixed = false, onread = null, onmove = null, spare = [] } = $props();
   // TZ-2 «Fest nach der Fahrt» (mockup TZ2, Noah 5a): a completed or rated trip (fixed) shows its bags as
   // packed then, to read: no ticks, no «Whole bag packed»; the band under the steps says why and offers
   // «Wieder öffnen».
@@ -467,6 +468,13 @@
   {#if wxGap}
     <div class="card wxgap" role="note">
       <p><b>{t('The forecast is {wx}.', { wx: wxText(wxGap.fc) })}</b> {t('This trip is packed for {wx}.', { wx: wxText(wxGap.have) })}</p>
+      {#if wxd}
+        <ul class="wxd" data-wx-diff>
+          {#if wxd.add.length}<li data-wx-add>{t('New on the list')}: {wxd.add.map(nameOf).join(' · ')}</li>{/if}
+          {#if wxd.leave.length}<li data-wx-leave>{t('Can stay at home')}: {wxd.leave.map(nameOf).join(' · ')}</li>{/if}
+          {#if wxd.rain}<li data-wx-rain>{wxd.rain === 'more' ? t('Rain is coming: rain protection belongs on the list.') : t('The rain is gone: rain protection can stay at home.')}</li>{/if}
+        </ul>
+      {/if}
       <button type="button" class="btn" onclick={onwx} data-explain={t('Pack for the forecast first')}>{t('Forecast first')}</button>
     </div>
   {/if}
@@ -545,6 +553,7 @@
       <section class="psec" aria-labelledby="bags-h">
         <h2 id="bags-h" class="sh">{t('Bags')}</h2>
         <p class="ssub"><span class="num packed-count">{t('{n} of {total} packed', { n: packed, total })}</span>{' · '}{t('tap a bag')}{#if !fixed}{@render photoTick()}{/if}{#if onread && !phone.matches}<button type="button" class="btn sm pd-read-w" onclick={onread}><Volume2 size={16} aria-hidden="true" /> {t('Read aloud')}</button>{/if}{@render sideSwitch()}</p>
+        <PackBike {steps} {cur} onpick={pick} />
         <ul class="blist">
           {#each steps as s (s.key)}{@render bagRow(s, iconOf(s.key), full(s), s.key === cur)}{/each}
           {#if ready.length}
@@ -645,6 +654,8 @@
   .ring b { position: absolute; inset: 0; display: grid; place-items: center; font-size: var(--fs-tiny); font-weight: 700; color: var(--ink); }
   .wxgap { margin: 0 0 16px; background: var(--info-soft); }
   .wxgap p { margin: 0 0 10px; }
+  .wxd { margin: 0 0 10px; padding-left: 18px; }
+  .wxd li { margin: 0 0 4px; }
   .pcols { display: grid; grid-template-columns: minmax(0, 1fr); gap: 24px; }
   .pmain, .pside { display: grid; grid-template-columns: minmax(0, 1fr); gap: 24px; align-content: start; min-width: 0; }
   @media (min-width: 900px) { .pcols { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); align-items: start; } }
@@ -678,6 +689,8 @@
   .mrow { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 64px; padding: 8px 16px; border: 0; background: none; color: var(--ink); font: 400 var(--fs-body) var(--font-body); text-align: left; cursor: pointer; }
   .blist { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(132px, 100%), 1fr)); gap: 10px; }
   @media (max-width: 479px) { .blist { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; } }
+  /* on the smallest phones (320 px) three tiles are too narrow for «Oberrohrtasche»: two per row */
+  @media (max-width: 359px) { .blist { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
   .brow { min-width: 0; border: 1px solid var(--line); border-radius: 14px; background: var(--paper); box-shadow: 0 1px 2px var(--shadow); transition: border-color 200ms var(--ease-out), box-shadow 200ms var(--ease-out); }
   .brow.open { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
   .brow .bagh, .brow .bsel { display: flex; flex-direction: column; align-items: center; gap: 6px; width: 100%; height: 100%; min-height: 44px; padding: 12px 6px 10px; border: 0; border-radius: inherit; background: none; color: var(--ink); font: 400 var(--fs-body) var(--font-body); text-align: center; cursor: pointer; }

@@ -15,10 +15,14 @@
   import Empty from '../ui/Empty.svelte';
   import { liveQuery } from 'dexie';
   import { db } from '../db.js';
-  import { SLOTS, SLOT, sortBikes, bikeSetup, bagsFor, containerWeight, formatVolume, bikesHash, bikeWeightKind, placesOf } from '../bikes.js';
+  import { SLOTS, SLOT, sortBikes, bikeSetup, bagsFor, containerWeight, formatVolume, bikesHash, bikeWeightKind, placesOf, onBikeSlot } from '../bikes.js';
+  import { activeBikes, retiredBikes, retireBike, restoreBike } from '../bikeretire.js';
+  import RetireSheet from './RetireSheet.svelte';
+  import RetiredList from './RetiredList.svelte';
   import RenameSheet from '../ui/RenameSheet.svelte';
-  import { offerRename } from '../ui/rename.svelte.js';
+  import { offerRename, offerDone } from '../ui/rename.svelte.js';
   import { formatWeight, parseGrams } from '../gear.js';
+  import { bagWords } from './bagwords.js';
   import { Bike as BikeIcon, Briefcase, Plus, ChevronRight, Scale, User, Wrench, MoreHorizontal, Package, Route, BookOpen, Image as ImageIcon, ArrowLeftRight, RefreshCw, Tag } from '@lucide/svelte';
   import SetupBand from './SetupBand.svelte';
   import SetupDrawing from './SetupDrawing.svelte';
@@ -54,7 +58,7 @@
   import { setOwnLink, removeOwnLink, setLinkOff } from '../sk/store.js';
   import OwnLinkSheet from '../sk/OwnLinkSheet.svelte';
   import SkToast from '../sk/SkToast.svelte';
-  import { Pencil, EyeOff, ShieldCheck, Gauge } from '@lucide/svelte';
+  import { Archive, Pencil, EyeOff, ShieldCheck, Gauge } from '@lucide/svelte';
   import { wearRows, wearSummary } from '../wear.js';
   import { take } from '../nav.js';
   import { strava } from '../strava/client.svelte.js';
@@ -71,7 +75,9 @@
   const visitsQ = liveQuery(() => db.visits.toArray());
   const tasksQ = liveQuery(() => db.maintenance.toArray());
 
-  const bikes = $derived(sortBikes($bikesQ ?? []));
+  const allBikes = $derived(sortBikes($bikesQ ?? []));
+  const bikes = $derived(activeBikes(allBikes)); // «Velos ausmustern»: retired bikes wait at the bottom
+  const retired = $derived(retiredBikes(allBikes));
   const bags = $derived($bagsQ ?? []);
   const items = $derived($itemsQ ?? []);
   const itemsById = $derived(Object.fromEntries(items.map((i) => [i.id, i])));
@@ -164,6 +170,7 @@
                 { name: t('Don’t show «{name}» any more', { name: t(LINKS.x9.label) }), explain: t('Comes back under Me › Appearance'), icon: EyeOff, run: hideMaker },
               ]
             : []),
+          { name: t('Retire bike'), explain: t('Sold, given away or broken: hides it, keeps everything'), icon: Archive, run: () => (retireOpen = bike) },
           // Alles fertig (Versteckte Funktionen, Noah 22.10.2026 «1a»): the sale listing also in the bike's «…»
           { name: t('Sale listing'), explain: t('A text from km, services and parts'), icon: Tag, run: () => (location.hash = bikesHash({ tab: 'care', view: 'sell', bike: bike.id })) },
         ]
@@ -273,14 +280,35 @@
   let sheet = $state(null); // the place whose bag is being chosen
   let dialog = $state(null); // { bag } or { bag: null, slot }
   let bikeDialog = $state(null); // { bike } or { bike: null }
+  let retireOpen = $state(null); // the bike being retired
+  async function doRetire(info) {
+    const b = retireOpen;
+    const before = await retireBike(db, b.id, info);
+    offerDone(t('«{name}» retired.', { name: b.name }), () => restoreBike(db, b.id, before));
+  }
+  async function bringBack(b) {
+    await restoreBike(db, b.id);
+    offerDone(t('«{name}» is back.', { name: b.name }), () => retireBike(db, b.id, b.retired ?? {}));
+  }
   // VS3/VS4 (Noah 14.10.2026 «1a 2b 3a»): the order window, and after a new bike the question «New standard bike?»
   let standardOpen = $state(false);
   let newStd = $state(null); // { id, standard } of a bike just added while there were bikes before
   const newBike = $derived(newStd && bikes.find((b) => b.id === newStd.id));
   // v0.23.0 (AP07): Today's "Add a bike" opens the dialog right away.
-  if (take('bikes.add')) bikeDialog = { bike: null };
+  let backTo = null; // the hash of the tab where «Add bike» was tapped (nav.js wantBike)
+  const openAdd = () => {
+    if (!take('bikes.add')) return false;
+    backTo = take('bikes.add.back');
+    bikeDialog = { bike: null };
+    return true;
+  };
+  const goBack = () => {
+    if (backTo) location.hash = backTo;
+    backTo = null;
+  };
+  openAdd();
   $effect(() => {
-    const add = () => take('bikes.add') && (bikeDialog = { bike: null });
+    const add = () => openAdd();
     window.addEventListener('pg:addbike', add);
     return () => window.removeEventListener('pg:addbike', add);
   });
@@ -436,7 +464,7 @@
           <div class="vh">
             <div class="vh-t">
               <h2 id="std-h">{editMounts ? t('Mounts') : t('Bags')}</h2>
-              <p class="vh-s">{editMounts ? t('{n} of {all} places', { n: bike.slots.filter((k) => MOUNTS.some((m) => m.key === k)).length, all: MOUNTS.length }) : [t('Standard for every new trip on this bike'), tn(setup.bagCount, '{n} bag', '{n} bags'), setup.bagCount && setup.unweighed < setup.bagCount ? formatWeight(setup.bagsG) : ''].filter(Boolean).join(' · ')}</p>
+              <p class="vh-s">{editMounts ? t('{n} of {all} places', { n: bike.slots.filter((k) => MOUNTS.some((m) => m.key === k)).length, all: MOUNTS.length }) : [t('Standard for every new trip on this bike'), bagWords(setup.bagCount, setup.cageCount), setup.bagCount && setup.unweighed < setup.bagCount ? formatWeight(setup.bagsG) : ''].filter(Boolean).join(' · ')}</p>
             </div>
             {#if !editMounts}<button type="button" class="vh-a" onclick={() => (dialog = { bag: null })}>{t('Add bag')}<ChevronRight size={16} aria-hidden="true" /></button>{/if}
           </div>
@@ -596,6 +624,7 @@
     </div>
   {/if}
   {#if !bike}{@render settings()}{@render yourBags()}{/if}
+  <RetiredList bikes={retired} onrestore={bringBack} onedit={(b) => (bikeDialog = { bike: b })} />
 </div>
 
 {#if makerEdit && bike}
@@ -620,8 +649,8 @@
 {#snippet slotRow(s, bag, other)}
                   <button type="button" class="row" id="slot-{s.key}" onclick={() => pick(s.key)}>
                     <span class="ibox" class:empty={!bag}>{#if bag}<Briefcase size={18} aria-hidden="true" />{:else}<Plus size={18} aria-hidden="true" />{/if}</span>
-                    <span class="nm">{#if bag}<b>{bagName(bag.name)}</b>{:else}<b class="quiet">{t('empty · choose a bag')}</b>{/if}<small>{t(s.name)} · {t(s.where)}</small></span>
-                    {#if bag}<span class="w num">{[bag.volumeL ? formatVolume(bag.volumeL) : '', bagWeight(bag) != null ? formatWeight(bagWeight(bag)) : ''].filter(Boolean).join(' · ')}{#if bagWeight(bag) == null}<span class="nw" title={t('not weighed')}><Scale size={14} aria-hidden="true" /><span class="sr">{t('not weighed')}</span></span>{/if}</span>{/if}
+                    <span class="nm">{#if bag}<b>{bagName(bag.name)}</b>{:else}<b class="quiet">{t('empty · choose a bag')}</b>{/if}<small>{t(s.name)} · {t(s.where)}{#if bag && onBikeSlot(s.key)}{' · '}{t('in the bike weight')}{/if}</small></span>
+                    {#if bag}<span class="w num">{[bag.volumeL ? formatVolume(bag.volumeL) : '', onBikeSlot(s.key) ? '' : bagWeight(bag) != null ? formatWeight(bagWeight(bag)) : ''].filter(Boolean).join(' · ')}{#if !onBikeSlot(s.key) && bagWeight(bag) == null}<span class="nw" title={t('not weighed')}><Scale size={14} aria-hidden="true" /><span class="sr">{t('not weighed')}</span></span>{/if}</span>{/if}
                     <ChevronRight class="chev" size={18} aria-hidden="true" />
                   </button>
                   {#if other}
@@ -634,10 +663,12 @@
     <label class="rider">
       <span class="lbl">{t('Rider weight (kg)')}</span>
       <input class="inp num" type="text" inputmode="decimal" value={$riderQ?.value ? $riderQ.value / 1000 : ''} onchange={saveRider} placeholder={t('e.g. 64')} />
+      <small class="why">{t('Used for tyre pressure suggestions and the energy of a ride.')}</small>
     </label>
     <label class="rider">
       <span class="lbl">{t('Hint when rear is over (%)')}</span>
       <input class="inp num" type="text" inputmode="numeric" value={$rearQ?.value ?? ''} onchange={saveRear} placeholder="60" />
+      <small class="why">{t('When more than this share of your luggage sits over the rear wheel, packing shows a hint to move weight forward. Empty means 60 %.')}</small>
     </label>
   </div>
   {#if message}<p class="msg" role="status">{message}</p>{/if}
@@ -706,8 +737,11 @@
 {#if newBike && !bikeDialog}
   <NewStandardSheet bike={newBike} standard={newStd.standard} {bikes} onclose={() => (newStd = null)} />
 {/if}
+{#if retireOpen}
+  <RetireSheet bike={retireOpen} onsave={doRetire} onclose={() => (retireOpen = null)} />
+{/if}
 {#if bikeDialog}
-  <BikeDialog bike={bikeDialog.bike} {bikes} oncreated={(id) => { const others = bikes.filter((b) => b.id !== id); newStd = others.length ? { id, standard: others[0] } : null; firstNext = !others.length && inFirstSteps(); onbike?.(id); }} onsaved={(id) => onbike?.(id)} onclose={() => (bikeDialog = null)} />
+  <BikeDialog bike={bikeDialog.bike} bikes={allBikes} onretire={(b) => (retireOpen = b)} oncreated={(id) => { const others = bikes.filter((b) => b.id !== id); newStd = others.length ? { id, standard: others[0] } : null; firstNext = !others.length && inFirstSteps(); if (backTo) goBack(); else onbike?.(id); }} onsaved={(id) => onbike?.(id)} onclose={() => ((bikeDialog = null), goBack())} />
 {/if}
 
 {#if photoRename}
@@ -1320,6 +1354,12 @@
     display: flex;
     flex-wrap: wrap;
     gap: 12px 24px;
+  }
+  .rider .why {
+    display: block;
+    margin-top: 4px;
+    color: var(--ink-3);
+    font-size: var(--fs-small);
   }
   .rider .inp {
     width: 110px;

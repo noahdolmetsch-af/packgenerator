@@ -14,9 +14,12 @@
   import { Star, Trophy, Plus, Trash2 } from '@lucide/svelte';
   import ChallengeSheet from '../ui/ChallengeSheet.svelte';
   import MsHow from '../flow/hobby/MsHow.svelte';
+  import NudgeSetting from './NudgeSetting.svelte';
+  import ToneSetting from '../flow/ToneSetting.svelte';
+  import RewardRow from '../flow/hobby/RewardRow.svelte';
   import { db } from '../db.js';
   import { normAct } from '../flow.js';
-  import { msContext, newStars, TUNE_KEY } from '../flowms.js';
+  import { msContext, newStars, TUNE_KEY, REWARD_KEY } from '../flowms.js';
   import { actList } from '../flow/starcheck.js';
   import { CHALLENGES_KEY, challengesOf, presetsFor, newActChallenge, challengesFor, actCount, monthEnd } from '../challenge.js';
   import { saveStars, putSetting } from '../flowdb.js';
@@ -24,6 +27,7 @@
   import { msName, starLine, val, countsLine } from '../flow/hobby/words.js';
   import { dayShort } from '../flow/words.js';
   import { actName } from '../flow/ui.svelte.js';
+  import { nextOf } from '../home/nextstars.js';
   import { t, tn, num } from '../i18n.svelte.js';
 
   let { act: given, today } = $props();
@@ -32,15 +36,17 @@
   const q = $derived(
     actId
       ? liveQuery(async () => {
-          const [act, log, sessions, stars, tune, chs] = await Promise.all([
+          const [act, log, sessions, stars, tune, chs, rw, wish] = await Promise.all([
             db.flowActs.get(actId),
             db.flowLog.where('actId').equals(actId).toArray(),
             db.flowSessions.where('actId').equals(actId).toArray(),
             db.flowStars.toArray(),
             db.settings.get(TUNE_KEY),
             db.settings.get(CHALLENGES_KEY),
+            db.settings.get(REWARD_KEY),
+            db.items.where('ownership').equals('wishlist').toArray(),
           ]);
-          return { act: act ? normAct(act) : null, log, sessions, stars, tune: tune?.value ?? {}, all: challengesOf(chs?.value) };
+          return { act: act ? normAct(act) : null, log, sessions, stars, tune: tune?.value ?? {}, all: challengesOf(chs?.value), reward: rw?.value ?? null, wishlist: wish.map((i) => ({ id: i.id, name: i.name, nameDe: i.nameDe })) };
         })
       : null,
   );
@@ -60,6 +66,8 @@
   const done = $derived(mine.filter((c) => actCount(c, data.log) >= c.times));
   const presets = $derived(act ? presetsFor(act, today) : []);
   const sportWord = $derived(act ? actName(act) : '');
+  // «Meilensteine aktiver machen» PR 1: the closest star of this sport, in one line
+  const nextStar = $derived(nextOf(list));
 
   /* the challenge window: a preset, an own one or a running one to change */
   let sheet = $state(false);
@@ -105,8 +113,15 @@
 {#if act}
   <div class="msl" data-milestone-slot={act.id}>
     <p class="small num" data-ms-stars>{tn(starCount, '{n} star', '{n} stars')}</p>
+    {#if nextStar}<p class="small num" data-ms-next>{t('Your next star: {name} · {left} to go', { name: msName(nextStar.r.m), left: val(nextStar.left, nextStar.r.m.unit) })}</p>{/if}
 
     <MsHow sport={sportWord} start={false} />
+    <div class="rwd" data-sport-reward>
+      <RewardRow list={list.filter((r) => !r.off && r.next)} reward={data.reward} wishlist={data.wishlist} onsave={(v) => putSetting(db, REWARD_KEY, v)} />
+      <p class="small">{t('One reward at a time, for any star of any sport.')}</p>
+    </div>
+    <NudgeSetting {act} />
+    <ToneSetting />
 
     <ul class="cnt">
       {#each counters as r (r.id)}
@@ -157,6 +172,11 @@
 {/if}
 
 <style>
+  .rwd {
+    display: grid;
+    gap: 6px;
+    padding: 6px 0;
+  }
   .cnt {
     margin: 10px 0 0;
     padding: 0;

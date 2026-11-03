@@ -1,4 +1,14 @@
 <script>
+  // «Daten und Backup aufräumen» (Noah 01.11.2026 «1a»): the Google sign-in is hidden, the code and the QR couple the
+  // devices. A device that is already signed in still shows its account and «Sign out». The code stays for later.
+  // A hidden way back: localStorage pg.showGoogle = '1' shows it again (the tests of the Google code use it).
+  const SHOW_GOOGLE = (() => {
+    try {
+      return localStorage.getItem('pg.showGoogle') === '1';
+    } catch {
+      return false;
+    }
+  })();
   /**
    * P8 «Automatischer Abgleich» (Noah 18.10.2026 «1b … 2b 3b»): the switch under Ich › Daten und
    * Backup › Handy und Computer. Off: «Switch on» makes a pairing code; «I have a code» pairs with the
@@ -18,6 +28,8 @@
   import { t, tn, locale } from '../i18n.svelte.js';
   import QrCode from '../ich/QrCode.svelte';
   import { newCode, readCode } from './code.js';
+  import { runningLine, failedLine } from '../ui/connstatus.js';
+  import { compareSync, fixMissing } from './compare.js';
   import { startSync, stopSync, readCfg, lostVersions, bringBack, dropLost } from './engine.js';
   import { sync, runSync } from './auto.svelte.js';
   import { kindOf, titleOf } from './show.js';
@@ -44,6 +56,9 @@
   const linkOf = (code) => `${location.origin}${location.pathname}#/me/data?koppeln=${code}`;
   const ERR = {
     offline: () => t('No network right now. The sync catches up later.'),
+    timeout: () => t('The server did not answer in time. The app tries again.'),
+    storage_full: () => t('This device has no space left to save the data. Free some space; the sync tries again.'),
+    local_error: () => t('This device could not save an entry. The sync tries again.'),
     not_ready: () => t('The sync is not ready on the server yet.'),
     storage_not_set_up: () => t('The sync is not ready on the server yet.'),
     not_set_up: () => t('Signing in with Google is not ready on the server yet. The code or the invite link works.'),
@@ -143,7 +158,7 @@
     try {
       if (await hasDataIn(db)) await takeSnapshot(db, snapDb(), { version: typeof __APP_VERSION__ === 'string' ? __APP_VERSION__ : null, kind: 'sync' });
       await startSync(db, code);
-      await runSync(db);
+      return await runSync(db);
     } finally {
       busy = false;
       pairing = false;
@@ -162,6 +177,51 @@
       message = errText(e?.code);
     }
   }
+  /** What a finished round says (Noah 1.11.2026: «im Frontend fehlt eine Erfolgsmeldung»). */
+  const doneText = (r) => (r?.taken || r?.sent ? t('Done: {taken} received, {sent} sent.', { taken: r.taken ?? 0, sent: r.sent ?? 0 }) : t('Done: both devices are up to date.'));
+  async function syncButton() {
+    message = '';
+    const r = await runSync(db);
+    const err = await lastError();
+    message = err ? errText(err) : r?.skipped ? '' : doneText(r);
+  }
+  // Noah 03.11.2026: «Gleicht ab …» hung and nothing said how long, how far, or when it last worked
+  let now = $state(Date.now());
+  $effect(() => {
+    if (!sync.running) return;
+    now = Date.now();
+    const id = setInterval(() => (now = Date.now()), 1000);
+    return () => clearInterval(id);
+  });
+  const runLine = (at) => runningLine(t, { since: sync.since, now: at, progress: { phase: sync.phase, n: sync.n } });
+  // «Abgleich vergleichen» (Noah 03.11.2026 «a»): what the server holds and this device lacks, and the other way round
+  let cmp = $state(null);
+  async function compare() {
+    busy = true;
+    message = '';
+    cmp = null;
+    try {
+      cmp = await compareSync(db);
+    } catch (e) {
+      message = errText(e?.code);
+    } finally {
+      busy = false;
+    }
+  }
+  const names = (rows) => rows.slice(0, 8).map((r) => `${kindOf(r.t)} ${titleOf(r.v, r.id, r.t)}`).join(', ') + (rows.length > 8 ? ` … (+${rows.length - 8})` : '');
+  async function fill() {
+    busy = true;
+    try {
+      const r = await fixMissing(db, cmp);
+      cmp = null;
+      await runSync(db);
+      message = t('Filled in: {got} taken here, {sent} sent.', r);
+    } catch (e) {
+      message = errText(e?.code);
+    } finally {
+      busy = false;
+    }
+  }
   async function pairWith(code) {
     const c = readCode(code);
     if (!c) {
@@ -169,10 +229,10 @@
       return;
     }
     try {
-      await begin(c);
+      const r = await begin(c);
       const err = await lastError();
       view = '';
-      message = err ? errText(err) : t('Paired. From now on both devices keep the same data.');
+      message = err ? errText(err) : `${t('Paired. From now on both devices keep the same data.')} ${doneText(r)}`;
     } catch (e) {
       view = '';
       message = errText(e?.code);
@@ -269,10 +329,12 @@
         <button type="button" class="btn hi" disabled={busy || !!$demoQ} onclick={switchOn}>{t('Switch on sync')}</button>
         <button type="button" class="btn" disabled={busy || !!$demoQ} onclick={() => (view = 'enter')}>{t('I have a code')}</button>
       </div>
+      {#if SHOW_GOOGLE}
       <p class="way" data-sync-way="google"><b>{t('Or with your Google account')}</b> {t('Google keeps the code for you: on the next device, simply sign in.')}</p>
       <div class="ich-acts">
         <button type="button" class="btn" disabled={busy || !!$demoQ} onclick={google} data-sync-google>{t('Sign in with Google')}</button>
       </div>
+      {/if}
       <p class="small">{t('Without sync everything stays on this device.')} <a href="#/me/privacy">{t('Privacy and terms')}</a></p>
       {#if $demoQ}<p class="small">{t('Off while the demo runs')}</p>{/if}
     {/if}
@@ -280,8 +342,8 @@
     <p class="state" data-sync-state={sync.running ? 'running' : $cfgQ.error ? 'error' : 'ok'}>
       <span class="dot {$demoQ ? 'off' : $cfgQ.error ? 'warn' : 'ok'}" aria-hidden="true"></span>
       <span class="st">{#if $demoQ}{t('Paused while the demo runs.')}
-      {:else if sync.running}{t('Syncing …')}
-      {:else if $cfgQ.error}{errText($cfgQ.error)}
+      {:else if sync.running}{runLine(now)}
+      {:else if $cfgQ.error}{failedLine(t, { reason: errText($cfgQ.error), lastOkAt: $cfgQ.lastAt, when })}
       {:else if $cfgQ.lastAt}{t('On · last synced {when}.', { when: when($cfgQ.lastAt) })}
       {:else}{t('On · not synced yet.')}{/if}</span>
     </p>
@@ -335,10 +397,27 @@
       </div>
     {:else}
       <div class="ich-acts">
-        <button type="button" class="btn hi" disabled={sync.running || !!$demoQ} onclick={() => runSync(db)}><RefreshCw size={16} aria-hidden="true" />{t('Sync now')}</button>
+        <button type="button" class="btn hi" disabled={sync.running || !!$demoQ} onclick={syncButton}><RefreshCw size={16} aria-hidden="true" />{t('Sync now')}</button>
         <button type="button" class="btn" onclick={() => (view = 'pair')}>{t('Pair another device')}</button>
+        <button type="button" class="btn" disabled={busy || sync.running || !!$demoQ} onclick={compare} data-sync-compare>{t('Compare with the server')}</button>
         <button type="button" class="btn" onclick={() => (view = 'off')}>{t('Switch off|sync')}</button>
       </div>
+      {#if cmp && !cmp.off}
+        <div class="confirm" role="group" aria-label={t('Compare with the server')} data-sync-cmp>
+          <p><b>{t('On the server: {a} entries. On this device: {b}.', { a: cmp.onServer, b: cmp.here })}</b></p>
+          {#if cmp.missingHere.length}<p class="small">{t('Missing here ({n}): {names}', { n: cmp.missingHere.length, names: names(cmp.missingHere) })}</p>{/if}
+          {#if cmp.missingThere.length}<p class="small">{t('Missing on the server ({n}): {names}', { n: cmp.missingThere.length, names: names(cmp.missingThere) })}</p>{/if}
+          {#if cmp.deletedThere.length}<p class="small">{t('Deleted on the other device ({n}), left as they are: {names}', { n: cmp.deletedThere.length, names: names(cmp.deletedThere) })}</p>{/if}
+          {#if cmp.unreadable}<p class="small">{t('{n} entries on the server belong to another code and are ignored.', { n: cmp.unreadable })}</p>{/if}
+          {#if cmp.missingHere.length || cmp.missingThere.length}
+            <p class="small">{t('Filling in only adds. Nothing is deleted or overwritten.')}</p>
+            <div class="ich-acts"><button type="button" class="btn hi" disabled={busy} onclick={fill}>{t('Fill in what is missing')}</button><button type="button" class="btn" onclick={() => (cmp = null)}>{t('Close')}</button></div>
+          {:else}
+            <p class="small">{t('Nothing is missing on either side.')}</p>
+            <div class="ich-acts"><button type="button" class="btn" onclick={() => (cmp = null)}>{t('Close')}</button></div>
+          {/if}
+        </div>
+      {/if}
       <!-- Paket R: the Google sign-in of this device -->
       {#if $acctQ}
         <p class="way" data-sync-account>{t('Signed in with Google: {email}', { email: $acctQ.email || '…' })}</p>
@@ -347,13 +426,14 @@
           <button type="button" class="btn sm" disabled={busy} onclick={() => leaveAccount(true)}>{t('Remove the Google sign-in')}</button>
         </div>
       {:else}
+        {#if SHOW_GOOGLE}
         <p class="small">{t('Sign in with Google too, then the next device needs no code.')} <button type="button" class="linkbtn" disabled={busy || !!$demoQ} onclick={google} data-sync-google>{t('Sign in with Google')}</button></p>
+        {/if}
       {/if}
     {/if}
   {/if}
   {#if pairing && !(sync.running && $cfgQ?.on && view !== 'link')}<p class="busyline" role="status" data-sync-busy>{t('Syncing …')}</p>{/if}
   {#if message}<p class="msg" role="status">{message}</p>{/if}
-  <h3 class="sh file">{t('Or with a backup file')}</h3>
 </div>
 
 <style>
@@ -382,11 +462,6 @@
     font: inherit;
     text-decoration: underline;
     cursor: pointer;
-  }
-  .sh.file {
-    margin-top: 18px;
-    padding-top: 14px;
-    border-top: 1px solid var(--line);
   }
   .state {
     display: flex;

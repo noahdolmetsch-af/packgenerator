@@ -1,6 +1,7 @@
 // «Erster Start» (Noah 20.10.2026 «2a … b auch»): a new, empty app asks once «Mit Beispielen starten» or
 // «Leer starten». Browser tests normally never see the window (webdriver); this spec asks for it with
 // localStorage «firstStart.ask». Fictional data only. On a phone and a computer, in German.
+import { openFolds } from './settle.js';
 import { test, expect } from '@playwright/test';
 import DE from '../../src/lib/i18n/de/index.js';
 
@@ -52,6 +53,7 @@ test('with examples: a made-up trip shows, «Beispiele entfernen» takes it away
   await expect(win(page)).toHaveCount(0);
 
   await page.goto('./#/me/data');
+  await openFolds(page);
   const row = page.locator('[data-row="examples"]');
   await expect(row).toBeVisible();
   await row.click();

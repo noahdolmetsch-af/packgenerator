@@ -9,6 +9,7 @@
   import { db } from '../db.js';
   import { addDays } from '../health.js';
   import { vitalsToday } from './vitals.js';
+  import FitbitStand from '../health/FitbitStand.svelte';
   import TileHead from './TileHead.svelte';
   import { health } from '../health/client.svelte.js';
   import { fitbitEmpty } from '../health/emptyline.js';
@@ -24,7 +25,7 @@
 
 <section class="vt surf" aria-labelledby="vt-h" data-section="vitals">
   <div class="hd">
-    <TileHead icon={HeartPulse} id="vt-h" title={t('Body values')} {isnew} />
+    <TileHead icon={HeartPulse} id="vt-h" title={t('Body values')} {isnew} info="tile.vitals" />
     <a class="go" href="#/flow/stats/hr" data-vitals-all>{t('All body values')}<ChevronRight size={16} aria-hidden="true" /></a>
   </div>
   {#if vit.any}
@@ -43,6 +44,7 @@
     {@const e = fitbitEmpty(health)}
     <p class="empty" data-fitbit-empty={e.why}>{e.text ? t(e.text, { date: e.date ? shortDay(e.date) : '' }) : t('Connect Fitbit and your body values show here.')} <a href={e.href}>{t(e.link)}</a></p>
   {/if}
+  <FitbitStand />
 </section>
 
 <style>

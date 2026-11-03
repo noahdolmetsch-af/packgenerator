@@ -10,6 +10,7 @@
  * the forecast is loaded for a trip (wardrobe.js withRainPct).
  * "Use forecast" turns it into the packing weather trip.wx = { min, max, rain }.
  */
+import { outageError, isOutage } from './ausfall.js';
 import { t, tn } from './i18n.svelte.js';
 import { rainLimit } from './rainlimit.svelte.js';
 
@@ -22,8 +23,10 @@ export const FORECAST_DAYS = 16;
 export async function searchPlace(query, fetcher = fetch) {
   const q = query.trim();
   if (q.length < 2) return [];
-  const res = await fetcher(`${GEO}?name=${encodeURIComponent(q)}&count=6&language=en&format=json`);
-  if (!res.ok) throw new Error(t('Place search failed ({status})', { status: res.status }));
+  const res = await fetcher(`${GEO}?name=${encodeURIComponent(q)}&count=6&language=en&format=json`).catch((e) => {
+    throw isOutage(e) ? outageError(t('Weather')) : e;
+  });
+  if (!res.ok) throw (isOutage(res.status) ? outageError(t('Weather')) : new Error(t('Place search failed ({status})', { status: res.status })));
   const data = await res.json();
   return (data.results ?? []).map((r) => ({
     name: r.name,
@@ -38,8 +41,10 @@ const round = (n, d = 4) => Math.round(n * 10 ** d) / 10 ** d;
 /** Fetch the daily forecast for a place. Returns the object to store as trip.forecast. */
 export async function fetchForecast(place, fetcher = fetch, now = new Date()) {
   const url = `${API}?latitude=${place.lat}&longitude=${place.lon}&daily=temperature_2m_min,temperature_2m_max,precipitation_sum,precipitation_probability_max,wind_direction_10m_dominant,wind_gusts_10m_max,wind_speed_10m_max,uv_index_max&hourly=temperature_2m,precipitation_probability&timezone=auto&forecast_days=${FORECAST_DAYS}`;
-  const res = await fetcher(url);
-  if (!res.ok) throw new Error(t('Forecast failed ({status})', { status: res.status }));
+  const res = await fetcher(url).catch((e) => {
+    throw isOutage(e) ? outageError(t('Weather')) : e;
+  });
+  if (!res.ok) throw (isOutage(res.status) ? outageError(t('Weather')) : new Error(t('Forecast failed ({status})', { status: res.status })));
   const { daily = {}, hourly = null } = await res.json();
   const hours = hourlyByDate(hourly);
   const days = (daily.time ?? []).map((date, n) => ({

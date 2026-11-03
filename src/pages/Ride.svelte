@@ -1,4 +1,5 @@
 <script>
+  import PasstHier from '../lib/ui/PasstHier.svelte'; // «Wegweiser statt Katalog» PR 2
   import SpeakButton from '../lib/ui/SpeakButton.svelte'; // «Diktat» (Noah 19.10.2026 «5a»)
   import InputBar from '../lib/eingabe/InputBar.svelte'; // «Eingaben überall» (Noah 26.10.2026): voice note, photo, place, templates
   import InputsView from '../lib/eingabe/InputsView.svelte';
@@ -41,7 +42,6 @@
   import ChargeList from '../lib/trip/ChargeList.svelte';
   import { dayIndex, addTime, planHours, stage, stageCount, isNonstop, blocks, blockHours, dayProfile, placeName, fetchHourly, rideHours, wxSummary, DEFAULT_START, onTripDay, startNow, openRideOf } from '../lib/ride.js';
   import { openRecording, startRecording } from '../lib/spur/recorder.svelte.js';
-  import { RIDE_SEEN_KEY, rideSeen } from '../lib/home/startkarten.js';
   import { newNote, tripNotes, DEBRIEF_KINDS, noteToDebrief, dropNoteFromDebrief } from '../lib/notes.js';
   import { newDebrief } from '../lib/debrief.js';
   import { homeOf } from '../lib/dayride.js';
@@ -100,15 +100,6 @@
     }
   })();
   const trip = $derived(trips.find((t) => t.id === chosen && t.startDate) ?? nextTrip(trips, today) ?? trips.find((t) => t.id === chosen) ?? null);
-  // Start-Karten 3b (Noah 14.10.2026): once On the way showed today's trip, the card «Heute unterwegs» on Today goes away
-  $effect(() => {
-    if (!trip || !onTripDay(trip, today)) return;
-    try {
-      localStorage.setItem(RIDE_SEEN_KEY, rideSeen(trip.id, today));
-    } catch {
-      /* private mode: the card stays the whole day */
-    }
-  });
   const items = $derived($itemsQ ?? []);
   const itemsById = $derived(Object.fromEntries(items.map((i) => [i.id, i])));
   const bike = $derived(trip ? ($bikesQ ?? []).find((b) => b.id === trip.bikeId) ?? null : null);
@@ -510,10 +501,10 @@
     box?.scrollIntoView({ block: 'center' });
     box?.focus({ preventScroll: true });
   }
-  // UI-Test T2 (G2-15): before setting off «Losfahren» is the one button; «Tour beenden …» waits in «…»
+  // UI-Test T2 (G2-15): before setting off «Losfahren» is the one button; «Tour beenden …» is at the bottom of the
+  // page (Auffälligkeiten 28.10.2026, Noah «1a»; it was in «…» before)
   const moreActions = $derived([
     ...(main.kind !== null ? [{ name: t('Note|ride'), explain: t('A note for the debrief'), icon: Mic, run: startNote }] : []),
-    ...(main.kind === 'start' ? [{ name: t('End the trip …'), explain: t('Ends the trip without riding on'), icon: Flag, run: () => (endAsk = true) }] : []),
   ]);
   /* ---------- SN1: the weather of now in one sentence ---------- */
   // v0.144.0 RE: the one rain limit of the app (was 50 %)
@@ -612,7 +603,7 @@
 <div class="ride trip-page">
   <TripBand {trip} tab="ride" {kicker} compact action={main.kind ? go : noteMain ? noteBtn : null} aside={main.kind ? pen : noteMain ? dayAside : null} extra={endLink} stateMore={running ? dayOf : ''} stepText={noteMain ? dayOf : ''} hint={main.kind === 'start' && openRide ? t('A recording of this trip is running since {time}. The blocks and the arrival count from then.', { time: nowStart }) : main.kind === 'start' ? t('Tap when you set off: the blocks and the arrival then count from now.') : main.kind === 'last' ? t('End the trip when you are back home.') : noteMain ? nextLine : ''} />
   <!-- «Unterwegs sichtbar» (332 Use Cases, Noah 24.10.2026 «2b»): parts far down the page as jump chips right under the band -->
-  <QuickLinks label={t('On this page')} links={[{ key: 'eat', jump: '#eat-h', label: t('Eat reminder') }, { key: 'here', jump: '#spur-h', label: t('I am here') }, { key: 'water', jump: '[data-fold="water"]', label: t('Water and food') }, { key: 'sky', jump: '[data-fold="sky"]', label: t('Sun, moon and places') }, { key: 'convert', jump: '[data-fold="convert"]', label: t('Route for other devices') }, { key: 'now', jump: '#now-h', label: t('The Now card on the way') }, { key: 'record', jump: '.btn.rec', label: t('Record the route') }, { key: 'komoot', jump: '[data-komoot-row]', label: t('komoot tour on On the way') }, { key: 'night', jump: '[data-uw-night]', label: t('Good night') }, { key: 'parked', jump: '[data-uw-parked]', label: t('Bike parked') }, { key: 'later', jump: '[data-note-later]', label: t('Check later') }]} />
+  <QuickLinks label={t('On this page')} links={[{ key: 'eat', jump: '#eat-h', label: t('Eat reminder') }, { key: 'here', jump: '#spur-h', label: t('I am here') }, { key: 'water', jump: '[data-fold="water"]', label: t('Water and food') }, { key: 'sky', jump: '[data-fold="sky"]', label: t('Sun, moon and places') }, { key: 'convert', jump: '[data-fold="convert"]', label: t('Route for other devices') }, { key: 'now', jump: '#now-h', label: t('The overview on the way') }, { key: 'record', jump: '.btn.rec', label: t('Record the route') }, { key: 'komoot', jump: '[data-komoot-row]', label: t('komoot tour on On the way') }, { key: 'night', jump: '[data-uw-night]', label: t('Good night') }, { key: 'parked', jump: '[data-uw-parked]', label: t('Bike parked') }, { key: 'later', jump: '[data-note-later]', label: t('Check later') }]} />
   {#if ahead}
     <!-- v0.67.0 (U002, Ü4a): before the start On the way is a calm waiting state, not a loop back to Pack. -->
     {@const n = daysFrom(today, trip.startDate)}
@@ -727,6 +718,7 @@
           <a class="btn uw-bigbtn" href="#/ride/abfahrt" data-uw-sheet><FileText size={22} aria-hidden="true" /><span>{t('Before you leave|sheet')}<small>{t('offline and as PDF')}</small></span></a>
           <div class="uw-glove"><span class="gl"><Hand size={18} aria-hidden="true" /> {t('Glove mode')}{#if glove.mode === 'auto' && glove.auto.on}<small> · {glove.auto.why === 'ski' ? t('on: ski tour') : t('on: below 5 °C')}</small>{/if}</span><Seg full={false} label={t('Glove mode')} options={GLOVE_MODES.map((g) => ({ key: g.key, name: t(g.name) }))} value={glove.mode} onchange={setGlove} /></div>
         </div>
+        <PasstHier place="ride" />
       </section>
       <!-- Answer 3a: the weather hour by hour, start and finish. Answer 5a: saved for offline. -->
       <section class="wxs" aria-labelledby="wx-h">
@@ -919,6 +911,9 @@
       </section>
     </div>
   </div>
+  <!-- Auffälligkeiten 28.10.2026 (Noah «1a»): «Tour beenden …» is always a visible button at the bottom of the page,
+       before setting off too (it was only in «…» then); the last day has its own main button -->
+  {#if main.kind === 'start' || main.kind === null}<p class="rendfoot"><button type="button" class="btn rend" onclick={() => (endAsk = true)} data-ride-end-foot><Flag size={18} aria-hidden="true" />{t('End the trip …')}</button><small>{t('Earlier too. The app asks first, and you can undo it.')}</small></p>{/if}
   <!-- Gesamttest 20.10 Design / UI-Grundlagen (idea 1): the tip of the day under the content, not under the help box -->
   <TipLine page="ride" name={t('On the way')} />
   <PageMore page="ride" name={t('On the way')} />
@@ -959,6 +954,8 @@
   /* SN1: «…» of the trip at the end of the pill line */
   .rmore { margin-left: auto; }
   .rend, .rsos { display: inline-flex; align-items: center; gap: 6px; }
+  .rendfoot { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin: 24px 0 8px; }
+  .rendfoot small { color: var(--ink-2); font-size: var(--fs-small); }
   .rsos { border-color: var(--bad); color: var(--bad); font-weight: 700; }
   .days { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; margin: 0 0 20px; }
   .days .sum { flex-basis: 100%; }

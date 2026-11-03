@@ -24,6 +24,12 @@ export const TRY_KEY = 'health.try';
  */
 export const LAST_KEY = 'health.last';
 export const AUTO_EVERY_MS = 15 * 60 * 1000;
+/** Noah 2.11.2026 «2a»: after a try that got no answer, the next automatic try comes after 2 minutes, not 15. */
+export const RETRY_AFTER_FAIL_MS = 2 * 60 * 1000;
+/** Only these failures may mend themselves; a new login or a refused value does not. */
+export const RETRY_CODES = ['network', 'timeout', 'google_busy', 'server_error'];
+/** The wait before the next automatic try, from how the last one went ({ ok, code } or null). */
+export const waitAfter = (last) => (last && last.ok === false && RETRY_CODES.includes(last.code) ? RETRY_AFTER_FAIL_MS : AUTO_EVERY_MS);
 export { STRAVA_HASH };
 
 /** The settings as stored, with the defaults filled in (all five values on). */
@@ -35,7 +41,7 @@ export const prefsOf = (v) => ({
   until: typeof v?.until === 'string' ? v.until : null,
 });
 
-export const health = $state({ loaded: false, busy: false, error: '', justConnected: false, prefs: prefsOf(null), first: null, last: null, lastTry: null });
+export const health = $state({ loaded: false, busy: false, error: '', justConnected: false, prefs: prefsOf(null), first: null, last: null, lastTry: null, since: 0, done: 0, total: 0 });
 
 if (typeof window !== 'undefined' && typeof indexedDB !== 'undefined') {
   liveQuery(async () => [await appDb.settings.get(HEALTH_KEY), await appDb.healthDays.orderBy('date').first(), await appDb.healthDays.orderBy('date').last(), await appDb.meta.get(LAST_KEY)]).subscribe({
@@ -69,12 +75,16 @@ export function fetchNow({ db = appDb, c = call, now = new Date() } = {}) {
   running = (async () => {
     health.busy = true;
     health.error = '';
+    health.since = now.getTime();
+    health.done = 0;
+    health.total = 0;
     try {
       await db.meta.put({ key: TRY_KEY, at: now.toISOString() });
       const prefs = prefsOf((await db.settings.get(HEALTH_KEY))?.value);
       const keep = chosen(prefs.values);
       const res = await syncHealth(db, {
         now,
+        onProgress: ({ done, total }) => ((health.done = done), (health.total = total)),
         c: async (step, o) => {
           const r = await c(step, o);
           return { ...r, days: keep(r.days ?? []), missing: (r.missing ?? []).filter((m) => prefs.values.includes(VALUE_OF[m])) };
@@ -102,7 +112,8 @@ export async function autoFetch({ db = appDb, now = new Date() } = {}) {
   const prefs = prefsOf((await db.settings.get(HEALTH_KEY))?.value);
   if (!prefs.connected || prefs.fetch !== 'auto') return null;
   const tried = Date.parse((await db.meta.get(TRY_KEY))?.at ?? '');
-  if (Number.isFinite(tried) && now.getTime() - tried < AUTO_EVERY_MS) return null;
+  const last = await db.meta.get(LAST_KEY);
+  if (Number.isFinite(tried) && now.getTime() - tried < waitAfter(last)) return null;
   return fetchNow({ db, now });
 }
 
@@ -113,6 +124,8 @@ export function watchAutoFetch() {
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'visible') go();
   });
+  // Noah 2.11.2026 «4a»: while the app stays open, look every minute whether the wait is over (15 minutes, or 2 after a failure)
+  setInterval(() => document.visibilityState === 'visible' && go(), 60 * 1000);
 }
 
 /**

@@ -36,7 +36,7 @@
           {@const fd = FIELD[c.item.f]}
           {@const v = val(c.item.f)}
           <li class="dp-cell" class:dp-wide={c.span === 2} data-dp-field={c.item.f}>
-            <b class="dp-num">{v}{#if fd.unit && v !== '–'}<small>{fd.unit}</small>{/if}</b>
+            <b class="dp-num">{v}{#if (values?.[c.item.f]?.unit ?? fd.unit) && v !== '–'}<small>{values?.[c.item.f]?.unit ?? fd.unit}</small>{/if}</b>
             <span class="dp-label">{t(fd.label)}</span>
           </li>
         {:else}

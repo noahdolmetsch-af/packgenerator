@@ -6,6 +6,13 @@ import { openHome, homeFixture, day } from './home0460-fixture.js';
 import { BAR_PLACES } from '../../src/lib/nav.js';
 import { KINDS } from '../../src/lib/woche/kinds.js';
 
+/** «Still to plan» is folded at first (Noah 2.11.2026): open it, it stays open. */
+const openSg = async (page) => {
+  const b = page.locator('[data-sg-toggle]');
+  if ((await b.getAttribute('aria-expanded')) !== 'true') await b.click();
+  await expect(b).toHaveAttribute('aria-expanded', 'true');
+};
+
 /** The fixture with a week: training sessions (one today, one last Tuesday as «like last week»), a date, two to-dos. */
 function weekFixture() {
   const data = homeFixture();
@@ -46,6 +53,14 @@ test('Woche: the days with their kinds, chips hide a kind, a to-do is ticked, a 
   await expect(page.locator('[data-filter]')).toHaveCount(KINDS.length);
   // the filter chips sit in a fold (Impeccable P5)
   await page.locator('[data-week-filters] > summary').click();
+  // «Still to plan» is folded with its count; a tap opens it and the phone remembers it
+  await expect(page.locator('[data-sg-toggle]')).toHaveAttribute('aria-expanded', 'false');
+  await expect(page.locator('[data-sugg]')).toHaveCount(0);
+  await expect(page.locator('[data-sg-toggle]')).toContainText(/\d/);
+  await openSg(page);
+  await page.reload();
+  await expect(page.locator('[data-sg-toggle]')).toHaveAttribute('aria-expanded', 'true');
+  await page.locator('[data-week-filters] > summary').click(); // the reload closed the filter fold again
   // the to-do without a day waits under «Still to plan»
   await expect(page.locator('[data-sugg="todo:test_data_gtp_t2"]')).toBeVisible();
   // hide the to-dos, show them again
@@ -53,6 +68,40 @@ test('Woche: the days with their kinds, chips hide a kind, a to-do is ticked, a 
   await expect(fri.locator('[data-kind="todo"]')).toHaveCount(0);
   await expect(page.locator('[data-sugg="todo:test_data_gtp_t2"]')).toHaveCount(0);
   await page.locator('[data-filter="todo"]').click();
+  // «Where do the suggestions come from?» (Noah 2.11.2026 «a»): a source off, its suggestion goes; Undo brings it back
+  await page.locator('[data-sg-sources] > summary').click();
+  await page.locator('[data-sg-source="todo"]').uncheck();
+  await expect(page.locator('[data-sugg="todo:test_data_gtp_t2"]')).toHaveCount(0);
+  await page.getByRole('button', { name: T('Undo') }).first().click();
+  await expect(page.locator('[data-sugg="todo:test_data_gtp_t2"]')).toBeVisible();
+  // «Never suggest» (Noah 2.11.2026 «b»): away for good, back with «Show again»
+  await page.locator('[data-sugg="todo:test_data_gtp_t2"] [data-sg-never]').click();
+  await expect(page.locator('[data-sugg="todo:test_data_gtp_t2"]')).toHaveCount(0);
+  await page.locator('[data-sg-never-list] > summary').click();
+  await page.locator('[data-sg-again="todo:test_data_gtp_t2"]').click();
+  await expect(page.locator('[data-sugg="todo:test_data_gtp_t2"]')).toBeVisible();
+  // «Change season ideas» (Noah 2.11.2026 «c»): add an own idea for October; it shows as a suggestion; delete asks and has Undo
+  await page.locator('[data-sg-ideas] > summary').click();
+  await page.locator('[data-season-add]').click();
+  await page.locator('[data-season-form] input[type="text"]').fill('test_data_gtp_ Zelt prüfen');
+  const sel = page.locator('[data-season-form] select');
+  await sel.nth(0).selectOption('10');
+  await sel.nth(1).selectOption('10');
+  await page.locator('[data-season-form]').getByRole('button', { name: T('Save') }).click();
+  await expect(page.locator('[data-season-row^="own"]')).toHaveCount(1);
+  await expect.poll(async () => { // a phone shows five suggestions first
+    if (await page.locator('[data-sugg-more]').count()) await page.locator('[data-sugg-more]').click();
+    return page.locator('[data-sugg^="season:own"]').count();
+  }).toBe(1);
+  await expect(page.locator('[data-sugg^="season:own"]')).toContainText('test_data_gtp_ Zelt prüfen');
+  await page.locator('[data-season-row^="own"] [data-season-del]').click();
+  await page.getByTestId('ask-delete').getByRole('button', { name: T('Delete'), exact: true }).click();
+  await expect(page.locator('[data-sugg^="season:own"]')).toHaveCount(0);
+  await page.getByRole('button', { name: T('Undo') }).first().click();
+  await expect.poll(async () => {
+    if (await page.locator('[data-sugg-more]').count()) await page.locator('[data-sugg-more]').click();
+    return page.locator('[data-sugg^="season:own"]').count();
+  }).toBe(1);
   // tick the to-do
   const todo = fri.locator('[data-entry="test_data_gtp_t1"]');
   await todo.getByRole('button', { name: T('Done: {title}', { title: 'test_data_gtp_ Schlauch bestellen' }) }).click();
@@ -65,6 +114,14 @@ test('Woche: the days with their kinds, chips hide a kind, a to-do is ticked, a 
   await form.getByLabel(T('Time')).fill('18:00');
   await form.getByRole('button', { name: T('Save') }).click();
   await expect(page.locator(`[data-day="${day(1)}"] [data-kind="date"]`)).toContainText('test_data_gtp_ Tennis');
+  // «Planen als verbindende Mitte» 3a: «Add to plan» in a day opens the form with that day
+  const planBtn = page.locator(`[data-day-add="${day(2)}"]`);
+  if (await planBtn.count()) {
+    if (!(await planBtn.isVisible())) await page.locator(`[data-day="${day(2)}"] > summary`).click();
+    await planBtn.click();
+    await expect(form.getByLabel(T('Day'))).toHaveValue(day(2));
+    await form.getByRole('button', { name: T('Cancel') }).click();
+  }
   // take the suggestion: the to-do gets a day
   await page.locator('[data-sugg="todo:test_data_gtp_t2"]').getByRole('button', { name: T('Take') }).click();
   await expect(page.locator('[data-entry="test_data_gtp_t2"]')).toHaveCount(1);
@@ -97,6 +154,12 @@ test('Woche planen: four steps, last week as proposals, the bike before the trip
   await prop.getByRole('button', { name: T('Take {name}', { name: 'test_data_gtp_ Lauf' }) }).click();
   await expect(st.locator('[data-proposal]')).toHaveCount(0);
   await expect(st.locator('[data-session]')).toHaveCount(3);
+  // «Planen als verbindende Mitte» 1a: a session is added right here, in the flow
+  await st.locator('[data-add-training]').click();
+  await st.locator('[data-plan-training] input[type="text"]').fill('test_data_gtp_ Neue Einheit');
+  await st.locator('[data-plan-training] button[type="submit"]').click();
+  await expect(st.locator('[data-session]')).toHaveCount(4);
+  await expect(st).toContainText('test_data_gtp_ Neue Einheit');
   await page.locator('[data-next]').click();
   // 3 to-dos: the one without a day is taken
   const todo = page.locator('[data-step="3"] [data-sugg="todo:test_data_gtp_t2"]');
@@ -128,6 +191,7 @@ test('Ferien: entered once, the training plan pauses and the packing list comes 
   await form.getByRole('button', { name: T('Save') }).click();
   await expect(page.locator('[data-away]')).toContainText('test_data_gtp_ Jura');
   await page.goto('./#/week');
+  await openSg(page);
   // Sunday's long ride falls on the holidays: no entry, a suggestion to leave it out
   await expect(page.locator('[data-entry="tr:test_data_gtp_s3"]')).toHaveCount(0);
   await expect(page.locator('[data-sugg="drop:test_data_gtp_s3"]')).toBeVisible();
@@ -153,6 +217,7 @@ test('Content: weather per day, the rainy long ride moves, last week, load hints
   await expect(page.locator('[data-review]')).toContainText(T('Last week: {list}', { list: '' }).trim());
   await expect(page.locator('[data-load-hint="twoHard"]')).toBeVisible();
   // 5a the trip tomorrow: packing list, weather and bike check today
+  await openSg(page);
   // «Handy kürzer» (Noah 20.10.2026 «4b»): a phone shows five suggestions first; open the rest
   if (await page.locator('[data-sugg-more]').count()) await page.locator('[data-sugg-more]').click();
   for (const what of ['pack', 'wx', 'bike']) await expect(page.locator(`[data-sugg="tour:test_data_gtp_Herbstrunde:${what}"]`)).toBeVisible();

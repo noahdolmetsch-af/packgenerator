@@ -15,9 +15,10 @@
   import { backClose } from '../lib/ui/backclose.js';
   import { t, tn, locale } from '../lib/i18n.svelte.js';
   import { localDay } from '../lib/localday.js';
-  import { KINDS, kindOf, newOffer, shareUrl, mondayOf, weekDays, weekNo, addDays, slotsOn, newSlots, bookedBySlot, slotState, chf, dayOf, timeOf, contactHref } from '../lib/booking/model.js';
-  import { OFFERS_KEY, SEEN_KEY, createOffer, saveOffer, ownerBookings, ownerCancel, cancelSlot, errorText } from '../lib/booking/client.js';
+  import { KINDS, kindOf, newOffer, shareUrl, mondayOf, weekDays, weekNo, addDays, slotsOn, newSlots, bookedBySlot, slotState, chf, dayOf, timeOf, contactHref, holdsPlace, isOpenRequest, invoiceDraft, toInvoice } from '../lib/booking/model.js';
+  import { OFFERS_KEY, SEEN_KEY, createOffer, saveOffer, ownerBookings, ownerCancel, answerBooking, cancelSlot, errorText } from '../lib/booking/client.js';
   import { Volleyball, Tent, Wrench, CalendarDays, Link2, Copy, MessageCircle, ChevronLeft, ChevronRight, Clock, Users, Repeat, CreditCard, Bell, X, Plus, MapPin } from '@lucide/svelte';
+  import { listInvoices, setPrefill } from '../lib/pay/invoices.js';
   import '../lib/ich/ich.css';
 
   let { id = '' } = $props();
@@ -80,6 +81,21 @@
   const booked = $derived(bookedBySlot(bookings ?? []));
   const upcoming = $derived((bookings ?? []).filter((b) => b.at && dayOf(b.at) >= today));
 
+  /* lessons that are over: the invoice is prepared from the booking (Noah 03.11.2026 «3b»; nothing is sent here) */
+  const invoicesQ = liveQuery(() => listInvoices());
+  const invoices = $derived($invoicesQ ?? []);
+  const nowAt = () => {
+    const d = new Date();
+    return `${localDay()}T${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+  };
+  const lessonsOver = $derived(toInvoice(bookings ?? [], invoices, nowAt()).sort((a, b) => String(b.at).localeCompare(String(a.at))));
+  const invoiceOf = (b) => invoices.find((x) => x.booking?.b === b.id) ?? null;
+  function writeInvoice(b) {
+    const s = mine.offer.slots.find((x) => x.id === b.slot);
+    if (!setPrefill(invoiceDraft({ ...mine.offer, id: mine.id }, s, b, fmtAt(b.at)))) return;
+    location.hash = '#/me/pay/invoices/new';
+  }
+
   let monday = $state(mondayOf(localDay()));
   const days = $derived(weekDays(monday));
   const typeOf = (o, s) => o.types.find((x) => x.key === s.type) ?? o.types[0];
@@ -114,9 +130,11 @@
   let addTime = $state('18:00');
   let addType = $state('');
   let addWeekly = $state(true);
+  let addVenue = $state('');
   let addDlg = $state();
   function openAdd(day) {
     addType = mine.offer.types[0].key;
+    addVenue = mine.offer.venues?.[0] ?? '';
     addOpen = { day };
   }
   $effect(() => {
@@ -125,7 +143,7 @@
   async function addSlots(e) {
     e.preventDefault();
     if (!/^\d{2}:\d{2}$/.test(addTime)) return;
-    const add = newSlots(mine.offer, { day: addOpen.day, time: addTime, type: addType, weeks: addWeekly ? 8 : 1 });
+    const add = newSlots(mine.offer, { day: addOpen.day, time: addTime, type: addType, venue: addVenue, weeks: addWeekly ? 8 : 1 });
     if (await save({ ...mine.offer, slots: [...mine.offer.slots, ...add] })) addDlg.close();
   }
 
@@ -136,13 +154,29 @@
   $effect(() => {
     if (slotOpen && slotDlg && !slotDlg.open) slotDlg.showModal();
   });
-  const people = $derived(slotOpen ? (bookings ?? []).filter((b) => b.slot === slotOpen.id) : []);
+  const here = $derived(slotOpen ? (bookings ?? []).filter((b) => b.slot === slotOpen.id) : []);
+  const people = $derived(here.filter(holdsPlace));
+  const asking = $derived(here.filter(isOpenRequest));
+  const everyone = $derived(here.filter((b) => b.status !== 'declined'));
+  let replied = $state(null); // { b, decision }: after an answer, the message to send
+  const replyText = (s, decision) => decision === 'confirm'
+    ? t('{title} on {when} is confirmed. See you there!', { title: mine?.offer.title ?? '', when: fmtAt(s.at) })
+    : t('{title} on {when} does not work for me. Please pick another time with the same link.', { title: mine?.offer.title ?? '', when: fmtAt(s.at) });
+  async function answer(b, decision) {
+    busy = true;
+    error = '';
+    const r = await answerBooking(mine.id, mine.owner, b.id, decision);
+    busy = false;
+    if (!r.ok) return (error = t(errorText(r.code)));
+    replied = { b, decision };
+    await loadBookings();
+  }
   const tellText = (s) => t('{title} on {when} is cancelled. Sorry! You can book another time with the same link.', { title: mine?.offer.title ?? '', when: fmtAt(s.at) });
   const helloText = (s) => t('About {title} on {when}:', { title: mine?.offer.title ?? '', when: fmtAt(s.at) });
   let askCancel = $state(false);
   async function dropSlot() {
     const s = slotOpen;
-    if (people.length) {
+    if (everyone.length) {
       busy = true;
       const r = await cancelSlot(mine.id, mine.owner, s.id);
       busy = false;
@@ -169,13 +203,13 @@
   });
   function openRules() {
     const o = mine.offer;
-    draft = { title: o.title, place: o.place, minutes: o.minutes, pay: o.pay, cancelHours: o.cancelHours, types: o.types.map((x) => ({ ...x, chf: chf(x.price) })) };
+    draft = { title: o.title, place: o.place, venuesText: (o.venues ?? []).join(', '), mode: o.mode ?? 'instant', minutes: o.minutes, pay: o.pay, cancelHours: o.cancelHours, types: o.types.map((x) => ({ ...x, chf: chf(x.price) })) };
     rulesOpen = true;
   }
   async function saveRules(e) {
     e.preventDefault();
     const types = draft.types.map((x) => ({ key: x.key, label: x.label.trim(), places: Math.max(1, Math.min(50, Math.round(Number(x.places) || 1))), price: Math.max(0, Math.round(Number(String(x.chf).replace(',', '.')) * 100) || 0) }));
-    const next = { ...mine.offer, title: draft.title.trim() || mine.offer.title, place: draft.place.trim(), minutes: Math.max(0, Math.round(Number(draft.minutes) || 0)), pay: draft.pay, cancelHours: Math.max(0, Math.round(Number(draft.cancelHours) || 0)), types };
+    const next = { ...mine.offer, title: draft.title.trim() || mine.offer.title, place: draft.place.trim(), mode: draft.mode, venues: draft.venuesText.split(',').map((v) => v.trim()).filter(Boolean).slice(0, 4), minutes: Math.max(0, Math.round(Number(draft.minutes) || 0)), pay: draft.pay, cancelHours: Math.max(0, Math.round(Number(draft.cancelHours) || 0)), types };
     if (await save(next)) rulesDlg.close();
   }
 </script>
@@ -243,10 +277,13 @@
                   {@const ty = typeOf(o, s)}
                   {@const n = booked[s.id] ?? 0}
                   {@const st = slotState(ty.places, n)}
-                  {@const who = ty.places === 1 && n ? (bookings ?? []).find((b) => b.slot === s.id)?.name : ''}
+                  {@const who = ty.places === 1 && n ? (bookings ?? []).find((b) => b.slot === s.id && holdsPlace(b))?.name : ''}
+                  {@const ask = (bookings ?? []).filter((b) => b.slot === s.id && isOpenRequest(b)).length}
                   <button type="button" class="of-sl {st}" data-slot={s.id} onclick={() => (slotOpen = s)}>
                     <b>{timeOf(s.at)}</b>
                     {#if who}{who}{:else if ty.places > 1}{ty.label} · {t('{n} of {m}', { n, m: ty.places })}{:else}{t('free')}{/if}
+                    {#if s.venue}<small>{s.venue}</small>{/if}
+                    {#if ask}<small class="of-ask-n">{tn(ask, '{n} request', '{n} requests')}</small>{/if}
                   </button>
                 {/each}
                 {#if day >= today}<button type="button" class="of-sl add" aria-label={t('Open a time on {day}', { day: fmtDay(day) })} onclick={() => openAdd(day)}><Plus size={16} aria-hidden="true" /></button>{/if}
@@ -255,6 +292,18 @@
           </div>
           <p class="of-legend"><span><i class="free"></i>{t('free')}</span> <span><i class="part"></i>{t('partly booked')}</span> <span><i class="full"></i>{t('booked')}</span> <span>{t('+ opens a time')}</span></p>
         </section>
+
+        {#if lessonsOver.length}
+          <section class="card" aria-labelledby="of-inv-h" data-lessons-over>
+            <div class="of-wh"><h2 id="of-inv-h">{t('Lesson done? Write the invoice')}</h2><small class="muted">{tn(lessonsOver.length, '{n} lesson', '{n} lessons')}</small></div>
+            <p class="muted">{t('The invoice is prepared with name, amount and lesson. You check it and send it yourself.')}</p>
+            <ul class="of-list">
+              {#each lessonsOver as b (b.id)}
+                <li class="of-pp"><span>{b.name}<small>{fmtAt(b.at)}</small></span><button type="button" class="btn hi sm" onclick={() => writeInvoice(b)}>{t('Prepare invoice')}</button></li>
+              {/each}
+            </ul>
+          </section>
+        {/if}
 
         <section class="card" aria-labelledby="of-bk-h">
           <div class="of-wh"><h2 id="of-bk-h">{t('Booked')}</h2>{#if bookings}<small class="muted">{tn(upcoming.length, '{n} ahead', '{n} ahead')}</small>{/if}</div>
@@ -265,7 +314,7 @@
             <ul class="of-list">
               {#each upcoming as b (b.id)}
                 {@const s = o.slots.find((x) => x.id === b.slot)}
-                <li><button type="button" class="of-row" onclick={() => s && (slotOpen = s)}><span><b>{fmtAt(b.at)}</b><small>{b.name}{s ? ` · ${typeOf(o, s).label}` : ''}</small></span><ChevronRight size={16} aria-hidden="true" /></button></li>
+                <li><button type="button" class="of-row" onclick={() => s && (slotOpen = s)}><span><b>{fmtAt(b.at)}</b><small>{b.name}{s ? ` · ${typeOf(o, s).label}` : ''}{isOpenRequest(b) ? ` · ${t('request')}` : ''}</small></span><ChevronRight size={16} aria-hidden="true" /></button></li>
               {/each}
             </ul>
           {/if}
@@ -289,9 +338,10 @@
             <li><Clock size={18} aria-hidden="true" /><b>{t('Length')}</b><span>{lengthWord(o)}</span></li>
             <li><Users size={18} aria-hidden="true" /><b>{t('Places')}</b><span>{o.types.map((x) => `${x.label} ${x.places}`).join(' · ')}</span></li>
             <li><CreditCard size={18} aria-hidden="true" /><b>{t('Price')}</b><span>{o.types.map((x) => `${x.label} ${chf(x.price)} CHF`).join(' · ')}</span></li>
+            <li><Bell size={18} aria-hidden="true" /><b>{t('Booking')}</b><span>{o.mode === 'request' ? t('request, you answer within 24 h') : t('booked at once')}</span></li>
             <li><Repeat size={18} aria-hidden="true" /><b>{t('Payment')}</b><span>{o.pay === 'online' ? t('online (test mode)') : t('on site (cash, TWINT)')}</span></li>
             <li><Bell size={18} aria-hidden="true" /><b>{t('Cancelling')}</b><span>{t('people up to {n} h before · you any time', { n: o.cancelHours })}</span></li>
-            {#if o.place}<li><MapPin size={18} aria-hidden="true" /><b>{t('Place')}</b><span>{o.place}</span></li>{/if}
+            {#if o.venues?.length}<li><MapPin size={18} aria-hidden="true" /><b>{t('Places|venues')}</b><span>{o.venues.join(' · ')}</span></li>{:else if o.place}<li><MapPin size={18} aria-hidden="true" /><b>{t('Place')}</b><span>{o.place}</span></li>{/if}
           </ul>
         </section>
       </div>
@@ -306,6 +356,7 @@
         <label class="lbl" for="of-time">{t('Start')}</label>
         <input id="of-time" class="inp" type="time" bind:value={addTime} required />
         {#if o.types.length > 1}<p class="lbl">{t('Kind')}</p><Seg options={o.types.map((x) => ({ key: x.key, name: `${x.label} · ${x.places}` }))} value={addType} onchange={(k) => (addType = k)} label={t('Kind')} />{/if}
+        {#if o.venues?.length > 1}<p class="lbl">{t('Place')}</p><Seg options={o.venues.map((v) => ({ key: v, name: v }))} value={addVenue} onchange={(k) => (addVenue = k)} label={t('Place')} />{/if}
         <label class="of-check"><input type="checkbox" bind:checked={addWeekly} /> {t('Every week the same (the next 8 weeks)')}</label>
         <div class="of-foot"><button type="submit" class="btn hi" disabled={busy}>{t('Open the time')}</button><button type="button" class="btn" onclick={() => addDlg.close()}>{t('Cancel')}</button></div>
       </form>
@@ -315,7 +366,7 @@
   {#if slotOpen}
     {@const s = slotOpen}
     {@const ty = typeOf(o, s)}
-    <dialog class="sheet from-below of-sheet" bind:this={slotDlg} use:backClose={() => slotDlg.close()} onclose={() => ((slotOpen = null), (told = null), (askCancel = false))} aria-labelledby="of-slot-h">
+    <dialog class="sheet from-below of-sheet" bind:this={slotDlg} use:backClose={() => slotDlg.close()} onclose={() => ((slotOpen = null), (told = null), (askCancel = false), (replied = null))} aria-labelledby="of-slot-h">
       <div class="of-sh"><h2 id="of-slot-h">{fmtAt(s.at)} · {ty.label}</h2><button type="button" class="ibtn" aria-label={t('Close')} onclick={() => slotDlg.close()}><X size={20} aria-hidden="true" /></button></div>
       {#if told}
         <p>{tn(told.people.length, 'The time is cancelled. Tell {n} person:', 'The time is cancelled. Tell {n} people:')}</p>
@@ -327,23 +378,41 @@
         </ul>
         <div class="of-foot"><button type="button" class="btn hi" onclick={() => slotDlg.close()}>{t('Done')}</button></div>
       {:else}
+        {#if replied}
+          {@const href = contactHref(replied.b.contact, replyText(s, replied.decision))}
+          <p role="status">{replied.decision === 'confirm' ? t('Confirmed. Now tell {name}:', { name: replied.b.name }) : t('Declined. Now tell {name}:', { name: replied.b.name })}</p>
+          <p class="of-note">{replyText(s, replied.decision)}</p>
+          <div class="of-foot">{#if href}<a class="btn hi" {href}>{t('Write')}</a>{/if}<button type="button" class="btn" onclick={() => (replied = null)}>{t('Done')}</button></div>
+        {/if}
+        {#if asking.length}
+          <h3 class="of-rq">{tn(asking.length, '{n} request', '{n} requests')}</h3>
+          <ul class="of-list">
+            {#each asking as b (b.id)}
+              <li class="of-pp of-rqrow">
+                <span>{b.name}<small>{b.contact}</small>{#if b.note}<small class="of-note">{b.note}</small>{/if}<small>{t('Answer by {when}', { when: new Date(b.answerBy).toLocaleString(locale(), { weekday: 'short', hour: '2-digit', minute: '2-digit' }) })}</small></span>
+                <span class="of-two"><button type="button" class="btn hi sm" disabled={busy} onclick={() => answer(b, 'confirm')}>{t('Confirm')}</button><button type="button" class="btn sm" disabled={busy} onclick={() => answer(b, 'decline')}>{t('Decline')}</button></span>
+              </li>
+            {/each}
+          </ul>
+        {/if}
         <p class="muted">{t('{n} of {m} booked', { n: people.length, m: ty.places })}</p>
         <ul class="of-list">
           {#each people as b (b.id)}
             {@const href = contactHref(b.contact, helloText(s))}
             <li class="of-pp">
-              <span>{b.name}<small>{b.contact} · {b.pay === 'online' ? (b.paid ? t('paid (test)') : t('not paid')) : t('pays on site')}</small></span>
+              <span>{b.name}<small>{b.contact} · {b.pay === 'online' ? (b.paid ? t('paid (test)') : t('not paid')) : t('pays on site')}</small>{#if b.note}<small class="of-note">{b.note}</small>{/if}</span>
               {#if href}<a class="btn sm" {href}>{t('Write')}</a>{/if}
+              {#if invoiceOf(b)}<a class="lkb" href={`#/me/pay/invoices/${invoiceOf(b).id}`}>{t('Invoice {no}', { no: invoiceOf(b).no })}</a>{:else if b.at < nowAt()}<button type="button" class="lkb" onclick={() => writeInvoice(b)}>{t('Prepare invoice')}</button>{/if}
               <button type="button" class="lkb" onclick={() => dropOne(b)}>{t('Cancel|booking')}</button>
             </li>
           {/each}
           {#if people.length < ty.places}<li class="of-pp"><span class="muted">{tn(ty.places - people.length, '{n} place free', '{n} places free')}</span><small class="muted">{t('stays bookable')}</small></li>{/if}
         </ul>
         {#if askCancel}
-          <p class="of-ask" role="alert">{people.length ? tn(people.length, 'Cancel this time? {n} person has booked; afterwards you write to them.', 'Cancel this time? {n} people have booked; afterwards you write to them.') : t('Remove this free time?')}</p>
-          <div class="of-foot"><button type="button" class="btn bad" disabled={busy} onclick={dropSlot}>{people.length ? t('Yes, cancel') : t('Yes, remove')}</button><button type="button" class="btn" onclick={() => (askCancel = false)}>{t('Keep it')}</button></div>
+          <p class="of-ask" role="alert">{everyone.length ? tn(everyone.length, 'Cancel this time? {n} person has booked; afterwards you write to them.', 'Cancel this time? {n} people have booked; afterwards you write to them.') : t('Remove this free time?')}</p>
+          <div class="of-foot"><button type="button" class="btn bad" disabled={busy} onclick={dropSlot}>{everyone.length ? t('Yes, cancel') : t('Yes, remove')}</button><button type="button" class="btn" onclick={() => (askCancel = false)}>{t('Keep it')}</button></div>
         {:else}
-          <div class="of-foot"><button type="button" class="lkb of-red" onclick={() => (askCancel = true)}><X size={16} aria-hidden="true" />{people.length ? t('Cancel the time') : t('Remove the time')}</button></div>
+          <div class="of-foot"><button type="button" class="lkb of-red" onclick={() => (askCancel = true)}><X size={16} aria-hidden="true" />{everyone.length ? t('Cancel the time') : t('Remove the time')}</button></div>
         {/if}
       {/if}
     </dialog>
@@ -356,6 +425,9 @@
         <label class="lbl" for="of-title">{t('Name')}</label><input id="of-title" class="inp" bind:value={draft.title} maxlength="60" />
         <label class="lbl" for="of-place">{t('Place')}</label><input id="of-place" class="inp" bind:value={draft.place} maxlength="60" placeholder={t('e.g. sand court')} />
         <label class="lbl" for="of-min">{t('Length in minutes')}</label><input id="of-min" class="inp" type="number" min="0" inputmode="numeric" bind:value={draft.minutes} />
+        <label class="lbl" for="of-venues">{t('Places to choose from (separated by commas)')}</label><input id="of-venues" class="inp" bind:value={draft.venuesText} placeholder={t('e.g. Court by the lake, Indoor hall')} />
+        <p class="lbl">{t('Booking')}</p>
+        <Seg options={[{ key: 'request', name: t('Request, I answer') }, { key: 'instant', name: t('Booked at once') }]} value={draft.mode} onchange={(k) => (draft.mode = k)} label={t('Booking')} />
         <p class="lbl">{t('Payment')}</p>
         <Seg options={[{ key: 'site', name: t('on site') }, { key: 'online', name: t('online (test)') }]} value={draft.pay} onchange={(k) => (draft.pay = k)} label={t('Payment')} />
         <label class="lbl" for="of-cancel">{t('People may cancel up to … hours before')}</label><input id="of-cancel" class="inp" type="number" min="0" inputmode="numeric" bind:value={draft.cancelHours} />
@@ -719,4 +791,8 @@
       grid-template-columns: 1fr;
     }
   }
+.of-note { display: block; font-style: italic; }
+  .of-rq { margin: 8px 0 0; }
+  .of-rqrow { flex-wrap: wrap; }
+  .of-ask-n { color: var(--accent, inherit); font-weight: 600; }
 </style>

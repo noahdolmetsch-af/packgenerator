@@ -125,7 +125,8 @@ export function measuredLeft(bike, part) {
  * One row per wear part of a bike (bike: withVisits view with km), most worn first.
  * → [{ key, name, model, km, life, left, frac, state: 'ok'|'soon'|'due'|'unknown', why, since, past,
  *      cost, due }]
- * why: 'km' (by km), 'measured' (a measured value says so), 'work' (work needed), null.
+ * why: 'km' (by km), 'measured' (a measured value says so), 'work' (work needed), 'flag' (a crash or
+ * a noise, idea 74), null. flag: { why: 'crash'|'noise'|'other', date, note } or null.
  */
 export function wearRows(bike, { entries = [], today = localDay(), keys = null } = {}) {
   const perWeek = weeklyKm(entries, bike?.id, today);
@@ -149,6 +150,9 @@ export function wearRows(bike, { entries = [], today = localDay(), keys = null }
     if (needsWork(p)) [state, why] = ['due', 'work'];
     else if (m === 'worn') [state, why] = ['due', 'measured'];
     else if (m === 'warn' && state !== 'due') [state, why] = ['soon', 'measured'];
+    // Velo-Idee 74: a crash or a noise marks the part «check», even with many km left
+    const flag = flagOf(p);
+    if (flag && state !== 'due') [state, why] = ['soon', 'flag'];
     const ls = lastService(p);
     const since = ls && typeof bike?.km === 'number' && ls.action === 'service' ? { km: Math.max(0, bike.km - ls.km), date: ls.date } : null;
     return {
@@ -167,6 +171,7 @@ export function wearRows(bike, { entries = [], today = localDay(), keys = null }
       due: left != null ? dueDay(left, perWeek, today) : null,
       start: start ? start.date : null,
       unit: partInfo(p).unit,
+      flag,
       meas,
       byMeas,
     };
@@ -301,6 +306,34 @@ export function wearPush(bikes = [], { visits = [], entries = [], today = localD
     }
   }
   return out;
+}
+
+/**
+ * Velo-Idee 74 «Auffälliges Ereignis beim Verschleiss» (996 Ideen, Noah 25.10.2026): a crash, a noise or
+ * something else makes a part «check», even when its km say it has a lot left. Stored on the part
+ * (part.flag), so every backup carries it; «Checked, all fine» takes it off again.
+ */
+export const FLAG_KINDS = [
+  { key: 'crash', name: 'Crash' },
+  { key: 'noise', name: 'Noise' },
+  { key: 'other', name: 'Something else' },
+];
+/** The flag of a part, or null. */
+export const flagOf = (part) => (part?.flag && FLAG_KINDS.some((k) => k.key === part.flag.why) ? part.flag : null);
+/**
+ * The bike's changes when a part gets a flag (flag = { why, date, note }) or loses it (flag = null).
+ * The part comes from the bike's own list (ensureParts), so a part not stored yet is stored with it.
+ */
+export function flagChange(parts, key, flag) {
+  const clean = flag ? { why: FLAG_KINDS.some((k) => k.key === flag.why) ? flag.why : 'other', date: flag.date ?? localDay(), note: `${flag.note ?? ''}`.trim() } : null;
+  return {
+    parts: (parts ?? []).map((p) => {
+      if (p.key !== key) return p;
+      if (clean) return { ...p, flag: clean };
+      const { flag: _gone, ...rest } = p;
+      return rest;
+    }),
+  };
 }
 
 /**

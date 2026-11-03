@@ -10,10 +10,10 @@ export const TOOLS = [
   { key: 'calc', icon: 'calculator', title: 'Calculator', sub: 'Plus, minus, times, divided, percent' },
   { key: 'units', icon: 'ruler', title: 'Convert units', sub: 'km, kg, °C, tyre pressure; works offline' },
   { key: 'money', icon: 'coins', title: 'Currencies', sub: 'What it costs in Franken; rates once a day' },
-  { key: 'costs', icon: 'wallet', title: 'Trip costs', sub: 'Who paid what, who owes whom' },
-  { key: 'zones', icon: 'clock', title: 'Time zones', sub: 'The time in other places' },
+  { key: 'costs', icon: 'wallet', title: 'Trip costs', sub: 'Who paid what, who owes whom', know: 'Settle up while the trip is fresh: a week later nobody remembers who paid for the fondue. A photo of the receipt is enough, the amount and date fill in by themselves.' },
+  { key: 'zones', icon: 'clock', title: 'Time zones', sub: 'The time in other places', know: 'By bike across a border the time rarely changes in Europe, but in border valleys the phone sometimes jumps to the wrong network. Check here before you set the alarm for the train.' },
   { key: 'compass', icon: 'compass', title: 'Compass', sub: 'North and your direction, from the phone' },
-  { key: 'phrases', icon: 'languages', title: 'Phrases abroad', sub: 'Important sentences, offline' },
+  { key: 'phrases', icon: 'languages', title: 'Phrases abroad', sub: 'Important sentences, offline', know: 'Cemeteries almost always have a water tap. Ask anyway: a friendly «Bonjour» first opens more doors than any sentence.' },
   { key: 'ablage', icon: 'paperclip', title: 'Links and files', sub: 'Important links and small files' },
   { key: 'pdf', icon: 'file', title: 'PDF', sub: 'Merge, make smaller, share' },
   { key: 'photo', icon: 'image', title: 'Photos', sub: 'Make smaller, cut, cut out' },
@@ -21,16 +21,18 @@ export const TOOLS = [
   { key: 'convert', icon: 'images', title: 'Picture format', sub: 'HEIC, WebP, PNG → JPG' },
   { key: 'video', icon: 'film', title: 'Make video smaller', sub: 'For messages and e-mail' },
   { key: 'qr', icon: 'qr', title: 'Make a QR code', sub: 'Text, link or WLAN as a code' },
-  { key: 'map', icon: 'route', title: 'Measure a route', sub: 'Tap on the map, see the length, save as GPX' },
-  { key: 'gears', icon: 'cog', title: 'Gear ratios', sub: 'Chainring and cassette: metres and speed' },
-  { key: 'level', icon: 'level', title: 'Spirit level', sub: 'How crooked, in degrees and percent' },
+  { key: 'map', icon: 'route', title: 'Measure a route', sub: 'Tap on the map, see the length, save as GPX', know: 'A point at every bend is enough for a good length; a point on every switchback is enough for a good mood. Save the line as GPX and add it to a trip under Pack › Route.' },
+  { key: 'gears', icon: 'cog', title: 'Gear ratios', sub: 'Chainring and cassette: metres and speed', know: 'A smaller chainring helps more on a loaded bike than a bigger sprocket: compare both here before you buy. Under 2 metres per crank turn, steep gravel climbs stay rideable.' },
+  { key: 'level', icon: 'level', title: 'Spirit level', sub: 'How crooked, in degrees and percent', know: 'Lay the phone flat on the saddle, bike on level ground. Measure before and after you change something, then write it in the setup log.' },
   { key: 'barcode', icon: 'scan', title: 'Bar code → gear', sub: 'Scan a product, find or add it in your gear' },
-  { key: 'light', icon: 'flashlight', title: 'Magnifier and light', sub: 'Read small print, light up' },
+  { key: 'light', icon: 'flashlight', title: 'Magnifier and light', sub: 'Read small print, light up', know: 'The tyre wall shows the allowed pressure in small print, for example «35–65 psi». The magnifier reads it at dusk too. The light uses battery, so switch it off when you are done.' },
   // Paket L2 «Bilderkennung» (Noah 19.10.2026): a photo ticks the packing list or adds gear; the sitting position from a photo or video
   { key: 'packphoto', icon: 'scaneye', title: 'Packing list by photo', sub: 'Tick off or add gear from one photo' },
   { key: 'sitpos', icon: 'person', title: 'Sitting position', sub: 'Knee and back angles from a photo or video' },
   // Paket B «QR an der Kiste» (Noah 24.10.2026 «2a»): labels for boxes and shelves at home
   { key: 'labels', icon: 'package', title: 'Box labels', sub: 'A QR code on each box: what is inside' },
+  // «Bild bearbeiten» (Noah 28.10.2026 «1a 2a 3a 4a 5a»): screenshots cut, drawn and written on, one PDF
+  { key: 'markup', icon: 'pen', title: 'Edit a picture', sub: 'Screenshot: cut, draw, write, one PDF' },
 ];
 
 /** The tools in the order the person set (unknown keys dropped, new tools at the end). */

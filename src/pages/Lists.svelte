@@ -15,7 +15,7 @@
   import { liveQuery } from 'dexie';
   import AreaIntro from '../lib/intro/AreaIntro.svelte'; // «Anleitungen überall»: the guide of this page (lib/guides.js)
   import { db } from '../lib/db.js';
-  import { OVERRIDES_KEY, STANDARD_LIST, listFor, isChanged, overrideOf, resetList } from '../lib/standard.js';
+  import { OVERRIDES_KEY, STANDARD_LIST, listFor, isChanged, overrideOf, resetList, changedAt } from '../lib/standard.js';
   import { saveList, resetToStandard, move, moveTo, toggleHidden, edit, addOwn, remove, applyLists } from '../lib/lists.js';
   import { catIcon, stdIconName } from '../lib/gear/caticon.js';
   import { domainName } from '../lib/domains.js';
@@ -27,7 +27,7 @@
   import { askDelete, deleteWithUndo } from '../lib/ui/ask.js';
   import UndoToast from '../lib/review/UndoToast.svelte';
   import VeloHead from '../lib/bikes/VeloHead.svelte';
-  import { t, tn } from '../lib/i18n.svelte.js';
+  import { t, tn, locale } from '../lib/i18n.svelte.js';
   import SortGrip from '../lib/ui/SortGrip.svelte';
   import { sortable } from '../lib/ui/sortable.js';
   import { ChevronRight, ChevronUp, ChevronDown, Eye, EyeOff, Pencil, Plus, Undo2, Lightbulb, Tag, ListChecks, Info, NotebookPen, SlidersHorizontal, Mountain, Briefcase, Wrench, MapPin, Bike, Palmtree, Feather, Smile, Flower2 } from '@lucide/svelte';
@@ -190,7 +190,18 @@
     if (e.renamed) return join(t('Standard name: {name}', { name: t(e.std) }));
     return join(t('Standard'));
   };
-  const adapted = (e) => !e.own && (e.renamed || overrideOf(value).icons[e.id] || e.areas);
+  const adapted = (e) => !e.own && (e.renamed || e.hidden || overrideOf(value).icons[e.id] || e.areas);
+  // «Pfad auf jeder Seite» 4 (Noah 28.10.2026): look at the entries by who made them: the Standard, changed by me, new from me
+  let filter = $state('all');
+  const kindOf = (e) => (e.own ? 'own' : adapted(e) ? 'mine' : 'std');
+  const counts = $derived({ all: list.length, std: list.filter((e) => kindOf(e) === 'std').length, mine: list.filter((e) => kindOf(e) === 'mine').length, own: list.filter((e) => kindOf(e) === 'own').length });
+  const marked = $derived(counts.mine + counts.own > 0);
+  const rows = $derived(filter === 'all' || !marked ? list : list.filter((e) => kindOf(e) === filter));
+  const sorting = $derived(rows === list);
+  $effect(() => {
+    void KEY;
+    filter = 'all';
+  });
   // «Alle Daten anpassbar» (21.10.2026): the app's own window instead of the browser's, then Undo
   async function reset() {
     const text = KEY === 'categories' ? t('Back to the Standard categories? Your names, own categories, hidden and deleted ones and the order are undone.') : t('Back to the Standard? Your names, own entries, deleted ones and the order are undone.');
@@ -302,16 +313,28 @@
     <p class="ich-fine"><Info size={15} aria-hidden="true" /><span>{t('The questions of «Your questions» and of the daily check are changed on their own pages.')}</span></p>
   {:else}
     <VeloHead crumbs={[{ label: t('Lists and types'), href: '#/me/lists' }]} title={t(STANDARD_LIST[KEY].name)} sub={t(K.sub)} />
+    {#if changedAt(value)}
+      <p class="ich-fine" data-list-changed><Info size={15} aria-hidden="true" /><span>{t('Last changed by you: {date}', { date: new Date(changedAt(value)).toLocaleDateString(locale(), { day: 'numeric', month: 'long', year: 'numeric' }) })}</span></p>
+    {/if}
+    {#if marked}
+      <div class="fchips" role="group" aria-label={t('Show')} data-list-filter>
+        {#each [['all', 'All|filter'], ['std', 'Standard'], ['mine', 'Adapted by me'], ['own', 'New from me']] as [k, label] (k)}
+          {#if k === 'all' || k === 'std' || counts[k] > 0}<button type="button" class="fchip" aria-pressed={filter === k} data-filter={k} onclick={() => (filter = k)}>{t(label)} · {counts[k]}</button>{/if}
+        {/each}
+      </div>
+      {#if !sorting}<p class="ich-fine"><Info size={15} aria-hidden="true" /><span>{t('Reordering works in the view «All».')}</span></p>{/if}
+    {/if}
     <div class="card box">
-      <ul class="ich-list rows" aria-label={t(STANDARD_LIST[KEY].name)} use:sortable={{ onmove: (from, to) => save(moveTo(value, list, list[from].id, to)) }}>
-        {#each list as e, i (e.id)}
+      <ul class="ich-list rows" aria-label={t(STANDARD_LIST[KEY].name)} use:sortable={{ onmove: (from, to) => sorting && save(moveTo(value, list, list[from].id, to)) }}>
+        {#each rows as e (e.id)}
+          {@const i = list.indexOf(e)}
           {@const I = KEY === 'categories' ? catIcon(e.id) : K.icon}
           <li class="ich-row" class:off={e.hidden} data-id={e.id} data-sort-id={e.id}>
-            <SortGrip name={shown(e)} onstep={(dir) => save(move(value, list, e.id, dir))} />
+            {#if sorting}<SortGrip name={shown(e)} onstep={(dir) => save(move(value, list, e.id, dir))} />
             <span class="arrows">
               <button type="button" class="ar" aria-label={t('Up: {name}', { name: shown(e) })} disabled={i === 0} onclick={() => save(move(value, list, e.id, -1))}><ChevronUp size={16} aria-hidden="true" /></button>
               <button type="button" class="ar" aria-label={t('Down: {name}', { name: shown(e) })} disabled={i === list.length - 1} onclick={() => save(move(value, list, e.id, 1))}><ChevronDown size={16} aria-hidden="true" /></button>
-            </span>
+            </span>{/if}
             <span class="ich-ib" aria-hidden="true"><I size={18} /></span>
             <!-- v0.163.x: name, mark and pen are one button (the window of the entry); on the phone the name keeps its room next to the handle and the arrows -->
             <button type="button" class="edit" aria-haspopup="dialog" aria-label={t('Edit: {name}', { name: shown(e) })} onclick={() => (sheet = { entry: e })}>
@@ -413,6 +436,27 @@
   .badge.mine {
     background: var(--warn-soft);
     color: var(--warn);
+  }
+  .fchips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 0 0 var(--sp-3, 12px);
+  }
+  .fchip {
+    min-height: 44px;
+    padding: 0 14px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: var(--paper);
+    color: var(--ink-2);
+    font: 600 var(--fs-small) / 1 var(--font-body);
+    cursor: pointer;
+  }
+  .fchip[aria-pressed='true'] {
+    border-color: var(--accent);
+    background: var(--accent-soft, var(--paper-2));
+    color: var(--ink);
   }
   .badge.own {
     background: var(--ok-soft);

@@ -35,6 +35,7 @@
 <section class="tb" aria-labelledby="tb-h">
   <div class="lh"><h2 id="tb-h">{t('Trello')}</h2></div>
   <div class="card body">
+    <p class="hint" data-trello-why>{t('Only needed if you want to see your to-dos in Trello too, for example on the phone or with others. Without Trello everything works in the app as before.')}</p>
     {#if trello.error}<p class="err" role="status">{errorText(trello.error)}</p>{/if}
     {#if !p.on}
       <p>{t('Your to-dos and lists you choose also in Trello, on your own board «Packgenerator». A tick in Trello is a tick here, and back. Your other boards stay untouched.')}</p>
@@ -42,8 +43,8 @@
         <button type="button" class="btn hi" onclick={() => connect()}><Link size={16} aria-hidden="true" />{t('Connect Trello')}</button>
         <p class="hint">{t('Needed once: a workspace «Packgenerator» in Trello. The app makes the board itself.')}</p>
       {:else}
-        <p class="hint">{t('First connect Strava on this device: it gives this device the key the Trello connection uses too.')}</p>
-        <a class="btn" href={STRAVA_HASH}>{t('Connect Strava first')}</a>
+        <p class="hint">{t('This device needs the app key once. It comes with the Strava login; after that Google and Trello work here too.')}</p>
+        <a class="btn" href={STRAVA_HASH}>{t('Unlock this device (once)')}</a>
       {/if}
     {:else}
       <p class="row">

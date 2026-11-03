@@ -76,7 +76,7 @@ export default {
   'paused until next month': 'Pause bis nächsten Monat',
   'Helper code': 'Helfer-Code',
   'the long code from Vercel (HELPER_TOKEN)': 'der lange Code aus Vercel (HELPER_TOKEN)',
-  'Stored only on this device. It never goes into a backup, an export or a shared list.': 'Nur auf diesem Gerät gespeichert. Er kommt nie in eine Sicherung, einen Export oder eine geteilte Liste.',
+  'Stored only on this device. It never goes into a backup, an export or a shared list.': 'Nur auf diesem Gerät gespeichert. Er kommt nie in ein Backup, einen Export oder eine geteilte Liste.',
   'Saved on this device.': 'Auf diesem Gerät gespeichert.',
   'Helper code removed.': 'Helfer-Code entfernt.',
   'Helper switched on': 'Helfer eingeschaltet',

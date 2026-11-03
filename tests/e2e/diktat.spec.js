@@ -61,13 +61,13 @@ test('Notes: dictation runs until stop, «Punkt» becomes a sign, the question g
   await expect(page.locator('[data-speak-live]')).toHaveCount(0);
   // «Nach dem Stopp» (default): the app answers the question from the data (an empty app: nothing is due)
   const ans = page.locator('[data-speak-answer]');
-  await expect(ans.locator('[data-aa="care"]')).toContainText(T('Nothing is due on your bikes.'));
+  await expect(ans.locator('[data-aa="care"]')).toContainText(T('No bikes yet, so there is no care data either.'));
   const claude = ans.locator('[data-service="claude"]');
   await expect(claude).toHaveAttribute('href', /^https:\/\/claude\.ai\/new\?q=Was%20ist%20am%20Velo%20f%C3%A4llig/);
   await expect(claude).toHaveAttribute('target', '_blank');
   // «In Notiz übernehmen» appends the answer
   await ans.locator('[data-aa-adopt]').click();
-  await expect(form.locator('textarea:not([data-ask-text])')).toHaveValue(new RegExp(`${T('Answer')}: ${T('Nothing is due on your bikes.').replace(/[.?]/g, '\\$&')}`));
+  await expect(form.locator('textarea:not([data-ask-text])')).toHaveValue(new RegExp(`${T('Answer')}: ${T('No bikes yet, so there is no care data either.').replace(/[.?]/g, '\\$&')}`));
   expect(errors).toEqual([]);
 });
 

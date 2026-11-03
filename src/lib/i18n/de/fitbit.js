@@ -1,6 +1,8 @@
 // Fitbit über Google Health (mockups G1–G2): the page «Fitbit», the card «Gesundheitsdaten», the light on «Daten und Backup»
 export default {
   'Sleep|fitbit': 'Schlaf',
+  'Google or the server took too long. Tap «Try again».': 'Google oder der Server hat zu lange gebraucht. Tippe auf «Nochmal versuchen».',
+  'Try again|fitbit': 'Nochmal versuchen',
   // «Was die App alles kann», Handbuch, «So geht's»
   'Fitbit connection': 'Fitbit-Verbindung',
   'Sleep, resting heart rate, HRV, steps and active zone minutes from your watch, fetched by themselves; observation only.': 'Schlaf, Ruhepuls, HRV, Schritte und Aktivzonen-Minuten von deiner Uhr, von selbst geholt; nur zur Beobachtung.',
@@ -86,4 +88,7 @@ export default {
   'No Fitbit values for today yet. The last ones are from {date}.': 'Noch keine Fitbit-Werte von heute. Die letzten sind vom {date}.',
   'No Fitbit values yet.': 'Noch keine Fitbit-Werte.',
   'To Fitbit': 'Zu Fitbit',
+  'Done: {n} day fetched.': 'Fertig: {n} Tag geholt.',
+  'Done: {n} days fetched.': 'Fertig: {n} Tage geholt.',
+  'Done: nothing new, you are up to date.': 'Fertig: nichts Neues, du bist auf dem neuesten Stand.',
 };

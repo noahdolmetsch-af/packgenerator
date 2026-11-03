@@ -19,6 +19,7 @@
   import { askDelete, deleteWithUndo } from '../ui/ask.js';
   import { searchPlace } from '../weather.js';
   import { t } from '../i18n.svelte.js';
+  import '../race/race.css'; // rc-note, rc-empty, rc-warn: without it the notes on Wetter had the browser's default size
 
   const camsQ = liveQuery(() => db.settings.get(WEBCAMS_KEY));
   const cams = $derived(camsOf($camsQ?.value));
@@ -75,9 +76,9 @@
     try {
       pfound = await searchPlace(pq);
       if (!pfound.length) pmsg = t('No place found.');
-    } catch {
+    } catch (err) {
       pfound = [];
-      pmsg = t('The place search did not answer. Try again later.');
+      pmsg = err?.outage ? err.message : t('The place search did not answer. Try again later.');
     }
   }
   async function pick(c, p) {

@@ -102,7 +102,9 @@ test('a) Touren › Fahrten: every Strava activity, a trip with a packing list i
   await expect(acts(page)).toHaveCount(0);
   const toRides = page.locator('a[data-to-rides]');
   await expect(toRides).toContainText(T('Rides from Strava'));
-  await expect(toRides).toContainText(T('{n} activities', { n: 9 }));
+  // UI-Test T6 (G2-04, changed on purpose): the card counts the rows of «Fahrten» (8 rows from the 9 activities)
+  // and names the period: «7 Aktivitäten in 12 Monaten · 8 insgesamt»
+  await expect(toRides.locator('[data-rides-count]')).toHaveText(`${T('{n} activities', { n: 7 })} ${T('in 12 months')} · ${T('{n} in all', { n: 8 })}`);
   expect((await pack.boundingBox()).y).toBeLessThan((await toRides.boundingBox()).y);
   // the row of that trip also names its Strava activities
   const pm = pack.locator('li[data-row]').filter({ has: page.getByRole('link', { name: 'Herbsttour Hochland', exact: true }) });

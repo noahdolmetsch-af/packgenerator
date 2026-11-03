@@ -146,6 +146,8 @@
             <div class="chips">{#each ideas as i (i.id)}<button type="button" class="chip dash" onclick={() => addIdea(i)} data-rest-idea={i.id}><Plus size={16} aria-hidden="true" />{ideaName(i)}</button>{/each}</div>
           {/if}
           <a class="chip dash own" href="#/flow/new"><Plus size={16} aria-hidden="true" />{t('own recovery')}</a>
+          <!-- «Versteckte Funktionen» (Noah 03.11.2026 «4b»): the daily list was only reachable from a Heute tile -->
+          <p class="sub"><a href="#/routine" data-rest-routine>{t('Your daily list «What does me good»')} ›</a> {t('small habits to tick, with days and times')}</p>
         </Sec>
       </div>
 

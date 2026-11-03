@@ -1,5 +1,6 @@
 // v0.72.0 «Feinschliff» (Material-Detail und Bausteine, Noah «1-5 a»): the one summary line, the
 // row «Weight» with the lighter alternative, first aid on every trip (small or full). Fictional data only.
+import './setup/de.js'; // this test needs the German texts
 import { describe, it, expect, afterEach } from 'vitest';
 import { summaryParts, summaryLine, weightLine } from '../src/lib/gear/detail.js';
 import { alternatives, lighterAlts, dismissValue, linkPatch, suggestWhy } from '../src/lib/gear/material.js';

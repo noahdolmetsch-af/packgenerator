@@ -22,6 +22,7 @@
   const home = $derived(st?.home && Number.isFinite(st.home.lat) && Number.isFinite(st.home.lon) ? st.home : null);
   let busy = $state(false);
   let failed = $state(false);
+  let tried = $state(false); // F06 (robot test 1.11.2026): after a tap on «Try again» the line says what happened
   const hid = `air-${Math.random().toString(36).slice(2, 8)}`;
   const today = localDay();
   const days = $derived((st?.cache?.days ?? []).filter((d) => d.day >= today && (d.ozone != null || Object.values(d.pollen ?? {}).some((v) => v != null))));
@@ -29,9 +30,10 @@
   const nameOf = (k) => t(POLLEN_NAMES[k]);
   const dayWord = (day) => (day === today ? t('Today') : t('Tomorrow'));
 
-  async function refresh() {
+  async function refresh(byHand = false) {
     if (busy || !home) return;
     busy = true;
+    if (byHand === true) tried = true; // only a tap on «Try again» changes the line, never the automatic load
     try {
       await fetchAir(home, { db, ...(fetcher ? { fetcher } : {}) });
       failed = false;
@@ -62,13 +64,13 @@
 
 <!-- Impeccable 20.10.2026: when nothing could be loaded, one quiet line with «Nochmals» instead of a whole card -->
 {#if home && failed && !days.length}
-  <p class="air ai-line" data-section="air" data-air-failed><Flower2 size={16} aria-hidden="true" /><span>{t('Ozone and pollen not reachable just now.')}</span><button type="button" class="btn sm" onclick={refresh} disabled={busy}>{t('Try again|load')}</button></p>
+  <p class="air ai-line" data-section="air" data-air-failed><Flower2 size={16} aria-hidden="true" /><span role="status">{tried && busy ? t('Loading…') : tried ? t('Still not reachable. Try again later.') : t('Ozone and pollen not reachable just now.')}</span><button type="button" class="btn sm" onclick={() => refresh(true)} disabled={busy}>{tried && busy ? t('Loading…') : t('Try again|load')}</button></p>
 {:else}
 <section class="air card" aria-labelledby={hid} data-section="air">
   <div class="ai-head">
     <span class="ai-ib" aria-hidden="true"><Flower2 size={18} /></span>
     <svelte:element this={headingLevel === 3 ? 'h3' : 'h2'} id={hid} class="ai-title">{t('Ozone and pollen')}</svelte:element>
-    {#if home}<button type="button" class="ai-re" onclick={refresh} disabled={busy} aria-label={t('Load again')}><RefreshCw size={18} class={busy ? 'spin' : ''} aria-hidden="true" /></button>{/if}
+    {#if home}<button type="button" class="ai-re" onclick={() => refresh()} disabled={busy} aria-label={t('Load again')}><RefreshCw size={18} class={busy ? 'spin' : ''} aria-hidden="true" /></button>{/if}
   </div>
   {#if !home}
     <p class="ai-quiet">{t('Set your home place under Me › Home place; then the card shows ozone and pollen there.')}</p>

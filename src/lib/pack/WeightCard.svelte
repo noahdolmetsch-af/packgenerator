@@ -11,6 +11,7 @@
   import { isConsumable } from '../gear.js';
   import { packSteps } from '../trips.js';
   import { t, tn, locale, nameOf } from '../i18n.svelte.js';
+  import PasstHier from '../ui/PasstHier.svelte'; // Wegweiser 5: «Fits here» → how sure the weight is
   import { tripFill } from '../einzeln/material.js'; // Einzelidee 24: the content of bottles, gas and boxes apart
 
   // v0.106.0 Design-Refresh P5 (T6 «Gewicht nach Taschen»): the same card on Packen, with its own title.
@@ -25,7 +26,9 @@
   // after it: «Lenkerrolle · Front roll 14 L»
   const bags = $derived(stats?.zones ? Object.fromEntries(packSteps(stats, trip.purpose ?? {}).map((s) => [s.key, s])) : {});
   const name = (key) => (key === 'food' ? t('Food and water') : key === 'body' ? t('On me') : (bags[key]?.title ?? key));
-  const rows = $derived(w.rows.filter((r) => r.g > 0 || r.missing).map((r, n) => ({ ...r, c: COLORS[n % COLORS.length], name: name(r.key), sub: r.key === 'food' || r.key === 'body' ? '' : (bags[r.key]?.sub ?? '') })));
+  // UI-Test T7 (G2-08): a place with food or water also says its weight with them, the number of the drawing
+  const withFood = (r) => (r.key !== 'food' && w.foodByPlace?.[r.key] ? t('with food and water: {kg}', { kg: `${kgN(r.g + w.foodByPlace[r.key])} kg` }) : '');
+  const rows = $derived(w.rows.filter((r) => r.g > 0 || r.missing).map((r, n) => ({ ...r, c: COLORS[n % COLORS.length], name: name(r.key), sub: [r.key === 'food' || r.key === 'body' ? '' : (bags[r.key]?.sub ?? ''), withFood(r)].filter(Boolean).join(' · ') })));
 </script>
 
 <section class="wc" aria-labelledby="wc-h">
@@ -44,6 +47,7 @@
       {#if w.missing}<span>{tn(w.missing, '{n} item not weighed', '{n} items not weighed')}</span>{/if}
       {#if fill.g}<span data-weight-fill>{t('Full: + {kg} kg content (bottles, gas, boxes), not in the total', { kg: kgN(fill.g) })}</span>{/if}
     </p>
+    {#if w.total > 0}<PasstHier place="weight" />{/if}
   </div>
 </section>
 

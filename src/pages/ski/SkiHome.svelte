@@ -192,6 +192,8 @@
         </ul>
         <!-- Paket J #217: the emergency numbers, also offline -->
         <p class="sk-quiet sos-line" data-sos-line><Phone size={15} aria-hidden="true" /><span>{t('Emergency:')}</span>{#each CALLS as c, i (c.key)}{#if i}<span aria-hidden="true">·</span>{/if}<a href={telOf(c.number)} data-call={c.number}>{t(c.label)}</a>{/each}</p>
+        <!-- «Versteckte Funktionen» (Noah 03.11.2026 «4b»): the three mountain pages were one page deeper, behind «Mountain and emergency» -->
+        <p class="sk-quiet direct" data-mountain-direct><span>{t('Straight to:')}</span><a class="btn sm" href="#/mountain/qr" data-direct="qr">{t('Emergency QR for the lock screen')}</a><a class="btn sm" href="#/mountain/scales" data-direct="scales">{t('Signposts and grades')}</a><a class="btn sm" href="#/mountain/map" data-direct="map">{t('Map with steep slopes')}</a></p>
 
         <details class="surf more">
           <summary class="sk-row">
@@ -317,6 +319,13 @@
     align-items: center;
     gap: 6px;
     margin: 10px 0 14px;
+  }
+  .direct {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 14px;
   }
   .sos-line a {
     min-height: 44px;

@@ -51,6 +51,15 @@ test('an offer, a booking without the app, the note on Heute and cancelling', as
   await expect(page.locator('.of-rules')).toContainText(T('on site (cash, TWINT)'));
   await expect(page.locator('section[aria-labelledby="of-bk-h"]')).toContainText(T('Nobody has booked yet.'));
 
+  // Tennis starts as «Request, I answer» (Noah 03.11.2026 «1b»); this test books at once, so switch it
+  await expect(page.locator('.of-rules')).toContainText(T('request, you answer within 24 h'));
+  await page.getByRole('button', { name: T('Change') }).click();
+  const rules = page.getByRole('dialog', { name: T('How booking works') });
+  await rules.getByRole('button', { name: T('Booked at once') }).click();
+  await rules.getByRole('button', { name: T('Save') }).click();
+  await expect(rules).toBeHidden();
+  await expect(page.locator('.of-rules')).toContainText(T('booked at once'));
+
   // open a time next Monday, 18:00, group, every week
   await page.getByRole('button', { name: T('Next week') }).click();
   await page.locator('.of-dc').first().locator('.of-sl.add').click();
@@ -111,4 +120,78 @@ test('an offer, a booking without the app, the note on Heute and cancelling', as
   await sheet.getByRole('button', { name: T('Yes, cancel') }).click();
   await expect(sheet).toContainText(T('The time is cancelled. Tell {n} person:', { n: 1 }));
   await expect(sheet.getByRole('link', { name: T('Write') })).toHaveAttribute('href', /^sms:0790000000\?body=/);
+});
+
+test('a request with places and a note: Noah confirms it and writes back', async ({ page }) => {
+  await page.goto('./#/me/offers');
+  await page.locator('.of-chips .btn').first().click();
+  await expect(page).toHaveURL(/#\/me\/offers\/tennis-[a-z0-9]+$/);
+  const id = page.url().split('/').at(-1);
+
+  // two places to choose from
+  await page.getByRole('button', { name: T('Change') }).click();
+  const rules = page.getByRole('dialog', { name: T('How booking works') });
+  await rules.getByLabel(T('Places to choose from (separated by commas)')).fill('Platz am See, Halle');
+  await rules.getByRole('button', { name: T('Save') }).click();
+  await expect(rules).toBeHidden();
+  await expect(page.locator('.of-rules')).toContainText('Platz am See · Halle');
+
+  // a time in the hall, next Monday 18:00, single, one week only
+  await page.getByRole('button', { name: T('Next week') }).click();
+  await page.locator('.of-dc').first().locator('.of-sl.add').click();
+  const add = page.getByRole('dialog', { name: T('Open a time') });
+  await add.locator('input[type=time]').fill('18:00');
+  await add.getByRole('button', { name: 'Halle' }).click();
+  await add.getByLabel(T('Every week the same (the next 8 weeks)')).uncheck();
+  await add.getByRole('button', { name: T('Open the time') }).click();
+  await expect(add).toBeHidden();
+
+  // the student chooses a place and a time and sends a request with a note
+  await page.goto(`./buchen/#${id}`);
+  await page.getByRole('button', { name: 'Halle' }).click();
+  await expect(page.locator('.tm[aria-pressed="true"]')).toContainText('18:00');
+  await page.getByLabel(T('Your name')).fill('Mia Muster');
+  await page.getByLabel(T('Phone or e-mail')).fill('079 000 00 00');
+  await page.locator('#bk-note').fill('Anfängerin, eigener Schläger');
+  await expect(page.locator('form .sum')).toContainText(T('after the lesson, you get an invoice'));
+  await page.getByRole('button', { name: T('Send request') }).click();
+  await expect(page.getByRole('heading', { name: T('Request sent') })).toBeVisible();
+  await expect(page.locator('.conf')).toContainText('Halle');
+  await expect(page.locator('.conf')).toContainText('60 CHF');
+  await expect(page.locator('.conf')).toContainText('Anfängerin, eigener Schläger');
+  await expect(page.getByRole('button', { name: T('Add to calendar') })).toHaveCount(0);
+
+  // Heute: a new request, Noah opens the time and confirms
+  await page.goto('./#/');
+  await ready(page);
+  await expect(page.locator('li.row[data-row="book"]')).toContainText(T('New request: {name} · {title} · {when}', { name: 'Mia Muster', title: T('Tennis lesson'), when: '' }).replace(/ · $/, ''));
+  await page.goto(`./#/me/offers/${id}`);
+  await page.getByRole('button', { name: T('Next week') }).click();
+  await page.locator('.of-dc .of-sl.free').first().click();
+  const sheet = page.getByRole('dialog');
+  await expect(sheet).toContainText('Anfängerin, eigener Schläger');
+  await sheet.getByRole('button', { name: T('Confirm') }).click();
+  await expect(sheet).toContainText(T('Confirmed. Now tell {name}:', { name: 'Mia Muster' }));
+  await expect(sheet.getByRole('link', { name: T('Write') }).first()).toHaveAttribute('href', /^sms:0790000000\?body=/);
+
+  // the student sees it as booked
+  await page.goto(`./buchen/#${id}`);
+  await page.reload();
+  await page.getByRole('link', { name: /18:00/ }).click();
+  await expect(page.getByRole('heading', { name: T('Booked') })).toBeVisible();
+});
+
+test('the invoice form is filled from a booking draft and keeps the booking', async ({ page }) => {
+  await page.goto('./#/');
+  await ready(page);
+  await page.evaluate(() => {
+    localStorage.setItem('pg.pay.account', JSON.stringify({ iban: 'CH44 3199 9123 0008 8901 2', name: 'Beispiel Tennis', street: '', house: '', zip: '8000', town: 'Zürich', twint: '079 000 00 00' }));
+    sessionStorage.setItem('pg.invoice.prefill', JSON.stringify({ name: 'Mia Muster', email: 'mia@example.test', amount: '60', purpose: 'Tennis-Lektion, Einzel, Mo, 23.11.', booking: { offer: 'tennis-abc123', b: 'bk1' } }));
+  });
+  await page.goto('./#/me/pay/invoices/new');
+  await expect(page.getByLabel(T('For whom?'))).toHaveValue('Mia Muster');
+  await expect(page.getByLabel(T('Amount|money'))).toHaveValue('60');
+  await expect(page.getByLabel(T('What for?'))).toHaveValue('Tennis-Lektion, Einzel, Mo, 23.11.');
+  // read once: a second visit starts empty
+  expect(await page.evaluate(() => sessionStorage.getItem('pg.invoice.prefill'))).toBeNull();
 });

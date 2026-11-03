@@ -4,8 +4,8 @@ export default {
   title: 'Plants and matters, one step further',
   lead: 'A tip can now become the new watering interval, and receipts find their matter.',
   points: [
-    { text: 'Plant passport: «Water every N days» right under the hint, with Undo', href: '#/calendar/pflanzen' },
-    { text: 'Matters: photos and notes get a suggestion too, by number, amount or words', href: '#/inbox/vorgaenge' },
+    { text: 'Plant passport: «Water every N days» right under the hint, with Undo', href: '#/calendar/pflanzen', go: 'f.plantpass' },
+    { text: 'Matters: photos and notes get a suggestion too, by number, amount or words', href: '#/inbox/vorgaenge', go: 'f.doubleinbox' },
   ],
   small: [],
   test: ['Planen › Merken › Pflanzenpass: after two observations «Volle Sonne» and «Trocknet schnell aus» the button «Alle N Tage giessen» shows under the hint; tap it, then «Rückgängig».', 'Eingang › Vorgänge: a photo or note with the booking number of a matter shows under «Mail als Vorgang» with «In …».'],

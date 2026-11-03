@@ -1,4 +1,5 @@
 // v0.34.0 (L1): the trip schedule on Today, one next step per day band. Fictional trips only.
+import './setup/de.js'; // this test needs the German texts
 import { describe, it, expect, afterEach } from 'vitest';
 import { tripSteps, nextStep, tripSchedule, stepWords, weatherKnown, OFFSET } from '../src/lib/schedule.js';
 import { lang } from '../src/lib/i18n.svelte.js';

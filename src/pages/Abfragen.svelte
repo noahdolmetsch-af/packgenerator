@@ -26,7 +26,8 @@
   import IntervalSheet from '../lib/abfragen/IntervalSheet.svelte';
   import OwnSheet from '../lib/abfragen/OwnSheet.svelte';
   import Auswertung from '../lib/abfragen/Auswertung.svelte';
-  import { abQuery, ensureConfig, saveConfig } from '../lib/abdb.js';
+  import { abQuery, ensureConfig, saveConfig, saveDataCfg } from '../lib/abdb.js';
+  import { RULES, MAX_PER_DAY, ruleOn, setRule } from '../lib/datenfragen.js'; // 03.11.2026 «Fragen aus deinen Daten»
   import { OWN_AREA, configOf, settingOf, setOn, setEvery, putOwn, newOwn, counts, stampOf, setRounds, timeOf, perDay, BUSY_DAY, areasOf, questionsIn, renameQuestion, moveToArea, deleteQuestion, restoreQuestion, goneQuestions, moveQuestion, renameArea, addArea, deleteArea, moveArea, listChanged, resetList } from '../lib/abfragen.js';
   import { qText, areaName, everyText, kindLabel, kindExtra, srcText } from '../lib/abfragen/words.js';
   import { localDay } from '../lib/localday.js';
@@ -160,6 +161,7 @@
   };
   const ICON_SRC = { hand: Hand, later: Watch, fitbit: Watch, open: CircleDashed, only: Hand, app: Smartphone };
   const exOf = (list) => list.find((q) => settingOf(cfg, q).on) ?? list[0];
+  import PasstHier from '../lib/ui/PasstHier.svelte'; // «Wegweiser statt Katalog» PR 7
 </script>
 
 <div class="ich-page abpage">
@@ -297,6 +299,19 @@
           {/if}
         </div>
       </section>
+      <!-- 03.11.2026 «Fragen aus deinen Daten» (Noah «2a»): a suggestion, each rule has its switch -->
+      <section class="ich-sec" aria-labelledby="ab-data-h" data-datenfragen>
+        <div class="ich-h"><div><h2 id="ab-data-h">{t('Questions from your data')}</h2><p class="ich-hs">{t('a suggestion, can be switched off')}</p></div></div>
+        <div class="card side">
+          <p class="p">{t('When a value stands out, the window asks one open question about it and says why. It is worked out on this device only. Up to {n} a day.', { n: MAX_PER_DAY })}</p>
+          {#each RULES as r (r.id)}
+            <div class="rsw" data-rule={r.id}>
+              <span class="rm"><b>{t(r.title)}</b><small>{t(r.about, r.vars)}</small></span>
+              <label class="ab-sw"><span class="sr">{t(r.title)}</span><input type="checkbox" role="switch" checked={ruleOn(data?.dataCfg, r.id)} onchange={(e) => saveDataCfg(setRule(data?.dataCfg, r.id, e.currentTarget.checked))} /></label>
+            </div>
+          {/each}
+        </div>
+      </section>
       <section class="ich-sec" aria-labelledby="ab-where-h">
         <div class="ich-h"><div><h2 id="ab-where-h">{t('Where the answers go')}</h2></div></div>
         <div class="card side">
@@ -308,6 +323,7 @@
           </ul>
           <a class="btn" href="#/me/history">{t('See the history')}<ChevronRight size={16} aria-hidden="true" /></a>
         </div>
+        <PasstHier place="abfragen" />
       </section>
       <!-- Impeccable Runde 2: the two explaining blocks in one fold -->
       <details class="ich-sec howfold" data-how>

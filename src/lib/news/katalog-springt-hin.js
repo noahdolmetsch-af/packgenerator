@@ -2,8 +2,8 @@
 export default {
   title: 'The catalogue shows the spot',
   lead: 'A tap on a function in «What the app can do» now goes to the exact spot and lights it up for a moment.',
-  points: [{ text: 'Also when it sits in a window or further down: «Compare bikes», «Old Fitbit data», «English names» and more', href: '#/features' }],
-  small: [{ box: 'nicer', text: 'Also inside windows and folds: they open by themselves' }],
+  points: [{ text: 'Also when it sits in a window or further down: «Compare bikes», «Old Fitbit data», «English names» and more', href: '#/features', go: 'f.tripbike' }],
+  small: [{ box: 'nicer', text: 'Also inside windows and folds: they open by themselves', go: null }],
   test: ['Open «What the app can do» and search «Compare bikes for a trip».', 'Tap the entry: the trip opens, the bike window opens and «Compare bikes» lights up.'],
   since: [],
   de: {

@@ -4,18 +4,22 @@
    * UC-217-I2): Arbeitsraum für ein Vorhaben, Ruhige Ansicht, Erinnerungs-Budget, Nicht für mich.
    * Logic: weniger.js. The strip on top of every page: RuhigLine.svelte.
    */
-  import { Briefcase, Moon, BellRing, EyeOff, Plus, X, Play, Square } from '@lucide/svelte';
+  import { Briefcase, Moon, BellRing, EyeOff, Plus, X, Play, Square, Settings2 } from '@lucide/svelte';
   import Card from './Card.svelte';
+  import KindsEdit from './KindsEdit.svelte';
+  import { STARTS_KEY, startsOf } from './calmstarts.js';
+  import { kindName } from './kinds.js';
   import SortGrip from '../ui/SortGrip.svelte';
   import SortArrows from '../ui/SortArrows.svelte';
   import { sortable } from '../ui/sortable.js';
   import { t, tn } from '../i18n.svelte.js';
   import { localDay } from '../localday.js';
   import { FEATURE, findFeatures, featureHref } from '../features.js';
-  import { settingQ, saveSetting } from './store.js';
+  import { settingQ, saveSetting, endCalm, resyncPhone } from './store.js';
   import { openFromHash } from './open.js';
   import { move } from './base.js';
-  import { SPACE_KEY, CALM_KEY, BUDGET_KEY, NOT_KEY, SPACE_MAX, SPACE_STARTS, BUDGET_GROUPS, spaceOf, spaceActive, spaceAdd, spaceDrop, spaceMove, calmOf, budgetOf, applyBudget, notForMeOf, setNotForMe, unsetNotForMe, NOT_WHY } from './weniger.js';
+  import { CALM_LOG_KEY, logOf, logDrop, weekSummary, hm as hoursMin } from './calmlog.js';
+  import { SPACE_KEY, CALM_KEY, BUDGET_KEY, NOT_KEY, SPACE_MAX, SPACE_STARTS, BUDGET_GROUPS, spaceOf, spaceActive, spaceAdd, spaceDrop, spaceMove, calmOf, CALM_MINUTES, calmUntil, calmLeft, budgetOf, applyBudget, notForMeOf, setNotForMe, unsetNotForMe, NOT_WHY } from './weniger.js';
 
   const today = localDay();
   const first = openFromHash();
@@ -25,6 +29,10 @@
   const calmQ = settingQ(CALM_KEY);
   const budgetQ = settingQ(BUDGET_KEY);
   const notQ = settingQ(NOT_KEY);
+  const logQ = settingQ(CALM_LOG_KEY);
+  const log = $derived(logOf($logQ));
+  const week = $derived(weekSummary(log, today));
+  const durText = (min) => { const d = hoursMin(min); return d.h ? (d.m ? t('{h} h {m} min', d) : t('{h} h|duration', d)) : t('{m} min', d); };
   const space = $derived(spaceOf($spaceQ));
   const calm = $derived(calmOf($calmQ));
   const budget = $derived(budgetOf($budgetQ));
@@ -42,10 +50,15 @@
   /* Ruhige Ansicht */
   let calmWhat = $state('');
   let calmHref = $state('');
+  let calmMins = $state(30);
+  const startsQ = settingQ(STARTS_KEY);
+  const starts = $derived(startsOf($startsQ));
+  let editStarts = $state(false);
+  const startNow = (what) => saveSetting(CALM_KEY, { what, href: '', since: new Date().toISOString(), until: calmUntil(calmMins) });
   function calmStart(e) {
     e.preventDefault();
     if (!calmWhat.trim()) return;
-    saveSetting(CALM_KEY, { what: calmWhat.trim(), href: calmHref, since: new Date().toISOString() });
+    saveSetting(CALM_KEY, { what: calmWhat.trim(), href: calmHref, since: new Date().toISOString(), until: calmUntil(calmMins) }).then(resyncPhone);
     calmWhat = '';
   }
 
@@ -116,13 +129,23 @@
       <div class="rh-calm" data-calm-on>
         <p class="rh-calm-l">{t('You are doing')}</p>
         <p class="rh-calm-w">{calm.what}</p>
+        {#if calm.until}<p class="rh-help" data-calm-held>{t('Phone reminders wait until the end; warnings for weather, ice, light and eating come on time.')}</p>{/if}
+        {#if calm.until}<p class="rh-help" data-calm-left>{calmLeft(calm) ? t('{n} min left', { n: calmLeft(calm) }) : t('Time is up')}</p>{/if}
         <div class="rh-row">
           {#if calm.href}<a class="btn" href={calm.href}>{t('Open')}</a>{/if}
-          <button type="button" class="btn hi" onclick={() => saveSetting(CALM_KEY, null)} data-calm-done>{t('Done|calm')}</button>
+          <button type="button" class="btn hi" onclick={() => endCalm(calm)} data-calm-done>{t('Done|calm')}</button>
         </div>
       </div>
     {:else}
-      <p class="rh-help">{t('Write what you do now. Until you tap «Done», the strip on top shows only that, and the app asks you nothing.')}</p>
+      <p class="rh-help">{t('Write what you do now. Until you tap «Done», suggestions, the «New» tile, stars and count badges rest on all pages except Today, and the strip on top shows what you do. Nothing is deleted.')}</p>
+      <div class="rh-chips" aria-label={t('Quick start')} data-calm-starts>
+        {#each starts as k (k.id)}<button type="button" class="rh-chip" onclick={() => startNow(kindName(k, t))} data-calm-start>{kindName(k, t)}</button>{/each}
+        <button type="button" class="rh-chip" onclick={() => (editStarts = !editStarts)} aria-expanded={editStarts} data-calm-starts-edit><Settings2 size={14} aria-hidden="true" /> {t('Change the quick starts')}</button>
+      </div>
+      {#if editStarts}
+        <KindsEdit kinds={starts} what={() => ''} none={t('Without a start')} noneHint={t('Nothing else changes.')} label={t('New start, e.g. Tidy the desk')}
+          onsave={(kinds) => saveSetting(STARTS_KEY, kinds)} ondelete={async (id) => { const snap = starts; await saveSetting(STARTS_KEY, starts.filter((k) => k.id !== id)); return snap; }} onundo={(snap) => saveSetting(STARTS_KEY, snap)} />
+      {/if}
       <form class="rh-row" onsubmit={calmStart}>
         <input class="inp" bind:value={calmWhat} placeholder={t('e.g. clean the bike, pack calmly')} aria-label={t('What are you doing now?')} data-calm-what />
         {#if space.ids.length}
@@ -131,8 +154,20 @@
             {#each space.ids as id (id)}<option value={featureHref(FEATURE[id]) ?? ''}>{fname(id)}</option>{/each}
           </select>
         {/if}
+        <select class="inp" bind:value={calmMins} aria-label={t('For how long?')} data-calm-mins>
+          {#each CALM_MINUTES as m (m)}<option value={m}>{m ? t('{n} min', { n: m }) : t('Until I tap «Done»')}</option>{/each}
+        </select>
         <button type="submit" class="btn hi" disabled={!calmWhat.trim()}>{t('Calm view')}</button>
       </form>
+    {/if}
+    {#if week.length}
+      <div class="rh-calm-week" data-calm-week>
+        <p class="rh-calm-l">{t('This week')}</p>
+        <ul class="rh-list">
+          {#each week as w (w.what)}<li><span class="rh-grow">{w.times}× {w.what}</span><span>{durText(w.minutes)}</span></li>{/each}
+        </ul>
+        <button type="button" class="btn" onclick={() => saveSetting(CALM_LOG_KEY, [])} data-calm-log-clear>{t('Clear the history')}</button>
+      </div>
     {/if}
   </Card>
 

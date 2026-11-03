@@ -3,7 +3,8 @@
 export default {
   title: 'A tidier catalogue',
   lead: 'Four functions you said no to are gone from «What the app can do».',
-  points: [{ text: 'Shop, invoices, bills and offers no longer stand in the catalogue', href: '#/features' }],
+  // gone from the catalogue: nothing to show (know/newsgo.js go: null)
+  points: [{ text: 'Shop, invoices, bills and offers no longer stand in the catalogue', href: '#/features', go: null }],
   small: [],
   test: ['Open «What the app can do» and search «Shop».', 'No entry «Shop without fees» appears; «Invoices» and «Offers» are gone too.'],
   since: [],

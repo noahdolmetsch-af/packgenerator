@@ -2,8 +2,8 @@
 export default {
   title: 'Reminder at your time',
   lead: 'The evening reminder learns when you really do the check.',
-  points: [{ text: 'From 3 evenings the app offers to move the reminder to your usual time', href: '#/me/push' }],
-  small: [{ box: 'new', text: '«No, thanks» keeps the time; «Move it» comes with Undo' }],
+  points: [{ text: 'From 3 evenings the app offers to move the reminder to your usual time', href: '#/me/push', go: 'f.remindtime' }],
+  small: [{ box: 'new', text: '«No, thanks» keeps the time; «Move it» comes with Undo', go: null }],
   test: [
     'Open the evening-before check on the evening before a trip on three evenings at about the same time.',
     'Then Gepackt and Me › Reminders on the phone show «Move the reminder to …?».',

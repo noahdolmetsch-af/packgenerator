@@ -1,0 +1,25 @@
+// «Meilensteine aktiver machen» PR 1 (Noah 01.11.2026): «Deine nächsten Sterne» in «Aktiv heute»
+export default {
+  'Your next stars': 'Deine nächsten Sterne',
+  'Hide|next stars': 'Ausblenden',
+  'Show next stars': 'Nächste Sterne zeigen',
+  'Your next star: {name} · {left} to go': 'Dein nächster Stern: {name} · noch {left}',
+  // PR 2 «Schon lange nicht» (Noah «2a und b»)
+  'Not for a while': 'Schon lange nicht',
+  'one day ago': 'seit einem Tag',
+  '{n} days ago': 'seit {n} Tagen',
+  'Ten easy minutes are enough for a tick.': 'Zehn ruhige Minuten reichen für den Haken.',
+  'Do it today': 'Heute machen',
+  'Later|nudge': 'Später',
+  'Pause|nudge': 'Pause',
+  '{name} paused': '{name} pausiert',
+  'Reminder when it has been a while': 'Erinnerung, wenn es länger her ist',
+  'Switched off. This sport never shows «Not for a while» on Today.': 'Ausgeschaltet. Diese Sportart zeigt auf Heute nie «Schon lange nicht».',
+  'Switch on': 'Einschalten',
+  'Your number: after {n} days without a tick.': 'Deine Zahl: nach {n} Tagen ohne Haken.',
+  'By itself from your goal: after {n} days without a tick.': 'Von selbst aus deinem Ziel: nach {n} Tagen ohne Haken.',
+  'One day less': 'Einen Tag weniger',
+  'One day more': 'Einen Tag mehr',
+  'By itself': 'Von selbst',
+  'Switch off': 'Ausschalten',
+};

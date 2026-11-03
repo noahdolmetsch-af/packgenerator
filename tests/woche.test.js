@@ -20,6 +20,11 @@ describe('items and holidays', () => {
   it('cleans own items: a date needs a day, a to-do may wait without one', () => {
     expect(cleanItem({ title: '  ' })).toBeNull();
     expect(cleanItem({ kind: 'todo', title: 'Order a tube' }).day).toBeNull();
+    // «Planen als verbindende Mitte» 4a: the time needed of a to-do (5–480 min); nothing for other kinds or silly values
+    expect(cleanItem({ kind: 'todo', title: 'Sort receipts', mins: '30' }).mins).toBe(30);
+    expect(cleanItem({ kind: 'todo', title: 'Sort receipts', mins: 2 }).mins).toBeUndefined();
+    expect(cleanItem({ kind: 'todo', title: 'Sort receipts', mins: 9999 }).mins).toBeUndefined();
+    expect(cleanItem({ kind: 'date', title: 'Dentist', day: '2026-10-20', mins: 30 }).mins).toBeUndefined();
     expect(itemsOf([{ kind: 'date', title: 'Dentist' }, { kind: 'date', title: 'Tennis', day: MON, time: '18:00' }])).toHaveLength(1);
   });
   it('a holiday defaults its follow-ups by type (Noah 4a: all suggested, all deselectable)', () => {
@@ -80,6 +85,31 @@ describe('buildWeek', () => {
     expect(bike.day < '2026-10-23').toBe(true);
     expect(bike.sub).toMatchObject({ bike: 'Gravel', before: 'Jura weekend' });
   });
+  it('a source switched off gives no suggestions, and the count stays for the switch (Noah 2.11.2026 «a»)', () => {
+    const all = buildWeek({ ...base, items, care });
+    expect(all.sources.todo).toBeGreaterThan(0);
+    expect(all.sources.bike).toBeGreaterThan(0);
+    const off = buildWeek({ ...base, items, care, sgOff: ['bike'] });
+    expect(off.suggestions.some((s) => s.source === 'bike')).toBe(false);
+    expect(off.suggestions.some((s) => s.source === 'todo')).toBe(true);
+    expect(off.sources.bike).toBe(all.sources.bike);
+  });
+  it('a suggestion put away for good stays away in every week (Noah 2.11.2026 «b»)', () => {
+    const sgNever = [{ ref: 'todo:t2', title: 'x' }];
+    expect(buildWeek({ ...base, items, sgNever }).suggestions.some((s) => s.ref === 'todo:t2')).toBe(false);
+    expect(buildWeek({ ...base, monday: '2026-10-26', items, sgNever }).suggestions.some((s) => s.ref === 'todo:t2')).toBe(false);
+  });
+  it('season ideas: renamed, deleted and own ones with months (also over the new year) (Noah 2.11.2026 «c»)', () => {
+    const cfg = { std: { winter: { title: 'Wax the chain' }, ski: { hidden: true } }, own: [{ id: 'o1', title: 'Check the tent', from: 11, to: 2 }, { id: 'bad', title: '', from: 1, to: 2 }] };
+    const nov = seasonOf('2026-11-23', cfg);
+    expect(nov.find((x) => x.key === 'winter').title).toBe('Wax the chain');
+    expect(nov.some((x) => x.key === 'ski')).toBe(false);
+    expect(nov.find((x) => x.key === 'o1')).toMatchObject({ title: 'Check the tent', ref: 'season:o1:2026' });
+    expect(nov.some((x) => x.key === 'bad')).toBe(false);
+    expect(seasonOf('2026-01-12', cfg).some((x) => x.key === 'o1')).toBe(true);
+    expect(seasonOf('2026-06-15', cfg).some((x) => x.key === 'o1')).toBe(false);
+    expect(seasonOf('2026-11-23').find((x) => x.key === 'winter').title).toBeNull();
+  });
   it('a planned bike job is no suggestion any more; a skipped suggestion waits a week', () => {
     const planned = itemsOf([...items, { kind: 'bike', title: 'Measure the chain', day: '2026-10-21', bikeId: 'b1', part: 'km:chain' }]);
     expect(buildWeek({ ...base, items: planned, care }).suggestions.some((s) => s.kind === 'bike')).toBe(false);
@@ -103,8 +133,8 @@ describe('buildWeek', () => {
 describe('the place «Woche» (Noah 1a)', () => {
   it('is a place next to Heute; the phone bar keeps five, without Material', () => {
     // N1 «Neue Leiste» (Noah 20.10.2026 «2a»): Heute · Planen · Touren · Auswerten · Velos; Material shares the slot of Velos
-    expect(PLACES.map((p) => p.key)).toEqual(['today', 'week', 'trips', 'active', 'bikes', 'gear']);
-    expect(BAR_PLACES.map((p) => p.key)).toEqual(['today', 'week', 'trips', 'active', 'bikes']);
+    expect(PLACES.map((p) => p.key)).toEqual(['today', 'week', 'trips', 'active', 'bikes', 'gear', 'quick']); // «Quick Links» (Noah 28.10.2026 «3a»): a sixth place
+    expect(BAR_PLACES.map((p) => p.key)).toEqual(['today', 'week', 'trips', 'active', 'bikes', 'quick']);
     expect(pageOf('#/week')).toBe('week');
     expect(pageOf('#/week/plan')).toBe('week');
     expect(placeOf('week')).toBe('week');

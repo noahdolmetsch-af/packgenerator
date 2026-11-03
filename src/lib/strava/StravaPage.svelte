@@ -23,7 +23,10 @@
   import { strava, fetchNow, connect, disconnect, afterConnect, savePrefs, autoAssign, undoAutoAssign, autoText, CHECK_HASH } from './client.svelte.js';
   import { UNDO_MS } from '../ui/undo.js';
   import StravaChanges from './StravaChanges.svelte';
+  import StravaFriends from './StravaFriends.svelte';
   import Skeleton from '../ui/Skeleton.svelte';
+  import ConnStatus from '../ui/ConnStatus.svelte';
+  import { lastOkFetchLine } from '../ui/connstatus.js';
   import { t, tn, num, dateOf, locale } from '../i18n.svelte.js';
   import { localDay } from '../localday.js';
 
@@ -149,7 +152,7 @@
 {/snippet}
 
 {#snippet err()}
-  {#if strava.error}<p class="serr" role="alert">{t(errorText(strava.error))}</p>{/if}
+  {#if strava.error}<p class="serr" role="alert">{t(errorText(strava.error))}{#if strava.error !== 'unauthorized'}{' '}{lastOkFetchLine(t, { lastOkAt: prefs.lastSync, when: timeOf })}{/if}</p>{/if}
 {/snippet}
 
 <div class="sp">
@@ -168,6 +171,7 @@
           </ol>
         </section>
         <div class="card cn">
+          {#if strava.invite}<p class="invited" data-invited>{t('You were invited: connect your own Strava. Your rides stay yours, only on this device.')}</p>{/if}
           <button type="button" class="btn hi big" onclick={() => connect()}><Link2 size={18} aria-hidden="true" />{t('Connect with Strava')}</button>
           <p class="lock"><Lock size={14} aria-hidden="true" /><span><b>{t('Only your rides, read only. Disconnect at any time.')}</b> {t('The app writes nothing to Strava and sees no photos or contacts.')}</span></p>
           {@render err()}
@@ -248,6 +252,7 @@
             <small class="num">{prefs.athlete ? `${t('as «{name}»', { name: prefs.athlete })} · ` : ''}{tn(withId, '{n} ride', '{n} rides')}</small>
           </span>
           <button type="button" class="btn hi" disabled={strava.busy} onclick={now}><RefreshCw size={16} aria-hidden="true" />{strava.busy ? t('Fetching …') : t('Fetch now')}</button>
+          <ConnStatus name="Strava" busy={strava.busy} since={strava.since} done={strava.got} unit="rides" />
           {#if fetched}
             <p class="got" role="status">{fetched.n ? tn(fetched.n, '{n} new ride fetched', '{n} new rides fetched') : t('No new rides')}{#if fetched.km}{' · '}+{num(Math.round(fetched.km))} km{/if}{#if fetched.check}{' · '}{tn(fetched.check, '{n} to check', '{n} to check')}{/if}</p>
           {/if}
@@ -308,6 +313,7 @@
             <div class="orow"><span class="ib"><Bell size={18} aria-hidden="true" /></span><span class="m"><b>{t('Always ask')}</b><small>{t('A notice on Today and at the bike: «Take over» or «Keep»')}</small></span></div>
           </div>
         </section>
+        <StravaFriends />
         <section class="vsec" aria-labelledby="s3x-h">
           <div class="vh"><div class="vh-t"><h2 id="s3x-h">{t('More')}</h2></div></div>
           <div class="card vlist">{@render fileRow()}</div>
@@ -356,6 +362,13 @@
   }
   .vsec {
     margin: 0;
+  }
+  .invited {
+    margin: 0 0 10px;
+    padding: 8px 12px;
+    border-radius: var(--r-ctl);
+    background: var(--hi-soft);
+    font-size: var(--fs-small);
   }
   .vh {
     margin: 0 2px 10px;

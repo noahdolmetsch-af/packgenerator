@@ -16,6 +16,8 @@
   import { ruleCatalog, filterRules, toggleRule } from '../lib/regeln.js';
   import { saveFailed } from '../lib/ui/ask.js';
   import VeloHead from '../lib/bikes/VeloHead.svelte';
+  import DenktMitCard from '../lib/ich/DenktMitCard.svelte'; // ideas C2, C3: hints that show only in Packen
+  import FaustCard from '../lib/regeln/FaustCard.svelte'; // idea D2: rules of thumb from your debriefs
   import { t, tn } from '../lib/i18n.svelte.js';
   import { Search, ArrowRight, Info, Zap, ZapOff, ChevronDown } from '@lucide/svelte';
   import '../lib/ich/ich.css';
@@ -45,11 +47,15 @@
 <div class="rgpage ich-page">
   <VeloHead crumbs={[{ label: t('Me|place'), href: '#/me' }]} title={t('How the app decides')} sub={t('Every rule the app packs by: when it applies, where the value comes from and where you change it. Everything is a suggestion.')} />
 
+  <FaustCard />
+
   <label class="rg-find">
     <Search size={18} aria-hidden="true" />
     <input class="inp" type="search" bind:value={q} placeholder={t('Search the rules, e.g. rain')} aria-label={t('Search the rules')} data-rule-search />
   </label>
   <p class="rg-count" role="status">{q.trim() ? tn(count, '{n} rule found', '{n} rules found') : trip ? t('«Fits now» refers to your next trip: {trip}', { trip: trip.title }) : t('No trip planned: «fits now» shows once a trip is planned.')}</p>
+
+  <DenktMitCard />
 
   {#each shown as g (g.key)}
     {@const fits = g.rules.filter((r) => r.active && r.on !== false).length}

@@ -3,10 +3,10 @@ export default {
   title: 'After the ride: height, laps and Strava values',
   lead: 'A ride without a route now has its climbing and elevation profile, and laps show their own pulse and power.',
   points: [
-    { text: '«Your ride» shows the climbing from the phone’s GPS and the elevation profile above pulse and power' },
-    { text: 'Laps get their own Ø pulse and Ø power' },
+    { text: '«Your ride» shows the climbing from the phone’s GPS and the elevation profile above pulse and power', go: { href: '#/debrief/ride', where: 'Shows on the ride page after a recorded ride.' } },
+    { text: 'Laps get their own Ø pulse and Ø power', go: { href: '#/debrief/ride', where: 'Shows on the ride page after a recorded ride.' } },
   ],
-  small: [{ box: 'new', text: 'A Strava or Garmin ride at the same time fills in climbing, pulse and power the phone did not measure' }],
+  small: [{ box: 'new', text: 'A Strava or Garmin ride at the same time fills in climbing, pulse and power the phone did not measure', go: { href: '#/debrief/ride', where: 'Shows on the ride page after a recorded ride.' } }],
   test: [
     'Ride with the live map without a route and end the ride: under «Deine Fahrt» are the Höhenmeter and the Höhenprofil.',
     'Tap «Neue Runde» during the ride: after the ride «Runden» lists each lap with km, time, Ø pulse and Ø power.',

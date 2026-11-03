@@ -10,9 +10,19 @@
   import { addDays, VALUES } from '../health.js';
   import { readKey } from '../strava/client.svelte.js';
   import { health, fetchNow, disconnect, savePrefs, connect, VALUE_OF, FITBIT_HASH, STRAVA_HASH } from './client.svelte.js';
-  import { t, locale } from '../i18n.svelte.js';
+  import { t, tn, locale } from '../i18n.svelte.js';
+  import ConnStatus from '../ui/ConnStatus.svelte';
+  import { lastOkFetchLine } from '../ui/connstatus.js';
 
   let { heading = true } = $props();
+
+  // Noah 1.11.2026: after «Fetch now» a clear line says whether it worked and how much came
+  let done = $state('');
+  async function fetchButton() {
+    done = '';
+    const r = await fetchNow();
+    if (r) done = r.changed ? tn(r.changed, 'Done: {n} day fetched.', 'Done: {n} days fetched.') : t('Done: nothing new, you are up to date.');
+  }
 
   // The last 60 days are enough to say how current each value is.
   const recentQ = liveQuery(() => db.healthDays.where('date').aboveOrEqual(addDays(localDay(), -60)).toArray());
@@ -59,6 +69,7 @@
       not_connected: t('Fitbit is not connected (any more).'),
       unauthorized: t('This device has no key yet: connect Strava on this device first.'),
       network: t('No connection. The app tries again later.'),
+      timeout: t('Google or the server took too long. Tap «Try again».'),
       google_busy: t('Google is busy. Try again later.'),
       daily_cap: t('The server has done enough for today. It works again tomorrow.'),
     })[code] ?? t('Google answered with an error. Try again later.');
@@ -66,6 +77,7 @@
   // device (LAST_KEY), so its reason stays visible after a reload, until a fetch works again.
   const failed = $derived(health.error || (health.lastTry && !health.lastTry.ok ? health.lastTry.code : ''));
   const relogin = $derived(['google_login_needed', 'not_connected'].includes(failed));
+  const whenAt = (iso) => (localDay(new Date(iso)) === localDay() ? t('today {time}|fitbit', { time: clock(iso) }) : short(localDay(new Date(iso))));
   const triedAt = $derived(health.lastTry?.at ? (localDay(new Date(health.lastTry.at)) === localDay() ? t('today {time}|fitbit', { time: clock(health.lastTry.at) }) : short(localDay(new Date(health.lastTry.at)))) : '');
   const gone = $derived(health.lastTry?.ok && !health.error ? (health.lastTry.missing ?? []).map((m) => LABEL[VALUE_OF[m]]).filter(Boolean) : []);
 </script>
@@ -80,16 +92,18 @@
         {/each}
         {#if $fileQ}<li><span class="dot ok" aria-hidden="true"></span><span class="ich-m"><b>{t('The past|fitbit')}</b><small>{t('from the Fitbit file: {from} to {to}', { from: monthYear($fileQ.from), to: short($fileQ.to) })}</small></span></li>{/if}
       </ul>
-      {#if failed}<p class="err" role="status" data-health-err={failed}>{errorText(failed)}{#if triedAt}{' '}{t('Last try: {when}|fitbit', { when: triedAt })}{/if}</p>{/if}
+      {#if failed}<p class="err" role="status" data-health-err={failed}>{errorText(failed)}{#if triedAt}{' '}{t('Last try: {when}|fitbit', { when: triedAt })}{/if} {lastOkFetchLine(t, { lastOkAt: health.prefs.lastSync, when: whenAt })}</p>{/if}
+      <ConnStatus name="Fitbit" busy={health.busy} since={health.since} done={health.done} total={health.total} />
+      {#if done && !failed && !health.busy}<p class="got" role="status" data-health-done>{done}</p>{/if}
       {#if gone.length}<p class="err" role="status" data-health-gone>{t('Google did not give these values this time: {list}', { list: gone.map((g) => t(g)).join(', ') })}</p>{/if}
       <div class="ich-acts">
         {#if relogin}<button type="button" class="btn hi" data-health-relogin onclick={() => connect()}>{t('Connect Google again')}</button>{/if}
         <!-- Impeccable P6: without the Strava key no grey button, the line below says what to do -->
-        {#if readKey()}<button type="button" class="btn" class:hi={!relogin} onclick={() => fetchNow()} disabled={health.busy}>{health.busy ? t('Fetching …') : t('Fetch now|fitbit')}</button>{/if}
+        {#if readKey()}<button type="button" class="btn" class:hi={!relogin} onclick={fetchButton} disabled={health.busy}>{health.busy ? t('Fetching …') : failed ? t('Try again|fitbit') : t('Fetch now|fitbit')}</button>{/if}
         <button type="button" class="btn" aria-expanded={choosing} onclick={() => (choosing = !choosing)}>{t('Choose values')}</button>
         <button type="button" class="btn" onclick={() => (asking = !asking)}>{t('Disconnect|fitbit')}</button>
       </div>
-      {#if !readKey()}<p class="ich-help" data-fitbit-needs-strava>{t('Fitbit needs the Strava connection first.')} <a href={STRAVA_HASH}>{t('Connect Strava ›')}</a></p>{/if}
+      {#if !readKey()}<p class="ich-help" data-fitbit-needs-strava>{t('To fetch, this device needs the app key once (the same server key as Strava).')} <a href={STRAVA_HASH}>{t('Unlock this device ›')}</a></p>{/if}
       {#if choosing}
         <fieldset class="vals">
           <legend class="ich-help">{t('Only the chosen values are fetched and kept.')}</legend>
@@ -141,6 +155,11 @@
   }
   .dot.ok {
     background: var(--ok);
+  }
+  .got {
+    margin: 0 0 12px;
+    color: var(--ink);
+    font-size: var(--fs-small);
   }
   .err {
     margin: 0 0 12px;

@@ -1,0 +1,32 @@
+// «Bild bearbeiten» (Noah 28.10.2026 «1a 2a 3a 4a 5a»): Werkzeugkasten › Bild bearbeiten
+export default {
+  'Edit a picture': 'Bild bearbeiten',
+  'Screenshot: cut, draw, write, one PDF': 'Screenshot: zuschneiden, bemalen, beschriften, ein PDF',
+  'Choose screenshots or photos, turn and cut them, draw, highlight and write on them, put the pages in order and make one PDF or single pictures.':
+    'Screenshots oder Fotos wählen, drehen und zuschneiden, bemalen, markieren und beschriften, die Seiten ordnen und ein PDF oder einzelne Bilder machen.',
+  'Open Toolbox › Edit a picture.': 'Öffne Werkzeugkasten › Bild bearbeiten.',
+  'Choose screenshots; turn, cut, draw or write on each page.': 'Screenshots wählen; jede Seite drehen, zuschneiden, bemalen oder beschriften.',
+  '«One PDF» or «Single pictures», then save or share.': '«Ein PDF» oder «Einzelne Bilder», dann speichern oder teilen.',
+  'Take the screenshot on your phone as always. Then choose it here, cut it, draw and write on it, and make one PDF of all pages. Everything stays on this device.':
+    'Mach den Screenshot wie immer am Handy. Wähle ihn dann hier, schneide ihn zu, bemale und beschrifte ihn und mach aus allen Seiten ein PDF. Alles bleibt auf diesem Gerät.',
+  'Take a photo|camera': 'Foto machen',
+  'At most {n} pages at once.': 'Höchstens {n} Seiten auf einmal.',
+  '«{name}» cannot be opened. Try a JPG or PNG.': '«{name}» lässt sich nicht öffnen. Versuch ein JPG oder PNG.',
+  'This page could not be turned.': 'Diese Seite liess sich nicht drehen.',
+  'Page {n} removed.': 'Seite {n} entfernt.',
+  'Order: drag a page by its handle, or use the arrows.': 'Reihenfolge: Seite am Griff ziehen oder die Pfeile nehmen.',
+  'Turn page {n}': 'Seite {n} drehen',
+  'Turn|page': 'Drehen',
+  'Cut page {n}': 'Seite {n} zuschneiden',
+  'Draw on page {n}': 'Auf Seite {n} zeichnen',
+  'Remove page {n}': 'Seite {n} entfernen',
+  'Make as': 'Machen als',
+  'One PDF': 'Ein PDF',
+  'Single pictures': 'Einzelne Bilder',
+  'One PDF, {n} pages, {size}.': 'Ein PDF, {n} Seiten, {size}.',
+  '{n} pictures ready.': '{n} Bilder bereit.',
+  'This did not work. Please try again.': 'Das hat nicht geklappt. Bitte nochmals versuchen.',
+  'A paper document?': 'Ein Dokument aus Papier?',
+  'Photograph a document': 'Dokument fotografieren',
+  'straightens the page by itself.': 'richtet die Seite selbst gerade.',
+};

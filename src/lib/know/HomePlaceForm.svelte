@@ -23,8 +23,8 @@
     try {
       found = await searchPlace(q);
       if (!found.length) placeMsg = t('No place found. Try another spelling.');
-    } catch {
-      placeMsg = t('No connection. Place search needs the internet.');
+    } catch (err) {
+      placeMsg = err?.outage ? err.message : t('No connection. Place search needs the internet.');
     } finally {
       searching = false;
     }
@@ -35,7 +35,7 @@
     q = '';
     await db.settings.put({ key: HOME_PLACE, value: homePlace });
     onchosen(homePlace);
-    await homeForecast(db);
+    await homeForecast(db, { fresh: true });
   }
 </script>
 

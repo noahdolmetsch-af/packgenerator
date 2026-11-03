@@ -54,6 +54,20 @@ test('an earlier version comes back; a deleted note waits in the trash and comes
   expect(errors).toEqual([]);
 });
 
+// Auffälligkeiten 28.10.2026 (Noah «3a»): without notes and with an empty trash the trash still shows
+test('without notes the empty trash still shows and opens', async ({ page, context }) => {
+  const errors = await prep(page, context);
+  const link = page.locator('[data-notes-trash-empty]');
+  await expect(link).toBeVisible();
+  await expect(link).toHaveText(T('Trash · empty'));
+  await link.click();
+  const trash = page.locator('dialog[data-note-trash]');
+  await expect(trash).toContainText(T('The trash is empty.'));
+  await noSideScroll(page);
+  await trash.getByRole('button', { name: T('Done'), exact: true }).click();
+  expect(errors).toEqual([]);
+});
+
 test('a reminder on a note: set, it shows on top when due, «Done» takes it away', async ({ page, context }) => {
   const errors = await prep(page, context);
   const sheet = await newNote(page, 'test_data_gtp_ Schlauch kaufen\nim Veloladen');

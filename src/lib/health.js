@@ -11,6 +11,7 @@
  */
 import { localDay } from './localday.js';
 import { readKey } from './strava/client.svelte.js';
+import { FETCH_LIMIT_MS } from './ui/connstatus.js';
 
 export const GOOGLE_URL = 'https://packgen-three.vercel.app/api/google';
 /** db.settings: { lastSync, until, fetch } (in backups). */
@@ -18,19 +19,53 @@ export const HEALTH_KEY = 'health';
 /** The values a day can hold, in the order the app shows them. */
 export const VALUES = ['sleep', 'restingHr', 'hrvMs', 'steps', 'azm'];
 /**
+ * «Alle Werte» (Noah 27.10.2026 «alle holen, zumindest optional anzeigen»): numbers per day (VO₂max, the
+ * watch's distance in km, floors, climbed metres, weight and body fat from Fitbit, lowest and mean pulse).
+ */
+export const MORE_NUM = ['vo2max', 'distKm', 'floors', 'climbM', 'fitKg', 'bodyFat', 'hrMin', 'hrAvg'];
+/**
+ * …and values with a shape: minutes per activity level { sed, light, mod, very } and per pulse zone
+ * { light, mod, vig, peak }, the Fitbit workouts [{ type, name, start, end, min, kcal?, km?, hr?, azm? }],
+ * per hour the steps and the mean pulse (24 places, null = no value), the VO₂max level (text) and «estimated».
+ */
+export const MORE_SHAPED = ['levels', 'hrZones', 'exercises', 'stepH', 'hrH', 'vo2level', 'vo2est'];
+const finOrNull = (v) => (v === null || Number.isFinite(v) ? v : undefined);
+/** One shaped value checked, or undefined when it does not fit. */
+export function cleanShaped(k, v) {
+  if (k === 'levels' || k === 'hrZones') {
+    if (!v || typeof v !== 'object' || Array.isArray(v)) return undefined;
+    const out = Object.fromEntries(Object.entries(v).filter(([, x]) => Number.isFinite(x)));
+    return Object.keys(out).length ? out : undefined;
+  }
+  if (k === 'stepH' || k === 'hrH') {
+    if (!Array.isArray(v) || v.length !== 24) return undefined;
+    const out = v.map(finOrNull);
+    return out.some((x) => x === undefined) ? undefined : out;
+  }
+  if (k === 'exercises') {
+    if (!Array.isArray(v)) return undefined;
+    const out = v.filter((e) => e && typeof e === 'object' && Number.isFinite(e.min)).slice(0, 20).map((e) => ({ ...e }));
+    return out.length ? out : undefined;
+  }
+  if (k === 'vo2level') return typeof v === 'string' && v ? v.slice(0, 30) : undefined;
+  if (k === 'vo2est') return v === true ? true : undefined;
+  return undefined;
+}
+/**
  * Kept as well, without their own switch (Garmin-Übersicht 20.10.2026): calories of the day, active
  * calories, highest pulse; «Körperwerte»: oxygen saturation (%), breathing rate, skin temperature (°C
- * difference to your normal).
+ * difference to your normal). Apple Health export (27.10.2026): VO2max (ml/kg/min) and body weight (kg).
  */
-export const EXTRA = ['kcal', 'kcalActive', 'hrMax', 'spo2', 'breath', 'skinTemp'];
+export const EXTRA = ['kcal', 'kcalActive', 'hrMax', 'spo2', 'breath', 'skinTemp', ...MORE_NUM, ...MORE_SHAPED, 'weightKg'];
 export const FIRST_DAYS = 90;
 /**
  * Raised when the server reads new values (2: calories, highest pulse, oxygen, breathing, skin
  * temperature, 21.10.2026): the next fetch takes the last FILL_DAYS days again, once.
  */
 // 3 (22.10.2026): the nights since 12 Oct had no civil day; once again the last 30 days, so sleep fills in.
-export const FILL_V = 3;
-export const FILL_DAYS = 30;
+// 4 (27.10.2026 «Alle Werte»): VO₂max, distance, floors, workouts, hours …: once the whole 90 days again.
+export const FILL_V = 4;
+export const FILL_DAYS = 90;
 const minDay = (a, b) => (a < b ? a : b);
 export const AGAIN_DAYS = 3;
 
@@ -52,7 +87,12 @@ export function addDays(iso, n) {
 export function cleanDay(r) {
   if (!r || !/^\d{4}-\d{2}-\d{2}$/.test(r.date ?? '')) return null;
   const out = { date: r.date };
-  for (const k of ['restingHr', 'hrvMs', 'steps', 'azm', ...EXTRA]) if (Number.isFinite(r[k])) out[k] = r[k];
+  for (const k of ['restingHr', 'hrvMs', 'steps', 'azm', ...EXTRA]) {
+    if (MORE_SHAPED.includes(k)) {
+      const v = cleanShaped(k, r[k]);
+      if (v !== undefined) out[k] = v;
+    } else if (Number.isFinite(r[k])) out[k] = r[k];
+  }
   if (r.sleep && Number.isFinite(r.sleep.asleepMin)) out.sleep = { ...r.sleep };
   return out;
 }
@@ -90,37 +130,100 @@ export function rangeToFetch(lastDay, today) {
   return { from: from < first ? first : from, to: today };
 }
 
-/** One call to the server. Throws HealthError with the server's code (network: no answer at all). */
-export async function call(step, { method = 'GET', body = null, params = {}, key = readKey(), doFetch = (...a) => fetch(...a) } = {}) {
+/** How long one call may take before the app stops waiting (Noah 1.11.2026: «Holt …» never ended). */
+export const CALL_TIMEOUT_MS = 60000;
+/** One call to the server. Throws HealthError with the server's code (network: no answer at all, timeout: too slow). */
+export async function call(step, { method = 'GET', body = null, params = {}, key = readKey(), doFetch = (...a) => fetch(...a), timeoutMs = CALL_TIMEOUT_MS } = {}) {
   if (!key) throw new HealthError('unauthorized');
   const headers = { Authorization: `Bearer ${key}` };
   if (body) headers['Content-Type'] = 'application/json';
-  let res;
+  const ctl = new AbortController();
+  let timedOut = false;
+  const timer = setTimeout(() => ((timedOut = true), ctl.abort()), timeoutMs);
   try {
-    res = await doFetch(`${GOOGLE_URL}?${new URLSearchParams({ step, ...params })}`, { method, headers, body: body ? JSON.stringify(body) : undefined });
-  } catch {
-    throw new HealthError('network');
+    let res;
+    try {
+      res = await doFetch(`${GOOGLE_URL}?${new URLSearchParams({ step, ...params })}`, { method, headers, body: body ? JSON.stringify(body) : undefined, signal: ctl.signal });
+    } catch {
+      throw new HealthError(timedOut ? 'timeout' : 'network');
+    }
+    return await readAnswer(res, () => timedOut);
+  } finally {
+    clearTimeout(timer);
   }
-  const data = await res.json().catch(() => null);
+}
+
+async function readAnswer(res, wasTimeout) {
+  let data;
+  try {
+    data = await res.json();
+  } catch {
+    if (wasTimeout()) throw new HealthError('timeout');
+    data = null;
+  }
   if (!res.ok || !data || data.ok === false) throw new HealthError(data?.code ?? data?.error ?? 'server_error');
   return data;
 }
 
+/** The days from..to cut into windows of at most `size` days, oldest first. */
+export function windows(from, to, size = WINDOW_DAYS) {
+  const out = [];
+  for (let a = from; a <= to; a = addDays(a, size)) {
+    const b = addDays(a, size - 1);
+    out.push({ from: a, to: b < to ? b : to });
+  }
+  return out;
+}
+/** One request asks for at most this many days: a long one took the server minutes and never ended. */
+export const WINDOW_DAYS = 30;
+
 /** Fetch the missing days and keep them. Returns { from, to, changed, missing (values Google did not give) }. */
-export async function syncHealth(db, { c = call, now = new Date() } = {}) {
+export async function syncHealth(db, { c = call, now = new Date(), onProgress = null, limitMs = FETCH_LIMIT_MS, clock = () => Date.now() } = {}) {
+  const startedAt = clock();
   const last = await db.healthDays.orderBy('date').last();
   const old = (await db.settings.get(HEALTH_KEY))?.value ?? {};
   const range = rangeToFetch(last?.date ?? null, localDay(now));
   // once after new values came to the server (calories, oxygen, …): the last FILL_DAYS days again
   const from = last && old.fill !== FILL_V ? minDay(range.from, addDays(localDay(now), -(FILL_DAYS - 1))) : range.from;
   const to = range.to;
-  const { days, missing } = await c('days', { params: { from, to } });
   const at = now.toISOString();
-  const changed = await saveDays(db, days ?? [], { src: 'google', at });
+  let changed = 0;
+  const missingAll = new Set();
+  // window by window, the newest first (Noah 2.11.2026: the old order needed three slow calls before today's
+  // days came, and a stop in between started again at the oldest). What has come is kept at once. When an older
+  // window fails after a newer one came, the fetch ends quietly and tries the older days again next time.
+  let incomplete = false;
+  let got = 0;
+  const wins = windows(from, to).reverse();
+  const daysOf = (w) => Math.round((Date.parse(`${w.to}T12:00:00Z`) - Date.parse(`${w.from}T12:00:00Z`)) / 864e5) + 1;
+  const total = wins.reduce((n, w) => n + daysOf(w), 0);
+  let doneDays = 0;
+  onProgress?.({ done: 0, total });
+  for (const w of wins) {
+    // Noah 03.11.2026 «1a»: a whole fetch ends after 2 minutes; what came is kept, the older days follow next time
+    if (got && clock() - startedAt > limitMs) {
+      incomplete = true;
+      break;
+    }
+    let r;
+    try {
+      r = await c('days', { params: { from: w.from, to: w.to } });
+    } catch (err) {
+      if (!got) throw err;
+      incomplete = true;
+      break;
+    }
+    got++;
+    doneDays += daysOf(w);
+    onProgress?.({ done: doneDays, total });
+    const { days, missing } = r;
+    changed += await saveDays(db, days ?? [], { src: 'google', at });
+    for (const m of Array.isArray(missing) ? missing : []) missingAll.add(m);
+  }
   const prev = (await db.settings.get(HEALTH_KEY))?.value ?? {};
   const until = (await db.healthDays.orderBy('date').last())?.date ?? null;
-  await db.settings.put({ key: HEALTH_KEY, value: { ...prev, lastSync: at, until, fill: FILL_V } });
-  return { from, to, changed, missing: Array.isArray(missing) ? missing : [] };
+  await db.settings.put({ key: HEALTH_KEY, value: { ...prev, lastSync: at, until, ...(incomplete ? {} : { fill: FILL_V }) } });
+  return { from, to, changed, missing: [...missingAll] };
 }
 
 /** The latest day (up to «today») that has value k, or null. */

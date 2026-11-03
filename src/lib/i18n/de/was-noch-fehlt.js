@@ -1,0 +1,23 @@
+// «Was die App noch wissen sollte» (Idee D3 «App denkt mit», Noah 02.11.2026 «3b»)
+export default {
+  'What the app still needs to know': 'Was die App noch wissen sollte',
+  'Only if you want: each one makes a function work better.': 'Nur wenn du willst: jedes macht eine Funktion besser.',
+  'Your home place': 'Dein Wohnort',
+  'Then Today shows the weather and ride tips for where you live.': 'Dann zeigt Heute das Wetter und Fahrtipps für deinen Wohnort.',
+  '{n} bike without a weight': '{n} Velo ohne Gewicht',
+  '{n} bikes without a weight': '{n} Velos ohne Gewicht',
+  'Then the bike comparison can tell which bike is lighter for a trip.': 'Dann kann der Velo-Vergleich sagen, welches Velo für eine Tour leichter ist.',
+  '{n} wear part without a start point': '{n} Verschleissteil ohne Startpunkt',
+  '{n} wear parts without a start point': '{n} Verschleissteile ohne Startpunkt',
+  'Then the wear forecast can say how many km are left.': 'Dann kann die Verschleiss-Prognose sagen, wie viele km noch bleiben.',
+  '{n} item without a weight': '{n} Teil ohne Gewicht',
+  '{n} items without a weight': '{n} Teile ohne Gewicht',
+  'Then the packing list can show what a trip weighs.': 'Dann kann die Packliste zeigen, was eine Tour wiegt.',
+  'Nothing open: the app knows what it needs.': 'Nichts offen: die App weiss, was sie braucht.',
+  'A short list of what the app does not know yet, what each is for and where to fill it in: home place, bike weight, wear part start points, gear weights.': 'Eine kurze Liste, was die App noch nicht weiss, wofür es gut ist und wo du es einträgst: Wohnort, Velogewicht, Startpunkte von Verschleissteilen, Gewichte des Materials.',
+  'Open Me › Alerts and news.': 'Öffne Ich › Hinweise und News.',
+  'On top: what the app still needs to know, each with what it is for.': 'Oben: was die App noch wissen sollte, je mit dem Wofür.',
+  'Tap one to fill it in; it leaves the list once it is filled.': 'Tipp eines an, um es einzutragen; es verschwindet aus der Liste, sobald es ausgefüllt ist.',
+  'Example: 2 bikes without a weight → «Then the bike comparison can tell which bike is lighter for a trip.»': 'Beispiel: 2 Velos ohne Gewicht → «Dann kann der Velo-Vergleich sagen, welches Velo für eine Tour leichter ist.»',
+  'Answer what is missing one thing at a time: each answer makes the next suggestion more accurate.': 'Beantworte, was fehlt, eins nach dem anderen: jede Antwort macht den nächsten Vorschlag genauer.',
+};

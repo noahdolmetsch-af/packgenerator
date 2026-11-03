@@ -11,17 +11,17 @@
 
 /** The four kinds of offer with their suggested values (everything can be changed). label/text: English, through t(). */
 export const KINDS = [
-  { kind: 'tennis', icon: 'tennis', label: 'Tennis lesson', text: '60 min · single or group up to 4', minutes: 60, pay: 'site', cancelHours: 24, types: [{ key: 'one', label: 'Single', places: 1, price: 6000 }, { key: 'group', label: 'Group', places: 4, price: 2500 }] },
-  { kind: 'tour', icon: 'tent', label: 'Guided bikepacking tour', text: '2 days · up to 6 people', minutes: 2 * 24 * 60, pay: 'online', cancelHours: 72, types: [{ key: 'seat', label: 'Place', places: 6, price: 18000 }] },
-  { kind: 'service', icon: 'wrench', label: 'Bike service', text: 'Drop off in the morning', minutes: 90, pay: 'site', cancelHours: 24, types: [{ key: 'short', label: 'Short check', places: 1, price: 4000 }, { key: 'full', label: 'Full service', places: 1, price: 12000 }] },
-  { kind: 'own', icon: 'cal', label: 'Own offer', text: 'Your own times and places', minutes: 60, pay: 'site', cancelHours: 24, types: [{ key: 'one', label: 'Place', places: 1, price: 0 }] },
+  { kind: 'tennis', icon: 'tennis', label: 'Tennis lesson', text: '60 min · single or group up to 4', minutes: 60, mode: 'request', pay: 'site', cancelHours: 24, types: [{ key: 'one', label: 'Single', places: 1, price: 6000 }, { key: 'group', label: 'Group', places: 4, price: 2500 }] },
+  { kind: 'tour', icon: 'tent', label: 'Guided bikepacking tour', text: '2 days · up to 6 people', minutes: 2 * 24 * 60, mode: 'instant', pay: 'online', cancelHours: 72, types: [{ key: 'seat', label: 'Place', places: 6, price: 18000 }] },
+  { kind: 'service', icon: 'wrench', label: 'Bike service', text: 'Drop off in the morning', minutes: 90, mode: 'instant', pay: 'site', cancelHours: 24, types: [{ key: 'short', label: 'Short check', places: 1, price: 4000 }, { key: 'full', label: 'Full service', places: 1, price: 12000 }] },
+  { kind: 'own', icon: 'cal', label: 'Own offer', text: 'Your own times and places', minutes: 60, mode: 'instant', pay: 'site', cancelHours: 24, types: [{ key: 'one', label: 'Place', places: 1, price: 0 }] },
 ];
 export const kindOf = (k) => KINDS.find((x) => x.kind === k) ?? KINDS[3];
 
 /** A new offer of this kind; tr translates the suggested names (t in the app). */
 export function newOffer(kind, tr = (s) => s) {
   const k = kindOf(kind);
-  return { kind: k.kind, title: tr(k.label), place: '', minutes: k.minutes, pay: k.pay, cancelHours: k.cancelHours, types: k.types.map((x) => ({ ...x, label: tr(x.label) })), slots: [] };
+  return { kind: k.kind, title: tr(k.label), place: '', minutes: k.minutes, mode: k.mode, venues: [], pay: k.pay, cancelHours: k.cancelHours, types: k.types.map((x) => ({ ...x, label: tr(x.label) })), slots: [] };
 }
 
 /** The address the students open: the booking page on GitHub Pages, the offer after the #. */
@@ -63,12 +63,12 @@ export const slotId = (rnd = Math.random) => Array.from({ length: 8 }, () => 'ab
  * New slots from day + time, weekly for `weeks` weeks (1 = only this day). Times already there
  * (same start) are skipped. → the slots to add.
  */
-export function newSlots(offer, { day, time, type, weeks = 1 }, rnd = Math.random) {
+export function newSlots(offer, { day, time, type, venue = '', weeks = 1 }, rnd = Math.random) {
   const have = new Set((offer.slots ?? []).map((s) => s.at));
   const out = [];
   for (let i = 0; i < Math.max(1, Math.min(52, weeks)); i++) {
     const at = atOf(addDays(day, 7 * i), time);
-    if (!have.has(at)) out.push({ id: slotId(rnd), at, type });
+    if (!have.has(at)) out.push(venue ? { id: slotId(rnd), at, type, venue } : { id: slotId(rnd), at, type });
   }
   return out;
 }
@@ -79,8 +79,37 @@ export const slotsOn = (offer, day) => (offer.slots ?? []).filter((s) => dayOf(s
 /** Booked places per slot from the owner's list of bookings. */
 export function bookedBySlot(bookings = []) {
   const n = {};
-  for (const b of bookings) n[b.slot] = (n[b.slot] ?? 0) + 1;
+  for (const b of bookings.filter(holdsPlace)) n[b.slot] = (n[b.slot] ?? 0) + 1;
   return n;
+}
+
+/** The owner answers a request within this many hours (shown to the people who ask). */
+export const ANSWER_HOURS = 24;
+/** A booking that holds a place: instant bookings (no status) and confirmed requests; open and declined requests hold none. */
+export const holdsPlace = (b) => b.status !== 'requested' && b.status !== 'declined';
+export const isOpenRequest = (b) => b.status === 'requested';
+
+/**
+ * The invoice draft for one booking (Noah 03.11.2026 «3b»): who, e-mail (only when the contact is an
+ * address), the price of the kind and what it is for. The app fills the invoice form with it; nothing is
+ * sent. `when` is the date written for people («Mo, 23.11.»).
+ */
+export function invoiceDraft(offer, slot, booking, when) {
+  const ty = (offer.types ?? []).find((x) => x.key === slot?.type) ?? offer.types?.[0];
+  const contact = String(booking.contact ?? '').trim();
+  return {
+    name: booking.name,
+    email: /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contact) ? contact : '',
+    amount: ty ? chf(ty.price) : '',
+    purpose: [offer.title, ty?.label, when].filter(Boolean).join(', '),
+    booking: { offer: offer.id, b: booking.id },
+  };
+}
+
+/** Held bookings whose time is over and that have no invoice yet. `now` is «YYYY-MM-DDTHH:MM» (local). */
+export function toInvoice(bookings = [], invoices = [], now = '') {
+  const done = new Set(invoices.map((x) => x.booking?.b).filter(Boolean));
+  return bookings.filter((b) => holdsPlace(b) && b.at && b.at < now && !done.has(b.id));
 }
 
 /** 'free' | 'part' | 'full' for the week grid. */

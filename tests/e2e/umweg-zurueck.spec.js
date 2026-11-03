@@ -57,7 +57,7 @@ async function startRace(page, context, info, asked) {
   // the router: a short made-up way from the first to the last point it was asked for
   await context.route(/brouter\.de\/brouter/, (route) => {
     const url = route.request().url();
-    asked.push(url);
+    if (url.includes('alternativeidx=0')) asked.push(url); // «Wege zur Auswahl» also asks for the other ways
     const ll = decodeURIComponent(new URL(url).searchParams.get('lonlats') ?? '')
       .split('|')
       .map((s) => s.split(',').map(Number));
@@ -166,8 +166,8 @@ test('Live: off the route the app plans the way back by itself, with Undo, go on
   await tap(card.locator('[data-live-auto-same]'), info);
   await expect(card).toHaveAttribute('data-live-detour-back', 'same');
   expect(asked).toHaveLength(1);
-  // × and the app plans again a minute later; Undo then waits until you are back on the route
-  await tap(card.locator('[data-live-detour-off]'), info);
+  // «Navigation beenden» and the app plans again a minute later; Undo then waits until you are back on the route
+  await tap(card.locator('[data-live-detour-end]'), info);
   await goTo(off(pointAt(pts, 410.6), 0.0044), 61);
   await expect(card).toHaveAttribute('data-live-detour-back', 'auto', { timeout: 10_000 });
   expect(asked).toHaveLength(2);
@@ -200,7 +200,7 @@ test('Live: a goal tapped on the map is only the way there, the way back is aske
   // the router answers with an L: 600 m north, then a right turn east to the goal (Navigation 2: the turn shows)
   await context.route(/brouter\.de\/brouter/, (route) => {
     const url = route.request().url();
-    asked.push(url);
+    if (url.includes('alternativeidx=0')) asked.push(url); // «Wege zur Auswahl» also asks for the other ways
     const ll = decodeURIComponent(new URL(url).searchParams.get('lonlats') ?? '').split('|').map((x) => x.split(',').map(Number));
     const [a, b] = [ll[0], ll.at(-1)];
     const corner = [a[0], b[1]];
