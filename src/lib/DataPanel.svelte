@@ -544,7 +544,9 @@
           <button type="button" class="btn" onclick={sendFile} disabled={!!$demoQ || sending} title={$demoQ ? t('Off while the demo runs') : undefined}><Send size={16} aria-hidden="true" />{phone.matches ? t('Send to computer') : t('Send to phone')}</button>
           <label class="btn">{t('Import backup')}<input bind:this={fileEl} type="file" onchange={pickFile} hidden data-backup-file /></label>
         </div>
-        <ol class="ich-help steps" data-backup-steps>
+        <details class="howfold" data-backup-steps>
+        <summary>{t('How it works, computer and phone')}</summary>
+        <ol class="ich-help steps">
           <li>{t('On the device with the newest data: tap «Save backup». The file lands in «Downloads».')}</li>
           <li>{t('Send the file to yourself (mail, chat, cloud folder).')}</li>
           <li>{t('On the other device: save the file, then tap «Import backup» and choose it.')}</li>
@@ -552,6 +554,7 @@
         </ol>
         <p class="ich-help">{t('Send: the backup file goes to the share sheet (mail, chat, nearby), or is downloaded. On the other device: Import backup.')}</p>
         <p class="ich-help">{t('Phone: a file from a mail first has to be saved (in Gmail the arrow at the attachment). Then choose it under «Downloads». The picker shows all files; the app checks itself whether it is a backup.')}</p>
+        </details>
 
         {#if $demoQ}<p class="small">{t('A demo is running: backups are off until you end it (yellow bar on top).')}</p>{/if}
 
@@ -666,28 +669,6 @@
         {#if undoId}<div class="ich-acts"><button type="button" class="btn" onclick={undoImport} data-undo-import>{t('Undo import')}</button></div>{/if}
       </div>
     </section>
-    <!-- Idea 1 (Noah 01.11.2026): one question, once. Yes shows the sync, No folds it. Per device, not in the data. -->
-    {#if twoDev === null && !autoSync.on}
-      <section class="ich-sec" aria-labelledby="two-h" data-section="two-devices">
-        <div class="ich-h"><div><h2 id="two-h">{t('Do you need the app on two devices?')}</h2><p class="ich-hs">{t('Yes shows the sync between phone and computer. No folds it away; you can still open it any time.')}</p></div></div>
-        <div class="card ich-body"><div class="ich-acts">
-          <button type="button" class="btn hi" onclick={() => answerTwo('yes')} data-two="yes">{t('Yes, on two devices')}</button>
-          <button type="button" class="btn" onclick={() => answerTwo('no')} data-two="no">{t('No, only here')}</button>
-        </div></div>
-      </section>
-    {:else if twoDev === 'no' && !autoSync.on}
-      <MoreFold id="sync" title={t('Work on two devices')} sub={t('Phone and computer, sync')} bind:open={syncOpen}>
-        {@render syncBlock()}
-        <div class="ich-acts"><button type="button" class="btn sm" onclick={() => answerTwo(null)}>{t('Ask me again')}</button></div>
-      </MoreFold>
-    {:else}
-      {@render syncBlock()}
-    {/if}
-    <!-- Idea 4a: Fitbit has its own page (Ich › Fitbit) -->
-    <a class="card ich-row fitrow" href="#/me/fitbit" data-row="fitbit-page"><span class="ich-m"><b>{t('Fitbit and health')}</b><small>{t('Moved to its own page: Me › Fitbit')}</small></span><ChevronRight class="ich-chev" size={18} aria-hidden="true" /></a>
-  </div>
-
-  <div class="ich-side">
     <MoreFold id="more" title={t('More')} sub={t('Password, folder, copies before updates, other data, start fresh')} bind:open={moreOpen}>
     <BackupLock />
     <BeforeUpdates />
@@ -743,6 +724,28 @@
     <NamesDe />
     <StartFresh />
     </MoreFold>
+    <!-- Idea 1 (Noah 01.11.2026): one question, once. Yes shows the sync, No folds it. Per device, not in the data. -->
+    {#if twoDev === null && !autoSync.on}
+      <section class="ich-sec" aria-labelledby="two-h" data-section="two-devices">
+        <div class="ich-h"><div><h2 id="two-h">{t('Do you need the app on two devices?')}</h2><p class="ich-hs">{t('Yes shows the sync between phone and computer. No folds it away; you can still open it any time.')}</p></div></div>
+        <div class="card ich-body"><div class="ich-acts">
+          <button type="button" class="btn hi" onclick={() => answerTwo('yes')} data-two="yes">{t('Yes, on two devices')}</button>
+          <button type="button" class="btn" onclick={() => answerTwo('no')} data-two="no">{t('No, only here')}</button>
+        </div></div>
+      </section>
+    {:else if twoDev === 'no' && !autoSync.on}
+      <MoreFold id="sync" title={t('Work on two devices')} sub={t('Phone and computer, sync')} bind:open={syncOpen}>
+        {@render syncBlock()}
+        <div class="ich-acts"><button type="button" class="btn sm" onclick={() => answerTwo(null)}>{t('Ask me again')}</button></div>
+      </MoreFold>
+    {:else}
+      {@render syncBlock()}
+    {/if}
+    <!-- Idea 4a: Fitbit has its own page (Ich › Fitbit) -->
+    <a class="card ich-row fitrow" href="#/me/fitbit" data-row="fitbit-page"><span class="ich-m"><b>{t('Fitbit and health')}</b><small>{t('Moved to its own page: Me › Fitbit')}</small></span><ChevronRight class="ich-chev" size={18} aria-hidden="true" /></a>
+  </div>
+
+  <div class="ich-side">
     <section class="ich-sec" aria-labelledby="yd-h">
       <div class="ich-h"><div class="dhead"><h2 id="yd-h">{t('Your data')}</h2><Help label={t('Your data')}><p>{t('Everything is stored in this browser on this device. Use a backup file to move it to your other device.')}</p></Help></div></div>
       {#if $counts}
@@ -765,6 +768,13 @@
 </div>
 
 <style>
+  .howfold summary {
+    cursor: pointer;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    font-weight: 600;
+  }
   .light {
     min-height: 56px;
   }

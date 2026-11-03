@@ -1,6 +1,7 @@
 // «Daten und Backup aufräumen» (Noah 01.11.2026 «1a 2a 3a 4a 5b»): Statuszeile, Faltstellen, die eine Frage,
 // Backup für die Datei, Abgleich für den Sync, nie vermischt.
 export default {
+  'How it works, computer and phone': 'So geht\'s, Computer und Handy',
   'Backup file': 'Backup-Datei',
   'On the device with the newest data: tap «Save backup». The file lands in «Downloads».': 'Auf dem Gerät mit den neuesten Daten: tippe «Backup herunterladen». Die Datei landet in «Downloads».',
   'Send the file to yourself (mail, chat, cloud folder).': 'Schick dir die Datei selbst (Mail, Chat, Cloud-Ordner).',

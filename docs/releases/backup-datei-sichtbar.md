@@ -4,12 +4,13 @@ PR folgt · 03.11.2026 · Auftrag: Noah (Thread «Bauen: Backup manuell herunter
 
 ## Was ist neu
 - Ich › Daten und Backup: «Backup herunterladen» und «Backup importieren» stehen offen unter «Alles in Ordnung?», nicht mehr in einer zugeklappten Faltstelle ganz unten (seit der Aufräum-Runde vom 01.11. waren sie dort versteckt).
-- Vier kurze Schritte für Computer und Handy stehen direkt darunter.
+- Vier kurze Schritte für Computer und Handy stehen direkt darunter, in einer kleinen Zeile «So geht's» zum Aufklappen.
+- Die Faltstelle «Mehr» steht jetzt direkt unter der Backup-Datei (am Handy vorher ganz unten), damit alles Seltene nah bleibt.
 - Beim Import steht «Zusammenführen» als vorgeschlagener Knopf, wenn schon Daten da sind; die Vorschau «Das kommt dazu / das wird ersetzt» gab es schon.
 - Nach dem Import erscheint «Import rückgängig» (holt die Kopie von vorher zurück).
 
 ## Was fällt weg oder rutscht tiefer
-- Die Faltstelle «Mit einer Backup-Datei sichern» entfällt; ihr Inhalt steht jetzt offen oben. Nichts rutscht tiefer.
+- Die Faltstelle «Mit einer Backup-Datei sichern» entfällt; ihr Inhalt steht jetzt offen oben. «Mehr» rutscht am Handy nach oben, nichts tiefer.
 
 ## Selbst entschieden
 - Bestehende Knöpfe, Vorschau und Kopie vor dem Import weiterverwendet statt neu gebaut; nur Platz, Text und Rückgängig neu.
