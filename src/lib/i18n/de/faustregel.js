@@ -1,0 +1,22 @@
+// «Faustregeln aus deinen Rückblicken» (Idee D2 «App denkt mit», Noah 02.11.2026 «3b»)
+export default {
+  'Rules of thumb from your debriefs': 'Faustregeln aus deinen Rückblicken',
+  'Your finished trips show a pattern. A rule is only a suggestion in Packen; you can change it any time on Blocks.': 'Deine beendeten Touren zeigen ein Muster. Eine Regel ist in Packen nur ein Vorschlag; du kannst sie jederzeit unter Bausteine ändern.',
+  'Used on {used} of {n} trips.': 'Gebraucht auf {used} von {n} Touren.',
+  'No pattern yet. With an own block and four finished trips, the app can suggest a rule here.': 'Noch kein Muster. Mit einem eigenen Baustein und vier beendeten Touren kann die App hier eine Regel vorschlagen.',
+  'Make it a rule': 'Als Regel übernehmen',
+  'Not this one': 'Diese nicht',
+  '{block}: rule saved.': '{block}: Regel gespeichert.',
+  '{block}: no more suggestions for this rule.': '{block}: diese Regel wird nicht mehr vorgeschlagen.',
+  'When your finished trips show a pattern for an own block, e.g. used only below 8 °C, the app suggests that rule; you decide.': 'Zeigen deine beendeten Touren ein Muster für einen eigenen Baustein, z. B. nur unter 8 °C gebraucht, schlägt die App diese Regel vor; du entscheidest.',
+  'Needs an own building block and at least 4 finished trips with it.': 'Braucht einen eigenen Baustein und mindestens 4 beendete Touren damit.',
+  'Open Me › How the app decides.': 'Öffne Ich › So entscheidet die App.',
+  'On top: a rule of thumb the app found in your debriefs.': 'Oben steht eine Faustregel, die die App in deinen Rückblicken gefunden hat.',
+  '«Make it a rule» saves it on the block; «Not this one» stops the suggestion.': '«Als Regel übernehmen» speichert sie am Baustein; «Diese nicht» beendet den Vorschlag.',
+  'Example: block «Warm things» used on 2 trips below 6 °C, left unused on 2 trips above 12 °C → rule «below 9 °C».': 'Beispiel: Baustein «Warmes» auf 2 Touren unter 6 °C gebraucht, auf 2 Touren über 12 °C nicht → Regel «unter 9 °C».',
+  'On top: a rule of thumb from your debriefs, if there is a clear pattern.': 'Oben: eine Faustregel aus deinen Rückblicken, wenn ein klares Muster da ist.',
+  '«Make it a rule» saves it on the block; Undo takes it back.': '«Als Regel übernehmen» speichert sie am Baustein; mit Rückgängig ist sie weg.',
+  'Make a rule only when your debriefs agree: if the jacket stayed in the bag twice, trust that over a guess.': 'Mach nur eine Regel, wenn deine Rückblicke übereinstimmen: blieb die Jacke zweimal im Sack, glaub das mehr als einer Vermutung.',
+  '{n} items in this block': 'Teile in diesem Baustein ({n})',
+  'If you make it a rule: Packen puts all items of the block on the list when {rule}, and leaves them out otherwise. You can untick any item on a trip and change the rule any time on Blocks.': 'Wenn du es zur Regel machst: Packen setzt alle Teile des Bausteins auf die Liste, wenn {rule}, sonst lässt es sie weg. Du kannst jedes Teil auf einer Tour abwählen und die Regel jederzeit unter Bausteine ändern.',
+};
