@@ -1,5 +1,6 @@
 /** German texts: bikes. Keys are the English texts. */
 export default {
+  'Changed:': 'Geändert:',
   'Workshop and history': 'Werkstatt und Verlauf',
   'latest': 'zuletzt',
   'receipt': 'Beleg',

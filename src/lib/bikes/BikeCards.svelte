@@ -38,7 +38,7 @@
   function done(s) {
     clearTimeout(savedTimer);
     saved = s;
-    savedTimer = setTimeout(() => (saved = null), 6000);
+    savedTimer = setTimeout(() => (saved = null), s.resets?.length ? 12000 : 6000);
   }
   $effect(() => () => clearTimeout(savedTimer));
   const cards = $derived(
@@ -102,7 +102,8 @@
     {/if}
   </section>
   {#if saved}
-    <p class="saved" role="status" data-card-saved>{saved.kind === 'visit' ? t('Workshop visit saved.') : t('Saved in Bike care.')} <a href={bikesHash({ tab: 'care', bike: saved.bikeId, open: true })}>{t('Open')}</a></p>
+    <p class="saved" role="status" data-card-saved>{saved.kind === 'visit' ? t('Workshop visit saved.') : t('Saved in Bike care.')} <a href={bikesHash({ tab: 'care', bike: saved.bikeId, open: true })}>{t('Open')}</a>
+      {#if saved.resets?.length}<br /><span data-saved-resets>{t('Changed:')} {saved.resets.join(' · ')}</span>{/if}</p>
   {/if}
   {#if dialog}
     <BikeQuickDialog kind={dialog.kind} {bikes} bikeId={dialog.bikeId} onsaved={done} onclose={() => (dialog = null)} />
