@@ -16,6 +16,7 @@
   import Crumbs from '../lib/ui/Crumbs.svelte';
   import PageHead from '../lib/ui/PageHead.svelte';
   import Empty from '../lib/ui/Empty.svelte';
+  import NeedsCard from '../lib/ich/NeedsCard.svelte'; // idea D3: what the app still needs to know
   import { FEEDS_KEY, ALERTS_KEY, PASSES, PASS_INFO, feedsOf, alertsOf, checkFeed, seasonOf, usuallyOpen, avalancheSeason, warningsFor } from '../lib/clear/news.js';
   import { news, loadAlerts, loadFeed } from '../lib/clear/news.svelte.js';
 
@@ -90,6 +91,7 @@
   <Crumbs crumbs={[{ label: t('Me|place'), href: '#/me' }]} here={t('Alerts and news')} />
   <PageHead title={t('Alerts and news')} text={t('What concerns you on the way, and news about velo and mountains. Everything is optional.')} />
   <AreaIntro place="alerts" />
+  <NeedsCard />
   <div class="hw-top">
     <button type="button" class="btn sm" onclick={refresh} disabled={news.busy} data-news-refresh><RefreshCw size={16} aria-hidden="true" />{t('Refresh')}</button>
     {#if news.alerts?.at}<small>{t('As of {when}', { when: when(news.alerts.at) })}</small>{/if}
