@@ -11,7 +11,7 @@
   import { db } from '../db.js';
   import { t } from '../i18n.svelte.js';
   import { localDay } from '../localday.js';
-  import { SPACE_KEY, CALM_KEY, spaceOf, spaceActive, calmOf } from './weniger.js';
+  import { SPACE_KEY, CALM_KEY, spaceOf, spaceActive, calmOf, calmOver, calmUntil } from './weniger.js';
   import { LETTERS_KEY, lettersOf, dueLetters } from './spaeter.js';
 
   let { hash = '' } = $props();
@@ -27,6 +27,16 @@
     }
     return { space: spaceOf(space?.value), calm: calmOf(calm?.value), due };
   });
+  // a soft end: the clock ticks every 20 s, only while a calm view with a time runs
+  let now = $state(Date.now());
+  $effect(() => {
+    if (!$q?.calm?.until) return;
+    now = Date.now();
+    const id = setInterval(() => (now = Date.now()), 20000);
+    return () => clearInterval(id);
+  });
+  const over = $derived(calmOver($q?.calm, now));
+  const more = () => db.settings.put({ key: CALM_KEY, value: { ...$q.calm, until: calmUntil(15) } });
   const here = $derived(hash.startsWith('#/me/ruhig'));
   const space = $derived($q && spaceActive($q.space, today) ? $q.space : null);
   let names = $state({});
@@ -38,7 +48,7 @@
   });
   // the calm view asks nothing: the «Soll ich dich erinnern?» card rests while it is on
   $effect(() => {
-    const on = !!$q?.calm;
+    const on = !!$q?.calm && !over; // time is up: things come back
     if (on) document.documentElement.dataset.ruhe = '1';
     else delete document.documentElement.dataset.ruhe;
   });
@@ -64,7 +74,8 @@
 {#if $q?.calm}
   <div class="rhl calm" role="status" data-ruhig-line="calm">
     <Moon size={16} aria-hidden="true" />
-    <span class="rhl-t">{t('You are doing')}: <b>{$q.calm.what}</b></span>
+    <span class="rhl-t">{over ? t('Time is up for') : t('You are doing')}: <b>{$q.calm.what}</b></span>
+    {#if over}<button type="button" class="rhl-a" onclick={more} data-calm-more>{t('15 more min')}</button>{/if}
     {#if target && target !== hash}<a class="rhl-a" href={target} data-calm-open>{t('Open')}</a>{/if}
     <button type="button" class="rhl-x" onclick={() => endCalm($q.calm)} aria-label={t('Done|calm')}>{t('Done|calm')}</button>
   </div>

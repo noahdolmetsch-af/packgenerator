@@ -271,3 +271,20 @@ describe('Ruhige Ansicht: little history', () => {
     expect(big).toHaveLength(LOG_MAX);
   });
 });
+
+describe('Ruhige Ansicht: time and soft end', () => {
+  it('keeps a valid end and an open end as 0', async () => {
+    const { calmOf, calmUntil, calmOver, calmLeft } = await import('../src/lib/ruhig/weniger.js');
+    expect(calmOf({ what: 'Velo putzen' }).until).toBe(0);
+    expect(calmOf({ what: 'Velo putzen', until: 'x' }).until).toBe(0);
+    expect(calmUntil(0, 1000)).toBe(0);
+    expect(calmUntil(30, 1000)).toBe(1000 + 30 * 60000);
+    const c = calmOf({ what: 'a', until: 1000 + 15 * 60000 });
+    expect(calmOver(c, 1000)).toBe(false);
+    expect(calmLeft(c, 1000)).toBe(15);
+    expect(calmLeft(c, 1000 + 14 * 60000 + 1)).toBe(1);
+    expect(calmOver(c, 1000 + 15 * 60000)).toBe(true);
+    expect(calmLeft(c, 1000 + 15 * 60000)).toBe(0);
+    expect(calmOver(calmOf({ what: 'a' }), 9e15)).toBe(false);
+  });
+});

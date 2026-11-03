@@ -70,4 +70,6 @@ export default {
     'Ein Abendritual wirkt am besten, wenn es klein ist: ein Lied, eine Frage, jeden Tag gleich.',
   'A sound brings a place back faster than a photo: ten seconds of the stream beside the tent are enough.':
     'Ein Ton holt einen Ort schneller zurück als ein Foto: zehn Sekunden Bach neben dem Zelt reichen.',
+  'Free time needs no goal. Pick one page that fits the mood, not the one with the most to do.':
+    'Freie Zeit braucht kein Ziel. Nimm die Seite, die zur Stimmung passt, nicht die mit am meisten zu tun.',
 };

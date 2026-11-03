@@ -28,4 +28,8 @@ export default {
   "A dream that came true stays in your list of fulfilled dreams: look at it when the next big plan feels too far away.": "Ein erfüllter Traum bleibt in der Liste der erfüllten Träume: Schau ihn an, wenn dir der nächste grosse Plan zu weit weg vorkommt.",
   "Pick the hours you really have: a round that fits in two hours is ridden more often than a perfect one you never start.": "Wähle die Stunden, die du wirklich hast: Eine Runde, die in zwei Stunden passt, wird öfter gefahren als eine perfekte, die du nie beginnst.",
   "Compare with your own rides: if the longest ride is far below one day of the dream, add a few training rides first.": "Vergleiche mit deinen eigenen Fahrten: Liegt die längste Fahrt weit unter einem Tag des Traums, plane zuerst ein paar Trainingsfahrten ein.",
+  'A collection grows by itself on rides: note the fountain when you drink from it, not later at home.':
+    'Eine Sammlung wächst auf Fahrten von selbst: notier den Brunnen, wenn du daraus trinkst, nicht später zuhause.',
+  'Practise with the transceiver at the start of the season, not on the first tour. Ten minutes in the park are enough.':
+    'Üb mit dem LVS zu Beginn der Saison, nicht auf der ersten Tour. Zehn Minuten im Park reichen.',
 };

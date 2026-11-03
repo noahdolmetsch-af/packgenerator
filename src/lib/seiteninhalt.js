@@ -47,6 +47,9 @@ export const ON_PAGES = [
   // entry. Not the race mode (#/race/:race/ride): while racing the first screen belongs to the ride, like Unterwegs. Not one
   // note (#/notes?open=:note): the note opens as a window over Notes, so the card would only sit hidden behind it.
   '#/debrief/:trip', '#/race/:race', '#/race/:race/route', '#/race/:race/map', '#/tagebuch/:entry',
+  // Wegweiser 26b: pages without any content in the check of 02.11.2026 (Touren and Ski start as one line, FOLDED_FIRST)
+  '#/trips', '#/trips/fuel', '#/neuland', '#/me/frei', '#/me/frei/sammlungen', '#/me/ruhig/herkunft', '#/me/ruhig/zahlen',
+  '#/ski', '#/racecheck',
 ];
 /** Words that are fixed sub-pages, never the id of a placeholder (#/debrief/logbook is not a trip). */
 export const RESERVED = ['learnings', 'pace', 'compare', 'logbook', 'play', 'ride', 'brief', 'new', 'shared'];
@@ -58,7 +61,8 @@ export const FOLD_KEY = 'seiteninhalt.folded';
  * must stay on the first screen; on Pack the packing list comes first. A tap opens it, and the choice is kept like ×.
  */
 // Wegweiser 18: Training and Auswerten start as one line too (heimat.spec: their functions must stay within 2.5 screens)
-export const FOLDED_FIRST = ['#/ride', '#/pack', '#/bikes', '#/gear', '#/flow/training', '#/auswerten', '#/debrief/:trip'];
+// Wegweiser 26b: Touren and Ski tours are main pages with their own list first
+export const FOLDED_FIRST = ['#/ride', '#/pack', '#/bikes', '#/gear', '#/flow/training', '#/auswerten', '#/debrief/:trip', '#/trips', '#/ski'];
 
 /** The page of a hash, as HOME writes it: path plus «tab=…» or «view=…» when they choose the page. */
 export function pageKey(hash = '') {

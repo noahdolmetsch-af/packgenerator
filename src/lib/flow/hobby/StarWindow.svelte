@@ -5,19 +5,27 @@
    * «Ansehen» opens the sport's milestones, «OK» closes it. FlowLayer draws it over every page.
    * ui.star = { entryId, actId, act (name), stars: [{ id, star, m, value, target }] }
    */
-  import { Star } from '@lucide/svelte';
+  import { Star, Gift } from '@lucide/svelte';
   import { backClose } from '../../ui/backclose.js';
   import { ui } from '../ui.svelte.js';
   import { msName, val, countsLine } from './words.js';
   import { STAGES } from '../../flowms.js';
-  import { t, tn } from '../../i18n.svelte.js';
+  import { t, tn, lang } from '../../i18n.svelte.js';
   import { liveQuery } from 'dexie';
   import { db } from '../../db.js';
   import { TONE_KEY, toneOf, SAYINGS, pick, stageKey } from '../tone.js';
+  import { REWARD_KEY, rewardOf } from '../../flowms.js';
   import ToneSetting from '../ToneSetting.svelte';
 
   const tq = liveQuery(() => db.settings.get(TONE_KEY));
   const tone = $derived(toneOf($tq?.value));
+  // PR 6: the reward hung on one of these stars (any sport), with its wishlist name
+  const rq = liveQuery(async () => {
+    const rw = rewardOf((await db.settings.get(REWARD_KEY))?.value);
+    const item = rw ? await db.items.get(rw.itemId) : null;
+    return rw && item ? { rw, name: lang.v === 'de' && item.nameDe ? item.nameDe : item.name } : null;
+  });
+  const prize = $derived(s && $rq && s.stars.some((x) => x.msId === $rq.rw.msId && x.star === $rq.rw.star) ? $rq.name : '');
   /** The stage's name: a fitting one for the sport (not with tone Off). */
   const stage = (x) => (tone === 'off' ? '' : t(stageKey({ icon: s?.icon }, x.star) ?? STAGES[Math.max(0, Math.min(6, x.star - 1))]));
   const saying = $derived(!s || tone === 'off' ? '' : t(pick(SAYINGS, tone, s.stars[0]?.id), { sport: s.act, k: s.stars[0]?.star }));
@@ -48,6 +56,7 @@
           </li>
         {/each}
       </ul>
+      {#if prize}<p class="prize" data-star-reward><Gift size={18} aria-hidden="true" /><span>{t('Your reward: {name}. You earned it.', { name: prize })}</span></p>{/if}
       {#if saying}<p class="say" data-star-saying>{saying}</p>{/if}
       <p class="muted">{t('Stars stay, even when a series breaks.')}</p>
       <ToneSetting />
@@ -103,6 +112,17 @@
   }
   .say {
     font-weight: 600;
+  }
+  .prize {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    font-weight: 600;
+    color: var(--ink);
+  }
+  .prize :global(svg) {
+    flex: none;
   }
   i {
     font-style: normal;
