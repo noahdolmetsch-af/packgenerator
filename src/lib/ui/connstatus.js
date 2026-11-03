@@ -45,9 +45,9 @@ export function failedLine(t, { reason, lastOkAt, when }) {
  * Generic fetch line for the other connections (Noah 03.11.2026 «1a», «2 Fitbit, Strava, Google dann Abgleich»):
  * «Fitbit: fetching … 12 s. 30 of 90 days fetched so far.» + a hint after slowAfterS. done/total are optional.
  */
-export function fetchingLine(t, { name, since, now, done = 0, total = 0, slowAfterS = 90 }) {
+export function fetchingLine(t, { name, since, now, done = 0, total = 0, unit = 'days', slowAfterS = 90 }) {
   const s = Math.max(0, Math.round((now - since) / 1000));
-  const part = total > 0 ? ` ${t('{n} of {total} days fetched so far.', { n: Math.min(done, total), total })}` : '';
+  const part = unit === 'rides' ? (done > 0 ? ` ${t('{n} rides received so far.', { n: done })}` : '') : total > 0 ? ` ${t('{n} of {total} days fetched so far.', { n: Math.min(done, total), total })}` : '';
   const slow = s >= slowAfterS ? ` ${t('This takes unusually long. It stops by itself after 2 minutes.')}` : '';
   return `${name}: ${t('fetching …')} ${elapsedText(t, since, now)}.${part}${slow}`;
 }
