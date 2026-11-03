@@ -22,13 +22,21 @@ const NEWEST = WHATS_NEW[0].version;
 
 test.setTimeout(600_000);
 
-test('every line of What is new goes to its exact place', async ({ page, context }, info) => {
-  await start(page, context, info);
+// The lines are checked in parts of PART lines, each its own test with its own time limit: with every release the
+// list grows, and one test for all of them ran into the 10-minute limit on a busy phone runner (03.11.2026, 555 updates).
+const PART = 120;
+const PARTS = Array.from({ length: Math.ceil(ROWS.length / PART) }, (_, i) => ROWS.slice(i * PART, (i + 1) * PART));
+
+test('What is new has lines with an exact place', () => {
   expect(ROWS.length).toBeGreaterThan(0);
+});
+
+PARTS.forEach((rows, part) => test(`every line of What is new goes to its exact place, part ${part + 1} of ${PARTS.length}`, async ({ page, context }, info) => {
+  await start(page, context, info);
   // «Try it» on the newest update goes to its place and says «New here: …»
   // (only when the newest update has a line with an exact place: a fix release with no place has nothing to go to)
   await page.goto('./#/me/news');
-  if (ROWS.some(([version]) => version === NEWEST)) {
+  if (part === 0 && ROWS.some(([version]) => version === NEWEST)) {
     await page.locator('[data-news-try]').first().click();
     // a line with only `where` has no spot to light: the note then is its own text, not «New here: …»
     const first = ROWS.find(([version]) => version === NEWEST)[2];
@@ -36,7 +44,7 @@ test('every line of What is new goes to its exact place', async ({ page, context
     await expect(page.locator('[data-spot-note]').first()).toContainText(only ? T(first.where) : T('New here: {what}').split('{')[0].trim());
   }
   const missing = [];
-  for (const [version, text, g] of ROWS) {
+  for (const [version, text, g] of rows) {
     await page.goto('./#/');
     await page.goto('./#/me/news');
     await page.locator('main h1').first().waitFor({ timeout: 8000 }).catch(() => {});
@@ -72,5 +80,5 @@ test('every line of What is new goes to its exact place', async ({ page, context
     await expect(page.locator('[data-spot-on]')).toHaveCount(0, { timeout: 6000 }).catch(() => {});
   }
   expect(missing).toEqual([]);
-});
+}));
 
