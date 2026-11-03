@@ -40,7 +40,7 @@
   import PackBike from './PackBike.svelte';
   import '../trip/trip.css';
 
-  let { trip, steps, itemsById, badges = {}, ready = [], wxGap = null, onwx = () => {}, ontoggle, onready, onpack = () => {}, onreadyall = () => {}, onnext, onundo = () => {}, canUndo = false, main = { kind: 'finish', label: 'Finish packing' }, onend = () => {}, bike = true, lessons = [], reminders = [], oncharge = null, pressure = '', stats = null, charge = null, top = null, fixed = false, onread = null, onmove = null, spare = [] } = $props();
+  let { trip, steps, itemsById, badges = {}, ready = [], wxGap = null, wxd = null, onwx = () => {}, ontoggle, onready, onpack = () => {}, onreadyall = () => {}, onnext, onundo = () => {}, canUndo = false, main = { kind: 'finish', label: 'Finish packing' }, onend = () => {}, bike = true, lessons = [], reminders = [], oncharge = null, pressure = '', stats = null, charge = null, top = null, fixed = false, onread = null, onmove = null, spare = [] } = $props();
   // TZ-2 «Fest nach der Fahrt» (mockup TZ2, Noah 5a): a completed or rated trip (fixed) shows its bags as
   // packed then, to read: no ticks, no «Whole bag packed»; the band under the steps says why and offers
   // «Wieder öffnen».
@@ -468,6 +468,13 @@
   {#if wxGap}
     <div class="card wxgap" role="note">
       <p><b>{t('The forecast is {wx}.', { wx: wxText(wxGap.fc) })}</b> {t('This trip is packed for {wx}.', { wx: wxText(wxGap.have) })}</p>
+      {#if wxd}
+        <ul class="wxd" data-wx-diff>
+          {#if wxd.add.length}<li data-wx-add>{t('New on the list')}: {wxd.add.map(nameOf).join(' · ')}</li>{/if}
+          {#if wxd.leave.length}<li data-wx-leave>{t('Can stay at home')}: {wxd.leave.map(nameOf).join(' · ')}</li>{/if}
+          {#if wxd.rain}<li data-wx-rain>{wxd.rain === 'more' ? t('Rain is coming: rain protection belongs on the list.') : t('The rain is gone: rain protection can stay at home.')}</li>{/if}
+        </ul>
+      {/if}
       <button type="button" class="btn" onclick={onwx} data-explain={t('Pack for the forecast first')}>{t('Forecast first')}</button>
     </div>
   {/if}
@@ -647,6 +654,8 @@
   .ring b { position: absolute; inset: 0; display: grid; place-items: center; font-size: var(--fs-tiny); font-weight: 700; color: var(--ink); }
   .wxgap { margin: 0 0 16px; background: var(--info-soft); }
   .wxgap p { margin: 0 0 10px; }
+  .wxd { margin: 0 0 10px; padding-left: 18px; }
+  .wxd li { margin: 0 0 4px; }
   .pcols { display: grid; grid-template-columns: minmax(0, 1fr); gap: 24px; }
   .pmain, .pside { display: grid; grid-template-columns: minmax(0, 1fr); gap: 24px; align-content: start; min-width: 0; }
   @media (min-width: 900px) { .pcols { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); align-items: start; } }

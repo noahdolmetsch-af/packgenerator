@@ -9,6 +9,7 @@
   import { t, tn, num } from '../i18n.svelte.js';
   import { bikeCareWords } from '../readiness.js';
   import { signFor } from '../daumen.js'; // FE13: a sign next to the colour
+  import { bikeFit } from '../bikefit.js'; // idea C3: which bike fits this trip best
   import '../ui/fe-seiten.css';
 
   let { rows, trip, onpick, onclose } = $props();
@@ -22,16 +23,22 @@
     onpick(r.bike);
     dialog.close();
   };
+  const fit = $derived(bikeFit(rows, trip));
+  const best = $derived(rows.find((r) => r.bike.id === fit.best) ?? null);
+  const WHY = { room: 'the bags have room for your gear', care: 'nothing is due on the bike before the start', light: 'it is the lightest on this climbing route' };
   const chf = (n) => `CHF ${num(Math.round(n))}`;
 </script>
 
 <dialog use:backClose class="sheet wide" bind:this={dialog} onclose={onclose} aria-labelledby="choice-h">
   <p class="meta">{trip.title}</p>
   <h2 id="choice-h" class="title">{t('Which bike?')}</h2>
+  {#if best}
+    <p class="fitline" data-bike-fit={best.bike.id}><b>{t('Fits this trip best: {bike}.', { bike: best.bike.name })}</b> {fit.why.map((k) => t(WHY[k])).join(' · ')}</p>
+  {/if}
   <div class="grid">
     {#each rows as r (r.bike.id)}
       <section class="b" class:cur={r.current} aria-label={r.bike.name}>
-        <h3>{r.bike.name}{#if r.current}<span class="tag">{t('this trip')}</span>{/if}</h3>
+        <h3>{r.bike.name}{#if r.current}<span class="tag">{t('this trip')}</span>{/if}{#if r.bike.id === fit.best}<span class="tag good">{t('fits best')}</span>{/if}</h3>
         <dl>
           <dt>{t('Bike + bags')}</dt>
           <!-- v0.22.0 (AP04): known part with the missing bag weights, and whether the bike is measured. -->
@@ -66,6 +73,12 @@
     font-size: var(--fs-small);
     font-weight: 700;
     color: var(--ink-3);
+  }
+  .fitline {
+    margin: 0 0 10px;
+    padding: 8px 10px;
+    border-radius: 10px;
+    background: var(--ok-soft);
   }
   h2 {
     font-size: var(--fs-section);

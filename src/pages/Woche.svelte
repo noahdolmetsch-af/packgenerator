@@ -17,7 +17,7 @@
   import WeekDreams from '../lib/dreams/WeekDreams.svelte'; // Paket N idea 5: dreams and race deadlines of the week
   import { weekQuery, putWeek } from '../lib/woche/load.js';
   import { titleOf, subOf, dayName, shortDate, hours, holidayName, wxWords, reviewLine, hintText } from '../lib/woche/words.js';
-  import { ITEMS_KEY, HIDE_KEY, NO_KEY, SG_OPEN_KEY, TRAIN_NOTE, KINDS, KIND_NAMES, buildWeek, cleanItem, pruneItems, skipFor, planMonday, dotsOf, takeSuggestion } from '../lib/woche.js';
+  import { ITEMS_KEY, HIDE_KEY, NO_KEY, SG_OPEN_KEY, SG_OFF_KEY, SG_NEVER_KEY, SEASON_KEY, SUGG_SOURCES, TRAIN_NOTE, KINDS, KIND_NAMES, buildWeek, cleanItem, pruneItems, skipFor, planMonday, dotsOf, takeSuggestion } from '../lib/woche.js';
   import { homeForecast } from '../lib/home-weather.js';
   import { db } from '../lib/db.js';
   import { PLAN_KEY as TRAIN_KEY, mondayOf, shiftDay, isoWeek, prunePlan } from '../lib/training.js';
@@ -114,8 +114,32 @@
   const sgShown = $derived(week ? (phone.matches && !sgAll ? week.suggestions.slice(0, PHONE_ROWS) : week.suggestions) : []);
   const sgMore = $derived(week ? week.suggestions.length - sgShown.length : 0);
   const sgOpen = $derived(!!src?.sgOpen);
+  // «Where do the suggestions come from?» (Noah 2.11.2026 «a»): each source on or off; Undo
+  const SOURCE_NAMES = { todo: 'Own to-dos without a day', google: 'Google tasks', bike: 'Bike care', tour: 'Before a trip: packing list, weather, bike check', season: 'Season ideas', sport: 'Sport: rainy days and holidays' };
+  async function toggleSource(k) {
+    const before = src.sgOff;
+    const on = before.includes(k);
+    await putWeek(SG_OFF_KEY, on ? before.filter((x) => x !== k) : [...before, k]);
+    offerDone(on ? t('«{name}» is suggested again.', { name: t(SOURCE_NAMES[k]) }) : t('«{name}» is no longer suggested.', { name: t(SOURCE_NAMES[k]) }), () => putWeek(SG_OFF_KEY, before));
+  }
+  // the source fold keeps its own state: a reload of the week data must not close what was opened
+  let srcOpen = $state(false);
+  let neverOpen = $state(false);
+  // «Never suggest again» (Noah 2.11.2026 «b»): one suggestion away for good; the list «Put away» brings it back
+  async function never(s) {
+    const before = src.sgNever;
+    const name = titleOf(s);
+    await putWeek(SG_NEVER_KEY, [...before.filter((x) => x.ref !== s.ref), { ref: s.ref, title: name }]);
+    offerDone(t('«{name}» is no longer suggested.', { name }), () => putWeek(SG_NEVER_KEY, before));
+  }
+  const showAgain = (n) => putWeek(SG_NEVER_KEY, src.sgNever.filter((x) => x.ref !== n.ref));
+  const seasonSettings = $derived(seasonCfg(src?.seasons));
+  const saveSeasons = (cfg) => putWeek(SEASON_KEY, cfg);
+  let ideasOpen = $state(false);
   const toggleSg = () => putWeek(SG_OPEN_KEY, !sgOpen);
   const hidden = (k) => src?.hide.includes(k);
+  import SeasonIdeas from '../lib/woche/SeasonIdeas.svelte'; // Noah 2.11.2026 «c»
+  import { seasonCfg } from '../lib/woche/kalender.js';
   import BufferPick from '../lib/stand/BufferPick.svelte'; // Paket A part 3: buffer before and after a date
   import { bufferItems } from '../lib/stand/stand.js';
   let buf = $state({ before: 0, after: 0 });
@@ -209,6 +233,19 @@
           {#if sgOpen}
           <div id="wk-sg-body">
           <p class="why">{t('The app suggests, you decide. Take puts it on the day shown.')}</p>
+          <details class="srcs" data-sg-sources open={srcOpen || src.sgOff.length > 0} ontoggle={(e) => (srcOpen = e.currentTarget.open)}>
+            <summary>{src.sgOff.length ? tn(src.sgOff.length, 'Sources · {n} off', 'Sources · {n} off|pl') : t('Where do the suggestions come from?')}</summary>
+            <ul class="srclist">
+              {#each SUGG_SOURCES as k (k)}
+                <li><label><input type="checkbox" checked={!src.sgOff.includes(k)} data-sg-source={k} onchange={() => toggleSource(k)} /><span>{t(SOURCE_NAMES[k])}<small>{tn(week.sources[k], '{n} suggestion', '{n} suggestions')}</small></span></label></li>
+              {/each}
+            </ul>
+            <p class="why">{t('Switch off what you do not want to see. Your own to-dos and Google stay as they are.')}</p>
+            <details class="srcs" data-sg-ideas open={ideasOpen} ontoggle={(e) => (ideasOpen = e.currentTarget.open)}>
+              <summary>{t('Change season ideas')}</summary>
+              <SeasonIdeas cfg={seasonSettings} onsave={saveSeasons} />
+            </details>
+          </details>
           <ul>
             {#each sgShown as s (s.ref)}
               <li class="k-{s.kind}" data-sugg={s.ref}>
@@ -219,12 +256,24 @@
                   {:else if s.act === 'move'}<button type="button" class="btn sm" onclick={() => take(s)}>{t('Move|week')}</button>
                   {:else if s.day}<button type="button" class="btn sm" onclick={() => take(s)}>{t('Take')}</button>{/if}
                   <button type="button" class="btn sm" onclick={() => skip(s)}>{t('Not this week')}</button>
+                  <button type="button" class="btn sm" data-sg-never onclick={() => never(s)}>{t('Never suggest')}</button>
                 </span>
               </li>
             {:else}
               <li class="none">{t('Nothing left to plan.')}</li>
             {/each}
           </ul>
+          {#if src.sgNever.length}
+            <details class="srcs" data-sg-never-list open={neverOpen} ontoggle={(e) => (neverOpen = e.currentTarget.open)}>
+              <summary>{tn(src.sgNever.length, 'Put away · {n}', 'Put away · {n}|pl')}</summary>
+              <ul class="srclist">
+                {#each src.sgNever as n (n.ref)}
+                  <li class="nv"><span>{n.title || n.ref}</span><button type="button" class="btn sm" data-sg-again={n.ref} onclick={() => showAgain(n)}>{t('Show again')}</button></li>
+                {/each}
+              </ul>
+              <p class="why">{t('The app does not suggest these any more.')}</p>
+            </details>
+          {/if}
           {#if sgMore > 0}
             <button type="button" class="phone-more" onclick={() => (sgAll = true)} data-sugg-more><ChevronDown size={16} aria-hidden="true" />{tn(sgMore, 'Show {n} more suggestion', 'Show {n} more suggestions')}</button>
           {/if}
@@ -493,6 +542,52 @@
   }
   .why {
     margin: 0 0 8px;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+  }
+  .srcs > summary {
+    cursor: pointer;
+    color: var(--muted);
+    font-size: var(--fs-small);
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+  }
+  .sg .srclist li {
+    border-top: 0;
+    padding: 2px 0;
+  }
+  .sg .srclist label {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 10px;
+    min-height: 44px;
+    width: 100%;
+    text-align: left;
+  }
+  .sg .srclist input {
+    flex: none;
+    width: 20px;
+    height: 20px;
+    margin: 0;
+  }
+  .sg .srclist li.nv {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 4px 0;
+  }
+  .srclist span {
+    flex: 1;
+    min-width: 0;
+    text-align: left;
+  }
+  .srclist small {
+    display: block;
     color: var(--ink-2);
     font-size: var(--fs-small);
   }
