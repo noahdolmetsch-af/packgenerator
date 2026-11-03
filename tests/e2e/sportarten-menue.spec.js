@@ -46,10 +46,37 @@ test('Meine Sportarten: the menu ⋯ renames, pauses and moves a sport', async (
   await input.press('Enter');
   await expect(rows.first()).toContainText('Testsport');
 
-  // pause it: the row says «pausiert»
+  // pause it: it leaves the list and waits in the folded block «Pausiert und ruhend», where it can be resumed
+  const count = await rows.count();
   await rows.first().locator('[data-row-menu]').click();
   await page.locator('[data-menu="pause"]').click();
-  await expect(rows.first()).toContainText(T('paused'));
+  await expect(rows).toHaveCount(count - 1);
+  const block = page.locator('[data-paused-block]');
+  await block.locator('summary').click();
+  const paused = block.locator('li', { hasText: 'Testsport' });
+  await expect(paused).toBeVisible();
+  await paused.locator('[data-row-menu]').click();
+  await page.locator('[data-menu="pause"]').click(); // «Fortsetzen»
+  await expect(rows).toHaveCount(count);
+});
+
+test('Meine Sportarten: two sports with one name get a hint that can be left', async ({ page, context }) => {
+  await start(page, context);
+  await page.goto('./#/flow/sports');
+  const rows = page.locator('[data-my-sports] > li[data-id]');
+  await expect(rows.first()).toBeVisible();
+  for (const k of [0, 1]) {
+    await rows.nth(k).locator('[data-row-menu]').click();
+    await page.locator('[data-menu="rename"]').click();
+    const input = page.getByRole('dialog').locator('input').first();
+    await input.fill('Doppelsport');
+    await input.press('Enter');
+    await expect(rows.nth(k)).toContainText('Doppelsport');
+  }
+  const hint = page.locator('[data-similar="doppelsport"]');
+  await expect(hint).toBeVisible();
+  await hint.getByRole('button', { name: T('Keep as is|sport') }).click();
+  await expect(hint).toHaveCount(0);
 });
 
 test('Meine Sportarten: sports of trips can be added, renamed and hidden in the list', async ({ page, context }) => {
