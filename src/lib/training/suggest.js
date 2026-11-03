@@ -8,6 +8,7 @@ import { shiftDay, weekOf } from '../training.js';
 import { activeGoals } from '../flow.js';
 
 export const SRC = 'sug'; // src of a session written by a suggestion
+export const FOCUS = ['cardio', 'hit', 'kraft', 'ruhe']; // Ausdauer, Intervalle, Kraft, Erholung
 export const VARIANTS = 3; // «more suggestions»: three layouts of the week
 const NOT_SPORTS = ['bike', 'spin', 'run', 'meditation', 'sauna']; // the core kinds and the quiet ones are not «sports of the week»
 
@@ -32,17 +33,17 @@ const LAYOUTS = [
   [[1, 0.3, 'quality'], [3, 0.3, 'easy'], [5, 0.4, 'long']],
 ];
 const FREE = [[0, 2, 4], [0, 1, 3, 5], [0, 2, 4, 6]]; // days for the sports of each layout
-const NAMES = { easy: 'Easy endurance session', quality: 'Tempo session', long: 'Long session, calm', spin: 'Easy spin', mid: 'Endurance session' };
+const NAMES = { hit: 'Interval session', strength: 'Strength session', easy: 'Easy endurance session', quality: 'Tempo session', long: 'Long session, calm', spin: 'Easy spin', mid: 'Endurance session' };
 
 const round5 = (x) => Math.max(5, Math.round(x / 5) * 5);
 
 /**
  * The suggestion for the week starting on monday. Input: { monday, today, goal, daysToRace (null without a race),
  * level ('rest' | 'easy' | 'normal' | 'hard' | null, today's readiness), recentMins (minutes per week of the last
- * weeks, or null), mainKind ('bike' …), sports (weeklySports), variant (0–2), nameOf (a sport's name in the language shown), hoursSet (hours per week the person chose, else null) }.
+ * weeks, or null), mainKind ('bike' …), sports (weeklySports), variant (0–2), nameOf (a sport's name in the language shown), hoursSet (hours per week the person chose, else null), push (−1 easier, 0, +1 harder), focus (one of FOCUS), strengthSport (id of a strength sport of Aktiv, or null) }.
  * Output: { sessions, why: [{ key, vars }], mins } (why: English keys for t()).
  */
-export function suggestWeek({ monday, today, goal = null, daysToRace = null, level = null, recentMins = null, mainKind = 'bike', sports = [], variant = 0, nameOf = (s) => s.name, hoursSet = null } = {}) {
+export function suggestWeek({ monday, today, goal = null, daysToRace = null, level = null, recentMins = null, mainKind = 'bike', sports = [], variant = 0, nameOf = (s) => s.name, hoursSet = null, push = 0, focus = 'cardio', strengthSport = null } = {}) {
   const v = ((variant % VARIANTS) + VARIANTS) % VARIANTS;
   const why = [];
   let hours;
@@ -64,6 +65,15 @@ export function suggestWeek({ monday, today, goal = null, daysToRace = null, lev
   else if (daysToRace != null && daysToRace > 7 && daysToRace <= 14) (factor = 0.75), why.push({ key: 'Two weeks to your race: a little less.', vars: {} });
   if (level === 'rest') (factor *= 0.6), why.push({ key: 'You are tired today: less.', vars: {} });
   else if (level === 'easy') (factor *= 0.8), why.push({ key: 'You are a little tired today: a bit less.', vars: {} });
+  // «Härter, Leichter, Fokus»: a bit more or less time and effort; the focus changes the kind of week
+  const pushed = Math.max(-1, Math.min(1, Math.round(push)));
+  if (pushed === 1) (factor *= 1.15), why.push({ key: 'Harder: a little more time, more effort in the hard session.', vars: {} });
+  if (pushed === -1) (factor *= 0.8), why.push({ key: 'Easier: a little less time and a calmer hard session.', vars: {} });
+  const foc = FOCUS.includes(focus) ? focus : 'cardio';
+  if (foc === 'ruhe') (factor *= 0.6), why.push({ key: 'Focus recovery: short and calm.', vars: {} });
+  if (foc === 'hit') why.push({ key: 'Focus intervals: two hard sessions, the rest easy.', vars: {} });
+  if (foc === 'kraft') why.push({ key: 'Focus strength: two strength sessions, easy riding.', vars: {} });
+  if (foc === 'cardio') why.push({ key: 'Focus endurance: mostly calm sessions and a long one.', vars: {} });
   const total = Math.round(hours * 60 * factor);
 
   const free = FREE[v];
@@ -77,6 +87,13 @@ export function suggestWeek({ monday, today, goal = null, daysToRace = null, lev
   let sportMin = sportSessions.reduce((a, s) => a + s.mins, 0);
   while (sportSessions.length && sportMin > total / 3) sportMin -= sportSessions.pop().mins;
 
+  // focus strength: two strength sessions on free days (a sport of Aktiv when there is one)
+  const strength = [];
+  if (foc === 'kraft') {
+    const free2 = FREE[v].filter((d) => !taken.has(d) && !sportSessions.some((x) => x.dow === d));
+    free2.slice(0, 2).forEach((dow) => strength.push({ dow, mins: 40 }));
+    sportMin += strength.length * 40;
+  }
   const core = Math.max(30, total - sportMin);
   const base = goal?.base ?? 80;
   const days = weekOf(monday);
@@ -84,9 +101,22 @@ export function suggestWeek({ monday, today, goal = null, daysToRace = null, lev
   // keep the share in Z1–Z2 near the goal: a tempo session becomes an endurance one when the share would be too low
   const low = () => Math.round((rows.filter((r) => r.zone <= 2).reduce((a, r) => a + r.mins, 0) / Math.max(1, rows.reduce((a, r) => a + r.mins, 0))) * 100);
   const q = rows.find((r) => r.role === 'quality');
-  if (q && low() < base) (q.zone = 2), (q.role = 'mid');
+  if (foc === 'hit') {
+    // two hard sessions: the tempo one and the first easy one become intervals
+    const second = rows.find((r) => r.role === 'easy');
+    [q, second].filter(Boolean).forEach((r) => ((r.role = 'hit'), (r.zone = 4)));
+  } else if (foc === 'ruhe' || foc === 'kraft') {
+    if (q) (q.zone = 2), (q.role = 'mid');
+  } else if (q && low() < base) (q.zone = 2), (q.role = 'mid');
+  // harder / easier moves the hard sessions one zone
+  rows.filter((r) => r.zone >= 3).forEach((r) => (r.zone = Math.max(2, Math.min(5, r.zone + pushed))));
+  rows.forEach((r) => {
+    if (r.role === 'quality' && r.zone <= 2) r.role = 'mid';
+    else if (r.role === 'quality' && r.zone >= 4) r.role = 'hit';
+  });
   const sessions = [
     ...rows.map((r) => ({ day: days[r.dow], kind: mainKind, name: NAMES[r.role], mins: r.mins, zone: r.zone })),
+    ...strength.map((x) => ({ day: days[x.dow], kind: 'other', sport: strengthSport || undefined, name: strengthSport ? '' : NAMES.strength, mins: x.mins, zone: null })),
     ...sportSessions.map((s) => ({ day: days[s.dow], kind: 'other', sport: s.sport.id, name: '', mins: s.mins, zone: null })),
   ]
     .sort((a, b) => a.day.localeCompare(b.day))
