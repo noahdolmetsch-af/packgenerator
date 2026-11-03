@@ -12,6 +12,7 @@
    */
   import { liveQuery } from 'dexie';
   import { CloudRain, Wind, TriangleAlert, Train, Sun, ExternalLink, Search, X, Plus, Camera, Mountain, CalendarDays, Target } from '@lucide/svelte';
+  import WindVane from '../lib/wetter/WindVane.svelte'; // «Windfahne beim Wetter» (Paket D, Idee 15)
   import PageHead from '../lib/ui/PageHead.svelte';
   import Crumbs from '../lib/ui/Crumbs.svelte';
   import { db } from '../lib/db.js';
@@ -217,7 +218,7 @@
       {#if line}
         <p class="wx-line">
           <span><Sun size={16} aria-hidden="true" />{num(line.tmin)}–{num(line.tmax)} °C</span>
-          {#if line.windMax != null}<span><Wind size={16} aria-hidden="true" />{line.dir != null ? t('{kmh} km/h from the {dir}', { kmh: num(line.windMax), dir: t(compass(line.dir)) }) : t('{kmh} km/h', { kmh: num(line.windMax) })}</span>{/if}
+          {#if line.windMax != null}<span><WindVane dir={line.dir} kmh={line.windMax} size={26} />{line.dir != null ? t('{kmh} km/h from the {dir}', { kmh: num(line.windMax), dir: t(compass(line.dir)) }) : t('{kmh} km/h', { kmh: num(line.windMax) })}</span>{/if}
           <span><CloudRain size={16} aria-hidden="true" />{line.rainFrom ? t('rain from {at}', { at: hm(line.rainFrom) }) : t('dry')}</span>
         </p>
       {/if}
