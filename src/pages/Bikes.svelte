@@ -19,6 +19,7 @@
   import StravaPage from '../lib/strava/StravaPage.svelte';
   import StravaCheck from '../lib/strava/StravaCheck.svelte';
   import SheetView from '../lib/bikes/SheetView.svelte';
+  import AllHere from '../lib/ui/AllHere.svelte'; // «Alles hier»: every Velos function one tap away (Noah 03.11.2026 «1a»)
   import PageTiles from '../lib/sk/PageTiles.svelte'; // SK: the tile row at the page end
   import RigTab from '../lib/bikes/RigTab.svelte';
   import GarminPages from '../lib/bikes/GarminPages.svelte';
@@ -145,6 +146,7 @@
     <CareTab bikeId={route.bike} open={route.open} tripId={route.trip ?? null} onbike={pickBike} onopened={opened} />
   {:else}
     <AreaIntro place="velos" />
+    <AllHere area="bikes" />
     <BikeCards bikeId={shownBike} onbike={pickBike} />
     <SetupTab bikeId={shownBike} more={route.open} onbike={pickBike} onopened={opened} />
     <PinnedLists place="bikes" />
