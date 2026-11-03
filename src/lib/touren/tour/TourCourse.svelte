@@ -118,7 +118,7 @@
 {#if course}
   <div class="tc" data-tour-course={course.src}>
     <h3 class="tc-h">{t('Elevation profile')}</h3>
-    <ProfileStrip fine={course.fine} upWhole={rideUp} bind:view bind:cursorKm onmove={(km) => onkm?.(km == null ? null : km / total)} />
+    <ProfileStrip ride fine={course.fine} upWhole={rideUp} bind:view bind:cursorKm onmove={(km) => onkm?.(km == null ? null : km / total)} />
     <dl class="tc-sum" data-tour-course-sum>
       <div><dt>{t('Ascent')}</dt><dd class="num">{num(whole.up)} m</dd></div>
       <div><dt>{t('Descent')}</dt><dd class="num">{num(whole.down)} m</dd></div>

@@ -24,6 +24,8 @@
   import { zoomFactor } from './zoomfactor.js';
   import { hhmm } from '../race/race.js';
   import { t, locale } from '../i18n.svelte.js';
+  import { onMount } from 'svelte';
+  import { createRide } from '../touren/abfahren.svelte.js';
 
   let {
     profile = [],
@@ -42,8 +44,12 @@
     meKm = null,
     withMap = true,
     upWhole = null,
+    ride: rideOnOpen = false,
   } = $props();
 
+  // «Höhenprofil wird abgefahren» (Paket E, Idee 13): with `ride`, a dot rides the whole profile once when it appears
+  const ride = createRide(rideOnOpen);
+  onMount(() => ride.start());
   const W = 1000;
   const H = 200;
   const TOP = 6;
@@ -255,13 +261,13 @@
         aria-valuenow={Math.round(cursorKm ?? 0)}
         aria-valuetext={at ? t('km {km}, {m} m', { km: fmtKm(at.km), m: at.m }) : t('No point chosen')}
         onkeydown={key}
-        onpointerdown={pdown}
+        onpointerdown={(e) => (ride.stop(), pdown(e))}
         onpointermove={pmove}
         onpointerup={pup}
         onpointercancel={pup}
         data-profile-box
       >
-        <svg viewBox="0 0 {W} {H}" preserveAspectRatio="none" aria-hidden="true">
+        <svg viewBox="0 0 {W} {H}" preserveAspectRatio="none" aria-hidden="true" style:clip-path={ride.running ? `inset(0 ${((1 - ride.p) * 100).toFixed(2)}% 0 0)` : null}>
           {#each kmTicks.ticks as k (k)}
             <line class="ps-grid" x1={x(k)} x2={x(k)} y1="0" y2={H} vector-effect="non-scaling-stroke" />
           {/each}
@@ -294,6 +300,7 @@
             <line class="ps-cur" x1={x(at.km)} x2={x(at.km)} y1="0" y2={H} vector-effect="non-scaling-stroke" />
           {/if}
         </svg>
+ {#if ride.running && f}<span class="ps-dot" style:left={pctX(vf + ride.p * span)} style:top={pctY(heightAt(f, vf + ride.p * span))} aria-hidden="true" data-ride-dot></span>{/if}
         {#if curIn}<span class="ps-dot" style:left={pctX(at.km)} style:top={pctY(at.m)} aria-hidden="true"></span>{/if}
         {#if meIn}<span class="ps-dot ps-me" style:left={pctX(meKm)} style:top={pctY(heightAt(f, meKm))} aria-hidden="true" data-profile-me></span>{/if}
       </div>
