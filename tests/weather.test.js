@@ -8,7 +8,7 @@ describe('weather from Open-Meteo (answers 4a, 5a)', () => {
     const res = await searchPlace('Bern', fake({ results: [{ name: 'Bern', admin1: 'Bern', country: 'Switzerland', latitude: 46.94809, longitude: 7.44744 }] }));
     expect(res).toEqual([{ name: 'Bern', detail: 'Bern, Switzerland', lat: 46.9481, lon: 7.4474 }]);
     expect(await searchPlace('B', fake({}))).toEqual([]);
-    await expect(searchPlace('Bern', fake({}, false))).rejects.toThrow(/failed/);
+    await expect(searchPlace('Bern', fake({}, false))).rejects.toThrow(/failed|keep working/);
   });
   it('stores the forecast and picks the trip days', async () => {
     const f = await fetchForecast({ name: 'Bern', lat: 46.9, lon: 7.4 }, fake({

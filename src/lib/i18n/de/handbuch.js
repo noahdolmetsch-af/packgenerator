@@ -2091,6 +2091,12 @@ export default {
   'Needs a dream planned as a trip, and the debrief of that trip.': 'Braucht einen als Tour geplanten Traum und den Rückblick dieser Tour.',
   'Plan a dream as a trip (Trips › Dreams › the dream › «Plan the tour»).': 'Plane einen Traum als Tour (Touren › Träume › der Traum › «Tour planen»).',
   'After the trip, finish its debrief.': 'Schliess nach der Tour ihren Rückblick ab.',
+  // «Träume und Neuland» N15
+  'Needs the internet now and then (free weather service) and a home place or a dream with a map.': 'Braucht ab und zu Internet (freier Wetterdienst) und einen Wohnort oder einen Traum mit Karte.',
+  'Give a dream its months; it fits now in one of them.': 'Gib einem Traum seine Monate; in einem davon passt er jetzt.',
+  'Open Trips › Dreams: the app checks the weather of the next 16 days.': 'Öffne Touren › Träume: die App schaut das Wetter der nächsten 16 Tage an.',
+  'Dry days in a row show at the dream: «Fits now, dry Thu–Sat».': 'Trockene Tage am Stück stehen beim Traum: «Passt jetzt, trocken Do–Sa».',
+  'Example: «Over the Furka», 2 days → «Fits now, dry Thu–Sat».': 'Beispiel: «Über die Furka», 2 Tage → «Passt jetzt, trocken Do–Sa».',
   // «Träume und Neuland» N16
   'Needs km, climb or days in the dream (a GPX file or a link brings them), and rides with km.': 'Braucht km, Höhenmeter oder Tage im Traum (eine GPX-Datei oder ein Link bringt sie) und Fahrten mit km.',
   'Open a dream in Trips › Dreams.': 'Öffne einen Traum in Touren › Träume.',

@@ -12,6 +12,7 @@
 import { distKm, ridingHours, climb } from './route.js';
 import { zoneName } from './trips.js';
 import { newDebrief } from './debrief.js';
+import { outageError, isOutage } from './ausfall.js';
 import { t } from './i18n.svelte.js';
 import { ownStages, dayRange, gainBetween, pointAtKm } from './stages.js';
 import { wetHour } from './rainlimit.svelte.js';
@@ -240,8 +241,10 @@ export async function fetchHourly(places, date, fetcher = fetch, now = new Date(
   const out = [];
   for (const p of places) {
     const url = `${API}?latitude=${p.lat}&longitude=${p.lon}&hourly=temperature_2m,precipitation,precipitation_probability,wind_speed_10m,wind_gusts_10m&start_date=${date}&end_date=${endDate}&timezone=auto`;
-    const res = await fetcher(url);
-    if (!res.ok) throw new Error(t('Forecast failed ({status})', { status: res.status }));
+    const res = await fetcher(url).catch((e) => {
+      throw isOutage(e) ? outageError(t('Weather')) : e;
+    });
+    if (!res.ok) throw (isOutage(res.status) ? outageError(t('Weather')) : new Error(t('Forecast failed ({status})', { status: res.status })));
     const { hourly = {} } = await res.json();
     const hours = (hourly.time ?? []).map((t, n) => ({
       t,
