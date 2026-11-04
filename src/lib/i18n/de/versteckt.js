@@ -3,5 +3,6 @@ export default {
   'no plant yet: tap «Plant» above to add one': 'noch keine Pflanze: tippe oben auf «Pflanze», um eine anzulegen',
   'Your daily list «What does me good»': 'Deine tägliche Liste «Was mir gut tut»',
   'small habits to tick, with days and times': 'kleine Gewohnheiten zum Abhaken, mit Tagen und Uhrzeiten',
+  '{n} of {of} ticked today': '{n} von {of} heute abgehakt',
   'Straight to:': 'Direkt zu:',
 };

@@ -30,6 +30,7 @@
   import PowerBlock from '../../lib/training/act/PowerBlock.svelte';
   import LoadCurve from '../../lib/training/act/LoadCurve.svelte';
   import ActAnalyses from '../../lib/training/act/ActAnalyses.svelte';
+  import GhostStrip from '../../lib/training/act/GhostStrip.svelte';
   import AnaSheet from '../../lib/training/AnaSheet.svelte';
   import { dhms } from '../../lib/touren/strava/fmt.js';
 
@@ -109,6 +110,9 @@
           {#if act.pauses?.n > 0}<span data-val="pauses"><b>{act.pauses.n} · {dhms(pauseSecs(act) ?? 0)}</b><small>{t('Breaks|act')}</small></span>{/if}
           {#if !meter && act.wAvg != null}<span data-power="avg"><b>{act.wAvg} W</b><small>{t('Ø power (Strava estimate)')}</small></span>{/if}
         </div>
+
+        <!-- «Beat your Ghost» (Noah 04.11.2026 «2a»): the result in one line, a tap goes to the card -->
+        <GhostStrip {act} all={$allQ ?? []} />
 
         <!-- «Strava-Fahrt vollständig» (Noah 19.10.2026 «2a»): kind, commute, device, bests, «How hard?», comment; loaded only here -->
         {#await import('../../lib/training/act/RideFacts.svelte') then m}<m.default {act} />{/await}

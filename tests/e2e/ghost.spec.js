@@ -45,6 +45,15 @@ test('Schlag deinen Geist: Vergleich mit der Fahrt auf derselben Strecke', async
   await expect(card.locator('[data-ghost-pick] option').first()).toContainText('gleiche Route');
   await expect(card.locator('[data-ghost-verdict]')).toHaveAttribute('data-ghost-verdict', 'samepower-less');
   await expect(card.locator('[data-ghost-verdict]')).toHaveText('Gleiche Leistung wie dein Geist, 4 Schläge weniger Puls.');
+  await expect(card.locator('[data-ghost-result]')).toHaveAttribute('data-ghost-result', 'beat');
+  await expect(card.locator('[data-ghost-result]')).toContainText('Geist geschlagen');
+  await expect(card.locator('[data-ghost-row="hr"] .ck')).toHaveCount(1);
+  // the result also stands in one line under the numbers; a tap lights the card
+  const strip = page.locator('[data-ghost-strip]');
+  await expect(strip).toContainText('Geist geschlagen');
+  await expect(strip).toContainText('Gleiche Leistung wie am');
+  await strip.click();
+  await expect(card).toHaveAttribute('data-spot-on', 'ghost');
   await expect(card.locator('[data-ghost-row="hr"]')).toContainText('138');
   await expect(card.locator('[data-ghost-row="hr"]')).toContainText('142');
   await expect(card.locator('[data-ghost-row="hr"]')).toContainText('−4');
