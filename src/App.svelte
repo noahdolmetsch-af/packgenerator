@@ -45,7 +45,7 @@
   import { pageKeyOf } from './lib/anpassen.js';
   import { placeLabel, tabLabel } from './lib/anpassen.svelte.js';
   import Keys from './lib/nav/Keys.svelte';
-  import { shortcutOf, typing, G_WAIT } from './lib/nav/keys.js';
+  import { shortcutOf, typing, isSearchChord, G_WAIT } from './lib/nav/keys.js';
   import { sortBikes } from './lib/bikes.js';
   import { withVisits } from './lib/workshop.js';
   import { bikeCare } from './lib/readiness.js';
@@ -162,8 +162,19 @@
   $effect(() => {
     const open = () => (keysOpen = true);
     let gAt = 0;
+    const openSearch = () => {
+      const field = document.querySelector('.side .search input');
+      if (field) field.focus();
+      else document.querySelector('header.top .search button.icon')?.click();
+    };
     const key = (e) => {
       // FE6 (Noah 13.10.2026): the shortcuts can be switched off in Ich › Darstellung › Bedienung
+      // «Frage deine Daten» (Noah 03.11.2026): ⌘ K / Ctrl K opens the search from anywhere, except under an open dialog
+      if (ops.keys && isSearchChord(e) && !document.querySelector('dialog[open], [role="dialog"][aria-modal="true"]')) {
+        e.preventDefault();
+        openSearch();
+        return;
+      }
       if (!ops.keys || typing(e)) return;
       const afterG = Date.now() - gAt < G_WAIT;
       const s = shortcutOf(e.key, afterG, place);
@@ -174,11 +185,7 @@
       else if (s.act === 'me') location.hash = '#/me';
       else if (s.act === 'help') keysOpen = true;
       else if (s.act === 'new' && !guest) newMode = 'all';
-      else if (s.act === 'search') {
-        const field = document.querySelector('.side .search input');
-        if (field) field.focus();
-        else document.querySelector('header.top .search button.icon')?.click();
-      }
+      else if (s.act === 'search') openSearch();
     };
     window.addEventListener('pg:keys', open);
     document.addEventListener('keydown', key);
