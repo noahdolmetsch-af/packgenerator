@@ -40,7 +40,7 @@
   import Seg from '../lib/ui/Seg.svelte';
   import VeloHead from '../lib/bikes/VeloHead.svelte';
   import HomePlaceSheet from '../lib/ich/HomePlaceSheet.svelte';
-  import { Leaf, HeartHandshake, Globe, Palette, House, Inbox, NotebookPen, Database, Info, Lightbulb, Keyboard, ChevronRight, ChevronDown, Sparkles, Archive, FlaskConical, TriangleAlert, Star, ListChecks, ClipboardList, History, CreditCard, Hand, BookOpen, LayoutGrid, Compass, ListTree, CircleHelp, Check, Bell, ListTodo, SlidersHorizontal, FileText, Scale, CalendarCheck, CalendarDays, BellRing, Mail, Backpack, Link2, Wrench, ExternalLink, CalendarClock, FolderOpen, Images, Target, ShieldCheck, GraduationCap, ShoppingCart, MessageCircle, Search as SearchIcon } from '@lucide/svelte';
+  import { Leaf, Globe, Palette, House, Inbox, NotebookPen, Database, Info, Lightbulb, Keyboard, ChevronRight, ChevronDown, Sparkles, Archive, FlaskConical, TriangleAlert, Star, ListChecks, ClipboardList, History, CreditCard, Hand, BookOpen, LayoutGrid, Compass, ListTree, CircleHelp, Check, Bell, ListTodo, SlidersHorizontal, Scale, CalendarDays, BellRing, Mail, Backpack, Link2, Wrench, ExternalLink, CalendarClock, FolderOpen, Target, ShieldCheck, GraduationCap, ShoppingCart, MessageCircle, Search as SearchIcon } from '@lucide/svelte';
   import { wide } from '../lib/media.svelte.js';
   import QuickLinks from '../lib/ui/QuickLinks.svelte';
   import { WHATS_NEW, shortVersion, newerThan, BEFORE } from '../lib/whatsnew.js';
@@ -63,11 +63,7 @@
   import Btn from '../lib/ui/Btn.svelte';
   import VersionRow from '../lib/ich/VersionRow.svelte';
   import '../lib/ich/ich.css';
-  import { docs as docList } from '../lib/docs/client.svelte.js';
-  import { dueCount } from '../lib/docs.js';
   import { agenda } from '../lib/agenda/client.svelte.js';
-  // P3b (D3): how many documents expire soon (the yellow pill on «Documents»)
-  const docDue = $derived(dueCount(docList.list, localDay()));
   // «Heute neu» A 5b (Noah 20.10.2026): the banner «New in …» after an update lives here under Ich, not on Heute
   let newsBanner = $state(
     (() => {
@@ -211,7 +207,7 @@
       <!-- UI-Ziele #6 (Noah 20.10.2026 «freigabe», 4a): Ich keeps data, settings and help. Freie Zeit, Alltag,
            Termine, Mail, Notizen, Eingang and Kompass are under Planen; Wi gaht's?, Erkenntnisse, Was mir gut tut
            and Gewicht under Auswerten; Material under Velos. One quiet line says where they went. -->
-      <p class="card moved-to" role="note" data-me-moved><Info size={16} aria-hidden="true" /><span>{t('Looking for appointments, notes, the diary or the Inbox? They are under')} <a href="#/week">{t('Plan|place')}</a>{t('; your questions, insights and weight under')} <a href="#/auswerten">{t('Analysis|place')}</a>{t(', the gear under')} <a href="#/gear">{t('Bikes|place')}</a>. {t('The toolbox is a tab of')} <a href="#/me/tools">{t('Trips|place')}</a>{t(', Inspiration and your links are tabs of')} <a href="#/inspiration">{t('Plan|place')}</a>.</span></p>
+      <p class="card moved-to" role="note" data-me-moved><Info size={16} aria-hidden="true" /><span>{t('Looking for appointments, notes, the diary or the Inbox? They are under')} <a href="#/week">{t('Plan|place')}</a>{t('; your questions, insights and weight under')} <a href="#/auswerten">{t('Analysis|place')}</a>{t(', the gear under')} <a href="#/gear">{t('Bikes|place')}</a>. {t('The toolbox is a tab of')} <a href="#/me/tools">{t('Trips|place')}</a>{t(', Inspiration and your links are tabs of')} <a href="#/inspiration">{t('Plan|place')}</a>. {t('Documents, photo album, friends and mini tools are in «All here» on')} <a href="#/week">{t('Plan|place')}</a>.</span></p>
       <section class="ich-sec" aria-labelledby="me-data-h">
         <div class="ich-h"><div><h2 id="me-data-h">{t('Data')}</h2></div></div>
         <ul class="card ich-list">
@@ -223,42 +219,10 @@
             </a>
           </li>
           <li>
-            <!-- P3b «Daten sicher» (D3): passport, insurance, emergency; reminders before they expire -->
-            <a class="ich-row" href="#/me/docs">
-              <span class="ich-ib"><FileText size={18} aria-hidden="true" /></span>
-              <span class="ich-m"><b>{t('Documents')}</b><small>{docList.list.length ? tn(docList.list.length, '{n} document', '{n} documents') : t('Passport, insurance, emergency sheet')}{docDue ? ` · ${tn(docDue, '{n} expires soon', '{n} expire soon')}` : ''}</small></span>
-              <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
-            </a>
-          </li>
-          <li>
             <!-- package G #155: every connection in one place (Strava, Fitbit, Google, lake), with its switches -->
             <a class="ich-row" href="#/me/connections" data-row="connections">
               <span class="ich-ib"><Link2 size={18} aria-hidden="true" /></span>
               <span class="ich-m"><b>{t('Connections')}</b><small>{t('Strava, Fitbit, Google, lake: state and switches')}</small></span>
-              <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
-            </a>
-          </li>
-          <li>
-            <!-- Paket P8 «Fotoalbum»: all photos of the app by month and place -->
-            <a class="ich-row" href="#/me/album" data-row="album">
-              <span class="ich-ib"><Images size={18} aria-hidden="true" /></span>
-              <span class="ich-m"><b>{t('Photo album')}</b><small>{t('All photos by month and place')}</small></span>
-              <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
-            </a>
-          </li>
-          <li>
-            <!-- Paket D «Mit Freunden» (Noah 24.10.2026 «3b»): ask friends, the lending shelf, share a template -->
-            <a class="ich-row" href="#/me/freunde" data-row="freunde">
-              <span class="ich-ib"><HeartHandshake size={18} aria-hidden="true" /></span>
-              <span class="ich-m"><b>{t('With friends')}</b><small>{t('Ask friends, lending shelf, share a template')}</small></span>
-              <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
-            </a>
-          </li>
-          <li>
-            <!-- Mini-Tools (Noah 28.10.2026 «2a»): ask a group by link, the answers are counted -->
-            <a class="ich-row" href="#/me/mini" data-row="minitools">
-              <span class="ich-ib"><CalendarCheck size={18} aria-hidden="true" /></span>
-              <span class="ich-m"><b>{t('Mini tools')}</b><small>{t('Find a date with others')}</small></span>
               <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
             </a>
           </li>
