@@ -164,3 +164,41 @@ describe('one session of a wanted sport stays (3c)', () => {
     expect(r.sessions.filter((s) => s.sport === 'rowing').length).toBe(1);
   });
 });
+
+describe('own changes are remembered (3d)', () => {
+  const sug0 = () => suggestWeek(base).sessions;
+  const tempo = () => sug0().find((s) => s.name === 'Tempo session');
+  it('learns from removing a session and applies it only after two times', async () => {
+    const { learnHabits } = await import('../src/lib/training/suggest.js');
+    const before = sug0();
+    const gone = tempo();
+    const after = before.filter((s) => s.id !== gone.id);
+    const once = learnHabits(null, before, after);
+    expect(once.drop[gone.name]).toBe(1);
+    expect(suggestWeek({ ...base, habits: once }).sessions.some((s) => s.name === gone.name)).toBe(true);
+    const twice = learnHabits(once, before, after);
+    expect(twice.drop[gone.name]).toBe(2);
+    const r = suggestWeek({ ...base, habits: twice });
+    expect(r.sessions.some((s) => s.name === gone.name)).toBe(false);
+    expect(r.why.some((w) => /twice/.test(w.key) && w.vars.name === gone.name)).toBe(true);
+  });
+  it('learns minutes and never drops the long session', async () => {
+    const { learnHabits } = await import('../src/lib/training/suggest.js');
+    const before = sug0();
+    const t0 = tempo();
+    const longS = before.find((s) => s.name === 'Long session, calm');
+    const after = before.map((s) => (s.id === t0.id ? { ...s, mins: s.mins * 2 } : s)).filter((s) => s.id !== longS.id);
+    let h = learnHabits(null, before, after);
+    h = learnHabits(h, before, after);
+    expect(h.mins[t0.name].ratio).toBeCloseTo(2, 1);
+    const r = suggestWeek({ ...base, habits: h });
+    expect(r.sessions.find((s) => s.name === t0.name).mins).toBeGreaterThan(t0.mins * 1.4);
+    expect(r.sessions.some((s) => s.name === 'Long session, calm')).toBe(true);
+  });
+  it('forgets a little when taken as suggested', async () => {
+    const { learnHabits } = await import('../src/lib/training/suggest.js');
+    const before = sug0();
+    const h = learnHabits({ drop: { 'Easy spin': 1 }, mins: {} }, before, before);
+    expect(h.drop['Easy spin']).toBeUndefined();
+  });
+});
