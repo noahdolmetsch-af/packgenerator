@@ -22,6 +22,7 @@ Baut auf PR «Geheimnis im Logo» (Velo, Idee 29) auf: gleiche fünf Tipps, glei
 - Der Spruch ist nicht abschaltbar und nicht im Funktionskatalog (wie das Velo: ein Geheimnis). Verraten nur im «Neu»-Eintrag mit Sprung zur Liste.
 - Die deutsche Datei des Velos (`logo-geheimnis.js`) war nirgends in `de/index.js` eingebunden; ich habe sie dort mit eingetragen, sonst blieb «Have a good ride!» englisch.
 - Die E2E-Tests setzen den Zufall nach dem Laden fest (`Math.random`), damit sie nicht flackern. Das bestehende Velo-Spec tut das jetzt auch.
+- Nur eine «Neu»-Datei pro PR: zwei Dateien in einem PR bekommen dieselbe Version (doppelte Versionsnummer, `tests/whatsnew.test.js` wird rot). Der «Neu»-Eintrag des Velos (aus #759) steckt deshalb in `logo-spruch.js`; die Release-Datei `logo-geheimnis.md` bleibt.
 - `docs/app-stand.md`: die Zeile «Listen und Typen» nennt jetzt auch die Sprüche im Logo.
 
 ## Entscheide (für decisions.md)
