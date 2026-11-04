@@ -2,7 +2,7 @@
 // Training, Erholung), «Auswerten» for looking; it shares Aktiv's place in the bar. Pure functions, no data.
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
-import { PLACES, SIDE_PLACES, PLACE_TABS, ANALYSIS, barPlace, placeOf, pageOf } from '../src/lib/nav.js';
+import { PLACES, SIDE_PLACES, PLACE_TABS, TAB_GROUPS, groupTabs, ANALYSIS, barPlace, placeOf, pageOf } from '../src/lib/nav.js';
 import { sportHref, actSport } from '../src/lib/flow/mysports.js';
 import { BIKE_ACT } from '../src/lib/sportsbase.js';
 
@@ -96,5 +96,23 @@ describe('«Nächstes Ziel» and shorter milestones (Noah 27.10.2026 «2a 3a»)'
   it('Meine Sportarten shows the next goal; the milestones page folds on a phone', () => {
     expect(readFileSync('src/pages/flow/MySports.svelte', 'utf8')).toContain('<NextGoalRow');
     expect(readFileSync('src/pages/flow/Milestones.svelte', 'utf8')).toContain('data-ms-fold="all"');
+  });
+});
+
+// «Aktiv und Auswerten» 2a (Noah 03.11.2026): «Alle n» of Auswerten stands in three groups by question
+describe('Auswerten in groups by question', () => {
+  const all = PLACE_TABS.analysis;
+  it('three groups: how am I doing, what did I do, what did I learn', () => {
+    expect(TAB_GROUPS.analysis.map((g) => g.label)).toEqual(['How am I doing?|group', 'What did I do?|group', 'What did I learn?|group']);
+    const keys = groupTabs('analysis', all).map((g) => g.items.map((x) => x.key));
+    expect(keys[0]).toEqual(expect.arrayContaining(['form', 'body', 'history', 'wohl', 'weight', 'insights']));
+    expect(keys[1]).toEqual(expect.arrayContaining(['rides', 'ticks', 'milestones']));
+    expect(keys[2]).toContain('analyse');
+  });
+  it('every key of a group is a real tab, and no tab is lost or stands twice', () => {
+    const names = all.map((x) => x.key);
+    for (const g of TAB_GROUPS.analysis) for (const k of g.keys) expect(names).toContain(k);
+    const shown = groupTabs('analysis', all).flatMap((g) => g.items.map((x) => x.key));
+    expect([...shown].sort()).toEqual([...names].sort());
   });
 });

@@ -18,6 +18,14 @@
   let all = $state(false);
   let open = $state({});
   const shown = $derived(all ? rows : rows.slice(0, SHOWN));
+  // a new page starts short and closed again (the card stays mounted when only the hash changes)
+  let seen = '';
+  $effect.pre(() => {
+    if (key === seen) return;
+    seen = key;
+    all = false;
+    open = {};
+  });
 
   async function setFold(on) {
     const cur = foldMapOf((await db.settings.get(FOLD_KEY))?.value);

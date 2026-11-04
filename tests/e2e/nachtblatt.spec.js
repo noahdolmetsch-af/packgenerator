@@ -49,6 +49,10 @@ test('Live map: the night sheet opens from the menu and shows verdict, bed, shop
   await expect(sheet.locator('[data-night-verdict]')).toBeVisible();
   await expect(sheet.locator('[data-night-bed]')).toBeVisible();
   await expect(sheet.locator('[data-night-shop]')).toBeVisible();
+  // the way out: the nearest station, ahead or behind, with a navigate button
+  await expect(sheet.locator('[data-night-exit]')).toBeVisible();
+  await expect(sheet.locator('[data-night-exit-row]').first()).toBeVisible();
+  await expect(sheet.locator('[data-night-exit-go]').first()).toBeVisible();
   await expect(sheet.locator('[data-night-pauses]')).toBeVisible();
   await expect(sheet.locator('[data-night-goals]')).toContainText('test_data_gtp_ Traumtag');
   // «Wie müde bist du?» is answered right here

@@ -10,6 +10,7 @@
   import { Sun, CloudRain, ChevronRight } from '@lucide/svelte';
   import { db } from '../db.js';
   import { HOME_PLACE } from '../know.js';
+  import { REFRESHED } from '../home/refresh.js'; // «Ziehen zum Aktualisieren» (Paket D, Idee 10)
   import { loadCore, outdoorOk, rainWithin, LANDI_RADAR } from './kern.js';
   import LakeChip from '../lake/LakeChip.svelte';
   import { t, num, locale } from '../i18n.svelte.js';
@@ -24,6 +25,15 @@
     key = k;
     core = null;
     if (place) loadCore(db, place).then((c) => k === key && (core = c)).catch(() => {});
+  });
+  // after a pull to refresh on Today the weather answer is new: read it again
+  $effect(() => {
+    const again = () => {
+      const pl = place;
+      if (pl) loadCore(db, pl).then((c) => (core = c)).catch(() => {});
+    };
+    globalThis.addEventListener(REFRESHED, again);
+    return () => globalThis.removeEventListener(REFRESHED, again);
   });
   const now = Date.now();
   const good = $derived(core ? outdoorOk(core, now) : null);

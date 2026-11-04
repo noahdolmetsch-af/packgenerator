@@ -1740,6 +1740,53 @@ html[data-vt] [data-tour-page] h1 {
   animation-timing-function: var(--ease-out);
 }
 
+/* «Richtung zeigen» (Noah 03.11.2026 «b», Paket A Seitenwechsel 1): a page that goes deeper glides in from the right,
+   the way back from the left (src/lib/nav/slide.js, the mark data-slide on <main> lasts as long as the glide).
+   Only opacity and a short shift move, the tab bars and the path line stand still; the old page is gone at once.
+   «Reduce motion» and the switch «Bewegung: Aus» (theme.svelte.js) switch it off. */
+@keyframes sw-slide-fwd-a {
+  from {
+    opacity: 0;
+    transform: translateX(22px);
+  }
+}
+@keyframes sw-slide-fwd-b {
+  from {
+    opacity: 0;
+    transform: translateX(22px);
+  }
+}
+@keyframes sw-slide-back-a {
+  from {
+    opacity: 0;
+    transform: translateX(-22px);
+  }
+}
+@keyframes sw-slide-back-b {
+  from {
+    opacity: 0;
+    transform: translateX(-22px);
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  /* the shift never widens the page: while it glides, what leaves the column sideways is cut off (clip, so nothing scrolls) */
+  main[data-slide] {
+    overflow-x: clip;
+  }
+  main[data-slide='fwd0'] > :not(.ptwrap):not(.psw):not(.pathrow) {
+    animation: sw-slide-fwd-a 200ms var(--ease-out) backwards;
+  }
+  main[data-slide='fwd1'] > :not(.ptwrap):not(.psw):not(.pathrow) {
+    animation: sw-slide-fwd-b 200ms var(--ease-out) backwards;
+  }
+  main[data-slide='back0'] > :not(.ptwrap):not(.psw):not(.pathrow) {
+    animation: sw-slide-back-a 200ms var(--ease-out) backwards;
+  }
+  main[data-slide='back1'] > :not(.ptwrap):not(.psw):not(.pathrow) {
+    animation: sw-slide-back-b 200ms var(--ease-out) backwards;
+  }
+}
+
 /* «Neuer Schwung» Teil 2 (Noah 26.10.2026 «4a»: motion everywhere, kept subtle): Heute comes alive when it opens.
    The tiles fade in one after another (at most ten steps, 40 ms apart), big numbers rise in, packing bars fill
    from the left and rings draw themselves. Only opacity, clip-path and stroke move: no box changes size or

@@ -75,6 +75,7 @@
   import MedReview from './flow/MedReview.svelte';
   import { sportHref } from '../lib/flow/mysports.js';
   import { localDay } from '../lib/localday.js';
+  import { sonntagsFaden } from '../lib/sonntag.js';
   import { phone } from '../lib/media.svelte.js';
   import { t, tn, locale } from '../lib/i18n.svelte.js';
 
@@ -89,6 +90,7 @@
   const live = $derived(states.filter((s) => !s.resting));
   const rings = $derived(ringsOf(states, data?.log ?? [], today));
   // WS6 (Noah 3a): what counts for «Erholung», in the fold under the rings, with «zuletzt am»
+  const faden = sonntagsFaden();
   const rest = $derived(restRows(states, data?.log ?? [], today));
   const lastLine = (r) => (r.last ? [t('last {date}', { date: fmt(r.last.day, { weekday: 'short', day: 'numeric', month: 'short' }) }), r.last.min ? t('{n} min', { n: r.last.min }) : ''].filter(Boolean).join(' · ') : t('not yet'));
   const fmt = (d, o) => new Date(`${d}T00:00:00Z`).toLocaleDateString(locale(), { timeZone: 'UTC', ...o });
@@ -213,6 +215,13 @@
         <div class="col">
           <Sec id="week-h" title={t('This week')} sub={t('your ticks and fixed dates · a tap plans the week')}>
             <WeekGlance acts={data.acts} {states} log={data.log} {today} />
+            <!-- «Aktiv und Auswerten» 3a (Noah 03.11.2026): the way to the Wochenrückblick and the training plans starts here;
+                 from Friday evening to Monday the Sunday thread says the week is nearly over -->
+            {#if faden}<a class="faden" href="#/flow/review" data-week-faden>{t(faden.text)}<ChevronRight size={16} aria-hidden="true" /></a>{/if}
+            <div class="wklinks">
+              <a class="btn btn-link sm" href="#/flow/review" data-to-review>{t('Week in review')}<ChevronRight size={16} aria-hidden="true" /></a>
+              <a class="btn btn-link sm" href="#/flow/plans" data-to-plans>{t('Training plans')}<ChevronRight size={16} aria-hidden="true" /></a>
+            </div>
           </Sec>
           <Sec id="ring-h" title={t('Rings')} sub={t('last 7 days against your goals')} more={{ href: '#/flow/form', label: t('See your form') }}>
             <div class="card ringc">
@@ -288,6 +297,27 @@
     margin: var(--sp-2) 2px 0;
     color: var(--ink-3);
     font-size: var(--fs-small);
+  }
+  /* «Aktiv und Auswerten» 3a: links under the week card */
+  .wklinks {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 var(--sp-4);
+    margin-top: var(--sp-1);
+  }
+  .faden {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--sp-2);
+    min-height: 44px;
+    margin-top: var(--sp-2);
+    padding: 0 var(--sp-4);
+    border: 1px solid var(--line);
+    border-radius: var(--r-ctl);
+    color: var(--ink);
+    font-weight: 600;
+    text-decoration: none;
   }
   .ringc {
     padding: var(--sp-4) var(--sp-5);

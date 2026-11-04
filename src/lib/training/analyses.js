@@ -21,6 +21,8 @@ export const ANALYSES = {
     { key: 'grid', title: 'Heart rate by power', sub: 'Grid in minutes' },
     { key: 'halves', title: 'First against second half', sub: 'Bars and one sentence' },
     { key: 'similar', title: 'Similar rides', sub: 'Dots' },
+    // «Beat your Ghost» (Noah 03.11.2026, Cockpit-Idee 4): this ride against an earlier one of yours
+    { key: 'ghost', head: 'Beat your ghost', title: 'Beat your ghost', sub: 'An earlier ride of yours' },
     { key: 'best', title: 'Best values', sub: 'Table' },
     // «Mehr Inhalt» (Noah 15.10.2026 «1-5 a»): T2 hard pieces, T5 the same route over time
     { key: 'intervals', head: 'Hard pieces of this ride', title: 'Intervals', sub: 'Found from the power' },
