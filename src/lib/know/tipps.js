@@ -13,7 +13,6 @@ export const FINDERS = ['#/quick', '#/features', '#/me/handbook', '#/me/karte'];
  * near enough, so it is taken off, and tests/tippzahl.test.js keeps the list from growing.
  */
 export const TAP_GAPS = [
-  '#/bikes?tab=rig&view=log',
   '#/bikes?tab=setup',
   '#/blocks/aufraeumen',
   '#/blocks/check',
