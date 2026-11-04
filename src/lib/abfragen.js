@@ -205,21 +205,38 @@ export const QUESTIONS = [...BASE_QUESTIONS, ...SAMPLE_QUESTIONS];
 // 03.11.2026 «Fragen aus deinen Daten»: their answers land in the same history, so the lookup knows them too (not in the list)
 export const QUESTION = Object.fromEntries([...QUESTIONS, ...HELLO_QUESTIONS, ...Object.values(DATA_QUESTIONS)].map((x) => [x.id, x]));
 
-/** Noah 14.10.2026 00:06:33: 31 of the 50 are on at the start, as drawn in AB5 (per area 4·4·3·3·2·3·2·3·4·3); Paket P adds its 4 evening questions, on: 35. */
+/**
+ * Noah 14.10.2026 00:06:33: 31 of the 50 are on at the start, as drawn in AB5 (per area 4·4·3·3·2·3·2·3·4·3); Paket P adds its 4
+ * evening questions, on: 35. Noah 04.11.2026 «bereinigen, wo wir sachen doppelt haben» (Tagescheck, «3a»): one question per topic,
+ * six that asked the same as another are off at the start (MERGED_INTO): 29.
+ */
 export const ON_AT_START = new Set([
   'erholung.schlaf', 'erholung.akku', 'erholung.koerper', 'erholung.kaffee',
-  'spass.grinser', 'spass.emoji', 'spass.stimmung', 'spass.coolstes',
-  'sport.beine', 'sport.fit', 'sport.bewegung',
+  'spass.stimmung', 'spass.coolstes',
+  'sport.bewegung',
   'achtsamkeit.kopf', 'achtsamkeit.moment', 'achtsamkeit.tabs',
   'freunde.verbunden', 'freunde.laecheln',
   'natur.draussen', 'natur.wetter', 'natur.luft',
   'visionen.vision', 'visionen.tour',
-  'ziele.ziel', 'ziele.freude', 'ziele.liegen',
+  'ziele.ziel', 'ziele.liegen',
   'erreicht.zufrieden', 'erreicht.ziel', 'erreicht.stolz', 'erreicht.pokal',
-  'koerper.waage', 'koerper.ruhepuls', 'koerper.wochenschlaf',
+  'koerper.waage', 'koerper.ruhepuls',
   // Paket P (Noah 19.10.2026 «4a»): the four evening questions of «Was mir gut tut»
   'erholung.raeuber', 'freunde.allein', 'freunde.alleingut', 'ziele.umplanen',
 ]);
+
+/**
+ * Noah 04.11.2026 «3a» (Tagescheck, one question per topic): the questions that are off at the start because another one asks
+ * the same, and which one that is. They stay in the list (switch them on again any time) and their old answers stay in the history.
+ */
+export const MERGED_INTO = {
+  'spass.grinser': 'spass.stimmung',
+  'spass.emoji': 'spass.stimmung',
+  'sport.beine': 'erholung.koerper',
+  'sport.fit': 'erholung.koerper',
+  'ziele.freude': 'ziele.ziel',
+  'koerper.wochenschlaf': 'erholung.schlaf',
+};
 
 /** The units an answer can have (AB2 quick choice kg, min, h, km; cups and bpm from the list). */
 export const UNITS = { kg: 'kg', min: 'min', h: 'h', km: 'km', cups: 'cups', bpm: 'bpm' };

@@ -34,6 +34,8 @@
   import TripWeather from './TripWeather.svelte';
   import LessonsCard from './LessonsCard.svelte';
   import PlanNotesCard from './PlanNotesCard.svelte';
+  import ExpectPick from './ExpectPick.svelte';
+  import ReasonPick from './ReasonPick.svelte';
   import DocChecks from './DocChecks.svelte';
   import WhySheet from './WhySheet.svelte'; // P3 «Warum? und Regeln» (RG1): why a row is on the list
   import { hasStages } from '../stages.js';
@@ -336,7 +338,11 @@
     <!-- «Mehr Inhalt» (Noah 15.10.2026, 1a–5a): the tip of the day, a fitting «Passt zu heute» first -->
     <HintCard page="pack" />
     {#if trip.skipped}<p class="tp-status">{bikeTrip ? t('Not riding') : t('Not going')}</p>{/if}
+    <!-- Persönliches Lernen Idee 4 (Noah 04.11.2026 «2a»): one tap says why -->
+    {#if trip.skipped}<ReasonPick {trip} kind="skipped" />{/if}
     <!-- v0.47.0 (Noah 8 a+b): the focal point of a bike trip: the drawing with the bag weights, or the setup photo -->
+    <!-- Persönliches Lernen Idee 1 (Noah 04.11.2026 «1a»): the guess for a bike tour, high up so it is seen -->
+    {#if bikeTrip}<ExpectPick {trip} {fixed} />{/if}
     {#if planTop}
       <div class="plan-top">
         <div class="pcol">

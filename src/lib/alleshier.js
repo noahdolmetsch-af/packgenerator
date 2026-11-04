@@ -6,6 +6,7 @@
  * src/lib/ui/AllHere.svelte, tested in tests/alleshier.test.js.
  */
 import { FEATURES } from './features.js';
+import { TIP } from './tips.js';
 
 /**
  * The functions of each area, in their first order. One PR per area adds its list. An entry is a feature id, or
@@ -29,6 +30,42 @@ export const ALL_HERE = {
     'f.merge',
     'f.lighter',
   ],
+  trips: [
+    { id: 'numbers', title: 'In numbers', href: '#/trips?numbers' },
+    'templates',
+    'f.fuel',
+    'f.tripcompare',
+    'f.weather',
+    'f.travel',
+    'f.tripcheck',
+    'f.departsheet',
+    'f.dreams',
+    'f.race',
+    'f.racecheck',
+    { id: 'ski', title: 'Ski tours', href: '#/ski' },
+    { id: 'mountain', title: 'Mountain and emergency', href: '#/mountain' },
+    'f.quiz',
+  ],
+  plan: [
+    'f.agenda',
+    'f.remember',
+    { id: 'notes', title: 'Notes', href: '#/notes' },
+    'f.inbox',
+    { id: 'matters', title: 'Matters', href: '#/inbox/vorgaenge' },
+    'f.reminders',
+    'f.shopping',
+    'f.cook',
+    'f.contracts',
+    'f.people',
+    { id: 'friends', title: 'With friends', href: '#/me/freunde' },
+    { id: 'minitools', title: 'Mini tools', href: '#/me/mini' },
+    'f.journal',
+    'f.photoalbum',
+    'f.docs',
+    'f.compass',
+    'f.ruhig',
+    'f.plantpass',
+  ],
 };
 
 const idOf = (e) => (typeof e === 'string' ? e : e.id);
@@ -40,7 +77,8 @@ export const allHereKey = (area) => `alleshier.${area}`;
 const BY_ID = Object.fromEntries(FEATURES.map((f) => [f.id, f]));
 
 /** A function the field can show: it has a page in features.js. */
-const known = (id) => !!(ENTRY[id] ?? BY_ID[id])?.href;
+const pageOf = (id) => ENTRY[id]?.href ?? BY_ID[id]?.href ?? (BY_ID[id]?.tip ? TIP[BY_ID[id].tip]?.go?.href : null) ?? null;
+const known = (id) => !!pageOf(id);
 
 /** The ids of an area, in their first order. */
 export const areaIds = (area) => (ALL_HERE[area] ?? []).map(idOf);
@@ -52,8 +90,10 @@ export const areaIds = (area) => (ALL_HERE[area] ?? []).map(idOf);
 export function tileOf(id, vars = {}) {
   if (ENTRY[id]) return { ...ENTRY[id] };
   const f = BY_ID[id];
-  if (!f?.href) return null;
-  const href = f.href.replace(/\{(\w+)\}/g, (m, k) => (vars[k] != null ? encodeURIComponent(vars[k]) : m));
+  // a function from the tips (tips.js) has its page in go.href
+  const page = pageOf(id);
+  if (!page) return null;
+  const href = page.replace(/\{(\w+)\}/g, (m, k) => (vars[k] != null ? encodeURIComponent(vars[k]) : m));
   if (href.includes('{')) return null;
   return { id, title: f.title, href };
 }

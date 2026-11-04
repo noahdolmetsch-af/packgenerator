@@ -38,8 +38,10 @@ export const PASSES = [
   { key: 'marchairuz', name: 'Col du Marchairuz', m: 1447, lat: 46.522, lon: 6.233 },
 ];
 
-/** How close a ride's line must come to the top of a pass (km). */
-export const RADIUS_KM = 1.2;
+import { MAYBE_KM } from '../passregel.js';
+
+/** How close a ride's line must come to the top of a pass to be suggested at all (km); up to SURE_KM it is a sure hit (passregel.js). */
+export const RADIUS_KM = MAYBE_KM;
 
 const KM_PER_DEG = 111.2;
 
@@ -56,8 +58,10 @@ export function distToSegmentKm(p, a, b) {
   return Math.hypot(ax + u * dx, ay + u * dy);
 }
 
-/** The keys of the passes a line [[lat, lon], …] crosses (comes within `radius` km of), in the catalogue's order. */
-export function passesOnLine(line, radius = RADIUS_KM, catalog = PASSES) {
+/**
+ * The passes a line [[lat, lon], …] comes within `radius` km of, with the closest distance: [{ key, km }], in the catalogue's order.
+ */
+export function passHitsOnLine(line, radius = RADIUS_KM, catalog = PASSES) {
   const pts = (Array.isArray(line) ? line : []).filter((p) => Array.isArray(p) && Number.isFinite(p[0]) && Number.isFinite(p[1]));
   if (pts.length < 2) return [];
   const pad = (radius * 3) / KM_PER_DEG;
@@ -69,12 +73,12 @@ export function passesOnLine(line, radius = RADIUS_KM, catalog = PASSES) {
   for (const c of catalog) {
     if (c.lat < lat0 || c.lat > lat1 || c.lon < lon0 || c.lon > lon1) continue;
     const at = [c.lat, c.lon];
-    for (let i = 1; i < pts.length; i++) {
-      if (distToSegmentKm(at, pts[i - 1], pts[i]) <= radius) {
-        out.push(c.key);
-        break;
-      }
-    }
+    let best = Infinity;
+    for (let i = 1; i < pts.length; i++) best = Math.min(best, distToSegmentKm(at, pts[i - 1], pts[i]));
+    if (best <= radius) out.push({ key: c.key, km: best });
   }
   return out;
 }
+
+/** The keys of the passes a line crosses (comes within `radius` km of), in the catalogue's order. */
+export const passesOnLine = (line, radius = RADIUS_KM, catalog = PASSES) => passHitsOnLine(line, radius, catalog).map((h) => h.key);

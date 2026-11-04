@@ -52,6 +52,9 @@
   import '../lib/trip/trip.css';
   import TripBand from '../lib/trip/TripBand.svelte';
   import TourAsk from '../lib/touren/tour/TourAsk.svelte';
+  import ExpectCard from '../lib/touren/tour/ExpectCard.svelte';
+  import ReasonPick from '../lib/pack/ReasonPick.svelte';
+  import { kindOf as changeKind } from '../lib/gruende.js';
   import { countdownOf, sayOf, kpisShown, hasSteps } from '../lib/touren/tourstep.js';
   import { tripEnd } from '../lib/tripstate.js';
   import { loadTour } from '../lib/touren/tourdata.js';
@@ -414,6 +417,10 @@
     {/if}
     <!-- 0.174 (#18 Lernschleife): one question after the tour, at most one card a day -->
     {#if d.kind === 't' && steps}<TourAsk {d} {key} {over} />{/if}
+    <!-- Persönliches Lernen Idee 1 (Noah 04.11.2026 «1a»): the guess made while planning next to how it felt -->
+    {#if d.kind === 't'}<ExpectCard {d} />{/if}
+    <!-- Persönliches Lernen Idee 4 (Noah 04.11.2026 «2a»): ridden km a quarter or more away from the plan → one tap says why -->
+    {#if d.kind === 't' && changeKind(d.trip, d.row?.km)}<ReasonPick trip={d.trip} kind={changeKind(d.trip, d.row?.km)} km={{ plan: d.trip.route?.km, real: d.row?.km }} />{/if}
     {#if d.kind === 't' && !steps}
       <!-- Gesamttest 20.10.2026 (journey): a trip's two pages lead to each other; the Rückblick has «Tour-Seite ansehen ›» -->
       <ul class="rowlist" aria-label={t('Look back|tour')}>

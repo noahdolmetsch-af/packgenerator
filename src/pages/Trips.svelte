@@ -40,6 +40,7 @@
   import LiveLabel from '../lib/live/LiveLabel.svelte';
   import HintCard from '../lib/pageinfo/HintCard.svelte';
   import QuickLinks from '../lib/ui/QuickLinks.svelte';
+  import AllHere from '../lib/ui/AllHere.svelte';
   import { komootFindUrl } from '../lib/komoot.js';
   import PageMore from '../lib/pageinfo/PageMore.svelte';
   import TipLine from '../lib/pageinfo/TipLine.svelte';
@@ -103,7 +104,7 @@
   import { loadActs } from '../lib/review/actdata.js';
   import { phone, cols12 } from '../lib/media.svelte.js';
   import { PHONE_ROWS, TOUR_ROWS, nextRows, shortLine, capGroups } from '../lib/touren/kurz.js';
-  import { untrack } from 'svelte';
+  import { untrack, tick } from 'svelte';
   import { ftpEstimate } from '../lib/training.js';
   import { zones } from '../lib/strava/zones.svelte.js';
   import { strava } from '../lib/strava/client.svelte.js';
@@ -282,6 +283,17 @@
   /* ---- 0.163.0 «Handy kurz»: five rows first on a phone, the values as one grey line ---- */
   let doneAll = $state(false);
   let extrasOpen = $state(false);
+  // «Alles hier» › «In numbers»: #/trips?numbers opens «In Zahlen» (on a phone behind one line) and goes there
+  function numbersFromHash() {
+    if (!/[?&]numbers\b/.test(location.hash)) return;
+    extrasOpen = true;
+    tick().then(() => setTimeout(() => document.getElementById('iz-h')?.scrollIntoView({ block: 'start' }), 50));
+  }
+  $effect(() => {
+    numbersFromHash();
+    addEventListener('hashchange', numbersFromHash);
+    return () => removeEventListener('hashchange', numbersFromHash);
+  });
   let packOpen = $state(false);
   const shortDone = $derived(phone.matches && !doneAll);
   // Tempo (Noah 19.10.2026 «3a»): 20 rows first on every screen, «Show n more» adds 20 at a time; a new
@@ -494,7 +506,9 @@
     </div>
   </header>
   <!-- «332 Use Cases» (Noah 24.10.2026 «2b»): pages for every tour that were only reachable through search -->
-  {#if !onRides}<QuickLinks label={t('More for your tours')} links={[{ key: 'racecheck', href: '#/racecheck', label: t('Plan races in detail') }, { key: 'fuel', href: '#/trips/fuel', label: t('Food and water plan') }, { key: 'compare', href: '#/trips/compare', label: t('Trips side by side') }, { key: 'weather', href: '#/wetter', label: t('Weather for a ride') }, { key: 'travel', href: '#/travel', label: t('Travel links') }, { key: 'komoot', onclick: () => window.open(komootFindUrl(), '_blank', 'noopener'), label: t('Tour from komoot') }]} />{/if}
+  <!-- «Alles hier» (Noah 03.11.2026 «1a»): every Touren function as a tile on top; the row «More for your tours» keeps only komoot (an outside page), its other links are tiles now -->
+  {#if !onRides}<AllHere area="trips" />{/if}
+  {#if !onRides}<QuickLinks label={t('More for your tours')} links={[{ key: 'komoot', onclick: () => window.open(komootFindUrl(), '_blank', 'noopener'), label: t('Tour from komoot') }]} />{/if}
   {#if !onRides}<NextRaceRow />{/if}
   {#if !onRides}<DreamNowRow />{/if}
   {#if onRides}

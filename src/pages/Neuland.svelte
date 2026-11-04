@@ -11,6 +11,7 @@
   import { liveQuery } from 'dexie';
   import { db } from '../lib/db.js';
   import { readRaw, computeFrom, saveState } from '../lib/neuland/store.js';
+  import { reachOf } from '../lib/neuland/beleg.js';
   import { loadBase } from '../lib/neuland/load.js';
   import { newSince, dayBefore } from '../lib/neuland/neuheute.js'; // N11 «Neu heute» here too (Noah 28.10.2026 «1 a und b»)
   import {
@@ -23,6 +24,8 @@
   import NeueKm from '../lib/neuland/NeueKm.svelte'; // N4 «Neue Kilometer»
   import ItemSheet from '../lib/neuland/ItemSheet.svelte';
   import CollectionsSheet from '../lib/neuland/CollectionsSheet.svelte';
+  import { maybeOf } from '../lib/neuland/vielleicht.js'; // «Eine Regel für Pässe»: 600 m sure, to 1.2 km please confirm
+  import MaybeList from '../lib/neuland/MaybeList.svelte';
   import ItemEditSheet from '../lib/neuland/ItemEditSheet.svelte';
   import RenameSheet from '../lib/ui/RenameSheet.svelte';
   import GroupDeleteSheet from '../lib/ui/GroupDeleteSheet.svelte';
@@ -147,6 +150,10 @@
   const save = (next) => saveState(db, next);
   // «Rückmeldungen»: the one calm note at the bottom, «… · Undo» for 4 s (rename.svelte.js), also above an open window
   const withUndo = (text, before) => offerDone(text, () => save(before));
+
+  const maybes = $derived(cur && result ? maybeOf(cur, result.tracks, state.nope[cur.id] ?? {}) : []);
+  const maybeYes = (m) => save(tick(state, cur.id, m.id, m.day, m.tripId));
+  const maybeNo = (m) => save(untick(state, cur.id, m.id, { found: true, day: today }));
 
   function toggle(c, it) {
     const v = c.visited.get(it.id);
@@ -291,6 +298,7 @@
           </div>
 
           <div class="nl-col">
+            <MaybeList list={maybes} onyes={maybeYes} onno={maybeNo} onopen={(m) => (itemOpen = { cid: cur.id, id: m.id })} />
             <div class="rv-box nl-list">
               <label class="find"><Search size={16} aria-hidden="true" /><input type="search" bind:value={q} placeholder={t('Search in {name}', { name: name(cur) })} aria-label={t('Search in {name}', { name: name(cur) })} autocomplete="off" /></label>
               {#if !cur.items.length}
@@ -332,7 +340,7 @@
                 </ul>
               </details>
             {/if}
-            <p class="rv-note nl-note"><Info size={15} aria-hidden="true" /><span>{cur.kind === 'area' ? t('A route counts where it runs through.') : cur.id === 'lakes' ? t('A route within 300 m of the shore counts as «passed by»; tick a swim yourself.') : cur.builtIn ? t('A route close by counts (pass 600 m, hut 400 m, peak 250 m). Places are rounded; correct one in its window.') : t('An entry with a place counts when a route passes within 200 m.')}</span></p>
+            <p class="rv-note nl-note"><Info size={15} aria-hidden="true" /><span>{cur.kind === 'area' ? t('A route counts where it runs through.') : cur.id === 'lakes' ? t('A route within 300 m of the shore counts as «passed by»; tick a swim yourself.') : cur.id === 'passes' ? t('A route within 600 m of the top counts. Between 600 m and 1.2 km the app asks you to confirm.') : cur.builtIn ? t('A route close by counts (pass 600 m, hut 400 m, peak 250 m). Places are rounded; correct one in its window.') : t('An entry with a place counts when a route passes within 200 m.')}</span></p>
           </div>
         </div>
       </section>
@@ -352,6 +360,8 @@
       auto={c.found[openIt.id] ?? null}
       nope={!!state.nope[c.id]?.[openIt.id]}
       tripName={(id) => tripNames[id] ?? ''}
+      reachKm={reachOf(c, openIt)}
+      tracks={result?.tracks ?? []}
       {today}
       ontick={(day) => save(tick(state, c.id, openIt.id, day))}
       onuntick={() => save(untick(state, c.id, openIt.id, { found: !!c.found[openIt.id], day: today }))}
