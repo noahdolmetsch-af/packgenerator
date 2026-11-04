@@ -14,7 +14,8 @@
  */
 // daySports: the kinds of a trip day (Touren-Ideen 45, tourplan/prep.js)
 // sayings: the sayings behind five taps on «PG» (Geheimmenü H6, logo/sayings.js)
-export const APP_LISTS = ['pointKinds', 'bikeKinds', 'awayTypes', 'journalQuestions', 'journalMoods', 'medMoods', 'daySports', 'sayings'];
+// changeReasons: why a tour went differently (Persönliches Lernen Idee 4, gruende.js)
+export const APP_LISTS = ['pointKinds', 'bikeKinds', 'awayTypes', 'journalQuestions', 'journalMoods', 'medMoods', 'daySports', 'sayings', 'changeReasons'];
 
 // a plain object like the other lists (domains.js, care.js): App.svelte draws the page again when the
 // lists arrive (listsReady); plain, so the pure files and the browser tests can import it in Node
