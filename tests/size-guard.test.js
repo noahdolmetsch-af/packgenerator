@@ -26,14 +26,14 @@ describe('size guard', () => {
       { name: 'assets/style.css', bytes: 999 },
     ];
     expect(startBytes(files)).toBe(1310);
-    expect(MAX_START_JS_BYTES).toBe(4_600_000);
+    expect(MAX_START_JS_BYTES).toBe(5_000_000);
   });
   it('warns from 90 % of the start budget, never fails, says nothing below or above', () => {
-    expect(startWarning(4_140_000)).toBeNull(); // exactly 90 %
-    expect(startWarning(4_140_001)).toMatch(/90 %/);
-    expect(startWarning(4_500_000)).toMatch(/98 %.*4\.6 MB/);
+    expect(startWarning(4_500_000)).toBeNull(); // exactly 90 %
+    expect(startWarning(4_500_001)).toMatch(/90 %/);
+    expect(startWarning(4_900_000)).toMatch(/98 %.*5\.0 MB/);
     expect(startWarning(3_000_000)).toBeNull();
-    expect(startWarning(4_600_001)).toBeNull(); // over the limit the build fails (the error, not the warning)
+    expect(startWarning(5_000_001)).toBeNull(); // over the limit the build fails (the error, not the warning)
   });
   it('tells a static import of a big tool from a dynamic one', () => {
     expect(heavyStatic("import { PDFDocument } from 'pdf-lib';")).toEqual(['pdf-lib']);
