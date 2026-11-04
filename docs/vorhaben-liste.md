@@ -252,6 +252,18 @@ Ziel 5 Alltag. Entscheid «1a 2a 3a 4a 5a und b»: Stil S2 «Kacheln mit Tiefe»
 | 10 | Laden und leere Seiten: kleine Animationen | gewünscht |
 | 11 | Übrige Bausteine: Himmel je nach Wetter, gleitende Umschalter, langes Drücken = Menü, Hinweise beim ersten Mal | gewünscht |
 
+### Ideen Bewegung, Paket E «Touren als Sammlung» (Noah 03.11.2026 «E und F»)
+
+Aus den 30 Ideen (`notes/ideen-bewegung-2026-11-03/README.md`). Jede Idee ein eigener kleiner PR mit Bildern; Bewegung aus bei «Bewegung reduzieren».
+
+| # | Idee | Stand |
+|---|---|---|
+| 23 | Strecke als Bild: Streckenform als kleines Zeichen in der Tourenliste | gebaut |
+| 13 | Höhenprofil wird abgefahren | gewählt |
+| 25 | Schweizer Berge statt Everest | gewählt |
+| 24 | Pässe sammeln | gewählt |
+| 18 | Tourenpass mit Stempel | gewählt |
+
 ## Bewusst nicht
 
 Foto-KI für Material · Live-Sync über Drive · Keine fremden Einbettungen, nur Links · Privat-Zone beim Teilen um dein Zuhause · Inhalte von anderen Nutzern · KI: aus einem Satz wird ein Eintrag · KI: Wochen-Rückblick am Sonntag · Einkauf, Lebenslauf, Werkstatt (D2) · Computer als Werkzeug (D4) · Rückkehr-Melder für Notfall-Person · Aussortieren und weitergeben · Leiste mit 7 Orten · Keine native App, die Web-App bleibt · App zieht nicht auf Vercel um · Ton-Aufnahmen (nur wenn klein)
