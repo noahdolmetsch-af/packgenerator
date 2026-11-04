@@ -56,7 +56,7 @@ test('Velos vergleichen: every bike a column, empty cells «–» to fill, two t
   const errors = await start(page, context, info);
   await page.goto('./#/bikes');
   await openMore(page); // v0.95.0 «Velo kurz»: this lives under «More»
-  await page.getByRole('link', { name: 'Velos vergleichen', exact: true }).click();
+  await page.locator('#vk-more').getByRole('link', { name: 'Velos vergleichen', exact: true }).click(); // the same link also sits in «Alles hier» on top
   const region = page.getByRole('region', { name: 'Velos vergleichen' });
   await expect(region).toBeVisible();
   await allBikes(page);

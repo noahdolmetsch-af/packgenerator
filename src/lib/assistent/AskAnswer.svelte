@@ -17,19 +17,20 @@
   import { t, lang } from '../i18n.svelte.js';
   import { answerFor } from './answers.js';
   import { wearRows } from '../wear.js';
+  import { zones } from '../strava/zones.svelte.js';
   import { readAloud, stopReading, speechLang, voiceApi } from '../speak.js';
 
   let { q = '', onlink = () => {}, tools = false, fallback = false, here = false, autoread = false, onadopt = null, onreading = () => {}, onclose = null, onresult = () => {} } = $props();
   const today = localDay();
   const src = liveQuery(async () => {
-    const [book, trips, items, bikes, visits, tasks, learnings] = await Promise.all([db.kmBook.toArray(), db.trips.toArray(), db.items.toArray(), db.bikes.toArray(), db.visits.toArray(), db.maintenance.toArray(), db.learnings.toArray()]);
+    const [book, trips, items, bikes, visits, tasks, learnings, acts] = await Promise.all([db.kmBook.toArray(), db.trips.toArray(), db.items.toArray(), db.bikes.toArray(), db.visits.toArray(), db.maintenance.toArray(), db.learnings.toArray(), db.activities.toArray()]);
     const live = bikes.filter((b) => !b.archived && !b.gone && b.status !== 'sold');
     const care = live.map((b) => bikeCare(withVisits(b, visits), { tasks, visits, today })).filter(Boolean);
     // Klick-Rundgang H25: the wear of each part (chain, cassette, pads, tyres) for «Wann muss ich die Kette wechseln?»
     const wear = live.map((b) => ({ bikeId: b.id, bikeName: b.name, rows: wearRows(withVisits(b, visits), { entries: book, today }) }));
-    return { today, book, trips, items, care, learnings, wear, bikeCount: live.length };
+    return { today, book, trips, items, care, learnings, wear, acts, bikeCount: live.length };
   });
-  const answer = $derived($src && q.trim().length >= 3 ? answerFor(q, $src) : null);
+  const answer = $derived($src && q.trim().length >= 3 ? answerFor(q, { ...$src, bounds: zones.bounds }) : null);
   const spoken = $derived(answer ? [answer.title, ...answer.lines].filter(Boolean).join('. ') : '');
   const canRead = !!voiceApi();
   // «Suche mit Sprache» (21.10.2026): the search knows whether the app had an answer (then Gemini waits for a tap)
@@ -69,6 +70,7 @@
     <p class="aa-from"><MessageCircle size={14} aria-hidden="true" />{t('The app answers, from your data')}</p>
     <p class="aa-t">{answer.title}</p>
     {#each answer.lines as l, i (i)}<p class="aa-l">{l}</p>{/each}
+    {#if answer.rows?.length}<ol class="aa-rows">{#each answer.rows as r (r.href)}<li><a href={r.href} onclick={() => onlink()} data-aa-row>{r.text}</a></li>{/each}</ol>{/if}
     {#if answer.link}
       <a class="aa-go" href={answer.link.href ?? '#/pack'} onclick={open}>{answer.link.label}<ChevronRight size={16} aria-hidden="true" /></a>
     {/if}
@@ -98,6 +100,18 @@
     border-radius: 12px;
     background: var(--hi-soft, var(--paper-2));
     overflow-wrap: break-word;
+  }
+  .aa-rows {
+    display: grid;
+    gap: 2px;
+    margin: 6px 0 0;
+    padding-left: 20px;
+    font-size: var(--fs-small);
+  }
+  .aa-rows a {
+    display: inline-block;
+    padding-block: 6px;
+    color: inherit;
   }
   .aa-from {
     display: flex;

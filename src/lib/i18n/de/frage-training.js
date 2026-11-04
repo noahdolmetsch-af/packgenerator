@@ -1,0 +1,23 @@
+// «Frage deine Daten» (Noah 03.11.2026, Idee 7): Fragen zum Training und ⌘ K
+export default {
+  'Search from anywhere|keys': 'Von überall suchen',
+  'Show me my most efficient Z2 rides': 'Zeig mir meine effizientesten Z2-Fahrten',
+  'Compare my last four weeks': 'Vergleiche meine letzten vier Wochen',
+  'Z{z} rides|ask': 'Z{z}-Fahrten',
+  'rides|ask': 'Fahrten',
+  'Open the rides': 'Fahrten öffnen',
+  'Open the comparisons': 'Vergleiche öffnen',
+  'No {what} with a power meter and pulse yet.|ask': 'Noch keine {what} mit Leistungsmesser und Puls.',
+  'Efficiency is watts per heartbeat. It needs a power meter, a pulse and at least {min} minutes.|ask': 'Effizienz sind Watt pro Herzschlag. Dafür braucht es einen Leistungsmesser, einen Puls und mindestens {min} Minuten.',
+  'Efficiency is watts per heartbeat: higher means more power for the same pulse. Only an observation: weather and the route count too.|ask': 'Effizienz sind Watt pro Herzschlag: höher heisst mehr Leistung bei gleichem Puls. Nur eine Beobachtung: Wetter und Strecke zählen auch.',
+  'Rides without a pulse histogram are sorted into the zone by their mean pulse.|ask': 'Fahrten ohne Puls-Verteilung werden nach ihrem mittleren Puls in die Zone eingeordnet.',
+  'Your most efficient {what}: {n} of {total}.|ask': 'Deine effizientesten {what}: {n} von {total}.',
+  '{day} {name}: {eff} W per beat ({w} W, {hr} bpm, {min} min)|ask': '{day} {name}: {eff} W pro Schlag ({w} W, {hr} bpm, {min} min)',
+  'No activities in these {label}.|ask': 'Keine Aktivitäten in diesen {label}.',
+  'The last {label} against the {label} before.|ask': 'Die letzten {label} gegen die {label} davor.',
+  'against|ask': 'gegen',
+  'Activities|ask': 'Aktivitäten',
+  'Time|ask': 'Zeit',
+  'Distance|ask': 'Strecke',
+  'Climbing|ask': 'Höhenmeter',
+};

@@ -8,7 +8,7 @@ import { db } from './db.js';
 import { loadTable } from './messwerte-data.js';
 import { addDays } from './health.js';
 import { dayLoads, formSeries, readinessOf, recoveryParts, readiness, recoveryAlarm, tourOf, pastTours, RAMP_MAX } from './form.js';
-import { ftpEstimate, DEFAULT_MAX } from './training.js';
+import { ftpEstimate, DEFAULT_MAX, PLAN_KEY, planOf } from './training.js';
 import { checkOf } from './flowcheck.js';
 
 /** The highest pulse of the last year's activities (at least 160), else the app's default. */
@@ -27,7 +27,7 @@ function restOf(table, today) {
 }
 
 /** All of «Form und Erholung» for today, from the parts the database holds. */
-export function formOf({ table, trips = [], checks = [], today, days = 84 }) {
+export function formOf({ table, trips = [], checks = [], plan = [], today, days = 84 }) {
   const acts = [...table.values()].flatMap((r) => r.acts ?? []);
   const opts = { ftp: ftpEstimate(acts, today), rest: restOf(table, today), max: maxOf(acts, today) };
   const loads = dayLoads(acts, opts);
@@ -51,12 +51,13 @@ export function formOf({ table, trips = [], checks = [], today, days = 84 }) {
     feltBy,
     trips,
     table,
+    plan, // the planned sessions of Training (Cockpit-Idee 1: «Belastungslandschaft» shows them as an estimate)
   };
 }
 
 export async function loadForm(today, d = db) {
-  const [table, trips, checks] = await Promise.all([loadTable(d), d.trips ? d.trips.toArray() : [], d.flowChecks ? d.flowChecks.where('day').aboveOrEqual(addDays(today, -31)).toArray() : []]);
-  return formOf({ table, trips, checks, today });
+  const [table, trips, checks, planRow] = await Promise.all([loadTable(d), d.trips ? d.trips.toArray() : [], d.flowChecks ? d.flowChecks.where('day').aboveOrEqual(addDays(today, -31)).toArray() : [], d.settings ? d.settings.get(PLAN_KEY) : null]);
+  return formOf({ table, trips, checks, plan: planOf(planRow?.value), today });
 }
 /** A Svelte store: the whole «Form und Erholung» of today, again after every change. */
 export const formQuery = (today) => liveQuery(() => loadForm(today));
